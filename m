@@ -1,67 +1,75 @@
 Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Subject: RTC: Add MODULE_DEVICE_TABLE to rtc-ds1672/rtc-max6900/rtc-max8998
-From: Axel Lin <axel.lin@gmail.com>
-Message-Id: <1303129017.8158.1.camel@phoenix>
-To: linux-kernel@vger.kernel.org
-Cc: Alessandro Zummo <a.zummo@towertech.it>, Dale Farnsworth
- <dale@farnsworth.org>, Minkyu Kang <mk7.kang@samsung.com>, Joonyoung Shim
- <jy0922.shim@samsung.com>, rtc-linux@googlegroups.com
-Date: Mon, 18 Apr 2011 20:16:57 +0800
+Subject: [1/3] rtc: mc13xxx: remove UIE signaling
+From: Wolfram Sang <w.sang@pengutronix.de>
+Message-Id: <1304523088-17039-2-git-send-email-w.sang@pengutronix.de>
+To: rtc-linux@googlegroups.com
+Cc: linux-kernel@vger.kernel.org, johnstul@us.ibm.com,
+ Wolfram Sang <w.sang@pengutronix.de>
+Date: Wed,  4 May 2011 17:31:26 +0200
 List-ID: <rtc-linux.googlegroups.com>
 
-The device table is required to load modules based on modaliases.
-After adding MODULE_DEVICE_TABLE, below entries will be added to modules.alias:
+The RTC core handles it since 6610e08 (RTC: Rework RTC code to use
+timerqueue for events). So far, only the callbacks to the RTC core have
+been removed, but not the handlers. Do this now.
 
-alias i2c:ds1672 rtc_ds1672
-alias i2c:max6900 rtc_max6900
-alias platform:lp3974-rtc rtc_max8998
-alias platform:max8998-rtc rtc_max8998
-
-Signed-off-by: Axel Lin <axel.lin@gmail.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>
-Cc: Dale Farnsworth <dale@farnsworth.org>
-Cc: Minkyu Kang <mk7.kang@samsung.com>
-Cc: Joonyoung Shim <jy0922.shim@samsung.com>
+Signed-off-by: Wolfram Sang <w.sang@pengutronix.de>
 ---
- drivers/rtc/rtc-ds1672.c  |    1 +
- drivers/rtc/rtc-max6900.c |    1 +
- drivers/rtc/rtc-max8998.c |    1 +
- 3 files changed, 3 insertions(+), 0 deletions(-)
+ drivers/rtc/rtc-mc13xxx.c |   23 -----------------------
+ 1 files changed, 0 insertions(+), 23 deletions(-)
 
-diff --git a/drivers/rtc/rtc-ds1672.c b/drivers/rtc/rtc-ds1672.c
-index 06dfb54..fa301d4 100644
---- a/drivers/rtc/rtc-ds1672.c
-+++ b/drivers/rtc/rtc-ds1672.c
-@@ -191,6 +191,7 @@ static struct i2c_device_id ds1672_id[] = {
- 	{ "ds1672", 0 },
- 	{ }
- };
-+MODULE_DEVICE_TABLE(i2c, ds1672_id);
+diff --git a/drivers/rtc/rtc-mc13xxx.c b/drivers/rtc/rtc-mc13xxx.c
+index c5ac037..d4e2078 100644
+--- a/drivers/rtc/rtc-mc13xxx.c
++++ b/drivers/rtc/rtc-mc13xxx.c
+@@ -268,20 +268,6 @@ static irqreturn_t mc13xxx_rtc_alarm_handler(int irq, void *dev)
+ 	return IRQ_HANDLED;
+ }
  
- static struct i2c_driver ds1672_driver = {
- 	.driver = {
-diff --git a/drivers/rtc/rtc-max6900.c b/drivers/rtc/rtc-max6900.c
-index 486142c..ef834c1 100644
---- a/drivers/rtc/rtc-max6900.c
-+++ b/drivers/rtc/rtc-max6900.c
-@@ -251,6 +251,7 @@ static struct i2c_device_id max6900_id[] = {
- 	{ "max6900", 0 },
- 	{ }
- };
-+MODULE_DEVICE_TABLE(i2c, max6900_id);
+-static irqreturn_t mc13xxx_rtc_update_handler(int irq, void *dev)
+-{
+-	struct mc13xxx_rtc *priv = dev;
+-	struct mc13xxx *mc13xxx = priv->mc13xxx;
+-
+-	dev_dbg(&priv->rtc->dev, "1HZ\n");
+-
+-	rtc_update_irq(priv->rtc, 1, RTC_IRQF | RTC_UF);
+-
+-	mc13xxx_irq_ack(mc13xxx, irq);
+-
+-	return IRQ_HANDLED;
+-}
+-
+ static int mc13xxx_rtc_alarm_irq_enable(struct device *dev,
+ 		unsigned int enabled)
+ {
+@@ -339,11 +325,6 @@ static int __devinit mc13xxx_rtc_probe(struct platform_device *pdev)
  
- static struct i2c_driver max6900_driver = {
- 	.driver = {
-diff --git a/drivers/rtc/rtc-max8998.c b/drivers/rtc/rtc-max8998.c
-index 3f7bc6b..dade62e 100644
---- a/drivers/rtc/rtc-max8998.c
-+++ b/drivers/rtc/rtc-max8998.c
-@@ -315,6 +315,7 @@ static const struct platform_device_id max8998_rtc_id[] = {
- 	{ "lp3974-rtc", TYPE_LP3974 },
- 	{ }
- };
-+MODULE_DEVICE_TABLE(platform, max8998_rtc_id);
+ 	priv->valid = !rtcrst_pending;
  
- static struct platform_driver max8998_rtc_driver = {
- 	.driver		= {
+-	ret = mc13xxx_irq_request_nounmask(mc13xxx, MC13XXX_IRQ_1HZ,
+-			mc13xxx_rtc_update_handler, DRIVER_NAME, priv);
+-	if (ret)
+-		goto err_update_irq_request;
+-
+ 	ret = mc13xxx_irq_request_nounmask(mc13xxx, MC13XXX_IRQ_TODA,
+ 			mc13xxx_rtc_alarm_handler, DRIVER_NAME, priv);
+ 	if (ret)
+@@ -357,9 +338,6 @@ static int __devinit mc13xxx_rtc_probe(struct platform_device *pdev)
+ 		mc13xxx_irq_free(mc13xxx, MC13XXX_IRQ_TODA, priv);
+ err_alarm_irq_request:
+ 
+-		mc13xxx_irq_free(mc13xxx, MC13XXX_IRQ_1HZ, priv);
+-err_update_irq_request:
+-
+ err_reset_irq_status:
+ 
+ 		mc13xxx_irq_free(mc13xxx, MC13XXX_IRQ_RTCRST, priv);
+@@ -383,7 +361,6 @@ static int __devexit mc13xxx_rtc_remove(struct platform_device *pdev)
+ 	rtc_device_unregister(priv->rtc);
+ 
+ 	mc13xxx_irq_free(priv->mc13xxx, MC13XXX_IRQ_TODA, priv);
+-	mc13xxx_irq_free(priv->mc13xxx, MC13XXX_IRQ_1HZ, priv);
+ 	mc13xxx_irq_free(priv->mc13xxx, MC13XXX_IRQ_RTCRST, priv);
+ 
+ 	mc13xxx_unlock(priv->mc13xxx);
