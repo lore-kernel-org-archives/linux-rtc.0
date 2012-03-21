@@ -1,55 +1,46 @@
 Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Subject: rtc: rtc-s3c: Set year, month, day value for setting alarm
-From: Donggeun Kim <dg77.kim@samsung.com>
-Message-Id: <1307694592-20949-1-git-send-email-dg77.kim@samsung.com>
-To: a.zummo@towertech.it, ben-linux@fluff.org
-Cc: rtc-linux@googlegroups.com, myungjoo.ham@samsung.com,
- kyungmin.park@samsung.com, dg77.kim@samsung.com
-Date: Fri, 10 Jun 2011 17:29:52 +0900
+Subject: rtc: ep93xx: Use readl/writel for io
+From: hartleys <hartleys@visionengravers.com>
+Message-Id: <201203211055.31653.hartleys@visionengravers.com>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Cc: <rtc-linux@googlegroups.com>, <a.zummo@towertech.it>
+Date: Wed, 21 Mar 2012 10:55:31 -0700
 List-ID: <rtc-linux.googlegroups.com>
 
-This patch sets year, month, day value for set_alarm function.
-The current driver omits to set the values.
+Drivers should not be using the __raw_* io accessors.
 
-Signed-off-by: Donggeun Kim <dg77.kim@samsung.com>
-Signed-off-by: MyungJoo Ham <myungjoo.kim@samsung.com>
-Signed-off-by: KyungMin Park <kyungmin.park@samsung.com>
----
- drivers/rtc/rtc-s3c.c |   16 ++++++++++++++++
- 1 files changed, 16 insertions(+), 0 deletions(-)
+Signed-off-by: H Hartley Sweeten <hsweeten@visionengravers.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>
 
-diff --git a/drivers/rtc/rtc-s3c.c b/drivers/rtc/rtc-s3c.c
-index 16512ec..18e648b 100644
---- a/drivers/rtc/rtc-s3c.c
-+++ b/drivers/rtc/rtc-s3c.c
-@@ -251,6 +251,7 @@ static int s3c_rtc_setalarm(struct device *dev, struct rtc_wkalrm *alrm)
- 	struct rtc_time *tm = &alrm->time;
- 	void __iomem *base = s3c_rtc_base;
- 	unsigned int alrm_en;
-+	int year = tm->tm_year - 100;
+diff --git a/drivers/rtc/rtc-ep93xx.c b/drivers/rtc/rtc-ep93xx.c
+index 14a42a1..60ea585 100644
+--- a/drivers/rtc/rtc-ep93xx.c
++++ b/drivers/rtc/rtc-ep93xx.c
+@@ -45,7 +45,7 @@ static int ep93xx_rtc_get_swcomp(struct device *dev, unsigned short *preload,
+ 	struct ep93xx_rtc *ep93xx_rtc = dev->platform_data;
+ 	unsigned long comp;
  
- 	pr_debug("s3c_rtc_setalarm: %d, %04d.%02d.%02d %02d:%02d:%02d\n",
- 		 alrm->enabled,
-@@ -276,6 +277,21 @@ static int s3c_rtc_setalarm(struct device *dev, struct rtc_wkalrm *alrm)
- 		writeb(bin2bcd(tm->tm_hour), base + S3C2410_ALMHOUR);
- 	}
+-	comp = __raw_readl(ep93xx_rtc->mmio_base + EP93XX_RTC_SWCOMP);
++	comp = readl(ep93xx_rtc->mmio_base + EP93XX_RTC_SWCOMP);
  
-+	if (year < 100 && year >= 0) {
-+		alrm_en |= S3C2410_RTCALM_YEAREN;
-+		writeb(bin2bcd(year), base + S3C2410_ALMYEAR);
-+	}
-+
-+	if (tm->tm_mon < 12 && tm->tm_mon >= 0) {
-+		alrm_en |= S3C2410_RTCALM_MONEN;
-+		writeb(bin2bcd(tm->tm_mon + 1), base + S3C2410_ALMMON);
-+	}
-+
-+	if (tm->tm_mday <= 31 && tm->tm_mday >= 1) {
-+		alrm_en |= S3C2410_RTCALM_DAYEN;
-+		writeb(bin2bcd(tm->tm_mday), base + S3C2410_ALMDATE);
-+	}
-+
- 	pr_debug("setting S3C2410_RTCALM to %08x\n", alrm_en);
+ 	if (preload)
+ 		*preload = (comp & EP93XX_RTC_SWCOMP_INT_MASK)
+@@ -63,7 +63,7 @@ static int ep93xx_rtc_read_time(struct device *dev, struct rtc_time *tm)
+ 	struct ep93xx_rtc *ep93xx_rtc = dev->platform_data;
+ 	unsigned long time;
  
- 	writeb(alrm_en, base + S3C2410_RTCALM);
+-	 time = __raw_readl(ep93xx_rtc->mmio_base + EP93XX_RTC_DATA);
++	 time = readl(ep93xx_rtc->mmio_base + EP93XX_RTC_DATA);
+ 
+ 	rtc_time_to_tm(time, tm);
+ 	return 0;
+@@ -73,7 +73,7 @@ static int ep93xx_rtc_set_mmss(struct device *dev, unsigned long secs)
+ {
+ 	struct ep93xx_rtc *ep93xx_rtc = dev->platform_data;
+ 
+-	__raw_writel(secs + 1, ep93xx_rtc->mmio_base + EP93XX_RTC_LOAD);
++	writel(secs + 1, ep93xx_rtc->mmio_base + EP93XX_RTC_LOAD);
+ 	return 0;
+ }
+ 
