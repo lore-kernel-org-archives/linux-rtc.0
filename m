@@ -1,111 +1,110 @@
 Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Subject: [V2] rtc: rtc-v3020: use gpio_request_array()
-From: Jingoo Han <jg1.han@samsung.com>
-Message-Id: <008a01ce10a3$02d28db0$0877a910$%han@samsung.com>
-To: 'Andrew Morton' <akpm@linux-foundation.org>
-Cc: linux-kernel@vger.kernel.org, 'Alessandro Zummo' <a.zummo@towertech.it>,
- rtc-linux@googlegroups.com, 'Igor Grinberg' <grinberg@compulab.co.il>,
- 'Jingoo Han' <jg1.han@samsung.com>
-Date: Fri, 22 Feb 2013 11:19:15 +0900
+Subject: [17/29] drivers/rtc: simplify use of devm_ioremap_resource
+From: Julia Lawall <julia.lawall@lip6.fr>
+Message-Id: <1376471493-22215-18-git-send-email-Julia.Lawall@lip6.fr>
+To: Alessandro Zummo <a.zummo@towertech.it>
+Cc: kernel-janitors@vger.kernel.org, rtc-linux@googlegroups.com,
+ linux-kernel@vger.kernel.org
+Date: Wed, 14 Aug 2013 11:11:21 +0200
 List-ID: <rtc-linux.googlegroups.com>
 
-Using gpio_request_array()/gpio_free_array() can make the code
-simpler because it can set the direction and initial value
-in one shot and the for loop is unnecessary.
+From: Julia Lawall <Julia.Lawall@lip6.fr>
 
-Also, struct v3020_gpio is removed, because the struct v3020_gpio
-is replaced with struct gpio.
+Remove unneeded error handling on the result of a call to
+platform_get_resource when the value is passed to devm_ioremap_resource.
 
-Signed-off-by: Jingoo Han <jg1.han@samsung.com>
+Move the call to platform_get_resource adjacent to the call to
+devm_ioremap_resource to make the connection between them more clear.
+
+A simplified version of the semantic patch that makes this change is as
+follows: (http://coccinelle.lip6.fr/)
+
+// <smpl>
+@@
+expression pdev,res,n,e,e1;
+expression ret != 0;
+identifier l;
+@@
+
+- res = platform_get_resource(pdev, IORESOURCE_MEM, n);
+  ... when != res
+- if (res == NULL) { ... \(goto l;\|return ret;\) }
+  ... when != res
++ res = platform_get_resource(pdev, IORESOURCE_MEM, n);
+  e = devm_ioremap_resource(e1, res);
+// </smpl>
+
+Signed-off-by: Julia Lawall <Julia.Lawall@lip6.fr>
+Acked-by: Viresh Kumar <viresh.kumar@linaro.org>
 ---
-Changes since v1:
-- Replace gpio_request_one() with gpio_request_array()
+ drivers/rtc/rtc-ds1216.c |    4 +---
+ drivers/rtc/rtc-ds1286.c |    4 +---
+ drivers/rtc/rtc-spear.c  |    7 +------
+ 3 files changed, 3 insertions(+), 12 deletions(-)
 
- drivers/rtc/rtc-v3020.c |   37 ++++++++++++-------------------------
- 1 files changed, 12 insertions(+), 25 deletions(-)
-
-diff --git a/drivers/rtc/rtc-v3020.c b/drivers/rtc/rtc-v3020.c
-index bca5d67..600798c 100644
---- a/drivers/rtc/rtc-v3020.c
-+++ b/drivers/rtc/rtc-v3020.c
-@@ -49,18 +49,13 @@ struct v3020_chip_ops {
- #define V3020_RD	2
- #define V3020_IO	3
+diff --git a/drivers/rtc/rtc-ds1216.c b/drivers/rtc/rtc-ds1216.c
+index 9c04fd2..c948bd3 100644
+--- a/drivers/rtc/rtc-ds1216.c
++++ b/drivers/rtc/rtc-ds1216.c
+@@ -144,15 +144,13 @@ static int __init ds1216_rtc_probe(struct platform_device *pdev)
+ 	struct ds1216_priv *priv;
+ 	u8 dummy[8];
  
--struct v3020_gpio {
--	const char *name;
--	unsigned int gpio;
--};
--
- struct v3020 {
- 	/* MMIO access */
- 	void __iomem *ioaddress;
- 	int leftshift;
+-	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	if (!res)
+-		return -ENODEV;
+ 	priv = devm_kzalloc(&pdev->dev, sizeof(*priv), GFP_KERNEL);
+ 	if (!priv)
+ 		return -ENOMEM;
  
- 	/* GPIO access */
--	struct v3020_gpio *gpio;
-+	struct gpio *gpio;
+ 	platform_set_drvdata(pdev, priv);
  
- 	struct v3020_chip_ops *ops;
++	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+ 	priv->ioaddr = devm_ioremap_resource(&pdev->dev, res);
+ 	if (IS_ERR(priv->ioaddr))
+ 		return PTR_ERR(priv->ioaddr);
+diff --git a/drivers/rtc/rtc-ds1286.c b/drivers/rtc/rtc-ds1286.c
+index 50e109b..14c4b24 100644
+--- a/drivers/rtc/rtc-ds1286.c
++++ b/drivers/rtc/rtc-ds1286.c
+@@ -332,13 +332,11 @@ static int ds1286_probe(struct platform_device *pdev)
+ 	struct resource *res;
+ 	struct ds1286_priv *priv;
  
-@@ -107,48 +102,40 @@ static struct v3020_chip_ops v3020_mmio_ops = {
- 	.write_bit	= v3020_mmio_write_bit,
- };
+-	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	if (!res)
+-		return -ENODEV;
+ 	priv = devm_kzalloc(&pdev->dev, sizeof(struct ds1286_priv), GFP_KERNEL);
+ 	if (!priv)
+ 		return -ENOMEM;
  
--static struct v3020_gpio v3020_gpio[] = {
--	{ "RTC CS", 0 },
--	{ "RTC WR", 0 },
--	{ "RTC RD", 0 },
--	{ "RTC IO", 0 },
-+static struct gpio v3020_gpio[] = {
-+	{ 0, GPIOF_OUT_INIT_HIGH, "RTC CS"},
-+	{ 0, GPIOF_OUT_INIT_HIGH, "RTC WR"},
-+	{ 0, GPIOF_OUT_INIT_HIGH, "RTC RD"},
-+	{ 0, GPIOF_OUT_INIT_HIGH, "RTC IO"},
- };
++	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+ 	priv->rtcregs = devm_ioremap_resource(&pdev->dev, res);
+ 	if (IS_ERR(priv->rtcregs))
+ 		return PTR_ERR(priv->rtcregs);
+diff --git a/drivers/rtc/rtc-spear.c b/drivers/rtc/rtc-spear.c
+index c492cf0..6470641 100644
+--- a/drivers/rtc/rtc-spear.c
++++ b/drivers/rtc/rtc-spear.c
+@@ -358,12 +358,6 @@ static int spear_rtc_probe(struct platform_device *pdev)
+ 	int status = 0;
+ 	int irq;
  
- static int v3020_gpio_map(struct v3020 *chip, struct platform_device *pdev,
- 			  struct v3020_platform_data *pdata)
- {
--	int i, err;
-+	int err;
- 
- 	v3020_gpio[V3020_CS].gpio = pdata->gpio_cs;
- 	v3020_gpio[V3020_WR].gpio = pdata->gpio_wr;
- 	v3020_gpio[V3020_RD].gpio = pdata->gpio_rd;
- 	v3020_gpio[V3020_IO].gpio = pdata->gpio_io;
- 
--	for (i = 0; i < ARRAY_SIZE(v3020_gpio); i++) {
--		err = gpio_request(v3020_gpio[i].gpio, v3020_gpio[i].name);
--		if (err)
--			goto err_request;
--
--		gpio_direction_output(v3020_gpio[i].gpio, 1);
+-	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	if (!res) {
+-		dev_err(&pdev->dev, "no resource defined\n");
+-		return -EBUSY;
 -	}
-+	err = gpio_request_array(v3020_gpio, ARRAY_SIZE(v3020_gpio));
-+	if (err)
-+		goto err_request;
- 
- 	chip->gpio = v3020_gpio;
- 
- 	return 0;
- 
- err_request:
--	while (--i >= 0)
--		gpio_free(v3020_gpio[i].gpio);
-+	gpio_free_array(v3020_gpio, ARRAY_SIZE(v3020_gpio));
- 
- 	return err;
- }
- 
- static void v3020_gpio_unmap(struct v3020 *chip)
- {
--	int i;
 -
--	for (i = 0; i < ARRAY_SIZE(v3020_gpio); i++)
--		gpio_free(v3020_gpio[i].gpio);
-+	gpio_free_array(v3020_gpio, ARRAY_SIZE(v3020_gpio));
- }
+ 	config = devm_kzalloc(&pdev->dev, sizeof(*config), GFP_KERNEL);
+ 	if (!config) {
+ 		dev_err(&pdev->dev, "out of memory\n");
+@@ -385,6 +379,7 @@ static int spear_rtc_probe(struct platform_device *pdev)
+ 		return status;
+ 	}
  
- static void v3020_gpio_write_bit(struct v3020 *chip, unsigned char bit)
++	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+ 	config->ioaddr = devm_ioremap_resource(&pdev->dev, res);
+ 	if (IS_ERR(config->ioaddr))
+ 		return PTR_ERR(config->ioaddr);
