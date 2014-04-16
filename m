@@ -1,126 +1,218 @@
 Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Subject: [v2] rtc: Fix suspend/resume for APM X-Gene SoC RTC driver
-From: Loc Ho <lho@apm.com>
-Message-Id: <1397498944-8486-1-git-send-email-lho@apm.com>
-To: a.zummo@towertech.it
-Cc: rtc-linux@googlegroups.com, devicetree@vger.kernel.org,
- linux-arm-kernel@lists.infradead.org, jcm@redhat.com,
- patches@apm.com, broonie@kernel.org, Loc Ho <lho@apm.com>
-Date: Mon, 14 Apr 2014 12:09:04 -0600
+Subject: [v4,09/21] rtc: support DS1302 RTC on ICP DAS LP-8x4x
+From: Sergey Yanovich <ynvich@gmail.com>
+Message-Id: <1397668667-27328-3-git-send-email-ynvich@gmail.com>
+To: linux-kernel@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org
+Cc: Sergei Ianovich <ynvich@gmail.com>, Rob Herring <robh+dt@kernel.org>,
+ Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>,
+ Ian Campbell <ijc+devicetree@hellion.org.uk>,
+ Kumar Gala <galak@codeaurora.org>, Randy Dunlap <rdunlap@infradead.org>,
+ Russell King <linux@arm.linux.org.uk>,
+ Alessandro Zummo <a.zummo@towertech.it>,
+ Grant Likely <grant.likely@linaro.org>,
+ Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+ devicetree@vger.kernel.org (open list:OPEN FIRMWARE AND...),
+ linux-doc@vger.kernel.org (open list:DOCUMENTATION),
+ rtc-linux@googlegroups.com
+Date: Wed, 16 Apr 2014 21:17:14 +0400
 List-ID: <rtc-linux.googlegroups.com>
 
-This patch fixes suspend/resume functions properly for the APM X-Gene
-SoC RTC driver. This patch requires the merged v2 of the APM X-Gene 
-SoC RTC driver.
-
-Signed-off-by: Loc Ho <lho@apm.com>
-Reviewed-by: Mark Brown <broonie@linaro.org>
+Signed-off-by: Sergei Ianovich <ynvich@gmail.com>
 ---
- drivers/rtc/rtc-xgene.c |   41 ++++++++++++++++++++++++++++++++---------
- 1 files changed, 32 insertions(+), 9 deletions(-)
+   v3..v4
+   * move DTS bindings to a different patch (8/21)
 
-diff --git a/drivers/rtc/rtc-xgene.c b/drivers/rtc/rtc-xgene.c
-index 14129cc..d533edd 100644
---- a/drivers/rtc/rtc-xgene.c
-+++ b/drivers/rtc/rtc-xgene.c
-@@ -52,6 +52,7 @@ struct xgene_rtc_dev {
- 	void __iomem *csr_base;
- 	struct clk *clk;
- 	unsigned int irq_wake;
-+	unsigned int irq_enabled;
- };
+   v2..v3
+   * use usleep_range instead of custom nsleep
+   * number change (07/16 -> 09/21)
+
+   v0..v2
+   * use device tree
+   * use devm helpers where possible
+
+ .../devicetree/bindings/rtc/rtc-ds1302.txt         |  14 +++
+ arch/arm/configs/lp8x4x_defconfig                  |   1 +
+ drivers/rtc/Kconfig                                |   2 +-
+ drivers/rtc/rtc-ds1302.c                           | 100 ++++++++++++++++++++-
+ 4 files changed, 114 insertions(+), 3 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/rtc/rtc-ds1302.txt
+
+diff --git a/Documentation/devicetree/bindings/rtc/rtc-ds1302.txt b/Documentation/devicetree/bindings/rtc/rtc-ds1302.txt
+new file mode 100644
+index 0000000..810613b
+--- /dev/null
++++ b/Documentation/devicetree/bindings/rtc/rtc-ds1302.txt
+@@ -0,0 +1,14 @@
++* Dallas Semiconductor DS-1302 RTC
++
++Simple device which could be used to store date/time between reboots.
++
++Required properties:
++- compatible : Should be "dallas,rtc-ds1302"
++- reg : Should be address and size of IO memory region
++
++Examples:
++
++rtc@40900000 {
++	compatible = "dallas,rtc-ds1302";
++	reg = <0x1700901c 0x1>;
++};
+diff --git a/arch/arm/configs/lp8x4x_defconfig b/arch/arm/configs/lp8x4x_defconfig
+index 9f1efb6..d60e37a 100644
+--- a/arch/arm/configs/lp8x4x_defconfig
++++ b/arch/arm/configs/lp8x4x_defconfig
+@@ -141,6 +141,7 @@ CONFIG_LEDS_GPIO=y
+ CONFIG_LEDS_TRIGGERS=y
+ CONFIG_LEDS_TRIGGER_HEARTBEAT=y
+ CONFIG_RTC_CLASS=y
++CONFIG_RTC_DRV_DS1302=y
+ CONFIG_RTC_DRV_PXA=m
+ # CONFIG_IOMMU_SUPPORT is not set
+ CONFIG_EXT2_FS=m
+diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
+index 2e565f8..80aaaa1 100644
+--- a/drivers/rtc/Kconfig
++++ b/drivers/rtc/Kconfig
+@@ -710,7 +710,7 @@ config RTC_DRV_DS1286
  
- static int xgene_rtc_read_time(struct device *dev, struct rtc_time *tm)
-@@ -104,15 +105,19 @@ static int xgene_rtc_alarm_irq_enable(struct device *dev, u32 enabled)
+ config RTC_DRV_DS1302
+ 	tristate "Dallas DS1302"
+-	depends on SH_SECUREEDGE5410
++	depends on SH_SECUREEDGE5410 || (ARCH_PXA && HIGH_RES_TIMERS)
+ 	help
+ 	  If you say yes here you get support for the Dallas DS1302 RTC chips.
+ 
+diff --git a/drivers/rtc/rtc-ds1302.c b/drivers/rtc/rtc-ds1302.c
+index 07e8d79..3c49023 100644
+--- a/drivers/rtc/rtc-ds1302.c
++++ b/drivers/rtc/rtc-ds1302.c
+@@ -50,7 +50,7 @@
+ #define ds1302_set_tx()
+ #define ds1302_set_rx()
+ 
+-static inline int ds1302_hw_init(void)
++static inline int ds1302_hw_init(struct platform_device *pdev)
+ {
  	return 0;
  }
+@@ -86,6 +86,101 @@ static inline int ds1302_rxbit(void)
+ 	return !!(get_dp() & RTC_IODATA);
+ }
  
-+static int xgene_rtc_alarm_irq_enabled(struct device *dev)
-+{
-+	struct xgene_rtc_dev *pdata = dev_get_drvdata(dev);
++#elif defined(CONFIG_ARCH_PXA) && defined(CONFIG_HIGH_RES_TIMERS)
 +
-+	return readl(pdata->csr_base + RTC_CCR) & RTC_CCR_IE ? 1 : 0;
++#include <linux/delay.h>
++#include <linux/of.h>
++
++#define	RTC_CE		0x01
++#define	RTC_CLK		0x02
++#define	RTC_nWE		0x04
++#define	RTC_IODATA	0x08
++
++static unsigned long ds1302_state;
++
++static void *mem;
++
++static inline int ds1302_hw_init(struct platform_device *pdev)
++{
++	struct resource *r;
++
++	r = platform_get_resource(pdev, IORESOURCE_MEM, 0);
++	if (!r)
++		return -ENODEV;
++
++	mem = devm_ioremap_resource(&pdev->dev, r);
++	if (!mem)
++		return -EFAULT;
++
++	return 0;
 +}
 +
- static int xgene_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
++static inline void ds1302_reset(void)
++{
++	ds1302_state = 0;
++	iowrite8(ds1302_state, mem);
++	usleep_range(4, 5);
++}
++
++static inline void ds1302_clock(void)
++{
++	usleep_range(1, 2);
++	ds1302_state |= RTC_CLK;
++	iowrite8(ds1302_state, mem);
++	usleep_range(1, 2);
++	ds1302_state &= ~RTC_CLK;
++	iowrite8(ds1302_state, mem);
++}
++
++static inline void ds1302_start(void)
++{
++	ds1302_state &= ~RTC_CLK;
++	ds1302_state |= RTC_CE;
++	iowrite8(ds1302_state, mem);
++	usleep_range(3, 4);
++}
++
++static inline void ds1302_stop(void)
++{
++	ds1302_state &= ~RTC_CE;
++	iowrite8(ds1302_state, mem);
++}
++
++static inline void ds1302_set_tx(void)
++{
++	ds1302_state &= ~RTC_nWE;
++	iowrite8(ds1302_state, mem);
++}
++
++static inline void ds1302_set_rx(void)
++{
++	ds1302_state |= RTC_nWE;
++	iowrite8(ds1302_state, mem);
++}
++
++static inline void ds1302_txbit(int bit)
++{
++	if (bit)
++		ds1302_state |= RTC_IODATA;
++	else
++		ds1302_state &= ~RTC_IODATA;
++	iowrite8(ds1302_state, mem);
++}
++
++static inline int ds1302_rxbit(void)
++{
++	return ioread8(mem) & 0x1;
++}
++
++#ifdef CONFIG_OF
++static const struct of_device_id ds1302_dt_ids[] = {
++	{ .compatible = "dallas,rtc-ds1302" },
++	{ }
++};
++
++MODULE_DEVICE_TABLE(of, ds1302_dt_ids);
++#endif
++
+ #else
+ #error "Add support for your platform"
+ #endif
+@@ -216,7 +311,7 @@ static int __init ds1302_rtc_probe(struct platform_device *pdev)
  {
- 	struct xgene_rtc_dev *pdata = dev_get_drvdata(dev);
--	unsigned long rtc_time;
- 	unsigned long alarm_time;
+ 	struct rtc_device *rtc;
  
--	rtc_time = readl(pdata->csr_base + RTC_CCVR);
- 	rtc_tm_to_time(&alrm->time, &alarm_time);
--
- 	pdata->alarm_time = alarm_time;
- 	writel((u32) pdata->alarm_time, pdata->csr_base + RTC_CMR);
- 
-@@ -180,12 +185,18 @@ static int xgene_rtc_probe(struct platform_device *pdev)
- 		dev_err(&pdev->dev, "Couldn't get the clock for RTC\n");
- 		return -ENODEV;
+-	if (ds1302_hw_init()) {
++	if (ds1302_hw_init(pdev)) {
+ 		dev_err(&pdev->dev, "Failed to init communication channel");
+ 		return -EINVAL;
  	}
--	clk_prepare_enable(pdata->clk);
-+	ret = clk_prepare_enable(pdata->clk);
-+	if (ret)
-+		return ret;
+@@ -245,6 +340,7 @@ static struct platform_driver ds1302_platform_driver = {
+ 	.driver		= {
+ 		.name	= DRV_NAME,
+ 		.owner	= THIS_MODULE,
++		.of_match_table = of_match_ptr(ds1302_dt_ids),
+ 	},
+ };
  
- 	/* Turn on the clock and the crystal */
- 	writel(RTC_CCR_EN, pdata->csr_base + RTC_CCR);
- 
--	device_init_wakeup(&pdev->dev, 1);
-+	ret = device_init_wakeup(&pdev->dev, 1);
-+	if (ret) {
-+		clk_disable_unprepare(pdata->clk);
-+		return ret;
-+	}
- 
- 	pdata->rtc = devm_rtc_device_register(&pdev->dev, pdev->name,
- 					 &xgene_rtc_ops, THIS_MODULE);
-@@ -218,14 +229,20 @@ static int xgene_rtc_suspend(struct device *dev)
- 	int irq;
- 
- 	irq = platform_get_irq(pdev, 0);
-+
-+	/*
-+	 * If this RTC alarm will be used for waking the system up,
-+	 * don't disable it of course. Else we just disable the alarm
-+	 * and await suspension.
-+	 */
- 	if (device_may_wakeup(&pdev->dev)) {
- 		if (!enable_irq_wake(irq))
- 			pdata->irq_wake = 1;
- 	} else {
-+		pdata->irq_enabled = xgene_rtc_alarm_irq_enabled(dev);
- 		xgene_rtc_alarm_irq_enable(dev, 0);
--		clk_disable(pdata->clk);
-+		clk_disable_unprepare(pdata->clk);
- 	}
--
- 	return 0;
- }
- 
-@@ -234,16 +251,22 @@ static int xgene_rtc_resume(struct device *dev)
- 	struct platform_device *pdev = to_platform_device(dev);
- 	struct xgene_rtc_dev *pdata = platform_get_drvdata(pdev);
- 	int irq;
-+	int rc;
- 
- 	irq = platform_get_irq(pdev, 0);
-+
- 	if (device_may_wakeup(&pdev->dev)) {
- 		if (pdata->irq_wake) {
- 			disable_irq_wake(irq);
- 			pdata->irq_wake = 0;
- 		}
- 	} else {
--		clk_enable(pdata->clk);
--		xgene_rtc_alarm_irq_enable(dev, 1);
-+		rc = clk_prepare_enable(pdata->clk);
-+		if (rc) {
-+			dev_err(dev, "Unable to enable clock error %d\n", rc);
-+			return rc;
-+		}
-+		xgene_rtc_alarm_irq_enable(dev, pdata->irq_enabled);
- 	}
- 
- 	return 0;
