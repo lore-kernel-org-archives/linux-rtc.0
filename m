@@ -1,44 +1,127 @@
-Return-Path: <Nicolas.FERRE@atmel.com>
-Message-ID: <5369E8C6.1070409@atmel.com>
-Date: Wed, 7 May 2014 10:03:18 +0200
-From: Nicolas Ferre <nicolas.ferre@atmel.com>
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>, Bryan Evenson
-	<bevenson@melinkcorp.com>, Boris BREZILLON
-	<boris.brezillon@free-electrons.com>
-CC: Alessandro Zummo <a.zummo@towertech.it>, "rtc-linux@googlegroups.com"
-	<rtc-linux@googlegroups.com>, "linux-kernel@vger.kernel.org"
-	<linux-kernel@vger.kernel.org>, Jean-Christophe Plagniol-Villard
-	<plagnioj@jcrosoft.com>, Andrew Victor <linux@maxim.org.za>,
-	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
-Subject: Re: [PATCH] rtc: rtc-at91rm9200: fix infinite wait for ACKUPD irq
-References: <94c06375c1b44c8eb5233b0ccf2e4b13@BY2PR05MB048.namprd05.prod.outlook.com> <1399386481-18643-1-git-send-email-boris.brezillon@free-electrons.com> <aed75d16aa46476eb6f6c5b0d4bef30d@BLUPR05MB037.namprd05.prod.outlook.com> <20140506211040.GF11243@piout.net>
-In-Reply-To: <20140506211040.GF11243@piout.net>
-Content-Type: text/plain; charset="ISO-8859-1"
+Subject: [1/2] rtc: pcf8563: Refactor to use SMBUS api instead of raw I2C.
+From: Martin Fuzzey <mfuzzey@parkeon.com>
+Message-Id: <20140724164306.23803.44546.stgit@localhost>
+To: Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com
+Date: Thu, 24 Jul 2014 18:43:06 +0200
 List-ID: <rtc-linux.googlegroups.com>
 
-On 06/05/2014 23:10, Alexandre Belloni :
-> Hi,
-> 
-> On 06/05/2014 at 19:06:56 +0000, Bryan Evenson wrote :
->>
->> I'd assume this patch would be backported to the longterm releases?
->>
-> 
-> If by longterm, you mean the linux4sam tree, 3.10 branch, it is up to
-> Nicolas to take it. I believe it will be pretty easy to convince him ;)
+This is simpler and supported by more bus drivers.
 
-Absolutely, it is always easy to convince me with:
-- good commit message
-- script to reproduce the issue
-- follow-up of the patch plus testing
-- dialogue between skilled kernel developers
+Signed-off-by: Martin Fuzzey <mfuzzey@parkeon.com>
+---
+ drivers/rtc/rtc-pcf8563.c |   72 +++++++++++++++++++++------------------------
+ 1 file changed, 33 insertions(+), 39 deletions(-)
 
-So, yes, I will "ack" the patch and immediately integrate it in our
-linux4sam 3.10 branch.
-
-On the other hand, I let Boris add the "stable" tag to his original patch.
-
-Thanks to all of you for this fix. Bye,
--- 
-Nicolas Ferre
+diff --git a/drivers/rtc/rtc-pcf8563.c b/drivers/rtc/rtc-pcf8563.c
+index 63b558c..88b5c99 100644
+--- a/drivers/rtc/rtc-pcf8563.c
++++ b/drivers/rtc/rtc-pcf8563.c
+@@ -69,6 +69,28 @@ struct pcf8563 {
+ 	int voltage_low; /* incicates if a low_voltage was detected */
+ };
+ 
++static int  pcf8563_read_regs(struct i2c_client *client,
++			const uint8_t first_reg,
++			int num_regs, uint8_t *buf)
++{
++	s32 count;
++
++	count = i2c_smbus_read_i2c_block_data(client, first_reg, num_regs, buf);
++
++	if (count == num_regs)
++		return 0;
++
++	if (count < 0) {
++		dev_err(&client->dev, "%s: reg=%d err=%d\n", __func__,
++				first_reg, count);
++		return count;
++	}
++
++	dev_err(&client->dev, "%s: partial reg=%d wanted=%d got=%d\n", __func__,
++				first_reg, num_regs, count);
++	return -EIO;
++}
++
+ /*
+  * In the routines that deal directly with the pcf8563 hardware, we use
+  * rtc_time -- month 0-11, hour 0-23, yr = calendar year-epoch.
+@@ -76,27 +98,12 @@ struct pcf8563 {
+ static int pcf8563_get_datetime(struct i2c_client *client, struct rtc_time *tm)
+ {
+ 	struct pcf8563 *pcf8563 = i2c_get_clientdata(client);
+-	unsigned char buf[13] = { PCF8563_REG_ST1 };
+-
+-	struct i2c_msg msgs[] = {
+-		{/* setup read ptr */
+-			.addr = client->addr,
+-			.len = 1,
+-			.buf = buf
+-		},
+-		{/* read status + date */
+-			.addr = client->addr,
+-			.flags = I2C_M_RD,
+-			.len = 13,
+-			.buf = buf
+-		},
+-	};
+-
+-	/* read registers */
+-	if ((i2c_transfer(client->adapter, msgs, 2)) != 2) {
+-		dev_err(&client->dev, "%s: read error\n", __func__);
+-		return -EIO;
+-	}
++	uint8_t buf[PCF8563_REG_YR + 1];
++	int ret;
++
++	ret = pcf8563_read_regs(client, PCF8563_REG_ST1, sizeof(buf), buf);
++	if (ret)
++		return ret;
+ 
+ 	if (buf[PCF8563_REG_SC] & PCF8563_SC_LV) {
+ 		pcf8563->voltage_low = 1;
+@@ -144,8 +151,7 @@ static int pcf8563_get_datetime(struct i2c_client *client, struct rtc_time *tm)
+ static int pcf8563_set_datetime(struct i2c_client *client, struct rtc_time *tm)
+ {
+ 	struct pcf8563 *pcf8563 = i2c_get_clientdata(client);
+-	int i, err;
+-	unsigned char buf[9];
++	unsigned char buf[PCF8563_REG_YR + 1];
+ 
+ 	dev_dbg(&client->dev, "%s: secs=%d, mins=%d, hours=%d, "
+ 		"mday=%d, mon=%d, year=%d, wday=%d\n",
+@@ -170,21 +176,9 @@ static int pcf8563_set_datetime(struct i2c_client *client, struct rtc_time *tm)
+ 
+ 	buf[PCF8563_REG_DW] = tm->tm_wday & 0x07;
+ 
+-	/* write register's data */
+-	for (i = 0; i < 7; i++) {
+-		unsigned char data[2] = { PCF8563_REG_SC + i,
+-						buf[PCF8563_REG_SC + i] };
+-
+-		err = i2c_master_send(client, data, sizeof(data));
+-		if (err != sizeof(data)) {
+-			dev_err(&client->dev,
+-				"%s: err=%d addr=%02x, data=%02x\n",
+-				__func__, err, data[0], data[1]);
+-			return -EIO;
+-		}
+-	}
+-
+-	return 0;
++	return i2c_smbus_write_i2c_block_data(client, PCF8563_REG_SC,
++						sizeof(buf) - PCF8563_REG_SC,
++						&buf[PCF8563_REG_SC]);
+ }
+ 
+ #ifdef CONFIG_RTC_INTF_DEV
+@@ -248,7 +242,7 @@ static int pcf8563_probe(struct i2c_client *client,
+ 
+ 	dev_dbg(&client->dev, "%s\n", __func__);
+ 
+-	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C))
++	if (!i2c_check_functionality(client->adapter, I2C_FUNC_SMBUS_I2C_BLOCK))
+ 		return -ENODEV;
+ 
+ 	pcf8563 = devm_kzalloc(&client->dev, sizeof(struct pcf8563),
