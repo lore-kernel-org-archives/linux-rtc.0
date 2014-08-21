@@ -1,127 +1,134 @@
 Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Subject: [1/2] rtc: pcf8563: Refactor to use SMBUS api instead of raw I2C.
-From: Martin Fuzzey <mfuzzey@parkeon.com>
-Message-Id: <20140724164306.23803.44546.stgit@localhost>
-To: Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com
-Date: Thu, 24 Jul 2014 18:43:06 +0200
+Subject: drivers/rtc/rtc-ds1307.c: Support optional wakeup interrupt source
+From: Nishanth Menon <nm@ti.com>
+Message-Id: <1408637521-6764-1-git-send-email-nm@ti.com>
+To: Alessandro Zummo <a.zummo@towertech.it>
+Cc: <rtc-linux@googlegroups.com>, Tony Lindgren <tony@atomide.com>,
+ <linux-omap@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+ Nishanth Menon <nm@ti.com>
+Date: Thu, 21 Aug 2014 11:12:01 -0500
 List-ID: <rtc-linux.googlegroups.com>
 
-This is simpler and supported by more bus drivers.
+With the recent pinctrl-single changes, SoCs such as Texas
+Instrument's OMAP processors can treat wake-up events from deeper idle
+states as interrupts.
 
-Signed-off-by: Martin Fuzzey <mfuzzey@parkeon.com>
+Let's add support for the optional second interrupt for wake-up
+events. And then SoC can wakeup and handle the event using it's
+regular handler.
+
+Finally, to pass the wake-up interrupt in the dts file,
+interrupts-extended property needs to be passed.
+
+This is similar in approach to commit 2a0b965cfb6e ("serial: omap: Add
+support for optional wake-up")
+
+Signed-off-by: Nishanth Menon <nm@ti.com>
 ---
- drivers/rtc/rtc-pcf8563.c |   72 +++++++++++++++++++++------------------------
- 1 file changed, 33 insertions(+), 39 deletions(-)
+ drivers/rtc/rtc-ds1307.c |   57 ++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 57 insertions(+)
 
-diff --git a/drivers/rtc/rtc-pcf8563.c b/drivers/rtc/rtc-pcf8563.c
-index 63b558c..88b5c99 100644
---- a/drivers/rtc/rtc-pcf8563.c
-+++ b/drivers/rtc/rtc-pcf8563.c
-@@ -69,6 +69,28 @@ struct pcf8563 {
- 	int voltage_low; /* incicates if a low_voltage was detected */
- };
+diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
+index f03d5ba..5feedfc 100644
+--- a/drivers/rtc/rtc-ds1307.c
++++ b/drivers/rtc/rtc-ds1307.c
+@@ -15,6 +15,8 @@
+ #include <linux/init.h>
+ #include <linux/slab.h>
+ #include <linux/i2c.h>
++#include <linux/of_device.h>
++#include <linux/of_irq.h>
+ #include <linux/string.h>
+ #include <linux/rtc.h>
+ #include <linux/bcd.h>
+@@ -115,6 +117,7 @@ struct ds1307 {
+ 	struct i2c_client	*client;
+ 	struct rtc_device	*rtc;
+ 	struct work_struct	work;
++	int			wakeirq;
+ 	s32 (*read_block_data)(const struct i2c_client *client, u8 command,
+ 			       u8 length, u8 *values);
+ 	s32 (*write_block_data)(const struct i2c_client *client, u8 command,
+@@ -835,6 +838,34 @@ ds1307_nvram_write(struct file *filp, struct kobject *kobj,
  
-+static int  pcf8563_read_regs(struct i2c_client *client,
-+			const uint8_t first_reg,
-+			int num_regs, uint8_t *buf)
+ /*----------------------------------------------------------------------*/
+ 
++static int ds1307_i2c_suspend(struct i2c_client *client,  pm_message_t mesg)
 +{
-+	s32 count;
++	struct ds1307 *ds1307 = i2c_get_clientdata(client);
++	struct device *dev = &client->dev;
 +
-+	count = i2c_smbus_read_i2c_block_data(client, first_reg, num_regs, buf);
-+
-+	if (count == num_regs)
++	if (!ds1307->wakeirq)
 +		return 0;
 +
-+	if (count < 0) {
-+		dev_err(&client->dev, "%s: reg=%d err=%d\n", __func__,
-+				first_reg, count);
-+		return count;
-+	}
++	if (device_may_wakeup(dev))
++		enable_irq(ds1307->wakeirq);
 +
-+	dev_err(&client->dev, "%s: partial reg=%d wanted=%d got=%d\n", __func__,
-+				first_reg, num_regs, count);
-+	return -EIO;
++	return 0;
 +}
 +
- /*
-  * In the routines that deal directly with the pcf8563 hardware, we use
-  * rtc_time -- month 0-11, hour 0-23, yr = calendar year-epoch.
-@@ -76,27 +98,12 @@ struct pcf8563 {
- static int pcf8563_get_datetime(struct i2c_client *client, struct rtc_time *tm)
- {
- 	struct pcf8563 *pcf8563 = i2c_get_clientdata(client);
--	unsigned char buf[13] = { PCF8563_REG_ST1 };
--
--	struct i2c_msg msgs[] = {
--		{/* setup read ptr */
--			.addr = client->addr,
--			.len = 1,
--			.buf = buf
--		},
--		{/* read status + date */
--			.addr = client->addr,
--			.flags = I2C_M_RD,
--			.len = 13,
--			.buf = buf
--		},
--	};
--
--	/* read registers */
--	if ((i2c_transfer(client->adapter, msgs, 2)) != 2) {
--		dev_err(&client->dev, "%s: read error\n", __func__);
--		return -EIO;
--	}
-+	uint8_t buf[PCF8563_REG_YR + 1];
-+	int ret;
++static int ds1307_i2c_resume(struct i2c_client *client)
++{
++	struct ds1307 *ds1307 = i2c_get_clientdata(client);
++	struct device *dev = &client->dev;
 +
-+	ret = pcf8563_read_regs(client, PCF8563_REG_ST1, sizeof(buf), buf);
-+	if (ret)
-+		return ret;
- 
- 	if (buf[PCF8563_REG_SC] & PCF8563_SC_LV) {
- 		pcf8563->voltage_low = 1;
-@@ -144,8 +151,7 @@ static int pcf8563_get_datetime(struct i2c_client *client, struct rtc_time *tm)
- static int pcf8563_set_datetime(struct i2c_client *client, struct rtc_time *tm)
++	if (!ds1307->wakeirq)
++		return 0;
++
++	if (device_may_wakeup(dev))
++		disable_irq_nosync(ds1307->wakeirq);
++
++	return 0;
++}
++
+ static int ds1307_probe(struct i2c_client *client,
+ 			const struct i2c_device_id *id)
  {
- 	struct pcf8563 *pcf8563 = i2c_get_clientdata(client);
--	int i, err;
--	unsigned char buf[9];
-+	unsigned char buf[PCF8563_REG_YR + 1];
+@@ -1116,6 +1147,8 @@ read_rtc:
+ 	}
  
- 	dev_dbg(&client->dev, "%s: secs=%d, mins=%d, hours=%d, "
- 		"mday=%d, mon=%d, year=%d, wday=%d\n",
-@@ -170,21 +176,9 @@ static int pcf8563_set_datetime(struct i2c_client *client, struct rtc_time *tm)
+ 	if (want_irq) {
++		struct device_node *node = client->dev.of_node;
++
+ 		err = request_irq(client->irq, ds1307_irq, IRQF_SHARED,
+ 			  ds1307->rtc->name, client);
+ 		if (err) {
+@@ -1125,6 +1158,28 @@ read_rtc:
  
- 	buf[PCF8563_REG_DW] = tm->tm_wday & 0x07;
+ 			set_bit(HAS_ALARM, &ds1307->flags);
+ 			dev_dbg(&client->dev, "got IRQ %d\n", client->irq);
++			if (node)
++				ds1307->wakeirq = irq_of_parse_and_map(node, 1);
++
++			if (ds1307->wakeirq <= 0)
++				ds1307->wakeirq = 0;
++			else
++				err = devm_request_irq(&client->dev,
++						       ds1307->wakeirq,
++						       ds1307_irq,
++						       IRQF_ONESHOT,
++						       ds1307->rtc->name,
++						       client);
++			if (err) {
++				dev_err(&client->dev, "unable to get wakeIRQ %d\n",
++					err);
++				free_irq(client->irq, client);
++				goto exit;
++			}
++
++			/* We enable the interrupt only during suspend path */
++			if (ds1307->wakeirq)
++				disable_irq_nosync(ds1307->wakeirq);
+ 		}
+ 	}
  
--	/* write register's data */
--	for (i = 0; i < 7; i++) {
--		unsigned char data[2] = { PCF8563_REG_SC + i,
--						buf[PCF8563_REG_SC + i] };
--
--		err = i2c_master_send(client, data, sizeof(data));
--		if (err != sizeof(data)) {
--			dev_err(&client->dev,
--				"%s: err=%d addr=%02x, data=%02x\n",
--				__func__, err, data[0], data[1]);
--			return -EIO;
--		}
--	}
--
--	return 0;
-+	return i2c_smbus_write_i2c_block_data(client, PCF8563_REG_SC,
-+						sizeof(buf) - PCF8563_REG_SC,
-+						&buf[PCF8563_REG_SC]);
- }
+@@ -1189,6 +1244,8 @@ static struct i2c_driver ds1307_driver = {
+ 	},
+ 	.probe		= ds1307_probe,
+ 	.remove		= ds1307_remove,
++	.suspend	= ds1307_i2c_suspend,
++	.resume		= ds1307_i2c_resume,
+ 	.id_table	= ds1307_id,
+ };
  
- #ifdef CONFIG_RTC_INTF_DEV
-@@ -248,7 +242,7 @@ static int pcf8563_probe(struct i2c_client *client,
- 
- 	dev_dbg(&client->dev, "%s\n", __func__);
- 
--	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C))
-+	if (!i2c_check_functionality(client->adapter, I2C_FUNC_SMBUS_I2C_BLOCK))
- 		return -ENODEV;
- 
- 	pcf8563 = devm_kzalloc(&client->dev, sizeof(struct pcf8563),
