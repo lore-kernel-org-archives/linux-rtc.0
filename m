@@ -1,92 +1,58 @@
-Return-Path: <Nicolas.FERRE@atmel.com>
-Message-ID: <54212C2A.8000109@atmel.com>
-Date: Tue, 23 Sep 2014 10:15:38 +0200
-From: Nicolas Ferre <nicolas.ferre@atmel.com>
-MIME-Version: 1.0
-To: Boris BREZILLON <boris.brezillon@free-electrons.com>, "Jean-Christophe
- Plagniol-Villard" <plagnioj@jcrosoft.com>, Alexandre Belloni
-	<alexandre.belloni@free-electrons.com>, Andrew Victor <linux@maxim.org.za>,
-	Alessandro Zummo <a.zummo@towertech.it>, <rtc-linux@googlegroups.com>,
-	"Samuel Ortiz" <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>,
-	Johan Hovold <jhovold@gmail.com>
-CC: Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, "Mark
- Rutland" <mark.rutland@arm.com>, Ian Campbell
-	<ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>,
-	<devicetree@vger.kernel.org>, <linux-arm-kernel@lists.infradead.org>,
-	<linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH v6 3/9] rtc: at91sam9: replace devm_ioremap by devm_ioremap_resource
-References: <1411400563-570-1-git-send-email-boris.brezillon@free-electrons.com> <1411400563-570-4-git-send-email-boris.brezillon@free-electrons.com>
-In-Reply-To: <1411400563-570-4-git-send-email-boris.brezillon@free-electrons.com>
-Content-Type: text/plain; charset="ISO-8859-1"
+Return-Path: <boris.brezillon@free-electrons.com>
+From: Boris BREZILLON <boris.brezillon@free-electrons.com>
+To: Nicolas Ferre <nicolas.ferre@atmel.com>,
+	Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Andrew Victor <linux@maxim.org.za>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	rtc-linux@googlegroups.com
+Cc: Rob Herring <robh+dt@kernel.org>,
+	Pawel Moll <pawel.moll@arm.com>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Ian Campbell <ijc+devicetree@hellion.org.uk>,
+	Kumar Gala <galak@codeaurora.org>,
+	devicetree@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org,
+	Boris BREZILLON <boris.brezillon@free-electrons.com>
+Subject: [PATCH 5/5] rtc: at91sam9: add DT bindings documentation
+Date: Wed,  3 Sep 2014 10:45:34 +0200
+Message-Id: <1409733934-14465-6-git-send-email-boris.brezillon@free-electrons.com>
+In-Reply-To: <1409733934-14465-1-git-send-email-boris.brezillon@free-electrons.com>
+References: <1409733934-14465-1-git-send-email-boris.brezillon@free-electrons.com>
 List-ID: <rtc-linux.googlegroups.com>
 
-On 22/09/2014 17:42, Boris BREZILLON :
-> Replace devm_ioremap calls by devm_ioremap_resource which already check
-> resource consistency (resource != NULL) and print an error in case of
-> failure.
-> 
-> Signed-off-by: Boris BREZILLON <boris.brezillon@free-electrons.com>
-> Acked-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Acked-by: Nicolas Ferre <nicolas.ferre@atmel.com>
+Signed-off-by: Boris BREZILLON <boris.brezillon@free-electrons.com>
+---
+ .../devicetree/bindings/rtc/atmel,at91sam9-rtc.txt   | 20 ++++++++++++++++++++
+ 1 file changed, 20 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/rtc/atmel,at91sam9-rtc.txt
 
-> ---
->  drivers/rtc/rtc-at91sam9.c | 29 ++++++++++-------------------
->  1 file changed, 10 insertions(+), 19 deletions(-)
-> 
-> diff --git a/drivers/rtc/rtc-at91sam9.c b/drivers/rtc/rtc-at91sam9.c
-> index 74a9ca0..38a2693 100644
-> --- a/drivers/rtc/rtc-at91sam9.c
-> +++ b/drivers/rtc/rtc-at91sam9.c
-> @@ -306,18 +306,11 @@ static const struct rtc_class_ops at91_rtc_ops = {
->   */
->  static int at91_rtc_probe(struct platform_device *pdev)
->  {
-> -	struct resource	*r, *r_gpbr;
-> +	struct resource	*r;
->  	struct sam9_rtc	*rtc;
->  	int		ret, irq;
->  	u32		mr;
->  
-> -	r = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-> -	r_gpbr = platform_get_resource(pdev, IORESOURCE_MEM, 1);
-> -	if (!r || !r_gpbr) {
-> -		dev_err(&pdev->dev, "need 2 ressources\n");
-> -		return -ENODEV;
-> -	}
-> -
->  	irq = platform_get_irq(pdev, 0);
->  	if (irq < 0) {
->  		dev_err(&pdev->dev, "failed to get interrupt resource\n");
-> @@ -335,18 +328,16 @@ static int at91_rtc_probe(struct platform_device *pdev)
->  		device_init_wakeup(&pdev->dev, 1);
->  
->  	platform_set_drvdata(pdev, rtc);
-> -	rtc->rtt = devm_ioremap(&pdev->dev, r->start, resource_size(r));
-> -	if (!rtc->rtt) {
-> -		dev_err(&pdev->dev, "failed to map registers, aborting.\n");
-> -		return -ENOMEM;
-> -	}
->  
-> -	rtc->gpbr = devm_ioremap(&pdev->dev, r_gpbr->start,
-> -				resource_size(r_gpbr));
-> -	if (!rtc->gpbr) {
-> -		dev_err(&pdev->dev, "failed to map gpbr registers, aborting.\n");
-> -		return -ENOMEM;
-> -	}
-> +	r = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-> +	rtc->rtt = devm_ioremap_resource(&pdev->dev, r);
-> +	if (IS_ERR(rtc->rtt))
-> +		return PTR_ERR(rtc->rtt);
-> +
-> +	r = platform_get_resource(pdev, IORESOURCE_MEM, 1);
-> +	rtc->gpbr = devm_ioremap_resource(&pdev->dev, r);
-> +	if (IS_ERR(rtc->gpbr))
-> +		return PTR_ERR(rtc->rtt);
->  
->  	mr = rtt_readl(rtc, MR);
->  
-> 
-
-
+diff --git a/Documentation/devicetree/bindings/rtc/atmel,at91sam9-rtc.txt b/Documentation/devicetree/bindings/rtc/atmel,at91sam9-rtc.txt
+new file mode 100644
+index 0000000..9ca455f
+--- /dev/null
++++ b/Documentation/devicetree/bindings/rtc/atmel,at91sam9-rtc.txt
+@@ -0,0 +1,20 @@
++Atmel AT91SAM9260 Real Time Timer
++
++Required properties:
++- compatible: should be: "atmel,at91sam9260-rtt"
++- reg: should contain 2 memory regions
++  * the first one encodes the memory region of the RTT controller
++  * the second one encodes the GPBR (General Purpose Backup Resgisters)
++    memory region used to store the current time
++- interrupts: rtc alarm/event interrupt
++- clocks: should contain one clock pointing the the slow clk
++
++Example:
++
++rtc@fffffe00 {
++	compatible = "atmel,at91sam9260-rtt";
++	reg = <0xfffffd20 0x10
++	       0xfffffd50 0x4>;
++	interrupts = <1 4 7>;
++	clocks = <&clk32k>;
++};
 -- 
-Nicolas Ferre
+1.9.1
