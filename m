@@ -1,64 +1,54 @@
-Return-Path: <Nicolas.FERRE@atmel.com>
-Message-ID: <54212C00.2090800@atmel.com>
-Date: Tue, 23 Sep 2014 10:14:56 +0200
-From: Nicolas Ferre <nicolas.ferre@atmel.com>
-MIME-Version: 1.0
-To: Boris BREZILLON <boris.brezillon@free-electrons.com>, "Jean-Christophe
- Plagniol-Villard" <plagnioj@jcrosoft.com>, Alexandre Belloni
-	<alexandre.belloni@free-electrons.com>, Andrew Victor <linux@maxim.org.za>,
-	Alessandro Zummo <a.zummo@towertech.it>, <rtc-linux@googlegroups.com>,
-	"Samuel Ortiz" <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>,
-	Johan Hovold <jhovold@gmail.com>
-CC: Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, "Mark
- Rutland" <mark.rutland@arm.com>, Ian Campbell
-	<ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>,
-	<devicetree@vger.kernel.org>, <linux-arm-kernel@lists.infradead.org>,
-	<linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH v6 2/9] rtc: at91sam9: use standard readl/writel functions
- instead of raw versions
-References: <1411400563-570-1-git-send-email-boris.brezillon@free-electrons.com> <1411400563-570-3-git-send-email-boris.brezillon@free-electrons.com>
-In-Reply-To: <1411400563-570-3-git-send-email-boris.brezillon@free-electrons.com>
-Content-Type: text/plain; charset="ISO-8859-1"
+Return-Path: <boris.brezillon@free-electrons.com>
+From: Boris BREZILLON <boris.brezillon@free-electrons.com>
+To: Nicolas Ferre <nicolas.ferre@atmel.com>,
+	Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Andrew Victor <linux@maxim.org.za>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	rtc-linux@googlegroups.com
+Cc: Rob Herring <robh+dt@kernel.org>,
+	Pawel Moll <pawel.moll@arm.com>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Ian Campbell <ijc+devicetree@hellion.org.uk>,
+	Kumar Gala <galak@codeaurora.org>,
+	devicetree@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org,
+	Boris BREZILLON <boris.brezillon@free-electrons.com>
+Subject: [PATCH 2/5] rtc: at91sam9: use standard readl/writel functions instead of raw versions
+Date: Wed,  3 Sep 2014 10:45:31 +0200
+Message-Id: <1409733934-14465-3-git-send-email-boris.brezillon@free-electrons.com>
+In-Reply-To: <1409733934-14465-1-git-send-email-boris.brezillon@free-electrons.com>
+References: <1409733934-14465-1-git-send-email-boris.brezillon@free-electrons.com>
 List-ID: <rtc-linux.googlegroups.com>
 
-Can be good to know why... here.
+Signed-off-by: Boris BREZILLON <boris.brezillon@free-electrons.com>
+---
+ drivers/rtc/rtc-at91sam9.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-Otherwise, you can add my:
-Acked-by: Nicolas Ferre <nicolas.ferre@atmel.com>
-
-
-On 22/09/2014 17:42, Boris BREZILLON :
-> Signed-off-by: Boris BREZILLON <boris.brezillon@free-electrons.com>
-> Acked-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-> ---
->  drivers/rtc/rtc-at91sam9.c | 8 ++++----
->  1 file changed, 4 insertions(+), 4 deletions(-)
-> 
-> diff --git a/drivers/rtc/rtc-at91sam9.c b/drivers/rtc/rtc-at91sam9.c
-> index 51f0038..74a9ca0 100644
-> --- a/drivers/rtc/rtc-at91sam9.c
-> +++ b/drivers/rtc/rtc-at91sam9.c
-> @@ -77,14 +77,14 @@ struct sam9_rtc {
->  };
->  
->  #define rtt_readl(rtc, field) \
-> -	__raw_readl((rtc)->rtt + AT91_RTT_ ## field)
-> +	readl((rtc)->rtt + AT91_RTT_ ## field)
->  #define rtt_writel(rtc, field, val) \
-> -	__raw_writel((val), (rtc)->rtt + AT91_RTT_ ## field)
-> +	writel((val), (rtc)->rtt + AT91_RTT_ ## field)
->  
->  #define gpbr_readl(rtc) \
-> -	__raw_readl((rtc)->gpbr)
-> +	readl((rtc)->gpbr)
->  #define gpbr_writel(rtc, val) \
-> -	__raw_writel((val), (rtc)->gpbr)
-> +	writel((val), (rtc)->gpbr)
->  
->  /*
->   * Read current time and date in RTC
-> 
-
-
+diff --git a/drivers/rtc/rtc-at91sam9.c b/drivers/rtc/rtc-at91sam9.c
+index 51f0038..74a9ca0 100644
+--- a/drivers/rtc/rtc-at91sam9.c
++++ b/drivers/rtc/rtc-at91sam9.c
+@@ -77,14 +77,14 @@ struct sam9_rtc {
+ };
+ 
+ #define rtt_readl(rtc, field) \
+-	__raw_readl((rtc)->rtt + AT91_RTT_ ## field)
++	readl((rtc)->rtt + AT91_RTT_ ## field)
+ #define rtt_writel(rtc, field, val) \
+-	__raw_writel((val), (rtc)->rtt + AT91_RTT_ ## field)
++	writel((val), (rtc)->rtt + AT91_RTT_ ## field)
+ 
+ #define gpbr_readl(rtc) \
+-	__raw_readl((rtc)->gpbr)
++	readl((rtc)->gpbr)
+ #define gpbr_writel(rtc, val) \
+-	__raw_writel((val), (rtc)->gpbr)
++	writel((val), (rtc)->gpbr)
+ 
+ /*
+  * Read current time and date in RTC
 -- 
-Nicolas Ferre
+1.9.1
