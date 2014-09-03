@@ -5,10 +5,7 @@ To: Nicolas Ferre <nicolas.ferre@atmel.com>,
 	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
 	Andrew Victor <linux@maxim.org.za>,
 	Alessandro Zummo <a.zummo@towertech.it>,
-	rtc-linux@googlegroups.com,
-	Samuel Ortiz <sameo@linux.intel.com>,
-	Lee Jones <lee.jones@linaro.org>,
-	Johan Hovold <jhovold@gmail.com>
+	rtc-linux@googlegroups.com
 Cc: Rob Herring <robh+dt@kernel.org>,
 	Pawel Moll <pawel.moll@arm.com>,
 	Mark Rutland <mark.rutland@arm.com>,
@@ -17,53 +14,78 @@ Cc: Rob Herring <robh+dt@kernel.org>,
 	devicetree@vger.kernel.org,
 	linux-arm-kernel@lists.infradead.org,
 	linux-kernel@vger.kernel.org,
-	"Acked-by: Arnd Bergmann" <arnd@arndb.de>,
 	Boris BREZILLON <boris.brezillon@free-electrons.com>
-Subject: [PATCH v9 04/10] rtc: at91sam9: add DT support
-Date: Tue, 23 Sep 2014 16:48:39 +0200
-Message-Id: <1411483725-31532-5-git-send-email-boris.brezillon@free-electrons.com>
-In-Reply-To: <1411483725-31532-1-git-send-email-boris.brezillon@free-electrons.com>
-References: <1411483725-31532-1-git-send-email-boris.brezillon@free-electrons.com>
+Subject: [PATCH 4/5] rtc: at91sam9: retain slow clock and check its rate
+Date: Wed,  3 Sep 2014 10:45:33 +0200
+Message-Id: <1409733934-14465-5-git-send-email-boris.brezillon@free-electrons.com>
+In-Reply-To: <1409733934-14465-1-git-send-email-boris.brezillon@free-electrons.com>
+References: <1409733934-14465-1-git-send-email-boris.brezillon@free-electrons.com>
 List-ID: <rtc-linux.googlegroups.com>
 
-Add of_match_table to the existing driver so that rtt nodes defined in at91
-DTs can be attached to this driver.
+The RTT block is using the slow clock and expect it to run at 32KHz.
+Now that we moved to the CCF it's better to retain the clk reference so
+that the CCF can't disable the slow clock considering it is unused.
 
 Signed-off-by: Boris BREZILLON <boris.brezillon@free-electrons.com>
-Acked-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Acked-by: Nicolas Ferre <nicolas.ferre@atmel.com>
-Acked-by: Johan Hovold <johan@kernel.org>
-Acked-by: Arnd Bergmann <arnd@arndb.de>
 ---
- drivers/rtc/rtc-at91sam9.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/rtc/rtc-at91sam9.c | 24 ++++++++++++++++++++++++
+ 1 file changed, 24 insertions(+)
 
 diff --git a/drivers/rtc/rtc-at91sam9.c b/drivers/rtc/rtc-at91sam9.c
-index 38a2693..d72c34d 100644
+index 57014b7..5c5093b 100644
 --- a/drivers/rtc/rtc-at91sam9.c
 +++ b/drivers/rtc/rtc-at91sam9.c
-@@ -445,6 +445,14 @@ static int at91_rtc_resume(struct device *dev)
+@@ -21,6 +21,7 @@
+ #include <linux/slab.h>
+ #include <linux/platform_data/atmel.h>
+ #include <linux/io.h>
++#include <linux/clk.h>
  
- static SIMPLE_DEV_PM_OPS(at91_rtc_pm_ops, at91_rtc_suspend, at91_rtc_resume);
- 
-+#ifdef CONFIG_OF
-+static const struct of_device_id at91_rtc_dt_ids[] = {
-+	{ .compatible = "atmel,at91sam9260-rtt" },
-+	{ /* sentinel */ }
-+};
-+MODULE_DEVICE_TABLE(of, at91_rtc_dt_ids);
-+#endif
-+
- static struct platform_driver at91_rtc_driver = {
- 	.probe		= at91_rtc_probe,
- 	.remove		= at91_rtc_remove,
-@@ -453,6 +461,7 @@ static struct platform_driver at91_rtc_driver = {
- 		.name	= "rtc-at91sam9",
- 		.owner	= THIS_MODULE,
- 		.pm	= &at91_rtc_pm_ops,
-+		.of_match_table = of_match_ptr(at91_rtc_dt_ids),
- 	},
+ /*
+  * This driver uses two configurable hardware resources that live in the
+@@ -74,6 +75,7 @@ struct sam9_rtc {
+ 	u32			imr;
+ 	void __iomem		*gpbr;
+ 	int 			irq;
++	struct clk		*sclk;
  };
+ 
+ #define rtt_readl(rtc, field) \
+@@ -373,6 +375,25 @@ static int at91_rtc_probe(struct platform_device *pdev)
+ 		return ret;
+ 	}
+ 
++	/* Retain slow clk if it is specified in the DT.
++	 * Do not complain if slow clk is missing, but check its rate
++	 * if it is available.
++	 */
++	rtc->sclk = devm_clk_get(&pdev->dev, NULL);
++	if (!IS_ERR(rtc->sclk)) {
++		if (clk_get_rate(rtc->sclk) != AT91_SLOW_CLOCK) {
++			dev_err(&pdev->dev,
++				"Invalid slow clock rate (expecting %lu got %lu)",
++				(unsigned long)AT91_SLOW_CLOCK,
++				clk_get_rate(rtc->sclk));
++			return -EINVAL;
++		}
++
++		ret = clk_prepare_enable(rtc->sclk);
++		if (ret)
++			return ret;
++	}
++
+ 	/* NOTE:  sam9260 rev A silicon has a ROM bug which resets the
+ 	 * RTT on at least some reboots.  If you have that chip, you must
+ 	 * initialize the time from some external source like a GPS, wall
+@@ -397,6 +418,9 @@ static int at91_rtc_remove(struct platform_device *pdev)
+ 	/* disable all interrupts */
+ 	rtt_writel(rtc, MR, mr & ~(AT91_RTT_ALMIEN | AT91_RTT_RTTINCIEN));
+ 
++	if (!IS_ERR(rtc->sclk))
++		clk_disable_unprepare(rtc->sclk);
++
+ 	return 0;
+ }
  
 -- 
 1.9.1
