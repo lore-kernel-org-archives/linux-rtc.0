@@ -1,80 +1,99 @@
-Return-Path: <jhovold@gmail.com>
-Sender: Johan Hovold <jhovold@gmail.com>
-Date: Thu, 11 Sep 2014 12:22:06 +0200
-From: Johan Hovold <johan@kernel.org>
+Date: Mon, 8 Sep 2014 19:33:38 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
 To: Boris BREZILLON <boris.brezillon@free-electrons.com>
-Cc: Johan Hovold <johan@kernel.org>,
-	Nicolas Ferre <nicolas.ferre@atmel.com>,
+Cc: Nicolas Ferre <nicolas.ferre@atmel.com>,
 	Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
 	Andrew Victor <linux@maxim.org.za>,
 	Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
-	Johan Hovold <jhovold@gmail.com>, Rob Herring <robh+dt@kernel.org>,
-	Pawel Moll <pawel.moll@arm.com>,
+	Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>,
 	Mark Rutland <mark.rutland@arm.com>,
 	Ian Campbell <ijc+devicetree@hellion.org.uk>,
 	Kumar Gala <galak@codeaurora.org>, devicetree@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-	Douglas Gilbert <dgilbert@interlog.com>
-Subject: Re: [PATCH v3 0/8] rtc: at91sam9: add DT support
-Message-ID: <20140911102206.GA20727@localhost>
-References: <1410425767-17874-1-git-send-email-boris.brezillon@free-electrons.com>
- <20140911093942.GA12295@localhost>
- <20140911120659.14daa624@bbrezillon>
+	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 4/5] rtc: at91sam9: retain slow clock and check its rate
+Message-ID: <20140908173338.GD14623@piout.net>
+References: <1409733934-14465-1-git-send-email-boris.brezillon@free-electrons.com>
+ <1409733934-14465-5-git-send-email-boris.brezillon@free-electrons.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20140911120659.14daa624@bbrezillon>
+In-Reply-To: <1409733934-14465-5-git-send-email-boris.brezillon@free-electrons.com>
 List-ID: <rtc-linux.googlegroups.com>
 
-On Thu, Sep 11, 2014 at 12:06:59PM +0200, Boris BREZILLON wrote:
-> On Thu, 11 Sep 2014 11:39:42 +0200
-> Johan Hovold <johan@kernel.org> wrote:
+On 03/09/2014 at 10:45:33 +0200, Boris Brezillon wrote :
+> The RTT block is using the slow clock and expect it to run at 32KHz.
+> Now that we moved to the CCF it's better to retain the clk reference so
+> that the CCF can't disable the slow clock considering it is unused.
 > 
-> > On Thu, Sep 11, 2014 at 10:55:59AM +0200, Boris BREZILLON wrote:
-> > 
-> > > Johan, let me know if this version addresses part of your concerns.
-> > 
-> > Looks good to me. I just have a few minor comments on two of the patches.
-> > 
-> > > I'm open to any suggestion/rework to address other previously discussed
-> > > issues, as long as it does not end up in a dead-end (like the discussion
-> > > you had last year):
-> > >  - the fact that the RTT block could be used for something that is not
-> > >    an RTC
-> > >  - the fact that referencing the GPBR node and defining a GPBR register
-> > >    number to store RTC time info could be considered as an HW config and
-> > >    not an HW description and thus should not be described in the DT
-> > 
-> > No doubt.
->
-> Okay then. Any suggestion to do otherwise ?
-
-I didn't mean it that way. We've already agreed that modifying the
-configuration (use) of the RTT in DT was acceptable for now.
-
-And arguably, for a specific machine, describing that one of the gpbr is
-used by the rtt could be considered a hw description of that machine
-(comparable to saying that this gpio is used by this i2c controller, or
-whatever)?
-
-> Alexandre suggested to pass the GPBR register number through a module
-> parameter, and retrieve the GPBR syscon by searching for a gpbr node
-> (or atmel,at91sam9260-gpbr compatible node) in the device tree.
+> Signed-off-by: Boris BREZILLON <boris.brezillon@free-electrons.com>
+> ---
+>  drivers/rtc/rtc-at91sam9.c | 24 ++++++++++++++++++++++++
+>  1 file changed, 24 insertions(+)
 > 
-> I'm not a big fan of this solution, as it implies passing driver
-> specific config to the global cmdline (and we'll have to handle the
-> 9263 case where 2 RTT blocks are availables).
+> diff --git a/drivers/rtc/rtc-at91sam9.c b/drivers/rtc/rtc-at91sam9.c
+> index 57014b7..5c5093b 100644
+> --- a/drivers/rtc/rtc-at91sam9.c
+> +++ b/drivers/rtc/rtc-at91sam9.c
+> @@ -21,6 +21,7 @@
+>  #include <linux/slab.h>
+>  #include <linux/platform_data/atmel.h>
+>  #include <linux/io.h>
+> +#include <linux/clk.h>
+>  
+>  /*
+>   * This driver uses two configurable hardware resources that live in the
+> @@ -74,6 +75,7 @@ struct sam9_rtc {
+>  	u32			imr;
+>  	void __iomem		*gpbr;
+>  	int 			irq;
+> +	struct clk		*sclk;
+>  };
+>  
+>  #define rtt_readl(rtc, field) \
+> @@ -373,6 +375,25 @@ static int at91_rtc_probe(struct platform_device *pdev)
+>  		return ret;
+>  	}
+>  
+> +	/* Retain slow clk if it is specified in the DT.
+> +	 * Do not complain if slow clk is missing, but check its rate
+> +	 * if it is available.
+> +	 */
+> +	rtc->sclk = devm_clk_get(&pdev->dev, NULL);
+> +	if (!IS_ERR(rtc->sclk)) {
+> +		if (clk_get_rate(rtc->sclk) != AT91_SLOW_CLOCK) {
 
-I agree with you, and we should really not be adding any more module
-parameters.
+I would not bother doing that check but use the value for MR instead of
+AT91_SLOW_CLOCK (see my previous mail).
 
-Also continuing the hw description discussion above, the register
-allocation really should be specified in DT if you consider that the
-bootloader could one day be able to use it for whatever purpose.
+> +			dev_err(&pdev->dev,
+> +				"Invalid slow clock rate (expecting %lu got %lu)",
+> +				(unsigned long)AT91_SLOW_CLOCK,
+> +				clk_get_rate(rtc->sclk));
+> +			return -EINVAL;
+> +		}
+> +
+> +		ret = clk_prepare_enable(rtc->sclk);
+> +		if (ret)
+> +			return ret;
+> +	}
+> +
+>  	/* NOTE:  sam9260 rev A silicon has a ROM bug which resets the
+>  	 * RTT on at least some reboots.  If you have that chip, you must
+>  	 * initialize the time from some external source like a GPS, wall
+> @@ -397,6 +418,9 @@ static int at91_rtc_remove(struct platform_device *pdev)
+>  	/* disable all interrupts */
+>  	rtt_writel(rtc, MR, mr & ~(AT91_RTT_ALMIEN | AT91_RTT_RTTINCIEN));
+>  
+> +	if (!IS_ERR(rtc->sclk))
+> +		clk_disable_unprepare(rtc->sclk);
+> +
+>  	return 0;
+>  }
+>  
+> -- 
+> 1.9.1
+> 
 
-Whether to search for a specific gpbr compatible node is perhaps a
-different issue? What would the arguments be to restrict which type of
-sysconf register to use (besides the obvious one, that not using a
-battery-backed one would be rather pointless)?
-
-Johan
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
