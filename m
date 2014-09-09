@@ -1,58 +1,90 @@
-Return-Path: <boris.brezillon@free-electrons.com>
-From: Boris BREZILLON <boris.brezillon@free-electrons.com>
-To: Nicolas Ferre <nicolas.ferre@atmel.com>,
-	Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Andrew Victor <linux@maxim.org.za>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	rtc-linux@googlegroups.com
-Cc: Rob Herring <robh+dt@kernel.org>,
-	Pawel Moll <pawel.moll@arm.com>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Ian Campbell <ijc+devicetree@hellion.org.uk>,
-	Kumar Gala <galak@codeaurora.org>,
-	devicetree@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org,
-	Boris BREZILLON <boris.brezillon@free-electrons.com>
-Subject: [PATCH 5/5] rtc: at91sam9: add DT bindings documentation
-Date: Wed,  3 Sep 2014 10:45:34 +0200
-Message-Id: <1409733934-14465-6-git-send-email-boris.brezillon@free-electrons.com>
-In-Reply-To: <1409733934-14465-1-git-send-email-boris.brezillon@free-electrons.com>
-References: <1409733934-14465-1-git-send-email-boris.brezillon@free-electrons.com>
+Return-Path: <Nicolas.FERRE@atmel.com>
+Message-ID: <540EBC17.50407@atmel.com>
+Date: Tue, 9 Sep 2014 10:36:39 +0200
+From: Nicolas Ferre <nicolas.ferre@atmel.com>
+MIME-Version: 1.0
+To: Boris BREZILLON <boris.brezillon@free-electrons.com>
+CC: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	"Jean-Christophe Plagniol-Villard" <plagnioj@jcrosoft.com>, Andrew Victor
+	<linux@maxim.org.za>, Alessandro Zummo <a.zummo@towertech.it>,
+	<rtc-linux@googlegroups.com>, "Rob Herring" <robh+dt@kernel.org>, Pawel Moll
+	<pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell
+	<ijc+devicetree@hellion.org.uk>, "Kumar Gala" <galak@codeaurora.org>,
+	<devicetree@vger.kernel.org>, <linux-arm-kernel@lists.infradead.org>,
+	<linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 4/5] rtc: at91sam9: retain slow clock and check its rate
+References: <1409733934-14465-1-git-send-email-boris.brezillon@free-electrons.com>	<1409733934-14465-5-git-send-email-boris.brezillon@free-electrons.com>	<20140908173338.GD14623@piout.net>	<20140908212218.6a81af86@bbrezillon> <20140908213743.27d7a1bc@bbrezillon>
+In-Reply-To: <20140908213743.27d7a1bc@bbrezillon>
+Content-Type: text/plain; charset="ISO-8859-1"
 List-ID: <rtc-linux.googlegroups.com>
 
-Signed-off-by: Boris BREZILLON <boris.brezillon@free-electrons.com>
----
- .../devicetree/bindings/rtc/atmel,at91sam9-rtc.txt   | 20 ++++++++++++++++++++
- 1 file changed, 20 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/rtc/atmel,at91sam9-rtc.txt
+On 08/09/2014 21:37, Boris BREZILLON :
+> On Mon, 8 Sep 2014 21:22:18 +0200
+> Boris BREZILLON <boris.brezillon@free-electrons.com> wrote:
+> 
+>> On Mon, 8 Sep 2014 19:33:38 +0200
+>> Alexandre Belloni <alexandre.belloni@free-electrons.com> wrote:
+>>
+>>> On 03/09/2014 at 10:45:33 +0200, Boris Brezillon wrote :
+>>>> The RTT block is using the slow clock and expect it to run at 32KHz.
+>>>> Now that we moved to the CCF it's better to retain the clk reference so
+>>>> that the CCF can't disable the slow clock considering it is unused.
+>>>>
+>>>> Signed-off-by: Boris BREZILLON <boris.brezillon@free-electrons.com>
+>>>> ---
+>>>>  drivers/rtc/rtc-at91sam9.c | 24 ++++++++++++++++++++++++
+>>>>  1 file changed, 24 insertions(+)
+>>>>
+>>>> diff --git a/drivers/rtc/rtc-at91sam9.c b/drivers/rtc/rtc-at91sam9.c
+>>>> index 57014b7..5c5093b 100644
+>>>> --- a/drivers/rtc/rtc-at91sam9.c
+>>>> +++ b/drivers/rtc/rtc-at91sam9.c
+>>>> @@ -21,6 +21,7 @@
+>>>>  #include <linux/slab.h>
+>>>>  #include <linux/platform_data/atmel.h>
+>>>>  #include <linux/io.h>
+>>>> +#include <linux/clk.h>
+>>>>  
+>>>>  /*
+>>>>   * This driver uses two configurable hardware resources that live in the
+>>>> @@ -74,6 +75,7 @@ struct sam9_rtc {
+>>>>  	u32			imr;
+>>>>  	void __iomem		*gpbr;
+>>>>  	int 			irq;
+>>>> +	struct clk		*sclk;
+>>>>  };
+>>>>  
+>>>>  #define rtt_readl(rtc, field) \
+>>>> @@ -373,6 +375,25 @@ static int at91_rtc_probe(struct platform_device *pdev)
+>>>>  		return ret;
+>>>>  	}
+>>>>  
+>>>> +	/* Retain slow clk if it is specified in the DT.
+>>>> +	 * Do not complain if slow clk is missing, but check its rate
+>>>> +	 * if it is available.
+>>>> +	 */
+>>>> +	rtc->sclk = devm_clk_get(&pdev->dev, NULL);
+>>>> +	if (!IS_ERR(rtc->sclk)) {
+>>>> +		if (clk_get_rate(rtc->sclk) != AT91_SLOW_CLOCK) {
+>>>
+>>> I would not bother doing that check but use the value for MR instead of
+>>> AT91_SLOW_CLOCK (see my previous mail).
+>>
+>> Unfortunately, we can't get rid of this macro without modifying the
+>> clk_lookup table in several arch/arm/mach-at91/<soc-name>.c files in
+>> order to handle non DT/CCF cases (which will remain until all non DT
+>> boards are moved to DT).
+> 
+> After taking a closer look at what should be modified, I think it's
+> worth it: there's only 5 impacted files (at91sam9260.c, at91sam9261.c,
+> at91sam9263.c, at91sam9rl.c and at91sam9g45.c) and adding a clk_lookup
+> entry is pretty easy.
+> 
+> Moreover we'll end up with a clean driver and won't have to bother
+> about cleaning it up when dropping non DT boards support.
 
-diff --git a/Documentation/devicetree/bindings/rtc/atmel,at91sam9-rtc.txt b/Documentation/devicetree/bindings/rtc/atmel,at91sam9-rtc.txt
-new file mode 100644
-index 0000000..9ca455f
---- /dev/null
-+++ b/Documentation/devicetree/bindings/rtc/atmel,at91sam9-rtc.txt
-@@ -0,0 +1,20 @@
-+Atmel AT91SAM9260 Real Time Timer
-+
-+Required properties:
-+- compatible: should be: "atmel,at91sam9260-rtt"
-+- reg: should contain 2 memory regions
-+  * the first one encodes the memory region of the RTT controller
-+  * the second one encodes the GPBR (General Purpose Backup Resgisters)
-+    memory region used to store the current time
-+- interrupts: rtc alarm/event interrupt
-+- clocks: should contain one clock pointing the the slow clk
-+
-+Example:
-+
-+rtc@fffffe00 {
-+	compatible = "atmel,at91sam9260-rtt";
-+	reg = <0xfffffd20 0x10
-+	       0xfffffd50 0x4>;
-+	interrupts = <1 4 7>;
-+	clocks = <&clk32k>;
-+};
+I vote for this => +1 ;-)
+
+Bye,
 -- 
-1.9.1
+Nicolas Ferre
