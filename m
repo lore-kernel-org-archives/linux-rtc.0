@@ -1,42 +1,61 @@
-Return-Path: <arnd@arndb.de>
-From: Arnd Bergmann <arnd@arndb.de>
-To: linux-arm-kernel@lists.infradead.org
-Cc: Boris BREZILLON <boris.brezillon@free-electrons.com>, Nicolas Ferre <nicolas.ferre@atmel.com>, Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>, Alexandre Belloni <alexandre.belloni@free-electrons.com>, Andrew Victor <linux@maxim.org.za>, Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com, Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, Johan Hovold <jhovold@gmail.com>, Mark Rutland <mark.rutland@arm.com>, devicetree@vger.kernel.org, Pawel Moll <pawel.moll@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, linux-kernel@vger.kernel.org, Rob Herring <robh+dt@kernel.org>, Kumar Gala <galak@codeaurora.org>
-Subject: Re: [PATCH v8 09/10] rtc: at91sam9: add DT bindings documentation
-Date: Tue, 23 Sep 2014 14:56:37 +0200
-Message-ID: <3728270.N2tTcyeJmL@wuerfel>
-In-Reply-To: <1411471444-2764-10-git-send-email-boris.brezillon@free-electrons.com>
-References: <1411471444-2764-1-git-send-email-boris.brezillon@free-electrons.com> <1411471444-2764-10-git-send-email-boris.brezillon@free-electrons.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Return-Path: <boris.brezillon@free-electrons.com>
+From: Boris BREZILLON <boris.brezillon@free-electrons.com>
+To: Nicolas Ferre <nicolas.ferre@atmel.com>,
+	Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Andrew Victor <linux@maxim.org.za>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	rtc-linux@googlegroups.com
+Cc: Rob Herring <robh+dt@kernel.org>,
+	Pawel Moll <pawel.moll@arm.com>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Ian Campbell <ijc+devicetree@hellion.org.uk>,
+	Kumar Gala <galak@codeaurora.org>,
+	devicetree@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org,
+	Boris BREZILLON <boris.brezillon@free-electrons.com>
+Subject: [PATCH v2 3/6] rtc: at91sam9: add DT support
+Date: Tue,  9 Sep 2014 11:30:32 +0200
+Message-Id: <1410255035-26775-4-git-send-email-boris.brezillon@free-electrons.com>
+In-Reply-To: <1410255035-26775-1-git-send-email-boris.brezillon@free-electrons.com>
+References: <1410255035-26775-1-git-send-email-boris.brezillon@free-electrons.com>
 List-ID: <rtc-linux.googlegroups.com>
 
-On Tuesday 23 September 2014 13:24:03 Boris BREZILLON wrote:
-> Add RTT bindings documentation.
+Add of_match_table to the existing driver so that rtc nodes defined in at91
+DTs can be attached to this driver.
 
-Two minor comments here:
+Signed-off-by: Boris BREZILLON <boris.brezillon@free-electrons.com>
+---
+ drivers/rtc/rtc-at91sam9.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-> +Atmel AT91SAM9260 Real Time Timer
-> +
-> +Required properties:
-> +- compatible: should be: "atmel,at91sam9260-rtt"
-> +- reg: should encode the memory region of the RTT controller
-> +- interrupts: rtt alarm/event interrupt
-> +- clocks: should contain one clock pointing to the slow clk
-
-This should document what the clock is used for, not where it's
-connected.
-
-> +
-> +rtt@fffffe00 {
-> +       compatible = "atmel,at91sam9260-rtt";
-> +       reg = <0xfffffd20 0x10>;
-> +       interrupts = <1 4 7>;
-> +       clocks = <&clk32k>;
-> +       atmel,rtt-rtc-time-reg = <&gpbr 0x0>;
-> +};
-> 
-
-The register address fffffd20 does not match the name fffffe00
-
-	Arnd
+diff --git a/drivers/rtc/rtc-at91sam9.c b/drivers/rtc/rtc-at91sam9.c
+index 74a9ca0..57014b7 100644
+--- a/drivers/rtc/rtc-at91sam9.c
++++ b/drivers/rtc/rtc-at91sam9.c
+@@ -454,6 +454,14 @@ static int at91_rtc_resume(struct device *dev)
+ 
+ static SIMPLE_DEV_PM_OPS(at91_rtc_pm_ops, at91_rtc_suspend, at91_rtc_resume);
+ 
++#ifdef CONFIG_OF
++static const struct of_device_id at91_rtc_dt_ids[] = {
++	{ .compatible = "atmel,at91sam9260-rtt" },
++	{ /* sentinel */ }
++};
++MODULE_DEVICE_TABLE(of, at91_rtc_dt_ids);
++#endif
++
+ static struct platform_driver at91_rtc_driver = {
+ 	.probe		= at91_rtc_probe,
+ 	.remove		= at91_rtc_remove,
+@@ -462,6 +470,7 @@ static struct platform_driver at91_rtc_driver = {
+ 		.name	= "rtc-at91sam9",
+ 		.owner	= THIS_MODULE,
+ 		.pm	= &at91_rtc_pm_ops,
++		.of_match_table = of_match_ptr(at91_rtc_dt_ids),
+ 	},
+ };
+ 
+-- 
+1.9.1
