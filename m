@@ -1,60 +1,79 @@
-Return-Path: <jhovold@gmail.com>
-Date: Tue, 23 Sep 2014 09:57:50 +0200
-From: Johan Hovold <jhovold@gmail.com>
-To: Boris BREZILLON <boris.brezillon@free-electrons.com>
-Cc: Nicolas Ferre <nicolas.ferre@atmel.com>,
-	Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Andrew Victor <linux@maxim.org.za>,
-	Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
-	Samuel Ortiz <sameo@linux.intel.com>,
-	Lee Jones <lee.jones@linaro.org>, Johan Hovold <jhovold@gmail.com>,
-	Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Ian Campbell <ijc+devicetree@hellion.org.uk>,
-	Kumar Gala <galak@codeaurora.org>, devicetree@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v6 8/9] rtc: at91sam9: add DT bindings documentation
-Message-ID: <20140923075750.GP5237@localhost>
-References: <1411400563-570-1-git-send-email-boris.brezillon@free-electrons.com>
- <1411400563-570-9-git-send-email-boris.brezillon@free-electrons.com>
+Return-Path: <boris.brezillon@free-electrons.com>
+Date: Wed, 10 Sep 2014 17:35:32 +0200
+From: Boris BREZILLON <boris.brezillon@free-electrons.com>
+To: Johan Hovold <johan@kernel.org>
+Cc: Nicolas Ferre <nicolas.ferre@atmel.com>, Jean-Christophe
+ Plagniol-Villard <plagnioj@jcrosoft.com>, Alexandre Belloni
+ <alexandre.belloni@free-electrons.com>, Andrew Victor <linux@maxim.org.za>,
+ Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com, Rob
+ Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland
+ <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar
+ Gala <galak@codeaurora.org>, devicetree@vger.kernel.org,
+ linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 5/5] rtc: at91sam9: add DT bindings documentation
+Message-ID: <20140910173532.0e8b1ef7@bbrezillon>
+In-Reply-To: <20140910150702.GK2974@localhost>
+References: <1409733934-14465-1-git-send-email-boris.brezillon@free-electrons.com>
+	<1409733934-14465-6-git-send-email-boris.brezillon@free-electrons.com>
+	<20140910121424.GG2974@localhost>
+	<20140910152019.111c4c01@bbrezillon>
+	<20140910150702.GK2974@localhost>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1411400563-570-9-git-send-email-boris.brezillon@free-electrons.com>
+Content-Type: text/plain; charset=US-ASCII
 List-ID: <rtc-linux.googlegroups.com>
 
-On Mon, Sep 22, 2014 at 05:42:42PM +0200, Boris BREZILLON wrote:
-> Signed-off-by: Boris BREZILLON <boris.brezillon@free-electrons.com>
-> ---
->  .../devicetree/bindings/rtc/atmel,at91sam9-rtc.txt | 23 ++++++++++++++++++++++
->  1 file changed, 23 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/rtc/atmel,at91sam9-rtc.txt
+On Wed, 10 Sep 2014 17:07:02 +0200
+Johan Hovold <johan@kernel.org> wrote:
+
+> On Wed, Sep 10, 2014 at 03:20:19PM +0200, Boris BREZILLON wrote:
+> > On Wed, 10 Sep 2014 14:14:24 +0200
+> > Johan Hovold <johan@kernel.org> wrote:
 > 
-> diff --git a/Documentation/devicetree/bindings/rtc/atmel,at91sam9-rtc.txt b/Documentation/devicetree/bindings/rtc/atmel,at91sam9-rtc.txt
-> new file mode 100644
-> index 0000000..e94e2ee
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/rtc/atmel,at91sam9-rtc.txt
-> @@ -0,0 +1,23 @@
-> +Atmel AT91SAM9260 Real Time Timer
-> +
-> +Required properties:
-> +- compatible: should be: "atmel,at91sam9260-rtt"
-> +- reg: should encode the memory region of the RTT controller
-> +- interrupts: rtt alarm/event interrupt
-> +- clocks: should contain one clock pointing the the slow clk
+> > > This does not describe the hardware, but rather a specific software
+> > > configuration.
+> > > 
+> > > The RTT is first of all not an RTC (although it can be used as one in a
+> > > specific software configuration). And the second register resource above
+> > > is not an RTT register, but a general-purpose backup register could be
+> > > used for other purposes (which register to use is currently configurable
+> > > for legacy booting using CONFIG_RTC_DRV_AT91SAM9_GPBR).
+> > 
+> > We could use a syscon device (which exposes a regmap) for the GPBR
+> > block.
+> > 
+> > rtc@ffffff20 {
+> 
+> rtt
+> 
+> > 	compatible = "atmel,at91sam9260-rtt";
+> > 	reg = <0xfffffd20 0x10>;
+> > 	interrupts = <1 4 7>;
+> > 	clocks = <&clk32k>;
+> > 	atmel,time-reg = <&gpbr 0x0>;
+> > };
+> > 
+> > gpbr: syscon@fffffd50 {
+> > 	compatible = "atmel,at91sam9260-gpbr", "syscon";
+> > 	reg = <0xfffffd50 0x10>;
+> > 	
+> > };
+> 
+> Yes, this essentially what I suggested in the thread (and my last reply)
+> and relying on syscon rather than a custom driver seems like a good
+> idea. It would allow early access to the registers too with the recently
+> proposed changes. It would not guarantee any kind of exclusivity,
+> though, but I guess that's tolerable?
 
-Just noticed: s/the the/to the/
+I know about the "mfd: syscon: Decouple syscon interface from platform
+devices" series, but I wonder why we would need to access GPBR
+registers during early boot stages. Do you have something in mind :-)?
 
-> +- atmel,rtt-rtc-time-reg: should encode the GPBR register used to store
-> +	the time base when the RTT is used as an RTC.
-> +	The first cell should point to the GPBR node and the second one
-> +	encode the offset within the GPBR block (or in other words, the
-> +	GPBR register used to store the current time value).
+> 
+> Johan
 
-s/current time value/time base/.
 
-Looks good to me otherwise.
 
-Thanks,
-Johan
+-- 
+Boris Brezillon, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
