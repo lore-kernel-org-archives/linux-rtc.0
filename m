@@ -1,66 +1,67 @@
-Return-Path: <boris.brezillon@free-electrons.com>
-From: Boris BREZILLON <boris.brezillon@free-electrons.com>
-To: Nicolas Ferre <nicolas.ferre@atmel.com>,
+Return-Path: <jhovold@gmail.com>
+Sender: Johan Hovold <jhovold@gmail.com>
+Date: Wed, 10 Sep 2014 17:07:02 +0200
+From: Johan Hovold <johan@kernel.org>
+To: Boris BREZILLON <boris.brezillon@free-electrons.com>
+Cc: Johan Hovold <johan@kernel.org>,
+	Nicolas Ferre <nicolas.ferre@atmel.com>,
 	Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>,
 	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
 	Andrew Victor <linux@maxim.org.za>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	rtc-linux@googlegroups.com,
-	Samuel Ortiz <sameo@linux.intel.com>,
-	Lee Jones <lee.jones@linaro.org>,
-	Johan Hovold <jhovold@gmail.com>
-Cc: Rob Herring <robh+dt@kernel.org>,
-	Pawel Moll <pawel.moll@arm.com>,
+	Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
+	Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>,
 	Mark Rutland <mark.rutland@arm.com>,
 	Ian Campbell <ijc+devicetree@hellion.org.uk>,
-	Kumar Gala <galak@codeaurora.org>,
-	devicetree@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org,
-	Boris BREZILLON <boris.brezillon@free-electrons.com>
-Subject: [PATCH v7 04/10] rtc: at91sam9: add DT support
-Date: Tue, 23 Sep 2014 11:38:44 +0200
-Message-Id: <1411465130-29011-5-git-send-email-boris.brezillon@free-electrons.com>
-In-Reply-To: <1411465130-29011-1-git-send-email-boris.brezillon@free-electrons.com>
-References: <1411465130-29011-1-git-send-email-boris.brezillon@free-electrons.com>
+	Kumar Gala <galak@codeaurora.org>, devicetree@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 5/5] rtc: at91sam9: add DT bindings documentation
+Message-ID: <20140910150702.GK2974@localhost>
+References: <1409733934-14465-1-git-send-email-boris.brezillon@free-electrons.com>
+ <1409733934-14465-6-git-send-email-boris.brezillon@free-electrons.com>
+ <20140910121424.GG2974@localhost>
+ <20140910152019.111c4c01@bbrezillon>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20140910152019.111c4c01@bbrezillon>
 List-ID: <rtc-linux.googlegroups.com>
 
-Add of_match_table to the existing driver so that rtt nodes defined in at91
-DTs can be attached to this driver.
+On Wed, Sep 10, 2014 at 03:20:19PM +0200, Boris BREZILLON wrote:
+> On Wed, 10 Sep 2014 14:14:24 +0200
+> Johan Hovold <johan@kernel.org> wrote:
 
-Signed-off-by: Boris BREZILLON <boris.brezillon@free-electrons.com>
-Acked-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Acked-by: Nicolas Ferre <nicolas.ferre@atmel.com>
----
- drivers/rtc/rtc-at91sam9.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+> > This does not describe the hardware, but rather a specific software
+> > configuration.
+> > 
+> > The RTT is first of all not an RTC (although it can be used as one in a
+> > specific software configuration). And the second register resource above
+> > is not an RTT register, but a general-purpose backup register could be
+> > used for other purposes (which register to use is currently configurable
+> > for legacy booting using CONFIG_RTC_DRV_AT91SAM9_GPBR).
+> 
+> We could use a syscon device (which exposes a regmap) for the GPBR
+> block.
+> 
+> rtc@ffffff20 {
 
-diff --git a/drivers/rtc/rtc-at91sam9.c b/drivers/rtc/rtc-at91sam9.c
-index 38a2693..d72c34d 100644
---- a/drivers/rtc/rtc-at91sam9.c
-+++ b/drivers/rtc/rtc-at91sam9.c
-@@ -445,6 +445,14 @@ static int at91_rtc_resume(struct device *dev)
- 
- static SIMPLE_DEV_PM_OPS(at91_rtc_pm_ops, at91_rtc_suspend, at91_rtc_resume);
- 
-+#ifdef CONFIG_OF
-+static const struct of_device_id at91_rtc_dt_ids[] = {
-+	{ .compatible = "atmel,at91sam9260-rtt" },
-+	{ /* sentinel */ }
-+};
-+MODULE_DEVICE_TABLE(of, at91_rtc_dt_ids);
-+#endif
-+
- static struct platform_driver at91_rtc_driver = {
- 	.probe		= at91_rtc_probe,
- 	.remove		= at91_rtc_remove,
-@@ -453,6 +461,7 @@ static struct platform_driver at91_rtc_driver = {
- 		.name	= "rtc-at91sam9",
- 		.owner	= THIS_MODULE,
- 		.pm	= &at91_rtc_pm_ops,
-+		.of_match_table = of_match_ptr(at91_rtc_dt_ids),
- 	},
- };
- 
--- 
-1.9.1
+rtt
+
+> 	compatible = "atmel,at91sam9260-rtt";
+> 	reg = <0xfffffd20 0x10>;
+> 	interrupts = <1 4 7>;
+> 	clocks = <&clk32k>;
+> 	atmel,time-reg = <&gpbr 0x0>;
+> };
+> 
+> gpbr: syscon@fffffd50 {
+> 	compatible = "atmel,at91sam9260-gpbr", "syscon";
+> 	reg = <0xfffffd50 0x10>;
+> 	
+> };
+
+Yes, this essentially what I suggested in the thread (and my last reply)
+and relying on syscon rather than a custom driver seems like a good
+idea. It would allow early access to the registers too with the recently
+proposed changes. It would not guarantee any kind of exclusivity,
+though, but I guess that's tolerable?
+
+Johan
