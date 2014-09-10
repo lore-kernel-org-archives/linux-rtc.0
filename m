@@ -1,117 +1,74 @@
-Return-Path: <lee.jones@linaro.org>
-Date: Wed, 24 Sep 2014 09:49:11 +0100
-From: Lee Jones <lee.jones@linaro.org>
+Return-Path: <jhovold@gmail.com>
+Sender: Johan Hovold <jhovold@gmail.com>
+Date: Wed, 10 Sep 2014 14:14:24 +0200
+From: Johan Hovold <johan@kernel.org>
 To: Boris BREZILLON <boris.brezillon@free-electrons.com>
 Cc: Nicolas Ferre <nicolas.ferre@atmel.com>,
 	Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>,
 	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
 	Andrew Victor <linux@maxim.org.za>,
 	Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
-	Samuel Ortiz <sameo@linux.intel.com>,
-	Johan Hovold <jhovold@gmail.com>, Rob Herring <robh+dt@kernel.org>,
-	Pawel Moll <pawel.moll@arm.com>,
+	Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>,
 	Mark Rutland <mark.rutland@arm.com>,
 	Ian Campbell <ijc+devicetree@hellion.org.uk>,
 	Kumar Gala <galak@codeaurora.org>, devicetree@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-	"Acked-by: Arnd Bergmann" <arnd@arndb.de>
-Subject: Re: [PATCH v9 00/10] rtc: at91sam9: add DT support
-Message-ID: <20140924084911.GI17801@lee--X1>
-References: <1411483725-31532-1-git-send-email-boris.brezillon@free-electrons.com>
+	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 5/5] rtc: at91sam9: add DT bindings documentation
+Message-ID: <20140910121424.GG2974@localhost>
+References: <1409733934-14465-1-git-send-email-boris.brezillon@free-electrons.com>
+ <1409733934-14465-6-git-send-email-boris.brezillon@free-electrons.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-In-Reply-To: <1411483725-31532-1-git-send-email-boris.brezillon@free-electrons.com>
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1409733934-14465-6-git-send-email-boris.brezillon@free-electrons.com>
 List-ID: <rtc-linux.googlegroups.com>
 
-This is not acceptable.  You have sent a 10 patch patch-set 5 times in
-24hrs.  To make matters worse, the only patch that has any affiliation
-to me has already been accepted.
-
-Send a patch-set to the list and don't do anything until the patch has
-either been accepted or the reviews to stop coming in.  Then re-send
-(only the patches that have not yet been accepted) in a week or so, if
-required.
-
-If I have to deal with another 55 repeat emails again, you'll find
-yourself as an entry in my spam filter.
-
-> This patch series adds DT support to the atmel at91sam9 RTC driver.
-> 
-> It also removes any machine specific inclusions to prepare the migration
-> to multi platform kernel support, and retain the slow clock to prevent
-> the CCF from disabling it at the end of boot.
->   
-> Best Regards,
-> 
-> Boris
-> 
-> Changes since v8:
->  - fix DT documentation
->  - add missing '\n' in dev_err messages
-> 
-> Changes since v7:
->  - fix typo
->  - fix sclk_rate test
->  - state that RTC_DRV_AT91SAM9_RTT and RTC_DRV_AT91SAM9_GPBR are no longer
->    used when booting a DT board
-> 
-> Changes since v6:
->  - fix typos
->  - add missing commit messages
->  - rework the Kconfig description
-> 
-> Changes since v5:
->  - replace 'rtc' by 'rtt' where appropriate
->  - fix commit messages
-> 
-> Changes since v4:
->  - add a TODO comment to remember removing non DT board support code
-> 
-> Changes since v3:
->  - add GPBR DT bindings doc
->  - fix a coding style issues
->  - add Alexandre's Acked-by
->  - change RTT DT bindings
-> 
-> Changes since v2:
->  - make use of syscon/regmap to avoid directly requesting/mapping a GPBR
->    memory region in the RTT driver
-> 
-> Changes since v1:
->  - remove non CCF specific case by adding the appropriate clk_lookup
->    entries in arch/arm/mach-at91/<soc-name>.c files
-> 
-> Boris BREZILLON (10):
->   rtc: at91sam9: remove references to mach specific headers
->   rtc: at91sam9: use standard readl/writel functions instead of raw
->     versions
->   rtc: at91sam9: replace devm_ioremap by devm_ioremap_resource
->   rtc: at91sam9: add DT support
->   rtc: at91sam9: make use of syscon/regmap to access GPBR registers
->   rtc: at91sam9: rework the Kconfig description
->   ARM: at91: add clk_lookup entry for RTT devices
->   rtc: at91sam9: use clk API instead of relying on AT91_SLOW_CLOCK
->   rtc: at91sam9: add DT bindings documentation
->   mfd: syscon: add Atmel GPBR DT bindings documention
-> 
->  .../devicetree/bindings/mfd/atmel,gpbr.txt         |  15 +++
->  .../devicetree/bindings/rtc/atmel,at91sam9-rtc.txt |  23 ++++
->  arch/arm/mach-at91/at91sam9260.c                   |   2 +
->  arch/arm/mach-at91/at91sam9261.c                   |   2 +
->  arch/arm/mach-at91/at91sam9263.c                   |   4 +
->  arch/arm/mach-at91/at91sam9g45.c                   |   2 +
->  arch/arm/mach-at91/at91sam9rl.c                    |   2 +
->  arch/arm/mach-at91/clock.c                         |   2 +-
->  arch/arm/mach-at91/clock.h                         |   1 +
->  drivers/rtc/Kconfig                                |  24 ++--
->  drivers/rtc/rtc-at91sam9.c                         | 138 ++++++++++++++++-----
->  11 files changed, 177 insertions(+), 38 deletions(-)
->  create mode 100644 Documentation/devicetree/bindings/mfd/atmel,gpbr.txt
+On Wed, Sep 03, 2014 at 10:45:34AM +0200, Boris BREZILLON wrote:
+> Signed-off-by: Boris BREZILLON <boris.brezillon@free-electrons.com>
+> ---
+>  .../devicetree/bindings/rtc/atmel,at91sam9-rtc.txt   | 20 ++++++++++++++++++++
+>  1 file changed, 20 insertions(+)
 >  create mode 100644 Documentation/devicetree/bindings/rtc/atmel,at91sam9-rtc.txt
 > 
+> diff --git a/Documentation/devicetree/bindings/rtc/atmel,at91sam9-rtc.txt b/Documentation/devicetree/bindings/rtc/atmel,at91sam9-rtc.txt
+> new file mode 100644
+> index 0000000..9ca455f
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/rtc/atmel,at91sam9-rtc.txt
+> @@ -0,0 +1,20 @@
+> +Atmel AT91SAM9260 Real Time Timer
+> +
+> +Required properties:
+> +- compatible: should be: "atmel,at91sam9260-rtt"
+> +- reg: should contain 2 memory regions
+> +  * the first one encodes the memory region of the RTT controller
+> +  * the second one encodes the GPBR (General Purpose Backup Resgisters)
+> +    memory region used to store the current time
+> +- interrupts: rtc alarm/event interrupt
+> +- clocks: should contain one clock pointing the the slow clk
+> +
+> +Example:
+> +
+> +rtc@fffffe00 {
+> +	compatible = "atmel,at91sam9260-rtt";
+> +	reg = <0xfffffd20 0x10
+> +	       0xfffffd50 0x4>;
+> +	interrupts = <1 4 7>;
+> +	clocks = <&clk32k>;
+> +};
 
--- 
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org │ Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+This does not describe the hardware, but rather a specific software
+configuration.
+
+The RTT is first of all not an RTC (although it can be used as one in a
+specific software configuration). And the second register resource above
+is not an RTT register, but a general-purpose backup register could be
+used for other purposes (which register to use is currently configurable
+for legacy booting using CONFIG_RTC_DRV_AT91SAM9_GPBR).
+
+This was discussed in the thread where I posted an RFC for this last
+year (which you linked to in your original submission thread), but no
+conclusion was reached:
+
+	http://www.spinics.net/lists/arm-kernel/msg236292.html
+
+Johan
