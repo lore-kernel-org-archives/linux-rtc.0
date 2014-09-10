@@ -1,183 +1,99 @@
-Return-Path: <Nicolas.FERRE@atmel.com>
-Message-ID: <54212FD7.6080209@atmel.com>
-Date: Tue, 23 Sep 2014 10:31:19 +0200
-From: Nicolas Ferre <nicolas.ferre@atmel.com>
+Return-Path: <boris.brezillon@free-electrons.com>
+Date: Wed, 10 Sep 2014 14:43:15 +0200
+From: Boris BREZILLON <boris.brezillon@free-electrons.com>
+To: Johan Hovold <johan@kernel.org>
+Cc: Nicolas Ferre <nicolas.ferre@atmel.com>, Jean-Christophe
+ Plagniol-Villard <plagnioj@jcrosoft.com>, Alexandre Belloni
+ <alexandre.belloni@free-electrons.com>, Andrew Victor <linux@maxim.org.za>,
+ Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com, Rob
+ Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland
+ <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar
+ Gala <galak@codeaurora.org>, devicetree@vger.kernel.org,
+ linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 5/5] rtc: at91sam9: add DT bindings documentation
+Message-ID: <20140910144315.240621e6@bbrezillon>
+In-Reply-To: <20140910121424.GG2974@localhost>
+References: <1409733934-14465-1-git-send-email-boris.brezillon@free-electrons.com>
+	<1409733934-14465-6-git-send-email-boris.brezillon@free-electrons.com>
+	<20140910121424.GG2974@localhost>
 MIME-Version: 1.0
-To: Boris BREZILLON <boris.brezillon@free-electrons.com>, "Jean-Christophe
- Plagniol-Villard" <plagnioj@jcrosoft.com>, Alexandre Belloni
-	<alexandre.belloni@free-electrons.com>, Andrew Victor <linux@maxim.org.za>,
-	Alessandro Zummo <a.zummo@towertech.it>, <rtc-linux@googlegroups.com>,
-	"Samuel Ortiz" <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>,
-	Johan Hovold <jhovold@gmail.com>
-CC: Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, "Mark
- Rutland" <mark.rutland@arm.com>, Ian Campbell
-	<ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>,
-	<devicetree@vger.kernel.org>, <linux-arm-kernel@lists.infradead.org>,
-	<linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH v6 5/9] rtc: at91sam9: make use of syscon/regmap to access
- GPBR registers
-References: <1411400563-570-1-git-send-email-boris.brezillon@free-electrons.com> <1411400563-570-6-git-send-email-boris.brezillon@free-electrons.com>
-In-Reply-To: <1411400563-570-6-git-send-email-boris.brezillon@free-electrons.com>
-Content-Type: text/plain; charset="ISO-8859-1"
+Content-Type: text/plain; charset=US-ASCII
 List-ID: <rtc-linux.googlegroups.com>
 
-On 22/09/2014 17:42, Boris BREZILLON :
-> The GPBR registers are not part of the RTT block and thus should not be
-> defined in the reg property of the rtt node.
+Hi Johan,
+
+On Wed, 10 Sep 2014 14:14:24 +0200
+Johan Hovold <johan@kernel.org> wrote:
+
+> On Wed, Sep 03, 2014 at 10:45:34AM +0200, Boris BREZILLON wrote:
+> > Signed-off-by: Boris BREZILLON <boris.brezillon@free-electrons.com>
+> > ---
+> >  .../devicetree/bindings/rtc/atmel,at91sam9-rtc.txt   | 20 ++++++++++++++++++++
+> >  1 file changed, 20 insertions(+)
+> >  create mode 100644 Documentation/devicetree/bindings/rtc/atmel,at91sam9-rtc.txt
+> > 
+> > diff --git a/Documentation/devicetree/bindings/rtc/atmel,at91sam9-rtc.txt b/Documentation/devicetree/bindings/rtc/atmel,at91sam9-rtc.txt
+> > new file mode 100644
+> > index 0000000..9ca455f
+> > --- /dev/null
+> > +++ b/Documentation/devicetree/bindings/rtc/atmel,at91sam9-rtc.txt
+> > @@ -0,0 +1,20 @@
+> > +Atmel AT91SAM9260 Real Time Timer
+> > +
+> > +Required properties:
+> > +- compatible: should be: "atmel,at91sam9260-rtt"
+> > +- reg: should contain 2 memory regions
+> > +  * the first one encodes the memory region of the RTT controller
+> > +  * the second one encodes the GPBR (General Purpose Backup Resgisters)
+> > +    memory region used to store the current time
+> > +- interrupts: rtc alarm/event interrupt
+> > +- clocks: should contain one clock pointing the the slow clk
+> > +
+> > +Example:
+> > +
+> > +rtc@fffffe00 {
+> > +	compatible = "atmel,at91sam9260-rtt";
+> > +	reg = <0xfffffd20 0x10
+> > +	       0xfffffd50 0x4>;
+> > +	interrupts = <1 4 7>;
+> > +	clocks = <&clk32k>;
+> > +};
 > 
-> Use syscon to provide a proper DT representation and reference the GPBR
-> syscon device in a new "atmel,rtt-rtc-time-reg" property which store both
-> the syscon device phandle and the register offset within the GPBR block.
+> This does not describe the hardware, but rather a specific software
+> configuration.
 > 
-> When using non DT boards, we won't be able to retrieve the syscon regmap,
-> hence we need to create our own regmap using the memory region defined
-> in the 2nd memory resource assigned to the RTT platform device.
+> The RTT is first of all not an RTC (although it can be used as one in a
+> specific software configuration). And the second register resource above
+> is not an RTT register, but a general-purpose backup register could be
+> used for other purposes (which register to use is currently configurable
+> for legacy booting using CONFIG_RTC_DRV_AT91SAM9_GPBR).
 > 
-> Signed-off-by: Boris BREZILLON <boris.brezillon@free-electrons.com>
-> Acked-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-> ---
->  drivers/rtc/Kconfig        |  1 +
->  drivers/rtc/rtc-at91sam9.c | 64 +++++++++++++++++++++++++++++++++++++++-------
->  2 files changed, 56 insertions(+), 9 deletions(-)
+> This was discussed in the thread where I posted an RFC for this last
+> year (which you linked to in your original submission thread), but no
+> conclusion was reached:
 > 
-> diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
-> index a168e96..7d76da8 100644
-> --- a/drivers/rtc/Kconfig
-> +++ b/drivers/rtc/Kconfig
-> @@ -1081,6 +1081,7 @@ config RTC_DRV_AT91RM9200
->  config RTC_DRV_AT91SAM9
->  	tristate "AT91SAM9x/AT91CAP9 RTT as RTC"
+> 	http://www.spinics.net/lists/arm-kernel/msg236292.html
 
-BTW, while we are at it, can we remove mention of the CAP9 here ^^^
+Yes, I read this thread.
 
->  	depends on ARCH_AT91 && !(ARCH_AT91RM9200 || ARCH_AT91X40)
-> +	select MFD_SYSCON
->  	help
->  	  RTC driver for the Atmel AT91SAM9x and AT91CAP9 internal RTT
+Please, lets just find a solution, even if it's not a perfect one,
+because the situation is unacceptable.
+We're missing this features since the move to DT because we were not
+able to agree on a DT binding...
 
-And there ^^^ and refine the Kconfig "help" message which can be
-confusing (not all SAM9's have this rtt or need for it). We can also
-remove the explicit mention of 9rl and 9g45 as many other AT91 SoCs can
-use the "real" RTC...
+I know DT bindings are supposed to represent HW parts and not what
+they're used for or how they're configured, but do you see any other
+real usage of the RTT block ?
 
-Thanks ;-)
+BTW, I don't care which binding/implementation is chosen but we need to
+sort this out!
 
+Best Regards,
 
->  	  (Real Time Timer). These timers are powered by the backup power
-> diff --git a/drivers/rtc/rtc-at91sam9.c b/drivers/rtc/rtc-at91sam9.c
-> index d72c34d..902cd01 100644
-> --- a/drivers/rtc/rtc-at91sam9.c
-> +++ b/drivers/rtc/rtc-at91sam9.c
-> @@ -21,6 +21,8 @@
->  #include <linux/slab.h>
->  #include <linux/platform_data/atmel.h>
->  #include <linux/io.h>
-> +#include <linux/mfd/syscon.h>
-> +#include <linux/regmap.h>
->  
->  /*
->   * This driver uses two configurable hardware resources that live in the
-> @@ -72,7 +74,8 @@ struct sam9_rtc {
->  	void __iomem		*rtt;
->  	struct rtc_device	*rtcdev;
->  	u32			imr;
-> -	void __iomem		*gpbr;
-> +	struct regmap		*gpbr;
-> +	unsigned int		gpbr_offset;
->  	int 			irq;
->  };
->  
-> @@ -81,10 +84,19 @@ struct sam9_rtc {
->  #define rtt_writel(rtc, field, val) \
->  	writel((val), (rtc)->rtt + AT91_RTT_ ## field)
->  
-> -#define gpbr_readl(rtc) \
-> -	readl((rtc)->gpbr)
-> -#define gpbr_writel(rtc, val) \
-> -	writel((val), (rtc)->gpbr)
-> +static inline unsigned int gpbr_readl(struct sam9_rtc *rtc)
-> +{
-> +	unsigned int val;
-> +
-> +	regmap_read(rtc->gpbr, rtc->gpbr_offset, &val);
-> +
-> +	return val;
-> +}
-> +
-> +static inline void gpbr_writel(struct sam9_rtc *rtc, unsigned int val)
-> +{
-> +	regmap_write(rtc->gpbr, rtc->gpbr_offset, val);
-> +}
->  
->  /*
->   * Read current time and date in RTC
-> @@ -301,6 +313,12 @@ static const struct rtc_class_ops at91_rtc_ops = {
->  	.alarm_irq_enable = at91_rtc_alarm_irq_enable,
->  };
->  
-> +static struct regmap_config gpbr_regmap_config = {
-> +	.reg_bits = 32,
-> +	.val_bits = 32,
-> +	.reg_stride = 4,
-> +};
-> +
->  /*
->   * Initialize and install RTC driver
->   */
-> @@ -334,10 +352,38 @@ static int at91_rtc_probe(struct platform_device *pdev)
->  	if (IS_ERR(rtc->rtt))
->  		return PTR_ERR(rtc->rtt);
->  
-> -	r = platform_get_resource(pdev, IORESOURCE_MEM, 1);
-> -	rtc->gpbr = devm_ioremap_resource(&pdev->dev, r);
-> -	if (IS_ERR(rtc->gpbr))
-> -		return PTR_ERR(rtc->rtt);
-> +	if (!pdev->dev.of_node) {
-> +		/*
-> +		 * TODO: Remove this code chunk when when removing non DT
-> +		 * board support. Remember to remove the gpbr_regmap_config
-> +		 * variable too.
+Boris
 
-Thanks for having add this: very useful in the near future!
-
-> +		 */
-> +		void __iomem *gpbr;
-> +
-> +		r = platform_get_resource(pdev, IORESOURCE_MEM, 1);
-> +		gpbr = devm_ioremap_resource(&pdev->dev, r);
-> +		if (IS_ERR(gpbr))
-> +			return PTR_ERR(gpbr);
-> +
-> +		rtc->gpbr = regmap_init_mmio(NULL, gpbr,
-> +					     &gpbr_regmap_config);
-> +	} else {
-> +		struct of_phandle_args args;
-> +
-> +		ret = of_parse_phandle_with_fixed_args(pdev->dev.of_node,
-> +						"atmel,rtt-rtc-time-reg", 1, 0,
-> +						&args);
-> +		if (ret)
-> +			return ret;
-> +
-> +		rtc->gpbr = syscon_node_to_regmap(args.np);
-> +		rtc->gpbr_offset = args.args[0];
-> +	}
-> +
-> +	if (IS_ERR(rtc->gpbr)) {
-> +		dev_err(&pdev->dev, "failed to retrieve gpbr regmap, aborting.\n");
-> +		return -ENOMEM;
-> +	}
->  
->  	mr = rtt_readl(rtc, MR);
->  
-> 
-
-Okay: look pretty good: thanks for having handling this Boris!
-
-
-Acked-by: Nicolas Ferre <nicolas.ferre@atmel.com>
-
-Bye,
 
 -- 
-Nicolas Ferre
+Boris Brezillon, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
