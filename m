@@ -1,90 +1,90 @@
 Return-Path: <Nicolas.FERRE@atmel.com>
-Message-ID: <540EBC17.50407@atmel.com>
-Date: Tue, 9 Sep 2014 10:36:39 +0200
+Message-ID: <54108277.9000100@atmel.com>
+Date: Wed, 10 Sep 2014 18:55:19 +0200
 From: Nicolas Ferre <nicolas.ferre@atmel.com>
 MIME-Version: 1.0
-To: Boris BREZILLON <boris.brezillon@free-electrons.com>
-CC: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	"Jean-Christophe Plagniol-Villard" <plagnioj@jcrosoft.com>, Andrew Victor
+To: Johan Hovold <johan@kernel.org>, Boris BREZILLON
+	<boris.brezillon@free-electrons.com>
+CC: Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>, "Alexandre
+ Belloni" <alexandre.belloni@free-electrons.com>, Andrew Victor
 	<linux@maxim.org.za>, Alessandro Zummo <a.zummo@towertech.it>,
-	<rtc-linux@googlegroups.com>, "Rob Herring" <robh+dt@kernel.org>, Pawel Moll
+	<rtc-linux@googlegroups.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll
 	<pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell
-	<ijc+devicetree@hellion.org.uk>, "Kumar Gala" <galak@codeaurora.org>,
+	<ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>,
 	<devicetree@vger.kernel.org>, <linux-arm-kernel@lists.infradead.org>,
 	<linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 4/5] rtc: at91sam9: retain slow clock and check its rate
-References: <1409733934-14465-1-git-send-email-boris.brezillon@free-electrons.com>	<1409733934-14465-5-git-send-email-boris.brezillon@free-electrons.com>	<20140908173338.GD14623@piout.net>	<20140908212218.6a81af86@bbrezillon> <20140908213743.27d7a1bc@bbrezillon>
-In-Reply-To: <20140908213743.27d7a1bc@bbrezillon>
+Subject: Re: [PATCH 5/5] rtc: at91sam9: add DT bindings documentation
+References: <1409733934-14465-1-git-send-email-boris.brezillon@free-electrons.com> <1409733934-14465-6-git-send-email-boris.brezillon@free-electrons.com> <20140910121424.GG2974@localhost> <20140910152019.111c4c01@bbrezillon> <20140910150702.GK2974@localhost> <20140910173114.593dd132@bbrezillon> <20140910155236.GL2974@localhost>
+In-Reply-To: <20140910155236.GL2974@localhost>
 Content-Type: text/plain; charset="ISO-8859-1"
 List-ID: <rtc-linux.googlegroups.com>
 
-On 08/09/2014 21:37, Boris BREZILLON :
-> On Mon, 8 Sep 2014 21:22:18 +0200
-> Boris BREZILLON <boris.brezillon@free-electrons.com> wrote:
+On 10/09/2014 17:52, Johan Hovold :
+> On Wed, Sep 10, 2014 at 05:31:14PM +0200, Boris BREZILLON wrote:
+>> On Wed, 10 Sep 2014 17:07:02 +0200
+>> Johan Hovold <johan@kernel.org> wrote:
 > 
->> On Mon, 8 Sep 2014 19:33:38 +0200
->> Alexandre Belloni <alexandre.belloni@free-electrons.com> wrote:
+>>> Yes, this essentially what I suggested in the thread (and my last reply)
+>>> and relying on syscon rather than a custom driver seems like a good
+>>> idea. It would allow early access to the registers too with the recently
+>>> proposed changes. It would not guarantee any kind of exclusivity,
+>>> though, but I guess that's tolerable?
 >>
->>> On 03/09/2014 at 10:45:33 +0200, Boris Brezillon wrote :
->>>> The RTT block is using the slow clock and expect it to run at 32KHz.
->>>> Now that we moved to the CCF it's better to retain the clk reference so
->>>> that the CCF can't disable the slow clock considering it is unused.
->>>>
->>>> Signed-off-by: Boris BREZILLON <boris.brezillon@free-electrons.com>
->>>> ---
->>>>  drivers/rtc/rtc-at91sam9.c | 24 ++++++++++++++++++++++++
->>>>  1 file changed, 24 insertions(+)
->>>>
->>>> diff --git a/drivers/rtc/rtc-at91sam9.c b/drivers/rtc/rtc-at91sam9.c
->>>> index 57014b7..5c5093b 100644
->>>> --- a/drivers/rtc/rtc-at91sam9.c
->>>> +++ b/drivers/rtc/rtc-at91sam9.c
->>>> @@ -21,6 +21,7 @@
->>>>  #include <linux/slab.h>
->>>>  #include <linux/platform_data/atmel.h>
->>>>  #include <linux/io.h>
->>>> +#include <linux/clk.h>
->>>>  
->>>>  /*
->>>>   * This driver uses two configurable hardware resources that live in the
->>>> @@ -74,6 +75,7 @@ struct sam9_rtc {
->>>>  	u32			imr;
->>>>  	void __iomem		*gpbr;
->>>>  	int 			irq;
->>>> +	struct clk		*sclk;
->>>>  };
->>>>  
->>>>  #define rtt_readl(rtc, field) \
->>>> @@ -373,6 +375,25 @@ static int at91_rtc_probe(struct platform_device *pdev)
->>>>  		return ret;
->>>>  	}
->>>>  
->>>> +	/* Retain slow clk if it is specified in the DT.
->>>> +	 * Do not complain if slow clk is missing, but check its rate
->>>> +	 * if it is available.
->>>> +	 */
->>>> +	rtc->sclk = devm_clk_get(&pdev->dev, NULL);
->>>> +	if (!IS_ERR(rtc->sclk)) {
->>>> +		if (clk_get_rate(rtc->sclk) != AT91_SLOW_CLOCK) {
->>>
->>> I would not bother doing that check but use the value for MR instead of
->>> AT91_SLOW_CLOCK (see my previous mail).
+>> Yep, that's one of the concern I had with the syscon/regmap
+>> approach :-(, but I guess I'll give this solution a try and post a new
+>> version of this series ;-).
+> 
+> Perhaps we should see what Nicolas and Jean-Christophe says before
+> rushing into anything (again). ;)
+
+I said and say it again: keep it simple: if gpbr 0 is used by bootloader
+to pass information about the boot media, use gpbr 1, without protection
+without anything fancy, please.
+
+atmel,at91-rtt-as-rtc-gpbr = <1>;
+is good for me.
+
+We can decide to keep the DT binding as "unstable" and see what happen
+in one year from now (I suspect nothing will happen). The result is that
+we will have a simple update of this driver without new API or new
+sub-system to learn and maintain.
+
+So, all in all, I would just take what Johan or Boris did, and go with
+this, now!
+
+
+> I remember J-C considered loosing track of what was using a particular
+> backup register to be a regression. But I guess you can't have it both
+> ways (e.g. if you also want the early access soon provided by syscon).
+> 
+> I'll refresh my rtt and gmbr-node patches meanwhile, as they should be
+> needed in some form at least.
+> 
+>> Can we just leave the rtt as an rtc problem on the side for now and bind
+>> it to the rtc-at91sam9 driver.
 >>
->> Unfortunately, we can't get rid of this macro without modifying the
->> clk_lookup table in several arch/arm/mach-at91/<soc-name>.c files in
->> order to handle non DT/CCF cases (which will remain until all non DT
->> boards are moved to DT).
+>> If we ever decide to add a new driver using the RTT for another purpose
+>> we will still be able to reference the RTT block like this (and keep
+>> the existing rtt node definition):
+>>
+>> rtt-based-rtc {
+>> 	compatible = "atmel,rtt-rtc";
+>> 	atmel,rtt = <&rtt>;
+>> 	atmel,time-reg = <&gpbr 0x0>;
+>> }
 > 
-> After taking a closer look at what should be modified, I think it's
-> worth it: there's only 5 impacted files (at91sam9260.c, at91sam9261.c,
-> at91sam9263.c, at91sam9rl.c and at91sam9g45.c) and adding a clk_lookup
-> entry is pretty easy.
+> But why not do this from the start?
 > 
-> Moreover we'll end up with a clean driver and won't have to bother
-> about cleaning it up when dropping non DT boards support.
+>> rtt-based-xdev {
+>> 	compatible = "atmel,rtt-xdev";
+>> 	atmel,rtt = <&rtt>;
+>> 	/*...*/
+>> }
+> 
+> Johan
+> 
+> 
 
-I vote for this => +1 ;-)
 
-Bye,
 -- 
 Nicolas Ferre
