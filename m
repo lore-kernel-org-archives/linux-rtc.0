@@ -1,68 +1,47 @@
-Return-Path: <boris.brezillon@free-electrons.com>
-From: Boris BREZILLON <boris.brezillon@free-electrons.com>
-To: Nicolas Ferre <nicolas.ferre@atmel.com>,
+Return-Path: <jhovold@gmail.com>
+Sender: Johan Hovold <jhovold@gmail.com>
+Date: Wed, 10 Sep 2014 17:57:32 +0200
+From: Johan Hovold <johan@kernel.org>
+To: Boris BREZILLON <boris.brezillon@free-electrons.com>
+Cc: Johan Hovold <johan@kernel.org>,
+	Nicolas Ferre <nicolas.ferre@atmel.com>,
 	Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>,
 	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
 	Andrew Victor <linux@maxim.org.za>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	rtc-linux@googlegroups.com,
-	Samuel Ortiz <sameo@linux.intel.com>,
-	Lee Jones <lee.jones@linaro.org>,
-	Johan Hovold <jhovold@gmail.com>
-Cc: Rob Herring <robh+dt@kernel.org>,
-	Pawel Moll <pawel.moll@arm.com>,
+	Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
+	Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>,
 	Mark Rutland <mark.rutland@arm.com>,
 	Ian Campbell <ijc+devicetree@hellion.org.uk>,
-	Kumar Gala <galak@codeaurora.org>,
-	devicetree@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org,
-	Boris BREZILLON <boris.brezillon@free-electrons.com>
-Subject: [PATCH v8 09/10] rtc: at91sam9: add DT bindings documentation
-Date: Tue, 23 Sep 2014 13:24:03 +0200
-Message-Id: <1411471444-2764-10-git-send-email-boris.brezillon@free-electrons.com>
-In-Reply-To: <1411471444-2764-1-git-send-email-boris.brezillon@free-electrons.com>
-References: <1411471444-2764-1-git-send-email-boris.brezillon@free-electrons.com>
+	Kumar Gala <galak@codeaurora.org>, devicetree@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 5/5] rtc: at91sam9: add DT bindings documentation
+Message-ID: <20140910155732.GM2974@localhost>
+References: <1409733934-14465-1-git-send-email-boris.brezillon@free-electrons.com>
+ <1409733934-14465-6-git-send-email-boris.brezillon@free-electrons.com>
+ <20140910121424.GG2974@localhost>
+ <20140910152019.111c4c01@bbrezillon>
+ <20140910150702.GK2974@localhost>
+ <20140910173532.0e8b1ef7@bbrezillon>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20140910173532.0e8b1ef7@bbrezillon>
 List-ID: <rtc-linux.googlegroups.com>
 
-Add RTT bindings documentation.
+On Wed, Sep 10, 2014 at 05:35:32PM +0200, Boris BREZILLON wrote:
+> On Wed, 10 Sep 2014 17:07:02 +0200 Johan Hovold <johan@kernel.org> wrote:
 
-Signed-off-by: Boris BREZILLON <boris.brezillon@free-electrons.com>
-Acked-by: Nicolas Ferre <nicolas.ferre@atmel.com>
-Acked-by: Johan Hovold <johan@kernel.org>
----
- .../devicetree/bindings/rtc/atmel,at91sam9-rtc.txt | 23 ++++++++++++++++++++++
- 1 file changed, 23 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/rtc/atmel,at91sam9-rtc.txt
+> > Yes, this essentially what I suggested in the thread (and my last reply)
+> > and relying on syscon rather than a custom driver seems like a good
+> > idea. It would allow early access to the registers too with the recently
+> > proposed changes. It would not guarantee any kind of exclusivity,
+> > though, but I guess that's tolerable?
+> 
+> I know about the "mfd: syscon: Decouple syscon interface from platform
+> devices" series, but I wonder why we would need to access GPBR
+> registers during early boot stages. Do you have something in mind :-)?
 
-diff --git a/Documentation/devicetree/bindings/rtc/atmel,at91sam9-rtc.txt b/Documentation/devicetree/bindings/rtc/atmel,at91sam9-rtc.txt
-new file mode 100644
-index 0000000..f307a1d
---- /dev/null
-+++ b/Documentation/devicetree/bindings/rtc/atmel,at91sam9-rtc.txt
-@@ -0,0 +1,23 @@
-+Atmel AT91SAM9260 Real Time Timer
-+
-+Required properties:
-+- compatible: should be: "atmel,at91sam9260-rtt"
-+- reg: should encode the memory region of the RTT controller
-+- interrupts: rtt alarm/event interrupt
-+- clocks: should contain one clock pointing to the slow clk
-+- atmel,rtt-rtc-time-reg: should encode the GPBR register used to store
-+	the time base when the RTT is used as an RTC.
-+	The first cell should point to the GPBR node and the second one
-+	encode the offset within the GPBR block (or in other words, the
-+	GPBR register used to store the time base).
-+
-+
-+Example:
-+
-+rtt@fffffe00 {
-+	compatible = "atmel,at91sam9260-rtt";
-+	reg = <0xfffffd20 0x10>;
-+	interrupts = <1 4 7>;
-+	clocks = <&clk32k>;
-+	atmel,rtt-rtc-time-reg = <&gpbr 0x0>;
-+};
--- 
-1.9.1
+Yeah, that's what I was referring to. In the thread from last year,
+Jean-Christophe mentioned something about barebox using the
+backup-registers. Not sure about the details, though.
+
+Johan
