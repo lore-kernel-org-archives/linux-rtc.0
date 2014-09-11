@@ -16,41 +16,46 @@ Cc: Rob Herring <robh+dt@kernel.org>,
 	linux-arm-kernel@lists.infradead.org,
 	linux-kernel@vger.kernel.org,
 	Boris BREZILLON <boris.brezillon@free-electrons.com>
-Subject: [PATCH v4 2/9] rtc: at91sam9: use standard readl/writel functions instead of raw versions
-Date: Thu, 11 Sep 2014 15:18:38 +0200
-Message-Id: <1410441525-25258-3-git-send-email-boris.brezillon@free-electrons.com>
+Subject: [PATCH v4 9/9] mfd: syscon: add Atmel GPBR DT bindings documention
+Date: Thu, 11 Sep 2014 15:18:45 +0200
+Message-Id: <1410441525-25258-10-git-send-email-boris.brezillon@free-electrons.com>
 In-Reply-To: <1410441525-25258-1-git-send-email-boris.brezillon@free-electrons.com>
 References: <1410441525-25258-1-git-send-email-boris.brezillon@free-electrons.com>
 List-ID: <rtc-linux.googlegroups.com>
 
-Signed-off-by: Boris BREZILLON <boris.brezillon@free-electrons.com>
-Acked-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
----
- drivers/rtc/rtc-at91sam9.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+The GPBR block provides a set of battery-backed registers that can be used
+to save data which need to be kept when the system is powered down and
+VDD-core is maintained by an external battery.
 
-diff --git a/drivers/rtc/rtc-at91sam9.c b/drivers/rtc/rtc-at91sam9.c
-index 51f0038..74a9ca0 100644
---- a/drivers/rtc/rtc-at91sam9.c
-+++ b/drivers/rtc/rtc-at91sam9.c
-@@ -77,14 +77,14 @@ struct sam9_rtc {
- };
- 
- #define rtt_readl(rtc, field) \
--	__raw_readl((rtc)->rtt + AT91_RTT_ ## field)
-+	readl((rtc)->rtt + AT91_RTT_ ## field)
- #define rtt_writel(rtc, field, val) \
--	__raw_writel((val), (rtc)->rtt + AT91_RTT_ ## field)
-+	writel((val), (rtc)->rtt + AT91_RTT_ ## field)
- 
- #define gpbr_readl(rtc) \
--	__raw_readl((rtc)->gpbr)
-+	readl((rtc)->gpbr)
- #define gpbr_writel(rtc, val) \
--	__raw_writel((val), (rtc)->gpbr)
-+	writel((val), (rtc)->gpbr)
- 
- /*
-  * Read current time and date in RTC
+A typical usage is the RTT block (when used as an RTC) which needs one of
+those registers to save the current time.
+
+Signed-off-by: Boris BREZILLON <boris.brezillon@free-electrons.com>
+---
+ Documentation/devicetree/bindings/mfd/atmel,gpbr.txt | 15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/mfd/atmel,gpbr.txt
+
+diff --git a/Documentation/devicetree/bindings/mfd/atmel,gpbr.txt b/Documentation/devicetree/bindings/mfd/atmel,gpbr.txt
+new file mode 100644
+index 0000000..a285695
+--- /dev/null
++++ b/Documentation/devicetree/bindings/mfd/atmel,gpbr.txt
+@@ -0,0 +1,15 @@
++* Device tree bindings for Atmel GPBR (General Purpose Backup Registers)
++
++The GPBR are a set of battery-backed registers.
++
++Required properties:
++- compatible:		"atmel,at91sam9260-gpbr", "syscon"
++- reg:			contains offset/length value of the GPBR memory
++			region.
++
++Example:
++
++gpbr: gpbr@fffffd50 {
++	compatible = "atmel,at91sam9260-gpbr", "syscon";
++	reg = <0xfffffd50 0x10>;
++};
 -- 
 1.9.1
