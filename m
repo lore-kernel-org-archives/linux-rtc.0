@@ -1,22 +1,56 @@
-Return-Path: <arnd@arndb.de>
-From: Arnd Bergmann <arnd@arndb.de>
-To: linux-arm-kernel@lists.infradead.org
-Cc: Boris BREZILLON <boris.brezillon@free-electrons.com>, Nicolas Ferre <nicolas.ferre@atmel.com>, Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>, Alexandre Belloni <alexandre.belloni@free-electrons.com>, Andrew Victor <linux@maxim.org.za>, Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com, Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, Johan Hovold <jhovold@gmail.com>, Mark Rutland <mark.rutland@arm.com>, devicetree@vger.kernel.org, Pawel Moll <pawel.moll@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, linux-kernel@vger.kernel.org, Rob Herring <robh+dt@kernel.org>, Kumar Gala <galak@codeaurora.org>
-Subject: Re: [PATCH v9 09/10] rtc: at91sam9: add DT bindings documentation
-Date: Tue, 23 Sep 2014 18:30:59 +0200
-Message-ID: <471832556.XqbRT97ZJR@wuerfel>
-In-Reply-To: <1411483725-31532-10-git-send-email-boris.brezillon@free-electrons.com>
-References: <1411483725-31532-1-git-send-email-boris.brezillon@free-electrons.com> <1411483725-31532-10-git-send-email-boris.brezillon@free-electrons.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Return-Path: <boris.brezillon@free-electrons.com>
+From: Boris BREZILLON <boris.brezillon@free-electrons.com>
+To: Nicolas Ferre <nicolas.ferre@atmel.com>,
+	Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Andrew Victor <linux@maxim.org.za>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	rtc-linux@googlegroups.com,
+	Johan Hovold <jhovold@gmail.com>
+Cc: Rob Herring <robh+dt@kernel.org>,
+	Pawel Moll <pawel.moll@arm.com>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Ian Campbell <ijc+devicetree@hellion.org.uk>,
+	Kumar Gala <galak@codeaurora.org>,
+	devicetree@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org,
+	Boris BREZILLON <boris.brezillon@free-electrons.com>
+Subject: [PATCH v4 2/9] rtc: at91sam9: use standard readl/writel functions instead of raw versions
+Date: Thu, 11 Sep 2014 15:18:38 +0200
+Message-Id: <1410441525-25258-3-git-send-email-boris.brezillon@free-electrons.com>
+In-Reply-To: <1410441525-25258-1-git-send-email-boris.brezillon@free-electrons.com>
+References: <1410441525-25258-1-git-send-email-boris.brezillon@free-electrons.com>
 List-ID: <rtc-linux.googlegroups.com>
 
-On Tuesday 23 September 2014 16:48:44 Boris BREZILLON wrote:
-> Add RTT bindings documentation.
-> 
-> Signed-off-by: Boris BREZILLON <boris.brezillon@free-electrons.com>
-> Acked-by: Nicolas Ferre <nicolas.ferre@atmel.com>
-> Acked-by: Johan Hovold <johan@kernel.org>
-> 
+Signed-off-by: Boris BREZILLON <boris.brezillon@free-electrons.com>
+Acked-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+---
+ drivers/rtc/rtc-at91sam9.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-Acked-by: Arnd Bergmann <arnd@arndb.de>
+diff --git a/drivers/rtc/rtc-at91sam9.c b/drivers/rtc/rtc-at91sam9.c
+index 51f0038..74a9ca0 100644
+--- a/drivers/rtc/rtc-at91sam9.c
++++ b/drivers/rtc/rtc-at91sam9.c
+@@ -77,14 +77,14 @@ struct sam9_rtc {
+ };
+ 
+ #define rtt_readl(rtc, field) \
+-	__raw_readl((rtc)->rtt + AT91_RTT_ ## field)
++	readl((rtc)->rtt + AT91_RTT_ ## field)
+ #define rtt_writel(rtc, field, val) \
+-	__raw_writel((val), (rtc)->rtt + AT91_RTT_ ## field)
++	writel((val), (rtc)->rtt + AT91_RTT_ ## field)
+ 
+ #define gpbr_readl(rtc) \
+-	__raw_readl((rtc)->gpbr)
++	readl((rtc)->gpbr)
+ #define gpbr_writel(rtc, val) \
+-	__raw_writel((val), (rtc)->gpbr)
++	writel((val), (rtc)->gpbr)
+ 
+ /*
+  * Read current time and date in RTC
+-- 
+1.9.1
