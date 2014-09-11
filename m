@@ -1,46 +1,79 @@
-Return-Path: <jhovold@gmail.com>
-Sender: Johan Hovold <jhovold@gmail.com>
-Date: Thu, 11 Sep 2014 11:39:42 +0200
-From: Johan Hovold <johan@kernel.org>
-To: Boris BREZILLON <boris.brezillon@free-electrons.com>
-Cc: Nicolas Ferre <nicolas.ferre@atmel.com>,
+Return-Path: <boris.brezillon@free-electrons.com>
+From: Boris BREZILLON <boris.brezillon@free-electrons.com>
+To: Nicolas Ferre <nicolas.ferre@atmel.com>,
 	Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>,
 	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
 	Andrew Victor <linux@maxim.org.za>,
-	Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
-	Johan Hovold <jhovold@gmail.com>, Rob Herring <robh+dt@kernel.org>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	rtc-linux@googlegroups.com,
+	Johan Hovold <jhovold@gmail.com>
+Cc: Rob Herring <robh+dt@kernel.org>,
 	Pawel Moll <pawel.moll@arm.com>,
 	Mark Rutland <mark.rutland@arm.com>,
 	Ian Campbell <ijc+devicetree@hellion.org.uk>,
-	Kumar Gala <galak@codeaurora.org>, devicetree@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-	Douglas Gilbert <dgilbert@interlog.com>
-Subject: Re: [PATCH v3 0/8] rtc: at91sam9: add DT support
-Message-ID: <20140911093942.GA12295@localhost>
-References: <1410425767-17874-1-git-send-email-boris.brezillon@free-electrons.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1410425767-17874-1-git-send-email-boris.brezillon@free-electrons.com>
+	Kumar Gala <galak@codeaurora.org>,
+	devicetree@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org,
+	Boris BREZILLON <boris.brezillon@free-electrons.com>
+Subject: [PATCH v4 0/9] rtc: at91sam9: add DT support
+Date: Thu, 11 Sep 2014 15:18:02 +0200
+Message-Id: <1410441491-25207-1-git-send-email-boris.brezillon@free-electrons.com>
 List-ID: <rtc-linux.googlegroups.com>
 
-On Thu, Sep 11, 2014 at 10:55:59AM +0200, Boris BREZILLON wrote:
+Hello,
 
-> Johan, let me know if this version addresses part of your concerns.
+This patch series adds DT support to the atmel at91sam9 RTC driver.
 
-Looks good to me. I just have a few minor comments on two of the patches.
+It also removes any machine specific inclusions to prepare the migration
+to multi platform kernel support, and retain the slow clock to prevent
+the CCF from disabling it at the end of boot.
+  
+Best Regards,
 
-> I'm open to any suggestion/rework to address other previously discussed
-> issues, as long as it does not end up in a dead-end (like the discussion
-> you had last year):
->  - the fact that the RTT block could be used for something that is not
->    an RTC
->  - the fact that referencing the GPBR node and defining a GPBR register
->    number to store RTC time info could be considered as an HW config and
->    not an HW description and thus should not be described in the DT
+Boris
 
-No doubt.
+Changes since v3:
+ - add GPBR DT bindings doc
+ - fix a coding style issues
+ - add Alexandre's Acked-by
+ - change RTT DT bindings
 
->  - other things I don't remember :-)
+Changes since v2:
+ - make use of syscon/regmap to avoid directly requesting/mapping a GPBR
+   memory region in the RTT driver
 
-Thanks,
-Johan
+Changes since v1:
+ - remove non CCF specific case by adding the appropriate clk_lookup
+   entries in arch/arm/mach-at91/<soc-name>.c files
+
+
+Boris BREZILLON (9):
+  rtc: at91sam9: remove references to mach specific headers
+  rtc: at91sam9: use standard readl/writel functions instead of raw
+    versions
+  rtc: at91sam9: replace devm_ioremap by devm_ioremap_resource
+  rtc: at91sam9: add DT support
+  rtc: at91sam9: make use of syscon/regmap to access GPBR registers
+  ARM: at91: add clk_lookup entry for RTT devices
+  rtc: at91sam9: use clk API instead of relying on AT91_SLOW_CLOCK
+  rtc: at91sam9: add DT bindings documentation
+  mfd: syscon: add Atmel GPBR DT bindings documention
+
+ .../devicetree/bindings/mfd/atmel,gpbr.txt         |  15 +++
+ .../devicetree/bindings/rtc/atmel,at91sam9-rtc.txt |  23 ++++
+ arch/arm/mach-at91/at91sam9260.c                   |   2 +
+ arch/arm/mach-at91/at91sam9261.c                   |   2 +
+ arch/arm/mach-at91/at91sam9263.c                   |   4 +
+ arch/arm/mach-at91/at91sam9g45.c                   |   2 +
+ arch/arm/mach-at91/at91sam9rl.c                    |   2 +
+ arch/arm/mach-at91/clock.c                         |   2 +-
+ arch/arm/mach-at91/clock.h                         |   1 +
+ drivers/rtc/Kconfig                                |   1 +
+ drivers/rtc/rtc-at91sam9.c                         | 133 ++++++++++++++++-----
+ 11 files changed, 157 insertions(+), 30 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/mfd/atmel,gpbr.txt
+ create mode 100644 Documentation/devicetree/bindings/rtc/atmel,at91sam9-rtc.txt
+
+-- 
+1.9.1
