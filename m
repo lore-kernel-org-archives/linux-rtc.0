@@ -1,62 +1,72 @@
-Return-Path: <boris.brezillon@free-electrons.com>
-From: Boris BREZILLON <boris.brezillon@free-electrons.com>
-To: Nicolas Ferre <nicolas.ferre@atmel.com>,
+Return-Path: <jhovold@gmail.com>
+Sender: Johan Hovold <jhovold@gmail.com>
+Date: Thu, 11 Sep 2014 11:42:13 +0200
+From: Johan Hovold <johan@kernel.org>
+To: Boris BREZILLON <boris.brezillon@free-electrons.com>
+Cc: Nicolas Ferre <nicolas.ferre@atmel.com>,
 	Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>,
 	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
 	Andrew Victor <linux@maxim.org.za>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	rtc-linux@googlegroups.com,
-	Samuel Ortiz <sameo@linux.intel.com>,
-	Lee Jones <lee.jones@linaro.org>
-Cc: Rob Herring <robh+dt@kernel.org>,
+	Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
+	Johan Hovold <jhovold@gmail.com>, Rob Herring <robh+dt@kernel.org>,
 	Pawel Moll <pawel.moll@arm.com>,
 	Mark Rutland <mark.rutland@arm.com>,
 	Ian Campbell <ijc+devicetree@hellion.org.uk>,
-	Kumar Gala <galak@codeaurora.org>,
-	devicetree@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org,
-	Boris BREZILLON <boris.brezillon@free-electrons.com>
-Subject: [PATCH v5 9/9] mfd: syscon: add Atmel GPBR DT bindings documention
-Date: Mon, 22 Sep 2014 11:10:58 +0200
-Message-Id: <1411377058-26155-10-git-send-email-boris.brezillon@free-electrons.com>
-In-Reply-To: <1411377058-26155-1-git-send-email-boris.brezillon@free-electrons.com>
-References: <1411377058-26155-1-git-send-email-boris.brezillon@free-electrons.com>
+	Kumar Gala <galak@codeaurora.org>, devicetree@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+	Douglas Gilbert <dgilbert@interlog.com>
+Subject: Re: [PATCH v3 8/8] rtc: at91sam9: add DT bindings documentation
+Message-ID: <20140911094213.GC12295@localhost>
+References: <1410425767-17874-1-git-send-email-boris.brezillon@free-electrons.com>
+ <1410425767-17874-9-git-send-email-boris.brezillon@free-electrons.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1410425767-17874-9-git-send-email-boris.brezillon@free-electrons.com>
 List-ID: <rtc-linux.googlegroups.com>
 
-The GPBR block provides a set of battery-backed registers that can be used
-to save data which need to be kept when the system is powered down and
-VDD-core is maintained by an external battery.
+On Thu, Sep 11, 2014 at 10:56:07AM +0200, Boris BREZILLON wrote:
+> Signed-off-by: Boris BREZILLON <boris.brezillon@free-electrons.com>
+> ---
+>  .../devicetree/bindings/rtc/atmel,at91sam9-rtc.txt | 24 ++++++++++++++++++++++
+>  1 file changed, 24 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/rtc/atmel,at91sam9-rtc.txt
+> 
+> diff --git a/Documentation/devicetree/bindings/rtc/atmel,at91sam9-rtc.txt b/Documentation/devicetree/bindings/rtc/atmel,at91sam9-rtc.txt
+> new file mode 100644
+> index 0000000..258a036
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/rtc/atmel,at91sam9-rtc.txt
+> @@ -0,0 +1,24 @@
+> +Atmel AT91SAM9260 Real Time Timer
+> +
+> +Required properties:
+> +- compatible: should be: "atmel,at91sam9260-rtt"
+> +- reg: should encode the memory region of the RTT controller
+> +- interrupts: rtc alarm/event interrupt
+> +- clocks: should contain one clock pointing the the slow clk
+> +- atmel,time-reg: should encode the GPBR register used to store the RTC
+> +		  time. The first cell should point to the GPBR node and
+> +		  the second one encode the offset within the GPBR block
+> +		  (or in other terms, the GPBR register used to store the
+> +		  current time value).
+> +
+> +
+> +
+> +Example:
+> +
+> +rtc@fffffe00 {
 
-A typical usage is the RTT block (when used as an RTC) which needs one of
-those registers to save the current time.
+This should be rtt@
 
-Signed-off-by: Boris BREZILLON <boris.brezillon@free-electrons.com>
----
- Documentation/devicetree/bindings/mfd/atmel,gpbr.txt | 15 +++++++++++++++
- 1 file changed, 15 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/mfd/atmel,gpbr.txt
+> +	compatible = "atmel,at91sam9260-rtt";
+> +	reg = <0xfffffd20 0x10>;
+> +	interrupts = <1 4 7>;
+> +	clocks = <&clk32k>;
+> +	atmel,time-reg = <&gpbr 0x0>;
 
-diff --git a/Documentation/devicetree/bindings/mfd/atmel,gpbr.txt b/Documentation/devicetree/bindings/mfd/atmel,gpbr.txt
-new file mode 100644
-index 0000000..a285695
---- /dev/null
-+++ b/Documentation/devicetree/bindings/mfd/atmel,gpbr.txt
-@@ -0,0 +1,15 @@
-+* Device tree bindings for Atmel GPBR (General Purpose Backup Registers)
-+
-+The GPBR are a set of battery-backed registers.
-+
-+Required properties:
-+- compatible:		"atmel,at91sam9260-gpbr", "syscon"
-+- reg:			contains offset/length value of the GPBR memory
-+			region.
-+
-+Example:
-+
-+gpbr: gpbr@fffffd50 {
-+	compatible = "atmel,at91sam9260-gpbr", "syscon";
-+	reg = <0xfffffd50 0x10>;
-+};
--- 
-1.9.1
+I think the property name could be more descriptive as it is specific to
+when the RTT is used as an RTC. Perhaps, atmel,rtt-rtc-time-reg?
+
+> +};
+
+Johan
