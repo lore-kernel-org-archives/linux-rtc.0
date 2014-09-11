@@ -1,64 +1,59 @@
 Return-Path: <boris.brezillon@free-electrons.com>
+Date: Thu, 11 Sep 2014 12:06:59 +0200
 From: Boris BREZILLON <boris.brezillon@free-electrons.com>
-To: Nicolas Ferre <nicolas.ferre@atmel.com>,
-	Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Andrew Victor <linux@maxim.org.za>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	rtc-linux@googlegroups.com,
-	Samuel Ortiz <sameo@linux.intel.com>,
-	Lee Jones <lee.jones@linaro.org>
-Cc: Rob Herring <robh+dt@kernel.org>,
-	Pawel Moll <pawel.moll@arm.com>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Ian Campbell <ijc+devicetree@hellion.org.uk>,
-	Kumar Gala <galak@codeaurora.org>,
-	devicetree@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org,
-	Boris BREZILLON <boris.brezillon@free-electrons.com>
-Subject: [PATCH v5 4/9] rtc: at91sam9: add DT support
-Date: Mon, 22 Sep 2014 11:10:53 +0200
-Message-Id: <1411377058-26155-5-git-send-email-boris.brezillon@free-electrons.com>
-In-Reply-To: <1411377058-26155-1-git-send-email-boris.brezillon@free-electrons.com>
-References: <1411377058-26155-1-git-send-email-boris.brezillon@free-electrons.com>
+To: Johan Hovold <johan@kernel.org>
+Cc: Nicolas Ferre <nicolas.ferre@atmel.com>, Jean-Christophe
+ Plagniol-Villard <plagnioj@jcrosoft.com>, Alexandre Belloni
+ <alexandre.belloni@free-electrons.com>, Andrew Victor <linux@maxim.org.za>,
+ Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com, Johan
+ Hovold <jhovold@gmail.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll
+ <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell
+ <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>,
+ devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+ linux-kernel@vger.kernel.org, Douglas Gilbert <dgilbert@interlog.com>
+Subject: Re: [PATCH v3 0/8] rtc: at91sam9: add DT support
+Message-ID: <20140911120659.14daa624@bbrezillon>
+In-Reply-To: <20140911093942.GA12295@localhost>
+References: <1410425767-17874-1-git-send-email-boris.brezillon@free-electrons.com>
+	<20140911093942.GA12295@localhost>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 List-ID: <rtc-linux.googlegroups.com>
 
-Add of_match_table to the existing driver so that rtc nodes defined in at91
-DTs can be attached to this driver.
+On Thu, 11 Sep 2014 11:39:42 +0200
+Johan Hovold <johan@kernel.org> wrote:
 
-Signed-off-by: Boris BREZILLON <boris.brezillon@free-electrons.com>
-Acked-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
----
- drivers/rtc/rtc-at91sam9.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+> On Thu, Sep 11, 2014 at 10:55:59AM +0200, Boris BREZILLON wrote:
+> 
+> > Johan, let me know if this version addresses part of your concerns.
+> 
+> Looks good to me. I just have a few minor comments on two of the patches.
+> 
+> > I'm open to any suggestion/rework to address other previously discussed
+> > issues, as long as it does not end up in a dead-end (like the discussion
+> > you had last year):
+> >  - the fact that the RTT block could be used for something that is not
+> >    an RTC
+> >  - the fact that referencing the GPBR node and defining a GPBR register
+> >    number to store RTC time info could be considered as an HW config and
+> >    not an HW description and thus should not be described in the DT
+> 
+> No doubt.
 
-diff --git a/drivers/rtc/rtc-at91sam9.c b/drivers/rtc/rtc-at91sam9.c
-index 38a2693..d72c34d 100644
---- a/drivers/rtc/rtc-at91sam9.c
-+++ b/drivers/rtc/rtc-at91sam9.c
-@@ -445,6 +445,14 @@ static int at91_rtc_resume(struct device *dev)
- 
- static SIMPLE_DEV_PM_OPS(at91_rtc_pm_ops, at91_rtc_suspend, at91_rtc_resume);
- 
-+#ifdef CONFIG_OF
-+static const struct of_device_id at91_rtc_dt_ids[] = {
-+	{ .compatible = "atmel,at91sam9260-rtt" },
-+	{ /* sentinel */ }
-+};
-+MODULE_DEVICE_TABLE(of, at91_rtc_dt_ids);
-+#endif
-+
- static struct platform_driver at91_rtc_driver = {
- 	.probe		= at91_rtc_probe,
- 	.remove		= at91_rtc_remove,
-@@ -453,6 +461,7 @@ static struct platform_driver at91_rtc_driver = {
- 		.name	= "rtc-at91sam9",
- 		.owner	= THIS_MODULE,
- 		.pm	= &at91_rtc_pm_ops,
-+		.of_match_table = of_match_ptr(at91_rtc_dt_ids),
- 	},
- };
- 
+Okay then. Any suggestion to do otherwise ?
+Alexandre suggested to pass the GPBR register number through a module
+parameter, and retrieve the GPBR syscon by searching for a gpbr node
+(or atmel,at91sam9260-gpbr compatible node) in the device tree.
+
+I'm not a big fan of this solution, as it implies passing driver
+specific config to the global cmdline (and we'll have to handle the
+9263 case where 2 RTT blocks are availables).
+
+Best Regards,
+
+Boris
+
 -- 
-1.9.1
+Boris Brezillon, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
