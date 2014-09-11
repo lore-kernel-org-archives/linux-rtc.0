@@ -6,8 +6,6 @@ To: Nicolas Ferre <nicolas.ferre@atmel.com>,
 	Andrew Victor <linux@maxim.org.za>,
 	Alessandro Zummo <a.zummo@towertech.it>,
 	rtc-linux@googlegroups.com,
-	Samuel Ortiz <sameo@linux.intel.com>,
-	Lee Jones <lee.jones@linaro.org>,
 	Johan Hovold <jhovold@gmail.com>
 Cc: Rob Herring <robh+dt@kernel.org>,
 	Pawel Moll <pawel.moll@arm.com>,
@@ -17,12 +15,13 @@ Cc: Rob Herring <robh+dt@kernel.org>,
 	devicetree@vger.kernel.org,
 	linux-arm-kernel@lists.infradead.org,
 	linux-kernel@vger.kernel.org,
+	Douglas Gilbert <dgilbert@interlog.com>,
 	Boris BREZILLON <boris.brezillon@free-electrons.com>
-Subject: [PATCH v7 08/10] rtc: at91sam9: use clk API instead of relying on AT91_SLOW_CLOCK
-Date: Tue, 23 Sep 2014 11:38:48 +0200
-Message-Id: <1411465130-29011-9-git-send-email-boris.brezillon@free-electrons.com>
-In-Reply-To: <1411465130-29011-1-git-send-email-boris.brezillon@free-electrons.com>
-References: <1411465130-29011-1-git-send-email-boris.brezillon@free-electrons.com>
+Subject: [PATCH v3 7/8] rtc: at91sam9: use clk API instead of relying on AT91_SLOW_CLOCK
+Date: Thu, 11 Sep 2014 10:56:06 +0200
+Message-Id: <1410425767-17874-8-git-send-email-boris.brezillon@free-electrons.com>
+In-Reply-To: <1410425767-17874-1-git-send-email-boris.brezillon@free-electrons.com>
+References: <1410425767-17874-1-git-send-email-boris.brezillon@free-electrons.com>
 List-ID: <rtc-linux.googlegroups.com>
 
 The RTT block is using the slow clock which is accessible through the clk
@@ -33,14 +32,12 @@ Doing this allows us to reference the clk thus preventing the CCF from
 disabling it during the "disable unused" phase.
 
 Signed-off-by: Boris BREZILLON <boris.brezillon@free-electrons.com>
-Acked-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Acked-by: Nicolas Ferre <nicolas.ferre@atmel.com>
 ---
  drivers/rtc/rtc-at91sam9.c | 28 ++++++++++++++++++++++++----
  1 file changed, 24 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/rtc/rtc-at91sam9.c b/drivers/rtc/rtc-at91sam9.c
-index be9c28b..d3bbe29 100644
+index b953545..b474258 100644
 --- a/drivers/rtc/rtc-at91sam9.c
 +++ b/drivers/rtc/rtc-at91sam9.c
 @@ -23,6 +23,7 @@
@@ -68,7 +65,7 @@ index be9c28b..d3bbe29 100644
  };
  
  #define rtt_readl(rtc, field) \
-@@ -328,6 +328,7 @@ static int at91_rtc_probe(struct platform_device *pdev)
+@@ -327,6 +327,7 @@ static int at91_rtc_probe(struct platform_device *pdev)
  	struct sam9_rtc	*rtc;
  	int		ret, irq;
  	u32		mr;
@@ -76,7 +73,7 @@ index be9c28b..d3bbe29 100644
  
  	irq = platform_get_irq(pdev, 0);
  	if (irq < 0) {
-@@ -385,11 +386,27 @@ static int at91_rtc_probe(struct platform_device *pdev)
+@@ -379,11 +380,27 @@ static int at91_rtc_probe(struct platform_device *pdev)
  		return -ENOMEM;
  	}
  
@@ -106,7 +103,7 @@ index be9c28b..d3bbe29 100644
  		gpbr_writel(rtc, 0);
  	}
  
-@@ -434,6 +451,9 @@ static int at91_rtc_remove(struct platform_device *pdev)
+@@ -428,6 +445,9 @@ static int at91_rtc_remove(struct platform_device *pdev)
  	/* disable all interrupts */
  	rtt_writel(rtc, MR, mr & ~(AT91_RTT_ALMIEN | AT91_RTT_RTTINCIEN));
  
