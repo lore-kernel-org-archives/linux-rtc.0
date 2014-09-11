@@ -6,8 +6,6 @@ To: Nicolas Ferre <nicolas.ferre@atmel.com>,
 	Andrew Victor <linux@maxim.org.za>,
 	Alessandro Zummo <a.zummo@towertech.it>,
 	rtc-linux@googlegroups.com,
-	Samuel Ortiz <sameo@linux.intel.com>,
-	Lee Jones <lee.jones@linaro.org>,
 	Johan Hovold <jhovold@gmail.com>
 Cc: Rob Herring <robh+dt@kernel.org>,
 	Pawel Moll <pawel.moll@arm.com>,
@@ -18,30 +16,29 @@ Cc: Rob Herring <robh+dt@kernel.org>,
 	linux-arm-kernel@lists.infradead.org,
 	linux-kernel@vger.kernel.org,
 	Boris BREZILLON <boris.brezillon@free-electrons.com>
-Subject: [PATCH v6 5/9] rtc: at91sam9: make use of syscon/regmap to access GPBR registers
-Date: Mon, 22 Sep 2014 17:42:39 +0200
-Message-Id: <1411400563-570-6-git-send-email-boris.brezillon@free-electrons.com>
-In-Reply-To: <1411400563-570-1-git-send-email-boris.brezillon@free-electrons.com>
-References: <1411400563-570-1-git-send-email-boris.brezillon@free-electrons.com>
+Subject: [PATCH v5 5/9] rtc: at91sam9: make use of syscon/regmap to access GPBR registers
+Date: Thu, 11 Sep 2014 15:53:08 +0200
+Message-Id: <1410443588-9092-1-git-send-email-boris.brezillon@free-electrons.com>
+In-Reply-To: <1410441525-25258-6-git-send-email-boris.brezillon@free-electrons.com>
+References: <1410441525-25258-6-git-send-email-boris.brezillon@free-electrons.com>
 List-ID: <rtc-linux.googlegroups.com>
 
 The GPBR registers are not part of the RTT block and thus should not be
 defined in the reg property of the rtt node.
 
 Use syscon to provide a proper DT representation and reference the GPBR
-syscon device in a new "atmel,rtt-rtc-time-reg" property which store both
-the syscon device phandle and the register offset within the GPBR block.
+syscon device in a new "atmel,time-reg" property which store both the
+syscon device phandle and the register offset within the GPBR block.
 
 When using non DT boards, we won't be able to retrieve the syscon regmap,
 hence we need to create our own regmap using the memory region defined
 in the 2nd memory resource assigned to the RTT platform device.
 
 Signed-off-by: Boris BREZILLON <boris.brezillon@free-electrons.com>
-Acked-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
 ---
  drivers/rtc/Kconfig        |  1 +
- drivers/rtc/rtc-at91sam9.c | 64 +++++++++++++++++++++++++++++++++++++++-------
- 2 files changed, 56 insertions(+), 9 deletions(-)
+ drivers/rtc/rtc-at91sam9.c | 59 +++++++++++++++++++++++++++++++++++++++-------
+ 2 files changed, 51 insertions(+), 9 deletions(-)
 
 diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
 index a168e96..7d76da8 100644
@@ -56,7 +53,7 @@ index a168e96..7d76da8 100644
  	  RTC driver for the Atmel AT91SAM9x and AT91CAP9 internal RTT
  	  (Real Time Timer). These timers are powered by the backup power
 diff --git a/drivers/rtc/rtc-at91sam9.c b/drivers/rtc/rtc-at91sam9.c
-index d72c34d..902cd01 100644
+index d72c34d..944e317 100644
 --- a/drivers/rtc/rtc-at91sam9.c
 +++ b/drivers/rtc/rtc-at91sam9.c
 @@ -21,6 +21,8 @@
@@ -115,7 +112,7 @@ index d72c34d..902cd01 100644
  /*
   * Initialize and install RTC driver
   */
-@@ -334,10 +352,38 @@ static int at91_rtc_probe(struct platform_device *pdev)
+@@ -334,10 +352,33 @@ static int at91_rtc_probe(struct platform_device *pdev)
  	if (IS_ERR(rtc->rtt))
  		return PTR_ERR(rtc->rtt);
  
@@ -124,11 +121,6 @@ index d72c34d..902cd01 100644
 -	if (IS_ERR(rtc->gpbr))
 -		return PTR_ERR(rtc->rtt);
 +	if (!pdev->dev.of_node) {
-+		/*
-+		 * TODO: Remove this code chunk when when removing non DT
-+		 * board support. Remember to remove the gpbr_regmap_config
-+		 * variable too.
-+		 */
 +		void __iomem *gpbr;
 +
 +		r = platform_get_resource(pdev, IORESOURCE_MEM, 1);
