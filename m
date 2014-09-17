@@ -1,92 +1,72 @@
-Return-Path: <boris.brezillon@free-electrons.com>
-From: Boris BREZILLON <boris.brezillon@free-electrons.com>
-To: Nicolas Ferre <nicolas.ferre@atmel.com>,
+Return-Path: <lee.jones@linaro.org>
+Date: Wed, 17 Sep 2014 09:34:05 -0700
+From: Lee Jones <lee.jones@linaro.org>
+To: Boris BREZILLON <boris.brezillon@free-electrons.com>
+Cc: Nicolas Ferre <nicolas.ferre@atmel.com>,
 	Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>,
 	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
 	Andrew Victor <linux@maxim.org.za>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	rtc-linux@googlegroups.com,
-	Samuel Ortiz <sameo@linux.intel.com>,
-	Lee Jones <lee.jones@linaro.org>,
-	Johan Hovold <jhovold@gmail.com>
-Cc: Rob Herring <robh+dt@kernel.org>,
+	Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
+	Johan Hovold <jhovold@gmail.com>,
+	Mark Rutland <mark.rutland@arm.com>, devicetree@vger.kernel.org,
 	Pawel Moll <pawel.moll@arm.com>,
-	Mark Rutland <mark.rutland@arm.com>,
 	Ian Campbell <ijc+devicetree@hellion.org.uk>,
+	linux-kernel@vger.kernel.org, Rob Herring <robh+dt@kernel.org>,
 	Kumar Gala <galak@codeaurora.org>,
-	devicetree@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org,
-	Boris BREZILLON <boris.brezillon@free-electrons.com>
-Subject: [PATCH v8 06/10] rtc: at91sam9: rework the Kconfig description
-Date: Tue, 23 Sep 2014 13:24:00 +0200
-Message-Id: <1411471444-2764-7-git-send-email-boris.brezillon@free-electrons.com>
-In-Reply-To: <1411471444-2764-1-git-send-email-boris.brezillon@free-electrons.com>
-References: <1411471444-2764-1-git-send-email-boris.brezillon@free-electrons.com>
+	linux-arm-kernel@lists.infradead.org
+Subject: Re: [PATCH v4 9/9] mfd: syscon: add Atmel GPBR DT bindings
+ documention
+Message-ID: <20140917163405.GM30918@lee--X1>
+References: <1410441525-25258-1-git-send-email-boris.brezillon@free-electrons.com>
+ <1410441525-25258-10-git-send-email-boris.brezillon@free-electrons.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+In-Reply-To: <1410441525-25258-10-git-send-email-boris.brezillon@free-electrons.com>
 List-ID: <rtc-linux.googlegroups.com>
 
-Remove all references to AT91CAP9 SoC which has been removed.
-Rework help message to remove any specific references to AT91SAM9 SoCs.
-State that RTC_DRV_AT91SAM9_RTT and RTC_DRV_AT91SAM9_GPBR options are only
-used when booting non DT boards.
+On Thu, 11 Sep 2014, Boris BREZILLON wrote:
 
-Signed-off-by: Boris BREZILLON <boris.brezillon@free-electrons.com>
-Acked-by: Nicolas Ferre <nicolas.ferre@atmel.com>
-Acked-by: Johan Hovold <johan@kernel.org>
----
- drivers/rtc/Kconfig | 23 +++++++++++++++--------
- 1 file changed, 15 insertions(+), 8 deletions(-)
+> The GPBR block provides a set of battery-backed registers that can be used
+> to save data which need to be kept when the system is powered down and
+> VDD-core is maintained by an external battery.
+> 
+> A typical usage is the RTT block (when used as an RTC) which needs one of
+> those registers to save the current time.
+> 
+> Signed-off-by: Boris BREZILLON <boris.brezillon@free-electrons.com>
+> ---
+>  Documentation/devicetree/bindings/mfd/atmel,gpbr.txt | 15 +++++++++++++++
+>  1 file changed, 15 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/mfd/atmel,gpbr.txt
+> 
+> diff --git a/Documentation/devicetree/bindings/mfd/atmel,gpbr.txt b/Documentation/devicetree/bindings/mfd/atmel,gpbr.txt
+> new file mode 100644
+> index 0000000..a285695
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/mfd/atmel,gpbr.txt
+> @@ -0,0 +1,15 @@
+> +* Device tree bindings for Atmel GPBR (General Purpose Backup Registers)
+> +
+> +The GPBR are a set of battery-backed registers.
+> +
+> +Required properties:
+> +- compatible:		"atmel,at91sam9260-gpbr", "syscon"
+> +- reg:			contains offset/length value of the GPBR memory
+> +			region.
+> +
+> +Example:
+> +
+> +gpbr: gpbr@fffffd50 {
 
-diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
-index 7d76da8..9b56882 100644
---- a/drivers/rtc/Kconfig
-+++ b/drivers/rtc/Kconfig
-@@ -1079,17 +1079,18 @@ config RTC_DRV_AT91RM9200
- 	  this is powered by the backup power supply.
- 
- config RTC_DRV_AT91SAM9
--	tristate "AT91SAM9x/AT91CAP9 RTT as RTC"
-+	tristate "AT91SAM9 RTT as RTC"
- 	depends on ARCH_AT91 && !(ARCH_AT91RM9200 || ARCH_AT91X40)
- 	select MFD_SYSCON
- 	help
--	  RTC driver for the Atmel AT91SAM9x and AT91CAP9 internal RTT
--	  (Real Time Timer). These timers are powered by the backup power
--	  supply (such as a small coin cell battery), but do not need to
--	  be used as RTCs.
--
--	  (On AT91SAM9rl and AT91SAM9G45 chips you probably want to use the
--	  dedicated RTC module and leave the RTT available for other uses.)
-+	  Some AT91SAM9 SoCs provide an RTT (Real Time Timer) block which
-+	  can be used as an RTC thanks to the backup power supply (e.g. a
-+	  small coin cell battery) which keeps this block and the GPBR
-+	  (General Purpose Backup Registers) block powered when the device
-+	  is shutdown.
-+	  Some AT91SAM9 SoCs provide a real RTC block, on those ones you'd
-+	  probably want to use the real RTC block instead of the "RTT as an
-+	  RTC" driver.
- 
- config RTC_DRV_AT91SAM9_RTT
- 	int
-@@ -1098,6 +1099,9 @@ config RTC_DRV_AT91SAM9_RTT
- 	prompt "RTT module Number" if ARCH_AT91SAM9263
- 	depends on RTC_DRV_AT91SAM9
- 	help
-+	  This option is only relevant for legacy board support and
-+	  won't be used when booting a DT board.
-+
- 	  More than one RTT module is available. You can choose which
- 	  one will be used as an RTC. The default of zero is normally
- 	  OK to use, though some systems use that for non-RTC purposes.
-@@ -1110,6 +1114,9 @@ config RTC_DRV_AT91SAM9_GPBR
- 	prompt "Backup Register Number"
- 	depends on RTC_DRV_AT91SAM9
- 	help
-+	  This option is only relevant for legacy board support and
-+	  won't be used when booting a DT board.
-+
- 	  The RTC driver needs to use one of the General Purpose Backup
- 	  Registers (GPBRs) as well as the RTT. You can choose which one
- 	  will be used. The default of zero is normally OK to use, but
+Is something referencing this node via phandle?  If not, please remove
+the label.
+
+> +	compatible = "atmel,at91sam9260-gpbr", "syscon";
+> +	reg = <0xfffffd50 0x10>;
+> +};
+
 -- 
-1.9.1
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org │ Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog
