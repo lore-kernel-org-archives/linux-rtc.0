@@ -1,94 +1,77 @@
 Return-Path: <boris.brezillon@free-electrons.com>
+Date: Wed, 17 Sep 2014 19:57:27 +0200
 From: Boris BREZILLON <boris.brezillon@free-electrons.com>
-To: Nicolas Ferre <nicolas.ferre@atmel.com>,
-	Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Andrew Victor <linux@maxim.org.za>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	rtc-linux@googlegroups.com,
-	Samuel Ortiz <sameo@linux.intel.com>,
-	Lee Jones <lee.jones@linaro.org>,
-	Johan Hovold <jhovold@gmail.com>
-Cc: Rob Herring <robh+dt@kernel.org>,
-	Pawel Moll <pawel.moll@arm.com>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Ian Campbell <ijc+devicetree@hellion.org.uk>,
-	Kumar Gala <galak@codeaurora.org>,
-	devicetree@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org,
-	Boris BREZILLON <boris.brezillon@free-electrons.com>
-Subject: [PATCH v7 00/10] rtc: at91sam9: add DT support
-Date: Tue, 23 Sep 2014 11:38:40 +0200
-Message-Id: <1411465130-29011-1-git-send-email-boris.brezillon@free-electrons.com>
+To: Lee Jones <lee.jones@linaro.org>
+Cc: Nicolas Ferre <nicolas.ferre@atmel.com>, Jean-Christophe
+ Plagniol-Villard <plagnioj@jcrosoft.com>, Alexandre Belloni
+ <alexandre.belloni@free-electrons.com>, Andrew Victor <linux@maxim.org.za>,
+ Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com, Johan
+ Hovold <jhovold@gmail.com>, Mark Rutland <mark.rutland@arm.com>,
+ devicetree@vger.kernel.org, Pawel Moll <pawel.moll@arm.com>, Ian Campbell
+ <ijc+devicetree@hellion.org.uk>, linux-kernel@vger.kernel.org, Rob Herring
+ <robh+dt@kernel.org>, Kumar Gala <galak@codeaurora.org>,
+ linux-arm-kernel@lists.infradead.org
+Subject: Re: [PATCH v4 9/9] mfd: syscon: add Atmel GPBR DT bindings
+ documention
+Message-ID: <20140917195727.1c75a062@bbrezillon>
+In-Reply-To: <20140917163405.GM30918@lee--X1>
+References: <1410441525-25258-1-git-send-email-boris.brezillon@free-electrons.com>
+	<1410441525-25258-10-git-send-email-boris.brezillon@free-electrons.com>
+	<20140917163405.GM30918@lee--X1>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 List-ID: <rtc-linux.googlegroups.com>
 
-Hello,
+Hi Lee,
 
-This patch series adds DT support to the atmel at91sam9 RTC driver.
+On Wed, 17 Sep 2014 09:34:05 -0700
+Lee Jones <lee.jones@linaro.org> wrote:
 
-It also removes any machine specific inclusions to prepare the migration
-to multi platform kernel support, and retain the slow clock to prevent
-the CCF from disabling it at the end of boot.
-  
+> On Thu, 11 Sep 2014, Boris BREZILLON wrote:
+> 
+> > The GPBR block provides a set of battery-backed registers that can be used
+> > to save data which need to be kept when the system is powered down and
+> > VDD-core is maintained by an external battery.
+> > 
+> > A typical usage is the RTT block (when used as an RTC) which needs one of
+> > those registers to save the current time.
+> > 
+> > Signed-off-by: Boris BREZILLON <boris.brezillon@free-electrons.com>
+> > ---
+> >  Documentation/devicetree/bindings/mfd/atmel,gpbr.txt | 15 +++++++++++++++
+> >  1 file changed, 15 insertions(+)
+> >  create mode 100644 Documentation/devicetree/bindings/mfd/atmel,gpbr.txt
+> > 
+> > diff --git a/Documentation/devicetree/bindings/mfd/atmel,gpbr.txt b/Documentation/devicetree/bindings/mfd/atmel,gpbr.txt
+> > new file mode 100644
+> > index 0000000..a285695
+> > --- /dev/null
+> > +++ b/Documentation/devicetree/bindings/mfd/atmel,gpbr.txt
+> > @@ -0,0 +1,15 @@
+> > +* Device tree bindings for Atmel GPBR (General Purpose Backup Registers)
+> > +
+> > +The GPBR are a set of battery-backed registers.
+> > +
+> > +Required properties:
+> > +- compatible:		"atmel,at91sam9260-gpbr", "syscon"
+> > +- reg:			contains offset/length value of the GPBR memory
+> > +			region.
+> > +
+> > +Example:
+> > +
+> > +gpbr: gpbr@fffffd50 {
+> 
+> Is something referencing this node via phandle?  If not, please remove
+> the label.
+
+Yes, the rtt device is referencing it in its atmel,rtt-rtc-time-reg
+property (see patch 8 of this series).
+
 Best Regards,
 
 Boris
 
-Changes since v6:
- - fix typos
- - add missing commit messages
- - rework the Kconfig description
-
-Changes since v5:
- - replace 'rtc' by 'rtt' where appropriate
- - fix commit messages
-
-Changes since v4:
- - add a TODO comment to remember removing non DT board support code
-
-Changes since v3:
- - add GPBR DT bindings doc
- - fix a coding style issues
- - add Alexandre's Acked-by
- - change RTT DT bindings
-
-Changes since v2:
- - make use of syscon/regmap to avoid directly requesting/mapping a GPBR
-   memory region in the RTT driver
-
-Changes since v1:
- - remove non CCF specific case by adding the appropriate clk_lookup
-   entries in arch/arm/mach-at91/<soc-name>.c files
-
-
-Boris BREZILLON (10):
-  rtc: at91sam9: remove references to mach specific headers
-  rtc: at91sam9: use standard readl/writel functions instead of raw
-    versions
-  rtc: at91sam9: replace devm_ioremap by devm_ioremap_resource
-  rtc: at91sam9: add DT support
-  rtc: at91sam9: make use of syscon/regmap to access GPBR registers
-  rtc: at91sam9: rework the Kconfig description
-  ARM: at91: add clk_lookup entry for RTT devices
-  rtc: at91sam9: use clk API instead of relying on AT91_SLOW_CLOCK
-  rtc: at91sam9: add DT bindings documentation
-  mfd: syscon: add Atmel GPBR DT bindings documention
-
- .../devicetree/bindings/mfd/atmel,gpbr.txt         |  15 +++
- .../devicetree/bindings/rtc/atmel,at91sam9-rtc.txt |  23 ++++
- arch/arm/mach-at91/at91sam9260.c                   |   2 +
- arch/arm/mach-at91/at91sam9261.c                   |   2 +
- arch/arm/mach-at91/at91sam9263.c                   |   4 +
- arch/arm/mach-at91/at91sam9g45.c                   |   2 +
- arch/arm/mach-at91/at91sam9rl.c                    |   2 +
- arch/arm/mach-at91/clock.c                         |   2 +-
- arch/arm/mach-at91/clock.h                         |   1 +
- drivers/rtc/Kconfig                                |  20 +--
- drivers/rtc/rtc-at91sam9.c                         | 138 ++++++++++++++++-----
- 11 files changed, 172 insertions(+), 39 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/mfd/atmel,gpbr.txt
- create mode 100644 Documentation/devicetree/bindings/rtc/atmel,at91sam9-rtc.txt
-
 -- 
-1.9.1
+Boris Brezillon, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
