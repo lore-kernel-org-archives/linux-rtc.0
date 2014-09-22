@@ -6,6 +6,8 @@ To: Nicolas Ferre <nicolas.ferre@atmel.com>,
 	Andrew Victor <linux@maxim.org.za>,
 	Alessandro Zummo <a.zummo@towertech.it>,
 	rtc-linux@googlegroups.com,
+	Samuel Ortiz <sameo@linux.intel.com>,
+	Lee Jones <lee.jones@linaro.org>,
 	Johan Hovold <jhovold@gmail.com>
 Cc: Rob Herring <robh+dt@kernel.org>,
 	Pawel Moll <pawel.moll@arm.com>,
@@ -16,11 +18,11 @@ Cc: Rob Herring <robh+dt@kernel.org>,
 	linux-arm-kernel@lists.infradead.org,
 	linux-kernel@vger.kernel.org,
 	Boris BREZILLON <boris.brezillon@free-electrons.com>
-Subject: [PATCH v4 7/9] rtc: at91sam9: use clk API instead of relying on AT91_SLOW_CLOCK
-Date: Thu, 11 Sep 2014 15:18:43 +0200
-Message-Id: <1410441525-25258-8-git-send-email-boris.brezillon@free-electrons.com>
-In-Reply-To: <1410441525-25258-1-git-send-email-boris.brezillon@free-electrons.com>
-References: <1410441525-25258-1-git-send-email-boris.brezillon@free-electrons.com>
+Subject: [PATCH v6 7/9] rtc: at91sam9: use clk API instead of relying on AT91_SLOW_CLOCK
+Date: Mon, 22 Sep 2014 17:42:41 +0200
+Message-Id: <1411400563-570-8-git-send-email-boris.brezillon@free-electrons.com>
+In-Reply-To: <1411400563-570-1-git-send-email-boris.brezillon@free-electrons.com>
+References: <1411400563-570-1-git-send-email-boris.brezillon@free-electrons.com>
 List-ID: <rtc-linux.googlegroups.com>
 
 The RTT block is using the slow clock which is accessible through the clk
@@ -37,7 +39,7 @@ Acked-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
  1 file changed, 24 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/rtc/rtc-at91sam9.c b/drivers/rtc/rtc-at91sam9.c
-index e1b7109..f4e5c93 100644
+index 902cd01..d20e118 100644
 --- a/drivers/rtc/rtc-at91sam9.c
 +++ b/drivers/rtc/rtc-at91sam9.c
 @@ -23,6 +23,7 @@
@@ -73,7 +75,7 @@ index e1b7109..f4e5c93 100644
  
  	irq = platform_get_irq(pdev, 0);
  	if (irq < 0) {
-@@ -380,11 +381,27 @@ static int at91_rtc_probe(struct platform_device *pdev)
+@@ -385,11 +386,27 @@ static int at91_rtc_probe(struct platform_device *pdev)
  		return -ENOMEM;
  	}
  
@@ -103,7 +105,7 @@ index e1b7109..f4e5c93 100644
  		gpbr_writel(rtc, 0);
  	}
  
-@@ -429,6 +446,9 @@ static int at91_rtc_remove(struct platform_device *pdev)
+@@ -434,6 +451,9 @@ static int at91_rtc_remove(struct platform_device *pdev)
  	/* disable all interrupts */
  	rtt_writel(rtc, MR, mr & ~(AT91_RTT_ALMIEN | AT91_RTT_RTTINCIEN));
  
