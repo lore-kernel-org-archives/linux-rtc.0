@@ -5,7 +5,10 @@ To: Nicolas Ferre <nicolas.ferre@atmel.com>,
 	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
 	Andrew Victor <linux@maxim.org.za>,
 	Alessandro Zummo <a.zummo@towertech.it>,
-	rtc-linux@googlegroups.com
+	rtc-linux@googlegroups.com,
+	Samuel Ortiz <sameo@linux.intel.com>,
+	Lee Jones <lee.jones@linaro.org>,
+	Johan Hovold <jhovold@gmail.com>
 Cc: Rob Herring <robh+dt@kernel.org>,
 	Pawel Moll <pawel.moll@arm.com>,
 	Mark Rutland <mark.rutland@arm.com>,
@@ -15,26 +18,27 @@ Cc: Rob Herring <robh+dt@kernel.org>,
 	linux-arm-kernel@lists.infradead.org,
 	linux-kernel@vger.kernel.org,
 	Boris BREZILLON <boris.brezillon@free-electrons.com>
-Subject: [PATCH v2 3/6] rtc: at91sam9: add DT support
-Date: Tue,  9 Sep 2014 11:30:32 +0200
-Message-Id: <1410255035-26775-4-git-send-email-boris.brezillon@free-electrons.com>
-In-Reply-To: <1410255035-26775-1-git-send-email-boris.brezillon@free-electrons.com>
-References: <1410255035-26775-1-git-send-email-boris.brezillon@free-electrons.com>
+Subject: [PATCH v6 4/9] rtc: at91sam9: add DT support
+Date: Mon, 22 Sep 2014 17:42:38 +0200
+Message-Id: <1411400563-570-5-git-send-email-boris.brezillon@free-electrons.com>
+In-Reply-To: <1411400563-570-1-git-send-email-boris.brezillon@free-electrons.com>
+References: <1411400563-570-1-git-send-email-boris.brezillon@free-electrons.com>
 List-ID: <rtc-linux.googlegroups.com>
 
-Add of_match_table to the existing driver so that rtc nodes defined in at91
+Add of_match_table to the existing driver so that rtt nodes defined in at91
 DTs can be attached to this driver.
 
 Signed-off-by: Boris BREZILLON <boris.brezillon@free-electrons.com>
+Acked-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
 ---
  drivers/rtc/rtc-at91sam9.c | 9 +++++++++
  1 file changed, 9 insertions(+)
 
 diff --git a/drivers/rtc/rtc-at91sam9.c b/drivers/rtc/rtc-at91sam9.c
-index 74a9ca0..57014b7 100644
+index 38a2693..d72c34d 100644
 --- a/drivers/rtc/rtc-at91sam9.c
 +++ b/drivers/rtc/rtc-at91sam9.c
-@@ -454,6 +454,14 @@ static int at91_rtc_resume(struct device *dev)
+@@ -445,6 +445,14 @@ static int at91_rtc_resume(struct device *dev)
  
  static SIMPLE_DEV_PM_OPS(at91_rtc_pm_ops, at91_rtc_suspend, at91_rtc_resume);
  
@@ -49,7 +53,7 @@ index 74a9ca0..57014b7 100644
  static struct platform_driver at91_rtc_driver = {
  	.probe		= at91_rtc_probe,
  	.remove		= at91_rtc_remove,
-@@ -462,6 +470,7 @@ static struct platform_driver at91_rtc_driver = {
+@@ -453,6 +461,7 @@ static struct platform_driver at91_rtc_driver = {
  		.name	= "rtc-at91sam9",
  		.owner	= THIS_MODULE,
  		.pm	= &at91_rtc_pm_ops,
