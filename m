@@ -1,59 +1,63 @@
 Return-Path: <boris.brezillon@free-electrons.com>
-Date: Wed, 24 Sep 2014 11:17:57 +0200
 From: Boris BREZILLON <boris.brezillon@free-electrons.com>
-To: Lee Jones <lee.jones@linaro.org>
-Cc: Nicolas Ferre <nicolas.ferre@atmel.com>, Jean-Christophe
- Plagniol-Villard <plagnioj@jcrosoft.com>, Alexandre Belloni
- <alexandre.belloni@free-electrons.com>, Andrew Victor <linux@maxim.org.za>,
- Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com, Samuel
- Ortiz <sameo@linux.intel.com>, Johan Hovold <jhovold@gmail.com>, Rob
- Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland
- <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar
- Gala <galak@codeaurora.org>, devicetree@vger.kernel.org,
- linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v9 00/10] rtc: at91sam9: add DT support
-Message-ID: <20140924111757.00c303d2@bbrezillon>
-In-Reply-To: <20140924084911.GI17801@lee--X1>
-References: <1411483725-31532-1-git-send-email-boris.brezillon@free-electrons.com>
-	<20140924084911.GI17801@lee--X1>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+To: Nicolas Ferre <nicolas.ferre@atmel.com>,
+	Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Andrew Victor <linux@maxim.org.za>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	rtc-linux@googlegroups.com,
+	Samuel Ortiz <sameo@linux.intel.com>,
+	Lee Jones <lee.jones@linaro.org>
+Cc: Rob Herring <robh+dt@kernel.org>,
+	Pawel Moll <pawel.moll@arm.com>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Ian Campbell <ijc+devicetree@hellion.org.uk>,
+	Kumar Gala <galak@codeaurora.org>,
+	devicetree@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org,
+	Boris BREZILLON <boris.brezillon@free-electrons.com>
+Subject: [PATCH v5 8/9] rtc: at91sam9: add DT bindings documentation
+Date: Mon, 22 Sep 2014 11:10:57 +0200
+Message-Id: <1411377058-26155-9-git-send-email-boris.brezillon@free-electrons.com>
+In-Reply-To: <1411377058-26155-1-git-send-email-boris.brezillon@free-electrons.com>
+References: <1411377058-26155-1-git-send-email-boris.brezillon@free-electrons.com>
 List-ID: <rtc-linux.googlegroups.com>
 
-Hello Lee,
+Signed-off-by: Boris BREZILLON <boris.brezillon@free-electrons.com>
+---
+ .../devicetree/bindings/rtc/atmel,at91sam9-rtc.txt | 23 ++++++++++++++++++++++
+ 1 file changed, 23 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/rtc/atmel,at91sam9-rtc.txt
 
-On Wed, 24 Sep 2014 09:49:11 +0100
-Lee Jones <lee.jones@linaro.org> wrote:
-
-> This is not acceptable.  You have sent a 10 patch patch-set 5 times in
-> 24hrs.  To make matters worse, the only patch that has any affiliation
-> to me has already been accepted.
-
-Sorry for that, I oversight your email saying that you were going to
-apply it.
-
-> 
-> Send a patch-set to the list and don't do anything until the patch has
-> either been accepted or the reviews to stop coming in.  Then re-send
-> (only the patches that have not yet been accepted) in a week or so, if
-> required.
-
-Yes, as I said I didn't notice you had taken patch 9 in your tree,
-otherwise I would have removed it from the series.
-
-And I'll take care to wait between each version next time (that's often
-what I'm doing BTW).
-
-> 
-> If I have to deal with another 55 repeat emails again, you'll find
-> yourself as an entry in my spam filter.
-
-This won't happen again.
-
-Best Regards,
-
-Boris
+diff --git a/Documentation/devicetree/bindings/rtc/atmel,at91sam9-rtc.txt b/Documentation/devicetree/bindings/rtc/atmel,at91sam9-rtc.txt
+new file mode 100644
+index 0000000..5b2bb73
+--- /dev/null
++++ b/Documentation/devicetree/bindings/rtc/atmel,at91sam9-rtc.txt
+@@ -0,0 +1,23 @@
++Atmel AT91SAM9260 Real Time Timer
++
++Required properties:
++- compatible: should be: "atmel,at91sam9260-rtt"
++- reg: should encode the memory region of the RTT controller
++- interrupts: rtc alarm/event interrupt
++- clocks: should contain one clock pointing the the slow clk
++- atmel,rtt-rtc-time-reg: should encode the GPBR register used to store
++	the RTC time. The first cell should point to the GPBR node and
++	the second one encode the offset within the GPBR block (or in
++	other words, the GPBR register used to store the current time
++	value).
++
++
++Example:
++
++rtt@fffffe00 {
++	compatible = "atmel,at91sam9260-rtt";
++	reg = <0xfffffd20 0x10>;
++	interrupts = <1 4 7>;
++	clocks = <&clk32k>;
++	atmel,rtt-rtc-time-reg = <&gpbr 0x0>;
++};
 -- 
-Boris Brezillon, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+1.9.1
