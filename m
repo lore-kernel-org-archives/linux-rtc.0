@@ -1,63 +1,97 @@
-Return-Path: <boris.brezillon@free-electrons.com>
-Date: Wed, 3 Sep 2014 11:31:57 +0200
-From: Boris BREZILLON <boris.brezillon@free-electrons.com>
+Date: Mon, 22 Sep 2014 17:04:18 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
 To: Boris BREZILLON <boris.brezillon@free-electrons.com>
-Cc: Nicolas Ferre <nicolas.ferre@atmel.com>, Jean-Christophe
- Plagniol-Villard <plagnioj@jcrosoft.com>, Alexandre Belloni
- <alexandre.belloni@free-electrons.com>, Andrew Victor <linux@maxim.org.za>,
- Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com, Rob
- Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland
- <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar
- Gala <galak@codeaurora.org>, devicetree@vger.kernel.org,
- linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, Douglas
- Gilbert <dgilbert@interlog.com>, Johan Hovold <jhovold@gmail.com>
-Subject: Re: [PATCH 0/5] rtc: at91sam9: add DT support
-Message-ID: <20140903113157.45822fbb@bbrezillon>
-In-Reply-To: <1409733934-14465-1-git-send-email-boris.brezillon@free-electrons.com>
-References: <1409733934-14465-1-git-send-email-boris.brezillon@free-electrons.com>
+Cc: Nicolas Ferre <nicolas.ferre@atmel.com>,
+	Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>,
+	Andrew Victor <linux@maxim.org.za>,
+	Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
+	Samuel Ortiz <sameo@linux.intel.com>,
+	Lee Jones <lee.jones@linaro.org>, Rob Herring <robh+dt@kernel.org>,
+	Pawel Moll <pawel.moll@arm.com>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Ian Campbell <ijc+devicetree@hellion.org.uk>,
+	Kumar Gala <galak@codeaurora.org>, devicetree@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v5 3/9] rtc: at91sam9: replace devm_ioremap by
+ devm_ioremap_resource
+Message-ID: <20140922150418.GA3026@piout.net>
+References: <1411377058-26155-1-git-send-email-boris.brezillon@free-electrons.com>
+ <1411377058-26155-4-git-send-email-boris.brezillon@free-electrons.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1411377058-26155-4-git-send-email-boris.brezillon@free-electrons.com>
 List-ID: <rtc-linux.googlegroups.com>
 
-On Wed,  3 Sep 2014 10:45:29 +0200
-Boris BREZILLON <boris.brezillon@free-electrons.com> wrote:
+On 22/09/2014 at 11:10:52 +0200, Boris Brezillon wrote :
+> Replace devm_ioremap calls by devm_ioremap_resource which already check
+> resource consistency (resource != NULL) and print an error in case of
+> failure.
+> 
+> Signed-off-by: Boris BREZILLON <boris.brezillon@free-electrons.com>
 
-> Hello,
-> 
-> This patch series adds DT support to the atmel at91sam9 RTC driver.
-> 
-> It also removes any machine specific inclusions to prepare the migration
-> to multi platform kernel support, and retain the slow clock to prevent
-> the CCF from disabling it at the end of boot.
+Acked-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
 
-Oops, just noticed there already was a proposal adding DT support to
-this driver [1].
-Adding Johan and Douglas in Cc.
-
-[1]http://lists.infradead.org/pipermail/linux-arm-kernel/2013-April/160453.html
-
+> ---
+>  drivers/rtc/rtc-at91sam9.c | 29 ++++++++++-------------------
+>  1 file changed, 10 insertions(+), 19 deletions(-)
 > 
-> Best Regards,
+> diff --git a/drivers/rtc/rtc-at91sam9.c b/drivers/rtc/rtc-at91sam9.c
+> index 74a9ca0..38a2693 100644
+> --- a/drivers/rtc/rtc-at91sam9.c
+> +++ b/drivers/rtc/rtc-at91sam9.c
+> @@ -306,18 +306,11 @@ static const struct rtc_class_ops at91_rtc_ops = {
+>   */
+>  static int at91_rtc_probe(struct platform_device *pdev)
+>  {
+> -	struct resource	*r, *r_gpbr;
+> +	struct resource	*r;
+>  	struct sam9_rtc	*rtc;
+>  	int		ret, irq;
+>  	u32		mr;
+>  
+> -	r = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+> -	r_gpbr = platform_get_resource(pdev, IORESOURCE_MEM, 1);
+> -	if (!r || !r_gpbr) {
+> -		dev_err(&pdev->dev, "need 2 ressources\n");
+> -		return -ENODEV;
+> -	}
+> -
+>  	irq = platform_get_irq(pdev, 0);
+>  	if (irq < 0) {
+>  		dev_err(&pdev->dev, "failed to get interrupt resource\n");
+> @@ -335,18 +328,16 @@ static int at91_rtc_probe(struct platform_device *pdev)
+>  		device_init_wakeup(&pdev->dev, 1);
+>  
+>  	platform_set_drvdata(pdev, rtc);
+> -	rtc->rtt = devm_ioremap(&pdev->dev, r->start, resource_size(r));
+> -	if (!rtc->rtt) {
+> -		dev_err(&pdev->dev, "failed to map registers, aborting.\n");
+> -		return -ENOMEM;
+> -	}
+>  
+> -	rtc->gpbr = devm_ioremap(&pdev->dev, r_gpbr->start,
+> -				resource_size(r_gpbr));
+> -	if (!rtc->gpbr) {
+> -		dev_err(&pdev->dev, "failed to map gpbr registers, aborting.\n");
+> -		return -ENOMEM;
+> -	}
+> +	r = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+> +	rtc->rtt = devm_ioremap_resource(&pdev->dev, r);
+> +	if (IS_ERR(rtc->rtt))
+> +		return PTR_ERR(rtc->rtt);
+> +
+> +	r = platform_get_resource(pdev, IORESOURCE_MEM, 1);
+> +	rtc->gpbr = devm_ioremap_resource(&pdev->dev, r);
+> +	if (IS_ERR(rtc->gpbr))
+> +		return PTR_ERR(rtc->rtt);
+>  
+>  	mr = rtt_readl(rtc, MR);
+>  
+> -- 
+> 1.9.1
 > 
-> Boris
-> 
-> Boris BREZILLON (5):
->   rtc: at91sam9: remove references to mach specific headers
->   rtc: at91sam9: use standard readl/writel functions instead of raw
->     versions
->   rtc: at91sam9: add DT support
->   rtc: at91sam9: retain slow clock and check its rate
->   rtc: at91sam9: add DT bindings documentation
-> 
->  .../devicetree/bindings/rtc/atmel,at91sam9-rtc.txt | 20 +++++++
->  drivers/rtc/rtc-at91sam9.c                         | 63 +++++++++++++++++++---
->  2 files changed, 75 insertions(+), 8 deletions(-)
->  create mode 100644 Documentation/devicetree/bindings/rtc/atmel,at91sam9-rtc.txt
-> 
-
-
 
 -- 
-Boris Brezillon, Free Electrons
-Embedded Linux and Kernel engineering
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
 http://free-electrons.com
