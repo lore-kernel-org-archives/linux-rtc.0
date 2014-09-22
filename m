@@ -7,8 +7,7 @@ To: Nicolas Ferre <nicolas.ferre@atmel.com>,
 	Alessandro Zummo <a.zummo@towertech.it>,
 	rtc-linux@googlegroups.com,
 	Samuel Ortiz <sameo@linux.intel.com>,
-	Lee Jones <lee.jones@linaro.org>,
-	Johan Hovold <jhovold@gmail.com>
+	Lee Jones <lee.jones@linaro.org>
 Cc: Rob Herring <robh+dt@kernel.org>,
 	Pawel Moll <pawel.moll@arm.com>,
 	Mark Rutland <mark.rutland@arm.com>,
@@ -17,53 +16,49 @@ Cc: Rob Herring <robh+dt@kernel.org>,
 	devicetree@vger.kernel.org,
 	linux-arm-kernel@lists.infradead.org,
 	linux-kernel@vger.kernel.org,
-	"Acked-by: Arnd Bergmann" <arnd@arndb.de>,
 	Boris BREZILLON <boris.brezillon@free-electrons.com>
-Subject: [PATCH v9 09/10] rtc: at91sam9: add DT bindings documentation
-Date: Tue, 23 Sep 2014 16:48:44 +0200
-Message-Id: <1411483725-31532-10-git-send-email-boris.brezillon@free-electrons.com>
-In-Reply-To: <1411483725-31532-1-git-send-email-boris.brezillon@free-electrons.com>
-References: <1411483725-31532-1-git-send-email-boris.brezillon@free-electrons.com>
+Subject: [PATCH v5 4/9] rtc: at91sam9: add DT support
+Date: Mon, 22 Sep 2014 11:10:53 +0200
+Message-Id: <1411377058-26155-5-git-send-email-boris.brezillon@free-electrons.com>
+In-Reply-To: <1411377058-26155-1-git-send-email-boris.brezillon@free-electrons.com>
+References: <1411377058-26155-1-git-send-email-boris.brezillon@free-electrons.com>
 List-ID: <rtc-linux.googlegroups.com>
 
-Add RTT bindings documentation.
+Add of_match_table to the existing driver so that rtc nodes defined in at91
+DTs can be attached to this driver.
 
 Signed-off-by: Boris BREZILLON <boris.brezillon@free-electrons.com>
-Acked-by: Nicolas Ferre <nicolas.ferre@atmel.com>
-Acked-by: Johan Hovold <johan@kernel.org>
+Acked-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
 ---
- .../devicetree/bindings/rtc/atmel,at91sam9-rtc.txt | 23 ++++++++++++++++++++++
- 1 file changed, 23 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/rtc/atmel,at91sam9-rtc.txt
+ drivers/rtc/rtc-at91sam9.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/rtc/atmel,at91sam9-rtc.txt b/Documentation/devicetree/bindings/rtc/atmel,at91sam9-rtc.txt
-new file mode 100644
-index 0000000..6ae79d1
---- /dev/null
-+++ b/Documentation/devicetree/bindings/rtc/atmel,at91sam9-rtc.txt
-@@ -0,0 +1,23 @@
-+Atmel AT91SAM9260 Real Time Timer
-+
-+Required properties:
-+- compatible: should be: "atmel,at91sam9260-rtt"
-+- reg: should encode the memory region of the RTT controller
-+- interrupts: rtt alarm/event interrupt
-+- clocks: should contain the 32 KHz slow clk that will drive the RTT block.
-+- atmel,rtt-rtc-time-reg: should encode the GPBR register used to store
-+	the time base when the RTT is used as an RTC.
-+	The first cell should point to the GPBR node and the second one
-+	encode the offset within the GPBR block (or in other words, the
-+	GPBR register used to store the time base).
-+
-+
-+Example:
-+
-+rtt@fffffd20 {
-+	compatible = "atmel,at91sam9260-rtt";
-+	reg = <0xfffffd20 0x10>;
-+	interrupts = <1 4 7>;
-+	clocks = <&clk32k>;
-+	atmel,rtt-rtc-time-reg = <&gpbr 0x0>;
+diff --git a/drivers/rtc/rtc-at91sam9.c b/drivers/rtc/rtc-at91sam9.c
+index 38a2693..d72c34d 100644
+--- a/drivers/rtc/rtc-at91sam9.c
++++ b/drivers/rtc/rtc-at91sam9.c
+@@ -445,6 +445,14 @@ static int at91_rtc_resume(struct device *dev)
+ 
+ static SIMPLE_DEV_PM_OPS(at91_rtc_pm_ops, at91_rtc_suspend, at91_rtc_resume);
+ 
++#ifdef CONFIG_OF
++static const struct of_device_id at91_rtc_dt_ids[] = {
++	{ .compatible = "atmel,at91sam9260-rtt" },
++	{ /* sentinel */ }
 +};
++MODULE_DEVICE_TABLE(of, at91_rtc_dt_ids);
++#endif
++
+ static struct platform_driver at91_rtc_driver = {
+ 	.probe		= at91_rtc_probe,
+ 	.remove		= at91_rtc_remove,
+@@ -453,6 +461,7 @@ static struct platform_driver at91_rtc_driver = {
+ 		.name	= "rtc-at91sam9",
+ 		.owner	= THIS_MODULE,
+ 		.pm	= &at91_rtc_pm_ops,
++		.of_match_table = of_match_ptr(at91_rtc_dt_ids),
+ 	},
+ };
+ 
 -- 
 1.9.1
