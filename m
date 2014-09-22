@@ -1,90 +1,80 @@
-Return-Path: <Nicolas.FERRE@atmel.com>
-Message-ID: <54108277.9000100@atmel.com>
-Date: Wed, 10 Sep 2014 18:55:19 +0200
-From: Nicolas Ferre <nicolas.ferre@atmel.com>
-MIME-Version: 1.0
-To: Johan Hovold <johan@kernel.org>, Boris BREZILLON
-	<boris.brezillon@free-electrons.com>
-CC: Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>, "Alexandre
- Belloni" <alexandre.belloni@free-electrons.com>, Andrew Victor
-	<linux@maxim.org.za>, Alessandro Zummo <a.zummo@towertech.it>,
-	<rtc-linux@googlegroups.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll
-	<pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell
-	<ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>,
-	<devicetree@vger.kernel.org>, <linux-arm-kernel@lists.infradead.org>,
-	<linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 5/5] rtc: at91sam9: add DT bindings documentation
-References: <1409733934-14465-1-git-send-email-boris.brezillon@free-electrons.com> <1409733934-14465-6-git-send-email-boris.brezillon@free-electrons.com> <20140910121424.GG2974@localhost> <20140910152019.111c4c01@bbrezillon> <20140910150702.GK2974@localhost> <20140910173114.593dd132@bbrezillon> <20140910155236.GL2974@localhost>
-In-Reply-To: <20140910155236.GL2974@localhost>
-Content-Type: text/plain; charset="ISO-8859-1"
+Return-Path: <boris.brezillon@free-electrons.com>
+From: Boris BREZILLON <boris.brezillon@free-electrons.com>
+To: Nicolas Ferre <nicolas.ferre@atmel.com>,
+	Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Andrew Victor <linux@maxim.org.za>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	rtc-linux@googlegroups.com,
+	Samuel Ortiz <sameo@linux.intel.com>,
+	Lee Jones <lee.jones@linaro.org>,
+	Johan Hovold <jhovold@gmail.com>
+Cc: Rob Herring <robh+dt@kernel.org>,
+	Pawel Moll <pawel.moll@arm.com>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Ian Campbell <ijc+devicetree@hellion.org.uk>,
+	Kumar Gala <galak@codeaurora.org>,
+	devicetree@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org,
+	Boris BREZILLON <boris.brezillon@free-electrons.com>
+Subject: [PATCH v6 1/9] rtc: at91sam9: remove references to mach specific headers
+Date: Mon, 22 Sep 2014 17:42:35 +0200
+Message-Id: <1411400563-570-2-git-send-email-boris.brezillon@free-electrons.com>
+In-Reply-To: <1411400563-570-1-git-send-email-boris.brezillon@free-electrons.com>
+References: <1411400563-570-1-git-send-email-boris.brezillon@free-electrons.com>
 List-ID: <rtc-linux.googlegroups.com>
 
-On 10/09/2014 17:52, Johan Hovold :
-> On Wed, Sep 10, 2014 at 05:31:14PM +0200, Boris BREZILLON wrote:
->> On Wed, 10 Sep 2014 17:07:02 +0200
->> Johan Hovold <johan@kernel.org> wrote:
-> 
->>> Yes, this essentially what I suggested in the thread (and my last reply)
->>> and relying on syscon rather than a custom driver seems like a good
->>> idea. It would allow early access to the registers too with the recently
->>> proposed changes. It would not guarantee any kind of exclusivity,
->>> though, but I guess that's tolerable?
->>
->> Yep, that's one of the concern I had with the syscon/regmap
->> approach :-(, but I guess I'll give this solution a try and post a new
->> version of this series ;-).
-> 
-> Perhaps we should see what Nicolas and Jean-Christophe says before
-> rushing into anything (again). ;)
+In order to support multi platform kernel drivers should not include
+machine specific headers.
+Copy RTT macros in the driver code and remove any machine specific
+headers.
 
-I said and say it again: keep it simple: if gpbr 0 is used by bootloader
-to pass information about the boot media, use gpbr 1, without protection
-without anything fancy, please.
+Signed-off-by: Boris BREZILLON <boris.brezillon@free-electrons.com>
+Acked-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+---
+ drivers/rtc/rtc-at91sam9.c | 22 ++++++++++++++++++----
+ 1 file changed, 18 insertions(+), 4 deletions(-)
 
-atmel,at91-rtt-as-rtc-gpbr = <1>;
-is good for me.
-
-We can decide to keep the DT binding as "unstable" and see what happen
-in one year from now (I suspect nothing will happen). The result is that
-we will have a simple update of this driver without new API or new
-sub-system to learn and maintain.
-
-So, all in all, I would just take what Johan or Boris did, and go with
-this, now!
-
-
-> I remember J-C considered loosing track of what was using a particular
-> backup register to be a regression. But I guess you can't have it both
-> ways (e.g. if you also want the early access soon provided by syscon).
-> 
-> I'll refresh my rtt and gmbr-node patches meanwhile, as they should be
-> needed in some form at least.
-> 
->> Can we just leave the rtt as an rtc problem on the side for now and bind
->> it to the rtc-at91sam9 driver.
->>
->> If we ever decide to add a new driver using the RTT for another purpose
->> we will still be able to reference the RTT block like this (and keep
->> the existing rtt node definition):
->>
->> rtt-based-rtc {
->> 	compatible = "atmel,rtt-rtc";
->> 	atmel,rtt = <&rtt>;
->> 	atmel,time-reg = <&gpbr 0x0>;
->> }
-> 
-> But why not do this from the start?
-> 
->> rtt-based-xdev {
->> 	compatible = "atmel,rtt-xdev";
->> 	atmel,rtt = <&rtt>;
->> 	/*...*/
->> }
-> 
-> Johan
-> 
-> 
-
-
+diff --git a/drivers/rtc/rtc-at91sam9.c b/drivers/rtc/rtc-at91sam9.c
+index 5963743..51f0038 100644
+--- a/drivers/rtc/rtc-at91sam9.c
++++ b/drivers/rtc/rtc-at91sam9.c
+@@ -22,10 +22,6 @@
+ #include <linux/platform_data/atmel.h>
+ #include <linux/io.h>
+ 
+-#include <mach/at91_rtt.h>
+-#include <mach/cpu.h>
+-#include <mach/hardware.h>
+-
+ /*
+  * This driver uses two configurable hardware resources that live in the
+  * AT91SAM9 backup power domain (intended to be powered at all times)
+@@ -47,6 +43,24 @@
+  * registers available, likewise usable for more than "RTC" support.
+  */
+ 
++#define AT91_RTT_MR		0x00			/* Real-time Mode Register */
++#define AT91_RTT_RTPRES		(0xffff << 0)		/* Real-time Timer Prescaler Value */
++#define AT91_RTT_ALMIEN		(1 << 16)		/* Alarm Interrupt Enable */
++#define AT91_RTT_RTTINCIEN	(1 << 17)		/* Real Time Timer Increment Interrupt Enable */
++#define AT91_RTT_RTTRST		(1 << 18)		/* Real Time Timer Restart */
++
++#define AT91_RTT_AR		0x04			/* Real-time Alarm Register */
++#define AT91_RTT_ALMV		(0xffffffff)		/* Alarm Value */
++
++#define AT91_RTT_VR		0x08			/* Real-time Value Register */
++#define AT91_RTT_CRTV		(0xffffffff)		/* Current Real-time Value */
++
++#define AT91_RTT_SR		0x0c			/* Real-time Status Register */
++#define AT91_RTT_ALMS		(1 << 0)		/* Real-time Alarm Status */
++#define AT91_RTT_RTTINC		(1 << 1)		/* Real-time Timer Increment */
++
++#define AT91_SLOW_CLOCK		32768
++
+ /*
+  * We store ALARM_DISABLED in ALMV to record that no alarm is set.
+  * It's also the reset value for that field.
 -- 
-Nicolas Ferre
+1.9.1
