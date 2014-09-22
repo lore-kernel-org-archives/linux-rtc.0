@@ -17,54 +17,71 @@ Cc: Rob Herring <robh+dt@kernel.org>,
 	devicetree@vger.kernel.org,
 	linux-arm-kernel@lists.infradead.org,
 	linux-kernel@vger.kernel.org,
-	"Acked-by: Arnd Bergmann" <arnd@arndb.de>,
 	Boris BREZILLON <boris.brezillon@free-electrons.com>
-Subject: [PATCH v9 02/10] rtc: at91sam9: use standard readl/writel functions instead of raw versions
-Date: Tue, 23 Sep 2014 16:48:37 +0200
-Message-Id: <1411483725-31532-3-git-send-email-boris.brezillon@free-electrons.com>
-In-Reply-To: <1411483725-31532-1-git-send-email-boris.brezillon@free-electrons.com>
-References: <1411483725-31532-1-git-send-email-boris.brezillon@free-electrons.com>
+Subject: [PATCH v6 0/9] rtc: at91sam9: add DT support
+Date: Mon, 22 Sep 2014 17:42:34 +0200
+Message-Id: <1411400563-570-1-git-send-email-boris.brezillon@free-electrons.com>
 List-ID: <rtc-linux.googlegroups.com>
 
-Raw versions of writel and writel should not be directly used and should
-be replaced by their relaxed versions (readl/writel_relaxed), which take
-endianness conversion into account.
+Hello,
 
-In this driver we prefer the standard readl/writel function which add the
-appropriate memory barrier around the access (the performance penalty is
-negligible for this kind of application).
+This patch series adds DT support to the atmel at91sam9 RTC driver.
 
-Signed-off-by: Boris BREZILLON <boris.brezillon@free-electrons.com>
-Acked-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Acked-by: Nicolas Ferre <nicolas.ferre@atmel.com>
-Acked-by: Johan Hovold <johan@kernel.org>
-Acked-by: Arnd Bergmann <arnd@arndb.de>
----
- drivers/rtc/rtc-at91sam9.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+It also removes any machine specific inclusions to prepare the migration
+to multi platform kernel support, and retain the slow clock to prevent
+the CCF from disabling it at the end of boot.
+  
+Best Regards,
 
-diff --git a/drivers/rtc/rtc-at91sam9.c b/drivers/rtc/rtc-at91sam9.c
-index 51f0038..74a9ca0 100644
---- a/drivers/rtc/rtc-at91sam9.c
-+++ b/drivers/rtc/rtc-at91sam9.c
-@@ -77,14 +77,14 @@ struct sam9_rtc {
- };
- 
- #define rtt_readl(rtc, field) \
--	__raw_readl((rtc)->rtt + AT91_RTT_ ## field)
-+	readl((rtc)->rtt + AT91_RTT_ ## field)
- #define rtt_writel(rtc, field, val) \
--	__raw_writel((val), (rtc)->rtt + AT91_RTT_ ## field)
-+	writel((val), (rtc)->rtt + AT91_RTT_ ## field)
- 
- #define gpbr_readl(rtc) \
--	__raw_readl((rtc)->gpbr)
-+	readl((rtc)->gpbr)
- #define gpbr_writel(rtc, val) \
--	__raw_writel((val), (rtc)->gpbr)
-+	writel((val), (rtc)->gpbr)
- 
- /*
-  * Read current time and date in RTC
+Boris
+
+Changes since v4:
+ - replace 'rtc' by 'rtt' where appropriate
+ - fix commit messages
+
+Changes since v4:
+ - add a TODO comment to remember removing non DT board support code
+
+Changes since v3:
+ - add GPBR DT bindings doc
+ - fix a coding style issues
+ - add Alexandre's Acked-by
+ - change RTT DT bindings
+
+Changes since v2:
+ - make use of syscon/regmap to avoid directly requesting/mapping a GPBR
+   memory region in the RTT driver
+
+Changes since v1:
+ - remove non CCF specific case by adding the appropriate clk_lookup
+   entries in arch/arm/mach-at91/<soc-name>.c files
+
+Boris BREZILLON (9):
+  rtc: at91sam9: remove references to mach specific headers
+  rtc: at91sam9: use standard readl/writel functions instead of raw
+    versions
+  rtc: at91sam9: replace devm_ioremap by devm_ioremap_resource
+  rtc: at91sam9: add DT support
+  rtc: at91sam9: make use of syscon/regmap to access GPBR registers
+  ARM: at91: add clk_lookup entry for RTT devices
+  rtc: at91sam9: use clk API instead of relying on AT91_SLOW_CLOCK
+  rtc: at91sam9: add DT bindings documentation
+  mfd: syscon: add Atmel GPBR DT bindings documention
+
+ .../devicetree/bindings/mfd/atmel,gpbr.txt         |  15 +++
+ .../devicetree/bindings/rtc/atmel,at91sam9-rtc.txt |  23 ++++
+ arch/arm/mach-at91/at91sam9260.c                   |   2 +
+ arch/arm/mach-at91/at91sam9261.c                   |   2 +
+ arch/arm/mach-at91/at91sam9263.c                   |   4 +
+ arch/arm/mach-at91/at91sam9g45.c                   |   2 +
+ arch/arm/mach-at91/at91sam9rl.c                    |   2 +
+ arch/arm/mach-at91/clock.c                         |   2 +-
+ arch/arm/mach-at91/clock.h                         |   1 +
+ drivers/rtc/Kconfig                                |   1 +
+ drivers/rtc/rtc-at91sam9.c                         | 138 ++++++++++++++++-----
+ 11 files changed, 162 insertions(+), 30 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/mfd/atmel,gpbr.txt
+ create mode 100644 Documentation/devicetree/bindings/rtc/atmel,at91sam9-rtc.txt
+
 -- 
 1.9.1
