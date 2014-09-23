@@ -1,79 +1,121 @@
-Return-Path: <boris.brezillon@free-electrons.com>
-From: Boris BREZILLON <boris.brezillon@free-electrons.com>
-To: Nicolas Ferre <nicolas.ferre@atmel.com>,
-	Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Andrew Victor <linux@maxim.org.za>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	rtc-linux@googlegroups.com,
-	Samuel Ortiz <sameo@linux.intel.com>,
-	Lee Jones <lee.jones@linaro.org>
-Cc: Rob Herring <robh+dt@kernel.org>,
-	Pawel Moll <pawel.moll@arm.com>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Ian Campbell <ijc+devicetree@hellion.org.uk>,
-	Kumar Gala <galak@codeaurora.org>,
-	devicetree@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org,
-	Boris BREZILLON <boris.brezillon@free-electrons.com>
-Subject: [PATCH v5 1/9] rtc: at91sam9: remove references to mach specific headers
-Date: Mon, 22 Sep 2014 11:10:50 +0200
-Message-Id: <1411377058-26155-2-git-send-email-boris.brezillon@free-electrons.com>
-In-Reply-To: <1411377058-26155-1-git-send-email-boris.brezillon@free-electrons.com>
-References: <1411377058-26155-1-git-send-email-boris.brezillon@free-electrons.com>
+Return-Path: <Nicolas.FERRE@atmel.com>
+Message-ID: <54212D87.4060908@atmel.com>
+Date: Tue, 23 Sep 2014 10:21:27 +0200
+From: Nicolas Ferre <nicolas.ferre@atmel.com>
+MIME-Version: 1.0
+To: Boris BREZILLON <boris.brezillon@free-electrons.com>, "Jean-Christophe
+ Plagniol-Villard" <plagnioj@jcrosoft.com>, Alexandre Belloni
+	<alexandre.belloni@free-electrons.com>, Andrew Victor <linux@maxim.org.za>,
+	Alessandro Zummo <a.zummo@towertech.it>, <rtc-linux@googlegroups.com>,
+	"Samuel Ortiz" <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>,
+	Johan Hovold <jhovold@gmail.com>
+CC: Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, "Mark
+ Rutland" <mark.rutland@arm.com>, Ian Campbell
+	<ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>,
+	<devicetree@vger.kernel.org>, <linux-arm-kernel@lists.infradead.org>,
+	<linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH v6 7/9] rtc: at91sam9: use clk API instead of relying
+ on AT91_SLOW_CLOCK
+References: <1411400563-570-1-git-send-email-boris.brezillon@free-electrons.com> <1411400563-570-8-git-send-email-boris.brezillon@free-electrons.com>
+In-Reply-To: <1411400563-570-8-git-send-email-boris.brezillon@free-electrons.com>
+Content-Type: text/plain; charset="ISO-8859-1"
 List-ID: <rtc-linux.googlegroups.com>
 
-In order to support multi platform kernel drivers should not include
-machine specific headers.
-Copy RTT macros in the driver code and remove any machine specific
-headers.
+On 22/09/2014 17:42, Boris BREZILLON :
+> The RTT block is using the slow clock which is accessible through the clk
+> API.
+> Use the clk API to retrieve, enable and get the slow clk rate instead of
+> the AT91_SLOW_CLOCK macro (which hardcodes the slow clk rate).
+> Doing this allows us to reference the clk thus preventing the CCF from
+> disabling it during the "disable unused" phase.
+> 
+> Signed-off-by: Boris BREZILLON <boris.brezillon@free-electrons.com>
+> Acked-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Acked-by: Nicolas Ferre <nicolas.ferre@atmel.com>
 
-Signed-off-by: Boris BREZILLON <boris.brezillon@free-electrons.com>
-Acked-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
----
- drivers/rtc/rtc-at91sam9.c | 22 ++++++++++++++++++----
- 1 file changed, 18 insertions(+), 4 deletions(-)
+> ---
+>  drivers/rtc/rtc-at91sam9.c | 28 ++++++++++++++++++++++++----
+>  1 file changed, 24 insertions(+), 4 deletions(-)
+> 
+> diff --git a/drivers/rtc/rtc-at91sam9.c b/drivers/rtc/rtc-at91sam9.c
+> index 902cd01..d20e118 100644
+> --- a/drivers/rtc/rtc-at91sam9.c
+> +++ b/drivers/rtc/rtc-at91sam9.c
+> @@ -23,6 +23,7 @@
+>  #include <linux/io.h>
+>  #include <linux/mfd/syscon.h>
+>  #include <linux/regmap.h>
+> +#include <linux/clk.h>
+>  
+>  /*
+>   * This driver uses two configurable hardware resources that live in the
+> @@ -61,8 +62,6 @@
+>  #define AT91_RTT_ALMS		(1 << 0)		/* Real-time Alarm Status */
+>  #define AT91_RTT_RTTINC		(1 << 1)		/* Real-time Timer Increment */
+>  
+> -#define AT91_SLOW_CLOCK		32768
+> -
+>  /*
+>   * We store ALARM_DISABLED in ALMV to record that no alarm is set.
+>   * It's also the reset value for that field.
+> @@ -77,6 +76,7 @@ struct sam9_rtc {
+>  	struct regmap		*gpbr;
+>  	unsigned int		gpbr_offset;
+>  	int 			irq;
+> +	struct clk		*sclk;
+>  };
+>  
+>  #define rtt_readl(rtc, field) \
+> @@ -328,6 +328,7 @@ static int at91_rtc_probe(struct platform_device *pdev)
+>  	struct sam9_rtc	*rtc;
+>  	int		ret, irq;
+>  	u32		mr;
+> +	unsigned int	sclk_rate;
+>  
+>  	irq = platform_get_irq(pdev, 0);
+>  	if (irq < 0) {
+> @@ -385,11 +386,27 @@ static int at91_rtc_probe(struct platform_device *pdev)
+>  		return -ENOMEM;
+>  	}
+>  
+> +	rtc->sclk = devm_clk_get(&pdev->dev, NULL);
+> +	if (IS_ERR(rtc->sclk))
+> +		return PTR_ERR(rtc->sclk);
+> +
+> +	sclk_rate = clk_get_rate(rtc->sclk);
+> +	if (!sclk_rate || sclk_rate > AT91_RTT_RTTRST) {
+> +		dev_err(&pdev->dev, "Invalid slow clock rate");
+> +		return -EINVAL;
+> +	}
+> +
+> +	ret = clk_prepare_enable(rtc->sclk);
+> +	if (ret) {
+> +		dev_err(&pdev->dev, "Could not enable slow clock");
+> +		return ret;
+> +	}
+> +
+>  	mr = rtt_readl(rtc, MR);
+>  
+>  	/* unless RTT is counting at 1 Hz, re-initialize it */
+> -	if ((mr & AT91_RTT_RTPRES) != AT91_SLOW_CLOCK) {
+> -		mr = AT91_RTT_RTTRST | (AT91_SLOW_CLOCK & AT91_RTT_RTPRES);
+> +	if ((mr & AT91_RTT_RTPRES) != sclk_rate) {
+> +		mr = AT91_RTT_RTTRST | (sclk_rate & AT91_RTT_RTPRES);
+>  		gpbr_writel(rtc, 0);
+>  	}
+>  
+> @@ -434,6 +451,9 @@ static int at91_rtc_remove(struct platform_device *pdev)
+>  	/* disable all interrupts */
+>  	rtt_writel(rtc, MR, mr & ~(AT91_RTT_ALMIEN | AT91_RTT_RTTINCIEN));
+>  
+> +	if (!IS_ERR(rtc->sclk))
+> +		clk_disable_unprepare(rtc->sclk);
+> +
+>  	return 0;
+>  }
+>  
+> 
 
-diff --git a/drivers/rtc/rtc-at91sam9.c b/drivers/rtc/rtc-at91sam9.c
-index 5963743..51f0038 100644
---- a/drivers/rtc/rtc-at91sam9.c
-+++ b/drivers/rtc/rtc-at91sam9.c
-@@ -22,10 +22,6 @@
- #include <linux/platform_data/atmel.h>
- #include <linux/io.h>
- 
--#include <mach/at91_rtt.h>
--#include <mach/cpu.h>
--#include <mach/hardware.h>
--
- /*
-  * This driver uses two configurable hardware resources that live in the
-  * AT91SAM9 backup power domain (intended to be powered at all times)
-@@ -47,6 +43,24 @@
-  * registers available, likewise usable for more than "RTC" support.
-  */
- 
-+#define AT91_RTT_MR		0x00			/* Real-time Mode Register */
-+#define AT91_RTT_RTPRES		(0xffff << 0)		/* Real-time Timer Prescaler Value */
-+#define AT91_RTT_ALMIEN		(1 << 16)		/* Alarm Interrupt Enable */
-+#define AT91_RTT_RTTINCIEN	(1 << 17)		/* Real Time Timer Increment Interrupt Enable */
-+#define AT91_RTT_RTTRST		(1 << 18)		/* Real Time Timer Restart */
-+
-+#define AT91_RTT_AR		0x04			/* Real-time Alarm Register */
-+#define AT91_RTT_ALMV		(0xffffffff)		/* Alarm Value */
-+
-+#define AT91_RTT_VR		0x08			/* Real-time Value Register */
-+#define AT91_RTT_CRTV		(0xffffffff)		/* Current Real-time Value */
-+
-+#define AT91_RTT_SR		0x0c			/* Real-time Status Register */
-+#define AT91_RTT_ALMS		(1 << 0)		/* Real-time Alarm Status */
-+#define AT91_RTT_RTTINC		(1 << 1)		/* Real-time Timer Increment */
-+
-+#define AT91_SLOW_CLOCK		32768
-+
- /*
-  * We store ALARM_DISABLED in ALMV to record that no alarm is set.
-  * It's also the reset value for that field.
+
 -- 
-1.9.1
+Nicolas Ferre
