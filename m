@@ -1,65 +1,30 @@
-Return-Path: <boris.brezillon@free-electrons.com>
-From: Boris BREZILLON <boris.brezillon@free-electrons.com>
-To: Nicolas Ferre <nicolas.ferre@atmel.com>,
-	Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Andrew Victor <linux@maxim.org.za>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	rtc-linux@googlegroups.com,
-	Samuel Ortiz <sameo@linux.intel.com>,
-	Lee Jones <lee.jones@linaro.org>,
-	Johan Hovold <jhovold@gmail.com>
-Cc: Rob Herring <robh+dt@kernel.org>,
-	Pawel Moll <pawel.moll@arm.com>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Ian Campbell <ijc+devicetree@hellion.org.uk>,
-	Kumar Gala <galak@codeaurora.org>,
-	devicetree@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org,
-	Boris BREZILLON <boris.brezillon@free-electrons.com>
-Subject: [PATCH v8 10/10] mfd: syscon: add Atmel GPBR DT bindings documention
-Date: Tue, 23 Sep 2014 13:24:04 +0200
-Message-Id: <1411471444-2764-11-git-send-email-boris.brezillon@free-electrons.com>
+Return-Path: <arnd@arndb.de>
+From: Arnd Bergmann <arnd@arndb.de>
+To: linux-arm-kernel@lists.infradead.org
+Cc: Boris BREZILLON <boris.brezillon@free-electrons.com>, Nicolas Ferre <nicolas.ferre@atmel.com>, Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>, Alexandre Belloni <alexandre.belloni@free-electrons.com>, Andrew Victor <linux@maxim.org.za>, Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com, Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, Johan Hovold <jhovold@gmail.com>, Mark Rutland <mark.rutland@arm.com>, devicetree@vger.kernel.org, Pawel Moll <pawel.moll@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, linux-kernel@vger.kernel.org, Rob Herring <robh+dt@kernel.org>, Kumar Gala <galak@codeaurora.org>
+Subject: Re: [PATCH v8 00/10] rtc: at91sam9: add DT support
+Date: Tue, 23 Sep 2014 14:57:37 +0200
+Message-ID: <2804695.hx0ZOj3D5K@wuerfel>
 In-Reply-To: <1411471444-2764-1-git-send-email-boris.brezillon@free-electrons.com>
 References: <1411471444-2764-1-git-send-email-boris.brezillon@free-electrons.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 List-ID: <rtc-linux.googlegroups.com>
 
-The GPBR block provides a set of battery-backed registers that can be used
-to save data which need to be kept when the system is powered down and
-VDD-core is maintained by an external battery.
+On Tuesday 23 September 2014 13:23:54 Boris BREZILLON wrote:
+> 
+> This patch series adds DT support to the atmel at91sam9 RTC driver.
+> 
+> It also removes any machine specific inclusions to prepare the migration
+> to multi platform kernel support, and retain the slow clock to prevent
+> the CCF from disabling it at the end of boot.
+>   
+> 
 
-A typical usage is the RTT block (when used as an RTC) which needs one of
-those registers to save the current time.
+Looks good to me, please add
 
-Signed-off-by: Boris BREZILLON <boris.brezillon@free-electrons.com>
-Acked-by: Nicolas Ferre <nicolas.ferre@atmel.com>
-Acked-by: Johan Hovold <johan@kernel.org>
----
- Documentation/devicetree/bindings/mfd/atmel,gpbr.txt | 15 +++++++++++++++
- 1 file changed, 15 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/mfd/atmel,gpbr.txt
+Acked-by: Arnd Bergmann <arnd@arndb.de>
 
-diff --git a/Documentation/devicetree/bindings/mfd/atmel,gpbr.txt b/Documentation/devicetree/bindings/mfd/atmel,gpbr.txt
-new file mode 100644
-index 0000000..a285695
---- /dev/null
-+++ b/Documentation/devicetree/bindings/mfd/atmel,gpbr.txt
-@@ -0,0 +1,15 @@
-+* Device tree bindings for Atmel GPBR (General Purpose Backup Registers)
-+
-+The GPBR are a set of battery-backed registers.
-+
-+Required properties:
-+- compatible:		"atmel,at91sam9260-gpbr", "syscon"
-+- reg:			contains offset/length value of the GPBR memory
-+			region.
-+
-+Example:
-+
-+gpbr: gpbr@fffffd50 {
-+	compatible = "atmel,at91sam9260-gpbr", "syscon";
-+	reg = <0xfffffd50 0x10>;
-+};
--- 
-1.9.1
+once you have addressed the remaining comments from Johan and me.
+
+	Arnd
