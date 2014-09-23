@@ -17,79 +17,157 @@ Cc: Rob Herring <robh+dt@kernel.org>,
 	devicetree@vger.kernel.org,
 	linux-arm-kernel@lists.infradead.org,
 	linux-kernel@vger.kernel.org,
-	"Acked-by: Arnd Bergmann" <arnd@arndb.de>,
 	Boris BREZILLON <boris.brezillon@free-electrons.com>
-Subject: [PATCH v9 03/10] rtc: at91sam9: replace devm_ioremap by devm_ioremap_resource
-Date: Tue, 23 Sep 2014 16:48:38 +0200
-Message-Id: <1411483725-31532-4-git-send-email-boris.brezillon@free-electrons.com>
-In-Reply-To: <1411483725-31532-1-git-send-email-boris.brezillon@free-electrons.com>
-References: <1411483725-31532-1-git-send-email-boris.brezillon@free-electrons.com>
+Subject: [PATCH v7 07/10] ARM: at91: add clk_lookup entry for RTT devices
+Date: Tue, 23 Sep 2014 11:38:47 +0200
+Message-Id: <1411465130-29011-8-git-send-email-boris.brezillon@free-electrons.com>
+In-Reply-To: <1411465130-29011-1-git-send-email-boris.brezillon@free-electrons.com>
+References: <1411465130-29011-1-git-send-email-boris.brezillon@free-electrons.com>
 List-ID: <rtc-linux.googlegroups.com>
 
-Replace devm_ioremap calls by devm_ioremap_resource which already check
-resource consistency (resource != NULL) and print an error in case of
-failure.
+First export the clk32k clk.
+Then add clk_lookup entries for RTT devices so that rtc-at91sam9 driver
+can retrieve and manipulate the slow clk.
 
 Signed-off-by: Boris BREZILLON <boris.brezillon@free-electrons.com>
 Acked-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
 Acked-by: Nicolas Ferre <nicolas.ferre@atmel.com>
-Acked-by: Johan Hovold <johan@kernel.org>
-Acked-by: Arnd Bergmann <arnd@arndb.de>
 ---
- drivers/rtc/rtc-at91sam9.c | 29 ++++++++++-------------------
- 1 file changed, 10 insertions(+), 19 deletions(-)
+ arch/arm/mach-at91/at91sam9260.c | 2 ++
+ arch/arm/mach-at91/at91sam9261.c | 2 ++
+ arch/arm/mach-at91/at91sam9263.c | 4 ++++
+ arch/arm/mach-at91/at91sam9g45.c | 2 ++
+ arch/arm/mach-at91/at91sam9rl.c  | 2 ++
+ arch/arm/mach-at91/clock.c       | 2 +-
+ arch/arm/mach-at91/clock.h       | 1 +
+ 7 files changed, 14 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/rtc/rtc-at91sam9.c b/drivers/rtc/rtc-at91sam9.c
-index 74a9ca0..38a2693 100644
---- a/drivers/rtc/rtc-at91sam9.c
-+++ b/drivers/rtc/rtc-at91sam9.c
-@@ -306,18 +306,11 @@ static const struct rtc_class_ops at91_rtc_ops = {
+diff --git a/arch/arm/mach-at91/at91sam9260.c b/arch/arm/mach-at91/at91sam9260.c
+index 3477ba9..a853d4c 100644
+--- a/arch/arm/mach-at91/at91sam9260.c
++++ b/arch/arm/mach-at91/at91sam9260.c
+@@ -217,6 +217,7 @@ static struct clk_lookup periph_clocks_lookups[] = {
+ 	CLKDEV_CON_DEV_ID("pclk", "fffbc000.ssc", &ssc_clk),
+ 	CLKDEV_CON_DEV_ID(NULL, "i2c-at91sam9260.0", &twi_clk),
+ 	CLKDEV_CON_DEV_ID(NULL, "i2c-at91sam9g20.0", &twi_clk),
++	CLKDEV_CON_DEV_ID(NULL, "rtc-at91sam9.0", &clk32k),
+ 	/* more usart lookup table for DT entries */
+ 	CLKDEV_CON_DEV_ID("usart", "fffff200.serial", &mck),
+ 	CLKDEV_CON_DEV_ID("usart", "fffb0000.serial", &usart0_clk),
+@@ -237,6 +238,7 @@ static struct clk_lookup periph_clocks_lookups[] = {
+ 	CLKDEV_CON_DEV_ID("mci_clk", "fffa8000.mmc", &mmc_clk),
+ 	CLKDEV_CON_DEV_ID("spi_clk", "fffc8000.spi", &spi0_clk),
+ 	CLKDEV_CON_DEV_ID("spi_clk", "fffcc000.spi", &spi1_clk),
++	CLKDEV_CON_DEV_ID(NULL, "fffffd20.rtc", &clk32k),
+ 	/* fake hclk clock */
+ 	CLKDEV_CON_DEV_ID("hclk", "at91_ohci", &ohci_clk),
+ 	CLKDEV_CON_ID("pioA", &pioA_clk),
+diff --git a/arch/arm/mach-at91/at91sam9261.c b/arch/arm/mach-at91/at91sam9261.c
+index fb164a5..3f5a299 100644
+--- a/arch/arm/mach-at91/at91sam9261.c
++++ b/arch/arm/mach-at91/at91sam9261.c
+@@ -192,6 +192,7 @@ static struct clk_lookup periph_clocks_lookups[] = {
+ 	CLKDEV_CON_ID("pioA", &pioA_clk),
+ 	CLKDEV_CON_ID("pioB", &pioB_clk),
+ 	CLKDEV_CON_ID("pioC", &pioC_clk),
++	CLKDEV_CON_DEV_ID(NULL, "rtc-at91sam9.0", &clk32k),
+ 	/* more lookup table for DT entries */
+ 	CLKDEV_CON_DEV_ID("usart", "fffff200.serial", &mck),
+ 	CLKDEV_CON_DEV_ID("usart", "fffb0000.serial", &usart0_clk),
+@@ -209,6 +210,7 @@ static struct clk_lookup periph_clocks_lookups[] = {
+ 	CLKDEV_CON_DEV_ID(NULL, "fffff400.gpio", &pioA_clk),
+ 	CLKDEV_CON_DEV_ID(NULL, "fffff600.gpio", &pioB_clk),
+ 	CLKDEV_CON_DEV_ID(NULL, "fffff800.gpio", &pioC_clk),
++	CLKDEV_CON_DEV_ID(NULL, "fffffd20.rtc", &clk32k),
+ };
+ 
+ static struct clk_lookup usart_clocks_lookups[] = {
+diff --git a/arch/arm/mach-at91/at91sam9263.c b/arch/arm/mach-at91/at91sam9263.c
+index 810fa5f..bef5b96 100644
+--- a/arch/arm/mach-at91/at91sam9263.c
++++ b/arch/arm/mach-at91/at91sam9263.c
+@@ -201,6 +201,8 @@ static struct clk_lookup periph_clocks_lookups[] = {
+ 	CLKDEV_CON_DEV_ID("t0_clk", "atmel_tcb.0", &tcb_clk),
+ 	CLKDEV_CON_DEV_ID(NULL, "i2c-at91sam9260.0", &twi_clk),
+ 	CLKDEV_CON_DEV_ID(NULL, "at91sam9rl-pwm", &pwm_clk),
++	CLKDEV_CON_DEV_ID(NULL, "rtc-at91sam9.0", &clk32k),
++	CLKDEV_CON_DEV_ID(NULL, "rtc-at91sam9.1", &clk32k),
+ 	/* fake hclk clock */
+ 	CLKDEV_CON_DEV_ID("hclk", "at91_ohci", &ohci_clk),
+ 	CLKDEV_CON_ID("pioA", &pioA_clk),
+@@ -227,6 +229,8 @@ static struct clk_lookup periph_clocks_lookups[] = {
+ 	CLKDEV_CON_DEV_ID(NULL, "fffff800.gpio", &pioCDE_clk),
+ 	CLKDEV_CON_DEV_ID(NULL, "fffffa00.gpio", &pioCDE_clk),
+ 	CLKDEV_CON_DEV_ID(NULL, "fffb8000.pwm", &pwm_clk),
++	CLKDEV_CON_DEV_ID(NULL, "fffffd20.rtc", &clk32k),
++	CLKDEV_CON_DEV_ID(NULL, "fffffd50.rtc", &clk32k),
+ };
+ 
+ static struct clk_lookup usart_clocks_lookups[] = {
+diff --git a/arch/arm/mach-at91/at91sam9g45.c b/arch/arm/mach-at91/at91sam9g45.c
+index 9d45496..69fdfcc 100644
+--- a/arch/arm/mach-at91/at91sam9g45.c
++++ b/arch/arm/mach-at91/at91sam9g45.c
+@@ -253,6 +253,7 @@ static struct clk_lookup periph_clocks_lookups[] = {
+ 	CLKDEV_CON_DEV_ID(NULL, "atmel_tdes", &aestdessha_clk),
+ 	CLKDEV_CON_DEV_ID(NULL, "atmel_aes", &aestdessha_clk),
+ 	CLKDEV_CON_DEV_ID(NULL, "at91sam9rl-pwm", &pwm_clk),
++	CLKDEV_CON_DEV_ID(NULL, "rtc-at91sam9.0", &clk32k),
+ 	/* more usart lookup table for DT entries */
+ 	CLKDEV_CON_DEV_ID("usart", "ffffee00.serial", &mck),
+ 	CLKDEV_CON_DEV_ID("usart", "fff8c000.serial", &usart0_clk),
+@@ -279,6 +280,7 @@ static struct clk_lookup periph_clocks_lookups[] = {
+ 	CLKDEV_CON_DEV_ID(NULL, "fffff600.gpio", &pioC_clk),
+ 	CLKDEV_CON_DEV_ID(NULL, "fffff800.gpio", &pioDE_clk),
+ 	CLKDEV_CON_DEV_ID(NULL, "fffffa00.gpio", &pioDE_clk),
++	CLKDEV_CON_DEV_ID(NULL, "fffffd20.rtc", &clk32k),
+ 
+ 	CLKDEV_CON_ID("pioA", &pioA_clk),
+ 	CLKDEV_CON_ID("pioB", &pioB_clk),
+diff --git a/arch/arm/mach-at91/at91sam9rl.c b/arch/arm/mach-at91/at91sam9rl.c
+index 878d501..a82dc61 100644
+--- a/arch/arm/mach-at91/at91sam9rl.c
++++ b/arch/arm/mach-at91/at91sam9rl.c
+@@ -205,6 +205,7 @@ static struct clk_lookup periph_clocks_lookups[] = {
+ 	CLKDEV_CON_ID("pioB", &pioB_clk),
+ 	CLKDEV_CON_ID("pioC", &pioC_clk),
+ 	CLKDEV_CON_ID("pioD", &pioD_clk),
++	CLKDEV_CON_DEV_ID(NULL, "rtc-at91sam9.0", &clk32k),
+ 	/* more lookup table for DT entries */
+ 	CLKDEV_CON_DEV_ID("usart", "fffff200.serial", &mck),
+ 	CLKDEV_CON_DEV_ID("usart", "fffb0000.serial", &usart0_clk),
+@@ -223,6 +224,7 @@ static struct clk_lookup periph_clocks_lookups[] = {
+ 	CLKDEV_CON_DEV_ID(NULL, "fffff600.gpio", &pioB_clk),
+ 	CLKDEV_CON_DEV_ID(NULL, "fffff800.gpio", &pioC_clk),
+ 	CLKDEV_CON_DEV_ID(NULL, "fffffa00.gpio", &pioD_clk),
++	CLKDEV_CON_DEV_ID(NULL, "fffffd20.rtc", &clk32k),
+ 	CLKDEV_CON_ID("adc_clk", &tsc_clk),
+ };
+ 
+diff --git a/arch/arm/mach-at91/clock.c b/arch/arm/mach-at91/clock.c
+index 034529d..f5cfed75 100644
+--- a/arch/arm/mach-at91/clock.c
++++ b/arch/arm/mach-at91/clock.c
+@@ -115,7 +115,7 @@ static u32 at91_pllb_usb_init;
+  * 48 MHz (unless no USB function clocks are needed).  The main clock and
+  * both PLLs are turned off to run in "slow clock mode" (system suspend).
   */
- static int at91_rtc_probe(struct platform_device *pdev)
- {
--	struct resource	*r, *r_gpbr;
-+	struct resource	*r;
- 	struct sam9_rtc	*rtc;
- 	int		ret, irq;
- 	u32		mr;
+-static struct clk clk32k = {
++struct clk clk32k = {
+ 	.name		= "clk32k",
+ 	.rate_hz	= AT91_SLOW_CLOCK,
+ 	.users		= 1,		/* always on */
+diff --git a/arch/arm/mach-at91/clock.h b/arch/arm/mach-at91/clock.h
+index a98a39b..6eb825a 100644
+--- a/arch/arm/mach-at91/clock.h
++++ b/arch/arm/mach-at91/clock.h
+@@ -34,6 +34,7 @@ struct clk {
+ extern int __init clk_register(struct clk *clk);
+ extern struct clk mck;
+ extern struct clk utmi_clk;
++extern struct clk clk32k;
  
--	r = platform_get_resource(pdev, IORESOURCE_MEM, 0);
--	r_gpbr = platform_get_resource(pdev, IORESOURCE_MEM, 1);
--	if (!r || !r_gpbr) {
--		dev_err(&pdev->dev, "need 2 ressources\n");
--		return -ENODEV;
--	}
--
- 	irq = platform_get_irq(pdev, 0);
- 	if (irq < 0) {
- 		dev_err(&pdev->dev, "failed to get interrupt resource\n");
-@@ -335,18 +328,16 @@ static int at91_rtc_probe(struct platform_device *pdev)
- 		device_init_wakeup(&pdev->dev, 1);
- 
- 	platform_set_drvdata(pdev, rtc);
--	rtc->rtt = devm_ioremap(&pdev->dev, r->start, resource_size(r));
--	if (!rtc->rtt) {
--		dev_err(&pdev->dev, "failed to map registers, aborting.\n");
--		return -ENOMEM;
--	}
- 
--	rtc->gpbr = devm_ioremap(&pdev->dev, r_gpbr->start,
--				resource_size(r_gpbr));
--	if (!rtc->gpbr) {
--		dev_err(&pdev->dev, "failed to map gpbr registers, aborting.\n");
--		return -ENOMEM;
--	}
-+	r = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-+	rtc->rtt = devm_ioremap_resource(&pdev->dev, r);
-+	if (IS_ERR(rtc->rtt))
-+		return PTR_ERR(rtc->rtt);
-+
-+	r = platform_get_resource(pdev, IORESOURCE_MEM, 1);
-+	rtc->gpbr = devm_ioremap_resource(&pdev->dev, r);
-+	if (IS_ERR(rtc->gpbr))
-+		return PTR_ERR(rtc->rtt);
- 
- 	mr = rtt_readl(rtc, MR);
- 
+ #define CLKDEV_CON_ID(_id, _clk)			\
+ 	{						\
 -- 
 1.9.1
