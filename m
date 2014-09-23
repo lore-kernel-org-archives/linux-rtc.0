@@ -1,99 +1,95 @@
-Date: Mon, 8 Sep 2014 19:33:38 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Boris BREZILLON <boris.brezillon@free-electrons.com>
-Cc: Nicolas Ferre <nicolas.ferre@atmel.com>,
+Return-Path: <boris.brezillon@free-electrons.com>
+From: Boris BREZILLON <boris.brezillon@free-electrons.com>
+To: Nicolas Ferre <nicolas.ferre@atmel.com>,
 	Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
 	Andrew Victor <linux@maxim.org.za>,
-	Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
-	Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	rtc-linux@googlegroups.com,
+	Samuel Ortiz <sameo@linux.intel.com>,
+	Lee Jones <lee.jones@linaro.org>,
+	Johan Hovold <jhovold@gmail.com>
+Cc: Rob Herring <robh+dt@kernel.org>,
+	Pawel Moll <pawel.moll@arm.com>,
 	Mark Rutland <mark.rutland@arm.com>,
 	Ian Campbell <ijc+devicetree@hellion.org.uk>,
-	Kumar Gala <galak@codeaurora.org>, devicetree@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 4/5] rtc: at91sam9: retain slow clock and check its rate
-Message-ID: <20140908173338.GD14623@piout.net>
-References: <1409733934-14465-1-git-send-email-boris.brezillon@free-electrons.com>
- <1409733934-14465-5-git-send-email-boris.brezillon@free-electrons.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1409733934-14465-5-git-send-email-boris.brezillon@free-electrons.com>
+	Kumar Gala <galak@codeaurora.org>,
+	devicetree@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org,
+	"Acked-by: Arnd Bergmann" <arnd@arndb.de>,
+	Boris BREZILLON <boris.brezillon@free-electrons.com>
+Subject: [PATCH v9 03/10] rtc: at91sam9: replace devm_ioremap by devm_ioremap_resource
+Date: Tue, 23 Sep 2014 16:48:38 +0200
+Message-Id: <1411483725-31532-4-git-send-email-boris.brezillon@free-electrons.com>
+In-Reply-To: <1411483725-31532-1-git-send-email-boris.brezillon@free-electrons.com>
+References: <1411483725-31532-1-git-send-email-boris.brezillon@free-electrons.com>
 List-ID: <rtc-linux.googlegroups.com>
 
-On 03/09/2014 at 10:45:33 +0200, Boris Brezillon wrote :
-> The RTT block is using the slow clock and expect it to run at 32KHz.
-> Now that we moved to the CCF it's better to retain the clk reference so
-> that the CCF can't disable the slow clock considering it is unused.
-> 
-> Signed-off-by: Boris BREZILLON <boris.brezillon@free-electrons.com>
-> ---
->  drivers/rtc/rtc-at91sam9.c | 24 ++++++++++++++++++++++++
->  1 file changed, 24 insertions(+)
-> 
-> diff --git a/drivers/rtc/rtc-at91sam9.c b/drivers/rtc/rtc-at91sam9.c
-> index 57014b7..5c5093b 100644
-> --- a/drivers/rtc/rtc-at91sam9.c
-> +++ b/drivers/rtc/rtc-at91sam9.c
-> @@ -21,6 +21,7 @@
->  #include <linux/slab.h>
->  #include <linux/platform_data/atmel.h>
->  #include <linux/io.h>
-> +#include <linux/clk.h>
->  
->  /*
->   * This driver uses two configurable hardware resources that live in the
-> @@ -74,6 +75,7 @@ struct sam9_rtc {
->  	u32			imr;
->  	void __iomem		*gpbr;
->  	int 			irq;
-> +	struct clk		*sclk;
->  };
->  
->  #define rtt_readl(rtc, field) \
-> @@ -373,6 +375,25 @@ static int at91_rtc_probe(struct platform_device *pdev)
->  		return ret;
->  	}
->  
-> +	/* Retain slow clk if it is specified in the DT.
-> +	 * Do not complain if slow clk is missing, but check its rate
-> +	 * if it is available.
-> +	 */
-> +	rtc->sclk = devm_clk_get(&pdev->dev, NULL);
-> +	if (!IS_ERR(rtc->sclk)) {
-> +		if (clk_get_rate(rtc->sclk) != AT91_SLOW_CLOCK) {
+Replace devm_ioremap calls by devm_ioremap_resource which already check
+resource consistency (resource != NULL) and print an error in case of
+failure.
 
-I would not bother doing that check but use the value for MR instead of
-AT91_SLOW_CLOCK (see my previous mail).
+Signed-off-by: Boris BREZILLON <boris.brezillon@free-electrons.com>
+Acked-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Acked-by: Nicolas Ferre <nicolas.ferre@atmel.com>
+Acked-by: Johan Hovold <johan@kernel.org>
+Acked-by: Arnd Bergmann <arnd@arndb.de>
+---
+ drivers/rtc/rtc-at91sam9.c | 29 ++++++++++-------------------
+ 1 file changed, 10 insertions(+), 19 deletions(-)
 
-> +			dev_err(&pdev->dev,
-> +				"Invalid slow clock rate (expecting %lu got %lu)",
-> +				(unsigned long)AT91_SLOW_CLOCK,
-> +				clk_get_rate(rtc->sclk));
-> +			return -EINVAL;
-> +		}
-> +
-> +		ret = clk_prepare_enable(rtc->sclk);
-> +		if (ret)
-> +			return ret;
-> +	}
-> +
->  	/* NOTE:  sam9260 rev A silicon has a ROM bug which resets the
->  	 * RTT on at least some reboots.  If you have that chip, you must
->  	 * initialize the time from some external source like a GPS, wall
-> @@ -397,6 +418,9 @@ static int at91_rtc_remove(struct platform_device *pdev)
->  	/* disable all interrupts */
->  	rtt_writel(rtc, MR, mr & ~(AT91_RTT_ALMIEN | AT91_RTT_RTTINCIEN));
->  
-> +	if (!IS_ERR(rtc->sclk))
-> +		clk_disable_unprepare(rtc->sclk);
-> +
->  	return 0;
->  }
->  
-> -- 
-> 1.9.1
-> 
-
+diff --git a/drivers/rtc/rtc-at91sam9.c b/drivers/rtc/rtc-at91sam9.c
+index 74a9ca0..38a2693 100644
+--- a/drivers/rtc/rtc-at91sam9.c
++++ b/drivers/rtc/rtc-at91sam9.c
+@@ -306,18 +306,11 @@ static const struct rtc_class_ops at91_rtc_ops = {
+  */
+ static int at91_rtc_probe(struct platform_device *pdev)
+ {
+-	struct resource	*r, *r_gpbr;
++	struct resource	*r;
+ 	struct sam9_rtc	*rtc;
+ 	int		ret, irq;
+ 	u32		mr;
+ 
+-	r = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	r_gpbr = platform_get_resource(pdev, IORESOURCE_MEM, 1);
+-	if (!r || !r_gpbr) {
+-		dev_err(&pdev->dev, "need 2 ressources\n");
+-		return -ENODEV;
+-	}
+-
+ 	irq = platform_get_irq(pdev, 0);
+ 	if (irq < 0) {
+ 		dev_err(&pdev->dev, "failed to get interrupt resource\n");
+@@ -335,18 +328,16 @@ static int at91_rtc_probe(struct platform_device *pdev)
+ 		device_init_wakeup(&pdev->dev, 1);
+ 
+ 	platform_set_drvdata(pdev, rtc);
+-	rtc->rtt = devm_ioremap(&pdev->dev, r->start, resource_size(r));
+-	if (!rtc->rtt) {
+-		dev_err(&pdev->dev, "failed to map registers, aborting.\n");
+-		return -ENOMEM;
+-	}
+ 
+-	rtc->gpbr = devm_ioremap(&pdev->dev, r_gpbr->start,
+-				resource_size(r_gpbr));
+-	if (!rtc->gpbr) {
+-		dev_err(&pdev->dev, "failed to map gpbr registers, aborting.\n");
+-		return -ENOMEM;
+-	}
++	r = platform_get_resource(pdev, IORESOURCE_MEM, 0);
++	rtc->rtt = devm_ioremap_resource(&pdev->dev, r);
++	if (IS_ERR(rtc->rtt))
++		return PTR_ERR(rtc->rtt);
++
++	r = platform_get_resource(pdev, IORESOURCE_MEM, 1);
++	rtc->gpbr = devm_ioremap_resource(&pdev->dev, r);
++	if (IS_ERR(rtc->gpbr))
++		return PTR_ERR(rtc->rtt);
+ 
+ 	mr = rtt_readl(rtc, MR);
+ 
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+1.9.1
