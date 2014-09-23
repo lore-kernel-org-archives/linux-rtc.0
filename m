@@ -1,79 +1,63 @@
 Return-Path: <boris.brezillon@free-electrons.com>
+Date: Tue, 23 Sep 2014 13:05:06 +0200
 From: Boris BREZILLON <boris.brezillon@free-electrons.com>
-To: Nicolas Ferre <nicolas.ferre@atmel.com>,
-	Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Andrew Victor <linux@maxim.org.za>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	rtc-linux@googlegroups.com,
-	Johan Hovold <jhovold@gmail.com>
-Cc: Rob Herring <robh+dt@kernel.org>,
-	Pawel Moll <pawel.moll@arm.com>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Ian Campbell <ijc+devicetree@hellion.org.uk>,
-	Kumar Gala <galak@codeaurora.org>,
-	devicetree@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org,
-	Boris BREZILLON <boris.brezillon@free-electrons.com>
-Subject: [PATCH v4 0/9] rtc: at91sam9: add DT support
-Date: Thu, 11 Sep 2014 15:18:36 +0200
-Message-Id: <1410441525-25258-1-git-send-email-boris.brezillon@free-electrons.com>
+To: Johan Hovold <johan@kernel.org>
+Cc: Nicolas Ferre <nicolas.ferre@atmel.com>, Jean-Christophe
+ Plagniol-Villard <plagnioj@jcrosoft.com>, Alexandre Belloni
+ <alexandre.belloni@free-electrons.com>, Andrew Victor <linux@maxim.org.za>,
+ Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com, Samuel
+ Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, Johan
+ Hovold <jhovold@gmail.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll
+ <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell
+ <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>,
+ devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+ linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v7 08/10] rtc: at91sam9: use clk API instead of relying
+ on AT91_SLOW_CLOCK
+Message-ID: <20140923130506.3433c5a3@bbrezillon>
+In-Reply-To: <20140923103326.GA404@localhost>
+References: <1411465130-29011-1-git-send-email-boris.brezillon@free-electrons.com>
+	<1411465130-29011-9-git-send-email-boris.brezillon@free-electrons.com>
+	<20140923103326.GA404@localhost>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 List-ID: <rtc-linux.googlegroups.com>
 
-Hello,
+On Tue, 23 Sep 2014 12:33:26 +0200
+Johan Hovold <johan@kernel.org> wrote:
 
-This patch series adds DT support to the atmel at91sam9 RTC driver.
+> On Tue, Sep 23, 2014 at 11:38:48AM +0200, Boris BREZILLON wrote:
+> 
+> > @@ -328,6 +328,7 @@ static int at91_rtc_probe(struct platform_device *pdev)
+> >  	struct sam9_rtc	*rtc;
+> >  	int		ret, irq;
+> >  	u32		mr;
+> > +	unsigned int	sclk_rate;
+> >  
+> >  	irq = platform_get_irq(pdev, 0);
+> >  	if (irq < 0) {
+> > @@ -385,11 +386,27 @@ static int at91_rtc_probe(struct platform_device *pdev)
+> >  		return -ENOMEM;
+> >  	}
+> >  
+> > +	rtc->sclk = devm_clk_get(&pdev->dev, NULL);
+> > +	if (IS_ERR(rtc->sclk))
+> > +		return PTR_ERR(rtc->sclk);
+> > +
+> > +	sclk_rate = clk_get_rate(rtc->sclk);
+> > +	if (!sclk_rate || sclk_rate > AT91_RTT_RTTRST) {
+> 
+> You probably meant AT91_RTT_RTPRES here.
 
-It also removes any machine specific inclusions to prepare the migration
-to multi platform kernel support, and retain the slow clock to prevent
-the CCF from disabling it at the end of boot.
-  
-Best Regards,
+Yes, that's what I meant.
+Nice catch!
+
+Thanks,
 
 Boris
 
-Changes since v3:
- - add GPBR DT bindings doc
- - fix a coding style issues
- - add Alexandre's Acked-by
- - change RTT DT bindings
-
-Changes since v2:
- - make use of syscon/regmap to avoid directly requesting/mapping a GPBR
-   memory region in the RTT driver
-
-Changes since v1:
- - remove non CCF specific case by adding the appropriate clk_lookup
-   entries in arch/arm/mach-at91/<soc-name>.c files
-
-
-Boris BREZILLON (9):
-  rtc: at91sam9: remove references to mach specific headers
-  rtc: at91sam9: use standard readl/writel functions instead of raw
-    versions
-  rtc: at91sam9: replace devm_ioremap by devm_ioremap_resource
-  rtc: at91sam9: add DT support
-  rtc: at91sam9: make use of syscon/regmap to access GPBR registers
-  ARM: at91: add clk_lookup entry for RTT devices
-  rtc: at91sam9: use clk API instead of relying on AT91_SLOW_CLOCK
-  rtc: at91sam9: add DT bindings documentation
-  mfd: syscon: add Atmel GPBR DT bindings documention
-
- .../devicetree/bindings/mfd/atmel,gpbr.txt         |  15 +++
- .../devicetree/bindings/rtc/atmel,at91sam9-rtc.txt |  23 ++++
- arch/arm/mach-at91/at91sam9260.c                   |   2 +
- arch/arm/mach-at91/at91sam9261.c                   |   2 +
- arch/arm/mach-at91/at91sam9263.c                   |   4 +
- arch/arm/mach-at91/at91sam9g45.c                   |   2 +
- arch/arm/mach-at91/at91sam9rl.c                    |   2 +
- arch/arm/mach-at91/clock.c                         |   2 +-
- arch/arm/mach-at91/clock.h                         |   1 +
- drivers/rtc/Kconfig                                |   1 +
- drivers/rtc/rtc-at91sam9.c                         | 133 ++++++++++++++++-----
- 11 files changed, 157 insertions(+), 30 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/mfd/atmel,gpbr.txt
- create mode 100644 Documentation/devicetree/bindings/rtc/atmel,at91sam9-rtc.txt
 
 -- 
-1.9.1
+Boris Brezillon, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
