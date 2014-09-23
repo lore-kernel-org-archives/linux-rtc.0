@@ -1,77 +1,90 @@
-Return-Path: <boris.brezillon@free-electrons.com>
-Date: Wed, 17 Sep 2014 19:57:27 +0200
-From: Boris BREZILLON <boris.brezillon@free-electrons.com>
-To: Lee Jones <lee.jones@linaro.org>
-Cc: Nicolas Ferre <nicolas.ferre@atmel.com>, Jean-Christophe
- Plagniol-Villard <plagnioj@jcrosoft.com>, Alexandre Belloni
- <alexandre.belloni@free-electrons.com>, Andrew Victor <linux@maxim.org.za>,
- Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com, Johan
- Hovold <jhovold@gmail.com>, Mark Rutland <mark.rutland@arm.com>,
- devicetree@vger.kernel.org, Pawel Moll <pawel.moll@arm.com>, Ian Campbell
- <ijc+devicetree@hellion.org.uk>, linux-kernel@vger.kernel.org, Rob Herring
- <robh+dt@kernel.org>, Kumar Gala <galak@codeaurora.org>,
- linux-arm-kernel@lists.infradead.org
-Subject: Re: [PATCH v4 9/9] mfd: syscon: add Atmel GPBR DT bindings
- documention
-Message-ID: <20140917195727.1c75a062@bbrezillon>
-In-Reply-To: <20140917163405.GM30918@lee--X1>
-References: <1410441525-25258-1-git-send-email-boris.brezillon@free-electrons.com>
-	<1410441525-25258-10-git-send-email-boris.brezillon@free-electrons.com>
-	<20140917163405.GM30918@lee--X1>
+Return-Path: <jhovold@gmail.com>
+Sender: Johan Hovold <jhovold@gmail.com>
+Date: Tue, 23 Sep 2014 12:39:23 +0200
+From: Johan Hovold <johan@kernel.org>
+To: Nicolas Ferre <nicolas.ferre@atmel.com>
+Cc: Boris BREZILLON <boris.brezillon@free-electrons.com>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
+	Johan Hovold <jhovold@gmail.com>,
+	Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>,
+	Andrew Victor <linux@maxim.org.za>,
+	Samuel Ortiz <sameo@linux.intel.com>,
+	Lee Jones <lee.jones@linaro.org>, Rob Herring <robh+dt@kernel.org>,
+	Pawel Moll <pawel.moll@arm.com>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Ian Campbell <ijc+devicetree@hellion.org.uk>,
+	Kumar Gala <galak@codeaurora.org>, devicetree@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v7 06/10] rtc: at91sam9: rework the Kconfig description
+Message-ID: <20140923103923.GB404@localhost>
+References: <1411465130-29011-1-git-send-email-boris.brezillon@free-electrons.com>
+ <1411465130-29011-7-git-send-email-boris.brezillon@free-electrons.com>
+ <542146AF.3060807@atmel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <542146AF.3060807@atmel.com>
 List-ID: <rtc-linux.googlegroups.com>
 
-Hi Lee,
-
-On Wed, 17 Sep 2014 09:34:05 -0700
-Lee Jones <lee.jones@linaro.org> wrote:
-
-> On Thu, 11 Sep 2014, Boris BREZILLON wrote:
-> 
-> > The GPBR block provides a set of battery-backed registers that can be used
-> > to save data which need to be kept when the system is powered down and
-> > VDD-core is maintained by an external battery.
-> > 
-> > A typical usage is the RTT block (when used as an RTC) which needs one of
-> > those registers to save the current time.
+On Tue, Sep 23, 2014 at 12:08:47PM +0200, Nicolas Ferre wrote:
+> On 23/09/2014 11:38, Boris BREZILLON :
+> > Remove all references to AT91CAP9 SoC which has been removed.
+> > Rework the help message to remove any specific references to AT91SAM9 SoCs.
 > > 
 > > Signed-off-by: Boris BREZILLON <boris.brezillon@free-electrons.com>
 > > ---
-> >  Documentation/devicetree/bindings/mfd/atmel,gpbr.txt | 15 +++++++++++++++
-> >  1 file changed, 15 insertions(+)
-> >  create mode 100644 Documentation/devicetree/bindings/mfd/atmel,gpbr.txt
+> >  drivers/rtc/Kconfig | 17 +++++++++--------
+> >  1 file changed, 9 insertions(+), 8 deletions(-)
 > > 
-> > diff --git a/Documentation/devicetree/bindings/mfd/atmel,gpbr.txt b/Documentation/devicetree/bindings/mfd/atmel,gpbr.txt
-> > new file mode 100644
-> > index 0000000..a285695
-> > --- /dev/null
-> > +++ b/Documentation/devicetree/bindings/mfd/atmel,gpbr.txt
-> > @@ -0,0 +1,15 @@
-> > +* Device tree bindings for Atmel GPBR (General Purpose Backup Registers)
-> > +
-> > +The GPBR are a set of battery-backed registers.
-> > +
-> > +Required properties:
-> > +- compatible:		"atmel,at91sam9260-gpbr", "syscon"
-> > +- reg:			contains offset/length value of the GPBR memory
-> > +			region.
-> > +
-> > +Example:
-> > +
-> > +gpbr: gpbr@fffffd50 {
+> > diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
+> > index 7d76da8..455f2c3 100644
+> > --- a/drivers/rtc/Kconfig
+> > +++ b/drivers/rtc/Kconfig
+> > @@ -1079,17 +1079,18 @@ config RTC_DRV_AT91RM9200
+> >  	  this is powered by the backup power supply.
+> >  
+> >  config RTC_DRV_AT91SAM9
+> > -	tristate "AT91SAM9x/AT91CAP9 RTT as RTC"
+> > +	tristate "AT91SAM9 RTT as RTC"
+> >  	depends on ARCH_AT91 && !(ARCH_AT91RM9200 || ARCH_AT91X40)
+> >  	select MFD_SYSCON
+> >  	help
+> > -	  RTC driver for the Atmel AT91SAM9x and AT91CAP9 internal RTT
+> > -	  (Real Time Timer). These timers are powered by the backup power
+> > -	  supply (such as a small coin cell battery), but do not need to
+> > -	  be used as RTCs.
+> > -
+> > -	  (On AT91SAM9rl and AT91SAM9G45 chips you probably want to use the
+> > -	  dedicated RTC module and leave the RTT available for other uses.)
+> > +	  Some AT91SAM9 SoCs provide an RTT (Real Time Timer) block which
+> > +	  can be used as an RTC thanks to the backup power supply (e.g. a
+> > +	  small coin cell battery) which keeps this block and the GPBR
+> > +	  (General Purpose Backup Registers) block powered when the device
+> > +	  is shutdown.
+> > +	  Some AT91SAM9 SoCs provide a real RTC block, on those ones you'd
+> > +	  probably want to use the real RTC block instead of the RTT as an
+> > +	  RTT driver.
 > 
-> Is something referencing this node via phandle?  If not, please remove
-> the label.
+> You mean:
+> "instead of the RTT as an RTC"
 
-Yes, the rtt device is referencing it in its atmel,rtt-rtc-time-reg
-property (see patch 8 of this series).
+Boris, perhaps you should also update the Kconfig entries for
+RTC_DRV_AT91SAM9_RTT and RTC_DRV_AT91SAM9_GPBR to clarify that they are
+only used for legacy booting (and otherwise have no effect)?
 
-Best Regards,
+> With that, good description: thanks!
+> 
+> Acked-by: Nicolas Ferre <nicolas.ferre@atmel.com>
+> 
+> So, now we can think of what to do with the series:
+> 
+> - Johan, do you want to "Ack" it?
 
-Boris
+I had one comment to the slow-clock patch, but feel free to add my
 
--- 
-Boris Brezillon, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+Acked-by: Johan Hovold <johan@kernel.org>
+
+to the whole series.
+
+Thanks,
+Johan
