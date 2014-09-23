@@ -1,115 +1,68 @@
 Return-Path: <boris.brezillon@free-electrons.com>
-Date: Mon, 8 Sep 2014 21:22:18 +0200
 From: Boris BREZILLON <boris.brezillon@free-electrons.com>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Nicolas Ferre <nicolas.ferre@atmel.com>, Jean-Christophe
- Plagniol-Villard <plagnioj@jcrosoft.com>, Andrew Victor
- <linux@maxim.org.za>, Alessandro Zummo <a.zummo@towertech.it>,
- rtc-linux@googlegroups.com, Rob Herring <robh+dt@kernel.org>, Pawel Moll
- <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell
- <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>,
- devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
- linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 4/5] rtc: at91sam9: retain slow clock and check its rate
-Message-ID: <20140908212218.6a81af86@bbrezillon>
-In-Reply-To: <20140908173338.GD14623@piout.net>
-References: <1409733934-14465-1-git-send-email-boris.brezillon@free-electrons.com>
-	<1409733934-14465-5-git-send-email-boris.brezillon@free-electrons.com>
-	<20140908173338.GD14623@piout.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+To: Nicolas Ferre <nicolas.ferre@atmel.com>,
+	Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Andrew Victor <linux@maxim.org.za>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	rtc-linux@googlegroups.com,
+	Samuel Ortiz <sameo@linux.intel.com>,
+	Lee Jones <lee.jones@linaro.org>,
+	Johan Hovold <jhovold@gmail.com>
+Cc: Rob Herring <robh+dt@kernel.org>,
+	Pawel Moll <pawel.moll@arm.com>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Ian Campbell <ijc+devicetree@hellion.org.uk>,
+	Kumar Gala <galak@codeaurora.org>,
+	devicetree@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org,
+	Boris BREZILLON <boris.brezillon@free-electrons.com>
+Subject: [PATCH v7 06/10] rtc: at91sam9: rework the Kconfig description
+Date: Tue, 23 Sep 2014 11:38:46 +0200
+Message-Id: <1411465130-29011-7-git-send-email-boris.brezillon@free-electrons.com>
+In-Reply-To: <1411465130-29011-1-git-send-email-boris.brezillon@free-electrons.com>
+References: <1411465130-29011-1-git-send-email-boris.brezillon@free-electrons.com>
 List-ID: <rtc-linux.googlegroups.com>
 
-On Mon, 8 Sep 2014 19:33:38 +0200
-Alexandre Belloni <alexandre.belloni@free-electrons.com> wrote:
+Remove all references to AT91CAP9 SoC which has been removed.
+Rework the help message to remove any specific references to AT91SAM9 SoCs.
 
-> On 03/09/2014 at 10:45:33 +0200, Boris Brezillon wrote :
-> > The RTT block is using the slow clock and expect it to run at 32KHz.
-> > Now that we moved to the CCF it's better to retain the clk reference so
-> > that the CCF can't disable the slow clock considering it is unused.
-> > 
-> > Signed-off-by: Boris BREZILLON <boris.brezillon@free-electrons.com>
-> > ---
-> >  drivers/rtc/rtc-at91sam9.c | 24 ++++++++++++++++++++++++
-> >  1 file changed, 24 insertions(+)
-> > 
-> > diff --git a/drivers/rtc/rtc-at91sam9.c b/drivers/rtc/rtc-at91sam9.c
-> > index 57014b7..5c5093b 100644
-> > --- a/drivers/rtc/rtc-at91sam9.c
-> > +++ b/drivers/rtc/rtc-at91sam9.c
-> > @@ -21,6 +21,7 @@
-> >  #include <linux/slab.h>
-> >  #include <linux/platform_data/atmel.h>
-> >  #include <linux/io.h>
-> > +#include <linux/clk.h>
-> >  
-> >  /*
-> >   * This driver uses two configurable hardware resources that live in the
-> > @@ -74,6 +75,7 @@ struct sam9_rtc {
-> >  	u32			imr;
-> >  	void __iomem		*gpbr;
-> >  	int 			irq;
-> > +	struct clk		*sclk;
-> >  };
-> >  
-> >  #define rtt_readl(rtc, field) \
-> > @@ -373,6 +375,25 @@ static int at91_rtc_probe(struct platform_device *pdev)
-> >  		return ret;
-> >  	}
-> >  
-> > +	/* Retain slow clk if it is specified in the DT.
-> > +	 * Do not complain if slow clk is missing, but check its rate
-> > +	 * if it is available.
-> > +	 */
-> > +	rtc->sclk = devm_clk_get(&pdev->dev, NULL);
-> > +	if (!IS_ERR(rtc->sclk)) {
-> > +		if (clk_get_rate(rtc->sclk) != AT91_SLOW_CLOCK) {
-> 
-> I would not bother doing that check but use the value for MR instead of
-> AT91_SLOW_CLOCK (see my previous mail).
+Signed-off-by: Boris BREZILLON <boris.brezillon@free-electrons.com>
+---
+ drivers/rtc/Kconfig | 17 +++++++++--------
+ 1 file changed, 9 insertions(+), 8 deletions(-)
 
-Unfortunately, we can't get rid of this macro without modifying the
-clk_lookup table in several arch/arm/mach-at91/<soc-name>.c files in
-order to handle non DT/CCF cases (which will remain until all non DT
-boards are moved to DT).
-But I agree that this should be removed as soon as possible (AFAIR, all
-SoCs have already been moved to the CCF).
-How about adding a TODO comment ?
-
-> 
-> > +			dev_err(&pdev->dev,
-> > +				"Invalid slow clock rate (expecting %lu got %lu)",
-> > +				(unsigned long)AT91_SLOW_CLOCK,
-> > +				clk_get_rate(rtc->sclk));
-> > +			return -EINVAL;
-> > +		}
-> > +
-> > +		ret = clk_prepare_enable(rtc->sclk);
-> > +		if (ret)
-> > +			return ret;
-> > +	}
-> > +
-> >  	/* NOTE:  sam9260 rev A silicon has a ROM bug which resets the
-> >  	 * RTT on at least some reboots.  If you have that chip, you must
-> >  	 * initialize the time from some external source like a GPS, wall
-> > @@ -397,6 +418,9 @@ static int at91_rtc_remove(struct platform_device *pdev)
-> >  	/* disable all interrupts */
-> >  	rtt_writel(rtc, MR, mr & ~(AT91_RTT_ALMIEN | AT91_RTT_RTTINCIEN));
-> >  
-> > +	if (!IS_ERR(rtc->sclk))
-> > +		clk_disable_unprepare(rtc->sclk);
-> > +
-> >  	return 0;
-> >  }
-> >  
-> > -- 
-> > 1.9.1
-> > 
-> 
-
-
-
+diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
+index 7d76da8..455f2c3 100644
+--- a/drivers/rtc/Kconfig
++++ b/drivers/rtc/Kconfig
+@@ -1079,17 +1079,18 @@ config RTC_DRV_AT91RM9200
+ 	  this is powered by the backup power supply.
+ 
+ config RTC_DRV_AT91SAM9
+-	tristate "AT91SAM9x/AT91CAP9 RTT as RTC"
++	tristate "AT91SAM9 RTT as RTC"
+ 	depends on ARCH_AT91 && !(ARCH_AT91RM9200 || ARCH_AT91X40)
+ 	select MFD_SYSCON
+ 	help
+-	  RTC driver for the Atmel AT91SAM9x and AT91CAP9 internal RTT
+-	  (Real Time Timer). These timers are powered by the backup power
+-	  supply (such as a small coin cell battery), but do not need to
+-	  be used as RTCs.
+-
+-	  (On AT91SAM9rl and AT91SAM9G45 chips you probably want to use the
+-	  dedicated RTC module and leave the RTT available for other uses.)
++	  Some AT91SAM9 SoCs provide an RTT (Real Time Timer) block which
++	  can be used as an RTC thanks to the backup power supply (e.g. a
++	  small coin cell battery) which keeps this block and the GPBR
++	  (General Purpose Backup Registers) block powered when the device
++	  is shutdown.
++	  Some AT91SAM9 SoCs provide a real RTC block, on those ones you'd
++	  probably want to use the real RTC block instead of the RTT as an
++	  RTT driver.
+ 
+ config RTC_DRV_AT91SAM9_RTT
+ 	int
 -- 
-Boris Brezillon, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+1.9.1
