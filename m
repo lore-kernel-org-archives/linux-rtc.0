@@ -1,62 +1,22 @@
-Return-Path: <boris.brezillon@free-electrons.com>
-From: Boris BREZILLON <boris.brezillon@free-electrons.com>
-To: Nicolas Ferre <nicolas.ferre@atmel.com>,
-	Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Andrew Victor <linux@maxim.org.za>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	rtc-linux@googlegroups.com,
-	Johan Hovold <jhovold@gmail.com>
-Cc: Rob Herring <robh+dt@kernel.org>,
-	Pawel Moll <pawel.moll@arm.com>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Ian Campbell <ijc+devicetree@hellion.org.uk>,
-	Kumar Gala <galak@codeaurora.org>,
-	devicetree@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org,
-	Boris BREZILLON <boris.brezillon@free-electrons.com>
-Subject: [PATCH v4 8/9] rtc: at91sam9: add DT bindings documentation
-Date: Thu, 11 Sep 2014 15:18:44 +0200
-Message-Id: <1410441525-25258-9-git-send-email-boris.brezillon@free-electrons.com>
-In-Reply-To: <1410441525-25258-1-git-send-email-boris.brezillon@free-electrons.com>
-References: <1410441525-25258-1-git-send-email-boris.brezillon@free-electrons.com>
+Return-Path: <arnd@arndb.de>
+From: Arnd Bergmann <arnd@arndb.de>
+To: linux-arm-kernel@lists.infradead.org
+Cc: Boris BREZILLON <boris.brezillon@free-electrons.com>, Nicolas Ferre <nicolas.ferre@atmel.com>, Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>, Alexandre Belloni <alexandre.belloni@free-electrons.com>, Andrew Victor <linux@maxim.org.za>, Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com, Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, Johan Hovold <jhovold@gmail.com>, Mark Rutland <mark.rutland@arm.com>, devicetree@vger.kernel.org, Pawel Moll <pawel.moll@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, linux-kernel@vger.kernel.org, Rob Herring <robh+dt@kernel.org>, Kumar Gala <galak@codeaurora.org>
+Subject: Re: [PATCH v9 09/10] rtc: at91sam9: add DT bindings documentation
+Date: Tue, 23 Sep 2014 18:30:59 +0200
+Message-ID: <471832556.XqbRT97ZJR@wuerfel>
+In-Reply-To: <1411483725-31532-10-git-send-email-boris.brezillon@free-electrons.com>
+References: <1411483725-31532-1-git-send-email-boris.brezillon@free-electrons.com> <1411483725-31532-10-git-send-email-boris.brezillon@free-electrons.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 List-ID: <rtc-linux.googlegroups.com>
 
-Signed-off-by: Boris BREZILLON <boris.brezillon@free-electrons.com>
----
- .../devicetree/bindings/rtc/atmel,at91sam9-rtc.txt | 23 ++++++++++++++++++++++
- 1 file changed, 23 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/rtc/atmel,at91sam9-rtc.txt
+On Tuesday 23 September 2014 16:48:44 Boris BREZILLON wrote:
+> Add RTT bindings documentation.
+> 
+> Signed-off-by: Boris BREZILLON <boris.brezillon@free-electrons.com>
+> Acked-by: Nicolas Ferre <nicolas.ferre@atmel.com>
+> Acked-by: Johan Hovold <johan@kernel.org>
+> 
 
-diff --git a/Documentation/devicetree/bindings/rtc/atmel,at91sam9-rtc.txt b/Documentation/devicetree/bindings/rtc/atmel,at91sam9-rtc.txt
-new file mode 100644
-index 0000000..5b2bb73
---- /dev/null
-+++ b/Documentation/devicetree/bindings/rtc/atmel,at91sam9-rtc.txt
-@@ -0,0 +1,23 @@
-+Atmel AT91SAM9260 Real Time Timer
-+
-+Required properties:
-+- compatible: should be: "atmel,at91sam9260-rtt"
-+- reg: should encode the memory region of the RTT controller
-+- interrupts: rtc alarm/event interrupt
-+- clocks: should contain one clock pointing the the slow clk
-+- atmel,rtt-rtc-time-reg: should encode the GPBR register used to store
-+	the RTC time. The first cell should point to the GPBR node and
-+	the second one encode the offset within the GPBR block (or in
-+	other words, the GPBR register used to store the current time
-+	value).
-+
-+
-+Example:
-+
-+rtt@fffffe00 {
-+	compatible = "atmel,at91sam9260-rtt";
-+	reg = <0xfffffd20 0x10>;
-+	interrupts = <1 4 7>;
-+	clocks = <&clk32k>;
-+	atmel,rtt-rtc-time-reg = <&gpbr 0x0>;
-+};
--- 
-1.9.1
+Acked-by: Arnd Bergmann <arnd@arndb.de>
