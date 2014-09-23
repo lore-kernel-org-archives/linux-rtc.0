@@ -1,47 +1,85 @@
-Return-Path: <jhovold@gmail.com>
-Sender: Johan Hovold <jhovold@gmail.com>
-Date: Wed, 10 Sep 2014 17:57:32 +0200
-From: Johan Hovold <johan@kernel.org>
-To: Boris BREZILLON <boris.brezillon@free-electrons.com>
-Cc: Johan Hovold <johan@kernel.org>,
-	Nicolas Ferre <nicolas.ferre@atmel.com>,
-	Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Andrew Victor <linux@maxim.org.za>,
-	Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
-	Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Ian Campbell <ijc+devicetree@hellion.org.uk>,
-	Kumar Gala <galak@codeaurora.org>, devicetree@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 5/5] rtc: at91sam9: add DT bindings documentation
-Message-ID: <20140910155732.GM2974@localhost>
-References: <1409733934-14465-1-git-send-email-boris.brezillon@free-electrons.com>
- <1409733934-14465-6-git-send-email-boris.brezillon@free-electrons.com>
- <20140910121424.GG2974@localhost>
- <20140910152019.111c4c01@bbrezillon>
- <20140910150702.GK2974@localhost>
- <20140910173532.0e8b1ef7@bbrezillon>
+Return-Path: <Nicolas.FERRE@atmel.com>
+Message-ID: <542146AF.3060807@atmel.com>
+Date: Tue, 23 Sep 2014 12:08:47 +0200
+From: Nicolas Ferre <nicolas.ferre@atmel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20140910173532.0e8b1ef7@bbrezillon>
+To: Boris BREZILLON <boris.brezillon@free-electrons.com>, Alexandre Belloni
+	<alexandre.belloni@free-electrons.com>, Alessandro Zummo
+	<a.zummo@towertech.it>, <rtc-linux@googlegroups.com>, Johan Hovold
+	<jhovold@gmail.com>
+CC: Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>, Andrew Victor
+	<linux@maxim.org.za>, Samuel Ortiz <sameo@linux.intel.com>, Lee Jones
+	<lee.jones@linaro.org>, Rob Herring <robh+dt@kernel.org>, Pawel Moll
+	<pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell
+	<ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>,
+	<devicetree@vger.kernel.org>, <linux-arm-kernel@lists.infradead.org>,
+	<linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH v7 06/10] rtc: at91sam9: rework the Kconfig description
+References: <1411465130-29011-1-git-send-email-boris.brezillon@free-electrons.com> <1411465130-29011-7-git-send-email-boris.brezillon@free-electrons.com>
+In-Reply-To: <1411465130-29011-7-git-send-email-boris.brezillon@free-electrons.com>
+Content-Type: text/plain; charset="ISO-8859-1"
 List-ID: <rtc-linux.googlegroups.com>
 
-On Wed, Sep 10, 2014 at 05:35:32PM +0200, Boris BREZILLON wrote:
-> On Wed, 10 Sep 2014 17:07:02 +0200 Johan Hovold <johan@kernel.org> wrote:
-
-> > Yes, this essentially what I suggested in the thread (and my last reply)
-> > and relying on syscon rather than a custom driver seems like a good
-> > idea. It would allow early access to the registers too with the recently
-> > proposed changes. It would not guarantee any kind of exclusivity,
-> > though, but I guess that's tolerable?
+On 23/09/2014 11:38, Boris BREZILLON :
+> Remove all references to AT91CAP9 SoC which has been removed.
+> Rework the help message to remove any specific references to AT91SAM9 SoCs.
 > 
-> I know about the "mfd: syscon: Decouple syscon interface from platform
-> devices" series, but I wonder why we would need to access GPBR
-> registers during early boot stages. Do you have something in mind :-)?
+> Signed-off-by: Boris BREZILLON <boris.brezillon@free-electrons.com>
+> ---
+>  drivers/rtc/Kconfig | 17 +++++++++--------
+>  1 file changed, 9 insertions(+), 8 deletions(-)
+> 
+> diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
+> index 7d76da8..455f2c3 100644
+> --- a/drivers/rtc/Kconfig
+> +++ b/drivers/rtc/Kconfig
+> @@ -1079,17 +1079,18 @@ config RTC_DRV_AT91RM9200
+>  	  this is powered by the backup power supply.
+>  
+>  config RTC_DRV_AT91SAM9
+> -	tristate "AT91SAM9x/AT91CAP9 RTT as RTC"
+> +	tristate "AT91SAM9 RTT as RTC"
+>  	depends on ARCH_AT91 && !(ARCH_AT91RM9200 || ARCH_AT91X40)
+>  	select MFD_SYSCON
+>  	help
+> -	  RTC driver for the Atmel AT91SAM9x and AT91CAP9 internal RTT
+> -	  (Real Time Timer). These timers are powered by the backup power
+> -	  supply (such as a small coin cell battery), but do not need to
+> -	  be used as RTCs.
+> -
+> -	  (On AT91SAM9rl and AT91SAM9G45 chips you probably want to use the
+> -	  dedicated RTC module and leave the RTT available for other uses.)
+> +	  Some AT91SAM9 SoCs provide an RTT (Real Time Timer) block which
+> +	  can be used as an RTC thanks to the backup power supply (e.g. a
+> +	  small coin cell battery) which keeps this block and the GPBR
+> +	  (General Purpose Backup Registers) block powered when the device
+> +	  is shutdown.
+> +	  Some AT91SAM9 SoCs provide a real RTC block, on those ones you'd
+> +	  probably want to use the real RTC block instead of the RTT as an
+> +	  RTT driver.
 
-Yeah, that's what I was referring to. In the thread from last year,
-Jean-Christophe mentioned something about barebox using the
-backup-registers. Not sure about the details, though.
+You mean:
+"instead of the RTT as an RTC"
 
-Johan
+With that, good description: thanks!
+
+Acked-by: Nicolas Ferre <nicolas.ferre@atmel.com>
+
+So, now we can think of what to do with the series:
+
+- Johan, do you want to "Ack" it?
+- may I take it through the arm-soc git tree (likely for the 3.19 dev.
+phase).
+
+Your thoughts?
+
+Bye,
+
+>  
+>  config RTC_DRV_AT91SAM9_RTT
+>  	int
+> 
+
+
+-- 
+Nicolas Ferre
