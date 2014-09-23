@@ -17,77 +17,78 @@ Cc: Rob Herring <robh+dt@kernel.org>,
 	devicetree@vger.kernel.org,
 	linux-arm-kernel@lists.infradead.org,
 	linux-kernel@vger.kernel.org,
+	"Acked-by: Arnd Bergmann" <arnd@arndb.de>,
 	Boris BREZILLON <boris.brezillon@free-electrons.com>
-Subject: [PATCH v8 03/10] rtc: at91sam9: replace devm_ioremap by devm_ioremap_resource
-Date: Tue, 23 Sep 2014 13:23:57 +0200
-Message-Id: <1411471444-2764-4-git-send-email-boris.brezillon@free-electrons.com>
-In-Reply-To: <1411471444-2764-1-git-send-email-boris.brezillon@free-electrons.com>
-References: <1411471444-2764-1-git-send-email-boris.brezillon@free-electrons.com>
+Subject: [PATCH v9 06/10] rtc: at91sam9: rework the Kconfig description
+Date: Tue, 23 Sep 2014 16:48:41 +0200
+Message-Id: <1411483725-31532-7-git-send-email-boris.brezillon@free-electrons.com>
+In-Reply-To: <1411483725-31532-1-git-send-email-boris.brezillon@free-electrons.com>
+References: <1411483725-31532-1-git-send-email-boris.brezillon@free-electrons.com>
 List-ID: <rtc-linux.googlegroups.com>
 
-Replace devm_ioremap calls by devm_ioremap_resource which already check
-resource consistency (resource != NULL) and print an error in case of
-failure.
+Remove all references to AT91CAP9 SoC which has been removed.
+Rework help message to remove any specific references to AT91SAM9 SoCs.
+State that RTC_DRV_AT91SAM9_RTT and RTC_DRV_AT91SAM9_GPBR options are only
+used when booting non DT boards.
 
 Signed-off-by: Boris BREZILLON <boris.brezillon@free-electrons.com>
-Acked-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
 Acked-by: Nicolas Ferre <nicolas.ferre@atmel.com>
 Acked-by: Johan Hovold <johan@kernel.org>
+Acked-by: Arnd Bergmann <arnd@arndb.de>
 ---
- drivers/rtc/rtc-at91sam9.c | 29 ++++++++++-------------------
- 1 file changed, 10 insertions(+), 19 deletions(-)
+ drivers/rtc/Kconfig | 23 +++++++++++++++--------
+ 1 file changed, 15 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/rtc/rtc-at91sam9.c b/drivers/rtc/rtc-at91sam9.c
-index 74a9ca0..38a2693 100644
---- a/drivers/rtc/rtc-at91sam9.c
-+++ b/drivers/rtc/rtc-at91sam9.c
-@@ -306,18 +306,11 @@ static const struct rtc_class_ops at91_rtc_ops = {
-  */
- static int at91_rtc_probe(struct platform_device *pdev)
- {
--	struct resource	*r, *r_gpbr;
-+	struct resource	*r;
- 	struct sam9_rtc	*rtc;
- 	int		ret, irq;
- 	u32		mr;
+diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
+index 7d76da8..9b56882 100644
+--- a/drivers/rtc/Kconfig
++++ b/drivers/rtc/Kconfig
+@@ -1079,17 +1079,18 @@ config RTC_DRV_AT91RM9200
+ 	  this is powered by the backup power supply.
  
--	r = platform_get_resource(pdev, IORESOURCE_MEM, 0);
--	r_gpbr = platform_get_resource(pdev, IORESOURCE_MEM, 1);
--	if (!r || !r_gpbr) {
--		dev_err(&pdev->dev, "need 2 ressources\n");
--		return -ENODEV;
--	}
+ config RTC_DRV_AT91SAM9
+-	tristate "AT91SAM9x/AT91CAP9 RTT as RTC"
++	tristate "AT91SAM9 RTT as RTC"
+ 	depends on ARCH_AT91 && !(ARCH_AT91RM9200 || ARCH_AT91X40)
+ 	select MFD_SYSCON
+ 	help
+-	  RTC driver for the Atmel AT91SAM9x and AT91CAP9 internal RTT
+-	  (Real Time Timer). These timers are powered by the backup power
+-	  supply (such as a small coin cell battery), but do not need to
+-	  be used as RTCs.
 -
- 	irq = platform_get_irq(pdev, 0);
- 	if (irq < 0) {
- 		dev_err(&pdev->dev, "failed to get interrupt resource\n");
-@@ -335,18 +328,16 @@ static int at91_rtc_probe(struct platform_device *pdev)
- 		device_init_wakeup(&pdev->dev, 1);
+-	  (On AT91SAM9rl and AT91SAM9G45 chips you probably want to use the
+-	  dedicated RTC module and leave the RTT available for other uses.)
++	  Some AT91SAM9 SoCs provide an RTT (Real Time Timer) block which
++	  can be used as an RTC thanks to the backup power supply (e.g. a
++	  small coin cell battery) which keeps this block and the GPBR
++	  (General Purpose Backup Registers) block powered when the device
++	  is shutdown.
++	  Some AT91SAM9 SoCs provide a real RTC block, on those ones you'd
++	  probably want to use the real RTC block instead of the "RTT as an
++	  RTC" driver.
  
- 	platform_set_drvdata(pdev, rtc);
--	rtc->rtt = devm_ioremap(&pdev->dev, r->start, resource_size(r));
--	if (!rtc->rtt) {
--		dev_err(&pdev->dev, "failed to map registers, aborting.\n");
--		return -ENOMEM;
--	}
- 
--	rtc->gpbr = devm_ioremap(&pdev->dev, r_gpbr->start,
--				resource_size(r_gpbr));
--	if (!rtc->gpbr) {
--		dev_err(&pdev->dev, "failed to map gpbr registers, aborting.\n");
--		return -ENOMEM;
--	}
-+	r = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-+	rtc->rtt = devm_ioremap_resource(&pdev->dev, r);
-+	if (IS_ERR(rtc->rtt))
-+		return PTR_ERR(rtc->rtt);
+ config RTC_DRV_AT91SAM9_RTT
+ 	int
+@@ -1098,6 +1099,9 @@ config RTC_DRV_AT91SAM9_RTT
+ 	prompt "RTT module Number" if ARCH_AT91SAM9263
+ 	depends on RTC_DRV_AT91SAM9
+ 	help
++	  This option is only relevant for legacy board support and
++	  won't be used when booting a DT board.
 +
-+	r = platform_get_resource(pdev, IORESOURCE_MEM, 1);
-+	rtc->gpbr = devm_ioremap_resource(&pdev->dev, r);
-+	if (IS_ERR(rtc->gpbr))
-+		return PTR_ERR(rtc->rtt);
- 
- 	mr = rtt_readl(rtc, MR);
- 
+ 	  More than one RTT module is available. You can choose which
+ 	  one will be used as an RTC. The default of zero is normally
+ 	  OK to use, though some systems use that for non-RTC purposes.
+@@ -1110,6 +1114,9 @@ config RTC_DRV_AT91SAM9_GPBR
+ 	prompt "Backup Register Number"
+ 	depends on RTC_DRV_AT91SAM9
+ 	help
++	  This option is only relevant for legacy board support and
++	  won't be used when booting a DT board.
++
+ 	  The RTC driver needs to use one of the General Purpose Backup
+ 	  Registers (GPBRs) as well as the RTT. You can choose which one
+ 	  will be used. The default of zero is normally OK to use, but
 -- 
 1.9.1
