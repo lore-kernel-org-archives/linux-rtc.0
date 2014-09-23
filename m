@@ -1,55 +1,64 @@
-Return-Path: <jhovold@gmail.com>
-Sender: Johan Hovold <jhovold@gmail.com>
-Date: Mon, 22 Sep 2014 17:22:03 +0200
-From: Johan Hovold <johan@kernel.org>
-To: Boris BREZILLON <boris.brezillon@free-electrons.com>
-Cc: Nicolas Ferre <nicolas.ferre@atmel.com>,
-	Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Andrew Victor <linux@maxim.org.za>,
-	Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
-	Samuel Ortiz <sameo@linux.intel.com>,
-	Lee Jones <lee.jones@linaro.org>, Rob Herring <robh+dt@kernel.org>,
-	Pawel Moll <pawel.moll@arm.com>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Ian Campbell <ijc+devicetree@hellion.org.uk>,
-	Kumar Gala <galak@codeaurora.org>, devicetree@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v5 8/9] rtc: at91sam9: add DT bindings documentation
-Message-ID: <20140922152203.GJ5237@localhost>
-References: <1411377058-26155-1-git-send-email-boris.brezillon@free-electrons.com>
- <1411377058-26155-9-git-send-email-boris.brezillon@free-electrons.com>
+Return-Path: <Nicolas.FERRE@atmel.com>
+Message-ID: <54212C00.2090800@atmel.com>
+Date: Tue, 23 Sep 2014 10:14:56 +0200
+From: Nicolas Ferre <nicolas.ferre@atmel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1411377058-26155-9-git-send-email-boris.brezillon@free-electrons.com>
+To: Boris BREZILLON <boris.brezillon@free-electrons.com>, "Jean-Christophe
+ Plagniol-Villard" <plagnioj@jcrosoft.com>, Alexandre Belloni
+	<alexandre.belloni@free-electrons.com>, Andrew Victor <linux@maxim.org.za>,
+	Alessandro Zummo <a.zummo@towertech.it>, <rtc-linux@googlegroups.com>,
+	"Samuel Ortiz" <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>,
+	Johan Hovold <jhovold@gmail.com>
+CC: Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, "Mark
+ Rutland" <mark.rutland@arm.com>, Ian Campbell
+	<ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>,
+	<devicetree@vger.kernel.org>, <linux-arm-kernel@lists.infradead.org>,
+	<linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH v6 2/9] rtc: at91sam9: use standard readl/writel functions
+ instead of raw versions
+References: <1411400563-570-1-git-send-email-boris.brezillon@free-electrons.com> <1411400563-570-3-git-send-email-boris.brezillon@free-electrons.com>
+In-Reply-To: <1411400563-570-3-git-send-email-boris.brezillon@free-electrons.com>
+Content-Type: text/plain; charset="ISO-8859-1"
 List-ID: <rtc-linux.googlegroups.com>
 
-On Mon, Sep 22, 2014 at 11:10:57AM +0200, Boris BREZILLON wrote:
+Can be good to know why... here.
+
+Otherwise, you can add my:
+Acked-by: Nicolas Ferre <nicolas.ferre@atmel.com>
+
+
+On 22/09/2014 17:42, Boris BREZILLON :
 > Signed-off-by: Boris BREZILLON <boris.brezillon@free-electrons.com>
+> Acked-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
 > ---
->  .../devicetree/bindings/rtc/atmel,at91sam9-rtc.txt | 23 ++++++++++++++++++++++
->  1 file changed, 23 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/rtc/atmel,at91sam9-rtc.txt
+>  drivers/rtc/rtc-at91sam9.c | 8 ++++----
+>  1 file changed, 4 insertions(+), 4 deletions(-)
 > 
-> diff --git a/Documentation/devicetree/bindings/rtc/atmel,at91sam9-rtc.txt b/Documentation/devicetree/bindings/rtc/atmel,at91sam9-rtc.txt
-> new file mode 100644
-> index 0000000..5b2bb73
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/rtc/atmel,at91sam9-rtc.txt
-> @@ -0,0 +1,23 @@
-> +Atmel AT91SAM9260 Real Time Timer
-> +
-> +Required properties:
-> +- compatible: should be: "atmel,at91sam9260-rtt"
-> +- reg: should encode the memory region of the RTT controller
-> +- interrupts: rtc alarm/event interrupt
+> diff --git a/drivers/rtc/rtc-at91sam9.c b/drivers/rtc/rtc-at91sam9.c
+> index 51f0038..74a9ca0 100644
+> --- a/drivers/rtc/rtc-at91sam9.c
+> +++ b/drivers/rtc/rtc-at91sam9.c
+> @@ -77,14 +77,14 @@ struct sam9_rtc {
+>  };
+>  
+>  #define rtt_readl(rtc, field) \
+> -	__raw_readl((rtc)->rtt + AT91_RTT_ ## field)
+> +	readl((rtc)->rtt + AT91_RTT_ ## field)
+>  #define rtt_writel(rtc, field, val) \
+> -	__raw_writel((val), (rtc)->rtt + AT91_RTT_ ## field)
+> +	writel((val), (rtc)->rtt + AT91_RTT_ ## field)
+>  
+>  #define gpbr_readl(rtc) \
+> -	__raw_readl((rtc)->gpbr)
+> +	readl((rtc)->gpbr)
+>  #define gpbr_writel(rtc, val) \
+> -	__raw_writel((val), (rtc)->gpbr)
+> +	writel((val), (rtc)->gpbr)
+>  
+>  /*
+>   * Read current time and date in RTC
+> 
 
-rtt alarm
 
-> +- clocks: should contain one clock pointing the the slow clk
-> +- atmel,rtt-rtc-time-reg: should encode the GPBR register used to store
-> +	the RTC time. The first cell should point to the GPBR node and
-
-"used to store the time base when the RTT is used as an RTC"?
-
-Johan
+-- 
+Nicolas Ferre
