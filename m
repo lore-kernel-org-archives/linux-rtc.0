@@ -6,6 +6,8 @@ To: Nicolas Ferre <nicolas.ferre@atmel.com>,
 	Andrew Victor <linux@maxim.org.za>,
 	Alessandro Zummo <a.zummo@towertech.it>,
 	rtc-linux@googlegroups.com,
+	Samuel Ortiz <sameo@linux.intel.com>,
+	Lee Jones <lee.jones@linaro.org>,
 	Johan Hovold <jhovold@gmail.com>
 Cc: Rob Herring <robh+dt@kernel.org>,
 	Pawel Moll <pawel.moll@arm.com>,
@@ -15,19 +17,21 @@ Cc: Rob Herring <robh+dt@kernel.org>,
 	devicetree@vger.kernel.org,
 	linux-arm-kernel@lists.infradead.org,
 	linux-kernel@vger.kernel.org,
-	Douglas Gilbert <dgilbert@interlog.com>,
 	Boris BREZILLON <boris.brezillon@free-electrons.com>
-Subject: [PATCH v3 4/8] rtc: at91sam9: add DT support
-Date: Thu, 11 Sep 2014 10:56:03 +0200
-Message-Id: <1410425767-17874-5-git-send-email-boris.brezillon@free-electrons.com>
-In-Reply-To: <1410425767-17874-1-git-send-email-boris.brezillon@free-electrons.com>
-References: <1410425767-17874-1-git-send-email-boris.brezillon@free-electrons.com>
+Subject: [PATCH v8 04/10] rtc: at91sam9: add DT support
+Date: Tue, 23 Sep 2014 13:23:58 +0200
+Message-Id: <1411471444-2764-5-git-send-email-boris.brezillon@free-electrons.com>
+In-Reply-To: <1411471444-2764-1-git-send-email-boris.brezillon@free-electrons.com>
+References: <1411471444-2764-1-git-send-email-boris.brezillon@free-electrons.com>
 List-ID: <rtc-linux.googlegroups.com>
 
-Add of_match_table to the existing driver so that rtc nodes defined in at91
+Add of_match_table to the existing driver so that rtt nodes defined in at91
 DTs can be attached to this driver.
 
 Signed-off-by: Boris BREZILLON <boris.brezillon@free-electrons.com>
+Acked-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Acked-by: Nicolas Ferre <nicolas.ferre@atmel.com>
+Acked-by: Johan Hovold <johan@kernel.org>
 ---
  drivers/rtc/rtc-at91sam9.c | 9 +++++++++
  1 file changed, 9 insertions(+)
