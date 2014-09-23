@@ -1,134 +1,97 @@
-Content-Type: text/plain; charset="utf-8"
+Return-Path: <boris.brezillon@free-electrons.com>
+Date: Tue, 23 Sep 2014 12:11:44 +0200
+From: Boris BREZILLON <boris.brezillon@free-electrons.com>
+To: Nicolas Ferre <nicolas.ferre@atmel.com>
+Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>, Alessandro
+ Zummo <a.zummo@towertech.it>, <rtc-linux@googlegroups.com>, Johan Hovold
+ <jhovold@gmail.com>, Jean-Christophe Plagniol-Villard
+ <plagnioj@jcrosoft.com>, Andrew Victor <linux@maxim.org.za>, Samuel Ortiz
+ <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, Rob Herring
+ <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland
+ <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar
+ Gala <galak@codeaurora.org>, <devicetree@vger.kernel.org>,
+ <linux-arm-kernel@lists.infradead.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH v7 06/10] rtc: at91sam9: rework the Kconfig description
+Message-ID: <20140923121144.0fd5d3c8@bbrezillon>
+In-Reply-To: <542146AF.3060807@atmel.com>
+References: <1411465130-29011-1-git-send-email-boris.brezillon@free-electrons.com>
+	<1411465130-29011-7-git-send-email-boris.brezillon@free-electrons.com>
+	<542146AF.3060807@atmel.com>
 MIME-Version: 1.0
-Subject: drivers/rtc/rtc-ds1307.c: Support optional wakeup interrupt source
-From: Nishanth Menon <nm@ti.com>
-Message-Id: <1408637521-6764-1-git-send-email-nm@ti.com>
-To: Alessandro Zummo <a.zummo@towertech.it>
-Cc: <rtc-linux@googlegroups.com>, Tony Lindgren <tony@atomide.com>,
- <linux-omap@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
- Nishanth Menon <nm@ti.com>
-Date: Thu, 21 Aug 2014 11:12:01 -0500
+Content-Type: text/plain; charset=US-ASCII
 List-ID: <rtc-linux.googlegroups.com>
 
-With the recent pinctrl-single changes, SoCs such as Texas
-Instrument's OMAP processors can treat wake-up events from deeper idle
-states as interrupts.
+On Tue, 23 Sep 2014 12:08:47 +0200
+Nicolas Ferre <nicolas.ferre@atmel.com> wrote:
 
-Let's add support for the optional second interrupt for wake-up
-events. And then SoC can wakeup and handle the event using it's
-regular handler.
+> On 23/09/2014 11:38, Boris BREZILLON :
+> > Remove all references to AT91CAP9 SoC which has been removed.
+> > Rework the help message to remove any specific references to AT91SAM9 SoCs.
+> > 
+> > Signed-off-by: Boris BREZILLON <boris.brezillon@free-electrons.com>
+> > ---
+> >  drivers/rtc/Kconfig | 17 +++++++++--------
+> >  1 file changed, 9 insertions(+), 8 deletions(-)
+> > 
+> > diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
+> > index 7d76da8..455f2c3 100644
+> > --- a/drivers/rtc/Kconfig
+> > +++ b/drivers/rtc/Kconfig
+> > @@ -1079,17 +1079,18 @@ config RTC_DRV_AT91RM9200
+> >  	  this is powered by the backup power supply.
+> >  
+> >  config RTC_DRV_AT91SAM9
+> > -	tristate "AT91SAM9x/AT91CAP9 RTT as RTC"
+> > +	tristate "AT91SAM9 RTT as RTC"
+> >  	depends on ARCH_AT91 && !(ARCH_AT91RM9200 || ARCH_AT91X40)
+> >  	select MFD_SYSCON
+> >  	help
+> > -	  RTC driver for the Atmel AT91SAM9x and AT91CAP9 internal RTT
+> > -	  (Real Time Timer). These timers are powered by the backup power
+> > -	  supply (such as a small coin cell battery), but do not need to
+> > -	  be used as RTCs.
+> > -
+> > -	  (On AT91SAM9rl and AT91SAM9G45 chips you probably want to use the
+> > -	  dedicated RTC module and leave the RTT available for other uses.)
+> > +	  Some AT91SAM9 SoCs provide an RTT (Real Time Timer) block which
+> > +	  can be used as an RTC thanks to the backup power supply (e.g. a
+> > +	  small coin cell battery) which keeps this block and the GPBR
+> > +	  (General Purpose Backup Registers) block powered when the device
+> > +	  is shutdown.
+> > +	  Some AT91SAM9 SoCs provide a real RTC block, on those ones you'd
+> > +	  probably want to use the real RTC block instead of the RTT as an
+> > +	  RTT driver.
+> 
+> You mean:
+> "instead of the RTT as an RTC"
 
-Finally, to pass the wake-up interrupt in the dts file,
-interrupts-extended property needs to be passed.
+Yep, that's what I meant.
 
-This is similar in approach to commit 2a0b965cfb6e ("serial: omap: Add
-support for optional wake-up")
+> 
+> With that, good description: thanks!
+> 
+> Acked-by: Nicolas Ferre <nicolas.ferre@atmel.com>
+> 
+> So, now we can think of what to do with the series:
+> 
+> - Johan, do you want to "Ack" it?
+> - may I take it through the arm-soc git tree (likely for the 3.19 dev.
+> phase).
+> 
+> Your thoughts?
+> 
+> Bye,
+> 
+> >  
+> >  config RTC_DRV_AT91SAM9_RTT
+> >  	int
+> > 
+> 
+> 
 
-Signed-off-by: Nishanth Menon <nm@ti.com>
----
- drivers/rtc/rtc-ds1307.c |   57 ++++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 57 insertions(+)
 
-diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
-index f03d5ba..5feedfc 100644
---- a/drivers/rtc/rtc-ds1307.c
-+++ b/drivers/rtc/rtc-ds1307.c
-@@ -15,6 +15,8 @@
- #include <linux/init.h>
- #include <linux/slab.h>
- #include <linux/i2c.h>
-+#include <linux/of_device.h>
-+#include <linux/of_irq.h>
- #include <linux/string.h>
- #include <linux/rtc.h>
- #include <linux/bcd.h>
-@@ -115,6 +117,7 @@ struct ds1307 {
- 	struct i2c_client	*client;
- 	struct rtc_device	*rtc;
- 	struct work_struct	work;
-+	int			wakeirq;
- 	s32 (*read_block_data)(const struct i2c_client *client, u8 command,
- 			       u8 length, u8 *values);
- 	s32 (*write_block_data)(const struct i2c_client *client, u8 command,
-@@ -835,6 +838,34 @@ ds1307_nvram_write(struct file *filp, struct kobject *kobj,
- 
- /*----------------------------------------------------------------------*/
- 
-+static int ds1307_i2c_suspend(struct i2c_client *client,  pm_message_t mesg)
-+{
-+	struct ds1307 *ds1307 = i2c_get_clientdata(client);
-+	struct device *dev = &client->dev;
-+
-+	if (!ds1307->wakeirq)
-+		return 0;
-+
-+	if (device_may_wakeup(dev))
-+		enable_irq(ds1307->wakeirq);
-+
-+	return 0;
-+}
-+
-+static int ds1307_i2c_resume(struct i2c_client *client)
-+{
-+	struct ds1307 *ds1307 = i2c_get_clientdata(client);
-+	struct device *dev = &client->dev;
-+
-+	if (!ds1307->wakeirq)
-+		return 0;
-+
-+	if (device_may_wakeup(dev))
-+		disable_irq_nosync(ds1307->wakeirq);
-+
-+	return 0;
-+}
-+
- static int ds1307_probe(struct i2c_client *client,
- 			const struct i2c_device_id *id)
- {
-@@ -1116,6 +1147,8 @@ read_rtc:
- 	}
- 
- 	if (want_irq) {
-+		struct device_node *node = client->dev.of_node;
-+
- 		err = request_irq(client->irq, ds1307_irq, IRQF_SHARED,
- 			  ds1307->rtc->name, client);
- 		if (err) {
-@@ -1125,6 +1158,28 @@ read_rtc:
- 
- 			set_bit(HAS_ALARM, &ds1307->flags);
- 			dev_dbg(&client->dev, "got IRQ %d\n", client->irq);
-+			if (node)
-+				ds1307->wakeirq = irq_of_parse_and_map(node, 1);
-+
-+			if (ds1307->wakeirq <= 0)
-+				ds1307->wakeirq = 0;
-+			else
-+				err = devm_request_irq(&client->dev,
-+						       ds1307->wakeirq,
-+						       ds1307_irq,
-+						       IRQF_ONESHOT,
-+						       ds1307->rtc->name,
-+						       client);
-+			if (err) {
-+				dev_err(&client->dev, "unable to get wakeIRQ %d\n",
-+					err);
-+				free_irq(client->irq, client);
-+				goto exit;
-+			}
-+
-+			/* We enable the interrupt only during suspend path */
-+			if (ds1307->wakeirq)
-+				disable_irq_nosync(ds1307->wakeirq);
- 		}
- 	}
- 
-@@ -1189,6 +1244,8 @@ static struct i2c_driver ds1307_driver = {
- 	},
- 	.probe		= ds1307_probe,
- 	.remove		= ds1307_remove,
-+	.suspend	= ds1307_i2c_suspend,
-+	.resume		= ds1307_i2c_resume,
- 	.id_table	= ds1307_id,
- };
- 
+
+-- 
+Boris Brezillon, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
