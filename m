@@ -1,115 +1,46 @@
-Return-Path: <jhovold@gmail.com>
-Sender: Johan Hovold <jhovold@gmail.com>
-Date: Wed, 10 Sep 2014 15:16:25 +0200
-From: Johan Hovold <johan@kernel.org>
-To: Boris BREZILLON <boris.brezillon@free-electrons.com>
-Cc: Johan Hovold <johan@kernel.org>,
-	Nicolas Ferre <nicolas.ferre@atmel.com>,
-	Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Andrew Victor <linux@maxim.org.za>,
-	Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
-	Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Ian Campbell <ijc+devicetree@hellion.org.uk>,
-	Kumar Gala <galak@codeaurora.org>, devicetree@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 5/5] rtc: at91sam9: add DT bindings documentation
-Message-ID: <20140910131625.GJ2974@localhost>
-References: <1409733934-14465-1-git-send-email-boris.brezillon@free-electrons.com>
- <1409733934-14465-6-git-send-email-boris.brezillon@free-electrons.com>
- <20140910121424.GG2974@localhost>
- <20140910144315.240621e6@bbrezillon>
+Return-Path: <Nicolas.FERRE@atmel.com>
+Message-ID: <544501AE.7030706@atmel.com>
+Date: Mon, 20 Oct 2014 14:35:58 +0200
+From: Nicolas Ferre <nicolas.ferre@atmel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20140910144315.240621e6@bbrezillon>
+To: Boris Brezillon <boris.brezillon@free-electrons.com>, Alessandro Zummo
+	<a.zummo@towertech.it>
+CC: Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>, "Alexandre
+ Belloni" <alexandre.belloni@free-electrons.com>, Andrew Victor
+	<linux@maxim.org.za>, <rtc-linux@googlegroups.com>, Samuel Ortiz
+	<sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, Johan Hovold
+	<jhovold@gmail.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll
+	<pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell
+	<ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>,
+	<devicetree@vger.kernel.org>, <linux-arm-kernel@lists.infradead.org>,
+	<linux-kernel@vger.kernel.org>, Arnd Bergmann <arnd@arndb.de>
+Subject: Re: [PATCH v9 00/10] rtc: at91sam9: add DT support
+References: <1411483725-31532-1-git-send-email-boris.brezillon@free-electrons.com> <20141020141748.063d6835@bbrezillon>
+In-Reply-To: <20141020141748.063d6835@bbrezillon>
+Content-Type: text/plain; charset="ISO-8859-1"
 List-ID: <rtc-linux.googlegroups.com>
 
-On Wed, Sep 10, 2014 at 02:43:15PM +0200, Boris BREZILLON wrote:
-> Hi Johan,
+On 20/10/2014 14:17, Boris Brezillon :
+> Hi Alessandro,
 > 
-> On Wed, 10 Sep 2014 14:14:24 +0200
-> Johan Hovold <johan@kernel.org> wrote:
+> On Tue, 23 Sep 2014 16:48:35 +0200
+> Boris BREZILLON <boris.brezillon@free-electrons.com> wrote:
 > 
-> > On Wed, Sep 03, 2014 at 10:45:34AM +0200, Boris BREZILLON wrote:
-> > > Signed-off-by: Boris BREZILLON <boris.brezillon@free-electrons.com>
-> > > ---
-> > >  .../devicetree/bindings/rtc/atmel,at91sam9-rtc.txt   | 20 ++++++++++++++++++++
-> > >  1 file changed, 20 insertions(+)
-> > >  create mode 100644 Documentation/devicetree/bindings/rtc/atmel,at91sam9-rtc.txt
-> > > 
-> > > diff --git a/Documentation/devicetree/bindings/rtc/atmel,at91sam9-rtc.txt b/Documentation/devicetree/bindings/rtc/atmel,at91sam9-rtc.txt
-> > > new file mode 100644
-> > > index 0000000..9ca455f
-> > > --- /dev/null
-> > > +++ b/Documentation/devicetree/bindings/rtc/atmel,at91sam9-rtc.txt
-> > > @@ -0,0 +1,20 @@
-> > > +Atmel AT91SAM9260 Real Time Timer
-> > > +
-> > > +Required properties:
-> > > +- compatible: should be: "atmel,at91sam9260-rtt"
-> > > +- reg: should contain 2 memory regions
-> > > +  * the first one encodes the memory region of the RTT controller
-> > > +  * the second one encodes the GPBR (General Purpose Backup Resgisters)
-> > > +    memory region used to store the current time
-> > > +- interrupts: rtc alarm/event interrupt
-> > > +- clocks: should contain one clock pointing the the slow clk
-> > > +
-> > > +Example:
-> > > +
-> > > +rtc@fffffe00 {
-> > > +	compatible = "atmel,at91sam9260-rtt";
-> > > +	reg = <0xfffffd20 0x10
-> > > +	       0xfffffd50 0x4>;
-> > > +	interrupts = <1 4 7>;
-> > > +	clocks = <&clk32k>;
-> > > +};
-> > 
-> > This does not describe the hardware, but rather a specific software
-> > configuration.
-> > 
-> > The RTT is first of all not an RTC (although it can be used as one in a
-> > specific software configuration). And the second register resource above
-> > is not an RTT register, but a general-purpose backup register could be
-> > used for other purposes (which register to use is currently configurable
-> > for legacy booting using CONFIG_RTC_DRV_AT91SAM9_GPBR).
-> > 
-> > This was discussed in the thread where I posted an RFC for this last
-> > year (which you linked to in your original submission thread), but no
-> > conclusion was reached:
-> > 
-> > 	http://www.spinics.net/lists/arm-kernel/msg236292.html
+>> Hello,
+>>
+>> This patch series adds DT support to the atmel at91sam9 RTC driver.
+>>
+>> It also removes any machine specific inclusions to prepare the migration
+>> to multi platform kernel support, and retain the slow clock to prevent
+>> the CCF from disabling it at the end of boot.
 > 
-> Yes, I read this thread.
+> Nicolas was planning to take this series (except for patch 10 which was
+> already applied by Lee) in his tree for 3.19, but if you prefer to take
+> it into yours just let us know.
 
-I'm sure you did. I just tried to summarise the main points of it above.
+Absolutely, I'll happily take them for at91-3.19-drivers and push them
+through arm-soc tree unless Alessandro says otherwise.
 
-> Please, lets just find a solution, even if it's not a perfect one,
-> because the situation is unacceptable.
-> We're missing this features since the move to DT because we were not
-> able to agree on a DT binding...
-
-Agreed. My suggestion in the thread above was along the lines of generic
-use-neutral rtt and gmbr nodes, and then an additional attribute to the
-rtt node (which can be set in a specific board dts, when enabling the
-rtt) providing a gmbr handle (and register number) for the rtc-at91sam9
-driver to use.
-
-This in itself does not resolve which rtt-driver would get bound if
-there is ever another one (and the gmbr attribute is present), though.
-
-> I know DT bindings are supposed to represent HW parts and not what
-> they're used for or how they're configured, but do you see any other
-> real usage of the RTT block ?
-
-It's at least not hard to imagine other uses for the battery-backed up
-gmbr registers.
-
-I'll look into how that could be implemented.
-
-> BTW, I don't care which binding/implementation is chosen but we need to
-> sort this out!
-
-Ok, let's do that. :)
-
-Johan
+Bye,
+-- 
+Nicolas Ferre
