@@ -1,58 +1,76 @@
-Return-Path: <arnd@arndb.de>
-From: Arnd Bergmann <arnd@arndb.de>
-To: Nicolas Ferre <nicolas.ferre@atmel.com>
-Subject: Re: [GIT PULL] at91: drivers for 3.19 #1
-Date: Thu, 20 Nov 2014 13:43:10 +0100
-Cc: Olof Johansson <olof@lixom.net>,
- arm@kernel.org,
- Linux Kernel list <linux-kernel@vger.kernel.org>,
- "linux-arm-kernel" <linux-arm-kernel@lists.infradead.org>,
- Alexandre Belloni <alexandre.belloni@free-electrons.com>,
- Boris BREZILLON <boris.brezillon@free-electrons.com>,
- "Jean-Christophe PLAGNIOL-VILLARD" <plagnioj@jcrosoft.com>,
- a.zummo@towertech.it,
- rtc-linux@googlegroups.com,
- Johan Hovold <johan@kernel.org>,
- Ludovic Desroches <ludovic.desroches@atmel.com>
-References: <1415976210-3665-1-git-send-email-nicolas.ferre@atmel.com>
-In-Reply-To: <1415976210-3665-1-git-send-email-nicolas.ferre@atmel.com>
+Return-Path: <nicolas.ferre@atmel.com>
+From: Nicolas Ferre <nicolas.ferre@atmel.com>
+To: Arnd Bergmann <arnd@arndb.de>, Olof Johansson <olof@lixom.net>,
+	<arm@kernel.org>
+CC: Nicolas Ferre <nicolas.ferre@atmel.com>, Linux Kernel list
+	<linux-kernel@vger.kernel.org>, linux-arm-kernel
+	<linux-arm-kernel@lists.infradead.org>, Alexandre Belloni
+	<alexandre.belloni@free-electrons.com>, Boris BREZILLON
+	<boris.brezillon@free-electrons.com>, Jean-Christophe PLAGNIOL-VILLARD
+	<plagnioj@jcrosoft.com>, <a.zummo@towertech.it>,
+	<rtc-linux@googlegroups.com>, Johan Hovold <johan@kernel.org>, Ludovic
+ Desroches <ludovic.desroches@atmel.com>
+Subject: [GIT PULL] at91: drivers for 3.19 #1
+Date: Fri, 14 Nov 2014 15:43:30 +0100
+Message-ID: <1415976210-3665-1-git-send-email-nicolas.ferre@atmel.com>
 MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-15"
-Message-Id: <201411201343.11011.arnd@arndb.de>
+Content-Type: text/plain
 List-ID: <rtc-linux.googlegroups.com>
 
-On Friday 14 November 2014, Nicolas Ferre wrote:
-> Arnd, Olof, Kevin,
-> 
-> This is a pull-request about AT91-related drivers that are easier to take via
-> arm-soc.
-> 
-> There is a little merge conflict with the "cleanup" branch because of removal
-> of at91sam9g45 and at91sam9rl legacy code. The resolution is pretty simple but
-> you can have a look at the resolution example here:
-> https://git.kernel.org/cgit/linux/kernel/git/nferre/linux-at91.git/log/?h=at91-next
-> 
-> Thanks, best regards,
-> 
-> The following changes since commit cac7f2429872d3733dc3f9915857b1691da2eb2f:
-> 
->   Linux 3.18-rc2 (2014-10-26 16:48:41 -0700)
-> 
-> are available in the git repository at:
-> 
->   git://git.kernel.org/pub/scm/linux/kernel/git/nferre/linux-at91.git tags/at91-drivers
-> 
-> for you to fetch changes up to 2c91e61dc97cce57ffd9dd654a6ee284e1f45a1f:
-> 
->   rtc: at91sam9: add DT bindings documentation (2014-11-13 16:08:48 +0100)
-> 
-> ----------------------------------------------------------------
-> First batch of drivers for 3.19:
-> It is only about a not so recent driver for old platforms: RTT as RTC driver:
-> - RTT as RTC driver enhancements and machine specific include files removal
-> - RTT as RTC driver conversion to device tree
+Arnd, Olof, Kevin,
 
-Pulled into next/drivers, thanks!
+This is a pull-request about AT91-related drivers that are easier to take via
+arm-soc.
 
-	Arnd
+There is a little merge conflict with the "cleanup" branch because of removal
+of at91sam9g45 and at91sam9rl legacy code. The resolution is pretty simple but
+you can have a look at the resolution example here:
+https://git.kernel.org/cgit/linux/kernel/git/nferre/linux-at91.git/log/?h=at91-next
+
+Thanks, best regards,
+
+The following changes since commit cac7f2429872d3733dc3f9915857b1691da2eb2f:
+
+  Linux 3.18-rc2 (2014-10-26 16:48:41 -0700)
+
+are available in the git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/nferre/linux-at91.git tags/at91-drivers
+
+for you to fetch changes up to 2c91e61dc97cce57ffd9dd654a6ee284e1f45a1f:
+
+  rtc: at91sam9: add DT bindings documentation (2014-11-13 16:08:48 +0100)
+
+----------------------------------------------------------------
+First batch of drivers for 3.19:
+It is only about a not so recent driver for old platforms: RTT as RTC driver:
+- RTT as RTC driver enhancements and machine specific include files removal
+- RTT as RTC driver conversion to device tree
+
+----------------------------------------------------------------
+Boris BREZILLON (9):
+      rtc: at91sam9: remove references to mach specific headers
+      rtc: at91sam9: use standard readl/writel functions instead of raw versions
+      rtc: at91sam9: replace devm_ioremap by devm_ioremap_resource
+      rtc: at91sam9: add DT support
+      rtc: at91sam9: make use of syscon/regmap to access GPBR registers
+      rtc: at91sam9: rework the Kconfig description
+      ARM: at91: add clk_lookup entry for RTT devices
+      rtc: at91sam9: use clk API instead of relying on AT91_SLOW_CLOCK
+      rtc: at91sam9: add DT bindings documentation
+
+ .../devicetree/bindings/rtc/atmel,at91sam9-rtc.txt |  23 ++++
+ arch/arm/mach-at91/at91sam9260.c                   |   2 +
+ arch/arm/mach-at91/at91sam9261.c                   |   2 +
+ arch/arm/mach-at91/at91sam9263.c                   |   4 +
+ arch/arm/mach-at91/at91sam9g45.c                   |   2 +
+ arch/arm/mach-at91/at91sam9rl.c                    |   2 +
+ arch/arm/mach-at91/clock.c                         |   2 +-
+ arch/arm/mach-at91/clock.h                         |   1 +
+ drivers/rtc/Kconfig                                |  24 ++--
+ drivers/rtc/rtc-at91sam9.c                         | 138 ++++++++++++++++-----
+ 10 files changed, 162 insertions(+), 38 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/rtc/atmel,at91sam9-rtc.txt
+
+-- 
+Nicolas Ferre
