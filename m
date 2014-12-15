@@ -1,65 +1,36 @@
-Return-Path: <boris.brezillon@free-electrons.com>
-From: Boris Brezillon <boris.brezillon@free-electrons.com>
-To: Thomas Gleixner <tglx@linutronix.de>,
-	"Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	Jiri Slaby <jslaby@suse.cz>,
-	linux-serial@vger.kernel.org,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	rtc-linux@googlegroups.com,
-	Mike Turquette <mturquette@linaro.org>,
-	Nicolas Ferre <nicolas.ferre@atmel.com>,
-	Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Andrew Victor <linux@maxim.org.za>
-Cc: linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org,
-	Boris Brezillon <boris.brezillon@free-electrons.com>
-Subject: [PATCH 4/5] rtc: at91: request IRQs with IRQF_SUSPEND_NOACTION
-Date: Mon, 15 Dec 2014 17:15:51 +0100
-Message-Id: <1418660152-17185-5-git-send-email-boris.brezillon@free-electrons.com>
-In-Reply-To: <1418660152-17185-1-git-send-email-boris.brezillon@free-electrons.com>
-References: <1418660152-17185-1-git-send-email-boris.brezillon@free-electrons.com>
+Return-Path: <rjw@rjwysocki.net>
+From: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+To: Boris Brezillon <boris.brezillon@free-electrons.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>, "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jiri Slaby <jslaby@suse.cz>, linux-serial@vger.kernel.org, Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com, Mike Turquette <mturquette@linaro.org>, Nicolas Ferre <nicolas.ferre@atmel.com>, Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>, Alexandre Belloni <alexandre.belloni@free-electrons.com>, Andrew Victor <linux@maxim.org.za>, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/5] genirq: Support mixing IRQF_NO_SUSPEND/IRQF_SUSPEND on shared irqs
+Date: Mon, 15 Dec 2014 22:45:35 +0100
+Message-ID: <2845526.bsrmWSBaOD@vostro.rjw.lan>
+In-Reply-To: <1418660152-17185-2-git-send-email-boris.brezillon@free-electrons.com>
+References: <1418660152-17185-1-git-send-email-boris.brezillon@free-electrons.com> <1418660152-17185-2-git-send-email-boris.brezillon@free-electrons.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
 List-ID: <rtc-linux.googlegroups.com>
 
-The IRQ line connected to RTC blocks are often shared with a timer device
-which request the IRQ with IRQF_NO_SUSPEND.
-Since the RTC drivers are correctly disabling IRQs when entering suspend
-we can safely request the IRQ with IRQF_SUSPEND_NOACTION so that irq core
-can suspend this specific handler.
+On Monday, December 15, 2014 05:15:48 PM Boris Brezillon wrote:
+> The current implementation forbid sharing an irq line on devices that do
+> not request the same behavior on suspend/resume (controlled via the
+> IRQF_NO_SUSPEND/IRQF_FORCE_RESUME flags).
 
-Signed-off-by: Boris Brezillon <boris.brezillon@free-electrons.com>
----
- drivers/rtc/rtc-at91rm9200.c | 2 +-
- drivers/rtc/rtc-at91sam9.c   | 3 ++-
- 2 files changed, 3 insertions(+), 2 deletions(-)
+IRQF_NO_SUSPEND is practically only for timers and IPIs now.  Any other
+usages are strongly discouraged.
 
-diff --git a/drivers/rtc/rtc-at91rm9200.c b/drivers/rtc/rtc-at91rm9200.c
-index 70a5d94..0ed504f 100644
---- a/drivers/rtc/rtc-at91rm9200.c
-+++ b/drivers/rtc/rtc-at91rm9200.c
-@@ -401,7 +401,7 @@ static int __init at91_rtc_probe(struct platform_device *pdev)
- 					AT91_RTC_CALEV);
- 
- 	ret = devm_request_irq(&pdev->dev, irq, at91_rtc_interrupt,
--				IRQF_SHARED,
-+				IRQF_SHARED | IRQF_SUSPEND_NOACTION,
- 				"at91_rtc", pdev);
- 	if (ret) {
- 		dev_err(&pdev->dev, "IRQ %d already in use.\n", irq);
-diff --git a/drivers/rtc/rtc-at91sam9.c b/drivers/rtc/rtc-at91sam9.c
-index 6b9aaf1..e7f8eed 100644
---- a/drivers/rtc/rtc-at91sam9.c
-+++ b/drivers/rtc/rtc-at91sam9.c
-@@ -421,7 +421,8 @@ static int at91_rtc_probe(struct platform_device *pdev)
- 
- 	/* register irq handler after we know what name we'll use */
- 	ret = devm_request_irq(&pdev->dev, rtc->irq, at91_rtc_interrupt,
--				IRQF_SHARED, dev_name(&rtc->rtcdev->dev), rtc);
-+				IRQF_SHARED | IRQF_SUSPEND_NOACTION,
-+				dev_name(&rtc->rtcdev->dev), rtc);
- 	if (ret) {
- 		dev_dbg(&pdev->dev, "can't share IRQ %d?\n", rtc->irq);
- 		return ret;
+> Add a flag (IRQF_SUSPEND_NOACTION) to specify that you don't want to be
+> called in suspend mode, and that you already took care of disabling the
+> interrupt on the device side.
+> 
+> The suspend_device_irq will now move actions specifying the
+> IRQF_SUSPEND_NOACTION into a temporary list so that they won't be called
+> when the interrupt is triggered, and resume_irq_actions restores the
+> suspended actions into the active action list.
+
+Why is the current way of handling wakeup interrupts not sufficient?
+
+
 -- 
-1.9.1
+I speak only for myself.
+Rafael J. Wysocki, Intel Open Source Technology Center.
