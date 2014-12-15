@@ -1,89 +1,82 @@
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Subject: RTC: Restore alarm after resume
-From: Matthew Garrett <matthew.garrett@nebula.com>
-Message-Id: <1419275979-24307-1-git-send-email-matthew.garrett@nebula.com>
-To: a.zummo@towertech.it
-Cc: rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org,
- Matthew Garrett <matthew.garrett@nebula.com>
-Date: Mon, 22 Dec 2014 19:19:39 +0000
+Return-Path: <boris.brezillon@free-electrons.com>
+From: Boris Brezillon <boris.brezillon@free-electrons.com>
+To: Thomas Gleixner <tglx@linutronix.de>,
+	"Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	Jiri Slaby <jslaby@suse.cz>,
+	linux-serial@vger.kernel.org,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	rtc-linux@googlegroups.com,
+	Mike Turquette <mturquette@linaro.org>,
+	Nicolas Ferre <nicolas.ferre@atmel.com>,
+	Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Andrew Victor <linux@maxim.org.za>
+Cc: linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org,
+	Boris Brezillon <boris.brezillon@free-electrons.com>
+Subject: [PATCH 0/5] ARM: at91: fix irq_pm_install_action WARNING
+Date: Mon, 15 Dec 2014 17:15:47 +0100
+Message-Id: <1418660152-17185-1-git-send-email-boris.brezillon@free-electrons.com>
 List-ID: <rtc-linux.googlegroups.com>
 
-Some platform firmware may interfere with the RTC alarm over suspend,
-resulting in the kernel and hardware having different ideas about system state
-but also potentially causing problems with firmware that assumes the OS will
-clean this case up. This patch saves the RTC alarm state on suspend and will
-restore it on resume if the alarm has not yet fired - if it has, it will clear
-the RTC alarm.
+Commit cab303be91dc47942bc25de33dc1140123540800 [1] introduced a WARN_ON
+test which triggers a WARNING backtrace on at91 platforms.
+While this WARN_ON is absolutely necessary to warn users that they should
+not mix request with and without IRQF_NO_SUSPEND flags on shared IRQs,
+there is no easy way to solve this issue on at91 platforms.
 
-Signed-off-by: Matthew Garrett <matthew.garrett@nebula.com>
-Tested-by: Gabriele Mazzotta <gabriele.mzt@gmail.com>
----
- drivers/rtc/class.c | 24 ++++++++++++++++++++++++
- include/linux/rtc.h |  4 ++++
- 2 files changed, 28 insertions(+)
+The main reason is that the init timer is often using a shared irq line
+and thus request this irq with IRQF_NO_SUSPEND flag set, while other
+peripherals request the same irq line without this flag.
 
-diff --git a/drivers/rtc/class.c b/drivers/rtc/class.c
-index 472a5ad..c7e09e2 100644
---- a/drivers/rtc/class.c
-+++ b/drivers/rtc/class.c
-@@ -55,6 +55,8 @@ static int rtc_suspend(struct device *dev)
- 	struct timespec64	delta, delta_delta;
- 	int err;
- 
-+	rtc->valid_alarm = !rtc_read_alarm(rtc, &rtc->alarm);
-+
- 	if (has_persistent_clock())
- 		return 0;
- 
-@@ -102,6 +104,27 @@ static int rtc_resume(struct device *dev)
- 	struct timespec64	sleep_time;
- 	int err;
- 
-+	/*
-+	 * Ensure that the platform hasn't overwritten a pending alarm while
-+	 * suspended
-+	 */
-+	if (rtc->valid_alarm) {
-+		long now, scheduled;
-+
-+		rtc_read_time(rtc, &tm);
-+		rtc_tm_to_time(&rtc->alarm.time, &scheduled);
-+		rtc_tm_to_time(&tm, &now);
-+
-+		/* Clear the alarm registers if it went off during suspend */
-+		if (scheduled <= now) {
-+			rtc_time_to_tm(0, &rtc->alarm.time);
-+			rtc->alarm.enabled = 0;
-+		}
-+
-+		if (rtc->ops && rtc->ops->set_alarm)
-+			rtc->ops->set_alarm(rtc->dev.parent, &rtc->alarm);
-+	}
-+
- 	if (has_persistent_clock())
- 		return 0;
- 
-@@ -145,6 +168,7 @@ static int rtc_resume(struct device *dev)
- 	if (sleep_time.tv_sec >= 0)
- 		timekeeping_inject_sleeptime64(&sleep_time);
- 	rtc_hctosys_ret = 0;
-+
- 	return 0;
- }
- 
-diff --git a/include/linux/rtc.h b/include/linux/rtc.h
-index 6d6be09..bc805ff 100644
---- a/include/linux/rtc.h
-+++ b/include/linux/rtc.h
-@@ -133,6 +133,10 @@ struct rtc_device
- 	/* Some hardware can't support UIE mode */
- 	int uie_unsupported;
- 
-+#ifdef CONFIG_PM_SLEEP
-+	struct rtc_wkalrm alarm;
-+	bool valid_alarm;
-+#endif
- #ifdef CONFIG_RTC_INTF_DEV_UIE_EMUL
- 	struct work_struct uie_task;
- 	struct timer_list uie_timer;
+We could deal with that by identifying whether a given peripheral is
+connected to the init timer shared irq line and add the IRQF_NO_SUSPEND
+in this case, but this implies adding the logic in all peripheral drivers
+that could be connected to this shared irq.
+
+This series takes the reverse approach: force IRQ users to specify that
+they take care of disabling peripheral interrupts and that IRQ core can
+safely leave the handler in a suspended state without having to bother
+about spurious interrupts.
+This is done by mean of a new IRQF_SUSPEND_NOACTION flag which tells the
+core to move the action handler to a suspended list, thus preventing its
+execution when we are in suspend mode.
+Of course, specifying the IRQF_SUSPEND_NOACTION flag implies taking care
+of masking/unmasking the peripheral interrupts in the suspend/resume
+implementation.
+
+The WARN_ON is kept, but now it is only triggered when (no_suspend_depth +
+suspend_noaction_depth) and nr_actions are unbalanced.
+
+The first patch introduces the IRQF_SUSPEND_NOACTION logic, while other
+patches modify existing at91 drivers to specify this flag (and implement
+suspend/resume if needed).
+
+
+Best Regards,
+
+Boris
+
+[1]https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/kernel/irq/pm.c?id=cab303be91dc47942bc25de33dc1140123540800
+
+Boris Brezillon (5):
+  genirq: Support mixing IRQF_NO_SUSPEND/IRQF_SUSPEND on shared irqs
+  clk: at91: implement suspend/resume for the PMC irqchip
+  watchdog: at91sam9: request the irq with IRQF_NO_SUSPEND
+  rtc: at91: request IRQs with IRQF_SUSPEND_NOACTION
+  tty: serial: atmel: request IRQ with IRQF_SUSPEND_NOACTION
+
+ drivers/clk/at91/pmc.c            | 20 ++++++++++-
+ drivers/clk/at91/pmc.h            |  1 +
+ drivers/rtc/rtc-at91rm9200.c      |  2 +-
+ drivers/rtc/rtc-at91sam9.c        |  3 +-
+ drivers/tty/serial/atmel_serial.c |  3 +-
+ drivers/watchdog/at91sam9_wdt.c   |  3 +-
+ include/linux/interrupt.h         | 11 ++++++
+ include/linux/irqdesc.h           |  3 ++
+ kernel/irq/pm.c                   | 71 +++++++++++++++++++++++++++++++++++++--
+ 9 files changed, 109 insertions(+), 8 deletions(-)
+
+-- 
+1.9.1
