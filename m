@@ -1,60 +1,61 @@
-Return-Path: <tglx@linutronix.de>
-Date: Tue, 16 Dec 2014 13:56:26 +0100 (CET)
-From: Thomas Gleixner <tglx@linutronix.de>
+Return-Path: <rjw@rjwysocki.net>
+From: "Rafael J. Wysocki" <rjw@rjwysocki.net>
 To: Boris Brezillon <boris.brezillon@free-electrons.com>
-cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>,
-    "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-    Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-    Jiri Slaby <jslaby@suse.cz>, linux-serial@vger.kernel.org,
-    Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
-    Mike Turquette <mturquette@linaro.org>,
-    Nicolas Ferre <nicolas.ferre@atmel.com>,
-    Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>,
-    Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-    Andrew Victor <linux@maxim.org.za>, linux-arm-kernel@lists.infradead.org,
-    linux-kernel@vger.kernel.org
+Cc: Thomas Gleixner <tglx@linutronix.de>, "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jiri Slaby <jslaby@suse.cz>, linux-serial@vger.kernel.org, Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com, Mike Turquette <mturquette@linaro.org>, Nicolas Ferre <nicolas.ferre@atmel.com>, Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>, Alexandre Belloni <alexandre.belloni@free-electrons.com>, Andrew Victor <linux@maxim.org.za>, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
 Subject: Re: [PATCH 0/5] ARM: at91: fix irq_pm_install_action WARNING
-In-Reply-To: <20141216122503.77c5632f@bbrezillon>
-Message-ID: <alpine.DEB.2.11.1412161349420.17382@nanos>
-References: <1418660152-17185-1-git-send-email-boris.brezillon@free-electrons.com> <2662748.NJbkr6jW7r@vostro.rjw.lan> <3542278.8lcJeXLMFm@vostro.rjw.lan> <20141216100715.57baeb65@bbrezillon> <alpine.DEB.2.11.1412161013570.17382@nanos>
- <20141216122503.77c5632f@bbrezillon>
+Date: Mon, 15 Dec 2014 23:48:14 +0100
+Message-ID: <3542278.8lcJeXLMFm@vostro.rjw.lan>
+In-Reply-To: <2662748.NJbkr6jW7r@vostro.rjw.lan>
+References: <1418660152-17185-1-git-send-email-boris.brezillon@free-electrons.com> <2662748.NJbkr6jW7r@vostro.rjw.lan>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset="utf-8"
 List-ID: <rtc-linux.googlegroups.com>
 
-On Tue, 16 Dec 2014, Boris Brezillon wrote:
-> Thomas Gleixner <tglx@linutronix.de> wrote:
-> > Install the timer interrupt as a demultiplexing interrupt.
+On Monday, December 15, 2014 11:20:17 PM Rafael J. Wysocki wrote:
+> On Monday, December 15, 2014 05:15:47 PM Boris Brezillon wrote:
+> > Commit cab303be91dc47942bc25de33dc1140123540800 [1] introduced a WARN_ON
+> > test which triggers a WARNING backtrace on at91 platforms.
 > 
-> I can try to hack the AIC irqchip driver to implement this demux logic,
-> but this logic can't be placed in the PIT (Periodic Interval Timer)
-> driver itself, because the shared IRQ line is used by the at91 clock
-> controller (PMC) which is providing the clock to the PIT device.
-> This gives the following dependency graph:
+> Pretty much as intended.
 > 
-> PIT =depends-on=> Master Clock =provided-by=> PMC =needs=> PMC IRQ.
+> > While this WARN_ON is absolutely necessary to warn users that they should
+> > not mix request with and without IRQF_NO_SUSPEND flags on shared IRQs,
+> > there is no easy way to solve this issue on at91 platforms.
+> > 
+> > The main reason is that the init timer is often using a shared irq line
+> > and thus request this irq with IRQF_NO_SUSPEND flag set, while other
+> > peripherals request the same irq line without this flag.
+> > 
+> > We could deal with that by identifying whether a given peripheral is
+> > connected to the init timer shared irq line and add the IRQF_NO_SUSPEND
+> > in this case, but this implies adding the logic in all peripheral drivers
+> > that could be connected to this shared irq.
+> > 
+> > This series takes the reverse approach: force IRQ users to specify that
+> > they take care of disabling peripheral interrupts and that IRQ core can
+> > safely leave the handler in a suspended state without having to bother
+> > about spurious interrupts.
+> > This is done by mean of a new IRQF_SUSPEND_NOACTION flag which tells the
+> > core to move the action handler to a suspended list, thus preventing its
+> > execution when we are in suspend mode.
+> > Of course, specifying the IRQF_SUSPEND_NOACTION flag implies taking care
+> > of masking/unmasking the peripheral interrupts in the suspend/resume
+> > implementation.
+> 
+> Well, I'm not sure how much value is in all that to be honest.  The only
+> thing it helps with is to make the WARN_ON go away in some cases, while
+> the drivers in question need to make sure that they disable their interrupts
+> properly anyway, so what exactly is the purpose of the new irqaction
+> shuffling?
+> 
+> It might just be simpler to add a flag to suppress the WARN_ON that would be
+> set by the user of IRQF_NO_SUSPEND that is broken enough to have to share the
+> interrupt with others ...
 
-It never can be a part of a device driver. This is a property of the
-interrupt controller which fails to provide a proper demux for this
-irq line in the first place.
+Or even set IRFQ_NO_SUSPEND for all of the users of this interrupt and add
+comments to them explaining why it is set.
 
-So you fake the demux in the irq chip driver, where you provide the
-pseudo chip and the demux logic. None of the device drivers (PIT, PMC,
-UART ...) even knows about that.
 
-|--------|             |--------|
-| AIC    |-------------| Pseudo |---- PIT
-|        |             | chip   |---- PMC
-|        |             |        |---- UART
-|        |             |--------|
-|        |--- devX
-|        |--- devY
-|        |--- devZ
-|--------|
-
-So PIT, PMC and UART get interrupt numbers handed out which are
-outside of the interrupt space of AIC.
-
-Thanks,
-
-	tglx
+-- 
+I speak only for myself.
+Rafael J. Wysocki, Intel Open Source Technology Center.
