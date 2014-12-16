@@ -1,5 +1,5 @@
 Return-Path: <boris.brezillon@free-electrons.com>
-Date: Tue, 16 Dec 2014 12:25:03 +0100
+Date: Tue, 16 Dec 2014 19:26:09 +0100
 From: Boris Brezillon <boris.brezillon@free-electrons.com>
 To: Thomas Gleixner <tglx@linutronix.de>
 Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>, "Rafael J. Wysocki"
@@ -12,7 +12,7 @@ Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>, "Rafael J. Wysocki"
  <alexandre.belloni@free-electrons.com>, Andrew Victor <linux@maxim.org.za>,
  linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
 Subject: Re: [PATCH 0/5] ARM: at91: fix irq_pm_install_action WARNING
-Message-ID: <20141216122503.77c5632f@bbrezillon>
+Message-ID: <20141216192609.778f5f8d@bbrezillon>
 In-Reply-To: <alpine.DEB.2.11.1412161013570.17382@nanos>
 References: <1418660152-17185-1-git-send-email-boris.brezillon@free-electrons.com>
 	<2662748.NJbkr6jW7r@vostro.rjw.lan>
@@ -57,9 +57,6 @@ Thomas Gleixner <tglx@linutronix.de> wrote:
 > 
 > But still all those drivers must disable the interrupts at the device
 > level on suspend, right?
-
-Absolutely.
-
 > 
 > > Thomas, Rafael, if both of you think I should either introduce a new
 > > flag or specify IRFQ_NO_SUSPEND in all shared IRQ users, then I can go
@@ -68,22 +65,77 @@ Absolutely.
 > All of this really sucks. What about the following?
 > 
 > Install the timer interrupt as a demultiplexing interrupt.
+> 
+> Create a pseudo interrupt chip, which essentially does nothing, but
+> keeps track of the disabled state. Install handle_simple_irq as
+> handler for those "demux" interrupts. Then have:
+> 
+> struct data {
+>        u32 unmasked;
+>        u32 demuxavail;
+> };
+> 
+> static struct data demuxdata;
+> 
+> At init time you know how many of these demux interrupts are
+> available. So you set the demuxdata up, e.g. for 3 interrupts
+> connected:
+> 
+> 	demuxdata.demuxavail = 0x07;
+> 
+> You install a pointer to demuxdata for all demux interrupts as irq
+> chip data and the simple handler.
+> 
+> And in the mask/unmask handlers you do:
+> 
+> mask(irqdata) {
+>        struct data *d = irq_data_get_irq_chip_data(irqdata);
+> 
+>        d->unmasked &= ~irqdata->mask;
+>        if (!d->unmasked)
+>        	  mask_demux_irq();
+> }
+> 
+> unmask(irqdata) {
+>        struct data *d = irq_data_get_irq_chip_data(irqdata);
+> 
+>        if (!d->unmasked)
+>        	  unmask_demux_irq();
+>        d->mask |= irqdata->mask;
+> }
+> 
+> Now the demuxhandler does:
+> 
+>     mask = demuxdata.demuxavail & demuxdata.unmasked;
+> 
+>     for_each_bit(bit, mask)
+>     	generic_handle_irq(demuxirq_start + bit);
+> 
+> So the handler wont be invoked for masked bits and handle_simple_irq()
+> will not call the device handler if the interrupt is marked disabled.
+> 
+> So in the suspend case all "demux" interrupts except those which are
+> marked NOSUSPEND are marked disabled and the handlers wont be invoked.
+> 
+> Locking and other details omitted.
+> 
+> That avoids the whole flag, action, whatever business for the price of
+> a really trivial demux mechanism. Everything just works. Even the irq
+> storm detector will just disable the parent interrupt once all
+> handlers return NONE often enough.
 
-I can try to hack the AIC irqchip driver to implement this demux logic,
-but this logic can't be placed in the PIT (Periodic Interval Timer)
-driver itself, because the shared IRQ line is used by the at91 clock
-controller (PMC) which is providing the clock to the PIT device.
-This gives the following dependency graph:
+Still have one question regarding the spurious interrupt detection code.
+AFAIU, it disables a specific IRQ handler if it triggers to often with
+an IRQ_NONE return, right ?
 
-PIT =depends-on=> Master Clock =provided-by=> PMC =needs=> PMC IRQ.
+In this dumb demuxer I can't tell which child interrupt should be
+handled (there is no interrupt cause register), thus I call
+generic_handle_irq on all unmasked IRQs.
+Isn't there a risk to get some of my child interrupts disabled because
+they always return IRQ_NONE (which is a normal use case for
+IRQF_SHARED: we're only expecting at least one handler to return
+IRQ_HANDLED or IRQ_WAKE_THREAD, not all of them) ?
 
-Anyway, I'll give this solution another try.
-
-Thanks for your detailed answer.
-
-Regards,
-
-Boris
 
 -- 
 Boris Brezillon, Free Electrons
