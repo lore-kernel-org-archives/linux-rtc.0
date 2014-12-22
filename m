@@ -1,50 +1,89 @@
-Return-Path: <Nicolas.FERRE@atmel.com>
-Message-ID: <5464CAD2.8040901@atmel.com>
-Date: Thu, 13 Nov 2014 16:14:26 +0100
-From: Nicolas Ferre <nicolas.ferre@atmel.com>
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-To: Boris Brezillon <boris.brezillon@free-electrons.com>, Alessandro Zummo
-	<a.zummo@towertech.it>
-CC: Mark Rutland <mark.rutland@arm.com>, <devicetree@vger.kernel.org>, "Pawel
- Moll" <pawel.moll@arm.com>, Samuel Ortiz <sameo@linux.intel.com>,
-	<rtc-linux@googlegroups.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>,
-	Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>, Johan Hovold
-	<jhovold@gmail.com>, <linux-kernel@vger.kernel.org>, Arnd Bergmann
-	<arnd@arndb.de>, Rob Herring <robh+dt@kernel.org>, Alexandre Belloni
-	<alexandre.belloni@free-electrons.com>, Kumar Gala <galak@codeaurora.org>,
-	Lee Jones <lee.jones@linaro.org>, Andrew Victor <linux@maxim.org.za>,
-	<linux-arm-kernel@lists.infradead.org>
-Subject: Re: [PATCH v9 00/10] rtc: at91sam9: add DT support
-References: <1411483725-31532-1-git-send-email-boris.brezillon@free-electrons.com> <20141020141748.063d6835@bbrezillon> <544501AE.7030706@atmel.com>
-In-Reply-To: <544501AE.7030706@atmel.com>
-Content-Type: text/plain; charset="ISO-8859-1"
+Subject: RTC: Restore alarm after resume
+From: Matthew Garrett <matthew.garrett@nebula.com>
+Message-Id: <1419275979-24307-1-git-send-email-matthew.garrett@nebula.com>
+To: a.zummo@towertech.it
+Cc: rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org,
+ Matthew Garrett <matthew.garrett@nebula.com>
+Date: Mon, 22 Dec 2014 19:19:39 +0000
 List-ID: <rtc-linux.googlegroups.com>
 
-On 20/10/2014 14:35, Nicolas Ferre :
-> On 20/10/2014 14:17, Boris Brezillon :
->> Hi Alessandro,
->>
->> On Tue, 23 Sep 2014 16:48:35 +0200
->> Boris BREZILLON <boris.brezillon@free-electrons.com> wrote:
->>
->>> Hello,
->>>
->>> This patch series adds DT support to the atmel at91sam9 RTC driver.
->>>
->>> It also removes any machine specific inclusions to prepare the migration
->>> to multi platform kernel support, and retain the slow clock to prevent
->>> the CCF from disabling it at the end of boot.
->>
->> Nicolas was planning to take this series (except for patch 10 which was
->> already applied by Lee) in his tree for 3.19, but if you prefer to take
->> it into yours just let us know.
-> 
-> Absolutely, I'll happily take them for at91-3.19-drivers and push them
-> through arm-soc tree unless Alessandro says otherwise.
+Some platform firmware may interfere with the RTC alarm over suspend,
+resulting in the kernel and hardware having different ideas about system state
+but also potentially causing problems with firmware that assumes the OS will
+clean this case up. This patch saves the RTC alarm state on suspend and will
+restore it on resume if the alarm has not yet fired - if it has, it will clear
+the RTC alarm.
 
-Now in at91-3.19-drivers with Arnd's Ack on the documentation patch.
-I'll sent them soon to arm-soc.
+Signed-off-by: Matthew Garrett <matthew.garrett@nebula.com>
+Tested-by: Gabriele Mazzotta <gabriele.mzt@gmail.com>
+---
+ drivers/rtc/class.c | 24 ++++++++++++++++++++++++
+ include/linux/rtc.h |  4 ++++
+ 2 files changed, 28 insertions(+)
 
-Thanks, best regards,
--- 
-Nicolas Ferre
+diff --git a/drivers/rtc/class.c b/drivers/rtc/class.c
+index 472a5ad..c7e09e2 100644
+--- a/drivers/rtc/class.c
++++ b/drivers/rtc/class.c
+@@ -55,6 +55,8 @@ static int rtc_suspend(struct device *dev)
+ 	struct timespec64	delta, delta_delta;
+ 	int err;
+ 
++	rtc->valid_alarm = !rtc_read_alarm(rtc, &rtc->alarm);
++
+ 	if (has_persistent_clock())
+ 		return 0;
+ 
+@@ -102,6 +104,27 @@ static int rtc_resume(struct device *dev)
+ 	struct timespec64	sleep_time;
+ 	int err;
+ 
++	/*
++	 * Ensure that the platform hasn't overwritten a pending alarm while
++	 * suspended
++	 */
++	if (rtc->valid_alarm) {
++		long now, scheduled;
++
++		rtc_read_time(rtc, &tm);
++		rtc_tm_to_time(&rtc->alarm.time, &scheduled);
++		rtc_tm_to_time(&tm, &now);
++
++		/* Clear the alarm registers if it went off during suspend */
++		if (scheduled <= now) {
++			rtc_time_to_tm(0, &rtc->alarm.time);
++			rtc->alarm.enabled = 0;
++		}
++
++		if (rtc->ops && rtc->ops->set_alarm)
++			rtc->ops->set_alarm(rtc->dev.parent, &rtc->alarm);
++	}
++
+ 	if (has_persistent_clock())
+ 		return 0;
+ 
+@@ -145,6 +168,7 @@ static int rtc_resume(struct device *dev)
+ 	if (sleep_time.tv_sec >= 0)
+ 		timekeeping_inject_sleeptime64(&sleep_time);
+ 	rtc_hctosys_ret = 0;
++
+ 	return 0;
+ }
+ 
+diff --git a/include/linux/rtc.h b/include/linux/rtc.h
+index 6d6be09..bc805ff 100644
+--- a/include/linux/rtc.h
++++ b/include/linux/rtc.h
+@@ -133,6 +133,10 @@ struct rtc_device
+ 	/* Some hardware can't support UIE mode */
+ 	int uie_unsupported;
+ 
++#ifdef CONFIG_PM_SLEEP
++	struct rtc_wkalrm alarm;
++	bool valid_alarm;
++#endif
+ #ifdef CONFIG_RTC_INTF_DEV_UIE_EMUL
+ 	struct work_struct uie_task;
+ 	struct timer_list uie_timer;
