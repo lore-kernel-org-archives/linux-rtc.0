@@ -1,88 +1,46 @@
-Return-Path: <boris.brezillon@free-electrons.com>
-From: Boris Brezillon <boris.brezillon@free-electrons.com>
-To: Thomas Gleixner <tglx@linutronix.de>,
-	Jason Cooper <jason@lakedaemon.net>,
-	Peter Zijlstra <peterz@infradead.org>,
-	Mark Rutland <mark.rutland@arm.com>,
-	"Rafael J. Wysocki" <rjw@rjwysocki.net>
-Cc: Len Brown <len.brown@intel.com>,
-	Pavel Machek <pavel@ucw.cz>,
-	linux-pm@vger.kernel.org,
-	Wim Van Sebroeck <wim@iguana.be>,
-	linux-watchdog@vger.kernel.org,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	rtc-linux@googlegroups.com,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	Jiri Slaby <jslaby@suse.cz>,
-	linux-serial@vger.kernel.org,
-	Mike Turquette <mturquette@linaro.org>,
-	linux-kernel@vger.kernel.org,
-	Nicolas Ferre <nicolas.ferre@atmel.com>,
-	Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	linux-arm-kernel@lists.infradead.org,
-	Boris Brezillon <boris.brezillon@free-electrons.com>
-Subject: [PATCH v2 0/6] ARM: at91: fix irq_pm_install_action WARNING
-Date: Mon,  2 Mar 2015 10:18:12 +0100
-Message-Id: <1425287898-15093-1-git-send-email-boris.brezillon@free-electrons.com>
+Date: Sun, 1 Mar 2015 00:09:35 +0100
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Joe Perches <joe@perches.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>, linux-kernel@vger.kernel.org,
+	rtc-linux@googlegroups.com
+Subject: Re: [PATCH] rtc: add Abracon ABx80x driver
+Message-ID: <20150228230935.GG4094@piout.net>
+References: <1425150876-8141-1-git-send-email-alexandre.belloni@free-electrons.com>
+ <1425151935.25697.5.camel@perches.com>
+ <20150228205243.GF4094@piout.net>
+ <1425158574.31561.1.camel@perches.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1425158574.31561.1.camel@perches.com>
 List-ID: <rtc-linux.googlegroups.com>
 
-My apologies to those of you who already received this series, but I
-didn't increment the patch version and forgot some subsystem maintainers
-and MLs.
+On 28/02/2015 at 13:22:54 -0800, Joe Perches wrote :
+> My thought was that it might be better to
+> use a local struct rtc_time r like
+> 
+> 	r.tm_sec = bcd2bin(date[AB08XX_REG_SC] & 0x7F);
+> 	r.tm_min = bcd2bin(date[AB08XX_REG_MN] & 0x7F);
+> 	r.tm_hour = bcd2bin(date[AB08XX_REG_HR] & 0x3F);
+> 	r.tm_wday = date[AB08XX_REG_WD] & 0x7;
+> 	r.tm_mday = bcd2bin(date[AB08XX_REG_DA] & 0x3F);
+> 	r.tm_mon = bcd2bin(date[AB08XX_REG_MO] & 0x1F) - 1;
+> 	r.tm_year = bcd2bin(date[AB08XX_REG_YR]);
+> 	if (r.tm_year < 70)
+> 		r.tm_year += 100;
+> 
+> 	err = rtc_valid_tm(&r);
+> 	if (!err)
+> 		*tm = r;
+> 	else
+> 		dev_err(&client->dev, "retrieved date/time is not valid\n");
+> 
+> 	return err;
+> 
 
-Commit cab303be91dc47942bc25de33dc1140123540800 [1] introduced a WARN_ON
-test which triggers a WARNING backtrace on at91 platforms.
-While this WARN_ON is absolutely necessary to warn users that they should
-not mix request with and without IRQF_NO_SUSPEND flags on shared IRQs,
-there is no easy way to solve this issue on at91 platforms.
-
-The main reason is that the init timer is often using a shared irq line
-and thus request this irq with IRQF_NO_SUSPEND flag set, while other
-peripherals request the same irq line without this flag.
-
-This problem has recently been addressed by this patch [2] which adds
-a new IRQF_COND_SUSPEND flag, that authorize mixing IRQF_NO_SUSPEND and
-!IRQF_NO_SUSPEND as long as irq handlers setting IRQF_COND_SUSPEND
-can safely be called in suspended state.
-
-Doing this also implies taking care of system wakeup in devices handlers
-if they tag the IRQ line as a wakeup source.
-The first patch of this series exports the pm_system_wakeup symbol so
-that drivers can call pm_system_wakeup from their interrupt handler.
-
-This series then patches all at91 drivers that can have devices sharing
-their IRQ line with a timer.
-
-This series depends on [2].
-
-Best Regards,
-
-Boris
-
-[1]https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/kernel/irq/pm.c?id=cab303be91dc47942bc25de33dc1140123540800
-[2]https://lkml.org/lkml/2015/2/26/675
-
-Changes since v1:
- - replaced the IRQF_SUSPEND_NOACTION flag by IRQF_COND_SUSPEND
- - properly addressed wakeup handling in drivers
-
-Boris Brezillon (6):
-  PM / wakeup: export pm_system_wakeup symbol
-  rtc: at91sam9: rework wakeup and interrupt handling
-  rtc: at91rm9200: rework wakeup and interrupt handling
-  clk: at91: implement suspend/resume for the PMC irqchip
-  watchdog: at91sam9: request the irq with IRQF_NO_SUSPEND
-  tty: serial: atmel: rework interrupt and wakeup handling
-
- drivers/base/power/wakeup.c       |  1 +
- drivers/clk/at91/pmc.c            | 20 ++++++++++-
- drivers/clk/at91/pmc.h            |  1 +
- drivers/rtc/rtc-at91rm9200.c      | 62 +++++++++++++++++++++++++--------
- drivers/rtc/rtc-at91sam9.c        | 73 ++++++++++++++++++++++++++++++++-------
- drivers/tty/serial/atmel_serial.c | 49 +++++++++++++++++++++++---
- drivers/watchdog/at91sam9_wdt.c   |  3 +-
- 7 files changed, 177 insertions(+), 32 deletions(-)
+I'm sure this is not needed as userspace has to bail out if the ioctl
+fails. I'll let that up to the rtc maintainers though.
 
 -- 
-1.9.1
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
