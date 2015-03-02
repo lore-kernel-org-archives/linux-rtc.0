@@ -1,77 +1,102 @@
-Return-Path: <pavel@ucw.cz>
-Date: Sat, 7 Mar 2015 12:29:33 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Sylvain Rochet <gradator@gradator.net>,
+Return-Path: <boris.brezillon@free-electrons.com>
+From: Boris Brezillon <boris.brezillon@free-electrons.com>
+To: Thomas Gleixner <tglx@linutronix.de>,
+	Jason Cooper <jason@lakedaemon.net>,
 	Peter Zijlstra <peterz@infradead.org>,
 	Mark Rutland <mark.rutland@arm.com>,
-	Boris Brezillon <boris.brezillon@free-electrons.com>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Mike Turquette <mturquette@linaro.org>,
-	Jason Cooper <jason@lakedaemon.net>,
-	"rtc-linux@googlegroups.com" <rtc-linux@googlegroups.com>,
-	Len Brown <len.brown@intel.com>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	"linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>,
-	"Rafael J. Wysocki" <rjw@rjwysocki.net>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-	Nicolas Ferre <nicolas.ferre@atmel.com>,
+	"Rafael J. Wysocki" <rjw@rjwysocki.net>
+Cc: Len Brown <len.brown@intel.com>,
+	Pavel Machek <pavel@ucw.cz>,
+	linux-pm@vger.kernel.org,
 	Wim Van Sebroeck <wim@iguana.be>,
-	"linux-serial@vger.kernel.org" <linux-serial@vger.kernel.org>,
+	linux-watchdog@vger.kernel.org,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	rtc-linux@googlegroups.com,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	Jiri Slaby <jslaby@suse.cz>,
+	linux-serial@vger.kernel.org,
+	Mike Turquette <mturquette@linaro.org>,
+	linux-kernel@vger.kernel.org,
+	Nicolas Ferre <nicolas.ferre@atmel.com>,
 	Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>,
-	Thomas Gleixner <tglx@linutronix.de>, Jiri Slaby <jslaby@suse.cz>,
-	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>,
-	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>
-Subject: Re: [PATCH v2 5/6] watchdog: at91sam9: request the irq with
- IRQF_NO_SUSPEND
-Message-ID: <20150307112932.GA1372@amd>
-References: <1425287898-15093-6-git-send-email-boris.brezillon@free-electrons.com>
- <20150304183809.GD22156@leverpostej>
- <20150305095306.3db98ac8@bbrezillon>
- <20150305105308.GA13617@leverpostej>
- <20150305121723.1da0d016@bbrezillon>
- <20150305115307.GA14093@leverpostej>
- <20150307091846.GN23367@worktop.ger.corp.intel.com>
- <20150307102056.GA28436@gradator.net>
- <20150307103939.GA17964@amd>
- <20150307110645.GW3989@piout.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20150307110645.GW3989@piout.net>
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	linux-arm-kernel@lists.infradead.org,
+	Boris Brezillon <boris.brezillon@free-electrons.com>
+Subject: [PATCH v2 4/6] clk: at91: implement suspend/resume for the PMC irqchip
+Date: Mon,  2 Mar 2015 10:18:16 +0100
+Message-Id: <1425287898-15093-5-git-send-email-boris.brezillon@free-electrons.com>
+In-Reply-To: <1425287898-15093-1-git-send-email-boris.brezillon@free-electrons.com>
+References: <1425287898-15093-1-git-send-email-boris.brezillon@free-electrons.com>
 List-ID: <rtc-linux.googlegroups.com>
 
-On Sat 2015-03-07 12:06:45, Alexandre Belloni wrote:
-> On 07/03/2015 at 11:39:39 +0100, Pavel Machek wrote :
-> > > The Atmel watchdog can't be stopped once it's started. This is actually 
-> > > very useful so we can reset if suspend or resume failed, the only 
-> > > drawback is that you have to wake up from time to time (e.g. by using 
-> > > the RTC/RTT) to clear the watchdog and then go back to sleep ASAP.
-> > 
-> > Yeah. So you do "echo mem > /sys/power/state", and few seconds/minutes
-> > after watchdog kills the system. But you did not ask for dead system,
-> > you asked for suspend.
-> > 
-> > And while that behaviour is useful for you, I don't think it is
-> > exactly useful behaviour, nor it is the behaviour user would expect.
-> > 
-> 
-> I think you misunderstood, that is exactly the expected behaviour. This
-> is hardware defined. Once the watchdog is started, nobody can stop it.
-> Trying to change the mode register will result in a reset of the
-> SoC.
+The irq line used by the PMC block is shared with several peripherals
+including the init timer which is registering its handler with
+IRQF_NO_SUSPEND.
+Implement the appropriate suspend/resume callback for the PMC irqchip,
+and inform irq core that PMC irq handler can be safely called while
+the system is suspended by setting IRQF_COND_SUSPEND.
 
-Well, it boils down to "what is stronger". Desire to suspend the
-system, or desire to reboot the system.
+Signed-off-by: Boris Brezillon <boris.brezillon@free-electrons.com>
+---
+ drivers/clk/at91/pmc.c | 20 +++++++++++++++++++-
+ drivers/clk/at91/pmc.h |  1 +
+ 2 files changed, 20 insertions(+), 1 deletion(-)
 
-It is "echo mem > state", not "echo reboot > state".
-
-> It is documented in the datasheet and any user wanting another behaviour
-> is out of luck.
-
-Actaully, your platform should just refuse to enter suspend-to-RAM
-when hw watchdog is enabled.
-
-									Pavel
+diff --git a/drivers/clk/at91/pmc.c b/drivers/clk/at91/pmc.c
+index f07c815..3f27d21 100644
+--- a/drivers/clk/at91/pmc.c
++++ b/drivers/clk/at91/pmc.c
+@@ -89,12 +89,29 @@ static int pmc_irq_set_type(struct irq_data *d, unsigned type)
+ 	return 0;
+ }
+ 
++static void pmc_irq_suspend(struct irq_data *d)
++{
++	struct at91_pmc *pmc = irq_data_get_irq_chip_data(d);
++
++	pmc->imr = pmc_read(pmc, AT91_PMC_IMR);
++	pmc_write(pmc, AT91_PMC_IDR, pmc->imr);
++}
++
++static void pmc_irq_resume(struct irq_data *d)
++{
++	struct at91_pmc *pmc = irq_data_get_irq_chip_data(d);
++
++	pmc_write(pmc, AT91_PMC_IER, pmc->imr);
++}
++
+ static struct irq_chip pmc_irq = {
+ 	.name = "PMC",
+ 	.irq_disable = pmc_irq_mask,
+ 	.irq_mask = pmc_irq_mask,
+ 	.irq_unmask = pmc_irq_unmask,
+ 	.irq_set_type = pmc_irq_set_type,
++	.irq_suspend = pmc_irq_suspend,
++	.irq_resume = pmc_irq_resume,
+ };
+ 
+ static struct lock_class_key pmc_lock_class;
+@@ -224,7 +241,8 @@ static struct at91_pmc *__init at91_pmc_init(struct device_node *np,
+ 		goto out_free_pmc;
+ 
+ 	pmc_write(pmc, AT91_PMC_IDR, 0xffffffff);
+-	if (request_irq(pmc->virq, pmc_irq_handler, IRQF_SHARED, "pmc", pmc))
++	if (request_irq(pmc->virq, pmc_irq_handler,
++			IRQF_SHARED | IRQF_COND_SUSPEND, "pmc", pmc))
+ 		goto out_remove_irqdomain;
+ 
+ 	return pmc;
+diff --git a/drivers/clk/at91/pmc.h b/drivers/clk/at91/pmc.h
+index 52d2041..69abb08 100644
+--- a/drivers/clk/at91/pmc.h
++++ b/drivers/clk/at91/pmc.h
+@@ -33,6 +33,7 @@ struct at91_pmc {
+ 	spinlock_t lock;
+ 	const struct at91_pmc_caps *caps;
+ 	struct irq_domain *irqdomain;
++	u32 imr;
+ };
+ 
+ static inline void pmc_lock(struct at91_pmc *pmc)
 -- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+1.9.1
