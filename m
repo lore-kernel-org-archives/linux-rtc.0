@@ -1,63 +1,187 @@
-Return-Path: <mark.rutland@arm.com>
-Date: Thu, 5 Mar 2015 10:57:29 +0000
-From: Mark Rutland <mark.rutland@arm.com>
-To: "Rafael J. Wysocki" <rjw@rjwysocki.net>
-Cc: Boris Brezillon <boris.brezillon@free-electrons.com>,
-	Thomas Gleixner <tglx@linutronix.de>,
+Return-Path: <boris.brezillon@free-electrons.com>
+From: Boris Brezillon <boris.brezillon@free-electrons.com>
+To: Thomas Gleixner <tglx@linutronix.de>,
 	Jason Cooper <jason@lakedaemon.net>,
 	Peter Zijlstra <peterz@infradead.org>,
-	Len Brown <len.brown@intel.com>, Pavel Machek <pavel@ucw.cz>,
-	"linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>,
+	Mark Rutland <mark.rutland@arm.com>,
+	"Rafael J. Wysocki" <rjw@rjwysocki.net>
+Cc: Len Brown <len.brown@intel.com>,
+	Pavel Machek <pavel@ucw.cz>,
+	linux-pm@vger.kernel.org,
 	Wim Van Sebroeck <wim@iguana.be>,
-	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+	linux-watchdog@vger.kernel.org,
 	Alessandro Zummo <a.zummo@towertech.it>,
-	"rtc-linux@googlegroups.com" <rtc-linux@googlegroups.com>,
+	rtc-linux@googlegroups.com,
 	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
 	Jiri Slaby <jslaby@suse.cz>,
-	"linux-serial@vger.kernel.org" <linux-serial@vger.kernel.org>,
+	linux-serial@vger.kernel.org,
 	Mike Turquette <mturquette@linaro.org>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+	linux-kernel@vger.kernel.org,
 	Nicolas Ferre <nicolas.ferre@atmel.com>,
 	Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>,
 	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
-Subject: Re: [PATCH v2 5/6] watchdog: at91sam9: request the irq with
- IRQF_NO_SUSPEND
-Message-ID: <20150305105729.GB13617@leverpostej>
+	linux-arm-kernel@lists.infradead.org,
+	Boris Brezillon <boris.brezillon@free-electrons.com>
+Subject: [PATCH v2 2/6] rtc: at91sam9: rework wakeup and interrupt handling
+Date: Mon,  2 Mar 2015 10:18:14 +0100
+Message-Id: <1425287898-15093-3-git-send-email-boris.brezillon@free-electrons.com>
+In-Reply-To: <1425287898-15093-1-git-send-email-boris.brezillon@free-electrons.com>
 References: <1425287898-15093-1-git-send-email-boris.brezillon@free-electrons.com>
- <1425287898-15093-6-git-send-email-boris.brezillon@free-electrons.com>
- <20150304183809.GD22156@leverpostej>
- <14143668.0aRkeVrc3Q@vostro.rjw.lan>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <14143668.0aRkeVrc3Q@vostro.rjw.lan>
 List-ID: <rtc-linux.googlegroups.com>
 
-[...]
+The IRQ line used by the RTC device is usually shared with the system timer
+(PIT) on at91 platforms.
+Since timers are registering their handlers with IRQF_NO_SUSPEND, we should
+expect being called in suspended state, and properly wake the system up
+when this is the case.
 
-> > >  		err = request_irq(wdt->irq, wdt_interrupt,
-> > > -				  IRQF_SHARED | IRQF_IRQPOLL,
-> > > +				  IRQF_SHARED | IRQF_IRQPOLL |
-> > > +				  IRQF_NO_SUSPEND,
-> > 
-> > I'm a little confused by this. What happens if the watchdog fires when
-> > we're actually in the suspended state (when IRQF_NO_SUSPEND interrupts
-> > aren't guaranteed to be delivered).
-> 
-> Why wouldn't they be delivered?
-> 
-> If that's suspend-to-idle, we'll handle them normally.  If that's full suspend,
-> they may not be handled at the last stage (when we run on one CPU with interrupts
-> off), but that was the case before the wakeup interrupts rework already and I'd
-> expect it to be taken into account somehow in the existing code (or if it isn't
-> taken into account, we have a bug, but it is not related to this series).
+Set IRQF_COND_SUSPEND flag when registering the IRQ handler to inform
+irq core that it can safely be called while the system is suspended.
 
-There's no enable_irq_wake(wdt->irq), and I was under the impression this
-is for full suspend.
+Signed-off-by: Boris Brezillon <boris.brezillon@free-electrons.com>
+---
+ drivers/rtc/rtc-at91sam9.c | 73 ++++++++++++++++++++++++++++++++++++++--------
+ 1 file changed, 61 insertions(+), 12 deletions(-)
 
-I agree that if problematic, it's an existing bug. Given Boris's
-comments in the other thread this may just a minor semantic issue w.r.t.
-IRQF_NO_SUSPEND vs IRQF_COND_SUSPEND.
-
-Thanks,
-Mark.
+diff --git a/drivers/rtc/rtc-at91sam9.c b/drivers/rtc/rtc-at91sam9.c
+index 2183fd2..5ccaee3 100644
+--- a/drivers/rtc/rtc-at91sam9.c
++++ b/drivers/rtc/rtc-at91sam9.c
+@@ -23,6 +23,7 @@
+ #include <linux/io.h>
+ #include <linux/mfd/syscon.h>
+ #include <linux/regmap.h>
++#include <linux/suspend.h>
+ #include <linux/clk.h>
+ 
+ /*
+@@ -77,6 +78,9 @@ struct sam9_rtc {
+ 	unsigned int		gpbr_offset;
+ 	int 			irq;
+ 	struct clk		*sclk;
++	bool			suspended;
++	unsigned long		events;
++	spinlock_t		lock;
+ };
+ 
+ #define rtt_readl(rtc, field) \
+@@ -271,14 +275,9 @@ static int at91_rtc_proc(struct device *dev, struct seq_file *seq)
+ 	return 0;
+ }
+ 
+-/*
+- * IRQ handler for the RTC
+- */
+-static irqreturn_t at91_rtc_interrupt(int irq, void *_rtc)
++static irqreturn_t at91_rtc_cache_events(struct sam9_rtc *rtc)
+ {
+-	struct sam9_rtc *rtc = _rtc;
+ 	u32 sr, mr;
+-	unsigned long events = 0;
+ 
+ 	/* Shared interrupt may be for another device.  Note: reading
+ 	 * SR clears it, so we must only read it in this irq handler!
+@@ -290,18 +289,54 @@ static irqreturn_t at91_rtc_interrupt(int irq, void *_rtc)
+ 
+ 	/* alarm status */
+ 	if (sr & AT91_RTT_ALMS)
+-		events |= (RTC_AF | RTC_IRQF);
++		rtc->events |= (RTC_AF | RTC_IRQF);
+ 
+ 	/* timer update/increment */
+ 	if (sr & AT91_RTT_RTTINC)
+-		events |= (RTC_UF | RTC_IRQF);
++		rtc->events |= (RTC_UF | RTC_IRQF);
++
++	return IRQ_HANDLED;
++}
++
++static void at91_rtc_flush_events(struct sam9_rtc *rtc)
++{
++	if (!rtc->events)
++		return;
+ 
+-	rtc_update_irq(rtc->rtcdev, 1, events);
++	rtc_update_irq(rtc->rtcdev, 1, rtc->events);
++	rtc->events = 0;
+ 
+ 	pr_debug("%s: num=%ld, events=0x%02lx\n", __func__,
+-		events >> 8, events & 0x000000FF);
++		rtc->events >> 8, rtc->events & 0x000000FF);
++}
+ 
+-	return IRQ_HANDLED;
++/*
++ * IRQ handler for the RTC
++ */
++static irqreturn_t at91_rtc_interrupt(int irq, void *_rtc)
++{
++	struct sam9_rtc *rtc = _rtc;
++	int ret;
++
++	spin_lock(&rtc->lock);
++
++	ret = at91_rtc_cache_events(rtc);
++
++	/* We're called in suspended state */
++	if (rtc->suspended) {
++		/* Mask irqs coming from this peripheral */
++		rtt_writel(rtc, MR,
++			   rtt_readl(rtc, MR) &
++			   ~(AT91_RTT_ALMIEN | AT91_RTT_RTTINCIEN));
++		/* Trigger a system wakeup */
++		pm_system_wakeup();
++	} else {
++		at91_rtc_flush_events(rtc);
++	}
++
++	spin_unlock(&rtc->lock);
++
++	return ret;
+ }
+ 
+ static const struct rtc_class_ops at91_rtc_ops = {
+@@ -421,7 +456,8 @@ static int at91_rtc_probe(struct platform_device *pdev)
+ 
+ 	/* register irq handler after we know what name we'll use */
+ 	ret = devm_request_irq(&pdev->dev, rtc->irq, at91_rtc_interrupt,
+-				IRQF_SHARED, dev_name(&rtc->rtcdev->dev), rtc);
++			       IRQF_SHARED | IRQF_COND_SUSPEND,
++			       dev_name(&rtc->rtcdev->dev), rtc);
+ 	if (ret) {
+ 		dev_dbg(&pdev->dev, "can't share IRQ %d?\n", rtc->irq);
+ 		return ret;
+@@ -482,7 +518,12 @@ static int at91_rtc_suspend(struct device *dev)
+ 	rtc->imr = mr & (AT91_RTT_ALMIEN | AT91_RTT_RTTINCIEN);
+ 	if (rtc->imr) {
+ 		if (device_may_wakeup(dev) && (mr & AT91_RTT_ALMIEN)) {
++			unsigned long flags;
++
+ 			enable_irq_wake(rtc->irq);
++			spin_lock_irqsave(&rtc->lock, flags);
++			rtc->suspended = true;
++			spin_unlock_irqrestore(&rtc->lock, flags);
+ 			/* don't let RTTINC cause wakeups */
+ 			if (mr & AT91_RTT_RTTINCIEN)
+ 				rtt_writel(rtc, MR, mr & ~AT91_RTT_RTTINCIEN);
+@@ -499,10 +540,18 @@ static int at91_rtc_resume(struct device *dev)
+ 	u32		mr;
+ 
+ 	if (rtc->imr) {
++		unsigned long flags;
++
+ 		if (device_may_wakeup(dev))
+ 			disable_irq_wake(rtc->irq);
+ 		mr = rtt_readl(rtc, MR);
+ 		rtt_writel(rtc, MR, mr | rtc->imr);
++
++		spin_lock_irqsave(&rtc->lock, flags);
++		rtc->suspended = false;
++		at91_rtc_cache_events(rtc);
++		at91_rtc_flush_events(rtc);
++		spin_unlock_irqrestore(&rtc->lock, flags);
+ 	}
+ 
+ 	return 0;
+-- 
+1.9.1
