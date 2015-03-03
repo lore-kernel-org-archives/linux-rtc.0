@@ -1,51 +1,41 @@
-Return-Path: <rjw@rjwysocki.net>
-From: "Rafael J. Wysocki" <rjw@rjwysocki.net>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Pavel Machek <pavel@ucw.cz>, Sylvain Rochet <gradator@gradator.net>, Peter Zijlstra <peterz@infradead.org>, Mark Rutland <mark.rutland@arm.com>, Boris Brezillon <boris.brezillon@free-electrons.com>, Alessandro Zummo <a.zummo@towertech.it>, Mike Turquette <mturquette@linaro.org>, Jason Cooper <jason@lakedaemon.net>, "rtc-linux@googlegroups.com" <rtc-linux@googlegroups.com>, Len Brown <len.brown@intel.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Nicolas Ferre <nicolas.ferre@atmel.com>, Wim Van Sebroeck <wim@iguana.be>, "linux-serial@vger.kernel.org" <linux-serial@vger.kernel.org>, Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>, Thomas Gleixner <tglx@linutronix.de>, Jiri Slaby <jslaby@suse.cz>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>
-Subject: Re: [PATCH v2 5/6] watchdog: at91sam9: request the irq with IRQF_NO_SUSPEND
-Date: Mon, 09 Mar 2015 15:30:01 +0100
-Message-ID: <1592385.fqRVVyPSPE@vostro.rjw.lan>
-In-Reply-To: <20150309075546.GY3989@piout.net>
-References: <1425287898-15093-6-git-send-email-boris.brezillon@free-electrons.com> <1615214.0rkGfM1gZL@vostro.rjw.lan> <20150309075546.GY3989@piout.net>
+Date: Wed, 4 Mar 2015 00:09:42 +0100
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: Alessandro Zummo <a.zummo@towertech.it>, linux-kernel@vger.kernel.org,
+	rtc-linux@googlegroups.com, Philippe De Muyter <phdm@macqel.be>
+Subject: Re: [PATCH v2] rtc: add Abracon ABx80x driver
+Message-ID: <20150303230942.GI3892@piout.net>
+References: <1425205635-3587-1-git-send-email-alexandre.belloni@free-electrons.com>
+ <20150302155337.7876cfb631552427187c4c0a@linux-foundation.org>
+ <20150303011116.GW4094@piout.net>
+ <20150303122012.177eee47ba703bd73780b741@linux-foundation.org>
+ <20150303205032.GF3892@piout.net>
+ <20150303143207.94ea51ab84cc2875c412da97@linux-foundation.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20150303143207.94ea51ab84cc2875c412da97@linux-foundation.org>
 List-ID: <rtc-linux.googlegroups.com>
 
-On Monday, March 09, 2015 08:55:46 AM Alexandre Belloni wrote:
-> Hi,
+On 03/03/2015 at 14:32:07 -0800, Andrew Morton wrote :
+> On Tue, 3 Mar 2015 21:50:32 +0100 Alexandre Belloni <alexandre.belloni@free-electrons.com> wrote:
 > 
-> On 08/03/2015 at 02:12:53 +0100, Rafael J. Wysocki wrote :
-> > > > I think you misunderstood, that is exactly the expected behaviour. This
-> > > > is hardware defined. Once the watchdog is started, nobody can stop it.
-> > > > Trying to change the mode register will result in a reset of the
-> > > > SoC.
-> > > 
-> > > Well, it boils down to "what is stronger". Desire to suspend the
-> > > system, or desire to reboot the system.
-> > > 
-> > > It is "echo mem > state", not "echo reboot > state".
-> > > 
-> > > > It is documented in the datasheet and any user wanting another behaviour
-> > > > is out of luck.
-> > > 
-> > > Actaully, your platform should just refuse to enter suspend-to-RAM
-> > > when hw watchdog is enabled.
+> > To move forward, I can either send follow up patches based on what
+> > Philippe did.
 > > 
-> > Quite likely, depending on how exactly the suspend is implemented.
-> >
+> > Or I can merge features from Philippe in my driver in a new patch,
+> > keeping his authorship.
 > 
-> We've had absolutely zero complain on that. It is quite clear in the
-> datasheet that failing to refresh the watchdog once started will lead to
-> a reset and that it is impossible to stop.
-> It is actually quite convenient to also ensure that you can actually
-> wake up from suspend because that can obviously go wrong.
+> I'm easy either way ;) I guess we could put Philippe's name first
+> because I saw his patch first.  Or toss a coin.
+> 
+> Here's the latest version of Philippe's patch.  If you have the time
+> then I suggest you go ahead and create a new v3 patch along the lines
+> you suggest and we'll take it from there?
+> 
 
-I gather then that the suspend implementation is such that touching the
-watchdog periodically while suspended is not a problem.
-
-Again, can you please tell me how suspend is implemented on at91?
-
+I'll cook something up. What about the name?
 
 -- 
-I speak only for myself.
-Rafael J. Wysocki, Intel Open Source Technology Center.
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
