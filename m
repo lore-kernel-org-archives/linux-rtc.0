@@ -1,48 +1,29 @@
-Return-Path: <mark.rutland@arm.com>
-Date: Wed, 4 Mar 2015 18:43:18 +0000
-From: Mark Rutland <mark.rutland@arm.com>
-To: Boris Brezillon <boris.brezillon@free-electrons.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>,
-	Jason Cooper <jason@lakedaemon.net>,
-	Peter Zijlstra <peterz@infradead.org>,
-	"Rafael J. Wysocki" <rjw@rjwysocki.net>,
-	Len Brown <len.brown@intel.com>, Pavel Machek <pavel@ucw.cz>,
-	"linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	"rtc-linux@googlegroups.com" <rtc-linux@googlegroups.com>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	Jiri Slaby <jslaby@suse.cz>,
-	"linux-serial@vger.kernel.org" <linux-serial@vger.kernel.org>,
-	Mike Turquette <mturquette@linaro.org>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-	Nicolas Ferre <nicolas.ferre@atmel.com>,
-	Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
-Subject: Re: [PATCH v2 0/6] ARM: at91: fix irq_pm_install_action WARNING
-Message-ID: <20150304184318.GE22156@leverpostej>
-References: <1425287898-15093-1-git-send-email-boris.brezillon@free-electrons.com>
+Return-Path: <Nicolas.FERRE@atmel.com>
+Message-ID: <54F5D4CC.3090805@atmel.com>
+Date: Tue, 3 Mar 2015 16:35:40 +0100
+From: Nicolas Ferre <nicolas.ferre@atmel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Boris Brezillon <boris.brezillon@free-electrons.com>, Thomas Gleixner
+	<tglx@linutronix.de>, Jason Cooper <jason@lakedaemon.net>, Peter Zijlstra
+	<peterz@infradead.org>, Mark Rutland <mark.rutland@arm.com>, "Rafael J.
+ Wysocki" <rjw@rjwysocki.net>
+CC: Len Brown <len.brown@intel.com>, Pavel Machek <pavel@ucw.cz>,
+	<linux-pm@vger.kernel.org>, Wim Van Sebroeck <wim@iguana.be>,
+	<linux-watchdog@vger.kernel.org>, Alessandro Zummo <a.zummo@towertech.it>,
+	<rtc-linux@googlegroups.com>, Greg Kroah-Hartman
+	<gregkh@linuxfoundation.org>, Jiri Slaby <jslaby@suse.cz>,
+	<linux-serial@vger.kernel.org>, Mike Turquette <mturquette@linaro.org>,
+	<linux-kernel@vger.kernel.org>, Jean-Christophe Plagniol-Villard
+	<plagnioj@jcrosoft.com>, Alexandre Belloni
+	<alexandre.belloni@free-electrons.com>,
+	<linux-arm-kernel@lists.infradead.org>
+Subject: Re: [PATCH v2 0/6] ARM: at91: fix irq_pm_install_action WARNING
+References: <1425287898-15093-1-git-send-email-boris.brezillon@free-electrons.com>
 In-Reply-To: <1425287898-15093-1-git-send-email-boris.brezillon@free-electrons.com>
+Content-Type: text/plain; charset="windows-1252"
 List-ID: <rtc-linux.googlegroups.com>
 
-Hi Boris,
-
-Other than the watchdog patch, which I'm a little confused by, this all
-looks fine to me. So for the other patches:
-
-Acked-by: Mark Rutland <mark.rutland@arm.com>
-
-Sorry I haven't replied to anything for the last few days, and thanks
-for digging into this.
-
-Thanks,
-Mark.
-
-On Mon, Mar 02, 2015 at 09:18:12AM +0000, Boris Brezillon wrote:
+Le 02/03/2015 10:18, Boris Brezillon a écrit :
 > My apologies to those of you who already received this series, but I
 > didn't increment the patch version and forgot some subsystem maintainers
 > and MLs.
@@ -71,11 +52,18 @@ On Mon, Mar 02, 2015 at 09:18:12AM +0000, Boris Brezillon wrote:
 > their IRQ line with a timer.
 > 
 > This series depends on [2].
-> 
-> Best Regards,
-> 
-> Boris
-> 
+
+I'm okay with all the patches:
+Acked-by: Nicolas Ferre <nicolas.ferre@atmel.com>
+
+As it seems easier to keep the whole series together, I'll let Rafael
+take it.
+
+Thanks a lot for having taking care of this.
+
+Best regards,
+
+
 > [1]https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/kernel/irq/pm.c?id=cab303be91dc47942bc25de33dc1140123540800
 > [2]https://lkml.org/lkml/2015/2/26/675
 > 
@@ -100,7 +88,7 @@ On Mon, Mar 02, 2015 at 09:18:12AM +0000, Boris Brezillon wrote:
 >  drivers/watchdog/at91sam9_wdt.c   |  3 +-
 >  7 files changed, 177 insertions(+), 32 deletions(-)
 > 
-> -- 
-> 1.9.1
-> 
-> 
+
+
+-- 
+Nicolas Ferre
