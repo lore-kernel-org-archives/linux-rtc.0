@@ -1,176 +1,68 @@
-Return-Path: <boris.brezillon@free-electrons.com>
-From: Boris Brezillon <boris.brezillon@free-electrons.com>
-To: Thomas Gleixner <tglx@linutronix.de>,
+Return-Path: <mark.rutland@arm.com>
+Date: Wed, 4 Mar 2015 18:38:09 +0000
+From: Mark Rutland <mark.rutland@arm.com>
+To: Boris Brezillon <boris.brezillon@free-electrons.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>,
 	Jason Cooper <jason@lakedaemon.net>,
 	Peter Zijlstra <peterz@infradead.org>,
-	Mark Rutland <mark.rutland@arm.com>,
-	"Rafael J. Wysocki" <rjw@rjwysocki.net>
-Cc: Len Brown <len.brown@intel.com>,
-	Pavel Machek <pavel@ucw.cz>,
-	linux-pm@vger.kernel.org,
+	"Rafael J. Wysocki" <rjw@rjwysocki.net>,
+	Len Brown <len.brown@intel.com>, Pavel Machek <pavel@ucw.cz>,
+	"linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>,
 	Wim Van Sebroeck <wim@iguana.be>,
-	linux-watchdog@vger.kernel.org,
+	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
 	Alessandro Zummo <a.zummo@towertech.it>,
-	rtc-linux@googlegroups.com,
+	"rtc-linux@googlegroups.com" <rtc-linux@googlegroups.com>,
 	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
 	Jiri Slaby <jslaby@suse.cz>,
-	linux-serial@vger.kernel.org,
+	"linux-serial@vger.kernel.org" <linux-serial@vger.kernel.org>,
 	Mike Turquette <mturquette@linaro.org>,
-	linux-kernel@vger.kernel.org,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
 	Nicolas Ferre <nicolas.ferre@atmel.com>,
 	Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>,
 	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	linux-arm-kernel@lists.infradead.org,
-	Boris Brezillon <boris.brezillon@free-electrons.com>
-Subject: [PATCH v2 3/6] rtc: at91rm9200: rework wakeup and interrupt handling
-Date: Mon,  2 Mar 2015 10:18:15 +0100
-Message-Id: <1425287898-15093-4-git-send-email-boris.brezillon@free-electrons.com>
-In-Reply-To: <1425287898-15093-1-git-send-email-boris.brezillon@free-electrons.com>
+	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
+Subject: Re: [PATCH v2 5/6] watchdog: at91sam9: request the irq with
+ IRQF_NO_SUSPEND
+Message-ID: <20150304183809.GD22156@leverpostej>
 References: <1425287898-15093-1-git-send-email-boris.brezillon@free-electrons.com>
+ <1425287898-15093-6-git-send-email-boris.brezillon@free-electrons.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1425287898-15093-6-git-send-email-boris.brezillon@free-electrons.com>
 List-ID: <rtc-linux.googlegroups.com>
 
-The IRQ line used by the RTC device is usually shared with the system
-timer (PIT) on at91 platforms.
-Since timers are registering their handlers with IRQF_NO_SUSPEND, we
-should expect being called in suspended state, and properly wake the
-system up when this is the case.
+Hi Boris,
 
-Set IRQF_COND_SUSPEND flag when registering the IRQ handler to inform
-irq core that it can safely be called while the system is suspended.
+On Mon, Mar 02, 2015 at 09:18:17AM +0000, Boris Brezillon wrote:
+> The watchdog interrupt (only used when activating software watchdog)
+> shouldn't be suspended when entering suspend mode, because it is shared
+> with a timer device (which request the line with IRQF_NO_SUSPEND) and once
+> the watchdog "Mode Register" has been written, it cannot be changed (which
+> means we cannot disable the watchdog interrupt when entering suspend).
+> 
+> Signed-off-by: Boris Brezillon <boris.brezillon@free-electrons.com>
+> ---
+>  drivers/watchdog/at91sam9_wdt.c | 3 ++-
+>  1 file changed, 2 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/watchdog/at91sam9_wdt.c b/drivers/watchdog/at91sam9_wdt.c
+> index 6df9405..1443b3c 100644
+> --- a/drivers/watchdog/at91sam9_wdt.c
+> +++ b/drivers/watchdog/at91sam9_wdt.c
+> @@ -208,7 +208,8 @@ static int at91_wdt_init(struct platform_device *pdev, struct at91wdt *wdt)
+>  
+>  	if ((tmp & AT91_WDT_WDFIEN) && wdt->irq) {
+>  		err = request_irq(wdt->irq, wdt_interrupt,
+> -				  IRQF_SHARED | IRQF_IRQPOLL,
+> +				  IRQF_SHARED | IRQF_IRQPOLL |
+> +				  IRQF_NO_SUSPEND,
 
-Signed-off-by: Boris Brezillon <boris.brezillon@free-electrons.com>
----
- drivers/rtc/rtc-at91rm9200.c | 62 ++++++++++++++++++++++++++++++++++----------
- 1 file changed, 48 insertions(+), 14 deletions(-)
+I'm a little confused by this. What happens if the watchdog fires when
+we're actually in the suspended state (when IRQF_NO_SUSPEND interrupts
+aren't guaranteed to be delivered).
 
-diff --git a/drivers/rtc/rtc-at91rm9200.c b/drivers/rtc/rtc-at91rm9200.c
-index 70a5d94..b4f7744 100644
---- a/drivers/rtc/rtc-at91rm9200.c
-+++ b/drivers/rtc/rtc-at91rm9200.c
-@@ -31,6 +31,7 @@
- #include <linux/io.h>
- #include <linux/of.h>
- #include <linux/of_device.h>
-+#include <linux/suspend.h>
- #include <linux/uaccess.h>
- 
- #include "rtc-at91rm9200.h"
-@@ -54,6 +55,10 @@ static void __iomem *at91_rtc_regs;
- static int irq;
- static DEFINE_SPINLOCK(at91_rtc_lock);
- static u32 at91_rtc_shadow_imr;
-+static bool suspended;
-+static DEFINE_SPINLOCK(suspended_lock);
-+static unsigned long cached_events;
-+static u32 at91_rtc_imr;
- 
- static void at91_rtc_write_ier(u32 mask)
- {
-@@ -290,7 +295,9 @@ static irqreturn_t at91_rtc_interrupt(int irq, void *dev_id)
- 	struct rtc_device *rtc = platform_get_drvdata(pdev);
- 	unsigned int rtsr;
- 	unsigned long events = 0;
-+	int ret = IRQ_NONE;
- 
-+	spin_lock(&suspended_lock);
- 	rtsr = at91_rtc_read(AT91_RTC_SR) & at91_rtc_read_imr();
- 	if (rtsr) {		/* this interrupt is shared!  Is it ours? */
- 		if (rtsr & AT91_RTC_ALARM)
-@@ -304,14 +311,22 @@ static irqreturn_t at91_rtc_interrupt(int irq, void *dev_id)
- 
- 		at91_rtc_write(AT91_RTC_SCCR, rtsr);	/* clear status reg */
- 
--		rtc_update_irq(rtc, 1, events);
-+		if (!suspended) {
-+			rtc_update_irq(rtc, 1, events);
- 
--		dev_dbg(&pdev->dev, "%s(): num=%ld, events=0x%02lx\n", __func__,
--			events >> 8, events & 0x000000FF);
-+			dev_dbg(&pdev->dev, "%s(): num=%ld, events=0x%02lx\n",
-+				__func__, events >> 8, events & 0x000000FF);
-+		} else {
-+			cached_events |= events;
-+			at91_rtc_write_idr(at91_rtc_imr);
-+			pm_system_wakeup();
-+		}
- 
--		return IRQ_HANDLED;
-+		ret = IRQ_HANDLED;
- 	}
--	return IRQ_NONE;		/* not handled */
-+	spin_lock(&suspended_lock);
-+
-+	return ret;
- }
- 
- static const struct at91_rtc_config at91rm9200_config = {
-@@ -401,8 +416,8 @@ static int __init at91_rtc_probe(struct platform_device *pdev)
- 					AT91_RTC_CALEV);
- 
- 	ret = devm_request_irq(&pdev->dev, irq, at91_rtc_interrupt,
--				IRQF_SHARED,
--				"at91_rtc", pdev);
-+			       IRQF_SHARED | IRQF_COND_SUSPEND,
-+			       "at91_rtc", pdev);
- 	if (ret) {
- 		dev_err(&pdev->dev, "IRQ %d already in use.\n", irq);
- 		return ret;
-@@ -454,8 +469,6 @@ static void at91_rtc_shutdown(struct platform_device *pdev)
- 
- /* AT91RM9200 RTC Power management control */
- 
--static u32 at91_rtc_imr;
--
- static int at91_rtc_suspend(struct device *dev)
- {
- 	/* this IRQ is shared with DBGU and other hardware which isn't
-@@ -464,21 +477,42 @@ static int at91_rtc_suspend(struct device *dev)
- 	at91_rtc_imr = at91_rtc_read_imr()
- 			& (AT91_RTC_ALARM|AT91_RTC_SECEV);
- 	if (at91_rtc_imr) {
--		if (device_may_wakeup(dev))
-+		if (device_may_wakeup(dev)) {
-+			unsigned long flags;
-+
- 			enable_irq_wake(irq);
--		else
-+
-+			spin_lock_irqsave(&suspended_lock, flags);
-+			suspended = true;
-+			spin_unlock_irqrestore(&suspended_lock, flags);
-+		} else {
- 			at91_rtc_write_idr(at91_rtc_imr);
-+		}
- 	}
- 	return 0;
- }
- 
- static int at91_rtc_resume(struct device *dev)
- {
-+	struct rtc_device *rtc = dev_get_drvdata(dev);
-+
- 	if (at91_rtc_imr) {
--		if (device_may_wakeup(dev))
-+		if (device_may_wakeup(dev)) {
-+			unsigned long flags;
-+
-+			spin_lock_irqsave(&suspended_lock, flags);
-+
-+			if (cached_events) {
-+				rtc_update_irq(rtc, 1, cached_events);
-+				cached_events = 0;
-+			}
-+
-+			suspended = false;
-+			spin_unlock_irqrestore(&suspended_lock, flags);
-+
- 			disable_irq_wake(irq);
--		else
--			at91_rtc_write_ier(at91_rtc_imr);
-+		}
-+		at91_rtc_write_ier(at91_rtc_imr);
- 	}
- 	return 0;
- }
--- 
-1.9.1
+Does this rely on the watchdog IRQ being taken while in the actual
+suspended state (but not waking up the system while handling it)?
+
+Thanks,
+Mark.
