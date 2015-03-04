@@ -1,74 +1,71 @@
-Date: Tue, 10 Mar 2015 23:33:05 +0100
+Date: Wed, 4 Mar 2015 10:06:01 +0100
 From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: "Rafael J. Wysocki" <rjw@rjwysocki.net>
-Cc: Pavel Machek <pavel@ucw.cz>, Sylvain Rochet <gradator@gradator.net>,
-	Peter Zijlstra <peterz@infradead.org>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Boris Brezillon <boris.brezillon@free-electrons.com>,
+To: Philippe De Muyter <phdm@macqel.be>
+Cc: Andrew Morton <akpm@linux-foundation.org>,
 	Alessandro Zummo <a.zummo@towertech.it>,
-	Mike Turquette <mturquette@linaro.org>,
-	Jason Cooper <jason@lakedaemon.net>,
-	"rtc-linux@googlegroups.com" <rtc-linux@googlegroups.com>,
-	Len Brown <len.brown@intel.com>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	"linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-	Nicolas Ferre <nicolas.ferre@atmel.com>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	"linux-serial@vger.kernel.org" <linux-serial@vger.kernel.org>,
-	Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>,
-	Thomas Gleixner <tglx@linutronix.de>, Jiri Slaby <jslaby@suse.cz>,
-	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>,
-	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>
-Subject: Re: [PATCH v2 5/6] watchdog: at91sam9: request the irq with
- IRQF_NO_SUSPEND
-Message-ID: <20150310223305.GN9188@piout.net>
-References: <1425287898-15093-6-git-send-email-boris.brezillon@free-electrons.com>
- <1592385.fqRVVyPSPE@vostro.rjw.lan>
- <20150310213317.GK9188@piout.net>
- <1901056.Mqyykpv3e9@vostro.rjw.lan>
+	linux-kernel@vger.kernel.org, rtc-linux@googlegroups.com
+Subject: Re: [PATCH v2] rtc: add Abracon ABx80x driver
+Message-ID: <20150304090601.GC3989@piout.net>
+References: <1425205635-3587-1-git-send-email-alexandre.belloni@free-electrons.com>
+ <20150302155337.7876cfb631552427187c4c0a@linux-foundation.org>
+ <20150303011116.GW4094@piout.net>
+ <20150303122012.177eee47ba703bd73780b741@linux-foundation.org>
+ <20150303205032.GF3892@piout.net>
+ <20150304085242.GA24471@frolo.macqel>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1901056.Mqyykpv3e9@vostro.rjw.lan>
+In-Reply-To: <20150304085242.GA24471@frolo.macqel>
 List-ID: <rtc-linux.googlegroups.com>
 
-On 10/03/2015 at 23:31:52 +0100, Rafael J. Wysocki wrote :
-> On Tuesday, March 10, 2015 10:33:17 PM Alexandre Belloni wrote:
-> > Hi,
+On 04/03/2015 at 09:52:42 +0100, Philippe De Muyter wrote :
+> > > And is the naming in Philippe's driver appropriate?  If it supports the
+> > > AB1801 (for example) then why is it described as an "abx805" driver?
 > > 
-> > On 09/03/2015 at 15:30:01 +0100, Rafael J. Wysocki wrote :
-> > > > > > Actaully, your platform should just refuse to enter suspend-to-RAM
-> > > > > > when hw watchdog is enabled.
-> > > > > 
-> > > > > Quite likely, depending on how exactly the suspend is implemented.
-> > > > >
-> > > > 
-> > > > We've had absolutely zero complain on that. It is quite clear in the
-> > > > datasheet that failing to refresh the watchdog once started will lead to
-> > > > a reset and that it is impossible to stop.
-> > > > It is actually quite convenient to also ensure that you can actually
-> > > > wake up from suspend because that can obviously go wrong.
-> > > 
-> > > I gather then that the suspend implementation is such that touching the
-> > > watchdog periodically while suspended is not a problem.
-> > > 
-> > > Again, can you please tell me how suspend is implemented on at91?
-> > > 
+> > The real naming is in the form ABx8yz. With:
 > > 
-> > It actually depends on the architecture (at91rm9200, at91sam9 or sama5)
-> > but basically, the clocks are switched off in almost all the peripheral
-> > drivers then the ram self refresh activated, the master clock is
-> > switched off using code running from SRAM and the core is then waiting
-> > for interrupt.
+> > x: 0 or 1, indicate the presence of the reset management
+> > y: 0 or 1: 0 is i2c, 1 is spi
+> > z: [1-5]: different amount of on chip SRAM. From what I understand, only
+> > ABx8y5 are actually recommended for new designs.
 > 
-> OK, so it looks like enable_irq_wake() doesn't actually affect the hardware
-> on those platforms, is that correct?
+> My driver is based on the datashet called 'AB18X5 Real-Time Clock with
+> Power Management Family', which calls the parts 'AB18X5 family' with X
+> being '0' for I2c parts and '1' for SPI parts.
+> 
+> As the part I have and the driver I wrote are I2C, not SPI, I fixed the
+> 'X' as 0 in the name of the driver.
+> 
+> The datasheet lists only one part as being 'software and pin compatible'
+> with the 'AB1805': the 'AB0805', hence the 'x' in the name I choose : abx805.
 > 
 
-I didn't exactly look in details but apart from the wakeup from gpio
-handling (keeping the pio controller clocked in the case one of its gpio
-has wakeup enabled), I don't think it does much more. It uses
-irq_gc_set_wake().
+The "AB08XX Real-Time Clock Family" document states that they are all
+software and pin compatible (including the AB18xx).
+
+> Actually, my driver is used in production and works fine, because the
+> default(reset) value of the 12/24 mode bit is '24 hour mode' and the
+> default value of the 'write RTC bit' enables writing.  There is
+> no real need to play with them.
+> 
+
+I know this is unlikely to happen but what if someone messes with the
+RTC in the bootloader?
+
+> > 
+> > What I like in Philippe's driver is the info printed at probe time and
+> > the support for trickle charging. However, I wouldn't enable it
+> > unconditionally.
+> 
+> My hardware colleagues told me that the only way to enable the 'ultra low-power'
+> functionality is enabling the trickle charger.  And the 'ultra low-power'
+> functionality is the reason we choose that chip, so I would at least
+> keep that as the default behaviour.
+> 
+
+My concern is that you have a static configuration. I would expose a
+sysfs interface to configure the diode, resistor and enable/disable the
+trickle charger. Would that work for you?
+
 
 -- 
 Alexandre Belloni, Free Electrons
