@@ -1,31 +1,99 @@
-Return-Path: <dan.carpenter@oracle.com>
-Date: Tue, 17 Mar 2015 20:32:35 +0300
-From: Dan Carpenter <dan.carpenter@oracle.com>
-To: Nicolas Ferre <nicolas.ferre@atmel.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        a.zummo@towertech.it, rtc-linux@googlegroups.com,
-        kernel-janitors@vger.kernel.org,
-        Boris BREZILLON <boris.brezillon@free-electrons.com>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
-Subject: Re: [PATCH] rtc: at91rm9200: double locking bug in
- at91_rtc_interrupt()
-Message-ID: <20150317173235.GM10964@mwanda>
-References: <20150315104837.GC20691@mwanda>
- <1426606690-18947-1-git-send-email-nicolas.ferre@atmel.com>
+Return-Path: <mark.rutland@arm.com>
+Date: Thu, 5 Mar 2015 16:32:27 +0000
+From: Mark Rutland <mark.rutland@arm.com>
+To: "Rafael J. Wysocki" <rafael@kernel.org>
+Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>,
+	Boris Brezillon <boris.brezillon@free-electrons.com>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Jason Cooper <jason@lakedaemon.net>,
+	Peter Zijlstra <peterz@infradead.org>,
+	Len Brown <len.brown@intel.com>, Pavel Machek <pavel@ucw.cz>,
+	"linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	"rtc-linux@googlegroups.com" <rtc-linux@googlegroups.com>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	Jiri Slaby <jslaby@suse.cz>,
+	"linux-serial@vger.kernel.org" <linux-serial@vger.kernel.org>,
+	Mike Turquette <mturquette@linaro.org>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+	Nicolas Ferre <nicolas.ferre@atmel.com>,
+	Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
+Subject: Re: [PATCH v2 5/6] watchdog: at91sam9: request the irq with
+ IRQF_NO_SUSPEND
+Message-ID: <20150305163227.GF14093@leverpostej>
+References: <1425287898-15093-1-git-send-email-boris.brezillon@free-electrons.com>
+ <1425287898-15093-6-git-send-email-boris.brezillon@free-electrons.com>
+ <20150304183809.GD22156@leverpostej>
+ <14143668.0aRkeVrc3Q@vostro.rjw.lan>
+ <20150305105729.GB13617@leverpostej>
+ <CAJZ5v0h8vn26BeWPVhC4e_KNhBu15-mshnbq0K=OQ1M36vPQEQ@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1426606690-18947-1-git-send-email-nicolas.ferre@atmel.com>
+In-Reply-To: <CAJZ5v0h8vn26BeWPVhC4e_KNhBu15-mshnbq0K=OQ1M36vPQEQ@mail.gmail.com>
 List-ID: <rtc-linux.googlegroups.com>
 
-On Tue, Mar 17, 2015 at 04:38:10PM +0100, Nicolas Ferre wrote:
-> Reported-also-by: David Dueck <davidcdueck@googlemail.com>
+Hi Rafael,
 
-The point of tags is that you collect them by doing:
-`git log | grep Reported-by: | sort | uniq -c | sort -rn` to see if you
-are the winner.  It gives me an unfair advantage if you get creative
-with David's tag.
+> enable_irq_wake() has no effect on IRQF_NO_SUSPEND interrupts, so if the
+> driver uses IRQF_NO_SUSPEND, it does not need to use enable_irq_wake()
+> in addition to that.
 
-regards,
-dan carpenter
+That's not generally true -- certainly not for irq_chips without the
+IRQCHIP_SKIP_SET_WAKE flag.
+
+Consider systems where the suspended state results in power to the CPU
+being cut, and we rely on an external piece of logic attached to the
+irq_chip to detect wakeup IRQs and restore power.
+
+In those cases irq_chip::irq_set_wake() must be called to ensure that
+the wakeup logic is configured. If the wakeup logic is not configured to
+look out for an IRQ, then when the IRQ is asserted by a device the
+wakeup logic may not trigger. Thus the CPU power never gets restored, so
+the CPU cannot handle the interrupt.
+
+This is handled in enable_irq_wake() -- either the chip has the
+IRQCHIP_SKIP_SET_WAKE flag set or chip->irq_set_wake() must succeed. If
+neither is true enable_irq_wake() will return an error code to indicate
+we can't use the IRQ for wakeup.
+
+The request_irq path never results in a call to chip->irq_set_wake(),
+even with the IRQF_NO_SUSPEND flag. So requesting an irq with
+IRQF_NO_SUSPEND does not guarantee wakeup; it only guarantees that the
+CPU can take the interrupt _around_ the suspended state, not necessarily
+while _in_ the suspended state.
+
+> Drivers using IRQF_COND_SUSPEND generally should use enable_irq_wake() too
+> in case they end up in a situation without sharing a NO_SUSPEND interrupt, in
+> which case their interrupt handlers won't be called after suspend_device_irqs(),
+> so they need to rely on the core to do the wakeup.
+> 
+> > I agree that if problematic, it's an existing bug. Given Boris's
+> > comments in the other thread this may just a minor semantic issue w.r.t.
+> > IRQF_NO_SUSPEND vs IRQF_COND_SUSPEND.
+> 
+> It depends on whether or not the watchdog's interrupt handler has to be
+> called immediately after receiving an interrupt (IRQF_NO_SUSPEND is
+> better then) or it can be deferred till the resume_device_irqs() time.
+
+We seem to be conflating some related properties:
+
+[a] The IRQ will be left unmasked.
+[b] The IRQ will be handled immediately when taken.
+[c] The IRQ will wake the system from suspend.
+
+Requesting an IRQ with IRQF_NO_SUSPEND guarantees [a,b], but does not
+guarantee [c].
+
+A successful enable_irq_wake() on an IRQ guarantees [a,c], but usually
+does not give [b] unless the IRQ was requested with IRQF_COND_SUSPEND
+and happens to be shared with an IRQF_NO_SUSPEND user.
+
+It sounds like for this kind of watchdog device we want [a,b,c], even if
+the IRQ is not shared with an IRQF_NO_SUSPEND user.
+
+Thanks,
+Mark.
