@@ -1,58 +1,63 @@
-Return-Path: <rjw@rjwysocki.net>
-From: "Rafael J. Wysocki" <rjw@rjwysocki.net>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Pavel Machek <pavel@ucw.cz>, Sylvain Rochet <gradator@gradator.net>, Peter Zijlstra <peterz@infradead.org>, Mark Rutland <mark.rutland@arm.com>, Boris Brezillon <boris.brezillon@free-electrons.com>, Alessandro Zummo <a.zummo@towertech.it>, Mike Turquette <mturquette@linaro.org>, Jason Cooper <jason@lakedaemon.net>, "rtc-linux@googlegroups.com" <rtc-linux@googlegroups.com>, Len Brown <len.brown@intel.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Nicolas Ferre <nicolas.ferre@atmel.com>, Wim Van Sebroeck <wim@iguana.be>, "linux-serial@vger.kernel.org" <linux-serial@vger.kernel.org>, Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>, Thomas Gleixner <tglx@linutronix.de>, Jiri Slaby <jslaby@suse.cz>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>
-Subject: Re: [PATCH v2 5/6] watchdog: at91sam9: request the irq with IRQF_NO_SUSPEND
-Date: Wed, 11 Mar 2015 02:03:08 +0100
-Message-ID: <2194398.CCV6AEYQ7u@vostro.rjw.lan>
-In-Reply-To: <20150310223305.GN9188@piout.net>
-References: <1425287898-15093-6-git-send-email-boris.brezillon@free-electrons.com> <1901056.Mqyykpv3e9@vostro.rjw.lan> <20150310223305.GN9188@piout.net>
+Return-Path: <mark.rutland@arm.com>
+Date: Thu, 5 Mar 2015 10:57:29 +0000
+From: Mark Rutland <mark.rutland@arm.com>
+To: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Cc: Boris Brezillon <boris.brezillon@free-electrons.com>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Jason Cooper <jason@lakedaemon.net>,
+	Peter Zijlstra <peterz@infradead.org>,
+	Len Brown <len.brown@intel.com>, Pavel Machek <pavel@ucw.cz>,
+	"linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	"rtc-linux@googlegroups.com" <rtc-linux@googlegroups.com>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	Jiri Slaby <jslaby@suse.cz>,
+	"linux-serial@vger.kernel.org" <linux-serial@vger.kernel.org>,
+	Mike Turquette <mturquette@linaro.org>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+	Nicolas Ferre <nicolas.ferre@atmel.com>,
+	Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
+Subject: Re: [PATCH v2 5/6] watchdog: at91sam9: request the irq with
+ IRQF_NO_SUSPEND
+Message-ID: <20150305105729.GB13617@leverpostej>
+References: <1425287898-15093-1-git-send-email-boris.brezillon@free-electrons.com>
+ <1425287898-15093-6-git-send-email-boris.brezillon@free-electrons.com>
+ <20150304183809.GD22156@leverpostej>
+ <14143668.0aRkeVrc3Q@vostro.rjw.lan>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <14143668.0aRkeVrc3Q@vostro.rjw.lan>
 List-ID: <rtc-linux.googlegroups.com>
 
-On Tuesday, March 10, 2015 11:33:05 PM Alexandre Belloni wrote:
-> On 10/03/2015 at 23:31:52 +0100, Rafael J. Wysocki wrote :
-> > On Tuesday, March 10, 2015 10:33:17 PM Alexandre Belloni wrote:
-> > > Hi,
-> > > 
-> > > On 09/03/2015 at 15:30:01 +0100, Rafael J. Wysocki wrote :
-> > > > > > > Actaully, your platform should just refuse to enter suspend-to-RAM
-> > > > > > > when hw watchdog is enabled.
-> > > > > > 
-> > > > > > Quite likely, depending on how exactly the suspend is implemented.
-> > > > > >
-> > > > > 
-> > > > > We've had absolutely zero complain on that. It is quite clear in the
-> > > > > datasheet that failing to refresh the watchdog once started will lead to
-> > > > > a reset and that it is impossible to stop.
-> > > > > It is actually quite convenient to also ensure that you can actually
-> > > > > wake up from suspend because that can obviously go wrong.
-> > > > 
-> > > > I gather then that the suspend implementation is such that touching the
-> > > > watchdog periodically while suspended is not a problem.
-> > > > 
-> > > > Again, can you please tell me how suspend is implemented on at91?
-> > > > 
-> > > 
-> > > It actually depends on the architecture (at91rm9200, at91sam9 or sama5)
-> > > but basically, the clocks are switched off in almost all the peripheral
-> > > drivers then the ram self refresh activated, the master clock is
-> > > switched off using code running from SRAM and the core is then waiting
-> > > for interrupt.
+[...]
+
+> > >  		err = request_irq(wdt->irq, wdt_interrupt,
+> > > -				  IRQF_SHARED | IRQF_IRQPOLL,
+> > > +				  IRQF_SHARED | IRQF_IRQPOLL |
+> > > +				  IRQF_NO_SUSPEND,
 > > 
-> > OK, so it looks like enable_irq_wake() doesn't actually affect the hardware
-> > on those platforms, is that correct?
-> > 
+> > I'm a little confused by this. What happens if the watchdog fires when
+> > we're actually in the suspended state (when IRQF_NO_SUSPEND interrupts
+> > aren't guaranteed to be delivered).
 > 
-> I didn't exactly look in details but apart from the wakeup from gpio
-> handling (keeping the pio controller clocked in the case one of its gpio
-> has wakeup enabled), I don't think it does much more. It uses
-> irq_gc_set_wake().
+> Why wouldn't they be delivered?
+> 
+> If that's suspend-to-idle, we'll handle them normally.  If that's full suspend,
+> they may not be handled at the last stage (when we run on one CPU with interrupts
+> off), but that was the case before the wakeup interrupts rework already and I'd
+> expect it to be taken into account somehow in the existing code (or if it isn't
+> taken into account, we have a bug, but it is not related to this series).
 
-Well, that only modifies gc->wake_active, so no hardware interactions.
+There's no enable_irq_wake(wdt->irq), and I was under the impression this
+is for full suspend.
 
+I agree that if problematic, it's an existing bug. Given Boris's
+comments in the other thread this may just a minor semantic issue w.r.t.
+IRQF_NO_SUSPEND vs IRQF_COND_SUSPEND.
 
--- 
-I speak only for myself.
-Rafael J. Wysocki, Intel Open Source Technology Center.
+Thanks,
+Mark.
