@@ -1,58 +1,71 @@
-Return-Path: <akpm@linux-foundation.org>
-Date: Tue, 3 Mar 2015 12:20:12 -0800
-From: Andrew Morton <akpm@linux-foundation.org>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>, linux-kernel@vger.kernel.org,
- rtc-linux@googlegroups.com, Philippe De Muyter <phdm@macqel.be>
-Subject: Re: [PATCH v2] rtc: add Abracon ABx80x driver
-Message-Id: <20150303122012.177eee47ba703bd73780b741@linux-foundation.org>
-In-Reply-To: <20150303011116.GW4094@piout.net>
-References: <1425205635-3587-1-git-send-email-alexandre.belloni@free-electrons.com>
-	<20150302155337.7876cfb631552427187c4c0a@linux-foundation.org>
-	<20150303011116.GW4094@piout.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Return-Path: <mark.rutland@arm.com>
+Date: Fri, 6 Mar 2015 13:10:26 +0000
+From: Mark Rutland <mark.rutland@arm.com>
+To: "Rafael J. Wysocki" <rafael@kernel.org>
+Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>,
+	Boris Brezillon <boris.brezillon@free-electrons.com>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Jason Cooper <jason@lakedaemon.net>,
+	Peter Zijlstra <peterz@infradead.org>,
+	Len Brown <len.brown@intel.com>, Pavel Machek <pavel@ucw.cz>,
+	"linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	"rtc-linux@googlegroups.com" <rtc-linux@googlegroups.com>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	Jiri Slaby <jslaby@suse.cz>,
+	"linux-serial@vger.kernel.org" <linux-serial@vger.kernel.org>,
+	Mike Turquette <mturquette@linaro.org>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+	Nicolas Ferre <nicolas.ferre@atmel.com>,
+	Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
+Subject: Re: [PATCH v2 5/6] watchdog: at91sam9: request the irq with
+ IRQF_NO_SUSPEND
+Message-ID: <20150306131025.GH8700@leverpostej>
+References: <1425287898-15093-1-git-send-email-boris.brezillon@free-electrons.com>
+ <CAJZ5v0h8vn26BeWPVhC4e_KNhBu15-mshnbq0K=OQ1M36vPQEQ@mail.gmail.com>
+ <20150305163227.GF14093@leverpostej>
+ <1696230.CygTkv53VA@vostro.rjw.lan>
+ <20150306110618.GC8700@leverpostej>
+ <CAJZ5v0jA-hRUnP_+mOdFw7vN7CGZ4o0FjUVu81rq7foi92f63g@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <CAJZ5v0jA-hRUnP_+mOdFw7vN7CGZ4o0FjUVu81rq7foi92f63g@mail.gmail.com>
 List-ID: <rtc-linux.googlegroups.com>
 
-On Tue, 3 Mar 2015 02:11:16 +0100 Alexandre Belloni <alexandre.belloni@free-electrons.com> wrote:
+> >> > We seem to be conflating some related properties:
+> >> >
+> >> > [a] The IRQ will be left unmasked.
+> >> > [b] The IRQ will be handled immediately when taken.
+> >> > [c] The IRQ will wake the system from suspend.
 
-> On 02/03/2015 at 15:53:37 -0800, Andrew Morton wrote :
-> > On Sun,  1 Mar 2015 11:27:15 +0100 Alexandre Belloni <alexandre.belloni@free-electrons.com> wrote:
-> > 
-> > > Add support for the i2c RTC from Abracon.
-> > 
-> > What is the relationship between this patch and
-> > http://ozlabs.org/~akpm/mmots/broken-out/rtc-add-rtc-abx805-a-driver-for-the-abracon-ab-1805-i2c-rtc.patch?
-> > 
+[...]
+
+> > Considering that the use-case of a watchdog is to alert us to something
+> > going hideously wrong in the kernel, we want to handle the IRQ after
+> > executing the smallest amount of kernel code possible. For that, they
+> > need to have their handlers to be called "immediately" outside of the
+> > arch_suspend_disable_irqs() ... arch_suspend_enable_irqs() window, and
+> > need to be enabled during suspend to attempt to catch bad wakeup device
+> > configuration.
+> >
+> > I think it's possible (assuming the caveats on [b] above) to provide
+> > [a,b,c] for this case.
 > 
-> I'd say drop mine, I couldn't find the other one before writing it...
+> OK
 > 
-> I'll try to build on Philippe's driver.
+> But in this case the request_irq() passing IRQF_NO_SUSPEND *and* requiring
+> enable_irq_wake() in addition to that needs a big fat comment explaining the
+> whole thing or we'll forget about the gory details at one point and no one will
+> know what's going on in there.
 
-Which driver supports the most devices?  Your driver has
+Agreed.
 
-+static const struct i2c_device_id abx80x_id[] = {
-+	{ "abx80x", ABX80X },
-+	{ "ab0801", AB0801 },
-+	{ "ab0802", AB0802 },
-+	{ "ab0803", AB0803 },
-+	{ "ab0804", AB0804 },
-+	{ "ab0805", AB0805 },
-+	{ "ab1801", AB1801 },
-+	{ "ab1802", AB1802 },
-+	{ "ab1803", AB1803 },
-+	{ "ab1804", AB1804 },
-+	{ "ab1805", AB1805 },
-+	{ }
-+};
+I'd expect an IRQF_SW_WATCHDOG or something to that effect should also
+be required for that case.
 
-And Philippe's has
-
-+static struct i2c_device_id abx805_id[] = {
-+	{ "abx805-rtc", 0 },
-+	{ }
-+};
-
-
-And is the naming in Philippe's driver appropriate?  If it supports the
-AB1801 (for example) then why is it described as an "abx805" driver?
+Thanks,
+Mark.
