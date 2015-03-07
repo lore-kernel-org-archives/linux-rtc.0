@@ -1,73 +1,112 @@
-Date: Wed, 4 Mar 2015 10:06:01 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Philippe De Muyter <phdm@macqel.be>
-Cc: Andrew Morton <akpm@linux-foundation.org>,
+Return-Path: <gradator@atreides.gradator.net>
+Date: Sat, 7 Mar 2015 12:46:08 +0100
+From: Sylvain Rochet <gradator@gradator.net>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Peter Zijlstra <peterz@infradead.org>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Boris Brezillon <boris.brezillon@free-electrons.com>,
 	Alessandro Zummo <a.zummo@towertech.it>,
-	linux-kernel@vger.kernel.org, rtc-linux@googlegroups.com
-Subject: Re: [PATCH v2] rtc: add Abracon ABx80x driver
-Message-ID: <20150304090601.GC3989@piout.net>
-References: <1425205635-3587-1-git-send-email-alexandre.belloni@free-electrons.com>
- <20150302155337.7876cfb631552427187c4c0a@linux-foundation.org>
- <20150303011116.GW4094@piout.net>
- <20150303122012.177eee47ba703bd73780b741@linux-foundation.org>
- <20150303205032.GF3892@piout.net>
- <20150304085242.GA24471@frolo.macqel>
+	Mike Turquette <mturquette@linaro.org>,
+	Jason Cooper <jason@lakedaemon.net>,
+	"rtc-linux@googlegroups.com" <rtc-linux@googlegroups.com>,
+	Len Brown <len.brown@intel.com>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	"linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>,
+	"Rafael J. Wysocki" <rjw@rjwysocki.net>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+	Nicolas Ferre <nicolas.ferre@atmel.com>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	"linux-serial@vger.kernel.org" <linux-serial@vger.kernel.org>,
+	Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>,
+	Thomas Gleixner <tglx@linutronix.de>, Jiri Slaby <jslaby@suse.cz>,
+	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>,
+	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>
+Message-ID: <20150307114608.GA30011@gradator.net>
+References: <20150304183809.GD22156@leverpostej>
+ <20150305095306.3db98ac8@bbrezillon>
+ <20150305105308.GA13617@leverpostej>
+ <20150305121723.1da0d016@bbrezillon>
+ <20150305115307.GA14093@leverpostej>
+ <20150307091846.GN23367@worktop.ger.corp.intel.com>
+ <20150307102056.GA28436@gradator.net>
+ <20150307103939.GA17964@amd>
+ <20150307110645.GW3989@piout.net>
+ <20150307112932.GA1372@amd>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20150304085242.GA24471@frolo.macqel>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="J2SCkAp4GZ/dPZZf"
+In-Reply-To: <20150307112932.GA1372@amd>
+Subject: Re: [PATCH v2 5/6] watchdog: at91sam9: request the irq with
+ IRQF_NO_SUSPEND
 List-ID: <rtc-linux.googlegroups.com>
 
-On 04/03/2015 at 09:52:42 +0100, Philippe De Muyter wrote :
-> > > And is the naming in Philippe's driver appropriate?  If it supports the
-> > > AB1801 (for example) then why is it described as an "abx805" driver?
-> > 
-> > The real naming is in the form ABx8yz. With:
-> > 
-> > x: 0 or 1, indicate the presence of the reset management
-> > y: 0 or 1: 0 is i2c, 1 is spi
-> > z: [1-5]: different amount of on chip SRAM. From what I understand, only
-> > ABx8y5 are actually recommended for new designs.
-> 
-> My driver is based on the datashet called 'AB18X5 Real-Time Clock with
-> Power Management Family', which calls the parts 'AB18X5 family' with X
-> being '0' for I2c parts and '1' for SPI parts.
-> 
-> As the part I have and the driver I wrote are I2C, not SPI, I fixed the
-> 'X' as 0 in the name of the driver.
-> 
-> The datasheet lists only one part as being 'software and pin compatible'
-> with the 'AB1805': the 'AB0805', hence the 'x' in the name I choose : abx805.
-> 
 
-The "AB08XX Real-Time Clock Family" document states that they are all
-software and pin compatible (including the AB18xx).
+--J2SCkAp4GZ/dPZZf
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> Actually, my driver is used in production and works fine, because the
-> default(reset) value of the 12/24 mode bit is '24 hour mode' and the
-> default value of the 'write RTC bit' enables writing.  There is
-> no real need to play with them.
-> 
+Hello,
 
-I know this is unlikely to happen but what if someone messes with the
-RTC in the bootloader?
+On Sat, Mar 07, 2015 at 12:29:33PM +0100, Pavel Machek wrote:
+> On Sat 2015-03-07 12:06:45, Alexandre Belloni wrote:
+> > On 07/03/2015 at 11:39:39 +0100, Pavel Machek wrote :
+> > > > The Atmel watchdog can't be stopped once it's started. This is actu=
+ally=20
+> > > > very useful so we can reset if suspend or resume failed, the only=
+=20
+> > > > drawback is that you have to wake up from time to time (e.g. by usi=
+ng=20
+> > > > the RTC/RTT) to clear the watchdog and then go back to sleep ASAP.
+> > >=20
+> > > Yeah. So you do "echo mem > /sys/power/state", and few seconds/minutes
+> > > after watchdog kills the system. But you did not ask for dead system,
+> > > you asked for suspend.
+> > >=20
+> > > And while that behaviour is useful for you, I don't think it is
+> > > exactly useful behaviour, nor it is the behaviour user would expect.
+> > >=20
+> >=20
+> > I think you misunderstood, that is exactly the expected behaviour. This
+> > is hardware defined. Once the watchdog is started, nobody can stop it.
+> > Trying to change the mode register will result in a reset of the
+> > SoC.
+>=20
+> Well, it boils down to "what is stronger". Desire to suspend the
+> system, or desire to reboot the system.
+>=20
+> It is "echo mem > state", not "echo reboot > state".
 
-> > 
-> > What I like in Philippe's driver is the info printed at probe time and
-> > the support for trickle charging. However, I wouldn't enable it
-> > unconditionally.
-> 
-> My hardware colleagues told me that the only way to enable the 'ultra low-power'
-> functionality is enabling the trickle charger.  And the 'ultra low-power'
-> functionality is the reason we choose that chip, so I would at least
-> keep that as the default behaviour.
-> 
-
-My concern is that you have a static configuration. I would expose a
-sysfs interface to configure the diode, resistor and enable/disable the
-trickle charger. Would that work for you?
+Maybe we should warn the watchdog is enabled and the system is going to=20
+reboot if nothing woke-up the system before the watchdog expire, but the=20
+maximum watchdog is 16s so it can't get unnoticed during development, I=20
+am confident embedded engineers are smart enough to understand what is=20
+happening without a displayed warning :-)
 
 
--- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+> > It is documented in the datasheet and any user wanting another behaviour
+> > is out of luck.
+>=20
+> Actaully, your platform should just refuse to enter suspend-to-RAM
+> when hw watchdog is enabled.
+
+Yeah that's what I said, hardware watchdog or suspend: chose one or use=20
+the software watchdog instead or "hack" around the way I am doing ;-)
+
+
+Sylvain
+
+--J2SCkAp4GZ/dPZZf
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+
+iEYEARECAAYFAlT65QAACgkQDFub3qtEsS8O0ACfR46nrt7tdgk+tEtgoUM2nDkr
+B8AAn1YNZvOiEnAxkPdxMaUqAu2Lh1+u
+=IEKt
+-----END PGP SIGNATURE-----
+
+--J2SCkAp4GZ/dPZZf--
