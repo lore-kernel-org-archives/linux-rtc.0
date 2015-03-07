@@ -1,96 +1,69 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBXWT46UAKGQETKL4UJQ@googlegroups.com>
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id sf8si686028wic.2.2015.03.30.17.27.10
-        for <rtc-linux@googlegroups.com>;
-        Mon, 30 Mar 2015 17:27:10 -0700 (PDT)
-Date: Tue, 31 Mar 2015 02:27:09 +0200
+Date: Sat, 7 Mar 2015 12:06:45 +0100
 From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-Cc: Kukjin Kim <kgene@kernel.org>, Alessandro Zummo <a.zummo@towertech.it>,
-	Chanwoo Choi <cw00.choi@samsung.com>, devicetree@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-	linux-samsung-soc@vger.kernel.org, rtc-linux@googlegroups.com,
-	Kyungmin Park <kyungmin.park@samsung.com>
-Subject: [rtc-linux] Re: [PATCH 1/2] drivers/rtc/rtc-s3c.c: Integrate
- Exynos3250 into S3C6410
-Message-ID: <20150331002709.GF3849@piout.net>
-References: <1427728773-29065-1-git-send-email-k.kozlowski@samsung.com>
- <1427728773-29065-2-git-send-email-k.kozlowski@samsung.com>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Sylvain Rochet <gradator@gradator.net>,
+	Peter Zijlstra <peterz@infradead.org>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Boris Brezillon <boris.brezillon@free-electrons.com>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Mike Turquette <mturquette@linaro.org>,
+	Jason Cooper <jason@lakedaemon.net>,
+	"rtc-linux@googlegroups.com" <rtc-linux@googlegroups.com>,
+	Len Brown <len.brown@intel.com>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	"linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>,
+	"Rafael J. Wysocki" <rjw@rjwysocki.net>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+	Nicolas Ferre <nicolas.ferre@atmel.com>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	"linux-serial@vger.kernel.org" <linux-serial@vger.kernel.org>,
+	Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>,
+	Thomas Gleixner <tglx@linutronix.de>, Jiri Slaby <jslaby@suse.cz>,
+	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>,
+	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>
+Subject: Re: [PATCH v2 5/6] watchdog: at91sam9: request the irq with
+ IRQF_NO_SUSPEND
+Message-ID: <20150307110645.GW3989@piout.net>
+References: <1425287898-15093-1-git-send-email-boris.brezillon@free-electrons.com>
+ <1425287898-15093-6-git-send-email-boris.brezillon@free-electrons.com>
+ <20150304183809.GD22156@leverpostej>
+ <20150305095306.3db98ac8@bbrezillon>
+ <20150305105308.GA13617@leverpostej>
+ <20150305121723.1da0d016@bbrezillon>
+ <20150305115307.GA14093@leverpostej>
+ <20150307091846.GN23367@worktop.ger.corp.intel.com>
+ <20150307102056.GA28436@gradator.net>
+ <20150307103939.GA17964@amd>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1427728773-29065-2-git-send-email-k.kozlowski@samsung.com>
-Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20150307103939.GA17964@amd>
 List-ID: <rtc-linux.googlegroups.com>
-List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
-List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
-List-Archive: <http://groups.google.com/group/rtc-linux
-Sender: rtc-linux@googlegroups.com
-List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
-List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
- <http://groups.google.com/group/rtc-linux/subscribe>
 
-nitpick: I would prefer rtc: rtc-s3c instead of drivers/rtc/rtc-s3c.c
-
-On 30/03/2015 at 17:19:32 +0200, Krzysztof Kozlowski wrote :
-> There are now no differences between RTC on Exynos3250 and S3C6410.
-> Merge everything into one so duplicated code could be removed.
+On 07/03/2015 at 11:39:39 +0100, Pavel Machek wrote :
+> > The Atmel watchdog can't be stopped once it's started. This is actually 
+> > very useful so we can reset if suspend or resume failed, the only 
+> > drawback is that you have to wake up from time to time (e.g. by using 
+> > the RTC/RTT) to clear the watchdog and then go back to sleep ASAP.
 > 
-> Signed-off-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-
-Acked-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-
-> ---
->  drivers/rtc/rtc-s3c.c | 14 +-------------
->  1 file changed, 1 insertion(+), 13 deletions(-)
+> Yeah. So you do "echo mem > /sys/power/state", and few seconds/minutes
+> after watchdog kills the system. But you did not ask for dead system,
+> you asked for suspend.
 > 
-> diff --git a/drivers/rtc/rtc-s3c.c b/drivers/rtc/rtc-s3c.c
-> index fb0c569765c6..5e162eaad277 100644
-> --- a/drivers/rtc/rtc-s3c.c
-> +++ b/drivers/rtc/rtc-s3c.c
-> @@ -774,18 +774,6 @@ static struct s3c_rtc_data const s3c6410_rtc_data = {
->  	.disable		= s3c6410_rtc_disable,
->  };
->  
-> -static struct s3c_rtc_data const exynos3250_rtc_data = {
-> -	.max_user_freq		= 32768,
-> -	.needs_src_clk		= true,
-> -	.irq_handler		= s3c6410_rtc_irq,
-> -	.set_freq		= s3c6410_rtc_setfreq,
-> -	.enable_tick		= s3c6410_rtc_enable_tick,
-> -	.save_tick_cnt		= s3c6410_rtc_save_tick_cnt,
-> -	.restore_tick_cnt	= s3c6410_rtc_restore_tick_cnt,
-> -	.enable			= s3c24xx_rtc_enable,
-> -	.disable		= s3c6410_rtc_disable,
-> -};
-> -
->  static const struct of_device_id s3c_rtc_dt_match[] = {
->  	{
->  		.compatible = "samsung,s3c2410-rtc",
-> @@ -801,7 +789,7 @@ static const struct of_device_id s3c_rtc_dt_match[] = {
->  		.data = (void *)&s3c6410_rtc_data,
->  	}, {
->  		.compatible = "samsung,exynos3250-rtc",
-> -		.data = (void *)&exynos3250_rtc_data,
-> +		.data = (void *)&s3c6410_rtc_data,
->  	},
->  	{ /* sentinel */ },
->  };
-> -- 
-> 1.9.1
+> And while that behaviour is useful for you, I don't think it is
+> exactly useful behaviour, nor it is the behaviour user would expect.
 > 
+
+I think you misunderstood, that is exactly the expected behaviour. This
+is hardware defined. Once the watchdog is started, nobody can stop it.
+Trying to change the mode register will result in a reset of the SoC.
+
+It is documented in the datasheet and any user wanting another behaviour
+is out of luck.
+
+So basically, when using a watchdog, you have to wake up every 15-16s to
+restart it.
 
 -- 
 Alexandre Belloni, Free Electrons
 Embedded Linux, Kernel and Android engineering
 http://free-electrons.com
-
--- 
--- 
-You received this message because you are subscribed to "rtc-linux".
-Membership options at http://groups.google.com/group/rtc-linux .
-Please read http://groups.google.com/group/rtc-linux/web/checklist
-before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
-For more options, visit https://groups.google.com/d/optout.
