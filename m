@@ -1,93 +1,51 @@
-Return-Path: <phdm@macqel.be>
-Date: Wed, 4 Mar 2015 12:43:55 +0100
-From: Philippe De Muyter <phdm@macqel.be>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	linux-kernel@vger.kernel.org, rtc-linux@googlegroups.com
-Subject: Re: [PATCH v2] rtc: add Abracon ABx80x driver
-Message-ID: <20150304114355.GA16032@frolo.macqel>
-References: <1425205635-3587-1-git-send-email-alexandre.belloni@free-electrons.com> <20150302155337.7876cfb631552427187c4c0a@linux-foundation.org> <20150303011116.GW4094@piout.net> <20150303122012.177eee47ba703bd73780b741@linux-foundation.org> <20150303205032.GF3892@piout.net> <20150304085242.GA24471@frolo.macqel> <20150304090601.GC3989@piout.net> <20150304095556.GA790@frolo.macqel> <20150304103814.GE3989@piout.net>
+Return-Path: <rjw@rjwysocki.net>
+From: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>, Sylvain Rochet <gradator@gradator.net>, Peter Zijlstra <peterz@infradead.org>, Mark Rutland <mark.rutland@arm.com>, Boris Brezillon <boris.brezillon@free-electrons.com>, Alessandro Zummo <a.zummo@towertech.it>, Mike Turquette <mturquette@linaro.org>, Jason Cooper <jason@lakedaemon.net>, "rtc-linux@googlegroups.com" <rtc-linux@googlegroups.com>, Len Brown <len.brown@intel.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Nicolas Ferre <nicolas.ferre@atmel.com>, Wim Van Sebroeck <wim@iguana.be>, "linux-serial@vger.kernel.org" <linux-serial@vger.kernel.org>, Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>, Thomas Gleixner <tglx@linutronix.de>, Jiri Slaby <jslaby@suse.cz>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>
+Subject: Re: [PATCH v2 5/6] watchdog: at91sam9: request the irq with IRQF_NO_SUSPEND
+Date: Sun, 08 Mar 2015 02:12:53 +0100
+Message-ID: <1615214.0rkGfM1gZL@vostro.rjw.lan>
+In-Reply-To: <20150307112932.GA1372@amd>
+References: <1425287898-15093-6-git-send-email-boris.brezillon@free-electrons.com> <20150307110645.GW3989@piout.net> <20150307112932.GA1372@amd>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20150304103814.GE3989@piout.net>
+Content-Type: text/plain; charset="utf-8"
 List-ID: <rtc-linux.googlegroups.com>
 
-Hi Alexandre,
-
-On Wed, Mar 04, 2015 at 11:38:14AM +0100, Alexandre Belloni wrote:
-> On 04/03/2015 at 10:55:56 +0100, Philippe De Muyter wrote :
-> > > The "AB08XX Real-Time Clock Family" document states that they are all
-> > > software and pin compatible (including the AB18xx).
-> > 
-> > Which part(s) do you really have ?  Mine is a 1805.  Do all the parts have
-> > the trickle charger ?  As I don't know, I prefer not to pretend that the
-> > driver supports those chips.
-> > 
-> 
-> I have the AB0805. The trickle charger is not available on ABx8x1 and
-> ABx8x3.
-> 
-> > > > My hardware colleagues told me that the only way to enable the 'ultra low-power'
-> > > > functionality is enabling the trickle charger.  And the 'ultra low-power'
-> > > > functionality is the reason we choose that chip, so I would at least
-> > > > keep that as the default behaviour.
-> > > > 
+On Saturday, March 07, 2015 12:29:33 PM Pavel Machek wrote:
+> On Sat 2015-03-07 12:06:45, Alexandre Belloni wrote:
+> > On 07/03/2015 at 11:39:39 +0100, Pavel Machek wrote :
+> > > > The Atmel watchdog can't be stopped once it's started. This is actually 
+> > > > very useful so we can reset if suspend or resume failed, the only 
+> > > > drawback is that you have to wake up from time to time (e.g. by using 
+> > > > the RTC/RTT) to clear the watchdog and then go back to sleep ASAP.
 > > > 
-> > > My concern is that you have a static configuration. I would expose a
-> > > sysfs interface to configure the diode, resistor and enable/disable the
-> > > trickle charger. Would that work for you?
+> > > Yeah. So you do "echo mem > /sys/power/state", and few seconds/minutes
+> > > after watchdog kills the system. But you did not ask for dead system,
+> > > you asked for suspend.
+> > > 
+> > > And while that behaviour is useful for you, I don't think it is
+> > > exactly useful behaviour, nor it is the behaviour user would expect.
+> > > 
 > > 
-> > I think a 'of_xxx' dts/dtb description is the way to go, but I did not want to
-> > introduce unnecessaty complexity without knowing other usages.  My hardware
-> > colleagues followed the recommended design from Abracon.
-> > 
+> > I think you misunderstood, that is exactly the expected behaviour. This
+> > is hardware defined. Once the watchdog is started, nobody can stop it.
+> > Trying to change the mode register will result in a reset of the
+> > SoC.
 > 
-> Yeah, I'm not sure about the DT description, some may argue this is
-> configuration. But I guess it actually depends on the battery you are
-> using so that could count as hardware description.
-
-As far as I know, it's purely hardware related.
-
+> Well, it boils down to "what is stronger". Desire to suspend the
+> system, or desire to reboot the system.
 > 
-> I'll use:
->  abracon,tc-diode = "(standard|schottky)"
->  abracon,tc-resistor = <(0|3|6|11)>
+> It is "echo mem > state", not "echo reboot > state".
 > 
-> If both are defined and valid, I'll enable the trickle charger with the
-> provided configuration in probe().
+> > It is documented in the datasheet and any user wanting another behaviour
+> > is out of luck.
+> 
+> Actaully, your platform should just refuse to enter suspend-to-RAM
+> when hw watchdog is enabled.
 
-My current entry is :
+Quite likely, depending on how exactly the suspend is implemented.
 
-&i2c2 {
-	...
-        ab1805@69 {
-                compatible = "abracon,abx805-rtc";
-                reg = <0x69>;
-                position = <3>;
-        };
-};
-
-It would then become :
-
-&i2c2 {
-	...
-        ab1805@69 {
-                compatible = "abracon,abx805-rtc";
-                reg = <0x69>;
-                position = <3>;
-		abracon,tc-diode = "schottky";
-		abracon,tc-resistor = <3>;
-        };
-};
-
-or if you change the driver's name to "abx80x-rtc"
-
-                compatible = "abracon,abx80x-rtc";
-
-That's fine for me.  Thanks !
-
-Philippe
 
 -- 
-Philippe De Muyter +32 2 6101532 Macq SA rue de l'Aeronef 2 B-1140 Bruxelles
+I speak only for myself.
+Rafael J. Wysocki, Intel Open Source Technology Center.
