@@ -1,65 +1,76 @@
-Return-Path: <alexandre.belloni@free-electrons.com>
+Date: Tue, 10 Mar 2015 23:33:05 +0100
 From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Andrew Morton <akpm@linux-foundation.org>,
-	Philippe De Muyter <phdm@macqel.be>
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
-	rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	devicetree-discuss@lists.ozlabs.org
-Subject: [PATCH 1/2] Documentation: bindings: add abracon,abx80x
-Date: Sat, 14 Mar 2015 11:05:45 +0100
-Message-Id: <1426327546-8085-2-git-send-email-alexandre.belloni@free-electrons.com>
-In-Reply-To: <1426327546-8085-1-git-send-email-alexandre.belloni@free-electrons.com>
-References: <1426327546-8085-1-git-send-email-alexandre.belloni@free-electrons.com>
+To: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Cc: Pavel Machek <pavel@ucw.cz>, Sylvain Rochet <gradator@gradator.net>,
+	Peter Zijlstra <peterz@infradead.org>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Boris Brezillon <boris.brezillon@free-electrons.com>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Mike Turquette <mturquette@linaro.org>,
+	Jason Cooper <jason@lakedaemon.net>,
+	"rtc-linux@googlegroups.com" <rtc-linux@googlegroups.com>,
+	Len Brown <len.brown@intel.com>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	"linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+	Nicolas Ferre <nicolas.ferre@atmel.com>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	"linux-serial@vger.kernel.org" <linux-serial@vger.kernel.org>,
+	Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>,
+	Thomas Gleixner <tglx@linutronix.de>, Jiri Slaby <jslaby@suse.cz>,
+	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>,
+	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>
+Subject: Re: [PATCH v2 5/6] watchdog: at91sam9: request the irq with
+ IRQF_NO_SUSPEND
+Message-ID: <20150310223305.GN9188@piout.net>
+References: <1425287898-15093-6-git-send-email-boris.brezillon@free-electrons.com>
+ <1592385.fqRVVyPSPE@vostro.rjw.lan>
+ <20150310213317.GK9188@piout.net>
+ <1901056.Mqyykpv3e9@vostro.rjw.lan>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1901056.Mqyykpv3e9@vostro.rjw.lan>
 List-ID: <rtc-linux.googlegroups.com>
 
-Document the bindings for abracon,abx80x and related compatibles.
+On 10/03/2015 at 23:31:52 +0100, Rafael J. Wysocki wrote :
+> On Tuesday, March 10, 2015 10:33:17 PM Alexandre Belloni wrote:
+> > Hi,
+> > 
+> > On 09/03/2015 at 15:30:01 +0100, Rafael J. Wysocki wrote :
+> > > > > > Actaully, your platform should just refuse to enter suspend-to-RAM
+> > > > > > when hw watchdog is enabled.
+> > > > > 
+> > > > > Quite likely, depending on how exactly the suspend is implemented.
+> > > > >
+> > > > 
+> > > > We've had absolutely zero complain on that. It is quite clear in the
+> > > > datasheet that failing to refresh the watchdog once started will lead to
+> > > > a reset and that it is impossible to stop.
+> > > > It is actually quite convenient to also ensure that you can actually
+> > > > wake up from suspend because that can obviously go wrong.
+> > > 
+> > > I gather then that the suspend implementation is such that touching the
+> > > watchdog periodically while suspended is not a problem.
+> > > 
+> > > Again, can you please tell me how suspend is implemented on at91?
+> > > 
+> > 
+> > It actually depends on the architecture (at91rm9200, at91sam9 or sama5)
+> > but basically, the clocks are switched off in almost all the peripheral
+> > drivers then the ram self refresh activated, the master clock is
+> > switched off using code running from SRAM and the core is then waiting
+> > for interrupt.
+> 
+> OK, so it looks like enable_irq_wake() doesn't actually affect the hardware
+> on those platforms, is that correct?
+> 
 
-Cc: devicetree-discuss@lists.ozlabs.org
-Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
----
- .../devicetree/bindings/rtc/abracon,abx80x.txt     | 32 ++++++++++++++++++++++
- 1 file changed, 32 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/rtc/abracon,abx80x.txt
+I didn't exactly look in details but apart from the wakeup from gpio
+handling (keeping the pio controller clocked in the case one of its gpio
+has wakeup enabled), I don't think it does much more. It uses
+irq_gc_set_wake().
 
-diff --git a/Documentation/devicetree/bindings/rtc/abracon,abx80x.txt b/Documentation/devicetree/bindings/rtc/abracon,abx80x.txt
-new file mode 100644
-index 000000000000..6f0d3b2cdd89
---- /dev/null
-+++ b/Documentation/devicetree/bindings/rtc/abracon,abx80x.txt
-@@ -0,0 +1,32 @@
-+Abracon ABX80X I2C ultra low power RTC/Alarm chip
-+
-+The Abracon ABX80X family consist of the ab0801, ab0803, ab0804, ab0805, ab1801,
-+ab1803, ab1804 and ab1805. The ab0805 is the superset of ab080x and the ab1805
-+is the superset of ab180x.
-+
-+Required properties:
-+
-+ - "compatible": should one of:
-+        "abracon,abx80x"
-+        "abracon,ab0801"
-+        "abracon,ab0803"
-+        "abracon,ab0804"
-+        "abracon,ab0805"
-+        "abracon,ab1801"
-+        "abracon,ab1803"
-+        "abracon,ab1804"
-+        "abracon,ab1805"
-+	Using "abracon,abx80x" will enable chip autodetection.
-+ - "reg": I2C bus address of the device
-+
-+Optional properties:
-+
-+The abx804 and abx805 have a trickle charger that is able to charge the
-+connected battery or supercap. Both the following properties have to be defined
-+and valid to enable charging:
-+
-+ - "abracon,tc-diode": should be "standard" (0.6V) or "schottky" (0.3V)
-+ - "abracon,tc-resistor": should be <0>, <3>, <6> or <11>. 0 disables the output
-+                          resistor, the other values are in ohm.
-+
-+
 -- 
-2.1.0
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
