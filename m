@@ -1,68 +1,66 @@
-Return-Path: <mark.rutland@arm.com>
-Date: Wed, 4 Mar 2015 18:38:09 +0000
-From: Mark Rutland <mark.rutland@arm.com>
-To: Boris Brezillon <boris.brezillon@free-electrons.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>,
-	Jason Cooper <jason@lakedaemon.net>,
+Date: Tue, 10 Mar 2015 22:33:17 +0100
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Cc: Pavel Machek <pavel@ucw.cz>, Sylvain Rochet <gradator@gradator.net>,
 	Peter Zijlstra <peterz@infradead.org>,
-	"Rafael J. Wysocki" <rjw@rjwysocki.net>,
-	Len Brown <len.brown@intel.com>, Pavel Machek <pavel@ucw.cz>,
-	"linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Boris Brezillon <boris.brezillon@free-electrons.com>,
 	Alessandro Zummo <a.zummo@towertech.it>,
-	"rtc-linux@googlegroups.com" <rtc-linux@googlegroups.com>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	Jiri Slaby <jslaby@suse.cz>,
-	"linux-serial@vger.kernel.org" <linux-serial@vger.kernel.org>,
 	Mike Turquette <mturquette@linaro.org>,
+	Jason Cooper <jason@lakedaemon.net>,
+	"rtc-linux@googlegroups.com" <rtc-linux@googlegroups.com>,
+	Len Brown <len.brown@intel.com>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	"linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>,
 	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
 	Nicolas Ferre <nicolas.ferre@atmel.com>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	"linux-serial@vger.kernel.org" <linux-serial@vger.kernel.org>,
 	Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
+	Thomas Gleixner <tglx@linutronix.de>, Jiri Slaby <jslaby@suse.cz>,
+	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>,
+	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>
 Subject: Re: [PATCH v2 5/6] watchdog: at91sam9: request the irq with
  IRQF_NO_SUSPEND
-Message-ID: <20150304183809.GD22156@leverpostej>
-References: <1425287898-15093-1-git-send-email-boris.brezillon@free-electrons.com>
- <1425287898-15093-6-git-send-email-boris.brezillon@free-electrons.com>
+Message-ID: <20150310213317.GK9188@piout.net>
+References: <1425287898-15093-6-git-send-email-boris.brezillon@free-electrons.com>
+ <1615214.0rkGfM1gZL@vostro.rjw.lan>
+ <20150309075546.GY3989@piout.net>
+ <1592385.fqRVVyPSPE@vostro.rjw.lan>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1425287898-15093-6-git-send-email-boris.brezillon@free-electrons.com>
+In-Reply-To: <1592385.fqRVVyPSPE@vostro.rjw.lan>
 List-ID: <rtc-linux.googlegroups.com>
 
-Hi Boris,
+Hi,
 
-On Mon, Mar 02, 2015 at 09:18:17AM +0000, Boris Brezillon wrote:
-> The watchdog interrupt (only used when activating software watchdog)
-> shouldn't be suspended when entering suspend mode, because it is shared
-> with a timer device (which request the line with IRQF_NO_SUSPEND) and once
-> the watchdog "Mode Register" has been written, it cannot be changed (which
-> means we cannot disable the watchdog interrupt when entering suspend).
+On 09/03/2015 at 15:30:01 +0100, Rafael J. Wysocki wrote :
+> > > > Actaully, your platform should just refuse to enter suspend-to-RAM
+> > > > when hw watchdog is enabled.
+> > > 
+> > > Quite likely, depending on how exactly the suspend is implemented.
+> > >
+> > 
+> > We've had absolutely zero complain on that. It is quite clear in the
+> > datasheet that failing to refresh the watchdog once started will lead to
+> > a reset and that it is impossible to stop.
+> > It is actually quite convenient to also ensure that you can actually
+> > wake up from suspend because that can obviously go wrong.
 > 
-> Signed-off-by: Boris Brezillon <boris.brezillon@free-electrons.com>
-> ---
->  drivers/watchdog/at91sam9_wdt.c | 3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
+> I gather then that the suspend implementation is such that touching the
+> watchdog periodically while suspended is not a problem.
 > 
-> diff --git a/drivers/watchdog/at91sam9_wdt.c b/drivers/watchdog/at91sam9_wdt.c
-> index 6df9405..1443b3c 100644
-> --- a/drivers/watchdog/at91sam9_wdt.c
-> +++ b/drivers/watchdog/at91sam9_wdt.c
-> @@ -208,7 +208,8 @@ static int at91_wdt_init(struct platform_device *pdev, struct at91wdt *wdt)
->  
->  	if ((tmp & AT91_WDT_WDFIEN) && wdt->irq) {
->  		err = request_irq(wdt->irq, wdt_interrupt,
-> -				  IRQF_SHARED | IRQF_IRQPOLL,
-> +				  IRQF_SHARED | IRQF_IRQPOLL |
-> +				  IRQF_NO_SUSPEND,
+> Again, can you please tell me how suspend is implemented on at91?
+> 
 
-I'm a little confused by this. What happens if the watchdog fires when
-we're actually in the suspended state (when IRQF_NO_SUSPEND interrupts
-aren't guaranteed to be delivered).
+It actually depends on the architecture (at91rm9200, at91sam9 or sama5)
+but basically, the clocks are switched off in almost all the peripheral
+drivers then the ram self refresh activated, the master clock is
+switched off using code running from SRAM and the core is then waiting
+for interrupt.
 
-Does this rely on the watchdog IRQ being taken while in the actual
-suspended state (but not waking up the system while handling it)?
 
-Thanks,
-Mark.
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
