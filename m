@@ -1,81 +1,87 @@
-Return-Path: <pavel@ucw.cz>
-Date: Sat, 7 Mar 2015 11:39:39 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Sylvain Rochet <gradator@gradator.net>
-Cc: Peter Zijlstra <peterz@infradead.org>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Boris Brezillon <boris.brezillon@free-electrons.com>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Mike Turquette <mturquette@linaro.org>,
-	Jason Cooper <jason@lakedaemon.net>,
-	"rtc-linux@googlegroups.com" <rtc-linux@googlegroups.com>,
-	Len Brown <len.brown@intel.com>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	"linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>,
-	"Rafael J. Wysocki" <rjw@rjwysocki.net>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-	Nicolas Ferre <nicolas.ferre@atmel.com>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	"linux-serial@vger.kernel.org" <linux-serial@vger.kernel.org>,
-	Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>,
-	Thomas Gleixner <tglx@linutronix.de>, Jiri Slaby <jslaby@suse.cz>,
-	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>,
-	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>
-Subject: Re: [PATCH v2 5/6] watchdog: at91sam9: request the irq with
- IRQF_NO_SUSPEND
-Message-ID: <20150307103939.GA17964@amd>
-References: <1425287898-15093-1-git-send-email-boris.brezillon@free-electrons.com>
- <1425287898-15093-6-git-send-email-boris.brezillon@free-electrons.com>
- <20150304183809.GD22156@leverpostej>
- <20150305095306.3db98ac8@bbrezillon>
- <20150305105308.GA13617@leverpostej>
- <20150305121723.1da0d016@bbrezillon>
- <20150305115307.GA14093@leverpostej>
- <20150307091846.GN23367@worktop.ger.corp.intel.com>
- <20150307102056.GA28436@gradator.net>
+Return-Path: <Nicolas.FERRE@atmel.com>
+Message-ID: <5500242D.3080605@atmel.com>
+Date: Wed, 11 Mar 2015 12:17:01 +0100
+From: Nicolas Ferre <nicolas.ferre@atmel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20150307102056.GA28436@gradator.net>
+To: Boris Brezillon <boris.brezillon@free-electrons.com>, "Rafael J. Wysocki"
+	<rjw@rjwysocki.net>
+CC: Alexandre Belloni <alexandre.belloni@free-electrons.com>, Pavel Machek
+	<pavel@ucw.cz>, Sylvain Rochet <gradator@gradator.net>, Peter Zijlstra
+	<peterz@infradead.org>, Mark Rutland <mark.rutland@arm.com>, Alessandro Zummo
+	<a.zummo@towertech.it>, Mike Turquette <mturquette@linaro.org>, Jason Cooper
+	<jason@lakedaemon.net>, "rtc-linux@googlegroups.com"
+	<rtc-linux@googlegroups.com>, Len Brown <len.brown@intel.com>, "Greg
+ Kroah-Hartman" <gregkh@linuxfoundation.org>, "linux-pm@vger.kernel.org"
+	<linux-pm@vger.kernel.org>, "linux-kernel@vger.kernel.org"
+	<linux-kernel@vger.kernel.org>, Wim Van Sebroeck <wim@iguana.be>,
+	"linux-serial@vger.kernel.org" <linux-serial@vger.kernel.org>,
+	Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>, Thomas Gleixner
+	<tglx@linutronix.de>, Jiri Slaby <jslaby@suse.cz>,
+	"linux-arm-kernel@lists.infradead.org"
+	<linux-arm-kernel@lists.infradead.org>, "linux-watchdog@vger.kernel.org"
+	<linux-watchdog@vger.kernel.org>
+Subject: Re: [PATCH v2 5/6] watchdog: at91sam9: request the irq with IRQF_NO_SUSPEND
+References: <1425287898-15093-1-git-send-email-boris.brezillon@free-electrons.com>	<20150307103939.GA17964@amd>	<20150307110645.GW3989@piout.net>	<2616799.fRG1k0Q6sR@vostro.rjw.lan> <20150311093848.2b23a027@bbrezillon>
+In-Reply-To: <20150311093848.2b23a027@bbrezillon>
+Content-Type: text/plain; charset="windows-1252"
 List-ID: <rtc-linux.googlegroups.com>
 
-On Sat 2015-03-07 11:20:56, Sylvain Rochet wrote:
-> Hello,
+Le 11/03/2015 09:38, Boris Brezillon a écrit :
+> On Sun, 08 Mar 2015 02:11:45 +0100
+> "Rafael J. Wysocki" <rjw@rjwysocki.net> wrote:
 > 
-> On Sat, Mar 07, 2015 at 10:18:46AM +0100, Peter Zijlstra wrote:
-> > On Thu, Mar 05, 2015 at 11:53:08AM +0000, Mark Rutland wrote:
-> > > If everyone else is happy with this using IRQF_NO_SUSPEND for now then
-> > > don't let my comments above block this patch.
-> > 
-> > Yeah, I'm really not happy with NO_SUSPEND + enable_irq_wake().
-> > 
-> > I really want that combo to BUG/WARN -- esp. since there's so much cargo
-> > culted crap out there.
-> > 
-> > We should make robust interfaces, not randomly toggle flags until it
-> > mostly works by accident rather than by design -- which is what this
-> > feels like.
-> > 
-> > And while I appreciate the watchdog use-case; I think the easiest
-> > solution for now is to simply disable the wathdog over suspend until
-> > we've come up with something that makes sense.
-> > 
-> > As it is, you need to 'suspend' the watchdog at some point anyhow; you
-> > don't want that thing to wake you from whatever suspend state you're in.
+>> On Saturday, March 07, 2015 12:06:45 PM Alexandre Belloni wrote:
+>>> On 07/03/2015 at 11:39:39 +0100, Pavel Machek wrote :
+>>>>> The Atmel watchdog can't be stopped once it's started. This is actually 
+>>>>> very useful so we can reset if suspend or resume failed, the only 
+>>>>> drawback is that you have to wake up from time to time (e.g. by using 
+>>>>> the RTC/RTT) to clear the watchdog and then go back to sleep ASAP.
+>>>>
+>>>> Yeah. So you do "echo mem > /sys/power/state", and few seconds/minutes
+>>>> after watchdog kills the system. But you did not ask for dead system,
+>>>> you asked for suspend.
+>>>>
+>>>> And while that behaviour is useful for you, I don't think it is
+>>>> exactly useful behaviour, nor it is the behaviour user would expect.
+>>>>
+>>>
+>>> I think you misunderstood, that is exactly the expected behaviour. This
+>>> is hardware defined. Once the watchdog is started, nobody can stop it.
+>>> Trying to change the mode register will result in a reset of the SoC.
+>>>
+>>> It is documented in the datasheet and any user wanting another behaviour
+>>> is out of luck.
+>>>
+>>> So basically, when using a watchdog, you have to wake up every 15-16s to
+>>> restart it.
+>>
+>> So question is if we need a separate interrupt handler for that, expecially
+>> since it is shared with the PIT timer anyway.
+>>
+>> Seems to me that the simplest way out of this conundrum would be to simply
+>> make the timer's interrupt handler kick the watchdog every once a while and
+>> get rid of the separate watchdog interrupt handler entirely.
 > 
-> The Atmel watchdog can't be stopped once it's started. This is actually 
-> very useful so we can reset if suspend or resume failed, the only 
-> drawback is that you have to wake up from time to time (e.g. by using 
-> the RTC/RTT) to clear the watchdog and then go back to sleep ASAP.
+> The watchdog interrupt handler is not here to ping the watchdog, it's
+> here to reset the platform if the watchdog hasn't been refreshed
+> appropriately.
+> 
+> IOW, it's a software watchdog using at91 WDT capabilities to determine
+> when it should reboot the system.
+> IIRC, we need this on some at91 platforms to fix a HW bug (maybe
+> Nicolas can confirm this).
 
-Yeah. So you do "echo mem > /sys/power/state", and few seconds/minutes
-after watchdog kills the system. But you did not ask for dead system,
-you asked for suspend.
+Yes, the HW bug that we address in these functions:
+at91sam9260_restart() and at91sam9g45_restart().
 
-And while that behaviour is useful for you, I don't think it is
-exactly useful behaviour, nor it is the behaviour user would expect.
+We have this issue because of NAND flash lines shared with DDR that are
+driven during product reboot on old products (Cf. these functions
+comments). This bug would kick-in when doing "software reset"/"watchdog
+reset"/"push button reset". Only the "software reset" is handled by the
+functions above.
 
-									Pavel
+So, yes, this "software watchdog" is there for this purpose IIRC.
+
+Bye,
 -- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+Nicolas Ferre
