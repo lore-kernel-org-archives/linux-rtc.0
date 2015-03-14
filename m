@@ -1,94 +1,37 @@
-Return-Path: <Nicolas.FERRE@atmel.com>
-Message-ID: <54F5D4CC.3090805@atmel.com>
-Date: Tue, 3 Mar 2015 16:35:40 +0100
-From: Nicolas Ferre <nicolas.ferre@atmel.com>
-MIME-Version: 1.0
-To: Boris Brezillon <boris.brezillon@free-electrons.com>, Thomas Gleixner
-	<tglx@linutronix.de>, Jason Cooper <jason@lakedaemon.net>, Peter Zijlstra
-	<peterz@infradead.org>, Mark Rutland <mark.rutland@arm.com>, "Rafael J.
- Wysocki" <rjw@rjwysocki.net>
-CC: Len Brown <len.brown@intel.com>, Pavel Machek <pavel@ucw.cz>,
-	<linux-pm@vger.kernel.org>, Wim Van Sebroeck <wim@iguana.be>,
-	<linux-watchdog@vger.kernel.org>, Alessandro Zummo <a.zummo@towertech.it>,
-	<rtc-linux@googlegroups.com>, Greg Kroah-Hartman
-	<gregkh@linuxfoundation.org>, Jiri Slaby <jslaby@suse.cz>,
-	<linux-serial@vger.kernel.org>, Mike Turquette <mturquette@linaro.org>,
-	<linux-kernel@vger.kernel.org>, Jean-Christophe Plagniol-Villard
-	<plagnioj@jcrosoft.com>, Alexandre Belloni
-	<alexandre.belloni@free-electrons.com>,
-	<linux-arm-kernel@lists.infradead.org>
-Subject: Re: [PATCH v2 0/6] ARM: at91: fix irq_pm_install_action WARNING
-References: <1425287898-15093-1-git-send-email-boris.brezillon@free-electrons.com>
-In-Reply-To: <1425287898-15093-1-git-send-email-boris.brezillon@free-electrons.com>
-Content-Type: text/plain; charset="windows-1252"
+Return-Path: <alexandre.belloni@free-electrons.com>
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Andrew Morton <akpm@linux-foundation.org>,
+	Philippe De Muyter <phdm@macqel.be>
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+	rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Subject: [PATCH 0/2] rtc: add Abracon ABx80x
+Date: Sat, 14 Mar 2015 11:05:44 +0100
+Message-Id: <1426327546-8085-1-git-send-email-alexandre.belloni@free-electrons.com>
 List-ID: <rtc-linux.googlegroups.com>
 
-Le 02/03/2015 10:18, Boris Brezillon a écrit :
-> My apologies to those of you who already received this series, but I
-> didn't increment the patch version and forgot some subsystem maintainers
-> and MLs.
-> 
-> Commit cab303be91dc47942bc25de33dc1140123540800 [1] introduced a WARN_ON
-> test which triggers a WARNING backtrace on at91 platforms.
-> While this WARN_ON is absolutely necessary to warn users that they should
-> not mix request with and without IRQF_NO_SUSPEND flags on shared IRQs,
-> there is no easy way to solve this issue on at91 platforms.
-> 
-> The main reason is that the init timer is often using a shared irq line
-> and thus request this irq with IRQF_NO_SUSPEND flag set, while other
-> peripherals request the same irq line without this flag.
-> 
-> This problem has recently been addressed by this patch [2] which adds
-> a new IRQF_COND_SUSPEND flag, that authorize mixing IRQF_NO_SUSPEND and
-> !IRQF_NO_SUSPEND as long as irq handlers setting IRQF_COND_SUSPEND
-> can safely be called in suspended state.
-> 
-> Doing this also implies taking care of system wakeup in devices handlers
-> if they tag the IRQ line as a wakeup source.
-> The first patch of this series exports the pm_system_wakeup symbol so
-> that drivers can call pm_system_wakeup from their interrupt handler.
-> 
-> This series then patches all at91 drivers that can have devices sharing
-> their IRQ line with a timer.
-> 
-> This series depends on [2].
+Hi,
 
-I'm okay with all the patches:
-Acked-by: Nicolas Ferre <nicolas.ferre@atmel.com>
+As discussed, I reworked the abracon abx80x driver, merging Philippe's and mine.
 
-As it seems easier to keep the whole series together, I'll let Rafael
-take it.
+I have added the Device Tree properties to enable the trickle charger and the
+driver will detect the partnumber before doing that so that it won't try to
+enable the charger when it is not available.
 
-Thanks a lot for having taking care of this.
+Alexandre Belloni (1):
+  Documentation: bindings: add abracon,abx80x
 
-Best regards,
+Philippe De Muyter (1):
+  rtc: add rtc-abx80x, a driver for the Abracon AB x80x i2c rtc
 
-
-> [1]https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/kernel/irq/pm.c?id=cab303be91dc47942bc25de33dc1140123540800
-> [2]https://lkml.org/lkml/2015/2/26/675
-> 
-> Changes since v1:
->  - replaced the IRQF_SUSPEND_NOACTION flag by IRQF_COND_SUSPEND
->  - properly addressed wakeup handling in drivers
-> 
-> Boris Brezillon (6):
->   PM / wakeup: export pm_system_wakeup symbol
->   rtc: at91sam9: rework wakeup and interrupt handling
->   rtc: at91rm9200: rework wakeup and interrupt handling
->   clk: at91: implement suspend/resume for the PMC irqchip
->   watchdog: at91sam9: request the irq with IRQF_NO_SUSPEND
->   tty: serial: atmel: rework interrupt and wakeup handling
-> 
->  drivers/base/power/wakeup.c       |  1 +
->  drivers/clk/at91/pmc.c            | 20 ++++++++++-
->  drivers/clk/at91/pmc.h            |  1 +
->  drivers/rtc/rtc-at91rm9200.c      | 62 +++++++++++++++++++++++++--------
->  drivers/rtc/rtc-at91sam9.c        | 73 ++++++++++++++++++++++++++++++++-------
->  drivers/tty/serial/atmel_serial.c | 49 +++++++++++++++++++++++---
->  drivers/watchdog/at91sam9_wdt.c   |  3 +-
->  7 files changed, 177 insertions(+), 32 deletions(-)
-> 
-
+ .../devicetree/bindings/rtc/abracon,abx80x.txt     |  32 ++
+ drivers/rtc/Kconfig                                |  10 +
+ drivers/rtc/Makefile                               |   1 +
+ drivers/rtc/rtc-abx80x.c                           | 330 +++++++++++++++++++++
+ 4 files changed, 373 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/rtc/abracon,abx80x.txt
+ create mode 100644 drivers/rtc/rtc-abx80x.c
 
 -- 
-Nicolas Ferre
+2.1.0
