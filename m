@@ -1,123 +1,65 @@
-Return-Path: <gradator@atreides.gradator.net>
-Date: Sat, 7 Mar 2015 11:59:53 +0100
-From: Sylvain Rochet <gradator@gradator.net>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Peter Zijlstra <peterz@infradead.org>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Boris Brezillon <boris.brezillon@free-electrons.com>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Mike Turquette <mturquette@linaro.org>,
-	Jason Cooper <jason@lakedaemon.net>,
-	"rtc-linux@googlegroups.com" <rtc-linux@googlegroups.com>,
-	Len Brown <len.brown@intel.com>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	"linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>,
-	"Rafael J. Wysocki" <rjw@rjwysocki.net>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-	Nicolas Ferre <nicolas.ferre@atmel.com>,
-	Wim Van Sebroeck <wim@iguana.be>,
+Return-Path: <alexandre.belloni@free-electrons.com>
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Andrew Morton <akpm@linux-foundation.org>,
+	Philippe De Muyter <phdm@macqel.be>
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+	rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org,
 	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	"linux-serial@vger.kernel.org" <linux-serial@vger.kernel.org>,
-	Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>,
-	Thomas Gleixner <tglx@linutronix.de>, Jiri Slaby <jslaby@suse.cz>,
-	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>,
-	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>
-Message-ID: <20150307105953.GC28436@gradator.net>
-References: <1425287898-15093-1-git-send-email-boris.brezillon@free-electrons.com>
- <1425287898-15093-6-git-send-email-boris.brezillon@free-electrons.com>
- <20150304183809.GD22156@leverpostej>
- <20150305095306.3db98ac8@bbrezillon>
- <20150305105308.GA13617@leverpostej>
- <20150305121723.1da0d016@bbrezillon>
- <20150305115307.GA14093@leverpostej>
- <20150307091846.GN23367@worktop.ger.corp.intel.com>
- <20150307102056.GA28436@gradator.net>
- <20150307103939.GA17964@amd>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="da4uJneut+ArUgXk"
-In-Reply-To: <20150307103939.GA17964@amd>
-Subject: Re: [PATCH v2 5/6] watchdog: at91sam9: request the irq with
- IRQF_NO_SUSPEND
+	devicetree-discuss@lists.ozlabs.org
+Subject: [PATCH 1/2] Documentation: bindings: add abracon,abx80x
+Date: Sat, 14 Mar 2015 11:05:45 +0100
+Message-Id: <1426327546-8085-2-git-send-email-alexandre.belloni@free-electrons.com>
+In-Reply-To: <1426327546-8085-1-git-send-email-alexandre.belloni@free-electrons.com>
+References: <1426327546-8085-1-git-send-email-alexandre.belloni@free-electrons.com>
 List-ID: <rtc-linux.googlegroups.com>
 
+Document the bindings for abracon,abx80x and related compatibles.
 
---da4uJneut+ArUgXk
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Cc: devicetree-discuss@lists.ozlabs.org
+Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+---
+ .../devicetree/bindings/rtc/abracon,abx80x.txt     | 32 ++++++++++++++++++++++
+ 1 file changed, 32 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/rtc/abracon,abx80x.txt
 
-Hello,
-
-
-On Sat, Mar 07, 2015 at 11:39:39AM +0100, Pavel Machek wrote:
-> On Sat 2015-03-07 11:20:56, Sylvain Rochet wrote:
-> > Hello,
-> >=20
-> > On Sat, Mar 07, 2015 at 10:18:46AM +0100, Peter Zijlstra wrote:
-> > > On Thu, Mar 05, 2015 at 11:53:08AM +0000, Mark Rutland wrote:
-> > > > If everyone else is happy with this using IRQF_NO_SUSPEND for now t=
-hen
-> > > > don't let my comments above block this patch.
-> > >=20
-> > > Yeah, I'm really not happy with NO_SUSPEND + enable_irq_wake().
-> > >=20
-> > > I really want that combo to BUG/WARN -- esp. since there's so much ca=
-rgo
-> > > culted crap out there.
-> > >=20
-> > > We should make robust interfaces, not randomly toggle flags until it
-> > > mostly works by accident rather than by design -- which is what this
-> > > feels like.
-> > >=20
-> > > And while I appreciate the watchdog use-case; I think the easiest
-> > > solution for now is to simply disable the wathdog over suspend until
-> > > we've come up with something that makes sense.
-> > >=20
-> > > As it is, you need to 'suspend' the watchdog at some point anyhow; you
-> > > don't want that thing to wake you from whatever suspend state you're =
-in.
-> >=20
-> > The Atmel watchdog can't be stopped once it's started. This is actually=
-=20
-> > very useful so we can reset if suspend or resume failed, the only=20
-> > drawback is that you have to wake up from time to time (e.g. by using=
-=20
-> > the RTC/RTT) to clear the watchdog and then go back to sleep ASAP.
->=20
-> Yeah. So you do "echo mem > /sys/power/state", and few seconds/minutes
-> after watchdog kills the system. But you did not ask for dead system,
-> you asked for suspend.
-
-Yeah, that's why I'm setting the RTC/RTT in the pm_enter() callback on=20
-our products. On wake-up I'm checking if we woke up using the RTC/RTT in=20
-the pm_suspend_again() callback, if true we clear the watchdog and we go=20
-back to sleep. This can't easily be mainlined because it adds=20
-RTC/RTT/WDT calls from PM code, which will not be accepted anyway.
-
-
-> And while that behaviour is useful for you, I don't think it is
-> exactly useful behaviour, nor it is the behaviour user would expect.
-
-I agree, but it still can't be stopped, IMHO users wanting to suspend=20
-without being protected by the watchdog during suspend and resume should=20
-just don't use the hardware watchdog at all, they are already missing=20
-the watchdog in a tricky area where the kernel can fail more than=20
-anywhere else, the software watchdog should be fine as well for them.
-
-
-Sylvain
-
---da4uJneut+ArUgXk
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-
-iEYEARECAAYFAlT62ikACgkQDFub3qtEsS/wPQCeOF4qjzwkFNmeJHOyXcEP6TOc
-4ywAn3dhXsiUQQrDnEqjIUCMMrAIAf3b
-=LBGl
------END PGP SIGNATURE-----
-
---da4uJneut+ArUgXk--
+diff --git a/Documentation/devicetree/bindings/rtc/abracon,abx80x.txt b/Documentation/devicetree/bindings/rtc/abracon,abx80x.txt
+new file mode 100644
+index 000000000000..6f0d3b2cdd89
+--- /dev/null
++++ b/Documentation/devicetree/bindings/rtc/abracon,abx80x.txt
+@@ -0,0 +1,32 @@
++Abracon ABX80X I2C ultra low power RTC/Alarm chip
++
++The Abracon ABX80X family consist of the ab0801, ab0803, ab0804, ab0805, ab1801,
++ab1803, ab1804 and ab1805. The ab0805 is the superset of ab080x and the ab1805
++is the superset of ab180x.
++
++Required properties:
++
++ - "compatible": should one of:
++        "abracon,abx80x"
++        "abracon,ab0801"
++        "abracon,ab0803"
++        "abracon,ab0804"
++        "abracon,ab0805"
++        "abracon,ab1801"
++        "abracon,ab1803"
++        "abracon,ab1804"
++        "abracon,ab1805"
++	Using "abracon,abx80x" will enable chip autodetection.
++ - "reg": I2C bus address of the device
++
++Optional properties:
++
++The abx804 and abx805 have a trickle charger that is able to charge the
++connected battery or supercap. Both the following properties have to be defined
++and valid to enable charging:
++
++ - "abracon,tc-diode": should be "standard" (0.6V) or "schottky" (0.3V)
++ - "abracon,tc-resistor": should be <0>, <3>, <6> or <11>. 0 disables the output
++                          resistor, the other values are in ohm.
++
++
+-- 
+2.1.0
