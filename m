@@ -1,71 +1,52 @@
-Return-Path: <mark.rutland@arm.com>
-Date: Fri, 6 Mar 2015 13:10:26 +0000
-From: Mark Rutland <mark.rutland@arm.com>
-To: "Rafael J. Wysocki" <rafael@kernel.org>
-Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>,
-	Boris Brezillon <boris.brezillon@free-electrons.com>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Jason Cooper <jason@lakedaemon.net>,
-	Peter Zijlstra <peterz@infradead.org>,
-	Len Brown <len.brown@intel.com>, Pavel Machek <pavel@ucw.cz>,
-	"linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	"rtc-linux@googlegroups.com" <rtc-linux@googlegroups.com>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	Jiri Slaby <jslaby@suse.cz>,
-	"linux-serial@vger.kernel.org" <linux-serial@vger.kernel.org>,
-	Mike Turquette <mturquette@linaro.org>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-	Nicolas Ferre <nicolas.ferre@atmel.com>,
-	Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
-Subject: Re: [PATCH v2 5/6] watchdog: at91sam9: request the irq with
- IRQF_NO_SUSPEND
-Message-ID: <20150306131025.GH8700@leverpostej>
-References: <1425287898-15093-1-git-send-email-boris.brezillon@free-electrons.com>
- <CAJZ5v0h8vn26BeWPVhC4e_KNhBu15-mshnbq0K=OQ1M36vPQEQ@mail.gmail.com>
- <20150305163227.GF14093@leverpostej>
- <1696230.CygTkv53VA@vostro.rjw.lan>
- <20150306110618.GC8700@leverpostej>
- <CAJZ5v0jA-hRUnP_+mOdFw7vN7CGZ4o0FjUVu81rq7foi92f63g@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <CAJZ5v0jA-hRUnP_+mOdFw7vN7CGZ4o0FjUVu81rq7foi92f63g@mail.gmail.com>
+Return-Path: <pebolle@tiscali.nl>
+Message-ID: <1426500981.26437.24.camel@x220>
+Subject: Re: [PATCH 2/2] rtc: add rtc-abx80x, a driver for the Abracon AB
+ x80x i2c rtc
+From: Paul Bolle <pebolle@tiscali.nl>
+To: Philippe De Muyter <phdm@macqel.be>
+Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>, Andrew Morton
+	 <akpm@linux-foundation.org>, Alessandro Zummo <a.zummo@towertech.it>,
+	rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org, Arnd Bergmann
+	 <arnd@arndb.de>
+Date: Mon, 16 Mar 2015 11:16:21 +0100
+In-Reply-To: <20150314124441.GA11905@frolo.macqel>
+References: 
+	<1426327546-8085-1-git-send-email-alexandre.belloni@free-electrons.com>
+	 <1426327546-8085-3-git-send-email-alexandre.belloni@free-electrons.com>
+	 <20150314124441.GA11905@frolo.macqel>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
 List-ID: <rtc-linux.googlegroups.com>
 
-> >> > We seem to be conflating some related properties:
-> >> >
-> >> > [a] The IRQ will be left unmasked.
-> >> > [b] The IRQ will be handled immediately when taken.
-> >> > [c] The IRQ will wake the system from suspend.
-
-[...]
-
-> > Considering that the use-case of a watchdog is to alert us to something
-> > going hideously wrong in the kernel, we want to handle the IRQ after
-> > executing the smallest amount of kernel code possible. For that, they
-> > need to have their handlers to be called "immediately" outside of the
-> > arch_suspend_disable_irqs() ... arch_suspend_enable_irqs() window, and
-> > need to be enabled during suspend to attempt to catch bad wakeup device
-> > configuration.
-> >
-> > I think it's possible (assuming the caveats on [b] above) to provide
-> > [a,b,c] for this case.
+On Sat, 2015-03-14 at 13:44 +0100, Philippe De Muyter wrote:
+> On Sat, Mar 14, 2015 at 11:05:46AM +0100, Alexandre Belloni wrote:
+> > --- /dev/null
+> > +++ b/drivers/rtc/rtc-abx80x.c
+> > +/*
+> > + * A driver for the I2C members of the Abracon AB x8xx RTC family,
+> > + * and compatible: AB 1805 and AB 0805
+> > + *
+> > + * Copyright 2014-2015 Macq S.A.
+> > + *
+> > + * Author: Philippe De Muyter <phdm@macqel.be>
+> > + * Author: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+> > + *
+> > + * This program is free software; you can redistribute it and/or modify
+> > + * it under the terms of the GNU General Public License version 2 as
+> > + * published by the Free Software Foundation.
+> > + *
+> > + */
+> > 
+> > +MODULE_LICENSE("GPL");
 > 
-> OK
-> 
-> But in this case the request_irq() passing IRQF_NO_SUSPEND *and* requiring
-> enable_irq_wake() in addition to that needs a big fat comment explaining the
-> whole thing or we'll forget about the gory details at one point and no one will
-> know what's going on in there.
+> I'm fine with 'GPL', but someone suggested to change that to 'GPL v2' in my patch.
 
-Agreed.
-
-I'd expect an IRQF_SW_WATCHDOG or something to that effect should also
-be required for that case.
+That someone was me. And my reasoning is that "GPL" is documented to
+mean "GPL v2 or later", while "GPL v2" is documented to mean just that.
+So "GPL v2" would match what is stated at the comment at the top of this
+file.
 
 Thanks,
-Mark.
+
+
+Paul Bolle
