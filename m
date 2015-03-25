@@ -1,26 +1,20 @@
-Return-Path: <rtc-linux+bncBCPKXLX44AMBB5P25GUAKGQEELU5YRA@googlegroups.com>
-Received: from cvs.linux-mips.org (eddie.linux-mips.org. [148.251.95.138])
-        by gmr-mx.google.com with ESMTP id el6si806239wib.0.2015.03.31.03.56.52
-        for <rtc-linux@googlegroups.com>;
-        Tue, 31 Mar 2015 03:56:52 -0700 (PDT)
-Received: from localhost.localdomain ([127.0.0.1]:55960 "EHLO linux-mips.org"
-        rhost-flags-OK-OK-OK-FAIL) by eddie.linux-mips.org with ESMTP
-        id S27009582AbbCaK4v1eI6I (ORCPT
-        <rfc822;rtc-linux@googlegroups.com>); Tue, 31 Mar 2015 12:56:51 +0200
-Date: Tue, 31 Mar 2015 12:56:50 +0200
-From: Ralf Baechle <ralf@linux-mips.org>
-To: Joshua Kinard <kumba@gentoo.org>
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
-        Linux/MIPS <linux-mips@linux-mips.org>,
-        rtc-linux@googlegroups.com, LKML <linux-kernel@vger.kernel.org>
-Subject: [rtc-linux] Re: [PATCH v2] MIPS: IP32: Add platform data hooks to use
- DS1685 driver
-Message-ID: <20150331105650.GA28951@linux-mips.org>
-References: <54EFD536.2080508@gentoo.org>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBUG6ZSUAKGQESVA7IRY@googlegroups.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <54EFD536.2080508@gentoo.org>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id bz6si1018924wib.3.2015.03.25.14.57.36
+        for <rtc-linux@googlegroups.com>;
+        Wed, 25 Mar 2015 14:57:36 -0700 (PDT)
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Andrew Morton <akpm@linux-foundation.org>,
+	Alessandro Zummo <a.zummo@towertech.it>
+Cc: linux-kernel@vger.kernel.org,
+	rtc-linux@googlegroups.com,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Subject: [rtc-linux] [PATCH] MAINTAINERS: Add Alexandre Belloni as an RTC maintainer
+Date: Wed, 25 Mar 2015 22:57:31 +0100
+Message-Id: <1427320651-21356-1-git-send-email-alexandre.belloni@free-electrons.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -30,72 +24,37 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On Thu, Feb 26, 2015 at 09:23:50PM -0500, Joshua Kinard wrote:
+Add myself as an RTC subsystem maintainer.
 
-> This modifies the IP32 (SGI O2) platform and reset code to utilize the new
-> rtc-ds1685 driver.  The old mc146818rtc.h header is removed and ip32_defconfig
-> is updated as well.
+Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+---
+Hi,
 
-In general - good cleanup.  But:
+I've noticed that most of the patches for the RTC subsystem are currently either
+taken directly by Andrew or going through another maintainer's tree, quite often
+without an Acked-by or Reviewed-by tag.
+I'd like to propose myself as the RTC susbsystem co-maintainer, to mainly help
+Alessandro reviewing incoming patches and maintain a subsystem tree to avoid
+having the RTC patches going through trees when they have no particular
+dependencies.
 
-> index 511e9ff..ec9eb7f 100644
-> --- a/arch/mips/sgi-ip32/ip32-platform.c
-> +++ b/arch/mips/sgi-ip32/ip32-platform.c
-[...]
->  MODULE_AUTHOR("Ralf Baechle <ralf@linux-mips.org>");
->  MODULE_LICENSE("GPL");
-> -MODULE_DESCRIPTION("8250 UART probe driver for SGI IP32 aka O2");
-> +MODULE_DESCRIPTION("IP32 platform setup for SGI IP32 aka O2");
+ MAINTAINERS | 1 +
+ 1 file changed, 1 insertion(+)
 
-This isn't even a kernel module so I've just nuked all these MODULE_*
-calls.
-
-> diff --git a/arch/mips/sgi-ip32/ip32-reset.c b/arch/mips/sgi-ip32/ip32-reset.c
-> index 44b3470..ef21706 100644
-> --- a/arch/mips/sgi-ip32/ip32-reset.c
-> +++ b/arch/mips/sgi-ip32/ip32-reset.c
-[...]
-> -static void ip32_machine_restart(char *cmd)
-> +static __noreturn void ip32_poweroff(void *data)
->  {
-> -	crime->control = CRIME_CONTROL_HARD_RESET;
-> -	while (1);
-> -}
-> +	void (*poweroff_func)(struct platform_device *) =
-> +		symbol_get(ds1685_rtc_poweroff);
-> +
-> +#ifdef CONFIG_MODULES
-> +	/* If the first __symbol_get failed, our module wasn't loaded. */
-> +	if (!poweroff_func) {
-> +		request_module("rtc-ds1685");
-> +		poweroff_func = symbol_get(ds1685_rtc_poweroff);
-> +	}
-> +#endif
-
-symbol_get() calls are high on my list of items that indicate a piece of
-code is probably ill-structured.
-
-While RTCs often deal with power the RTC really only wants to deal with
-time and so power stuff should rather go elsewhere.  I suggest to take a
-look at drivers/power/reset/.  A small driver there could set pm_power_off
-approriately.  drivers/power/reset/restart-poweroff.c is a very compact
-example.
-
-> -	shuting_down = 1;
-> +	shutting_down = 1;
-
-I'm amazed nobody of the church of speel patchology has caught this earlier.
-
-> @@ -190,15 +141,12 @@ static __init int ip32_reboot_setup(void)
->  
->  	_machine_restart = ip32_machine_restart;
->  	_machine_halt = ip32_machine_halt;
-> -	pm_power_off = ip32_machine_power_off;
-> +	pm_power_off = ip32_machine_halt;
-
-So halt and power_off no do the same?
-
-  Ralf
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 358eb0105e00..117dab06bab3 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -8134,6 +8134,7 @@ X:	kernel/torture.c
+ 
+ REAL TIME CLOCK (RTC) SUBSYSTEM
+ M:	Alessandro Zummo <a.zummo@towertech.it>
++M:	Alexandre Belloni <alexandre.belloni@free-electrons.com>
+ L:	rtc-linux@googlegroups.com
+ Q:	http://patchwork.ozlabs.org/project/rtc-linux/list/
+ S:	Maintained
+-- 
+2.1.0
 
 -- 
 -- 
