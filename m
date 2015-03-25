@@ -1,27 +1,40 @@
-Content-Type: text/plain; charset="utf-8"
+Return-Path: <a.zummo@towertech.it>
+Date: Wed, 25 Mar 2015 23:58:09 +0100
+From: Alessandro Zummo <a.zummo@towertech.it>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org,
+ rtc-linux@googlegroups.com
+Subject: Re: [PATCH] MAINTAINERS: Add Alexandre Belloni as an RTC maintainer
+Message-ID: <20150325235809.22f1c441@linux.lan.towertech.it>
+In-Reply-To: <1427320651-21356-1-git-send-email-alexandre.belloni@free-electrons.com>
+References: <1427320651-21356-1-git-send-email-alexandre.belloni@free-electrons.com>
 MIME-Version: 1.0
-Subject: [v2,1/4] rtc: Kconfig capital Description
-From: =?utf-8?q?S=C3=B8ren_Andersen?= <san@rosetechnology.dk>
-Message-Id: <1426020349.5476.28.camel@sanws1.rosetechnology.dk>
-Cc: rtc-linux@googlegroups.com
-Date: Tue, 10 Mar 2015 21:45:49 +0100
+Content-Type: text/plain; charset=US-ASCII
 List-ID: <rtc-linux.googlegroups.com>
 
-Signed-off-by: Soeren Andersen <san at rosetechnology.dk>
----
- drivers/rtc/Kconfig | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+On Wed, 25 Mar 2015 22:57:31 +0100
+Alexandre Belloni <alexandre.belloni@free-electrons.com> wrote:
 
-diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
-index b5b5c3d..d9e2a14 100644
---- a/drivers/rtc/Kconfig
-+++ b/drivers/rtc/Kconfig
-@@ -413,7 +413,7 @@ config RTC_DRV_PCF8563
- 	  will be called rtc-pcf8563.
- 
- config RTC_DRV_PCF85063
--	tristate "nxp PCF85063"
-+	tristate "NXP PCF85063"
- 	help
- 	  If you say yes here you get support for the PCF85063 RTC chip
- 
+> I'd like to propose myself as the RTC susbsystem co-maintainer, to mainly help
+> Alessandro reviewing incoming patches and maintain a subsystem tree to avoid
+> having the RTC patches going through trees when they have no particular
+> dependencies.
+
+ Thanks :)
+
+ A few things I consider important:
+
+ - a driver for a new hardware usually causes no harm to the subsystem
+
+ - a patch for an existing driver should be approved by the original author,
+ if possible. there are a few chips out there that are quite rare or
+ have multiple wiring configuration and break very easily.
+
+-- 
+
+ Best regards,
+
+ Alessandro Zummo - CEO,
+  Tower Technologies - Torino, Italy
+
+  http://www.towertech.it
