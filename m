@@ -1,22 +1,20 @@
-Return-Path: <rtc-linux+bncBAABBNNR3SUAKGQEQOTA5WY@googlegroups.com>
-MIME-Version: 1.0
-Received: from filtteri5.pp.htv.fi (filtteri5.pp.htv.fi. [213.243.153.188])
-        by gmr-mx.google.com with ESMTP id b6si364668lbc.1.2015.03.28.14.10.13
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBD5T2WUAKGQEAGQHN6Q@googlegroups.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id g5si97503wib.3.2015.03.27.06.22.22
         for <rtc-linux@googlegroups.com>;
-        Sat, 28 Mar 2015 14:10:13 -0700 (PDT)
-From: Aaro Koskinen <aaro.koskinen@iki.fi>
-To: Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	rtc-linux@googlegroups.com
-Cc: linux-kernel@vger.kernel.org,
-	Aaro Koskinen <aaro.koskinen@iki.fi>
-Subject: [rtc-linux] [PATCH 2/3] rtc: __rtc_read_time: reduce log level
-Date: Sat, 28 Mar 2015 23:09:35 +0200
-Message-Id: <1427576976-22353-2-git-send-email-aaro.koskinen@iki.fi>
-In-Reply-To: <1427576976-22353-1-git-send-email-aaro.koskinen@iki.fi>
-References: <1427576976-22353-1-git-send-email-aaro.koskinen@iki.fi>
-Reply-To: rtc-linux@googlegroups.com
+        Fri, 27 Mar 2015 06:22:22 -0700 (PDT)
+Date: Fri, 27 Mar 2015 14:22:22 +0100
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Matthew Garrett <matthew.garrett@nebula.com>
+Cc: a.zummo@towertech.it, rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org
+Subject: [rtc-linux] Re: RTC: Restore alarm after resume
+Message-ID: <20150327132222.GC3568@piout.net>
+References: <1419275979-24307-1-git-send-email-matthew.garrett@nebula.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1419275979-24307-1-git-send-email-matthew.garrett@nebula.com>
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -26,47 +24,79 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-__rtc_read_time logs should be debug logs instead of error logs.
+Hi Matthew,
 
-For example, when the RTC clock is not set, it's not really useful
-to print a kernel error log every time someone tries to read the clock:
+On 22/12/2014 at 19:19:39 +0000, Matthew Garrett wrote :
+> Some platform firmware may interfere with the RTC alarm over suspend,
+> resulting in the kernel and hardware having different ideas about system state
+> but also potentially causing problems with firmware that assumes the OS will
+> clean this case up. This patch saves the RTC alarm state on suspend and will
+> restore it on resume if the alarm has not yet fired - if it has, it will clear
+> the RTC alarm.
+> 
+> Signed-off-by: Matthew Garrett <matthew.garrett@nebula.com>
+> Tested-by: Gabriele Mazzotta <gabriele.mzt@gmail.com>
+> ---
+>  drivers/rtc/class.c | 24 ++++++++++++++++++++++++
+>  include/linux/rtc.h |  4 ++++
+>  2 files changed, 28 insertions(+)
+> 
+> diff --git a/drivers/rtc/class.c b/drivers/rtc/class.c
+> index 472a5ad..c7e09e2 100644
+> --- a/drivers/rtc/class.c
+> +++ b/drivers/rtc/class.c
+> @@ -55,6 +55,8 @@ static int rtc_suspend(struct device *dev)
+>  	struct timespec64	delta, delta_delta;
+>  	int err;
+>  
+> +	rtc->valid_alarm = !rtc_read_alarm(rtc, &rtc->alarm);
+> +
+>  	if (has_persistent_clock())
+>  		return 0;
+>  
+> @@ -102,6 +104,27 @@ static int rtc_resume(struct device *dev)
+>  	struct timespec64	sleep_time;
+>  	int err;
+>  
+> +	/*
+> +	 * Ensure that the platform hasn't overwritten a pending alarm while
+> +	 * suspended
+> +	 */
+> +	if (rtc->valid_alarm) {
+> +		long now, scheduled;
+> +
+> +		rtc_read_time(rtc, &tm);
+> +		rtc_tm_to_time(&rtc->alarm.time, &scheduled);
+> +		rtc_tm_to_time(&tm, &now);
+> +
+> +		/* Clear the alarm registers if it went off during suspend */
+> +		if (scheduled <= now) {
+> +			rtc_time_to_tm(0, &rtc->alarm.time);
+> +			rtc->alarm.enabled = 0;
+> +		}
+> +
+> +		if (rtc->ops && rtc->ops->set_alarm)
+> +			rtc->ops->set_alarm(rtc->dev.parent, &rtc->alarm);
+> +	}
+> +
 
-	~ # hwclock -r
-	[  604.508263] rtc rtc0: read_time: fail to read
-	hwclock: RTC_RD_TIME: Invalid argument
+My main concern here is that reading the time and the alarm can be slow,
+in particular with i2c RTC.
 
-If there's a real error, it's likely that lower level or higher level
-code will tell it anyway. Make these logs debug logs, and also print
-the error code for the read failure.
+Isn't that issue pretty much specific to x86? I know you think otherwise
+but I believe this would better be done from your driver. If more
+platforms/RTCs are affected, it will still be time to try to solve it in
+a more generic way.
 
-Signed-off-by: Aaro Koskinen <aaro.koskinen@iki.fi>
----
- drivers/rtc/interface.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+Moreover, the class suspend/resume functions are only defined when
+CONFIG_RTC_HCTOSYS is set so you may still have broken platforms with
+some configurations.
 
-diff --git a/drivers/rtc/interface.c b/drivers/rtc/interface.c
-index 37215cf..c786818 100644
---- a/drivers/rtc/interface.c
-+++ b/drivers/rtc/interface.c
-@@ -31,13 +31,14 @@ static int __rtc_read_time(struct rtc_device *rtc, struct rtc_time *tm)
- 		memset(tm, 0, sizeof(struct rtc_time));
- 		err = rtc->ops->read_time(rtc->dev.parent, tm);
- 		if (err < 0) {
--			dev_err(&rtc->dev, "read_time: fail to read\n");
-+			dev_dbg(&rtc->dev, "read_time: fail to read: %d\n",
-+				err);
- 			return err;
- 		}
- 
- 		err = rtc_valid_tm(tm);
- 		if (err < 0)
--			dev_err(&rtc->dev, "read_time: rtc_time isn't valid\n");
-+			dev_dbg(&rtc->dev, "read_time: rtc_time isn't valid\n");
- 	}
- 	return err;
- }
+
 -- 
-2.2.0
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
 -- 
 -- 
