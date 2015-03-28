@@ -1,29 +1,20 @@
-Return-Path: <rtc-linux+bncBDKZNNNLXAHBBE6T4WUAKGQE2MSTJGA@googlegroups.com>
+Return-Path: <rtc-linux+bncBAABBNNR3SUAKGQEQOTA5WY@googlegroups.com>
 MIME-Version: 1.0
-Received: from mailout3.w1.samsung.com (mailout3.w1.samsung.com. [210.118.77.13])
-        by gmr-mx.google.com with ESMTPS id gu4si1130862pac.1.2015.03.30.08.19.47
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1 cipher=RC4-MD5 bits=128/128);
-        Mon, 30 Mar 2015 08:19:47 -0700 (PDT)
-Received: from eucpsbgm1.samsung.com (unknown [203.254.199.244])
- by mailout3.w1.samsung.com
- (Oracle Communications Messaging Server 7u4-24.01(7.0.4.24.0) 64bit (built Nov
- 17 2011)) with ESMTP id <0NM1007746RN6490@mailout3.w1.samsung.com> for
- rtc-linux@googlegroups.com; Mon, 30 Mar 2015 16:23:47 +0100 (BST)
-From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-To: Kukjin Kim <kgene@kernel.org>, Alessandro Zummo <a.zummo@towertech.it>,
- Chanwoo Choi <cw00.choi@samsung.com>, devicetree@vger.kernel.org,
- linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
- linux-samsung-soc@vger.kernel.org, rtc-linux@googlegroups.com,
- Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Kyungmin Park <kyungmin.park@samsung.com>,
- Krzysztof Kozlowski <k.kozlowski@samsung.com>
-Subject: [rtc-linux] [PATCH 1/2] drivers/rtc/rtc-s3c.c: Integrate Exynos3250
- into S3C6410
-Date: Mon, 30 Mar 2015 17:19:32 +0200
-Message-id: <1427728773-29065-2-git-send-email-k.kozlowski@samsung.com>
-In-reply-to: <1427728773-29065-1-git-send-email-k.kozlowski@samsung.com>
-References: <1427728773-29065-1-git-send-email-k.kozlowski@samsung.com>
+Received: from filtteri5.pp.htv.fi (filtteri5.pp.htv.fi. [213.243.153.188])
+        by gmr-mx.google.com with ESMTP id b6si364668lbc.1.2015.03.28.14.10.13
+        for <rtc-linux@googlegroups.com>;
+        Sat, 28 Mar 2015 14:10:13 -0700 (PDT)
+From: Aaro Koskinen <aaro.koskinen@iki.fi>
+To: Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	rtc-linux@googlegroups.com
+Cc: linux-kernel@vger.kernel.org,
+	Aaro Koskinen <aaro.koskinen@iki.fi>
+Subject: [rtc-linux] [PATCH 2/3] rtc: __rtc_read_time: reduce log level
+Date: Sat, 28 Mar 2015 23:09:35 +0200
+Message-Id: <1427576976-22353-2-git-send-email-aaro.koskinen@iki.fi>
+In-Reply-To: <1427576976-22353-1-git-send-email-aaro.koskinen@iki.fi>
+References: <1427576976-22353-1-git-send-email-aaro.koskinen@iki.fi>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -35,48 +26,47 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-There are now no differences between RTC on Exynos3250 and S3C6410.
-Merge everything into one so duplicated code could be removed.
+__rtc_read_time logs should be debug logs instead of error logs.
 
-Signed-off-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+For example, when the RTC clock is not set, it's not really useful
+to print a kernel error log every time someone tries to read the clock:
+
+	~ # hwclock -r
+	[  604.508263] rtc rtc0: read_time: fail to read
+	hwclock: RTC_RD_TIME: Invalid argument
+
+If there's a real error, it's likely that lower level or higher level
+code will tell it anyway. Make these logs debug logs, and also print
+the error code for the read failure.
+
+Signed-off-by: Aaro Koskinen <aaro.koskinen@iki.fi>
 ---
- drivers/rtc/rtc-s3c.c | 14 +-------------
- 1 file changed, 1 insertion(+), 13 deletions(-)
+ drivers/rtc/interface.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/rtc/rtc-s3c.c b/drivers/rtc/rtc-s3c.c
-index fb0c569765c6..5e162eaad277 100644
---- a/drivers/rtc/rtc-s3c.c
-+++ b/drivers/rtc/rtc-s3c.c
-@@ -774,18 +774,6 @@ static struct s3c_rtc_data const s3c6410_rtc_data = {
- 	.disable		= s3c6410_rtc_disable,
- };
+diff --git a/drivers/rtc/interface.c b/drivers/rtc/interface.c
+index 37215cf..c786818 100644
+--- a/drivers/rtc/interface.c
++++ b/drivers/rtc/interface.c
+@@ -31,13 +31,14 @@ static int __rtc_read_time(struct rtc_device *rtc, struct rtc_time *tm)
+ 		memset(tm, 0, sizeof(struct rtc_time));
+ 		err = rtc->ops->read_time(rtc->dev.parent, tm);
+ 		if (err < 0) {
+-			dev_err(&rtc->dev, "read_time: fail to read\n");
++			dev_dbg(&rtc->dev, "read_time: fail to read: %d\n",
++				err);
+ 			return err;
+ 		}
  
--static struct s3c_rtc_data const exynos3250_rtc_data = {
--	.max_user_freq		= 32768,
--	.needs_src_clk		= true,
--	.irq_handler		= s3c6410_rtc_irq,
--	.set_freq		= s3c6410_rtc_setfreq,
--	.enable_tick		= s3c6410_rtc_enable_tick,
--	.save_tick_cnt		= s3c6410_rtc_save_tick_cnt,
--	.restore_tick_cnt	= s3c6410_rtc_restore_tick_cnt,
--	.enable			= s3c24xx_rtc_enable,
--	.disable		= s3c6410_rtc_disable,
--};
--
- static const struct of_device_id s3c_rtc_dt_match[] = {
- 	{
- 		.compatible = "samsung,s3c2410-rtc",
-@@ -801,7 +789,7 @@ static const struct of_device_id s3c_rtc_dt_match[] = {
- 		.data = (void *)&s3c6410_rtc_data,
- 	}, {
- 		.compatible = "samsung,exynos3250-rtc",
--		.data = (void *)&exynos3250_rtc_data,
-+		.data = (void *)&s3c6410_rtc_data,
- 	},
- 	{ /* sentinel */ },
- };
+ 		err = rtc_valid_tm(tm);
+ 		if (err < 0)
+-			dev_err(&rtc->dev, "read_time: rtc_time isn't valid\n");
++			dev_dbg(&rtc->dev, "read_time: rtc_time isn't valid\n");
+ 	}
+ 	return err;
+ }
 -- 
-1.9.1
+2.2.0
 
 -- 
 -- 
