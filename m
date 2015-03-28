@@ -1,58 +1,76 @@
-Date: Sat, 14 Mar 2015 19:09:11 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Philippe De Muyter <phdm@macqel.be>
-Cc: Andrew Morton <akpm@linux-foundation.org>,
-	Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [PATCH 2/2] rtc: add rtc-abx80x, a driver for the Abracon AB
- x80x i2c rtc
-Message-ID: <20150314180911.GC4560@piout.net>
-References: <1426327546-8085-1-git-send-email-alexandre.belloni@free-electrons.com>
- <1426327546-8085-3-git-send-email-alexandre.belloni@free-electrons.com>
- <20150314124441.GA11905@frolo.macqel>
+Return-Path: <rtc-linux+bncBAABBNNR3SUAKGQEQOTA5WY@googlegroups.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20150314124441.GA11905@frolo.macqel>
+Received: from filtteri2.pp.htv.fi (filtteri2.pp.htv.fi. [213.243.153.185])
+        by gmr-mx.google.com with ESMTP id xg8si395845lbb.0.2015.03.28.14.10.13
+        for <rtc-linux@googlegroups.com>;
+        Sat, 28 Mar 2015 14:10:13 -0700 (PDT)
+From: Aaro Koskinen <aaro.koskinen@iki.fi>
+To: Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	rtc-linux@googlegroups.com
+Cc: linux-kernel@vger.kernel.org,
+	Aaro Koskinen <aaro.koskinen@iki.fi>
+Subject: [rtc-linux] [PATCH 1/3] rtc: initialize rtc name early
+Date: Sat, 28 Mar 2015 23:09:34 +0200
+Message-Id: <1427576976-22353-1-git-send-email-aaro.koskinen@iki.fi>
+Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
+List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
+List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
+List-Archive: <http://groups.google.com/group/rtc-linux
+Sender: rtc-linux@googlegroups.com
+List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
+List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
+ <http://groups.google.com/group/rtc-linux/subscribe>
 
-On 14/03/2015 at 13:44:41 +0100, Philippe De Muyter wrote :
-> > +	tm->tm_sec = bcd2bin(date[ABX8XX_REG_SC] & 0x7F);
-> > +	tm->tm_min = bcd2bin(date[ABX8XX_REG_MN] & 0x7F);
-> > +	tm->tm_hour = bcd2bin(date[ABX8XX_REG_HR] & 0x3F);
-> > +	tm->tm_wday = date[ABX8XX_REG_WD] & 0x7;
-> > +	tm->tm_mday = bcd2bin(date[ABX8XX_REG_DA] & 0x3F);
-> > +	tm->tm_mon = bcd2bin(date[ABX8XX_REG_MO] & 0x1F) - 1;
-> > +	tm->tm_year = bcd2bin(date[ABX8XX_REG_YR]);
-> > +	if (tm->tm_year < 70)
-> 
-> Is that still useful for a driver written in 2015 ?
-> 
+In some error cases RTC name is used before it is initialized:
 
-I'd say that this is actually the only correct way to do it. Only dates
-before 01/01/1970 00:00 are considered invalid. So, unless adding a
-check like:
+	rtc-rs5c372 0-0032: clock needs to be set
+	rtc-rs5c372 0-0032: rs5c372b found, 24hr, driver version 0.6
+	rtc (null): read_time: fail to read
+	rtc-rs5c372 0-0032: rtc core: registered rtc-rs5c372 as rtc0
 
-if (tm->tm_year < 100)
-	return -EINVAL;
+Fix by initializing the name early.
 
-in abx80x_rtc_set_time, setting and then reading a date before 2000 will
-fail silently. I'm open to add that check.
+Signed-off-by: Aaro Koskinen <aaro.koskinen@iki.fi>
+---
+ drivers/rtc/class.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-> > +static int abx80x_rtc_set_time(struct device *dev, struct rtc_time *tm)
-> > +{
-> > +	struct i2c_client *client = to_i2c_client(dev);
-> > +	int data, err;
-> > +	unsigned char buf[8];
-> 
-> The link is not clear between 8 above, the symbolic constants below, and 7
-> in the call to i2c_smbus_write_i2c_block_data.
-> 
-
-It is because I didn't bother writing the hundreth of seconds, I'll
-change that and the other issues you pointed.
-
+diff --git a/drivers/rtc/class.c b/drivers/rtc/class.c
+index 472a5ad..014ecbc 100644
+--- a/drivers/rtc/class.c
++++ b/drivers/rtc/class.c
+@@ -225,15 +225,15 @@ struct rtc_device *rtc_device_register(const char *name, struct device *dev,
+ 	rtc->pie_timer.function = rtc_pie_update_irq;
+ 	rtc->pie_enabled = 0;
+ 
++	strlcpy(rtc->name, name, RTC_DEVICE_NAME_SIZE);
++	dev_set_name(&rtc->dev, "rtc%d", id);
++
+ 	/* Check to see if there is an ALARM already set in hw */
+ 	err = __rtc_read_alarm(rtc, &alrm);
+ 
+ 	if (!err && !rtc_valid_tm(&alrm.time))
+ 		rtc_initialize_alarm(rtc, &alrm);
+ 
+-	strlcpy(rtc->name, name, RTC_DEVICE_NAME_SIZE);
+-	dev_set_name(&rtc->dev, "rtc%d", id);
+-
+ 	rtc_dev_prepare(rtc);
+ 
+ 	err = device_register(&rtc->dev);
+-- 
+2.2.0
 
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+-- 
+You received this message because you are subscribed to "rtc-linux".
+Membership options at http://groups.google.com/group/rtc-linux .
+Please read http://groups.google.com/group/rtc-linux/web/checklist
+before submitting a driver.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+For more options, visit https://groups.google.com/d/optout.
