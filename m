@@ -1,32 +1,31 @@
-Return-Path: <rtc-linux+bncBDL3F4G2ZAIBBHO546UAKGQE3ND5OSQ@googlegroups.com>
-Received: from mailout4.samsung.com (mailout4.samsung.com. [203.254.224.34])
-        by gmr-mx.google.com with ESMTPS id iw3si1333084pbd.1.2015.03.30.17.47.24
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1 cipher=RC4-SHA bits=128/128);
-        Mon, 30 Mar 2015 17:47:24 -0700 (PDT)
-Received: from epcpsbgr3.samsung.com
- (u143.gpu120.samsung.co.kr [203.254.230.143])
- by mailout4.samsung.com (Oracle Communications Messaging Server 7.0.5.31.0
- 64bit (built May  5 2014))
- with ESMTP id <0NM100083WUS9Y30@mailout4.samsung.com> for
- rtc-linux@googlegroups.com; Tue, 31 Mar 2015 09:47:16 +0900 (KST)
-Message-id: <5519EE93.70509@samsung.com>
-Date: Tue, 31 Mar 2015 09:47:15 +0900
-From: Chanwoo Choi <cw00.choi@samsung.com>
-MIME-version: 1.0
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBZVR5GUAKGQEVEE6E6Q@googlegroups.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id a14si471603wib.3.2015.03.31.01.20.53
+        for <rtc-linux@googlegroups.com>;
+        Tue, 31 Mar 2015 01:20:53 -0700 (PDT)
+Date: Tue, 31 Mar 2015 10:20:52 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Javier Martinez Canillas <javier@dowhile0.org>
 Cc: Krzysztof Kozlowski <k.kozlowski@samsung.com>,
- Kukjin Kim <kgene@kernel.org>, Alessandro Zummo <a.zummo@towertech.it>,
- devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org,
- rtc-linux@googlegroups.com, Kyungmin Park <kyungmin.park@samsung.com>
-Subject: [rtc-linux] Re: [PATCH 2/2] ARM: dts: s3c-rtc: Use s3c6410-rtc
- instead of exynos3250-rtc
+	Kukjin Kim <kgene@kernel.org>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Chanwoo Choi <cw00.choi@samsung.com>,
+	"devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+	Linux Kernel <linux-kernel@vger.kernel.org>,
+	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>,
+	"linux-samsung-soc@vger.kernel.org" <linux-samsung-soc@vger.kernel.org>,
+	rtc-linux@googlegroups.com,
+	Kyungmin Park <kyungmin.park@samsung.com>
+Subject: [rtc-linux] Re: [PATCH 1/2] drivers/rtc/rtc-s3c.c: Integrate
+ Exynos3250 into S3C6410
+Message-ID: <20150331082052.GI3849@piout.net>
 References: <1427728773-29065-1-git-send-email-k.kozlowski@samsung.com>
- <1427728773-29065-3-git-send-email-k.kozlowski@samsung.com>
- <5519DE76.4080803@samsung.com> <20150331003101.GG3849@piout.net>
-In-reply-to: <20150331003101.GG3849@piout.net>
-Content-type: text/plain; charset=UTF-8
+ <1427728773-29065-2-git-send-email-k.kozlowski@samsung.com>
+ <20150331002709.GF3849@piout.net>
+ <CABxcv==+h8R-tL9D5OXmYsuYfs_cLATViZ3N1veZwZBZF=fu0Q@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <CABxcv==+h8R-tL9D5OXmYsuYfs_cLATViZ3N1veZwZBZF=fu0Q@mail.gmail.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -39,79 +38,28 @@ List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegro
 
 Hi,
 
-On 03/31/2015 09:31 AM, Alexandre Belloni wrote:
-> Hi,
+On 31/03/2015 at 08:49:39 +0200, Javier Martinez Canillas wrote :
+> Hello Alexandre,
 > 
-> On 31/03/2015 at 08:38:30 +0900, Chanwoo Choi wrote :
->>> diff --git a/Documentation/devicetree/bindings/rtc/s3c-rtc.txt b/Documentation/devicetree/bindings/rtc/s3c-rtc.txt
->>> index ab757b84daa7..ac2fcd6ff4b8 100644
->>> --- a/Documentation/devicetree/bindings/rtc/s3c-rtc.txt
->>> +++ b/Documentation/devicetree/bindings/rtc/s3c-rtc.txt
->>> @@ -6,7 +6,8 @@ Required properties:
->>>      * "samsung,s3c2416-rtc" - for controllers compatible with s3c2416 rtc.
->>>      * "samsung,s3c2443-rtc" - for controllers compatible with s3c2443 rtc.
->>>      * "samsung,s3c6410-rtc" - for controllers compatible with s3c6410 rtc.
->>> -    * "samsung,exynos3250-rtc" - for controllers compatible with exynos3250 rtc.
->>> +    * "samsung,exynos3250-rtc" - (deprecated) for controllers compatible with
->>> +                                 exynos3250 rtc (use "samsung,s3c6410-rtc").
->>>  - reg: physical base address of the controller and length of memory mapped
->>>    region.
->>>  - interrupts: Two interrupt numbers to the cpu should be specified. First
->>> diff --git a/arch/arm/boot/dts/exynos3250.dtsi b/arch/arm/boot/dts/exynos3250.dtsi
->>> index e3bfb11c6ef8..8d58b550e925 100644
->>> --- a/arch/arm/boot/dts/exynos3250.dtsi
->>> +++ b/arch/arm/boot/dts/exynos3250.dtsi
->>> @@ -189,7 +189,7 @@
->>>  		};
->>>  
->>>  		rtc: rtc@10070000 {
->>> -			compatible = "samsung,exynos3250-rtc";
->>> +			compatible = "samsung,s3c6410-rtc";
->>>  			reg = <0x10070000 0x100>;
->>>  			interrupts = <0 73 0>, <0 74 0>;
->>>  			interrupt-parent = <&pmu_system_controller>;
->>> diff --git a/arch/arm/boot/dts/exynos4415.dtsi b/arch/arm/boot/dts/exynos4415.dtsi
->>> index 5caea996e090..186cb8465683 100644
->>> --- a/arch/arm/boot/dts/exynos4415.dtsi
->>> +++ b/arch/arm/boot/dts/exynos4415.dtsi
->>> @@ -177,7 +177,7 @@
->>>  		};
->>>  
->>>  		rtc: rtc@10070000 {
->>> -			compatible = "samsung,exynos3250-rtc";
->>> +			compatible = "samsung,s3c6410-rtc";
->>>  			reg = <0x10070000 0x100>;
->>>  			interrupts = <0 73 0>, <0 74 0>;
->>>  			status = "disabled";
->>>
->>
->> Looks good to me.
->>
->> Reviewed-by: Chanwoo Choi <cw00.choi@samsung.com>
->>
+> On Tue, Mar 31, 2015 at 2:27 AM, Alexandre Belloni
+> <alexandre.belloni@free-electrons.com> wrote:
+> > nitpick: I would prefer rtc: rtc-s3c instead of drivers/rtc/rtc-s3c.c
+> >
 > 
-> Are you absolutely sure that the exynos3250 IP is the same as the
-> s3c6410 (I don't know much about the exynos family). The concern being
-> that if at one point you have an errata on one or ther other, you will
-> have to break the DT ABI by undoing this change.
+> Yes but Krzysztof is following the convention used in drivers/rtc/
+> which I think is the correct thing to do even when it's different from
+> what is used all over the kernel.
 > 
-> Note that I'm fine with it, I'm just asking.
 
-I'm sure about exynos3250 RTC is same with S3C6410 RTC.
-There was little different about that pevious S3C6410 RTC
-don't consider to control the 'rtc_src' clk.
-
-
-But, Javier's patch[1] add the '.needs_src_clk' to control the
-'rtc_src' clk. After merged this patch, there is no different part between
-Exynos3250 RTC and S3C6410 RTC.
-
-[1] 8792f7772f4f (drivers/rtc/rtc-s3c.c: add .needs_src_clk to s3c6410 RTC data)
-
-Thanks,
-Chanwoo Choi
+Having a look at the git history, the first and most used prefix is
+actually 'rtc:' at some point, this started to change to 'drivers/rtc/'.
+We should probably start to get back to 'rtc:', like most subsystems.
 
 
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
 -- 
 -- 
