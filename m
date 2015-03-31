@@ -1,28 +1,27 @@
-Return-Path: <rtc-linux+bncBDKZNNNLXAHBBFGT4WUAKGQEJFBL5SA@googlegroups.com>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBR6V46UAKGQEJZC4T5I@googlegroups.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id c8si905822wiw.1.2015.03.30.17.31.02
+        for <rtc-linux@googlegroups.com>;
+        Mon, 30 Mar 2015 17:31:02 -0700 (PDT)
+Date: Tue, 31 Mar 2015 02:31:01 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Chanwoo Choi <cw00.choi@samsung.com>
+Cc: Krzysztof Kozlowski <k.kozlowski@samsung.com>,
+	Kukjin Kim <kgene@kernel.org>,
+	Alessandro Zummo <a.zummo@towertech.it>, devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+	linux-samsung-soc@vger.kernel.org, rtc-linux@googlegroups.com,
+	Kyungmin Park <kyungmin.park@samsung.com>
+Subject: [rtc-linux] Re: [PATCH 2/2] ARM: dts: s3c-rtc: Use s3c6410-rtc
+ instead of exynos3250-rtc
+Message-ID: <20150331003101.GG3849@piout.net>
+References: <1427728773-29065-1-git-send-email-k.kozlowski@samsung.com>
+ <1427728773-29065-3-git-send-email-k.kozlowski@samsung.com>
+ <5519DE76.4080803@samsung.com>
 MIME-Version: 1.0
-Received: from mailout4.w1.samsung.com (mailout4.w1.samsung.com. [210.118.77.14])
-        by gmr-mx.google.com with ESMTPS id pc4si1144155pac.0.2015.03.30.08.19.47
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1 cipher=RC4-MD5 bits=128/128);
-        Mon, 30 Mar 2015 08:19:47 -0700 (PDT)
-Received: from eucpsbgm2.samsung.com (unknown [203.254.199.245])
- by mailout4.w1.samsung.com
- (Oracle Communications Messaging Server 7u4-24.01(7.0.4.24.0) 64bit (built Nov
- 17 2011)) with ESMTP id <0NM1009ZL6RF1Q80@mailout4.w1.samsung.com> for
- rtc-linux@googlegroups.com; Mon, 30 Mar 2015 16:23:39 +0100 (BST)
-From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-To: Kukjin Kim <kgene@kernel.org>, Alessandro Zummo <a.zummo@towertech.it>,
- Chanwoo Choi <cw00.choi@samsung.com>, devicetree@vger.kernel.org,
- linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
- linux-samsung-soc@vger.kernel.org, rtc-linux@googlegroups.com,
- Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Kyungmin Park <kyungmin.park@samsung.com>,
- Krzysztof Kozlowski <k.kozlowski@samsung.com>
-Subject: [rtc-linux] [PATCH 0/2] ARM: EXYNOS: Minor S3C RTC cleanups
-Date: Mon, 30 Mar 2015 17:19:31 +0200
-Message-id: <1427728773-29065-1-git-send-email-k.kozlowski@samsung.com>
-Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <5519DE76.4080803@samsung.com>
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -34,28 +33,67 @@ List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegro
 
 Hi,
 
-Now the s3c6410-rtc is exactly the same as exynos3250-rtc. Mark the
-second one as deprecated and switch to one binding.
+On 31/03/2015 at 08:38:30 +0900, Chanwoo Choi wrote :
+> > diff --git a/Documentation/devicetree/bindings/rtc/s3c-rtc.txt b/Documentation/devicetree/bindings/rtc/s3c-rtc.txt
+> > index ab757b84daa7..ac2fcd6ff4b8 100644
+> > --- a/Documentation/devicetree/bindings/rtc/s3c-rtc.txt
+> > +++ b/Documentation/devicetree/bindings/rtc/s3c-rtc.txt
+> > @@ -6,7 +6,8 @@ Required properties:
+> >      * "samsung,s3c2416-rtc" - for controllers compatible with s3c2416 rtc.
+> >      * "samsung,s3c2443-rtc" - for controllers compatible with s3c2443 rtc.
+> >      * "samsung,s3c6410-rtc" - for controllers compatible with s3c6410 rtc.
+> > -    * "samsung,exynos3250-rtc" - for controllers compatible with exynos3250 rtc.
+> > +    * "samsung,exynos3250-rtc" - (deprecated) for controllers compatible with
+> > +                                 exynos3250 rtc (use "samsung,s3c6410-rtc").
+> >  - reg: physical base address of the controller and length of memory mapped
+> >    region.
+> >  - interrupts: Two interrupt numbers to the cpu should be specified. First
+> > diff --git a/arch/arm/boot/dts/exynos3250.dtsi b/arch/arm/boot/dts/exynos3250.dtsi
+> > index e3bfb11c6ef8..8d58b550e925 100644
+> > --- a/arch/arm/boot/dts/exynos3250.dtsi
+> > +++ b/arch/arm/boot/dts/exynos3250.dtsi
+> > @@ -189,7 +189,7 @@
+> >  		};
+> >  
+> >  		rtc: rtc@10070000 {
+> > -			compatible = "samsung,exynos3250-rtc";
+> > +			compatible = "samsung,s3c6410-rtc";
+> >  			reg = <0x10070000 0x100>;
+> >  			interrupts = <0 73 0>, <0 74 0>;
+> >  			interrupt-parent = <&pmu_system_controller>;
+> > diff --git a/arch/arm/boot/dts/exynos4415.dtsi b/arch/arm/boot/dts/exynos4415.dtsi
+> > index 5caea996e090..186cb8465683 100644
+> > --- a/arch/arm/boot/dts/exynos4415.dtsi
+> > +++ b/arch/arm/boot/dts/exynos4415.dtsi
+> > @@ -177,7 +177,7 @@
+> >  		};
+> >  
+> >  		rtc: rtc@10070000 {
+> > -			compatible = "samsung,exynos3250-rtc";
+> > +			compatible = "samsung,s3c6410-rtc";
+> >  			reg = <0x10070000 0x100>;
+> >  			interrupts = <0 73 0>, <0 74 0>;
+> >  			status = "disabled";
+> > 
+> 
+> Looks good to me.
+> 
+> Reviewed-by: Chanwoo Choi <cw00.choi@samsung.com>
+> 
 
-Patches are independent.
+Are you absolutely sure that the exynos3250 IP is the same as the
+s3c6410 (I don't know much about the exynos family). The concern being
+that if at one point you have an errata on one or ther other, you will
+have to break the DT ABI by undoing this change.
 
-Best regards,
-Krzysztof
+Note that I'm fine with it, I'm just asking.
 
-Krzysztof Kozlowski (3):
-  drivers/rtc/rtc-s3c.c: Integrate Exynos3250 into S3C6410
-  ARM: dts: s3c-rtc: Use s3c6410-rtc instead of exynos3250-rtc
-  ARM: dts: Use define for s3c-rtc clock id
-
- Documentation/devicetree/bindings/rtc/s3c-rtc.txt |  3 ++-
- arch/arm/boot/dts/exynos3250-rinato.dts           |  3 ++-
- arch/arm/boot/dts/exynos3250.dtsi                 |  2 +-
- arch/arm/boot/dts/exynos4415.dtsi                 |  2 +-
- drivers/rtc/rtc-s3c.c                             | 14 +-------------
- 5 files changed, 7 insertions(+), 17 deletions(-)
+Regards,
 
 -- 
-1.9.1
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
 -- 
 -- 
