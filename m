@@ -1,21 +1,34 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBBV75WUAKGQEENW7PSY@googlegroups.com>
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id f5si565951wix.1.2015.03.31.20.01.25
-        for <rtc-linux@googlegroups.com>;
-        Tue, 31 Mar 2015 20:01:25 -0700 (PDT)
-Date: Wed, 1 Apr 2015 05:01:24 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Aaro Koskinen <aaro.koskinen@iki.fi>
-Cc: Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH 3/3] rtc: hctosys: use function name in the
- error log
-Message-ID: <20150401030124.GO3849@piout.net>
-References: <1427576976-22353-1-git-send-email-aaro.koskinen@iki.fi>
- <1427576976-22353-3-git-send-email-aaro.koskinen@iki.fi>
-MIME-Version: 1.0
+Return-Path: <rtc-linux+bncBCT4XGV33UIBBINS5SUAKGQEHZUCZJI@googlegroups.com>
+Received: from mail.linuxfoundation.org (mail.linuxfoundation.org. [140.211.169.12])
+        by gmr-mx.google.com with ESMTPS id l3si1698283pdo.0.2015.03.31.15.01.05
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 31 Mar 2015 15:01:05 -0700 (PDT)
+Date: Tue, 31 Mar 2015 15:01:03 -0700
+From: Andrew Morton <akpm@linux-foundation.org>
+To: Eddie Huang <eddie.huang@mediatek.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lee Jones
+ <lee.jones@linaro.org>, Alessandro Zummo <a.zummo@towertech.it>, Matthias
+ Brugger <matthias.bgg@gmail.com>, <srv_heupstream@mediatek.com>, Samuel
+ Ortiz <sameo@linux.intel.com>, "David S. Miller" <davem@davemloft.net>,
+ Greg KH <gregkh@linuxfoundation.org>, Mauro Carvalho Chehab
+ <mchehab@osg.samsung.com>, Joe Perches <joe@perches.com>, Tejun Heo
+ <tj@kernel.org>, Jingoo Han <jg1.han@samsung.com>, lkml
+ <linux-kernel@vger.kernel.org>, <rtc-linux@googlegroups.com>,
+ "linux-arm-kernel@lists.infradead.org"
+ <linux-arm-kernel@lists.infradead.org>,
+ <linux-mediatek@lists.infradead.org>, Uwe =?ISO-8859-1?Q?Kleine-K=C3=B6ni?=
+ =?ISO-8859-1?Q?g?= <kernel@pengutronix.de>, Tianping Fang
+ <tianping.fang@mediatek.com>
+Subject: [rtc-linux] Re: [PATCH v2 2/3] rtc: mediatek: Add MT6397 RTC driver
+Message-Id: <20150331150103.c586821d4fddede12551c9ef@linux-foundation.org>
+In-Reply-To: <1427703350.26464.15.camel@mtksdaap41>
+References: <1426657537-41414-1-git-send-email-eddie.huang@mediatek.com>
+	<1426657537-41414-3-git-send-email-eddie.huang@mediatek.com>
+	<CAKdAkRSRXZ=1T+2Mfvjc4DsCCt1rxqGZpEuOUkU5KfPD2__BnQ@mail.gmail.com>
+	<1427703350.26464.15.camel@mtksdaap41>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1427576976-22353-3-git-send-email-aaro.koskinen@iki.fi>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -26,37 +39,18 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On 28/03/2015 at 23:09:36 +0200, Aaro Koskinen wrote :
-> Use function name in the error log instead of __FILE__.
-> 
-> Signed-off-by: Aaro Koskinen <aaro.koskinen@iki.fi>
-Acked-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+On Mon, 30 Mar 2015 16:15:50 +0800 Eddie Huang <eddie.huang@mediatek.com> wrote:
 
-> ---
->  drivers/rtc/hctosys.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+> > > +out_rtc:
+> > > +       rtc_device_unregister(rtc->rtc_dev);
+> > 
+> > This is wrong. Whenever you jump to this label the RTC device has not
+> > been registered yet.
 > 
-> diff --git a/drivers/rtc/hctosys.c b/drivers/rtc/hctosys.c
-> index 6c719f2..7748a61 100644
-> --- a/drivers/rtc/hctosys.c
-> +++ b/drivers/rtc/hctosys.c
-> @@ -33,7 +33,7 @@ static int __init rtc_hctosys(void)
->  
->  	if (rtc == NULL) {
->  		pr_err("%s: unable to open rtc device (%s)\n",
-> -			__FILE__, CONFIG_RTC_HCTOSYS_DEVICE);
-> +			__func__, CONFIG_RTC_HCTOSYS_DEVICE);
->  		goto err_open;
->  	}
->  
-> -- 
-> 2.2.0
-> 
+> Oops, will fix in next round.
 
--- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+Please ensure that Uwe's review comments (starting at
+https://lkml.org/lkml/2015/3/17/494) have been addressed.
 
 -- 
 -- 
