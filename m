@@ -1,47 +1,71 @@
-Return-Path: <phdm@macqel.be>
-Date: Sun, 15 Mar 2015 16:10:17 +0100
-From: Philippe De Muyter <phdm@macqel.be>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>,
-	Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [PATCH 2/2] rtc: add rtc-abx80x, a driver for the Abracon AB
-	x80x i2c rtc
-Message-ID: <20150315151017.GA31712@frolo.macqel>
-References: <1426327546-8085-1-git-send-email-alexandre.belloni@free-electrons.com> <1426327546-8085-3-git-send-email-alexandre.belloni@free-electrons.com> <20150314124441.GA11905@frolo.macqel> <20150314180911.GC4560@piout.net>
+Return-Path: <rtc-linux+bncBDT6DFON3EBBBBMH5GUAKGQEHXDCQ6Y@googlegroups.com>
+Received: from mail-wi0-f174.google.com (mail-wi0-f174.google.com. [209.85.212.174])
+        by gmr-mx.google.com with ESMTPS id el6si770530wib.0.2015.03.30.23.49.39
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 30 Mar 2015 23:49:39 -0700 (PDT)
+Received: by mail-wi0-f174.google.com with SMTP id gn9so13370400wib.1
+        for <rtc-linux@googlegroups.com>; Mon, 30 Mar 2015 23:49:39 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20150314180911.GC4560@piout.net>
+In-Reply-To: <20150331002709.GF3849@piout.net>
+References: <1427728773-29065-1-git-send-email-k.kozlowski@samsung.com>
+	<1427728773-29065-2-git-send-email-k.kozlowski@samsung.com>
+	<20150331002709.GF3849@piout.net>
+Date: Tue, 31 Mar 2015 08:49:39 +0200
+Message-ID: <CABxcv==+h8R-tL9D5OXmYsuYfs_cLATViZ3N1veZwZBZF=fu0Q@mail.gmail.com>
+Subject: [rtc-linux] Re: [PATCH 1/2] drivers/rtc/rtc-s3c.c: Integrate
+ Exynos3250 into S3C6410
+From: Javier Martinez Canillas <javier@dowhile0.org>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: Krzysztof Kozlowski <k.kozlowski@samsung.com>, Kukjin Kim <kgene@kernel.org>,
+	Alessandro Zummo <a.zummo@towertech.it>, Chanwoo Choi <cw00.choi@samsung.com>,
+	"devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, Linux Kernel <linux-kernel@vger.kernel.org>,
+	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>,
+	"linux-samsung-soc@vger.kernel.org" <linux-samsung-soc@vger.kernel.org>, rtc-linux@googlegroups.com,
+	Kyungmin Park <kyungmin.park@samsung.com>
+Content-Type: text/plain; charset=UTF-8
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
+List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
+List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
+List-Archive: <http://groups.google.com/group/rtc-linux
+Sender: rtc-linux@googlegroups.com
+List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
+List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
+ <http://groups.google.com/group/rtc-linux/subscribe>
 
-On Sat, Mar 14, 2015 at 07:09:11PM +0100, Alexandre Belloni wrote:
-> On 14/03/2015 at 13:44:41 +0100, Philippe De Muyter wrote :
-> > > +	tm->tm_sec = bcd2bin(date[ABX8XX_REG_SC] & 0x7F);
-> > > +	tm->tm_min = bcd2bin(date[ABX8XX_REG_MN] & 0x7F);
-> > > +	tm->tm_hour = bcd2bin(date[ABX8XX_REG_HR] & 0x3F);
-> > > +	tm->tm_wday = date[ABX8XX_REG_WD] & 0x7;
-> > > +	tm->tm_mday = bcd2bin(date[ABX8XX_REG_DA] & 0x3F);
-> > > +	tm->tm_mon = bcd2bin(date[ABX8XX_REG_MO] & 0x1F) - 1;
-> > > +	tm->tm_year = bcd2bin(date[ABX8XX_REG_YR]);
-> > > +	if (tm->tm_year < 70)
-> > 
-> > Is that still useful for a driver written in 2015 ?
-> > 
-> 
-> I'd say that this is actually the only correct way to do it. Only dates
-> before 01/01/1970 00:00 are considered invalid. So, unless adding a
-> check like:
-> 
-> if (tm->tm_year < 100)
-> 	return -EINVAL;
-> 
-> in abx80x_rtc_set_time, setting and then reading a date before 2000 will
-> fail silently. I'm open to add that check.
+Hello Alexandre,
 
-You are right.  It is actually more a consistency problem between rtc
-drivers and thus a question for the rtc-subsytem maintainer.
+On Tue, Mar 31, 2015 at 2:27 AM, Alexandre Belloni
+<alexandre.belloni@free-electrons.com> wrote:
+> nitpick: I would prefer rtc: rtc-s3c instead of drivers/rtc/rtc-s3c.c
+>
 
-Philippe
+Yes but Krzysztof is following the convention used in drivers/rtc/
+which I think is the correct thing to do even when it's different from
+what is used all over the kernel.
+
+> On 30/03/2015 at 17:19:32 +0200, Krzysztof Kozlowski wrote :
+>> There are now no differences between RTC on Exynos3250 and S3C6410.
+>> Merge everything into one so duplicated code could be removed.
+>>
+>> Signed-off-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+>
+> Acked-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+>
+
+Reviewed-by: Javier Martinez Canillas <javier.martinez@collabora.co.uk>
+
+Best regards,
+Javier
 
 -- 
-Philippe De Muyter +32 2 6101532 Macq SA rue de l'Aeronef 2 B-1140 Bruxelles
+-- 
+You received this message because you are subscribed to "rtc-linux".
+Membership options at http://groups.google.com/group/rtc-linux .
+Please read http://groups.google.com/group/rtc-linux/web/checklist
+before submitting a driver.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+For more options, visit https://groups.google.com/d/optout.
