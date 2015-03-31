@@ -1,31 +1,30 @@
-Return-Path: <rtc-linux+bncBDA7X7F2WUEBBKVK2CUAKGQE2PV4CRA@googlegroups.com>
-Received: from mail-wi0-f175.google.com (mail-wi0-f175.google.com. [209.85.212.175])
-        by gmr-mx.google.com with ESMTPS id sf8si450161wic.2.2015.03.26.07.18.16
+Return-Path: <rtc-linux+bncBDT6DFON3EBBBE4E5GUAKGQEI2JBDRA@googlegroups.com>
+Received: from mail-wi0-f179.google.com (mail-wi0-f179.google.com. [209.85.212.179])
+        by gmr-mx.google.com with ESMTPS id i8si724991wif.1.2015.03.30.23.43.31
         for <rtc-linux@googlegroups.com>
         (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 26 Mar 2015 07:18:16 -0700 (PDT)
-Received: by mail-wi0-f175.google.com with SMTP id g7so17605688wib.1
-        for <rtc-linux@googlegroups.com>; Thu, 26 Mar 2015 07:18:16 -0700 (PDT)
-Date: Thu, 26 Mar 2015 14:18:12 +0000
-From: Lee Jones <lee.jones@linaro.org>
-To: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-Cc: rtc-linux@googlegroups.com, Sangbeom Kim <sbkim73@samsung.com>,
-	Samuel Ortiz <sameo@linux.intel.com>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org,
-	Kyungmin Park <kyungmin.park@samsung.com>,
-	Marek Szyprowski <m.szyprowski@samsung.com>,
-	Chanwoo Choi <cw00.choi@samsung.com>
-Subject: Re: [rtc-linux] Re: [PATCH v2 2/2] mfd: sec-core: Modify RTC
- compatible name of S2MPS13
-Message-ID: <20150326141812.GO5951@x1>
-References: <1426586058-15987-1-git-send-email-k.kozlowski@samsung.com>
- <1426586058-15987-2-git-send-email-k.kozlowski@samsung.com>
- <20150323123458.GE24804@x1>
- <CAJKOXPeh1McgSxJD23G=2QijRAQM2YGHbDFeGiA4bQQ-mRX-FA@mail.gmail.com>
+        Mon, 30 Mar 2015 23:43:31 -0700 (PDT)
+Received: by mail-wi0-f179.google.com with SMTP id ne17so10378015wic.0
+        for <rtc-linux@googlegroups.com>; Mon, 30 Mar 2015 23:43:31 -0700 (PDT)
 MIME-Version: 1.0
+In-Reply-To: <5519DE76.4080803@samsung.com>
+References: <1427728773-29065-1-git-send-email-k.kozlowski@samsung.com>
+	<1427728773-29065-3-git-send-email-k.kozlowski@samsung.com>
+	<5519DE76.4080803@samsung.com>
+Date: Tue, 31 Mar 2015 08:43:30 +0200
+Message-ID: <CABxcv=nDca+B1cpZ3d6PhLmpU-RuFgjGZiNCX5X2HivdAPnt-g@mail.gmail.com>
+Subject: [rtc-linux] Re: [PATCH 2/2] ARM: dts: s3c-rtc: Use s3c6410-rtc
+ instead of exynos3250-rtc
+From: Javier Martinez Canillas <javier@dowhile0.org>
+To: Chanwoo Choi <cw00.choi@samsung.com>
+Cc: Krzysztof Kozlowski <k.kozlowski@samsung.com>, Kukjin Kim <kgene@kernel.org>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	"devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, Linux Kernel <linux-kernel@vger.kernel.org>,
+	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>,
+	"linux-samsung-soc@vger.kernel.org" <linux-samsung-soc@vger.kernel.org>, rtc-linux@googlegroups.com,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Kyungmin Park <kyungmin.park@samsung.com>
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <CAJKOXPeh1McgSxJD23G=2QijRAQM2YGHbDFeGiA4bQQ-mRX-FA@mail.gmail.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -36,65 +35,83 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On Tue, 24 Mar 2015, Krzysztof Kozlowski wrote:
+On Tue, Mar 31, 2015 at 1:38 AM, Chanwoo Choi <cw00.choi@samsung.com> wrote:
+> On 03/31/2015 12:19 AM, Krzysztof Kozlowski wrote:
+>> Mark "samsung,exynos3250-rtc" compatible as deprecated because it
+>> duplicates the "samsung,s3c6410-rtc". Use "samsung,s3c6410-rtc" on
+>> Exynos3250 and Exynos4415 boards.
+>>
+>> Signed-off-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+>> ---
+>>  Documentation/devicetree/bindings/rtc/s3c-rtc.txt | 3 ++-
+>>  arch/arm/boot/dts/exynos3250.dtsi                 | 2 +-
+>>  arch/arm/boot/dts/exynos4415.dtsi                 | 2 +-
+>>  3 files changed, 4 insertions(+), 3 deletions(-)
+>>
+>> diff --git a/Documentation/devicetree/bindings/rtc/s3c-rtc.txt b/Documentation/devicetree/bindings/rtc/s3c-rtc.txt
+>> index ab757b84daa7..ac2fcd6ff4b8 100644
+>> --- a/Documentation/devicetree/bindings/rtc/s3c-rtc.txt
+>> +++ b/Documentation/devicetree/bindings/rtc/s3c-rtc.txt
+>> @@ -6,7 +6,8 @@ Required properties:
+>>      * "samsung,s3c2416-rtc" - for controllers compatible with s3c2416 rtc.
+>>      * "samsung,s3c2443-rtc" - for controllers compatible with s3c2443 rtc.
+>>      * "samsung,s3c6410-rtc" - for controllers compatible with s3c6410 rtc.
+>> -    * "samsung,exynos3250-rtc" - for controllers compatible with exynos3250 rtc.
+>> +    * "samsung,exynos3250-rtc" - (deprecated) for controllers compatible with
+>> +                                 exynos3250 rtc (use "samsung,s3c6410-rtc").
+>>  - reg: physical base address of the controller and length of memory mapped
+>>    region.
+>>  - interrupts: Two interrupt numbers to the cpu should be specified. First
+>> diff --git a/arch/arm/boot/dts/exynos3250.dtsi b/arch/arm/boot/dts/exynos3250.dtsi
+>> index e3bfb11c6ef8..8d58b550e925 100644
+>> --- a/arch/arm/boot/dts/exynos3250.dtsi
+>> +++ b/arch/arm/boot/dts/exynos3250.dtsi
+>> @@ -189,7 +189,7 @@
+>>               };
+>>
+>>               rtc: rtc@10070000 {
+>> -                     compatible = "samsung,exynos3250-rtc";
+>> +                     compatible = "samsung,s3c6410-rtc";
+>>                       reg = <0x10070000 0x100>;
+>>                       interrupts = <0 73 0>, <0 74 0>;
+>>                       interrupt-parent = <&pmu_system_controller>;
+>> diff --git a/arch/arm/boot/dts/exynos4415.dtsi b/arch/arm/boot/dts/exynos4415.dtsi
+>> index 5caea996e090..186cb8465683 100644
+>> --- a/arch/arm/boot/dts/exynos4415.dtsi
+>> +++ b/arch/arm/boot/dts/exynos4415.dtsi
+>> @@ -177,7 +177,7 @@
+>>               };
+>>
+>>               rtc: rtc@10070000 {
+>> -                     compatible = "samsung,exynos3250-rtc";
+>> +                     compatible = "samsung,s3c6410-rtc";
+>>                       reg = <0x10070000 0x100>;
+>>                       interrupts = <0 73 0>, <0 74 0>;
+>>                       status = "disabled";
+>>
+>
+> Looks good to me.
+>
+> Reviewed-by: Chanwoo Choi <cw00.choi@samsung.com>
+>
+> Thanks,
+> Chanwoo Choi
+> --
 
-> 2015-03-23 13:34 GMT+01:00 Lee Jones <lee.jones@linaro.org>:
-> > On Tue, 17 Mar 2015, Krzysztof Kozlowski wrote:
-> >
-> >> From: Chanwoo Choi <cw00.choi@samsung.com>
-> >>
-> >> This patch modify the RTC compatible name of S2MPS13 because S2MPS13's=
- RTC is
-> >> equal to S2MPS14's RTC.
-> >>
-> >> Cc: Lee Jones <lee.jones@linaro.org>
-> >> Suggested-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-> >> Signed-off-by: Chanwoo Choi <cw00.choi@samsung.com>
-> >> Signed-off-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-> >>
-> >> ---
-> >>
-> >> Changes since v1:
-> >> 1. New patch.
-> >> ---
-> >>  drivers/mfd/sec-core.c | 2 +-
-> >>  1 file changed, 1 insertion(+), 1 deletion(-)
-> >
-> > Applied, thanks.
->=20
-> Hi,
->=20
-> Sorry for the mess but we did this wrong.
-> The S2MPS13 RTC is slightly different than S2MPS14 and that difference
-> is important. It is embarrassing... but the difference was written
-> small-print as a note in datasheet. Really. I found it after carefully
-> comparing two PDFs. The impact of difference was not detected because
-> of error in DTS for Exynos5433-based board.
->=20
-> This patch should be dropped (or reverted) and "s2mps13-rtc" should be
-> used for S2MPS13 RTC mfd_cell. The RTC driver (rtc/rtxc-s5m) should
-> have its own support for RTC which I will add in separate patch.
->=20
-> Lee, once again sorry for the mess. How would you like to proceed? Can
-> you just drop this commit?
+Looks good to me also.
 
-Patch removed -- panic averted.
+Reviewed-by: Javier Martinez Canillas <javier.martinez@collabora.co.uk>
 
---=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+Best regards,
+Javier
 
---=20
---=20
+-- 
+-- 
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
----=20
-You received this message because you are subscribed to the Google Groups "=
-rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an e=
-mail to rtc-linux+unsubscribe@googlegroups.com.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
