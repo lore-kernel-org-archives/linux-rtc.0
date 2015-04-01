@@ -1,26 +1,22 @@
-Return-Path: <rtc-linux+bncBDKLHK5XRULBBUU74SUQKGQELK3Y2BQ@googlegroups.com>
-Received: from mail-wi0-f176.google.com (mail-wi0-f176.google.com. [209.85.212.176])
-        by gmr-mx.google.com with ESMTPS id g5si549356wix.1.2015.04.23.08.29.22
+Return-Path: <rtc-linux+bncBC36JT6HRIDRBIPW5WUAKGQECARYSHA@googlegroups.com>
+Received: from resqmta-ch2-12v.sys.comcast.net (resqmta-ch2-12v.sys.comcast.net. [2001:558:fe21:29:69:252:207:44])
+        by gmr-mx.google.com with ESMTPS id z1si119123qcn.2.2015.03.31.21.59.12
         for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 23 Apr 2015 08:29:22 -0700 (PDT)
-Received: by mail-wi0-f176.google.com with SMTP id mx19so15167692wic.1
-        for <rtc-linux@googlegroups.com>; Thu, 23 Apr 2015 08:29:22 -0700 (PDT)
-From: "Grygorii.Strashko@linaro.org" <grygorii.strashko@linaro.org>
-Message-ID: <55390FC5.2070202@linaro.org>
-Date: Thu, 23 Apr 2015 18:29:09 +0300
+        (version=TLSv1.2 cipher=RC4-SHA bits=128/128);
+        Tue, 31 Mar 2015 21:59:12 -0700 (PDT)
+Message-ID: <551B7B19.30305@gentoo.org>
+Date: Wed, 01 Apr 2015 00:59:05 -0400
+From: Joshua Kinard <kumba@gentoo.org>
 MIME-Version: 1.0
-To: Nishanth Menon <nm@ti.com>,
- "Grygorii.Strashko@linaro.org" <grygorii.strashko@linaro.org>,
- Alexandre Belloni <alexandre.belloni@free-electrons.com>,
- Alessandro Zummo <a.zummo@towertech.it>
-CC: linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org,
- rtc-linux@googlegroups.com
-Subject: [rtc-linux] Re: [PATCH V2] drivers/rtc/rtc-ds1307.c: Enable the
- mcp794xx alarm after programming time
-References: <1429577494-15087-1-git-send-email-nm@ti.com> <5537A169.206@linaro.org> <55383625.3070108@ti.com> <5538C6C2.5010508@linaro.org> <5538EF8D.5050209@ti.com>
-In-Reply-To: <5538EF8D.5050209@ti.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+To: Ralf Baechle <ralf@linux-mips.org>
+CC: Alessandro Zummo <a.zummo@towertech.it>,
+ Linux/MIPS <linux-mips@linux-mips.org>,
+ rtc-linux@googlegroups.com, LKML <linux-kernel@vger.kernel.org>
+Subject: [rtc-linux] Re: [PATCH v2] MIPS: IP32: Add platform data hooks to use
+ DS1685 driver
+References: <54EFD536.2080508@gentoo.org> <20150331105650.GA28951@linux-mips.org>
+In-Reply-To: <20150331105650.GA28951@linux-mips.org>
+Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -31,138 +27,122 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On 04/23/2015 04:11 PM, Nishanth Menon wrote:
-> On 04/23/2015 05:17 AM, Grygorii.Strashko@linaro.org wrote:
->> On 04/23/2015 03:00 AM, Nishanth Menon wrote:
->>> On 04/22/2015 08:26 AM, Grygorii.Strashko@linaro.org wrote:
->>>> Hi,
->>>>
->>>> On 04/21/2015 03:51 AM, Nishanth Menon wrote:
->>>>> Alarm interrupt enable register is at offset 0x7, while the time
->>>>> registers for the alarm follow that. When we program Alarm interrupt
->>>>> enable prior to programming the time, it is possible that previous
->>>>> time value could be close or match at the time of alarm enable
->>>>> resulting in interrupt trigger which is unexpected (and does not matc=
-h
->>>>> the time we expect it to trigger).
->>>>>
->>>>> To prevent this scenario from occuring, program the ALM0_EN bit only
->>>>> after the alarm time is appropriately programmed.
->>>>>
->>>>> Ofcourse, I2C programming is non-atomic, so there are loopholes where
->>>>> the interrupt wont trigger if the time requested is in the past at
->>>>> the time of programming the ALM0_EN bit. However, we will not have
->>>>> unexpected interrupts while the time is programmed after the interrup=
-t
->>>>> are enabled.
->>>>
->>>> I think it will be nice if you will mention that you going to follow
->>>> vendor recommendations - AN1491 Configuring the MCP794XX RTCC Family
->>>> http://ww1.microchip.com/downloads/en/AppNotes/01491A.pdf
->>>> ;)
->>>> "Also, it is recommended that the alarm registers be loaded
->>>> before the alarm is enabled."
->>>>
->>>
->>> Hmm... i did not know that existed, thanks for digging it up.. that
->>> teaches me to look for docs before putting a scope/LA on the board
->>> (not that I regret doing that)... That said, reading the app note, I
->>> kind of realized:
->>> a) that playing with ST bit for programming time is not done, but
->>> then, that implies that oscillator will have to be restarted (upto a
->>> few seconds for certain crystals).. but that said, it does not seem
->>> mandatory or seem to (yet seen) functional issues...
->>>
->>> b) We dont have flexibility yet to describe if we do indeed have a
->>> backup battery or not - VBATEN should be set only if we have a backup
->>> battery on the platform :( - on some it might even be optional thanks
->>> to certain compliance requirements of shipping boards internationally
->>> and general "unlike" of lithium ion in cargo hold..
->>>
->>> c) we dont have capability to control the alarm polarity in the driver
->>> which, by the way, we probably should also control OUT polarity (when
->>> ALARM is not asserted)..
->>>
->>> d) we dont have support for external 32k oscillator(X1 only) instead
->>> of assuming we always have a 32k crystal(X1 and X2)...
->>>
->>> Ugghhh... more cleaning up to do for the future..
->>>
->>> that said, the sequence it does recommend (in page 4):
->>> The following steps show how the Alarm 0 is config-
->>> ured. Alarm 1 can be configured in the same manner.
->>> 1.    Write 0x23 to the Alarm0 Seconds register
->>> [0x0A].
->>> 2.    Write 0x47 to the Alarm0 Minutes register
->>> [0x0B].
->>> 3.    Write 0x71 to the Alarm0 Hours register [0x0C]
->>> =E2=80=93 11 hours in 12-hour format.
->>> 4.    Write 0x72 to the Alarm0 Day register [0x0D] =E2=80=93
->>> Tuesday + Alarm Polarity Low + Match on all.
->>> The Alarm0 Interrupt Flag is also cleared.
->>> 5.    Write 0x14 to the Alarm0 Date register [0x0E].
->>> 6.    Write 0x08 to the Alarm0 Month register [0x0F].
->>> With all the Alarm0 registers set we can now activate
->>> the Alarm0 on the Control register.
->>> 7.    Write 0x10 to the Control register [0x07] =E2=80=93
->>> Alarm0 enabled no CLKOUT, Alarm1 disabled
->>>
->>> before this patch we do ( http://pastebin.ubuntu.com/10863880/)
->>> 	CONTROL r[7] =3D 0x90 (OUT=3D1, ALM0EN=3D1)
->>> 	OSCTRIM r[8] =3D 0x00
->>> 	EEUNLOCK r[9] =3D 0x00
->>> 	ALM0SEC r[A] =3D 0x01
->>> 	ALM0MIN r[B] =3D 0x45
->>> 	ALM0HOUR r[C] =3D 0x23
->>> 	ALM0WKDAY r[D] =3D 0x75 <-ALMOIF is cleared
->>> 	ALM0DATE r[E] =3D 0x09
->>> 	ALM0MTH r[F] =3D 0x04
->>> 	RSRVED r[10] =3D 0x01
->>>
->>> with this patch, we do:
->>> burst(	CONTROL r[7] =3D 0x80 (OUT=3D1)
->>> 	OSCTRIM r[8] =3D 0x00
->>> 	EEUNLOCK r[9] =3D 0x00
->>> 	ALM0SEC r[A] =3D 0x01
->>> 	ALM0MIN r[B] =3D 0x45
->>> 	ALM0HOUR r[C] =3D 0x23
->>> 	ALM0WKDAY r[D] =3D 0x75 <-ALMOIF is cleared
->>> 	ALM0DATE r[E] =3D 0x09
->>> 	ALM0MTH r[F] =3D 0x04
->>> 	RSRVED r[10] =3D 0x01
->>> )
->>> 	CONTROL r[7] =3D 0x90 (OUT=3D1, ALM0EN=3D1)
->>>
->>> Which is slightly unoptimal way of what the app note recommends. - as
->>> I mentioned earlier in this thread, I will try and do optimizations in
->>> a later patch.
->>>
->>> Given that Andrew had picked up this patch, I dont see a reason to
->>> respin this yet. but will include the app note for future patches -
->>> thanks for pointing it out to me.
->>
->> ^^ Up to you. Np, Always yours!
->
-> Considering the narrow focus of the current patch (which does fix an
-> issue that it attempts to), can I get an Ack?
->
->
+On 03/31/2015 06:56, Ralf Baechle wrote:
+> On Thu, Feb 26, 2015 at 09:23:50PM -0500, Joshua Kinard wrote:
+> 
+>> This modifies the IP32 (SGI O2) platform and reset code to utilize the new
+>> rtc-ds1685 driver.  The old mc146818rtc.h header is removed and ip32_defconfig
+>> is updated as well.
+> 
+> In general - good cleanup.  But:
+> 
+>> index 511e9ff..ec9eb7f 100644
+>> --- a/arch/mips/sgi-ip32/ip32-platform.c
+>> +++ b/arch/mips/sgi-ip32/ip32-platform.c
+> [...]
+>>  MODULE_AUTHOR("Ralf Baechle <ralf@linux-mips.org>");
+>>  MODULE_LICENSE("GPL");
+>> -MODULE_DESCRIPTION("8250 UART probe driver for SGI IP32 aka O2");
+>> +MODULE_DESCRIPTION("IP32 platform setup for SGI IP32 aka O2");
+> 
+> This isn't even a kernel module so I've just nuked all these MODULE_*
+> calls.
 
-Reviewed-by: Grygorii Strashko <grygorii.strashko@linaro.org>
+Works for me, thanks!
 
---=20
-regards,
--grygorii
 
---=20
---=20
+>> diff --git a/arch/mips/sgi-ip32/ip32-reset.c b/arch/mips/sgi-ip32/ip32-reset.c
+>> index 44b3470..ef21706 100644
+>> --- a/arch/mips/sgi-ip32/ip32-reset.c
+>> +++ b/arch/mips/sgi-ip32/ip32-reset.c
+> [...]
+>> -static void ip32_machine_restart(char *cmd)
+>> +static __noreturn void ip32_poweroff(void *data)
+>>  {
+>> -	crime->control = CRIME_CONTROL_HARD_RESET;
+>> -	while (1);
+>> -}
+>> +	void (*poweroff_func)(struct platform_device *) =
+>> +		symbol_get(ds1685_rtc_poweroff);
+>> +
+>> +#ifdef CONFIG_MODULES
+>> +	/* If the first __symbol_get failed, our module wasn't loaded. */
+>> +	if (!poweroff_func) {
+>> +		request_module("rtc-ds1685");
+>> +		poweroff_func = symbol_get(ds1685_rtc_poweroff);
+>> +	}
+>> +#endif
+> 
+> symbol_get() calls are high on my list of items that indicate a piece of
+> code is probably ill-structured.
+
+That was the only function I could find that would attempt to fetch the
+ds1685_rtc_poweroff() function from kernel memory and return an indication of
+success or failure that could be checked.  If there's a better way to do that,
+I'll be happy to re-write that section.  I looked through the docs back then
+and couldn't find another way that worked with and without modules.
+
+
+> While RTCs often deal with power the RTC really only wants to deal with
+> time and so power stuff should rather go elsewhere.  I suggest to take a
+> look at drivers/power/reset/.  A small driver there could set pm_power_off
+> approriately.  drivers/power/reset/restart-poweroff.c is a very compact
+> example.
+
+Except this code is in a file called "ip32-reset.c", and the original code
+there did the exact same thing -- powered off the machine.  The
+ds1685_rtc_poweroff() function is defined in the core DS1685 driver
+(drivers/rtc/rtc-ds1685.c) that got added to linux-next a few weeks ago (no one
+had any complaints about that).  This code just checks to see if the RTC driver
+is loaded and then calls that function to power the machine down.
+
+IP30 uses a similar setup as well, since both machines share the same RTC
+chip/family.
+
+
+>> @@ -190,15 +141,12 @@ static __init int ip32_reboot_setup(void)
+>>  
+>>  	_machine_restart = ip32_machine_restart;
+>>  	_machine_halt = ip32_machine_halt;
+>> -	pm_power_off = ip32_machine_power_off;
+>> +	pm_power_off = ip32_machine_halt;
+> 
+> So halt and power_off no do the same?
+> 
+
+They always did.  This is the original ip32_machine_halt function:
+
+static inline void ip32_machine_halt(void)
+{
+       ip32_machine_power_off();
+}
+
+I just got rid of the added level of misdirection and set both _machine_halt
+and pm_power_off to call the same function (especially since there's no
+sleeping these kinds of machines -- maybe hibernate, but that'll still properly
+poweroff).  Seemed the logical thing to do.  In either case, it'll lead to the
+RTC driver handling the poweroff routine, which seems to be the only way SGI
+designed these machines to power off.  I'll wager the ARCS firmware internally
+does the same thing.
+
+-- 
+Joshua Kinard
+Gentoo/MIPS
+kumba@gentoo.org
+4096R/D25D95E3 2011-03-28
+
+"The past tempts us, the present confuses us, the future frightens us.  And our
+lives slip away, moment by moment, lost in that vast, terrible in-between."
+
+--Emperor Turhan, Centauri Republic
+
+-- 
+-- 
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
----=20
-You received this message because you are subscribed to the Google Groups "=
-rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an e=
-mail to rtc-linux+unsubscribe@googlegroups.com.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
