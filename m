@@ -1,54 +1,73 @@
-Content-Type: text/plain; charset="utf-8"
+Return-Path: <rtc-linux+bncBDS7HNEFSALRB5N25WUAKGQEQGX3OCY@googlegroups.com>
 MIME-Version: 1.0
-Subject: [2/5] drivers/rtc/isl1208: Replace deprecated rtc_tm_to_time()
-From: Xunlei Pang <xlpang@126.com>
-Message-Id: <1429089611-29776-2-git-send-email-xlpang@126.com>
-To: linux-kernel@vger.kernel.org
-Cc: rtc-linux@googlegroups.com, Alessandro Zummo <a.zummo@towertech.it>,
- John Stultz <john.stultz@linaro.org>, Arnd Bergmann <arnd@arndb.de>,
- Xunlei Pang <pang.xunlei@linaro.org>, Herbert Valerio Riedel <hvr@gnu.org>
-Date: Wed, 15 Apr 2015 17:20:08 +0800
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id p4si888716wiz.0.2015.03.31.19.52.37
+        for <rtc-linux@googlegroups.com>;
+        Tue, 31 Mar 2015 19:52:37 -0700 (PDT)
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Andrew Morton <akpm@linux-foundation.org>,
+	Philippe De Muyter <phdm@macqel.be>
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+	rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Subject: [rtc-linux] [PATCH v2 0/2] rtc: add Abracon ABx80x
+Date: Wed,  1 Apr 2015 04:52:21 +0200
+Message-Id: <1427856743-26625-1-git-send-email-alexandre.belloni@free-electrons.com>
+Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
+List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
+List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
+List-Archive: <http://groups.google.com/group/rtc-linux
+Sender: rtc-linux@googlegroups.com
+List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
+List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
+ <http://groups.google.com/group/rtc-linux/subscribe>
 
-From: Xunlei Pang <pang.xunlei@linaro.org>
+Hi,
 
-isl1208_i2c_set_alarm() uses deprecated rtc_tm_to_time(),
-which will overflow in year 2106 on 32-bit machines.
+As discussed, I reworked the abracon abx80x driver, merging Philippe's and mine.
 
-This patch solves this by:
- - Replacing rtc_tm_to_time() with rtc_tm_to_time64()
+I have added the Device Tree properties to enable the trickle charger and the
+driver will detect the partnumber before doing that so that it won't try to
+enable the charger when it is not available.
 
-Cc: Herbert Valerio Riedel <hvr@gnu.org>
-Signed-off-by: Xunlei Pang <pang.xunlei@linaro.org>
----
- drivers/rtc/rtc-isl1208.c | 11 ++++-------
- 1 file changed, 4 insertions(+), 7 deletions(-)
+Andrew, when taking this series, you can drop:
+rtc-add-rtc-abx805-a-driver-for-the-abracon-ab-1805-i2c-rtc.patch
+rtc-add-abracon-abx80x-driver.patch
+rtc-add-abracon-abx80x-driver-fix.patch
 
-diff --git a/drivers/rtc/rtc-isl1208.c b/drivers/rtc/rtc-isl1208.c
-index c3c549d..06113e8 100644
---- a/drivers/rtc/rtc-isl1208.c
-+++ b/drivers/rtc/rtc-isl1208.c
-@@ -370,19 +370,16 @@ isl1208_i2c_set_alarm(struct i2c_client *client, struct rtc_wkalrm *alarm)
- 	struct rtc_time *alarm_tm = &alarm->time;
- 	u8 regs[ISL1208_ALARM_SECTION_LEN] = { 0, };
- 	const int offs = ISL1208_REG_SCA;
--	unsigned long rtc_secs, alarm_secs;
-+	time64_t rtc_secs, alarm_secs;
- 	struct rtc_time rtc_tm;
- 	int err, enable;
- 
- 	err = isl1208_i2c_read_time(client, &rtc_tm);
- 	if (err)
- 		return err;
--	err = rtc_tm_to_time(&rtc_tm, &rtc_secs);
--	if (err)
--		return err;
--	err = rtc_tm_to_time(alarm_tm, &alarm_secs);
--	if (err)
--		return err;
-+
-+	rtc_secs = rtc_tm_to_time64(&rtc_tm);
-+	alarm_secs = rtc_tm_to_time64(alarm_tm);
- 
- 	/* If the alarm time is before the current time disable the alarm */
- 	if (!alarm->enabled || alarm_secs <= rtc_secs)
+Changes in v2:
+ - corrected MODULE_LICENSE
+ - enforce ABX8XX_CTRL_WRITE at probe time instead of at write time
+ - changed the range of supported dates to be 2000-2099
+ - reworked the write function to be clearer
+
+Alexandre Belloni (1):
+  Documentation: bindings: add abracon,abx80x
+
+Philippe De Muyter (1):
+  rtc: add rtc-abx80x, a driver for the Abracon AB x80x i2c rtc
+
+ .../devicetree/bindings/rtc/abracon,abx80x.txt     |  32 +++
+ drivers/rtc/Kconfig                                |  10 +
+ drivers/rtc/Makefile                               |   1 +
+ drivers/rtc/rtc-abx80x.c                           | 307 +++++++++++++++++++++
+ 4 files changed, 350 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/rtc/abracon,abx80x.txt
+ create mode 100644 drivers/rtc/rtc-abx80x.c
+
+-- 
+2.1.0
+
+-- 
+-- 
+You received this message because you are subscribed to "rtc-linux".
+Membership options at http://groups.google.com/group/rtc-linux .
+Please read http://groups.google.com/group/rtc-linux/web/checklist
+before submitting a driver.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+For more options, visit https://groups.google.com/d/optout.
