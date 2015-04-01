@@ -1,161 +1,74 @@
-Return-Path: <rtc-linux+bncBCO3XAUMTIFRBE674OUQKGQEDBVUF2Y@googlegroups.com>
-Received: from bear.ext.ti.com (bear.ext.ti.com. [192.94.94.41])
-        by gmr-mx.google.com with ESMTPS id x12si128700igx.1.2015.04.23.06.11.47
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1 cipher=RC4-SHA bits=128/128);
-        Thu, 23 Apr 2015 06:11:47 -0700 (PDT)
-Message-ID: <5538EF8D.5050209@ti.com>
-Date: Thu, 23 Apr 2015 08:11:41 -0500
-From: Nishanth Menon <nm@ti.com>
+Date: Wed, 1 Apr 2015 17:53:57 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: rtc-linux@googlegroups.com
+Cc: a.zummo@towertech.it, t-kristo@ti.com, nsekhar@ti.com,
+	linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org,
+	lokeshvutla@ti.com
+Subject: Re: [rtc-linux] [PATCH 3/3] rtc: omap: use module_platform_driver
+Message-ID: <20150401155357.GE20669@piout.net>
+References: <1427867698-1326-1-git-send-email-lokeshvutla@ti.com>
+ <1427867698-1326-4-git-send-email-lokeshvutla@ti.com>
 MIME-Version: 1.0
-To: "Grygorii.Strashko@linaro.org" <grygorii.strashko@linaro.org>,
-        Alexandre
- Belloni <alexandre.belloni@free-electrons.com>,
-        Alessandro Zummo
-	<a.zummo@towertech.it>
-CC: <linux-omap@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-        <rtc-linux@googlegroups.com>
-Subject: [rtc-linux] Re: [PATCH V2] drivers/rtc/rtc-ds1307.c: Enable the
- mcp794xx alarm after programming time
-References: <1429577494-15087-1-git-send-email-nm@ti.com> <5537A169.206@linaro.org> <55383625.3070108@ti.com> <5538C6C2.5010508@linaro.org>
-In-Reply-To: <5538C6C2.5010508@linaro.org>
-Content-Type: text/plain; charset=UTF-8
-Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1427867698-1326-4-git-send-email-lokeshvutla@ti.com>
 List-ID: <rtc-linux.googlegroups.com>
-List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
-List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
-List-Archive: <http://groups.google.com/group/rtc-linux
-Sender: rtc-linux@googlegroups.com
-List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
-List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
- <http://groups.google.com/group/rtc-linux/subscribe>
 
-On 04/23/2015 05:17 AM, Grygorii.Strashko@linaro.org wrote:
-> On 04/23/2015 03:00 AM, Nishanth Menon wrote:
->> On 04/22/2015 08:26 AM, Grygorii.Strashko@linaro.org wrote:
->>> Hi,
->>>
->>> On 04/21/2015 03:51 AM, Nishanth Menon wrote:
->>>> Alarm interrupt enable register is at offset 0x7, while the time
->>>> registers for the alarm follow that. When we program Alarm interrupt
->>>> enable prior to programming the time, it is possible that previous
->>>> time value could be close or match at the time of alarm enable
->>>> resulting in interrupt trigger which is unexpected (and does not match
->>>> the time we expect it to trigger).
->>>>
->>>> To prevent this scenario from occuring, program the ALM0_EN bit only
->>>> after the alarm time is appropriately programmed.
->>>>
->>>> Ofcourse, I2C programming is non-atomic, so there are loopholes where
->>>> the interrupt wont trigger if the time requested is in the past at
->>>> the time of programming the ALM0_EN bit. However, we will not have
->>>> unexpected interrupts while the time is programmed after the interrupt
->>>> are enabled.
->>>
->>> I think it will be nice if you will mention that you going to follow
->>> vendor recommendations - AN1491 Configuring the MCP794XX RTCC Family
->>> http://ww1.microchip.com/downloads/en/AppNotes/01491A.pdf
->>> ;)
->>> "Also, it is recommended that the alarm registers be loaded
->>> before the alarm is enabled."
->>>
->>
->> Hmm... i did not know that existed, thanks for digging it up.. that
->> teaches me to look for docs before putting a scope/LA on the board
->> (not that I regret doing that)... That said, reading the app note, I
->> kind of realized:
->> a) that playing with ST bit for programming time is not done, but
->> then, that implies that oscillator will have to be restarted (upto a
->> few seconds for certain crystals).. but that said, it does not seem
->> mandatory or seem to (yet seen) functional issues...
->>
->> b) We dont have flexibility yet to describe if we do indeed have a
->> backup battery or not - VBATEN should be set only if we have a backup
->> battery on the platform :( - on some it might even be optional thanks
->> to certain compliance requirements of shipping boards internationally
->> and general "unlike" of lithium ion in cargo hold..
->>
->> c) we dont have capability to control the alarm polarity in the driver
->> which, by the way, we probably should also control OUT polarity (when
->> ALARM is not asserted)..
->>
->> d) we dont have support for external 32k oscillator(X1 only) instead
->> of assuming we always have a 32k crystal(X1 and X2)...
->>
->> Ugghhh... more cleaning up to do for the future..
->>
->> that said, the sequence it does recommend (in page 4):
->> The following steps show how the Alarm 0 is config-
->> ured. Alarm 1 can be configured in the same manner.
->> 1.    Write 0x23 to the Alarm0 Seconds register
->> [0x0A].
->> 2.    Write 0x47 to the Alarm0 Minutes register
->> [0x0B].
->> 3.    Write 0x71 to the Alarm0 Hours register [0x0C]
->> =E2=80=93 11 hours in 12-hour format.
->> 4.    Write 0x72 to the Alarm0 Day register [0x0D] =E2=80=93
->> Tuesday + Alarm Polarity Low + Match on all.
->> The Alarm0 Interrupt Flag is also cleared.
->> 5.    Write 0x14 to the Alarm0 Date register [0x0E].
->> 6.    Write 0x08 to the Alarm0 Month register [0x0F].
->> With all the Alarm0 registers set we can now activate
->> the Alarm0 on the Control register.
->> 7.    Write 0x10 to the Control register [0x07] =E2=80=93
->> Alarm0 enabled no CLKOUT, Alarm1 disabled
->>
->> before this patch we do ( http://pastebin.ubuntu.com/10863880/)
->> 	CONTROL r[7] =3D 0x90 (OUT=3D1, ALM0EN=3D1)
->> 	OSCTRIM r[8] =3D 0x00
->> 	EEUNLOCK r[9] =3D 0x00
->> 	ALM0SEC r[A] =3D 0x01
->> 	ALM0MIN r[B] =3D 0x45
->> 	ALM0HOUR r[C] =3D 0x23
->> 	ALM0WKDAY r[D] =3D 0x75 <-ALMOIF is cleared
->> 	ALM0DATE r[E] =3D 0x09
->> 	ALM0MTH r[F] =3D 0x04
->> 	RSRVED r[10] =3D 0x01
->>
->> with this patch, we do:
->> burst(	CONTROL r[7] =3D 0x80 (OUT=3D1)
->> 	OSCTRIM r[8] =3D 0x00
->> 	EEUNLOCK r[9] =3D 0x00
->> 	ALM0SEC r[A] =3D 0x01
->> 	ALM0MIN r[B] =3D 0x45
->> 	ALM0HOUR r[C] =3D 0x23
->> 	ALM0WKDAY r[D] =3D 0x75 <-ALMOIF is cleared
->> 	ALM0DATE r[E] =3D 0x09
->> 	ALM0MTH r[F] =3D 0x04
->> 	RSRVED r[10] =3D 0x01
->> )
->> 	CONTROL r[7] =3D 0x90 (OUT=3D1, ALM0EN=3D1)
->>
->> Which is slightly unoptimal way of what the app note recommends. - as
->> I mentioned earlier in this thread, I will try and do optimizations in
->> a later patch.
->>
->> Given that Andrew had picked up this patch, I dont see a reason to
->> respin this yet. but will include the app note for future patches -
->> thanks for pointing it out to me.
->=20
-> ^^ Up to you. Np, Always yours!
+On 01/04/2015 at 11:24:58 +0530, Lokesh Vutla wrote :
+> module_platform_driver_probe() prevents driver from requesting probe deferral.
+> So using module_platform_drive() to support probe deferral.
+> 
+> Signed-off-by: Lokesh Vutla <lokeshvutla@ti.com>
+Acked-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
 
-Considering the narrow focus of the current patch (which does fix an
-issue that it attempts to), can I get an Ack?
+> ---
+>  drivers/rtc/rtc-omap.c | 5 +++--
+>  1 file changed, 3 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/rtc/rtc-omap.c b/drivers/rtc/rtc-omap.c
+> index 96cc613..a4965a0 100644
+> --- a/drivers/rtc/rtc-omap.c
+> +++ b/drivers/rtc/rtc-omap.c
+> @@ -510,7 +510,7 @@ static const struct of_device_id omap_rtc_of_match[] = {
+>  };
+>  MODULE_DEVICE_TABLE(of, omap_rtc_of_match);
+>  
+> -static int __init omap_rtc_probe(struct platform_device *pdev)
+> +static int omap_rtc_probe(struct platform_device *pdev)
+>  {
+>  	struct omap_rtc	*rtc;
+>  	struct resource	*res;
+> @@ -745,6 +745,7 @@ static void omap_rtc_shutdown(struct platform_device *pdev)
+>  }
+>  
+>  static struct platform_driver omap_rtc_driver = {
+> +	.probe		= omap_rtc_probe,
+>  	.remove		= __exit_p(omap_rtc_remove),
+>  	.shutdown	= omap_rtc_shutdown,
+>  	.driver		= {
+> @@ -755,7 +756,7 @@ static struct platform_driver omap_rtc_driver = {
+>  	.id_table	= omap_rtc_id_table,
+>  };
+>  
+> -module_platform_driver_probe(omap_rtc_driver, omap_rtc_probe);
+> +module_platform_driver(omap_rtc_driver);
+>  
+>  MODULE_ALIAS("platform:omap_rtc");
+>  MODULE_AUTHOR("George G. Davis (and others)");
+> -- 
+> 1.9.1
+> 
+> -- 
+> -- 
+> You received this message because you are subscribed to "rtc-linux".
+> Membership options at http://groups.google.com/group/rtc-linux .
+> Please read http://groups.google.com/group/rtc-linux/web/checklist
+> before submitting a driver.
+> --- 
+> You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+> To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+> For more options, visit https://groups.google.com/d/optout.
 
-
---=20
-Regards,
-Nishanth Menon
-
---=20
---=20
-You received this message because you are subscribed to "rtc-linux".
-Membership options at http://groups.google.com/group/rtc-linux .
-Please read http://groups.google.com/group/rtc-linux/web/checklist
-before submitting a driver.
----=20
-You received this message because you are subscribed to the Google Groups "=
-rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an e=
-mail to rtc-linux+unsubscribe@googlegroups.com.
-For more options, visit https://groups.google.com/d/optout.
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
