@@ -1,98 +1,63 @@
-Date: Wed, 22 Apr 2015 00:09:42 +0200
+Date: Wed, 1 Apr 2015 17:52:04 +0200
 From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Juergen Borleis <jbe@pengutronix.de>
-Cc: linux-kernel@vger.kernel.org, rtc-linux@googlegroups.com,
-	kernel@pengutronix.de, Alessandro Zummo <a.zummo@towertech.it>,
-	linux-arm-kernel@lists.infradead.org,
-	Robert Schwebel <rsc@pengutronix.de>
-Subject: Re: [rtc-linux] [PATCH 1/5] RTC/i.MX/DryIce: add some background
- info about the states the machine can be in
-Message-ID: <20150421220942.GB8539@piout.net>
-References: <1429002716-19821-1-git-send-email-jbe@pengutronix.de>
- <1429002716-19821-2-git-send-email-jbe@pengutronix.de>
+To: rtc-linux@googlegroups.com
+Cc: a.zummo@towertech.it, t-kristo@ti.com, nsekhar@ti.com,
+	linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org,
+	lokeshvutla@ti.com
+Subject: Re: [rtc-linux] [PATCH 1/3] rtc: omap: Unlock and Lock rtc registers
+ before and after register writes
+Message-ID: <20150401155204.GC20669@piout.net>
+References: <1427867698-1326-1-git-send-email-lokeshvutla@ti.com>
+ <1427867698-1326-2-git-send-email-lokeshvutla@ti.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1429002716-19821-2-git-send-email-jbe@pengutronix.de>
+In-Reply-To: <1427867698-1326-2-git-send-email-lokeshvutla@ti.com>
 List-ID: <rtc-linux.googlegroups.com>
 
-On 14/04/2015 at 11:11:52 +0200, Juergen Borleis wrote :
-> Signed-off-by: Juergen Borleis <jbe@pengutronix.de>
-> Signed-off-by: Robert Schwebel <rsc@pengutronix.de>
-> [rsc: got NDA clearance from Freescale]
-> ---
->  drivers/rtc/rtc-imxdi.c | 43 +++++++++++++++++++++++++++++++++++++++++++
->  1 file changed, 43 insertions(+)
-> 
-> diff --git a/drivers/rtc/rtc-imxdi.c b/drivers/rtc/rtc-imxdi.c
-> index c666eab..8750477 100644
-> --- a/drivers/rtc/rtc-imxdi.c
-> +++ b/drivers/rtc/rtc-imxdi.c
-> @@ -129,6 +129,49 @@ struct imxdi_dev {
->  	struct work_struct work;
->  };
->  
-> +/* Some background:
-> + *
-> + * The DryIce unit is a complex security/tamper monitor device. To be able do
-> + * its job in a useful manner it runs a bigger statemachine to bring it into
-> + * security/tamper failure state and once again to bring it out of this state.
-> + *
-> + * This unit can be in one of three states:
-> + *
-> + * - "NON-VALID STATE"
-> + *   always after the battery power was removed
-> + * - "FAILURE STATE"
-> + *   if one of the enabled security events have happend
-                                 has happened ^
-> + * - "VALID STATE"
-> + *   if the unit works as expected
-> + *
-> + * Everything stops when the unit enters the failure state including the RTC
-> + * counter (to be able to detect the time the security event happend).
-                                                       happened ^
-> + *
-> + * The following events (when enabled) let the DryIce unit enter the failure
-> + * state:
-> + *
-> + * - wire-mesh-tamper detect
-> + * - external tamper B detect
-> + * - external tamper A detect
-> + * - temperature tamper detect
-> + * - clock tamper detect
-> + * - voltage tamper detect
-> + * - RTC counter overflow
-> + * - monotonic counter overflow
-> + * - external boot
-> + *
-> + * If we find the DryIce unit in "FAILURE STATE" and the TDCHL cleared, we
-> + * can only detect this state. In this case the unit is completely locked and
-> + * must force a second "SYSTEM POR" to bring the DryIce into the
-> + * "NON-VALID STATE" + "FAILURE STATE" where a recovery is possible.
-> + * If the TDCHL is set in the "FAILURE STATE" we are out of luck. In this case
-> + * a battery power cycle is required.
-> + *
-> + * In the "NON-VALID STATE" + "FAILURE STATE" we can clear the "FAILURE STATE"
-> + * and recover the DryIce unit. By clearing the "NON-VALID STATE" as the last
-> + * task, we bring back this unit into life.
-> + */
-> +
->  /*
->   * enable a dryice interrupt
->   */
-> -- 
-> 2.1.4
-> 
-> -- 
-> -- 
-> You received this message because you are subscribed to "rtc-linux".
-> Membership options at http://groups.google.com/group/rtc-linux .
-> Please read http://groups.google.com/group/rtc-linux/web/checklist
-> before submitting a driver.
-> --- 
-> You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-> To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
-> For more options, visit https://groups.google.com/d/optout.
+Hi,
 
+On 01/04/2015 at 11:24:56 +0530, Lokesh Vutla wrote :
+> RTC module contains a kicker mechanism to prevent any spurious writes
+> from changing the register values. This mechanism requires two MMR
+> writes to the KICK0 and KICK1 registers with exact data values
+> before the kicker lock mechanism is released.
+> 
+> Currently the driver release the lock in the probe and leaves it enabled
+> until the rtc driver removal. This eliminates the idea of preventing
+> spurious writes when RTC driver is loaded.
+> So implement rtc lock and unlock functions before and after register writes.
+> 
+> Signed-off-by: Lokesh Vutla <lokeshvutla@ti.com>
+> ---
+> - This is as advised by Paul to implement lock and unlock functions in
+>   the driver and not to unlock and leave it in probe.
+>   The same discussion can be seen here:
+>   http://www.mail-archive.com/linux-omap%40vger.kernel.org/msg111588.html
+> 
+>  drivers/rtc/rtc-omap.c | 46 ++++++++++++++++++++++++++++++++++++++--------
+>  1 file changed, 38 insertions(+), 8 deletions(-)
+> 
+> diff --git a/drivers/rtc/rtc-omap.c b/drivers/rtc/rtc-omap.c
+> index 8e5851a..96cc613 100644
+> --- a/drivers/rtc/rtc-omap.c
+> +++ b/drivers/rtc/rtc-omap.c
+> @@ -156,6 +156,22 @@ static inline void rtc_writel(struct omap_rtc *rtc, unsigned int reg, u32 val)
+>  	writel(val, rtc->base + reg);
+>  }
+>  
+> +static void rtc_unlock(struct omap_rtc *rtc)
+> +{
+> +	if (rtc->type->has_kicker) {
+
+Instead of testing for has_kicker each time, I would add .lock and
+.unlock to omap_rtc_device_type and directly use rtc->type->lock and
+rtc->type->unlock.
+
+> +		rtc_writel(rtc, OMAP_RTC_KICK0_REG, KICK0_VALUE);
+> +		rtc_writel(rtc, OMAP_RTC_KICK1_REG, KICK1_VALUE);
+> +	}
+> +}
+> +
 -- 
 Alexandre Belloni, Free Electrons
 Embedded Linux, Kernel and Android engineering
