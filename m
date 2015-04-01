@@ -1,19 +1,19 @@
-Return-Path: <rtc-linux+bncBAABBX6G6SUAKGQEFM7KW3I@googlegroups.com>
-Received: from comal.ext.ti.com (comal.ext.ti.com. [198.47.26.152])
-        by gmr-mx.google.com with ESMTPS id c19si118243igm.1.2015.04.02.04.09.19
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1 cipher=RC4-SHA bits=128/128);
-        Thu, 02 Apr 2015 04:09:19 -0700 (PDT)
-From: Lokesh Vutla <lokeshvutla@ti.com>
-To: <a.zummo@towertech.it>, <rtc-linux@googlegroups.com>
-CC: <t-kristo@ti.com>, <nsekhar@ti.com>, <linux-omap@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>, <lokeshvutla@ti.com>,
-        <alexandre.belloni@free-electrons.com>
-Subject: [rtc-linux] [PATCH v2 0/3] rtc: omap: Fix misc bugs
-Date: Thu, 2 Apr 2015 16:39:08 +0530
-Message-ID: <1427972951-18959-1-git-send-email-lokeshvutla@ti.com>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRB4565WUAKGQEASXNCRI@googlegroups.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id f5si565921wix.1.2015.03.31.20.01.07
+        for <rtc-linux@googlegroups.com>;
+        Tue, 31 Mar 2015 20:01:07 -0700 (PDT)
+Date: Wed, 1 Apr 2015 05:01:05 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Aaro Koskinen <aaro.koskinen@iki.fi>
+Cc: Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org
+Subject: [rtc-linux] Re: [PATCH 1/3] rtc: initialize rtc name early
+Message-ID: <20150401030105.GN3849@piout.net>
+References: <1427576976-22353-1-git-send-email-aaro.koskinen@iki.fi>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1427576976-22353-1-git-send-email-aaro.koskinen@iki.fi>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -24,25 +24,54 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-This patch series fixes miscellaneous bugs in OMAP RTC driver.
+On 28/03/2015 at 23:09:34 +0200, Aaro Koskinen wrote :
+> In some error cases RTC name is used before it is initialized:
+> 
+> 	rtc-rs5c372 0-0032: clock needs to be set
+> 	rtc-rs5c372 0-0032: rs5c372b found, 24hr, driver version 0.6
+> 	rtc (null): read_time: fail to read
+> 	rtc-rs5c372 0-0032: rtc core: registered rtc-rs5c372 as rtc0
+> 
+> Fix by initializing the name early.
+> 
+> Signed-off-by: Aaro Koskinen <aaro.koskinen@iki.fi>
+Acked-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
 
-Tested on BeagleBone-Black.
-Logs: http://pastebin.ubuntu.com/10723287/
-
-V1 patches can be seen here: http://www.mail-archive.com/linux-omap%40vger.kernel.org/msg115839.html
-
-Lokesh Vutla (3):
-  rtc: omap: Unlock and Lock rtc registers before and after register
-    writes
-  rtc: omap: Update Kconfig for OMAP RTC
-  rtc: omap: use module_platform_driver
-
- drivers/rtc/Kconfig    |  6 ++---
- drivers/rtc/rtc-omap.c | 68 ++++++++++++++++++++++++++++++++++++++++----------
- 2 files changed, 58 insertions(+), 16 deletions(-)
+> ---
+>  drivers/rtc/class.c | 6 +++---
+>  1 file changed, 3 insertions(+), 3 deletions(-)
+> 
+> diff --git a/drivers/rtc/class.c b/drivers/rtc/class.c
+> index 472a5ad..014ecbc 100644
+> --- a/drivers/rtc/class.c
+> +++ b/drivers/rtc/class.c
+> @@ -225,15 +225,15 @@ struct rtc_device *rtc_device_register(const char *name, struct device *dev,
+>  	rtc->pie_timer.function = rtc_pie_update_irq;
+>  	rtc->pie_enabled = 0;
+>  
+> +	strlcpy(rtc->name, name, RTC_DEVICE_NAME_SIZE);
+> +	dev_set_name(&rtc->dev, "rtc%d", id);
+> +
+>  	/* Check to see if there is an ALARM already set in hw */
+>  	err = __rtc_read_alarm(rtc, &alrm);
+>  
+>  	if (!err && !rtc_valid_tm(&alrm.time))
+>  		rtc_initialize_alarm(rtc, &alrm);
+>  
+> -	strlcpy(rtc->name, name, RTC_DEVICE_NAME_SIZE);
+> -	dev_set_name(&rtc->dev, "rtc%d", id);
+> -
+>  	rtc_dev_prepare(rtc);
+>  
+>  	err = device_register(&rtc->dev);
+> -- 
+> 2.2.0
+> 
 
 -- 
-1.9.1
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
 -- 
 -- 
