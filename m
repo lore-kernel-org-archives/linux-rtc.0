@@ -1,26 +1,24 @@
-Return-Path: <rtc-linux+bncBDKLHK5XRULBB3OC32UQKGQEKD25T4A@googlegroups.com>
-Received: from mail-la0-f42.google.com (mail-la0-f42.google.com. [209.85.215.42])
-        by gmr-mx.google.com with ESMTPS id su3si442322lbb.1.2015.04.22.06.26.05
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 22 Apr 2015 06:26:05 -0700 (PDT)
-Received: by labbd9 with SMTP id bd9so174867246lab.2
-        for <rtc-linux@googlegroups.com>; Wed, 22 Apr 2015 06:26:05 -0700 (PDT)
-From: "Grygorii.Strashko@linaro.org" <grygorii.strashko@linaro.org>
-Message-ID: <5537A169.206@linaro.org>
-Date: Wed, 22 Apr 2015 16:26:01 +0300
+Return-Path: <rtc-linux+bncBDS7HNEFSALRB5V25WUAKGQEJDVHA6A@googlegroups.com>
 MIME-Version: 1.0
-To: Nishanth Menon <nm@ti.com>,
- Alexandre Belloni <alexandre.belloni@free-electrons.com>,
- Alessandro Zummo <a.zummo@towertech.it>
-CC: linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org,
- rtc-linux@googlegroups.com
-Subject: [rtc-linux] Re: [PATCH V2] drivers/rtc/rtc-ds1307.c: Enable the
- mcp794xx alarm after programming time
-References: <1429577494-15087-1-git-send-email-nm@ti.com>
-In-Reply-To: <1429577494-15087-1-git-send-email-nm@ti.com>
-Content-Type: text/plain; charset=UTF-8
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id i8si36380wif.1.2015.03.31.19.52.38
+        for <rtc-linux@googlegroups.com>;
+        Tue, 31 Mar 2015 19:52:38 -0700 (PDT)
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Andrew Morton <akpm@linux-foundation.org>,
+	Philippe De Muyter <phdm@macqel.be>
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+	rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	devicetree-discuss@lists.ozlabs.org
+Subject: [rtc-linux] [PATCH v2 1/2] Documentation: bindings: add abracon,abx80x
+Date: Wed,  1 Apr 2015 04:52:22 +0200
+Message-Id: <1427856743-26625-2-git-send-email-alexandre.belloni@free-electrons.com>
+In-Reply-To: <1427856743-26625-1-git-send-email-alexandre.belloni@free-electrons.com>
+References: <1427856743-26625-1-git-send-email-alexandre.belloni@free-electrons.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -30,89 +28,55 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Hi,
+Document the bindings for abracon,abx80x and related compatibles.
 
-On 04/21/2015 03:51 AM, Nishanth Menon wrote:
-> Alarm interrupt enable register is at offset 0x7, while the time
-> registers for the alarm follow that. When we program Alarm interrupt
-> enable prior to programming the time, it is possible that previous
-> time value could be close or match at the time of alarm enable
-> resulting in interrupt trigger which is unexpected (and does not match
-> the time we expect it to trigger).
-> 
-> To prevent this scenario from occuring, program the ALM0_EN bit only
-> after the alarm time is appropriately programmed.
-> 
-> Ofcourse, I2C programming is non-atomic, so there are loopholes where
-> the interrupt wont trigger if the time requested is in the past at
-> the time of programming the ALM0_EN bit. However, we will not have
-> unexpected interrupts while the time is programmed after the interrupt
-> are enabled.
+Cc: devicetree-discuss@lists.ozlabs.org
+Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+---
+ .../devicetree/bindings/rtc/abracon,abx80x.txt     | 32 ++++++++++++++++++++++
+ 1 file changed, 32 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/rtc/abracon,abx80x.txt
 
-I think it will be nice if you will mention that you going to follow
-vendor recommendations - AN1491 Configuring the MCP794XX RTCC Family
-http://ww1.microchip.com/downloads/en/AppNotes/01491A.pdf
-;)
-"Also, it is recommended that the alarm registers be loaded
-before the alarm is enabled."
-
-> 
-> Signed-off-by: Nishanth Menon <nm@ti.com>
-> ---
-> Changes in v2:
-> 	- minor typo fix in comments
-> 	- merged up code that I missed committing in
-> 
-> V1: https://patchwork.kernel.org/patch/6245041/
-> 
->   drivers/rtc/rtc-ds1307.c |   12 ++++++------
->   1 file changed, 6 insertions(+), 6 deletions(-)
-> 
-> diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
-> index 4ffabb322a9a..3cd4783375a5 100644
-> --- a/drivers/rtc/rtc-ds1307.c
-> +++ b/drivers/rtc/rtc-ds1307.c
-> @@ -742,17 +742,17 @@ static int mcp794xx_set_alarm(struct device *dev, struct rtc_wkalrm *t)
->   	regs[6] &= ~MCP794XX_BIT_ALMX_IF;
->   	/* Set alarm match: second, minute, hour, day, date, month. */
->   	regs[6] |= MCP794XX_MSK_ALMX_MATCH;
-> -
-> -	if (t->enabled)
-> -		regs[0] |= MCP794XX_BIT_ALM0_EN;
-> -	else
-> -		regs[0] &= ~MCP794XX_BIT_ALM0_EN;
-> +	/* Disable interrupt. We will not enable until completely programmed */
-> +	regs[0] &= ~MCP794XX_BIT_ALM0_EN;
->   
->   	ret = ds1307->write_block_data(client, MCP794XX_REG_CONTROL, 10, regs);
->   	if (ret < 0)
->   		return ret;
->   
-> -	return 0;
-> +	if (!t->enabled)
-> +		return 0;
-> +	regs[0] |= MCP794XX_BIT_ALM0_EN;
-> +	return i2c_smbus_write_byte_data(client, MCP794XX_REG_CONTROL, regs[0]);
-
-So, It seems, that right sequence should be:
-- disable alarmX
-- read alarmX regs
-- configure alarmX regs
-- load alarmX regs
-- enable alarmX
-
-More over, looks like, alarm/alarm IRQ should be enabled/disabled separately from set_alarm/RTC_ALM_SET
-by RTC_AIE_ON, RTC_AIE_OFF. Should it?
-
->   }
->   
->   static int mcp794xx_alarm_irq_enable(struct device *dev, unsigned int enabled)
-> 
-
-
+diff --git a/Documentation/devicetree/bindings/rtc/abracon,abx80x.txt b/Documentation/devicetree/bindings/rtc/abracon,abx80x.txt
+new file mode 100644
+index 000000000000..6f0d3b2cdd89
+--- /dev/null
++++ b/Documentation/devicetree/bindings/rtc/abracon,abx80x.txt
+@@ -0,0 +1,32 @@
++Abracon ABX80X I2C ultra low power RTC/Alarm chip
++
++The Abracon ABX80X family consist of the ab0801, ab0803, ab0804, ab0805, ab1801,
++ab1803, ab1804 and ab1805. The ab0805 is the superset of ab080x and the ab1805
++is the superset of ab180x.
++
++Required properties:
++
++ - "compatible": should one of:
++        "abracon,abx80x"
++        "abracon,ab0801"
++        "abracon,ab0803"
++        "abracon,ab0804"
++        "abracon,ab0805"
++        "abracon,ab1801"
++        "abracon,ab1803"
++        "abracon,ab1804"
++        "abracon,ab1805"
++	Using "abracon,abx80x" will enable chip autodetection.
++ - "reg": I2C bus address of the device
++
++Optional properties:
++
++The abx804 and abx805 have a trickle charger that is able to charge the
++connected battery or supercap. Both the following properties have to be defined
++and valid to enable charging:
++
++ - "abracon,tc-diode": should be "standard" (0.6V) or "schottky" (0.3V)
++ - "abracon,tc-resistor": should be <0>, <3>, <6> or <11>. 0 disables the output
++                          resistor, the other values are in ohm.
++
++
 -- 
-regards,
--grygorii
+2.1.0
 
 -- 
 -- 
