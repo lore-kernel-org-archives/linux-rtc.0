@@ -1,23 +1,25 @@
-Return-Path: <rtc-linux+bncBDKZNNNLXAHBBV6J4OUQKGQEJ3L57YY@googlegroups.com>
+Return-Path: <rtc-linux+bncBCF252X47MMRBMVR52UAKGQETL5SM2A@googlegroups.com>
+Received: from zabrina.hetzner-de.towertech.it (zabrina.hetzner-de.towertech.it. [178.63.16.19])
+        by gmr-mx.google.com with ESMTP id i8si60856wif.1.2015.04.01.00.05.22
+        for <rtc-linux@googlegroups.com>;
+        Wed, 01 Apr 2015 00:05:22 -0700 (PDT)
+Date: Wed, 1 Apr 2015 09:05:20 +0200
+From: Alessandro Zummo <a.zummo@towertech.it>
+To: Joe Perches <joe@perches.com>
+Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>, Aaro Koskinen
+ <aaro.koskinen@iki.fi>, rtc-linux@googlegroups.com,
+ linux-kernel@vger.kernel.org
+Subject: Re: [rtc-linux] Re: [PATCH 3/3] rtc: hctosys: use function name in
+ the error log
+Message-ID: <20150401090520.559ead39@linux.lan.towertech.it>
+In-Reply-To: <1427858308.18175.30.camel@perches.com>
+References: <1427576976-22353-1-git-send-email-aaro.koskinen@iki.fi>
+	<1427576976-22353-3-git-send-email-aaro.koskinen@iki.fi>
+	<20150401030124.GO3849@piout.net>
+	<1427858308.18175.30.camel@perches.com>
 MIME-Version: 1.0
-Received: from mail-pd0-x232.google.com (mail-pd0-x232.google.com. [2607:f8b0:400e:c02::232])
-        by gmr-mx.google.com with ESMTPS id xv6si1042857pab.2.2015.04.23.05.25.58
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 23 Apr 2015 05:25:58 -0700 (PDT)
-Received: by mail-pd0-x232.google.com with SMTP id a3so17172201pde.3
-        for <rtc-linux@googlegroups.com>; Thu, 23 Apr 2015 05:25:58 -0700 (PDT)
-From: Krzysztof Kozlowski <k.kozlowski.k@gmail.com>
-To: Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org
-Cc: Krzysztof Kozlowski <k.kozlowski.k@gmail.com>
-Subject: [rtc-linux] [PATCH 1/2] rtc: interface: Fix coding style violations
-Date: Thu, 23 Apr 2015 21:25:39 +0900
-Message-Id: <1429791940-22169-1-git-send-email-k.kozlowski.k@gmail.com>
-Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -27,45 +29,30 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Fix issues reported by checkpatch:
-  ERROR: open brace '{' following struct go on the same line
-  ERROR: "foo* bar" should be "foo *bar"
+On Tue, 31 Mar 2015 20:18:28 -0700
+Joe Perches <joe@perches.com> wrote:
 
-Signed-off-by: Krzysztof Kozlowski <k.kozlowski.k@gmail.com>
----
- include/linux/rtc.h | 9 ++++-----
- 1 file changed, 4 insertions(+), 5 deletions(-)
+> Neither __func__ or __FILE__ is really useful here.
+> The message is already specific enough without it.
+> 
+> If anything, it'd probably be better to add
+> 
+> #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
 
-diff --git a/include/linux/rtc.h b/include/linux/rtc.h
-index c8b68741994e..85b48b29a143 100644
---- a/include/linux/rtc.h
-+++ b/include/linux/rtc.h
-@@ -101,8 +101,7 @@ struct rtc_timer {
- /* flags */
- #define RTC_DEV_BUSY 0
- 
--struct rtc_device
--{
-+struct rtc_device {
- 	struct device dev;
- 	struct module *owner;
- 
-@@ -202,10 +201,10 @@ int rtc_register(rtc_task_t *task);
- int rtc_unregister(rtc_task_t *task);
- int rtc_control(rtc_task_t *t, unsigned int cmd, unsigned long arg);
- 
--void rtc_timer_init(struct rtc_timer *timer, void (*f)(void* p), void* data);
--int rtc_timer_start(struct rtc_device *rtc, struct rtc_timer* timer,
-+void rtc_timer_init(struct rtc_timer *timer, void (*f)(void *p), void *data);
-+int rtc_timer_start(struct rtc_device *rtc, struct rtc_timer *timer,
- 			ktime_t expires, ktime_t period);
--int rtc_timer_cancel(struct rtc_device *rtc, struct rtc_timer* timer);
-+int rtc_timer_cancel(struct rtc_device *rtc, struct rtc_timer *timer);
- void rtc_timer_do_work(struct work_struct *work);
- 
- static inline bool is_leap_year(unsigned int year)
+ Seems reasonable given that pr_fmt is widely
+ used elsewhere.
+
+ I don't like too much the need to have one define for
+ each file, but it's the way it works :-/
+
 -- 
-2.1.0
+
+ Best regards,
+
+ Alessandro Zummo - CEO,
+  Tower Technologies - Torino, Italy
+
+  http://www.towertech.it
 
 -- 
 -- 
