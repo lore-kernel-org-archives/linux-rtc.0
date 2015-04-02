@@ -1,24 +1,22 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBBEX56UAKGQE3MFMEPI@googlegroups.com>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBKXO6SUAKGQEWYH4U4I@googlegroups.com>
 Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id bz6si986775wib.3.2015.04.01.03.42.11
+        by gmr-mx.google.com with ESMTP id sf8si302936wic.2.2015.04.02.05.33.46
         for <rtc-linux@googlegroups.com>;
-        Wed, 01 Apr 2015 03:42:11 -0700 (PDT)
-Date: Wed, 1 Apr 2015 12:42:10 +0200
+        Thu, 02 Apr 2015 05:33:46 -0700 (PDT)
+Date: Thu, 2 Apr 2015 14:33:44 +0200
 From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Joe Perches <joe@perches.com>
-Cc: Aaro Koskinen <aaro.koskinen@iki.fi>,
-	Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
+To: Lokesh Vutla <lokeshvutla@ti.com>
+Cc: a.zummo@towertech.it, rtc-linux@googlegroups.com, t-kristo@ti.com,
+	nsekhar@ti.com, linux-omap@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH 3/3] rtc: hctosys: use function name in the
- error log
-Message-ID: <20150401104210.GT3849@piout.net>
-References: <1427576976-22353-1-git-send-email-aaro.koskinen@iki.fi>
- <1427576976-22353-3-git-send-email-aaro.koskinen@iki.fi>
- <20150401030124.GO3849@piout.net>
- <1427858308.18175.30.camel@perches.com>
+Subject: [rtc-linux] Re: [PATCH v2 1/3] rtc: omap: Unlock and Lock rtc
+ registers before and after register writes
+Message-ID: <20150402123344.GH20669@piout.net>
+References: <1427972951-18959-1-git-send-email-lokeshvutla@ti.com>
+ <1427972951-18959-2-git-send-email-lokeshvutla@ti.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1427858308.18175.30.camel@perches.com>
+In-Reply-To: <1427972951-18959-2-git-send-email-lokeshvutla@ti.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -29,364 +27,265 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Hi,
-
-On 31/03/2015 at 20:18:28 -0700, Joe Perches wrote :
-> Neither __func__ or __FILE__ is really useful here.
-> The message is already specific enough without it.
+On 02/04/2015 at 16:39:09 +0530, Lokesh Vutla wrote :
+> RTC module contains a kicker mechanism to prevent any spurious writes
+> from changing the register values. This mechanism requires two MMR
+> writes to the KICK0 and KICK1 registers with exact data values
+> before the kicker lock mechanism is released.
 > 
-> If anything, it'd probably be better to add
+> Currently the driver release the lock in the probe and leaves it enabled
+> until the rtc driver removal. This eliminates the idea of preventing
+> spurious writes when RTC driver is loaded.
+> So implement rtc lock and unlock functions before and after register writes.
 > 
-> #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
+> Signed-off-by: Lokesh Vutla <lokeshvutla@ti.com>
+> ---
+> -- This is as advised by Paul to implement lock and unlock functions in
+>   the driver and not to unlock and leave it in probe.
+>   The same discussion can be seen here:
+>   http://www.mail-archive.com/linux-omap%40vger.kernel.org/msg111588.html
+> - Changes since v1:
+>   -Instead of testing for has_kicker each time, added .lock and
+>    .unlock to omap_rtc_device_type.
 > 
-> to the various files in drivers/rtc that don't
-> already have it and remove most all of these
-> logging __func__ uses.
+>  drivers/rtc/rtc-omap.c | 63 +++++++++++++++++++++++++++++++++++++++++---------
+>  1 file changed, 52 insertions(+), 11 deletions(-)
 > 
-
-Indeed, that seems better. Can you submit that patch?
-
-> Something like:
-> 
->  drivers/rtc/hctosys.c          | 6 ++++--
->  drivers/rtc/rtc-cmos.c         | 6 ++++--
->  drivers/rtc/rtc-ds1374.c       | 8 +++++---
->  drivers/rtc/rtc-ds1685.c       | 4 +++-
->  drivers/rtc/rtc-ds3232.c       | 6 ++++--
->  drivers/rtc/rtc-efi-platform.c | 3 +++
->  drivers/rtc/rtc-m41t80.c       | 6 ++++--
->  drivers/rtc/rtc-max77686.c     | 6 ++++--
->  drivers/rtc/rtc-max8997.c      | 8 +++++---
->  drivers/rtc/rtc-msm6242.c      | 4 +++-
->  drivers/rtc/rtc-opal.c         | 3 ++-
->  drivers/rtc/rtc-s5m.c          | 4 +++-
->  drivers/rtc/rtc-twl.c          | 9 +++++----
->  13 files changed, 49 insertions(+), 24 deletions(-)
-> 
-> diff --git a/drivers/rtc/hctosys.c b/drivers/rtc/hctosys.c
-> index fb4251d..e1cfa06 100644
-> --- a/drivers/rtc/hctosys.c
-> +++ b/drivers/rtc/hctosys.c
-> @@ -9,6 +9,8 @@
->   * published by the Free Software Foundation.
->  */
+> diff --git a/drivers/rtc/rtc-omap.c b/drivers/rtc/rtc-omap.c
+> index 8e5851a..935212c 100644
+> --- a/drivers/rtc/rtc-omap.c
+> +++ b/drivers/rtc/rtc-omap.c
+> @@ -118,12 +118,15 @@
+>  #define	KICK0_VALUE			0x83e70b13
+>  #define	KICK1_VALUE			0x95a4f1e0
 >  
-> +#define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
+> +struct omap_rtc;
 > +
->  #include <linux/rtc.h>
+>  struct omap_rtc_device_type {
+>  	bool has_32kclk_en;
+> -	bool has_kicker;
+>  	bool has_irqwakeen;
+>  	bool has_pmic_mode;
+>  	bool has_power_up_reset;
+> +	void (*lock)(struct omap_rtc *rtc);
+> +	void (*unlock)(struct omap_rtc *rtc);
+>  };
 >  
->  /* IMPORTANT: the RTC only stores whole seconds. It is arbitrary
-> @@ -32,8 +34,8 @@ static int __init rtc_hctosys(void)
->  	struct rtc_device *rtc = rtc_class_open(CONFIG_RTC_HCTOSYS_DEVICE);
+>  struct omap_rtc {
+> @@ -156,6 +159,26 @@ static inline void rtc_writel(struct omap_rtc *rtc, unsigned int reg, u32 val)
+>  	writel(val, rtc->base + reg);
+>  }
 >  
->  	if (rtc == NULL) {
-> -		pr_info("%s: unable to open rtc device (%s)\n",
-> -			__FILE__, CONFIG_RTC_HCTOSYS_DEVICE);
-> +		pr_info("unable to open rtc device (%s)\n",
-> +			CONFIG_RTC_HCTOSYS_DEVICE);
->  		goto err_open;
+> +static inline void am3352_rtc_unlock(struct omap_rtc *rtc)
+> +{
+> +	rtc_writel(rtc, OMAP_RTC_KICK0_REG, KICK0_VALUE);
+> +	rtc_writel(rtc, OMAP_RTC_KICK1_REG, KICK1_VALUE);
+> +}
+> +
+> +static inline void am3352_rtc_lock(struct omap_rtc *rtc)
+> +{
+> +	rtc_writel(rtc, OMAP_RTC_KICK0_REG, 0);
+> +	rtc_writel(rtc, OMAP_RTC_KICK1_REG, 0);
+> +}
+> +
+> +static inline void default_rtc_unlock(struct omap_rtc *rtc)
+> +{
+> +}
+> +
+> +static inline void default_rtc_lock(struct omap_rtc *rtc)
+> +{
+> +}
+> +
+
+As they are called through a pointer, it is unnecessary to declare the
+functions as inlined, they will not be inlined anyway.
+
+Else, you can add my ack.
+
+>  /*
+>   * We rely on the rtc framework to handle locking (rtc->ops_lock),
+>   * so the only other requirement is that register accesses which
+> @@ -186,7 +209,9 @@ static irqreturn_t rtc_irq(int irq, void *dev_id)
+>  
+>  	/* alarm irq? */
+>  	if (irq_data & OMAP_RTC_STATUS_ALARM) {
+> +		rtc->type->unlock(rtc);
+>  		rtc_write(rtc, OMAP_RTC_STATUS_REG, OMAP_RTC_STATUS_ALARM);
+> +		rtc->type->lock(rtc);
+>  		events |= RTC_IRQF | RTC_AF;
 >  	}
 >  
-> diff --git a/drivers/rtc/rtc-cmos.c b/drivers/rtc/rtc-cmos.c
-> index 87647f4..a82556a 100644
-> --- a/drivers/rtc/rtc-cmos.c
-> +++ b/drivers/rtc/rtc-cmos.c
-> @@ -28,6 +28,9 @@
->   * interrupts disabled, holding the global rtc_lock, to exclude those
->   * other drivers and utilities on correctly configured systems.
->   */
+> @@ -218,9 +243,11 @@ static int omap_rtc_alarm_irq_enable(struct device *dev, unsigned int enabled)
+>  		irqwake_reg &= ~OMAP_RTC_IRQWAKEEN_ALARM_WAKEEN;
+>  	}
+>  	rtc_wait_not_busy(rtc);
+> +	rtc->type->unlock(rtc);
+>  	rtc_write(rtc, OMAP_RTC_INTERRUPTS_REG, reg);
+>  	if (rtc->type->has_irqwakeen)
+>  		rtc_write(rtc, OMAP_RTC_IRQWAKEEN, irqwake_reg);
+> +	rtc->type->lock(rtc);
+>  	local_irq_enable();
+>  
+>  	return 0;
+> @@ -293,12 +320,14 @@ static int omap_rtc_set_time(struct device *dev, struct rtc_time *tm)
+>  	local_irq_disable();
+>  	rtc_wait_not_busy(rtc);
+>  
+> +	rtc->type->unlock(rtc);
+>  	rtc_write(rtc, OMAP_RTC_YEARS_REG, tm->tm_year);
+>  	rtc_write(rtc, OMAP_RTC_MONTHS_REG, tm->tm_mon);
+>  	rtc_write(rtc, OMAP_RTC_DAYS_REG, tm->tm_mday);
+>  	rtc_write(rtc, OMAP_RTC_HOURS_REG, tm->tm_hour);
+>  	rtc_write(rtc, OMAP_RTC_MINUTES_REG, tm->tm_min);
+>  	rtc_write(rtc, OMAP_RTC_SECONDS_REG, tm->tm_sec);
+> +	rtc->type->lock(rtc);
+>  
+>  	local_irq_enable();
+>  
+> @@ -341,6 +370,7 @@ static int omap_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alm)
+>  	local_irq_disable();
+>  	rtc_wait_not_busy(rtc);
+>  
+> +	rtc->type->unlock(rtc);
+>  	rtc_write(rtc, OMAP_RTC_ALARM_YEARS_REG, alm->time.tm_year);
+>  	rtc_write(rtc, OMAP_RTC_ALARM_MONTHS_REG, alm->time.tm_mon);
+>  	rtc_write(rtc, OMAP_RTC_ALARM_DAYS_REG, alm->time.tm_mday);
+> @@ -362,6 +392,7 @@ static int omap_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alm)
+>  	rtc_write(rtc, OMAP_RTC_INTERRUPTS_REG, reg);
+>  	if (rtc->type->has_irqwakeen)
+>  		rtc_write(rtc, OMAP_RTC_IRQWAKEEN, irqwake_reg);
+> +	rtc->type->lock(rtc);
+>  
+>  	local_irq_enable();
+>  
+> @@ -391,6 +422,7 @@ static void omap_rtc_power_off(void)
+>  	unsigned long now;
+>  	u32 val;
+>  
+> +	rtc->type->unlock(rtc);
+>  	/* enable pmic_power_en control */
+>  	val = rtc_readl(rtc, OMAP_RTC_PMIC_REG);
+>  	rtc_writel(rtc, OMAP_RTC_PMIC_REG, val | OMAP_RTC_PMIC_POWER_EN_EN);
+> @@ -423,6 +455,7 @@ static void omap_rtc_power_off(void)
+>  	val = rtc_read(rtc, OMAP_RTC_INTERRUPTS_REG);
+>  	rtc_writel(rtc, OMAP_RTC_INTERRUPTS_REG,
+>  			val | OMAP_RTC_INTERRUPTS_IT_ALARM2);
+> +	rtc->type->lock(rtc);
+>  
+>  	/*
+>  	 * Wait for alarm to trigger (within two seconds) and external PMIC to
+> @@ -442,17 +475,21 @@ static struct rtc_class_ops omap_rtc_ops = {
+>  
+>  static const struct omap_rtc_device_type omap_rtc_default_type = {
+>  	.has_power_up_reset = true,
+> +	.lock		= default_rtc_lock,
+> +	.unlock		= default_rtc_unlock,
+>  };
+>  
+>  static const struct omap_rtc_device_type omap_rtc_am3352_type = {
+>  	.has_32kclk_en	= true,
+> -	.has_kicker	= true,
+>  	.has_irqwakeen	= true,
+>  	.has_pmic_mode	= true,
+> +	.lock		= am3352_rtc_lock,
+> +	.unlock		= am3352_rtc_unlock,
+>  };
+>  
+>  static const struct omap_rtc_device_type omap_rtc_da830_type = {
+> -	.has_kicker	= true,
+> +	.lock		= am3352_rtc_lock,
+> +	.unlock		= am3352_rtc_unlock,
+>  };
+>  
+>  static const struct platform_device_id omap_rtc_id_table[] = {
+> @@ -527,10 +564,7 @@ static int __init omap_rtc_probe(struct platform_device *pdev)
+>  	pm_runtime_enable(&pdev->dev);
+>  	pm_runtime_get_sync(&pdev->dev);
+>  
+> -	if (rtc->type->has_kicker) {
+> -		rtc_writel(rtc, OMAP_RTC_KICK0_REG, KICK0_VALUE);
+> -		rtc_writel(rtc, OMAP_RTC_KICK1_REG, KICK1_VALUE);
+> -	}
+> +	rtc->type->unlock(rtc);
+>  
+>  	/*
+>  	 * disable interrupts
+> @@ -593,6 +627,8 @@ static int __init omap_rtc_probe(struct platform_device *pdev)
+>  	if (reg != new_ctrl)
+>  		rtc_write(rtc, OMAP_RTC_CTRL_REG, new_ctrl);
+>  
+> +	rtc->type->lock(rtc);
 > +
-> +#define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
-> +
->  #include <linux/kernel.h>
->  #include <linux/module.h>
->  #include <linux/init.h>
-> @@ -385,8 +388,7 @@ static bool alarm_disable_quirk;
->  static int __init set_alarm_disable_quirk(const struct dmi_system_id *id)
->  {
->  	alarm_disable_quirk = true;
-> -	pr_info("rtc-cmos: BIOS has alarm-disable quirk. ");
-> -	pr_info("RTC alarms disabled\n");
-> +	pr_info("BIOS has alarm-disable quirk - RTC alarms disabled\n");
+>  	device_init_wakeup(&pdev->dev, true);
+>  
+>  	rtc->rtc = devm_rtc_device_register(&pdev->dev, pdev->name,
+> @@ -626,8 +662,7 @@ static int __init omap_rtc_probe(struct platform_device *pdev)
+>  
+>  err:
+>  	device_init_wakeup(&pdev->dev, false);
+> -	if (rtc->type->has_kicker)
+> -		rtc_writel(rtc, OMAP_RTC_KICK0_REG, 0);
+> +	rtc->type->lock(rtc);
+>  	pm_runtime_put_sync(&pdev->dev);
+>  	pm_runtime_disable(&pdev->dev);
+>  
+> @@ -646,11 +681,11 @@ static int __exit omap_rtc_remove(struct platform_device *pdev)
+>  
+>  	device_init_wakeup(&pdev->dev, 0);
+>  
+> +	rtc->type->unlock(rtc);
+>  	/* leave rtc running, but disable irqs */
+>  	rtc_write(rtc, OMAP_RTC_INTERRUPTS_REG, 0);
+>  
+> -	if (rtc->type->has_kicker)
+> -		rtc_writel(rtc, OMAP_RTC_KICK0_REG, 0);
+> +	rtc->type->lock(rtc);
+>  
+>  	/* Disable the clock/module */
+>  	pm_runtime_put_sync(&pdev->dev);
+> @@ -666,6 +701,7 @@ static int omap_rtc_suspend(struct device *dev)
+>  
+>  	rtc->interrupts_reg = rtc_read(rtc, OMAP_RTC_INTERRUPTS_REG);
+>  
+> +	rtc->type->unlock(rtc);
+>  	/*
+>  	 * FIXME: the RTC alarm is not currently acting as a wakeup event
+>  	 * source on some platforms, and in fact this enable() call is just
+> @@ -675,6 +711,7 @@ static int omap_rtc_suspend(struct device *dev)
+>  		enable_irq_wake(rtc->irq_alarm);
+>  	else
+>  		rtc_write(rtc, OMAP_RTC_INTERRUPTS_REG, 0);
+> +	rtc->type->lock(rtc);
+>  
+>  	/* Disable the clock/module */
+>  	pm_runtime_put_sync(dev);
+> @@ -689,10 +726,12 @@ static int omap_rtc_resume(struct device *dev)
+>  	/* Enable the clock/module so that we can access the registers */
+>  	pm_runtime_get_sync(dev);
+>  
+> +	rtc->type->unlock(rtc);
+>  	if (device_may_wakeup(dev))
+>  		disable_irq_wake(rtc->irq_alarm);
+>  	else
+>  		rtc_write(rtc, OMAP_RTC_INTERRUPTS_REG, rtc->interrupts_reg);
+> +	rtc->type->lock(rtc);
+>  
 >  	return 0;
 >  }
->  
-> diff --git a/drivers/rtc/rtc-ds1374.c b/drivers/rtc/rtc-ds1374.c
-> index 8605fde..167783f 100644
-> --- a/drivers/rtc/rtc-ds1374.c
-> +++ b/drivers/rtc/rtc-ds1374.c
-> @@ -18,6 +18,8 @@
->   * "Sending and receiving", using SMBus level communication is preferred.
->   */
->  
-> +#define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
-> +
->  #include <linux/kernel.h>
->  #include <linux/module.h>
->  #include <linux/interrupt.h>
-> @@ -406,7 +408,7 @@ static int ds1374_wdt_settimeout(unsigned int timeout)
->  	/* Set new watchdog time */
->  	ret = ds1374_write_rtc(save_client, timeout, DS1374_REG_WDALM0, 3);
->  	if (ret) {
-> -		pr_info("rtc-ds1374 - couldn't set new watchdog time\n");
-> +		pr_info("couldn't set new watchdog time\n");
->  		goto out;
->  	}
->  
-> @@ -539,12 +541,12 @@ static long ds1374_wdt_ioctl(struct file *file, unsigned int cmd,
->  			return -EFAULT;
->  
->  		if (options & WDIOS_DISABLECARD) {
-> -			pr_info("rtc-ds1374: disable watchdog\n");
-> +			pr_info("disable watchdog\n");
->  			ds1374_wdt_disable();
->  		}
->  
->  		if (options & WDIOS_ENABLECARD) {
-> -			pr_info("rtc-ds1374: enable watchdog\n");
-> +			pr_info("enable watchdog\n");
->  			ds1374_wdt_settimeout(wdt_margin);
->  			ds1374_wdt_ping();
->  		}
-> diff --git a/drivers/rtc/rtc-ds1685.c b/drivers/rtc/rtc-ds1685.c
-> index 7020209..818a363 100644
-> --- a/drivers/rtc/rtc-ds1685.c
-> +++ b/drivers/rtc/rtc-ds1685.c
-> @@ -16,6 +16,8 @@
->   * published by the Free Software Foundation.
->   */
->  
-> +#define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
-> +
->  #include <linux/bcd.h>
->  #include <linux/delay.h>
->  #include <linux/io.h>
-> @@ -2182,7 +2184,7 @@ ds1685_rtc_poweroff(struct platform_device *pdev)
->  
->  	/* Check for valid RTC data, else, spin forever. */
->  	if (unlikely(!pdev)) {
-> -		pr_emerg("rtc-ds1685: platform device data not available, spinning forever ...\n");
-> +		pr_emerg("platform device data not available, spinning forever ...\n");
->  		unreachable();
->  	} else {
->  		/* Get the rtc data. */
-> diff --git a/drivers/rtc/rtc-ds3232.c b/drivers/rtc/rtc-ds3232.c
-> index adaf06c..7e48e53 100644
-> --- a/drivers/rtc/rtc-ds3232.c
-> +++ b/drivers/rtc/rtc-ds3232.c
-> @@ -15,6 +15,8 @@
->   * "Sending and receiving", using SMBus level communication is preferred.
->   */
->  
-> +#define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
-> +
->  #include <linux/kernel.h>
->  #include <linux/module.h>
->  #include <linux/interrupt.h>
-> @@ -373,8 +375,8 @@ static void ds3232_work(struct work_struct *work)
->  	if (stat & DS3232_REG_SR_A1F) {
->  		control = i2c_smbus_read_byte_data(client, DS3232_REG_CR);
->  		if (control < 0) {
-> -			pr_warn("Read DS3232 Control Register error."
-> -				"Disable IRQ%d.\n", client->irq);
-> +			pr_warn("Read Control Register error - Disable IRQ%d\n",
-> +				client->irq);
->  		} else {
->  			/* disable alarm1 interrupt */
->  			control &= ~(DS3232_REG_CR_A1IE);
-> diff --git a/drivers/rtc/rtc-efi-platform.c b/drivers/rtc/rtc-efi-platform.c
-> index b40fbe3..1a7f1d1 100644
-> --- a/drivers/rtc/rtc-efi-platform.c
-> +++ b/drivers/rtc/rtc-efi-platform.c
-> @@ -8,6 +8,9 @@
->   * Copyright (C) 1999-2000 VA Linux Systems
->   * Copyright (C) 1999-2000 Walt Drummond <drummond@valinux.com>
->   */
-> +
-> +#define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
-> +
->  #include <linux/init.h>
->  #include <linux/kernel.h>
->  #include <linux/module.h>
-> diff --git a/drivers/rtc/rtc-m41t80.c b/drivers/rtc/rtc-m41t80.c
-> index 7ff7427..a82937e 100644
-> --- a/drivers/rtc/rtc-m41t80.c
-> +++ b/drivers/rtc/rtc-m41t80.c
-> @@ -13,6 +13,8 @@
->   *
->   */
->  
-> +#define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
-> +
->  #include <linux/bcd.h>
->  #include <linux/i2c.h>
->  #include <linux/init.h>
-> @@ -513,12 +515,12 @@ static int wdt_ioctl(struct file *file, unsigned int cmd,
->  			return -EFAULT;
->  
->  		if (rv & WDIOS_DISABLECARD) {
-> -			pr_info("rtc-m41t80: disable watchdog\n");
-> +			pr_info("disable watchdog\n");
->  			wdt_disable();
->  		}
->  
->  		if (rv & WDIOS_ENABLECARD) {
-> -			pr_info("rtc-m41t80: enable watchdog\n");
-> +			pr_info("enable watchdog\n");
->  			wdt_ping();
->  		}
->  
-> diff --git a/drivers/rtc/rtc-max77686.c b/drivers/rtc/rtc-max77686.c
-> index 9d71328..7632a87 100644
-> --- a/drivers/rtc/rtc-max77686.c
-> +++ b/drivers/rtc/rtc-max77686.c
-> @@ -12,6 +12,8 @@
->   *
->   */
->  
-> +#define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
-> +
->  #include <linux/slab.h>
->  #include <linux/rtc.h>
->  #include <linux/delay.h>
-> @@ -103,8 +105,8 @@ static int max77686_rtc_tm_to_data(struct rtc_time *tm, u8 *data)
->  	data[RTC_YEAR] = tm->tm_year > 100 ? (tm->tm_year - 100) : 0;
->  
->  	if (tm->tm_year < 100) {
-> -		pr_warn("%s: MAX77686 RTC cannot handle the year %d."
-> -			"Assume it's 2000.\n", __func__, 1900 + tm->tm_year);
-> +		pr_warn("RTC cannot handle the year %d.  Assume it's 2000.\n",
-> +			1900 + tm->tm_year);
->  		return -EINVAL;
->  	}
->  	return 0;
-> diff --git a/drivers/rtc/rtc-max8997.c b/drivers/rtc/rtc-max8997.c
-> index 67fbe55..9e02bcd 100644
-> --- a/drivers/rtc/rtc-max8997.c
-> +++ b/drivers/rtc/rtc-max8997.c
-> @@ -12,6 +12,8 @@
->   *
->   */
->  
-> +#define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
-> +
->  #include <linux/slab.h>
->  #include <linux/rtc.h>
->  #include <linux/delay.h>
-> @@ -107,8 +109,8 @@ static int max8997_rtc_tm_to_data(struct rtc_time *tm, u8 *data)
->  	data[RTC_YEAR] = tm->tm_year > 100 ? (tm->tm_year - 100) : 0;
->  
->  	if (tm->tm_year < 100) {
-> -		pr_warn("%s: MAX8997 RTC cannot handle the year %d."
-> -			"Assume it's 2000.\n", __func__, 1900 + tm->tm_year);
-> +		pr_warn("RTC cannot handle the year %d.  Assume it's 2000.\n",
-> +			1900 + tm->tm_year);
->  		return -EINVAL;
->  	}
->  	return 0;
-> @@ -424,7 +426,7 @@ static void max8997_rtc_enable_smpl(struct max8997_rtc_info *info, bool enable)
->  
->  	val = 0;
->  	max8997_read_reg(info->rtc, MAX8997_RTC_WTSR_SMPL, &val);
-> -	pr_info("%s: WTSR_SMPL(0x%02x)\n", __func__, val);
-> +	pr_info("WTSR_SMPL(0x%02x)\n", val);
+> @@ -709,9 +748,11 @@ static void omap_rtc_shutdown(struct platform_device *pdev)
+>  	 * Keep the ALARM interrupt enabled to allow the system to power up on
+>  	 * alarm events.
+>  	 */
+> +	rtc->type->unlock(rtc);
+>  	mask = rtc_read(rtc, OMAP_RTC_INTERRUPTS_REG);
+>  	mask &= OMAP_RTC_INTERRUPTS_IT_ALARM;
+>  	rtc_write(rtc, OMAP_RTC_INTERRUPTS_REG, mask);
+> +	rtc->type->lock(rtc);
 >  }
 >  
->  static int max8997_rtc_init_reg(struct max8997_rtc_info *info)
-> diff --git a/drivers/rtc/rtc-msm6242.c b/drivers/rtc/rtc-msm6242.c
-> index 9bf877b..c1c5c4e 100644
-> --- a/drivers/rtc/rtc-msm6242.c
-> +++ b/drivers/rtc/rtc-msm6242.c
-> @@ -7,6 +7,8 @@
->   *  Copyright (C) 1993 Hamish Macdonald
->   */
->  
-> +#define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
-> +
->  #include <linux/delay.h>
->  #include <linux/io.h>
->  #include <linux/kernel.h>
-> @@ -111,7 +113,7 @@ static void msm6242_lock(struct msm6242_priv *priv)
->  	}
->  
->  	if (!cnt)
-> -		pr_warn("msm6242: timed out waiting for RTC (0x%x)\n",
-> +		pr_warn("timed out waiting for RTC (0x%x)\n",
->  			msm6242_read(priv, MSM6242_CD));
->  }
->  
-> diff --git a/drivers/rtc/rtc-opal.c b/drivers/rtc/rtc-opal.c
-> index 95f6521..7061dca 100644
-> --- a/drivers/rtc/rtc-opal.c
-> +++ b/drivers/rtc/rtc-opal.c
-> @@ -16,8 +16,9 @@
->   * along with this program.
->   */
->  
-> +#define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
-> +
->  #define DRVNAME		"rtc-opal"
-> -#define pr_fmt(fmt)	DRVNAME ": " fmt
->  
->  #include <linux/module.h>
->  #include <linux/err.h>
-> diff --git a/drivers/rtc/rtc-s5m.c b/drivers/rtc/rtc-s5m.c
-> index 1f15b67..635c472 100644
-> --- a/drivers/rtc/rtc-s5m.c
-> +++ b/drivers/rtc/rtc-s5m.c
-> @@ -15,6 +15,8 @@
->   *  GNU General Public License for more details.
->   */
->  
-> +#define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
-> +
->  #include <linux/module.h>
->  #include <linux/i2c.h>
->  #include <linux/bcd.h>
-> @@ -146,7 +148,7 @@ static int s5m8767_tm_to_data(struct rtc_time *tm, u8 *data)
->  	data[RTC_YEAR1] = tm->tm_year > 100 ? (tm->tm_year - 100) : 0;
->  
->  	if (tm->tm_year < 100) {
-> -		pr_err("s5m8767 RTC cannot handle the year %d.\n",
-> +		pr_err("RTC cannot handle the year %d\n",
->  		       1900 + tm->tm_year);
->  		return -EINVAL;
->  	} else {
-> diff --git a/drivers/rtc/rtc-twl.c b/drivers/rtc/rtc-twl.c
-> index 5baea3f..2dc787d 100644
-> --- a/drivers/rtc/rtc-twl.c
-> +++ b/drivers/rtc/rtc-twl.c
-> @@ -18,6 +18,8 @@
->   * 2 of the License, or (at your option) any later version.
->   */
->  
-> +#define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
-> +
->  #include <linux/kernel.h>
->  #include <linux/errno.h>
->  #include <linux/init.h>
-> @@ -145,8 +147,7 @@ static int twl_rtc_read_u8(u8 *data, u8 reg)
->  
->  	ret = twl_i2c_read_u8(TWL_MODULE_RTC, data, (rtc_reg_map[reg]));
->  	if (ret < 0)
-> -		pr_err("twl_rtc: Could not read TWL"
-> -		       "register %X - error %d\n", reg, ret);
-> +		pr_err("Could not read TWL register %X - error %d\n", reg, ret);
->  	return ret;
->  }
->  
-> @@ -159,8 +160,8 @@ static int twl_rtc_write_u8(u8 data, u8 reg)
->  
->  	ret = twl_i2c_write_u8(TWL_MODULE_RTC, data, (rtc_reg_map[reg]));
->  	if (ret < 0)
-> -		pr_err("twl_rtc: Could not write TWL"
-> -		       "register %X - error %d\n", reg, ret);
-> +		pr_err("Could not write TWL register %X - error %d\n",
-> +		       reg, ret);
->  	return ret;
->  }
->  
-> 
+>  static struct platform_driver omap_rtc_driver = {
+> -- 
+> 1.9.1
 > 
 
 -- 
