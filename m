@@ -1,24 +1,23 @@
-Return-Path: <rtc-linux+bncBCC6ZWOPXENRBYUB7GUQKGQE7VMXVMI@googlegroups.com>
-MIME-Version: 1.0
-Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de. [2001:6f8:1178:4:290:27ff:fe1d:cc33])
-        by gmr-mx.google.com with ESMTPS id ec7si421163wib.3.2015.04.27.07.00.01
+Return-Path: <rtc-linux+bncBAABBYOG6SUAKGQEUY4DDMI@googlegroups.com>
+Received: from devils.ext.ti.com (devils.ext.ti.com. [198.47.26.153])
+        by gmr-mx.google.com with ESMTPS id c19si118256igm.1.2015.04.02.04.09.21
         for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=RC4-SHA bits=128/128);
-        Mon, 27 Apr 2015 07:00:01 -0700 (PDT)
-From: Juergen Borleis <jbe@pengutronix.de>
-To: linux-kernel@vger.kernel.org
-Cc: rtc-linux@googlegroups.com,
-	kernel@pengutronix.de,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	linux-arm-kernel@lists.infradead.org,
-	Robert Schwebel <rsc@pengutronix.de>
-Subject: [rtc-linux] [PATCH 3/6] RTC/i.MX/DryIce: add the unit recovery code
-Date: Mon, 27 Apr 2015 15:59:49 +0200
-Message-Id: <1430143192-20667-4-git-send-email-jbe@pengutronix.de>
-In-Reply-To: <1430143192-20667-1-git-send-email-jbe@pengutronix.de>
-References: <1430143192-20667-1-git-send-email-jbe@pengutronix.de>
-Reply-To: rtc-linux@googlegroups.com
+        (version=TLSv1 cipher=RC4-SHA bits=128/128);
+        Thu, 02 Apr 2015 04:09:21 -0700 (PDT)
+From: Lokesh Vutla <lokeshvutla@ti.com>
+To: <a.zummo@towertech.it>, <rtc-linux@googlegroups.com>
+CC: <t-kristo@ti.com>, <nsekhar@ti.com>, <linux-omap@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>, <lokeshvutla@ti.com>,
+        <alexandre.belloni@free-electrons.com>
+Subject: [rtc-linux] [PATCH v2 1/3] rtc: omap: Unlock and Lock rtc registers
+ before and after register writes
+Date: Thu, 2 Apr 2015 16:39:09 +0530
+Message-ID: <1427972951-18959-2-git-send-email-lokeshvutla@ti.com>
+In-Reply-To: <1427972951-18959-1-git-send-email-lokeshvutla@ti.com>
+References: <1427972951-18959-1-git-send-email-lokeshvutla@ti.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -28,361 +27,258 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-This code is required to recover the unit from a security violation.
-Hopefully this code can recover the unit from a hardware related invalid
-state as well.
+RTC module contains a kicker mechanism to prevent any spurious writes
+from changing the register values. This mechanism requires two MMR
+writes to the KICK0 and KICK1 registers with exact data values
+before the kicker lock mechanism is released.
 
-Signed-off-by: Juergen Borleis <jbe@pengutronix.de>
-Signed-off-by: Robert Schwebel <rsc@pengutronix.de>
-[rsc: got NDA clearance from Freescale]
+Currently the driver release the lock in the probe and leaves it enabled
+until the rtc driver removal. This eliminates the idea of preventing
+spurious writes when RTC driver is loaded.
+So implement rtc lock and unlock functions before and after register writes.
+
+Signed-off-by: Lokesh Vutla <lokeshvutla@ti.com>
 ---
- drivers/rtc/rtc-imxdi.c | 317 ++++++++++++++++++++++++++++++++++++++++++------
- 1 file changed, 279 insertions(+), 38 deletions(-)
+-- This is as advised by Paul to implement lock and unlock functions in
+  the driver and not to unlock and leave it in probe.
+  The same discussion can be seen here:
+  http://www.mail-archive.com/linux-omap%40vger.kernel.org/msg111588.html
+- Changes since v1:
+  -Instead of testing for has_kicker each time, added .lock and
+   .unlock to omap_rtc_device_type.
 
-diff --git a/drivers/rtc/rtc-imxdi.c b/drivers/rtc/rtc-imxdi.c
-index 6db8d1c..f0c8319 100644
---- a/drivers/rtc/rtc-imxdi.c
-+++ b/drivers/rtc/rtc-imxdi.c
-@@ -173,6 +173,281 @@ struct imxdi_dev {
-  */
+ drivers/rtc/rtc-omap.c | 63 +++++++++++++++++++++++++++++++++++++++++---------
+ 1 file changed, 52 insertions(+), 11 deletions(-)
+
+diff --git a/drivers/rtc/rtc-omap.c b/drivers/rtc/rtc-omap.c
+index 8e5851a..935212c 100644
+--- a/drivers/rtc/rtc-omap.c
++++ b/drivers/rtc/rtc-omap.c
+@@ -118,12 +118,15 @@
+ #define	KICK0_VALUE			0x83e70b13
+ #define	KICK1_VALUE			0x95a4f1e0
  
++struct omap_rtc;
++
+ struct omap_rtc_device_type {
+ 	bool has_32kclk_en;
+-	bool has_kicker;
+ 	bool has_irqwakeen;
+ 	bool has_pmic_mode;
+ 	bool has_power_up_reset;
++	void (*lock)(struct omap_rtc *rtc);
++	void (*unlock)(struct omap_rtc *rtc);
+ };
+ 
+ struct omap_rtc {
+@@ -156,6 +159,26 @@ static inline void rtc_writel(struct omap_rtc *rtc, unsigned int reg, u32 val)
+ 	writel(val, rtc->base + reg);
+ }
+ 
++static inline void am3352_rtc_unlock(struct omap_rtc *rtc)
++{
++	rtc_writel(rtc, OMAP_RTC_KICK0_REG, KICK0_VALUE);
++	rtc_writel(rtc, OMAP_RTC_KICK1_REG, KICK1_VALUE);
++}
++
++static inline void am3352_rtc_lock(struct omap_rtc *rtc)
++{
++	rtc_writel(rtc, OMAP_RTC_KICK0_REG, 0);
++	rtc_writel(rtc, OMAP_RTC_KICK1_REG, 0);
++}
++
++static inline void default_rtc_unlock(struct omap_rtc *rtc)
++{
++}
++
++static inline void default_rtc_lock(struct omap_rtc *rtc)
++{
++}
++
  /*
-+ * Do a write into the unit without interrupt support.
-+ * We do not need to check the WEF here, because the only reason this kind of
-+ * write error can happen is if we write to the unit twice within the 122 us
-+ * interval. This cannot happen, since we are using this function only while
-+ * setting up the unit.
-+ */
-+static void di_write_busy_wait(const struct imxdi_dev *imxdi, u32 val,
-+			       unsigned reg)
-+{
-+	/* do the register write */
-+	writel(val, imxdi->ioaddr + reg);
-+
-+	/*
-+	 * now it takes four 32,768 kHz clock cycles to take
-+	 * the change into effect = 122 us
-+	 */
-+	usleep_range(130, 200);
-+}
-+
-+static void di_report_tamper_info(struct imxdi_dev *imxdi,  u32 dsr)
-+{
-+	u32 dtcr;
-+
-+	dtcr = readl(imxdi->ioaddr + DTCR);
-+
-+	dev_emerg(&imxdi->pdev->dev, "DryIce tamper event detected\n");
-+	/* the following flags force a transition into the "FAILURE STATE" */
-+	if (dsr & DSR_VTD)
-+		dev_emerg(&imxdi->pdev->dev, "%sVoltage Tamper Event\n",
-+			  dtcr & DTCR_VTE ? "" : "Spurious ");
-+
-+	if (dsr & DSR_CTD)
-+		dev_emerg(&imxdi->pdev->dev, "%s32768 Hz Clock Tamper Event\n",
-+			  dtcr & DTCR_CTE ? "" : "Spurious ");
-+
-+	if (dsr & DSR_TTD)
-+		dev_emerg(&imxdi->pdev->dev, "%sTemperature Tamper Event\n",
-+			  dtcr & DTCR_TTE ? "" : "Spurious ");
-+
-+	if (dsr & DSR_SAD)
-+		dev_emerg(&imxdi->pdev->dev,
-+			  "%sSecure Controller Alarm Event\n",
-+			  dtcr & DTCR_SAIE ? "" : "Spurious ");
-+
-+	if (dsr & DSR_EBD)
-+		dev_emerg(&imxdi->pdev->dev, "%sExternal Boot Tamper Event\n",
-+			  dtcr & DTCR_EBE ? "" : "Spurious ");
-+
-+	if (dsr & DSR_ETAD)
-+		dev_emerg(&imxdi->pdev->dev, "%sExternal Tamper A Event\n",
-+			  dtcr & DTCR_ETAE ? "" : "Spurious ");
-+
-+	if (dsr & DSR_ETBD)
-+		dev_emerg(&imxdi->pdev->dev, "%sExternal Tamper B Event\n",
-+			  dtcr & DTCR_ETBE ? "" : "Spurious ");
-+
-+	if (dsr & DSR_WTD)
-+		dev_emerg(&imxdi->pdev->dev, "%sWire-mesh Tamper Event\n",
-+			  dtcr & DTCR_WTE ? "" : "Spurious ");
-+
-+	if (dsr & DSR_MCO)
-+		dev_emerg(&imxdi->pdev->dev,
-+			  "%sMonotonic-counter Overflow Event\n",
-+			  dtcr & DTCR_MOE ? "" : "Spurious ");
-+
-+	if (dsr & DSR_TCO)
-+		dev_emerg(&imxdi->pdev->dev, "%sTimer-counter Overflow Event\n",
-+			  dtcr & DTCR_TOE ? "" : "Spurious ");
-+}
-+
-+static void di_what_is_to_be_done(struct imxdi_dev *imxdi,
-+				  const char *power_supply)
-+{
-+	dev_emerg(&imxdi->pdev->dev, "Please cycle the %s power supply in order to get the DryIce/RTC unit working again\n",
-+			power_supply);
-+}
-+
-+static int di_handle_failure_state(struct imxdi_dev *imxdi, u32 dsr)
-+{
-+	u32 dcr;
-+
-+	dev_dbg(&imxdi->pdev->dev, "DSR register reports: %08X\n", dsr);
-+
-+	/* report the cause */
-+	di_report_tamper_info(imxdi, dsr);
-+
-+	dcr = readl(imxdi->ioaddr + DCR);
-+
-+	if (dcr & DCR_FSHL) {
-+		/* we are out of luck */
-+		di_what_is_to_be_done(imxdi, "battery");
-+		return -ENODEV;
-+	}
-+	/*
-+	 * with the next SYSTEM POR we will transit from the "FAILURE STATE"
-+	 * into the "NON-VALID STATE" + "FAILURE STATE"
-+	 */
-+	di_what_is_to_be_done(imxdi, "main");
-+
-+	return -ENODEV;
-+}
-+
-+static int di_handle_valid_state(struct imxdi_dev *imxdi, u32 dsr)
-+{
-+	/* initialize alarm */
-+	di_write_busy_wait(imxdi, DCAMR_UNSET, DCAMR);
-+	di_write_busy_wait(imxdi, 0, DCALR);
-+
-+	/* clear alarm flag */
-+	if (dsr & DSR_CAF)
-+		di_write_busy_wait(imxdi, DSR_CAF, DSR);
-+
-+	return 0;
-+}
-+
-+static int di_handle_invalid_state(struct imxdi_dev *imxdi, u32 dsr)
-+{
-+	u32 dcr, sec;
-+
-+	/*
-+	 * lets disable all sources which can force the DryIce unit into
-+	 * the "FAILURE STATE" for now
-+	 */
-+	di_write_busy_wait(imxdi, 0x00000000, DTCR);
-+	/* and lets protect them at runtime from any change */
-+	di_write_busy_wait(imxdi, DCR_TDCSL, DCR);
-+
-+	sec = readl(imxdi->ioaddr + DTCMR);
-+	if (sec != 0)
-+		dev_warn(&imxdi->pdev->dev,
-+			"The security violation has happend at %u seconds\n",
-+			sec);
-+	/*
-+	 * the timer cannot be set/modified if
-+	 * - the TCHL or TCSL bit is set in DCR
-+	 */
-+	dcr = readl(imxdi->ioaddr + DCR);
-+	if (!(dcr & DCR_TCE)) {
-+		if (dcr & DCR_TCHL) {
-+			/* we are out of luck */
-+			di_what_is_to_be_done(imxdi, "battery");
-+			return -ENODEV;
-+		}
-+		if (dcr & DCR_TCSL) {
-+			di_what_is_to_be_done(imxdi, "main");
-+			return -ENODEV;
-+		}
-+	}
-+	/*
-+	 * - the timer counter stops/is stopped if
-+	 *   - its overflow flag is set (TCO in DSR)
-+	 *      -> clear overflow bit to make it count again
-+	 *   - NVF is set in DSR
-+	 *      -> clear non-valid bit to make it count again
-+	 *   - its TCE (DCR) is cleared
-+	 *      -> set TCE to make it count
-+	 *   - it was never set before
-+	 *      -> write a time into it (required again if the NVF was set)
-+	 */
-+	/* state handled */
-+	di_write_busy_wait(imxdi, DSR_NVF, DSR);
-+	/* clear overflow flag */
-+	di_write_busy_wait(imxdi, DSR_TCO, DSR);
-+	/* enable the counter */
-+	di_write_busy_wait(imxdi, dcr | DCR_TCE, DCR);
-+	/* set and trigger it to make it count */
-+	di_write_busy_wait(imxdi, sec, DTCMR);
-+
-+	/* now prepare for the valid state */
-+	return di_handle_valid_state(imxdi, __raw_readl(imxdi->ioaddr + DSR));
-+}
-+
-+static int di_handle_invalid_and_failure_state(struct imxdi_dev *imxdi, u32 dsr)
-+{
-+	u32 dcr;
-+
-+	/*
-+	 * now we must first remove the tamper sources in order to get the
-+	 * device out of the "FAILURE STATE"
-+	 * To disable any of the following sources we need to modify the DTCR
-+	 */
-+	if (dsr & (DSR_WTD | DSR_ETBD | DSR_ETAD | DSR_EBD | DSR_SAD |
-+			DSR_TTD | DSR_CTD | DSR_VTD | DSR_MCO | DSR_TCO)) {
-+		dcr = __raw_readl(imxdi->ioaddr + DCR);
-+		if (dcr & DCR_TDCHL) {
-+			/*
-+			 * the tamper register is locked. We cannot disable the
-+			 * tamper detection. The TDCHL can only be reset by a
-+			 * DRYICE POR, but we cannot force a DRYICE POR in
-+			 * softwere because we are still in "FAILURE STATE".
-+			 * We need a DRYICE POR via battery power cycling....
-+			 */
-+			/*
-+			 * out of luck!
-+			 * we cannot disable them without a DRYICE POR
-+			 */
-+			di_what_is_to_be_done(imxdi, "battery");
-+			return -ENODEV;
-+		}
-+		if (dcr & DCR_TDCSL) {
-+			/* a soft lock can be removed by a SYSTEM POR */
-+			di_what_is_to_be_done(imxdi, "main");
-+			return -ENODEV;
-+		}
-+	}
-+
-+	/* disable all sources */
-+	di_write_busy_wait(imxdi, 0x00000000, DTCR);
-+
-+	/* clear the status bits now */
-+	di_write_busy_wait(imxdi, dsr & (DSR_WTD | DSR_ETBD | DSR_ETAD |
-+			DSR_EBD | DSR_SAD | DSR_TTD | DSR_CTD | DSR_VTD |
-+			DSR_MCO | DSR_TCO), DSR);
-+
-+	dsr = readl(imxdi->ioaddr + DSR);
-+	if ((dsr & ~(DSR_NVF | DSR_SVF | DSR_WBF | DSR_WNF |
-+			DSR_WCF | DSR_WEF)) != 0)
-+		dev_warn(&imxdi->pdev->dev,
-+			"There are still some sources of pain in DSR: %08x!\n",
-+			dsr & ~(DSR_NVF | DSR_SVF | DSR_WBF | DSR_WNF |
-+					DSR_WCF | DSR_WEF));
-+
-+	/*
-+	 * now we are trying to clear the "Security-violation flag" to
-+	 * get the DryIce out of this state
-+	 */
-+	di_write_busy_wait(imxdi, DSR_SVF, DSR);
-+
-+	/* success? */
-+	dsr = readl(imxdi->ioaddr + DSR);
-+	if (dsr & DSR_SVF) {
-+		dev_crit(&imxdi->pdev->dev,
-+			"Cannot clear the security violation flag. We are ending up in an endless loop!\n");
-+		/* last resort */
-+		di_what_is_to_be_done(imxdi, "battery");
-+		return -ENODEV;
-+	}
-+
-+	/*
-+	 * now we have left the "FAILURE STATE" and ending up in the
-+	 * "NON-VALID STATE" time to recover everything
-+	 */
-+	return di_handle_invalid_state(imxdi, dsr);
-+}
-+
-+static int di_handle_state(struct imxdi_dev *imxdi)
-+{
-+	int rc;
-+	u32 dsr;
-+
-+	dsr = readl(imxdi->ioaddr + DSR);
-+
-+	switch (dsr & (DSR_NVF | DSR_SVF)) {
-+	case DSR_NVF:
-+		dev_warn(&imxdi->pdev->dev, "Invalid stated unit detected\n");
-+		rc = di_handle_invalid_state(imxdi, dsr);
-+		break;
-+	case DSR_SVF:
-+		dev_warn(&imxdi->pdev->dev, "Failure stated unit detected\n");
-+		rc = di_handle_failure_state(imxdi, dsr);
-+		break;
-+	case DSR_NVF | DSR_SVF:
-+		dev_warn(&imxdi->pdev->dev,
-+				"Failure+Invalid stated unit detected\n");
-+		rc = di_handle_invalid_and_failure_state(imxdi, dsr);
-+		break;
-+	default:
-+		dev_notice(&imxdi->pdev->dev, "Unlocked unit detected\n");
-+		rc = di_handle_valid_state(imxdi, dsr);
-+	}
-+
-+	return rc;
-+}
-+
-+/*
-  * enable a dryice interrupt
-  */
- static void di_int_enable(struct imxdi_dev *imxdi, u32 intr)
-@@ -491,6 +766,10 @@ static int __init dryice_rtc_probe(struct platform_device *pdev)
- 	/* mask all interrupts */
- 	writel(0, imxdi->ioaddr + DIER);
+  * We rely on the rtc framework to handle locking (rtc->ops_lock),
+  * so the only other requirement is that register accesses which
+@@ -186,7 +209,9 @@ static irqreturn_t rtc_irq(int irq, void *dev_id)
  
-+	rc = di_handle_state(imxdi);
-+	if (rc != 0)
-+		goto err;
-+
- 	rc = devm_request_irq(&pdev->dev, imxdi->irq, dryice_norm_irq,
- 			IRQF_SHARED, pdev->name, imxdi);
- 	if (rc) {
-@@ -498,44 +777,6 @@ static int __init dryice_rtc_probe(struct platform_device *pdev)
- 		goto err;
+ 	/* alarm irq? */
+ 	if (irq_data & OMAP_RTC_STATUS_ALARM) {
++		rtc->type->unlock(rtc);
+ 		rtc_write(rtc, OMAP_RTC_STATUS_REG, OMAP_RTC_STATUS_ALARM);
++		rtc->type->lock(rtc);
+ 		events |= RTC_IRQF | RTC_AF;
  	}
  
--	/* put dryice into valid state */
--	if (readl(imxdi->ioaddr + DSR) & DSR_NVF) {
--		rc = di_write_wait(imxdi, DSR_NVF | DSR_SVF, DSR);
--		if (rc)
--			goto err;
+@@ -218,9 +243,11 @@ static int omap_rtc_alarm_irq_enable(struct device *dev, unsigned int enabled)
+ 		irqwake_reg &= ~OMAP_RTC_IRQWAKEEN_ALARM_WAKEEN;
+ 	}
+ 	rtc_wait_not_busy(rtc);
++	rtc->type->unlock(rtc);
+ 	rtc_write(rtc, OMAP_RTC_INTERRUPTS_REG, reg);
+ 	if (rtc->type->has_irqwakeen)
+ 		rtc_write(rtc, OMAP_RTC_IRQWAKEEN, irqwake_reg);
++	rtc->type->lock(rtc);
+ 	local_irq_enable();
+ 
+ 	return 0;
+@@ -293,12 +320,14 @@ static int omap_rtc_set_time(struct device *dev, struct rtc_time *tm)
+ 	local_irq_disable();
+ 	rtc_wait_not_busy(rtc);
+ 
++	rtc->type->unlock(rtc);
+ 	rtc_write(rtc, OMAP_RTC_YEARS_REG, tm->tm_year);
+ 	rtc_write(rtc, OMAP_RTC_MONTHS_REG, tm->tm_mon);
+ 	rtc_write(rtc, OMAP_RTC_DAYS_REG, tm->tm_mday);
+ 	rtc_write(rtc, OMAP_RTC_HOURS_REG, tm->tm_hour);
+ 	rtc_write(rtc, OMAP_RTC_MINUTES_REG, tm->tm_min);
+ 	rtc_write(rtc, OMAP_RTC_SECONDS_REG, tm->tm_sec);
++	rtc->type->lock(rtc);
+ 
+ 	local_irq_enable();
+ 
+@@ -341,6 +370,7 @@ static int omap_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alm)
+ 	local_irq_disable();
+ 	rtc_wait_not_busy(rtc);
+ 
++	rtc->type->unlock(rtc);
+ 	rtc_write(rtc, OMAP_RTC_ALARM_YEARS_REG, alm->time.tm_year);
+ 	rtc_write(rtc, OMAP_RTC_ALARM_MONTHS_REG, alm->time.tm_mon);
+ 	rtc_write(rtc, OMAP_RTC_ALARM_DAYS_REG, alm->time.tm_mday);
+@@ -362,6 +392,7 @@ static int omap_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alm)
+ 	rtc_write(rtc, OMAP_RTC_INTERRUPTS_REG, reg);
+ 	if (rtc->type->has_irqwakeen)
+ 		rtc_write(rtc, OMAP_RTC_IRQWAKEEN, irqwake_reg);
++	rtc->type->lock(rtc);
+ 
+ 	local_irq_enable();
+ 
+@@ -391,6 +422,7 @@ static void omap_rtc_power_off(void)
+ 	unsigned long now;
+ 	u32 val;
+ 
++	rtc->type->unlock(rtc);
+ 	/* enable pmic_power_en control */
+ 	val = rtc_readl(rtc, OMAP_RTC_PMIC_REG);
+ 	rtc_writel(rtc, OMAP_RTC_PMIC_REG, val | OMAP_RTC_PMIC_POWER_EN_EN);
+@@ -423,6 +455,7 @@ static void omap_rtc_power_off(void)
+ 	val = rtc_read(rtc, OMAP_RTC_INTERRUPTS_REG);
+ 	rtc_writel(rtc, OMAP_RTC_INTERRUPTS_REG,
+ 			val | OMAP_RTC_INTERRUPTS_IT_ALARM2);
++	rtc->type->lock(rtc);
+ 
+ 	/*
+ 	 * Wait for alarm to trigger (within two seconds) and external PMIC to
+@@ -442,17 +475,21 @@ static struct rtc_class_ops omap_rtc_ops = {
+ 
+ static const struct omap_rtc_device_type omap_rtc_default_type = {
+ 	.has_power_up_reset = true,
++	.lock		= default_rtc_lock,
++	.unlock		= default_rtc_unlock,
+ };
+ 
+ static const struct omap_rtc_device_type omap_rtc_am3352_type = {
+ 	.has_32kclk_en	= true,
+-	.has_kicker	= true,
+ 	.has_irqwakeen	= true,
+ 	.has_pmic_mode	= true,
++	.lock		= am3352_rtc_lock,
++	.unlock		= am3352_rtc_unlock,
+ };
+ 
+ static const struct omap_rtc_device_type omap_rtc_da830_type = {
+-	.has_kicker	= true,
++	.lock		= am3352_rtc_lock,
++	.unlock		= am3352_rtc_unlock,
+ };
+ 
+ static const struct platform_device_id omap_rtc_id_table[] = {
+@@ -527,10 +564,7 @@ static int __init omap_rtc_probe(struct platform_device *pdev)
+ 	pm_runtime_enable(&pdev->dev);
+ 	pm_runtime_get_sync(&pdev->dev);
+ 
+-	if (rtc->type->has_kicker) {
+-		rtc_writel(rtc, OMAP_RTC_KICK0_REG, KICK0_VALUE);
+-		rtc_writel(rtc, OMAP_RTC_KICK1_REG, KICK1_VALUE);
 -	}
--
--	/* initialize alarm */
--	rc = di_write_wait(imxdi, DCAMR_UNSET, DCAMR);
--	if (rc)
--		goto err;
--	rc = di_write_wait(imxdi, 0, DCALR);
--	if (rc)
--		goto err;
--
--	/* clear alarm flag */
--	if (readl(imxdi->ioaddr + DSR) & DSR_CAF) {
--		rc = di_write_wait(imxdi, DSR_CAF, DSR);
--		if (rc)
--			goto err;
--	}
--
--	/* the timer won't count if it has never been written to */
--	if (readl(imxdi->ioaddr + DTCMR) == 0) {
--		rc = di_write_wait(imxdi, 0, DTCMR);
--		if (rc)
--			goto err;
--	}
--
--	/* start keeping time */
--	if (!(readl(imxdi->ioaddr + DCR) & DCR_TCE)) {
--		rc = di_write_wait(imxdi,
--				readl(imxdi->ioaddr + DCR) | DCR_TCE,
--				DCR);
--		if (rc)
--			goto err;
--	}
--
- 	platform_set_drvdata(pdev, imxdi);
- 	imxdi->rtc = devm_rtc_device_register(&pdev->dev, pdev->name,
- 				  &dryice_rtc_ops, THIS_MODULE);
++	rtc->type->unlock(rtc);
+ 
+ 	/*
+ 	 * disable interrupts
+@@ -593,6 +627,8 @@ static int __init omap_rtc_probe(struct platform_device *pdev)
+ 	if (reg != new_ctrl)
+ 		rtc_write(rtc, OMAP_RTC_CTRL_REG, new_ctrl);
+ 
++	rtc->type->lock(rtc);
++
+ 	device_init_wakeup(&pdev->dev, true);
+ 
+ 	rtc->rtc = devm_rtc_device_register(&pdev->dev, pdev->name,
+@@ -626,8 +662,7 @@ static int __init omap_rtc_probe(struct platform_device *pdev)
+ 
+ err:
+ 	device_init_wakeup(&pdev->dev, false);
+-	if (rtc->type->has_kicker)
+-		rtc_writel(rtc, OMAP_RTC_KICK0_REG, 0);
++	rtc->type->lock(rtc);
+ 	pm_runtime_put_sync(&pdev->dev);
+ 	pm_runtime_disable(&pdev->dev);
+ 
+@@ -646,11 +681,11 @@ static int __exit omap_rtc_remove(struct platform_device *pdev)
+ 
+ 	device_init_wakeup(&pdev->dev, 0);
+ 
++	rtc->type->unlock(rtc);
+ 	/* leave rtc running, but disable irqs */
+ 	rtc_write(rtc, OMAP_RTC_INTERRUPTS_REG, 0);
+ 
+-	if (rtc->type->has_kicker)
+-		rtc_writel(rtc, OMAP_RTC_KICK0_REG, 0);
++	rtc->type->lock(rtc);
+ 
+ 	/* Disable the clock/module */
+ 	pm_runtime_put_sync(&pdev->dev);
+@@ -666,6 +701,7 @@ static int omap_rtc_suspend(struct device *dev)
+ 
+ 	rtc->interrupts_reg = rtc_read(rtc, OMAP_RTC_INTERRUPTS_REG);
+ 
++	rtc->type->unlock(rtc);
+ 	/*
+ 	 * FIXME: the RTC alarm is not currently acting as a wakeup event
+ 	 * source on some platforms, and in fact this enable() call is just
+@@ -675,6 +711,7 @@ static int omap_rtc_suspend(struct device *dev)
+ 		enable_irq_wake(rtc->irq_alarm);
+ 	else
+ 		rtc_write(rtc, OMAP_RTC_INTERRUPTS_REG, 0);
++	rtc->type->lock(rtc);
+ 
+ 	/* Disable the clock/module */
+ 	pm_runtime_put_sync(dev);
+@@ -689,10 +726,12 @@ static int omap_rtc_resume(struct device *dev)
+ 	/* Enable the clock/module so that we can access the registers */
+ 	pm_runtime_get_sync(dev);
+ 
++	rtc->type->unlock(rtc);
+ 	if (device_may_wakeup(dev))
+ 		disable_irq_wake(rtc->irq_alarm);
+ 	else
+ 		rtc_write(rtc, OMAP_RTC_INTERRUPTS_REG, rtc->interrupts_reg);
++	rtc->type->lock(rtc);
+ 
+ 	return 0;
+ }
+@@ -709,9 +748,11 @@ static void omap_rtc_shutdown(struct platform_device *pdev)
+ 	 * Keep the ALARM interrupt enabled to allow the system to power up on
+ 	 * alarm events.
+ 	 */
++	rtc->type->unlock(rtc);
+ 	mask = rtc_read(rtc, OMAP_RTC_INTERRUPTS_REG);
+ 	mask &= OMAP_RTC_INTERRUPTS_IT_ALARM;
+ 	rtc_write(rtc, OMAP_RTC_INTERRUPTS_REG, mask);
++	rtc->type->lock(rtc);
+ }
+ 
+ static struct platform_driver omap_rtc_driver = {
 -- 
-2.1.4
+1.9.1
 
 -- 
 -- 
