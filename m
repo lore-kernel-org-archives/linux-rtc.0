@@ -1,44 +1,27 @@
-Return-Path: <rtc-linux+bncBCIPJ6FA2QLBBBEUZ6UQKGQE2L4NQ5Q@googlegroups.com>
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id ec7si620892wib.3.2015.04.19.08.30.12
-        for <rtc-linux@googlegroups.com>;
-        Sun, 19 Apr 2015 08:30:12 -0700 (PDT)
-Date: Sun, 19 Apr 2015 17:30:06 +0200
-From: Boris Brezillon <boris.brezillon@free-electrons.com>
-To: Heiko =?UTF-8?B?U3TDvGJuZXI=?= <heiko@sntech.de>
-Cc: Mike Turquette <mturquette@linaro.org>, Mikko Perttunen
- <mikko.perttunen@kapsi.fi>, Jonathan Corbet <corbet@lwn.net>, Shawn Guo
- <shawn.guo@linaro.org>, ascha Hauer <kernel@pengutronix.de>, David Brown
- <davidb@codeaurora.org>, Daniel Walker <dwalker@fifo99.com>, Bryan Huntsman
- <bryanh@codeaurora.org>, Tony Lindgren <tony@atomide.com>, Paul Walmsley
- <paul@pwsan.com>, Liviu Dudau <liviu.dudau@arm.com>, Sudeep Holla
- <sudeep.holla@arm.com>, Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>, Ralf
- Baechle <ralf@linux-mips.org>, Max Filippov <jcmvbkbc@gmail.com>, Sylwester
- Nawrocki <s.nawrocki@samsung.com>, Tomasz Figa <tomasz.figa@gmail.com>,
- Barry Song <baohua@kernel.org>, Viresh Kumar <viresh.linux@gmail.com>,
- Emilio =?UTF-8?B?TMOzcGV6?= <emilio@elopez.com.ar>, Maxime Ripard
- <maxime.ripard@free-electrons.com>, Peter De Schrijver
- <pdeschrijver@nvidia.com>, Prashant Gaikwad <pgaikwad@nvidia.com>, Stephen
- Warren <swarren@wwwdotorg.org>, Thierry Reding <thierry.reding@gmail.com>,
- Alexandre Courbot <gnurou@gmail.com>, Tero Kristo <t-kristo@ti.com>, Ulf
- Hansson <ulf.hansson@linaro.org>, Michal Simek <michal.simek@xilinx.com>,
- Philipp Zabel <p.zabel@pengutronix.de>, linux-doc@vger.kernel.org,
- linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
- linux-arm-msm@vger.kernel.org, linux-omap@vger.kernel.org,
- linux-mips@linux-mips.org, patches@opensource.wolfsonmicro.com,
- linux-rockchip@lists.infradead.org, linux-samsung-soc@vger.kernel.org,
- spear-devel@list.st.com, linux-tegra@vger.kernel.org,
- dri-devel@lists.freedesktop.org, linux-media@vger.kernel.org,
- rtc-linux@googlegroups.com
-Subject: [rtc-linux] Re: [PATCH 1/2] clk: change clk_ops' ->round_rate() prototype
-Message-ID: <20150419173006.0ce6cfe0@bbrezillon>
-In-Reply-To: <7408975.lBcgZIN9hf@diego>
-References: <1429255769-13639-1-git-send-email-boris.brezillon@free-electrons.com>
-	<1429255769-13639-2-git-send-email-boris.brezillon@free-electrons.com>
-	<7408975.lBcgZIN9hf@diego>
+Return-Path: <rtc-linux+bncBDKZNNNLXAHBB7VF6WUAKGQEEXJEI2Y@googlegroups.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Received: from mailout1.w1.samsung.com (mailout1.w1.samsung.com. [210.118.77.11])
+        by gmr-mx.google.com with ESMTPS id br7si616284pdb.2.2015.04.02.07.32.30
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1 cipher=RC4-MD5 bits=128/128);
+        Thu, 02 Apr 2015 07:32:30 -0700 (PDT)
+Received: from eucpsbgm2.samsung.com (unknown [203.254.199.245])
+ by mailout1.w1.samsung.com
+ (Oracle Communications Messaging Server 7u4-24.01(7.0.4.24.0) 64bit (built Nov
+ 17 2011)) with ESMTP id <0NM60093UOKVUS00@mailout1.w1.samsung.com> for
+ rtc-linux@googlegroups.com; Thu, 02 Apr 2015 15:36:31 +0100 (BST)
+From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+ linux-samsung-soc@vger.kernel.org, Alessandro Zummo <a.zummo@towertech.it>,
+ rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org
+Cc: Marek Szyprowski <m.szyprowski@samsung.com>,
+ Krzysztof Kozlowski <k.kozlowski@samsung.com>
+Subject: [rtc-linux] [PATCH] rtc: rtc-s3c: Remove one superfluous
+ rtc_valid_tm() check
+Date: Thu, 02 Apr 2015 16:31:56 +0200
+Message-id: <1427985116-20314-1-git-send-email-k.kozlowski@samsung.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -48,84 +31,39 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Hi Heiko,
+The s3c_rtc_gettime() returns already result of rtc_valid_tm() on
+obtained time so get rid of another call to rtc_valid_tm().
 
-On Sun, 19 Apr 2015 14:13:04 +0200
-Heiko St=C3=BCbner <heiko@sntech.de> wrote:
+Signed-off-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+---
+ drivers/rtc/rtc-s3c.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-> Hi Boris,
->=20
-> Am Freitag, 17. April 2015, 09:29:28 schrieb Boris Brezillon:
-> > Clock rates are stored in an unsigned long field, but ->round_rate()
-> > (which returns a rounded rate from a requested one) returns a long
-> > value (errors are reported using negative error codes), which can lead
-> > to long overflow if the clock rate exceed 2Ghz.
-> >=20
-> > Change ->round_rate() prototype to return 0 or an error code, and pass =
-the
-> > requested rate as a pointer so that it can be adjusted depending on
-> > hardware capabilities.
-> >=20
-> > Signed-off-by: Boris Brezillon <boris.brezillon@free-electrons.com>
-> > ---
->=20
-> On a rk3288-veyron-pinky with the fix described below:
-> Tested-by: Heiko Stuebner <heiko@sntech.de>
->=20
->=20
-> > diff --git a/drivers/clk/clk.c b/drivers/clk/clk.c
-> > index fa5a00e..1462ddc 100644
-> > --- a/drivers/clk/clk.c
-> > +++ b/drivers/clk/clk.c
-> > @@ -1640,8 +1643,10 @@ static struct clk_core *clk_calc_new_rates(struc=
-t
-> > clk_core *clk, &parent_hw);
-> >  		parent =3D parent_hw ? parent_hw->core : NULL;
-> >  	} else if (clk->ops->round_rate) {
-> > -		new_rate =3D clk->ops->round_rate(clk->hw, rate,
-> > -						&best_parent_rate);
-> > +		if (clk->ops->round_rate(clk->hw, &new_rate,
-> > +					 &best_parent_rate))
-> > +			return NULL;
-> > +
-> >  		if (new_rate < min_rate || new_rate > max_rate)
-> >  			return NULL;
-> >  	} else if (!parent || !(clk->flags & CLK_SET_RATE_PARENT)) {
->=20
-> This is using new_rate uninitialized when calling into the round_rate
-> callback. Which in turn pushed my PLLs up to 2.2GHz :-)
+diff --git a/drivers/rtc/rtc-s3c.c b/drivers/rtc/rtc-s3c.c
+index 1d3a4c58fec4..a0f832362199 100644
+--- a/drivers/rtc/rtc-s3c.c
++++ b/drivers/rtc/rtc-s3c.c
+@@ -497,9 +497,7 @@ static int s3c_rtc_probe(struct platform_device *pdev)
+ 	device_init_wakeup(&pdev->dev, 1);
+ 
+ 	/* Check RTC Time */
+-	s3c_rtc_gettime(&pdev->dev, &rtc_tm);
+-
+-	if (rtc_valid_tm(&rtc_tm)) {
++	if (s3c_rtc_gettime(&pdev->dev, &rtc_tm)) {
+ 		rtc_tm.tm_year	= 100;
+ 		rtc_tm.tm_mon	= 0;
+ 		rtc_tm.tm_mday	= 1;
+-- 
+1.9.1
 
-Indeed, thanks for the fix.
-
-[...]
-
->=20
->=20
-> And as I've stumbled onto this recently too, the clock-maintainership has
-> expanded to Stephen Boyd and linux-clk@vger.kernel.org .
-
-Noted. I'll add Stephen and the new linux-clk ML in the recipient list
-next time.
-
-Best Regards,
-
-Boris
-
-
---=20
-Boris Brezillon, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
-
---=20
---=20
+-- 
+-- 
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
----=20
-You received this message because you are subscribed to the Google Groups "=
-rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an e=
-mail to rtc-linux+unsubscribe@googlegroups.com.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
