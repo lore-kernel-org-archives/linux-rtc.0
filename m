@@ -1,22 +1,26 @@
-Return-Path: <rtc-linux+bncBCO3XAUMTIFRBHF622UQKGQEMEQPM3Q@googlegroups.com>
-Received: from arroyo.ext.ti.com ([192.94.94.40])
-        by gmr-mx.google.com with ESMTPS id x1si26542igb.2.2015.04.20.17.51.39
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1 cipher=RC4-SHA bits=128/128);
-        Mon, 20 Apr 2015 17:51:39 -0700 (PDT)
-From: Nishanth Menon <nm@ti.com>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        Alessandro Zummo
-	<a.zummo@towertech.it>
-CC: <nm@ti.com>, <linux-omap@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-        <rtc-linux@googlegroups.com>
-Subject: [rtc-linux] [PATCH V2] drivers/rtc/rtc-ds1307.c: Enable the mcp794xx
- alarm after programming time
-Date: Mon, 20 Apr 2015 19:51:34 -0500
-Message-ID: <1429577494-15087-1-git-send-email-nm@ti.com>
+Return-Path: <rtc-linux+bncBDKZNNNLXAHBB6GC6SUAKGQEFX3LYXQ@googlegroups.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Received: from mailout1.w1.samsung.com (mailout1.w1.samsung.com. [210.118.77.11])
+        by gmr-mx.google.com with ESMTPS id oc12si565888pdb.1.2015.04.02.04.01.11
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1 cipher=RC4-MD5 bits=128/128);
+        Thu, 02 Apr 2015 04:01:11 -0700 (PDT)
+Received: from eucpsbgm1.samsung.com (unknown [203.254.199.244])
+ by mailout1.w1.samsung.com
+ (Oracle Communications Messaging Server 7u4-24.01(7.0.4.24.0) 64bit (built Nov
+ 17 2011)) with ESMTP id <0NM6004GLESOET70@mailout1.w1.samsung.com> for
+ rtc-linux@googlegroups.com; Thu, 02 Apr 2015 12:05:12 +0100 (BST)
+From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+To: Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
+ linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org,
+ Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: Marek Szyprowski <m.szyprowski@samsung.com>,
+ Krzysztof Kozlowski <k.kozlowski@samsung.com>
+Subject: [rtc-linux] [PATCH] rtc: rtc-s3c: Fix failed first read of RTC time
+Date: Thu, 02 Apr 2015 13:00:59 +0200
+Message-id: <1427972459-6480-1-git-send-email-k.kozlowski@samsung.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -26,63 +30,69 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Alarm interrupt enable register is at offset 0x7, while the time
-registers for the alarm follow that. When we program Alarm interrupt
-enable prior to programming the time, it is possible that previous
-time value could be close or match at the time of alarm enable
-resulting in interrupt trigger which is unexpected (and does not match
-the time we expect it to trigger).
+Initialize the device time (if it is wrong) before registering RTC
+device to fix following error message during rtc-s3c probe:
 
-To prevent this scenario from occuring, program the ALM0_EN bit only
-after the alarm time is appropriately programmed.
+[    2.215414] rtc (null): read_time: fail to read
+[    2.216322] s3c-rtc 10070000.rtc: rtc core: registered s3c as rtc1
 
-Ofcourse, I2C programming is non-atomic, so there are loopholes where
-the interrupt wont trigger if the time requested is in the past at
-the time of programming the ALM0_EN bit. However, we will not have
-unexpected interrupts while the time is programmed after the interrupt
-are enabled.
-
-Signed-off-by: Nishanth Menon <nm@ti.com>
+Signed-off-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
 ---
-Changes in v2:
-	- minor typo fix in comments
-	- merged up code that I missed committing in
+ drivers/rtc/rtc-s3c.c | 32 ++++++++++++++++----------------
+ 1 file changed, 16 insertions(+), 16 deletions(-)
 
-V1: https://patchwork.kernel.org/patch/6245041/
-
- drivers/rtc/rtc-ds1307.c |   12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
-
-diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
-index 4ffabb322a9a..3cd4783375a5 100644
---- a/drivers/rtc/rtc-ds1307.c
-+++ b/drivers/rtc/rtc-ds1307.c
-@@ -742,17 +742,17 @@ static int mcp794xx_set_alarm(struct device *dev, struct rtc_wkalrm *t)
- 	regs[6] &= ~MCP794XX_BIT_ALMX_IF;
- 	/* Set alarm match: second, minute, hour, day, date, month. */
- 	regs[6] |= MCP794XX_MSK_ALMX_MATCH;
+diff --git a/drivers/rtc/rtc-s3c.c b/drivers/rtc/rtc-s3c.c
+index 5e162eaad277..1d3a4c58fec4 100644
+--- a/drivers/rtc/rtc-s3c.c
++++ b/drivers/rtc/rtc-s3c.c
+@@ -496,6 +496,22 @@ static int s3c_rtc_probe(struct platform_device *pdev)
+ 
+ 	device_init_wakeup(&pdev->dev, 1);
+ 
++	/* Check RTC Time */
++	s3c_rtc_gettime(&pdev->dev, &rtc_tm);
++
++	if (rtc_valid_tm(&rtc_tm)) {
++		rtc_tm.tm_year	= 100;
++		rtc_tm.tm_mon	= 0;
++		rtc_tm.tm_mday	= 1;
++		rtc_tm.tm_hour	= 0;
++		rtc_tm.tm_min	= 0;
++		rtc_tm.tm_sec	= 0;
++
++		s3c_rtc_settime(&pdev->dev, &rtc_tm);
++
++		dev_warn(&pdev->dev, "warning: invalid RTC value so initializing it\n");
++	}
++
+ 	/* register RTC and exit */
+ 	info->rtc = devm_rtc_device_register(&pdev->dev, "s3c", &s3c_rtcops,
+ 				  THIS_MODULE);
+@@ -519,22 +535,6 @@ static int s3c_rtc_probe(struct platform_device *pdev)
+ 		goto err_nortc;
+ 	}
+ 
+-	/* Check RTC Time */
+-	s3c_rtc_gettime(&pdev->dev, &rtc_tm);
 -
--	if (t->enabled)
--		regs[0] |= MCP794XX_BIT_ALM0_EN;
--	else
--		regs[0] &= ~MCP794XX_BIT_ALM0_EN;
-+	/* Disable interrupt. We will not enable until completely programmed */
-+	regs[0] &= ~MCP794XX_BIT_ALM0_EN;
+-	if (rtc_valid_tm(&rtc_tm)) {
+-		rtc_tm.tm_year	= 100;
+-		rtc_tm.tm_mon	= 0;
+-		rtc_tm.tm_mday	= 1;
+-		rtc_tm.tm_hour	= 0;
+-		rtc_tm.tm_min	= 0;
+-		rtc_tm.tm_sec	= 0;
+-
+-		s3c_rtc_settime(&pdev->dev, &rtc_tm);
+-
+-		dev_warn(&pdev->dev, "warning: invalid RTC value so initializing it\n");
+-	}
+-
+ 	if (info->data->select_tick_clk)
+ 		info->data->select_tick_clk(info);
  
- 	ret = ds1307->write_block_data(client, MCP794XX_REG_CONTROL, 10, regs);
- 	if (ret < 0)
- 		return ret;
- 
--	return 0;
-+	if (!t->enabled)
-+		return 0;
-+	regs[0] |= MCP794XX_BIT_ALM0_EN;
-+	return i2c_smbus_write_byte_data(client, MCP794XX_REG_CONTROL, regs[0]);
- }
- 
- static int mcp794xx_alarm_irq_enable(struct device *dev, unsigned int enabled)
 -- 
-1.7.9.5
+1.9.1
 
 -- 
 -- 
