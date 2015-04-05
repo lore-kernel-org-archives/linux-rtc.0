@@ -1,25 +1,29 @@
-Return-Path: <rtc-linux+bncBCC6ZWOPXENRBYMB7GUQKGQEKLXYBVA@googlegroups.com>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBVMXQSUQKGQEEM53M2Y@googlegroups.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id i8si66526wif.1.2015.04.05.03.17.56
+        for <rtc-linux@googlegroups.com>;
+        Sun, 05 Apr 2015 03:17:56 -0700 (PDT)
+Date: Sun, 5 Apr 2015 12:17:55 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Joe Perches <joe@perches.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+	Joshua Kinard <kumba@gentoo.org>,
+	Chanwoo Choi <cw00.choi@samsung.com>,
+	Krzysztof Kozlowski <k.kozlowski@samsung.com>,
+	Aaro Koskinen <aaro.koskinen@iki.fi>, rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org
+Subject: [rtc-linux] Re: [PATCH] rtc: Use more standard kernel logging styles
+Message-ID: <20150405101755.GT20669@piout.net>
+References: <1427576976-22353-1-git-send-email-aaro.koskinen@iki.fi>
+ <1427576976-22353-3-git-send-email-aaro.koskinen@iki.fi>
+ <20150401030124.GO3849@piout.net>
+ <1427858308.18175.30.camel@perches.com>
+ <20150401104210.GT3849@piout.net>
+ <1427904771.31790.20.camel@perches.com>
 MIME-Version: 1.0
-Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de. [2001:6f8:1178:4:290:27ff:fe1d:cc33])
-        by gmr-mx.google.com with ESMTPS id ec7si421164wib.3.2015.04.27.07.00.01
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=RC4-SHA bits=128/128);
-        Mon, 27 Apr 2015 07:00:01 -0700 (PDT)
-From: Juergen Borleis <jbe@pengutronix.de>
-To: linux-kernel@vger.kernel.org
-Cc: rtc-linux@googlegroups.com,
-	kernel@pengutronix.de,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	linux-arm-kernel@lists.infradead.org,
-	Robert Schwebel <rsc@pengutronix.de>
-Subject: [rtc-linux] [PATCH 2/6] RTC/i.MX/DryIce: add some background info
- about the states the machine can be in
-Date: Mon, 27 Apr 2015 15:59:48 +0200
-Message-Id: <1430143192-20667-3-git-send-email-jbe@pengutronix.de>
-In-Reply-To: <1430143192-20667-1-git-send-email-jbe@pengutronix.de>
-References: <1430143192-20667-1-git-send-email-jbe@pengutronix.de>
-Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1427904771.31790.20.camel@perches.com>
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -29,69 +33,23 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Signed-off-by: Juergen Borleis <jbe@pengutronix.de>
-Signed-off-by: Robert Schwebel <rsc@pengutronix.de>
-[rsc: got NDA clearance from Freescale]
----
- drivers/rtc/rtc-imxdi.c | 43 +++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 43 insertions(+)
+On 01/04/2015 at 09:12:51 -0700, Joe Perches wrote :
+> Neaten the logging a bit by adding #define pr_fmt
+> 
+> Miscellanea:
+> 
+> o Remove __FILE__/__func__ uses
+> o Coalesce formats adding missing spaces
+> o Align arguments
+> o (rtc-cmos) Integrated 2 consecutive messages
+>  
+> Signed-off-by: Joe Perches <joe@perches.com>
+Acked-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
 
-diff --git a/drivers/rtc/rtc-imxdi.c b/drivers/rtc/rtc-imxdi.c
-index 0c2a064..6db8d1c 100644
---- a/drivers/rtc/rtc-imxdi.c
-+++ b/drivers/rtc/rtc-imxdi.c
-@@ -129,6 +129,49 @@ struct imxdi_dev {
- 	struct work_struct work;
- };
- 
-+/* Some background:
-+ *
-+ * The DryIce unit is a complex security/tamper monitor device. To be able do
-+ * its job in a useful manner it runs a bigger statemachine to bring it into
-+ * security/tamper failure state and once again to bring it out of this state.
-+ *
-+ * This unit can be in one of three states:
-+ *
-+ * - "NON-VALID STATE"
-+ *   always after the battery power was removed
-+ * - "FAILURE STATE"
-+ *   if one of the enabled security events has happened
-+ * - "VALID STATE"
-+ *   if the unit works as expected
-+ *
-+ * Everything stops when the unit enters the failure state including the RTC
-+ * counter (to be able to detect the time the security event happened).
-+ *
-+ * The following events (when enabled) let the DryIce unit enter the failure
-+ * state:
-+ *
-+ * - wire-mesh-tamper detect
-+ * - external tamper B detect
-+ * - external tamper A detect
-+ * - temperature tamper detect
-+ * - clock tamper detect
-+ * - voltage tamper detect
-+ * - RTC counter overflow
-+ * - monotonic counter overflow
-+ * - external boot
-+ *
-+ * If we find the DryIce unit in "FAILURE STATE" and the TDCHL cleared, we
-+ * can only detect this state. In this case the unit is completely locked and
-+ * must force a second "SYSTEM POR" to bring the DryIce into the
-+ * "NON-VALID STATE" + "FAILURE STATE" where a recovery is possible.
-+ * If the TDCHL is set in the "FAILURE STATE" we are out of luck. In this case
-+ * a battery power cycle is required.
-+ *
-+ * In the "NON-VALID STATE" + "FAILURE STATE" we can clear the "FAILURE STATE"
-+ * and recover the DryIce unit. By clearing the "NON-VALID STATE" as the last
-+ * task, we bring back this unit into life.
-+ */
-+
- /*
-  * enable a dryice interrupt
-  */
 -- 
-2.1.4
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
 -- 
 -- 
