@@ -1,27 +1,19 @@
-Return-Path: <rtc-linux+bncBDKZNNNLXAHBB7VF6WUAKGQEEXJEI2Y@googlegroups.com>
-MIME-Version: 1.0
-Received: from mailout1.w1.samsung.com (mailout1.w1.samsung.com. [210.118.77.11])
-        by gmr-mx.google.com with ESMTPS id br7si616284pdb.2.2015.04.02.07.32.30
+Return-Path: <rtc-linux+bncBDHPTCWTXEHRBT77QGUQKGQERCDVYHQ@googlegroups.com>
+Received: from gloria.sntech.de (gloria.sntech.de. [95.129.55.99])
+        by gmr-mx.google.com with ESMTPS id p4si35461wiz.0.2015.04.04.17.20.31
         for <rtc-linux@googlegroups.com>
-        (version=TLSv1 cipher=RC4-MD5 bits=128/128);
-        Thu, 02 Apr 2015 07:32:30 -0700 (PDT)
-Received: from eucpsbgm2.samsung.com (unknown [203.254.199.245])
- by mailout1.w1.samsung.com
- (Oracle Communications Messaging Server 7u4-24.01(7.0.4.24.0) 64bit (built Nov
- 17 2011)) with ESMTP id <0NM60093UOKVUS00@mailout1.w1.samsung.com> for
- rtc-linux@googlegroups.com; Thu, 02 Apr 2015 15:36:31 +0100 (BST)
-From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
- linux-samsung-soc@vger.kernel.org, Alessandro Zummo <a.zummo@towertech.it>,
- rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org
-Cc: Marek Szyprowski <m.szyprowski@samsung.com>,
- Krzysztof Kozlowski <k.kozlowski@samsung.com>
-Subject: [rtc-linux] [PATCH] rtc: rtc-s3c: Remove one superfluous
- rtc_valid_tm() check
-Date: Thu, 02 Apr 2015 16:31:56 +0200
-Message-id: <1427985116-20314-1-git-send-email-k.kozlowski@samsung.com>
-Reply-To: rtc-linux@googlegroups.com
+        (version=TLSv1.2 cipher=RC4-SHA bits=128/128);
+        Sat, 04 Apr 2015 17:20:31 -0700 (PDT)
+From: Heiko =?ISO-8859-1?Q?St=FCbner?= <heiko@sntech.de>
+To: akpm@linux-foundation.org, Alessandro Zummo <a.zummo@towertech.it>
+Cc: rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org, linux-rockchip@lists.infradead.org
+Subject: [rtc-linux] [PATCH] rtc: hym8563: fix swapped enable/disable of
+ clockout control bit
+Date: Sun, 05 Apr 2015 02:20:24 +0200
+Message-ID: <6712839.2ZD6yJNGY8@diego>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -31,31 +23,67 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-The s3c_rtc_gettime() returns already result of rtc_valid_tm() on
-obtained time so get rid of another call to rtc_valid_tm().
+The hym8563 datasheet describes the clock output control-bit as "when set
+to logic 0, the square wave output is enable, when set to logic 1, the
+CLKOUT output is inhibited". But in reality the setting is exactly
+opposite.
 
-Signed-off-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+Before now, the clock output was not really used, but on the rk3288 soc
+this generated clock is used to supply the temperature sensor block and
+the swapped bit value prevented it from working. With the corrected value,
+the tsadc now reports correct values.
+
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
 ---
- drivers/rtc/rtc-s3c.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ drivers/rtc/rtc-hym8563.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/rtc/rtc-s3c.c b/drivers/rtc/rtc-s3c.c
-index 1d3a4c58fec4..a0f832362199 100644
---- a/drivers/rtc/rtc-s3c.c
-+++ b/drivers/rtc/rtc-s3c.c
-@@ -497,9 +497,7 @@ static int s3c_rtc_probe(struct platform_device *pdev)
- 	device_init_wakeup(&pdev->dev, 1);
+diff --git a/drivers/rtc/rtc-hym8563.c b/drivers/rtc/rtc-hym8563.c
+index d4a6561..0f710e9 100644
+--- a/drivers/rtc/rtc-hym8563.c
++++ b/drivers/rtc/rtc-hym8563.c
+@@ -66,7 +66,7 @@
+ #define HYM8563_ALM_BIT_DISABLE	BIT(7)
  
- 	/* Check RTC Time */
--	s3c_rtc_gettime(&pdev->dev, &rtc_tm);
--
--	if (rtc_valid_tm(&rtc_tm)) {
-+	if (s3c_rtc_gettime(&pdev->dev, &rtc_tm)) {
- 		rtc_tm.tm_year	= 100;
- 		rtc_tm.tm_mon	= 0;
- 		rtc_tm.tm_mday	= 1;
+ #define HYM8563_CLKOUT		0x0d
+-#define HYM8563_CLKOUT_DISABLE	BIT(7)
++#define HYM8563_CLKOUT_ENABLE	BIT(7)
+ #define HYM8563_CLKOUT_32768	0
+ #define HYM8563_CLKOUT_1024	1
+ #define HYM8563_CLKOUT_32	2
+@@ -360,9 +360,9 @@ static int hym8563_clkout_control(struct clk_hw *hw, bool enable)
+ 		return ret;
+ 
+ 	if (enable)
+-		ret &= ~HYM8563_CLKOUT_DISABLE;
++		ret |= HYM8563_CLKOUT_ENABLE;
+ 	else
+-		ret |= HYM8563_CLKOUT_DISABLE;
++		ret &= ~HYM8563_CLKOUT_ENABLE;
+ 
+ 	return i2c_smbus_write_byte_data(client, HYM8563_CLKOUT, ret);
+ }
+@@ -386,7 +386,7 @@ static int hym8563_clkout_is_prepared(struct clk_hw *hw)
+ 	if (ret < 0)
+ 		return ret;
+ 
+-	return !(ret & HYM8563_CLKOUT_DISABLE);
++	return !!(ret & HYM8563_CLKOUT_ENABLE);
+ }
+ 
+ static const struct clk_ops hym8563_clkout_ops = {
+@@ -407,7 +407,7 @@ static struct clk *hym8563_clkout_register_clk(struct hym8563 *hym8563)
+ 	int ret;
+ 
+ 	ret = i2c_smbus_write_byte_data(client, HYM8563_CLKOUT,
+-						HYM8563_CLKOUT_DISABLE);
++						0);
+ 	if (ret < 0)
+ 		return ERR_PTR(ret);
+ 
 -- 
-1.9.1
+2.1.4
+
 
 -- 
 -- 
