@@ -1,25 +1,20 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRB3UM32UQKGQE45FLLFY@googlegroups.com>
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id q10si305695wiz.0.2015.04.22.04.30.54
-        for <rtc-linux@googlegroups.com>;
-        Wed, 22 Apr 2015 04:30:54 -0700 (PDT)
-Date: Wed, 22 Apr 2015 13:30:53 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Nishanth Menon <nm@ti.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>, linux-omap@vger.kernel.org,
-	linux-kernel@vger.kernel.org, rtc-linux@googlegroups.com
-Subject: [rtc-linux] Re: [PATCH V2] drivers/rtc/rtc-ds1307.c: Enable the
- mcp794xx alarm after programming time
-Message-ID: <20150422113053.GI8539@piout.net>
-References: <1429577494-15087-1-git-send-email-nm@ti.com>
- <20150421234139.GF8539@piout.net>
- <5536E433.90103@ti.com>
- <20150422010925.GH8539@piout.net>
- <55370073.3060809@ti.com>
+Return-Path: <rtc-linux+bncBAABBDULS2UQKGQEBYYTNRA@googlegroups.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <55370073.3060809@ti.com>
+Received: from mail.cosmopool.net (mail.cosmopool.net. [2a01:4f8:160:20c1::10:107])
+        by gmr-mx.google.com with ESMTP id i8si686348wif.1.2015.04.08.12.46.22
+        for <rtc-linux@googlegroups.com>;
+        Wed, 08 Apr 2015 12:46:22 -0700 (PDT)
+From: Harald Geyer <harald@ccbib.org>
+To: Wolfram Sang <w.sang@pengutronix.de>,
+	Wim Van Sebroeck <wim@iguana.be>
+Cc: linux-watchdog@vger.kernel.org,
+	rtc-linux@googlegroups.com,
+	Harald Geyer <harald@ccbib.org>
+Subject: [rtc-linux] [PATCH] watchdog: stmp3xxx: Implement GETBOOTSTATUS
+Date: Wed,  8 Apr 2015 19:45:55 +0000
+Message-Id: <1428522355-5164-1-git-send-email-harald@ccbib.org>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -29,34 +24,202 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On 21/04/2015 at 20:59:15 -0500, Nishanth Menon wrote :
-> >> Why is that so? when set alarm is requested for time X, you want
-> >> interrupt at time X, not an interrupt for previous configured RTC
-> >> alarm time!
-> >>
-> > 
-> > You expect at least an interrupt.
-> 
-> And you will get an interrupt if the event occurs before the i2c burst
-> starts. Once the i2cburst does start, you are committing to the new time.
-> 
+When the watchdog is enabled, we set a persitent bit. After booting
+we query the bit and see if the system was reset by the watchdog.
 
-You mean that even if ALM0EN is set after ALM0IF was set to 1, it will
-trigger the interrupt? I had a look at the MFP output block diagram
-would let me think that this is the case. I was thinking otherwise
-before. If that is so, then indeed, your patch is OK.
+This is somewhat similiar to what the legacy driver from freescale
+does. However we use STMP3XXX_RTC_PERSISTENT2 instead of
+STMP3XXX_RTC_PERSISTENT1. I tried that first, but it seems I can't
+clear the bit there once it is set. I didn't find any documentation
+what this register does - only vague hints that it is meant to
+control the boot ROM.
 
-My concern was about the time between ds1307->write_block_data() and
-i2c_smbus_write_byte_data() which actually calls cond_sched().
+Part of the code from the legacy driver touching this register
+is still included. Maybe this is stale, but this patch doesn't
+touch any of it because I don't know what it really does or is
+meant to do.
 
-I fully agree that your patch doesn't change the behaviour for the other
-cases you presented and further clean up is to be done in a separate set
-of patches.
+Signed-off-by: Harald Geyer <harald@ccbib.org>
+---
+ drivers/rtc/rtc-stmp3xxx.c          |   23 +++++++++++++++++++++++
+ drivers/watchdog/stmp3xxx_rtc_wdt.c |   34 +++++++++++++++++++++++++++++++++-
+ include/linux/stmp3xxx_rtc_wdt.h    |    2 ++
+ 3 files changed, 58 insertions(+), 1 deletion(-)
 
+diff --git a/drivers/rtc/rtc-stmp3xxx.c b/drivers/rtc/rtc-stmp3xxx.c
+index 2939cdc..55ab9ba 100644
+--- a/drivers/rtc/rtc-stmp3xxx.c
++++ b/drivers/rtc/rtc-stmp3xxx.c
+@@ -30,6 +30,7 @@
+ #include <linux/of.h>
+ #include <linux/stmp_device.h>
+ #include <linux/stmp3xxx_rtc_wdt.h>
++#include <linux/watchdog.h>
+ 
+ #define STMP3XXX_RTC_CTRL			0x0
+ #define STMP3XXX_RTC_CTRL_SET			0x4
+@@ -60,6 +61,9 @@
+ /* missing bitmask in headers */
+ #define STMP3XXX_RTC_PERSISTENT1_FORCE_UPDATER	0x80000000
+ 
++#define STMP3XXX_RTC_PERSISTENT2		0x80
++#define STMP3XXX_RTC_PERSISTENT2_WDT_ACTIVE	0x00000001
++
+ struct stmp3xxx_rtc_data {
+ 	struct rtc_device *rtc;
+ 	void __iomem *io;
+@@ -81,6 +85,14 @@ struct stmp3xxx_rtc_data {
+  * registers is atomic.
+  */
+ 
++static void stmp3xxx_wdt_clear_bootstatus(struct device *dev)
++{
++	struct stmp3xxx_rtc_data *rtc_data = dev_get_drvdata(dev);
++
++	writel(STMP3XXX_RTC_PERSISTENT2_WDT_ACTIVE,
++	       STMP3XXX_RTC_PERSISTENT2 + STMP_OFFSET_REG_CLR + rtc_data->io);
++}
++
+ static void stmp3xxx_wdt_set_timeout(struct device *dev, u32 timeout)
+ {
+ 	struct stmp3xxx_rtc_data *rtc_data = dev_get_drvdata(dev);
+@@ -91,16 +103,22 @@ static void stmp3xxx_wdt_set_timeout(struct device *dev, u32 timeout)
+ 		       rtc_data->io + STMP3XXX_RTC_CTRL + STMP_OFFSET_REG_SET);
+ 		writel(STMP3XXX_RTC_PERSISTENT1_FORCE_UPDATER,
+ 		       rtc_data->io + STMP3XXX_RTC_PERSISTENT1 + STMP_OFFSET_REG_SET);
++		writel(STMP3XXX_RTC_PERSISTENT2_WDT_ACTIVE,
++		       rtc_data->io + STMP3XXX_RTC_PERSISTENT2 + STMP_OFFSET_REG_SET);
+ 	} else {
+ 		writel(STMP3XXX_RTC_CTRL_WATCHDOGEN,
+ 		       rtc_data->io + STMP3XXX_RTC_CTRL + STMP_OFFSET_REG_CLR);
+ 		writel(STMP3XXX_RTC_PERSISTENT1_FORCE_UPDATER,
+ 		       rtc_data->io + STMP3XXX_RTC_PERSISTENT1 + STMP_OFFSET_REG_CLR);
++		writel(STMP3XXX_RTC_PERSISTENT2_WDT_ACTIVE,
++		       rtc_data->io + STMP3XXX_RTC_PERSISTENT2 + STMP_OFFSET_REG_CLR);
+ 	}
+ }
+ 
+ static struct stmp3xxx_wdt_pdata wdt_pdata = {
+ 	.wdt_set_timeout = stmp3xxx_wdt_set_timeout,
++	.wdt_clear_bootstatus = stmp3xxx_wdt_clear_bootstatus,
++	.bootstatus = 0,
+ };
+ 
+ static void stmp3xxx_wdt_register(struct platform_device *rtc_pdev)
+@@ -108,6 +126,8 @@ static void stmp3xxx_wdt_register(struct platform_device *rtc_pdev)
+ 	struct platform_device *wdt_pdev =
+ 		platform_device_alloc("stmp3xxx_rtc_wdt", rtc_pdev->id);
+ 
++	stmp3xxx_wdt_clear_bootstatus(&rtc_pdev->dev);
++
+ 	if (wdt_pdev) {
+ 		wdt_pdev->dev.parent = &rtc_pdev->dev;
+ 		wdt_pdev->dev.platform_data = &wdt_pdata;
+@@ -304,6 +324,9 @@ static int stmp3xxx_rtc_probe(struct platform_device *pdev)
+ 		return err;
+ 	}
+ 
++	if (readl(STMP3XXX_RTC_PERSISTENT2 + rtc_data->io) &
++			 STMP3XXX_RTC_PERSISTENT2_WDT_ACTIVE)
++		wdt_pdata.bootstatus |= WDIOF_CARDRESET;
+ 	stmp3xxx_wdt_register(pdev);
+ 	return 0;
+ }
+diff --git a/drivers/watchdog/stmp3xxx_rtc_wdt.c b/drivers/watchdog/stmp3xxx_rtc_wdt.c
+index a62b1b6..5b3f12a8 100644
+--- a/drivers/watchdog/stmp3xxx_rtc_wdt.c
++++ b/drivers/watchdog/stmp3xxx_rtc_wdt.c
+@@ -14,6 +14,8 @@
+ #include <linux/watchdog.h>
+ #include <linux/platform_device.h>
+ #include <linux/stmp3xxx_rtc_wdt.h>
++#include <linux/notifier.h>
++#include <linux/reboot.h>
+ 
+ #define WDOG_TICK_RATE 1000 /* 1 kHz clock */
+ #define STMP3XXX_DEFAULT_TIMEOUT 19
+@@ -50,7 +52,8 @@ static int wdt_set_timeout(struct watchdog_device *wdd, unsigned new_timeout)
+ }
+ 
+ static const struct watchdog_info stmp3xxx_wdt_ident = {
+-	.options = WDIOF_MAGICCLOSE | WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING,
++	.options = WDIOF_MAGICCLOSE | WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING |
++		WDIOF_CARDRESET,
+ 	.identity = "STMP3XXX RTC Watchdog",
+ };
+ 
+@@ -69,13 +72,38 @@ static struct watchdog_device stmp3xxx_wdd = {
+ 	.status = WATCHDOG_NOWAYOUT_INIT_STATUS,
+ };
+ 
++static int wdt_notify_sys(struct notifier_block *nb, unsigned long code,
++			  void *unused)
++{
++	struct device *dev = watchdog_get_drvdata(&stmp3xxx_wdd);
++	struct stmp3xxx_wdt_pdata *pdata = dev_get_platdata(dev);
++
++	switch (code) {
++	case SYS_DOWN:	/* keep enabled, system might crash while going down */
++		pdata->wdt_clear_bootstatus(dev->parent);
++		break;
++	case SYS_HALT:  /* allow the system to actually halt */
++	case SYS_POWER_OFF:
++		wdt_stop(&stmp3xxx_wdd);
++		break;
++	}
++
++	return NOTIFY_DONE;
++}
++
++static struct notifier_block wdt_notifier = {
++	.notifier_call  = wdt_notify_sys,
++};
++
+ static int stmp3xxx_wdt_probe(struct platform_device *pdev)
+ {
++	struct stmp3xxx_wdt_pdata *pdata = dev_get_platdata(&pdev->dev);
+ 	int ret;
+ 
+ 	watchdog_set_drvdata(&stmp3xxx_wdd, &pdev->dev);
+ 
+ 	stmp3xxx_wdd.timeout = clamp_t(unsigned, heartbeat, 1, STMP3XXX_MAX_TIMEOUT);
++	stmp3xxx_wdd.bootstatus = pdata->bootstatus;
+ 
+ 	ret = watchdog_register_device(&stmp3xxx_wdd);
+ 	if (ret < 0) {
+@@ -83,6 +111,9 @@ static int stmp3xxx_wdt_probe(struct platform_device *pdev)
+ 		return ret;
+ 	}
+ 
++	if (register_reboot_notifier(&wdt_notifier))
++		dev_warn(&pdev->dev, "cannot register reboot notifier\n");
++
+ 	dev_info(&pdev->dev, "initialized watchdog with heartbeat %ds\n",
+ 			stmp3xxx_wdd.timeout);
+ 	return 0;
+@@ -90,6 +121,7 @@ static int stmp3xxx_wdt_probe(struct platform_device *pdev)
+ 
+ static int stmp3xxx_wdt_remove(struct platform_device *pdev)
+ {
++	unregister_reboot_notifier(&wdt_notifier);
+ 	watchdog_unregister_device(&stmp3xxx_wdd);
+ 	return 0;
+ }
+diff --git a/include/linux/stmp3xxx_rtc_wdt.h b/include/linux/stmp3xxx_rtc_wdt.h
+index 1dd12c9..62dd9e6 100644
+--- a/include/linux/stmp3xxx_rtc_wdt.h
++++ b/include/linux/stmp3xxx_rtc_wdt.h
+@@ -10,6 +10,8 @@
+ 
+ struct stmp3xxx_wdt_pdata {
+ 	void (*wdt_set_timeout)(struct device *dev, u32 timeout);
++	void (*wdt_clear_bootstatus)(struct device *dev);
++	unsigned int bootstatus;
+ };
+ 
+ #endif /* __LINUX_STMP3XXX_RTC_WDT_H */
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+1.7.10.4
 
 -- 
 -- 
