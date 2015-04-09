@@ -1,22 +1,22 @@
-Return-Path: <rtc-linux+bncBCEIBNMGTIJBBXUG5KUQKGQEPWA25JA@googlegroups.com>
+Return-Path: <rtc-linux+bncBCRMHO7Q34EBBLH6TGUQKGQEYKZAF4A@googlegroups.com>
+Received: from smtp2.macqel.be (smtp2.macqel.be. [109.135.2.61])
+        by gmr-mx.google.com with ESMTP id m3si850102wia.1.2015.04.09.06.31.24
+        for <rtc-linux@googlegroups.com>;
+        Thu, 09 Apr 2015 06:31:24 -0700 (PDT)
+Date: Thu, 9 Apr 2015 15:31:22 +0200
+From: Philippe De Muyter <phdm@macqel.be>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>,
+	Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>
+Subject: [rtc-linux] Re: [PATCH v2 2/2] rtc: add rtc-abx80x, a driver for the
+ Abracon AB x80x i2c rtc
+Message-ID: <20150409133122.GA4969@frolo.macqel>
+References: <1427856743-26625-1-git-send-email-alexandre.belloni@free-electrons.com> <1427856743-26625-3-git-send-email-alexandre.belloni@free-electrons.com>
 MIME-Version: 1.0
-Received: from complete.lackof.org (complete.lackof.org. [198.49.126.79])
-        by gmr-mx.google.com with ESMTPS id x12si10526igx.1.2015.04.24.10.54.37
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 24 Apr 2015 10:54:37 -0700 (PDT)
-Received: from localhost (c-107-2-141-92.hsd1.co.comcast.net [107.2.141.92])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-	(Client did not present a certificate)
-	by complete.lackof.org (Postfix) with ESMTPSA id 14D9133E016F
-	for <rtc-linux@googlegroups.com>; Fri, 24 Apr 2015 11:54:37 -0600 (MDT)
-From: dann frazier <dannf@dannf.org>
-To: rtc-linux@googlegroups.com
-Subject: [rtc-linux] [PATCH] drivers/rtc/rtc-efi.c: Update author email address
-Date: Fri, 24 Apr 2015 11:54:20 -0600
-Message-Id: <1429898060-11360-1-git-send-email-dannf@dannf.org>
-Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1427856743-26625-3-git-send-email-alexandre.belloni@free-electrons.com>
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -26,37 +26,85 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-I'm no longer employed by HP.
+Hi Alexandre,
 
-Signed-off-by: dann frazier <dannf@dannf.org>
----
- drivers/rtc/rtc-efi.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+On Wed, Apr 01, 2015 at 04:52:23AM +0200, Alexandre Belloni wrote:
+> From: Philippe De Muyter <phdm@macqel.be>
+> 
+> This is a basic driver for the ultra-low-power Abracon AB x80x series of RTC
+> chips. It supports in particular, the supersets AB0805 and AB1805.
+> It allows reading and writing the time, and enables the supercapacitor/
+> battery charger.
+> 
+> [arnd@arndb.de: abx805 depends on i2c]
+> Signed-off-by: Philippe De Muyter <phdm@macqel.be>
+> Cc: Alessandro Zummo <a.zummo@towertech.it>
+> Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+> Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+> ---
+...
+> +static int abx80x_rtc_read_time(struct device *dev, struct rtc_time *tm)
+> +{
+> +	struct i2c_client *client = to_i2c_client(dev);
+> +	unsigned char date[8];
+> +	int err;
+> +
+> +	err = i2c_smbus_read_i2c_block_data(client, ABX8XX_REG_HTH,
+> +					    sizeof(date), date);
+> +	if (err < 0) {
+> +		dev_err(&client->dev, "Unable to read date\n");
+> +		return -EIO;
+> +	}
+> +
+> +	tm->tm_sec = bcd2bin(date[ABX8XX_REG_SC] & 0x7F);
+> +	tm->tm_min = bcd2bin(date[ABX8XX_REG_MN] & 0x7F);
+> +	tm->tm_hour = bcd2bin(date[ABX8XX_REG_HR] & 0x3F);
+> +	tm->tm_wday = date[ABX8XX_REG_WD] & 0x7;
+> +	tm->tm_mday = bcd2bin(date[ABX8XX_REG_DA] & 0x3F);
+> +	tm->tm_mon = bcd2bin(date[ABX8XX_REG_MO] & 0x1F) - 1;
+> +	tm->tm_year = bcd2bin(date[ABX8XX_REG_YR]) + 100;
 
-diff --git a/drivers/rtc/rtc-efi.c b/drivers/rtc/rtc-efi.c
-index cb989cd..c5fbabb 100644
---- a/drivers/rtc/rtc-efi.c
-+++ b/drivers/rtc/rtc-efi.c
-@@ -3,7 +3,7 @@
-  *
-  * Copyright (C) 2009 Hewlett-Packard Development Company, L.P.
-  *
-- * Author: dann frazier <dannf@hp.com>
-+ * Author: dann frazier <dannf@dannf.org>
-  * Based on efirtc.c by Stephane Eranian
-  *
-  *  This program is free software; you can redistribute  it and/or modify it
-@@ -233,7 +233,7 @@ static struct platform_driver efi_rtc_driver = {
- module_platform_driver_probe(efi_rtc_driver, efi_rtc_probe);
- 
- MODULE_ALIAS("platform:rtc-efi");
--MODULE_AUTHOR("dann frazier <dannf@hp.com>");
-+MODULE_AUTHOR("dann frazier <dannf@dannf.org>");
- MODULE_LICENSE("GPL");
- MODULE_DESCRIPTION("EFI RTC driver");
- MODULE_ALIAS("platform:rtc-efi");
+Just a minor nit: I would rather not name the buffer 'date', but 'buf' like
+in abx80x_rtc_set_time.
+
+> +
+> +	err = rtc_valid_tm(tm);
+> +	if (err < 0)
+> +		dev_err(&client->dev, "retrieved date/time is not valid.\n");
+> +
+> +	return err;
+> +}
+> +
+> +static int abx80x_rtc_set_time(struct device *dev, struct rtc_time *tm)
+> +{
+> +	struct i2c_client *client = to_i2c_client(dev);
+> +	unsigned char buf[8];
+> +	int err;
+> +
+...
+> +static const struct i2c_device_id abx80x_id[] = {
+> +	{ "abx80x", ABX80X },
+
+should become
+	{ "abx80x-rtc", ABX80X },
+> +	{ "ab0801", AB0801 },
+> +	{ "ab0803", AB0803 },
+> +	{ "ab0804", AB0804 },
+> +	{ "ab0805", AB0805 },
+> +	{ "ab1801", AB1801 },
+> +	{ "ab1803", AB1803 },
+> +	{ "ab1804", AB1804 },
+> +	{ "ab1805", AB1805 },
+> +	{ }
+and likewise
+
+Best regards
+
+Philippe
+
 -- 
-2.1.4
+Philippe De Muyter +32 2 6101532 Macq SA rue de l'Aeronef 2 B-1140 Bruxelles
 
 -- 
 -- 
