@@ -1,225 +1,37 @@
-Return-Path: <rtc-linux+bncBCO3XAUMTIFRBKXM4CUQKGQE6QKZA3Y@googlegroups.com>
-Received: from bear.ext.ti.com (bear.ext.ti.com. [192.94.94.41])
-        by gmr-mx.google.com with ESMTPS id t6si608523igz.3.2015.04.22.17.00.42
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1 cipher=RC4-SHA bits=128/128);
-        Wed, 22 Apr 2015 17:00:42 -0700 (PDT)
-Message-ID: <55383625.3070108@ti.com>
-Date: Wed, 22 Apr 2015 19:00:37 -0500
-From: Nishanth Menon <nm@ti.com>
+Date: Thu, 9 Apr 2015 18:52:42 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: rtc-linux@googlegroups.com
+Cc: Andrew Morton <akpm@linux-foundation.org>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	linux-kernel@vger.kernel.org, devicetree-discuss@lists.ozlabs.org
+Subject: Re: [rtc-linux] Re: [PATCH v2 1/2] Documentation: bindings: add
+ abracon,abx80x
+Message-ID: <20150409165242.GB20669@piout.net>
+References: <1427856743-26625-1-git-send-email-alexandre.belloni@free-electrons.com>
+ <1427856743-26625-2-git-send-email-alexandre.belloni@free-electrons.com>
+ <20150409132523.GA4421@frolo.macqel>
 MIME-Version: 1.0
-To: "Grygorii.Strashko@linaro.org" <grygorii.strashko@linaro.org>,
-        Alexandre
- Belloni <alexandre.belloni@free-electrons.com>,
-        Alessandro Zummo
-	<a.zummo@towertech.it>
-CC: <linux-omap@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-        <rtc-linux@googlegroups.com>
-Subject: [rtc-linux] Re: [PATCH V2] drivers/rtc/rtc-ds1307.c: Enable the
- mcp794xx alarm after programming time
-References: <1429577494-15087-1-git-send-email-nm@ti.com> <5537A169.206@linaro.org>
-In-Reply-To: <5537A169.206@linaro.org>
-Content-Type: text/plain; charset=UTF-8
-Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20150409132523.GA4421@frolo.macqel>
 List-ID: <rtc-linux.googlegroups.com>
-List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
-List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
-List-Archive: <http://groups.google.com/group/rtc-linux
-Sender: rtc-linux@googlegroups.com
-List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
-List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
- <http://groups.google.com/group/rtc-linux/subscribe>
 
-On 04/22/2015 08:26 AM, Grygorii.Strashko@linaro.org wrote:
-> Hi,
->=20
-> On 04/21/2015 03:51 AM, Nishanth Menon wrote:
->> Alarm interrupt enable register is at offset 0x7, while the time
->> registers for the alarm follow that. When we program Alarm interrupt
->> enable prior to programming the time, it is possible that previous
->> time value could be close or match at the time of alarm enable
->> resulting in interrupt trigger which is unexpected (and does not match
->> the time we expect it to trigger).
->>
->> To prevent this scenario from occuring, program the ALM0_EN bit only
->> after the alarm time is appropriately programmed.
->>
->> Ofcourse, I2C programming is non-atomic, so there are loopholes where
->> the interrupt wont trigger if the time requested is in the past at
->> the time of programming the ALM0_EN bit. However, we will not have
->> unexpected interrupts while the time is programmed after the interrupt
->> are enabled.
->=20
-> I think it will be nice if you will mention that you going to follow
-> vendor recommendations - AN1491 Configuring the MCP794XX RTCC Family
-> http://ww1.microchip.com/downloads/en/AppNotes/01491A.pdf
-> ;)
-> "Also, it is recommended that the alarm registers be loaded
-> before the alarm is enabled."
->=20
+Hi,
 
-Hmm... i did not know that existed, thanks for digging it up.. that
-teaches me to look for docs before putting a scope/LA on the board
-(not that I regret doing that)... That said, reading the app note, I
-kind of realized:
-a) that playing with ST bit for programming time is not done, but
-then, that implies that oscillator will have to be restarted (upto a
-few seconds for certain crystals).. but that said, it does not seem
-mandatory or seem to (yet seen) functional issues...
+On 09/04/2015 at 15:25:23 +0200, Philippe De Muyter wrote :
+> Hi Alexandre,
+> 
+> when I look into Documentation/devicetree/bindings/rtc, it seems that
+> all rtc but a few (mainly old ones) have the "-rtc" suffix in the
+> "compatible" property.
+> 
+> Would it not be better to keep it here also, like what I had written ?
+> 
 
-b) We dont have flexibility yet to describe if we do indeed have a
-backup battery or not - VBATEN should be set only if we have a backup
-battery on the platform :( - on some it might even be optional thanks
-to certain compliance requirements of shipping boards internationally
-and general "unlike" of lithium ion in cargo hold..
+No, they have that suffix because they are RTC IPs part of a SoC so the
+chosen compatible is <soc>-rtc. In the case of the abracon RTC, it would
+be redundant.
 
-c) we dont have capability to control the alarm polarity in the driver
-which, by the way, we probably should also control OUT polarity (when
-ALARM is not asserted)..
-
-d) we dont have support for external 32k oscillator(X1 only) instead
-of assuming we always have a 32k crystal(X1 and X2)...
-
-Ugghhh... more cleaning up to do for the future..
-
-that said, the sequence it does recommend (in page 4):
-The following steps show how the Alarm 0 is config-
-ured. Alarm 1 can be configured in the same manner.
-1.    Write 0x23 to the Alarm0 Seconds register
-[0x0A].
-2.    Write 0x47 to the Alarm0 Minutes register
-[0x0B].
-3.    Write 0x71 to the Alarm0 Hours register [0x0C]
-=E2=80=93 11 hours in 12-hour format.
-4.    Write 0x72 to the Alarm0 Day register [0x0D] =E2=80=93
-Tuesday + Alarm Polarity Low + Match on all.
-The Alarm0 Interrupt Flag is also cleared.
-5.    Write 0x14 to the Alarm0 Date register [0x0E].
-6.    Write 0x08 to the Alarm0 Month register [0x0F].
-With all the Alarm0 registers set we can now activate
-the Alarm0 on the Control register.
-7.    Write 0x10 to the Control register [0x07] =E2=80=93
-Alarm0 enabled no CLKOUT, Alarm1 disabled
-
-before this patch we do ( http://pastebin.ubuntu.com/10863880/)
-	CONTROL r[7] =3D 0x90 (OUT=3D1, ALM0EN=3D1)
-	OSCTRIM r[8] =3D 0x00
-	EEUNLOCK r[9] =3D 0x00
-	ALM0SEC r[A] =3D 0x01
-	ALM0MIN r[B] =3D 0x45
-	ALM0HOUR r[C] =3D 0x23
-	ALM0WKDAY r[D] =3D 0x75 <-ALMOIF is cleared
-	ALM0DATE r[E] =3D 0x09
-	ALM0MTH r[F] =3D 0x04
-	RSRVED r[10] =3D 0x01
-
-with this patch, we do:
-burst(	CONTROL r[7] =3D 0x80 (OUT=3D1)
-	OSCTRIM r[8] =3D 0x00
-	EEUNLOCK r[9] =3D 0x00
-	ALM0SEC r[A] =3D 0x01
-	ALM0MIN r[B] =3D 0x45
-	ALM0HOUR r[C] =3D 0x23
-	ALM0WKDAY r[D] =3D 0x75 <-ALMOIF is cleared
-	ALM0DATE r[E] =3D 0x09
-	ALM0MTH r[F] =3D 0x04
-	RSRVED r[10] =3D 0x01
-)
-	CONTROL r[7] =3D 0x90 (OUT=3D1, ALM0EN=3D1)
-
-Which is slightly unoptimal way of what the app note recommends. - as
-I mentioned earlier in this thread, I will try and do optimizations in
-a later patch.
-
-Given that Andrew had picked up this patch, I dont see a reason to
-respin this yet.. but will include the app note for future patches -
-thanks for pointing it out to me.
-
->>
->> Signed-off-by: Nishanth Menon <nm@ti.com>
->> ---
->> Changes in v2:
->> 	- minor typo fix in comments
->> 	- merged up code that I missed committing in
->>
->> V1: https://patchwork.kernel.org/patch/6245041/
->>
->>   drivers/rtc/rtc-ds1307.c |   12 ++++++------
->>   1 file changed, 6 insertions(+), 6 deletions(-)
->>
->> diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
->> index 4ffabb322a9a..3cd4783375a5 100644
->> --- a/drivers/rtc/rtc-ds1307.c
->> +++ b/drivers/rtc/rtc-ds1307.c
->> @@ -742,17 +742,17 @@ static int mcp794xx_set_alarm(struct device *dev, =
-struct rtc_wkalrm *t)
->>   	regs[6] &=3D ~MCP794XX_BIT_ALMX_IF;
->>   	/* Set alarm match: second, minute, hour, day, date, month. */
->>   	regs[6] |=3D MCP794XX_MSK_ALMX_MATCH;
->> -
->> -	if (t->enabled)
->> -		regs[0] |=3D MCP794XX_BIT_ALM0_EN;
->> -	else
->> -		regs[0] &=3D ~MCP794XX_BIT_ALM0_EN;
->> +	/* Disable interrupt. We will not enable until completely programmed *=
-/
->> +	regs[0] &=3D ~MCP794XX_BIT_ALM0_EN;
->>  =20
->>   	ret =3D ds1307->write_block_data(client, MCP794XX_REG_CONTROL, 10, re=
-gs);
->>   	if (ret < 0)
->>   		return ret;
->>  =20
->> -	return 0;
->> +	if (!t->enabled)
->> +		return 0;
->> +	regs[0] |=3D MCP794XX_BIT_ALM0_EN;
->> +	return i2c_smbus_write_byte_data(client, MCP794XX_REG_CONTROL, regs[0]=
-);
->=20
-> So, It seems, that right sequence should be:
-> - disable alarmX
-> - read alarmX regs
-> - configure alarmX regs
-> - load alarmX regs
-> - enable alarmX
-Not exactly.... see above. we can optimize this for a better sequence
-as follows - since there are already un-necessary reads being
-performed. probably just a couple of reads might be
-sufficient..(ALM0WKDAY has some control bits as well.. Ugggh..
-anyways..)...
-
-
-Will have to think more about optimizing more later.
-
->=20
-> More over, looks like, alarm/alarm IRQ should be enabled/disabled separat=
-ely from set_alarm/RTC_ALM_SET
-> by RTC_AIE_ON, RTC_AIE_OFF. Should it?
-
->=20
->>   }
->>  =20
->>   static int mcp794xx_alarm_irq_enable(struct device *dev, unsigned int =
-enabled)
->>
->=20
->=20
-
-
---=20
-Regards,
-Nishanth Menon
-
---=20
---=20
-You received this message because you are subscribed to "rtc-linux".
-Membership options at http://groups.google.com/group/rtc-linux .
-Please read http://groups.google.com/group/rtc-linux/web/checklist
-before submitting a driver.
----=20
-You received this message because you are subscribed to the Google Groups "=
-rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an e=
-mail to rtc-linux+unsubscribe@googlegroups.com.
-For more options, visit https://groups.google.com/d/optout.
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
