@@ -1,33 +1,20 @@
-Return-Path: <rtc-linux+bncBAABB777QKVAKGQEAF5QM4I@googlegroups.com>
-Received: from mail1.bemta5.messagelabs.com (mail1.bemta5.messagelabs.com. [195.245.231.146])
-        by gmr-mx.google.com with ESMTPS id gt9si774421wib.2.2015.04.29.04.26.55
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=RC4-SHA bits=128/128);
-        Wed, 29 Apr 2015 04:26:55 -0700 (PDT)
-From: "Opensource [Steve Twiss]" <stwiss.opensource@diasemi.com>
-To: Lee Jones <lee.jones@linaro.org>, "Opensource [Steve Twiss]"
-	<stwiss.opensource@diasemi.com>
-CC: DEVICETREE <devicetree@vger.kernel.org>, Ian Campbell
-	<ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>,
-	LINUXKERNEL <linux-kernel@vger.kernel.org>, Mark Rutland
-	<mark.rutland@arm.com>, Pawel Moll <pawel.moll@arm.com>, Rob Herring
-	<robh+dt@kernel.org>, Alessandro Zummo <a.zummo@towertech.it>, "David Dajun
- Chen" <david.chen@diasemi.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	LINUXINPUT <linux-input@vger.kernel.org>, LINUXWATCHDOG
-	<linux-watchdog@vger.kernel.org>, Liam Girdwood <lgirdwood@gmail.com>, "Mark
- Brown" <broonie@kernel.org>, RTCLINUX <rtc-linux@googlegroups.com>, "Samuel
- Ortiz" <sameo@linux.intel.com>, Support Opensource
-	<Support.Opensource@diasemi.com>, Wim Van Sebroeck <wim@iguana.be>
-Subject: [rtc-linux] RE: [PATCH V1 6/6] devicetree: da9062: Add bindings for
- DA9062 driver
-Date: Wed, 29 Apr 2015 11:26:53 +0000
-Message-ID: <6ED8E3B22081A4459DAC7699F3695FB7014B217AE3@SW-EX-MBX02.diasemi.com>
-References: <cover.1429280614.git.stwiss.opensource@diasemi.com>
- <94535acf974274822c5ac16d6427299778e11ccf.1429280614.git.stwiss.opensource@diasemi.com>
- <20150429105415.GX9169@x1>
-In-Reply-To: <20150429105415.GX9169@x1>
-Content-Type: text/plain; charset=UTF-8
+Return-Path: <rtc-linux+bncBCRMHO7Q34EBBRP3TGUQKGQEA26J3PY@googlegroups.com>
+Received: from smtp2.macqel.be (smtp2.macqel.be. [109.135.2.61])
+        by gmr-mx.google.com with ESMTP id g5si820767wix.1.2015.04.09.06.25.25
+        for <rtc-linux@googlegroups.com>;
+        Thu, 09 Apr 2015 06:25:25 -0700 (PDT)
+Date: Thu, 9 Apr 2015 15:25:23 +0200
+From: Philippe De Muyter <phdm@macqel.be>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>,
+	Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org, devicetree-discuss@lists.ozlabs.org
+Subject: [rtc-linux] Re: [PATCH v2 1/2] Documentation: bindings: add abracon,abx80x
+Message-ID: <20150409132523.GA4421@frolo.macqel>
+References: <1427856743-26625-1-git-send-email-alexandre.belloni@free-electrons.com> <1427856743-26625-2-git-send-email-alexandre.belloni@free-electrons.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1427856743-26625-2-git-send-email-alexandre.belloni@free-electrons.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -38,55 +25,72 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
+Hi Alexandre,
 
-On 29 April 2015 11:54 Lee Jones wrote :
+when I look into Documentation/devicetree/bindings/rtc, it seems that
+all rtc but a few (mainly old ones) have the "-rtc" suffix in the
+"compatible" property.
 
-> On Fri, 17 Apr 2015, S Twiss wrote:
-> > From: S Twiss <stwiss.opensource@diasemi.com>
-> >
-> > Add device tree bindings for the DA9062 driver
-> >
-> > Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
-> >
-> > ---
-> >
-> > This patch applies against linux-next and v4.0
-> >
-> >  Documentation/devicetree/bindings/mfd/da9062.txt | 107
-> +++++++++++++++++++++++
-> >  1 file changed, 107 insertions(+)
-> >  create mode 100644 Documentation/devicetree/bindings/mfd/da9062.txt
+Would it not be better to keep it here also, like what I had written ?
+
+Best regards
+
+Philippe
+
+
+On Wed, Apr 01, 2015 at 04:52:22AM +0200, Alexandre Belloni wrote:
+> Document the bindings for abracon,abx80x and related compatibles.
 > 
-> I don't see anything groundbreaking or offensive.
+> Cc: devicetree-discuss@lists.ozlabs.org
+> Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+> ---
+>  .../devicetree/bindings/rtc/abracon,abx80x.txt     | 32 ++++++++++++++++++++++
+>  1 file changed, 32 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/rtc/abracon,abx80x.txt
 > 
-> Acked-by: Lee Jones <lee.jones@linaro.org>
-> 
+> diff --git a/Documentation/devicetree/bindings/rtc/abracon,abx80x.txt b/Documentation/devicetree/bindings/rtc/abracon,abx80x.txt
+> new file mode 100644
+> index 000000000000..6f0d3b2cdd89
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/rtc/abracon,abx80x.txt
+> @@ -0,0 +1,32 @@
+> +Abracon ABX80X I2C ultra low power RTC/Alarm chip
+> +
+> +The Abracon ABX80X family consist of the ab0801, ab0803, ab0804, ab0805, ab1801,
+> +ab1803, ab1804 and ab1805. The ab0805 is the superset of ab080x and the ab1805
+> +is the superset of ab180x.
+> +
+> +Required properties:
+> +
+> + - "compatible": should one of:
+> +        "abracon,abx80x"
+> +        "abracon,ab0801"
+> +        "abracon,ab0803"
+> +        "abracon,ab0804"
+> +        "abracon,ab0805"
+> +        "abracon,ab1801"
+> +        "abracon,ab1803"
+> +        "abracon,ab1804"
+> +        "abracon,ab1805"
+> +	Using "abracon,abx80x" will enable chip autodetection.
+> + - "reg": I2C bus address of the device
+> +
+> +Optional properties:
+> +
+> +The abx804 and abx805 have a trickle charger that is able to charge the
+> +connected battery or supercap. Both the following properties have to be defined
+> +and valid to enable charging:
+> +
+> + - "abracon,tc-diode": should be "standard" (0.6V) or "schottky" (0.3V)
+> + - "abracon,tc-resistor": should be <0>, <3>, <6> or <11>. 0 disables the output
+> +                          resistor, the other values are in ohm.
+> +
+> +
+> -- 
+> 2.1.0
 
-Thank you for the review and Ack.
-
-I am in the process of updating the DA9063 OnKey driver in a different thread.
-This driver is functionally similar to the DA9062 OnKey driver as was discussed in
-an earlier thread from DA9063.
-
-http://www.spinics.net/lists/linux-input/msg38137.html
-
-Although the 63 and 62 chips have sequential numbers they are not the same,
-however the OnKey driver is functionally very similar and so I am going to try and
-merge the code for both drivers in the case of the OnKey.
-
-Due to the DA9063 being currently reviewed, perhaps it would be prudent not
-to add this device tree bindings for DA9062 to the kernel just yet -- the device tree
-bindings could change for the OnKey in my DA9063 submission and this would affect
-the DA9062 driver when I merge the two OnKey drivers.
-
-I will put a full version history in my next patch set to describe what changes I have
-made to this file so this review is not deemed a wasted effort.
-
-Regards,
-Steve
-
-[...]
-
+-- 
+Philippe De Muyter +32 2 6101532 Macq SA rue de l'Aeronef 2 B-1140 Bruxelles
 
 -- 
 -- 
