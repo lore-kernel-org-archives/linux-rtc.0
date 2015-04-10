@@ -1,24 +1,26 @@
-Return-Path: <rtc-linux+bncBCC6ZWOPXENRBYMB7GUQKGQEKLXYBVA@googlegroups.com>
-MIME-Version: 1.0
-Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de. [2001:6f8:1178:4:290:27ff:fe1d:cc33])
-        by gmr-mx.google.com with ESMTPS id m3si432155wia.1.2015.04.27.07.00.01
+Return-Path: <rtc-linux+bncBCT4XGV33UIBBC7JUCUQKGQEXHU3TEQ@googlegroups.com>
+Received: from mail.linuxfoundation.org (mail.linuxfoundation.org. [140.211.169.12])
+        by gmr-mx.google.com with ESMTPS id iw3si390778pbd.1.2015.04.10.13.37.31
         for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=RC4-SHA bits=128/128);
-        Mon, 27 Apr 2015 07:00:01 -0700 (PDT)
-From: Juergen Borleis <jbe@pengutronix.de>
-To: linux-kernel@vger.kernel.org
-Cc: rtc-linux@googlegroups.com,
-	kernel@pengutronix.de,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	linux-arm-kernel@lists.infradead.org,
-	Robert Schwebel <rsc@pengutronix.de>
-Subject: [rtc-linux] [PATCH 5/6] RTC/i.MX/DryIce: when locked, do not fail silently
-Date: Mon, 27 Apr 2015 15:59:51 +0200
-Message-Id: <1430143192-20667-6-git-send-email-jbe@pengutronix.de>
-In-Reply-To: <1430143192-20667-1-git-send-email-jbe@pengutronix.de>
-References: <1430143192-20667-1-git-send-email-jbe@pengutronix.de>
-Reply-To: rtc-linux@googlegroups.com
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Fri, 10 Apr 2015 13:37:31 -0700 (PDT)
+Date: Fri, 10 Apr 2015 13:37:30 -0700
+From: Andrew Morton <akpm@linux-foundation.org>
+To: Keerthy <a0393675@ti.com>
+Cc: Igor Grinberg <grinberg@compulab.co.il>, <rtc-linux@googlegroups.com>,
+ Keerthy <j-keerthy@ti.com>, <a.zummo@towertech.it>,
+ <linux-kernel@vger.kernel.org>, <linux-omap@vger.kernel.org>
+Subject: Re: [rtc-linux] [PATCH] rtc: OMAP: Add external 32k clock feature
+Message-Id: <20150410133730.8f84b2894efcf1bde075048f@linux-foundation.org>
+In-Reply-To: <5527894E.9000807@ti.com>
+References: <1425375722-13412-1-git-send-email-j-keerthy@ti.com>
+	<20150324155916.cfd1b7ab442271466160283f@linux-foundation.org>
+	<55234F25.5060708@ti.com>
+	<5523820C.2010709@compulab.co.il>
+	<5527894E.9000807@ti.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -28,61 +30,33 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-If the DryICE unit is locked it is impossibe to set the time. Provide an
-error message for this case.
+On Fri, 10 Apr 2015 13:56:54 +0530 Keerthy <a0393675@ti.com> wrote:
 
-Signed-off-by: Juergen Borleis <jbe@pengutronix.de>
-Signed-off-by: Robert Schwebel <rsc@pengutronix.de>
-[rsc: got NDA clearance from Freescale]
----
- drivers/rtc/rtc-imxdi.c | 27 ++++++++++++++++++++++++---
- 1 file changed, 24 insertions(+), 3 deletions(-)
+> >>> How do we know that all systems have this external clock and that it
+> >>> works OK?
+> >>>
+> >>
+> >> AM335 and AM43X have the external clock feature which we choose using
+> >> RTC_OSC_REG. I verified it works OK by seeing the RTC seconds ticking
+> >> even after switching the source to the external 32k Clock.
+> >
+> > AFAIU, this is related to the external (outside of SoC) oscillator, right?
+> > If so, there is a possibility to not assemble it on the board (at least
+> > on AM335) and use the internal clock source instead.
+> 
+> Yes. The register 'OMAP_RTC_OSC_REG' is part of the RTC IP register set
+> so i assumed that it would be with the RTCs of those particular SoCs.
 
-diff --git a/drivers/rtc/rtc-imxdi.c b/drivers/rtc/rtc-imxdi.c
-index 8890a62..46bf014 100644
---- a/drivers/rtc/rtc-imxdi.c
-+++ b/drivers/rtc/rtc-imxdi.c
-@@ -566,14 +566,35 @@ static int dryice_rtc_read_time(struct device *dev, struct rtc_time *tm)
- static int dryice_rtc_set_mmss(struct device *dev, unsigned long secs)
- {
- 	struct imxdi_dev *imxdi = dev_get_drvdata(dev);
-+	u32 dcr, dsr;
- 	int rc;
- 
-+	dcr = readl(imxdi->ioaddr + DCR);
-+	dsr = readl(imxdi->ioaddr + DSR);
-+
-+	if (!(dcr & DCR_TCE) || (dsr & DSR_SVF)) {
-+		if (dcr & DCR_TCHL) {
-+			/* we are even more out of luck */
-+			di_what_is_to_be_done(imxdi, "battery");
-+			return -EPERM;
-+		}
-+		if ((dcr & DCR_TCSL) || (dsr & DSR_SVF)) {
-+			/* we are out of luck for now */
-+			di_what_is_to_be_done(imxdi, "main");
-+			return -EPERM;
-+		}
-+	}
-+
- 	/* zero the fractional part first */
- 	rc = di_write_wait(imxdi, 0, DTCLR);
--	if (rc == 0)
--		rc = di_write_wait(imxdi, secs, DTCMR);
-+	if (rc != 0)
-+		return rc;
- 
--	return rc;
-+	rc = di_write_wait(imxdi, secs, DTCMR);
-+	if (rc != 0)
-+		return rc;
-+
-+	return di_write_wait(imxdi, readl(imxdi->ioaddr + DCR) | DCR_TCE, DCR);
- }
- 
- static int dryice_rtc_alarm_irq_enable(struct device *dev,
--- 
-2.1.4
+I'm a bit lost here.  AFAICT there's a risk that some manufacturers
+have not wired up the external oscillator, so this patch will break
+those systems.  Do we know for sure that this cannot be the case?
+
+Is there any way in which we can get all systems working properly?  If
+there's no way of auto-detecting an external oscillator then perhaps a
+module parameter is needed.  If so, it would be better if the driver
+were to default to internal oscillator (ie: current behaviour), and the
+module parameter selects the external oscillator.  This way, existing
+systems are unaffected by the kernel upgrade.
 
 -- 
 -- 
