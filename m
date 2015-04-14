@@ -1,32 +1,23 @@
-Return-Path: <rtc-linux+bncBDJLF25T6MIBB4FKZCUQKGQEAC4EO3I@googlegroups.com>
-Received: from lb1-smtp-cloud2.xs4all.net (lb1-smtp-cloud2.xs4all.net. [194.109.24.21])
-        by gmr-mx.google.com with ESMTPS id bc3si271324wib.2.2015.04.18.01.27.28
+Return-Path: <rtc-linux+bncBCC6ZWOPXENRBHVSWOUQKGQELJDR3UA@googlegroups.com>
+MIME-Version: 1.0
+Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de. [2001:6f8:1178:4:290:27ff:fe1d:cc33])
+        by gmr-mx.google.com with ESMTPS id q10si62261wiz.0.2015.04.14.02.08.45
         for <rtc-linux@googlegroups.com>
-        (version=TLSv1 cipher=RC4-SHA bits=128/128);
-        Sat, 18 Apr 2015 01:27:28 -0700 (PDT)
-Message-ID: <1429345645.16771.139.camel@x220>
-Subject: [rtc-linux] Re: [PATCH V1 1/6] mfd: da9062: DA9062 MFD core driver
-From: Paul Bolle <pebolle@tiscali.nl>
-To: S Twiss <stwiss.opensource@diasemi.com>
-Cc: LINUXKERNEL <linux-kernel@vger.kernel.org>, Lee Jones
- <lee.jones@linaro.org>,  Samuel Ortiz <sameo@linux.intel.com>, Alessandro
- Zummo <a.zummo@towertech.it>, DEVICETREE <devicetree@vger.kernel.org>,
- David Dajun Chen <david.chen@diasemi.com>,  Dmitry Torokhov
- <dmitry.torokhov@gmail.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>,
- Kumar Gala <galak@codeaurora.org>, LINUXINPUT
- <linux-input@vger.kernel.org>, LINUXWATCHDOG
- <linux-watchdog@vger.kernel.org>, Liam Girdwood <lgirdwood@gmail.com>, Mark
- Brown <broonie@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Pawel Moll
- <pawel.moll@arm.com>,  RTCLINUX <rtc-linux@googlegroups.com>, Rob Herring
- <robh+dt@kernel.org>, Support Opensource <support.opensource@diasemi.com>,
- Wim Van Sebroeck <wim@iguana.be>
-Date: Sat, 18 Apr 2015 10:27:25 +0200
-In-Reply-To: <b3bb4bc09cd94b0b13c713d98dd64576722123c1.1429280614.git.stwiss.opensource@diasemi.com>
-References: <cover.1429280614.git.stwiss.opensource@diasemi.com>
-	 <b3bb4bc09cd94b0b13c713d98dd64576722123c1.1429280614.git.stwiss.opensource@diasemi.com>
-Content-Type: text/plain; charset=UTF-8
-Mime-Version: 1.0
+        (version=TLSv1.2 cipher=RC4-SHA bits=128/128);
+        Tue, 14 Apr 2015 02:08:45 -0700 (PDT)
+From: Juergen Borleis <jbe@pengutronix.de>
+To: linux-kernel@vger.kernel.org
+Cc: rtc-linux@googlegroups.com,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	linux-arm-kernel@lists.infradead.org,
+	Robert Schwebel <rsc@pengutronix.de>
+Subject: [rtc-linux] [PATCH 4/5] RTC/i.MX/DryIce: when locked, do not fail silently
+Date: Tue, 14 Apr 2015 11:08:37 +0200
+Message-Id: <1429002518-5015-5-git-send-email-jbe@pengutronix.de>
+In-Reply-To: <1429002518-5015-2-git-send-email-jbe@pengutronix.de>
+References: <1429002518-5015-2-git-send-email-jbe@pengutronix.de>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -36,74 +27,59 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On Fri, 2015-04-17 at 15:23 +0100, S Twiss wrote:
-> --- a/drivers/mfd/Kconfig
-> +++ b/drivers/mfd/Kconfig
+Signed-off-by: Juergen Borleis <jbe@pengutronix.de>
+Signed-off-by: Robert Schwebel <rsc@pengutronix.de>
+[rsc: got NDA clearance from Freescale]
+---
+ drivers/rtc/rtc-imxdi.c | 28 +++++++++++++++++++++++++---
+ 1 file changed, 25 insertions(+), 3 deletions(-)
 
-> +config MFD_DA9062
-> +	bool "Dialog Semiconductor DA9062 PMIC Support"
-> +	select MFD_CORE
-> +	select REGMAP_I2C
-> +	select REGMAP_IRQ
-> +	depends on I2C=y
-> +	help
-> +	  Say yes here for support for the Dialog Semiconductor DA9062 PMIC.
-> +	  This includes the I2C driver and core APIs.
-> +	  Additional drivers must be enabled in order to use the functionality
-> +	  of the device.
-
-> --- a/drivers/mfd/Makefile
-> +++ b/drivers/mfd/Makefile
-
-> +obj-$(CONFIG_MFD_DA9062)	+= da9062-core.o
-
-MFD_DA9062 is a bool symbol. So da9062-core.o can never be part of a
-module, right?
-
-> --- /dev/null
-> +++ b/drivers/mfd/da9062-core.c
-
-> +#include <linux/module.h>
-
-So you might not need this include.
-
-> +MODULE_DEVICE_TABLE(of, da9062_dt_ids);
-
-This macro will be preprocessed away for built-in code, according to
-include/linux/module.h.
-
-> +MODULE_DEVICE_TABLE(i2c, da9062_i2c_id);
-
-Ditto.
-
-> +static struct i2c_driver da9062_i2c_driver = {
-> +	.driver = {
-> +		.name = "da9062",
-> +		.of_match_table = of_match_ptr(da9062_dt_ids),
-> +	},
-> +	.probe    = da9062_i2c_probe,
-> +	.remove   = da9062_i2c_remove,
-> +	.id_table = da9062_i2c_id,
-> +};
-> +
-> +module_i2c_driver(da9062_i2c_driver);
-
-After looking at a few levels of #defines I think this is equivalent to
-     i2c_register_driver(NULL, da9062_i2c_driver);
-
-for built-in code. Did I grep that right?
-
-> +MODULE_DESCRIPTION("CORE device driver for Dialog DA9062");
-> +MODULE_AUTHOR("S Twiss <stwiss.opensource@diasemi.com>");
-> +MODULE_LICENSE("GPL v2");
-
-These macros will be effectively preprocessed away for built-in only
-code.
-
-Thanks,
-
-
-Paul Bolle
+diff --git a/drivers/rtc/rtc-imxdi.c b/drivers/rtc/rtc-imxdi.c
+index b04c64f..de1a2e4 100644
+--- a/drivers/rtc/rtc-imxdi.c
++++ b/drivers/rtc/rtc-imxdi.c
+@@ -581,14 +581,36 @@ static int dryice_rtc_read_time(struct device *dev, struct rtc_time *tm)
+ static int dryice_rtc_set_mmss(struct device *dev, unsigned long secs)
+ {
+ 	struct imxdi_dev *imxdi = dev_get_drvdata(dev);
++	u32 dcr, dsr;
+ 	int rc;
+ 
++	dcr = __raw_readl(imxdi->ioaddr + DCR);
++	dsr = __raw_readl(imxdi->ioaddr + DSR);
++
++	if (!(dcr & DCR_TCE) || (dsr & DSR_SVF)) {
++		if (dcr & DCR_TCHL) {
++			/* we are even more out of luck */
++			di_what_is_to_be_done(imxdi, "battery");
++			return -EPERM;
++		}
++		if ((dcr & DCR_TCSL) || (dsr & DSR_SVF)) {
++			/* we are out of luck for now */
++			di_what_is_to_be_done(imxdi, "main");
++			return -EPERM;
++		}
++	}
++
+ 	/* zero the fractional part first */
+ 	rc = di_write_wait(imxdi, 0, DTCLR);
+-	if (rc == 0)
+-		rc = di_write_wait(imxdi, secs, DTCMR);
++	if (rc != 0)
++		return rc;
+ 
+-	return rc;
++	rc = di_write_wait(imxdi, secs, DTCMR);
++	if (rc != 0)
++		return rc;
++
++	return di_write_wait(imxdi, __raw_readl(imxdi->ioaddr + DCR) |
++								DCR_TCE, DCR);
+ }
+ 
+ static int dryice_rtc_alarm_irq_enable(struct device *dev,
+-- 
+2.1.4
 
 -- 
 -- 
