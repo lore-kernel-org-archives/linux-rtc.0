@@ -1,33 +1,22 @@
-Return-Path: <rtc-linux+bncBAABBANP5GUQKGQE54BCGRQ@googlegroups.com>
-Received: from mail1.bemta3.messagelabs.com (mail1.bemta3.messagelabs.com. [195.245.230.162])
-        by gmr-mx.google.com with ESMTPS id ec7si130283wib.3.2015.04.24.07.47.29
+Return-Path: <rtc-linux+bncBCC6ZWOPXENRBH5SWOUQKGQEKBWGFWI@googlegroups.com>
+MIME-Version: 1.0
+Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de. [2001:6f8:1178:4:290:27ff:fe1d:cc33])
+        by gmr-mx.google.com with ESMTPS id m3si685303wia.1.2015.04.14.02.08.46
         for <rtc-linux@googlegroups.com>
         (version=TLSv1.2 cipher=RC4-SHA bits=128/128);
-        Fri, 24 Apr 2015 07:47:29 -0700 (PDT)
-From: "Opensource [Steve Twiss]" <stwiss.opensource@diasemi.com>
-To: "Opensource [Steve Twiss]" <stwiss.opensource@diasemi.com>, LINUXKERNEL
-	<linux-kernel@vger.kernel.org>, Lee Jones <lee.jones@linaro.org>, "Samuel
- Ortiz" <sameo@linux.intel.com>
-CC: Alessandro Zummo <a.zummo@towertech.it>, DEVICETREE
-	<devicetree@vger.kernel.org>, David Dajun Chen <david.chen@diasemi.com>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>, Ian Campbell
-	<ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>,
-	LINUXINPUT <linux-input@vger.kernel.org>, LINUXWATCHDOG
-	<linux-watchdog@vger.kernel.org>, Liam Girdwood <lgirdwood@gmail.com>, "Mark
- Brown" <broonie@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Pawel Moll
-	<pawel.moll@arm.com>, RTCLINUX <rtc-linux@googlegroups.com>, Rob Herring
-	<robh+dt@kernel.org>, "Opensource [Steve Twiss]"
-	<stwiss.opensource@diasemi.com>, Support Opensource
-	<Support.Opensource@diasemi.com>, Wim Van Sebroeck <wim@iguana.be>
-Subject: [rtc-linux] RE: [PATCH V1 1/6] mfd: da9062: DA9062 MFD core driver
-Date: Fri, 24 Apr 2015 14:47:27 +0000
-Message-ID: <6ED8E3B22081A4459DAC7699F3695FB7014B2175F5@SW-EX-MBX02.diasemi.com>
-References: <cover.1429280614.git.stwiss.opensource@diasemi.com>
- <b3bb4bc09cd94b0b13c713d98dd64576722123c1.1429280614.git.stwiss.opensource@diasemi.com>
-In-Reply-To: <b3bb4bc09cd94b0b13c713d98dd64576722123c1.1429280614.git.stwiss.opensource@diasemi.com>
-Content-Type: text/plain; charset=UTF-8
-MIME-Version: 1.0
+        Tue, 14 Apr 2015 02:08:46 -0700 (PDT)
+From: Juergen Borleis <jbe@pengutronix.de>
+To: linux-kernel@vger.kernel.org
+Cc: rtc-linux@googlegroups.com,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	linux-arm-kernel@lists.infradead.org,
+	Robert Schwebel <rsc@pengutronix.de>
+Subject: [rtc-linux] [PATCH 1/5] RTC/i.MX/DryIce: add some background info
+ about the states the machine can be in
+Date: Tue, 14 Apr 2015 11:08:34 +0200
+Message-Id: <1429002518-5015-2-git-send-email-jbe@pengutronix.de>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -37,38 +26,69 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On 17 April 2015 15:24 Steve Twiss wrote.
+Signed-off-by: Juergen Borleis <jbe@pengutronix.de>
+Signed-off-by: Robert Schwebel <rsc@pengutronix.de>
+[rsc: got NDA clearance from Freescale]
+---
+ drivers/rtc/rtc-imxdi.c | 43 +++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 43 insertions(+)
 
-> Subject: [PATCH V1 1/6] mfd: da9062: DA9062 MFD core driver
-> From: S Twiss <stwiss.opensource@diasemi.com>
-> 
-> Add MFD core driver support for DA9062
-> 
-> Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
-> 
-> ---
-> 
-> This patch applies against linux-next and v4.0
-> 
->  drivers/mfd/Kconfig                  |   12 +
->  drivers/mfd/Makefile                 |    3 +-
->  drivers/mfd/da9062-core.c            |  611 +++++++++++++++++++
->  include/linux/mfd/da9062/core.h      |   61 ++
->  include/linux/mfd/da9062/registers.h | 1108
-
-Hi,
-
-Due to changes in the regulator driver, I am going to alter this with 
-moving the static irqreturn_t da9062_vdd_warn_event(int irq, void *data)
-function from the regulators and into the core.
-
-The VDD_WARN applies to the system voltage and is not specific to regulators.
-So it would make more sense for this to exist in the core driver instead
-
-I'll resend this in PATCH V2 soon
-
-Regards,
-Steve
+diff --git a/drivers/rtc/rtc-imxdi.c b/drivers/rtc/rtc-imxdi.c
+index c666eab..8750477 100644
+--- a/drivers/rtc/rtc-imxdi.c
++++ b/drivers/rtc/rtc-imxdi.c
+@@ -129,6 +129,49 @@ struct imxdi_dev {
+ 	struct work_struct work;
+ };
+ 
++/* Some background:
++ *
++ * The DryIce unit is a complex security/tamper monitor device. To be able do
++ * its job in a useful manner it runs a bigger statemachine to bring it into
++ * security/tamper failure state and once again to bring it out of this state.
++ *
++ * This unit can be in one of three states:
++ *
++ * - "NON-VALID STATE"
++ *   always after the battery power was removed
++ * - "FAILURE STATE"
++ *   if one of the enabled security events have happend
++ * - "VALID STATE"
++ *   if the unit works as expected
++ *
++ * Everything stops when the unit enters the failure state including the RTC
++ * counter (to be able to detect the time the security event happend).
++ *
++ * The following events (when enabled) let the DryIce unit enter the failure
++ * state:
++ *
++ * - wire-mesh-tamper detect
++ * - external tamper B detect
++ * - external tamper A detect
++ * - temperature tamper detect
++ * - clock tamper detect
++ * - voltage tamper detect
++ * - RTC counter overflow
++ * - monotonic counter overflow
++ * - external boot
++ *
++ * If we find the DryIce unit in "FAILURE STATE" and the TDCHL cleared, we
++ * can only detect this state. In this case the unit is completely locked and
++ * must force a second "SYSTEM POR" to bring the DryIce into the
++ * "NON-VALID STATE" + "FAILURE STATE" where a recovery is possible.
++ * If the TDCHL is set in the "FAILURE STATE" we are out of luck. In this case
++ * a battery power cycle is required.
++ *
++ * In the "NON-VALID STATE" + "FAILURE STATE" we can clear the "FAILURE STATE"
++ * and recover the DryIce unit. By clearing the "NON-VALID STATE" as the last
++ * task, we bring back this unit into life.
++ */
++
+ /*
+  * enable a dryice interrupt
+  */
+-- 
+2.1.4
 
 -- 
 -- 
