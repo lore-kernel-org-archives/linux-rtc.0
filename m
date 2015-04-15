@@ -1,21 +1,30 @@
-Return-Path: <rtc-linux+bncBCRMHO7Q34EBBRP3TGUQKGQEA26J3PY@googlegroups.com>
-Received: from smtp2.macqel.be (smtp2.macqel.be. [109.135.2.61])
-        by gmr-mx.google.com with ESMTP id g5si820767wix.1.2015.04.09.06.25.25
-        for <rtc-linux@googlegroups.com>;
-        Thu, 09 Apr 2015 06:25:25 -0700 (PDT)
-Date: Thu, 9 Apr 2015 15:25:23 +0200
-From: Philippe De Muyter <phdm@macqel.be>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>,
-	Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org, devicetree-discuss@lists.ozlabs.org
-Subject: [rtc-linux] Re: [PATCH v2 1/2] Documentation: bindings: add abracon,abx80x
-Message-ID: <20150409132523.GA4421@frolo.macqel>
-References: <1427856743-26625-1-git-send-email-alexandre.belloni@free-electrons.com> <1427856743-26625-2-git-send-email-alexandre.belloni@free-electrons.com>
+Return-Path: <rtc-linux+bncBDJMJGESWAMRBGGIXGUQKGQEIIFCWGQ@googlegroups.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1427856743-26625-2-git-send-email-alexandre.belloni@free-electrons.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id g5si783967wix.1.2015.04.15.06.14.00
+        for <rtc-linux@googlegroups.com>;
+        Wed, 15 Apr 2015 06:14:00 -0700 (PDT)
+From: Gregory CLEMENT <gregory.clement@free-electrons.com>
+To: Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	rtc-linux@googlegroups.com,
+	Arnaud Ebalard <arno@natisbad.org>
+Cc: Jason Cooper <jason@lakedaemon.net>,
+	Andrew Lunn <andrew@lunn.ch>,
+	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
+	Gregory CLEMENT <gregory.clement@free-electrons.com>,
+	Thomas Petazzoni <thomas.petazzoni@free-electrons.com>,
+	Ezequiel Garcia <ezequiel.garcia@free-electrons.com>,
+	linux-arm-kernel@lists.infradead.org,
+	Lior Amsalem <alior@marvell.com>,
+	Tawfik Bayouk <tawfik@marvell.com>,
+	Nadav Haklai <nadavh@marvell.com>,
+	<stable@vger.kernel.org>
+Subject: [rtc-linux] [PATCH] rtc: armada38x: Fix concurrency access in armada38x_rtc_set_time
+Date: Wed, 15 Apr 2015 15:13:53 +0200
+Message-Id: <1429103633-24376-1-git-send-email-gregory.clement@free-electrons.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -25,72 +34,104 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Hi Alexandre,
+While setting the time, the RTC TIME register should not be
+accessed. However due to hardware constraints, setting the RTC time
+involves sleeping during 100ms. This sleep was done outside the
+critical section protected by the spinlock, so it was possible to read
+the RTC TIME register and get an incorrect value. This patch
+introduces a mutex for protecting the RTC TIME access, unlike the
+spinlock it is allowed to sleep in a critical section protected by a
+mutex. The RTC STATUS register can still be used from the interrupt
+handler but it has no effect on setting the time.
 
-when I look into Documentation/devicetree/bindings/rtc, it seems that
-all rtc but a few (mainly old ones) have the "-rtc" suffix in the
-"compatible" property.
+Signed-off-by: Gregory CLEMENT <gregory.clement@free-electrons.com>
+Cc: <stable@vger.kernel.org> #v4.0
+---
+Hi,
 
-Would it not be better to keep it here also, like what I had written ?
+I finally got more information about the RTC behavior and while it is
+fine accessing RTC_STATUS register during between RTC_STATUS reset and
+writing time in RTC_TIME register, reading RTC_TIME during this period
+might five incorrect value.
 
-Best regards
+It is too late to fix 4.0, but we are in time for 4.1 and this patch
+was tagged to be applied to the stable version of 4.0.
 
-Philippe
+Gregory
 
 
-On Wed, Apr 01, 2015 at 04:52:22AM +0200, Alexandre Belloni wrote:
-> Document the bindings for abracon,abx80x and related compatibles.
-> 
-> Cc: devicetree-discuss@lists.ozlabs.org
-> Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-> ---
->  .../devicetree/bindings/rtc/abracon,abx80x.txt     | 32 ++++++++++++++++++++++
->  1 file changed, 32 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/rtc/abracon,abx80x.txt
-> 
-> diff --git a/Documentation/devicetree/bindings/rtc/abracon,abx80x.txt b/Documentation/devicetree/bindings/rtc/abracon,abx80x.txt
-> new file mode 100644
-> index 000000000000..6f0d3b2cdd89
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/rtc/abracon,abx80x.txt
-> @@ -0,0 +1,32 @@
-> +Abracon ABX80X I2C ultra low power RTC/Alarm chip
-> +
-> +The Abracon ABX80X family consist of the ab0801, ab0803, ab0804, ab0805, ab1801,
-> +ab1803, ab1804 and ab1805. The ab0805 is the superset of ab080x and the ab1805
-> +is the superset of ab180x.
-> +
-> +Required properties:
-> +
-> + - "compatible": should one of:
-> +        "abracon,abx80x"
-> +        "abracon,ab0801"
-> +        "abracon,ab0803"
-> +        "abracon,ab0804"
-> +        "abracon,ab0805"
-> +        "abracon,ab1801"
-> +        "abracon,ab1803"
-> +        "abracon,ab1804"
-> +        "abracon,ab1805"
-> +	Using "abracon,abx80x" will enable chip autodetection.
-> + - "reg": I2C bus address of the device
-> +
-> +Optional properties:
-> +
-> +The abx804 and abx805 have a trickle charger that is able to charge the
-> +connected battery or supercap. Both the following properties have to be defined
-> +and valid to enable charging:
-> +
-> + - "abracon,tc-diode": should be "standard" (0.6V) or "schottky" (0.3V)
-> + - "abracon,tc-resistor": should be <0>, <3>, <6> or <11>. 0 disables the output
-> +                          resistor, the other values are in ohm.
-> +
-> +
-> -- 
-> 2.1.0
+ drivers/rtc/rtc-armada38x.c | 24 ++++++++++++------------
+ 1 file changed, 12 insertions(+), 12 deletions(-)
 
+diff --git a/drivers/rtc/rtc-armada38x.c b/drivers/rtc/rtc-armada38x.c
+index 43e04af39e09..cb70ced7e0db 100644
+--- a/drivers/rtc/rtc-armada38x.c
++++ b/drivers/rtc/rtc-armada38x.c
+@@ -40,6 +40,13 @@ struct armada38x_rtc {
+ 	void __iomem	    *regs;
+ 	void __iomem	    *regs_soc;
+ 	spinlock_t	    lock;
++	/*
++	 * While setting the time, the RTC TIME register should not be
++	 * accessed. Setting the RTC time involves sleeping during
++	 * 100ms, so a mutex instead of a spinlock is used to protect
++	 * it
++	 */
++	struct mutex	    mutex_time;
+ 	int		    irq;
+ };
+ 
+@@ -59,8 +66,7 @@ static int armada38x_rtc_read_time(struct device *dev, struct rtc_time *tm)
+ 	struct armada38x_rtc *rtc = dev_get_drvdata(dev);
+ 	unsigned long time, time_check, flags;
+ 
+-	spin_lock_irqsave(&rtc->lock, flags);
+-
++	mutex_lock(&rtc->mutex_time);
+ 	time = readl(rtc->regs + RTC_TIME);
+ 	/*
+ 	 * WA for failing time set attempts. As stated in HW ERRATA if
+@@ -71,7 +77,7 @@ static int armada38x_rtc_read_time(struct device *dev, struct rtc_time *tm)
+ 	if ((time_check - time) > 1)
+ 		time_check = readl(rtc->regs + RTC_TIME);
+ 
+-	spin_unlock_irqrestore(&rtc->lock, flags);
++	mutex_unlock(&rtc->mutex_time);
+ 
+ 	rtc_time_to_tm(time_check, tm);
+ 
+@@ -94,19 +100,12 @@ static int armada38x_rtc_set_time(struct device *dev, struct rtc_time *tm)
+ 	 * then wait for 100ms before writing to the time register to be
+ 	 * sure that the data will be taken into account.
+ 	 */
+-	spin_lock_irqsave(&rtc->lock, flags);
+-
++	mutex_lock(&rtc->mutex_time);
+ 	rtc_delayed_write(0, rtc, RTC_STATUS);
+-
+-	spin_unlock_irqrestore(&rtc->lock, flags);
+-
+ 	msleep(100);
+-
+-	spin_lock_irqsave(&rtc->lock, flags);
+-
+ 	rtc_delayed_write(time, rtc, RTC_TIME);
++	mutex_unlock(&rtc->mutex_time);
+ 
+-	spin_unlock_irqrestore(&rtc->lock, flags);
+ out:
+ 	return ret;
+ }
+@@ -230,6 +229,7 @@ static __init int armada38x_rtc_probe(struct platform_device *pdev)
+ 		return -ENOMEM;
+ 
+ 	spin_lock_init(&rtc->lock);
++	mutex_init(&rtc->mutex_time);
+ 
+ 	res = platform_get_resource_byname(pdev, IORESOURCE_MEM, "rtc");
+ 	rtc->regs = devm_ioremap_resource(&pdev->dev, res);
 -- 
-Philippe De Muyter +32 2 6101532 Macq SA rue de l'Aeronef 2 B-1140 Bruxelles
+2.1.0
 
 -- 
 -- 
