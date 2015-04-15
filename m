@@ -1,79 +1,87 @@
-Return-Path: <rtc-linux+bncBCO3XAUMTIFRBKPO4CUQKGQEUOYFOYI@googlegroups.com>
-Received: from arroyo.ext.ti.com (arroyo.ext.ti.com. [192.94.94.40])
-        by gmr-mx.google.com with ESMTPS id ux4si628509igb.1.2015.04.22.17.04.56
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1 cipher=RC4-SHA bits=128/128);
-        Wed, 22 Apr 2015 17:04:56 -0700 (PDT)
-Message-ID: <55383724.2080806@ti.com>
-Date: Wed, 22 Apr 2015 19:04:52 -0500
-From: Nishanth Menon <nm@ti.com>
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-CC: Alessandro Zummo <a.zummo@towertech.it>, <linux-omap@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>, <rtc-linux@googlegroups.com>
-Subject: [rtc-linux] Re: [PATCH V2] drivers/rtc/rtc-ds1307.c: Enable the
- mcp794xx alarm after programming time
-References: <1429577494-15087-1-git-send-email-nm@ti.com> <20150421234139.GF8539@piout.net> <5536E433.90103@ti.com> <20150422010925.GH8539@piout.net> <55370073.3060809@ti.com> <20150422113053.GI8539@piout.net>
-In-Reply-To: <20150422113053.GI8539@piout.net>
-Content-Type: text/plain; charset=UTF-8
-Reply-To: rtc-linux@googlegroups.com
+Subject: [5/5] drivers/rtc/sa1100: Replace deprecated rtc_tm_to_time() and
+ rtc_time_to_tm()
+From: Xunlei Pang <xlpang@126.com>
+Message-Id: <1429089611-29776-5-git-send-email-xlpang@126.com>
+To: linux-kernel@vger.kernel.org
+Cc: rtc-linux@googlegroups.com, Alessandro Zummo <a.zummo@towertech.it>,
+ John Stultz <john.stultz@linaro.org>, Arnd Bergmann <arnd@arndb.de>,
+ Xunlei Pang <pang.xunlei@linaro.org>, CIH <cih@coventive.com>,
+ Nicolas Pitre <nico@fluxnic.net>,
+ Andrew Christian <andrew.christian@hp.com>,
+ Richard Purdie <rpurdie@rpsys.net>
+Date: Wed, 15 Apr 2015 17:20:11 +0800
 List-ID: <rtc-linux.googlegroups.com>
-List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
-List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
-List-Archive: <http://groups.google.com/group/rtc-linux
-Sender: rtc-linux@googlegroups.com
-List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
-List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
- <http://groups.google.com/group/rtc-linux/subscribe>
 
-On 04/22/2015 06:30 AM, Alexandre Belloni wrote:
+From: Xunlei Pang <pang.xunlei@linaro.org>
 
-Apologies on a tardy response, got dragged into another issue and got
-cooped up in lab whole day.
+The driver uses deprecated rtc_tm_to_time() and rtc_time_to_tm(),
+which will overflow in year 2106 on 32-bit machines.
 
-> On 21/04/2015 at 20:59:15 -0500, Nishanth Menon wrote :
->>>> Why is that so? when set alarm is requested for time X, you want
->>>> interrupt at time X, not an interrupt for previous configured RTC
->>>> alarm time!
->>>>
->>>
->>> You expect at least an interrupt.
->>
->> And you will get an interrupt if the event occurs before the i2c burst
->> starts. Once the i2cburst does start, you are committing to the new time.
->>
-> 
-> You mean that even if ALM0EN is set after ALM0IF was set to 1, it will
-> trigger the interrupt? I had a look at the MFP output block diagram
-> would let me think that this is the case. I was thinking otherwise
-> before. If that is so, then indeed, your patch is OK.
-At least based on my testing it seems to be the case, and as you can
-see in the block diagram, the ALM0EN mux comes after ALM0IF.. agreed
-that I am not sure the mux to have some internal buffers/latches etc..
-dont have access to rtl to make more comments.
+This patch solves this by:
+ - Replacing rtc_tm_to_time() with rtc_tm_to_time64()
+ - Replacing rtc_time_to_tm() with rtc_time64_to_tm()
 
-> 
-> My concern was about the time between ds1307->write_block_data() and
-> i2c_smbus_write_byte_data() which actually calls cond_sched().
-> 
-> I fully agree that your patch doesn't change the behaviour for the other
-> cases you presented and further clean up is to be done in a separate set
-> of patches.
-> 
+Cc: CIH <cih@coventive.com>
+Cc: Nicolas Pitre <nico@fluxnic.net>
+Cc: Andrew Christian <andrew.christian@hp.com>
+Cc: Richard Purdie <rpurdie@rpsys.net>
+Signed-off-by: Xunlei Pang <pang.xunlei@linaro.org>
+---
+ drivers/rtc/rtc-sa1100.c | 21 +++++----------------
+ 1 file changed, 5 insertions(+), 16 deletions(-)
 
-Can I take this as an Acked-by?
-
--- 
-Regards,
-Nishanth Menon
-
--- 
--- 
-You received this message because you are subscribed to "rtc-linux".
-Membership options at http://groups.google.com/group/rtc-linux .
-Please read http://groups.google.com/group/rtc-linux/web/checklist
-before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
-For more options, visit https://groups.google.com/d/optout.
+diff --git a/drivers/rtc/rtc-sa1100.c b/drivers/rtc/rtc-sa1100.c
+index b6e1ca0..625a320 100644
+--- a/drivers/rtc/rtc-sa1100.c
++++ b/drivers/rtc/rtc-sa1100.c
+@@ -157,19 +157,14 @@ static int sa1100_rtc_alarm_irq_enable(struct device *dev, unsigned int enabled)
+ 
+ static int sa1100_rtc_read_time(struct device *dev, struct rtc_time *tm)
+ {
+-	rtc_time_to_tm(RCNR, tm);
++	rtc_time64_to_tm(RCNR, tm);
+ 	return 0;
+ }
+ 
+ static int sa1100_rtc_set_time(struct device *dev, struct rtc_time *tm)
+ {
+-	unsigned long time;
+-	int ret;
+-
+-	ret = rtc_tm_to_time(tm, &time);
+-	if (ret == 0)
+-		RCNR = time;
+-	return ret;
++	RCNR = rtc_tm_to_time64(tm);
++	return 0;
+ }
+ 
+ static int sa1100_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
+@@ -185,23 +180,17 @@ static int sa1100_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
+ static int sa1100_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
+ {
+ 	struct sa1100_rtc *info = dev_get_drvdata(dev);
+-	unsigned long time;
+-	int ret;
+ 
+ 	spin_lock_irq(&info->lock);
+-	ret = rtc_tm_to_time(&alrm->time, &time);
+-	if (ret != 0)
+-		goto out;
+ 	RTSR = RTSR & (RTSR_HZE|RTSR_ALE|RTSR_AL);
+-	RTAR = time;
++	RTAR = rtc_tm_to_time64(&alrm->time);
+ 	if (alrm->enabled)
+ 		RTSR |= RTSR_ALE;
+ 	else
+ 		RTSR &= ~RTSR_ALE;
+-out:
+ 	spin_unlock_irq(&info->lock);
+ 
+-	return ret;
++	return 0;
+ }
+ 
+ static int sa1100_rtc_proc(struct device *dev, struct seq_file *seq)
