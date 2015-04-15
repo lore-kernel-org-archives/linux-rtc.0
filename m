@@ -1,22 +1,29 @@
-Return-Path: <rtc-linux+bncBDY3NC743AGBBIWK5WUAKGQEQN77A7Y@googlegroups.com>
-Received: from smtprelay.hostedemail.com (smtprelay0220.hostedemail.com. [216.40.44.220])
-        by gmr-mx.google.com with ESMTP id e5si89092igt.1.2015.03.31.20.25.22
-        for <rtc-linux@googlegroups.com>;
-        Tue, 31 Mar 2015 20:25:22 -0700 (PDT)
-Message-ID: <1427858719.18175.32.camel@perches.com>
-Subject: [rtc-linux] Re: [PATCH 2/3] rtc: __rtc_read_time: reduce log level
-From: Joe Perches <joe@perches.com>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Aaro Koskinen <aaro.koskinen@iki.fi>, Alessandro Zummo
-	 <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org
-Date: Tue, 31 Mar 2015 20:25:19 -0700
-In-Reply-To: <20150401032113.GP3849@piout.net>
-References: <1427576976-22353-1-git-send-email-aaro.koskinen@iki.fi>
-	 <1427576976-22353-2-git-send-email-aaro.koskinen@iki.fi>
-	 <20150401032113.GP3849@piout.net>
+Return-Path: <rtc-linux+bncBDJNHL5JSEOBBIPZXKUQKGQEVOTBWRA@googlegroups.com>
+Received: from vps0.lunn.ch (vps0.lunn.ch. [178.209.37.122])
+        by gmr-mx.google.com with ESMTPS id eg1si372626wic.1.2015.04.15.12.31.45
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1.2 cipher=RC4-SHA bits=128/128);
+        Wed, 15 Apr 2015 12:31:45 -0700 (PDT)
+Date: Wed, 15 Apr 2015 21:27:32 +0200
+From: Andrew Lunn <andrew@lunn.ch>
+To: Gregory CLEMENT <gregory.clement@free-electrons.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	rtc-linux@googlegroups.com, Arnaud Ebalard <arno@natisbad.org>,
+	Jason Cooper <jason@lakedaemon.net>,
+	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
+	Thomas Petazzoni <thomas.petazzoni@free-electrons.com>,
+	Ezequiel Garcia <ezequiel.garcia@free-electrons.com>,
+	linux-arm-kernel@lists.infradead.org,
+	Lior Amsalem <alior@marvell.com>,
+	Tawfik Bayouk <tawfik@marvell.com>,
+	Nadav Haklai <nadavh@marvell.com>, stable@vger.kernel.org
+Subject: [rtc-linux] Re: [PATCH] rtc: armada38x: Fix concurrency access in armada38x_rtc_set_time
+Message-ID: <20150415192732.GB13105@lunn.ch>
+References: <1429103633-24376-1-git-send-email-gregory.clement@free-electrons.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Mime-Version: 1.0
+In-Reply-To: <1429103633-24376-1-git-send-email-gregory.clement@free-electrons.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -27,54 +34,36 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On Wed, 2015-04-01 at 05:21 +0200, Alexandre Belloni wrote:
-> On 28/03/2015 at 23:09:35 +0200, Aaro Koskinen wrote :
-> > __rtc_read_time logs should be debug logs instead of error logs.
-> > 
-> > For example, when the RTC clock is not set, it's not really useful
-> > to print a kernel error log every time someone tries to read the clock:
-> > 
-> > 	~ # hwclock -r
-> > 	[  604.508263] rtc rtc0: read_time: fail to read
-> > 	hwclock: RTC_RD_TIME: Invalid argument
-> > 
-> > If there's a real error, it's likely that lower level or higher level
-> > code will tell it anyway. Make these logs debug logs, and also print
-> > the error code for the read failure.
-> > 
-> 
-> That actually may be the only error message printed for some failures.
-> Some RTCs don't print anything in case of error in their .read_time()
-> and there are in-kernel users of rtc_read_time that simply bail out
-> without printing anything or have a trace that is already at the debug
-> level.
-> 
-> I would agree that this would need a better harmonization and I guess we
-> can do that for now. I'll try to fix the in-kernel cases.
+On Wed, Apr 15, 2015 at 03:13:53PM +0200, Gregory CLEMENT wrote:
+> While setting the time, the RTC TIME register should not be
+> accessed. However due to hardware constraints, setting the RTC time
+> involves sleeping during 100ms. This sleep was done outside the
+> critical section protected by the spinlock, so it was possible to read
+> the RTC TIME register and get an incorrect value. This patch
+> introduces a mutex for protecting the RTC TIME access, unlike the
+> spinlock it is allowed to sleep in a critical section protected by a
+> mutex. The RTC STATUS register can still be used from the interrupt
+> handler but it has no effect on setting the time.
 
-Maybe these should use dev_err_once().
+Hi Gregory
 
-> > diff --git a/drivers/rtc/interface.c b/drivers/rtc/interface.c
-[]
-> > @@ -31,13 +31,14 @@ static int __rtc_read_time(struct rtc_device *rtc, struct rtc_time *tm)
-> >  		memset(tm, 0, sizeof(struct rtc_time));
-> >  		err = rtc->ops->read_time(rtc->dev.parent, tm);
-> >  		if (err < 0) {
-> > -			dev_err(&rtc->dev, "read_time: fail to read\n");
-> > +			dev_dbg(&rtc->dev, "read_time: fail to read: %d\n",
-> > +				err);
-> >  			return err;
-> >  		}
-> >  
-> >  		err = rtc_valid_tm(tm);
-> >  		if (err < 0)
-> > -			dev_err(&rtc->dev, "read_time: rtc_time isn't valid\n");
-> > +			dev_dbg(&rtc->dev, "read_time: rtc_time isn't valid\n");
-> >  	}
-> >  	return err;
-> >  }
+There is the following comment in the code:
 
+        /*
+         * Setting the RTC time not always succeeds. According to the
+         * errata we need to first write on the status register and
+         * then wait for 100ms before writing to the time register to be
+         * sure that the data will be taken into account.
+         */
 
+The interrupt handler also writes to the STATUS register. So what
+happens if there is an interrupt during that 100ms and a second write
+to STATUS?
+
+Maybe it is necessary to disable the RTC interrupt while setting the
+time?
+
+	Andrew
 
 -- 
 -- 
