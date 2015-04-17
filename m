@@ -1,74 +1,95 @@
-Date: Thu, 30 Apr 2015 01:28:24 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Xunlei Pang <xlpang@126.com>
-Cc: linux-kernel@vger.kernel.org, rtc-linux@googlegroups.com,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	John Stultz <john.stultz@linaro.org>, Arnd Bergmann <arnd@arndb.de>,
-	Xunlei Pang <pang.xunlei@linaro.org>, CIH <cih@coventive.com>,
-	Nicolas Pitre <nico@fluxnic.net>,
-	Andrew Christian <andrew.christian@hp.com>,
-	Richard Purdie <rpurdie@rpsys.net>
-Subject: Re: [5/5] drivers/rtc/sa1100: Replace deprecated rtc_tm_to_time()
- and rtc_time_to_tm()
-Message-ID: <20150429232824.GC3242@piout.net>
-References: <1429089611-29776-5-git-send-email-xlpang@126.com>
+Return-Path: <rtc-linux+bncBDJNHL5JSEOBB4ERYSUQKGQEO3VHJGA@googlegroups.com>
+Received: from vps0.lunn.ch (vps0.lunn.ch. [178.209.37.122])
+        by gmr-mx.google.com with ESMTPS id p9si106417wiz.3.2015.04.17.06.21.52
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1.2 cipher=RC4-SHA bits=128/128);
+        Fri, 17 Apr 2015 06:21:52 -0700 (PDT)
+Date: Fri, 17 Apr 2015 15:17:34 +0200
+From: Andrew Lunn <andrew@lunn.ch>
+To: Gregory CLEMENT <gregory.clement@free-electrons.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	rtc-linux@googlegroups.com, Arnaud Ebalard <arno@natisbad.org>,
+	Jason Cooper <jason@lakedaemon.net>,
+	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
+	Thomas Petazzoni <thomas.petazzoni@free-electrons.com>,
+	Ezequiel Garcia <ezequiel.garcia@free-electrons.com>,
+	linux-arm-kernel@lists.infradead.org,
+	Lior Amsalem <alior@marvell.com>,
+	Tawfik Bayouk <tawfik@marvell.com>,
+	Nadav Haklai <nadavh@marvell.com>, stable@vger.kernel.org
+Subject: [rtc-linux] Re: [PATCH] rtc: armada38x: Fix concurrency access in armada38x_rtc_set_time
+Message-ID: <20150417131734.GB7768@lunn.ch>
+References: <1429103633-24376-1-git-send-email-gregory.clement@free-electrons.com>
+ <20150415192732.GB13105@lunn.ch>
+ <5531070A.7080105@free-electrons.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1429089611-29776-5-git-send-email-xlpang@126.com>
+Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <5531070A.7080105@free-electrons.com>
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
+List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
+List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
+List-Archive: <http://groups.google.com/group/rtc-linux
+Sender: rtc-linux@googlegroups.com
+List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
+List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
+ <http://groups.google.com/group/rtc-linux/subscribe>
 
-Hi,
+On Fri, Apr 17, 2015 at 03:13:46PM +0200, Gregory CLEMENT wrote:
+> Hi Andrew,
+> 
+> On 15/04/2015 21:27, Andrew Lunn wrote:
+> > On Wed, Apr 15, 2015 at 03:13:53PM +0200, Gregory CLEMENT wrote:
+> >> While setting the time, the RTC TIME register should not be
+> >> accessed. However due to hardware constraints, setting the RTC time
+> >> involves sleeping during 100ms. This sleep was done outside the
+> >> critical section protected by the spinlock, so it was possible to read
+> >> the RTC TIME register and get an incorrect value. This patch
+> >> introduces a mutex for protecting the RTC TIME access, unlike the
+> >> spinlock it is allowed to sleep in a critical section protected by a
+> >> mutex. The RTC STATUS register can still be used from the interrupt
+> >> handler but it has no effect on setting the time.
+> > 
+> > Hi Gregory
+> > 
+> > There is the following comment in the code:
+> > 
+> >         /*
+> >          * Setting the RTC time not always succeeds. According to the
+> >          * errata we need to first write on the status register and
+> >          * then wait for 100ms before writing to the time register to be
+> >          * sure that the data will be taken into account.
+> >          */
+> > 
+> > The interrupt handler also writes to the STATUS register. So what
+> > happens if there is an interrupt during that 100ms and a second write
+> > to STATUS?
+> 
+> 
+> As I wrote in the commit log, the RTC STATUS register can still be used from
+> the interrupt handler but it has no effect on setting the time: between writing
+> 0 in the RTC_STATUS register and writing the time in the RTC_TIME register,
+> writing anything in RTC_STATUS won't prevent to write the time successfully.
 
-On 15/04/2015 at 17:20:11 +0800, Xunlei Pang wrote :
-> From: Xunlei Pang <pang.xunlei@linaro.org>
-> 
-> The driver uses deprecated rtc_tm_to_time() and rtc_time_to_tm(),
-> which will overflow in year 2106 on 32-bit machines.
-> 
-> This patch solves this by:
->  - Replacing rtc_tm_to_time() with rtc_tm_to_time64()
->  - Replacing rtc_time_to_tm() with rtc_time64_to_tm()
-> 
-> Cc: CIH <cih@coventive.com>
-> Cc: Nicolas Pitre <nico@fluxnic.net>
-> Cc: Andrew Christian <andrew.christian@hp.com>
-> Cc: Richard Purdie <rpurdie@rpsys.net>
-> Signed-off-by: Xunlei Pang <pang.xunlei@linaro.org>
-> ---
->  drivers/rtc/rtc-sa1100.c | 21 +++++----------------
->  1 file changed, 5 insertions(+), 16 deletions(-)
-> 
-> diff --git a/drivers/rtc/rtc-sa1100.c b/drivers/rtc/rtc-sa1100.c
-> index b6e1ca0..625a320 100644
-> --- a/drivers/rtc/rtc-sa1100.c
-> +++ b/drivers/rtc/rtc-sa1100.c
-> @@ -157,19 +157,14 @@ static int sa1100_rtc_alarm_irq_enable(struct device *dev, unsigned int enabled)
->  
->  static int sa1100_rtc_read_time(struct device *dev, struct rtc_time *tm)
->  {
-> -	rtc_time_to_tm(RCNR, tm);
-> +	rtc_time64_to_tm(RCNR, tm);
->  	return 0;
->  }
->  
->  static int sa1100_rtc_set_time(struct device *dev, struct rtc_time *tm)
->  {
-> -	unsigned long time;
-> -	int ret;
-> -
-> -	ret = rtc_tm_to_time(tm, &time);
-> -	if (ret == 0)
-> -		RCNR = time;
-> -	return ret;
-> +	RCNR = rtc_tm_to_time64(tm);
+Hi Gregory
 
-For the same reason that Russell pointed in patch 4/5, this hides that
-it doesn't work after 2106-02-07 06:28:16 as the register is still 32
-bits.
-I would prefer that you return an error in that case.
+Thanks for explaining. If you have to respin for any reason, it would
+be nice to make the commit log more explicit about this.
 
+I didn't do a detailed review, but i did review it to some extent, so
+
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+
+   Andrew
 
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+-- 
+You received this message because you are subscribed to "rtc-linux".
+Membership options at http://groups.google.com/group/rtc-linux .
+Please read http://groups.google.com/group/rtc-linux/web/checklist
+before submitting a driver.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+For more options, visit https://groups.google.com/d/optout.
