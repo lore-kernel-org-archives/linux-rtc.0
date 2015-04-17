@@ -1,86 +1,360 @@
-Return-Path: <rtc-linux+bncBD62P6P6EQIIHJMKVICRUBDGLSHKQ@googlegroups.com>
-MIME-Version: 1.0
-Received: from mail-ob0-x232.google.com (mail-ob0-x232.google.com. [2607:f8b0:4003:c01::232])
-        by gmr-mx.google.com with ESMTPS id f17si217674igt.0.2015.04.30.13.37.22
+Return-Path: <rtc-linux+bncBDP6N55ZUYDRB3XBYSUQKGQEQHKZ2RY@googlegroups.com>
+Received: from mail-ie0-x22c.google.com (mail-ie0-x22c.google.com. [2607:f8b0:4001:c03::22c])
+        by gmr-mx.google.com with ESMTPS id v1si253153igk.0.2015.04.17.09.12.30
         for <rtc-linux@googlegroups.com>
         (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 30 Apr 2015 13:37:22 -0700 (PDT)
-Received: by mail-ob0-x232.google.com with SMTP id e9so53378775obf.1
-        for <rtc-linux@googlegroups.com>; Thu, 30 Apr 2015 13:37:22 -0700 (PDT)
-Sender: rtc-linux@googlegroups.com
-From: Rob Herring <robh@kernel.org>
-To: Russell King <linux@arm.linux.org.uk>,
-	Robert Jarzmik <robert.jarzmik@free.fr>,
-	Alessandro Zummo <a.zummo@towertech.it>
-Cc: linux-arm-kernel@lists.infradead.org,
-	Arnd Bergmann <arnd@arndb.de>,
-	Rob Herring <robh@kernel.org>,
-	Daniel Mack <daniel@zonque.org>,
-	Haojian Zhuang <haojian.zhuang@gmail.com>,
-	Eric Miao <eric.y.miao@gmail.com>,
-	rtc-linux@googlegroups.com
-Subject: [rtc-linux] [PATCH v2 4/4] ARM: mmp: remove unused RTC register definitions
-Date: Thu, 30 Apr 2015 15:37:13 -0500
-Message-Id: <1430426233-7461-5-git-send-email-robh@kernel.org>
-In-Reply-To: <1430426233-7461-1-git-send-email-robh@kernel.org>
-References: <1430426233-7461-1-git-send-email-robh@kernel.org>
-Reply-To: rtc-linux@googlegroups.com
+        Fri, 17 Apr 2015 09:12:30 -0700 (PDT)
+Received: by mail-ie0-x22c.google.com with SMTP id rt8so63374594iec.0
+        for <rtc-linux@googlegroups.com>; Fri, 17 Apr 2015 09:12:30 -0700 (PDT)
+Date: Fri, 17 Apr 2015 09:12:17 -0700
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: S Twiss <stwiss.opensource@diasemi.com>
+Cc: LINUXINPUT <linux-input@vger.kernel.org>,
+	LINUXKERNEL <linux-kernel@vger.kernel.org>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	DEVICETREE <devicetree@vger.kernel.org>,
+	David Dajun Chen <david.chen@diasemi.com>,
+	Ian Campbell <ijc+devicetree@hellion.org.uk>,
+	Kumar Gala <galak@codeaurora.org>,
+	LINUXWATCHDOG <linux-watchdog@vger.kernel.org>,
+	Lee Jones <lee.jones@linaro.org>,
+	Liam Girdwood <lgirdwood@gmail.com>,
+	Mark Brown <broonie@kernel.org>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Pawel Moll <pawel.moll@arm.com>,
+	RTCLINUX <rtc-linux@googlegroups.com>,
+	Rob Herring <robh+dt@kernel.org>,
+	Samuel Ortiz <sameo@linux.intel.com>,
+	Support Opensource <support.opensource@diasemi.com>,
+	Wim Van Sebroeck <wim@iguana.be>
+Subject: [rtc-linux] Re: [PATCH V1 4/6] input: misc: onkey: da9062: DA9062
+ OnKey driver
+Message-ID: <20150417161217.GA27440@dtor-ws>
+References: <cover.1429280614.git.stwiss.opensource@diasemi.com>
+ <c05802897197e71839a33b1f5ac224031b14e65b.1429280614.git.stwiss.opensource@diasemi.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <c05802897197e71839a33b1f5ac224031b14e65b.1429280614.git.stwiss.opensource@diasemi.com>
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
 List-Archive: <http://groups.google.com/group/rtc-linux
+Sender: rtc-linux@googlegroups.com
 List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Now that register definitions have been moved to the driver, regs-rtc.h is
-no longer used and can be removed.
+Hi,
 
-Signed-off-by: Rob Herring <robh@kernel.org>
-Cc: Eric Miao <eric.y.miao@gmail.com>
-Cc: Haojian Zhuang <haojian.zhuang@gmail.com>
-Cc: Russell King <linux@arm.linux.org.uk>
-Cc: linux-arm-kernel@lists.infradead.org
----
-v2:
-- Rebase to v4.1-rc1
+On Fri, Apr 17, 2015 at 03:23:33PM +0100, S Twiss wrote:
+> From: S Twiss <stwiss.opensource@diasemi.com>
+> 
+> Add OnKey driver support for DA9062
+> 
+> Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
+> 
+> ---
+> 
+> This patch applies against linux-next and v4.0 
+> 
+> 
+> 
+>  drivers/input/misc/Kconfig        |  10 ++
+>  drivers/input/misc/Makefile       |   1 +
+>  drivers/input/misc/da9062-onkey.c | 223 ++++++++++++++++++++++++++++++++++++++
+>  3 files changed, 234 insertions(+)
+>  create mode 100644 drivers/input/misc/da9062-onkey.c
+> 
+> diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
+> index 6deb8da..472ca38 100644
+> --- a/drivers/input/misc/Kconfig
+> +++ b/drivers/input/misc/Kconfig
+> @@ -586,6 +586,16 @@ config INPUT_DA9055_ONKEY
+>  	  To compile this driver as a module, choose M here: the module
+>  	  will be called da9055_onkey.
+>  
+> +config INPUT_DA9062_ONKEY
+> +	tristate "Dialog DA9062 OnKey"
+> +	depends on MFD_DA9062
+> +	help
+> +	  Support the ONKEY of Dialog DA9062 Power Management IC as an
+> +	  input device reporting power button status.
+> +
+> +	  To compile this driver as a module, choose M here: the module
+> +	  will be called da9062-onkey.
+> +
+>  config INPUT_DM355EVM
+>  	tristate "TI DaVinci DM355 EVM Keypad and IR Remote"
+>  	depends on MFD_DM355EVM_MSP
+> diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
+> index 403a1a5..a631283 100644
+> --- a/drivers/input/misc/Makefile
+> +++ b/drivers/input/misc/Makefile
+> @@ -25,6 +25,7 @@ obj-$(CONFIG_INPUT_CMA3000_I2C)		+= cma3000_d0x_i2c.o
+>  obj-$(CONFIG_INPUT_COBALT_BTNS)		+= cobalt_btns.o
+>  obj-$(CONFIG_INPUT_DA9052_ONKEY)	+= da9052_onkey.o
+>  obj-$(CONFIG_INPUT_DA9055_ONKEY)	+= da9055_onkey.o
+> +obj-$(CONFIG_INPUT_DA9062_ONKEY)	+= da9062-onkey.o
 
- arch/arm/mach-mmp/include/mach/regs-rtc.h | 23 -----------------------
- 1 file changed, 23 deletions(-)
- delete mode 100644 arch/arm/mach-mmp/include/mach/regs-rtc.h
+Can we maybe keep the same naming convention for all of these? Also, any
+chance all of them or some of them can be combined?
 
-diff --git a/arch/arm/mach-mmp/include/mach/regs-rtc.h b/arch/arm/mach-mmp/include/mach/regs-rtc.h
-deleted file mode 100644
-index 5bff886..0000000
---- a/arch/arm/mach-mmp/include/mach/regs-rtc.h
-+++ /dev/null
-@@ -1,23 +0,0 @@
--#ifndef __ASM_MACH_REGS_RTC_H
--#define __ASM_MACH_REGS_RTC_H
--
--#include <mach/addr-map.h>
--
--#define RTC_VIRT_BASE	(APB_VIRT_BASE + 0x10000)
--#define RTC_REG(x)	(*((volatile u32 __iomem *)(RTC_VIRT_BASE + (x))))
--
--/*
-- * Real Time Clock
-- */
--
--#define RCNR		RTC_REG(0x00)	/* RTC Count Register */
--#define RTAR		RTC_REG(0x04)	/* RTC Alarm Register */
--#define RTSR		RTC_REG(0x08)	/* RTC Status Register */
--#define RTTR		RTC_REG(0x0C)	/* RTC Timer Trim Register */
--
--#define RTSR_HZE	(1 << 3)	/* HZ interrupt enable */
--#define RTSR_ALE	(1 << 2)	/* RTC alarm interrupt enable */
--#define RTSR_HZ		(1 << 1)	/* HZ rising-edge detected */
--#define RTSR_AL		(1 << 0)	/* RTC alarm detected */
--
--#endif /* __ASM_MACH_REGS_RTC_H */
---
-2.1.0
+>  obj-$(CONFIG_INPUT_DM355EVM)		+= dm355evm_keys.o
+>  obj-$(CONFIG_INPUT_E3X0_BUTTON)		+= e3x0-button.o
+>  obj-$(CONFIG_INPUT_DRV260X_HAPTICS)	+= drv260x.o
+> diff --git a/drivers/input/misc/da9062-onkey.c b/drivers/input/misc/da9062-onkey.c
+> new file mode 100644
+> index 0000000..c4c0295
+> --- /dev/null
+> +++ b/drivers/input/misc/da9062-onkey.c
+> @@ -0,0 +1,223 @@
+> +/*
+> + * da9062-onkey.c - ONKEY device driver for DA9062
+> + * Copyright (C) 2015  Dialog Semiconductor Ltd.
+> + *
+> + * This program is free software; you can redistribute it and/or
+> + * modify it under the terms of the GNU General Public License
+> + * as published by the Free Software Foundation; either version 2
+> + * of the License, or (at your option) any later version.
+> + *
+> + * This program is distributed in the hope that it will be useful,
+> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
+> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+> + * GNU General Public License for more details.
+> + */
+> +
+> +#include <linux/module.h>
+> +#include <linux/errno.h>
+> +#include <linux/input.h>
+> +#include <linux/interrupt.h>
+> +#include <linux/platform_device.h>
+> +#include <linux/workqueue.h>
+> +#include <linux/regmap.h>
+> +#include <linux/of.h>
+> +#include <linux/mfd/da9062/core.h>
+> +#include <linux/mfd/da9062/registers.h>
+> +
+> +struct da9062_onkey {
+> +	struct da9062 *hw;
+> +	struct delayed_work work;
+> +	struct	input_dev *input;
+> +	int irq;
+> +	bool key_power;
+> +};
+> +
+> +static void da9062_poll_on(struct work_struct *work)
+> +{
+> +	struct da9062_onkey *onkey = container_of(work, struct da9062_onkey,
+> +						  work.work);
+> +	unsigned int val;
+> +	int fault_log = 0;
+> +	bool poll = true;
+> +	int ret;
+> +
+> +	/* poll to see when the pin is released */
+> +	ret = regmap_read(onkey->hw->regmap, DA9062AA_STATUS_A, &val);
+> +	if (ret < 0) {
+> +		dev_err(&onkey->input->dev,
+> +			"Failed to read ON status: %d\n", ret);
+> +		goto err_poll;
+> +	}
+> +
+> +	if (!(val & DA9062AA_NONKEY_MASK)) {
+> +		ret = regmap_update_bits(onkey->hw->regmap,
+> +					 DA9062AA_CONTROL_B,
+> +					 DA9062AA_NONKEY_LOCK_MASK, 0);
+> +		if (ret < 0) {
+> +			dev_err(&onkey->input->dev,
+> +				"Failed to reset the Key Delay %d\n", ret);
+> +			goto err_poll;
+> +		}
+> +
+> +		input_report_key(onkey->input, KEY_POWER, 0);
+> +		input_sync(onkey->input);
+> +
+> +		poll = false;
+> +	}
+> +
+> +	/* if the fault log KEY_RESET is detected,
+> +	 * then clear it and shutdown DA9062 via I2C
+> +	 */
+> +	ret = regmap_read(onkey->hw->regmap, DA9062AA_FAULT_LOG, &fault_log);
+> +	if (ret < 0)
+> +		dev_warn(&onkey->input->dev, "Cannot read FAULT_LOG\n");
+> +
+> +	if (fault_log & DA9062AA_KEY_RESET_MASK) {
+> +		ret = regmap_write(onkey->hw->regmap,
+> +				   DA9062AA_FAULT_LOG,
+> +				   DA9062AA_KEY_RESET_MASK);
+> +		if (ret < 0)
+> +			dev_warn(&onkey->input->dev,
+> +				 "Cannot reset KEY_RESET fault log\n");
+> +		else {
+> +			/* at this point we do any S/W housekeeping
+> +			 * and then send shutdown command
+> +			 */
+> +			dev_info(&onkey->input->dev,
+> +				 "Sending SHUTDOWN to DA9062 ...\n");
+> +			ret = regmap_write(onkey->hw->regmap,
+> +					   DA9062AA_CONTROL_F,
+> +					   DA9062AA_SHUTDOWN_MASK);
+> +			if (ret < 0)
+> +				dev_err(&onkey->input->dev,
+> +					"Cannot SHUTDOWN DA9062\n");
+> +		}
+> +	}
+
+This entire block seems to not belong to the input portion of MFD. Why
+do we do it here?
+
+> +
+> +err_poll:
+> +	if (poll)
+> +		schedule_delayed_work(&onkey->work, 50);
+> +}
+> +
+> +static irqreturn_t da9062_onkey_irq_handler(int irq, void *data)
+> +{
+> +	struct da9062_onkey *onkey = data;
+> +	unsigned int val;
+> +	int ret;
+> +
+> +	ret = regmap_read(onkey->hw->regmap, DA9062AA_STATUS_A, &val);
+> +	if (onkey->key_power && (ret >= 0) && (val & DA9062AA_NONKEY_MASK)) {
+> +		input_report_key(onkey->input, KEY_POWER, 1);
+> +		input_sync(onkey->input);
+> +		schedule_delayed_work(&onkey->work, 0);
+> +		dev_notice(&onkey->input->dev, "KEY_POWER pressed.\n");
+> +	} else {
+> +		input_report_key(onkey->input, KEY_SLEEP, 1);
+> +		input_sync(onkey->input);
+> +		input_report_key(onkey->input, KEY_SLEEP, 0);
+> +		input_sync(onkey->input);
+> +		dev_notice(&onkey->input->dev, "KEY_SLEEP pressed.\n");
+> +	}
+
+Why do we handle KEY_POWER and KEY_SLEEP completely differently?
+
+> +
+> +	return IRQ_HANDLED;
+> +}
+> +
+> +static int da9062_onkey_probe(struct platform_device *pdev)
+> +{
+> +	struct da9062 *chip = dev_get_drvdata(pdev->dev.parent);
+> +	struct da9062_onkey *onkey;
+> +	bool kp_tmp = true;
+> +	int ret = 0;
+> +
+> +		kp_tmp = of_property_read_bool((&pdev->dev)->of_node,
+> +					       "dlg,disable-key-power");
+> +		kp_tmp = !kp_tmp;
+
+Should we just allow specifying the keycode instead of hardcoding
+KEY_POWER/KEY_SLEEP?
+
+> +
+> +
+> +	onkey = devm_kzalloc(&pdev->dev, sizeof(struct da9062_onkey),
+> +			     GFP_KERNEL);
+> +	if (!onkey) {
+> +		dev_err(&pdev->dev, "Failed to allocate memory.\n");
+> +		ret = -ENOMEM;
+> +		goto err;
+> +	}
+> +
+> +	INIT_DELAYED_WORK(&onkey->work, da9062_poll_on);
+> +
+> +	onkey->input = devm_input_allocate_device(&pdev->dev);
+> +	if (!onkey->input) {
+> +		dev_err(&pdev->dev, "Failed to allocated input device.\n");
+> +		ret = -ENOMEM;
+> +		goto err;
+> +	}
+> +
+> +	ret = platform_get_irq_byname(pdev, "ONKEY");
+> +	if (ret < 0) {
+> +		dev_err(&pdev->dev, "Failed to get platform IRQ.\n");
+> +		goto err;
+> +	}
+> +	onkey->irq = ret;
+> +
+> +	ret = request_threaded_irq(onkey->irq, NULL,
+> +				   da9062_onkey_irq_handler,
+> +				   IRQF_TRIGGER_LOW | IRQF_ONESHOT,
+> +				   "ONKEY", onkey);
+> +	if (ret) {
+> +		dev_err(&pdev->dev,
+> +			"Failed to request input device IRQ.\n");
+> +		goto err;
+> +	}
+> +
+> +	onkey->hw = chip;
+> +	onkey->key_power = kp_tmp;
+> +	onkey->input->evbit[0] = BIT_MASK(EV_KEY);
+> +	onkey->input->name = "da9062-onkey";
+> +	onkey->input->phys = "da9062-onkey/input0";
+> +	onkey->input->dev.parent = &pdev->dev;
+> +
+> +	if (onkey->key_power)
+> +		input_set_capability(onkey->input, EV_KEY, KEY_POWER);
+> +	input_set_capability(onkey->input, EV_KEY, KEY_SLEEP);
+> +
+> +	ret = input_register_device(onkey->input);
+> +	if (ret) {
+> +		dev_err(&pdev->dev,
+> +			"Failed to register input device.\n");
+> +		goto err_irq;
+> +	}
+> +
+> +	platform_set_drvdata(pdev, onkey);
+> +	return 0;
+> +
+> +err_irq:
+> +	free_irq(onkey->irq, onkey);
+> +	cancel_delayed_work_sync(&onkey->work);
+> +err:
+> +	return ret;
+> +}
+> +
+> +static int da9062_onkey_remove(struct platform_device *pdev)
+> +{
+> +	struct	da9062_onkey *onkey = platform_get_drvdata(pdev);
+> +
+> +	free_irq(onkey->irq, onkey);
+> +	cancel_delayed_work_sync(&onkey->work);
+> +	input_unregister_device(onkey->input);
+
+No need to unregister explicitly if you allocated input device with
+devm.
+
+> +	return 0;
+> +}
+> +
+> +static struct platform_driver da9062_onkey_driver = {
+> +	.probe	= da9062_onkey_probe,
+> +	.remove	= da9062_onkey_remove,
+> +	.driver	= {
+> +		.name	= "da9062-onkey",
+> +		.owner	= THIS_MODULE,
+> +	},
+> +};
+> +
+> +module_platform_driver(da9062_onkey_driver);
+> +
+> +MODULE_AUTHOR("S Twiss <stwiss.opensource@diasemi.com>");
+> +MODULE_DESCRIPTION("ONKEY device driver for Dialog DA9062");
+> +MODULE_LICENSE("GPL v2");
+> +MODULE_ALIAS("platform: da9062-onkey");
+> -- 
+> end-of-patch for PATCH V1
+> 
+
+Thanks.
+
+-- 
+Dmitry
 
 -- 
 -- 
