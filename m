@@ -1,26 +1,31 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBYM75CUQKGQEA26NWZQ@googlegroups.com>
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id ec7si81830wib.3.2015.04.24.02.41.52
-        for <rtc-linux@googlegroups.com>;
-        Fri, 24 Apr 2015 02:41:52 -0700 (PDT)
-Date: Fri, 24 Apr 2015 11:41:51 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Nishanth Menon <nm@ti.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>, linux-omap@vger.kernel.org,
-	linux-kernel@vger.kernel.org, rtc-linux@googlegroups.com
-Subject: [rtc-linux] Re: [PATCH V2] drivers/rtc/rtc-ds1307.c: Enable the
- mcp794xx alarm after programming time
-Message-ID: <20150424094151.GO8539@piout.net>
-References: <1429577494-15087-1-git-send-email-nm@ti.com>
- <20150421234139.GF8539@piout.net>
- <5536E433.90103@ti.com>
- <20150422010925.GH8539@piout.net>
- <55370073.3060809@ti.com>
- <20150422113053.GI8539@piout.net>
- <55383724.2080806@ti.com>
+Return-Path: <rtc-linux+bncBAABBFNXYSUQKGQEF3HWIOY@googlegroups.com>
+Received: from mail1.bemta5.messagelabs.com (mail1.bemta5.messagelabs.com. [195.245.231.148])
+        by gmr-mx.google.com with ESMTPS id p9si117797wiz.3.2015.04.17.07.41.24
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1.2 cipher=RC4-SHA bits=128/128);
+        Fri, 17 Apr 2015 07:41:25 -0700 (PDT)
+Message-ID: <94535acf974274822c5ac16d6427299778e11ccf.1429280614.git.stwiss.opensource@diasemi.com>
+In-Reply-To: <cover.1429280614.git.stwiss.opensource@diasemi.com>
+References: <cover.1429280614.git.stwiss.opensource@diasemi.com>
+From: S Twiss <stwiss.opensource@diasemi.com>
+Date: Fri, 17 Apr 2015 15:23:34 +0100
+Subject: [rtc-linux] [PATCH V1 6/6] devicetree: da9062: Add bindings for
+ DA9062 driver
+To: DEVICETREE <devicetree@vger.kernel.org>, Ian Campbell
+	<ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>,
+	LINUXKERNEL <linux-kernel@vger.kernel.org>, Mark Rutland
+	<mark.rutland@arm.com>, Pawel Moll <pawel.moll@arm.com>, Rob Herring
+	<robh+dt@kernel.org>
+CC: Alessandro Zummo <a.zummo@towertech.it>, David Dajun Chen
+	<david.chen@diasemi.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	LINUXINPUT <linux-input@vger.kernel.org>, LINUXWATCHDOG
+	<linux-watchdog@vger.kernel.org>, Lee Jones <lee.jones@linaro.org>, Liam
+ Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, RTCLINUX
+	<rtc-linux@googlegroups.com>, S Twiss <stwiss.opensource@diasemi.com>, Samuel
+ Ortiz <sameo@linux.intel.com>, Support Opensource
+	<support.opensource@diasemi.com>, Wim Van Sebroeck <wim@iguana.be>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <55383724.2080806@ti.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -31,21 +36,137 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On 22/04/2015 at 19:04:52 -0500, Nishanth Menon wrote :
-> > I fully agree that your patch doesn't change the behaviour for the other
-> > cases you presented and further clean up is to be done in a separate set
-> > of patches.
-> > 
-> 
+From: S Twiss <stwiss.opensource@diasemi.com>
 
-Sure,
-Acked-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Add device tree bindings for the DA9062 driver
+
+Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
+
+---
+
+This patch applies against linux-next and v4.0 
 
 
+
+ Documentation/devicetree/bindings/mfd/da9062.txt | 107 +++++++++++++++++++++++
+ 1 file changed, 107 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/mfd/da9062.txt
+
+diff --git a/Documentation/devicetree/bindings/mfd/da9062.txt b/Documentation/devicetree/bindings/mfd/da9062.txt
+new file mode 100644
+index 0000000..cf8f3f6
+--- /dev/null
++++ b/Documentation/devicetree/bindings/mfd/da9062.txt
+@@ -0,0 +1,107 @@
++* Dialog DA9062 Power Management Integrated Circuit (PMIC)
++
++DA9062 consists of a large and varied group of sub-devices:
++
++Device                   Supply Names    Description
++------                   ------------    -----------
++da9062-regulator        :               : LDOs & BUCKs
++da9062-onkey            :               : On Key
++da9062-rtc              :               : Real-Time Clock
++da9062-watchdog         :               : Watchdog Timer
++
++======
++
++Required properties:
++
++- compatible : Should be "dlg,da9062".
++- reg : Specifies the I2C slave address (this defaults to 0x58 but it can be
++  modified to match the chip's OTP settings).
++- interrupt-parent : Specifies the reference to the interrupt controller for
++  the DA9062.
++- interrupts : IRQ line information.
++- interrupt-controller
++
++See Documentation/devicetree/bindings/interrupt-controller/interrupts.txt for
++further information on IRQ bindings.
++
++Sub-nodes:
++
++- regulators : This node defines the settings for the LDOs and BUCKs. The
++  DA9062 regulators are bound using their names listed below:
++
++    buck1    : BUCK_1
++    buck2    : BUCK_2
++    buck3    : BUCK_3
++    buck4    : BUCK_4
++    ldo1     : LDO_1
++    ldo2     : LDO_2
++    ldo3     : LDO_3
++    ldo4     : LDO_4
++
++  The component follows the standard regulator framework and the bindings
++  details of individual regulator device can be found in:
++  Documentation/devicetree/bindings/regulator/regulator.txt
++
++
++- rtc : This node defines settings required for the Real-Time Clock associated
++  with the DA9062. There are currently no entries in this binding, however
++  compatible = "dlg,da9062-rtc" should be added if a node is created.
++
++
++- onkey : This node defines the OnKey settings for controlling the key
++  functionality of the device. The node should contain the compatible property
++  with the value "dlg,da9062-onkey".
++
++  Optional onkey properties:
++
++  - dlg,disable-key-power : Disable power-down using a long key-press. If this
++    entry exists the OnKey driver will remove support for the KEY_POWER key
++    press. If this entry does not exist then by default the key-press
++    triggered power down is enabled and the OnKey will support both KEY_POWER
++    and KEY_SLEEP.
++
++- watchdog: This node defines the settings for the watchdog driver associated
++  with the DA9062 PMIC. The compatible = "dlg,da9062-watchdog" should be added
++  if a node is created.
++
++
++Example:
++
++	pmic0: da9062@58 {
++		compatible = "dlg,da9062";
++		reg = <0x58>;
++		interrupt-parent = <&gpio6>;
++		interrupts = <11 IRQ_TYPE_LEVEL_LOW>;
++		interrupt-controller;
++
++		rtc {
++			compatible = "dlg,da9062-rtc";
++		};
++
++		onkey {
++			compatible = "dlg,da9062-onkey";
++			dlg,disable-key-power;
++		};
++
++		watchdog {
++			compatible = "dlg,da9062-watchdog";
++		};
++
++		regulators {
++			DA9062_BUCK1: buck1 {
++				regulator-name = "BUCK1";
++				regulator-min-microvolt = <300000>;
++				regulator-max-microvolt = <1570000>;
++				regulator-min-microamp = <500000>;
++				regulator-max-microamp = <2000000>;
++				regulator-boot-on;
++			};
++			DA9062_LDO1: ldo1 {
++				regulator-name = "LDO_1";
++				regulator-min-microvolt = <900000>;
++				regulator-max-microvolt = <3600000>;
++				regulator-boot-on;
++			};
++		};
++	};
++
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+end-of-patch for PATCH V1
 
 -- 
 -- 
