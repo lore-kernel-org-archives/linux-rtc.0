@@ -1,183 +1,240 @@
-Return-Path: <rtc-linux+bncBAABB3VO5GUQKGQEKKA5UBA@googlegroups.com>
-Received: from mail1.bemta5.messagelabs.com (mail1.bemta5.messagelabs.com. [195.245.231.139])
-        by gmr-mx.google.com with ESMTPS id bc3si148888wib.2.2015.04.24.07.47.09
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=RC4-SHA bits=128/128);
-        Fri, 24 Apr 2015 07:47:09 -0700 (PDT)
-From: "Opensource [Steve Twiss]" <stwiss.opensource@diasemi.com>
-To: Mark Brown <broonie@kernel.org>, "Opensource [Steve Twiss]"
-	<stwiss.opensource@diasemi.com>
-CC: LINUXKERNEL <linux-kernel@vger.kernel.org>, Liam Girdwood
-	<lgirdwood@gmail.com>, Alessandro Zummo <a.zummo@towertech.it>, DEVICETREE
-	<devicetree@vger.kernel.org>, David Dajun Chen <david.chen@diasemi.com>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>, Ian Campbell
-	<ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>,
-	LINUXINPUT <linux-input@vger.kernel.org>, LINUXWATCHDOG
-	<linux-watchdog@vger.kernel.org>, Lee Jones <lee.jones@linaro.org>, "Mark
- Rutland" <mark.rutland@arm.com>, Pawel Moll <pawel.moll@arm.com>, RTCLINUX
-	<rtc-linux@googlegroups.com>, Rob Herring <robh+dt@kernel.org>, Samuel Ortiz
-	<sameo@linux.intel.com>, Support Opensource <Support.Opensource@diasemi.com>,
-	Wim Van Sebroeck <wim@iguana.be>
-Subject: [rtc-linux] RE: [PATCH V1 2/6] regulator: da9062: DA9062 regulator driver
-Date: Fri, 24 Apr 2015 14:47:06 +0000
-Message-ID: <6ED8E3B22081A4459DAC7699F3695FB7014B2175E5@SW-EX-MBX02.diasemi.com>
-References: <cover.1429280614.git.stwiss.opensource@diasemi.com>
- <7acb2e683450a608adf81e6b820e62b523429101.1429280614.git.stwiss.opensource@diasemi.com>
- <20150418114828.GG26185@sirena.org.uk>
-In-Reply-To: <20150418114828.GG26185@sirena.org.uk>
-Content-Type: text/plain; charset=UTF-8
+Date: Fri, 17 Apr 2015 11:30:23 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: rtc-linux@googlegroups.com
+Cc: Wolfram Sang <w.sang@pengutronix.de>, Wim Van Sebroeck <wim@iguana.be>,
+	linux-watchdog@vger.kernel.org, Harald Geyer <harald@ccbib.org>
+Subject: Re: [rtc-linux] [PATCH] watchdog: stmp3xxx: Implement GETBOOTSTATUS
+Message-ID: <20150417093023.GF29796@piout.net>
+References: <1428522355-5164-1-git-send-email-harald@ccbib.org>
 MIME-Version: 1.0
-Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1428522355-5164-1-git-send-email-harald@ccbib.org>
 List-ID: <rtc-linux.googlegroups.com>
-List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
-List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
-List-Archive: <http://groups.google.com/group/rtc-linux
-Sender: rtc-linux@googlegroups.com
-List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
-List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
- <http://groups.google.com/group/rtc-linux/subscribe>
 
+Hi,
 
-On 18 April 2015 12:48 Mark Brown wrote:
-
-> On Fri, Apr 17, 2015 at 03:23:32PM +0100, S Twiss wrote:
+On 08/04/2015 at 19:45:55 +0000, Harald Geyer wrote :
+> When the watchdog is enabled, we set a persitent bit. After booting
+> we query the bit and see if the system was reset by the watchdog.
 > 
-> > +/* Regulator interrupt handlers */
-> > +static irqreturn_t da9062_ldo_lim_event(int irq, void *data)
-> > +{
-> > +	struct da9062_regulators *regulators = data;
-> > +	struct da9062 *hw = regulators->regulator[0].hw;
-> > +	struct da9062_regulator *regl;
-> > +	int bits, i, ret;
-> > +
-> > +	ret = regmap_read(hw->regmap, DA9062AA_STATUS_D, &bits);
-> > +	if (ret < 0)
-> > +		return IRQ_NONE;
+> This is somewhat similiar to what the legacy driver from freescale
+           similar ^
+
+> does. However we use STMP3XXX_RTC_PERSISTENT2 instead of
+> STMP3XXX_RTC_PERSISTENT1. I tried that first, but it seems I can't
+> clear the bit there once it is set. I didn't find any documentation
+> what this register does - only vague hints that it is meant to
+> control the boot ROM.
 > 
-> Please log an error for this, if we're having trouble talking to the
-> device that seems like a serious issue.
-
-Will do that with a dev_err()
-
--       if (ret < 0)
-+       if (ret < 0) {
-+               dev_err(hw->dev,
-+                       "Failed to read LDO overcurrent indicator\n");
-                return IRQ_NONE;
-+       }
-
+> Part of the code from the legacy driver touching this register
+> is still included. Maybe this is stale, but this patch doesn't
+> touch any of it because I don't know what it really does or is
+> meant to do.
 > 
-> > +	for (i = regulators->n_regulators - 1; i >= 0; i--) {
-> > +		regl = &regulators->regulator[i];
-> > +		if (regl->info->oc_event.reg != DA9062AA_STATUS_D)
-> > +			continue;
-> > +
-> > +		if (BIT(regl->info->oc_event.lsb) & bits)
-> > +			regulator_notifier_call_chain(regl->rdev,
-> > +
-> 	REGULATOR_EVENT_OVER_CURRENT, NULL);
-> > +	}
-> > +
-> > +	return IRQ_HANDLED;
+> Signed-off-by: Harald Geyer <harald@ccbib.org>
+
+The RTC part seems ok to me but the driver itself would benefit from a
+few improvements:
+ - use STMP_OFFSET_REG_(SET|CLR) instead of defining _SET and _CLR for
+   STMP3XXX_RTC_CTRL and STMP3XXX_RTC_PERSISTENT0
+ - use syscon instead of passing callbacks to the watchdog driver
+
+It would be greatly appreciated if you could do those changes too.
+
+
+> ---
+>  drivers/rtc/rtc-stmp3xxx.c          |   23 +++++++++++++++++++++++
+>  drivers/watchdog/stmp3xxx_rtc_wdt.c |   34 +++++++++++++++++++++++++++++++++-
+>  include/linux/stmp3xxx_rtc_wdt.h    |    2 ++
+>  3 files changed, 58 insertions(+), 1 deletion(-)
 > 
-> This will return IRQ_HANDLED even if none of the regulators were
-> flagginng an event.
+> diff --git a/drivers/rtc/rtc-stmp3xxx.c b/drivers/rtc/rtc-stmp3xxx.c
+> index 2939cdc..55ab9ba 100644
+> --- a/drivers/rtc/rtc-stmp3xxx.c
+> +++ b/drivers/rtc/rtc-stmp3xxx.c
+> @@ -30,6 +30,7 @@
+>  #include <linux/of.h>
+>  #include <linux/stmp_device.h>
+>  #include <linux/stmp3xxx_rtc_wdt.h>
+> +#include <linux/watchdog.h>
+>  
+>  #define STMP3XXX_RTC_CTRL			0x0
+>  #define STMP3XXX_RTC_CTRL_SET			0x4
+> @@ -60,6 +61,9 @@
+>  /* missing bitmask in headers */
+>  #define STMP3XXX_RTC_PERSISTENT1_FORCE_UPDATER	0x80000000
+>  
+> +#define STMP3XXX_RTC_PERSISTENT2		0x80
+> +#define STMP3XXX_RTC_PERSISTENT2_WDT_ACTIVE	0x00000001
+> +
+>  struct stmp3xxx_rtc_data {
+>  	struct rtc_device *rtc;
+>  	void __iomem *io;
+> @@ -81,6 +85,14 @@ struct stmp3xxx_rtc_data {
+>   * registers is atomic.
+>   */
+>  
+> +static void stmp3xxx_wdt_clear_bootstatus(struct device *dev)
+> +{
+> +	struct stmp3xxx_rtc_data *rtc_data = dev_get_drvdata(dev);
+> +
+> +	writel(STMP3XXX_RTC_PERSISTENT2_WDT_ACTIVE,
+> +	       STMP3XXX_RTC_PERSISTENT2 + STMP_OFFSET_REG_CLR + rtc_data->io);
+> +}
+> +
+>  static void stmp3xxx_wdt_set_timeout(struct device *dev, u32 timeout)
+>  {
+>  	struct stmp3xxx_rtc_data *rtc_data = dev_get_drvdata(dev);
+> @@ -91,16 +103,22 @@ static void stmp3xxx_wdt_set_timeout(struct device *dev, u32 timeout)
+>  		       rtc_data->io + STMP3XXX_RTC_CTRL + STMP_OFFSET_REG_SET);
+>  		writel(STMP3XXX_RTC_PERSISTENT1_FORCE_UPDATER,
+>  		       rtc_data->io + STMP3XXX_RTC_PERSISTENT1 + STMP_OFFSET_REG_SET);
+> +		writel(STMP3XXX_RTC_PERSISTENT2_WDT_ACTIVE,
+> +		       rtc_data->io + STMP3XXX_RTC_PERSISTENT2 + STMP_OFFSET_REG_SET);
+>  	} else {
+>  		writel(STMP3XXX_RTC_CTRL_WATCHDOGEN,
+>  		       rtc_data->io + STMP3XXX_RTC_CTRL + STMP_OFFSET_REG_CLR);
+>  		writel(STMP3XXX_RTC_PERSISTENT1_FORCE_UPDATER,
+>  		       rtc_data->io + STMP3XXX_RTC_PERSISTENT1 + STMP_OFFSET_REG_CLR);
+> +		writel(STMP3XXX_RTC_PERSISTENT2_WDT_ACTIVE,
+> +		       rtc_data->io + STMP3XXX_RTC_PERSISTENT2 + STMP_OFFSET_REG_CLR);
+>  	}
+>  }
+>  
+>  static struct stmp3xxx_wdt_pdata wdt_pdata = {
+>  	.wdt_set_timeout = stmp3xxx_wdt_set_timeout,
+> +	.wdt_clear_bootstatus = stmp3xxx_wdt_clear_bootstatus,
+> +	.bootstatus = 0,
+>  };
+>  
+>  static void stmp3xxx_wdt_register(struct platform_device *rtc_pdev)
+> @@ -108,6 +126,8 @@ static void stmp3xxx_wdt_register(struct platform_device *rtc_pdev)
+>  	struct platform_device *wdt_pdev =
+>  		platform_device_alloc("stmp3xxx_rtc_wdt", rtc_pdev->id);
+>  
+> +	stmp3xxx_wdt_clear_bootstatus(&rtc_pdev->dev);
+> +
+>  	if (wdt_pdev) {
+>  		wdt_pdev->dev.parent = &rtc_pdev->dev;
+>  		wdt_pdev->dev.platform_data = &wdt_pdata;
+> @@ -304,6 +324,9 @@ static int stmp3xxx_rtc_probe(struct platform_device *pdev)
+>  		return err;
+>  	}
+>  
+> +	if (readl(STMP3XXX_RTC_PERSISTENT2 + rtc_data->io) &
+> +			 STMP3XXX_RTC_PERSISTENT2_WDT_ACTIVE)
+> +		wdt_pdata.bootstatus |= WDIOF_CARDRESET;
+>  	stmp3xxx_wdt_register(pdev);
+>  	return 0;
+>  }
+> diff --git a/drivers/watchdog/stmp3xxx_rtc_wdt.c b/drivers/watchdog/stmp3xxx_rtc_wdt.c
+> index a62b1b6..5b3f12a8 100644
+> --- a/drivers/watchdog/stmp3xxx_rtc_wdt.c
+> +++ b/drivers/watchdog/stmp3xxx_rtc_wdt.c
+> @@ -14,6 +14,8 @@
+>  #include <linux/watchdog.h>
+>  #include <linux/platform_device.h>
+>  #include <linux/stmp3xxx_rtc_wdt.h>
+> +#include <linux/notifier.h>
+> +#include <linux/reboot.h>
+>  
+>  #define WDOG_TICK_RATE 1000 /* 1 kHz clock */
+>  #define STMP3XXX_DEFAULT_TIMEOUT 19
+> @@ -50,7 +52,8 @@ static int wdt_set_timeout(struct watchdog_device *wdd, unsigned new_timeout)
+>  }
+>  
+>  static const struct watchdog_info stmp3xxx_wdt_ident = {
+> -	.options = WDIOF_MAGICCLOSE | WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING,
+> +	.options = WDIOF_MAGICCLOSE | WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING |
+> +		WDIOF_CARDRESET,
+>  	.identity = "STMP3XXX RTC Watchdog",
+>  };
+>  
+> @@ -69,13 +72,38 @@ static struct watchdog_device stmp3xxx_wdd = {
+>  	.status = WATCHDOG_NOWAYOUT_INIT_STATUS,
+>  };
+>  
+> +static int wdt_notify_sys(struct notifier_block *nb, unsigned long code,
+> +			  void *unused)
+> +{
+> +	struct device *dev = watchdog_get_drvdata(&stmp3xxx_wdd);
+> +	struct stmp3xxx_wdt_pdata *pdata = dev_get_platdata(dev);
+> +
+> +	switch (code) {
+> +	case SYS_DOWN:	/* keep enabled, system might crash while going down */
+> +		pdata->wdt_clear_bootstatus(dev->parent);
+> +		break;
+> +	case SYS_HALT:  /* allow the system to actually halt */
+> +	case SYS_POWER_OFF:
+> +		wdt_stop(&stmp3xxx_wdd);
+> +		break;
+> +	}
+> +
+> +	return NOTIFY_DONE;
+> +}
+> +
+> +static struct notifier_block wdt_notifier = {
+> +	.notifier_call  = wdt_notify_sys,
+> +};
+> +
+>  static int stmp3xxx_wdt_probe(struct platform_device *pdev)
+>  {
+> +	struct stmp3xxx_wdt_pdata *pdata = dev_get_platdata(&pdev->dev);
+>  	int ret;
+>  
+>  	watchdog_set_drvdata(&stmp3xxx_wdd, &pdev->dev);
+>  
+>  	stmp3xxx_wdd.timeout = clamp_t(unsigned, heartbeat, 1, STMP3XXX_MAX_TIMEOUT);
+> +	stmp3xxx_wdd.bootstatus = pdata->bootstatus;
+>  
+>  	ret = watchdog_register_device(&stmp3xxx_wdd);
+>  	if (ret < 0) {
+> @@ -83,6 +111,9 @@ static int stmp3xxx_wdt_probe(struct platform_device *pdev)
+>  		return ret;
+>  	}
+>  
+> +	if (register_reboot_notifier(&wdt_notifier))
+> +		dev_warn(&pdev->dev, "cannot register reboot notifier\n");
+> +
+>  	dev_info(&pdev->dev, "initialized watchdog with heartbeat %ds\n",
+>  			stmp3xxx_wdd.timeout);
+>  	return 0;
+> @@ -90,6 +121,7 @@ static int stmp3xxx_wdt_probe(struct platform_device *pdev)
+>  
+>  static int stmp3xxx_wdt_remove(struct platform_device *pdev)
+>  {
+> +	unregister_reboot_notifier(&wdt_notifier);
+>  	watchdog_unregister_device(&stmp3xxx_wdd);
+>  	return 0;
+>  }
+> diff --git a/include/linux/stmp3xxx_rtc_wdt.h b/include/linux/stmp3xxx_rtc_wdt.h
+> index 1dd12c9..62dd9e6 100644
+> --- a/include/linux/stmp3xxx_rtc_wdt.h
+> +++ b/include/linux/stmp3xxx_rtc_wdt.h
+> @@ -10,6 +10,8 @@
+>  
+>  struct stmp3xxx_wdt_pdata {
+>  	void (*wdt_set_timeout)(struct device *dev, u32 timeout);
+> +	void (*wdt_clear_bootstatus)(struct device *dev);
+> +	unsigned int bootstatus;
+>  };
+>  
+>  #endif /* __LINUX_STMP3XXX_RTC_WDT_H */
+> -- 
+> 1.7.10.4
 > 
-
-Thanks,
-I will refactor that part with a default error path and only return IRQ_HANDLED
-when there is a hit on the notifier call.
-
-> > +static irqreturn_t da9062_vdd_warn_event(int irq, void *data)
-> > +{
-> > +	return IRQ_HANDLED;
-> > +}
-> 
-> Ignoring an interrupt is not usefully handling it - at the *least* this
-> should be generating a log message.
-> 
-
-Not much use -- yes.
-
-I've taken another look at this and I've decided to move it into the core.
-The VDD_WARN applies to the system voltage and is not specific to regulators.
-So it would make more sense for this to exist in the core driver instead -- this
-would need to exist at all times and if it stays in the regulators it could be
-moduled out of existence.
-
-This will mean messing with a few files to fix this one.
-
-drivers/mfd/da9062-core.c
-regulator/da9062-regulator.c
-include/linux/mfd/da9062/core.h
-
-I'll resend this as PATCH V2.
-
-> > +static struct da9062_regulators_pdata *da9062_parse_regulators_dt(
-> > +		struct platform_device *pdev,
-> > +		struct of_regulator_match **reg_matches)
-> > +{
-> > +	struct da9062_regulators_pdata *pdata;
-> > +	struct da9062_regulator_data *rdata;
-> > +	struct device_node *node;
-> > +	int i, n, num;
-> > +
-> > +	node = of_get_child_by_name(pdev->dev.parent->of_node,
-> "regulators");
-> > +	if (!node) {
-> > +		dev_err(&pdev->dev, "Regulators device node not
-> found\n");
-> > +		return ERR_PTR(-ENODEV);
-> > +	}
-> > +
-> > +	num = of_regulator_match(&pdev->dev, node, da9062_matches,
-> > +				 ARRAY_SIZE(da9062_matches));
-> 
-> Don't open code this, describe the DT names in the regualtor_desc and
-> let the core register.
-> 
-
-Okay. I think I am getting this.
-As of v3.18 there are  newer parts to regulator_desc from the commit 
-a0c7b16 "regulator: of: Provide simplified DT parsing method"
-The search function is now in the core. 
-
-Am I on on the right track with this one?
-
-> > +	if (IS_ERR(pdata) || pdata->n_regulators == 0) {
-> > +		dev_err(&pdev->dev,
-> > +			"No regulators defined for the platform\n");
-> > +		return PTR_ERR(pdata);
-> > +	}
-> > +
-> > +	n_regulators = ARRAY_SIZE(local_regulator_info),
-> 
-> This is broken, the set of regulators in the silicon is not a property
-> of the platform.  The driver should just register all the regualtors
-> that are present in the silicon.  I'm fairly sure I've been through this
-> before...
-> 
-> > +	ret = request_threaded_irq(irq,
-> > +				   NULL, da9062_vdd_warn_event,
-> > +				   IRQF_TRIGGER_LOW | IRQF_ONESHOT,
-> > +				   "VDD_WARN", regulators);
-> 
-> devm_request_threaded_irq().
-
-yes -- this will come as part of the refactoring for the irq handler
-static irqreturn_t da9062_vdd_warn_event(int irq, void *data)
-into the core.
-
-Regards,
-Steve
+> -- 
+> -- 
+> You received this message because you are subscribed to "rtc-linux".
+> Membership options at http://groups.google.com/group/rtc-linux .
+> Please read http://groups.google.com/group/rtc-linux/web/checklist
+> before submitting a driver.
+> --- 
+> You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+> To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+> For more options, visit https://groups.google.com/d/optout.
 
 -- 
--- 
-You received this message because you are subscribed to "rtc-linux".
-Membership options at http://groups.google.com/group/rtc-linux .
-Please read http://groups.google.com/group/rtc-linux/web/checklist
-before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
-For more options, visit https://groups.google.com/d/optout.
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
