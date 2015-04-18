@@ -1,19 +1,31 @@
-Return-Path: <rtc-linux+bncBAABBDGN2KUQKGQER7NHZDY@googlegroups.com>
-Received: from mail.cosmopool.net (mail.cosmopool.net. [2a01:4f8:160:20c1::10:107])
-        by gmr-mx.google.com with ESMTP id k2si790902wif.0.2015.04.20.00.11.04
-        for <rtc-linux@googlegroups.com>;
-        Mon, 20 Apr 2015 00:11:04 -0700 (PDT)
-MIME-Version: 1.0
+Return-Path: <rtc-linux+bncBDJLF25T6MIBB4FKZCUQKGQEAC4EO3I@googlegroups.com>
+Received: from lb1-smtp-cloud2.xs4all.net (lb1-smtp-cloud2.xs4all.net. [194.109.24.21])
+        by gmr-mx.google.com with ESMTPS id bc3si271324wib.2.2015.04.18.01.27.28
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1 cipher=RC4-SHA bits=128/128);
+        Sat, 18 Apr 2015 01:27:28 -0700 (PDT)
+Message-ID: <1429345645.16771.139.camel@x220>
+Subject: [rtc-linux] Re: [PATCH V1 1/6] mfd: da9062: DA9062 MFD core driver
+From: Paul Bolle <pebolle@tiscali.nl>
+To: S Twiss <stwiss.opensource@diasemi.com>
+Cc: LINUXKERNEL <linux-kernel@vger.kernel.org>, Lee Jones
+ <lee.jones@linaro.org>,  Samuel Ortiz <sameo@linux.intel.com>, Alessandro
+ Zummo <a.zummo@towertech.it>, DEVICETREE <devicetree@vger.kernel.org>,
+ David Dajun Chen <david.chen@diasemi.com>,  Dmitry Torokhov
+ <dmitry.torokhov@gmail.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>,
+ Kumar Gala <galak@codeaurora.org>, LINUXINPUT
+ <linux-input@vger.kernel.org>, LINUXWATCHDOG
+ <linux-watchdog@vger.kernel.org>, Liam Girdwood <lgirdwood@gmail.com>, Mark
+ Brown <broonie@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Pawel Moll
+ <pawel.moll@arm.com>,  RTCLINUX <rtc-linux@googlegroups.com>, Rob Herring
+ <robh+dt@kernel.org>, Support Opensource <support.opensource@diasemi.com>,
+ Wim Van Sebroeck <wim@iguana.be>
+Date: Sat, 18 Apr 2015 10:27:25 +0200
+In-Reply-To: <b3bb4bc09cd94b0b13c713d98dd64576722123c1.1429280614.git.stwiss.opensource@diasemi.com>
+References: <cover.1429280614.git.stwiss.opensource@diasemi.com>
+	 <b3bb4bc09cd94b0b13c713d98dd64576722123c1.1429280614.git.stwiss.opensource@diasemi.com>
 Content-Type: text/plain; charset=UTF-8
-Date: Mon, 20 Apr 2015 09:11:02 +0200
-From: <harald@ccbib.org>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: <rtc-linux@googlegroups.com>, Wolfram Sang <wsa@the-dreams.de>,
- Wim Van Sebroeck <wim@iguana.be>, <linux-watchdog@vger.kernel.org>
-Subject: Re: [rtc-linux] [PATCH] watchdog: stmp3xxx: Implement GETBOOTSTATUS
-In-Reply-To: <20150419153743.GA4353@piout.net>
-References: <1428522355-5164-1-git-send-email-harald@ccbib.org> <20150417093023.GF29796@piout.net> <3a787a0b2777c4b734a4f153e1a3f7d7@imap.cosmopool.net> <20150419153743.GA4353@piout.net>
-Message-ID: <480bd3b38b87b44913868cbd2f3e24c6@imap.cosmopool.net>
+Mime-Version: 1.0
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -24,35 +36,74 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Hi Alexandre,
+On Fri, 2015-04-17 at 15:23 +0100, S Twiss wrote:
+> --- a/drivers/mfd/Kconfig
+> +++ b/drivers/mfd/Kconfig
 
-On Sun, 19 Apr 2015 17:37:43 +0200, Alexandre Belloni
-<alexandre.belloni@free-electrons.com> wrote:
-> On 19/04/2015 at 15:41:42 +0200, harald@ccbib.org wrote :
->> >  - use syscon instead of passing callbacks to the watchdog driver
->> 
->> I will put looking into this onto my todo list, but I'm not familiar
->> with syscon yet and it is not obvious to me how to port the rtc driver
->> to syscon without breaking devicetree backwards compatibility. So I'd
->> like to defer this for later unless somebody gives me some guidance.
->> 
-> 
-> As the rtc driver is the one instantiating the watchdog driver, there is
-> no reason why the DT ABI would be broken. You simply have to create
-> the syscon in the RTC driver and then pass it to the watchdog driver,
-> the same way it is done with the callbacks.
+> +config MFD_DA9062
+> +	bool "Dialog Semiconductor DA9062 PMIC Support"
+> +	select MFD_CORE
+> +	select REGMAP_I2C
+> +	select REGMAP_IRQ
+> +	depends on I2C=y
+> +	help
+> +	  Say yes here for support for the Dialog Semiconductor DA9062 PMIC.
+> +	  This includes the I2C driver and core APIs.
+> +	  Additional drivers must be enabled in order to use the functionality
+> +	  of the device.
 
-Ok, this is less invasive than what I have been thinking. This makes
-sense. 
- 
-> I can have a look at doing it as I have some i.mx28 platforms.
+> --- a/drivers/mfd/Makefile
+> +++ b/drivers/mfd/Makefile
 
-If you can point me to a driver that is a good reference for your model,
-then I can do this myself. Otherwise I'd prefer if you wrote the code.
-I can do the testing though, if this helps.
+> +obj-$(CONFIG_MFD_DA9062)	+= da9062-core.o
+
+MFD_DA9062 is a bool symbol. So da9062-core.o can never be part of a
+module, right?
+
+> --- /dev/null
+> +++ b/drivers/mfd/da9062-core.c
+
+> +#include <linux/module.h>
+
+So you might not need this include.
+
+> +MODULE_DEVICE_TABLE(of, da9062_dt_ids);
+
+This macro will be preprocessed away for built-in code, according to
+include/linux/module.h.
+
+> +MODULE_DEVICE_TABLE(i2c, da9062_i2c_id);
+
+Ditto.
+
+> +static struct i2c_driver da9062_i2c_driver = {
+> +	.driver = {
+> +		.name = "da9062",
+> +		.of_match_table = of_match_ptr(da9062_dt_ids),
+> +	},
+> +	.probe    = da9062_i2c_probe,
+> +	.remove   = da9062_i2c_remove,
+> +	.id_table = da9062_i2c_id,
+> +};
+> +
+> +module_i2c_driver(da9062_i2c_driver);
+
+After looking at a few levels of #defines I think this is equivalent to
+     i2c_register_driver(NULL, da9062_i2c_driver);
+
+for built-in code. Did I grep that right?
+
+> +MODULE_DESCRIPTION("CORE device driver for Dialog DA9062");
+> +MODULE_AUTHOR("S Twiss <stwiss.opensource@diasemi.com>");
+> +MODULE_LICENSE("GPL v2");
+
+These macros will be effectively preprocessed away for built-in only
+code.
 
 Thanks,
-Harald
+
+
+Paul Bolle
 
 -- 
 -- 
