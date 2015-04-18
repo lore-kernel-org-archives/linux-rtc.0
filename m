@@ -1,64 +1,412 @@
-Date: Wed, 1 Apr 2015 17:52:04 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: rtc-linux@googlegroups.com
-Cc: a.zummo@towertech.it, t-kristo@ti.com, nsekhar@ti.com,
-	linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org,
-	lokeshvutla@ti.com
-Subject: Re: [rtc-linux] [PATCH 1/3] rtc: omap: Unlock and Lock rtc registers
- before and after register writes
-Message-ID: <20150401155204.GC20669@piout.net>
-References: <1427867698-1326-1-git-send-email-lokeshvutla@ti.com>
- <1427867698-1326-2-git-send-email-lokeshvutla@ti.com>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBD6IY2UQKGQE67L7IYQ@googlegroups.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1427867698-1326-2-git-send-email-lokeshvutla@ti.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id sf8si202605wic.2.2015.04.17.17.23.43
+        for <rtc-linux@googlegroups.com>;
+        Fri, 17 Apr 2015 17:23:43 -0700 (PDT)
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Andrew Morton <akpm@linux-foundation.org>,
+	Philippe De Muyter <phdm@macqel.be>
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+	rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Arnd Bergmann <arnd@arndb.de>
+Subject: [rtc-linux] [PATCH v3] rtc: add rtc-abx80x, a driver for the Abracon
+ AB x80x i2c rtc
+Date: Sat, 18 Apr 2015 02:23:32 +0200
+Message-Id: <1429316612-25035-1-git-send-email-alexandre.belloni@free-electrons.com>
+Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
+List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
+List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
+List-Archive: <http://groups.google.com/group/rtc-linux
+Sender: rtc-linux@googlegroups.com
+List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
+List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
+ <http://groups.google.com/group/rtc-linux/subscribe>
 
-Hi,
+From: Philippe De Muyter <phdm@macqel.be>
 
-On 01/04/2015 at 11:24:56 +0530, Lokesh Vutla wrote :
-> RTC module contains a kicker mechanism to prevent any spurious writes
-> from changing the register values. This mechanism requires two MMR
-> writes to the KICK0 and KICK1 registers with exact data values
-> before the kicker lock mechanism is released.
-> 
-> Currently the driver release the lock in the probe and leaves it enabled
-> until the rtc driver removal. This eliminates the idea of preventing
-> spurious writes when RTC driver is loaded.
-> So implement rtc lock and unlock functions before and after register writes.
-> 
-> Signed-off-by: Lokesh Vutla <lokeshvutla@ti.com>
-> ---
-> - This is as advised by Paul to implement lock and unlock functions in
->   the driver and not to unlock and leave it in probe.
->   The same discussion can be seen here:
->   http://www.mail-archive.com/linux-omap%40vger.kernel.org/msg111588.html
-> 
->  drivers/rtc/rtc-omap.c | 46 ++++++++++++++++++++++++++++++++++++++--------
->  1 file changed, 38 insertions(+), 8 deletions(-)
-> 
-> diff --git a/drivers/rtc/rtc-omap.c b/drivers/rtc/rtc-omap.c
-> index 8e5851a..96cc613 100644
-> --- a/drivers/rtc/rtc-omap.c
-> +++ b/drivers/rtc/rtc-omap.c
-> @@ -156,6 +156,22 @@ static inline void rtc_writel(struct omap_rtc *rtc, unsigned int reg, u32 val)
->  	writel(val, rtc->base + reg);
->  }
->  
-> +static void rtc_unlock(struct omap_rtc *rtc)
-> +{
-> +	if (rtc->type->has_kicker) {
+This is a basic driver for the ultra-low-power Abracon AB x80x series of RTC
+chips. It supports in particular, the supersets AB0805 and AB1805.
+It allows reading and writing the time, and enables the supercapacitor/
+battery charger.
 
-Instead of testing for has_kicker each time, I would add .lock and
-.unlock to omap_rtc_device_type and directly use rtc->type->lock and
-rtc->type->unlock.
+[arnd@arndb.de: abx805 depends on i2c]
+Signed-off-by: Philippe De Muyter <phdm@macqel.be>
+Cc: Alessandro Zummo <a.zummo@towertech.it>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
+Changes in v3:
+ - renamed buffer from date to buf in abx80x_rtc_read_time()
 
-> +		rtc_writel(rtc, OMAP_RTC_KICK0_REG, KICK0_VALUE);
-> +		rtc_writel(rtc, OMAP_RTC_KICK1_REG, KICK1_VALUE);
-> +	}
-> +}
-> +
+
+ drivers/rtc/Kconfig      |  10 ++
+ drivers/rtc/Makefile     |   1 +
+ drivers/rtc/rtc-abx80x.c | 307 +++++++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 318 insertions(+)
+ create mode 100644 drivers/rtc/rtc-abx80x.c
+
+diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
+index b5b5c3d485d6..89507c1858ec 100644
+--- a/drivers/rtc/Kconfig
++++ b/drivers/rtc/Kconfig
+@@ -164,6 +164,16 @@ config RTC_DRV_ABB5ZES3
+ 	  This driver can also be built as a module. If so, the module
+ 	  will be called rtc-ab-b5ze-s3.
+ 
++config RTC_DRV_ABX80X
++	tristate "Abracon ABx80x"
++	help
++	  If you say yes here you get support for Abracon AB080X and AB180X
++	  families of ultra-low-power  battery- and capacitor-backed real-time
++	  clock chips.
++
++	  This driver can also be built as a module. If so, the module
++	  will be called rtc-abx80x.
++
+ config RTC_DRV_AS3722
+ 	tristate "ams AS3722 RTC driver"
+ 	depends on MFD_AS3722
+diff --git a/drivers/rtc/Makefile b/drivers/rtc/Makefile
+index 69c87062b098..7b20b0462cb6 100644
+--- a/drivers/rtc/Makefile
++++ b/drivers/rtc/Makefile
+@@ -25,6 +25,7 @@ obj-$(CONFIG_RTC_DRV_88PM80X)	+= rtc-88pm80x.o
+ obj-$(CONFIG_RTC_DRV_AB3100)	+= rtc-ab3100.o
+ obj-$(CONFIG_RTC_DRV_AB8500)	+= rtc-ab8500.o
+ obj-$(CONFIG_RTC_DRV_ABB5ZES3)	+= rtc-ab-b5ze-s3.o
++obj-$(CONFIG_RTC_DRV_ABX80X)	+= rtc-abx80x.o
+ obj-$(CONFIG_RTC_DRV_ARMADA38X)	+= rtc-armada38x.o
+ obj-$(CONFIG_RTC_DRV_AS3722)	+= rtc-as3722.o
+ obj-$(CONFIG_RTC_DRV_AT32AP700X)+= rtc-at32ap700x.o
+diff --git a/drivers/rtc/rtc-abx80x.c b/drivers/rtc/rtc-abx80x.c
+new file mode 100644
+index 000000000000..4337c3bc6ace
+--- /dev/null
++++ b/drivers/rtc/rtc-abx80x.c
+@@ -0,0 +1,307 @@
++/*
++ * A driver for the I2C members of the Abracon AB x8xx RTC family,
++ * and compatible: AB 1805 and AB 0805
++ *
++ * Copyright 2014-2015 Macq S.A.
++ *
++ * Author: Philippe De Muyter <phdm@macqel.be>
++ * Author: Alexandre Belloni <alexandre.belloni@free-electrons.com>
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ *
++ */
++
++#include <linux/bcd.h>
++#include <linux/i2c.h>
++#include <linux/module.h>
++#include <linux/rtc.h>
++
++#define ABX8XX_REG_HTH		0x00
++#define ABX8XX_REG_SC		0x01
++#define ABX8XX_REG_MN		0x02
++#define ABX8XX_REG_HR		0x03
++#define ABX8XX_REG_DA		0x04
++#define ABX8XX_REG_MO		0x05
++#define ABX8XX_REG_YR		0x06
++#define ABX8XX_REG_WD		0x07
++
++#define ABX8XX_REG_CTRL1	0x10
++#define ABX8XX_CTRL_WRITE	BIT(1)
++#define ABX8XX_CTRL_12_24	BIT(6)
++
++#define ABX8XX_REG_CFG_KEY	0x1f
++#define ABX8XX_CFG_KEY_MISC	0x9d
++
++#define ABX8XX_REG_ID0		0x28
++
++#define ABX8XX_REG_TRICKLE	0x20
++#define ABX8XX_TRICKLE_CHARGE_ENABLE	0xa0
++#define ABX8XX_TRICKLE_STANDARD_DIODE	0x8
++#define ABX8XX_TRICKLE_SCHOTTKY_DIODE	0x4
++
++static u8 trickle_resistors[] = {0, 3, 6, 11};
++
++enum abx80x_chip {AB0801, AB0803, AB0804, AB0805,
++	AB1801, AB1803, AB1804, AB1805, ABX80X};
++
++struct abx80x_cap {
++	u16 pn;
++	bool has_tc;
++};
++
++static struct abx80x_cap abx80x_caps[] = {
++	[AB0801] = {.pn = 0x0801},
++	[AB0803] = {.pn = 0x0803},
++	[AB0804] = {.pn = 0x0804, .has_tc = true},
++	[AB0805] = {.pn = 0x0805, .has_tc = true},
++	[AB1801] = {.pn = 0x1801},
++	[AB1803] = {.pn = 0x1803},
++	[AB1804] = {.pn = 0x1804, .has_tc = true},
++	[AB1805] = {.pn = 0x1805, .has_tc = true},
++	[ABX80X] = {.pn = 0}
++};
++
++static struct i2c_driver abx80x_driver;
++
++static int abx80x_enable_trickle_charger(struct i2c_client *client,
++					 u8 trickle_cfg)
++{
++	int err;
++
++	/*
++	 * Write the configuration key register to enable access to the Trickle
++	 * register
++	 */
++	err = i2c_smbus_write_byte_data(client, ABX8XX_REG_CFG_KEY,
++					ABX8XX_CFG_KEY_MISC);
++	if (err < 0) {
++		dev_err(&client->dev, "Unable to write configuration key\n");
++		return -EIO;
++	}
++
++	err = i2c_smbus_write_byte_data(client, ABX8XX_REG_TRICKLE,
++					ABX8XX_TRICKLE_CHARGE_ENABLE |
++					trickle_cfg);
++	if (err < 0) {
++		dev_err(&client->dev, "Unable to write trickle register\n");
++		return -EIO;
++	}
++
++	return 0;
++}
++
++static int abx80x_rtc_read_time(struct device *dev, struct rtc_time *tm)
++{
++	struct i2c_client *client = to_i2c_client(dev);
++	unsigned char buf[8];
++	int err;
++
++	err = i2c_smbus_read_i2c_block_data(client, ABX8XX_REG_HTH,
++					    sizeof(buf), buf);
++	if (err < 0) {
++		dev_err(&client->dev, "Unable to read date\n");
++		return -EIO;
++	}
++
++	tm->tm_sec = bcd2bin(buf[ABX8XX_REG_SC] & 0x7F);
++	tm->tm_min = bcd2bin(buf[ABX8XX_REG_MN] & 0x7F);
++	tm->tm_hour = bcd2bin(buf[ABX8XX_REG_HR] & 0x3F);
++	tm->tm_wday = buf[ABX8XX_REG_WD] & 0x7;
++	tm->tm_mday = bcd2bin(buf[ABX8XX_REG_DA] & 0x3F);
++	tm->tm_mon = bcd2bin(buf[ABX8XX_REG_MO] & 0x1F) - 1;
++	tm->tm_year = bcd2bin(buf[ABX8XX_REG_YR]) + 100;
++
++	err = rtc_valid_tm(tm);
++	if (err < 0)
++		dev_err(&client->dev, "retrieved date/time is not valid.\n");
++
++	return err;
++}
++
++static int abx80x_rtc_set_time(struct device *dev, struct rtc_time *tm)
++{
++	struct i2c_client *client = to_i2c_client(dev);
++	unsigned char buf[8];
++	int err;
++
++	if (tm->tm_year < 100)
++		return -EINVAL;
++
++	buf[ABX8XX_REG_HTH] = 0;
++	buf[ABX8XX_REG_SC] = bin2bcd(tm->tm_sec);
++	buf[ABX8XX_REG_MN] = bin2bcd(tm->tm_min);
++	buf[ABX8XX_REG_HR] = bin2bcd(tm->tm_hour);
++	buf[ABX8XX_REG_DA] = bin2bcd(tm->tm_mday);
++	buf[ABX8XX_REG_MO] = bin2bcd(tm->tm_mon + 1);
++	buf[ABX8XX_REG_YR] = bin2bcd(tm->tm_year - 100);
++	buf[ABX8XX_REG_WD] = tm->tm_wday;
++
++	err = i2c_smbus_write_i2c_block_data(client, ABX8XX_REG_HTH,
++					     sizeof(buf), buf);
++	if (err < 0) {
++		dev_err(&client->dev, "Unable to write to date registers\n");
++		return -EIO;
++	}
++
++	return 0;
++}
++
++static const struct rtc_class_ops abx80x_rtc_ops = {
++	.read_time	= abx80x_rtc_read_time,
++	.set_time	= abx80x_rtc_set_time,
++};
++
++static int abx80x_dt_trickle_cfg(struct device_node *np)
++{
++	const char *diode;
++	int trickle_cfg = 0;
++	int i, ret;
++	u32 tmp;
++
++	ret = of_property_read_string(np, "abracon,tc-diode", &diode);
++	if (ret)
++		return ret;
++
++	if (!strcmp(diode, "standard"))
++		trickle_cfg |= ABX8XX_TRICKLE_STANDARD_DIODE;
++	else if (!strcmp(diode, "schottky"))
++		trickle_cfg |= ABX8XX_TRICKLE_SCHOTTKY_DIODE;
++	else
++		return -EINVAL;
++
++	ret = of_property_read_u32(np, "abracon,tc-resistor", &tmp);
++	if (ret)
++		return ret;
++
++	for (i = 0; i < sizeof(trickle_resistors); i++)
++		if (trickle_resistors[i] == tmp)
++			break;
++
++	if (i == sizeof(trickle_resistors))
++		return -EINVAL;
++
++	return (trickle_cfg | i);
++}
++
++static int abx80x_probe(struct i2c_client *client,
++			const struct i2c_device_id *id)
++{
++	struct device_node *np = client->dev.of_node;
++	struct rtc_device *rtc;
++	int i, data, err, trickle_cfg = -EINVAL;
++	char buf[7];
++	unsigned int part = id->driver_data;
++	unsigned int partnumber;
++	unsigned int majrev, minrev;
++	unsigned int lot;
++	unsigned int wafer;
++	unsigned int uid;
++
++	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C))
++		return -ENODEV;
++
++	err = i2c_smbus_read_i2c_block_data(client, ABX8XX_REG_ID0,
++					    sizeof(buf), buf);
++	if (err < 0) {
++		dev_err(&client->dev, "Unable to read partnumber\n");
++		return -EIO;
++	}
++
++	partnumber = (buf[0] << 8) | buf[1];
++	majrev = buf[2] >> 3;
++	minrev = buf[2] & 0x7;
++	lot = ((buf[4] & 0x80) << 2) | ((buf[6] & 0x80) << 1) | buf[3];
++	uid = ((buf[4] & 0x7f) << 8) | buf[5];
++	wafer = (buf[6] & 0x7c) >> 2;
++	dev_info(&client->dev, "model %04x, revision %u.%u, lot %x, wafer %x, uid %x\n",
++		 partnumber, majrev, minrev, lot, wafer, uid);
++
++	data = i2c_smbus_read_byte_data(client, ABX8XX_REG_CTRL1);
++	if (data < 0) {
++		dev_err(&client->dev, "Unable to read control register\n");
++		return -EIO;
++	}
++
++	err = i2c_smbus_write_byte_data(client, ABX8XX_REG_CTRL1,
++					((data & ~ABX8XX_CTRL_12_24) |
++					 ABX8XX_CTRL_WRITE));
++	if (err < 0) {
++		dev_err(&client->dev, "Unable to write control register\n");
++		return -EIO;
++	}
++
++	/* part autodetection */
++	if (part == ABX80X) {
++		for (i = 0; abx80x_caps[i].pn; i++)
++			if (partnumber == abx80x_caps[i].pn)
++				break;
++		if (abx80x_caps[i].pn == 0) {
++			dev_err(&client->dev, "Unknown part: %04x\n",
++				partnumber);
++			return -EINVAL;
++		}
++		part = i;
++	}
++
++	if (partnumber != abx80x_caps[part].pn) {
++		dev_err(&client->dev, "partnumber mismatch %04x != %04x\n",
++			partnumber, abx80x_caps[part].pn);
++		return -EINVAL;
++	}
++
++	if (np && abx80x_caps[part].has_tc)
++		trickle_cfg = abx80x_dt_trickle_cfg(np);
++
++	if (trickle_cfg > 0) {
++		dev_info(&client->dev, "Enabling trickle charger: %02x\n",
++			 trickle_cfg);
++		abx80x_enable_trickle_charger(client, trickle_cfg);
++	}
++
++	rtc = devm_rtc_device_register(&client->dev, abx80x_driver.driver.name,
++				       &abx80x_rtc_ops, THIS_MODULE);
++
++	if (IS_ERR(rtc))
++		return PTR_ERR(rtc);
++
++	i2c_set_clientdata(client, rtc);
++
++	return 0;
++}
++
++static int abx80x_remove(struct i2c_client *client)
++{
++	return 0;
++}
++
++static const struct i2c_device_id abx80x_id[] = {
++	{ "abx80x", ABX80X },
++	{ "ab0801", AB0801 },
++	{ "ab0803", AB0803 },
++	{ "ab0804", AB0804 },
++	{ "ab0805", AB0805 },
++	{ "ab1801", AB1801 },
++	{ "ab1803", AB1803 },
++	{ "ab1804", AB1804 },
++	{ "ab1805", AB1805 },
++	{ }
++};
++MODULE_DEVICE_TABLE(i2c, abx80x_id);
++
++static struct i2c_driver abx80x_driver = {
++	.driver		= {
++		.name	= "rtc-abx80x",
++	},
++	.probe		= abx80x_probe,
++	.remove		= abx80x_remove,
++	.id_table	= abx80x_id,
++};
++
++module_i2c_driver(abx80x_driver);
++
++MODULE_AUTHOR("Philippe De Muyter <phdm@macqel.be>");
++MODULE_AUTHOR("Alexandre Belloni <alexandre.belloni@free-electrons.com>");
++MODULE_DESCRIPTION("Abracon ABX80X RTC driver");
++MODULE_LICENSE("GPL v2");
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+2.1.0
+
+-- 
+-- 
+You received this message because you are subscribed to "rtc-linux".
+Membership options at http://groups.google.com/group/rtc-linux .
+Please read http://groups.google.com/group/rtc-linux/web/checklist
+before submitting a driver.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+For more options, visit https://groups.google.com/d/optout.
