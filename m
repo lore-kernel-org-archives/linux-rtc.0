@@ -1,29 +1,38 @@
-Return-Path: <rtc-linux+bncBAABBAVXYSUQKGQEJEGWG5Y@googlegroups.com>
-Received: from mail1.bemta14.messagelabs.com (mail1.bemta14.messagelabs.com. [193.109.254.113])
-        by gmr-mx.google.com with ESMTPS id p9si117755wiz.3.2015.04.17.07.41.06
+Return-Path: <rtc-linux+bncBCKMZDW5VIHBBSP6ZGUQKGQEQX4KUJQ@googlegroups.com>
+Received: from bh-25.webhostbox.net (bh-25.webhostbox.net. [208.91.199.152])
+        by gmr-mx.google.com with ESMTPS id k3si223210igf.1.2015.04.18.08.59.04
         for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=RC4-SHA bits=128/128);
-        Fri, 17 Apr 2015 07:41:06 -0700 (PDT)
-Message-ID: <c05802897197e71839a33b1f5ac224031b14e65b.1429280614.git.stwiss.opensource@diasemi.com>
-In-Reply-To: <cover.1429280614.git.stwiss.opensource@diasemi.com>
-References: <cover.1429280614.git.stwiss.opensource@diasemi.com>
-From: S Twiss <stwiss.opensource@diasemi.com>
-Date: Fri, 17 Apr 2015 15:23:33 +0100
-Subject: [rtc-linux] [PATCH V1 4/6] input: misc: onkey: da9062: DA9062 OnKey driver
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, LINUXINPUT
-	<linux-input@vger.kernel.org>, LINUXKERNEL <linux-kernel@vger.kernel.org>
-CC: Alessandro Zummo <a.zummo@towertech.it>, DEVICETREE
-	<devicetree@vger.kernel.org>, David Dajun Chen <david.chen@diasemi.com>, Ian
- Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>,
-	LINUXWATCHDOG <linux-watchdog@vger.kernel.org>, Lee Jones
-	<lee.jones@linaro.org>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown
-	<broonie@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Pawel Moll
-	<pawel.moll@arm.com>, RTCLINUX <rtc-linux@googlegroups.com>, Rob Herring
-	<robh+dt@kernel.org>, S Twiss <stwiss.opensource@diasemi.com>, Samuel Ortiz
-	<sameo@linux.intel.com>, Support Opensource <support.opensource@diasemi.com>,
-	Wim Van Sebroeck <wim@iguana.be>
+        (version=TLSv1 cipher=RC4-SHA bits=128/128);
+        Sat, 18 Apr 2015 08:59:04 -0700 (PDT)
+Received: from mailnull by bh-25.webhostbox.net with sa-checked (Exim 4.82)
+	(envelope-from <linux@roeck-us.net>)
+	id 1YjV95-002zdb-Qs
+	for rtc-linux@googlegroups.com; Sat, 18 Apr 2015 15:59:04 +0000
+Message-ID: <55327E21.304@roeck-us.net>
+Date: Sat, 18 Apr 2015 08:54:09 -0700
+From: Guenter Roeck <linux@roeck-us.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+To: S Twiss <stwiss.opensource@diasemi.com>,
+ Alessandro Zummo <a.zummo@towertech.it>,
+ DEVICETREE <devicetree@vger.kernel.org>,
+ Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+ Ian Campbell <ijc+devicetree@hellion.org.uk>,
+ Kumar Gala <galak@codeaurora.org>,
+ LINUXINPUT <linux-input@vger.kernel.org>,
+ LINUXKERNEL <linux-kernel@vger.kernel.org>,
+ LINUXWATCHDOG <linux-watchdog@vger.kernel.org>,
+ Lee Jones <lee.jones@linaro.org>,
+ Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>,
+ Mark Rutland <mark.rutland@arm.com>,
+ Pawel Moll <pawel.moll@arm.com>, RTCLINUX <rtc-linux@googlegroups.com>,
+ Rob Herring <robh+dt@kernel.org>,
+ Samuel Ortiz <sameo@linux.intel.com>, Wim Van Sebroeck <wim@iguana.be>
+CC: David Dajun Chen <david.chen@diasemi.com>,
+ Support Opensource <support.opensource@diasemi.com>
+Subject: [rtc-linux] Re: [PATCH V1 0/6]  COVER LETTER
+References: <cover.1429280614.git.stwiss.opensource@diasemi.com>
+In-Reply-To: <cover.1429280614.git.stwiss.opensource@diasemi.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -34,288 +43,31 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-From: S Twiss <stwiss.opensource@diasemi.com>
+On 04/17/2015 07:23 AM, S Twiss wrote:
+> From: S Twiss <stwiss.opensource@diasemi.com>
+>
+> This patch set adds support for the Dialog DA9062 Power Management IC.
+>
+> In this patch set the following is provided:
+>   - [PATCH V1 1/6]: MFD core support
+>   - [PATCH V1 2/6]: BUCK and LDO regulator driver
+>   - [PATCH V1 3/6]: RTC driver
+>   - [PATCH V1 4/6]: OnKey driver
+>   - [PATCH V1 5/6]: Watchdog driver
+>   - [PATCH V1 6/6]: Add bindings for all DA9062 components
+>
+> This patch applies against linux-next and v4.0
+>
+> Thank you,
+> Steve Twiss, Dialog Semiconductor Ltd.
+>
 
-Add OnKey driver support for DA9062
+Hi Steve,
 
-Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
+It might make sense to use something better than "COVER LETTER" as subject line.
 
----
-
-This patch applies against linux-next and v4.0 
-
-
-
- drivers/input/misc/Kconfig        |  10 ++
- drivers/input/misc/Makefile       |   1 +
- drivers/input/misc/da9062-onkey.c | 223 ++++++++++++++++++++++++++++++++++++++
- 3 files changed, 234 insertions(+)
- create mode 100644 drivers/input/misc/da9062-onkey.c
-
-diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
-index 6deb8da..472ca38 100644
---- a/drivers/input/misc/Kconfig
-+++ b/drivers/input/misc/Kconfig
-@@ -586,6 +586,16 @@ config INPUT_DA9055_ONKEY
- 	  To compile this driver as a module, choose M here: the module
- 	  will be called da9055_onkey.
- 
-+config INPUT_DA9062_ONKEY
-+	tristate "Dialog DA9062 OnKey"
-+	depends on MFD_DA9062
-+	help
-+	  Support the ONKEY of Dialog DA9062 Power Management IC as an
-+	  input device reporting power button status.
-+
-+	  To compile this driver as a module, choose M here: the module
-+	  will be called da9062-onkey.
-+
- config INPUT_DM355EVM
- 	tristate "TI DaVinci DM355 EVM Keypad and IR Remote"
- 	depends on MFD_DM355EVM_MSP
-diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
-index 403a1a5..a631283 100644
---- a/drivers/input/misc/Makefile
-+++ b/drivers/input/misc/Makefile
-@@ -25,6 +25,7 @@ obj-$(CONFIG_INPUT_CMA3000_I2C)		+= cma3000_d0x_i2c.o
- obj-$(CONFIG_INPUT_COBALT_BTNS)		+= cobalt_btns.o
- obj-$(CONFIG_INPUT_DA9052_ONKEY)	+= da9052_onkey.o
- obj-$(CONFIG_INPUT_DA9055_ONKEY)	+= da9055_onkey.o
-+obj-$(CONFIG_INPUT_DA9062_ONKEY)	+= da9062-onkey.o
- obj-$(CONFIG_INPUT_DM355EVM)		+= dm355evm_keys.o
- obj-$(CONFIG_INPUT_E3X0_BUTTON)		+= e3x0-button.o
- obj-$(CONFIG_INPUT_DRV260X_HAPTICS)	+= drv260x.o
-diff --git a/drivers/input/misc/da9062-onkey.c b/drivers/input/misc/da9062-onkey.c
-new file mode 100644
-index 0000000..c4c0295
---- /dev/null
-+++ b/drivers/input/misc/da9062-onkey.c
-@@ -0,0 +1,223 @@
-+/*
-+ * da9062-onkey.c - ONKEY device driver for DA9062
-+ * Copyright (C) 2015  Dialog Semiconductor Ltd.
-+ *
-+ * This program is free software; you can redistribute it and/or
-+ * modify it under the terms of the GNU General Public License
-+ * as published by the Free Software Foundation; either version 2
-+ * of the License, or (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ */
-+
-+#include <linux/module.h>
-+#include <linux/errno.h>
-+#include <linux/input.h>
-+#include <linux/interrupt.h>
-+#include <linux/platform_device.h>
-+#include <linux/workqueue.h>
-+#include <linux/regmap.h>
-+#include <linux/of.h>
-+#include <linux/mfd/da9062/core.h>
-+#include <linux/mfd/da9062/registers.h>
-+
-+struct da9062_onkey {
-+	struct da9062 *hw;
-+	struct delayed_work work;
-+	struct	input_dev *input;
-+	int irq;
-+	bool key_power;
-+};
-+
-+static void da9062_poll_on(struct work_struct *work)
-+{
-+	struct da9062_onkey *onkey = container_of(work, struct da9062_onkey,
-+						  work.work);
-+	unsigned int val;
-+	int fault_log = 0;
-+	bool poll = true;
-+	int ret;
-+
-+	/* poll to see when the pin is released */
-+	ret = regmap_read(onkey->hw->regmap, DA9062AA_STATUS_A, &val);
-+	if (ret < 0) {
-+		dev_err(&onkey->input->dev,
-+			"Failed to read ON status: %d\n", ret);
-+		goto err_poll;
-+	}
-+
-+	if (!(val & DA9062AA_NONKEY_MASK)) {
-+		ret = regmap_update_bits(onkey->hw->regmap,
-+					 DA9062AA_CONTROL_B,
-+					 DA9062AA_NONKEY_LOCK_MASK, 0);
-+		if (ret < 0) {
-+			dev_err(&onkey->input->dev,
-+				"Failed to reset the Key Delay %d\n", ret);
-+			goto err_poll;
-+		}
-+
-+		input_report_key(onkey->input, KEY_POWER, 0);
-+		input_sync(onkey->input);
-+
-+		poll = false;
-+	}
-+
-+	/* if the fault log KEY_RESET is detected,
-+	 * then clear it and shutdown DA9062 via I2C
-+	 */
-+	ret = regmap_read(onkey->hw->regmap, DA9062AA_FAULT_LOG, &fault_log);
-+	if (ret < 0)
-+		dev_warn(&onkey->input->dev, "Cannot read FAULT_LOG\n");
-+
-+	if (fault_log & DA9062AA_KEY_RESET_MASK) {
-+		ret = regmap_write(onkey->hw->regmap,
-+				   DA9062AA_FAULT_LOG,
-+				   DA9062AA_KEY_RESET_MASK);
-+		if (ret < 0)
-+			dev_warn(&onkey->input->dev,
-+				 "Cannot reset KEY_RESET fault log\n");
-+		else {
-+			/* at this point we do any S/W housekeeping
-+			 * and then send shutdown command
-+			 */
-+			dev_info(&onkey->input->dev,
-+				 "Sending SHUTDOWN to DA9062 ...\n");
-+			ret = regmap_write(onkey->hw->regmap,
-+					   DA9062AA_CONTROL_F,
-+					   DA9062AA_SHUTDOWN_MASK);
-+			if (ret < 0)
-+				dev_err(&onkey->input->dev,
-+					"Cannot SHUTDOWN DA9062\n");
-+		}
-+	}
-+
-+err_poll:
-+	if (poll)
-+		schedule_delayed_work(&onkey->work, 50);
-+}
-+
-+static irqreturn_t da9062_onkey_irq_handler(int irq, void *data)
-+{
-+	struct da9062_onkey *onkey = data;
-+	unsigned int val;
-+	int ret;
-+
-+	ret = regmap_read(onkey->hw->regmap, DA9062AA_STATUS_A, &val);
-+	if (onkey->key_power && (ret >= 0) && (val & DA9062AA_NONKEY_MASK)) {
-+		input_report_key(onkey->input, KEY_POWER, 1);
-+		input_sync(onkey->input);
-+		schedule_delayed_work(&onkey->work, 0);
-+		dev_notice(&onkey->input->dev, "KEY_POWER pressed.\n");
-+	} else {
-+		input_report_key(onkey->input, KEY_SLEEP, 1);
-+		input_sync(onkey->input);
-+		input_report_key(onkey->input, KEY_SLEEP, 0);
-+		input_sync(onkey->input);
-+		dev_notice(&onkey->input->dev, "KEY_SLEEP pressed.\n");
-+	}
-+
-+	return IRQ_HANDLED;
-+}
-+
-+static int da9062_onkey_probe(struct platform_device *pdev)
-+{
-+	struct da9062 *chip = dev_get_drvdata(pdev->dev.parent);
-+	struct da9062_onkey *onkey;
-+	bool kp_tmp = true;
-+	int ret = 0;
-+
-+		kp_tmp = of_property_read_bool((&pdev->dev)->of_node,
-+					       "dlg,disable-key-power");
-+		kp_tmp = !kp_tmp;
-+
-+
-+	onkey = devm_kzalloc(&pdev->dev, sizeof(struct da9062_onkey),
-+			     GFP_KERNEL);
-+	if (!onkey) {
-+		dev_err(&pdev->dev, "Failed to allocate memory.\n");
-+		ret = -ENOMEM;
-+		goto err;
-+	}
-+
-+	INIT_DELAYED_WORK(&onkey->work, da9062_poll_on);
-+
-+	onkey->input = devm_input_allocate_device(&pdev->dev);
-+	if (!onkey->input) {
-+		dev_err(&pdev->dev, "Failed to allocated input device.\n");
-+		ret = -ENOMEM;
-+		goto err;
-+	}
-+
-+	ret = platform_get_irq_byname(pdev, "ONKEY");
-+	if (ret < 0) {
-+		dev_err(&pdev->dev, "Failed to get platform IRQ.\n");
-+		goto err;
-+	}
-+	onkey->irq = ret;
-+
-+	ret = request_threaded_irq(onkey->irq, NULL,
-+				   da9062_onkey_irq_handler,
-+				   IRQF_TRIGGER_LOW | IRQF_ONESHOT,
-+				   "ONKEY", onkey);
-+	if (ret) {
-+		dev_err(&pdev->dev,
-+			"Failed to request input device IRQ.\n");
-+		goto err;
-+	}
-+
-+	onkey->hw = chip;
-+	onkey->key_power = kp_tmp;
-+	onkey->input->evbit[0] = BIT_MASK(EV_KEY);
-+	onkey->input->name = "da9062-onkey";
-+	onkey->input->phys = "da9062-onkey/input0";
-+	onkey->input->dev.parent = &pdev->dev;
-+
-+	if (onkey->key_power)
-+		input_set_capability(onkey->input, EV_KEY, KEY_POWER);
-+	input_set_capability(onkey->input, EV_KEY, KEY_SLEEP);
-+
-+	ret = input_register_device(onkey->input);
-+	if (ret) {
-+		dev_err(&pdev->dev,
-+			"Failed to register input device.\n");
-+		goto err_irq;
-+	}
-+
-+	platform_set_drvdata(pdev, onkey);
-+	return 0;
-+
-+err_irq:
-+	free_irq(onkey->irq, onkey);
-+	cancel_delayed_work_sync(&onkey->work);
-+err:
-+	return ret;
-+}
-+
-+static int da9062_onkey_remove(struct platform_device *pdev)
-+{
-+	struct	da9062_onkey *onkey = platform_get_drvdata(pdev);
-+
-+	free_irq(onkey->irq, onkey);
-+	cancel_delayed_work_sync(&onkey->work);
-+	input_unregister_device(onkey->input);
-+	return 0;
-+}
-+
-+static struct platform_driver da9062_onkey_driver = {
-+	.probe	= da9062_onkey_probe,
-+	.remove	= da9062_onkey_remove,
-+	.driver	= {
-+		.name	= "da9062-onkey",
-+		.owner	= THIS_MODULE,
-+	},
-+};
-+
-+module_platform_driver(da9062_onkey_driver);
-+
-+MODULE_AUTHOR("S Twiss <stwiss.opensource@diasemi.com>");
-+MODULE_DESCRIPTION("ONKEY device driver for Dialog DA9062");
-+MODULE_LICENSE("GPL v2");
-+MODULE_ALIAS("platform: da9062-onkey");
--- 
-end-of-patch for PATCH V1
+Thanks,
+Guenter
 
 -- 
 -- 
