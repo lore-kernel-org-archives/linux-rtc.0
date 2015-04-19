@@ -1,38 +1,21 @@
-Return-Path: <rtc-linux+bncBDQ2L75W5QGBBLEJZGUQKGQEOBUDG4Q@googlegroups.com>
-Received: from mezzanine.sirena.org.uk (mezzanine.sirena.org.uk. [2400:8900::f03c:91ff:fedb:4f4])
-        by gmr-mx.google.com with ESMTPS id ei3si1627699pdb.1.2015.04.18.04.49.00
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=RC4-SHA bits=128/128);
-        Sat, 18 Apr 2015 04:49:00 -0700 (PDT)
-Date: Sat, 18 Apr 2015 12:48:28 +0100
-From: Mark Brown <broonie@kernel.org>
-To: S Twiss <stwiss.opensource@diasemi.com>
-Cc: LINUXKERNEL <linux-kernel@vger.kernel.org>,
-	Liam Girdwood <lgirdwood@gmail.com>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	DEVICETREE <devicetree@vger.kernel.org>,
-	David Dajun Chen <david.chen@diasemi.com>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Ian Campbell <ijc+devicetree@hellion.org.uk>,
-	Kumar Gala <galak@codeaurora.org>,
-	LINUXINPUT <linux-input@vger.kernel.org>,
-	LINUXWATCHDOG <linux-watchdog@vger.kernel.org>,
-	Lee Jones <lee.jones@linaro.org>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Pawel Moll <pawel.moll@arm.com>,
-	RTCLINUX <rtc-linux@googlegroups.com>,
-	Rob Herring <robh+dt@kernel.org>,
-	Samuel Ortiz <sameo@linux.intel.com>,
-	Support Opensource <support.opensource@diasemi.com>,
-	Wim Van Sebroeck <wim@iguana.be>
-Message-ID: <20150418114828.GG26185@sirena.org.uk>
-References: <cover.1429280614.git.stwiss.opensource@diasemi.com>
- <7acb2e683450a608adf81e6b820e62b523429101.1429280614.git.stwiss.opensource@diasemi.com>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBSEXZ6UQKGQECUKSARQ@googlegroups.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id m3si650765wia.1.2015.04.19.08.37.44
+        for <rtc-linux@googlegroups.com>;
+        Sun, 19 Apr 2015 08:37:44 -0700 (PDT)
+Date: Sun, 19 Apr 2015 17:37:43 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: harald@ccbib.org
+Cc: rtc-linux@googlegroups.com, Wolfram Sang <wsa@the-dreams.de>,
+	Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org
+Subject: Re: [rtc-linux] [PATCH] watchdog: stmp3xxx: Implement GETBOOTSTATUS
+Message-ID: <20150419153743.GA4353@piout.net>
+References: <1428522355-5164-1-git-send-email-harald@ccbib.org>
+ <20150417093023.GF29796@piout.net>
+ <3a787a0b2777c4b734a4f153e1a3f7d7@imap.cosmopool.net>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="kjpMrWxdCilgNbo1"
-In-Reply-To: <7acb2e683450a608adf81e6b820e62b523429101.1429280614.git.stwiss.opensource@diasemi.com>
-Subject: [rtc-linux] Re: [PATCH V1 2/6] regulator: da9062: DA9062 regulator driver
+Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <3a787a0b2777c4b734a4f153e1a3f7d7@imap.cosmopool.net>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -43,90 +26,40 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
---kjpMrWxdCilgNbo1
-Content-Type: text/plain; charset=UTF-8
-Content-Disposition: inline
+Hi,
 
-On Fri, Apr 17, 2015 at 03:23:32PM +0100, S Twiss wrote:
+On 19/04/2015 at 15:41:42 +0200, harald@ccbib.org wrote :
+> >  - use syscon instead of passing callbacks to the watchdog driver
+> 
+> I will put looking into this onto my todo list, but I'm not familiar
+> with syscon yet and it is not obvious to me how to port the rtc driver
+> to syscon without breaking devicetree backwards compatibility. So I'd
+> like to defer this for later unless somebody gives me some guidance.
+> 
 
-> +/* Regulator interrupt handlers */
-> +static irqreturn_t da9062_ldo_lim_event(int irq, void *data)
-> +{
-> +	struct da9062_regulators *regulators = data;
-> +	struct da9062 *hw = regulators->regulator[0].hw;
-> +	struct da9062_regulator *regl;
-> +	int bits, i, ret;
-> +
-> +	ret = regmap_read(hw->regmap, DA9062AA_STATUS_D, &bits);
-> +	if (ret < 0)
-> +		return IRQ_NONE;
+As the rtc driver is the one instantiating the watchdog driver, there is
+no reason why the DT ABI would be broken. You simply have to create
+the syscon in the RTC driver and then pass it to the watchdog driver,
+the same way it is done with the callbacks.
 
-Please log an error for this, if we're having trouble talking to the
-device that seems like a serious issue.
+I can have a look at doing it as I have some i.mx28 platforms.
 
-> +	for (i = regulators->n_regulators - 1; i >= 0; i--) {
-> +		regl = &regulators->regulator[i];
-> +		if (regl->info->oc_event.reg != DA9062AA_STATUS_D)
-> +			continue;
-> +
-> +		if (BIT(regl->info->oc_event.lsb) & bits)
-> +			regulator_notifier_call_chain(regl->rdev,
-> +					REGULATOR_EVENT_OVER_CURRENT, NULL);
-> +	}
-> +
-> +	return IRQ_HANDLED;
+> > It would be greatly appreciated if you could do those changes too.
+> 
+> Is it ok if I send the simple cleanup patch and a rebased version of
+> my original patch without the syscon conversion? This will be more work
+> for me testing two patch series, but I think GETBOOTSTATUS is an
+> important feature that I'd like to see supported soon.
+> 
 
-This will return IRQ_HANDLED even if none of the regulators were
-flagginng an event.
+I'm fine with your patch, I was simply suggesting cleanups that should
+be sent as separate patches. However, I'd like more people to review the
+watchdog part.
 
-> +static irqreturn_t da9062_vdd_warn_event(int irq, void *data)
-> +{
-> +	return IRQ_HANDLED;
-> +}
-
-Ignoring an interrupt is not usefully handling it - at the *least* this
-should be generating a log message.
-
-> +static struct da9062_regulators_pdata *da9062_parse_regulators_dt(
-> +		struct platform_device *pdev,
-> +		struct of_regulator_match **reg_matches)
-> +{
-> +	struct da9062_regulators_pdata *pdata;
-> +	struct da9062_regulator_data *rdata;
-> +	struct device_node *node;
-> +	int i, n, num;
-> +
-> +	node = of_get_child_by_name(pdev->dev.parent->of_node, "regulators");
-> +	if (!node) {
-> +		dev_err(&pdev->dev, "Regulators device node not found\n");
-> +		return ERR_PTR(-ENODEV);
-> +	}
-> +
-> +	num = of_regulator_match(&pdev->dev, node, da9062_matches,
-> +				 ARRAY_SIZE(da9062_matches));
-
-Don't open code this, describe the DT names in the regualtor_desc and
-let the core register.
-
-> +	if (IS_ERR(pdata) || pdata->n_regulators == 0) {
-> +		dev_err(&pdev->dev,
-> +			"No regulators defined for the platform\n");
-> +		return PTR_ERR(pdata);
-> +	}
-> +
-> +	n_regulators = ARRAY_SIZE(local_regulator_info),
-
-This is broken, the set of regulators in the silicon is not a property
-of the platform.  The driver should just register all the regualtors
-that are present in the silicon.  I'm fairly sure I've been through this
-before...
-
-> +	ret = request_threaded_irq(irq,
-> +				   NULL, da9062_vdd_warn_event,
-> +				   IRQF_TRIGGER_LOW | IRQF_ONESHOT,
-> +				   "VDD_WARN", regulators);
-
-devm_request_threaded_irq().
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
 -- 
 -- 
@@ -138,21 +71,3 @@ before submitting a driver.
 You received this message because you are subscribed to the Google Groups "rtc-linux" group.
 To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
-
---kjpMrWxdCilgNbo1
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
-
-iQEcBAEBCAAGBQJVMkSMAAoJECTWi3JdVIfQH7AH/2dX0yzWNTBV76jedKR0IxZJ
-53JdeMqgiWZAPiLDH9lD5KL0nRjMppri7uHPns81faOI3/ZvxesGrnsN1AYu9PZJ
-Uqi4zi6aV+mj1uKziMMVpsT7WQqAhU1IeCAr7VV0UxCWqr/WgOAa+4hCjk7LnKcX
-sxYiJVu0HpK9vh1/XdLN7yYS01VyIedanuP0ebvuBRtVAJOXIVkZoeNRVtzWflKS
-qcNLXkhPe5e8vm8qWynqKn7O23t9KWZQFVrIOMh27GcTUuh6wkBwpOD/EAt2TZZh
-SzkqnCOSDnXOOeKY5G3pzZPw8MkFCz2i8jul3DFKrd7T7xyhXTE54Mpnvmg7U0g=
-=b4Hb
------END PGP SIGNATURE-----
-
---kjpMrWxdCilgNbo1--
