@@ -1,19 +1,19 @@
-Return-Path: <rtc-linux+bncBDHPTCWTXEHRB7VXZ2UQKGQE4WITRZA@googlegroups.com>
-Received: from gloria.sntech.de (gloria.sntech.de. [95.129.55.99])
-        by gmr-mx.google.com with ESMTPS id pr3si600731pbb.2.2015.04.19.05.13.50
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=RC4-SHA bits=128/128);
-        Sun, 19 Apr 2015 05:13:50 -0700 (PDT)
-From: Heiko =?ISO-8859-1?Q?St=FCbner?= <heiko@sntech.de>
-To: Boris Brezillon <boris.brezillon@free-electrons.com>
-Cc: Mike Turquette <mturquette@linaro.org>, Mikko Perttunen <mikko.perttunen@kapsi.fi>, Jonathan Corbet <corbet@lwn.net>, Shawn Guo <shawn.guo@linaro.org>, ascha Hauer <kernel@pengutronix.de>, David Brown <davidb@codeaurora.org>, Daniel Walker <dwalker@fifo99.com>, Bryan Huntsman <bryanh@codeaurora.org>, Tony Lindgren <tony@atomide.com>, Paul Walmsley <paul@pwsan.com>, Liviu Dudau <liviu.dudau@arm.com>, Sudeep Holla <sudeep.holla@arm.com>, Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>, Ralf Baechle <ralf@linux-mips.org>, Max Filippov <jcmvbkbc@gmail.com>, Sylwester Nawrocki <s.nawrocki@samsung.com>, Tomasz Figa <tomasz.figa@gmail.com>, Barry Song <baohua@kernel.org>, Viresh Kumar <viresh.linux@gmail.com>, Emilio =?ISO-8859-1?Q?L=F3pez?= <emilio@elopez.com.ar>, Maxime Ripard <maxime.ripard@free-electrons.com>, Peter De Schrijver <pdeschrijver@nvidia.com>, Prashant Gaikwad <pgaikwad@nvidia.com>, Stephen Warren <swarren@wwwdotorg.org>, Thierry Reding <thierry.reding@gmail.com>, Alexandre Courbot <gnurou@gmail.com>, Tero Kristo <t-kristo@ti.com>, Ulf Hansson <ulf.hansson@linaro.org>, Michal Simek <michal.simek@xilinx.com>, Philipp Zabel <p.zabel@pengutronix.de>, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-arm-msm@vger.kernel.org, linux-omap@vger.kernel.org, linux-mips@linux-mips.org, patches@opensource.wolfsonmicro.com, linux-rockchip@lists.infradead.org, linux-samsung-soc@vger.kernel.org, spear-devel@list.st.com, linux-tegra@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-media@vger.kernel.org, rtc-linux@googlegroups.com
-Subject: [rtc-linux] Re: [PATCH 1/2] clk: change clk_ops' ->round_rate() prototype
-Date: Sun, 19 Apr 2015 14:13:04 +0200
-Message-ID: <7408975.lBcgZIN9hf@diego>
-In-Reply-To: <1429255769-13639-2-git-send-email-boris.brezillon@free-electrons.com>
-References: <1429255769-13639-1-git-send-email-boris.brezillon@free-electrons.com> <1429255769-13639-2-git-send-email-boris.brezillon@free-electrons.com>
+Return-Path: <rtc-linux+bncBAABBDGN2KUQKGQER7NHZDY@googlegroups.com>
+Received: from mail.cosmopool.net (mail.cosmopool.net. [2a01:4f8:160:20c1::10:107])
+        by gmr-mx.google.com with ESMTP id k2si790902wif.0.2015.04.20.00.11.04
+        for <rtc-linux@googlegroups.com>;
+        Mon, 20 Apr 2015 00:11:04 -0700 (PDT)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+Date: Mon, 20 Apr 2015 09:11:02 +0200
+From: <harald@ccbib.org>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: <rtc-linux@googlegroups.com>, Wolfram Sang <wsa@the-dreams.de>,
+ Wim Van Sebroeck <wim@iguana.be>, <linux-watchdog@vger.kernel.org>
+Subject: Re: [rtc-linux] [PATCH] watchdog: stmp3xxx: Implement GETBOOTSTATUS
+In-Reply-To: <20150419153743.GA4353@piout.net>
+References: <1428522355-5164-1-git-send-email-harald@ccbib.org> <20150417093023.GF29796@piout.net> <3a787a0b2777c4b734a4f153e1a3f7d7@imap.cosmopool.net> <20150419153743.GA4353@piout.net>
+Message-ID: <480bd3b38b87b44913868cbd2f3e24c6@imap.cosmopool.net>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -24,108 +24,35 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Hi Boris,
+Hi Alexandre,
 
-Am Freitag, 17. April 2015, 09:29:28 schrieb Boris Brezillon:
-> Clock rates are stored in an unsigned long field, but ->round_rate()
-> (which returns a rounded rate from a requested one) returns a long
-> value (errors are reported using negative error codes), which can lead
-> to long overflow if the clock rate exceed 2Ghz.
+On Sun, 19 Apr 2015 17:37:43 +0200, Alexandre Belloni
+<alexandre.belloni@free-electrons.com> wrote:
+> On 19/04/2015 at 15:41:42 +0200, harald@ccbib.org wrote :
+>> >  - use syscon instead of passing callbacks to the watchdog driver
+>> 
+>> I will put looking into this onto my todo list, but I'm not familiar
+>> with syscon yet and it is not obvious to me how to port the rtc driver
+>> to syscon without breaking devicetree backwards compatibility. So I'd
+>> like to defer this for later unless somebody gives me some guidance.
+>> 
 > 
-> Change ->round_rate() prototype to return 0 or an error code, and pass the
-> requested rate as a pointer so that it can be adjusted depending on
-> hardware capabilities.
-> 
-> Signed-off-by: Boris Brezillon <boris.brezillon@free-electrons.com>
-> ---
+> As the rtc driver is the one instantiating the watchdog driver, there is
+> no reason why the DT ABI would be broken. You simply have to create
+> the syscon in the RTC driver and then pass it to the watchdog driver,
+> the same way it is done with the callbacks.
 
-On a rk3288-veyron-pinky with the fix described below:
-Tested-by: Heiko Stuebner <heiko@sntech.de>
+Ok, this is less invasive than what I have been thinking. This makes
+sense. 
+ 
+> I can have a look at doing it as I have some i.mx28 platforms.
 
+If you can point me to a driver that is a good reference for your model,
+then I can do this myself. Otherwise I'd prefer if you wrote the code.
+I can do the testing though, if this helps.
 
-> diff --git a/drivers/clk/clk.c b/drivers/clk/clk.c
-> index fa5a00e..1462ddc 100644
-> --- a/drivers/clk/clk.c
-> +++ b/drivers/clk/clk.c
-> @@ -1640,8 +1643,10 @@ static struct clk_core *clk_calc_new_rates(struct
-> clk_core *clk, &parent_hw);
->  		parent = parent_hw ? parent_hw->core : NULL;
->  	} else if (clk->ops->round_rate) {
-> -		new_rate = clk->ops->round_rate(clk->hw, rate,
-> -						&best_parent_rate);
-> +		if (clk->ops->round_rate(clk->hw, &new_rate,
-> +					 &best_parent_rate))
-> +			return NULL;
-> +
->  		if (new_rate < min_rate || new_rate > max_rate)
->  			return NULL;
->  	} else if (!parent || !(clk->flags & CLK_SET_RATE_PARENT)) {
-
-This is using new_rate uninitialized when calling into the round_rate
-callback. Which in turn pushed my PLLs up to 2.2GHz :-)
-
-I guess you'll need something like the following:
-
-diff --git a/drivers/clk/clk.c b/drivers/clk/clk.c
-index db4e4b2..afc7733 100644
---- a/drivers/clk/clk.c
-+++ b/drivers/clk/clk.c
-@@ -1605,6 +1605,7 @@ static struct clk_core *clk_calc_new_rates(struct clk_core *clk,
- 						    &parent_hw);
- 		parent = parent_hw ? parent_hw->core : NULL;
- 	} else if (clk->ops->round_rate) {
-+		new_rate = rate;
- 		if (clk->ops->round_rate(clk->hw, &new_rate,
- 					 &best_parent_rate))
- 			return NULL;
-
-
-
-
-> diff --git a/drivers/clk/rockchip/clk-pll.c b/drivers/clk/rockchip/clk-pll.c
-> index f8d3baf..bd408ef 100644
-> --- a/drivers/clk/rockchip/clk-pll.c
-> +++ b/drivers/clk/rockchip/clk-pll.c
-> @@ -63,8 +63,8 @@ static const struct rockchip_pll_rate_table
-> *rockchip_get_pll_settings( return NULL;
->  }
-> 
-> -static long rockchip_pll_round_rate(struct clk_hw *hw,
-> -			    unsigned long drate, unsigned long *prate)
-> +static int rockchip_pll_round_rate(struct clk_hw *hw,
-> +			    unsigned long *drate, unsigned long *prate)
->  {
->  	struct rockchip_clk_pll *pll = to_rockchip_clk_pll(hw);
->  	const struct rockchip_pll_rate_table *rate_table = pll->rate_table;
-> @@ -72,12 +72,15 @@ static long rockchip_pll_round_rate(struct clk_hw *hw,
-> 
->  	/* Assumming rate_table is in descending order */
->  	for (i = 0; i < pll->rate_count; i++) {
-> -		if (drate >= rate_table[i].rate)
-> -			return rate_table[i].rate;
-> +		if (*drate >= rate_table[i].rate) {
-> +			*drate = rate_table[i].rate;
-> +			return 0;
-> +		}
->  	}
-> 
->  	/* return minimum supported value */
-> -	return rate_table[i - 1].rate;
-> +	*drate = rate_table[i - 1].rate;
-> +	return 0;
->  }
-> 
->  /*
-
-The rockchip-part:
-Reviewed-by: Heiko Stuebner <heiko@sntech.de>
-
-
-And as I've stumbled onto this recently too, the clock-maintainership has
-expanded to Stephen Boyd and linux-clk@vger.kernel.org .
-
-
-Heiko
+Thanks,
+Harald
 
 -- 
 -- 
