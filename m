@@ -1,16 +1,19 @@
-Return-Path: <rtc-linux+bncBAABBOMQ52UAKGQEZGKMGXA@googlegroups.com>
-Received: from devils.ext.ti.com (devils.ext.ti.com. [198.47.26.153])
-        by gmr-mx.google.com with ESMTPS id b12si740110igv.0.2015.03.31.22.55.04
+Return-Path: <rtc-linux+bncBCO3XAUMTIFRB4VD22UQKGQEARJOYBI@googlegroups.com>
+Received: from bear.ext.ti.com ([192.94.94.41])
+        by gmr-mx.google.com with ESMTPS id t6si6800igz.3.2015.04.20.16.55.30
         for <rtc-linux@googlegroups.com>
         (version=TLSv1 cipher=RC4-SHA bits=128/128);
-        Tue, 31 Mar 2015 22:55:04 -0700 (PDT)
-From: Lokesh Vutla <lokeshvutla@ti.com>
-To: <a.zummo@towertech.it>, <rtc-linux@googlegroups.com>
-CC: <t-kristo@ti.com>, <nsekhar@ti.com>, <linux-omap@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>, <lokeshvutla@ti.com>
-Subject: [rtc-linux] [PATCH 0/3] rtc: omap: Fix misc bugs
-Date: Wed, 1 Apr 2015 11:24:55 +0530
-Message-ID: <1427867698-1326-1-git-send-email-lokeshvutla@ti.com>
+        Mon, 20 Apr 2015 16:55:30 -0700 (PDT)
+From: Nishanth Menon <nm@ti.com>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        Alessandro Zummo
+	<a.zummo@towertech.it>
+CC: <nm@ti.com>, <linux-omap@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+        <rtc-linux@googlegroups.com>
+Subject: [rtc-linux] [PATCH] drivers/rtc/rtc-ds1307.c: Enable the mcp794xx
+ alarm after programming time
+Date: Mon, 20 Apr 2015 18:55:22 -0500
+Message-ID: <1429574122-4284-1-git-send-email-nm@ti.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
@@ -23,23 +26,57 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-This patch series fixes miscellaneous bugs in OMAP RTC driver.
+Alarm interrupt enable register is at offset 0x7, while the time
+registers for the alarm follow that. When we program Alarm interrupt
+enable prior to programming the time, it is possible that previous
+time value could be close or match at the time of alarm enable
+resulting in interrupt trigger which is unexpected (and does not match
+the time we expect it to trigger).
 
-Tested on DRA72-evm with an out of tree patch for RTC hwmod.
-Logs: http://pastebin.ubuntu.com/10716566/
+To prevent this scenario from occurring, program the ALM0_EN bit only
+after the alarm time is appropriately programmed.
 
-Lokesh Vutla (3):
-  rtc: omap: Unlock and Lock rtc registers before and after register
-    writes
-  rtc: omap: Update Kconfig for OMAP RTC
-  rtc: omap: use module_platform_driver
+Of course, I2C programming is non-atomic, so there are loopholes where
+the interrupt wont trigger if the time requested is in the past at
+the time of programming the ALM0_EN bit. However, we will not have
+unexpected interrupts while the time is programmed after the interrupt
+are enabled.
 
- drivers/rtc/Kconfig    |  6 +++---
- drivers/rtc/rtc-omap.c | 51 ++++++++++++++++++++++++++++++++++++++++----------
- 2 files changed, 44 insertions(+), 13 deletions(-)
+Signed-off-by: Nishanth Menon <nm@ti.com>
+---
+ drivers/rtc/rtc-ds1307.c |   12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
+diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
+index 4ffabb322a9a..59f9ecf323d5 100644
+--- a/drivers/rtc/rtc-ds1307.c
++++ b/drivers/rtc/rtc-ds1307.c
+@@ -742,17 +742,17 @@ static int mcp794xx_set_alarm(struct device *dev, struct rtc_wkalrm *t)
+ 	regs[6] &= ~MCP794XX_BIT_ALMX_IF;
+ 	/* Set alarm match: second, minute, hour, day, date, month. */
+ 	regs[6] |= MCP794XX_MSK_ALMX_MATCH;
+-
+-	if (t->enabled)
+-		regs[0] |= MCP794XX_BIT_ALM0_EN;
+-	else
+-		regs[0] &= ~MCP794XX_BIT_ALM0_EN;
++	/* Disable interrupt. We will not enable until completely programed */
++	regs[0] &= ~MCP794XX_BIT_ALM0_EN;
+ 
+ 	ret = ds1307->write_block_data(client, MCP794XX_REG_CONTROL, 10, regs);
+ 	if (ret < 0)
+ 		return ret;
+ 
+-	return 0;
++	if (!t->enabled)
++		return 0;
++	regs[0] |= MCP7941X_BIT_ALM0_EN;
++	return i2c_smbus_write_byte_data(client, MCP794XX_REG_CONTROL, regs[0]);
+ }
+ 
+ static int mcp794xx_alarm_irq_enable(struct device *dev, unsigned int enabled)
 -- 
-1.9.1
+1.7.9.5
 
 -- 
 -- 
