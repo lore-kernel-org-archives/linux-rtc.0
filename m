@@ -1,24 +1,19 @@
-Return-Path: <rtc-linux+bncBCZ273NM4EARBAXR7SUQKGQESOEN4PQ@googlegroups.com>
-Received: from mailgw01.mediatek.com ([210.61.82.183])
-        by gmr-mx.google.com with ESMTPS id dv5si2586091pbb.0.2015.04.28.00.36.33
+Return-Path: <rtc-linux+bncBCO3XAUMTIFRBHF622UQKGQEMEQPM3Q@googlegroups.com>
+Received: from arroyo.ext.ti.com ([192.94.94.40])
+        by gmr-mx.google.com with ESMTPS id x1si26542igb.2.2015.04.20.17.51.39
         for <rtc-linux@googlegroups.com>
         (version=TLSv1 cipher=RC4-SHA bits=128/128);
-        Tue, 28 Apr 2015 00:36:34 -0700 (PDT)
-From: Eddie Huang <eddie.huang@mediatek.com>
-To: Lee Jones <lee.jones@linaro.org>, Alessandro Zummo <a.zummo@towertech.it>,
-	Matthias Brugger <matthias.bgg@gmail.com>, Andrew Morton
-	<akpm@linux-foundation.org>, Tomasz Figa <tfiga@google.com>,
-	=?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <kernel@pengutronix.de>
-CC: <srv_heupstream@mediatek.com>, Samuel Ortiz <sameo@linux.intel.com>, Greg
- KH <gregkh@linuxfoundation.org>, Joe Perches <joe@perches.com>,
-	<linux-kernel@vger.kernel.org>, <rtc-linux@googlegroups.com>,
-	<linux-arm-kernel@lists.infradead.org>, <linux-mediatek@lists.infradead.org>,
-	Eddie Huang <eddie.huang@mediatek.com>
-Subject: [rtc-linux] [PATCH v3 3/3] MAINTAINERS: add Mediatek RTC driver
-Date: Tue, 28 Apr 2015 15:35:56 +0800
-Message-ID: <1430206556-18254-4-git-send-email-eddie.huang@mediatek.com>
-In-Reply-To: <1430206556-18254-1-git-send-email-eddie.huang@mediatek.com>
-References: <1430206556-18254-1-git-send-email-eddie.huang@mediatek.com>
+        Mon, 20 Apr 2015 17:51:39 -0700 (PDT)
+From: Nishanth Menon <nm@ti.com>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        Alessandro Zummo
+	<a.zummo@towertech.it>
+CC: <nm@ti.com>, <linux-omap@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+        <rtc-linux@googlegroups.com>
+Subject: [rtc-linux] [PATCH V2] drivers/rtc/rtc-ds1307.c: Enable the mcp794xx
+ alarm after programming time
+Date: Mon, 20 Apr 2015 19:51:34 -0500
+Message-ID: <1429577494-15087-1-git-send-email-nm@ti.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
@@ -31,33 +26,63 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Add Mediatek RTC driver to maintainer entry.
+Alarm interrupt enable register is at offset 0x7, while the time
+registers for the alarm follow that. When we program Alarm interrupt
+enable prior to programming the time, it is possible that previous
+time value could be close or match at the time of alarm enable
+resulting in interrupt trigger which is unexpected (and does not match
+the time we expect it to trigger).
 
-Signed-off-by: Eddie Huang <eddie.huang@mediatek.com>
+To prevent this scenario from occuring, program the ALM0_EN bit only
+after the alarm time is appropriately programmed.
+
+Ofcourse, I2C programming is non-atomic, so there are loopholes where
+the interrupt wont trigger if the time requested is in the past at
+the time of programming the ALM0_EN bit. However, we will not have
+unexpected interrupts while the time is programmed after the interrupt
+are enabled.
+
+Signed-off-by: Nishanth Menon <nm@ti.com>
 ---
- MAINTAINERS | 7 +++++++
- 1 file changed, 7 insertions(+)
+Changes in v2:
+	- minor typo fix in comments
+	- merged up code that I missed committing in
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 2e5bbc0..eb80610 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -1223,6 +1223,13 @@ W:	http://www.digriz.org.uk/ts78xx/kernel
- S:	Maintained
- F:	arch/arm/mach-orion5x/ts78xx-*
+V1: https://patchwork.kernel.org/patch/6245041/
+
+ drivers/rtc/rtc-ds1307.c |   12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
+
+diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
+index 4ffabb322a9a..3cd4783375a5 100644
+--- a/drivers/rtc/rtc-ds1307.c
++++ b/drivers/rtc/rtc-ds1307.c
+@@ -742,17 +742,17 @@ static int mcp794xx_set_alarm(struct device *dev, struct rtc_wkalrm *t)
+ 	regs[6] &= ~MCP794XX_BIT_ALMX_IF;
+ 	/* Set alarm match: second, minute, hour, day, date, month. */
+ 	regs[6] |= MCP794XX_MSK_ALMX_MATCH;
+-
+-	if (t->enabled)
+-		regs[0] |= MCP794XX_BIT_ALM0_EN;
+-	else
+-		regs[0] &= ~MCP794XX_BIT_ALM0_EN;
++	/* Disable interrupt. We will not enable until completely programmed */
++	regs[0] &= ~MCP794XX_BIT_ALM0_EN;
  
-+ARM/Mediatek RTC DRIVER
-+M:	Eddie Huang <eddie.huang@mediatek.com>
-+L:	linux-arm-kernel@lists.infradead.org (moderated for non-subscribers)
-+L:	linux-mediatek@lists.infradead.org (moderated for non-subscribers)
-+S:	Maintained
-+F:	drivers/rtc/rtc-mt*
-+
- ARM/Mediatek SoC support
- M:	Matthias Brugger <matthias.bgg@gmail.com>
- L:	linux-arm-kernel@lists.infradead.org (moderated for non-subscribers)
+ 	ret = ds1307->write_block_data(client, MCP794XX_REG_CONTROL, 10, regs);
+ 	if (ret < 0)
+ 		return ret;
+ 
+-	return 0;
++	if (!t->enabled)
++		return 0;
++	regs[0] |= MCP794XX_BIT_ALM0_EN;
++	return i2c_smbus_write_byte_data(client, MCP794XX_REG_CONTROL, regs[0]);
+ }
+ 
+ static int mcp794xx_alarm_irq_enable(struct device *dev, unsigned int enabled)
 -- 
-1.8.1.1.dirty
+1.7.9.5
 
 -- 
 -- 
