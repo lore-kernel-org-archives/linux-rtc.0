@@ -1,20 +1,23 @@
-Return-Path: <rtc-linux+bncBD66BCOYSQBBBLE6RWUQKGQEO6QRZ3Q@googlegroups.com>
+Return-Path: <rtc-linux+bncBCO3XAUMTIFRBXFR22UQKGQEEC3I2VQ@googlegroups.com>
 Received: from comal.ext.ti.com (comal.ext.ti.com. [198.47.26.152])
-        by gmr-mx.google.com with ESMTPS id t6si557383igz.3.2015.04.06.20.29.48
+        by gmr-mx.google.com with ESMTPS id k3si32100igf.1.2015.04.20.17.25.00
         for <rtc-linux@googlegroups.com>
         (version=TLSv1 cipher=RC4-SHA bits=128/128);
-        Mon, 06 Apr 2015 20:29:48 -0700 (PDT)
-Message-ID: <55234F25.5060708@ti.com>
-Date: Tue, 7 Apr 2015 08:59:41 +0530
-From: Keerthy <a0393675@ti.com>
+        Mon, 20 Apr 2015 17:25:00 -0700 (PDT)
+Message-ID: <553598D6.5030000@ti.com>
+Date: Mon, 20 Apr 2015 19:24:54 -0500
+From: Nishanth Menon <nm@ti.com>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@linux-foundation.org>, <rtc-linux@googlegroups.com>
-CC: Keerthy <j-keerthy@ti.com>, <a.zummo@towertech.it>,
-        <linux-kernel@vger.kernel.org>, <linux-omap@vger.kernel.org>
-Subject: Re: [rtc-linux] [PATCH] rtc: OMAP: Add external 32k clock feature
-References: <1425375722-13412-1-git-send-email-j-keerthy@ti.com> <20150324155916.cfd1b7ab442271466160283f@linux-foundation.org>
-In-Reply-To: <20150324155916.cfd1b7ab442271466160283f@linux-foundation.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        Alessandro Zummo
+	<a.zummo@towertech.it>
+CC: <linux-omap@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+        <rtc-linux@googlegroups.com>
+Subject: [rtc-linux] Re: [PATCH] drivers/rtc/rtc-ds1307.c: Enable the mcp794xx
+ alarm after programming time
+References: <1429574122-4284-1-git-send-email-nm@ti.com>
+In-Reply-To: <1429574122-4284-1-git-send-email-nm@ti.com>
+Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -25,54 +28,66 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Hi Andrew,
+On 04/20/2015 06:55 PM, Nishanth Menon wrote:
+> Alarm interrupt enable register is at offset 0x7, while the time
+> registers for the alarm follow that. When we program Alarm interrupt
+> enable prior to programming the time, it is possible that previous
+> time value could be close or match at the time of alarm enable
+> resulting in interrupt trigger which is unexpected (and does not match
+> the time we expect it to trigger).
+> 
+> To prevent this scenario from occurring, program the ALM0_EN bit only
+> after the alarm time is appropriately programmed.
+> 
+> Of course, I2C programming is non-atomic, so there are loopholes where
+> the interrupt wont trigger if the time requested is in the past at
+> the time of programming the ALM0_EN bit. However, we will not have
+> unexpected interrupts while the time is programmed after the interrupt
+> are enabled.
+> 
+> Signed-off-by: Nishanth Menon <nm@ti.com>
+> ---
+>  drivers/rtc/rtc-ds1307.c |   12 ++++++------
+>  1 file changed, 6 insertions(+), 6 deletions(-)
+> 
+> diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
+> index 4ffabb322a9a..59f9ecf323d5 100644
+> --- a/drivers/rtc/rtc-ds1307.c
+> +++ b/drivers/rtc/rtc-ds1307.c
+> @@ -742,17 +742,17 @@ static int mcp794xx_set_alarm(struct device *dev, struct rtc_wkalrm *t)
+>  	regs[6] &= ~MCP794XX_BIT_ALMX_IF;
+>  	/* Set alarm match: second, minute, hour, day, date, month. */
+>  	regs[6] |= MCP794XX_MSK_ALMX_MATCH;
+> -
+> -	if (t->enabled)
+> -		regs[0] |= MCP794XX_BIT_ALM0_EN;
+> -	else
+> -		regs[0] &= ~MCP794XX_BIT_ALM0_EN;
+> +	/* Disable interrupt. We will not enable until completely programed */
+^^ typo here. s/programed/programmed
+> +	regs[0] &= ~MCP794XX_BIT_ALM0_EN;
+>  
+>  	ret = ds1307->write_block_data(client, MCP794XX_REG_CONTROL, 10, regs);
+>  	if (ret < 0)
+>  		return ret;
+>  
+> -	return 0;
+> +	if (!t->enabled)
+> +		return 0;
+> +	regs[0] |= MCP7941X_BIT_ALM0_EN;
 
-Apologies for replying late.
+^^ messed up git commit --amend :(
 
-On Wednesday 25 March 2015 04:29 AM, Andrew Morton wrote:
-> On Tue, 3 Mar 2015 15:12:02 +0530 Keerthy <j-keerthy@ti.com> wrote:
->
->> Add external 32k clock feature. The internal clock will be gated during suspend.
->> Hence make use of the external 32k clock so that rtc is functional accross
->> suspend/resume.
->>
->> ...
->>
->> @@ -446,6 +449,7 @@ static const struct omap_rtc_device_type omap_rtc_default_type = {
->>
->>   static const struct omap_rtc_device_type omap_rtc_am3352_type = {
->>   	.has_32kclk_en	= true,
->> +	.has_osc_ext_32k = true,
->>   	.has_kicker	= true,
->>   	.has_irqwakeen	= true,
->>   	.has_pmic_mode	= true,
->> @@ -543,7 +547,16 @@ static int __init omap_rtc_probe(struct platform_device *pdev)
->>   	if (rtc->type->has_32kclk_en) {
->>   		reg = rtc_read(rtc, OMAP_RTC_OSC_REG);
->>   		rtc_writel(rtc, OMAP_RTC_OSC_REG,
->> -				reg | OMAP_RTC_OSC_32KCLK_EN);
->> +			   reg | OMAP_RTC_OSC_32KCLK_EN);
->> +	}
->> +
->> +	/* Enable External clock as the source */
->> +
->> +	if (rtc->type->has_osc_ext_32k) {
->> +		rtc_writel(rtc, OMAP_RTC_OSC_REG,
->> +			   (OMAP_RTC_OSC_EXT_32K |
->> +			   rtc_read(rtc, OMAP_RTC_OSC_REG)) &
->> +			   (~OMAP_RTC_OSC_OSC32K_GZ));
->>   	}
->
-> How do we know that all systems have this external clock and that it
-> works OK?
->
+> +	return i2c_smbus_write_byte_data(client, MCP794XX_REG_CONTROL, regs[0]);
+>  }
+>  
+>  static int mcp794xx_alarm_irq_enable(struct device *dev, unsigned int enabled)
+> 
 
-AM335 and AM43X have the external clock feature which we choose using 
-RTC_OSC_REG. I verified it works OK by seeing the RTC seconds ticking 
-even after switching the source to the external 32k Clock.
-
+will repost a rev2 - apologies on the noise.
+-- 
 Regards,
-Keerthy
+Nishanth Menon
 
 -- 
 -- 
