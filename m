@@ -1,20 +1,21 @@
-Return-Path: <rtc-linux+bncBAABBP4Q52UAKGQEXXQMPFQ@googlegroups.com>
-Received: from comal.ext.ti.com (comal.ext.ti.com. [198.47.26.152])
-        by gmr-mx.google.com with ESMTPS id t6si109100igz.3.2015.03.31.22.55.11
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1 cipher=RC4-SHA bits=128/128);
-        Tue, 31 Mar 2015 22:55:11 -0700 (PDT)
-From: Lokesh Vutla <lokeshvutla@ti.com>
-To: <a.zummo@towertech.it>, <rtc-linux@googlegroups.com>
-CC: <t-kristo@ti.com>, <nsekhar@ti.com>, <linux-omap@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>, <lokeshvutla@ti.com>
-Subject: [rtc-linux] [PATCH 3/3] rtc: omap: use module_platform_driver
-Date: Wed, 1 Apr 2015 11:24:58 +0530
-Message-ID: <1427867698-1326-4-git-send-email-lokeshvutla@ti.com>
-In-Reply-To: <1427867698-1326-1-git-send-email-lokeshvutla@ti.com>
-References: <1427867698-1326-1-git-send-email-lokeshvutla@ti.com>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBGNZ3OUQKGQEQ67KCPQ@googlegroups.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id t6si216697wiz.0.2015.04.21.16.26.16
+        for <rtc-linux@googlegroups.com>;
+        Tue, 21 Apr 2015 16:26:16 -0700 (PDT)
+Date: Wed, 22 Apr 2015 01:26:15 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Juergen Borleis <jbe@pengutronix.de>
+Cc: linux-kernel@vger.kernel.org, rtc-linux@googlegroups.com,
+	kernel@pengutronix.de, Alessandro Zummo <a.zummo@towertech.it>,
+	linux-arm-kernel@lists.infradead.org
+Subject: Re: [rtc-linux] [PATCH 2nd try] RTC/i.MX/DryICE: add recovery
+ routines to the driver
+Message-ID: <20150421232615.GD8539@piout.net>
+References: <1429002716-19821-1-git-send-email-jbe@pengutronix.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1429002716-19821-1-git-send-email-jbe@pengutronix.de>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -25,46 +26,35 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-module_platform_driver_probe() prevents driver from requesting probe deferral.
-So using module_platform_drive() to support probe deferral.
+Hi,
 
-Signed-off-by: Lokesh Vutla <lokeshvutla@ti.com>
----
- drivers/rtc/rtc-omap.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+On 14/04/2015 at 11:11:51 +0200, Juergen Borleis wrote :
+> 2nd try, this time with a cover letter... m(
+> 
+> The built-in RTC unit on some i.MX SoCs isn't an RTC only. It is also a tamper
+> monitor unit which can keep some keys. When it does its tamper detection job
 
-diff --git a/drivers/rtc/rtc-omap.c b/drivers/rtc/rtc-omap.c
-index 96cc613..a4965a0 100644
---- a/drivers/rtc/rtc-omap.c
-+++ b/drivers/rtc/rtc-omap.c
-@@ -510,7 +510,7 @@ static const struct of_device_id omap_rtc_of_match[] = {
- };
- MODULE_DEVICE_TABLE(of, omap_rtc_of_match);
- 
--static int __init omap_rtc_probe(struct platform_device *pdev)
-+static int omap_rtc_probe(struct platform_device *pdev)
- {
- 	struct omap_rtc	*rtc;
- 	struct resource	*res;
-@@ -745,6 +745,7 @@ static void omap_rtc_shutdown(struct platform_device *pdev)
- }
- 
- static struct platform_driver omap_rtc_driver = {
-+	.probe		= omap_rtc_probe,
- 	.remove		= __exit_p(omap_rtc_remove),
- 	.shutdown	= omap_rtc_shutdown,
- 	.driver		= {
-@@ -755,7 +756,7 @@ static struct platform_driver omap_rtc_driver = {
- 	.id_table	= omap_rtc_id_table,
- };
- 
--module_platform_driver_probe(omap_rtc_driver, omap_rtc_probe);
-+module_platform_driver(omap_rtc_driver);
- 
- MODULE_ALIAS("platform:omap_rtc");
- MODULE_AUTHOR("George G. Davis (and others)");
+Does it have more functions? I would say that it also holds some keys
+but I don't have a handy Freescale representative to contact ;)
+
+I'm fine getting that unlocking done in the RTC driver but maybe in the
+future, it will be necessary to handle that in an MFD driver when adding
+support for the other functions.
+
+> and a tamper violation is detected, this RTC unit locks completely including
+> the real-time counter. In this state the unit is completely useless. The only
+> way to bring it out of this locked state is a power on reset. At the next boot
+> time some flags signals the tamper violation and a specific register access
+> sequence must be done to finaly bring this unit into life again. Until this is
+> done, there is no way to use it again as an RTC.
+> But also without any enabled tamper detection sometimes this unit tends to
+> lock. And in this case the same steps must be done to bring it into life
+> again.
+
 -- 
-1.9.1
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
 -- 
 -- 
