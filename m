@@ -1,99 +1,50 @@
-Return-Path: <rtc-linux+bncBD62P6P6EQIIFJMKVICRUBFHAVERA@googlegroups.com>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRB26C3OUQKGQEMIY3DYA@googlegroups.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id k2si219581wif.0.2015.04.21.16.46.50
+        for <rtc-linux@googlegroups.com>;
+        Tue, 21 Apr 2015 16:46:50 -0700 (PDT)
+Date: Wed, 22 Apr 2015 01:46:50 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Juergen Borleis <jbe@pengutronix.de>
+Cc: linux-kernel@vger.kernel.org, rtc-linux@googlegroups.com,
+	kernel@pengutronix.de, Alessandro Zummo <a.zummo@towertech.it>,
+	linux-arm-kernel@lists.infradead.org,
+	Robert Schwebel <rsc@pengutronix.de>
+Subject: Re: [rtc-linux] [PATCH 2/5] RTC/i.MX/DryIce: add the unit recovery code
+Message-ID: <20150421234649.GG8539@piout.net>
+References: <1429002716-19821-1-git-send-email-jbe@pengutronix.de>
+ <1429002716-19821-3-git-send-email-jbe@pengutronix.de>
+ <20150421231411.GC8539@piout.net>
 MIME-Version: 1.0
-Received: from mail-ob0-x22a.google.com (mail-ob0-x22a.google.com. [2607:f8b0:4003:c01::22a])
-        by gmr-mx.google.com with ESMTPS id x12si230844igx.1.2015.04.30.13.37.22
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 30 Apr 2015 13:37:22 -0700 (PDT)
-Received: by mail-ob0-x22a.google.com with SMTP id lk2so14304054obb.0
-        for <rtc-linux@googlegroups.com>; Thu, 30 Apr 2015 13:37:22 -0700 (PDT)
-Sender: rtc-linux@googlegroups.com
-From: Rob Herring <robh@kernel.org>
-To: Russell King <linux@arm.linux.org.uk>,
-	Robert Jarzmik <robert.jarzmik@free.fr>,
-	Alessandro Zummo <a.zummo@towertech.it>
-Cc: linux-arm-kernel@lists.infradead.org,
-	Arnd Bergmann <arnd@arndb.de>,
-	Rob Herring <robh@kernel.org>,
-	Daniel Mack <daniel@zonque.org>,
-	Haojian Zhuang <haojian.zhuang@gmail.com>,
-	Eric Miao <eric.y.miao@gmail.com>,
-	rtc-linux@googlegroups.com
-Subject: [rtc-linux] [PATCH v2 3/4] ARM: sa1100: remove unused RTC register definitions
-Date: Thu, 30 Apr 2015 15:37:12 -0500
-Message-Id: <1430426233-7461-4-git-send-email-robh@kernel.org>
-In-Reply-To: <1430426233-7461-1-git-send-email-robh@kernel.org>
-References: <1430426233-7461-1-git-send-email-robh@kernel.org>
-Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <20150421231411.GC8539@piout.net>
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
 List-Archive: <http://groups.google.com/group/rtc-linux
+Sender: rtc-linux@googlegroups.com
 List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Now that register definitions have been moved to the driver, we can remove
-them from machine specific code.
+On 22/04/2015 at 01:14:11 +0200, Alexandre Belloni wrote :
+> > +	sec = __raw_readl(imxdi->ioaddr + DTCMR);
+> > +	if (sec != 0)
+> > +		dev_warn(&imxdi->pdev->dev,
+> > +			"The security violation has happend at %u seconds\n",
+> 
+> Further improvement for this driver: use both DTCMR and DTCLR to be year
+> 2038 proof
 
-Signed-off-by: Rob Herring <robh@kernel.org>
-Cc: Russell King <linux@arm.linux.org.uk>
-Cc: linux-arm-kernel@lists.infradead.org
----
-v2:
-- Rebase to v4.1-rc1
-
- arch/arm/mach-sa1100/include/mach/SA-1100.h | 34 -----------------------------
- 1 file changed, 34 deletions(-)
-
-diff --git a/arch/arm/mach-sa1100/include/mach/SA-1100.h b/arch/arm/mach-sa1100/include/mach/SA-1100.h
-index 0ac6cc0..7972617 100644
---- a/arch/arm/mach-sa1100/include/mach/SA-1100.h
-+++ b/arch/arm/mach-sa1100/include/mach/SA-1100.h
-@@ -858,40 +858,6 @@
+Please forget that comment I just realized that seconds were counted in
+the most significant part...
 
 
- /*
-- * Real-Time Clock (RTC) control registers
-- *
-- * Registers
-- *    RTAR      	Real-Time Clock (RTC) Alarm Register (read/write).
-- *    RCNR      	Real-Time Clock (RTC) CouNt Register (read/write).
-- *    RTTR      	Real-Time Clock (RTC) Trim Register (read/write).
-- *    RTSR      	Real-Time Clock (RTC) Status Register (read/write).
-- *
-- * Clocks
-- *    frtx, Trtx	Frequency, period of the real-time clock crystal
-- *              	(32.768 kHz nominal).
-- *    frtc, Trtc	Frequency, period of the real-time clock counter
-- *              	(1 Hz nominal).
-- */
--
--#define RTAR		__REG(0x90010000)  /* RTC Alarm Reg. */
--#define RCNR		__REG(0x90010004)  /* RTC CouNt Reg. */
--#define RTTR		__REG(0x90010008)  /* RTC Trim Reg. */
--#define RTSR		__REG(0x90010010)  /* RTC Status Reg. */
--
--#define RTTR_C  	Fld (16, 0)	/* clock divider Count - 1         */
--#define RTTR_D  	Fld (10, 16)	/* trim Delete count               */
--                	        	/* frtc = (1023*(C + 1) - D)*frtx/ */
--                	        	/*        (1023*(C + 1)^2)         */
--                	        	/* Trtc = (1023*(C + 1)^2)*Trtx/   */
--                	        	/*        (1023*(C + 1) - D)       */
--
--#define RTSR_AL 	0x00000001	/* ALarm detected                  */
--#define RTSR_HZ 	0x00000002	/* 1 Hz clock detected             */
--#define RTSR_ALE	0x00000004	/* ALarm interrupt Enable          */
--#define RTSR_HZE	0x00000008	/* 1 Hz clock interrupt Enable     */
--
--
--/*
-  * Power Manager (PM) control registers
-  *
-  * Registers
---
-2.1.0
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
 -- 
 -- 
