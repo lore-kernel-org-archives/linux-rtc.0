@@ -1,40 +1,23 @@
-Return-Path: <rtc-linux+bncBDP6N55ZUYDRB3XBYSUQKGQEQHKZ2RY@googlegroups.com>
-Received: from mail-ie0-x22c.google.com (mail-ie0-x22c.google.com. [2607:f8b0:4001:c03::22c])
-        by gmr-mx.google.com with ESMTPS id v1si253153igk.0.2015.04.17.09.12.30
+Return-Path: <rtc-linux+bncBCO3XAUMTIFRB64A3SUQKGQER3X2YYQ@googlegroups.com>
+Received: from comal.ext.ti.com (comal.ext.ti.com. [198.47.26.152])
+        by gmr-mx.google.com with ESMTPS id x12si348874igx.1.2015.04.21.18.59.22
         for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 17 Apr 2015 09:12:30 -0700 (PDT)
-Received: by mail-ie0-x22c.google.com with SMTP id rt8so63374594iec.0
-        for <rtc-linux@googlegroups.com>; Fri, 17 Apr 2015 09:12:30 -0700 (PDT)
-Date: Fri, 17 Apr 2015 09:12:17 -0700
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: S Twiss <stwiss.opensource@diasemi.com>
-Cc: LINUXINPUT <linux-input@vger.kernel.org>,
-	LINUXKERNEL <linux-kernel@vger.kernel.org>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	DEVICETREE <devicetree@vger.kernel.org>,
-	David Dajun Chen <david.chen@diasemi.com>,
-	Ian Campbell <ijc+devicetree@hellion.org.uk>,
-	Kumar Gala <galak@codeaurora.org>,
-	LINUXWATCHDOG <linux-watchdog@vger.kernel.org>,
-	Lee Jones <lee.jones@linaro.org>,
-	Liam Girdwood <lgirdwood@gmail.com>,
-	Mark Brown <broonie@kernel.org>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Pawel Moll <pawel.moll@arm.com>,
-	RTCLINUX <rtc-linux@googlegroups.com>,
-	Rob Herring <robh+dt@kernel.org>,
-	Samuel Ortiz <sameo@linux.intel.com>,
-	Support Opensource <support.opensource@diasemi.com>,
-	Wim Van Sebroeck <wim@iguana.be>
-Subject: [rtc-linux] Re: [PATCH V1 4/6] input: misc: onkey: da9062: DA9062
- OnKey driver
-Message-ID: <20150417161217.GA27440@dtor-ws>
-References: <cover.1429280614.git.stwiss.opensource@diasemi.com>
- <c05802897197e71839a33b1f5ac224031b14e65b.1429280614.git.stwiss.opensource@diasemi.com>
+        (version=TLSv1 cipher=RC4-SHA bits=128/128);
+        Tue, 21 Apr 2015 18:59:23 -0700 (PDT)
+Message-ID: <55370073.3060809@ti.com>
+Date: Tue, 21 Apr 2015 20:59:15 -0500
+From: Nishanth Menon <nm@ti.com>
 MIME-Version: 1.0
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        Nishanth Menon
+	<nm@ti.com>
+CC: Alessandro Zummo <a.zummo@towertech.it>, <linux-omap@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>, <rtc-linux@googlegroups.com>
+Subject: [rtc-linux] Re: [PATCH V2] drivers/rtc/rtc-ds1307.c: Enable the
+ mcp794xx alarm after programming time
+References: <1429577494-15087-1-git-send-email-nm@ti.com> <20150421234139.GF8539@piout.net> <5536E433.90103@ti.com> <20150422010925.GH8539@piout.net>
+In-Reply-To: <20150422010925.GH8539@piout.net>
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <c05802897197e71839a33b1f5ac224031b14e65b.1429280614.git.stwiss.opensource@diasemi.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -45,316 +28,128 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Hi,
-
-On Fri, Apr 17, 2015 at 03:23:33PM +0100, S Twiss wrote:
-> From: S Twiss <stwiss.opensource@diasemi.com>
+On 04/21/2015 08:09 PM, Alexandre Belloni wrote:
+> On 21/04/2015 at 18:58:43 -0500, Nishanth Menon wrote :
+>>>
+>>> Consider the following use case: a platform is setting the RTC alarm
+>>> before going to suspend to ram. Before your patch, it may be woken up
+>> ^^ precisely what I am trying to solve.
+>>
+>>> quite quickly, before expected. After your patch, it may never wake at
+>>> all.
+>>
+>> Why is that so? when set alarm is requested for time X, you want
+>> interrupt at time X, not an interrupt for previous configured RTC
+>> alarm time!
+>>
 > 
-> Add OnKey driver support for DA9062
+> You expect at least an interrupt.
+
+And you will get an interrupt if the event occurs before the i2c burst
+starts. Once the i2cburst does start, you are committing to the new time.
+
 > 
-> Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
+>> If the time X is > the point when ALM0 is programmed, then you will
+>> get an interrupt.
+>>
 > 
-> ---
+> You are eluding my point. What happens if the alarm expires before ALM0
+> is programmed? Your system is probably dead because it will never wake
+> up.
+
+if the previous alarm does expire before the new alarm is programmed
+(before the burst is started), you will get an event - why does this
+patch change this? the case you are concerned seem to be the case where
+the time you program is in the past at the point when alarm interrupt is
+enabled.
+
+Lets see the current behavior(before this patch): time currently
+requested is in the past, you are dead anyways. this can happen since
+the decision of programming the time is done in userspace(example with
+rtcwake) and there are latencies as part of suspend path (file sync)
+that can cause the possible cases - consider "rtcwake -s 1" - and for
+the moment, lets assume that rtc event is the only wakeup event possible
+for the system (to address your point).
+
+a) If the rtcwake progams time before initiating suspend state and prior
+to suspend_no_irq is hit event triggers, irq is handled by rtc driver,
+and we proceed on to suspend state - but no further irqs can be expected
+"dead state"
+b) predicted time occurs before suspend_no_irq level is reached, but
+before the system actually enters suspend -> event occurs with irq
+disabled and depending on smartness of platform code, it can detect that
+the wakeup event occurred prior to attempting suspend (hence "dead state")
+c) If rtcwake's set_alarm invocation is slowed due to filesystem or
+other load activities, the time requested to wakeup is already in the
+past, you are in deadstate as the wakeup event has already occurred
+prior to entering suspend path.
+
+Note: even with android alarm driver(at least the last time i looked at
+it a few years ago), this situation is probably escaping (a), but (b)
+and (c) is still real and has to be properly anticipated.
+
+My patch does nothing different to this behavior - only point changed is
+*if the previous event does not take place prior to new request being
+initiated, then we have to assume that the new time is what we wanted
+wakeup event for*. That I strongly believe is necessary.
+
+Point being - using a time for wake attempted to be predicted ahead of
+time of suspend path is a a bunch of empirical data analysis - you can
+have a dead system today and this code does not change that behavior - I
+doubt you can ever get a clean fix without a constant latency.
+
+>> If you get an interrupt (like my screenshot shows) because the new
+>> value has not yet been programmed (just because we enabled interrupt
+>> before programming time), it is unexpected event and wrong!
+>>
+>> Another scenario: Take the following time points A < B < C < D
+>> we program at time (A), an interrupt for time (C).
+>> but at time B, we intiate a new time request for time (D).
+>> if we happen to send the first ALM0EN at time C (before programming
+>> D), you will generate an interrupt, but before the irq handler can
+>> handle (since we are doing burst i2c), we program D which clears the
+>> irq status (as can be seen in waveform).
+>>
+>> This does not make sense for a predictable behavior! Yeah, it will
+>> wakeup quickly, but when we go and read irqstatus (ALM0IF), it will be
+>> 0 and nothing will get reported to rtc subsystem. So:
+>> a) we woke up at a time not requested - this is wrong
+>> b) our irq handler has nothing to handle! - this is wrong as well.
+>>
+>> in short, the behavior you are asking for is quiet the wrong behavior!
+>>
 > 
-> This patch applies against linux-next and v4.0 
+> I agree that an unexpected event is wrong but it is still better than a
+> dead system. I'm not asking to keep the current behaviour. I'm just
+> wanting to try to not introduce another race condition.
 > 
-> 
-> 
->  drivers/input/misc/Kconfig        |  10 ++
->  drivers/input/misc/Makefile       |   1 +
->  drivers/input/misc/da9062-onkey.c | 223 ++++++++++++++++++++++++++++++++++++++
->  3 files changed, 234 insertions(+)
->  create mode 100644 drivers/input/misc/da9062-onkey.c
-> 
-> diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
-> index 6deb8da..472ca38 100644
-> --- a/drivers/input/misc/Kconfig
-> +++ b/drivers/input/misc/Kconfig
-> @@ -586,6 +586,16 @@ config INPUT_DA9055_ONKEY
->  	  To compile this driver as a module, choose M here: the module
->  	  will be called da9055_onkey.
->  
-> +config INPUT_DA9062_ONKEY
-> +	tristate "Dialog DA9062 OnKey"
-> +	depends on MFD_DA9062
-> +	help
-> +	  Support the ONKEY of Dialog DA9062 Power Management IC as an
-> +	  input device reporting power button status.
-> +
-> +	  To compile this driver as a module, choose M here: the module
-> +	  will be called da9062-onkey.
-> +
->  config INPUT_DM355EVM
->  	tristate "TI DaVinci DM355 EVM Keypad and IR Remote"
->  	depends on MFD_DM355EVM_MSP
-> diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
-> index 403a1a5..a631283 100644
-> --- a/drivers/input/misc/Makefile
-> +++ b/drivers/input/misc/Makefile
-> @@ -25,6 +25,7 @@ obj-$(CONFIG_INPUT_CMA3000_I2C)		+= cma3000_d0x_i2c.o
->  obj-$(CONFIG_INPUT_COBALT_BTNS)		+= cobalt_btns.o
->  obj-$(CONFIG_INPUT_DA9052_ONKEY)	+= da9052_onkey.o
->  obj-$(CONFIG_INPUT_DA9055_ONKEY)	+= da9055_onkey.o
-> +obj-$(CONFIG_INPUT_DA9062_ONKEY)	+= da9062-onkey.o
+> What about setting ALM0MTH to 0x1F before reading the control registers?
 
-Can we maybe keep the same naming convention for all of these? Also, any
-chance all of them or some of them can be combined?
+Ummm.... why is that any different? In effect, you are just disabling
+the compare logic inside the RTC differently and that said, I am not
+entirely sure if I want to test the MCP794xx RTL designer's logic with
+invalid dates being programmed for month/date etc.. ;)
 
->  obj-$(CONFIG_INPUT_DM355EVM)		+= dm355evm_keys.o
->  obj-$(CONFIG_INPUT_E3X0_BUTTON)		+= e3x0-button.o
->  obj-$(CONFIG_INPUT_DRV260X_HAPTICS)	+= drv260x.o
-> diff --git a/drivers/input/misc/da9062-onkey.c b/drivers/input/misc/da9062-onkey.c
-> new file mode 100644
-> index 0000000..c4c0295
-> --- /dev/null
-> +++ b/drivers/input/misc/da9062-onkey.c
-> @@ -0,0 +1,223 @@
-> +/*
-> + * da9062-onkey.c - ONKEY device driver for DA9062
-> + * Copyright (C) 2015  Dialog Semiconductor Ltd.
-> + *
-> + * This program is free software; you can redistribute it and/or
-> + * modify it under the terms of the GNU General Public License
-> + * as published by the Free Software Foundation; either version 2
-> + * of the License, or (at your option) any later version.
-> + *
-> + * This program is distributed in the hope that it will be useful,
-> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
-> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-> + * GNU General Public License for more details.
-> + */
-> +
-> +#include <linux/module.h>
-> +#include <linux/errno.h>
-> +#include <linux/input.h>
-> +#include <linux/interrupt.h>
-> +#include <linux/platform_device.h>
-> +#include <linux/workqueue.h>
-> +#include <linux/regmap.h>
-> +#include <linux/of.h>
-> +#include <linux/mfd/da9062/core.h>
-> +#include <linux/mfd/da9062/registers.h>
-> +
-> +struct da9062_onkey {
-> +	struct da9062 *hw;
-> +	struct delayed_work work;
-> +	struct	input_dev *input;
-> +	int irq;
-> +	bool key_power;
-> +};
-> +
-> +static void da9062_poll_on(struct work_struct *work)
-> +{
-> +	struct da9062_onkey *onkey = container_of(work, struct da9062_onkey,
-> +						  work.work);
-> +	unsigned int val;
-> +	int fault_log = 0;
-> +	bool poll = true;
-> +	int ret;
-> +
-> +	/* poll to see when the pin is released */
-> +	ret = regmap_read(onkey->hw->regmap, DA9062AA_STATUS_A, &val);
-> +	if (ret < 0) {
-> +		dev_err(&onkey->input->dev,
-> +			"Failed to read ON status: %d\n", ret);
-> +		goto err_poll;
-> +	}
-> +
-> +	if (!(val & DA9062AA_NONKEY_MASK)) {
-> +		ret = regmap_update_bits(onkey->hw->regmap,
-> +					 DA9062AA_CONTROL_B,
-> +					 DA9062AA_NONKEY_LOCK_MASK, 0);
-> +		if (ret < 0) {
-> +			dev_err(&onkey->input->dev,
-> +				"Failed to reset the Key Delay %d\n", ret);
-> +			goto err_poll;
-> +		}
-> +
-> +		input_report_key(onkey->input, KEY_POWER, 0);
-> +		input_sync(onkey->input);
-> +
-> +		poll = false;
-> +	}
-> +
-> +	/* if the fault log KEY_RESET is detected,
-> +	 * then clear it and shutdown DA9062 via I2C
-> +	 */
-> +	ret = regmap_read(onkey->hw->regmap, DA9062AA_FAULT_LOG, &fault_log);
-> +	if (ret < 0)
-> +		dev_warn(&onkey->input->dev, "Cannot read FAULT_LOG\n");
-> +
-> +	if (fault_log & DA9062AA_KEY_RESET_MASK) {
-> +		ret = regmap_write(onkey->hw->regmap,
-> +				   DA9062AA_FAULT_LOG,
-> +				   DA9062AA_KEY_RESET_MASK);
-> +		if (ret < 0)
-> +			dev_warn(&onkey->input->dev,
-> +				 "Cannot reset KEY_RESET fault log\n");
-> +		else {
-> +			/* at this point we do any S/W housekeeping
-> +			 * and then send shutdown command
-> +			 */
-> +			dev_info(&onkey->input->dev,
-> +				 "Sending SHUTDOWN to DA9062 ...\n");
-> +			ret = regmap_write(onkey->hw->regmap,
-> +					   DA9062AA_CONTROL_F,
-> +					   DA9062AA_SHUTDOWN_MASK);
-> +			if (ret < 0)
-> +				dev_err(&onkey->input->dev,
-> +					"Cannot SHUTDOWN DA9062\n");
-> +		}
-> +	}
+> You could also read only the first 3 registers as all the others are
+> overwritten. And finally, you only need to write 9 bytes instead of 10
 
-This entire block seems to not belong to the input portion of MFD. Why
-do we do it here?
+True - had noticed that as well. have'nt had time to optimize the path yet.
 
-> +
-> +err_poll:
-> +	if (poll)
-> +		schedule_delayed_work(&onkey->work, 50);
-> +}
-> +
-> +static irqreturn_t da9062_onkey_irq_handler(int irq, void *data)
-> +{
-> +	struct da9062_onkey *onkey = data;
-> +	unsigned int val;
-> +	int ret;
-> +
-> +	ret = regmap_read(onkey->hw->regmap, DA9062AA_STATUS_A, &val);
-> +	if (onkey->key_power && (ret >= 0) && (val & DA9062AA_NONKEY_MASK)) {
-> +		input_report_key(onkey->input, KEY_POWER, 1);
-> +		input_sync(onkey->input);
-> +		schedule_delayed_work(&onkey->work, 0);
-> +		dev_notice(&onkey->input->dev, "KEY_POWER pressed.\n");
-> +	} else {
-> +		input_report_key(onkey->input, KEY_SLEEP, 1);
-> +		input_sync(onkey->input);
-> +		input_report_key(onkey->input, KEY_SLEEP, 0);
-> +		input_sync(onkey->input);
-> +		dev_notice(&onkey->input->dev, "KEY_SLEEP pressed.\n");
-> +	}
+> (register 0x10 is reserved). While not eliminating it completely, this
+> will definitively reduce the race condition window.
 
-Why do we handle KEY_POWER and KEY_SLEEP completely differently?
+Yep - was planning on fixing 10 to 9 - But that is not related to this
+patch anyways. I will do that follow on patch next time I get a break :)
 
-> +
-> +	return IRQ_HANDLED;
-> +}
-> +
-> +static int da9062_onkey_probe(struct platform_device *pdev)
-> +{
-> +	struct da9062 *chip = dev_get_drvdata(pdev->dev.parent);
-> +	struct da9062_onkey *onkey;
-> +	bool kp_tmp = true;
-> +	int ret = 0;
-> +
-> +		kp_tmp = of_property_read_bool((&pdev->dev)->of_node,
-> +					       "dlg,disable-key-power");
-> +		kp_tmp = !kp_tmp;
-
-Should we just allow specifying the keycode instead of hardcoding
-KEY_POWER/KEY_SLEEP?
-
-> +
-> +
-> +	onkey = devm_kzalloc(&pdev->dev, sizeof(struct da9062_onkey),
-> +			     GFP_KERNEL);
-> +	if (!onkey) {
-> +		dev_err(&pdev->dev, "Failed to allocate memory.\n");
-> +		ret = -ENOMEM;
-> +		goto err;
-> +	}
-> +
-> +	INIT_DELAYED_WORK(&onkey->work, da9062_poll_on);
-> +
-> +	onkey->input = devm_input_allocate_device(&pdev->dev);
-> +	if (!onkey->input) {
-> +		dev_err(&pdev->dev, "Failed to allocated input device.\n");
-> +		ret = -ENOMEM;
-> +		goto err;
-> +	}
-> +
-> +	ret = platform_get_irq_byname(pdev, "ONKEY");
-> +	if (ret < 0) {
-> +		dev_err(&pdev->dev, "Failed to get platform IRQ.\n");
-> +		goto err;
-> +	}
-> +	onkey->irq = ret;
-> +
-> +	ret = request_threaded_irq(onkey->irq, NULL,
-> +				   da9062_onkey_irq_handler,
-> +				   IRQF_TRIGGER_LOW | IRQF_ONESHOT,
-> +				   "ONKEY", onkey);
-> +	if (ret) {
-> +		dev_err(&pdev->dev,
-> +			"Failed to request input device IRQ.\n");
-> +		goto err;
-> +	}
-> +
-> +	onkey->hw = chip;
-> +	onkey->key_power = kp_tmp;
-> +	onkey->input->evbit[0] = BIT_MASK(EV_KEY);
-> +	onkey->input->name = "da9062-onkey";
-> +	onkey->input->phys = "da9062-onkey/input0";
-> +	onkey->input->dev.parent = &pdev->dev;
-> +
-> +	if (onkey->key_power)
-> +		input_set_capability(onkey->input, EV_KEY, KEY_POWER);
-> +	input_set_capability(onkey->input, EV_KEY, KEY_SLEEP);
-> +
-> +	ret = input_register_device(onkey->input);
-> +	if (ret) {
-> +		dev_err(&pdev->dev,
-> +			"Failed to register input device.\n");
-> +		goto err_irq;
-> +	}
-> +
-> +	platform_set_drvdata(pdev, onkey);
-> +	return 0;
-> +
-> +err_irq:
-> +	free_irq(onkey->irq, onkey);
-> +	cancel_delayed_work_sync(&onkey->work);
-> +err:
-> +	return ret;
-> +}
-> +
-> +static int da9062_onkey_remove(struct platform_device *pdev)
-> +{
-> +	struct	da9062_onkey *onkey = platform_get_drvdata(pdev);
-> +
-> +	free_irq(onkey->irq, onkey);
-> +	cancel_delayed_work_sync(&onkey->work);
-> +	input_unregister_device(onkey->input);
-
-No need to unregister explicitly if you allocated input device with
-devm.
-
-> +	return 0;
-> +}
-> +
-> +static struct platform_driver da9062_onkey_driver = {
-> +	.probe	= da9062_onkey_probe,
-> +	.remove	= da9062_onkey_remove,
-> +	.driver	= {
-> +		.name	= "da9062-onkey",
-> +		.owner	= THIS_MODULE,
-> +	},
-> +};
-> +
-> +module_platform_driver(da9062_onkey_driver);
-> +
-> +MODULE_AUTHOR("S Twiss <stwiss.opensource@diasemi.com>");
-> +MODULE_DESCRIPTION("ONKEY device driver for Dialog DA9062");
-> +MODULE_LICENSE("GPL v2");
-> +MODULE_ALIAS("platform: da9062-onkey");
-> -- 
-> end-of-patch for PATCH V1
-> 
-
-Thanks.
+yet another patch that I need to do is to check for OSCRUN before
+attempting to program time or alarm -> no point in setting time is
+oscillator is non-functional even after waiting for oscillator
+stabilization time after ST bit is set.. again.. need to do that
+separate from this patch.
 
 -- 
-Dmitry
+Regards,
+Nishanth Menon
 
 -- 
 -- 
