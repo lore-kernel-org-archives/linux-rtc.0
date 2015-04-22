@@ -1,21 +1,26 @@
-Return-Path: <rtc-linux+bncBCC6ZWOPXENRBYUB7GUQKGQE7VMXVMI@googlegroups.com>
-MIME-Version: 1.0
-Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de. [2001:6f8:1178:4:290:27ff:fe1d:cc33])
-        by gmr-mx.google.com with ESMTPS id k2si430437wif.0.2015.04.27.07.00.01
+Return-Path: <rtc-linux+bncBDKLHK5XRULBB3OC32UQKGQEKD25T4A@googlegroups.com>
+Received: from mail-la0-f42.google.com (mail-la0-f42.google.com. [209.85.215.42])
+        by gmr-mx.google.com with ESMTPS id su3si442322lbb.1.2015.04.22.06.26.05
         for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=RC4-SHA bits=128/128);
-        Mon, 27 Apr 2015 07:00:01 -0700 (PDT)
-From: Juergen Borleis <jbe@pengutronix.de>
-To: linux-kernel@vger.kernel.org
-Cc: rtc-linux@googlegroups.com,
-	kernel@pengutronix.de,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	linux-arm-kernel@lists.infradead.org
-Subject: [rtc-linux] [PATCHv2] RTC/i.MX/DryICE: add recovery routines to the driver
-Date: Mon, 27 Apr 2015 15:59:46 +0200
-Message-Id: <1430143192-20667-1-git-send-email-jbe@pengutronix.de>
-Reply-To: rtc-linux@googlegroups.com
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 22 Apr 2015 06:26:05 -0700 (PDT)
+Received: by labbd9 with SMTP id bd9so174867246lab.2
+        for <rtc-linux@googlegroups.com>; Wed, 22 Apr 2015 06:26:05 -0700 (PDT)
+From: "Grygorii.Strashko@linaro.org" <grygorii.strashko@linaro.org>
+Message-ID: <5537A169.206@linaro.org>
+Date: Wed, 22 Apr 2015 16:26:01 +0300
+MIME-Version: 1.0
+To: Nishanth Menon <nm@ti.com>,
+ Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+ Alessandro Zummo <a.zummo@towertech.it>
+CC: linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org,
+ rtc-linux@googlegroups.com
+Subject: [rtc-linux] Re: [PATCH V2] drivers/rtc/rtc-ds1307.c: Enable the
+ mcp794xx alarm after programming time
+References: <1429577494-15087-1-git-send-email-nm@ti.com>
+In-Reply-To: <1429577494-15087-1-git-send-email-nm@ti.com>
 Content-Type: text/plain; charset=UTF-8
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -25,45 +30,89 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-The built-in RTC unit on some i.MX SoCs isn't an RTC only. It is also a tamper
-monitor unit which can keep some (secret) keys. When it does its tamper
-detection job and a security violation is detected, the whole DryICE unit
-including the real-time counter locks completely. In this state the whole unit
-is completely useless. The only way to bring it out of this locked state is a
-power cylce with a POR (most of the case) or additionally a battery power
-cycle which includes the loss of the secret keys.
-At the next boot time some flags signals the security violation and a specific
-register access sequence must be done to finaly bring this unit into life
-again. Until this is done, there is no way to use it again as an RTC.
+Hi,
 
-But also without any enabled tamper detection sometimes this unit tends to
-lock. And in this case the same steps must be done to bring it into life
-again.
+On 04/21/2015 03:51 AM, Nishanth Menon wrote:
+> Alarm interrupt enable register is at offset 0x7, while the time
+> registers for the alarm follow that. When we program Alarm interrupt
+> enable prior to programming the time, it is possible that previous
+> time value could be close or match at the time of alarm enable
+> resulting in interrupt trigger which is unexpected (and does not match
+> the time we expect it to trigger).
+> 
+> To prevent this scenario from occuring, program the ALM0_EN bit only
+> after the alarm time is appropriately programmed.
+> 
+> Ofcourse, I2C programming is non-atomic, so there are loopholes where
+> the interrupt wont trigger if the time requested is in the past at
+> the time of programming the ALM0_EN bit. However, we will not have
+> unexpected interrupts while the time is programmed after the interrupt
+> are enabled.
 
-The current implementation of the DryIce driver isn't able to unlock the
-device successfully in the case it is locked somehow. Only a full power cycle
-including *battery power* can help in this case.
+I think it will be nice if you will mention that you going to follow
+vendor recommendations - AN1491 Configuring the MCP794XX RTCC Family
+http://ww1.microchip.com/downloads/en/AppNotes/01491A.pdf
+;)
+"Also, it is recommended that the alarm registers be loaded
+before the alarm is enabled."
 
-The attached change set adds the required routines to be able to unlock the
-DryIce unit in the case the driver detects a locked unit. This includes
-unlocking it if it is locked by accident or malfunction and not by a real
-security violation.
+> 
+> Signed-off-by: Nishanth Menon <nm@ti.com>
+> ---
+> Changes in v2:
+> 	- minor typo fix in comments
+> 	- merged up code that I missed committing in
+> 
+> V1: https://patchwork.kernel.org/patch/6245041/
+> 
+>   drivers/rtc/rtc-ds1307.c |   12 ++++++------
+>   1 file changed, 6 insertions(+), 6 deletions(-)
+> 
+> diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
+> index 4ffabb322a9a..3cd4783375a5 100644
+> --- a/drivers/rtc/rtc-ds1307.c
+> +++ b/drivers/rtc/rtc-ds1307.c
+> @@ -742,17 +742,17 @@ static int mcp794xx_set_alarm(struct device *dev, struct rtc_wkalrm *t)
+>   	regs[6] &= ~MCP794XX_BIT_ALMX_IF;
+>   	/* Set alarm match: second, minute, hour, day, date, month. */
+>   	regs[6] |= MCP794XX_MSK_ALMX_MATCH;
+> -
+> -	if (t->enabled)
+> -		regs[0] |= MCP794XX_BIT_ALM0_EN;
+> -	else
+> -		regs[0] &= ~MCP794XX_BIT_ALM0_EN;
+> +	/* Disable interrupt. We will not enable until completely programmed */
+> +	regs[0] &= ~MCP794XX_BIT_ALM0_EN;
+>   
+>   	ret = ds1307->write_block_data(client, MCP794XX_REG_CONTROL, 10, regs);
+>   	if (ret < 0)
+>   		return ret;
+>   
+> -	return 0;
+> +	if (!t->enabled)
+> +		return 0;
+> +	regs[0] |= MCP794XX_BIT_ALM0_EN;
+> +	return i2c_smbus_write_byte_data(client, MCP794XX_REG_CONTROL, regs[0]);
 
-The last patch of this series is for reference only and should not be part
-of the kernel. It just adds some code to force a locked DryIce unit to check
-if the new routines are able to unlock it again. This code was required
-because I had no hardware which really uses the tamper detection features of
-this unit.
+So, It seems, that right sequence should be:
+- disable alarmX
+- read alarmX regs
+- configure alarmX regs
+- load alarmX regs
+- enable alarmX
 
-This is the 2nd version of the patch series. Hopefully I addressed all comments
-from Alexandre.
+More over, looks like, alarm/alarm IRQ should be enabled/disabled separately from set_alarm/RTC_ALM_SET
+by RTC_AIE_ON, RTC_AIE_OFF. Should it?
 
-In this version I added a new patch which replaces all __raw* register functions
-as recommended by Alexandre.
+>   }
+>   
+>   static int mcp794xx_alarm_irq_enable(struct device *dev, unsigned int enabled)
+> 
 
-Comments are welcome.
 
-jbe
+-- 
+regards,
+-grygorii
 
 -- 
 -- 
