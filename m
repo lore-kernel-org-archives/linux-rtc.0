@@ -1,39 +1,26 @@
-Return-Path: <rtc-linux+bncBDA7X7F2WUEBBXHQQKVAKGQESSLF7BA@googlegroups.com>
-Received: from mail-wi0-f179.google.com (mail-wi0-f179.google.com. [209.85.212.179])
-        by gmr-mx.google.com with ESMTPS id q10si773617wiz.0.2015.04.29.03.54.20
+Return-Path: <rtc-linux+bncBDKLHK5XRULBBUU74SUQKGQELK3Y2BQ@googlegroups.com>
+Received: from mail-wi0-f176.google.com (mail-wi0-f176.google.com. [209.85.212.176])
+        by gmr-mx.google.com with ESMTPS id g5si549356wix.1.2015.04.23.08.29.22
         for <rtc-linux@googlegroups.com>
         (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 29 Apr 2015 03:54:20 -0700 (PDT)
-Received: by wiun10 with SMTP id n10so61026842wiu.1
-        for <rtc-linux@googlegroups.com>; Wed, 29 Apr 2015 03:54:20 -0700 (PDT)
-Date: Wed, 29 Apr 2015 11:54:15 +0100
-From: Lee Jones <lee.jones@linaro.org>
-To: S Twiss <stwiss.opensource@diasemi.com>
-Cc: DEVICETREE <devicetree@vger.kernel.org>,
-	Ian Campbell <ijc+devicetree@hellion.org.uk>,
-	Kumar Gala <galak@codeaurora.org>,
-	LINUXKERNEL <linux-kernel@vger.kernel.org>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Pawel Moll <pawel.moll@arm.com>, Rob Herring <robh+dt@kernel.org>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	David Dajun Chen <david.chen@diasemi.com>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	LINUXINPUT <linux-input@vger.kernel.org>,
-	LINUXWATCHDOG <linux-watchdog@vger.kernel.org>,
-	Liam Girdwood <lgirdwood@gmail.com>,
-	Mark Brown <broonie@kernel.org>,
-	RTCLINUX <rtc-linux@googlegroups.com>,
-	Samuel Ortiz <sameo@linux.intel.com>,
-	Support Opensource <support.opensource@diasemi.com>,
-	Wim Van Sebroeck <wim@iguana.be>
-Subject: [rtc-linux] Re: [PATCH V1 6/6] devicetree: da9062: Add bindings for
- DA9062 driver
-Message-ID: <20150429105415.GX9169@x1>
-References: <cover.1429280614.git.stwiss.opensource@diasemi.com>
- <94535acf974274822c5ac16d6427299778e11ccf.1429280614.git.stwiss.opensource@diasemi.com>
+        Thu, 23 Apr 2015 08:29:22 -0700 (PDT)
+Received: by mail-wi0-f176.google.com with SMTP id mx19so15167692wic.1
+        for <rtc-linux@googlegroups.com>; Thu, 23 Apr 2015 08:29:22 -0700 (PDT)
+From: "Grygorii.Strashko@linaro.org" <grygorii.strashko@linaro.org>
+Message-ID: <55390FC5.2070202@linaro.org>
+Date: Thu, 23 Apr 2015 18:29:09 +0300
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <94535acf974274822c5ac16d6427299778e11ccf.1429280614.git.stwiss.opensource@diasemi.com>
+To: Nishanth Menon <nm@ti.com>,
+ "Grygorii.Strashko@linaro.org" <grygorii.strashko@linaro.org>,
+ Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+ Alessandro Zummo <a.zummo@towertech.it>
+CC: linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org,
+ rtc-linux@googlegroups.com
+Subject: [rtc-linux] Re: [PATCH V2] drivers/rtc/rtc-ds1307.c: Enable the
+ mcp794xx alarm after programming time
+References: <1429577494-15087-1-git-send-email-nm@ti.com> <5537A169.206@linaro.org> <55383625.3070108@ti.com> <5538C6C2.5010508@linaro.org> <5538EF8D.5050209@ti.com>
+In-Reply-To: <5538EF8D.5050209@ti.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -44,162 +31,128 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On Fri, 17 Apr 2015, S Twiss wrote:
+On 04/23/2015 04:11 PM, Nishanth Menon wrote:
+> On 04/23/2015 05:17 AM, Grygorii.Strashko@linaro.org wrote:
+>> On 04/23/2015 03:00 AM, Nishanth Menon wrote:
+>>> On 04/22/2015 08:26 AM, Grygorii.Strashko@linaro.org wrote:
+>>>> Hi,
+>>>>
+>>>> On 04/21/2015 03:51 AM, Nishanth Menon wrote:
+>>>>> Alarm interrupt enable register is at offset 0x7, while the time
+>>>>> registers for the alarm follow that. When we program Alarm interrupt
+>>>>> enable prior to programming the time, it is possible that previous
+>>>>> time value could be close or match at the time of alarm enable
+>>>>> resulting in interrupt trigger which is unexpected (and does not matc=
+h
+>>>>> the time we expect it to trigger).
+>>>>>
+>>>>> To prevent this scenario from occuring, program the ALM0_EN bit only
+>>>>> after the alarm time is appropriately programmed.
+>>>>>
+>>>>> Ofcourse, I2C programming is non-atomic, so there are loopholes where
+>>>>> the interrupt wont trigger if the time requested is in the past at
+>>>>> the time of programming the ALM0_EN bit. However, we will not have
+>>>>> unexpected interrupts while the time is programmed after the interrup=
+t
+>>>>> are enabled.
+>>>>
+>>>> I think it will be nice if you will mention that you going to follow
+>>>> vendor recommendations - AN1491 Configuring the MCP794XX RTCC Family
+>>>> http://ww1.microchip.com/downloads/en/AppNotes/01491A.pdf
+>>>> ;)
+>>>> "Also, it is recommended that the alarm registers be loaded
+>>>> before the alarm is enabled."
+>>>>
+>>>
+>>> Hmm... i did not know that existed, thanks for digging it up.. that
+>>> teaches me to look for docs before putting a scope/LA on the board
+>>> (not that I regret doing that)... That said, reading the app note, I
+>>> kind of realized:
+>>> a) that playing with ST bit for programming time is not done, but
+>>> then, that implies that oscillator will have to be restarted (upto a
+>>> few seconds for certain crystals).. but that said, it does not seem
+>>> mandatory or seem to (yet seen) functional issues...
+>>>
+>>> b) We dont have flexibility yet to describe if we do indeed have a
+>>> backup battery or not - VBATEN should be set only if we have a backup
+>>> battery on the platform :( - on some it might even be optional thanks
+>>> to certain compliance requirements of shipping boards internationally
+>>> and general "unlike" of lithium ion in cargo hold..
+>>>
+>>> c) we dont have capability to control the alarm polarity in the driver
+>>> which, by the way, we probably should also control OUT polarity (when
+>>> ALARM is not asserted)..
+>>>
+>>> d) we dont have support for external 32k oscillator(X1 only) instead
+>>> of assuming we always have a 32k crystal(X1 and X2)...
+>>>
+>>> Ugghhh... more cleaning up to do for the future..
+>>>
+>>> that said, the sequence it does recommend (in page 4):
+>>> The following steps show how the Alarm 0 is config-
+>>> ured. Alarm 1 can be configured in the same manner.
+>>> 1.    Write 0x23 to the Alarm0 Seconds register
+>>> [0x0A].
+>>> 2.    Write 0x47 to the Alarm0 Minutes register
+>>> [0x0B].
+>>> 3.    Write 0x71 to the Alarm0 Hours register [0x0C]
+>>> =E2=80=93 11 hours in 12-hour format.
+>>> 4.    Write 0x72 to the Alarm0 Day register [0x0D] =E2=80=93
+>>> Tuesday + Alarm Polarity Low + Match on all.
+>>> The Alarm0 Interrupt Flag is also cleared.
+>>> 5.    Write 0x14 to the Alarm0 Date register [0x0E].
+>>> 6.    Write 0x08 to the Alarm0 Month register [0x0F].
+>>> With all the Alarm0 registers set we can now activate
+>>> the Alarm0 on the Control register.
+>>> 7.    Write 0x10 to the Control register [0x07] =E2=80=93
+>>> Alarm0 enabled no CLKOUT, Alarm1 disabled
+>>>
+>>> before this patch we do ( http://pastebin.ubuntu.com/10863880/)
+>>> 	CONTROL r[7] =3D 0x90 (OUT=3D1, ALM0EN=3D1)
+>>> 	OSCTRIM r[8] =3D 0x00
+>>> 	EEUNLOCK r[9] =3D 0x00
+>>> 	ALM0SEC r[A] =3D 0x01
+>>> 	ALM0MIN r[B] =3D 0x45
+>>> 	ALM0HOUR r[C] =3D 0x23
+>>> 	ALM0WKDAY r[D] =3D 0x75 <-ALMOIF is cleared
+>>> 	ALM0DATE r[E] =3D 0x09
+>>> 	ALM0MTH r[F] =3D 0x04
+>>> 	RSRVED r[10] =3D 0x01
+>>>
+>>> with this patch, we do:
+>>> burst(	CONTROL r[7] =3D 0x80 (OUT=3D1)
+>>> 	OSCTRIM r[8] =3D 0x00
+>>> 	EEUNLOCK r[9] =3D 0x00
+>>> 	ALM0SEC r[A] =3D 0x01
+>>> 	ALM0MIN r[B] =3D 0x45
+>>> 	ALM0HOUR r[C] =3D 0x23
+>>> 	ALM0WKDAY r[D] =3D 0x75 <-ALMOIF is cleared
+>>> 	ALM0DATE r[E] =3D 0x09
+>>> 	ALM0MTH r[F] =3D 0x04
+>>> 	RSRVED r[10] =3D 0x01
+>>> )
+>>> 	CONTROL r[7] =3D 0x90 (OUT=3D1, ALM0EN=3D1)
+>>>
+>>> Which is slightly unoptimal way of what the app note recommends. - as
+>>> I mentioned earlier in this thread, I will try and do optimizations in
+>>> a later patch.
+>>>
+>>> Given that Andrew had picked up this patch, I dont see a reason to
+>>> respin this yet. but will include the app note for future patches -
+>>> thanks for pointing it out to me.
+>>
+>> ^^ Up to you. Np, Always yours!
+>
+> Considering the narrow focus of the current patch (which does fix an
+> issue that it attempts to), can I get an Ack?
+>
+>
 
-> From: S Twiss <stwiss.opensource@diasemi.com>
->=20
-> Add device tree bindings for the DA9062 driver
->=20
-> Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
->=20
-> ---
->=20
-> This patch applies against linux-next and v4.0=20
->=20
->=20
->=20
->  Documentation/devicetree/bindings/mfd/da9062.txt | 107 +++++++++++++++++=
-++++++
->  1 file changed, 107 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/mfd/da9062.txt
-
-I don't see anything groundbreaking or offensive.
-
-Acked-by: Lee Jones <lee.jones@linaro.org>
-
-> diff --git a/Documentation/devicetree/bindings/mfd/da9062.txt b/Documenta=
-tion/devicetree/bindings/mfd/da9062.txt
-> new file mode 100644
-> index 0000000..cf8f3f6
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/mfd/da9062.txt
-> @@ -0,0 +1,107 @@
-> +* Dialog DA9062 Power Management Integrated Circuit (PMIC)
-> +
-> +DA9062 consists of a large and varied group of sub-devices:
-> +
-> +Device                   Supply Names    Description
-> +------                   ------------    -----------
-> +da9062-regulator        :               : LDOs & BUCKs
-> +da9062-onkey            :               : On Key
-> +da9062-rtc              :               : Real-Time Clock
-> +da9062-watchdog         :               : Watchdog Timer
-> +
-> +=3D=3D=3D=3D=3D=3D
-> +
-> +Required properties:
-> +
-> +- compatible : Should be "dlg,da9062".
-> +- reg : Specifies the I2C slave address (this defaults to 0x58 but it ca=
-n be
-> +  modified to match the chip's OTP settings).
-> +- interrupt-parent : Specifies the reference to the interrupt controller=
- for
-> +  the DA9062.
-> +- interrupts : IRQ line information.
-> +- interrupt-controller
-> +
-> +See Documentation/devicetree/bindings/interrupt-controller/interrupts.tx=
-t for
-> +further information on IRQ bindings.
-> +
-> +Sub-nodes:
-> +
-> +- regulators : This node defines the settings for the LDOs and BUCKs. Th=
-e
-> +  DA9062 regulators are bound using their names listed below:
-> +
-> +    buck1    : BUCK_1
-> +    buck2    : BUCK_2
-> +    buck3    : BUCK_3
-> +    buck4    : BUCK_4
-> +    ldo1     : LDO_1
-> +    ldo2     : LDO_2
-> +    ldo3     : LDO_3
-> +    ldo4     : LDO_4
-> +
-> +  The component follows the standard regulator framework and the binding=
-s
-> +  details of individual regulator device can be found in:
-> +  Documentation/devicetree/bindings/regulator/regulator.txt
-> +
-> +
-> +- rtc : This node defines settings required for the Real-Time Clock asso=
-ciated
-> +  with the DA9062. There are currently no entries in this binding, howev=
-er
-> +  compatible =3D "dlg,da9062-rtc" should be added if a node is created.
-> +
-> +
-> +- onkey : This node defines the OnKey settings for controlling the key
-> +  functionality of the device. The node should contain the compatible pr=
-operty
-> +  with the value "dlg,da9062-onkey".
-> +
-> +  Optional onkey properties:
-> +
-> +  - dlg,disable-key-power : Disable power-down using a long key-press. I=
-f this
-> +    entry exists the OnKey driver will remove support for the KEY_POWER =
-key
-> +    press. If this entry does not exist then by default the key-press
-> +    triggered power down is enabled and the OnKey will support both KEY_=
-POWER
-> +    and KEY_SLEEP.
-> +
-> +- watchdog: This node defines the settings for the watchdog driver assoc=
-iated
-> +  with the DA9062 PMIC. The compatible =3D "dlg,da9062-watchdog" should =
-be added
-> +  if a node is created.
-> +
-> +
-> +Example:
-> +
-> +	pmic0: da9062@58 {
-> +		compatible =3D "dlg,da9062";
-> +		reg =3D <0x58>;
-> +		interrupt-parent =3D <&gpio6>;
-> +		interrupts =3D <11 IRQ_TYPE_LEVEL_LOW>;
-> +		interrupt-controller;
-> +
-> +		rtc {
-> +			compatible =3D "dlg,da9062-rtc";
-> +		};
-> +
-> +		onkey {
-> +			compatible =3D "dlg,da9062-onkey";
-> +			dlg,disable-key-power;
-> +		};
-> +
-> +		watchdog {
-> +			compatible =3D "dlg,da9062-watchdog";
-> +		};
-> +
-> +		regulators {
-> +			DA9062_BUCK1: buck1 {
-> +				regulator-name =3D "BUCK1";
-> +				regulator-min-microvolt =3D <300000>;
-> +				regulator-max-microvolt =3D <1570000>;
-> +				regulator-min-microamp =3D <500000>;
-> +				regulator-max-microamp =3D <2000000>;
-> +				regulator-boot-on;
-> +			};
-> +			DA9062_LDO1: ldo1 {
-> +				regulator-name =3D "LDO_1";
-> +				regulator-min-microvolt =3D <900000>;
-> +				regulator-max-microvolt =3D <3600000>;
-> +				regulator-boot-on;
-> +			};
-> +		};
-> +	};
-> +
+Reviewed-by: Grygorii Strashko <grygorii.strashko@linaro.org>
 
 --=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+regards,
+-grygorii
 
 --=20
 --=20
