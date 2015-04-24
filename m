@@ -1,31 +1,25 @@
-Return-Path: <rtc-linux+bncBDA7X7F2WUEBBXFX7WUQKGQEQ6TVKHY@googlegroups.com>
-Received: from mail-wi0-f178.google.com (mail-wi0-f178.google.com. [209.85.212.178])
-        by gmr-mx.google.com with ESMTPS id bc3si564122wib.2.2015.04.28.03.07.23
+Return-Path: <rtc-linux+bncBCC6ZWOPXENRBLFW5CUQKGQEWC4J4QY@googlegroups.com>
+Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de. [2001:6f8:1178:4:290:27ff:fe1d:cc33])
+        by gmr-mx.google.com with ESMTPS id bc3si106994wib.2.2015.04.24.03.30.03
         for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 28 Apr 2015 03:07:23 -0700 (PDT)
-Received: by mail-wi0-f178.google.com with SMTP id f7so13157874wie.0
-        for <rtc-linux@googlegroups.com>; Tue, 28 Apr 2015 03:07:23 -0700 (PDT)
-Date: Tue, 28 Apr 2015 11:07:19 +0100
-From: Lee Jones <lee.jones@linaro.org>
-To: Eddie Huang <eddie.huang@mediatek.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
-	Matthias Brugger <matthias.bgg@gmail.com>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Tomasz Figa <tfiga@google.com>,
-	Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <kernel@pengutronix.de>,
-	srv_heupstream@mediatek.com, Samuel Ortiz <sameo@linux.intel.com>,
-	Greg KH <gregkh@linuxfoundation.org>, Joe Perches <joe@perches.com>,
-	linux-kernel@vger.kernel.org, rtc-linux@googlegroups.com,
-	linux-arm-kernel@lists.infradead.org,
-	linux-mediatek@lists.infradead.org
-Subject: [rtc-linux] Re: [PATCH v3 1/3] mfd: provide RTC resource in MT6397 MFD
-Message-ID: <20150428100719.GN11956@x1>
-References: <1430206556-18254-1-git-send-email-eddie.huang@mediatek.com>
- <1430206556-18254-2-git-send-email-eddie.huang@mediatek.com>
+        (version=TLSv1.2 cipher=RC4-SHA bits=128/128);
+        Fri, 24 Apr 2015 03:30:04 -0700 (PDT)
+From: Juergen Borleis <jbe@pengutronix.de>
+To: linux-arm-kernel@lists.infradead.org
+Subject: Re: [rtc-linux] [PATCH 2nd try] RTC/i.MX/DryICE: add recovery
+ routines to the driver
+Date: Fri, 24 Apr 2015 12:32:30 +0200
+Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+ kernel@pengutronix.de,
+ Alessandro Zummo <a.zummo@towertech.it>,
+ linux-kernel@vger.kernel.org,
+ rtc-linux@googlegroups.com
+References: <1429002716-19821-1-git-send-email-jbe@pengutronix.de> <20150421232615.GD8539@piout.net>
+In-Reply-To: <20150421232615.GD8539@piout.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1430206556-18254-2-git-send-email-eddie.huang@mediatek.com>
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
+Message-Id: <201504241232.30104.jbe@pengutronix.de>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -36,70 +30,37 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On Tue, 28 Apr 2015, Eddie Huang wrote:
+Hi Alexandre,
 
-> Provide MT6397 RTC interrupt, base address, and register in
-> MT6397 MFD.
->=20
-> Signed-off-by: Eddie Huang <eddie.huang@mediatek.com>
-> ---
->  drivers/mfd/mt6397-core.c | 18 ++++++++++++++++++
->  1 file changed, 18 insertions(+)
+On Wednesday 22 April 2015 01:26:15 Alexandre Belloni wrote:
+> On 14/04/2015 at 11:11:51 +0200, Juergen Borleis wrote :
+> > 2nd try, this time with a cover letter... m(
+> >
+> > The built-in RTC unit on some i.MX SoCs isn't an RTC only. It is also a
+> > tamper monitor unit which can keep some keys. When it does its tamper
+> > detection job
+>
+> Does it have more functions? I would say that it also holds some keys
+> but I don't have a handy Freescale representative to contact ;)
 
-*after* Uwe's concerns have been attended to, you may add my:
+Yes it can hold some keys and will delete them if it detects a security=20
+violation via its tamper detection feature.
 
-Acked-by: Lee Jones <lee.jones@linaro.org>
+> I'm fine getting that unlocking done in the RTC driver but maybe in the
+> future, it will be necessary to handle that in an MFD driver when adding
+> support for the other functions.
 
-FWIW, I quite like straight lines. :)
+This change set just makes the RTC work again. Observation was, *sometimes*=
+ and=20
+*somehow* this unit tends to lock even if no of these tamper detection=20
+features were enabled nor the externals signals (to detect these security=20
+violations) were used.
 
-> diff --git a/drivers/mfd/mt6397-core.c b/drivers/mfd/mt6397-core.c
-> index 09bc780..08cfbd1 100644
-> --- a/drivers/mfd/mt6397-core.c
-> +++ b/drivers/mfd/mt6397-core.c
-> @@ -21,9 +21,27 @@
->  #include <linux/mfd/mt6397/core.h>
->  #include <linux/mfd/mt6397/registers.h>
-> =20
-> +#define MT6397_RTC_BASE		0xe000
-> +#define MT6397_RTC_SIZE		0x3e
-> +
-> +static const struct resource mt6397_rtc_resources[] =3D {
-> +	{
-> +		.start =3D MT6397_RTC_BASE,
-> +		.end   =3D MT6397_RTC_BASE + MT6397_RTC_SIZE,
-> +		.flags  =3D IORESOURCE_MEM,
-> +	},
-> +	{
-> +		.start =3D MT6397_IRQ_RTC,
-> +		.end   =3D MT6397_IRQ_RTC,
-> +		.flags  =3D IORESOURCE_IRQ,
-> +	},
-> +};
-> +
->  static const struct mfd_cell mt6397_devs[] =3D {
->  	{
->  		.name =3D "mt6397-rtc",
-> +		.num_resources =3D ARRAY_SIZE(mt6397_rtc_resources),
-> +		.resources =3D mt6397_rtc_resources,
->  		.of_compatible =3D "mediatek,mt6397-rtc",
->  	}, {
->  		.name =3D "mt6397-regulator",
+Regards,
+Juergen
 
---=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
-
---=20
---=20
-You received this message because you are subscribed to "rtc-linux".
-Membership options at http://groups.google.com/group/rtc-linux .
-Please read http://groups.google.com/group/rtc-linux/web/checklist
-before submitting a driver.
----=20
-You received this message because you are subscribed to the Google Groups "=
-rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an e=
-mail to rtc-linux+unsubscribe@googlegroups.com.
-For more options, visit https://groups.google.com/d/optout.
+=2D-=20
+Pengutronix e.K. =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =
+=A0| Juergen Borleis =A0 =A0 =A0 =A0 =A0 =A0 |
+Industrial Linux Solutions               =A0 =A0 =A0| http://www.pengutroni=
+x.de/  |
