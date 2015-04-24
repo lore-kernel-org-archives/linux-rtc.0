@@ -1,28 +1,32 @@
-Return-Path: <rtc-linux+bncBDL3F4G2ZAIBBDNP66UAKGQEKF26AYA@googlegroups.com>
-Received: from mailout3.samsung.com (mailout3.samsung.com. [203.254.224.33])
-        by gmr-mx.google.com with ESMTPS id gb13si767487pac.2.2015.04.02.16.58.05
+Return-Path: <rtc-linux+bncBAABB3VO5GUQKGQEKKA5UBA@googlegroups.com>
+Received: from mail1.bemta5.messagelabs.com (mail1.bemta5.messagelabs.com. [195.245.231.139])
+        by gmr-mx.google.com with ESMTPS id bc3si148888wib.2.2015.04.24.07.47.09
         for <rtc-linux@googlegroups.com>
-        (version=TLSv1 cipher=RC4-SHA bits=128/128);
-        Thu, 02 Apr 2015 16:58:05 -0700 (PDT)
-Received: from epcpsbgr2.samsung.com
- (u142.gpu120.samsung.co.kr [203.254.230.142])
- by mailout3.samsung.com (Oracle Communications Messaging Server 7.0.5.31.0
- 64bit (built May  5 2014))
- with ESMTP id <0NM700LCFEKRA250@mailout3.samsung.com> for
- rtc-linux@googlegroups.com; Fri, 03 Apr 2015 08:58:03 +0900 (KST)
-Message-id: <551DD78A.1000502@samsung.com>
-Date: Fri, 03 Apr 2015 08:58:02 +0900
-From: Chanwoo Choi <cw00.choi@samsung.com>
-MIME-version: 1.0
-To: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
- linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org,
- Alexandre Belloni <alexandre.belloni@free-electrons.com>,
- Marek Szyprowski <m.szyprowski@samsung.com>
-Subject: [rtc-linux] Re: [PATCH] rtc: rtc-s3c: Fix failed first read of RTC time
-References: <1427972459-6480-1-git-send-email-k.kozlowski@samsung.com>
-In-reply-to: <1427972459-6480-1-git-send-email-k.kozlowski@samsung.com>
-Content-type: text/plain; charset=UTF-8
+        (version=TLSv1.2 cipher=RC4-SHA bits=128/128);
+        Fri, 24 Apr 2015 07:47:09 -0700 (PDT)
+From: "Opensource [Steve Twiss]" <stwiss.opensource@diasemi.com>
+To: Mark Brown <broonie@kernel.org>, "Opensource [Steve Twiss]"
+	<stwiss.opensource@diasemi.com>
+CC: LINUXKERNEL <linux-kernel@vger.kernel.org>, Liam Girdwood
+	<lgirdwood@gmail.com>, Alessandro Zummo <a.zummo@towertech.it>, DEVICETREE
+	<devicetree@vger.kernel.org>, David Dajun Chen <david.chen@diasemi.com>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>, Ian Campbell
+	<ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>,
+	LINUXINPUT <linux-input@vger.kernel.org>, LINUXWATCHDOG
+	<linux-watchdog@vger.kernel.org>, Lee Jones <lee.jones@linaro.org>, "Mark
+ Rutland" <mark.rutland@arm.com>, Pawel Moll <pawel.moll@arm.com>, RTCLINUX
+	<rtc-linux@googlegroups.com>, Rob Herring <robh+dt@kernel.org>, Samuel Ortiz
+	<sameo@linux.intel.com>, Support Opensource <Support.Opensource@diasemi.com>,
+	Wim Van Sebroeck <wim@iguana.be>
+Subject: [rtc-linux] RE: [PATCH V1 2/6] regulator: da9062: DA9062 regulator driver
+Date: Fri, 24 Apr 2015 14:47:06 +0000
+Message-ID: <6ED8E3B22081A4459DAC7699F3695FB7014B2175E5@SW-EX-MBX02.diasemi.com>
+References: <cover.1429280614.git.stwiss.opensource@diasemi.com>
+ <7acb2e683450a608adf81e6b820e62b523429101.1429280614.git.stwiss.opensource@diasemi.com>
+ <20150418114828.GG26185@sirena.org.uk>
+In-Reply-To: <20150418114828.GG26185@sirena.org.uk>
+Content-Type: text/plain; charset=UTF-8
+MIME-Version: 1.0
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -33,83 +37,139 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On 04/02/2015 08:00 PM, Krzysztof Kozlowski wrote:
-> Initialize the device time (if it is wrong) before registering RTC
-> device to fix following error message during rtc-s3c probe:
-> 
-> [    2.215414] rtc (null): read_time: fail to read
-> [    2.216322] s3c-rtc 10070000.rtc: rtc core: registered s3c as rtc1
-> 
-> Signed-off-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-> ---
->  drivers/rtc/rtc-s3c.c | 32 ++++++++++++++++----------------
->  1 file changed, 16 insertions(+), 16 deletions(-)
-> 
-> diff --git a/drivers/rtc/rtc-s3c.c b/drivers/rtc/rtc-s3c.c
-> index 5e162eaad277..1d3a4c58fec4 100644
-> --- a/drivers/rtc/rtc-s3c.c
-> +++ b/drivers/rtc/rtc-s3c.c
-> @@ -496,6 +496,22 @@ static int s3c_rtc_probe(struct platform_device *pdev)
->  
->  	device_init_wakeup(&pdev->dev, 1);
->  
-> +	/* Check RTC Time */
-> +	s3c_rtc_gettime(&pdev->dev, &rtc_tm);
-> +
-> +	if (rtc_valid_tm(&rtc_tm)) {
-> +		rtc_tm.tm_year	= 100;
-> +		rtc_tm.tm_mon	= 0;
-> +		rtc_tm.tm_mday	= 1;
-> +		rtc_tm.tm_hour	= 0;
-> +		rtc_tm.tm_min	= 0;
-> +		rtc_tm.tm_sec	= 0;
-> +
-> +		s3c_rtc_settime(&pdev->dev, &rtc_tm);
-> +
-> +		dev_warn(&pdev->dev, "warning: invalid RTC value so initializing it\n");
-> +	}
-> +
->  	/* register RTC and exit */
->  	info->rtc = devm_rtc_device_register(&pdev->dev, "s3c", &s3c_rtcops,
->  				  THIS_MODULE);
-> @@ -519,22 +535,6 @@ static int s3c_rtc_probe(struct platform_device *pdev)
->  		goto err_nortc;
->  	}
->  
-> -	/* Check RTC Time */
-> -	s3c_rtc_gettime(&pdev->dev, &rtc_tm);
-> -
-> -	if (rtc_valid_tm(&rtc_tm)) {
-> -		rtc_tm.tm_year	= 100;
-> -		rtc_tm.tm_mon	= 0;
-> -		rtc_tm.tm_mday	= 1;
-> -		rtc_tm.tm_hour	= 0;
-> -		rtc_tm.tm_min	= 0;
-> -		rtc_tm.tm_sec	= 0;
-> -
-> -		s3c_rtc_settime(&pdev->dev, &rtc_tm);
-> -
-> -		dev_warn(&pdev->dev, "warning: invalid RTC value so initializing it\n");
-> -	}
-> -
->  	if (info->data->select_tick_clk)
->  		info->data->select_tick_clk(info);
->  
-> 
 
-When registering RTC device by using devm_rtc_device_register(),
-rtc_device_register() read the time as following. Looks good to me.
+On 18 April 2015 12:48 Mark Brown wrote:
 
-	devm_rtc_device_register()
-	  rtc_device_register()
-	    __rtc_read_alarm()
-	      rtc_read_time()
-	        __rtc_read_time()
+> On Fri, Apr 17, 2015 at 03:23:32PM +0100, S Twiss wrote:
+> 
+> > +/* Regulator interrupt handlers */
+> > +static irqreturn_t da9062_ldo_lim_event(int irq, void *data)
+> > +{
+> > +	struct da9062_regulators *regulators = data;
+> > +	struct da9062 *hw = regulators->regulator[0].hw;
+> > +	struct da9062_regulator *regl;
+> > +	int bits, i, ret;
+> > +
+> > +	ret = regmap_read(hw->regmap, DA9062AA_STATUS_D, &bits);
+> > +	if (ret < 0)
+> > +		return IRQ_NONE;
+> 
+> Please log an error for this, if we're having trouble talking to the
+> device that seems like a serious issue.
 
-Reviewed-by: Chanwoo Choi <cw00.choi@samsung.com>
+Will do that with a dev_err()
+
+-       if (ret < 0)
++       if (ret < 0) {
++               dev_err(hw->dev,
++                       "Failed to read LDO overcurrent indicator\n");
+                return IRQ_NONE;
++       }
+
+> 
+> > +	for (i = regulators->n_regulators - 1; i >= 0; i--) {
+> > +		regl = &regulators->regulator[i];
+> > +		if (regl->info->oc_event.reg != DA9062AA_STATUS_D)
+> > +			continue;
+> > +
+> > +		if (BIT(regl->info->oc_event.lsb) & bits)
+> > +			regulator_notifier_call_chain(regl->rdev,
+> > +
+> 	REGULATOR_EVENT_OVER_CURRENT, NULL);
+> > +	}
+> > +
+> > +	return IRQ_HANDLED;
+> 
+> This will return IRQ_HANDLED even if none of the regulators were
+> flagginng an event.
+> 
 
 Thanks,
-Chanwoo Choi
+I will refactor that part with a default error path and only return IRQ_HANDLED
+when there is a hit on the notifier call.
+
+> > +static irqreturn_t da9062_vdd_warn_event(int irq, void *data)
+> > +{
+> > +	return IRQ_HANDLED;
+> > +}
+> 
+> Ignoring an interrupt is not usefully handling it - at the *least* this
+> should be generating a log message.
+> 
+
+Not much use -- yes.
+
+I've taken another look at this and I've decided to move it into the core.
+The VDD_WARN applies to the system voltage and is not specific to regulators.
+So it would make more sense for this to exist in the core driver instead -- this
+would need to exist at all times and if it stays in the regulators it could be
+moduled out of existence.
+
+This will mean messing with a few files to fix this one.
+
+drivers/mfd/da9062-core.c
+regulator/da9062-regulator.c
+include/linux/mfd/da9062/core.h
+
+I'll resend this as PATCH V2.
+
+> > +static struct da9062_regulators_pdata *da9062_parse_regulators_dt(
+> > +		struct platform_device *pdev,
+> > +		struct of_regulator_match **reg_matches)
+> > +{
+> > +	struct da9062_regulators_pdata *pdata;
+> > +	struct da9062_regulator_data *rdata;
+> > +	struct device_node *node;
+> > +	int i, n, num;
+> > +
+> > +	node = of_get_child_by_name(pdev->dev.parent->of_node,
+> "regulators");
+> > +	if (!node) {
+> > +		dev_err(&pdev->dev, "Regulators device node not
+> found\n");
+> > +		return ERR_PTR(-ENODEV);
+> > +	}
+> > +
+> > +	num = of_regulator_match(&pdev->dev, node, da9062_matches,
+> > +				 ARRAY_SIZE(da9062_matches));
+> 
+> Don't open code this, describe the DT names in the regualtor_desc and
+> let the core register.
+> 
+
+Okay. I think I am getting this.
+As of v3.18 there are  newer parts to regulator_desc from the commit 
+a0c7b16 "regulator: of: Provide simplified DT parsing method"
+The search function is now in the core. 
+
+Am I on on the right track with this one?
+
+> > +	if (IS_ERR(pdata) || pdata->n_regulators == 0) {
+> > +		dev_err(&pdev->dev,
+> > +			"No regulators defined for the platform\n");
+> > +		return PTR_ERR(pdata);
+> > +	}
+> > +
+> > +	n_regulators = ARRAY_SIZE(local_regulator_info),
+> 
+> This is broken, the set of regulators in the silicon is not a property
+> of the platform.  The driver should just register all the regualtors
+> that are present in the silicon.  I'm fairly sure I've been through this
+> before...
+> 
+> > +	ret = request_threaded_irq(irq,
+> > +				   NULL, da9062_vdd_warn_event,
+> > +				   IRQF_TRIGGER_LOW | IRQF_ONESHOT,
+> > +				   "VDD_WARN", regulators);
+> 
+> devm_request_threaded_irq().
+
+yes -- this will come as part of the refactoring for the irq handler
+static irqreturn_t da9062_vdd_warn_event(int irq, void *data)
+into the core.
+
+Regards,
+Steve
 
 -- 
 -- 
