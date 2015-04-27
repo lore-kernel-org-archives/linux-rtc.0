@@ -1,23 +1,24 @@
-Return-Path: <rtc-linux+bncBAABBYOG6SUAKGQEUY4DDMI@googlegroups.com>
-Received: from devils.ext.ti.com (devils.ext.ti.com. [198.47.26.153])
-        by gmr-mx.google.com with ESMTPS id c19si118256igm.1.2015.04.02.04.09.21
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1 cipher=RC4-SHA bits=128/128);
-        Thu, 02 Apr 2015 04:09:21 -0700 (PDT)
-From: Lokesh Vutla <lokeshvutla@ti.com>
-To: <a.zummo@towertech.it>, <rtc-linux@googlegroups.com>
-CC: <t-kristo@ti.com>, <nsekhar@ti.com>, <linux-omap@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>, <lokeshvutla@ti.com>,
-        <alexandre.belloni@free-electrons.com>
-Subject: [rtc-linux] [PATCH v2 1/3] rtc: omap: Unlock and Lock rtc registers
- before and after register writes
-Date: Thu, 2 Apr 2015 16:39:09 +0530
-Message-ID: <1427972951-18959-2-git-send-email-lokeshvutla@ti.com>
-In-Reply-To: <1427972951-18959-1-git-send-email-lokeshvutla@ti.com>
-References: <1427972951-18959-1-git-send-email-lokeshvutla@ti.com>
+Return-Path: <rtc-linux+bncBCC6ZWOPXENRBYMB7GUQKGQEKLXYBVA@googlegroups.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de. [2001:6f8:1178:4:290:27ff:fe1d:cc33])
+        by gmr-mx.google.com with ESMTPS id m3si432155wia.1.2015.04.27.07.00.01
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1.2 cipher=RC4-SHA bits=128/128);
+        Mon, 27 Apr 2015 07:00:01 -0700 (PDT)
+From: Juergen Borleis <jbe@pengutronix.de>
+To: linux-kernel@vger.kernel.org
+Cc: rtc-linux@googlegroups.com,
+	kernel@pengutronix.de,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	linux-arm-kernel@lists.infradead.org,
+	Robert Schwebel <rsc@pengutronix.de>
+Subject: [rtc-linux] [PATCH 5/6] RTC/i.MX/DryIce: when locked, do not fail silently
+Date: Mon, 27 Apr 2015 15:59:51 +0200
+Message-Id: <1430143192-20667-6-git-send-email-jbe@pengutronix.de>
+In-Reply-To: <1430143192-20667-1-git-send-email-jbe@pengutronix.de>
+References: <1430143192-20667-1-git-send-email-jbe@pengutronix.de>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -27,258 +28,61 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-RTC module contains a kicker mechanism to prevent any spurious writes
-from changing the register values. This mechanism requires two MMR
-writes to the KICK0 and KICK1 registers with exact data values
-before the kicker lock mechanism is released.
+If the DryICE unit is locked it is impossibe to set the time. Provide an
+error message for this case.
 
-Currently the driver release the lock in the probe and leaves it enabled
-until the rtc driver removal. This eliminates the idea of preventing
-spurious writes when RTC driver is loaded.
-So implement rtc lock and unlock functions before and after register writes.
-
-Signed-off-by: Lokesh Vutla <lokeshvutla@ti.com>
+Signed-off-by: Juergen Borleis <jbe@pengutronix.de>
+Signed-off-by: Robert Schwebel <rsc@pengutronix.de>
+[rsc: got NDA clearance from Freescale]
 ---
--- This is as advised by Paul to implement lock and unlock functions in
-  the driver and not to unlock and leave it in probe.
-  The same discussion can be seen here:
-  http://www.mail-archive.com/linux-omap%40vger.kernel.org/msg111588.html
-- Changes since v1:
-  -Instead of testing for has_kicker each time, added .lock and
-   .unlock to omap_rtc_device_type.
+ drivers/rtc/rtc-imxdi.c | 27 ++++++++++++++++++++++++---
+ 1 file changed, 24 insertions(+), 3 deletions(-)
 
- drivers/rtc/rtc-omap.c | 63 +++++++++++++++++++++++++++++++++++++++++---------
- 1 file changed, 52 insertions(+), 11 deletions(-)
-
-diff --git a/drivers/rtc/rtc-omap.c b/drivers/rtc/rtc-omap.c
-index 8e5851a..935212c 100644
---- a/drivers/rtc/rtc-omap.c
-+++ b/drivers/rtc/rtc-omap.c
-@@ -118,12 +118,15 @@
- #define	KICK0_VALUE			0x83e70b13
- #define	KICK1_VALUE			0x95a4f1e0
+diff --git a/drivers/rtc/rtc-imxdi.c b/drivers/rtc/rtc-imxdi.c
+index 8890a62..46bf014 100644
+--- a/drivers/rtc/rtc-imxdi.c
++++ b/drivers/rtc/rtc-imxdi.c
+@@ -566,14 +566,35 @@ static int dryice_rtc_read_time(struct device *dev, struct rtc_time *tm)
+ static int dryice_rtc_set_mmss(struct device *dev, unsigned long secs)
+ {
+ 	struct imxdi_dev *imxdi = dev_get_drvdata(dev);
++	u32 dcr, dsr;
+ 	int rc;
  
-+struct omap_rtc;
++	dcr = readl(imxdi->ioaddr + DCR);
++	dsr = readl(imxdi->ioaddr + DSR);
 +
- struct omap_rtc_device_type {
- 	bool has_32kclk_en;
--	bool has_kicker;
- 	bool has_irqwakeen;
- 	bool has_pmic_mode;
- 	bool has_power_up_reset;
-+	void (*lock)(struct omap_rtc *rtc);
-+	void (*unlock)(struct omap_rtc *rtc);
- };
++	if (!(dcr & DCR_TCE) || (dsr & DSR_SVF)) {
++		if (dcr & DCR_TCHL) {
++			/* we are even more out of luck */
++			di_what_is_to_be_done(imxdi, "battery");
++			return -EPERM;
++		}
++		if ((dcr & DCR_TCSL) || (dsr & DSR_SVF)) {
++			/* we are out of luck for now */
++			di_what_is_to_be_done(imxdi, "main");
++			return -EPERM;
++		}
++	}
++
+ 	/* zero the fractional part first */
+ 	rc = di_write_wait(imxdi, 0, DTCLR);
+-	if (rc == 0)
+-		rc = di_write_wait(imxdi, secs, DTCMR);
++	if (rc != 0)
++		return rc;
  
- struct omap_rtc {
-@@ -156,6 +159,26 @@ static inline void rtc_writel(struct omap_rtc *rtc, unsigned int reg, u32 val)
- 	writel(val, rtc->base + reg);
+-	return rc;
++	rc = di_write_wait(imxdi, secs, DTCMR);
++	if (rc != 0)
++		return rc;
++
++	return di_write_wait(imxdi, readl(imxdi->ioaddr + DCR) | DCR_TCE, DCR);
  }
  
-+static inline void am3352_rtc_unlock(struct omap_rtc *rtc)
-+{
-+	rtc_writel(rtc, OMAP_RTC_KICK0_REG, KICK0_VALUE);
-+	rtc_writel(rtc, OMAP_RTC_KICK1_REG, KICK1_VALUE);
-+}
-+
-+static inline void am3352_rtc_lock(struct omap_rtc *rtc)
-+{
-+	rtc_writel(rtc, OMAP_RTC_KICK0_REG, 0);
-+	rtc_writel(rtc, OMAP_RTC_KICK1_REG, 0);
-+}
-+
-+static inline void default_rtc_unlock(struct omap_rtc *rtc)
-+{
-+}
-+
-+static inline void default_rtc_lock(struct omap_rtc *rtc)
-+{
-+}
-+
- /*
-  * We rely on the rtc framework to handle locking (rtc->ops_lock),
-  * so the only other requirement is that register accesses which
-@@ -186,7 +209,9 @@ static irqreturn_t rtc_irq(int irq, void *dev_id)
- 
- 	/* alarm irq? */
- 	if (irq_data & OMAP_RTC_STATUS_ALARM) {
-+		rtc->type->unlock(rtc);
- 		rtc_write(rtc, OMAP_RTC_STATUS_REG, OMAP_RTC_STATUS_ALARM);
-+		rtc->type->lock(rtc);
- 		events |= RTC_IRQF | RTC_AF;
- 	}
- 
-@@ -218,9 +243,11 @@ static int omap_rtc_alarm_irq_enable(struct device *dev, unsigned int enabled)
- 		irqwake_reg &= ~OMAP_RTC_IRQWAKEEN_ALARM_WAKEEN;
- 	}
- 	rtc_wait_not_busy(rtc);
-+	rtc->type->unlock(rtc);
- 	rtc_write(rtc, OMAP_RTC_INTERRUPTS_REG, reg);
- 	if (rtc->type->has_irqwakeen)
- 		rtc_write(rtc, OMAP_RTC_IRQWAKEEN, irqwake_reg);
-+	rtc->type->lock(rtc);
- 	local_irq_enable();
- 
- 	return 0;
-@@ -293,12 +320,14 @@ static int omap_rtc_set_time(struct device *dev, struct rtc_time *tm)
- 	local_irq_disable();
- 	rtc_wait_not_busy(rtc);
- 
-+	rtc->type->unlock(rtc);
- 	rtc_write(rtc, OMAP_RTC_YEARS_REG, tm->tm_year);
- 	rtc_write(rtc, OMAP_RTC_MONTHS_REG, tm->tm_mon);
- 	rtc_write(rtc, OMAP_RTC_DAYS_REG, tm->tm_mday);
- 	rtc_write(rtc, OMAP_RTC_HOURS_REG, tm->tm_hour);
- 	rtc_write(rtc, OMAP_RTC_MINUTES_REG, tm->tm_min);
- 	rtc_write(rtc, OMAP_RTC_SECONDS_REG, tm->tm_sec);
-+	rtc->type->lock(rtc);
- 
- 	local_irq_enable();
- 
-@@ -341,6 +370,7 @@ static int omap_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alm)
- 	local_irq_disable();
- 	rtc_wait_not_busy(rtc);
- 
-+	rtc->type->unlock(rtc);
- 	rtc_write(rtc, OMAP_RTC_ALARM_YEARS_REG, alm->time.tm_year);
- 	rtc_write(rtc, OMAP_RTC_ALARM_MONTHS_REG, alm->time.tm_mon);
- 	rtc_write(rtc, OMAP_RTC_ALARM_DAYS_REG, alm->time.tm_mday);
-@@ -362,6 +392,7 @@ static int omap_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alm)
- 	rtc_write(rtc, OMAP_RTC_INTERRUPTS_REG, reg);
- 	if (rtc->type->has_irqwakeen)
- 		rtc_write(rtc, OMAP_RTC_IRQWAKEEN, irqwake_reg);
-+	rtc->type->lock(rtc);
- 
- 	local_irq_enable();
- 
-@@ -391,6 +422,7 @@ static void omap_rtc_power_off(void)
- 	unsigned long now;
- 	u32 val;
- 
-+	rtc->type->unlock(rtc);
- 	/* enable pmic_power_en control */
- 	val = rtc_readl(rtc, OMAP_RTC_PMIC_REG);
- 	rtc_writel(rtc, OMAP_RTC_PMIC_REG, val | OMAP_RTC_PMIC_POWER_EN_EN);
-@@ -423,6 +455,7 @@ static void omap_rtc_power_off(void)
- 	val = rtc_read(rtc, OMAP_RTC_INTERRUPTS_REG);
- 	rtc_writel(rtc, OMAP_RTC_INTERRUPTS_REG,
- 			val | OMAP_RTC_INTERRUPTS_IT_ALARM2);
-+	rtc->type->lock(rtc);
- 
- 	/*
- 	 * Wait for alarm to trigger (within two seconds) and external PMIC to
-@@ -442,17 +475,21 @@ static struct rtc_class_ops omap_rtc_ops = {
- 
- static const struct omap_rtc_device_type omap_rtc_default_type = {
- 	.has_power_up_reset = true,
-+	.lock		= default_rtc_lock,
-+	.unlock		= default_rtc_unlock,
- };
- 
- static const struct omap_rtc_device_type omap_rtc_am3352_type = {
- 	.has_32kclk_en	= true,
--	.has_kicker	= true,
- 	.has_irqwakeen	= true,
- 	.has_pmic_mode	= true,
-+	.lock		= am3352_rtc_lock,
-+	.unlock		= am3352_rtc_unlock,
- };
- 
- static const struct omap_rtc_device_type omap_rtc_da830_type = {
--	.has_kicker	= true,
-+	.lock		= am3352_rtc_lock,
-+	.unlock		= am3352_rtc_unlock,
- };
- 
- static const struct platform_device_id omap_rtc_id_table[] = {
-@@ -527,10 +564,7 @@ static int __init omap_rtc_probe(struct platform_device *pdev)
- 	pm_runtime_enable(&pdev->dev);
- 	pm_runtime_get_sync(&pdev->dev);
- 
--	if (rtc->type->has_kicker) {
--		rtc_writel(rtc, OMAP_RTC_KICK0_REG, KICK0_VALUE);
--		rtc_writel(rtc, OMAP_RTC_KICK1_REG, KICK1_VALUE);
--	}
-+	rtc->type->unlock(rtc);
- 
- 	/*
- 	 * disable interrupts
-@@ -593,6 +627,8 @@ static int __init omap_rtc_probe(struct platform_device *pdev)
- 	if (reg != new_ctrl)
- 		rtc_write(rtc, OMAP_RTC_CTRL_REG, new_ctrl);
- 
-+	rtc->type->lock(rtc);
-+
- 	device_init_wakeup(&pdev->dev, true);
- 
- 	rtc->rtc = devm_rtc_device_register(&pdev->dev, pdev->name,
-@@ -626,8 +662,7 @@ static int __init omap_rtc_probe(struct platform_device *pdev)
- 
- err:
- 	device_init_wakeup(&pdev->dev, false);
--	if (rtc->type->has_kicker)
--		rtc_writel(rtc, OMAP_RTC_KICK0_REG, 0);
-+	rtc->type->lock(rtc);
- 	pm_runtime_put_sync(&pdev->dev);
- 	pm_runtime_disable(&pdev->dev);
- 
-@@ -646,11 +681,11 @@ static int __exit omap_rtc_remove(struct platform_device *pdev)
- 
- 	device_init_wakeup(&pdev->dev, 0);
- 
-+	rtc->type->unlock(rtc);
- 	/* leave rtc running, but disable irqs */
- 	rtc_write(rtc, OMAP_RTC_INTERRUPTS_REG, 0);
- 
--	if (rtc->type->has_kicker)
--		rtc_writel(rtc, OMAP_RTC_KICK0_REG, 0);
-+	rtc->type->lock(rtc);
- 
- 	/* Disable the clock/module */
- 	pm_runtime_put_sync(&pdev->dev);
-@@ -666,6 +701,7 @@ static int omap_rtc_suspend(struct device *dev)
- 
- 	rtc->interrupts_reg = rtc_read(rtc, OMAP_RTC_INTERRUPTS_REG);
- 
-+	rtc->type->unlock(rtc);
- 	/*
- 	 * FIXME: the RTC alarm is not currently acting as a wakeup event
- 	 * source on some platforms, and in fact this enable() call is just
-@@ -675,6 +711,7 @@ static int omap_rtc_suspend(struct device *dev)
- 		enable_irq_wake(rtc->irq_alarm);
- 	else
- 		rtc_write(rtc, OMAP_RTC_INTERRUPTS_REG, 0);
-+	rtc->type->lock(rtc);
- 
- 	/* Disable the clock/module */
- 	pm_runtime_put_sync(dev);
-@@ -689,10 +726,12 @@ static int omap_rtc_resume(struct device *dev)
- 	/* Enable the clock/module so that we can access the registers */
- 	pm_runtime_get_sync(dev);
- 
-+	rtc->type->unlock(rtc);
- 	if (device_may_wakeup(dev))
- 		disable_irq_wake(rtc->irq_alarm);
- 	else
- 		rtc_write(rtc, OMAP_RTC_INTERRUPTS_REG, rtc->interrupts_reg);
-+	rtc->type->lock(rtc);
- 
- 	return 0;
- }
-@@ -709,9 +748,11 @@ static void omap_rtc_shutdown(struct platform_device *pdev)
- 	 * Keep the ALARM interrupt enabled to allow the system to power up on
- 	 * alarm events.
- 	 */
-+	rtc->type->unlock(rtc);
- 	mask = rtc_read(rtc, OMAP_RTC_INTERRUPTS_REG);
- 	mask &= OMAP_RTC_INTERRUPTS_IT_ALARM;
- 	rtc_write(rtc, OMAP_RTC_INTERRUPTS_REG, mask);
-+	rtc->type->lock(rtc);
- }
- 
- static struct platform_driver omap_rtc_driver = {
+ static int dryice_rtc_alarm_irq_enable(struct device *dev,
 -- 
-1.9.1
+2.1.4
 
 -- 
 -- 
