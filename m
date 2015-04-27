@@ -1,24 +1,24 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRB5V25WUAKGQEJDVHA6A@googlegroups.com>
+Return-Path: <rtc-linux+bncBDQ2L75W5QGBBP5G7KUQKGQEK7NZTLA@googlegroups.com>
+Received: from mezzanine.sirena.org.uk (mezzanine.sirena.org.uk. [2400:8900::f03c:91ff:fedb:4f4])
+        by gmr-mx.google.com with ESMTPS id ei3si2214833pdb.1.2015.04.27.12.51.27
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1.2 cipher=RC4-SHA bits=128/128);
+        Mon, 27 Apr 2015 12:51:27 -0700 (PDT)
+Date: Mon, 27 Apr 2015 20:50:52 +0100
+From: Mark Brown <broonie@kernel.org>
+To: Rajeev Kumar <rajeevkumar.linux@gmail.com>
+Cc: dmitry.torokhov@gmail.com, a.zummo@towertech.it,
+	linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org,
+	alsa-devel@alsa-project.org, rtc-linux@googlegroups.com,
+	akpm@linux-foundation.org, rajeev-dlh.kumar@st.com
+Message-ID: <20150427195052.GC22845@sirena.org.uk>
+References: <1430119562-14816-1-git-send-email-rajeevkumar.linux@gmail.com>
 MIME-Version: 1.0
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id i8si36380wif.1.2015.03.31.19.52.38
-        for <rtc-linux@googlegroups.com>;
-        Tue, 31 Mar 2015 19:52:38 -0700 (PDT)
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Andrew Morton <akpm@linux-foundation.org>,
-	Philippe De Muyter <phdm@macqel.be>
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
-	rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	devicetree-discuss@lists.ozlabs.org
-Subject: [rtc-linux] [PATCH v2 1/2] Documentation: bindings: add abracon,abx80x
-Date: Wed,  1 Apr 2015 04:52:22 +0200
-Message-Id: <1427856743-26625-2-git-send-email-alexandre.belloni@free-electrons.com>
-In-Reply-To: <1427856743-26625-1-git-send-email-alexandre.belloni@free-electrons.com>
-References: <1427856743-26625-1-git-send-email-alexandre.belloni@free-electrons.com>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="fIeM2UqBLUBfNdiZ"
+In-Reply-To: <1430119562-14816-1-git-send-email-rajeevkumar.linux@gmail.com>
+Subject: [rtc-linux] Re: [PATCH: RESEND] Update email-id of author
 Reply-To: rtc-linux@googlegroups.com
-Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -28,55 +28,25 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Document the bindings for abracon,abx80x and related compatibles.
+--fIeM2UqBLUBfNdiZ
+Content-Type: text/plain; charset=UTF-8
+Content-Disposition: inline
 
-Cc: devicetree-discuss@lists.ozlabs.org
-Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
----
- .../devicetree/bindings/rtc/abracon,abx80x.txt     | 32 ++++++++++++++++++++++
- 1 file changed, 32 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/rtc/abracon,abx80x.txt
+On Mon, Apr 27, 2015 at 12:56:02PM +0530, Rajeev Kumar wrote:
 
-diff --git a/Documentation/devicetree/bindings/rtc/abracon,abx80x.txt b/Documentation/devicetree/bindings/rtc/abracon,abx80x.txt
-new file mode 100644
-index 000000000000..6f0d3b2cdd89
---- /dev/null
-+++ b/Documentation/devicetree/bindings/rtc/abracon,abx80x.txt
-@@ -0,0 +1,32 @@
-+Abracon ABX80X I2C ultra low power RTC/Alarm chip
-+
-+The Abracon ABX80X family consist of the ab0801, ab0803, ab0804, ab0805, ab1801,
-+ab1803, ab1804 and ab1805. The ab0805 is the superset of ab080x and the ab1805
-+is the superset of ab180x.
-+
-+Required properties:
-+
-+ - "compatible": should one of:
-+        "abracon,abx80x"
-+        "abracon,ab0801"
-+        "abracon,ab0803"
-+        "abracon,ab0804"
-+        "abracon,ab0805"
-+        "abracon,ab1801"
-+        "abracon,ab1803"
-+        "abracon,ab1804"
-+        "abracon,ab1805"
-+	Using "abracon,abx80x" will enable chip autodetection.
-+ - "reg": I2C bus address of the device
-+
-+Optional properties:
-+
-+The abx804 and abx805 have a trickle charger that is able to charge the
-+connected battery or supercap. Both the following properties have to be defined
-+and valid to enable charging:
-+
-+ - "abracon,tc-diode": should be "standard" (0.6V) or "schottky" (0.3V)
-+ - "abracon,tc-resistor": should be <0>, <3>, <6> or <11>. 0 disables the output
-+                          resistor, the other values are in ohm.
-+
-+
--- 
-2.1.0
+>  .mailmap                                     |    1 +
+>  arch/arm/mach-spear/generic.h                |    2 +-
+>  arch/arm/mach-spear/include/mach/irqs.h      |    2 +-
+>  arch/arm/mach-spear/include/mach/spear.h     |    2 +-
+>  arch/arm/mach-spear/spear6xx.c               |    2 +-
+>  drivers/input/keyboard/spear-keyboard.c      |    2 +-
+>  drivers/rtc/rtc-spear.c                      |    4 ++--
+>  include/linux/platform_data/keyboard-spear.h |    2 +-
+>  include/sound/designware_i2s.h               |    2 +-
+>  include/sound/spear_dma.h                    |    2 +-
+>  10 files changed, 11 insertions(+), 10 deletions(-)
+
+Please split this up into per-subsystem patches so it's easier to apply.
 
 -- 
 -- 
@@ -88,3 +58,21 @@ before submitting a driver.
 You received this message because you are subscribed to the Google Groups "rtc-linux" group.
 To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
+
+--fIeM2UqBLUBfNdiZ
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQEcBAEBCAAGBQJVPpMbAAoJECTWi3JdVIfQ7UwH/0K/e3IB2Sa/2rTAKf7WX18u
+uaZAFc760g8wSmyLIZq/YF1erSQYaHfwu9AMUnp3TAWHtCGXaPn/81bqQ0JXhIsc
+Ljvy/AbHbzwMa3SAnP3/s5rJvd92G3wUm1CjV83heUh8KyBBSEkuzWCoGo/UjZxF
+FS5+VcuKeCP0AwSufiQ+gJn1B/mhkuQHXHVM4Z+smgsL8hwKY6y9rANkfdtfHDh+
+waR4omPKHw1kgyp0XKafkQwcL0v00pPyfaRsGVM0AEpi6IMWLtP0Z5h9br9mTujy
+Sxrl7ExJlKxVenWmDIm0OI+dfGU0YM++CmipCNi4QeWfWzD/UEhPh5DXwr1QwoE=
+=vpKH
+-----END PGP SIGNATURE-----
+
+--fIeM2UqBLUBfNdiZ--
