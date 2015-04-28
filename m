@@ -1,240 +1,484 @@
-Date: Fri, 17 Apr 2015 11:30:23 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: rtc-linux@googlegroups.com
-Cc: Wolfram Sang <w.sang@pengutronix.de>, Wim Van Sebroeck <wim@iguana.be>,
-	linux-watchdog@vger.kernel.org, Harald Geyer <harald@ccbib.org>
-Subject: Re: [rtc-linux] [PATCH] watchdog: stmp3xxx: Implement GETBOOTSTATUS
-Message-ID: <20150417093023.GF29796@piout.net>
-References: <1428522355-5164-1-git-send-email-harald@ccbib.org>
+Return-Path: <rtc-linux+bncBCZ273NM4EARB7PQ7SUQKGQEQ6CHAEQ@googlegroups.com>
+Received: from mailgw02.mediatek.com ([210.61.82.184])
+        by gmr-mx.google.com with ESMTPS id gu4si2547374pac.1.2015.04.28.00.36.28
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1 cipher=RC4-SHA bits=128/128);
+        Tue, 28 Apr 2015 00:36:29 -0700 (PDT)
+From: Eddie Huang <eddie.huang@mediatek.com>
+To: Lee Jones <lee.jones@linaro.org>, Alessandro Zummo <a.zummo@towertech.it>,
+	Matthias Brugger <matthias.bgg@gmail.com>, Andrew Morton
+	<akpm@linux-foundation.org>, Tomasz Figa <tfiga@google.com>,
+	=?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <kernel@pengutronix.de>
+CC: <srv_heupstream@mediatek.com>, Samuel Ortiz <sameo@linux.intel.com>, Greg
+ KH <gregkh@linuxfoundation.org>, Joe Perches <joe@perches.com>,
+	<linux-kernel@vger.kernel.org>, <rtc-linux@googlegroups.com>,
+	<linux-arm-kernel@lists.infradead.org>, <linux-mediatek@lists.infradead.org>,
+	Tianping Fang <tianping.fang@mediatek.com>, Eddie Huang
+	<eddie.huang@mediatek.com>
+Subject: [rtc-linux] [PATCH v3 2/3] rtc: mediatek: Add MT6397 RTC driver
+Date: Tue, 28 Apr 2015 15:35:55 +0800
+Message-ID: <1430206556-18254-3-git-send-email-eddie.huang@mediatek.com>
+In-Reply-To: <1430206556-18254-1-git-send-email-eddie.huang@mediatek.com>
+References: <1430206556-18254-1-git-send-email-eddie.huang@mediatek.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1428522355-5164-1-git-send-email-harald@ccbib.org>
+Content-Type: text/plain; charset=UTF-8
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
+List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
+List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
+List-Archive: <http://groups.google.com/group/rtc-linux
+Sender: rtc-linux@googlegroups.com
+List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
+List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
+ <http://groups.google.com/group/rtc-linux/subscribe>
 
-Hi,
+From: Tianping Fang <tianping.fang@mediatek.com>
 
-On 08/04/2015 at 19:45:55 +0000, Harald Geyer wrote :
-> When the watchdog is enabled, we set a persitent bit. After booting
-> we query the bit and see if the system was reset by the watchdog.
-> 
-> This is somewhat similiar to what the legacy driver from freescale
-           similar ^
+Add Mediatek MT6397 RTC driver
 
-> does. However we use STMP3XXX_RTC_PERSISTENT2 instead of
-> STMP3XXX_RTC_PERSISTENT1. I tried that first, but it seems I can't
-> clear the bit there once it is set. I didn't find any documentation
-> what this register does - only vague hints that it is meant to
-> control the boot ROM.
-> 
-> Part of the code from the legacy driver touching this register
-> is still included. Maybe this is stale, but this patch doesn't
-> touch any of it because I don't know what it really does or is
-> meant to do.
-> 
-> Signed-off-by: Harald Geyer <harald@ccbib.org>
+Signed-off-by: Tianping Fang <tianping.fang@mediatek.com>
+Signed-off-by: Eddie Huang <eddie.huang@mediatek.com>
+---
+ drivers/rtc/Kconfig      |  10 ++
+ drivers/rtc/Makefile     |   1 +
+ drivers/rtc/rtc-mt6397.c | 388 +++++++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 399 insertions(+)
+ create mode 100644 drivers/rtc/rtc-mt6397.c
 
-The RTC part seems ok to me but the driver itself would benefit from a
-few improvements:
- - use STMP_OFFSET_REG_(SET|CLR) instead of defining _SET and _CLR for
-   STMP3XXX_RTC_CTRL and STMP3XXX_RTC_PERSISTENT0
- - use syscon instead of passing callbacks to the watchdog driver
-
-It would be greatly appreciated if you could do those changes too.
-
-
-> ---
->  drivers/rtc/rtc-stmp3xxx.c          |   23 +++++++++++++++++++++++
->  drivers/watchdog/stmp3xxx_rtc_wdt.c |   34 +++++++++++++++++++++++++++++++++-
->  include/linux/stmp3xxx_rtc_wdt.h    |    2 ++
->  3 files changed, 58 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/rtc/rtc-stmp3xxx.c b/drivers/rtc/rtc-stmp3xxx.c
-> index 2939cdc..55ab9ba 100644
-> --- a/drivers/rtc/rtc-stmp3xxx.c
-> +++ b/drivers/rtc/rtc-stmp3xxx.c
-> @@ -30,6 +30,7 @@
->  #include <linux/of.h>
->  #include <linux/stmp_device.h>
->  #include <linux/stmp3xxx_rtc_wdt.h>
-> +#include <linux/watchdog.h>
->  
->  #define STMP3XXX_RTC_CTRL			0x0
->  #define STMP3XXX_RTC_CTRL_SET			0x4
-> @@ -60,6 +61,9 @@
->  /* missing bitmask in headers */
->  #define STMP3XXX_RTC_PERSISTENT1_FORCE_UPDATER	0x80000000
->  
-> +#define STMP3XXX_RTC_PERSISTENT2		0x80
-> +#define STMP3XXX_RTC_PERSISTENT2_WDT_ACTIVE	0x00000001
-> +
->  struct stmp3xxx_rtc_data {
->  	struct rtc_device *rtc;
->  	void __iomem *io;
-> @@ -81,6 +85,14 @@ struct stmp3xxx_rtc_data {
->   * registers is atomic.
->   */
->  
-> +static void stmp3xxx_wdt_clear_bootstatus(struct device *dev)
-> +{
-> +	struct stmp3xxx_rtc_data *rtc_data = dev_get_drvdata(dev);
-> +
-> +	writel(STMP3XXX_RTC_PERSISTENT2_WDT_ACTIVE,
-> +	       STMP3XXX_RTC_PERSISTENT2 + STMP_OFFSET_REG_CLR + rtc_data->io);
-> +}
-> +
->  static void stmp3xxx_wdt_set_timeout(struct device *dev, u32 timeout)
->  {
->  	struct stmp3xxx_rtc_data *rtc_data = dev_get_drvdata(dev);
-> @@ -91,16 +103,22 @@ static void stmp3xxx_wdt_set_timeout(struct device *dev, u32 timeout)
->  		       rtc_data->io + STMP3XXX_RTC_CTRL + STMP_OFFSET_REG_SET);
->  		writel(STMP3XXX_RTC_PERSISTENT1_FORCE_UPDATER,
->  		       rtc_data->io + STMP3XXX_RTC_PERSISTENT1 + STMP_OFFSET_REG_SET);
-> +		writel(STMP3XXX_RTC_PERSISTENT2_WDT_ACTIVE,
-> +		       rtc_data->io + STMP3XXX_RTC_PERSISTENT2 + STMP_OFFSET_REG_SET);
->  	} else {
->  		writel(STMP3XXX_RTC_CTRL_WATCHDOGEN,
->  		       rtc_data->io + STMP3XXX_RTC_CTRL + STMP_OFFSET_REG_CLR);
->  		writel(STMP3XXX_RTC_PERSISTENT1_FORCE_UPDATER,
->  		       rtc_data->io + STMP3XXX_RTC_PERSISTENT1 + STMP_OFFSET_REG_CLR);
-> +		writel(STMP3XXX_RTC_PERSISTENT2_WDT_ACTIVE,
-> +		       rtc_data->io + STMP3XXX_RTC_PERSISTENT2 + STMP_OFFSET_REG_CLR);
->  	}
->  }
->  
->  static struct stmp3xxx_wdt_pdata wdt_pdata = {
->  	.wdt_set_timeout = stmp3xxx_wdt_set_timeout,
-> +	.wdt_clear_bootstatus = stmp3xxx_wdt_clear_bootstatus,
-> +	.bootstatus = 0,
->  };
->  
->  static void stmp3xxx_wdt_register(struct platform_device *rtc_pdev)
-> @@ -108,6 +126,8 @@ static void stmp3xxx_wdt_register(struct platform_device *rtc_pdev)
->  	struct platform_device *wdt_pdev =
->  		platform_device_alloc("stmp3xxx_rtc_wdt", rtc_pdev->id);
->  
-> +	stmp3xxx_wdt_clear_bootstatus(&rtc_pdev->dev);
-> +
->  	if (wdt_pdev) {
->  		wdt_pdev->dev.parent = &rtc_pdev->dev;
->  		wdt_pdev->dev.platform_data = &wdt_pdata;
-> @@ -304,6 +324,9 @@ static int stmp3xxx_rtc_probe(struct platform_device *pdev)
->  		return err;
->  	}
->  
-> +	if (readl(STMP3XXX_RTC_PERSISTENT2 + rtc_data->io) &
-> +			 STMP3XXX_RTC_PERSISTENT2_WDT_ACTIVE)
-> +		wdt_pdata.bootstatus |= WDIOF_CARDRESET;
->  	stmp3xxx_wdt_register(pdev);
->  	return 0;
->  }
-> diff --git a/drivers/watchdog/stmp3xxx_rtc_wdt.c b/drivers/watchdog/stmp3xxx_rtc_wdt.c
-> index a62b1b6..5b3f12a8 100644
-> --- a/drivers/watchdog/stmp3xxx_rtc_wdt.c
-> +++ b/drivers/watchdog/stmp3xxx_rtc_wdt.c
-> @@ -14,6 +14,8 @@
->  #include <linux/watchdog.h>
->  #include <linux/platform_device.h>
->  #include <linux/stmp3xxx_rtc_wdt.h>
-> +#include <linux/notifier.h>
-> +#include <linux/reboot.h>
->  
->  #define WDOG_TICK_RATE 1000 /* 1 kHz clock */
->  #define STMP3XXX_DEFAULT_TIMEOUT 19
-> @@ -50,7 +52,8 @@ static int wdt_set_timeout(struct watchdog_device *wdd, unsigned new_timeout)
->  }
->  
->  static const struct watchdog_info stmp3xxx_wdt_ident = {
-> -	.options = WDIOF_MAGICCLOSE | WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING,
-> +	.options = WDIOF_MAGICCLOSE | WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING |
-> +		WDIOF_CARDRESET,
->  	.identity = "STMP3XXX RTC Watchdog",
->  };
->  
-> @@ -69,13 +72,38 @@ static struct watchdog_device stmp3xxx_wdd = {
->  	.status = WATCHDOG_NOWAYOUT_INIT_STATUS,
->  };
->  
-> +static int wdt_notify_sys(struct notifier_block *nb, unsigned long code,
-> +			  void *unused)
-> +{
-> +	struct device *dev = watchdog_get_drvdata(&stmp3xxx_wdd);
-> +	struct stmp3xxx_wdt_pdata *pdata = dev_get_platdata(dev);
-> +
-> +	switch (code) {
-> +	case SYS_DOWN:	/* keep enabled, system might crash while going down */
-> +		pdata->wdt_clear_bootstatus(dev->parent);
-> +		break;
-> +	case SYS_HALT:  /* allow the system to actually halt */
-> +	case SYS_POWER_OFF:
-> +		wdt_stop(&stmp3xxx_wdd);
-> +		break;
-> +	}
-> +
-> +	return NOTIFY_DONE;
-> +}
-> +
-> +static struct notifier_block wdt_notifier = {
-> +	.notifier_call  = wdt_notify_sys,
-> +};
-> +
->  static int stmp3xxx_wdt_probe(struct platform_device *pdev)
->  {
-> +	struct stmp3xxx_wdt_pdata *pdata = dev_get_platdata(&pdev->dev);
->  	int ret;
->  
->  	watchdog_set_drvdata(&stmp3xxx_wdd, &pdev->dev);
->  
->  	stmp3xxx_wdd.timeout = clamp_t(unsigned, heartbeat, 1, STMP3XXX_MAX_TIMEOUT);
-> +	stmp3xxx_wdd.bootstatus = pdata->bootstatus;
->  
->  	ret = watchdog_register_device(&stmp3xxx_wdd);
->  	if (ret < 0) {
-> @@ -83,6 +111,9 @@ static int stmp3xxx_wdt_probe(struct platform_device *pdev)
->  		return ret;
->  	}
->  
-> +	if (register_reboot_notifier(&wdt_notifier))
-> +		dev_warn(&pdev->dev, "cannot register reboot notifier\n");
-> +
->  	dev_info(&pdev->dev, "initialized watchdog with heartbeat %ds\n",
->  			stmp3xxx_wdd.timeout);
->  	return 0;
-> @@ -90,6 +121,7 @@ static int stmp3xxx_wdt_probe(struct platform_device *pdev)
->  
->  static int stmp3xxx_wdt_remove(struct platform_device *pdev)
->  {
-> +	unregister_reboot_notifier(&wdt_notifier);
->  	watchdog_unregister_device(&stmp3xxx_wdd);
->  	return 0;
->  }
-> diff --git a/include/linux/stmp3xxx_rtc_wdt.h b/include/linux/stmp3xxx_rtc_wdt.h
-> index 1dd12c9..62dd9e6 100644
-> --- a/include/linux/stmp3xxx_rtc_wdt.h
-> +++ b/include/linux/stmp3xxx_rtc_wdt.h
-> @@ -10,6 +10,8 @@
->  
->  struct stmp3xxx_wdt_pdata {
->  	void (*wdt_set_timeout)(struct device *dev, u32 timeout);
-> +	void (*wdt_clear_bootstatus)(struct device *dev);
-> +	unsigned int bootstatus;
->  };
->  
->  #endif /* __LINUX_STMP3XXX_RTC_WDT_H */
-> -- 
-> 1.7.10.4
-> 
-> -- 
-> -- 
-> You received this message because you are subscribed to "rtc-linux".
-> Membership options at http://groups.google.com/group/rtc-linux .
-> Please read http://groups.google.com/group/rtc-linux/web/checklist
-> before submitting a driver.
-> --- 
-> You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-> To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
-> For more options, visit https://groups.google.com/d/optout.
+diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
+index 6149ae0..9608fcb 100644
+--- a/drivers/rtc/Kconfig
++++ b/drivers/rtc/Kconfig
+@@ -1520,6 +1520,16 @@ config RTC_DRV_MOXART
+ 	   This driver can also be built as a module. If so, the module
+ 	   will be called rtc-moxart
+ 
++config RTC_DRV_MT6397
++	tristate "Mediatek Real Time Clock driver"
++	depends on MFD_MT6397 || COMPILE_TEST
++	help
++	  This selects the Mediatek(R) RTC driver. RTC is part of Mediatek
++	  MT6397 PMIC. You should enable MT6397 PMIC MFD before select
++	  Mediatek(R) RTC driver.
++
++	  If you want to use Mediatek(R) RTC interface, select Y or M here.
++
+ config RTC_DRV_XGENE
+ 	tristate "APM X-Gene RTC"
+ 	depends on HAS_IOMEM
+diff --git a/drivers/rtc/Makefile b/drivers/rtc/Makefile
+index c31731c..6ba0ce2 100644
+--- a/drivers/rtc/Makefile
++++ b/drivers/rtc/Makefile
+@@ -154,3 +154,4 @@ obj-$(CONFIG_RTC_DRV_X1205)	+= rtc-x1205.o
+ obj-$(CONFIG_RTC_DRV_XGENE)	+= rtc-xgene.o
+ obj-$(CONFIG_RTC_DRV_SIRFSOC)	+= rtc-sirfsoc.o
+ obj-$(CONFIG_RTC_DRV_MOXART)	+= rtc-moxart.o
++obj-$(CONFIG_RTC_DRV_MT6397)	+= rtc-mt6397.o
+diff --git a/drivers/rtc/rtc-mt6397.c b/drivers/rtc/rtc-mt6397.c
+new file mode 100644
+index 0000000..0d96d02
+--- /dev/null
++++ b/drivers/rtc/rtc-mt6397.c
+@@ -0,0 +1,388 @@
++/*
++* Copyright (c) 2014-2015 MediaTek Inc.
++* Author: Tianping.Fang <tianping.fang@mediatek.com>
++*
++* This program is free software; you can redistribute it and/or modify
++* it under the terms of the GNU General Public License version 2 as
++* published by the Free Software Foundation.
++*
++* This program is distributed in the hope that it will be useful,
++* but WITHOUT ANY WARRANTY; without even the implied warranty of
++* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++* GNU General Public License for more details.
++*/
++
++#include <linux/delay.h>
++#include <linux/init.h>
++#include <linux/module.h>
++#include <linux/regmap.h>
++#include <linux/rtc.h>
++#include <linux/irqdomain.h>
++#include <linux/platform_device.h>
++#include <linux/of_address.h>
++#include <linux/of_irq.h>
++#include <linux/io.h>
++#include <linux/mfd/mt6397/core.h>
++
++#define RTC_BBPU		0x0000
++#define RTC_BBPU_CBUSY		BIT(6)
++
++#define RTC_WRTGR		0x003c
++
++#define RTC_IRQ_STA		0x0002
++#define RTC_IRQ_STA_AL		BIT(0)
++#define RTC_IRQ_STA_LP		BIT(3)
++
++#define RTC_IRQ_EN		0x0004
++#define RTC_IRQ_EN_AL		BIT(0)
++#define RTC_IRQ_EN_ONESHOT	BIT(2)
++#define RTC_IRQ_EN_LP		BIT(3)
++#define RTC_IRQ_EN_ONESHOT_AL	(RTC_IRQ_EN_ONESHOT | RTC_IRQ_EN_AL)
++
++#define RTC_AL_MASK		0x0008
++#define RTC_AL_MASK_DOW		BIT(4)
++
++#define RTC_TC_SEC		0x000a
++/* Min, Hour, Dom... register offset to RTC_TC_SEC */
++#define RTC_OFFSET_SEC		0
++#define RTC_OFFSET_MIN		1
++#define RTC_OFFSET_HOUR		2
++#define RTC_OFFSET_DOM		3
++#define RTC_OFFSET_DOW		4
++#define RTC_OFFSET_MTH		5
++#define RTC_OFFSET_YEAR		6
++#define RTC_OFFSET_COUNT	7
++
++#define RTC_AL_SEC		0x0018
++
++#define RTC_PDN2		0x002e
++#define RTC_PDN2_PWRON_ALARM	BIT(4)
++
++#define RTC_MIN_YEAR		1968
++#define RTC_BASE_YEAR		1900
++#define RTC_NUM_YEARS		128
++#define RTC_MIN_YEAR_OFFSET	(RTC_MIN_YEAR - RTC_BASE_YEAR)
++
++struct mt6397_rtc {
++	struct device		*dev;
++	struct rtc_device	*rtc_dev;
++	struct mutex		lock;
++	struct regmap		*regmap;
++	int			irq;
++	u32			addr_base;
++};
++
++static int mtk_rtc_write_trigger(struct mt6397_rtc *rtc)
++{
++	unsigned long timeout = jiffies + HZ;
++	int ret;
++	u32 data;
++
++	ret = regmap_write(rtc->regmap, rtc->addr_base + RTC_WRTGR, 1);
++	if (ret < 0)
++		return ret;
++
++	do {
++		cpu_relax();
++		ret = regmap_read(rtc->regmap, rtc->addr_base + RTC_BBPU,
++				&data);
++		if (ret < 0)
++			goto exit;
++	} while ((data & RTC_BBPU_CBUSY) && time_after(timeout, jiffies));
++
++exit:
++	return ret;
++}
++
++static irqreturn_t mtk_rtc_irq_handler_thread(int irq, void *data)
++{
++	struct mt6397_rtc *rtc = data;
++	u32 irqsta, irqen;
++	int ret;
++
++	ret = regmap_read(rtc->regmap, rtc->addr_base + RTC_IRQ_STA, &irqsta);
++	if ((ret >= 0) && (irqsta & RTC_IRQ_STA_AL)) {
++		rtc_update_irq(rtc->rtc_dev, 1, RTC_IRQF | RTC_AF);
++		irqen = irqsta & ~RTC_IRQ_EN_AL;
++		mutex_lock(&rtc->lock);
++		if (regmap_write(rtc->regmap, rtc->addr_base + RTC_IRQ_EN,
++				 irqen) < 0)
++			mtk_rtc_write_trigger(rtc);
++		mutex_unlock(&rtc->lock);
++
++		return IRQ_HANDLED;
++	}
++
++	return IRQ_NONE;
++}
++
++static int __mtk_rtc_read_time(struct mt6397_rtc *rtc,
++				struct rtc_time *tm, int *sec)
++{
++	int ret;
++	u16 data[RTC_OFFSET_COUNT];
++
++	mutex_lock(&rtc->lock);
++	ret = regmap_bulk_read(rtc->regmap, rtc->addr_base + RTC_TC_SEC,
++			data, RTC_OFFSET_COUNT);
++	if (ret < 0)
++		goto exit;
++
++	tm->tm_sec = data[RTC_OFFSET_SEC];
++	tm->tm_min = data[RTC_OFFSET_MIN];
++	tm->tm_hour = data[RTC_OFFSET_HOUR];
++	tm->tm_mday = data[RTC_OFFSET_DOM];
++	tm->tm_mon = data[RTC_OFFSET_MTH];
++	tm->tm_year = data[RTC_OFFSET_YEAR];
++
++	ret = regmap_read(rtc->regmap, rtc->addr_base + RTC_TC_SEC, sec);
++exit:
++	mutex_unlock(&rtc->lock);
++	return ret;
++}
++
++static int mtk_rtc_read_time(struct device *dev, struct rtc_time *tm)
++{
++	time64_t time;
++	struct mt6397_rtc *rtc = dev_get_drvdata(dev);
++	int sec, ret;
++
++	do {
++		ret = __mtk_rtc_read_time(rtc, tm, &sec);
++		if (ret < 0)
++			goto exit;
++	} while (sec < tm->tm_sec);
++
++	/* HW register use 7 bits to store year data, minus
++	 * RTC_MIN_YEAR_OFFSET before write year data to register, and plus
++	 * RTC_MIN_YEAR_OFFSET back after read year from register
++	 */
++	tm->tm_year += RTC_MIN_YEAR_OFFSET;
++
++	/* HW register start mon from one, but tm_mon start from zero. */
++	tm->tm_mon--;
++	time = rtc_tm_to_time64(tm);
++
++	/* rtc_tm_to_time64 covert Gregorian date to seconds since
++	 * 01-01-1970 00:00:00, and this date is Thursday.
++	 */
++	tm->tm_wday = (time / 86400 + 4) % 7;
++
++exit:
++	return ret;
++}
++
++static int mtk_rtc_set_time(struct device *dev, struct rtc_time *tm)
++{
++	struct mt6397_rtc *rtc = dev_get_drvdata(dev);
++	int ret;
++	u16 data[RTC_OFFSET_COUNT];
++
++	tm->tm_year -= RTC_MIN_YEAR_OFFSET;
++	tm->tm_mon++;
++
++	data[RTC_OFFSET_SEC] = tm->tm_sec;
++	data[RTC_OFFSET_MIN] = tm->tm_min;
++	data[RTC_OFFSET_HOUR] = tm->tm_hour;
++	data[RTC_OFFSET_DOM] = tm->tm_mday;
++	data[RTC_OFFSET_MTH] = tm->tm_mon;
++	data[RTC_OFFSET_YEAR] = tm->tm_year;
++
++	mutex_lock(&rtc->lock);
++	ret = regmap_bulk_write(rtc->regmap, rtc->addr_base + RTC_TC_SEC,
++			data, RTC_OFFSET_COUNT);
++	if (ret < 0)
++		goto exit;
++
++	/* Time register write to hardware after call trigger function */
++	ret = mtk_rtc_write_trigger(rtc);
++
++exit:
++	mutex_unlock(&rtc->lock);
++	return ret;
++}
++
++static int mtk_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alm)
++{
++	struct rtc_time *tm = &alm->time;
++	struct mt6397_rtc *rtc = dev_get_drvdata(dev);
++	u32 irqen, pdn2;
++	int ret;
++	u16 data[RTC_OFFSET_COUNT];
++
++	mutex_lock(&rtc->lock);
++	ret = regmap_read(rtc->regmap, rtc->addr_base + RTC_IRQ_EN, &irqen);
++	if (ret < 0)
++		goto err_exit;
++	ret = regmap_read(rtc->regmap, rtc->addr_base + RTC_PDN2, &pdn2);
++	if (ret < 0)
++		goto err_exit;
++
++	ret = regmap_bulk_read(rtc->regmap, rtc->addr_base + RTC_AL_SEC,
++			data, RTC_OFFSET_COUNT);
++	if (ret < 0)
++		goto err_exit;
++
++	alm->enabled = !!(irqen & RTC_IRQ_EN_AL);
++	alm->pending = !!(pdn2 & RTC_PDN2_PWRON_ALARM);
++	mutex_unlock(&rtc->lock);
++
++	tm->tm_sec = data[RTC_OFFSET_SEC];
++	tm->tm_min = data[RTC_OFFSET_MIN];
++	tm->tm_hour = data[RTC_OFFSET_HOUR];
++	tm->tm_mday = data[RTC_OFFSET_DOM];
++	tm->tm_mon = data[RTC_OFFSET_MTH];
++	tm->tm_year = data[RTC_OFFSET_YEAR];
++
++	tm->tm_year += RTC_MIN_YEAR_OFFSET;
++	tm->tm_mon--;
++
++	return 0;
++err_exit:
++	mutex_unlock(&rtc->lock);
++	return ret;
++}
++
++static int mtk_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alm)
++{
++	struct rtc_time *tm = &alm->time;
++	struct mt6397_rtc *rtc = dev_get_drvdata(dev);
++	int ret;
++	u16 data[RTC_OFFSET_COUNT];
++
++	tm->tm_year -= RTC_MIN_YEAR_OFFSET;
++	tm->tm_mon++;
++
++	data[RTC_OFFSET_SEC] = tm->tm_sec;
++	data[RTC_OFFSET_MIN] = tm->tm_min;
++	data[RTC_OFFSET_HOUR] = tm->tm_hour;
++	data[RTC_OFFSET_DOM] = tm->tm_mday;
++	data[RTC_OFFSET_MTH] = tm->tm_mon;
++	data[RTC_OFFSET_YEAR] = tm->tm_year;
++
++	mutex_lock(&rtc->lock);
++	if (alm->enabled) {
++		ret = regmap_bulk_write(rtc->regmap,
++				rtc->addr_base + RTC_AL_SEC,
++				data, RTC_OFFSET_COUNT);
++		if (ret < 0)
++			goto exit;
++		ret = regmap_write(rtc->regmap, rtc->addr_base + RTC_AL_MASK,
++				RTC_AL_MASK_DOW);
++		if (ret < 0)
++			goto exit;
++		ret = regmap_update_bits(rtc->regmap,
++				rtc->addr_base + RTC_IRQ_EN,
++				RTC_IRQ_EN_ONESHOT_AL, RTC_IRQ_EN_ONESHOT_AL);
++		if (ret < 0)
++			goto exit;
++	} else {
++		ret = regmap_update_bits(rtc->regmap,
++					rtc->addr_base + RTC_IRQ_EN,
++					RTC_IRQ_EN_ONESHOT_AL, 0);
++		if (ret < 0)
++			goto exit;
++	}
++
++	/* All alarm time register write to hardware after calling
++	 * mtk_rtc_write_trigger. This can avoid race condition if alarm
++	 * occur happen during writing alarm time register.
++	 */
++	ret = mtk_rtc_write_trigger(rtc);
++exit:
++	mutex_unlock(&rtc->lock);
++	return ret;
++}
++
++static struct rtc_class_ops mtk_rtc_ops = {
++	.read_time  = mtk_rtc_read_time,
++	.set_time   = mtk_rtc_set_time,
++	.read_alarm = mtk_rtc_read_alarm,
++	.set_alarm  = mtk_rtc_set_alarm,
++};
++
++static int mtk_rtc_probe(struct platform_device *pdev)
++{
++	struct resource *res;
++	struct mt6397_chip *mt6397_chip = dev_get_drvdata(pdev->dev.parent);
++	struct mt6397_rtc *rtc;
++	int ret;
++
++	rtc = devm_kzalloc(&pdev->dev, sizeof(struct mt6397_rtc), GFP_KERNEL);
++	if (!rtc)
++		return -ENOMEM;
++
++	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
++	rtc->addr_base = res->start;
++
++	res = platform_get_resource(pdev, IORESOURCE_IRQ, 0);
++	rtc->irq = irq_create_mapping(mt6397_chip->irq_domain, res->start);
++	if (rtc->irq <= 0)
++		return -EINVAL;
++
++	rtc->regmap = mt6397_chip->regmap;
++	rtc->dev = &pdev->dev;
++	mutex_init(&rtc->lock);
++
++	platform_set_drvdata(pdev, rtc);
++
++	ret = request_threaded_irq(rtc->irq, NULL,
++			mtk_rtc_irq_handler_thread,
++			IRQF_ONESHOT | IRQF_TRIGGER_HIGH,
++			"mt6397-rtc", rtc);
++	if (ret) {
++		dev_err(&pdev->dev, "Failed to request alarm IRQ: %d: %d\n",
++			rtc->irq, ret);
++		goto out_dispose_irq;
++	}
++
++	rtc->rtc_dev = rtc_device_register("mt6397-rtc", &pdev->dev,
++				&mtk_rtc_ops, THIS_MODULE);
++	if (IS_ERR(rtc->rtc_dev)) {
++		dev_err(&pdev->dev, "register rtc device failed\n");
++		ret = PTR_ERR(rtc->rtc_dev);
++		goto out_free_irq;
++	}
++
++	device_init_wakeup(&pdev->dev, 1);
++
++	return 0;
++
++out_free_irq:
++	free_irq(rtc->irq, rtc->rtc_dev);
++out_dispose_irq:
++	irq_dispose_mapping(rtc->irq);
++	return ret;
++}
++
++static int mtk_rtc_remove(struct platform_device *pdev)
++{
++	struct mt6397_rtc *rtc = platform_get_drvdata(pdev);
++
++	rtc_device_unregister(rtc->rtc_dev);
++	free_irq(rtc->irq, rtc->rtc_dev);
++	irq_dispose_mapping(rtc->irq);
++
++	return 0;
++}
++
++static const struct of_device_id mt6397_rtc_of_match[] = {
++	{ .compatible = "mediatek,mt6397-rtc", },
++	{ }
++};
++
++static struct platform_driver mtk_rtc_driver = {
++	.driver = {
++		.name = "mt6397-rtc",
++		.of_match_table = mt6397_rtc_of_match,
++	},
++	.probe	= mtk_rtc_probe,
++	.remove = mtk_rtc_remove,
++};
++
++module_platform_driver(mtk_rtc_driver);
++
++MODULE_LICENSE("GPL v2");
++MODULE_AUTHOR("Tianping Fang <tianping.fang@mediatek.com>");
++MODULE_DESCRIPTION("RTC Driver for MediaTek MT6397 PMIC");
++MODULE_ALIAS("platform:mt6397-rtc");
+-- 
+1.8.1.1.dirty
 
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+-- 
+You received this message because you are subscribed to "rtc-linux".
+Membership options at http://groups.google.com/group/rtc-linux .
+Please read http://groups.google.com/group/rtc-linux/web/checklist
+before submitting a driver.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+For more options, visit https://groups.google.com/d/optout.
