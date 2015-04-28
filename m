@@ -1,38 +1,23 @@
-Return-Path: <rtc-linux+bncBCKMZDW5VIHBBSP6ZGUQKGQEQX4KUJQ@googlegroups.com>
-Received: from bh-25.webhostbox.net (bh-25.webhostbox.net. [208.91.199.152])
-        by gmr-mx.google.com with ESMTPS id k3si223210igf.1.2015.04.18.08.59.04
+Return-Path: <rtc-linux+bncBCZ273NM4EARB4PQ7SUQKGQEKHLECLQ@googlegroups.com>
+Received: from mailgw02.mediatek.com ([210.61.82.184])
+        by gmr-mx.google.com with ESMTPS id x3si2370683pdh.2.2015.04.28.00.36.17
         for <rtc-linux@googlegroups.com>
         (version=TLSv1 cipher=RC4-SHA bits=128/128);
-        Sat, 18 Apr 2015 08:59:04 -0700 (PDT)
-Received: from mailnull by bh-25.webhostbox.net with sa-checked (Exim 4.82)
-	(envelope-from <linux@roeck-us.net>)
-	id 1YjV95-002zdb-Qs
-	for rtc-linux@googlegroups.com; Sat, 18 Apr 2015 15:59:04 +0000
-Message-ID: <55327E21.304@roeck-us.net>
-Date: Sat, 18 Apr 2015 08:54:09 -0700
-From: Guenter Roeck <linux@roeck-us.net>
+        Tue, 28 Apr 2015 00:36:17 -0700 (PDT)
+From: Eddie Huang <eddie.huang@mediatek.com>
+To: Lee Jones <lee.jones@linaro.org>, Alessandro Zummo <a.zummo@towertech.it>,
+	Matthias Brugger <matthias.bgg@gmail.com>, Andrew Morton
+	<akpm@linux-foundation.org>, Tomasz Figa <tfiga@google.com>,
+	=?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <kernel@pengutronix.de>
+CC: <srv_heupstream@mediatek.com>, Samuel Ortiz <sameo@linux.intel.com>, Greg
+ KH <gregkh@linuxfoundation.org>, Joe Perches <joe@perches.com>,
+	<linux-kernel@vger.kernel.org>, <rtc-linux@googlegroups.com>,
+	<linux-arm-kernel@lists.infradead.org>, <linux-mediatek@lists.infradead.org>
+Subject: [rtc-linux] [PATCH v3 0/3] Add Mediatek SoC RTC driver
+Date: Tue, 28 Apr 2015 15:35:53 +0800
+Message-ID: <1430206556-18254-1-git-send-email-eddie.huang@mediatek.com>
 MIME-Version: 1.0
-To: S Twiss <stwiss.opensource@diasemi.com>,
- Alessandro Zummo <a.zummo@towertech.it>,
- DEVICETREE <devicetree@vger.kernel.org>,
- Dmitry Torokhov <dmitry.torokhov@gmail.com>,
- Ian Campbell <ijc+devicetree@hellion.org.uk>,
- Kumar Gala <galak@codeaurora.org>,
- LINUXINPUT <linux-input@vger.kernel.org>,
- LINUXKERNEL <linux-kernel@vger.kernel.org>,
- LINUXWATCHDOG <linux-watchdog@vger.kernel.org>,
- Lee Jones <lee.jones@linaro.org>,
- Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>,
- Mark Rutland <mark.rutland@arm.com>,
- Pawel Moll <pawel.moll@arm.com>, RTCLINUX <rtc-linux@googlegroups.com>,
- Rob Herring <robh+dt@kernel.org>,
- Samuel Ortiz <sameo@linux.intel.com>, Wim Van Sebroeck <wim@iguana.be>
-CC: David Dajun Chen <david.chen@diasemi.com>,
- Support Opensource <support.opensource@diasemi.com>
-Subject: [rtc-linux] Re: [PATCH V1 0/6]  COVER LETTER
-References: <cover.1429280614.git.stwiss.opensource@diasemi.com>
-In-Reply-To: <cover.1429280614.git.stwiss.opensource@diasemi.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -43,39 +28,66 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On 04/17/2015 07:23 AM, S Twiss wrote:
-> From: S Twiss <stwiss.opensource@diasemi.com>
->
-> This patch set adds support for the Dialog DA9062 Power Management IC.
->
-> In this patch set the following is provided:
->   - [PATCH V1 1/6]: MFD core support
->   - [PATCH V1 2/6]: BUCK and LDO regulator driver
->   - [PATCH V1 3/6]: RTC driver
->   - [PATCH V1 4/6]: OnKey driver
->   - [PATCH V1 5/6]: Watchdog driver
->   - [PATCH V1 6/6]: Add bindings for all DA9062 components
->
-> This patch applies against linux-next and v4.0
->
-> Thank you,
-> Steve Twiss, Dialog Semiconductor Ltd.
->
+RTC is one submodule of Mediatek MT6397 PMIC chip[1]. This series
+support RTC driver that work with Mediatek SoC like MT8135, MT8173.
+It implements second counter and also provide alarm function.
 
-Hi Steve,
+This series base on 4.1-rc1, Test ok on MT8173 platform.
 
-It might make sense to use something better than "COVER LETTER" as subject line.
+[1] https://lkml.org/lkml/2015/1/23/325
 
-Thanks,
-Guenter
+Change in v3:
+1. Replace magic number in mt6397-core.c
+2. Add comment for some equation and write trigger.
+3. Use regmap_bulk_read and regmap_bulk_write to avoid muliple regmap_read
+   and regmap_write
+4. Replace devm_request_threaded_irq with request_threaded_irq and add
+   irq_dispose_mapping
+5. Fix Tomasz Figa review comment.
 
--- 
--- 
+Change in v2:
+1. Move RTC address and interrupt to mt6397-core.c, and register
+   these resource in mfd_cell.
+   http://lists.infradead.org/pipermail/linux-arm-kernel/2015-February/3232=
+39.html
+2. Remove dt-binding document due to register resouce in mfd_cell, not from
+   device tree.
+3. Update MAINTAINER file to add Mediatek RTC mainainter.
+4. Add prefix mtk_ to some internal functions.
+5. Fix racy condition
+6. Check return value of regmap_read and regmap_write
+7. Remove some unnecessary register readback, clear, then write.
+8. Add disable alarm in mtk_rtc_set_alarm function
+9. Fix Uwe Kleine-K=C3=B6nig review comment
+
+Eddie Huang (2):
+  mfd: provide RTC resource in MT6397 MFD
+  MAINTAINERS: add Mediatek RTC driver
+
+Tianping Fang (1):
+  rtc: mediatek: Add MT6397 RTC driver
+
+ MAINTAINERS               |   7 +
+ drivers/mfd/mt6397-core.c |  18 +++
+ drivers/rtc/Kconfig       |  10 ++
+ drivers/rtc/Makefile      |   1 +
+ drivers/rtc/rtc-mt6397.c  | 388 ++++++++++++++++++++++++++++++++++++++++++=
+++++
+ 5 files changed, 424 insertions(+)
+ create mode 100644 drivers/rtc/rtc-mt6397.c
+
+--
+1.8.1.1.dirty
+
+--=20
+--=20
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+---=20
+You received this message because you are subscribed to the Google Groups "=
+rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an e=
+mail to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
