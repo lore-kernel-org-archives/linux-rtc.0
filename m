@@ -1,88 +1,71 @@
-Content-Type: text/plain; charset="utf-8"
+Return-Path: <rtc-linux+bncBCZ273NM4EARBAXR7SUQKGQESOEN4PQ@googlegroups.com>
+Received: from mailgw01.mediatek.com ([210.61.82.183])
+        by gmr-mx.google.com with ESMTPS id dv5si2586091pbb.0.2015.04.28.00.36.33
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1 cipher=RC4-SHA bits=128/128);
+        Tue, 28 Apr 2015 00:36:34 -0700 (PDT)
+From: Eddie Huang <eddie.huang@mediatek.com>
+To: Lee Jones <lee.jones@linaro.org>, Alessandro Zummo <a.zummo@towertech.it>,
+	Matthias Brugger <matthias.bgg@gmail.com>, Andrew Morton
+	<akpm@linux-foundation.org>, Tomasz Figa <tfiga@google.com>,
+	=?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <kernel@pengutronix.de>
+CC: <srv_heupstream@mediatek.com>, Samuel Ortiz <sameo@linux.intel.com>, Greg
+ KH <gregkh@linuxfoundation.org>, Joe Perches <joe@perches.com>,
+	<linux-kernel@vger.kernel.org>, <rtc-linux@googlegroups.com>,
+	<linux-arm-kernel@lists.infradead.org>, <linux-mediatek@lists.infradead.org>,
+	Eddie Huang <eddie.huang@mediatek.com>
+Subject: [rtc-linux] [PATCH v3 3/3] MAINTAINERS: add Mediatek RTC driver
+Date: Tue, 28 Apr 2015 15:35:56 +0800
+Message-ID: <1430206556-18254-4-git-send-email-eddie.huang@mediatek.com>
+In-Reply-To: <1430206556-18254-1-git-send-email-eddie.huang@mediatek.com>
+References: <1430206556-18254-1-git-send-email-eddie.huang@mediatek.com>
 MIME-Version: 1.0
-Subject: [3/5] drivers/rtc/sunxi: Replace deprecated rtc_tm_to_time()
-From: Xunlei Pang <xlpang@126.com>
-Message-Id: <1429089611-29776-3-git-send-email-xlpang@126.com>
-To: linux-kernel@vger.kernel.org
-Cc: rtc-linux@googlegroups.com, Alessandro Zummo <a.zummo@towertech.it>,
- John Stultz <john.stultz@linaro.org>, Arnd Bergmann <arnd@arndb.de>,
- Xunlei Pang <pang.xunlei@linaro.org>, Carlo Caione <carlo.caione@gmail.com>
-Date: Wed, 15 Apr 2015 17:20:09 +0800
+Content-Type: text/plain; charset=UTF-8
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
+List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
+List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
+List-Archive: <http://groups.google.com/group/rtc-linux
+Sender: rtc-linux@googlegroups.com
+List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
+List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
+ <http://groups.google.com/group/rtc-linux/subscribe>
 
-From: Xunlei Pang <pang.xunlei@linaro.org>
+Add Mediatek RTC driver to maintainer entry.
 
-sunxi_rtc_setalarm() uses deprecated rtc_tm_to_time(),
-which will overflow in year 2106 on 32-bit machines.
-
-This patch solves this by:
-- Replacing rtc_tm_to_time() with rtc_tm_to_time64()
-
-Also remove the unnecessary initial zeroing of some
-local variables in sunxi_rtc_setalarm().
-
-Cc: Carlo Caione <carlo.caione@gmail.com>
-Signed-off-by: Xunlei Pang <pang.xunlei@linaro.org>
+Signed-off-by: Eddie Huang <eddie.huang@mediatek.com>
 ---
- drivers/rtc/rtc-sunxi.c | 29 ++++++++++++++---------------
- 1 file changed, 14 insertions(+), 15 deletions(-)
+ MAINTAINERS | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/drivers/rtc/rtc-sunxi.c b/drivers/rtc/rtc-sunxi.c
-index 6e678fa..7f22753 100644
---- a/drivers/rtc/rtc-sunxi.c
-+++ b/drivers/rtc/rtc-sunxi.c
-@@ -269,14 +269,13 @@ static int sunxi_rtc_setalarm(struct device *dev, struct rtc_wkalrm *wkalrm)
- 	struct sunxi_rtc_dev *chip = dev_get_drvdata(dev);
- 	struct rtc_time *alrm_tm = &wkalrm->time;
- 	struct rtc_time tm_now;
--	u32 alrm = 0;
--	unsigned long time_now = 0;
--	unsigned long time_set = 0;
--	unsigned long time_gap = 0;
--	unsigned long time_gap_day = 0;
--	unsigned long time_gap_hour = 0;
--	unsigned long time_gap_min = 0;
--	int ret = 0;
-+	u32 alrm;
-+	time64_t time_set, time_now;
-+	unsigned long time_gap;
-+	unsigned long time_gap_day;
-+	unsigned long time_gap_hour;
-+	unsigned long time_gap_min;
-+	int ret;
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 2e5bbc0..eb80610 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -1223,6 +1223,13 @@ W:	http://www.digriz.org.uk/ts78xx/kernel
+ S:	Maintained
+ F:	arch/arm/mach-orion5x/ts78xx-*
  
- 	ret = sunxi_rtc_gettime(dev, &tm_now);
- 	if (ret < 0) {
-@@ -284,13 +283,18 @@ static int sunxi_rtc_setalarm(struct device *dev, struct rtc_wkalrm *wkalrm)
- 		return -EINVAL;
- 	}
- 
--	rtc_tm_to_time(alrm_tm, &time_set);
--	rtc_tm_to_time(&tm_now, &time_now);
-+	time_set = rtc_tm_to_time64(alrm_tm);
-+	time_now = rtc_tm_to_time64(&tm_now);
- 	if (time_set <= time_now) {
- 		dev_err(dev, "Date to set in the past\n");
- 		return -EINVAL;
- 	}
- 
-+	if (time_set > time_now + 255 * SEC_IN_DAY) {
-+		dev_err(dev, "Day must be in the range 0 - 255\n");
-+		return -EINVAL;
-+	}
++ARM/Mediatek RTC DRIVER
++M:	Eddie Huang <eddie.huang@mediatek.com>
++L:	linux-arm-kernel@lists.infradead.org (moderated for non-subscribers)
++L:	linux-mediatek@lists.infradead.org (moderated for non-subscribers)
++S:	Maintained
++F:	drivers/rtc/rtc-mt*
 +
- 	time_gap = time_set - time_now;
- 	time_gap_day = time_gap / SEC_IN_DAY;
- 	time_gap -= time_gap_day * SEC_IN_DAY;
-@@ -299,11 +303,6 @@ static int sunxi_rtc_setalarm(struct device *dev, struct rtc_wkalrm *wkalrm)
- 	time_gap_min = time_gap / SEC_IN_MIN;
- 	time_gap -= time_gap_min * SEC_IN_MIN;
- 
--	if (time_gap_day > 255) {
--		dev_err(dev, "Day must be in the range 0 - 255\n");
--		return -EINVAL;
--	}
--
- 	sunxi_rtc_setaie(0, chip);
- 	writel(0, chip->base + SUNXI_ALRM_DHMS);
- 	usleep_range(100, 300);
+ ARM/Mediatek SoC support
+ M:	Matthias Brugger <matthias.bgg@gmail.com>
+ L:	linux-arm-kernel@lists.infradead.org (moderated for non-subscribers)
+-- 
+1.8.1.1.dirty
+
+-- 
+-- 
+You received this message because you are subscribed to "rtc-linux".
+Membership options at http://groups.google.com/group/rtc-linux .
+Please read http://groups.google.com/group/rtc-linux/web/checklist
+before submitting a driver.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+For more options, visit https://groups.google.com/d/optout.
