@@ -1,29 +1,33 @@
-Return-Path: <rtc-linux+bncBDL3F4G2ZAIBB35I66UAKGQE53WDFMI@googlegroups.com>
-Received: from mailout2.samsung.com (mailout2.samsung.com. [203.254.224.25])
-        by gmr-mx.google.com with ESMTPS id br7si765912pdb.2.2015.04.02.16.44.47
+Return-Path: <rtc-linux+bncBAABB777QKVAKGQEAF5QM4I@googlegroups.com>
+Received: from mail1.bemta5.messagelabs.com (mail1.bemta5.messagelabs.com. [195.245.231.146])
+        by gmr-mx.google.com with ESMTPS id gt9si774421wib.2.2015.04.29.04.26.55
         for <rtc-linux@googlegroups.com>
-        (version=TLSv1 cipher=RC4-SHA bits=128/128);
-        Thu, 02 Apr 2015 16:44:47 -0700 (PDT)
-Received: from epcpsbgr1.samsung.com
- (u141.gpu120.samsung.co.kr [203.254.230.141])
- by mailout2.samsung.com (Oracle Communications Messaging Server 7.0.5.31.0
- 64bit (built May  5 2014))
- with ESMTP id <0NM700GP6DYLP630@mailout2.samsung.com> for
- rtc-linux@googlegroups.com; Fri, 03 Apr 2015 08:44:45 +0900 (KST)
-Message-id: <551DD46C.6030207@samsung.com>
-Date: Fri, 03 Apr 2015 08:44:44 +0900
-From: Chanwoo Choi <cw00.choi@samsung.com>
-MIME-version: 1.0
-To: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
- linux-samsung-soc@vger.kernel.org, Alessandro Zummo <a.zummo@towertech.it>,
- rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org,
- Marek Szyprowski <m.szyprowski@samsung.com>
-Subject: [rtc-linux] Re: [PATCH] rtc: rtc-s3c: Remove one superfluous
- rtc_valid_tm() check
-References: <1427985116-20314-1-git-send-email-k.kozlowski@samsung.com>
-In-reply-to: <1427985116-20314-1-git-send-email-k.kozlowski@samsung.com>
-Content-type: text/plain; charset=UTF-8
+        (version=TLSv1.2 cipher=RC4-SHA bits=128/128);
+        Wed, 29 Apr 2015 04:26:55 -0700 (PDT)
+From: "Opensource [Steve Twiss]" <stwiss.opensource@diasemi.com>
+To: Lee Jones <lee.jones@linaro.org>, "Opensource [Steve Twiss]"
+	<stwiss.opensource@diasemi.com>
+CC: DEVICETREE <devicetree@vger.kernel.org>, Ian Campbell
+	<ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>,
+	LINUXKERNEL <linux-kernel@vger.kernel.org>, Mark Rutland
+	<mark.rutland@arm.com>, Pawel Moll <pawel.moll@arm.com>, Rob Herring
+	<robh+dt@kernel.org>, Alessandro Zummo <a.zummo@towertech.it>, "David Dajun
+ Chen" <david.chen@diasemi.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	LINUXINPUT <linux-input@vger.kernel.org>, LINUXWATCHDOG
+	<linux-watchdog@vger.kernel.org>, Liam Girdwood <lgirdwood@gmail.com>, "Mark
+ Brown" <broonie@kernel.org>, RTCLINUX <rtc-linux@googlegroups.com>, "Samuel
+ Ortiz" <sameo@linux.intel.com>, Support Opensource
+	<Support.Opensource@diasemi.com>, Wim Van Sebroeck <wim@iguana.be>
+Subject: [rtc-linux] RE: [PATCH V1 6/6] devicetree: da9062: Add bindings for
+ DA9062 driver
+Date: Wed, 29 Apr 2015 11:26:53 +0000
+Message-ID: <6ED8E3B22081A4459DAC7699F3695FB7014B217AE3@SW-EX-MBX02.diasemi.com>
+References: <cover.1429280614.git.stwiss.opensource@diasemi.com>
+ <94535acf974274822c5ac16d6427299778e11ccf.1429280614.git.stwiss.opensource@diasemi.com>
+ <20150429105415.GX9169@x1>
+In-Reply-To: <20150429105415.GX9169@x1>
+Content-Type: text/plain; charset=UTF-8
+MIME-Version: 1.0
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -34,38 +38,55 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On 04/02/2015 11:31 PM, Krzysztof Kozlowski wrote:
-> The s3c_rtc_gettime() returns already result of rtc_valid_tm() on
-> obtained time so get rid of another call to rtc_valid_tm().
+
+On 29 April 2015 11:54 Lee Jones wrote :
+
+> On Fri, 17 Apr 2015, S Twiss wrote:
+> > From: S Twiss <stwiss.opensource@diasemi.com>
+> >
+> > Add device tree bindings for the DA9062 driver
+> >
+> > Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
+> >
+> > ---
+> >
+> > This patch applies against linux-next and v4.0
+> >
+> >  Documentation/devicetree/bindings/mfd/da9062.txt | 107
+> +++++++++++++++++++++++
+> >  1 file changed, 107 insertions(+)
+> >  create mode 100644 Documentation/devicetree/bindings/mfd/da9062.txt
 > 
-> Signed-off-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-> ---
->  drivers/rtc/rtc-s3c.c | 4 +---
->  1 file changed, 1 insertion(+), 3 deletions(-)
+> I don't see anything groundbreaking or offensive.
 > 
-> diff --git a/drivers/rtc/rtc-s3c.c b/drivers/rtc/rtc-s3c.c
-> index 1d3a4c58fec4..a0f832362199 100644
-> --- a/drivers/rtc/rtc-s3c.c
-> +++ b/drivers/rtc/rtc-s3c.c
-> @@ -497,9 +497,7 @@ static int s3c_rtc_probe(struct platform_device *pdev)
->  	device_init_wakeup(&pdev->dev, 1);
->  
->  	/* Check RTC Time */
-> -	s3c_rtc_gettime(&pdev->dev, &rtc_tm);
-> -
-> -	if (rtc_valid_tm(&rtc_tm)) {
-> +	if (s3c_rtc_gettime(&pdev->dev, &rtc_tm)) {
->  		rtc_tm.tm_year	= 100;
->  		rtc_tm.tm_mon	= 0;
->  		rtc_tm.tm_mday	= 1;
+> Acked-by: Lee Jones <lee.jones@linaro.org>
 > 
 
-s3c_rtc_gettime() return the value of rtc_valid_tm(). Looks good to me.
+Thank you for the review and Ack.
 
-Reviewed-by: Chanwoo Choi <cw00.choi@samsung.com>
+I am in the process of updating the DA9063 OnKey driver in a different thread.
+This driver is functionally similar to the DA9062 OnKey driver as was discussed in
+an earlier thread from DA9063.
 
-Thanks,
-Chanwoo Choi
+http://www.spinics.net/lists/linux-input/msg38137.html
+
+Although the 63 and 62 chips have sequential numbers they are not the same,
+however the OnKey driver is functionally very similar and so I am going to try and
+merge the code for both drivers in the case of the OnKey.
+
+Due to the DA9063 being currently reviewed, perhaps it would be prudent not
+to add this device tree bindings for DA9062 to the kernel just yet -- the device tree
+bindings could change for the OnKey in my DA9063 submission and this would affect
+the DA9062 driver when I merge the two OnKey drivers.
+
+I will put a full version history in my next patch set to describe what changes I have
+made to this file so this review is not deemed a wasted effort.
+
+Regards,
+Steve
+
+[...]
+
 
 -- 
 -- 
