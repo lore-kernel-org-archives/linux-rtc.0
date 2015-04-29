@@ -1,23 +1,39 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRB54A56UAKGQE3OON5DY@googlegroups.com>
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id a14si84919wib.3.2015.04.01.02.55.02
-        for <rtc-linux@googlegroups.com>;
-        Wed, 01 Apr 2015 02:55:02 -0700 (PDT)
-Date: Wed, 1 Apr 2015 11:55:01 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Joe Perches <joe@perches.com>
-Cc: Aaro Koskinen <aaro.koskinen@iki.fi>,
-	Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH 2/3] rtc: __rtc_read_time: reduce log level
-Message-ID: <20150401095501.GS3849@piout.net>
-References: <1427576976-22353-1-git-send-email-aaro.koskinen@iki.fi>
- <1427576976-22353-2-git-send-email-aaro.koskinen@iki.fi>
- <20150401032113.GP3849@piout.net>
- <1427858719.18175.32.camel@perches.com>
+Return-Path: <rtc-linux+bncBDA7X7F2WUEBBXHQQKVAKGQESSLF7BA@googlegroups.com>
+Received: from mail-wi0-f179.google.com (mail-wi0-f179.google.com. [209.85.212.179])
+        by gmr-mx.google.com with ESMTPS id q10si773617wiz.0.2015.04.29.03.54.20
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 29 Apr 2015 03:54:20 -0700 (PDT)
+Received: by wiun10 with SMTP id n10so61026842wiu.1
+        for <rtc-linux@googlegroups.com>; Wed, 29 Apr 2015 03:54:20 -0700 (PDT)
+Date: Wed, 29 Apr 2015 11:54:15 +0100
+From: Lee Jones <lee.jones@linaro.org>
+To: S Twiss <stwiss.opensource@diasemi.com>
+Cc: DEVICETREE <devicetree@vger.kernel.org>,
+	Ian Campbell <ijc+devicetree@hellion.org.uk>,
+	Kumar Gala <galak@codeaurora.org>,
+	LINUXKERNEL <linux-kernel@vger.kernel.org>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Pawel Moll <pawel.moll@arm.com>, Rob Herring <robh+dt@kernel.org>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	David Dajun Chen <david.chen@diasemi.com>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	LINUXINPUT <linux-input@vger.kernel.org>,
+	LINUXWATCHDOG <linux-watchdog@vger.kernel.org>,
+	Liam Girdwood <lgirdwood@gmail.com>,
+	Mark Brown <broonie@kernel.org>,
+	RTCLINUX <rtc-linux@googlegroups.com>,
+	Samuel Ortiz <sameo@linux.intel.com>,
+	Support Opensource <support.opensource@diasemi.com>,
+	Wim Van Sebroeck <wim@iguana.be>
+Subject: [rtc-linux] Re: [PATCH V1 6/6] devicetree: da9062: Add bindings for
+ DA9062 driver
+Message-ID: <20150429105415.GX9169@x1>
+References: <cover.1429280614.git.stwiss.opensource@diasemi.com>
+ <94535acf974274822c5ac16d6427299778e11ccf.1429280614.git.stwiss.opensource@diasemi.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1427858719.18175.32.camel@perches.com>
+In-Reply-To: <94535acf974274822c5ac16d6427299778e11ccf.1429280614.git.stwiss.opensource@diasemi.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -28,52 +44,172 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On 31/03/2015 at 20:25:19 -0700, Joe Perches wrote :
-> On Wed, 2015-04-01 at 05:21 +0200, Alexandre Belloni wrote:
-> > On 28/03/2015 at 23:09:35 +0200, Aaro Koskinen wrote :
-> > > __rtc_read_time logs should be debug logs instead of error logs.
-> > > 
-> > > For example, when the RTC clock is not set, it's not really useful
-> > > to print a kernel error log every time someone tries to read the clock:
-> > > 
-> > > 	~ # hwclock -r
-> > > 	[  604.508263] rtc rtc0: read_time: fail to read
-> > > 	hwclock: RTC_RD_TIME: Invalid argument
-> > > 
-> > > If there's a real error, it's likely that lower level or higher level
-> > > code will tell it anyway. Make these logs debug logs, and also print
-> > > the error code for the read failure.
-> > > 
-> > 
-> > That actually may be the only error message printed for some failures.
-> > Some RTCs don't print anything in case of error in their .read_time()
-> > and there are in-kernel users of rtc_read_time that simply bail out
-> > without printing anything or have a trace that is already at the debug
-> > level.
-> > 
-> > I would agree that this would need a better harmonization and I guess we
-> > can do that for now. I'll try to fix the in-kernel cases.
-> 
-> Maybe these should use dev_err_once().
-> 
+On Fri, 17 Apr 2015, S Twiss wrote:
 
-As the issue may be sporadic, I would say that the reasoning behind the
-patch is correct. Userspace is already aware that something went wrong
-when reading and those debug messages are not adding any information.
+> From: S Twiss <stwiss.opensource@diasemi.com>
+>=20
+> Add device tree bindings for the DA9062 driver
+>=20
+> Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
+>=20
+> ---
+>=20
+> This patch applies against linux-next and v4.0=20
+>=20
+>=20
+>=20
+>  Documentation/devicetree/bindings/mfd/da9062.txt | 107 +++++++++++++++++=
+++++++
+>  1 file changed, 107 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/mfd/da9062.txt
 
+I don't see anything groundbreaking or offensive.
 
--- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+Acked-by: Lee Jones <lee.jones@linaro.org>
 
--- 
--- 
+> diff --git a/Documentation/devicetree/bindings/mfd/da9062.txt b/Documenta=
+tion/devicetree/bindings/mfd/da9062.txt
+> new file mode 100644
+> index 0000000..cf8f3f6
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/mfd/da9062.txt
+> @@ -0,0 +1,107 @@
+> +* Dialog DA9062 Power Management Integrated Circuit (PMIC)
+> +
+> +DA9062 consists of a large and varied group of sub-devices:
+> +
+> +Device                   Supply Names    Description
+> +------                   ------------    -----------
+> +da9062-regulator        :               : LDOs & BUCKs
+> +da9062-onkey            :               : On Key
+> +da9062-rtc              :               : Real-Time Clock
+> +da9062-watchdog         :               : Watchdog Timer
+> +
+> +=3D=3D=3D=3D=3D=3D
+> +
+> +Required properties:
+> +
+> +- compatible : Should be "dlg,da9062".
+> +- reg : Specifies the I2C slave address (this defaults to 0x58 but it ca=
+n be
+> +  modified to match the chip's OTP settings).
+> +- interrupt-parent : Specifies the reference to the interrupt controller=
+ for
+> +  the DA9062.
+> +- interrupts : IRQ line information.
+> +- interrupt-controller
+> +
+> +See Documentation/devicetree/bindings/interrupt-controller/interrupts.tx=
+t for
+> +further information on IRQ bindings.
+> +
+> +Sub-nodes:
+> +
+> +- regulators : This node defines the settings for the LDOs and BUCKs. Th=
+e
+> +  DA9062 regulators are bound using their names listed below:
+> +
+> +    buck1    : BUCK_1
+> +    buck2    : BUCK_2
+> +    buck3    : BUCK_3
+> +    buck4    : BUCK_4
+> +    ldo1     : LDO_1
+> +    ldo2     : LDO_2
+> +    ldo3     : LDO_3
+> +    ldo4     : LDO_4
+> +
+> +  The component follows the standard regulator framework and the binding=
+s
+> +  details of individual regulator device can be found in:
+> +  Documentation/devicetree/bindings/regulator/regulator.txt
+> +
+> +
+> +- rtc : This node defines settings required for the Real-Time Clock asso=
+ciated
+> +  with the DA9062. There are currently no entries in this binding, howev=
+er
+> +  compatible =3D "dlg,da9062-rtc" should be added if a node is created.
+> +
+> +
+> +- onkey : This node defines the OnKey settings for controlling the key
+> +  functionality of the device. The node should contain the compatible pr=
+operty
+> +  with the value "dlg,da9062-onkey".
+> +
+> +  Optional onkey properties:
+> +
+> +  - dlg,disable-key-power : Disable power-down using a long key-press. I=
+f this
+> +    entry exists the OnKey driver will remove support for the KEY_POWER =
+key
+> +    press. If this entry does not exist then by default the key-press
+> +    triggered power down is enabled and the OnKey will support both KEY_=
+POWER
+> +    and KEY_SLEEP.
+> +
+> +- watchdog: This node defines the settings for the watchdog driver assoc=
+iated
+> +  with the DA9062 PMIC. The compatible =3D "dlg,da9062-watchdog" should =
+be added
+> +  if a node is created.
+> +
+> +
+> +Example:
+> +
+> +	pmic0: da9062@58 {
+> +		compatible =3D "dlg,da9062";
+> +		reg =3D <0x58>;
+> +		interrupt-parent =3D <&gpio6>;
+> +		interrupts =3D <11 IRQ_TYPE_LEVEL_LOW>;
+> +		interrupt-controller;
+> +
+> +		rtc {
+> +			compatible =3D "dlg,da9062-rtc";
+> +		};
+> +
+> +		onkey {
+> +			compatible =3D "dlg,da9062-onkey";
+> +			dlg,disable-key-power;
+> +		};
+> +
+> +		watchdog {
+> +			compatible =3D "dlg,da9062-watchdog";
+> +		};
+> +
+> +		regulators {
+> +			DA9062_BUCK1: buck1 {
+> +				regulator-name =3D "BUCK1";
+> +				regulator-min-microvolt =3D <300000>;
+> +				regulator-max-microvolt =3D <1570000>;
+> +				regulator-min-microamp =3D <500000>;
+> +				regulator-max-microamp =3D <2000000>;
+> +				regulator-boot-on;
+> +			};
+> +			DA9062_LDO1: ldo1 {
+> +				regulator-name =3D "LDO_1";
+> +				regulator-min-microvolt =3D <900000>;
+> +				regulator-max-microvolt =3D <3600000>;
+> +				regulator-boot-on;
+> +			};
+> +		};
+> +	};
+> +
+
+--=20
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org =E2=94=82 Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog
+
+--=20
+--=20
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+---=20
+You received this message because you are subscribed to the Google Groups "=
+rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an e=
+mail to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
