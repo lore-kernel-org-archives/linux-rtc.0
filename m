@@ -1,31 +1,25 @@
-Return-Path: <rtc-linux+bncBDA7X7F2WUEBB5GVVWVAKGQEWCWGNXY@googlegroups.com>
+Return-Path: <rtc-linux+bncBDKZNNNLXAHBBFV7R2VAKGQERCWODEI@googlegroups.com>
 MIME-Version: 1.0
-Received: from mail-wg0-f52.google.com (mail-wg0-f52.google.com. [74.125.82.52])
-        by gmr-mx.google.com with ESMTPS id g5si270591wix.1.2015.05.07.06.39.00
+Received: from mail-pa0-x236.google.com (mail-pa0-x236.google.com. [2607:f8b0:400e:c03::236])
+        by gmr-mx.google.com with ESMTPS id xv6si560761pab.2.2015.05.01.08.45.26
         for <rtc-linux@googlegroups.com>
         (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 07 May 2015 06:39:00 -0700 (PDT)
-Received: by mail-wg0-f52.google.com with SMTP id o15so43893984wgy.2
-        for <rtc-linux@googlegroups.com>; Thu, 07 May 2015 06:39:00 -0700 (PDT)
-From: Lee Jones <lee.jones@linaro.org>
-To: linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org
-Cc: kernel@stlinux.com,
-	devicetree@vger.kernel.org,
-	daniel.lezcano@linaro.org,
-	tglx@linutronix.de,
-	wim@iguana.be,
-	a.zummo@towertech.it,
-	linux-watchdog@vger.kernel.org,
+        Fri, 01 May 2015 08:45:26 -0700 (PDT)
+Received: by mail-pa0-x236.google.com with SMTP id yx8so93989817pac.1
+        for <rtc-linux@googlegroups.com>; Fri, 01 May 2015 08:45:26 -0700 (PDT)
+From: Krzysztof Kozlowski <k.kozlowski.k@gmail.com>
+To: Linus Walleij <linus.walleij@linaro.org>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	linux-arm-kernel@lists.infradead.org,
 	rtc-linux@googlegroups.com,
-	linux@roeck-us.net,
-	Lee Jones <lee.jones@linaro.org>
-Subject: [rtc-linux] [PATCH 06/12] watchdog: bindings: Supply knowledge of a
- third supported device - clocksource
-Date: Thu,  7 May 2015 14:38:38 +0100
-Message-Id: <1431005924-21777-7-git-send-email-lee.jones@linaro.org>
-In-Reply-To: <1431005924-21777-1-git-send-email-lee.jones@linaro.org>
-References: <1431005924-21777-1-git-send-email-lee.jones@linaro.org>
+	linux-kernel@vger.kernel.org
+Cc: Krzysztof Kozlowski <k.kozlowski.k@gmail.com>
+Subject: [rtc-linux] [PATCH 3/3] rtc: mxc: Constify platform_device_id
+Date: Sat,  2 May 2015 00:44:37 +0900
+Message-Id: <1430495077-31179-3-git-send-email-k.kozlowski.k@gmail.com>
+In-Reply-To: <1430495077-31179-1-git-send-email-k.kozlowski.k@gmail.com>
+References: <1430495077-31179-1-git-send-email-k.kozlowski.k@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -37,47 +31,29 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
----
- Documentation/devicetree/bindings/watchdog/st_lpc_wdt.txt | 15 +++++++++------
- 1 file changed, 9 insertions(+), 6 deletions(-)
+The platform_device_id is not modified by the driver and core uses it as
+const.
 
-diff --git a/Documentation/devicetree/bindings/watchdog/st_lpc_wdt.txt b/Documentation/devicetree/bindings/watchdog/st_lpc_wdt.txt
-index 388c88a..0b1a784 100644
---- a/Documentation/devicetree/bindings/watchdog/st_lpc_wdt.txt
-+++ b/Documentation/devicetree/bindings/watchdog/st_lpc_wdt.txt
-@@ -1,20 +1,23 @@
- STMicroelectronics Low Power Controller (LPC) - Watchdog
- ========================================================
+Signed-off-by: Krzysztof Kozlowski <k.kozlowski.k@gmail.com>
+---
+ drivers/rtc/rtc-mxc.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/rtc/rtc-mxc.c b/drivers/rtc/rtc-mxc.c
+index 09d422b9f7f7..5fc292c2dfdf 100644
+--- a/drivers/rtc/rtc-mxc.c
++++ b/drivers/rtc/rtc-mxc.c
+@@ -84,7 +84,7 @@ struct rtc_plat_data {
+ 	enum imx_rtc_type devtype;
+ };
  
--LPC currently supports Watchdog OR Real Time Clock functionality.
-+LPC currently supports Watchdog OR Real Time Clock OR Clocksource
-+functionality.
- 
- [See: ../rtc/rtc-st-lpc.txt for RTC options]
-+[See: ../timer/st,stih407-lpc for Clocksource options]
- 
- Required properties
- 
--- compatible 	: Must be one of: "st,stih407-lpc" "st,stih416-lpc"
--				  "st,stih415-lpc" "st,stid127-lpc"
-+- compatible 	: Must be one of: "st,stih407-lpc"
- - reg		: LPC registers base address + size
- - interrupts    : LPC interrupt line number and associated flags
- - clocks	: Clock used by LPC device (See: ../clock/clock-bindings.txt)
--- st,lpc-mode	: The LPC can run either one of two modes ST_LPC_MODE_RTC [0] or
--		  ST_LPC_MODE_WDT [1].  One (and only one) mode must be
--		  selected.
-+- st,lpc-mode	: The LPC can run either one of three modes:
-+                  ST_LPC_MODE_RTC    [0]
-+                  ST_LPC_MODE_WDT    [1]
-+                  ST_LPC_MODE_CLKSRC [2]
-+		 One (and only one) mode must be selected.
- 
- Required properties [watchdog mode]
- 
+-static struct platform_device_id imx_rtc_devtype[] = {
++static const struct platform_device_id imx_rtc_devtype[] = {
+ 	{
+ 		.name = "imx1-rtc",
+ 		.driver_data = IMX1_RTC,
 -- 
-1.9.1
+2.1.4
 
 -- 
 -- 
