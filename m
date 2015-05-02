@@ -1,104 +1,85 @@
-Return-Path: <rtc-linux+bncBCKMZDW5VIHBBV6226VAKGQEOQLJBWQ@googlegroups.com>
-Received: from bh-25.webhostbox.net (bh-25.webhostbox.net. [208.91.199.152])
-        by gmr-mx.google.com with ESMTPS id ax9si182574igc.1.2015.05.15.05.57.59
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1 cipher=RC4-SHA bits=128/128);
-        Fri, 15 May 2015 05:57:59 -0700 (PDT)
-Message-ID: <5555ED4F.5070003@roeck-us.net>
-Date: Fri, 15 May 2015 05:57:51 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-MIME-Version: 1.0
-To: "Opensource [Steve Twiss]" <stwiss.opensource@diasemi.com>,
- LINUXKERNEL <linux-kernel@vger.kernel.org>,
- LINUXWATCHDOG <linux-watchdog@vger.kernel.org>,
- Wim Van Sebroeck <wim@iguana.be>
-CC: Alessandro Zummo <a.zummo@towertech.it>,
- DEVICETREE <devicetree@vger.kernel.org>,
- David Dajun Chen <david.chen@diasemi.com>,
- Dmitry Torokhov <dmitry.torokhov@gmail.com>,
- Ian Campbell <ijc+devicetree@hellion.org.uk>,
- Kumar Gala <galak@codeaurora.org>,
- LINUXINPUT <linux-input@vger.kernel.org>,
- Lee Jones <lee.jones@linaro.org>,
- Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>,
- Mark Rutland <mark.rutland@arm.com>,
- Pawel Moll <pawel.moll@arm.com>, RTCLINUX <rtc-linux@googlegroups.com>,
- Rob Herring <robh+dt@kernel.org>,
- Samuel Ortiz <sameo@linux.intel.com>,
- Support Opensource <Support.Opensource@diasemi.com>
-Subject: [rtc-linux] Re: [PATCH V2 3/4] watchdog: da9062: DA9062 watchdog driver
-References: <cover.1431621833.git.stwiss.opensource@diasemi.com> <6a51f163b99edfad9165ad29609abb072dbaa2b7.1431621833.git.stwiss.opensource@diasemi.com> <55555639.8090505@roeck-us.net> <6ED8E3B22081A4459DAC7699F3695FB7014B22B63A@SW-EX-MBX02.diasemi.com>
-In-Reply-To: <6ED8E3B22081A4459DAC7699F3695FB7014B22B63A@SW-EX-MBX02.diasemi.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Reply-To: rtc-linux@googlegroups.com
+Return-Path: <alexandre.belloni@free-electrons.com>
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Jason Cooper <jason@lakedaemon.net>,
+	Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
+Cc: rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Subject: [PATCH] rtc: rtc-mv: correct 24 hour error message
+Date: Sat,  2 May 2015 11:28:30 +0200
+Message-Id: <1430558910-7007-1-git-send-email-alexandre.belloni@free-electrons.com>
 List-ID: <rtc-linux.googlegroups.com>
-List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
-List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
-List-Archive: <http://groups.google.com/group/rtc-linux
-Sender: rtc-linux@googlegroups.com
-List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
-List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
- <http://groups.google.com/group/rtc-linux/subscribe>
 
-Hi Steve,
+The driver can't accommodate the 12 hour mode but the error message states that
+the 24 hour mode is not supported.
+Also fix the typos (hour vs hours).
+And finally use the BIT() macro.
 
-On 05/15/2015 01:13 AM, Opensource [Steve Twiss] wrote:
-> Hi Guenter,
->
-> Thank you for your comments again,
-> Here are my responses.
->
-> Regards,
-> Steve
->
-> On 15 May 2015 03:13, Guenter Roeck
->> Subject: Re: [PATCH V2 3/4] watchdog: da9062: DA9062 watchdog driver
->>
->
-> [...]
->
+Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+---
+ drivers/rtc/rtc-mv.c | 13 +++++++------
+ 1 file changed, 7 insertions(+), 6 deletions(-)
 
-[ ... ]
-
->>> +
->>> +	irq = platform_get_irq_byname(pdev, "WDG_WARN");
->>> +	if (irq < 0) {
->>> +		dev_err(wdt->hw->dev, "Failed to get IRQ.\n");
->>> +		ret = irq;
->>> +		goto error;
->>
->> Just return; the label does not serve a useful purpose. Same for the other
->> goto statements below.
->
-> Agreed. This is changed now.
->
->> Also, is the interrupt mandatory ? All it does is to display a message.
->> Looks very optional to me.
->
-> It is a place holder for something more application specific.
-> I could remove it, but I figured it would just get re-added when somebody takes the
-> driver and modifies it for their needs.
->
-> If this is a problem however, it can go.
-> Please advise ..
->
-
-Then this someone should add the code. For the time being, it just increases
-kernel size and may cause the driver to fail for no good reason. Plus, given
-the driver apparently works without interrupt, even then it should be optional,
-and the driver does not have to fail loading if it is not supported on a
-given platform.
-
-Thanks,
-Guenter
-
+diff --git a/drivers/rtc/rtc-mv.c b/drivers/rtc/rtc-mv.c
+index 423762241042..7f50d2ef7f6e 100644
+--- a/drivers/rtc/rtc-mv.c
++++ b/drivers/rtc/rtc-mv.c
+@@ -10,6 +10,7 @@
+ #include <linux/kernel.h>
+ #include <linux/rtc.h>
+ #include <linux/bcd.h>
++#include <linux/bitops.h>
+ #include <linux/io.h>
+ #include <linux/platform_device.h>
+ #include <linux/of.h>
+@@ -24,7 +25,7 @@
+ #define RTC_MINUTES_OFFS	8
+ #define RTC_HOURS_OFFS		16
+ #define RTC_WDAY_OFFS		24
+-#define RTC_HOURS_12H_MODE		(1 << 22) /* 12 hours mode */
++#define RTC_HOURS_12H_MODE	BIT(22) /* 12 hour mode */
+ 
+ #define RTC_DATE_REG_OFFS	4
+ #define RTC_MDAY_OFFS		0
+@@ -33,7 +34,7 @@
+ 
+ #define RTC_ALARM_TIME_REG_OFFS	8
+ #define RTC_ALARM_DATE_REG_OFFS	0xc
+-#define RTC_ALARM_VALID		(1 << 7)
++#define RTC_ALARM_VALID		BIT(7)
+ 
+ #define RTC_ALARM_INTERRUPT_MASK_REG_OFFS	0x10
+ #define RTC_ALARM_INTERRUPT_CASUE_REG_OFFS	0x14
+@@ -77,7 +78,7 @@ static int mv_rtc_read_time(struct device *dev, struct rtc_time *tm)
+ 
+ 	second = rtc_time & 0x7f;
+ 	minute = (rtc_time >> RTC_MINUTES_OFFS) & 0x7f;
+-	hour = (rtc_time >> RTC_HOURS_OFFS) & 0x3f; /* assume 24 hours mode */
++	hour = (rtc_time >> RTC_HOURS_OFFS) & 0x3f; /* assume 24 hour mode */
+ 	wday = (rtc_time >> RTC_WDAY_OFFS) & 0x7;
+ 
+ 	day = rtc_date & 0x3f;
+@@ -108,7 +109,7 @@ static int mv_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alm)
+ 
+ 	second = rtc_time & 0x7f;
+ 	minute = (rtc_time >> RTC_MINUTES_OFFS) & 0x7f;
+-	hour = (rtc_time >> RTC_HOURS_OFFS) & 0x3f; /* assume 24 hours mode */
++	hour = (rtc_time >> RTC_HOURS_OFFS) & 0x3f; /* assume 24 hour mode */
+ 	wday = (rtc_time >> RTC_WDAY_OFFS) & 0x7;
+ 
+ 	day = rtc_date & 0x3f;
+@@ -239,10 +240,10 @@ static int __init mv_rtc_probe(struct platform_device *pdev)
+ 	if (!IS_ERR(pdata->clk))
+ 		clk_prepare_enable(pdata->clk);
+ 
+-	/* make sure the 24 hours mode is enabled */
++	/* make sure the 24 hour mode is enabled */
+ 	rtc_time = readl(pdata->ioaddr + RTC_TIME_REG_OFFS);
+ 	if (rtc_time & RTC_HOURS_12H_MODE) {
+-		dev_err(&pdev->dev, "24 Hours mode not supported.\n");
++		dev_err(&pdev->dev, "12 Hour mode is enabled but not supported.\n");
+ 		ret = -EINVAL;
+ 		goto out;
+ 	}
 -- 
--- 
-You received this message because you are subscribed to "rtc-linux".
-Membership options at http://groups.google.com/group/rtc-linux .
-Please read http://groups.google.com/group/rtc-linux/web/checklist
-before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
-For more options, visit https://groups.google.com/d/optout.
+2.1.4
