@@ -1,23 +1,21 @@
-Return-Path: <rtc-linux+bncBDAMN6NI5EERB2WEZCVAKGQEDE6EORY@googlegroups.com>
-Received: from Galois.linutronix.de (Galois.linutronix.de. [2001:470:1f0b:db:abcd:42:0:1])
-        by gmr-mx.google.com with ESMTPS id p9si117214wiz.3.2015.05.12.08.55.22
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=RC4-SHA bits=128/128);
-        Tue, 12 May 2015 08:55:22 -0700 (PDT)
-Date: Tue, 12 May 2015 17:55:24 +0200 (CEST)
-From: Thomas Gleixner <tglx@linutronix.de>
-To: Lee Jones <lee.jones@linaro.org>
-cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-    devicetree@vger.kernel.org, daniel.lezcano@linaro.org, wim@iguana.be,
-    a.zummo@towertech.it, linux-watchdog@vger.kernel.org,
-    rtc-linux@googlegroups.com, linux@roeck-us.net, kernel@stlinux.com
-Subject: [rtc-linux] Re: [PATCH v2 02/12] clocksource: sti: Provide support
- for the ST LPC Clocksource IP
-In-Reply-To: <1431435500-22899-3-git-send-email-lee.jones@linaro.org>
-Message-ID: <alpine.DEB.2.11.1505121751560.4225@nanos>
-References: <1431435500-22899-1-git-send-email-lee.jones@linaro.org> <1431435500-22899-3-git-send-email-lee.jones@linaro.org>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRB6VQSOVAKGQEWH4AMXA@googlegroups.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id gt9si84945wib.2.2015.05.02.07.00.26
+        for <rtc-linux@googlegroups.com>;
+        Sat, 02 May 2015 07:00:26 -0700 (PDT)
+Date: Sat, 2 May 2015 16:00:25 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Kukjin Kim <kgene.kim@samsung.com>
+Cc: linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org,
+	rtc-linux@googlegroups.com, ben-linux@fluff.org,
+	p_gortmaker@yahoo.com, a.zummo@towertech.it,
+	Wan ZongShun <mcuos.com@gmail.com>
+Subject: [rtc-linux] Re: [2/3] rtc: rtc-s3c: Add spin_lock_irq in s3c_rtc_setaie
+Message-ID: <20150502140025.GL12076@piout.net>
+References: <1289865774-31073-3-git-send-email-kgene.kim@samsung.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1289865774-31073-3-git-send-email-kgene.kim@samsung.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -28,48 +26,55 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On Tue, 12 May 2015, Lee Jones wrote:
-> +static void st_clksrc_reset(void)
+Hi Kukjin,
 
-__init
+On 16/11/2010 at 09:02:53 +0900, Kukjin Kim wrote :
+> This patch adds spin_lock_irq() and spin_unlock_irq() during
+> alarm interrupt configuration to avoid interrupt missing.
+> 
+> Cc: Ben Dooks <ben-linux@fluff.org>
+> Cc: Wan ZongShun <mcuos.com@gmail.com>
+> Cc: Alessandro Zummo <a.zummo@towertech.it>
+> Signed-off-by: Kukjin Kim <kgene.kim@samsung.com>
 
-> +static int st_clksrc_setup_clk(struct device_node *np)
+This patch never made it in the mainline, is it still necessary?
 
-__init
+> ---
+>  drivers/rtc/rtc-s3c.c |    2 ++
+>  1 files changed, 2 insertions(+), 0 deletions(-)
+> 
+> diff --git a/drivers/rtc/rtc-s3c.c b/drivers/rtc/rtc-s3c.c
+> index e2636ff..bb88027 100644
+> --- a/drivers/rtc/rtc-s3c.c
+> +++ b/drivers/rtc/rtc-s3c.c
+> @@ -82,12 +82,14 @@ static int s3c_rtc_setaie(struct device *dev, unsigned int enabled)
+>  
+>  	pr_debug("%s: aie=%d\n", __func__, enabled);
+>  
+> +	spin_lock_irq(&s3c_rtc_pie_lock);
+>  	tmp = readb(s3c_rtc_base + S3C2410_RTCALM) & ~S3C2410_RTCALM_ALMEN;
+>  
+>  	if (enabled)
+>  		tmp |= S3C2410_RTCALM_ALMEN;
+>  
+>  	writeb(tmp, s3c_rtc_base + S3C2410_RTCALM);
+> +	spin_unlock_irq(&s3c_rtc_pie_lock);
+>  
+>  	return 0;
+>  }
 
-> +static void __init st_clksrc_of_register(struct device_node *np)
-> +{
-> +	int ret;
-> +	uint32_t mode;
-> +
-> +	ret = of_property_read_u32(np, "st,lpc-mode", &mode);
-> +	if (ret) {
-> +		pr_err("clksrc-st-lpc: An LPC mode must be provided\n");
-> +		return;
-> +	}
-> +
-> +	/* LPC can either run as a Clocksource or in RTC or WDT mode */
-> +	if (mode != ST_LPC_MODE_CLKSRC)
-> +		return;
-> +
-> +	ddata.base = of_iomap(np, 0);
-> +	if (!ddata.base) {
-> +		pr_err("clksrc-st-lpc: Unable to map iomem\n");
-> +		return;
-> +	}
-> +
-> +	if (st_clksrc_setup_clk(np)) {
-> +		iounmap(ddata.base);
-> +		return;
-> +	}
-> +
-> +	if (st_clksrc_init()) {
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
-Keeps the clock enabled.
-
-> +		iounmap(ddata.base);
-> +		return;
-
-Thanks,
-
-	tglx
+-- 
+-- 
+You received this message because you are subscribed to "rtc-linux".
+Membership options at http://groups.google.com/group/rtc-linux .
+Please read http://groups.google.com/group/rtc-linux/web/checklist
+before submitting a driver.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+For more options, visit https://groups.google.com/d/optout.
