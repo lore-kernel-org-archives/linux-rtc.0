@@ -1,32 +1,24 @@
-Return-Path: <rtc-linux+bncBAABBT7L46VAKGQEWNJOH4I@googlegroups.com>
-Received: from mail1.bemta14.messagelabs.com (mail1.bemta14.messagelabs.com. [193.109.254.115])
-        by gmr-mx.google.com with ESMTPS id ec7si367882wib.3.2015.05.18.07.23.11
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=RC4-SHA bits=128/128);
-        Mon, 18 May 2015 07:23:11 -0700 (PDT)
-From: "Opensource [Steve Twiss]" <stwiss.opensource@diasemi.com>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>, "Opensource
- [Steve Twiss]" <stwiss.opensource@diasemi.com>
-CC: Alessandro Zummo <a.zummo@towertech.it>, DEVICETREE
-	<devicetree@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala
-	<galak@codeaurora.org>, LINUXINPUT <linux-input@vger.kernel.org>, LINUXKERNEL
-	<linux-kernel@vger.kernel.org>, LINUXWATCHDOG
-	<linux-watchdog@vger.kernel.org>, Lee Jones <lee.jones@linaro.org>, "Liam
- Girdwood" <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, Mark
- Rutland <mark.rutland@arm.com>, Pawel Moll <pawel.moll@arm.com>, RTCLINUX
-	<rtc-linux@googlegroups.com>, Rob Herring <robh+dt@kernel.org>, Samuel Ortiz
-	<sameo@linux.intel.com>, Wim Van Sebroeck <wim@iguana.be>, David Dajun Chen
-	<david.chen@diasemi.com>, Support Opensource <Support.Opensource@diasemi.com>
-Subject: RE: [rtc-linux] [PATCH V2 0/4]  da9062: DA9062 driver submission
-Date: Mon, 18 May 2015 14:23:08 +0000
-Message-ID: <6ED8E3B22081A4459DAC7699F3695FB7014B22B8D1@SW-EX-MBX02.diasemi.com>
-References: <cover.1431621833.git.stwiss.opensource@diasemi.com>
- <20150516004634.GH3338@piout.net>
-In-Reply-To: <20150516004634.GH3338@piout.net>
-Content-Type: text/plain; charset=UTF-8
+Return-Path: <rtc-linux+bncBDKZNNNLXAHBBYWCSGVAKGQEPWNLCZQ@googlegroups.com>
 MIME-Version: 1.0
+Received: from mail-pa0-x234.google.com (mail-pa0-x234.google.com. [2607:f8b0:400e:c03::234])
+        by gmr-mx.google.com with ESMTPS id gu4si792420pac.1.2015.05.01.22.32.18
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Fri, 01 May 2015 22:32:18 -0700 (PDT)
+Received: by mail-pa0-x234.google.com with SMTP id tp1so109671733pab.2
+        for <rtc-linux@googlegroups.com>; Fri, 01 May 2015 22:32:18 -0700 (PDT)
+From: Krzysztof Kozlowski <k.kozlowski.k@gmail.com>
+To: Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org
+Cc: Krzysztof Kozlowski <k.kozlowski@samsung.com>,
+	Krzysztof Kozlowski <k.kozlowski.k@gmail.com>
+Subject: [rtc-linux] [PATCH v2] rtc: s3c: Integrate Exynos3250 into S3C6410
+Date: Sat,  2 May 2015 14:31:49 +0900
+Message-Id: <1430544709-12852-1-git-send-email-k.kozlowski.k@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -36,29 +28,58 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On 16 May 2015 01:47, Alexandre Belloni wrote
+From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
 
-> On 14/05/2015 at 17:43:53 +0100, S Twiss wrote :
-> > From: S Twiss <stwiss.opensource@diasemi.com>
-> >
-> > This patch set adds support for the Dialog DA9062 Power Management IC.
-> >
-> > In this patch set the following is provided:
-> >  - [PATCH V2 1/4]: MFD core support
-> >  - [PATCH V2 2/4]: BUCK and LDO regulator driver
-> >  - [PATCH V2 3/4]: Watchdog driver
-> >  - [PATCH V2 4/4]: Add bindings for all DA9062 components
-> 
-> This patch should actually be the first one to go in, else checkpatch
-> will complain about compatibles not being found.
+There are now no differences between RTC on Exynos3250 and S3C6410.
+Merge everything into one so duplicated code could be removed.
 
-Hi Alexandre,
+Signed-off-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+Reviewed-by: Chanwoo Choi <cw00.choi@samsung.com>
+Acked-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Reviewed-by: Javier Martinez Canillas <javier.martinez@collabora.co.uk>
+Signed-off-by: Krzysztof Kozlowski <k.kozlowski.k@gmail.com>
 
-Sure thing. These DA9062 patches should be in before the RTC changes to DA9063
-get made to support DA9062. I'll ensure I don't submit any RTC updates until then.
+---
+Changes since v1:
+1. Add acks and reviews.
+---
+ drivers/rtc/rtc-s3c.c | 14 +-------------
+ 1 file changed, 1 insertion(+), 13 deletions(-)
 
-Regards,
-Steve
+diff --git a/drivers/rtc/rtc-s3c.c b/drivers/rtc/rtc-s3c.c
+index 76cbad7a99d3..a0f832362199 100644
+--- a/drivers/rtc/rtc-s3c.c
++++ b/drivers/rtc/rtc-s3c.c
+@@ -772,18 +772,6 @@ static struct s3c_rtc_data const s3c6410_rtc_data = {
+ 	.disable		= s3c6410_rtc_disable,
+ };
+ 
+-static struct s3c_rtc_data const exynos3250_rtc_data = {
+-	.max_user_freq		= 32768,
+-	.needs_src_clk		= true,
+-	.irq_handler		= s3c6410_rtc_irq,
+-	.set_freq		= s3c6410_rtc_setfreq,
+-	.enable_tick		= s3c6410_rtc_enable_tick,
+-	.save_tick_cnt		= s3c6410_rtc_save_tick_cnt,
+-	.restore_tick_cnt	= s3c6410_rtc_restore_tick_cnt,
+-	.enable			= s3c24xx_rtc_enable,
+-	.disable		= s3c6410_rtc_disable,
+-};
+-
+ static const struct of_device_id s3c_rtc_dt_match[] = {
+ 	{
+ 		.compatible = "samsung,s3c2410-rtc",
+@@ -799,7 +787,7 @@ static const struct of_device_id s3c_rtc_dt_match[] = {
+ 		.data = (void *)&s3c6410_rtc_data,
+ 	}, {
+ 		.compatible = "samsung,exynos3250-rtc",
+-		.data = (void *)&exynos3250_rtc_data,
++		.data = (void *)&s3c6410_rtc_data,
+ 	},
+ 	{ /* sentinel */ },
+ };
+-- 
+2.1.4
 
 -- 
 -- 
