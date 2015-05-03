@@ -1,92 +1,47 @@
-Return-Path: <rtc-linux+bncBD62P6P6EQIJVT6NVICRUBFDY722W@googlegroups.com>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRB4XCS6VAKGQETT2Z62A@googlegroups.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id bc3si185154wib.2.2015.05.03.02.59.14
+        for <rtc-linux@googlegroups.com>;
+        Sun, 03 May 2015 02:59:14 -0700 (PDT)
+Date: Sun, 3 May 2015 11:59:13 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Krzysztof Kozlowski <k.kozlowski.k@gmail.com>
+Cc: Linus Walleij <linus.walleij@linaro.org>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	linux-arm-kernel@lists.infradead.org, rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org
+Subject: [rtc-linux] Re: [PATCH 3/3] rtc: mxc: Constify platform_device_id
+Message-ID: <20150503095913.GS12076@piout.net>
+References: <1430495077-31179-1-git-send-email-k.kozlowski.k@gmail.com>
+ <1430495077-31179-3-git-send-email-k.kozlowski.k@gmail.com>
 MIME-Version: 1.0
-Received: from mail-oi0-x234.google.com (mail-oi0-x234.google.com. [2607:f8b0:4003:c06::234])
-        by gmr-mx.google.com with ESMTPS id lr7si486832igb.2.2015.05.13.08.02.50
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 13 May 2015 08:02:50 -0700 (PDT)
-Received: by mail-oi0-x234.google.com with SMTP id o83so33221246oik.1
-        for <rtc-linux@googlegroups.com>; Wed, 13 May 2015 08:02:50 -0700 (PDT)
-Sender: rtc-linux@googlegroups.com
-From: Rob Herring <robh@kernel.org>
-To: Russell King <linux@arm.linux.org.uk>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Eric Miao <eric.y.miao@gmail.com>,
-	Haojian Zhuang <haojian.zhuang@gmail.com>,
-	Alessandro Zummo <a.zummo@towertech.it>
-Cc: rtc-linux@googlegroups.com,
-	Robert Jarzmik <robert.jarzmik@free.fr>,
-	Arnd Bergmann <arnd@arndb.de>,
-	linux-arm-kernel@lists.infradead.org,
-	Rob Herring <robh@kernel.org>,
-	Daniel Mack <daniel@zonque.org>
-Subject: [rtc-linux] [PATCH v4 3/6] ARM: pxa: add memory resource to SA1100
- RTC device
-Date: Wed, 13 May 2015 10:02:27 -0500
-Message-Id: <1431529350-4597-4-git-send-email-robh@kernel.org>
-In-Reply-To: <1431529350-4597-1-git-send-email-robh@kernel.org>
-References: <1431529350-4597-1-git-send-email-robh@kernel.org>
-Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1430495077-31179-3-git-send-email-k.kozlowski.k@gmail.com>
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
 List-Archive: <http://groups.google.com/group/rtc-linux
+Sender: rtc-linux@googlegroups.com
 List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-The drivers for the SA1100 and PXA RTCs are now mutually exclusive, so
-add the memory resource for the sa1100-rtc device. Since the memory
-resource is already present in the pxa_rtc_resources, that makes
-sa1100_rtc_resources and pxa_rtc_resources equivalent, so use
-pxa_rtc_resources for both devices and remove the duplicate
-sa1100_rtc_resources.
+On 02/05/2015 at 00:44:37 +0900, Krzysztof Kozlowski wrote :
+> The platform_device_id is not modified by the driver and core uses it as
+> const.
+> 
+> Signed-off-by: Krzysztof Kozlowski <k.kozlowski.k@gmail.com>
+> ---
+>  drivers/rtc/rtc-mxc.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+Applied, thanks.
 
-Signed-off-by: Rob Herring <robh@kernel.org>
-Cc: Daniel Mack <daniel@zonque.org>
-Cc: Haojian Zhuang <haojian.zhuang@gmail.com>
-Acked-by: Robert Jarzmik <robert.jarzmik@free.fr>
-Cc: Russell King <linux@arm.linux.org.uk>
-Cc: linux-arm-kernel@lists.infradead.org
----
- arch/arm/mach-pxa/devices.c | 18 ++----------------
- 1 file changed, 2 insertions(+), 16 deletions(-)
-
-diff --git a/arch/arm/mach-pxa/devices.c b/arch/arm/mach-pxa/devices.c
-index 3543466..b598db6 100644
---- a/arch/arm/mach-pxa/devices.c
-+++ b/arch/arm/mach-pxa/devices.c
-@@ -439,25 +439,11 @@ struct platform_device pxa_device_rtc = {
- 	.resource       = pxa_rtc_resources,
- };
- 
--static struct resource sa1100_rtc_resources[] = {
--	{
--		.start  = IRQ_RTC1Hz,
--		.end    = IRQ_RTC1Hz,
--		.name	= "rtc 1Hz",
--		.flags  = IORESOURCE_IRQ,
--	}, {
--		.start  = IRQ_RTCAlrm,
--		.end    = IRQ_RTCAlrm,
--		.name	= "rtc alarm",
--		.flags  = IORESOURCE_IRQ,
--	},
--};
--
- struct platform_device sa1100_device_rtc = {
- 	.name		= "sa1100-rtc",
- 	.id		= -1,
--	.num_resources	= ARRAY_SIZE(sa1100_rtc_resources),
--	.resource	= sa1100_rtc_resources,
-+	.num_resources  = ARRAY_SIZE(pxa_rtc_resources),
-+	.resource       = pxa_rtc_resources,
- };
- 
- static struct resource pxa_ac97_resources[] = {
 -- 
-2.1.0
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
 -- 
 -- 
