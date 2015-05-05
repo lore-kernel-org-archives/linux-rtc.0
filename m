@@ -1,33 +1,30 @@
-Return-Path: <rtc-linux+bncBDA7X7F2WUEBB5PRY6VAKGQERNOQOWA@googlegroups.com>
-MIME-Version: 1.0
-Received: from mail-wg0-f42.google.com (mail-wg0-f42.google.com. [74.125.82.42])
-        by gmr-mx.google.com with ESMTPS id ec7si92213wib.3.2015.05.12.05.58.29
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 12 May 2015 05:58:29 -0700 (PDT)
-Received: by mail-wg0-f42.google.com with SMTP id c8so8766444wgi.1
-        for <rtc-linux@googlegroups.com>; Tue, 12 May 2015 05:58:29 -0700 (PDT)
-From: Lee Jones <lee.jones@linaro.org>
-To: linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org,
-	devicetree@vger.kernel.org,
-	daniel.lezcano@linaro.org,
-	tglx@linutronix.de,
-	wim@iguana.be,
-	a.zummo@towertech.it,
-	linux-watchdog@vger.kernel.org,
-	rtc-linux@googlegroups.com,
-	linux@roeck-us.net
-Cc: kernel@stlinux.com,
-	Lee Jones <lee.jones@linaro.org>
-Subject: [rtc-linux] [PATCH v2 03/12] clocksource: sti: Provide 'use timer as
- sched clock' capability
-Date: Tue, 12 May 2015 13:58:11 +0100
-Message-Id: <1431435500-22899-4-git-send-email-lee.jones@linaro.org>
-In-Reply-To: <1431435500-22899-1-git-send-email-lee.jones@linaro.org>
-References: <1431435500-22899-1-git-send-email-lee.jones@linaro.org>
-Reply-To: rtc-linux@googlegroups.com
+Return-Path: <rtc-linux+bncBDY3NC743AGBBLGXUSVAKGQEC7EHNLI@googlegroups.com>
+Received: from smtprelay.hostedemail.com (smtprelay0042.hostedemail.com. [216.40.44.42])
+        by gmr-mx.google.com with ESMTP id ux4si46752igb.1.2015.05.05.13.44.27
+        for <rtc-linux@googlegroups.com>;
+        Tue, 05 May 2015 13:44:27 -0700 (PDT)
+Message-ID: <1430858661.9365.20.camel@perches.com>
+Subject: Re: [rtc-linux] [PATCH v3 2/3] rtc: mediatek: Add MT6397 RTC driver
+From: Joe Perches <joe@perches.com>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: Eddie Huang <eddie.huang@mediatek.com>, Lee Jones
+ <lee.jones@linaro.org>,  Alessandro Zummo <a.zummo@towertech.it>, Matthias
+ Brugger <matthias.bgg@gmail.com>, Andrew Morton
+ <akpm@linux-foundation.org>, Tomasz Figa <tfiga@google.com>, Uwe
+ =?ISO-8859-1?Q?Kleine-K=F6nig?= <kernel@pengutronix.de>,
+ srv_heupstream@mediatek.com, Samuel Ortiz <sameo@linux.intel.com>, Greg KH
+ <gregkh@linuxfoundation.org>,  linux-kernel@vger.kernel.org,
+ rtc-linux@googlegroups.com,  linux-arm-kernel@lists.infradead.org,
+ linux-mediatek@lists.infradead.org,  Tianping Fang
+ <tianping.fang@mediatek.com>
+Date: Tue, 05 May 2015 13:44:21 -0700
+In-Reply-To: <20150505200010.GP4276@piout.net>
+References: <1430206556-18254-1-git-send-email-eddie.huang@mediatek.com>
+	 <1430206556-18254-3-git-send-email-eddie.huang@mediatek.com>
+	 <20150505200010.GP4276@piout.net>
 Content-Type: text/plain; charset=UTF-8
+Mime-Version: 1.0
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -37,46 +34,62 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
----
- drivers/clocksource/clksrc_st_lpc.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+On Tue, 2015-05-05 at 22:00 +0200, Alexandre Belloni wrote:
+> Hi,
+> 
+> This looks mostly good. Could you align the wrapped function parameters
+> to the open parenthesis (use checkpatch --strict)?
+> 
+> On 28/04/2015 at 15:35:55 +0800, Eddie Huang wrote :
+> > +static int mtk_rtc_write_trigger(struct mt6397_rtc *rtc)
+> > +{
+> > +	unsigned long timeout = jiffies + HZ;
+> > +	int ret;
+> > +	u32 data;
+> > +
+> > +	ret = regmap_write(rtc->regmap, rtc->addr_base + RTC_WRTGR, 1);
+> > +	if (ret < 0)
+> > +		return ret;
+> > +
+> > +	do {
+> > +		cpu_relax();
+> > +		ret = regmap_read(rtc->regmap, rtc->addr_base + RTC_BBPU,
+> > +				&data);
+> > +		if (ret < 0)
+> > +			goto exit;
+> > +	} while ((data & RTC_BBPU_CBUSY) && time_after(timeout, jiffies));
+> > +
+> 
+> Shouldn't you return -ETIMEDOUT if the loop breaks because of time_after?
 
-diff --git a/drivers/clocksource/clksrc_st_lpc.c b/drivers/clocksource/clksrc_st_lpc.c
-index 1ad1714..90f5bb8 100644
---- a/drivers/clocksource/clksrc_st_lpc.c
-+++ b/drivers/clocksource/clksrc_st_lpc.c
-@@ -16,6 +16,7 @@
- #include <linux/clocksource.h>
- #include <linux/init.h>
- #include <linux/of_address.h>
-+#include <linux/sched_clock.h>
- #include <linux/slab.h>
- 
- #include <dt-bindings/mfd/st-lpc.h>
-@@ -38,6 +39,11 @@ static void st_clksrc_reset(void)
- 	writel_relaxed(1, ddata.base + LPC_LPT_START_OFF);
- }
- 
-+static u64 notrace st_clksrc_sched_clock_read(void)
-+{
-+	return (u64)readl_relaxed(ddata.base + LPC_LPT_LSB_OFF);
-+}
-+
- static int __init st_clksrc_init(void)
- {
- 	unsigned long rate;
-@@ -47,6 +53,8 @@ static int __init st_clksrc_init(void)
- 
- 	rate = clk_get_rate(ddata.clk);
- 
-+	sched_clock_register(st_clksrc_sched_clock_read, 32, rate);
-+
- 	ret = clocksource_mmio_init(ddata.base + LPC_LPT_LSB_OFF,
- 				    "clksrc-st-lpc", rate, 300, 32,
- 				    clocksource_mmio_readl_up);
--- 
-1.9.1
+Probably yes.
+
+I believe as written the time_after test is too much
+for my little brain.  I would have used time_before
+and reversed the args.
+
+I suggest moving the time_after() test into the loop,
+use break; and remove the exit label too.
+
+Maybe something like:
+
+	while (1) {
+		ret = regmap_read(rtc->regmap, rtc->addr_base + RTC_BBPU,
+				  &data);
+		if (ret < 0)
+			break;
+		if (!(data & RTC_BBPU_CBUSY))
+			break;
+		if (time_after(jiffies, timeout)) {
+			ret = -ETIMEDOUT;
+			break;
+		}
+		cpu_relax();
+	}
+
+	return ret;
+}
+
 
 -- 
 -- 
