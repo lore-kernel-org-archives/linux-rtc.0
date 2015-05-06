@@ -1,24 +1,19 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBNOC52VAKGQE3KAMVHQ@googlegroups.com>
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id k2si4502wif.0.2015.05.19.13.46.45
-        for <rtc-linux@googlegroups.com>;
-        Tue, 19 May 2015 13:46:45 -0700 (PDT)
-Date: Tue, 19 May 2015 22:46:44 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Frank.Li@freescale.com
-Cc: lznuaa@gmail.com, shawn.guo@linaro.org, dmitry.torokhov@gmail.com,
-	robh+dt@kernel.org, a.zummo@towertech.it, p.zabel@pengutronix.de,
-	linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org,
-	rtc-linux@googlegroups.com, linux-pm@vger.kernel.org,
-	devicetree@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH v2 2/7] rtc: arm: imx: snvs: change use syscon
- to access register
-Message-ID: <20150519204644.GC3338@piout.net>
-References: <1432055082-28983-1-git-send-email-Frank.Li@freescale.com>
- <1432055082-28983-3-git-send-email-Frank.Li@freescale.com>
+Return-Path: <rtc-linux+bncBDEKVJM7XAHRBF6DU6VAKGQEF4PATEI@googlegroups.com>
+Received: from mout.kundenserver.de (mout.kundenserver.de. [212.227.126.187])
+        by gmr-mx.google.com with ESMTPS id bc3si40624wib.2.2015.05.06.02.40.39
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 06 May 2015 02:40:39 -0700 (PDT)
+From: Arnd Bergmann <arnd@arndb.de>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: Hans Ulli Kroll <ulli.kroll@googlemail.com>, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, rtc-linux@googlegroups.com, Linus Walleij <linus.walleij@linaro.org>, Russell King <rmk+kernel@arm.linux.org.uk>, Felix Fietkau <nbd@openwrt.org>, Roman Yeryomin <roman@advem.lv>
+Subject: [rtc-linux] Re: [1/2] RTC: Add core rtc support for Gemini Soc devices
+Date: Wed, 06 May 2015 11:39:58 +0200
+Message-ID: <2694895.MomHLoCaoZ@wuerfel>
+In-Reply-To: <20150501234214.GK12076@piout.net>
+References: <1292339307-14336-2-git-send-email-ulli.kroll@googlemail.com> <20150501234214.GK12076@piout.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1432055082-28983-3-git-send-email-Frank.Li@freescale.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -29,295 +24,40 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On 20/05/2015 at 01:04:37 +0800, Frank.Li@freescale.com wrote :
-> From: Frank Li <Frank.Li@freescale.com>
+On Saturday 02 May 2015 01:42:14 Alexandre Belloni wrote:
+> Hi,
 > 
-> snvs included rtc, on/off key, power-off module
-> change to syscon to access register
+> On 14/12/2010 at 16:08:26 +0100, Hans Ulli Kroll wrote :
+> > driver for the rtc device
+> > on Cortina Systems CS3516 or StormlinkSemi SL3516 aka Gemini SoC
+> > 
+> > Signed-off-by: Hans Ulli Kroll <ulli.kroll@googlemail.com>
 > 
-> Signed-off-by: Frank Li <Frank.Li@freescale.com>
-Acked-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+> This driver has never been merged and the platform doesn't seem to be
+> active anymore. Is there still any interest in getting this driver
+> mainlined?
+> 
+> Only tree wide cleanups happened in mach-gemini since end of 2010, the
+> listed git repository (git://git.berlios.de/gemini-board) was on berliOS
+> (closed since 2011) and the sourceforge mirror seems empty. Is there
+> still interest in keeping that platform in the mainline?
 
-> ---
->  drivers/rtc/rtc-snvs.c | 128 +++++++++++++++++++++----------------------------
->  1 file changed, 54 insertions(+), 74 deletions(-)
-> 
-> diff --git a/drivers/rtc/rtc-snvs.c b/drivers/rtc/rtc-snvs.c
-> index 0479e80..6eaebf1 100644
-> --- a/drivers/rtc/rtc-snvs.c
-> +++ b/drivers/rtc/rtc-snvs.c
-> @@ -18,14 +18,15 @@
->  #include <linux/platform_device.h>
->  #include <linux/rtc.h>
->  #include <linux/clk.h>
-> +#include <linux/mfd/syscon.h>
-> +#include <linux/regmap.h>
->  
-> -/* These register offsets are relative to LP (Low Power) range */
-> -#define SNVS_LPCR		0x04
-> -#define SNVS_LPSR		0x18
-> -#define SNVS_LPSRTCMR		0x1c
-> -#define SNVS_LPSRTCLR		0x20
-> -#define SNVS_LPTAR		0x24
-> -#define SNVS_LPPGDR		0x30
-> +#define SNVS_LPCR		0x38
-> +#define SNVS_LPSR		0x4c
-> +#define SNVS_LPSRTCMR		0x50
-> +#define SNVS_LPSRTCLR		0x54
-> +#define SNVS_LPTAR		0x58
-> +#define SNVS_LPPGDR		0x64
->  
->  #define SNVS_LPCR_SRTC_ENV	(1 << 0)
->  #define SNVS_LPCR_LPTA_EN	(1 << 1)
-> @@ -37,31 +38,34 @@
->  
->  struct snvs_rtc_data {
->  	struct rtc_device *rtc;
-> -	void __iomem *ioaddr;
-> +	struct regmap *snvs;
->  	int irq;
-> -	spinlock_t lock;
->  	struct clk *clk;
->  };
->  
-> -static u32 rtc_read_lp_counter(void __iomem *ioaddr)
-> +static u32 rtc_read_lp_counter(struct regmap *snvs)
->  {
->  	u64 read1, read2;
-> -
-> +	u32 val;
->  	do {
-> -		read1 = readl(ioaddr + SNVS_LPSRTCMR);
-> +		regmap_read(snvs, SNVS_LPSRTCMR, &val);
-> +		read1 = val;
->  		read1 <<= 32;
-> -		read1 |= readl(ioaddr + SNVS_LPSRTCLR);
-> +		regmap_read(snvs, SNVS_LPSRTCLR, &val);
-> +		read1 |= val;
->  
-> -		read2 = readl(ioaddr + SNVS_LPSRTCMR);
-> +		regmap_read(snvs, SNVS_LPSRTCMR, &val);
-> +		read2 = val;
->  		read2 <<= 32;
-> -		read2 |= readl(ioaddr + SNVS_LPSRTCLR);
-> +		regmap_read(snvs, SNVS_LPSRTCLR, &val);
-> +		read2 |= val;
->  	} while (read1 != read2);
->  
->  	/* Convert 47-bit counter to 32-bit raw second count */
->  	return (u32) (read1 >> CNTR_TO_SECS_SH);
->  }
->  
-> -static void rtc_write_sync_lp(void __iomem *ioaddr)
-> +static void rtc_write_sync_lp(struct regmap *snvs)
->  {
->  	u32 count1, count2, count3;
->  	int i;
-> @@ -69,15 +73,15 @@ static void rtc_write_sync_lp(void __iomem *ioaddr)
->  	/* Wait for 3 CKIL cycles */
->  	for (i = 0; i < 3; i++) {
->  		do {
-> -			count1 = readl(ioaddr + SNVS_LPSRTCLR);
-> -			count2 = readl(ioaddr + SNVS_LPSRTCLR);
-> +			regmap_read(snvs, SNVS_LPSRTCLR, &count1);
-> +			regmap_read(snvs, SNVS_LPSRTCLR, &count2);
->  		} while (count1 != count2);
->  
->  		/* Now wait until counter value changes */
->  		do {
->  			do {
-> -				count2 = readl(ioaddr + SNVS_LPSRTCLR);
-> -				count3 = readl(ioaddr + SNVS_LPSRTCLR);
-> +				regmap_read(snvs, SNVS_LPSRTCLR, &count2);
-> +				regmap_read(snvs, SNVS_LPSRTCLR, &count3);
->  			} while (count2 != count3);
->  		} while (count3 == count1);
->  	}
-> @@ -85,23 +89,14 @@ static void rtc_write_sync_lp(void __iomem *ioaddr)
->  
->  static int snvs_rtc_enable(struct snvs_rtc_data *data, bool enable)
->  {
-> -	unsigned long flags;
->  	int timeout = 1000;
->  	u32 lpcr;
->  
-> -	spin_lock_irqsave(&data->lock, flags);
-> -
-> -	lpcr = readl(data->ioaddr + SNVS_LPCR);
-> -	if (enable)
-> -		lpcr |= SNVS_LPCR_SRTC_ENV;
-> -	else
-> -		lpcr &= ~SNVS_LPCR_SRTC_ENV;
-> -	writel(lpcr, data->ioaddr + SNVS_LPCR);
-> -
-> -	spin_unlock_irqrestore(&data->lock, flags);
-> +	regmap_update_bits(data->snvs, SNVS_LPCR, SNVS_LPCR_SRTC_ENV,
-> +			   enable ? SNVS_LPCR_SRTC_ENV : 0);
->  
->  	while (--timeout) {
-> -		lpcr = readl(data->ioaddr + SNVS_LPCR);
-> +		regmap_read(data->snvs, SNVS_LPCR, &lpcr);
->  
->  		if (enable) {
->  			if (lpcr & SNVS_LPCR_SRTC_ENV)
-> @@ -121,7 +116,7 @@ static int snvs_rtc_enable(struct snvs_rtc_data *data, bool enable)
->  static int snvs_rtc_read_time(struct device *dev, struct rtc_time *tm)
->  {
->  	struct snvs_rtc_data *data = dev_get_drvdata(dev);
-> -	unsigned long time = rtc_read_lp_counter(data->ioaddr);
-> +	unsigned long time = rtc_read_lp_counter(data->snvs);
->  
->  	rtc_time_to_tm(time, tm);
->  
-> @@ -139,8 +134,8 @@ static int snvs_rtc_set_time(struct device *dev, struct rtc_time *tm)
->  	snvs_rtc_enable(data, false);
->  
->  	/* Write 32-bit time to 47-bit timer, leaving 15 LSBs blank */
-> -	writel(time << CNTR_TO_SECS_SH, data->ioaddr + SNVS_LPSRTCLR);
-> -	writel(time >> (32 - CNTR_TO_SECS_SH), data->ioaddr + SNVS_LPSRTCMR);
-> +	regmap_write(data->snvs, SNVS_LPSRTCLR, time << CNTR_TO_SECS_SH);
-> +	regmap_write(data->snvs, SNVS_LPSRTCMR, time >> (32 - CNTR_TO_SECS_SH));
->  
->  	/* Enable RTC again */
->  	snvs_rtc_enable(data, true);
-> @@ -153,10 +148,10 @@ static int snvs_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
->  	struct snvs_rtc_data *data = dev_get_drvdata(dev);
->  	u32 lptar, lpsr;
->  
-> -	lptar = readl(data->ioaddr + SNVS_LPTAR);
-> +	regmap_read(data->snvs, SNVS_LPTAR, &lptar);
->  	rtc_time_to_tm(lptar, &alrm->time);
->  
-> -	lpsr = readl(data->ioaddr + SNVS_LPSR);
-> +	regmap_read(data->snvs, SNVS_LPSR, &lpsr);
->  	alrm->pending = (lpsr & SNVS_LPSR_LPTA) ? 1 : 0;
->  
->  	return 0;
-> @@ -165,21 +160,11 @@ static int snvs_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
->  static int snvs_rtc_alarm_irq_enable(struct device *dev, unsigned int enable)
->  {
->  	struct snvs_rtc_data *data = dev_get_drvdata(dev);
-> -	u32 lpcr;
-> -	unsigned long flags;
->  
-> -	spin_lock_irqsave(&data->lock, flags);
-> +	regmap_update_bits(data->snvs, SNVS_LPCR, (SNVS_LPCR_LPTA_EN | SNVS_LPCR_LPWUI_EN),
-> +			   enable ? (SNVS_LPCR_LPTA_EN | SNVS_LPCR_LPWUI_EN) : 0);
->  
-> -	lpcr = readl(data->ioaddr + SNVS_LPCR);
-> -	if (enable)
-> -		lpcr |= (SNVS_LPCR_LPTA_EN | SNVS_LPCR_LPWUI_EN);
-> -	else
-> -		lpcr &= ~(SNVS_LPCR_LPTA_EN | SNVS_LPCR_LPWUI_EN);
-> -	writel(lpcr, data->ioaddr + SNVS_LPCR);
-> -
-> -	spin_unlock_irqrestore(&data->lock, flags);
-> -
-> -	rtc_write_sync_lp(data->ioaddr);
-> +	rtc_write_sync_lp(data->snvs);
->  
->  	return 0;
->  }
-> @@ -189,24 +174,14 @@ static int snvs_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
->  	struct snvs_rtc_data *data = dev_get_drvdata(dev);
->  	struct rtc_time *alrm_tm = &alrm->time;
->  	unsigned long time;
-> -	unsigned long flags;
-> -	u32 lpcr;
->  
->  	rtc_tm_to_time(alrm_tm, &time);
->  
-> -	spin_lock_irqsave(&data->lock, flags);
-> -
-> -	/* Have to clear LPTA_EN before programming new alarm time in LPTAR */
-> -	lpcr = readl(data->ioaddr + SNVS_LPCR);
-> -	lpcr &= ~SNVS_LPCR_LPTA_EN;
-> -	writel(lpcr, data->ioaddr + SNVS_LPCR);
-> -
-> -	spin_unlock_irqrestore(&data->lock, flags);
-> -
-> -	writel(time, data->ioaddr + SNVS_LPTAR);
-> +	regmap_update_bits(data->snvs, SNVS_LPCR, SNVS_LPCR_LPTA_EN, 0);
-> +	regmap_write(data->snvs, SNVS_LPTAR, time);
->  
->  	/* Clear alarm interrupt status bit */
-> -	writel(SNVS_LPSR_LPTA, data->ioaddr + SNVS_LPSR);
-> +	regmap_write(data->snvs, SNVS_LPSR, SNVS_LPSR_LPTA);
->  
->  	return snvs_rtc_alarm_irq_enable(dev, alrm->enabled);
->  }
-> @@ -226,7 +201,7 @@ static irqreturn_t snvs_rtc_irq_handler(int irq, void *dev_id)
->  	u32 lpsr;
->  	u32 events = 0;
->  
-> -	lpsr = readl(data->ioaddr + SNVS_LPSR);
-> +	regmap_read(data->snvs, SNVS_LPSR, &lpsr);
->  
->  	if (lpsr & SNVS_LPSR_LPTA) {
->  		events |= (RTC_AF | RTC_IRQF);
-> @@ -238,7 +213,7 @@ static irqreturn_t snvs_rtc_irq_handler(int irq, void *dev_id)
->  	}
->  
->  	/* clear interrupt status */
-> -	writel(lpsr, data->ioaddr + SNVS_LPSR);
-> +	regmap_write(data->snvs, SNVS_LPSR, lpsr);
->  
->  	return events ? IRQ_HANDLED : IRQ_NONE;
->  }
-> @@ -246,17 +221,24 @@ static irqreturn_t snvs_rtc_irq_handler(int irq, void *dev_id)
->  static int snvs_rtc_probe(struct platform_device *pdev)
->  {
->  	struct snvs_rtc_data *data;
-> -	struct resource *res;
->  	int ret;
-> +	struct device_node *snvs_np;
->  
->  	data = devm_kzalloc(&pdev->dev, sizeof(*data), GFP_KERNEL);
->  	if (!data)
->  		return -ENOMEM;
->  
-> -	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-> -	data->ioaddr = devm_ioremap_resource(&pdev->dev, res);
-> -	if (IS_ERR(data->ioaddr))
-> -		return PTR_ERR(data->ioaddr);
-> +	snvs_np = of_get_parent(pdev->dev.of_node);
-> +	if (!snvs_np)
-> +		return -ENODEV;
-> +
-> +	data->snvs = syscon_node_to_regmap(snvs_np);
-> +	of_node_put(snvs_np);
-> +
-> +	if (!data->snvs) {
-> +		pr_err("Can't snvs syscon\n");
-> +		return -ENODEV;
-> +	}
->  
->  	data->irq = platform_get_irq(pdev, 0);
->  	if (data->irq < 0)
-> @@ -276,13 +258,11 @@ static int snvs_rtc_probe(struct platform_device *pdev)
->  
->  	platform_set_drvdata(pdev, data);
->  
-> -	spin_lock_init(&data->lock);
-> -
->  	/* Initialize glitch detect */
-> -	writel(SNVS_LPPGDR_INIT, data->ioaddr + SNVS_LPPGDR);
-> +	regmap_write(data->snvs, SNVS_LPPGDR, SNVS_LPPGDR_INIT);
->  
->  	/* Clear interrupt status */
-> -	writel(0xffffffff, data->ioaddr + SNVS_LPSR);
-> +	regmap_write(data->snvs, SNVS_LPSR, 0xffffffff);
->  
->  	/* Enable RTC */
->  	snvs_rtc_enable(data, true);
-> -- 
-> 1.9.1
-> 
+As far as I know, the platform is still used by a number of people,
+and is supported by OpenWRT. The reason we haven't seen updates is that
+Ulli has been mostly absent from upstream development, and we haven't
+had any other person step up as maintainer.
 
--- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+I have a patch to convert the platform to ARCH_MULTIPLATFORM, and
+the code doesn't really get in the way otherwise.
+
+As far as I'm concerned, we should just merge all the patches from
+http://git.openwrt.org/?p=openwrt.git;a=tree;f=target/linux/gemini/patches-3.18
+
+We should also try to find a maintainer that can respond to patches
+in a timely manner. If Ulli has time for that again, that would be great,
+otherwise I think we should find someone from OpenWRT to take over.
+
+	Arnd
 
 -- 
 -- 
