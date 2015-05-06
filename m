@@ -1,25 +1,30 @@
-Return-Path: <rtc-linux+bncBCF2PQPV4MDRB6V63CVAKGQEHLMD2DA@googlegroups.com>
-Received: from mail-la0-x22e.google.com (mail-la0-x22e.google.com. [2a00:1450:4010:c03::22e])
-        by gmr-mx.google.com with ESMTPS id su3si116433lbb.1.2015.05.15.09.31.54
+Return-Path: <rtc-linux+bncBCZ273NM4EARBXEWU2VAKGQEBA2HLGA@googlegroups.com>
+Received: from mailgw02.mediatek.com ([210.61.82.184])
+        by gmr-mx.google.com with ESMTPS id ye6si2648782pbc.2.2015.05.05.20.32.43
         for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 15 May 2015 09:31:54 -0700 (PDT)
-Received: by mail-la0-x22e.google.com with SMTP id r1so46003803lag.0
-        for <rtc-linux@googlegroups.com>; Fri, 15 May 2015 09:31:54 -0700 (PDT)
-MIME-Version: 1.0
-In-Reply-To: <20150515152312.GG23600@jcartwri.amer.corp.natinst.com>
-References: <1431696306-19093-1-git-send-email-manabian@gmail.com>
-	<1431696306-19093-2-git-send-email-manabian@gmail.com>
-	<20150515152312.GG23600@jcartwri.amer.corp.natinst.com>
-Date: Fri, 15 May 2015 18:31:53 +0200
-Message-ID: <CAGhQ9VxpN-dSgWS0tJMeik7o_DsRdRo=Mf=Ap1L3j988abcHfQ@mail.gmail.com>
-Subject: [rtc-linux] Re: [PATCH v2 1/2] rtc: add rtc-lpc24xx driver
-From: Joachim  Eastwood <manabian@gmail.com>
-To: Josh Cartwright <joshc@ni.com>
-Cc: akpm@linux-foundation.org, Alessandro Zummo <a.zummo@towertech.it>,
-	Kevin Wells <wellsk40@gmail.com>, rtc-linux@googlegroups.com, devicetree@vger.kernel.org,
-	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, alexandre.belloni@free-electrons.com
+        (version=TLSv1 cipher=RC4-SHA bits=128/128);
+        Tue, 05 May 2015 20:32:44 -0700 (PDT)
+Message-ID: <1430883151.28521.1.camel@mtksdaap41>
+Subject: Re: [rtc-linux] [PATCH v3 2/3] rtc: mediatek: Add MT6397 RTC driver
+From: Eddie Huang <eddie.huang@mediatek.com>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+CC: Joe Perches <joe@perches.com>, Lee Jones <lee.jones@linaro.org>,
+	Alessandro Zummo <a.zummo@towertech.it>, Matthias Brugger
+	<matthias.bgg@gmail.com>, Andrew Morton <akpm@linux-foundation.org>, "Tomasz
+ Figa" <tfiga@google.com>, Uwe =?ISO-8859-1?Q?Kleine-K=F6nig?=
+	<kernel@pengutronix.de>, <srv_heupstream@mediatek.com>, Samuel Ortiz
+	<sameo@linux.intel.com>, Greg KH <gregkh@linuxfoundation.org>,
+	<linux-kernel@vger.kernel.org>, <rtc-linux@googlegroups.com>,
+	<linux-arm-kernel@lists.infradead.org>, <linux-mediatek@lists.infradead.org>,
+	Tianping Fang <tianping.fang@mediatek.com>
+Date: Wed, 6 May 2015 11:32:31 +0800
+In-Reply-To: <20150505210131.GR4276@piout.net>
+References: <1430206556-18254-1-git-send-email-eddie.huang@mediatek.com>
+	 <1430206556-18254-3-git-send-email-eddie.huang@mediatek.com>
+	 <20150505200010.GP4276@piout.net> <1430858661.9365.20.camel@perches.com>
+	 <20150505210131.GR4276@piout.net>
 Content-Type: text/plain; charset=UTF-8
+MIME-Version: 1.0
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -30,110 +35,39 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On 15 May 2015 at 17:23, Josh Cartwright <joshc@ni.com> wrote:
-> Hello again,
->
-> On Fri, May 15, 2015 at 03:25:05PM +0200, Joachim Eastwood wrote:
->> Add driver for the RTC found on NXP LPC24xx/178x/18xx/43xx devices.
->> The RTC provides calendar and clock functionality together with
->> periodic tick and alarm interrupt support.
->>
->> Signed-off-by: Joachim Eastwood <manabian@gmail.com>
->> ---
-> [..]
->> +++ b/drivers/rtc/Kconfig
->> @@ -1427,6 +1427,19 @@ config RTC_DRV_JZ4740
->>         This driver can also be buillt as a module. If so, the module
->>         will be called rtc-jz4740.
->>
->> +config RTC_DRV_LPC24XX
->> +     depends on ARCH_LPC18XX || COMPILE_TEST
->> +     depends on HAS_IOMEM
->> +     depends on OF
->> +     tristate "NXP LPC24xx RTC"
->> +     help
->> +       This enables support for the NXP RTC found which can be found on
->> +       LPC24xx/178x/18xx/43xx devices.
->
-> Is this still true?
+Hi Joe and Alexandre,
 
-I guess I should have updated the Kconfig text when I removed the LPC24xx bits.
+On Tue, 2015-05-05 at 23:01 +0200, Alexandre Belloni wrote:
+> On 05/05/2015 at 13:44:21 -0700, Joe Perches wrote :
+> > I suggest moving the time_after() test into the loop,
+> > use break; and remove the exit label too.
+> > 
+> > Maybe something like:
+> > 
+> > 	while (1) {
+> > 		ret = regmap_read(rtc->regmap, rtc->addr_base + RTC_BBPU,
+> > 				  &data);
+> > 		if (ret < 0)
+> > 			break;
+> > 		if (!(data & RTC_BBPU_CBUSY))
+> > 			break;
+> > 		if (time_after(jiffies, timeout)) {
+> > 			ret = -ETIMEDOUT;
+> > 			break;
+> > 		}
+> > 		cpu_relax();
+> > 	}
+> > 
+> > 	return ret;
+> 
+> That certainly looks more readable.
+> 
 
-I'll put something this in the next version:
-tristate "NXP LPC178x/18xx/43xx RTC"
-...
-help
-  This enables support for the NXP RTC found which can be found on
-  LPC178x/18xx/43xx devices.
+Thanks correct me that I put wrong paramters in time_after, and give me
+good example. I will adopt your suggestion in next round.
 
+Eddie
 
->> +
->> +       If you have one of the devices above enable this driver to use
->> +       the hardware RTC. This driver can also be buillt as a module. If
->> +       so, the module will be called rtc-lpc24xx.
->> +
->>  config RTC_DRV_LPC32XX
->>       depends on ARCH_LPC32XX
->>       tristate "NXP LPC32XX RTC"
->> diff --git a/drivers/rtc/Makefile b/drivers/rtc/Makefile
->> index c31731c29762..8687a2e13247 100644
->> --- a/drivers/rtc/Makefile
-> [..]
->> +static int lpc24xx_rtc_read_time(struct device *dev, struct rtc_time *tm)
->> +{
->> +     struct lpc24xx_rtc *rtc = dev_get_drvdata(dev);
->> +     u32 ct0, ct1, ct2;
->> +
->> +     ct0 = rtc_readl(rtc, LPC24XX_CTIME0);
->> +     ct1 = rtc_readl(rtc, LPC24XX_CTIME1);
->> +     ct2 = rtc_readl(rtc, LPC24XX_CTIME2);
->> +
->> +     tm->tm_sec  = CT0_SECS(ct0);
->> +     tm->tm_min  = CT0_MINS(ct0);
->> +     tm->tm_hour = CT0_HOURS(ct0);
->> +     tm->tm_wday = CT0_DOW(ct0);
->> +     tm->tm_mon  = CT1_MONTH(ct1);
->> +     tm->tm_mday = CT1_DOM(ct1);
->> +     tm->tm_year = CT1_YEAR(ct1);
->> +     tm->tm_yday = CT2_DOY(ct2);
->> +
->> +     if (rtc_valid_tm(tm) < 0) {
->> +             dev_warn(dev, "retrieved date and time is invalid\n");
->> +             rtc_time64_to_tm(0, tm);
->> +             lpc24xx_rtc_set_time(dev, tm);
->> +     }
->> +
->> +     return 0;
->
-> Forcing the read time to be the epoch on failure seems like a pretty
-> poor way to handle errors, in my opinion.
-
-When the device doesn't have battery the CTIME registers contains an
-invalid value. So if you don't set them to something valid you will
-get a warning each time you try to read the RTC. To "fix" that problem
-I set the time at epoch which make the CTIME registers to contain a
-valid value. Since the value is already useless I think setting it to
-epoch is an improvement in this case.
-
-I guess it deserves a comment in the driver.
-
-> Why not trickle an error up to the rtc class driver?
-
-Because the rtc class will never correct the CTIME register values and
-will complain each time lpc24xx_rtc_read_time() is called. Of course
-if a user set the time from user space the register value is also
-corrected.
-
-> Actually, the class driver is already doing a rtc_valid_tm() check, so
-> that shouldn't even be necessary.  Just read your time here, and let the
-> upper layer take care of handling an invalid time (and properly
-> propagating an error up the stack).
-
-
-Thanks for taking the time to look at the patch again.
-
-regards,
-Joachim Eastwood
 
 -- 
 -- 
