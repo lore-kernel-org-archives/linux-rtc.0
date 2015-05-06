@@ -1,36 +1,28 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBUGXXSVAKGQEGQYXK7Y@googlegroups.com>
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id k2si241401wif.0.2015.05.10.02.58.39
-        for <rtc-linux@googlegroups.com>;
-        Sun, 10 May 2015 02:58:39 -0700 (PDT)
-Date: Sun, 10 May 2015 11:58:38 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: S Twiss <stwiss.opensource@diasemi.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
-	LINUXKERNEL <linux-kernel@vger.kernel.org>,
-	RTCLINUX <rtc-linux@googlegroups.com>,
-	DEVICETREE <devicetree@vger.kernel.org>,
-	David Dajun Chen <david.chen@diasemi.com>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Ian Campbell <ijc+devicetree@hellion.org.uk>,
-	Kumar Gala <galak@codeaurora.org>,
-	LINUXINPUT <linux-input@vger.kernel.org>,
-	LINUXWATCHDOG <linux-watchdog@vger.kernel.org>,
-	Lee Jones <lee.jones@linaro.org>,
-	Liam Girdwood <lgirdwood@gmail.com>,
-	Mark Brown <broonie@kernel.org>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Pawel Moll <pawel.moll@arm.com>, Rob Herring <robh+dt@kernel.org>,
-	Samuel Ortiz <sameo@linux.intel.com>,
-	Support Opensource <support.opensource@diasemi.com>,
-	Wim Van Sebroeck <wim@iguana.be>
-Subject: Re: [rtc-linux] [PATCH V1 3/6] rtc: da9062: DA9062 RTC driver
-Message-ID: <20150510095838.GF3338@piout.net>
-References: <cover.1429280614.git.stwiss.opensource@diasemi.com>
- <860a3b6dc7f8dac95c0e36967f24551af8805f7b.1429280614.git.stwiss.opensource@diasemi.com>
+Return-Path: <rtc-linux+bncBCZ273NM4EARBV4EU6VAKGQE6BDGBIA@googlegroups.com>
+Received: from mailgw01.mediatek.com ([210.61.82.183])
+        by gmr-mx.google.com with ESMTPS id dv5si2762010pbb.0.2015.05.06.00.27.18
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1 cipher=RC4-SHA bits=128/128);
+        Wed, 06 May 2015 00:27:19 -0700 (PDT)
+From: Eddie Huang <eddie.huang@mediatek.com>
+To: Lee Jones <lee.jones@linaro.org>, Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>
+CC: <srv_heupstream@mediatek.com>, Samuel Ortiz <sameo@linux.intel.com>,
+	Matthias Brugger <matthias.bgg@gmail.com>, Andrew Morton
+	<akpm@linux-foundation.org>, Greg KH <gregkh@linuxfoundation.org>, "David S.
+ Miller" <davem@davemloft.net>, Mauro Carvalho Chehab
+	<mchehab@osg.samsung.com>, Joe Perches <joe@perches.com>, Tejun Heo
+	<tj@kernel.org>, <linux-kernel@vger.kernel.org>,
+	<rtc-linux@googlegroups.com>, <linux-arm-kernel@lists.infradead.org>,
+	<linux-mediatek@lists.infradead.org>, Sascha Hauer <kernel@pengutronix.de>,
+	Tomasz Figa <tfiga@google.com>, Eddie Huang <eddie.huang@mediatek.com>
+Subject: [rtc-linux] [PATCH v4 3/3] MAINTAINERS: add Mediatek RTC driver
+Date: Wed, 6 May 2015 15:23:42 +0800
+Message-ID: <1430897022-63357-4-git-send-email-eddie.huang@mediatek.com>
+In-Reply-To: <1430897022-63357-1-git-send-email-eddie.huang@mediatek.com>
+References: <1430897022-63357-1-git-send-email-eddie.huang@mediatek.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <860a3b6dc7f8dac95c0e36967f24551af8805f7b.1429280614.git.stwiss.opensource@diasemi.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -41,38 +33,33 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Hi,
+Add Mediatek RTC driver to maintainer entry.
 
-On 17/04/2015 at 15:23:33 +0100, S Twiss wrote :
-> From: S Twiss <stwiss.opensource@diasemi.com>
-> 
-> Add RTC driver support for DA9062
-> 
-> Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
-> 
-> ---
-> 
-> This patch applies against linux-next and v4.0 
-> 
-> 
-> 
->  drivers/rtc/Kconfig      |  10 ++
->  drivers/rtc/Makefile     |   1 +
->  drivers/rtc/rtc-da9062.c | 367 +++++++++++++++++++++++++++++++++++++++++++++++
->  3 files changed, 378 insertions(+)
->  create mode 100644 drivers/rtc/rtc-da9062.c
-> 
+Signed-off-by: Eddie Huang <eddie.huang@mediatek.com>
+---
+ MAINTAINERS | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-This is an almost exact copy of drivers/rtc/rtc-da9063.c, apart from the
-retry mechanism in read_time. Can you simply add support for the da9062
-in that driver?
-
-Thanks!
-
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 2e5bbc0..b36a86e 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -1223,6 +1223,13 @@ W:	http://www.digriz.org.uk/ts78xx/kernel
+ S:	Maintained
+ F:	arch/arm/mach-orion5x/ts78xx-*
+ 
++ARM/Mediatek RTC DRIVER
++M:	Eddie Huang <eddie.huang@mediatek.com>
++L:	linux-arm-kernel@lists.infradead.org (moderated for non-subscribers)
++L:	linux-mediatek@lists.infradead.org (moderated for non-subscribers)
++S:	Maintained
++F:	drivers/rtc/rtc-mt6397.c
++
+ ARM/Mediatek SoC support
+ M:	Matthias Brugger <matthias.bgg@gmail.com>
+ L:	linux-arm-kernel@lists.infradead.org (moderated for non-subscribers)
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+1.8.1.1.dirty
 
 -- 
 -- 
