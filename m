@@ -1,25 +1,25 @@
-Return-Path: <rtc-linux+bncBDJLF25T6MIBBDPPWGVAKGQELFONSKI@googlegroups.com>
-Received: from lb2-smtp-cloud3.xs4all.net (lb2-smtp-cloud3.xs4all.net. [194.109.24.26])
-        by gmr-mx.google.com with ESMTPS id gt9si262868wib.2.2015.05.08.01.45.01
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1 cipher=RC4-SHA bits=128/128);
-        Fri, 08 May 2015 01:45:01 -0700 (PDT)
-Message-ID: <1431074699.13593.4.camel@x220>
-Subject: [rtc-linux] Re: [PATCH 03/12] clocksource: sti: Provide 'use timer as
- sched clock' capability
-From: Paul Bolle <pebolle@tiscali.nl>
-To: Lee Jones <lee.jones@linaro.org>
-Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
- kernel@stlinux.com, devicetree@vger.kernel.org, daniel.lezcano@linaro.org,
- tglx@linutronix.de, wim@iguana.be, a.zummo@towertech.it,
- linux-watchdog@vger.kernel.org, rtc-linux@googlegroups.com,
- linux@roeck-us.net
-Date: Fri, 08 May 2015 10:44:59 +0200
-In-Reply-To: <1431005924-21777-4-git-send-email-lee.jones@linaro.org>
-References: <1431005924-21777-1-git-send-email-lee.jones@linaro.org>
-	 <1431005924-21777-4-git-send-email-lee.jones@linaro.org>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBC6JU6VAKGQEDDMMO6Q@googlegroups.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id p9si36806wiz.3.2015.05.06.02.53.15
+        for <rtc-linux@googlegroups.com>;
+        Wed, 06 May 2015 02:53:15 -0700 (PDT)
+Date: Wed, 6 May 2015 11:53:12 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: Hans Ulli Kroll <ulli.kroll@googlemail.com>,
+	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+	rtc-linux@googlegroups.com,
+	Linus Walleij <linus.walleij@linaro.org>,
+	Russell King <rmk+kernel@arm.linux.org.uk>,
+	Felix Fietkau <nbd@openwrt.org>, Roman Yeryomin <roman@advem.lv>
+Subject: [rtc-linux] Re: [1/2] RTC: Add core rtc support for Gemini Soc devices
+Message-ID: <20150506095312.GU4276@piout.net>
+References: <1292339307-14336-2-git-send-email-ulli.kroll@googlemail.com>
+ <20150501234214.GK12076@piout.net>
+ <2694895.MomHLoCaoZ@wuerfel>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Mime-Version: 1.0
+In-Reply-To: <2694895.MomHLoCaoZ@wuerfel>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -30,27 +30,49 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On Thu, 2015-05-07 at 14:38 +0100, Lee Jones wrote:
-> --- a/drivers/clocksource/Kconfig
-> +++ b/drivers/clocksource/Kconfig
+On 06/05/2015 at 11:39:58 +0200, Arnd Bergmann wrote :
+> On Saturday 02 May 2015 01:42:14 Alexandre Belloni wrote:
+> > Hi,
+> > 
+> > On 14/12/2010 at 16:08:26 +0100, Hans Ulli Kroll wrote :
+> > > driver for the rtc device
+> > > on Cortina Systems CS3516 or StormlinkSemi SL3516 aka Gemini SoC
+> > > 
+> > > Signed-off-by: Hans Ulli Kroll <ulli.kroll@googlemail.com>
+> > 
+> > This driver has never been merged and the platform doesn't seem to be
+> > active anymore. Is there still any interest in getting this driver
+> > mainlined?
+> > 
+> > Only tree wide cleanups happened in mach-gemini since end of 2010, the
+> > listed git repository (git://git.berlios.de/gemini-board) was on berliOS
+> > (closed since 2011) and the sourceforge mirror seems empty. Is there
+> > still interest in keeping that platform in the mainline?
+> 
+> As far as I know, the platform is still used by a number of people,
+> and is supported by OpenWRT. The reason we haven't seen updates is that
+> Ulli has been mostly absent from upstream development, and we haven't
+> had any other person step up as maintainer.
+> 
+> I have a patch to convert the platform to ARCH_MULTIPLATFORM, and
+> the code doesn't really get in the way otherwise.
+> 
+> As far as I'm concerned, we should just merge all the patches from
+> http://git.openwrt.org/?p=openwrt.git;a=tree;f=target/linux/gemini/patches-3.18
+> 
+> We should also try to find a maintainer that can respond to patches
+> in a timely manner. If Ulli has time for that again, that would be great,
+> otherwise I think we should find someone from OpenWRT to take over.
+> 
 
-> +config CLKSRC_ST_LPC_TIMER_SCHED_CLOCK
-> +	bool
-> +	depends on CLKSRC_ST_LPC
-> +	default y
-> +	help
-> +	  Use Low Power controller timer clock source as sched_clock
-
-This adds, as far as I can see, a Kconfig symbol that will always be in
-lockstep with CLKSRC_ST_LPC. Ie, CLKSRC_ST_LPC and
-CLKSRC_ST_LPC_TIMER_SCHED_CLOCK will always both be 'n' or both be 'y'.
-
-Are there plans to break that lockstep in the future?
-
-Thanks,
+Thanks to point that, I'll merge that one which seems clean enough:
+http://git.openwrt.org/?p=openwrt.git;a=blob;f=target/linux/gemini/files/drivers/rtc/rtc-gemini.c;h=587d8122b2fbb1230437eadcce4789a53aa60ee5;hb=4c637410a2a1ab45988e8ca6202554a502102039
 
 
-Paul Bolle
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
 -- 
 -- 
