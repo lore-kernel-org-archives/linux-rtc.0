@@ -1,28 +1,29 @@
-Return-Path: <rtc-linux+bncBDA7X7F2WUEBB26VVWVAKGQEOUQP26A@googlegroups.com>
+Return-Path: <rtc-linux+bncBDKZNNNLXAHBBEOJU2VAKGQEWVDLYLI@googlegroups.com>
 MIME-Version: 1.0
-Received: from mail-wi0-f178.google.com (mail-wi0-f178.google.com. [209.85.212.178])
-        by gmr-mx.google.com with ESMTPS id bc3si263987wib.2.2015.05.07.06.38.50
+Received: from mailout2.w1.samsung.com (mailout2.w1.samsung.com. [210.118.77.12])
+        by gmr-mx.google.com with ESMTPS id ye6si2688879pbc.2.2015.05.05.22.20.17
         for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 07 May 2015 06:38:50 -0700 (PDT)
-Received: by widdi4 with SMTP id di4so60281913wid.0
-        for <rtc-linux@googlegroups.com>; Thu, 07 May 2015 06:38:50 -0700 (PDT)
-From: Lee Jones <lee.jones@linaro.org>
-To: linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org
-Cc: kernel@stlinux.com,
-	devicetree@vger.kernel.org,
-	daniel.lezcano@linaro.org,
-	tglx@linutronix.de,
-	wim@iguana.be,
-	a.zummo@towertech.it,
-	linux-watchdog@vger.kernel.org,
-	rtc-linux@googlegroups.com,
-	linux@roeck-us.net,
-	Lee Jones <lee.jones@linaro.org>
-Subject: [rtc-linux] [PATCH 00/12] mfd: watchdog: rtc: Add LPC Clocksource driver
-Date: Thu,  7 May 2015 14:38:32 +0100
-Message-Id: <1431005924-21777-1-git-send-email-lee.jones@linaro.org>
+        (version=TLSv1 cipher=RC4-SHA bits=128/128);
+        Tue, 05 May 2015 22:20:17 -0700 (PDT)
+Received: from eucpsbgm2.samsung.com (unknown [203.254.199.245])
+ by mailout2.w1.samsung.com
+ (Oracle Communications Messaging Server 7.0.5.31.0 64bit (built May  5 2014))
+ with ESMTP id <0NNW00JFWXHOE570@mailout2.w1.samsung.com> for
+ rtc-linux@googlegroups.com; Wed, 06 May 2015 06:20:12 +0100 (BST)
+From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+To: linux-kernel@vger.kernel.org, linux-clk@vger.kernel.org,
+ rtc-linux@googlegroups.com, devicetree@vger.kernel.org
+Cc: linux-samsung-soc@vger.kernel.org,
+ Krzysztof Kozlowski <k.kozlowski@samsung.com>,
+ Sangbeom Kim <sbkim73@samsung.com>, Mike Turquette <mturquette@linaro.org>,
+ Stephen Boyd <sboyd@codeaurora.org>, Alessandro Zummo <a.zummo@towertech.it>,
+ Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+ Lee Jones <lee.jones@linaro.org>, Liam Girdwood <lgirdwood@gmail.com>,
+ Mark Brown <broonie@kernel.org>
+Subject: [rtc-linux] [PATCH] MAINTAINERS: Extend Samsung MFD drivers entry and
+ add myself
+Date: Wed, 06 May 2015 14:19:36 +0900
+Message-id: <1430889576-7779-1-git-send-email-k.kozlowski@samsung.com>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -34,46 +35,56 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-ST's Low Power Controller (LPC) controls three devices; watchdog, RTC
-and a Clocksource Timer.  Only one of the devices can be used at any
-one time, which is enforced by the Device Driver model.
+Extend the entry for Samsung MFD drivers for PMIC devices (Power
+Management Integrated Circuit) with bindings documentation, clock
+(clk-s2mps11.c) and RTC drivers (rtc-s5m.c).
 
-This patchset provides support for the Clocksource driver.  Watchdog
-and RTC are already in -next.
+These PMIC devices are used on many Exynos-based boards like Arndale
+Octa (S2MPS11), Gear 2 (S2MPS14).
 
-Lee Jones (12):
-  mfd: dt-bindings: Provide human readable define for Clocksource mode
-  clocksource: sti: Provide support for the ST LPC Clocksource IP
-  clocksource: sti: Provide 'use timer as sched clock' capability
-  clocksource: bindings: Provide bindings for ST's LPC Clocksource
-    device
-  watchdog: st_wdt: Update IP layout information to include Clocksource
-  watchdog: bindings: Supply knowledge of a third supported device -
-    clocksource
-  rtc: st: Update IP layout information to include Clocksource
-  rtc: bindings: Supply knowledge of a third supported device -
-    clocksource
-  MAINTAINERS: Add the LPC Clocksource to STi maintained driver list
-  ARM: STi: DT: STih407: Switch LPC mode from RTC to Clocksource
-  ARM: STi: Enable LPC Clocksource
-  ARM: STi: Update platform level menuconfig 'help'
+Add myself as a supporter for reviewing them.
+I am not the author of these drivers. However I have recently
+contributed to most of them and I have access to datasheets and hardware.
 
- .../devicetree/bindings/rtc/rtc-st-lpc.txt         |  15 ++-
- .../devicetree/bindings/timer/st,stih407-lpc       |  28 +++++
- .../devicetree/bindings/watchdog/st_lpc_wdt.txt    |  15 ++-
- MAINTAINERS                                        |   1 +
- arch/arm/boot/dts/stih407-family.dtsi              |   2 +-
- arch/arm/mach-sti/Kconfig                          |   9 +-
- drivers/clocksource/Kconfig                        |  16 +++
- drivers/clocksource/Makefile                       |   1 +
- drivers/clocksource/clksrc_st_lpc.c                | 134 +++++++++++++++++++++
- drivers/rtc/rtc-st-lpc.c                           |   2 +-
- drivers/watchdog/st_lpc_wdt.c                      |   2 +-
- include/dt-bindings/mfd/st-lpc.h                   |   1 +
- 12 files changed, 206 insertions(+), 20 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/timer/st,stih407-lpc
- create mode 100644 drivers/clocksource/clksrc_st_lpc.c
+Cc: Sangbeom Kim <sbkim73@samsung.com>
+CC: Mike Turquette <mturquette@linaro.org>
+CC: Stephen Boyd <sboyd@codeaurora.org>
+CC: Alessandro Zummo <a.zummo@towertech.it>
+CC: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+CC: Lee Jones <lee.jones@linaro.org>
+CC: Liam Girdwood <lgirdwood@gmail.com>
+CC: Mark Brown <broonie@kernel.org>
+Signed-off-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+---
+ MAINTAINERS | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
+diff --git a/MAINTAINERS b/MAINTAINERS
+index e278814388f7..fc01dc9f96af 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -8533,14 +8533,20 @@ L:	linux-fbdev@vger.kernel.org
+ S:	Maintained
+ F:	drivers/video/fbdev/s3c-fb.c
+ 
+-SAMSUNG MULTIFUNCTION DEVICE DRIVERS
++SAMSUNG MULTIFUNCTION PMIC DEVICE DRIVERS
+ M:	Sangbeom Kim <sbkim73@samsung.com>
++M:	Krzysztof Kozlowski <k.kozlowski@samsung.com>
+ L:	linux-kernel@vger.kernel.org
++L:	linux-samsung-soc@vger.kernel.org
+ S:	Supported
+ F:	drivers/mfd/sec*.c
+ F:	drivers/regulator/s2m*.c
+ F:	drivers/regulator/s5m*.c
++F:	drivers/clk/clk-s2mps11.c
++F:	drivers/rtc/rtc-s5m.c
+ F:	include/linux/mfd/samsung/
++F:	Documentation/devicetree/bindings/regulator/s5m8767-regulator.txt
++F:	Documentation/devicetree/bindings/mfd/s2mp*.txt
+ 
+ SAMSUNG S5P/EXYNOS4 SOC SERIES CAMERA SUBSYSTEM DRIVERS
+ M:	Kyungmin Park <kyungmin.park@samsung.com>
 -- 
 1.9.1
 
