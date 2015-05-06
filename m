@@ -1,71 +1,42 @@
-Return-Path: <rtc-linux+bncBDBIRTOWTALRBJPNY2VAKGQEGH4AHJY@googlegroups.com>
-Received: from mail-oi0-x22c.google.com (mail-oi0-x22c.google.com. [2607:f8b0:4003:c06::22c])
-        by gmr-mx.google.com with ESMTPS id x12si87964igx.1.2015.05.12.01.15.33
+Return-Path: <rtc-linux+bncBDEKVJM7XAHRBCOUVGVAKGQEZCNQXNQ@googlegroups.com>
+Received: from mout.kundenserver.de (mout.kundenserver.de. [212.227.17.10])
+        by gmr-mx.google.com with ESMTPS id k2si140972wif.0.2015.05.06.12.22.49
         for <rtc-linux@googlegroups.com>
         (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 12 May 2015 01:15:33 -0700 (PDT)
-Received: by mail-oi0-x22c.google.com with SMTP id n205so124296158oig.2
-        for <rtc-linux@googlegroups.com>; Tue, 12 May 2015 01:15:33 -0700 (PDT)
+        Wed, 06 May 2015 12:22:49 -0700 (PDT)
+From: Arnd Bergmann <arnd@arndb.de>
+To: linux-arm-kernel@lists.infradead.org
+Cc: Roman Yeryomin <roman@advem.lv>, Alexandre Belloni <alexandre.belloni@free-electrons.com>, Felix Fietkau <nbd@openwrt.org>, rtc-linux@googlegroups.com, Linus Walleij <linus.walleij@linaro.org>, linux-kernel@vger.kernel.org, Russell King <rmk+kernel@arm.linux.org.uk>, Hans Ulli Kroll <ulli.kroll@googlemail.com>
+Subject: [rtc-linux] Re: [1/2] RTC: Add core rtc support for Gemini Soc devices
+Date: Wed, 06 May 2015 21:22:38 +0200
+Message-ID: <2349062.9v3Zz7HPLu@wuerfel>
+In-Reply-To: <d97c3a8a29aa85c83973daf4a22ca4c9@advem.lv>
+References: <1292339307-14336-2-git-send-email-ulli.kroll@googlemail.com> <20150506095312.GU4276@piout.net> <d97c3a8a29aa85c83973daf4a22ca4c9@advem.lv>
 MIME-Version: 1.0
-Sender: rtc-linux@googlegroups.com
-In-Reply-To: <20150509130846.GD3338@piout.net>
-References: <1430897022-63357-1-git-send-email-eddie.huang@mediatek.com> <20150509130846.GD3338@piout.net>
-From: Daniel Kurtz <djkurtz@chromium.org>
-Date: Tue, 12 May 2015 16:15:13 +0800
-Message-ID: <CAGS+omArcu3caKZo56Db2u+84WAVJiMzkr+1uS6tr_zfwARQ7A@mail.gmail.com>
-Subject: [rtc-linux] Re: [PATCH v4 0/3] Add Mediatek SoC RTC driver
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Eddie Huang <eddie.huang@mediatek.com>, Lee Jones <lee.jones@linaro.org>,
-	Alessandro Zummo <a.zummo@towertech.it>, srv_heupstream@mediatek.com,
-	Samuel Ortiz <sameo@linux.intel.com>, Matthias Brugger <matthias.bgg@gmail.com>,
-	Andrew Morton <akpm@linux-foundation.org>, Greg KH <gregkh@linuxfoundation.org>,
-	"David S. Miller" <davem@davemloft.net>, Mauro Carvalho Chehab <mchehab@osg.samsung.com>,
-	Joe Perches <joe@perches.com>, Tejun Heo <tj@kernel.org>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, rtc-linux@googlegroups.com,
-	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, linux-mediatek@lists.infradead.org,
-	Sascha Hauer <kernel@pengutronix.de>, Tomasz Figa <tfiga@google.com>
 Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
 List-Archive: <http://groups.google.com/group/rtc-linux
+Sender: rtc-linux@googlegroups.com
 List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Hi Alexandre,
+On Wednesday 06 May 2015 19:21:21 Roman Yeryomin wrote:
+> 
+> > Thanks to point that, I'll merge that one which seems clean enough:
+> > http://git.openwrt.org/?p=openwrt.git;a=blob;f=target/linux/gemini/files/drivers/rtc/rtc-gemini.c;h=587d8122b2fbb1230437eadcce4789a53aa60ee5;hb=4c637410a2a1ab45988e8ca6202554a502102039
+> 
+> For 3.18 (and up) to work on gemini 160-gemini-timers.patch is vital. 
+> Without that timers are broken and cpu is super slow.
 
-On Sat, May 9, 2015 at 9:08 PM, Alexandre Belloni
-<alexandre.belloni@free-electrons.com> wrote:
-> On 06/05/2015 at 15:23:39 +0800, Eddie Huang wrote :
->> RTC is one submodule of Mediatek MT6397 PMIC chip[1]. This series
->> support RTC driver that work with Mediatek SoC like MT8135, MT8173.
->> It implements second counter and also provide alarm function.
->>
->> This series base on 4.1-rc1, Test ok on MT8173 platform.
->>
->> [1] https://lkml.org/lkml/2015/1/23/325
->>
->
-> All applied, thanks!
+Do you know what part of the patch is the actual bug fix? We should probably
+merge that separately and mark it for stable backports, while the bulk of that
+patch seems to just rearrange code.
 
-To which git tree & branch did you apply these patches?
-
-Thanks,
--Daniel
-
->
->
-> --
-> Alexandre Belloni, Free Electrons
-> Embedded Linux, Kernel and Android engineering
-> http://free-electrons.com
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+	Arnd
 
 -- 
 -- 
