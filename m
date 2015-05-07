@@ -1,18 +1,28 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBOVA2SVAKGQER5I4WDY@googlegroups.com>
+Return-Path: <rtc-linux+bncBDF47HN2VEIRBDP6VWVAKGQEV4M7TNQ@googlegroups.com>
+Received: from mail-wi0-f169.google.com (mail-wi0-f169.google.com. [209.85.212.169])
+        by gmr-mx.google.com with ESMTPS id t6si140578wiz.0.2015.05.07.08.04.44
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 07 May 2015 08:04:44 -0700 (PDT)
+Received: by mail-wi0-f169.google.com with SMTP id di4so63431616wid.0
+        for <rtc-linux@googlegroups.com>; Thu, 07 May 2015 08:04:44 -0700 (PDT)
+Date: Thu, 7 May 2015 16:04:40 +0100
+From: Peter Griffin <peter.griffin@linaro.org>
+To: Lee Jones <lee.jones@linaro.org>
+Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+	devicetree@vger.kernel.org, kernel@stlinux.com,
+	rtc-linux@googlegroups.com, a.zummo@towertech.it,
+	daniel.lezcano@linaro.org, wim@iguana.be, tglx@linutronix.de,
+	linux@roeck-us.net, linux-watchdog@vger.kernel.org
+Subject: [rtc-linux] Re: [STLinux Kernel] [PATCH 02/12] clocksource: sti:
+ Provide support for the ST LPC Clocksource IP
+Message-ID: <20150507150440.GA13336@griffinp-ThinkPad-X1-Carbon-2nd>
+References: <1431005924-21777-1-git-send-email-lee.jones@linaro.org>
+ <1431005924-21777-3-git-send-email-lee.jones@linaro.org>
 MIME-Version: 1.0
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id p12si6827wiv.1.2015.05.14.14.14.34
-        for <rtc-linux@googlegroups.com>;
-        Thu, 14 May 2015 14:14:34 -0700 (PDT)
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: rtc-linux@googlegroups.com
-Cc: linux-kernel@vger.kernel.org,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Subject: [rtc-linux] [PATCH] rtc: stmp3xxx select STMP_DEVICE
-Date: Thu, 14 May 2015 23:14:31 +0200
-Message-Id: <1431638071-30658-1-git-send-email-alexandre.belloni@free-electrons.com>
-Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1431005924-21777-3-git-send-email-lee.jones@linaro.org>
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -22,27 +32,27 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-rtc-stmp3xxx depends on lib/stmp_device, select it.
+Hi Lee,
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
----
- drivers/rtc/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+On Thu, 07 May 2015, Lee Jones wrote:
 
-diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
-index 0fe4ad8826b2..650869c568f6 100644
---- a/drivers/rtc/Kconfig
-+++ b/drivers/rtc/Kconfig
-@@ -1396,6 +1396,7 @@ config RTC_DRV_COH901331
- config RTC_DRV_STMP
- 	tristate "Freescale STMP3xxx/i.MX23/i.MX28 RTC"
- 	depends on ARCH_MXS
-+	select STMP_DEVICE
- 	help
- 	  If you say yes here you will get support for the onboard
- 	  STMP3xxx/i.MX23/i.MX28 RTC.
--- 
-2.1.4
+> This IP is shared with Watchdog and RTC functionality.  Only one of
+> these IPs can be used at the same time.  We use the device-driver
+> model combined with a DT 'mode' property to enforce this.
+
+Which means my previous assertion in V1 that the IP didn't exist on stih415/6
+SoC is most likely wrong, as the watchdog driver has bindings already for those
+platforms.
+
+I did try this before and couldn't get it working (driver failed on clk_get_rate)
+on stih416-b2020.
+
+Did you try and see if you can get this also working for stih415/6 SoCs? It would
+mean we can move away from arm_global_timer for all upstreamed STI platforms.
+
+regards,
+
+Peter.
 
 -- 
 -- 
