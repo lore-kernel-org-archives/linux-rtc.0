@@ -1,23 +1,27 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBD6X5GVAKGQEFLOS5KQ@googlegroups.com>
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id q10si451713wiz.0.2015.05.18.15.45.35
-        for <rtc-linux@googlegroups.com>;
-        Mon, 18 May 2015 15:45:35 -0700 (PDT)
-Date: Tue, 19 May 2015 00:45:34 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Javier Martinez Canillas <javier.martinez@collabora.co.uk>
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
-	Olof Johansson <olof@lixom.net>,
-	Doug Anderson <dianders@chromium.org>,
-	Krzysztof Kozlowski <k.kozlowski@samsung.com>,
-	Chanwoo Choi <cw00.choi@samsung.com>, rtc-linux@googlegroups.com,
-	linux-samsung-soc@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH 0/2] rtc: Fix module autoload for max77xx RTC drivers
-Message-ID: <20150518224534.GZ3338@piout.net>
-References: <1431530282-10672-1-git-send-email-javier.martinez@collabora.co.uk>
+Return-Path: <rtc-linux+bncBDF47HN2VEIRBJHIVWVAKGQEOXVLV3A@googlegroups.com>
+Received: from mail-wg0-f43.google.com (mail-wg0-f43.google.com. [74.125.82.43])
+        by gmr-mx.google.com with ESMTPS id m3si113748wia.1.2015.05.07.07.18.10
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 07 May 2015 07:18:10 -0700 (PDT)
+Received: by wgic8 with SMTP id c8so18565326wgi.1
+        for <rtc-linux@googlegroups.com>; Thu, 07 May 2015 07:18:10 -0700 (PDT)
+Date: Thu, 7 May 2015 15:18:05 +0100
+From: Peter Griffin <peter.griffin@linaro.org>
+To: Lee Jones <lee.jones@linaro.org>
+Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+	devicetree@vger.kernel.org, kernel@stlinux.com,
+	rtc-linux@googlegroups.com, a.zummo@towertech.it,
+	daniel.lezcano@linaro.org, wim@iguana.be, tglx@linutronix.de,
+	linux@roeck-us.net, linux-watchdog@vger.kernel.org
+Subject: [rtc-linux] Re: [STLinux Kernel] [PATCH 06/12] watchdog: bindings:
+ Supply knowledge of a third supported device - clocksource
+Message-ID: <20150507141805.GC9793@griffinp-ThinkPad-X1-Carbon-2nd>
+References: <1431005924-21777-1-git-send-email-lee.jones@linaro.org>
+ <1431005924-21777-7-git-send-email-lee.jones@linaro.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1431530282-10672-1-git-send-email-javier.martinez@collabora.co.uk>
+In-Reply-To: <1431005924-21777-7-git-send-email-lee.jones@linaro.org>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -28,35 +32,43 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On 13/05/2015 at 17:18:00 +0200, Javier Martinez Canillas wrote :
-> Hello Alexandre and Alessandro,
-> 
-> This is a trivial series that fixes module autoloading for the Maxim
-> MAX77686 and MAX77802 RTC drivers that didn't export their platform
-> device ID table with MODULE_DEVICE_TABLE() so modalias information
-> was not available.
-> 
-> The series is composed of the following patches:
-> 
-> Javier Martinez Canillas (2):
->   rtc: max77686: Report platform modalias to fix module autoload
->   rtc: max77802: Report platform modalias to fix module autoload
-> 
+Hi Lee,
 
-Both applied, thanks.
+On Thu, 07 May 2015, Lee Jones wrote:
 
->  drivers/rtc/rtc-max77686.c | 1 +
->  drivers/rtc/rtc-max77802.c | 1 +
->  2 files changed, 2 insertions(+)
+> Signed-off-by: Lee Jones <lee.jones@linaro.org>
+> ---
+>  Documentation/devicetree/bindings/watchdog/st_lpc_wdt.txt | 15 +++++++++------
+>  1 file changed, 9 insertions(+), 6 deletions(-)
 > 
-> Best regards,
-> Javier
-> 
+> diff --git a/Documentation/devicetree/bindings/watchdog/st_lpc_wdt.txt b/Documentation/devicetree/bindings/watchdog/st_lpc_wdt.txt
+> index 388c88a..0b1a784 100644
+> --- a/Documentation/devicetree/bindings/watchdog/st_lpc_wdt.txt
+> +++ b/Documentation/devicetree/bindings/watchdog/st_lpc_wdt.txt
+> @@ -1,20 +1,23 @@
+>  STMicroelectronics Low Power Controller (LPC) - Watchdog
+>  ========================================================
+>  
+> -LPC currently supports Watchdog OR Real Time Clock functionality.
+> +LPC currently supports Watchdog OR Real Time Clock OR Clocksource
+> +functionality.
+>  
+>  [See: ../rtc/rtc-st-lpc.txt for RTC options]
+> +[See: ../timer/st,stih407-lpc for Clocksource options]
+>  
+>  Required properties
+>  
+> -- compatible 	: Must be one of: "st,stih407-lpc" "st,stih416-lpc"
+> -				  "st,stih415-lpc" "st,stid127-lpc"
+> +- compatible 	: Must be one of: "st,stih407-lpc"
 
--- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+The same comment as the RTC DT patch, you are removing the compatibles
+documentation for the other supported platforms like stih416-lpc.
+AFAIK they are required in the driver to get the correct sysconfig register.
+
+regards,
+
+Peter.
 
 -- 
 -- 
