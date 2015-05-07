@@ -1,20 +1,41 @@
-Return-Path: <rtc-linux+bncBDMYB2E7SQCRBJUK7CVAKGQEPGAY2WQ@googlegroups.com>
-Received: from na01-by2-obe.outbound.protection.outlook.com (mail-by2on0143.outbound.protection.outlook.com. [207.46.100.143])
-        by gmr-mx.google.com with ESMTPS id jr5si2360964pbb.1.2015.05.21.09.17.41
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
-        Thu, 21 May 2015 09:17:41 -0700 (PDT)
-From: <Frank.Li@freescale.com>
-To: <lznuaa@gmail.com>, <shawn.guo@linaro.org>, <dmitry.torokhov@gmail.com>,
-	<robh+dt@kernel.org>, <alexandre.belloni@free-electrons.com>,
-	<linux@arm.linux.org.uk>
-CC: <linux-arm-kernel@lists.infradead.org>, <linux-input@vger.kernel.org>,
-	<rtc-linux@googlegroups.com>, <devicetree@vger.kernel.org>, Frank Li
-	<Frank.Li@freescale.com>
-Subject: [rtc-linux] [PATCH v3 0/6] Change snvs rtc and poweroff to use syscon
- add pwrkey driver
-Date: Fri, 22 May 2015 00:16:46 +0800
-Message-ID: <1432225012-20598-1-git-send-email-Frank.Li@freescale.com>
+Return-Path: <rtc-linux+bncBCIPJ6FA2QLBBI5MVSVAKGQEN3BOVVY@googlegroups.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id ec7si68055wib.3.2015.05.07.00.37.06
+        for <rtc-linux@googlegroups.com>;
+        Thu, 07 May 2015 00:37:06 -0700 (PDT)
+Date: Thu, 7 May 2015 09:37:02 +0200
+From: Boris Brezillon <boris.brezillon@free-electrons.com>
+To: Stephen Boyd <sboyd@codeaurora.org>
+Cc: Mike Turquette <mturquette@linaro.org>, linux-clk@vger.kernel.org,
+ linux-kernel@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, Shawn Guo
+ <shawn.guo@linaro.org>, ascha Hauer <kernel@pengutronix.de>, David Brown
+ <davidb@codeaurora.org>, Daniel Walker <dwalker@fifo99.com>, Bryan Huntsman
+ <bryanh@codeaurora.org>, Tony Lindgren <tony@atomide.com>, Paul Walmsley
+ <paul@pwsan.com>, Liviu Dudau <liviu.dudau@arm.com>, Sudeep Holla
+ <sudeep.holla@arm.com>, Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>, Ralf
+ Baechle <ralf@linux-mips.org>, Max Filippov <jcmvbkbc@gmail.com>, Heiko
+ Stuebner <heiko@sntech.de>, Sylwester Nawrocki <s.nawrocki@samsung.com>,
+ Tomasz Figa <tomasz.figa@gmail.com>, Barry Song <baohua@kernel.org>, Viresh
+ Kumar <viresh.linux@gmail.com>, Emilio =?UTF-8?B?TMOzcGV6?=
+ <emilio@elopez.com.ar>, Maxime Ripard <maxime.ripard@free-electrons.com>,
+ Peter De Schrijver <pdeschrijver@nvidia.com>, Prashant Gaikwad
+ <pgaikwad@nvidia.com>, Stephen Warren <swarren@wwwdotorg.org>, Thierry
+ Reding <thierry.reding@gmail.com>, Alexandre Courbot <gnurou@gmail.com>,
+ Tero Kristo <t-kristo@ti.com>, Ulf Hansson <ulf.hansson@linaro.org>, Michal
+ Simek <michal.simek@xilinx.com>, Philipp Zabel <p.zabel@pengutronix.de>,
+ linux-doc@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+ linux-arm-msm@vger.kernel.org, linux-omap@vger.kernel.org,
+ linux-mips@linux-mips.org, patches@opensource.wolfsonmicro.com,
+ linux-rockchip@lists.infradead.org, linux-samsung-soc@vger.kernel.org,
+ spear-devel@list.st.com, linux-tegra@vger.kernel.org,
+ dri-devel@lists.freedesktop.org, linux-media@vger.kernel.org,
+ rtc-linux@googlegroups.com
+Subject: [rtc-linux] Re: [PATCH v2 1/2] clk: change clk_ops' ->round_rate() prototype
+Message-ID: <20150507093702.0b58753d@bbrezillon>
+In-Reply-To: <20150507063953.GC32399@codeaurora.org>
+References: <1430407809-31147-1-git-send-email-boris.brezillon@free-electrons.com>
+	<1430407809-31147-2-git-send-email-boris.brezillon@free-electrons.com>
+	<20150507063953.GC32399@codeaurora.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
@@ -27,44 +48,92 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-From: Frank Li <Frank.Li@freescale.com>
+Hi Stephen,
 
-Change from v2 to v3
- - Keep snvs rtc compatiblity with old dts file
- - use general syscon-poweroff instead of modifying snvs-poweroff.c
+On Wed, 6 May 2015 23:39:53 -0700
+Stephen Boyd <sboyd@codeaurora.org> wrote:
 
-Change from v1 to v2
- - Change simple-bus to simple-mfd
- - RTC remove lock.
- - RTC remove comments "These register offsets are relative to LP (Low Power) range"
- - power off, remove extra space
+> On 04/30, Boris Brezillon wrote:
+> > Clock rates are stored in an unsigned long field, but ->round_rate()
+> > (which returns a rounded rate from a requested one) returns a long
+> > value (errors are reported using negative error codes), which can lead
+> > to long overflow if the clock rate exceed 2Ghz.
+> > 
+> > Change ->round_rate() prototype to return 0 or an error code, and pass the
+> > requested rate as a pointer so that it can be adjusted depending on
+> > hardware capabilities.
+> > 
+> > Signed-off-by: Boris Brezillon <boris.brezillon@free-electrons.com>
+> > Tested-by: Heiko Stuebner <heiko@sntech.de>
+> > Tested-by: Mikko Perttunen <mikko.perttunen@kapsi.fi>
+> > Reviewed-by: Heiko Stuebner <heiko@sntech.de>
+> 
+> This patch is fairly invasive, and it probably doesn't even
+> matter for most of these clock providers to be able to round a
+> rate above 2GHz.
 
-Frank Li (5):
-  rtc: arm: imx: snvs: change use syscon to access register
-  Document: dt: fsl: snvs: change support syscon
-  arm: dts: imx: update snvs to use syscon access register
-  document: devicetree: input: imx: i.mx snvs power device tree bindings
-  arm: dts: imx6sx: enable snvs power key
+Fair enough.
 
-Robin Gong (1):
-  input: keyboard: imx: add snvs power key driver
+> I've been trying to remove the .round_rate op
+> from the framework by encouraging new features via the
+> .determine_rate op.
 
- .../devicetree/bindings/crypto/fsl-sec4.txt        |  70 +++++--
- .../devicetree/bindings/input/snvs-pwrkey.txt      |   1 +
- arch/arm/boot/dts/imx6qdl.dtsi                     |  19 +-
- arch/arm/boot/dts/imx6sl.dtsi                      |  19 +-
- arch/arm/boot/dts/imx6sx.dtsi                      |  24 ++-
- arch/arm/boot/dts/vfxxx.dtsi                       |   9 +-
- drivers/input/keyboard/Kconfig                     |  11 +
- drivers/input/keyboard/Makefile                    |   1 +
- drivers/input/keyboard/snvs_pwrkey.c               | 232 +++++++++++++++++++++
- drivers/rtc/rtc-snvs.c                             | 136 ++++++------
- 10 files changed, 408 insertions(+), 114 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/input/snvs-pwrkey.txt
- create mode 100644 drivers/input/keyboard/snvs_pwrkey.c
+Oh, I wasn't aware of that (BTW, that's a good thing).
+Maybe this should be clearly stated (both in the struct clk_ops
+kerneldoc header and in Documentation/clk.txt).
+
+> Sadly, we still have to do a flag day and
+> change all the .determine_rate ops when we want to add things.
+
+Yes, but the number of clk drivers implementing ->determine_rate() is
+still quite limited compared to those implementing ->round_rate().
+
+> 
+> What if we changed determine_rate ops to take a struct
+> clk_determine_info (or some better named structure) instead of
+> the current list of arguments that it currently takes? Then when
+> we want to make these sorts of framework wide changes we can just
+> throw a new member into that structure and be done.
+
+I really like this idea, especially since I was wondering if we could
+pass other 'clk rate requirements' like the rounding policy (down,
+closest, up), or the maximum clk inaccuracy.
+
+> 
+> It doesn't solve the unsigned long to int return value problem
+> though. We can solve that by gradually introducing a new op and
+> handling another case in the rounding path. If we can come up
+> with some good name for that new op like .decide_rate or
+> something then it makes things nicer in the long run. I like the
+> name .determine_rate though :/
+
+Why not changing the ->determine_rate() prototype. As said above, the
+number of clk drivers implementing this function is still quite
+limited, and I guess we can have an ack for all of them.
+
+> 
+> The benefit of all this is that we don't have to worry about
+> finding the random clk providers that get added into other
+> subsystems and fixing them up. If drivers actually care about
+> this problem then they'll be fixed to use the proper op. FYI,
+> last time we updated the function signature of .determine_rate we
+> broke a couple drivers along the way.
+> 
+
+Hm, IMHO, adding a new op is not a good thing. I agree that it eases
+the transition, but ITOH you'll have to live with old/deprecated ops in
+your clk_ops structure with people introducing new drivers still using
+the old ops (see the number of clk drivers implementing ->round_rate()
+instead of ->determine_rate()).
+
+Best Regards,
+
+Boris
 
 -- 
-1.9.1
+Boris Brezillon, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
 
 -- 
 -- 
