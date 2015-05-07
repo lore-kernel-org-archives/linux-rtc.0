@@ -1,31 +1,26 @@
-Return-Path: <rtc-linux+bncBAABBFMM62VAKGQELK6NMEA@googlegroups.com>
-Received: from mail1.bemta5.messagelabs.com (mail1.bemta5.messagelabs.com. [195.245.231.141])
-        by gmr-mx.google.com with ESMTPS id u10si50378wif.1.2015.05.21.00.15.33
+Return-Path: <rtc-linux+bncBCH4V2OOTYHBBB5LVOVAKGQEBWRLF6Q@googlegroups.com>
+Received: from mail-wg0-x230.google.com (mail-wg0-x230.google.com. [2a00:1450:400c:c00::230])
+        by gmr-mx.google.com with ESMTPS id q10si47948wiz.0.2015.05.06.20.01.27
         for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=RC4-SHA bits=128/128);
-        Thu, 21 May 2015 00:15:33 -0700 (PDT)
-From: "Opensource [Steve Twiss]" <stwiss.opensource@diasemi.com>
-To: Guenter Roeck <linux@roeck-us.net>
-CC: LINUXKERNEL <linux-kernel@vger.kernel.org>, LINUXWATCHDOG
-	<linux-watchdog@vger.kernel.org>, Wim Van Sebroeck <wim@iguana.be>,
-	Alessandro Zummo <a.zummo@towertech.it>, DEVICETREE
-	<devicetree@vger.kernel.org>, David Dajun Chen <david.chen@diasemi.com>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>, Ian Campbell
-	<ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>,
-	LINUXINPUT <linux-input@vger.kernel.org>, Lee Jones <lee.jones@linaro.org>,
-	Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, "Mark
- Rutland" <mark.rutland@arm.com>, Pawel Moll <pawel.moll@arm.com>, RTCLINUX
-	<rtc-linux@googlegroups.com>, Rob Herring <robh+dt@kernel.org>, Samuel Ortiz
-	<sameo@linux.intel.com>, Support Opensource <Support.Opensource@diasemi.com>
-Subject: [rtc-linux] RE: [PATCH V3 3/4] watchdog: da9062: DA9062 watchdog driver
-Date: Thu, 21 May 2015 07:15:24 +0000
-Message-ID: <6ED8E3B22081A4459DAC7699F3695FB7014B22C859@SW-EX-MBX02.diasemi.com>
-References: <cover.1432041031.git.stwiss.opensource@diasemi.com>
- <ded171f203fe1d0c72f0d7ea4c3d54257f4e970e.1432041031.git.stwiss.opensource@diasemi.com>
- <20150520203016.GA5710@roeck-us.net>
-In-Reply-To: <20150520203016.GA5710@roeck-us.net>
-Content-Type: text/plain; charset=UTF-8
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 06 May 2015 20:01:27 -0700 (PDT)
+Received: by mail-wg0-x230.google.com with SMTP id c8so3293475wgi.1
+        for <rtc-linux@googlegroups.com>; Wed, 06 May 2015 20:01:27 -0700 (PDT)
+Date: Thu, 7 May 2015 05:00:03 +0200 (CEST)
+From: Hans Ulli Kroll <ulli.kroll@googlemail.com>
+To: Arnd Bergmann <arnd@arndb.de>
+cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+    Hans Ulli Kroll <ulli.kroll@googlemail.com>,
+    linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+    rtc-linux@googlegroups.com, Linus Walleij <linus.walleij@linaro.org>,
+    Russell King <rmk+kernel@arm.linux.org.uk>,
+    Felix Fietkau <nbd@openwrt.org>, Roman Yeryomin <roman@advem.lv>
+Subject: [rtc-linux] Re: [1/2] RTC: Add core rtc support for Gemini Soc devices
+In-Reply-To: <2694895.MomHLoCaoZ@wuerfel>
+Message-ID: <alpine.LNX.2.00.1505070455130.32495@T520.local>
+References: <1292339307-14336-2-git-send-email-ulli.kroll@googlemail.com> <20150501234214.GK12076@piout.net> <2694895.MomHLoCaoZ@wuerfel>
 MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -36,32 +31,49 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On 20 May 2015 21:30 Guenter Roeck wrote:
+Hello
 
-> Subject: Re: [PATCH V3 3/4] watchdog: da9062: DA9062 watchdog driver
+On Wed, 6 May 2015, Arnd Bergmann wrote:
+
+> On Saturday 02 May 2015 01:42:14 Alexandre Belloni wrote:
+> > Hi,
+> > 
+> > On 14/12/2010 at 16:08:26 +0100, Hans Ulli Kroll wrote :
+> > > driver for the rtc device
+> > > on Cortina Systems CS3516 or StormlinkSemi SL3516 aka Gemini SoC
+> > > 
+> > > Signed-off-by: Hans Ulli Kroll <ulli.kroll@googlemail.com>
+> > 
+> > This driver has never been merged and the platform doesn't seem to be
+> > active anymore. Is there still any interest in getting this driver
+> > mainlined?
+> > 
+> > Only tree wide cleanups happened in mach-gemini since end of 2010, the
+> > listed git repository (git://git.berlios.de/gemini-board) was on berliOS
+> > (closed since 2011) and the sourceforge mirror seems empty. Is there
+> > still interest in keeping that platform in the mainline?
 > 
-> On Tue, May 19, 2015 at 02:10:30PM +0100, S Twiss wrote:
-> > From: S Twiss <stwiss.opensource@diasemi.com>
-> >
-> > Add watchdog driver support for DA9062
-> >
-> >
-> > Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
-> >
-> Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+> As far as I know, the platform is still used by a number of people,
+> and is supported by OpenWRT. The reason we haven't seen updates is that
+> Ulli has been mostly absent from upstream development, and we haven't
+> had any other person step up as maintainer.
+> 
+> I have a patch to convert the platform to ARCH_MULTIPLATFORM, and
+> the code doesn't really get in the way otherwise.
+> 
+> As far as I'm concerned, we should just merge all the patches from
+> http://git.openwrt.org/?p=openwrt.git;a=tree;f=target/linux/gemini/patches-3.18
+y> 
+> We should also try to find a maintainer that can respond to patches
+> in a timely manner. If Ulli has time for that again, that would be great,
+> otherwise I think we should find someone from OpenWRT to take over.
+> 
+> 	Arnd
+> 
 
-Thank you Guenter
+I'm back in busyness.
+Currently me dev device is right next to me.
+I moved some time ago and haav to find it in some 'hidden' box.
 
-Regards,
-Steve
 
--- 
--- 
-You received this message because you are subscribed to "rtc-linux".
-Membership options at http://groups.google.com/group/rtc-linux .
-Please read http://groups.google.com/group/rtc-linux/web/checklist
-before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
-For more options, visit https://groups.google.com/d/optout.
+Ulli
