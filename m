@@ -1,27 +1,33 @@
-Return-Path: <rtc-linux+bncBCH4V2OOTYHBBLOKV2VAKGQEQNLOP4A@googlegroups.com>
-Received: from mail-wg0-x22c.google.com (mail-wg0-x22c.google.com. [2a00:1450:400c:c00::22c])
-        by gmr-mx.google.com with ESMTPS id p9si294137wiz.3.2015.05.07.10.47.24
+Return-Path: <rtc-linux+bncBDA7X7F2WUEBB6GVVWVAKGQE74NBNUI@googlegroups.com>
+MIME-Version: 1.0
+Received: from mail-wi0-f173.google.com (mail-wi0-f173.google.com. [209.85.212.173])
+        by gmr-mx.google.com with ESMTPS id gt9si130893wib.2.2015.05.07.06.39.03
         for <rtc-linux@googlegroups.com>
         (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 07 May 2015 10:47:24 -0700 (PDT)
-Received: by mail-wg0-x22c.google.com with SMTP id u9so50704475wgi.3
-        for <rtc-linux@googlegroups.com>; Thu, 07 May 2015 10:47:24 -0700 (PDT)
-Date: Thu, 7 May 2015 19:46:02 +0200 (CEST)
-From: Hans Ulli Kroll <ulli.kroll@googlemail.com>
-To: Arnd Bergmann <arnd@arndb.de>
-cc: Hans Ulli Kroll <ulli.kroll@googlemail.com>,
-    Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-    linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-    rtc-linux@googlegroups.com, Linus Walleij <linus.walleij@linaro.org>,
-    Russell King <rmk+kernel@arm.linux.org.uk>,
-    Felix Fietkau <nbd@openwrt.org>, Roman Yeryomin <roman@advem.lv>
-Subject: [rtc-linux] Re: [1/2] RTC: Add core rtc support for Gemini Soc devices
-In-Reply-To: <5043733.xO9lSCKvly@wuerfel>
-Message-ID: <alpine.LNX.2.00.1505071936170.19877@T520.local>
-References: <1292339307-14336-2-git-send-email-ulli.kroll@googlemail.com> <2694895.MomHLoCaoZ@wuerfel> <alpine.LNX.2.00.1505070455130.32495@T520.local> <5043733.xO9lSCKvly@wuerfel>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+        Thu, 07 May 2015 06:39:03 -0700 (PDT)
+Received: by mail-wi0-f173.google.com with SMTP id k4so243068635wiz.1
+        for <rtc-linux@googlegroups.com>; Thu, 07 May 2015 06:39:03 -0700 (PDT)
+From: Lee Jones <lee.jones@linaro.org>
+To: linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org
+Cc: kernel@stlinux.com,
+	devicetree@vger.kernel.org,
+	daniel.lezcano@linaro.org,
+	tglx@linutronix.de,
+	wim@iguana.be,
+	a.zummo@towertech.it,
+	linux-watchdog@vger.kernel.org,
+	rtc-linux@googlegroups.com,
+	linux@roeck-us.net,
+	Lee Jones <lee.jones@linaro.org>
+Subject: [rtc-linux] [PATCH 08/12] rtc: bindings: Supply knowledge of a third
+ supported device - clocksource
+Date: Thu,  7 May 2015 14:38:40 +0100
+Message-Id: <1431005924-21777-9-git-send-email-lee.jones@linaro.org>
+In-Reply-To: <1431005924-21777-1-git-send-email-lee.jones@linaro.org>
+References: <1431005924-21777-1-git-send-email-lee.jones@linaro.org>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -31,41 +37,55 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
+---
+ Documentation/devicetree/bindings/rtc/rtc-st-lpc.txt | 15 +++++++++------
+ 1 file changed, 9 insertions(+), 6 deletions(-)
 
-Hi
+diff --git a/Documentation/devicetree/bindings/rtc/rtc-st-lpc.txt b/Documentation/devicetree/bindings/rtc/rtc-st-lpc.txt
+index 73407f50..daf8826 100644
+--- a/Documentation/devicetree/bindings/rtc/rtc-st-lpc.txt
++++ b/Documentation/devicetree/bindings/rtc/rtc-st-lpc.txt
+@@ -1,20 +1,23 @@
+ STMicroelectronics Low Power Controller (LPC) - RTC
+ ===================================================
+ 
+-LPC currently supports Watchdog OR Real Time Clock functionality.
++LPC currently supports Watchdog OR Real Time Clock OR Clocksource
++functionality.
+ 
+ [See: ../watchdog/st_lpc_wdt.txt for Watchdog options]
++[See: ../timer/st,stih407-lpc for Clocksource options]
+ 
+ Required properties
+ 
+-- compatible 	: Must be one of: "st,stih407-lpc" "st,stih416-lpc"
+-				  "st,stih415-lpc" "st,stid127-lpc"
++- compatible 	: Must be: "st,stih407-lpc"
+ - reg		: LPC registers base address + size
+ - interrupts    : LPC interrupt line number and associated flags
+ - clocks	: Clock used by LPC device (See: ../clock/clock-bindings.txt)
+-- st,lpc-mode	: The LPC can run either one of two modes ST_LPC_MODE_RTC [0] or
+-		  ST_LPC_MODE_WDT [1].  One (and only one) mode must be
+-		  selected.
++- st,lpc-mode	: The LPC can run either one of three modes:
++                  ST_LPC_MODE_RTC    [0]
++                  ST_LPC_MODE_WDT    [1]
++                  ST_LPC_MODE_CLKSRC [2]
++		 One (and only one) mode must be selected.
+ 
+ Example:
+ 	lpc@fde05000 {
+-- 
+1.9.1
 
-On Thu, 7 May 2015, Arnd Bergmann wrote:
-
-> On Thursday 07 May 2015 05:00:03 Hans Ulli Kroll wrote:
-> > On Wed, 6 May 2015, Arnd Bergmann wrote:
-> > > As far as I'm concerned, we should just merge all the patches from
-> > > http://git.openwrt.org/?p=openwrt.git;a=tree;f=target/linux/gemini/patches-3.18
-> > > 
-> > > We should also try to find a maintainer that can respond to patches
-> > > in a timely manner. If Ulli has time for that again, that would be great,
-> > > otherwise I think we should find someone from OpenWRT to take over.
-> > 
-> > I'm back in busyness.
-> > Currently me dev device is right next to me.
-> > I moved some time ago and haav to find it in some 'hidden' box.
-> 
-> Awesome, welcome back!
-> 
-> Are you able to look at the patches I mentioned above and submit them
-> to arm@kernel.org, cc linux-arm-kernel@lists.infradead.org with proper
-> patch descriptions?
-> 
-> 	Arnd
-> 
-
-Already done,
-RTC driver send.
-Compilder fix for MACH-RECORD send.
-Maintainer Update send.
-
-This device is a (very) bad design, to be polite !
-I think they didn't test this properly.
-And they fixed some software issues in hardware.
-To be exact :
-They switched the IDE channels in hardware, to get around the stupid 
-Sausalito software.
+-- 
+-- 
+You received this message because you are subscribed to "rtc-linux".
+Membership options at http://groups.google.com/group/rtc-linux .
+Please read http://groups.google.com/group/rtc-linux/web/checklist
+before submitting a driver.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+For more options, visit https://groups.google.com/d/optout.
