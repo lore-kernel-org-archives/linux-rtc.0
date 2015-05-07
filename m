@@ -1,12 +1,12 @@
-Return-Path: <rtc-linux+bncBDA7X7F2WUEBB7WVVWVAKGQEIP3ZKNQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBDA7X7F2WUEBB4GVVWVAKGQEHRFH6GA@googlegroups.com>
 MIME-Version: 1.0
-Received: from mail-wg0-f52.google.com (mail-wg0-f52.google.com. [74.125.82.52])
-        by gmr-mx.google.com with ESMTPS id g5si270591wix.1.2015.05.07.06.39.10
+Received: from mail-wi0-f173.google.com (mail-wi0-f173.google.com. [209.85.212.173])
+        by gmr-mx.google.com with ESMTPS id p9si258161wiz.3.2015.05.07.06.38.55
         for <rtc-linux@googlegroups.com>
         (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 07 May 2015 06:39:10 -0700 (PDT)
-Received: by mail-wg0-f52.google.com with SMTP id o15so43893984wgy.2
-        for <rtc-linux@googlegroups.com>; Thu, 07 May 2015 06:39:10 -0700 (PDT)
+        Thu, 07 May 2015 06:38:55 -0700 (PDT)
+Received: by mail-wi0-f173.google.com with SMTP id n10so60237579wiu.1
+        for <rtc-linux@googlegroups.com>; Thu, 07 May 2015 06:38:55 -0700 (PDT)
 From: Lee Jones <lee.jones@linaro.org>
 To: linux-arm-kernel@lists.infradead.org,
 	linux-kernel@vger.kernel.org
@@ -20,9 +20,10 @@ Cc: kernel@stlinux.com,
 	rtc-linux@googlegroups.com,
 	linux@roeck-us.net,
 	Lee Jones <lee.jones@linaro.org>
-Subject: [rtc-linux] [PATCH 12/12] ARM: STi: Update platform level menuconfig 'help'
-Date: Thu,  7 May 2015 14:38:44 +0100
-Message-Id: <1431005924-21777-13-git-send-email-lee.jones@linaro.org>
+Subject: [rtc-linux] [PATCH 03/12] clocksource: sti: Provide 'use timer as
+ sched clock' capability
+Date: Thu,  7 May 2015 14:38:35 +0100
+Message-Id: <1431005924-21777-4-git-send-email-lee.jones@linaro.org>
 In-Reply-To: <1431005924-21777-1-git-send-email-lee.jones@linaro.org>
 References: <1431005924-21777-1-git-send-email-lee.jones@linaro.org>
 Reply-To: rtc-linux@googlegroups.com
@@ -36,32 +37,65 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Encompass newer STiH4{07,10} SoC based platforms.
-
 Signed-off-by: Lee Jones <lee.jones@linaro.org>
 ---
- arch/arm/mach-sti/Kconfig | 8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
+ drivers/clocksource/Kconfig         |  8 ++++++++
+ drivers/clocksource/clksrc_st_lpc.c | 11 +++++++++++
+ 2 files changed, 19 insertions(+)
 
-diff --git a/arch/arm/mach-sti/Kconfig b/arch/arm/mach-sti/Kconfig
-index cb886de..59928d9 100644
---- a/arch/arm/mach-sti/Kconfig
-+++ b/arch/arm/mach-sti/Kconfig
-@@ -16,11 +16,9 @@ menuconfig ARCH_STI
- 	select PL310_ERRATA_769419 if CACHE_L2X0
- 	select RESET_CONTROLLER
+diff --git a/drivers/clocksource/Kconfig b/drivers/clocksource/Kconfig
+index ac424cf..218daf8 100644
+--- a/drivers/clocksource/Kconfig
++++ b/drivers/clocksource/Kconfig
+@@ -258,4 +258,12 @@ config CLKSRC_ST_LPC
  	help
--	  Include support for STiH41x SOCs like STiH415/416 using the device tree
--	  for discovery
--	  More information at Documentation/arm/STiH41x and
--	  at Documentation/devicetree
--
-+	  Include support for STMicroelectronics' STiH415/416 and stih407/10
-+	  family SoCs using the Device Tree for discovery.  More information
-+	  can be found in Documentation/arm/sti/ & Documentation/devicetree.
+ 	  Enable this option to use the Low Power controller timer
+ 	  as clocksource.
++
++config CLKSRC_ST_LPC_TIMER_SCHED_CLOCK
++	bool
++	depends on CLKSRC_ST_LPC
++	default y
++	help
++	  Use Low Power controller timer clock source as sched_clock
++
+ endmenu
+diff --git a/drivers/clocksource/clksrc_st_lpc.c b/drivers/clocksource/clksrc_st_lpc.c
+index 18a7dcd0..3d92b26 100644
+--- a/drivers/clocksource/clksrc_st_lpc.c
++++ b/drivers/clocksource/clksrc_st_lpc.c
+@@ -16,6 +16,7 @@
+ #include <linux/clocksource.h>
+ #include <linux/init.h>
+ #include <linux/of_address.h>
++#include <linux/sched_clock.h>
+ #include <linux/slab.h>
  
- if ARCH_STI
+ #include <dt-bindings/mfd/st-lpc.h>
+@@ -38,6 +39,13 @@ static void st_clksrc_reset(void)
+ 	writel_relaxed(1, ddata.base + LPC_LPT_START_OFF);
+ }
  
++#ifdef CONFIG_CLKSRC_ST_LPC_TIMER_SCHED_CLOCK
++static u64 notrace st_clksrc_sched_clock_read(void)
++{
++	return (u64)readl_relaxed(ddata.base + LPC_LPT_LSB_OFF);
++}
++#endif
++
+ static int __init st_clksrc_init(void)
+ {
+ 	unsigned long rate;
+@@ -47,6 +55,9 @@ static int __init st_clksrc_init(void)
+ 
+ 	rate = clk_get_rate(ddata.clk);
+ 
++#ifdef CONFIG_CLKSRC_ST_LPC_TIMER_SCHED_CLOCK
++	sched_clock_register(st_clksrc_sched_clock_read, 32, rate);
++#endif
+ 	ret = clocksource_mmio_init(ddata.base + LPC_LPT_LSB_OFF,
+ 				    "clksrc-st-lpc", rate, 300, 32,
+ 				    clocksource_mmio_readl_up);
 -- 
 1.9.1
 
