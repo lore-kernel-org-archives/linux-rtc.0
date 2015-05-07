@@ -1,29 +1,20 @@
-Return-Path: <rtc-linux+bncBDY3NC743AGBB74MU6VAKGQEIDXUBTI@googlegroups.com>
-Received: from smtprelay.hostedemail.com (smtprelay0221.hostedemail.com. [216.40.44.221])
-        by gmr-mx.google.com with ESMTP id 48si959917yhx.3.2015.05.06.00.45.03
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBDFKVWVAKGQEPIEM26Y@googlegroups.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id p9si242223wiz.3.2015.05.07.05.05.32
         for <rtc-linux@googlegroups.com>;
-        Wed, 06 May 2015 00:45:03 -0700 (PDT)
-Message-ID: <1430898299.9365.74.camel@perches.com>
-Subject: [rtc-linux] Re: [PATCH v4 2/3] rtc: mediatek: Add MT6397 RTC driver
-From: Joe Perches <joe@perches.com>
-To: Eddie Huang <eddie.huang@mediatek.com>
-Cc: Lee Jones <lee.jones@linaro.org>, Alessandro Zummo
- <a.zummo@towertech.it>,  Alexandre Belloni
- <alexandre.belloni@free-electrons.com>, srv_heupstream@mediatek.com, Samuel
- Ortiz <sameo@linux.intel.com>, Matthias Brugger <matthias.bgg@gmail.com>,
- Andrew Morton <akpm@linux-foundation.org>, Greg KH
- <gregkh@linuxfoundation.org>, "David S. Miller" <davem@davemloft.net>,
- Mauro Carvalho Chehab <mchehab@osg.samsung.com>,  Tejun Heo
- <tj@kernel.org>, linux-kernel@vger.kernel.org, rtc-linux@googlegroups.com,
- linux-arm-kernel@lists.infradead.org, linux-mediatek@lists.infradead.org,
- Sascha Hauer <kernel@pengutronix.de>, Tomasz Figa <tfiga@google.com>,
- Tianping Fang <tianping.fang@mediatek.com>
-Date: Wed, 06 May 2015 00:44:59 -0700
-In-Reply-To: <1430897022-63357-3-git-send-email-eddie.huang@mediatek.com>
-References: <1430897022-63357-1-git-send-email-eddie.huang@mediatek.com>
-	 <1430897022-63357-3-git-send-email-eddie.huang@mediatek.com>
+        Thu, 07 May 2015 05:05:32 -0700 (PDT)
+Date: Thu, 7 May 2015 14:05:31 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Jean Delvare <jdelvare@suse.de>
+Cc: rtc-linux@googlegroups.com, Alessandro Zummo <a.zummo@towertech.it>,
+	Iyappan Subramanian <isubramanian@apm.com>,
+	Keyur Chudgar <kchudgar@apm.com>
+Subject: [rtc-linux] Re: [PATCH] rtc-xgene: Set hardware dependency
+Message-ID: <20150507120531.GG3465@piout.net>
+References: <20150506092442.00396962@endymion.delvare>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Mime-Version: 1.0
+In-Reply-To: <20150506092442.00396962@endymion.delvare>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -34,24 +25,25 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On Wed, 2015-05-06 at 15:23 +0800, Eddie Huang wrote:
-> From: Tianping Fang <tianping.fang@mediatek.com>
+On 06/05/2015 at 09:24:42 +0200, Jean Delvare wrote :
+> The rtc-xgene driver is only useful on X-Gene SoC.
+>     
+> Signed-off-by: Jean Delvare <jdelvare@suse.de>
+> Cc: Alessandro Zummo <a.zummo@towertech.it>
+> Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+> Cc: Iyappan Subramanian <isubramanian@apm.com>
+> Cc: Keyur Chudgar <kchudgar@apm.com>
+> ---
+>  drivers/rtc/Kconfig |    1 +
+>  1 file changed, 1 insertion(+)
+> 
 
-trivia: no need to resend now, maybe in a future patch.
+Applied, thanks.
 
-> diff --git a/drivers/rtc/rtc-mt6397.c b/drivers/rtc/rtc-mt6397.c
-[]
-> +static int mtk_rtc_probe(struct platform_device *pdev)
-> +{
-[]
-> +	ret = request_threaded_irq(rtc->irq, NULL,
-> +				   mtk_rtc_irq_handler_thread,
-> +				   IRQF_ONESHOT | IRQF_TRIGGER_HIGH,
-> +			"mt6397-rtc", rtc);
-
-It'd be nicer to align all the statement lines
-to that open parenthesis
-
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
 -- 
 -- 
