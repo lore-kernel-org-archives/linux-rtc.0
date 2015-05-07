@@ -1,33 +1,20 @@
-Return-Path: <rtc-linux+bncBDA7X7F2WUEBB46VVWVAKGQE7SK3RBQ@googlegroups.com>
-MIME-Version: 1.0
-Received: from mail-wg0-f43.google.com (mail-wg0-f43.google.com. [74.125.82.43])
-        by gmr-mx.google.com with ESMTPS id q10si134245wiz.0.2015.05.07.06.38.59
+Return-Path: <rtc-linux+bncBDEKVJM7XAHRBO5SVSVAKGQE72TDAGI@googlegroups.com>
+Received: from mout.kundenserver.de (mout.kundenserver.de. [212.227.17.10])
+        by gmr-mx.google.com with ESMTPS id g5si214157wix.1.2015.05.07.00.50.19
         for <rtc-linux@googlegroups.com>
         (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 07 May 2015 06:38:59 -0700 (PDT)
-Received: by mail-wg0-f43.google.com with SMTP id c8so17340900wgi.1
-        for <rtc-linux@googlegroups.com>; Thu, 07 May 2015 06:38:59 -0700 (PDT)
-From: Lee Jones <lee.jones@linaro.org>
-To: linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org
-Cc: kernel@stlinux.com,
-	devicetree@vger.kernel.org,
-	daniel.lezcano@linaro.org,
-	tglx@linutronix.de,
-	wim@iguana.be,
-	a.zummo@towertech.it,
-	linux-watchdog@vger.kernel.org,
-	rtc-linux@googlegroups.com,
-	linux@roeck-us.net,
-	Lee Jones <lee.jones@linaro.org>
-Subject: [rtc-linux] [PATCH 05/12] watchdog: st_wdt: Update IP layout
- information to include Clocksource
-Date: Thu,  7 May 2015 14:38:37 +0100
-Message-Id: <1431005924-21777-6-git-send-email-lee.jones@linaro.org>
-In-Reply-To: <1431005924-21777-1-git-send-email-lee.jones@linaro.org>
-References: <1431005924-21777-1-git-send-email-lee.jones@linaro.org>
-Reply-To: rtc-linux@googlegroups.com
+        Thu, 07 May 2015 00:50:19 -0700 (PDT)
+From: Arnd Bergmann <arnd@arndb.de>
+To: Hans Ulli Kroll <ulli.kroll@googlemail.com>
+Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, rtc-linux@googlegroups.com, Linus Walleij <linus.walleij@linaro.org>, Russell King <rmk+kernel@arm.linux.org.uk>, Felix Fietkau <nbd@openwrt.org>, Roman Yeryomin <roman@advem.lv>
+Subject: [rtc-linux] Re: [1/2] RTC: Add core rtc support for Gemini Soc devices
+Date: Thu, 07 May 2015 09:49:36 +0200
+Message-ID: <5043733.xO9lSCKvly@wuerfel>
+In-Reply-To: <alpine.LNX.2.00.1505070455130.32495@T520.local>
+References: <1292339307-14336-2-git-send-email-ulli.kroll@googlemail.com> <2694895.MomHLoCaoZ@wuerfel> <alpine.LNX.2.00.1505070455130.32495@T520.local>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -37,31 +24,26 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Initial submission adding support for this IP only included Watchdog and
-the Real-Time Clock.  Now the third (and final) device is enabled this
-trivial patch is required to update the comment in the Watchdog driver
-to encompass Clocksource.
+On Thursday 07 May 2015 05:00:03 Hans Ulli Kroll wrote:
+> On Wed, 6 May 2015, Arnd Bergmann wrote:
+> > As far as I'm concerned, we should just merge all the patches from
+> > http://git.openwrt.org/?p=openwrt.git;a=tree;f=target/linux/gemini/patches-3.18
+> > 
+> > We should also try to find a maintainer that can respond to patches
+> > in a timely manner. If Ulli has time for that again, that would be great,
+> > otherwise I think we should find someone from OpenWRT to take over.
+> 
+> I'm back in busyness.
+> Currently me dev device is right next to me.
+> I moved some time ago and haav to find it in some 'hidden' box.
 
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
----
- drivers/watchdog/st_lpc_wdt.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Awesome, welcome back!
 
-diff --git a/drivers/watchdog/st_lpc_wdt.c b/drivers/watchdog/st_lpc_wdt.c
-index f32be15..6785afd 100644
---- a/drivers/watchdog/st_lpc_wdt.c
-+++ b/drivers/watchdog/st_lpc_wdt.c
-@@ -197,7 +197,7 @@ static int st_wdog_probe(struct platform_device *pdev)
- 		return -EINVAL;
- 	}
- 
--	/* LPC can either run in RTC or WDT mode */
-+	/* LPC can either run as a Clocksource or in RTC or WDT mode */
- 	if (mode != ST_LPC_MODE_WDT)
- 		return -ENODEV;
- 
--- 
-1.9.1
+Are you able to look at the patches I mentioned above and submit them
+to arm@kernel.org, cc linux-arm-kernel@lists.infradead.org with proper
+patch descriptions?
+
+	Arnd
 
 -- 
 -- 
