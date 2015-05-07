@@ -1,27 +1,33 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRB3UYYKVAKGQEGGJ4HQQ@googlegroups.com>
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id bc3si383835wib.2.2015.05.11.04.03.10
-        for <rtc-linux@googlegroups.com>;
-        Mon, 11 May 2015 04:03:10 -0700 (PDT)
-Date: Mon, 11 May 2015 13:03:07 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Lee Jones <lee.jones@linaro.org>
-Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-	kernel@stlinux.com, devicetree@vger.kernel.org,
-	daniel.lezcano@linaro.org, tglx@linutronix.de, wim@iguana.be,
-	a.zummo@towertech.it, linux-watchdog@vger.kernel.org,
-	rtc-linux@googlegroups.com, linux@roeck-us.net
-Subject: Re: [rtc-linux] [PATCH 07/12] rtc: st: Update IP layout information
- to include Clocksource
-Message-ID: <20150511110307.GL3338@piout.net>
-References: <1431005924-21777-1-git-send-email-lee.jones@linaro.org>
- <1431005924-21777-8-git-send-email-lee.jones@linaro.org>
- <20150509135854.GE3338@piout.net>
- <20150511105433.GB20742@x1>
+Return-Path: <rtc-linux+bncBDA7X7F2WUEBB5GVVWVAKGQEWCWGNXY@googlegroups.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <20150511105433.GB20742@x1>
+Received: from mail-wg0-f52.google.com (mail-wg0-f52.google.com. [74.125.82.52])
+        by gmr-mx.google.com with ESMTPS id g5si270591wix.1.2015.05.07.06.39.00
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 07 May 2015 06:39:00 -0700 (PDT)
+Received: by mail-wg0-f52.google.com with SMTP id o15so43893984wgy.2
+        for <rtc-linux@googlegroups.com>; Thu, 07 May 2015 06:39:00 -0700 (PDT)
+From: Lee Jones <lee.jones@linaro.org>
+To: linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org
+Cc: kernel@stlinux.com,
+	devicetree@vger.kernel.org,
+	daniel.lezcano@linaro.org,
+	tglx@linutronix.de,
+	wim@iguana.be,
+	a.zummo@towertech.it,
+	linux-watchdog@vger.kernel.org,
+	rtc-linux@googlegroups.com,
+	linux@roeck-us.net,
+	Lee Jones <lee.jones@linaro.org>
+Subject: [rtc-linux] [PATCH 06/12] watchdog: bindings: Supply knowledge of a
+ third supported device - clocksource
+Date: Thu,  7 May 2015 14:38:38 +0100
+Message-Id: <1431005924-21777-7-git-send-email-lee.jones@linaro.org>
+In-Reply-To: <1431005924-21777-1-git-send-email-lee.jones@linaro.org>
+References: <1431005924-21777-1-git-send-email-lee.jones@linaro.org>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -31,20 +37,47 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On 11/05/2015 at 11:54:33 +0100, Lee Jones wrote :
-> On Sat, 09 May 2015, Alexandre Belloni wrote:
-> > I'm guessing this will go through the mfd tree along with the driver?
-> 
-> Yes, that is the plan, if that's okay with you?
-> 
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
+---
+ Documentation/devicetree/bindings/watchdog/st_lpc_wdt.txt | 15 +++++++++------
+ 1 file changed, 9 insertions(+), 6 deletions(-)
 
-Sure!
-
-
+diff --git a/Documentation/devicetree/bindings/watchdog/st_lpc_wdt.txt b/Documentation/devicetree/bindings/watchdog/st_lpc_wdt.txt
+index 388c88a..0b1a784 100644
+--- a/Documentation/devicetree/bindings/watchdog/st_lpc_wdt.txt
++++ b/Documentation/devicetree/bindings/watchdog/st_lpc_wdt.txt
+@@ -1,20 +1,23 @@
+ STMicroelectronics Low Power Controller (LPC) - Watchdog
+ ========================================================
+ 
+-LPC currently supports Watchdog OR Real Time Clock functionality.
++LPC currently supports Watchdog OR Real Time Clock OR Clocksource
++functionality.
+ 
+ [See: ../rtc/rtc-st-lpc.txt for RTC options]
++[See: ../timer/st,stih407-lpc for Clocksource options]
+ 
+ Required properties
+ 
+-- compatible 	: Must be one of: "st,stih407-lpc" "st,stih416-lpc"
+-				  "st,stih415-lpc" "st,stid127-lpc"
++- compatible 	: Must be one of: "st,stih407-lpc"
+ - reg		: LPC registers base address + size
+ - interrupts    : LPC interrupt line number and associated flags
+ - clocks	: Clock used by LPC device (See: ../clock/clock-bindings.txt)
+-- st,lpc-mode	: The LPC can run either one of two modes ST_LPC_MODE_RTC [0] or
+-		  ST_LPC_MODE_WDT [1].  One (and only one) mode must be
+-		  selected.
++- st,lpc-mode	: The LPC can run either one of three modes:
++                  ST_LPC_MODE_RTC    [0]
++                  ST_LPC_MODE_WDT    [1]
++                  ST_LPC_MODE_CLKSRC [2]
++		 One (and only one) mode must be selected.
+ 
+ Required properties [watchdog mode]
+ 
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+1.9.1
 
 -- 
 -- 
