@@ -1,147 +1,70 @@
-Date: Thu, 28 May 2015 15:06:05 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Nishanth Menon <nm@ti.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
-	Tony Lindgren <tony@atomide.com>, linux-omap@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: Re: drivers/rtc/rtc-ds1307.c: Support optional wakeup interrupt
- source
-Message-ID: <20150528130605.GQ2185@piout.net>
-References: <1408637521-6764-1-git-send-email-nm@ti.com>
+Return-Path: <rtc-linux+bncBDA7X7F2WUEBB7GVVWVAKGQE45I45JQ@googlegroups.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1408637521-6764-1-git-send-email-nm@ti.com>
+Received: from mail-wg0-f52.google.com (mail-wg0-f52.google.com. [74.125.82.52])
+        by gmr-mx.google.com with ESMTPS id g5si270591wix.1.2015.05.07.06.39.08
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 07 May 2015 06:39:08 -0700 (PDT)
+Received: by mail-wg0-f52.google.com with SMTP id o15so43893984wgy.2
+        for <rtc-linux@googlegroups.com>; Thu, 07 May 2015 06:39:08 -0700 (PDT)
+From: Lee Jones <lee.jones@linaro.org>
+To: linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org
+Cc: kernel@stlinux.com,
+	devicetree@vger.kernel.org,
+	daniel.lezcano@linaro.org,
+	tglx@linutronix.de,
+	wim@iguana.be,
+	a.zummo@towertech.it,
+	linux-watchdog@vger.kernel.org,
+	rtc-linux@googlegroups.com,
+	linux@roeck-us.net,
+	Lee Jones <lee.jones@linaro.org>
+Subject: [rtc-linux] [PATCH 11/12] ARM: STi: Enable LPC Clocksource
+Date: Thu,  7 May 2015 14:38:43 +0100
+Message-Id: <1431005924-21777-12-git-send-email-lee.jones@linaro.org>
+In-Reply-To: <1431005924-21777-1-git-send-email-lee.jones@linaro.org>
+References: <1431005924-21777-1-git-send-email-lee.jones@linaro.org>
+Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
+List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
+List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
+List-Archive: <http://groups.google.com/group/rtc-linux
+Sender: rtc-linux@googlegroups.com
+List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
+List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
+ <http://groups.google.com/group/rtc-linux/subscribe>
 
-Hi Nishanth,
+This timer can be used as the system (tick) timer.
 
-Do you mind rebasing that one so I can apply it?
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
+---
+ arch/arm/mach-sti/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-On 21/08/2014 at 11:12:01 -0500, Nishanth Menon wrote :
-> With the recent pinctrl-single changes, SoCs such as Texas
-> Instrument's OMAP processors can treat wake-up events from deeper idle
-> states as interrupts.
-> 
-> Let's add support for the optional second interrupt for wake-up
-> events. And then SoC can wakeup and handle the event using it's
-> regular handler.
-> 
-> Finally, to pass the wake-up interrupt in the dts file,
-> interrupts-extended property needs to be passed.
-> 
-> This is similar in approach to commit 2a0b965cfb6e ("serial: omap: Add
-> support for optional wake-up")
-> 
-> Signed-off-by: Nishanth Menon <nm@ti.com>
-> ---
->  drivers/rtc/rtc-ds1307.c |   57 ++++++++++++++++++++++++++++++++++++++++++++++
->  1 file changed, 57 insertions(+)
-> 
-> diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
-> index f03d5ba..5feedfc 100644
-> --- a/drivers/rtc/rtc-ds1307.c
-> +++ b/drivers/rtc/rtc-ds1307.c
-> @@ -15,6 +15,8 @@
->  #include <linux/init.h>
->  #include <linux/slab.h>
->  #include <linux/i2c.h>
-> +#include <linux/of_device.h>
-> +#include <linux/of_irq.h>
->  #include <linux/string.h>
->  #include <linux/rtc.h>
->  #include <linux/bcd.h>
-> @@ -115,6 +117,7 @@ struct ds1307 {
->  	struct i2c_client	*client;
->  	struct rtc_device	*rtc;
->  	struct work_struct	work;
-> +	int			wakeirq;
->  	s32 (*read_block_data)(const struct i2c_client *client, u8 command,
->  			       u8 length, u8 *values);
->  	s32 (*write_block_data)(const struct i2c_client *client, u8 command,
-> @@ -835,6 +838,34 @@ ds1307_nvram_write(struct file *filp, struct kobject *kobj,
->  
->  /*----------------------------------------------------------------------*/
->  
-> +static int ds1307_i2c_suspend(struct i2c_client *client,  pm_message_t mesg)
-> +{
-> +	struct ds1307 *ds1307 = i2c_get_clientdata(client);
-> +	struct device *dev = &client->dev;
-> +
-> +	if (!ds1307->wakeirq)
-> +		return 0;
-> +
-> +	if (device_may_wakeup(dev))
-> +		enable_irq(ds1307->wakeirq);
-> +
-> +	return 0;
-> +}
-> +
-> +static int ds1307_i2c_resume(struct i2c_client *client)
-> +{
-> +	struct ds1307 *ds1307 = i2c_get_clientdata(client);
-> +	struct device *dev = &client->dev;
-> +
-> +	if (!ds1307->wakeirq)
-> +		return 0;
-> +
-> +	if (device_may_wakeup(dev))
-> +		disable_irq_nosync(ds1307->wakeirq);
-> +
-> +	return 0;
-> +}
-> +
->  static int ds1307_probe(struct i2c_client *client,
->  			const struct i2c_device_id *id)
->  {
-> @@ -1116,6 +1147,8 @@ read_rtc:
->  	}
->  
->  	if (want_irq) {
-> +		struct device_node *node = client->dev.of_node;
-> +
->  		err = request_irq(client->irq, ds1307_irq, IRQF_SHARED,
->  			  ds1307->rtc->name, client);
->  		if (err) {
-> @@ -1125,6 +1158,28 @@ read_rtc:
->  
->  			set_bit(HAS_ALARM, &ds1307->flags);
->  			dev_dbg(&client->dev, "got IRQ %d\n", client->irq);
-> +			if (node)
-> +				ds1307->wakeirq = irq_of_parse_and_map(node, 1);
-> +
-> +			if (ds1307->wakeirq <= 0)
-> +				ds1307->wakeirq = 0;
-> +			else
-> +				err = devm_request_irq(&client->dev,
-> +						       ds1307->wakeirq,
-> +						       ds1307_irq,
-> +						       IRQF_ONESHOT,
-> +						       ds1307->rtc->name,
-> +						       client);
-> +			if (err) {
-> +				dev_err(&client->dev, "unable to get wakeIRQ %d\n",
-> +					err);
-> +				free_irq(client->irq, client);
-> +				goto exit;
-> +			}
-> +
-> +			/* We enable the interrupt only during suspend path */
-> +			if (ds1307->wakeirq)
-> +				disable_irq_nosync(ds1307->wakeirq);
->  		}
->  	}
->  
-> @@ -1189,6 +1244,8 @@ static struct i2c_driver ds1307_driver = {
->  	},
->  	.probe		= ds1307_probe,
->  	.remove		= ds1307_remove,
-> +	.suspend	= ds1307_i2c_suspend,
-> +	.resume		= ds1307_i2c_resume,
->  	.id_table	= ds1307_id,
->  };
->  
+diff --git a/arch/arm/mach-sti/Kconfig b/arch/arm/mach-sti/Kconfig
+index 3b1ac46..cb886de 100644
+--- a/arch/arm/mach-sti/Kconfig
++++ b/arch/arm/mach-sti/Kconfig
+@@ -2,6 +2,7 @@ menuconfig ARCH_STI
+ 	bool "STMicroelectronics Consumer Electronics SOCs" if ARCH_MULTI_V7
+ 	select ARM_GIC
+ 	select ARM_GLOBAL_TIMER
++	select CLKSRC_ST_LPC
+ 	select PINCTRL
+ 	select PINCTRL_ST
+ 	select MFD_SYSCON
+-- 
+1.9.1
 
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+-- 
+You received this message because you are subscribed to "rtc-linux".
+Membership options at http://groups.google.com/group/rtc-linux .
+Please read http://groups.google.com/group/rtc-linux/web/checklist
+before submitting a driver.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+For more options, visit https://groups.google.com/d/optout.
