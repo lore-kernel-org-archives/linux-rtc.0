@@ -1,26 +1,27 @@
-Return-Path: <rtc-linux+bncBDF63NFOVEMBBQ6WZWVAKGQETODKINI@googlegroups.com>
+Return-Path: <rtc-linux+bncBAABBKNTV6VAKGQE7LN6NWA@googlegroups.com>
+Received: from mail.pbx.lv ([213.175.90.140])
+        by gmr-mx.google.com with ESMTP id su3si229139lbb.1.2015.05.07.14.31.20
+        for <rtc-linux@googlegroups.com>;
+        Thu, 07 May 2015 14:31:20 -0700 (PDT)
+To: Hans Ulli Kroll <ulli.kroll@googlemail.com>
+Subject: [rtc-linux] Re: [1/2] RTC: Add core rtc support for Gemini Soc devices
 MIME-Version: 1.0
-Received: from bhuna.collabora.co.uk (bhuna.collabora.co.uk. [93.93.135.160])
-        by gmr-mx.google.com with ESMTPS id q10si310877wiz.0.2015.05.13.08.18.27
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1 cipher=RC4-SHA bits=128/128);
-        Wed, 13 May 2015 08:18:27 -0700 (PDT)
-From: Javier Martinez Canillas <javier.martinez@collabora.co.uk>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
-	Olof Johansson <olof@lixom.net>,
-	Doug Anderson <dianders@chromium.org>,
-	Krzysztof Kozlowski <k.kozlowski@samsung.com>,
-	Chanwoo Choi <cw00.choi@samsung.com>,
-	rtc-linux@googlegroups.com,
-	linux-samsung-soc@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Javier Martinez Canillas <javier.martinez@collabora.co.uk>
-Subject: [rtc-linux] [PATCH 0/2] rtc: Fix module autoload for max77xx RTC drivers
-Date: Wed, 13 May 2015 17:18:00 +0200
-Message-Id: <1431530282-10672-1-git-send-email-javier.martinez@collabora.co.uk>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Date: Fri, 08 May 2015 00:31:20 +0300
+From: Roman Yeryomin <roman@advem.lv>
+Cc: Arnd Bergmann <arnd@arndb.de>, linux-arm-kernel@lists.infradead.org,
+ Alexandre Belloni <alexandre.belloni@free-electrons.com>, Felix Fietkau
+ <nbd@openwrt.org>, rtc-linux@googlegroups.com, Linus Walleij
+ <linus.walleij@linaro.org>, linux-kernel@vger.kernel.org, Russell King
+ <rmk+kernel@arm.linux.org.uk>
+In-Reply-To: <alpine.LNX.2.00.1505071935100.19877@T520.local>
+References: <1292339307-14336-2-git-send-email-ulli.kroll@googlemail.com>
+ <20150506095312.GU4276@piout.net>
+ <d97c3a8a29aa85c83973daf4a22ca4c9@advem.lv> <2349062.9v3Zz7HPLu@wuerfel>
+ <0701f75c1c42f74fd58845bc0ed41c38@advem.lv>
+ <alpine.LNX.2.00.1505071935100.19877@T520.local>
+Message-ID: <a16bb259b9275c2da43fdb586da93bc4@advem.lv>
 Reply-To: rtc-linux@googlegroups.com
-Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -30,25 +31,44 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Hello Alexandre and Alessandro,
+On 2015-05-07 20:35, Hans Ulli Kroll wrote:
+> Hi
+> 
+> On Thu, 7 May 2015, Roman Yeryomin wrote:
+> 
+>> On 2015-05-06 22:22, Arnd Bergmann wrote:
+>> > On Wednesday 06 May 2015 19:21:21 Roman Yeryomin wrote:
+>> > >
+>> > > > Thanks to point that, I'll merge that one which seems clean enough:
+>> > > > http://git.openwrt.org/?p=openwrt.git;a=blob;f=target/linux/gemini/files/drivers/rtc/rtc-gemini.c;h=587d8122b2fbb1230437eadcce4789a53aa60ee5;hb=4c637410a2a1ab45988e8ca6202554a502102039
+>> > >
+>> > > For 3.18 (and up) to work on gemini 160-gemini-timers.patch is vital.
+>> > > Without that timers are broken and cpu is super slow.
+>> >
+>> > Do you know what part of the patch is the actual bug fix? We should probably
+>> > merge that separately and mark it for stable backports, while the bulk of
+>> > that
+>> > patch seems to just rearrange code.
+>> >
+>> >  Arnd
+>> 
+>> Sorry, didn't try to extract the exact lines it but I guess it's that 
+>> part
+>> which touches the scheduler clock code.
+>> Because without that patch sched clock runs at 100Hz instead of 25MHz.
+>> I can dive into this deeper if you want, I just didn't see the need.
+>> 
+>> Regards,
+>> Roman
+>> 
+>> 
+> 
+> I've send the RTC driver for Gemini SoC upstream-
 
-This is a trivial series that fixes module autoloading for the Maxim
-MAX77686 and MAX77802 RTC drivers that didn't export their platform
-device ID table with MODULE_DEVICE_TABLE() so modalias information
-was not available.
+I was talking about 160-gemini-timers.patch, not rtc driver.
 
-The series is composed of the following patches:
-
-Javier Martinez Canillas (2):
-  rtc: max77686: Report platform modalias to fix module autoload
-  rtc: max77802: Report platform modalias to fix module autoload
-
- drivers/rtc/rtc-max77686.c | 1 +
- drivers/rtc/rtc-max77802.c | 1 +
- 2 files changed, 2 insertions(+)
-
-Best regards,
-Javier
+Regards,
+Roman
 
 -- 
 -- 
