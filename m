@@ -1,22 +1,33 @@
-Return-Path: <rtc-linux+bncBCGLJQVNREJBBLXC4GVAKGQEWAKTQ6A@googlegroups.com>
-Received: from mailgw01.mediatek.com ([210.61.82.183])
-        by gmr-mx.google.com with ESMTPS id x3si728860pdh.2.2015.05.17.03.45.01
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1 cipher=RC4-SHA bits=128/128);
-        Sun, 17 May 2015 03:45:02 -0700 (PDT)
-Message-ID: <1431859498.31486.1.camel@mtksdaap41>
-Subject: [rtc-linux] Re: [PATCH] rtc: mt6397: fix build on some 32bits platforms
-From: Eddie Huang <eddie.huang@mediatek.com>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-CC: <linux-mediatek@lists.infradead.org>,
-	<linux-arm-kernel@lists.infradead.org>, <rtc-linux@googlegroups.com>,
-	<linux-kernel@vger.kernel.org>
-Date: Sun, 17 May 2015 18:44:58 +0800
-In-Reply-To: <1431636678-29525-1-git-send-email-alexandre.belloni@free-electrons.com>
-References: <1431636678-29525-1-git-send-email-alexandre.belloni@free-electrons.com>
-Content-Type: text/plain; charset=UTF-8
+Return-Path: <rtc-linux+bncBDA7X7F2WUEBB66VVWVAKGQEDDRDTXQ@googlegroups.com>
 MIME-Version: 1.0
+Received: from mail-wi0-f173.google.com (mail-wi0-f173.google.com. [209.85.212.173])
+        by gmr-mx.google.com with ESMTPS id gt9si130893wib.2.2015.05.07.06.39.07
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 07 May 2015 06:39:07 -0700 (PDT)
+Received: by mail-wi0-f173.google.com with SMTP id k4so243068635wiz.1
+        for <rtc-linux@googlegroups.com>; Thu, 07 May 2015 06:39:07 -0700 (PDT)
+From: Lee Jones <lee.jones@linaro.org>
+To: linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org
+Cc: kernel@stlinux.com,
+	devicetree@vger.kernel.org,
+	daniel.lezcano@linaro.org,
+	tglx@linutronix.de,
+	wim@iguana.be,
+	a.zummo@towertech.it,
+	linux-watchdog@vger.kernel.org,
+	rtc-linux@googlegroups.com,
+	linux@roeck-us.net,
+	Lee Jones <lee.jones@linaro.org>
+Subject: [rtc-linux] [PATCH 10/12] ARM: STi: DT: STih407: Switch LPC mode from
+ RTC to Clocksource
+Date: Thu,  7 May 2015 14:38:42 +0100
+Message-Id: <1431005924-21777-11-git-send-email-lee.jones@linaro.org>
+In-Reply-To: <1431005924-21777-1-git-send-email-lee.jones@linaro.org>
+References: <1431005924-21777-1-git-send-email-lee.jones@linaro.org>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -26,49 +37,28 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On Thu, 2015-05-14 at 22:51 +0200, Alexandre Belloni wrote:
-> On some !ARM 32bits platforms, the following compilation error happens
-> because of the division on a 64bits value in mtk_rtc_read_time():
-> 
-> drivers/built-in.o: In function `mtk_rtc_read_time':
-> rtc-mt6397.c:(.text+0x265d13f): undefined reference to `__divdi3'
-> rtc-mt6397.c:(.text+0x265d150): undefined reference to `__moddi3'
-> 
-> Use div_s64() as done in rtc_time64_to_tm() to solve that.
-> 
-> Reported-by: kbuild test robot <fengguang.wu@intel.com>
-> Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-> ---
->  drivers/rtc/rtc-mt6397.c | 5 +++--
->  1 file changed, 3 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/rtc/rtc-mt6397.c b/drivers/rtc/rtc-mt6397.c
-> index 8bed852e4961..c0090b698ff3 100644
-> --- a/drivers/rtc/rtc-mt6397.c
-> +++ b/drivers/rtc/rtc-mt6397.c
-> @@ -150,7 +150,7 @@ static int mtk_rtc_read_time(struct device *dev, struct rtc_time *tm)
->  {
->  	time64_t time;
->  	struct mt6397_rtc *rtc = dev_get_drvdata(dev);
-> -	int sec, ret;
-> +	int days, sec, ret;
->  
->  	do {
->  		ret = __mtk_rtc_read_time(rtc, tm, &sec);
-> @@ -171,7 +171,8 @@ static int mtk_rtc_read_time(struct device *dev, struct rtc_time *tm)
->  	/* rtc_tm_to_time64 covert Gregorian date to seconds since
->  	 * 01-01-1970 00:00:00, and this date is Thursday.
->  	 */
-> -	tm->tm_wday = (time / 86400 + 4) % 7;
-> +	days = div_s64(time, 86400);
-> +	tm->tm_wday = (days + 4) % 7;
->  
->  exit:
->  	return ret;
+This aligns with the internal configuration.
 
-Acked-by: Eddie Huang <eddie.huang@mediatek.com>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
+---
+ arch/arm/boot/dts/stih407-family.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-
+diff --git a/arch/arm/boot/dts/stih407-family.dtsi b/arch/arm/boot/dts/stih407-family.dtsi
+index 2b2315d..bf1c7f5 100644
+--- a/arch/arm/boot/dts/stih407-family.dtsi
++++ b/arch/arm/boot/dts/stih407-family.dtsi
+@@ -354,7 +354,7 @@
+ 			reg = <0x8788000 0x1000>;
+ 			interrupts = <GIC_SPI 130 IRQ_TYPE_EDGE_RISING>;
+ 			clocks = <&clk_s_d3_flexgen CLK_LPC_1>;
+-			st,lpc-mode = <ST_LPC_MODE_RTC>;
++			st,lpc-mode = <ST_LPC_MODE_CLKSRC>;
+ 		};
+ 	};
+ };
+-- 
+1.9.1
 
 -- 
 -- 
