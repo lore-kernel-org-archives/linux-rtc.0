@@ -1,27 +1,30 @@
-Return-Path: <rtc-linux+bncBDA7X7F2WUEBBFGTSGVQKGQENRZWQAA@googlegroups.com>
-Received: from mail-wi0-f175.google.com (mail-wi0-f175.google.com. [209.85.212.175])
-        by gmr-mx.google.com with ESMTPS id u10si511118wif.1.2015.05.26.05.39.48
+Return-Path: <rtc-linux+bncBCZ273NM4EARB6X6VWVAKGQEP3V7YBI@googlegroups.com>
+Received: from mailgw02.mediatek.com ([210.61.82.184])
+        by gmr-mx.google.com with ESMTPS id ei3si286077pdb.1.2015.05.07.08.06.32
         for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 26 May 2015 05:39:48 -0700 (PDT)
-Received: by wicmx19 with SMTP id mx19so63524434wic.0
-        for <rtc-linux@googlegroups.com>; Tue, 26 May 2015 05:39:48 -0700 (PDT)
-Date: Tue, 26 May 2015 13:39:43 +0100
-From: Lee Jones <lee.jones@linaro.org>
-To: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-	devicetree@vger.kernel.org, daniel.lezcano@linaro.org,
-	tglx@linutronix.de, wim@iguana.be, a.zummo@towertech.it,
-	linux-watchdog@vger.kernel.org, rtc-linux@googlegroups.com,
-	linux@roeck-us.net
-Cc: kernel@stlinux.com
-Subject: [rtc-linux] [PATCH v2.1 02/12] clocksource: sti: Provide support for
- the ST LPC Clocksource IP
-Message-ID: <20150526123943.GI11677@x1>
-References: <1431435500-22899-1-git-send-email-lee.jones@linaro.org>
- <1431435500-22899-3-git-send-email-lee.jones@linaro.org>
-MIME-Version: 1.0
+        (version=TLSv1 cipher=RC4-SHA bits=128/128);
+        Thu, 07 May 2015 08:06:33 -0700 (PDT)
+Message-ID: <1431011187.16884.0.camel@mtksdaap41>
+Subject: [rtc-linux] Re: [PATCH v4 2/3] rtc: mediatek: Add MT6397 RTC driver
+From: Eddie Huang <eddie.huang@mediatek.com>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+CC: Joe Perches <joe@perches.com>, Lee Jones <lee.jones@linaro.org>,
+	Alessandro Zummo <a.zummo@towertech.it>, <srv_heupstream@mediatek.com>,
+	Samuel Ortiz <sameo@linux.intel.com>, Matthias Brugger
+	<matthias.bgg@gmail.com>, Andrew Morton <akpm@linux-foundation.org>, "Greg
+ KH" <gregkh@linuxfoundation.org>, "David S. Miller" <davem@davemloft.net>,
+	Mauro Carvalho Chehab <mchehab@osg.samsung.com>, Tejun Heo <tj@kernel.org>,
+	<linux-kernel@vger.kernel.org>, <rtc-linux@googlegroups.com>,
+	<linux-arm-kernel@lists.infradead.org>, <linux-mediatek@lists.infradead.org>,
+	Sascha Hauer <kernel@pengutronix.de>, Tomasz Figa <tfiga@google.com>,
+	Tianping Fang <tianping.fang@mediatek.com>
+Date: Thu, 7 May 2015 23:06:27 +0800
+In-Reply-To: <20150507120601.GH3465@piout.net>
+References: <1430897022-63357-1-git-send-email-eddie.huang@mediatek.com>
+	 <1430897022-63357-3-git-send-email-eddie.huang@mediatek.com>
+	 <1430898299.9365.74.camel@perches.com> <20150507120601.GH3465@piout.net>
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1431435500-22899-3-git-send-email-lee.jones@linaro.org>
+MIME-Version: 1.0
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -32,186 +35,45 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-clocksource: sti: Provide support for the ST LPC Clocksource IP
+Hi Alexandre,
 
-This IP is shared with Watchdog and RTC functionality.  All 3 of
-these devices are mutually exclusive from one another i.e. Only 1
-IP can be used at any given time.  We use the device-driver model
-combined with a DT 'mode' property to enforce this.
+On Thu, 2015-05-07 at 14:06 +0200, Alexandre Belloni wrote:
+> On 06/05/2015 at 00:44:59 -0700, Joe Perches wrote :
+> > On Wed, 2015-05-06 at 15:23 +0800, Eddie Huang wrote:
+> > > From: Tianping Fang <tianping.fang@mediatek.com>
+> > 
+> > trivia: no need to resend now, maybe in a future patch.
+> > 
+> > > diff --git a/drivers/rtc/rtc-mt6397.c b/drivers/rtc/rtc-mt6397.c
+> > []
+> > > +static int mtk_rtc_probe(struct platform_device *pdev)
+> > > +{
+> > []
+> > > +	ret = request_threaded_irq(rtc->irq, NULL,
+> > > +				   mtk_rtc_irq_handler_thread,
+> > > +				   IRQF_ONESHOT | IRQF_TRIGGER_HIGH,
+> > > +			"mt6397-rtc", rtc);
+> > 
+> > It'd be nicer to align all the statement lines
+> > to that open parenthesis
+> > 
+> > 
+> 
+> I'll fix it up when applying.
+> 
+Thanks your great help
 
-The ST LPC Clocksource IP can be used as the system (tick) timer.
+Eddie
 
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
 
-diff --git a/drivers/clocksource/Kconfig b/drivers/clocksource/Kconfig
-index 68161f7..01a07a6 100644
---- a/drivers/clocksource/Kconfig
-+++ b/drivers/clocksource/Kconfig
-@@ -250,4 +250,13 @@ config CLKSRC_PXA
- 	help
- 	  This enables OST0 support available on PXA and SA-11x0
- 	  platforms.
-+
-+config CLKSRC_ST_LPC
-+	bool
-+	depends on ARCH_STI
-+	select CLKSRC_OF if OF
-+	help
-+	  Enable this option to use the Low Power controller timer
-+	  as clocksource.
-+
- endmenu
-diff --git a/drivers/clocksource/Makefile b/drivers/clocksource/Makefile
-index 752d5c7..e08da4d 100644
---- a/drivers/clocksource/Makefile
-+++ b/drivers/clocksource/Makefile
-@@ -51,3 +51,4 @@ obj-$(CONFIG_ARCH_INTEGRATOR_AP)	+=3D timer-integrator-ap=
-.o
- obj-$(CONFIG_CLKSRC_VERSATILE)		+=3D versatile.o
- obj-$(CONFIG_CLKSRC_MIPS_GIC)		+=3D mips-gic-timer.o
- obj-$(CONFIG_ASM9260_TIMER)		+=3D asm9260_timer.o
-+obj-$(CONFIG_CLKSRC_ST_LPC)		+=3D clksrc_st_lpc.o
-diff --git a/drivers/clocksource/clksrc_st_lpc.c b/drivers/clocksource/clks=
-rc_st_lpc.c
-new file mode 100644
-index 0000000..f38cf33
---- /dev/null
-+++ b/drivers/clocksource/clksrc_st_lpc.c
-@@ -0,0 +1,123 @@
-+/*
-+ * Clocksource using the Low Power Timer found in the Low Power Controller=
- (LPC)
-+ *
-+ * Copyright (C) 2015 STMicroelectronics =E2=80=93 All Rights Reserved
-+ *
-+ * Author(s): Francesco Virlinzi <francesco.virlinzi@st.com>
-+ *	      Ajit Pal Singh <ajitpal.singh@st.com>
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ */
-+
-+#include <linux/clk.h>
-+#include <linux/clocksource.h>
-+#include <linux/init.h>
-+#include <linux/of_address.h>
-+#include <linux/slab.h>
-+
-+#include <dt-bindings/mfd/st-lpc.h>
-+
-+/* Low Power Timer */
-+#define LPC_LPT_LSB_OFF		0x400
-+#define LPC_LPT_MSB_OFF		0x404
-+#define LPC_LPT_START_OFF	0x408
-+
-+static struct st_clksrc_ddata {
-+	struct clk		*clk;
-+	void __iomem		*base;
-+} ddata;
-+
-+static void __init st_clksrc_reset(void)
-+{
-+	writel_relaxed(0, ddata.base + LPC_LPT_START_OFF);
-+	writel_relaxed(0, ddata.base + LPC_LPT_MSB_OFF);
-+	writel_relaxed(0, ddata.base + LPC_LPT_LSB_OFF);
-+	writel_relaxed(1, ddata.base + LPC_LPT_START_OFF);
-+}
-+
-+static int __init st_clksrc_init(void)
-+{
-+	unsigned long rate;
-+	int ret;
-+
-+	st_clksrc_reset();
-+
-+	rate =3D clk_get_rate(ddata.clk);
-+
-+	ret =3D clocksource_mmio_init(ddata.base + LPC_LPT_LSB_OFF,
-+				    "clksrc-st-lpc", rate, 300, 32,
-+				    clocksource_mmio_readl_up);
-+	if (ret) {
-+		pr_err("clksrc-st-lpc: Failed to register clocksource\n");
-+		return ret;
-+	}
-+
-+	return 0;
-+}
-+
-+static int __init st_clksrc_setup_clk(struct device_node *np)
-+{
-+	struct clk *clk;
-+
-+	clk =3D of_clk_get(np, 0);
-+	if (IS_ERR(clk)) {
-+		pr_err("clksrc-st-lpc: Failed to get LPC clock\n");
-+		return PTR_ERR(clk);
-+	}
-+
-+	if (clk_prepare_enable(clk)) {
-+		pr_err("clksrc-st-lpc: Failed to enable LPC clock\n");
-+		return -EINVAL;
-+	}
-+
-+	if (!clk_get_rate(clk)) {
-+		pr_err("clksrc-st-lpc: Failed to get LPC clock rate\n");
-+		clk_disable_unprepare(clk);
-+		return -EINVAL;
-+	}
-+
-+	ddata.clk =3D clk;
-+
-+	return 0;
-+}
-+
-+static void __init st_clksrc_of_register(struct device_node *np)
-+{
-+	int ret;
-+	uint32_t mode;
-+
-+	ret =3D of_property_read_u32(np, "st,lpc-mode", &mode);
-+	if (ret) {
-+		pr_err("clksrc-st-lpc: An LPC mode must be provided\n");
-+		return;
-+	}
-+
-+	/* LPC can either run as a Clocksource or in RTC or WDT mode */
-+	if (mode !=3D ST_LPC_MODE_CLKSRC)
-+		return;
-+
-+	ddata.base =3D of_iomap(np, 0);
-+	if (!ddata.base) {
-+		pr_err("clksrc-st-lpc: Unable to map iomem\n");
-+		return;
-+	}
-+
-+	if (st_clksrc_setup_clk(np)) {
-+		iounmap(ddata.base);
-+		return;
-+	}
-+
-+	if (st_clksrc_init()) {
-+		clk_disable_unprepare(ddata.clk);
-+		clk_put(ddata.clk);
-+		iounmap(ddata.base);
-+		return;
-+	}
-+
-+	pr_info("clksrc-st-lpc: clocksource initialised - running @ %luHz\n",
-+		clk_get_rate(ddata.clk));
-+}
-+CLOCKSOURCE_OF_DECLARE(ddata, "st,stih407-lpc", st_clksrc_of_register);
 
---=20
---=20
+-- 
+-- 
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
----=20
-You received this message because you are subscribed to the Google Groups "=
-rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an e=
-mail to rtc-linux+unsubscribe@googlegroups.com.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
