@@ -1,50 +1,26 @@
-Return-Path: <rtc-linux+bncBAABBFGN3SVAKGQEPTN6VTY@googlegroups.com>
-Received: from mail.kapsi.fi (mx1.kapsi.fi. [2001:1bc8:1004::1:25])
-        by gmr-mx.google.com with ESMTPS id bm9si281086lbb.0.2015.05.16.04.14.28
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=RC4-SHA bits=128/128);
-        Sat, 16 May 2015 04:14:28 -0700 (PDT)
-Message-ID: <5557267D.7080209@kapsi.fi>
-Date: Sat, 16 May 2015 14:14:05 +0300
-From: Mikko Perttunen <mikko.perttunen@kapsi.fi>
+Return-Path: <rtc-linux+bncBAABBGVVV6VAKGQEOHESFOQ@googlegroups.com>
+Received: from mail.pbx.lv ([213.175.90.140])
+        by gmr-mx.google.com with ESMTP id bm9si258772lbb.0.2015.05.07.14.35.21
+        for <rtc-linux@googlegroups.com>;
+        Thu, 07 May 2015 14:35:21 -0700 (PDT)
+To: Hans Ulli Kroll <ulli.kroll@googlemail.com>
+Subject: [rtc-linux] Re: [1/2] RTC: Add core rtc support for Gemini Soc devices
 MIME-Version: 1.0
-To: Boris Brezillon <boris.brezillon@free-electrons.com>,
- Stephen Boyd <sboyd@codeaurora.org>
-CC: Mike Turquette <mturquette@linaro.org>, linux-clk@vger.kernel.org,
- linux-kernel@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>,
- Shawn Guo <shawn.guo@linaro.org>,
- ascha Hauer <kernel@pengutronix.de>, David Brown <davidb@codeaurora.org>,
- Daniel Walker <dwalker@fifo99.com>,
- Bryan Huntsman <bryanh@codeaurora.org>, Tony Lindgren <tony@atomide.com>,
- Paul Walmsley <paul@pwsan.com>,
- Liviu Dudau <liviu.dudau@arm.com>, Sudeep Holla <sudeep.holla@arm.com>,
- Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
- Ralf Baechle <ralf@linux-mips.org>, Max Filippov <jcmvbkbc@gmail.com>,
- Heiko Stuebner <heiko@sntech.de>,
- Sylwester Nawrocki <s.nawrocki@samsung.com>,
- Tomasz Figa <tomasz.figa@gmail.com>,
- Barry Song <baohua@kernel.org>, Viresh Kumar <viresh.linux@gmail.com>,
- =?windows-1252?Q?Emilio_L=F3pez?= <emilio@elopez.com.ar>,
- Maxime Ripard <maxime.ripard@free-electrons.com>,
- Peter De Schrijver <pdeschrijver@nvidia.com>,
- Prashant Gaikwad <pgaikwad@nvidia.com>,
- Stephen Warren <swarren@wwwdotorg.org>,
- Thierry Reding <thierry.reding@gmail.com>,
- Alexandre Courbot <gnurou@gmail.com>, Tero Kristo <t-kristo@ti.com>,
- Ulf Hansson <ulf.hansson@linaro.org>,
- Michal Simek <michal.simek@xilinx.com>,
- Philipp Zabel <p.zabel@pengutronix.de>,
- linux-doc@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
- linux-arm-msm@vger.kernel.org, linux-omap@vger.kernel.org,
- linux-mips@linux-mips.org, patches@opensource.wolfsonmicro.com,
- linux-rockchip@lists.infradead.org, linux-samsung-soc@vger.kernel.org,
- spear-devel@list.st.com, linux-tegra@vger.kernel.org,
- dri-devel@lists.freedesktop.org, linux-media@vger.kernel.org,
- rtc-linux@googlegroups.com
-Subject: [rtc-linux] Re: [PATCH v2 1/2] clk: change clk_ops' ->round_rate() prototype
-References: <1430407809-31147-1-git-send-email-boris.brezillon@free-electrons.com>	<1430407809-31147-2-git-send-email-boris.brezillon@free-electrons.com>	<20150507063953.GC32399@codeaurora.org>	<20150507093702.0b58753d@bbrezillon> <20150515174048.4a31af49@bbrezillon>
-In-Reply-To: <20150515174048.4a31af49@bbrezillon>
 Content-Type: text/plain; charset=UTF-8; format=flowed
+Date: Fri, 08 May 2015 00:35:20 +0300
+From: Roman Yeryomin <roman@advem.lv>
+Cc: Arnd Bergmann <arnd@arndb.de>, Alexandre Belloni
+ <alexandre.belloni@free-electrons.com>,
+ linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+ rtc-linux@googlegroups.com, Linus Walleij <linus.walleij@linaro.org>,
+ Russell King <rmk+kernel@arm.linux.org.uk>, Felix Fietkau <nbd@openwrt.org>
+In-Reply-To: <alpine.LNX.2.00.1505071936170.19877@T520.local>
+References: <1292339307-14336-2-git-send-email-ulli.kroll@googlemail.com>
+ <2694895.MomHLoCaoZ@wuerfel>
+ <alpine.LNX.2.00.1505070455130.32495@T520.local>
+ <5043733.xO9lSCKvly@wuerfel>
+ <alpine.LNX.2.00.1505071936170.19877@T520.local>
+Message-ID: <beaeec189608d669a47cac8ad589ee25@advem.lv>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -55,138 +31,50 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On 05/15/2015 06:40 PM, Boris Brezillon wrote:
-> Hi Stephen,
->
-> Adding Mikko in the loop (after all, he was the one complaining about
-> this signed long limitation in the first place, and I forgot to add
-> him in the Cc list :-/).
+On 2015-05-07 20:46, Hans Ulli Kroll wrote:
+> Hi
+> 
+> On Thu, 7 May 2015, Arnd Bergmann wrote:
+> 
+>> On Thursday 07 May 2015 05:00:03 Hans Ulli Kroll wrote:
+>> > On Wed, 6 May 2015, Arnd Bergmann wrote:
+>> > > As far as I'm concerned, we should just merge all the patches from
+>> > > http://git.openwrt.org/?p=openwrt.git;a=tree;f=target/linux/gemini/patches-3.18
+>> > >
+>> > > We should also try to find a maintainer that can respond to patches
+>> > > in a timely manner. If Ulli has time for that again, that would be great,
+>> > > otherwise I think we should find someone from OpenWRT to take over.
+>> >
+>> > I'm back in busyness.
+>> > Currently me dev device is right next to me.
+>> > I moved some time ago and haav to find it in some 'hidden' box.
+>> 
+>> Awesome, welcome back!
+>> 
+>> Are you able to look at the patches I mentioned above and submit them
+>> to arm@kernel.org, cc linux-arm-kernel@lists.infradead.org with proper
+>> patch descriptions?
+>> 
+>> 	Arnd
+>> 
+> 
+> Already done,
+> RTC driver send.
+> Compilder fix for MACH-RECORD send.
+> Maintainer Update send.
+> 
+> This device is a (very) bad design, to be polite !
+> I think they didn't test this properly.
+> And they fixed some software issues in hardware.
+> To be exact :
+> They switched the IDE channels in hardware, to get around the stupid
+> Sausalito software.
 
-I think I got it through linux-tegra anyway, but thanks :)
+AFAIK, ide channels are switchable in the driver.
 
->
-> Mikko, are you okay with the approach proposed by Stephen (adding a
-> new method) ?
+Regards,
+Roman
 
-Yes, sounds good to me. If a driver uses the existing methods with too 
-large frequencies, the issue is pretty discoverable anyway. I think 
-"adjust_rate" sounds a bit too much like it sets the clock's rate, 
-though; perhaps "adjust_rate_request" or something like that?
-
-Thanks,
-Mikko
-
->
-> On Thu, 7 May 2015 09:37:02 +0200
-> Boris Brezillon <boris.brezillon@free-electrons.com> wrote:
->
->> Hi Stephen,
->>
->> On Wed, 6 May 2015 23:39:53 -0700
->> Stephen Boyd <sboyd@codeaurora.org> wrote:
->>
->>> On 04/30, Boris Brezillon wrote:
->>>> Clock rates are stored in an unsigned long field, but ->round_rate()
->>>> (which returns a rounded rate from a requested one) returns a long
->>>> value (errors are reported using negative error codes), which can lead
->>>> to long overflow if the clock rate exceed 2Ghz.
->>>>
->>>> Change ->round_rate() prototype to return 0 or an error code, and pass the
->>>> requested rate as a pointer so that it can be adjusted depending on
->>>> hardware capabilities.
->>>>
->>>> Signed-off-by: Boris Brezillon <boris.brezillon@free-electrons.com>
->>>> Tested-by: Heiko Stuebner <heiko@sntech.de>
->>>> Tested-by: Mikko Perttunen <mikko.perttunen@kapsi.fi>
->>>> Reviewed-by: Heiko Stuebner <heiko@sntech.de>
->>>
->>> This patch is fairly invasive, and it probably doesn't even
->>> matter for most of these clock providers to be able to round a
->>> rate above 2GHz.
->>
->> Fair enough.
->>
->>> I've been trying to remove the .round_rate op
->>> from the framework by encouraging new features via the
->>> .determine_rate op.
->>
->> Oh, I wasn't aware of that (BTW, that's a good thing).
->> Maybe this should be clearly stated (both in the struct clk_ops
->> kerneldoc header and in Documentation/clk.txt).
->>
->>> Sadly, we still have to do a flag day and
->>> change all the .determine_rate ops when we want to add things.
->>
->> Yes, but the number of clk drivers implementing ->determine_rate() is
->> still quite limited compared to those implementing ->round_rate().
->>
->>>
->>> What if we changed determine_rate ops to take a struct
->>> clk_determine_info (or some better named structure) instead of
->>> the current list of arguments that it currently takes? Then when
->>> we want to make these sorts of framework wide changes we can just
->>> throw a new member into that structure and be done.
->>
->> I really like this idea, especially since I was wondering if we could
->> pass other 'clk rate requirements' like the rounding policy (down,
->> closest, up), or the maximum clk inaccuracy.
->>
->>>
->>> It doesn't solve the unsigned long to int return value problem
->>> though. We can solve that by gradually introducing a new op and
->>> handling another case in the rounding path. If we can come up
->>> with some good name for that new op like .decide_rate or
->>> something then it makes things nicer in the long run. I like the
->>> name .determine_rate though :/
->
-> Okay, if you want a new method, how about this one:
->
-> struct clk_adjust_rate_req {
-> 	/* fields filled by the caller */
-> 	unsigned long rate; /* rate is updated by the clk driver */
-> 	unsigned long min;
-> 	unsigned long max;
->
-> 	/* fields filled by the clk driver */
-> 	struct clk_hw *best_parent;
-> 	unsigned long best_parent_rate;
->
-> 	/*
-> 	 * new fields I'd like to add at some point:
-> 	 * unsigned long max_inaccuracy;
-> 	 * something about the power consumption constraints :-)
-> 	 */
-> };
->
-> int (*adjust_rate)(struct clk_hw *hw, struct clk_adjust_rate_req *req);
->
->>
->> Why not changing the ->determine_rate() prototype. As said above, the
->> number of clk drivers implementing this function is still quite
->> limited, and I guess we can have an ack for all of them.
->>
->>>
->>> The benefit of all this is that we don't have to worry about
->>> finding the random clk providers that get added into other
->>> subsystems and fixing them up. If drivers actually care about
->>> this problem then they'll be fixed to use the proper op. FYI,
->>> last time we updated the function signature of .determine_rate we
->>> broke a couple drivers along the way.
->>>
->>
->> Hm, IMHO, adding a new op is not a good thing. I agree that it eases
->> the transition, but ITOH you'll have to live with old/deprecated ops in
->> your clk_ops structure with people introducing new drivers still using
->> the old ops (see the number of clk drivers implementing ->round_rate()
->> instead of ->determine_rate()).
->>
->> Best Regards,
->>
->> Boris
->>
->
->
->
 
 -- 
 -- 
