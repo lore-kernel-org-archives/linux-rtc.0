@@ -1,27 +1,36 @@
-Return-Path: <rtc-linux+bncBDKZNNNLXAHBBFV7R2VAKGQERCWODEI@googlegroups.com>
-MIME-Version: 1.0
-Received: from mail-pa0-x236.google.com (mail-pa0-x236.google.com. [2607:f8b0:400e:c03::236])
-        by gmr-mx.google.com with ESMTPS id xv6si560761pab.2.2015.05.01.08.45.26
+Return-Path: <rtc-linux+bncBAABBLOJV2VAKGQE7MMQHFI@googlegroups.com>
+Received: from mail1.bemta3.messagelabs.com (mail1.bemta3.messagelabs.com. [195.245.230.161])
+        by gmr-mx.google.com with ESMTPS id k2si312201wif.0.2015.05.07.10.45.17
         for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 01 May 2015 08:45:26 -0700 (PDT)
-Received: by mail-pa0-x236.google.com with SMTP id yx8so93989817pac.1
-        for <rtc-linux@googlegroups.com>; Fri, 01 May 2015 08:45:26 -0700 (PDT)
-From: Krzysztof Kozlowski <k.kozlowski.k@gmail.com>
-To: Linus Walleij <linus.walleij@linaro.org>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	linux-arm-kernel@lists.infradead.org,
-	rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org
-Cc: Krzysztof Kozlowski <k.kozlowski.k@gmail.com>
-Subject: [rtc-linux] [PATCH 3/3] rtc: mxc: Constify platform_device_id
-Date: Sat,  2 May 2015 00:44:37 +0900
-Message-Id: <1430495077-31179-3-git-send-email-k.kozlowski.k@gmail.com>
-In-Reply-To: <1430495077-31179-1-git-send-email-k.kozlowski.k@gmail.com>
-References: <1430495077-31179-1-git-send-email-k.kozlowski.k@gmail.com>
-Reply-To: rtc-linux@googlegroups.com
+        (version=TLSv1.2 cipher=RC4-SHA bits=128/128);
+        Thu, 07 May 2015 10:45:17 -0700 (PDT)
+From: "Opensource [Steve Twiss]" <stwiss.opensource@diasemi.com>
+To: Guenter Roeck <linux@roeck-us.net>
+CC: LINUXKERNEL <linux-kernel@vger.kernel.org>, LINUXWATCHDOG
+	<linux-watchdog@vger.kernel.org>, Wim Van Sebroeck <wim@iguana.be>,
+	Alessandro Zummo <a.zummo@towertech.it>, DEVICETREE
+	<devicetree@vger.kernel.org>, David Dajun Chen <david.chen@diasemi.com>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>, Ian Campbell
+	<ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>,
+	LINUXINPUT <linux-input@vger.kernel.org>, Lee Jones <lee.jones@linaro.org>,
+	Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, "Mark
+ Rutland" <mark.rutland@arm.com>, Pawel Moll <pawel.moll@arm.com>, RTCLINUX
+	<rtc-linux@googlegroups.com>, Rob Herring <robh+dt@kernel.org>, Samuel Ortiz
+	<sameo@linux.intel.com>, Support Opensource <Support.Opensource@diasemi.com>
+Subject: [rtc-linux] RE: [PATCH V1 5/6] watchdog: da9062: DA9062 watchdog driver
+Date: Thu, 7 May 2015 17:45:13 +0000
+Message-ID: <6ED8E3B22081A4459DAC7699F3695FB7014B221DD2@SW-EX-MBX02.diasemi.com>
+References: <cover.1429280614.git.stwiss.opensource@diasemi.com>
+ <2afd9f55c71553186e99bfe386312f0c7d7501ed.1429280614.git.stwiss.opensource@diasemi.com>
+ <55327DDA.4080003@roeck-us.net>
+ <6ED8E3B22081A4459DAC7699F3695FB7014B21924A@SW-EX-MBX02.diasemi.com>
+ <20150506160227.GA28101@roeck-us.net>
+ <6ED8E3B22081A4459DAC7699F3695FB7014B21925B@SW-EX-MBX02.diasemi.com>
+ <20150506200631.GA25846@roeck-us.net>
+In-Reply-To: <20150506200631.GA25846@roeck-us.net>
 Content-Type: text/plain; charset=UTF-8
+MIME-Version: 1.0
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -31,29 +40,125 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-The platform_device_id is not modified by the driver and core uses it as
-const.
+On 06 May 2015 21:07 Guenter Roeck wrote:
 
-Signed-off-by: Krzysztof Kozlowski <k.kozlowski.k@gmail.com>
----
- drivers/rtc/rtc-mxc.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+> > > > The DA9062 watchdog ping (register CONTROL_F) is "windowed" for protection
+> > > > against spurious writes -- i.e. the ping function cannot be called within a 250ms
+> > > > time limit or the PMIC will reset. This windowing protection also extends to altering
+> > > > the timeout scale in the CONTROL_D register -- in which case if the timeout
+> > > > register is altered and the ping() function is called within the 250ms limit, the
+> > > > PMIC will reset. The delay is there to stop that from happening.
+> > > >
+> > > > I realised my previous patch was over-sanitised: by putting the time delay into the
+> > > > ping() function I was protecting CONTROL_D in stop() and update_timeout_register(),
+> > > > but I was being too over-protective of the ping() function. Therefore if there was an
+> > > > "incorrect trigger signal", the watchdog would not be allowed to fail because the
+> > > > driver would have filtered out the errors.
+> > > >
+> > > Hi Steve,
+> > >
+> > > From your description, it sounds like the protection is only necessary if there
+> > > was a previous write to the same register(s).
 
-diff --git a/drivers/rtc/rtc-mxc.c b/drivers/rtc/rtc-mxc.c
-index 09d422b9f7f7..5fc292c2dfdf 100644
---- a/drivers/rtc/rtc-mxc.c
-+++ b/drivers/rtc/rtc-mxc.c
-@@ -84,7 +84,7 @@ struct rtc_plat_data {
- 	enum imx_rtc_type devtype;
+Hi Guenter,
+
+A clarification from me. It is not the CONTROL_D register that needs protecting, but when
+the CONTROL_D register is altered the function call also performs a CONTROL_F watchdog
+ping. Too many pings close together would cause the PMIC reset.
+
+> > > If so, it might make sense to record the time of such writes, and only add the delay
+> > > if necessary, and only for the remainder of the time.
+
+I've tried it several ways, but my previous suggestion of putting the delays in the stop() and 
+update_timeout_register() functions just cause even more lengthy delays.
+
+So, I've followed your suggestion and used a variable delay inside the ping() function instead:
+this seems to cause a lot less delay. A debug message can be used to notify the user if the
+watchdog is trying to be kicked too quickly -- that would be more preferable than just shutting
+the PMIC down and still provide a notification that something wasn't quite right.
+
+> > > Would this be possible ?
+
+I'll run the tests overnight.
+I'm going to do something like this:
+
+diff --git a/linux-next/v4.0/drivers/watchdog/da9062_wdt.c b/linux-next/v4.0/drivers/watchdog/da9062_wdt.c
+index ad80261..d596910 100644
+--- a/gp_sparse/linux-next/v4.0/drivers/watchdog/da9062_wdt.c
++++ b/gp_sparse/linux-next/v4.0/drivers/watchdog/da9062_wdt.c
+
+@@ -32,12 +33,37 @@ static const unsigned int wdt_timeout[] = { 0, 2, 4, 8, 16, 32, 65, 131 };
+ #define DA9062_WDT_MIN_TIMEOUT         wdt_timeout[DA9062_TWDSCALE_MIN]
+ #define DA9062_WDT_MAX_TIMEOUT         wdt_timeout[DA9062_TWDSCALE_MAX]
+ #define DA9062_WDG_DEFAULT_TIMEOUT     wdt_timeout[DA9062_TWDSCALE_MAX-1]
++#define DA9062_RESET_PROTECTION_MS     300
+ 
+ struct da9062_watchdog {
+        struct da9062 *hw;
+        struct watchdog_device wdtdev;
++       unsigned long j_time_stamp;
  };
  
--static struct platform_device_id imx_rtc_devtype[] = {
-+static const struct platform_device_id imx_rtc_devtype[] = {
- 	{
- 		.name = "imx1-rtc",
- 		.driver_data = IMX1_RTC,
--- 
-2.1.4
++static void da9062_set_window_start(struct da9062_watchdog *wdt)
++{
++       wdt->j_time_stamp = jiffies;
++}
++
++static void da9062_apply_window_protection(struct da9062_watchdog *wdt)
++{
++       unsigned long delay = msecs_to_jiffies(DA9062_RESET_PROTECTION_MS);
++       unsigned long timeout = wdt->j_time_stamp + delay;
++       unsigned long now = jiffies;
++       unsigned int diff_ms;
++
++       /* if time-limit has not elapsed then wait for remainder */
++       if (time_before(now, timeout)) {
++               diff_ms = jiffies_to_msecs(timeout-now);
++               dev_dbg(wdt->hw->dev,
++                       "Delaying watchdog ping by %u msecs\n", diff_ms);
++               mdelay(diff_ms);
++       }
++
++       return;
++}
++
+ static unsigned int da9062_wdt_timeout_to_sel(unsigned int secs)
+ {
+        unsigned int i;
+@@ -50,26 +76,29 @@ static unsigned int da9062_wdt_timeout_to_sel(unsigned int secs)
+        return DA9062_TWDSCALE_MAX;
+ }
+ 
+-static int da9062_reset_watchdog_timer(struct da9062 *hw)
++static int da9062_reset_watchdog_timer(struct da9062_watchdog *wdt)
+ {
+        int ret;
+ 
+-       ret = regmap_update_bits(hw->regmap,
++       da9062_apply_window_protection(wdt);
++
++       ret = regmap_update_bits(wdt->hw->regmap,
+                           DA9062AA_CONTROL_F,
+                           DA9062AA_WATCHDOG_MASK,
+                           DA9062AA_WATCHDOG_MASK);
+ 
+-       mdelay(300);
++       da9062_set_window_start(wdt);
+ 
+        return ret;
+ }
+
+[...]
+ 
+@@ -216,6 +245,8 @@ static int da9062_wdt_probe(struct platform_device *pdev)
+                dev_err(wdt->hw->dev,
+                        "watchdog registration incomplete (%d)\n", ret);
+ 
++       da9062_set_window_start(wdt);
++
+        da9062_wdt_ping(&wdt->wdtdev);
+        if (ret < 0)
+                dev_err(wdt->hw->dev,
 
 -- 
 -- 
