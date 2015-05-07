@@ -1,11 +1,11 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBOHZY2VAKGQEWD4XEJA@googlegroups.com>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBKVKVWVAKGQEUKAT6GY@googlegroups.com>
 Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id t6si73545wiz.0.2015.05.12.01.41.28
+        by gmr-mx.google.com with ESMTP id k2si258691wif.0.2015.05.07.05.06.02
         for <rtc-linux@googlegroups.com>;
-        Tue, 12 May 2015 01:41:28 -0700 (PDT)
-Date: Tue, 12 May 2015 10:41:21 +0200
+        Thu, 07 May 2015 05:06:02 -0700 (PDT)
+Date: Thu, 7 May 2015 14:06:01 +0200
 From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Daniel Kurtz <djkurtz@chromium.org>
+To: Joe Perches <joe@perches.com>
 Cc: Eddie Huang <eddie.huang@mediatek.com>,
 	Lee Jones <lee.jones@linaro.org>,
 	Alessandro Zummo <a.zummo@towertech.it>,
@@ -15,21 +15,20 @@ Cc: Eddie Huang <eddie.huang@mediatek.com>,
 	Greg KH <gregkh@linuxfoundation.org>,
 	"David S. Miller" <davem@davemloft.net>,
 	Mauro Carvalho Chehab <mchehab@osg.samsung.com>,
-	Joe Perches <joe@perches.com>, Tejun Heo <tj@kernel.org>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-	rtc-linux@googlegroups.com,
-	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>,
+	Tejun Heo <tj@kernel.org>, linux-kernel@vger.kernel.org,
+	rtc-linux@googlegroups.com, linux-arm-kernel@lists.infradead.org,
 	linux-mediatek@lists.infradead.org,
 	Sascha Hauer <kernel@pengutronix.de>,
-	Tomasz Figa <tfiga@google.com>
-Subject: [rtc-linux] Re: [PATCH v4 0/3] Add Mediatek SoC RTC driver
-Message-ID: <20150512084121.GO3338@piout.net>
+	Tomasz Figa <tfiga@google.com>,
+	Tianping Fang <tianping.fang@mediatek.com>
+Subject: [rtc-linux] Re: [PATCH v4 2/3] rtc: mediatek: Add MT6397 RTC driver
+Message-ID: <20150507120601.GH3465@piout.net>
 References: <1430897022-63357-1-git-send-email-eddie.huang@mediatek.com>
- <20150509130846.GD3338@piout.net>
- <CAGS+omArcu3caKZo56Db2u+84WAVJiMzkr+1uS6tr_zfwARQ7A@mail.gmail.com>
+ <1430897022-63357-3-git-send-email-eddie.huang@mediatek.com>
+ <1430898299.9365.74.camel@perches.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <CAGS+omArcu3caKZo56Db2u+84WAVJiMzkr+1uS6tr_zfwARQ7A@mail.gmail.com>
+In-Reply-To: <1430898299.9365.74.camel@perches.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -40,32 +39,28 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Hi,
-
-On 12/05/2015 at 16:15:13 +0800, Daniel Kurtz wrote :
-> On Sat, May 9, 2015 at 9:08 PM, Alexandre Belloni
-> <alexandre.belloni@free-electrons.com> wrote:
-> > On 06/05/2015 at 15:23:39 +0800, Eddie Huang wrote :
-> >> RTC is one submodule of Mediatek MT6397 PMIC chip[1]. This series
-> >> support RTC driver that work with Mediatek SoC like MT8135, MT8173.
-> >> It implements second counter and also provide alarm function.
-> >>
-> >> This series base on 4.1-rc1, Test ok on MT8173 platform.
-> >>
-> >> [1] https://lkml.org/lkml/2015/1/23/325
-> >>
-> >
-> > All applied, thanks!
+On 06/05/2015 at 00:44:59 -0700, Joe Perches wrote :
+> On Wed, 2015-05-06 at 15:23 +0800, Eddie Huang wrote:
+> > From: Tianping Fang <tianping.fang@mediatek.com>
 > 
-> To which git tree & branch did you apply these patches?
+> trivia: no need to resend now, maybe in a future patch.
+> 
+> > diff --git a/drivers/rtc/rtc-mt6397.c b/drivers/rtc/rtc-mt6397.c
+> []
+> > +static int mtk_rtc_probe(struct platform_device *pdev)
+> > +{
+> []
+> > +	ret = request_threaded_irq(rtc->irq, NULL,
+> > +				   mtk_rtc_irq_handler_thread,
+> > +				   IRQF_ONESHOT | IRQF_TRIGGER_HIGH,
+> > +			"mt6397-rtc", rtc);
+> 
+> It'd be nicer to align all the statement lines
+> to that open parenthesis
+> 
 > 
 
-They are in
-git://git.kernel.org/pub/scm/linux/kernel/git/abelloni/linux.git rtc-next
-
-They also landed in linux-next
-
-I'll update the MAINTAINERS file to add the location of that git tree.
+I'll fix it up when applying.
 
 
 -- 
