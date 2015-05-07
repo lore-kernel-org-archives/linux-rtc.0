@@ -1,25 +1,26 @@
-Return-Path: <rtc-linux+bncBCV3TM5A74DRBS5DROVQKGQEVUZ7XQI@googlegroups.com>
-Received: from mail-pa0-f43.google.com (mail-pa0-f43.google.com. [209.85.220.43])
-        by gmr-mx.google.com with ESMTPS id xz5si1029353pac.1.2015.05.25.00.39.54
+Return-Path: <rtc-linux+bncBCH4V2OOTYHBBTGFV2VAKGQE3XDVLPQ@googlegroups.com>
+Received: from mail-wi0-x22e.google.com (mail-wi0-x22e.google.com. [2a00:1450:400c:c05::22e])
+        by gmr-mx.google.com with ESMTPS id p9si294164wiz.3.2015.05.07.10.37.16
         for <rtc-linux@googlegroups.com>
         (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 25 May 2015 00:39:54 -0700 (PDT)
-Received: by mail-pa0-f43.google.com with SMTP id wv17so65920009pac.2
-        for <rtc-linux@googlegroups.com>; Mon, 25 May 2015 00:39:54 -0700 (PDT)
-Date: Mon, 25 May 2015 15:39:05 +0800
-From: Shawn Guo <shawn.guo@linaro.org>
-To: Frank.Li@freescale.com
-Cc: lznuaa@gmail.com, dmitry.torokhov@gmail.com, robh+dt@kernel.org,
-	alexandre.belloni@free-electrons.com, linux@arm.linux.org.uk,
-	linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org,
-	rtc-linux@googlegroups.com, devicetree@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH v4 6/6] arm: dts: imx6sx: enable snvs power key
-Message-ID: <20150525073904.GJ3264@dragon>
-References: <1432305399-30571-1-git-send-email-Frank.Li@freescale.com>
- <1432305399-30571-7-git-send-email-Frank.Li@freescale.com>
+        Thu, 07 May 2015 10:37:16 -0700 (PDT)
+Received: by mail-wi0-x22e.google.com with SMTP id k4so142986wiz.1
+        for <rtc-linux@googlegroups.com>; Thu, 07 May 2015 10:37:15 -0700 (PDT)
+Date: Thu, 7 May 2015 19:35:52 +0200 (CEST)
+From: Hans Ulli Kroll <ulli.kroll@googlemail.com>
+To: Roman Yeryomin <roman@advem.lv>
+cc: Arnd Bergmann <arnd@arndb.de>, linux-arm-kernel@lists.infradead.org,
+    Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+    Felix Fietkau <nbd@openwrt.org>, rtc-linux@googlegroups.com,
+    Linus Walleij <linus.walleij@linaro.org>, linux-kernel@vger.kernel.org,
+    Russell King <rmk+kernel@arm.linux.org.uk>,
+    Hans Ulli Kroll <ulli.kroll@googlemail.com>
+Subject: [rtc-linux] Re: [1/2] RTC: Add core rtc support for Gemini Soc devices
+In-Reply-To: <0701f75c1c42f74fd58845bc0ed41c38@advem.lv>
+Message-ID: <alpine.LNX.2.00.1505071935100.19877@T520.local>
+References: <1292339307-14336-2-git-send-email-ulli.kroll@googlemail.com> <20150506095312.GU4276@piout.net> <d97c3a8a29aa85c83973daf4a22ca4c9@advem.lv> <2349062.9v3Zz7HPLu@wuerfel> <0701f75c1c42f74fd58845bc0ed41c38@advem.lv>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1432305399-30571-7-git-send-email-Frank.Li@freescale.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -30,54 +31,37 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On Fri, May 22, 2015 at 10:36:39PM +0800, Frank.Li@freescale.com wrote:
-> From: Frank Li <Frank.Li@freescale.com>
+
+Hi
+
+On Thu, 7 May 2015, Roman Yeryomin wrote:
+
+> On 2015-05-06 22:22, Arnd Bergmann wrote:
+> > On Wednesday 06 May 2015 19:21:21 Roman Yeryomin wrote:
+> > > 
+> > > > Thanks to point that, I'll merge that one which seems clean enough:
+> > > > http://git.openwrt.org/?p=openwrt.git;a=blob;f=target/linux/gemini/files/drivers/rtc/rtc-gemini.c;h=587d8122b2fbb1230437eadcce4789a53aa60ee5;hb=4c637410a2a1ab45988e8ca6202554a502102039
+> > > 
+> > > For 3.18 (and up) to work on gemini 160-gemini-timers.patch is vital.
+> > > Without that timers are broken and cpu is super slow.
+> > 
+> > Do you know what part of the patch is the actual bug fix? We should probably
+> > merge that separately and mark it for stable backports, while the bulk of
+> > that
+> > patch seems to just rearrange code.
+> > 
+> >  Arnd
 > 
-> enable snvs ONOFF power key support
+> Sorry, didn't try to extract the exact lines it but I guess it's that part
+> which touches the scheduler clock code.
+> Because without that patch sched clock runs at 100Hz instead of 25MHz.
+> I can dive into this deeper if you want, I just didn't see the need.
 > 
-> Signed-off-by: Frank Li <Frank.Li@freescale.com>
-
-Please use 'ARM: dts: imx6sx: ...' for the patch subject.
-
-> ---
->  arch/arm/boot/dts/imx6sx.dtsi | 7 +++++++
->  1 file changed, 7 insertions(+)
+> Regards,
+> Roman
 > 
-> diff --git a/arch/arm/boot/dts/imx6sx.dtsi b/arch/arm/boot/dts/imx6sx.dtsi
-> index 3cb3b5b..ad38aea 100644
-> --- a/arch/arm/boot/dts/imx6sx.dtsi
-> +++ b/arch/arm/boot/dts/imx6sx.dtsi
-> @@ -677,6 +677,13 @@
->  					mask = <0x60>;
->  					status = "disabled";
->  				};
-> +
-> +				snvs_pwrkey: snvs-powerkey {
-> +					compatible = "fsl,sec-v4.0-pwrkey";
-> +					interrupts = <GIC_SPI 4 IRQ_TYPE_LEVEL_HIGH>;
-> +					linux,keycode = <116>; /* KEY_POWER */
-
-With include/dt-bindings/input/input.h, you can use KEY_POWER directly
-and save the comment.
-
-Shawn
-
-> +					wakeup;
-> +				};
->  			};
->  
->  			epit1: epit@020d0000 {
-> -- 
-> 1.9.1
 > 
 
--- 
--- 
-You received this message because you are subscribed to "rtc-linux".
-Membership options at http://groups.google.com/group/rtc-linux .
-Please read http://groups.google.com/group/rtc-linux/web/checklist
-before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
-For more options, visit https://groups.google.com/d/optout.
+I've send the RTC driver for Gemini SoC upstream-
+
+Ulli 
