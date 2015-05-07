@@ -1,22 +1,32 @@
-Return-Path: <rtc-linux+bncBAABBLULSOVQKGQEOVOWZ6I@googlegroups.com>
-Received: from mxadeneo.adeneo-embedded.us (vpnchicago.adeneo-embedded.us. [65.182.180.190])
-        by gmr-mx.google.com with ESMTPS id xz5si1550429pac.1.2015.05.26.12.12.46
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
-        Tue, 26 May 2015 12:12:46 -0700 (PDT)
-From: Jean-Baptiste Theou <jtheou@adeneo-embedded.us>
-To: Alessandro Zummo <a.zummo@towertech.it>
-CC: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	<rtc-linux@googlegroups.com>, <linux-kernel@vger.kernel.org>, Jean-Baptiste
- Theou <jtheou@adeneo-embedded.us>
-Subject: [rtc-linux] [PATCH 2/2] rtc-isl1208: add device tree support
-Date: Tue, 26 May 2015 12:12:30 -0700
-Message-ID: <1432667550-24272-2-git-send-email-jtheou@adeneo-embedded.us>
-In-Reply-To: <1432667550-24272-1-git-send-email-jtheou@adeneo-embedded.us>
-References: <1432667550-24272-1-git-send-email-jtheou@adeneo-embedded.us>
+Return-Path: <rtc-linux+bncBDA7X7F2WUEBB7WVVWVAKGQEIP3ZKNQ@googlegroups.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Received: from mail-wg0-f52.google.com (mail-wg0-f52.google.com. [74.125.82.52])
+        by gmr-mx.google.com with ESMTPS id g5si270591wix.1.2015.05.07.06.39.10
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 07 May 2015 06:39:10 -0700 (PDT)
+Received: by mail-wg0-f52.google.com with SMTP id o15so43893984wgy.2
+        for <rtc-linux@googlegroups.com>; Thu, 07 May 2015 06:39:10 -0700 (PDT)
+From: Lee Jones <lee.jones@linaro.org>
+To: linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org
+Cc: kernel@stlinux.com,
+	devicetree@vger.kernel.org,
+	daniel.lezcano@linaro.org,
+	tglx@linutronix.de,
+	wim@iguana.be,
+	a.zummo@towertech.it,
+	linux-watchdog@vger.kernel.org,
+	rtc-linux@googlegroups.com,
+	linux@roeck-us.net,
+	Lee Jones <lee.jones@linaro.org>
+Subject: [rtc-linux] [PATCH 12/12] ARM: STi: Update platform level menuconfig 'help'
+Date: Thu,  7 May 2015 14:38:44 +0100
+Message-Id: <1431005924-21777-13-git-send-email-lee.jones@linaro.org>
+In-Reply-To: <1431005924-21777-1-git-send-email-lee.jones@linaro.org>
+References: <1431005924-21777-1-git-send-email-lee.jones@linaro.org>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -26,42 +36,34 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Add a basic device tree support for isl1208 driver
+Encompass newer STiH4{07,10} SoC based platforms.
 
-Signed-off-by: Jean-Baptiste Theou <jtheou@adeneo-embedded.us>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
 ---
- drivers/rtc/rtc-isl1208.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ arch/arm/mach-sti/Kconfig | 8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/rtc/rtc-isl1208.c b/drivers/rtc/rtc-isl1208.c
-index c3c549d..b47a3f9 100644
---- a/drivers/rtc/rtc-isl1208.c
-+++ b/drivers/rtc/rtc-isl1208.c
-@@ -692,6 +692,14 @@ isl1208_remove(struct i2c_client *client)
- 	return 0;
- }
+diff --git a/arch/arm/mach-sti/Kconfig b/arch/arm/mach-sti/Kconfig
+index cb886de..59928d9 100644
+--- a/arch/arm/mach-sti/Kconfig
++++ b/arch/arm/mach-sti/Kconfig
+@@ -16,11 +16,9 @@ menuconfig ARCH_STI
+ 	select PL310_ERRATA_769419 if CACHE_L2X0
+ 	select RESET_CONTROLLER
+ 	help
+-	  Include support for STiH41x SOCs like STiH415/416 using the device tree
+-	  for discovery
+-	  More information at Documentation/arm/STiH41x and
+-	  at Documentation/devicetree
+-
++	  Include support for STMicroelectronics' STiH415/416 and stih407/10
++	  family SoCs using the Device Tree for discovery.  More information
++	  can be found in Documentation/arm/sti/ & Documentation/devicetree.
  
-+#ifdef CONFIG_OF
-+static const struct of_device_id isl1208_dt_match[] = {
-+	{ .compatible = "isil,isl1208" },
-+	{ .compatible = "isil,isl1218" },
-+	{ },
-+};
-+#endif
-+
- static const struct i2c_device_id isl1208_id[] = {
- 	{ "isl1208", 0 },
- 	{ "isl1218", 0 },
-@@ -702,6 +710,7 @@ MODULE_DEVICE_TABLE(i2c, isl1208_id);
- static struct i2c_driver isl1208_driver = {
- 	.driver = {
- 		   .name = "rtc-isl1208",
-+		   .of_match_table = of_match_ptr(isl1208_dt_match),
- 		   },
- 	.probe = isl1208_probe,
- 	.remove = isl1208_remove,
+ if ARCH_STI
+ 
 -- 
-2.4.0
+1.9.1
 
 -- 
 -- 
