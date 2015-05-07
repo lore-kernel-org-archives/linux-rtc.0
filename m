@@ -1,23 +1,33 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRB4XCS6VAKGQETT2Z62A@googlegroups.com>
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id bc3si185154wib.2.2015.05.03.02.59.14
-        for <rtc-linux@googlegroups.com>;
-        Sun, 03 May 2015 02:59:14 -0700 (PDT)
-Date: Sun, 3 May 2015 11:59:13 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Krzysztof Kozlowski <k.kozlowski.k@gmail.com>
-Cc: Linus Walleij <linus.walleij@linaro.org>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	linux-arm-kernel@lists.infradead.org, rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH 3/3] rtc: mxc: Constify platform_device_id
-Message-ID: <20150503095913.GS12076@piout.net>
-References: <1430495077-31179-1-git-send-email-k.kozlowski.k@gmail.com>
- <1430495077-31179-3-git-send-email-k.kozlowski.k@gmail.com>
+Return-Path: <rtc-linux+bncBDA7X7F2WUEBB3GVVWVAKGQEJI4C6LY@googlegroups.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1430495077-31179-3-git-send-email-k.kozlowski.k@gmail.com>
+Received: from mail-wi0-f171.google.com (mail-wi0-f171.google.com. [209.85.212.171])
+        by gmr-mx.google.com with ESMTPS id bc3si263859wib.2.2015.05.07.06.38.52
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 07 May 2015 06:38:52 -0700 (PDT)
+Received: by mail-wi0-f171.google.com with SMTP id di4so242728524wid.0
+        for <rtc-linux@googlegroups.com>; Thu, 07 May 2015 06:38:52 -0700 (PDT)
+From: Lee Jones <lee.jones@linaro.org>
+To: linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org
+Cc: kernel@stlinux.com,
+	devicetree@vger.kernel.org,
+	daniel.lezcano@linaro.org,
+	tglx@linutronix.de,
+	wim@iguana.be,
+	a.zummo@towertech.it,
+	linux-watchdog@vger.kernel.org,
+	rtc-linux@googlegroups.com,
+	linux@roeck-us.net,
+	Lee Jones <lee.jones@linaro.org>
+Subject: [rtc-linux] [PATCH 01/12] mfd: dt-bindings: Provide human readable
+ define for Clocksource mode
+Date: Thu,  7 May 2015 14:38:33 +0100
+Message-Id: <1431005924-21777-2-git-send-email-lee.jones@linaro.org>
+In-Reply-To: <1431005924-21777-1-git-send-email-lee.jones@linaro.org>
+References: <1431005924-21777-1-git-send-email-lee.jones@linaro.org>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -27,21 +37,28 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On 02/05/2015 at 00:44:37 +0900, Krzysztof Kozlowski wrote :
-> The platform_device_id is not modified by the driver and core uses it as
-> const.
-> 
-> Signed-off-by: Krzysztof Kozlowski <k.kozlowski.k@gmail.com>
-> ---
->  drivers/rtc/rtc-mxc.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-Applied, thanks.
+ST's Low Power Controller can now operate in three supported modes;
+Watchdog, Real Time Clock and most recently as a Clocksource.  This new
+define will allow the LPC IP to be configured for Clocksource from DT.
 
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
+---
+ include/dt-bindings/mfd/st-lpc.h | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/include/dt-bindings/mfd/st-lpc.h b/include/dt-bindings/mfd/st-lpc.h
+index e3e6c75..d05894a 100644
+--- a/include/dt-bindings/mfd/st-lpc.h
++++ b/include/dt-bindings/mfd/st-lpc.h
+@@ -11,5 +11,6 @@
+ 
+ #define ST_LPC_MODE_RTC		0
+ #define ST_LPC_MODE_WDT		1
++#define ST_LPC_MODE_CLKSRC	2
+ 
+ #endif /* __DT_BINDINGS_ST_LPC_H__ */
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+1.9.1
 
 -- 
 -- 
