@@ -1,29 +1,33 @@
-Return-Path: <rtc-linux+bncBDA2J57FVMDBBS4V46VAKGQE5O2Q7BA@googlegroups.com>
-Received: from sender1.zohomail.com (sender1.zohomail.com. [74.201.84.152])
-        by gmr-mx.google.com with ESMTPS id xz5si1069630pac.1.2015.05.18.04.19.38
+Return-Path: <rtc-linux+bncBDA7X7F2WUEBB46VVWVAKGQE7SK3RBQ@googlegroups.com>
+MIME-Version: 1.0
+Received: from mail-wg0-f43.google.com (mail-wg0-f43.google.com. [74.125.82.43])
+        by gmr-mx.google.com with ESMTPS id q10si134245wiz.0.2015.05.07.06.38.59
         for <rtc-linux@googlegroups.com>
-        (version=TLSv1 cipher=ECDHE-RSA-RC4-SHA bits=128/128);
-        Mon, 18 May 2015 04:19:38 -0700 (PDT)
-Content-Type: text/plain; charset=UTF-8
-Mime-Version: 1.0 (Mac OS X Mail 8.2 \(2098\))
-Subject: [rtc-linux] Re: [RFC PATCH 1/2] Revert "rtc-cmos: Add an alarm
- disable quirk"
-From: Brecht Machiels <brecht@mos6581.org>
-In-Reply-To: <20150518101744.GF23662@pd.tnic>
-Date: Mon, 18 May 2015 13:19:20 +0200
-Cc: Adrian Huang <adrianhuang0701@gmail.com>,
- Alessandro Zummo <a.zummo@towertech.it>,
- Alexandre Belloni <alexandre.belloni@free-electrons.com>,
- rtc-linux@googlegroups.com,
- Thomas Gleixner <tglx@linutronix.de>,
- John Stultz <john.stultz@linaro.org>,
- Rabin Vincent <rabin.vincent@stericsson.com>,
- Nagananda Chumbalkar <nchumbalkar@lenovo.com>,
- Adrian Huang <ahuang12@lenovo.com>
-Message-Id: <92F16DED-397D-45B4-987A-491BCCBD0DB4@mos6581.org>
-References: <1431077665-3493-1-git-send-email-adrianhuang0701@gmail.com> <20150518101744.GF23662@pd.tnic>
-To: Borislav Petkov <bp@suse.de>
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 07 May 2015 06:38:59 -0700 (PDT)
+Received: by mail-wg0-f43.google.com with SMTP id c8so17340900wgi.1
+        for <rtc-linux@googlegroups.com>; Thu, 07 May 2015 06:38:59 -0700 (PDT)
+From: Lee Jones <lee.jones@linaro.org>
+To: linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org
+Cc: kernel@stlinux.com,
+	devicetree@vger.kernel.org,
+	daniel.lezcano@linaro.org,
+	tglx@linutronix.de,
+	wim@iguana.be,
+	a.zummo@towertech.it,
+	linux-watchdog@vger.kernel.org,
+	rtc-linux@googlegroups.com,
+	linux@roeck-us.net,
+	Lee Jones <lee.jones@linaro.org>
+Subject: [rtc-linux] [PATCH 05/12] watchdog: st_wdt: Update IP layout
+ information to include Clocksource
+Date: Thu,  7 May 2015 14:38:37 +0100
+Message-Id: <1431005924-21777-6-git-send-email-lee.jones@linaro.org>
+In-Reply-To: <1431005924-21777-1-git-send-email-lee.jones@linaro.org>
+References: <1431005924-21777-1-git-send-email-lee.jones@linaro.org>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -33,43 +37,31 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Hello,
+Initial submission adding support for this IP only included Watchdog and
+the Real-Time Clock.  Now the third (and final) device is enabled this
+trivial patch is required to update the comment in the Watchdog driver
+to encompass Clocksource.
 
-> On 18 May 2015, at 12:17, Borislav Petkov <bp@suse.de> wrote:
-> 
-> On Fri, May 08, 2015 at 05:34:25PM +0800, Adrian Huang wrote:
->> Commit d5a1c7e3fc38 ("rtc-cmos: Add an alarm disable quirk") that
->> added a special quirk is not needed because PATCH [2/2] of this
->> patchset makes the kernel more robust:
->> rtc: restore the RTC alarm time to the configured alarm time in BIOS
->> Setup
->> 
->> Signed-off-by: Adrian Huang <ahuang12@lenovo.com>
->> ---
->> drivers/rtc/rtc-cmos.c | 52 --------------------------------------------------
->> 1 file changed, 52 deletions(-)
-> 
-> ...
-> 
->> -	/* http://permalink.gmane.org/gmane.linux.kernel/1604474 */
->> -	{
->> -		.callback = set_alarm_disable_quirk,
->> -		.ident    = "Toshiba Satellite L300",
->> -		.matches  = {
->> -			DMI_MATCH(DMI_SYS_VENDOR, "TOSHIBA"),
->> -			DMI_MATCH(DMI_PRODUCT_NAME, "Satellite L300"),
->> -		},
->> -	},
-> 
-> Looking at the link, this must be Brecht's box.
-> 
-> Brecht, is there any way you could test those patches? I'm attaching
-> them here.
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
+---
+ drivers/watchdog/st_lpc_wdt.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-No, sorry, I'm no longer running Linux.
-
-Best regards,
-Brecht
+diff --git a/drivers/watchdog/st_lpc_wdt.c b/drivers/watchdog/st_lpc_wdt.c
+index f32be15..6785afd 100644
+--- a/drivers/watchdog/st_lpc_wdt.c
++++ b/drivers/watchdog/st_lpc_wdt.c
+@@ -197,7 +197,7 @@ static int st_wdog_probe(struct platform_device *pdev)
+ 		return -EINVAL;
+ 	}
+ 
+-	/* LPC can either run in RTC or WDT mode */
++	/* LPC can either run as a Clocksource or in RTC or WDT mode */
+ 	if (mode != ST_LPC_MODE_WDT)
+ 		return -ENODEV;
+ 
+-- 
+1.9.1
 
 -- 
 -- 
