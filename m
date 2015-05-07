@@ -1,23 +1,28 @@
-Return-Path: <rtc-linux+bncBDMYB2E7SQCRBXN5SKVQKGQEFJTYSSI@googlegroups.com>
-Received: from na01-by2-obe.outbound.protection.outlook.com (mail-by2on0119.outbound.protection.outlook.com. [207.46.100.119])
-        by gmr-mx.google.com with ESMTPS id 5si31208pdt.0.2015.05.26.09.27.09
+Return-Path: <rtc-linux+bncBDA7X7F2WUEBBR7WV2VAKGQEYYSBI2I@googlegroups.com>
+Received: from mail-wi0-f180.google.com (mail-wi0-f180.google.com. [209.85.212.180])
+        by gmr-mx.google.com with ESMTPS id g5si324040wix.1.2015.05.07.12.21.43
         for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
-        Tue, 26 May 2015 09:27:09 -0700 (PDT)
-From: <Frank.Li@freescale.com>
-To: <lznuaa@gmail.com>, <shawn.guo@linaro.org>, <dmitry.torokhov@gmail.com>,
-	<robh+dt@kernel.org>, <alexandre.belloni@free-electrons.com>
-CC: <linux-arm-kernel@lists.infradead.org>, <linux-input@vger.kernel.org>,
-	<rtc-linux@googlegroups.com>, <devicetree@vger.kernel.org>, Frank Li
-	<Frank.Li@freescale.com>
-Subject: [rtc-linux] [PATCH v5 1/6] rtc: arm: imx: snvs: change use syscon to
- access register
-Date: Wed, 27 May 2015 00:25:57 +0800
-Message-ID: <1432657562-5592-2-git-send-email-Frank.Li@freescale.com>
-In-Reply-To: <1432657562-5592-1-git-send-email-Frank.Li@freescale.com>
-References: <1432657562-5592-1-git-send-email-Frank.Li@freescale.com>
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 07 May 2015 12:21:43 -0700 (PDT)
+Received: by wief7 with SMTP id f7so21089382wie.0
+        for <rtc-linux@googlegroups.com>; Thu, 07 May 2015 12:21:43 -0700 (PDT)
+Date: Thu, 7 May 2015 20:21:39 +0100
+From: Lee Jones <lee.jones@linaro.org>
+To: Peter Griffin <peter.griffin@linaro.org>
+Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+	devicetree@vger.kernel.org, kernel@stlinux.com,
+	rtc-linux@googlegroups.com, a.zummo@towertech.it,
+	daniel.lezcano@linaro.org, wim@iguana.be, tglx@linutronix.de,
+	linux@roeck-us.net, linux-watchdog@vger.kernel.org
+Subject: [rtc-linux] Re: [STLinux Kernel] [PATCH 08/12] rtc: bindings: Supply
+ knowledge of a third supported device - clocksource
+Message-ID: <20150507192139.GE16220@x1>
+References: <1431005924-21777-1-git-send-email-lee.jones@linaro.org>
+ <1431005924-21777-9-git-send-email-lee.jones@linaro.org>
+ <20150507141245.GA9793@griffinp-ThinkPad-X1-Carbon-2nd>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <20150507141245.GA9793@griffinp-ThinkPad-X1-Carbon-2nd>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -28,299 +33,59 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-From: Frank Li <Frank.Li@freescale.com>
-
-snvs included rtc, on/off key, power-off module
-change to syscon to access register
-
-Signed-off-by: Frank Li <Frank.Li@freescale.com>
+> > Signed-off-by: Lee Jones <lee.jones@linaro.org>
+> > ---
+> >  Documentation/devicetree/bindings/rtc/rtc-st-lpc.txt | 15 +++++++++---=
 ---
- drivers/rtc/rtc-snvs.c | 132 +++++++++++++++++++++++++------------------------
- 1 file changed, 67 insertions(+), 65 deletions(-)
+> >  1 file changed, 9 insertions(+), 6 deletions(-)
+> >=20
+> > diff --git a/Documentation/devicetree/bindings/rtc/rtc-st-lpc.txt b/Doc=
+umentation/devicetree/bindings/rtc/rtc-st-lpc.txt
+> > index 73407f50..daf8826 100644
+> > --- a/Documentation/devicetree/bindings/rtc/rtc-st-lpc.txt
+> > +++ b/Documentation/devicetree/bindings/rtc/rtc-st-lpc.txt
+> > @@ -1,20 +1,23 @@
+> >  STMicroelectronics Low Power Controller (LPC) - RTC
+> >  =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D
+> > =20
+> > -LPC currently supports Watchdog OR Real Time Clock functionality.
+> > +LPC currently supports Watchdog OR Real Time Clock OR Clocksource
+> > +functionality.
+> > =20
+> >  [See: ../watchdog/st_lpc_wdt.txt for Watchdog options]
+> > +[See: ../timer/st,stih407-lpc for Clocksource options]
+> > =20
+> >  Required properties
+> > =20
+> > -- compatible 	: Must be one of: "st,stih407-lpc" "st,stih416-lpc"
+> > -				  "st,stih415-lpc" "st,stid127-lpc"
+> > +- compatible 	: Must be: "st,stih407-lpc"
+>=20
+> You are removing the compatibles documentation for the other supported So=
+C's like
+> stih416-lpc stih415-lpc here.
 
-diff --git a/drivers/rtc/rtc-snvs.c b/drivers/rtc/rtc-snvs.c
-index 0479e80..fa67d7c 100644
---- a/drivers/rtc/rtc-snvs.c
-+++ b/drivers/rtc/rtc-snvs.c
-@@ -18,6 +18,10 @@
- #include <linux/platform_device.h>
- #include <linux/rtc.h>
- #include <linux/clk.h>
-+#include <linux/mfd/syscon.h>
-+#include <linux/regmap.h>
-+
-+#define SNVS_LPREGISTER_OFFSET	0x34
- 
- /* These register offsets are relative to LP (Low Power) range */
- #define SNVS_LPCR		0x04
-@@ -37,31 +41,36 @@
- 
- struct snvs_rtc_data {
- 	struct rtc_device *rtc;
--	void __iomem *ioaddr;
-+	struct regmap *regmap;
-+	int offset;
- 	int irq;
--	spinlock_t lock;
- 	struct clk *clk;
- };
- 
--static u32 rtc_read_lp_counter(void __iomem *ioaddr)
-+static u32 rtc_read_lp_counter(struct snvs_rtc_data *data)
- {
- 	u64 read1, read2;
-+	u32 val;
- 
- 	do {
--		read1 = readl(ioaddr + SNVS_LPSRTCMR);
-+		regmap_read(data->regmap, data->offset + SNVS_LPSRTCMR, &val);
-+		read1 = val;
- 		read1 <<= 32;
--		read1 |= readl(ioaddr + SNVS_LPSRTCLR);
-+		regmap_read(data->regmap, data->offset + SNVS_LPSRTCLR, &val);
-+		read1 |= val;
- 
--		read2 = readl(ioaddr + SNVS_LPSRTCMR);
-+		regmap_read(data->regmap, data->offset + SNVS_LPSRTCMR, &val);
-+		read2 = val;
- 		read2 <<= 32;
--		read2 |= readl(ioaddr + SNVS_LPSRTCLR);
-+		regmap_read(data->regmap, data->offset + SNVS_LPSRTCLR, &val);
-+		read2 |= val;
- 	} while (read1 != read2);
- 
- 	/* Convert 47-bit counter to 32-bit raw second count */
- 	return (u32) (read1 >> CNTR_TO_SECS_SH);
- }
- 
--static void rtc_write_sync_lp(void __iomem *ioaddr)
-+static void rtc_write_sync_lp(struct snvs_rtc_data *data)
- {
- 	u32 count1, count2, count3;
- 	int i;
-@@ -69,15 +78,15 @@ static void rtc_write_sync_lp(void __iomem *ioaddr)
- 	/* Wait for 3 CKIL cycles */
- 	for (i = 0; i < 3; i++) {
- 		do {
--			count1 = readl(ioaddr + SNVS_LPSRTCLR);
--			count2 = readl(ioaddr + SNVS_LPSRTCLR);
-+			regmap_read(data->regmap, data->offset + SNVS_LPSRTCLR, &count1);
-+			regmap_read(data->regmap, data->offset + SNVS_LPSRTCLR, &count2);
- 		} while (count1 != count2);
- 
- 		/* Now wait until counter value changes */
- 		do {
- 			do {
--				count2 = readl(ioaddr + SNVS_LPSRTCLR);
--				count3 = readl(ioaddr + SNVS_LPSRTCLR);
-+				regmap_read(data->regmap, data->offset + SNVS_LPSRTCLR, &count2);
-+				regmap_read(data->regmap, data->offset + SNVS_LPSRTCLR, &count3);
- 			} while (count2 != count3);
- 		} while (count3 == count1);
- 	}
-@@ -85,23 +94,14 @@ static void rtc_write_sync_lp(void __iomem *ioaddr)
- 
- static int snvs_rtc_enable(struct snvs_rtc_data *data, bool enable)
- {
--	unsigned long flags;
- 	int timeout = 1000;
- 	u32 lpcr;
- 
--	spin_lock_irqsave(&data->lock, flags);
--
--	lpcr = readl(data->ioaddr + SNVS_LPCR);
--	if (enable)
--		lpcr |= SNVS_LPCR_SRTC_ENV;
--	else
--		lpcr &= ~SNVS_LPCR_SRTC_ENV;
--	writel(lpcr, data->ioaddr + SNVS_LPCR);
--
--	spin_unlock_irqrestore(&data->lock, flags);
-+	regmap_update_bits(data->regmap, data->offset + SNVS_LPCR, SNVS_LPCR_SRTC_ENV,
-+			   enable ? SNVS_LPCR_SRTC_ENV : 0);
- 
- 	while (--timeout) {
--		lpcr = readl(data->ioaddr + SNVS_LPCR);
-+		regmap_read(data->regmap, data->offset + SNVS_LPCR, &lpcr);
- 
- 		if (enable) {
- 			if (lpcr & SNVS_LPCR_SRTC_ENV)
-@@ -121,7 +121,7 @@ static int snvs_rtc_enable(struct snvs_rtc_data *data, bool enable)
- static int snvs_rtc_read_time(struct device *dev, struct rtc_time *tm)
- {
- 	struct snvs_rtc_data *data = dev_get_drvdata(dev);
--	unsigned long time = rtc_read_lp_counter(data->ioaddr);
-+	unsigned long time = rtc_read_lp_counter(data);
- 
- 	rtc_time_to_tm(time, tm);
- 
-@@ -139,8 +139,8 @@ static int snvs_rtc_set_time(struct device *dev, struct rtc_time *tm)
- 	snvs_rtc_enable(data, false);
- 
- 	/* Write 32-bit time to 47-bit timer, leaving 15 LSBs blank */
--	writel(time << CNTR_TO_SECS_SH, data->ioaddr + SNVS_LPSRTCLR);
--	writel(time >> (32 - CNTR_TO_SECS_SH), data->ioaddr + SNVS_LPSRTCMR);
-+	regmap_write(data->regmap, data->offset + SNVS_LPSRTCLR, time << CNTR_TO_SECS_SH);
-+	regmap_write(data->regmap, data->offset + SNVS_LPSRTCMR, time >> (32 - CNTR_TO_SECS_SH));
- 
- 	/* Enable RTC again */
- 	snvs_rtc_enable(data, true);
-@@ -153,10 +153,10 @@ static int snvs_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
- 	struct snvs_rtc_data *data = dev_get_drvdata(dev);
- 	u32 lptar, lpsr;
- 
--	lptar = readl(data->ioaddr + SNVS_LPTAR);
-+	regmap_read(data->regmap, data->offset + SNVS_LPTAR, &lptar);
- 	rtc_time_to_tm(lptar, &alrm->time);
- 
--	lpsr = readl(data->ioaddr + SNVS_LPSR);
-+	regmap_read(data->regmap, data->offset + SNVS_LPSR, &lpsr);
- 	alrm->pending = (lpsr & SNVS_LPSR_LPTA) ? 1 : 0;
- 
- 	return 0;
-@@ -165,21 +165,12 @@ static int snvs_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
- static int snvs_rtc_alarm_irq_enable(struct device *dev, unsigned int enable)
- {
- 	struct snvs_rtc_data *data = dev_get_drvdata(dev);
--	u32 lpcr;
--	unsigned long flags;
--
--	spin_lock_irqsave(&data->lock, flags);
- 
--	lpcr = readl(data->ioaddr + SNVS_LPCR);
--	if (enable)
--		lpcr |= (SNVS_LPCR_LPTA_EN | SNVS_LPCR_LPWUI_EN);
--	else
--		lpcr &= ~(SNVS_LPCR_LPTA_EN | SNVS_LPCR_LPWUI_EN);
--	writel(lpcr, data->ioaddr + SNVS_LPCR);
-+	regmap_update_bits(data->regmap, data->offset + SNVS_LPCR,
-+			   (SNVS_LPCR_LPTA_EN | SNVS_LPCR_LPWUI_EN),
-+			   enable ? (SNVS_LPCR_LPTA_EN | SNVS_LPCR_LPWUI_EN) : 0);
- 
--	spin_unlock_irqrestore(&data->lock, flags);
--
--	rtc_write_sync_lp(data->ioaddr);
-+	rtc_write_sync_lp(data);
- 
- 	return 0;
- }
-@@ -189,24 +180,14 @@ static int snvs_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
- 	struct snvs_rtc_data *data = dev_get_drvdata(dev);
- 	struct rtc_time *alrm_tm = &alrm->time;
- 	unsigned long time;
--	unsigned long flags;
--	u32 lpcr;
- 
- 	rtc_tm_to_time(alrm_tm, &time);
- 
--	spin_lock_irqsave(&data->lock, flags);
--
--	/* Have to clear LPTA_EN before programming new alarm time in LPTAR */
--	lpcr = readl(data->ioaddr + SNVS_LPCR);
--	lpcr &= ~SNVS_LPCR_LPTA_EN;
--	writel(lpcr, data->ioaddr + SNVS_LPCR);
--
--	spin_unlock_irqrestore(&data->lock, flags);
--
--	writel(time, data->ioaddr + SNVS_LPTAR);
-+	regmap_update_bits(data->regmap, data->offset + SNVS_LPCR, SNVS_LPCR_LPTA_EN, 0);
-+	regmap_write(data->regmap, data->offset + SNVS_LPTAR, time);
- 
- 	/* Clear alarm interrupt status bit */
--	writel(SNVS_LPSR_LPTA, data->ioaddr + SNVS_LPSR);
-+	regmap_write(data->regmap, data->offset + SNVS_LPSR, SNVS_LPSR_LPTA);
- 
- 	return snvs_rtc_alarm_irq_enable(dev, alrm->enabled);
- }
-@@ -226,7 +207,7 @@ static irqreturn_t snvs_rtc_irq_handler(int irq, void *dev_id)
- 	u32 lpsr;
- 	u32 events = 0;
- 
--	lpsr = readl(data->ioaddr + SNVS_LPSR);
-+	regmap_read(data->regmap, data->offset + SNVS_LPSR, &lpsr);
- 
- 	if (lpsr & SNVS_LPSR_LPTA) {
- 		events |= (RTC_AF | RTC_IRQF);
-@@ -238,25 +219,48 @@ static irqreturn_t snvs_rtc_irq_handler(int irq, void *dev_id)
- 	}
- 
- 	/* clear interrupt status */
--	writel(lpsr, data->ioaddr + SNVS_LPSR);
-+	regmap_write(data->regmap, data->offset + SNVS_LPSR, lpsr);
- 
- 	return events ? IRQ_HANDLED : IRQ_NONE;
- }
- 
-+static const struct regmap_config snvs_rtc_config = {
-+	.reg_bits = 32,
-+	.val_bits = 32,
-+	.reg_stride = 4,
-+};
-+
- static int snvs_rtc_probe(struct platform_device *pdev)
- {
- 	struct snvs_rtc_data *data;
- 	struct resource *res;
- 	int ret;
-+	void __iomem *mmio;
- 
- 	data = devm_kzalloc(&pdev->dev, sizeof(*data), GFP_KERNEL);
- 	if (!data)
- 		return -ENOMEM;
- 
--	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
--	data->ioaddr = devm_ioremap_resource(&pdev->dev, res);
--	if (IS_ERR(data->ioaddr))
--		return PTR_ERR(data->ioaddr);
-+	data->regmap = syscon_regmap_lookup_by_phandle(pdev->dev.of_node, "regmap");
-+
-+	if (IS_ERR(data->regmap)) {
-+		dev_warn(&pdev->dev, "snvs rtc: you use old dts file, please update it\n");
-+		res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-+
-+		mmio = devm_ioremap_resource(&pdev->dev, res);
-+		if (IS_ERR(mmio))
-+			return PTR_ERR(mmio);
-+
-+		data->regmap = devm_regmap_init_mmio(&pdev->dev, mmio, &snvs_rtc_config);
-+	} else {
-+		data->offset = SNVS_LPREGISTER_OFFSET;
-+		of_property_read_u32(pdev->dev.of_node, "offset", &data->offset);
-+	}
-+
-+	if (!data->regmap) {
-+		dev_err(&pdev->dev, "Can't find snvs syscon\n");
-+		return -ENODEV;
-+	}
- 
- 	data->irq = platform_get_irq(pdev, 0);
- 	if (data->irq < 0)
-@@ -276,13 +280,11 @@ static int snvs_rtc_probe(struct platform_device *pdev)
- 
- 	platform_set_drvdata(pdev, data);
- 
--	spin_lock_init(&data->lock);
--
- 	/* Initialize glitch detect */
--	writel(SNVS_LPPGDR_INIT, data->ioaddr + SNVS_LPPGDR);
-+	regmap_write(data->regmap, data->offset + SNVS_LPPGDR, SNVS_LPPGDR_INIT);
- 
- 	/* Clear interrupt status */
--	writel(0xffffffff, data->ioaddr + SNVS_LPSR);
-+	regmap_write(data->regmap, data->offset + SNVS_LPSR, 0xffffffff);
- 
- 	/* Enable RTC */
- 	snvs_rtc_enable(data, true);
--- 
-1.9.1
+It would be pretty difficult to do that by mistake. :)
 
--- 
--- 
+See the comment I made to the Watchdog bindings patch for more info.
+
+--=20
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org =E2=94=82 Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog
+
+--=20
+--=20
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+---=20
+You received this message because you are subscribed to the Google Groups "=
+rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an e=
+mail to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
