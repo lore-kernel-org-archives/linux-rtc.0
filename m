@@ -1,46 +1,48 @@
-Return-Path: <rtc-linux+bncBCIPJ6FA2QLBBBVH3CVAKGQEHMX4MIA@googlegroups.com>
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id p12si113344wiv.1.2015.05.15.08.40.53
-        for <rtc-linux@googlegroups.com>;
-        Fri, 15 May 2015 08:40:53 -0700 (PDT)
-Date: Fri, 15 May 2015 17:40:48 +0200
-From: Boris Brezillon <boris.brezillon@free-electrons.com>
-To: Stephen Boyd <sboyd@codeaurora.org>, Mikko Perttunen
- <mikko.perttunen@kapsi.fi>
-Cc: Boris Brezillon <boris.brezillon@free-electrons.com>, Mike Turquette
- <mturquette@linaro.org>, linux-clk@vger.kernel.org,
- linux-kernel@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, Shawn Guo
- <shawn.guo@linaro.org>, ascha Hauer <kernel@pengutronix.de>, David Brown
- <davidb@codeaurora.org>, Daniel Walker <dwalker@fifo99.com>, Bryan Huntsman
- <bryanh@codeaurora.org>, Tony Lindgren <tony@atomide.com>, Paul Walmsley
- <paul@pwsan.com>, Liviu Dudau <liviu.dudau@arm.com>, Sudeep Holla
- <sudeep.holla@arm.com>, Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>, Ralf
- Baechle <ralf@linux-mips.org>, Max Filippov <jcmvbkbc@gmail.com>, Heiko
- Stuebner <heiko@sntech.de>, Sylwester Nawrocki <s.nawrocki@samsung.com>,
- Tomasz Figa <tomasz.figa@gmail.com>, Barry Song <baohua@kernel.org>, Viresh
- Kumar <viresh.linux@gmail.com>, Emilio =?UTF-8?B?TMOzcGV6?=
- <emilio@elopez.com.ar>, Maxime Ripard <maxime.ripard@free-electrons.com>,
- Peter De Schrijver <pdeschrijver@nvidia.com>, Prashant Gaikwad
- <pgaikwad@nvidia.com>, Stephen Warren <swarren@wwwdotorg.org>, Thierry
- Reding <thierry.reding@gmail.com>, Alexandre Courbot <gnurou@gmail.com>,
- Tero Kristo <t-kristo@ti.com>, Ulf Hansson <ulf.hansson@linaro.org>, Michal
- Simek <michal.simek@xilinx.com>, Philipp Zabel <p.zabel@pengutronix.de>,
- linux-doc@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
- linux-arm-msm@vger.kernel.org, linux-omap@vger.kernel.org,
- linux-mips@linux-mips.org, patches@opensource.wolfsonmicro.com,
- linux-rockchip@lists.infradead.org, linux-samsung-soc@vger.kernel.org,
- spear-devel@list.st.com, linux-tegra@vger.kernel.org,
- dri-devel@lists.freedesktop.org, linux-media@vger.kernel.org,
- rtc-linux@googlegroups.com
-Subject: [rtc-linux] Re: [PATCH v2 1/2] clk: change clk_ops' ->round_rate() prototype
-Message-ID: <20150515174048.4a31af49@bbrezillon>
-In-Reply-To: <20150507093702.0b58753d@bbrezillon>
-References: <1430407809-31147-1-git-send-email-boris.brezillon@free-electrons.com>
-	<1430407809-31147-2-git-send-email-boris.brezillon@free-electrons.com>
-	<20150507063953.GC32399@codeaurora.org>
-	<20150507093702.0b58753d@bbrezillon>
+Return-Path: <rtc-linux+bncBCKMZDW5VIHBBSOPV2VAKGQEMDY3MYA@googlegroups.com>
+Received: from bh-25.webhostbox.net (bh-25.webhostbox.net. [208.91.199.152])
+        by gmr-mx.google.com with ESMTPS id x12si11284igx.1.2015.05.07.10.58.32
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1 cipher=RC4-SHA bits=128/128);
+        Thu, 07 May 2015 10:58:32 -0700 (PDT)
+Received: from mailnull by bh-25.webhostbox.net with sa-checked (Exim 4.85)
+	(envelope-from <linux@roeck-us.net>)
+	id 1YqQ48-002qiD-36
+	for rtc-linux@googlegroups.com; Thu, 07 May 2015 17:58:32 +0000
+Date: Thu, 7 May 2015 10:57:47 -0700
+From: Guenter Roeck <linux@roeck-us.net>
+To: "Opensource [Steve Twiss]" <stwiss.opensource@diasemi.com>
+Cc: LINUXKERNEL <linux-kernel@vger.kernel.org>,
+	LINUXWATCHDOG <linux-watchdog@vger.kernel.org>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	DEVICETREE <devicetree@vger.kernel.org>,
+	David Dajun Chen <david.chen@diasemi.com>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Ian Campbell <ijc+devicetree@hellion.org.uk>,
+	Kumar Gala <galak@codeaurora.org>,
+	LINUXINPUT <linux-input@vger.kernel.org>,
+	Lee Jones <lee.jones@linaro.org>,
+	Liam Girdwood <lgirdwood@gmail.com>,
+	Mark Brown <broonie@kernel.org>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Pawel Moll <pawel.moll@arm.com>,
+	RTCLINUX <rtc-linux@googlegroups.com>,
+	Rob Herring <robh+dt@kernel.org>,
+	Samuel Ortiz <sameo@linux.intel.com>,
+	Support Opensource <Support.Opensource@diasemi.com>
+Subject: [rtc-linux] Re: [PATCH V1 5/6] watchdog: da9062: DA9062 watchdog driver
+Message-ID: <20150507175747.GB30372@roeck-us.net>
+References: <cover.1429280614.git.stwiss.opensource@diasemi.com>
+ <2afd9f55c71553186e99bfe386312f0c7d7501ed.1429280614.git.stwiss.opensource@diasemi.com>
+ <55327DDA.4080003@roeck-us.net>
+ <6ED8E3B22081A4459DAC7699F3695FB7014B21924A@SW-EX-MBX02.diasemi.com>
+ <20150506160227.GA28101@roeck-us.net>
+ <6ED8E3B22081A4459DAC7699F3695FB7014B21925B@SW-EX-MBX02.diasemi.com>
+ <20150506200631.GA25846@roeck-us.net>
+ <6ED8E3B22081A4459DAC7699F3695FB7014B221DD2@SW-EX-MBX02.diasemi.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <6ED8E3B22081A4459DAC7699F3695FB7014B221DD2@SW-EX-MBX02.diasemi.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -51,129 +53,94 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Hi Stephen,
+On Thu, May 07, 2015 at 05:45:13PM +0000, Opensource [Steve Twiss] wrote:
+> On 06 May 2015 21:07 Guenter Roeck wrote:
+> 
+> > > > > The DA9062 watchdog ping (register CONTROL_F) is "windowed" for protection
+> > > > > against spurious writes -- i.e. the ping function cannot be called within a 250ms
+> > > > > time limit or the PMIC will reset. This windowing protection also extends to altering
+> > > > > the timeout scale in the CONTROL_D register -- in which case if the timeout
+> > > > > register is altered and the ping() function is called within the 250ms limit, the
+> > > > > PMIC will reset. The delay is there to stop that from happening.
+> > > > >
+> > > > > I realised my previous patch was over-sanitised: by putting the time delay into the
+> > > > > ping() function I was protecting CONTROL_D in stop() and update_timeout_register(),
+> > > > > but I was being too over-protective of the ping() function. Therefore if there was an
+> > > > > "incorrect trigger signal", the watchdog would not be allowed to fail because the
+> > > > > driver would have filtered out the errors.
+> > > > >
+> > > > Hi Steve,
+> > > >
+> > > > From your description, it sounds like the protection is only necessary if there
+> > > > was a previous write to the same register(s).
+> 
+> Hi Guenter,
+> 
+> A clarification from me. It is not the CONTROL_D register that needs protecting, but when
+> the CONTROL_D register is altered the function call also performs a CONTROL_F watchdog
+> ping. Too many pings close together would cause the PMIC reset.
+> 
+> > > > If so, it might make sense to record the time of such writes, and only add the delay
+> > > > if necessary, and only for the remainder of the time.
+> 
+> I've tried it several ways, but my previous suggestion of putting the delays in the stop() and 
+> update_timeout_register() functions just cause even more lengthy delays.
+> 
+> So, I've followed your suggestion and used a variable delay inside the ping() function instead:
+> this seems to cause a lot less delay. A debug message can be used to notify the user if the
+> watchdog is trying to be kicked too quickly -- that would be more preferable than just shutting
+> the PMIC down and still provide a notification that something wasn't quite right.
+> 
+> > > > Would this be possible ?
+> 
+> I'll run the tests overnight.
+> I'm going to do something like this:
+> 
+> diff --git a/linux-next/v4.0/drivers/watchdog/da9062_wdt.c b/linux-next/v4.0/drivers/watchdog/da9062_wdt.c
+> index ad80261..d596910 100644
+> --- a/gp_sparse/linux-next/v4.0/drivers/watchdog/da9062_wdt.c
+> +++ b/gp_sparse/linux-next/v4.0/drivers/watchdog/da9062_wdt.c
+> 
+> @@ -32,12 +33,37 @@ static const unsigned int wdt_timeout[] = { 0, 2, 4, 8, 16, 32, 65, 131 };
+>  #define DA9062_WDT_MIN_TIMEOUT         wdt_timeout[DA9062_TWDSCALE_MIN]
+>  #define DA9062_WDT_MAX_TIMEOUT         wdt_timeout[DA9062_TWDSCALE_MAX]
+>  #define DA9062_WDG_DEFAULT_TIMEOUT     wdt_timeout[DA9062_TWDSCALE_MAX-1]
+> +#define DA9062_RESET_PROTECTION_MS     300
+>  
+>  struct da9062_watchdog {
+>         struct da9062 *hw;
+>         struct watchdog_device wdtdev;
+> +       unsigned long j_time_stamp;
+>  };
+>  
+> +static void da9062_set_window_start(struct da9062_watchdog *wdt)
+> +{
+> +       wdt->j_time_stamp = jiffies;
+> +}
+> +
+> +static void da9062_apply_window_protection(struct da9062_watchdog *wdt)
+> +{
+> +       unsigned long delay = msecs_to_jiffies(DA9062_RESET_PROTECTION_MS);
+> +       unsigned long timeout = wdt->j_time_stamp + delay;
+> +       unsigned long now = jiffies;
+> +       unsigned int diff_ms;
+> +
+> +       /* if time-limit has not elapsed then wait for remainder */
+> +       if (time_before(now, timeout)) {
+> +               diff_ms = jiffies_to_msecs(timeout-now);
+> +               dev_dbg(wdt->hw->dev,
+> +                       "Delaying watchdog ping by %u msecs\n", diff_ms);
 
-Adding Mikko in the loop (after all, he was the one complaining about
-this signed long limitation in the first place, and I forgot to add
-him in the Cc list :-/).
+I would not bother about the dev_dbg, but that is your call.
 
-Mikko, are you okay with the approach proposed by Stephen (adding a
-new method) ?
+> +               mdelay(diff_ms);
 
-On Thu, 7 May 2015 09:37:02 +0200
-Boris Brezillon <boris.brezillon@free-electrons.com> wrote:
+Can you use usleep_range() ?
 
-> Hi Stephen,
-> 
-> On Wed, 6 May 2015 23:39:53 -0700
-> Stephen Boyd <sboyd@codeaurora.org> wrote:
-> 
-> > On 04/30, Boris Brezillon wrote:
-> > > Clock rates are stored in an unsigned long field, but ->round_rate()
-> > > (which returns a rounded rate from a requested one) returns a long
-> > > value (errors are reported using negative error codes), which can lead
-> > > to long overflow if the clock rate exceed 2Ghz.
-> > > 
-> > > Change ->round_rate() prototype to return 0 or an error code, and pass the
-> > > requested rate as a pointer so that it can be adjusted depending on
-> > > hardware capabilities.
-> > > 
-> > > Signed-off-by: Boris Brezillon <boris.brezillon@free-electrons.com>
-> > > Tested-by: Heiko Stuebner <heiko@sntech.de>
-> > > Tested-by: Mikko Perttunen <mikko.perttunen@kapsi.fi>
-> > > Reviewed-by: Heiko Stuebner <heiko@sntech.de>
-> > 
-> > This patch is fairly invasive, and it probably doesn't even
-> > matter for most of these clock providers to be able to round a
-> > rate above 2GHz.
-> 
-> Fair enough.
-> 
-> > I've been trying to remove the .round_rate op
-> > from the framework by encouraging new features via the
-> > .determine_rate op.
-> 
-> Oh, I wasn't aware of that (BTW, that's a good thing).
-> Maybe this should be clearly stated (both in the struct clk_ops
-> kerneldoc header and in Documentation/clk.txt).
-> 
-> > Sadly, we still have to do a flag day and
-> > change all the .determine_rate ops when we want to add things.
-> 
-> Yes, but the number of clk drivers implementing ->determine_rate() is
-> still quite limited compared to those implementing ->round_rate().
-> 
-> > 
-> > What if we changed determine_rate ops to take a struct
-> > clk_determine_info (or some better named structure) instead of
-> > the current list of arguments that it currently takes? Then when
-> > we want to make these sorts of framework wide changes we can just
-> > throw a new member into that structure and be done.
-> 
-> I really like this idea, especially since I was wondering if we could
-> pass other 'clk rate requirements' like the rounding policy (down,
-> closest, up), or the maximum clk inaccuracy.
-> 
-> > 
-> > It doesn't solve the unsigned long to int return value problem
-> > though. We can solve that by gradually introducing a new op and
-> > handling another case in the rounding path. If we can come up
-> > with some good name for that new op like .decide_rate or
-> > something then it makes things nicer in the long run. I like the
-> > name .determine_rate though :/
+Othewise looks good. BTW, I had to do something similar in
+drivers/hwmon/pmbus/zl6100.c; this is where the idea comes from.
 
-Okay, if you want a new method, how about this one:
-
-struct clk_adjust_rate_req {
-	/* fields filled by the caller */
-	unsigned long rate; /* rate is updated by the clk driver */
-	unsigned long min;
-	unsigned long max;
-
-	/* fields filled by the clk driver */
-	struct clk_hw *best_parent;
-	unsigned long best_parent_rate;
-
-	/*
-	 * new fields I'd like to add at some point:
-	 * unsigned long max_inaccuracy;
-	 * something about the power consumption constraints :-)
-	 */
-};
-
-int (*adjust_rate)(struct clk_hw *hw, struct clk_adjust_rate_req *req);
-
-> 
-> Why not changing the ->determine_rate() prototype. As said above, the
-> number of clk drivers implementing this function is still quite
-> limited, and I guess we can have an ack for all of them.
-> 
-> > 
-> > The benefit of all this is that we don't have to worry about
-> > finding the random clk providers that get added into other
-> > subsystems and fixing them up. If drivers actually care about
-> > this problem then they'll be fixed to use the proper op. FYI,
-> > last time we updated the function signature of .determine_rate we
-> > broke a couple drivers along the way.
-> > 
-> 
-> Hm, IMHO, adding a new op is not a good thing. I agree that it eases
-> the transition, but ITOH you'll have to live with old/deprecated ops in
-> your clk_ops structure with people introducing new drivers still using
-> the old ops (see the number of clk drivers implementing ->round_rate()
-> instead of ->determine_rate()).
-> 
-> Best Regards,
-> 
-> Boris
-> 
-
-
-
--- 
-Boris Brezillon, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+Guenter
 
 -- 
 -- 
