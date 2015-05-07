@@ -1,31 +1,30 @@
-Return-Path: <rtc-linux+bncBDA7X7F2WUEBBFVAWKVAKGQEWFSILXA@googlegroups.com>
-Received: from mail-wg0-f54.google.com (mail-wg0-f54.google.com. [74.125.82.54])
-        by gmr-mx.google.com with ESMTPS id gt9si278316wib.2.2015.05.08.03.29.42
+Return-Path: <rtc-linux+bncBDA7X7F2WUEBB26VVWVAKGQEOUQP26A@googlegroups.com>
+MIME-Version: 1.0
+Received: from mail-wi0-f178.google.com (mail-wi0-f178.google.com. [209.85.212.178])
+        by gmr-mx.google.com with ESMTPS id bc3si263987wib.2.2015.05.07.06.38.50
         for <rtc-linux@googlegroups.com>
         (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 08 May 2015 03:29:42 -0700 (PDT)
-Received: by wgiu9 with SMTP id u9so68340595wgi.3
-        for <rtc-linux@googlegroups.com>; Fri, 08 May 2015 03:29:42 -0700 (PDT)
-Date: Fri, 8 May 2015 11:29:38 +0100
+        Thu, 07 May 2015 06:38:50 -0700 (PDT)
+Received: by widdi4 with SMTP id di4so60281913wid.0
+        for <rtc-linux@googlegroups.com>; Thu, 07 May 2015 06:38:50 -0700 (PDT)
 From: Lee Jones <lee.jones@linaro.org>
-To: Paul Bolle <pebolle@tiscali.nl>
-Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-	kernel@stlinux.com, devicetree@vger.kernel.org,
-	daniel.lezcano@linaro.org, tglx@linutronix.de, wim@iguana.be,
-	a.zummo@towertech.it, linux-watchdog@vger.kernel.org,
-	rtc-linux@googlegroups.com, linux@roeck-us.net
-Subject: [rtc-linux] Re: [PATCH 03/12] clocksource: sti: Provide 'use timer as
- sched clock' capability
-Message-ID: <20150508102938.GD29044@x1>
-References: <1431005924-21777-1-git-send-email-lee.jones@linaro.org>
- <1431005924-21777-4-git-send-email-lee.jones@linaro.org>
- <1431074699.13593.4.camel@x220>
- <20150508093603.GB29044@x1>
- <1431078730.13593.14.camel@x220>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1431078730.13593.14.camel@x220>
+To: linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org
+Cc: kernel@stlinux.com,
+	devicetree@vger.kernel.org,
+	daniel.lezcano@linaro.org,
+	tglx@linutronix.de,
+	wim@iguana.be,
+	a.zummo@towertech.it,
+	linux-watchdog@vger.kernel.org,
+	rtc-linux@googlegroups.com,
+	linux@roeck-us.net,
+	Lee Jones <lee.jones@linaro.org>
+Subject: [rtc-linux] [PATCH 00/12] mfd: watchdog: rtc: Add LPC Clocksource driver
+Date: Thu,  7 May 2015 14:38:32 +0100
+Message-Id: <1431005924-21777-1-git-send-email-lee.jones@linaro.org>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -35,59 +34,56 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On Fri, 08 May 2015, Paul Bolle wrote:
+ST's Low Power Controller (LPC) controls three devices; watchdog, RTC
+and a Clocksource Timer.  Only one of the devices can be used at any
+one time, which is enforced by the Device Driver model.
 
-> On Fri, 2015-05-08 at 10:36 +0100, Lee Jones wrote:
-> > On Fri, 08 May 2015, Paul Bolle wrote:
-> > > On Thu, 2015-05-07 at 14:38 +0100, Lee Jones wrote:
-> > > > --- a/drivers/clocksource/Kconfig
-> > > > +++ b/drivers/clocksource/Kconfig
-> > >=20
-> > > > +config CLKSRC_ST_LPC_TIMER_SCHED_CLOCK
-> > > > +	bool
-> > > > +	depends on CLKSRC_ST_LPC
-> > > > +	default y
-> > > > +	help
-> > > > +	  Use Low Power controller timer clock source as sched_clock
-> > >=20
-> > > This adds, as far as I can see, a Kconfig symbol that will always be =
-in
-> > > lockstep with CLKSRC_ST_LPC. Ie, CLKSRC_ST_LPC and
-> > > CLKSRC_ST_LPC_TIMER_SCHED_CLOCK will always both be 'n' or both be 'y=
-'.
-> > >=20
-> > > Are there plans to break that lockstep in the future?
-> >=20
-> > What's stopping CONFIG_CLKSRC_ST_LPC_TIMER_SCHED_CLOCK=3Dn?
->=20
-> If CLKSRC_ST_LPC=3Dy you mean? The lack of a prompt, I'd say. Ie, you
-> would need
-> 	bool "A very short description"
->=20
-> to be able to set these independently.
->=20
-> But now I notice that I missed that there appears to be a problem with
-> CLKSRC_ST_LPC too. I'll reply to 2/12 shortly.
+This patchset provides support for the Clocksource driver.  Watchdog
+and RTC are already in -next.
 
-Ah, you mean from menuconfig.  I almost forgot what that was. ;)
+Lee Jones (12):
+  mfd: dt-bindings: Provide human readable define for Clocksource mode
+  clocksource: sti: Provide support for the ST LPC Clocksource IP
+  clocksource: sti: Provide 'use timer as sched clock' capability
+  clocksource: bindings: Provide bindings for ST's LPC Clocksource
+    device
+  watchdog: st_wdt: Update IP layout information to include Clocksource
+  watchdog: bindings: Supply knowledge of a third supported device -
+    clocksource
+  rtc: st: Update IP layout information to include Clocksource
+  rtc: bindings: Supply knowledge of a third supported device -
+    clocksource
+  MAINTAINERS: Add the LPC Clocksource to STi maintained driver list
+  ARM: STi: DT: STih407: Switch LPC mode from RTC to Clocksource
+  ARM: STi: Enable LPC Clocksource
+  ARM: STi: Update platform level menuconfig 'help'
 
-I can add a menu option, no problem.
+ .../devicetree/bindings/rtc/rtc-st-lpc.txt         |  15 ++-
+ .../devicetree/bindings/timer/st,stih407-lpc       |  28 +++++
+ .../devicetree/bindings/watchdog/st_lpc_wdt.txt    |  15 ++-
+ MAINTAINERS                                        |   1 +
+ arch/arm/boot/dts/stih407-family.dtsi              |   2 +-
+ arch/arm/mach-sti/Kconfig                          |   9 +-
+ drivers/clocksource/Kconfig                        |  16 +++
+ drivers/clocksource/Makefile                       |   1 +
+ drivers/clocksource/clksrc_st_lpc.c                | 134 +++++++++++++++++++++
+ drivers/rtc/rtc-st-lpc.c                           |   2 +-
+ drivers/watchdog/st_lpc_wdt.c                      |   2 +-
+ include/dt-bindings/mfd/st-lpc.h                   |   1 +
+ 12 files changed, 206 insertions(+), 20 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/timer/st,stih407-lpc
+ create mode 100644 drivers/clocksource/clksrc_st_lpc.c
 
---=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+-- 
+1.9.1
 
---=20
---=20
+-- 
+-- 
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
----=20
-You received this message because you are subscribed to the Google Groups "=
-rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an e=
-mail to rtc-linux+unsubscribe@googlegroups.com.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
