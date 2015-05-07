@@ -1,27 +1,24 @@
-Return-Path: <rtc-linux+bncBDP6N55ZUYDRBYXV3CVAKGQEWB6TITQ@googlegroups.com>
-Received: from mail-ig0-x22e.google.com (mail-ig0-x22e.google.com. [2607:f8b0:4001:c05::22e])
-        by gmr-mx.google.com with ESMTPS id lr7si256131igb.2.2015.05.15.11.28.50
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 15 May 2015 11:28:50 -0700 (PDT)
-Received: by mail-ig0-x22e.google.com with SMTP id pi8so45404200igb.0
-        for <rtc-linux@googlegroups.com>; Fri, 15 May 2015 11:28:50 -0700 (PDT)
-Date: Fri, 15 May 2015 11:28:46 -0700
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Frank.Li@freescale.com
-Cc: lznuaa@gmail.com, shawn.guo@linaro.org, robh+dt@kernel.org,
-	a.zummo@towertech.it, alexandre.belloni@free-electrons.com,
-	sachin.kamat@linaro.org, p.zabel@pengutronix.de,
-	linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org,
-	rtc-linux@googlegroups.com, linux-pm@vger.kernel.org,
-	devicetree@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH resend 0/7] Change snvs rtc and poweroff to
- use syscon add pwrkey driver
-Message-ID: <20150515182846.GB696@dtor-ws>
-References: <1431696990-23078-1-git-send-email-Frank.Li@freescale.com>
+Return-Path: <rtc-linux+bncBAABBXWUVSVAKGQEGJM273A@googlegroups.com>
+Received: from mail.pbx.lv ([213.175.90.140])
+        by gmr-mx.google.com with ESMTP id su3si85254lbb.1.2015.05.07.02.03.25
+        for <rtc-linux@googlegroups.com>;
+        Thu, 07 May 2015 02:03:25 -0700 (PDT)
+To: Arnd Bergmann <arnd@arndb.de>
+Subject: [rtc-linux] Re: [1/2] RTC: Add core rtc support for Gemini Soc devices
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1431696990-23078-1-git-send-email-Frank.Li@freescale.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Date: Thu, 07 May 2015 12:03:25 +0300
+From: Roman Yeryomin <roman@advem.lv>
+Cc: linux-arm-kernel@lists.infradead.org, Alexandre Belloni
+ <alexandre.belloni@free-electrons.com>, Felix Fietkau <nbd@openwrt.org>,
+ rtc-linux@googlegroups.com, Linus Walleij <linus.walleij@linaro.org>,
+ linux-kernel@vger.kernel.org, Russell King <rmk+kernel@arm.linux.org.uk>,
+ Hans Ulli Kroll <ulli.kroll@googlemail.com>
+In-Reply-To: <2349062.9v3Zz7HPLu@wuerfel>
+References: <1292339307-14336-2-git-send-email-ulli.kroll@googlemail.com>
+ <20150506095312.GU4276@piout.net>
+ <d97c3a8a29aa85c83973daf4a22ca4c9@advem.lv> <2349062.9v3Zz7HPLu@wuerfel>
+Message-ID: <0701f75c1c42f74fd58845bc0ed41c38@advem.lv>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -32,64 +29,30 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On Fri, May 15, 2015 at 09:36:23PM +0800, Frank.Li@freescale.com wrote:
-> From: Frank Li <Frank.Li@freescale.com>
+On 2015-05-06 22:22, Arnd Bergmann wrote:
+> On Wednesday 06 May 2015 19:21:21 Roman Yeryomin wrote:
+>> 
+>> > Thanks to point that, I'll merge that one which seems clean enough:
+>> > http://git.openwrt.org/?p=openwrt.git;a=blob;f=target/linux/gemini/files/drivers/rtc/rtc-gemini.c;h=587d8122b2fbb1230437eadcce4789a53aa60ee5;hb=4c637410a2a1ab45988e8ca6202554a502102039
+>> 
+>> For 3.18 (and up) to work on gemini 160-gemini-timers.patch is vital.
+>> Without that timers are broken and cpu is super slow.
 > 
-> Resend to add rtc and reset  maintainer.
+> Do you know what part of the patch is the actual bug fix? We should 
+> probably
+> merge that separately and mark it for stable backports, while the bulk 
+> of that
+> patch seems to just rearrange code.
 > 
-> SNVS is MPF module.
-> include rtc, power off, ON/OFF power key
->   
->   arm: imx: power-off: change to syscon to access register
->   rtc: arm: imx: snvs: change use syscon to access register
-> Above two patch change existed power-off and rtc use syscon
-> 
->   Document: dt: fsl: snvs: change support syscon
->   arm: dts: imx: update snvs to use syscon access register
-> Update dt file and document
-> 
->   input: keyboard: imx: add snvs power key driver
->   document: devicetree: input: imx: i.mx snvs power device tree bindings
->   arm: dts: imx6sx: enable snvs power key
-> Added on/off key driver
-> 
-> Frank Li (6):
->   arm: imx: power-off: change to syscon to access register
->   rtc: arm: imx: snvs: change use syscon to access register
->   Document: dt: fsl: snvs: change support syscon
->   arm: dts: imx: update snvs to use syscon access register
->   document: devicetree: input: imx: i.mx snvs power device tree bindings
->   arm: dts: imx6sx: enable snvs power key
-> 
-> Robin Gong (1):
->   input: keyboard: imx: add snvs power key driver
+> 	Arnd
 
-OK, I am now happy with the input part, but we span several subsystems
-now. How do we want to merge this?
+Sorry, didn't try to extract the exact lines it but I guess it's that 
+part which touches the scheduler clock code.
+Because without that patch sched clock runs at 100Hz instead of 25MHz.
+I can dive into this deeper if you want, I just didn't see the need.
 
-> 
->  .../devicetree/bindings/crypto/fsl-sec4.txt        |  93 +++++++--
->  .../devicetree/bindings/input/snvs-pwrkey.txt      |   1 +
->  .../bindings/power_supply/imx-snvs-poweroff.txt    |  24 +--
->  arch/arm/boot/dts/imx6qdl.dtsi                     |  12 +-
->  arch/arm/boot/dts/imx6sl.dtsi                      |  12 +-
->  arch/arm/boot/dts/imx6sx.dtsi                      |  19 +-
->  arch/arm/boot/dts/vfxxx.dtsi                       |   9 +-
->  drivers/input/keyboard/Kconfig                     |  11 +
->  drivers/input/keyboard/Makefile                    |   1 +
->  drivers/input/keyboard/snvs_pwrkey.c               | 232 +++++++++++++++++++++
->  drivers/power/reset/imx-snvs-poweroff.c            |  21 +-
->  drivers/rtc/rtc-snvs.c                             | 124 +++++------
->  12 files changed, 417 insertions(+), 142 deletions(-)
->  create mode 100644 Documentation/devicetree/bindings/input/snvs-pwrkey.txt
->  create mode 100644 drivers/input/keyboard/snvs_pwrkey.c
-> 
-> -- 
-> 1.9.1
-> 
-
--- 
-Dmitry
+Regards,
+Roman
 
 -- 
 -- 
