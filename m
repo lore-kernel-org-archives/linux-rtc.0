@@ -1,70 +1,66 @@
-Return-Path: <rtc-linux+bncBCUYRNXYZECRBZVF6OVAKGQEZNUC5EQ@googlegroups.com>
-Received: from pandora.arm.linux.org.uk (pandora.arm.linux.org.uk. [2001:4d48:ad52:3201:214:fdff:fe10:1be6])
-        by gmr-mx.google.com with ESMTPS id u10si171825wif.1.2015.05.20.11.31.01
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1 cipher=RC4-SHA bits=128/128);
-        Wed, 20 May 2015 11:31:01 -0700 (PDT)
-Date: Wed, 20 May 2015 19:30:50 +0100
-From: Russell King - ARM Linux <linux@arm.linux.org.uk>
-To: Shawn Guo <shawnguo@kernel.org>
-Cc: a.zummo@towertech.it, Frank.Li@freescale.com,
-	rtc-linux@googlegroups.com, linux-pm@vger.kernel.org,
-	dmitry.torokhov@gmail.com, devicetree@vger.kernel.org,
-	robh+dt@kernel.org, alexandre.belloni@free-electrons.com,
-	p.zabel@pengutronix.de, linux-input@vger.kernel.org,
-	lznuaa@gmail.com, shawn.guo@linaro.org,
-	linux-arm-kernel@lists.infradead.org
-Subject: [rtc-linux] Re: [PATCH v2 0/7] Change snvs rtc and poweroff to use
- syscon add pwrkey driver
-Message-ID: <20150520183050.GR2067@n2100.arm.linux.org.uk>
-References: <1432055082-28983-1-git-send-email-Frank.Li@freescale.com>
- <20150520015851.GB1071@dragon>
- <20150520182540.GQ2067@n2100.arm.linux.org.uk>
+Return-Path: <rtc-linux+bncBCAJFDXE4QGBBPMGWKVAKGQEQHGTC7Q@googlegroups.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <20150520182540.GQ2067@n2100.arm.linux.org.uk>
-Sender: rtc-linux@googlegroups.com
+Received: from mail-pd0-x232.google.com (mail-pd0-x232.google.com. [2607:f8b0:400e:c02::232])
+        by gmr-mx.google.com with ESMTPS id jr5si558417pbb.1.2015.05.08.02.34.52
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Fri, 08 May 2015 02:34:52 -0700 (PDT)
+Received: by mail-pd0-x232.google.com with SMTP id qd1so73718353pdb.2
+        for <rtc-linux@googlegroups.com>; Fri, 08 May 2015 02:34:52 -0700 (PDT)
+From: Adrian Huang <adrianhuang0701@gmail.com>
+To: Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	rtc-linux@googlegroups.com
+Cc: Brecht Machiels <brecht@mos6581.org>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	John Stultz <john.stultz@linaro.org>,
+	Rabin Vincent <rabin.vincent@stericsson.com>,
+	Borislav Petkov <bp@suse.de>,
+	Nagananda Chumbalkar <nchumbalkar@lenovo.com>,
+	Adrian Huang <ahuang12@lenovo.com>,
+	Adrian Huang <adrianhuang0701@gmail.com>
+Subject: [rtc-linux] [RFC PATCH 0/2] rtc: Prevent the automatic reboot after
+ powering off the system
+Date: Fri,  8 May 2015 17:33:38 +0800
+Message-Id: <1431077618-3435-1-git-send-email-adrianhuang0701@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
 List-Archive: <http://groups.google.com/group/rtc-linux
+Sender: rtc-linux@googlegroups.com
 List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On Wed, May 20, 2015 at 07:25:41PM +0100, Russell King - ARM Linux wrote:
-> On Wed, May 20, 2015 at 09:58:51AM +0800, Shawn Guo wrote:
-> > On Wed, May 20, 2015 at 01:04:35AM +0800, Frank.Li@freescale.com wrote:
-> > > Frank Li (6):
-> > >   arm: imx: power-off: change to syscon to access register
-> > >   rtc: arm: imx: snvs: change use syscon to access register
-> > >   Document: dt: fsl: snvs: change support syscon
-> > >   arm: dts: imx: update snvs to use syscon access register
-> > >   document: devicetree: input: imx: i.mx snvs power device tree bindings
-> > >   arm: dts: imx6sx: enable snvs power key
-> > 
-> > So, the series will break existing DTBs for RTC and poweroff, right?
-> > If this is unavoidable, should we at least have some warning messages
-> > telling users about his breakage?
-> 
-> What's the justification for breaking existing DTBs?  Really, this is
-> something we should strive to avoid, _and_ actually avoid by providing
-> backwards compatibility.
+Commit d5a1c7e3fc38 ("rtc-cmos: Add an alarm disable quirk") added the
+alarm disable quirk to work around the broken BIOSes. The same symptom
+is observed on Lenovo Thinkserver. Instead of adding the impacted
+servers to the "alarm disable" quirk, this patchset aims at preventing
+the issue so that the commit can be reverted. 
 
-Looking at the RTC code, it would be pretty trivial to do.
+The brief description of the root cause is that: When configuring 
+the RTC registers to setup a wake up event in the S5 handler (BIOS),
+the handler does not clear the interrupt flag bits by reading 
+Register C of CMOS RTC.
 
-Rather than passing around struct regmap, pass around the private data
-structure.
+Can someone help verify the patchset if he/she has the failed
+machine? Thanks in advance.
 
-Rename the regmap_* function calls to be private accessors.  Implement
-a set of new accessors - if the private data has the regmap, use the
-regmap API.  Otherwise, use the old method, and print a warning that an
-old DT is being used.
+Adrian Huang (2):
+  Revert "rtc-cmos: Add an alarm disable quirk"
+  rtc: restore the rtc alarm time to the configured alarm time in BIOS
+    setup
+
+ drivers/rtc/interface.c | 21 ++++++++++++++++++++
+ drivers/rtc/rtc-cmos.c  | 52 -------------------------------------------------
+ drivers/rtc/rtc-dev.c   |  1 +
+ include/linux/rtc.h     |  1 +
+ 4 files changed, 23 insertions(+), 52 deletions(-)
 
 -- 
-FTTC broadband for 0.8mile line: currently at 10.5Mbps down 400kbps up
-according to speedtest.net.
+1.9.1
 
 -- 
 -- 
