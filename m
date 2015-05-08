@@ -1,32 +1,27 @@
-Return-Path: <rtc-linux+bncBDA7X7F2WUEBB5HRY6VAKGQEYLEXEJY@googlegroups.com>
-Received: from mail-wi0-f181.google.com (mail-wi0-f181.google.com. [209.85.212.181])
-        by gmr-mx.google.com with ESMTPS id g5si98713wix.1.2015.05.12.05.58.27
+Return-Path: <rtc-linux+bncBDJLF25T6MIBBPGEWKVAKGQE7PEXRFI@googlegroups.com>
+Received: from lb2-smtp-cloud6.xs4all.net (lb2-smtp-cloud6.xs4all.net. [194.109.24.28])
+        by gmr-mx.google.com with ESMTPS id gt9si289647wib.2.2015.05.08.04.47.08
         for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 12 May 2015 05:58:28 -0700 (PDT)
-Received: by mail-wi0-f181.google.com with SMTP id nf17so14256346wic.1
-        for <rtc-linux@googlegroups.com>; Tue, 12 May 2015 05:58:27 -0700 (PDT)
-From: Lee Jones <lee.jones@linaro.org>
-To: linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org,
-	devicetree@vger.kernel.org,
-	daniel.lezcano@linaro.org,
-	tglx@linutronix.de,
-	wim@iguana.be,
-	a.zummo@towertech.it,
-	linux-watchdog@vger.kernel.org,
-	rtc-linux@googlegroups.com,
-	linux@roeck-us.net
-Cc: kernel@stlinux.com,
-	Lee Jones <lee.jones@linaro.org>
-Subject: [rtc-linux] [PATCH v2 02/12] clocksource: sti: Provide support for
- the ST LPC Clocksource IP
-Date: Tue, 12 May 2015 13:58:10 +0100
-Message-Id: <1431435500-22899-3-git-send-email-lee.jones@linaro.org>
-In-Reply-To: <1431435500-22899-1-git-send-email-lee.jones@linaro.org>
-References: <1431435500-22899-1-git-send-email-lee.jones@linaro.org>
-MIME-Version: 1.0
+        (version=TLSv1 cipher=RC4-SHA bits=128/128);
+        Fri, 08 May 2015 04:47:08 -0700 (PDT)
+Message-ID: <1431085625.13593.39.camel@x220>
+Subject: [rtc-linux] Re: [PATCH 03/12] clocksource: sti: Provide 'use timer as
+ sched clock' capability
+From: Paul Bolle <pebolle@tiscali.nl>
+To: Lee Jones <lee.jones@linaro.org>
+Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+ kernel@stlinux.com, devicetree@vger.kernel.org, daniel.lezcano@linaro.org,
+ tglx@linutronix.de, wim@iguana.be, a.zummo@towertech.it,
+ linux-watchdog@vger.kernel.org, rtc-linux@googlegroups.com,
+ linux@roeck-us.net
+Date: Fri, 08 May 2015 13:47:05 +0200
+In-Reply-To: <20150508102938.GD29044@x1>
+References: <1431005924-21777-1-git-send-email-lee.jones@linaro.org>
+	 <1431005924-21777-4-git-send-email-lee.jones@linaro.org>
+	 <1431074699.13593.4.camel@x220> <20150508093603.GB29044@x1>
+	 <1431078730.13593.14.camel@x220> <20150508102938.GD29044@x1>
 Content-Type: text/plain; charset=UTF-8
+Mime-Version: 1.0
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -37,191 +32,47 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-This IP is shared with Watchdog and RTC functionality.  All 3 of
-these devices are mutually exclusive from one another i.e. Only 1
-IP can be used at any given time.  We use the device-driver model
-combined with a DT 'mode' property to enforce this.
+On Fri, 2015-05-08 at 11:29 +0100, Lee Jones wrote:
+> Ah, you mean from menuconfig.  I almost forgot what that was. ;)
+> 
+> I can add a menu option, no problem.
 
-The ST LPC Clocksource IP can be used as the system (tick) timer.
+It's not just menuconfig:
+    $ grep -e CONFIG_ARCH_STI -e CONFIG_CLKSRC_ST_LPC .config 
+    CONFIG_ARCH_STI=y
+    CONFIG_CLKSRC_ST_LPC=y
+    CONFIG_CLKSRC_ST_LPC_TIMER_SCHED_CLOCK=y
+    $ vim .config 
+    $ grep -e CONFIG_ARCH_STI -e CONFIG_CLKSRC_ST_LPC .config 
+    CONFIG_ARCH_STI=y
+    # CONFIG_CLKSRC_ST_LPC is not set
+    # CONFIG_CLKSRC_ST_LPC_TIMER_SCHED_CLOCK is not set
+    $ make ARCH=arm silentoldconfig
+    scripts/kconfig/conf  --silentoldconfig Kconfig
+    #
+    # configuration written to .config
+    #
+    $ grep -e CONFIG_ARCH_STI -e CONFIG_CLKSRC_ST_LPC .config 
+    CONFIG_ARCH_STI=y
+    CONFIG_CLKSRC_ST_LPC=y
+    CONFIG_CLKSRC_ST_LPC_TIMER_SCHED_CLOCK=y
 
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
----
- drivers/clocksource/Kconfig         |   9 +++
- drivers/clocksource/Makefile        |   1 +
- drivers/clocksource/clksrc_st_lpc.c | 121 ++++++++++++++++++++++++++++++++=
-++++
- 3 files changed, 131 insertions(+)
- create mode 100644 drivers/clocksource/clksrc_st_lpc.c
+So I think that, if you want to be able to set
+CLKSRC_ST_LPC_TIMER_SCHED_CLOCK to 'n' even though CLKSRC_ST_LPC is 'y',
+you need to add a prompt. Or have you found a way around this?
 
-diff --git a/drivers/clocksource/Kconfig b/drivers/clocksource/Kconfig
-index 68161f7..01a07a6 100644
---- a/drivers/clocksource/Kconfig
-+++ b/drivers/clocksource/Kconfig
-@@ -250,4 +250,13 @@ config CLKSRC_PXA
- 	help
- 	  This enables OST0 support available on PXA and SA-11x0
- 	  platforms.
-+
-+config CLKSRC_ST_LPC
-+	bool
-+	depends on ARCH_STI
-+	select CLKSRC_OF if OF
-+	help
-+	  Enable this option to use the Low Power controller timer
-+	  as clocksource.
-+
- endmenu
-diff --git a/drivers/clocksource/Makefile b/drivers/clocksource/Makefile
-index 752d5c7..e08da4d 100644
---- a/drivers/clocksource/Makefile
-+++ b/drivers/clocksource/Makefile
-@@ -51,3 +51,4 @@ obj-$(CONFIG_ARCH_INTEGRATOR_AP)	+=3D timer-integrator-ap=
-.o
- obj-$(CONFIG_CLKSRC_VERSATILE)		+=3D versatile.o
- obj-$(CONFIG_CLKSRC_MIPS_GIC)		+=3D mips-gic-timer.o
- obj-$(CONFIG_ASM9260_TIMER)		+=3D asm9260_timer.o
-+obj-$(CONFIG_CLKSRC_ST_LPC)		+=3D clksrc_st_lpc.o
-diff --git a/drivers/clocksource/clksrc_st_lpc.c b/drivers/clocksource/clks=
-rc_st_lpc.c
-new file mode 100644
-index 0000000..1ad1714
---- /dev/null
-+++ b/drivers/clocksource/clksrc_st_lpc.c
-@@ -0,0 +1,121 @@
-+/*
-+ * Clocksource using the Low Power Timer found in the Low Power Controller=
- (LPC)
-+ *
-+ * Copyright (C) 2015 STMicroelectronics =E2=80=93 All Rights Reserved
-+ *
-+ * Author(s): Francesco Virlinzi <francesco.virlinzi@st.com>
-+ *	      Ajit Pal Singh <ajitpal.singh@st.com>
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ */
-+
-+#include <linux/clk.h>
-+#include <linux/clocksource.h>
-+#include <linux/init.h>
-+#include <linux/of_address.h>
-+#include <linux/slab.h>
-+
-+#include <dt-bindings/mfd/st-lpc.h>
-+
-+/* Low Power Timer */
-+#define LPC_LPT_LSB_OFF		0x400
-+#define LPC_LPT_MSB_OFF		0x404
-+#define LPC_LPT_START_OFF	0x408
-+
-+static struct st_clksrc_ddata {
-+	struct clk		*clk;
-+	void __iomem		*base;
-+} ddata;
-+
-+static void st_clksrc_reset(void)
-+{
-+	writel_relaxed(0, ddata.base + LPC_LPT_START_OFF);
-+	writel_relaxed(0, ddata.base + LPC_LPT_MSB_OFF);
-+	writel_relaxed(0, ddata.base + LPC_LPT_LSB_OFF);
-+	writel_relaxed(1, ddata.base + LPC_LPT_START_OFF);
-+}
-+
-+static int __init st_clksrc_init(void)
-+{
-+	unsigned long rate;
-+	int ret;
-+
-+	st_clksrc_reset();
-+
-+	rate =3D clk_get_rate(ddata.clk);
-+
-+	ret =3D clocksource_mmio_init(ddata.base + LPC_LPT_LSB_OFF,
-+				    "clksrc-st-lpc", rate, 300, 32,
-+				    clocksource_mmio_readl_up);
-+	if (ret) {
-+		pr_err("clksrc-st-lpc: Failed to register clocksource\n");
-+		return ret;
-+	}
-+
-+	return 0;
-+}
-+
-+static int st_clksrc_setup_clk(struct device_node *np)
-+{
-+	struct clk *clk;
-+
-+	clk =3D of_clk_get(np, 0);
-+	if (IS_ERR(clk)) {
-+		pr_err("clksrc-st-lpc: Failed to get LPC clock\n");
-+		return PTR_ERR(clk);
-+	}
-+
-+	if (clk_prepare_enable(clk)) {
-+		pr_err("clksrc-st-lpc: Failed to enable LPC clock\n");
-+		return -EINVAL;
-+	}
-+
-+	if (!clk_get_rate(clk)) {
-+		pr_err("clksrc-st-lpc: Failed to get LPC clock rate\n");
-+		clk_disable_unprepare(clk);
-+		return -EINVAL;
-+	}
-+
-+	ddata.clk =3D clk;
-+
-+	return 0;
-+}
-+
-+static void __init st_clksrc_of_register(struct device_node *np)
-+{
-+	int ret;
-+	uint32_t mode;
-+
-+	ret =3D of_property_read_u32(np, "st,lpc-mode", &mode);
-+	if (ret) {
-+		pr_err("clksrc-st-lpc: An LPC mode must be provided\n");
-+		return;
-+	}
-+
-+	/* LPC can either run as a Clocksource or in RTC or WDT mode */
-+	if (mode !=3D ST_LPC_MODE_CLKSRC)
-+		return;
-+
-+	ddata.base =3D of_iomap(np, 0);
-+	if (!ddata.base) {
-+		pr_err("clksrc-st-lpc: Unable to map iomem\n");
-+		return;
-+	}
-+
-+	if (st_clksrc_setup_clk(np)) {
-+		iounmap(ddata.base);
-+		return;
-+	}
-+
-+	if (st_clksrc_init()) {
-+		iounmap(ddata.base);
-+		return;
-+	}
-+
-+	pr_info("clksrc-st-lpc: clocksource initialised - running @ %luHz\n",
-+		clk_get_rate(ddata.clk));
-+}
-+CLOCKSOURCE_OF_DECLARE(ddata, "st,stih407-lpc", st_clksrc_of_register);
---=20
-1.9.1
+Thanks,
 
---=20
---=20
+
+Paul Bolle
+
+-- 
+-- 
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
----=20
-You received this message because you are subscribed to the Google Groups "=
-rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an e=
-mail to rtc-linux+unsubscribe@googlegroups.com.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
