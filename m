@@ -1,57 +1,31 @@
-Return-Path: <rtc-linux+bncBDHZXHXDRAMBB65Z56VAKGQEUYTKQOY@googlegroups.com>
-Received: from smtp.codeaurora.org (smtp.codeaurora.org. [198.145.29.96])
-        by gmr-mx.google.com with ESMTPS id k3si58740igf.1.2015.05.19.18.01.47
+Return-Path: <rtc-linux+bncBAABBRX4WKVAKGQENLQEFFY@googlegroups.com>
+Received: from mail1.bemta5.messagelabs.com (mail1.bemta5.messagelabs.com. [195.245.231.138])
+        by gmr-mx.google.com with ESMTPS id p9si432414wiz.3.2015.05.08.06.46.45
         for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 19 May 2015 18:01:47 -0700 (PDT)
-Date: Tue, 19 May 2015 18:01:44 -0700
-From: Stephen Boyd <sboyd@codeaurora.org>
-To: Mikko Perttunen <mikko.perttunen@kapsi.fi>
-Cc: Boris Brezillon <boris.brezillon@free-electrons.com>,
-	Mike Turquette <mturquette@linaro.org>, linux-clk@vger.kernel.org,
-	linux-kernel@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>,
-	Shawn Guo <shawn.guo@linaro.org>,
-	ascha Hauer <kernel@pengutronix.de>,
-	David Brown <davidb@codeaurora.org>,
-	Daniel Walker <dwalker@fifo99.com>,
-	Bryan Huntsman <bryanh@codeaurora.org>,
-	Tony Lindgren <tony@atomide.com>, Paul Walmsley <paul@pwsan.com>,
-	Liviu Dudau <liviu.dudau@arm.com>,
-	Sudeep Holla <sudeep.holla@arm.com>,
-	Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-	Ralf Baechle <ralf@linux-mips.org>,
-	Max Filippov <jcmvbkbc@gmail.com>, Heiko Stuebner <heiko@sntech.de>,
-	Sylwester Nawrocki <s.nawrocki@samsung.com>,
-	Tomasz Figa <tomasz.figa@gmail.com>, Barry Song <baohua@kernel.org>,
-	Viresh Kumar <viresh.linux@gmail.com>,
-	Emilio L?pez <emilio@elopez.com.ar>,
-	Maxime Ripard <maxime.ripard@free-electrons.com>,
-	Peter De Schrijver <pdeschrijver@nvidia.com>,
-	Prashant Gaikwad <pgaikwad@nvidia.com>,
-	Stephen Warren <swarren@wwwdotorg.org>,
-	Thierry Reding <thierry.reding@gmail.com>,
-	Alexandre Courbot <gnurou@gmail.com>, Tero Kristo <t-kristo@ti.com>,
-	Ulf Hansson <ulf.hansson@linaro.org>,
-	Michal Simek <michal.simek@xilinx.com>,
-	Philipp Zabel <p.zabel@pengutronix.de>, linux-doc@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org, linux-arm-msm@vger.kernel.org,
-	linux-omap@vger.kernel.org, linux-mips@linux-mips.org,
-	patches@opensource.wolfsonmicro.com,
-	linux-rockchip@lists.infradead.org,
-	linux-samsung-soc@vger.kernel.org, spear-devel@list.st.com,
-	linux-tegra@vger.kernel.org, dri-devel@lists.freedesktop.org,
-	linux-media@vger.kernel.org, rtc-linux@googlegroups.com
-Subject: [rtc-linux] Re: [PATCH v2 1/2] clk: change clk_ops' ->round_rate() prototype
-Message-ID: <20150520010144.GA31054@codeaurora.org>
-References: <1430407809-31147-1-git-send-email-boris.brezillon@free-electrons.com>
- <1430407809-31147-2-git-send-email-boris.brezillon@free-electrons.com>
- <20150507063953.GC32399@codeaurora.org>
- <20150507093702.0b58753d@bbrezillon>
- <20150515174048.4a31af49@bbrezillon>
- <5557267D.7080209@kapsi.fi>
-MIME-Version: 1.0
+        (version=TLSv1.2 cipher=RC4-SHA bits=128/128);
+        Fri, 08 May 2015 06:46:45 -0700 (PDT)
+From: "Opensource [Steve Twiss]" <stwiss.opensource@diasemi.com>
+To: Guenter Roeck <linux@roeck-us.net>, LINUXKERNEL
+	<linux-kernel@vger.kernel.org>, LINUXWATCHDOG
+	<linux-watchdog@vger.kernel.org>, Wim Van Sebroeck <wim@iguana.be>
+CC: Alessandro Zummo <a.zummo@towertech.it>, DEVICETREE
+	<devicetree@vger.kernel.org>, David Dajun Chen <david.chen@diasemi.com>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>, Ian Campbell
+	<ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>,
+	LINUXINPUT <linux-input@vger.kernel.org>, Lee Jones <lee.jones@linaro.org>,
+	Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, "Mark
+ Rutland" <mark.rutland@arm.com>, Pawel Moll <pawel.moll@arm.com>, RTCLINUX
+	<rtc-linux@googlegroups.com>, Rob Herring <robh+dt@kernel.org>, Samuel Ortiz
+	<sameo@linux.intel.com>, Support Opensource <Support.Opensource@diasemi.com>
+Subject: [rtc-linux] RE: [PATCH V1 5/6] watchdog: da9062: DA9062 watchdog driver
+Date: Fri, 8 May 2015 13:46:42 +0000
+Message-ID: <6ED8E3B22081A4459DAC7699F3695FB7014B227F1A@SW-EX-MBX02.diasemi.com>
+References: <cover.1429280614.git.stwiss.opensource@diasemi.com>
+ <2afd9f55c71553186e99bfe386312f0c7d7501ed.1429280614.git.stwiss.opensource@diasemi.com>
+ <55327DDA.4080003@roeck-us.net>
+In-Reply-To: <55327DDA.4080003@roeck-us.net>
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <5557267D.7080209@kapsi.fi>
+MIME-Version: 1.0
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -62,37 +36,78 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On 05/16, Mikko Perttunen wrote:
-> On 05/15/2015 06:40 PM, Boris Brezillon wrote:
-> >Hi Stephen,
-> >
-> >Adding Mikko in the loop (after all, he was the one complaining about
-> >this signed long limitation in the first place, and I forgot to add
-> >him in the Cc list :-/).
-> 
-> I think I got it through linux-tegra anyway, but thanks :)
-> 
-> >
-> >Mikko, are you okay with the approach proposed by Stephen (adding a
-> >new method) ?
-> 
-> Yes, sounds good to me. If a driver uses the existing methods with
-> too large frequencies, the issue is pretty discoverable anyway. I
-> think "adjust_rate" sounds a bit too much like it sets the clock's
-> rate, though; perhaps "adjust_rate_request" or something like that?
-> 
+On 18 April 2015 16:53 Guenter Roeck wrote:
 
-Well I'm also OK with changing the determine_rate API one more
-time, but we'll have to be careful. Invariably someone will push
-a new clock driver through some non-clk tree path and we'll get
-build breakage. They shouldn't be doing that, so either we do the
-change now and push it to -next and see what breaks, or we do
-this after -rc1 comes out and make sure everyone has lots of
-warning.
+Hi Guenter,
 
--- 
-Qualcomm Innovation Center, Inc. is a member of Code Aurora Forum,
-a Linux Foundation Collaborative Project
+There were some missing explanations in my previous e-mails for some of 
+your comments. Please find them below.
+
+During the da9062_wdt_probe() there were several ignored error paths and
+a missing cleanup . I intend to rectify this with the following:
+
+--- a/linux-next/v4.0/drivers/watchdog/da9062_wdt.c
++++ b/linux-next/v4.0/drivers/watchdog/da9062_wdt.c
+@@ -232,8 +232,11 @@ static int da9062_wdt_probe(struct platform_device *pdev)
+        dev_set_drvdata(&pdev->dev, wdt);
+ 
+        irq = platform_get_irq_byname(pdev, "WDG_WARN");
+-       if (irq < 0)
++       if (irq < 0) {
+                dev_err(wdt->hw->dev, "Failed to get IRQ.\n");
++               ret = irq;
++               goto error;
++       }
+ 
+        ret = devm_request_threaded_irq(&pdev->dev, irq, NULL,
+                           da9062_wdt_wdg_warn_irq_handler,
+@@ -242,20 +245,23 @@ static int da9062_wdt_probe(struct platform_device *pdev)
+        if (ret) {
+                dev_err(wdt->hw->dev,
+                        "Failed to request watchdog device IRQ.\n");
++               goto error;
+        }
+ 
+        ret = watchdog_register_device(&wdt->wdtdev);
+-       if (ret < 0)
++       if (ret < 0) {
+                dev_err(wdt->hw->dev,
+                        "watchdog registration incomplete (%d)\n", ret);
++               goto error;
++       }
+ 
+        da9062_set_window_start(wdt);
+ 
+        ret = da9062_wdt_ping(&wdt->wdtdev);
+        if (ret < 0)
+-               dev_err(wdt->hw->dev,
+-                       "failed to ping the watchdog (%d)\n", ret);
++               watchdog_unregister_device(&wdt->wdtdev);
+ 
++error:
+        return ret;
+ }
+
+Also there was an explanation required for the confusing ping() function
+inside the driver probe() ...
+
+> > +	da9062_wdt_ping(&wdt->wdtdev);
+[...]
+> That ping is asking for an explanation. Does it imply that the watchdog is
+> known to be running and cannot be stopped ?
+
+Pinging the DA9062 watchdog has no effect if it is disabled. But I guessed that
+in a real application if the watchdog -was- enabled from start-up then the first
+thing the driver needed to do was kick the watchdog.
+
+I could have put protection around it, say by reading the TWDSCALE bit for 
+whether the watchdog was enabled, and that would have made it more explicit
+but in this case it wouldn't matter.
+
+This can be removed if you prefer.
+
+Regards,
+Steve
 
 -- 
 -- 
