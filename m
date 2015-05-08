@@ -1,21 +1,29 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBUEV2SVAKGQERFZZXHY@googlegroups.com>
+Return-Path: <rtc-linux+bncBCKMZDW5VIHBB7H2V6VAKGQEK7FEQGY@googlegroups.com>
+Received: from bh-25.webhostbox.net (bh-25.webhostbox.net. [208.91.199.152])
+        by gmr-mx.google.com with ESMTPS id k7si383232igu.0.2015.05.07.17.04.11
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1 cipher=RC4-SHA bits=128/128);
+        Thu, 07 May 2015 17:04:12 -0700 (PDT)
+Received: from mailnull by bh-25.webhostbox.net with sa-checked (Exim 4.85)
+	(envelope-from <linux@roeck-us.net>)
+	id 1YqVly-001uxc-Eh
+	for rtc-linux@googlegroups.com; Fri, 08 May 2015 00:04:10 +0000
+Message-ID: <554BFD75.1070601@roeck-us.net>
+Date: Thu, 07 May 2015 17:04:05 -0700
+From: Guenter Roeck <linux@roeck-us.net>
 MIME-Version: 1.0
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id g5si2015wix.1.2015.05.14.13.51.28
-        for <rtc-linux@googlegroups.com>;
-        Thu, 14 May 2015 13:51:28 -0700 (PDT)
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Eddie Huang <eddie.huang@mediatek.com>
-Cc: rtc-linux@googlegroups.com,
-	linux-arm-kernel@lists.infradead.org,
-	linux-mediatek@lists.infradead.org,
-	linux-kernel@vger.kernel.org,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Subject: [rtc-linux] [PATCH] rtc: mt6397: fix build on some 32bits platforms
-Date: Thu, 14 May 2015 22:51:18 +0200
-Message-Id: <1431636678-29525-1-git-send-email-alexandre.belloni@free-electrons.com>
+To: Lee Jones <lee.jones@linaro.org>,
+ linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+CC: kernel@stlinux.com, devicetree@vger.kernel.org,
+ daniel.lezcano@linaro.org, tglx@linutronix.de, wim@iguana.be,
+ a.zummo@towertech.it, linux-watchdog@vger.kernel.org,
+ rtc-linux@googlegroups.com
+Subject: [rtc-linux] Re: [PATCH 05/12] watchdog: st_wdt: Update IP layout
+ information to include Clocksource
+References: <1431005924-21777-1-git-send-email-lee.jones@linaro.org> <1431005924-21777-6-git-send-email-lee.jones@linaro.org>
+In-Reply-To: <1431005924-21777-6-git-send-email-lee.jones@linaro.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Reply-To: rtc-linux@googlegroups.com
-Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -25,46 +33,34 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On some !ARM 32bits platforms, the following compilation error happens
-because of the division on a 64bits value in mtk_rtc_read_time():
+On 05/07/2015 06:38 AM, Lee Jones wrote:
+> Initial submission adding support for this IP only included Watchdog and
+> the Real-Time Clock.  Now the third (and final) device is enabled this
+> trivial patch is required to update the comment in the Watchdog driver
+> to encompass Clocksource.
+>
+> Signed-off-by: Lee Jones <lee.jones@linaro.org>
 
-drivers/built-in.o: In function `mtk_rtc_read_time':
-rtc-mt6397.c:(.text+0x265d13f): undefined reference to `__divdi3'
-rtc-mt6397.c:(.text+0x265d150): undefined reference to `__moddi3'
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 
-Use div_s64() as done in rtc_time64_to_tm() to solve that.
-
-Reported-by: kbuild test robot <fengguang.wu@intel.com>
-Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
----
- drivers/rtc/rtc-mt6397.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/rtc/rtc-mt6397.c b/drivers/rtc/rtc-mt6397.c
-index 8bed852e4961..c0090b698ff3 100644
---- a/drivers/rtc/rtc-mt6397.c
-+++ b/drivers/rtc/rtc-mt6397.c
-@@ -150,7 +150,7 @@ static int mtk_rtc_read_time(struct device *dev, struct rtc_time *tm)
- {
- 	time64_t time;
- 	struct mt6397_rtc *rtc = dev_get_drvdata(dev);
--	int sec, ret;
-+	int days, sec, ret;
- 
- 	do {
- 		ret = __mtk_rtc_read_time(rtc, tm, &sec);
-@@ -171,7 +171,8 @@ static int mtk_rtc_read_time(struct device *dev, struct rtc_time *tm)
- 	/* rtc_tm_to_time64 covert Gregorian date to seconds since
- 	 * 01-01-1970 00:00:00, and this date is Thursday.
- 	 */
--	tm->tm_wday = (time / 86400 + 4) % 7;
-+	days = div_s64(time, 86400);
-+	tm->tm_wday = (days + 4) % 7;
- 
- exit:
- 	return ret;
--- 
-2.1.4
+> ---
+>   drivers/watchdog/st_lpc_wdt.c | 2 +-
+>   1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/drivers/watchdog/st_lpc_wdt.c b/drivers/watchdog/st_lpc_wdt.c
+> index f32be15..6785afd 100644
+> --- a/drivers/watchdog/st_lpc_wdt.c
+> +++ b/drivers/watchdog/st_lpc_wdt.c
+> @@ -197,7 +197,7 @@ static int st_wdog_probe(struct platform_device *pdev)
+>   		return -EINVAL;
+>   	}
+>
+> -	/* LPC can either run in RTC or WDT mode */
+> +	/* LPC can either run as a Clocksource or in RTC or WDT mode */
+>   	if (mode != ST_LPC_MODE_WDT)
+>   		return -ENODEV;
+>
+>
 
 -- 
 -- 
