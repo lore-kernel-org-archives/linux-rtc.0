@@ -1,24 +1,25 @@
-Return-Path: <rtc-linux+bncBDMYB2E7SQCRBLGS2OVAKGQE4RJ7XFY@googlegroups.com>
-Received: from na01-bl2-obe.outbound.protection.outlook.com (mail-bl2on0136.outbound.protection.outlook.com. [65.55.169.136])
-        by gmr-mx.google.com with ESMTPS id dq2si3916590qcb.3.2015.05.14.11.27.56
+Return-Path: <rtc-linux+bncBDJLF25T6MIBB6MWWKVAKGQE6UHBCKY@googlegroups.com>
+Received: from lb1-smtp-cloud3.xs4all.net (lb1-smtp-cloud3.xs4all.net. [194.109.24.22])
+        by gmr-mx.google.com with ESMTPS id p12si277514wiv.1.2015.05.08.03.10.01
         for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
-        Thu, 14 May 2015 11:27:56 -0700 (PDT)
-From: <Frank.Li@freescale.com>
-To: <lznuaa@gmail.com>, <shawn.guo@linaro.org>, <dmitry.torokhov@gmail.com>,
-	<robh+dt@kernel.org>
-CC: <linux-arm-kernel@lists.infradead.org>, <linux-input@vger.kernel.org>,
-	<rtc-linux@googlegroups.com>, <linux-pm@vger.kernel.org>,
-	<devicetree@vger.kernel.org>, Frank Li <Frank.Li@freescale.com>, Robin Gong
-	<b38343@freescale.com>
-Subject: [rtc-linux] [PATCH 6/7] document: devicetree: input: imx: i.mx snvs
- power device tree bindings
-Date: Fri, 15 May 2015 01:18:52 +0800
-Message-ID: <1431623933-3473-7-git-send-email-Frank.Li@freescale.com>
-In-Reply-To: <1431623933-3473-1-git-send-email-Frank.Li@freescale.com>
-References: <1431623933-3473-1-git-send-email-Frank.Li@freescale.com>
-MIME-Version: 1.0
+        (version=TLSv1 cipher=RC4-SHA bits=128/128);
+        Fri, 08 May 2015 03:10:01 -0700 (PDT)
+Message-ID: <1431079797.13593.28.camel@x220>
+Subject: [rtc-linux] Re: [PATCH 02/12] clocksource: sti: Provide support for
+ the ST LPC Clocksource IP
+From: Paul Bolle <pebolle@tiscali.nl>
+To: Lee Jones <lee.jones@linaro.org>
+Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+ kernel@stlinux.com, devicetree@vger.kernel.org, daniel.lezcano@linaro.org,
+ tglx@linutronix.de, wim@iguana.be, a.zummo@towertech.it,
+ linux-watchdog@vger.kernel.org, rtc-linux@googlegroups.com,
+ linux@roeck-us.net
+Date: Fri, 08 May 2015 12:09:57 +0200
+In-Reply-To: <1431005924-21777-3-git-send-email-lee.jones@linaro.org>
+References: <1431005924-21777-1-git-send-email-lee.jones@linaro.org>
+	 <1431005924-21777-3-git-send-email-lee.jones@linaro.org>
 Content-Type: text/plain; charset=UTF-8
+Mime-Version: 1.0
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -29,89 +30,38 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-From: Frank Li <Frank.Li@freescale.com>
+On Thu, 2015-05-07 at 14:38 +0100, Lee Jones wrote:
+> --- a/drivers/clocksource/Kconfig
+> +++ b/drivers/clocksource/Kconfig
 
-The snvs-pwrkey is designed to enable POWER key function which controlled
-by SNVS ONOFF. the driver can report the status of POWER key and wakeup
-system if pressed after system suspend.
+> +config CLKSRC_ST_LPC
+> +	bool
+> +	depends on ARCH_STI
 
-Signed-off-by: Frank Li <Frank.Li@freescale.com>
-Signed-off-by: Robin Gong <b38343@freescale.com>
----
- .../devicetree/bindings/crypto/fsl-sec4.txt        | 42 ++++++++++++++++++++++
- .../devicetree/bindings/input/snvs-pwrkey.txt      |  1 +
- 2 files changed, 43 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/input/snvs-pwrkey.txt
+By itself this does nothing. You can't set this symbol to 'y', even if
+ARCH_STI is 'y', right? Of course, ARCH_STI will select this symbol (see
+11/12) otherwise it would be inert. But as ARCH_STI selects
+CLKSRC_ST_LPC I'd say this dependency isn't actually needed.
 
-diff --git a/Documentation/devicetree/bindings/crypto/fsl-sec4.txt b/Documentation/devicetree/bindings/crypto/fsl-sec4.txt
-index ca04206..99a57b7 100644
---- a/Documentation/devicetree/bindings/crypto/fsl-sec4.txt
-+++ b/Documentation/devicetree/bindings/crypto/fsl-sec4.txt
-@@ -394,6 +394,41 @@ EXAMPLE
- };
- 
- =====================================================================
-+System ON/OFF key driver
-+
-+  The snvs-pwrkey is designed to enable POWER key function which controlled
-+  by SNVS ONOFF, the driver can report the status of POWER key and wakeup
-+  system if pressed after system suspend.
-+
-+  - compatible:
-+      Usage: required
-+      Value type: <string>
-+      Definition: Mush include "fsl,sec-v4.0-pwrkey".
-+
-+  - interrupts:
-+      Usage: required
-+      Value type: <prop_encoded-array>
-+      Definition: The SNVS ON/OFF interrupt number to the CPU(s).
-+
-+  - linux,keycode:
-+      Usage: option
-+      Value type: <int>
-+      Definition: Keycode to emit, KEY_POWER by default.
-+
-+  - wakeup:
-+      Usage: option
-+      Value type: <boo>
-+      Definition: Button can wake-up the system
-+
-+EXAMPLE:
-+	snvs-pwrkey@0x020cc000 {
-+		compatible = "fsl,sec-v4.0-pwrkey";
-+		interrupts = <0 4 0x4>
-+	        linux,keycode = <116>; /* KEY_POWER */
-+		wakeup;
-+	};
-+
-+=====================================================================
- FULL EXAMPLE
- 
- 	crypto: crypto@300000 {
-@@ -475,6 +510,13 @@ FULL EXAMPLE
- 		snvs_poweroff: snvs-poweroff@38 {
-                         compatible = "fsl,sec-v4.0-poweroff";
-                 };
-+
-+		snvs-pwrkey@0x020cc000 {
-+			compatible = "fsl,sec-v4.0-pwrkey";
-+			interrupts = <0 4 0x4>;
-+			linux,keycode = <116>; /* KEY_POWER */
-+			wakeup;
-+		};
- 	};
- 
- =====================================================================
-diff --git a/Documentation/devicetree/bindings/input/snvs-pwrkey.txt b/Documentation/devicetree/bindings/input/snvs-pwrkey.txt
-new file mode 100644
-index 0000000..70c1425
---- /dev/null
-+++ b/Documentation/devicetree/bindings/input/snvs-pwrkey.txt
-@@ -0,0 +1 @@
-+See Documentation/devicetree/bindings/crypto/fsl-sec4.txt
--- 
-1.9.1
+Are other selects of CLKSRC_ST_LPC expected to be added in the future?
+If not, CLKSRC_ST_LPC should operate in lockstep with ARCH_STI. In that
+case you might as well not bother with CLKSRC_ST_LPC and use ARCH_STI
+directly. (But that forces you to move the select statement below into
+the ARCH_STI entry, which might be ugly.)
+
+> +	select CLKSRC_OF if OF
+> +	help
+> +	  Enable this option to use the Low Power controller timer
+> +	  as clocksource.
+
+(Please add an empty line.)
+
+>  endmenu
+
+Thanks,
+
+
+Paul Bolle
 
 -- 
 -- 
