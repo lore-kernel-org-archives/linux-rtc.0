@@ -1,189 +1,136 @@
-Return-Path: <rtc-linux+bncBD62P6P6EQIJRT6NVICRUBBUUBKD2@googlegroups.com>
+Return-Path: <rtc-linux+bncBCAJFDXE4QGBBDUHWKVAKGQEKDKXUAA@googlegroups.com>
 MIME-Version: 1.0
-Received: from mail-oi0-x22f.google.com (mail-oi0-x22f.google.com. [2607:f8b0:4003:c06::22f])
-        by gmr-mx.google.com with ESMTPS id x1si496043igb.2.2015.05.13.08.02.48
+Received: from mail-pd0-x22b.google.com (mail-pd0-x22b.google.com. [2607:f8b0:400e:c02::22b])
+        by gmr-mx.google.com with ESMTPS id x3si530746pdh.2.2015.05.08.02.36.14
         for <rtc-linux@googlegroups.com>
         (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 13 May 2015 08:02:48 -0700 (PDT)
-Received: by mail-oi0-x22f.google.com with SMTP id n205so33251704oig.2
-        for <rtc-linux@googlegroups.com>; Wed, 13 May 2015 08:02:48 -0700 (PDT)
-Sender: rtc-linux@googlegroups.com
-From: Rob Herring <robh@kernel.org>
-To: Russell King <linux@arm.linux.org.uk>,
+        Fri, 08 May 2015 02:36:14 -0700 (PDT)
+Received: by mail-pd0-x22b.google.com with SMTP id nk13so74070720pdb.0
+        for <rtc-linux@googlegroups.com>; Fri, 08 May 2015 02:36:14 -0700 (PDT)
+From: Adrian Huang <adrianhuang0701@gmail.com>
+To: Alessandro Zummo <a.zummo@towertech.it>,
 	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Eric Miao <eric.y.miao@gmail.com>,
-	Haojian Zhuang <haojian.zhuang@gmail.com>,
-	Alessandro Zummo <a.zummo@towertech.it>
-Cc: rtc-linux@googlegroups.com,
-	Robert Jarzmik <robert.jarzmik@free.fr>,
-	Arnd Bergmann <arnd@arndb.de>,
-	linux-arm-kernel@lists.infradead.org,
-	Rob Herring <robh@kernel.org>
-Subject: [rtc-linux] [PATCH v4 1/6] rtc: sa1100: prepare to share sa1100_rtc_ops
-Date: Wed, 13 May 2015 10:02:25 -0500
-Message-Id: <1431529350-4597-2-git-send-email-robh@kernel.org>
-In-Reply-To: <1431529350-4597-1-git-send-email-robh@kernel.org>
-References: <1431529350-4597-1-git-send-email-robh@kernel.org>
+	rtc-linux@googlegroups.com
+Cc: Brecht Machiels <brecht@mos6581.org>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	John Stultz <john.stultz@linaro.org>,
+	Rabin Vincent <rabin.vincent@stericsson.com>,
+	Borislav Petkov <bp@suse.de>,
+	Nagananda Chumbalkar <nchumbalkar@lenovo.com>,
+	Adrian Huang <ahuang12@lenovo.com>,
+	Adrian Huang <adrianhuang0701@gmail.com>
+Subject: [rtc-linux] [RFC PATCH 2/2] rtc: Restore the RTC alarm time to the
+ configured alarm time in BIOS Setup
+Date: Fri,  8 May 2015 17:35:06 +0800
+Message-Id: <1431077706-3560-1-git-send-email-adrianhuang0701@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
 List-Archive: <http://groups.google.com/group/rtc-linux
+Sender: rtc-linux@googlegroups.com
 List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Factor out the RTC initialization from the platform device specific
-parts in order to share the RTC device ops with other drivers.
-Specifically, it will be shared with rtc-pxa driver.
+Steps to reproduce the problem:
+	1) Enable RTC wake-up option in BIOS Setup
+	2) Issue one of these commands in the OS: "poweroff" 
+	   or "shutdown -h now"
+	3) System will shut down and then reboot automatically
 
-Signed-off-by: Rob Herring <robh@kernel.org>
-Cc: Robert Jarzmik <robert.jarzmik@free.fr>
-Cc: Russell King <linux@arm.linux.org.uk>
-Cc: Alessandro Zummo <a.zummo@towertech.it>
-Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: rtc-linux@googlegroups.com
+Root-cause of the issue:
+	1) During the shutdown process, the hwclock utility is used
+	   to save the system clock to hardware clock (RTC).
+	2) The hwclock utility invokes ioctl() with RTC_UIE_ON. The
+	   kernel configures the RTC alarm for the periodic interrupt
+	   (every 1 second).
+	3) The hwclock uitlity closes the /dev/rtc0 device, and the
+	   kernel disables the RTC alarm irq (AIE bit of Register B)
+	   via ioctl() with RTC_UIE_OFF. But, the configured alarm
+	   time is the current_time + 1.
+	4) After the next 1 second is elapsed, the AF (alarm
+	   interrupt flag) of Register C is set.
+	5) The S5 handler in BIOS is invoked to configure alarm
+	   registers (enable AIE bit and configure alarm date/time).
+	   But, BIOS does not clear the previous interrupt status
+	   during alarm configuration. Therefore, "AF=AIE=1" causes 
+	   the rtc device to trigger an interrupt.  
+	6) So, the machine reboots automatically right after shutdown.
+
+This patch restores the configured alarm time (user configures the
+time in BIOS Setup) to rtc alarm registers. In some circumstances,
+the time of the rtc alarm registers is the past time because
+user-space programs (for example: hwclock) may invoke ioctl() with
+RTC_UIE_ON. In any case, this patch prevents the AF bit from getting
+set to 1. Note, AF=1 will cause the system to reboot after shut down.
+Therefore, this patch fixes the issue from occurring.
+
+Signed-off-by: Adrian Huang <ahuang12@lenovo.com>
+Reviewed-by: Nagananda Chumbalkar <nchumbalkar@lenovo.com>
 ---
- drivers/rtc/rtc-sa1100.c | 59 ++++++++++++++++++++++++------------------------
- drivers/rtc/rtc-sa1100.h | 19 ++++++++++++++++
- 2 files changed, 49 insertions(+), 29 deletions(-)
- create mode 100644 drivers/rtc/rtc-sa1100.h
+ drivers/rtc/interface.c | 21 +++++++++++++++++++++
+ drivers/rtc/rtc-dev.c   |  1 +
+ include/linux/rtc.h     |  1 +
+ 3 files changed, 23 insertions(+)
 
-diff --git a/drivers/rtc/rtc-sa1100.c b/drivers/rtc/rtc-sa1100.c
-index b6e1ca0..abc19ab 100644
---- a/drivers/rtc/rtc-sa1100.c
-+++ b/drivers/rtc/rtc-sa1100.c
-@@ -42,17 +42,12 @@
- #include <mach/regs-rtc.h>
- #endif
- 
-+#include "rtc-sa1100.h"
-+
- #define RTC_DEF_DIVIDER		(32768 - 1)
- #define RTC_DEF_TRIM		0
- #define RTC_FREQ		1024
- 
--struct sa1100_rtc {
--	spinlock_t		lock;
--	int			irq_1hz;
--	int			irq_alarm;
--	struct rtc_device	*rtc;
--	struct clk		*clk;
--};
- 
- static irqreturn_t sa1100_rtc_interrupt(int irq, void *dev_id)
- {
-@@ -223,29 +218,18 @@ static const struct rtc_class_ops sa1100_rtc_ops = {
- 	.alarm_irq_enable = sa1100_rtc_alarm_irq_enable,
- };
- 
--static int sa1100_rtc_probe(struct platform_device *pdev)
-+int sa1100_rtc_init(struct platform_device *pdev, struct sa1100_rtc *info)
- {
- 	struct rtc_device *rtc;
--	struct sa1100_rtc *info;
--	int irq_1hz, irq_alarm, ret = 0;
-+	int ret;
- 
--	irq_1hz = platform_get_irq_byname(pdev, "rtc 1Hz");
--	irq_alarm = platform_get_irq_byname(pdev, "rtc alarm");
--	if (irq_1hz < 0 || irq_alarm < 0)
--		return -ENODEV;
-+	spin_lock_init(&info->lock);
- 
--	info = devm_kzalloc(&pdev->dev, sizeof(struct sa1100_rtc), GFP_KERNEL);
--	if (!info)
--		return -ENOMEM;
- 	info->clk = devm_clk_get(&pdev->dev, NULL);
- 	if (IS_ERR(info->clk)) {
- 		dev_err(&pdev->dev, "failed to find rtc clock source\n");
- 		return PTR_ERR(info->clk);
- 	}
--	info->irq_1hz = irq_1hz;
--	info->irq_alarm = irq_alarm;
--	spin_lock_init(&info->lock);
--	platform_set_drvdata(pdev, info);
- 
- 	ret = clk_prepare_enable(info->clk);
- 	if (ret)
-@@ -265,14 +249,11 @@ static int sa1100_rtc_probe(struct platform_device *pdev)
- 		RCNR = 0;
- 	}
- 
--	device_init_wakeup(&pdev->dev, 1);
--
- 	rtc = devm_rtc_device_register(&pdev->dev, pdev->name, &sa1100_rtc_ops,
- 					THIS_MODULE);
--
- 	if (IS_ERR(rtc)) {
--		ret = PTR_ERR(rtc);
--		goto err_dev;
-+		clk_disable_unprepare(info->clk);
-+		return PTR_ERR(rtc);
- 	}
- 	info->rtc = rtc;
- 
-@@ -301,9 +282,29 @@ static int sa1100_rtc_probe(struct platform_device *pdev)
- 	RTSR = RTSR_AL | RTSR_HZ;
- 
- 	return 0;
--err_dev:
--	clk_disable_unprepare(info->clk);
--	return ret;
-+}
-+EXPORT_SYMBOL_GPL(sa1100_rtc_init);
-+
-+static int sa1100_rtc_probe(struct platform_device *pdev)
-+{
-+	struct sa1100_rtc *info;
-+	int irq_1hz, irq_alarm;
-+
-+	irq_1hz = platform_get_irq_byname(pdev, "rtc 1Hz");
-+	irq_alarm = platform_get_irq_byname(pdev, "rtc alarm");
-+	if (irq_1hz < 0 || irq_alarm < 0)
-+		return -ENODEV;
-+
-+	info = devm_kzalloc(&pdev->dev, sizeof(struct sa1100_rtc), GFP_KERNEL);
-+	if (!info)
-+		return -ENOMEM;
-+	info->irq_1hz = irq_1hz;
-+	info->irq_alarm = irq_alarm;
-+
-+	platform_set_drvdata(pdev, info);
-+	device_init_wakeup(&pdev->dev, 1);
-+
-+	return sa1100_rtc_init(pdev, info);
+diff --git a/drivers/rtc/interface.c b/drivers/rtc/interface.c
+index 166fc60..2fe17da 100644
+--- a/drivers/rtc/interface.c
++++ b/drivers/rtc/interface.c
+@@ -986,4 +986,25 @@ int rtc_timer_cancel(struct rtc_device *rtc, struct rtc_timer *timer)
+ 	return ret;
  }
  
- static int sa1100_rtc_remove(struct platform_device *pdev)
-diff --git a/drivers/rtc/rtc-sa1100.h b/drivers/rtc/rtc-sa1100.h
-new file mode 100644
-index 0000000..665d054
---- /dev/null
-+++ b/drivers/rtc/rtc-sa1100.h
-@@ -0,0 +1,19 @@
-+#ifndef __RTC_SA1100_H__
-+#define __RTC_SA1100_H__
++/* rtc_alarm_restore - Restores the alarm time
++ * @ rtc: rtc device to be used
++ *
++ * Kernel interface to restore the alarm time
++ */
++int rtc_alarm_restore(struct rtc_device *rtc)
++{
++	struct rtc_wkalrm aie_alarm;
++	int err;
+ 
++	/* If someone has configured the AIE timer, do nothing. */
++	if (rtc->aie_timer.enabled)
++		return 0;
 +
-+#include <linux/kernel.h>
++	/* Read the alarm date/time from aie_timer. */
++	err = rtc_read_alarm(rtc, &aie_alarm);
++	if (err < 0)
++		return err;
 +
-+struct clk;
-+struct platform_device;
-+
-+struct sa1100_rtc {
-+	spinlock_t		lock;
-+	int			irq_1hz;
-+	int			irq_alarm;
-+	struct rtc_device	*rtc;
-+	struct clk		*clk;
-+};
-+
-+int sa1100_rtc_init(struct platform_device *pdev, struct sa1100_rtc *info);
-+
-+#endif
++	return __rtc_set_alarm(rtc, &aie_alarm);
++}
++EXPORT_SYMBOL_GPL(rtc_alarm_restore);
+diff --git a/drivers/rtc/rtc-dev.c b/drivers/rtc/rtc-dev.c
+index 799c34b..a5ea279 100644
+--- a/drivers/rtc/rtc-dev.c
++++ b/drivers/rtc/rtc-dev.c
+@@ -437,6 +437,7 @@ static int rtc_dev_release(struct inode *inode, struct file *file)
+ 	rtc_dev_ioctl(file, RTC_UIE_OFF, 0);
+ 	rtc_update_irq_enable(rtc, 0);
+ 	rtc_irq_set_state(rtc, NULL, 0);
++	rtc_alarm_restore(rtc);
+ 
+ 	if (rtc->ops->release)
+ 		rtc->ops->release(rtc->dev.parent);
+diff --git a/include/linux/rtc.h b/include/linux/rtc.h
+index 8dcf682..bf945cb 100644
+--- a/include/linux/rtc.h
++++ b/include/linux/rtc.h
+@@ -188,6 +188,7 @@ extern int rtc_update_irq_enable(struct rtc_device *rtc, unsigned int enabled);
+ extern int rtc_alarm_irq_enable(struct rtc_device *rtc, unsigned int enabled);
+ extern int rtc_dev_update_irq_enable_emul(struct rtc_device *rtc,
+ 						unsigned int enabled);
++extern int rtc_alarm_restore(struct rtc_device *rtc);
+ 
+ void rtc_handle_legacy_irq(struct rtc_device *rtc, int num, int mode);
+ void rtc_aie_update_irq(void *private);
 -- 
-2.1.0
+1.9.1
 
 -- 
 -- 
