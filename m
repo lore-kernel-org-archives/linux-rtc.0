@@ -1,36 +1,32 @@
-Return-Path: <rtc-linux+bncBD5O5IWPJMIMD2OZVICRUBBZLAYJ4@googlegroups.com>
-MIME-Version: 1.0
-Received: from mail-wi0-x233.google.com (mail-wi0-x233.google.com. [2a00:1450:400c:c05::233])
-        by gmr-mx.google.com with ESMTPS id t6si34410wiz.0.2015.05.15.15.35.45
+Return-Path: <rtc-linux+bncBDF47HN2VEIRBOGFWGVAKGQEYEJIKQI@googlegroups.com>
+Received: from mail-wi0-f180.google.com (mail-wi0-f180.google.com. [209.85.212.180])
+        by gmr-mx.google.com with ESMTPS id t6si36650wiz.0.2015.05.08.00.16.07
         for <rtc-linux@googlegroups.com>
         (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 15 May 2015 15:35:45 -0700 (PDT)
-Received: by mail-wi0-x233.google.com with SMTP id mx19so48641873wic.0
-        for <rtc-linux@googlegroups.com>; Fri, 15 May 2015 15:35:45 -0700 (PDT)
-From: Philippe Reynes <tremyfr@gmail.com>
-To: shawn.guo@linaro.org,
-	kernel@pengutronix.de,
-	linux@arm.linux.org.uk,
-	a.zummo@towertech.it,
-	alexandre.belloni@free-electrons.com,
-	robh+dt@kernel.org,
-	pawel.moll@arm.com,
-	mark.rutland@arm.com,
-	ijc+devicetree@hellion.org.uk,
-	galak@codeaurora.org,
-	rtc-linux@googlegroups.com
-Cc: linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org,
-	devicetree@vger.kernel.org,
-	fabio.estevam@freescale.com,
-	Philippe Reynes <tremyfr@gmail.com>
-Subject: [rtc-linux] [PATCH 2/2] rtc: mxc: add support of device tree
-Date: Sat, 16 May 2015 00:35:30 +0200
-Message-Id: <1431729330-7625-3-git-send-email-tremyfr@gmail.com>
-In-Reply-To: <1431729330-7625-1-git-send-email-tremyfr@gmail.com>
-References: <1431729330-7625-1-git-send-email-tremyfr@gmail.com>
-Reply-To: rtc-linux@googlegroups.com
+        Fri, 08 May 2015 00:16:07 -0700 (PDT)
+Received: by widdi4 with SMTP id di4so17209459wid.0
+        for <rtc-linux@googlegroups.com>; Fri, 08 May 2015 00:16:07 -0700 (PDT)
+Date: Fri, 8 May 2015 08:16:04 +0100
+From: Peter Griffin <peter.griffin@linaro.org>
+To: Lee Jones <lee.jones@linaro.org>
+Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+	devicetree@vger.kernel.org, kernel@stlinux.com,
+	rtc-linux@googlegroups.com, a.zummo@towertech.it,
+	daniel.lezcano@linaro.org, wim@iguana.be, tglx@linutronix.de,
+	linux@roeck-us.net, linux-watchdog@vger.kernel.org
+Subject: [rtc-linux] Re: [STLinux Kernel] [PATCH 06/12] watchdog: bindings:
+ Supply knowledge of a third supported device - clocksource
+Message-ID: <20150508071604.GA2232@griffinp-ThinkPad-X1-Carbon-2nd>
+References: <1431005924-21777-1-git-send-email-lee.jones@linaro.org>
+ <1431005924-21777-7-git-send-email-lee.jones@linaro.org>
+ <20150507141805.GC9793@griffinp-ThinkPad-X1-Carbon-2nd>
+ <20150507191909.GC16220@x1>
+ <20150507195529.GA28554@griffinp-ThinkPad-X1-Carbon-2nd>
+ <20150508064918.GF16220@x1>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <20150508064918.GF16220@x1>
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -40,108 +36,62 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
+Hi Lee,
 
-Signed-off-by: Philippe Reynes <tremyfr@gmail.com>
----
- Documentation/devicetree/bindings/rtc/rtc-mxc.txt |   27 +++++++++++++++++++++
- drivers/rtc/rtc-mxc.c                             |   22 ++++++++++++++++-
- 2 files changed, 48 insertions(+), 1 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/rtc/rtc-mxc.txt
+<snip>
 
-diff --git a/Documentation/devicetree/bindings/rtc/rtc-mxc.txt b/Documentation/devicetree/bindings/rtc/rtc-mxc.txt
-new file mode 100644
-index 0000000..5505493
---- /dev/null
-+++ b/Documentation/devicetree/bindings/rtc/rtc-mxc.txt
-@@ -0,0 +1,27 @@
-+* Real Time Clock of the i.MX SoCs
-+
-+RTC controller for the i.MX SoCs
-+
-+Required properties:
-+- compatible: Should be "fsl,imx1-rtc" or "fsl,imx21-rtc".
-+- reg: physical base address of the controller and length of memory mapped
-+  region.
-+- interrupts: IRQ line for the RTC.
-+- clocks: should contain two entries:
-+  * one for the input reference
-+  * one for the the SoC RTC
-+- clock-names: should contain:
-+  * "rtc" for the input reference clock
-+  * "ipg" for the SoC RTC clock
-+
-+Example:
-+
-+rtc@10007000 {
-+	compatible = "fsl,imx21-rtc";
-+	reg = <0x10007000 0x1000>;
-+	interrupts = <22>;
-+	clocks = <&clks IMX27_CLK_CKIL>,
-+	       	 <&clks IMX27_CLK_RTC_IPG_GATE>;
-+	clock-names = "rtc, "ipg";
-+	status = "disabled";
-+};
-diff --git a/drivers/rtc/rtc-mxc.c b/drivers/rtc/rtc-mxc.c
-index e916a91..df6483d 100644
---- a/drivers/rtc/rtc-mxc.c
-+++ b/drivers/rtc/rtc-mxc.c
-@@ -16,6 +16,8 @@
- #include <linux/interrupt.h>
- #include <linux/platform_device.h>
- #include <linux/clk.h>
-+#include <linux/of.h>
-+#include <linux/of_device.h>
- 
- #define RTC_INPUT_CLK_32768HZ	(0x00 << 5)
- #define RTC_INPUT_CLK_32000HZ	(0x01 << 5)
-@@ -98,6 +100,15 @@ static struct platform_device_id imx_rtc_devtype[] = {
- };
- MODULE_DEVICE_TABLE(platform, imx_rtc_devtype);
- 
-+#ifdef CONFIG_OF
-+static const struct of_device_id imx_rtc_dt_ids[] = {
-+	{ .compatible = "fsl,imx1-rtc", .data = &imx_rtc_devtype[IMX1_RTC] },
-+	{ .compatible = "fsl,imx21-rtc", .data = &imx_rtc_devtype[IMX21_RTC] },
-+	{}
-+};
-+MODULE_DEVICE_TABLE(of, imx_rtc_dt_ids);
-+#endif
-+
- static inline int is_imx1_rtc(struct rtc_plat_data *data)
- {
- 	return data->devtype == IMX1_RTC;
-@@ -362,12 +373,20 @@ static int mxc_rtc_probe(struct platform_device *pdev)
- 	u32 reg;
- 	unsigned long rate;
- 	int ret;
-+	const struct of_device_id *of_id;
- 
- 	pdata = devm_kzalloc(&pdev->dev, sizeof(*pdata), GFP_KERNEL);
- 	if (!pdata)
- 		return -ENOMEM;
- 
--	pdata->devtype = pdev->id_entry->driver_data;
-+	of_id = of_match_device(imx_rtc_dt_ids, &pdev->dev);
-+	if (of_id) {
-+		struct platform_device_id *id_entry;
-+
-+		id_entry = (struct platform_device_id *)of_id->data;
-+		pdata->devtype = id_entry->driver_data;
-+	} else
-+		pdata->devtype = pdev->id_entry->driver_data;
- 
- 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
- 	pdata->ioaddr = devm_ioremap_resource(&pdev->dev, res);
-@@ -481,6 +500,7 @@ static SIMPLE_DEV_PM_OPS(mxc_rtc_pm_ops, mxc_rtc_suspend, mxc_rtc_resume);
- static struct platform_driver mxc_rtc_driver = {
- 	.driver = {
- 		   .name	= "mxc_rtc",
-+		   .of_match_table = of_match_ptr(imx_rtc_dt_ids),
- 		   .pm		= &mxc_rtc_pm_ops,
- 	},
- 	.id_table = imx_rtc_devtype,
--- 
-1.7.4.4
+On Fri, 08 May 2015, Lee Jones wrote:
+> > > > >  
+> > > > > -- compatible 	: Must be one of: "st,stih407-lpc" "st,stih416-lpc"
+> > > > > -				  "st,stih415-lpc" "st,stid127-lpc"
+> > > > > +- compatible 	: Must be one of: "st,stih407-lpc"
+> > > > 
+> > > > The same comment as the RTC DT patch, you are removing the compatibles
+> > > > documentation for the other supported platforms like stih416-lpc.
+> > > > AFAIK they are required in the driver to get the correct sysconfig register.
+> > > 
+> > > That's intentional.  I haven't yet tested any of this IP on
+> > > STiH41{5,6} & STiH127.  Due to lack of documentation, I'm not even
+> > > sure if this IP even exists on some of the other platforms.  I will
+> > > add them back when support is added to both driver and DTB and I've
+> > > been able to test them.
+> > 
+> > That was kind of my point, the driver code AFAIK already contains support
+> > for these SoC's.
+> > 
+> > I would either expect the patch to remove support from the DT docs AND the
+> > driver, or leave it as is.
+> > 
+> > It seems odd to only change the DT docs, and become unaligned to the
+> > code (this assumes I'm looking at the latest patchset here 
+> > https://lkml.org/lkml/2015/3/4/1088 which includes support for these SoCs).
+> 
+> The decision to remove these 'supported' platforms was made on the RTC
+> side, where there is only support for "st,stih407-lpc" in the driver.
+
+The change makes sense in the RTC case then.
+
+> I thought it best to mirror that thought over to the Watchdog LPC
+> bindings,
+
+Why? This is the bit I disagree with, the wdt DT docs IMHO should match the wdt
+driver code.
+
+> but thought it not really worth ripping out existing support
+> from the driver.  
+
+I agree it is not worth ripping out existing support only to add it back in. Equally
+I can't see the point in doing this with the DT documentation either.
+
+> If others wish to test/use the Watchdog on other
+> platforms and can read C code, they'll know what to do.
+
+Yes, and without this change they could also read the documentation. Your doing a
+v2 anyway, it seems trivial to fix this at the same time.
+
+regards,
+
+Peter.
 
 -- 
 -- 
