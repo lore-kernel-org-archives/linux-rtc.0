@@ -1,32 +1,32 @@
-Return-Path: <rtc-linux+bncBDA7X7F2WUEBBAXSY6VAKGQESYMD2WI@googlegroups.com>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBX4NXCVAKGQEAI5CCBY@googlegroups.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id gt9si123051wib.2.2015.05.09.06.08.47
+        for <rtc-linux@googlegroups.com>;
+        Sat, 09 May 2015 06:08:47 -0700 (PDT)
+Date: Sat, 9 May 2015 15:08:46 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Eddie Huang <eddie.huang@mediatek.com>
+Cc: Lee Jones <lee.jones@linaro.org>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	srv_heupstream@mediatek.com, Samuel Ortiz <sameo@linux.intel.com>,
+	Matthias Brugger <matthias.bgg@gmail.com>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Greg KH <gregkh@linuxfoundation.org>,
+	"David S. Miller" <davem@davemloft.net>,
+	Mauro Carvalho Chehab <mchehab@osg.samsung.com>,
+	Joe Perches <joe@perches.com>, Tejun Heo <tj@kernel.org>,
+	linux-kernel@vger.kernel.org, rtc-linux@googlegroups.com,
+	linux-arm-kernel@lists.infradead.org,
+	linux-mediatek@lists.infradead.org,
+	Sascha Hauer <kernel@pengutronix.de>,
+	Tomasz Figa <tfiga@google.com>
+Subject: [rtc-linux] Re: [PATCH v4 0/3] Add Mediatek SoC RTC driver
+Message-ID: <20150509130846.GD3338@piout.net>
+References: <1430897022-63357-1-git-send-email-eddie.huang@mediatek.com>
 MIME-Version: 1.0
-Received: from mail-wi0-f180.google.com (mail-wi0-f180.google.com. [209.85.212.180])
-        by gmr-mx.google.com with ESMTPS id p12si105894wiv.1.2015.05.12.05.58.42
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 12 May 2015 05:58:42 -0700 (PDT)
-Received: by mail-wi0-f180.google.com with SMTP id f7so111585116wie.0
-        for <rtc-linux@googlegroups.com>; Tue, 12 May 2015 05:58:42 -0700 (PDT)
-From: Lee Jones <lee.jones@linaro.org>
-To: linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org,
-	devicetree@vger.kernel.org,
-	daniel.lezcano@linaro.org,
-	tglx@linutronix.de,
-	wim@iguana.be,
-	a.zummo@towertech.it,
-	linux-watchdog@vger.kernel.org,
-	rtc-linux@googlegroups.com,
-	linux@roeck-us.net
-Cc: kernel@stlinux.com,
-	Lee Jones <lee.jones@linaro.org>
-Subject: [rtc-linux] [PATCH v2 11/12] ARM: STi: Enable LPC Clocksource
-Date: Tue, 12 May 2015 13:58:19 +0100
-Message-Id: <1431435500-22899-12-git-send-email-lee.jones@linaro.org>
-In-Reply-To: <1431435500-22899-1-git-send-email-lee.jones@linaro.org>
-References: <1431435500-22899-1-git-send-email-lee.jones@linaro.org>
-Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1430897022-63357-1-git-send-email-eddie.huang@mediatek.com>
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -36,27 +36,23 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-This timer can be used as the system (tick) timer.
+On 06/05/2015 at 15:23:39 +0800, Eddie Huang wrote :
+> RTC is one submodule of Mediatek MT6397 PMIC chip[1]. This series
+> support RTC driver that work with Mediatek SoC like MT8135, MT8173.
+> It implements second counter and also provide alarm function.
+> 
+> This series base on 4.1-rc1, Test ok on MT8173 platform.
+> 
+> [1] https://lkml.org/lkml/2015/1/23/325
+> 
 
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
----
- arch/arm/mach-sti/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+All applied, thanks!
 
-diff --git a/arch/arm/mach-sti/Kconfig b/arch/arm/mach-sti/Kconfig
-index 3b1ac46..cb886de 100644
---- a/arch/arm/mach-sti/Kconfig
-+++ b/arch/arm/mach-sti/Kconfig
-@@ -2,6 +2,7 @@ menuconfig ARCH_STI
- 	bool "STMicroelectronics Consumer Electronics SOCs" if ARCH_MULTI_V7
- 	select ARM_GIC
- 	select ARM_GLOBAL_TIMER
-+	select CLKSRC_ST_LPC
- 	select PINCTRL
- 	select PINCTRL_ST
- 	select MFD_SYSCON
+
 -- 
-1.9.1
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
 -- 
 -- 
