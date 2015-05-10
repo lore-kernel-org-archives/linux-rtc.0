@@ -1,147 +1,78 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBMX67OVAKGQEUGDRFAQ@googlegroups.com>
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id p12si228274wiv.1.2015.05.22.03.04.34
-        for <rtc-linux@googlegroups.com>;
-        Fri, 22 May 2015 03:04:34 -0700 (PDT)
-Date: Fri, 22 May 2015 12:04:33 +0200
+Date: Sun, 10 May 2015 12:29:51 +0200
 From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Huang Adrian <adrianhuang0701@gmail.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
-	Brecht Machiels <brecht@mos6581.org>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	John Stultz <john.stultz@linaro.org>,
-	Rabin Vincent <rabin.vincent@stericsson.com>,
-	Borislav Petkov <bp@suse.de>,
-	Nagananda Chumbalkar <nchumbalkar@lenovo.com>,
-	Adrian Huang <ahuang12@lenovo.com>
-Subject: [rtc-linux] Re: [RFC PATCH 2/2] rtc: Restore the RTC alarm time to
- the configured alarm time in BIOS Setup
-Message-ID: <20150522100433.GK3244@piout.net>
-References: <1431077706-3560-1-git-send-email-adrianhuang0701@gmail.com>
- <20150518220542.GW3338@piout.net>
- <CAHKZfL2+PKCzYcmL-XHC-33aXQ0hjZqOYLbbgN8O0sTvOFTj0A@mail.gmail.com>
+To: Rob Herring <robh@kernel.org>
+Cc: Russell King <linux@arm.linux.org.uk>,
+	Robert Jarzmik <robert.jarzmik@free.fr>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	linux-arm-kernel@lists.infradead.org, Arnd Bergmann <arnd@arndb.de>,
+	Daniel Mack <daniel@zonque.org>,
+	Haojian Zhuang <haojian.zhuang@gmail.com>,
+	Eric Miao <eric.y.miao@gmail.com>, rtc-linux@googlegroups.com
+Subject: Re: [rtc-linux] [PATCH v2 2/4] rtc: sa1100: convert to run-time
+ register mapping
+Message-ID: <20150510102951.GG3338@piout.net>
+References: <1430426233-7461-1-git-send-email-robh@kernel.org>
+ <1430426233-7461-3-git-send-email-robh@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <CAHKZfL2+PKCzYcmL-XHC-33aXQ0hjZqOYLbbgN8O0sTvOFTj0A@mail.gmail.com>
-Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1430426233-7461-3-git-send-email-robh@kernel.org>
 List-ID: <rtc-linux.googlegroups.com>
-List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
-List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
-List-Archive: <http://groups.google.com/group/rtc-linux
-Sender: rtc-linux@googlegroups.com
-List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
-List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
- <http://groups.google.com/group/rtc-linux/subscribe>
 
 Hi,
 
-On 20/05/2015 at 12:30:27 +0800, Huang Adrian wrote :
-> >
-> > Actually, I'm not sure that solves your issue. From what I
-> > understand, what is happening in step 4 is the bug you want to work
-> > around and it happens because AF gets set even if AIE is not set.
-> >
+On 30/04/2015 at 15:37:11 -0500, Rob Herring wrote :
+> SA1100 and PXA differ only in register offsets which are currently
+> hardcoded in a machine specific header. Some arm64 platforms (PXA1928)
+> have this RTC block as well (and not the PXA270 variant).
 > 
-> Yes.
+> Convert the driver to use ioremap and set the register offsets dynamically.
+> Since we are touching all the register accesses, convert them all to
+> readl_relaxed/writel_relaxed.
 > 
-> > So, your rtc_alarm_restore() basically calls cmos_set_alarm() which
-> > calls cmos_irq_disable() finally this one calls cmos_checkintr() which
-> > does read register C and so clears AF.
-> >
+> Currently, the rtc-sa1100 and rtc-pxa drivers co-exist as rtc-pxa has a
+> superset of functionality. This commit makes the drivers one step closer
+> to being mutually exclusive by using devm_ioremap_resource and claiming
+> the resource. The sharing of overlapping resources does not work if both
+> drivers claim the resource. That is not done currently, but will be done
+> as the drivers are converted to DT and follow proper driver rules.
+> Likely, the common portion of the 2 drivers will be made into library
+> functions for the SA1100 and PXA drivers to shared.
 > 
-> The call path is correct. cmos_checkintr() did clear interrupt flags. But,
-> the problem is that AF is set in the next one second.
+> Signed-off-by: Rob Herring <robh@kernel.org>
+> Cc: Alessandro Zummo <a.zummo@towertech.it>
+> Cc: rtc-linux@googlegroups.com
+> ---
+> v2:
+> - Rebase to v4.1-rc1
+> - Use _relaxed accessors
+> - Summarize discussion about supporting both SA1100 and PXA RTC drivers
 > 
-> Assume 'n' is the current time.
+>  drivers/rtc/rtc-sa1100.c | 86 +++++++++++++++++++++++++++++++++---------------
+>  1 file changed, 59 insertions(+), 27 deletions(-)
 > 
-> 1) The call path is finished at 'n' (current time). It clears the
-> interrupt flags.
-> 2) At n + 1, AF is set because the HW alarm time is programmed at n +1.
+> diff --git a/drivers/rtc/rtc-sa1100.c b/drivers/rtc/rtc-sa1100.c
+> index b6e1ca0..a21ead5 100644
+> --- a/drivers/rtc/rtc-sa1100.c
+> +++ b/drivers/rtc/rtc-sa1100.c
+> @@ -35,12 +35,10 @@
+>  #include <linux/bitops.h>
+>  #include <linux/io.h>
 > 
-> This leads to the problem.
-> 
-> > What I'm not sure is why cmos_do_shutdown() isn't clearing AF properly.
-> > Is it correctly called at shutdown?
-> >
-> 
-> The function cmos_pnp_shutdown() simply returns because
-> cmos_poweroff() always returns 0 (CONFIG_PM and CONFIG_PNP are
-> set). The cmos_do_shutdown() is not invoked at shutdown. We did not
-> get a chance to clear interrupt flag. Here is the callpath:
-> 
-> kernel_restart_prepare() -> device_shutdown() -> cmos_pnp_shutdown()
-> 
-> [Experiment 1 - SLES11 SP3 with upstream kernel (without my patch)]
-> The revised code in cmos_pnp_shutdown() is shown as follows. It
-> ensures that cmos_do_shutdown() is invoked, which gets the last chance
-> to clear the interrupt flag before powering off the machine.
-> 
-> #if 0
->         if (system_state == SYSTEM_POWER_OFF && !cmos_poweroff(dev))
->                 return;
-> #endif
->         cmos_poweroff(dev);
-> 
-> 
-> The issue can be still reproduced. This implies that the time cost
-> between hwclock and cmos_do_shutdown() is within one second.
-> So, AF is not set yet.
-> 
-> [Experiment 2 - SLES11 SP3 with upstream kernel (without my patch)]
-> Still apply the code snippet in Experiment 1. The system stayed
-> power off when I intentionally added 'sleep 3' command in the end of
-> the 'stop' service of /etc/init.d/boot.clock (This script uses the
-> hwclock utility to set hardware clock
-> to the current system time). This proves that cmos_do_shutdown()
-> clears AF generated by RTC HW.
-> 
-> The system always stayed power off with 10-time shutdown tests.
-> 
-> [Experiment 3 - SLES11 SP3 with upstream kernel (without my patch)]
-> Do not apply the code snippet in Experiment 1. Also added 'sleep 3'
-> command in the end of the 'stop' service of /etc/init.d/boot.clock.
-> The issue can be reproduced. This proves that cmos_pnp_shutdown()
-> simply returns without invoking cmos_do_shutdown(). So, AF is not
-> cleared.
-> 
-> Experiments 1-3 show that the issue happens if the time cost
-> between hwclock and cmos_do_shutdown() is within one second.
-> If we want to clear the interrupt flag for every shutdown, we need
-> to re-write the cmos_pnp_shutdown() to ensure the
-> cmos_do_shutdown() is invoke for every shutdown.
-> 
-> Although my patch can work around the issue, kindly let me know
-> if you want to re-work cmos_pnp_shutdown(). We can come out a
-> better way to invoke cmos_do_shutdown() for every shutdown. But,
-> be remember, the issue still happens even though we make sure
-> cmos_do_shutdown() is invoked for every shutdown. The problem
-> is the one second interval.
+> -#include <mach/hardware.h>
+> -#include <mach/irqs.h>
+> -
+> -#if defined(CONFIG_ARCH_PXA) || defined(CONFIG_ARCH_MMP)
+> -#include <mach/regs-rtc.h>
+> -#endif
+> +#define RTSR_HZE	(1 << 3)	/* HZ interrupt enable */
+> +#define RTSR_ALE	(1 << 2)	/* RTC alarm interrupt enable */
+> +#define RTSR_HZ		(1 << 1)	/* HZ rising-edge detected */
+> +#define RTSR_AL		(1 << 0)	/* RTC alarm detected */
 > 
 
-That's what I understood. How I see it is the following: your patch is
-reading and setting the alarm then clearing AF at a later point in the
-shutdown. This may as well be before that one second has elapsed so I
-don't feel this is a proper fix. Also, other RTCs don't suffer from that
-issue and this may actually break some of them.
-
-What I would do is ensure that AF gets cleared in cmos_do_shutdown()
-after setting the alarm to now or now - 1 when it is not used for
-wakeup/restart.
-
-Regards,
+While at it, can you use BIT()?
 
 -- 
 Alexandre Belloni, Free Electrons
 Embedded Linux, Kernel and Android engineering
 http://free-electrons.com
-
--- 
--- 
-You received this message because you are subscribed to "rtc-linux".
-Membership options at http://groups.google.com/group/rtc-linux .
-Please read http://groups.google.com/group/rtc-linux/web/checklist
-before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
-For more options, visit https://groups.google.com/d/optout.
