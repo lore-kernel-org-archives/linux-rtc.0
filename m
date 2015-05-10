@@ -1,17 +1,24 @@
-Return-Path: <rtc-linux+bncBDEKVJM7XAHRBKXAZGVAKGQEIKKBUFA@googlegroups.com>
-Received: from mout.kundenserver.de (mout.kundenserver.de. [212.227.126.187])
-        by gmr-mx.google.com with ESMTPS id ec7si164415wib.3.2015.05.12.14.27.06
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 12 May 2015 14:27:06 -0700 (PDT)
-From: Arnd Bergmann <arnd@arndb.de>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
-Subject: [rtc-linux] [PATCH] rtc: pfc8563: fix uninitialized variable warning
-Date: Tue, 12 May 2015 23:27:02 +0200
-Message-ID: <2293546.ekQV1ek12O@wuerfel>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBVVBX6VAKGQEUQXWRAQ@googlegroups.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id ec7si299296wib.3.2015.05.10.14.42.45
+        for <rtc-linux@googlegroups.com>;
+        Sun, 10 May 2015 14:42:45 -0700 (PDT)
+Date: Sun, 10 May 2015 23:42:44 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Lothar =?iso-8859-1?Q?Wa=DFmann?= <LW@KARO-electronics.de>,
+	Shawn Guo <shawn.guo@linaro.org>
+Cc: rtc-linux@googlegroups.com, Andrew Morton <akpm@linux-foundation.org>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Kim Phillips <kim.phillips@freescale.com>,
+	Sascha Hauer <s.hauer@pengutronix.de>,
+	Stephen Boyd <sboyd@codeaurora.org>,
+	linux-arm-kernel@lists.infradead.org
+Subject: [rtc-linux] Re: [PATCH] rtc: snvs: improve timeout handling in snvs_rtc_enable()
+Message-ID: <20150510214244.GJ3338@piout.net>
+References: <20527.38172.621130.368019@ipc1.ka-ro>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <20527.38172.621130.368019@ipc1.ka-ro>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -22,41 +29,117 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Gcc is unable to prove that alm_pending is always initialized
-when it is used, so it prints a harmless warning:
+Hi Shawn, Lothar,
 
-drivers/rtc/rtc-pcf8563.c: In function 'pcf8563_probe':
-drivers/rtc/rtc-pcf8563.c:449:5: warning: 'alm_pending' may be used uninitialized in this function [-Wmaybe-uninitialized]
+On 18/08/2012 at 15:14:04 +0200, Lothar Wa=C3=9Fmann wrote :
+> Shawn Guo writes:
+> > On Sat, Aug 18, 2012 at 10:10:08AM +0200, Lothar Wa=C3=9Fmann wrote:
+> > > If snvs_rtc_enable() happens to be descheduled for a period longer
+> > > than the timout period, a timeout may be indicated even if the RTC
+> > > status has changed meanwhile. Force a status read at the end of the
+> > > timeout period to prevent bogus timeout errors.
+> > >=20
+> > >=20
+> > > Signed-off-by: Lothar Wa=C3=9Fmann <LW@KARO-electronics.de>
+> > > ---
+> > >  drivers/rtc/rtc-snvs.c |   22 +++++++++++++---------
+> > >  1 files changed, 13 insertions(+), 9 deletions(-)
+> > >=20
+> > >  Compile tested only due to lack of HW.
+> >=20
+> > Tested-by: Shawn Guo <shawn.guo@linaro.org>
+> >=20
 
-This uses the same conditional expression that is used inside of
-the pcf8563_get_alarm_mode() function, to help gcc figure it out
-and shut up that warning, and make the ARM defconfigs build again
-with no warnings.
+It seems that patch never made it mainline. Can you check if it is still
+needed?
 
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Fixes: a45d528aab8b ("rtc: pcf8563: clear expired alarm at boot time")
 
-diff --git a/drivers/rtc/rtc-pcf8563.c b/drivers/rtc/rtc-pcf8563.c
-index 0ba7e59929be..8e52c029cf1a 100644
---- a/drivers/rtc/rtc-pcf8563.c
-+++ b/drivers/rtc/rtc-pcf8563.c
-@@ -437,7 +437,7 @@ static int pcf8563_probe(struct i2c_client *client,
- 	}
- 
- 	err = pcf8563_get_alarm_mode(client, NULL, &alm_pending);
--	if (err < 0) {
-+	if (err) {
- 		dev_err(&client->dev, "%s: read error\n", __func__);
- 		return err;
- 	}
+> > A small nitpick below.
+> >=20
+> > >=20
+> > > diff --git a/drivers/rtc/rtc-snvs.c b/drivers/rtc/rtc-snvs.c
+> > > index 912f116..dc921b2 100644
+> > > --- a/drivers/rtc/rtc-snvs.c
+> > > +++ b/drivers/rtc/rtc-snvs.c
+> > > @@ -81,6 +81,13 @@ static void rtc_write_sync_lp(void __iomem *ioaddr=
+)
+> > >  	}
+> > >  }
+> > > =20
+> > > +static int snvs_rtc_enable_done(int enable, void __iomem *addr)
+> >=20
+> > Can we rename parameter "addr" to "ioaddr" and put it before "enable",
+> > also change "enable" to bool?
+> >=20
+> OK. The resulting assembler code of the patch below is identical to
+> the previous version of this patch.
+>=20
+>=20
+> Signed-off-by: Lothar Wa=C3=9Fmann <LW@KARO-electronics.de>
+> Tested-by: Shawn Guo <shawn.guo@linaro.org>
+> ---
+>  drivers/rtc/rtc-snvs.c |   22 +++++++++++++---------
+>  1 files changed, 13 insertions(+), 9 deletions(-)
+>=20
+> diff --git a/drivers/rtc/rtc-snvs.c b/drivers/rtc/rtc-snvs.c
+> index 912f116..a757cb9 100644
+> --- a/drivers/rtc/rtc-snvs.c
+> +++ b/drivers/rtc/rtc-snvs.c
+> @@ -81,6 +81,13 @@ static void rtc_write_sync_lp(void __iomem *ioaddr)
+>  	}
+>  }
+> =20
+> +static int snvs_rtc_enable_done(void __iomem *ioaddr, bool enable)
+> +{
+> +	u32 lpcr =3D readl(ioaddr + SNVS_LPCR);
+> +
+> +	return enable ^ !(lpcr & SNVS_LPCR_SRTC_ENV);
+> +}
+> +
+>  static int snvs_rtc_enable(struct snvs_rtc_data *data, bool enable)
+>  {
+>  	unsigned long timeout =3D jiffies + msecs_to_jiffies(1);
+> @@ -99,18 +106,15 @@ static int snvs_rtc_enable(struct snvs_rtc_data *dat=
+a, bool enable)
+>  	spin_unlock_irqrestore(&data->lock, flags);
+> =20
+>  	while (1) {
+> -		lpcr =3D readl(data->ioaddr + SNVS_LPCR);
+> +		if (snvs_rtc_enable_done(data->ioaddr, enable))
+> +			break;
+> =20
+> -		if (enable) {
+> -			if (lpcr & SNVS_LPCR_SRTC_ENV)
+> -				break;
+> -		} else {
+> -			if (!(lpcr & SNVS_LPCR_SRTC_ENV))
+> +		if (time_after(jiffies, timeout)) {
+> +			if (snvs_rtc_enable_done(data->ioaddr, enable))
+>  				break;
+> +			else
+> +				return -ETIMEDOUT;
+>  		}
+> -
+> -		if (time_after(jiffies, timeout))
+> -			return -ETIMEDOUT;
+>  	}
+> =20
+>  	return 0;
 
--- 
--- 
+--=20
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
+
+--=20
+--=20
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+---=20
+You received this message because you are subscribed to the Google Groups "=
+rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an e=
+mail to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
