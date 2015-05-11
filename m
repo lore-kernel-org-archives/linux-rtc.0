@@ -1,32 +1,30 @@
-Return-Path: <rtc-linux+bncBAABBKHL5OVAKGQEG67YXRA@googlegroups.com>
-Received: from mail1.bemta3.messagelabs.com (mail1.bemta3.messagelabs.com. [195.245.230.167])
-        by gmr-mx.google.com with ESMTPS id k2si515636wif.0.2015.05.19.01.34.48
+Return-Path: <rtc-linux+bncBDA7X7F2WUEBB7VPYKVAKGQESUDCKNQ@googlegroups.com>
+Received: from mail-wi0-f171.google.com (mail-wi0-f171.google.com. [209.85.212.171])
+        by gmr-mx.google.com with ESMTPS id q10si402436wiz.0.2015.05.11.04.52.30
         for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=RC4-SHA bits=128/128);
-        Tue, 19 May 2015 01:34:48 -0700 (PDT)
-From: "Opensource [Steve Twiss]" <stwiss.opensource@diasemi.com>
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 11 May 2015 04:52:30 -0700 (PDT)
+Received: by mail-wi0-f171.google.com with SMTP id n10so93150077wiu.1
+        for <rtc-linux@googlegroups.com>; Mon, 11 May 2015 04:52:30 -0700 (PDT)
+Date: Mon, 11 May 2015 12:52:26 +0100
+From: Lee Jones <lee.jones@linaro.org>
 To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-CC: LINUXKERNEL <linux-kernel@vger.kernel.org>, Lee Jones
-	<lee.jones@linaro.org>, Samuel Ortiz <sameo@linux.intel.com>, "Alessandro
- Zummo" <a.zummo@towertech.it>, DEVICETREE <devicetree@vger.kernel.org>,
-	"David Dajun Chen" <david.chen@diasemi.com>, Dmitry Torokhov
-	<dmitry.torokhov@gmail.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>,
-	Kumar Gala <galak@codeaurora.org>, LINUXINPUT <linux-input@vger.kernel.org>,
-	LINUXWATCHDOG <linux-watchdog@vger.kernel.org>, Liam Girdwood
-	<lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, Mark Rutland
-	<mark.rutland@arm.com>, Pawel Moll <pawel.moll@arm.com>, RTCLINUX
-	<rtc-linux@googlegroups.com>, Rob Herring <robh+dt@kernel.org>, "Support
- Opensource" <Support.Opensource@diasemi.com>, Wim Van Sebroeck
-	<wim@iguana.be>
-Subject: RE: [rtc-linux] [PATCH V2 1/4] mfd: da9062: DA9062 MFD core driver
-Date: Tue, 19 May 2015 08:34:45 +0000
-Message-ID: <6ED8E3B22081A4459DAC7699F3695FB7014B22B961@SW-EX-MBX02.diasemi.com>
-References: <cover.1431621833.git.stwiss.opensource@diasemi.com>
- <af5a7d289bb149e9111ebc70bb0589a994ee2407.1431621833.git.stwiss.opensource@diasemi.com>
- <20150516085328.GI3338@piout.net>
-In-Reply-To: <20150516085328.GI3338@piout.net>
-Content-Type: text/plain; charset=UTF-8
+Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+	kernel@stlinux.com, devicetree@vger.kernel.org,
+	daniel.lezcano@linaro.org, tglx@linutronix.de, wim@iguana.be,
+	a.zummo@towertech.it, linux-watchdog@vger.kernel.org,
+	rtc-linux@googlegroups.com, linux@roeck-us.net
+Subject: Re: [rtc-linux] [PATCH 07/12] rtc: st: Update IP layout information
+ to include Clocksource
+Message-ID: <20150511115226.GC20742@x1>
+References: <1431005924-21777-1-git-send-email-lee.jones@linaro.org>
+ <1431005924-21777-8-git-send-email-lee.jones@linaro.org>
+ <20150509135854.GE3338@piout.net>
+ <20150511105433.GB20742@x1>
+ <20150511110307.GL3338@piout.net>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <20150511110307.GL3338@piout.net>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -37,98 +35,32 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On 16 May 2015 09:53 Alexandre Belloni wrote:
+On Mon, 11 May 2015, Alexandre Belloni wrote:
+> On 11/05/2015 at 11:54:33 +0100, Lee Jones wrote :
+> > On Sat, 09 May 2015, Alexandre Belloni wrote:
+> > > I'm guessing this will go through the mfd tree along with the driver?
+> >=20
+> > Yes, that is the plan, if that's okay with you?
+>=20
+> Sure!
 
-Hi Alexandre,
+Perfect.  Thanks Alexandre.
 
-> On 14/05/2015 at 17:43:52 +0100, S Twiss wrote :
+--=20
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org =E2=94=82 Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog
 
-[...]
-
-> > +	{
-> > +		.name		= "da9062-watchdog",
-> > +		.num_resources	= ARRAY_SIZE(da9062_wdt_resources),
-> > +		.resources	= da9062_wdt_resources,
-> > +		.of_compatible  = "dlg,da9062-wdt",
-> > +	},
-> > +	{
-> > +		.name		= "da9062-onkey",
-> > +		.num_resources	= ARRAY_SIZE(da9062_onkey_resources),
-> > +		.resources	= da9062_onkey_resources,
-> > +		.of_compatible  = "dlg,da9062-onkey",
-> > +	},
-> > +	{
-> > +		.name		= "da9062-thermal",
-> > +		.num_resources	= ARRAY_SIZE(da9062_thermal_resources),
-> > +		.resources	= da9062_thermal_resources,
-> > +		.of_compatible  = "dlg,da9062-thermal",
-> > +	},
-> > +	{
-> > +		.name		= "da9062-rtc",
-> > +		.num_resources	= ARRAY_SIZE(da9062_rtc_resources),
-> > +		.resources	= da9062_rtc_resources,
-> > +		.of_compatible  = "dlg,da9062-rtc",
-> 
-> Did you try to use "da9063-rtc"? The register set seems to be exactly
-> the same. Unfortunately, the datasheet are not available on the diasemi
-> website...
-
-I will remove the DA9062 OnKey and RTC parts with a view to putting them back
-when I do the work for the DA9063 alterations.
-
-> Also, the .of_compatibles are not necessary because you don't add any of
-> bindings to the underlying drivers. The match happens on .name.
-> 
-> > diff --git a/include/linux/mfd/da9062/registers.h
-> b/include/linux/mfd/da9062/registers.h
-> > new file mode 100644
-> > index 0000000..d07c2bc
-> > --- /dev/null
-> > +++ b/include/linux/mfd/da9062/registers.h
-> 
-> Comparing that file with da9063/registers.h, It really seems that
-> DA062AA, DA9063AD and DA9063BB are register compatible, apart from a
-> few
-> differences in the regulator and the gpio count.
-> 
-> Also, at least the watchdog and rtc driver are duplicating their da9063
-> counterpart. I'm not trying to annoy you, I just want you to understand
-> that the less code is duplicated, the easiest it will be to maintain
-> later.
-
-This has come up a lot lately.
-
-https://lkml.org/lkml/2015/4/24/304
-https://lkml.org/lkml/2015/5/13/383
-https://lkml.org/lkml/2015/5/6/505
-https://lkml.org/lkml/2015/5/18/511
-
-The short answer is that the DA9062 and DA9063 chips are not identical. Although
-their numbers are sequential and there are functional similarities for some of the
-components, this is not the norm for the two chips.
-
-In some cases re-using driver components from DA9063 is a good way forward, but
-making all components part of a monolithic driver would make both DA9062 and
-DA9063 over complicated and unmaintainable -- in my opinion.
-
-However it's not just my opinion we have to consider here I think.
-
-The RTC and OnKey in this case can be done fairly easily I think -- there can be some
-re-use in those components -- although there are fairly important RTC differences between
-the DA9063 AD and DA9063 BB silicon revisions (in the form of a new register, different
-functionality in the alarm and a register shift). So even that is not a straight-forward
-"swap" to run DA9062.
-
-Regards,
-Steve
-
--- 
--- 
+--=20
+--=20
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+---=20
+You received this message because you are subscribed to the Google Groups "=
+rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an e=
+mail to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
