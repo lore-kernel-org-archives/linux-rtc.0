@@ -1,31 +1,25 @@
-Return-Path: <rtc-linux+bncBAABBEFUTSVQKGQEOXG5WQI@googlegroups.com>
-Received: from mail1.bemta14.messagelabs.com (mail1.bemta14.messagelabs.com. [193.109.254.118])
-        by gmr-mx.google.com with ESMTPS id bc3si872318wib.2.2015.05.28.06.37.20
+Return-Path: <rtc-linux+bncBDIYTLXUW4BRBCWXYGVAKGQENRYUP3Q@googlegroups.com>
+Received: from mail-wi0-f173.google.com (mail-wi0-f173.google.com. [209.85.212.173])
+        by gmr-mx.google.com with ESMTPS id p12si366797wiv.1.2015.05.11.01.42.50
         for <rtc-linux@googlegroups.com>
         (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 28 May 2015 06:37:20 -0700 (PDT)
-Message-ID: <37f5340259266adb7a2fd0576062ef89a65460b1.1432820011.git.stwiss.opensource@diasemi.com>
-In-Reply-To: <cover.1432820011.git.stwiss.opensource@diasemi.com>
-References: <cover.1432820011.git.stwiss.opensource@diasemi.com>
-From: S Twiss <stwiss.opensource@diasemi.com>
-Date: Thu, 28 May 2015 14:33:31 +0100
-Subject: [rtc-linux] [PATCH V4 3/3] devicetree: da9062: Add bindings for
- DA9062 driver
-To: DEVICETREE <devicetree@vger.kernel.org>, Ian Campbell
-	<ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>,
-	LINUXKERNEL <linux-kernel@vger.kernel.org>, Mark Rutland
-	<mark.rutland@arm.com>, Pawel Moll <pawel.moll@arm.com>, Rob Herring
-	<robh+dt@kernel.org>
-CC: Alessandro Zummo <a.zummo@towertech.it>, David Dajun Chen
-	<david.chen@diasemi.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	LINUXINPUT <linux-input@vger.kernel.org>, LINUXWATCHDOG
-	<linux-watchdog@vger.kernel.org>, Lee Jones <lee.jones@linaro.org>, Liam
- Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, RTCLINUX
-	<rtc-linux@googlegroups.com>, S Twiss <stwiss.opensource@diasemi.com>, Samuel
- Ortiz <sameo@linux.intel.com>, Support Opensource
-	<support.opensource@diasemi.com>, Wim Van Sebroeck <wim@iguana.be>
+        Mon, 11 May 2015 01:42:50 -0700 (PDT)
+Received: by mail-wi0-f173.google.com with SMTP id k4so96205913wiz.1
+        for <rtc-linux@googlegroups.com>; Mon, 11 May 2015 01:42:50 -0700 (PDT)
+Message-ID: <55506B87.3070807@linaro.org>
+Date: Mon, 11 May 2015 10:42:47 +0200
+From: Daniel Lezcano <daniel.lezcano@linaro.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+To: Lee Jones <lee.jones@linaro.org>,
+ linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+CC: kernel@stlinux.com, devicetree@vger.kernel.org, tglx@linutronix.de,
+ wim@iguana.be, a.zummo@towertech.it, linux-watchdog@vger.kernel.org,
+ rtc-linux@googlegroups.com, linux@roeck-us.net
+Subject: [rtc-linux] Re: [PATCH 02/12] clocksource: sti: Provide support for
+ the ST LPC Clocksource IP
+References: <1431005924-21777-1-git-send-email-lee.jones@linaro.org> <1431005924-21777-3-git-send-email-lee.jones@linaro.org>
+In-Reply-To: <1431005924-21777-3-git-send-email-lee.jones@linaro.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -36,125 +30,214 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-From: S Twiss <stwiss.opensource@diasemi.com>
+On 05/07/2015 03:38 PM, Lee Jones wrote:
+> This IP is shared with Watchdog and RTC functionality.  Only one of
+> these IPs can be used at the same time.  We use the device-driver
+> model combined with a DT 'mode' property to enforce this.
+>
+> The ST LPC Clocksource IP can be used as the system (tick) timer.
+>
+> Signed-off-by: Lee Jones <lee.jones@linaro.org>
+> ---
+>   drivers/clocksource/Kconfig         |   8 +++
+>   drivers/clocksource/Makefile        |   1 +
+>   drivers/clocksource/clksrc_st_lpc.c | 123 +++++++++++++++++++++++++++++=
++++++++
+>   3 files changed, 132 insertions(+)
+>   create mode 100644 drivers/clocksource/clksrc_st_lpc.c
+>
+> diff --git a/drivers/clocksource/Kconfig b/drivers/clocksource/Kconfig
+> index 68161f7..ac424cf 100644
+> --- a/drivers/clocksource/Kconfig
+> +++ b/drivers/clocksource/Kconfig
+> @@ -250,4 +250,12 @@ config CLKSRC_PXA
+>   	help
+>   	  This enables OST0 support available on PXA and SA-11x0
+>   	  platforms.
+> +
+> +config CLKSRC_ST_LPC
+> +	bool
+> +	depends on ARCH_STI
+> +	select CLKSRC_OF if OF
+> +	help
+> +	  Enable this option to use the Low Power controller timer
+> +	  as clocksource.
+>   endmenu
+> diff --git a/drivers/clocksource/Makefile b/drivers/clocksource/Makefile
+> index 752d5c7..e08da4d 100644
+> --- a/drivers/clocksource/Makefile
+> +++ b/drivers/clocksource/Makefile
+> @@ -51,3 +51,4 @@ obj-$(CONFIG_ARCH_INTEGRATOR_AP)	+=3D timer-integrator-=
+ap.o
+>   obj-$(CONFIG_CLKSRC_VERSATILE)		+=3D versatile.o
+>   obj-$(CONFIG_CLKSRC_MIPS_GIC)		+=3D mips-gic-timer.o
+>   obj-$(CONFIG_ASM9260_TIMER)		+=3D asm9260_timer.o
+> +obj-$(CONFIG_CLKSRC_ST_LPC)		+=3D clksrc_st_lpc.o
+> diff --git a/drivers/clocksource/clksrc_st_lpc.c b/drivers/clocksource/cl=
+ksrc_st_lpc.c
+> new file mode 100644
+> index 0000000..18a7dcd0
+> --- /dev/null
+> +++ b/drivers/clocksource/clksrc_st_lpc.c
+> @@ -0,0 +1,123 @@
+> +/*
+> + * Clocksource using the Low Power Timer found in the Low Power Controll=
+er (LPC)
+> + *
+> + * Copyright (C) 2015 STMicroelectronics =E2=80=93 All Rights Reserved
+> + *
+> + * Author(s): Francesco Virlinzi <francesco.virlinzi@st.com>
+> + *	      Ajit Pal Singh <ajitpal.singh@st.com>
+> + *
+> + * This program is free software; you can redistribute it and/or modify
+> + * it under the terms of the GNU General Public License as published by
+> + * the Free Software Foundation; either version 2 of the License, or
+> + * (at your option) any later version.
+> + */
+> +
+> +#include <linux/clk.h>
+> +#include <linux/clocksource.h>
+> +#include <linux/init.h>
+> +#include <linux/of_address.h>
+> +#include <linux/slab.h>
+> +
+> +#include <dt-bindings/mfd/st-lpc.h>
+> +
+> +/* Low Power Timer */
+> +#define LPC_LPT_LSB_OFF		0x400
+> +#define LPC_LPT_MSB_OFF		0x404
+> +#define LPC_LPT_START_OFF	0x408
+> +
+> +static struct st_clksrc_ddata {
+> +	struct clk		*clk;
+> +	void __iomem		*base;
+> +} ddata;
+> +
+> +static void st_clksrc_reset(void)
+> +{
+> +	writel_relaxed(0, ddata.base + LPC_LPT_START_OFF);
+> +	writel_relaxed(0, ddata.base + LPC_LPT_MSB_OFF);
+> +	writel_relaxed(0, ddata.base + LPC_LPT_LSB_OFF);
+> +	writel_relaxed(1, ddata.base + LPC_LPT_START_OFF);
+> +}
+> +
+> +static int __init st_clksrc_init(void)
+> +{
+> +	unsigned long rate;
+> +	int ret;
+> +
+> +	st_clksrc_reset();
+> +
+> +	rate =3D clk_get_rate(ddata.clk);
+> +
+> +	ret =3D clocksource_mmio_init(ddata.base + LPC_LPT_LSB_OFF,
+> +				    "clksrc-st-lpc", rate, 300, 32,
+> +				    clocksource_mmio_readl_up);
+> +	if (ret) {
+> +		pr_err("clksrc-st-lpc: Failed to register clocksource\n");
+> +		return ret;
+> +	}
+> +
+> +	return 0;
+> +}
+> +
+> +static int st_clksrc_setup_clk(struct device_node *np)
+> +{
+> +	struct clk *clk;
+> +	int ret;
+> +
+> +	clk =3D of_clk_get(np, 0);
+> +	if (IS_ERR(clk)) {
+> +		pr_err("clksrc-st-lpc: Failed to get LPC clock\n");
+> +		ret =3D PTR_ERR(clk);
+> +		return ret;
 
-Add device tree bindings for the DA9062 driver
+return PTR_ERR(clk);
 
-Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
+so you can get rid of the 'int ret' variable.
 
----
-Changes in V4:
- - No change
+> +	}
+> +
+> +	if (clk_prepare_enable(clk)) {
+> +		pr_err("clksrc-st-lpc: Failed to enable LPC clock\n");
+> +		return -EINVAL;
+> +	}
+> +
+> +	if (!clk_get_rate(clk)) {
+> +		pr_err("clksrc-st-lpc: Failed to get LPC clock rate\n");
+> +		clk_disable_unprepare(clk);
+> +		return -EINVAL;
+> +	}
+> +
+> +	ddata.clk =3D clk;
+> +
+> +	return 0;
+> +}
+> +
+> +static void __init st_clksrc_of_register(struct device_node *np)
+> +{
+> +	int ret;
+> +	uint32_t mode;
+> +
+> +	ret =3D of_property_read_u32(np, "st,lpc-mode", &mode);
+> +	if (ret) {
+> +		pr_err("clksrc-st-lpc: An LPC mode must be provided\n");
+> +		return;
+> +	}
+> +
+> +	/* LPC can either run as a Clocksource or in RTC or WDT mode */
+> +	if (mode !=3D ST_LPC_MODE_CLKSRC)
+> +		return;
 
-Changes in V3:
- - No change
- 
-Changes in V2:
- - Dropped the RTC and Onkey binding information in this patch-set
-   Those drivers have been dropped from this patch set and the
-   binding information has been removed accordingly.
+I am confused with this patch description + comment and the patch 1's=20
+description.
 
-This patch applies against linux-next and v4.1-rc5 
+For the former, I understand the LPC could be in RTC or WDT mode and=20
+used as a clocksource (clksrc + rtc / clksrc + wdt), for the latter I=20
+understand there are three modes clocksource, rtc and watchdog (mutually=20
+exclusive). Could you clarify ?
 
- Documentation/devicetree/bindings/mfd/da9062.txt | 79 ++++++++++++++++++++++++
- 1 file changed, 79 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/mfd/da9062.txt
+> +
+> +	ddata.base =3D of_iomap(np, 0);
+> +	if (!ddata.base) {
+> +		pr_err("clksrc-st-lpc: Unable to map iomem\n");
+> +		return;
+> +	}
+> +
+> +	if (st_clksrc_setup_clk(np)) {
+> +		iounmap(ddata.base);
+> +		return;
+> +	}
+> +
+> +	if (st_clksrc_init()) {
+> +		iounmap(ddata.base);
+> +		return;
+> +	}
+> +
+> +	pr_info("clksrc-st-lpc: clocksource initialised - running @ %luHz\n",
+> +		clk_get_rate(ddata.clk));
+> +}
+> +CLOCKSOURCE_OF_DECLARE(ddata, "st,stih407-lpc", st_clksrc_of_register);
+>
 
-diff --git a/Documentation/devicetree/bindings/mfd/da9062.txt b/Documentation/devicetree/bindings/mfd/da9062.txt
-new file mode 100644
-index 0000000..5765ed9
---- /dev/null
-+++ b/Documentation/devicetree/bindings/mfd/da9062.txt
-@@ -0,0 +1,79 @@
-+* Dialog DA9062 Power Management Integrated Circuit (PMIC)
-+
-+DA9062 consists of a large and varied group of sub-devices:
-+
-+Device                   Supply Names    Description
-+------                   ------------    -----------
-+da9062-regulator        :               : LDOs & BUCKs
-+da9062-watchdog         :               : Watchdog Timer
-+
-+======
-+
-+Required properties:
-+
-+- compatible : Should be "dlg,da9062".
-+- reg : Specifies the I2C slave address (this defaults to 0x58 but it can be
-+  modified to match the chip's OTP settings).
-+- interrupt-parent : Specifies the reference to the interrupt controller for
-+  the DA9062.
-+- interrupts : IRQ line information.
-+- interrupt-controller
-+
-+See Documentation/devicetree/bindings/interrupt-controller/interrupts.txt for
-+further information on IRQ bindings.
-+
-+Sub-nodes:
-+
-+- regulators : This node defines the settings for the LDOs and BUCKs. The
-+  DA9062 regulators are bound using their names listed below:
-+
-+    buck1    : BUCK_1
-+    buck2    : BUCK_2
-+    buck3    : BUCK_3
-+    buck4    : BUCK_4
-+    ldo1     : LDO_1
-+    ldo2     : LDO_2
-+    ldo3     : LDO_3
-+    ldo4     : LDO_4
-+
-+  The component follows the standard regulator framework and the bindings
-+  details of individual regulator device can be found in:
-+  Documentation/devicetree/bindings/regulator/regulator.txt
-+
-+
-+- watchdog: This node defines the settings for the watchdog driver associated
-+  with the DA9062 PMIC. The compatible = "dlg,da9062-watchdog" should be added
-+  if a node is created.
-+
-+
-+Example:
-+
-+	pmic0: da9062@58 {
-+		compatible = "dlg,da9062";
-+		reg = <0x58>;
-+		interrupt-parent = <&gpio6>;
-+		interrupts = <11 IRQ_TYPE_LEVEL_LOW>;
-+		interrupt-controller;
-+
-+		watchdog {
-+			compatible = "dlg,da9062-watchdog";
-+		};
-+
-+		regulators {
-+			DA9062_BUCK1: buck1 {
-+				regulator-name = "BUCK1";
-+				regulator-min-microvolt = <300000>;
-+				regulator-max-microvolt = <1570000>;
-+				regulator-min-microamp = <500000>;
-+				regulator-max-microamp = <2000000>;
-+				regulator-boot-on;
-+			};
-+			DA9062_LDO1: ldo1 {
-+				regulator-name = "LDO_1";
-+				regulator-min-microvolt = <900000>;
-+				regulator-max-microvolt = <3600000>;
-+				regulator-boot-on;
-+			};
-+		};
-+	};
-+
--- 
-end-of-patch for PATCH V4
 
--- 
--- 
+--=20
+  <http://www.linaro.org/> Linaro.org =E2=94=82 Open source software for AR=
+M SoCs
+
+Follow Linaro:  <http://www.facebook.com/pages/Linaro> Facebook |
+<http://twitter.com/#!/linaroorg> Twitter |
+<http://www.linaro.org/linaro-blog/> Blog
+
+--=20
+--=20
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+---=20
+You received this message because you are subscribed to the Google Groups "=
+rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an e=
+mail to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
