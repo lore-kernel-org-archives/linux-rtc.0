@@ -1,23 +1,17 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBVWH7OVAKGQE54XGCQY@googlegroups.com>
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id q10si212990wiz.0.2015.05.22.01.07.50
-        for <rtc-linux@googlegroups.com>;
-        Fri, 22 May 2015 01:07:50 -0700 (PDT)
-Date: Fri, 22 May 2015 10:07:49 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Frank.Li@freescale.com
-Cc: lznuaa@gmail.com, shawn.guo@linaro.org, dmitry.torokhov@gmail.com,
-	robh+dt@kernel.org, linux@arm.linux.org.uk,
-	linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org,
-	rtc-linux@googlegroups.com, devicetree@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH v3 1/6] rtc: arm: imx: snvs: change use syscon
- to access register
-Message-ID: <20150522080749.GI3244@piout.net>
-References: <1432225012-20598-1-git-send-email-Frank.Li@freescale.com>
- <1432225012-20598-2-git-send-email-Frank.Li@freescale.com>
+Return-Path: <rtc-linux+bncBDEKVJM7XAHRBKXAZGVAKGQEIKKBUFA@googlegroups.com>
+Received: from mout.kundenserver.de (mout.kundenserver.de. [212.227.126.187])
+        by gmr-mx.google.com with ESMTPS id ec7si164415wib.3.2015.05.12.14.27.06
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 12 May 2015 14:27:06 -0700 (PDT)
+From: Arnd Bergmann <arnd@arndb.de>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Subject: [rtc-linux] [PATCH] rtc: pfc8563: fix uninitialized variable warning
+Date: Tue, 12 May 2015 23:27:02 +0200
+Message-ID: <2293546.ekQV1ek12O@wuerfel>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1432225012-20598-2-git-send-email-Frank.Li@freescale.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -28,31 +22,33 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Hi,
+Gcc is unable to prove that alm_pending is always initialized
+when it is used, so it prints a harmless warning:
 
-This looks good to me, a few nits below
+drivers/rtc/rtc-pcf8563.c: In function 'pcf8563_probe':
+drivers/rtc/rtc-pcf8563.c:449:5: warning: 'alm_pending' may be used uninitialized in this function [-Wmaybe-uninitialized]
 
-On 22/05/2015 at 00:16:47 +0800, Frank.Li@freescale.com wrote :
-> -	spin_unlock_irqrestore(&data->lock, flags);
-> +	regmap_update_bits(data->regmap, data->offset + SNVS_LPCR,
-> +			  (SNVS_LPCR_LPTA_EN | SNVS_LPCR_LPWUI_EN),
-That line is not properly aligned (missing one space)
+This uses the same conditional expression that is used inside of
+the pcf8563_get_alarm_mode() function, to help gcc figure it out
+and shut up that warning, and make the ARM defconfigs build again
+with no warnings.
 
-[...]
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Fixes: a45d528aab8b ("rtc: pcf8563: clear expired alarm at boot time")
 
-> +	if (of_device_is_compatible(snvs_np, "syscon")) {
-> +		data->regmap = syscon_node_to_regmap(snvs_np);
-> +		data->offset = 0x34;
-> +	} else {
-> +		pr_warning("snvs rtc: you use old dts file, please update it\n");
-
-This should be pr_warn()
-
-
--- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+diff --git a/drivers/rtc/rtc-pcf8563.c b/drivers/rtc/rtc-pcf8563.c
+index 0ba7e59929be..8e52c029cf1a 100644
+--- a/drivers/rtc/rtc-pcf8563.c
++++ b/drivers/rtc/rtc-pcf8563.c
+@@ -437,7 +437,7 @@ static int pcf8563_probe(struct i2c_client *client,
+ 	}
+ 
+ 	err = pcf8563_get_alarm_mode(client, NULL, &alm_pending);
+-	if (err < 0) {
++	if (err) {
+ 		dev_err(&client->dev, "%s: read error\n", __func__);
+ 		return err;
+ 	}
 
 -- 
 -- 
