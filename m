@@ -1,34 +1,33 @@
-Return-Path: <rtc-linux+bncBAABBJUL7GVAKGQEJCFCWJQ@googlegroups.com>
-Received: from mx2.suse.de (cantor2.suse.de. [195.135.220.15])
-        by gmr-mx.google.com with ESMTPS id p9si160467wiz.3.2015.05.21.13.52.53
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1 cipher=ECDHE-RSA-RC4-SHA bits=128/128);
-        Thu, 21 May 2015 13:52:53 -0700 (PDT)
-Date: Thu, 21 May 2015 22:52:49 +0200
-From: Borislav Petkov <bp@suse.de>
-To: Diego Ercolani <diego.ercolani@gmail.com>,
-	Adrian Huang <adrianhuang0701@gmail.com>,
-	Egbert Eich <eich@suse.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	rtc-linux@googlegroups.com, Brecht Machiels <brecht@mos6581.org>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	John Stultz <john.stultz@linaro.org>,
-	Nagananda Chumbalkar <nchumbalkar@lenovo.com>,
-	Adrian Huang <ahuang12@lenovo.com>
-Subject: [rtc-linux] Re: [RFC PATCH 1/2] Revert "rtc-cmos: Add an alarm
- disable quirk"
-Message-ID: <20150521205248.GC23652@pd.tnic>
-References: <1431077665-3493-1-git-send-email-adrianhuang0701@gmail.com>
- <20150518094755.GC23662@pd.tnic>
- <CANoYJu=utAHVNPU5PnPoBXtpMPVVbFf557xbBO=2GuHyx-JNHg@mail.gmail.com>
- <20150518101248.GE23662@pd.tnic>
- <20150518160126.GI23662@pd.tnic>
- <CANoYJumsPcXhEaFCgTKvE5mFKJELN0D4F3vjOH97RHPvTeo0fw@mail.gmail.com>
+Return-Path: <rtc-linux+bncBDA7X7F2WUEBB4XRY6VAKGQEWKLC7GA@googlegroups.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <CANoYJumsPcXhEaFCgTKvE5mFKJELN0D4F3vjOH97RHPvTeo0fw@mail.gmail.com>
+Received: from mail-wi0-f176.google.com (mail-wi0-f176.google.com. [209.85.212.176])
+        by gmr-mx.google.com with ESMTPS id m3si95489wia.1.2015.05.12.05.58.26
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 12 May 2015 05:58:26 -0700 (PDT)
+Received: by mail-wi0-f176.google.com with SMTP id k4so152377504wiz.1
+        for <rtc-linux@googlegroups.com>; Tue, 12 May 2015 05:58:26 -0700 (PDT)
+From: Lee Jones <lee.jones@linaro.org>
+To: linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org,
+	devicetree@vger.kernel.org,
+	daniel.lezcano@linaro.org,
+	tglx@linutronix.de,
+	wim@iguana.be,
+	a.zummo@towertech.it,
+	linux-watchdog@vger.kernel.org,
+	rtc-linux@googlegroups.com,
+	linux@roeck-us.net
+Cc: kernel@stlinux.com,
+	Lee Jones <lee.jones@linaro.org>
+Subject: [rtc-linux] [PATCH v2 01/12] mfd: dt-bindings: Provide human readable
+ define for Clocksource mode
+Date: Tue, 12 May 2015 13:58:09 +0100
+Message-Id: <1431435500-22899-2-git-send-email-lee.jones@linaro.org>
+In-Reply-To: <1431435500-22899-1-git-send-email-lee.jones@linaro.org>
+References: <1431435500-22899-1-git-send-email-lee.jones@linaro.org>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -38,31 +37,28 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On Thu, May 21, 2015 at 10:25:01PM +0200, Diego Ercolani wrote:
-> I confirm that I can shutdon the linux box with the kernel you provided
-> here it is the bootlog
+ST's Low Power Controller can now operate in three supported modes;
+Watchdog, Real Time Clock and most recently as a Clocksource.  This new
+define will allow the LPC IP to be configured for Clocksource from DT.
 
-Cool, very nice. Thanks a lot for testing!
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
+---
+ include/dt-bindings/mfd/st-lpc.h | 1 +
+ 1 file changed, 1 insertion(+)
 
-@Adrian: I think you can add Tested-by:'s to your v2.
-
-Here are mine:
-
-Acked-by: Borislav Petkov <bp@suse.de>
-Tested-by: Borislav Petkov <bp@suse.de>
-
-Egbert did test it on a bunch of machines too. Egbert, can you give your
-Tested-by: too please?
-
-Thanks Diego!
-Thanks guys!
-
+diff --git a/include/dt-bindings/mfd/st-lpc.h b/include/dt-bindings/mfd/st-lpc.h
+index e3e6c75..d05894a 100644
+--- a/include/dt-bindings/mfd/st-lpc.h
++++ b/include/dt-bindings/mfd/st-lpc.h
+@@ -11,5 +11,6 @@
+ 
+ #define ST_LPC_MODE_RTC		0
+ #define ST_LPC_MODE_WDT		1
++#define ST_LPC_MODE_CLKSRC	2
+ 
+ #endif /* __DT_BINDINGS_ST_LPC_H__ */
 -- 
-Regards/Gruss,
-    Boris.
-
-ECO tip #101: Trim your mails when you reply.
---
+1.9.1
 
 -- 
 -- 
