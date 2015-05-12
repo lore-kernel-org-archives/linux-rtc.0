@@ -1,37 +1,33 @@
-Return-Path: <rtc-linux+bncBCXJ7O7L3INRB3NS7GVAKGQE5ORX22Q@googlegroups.com>
-Received: from mx2.suse.de (cantor2.suse.de. [195.135.220.15])
-        by gmr-mx.google.com with ESMTPS id m3si163728wia.1.2015.05.21.15.17.17
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1 cipher=ECDHE-RSA-RC4-SHA bits=128/128);
-        Thu, 21 May 2015 15:17:17 -0700 (PDT)
+Return-Path: <rtc-linux+bncBDA7X7F2WUEBB5PRY6VAKGQERNOQOWA@googlegroups.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Message-ID: <21854.22871.816868.545978@linux-qknr.fritz.box>
-Date: Fri, 22 May 2015 00:16:55 +0200
-From: Egbert Eich <eich@suse.com>
-To: Borislav Petkov <bp@suse.de>
-Cc: Diego Ercolani <diego.ercolani@gmail.com>,
-    Adrian Huang <adrianhuang0701@gmail.com>,
-    Egbert Eich <eich@suse.com>,
-    Alessandro Zummo <a.zummo@towertech.it>,
-    Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-    rtc-linux@googlegroups.com,
-    Brecht Machiels <brecht@mos6581.org>,
-    Thomas Gleixner <tglx@linutronix.de>,
-    John Stultz <john.stultz@linaro.org>,
-    Nagananda Chumbalkar <nchumbalkar@lenovo.com>,
-    Adrian Huang <ahuang12@lenovo.com>
-Subject: [rtc-linux] Re: [RFC PATCH 1/2] Revert "rtc-cmos: Add an alarm
- disable quirk"
-In-Reply-To: bp@suse.de wrote on Thursday, 21 May 2015 at 22:52:49 +0200
-References: <1431077665-3493-1-git-send-email-adrianhuang0701@gmail.com>
-	<20150518094755.GC23662@pd.tnic>
-	<CANoYJu=utAHVNPU5PnPoBXtpMPVVbFf557xbBO=2GuHyx-JNHg@mail.gmail.com>
-	<20150518101248.GE23662@pd.tnic>
-	<20150518160126.GI23662@pd.tnic>
-	<CANoYJumsPcXhEaFCgTKvE5mFKJELN0D4F3vjOH97RHPvTeo0fw@mail.gmail.com>
-	<20150521205248.GC23652@pd.tnic>
+Received: from mail-wg0-f42.google.com (mail-wg0-f42.google.com. [74.125.82.42])
+        by gmr-mx.google.com with ESMTPS id ec7si92213wib.3.2015.05.12.05.58.29
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 12 May 2015 05:58:29 -0700 (PDT)
+Received: by mail-wg0-f42.google.com with SMTP id c8so8766444wgi.1
+        for <rtc-linux@googlegroups.com>; Tue, 12 May 2015 05:58:29 -0700 (PDT)
+From: Lee Jones <lee.jones@linaro.org>
+To: linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org,
+	devicetree@vger.kernel.org,
+	daniel.lezcano@linaro.org,
+	tglx@linutronix.de,
+	wim@iguana.be,
+	a.zummo@towertech.it,
+	linux-watchdog@vger.kernel.org,
+	rtc-linux@googlegroups.com,
+	linux@roeck-us.net
+Cc: kernel@stlinux.com,
+	Lee Jones <lee.jones@linaro.org>
+Subject: [rtc-linux] [PATCH v2 03/12] clocksource: sti: Provide 'use timer as
+ sched clock' capability
+Date: Tue, 12 May 2015 13:58:11 +0100
+Message-Id: <1431435500-22899-4-git-send-email-lee.jones@linaro.org>
+In-Reply-To: <1431435500-22899-1-git-send-email-lee.jones@linaro.org>
+References: <1431435500-22899-1-git-send-email-lee.jones@linaro.org>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -41,30 +37,46 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Borislav Petkov writes:
- > On Thu, May 21, 2015 at 10:25:01PM +0200, Diego Ercolani wrote:
- > > I confirm that I can shutdon the linux box with the kernel you provided
- > > here it is the bootlog
- > 
- > Cool, very nice. Thanks a lot for testing!
- > 
- > @Adrian: I think you can add Tested-by:'s to your v2.
- > 
- > Here are mine:
- > 
- > Acked-by: Borislav Petkov <bp@suse.de>
- > Tested-by: Borislav Petkov <bp@suse.de>
- > 
- > Egbert did test it on a bunch of machines too. Egbert, can you give your
- > Tested-by: too please?
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
+---
+ drivers/clocksource/clksrc_st_lpc.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-
-You bet!
-
-Tested-by: Egbert Eich <eich@suse.de>
-
-Cheers,
-	Egbert.
+diff --git a/drivers/clocksource/clksrc_st_lpc.c b/drivers/clocksource/clksrc_st_lpc.c
+index 1ad1714..90f5bb8 100644
+--- a/drivers/clocksource/clksrc_st_lpc.c
++++ b/drivers/clocksource/clksrc_st_lpc.c
+@@ -16,6 +16,7 @@
+ #include <linux/clocksource.h>
+ #include <linux/init.h>
+ #include <linux/of_address.h>
++#include <linux/sched_clock.h>
+ #include <linux/slab.h>
+ 
+ #include <dt-bindings/mfd/st-lpc.h>
+@@ -38,6 +39,11 @@ static void st_clksrc_reset(void)
+ 	writel_relaxed(1, ddata.base + LPC_LPT_START_OFF);
+ }
+ 
++static u64 notrace st_clksrc_sched_clock_read(void)
++{
++	return (u64)readl_relaxed(ddata.base + LPC_LPT_LSB_OFF);
++}
++
+ static int __init st_clksrc_init(void)
+ {
+ 	unsigned long rate;
+@@ -47,6 +53,8 @@ static int __init st_clksrc_init(void)
+ 
+ 	rate = clk_get_rate(ddata.clk);
+ 
++	sched_clock_register(st_clksrc_sched_clock_read, 32, rate);
++
+ 	ret = clocksource_mmio_init(ddata.base + LPC_LPT_LSB_OFF,
+ 				    "clksrc-st-lpc", rate, 300, 32,
+ 				    clocksource_mmio_readl_up);
+-- 
+1.9.1
 
 -- 
 -- 
