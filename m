@@ -1,105 +1,72 @@
-Return-Path: <rtc-linux+bncBDA7X7F2WUEBB4VYWGVAKGQEBUZEWLI@googlegroups.com>
-Received: from mail-wi0-f170.google.com (mail-wi0-f170.google.com. [209.85.212.170])
-        by gmr-mx.google.com with ESMTPS id gt9si247809wib.2.2015.05.07.23.49.21
+Return-Path: <rtc-linux+bncBCUYRNXYZECRBHUCY6VAKGQEUMQXCRQ@googlegroups.com>
+Received: from pandora.arm.linux.org.uk (pandora.arm.linux.org.uk. [2001:4d48:ad52:3201:214:fdff:fe10:1be6])
+        by gmr-mx.google.com with ESMTPS id q10si72908wiz.0.2015.05.12.02.00.13
         for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 07 May 2015 23:49:21 -0700 (PDT)
-Received: by widdi4 with SMTP id di4so18056926wid.0
-        for <rtc-linux@googlegroups.com>; Thu, 07 May 2015 23:49:21 -0700 (PDT)
-Date: Fri, 8 May 2015 07:49:18 +0100
-From: Lee Jones <lee.jones@linaro.org>
-To: Peter Griffin <peter.griffin@linaro.org>
-Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-	devicetree@vger.kernel.org, kernel@stlinux.com,
-	rtc-linux@googlegroups.com, a.zummo@towertech.it,
-	daniel.lezcano@linaro.org, wim@iguana.be, tglx@linutronix.de,
-	linux@roeck-us.net, linux-watchdog@vger.kernel.org
-Subject: [rtc-linux] Re: [STLinux Kernel] [PATCH 06/12] watchdog: bindings:
- Supply knowledge of a third supported device - clocksource
-Message-ID: <20150508064918.GF16220@x1>
-References: <1431005924-21777-1-git-send-email-lee.jones@linaro.org>
- <1431005924-21777-7-git-send-email-lee.jones@linaro.org>
- <20150507141805.GC9793@griffinp-ThinkPad-X1-Carbon-2nd>
- <20150507191909.GC16220@x1>
- <20150507195529.GA28554@griffinp-ThinkPad-X1-Carbon-2nd>
+        (version=TLSv1 cipher=RC4-SHA bits=128/128);
+        Tue, 12 May 2015 02:00:13 -0700 (PDT)
+Date: Tue, 12 May 2015 09:59:57 +0100
+From: Russell King - ARM Linux <linux@arm.linux.org.uk>
+To: Rob Herring <robh@kernel.org>
+Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Eric Miao <eric.y.miao@gmail.com>,
+	Haojian Zhuang <haojian.zhuang@gmail.com>,
+	Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
+	Robert Jarzmik <robert.jarzmik@free.fr>,
+	Arnd Bergmann <arnd@arndb.de>,
+	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>,
+	Daniel Mack <daniel@zonque.org>
+Subject: [rtc-linux] Re: [PATCH v3 1/4] ARM: pxa: add memory resource to RTC device
+Message-ID: <20150512085957.GM2067@n2100.arm.linux.org.uk>
+References: <1431384089-28367-1-git-send-email-robh@kernel.org>
+ <1431384089-28367-2-git-send-email-robh@kernel.org>
+ <20150511224934.GL2067@n2100.arm.linux.org.uk>
+ <CAL_Jsq+tNStipTDRH05XRHVDz30B8w92YTD1ZKUTrCp-Lj7=1w@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <20150507195529.GA28554@griffinp-ThinkPad-X1-Carbon-2nd>
+In-Reply-To: <CAL_Jsq+tNStipTDRH05XRHVDz30B8w92YTD1ZKUTrCp-Lj7=1w@mail.gmail.com>
+Sender: rtc-linux@googlegroups.com
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
 List-Archive: <http://groups.google.com/group/rtc-linux
-Sender: rtc-linux@googlegroups.com
 List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On Thu, 07 May 2015, Peter Griffin wrote:
+On Mon, May 11, 2015 at 07:35:24PM -0500, Rob Herring wrote:
+> On Mon, May 11, 2015 at 5:49 PM, Russell King - ARM Linux
+> <linux@arm.linux.org.uk> wrote:
+> > On Mon, May 11, 2015 at 05:41:26PM -0500, Rob Herring wrote:
+> >> Add the memory resource for the sa1100-rtc device. Since the memory
+> >> resource is already present in the pxa_rtc_resources, that makes
+> >> sa1100_rtc_resources and pxa_rtc_resources equivalent, so use
+> >> pxa_rtc_resources for both devices and remove the duplicate
+> >> sa1100_rtc_resources.
+> >
+> > This really isn't a good idea - what do you think happens when
+> > the same struct resource gets passed into insert_resource()
+> > twice?
+> 
+> Bad things. If you recall, we discussed this on v1[1]. See the commit
+> msg of patch 2 for the summary. There is not currently a problem
+> because the rtc-pxa driver does not request the resource.
 
-> Hi Lee,
->=20
-> On Thu, 07 May 2015, Lee Jones wrote:
->=20
-> <snip>
->=20
-> > > >  Required properties
-> > > > =20
-> > > > -- compatible 	: Must be one of: "st,stih407-lpc" "st,stih416-lpc"
-> > > > -				  "st,stih415-lpc" "st,stid127-lpc"
-> > > > +- compatible 	: Must be one of: "st,stih407-lpc"
-> > >=20
-> > > The same comment as the RTC DT patch, you are removing the compatible=
-s
-> > > documentation for the other supported platforms like stih416-lpc.
-> > > AFAIK they are required in the driver to get the correct sysconfig re=
-gister.
-> >=20
-> > That's intentional.  I haven't yet tested any of this IP on
-> > STiH41{5,6} & STiH127.  Due to lack of documentation, I'm not even
-> > sure if this IP even exists on some of the other platforms.  I will
-> > add them back when support is added to both driver and DTB and I've
-> > been able to test them.
->=20
-> That was kind of my point, the driver code AFAIK already contains support
-> for these SoC's.
->=20
-> I would either expect the patch to remove support from the DT docs AND th=
-e
-> driver, or leave it as is.
->=20
-> It seems odd to only change the DT docs, and become unaligned to the
-> code (this assumes I'm looking at the latest patchset here=20
-> https://lkml.org/lkml/2015/3/4/1088 which includes support for these SoCs=
-).
+There /is/ a problem, because it's not only the driver which does this,
+it's also the platform device code when the device is registered.
+See platform_device_add().
 
-The decision to remove these 'supported' platforms was made on the RTC
-side, where there is only support for "st,stih407-lpc" in the driver.
-I thought it best to mirror that thought over to the Watchdog LPC
-bindings, but thought it not really worth ripping out existing support
-from the driver.  If others wish to test/use the Watchdog on other
-platforms and can read C code, they'll know what to do.
+-- 
+FTTC broadband for 0.8mile line: currently at 10.5Mbps down 400kbps up
+according to speedtest.net.
 
-Hopefully all of this will be a non-issue anyway, as I plan to test
-this on the other boards I have in my farm and make the necessary
-changes in the upcoming weeks.  All should be squared away by the next
-merge-window.
-
---=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
-
---=20
---=20
+-- 
+-- 
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
----=20
-You received this message because you are subscribed to the Google Groups "=
-rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an e=
-mail to rtc-linux+unsubscribe@googlegroups.com.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
