@@ -1,29 +1,33 @@
-Return-Path: <rtc-linux+bncBDKZNNNLXAHBBB6FZ6VAKGQEHXFEVEY@googlegroups.com>
-Received: from mailout1.w1.samsung.com (mailout1.w1.samsung.com. [210.118.77.11])
-        by gmr-mx.google.com with ESMTPS id xv6si2327273pab.2.2015.05.13.16.47.19
+Return-Path: <rtc-linux+bncBDA7X7F2WUEBB6XRY6VAKGQE2OZEERA@googlegroups.com>
+MIME-Version: 1.0
+Received: from mail-wi0-f170.google.com (mail-wi0-f170.google.com. [209.85.212.170])
+        by gmr-mx.google.com with ESMTPS id p12si105883wiv.1.2015.05.12.05.58.34
         for <rtc-linux@googlegroups.com>
-        (version=TLSv1 cipher=RC4-SHA bits=128/128);
-        Wed, 13 May 2015 16:47:19 -0700 (PDT)
-Received: from eucpsbgm2.samsung.com (unknown [203.254.199.245])
- by mailout1.w1.samsung.com
- (Oracle Communications Messaging Server 7.0.5.31.0 64bit (built May  5 2014))
- with ESMTP id <0NOB00A92BEQMUB0@mailout1.w1.samsung.com> for
- rtc-linux@googlegroups.com; Thu, 14 May 2015 00:47:14 +0100 (BST)
-Message-id: <5553E281.2090803@samsung.com>
-Date: Thu, 14 May 2015 08:47:13 +0900
-From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-MIME-version: 1.0
-To: Javier Martinez Canillas <javier.martinez@collabora.co.uk>,
- Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>, Olof Johansson <olof@lixom.net>,
- Doug Anderson <dianders@chromium.org>, Chanwoo Choi <cw00.choi@samsung.com>,
- rtc-linux@googlegroups.com, linux-samsung-soc@vger.kernel.org,
- linux-kernel@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH 0/2] rtc: Fix module autoload for max77xx RTC drivers
-References: <1431530282-10672-1-git-send-email-javier.martinez@collabora.co.uk>
-In-reply-to: <1431530282-10672-1-git-send-email-javier.martinez@collabora.co.uk>
-Content-type: text/plain; charset=UTF-8
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 12 May 2015 05:58:34 -0700 (PDT)
+Received: by widdi4 with SMTP id di4so14294918wid.0
+        for <rtc-linux@googlegroups.com>; Tue, 12 May 2015 05:58:34 -0700 (PDT)
+From: Lee Jones <lee.jones@linaro.org>
+To: linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org,
+	devicetree@vger.kernel.org,
+	daniel.lezcano@linaro.org,
+	tglx@linutronix.de,
+	wim@iguana.be,
+	a.zummo@towertech.it,
+	linux-watchdog@vger.kernel.org,
+	rtc-linux@googlegroups.com,
+	linux@roeck-us.net
+Cc: kernel@stlinux.com,
+	Lee Jones <lee.jones@linaro.org>
+Subject: [rtc-linux] [PATCH v2 06/12] watchdog: bindings: Supply knowledge of
+ a third supported device - clocksource
+Date: Tue, 12 May 2015 13:58:14 +0100
+Message-Id: <1431435500-22899-7-git-send-email-lee.jones@linaro.org>
+In-Reply-To: <1431435500-22899-1-git-send-email-lee.jones@linaro.org>
+References: <1431435500-22899-1-git-send-email-lee.jones@linaro.org>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -33,29 +37,45 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On 14.05.2015 00:18, Javier Martinez Canillas wrote:
-> Hello Alexandre and Alessandro,
-> 
-> This is a trivial series that fixes module autoloading for the Maxim
-> MAX77686 and MAX77802 RTC drivers that didn't export their platform
-> device ID table with MODULE_DEVICE_TABLE() so modalias information
-> was not available.
-> 
-> The series is composed of the following patches:
-> 
-> Javier Martinez Canillas (2):
->   rtc: max77686: Report platform modalias to fix module autoload
->   rtc: max77802: Report platform modalias to fix module autoload
-> 
->  drivers/rtc/rtc-max77686.c | 1 +
->  drivers/rtc/rtc-max77802.c | 1 +
->  2 files changed, 2 insertions(+)
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
+---
+ Documentation/devicetree/bindings/watchdog/st_lpc_wdt.txt | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
-For the patchset:
-Reviewed-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-
-Best regards,
-Krzysztof
+diff --git a/Documentation/devicetree/bindings/watchdog/st_lpc_wdt.txt b/Documentation/devicetree/bindings/watchdog/st_lpc_wdt.txt
+index 388c88a..039c5ca 100644
+--- a/Documentation/devicetree/bindings/watchdog/st_lpc_wdt.txt
++++ b/Documentation/devicetree/bindings/watchdog/st_lpc_wdt.txt
+@@ -1,9 +1,11 @@
+ STMicroelectronics Low Power Controller (LPC) - Watchdog
+ ========================================================
+ 
+-LPC currently supports Watchdog OR Real Time Clock functionality.
++LPC currently supports Watchdog OR Real Time Clock OR Clocksource
++functionality.
+ 
+ [See: ../rtc/rtc-st-lpc.txt for RTC options]
++[See: ../timer/st,stih407-lpc for Clocksource options]
+ 
+ Required properties
+ 
+@@ -12,9 +14,11 @@ Required properties
+ - reg		: LPC registers base address + size
+ - interrupts    : LPC interrupt line number and associated flags
+ - clocks	: Clock used by LPC device (See: ../clock/clock-bindings.txt)
+-- st,lpc-mode	: The LPC can run either one of two modes ST_LPC_MODE_RTC [0] or
+-		  ST_LPC_MODE_WDT [1].  One (and only one) mode must be
+-		  selected.
++- st,lpc-mode	: The LPC can run either one of three modes:
++                  ST_LPC_MODE_RTC    [0]
++                  ST_LPC_MODE_WDT    [1]
++                  ST_LPC_MODE_CLKSRC [2]
++		 One (and only one) mode must be selected.
+ 
+ Required properties [watchdog mode]
+ 
+-- 
+1.9.1
 
 -- 
 -- 
