@@ -1,71 +1,56 @@
-Return-Path: <rtc-linux+bncBCUYRNXYZECRBTWIZGVAKGQECALNKGQ@googlegroups.com>
-Received: from pandora.arm.linux.org.uk (pandora.arm.linux.org.uk. [2001:4d48:ad52:3201:214:fdff:fe10:1be6])
-        by gmr-mx.google.com with ESMTPS id p9si154288wiz.3.2015.05.12.13.36.29
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1 cipher=RC4-SHA bits=128/128);
-        Tue, 12 May 2015 13:36:29 -0700 (PDT)
-Date: Tue, 12 May 2015 21:36:13 +0100
-From: Russell King - ARM Linux <linux@arm.linux.org.uk>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBHXRZGVAKGQEVWO5GKA@googlegroups.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id m3si172730wia.1.2015.05.12.15.03.09
+        for <rtc-linux@googlegroups.com>;
+        Tue, 12 May 2015 15:03:09 -0700 (PDT)
+Date: Wed, 13 May 2015 00:03:08 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
 To: Arnd Bergmann <arnd@arndb.de>
-Cc: Robert Jarzmik <robert.jarzmik@free.fr>, Rob Herring <robh@kernel.org>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Eric Miao <eric.y.miao@gmail.com>,
-	Haojian Zhuang <haojian.zhuang@gmail.com>,
-	Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
-	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>,
-	Daniel Mack <daniel@zonque.org>
-Subject: [rtc-linux] Re: [PATCH v3 1/4] ARM: pxa: add memory resource to RTC device
-Message-ID: <20150512203613.GQ2067@n2100.arm.linux.org.uk>
-References: <1431384089-28367-1-git-send-email-robh@kernel.org>
- <87lhgumi4b.fsf@belgarion.home>
- <878uctmtm6.fsf@belgarion.home>
- <53644246.uSkhGz7C05@wuerfel>
+Cc: a.zummo@towertech.it, rtc-linux@googlegroups.com,
+	Gregory CLEMENT <gregory.clement@free-electrons.com>,
+	Andrew Lunn <andrew@lunn.ch>, linux-arm-kernel@lists.infradead.org
+Subject: [rtc-linux] Re: [PATCH] rtc: armada38x: remove unused variables
+Message-ID: <20150512220308.GT3338@piout.net>
+References: <2116673.Ym6IPoTTaZ@wuerfel>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <53644246.uSkhGz7C05@wuerfel>
-Sender: rtc-linux@googlegroups.com
+In-Reply-To: <2116673.Ym6IPoTTaZ@wuerfel>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
 List-Archive: <http://groups.google.com/group/rtc-linux
+Sender: rtc-linux@googlegroups.com
 List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On Tue, May 12, 2015 at 10:30:12PM +0200, Arnd Bergmann wrote:
-> On Tuesday 12 May 2015 22:24:49 Robert Jarzmik wrote:
-> > 
-> > I made the try, and Russell was right, this breaks the pxa architecture. The
-> > relevant extract of kernel message is in [1].
-> > 
-> > The consequences with your patches :
-> >  - pxa27x_init()
-> >    - platform_add_devices()
-> >      - the pxa_device_rtc fails (as resource is duplicated)
-> >      - all the devices are unregistered (rollback)
-> > And pxa27x fails.
-> > 
-> > Now I'm pondering about the right approach :
-> >  - either remove sa1100_device_rtc from pxas
-> >  - or remove pxa_device_rtc
-> >  - or both
-> >  - or something else
-> > 
-> > Let me think a bit about it.
-> > 
-> 
-> To solve the problem with the duplicate registration of one resource,
-> I'd suggest using platform_device_register_simple() for the registration,
-> which will copy the resource. You can then mark the resource as __initconst
-> and remove the device to save a little memory at runtime.
+Hi,
 
-No, a better solution is to solve the problem which requires the
-duplication in the first place, which is a broken driver structure.
+On 13/05/2015 at 00:00:33 +0200, Arnd Bergmann wrote :
+> A recent bugfix introduced a new compiler warning in the rtc-armada38x
+> driver:
+> 
+> drivers/rtc/rtc-armada38x.c: In function 'armada38x_rtc_read_time':
+> drivers/rtc/rtc-armada38x.c:67:34: warning: unused variable 'flags' [-Wunused-variable]
+>   unsigned long time, time_check, flags;
+> 
+> This removes the now obsolete variables to get rid of the warning.
+> As the orginal fix was marked for stable backports [4.0], this one
+> should be backported as well.
+> 
+> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+> Fixes: 489405fe5ed38 ("rtc: armada38x: fix concurrency access in armada38x_rtc_set_time")
+> Cc: stable@vger.kernel.org
+> 
+
+That one has already been sent by Gregory ;)
+
 
 -- 
-FTTC broadband for 0.8mile line: currently at 10.5Mbps down 400kbps up
-according to speedtest.net.
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
 -- 
 -- 
