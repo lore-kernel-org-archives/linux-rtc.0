@@ -1,19 +1,19 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBEV752VAKGQEI2LYPKY@googlegroups.com>
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id gt9si1843wib.2.2015.05.19.13.39.45
-        for <rtc-linux@googlegroups.com>;
-        Tue, 19 May 2015 13:39:45 -0700 (PDT)
-Date: Tue, 19 May 2015 22:39:44 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: hartleys <hartleys@visionengravers.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, rtc-linux@googlegroups.com,
-	a.zummo@towertech.it
-Subject: [rtc-linux] Re: rtc: ep93xx: Use readl/writel for io
-Message-ID: <20150519203944.GB3338@piout.net>
-References: <201203211055.31653.hartleys@visionengravers.com>
+Return-Path: <rtc-linux+bncBDEKVJM7XAHRBBOGZGVAKGQECNVQEJQ@googlegroups.com>
+Received: from mout.kundenserver.de (mout.kundenserver.de. [212.227.126.131])
+        by gmr-mx.google.com with ESMTPS id m3si162718wia.1.2015.05.12.13.31.01
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 12 May 2015 13:31:01 -0700 (PDT)
+From: Arnd Bergmann <arnd@arndb.de>
+To: Robert Jarzmik <robert.jarzmik@free.fr>
+Cc: Rob Herring <robh@kernel.org>, Russell King - ARM Linux <linux@arm.linux.org.uk>, Alexandre Belloni <alexandre.belloni@free-electrons.com>, Eric Miao <eric.y.miao@gmail.com>, Haojian Zhuang <haojian.zhuang@gmail.com>, Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Daniel Mack <daniel@zonque.org>
+Subject: [rtc-linux] Re: [PATCH v3 1/4] ARM: pxa: add memory resource to RTC device
+Date: Tue, 12 May 2015 22:30:12 +0200
+Message-ID: <53644246.uSkhGz7C05@wuerfel>
+In-Reply-To: <878uctmtm6.fsf@belgarion.home>
+References: <1431384089-28367-1-git-send-email-robh@kernel.org> <87lhgumi4b.fsf@belgarion.home> <878uctmtm6.fsf@belgarion.home>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <201203211055.31653.hartleys@visionengravers.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -24,19 +24,33 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On 21/03/2012 at 10:55:31 -0700, hartleys wrote :
-> Drivers should not be using the __raw_* io accessors.
+On Tuesday 12 May 2015 22:24:49 Robert Jarzmik wrote:
 > 
-> Signed-off-by: H Hartley Sweeten <hsweeten@visionengravers.com>
-> Cc: Alessandro Zummo <a.zummo@towertech.it>
+> I made the try, and Russell was right, this breaks the pxa architecture. The
+> relevant extract of kernel message is in [1].
+> 
+> The consequences with your patches :
+>  - pxa27x_init()
+>    - platform_add_devices()
+>      - the pxa_device_rtc fails (as resource is duplicated)
+>      - all the devices are unregistered (rollback)
+> And pxa27x fails.
+> 
+> Now I'm pondering about the right approach :
+>  - either remove sa1100_device_rtc from pxas
+>  - or remove pxa_device_rtc
+>  - or both
+>  - or something else
+> 
+> Let me think a bit about it.
 > 
 
-Rebased and applied, thanks!
+To solve the problem with the duplicate registration of one resource,
+I'd suggest using platform_device_register_simple() for the registration,
+which will copy the resource. You can then mark the resource as __initconst
+and remove the device to save a little memory at runtime.
 
--- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+	Arnd
 
 -- 
 -- 
