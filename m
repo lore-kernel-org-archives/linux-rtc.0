@@ -1,20 +1,33 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBEF2SOVAKGQE3GCZPGY@googlegroups.com>
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id m3si78933wia.1.2015.05.02.07.20.00
-        for <rtc-linux@googlegroups.com>;
-        Sat, 02 May 2015 07:20:00 -0700 (PDT)
-Date: Sat, 2 May 2015 16:19:57 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Donggeun Kim <dg77.kim@samsung.com>, Kukjin Kim <kgene@kernel.org>
-Cc: a.zummo@towertech.it, ben-linux@fluff.org, rtc-linux@googlegroups.com,
-	myungjoo.ham@samsung.com, kyungmin.park@samsung.com
-Subject: [rtc-linux] Re: rtc: rtc-s3c: Set year, month, day value for setting alarm
-Message-ID: <20150502141957.GM12076@piout.net>
-References: <1307694592-20949-1-git-send-email-dg77.kim@samsung.com>
+Return-Path: <rtc-linux+bncBDA7X7F2WUEBB6HRY6VAKGQES2SSGDI@googlegroups.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1307694592-20949-1-git-send-email-dg77.kim@samsung.com>
+Received: from mail-wi0-f181.google.com (mail-wi0-f181.google.com. [209.85.212.181])
+        by gmr-mx.google.com with ESMTPS id g5si98713wix.1.2015.05.12.05.58.32
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 12 May 2015 05:58:32 -0700 (PDT)
+Received: by mail-wi0-f181.google.com with SMTP id nf17so14256346wic.1
+        for <rtc-linux@googlegroups.com>; Tue, 12 May 2015 05:58:32 -0700 (PDT)
+From: Lee Jones <lee.jones@linaro.org>
+To: linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org,
+	devicetree@vger.kernel.org,
+	daniel.lezcano@linaro.org,
+	tglx@linutronix.de,
+	wim@iguana.be,
+	a.zummo@towertech.it,
+	linux-watchdog@vger.kernel.org,
+	rtc-linux@googlegroups.com,
+	linux@roeck-us.net
+Cc: kernel@stlinux.com,
+	Lee Jones <lee.jones@linaro.org>
+Subject: [rtc-linux] [PATCH v2 05/12] watchdog: st_wdt: Update IP layout
+ information to include Clocksource
+Date: Tue, 12 May 2015 13:58:13 +0100
+Message-Id: <1431435500-22899-6-git-send-email-lee.jones@linaro.org>
+In-Reply-To: <1431435500-22899-1-git-send-email-lee.jones@linaro.org>
+References: <1431435500-22899-1-git-send-email-lee.jones@linaro.org>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -24,62 +37,32 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Hi,
+Initial submission adding support for this IP only included Watchdog and
+the Real-Time Clock.  Now the third (and final) device is enabled this
+trivial patch is required to update the comment in the Watchdog driver
+to encompass Clocksource.
 
-On 10/06/2011 at 17:29:52 +0900, Donggeun Kim wrote :
-> This patch sets year, month, day value for set_alarm function.
-> The current driver omits to set the values.
-> 
-> Signed-off-by: Donggeun Kim <dg77.kim@samsung.com>
-> Signed-off-by: MyungJoo Ham <myungjoo.kim@samsung.com>
-> Signed-off-by: KyungMin Park <kyungmin.park@samsung.com>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
+---
+ drivers/watchdog/st_lpc_wdt.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-This patch never made it to the mainlined but seems useful enough. Do
-you want to respin it?
-
-> ---
->  drivers/rtc/rtc-s3c.c |   16 ++++++++++++++++
->  1 files changed, 16 insertions(+), 0 deletions(-)
-> 
-> diff --git a/drivers/rtc/rtc-s3c.c b/drivers/rtc/rtc-s3c.c
-> index 16512ec..18e648b 100644
-> --- a/drivers/rtc/rtc-s3c.c
-> +++ b/drivers/rtc/rtc-s3c.c
-> @@ -251,6 +251,7 @@ static int s3c_rtc_setalarm(struct device *dev, struct rtc_wkalrm *alrm)
->  	struct rtc_time *tm = &alrm->time;
->  	void __iomem *base = s3c_rtc_base;
->  	unsigned int alrm_en;
-> +	int year = tm->tm_year - 100;
->  
->  	pr_debug("s3c_rtc_setalarm: %d, %04d.%02d.%02d %02d:%02d:%02d\n",
->  		 alrm->enabled,
-> @@ -276,6 +277,21 @@ static int s3c_rtc_setalarm(struct device *dev, struct rtc_wkalrm *alrm)
->  		writeb(bin2bcd(tm->tm_hour), base + S3C2410_ALMHOUR);
->  	}
->  
-> +	if (year < 100 && year >= 0) {
-> +		alrm_en |= S3C2410_RTCALM_YEAREN;
-> +		writeb(bin2bcd(year), base + S3C2410_ALMYEAR);
-> +	}
-> +
-> +	if (tm->tm_mon < 12 && tm->tm_mon >= 0) {
-> +		alrm_en |= S3C2410_RTCALM_MONEN;
-> +		writeb(bin2bcd(tm->tm_mon + 1), base + S3C2410_ALMMON);
-> +	}
-> +
-> +	if (tm->tm_mday <= 31 && tm->tm_mday >= 1) {
-> +		alrm_en |= S3C2410_RTCALM_DAYEN;
-> +		writeb(bin2bcd(tm->tm_mday), base + S3C2410_ALMDATE);
-> +	}
-> +
->  	pr_debug("setting S3C2410_RTCALM to %08x\n", alrm_en);
->  
->  	writeb(alrm_en, base + S3C2410_RTCALM);
-
+diff --git a/drivers/watchdog/st_lpc_wdt.c b/drivers/watchdog/st_lpc_wdt.c
+index f32be15..6785afd 100644
+--- a/drivers/watchdog/st_lpc_wdt.c
++++ b/drivers/watchdog/st_lpc_wdt.c
+@@ -197,7 +197,7 @@ static int st_wdog_probe(struct platform_device *pdev)
+ 		return -EINVAL;
+ 	}
+ 
+-	/* LPC can either run in RTC or WDT mode */
++	/* LPC can either run as a Clocksource or in RTC or WDT mode */
+ 	if (mode != ST_LPC_MODE_WDT)
+ 		return -ENODEV;
+ 
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+1.9.1
 
 -- 
 -- 
