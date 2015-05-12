@@ -1,73 +1,71 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBTGCUSVAKGQEPCNTH7Y@googlegroups.com>
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id t6si162257wiz.0.2015.05.05.13.00.11
-        for <rtc-linux@googlegroups.com>;
-        Tue, 05 May 2015 13:00:11 -0700 (PDT)
-Date: Tue, 5 May 2015 22:00:10 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Eddie Huang <eddie.huang@mediatek.com>
-Cc: Lee Jones <lee.jones@linaro.org>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Matthias Brugger <matthias.bgg@gmail.com>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Tomasz Figa <tfiga@google.com>,
-	Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <kernel@pengutronix.de>,
-	srv_heupstream@mediatek.com, Samuel Ortiz <sameo@linux.intel.com>,
-	Greg KH <gregkh@linuxfoundation.org>, Joe Perches <joe@perches.com>,
-	linux-kernel@vger.kernel.org, rtc-linux@googlegroups.com,
-	linux-arm-kernel@lists.infradead.org,
-	linux-mediatek@lists.infradead.org,
-	Tianping Fang <tianping.fang@mediatek.com>
-Subject: Re: [rtc-linux] [PATCH v3 2/3] rtc: mediatek: Add MT6397 RTC driver
-Message-ID: <20150505200010.GP4276@piout.net>
-References: <1430206556-18254-1-git-send-email-eddie.huang@mediatek.com>
- <1430206556-18254-3-git-send-email-eddie.huang@mediatek.com>
+Return-Path: <rtc-linux+bncBCUYRNXYZECRBTWIZGVAKGQECALNKGQ@googlegroups.com>
+Received: from pandora.arm.linux.org.uk (pandora.arm.linux.org.uk. [2001:4d48:ad52:3201:214:fdff:fe10:1be6])
+        by gmr-mx.google.com with ESMTPS id p9si154288wiz.3.2015.05.12.13.36.29
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1 cipher=RC4-SHA bits=128/128);
+        Tue, 12 May 2015 13:36:29 -0700 (PDT)
+Date: Tue, 12 May 2015 21:36:13 +0100
+From: Russell King - ARM Linux <linux@arm.linux.org.uk>
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: Robert Jarzmik <robert.jarzmik@free.fr>, Rob Herring <robh@kernel.org>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Eric Miao <eric.y.miao@gmail.com>,
+	Haojian Zhuang <haojian.zhuang@gmail.com>,
+	Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
+	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>,
+	Daniel Mack <daniel@zonque.org>
+Subject: [rtc-linux] Re: [PATCH v3 1/4] ARM: pxa: add memory resource to RTC device
+Message-ID: <20150512203613.GQ2067@n2100.arm.linux.org.uk>
+References: <1431384089-28367-1-git-send-email-robh@kernel.org>
+ <87lhgumi4b.fsf@belgarion.home>
+ <878uctmtm6.fsf@belgarion.home>
+ <53644246.uSkhGz7C05@wuerfel>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1430206556-18254-3-git-send-email-eddie.huang@mediatek.com>
+In-Reply-To: <53644246.uSkhGz7C05@wuerfel>
+Sender: rtc-linux@googlegroups.com
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
 List-Archive: <http://groups.google.com/group/rtc-linux
-Sender: rtc-linux@googlegroups.com
 List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Hi,
+On Tue, May 12, 2015 at 10:30:12PM +0200, Arnd Bergmann wrote:
+> On Tuesday 12 May 2015 22:24:49 Robert Jarzmik wrote:
+> > 
+> > I made the try, and Russell was right, this breaks the pxa architecture. The
+> > relevant extract of kernel message is in [1].
+> > 
+> > The consequences with your patches :
+> >  - pxa27x_init()
+> >    - platform_add_devices()
+> >      - the pxa_device_rtc fails (as resource is duplicated)
+> >      - all the devices are unregistered (rollback)
+> > And pxa27x fails.
+> > 
+> > Now I'm pondering about the right approach :
+> >  - either remove sa1100_device_rtc from pxas
+> >  - or remove pxa_device_rtc
+> >  - or both
+> >  - or something else
+> > 
+> > Let me think a bit about it.
+> > 
+> 
+> To solve the problem with the duplicate registration of one resource,
+> I'd suggest using platform_device_register_simple() for the registration,
+> which will copy the resource. You can then mark the resource as __initconst
+> and remove the device to save a little memory at runtime.
 
-This looks mostly good. Could you align the wrapped function parameters
-to the open parenthesis (use checkpatch --strict)?
-
-On 28/04/2015 at 15:35:55 +0800, Eddie Huang wrote :
-> +static int mtk_rtc_write_trigger(struct mt6397_rtc *rtc)
-> +{
-> +	unsigned long timeout = jiffies + HZ;
-> +	int ret;
-> +	u32 data;
-> +
-> +	ret = regmap_write(rtc->regmap, rtc->addr_base + RTC_WRTGR, 1);
-> +	if (ret < 0)
-> +		return ret;
-> +
-> +	do {
-> +		cpu_relax();
-> +		ret = regmap_read(rtc->regmap, rtc->addr_base + RTC_BBPU,
-> +				&data);
-> +		if (ret < 0)
-> +			goto exit;
-> +	} while ((data & RTC_BBPU_CBUSY) && time_after(timeout, jiffies));
-> +
-
-Shouldn't you return -ETIMEDOUT if the loop breaks because of time_after?
-
-Thanks,
+No, a better solution is to solve the problem which requires the
+duplication in the first place, which is a broken driver structure.
 
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+FTTC broadband for 0.8mile line: currently at 10.5Mbps down 400kbps up
+according to speedtest.net.
 
 -- 
 -- 
