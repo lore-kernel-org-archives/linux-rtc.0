@@ -1,22 +1,31 @@
-Return-Path: <rtc-linux+bncBCN6JTVP2IEBBJ7222VAKGQERCLLNYI@googlegroups.com>
+Return-Path: <rtc-linux+bncBDA7X7F2WUEBB77RY6VAKGQELONAWUQ@googlegroups.com>
 MIME-Version: 1.0
-Received: from m50-111.126.com (m50-111.126.com. [123.125.50.111])
-        by gmr-mx.google.com with ESMTP id zr2si138222pbb.0.2015.05.15.02.32.22
-        for <rtc-linux@googlegroups.com>;
-        Fri, 15 May 2015 02:32:23 -0700 (PDT)
-From: Xunlei Pang <xlpang@126.com>
-To: linux-kernel@vger.kernel.org
-Cc: rtc-linux@googlegroups.com,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	John Stultz <john.stultz@linaro.org>,
-	Arnd Bergmann <arnd@arndb.de>,
-	"David S. Miller" <davem@davemloft.net>,
-	sparclinux@vger.kernel.org,
-	Xunlei Pang <pang.xunlei@linaro.org>
-Subject: [rtc-linux] [PATCH 1/2] drivers/rtc/interface.c: Change
- rtc_set_mmss() to use time64_t
-Date: Fri, 15 May 2015 17:31:31 +0800
-Message-Id: <1431682292-29732-1-git-send-email-xlpang@126.com>
+Received: from mail-wi0-f180.google.com (mail-wi0-f180.google.com. [209.85.212.180])
+        by gmr-mx.google.com with ESMTPS id p12si105894wiv.1.2015.05.12.05.58.38
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 12 May 2015 05:58:38 -0700 (PDT)
+Received: by wief7 with SMTP id f7so111585116wie.0
+        for <rtc-linux@googlegroups.com>; Tue, 12 May 2015 05:58:38 -0700 (PDT)
+From: Lee Jones <lee.jones@linaro.org>
+To: linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org,
+	devicetree@vger.kernel.org,
+	daniel.lezcano@linaro.org,
+	tglx@linutronix.de,
+	wim@iguana.be,
+	a.zummo@towertech.it,
+	linux-watchdog@vger.kernel.org,
+	rtc-linux@googlegroups.com,
+	linux@roeck-us.net
+Cc: kernel@stlinux.com,
+	Lee Jones <lee.jones@linaro.org>
+Subject: [rtc-linux] [PATCH v2 09/12] MAINTAINERS: Add the LPC Clocksource to
+ STi maintained driver list
+Date: Tue, 12 May 2015 13:58:17 +0100
+Message-Id: <1431435500-22899-10-git-send-email-lee.jones@linaro.org>
+In-Reply-To: <1431435500-22899-1-git-send-email-lee.jones@linaro.org>
+References: <1431435500-22899-1-git-send-email-lee.jones@linaro.org>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -28,51 +37,25 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-From: Xunlei Pang <pang.xunlei@linaro.org>
-
-rtc_set_mmss() uses "unsigned long" as its second parameter which
-may have y2038 problem on 32-bit systems.
-
-Change it to use time64_t.
-
-All its call sites will be changed later(there are no problems
-leaving these call sites untouched).
-
-Signed-off-by: Xunlei Pang <pang.xunlei@linaro.org>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
 ---
- drivers/rtc/interface.c | 2 +-
- include/linux/rtc.h     | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ MAINTAINERS | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/rtc/interface.c b/drivers/rtc/interface.c
-index d43ee40..480ee3c 100644
---- a/drivers/rtc/interface.c
-+++ b/drivers/rtc/interface.c
-@@ -90,7 +90,7 @@ int rtc_set_time(struct rtc_device *rtc, struct rtc_time *tm)
- }
- EXPORT_SYMBOL_GPL(rtc_set_time);
- 
--int rtc_set_mmss(struct rtc_device *rtc, unsigned long secs)
-+int rtc_set_mmss(struct rtc_device *rtc, time64_t secs)
- {
- 	int err;
- 
-diff --git a/include/linux/rtc.h b/include/linux/rtc.h
-index 8dcf682..9c3180e 100644
---- a/include/linux/rtc.h
-+++ b/include/linux/rtc.h
-@@ -161,7 +161,7 @@ extern void devm_rtc_device_unregister(struct device *dev,
- 
- extern int rtc_read_time(struct rtc_device *rtc, struct rtc_time *tm);
- extern int rtc_set_time(struct rtc_device *rtc, struct rtc_time *tm);
--extern int rtc_set_mmss(struct rtc_device *rtc, unsigned long secs);
-+extern int rtc_set_mmss(struct rtc_device *rtc, time64_t secs);
- extern int rtc_set_ntp_time(struct timespec64 now);
- int __rtc_read_alarm(struct rtc_device *rtc, struct rtc_wkalrm *alarm);
- extern int rtc_read_alarm(struct rtc_device *rtc,
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 2bc71e7..af9e952 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -1454,6 +1454,7 @@ S:	Maintained
+ F:	arch/arm/mach-sti/
+ F:	arch/arm/boot/dts/sti*
+ F:	drivers/clocksource/arm_global_timer.c
++F:	drivers/clocksource/clksrc_st_lpc.c
+ F:	drivers/i2c/busses/i2c-st.c
+ F:	drivers/media/rc/st_rc.c
+ F:	drivers/mmc/host/sdhci-st.c
 -- 
 1.9.1
-
 
 -- 
 -- 
