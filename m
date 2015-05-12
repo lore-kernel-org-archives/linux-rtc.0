@@ -1,23 +1,33 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBQ5FTCVQKGQEB5KSZUI@googlegroups.com>
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id t6si746381wiz.0.2015.05.27.11.53.53
-        for <rtc-linux@googlegroups.com>;
-        Wed, 27 May 2015 11:53:53 -0700 (PDT)
-Date: Wed, 27 May 2015 20:53:52 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Jan Kardell <jan.kardell@telliq.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org,
-	Vincent Donnefort <vdonnefort@gmail.com>,
-	Dan Carpenter <dan.carpenter@oracle.com>, oen@telliq.com
-Subject: [rtc-linux] Re: [PATCH v2] rtc: pcf8563 fix: return -EINVAL if we
- read an invalid time.
-Message-ID: <20150527185352.GJ2185@piout.net>
-References: <1432730896-13423-1-git-send-email-jan.kardell@telliq.com>
+Return-Path: <rtc-linux+bncBDA7X7F2WUEBBBHSY6VAKGQEN2UF23A@googlegroups.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1432730896-13423-1-git-send-email-jan.kardell@telliq.com>
+Received: from mail-wg0-f42.google.com (mail-wg0-f42.google.com. [74.125.82.42])
+        by gmr-mx.google.com with ESMTPS id ec7si92213wib.3.2015.05.12.05.58.43
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 12 May 2015 05:58:43 -0700 (PDT)
+Received: by mail-wg0-f42.google.com with SMTP id c8so8766444wgi.1
+        for <rtc-linux@googlegroups.com>; Tue, 12 May 2015 05:58:43 -0700 (PDT)
+From: Lee Jones <lee.jones@linaro.org>
+To: linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org,
+	devicetree@vger.kernel.org,
+	daniel.lezcano@linaro.org,
+	tglx@linutronix.de,
+	wim@iguana.be,
+	a.zummo@towertech.it,
+	linux-watchdog@vger.kernel.org,
+	rtc-linux@googlegroups.com,
+	linux@roeck-us.net
+Cc: kernel@stlinux.com,
+	Lee Jones <lee.jones@linaro.org>
+Subject: [rtc-linux] [PATCH v2 12/12] ARM: STi: Update platform level
+ menuconfig 'help'
+Date: Tue, 12 May 2015 13:58:20 +0100
+Message-Id: <1431435500-22899-13-git-send-email-lee.jones@linaro.org>
+In-Reply-To: <1431435500-22899-1-git-send-email-lee.jones@linaro.org>
+References: <1431435500-22899-1-git-send-email-lee.jones@linaro.org>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -27,26 +37,36 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Hi,
+Encompass newer STiH4{07,10} and STiH418 SoC based platforms.
 
-On 27/05/2015 at 14:48:16 +0200, Jan Kardell wrote :
-> @@ -204,6 +204,7 @@ static int pcf8563_get_datetime(struct i2c_client *client, struct rtc_time *tm)
->  		pcf8563->voltage_low = 1;
->  		dev_info(&client->dev,
+Acked-by: Peter Griffin <peter.griffin@linaro.org>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
+---
+ arch/arm/mach-sti/Kconfig | 9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
 
-Aren't dev_err or dev_warn more appropriate? You used dev_err in your
-first patch, what made you change your mind?
-
->  			"low voltage detected, date/time is not reliable.\n");
-> +		return -EINVAL;
->  	}
->  
->  	dev_dbg(&client->dev,
-
+diff --git a/arch/arm/mach-sti/Kconfig b/arch/arm/mach-sti/Kconfig
+index cb886de..2a3bfaa 100644
+--- a/arch/arm/mach-sti/Kconfig
++++ b/arch/arm/mach-sti/Kconfig
+@@ -16,11 +16,10 @@ menuconfig ARCH_STI
+ 	select PL310_ERRATA_769419 if CACHE_L2X0
+ 	select RESET_CONTROLLER
+ 	help
+-	  Include support for STiH41x SOCs like STiH415/416 using the device tree
+-	  for discovery
+-	  More information at Documentation/arm/STiH41x and
+-	  at Documentation/devicetree
+-
++	  Include support for STMicroelectronics' STiH415/416, STiH407/10 and
++	  STiH418 family SoCs using the Device Tree for discovery.  More
++	  information can be found in Documentation/arm/sti/ and
++	  Documentation/devicetree.
+ 
+ if ARCH_STI
+ 
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+1.9.1
 
 -- 
 -- 
