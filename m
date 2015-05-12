@@ -1,28 +1,35 @@
-Return-Path: <rtc-linux+bncBAABBC5UTSVQKGQEHBCLOMA@googlegroups.com>
-Received: from mail1.bemta14.messagelabs.com (mail1.bemta14.messagelabs.com. [193.109.254.107])
-        by gmr-mx.google.com with ESMTPS id t6si862338wiz.0.2015.05.28.06.37.15
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 28 May 2015 06:37:15 -0700 (PDT)
-Message-ID: <cover.1432820011.git.stwiss.opensource@diasemi.com>
-From: S Twiss <stwiss.opensource@diasemi.com>
-Date: Thu, 28 May 2015 14:33:31 +0100
-Subject: [rtc-linux] [PATCH V4 0/3]  da9062: DA9062 driver submission
-To: Alessandro Zummo <a.zummo@towertech.it>, DEVICETREE
-	<devicetree@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala
-	<galak@codeaurora.org>, LINUXINPUT <linux-input@vger.kernel.org>, LINUXKERNEL
-	<linux-kernel@vger.kernel.org>, LINUXWATCHDOG
-	<linux-watchdog@vger.kernel.org>, Lee Jones <lee.jones@linaro.org>, Liam
- Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, Mark Rutland
-	<mark.rutland@arm.com>, Pawel Moll <pawel.moll@arm.com>, RTCLINUX
-	<rtc-linux@googlegroups.com>, Rob Herring <robh+dt@kernel.org>, S Twiss
-	<stwiss.opensource@diasemi.com>, Samuel Ortiz <sameo@linux.intel.com>, Wim
- Van Sebroeck <wim@iguana.be>
-CC: David Dajun Chen <david.chen@diasemi.com>, Support Opensource
-	<support.opensource@diasemi.com>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBOHZY2VAKGQEWD4XEJA@googlegroups.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id t6si73545wiz.0.2015.05.12.01.41.28
+        for <rtc-linux@googlegroups.com>;
+        Tue, 12 May 2015 01:41:28 -0700 (PDT)
+Date: Tue, 12 May 2015 10:41:21 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Daniel Kurtz <djkurtz@chromium.org>
+Cc: Eddie Huang <eddie.huang@mediatek.com>,
+	Lee Jones <lee.jones@linaro.org>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	srv_heupstream@mediatek.com, Samuel Ortiz <sameo@linux.intel.com>,
+	Matthias Brugger <matthias.bgg@gmail.com>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Greg KH <gregkh@linuxfoundation.org>,
+	"David S. Miller" <davem@davemloft.net>,
+	Mauro Carvalho Chehab <mchehab@osg.samsung.com>,
+	Joe Perches <joe@perches.com>, Tejun Heo <tj@kernel.org>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+	rtc-linux@googlegroups.com,
+	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>,
+	linux-mediatek@lists.infradead.org,
+	Sascha Hauer <kernel@pengutronix.de>,
+	Tomasz Figa <tfiga@google.com>
+Subject: [rtc-linux] Re: [PATCH v4 0/3] Add Mediatek SoC RTC driver
+Message-ID: <20150512084121.GO3338@piout.net>
+References: <1430897022-63357-1-git-send-email-eddie.huang@mediatek.com>
+ <20150509130846.GD3338@piout.net>
+ <CAGS+omArcu3caKZo56Db2u+84WAVJiMzkr+1uS6tr_zfwARQ7A@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <CAGS+omArcu3caKZo56Db2u+84WAVJiMzkr+1uS6tr_zfwARQ7A@mail.gmail.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -33,58 +40,38 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-From: S Twiss <stwiss.opensource@diasemi.com>
+Hi,
 
-This patch set adds support for the Dialog DA9062 Power Management IC.
+On 12/05/2015 at 16:15:13 +0800, Daniel Kurtz wrote :
+> On Sat, May 9, 2015 at 9:08 PM, Alexandre Belloni
+> <alexandre.belloni@free-electrons.com> wrote:
+> > On 06/05/2015 at 15:23:39 +0800, Eddie Huang wrote :
+> >> RTC is one submodule of Mediatek MT6397 PMIC chip[1]. This series
+> >> support RTC driver that work with Mediatek SoC like MT8135, MT8173.
+> >> It implements second counter and also provide alarm function.
+> >>
+> >> This series base on 4.1-rc1, Test ok on MT8173 platform.
+> >>
+> >> [1] https://lkml.org/lkml/2015/1/23/325
+> >>
+> >
+> > All applied, thanks!
+> 
+> To which git tree & branch did you apply these patches?
+> 
 
-In this patch set the following is provided:
- - [PATCH V4 1/3]: MFD core support  
- - [PATCH V4 2/3]: Watchdog driver
- - [PATCH V4 3/3]: Add bindings for all DA9062 components
+They are in
+git://git.kernel.org/pub/scm/linux/kernel/git/abelloni/linux.git rtc-next
 
-Changes in V4
- - Rebase patches from linux-next/v4.1-rc3 to linux-next/v4.1-rc5
- - [PATCH V3 2/4] BUCK and LDO regulator driver accepted by Mark Brown
-   - See https://lkml.org/lkml/2015/5/21/313 for details
- - Reorder remaining patches for the PATCH V4 submission
+They also landed in linux-next
 
-Changes in V3:
- - No overall main changes, see individal patches for details
+I'll update the MAINTAINERS file to add the location of that git tree.
 
-Changes in V2:
- - Alter subject title in 'cover letter'
- - Reordered the patch numbering: now 4/4 patches instead of 6/6
-   - Dropped [PATCH V1 3/6] RTC driver
-   - Dropped [PATCH V1 4/6] OnKey driver
-
-This patch applies against linux-next and v4.1-rc5 
-
-Thank you,
-Steve Twiss, Dialog Semiconductor Ltd.
-
-S Twiss (3):
-  mfd: da9062: DA9062 MFD core driver
-  watchdog: da9062: DA9062 watchdog driver
-  devicetree: da9062: Add bindings for DA9062 driver
-
- Documentation/devicetree/bindings/mfd/da9062.txt |   79 ++
- drivers/mfd/Kconfig                              |   12 +
- drivers/mfd/Makefile                             |    3 +-
- drivers/mfd/da9062-core.c                        |  512 ++++++++++
- drivers/watchdog/Kconfig                         |    9 +
- drivers/watchdog/Makefile                        |    1 +
- drivers/watchdog/da9062_wdt.c                    |  253 +++++
- include/linux/mfd/da9062/core.h                  |   50 +
- include/linux/mfd/da9062/registers.h             | 1108 ++++++++++++++++++++++
- 9 files changed, 2026 insertions(+), 1 deletion(-)
- create mode 100644 Documentation/devicetree/bindings/mfd/da9062.txt
- create mode 100644 drivers/mfd/da9062-core.c
- create mode 100644 drivers/watchdog/da9062_wdt.c
- create mode 100644 include/linux/mfd/da9062/core.h
- create mode 100644 include/linux/mfd/da9062/registers.h
 
 -- 
-end-of-patch for PATCH V4
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
 -- 
 -- 
