@@ -1,12 +1,12 @@
-Return-Path: <rtc-linux+bncBDA7X7F2WUEBB6XRY6VAKGQE2OZEERA@googlegroups.com>
+Return-Path: <rtc-linux+bncBDA7X7F2WUEBB7HRY6VAKGQETVYTRSI@googlegroups.com>
 MIME-Version: 1.0
-Received: from mail-wi0-f170.google.com (mail-wi0-f170.google.com. [209.85.212.170])
-        by gmr-mx.google.com with ESMTPS id p12si105883wiv.1.2015.05.12.05.58.34
+Received: from mail-wg0-f51.google.com (mail-wg0-f51.google.com. [74.125.82.51])
+        by gmr-mx.google.com with ESMTPS id t6si110736wiz.0.2015.05.12.05.58.35
         for <rtc-linux@googlegroups.com>
         (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 12 May 2015 05:58:34 -0700 (PDT)
-Received: by widdi4 with SMTP id di4so14294918wid.0
-        for <rtc-linux@googlegroups.com>; Tue, 12 May 2015 05:58:34 -0700 (PDT)
+        Tue, 12 May 2015 05:58:35 -0700 (PDT)
+Received: by mail-wg0-f51.google.com with SMTP id d10so6359630wgn.2
+        for <rtc-linux@googlegroups.com>; Tue, 12 May 2015 05:58:35 -0700 (PDT)
 From: Lee Jones <lee.jones@linaro.org>
 To: linux-arm-kernel@lists.infradead.org,
 	linux-kernel@vger.kernel.org,
@@ -20,10 +20,10 @@ To: linux-arm-kernel@lists.infradead.org,
 	linux@roeck-us.net
 Cc: kernel@stlinux.com,
 	Lee Jones <lee.jones@linaro.org>
-Subject: [rtc-linux] [PATCH v2 06/12] watchdog: bindings: Supply knowledge of
- a third supported device - clocksource
-Date: Tue, 12 May 2015 13:58:14 +0100
-Message-Id: <1431435500-22899-7-git-send-email-lee.jones@linaro.org>
+Subject: [rtc-linux] [PATCH v2 07/12] rtc: st: Update IP layout information to
+ include Clocksource
+Date: Tue, 12 May 2015 13:58:15 +0100
+Message-Id: <1431435500-22899-8-git-send-email-lee.jones@linaro.org>
 In-Reply-To: <1431435500-22899-1-git-send-email-lee.jones@linaro.org>
 References: <1431435500-22899-1-git-send-email-lee.jones@linaro.org>
 Reply-To: rtc-linux@googlegroups.com
@@ -37,42 +37,29 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
+Initial submission adding support for this IP only included Watchdog and
+the Real-Time Clock.  Now the third (and final) device is enabled this
+trivial patch is required to update the comment in the RTC driver to
+encompass Clocksource.
+
+Acked-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
 Signed-off-by: Lee Jones <lee.jones@linaro.org>
 ---
- Documentation/devicetree/bindings/watchdog/st_lpc_wdt.txt | 12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+ drivers/rtc/rtc-st-lpc.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/Documentation/devicetree/bindings/watchdog/st_lpc_wdt.txt b/Documentation/devicetree/bindings/watchdog/st_lpc_wdt.txt
-index 388c88a..039c5ca 100644
---- a/Documentation/devicetree/bindings/watchdog/st_lpc_wdt.txt
-+++ b/Documentation/devicetree/bindings/watchdog/st_lpc_wdt.txt
-@@ -1,9 +1,11 @@
- STMicroelectronics Low Power Controller (LPC) - Watchdog
- ========================================================
+diff --git a/drivers/rtc/rtc-st-lpc.c b/drivers/rtc/rtc-st-lpc.c
+index 3f9d0ac..74c0a33 100644
+--- a/drivers/rtc/rtc-st-lpc.c
++++ b/drivers/rtc/rtc-st-lpc.c
+@@ -208,7 +208,7 @@ static int st_rtc_probe(struct platform_device *pdev)
+ 		return -EINVAL;
+ 	}
  
--LPC currently supports Watchdog OR Real Time Clock functionality.
-+LPC currently supports Watchdog OR Real Time Clock OR Clocksource
-+functionality.
- 
- [See: ../rtc/rtc-st-lpc.txt for RTC options]
-+[See: ../timer/st,stih407-lpc for Clocksource options]
- 
- Required properties
- 
-@@ -12,9 +14,11 @@ Required properties
- - reg		: LPC registers base address + size
- - interrupts    : LPC interrupt line number and associated flags
- - clocks	: Clock used by LPC device (See: ../clock/clock-bindings.txt)
--- st,lpc-mode	: The LPC can run either one of two modes ST_LPC_MODE_RTC [0] or
--		  ST_LPC_MODE_WDT [1].  One (and only one) mode must be
--		  selected.
-+- st,lpc-mode	: The LPC can run either one of three modes:
-+                  ST_LPC_MODE_RTC    [0]
-+                  ST_LPC_MODE_WDT    [1]
-+                  ST_LPC_MODE_CLKSRC [2]
-+		 One (and only one) mode must be selected.
- 
- Required properties [watchdog mode]
+-	/* LPC can either run in RTC or WDT mode */
++	/* LPC can either run as a Clocksource or in RTC or WDT mode */
+ 	if (mode != ST_LPC_MODE_RTC)
+ 		return -ENODEV;
  
 -- 
 1.9.1
