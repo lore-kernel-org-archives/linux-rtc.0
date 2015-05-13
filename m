@@ -1,19 +1,26 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBOO7S6VAKGQED2MYJBI@googlegroups.com>
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id t6si198229wiz.0.2015.05.03.02.51.53
-        for <rtc-linux@googlegroups.com>;
-        Sun, 03 May 2015 02:51:53 -0700 (PDT)
-Date: Sun, 3 May 2015 11:51:52 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: dann frazier <dannf@dannf.org>
-Cc: rtc-linux@googlegroups.com
-Subject: Re: [rtc-linux] [PATCH] drivers/rtc/rtc-efi.c: Update author email address
-Message-ID: <20150503095152.GP12076@piout.net>
-References: <1429898060-11360-1-git-send-email-dannf@dannf.org>
+Return-Path: <rtc-linux+bncBDF63NFOVEMBBQ6WZWVAKGQETODKINI@googlegroups.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1429898060-11360-1-git-send-email-dannf@dannf.org>
+Received: from bhuna.collabora.co.uk (bhuna.collabora.co.uk. [93.93.135.160])
+        by gmr-mx.google.com with ESMTPS id q10si310877wiz.0.2015.05.13.08.18.27
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1 cipher=RC4-SHA bits=128/128);
+        Wed, 13 May 2015 08:18:27 -0700 (PDT)
+From: Javier Martinez Canillas <javier.martinez@collabora.co.uk>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+	Olof Johansson <olof@lixom.net>,
+	Doug Anderson <dianders@chromium.org>,
+	Krzysztof Kozlowski <k.kozlowski@samsung.com>,
+	Chanwoo Choi <cw00.choi@samsung.com>,
+	rtc-linux@googlegroups.com,
+	linux-samsung-soc@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Javier Martinez Canillas <javier.martinez@collabora.co.uk>
+Subject: [rtc-linux] [PATCH 0/2] rtc: Fix module autoload for max77xx RTC drivers
+Date: Wed, 13 May 2015 17:18:00 +0200
+Message-Id: <1431530282-10672-1-git-send-email-javier.martinez@collabora.co.uk>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -23,21 +30,25 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On 24/04/2015 at 11:54:20 -0600, dann frazier wrote :
-> I'm no longer employed by HP.
-> 
-> Signed-off-by: dann frazier <dannf@dannf.org>
-> ---
->  drivers/rtc/rtc-efi.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
-> 
+Hello Alexandre and Alessandro,
 
-Applied, thanks.
+This is a trivial series that fixes module autoloading for the Maxim
+MAX77686 and MAX77802 RTC drivers that didn't export their platform
+device ID table with MODULE_DEVICE_TABLE() so modalias information
+was not available.
 
--- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+The series is composed of the following patches:
+
+Javier Martinez Canillas (2):
+  rtc: max77686: Report platform modalias to fix module autoload
+  rtc: max77802: Report platform modalias to fix module autoload
+
+ drivers/rtc/rtc-max77686.c | 1 +
+ drivers/rtc/rtc-max77802.c | 1 +
+ 2 files changed, 2 insertions(+)
+
+Best regards,
+Javier
 
 -- 
 -- 
