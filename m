@@ -1,26 +1,32 @@
-Return-Path: <rtc-linux+bncBDIYTLXUW4BRBYPVS2VQKGQEN7VKNLY@googlegroups.com>
-Received: from mail-wi0-f175.google.com (mail-wi0-f175.google.com. [209.85.212.175])
-        by gmr-mx.google.com with ESMTPS id p9si684035wiz.3.2015.05.27.05.38.57
+Return-Path: <rtc-linux+bncBAABBLEIZWVAKGQEFC7Y7AQ@googlegroups.com>
+Received: from mail1.bemta5.messagelabs.com (mail1.bemta5.messagelabs.com. [195.245.231.149])
+        by gmr-mx.google.com with ESMTPS id p12si281589wiv.1.2015.05.13.05.31.39
         for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 27 May 2015 05:38:57 -0700 (PDT)
-Received: by mail-wi0-f175.google.com with SMTP id mx19so109755987wic.0
-        for <rtc-linux@googlegroups.com>; Wed, 27 May 2015 05:38:57 -0700 (PDT)
-Message-ID: <5565BAE1.1000704@linaro.org>
-Date: Wed, 27 May 2015 14:38:57 +0200
-From: Daniel Lezcano <daniel.lezcano@linaro.org>
+        (version=TLSv1.2 cipher=RC4-SHA bits=128/128);
+        Wed, 13 May 2015 05:31:39 -0700 (PDT)
+From: "Opensource [Steve Twiss]" <stwiss.opensource@diasemi.com>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+CC: Alessandro Zummo <a.zummo@towertech.it>, LINUXKERNEL
+	<linux-kernel@vger.kernel.org>, RTCLINUX <rtc-linux@googlegroups.com>,
+	DEVICETREE <devicetree@vger.kernel.org>, David Dajun Chen
+	<david.chen@diasemi.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "Ian
+ Campbell" <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>,
+	LINUXINPUT <linux-input@vger.kernel.org>, LINUXWATCHDOG
+	<linux-watchdog@vger.kernel.org>, Lee Jones <lee.jones@linaro.org>, "Liam
+ Girdwood" <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, Mark
+ Rutland <mark.rutland@arm.com>, Pawel Moll <pawel.moll@arm.com>, Rob Herring
+	<robh+dt@kernel.org>, Samuel Ortiz <sameo@linux.intel.com>, "Support
+ Opensource" <Support.Opensource@diasemi.com>, Wim Van Sebroeck
+	<wim@iguana.be>
+Subject: RE: [rtc-linux] [PATCH V1 3/6] rtc: da9062: DA9062 RTC driver
+Date: Wed, 13 May 2015 12:31:36 +0000
+Message-ID: <6ED8E3B22081A4459DAC7699F3695FB7014B22A3F3@SW-EX-MBX02.diasemi.com>
+References: <cover.1429280614.git.stwiss.opensource@diasemi.com>
+ <860a3b6dc7f8dac95c0e36967f24551af8805f7b.1429280614.git.stwiss.opensource@diasemi.com>
+ <20150510095838.GF3338@piout.net>
+In-Reply-To: <20150510095838.GF3338@piout.net>
+Content-Type: text/plain; charset=UTF-8
 MIME-Version: 1.0
-To: Lee Jones <lee.jones@linaro.org>,
- linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
- devicetree@vger.kernel.org, tglx@linutronix.de, wim@iguana.be,
- a.zummo@towertech.it, linux-watchdog@vger.kernel.org,
- rtc-linux@googlegroups.com, linux@roeck-us.net
-CC: kernel@stlinux.com
-Subject: [rtc-linux] Re: [PATCH v2.1 02/12] clocksource: sti: Provide support
- for the ST LPC Clocksource IP
-References: <1431435500-22899-1-git-send-email-lee.jones@linaro.org> <1431435500-22899-3-git-send-email-lee.jones@linaro.org> <20150526123943.GI11677@x1>
-In-Reply-To: <20150526123943.GI11677@x1>
-Content-Type: text/plain; charset=UTF-8; format=flowed
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -31,39 +37,50 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On 05/26/2015 02:39 PM, Lee Jones wrote:
-> clocksource: sti: Provide support for the ST LPC Clocksource IP
->
-> This IP is shared with Watchdog and RTC functionality.  All 3 of
-> these devices are mutually exclusive from one another i.e. Only 1
-> IP can be used at any given time.  We use the device-driver model
-> combined with a DT 'mode' property to enforce this.
->
-> The ST LPC Clocksource IP can be used as the system (tick) timer.
->
-> Signed-off-by: Lee Jones <lee.jones@linaro.org>
+On 10 May 2015 10:59 Alexandre Belloni wrote:
 
-Looks good to me.
+> Hi,
+> 
+> On 17/04/2015 at 15:23:33 +0100, S Twiss wrote :
+> > From: S Twiss <stwiss.opensource@diasemi.com>
+> >
+> > Add RTC driver support for DA9062
 
-Acked-by: Daniel Lezcano <daniel.lezcano@linaro.org>
+[...]
 
---=20
-  <http://www.linaro.org/> Linaro.org =E2=94=82 Open source software for AR=
-M SoCs
+> This is an almost exact copy of drivers/rtc/rtc-da9063.c, apart from the
+> retry mechanism in read_time. Can you simply add support for the da9062
+> in that driver?
 
-Follow Linaro:  <http://www.facebook.com/pages/Linaro> Facebook |
-<http://twitter.com/#!/linaroorg> Twitter |
-<http://www.linaro.org/linaro-blog/> Blog
 
---=20
---=20
+Hi Alexandre,
+
+Something similar is being discussed for the OnKey component of the DA9062.
+https://lkml.org/lkml/2015/4/24/304
+
+It is only the OnKey and RTC components that are similar to the DA9063 chip
+and I was hoping to keep the 62 RTC separate in this case ... however it should
+definitely be possible to re-use the DA9063 RTC driver if this is your requirement.
+If this will block my submission of the DA9062 then I will drop the RTC from my
+next patch set and try to re-work the existing 63 RTC driver accordingly.
+
+I think this sort of thing has been done before:
+https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/tree/drivers/rtc/rtc-pm8xxx.c
+ ... at first glance -- it seems to support that sort of thing.
+
+I guess it would be possible to rename the da9063-rtc to something more sensible like
+da9xxx-rtc.c if this goes ahead?
+
+Regards,
+Steve
+
+-- 
+-- 
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
----=20
-You received this message because you are subscribed to the Google Groups "=
-rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an e=
-mail to rtc-linux+unsubscribe@googlegroups.com.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
