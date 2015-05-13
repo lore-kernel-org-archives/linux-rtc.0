@@ -1,23 +1,36 @@
-Return-Path: <rtc-linux+bncBDMYB2E7SQCRB255SKVQKGQE3XRC2SY@googlegroups.com>
-Received: from na01-bn1-obe.outbound.protection.outlook.com (mail-bn1bbn0106.outbound.protection.outlook.com. [157.56.111.106])
-        by gmr-mx.google.com with ESMTPS id xz5si1504173pac.1.2015.05.26.09.27.22
+Return-Path: <rtc-linux+bncBCKMZDW5VIHBBVVLZWVAKGQEHJEYJNQ@googlegroups.com>
+Received: from bh-25.webhostbox.net (bh-25.webhostbox.net. [208.91.199.152])
+        by gmr-mx.google.com with ESMTPS id f17si479440igt.0.2015.05.13.06.47.01
         for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
-        Tue, 26 May 2015 09:27:22 -0700 (PDT)
-From: <Frank.Li@freescale.com>
-To: <lznuaa@gmail.com>, <shawn.guo@linaro.org>, <dmitry.torokhov@gmail.com>,
-	<robh+dt@kernel.org>, <alexandre.belloni@free-electrons.com>
-CC: <linux-arm-kernel@lists.infradead.org>, <linux-input@vger.kernel.org>,
-	<rtc-linux@googlegroups.com>, <devicetree@vger.kernel.org>, Frank Li
-	<Frank.Li@freescale.com>, Robin Gong <b38343@freescale.com>
-Subject: [rtc-linux] [PATCH v5 5/6] Document: devicetree: input: imx: i.mx
- snvs power device tree bindings
-Date: Wed, 27 May 2015 00:26:01 +0800
-Message-ID: <1432657562-5592-6-git-send-email-Frank.Li@freescale.com>
-In-Reply-To: <1432657562-5592-1-git-send-email-Frank.Li@freescale.com>
-References: <1432657562-5592-1-git-send-email-Frank.Li@freescale.com>
+        (version=TLSv1 cipher=RC4-SHA bits=128/128);
+        Wed, 13 May 2015 06:47:01 -0700 (PDT)
+Message-ID: <555355C1.9090907@roeck-us.net>
+Date: Wed, 13 May 2015 06:46:41 -0700
+From: Guenter Roeck <linux@roeck-us.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+CC: "Opensource [Steve Twiss]" <stwiss.opensource@diasemi.com>,
+ Alessandro Zummo <a.zummo@towertech.it>,
+ LINUXKERNEL <linux-kernel@vger.kernel.org>,
+ RTCLINUX <rtc-linux@googlegroups.com>,
+ DEVICETREE <devicetree@vger.kernel.org>,
+ David Dajun Chen <david.chen@diasemi.com>,
+ Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+ Ian Campbell <ijc+devicetree@hellion.org.uk>,
+ Kumar Gala <galak@codeaurora.org>,
+ LINUXINPUT <linux-input@vger.kernel.org>,
+ LINUXWATCHDOG <linux-watchdog@vger.kernel.org>,
+ Lee Jones <lee.jones@linaro.org>,
+ Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>,
+ Mark Rutland <mark.rutland@arm.com>,
+ Pawel Moll <pawel.moll@arm.com>, Rob Herring <robh+dt@kernel.org>,
+ Samuel Ortiz <sameo@linux.intel.com>,
+ Support Opensource <Support.Opensource@diasemi.com>,
+ Wim Van Sebroeck <wim@iguana.be>
+Subject: Re: [rtc-linux] [PATCH V1 3/6] rtc: da9062: DA9062 RTC driver
+References: <cover.1429280614.git.stwiss.opensource@diasemi.com> <860a3b6dc7f8dac95c0e36967f24551af8805f7b.1429280614.git.stwiss.opensource@diasemi.com> <20150510095838.GF3338@piout.net> <6ED8E3B22081A4459DAC7699F3695FB7014B22A3F3@SW-EX-MBX02.diasemi.com> <20150513125858.GX3338@piout.net> <55534BEF.7020409@roeck-us.net> <20150513133741.GY3338@piout.net>
+In-Reply-To: <20150513133741.GY3338@piout.net>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -28,96 +41,38 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-From: Frank Li <Frank.Li@freescale.com>
+On 05/13/2015 06:37 AM, Alexandre Belloni wrote:
+> On 13/05/2015 at 06:04:47 -0700, Guenter Roeck wrote :
+>> Don't know how this is handled for rtc drivers, but in other subsystems
+>> we just live with the original name. I don't see a need to rename a driver
+>> just because it starts supporting more hardware, and xxx is weird anyway
+>> since it suggests everything from 000 to 999, which is much worse than
+>> just sticking with 9063.
+>>
+>
+> Yes, in particular if at some point in time a new IP matching those xxx
+> is completely different from the previous one. I'm not fond of renaming
+> the driver either but if diasemi thinks that what they want, I'm open to
+> let it happen. But clearly, I don't want to end up in a situation like
+> the tlv320aic where you don't know which driver correspond to which
+> chip:
+>
+> sound/soc/codecs/tlv320aic31xx.c
+> sound/soc/codecs/tlv320aic31xx.h
+> sound/soc/codecs/tlv320aic32x4.c
+> sound/soc/codecs/tlv320aic32x4.h
+> sound/soc/codecs/tlv320aic3x.c
+> sound/soc/codecs/tlv320aic3x.h
+> sound/soc/codecs/tlv320dac33.c
+> sound/soc/codecs/tlv320dac33.h
+>
+> Go figure that the tlv320aic3104 can be supported by both tlv320aic3x.c
+> and tlv320aic32x4.c but not tlv320aic31xx.c...
+>
 
-The snvs-pwrkey is designed to enable POWER key function which controlled
-by SNVS ONOFF. the driver can report the status of POWER key and wakeup
-system if pressed after system suspend.
+Unfortunately that is exactly what is going to happen.
 
-Signed-off-by: Frank Li <Frank.Li@freescale.com>
-Signed-off-by: Robin Gong <b38343@freescale.com>
----
- .../devicetree/bindings/crypto/fsl-sec4.txt        | 49 ++++++++++++++++++++++
- .../devicetree/bindings/input/snvs-pwrkey.txt      |  1 +
- 2 files changed, 50 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/input/snvs-pwrkey.txt
-
-diff --git a/Documentation/devicetree/bindings/crypto/fsl-sec4.txt b/Documentation/devicetree/bindings/crypto/fsl-sec4.txt
-index b21e7c2..71a39c5 100644
---- a/Documentation/devicetree/bindings/crypto/fsl-sec4.txt
-+++ b/Documentation/devicetree/bindings/crypto/fsl-sec4.txt
-@@ -387,6 +387,47 @@ EXAMPLE
- 	};
- 
- =====================================================================
-+System ON/OFF key driver
-+
-+  The snvs-pwrkey is designed to enable POWER key function which controlled
-+  by SNVS ONOFF, the driver can report the status of POWER key and wakeup
-+  system if pressed after system suspend.
-+
-+  - compatible:
-+      Usage: required
-+      Value type: <string>
-+      Definition: Mush include "fsl,sec-v4.0-pwrkey".
-+
-+  - interrupts:
-+      Usage: required
-+      Value type: <prop_encoded-array>
-+      Definition: The SNVS ON/OFF interrupt number to the CPU(s).
-+
-+  - linux,keycode:
-+      Usage: option
-+      Value type: <int>
-+      Definition: Keycode to emit, KEY_POWER by default.
-+
-+  - wakeup:
-+      Usage: option
-+      Value type: <boo>
-+      Definition: Button can wake-up the system.
-+
-+ - regmap:
-+      Usage: required:
-+      Value type: <phandle>
-+      Definition: this is phandle to the register map node.
-+
-+EXAMPLE:
-+	snvs-pwrkey@0x020cc000 {
-+		compatible = "fsl,sec-v4.0-pwrkey";
-+		regmap = <&snvs>;
-+		interrupts = <0 4 0x4>
-+	        linux,keycode = <116>; /* KEY_POWER */
-+		wakeup;
-+	};
-+
-+=====================================================================
- FULL EXAMPLE
- 
- 	crypto: crypto@300000 {
-@@ -466,6 +507,14 @@ FULL EXAMPLE
- 			offset = <0x34>;
- 			interrupts = <93 2>;
- 		};
-+
-+		snvs-pwrkey@0x020cc000 {
-+			compatible = "fsl,sec-v4.0-pwrkey";
-+			regmap = <&sec_mon>;
-+			interrupts = <0 4 0x4>;
-+			linux,keycode = <116>; /* KEY_POWER */
-+			wakeup;
-+		};
- 	};
- 
- =====================================================================
-diff --git a/Documentation/devicetree/bindings/input/snvs-pwrkey.txt b/Documentation/devicetree/bindings/input/snvs-pwrkey.txt
-new file mode 100644
-index 0000000..70c1425
---- /dev/null
-+++ b/Documentation/devicetree/bindings/input/snvs-pwrkey.txt
-@@ -0,0 +1 @@
-+See Documentation/devicetree/bindings/crypto/fsl-sec4.txt
--- 
-1.9.1
+Guenter
 
 -- 
 -- 
