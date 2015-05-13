@@ -1,33 +1,38 @@
-Return-Path: <rtc-linux+bncBDA7X7F2WUEBB6HRY6VAKGQES2SSGDI@googlegroups.com>
-MIME-Version: 1.0
-Received: from mail-wi0-f181.google.com (mail-wi0-f181.google.com. [209.85.212.181])
-        by gmr-mx.google.com with ESMTPS id g5si98713wix.1.2015.05.12.05.58.32
+Return-Path: <rtc-linux+bncBAABBBWMZWVAKGQEOEKEOVY@googlegroups.com>
+Received: from mail1.bemta5.messagelabs.com (mail1.bemta5.messagelabs.com. [195.245.231.140])
+        by gmr-mx.google.com with ESMTPS id t6si302123wiz.0.2015.05.13.07.56.06
         for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 12 May 2015 05:58:32 -0700 (PDT)
-Received: by mail-wi0-f181.google.com with SMTP id nf17so14256346wic.1
-        for <rtc-linux@googlegroups.com>; Tue, 12 May 2015 05:58:32 -0700 (PDT)
-From: Lee Jones <lee.jones@linaro.org>
-To: linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org,
-	devicetree@vger.kernel.org,
-	daniel.lezcano@linaro.org,
-	tglx@linutronix.de,
-	wim@iguana.be,
-	a.zummo@towertech.it,
-	linux-watchdog@vger.kernel.org,
-	rtc-linux@googlegroups.com,
-	linux@roeck-us.net
-Cc: kernel@stlinux.com,
-	Lee Jones <lee.jones@linaro.org>
-Subject: [rtc-linux] [PATCH v2 05/12] watchdog: st_wdt: Update IP layout
- information to include Clocksource
-Date: Tue, 12 May 2015 13:58:13 +0100
-Message-Id: <1431435500-22899-6-git-send-email-lee.jones@linaro.org>
-In-Reply-To: <1431435500-22899-1-git-send-email-lee.jones@linaro.org>
-References: <1431435500-22899-1-git-send-email-lee.jones@linaro.org>
-Reply-To: rtc-linux@googlegroups.com
+        (version=TLSv1.2 cipher=RC4-SHA bits=128/128);
+        Wed, 13 May 2015 07:56:06 -0700 (PDT)
+From: "Opensource [Steve Twiss]" <stwiss.opensource@diasemi.com>
+To: Guenter Roeck <linux@roeck-us.net>, Alexandre Belloni
+	<alexandre.belloni@free-electrons.com>
+CC: "Opensource [Steve Twiss]" <stwiss.opensource@diasemi.com>, "Alessandro
+ Zummo" <a.zummo@towertech.it>, LINUXKERNEL <linux-kernel@vger.kernel.org>,
+	RTCLINUX <rtc-linux@googlegroups.com>, DEVICETREE
+	<devicetree@vger.kernel.org>, David Dajun Chen <david.chen@diasemi.com>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>, Ian Campbell
+	<ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>,
+	LINUXINPUT <linux-input@vger.kernel.org>, LINUXWATCHDOG
+	<linux-watchdog@vger.kernel.org>, Lee Jones <lee.jones@linaro.org>, "Liam
+ Girdwood" <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, Mark
+ Rutland <mark.rutland@arm.com>, Pawel Moll <pawel.moll@arm.com>, Rob Herring
+	<robh+dt@kernel.org>, Samuel Ortiz <sameo@linux.intel.com>, "Support
+ Opensource" <Support.Opensource@diasemi.com>, Wim Van Sebroeck
+	<wim@iguana.be>
+Subject: RE: [rtc-linux] [PATCH V1 3/6] rtc: da9062: DA9062 RTC driver
+Date: Wed, 13 May 2015 14:56:04 +0000
+Message-ID: <6ED8E3B22081A4459DAC7699F3695FB7014B22A465@SW-EX-MBX02.diasemi.com>
+References: <cover.1429280614.git.stwiss.opensource@diasemi.com>
+ <860a3b6dc7f8dac95c0e36967f24551af8805f7b.1429280614.git.stwiss.opensource@diasemi.com>
+ <20150510095838.GF3338@piout.net>
+ <6ED8E3B22081A4459DAC7699F3695FB7014B22A3F3@SW-EX-MBX02.diasemi.com>
+ <20150513125858.GX3338@piout.net> <55534BEF.7020409@roeck-us.net>
+ <20150513133741.GY3338@piout.net> <555355C1.9090907@roeck-us.net>
+In-Reply-To: <555355C1.9090907@roeck-us.net>
 Content-Type: text/plain; charset=UTF-8
+MIME-Version: 1.0
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -37,32 +42,45 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Initial submission adding support for this IP only included Watchdog and
-the Real-Time Clock.  Now the third (and final) device is enabled this
-trivial patch is required to update the comment in the Watchdog driver
-to encompass Clocksource.
+Hi Guenter & Alexandre,
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
----
- drivers/watchdog/st_lpc_wdt.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+On 13 May 2015 14:47 Guenter Roeck wrote:
+> On 05/13/2015 06:37 AM, Alexandre Belloni wrote:
+> > On 13/05/2015 at 06:04:47 -0700, Guenter Roeck wrote :
+> >> Don't know how this is handled for rtc drivers, but in other subsystems
+> >> we just live with the original name. I don't see a need to rename a driver
+> >> just because it starts supporting more hardware, and xxx is weird anyway
+> >> since it suggests everything from 000 to 999, which is much worse than
+> >> just sticking with 9063.
+> >>
+> >
+> > Yes, in particular if at some point in time a new IP matching those xxx
+> > is completely different from the previous one. I'm not fond of renaming
+> > the driver either but if diasemi thinks that what they want, I'm open to
+> > let it happen. But clearly, I don't want to end up in a situation like
+> > the tlv320aic where you don't know which driver correspond to which
+> > chip:
+> >
+> > sound/soc/codecs/tlv320aic31xx.c
+> > sound/soc/codecs/tlv320aic31xx.h
+> > sound/soc/codecs/tlv320aic32x4.c
+> > sound/soc/codecs/tlv320aic32x4.h
+> > sound/soc/codecs/tlv320aic3x.c
+> > sound/soc/codecs/tlv320aic3x.h
+> > sound/soc/codecs/tlv320dac33.c
+> > sound/soc/codecs/tlv320dac33.h
+> >
+> > Go figure that the tlv320aic3104 can be supported by both tlv320aic3x.c
+> > and tlv320aic32x4.c but not tlv320aic31xx.c...
+> >
+> 
+> Unfortunately that is exactly what is going to happen.
 
-diff --git a/drivers/watchdog/st_lpc_wdt.c b/drivers/watchdog/st_lpc_wdt.c
-index f32be15..6785afd 100644
---- a/drivers/watchdog/st_lpc_wdt.c
-+++ b/drivers/watchdog/st_lpc_wdt.c
-@@ -197,7 +197,7 @@ static int st_wdog_probe(struct platform_device *pdev)
- 		return -EINVAL;
- 	}
- 
--	/* LPC can either run in RTC or WDT mode */
-+	/* LPC can either run as a Clocksource or in RTC or WDT mode */
- 	if (mode != ST_LPC_MODE_WDT)
- 		return -ENODEV;
- 
--- 
-1.9.1
+Thanks for this clarification.
+We'll follow your advice and keep the name as da9063
+
+Regards,
+Steve
 
 -- 
 -- 
