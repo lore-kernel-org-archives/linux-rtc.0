@@ -1,27 +1,27 @@
-Return-Path: <rtc-linux+bncBCAJFDXE4QGBBZEGWKVAKGQEUEBYNWQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBDF63NFOVEMBBRGWZWVAKGQE6HZUNVA@googlegroups.com>
 MIME-Version: 1.0
-Received: from mail-pd0-x235.google.com (mail-pd0-x235.google.com. [2607:f8b0:400e:c02::235])
-        by gmr-mx.google.com with ESMTPS id k3si564668pdm.0.2015.05.08.02.35.32
+Received: from bhuna.collabora.co.uk (bhuna.collabora.co.uk. [93.93.135.160])
+        by gmr-mx.google.com with ESMTPS id g5si301609wix.1.2015.05.13.08.18.27
         for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 08 May 2015 02:35:32 -0700 (PDT)
-Received: by mail-pd0-x235.google.com with SMTP id qa5so73145234pdb.1
-        for <rtc-linux@googlegroups.com>; Fri, 08 May 2015 02:35:32 -0700 (PDT)
-From: Adrian Huang <adrianhuang0701@gmail.com>
-To: Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	rtc-linux@googlegroups.com
-Cc: Brecht Machiels <brecht@mos6581.org>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	John Stultz <john.stultz@linaro.org>,
-	Rabin Vincent <rabin.vincent@stericsson.com>,
-	Borislav Petkov <bp@suse.de>,
-	Nagananda Chumbalkar <nchumbalkar@lenovo.com>,
-	Adrian Huang <ahuang12@lenovo.com>,
-	Adrian Huang <adrianhuang0701@gmail.com>
-Subject: [rtc-linux] [RFC PATCH 1/2] Revert "rtc-cmos: Add an alarm disable quirk"
-Date: Fri,  8 May 2015 17:34:25 +0800
-Message-Id: <1431077665-3493-1-git-send-email-adrianhuang0701@gmail.com>
+        (version=TLSv1 cipher=RC4-SHA bits=128/128);
+        Wed, 13 May 2015 08:18:27 -0700 (PDT)
+From: Javier Martinez Canillas <javier.martinez@collabora.co.uk>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+	Olof Johansson <olof@lixom.net>,
+	Doug Anderson <dianders@chromium.org>,
+	Krzysztof Kozlowski <k.kozlowski@samsung.com>,
+	Chanwoo Choi <cw00.choi@samsung.com>,
+	rtc-linux@googlegroups.com,
+	linux-samsung-soc@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Javier Martinez Canillas <javier.martinez@collabora.co.uk>
+Subject: [rtc-linux] [PATCH 1/2] rtc: max77686: Report platform modalias to
+ fix module autoload
+Date: Wed, 13 May 2015 17:18:01 +0200
+Message-Id: <1431530282-10672-2-git-send-email-javier.martinez@collabora.co.uk>
+In-Reply-To: <1431530282-10672-1-git-send-email-javier.martinez@collabora.co.uk>
+References: <1431530282-10672-1-git-send-email-javier.martinez@collabora.co.uk>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -33,110 +33,29 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Commit d5a1c7e3fc38 ("rtc-cmos: Add an alarm disable quirk") that
-added a special quirk is not needed because PATCH [2/2] of this
-patchset makes the kernel more robust:
-rtc: restore the RTC alarm time to the configured alarm time in BIOS
-Setup
+If the rtc-max77686 driver is built as a module, modalias information is
+not filled so the module is not autoloaded. Use the MODULE_DEVICE_TABLE()
+macro to export the platform ID table so the module contains that data.
 
-Signed-off-by: Adrian Huang <ahuang12@lenovo.com>
+Signed-off-by: Javier Martinez Canillas <javier.martinez@collabora.co.uk>
 ---
- drivers/rtc/rtc-cmos.c | 52 --------------------------------------------------
- 1 file changed, 52 deletions(-)
+ drivers/rtc/rtc-max77686.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/rtc/rtc-cmos.c b/drivers/rtc/rtc-cmos.c
-index a82556a..9754564 100644
---- a/drivers/rtc/rtc-cmos.c
-+++ b/drivers/rtc/rtc-cmos.c
-@@ -29,8 +29,6 @@
-  * other drivers and utilities on correctly configured systems.
-  */
+diff --git a/drivers/rtc/rtc-max77686.c b/drivers/rtc/rtc-max77686.c
+index 7632a87784c3..7184a0eda793 100644
+--- a/drivers/rtc/rtc-max77686.c
++++ b/drivers/rtc/rtc-max77686.c
+@@ -511,6 +511,7 @@ static const struct platform_device_id rtc_id[] = {
+ 	{ "max77686-rtc", 0 },
+ 	{},
+ };
++MODULE_DEVICE_TABLE(platform, rtc_id);
  
--#define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
--
- #include <linux/kernel.h>
- #include <linux/module.h>
- #include <linux/init.h>
-@@ -41,7 +39,6 @@
- #include <linux/pm.h>
- #include <linux/of.h>
- #include <linux/of_platform.h>
--#include <linux/dmi.h>
- 
- /* this is for "generic access to PC-style RTC" using CMOS_READ/CMOS_WRITE */
- #include <asm-generic/rtc.h>
-@@ -380,50 +377,6 @@ static int cmos_set_alarm(struct device *dev, struct rtc_wkalrm *t)
- 	return 0;
- }
- 
--/*
-- * Do not disable RTC alarm on shutdown - workaround for b0rked BIOSes.
-- */
--static bool alarm_disable_quirk;
--
--static int __init set_alarm_disable_quirk(const struct dmi_system_id *id)
--{
--	alarm_disable_quirk = true;
--	pr_info("BIOS has alarm-disable quirk - RTC alarms disabled\n");
--	return 0;
--}
--
--static const struct dmi_system_id rtc_quirks[] __initconst = {
--	/* https://bugzilla.novell.com/show_bug.cgi?id=805740 */
--	{
--		.callback = set_alarm_disable_quirk,
--		.ident    = "IBM Truman",
--		.matches  = {
--			DMI_MATCH(DMI_SYS_VENDOR, "TOSHIBA"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "4852570"),
--		},
--	},
--	/* https://bugzilla.novell.com/show_bug.cgi?id=812592 */
--	{
--		.callback = set_alarm_disable_quirk,
--		.ident    = "Gigabyte GA-990XA-UD3",
--		.matches  = {
--			DMI_MATCH(DMI_SYS_VENDOR,
--					"Gigabyte Technology Co., Ltd."),
--			DMI_MATCH(DMI_PRODUCT_NAME, "GA-990XA-UD3"),
--		},
--	},
--	/* http://permalink.gmane.org/gmane.linux.kernel/1604474 */
--	{
--		.callback = set_alarm_disable_quirk,
--		.ident    = "Toshiba Satellite L300",
--		.matches  = {
--			DMI_MATCH(DMI_SYS_VENDOR, "TOSHIBA"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "Satellite L300"),
--		},
--	},
--	{}
--};
--
- static int cmos_alarm_irq_enable(struct device *dev, unsigned int enabled)
- {
- 	struct cmos_rtc	*cmos = dev_get_drvdata(dev);
-@@ -432,9 +385,6 @@ static int cmos_alarm_irq_enable(struct device *dev, unsigned int enabled)
- 	if (!is_valid_irq(cmos->irq))
- 		return -EINVAL;
- 
--	if (alarm_disable_quirk)
--		return 0;
--
- 	spin_lock_irqsave(&rtc_lock, flags);
- 
- 	if (enabled)
-@@ -1243,8 +1193,6 @@ static int __init cmos_init(void)
- 			platform_driver_registered = true;
- 	}
- 
--	dmi_check_system(rtc_quirks);
--
- 	if (retval == 0)
- 		return 0;
- 
+ static struct platform_driver max77686_rtc_driver = {
+ 	.driver		= {
 -- 
-1.9.1
+2.1.4
 
 -- 
 -- 
