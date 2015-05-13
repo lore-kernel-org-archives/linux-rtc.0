@@ -1,28 +1,41 @@
-Return-Path: <rtc-linux+bncBCZ273NM4EARBV4EU6VAKGQE6BDGBIA@googlegroups.com>
-Received: from mailgw01.mediatek.com ([210.61.82.183])
-        by gmr-mx.google.com with ESMTPS id dv5si2762010pbb.0.2015.05.06.00.27.18
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1 cipher=RC4-SHA bits=128/128);
-        Wed, 06 May 2015 00:27:19 -0700 (PDT)
-From: Eddie Huang <eddie.huang@mediatek.com>
-To: Lee Jones <lee.jones@linaro.org>, Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>
-CC: <srv_heupstream@mediatek.com>, Samuel Ortiz <sameo@linux.intel.com>,
-	Matthias Brugger <matthias.bgg@gmail.com>, Andrew Morton
-	<akpm@linux-foundation.org>, Greg KH <gregkh@linuxfoundation.org>, "David S.
- Miller" <davem@davemloft.net>, Mauro Carvalho Chehab
-	<mchehab@osg.samsung.com>, Joe Perches <joe@perches.com>, Tejun Heo
-	<tj@kernel.org>, <linux-kernel@vger.kernel.org>,
-	<rtc-linux@googlegroups.com>, <linux-arm-kernel@lists.infradead.org>,
-	<linux-mediatek@lists.infradead.org>, Sascha Hauer <kernel@pengutronix.de>,
-	Tomasz Figa <tfiga@google.com>, Eddie Huang <eddie.huang@mediatek.com>
-Subject: [rtc-linux] [PATCH v4 3/3] MAINTAINERS: add Mediatek RTC driver
-Date: Wed, 6 May 2015 15:23:42 +0800
-Message-ID: <1430897022-63357-4-git-send-email-eddie.huang@mediatek.com>
-In-Reply-To: <1430897022-63357-1-git-send-email-eddie.huang@mediatek.com>
-References: <1430897022-63357-1-git-send-email-eddie.huang@mediatek.com>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBKVHZWVAKGQEV3X3Q2A@googlegroups.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id bc3si281251wib.2.2015.05.13.06.37.46
+        for <rtc-linux@googlegroups.com>;
+        Wed, 13 May 2015 06:37:46 -0700 (PDT)
+Date: Wed, 13 May 2015 15:37:41 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: "Opensource [Steve Twiss]" <stwiss.opensource@diasemi.com>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	LINUXKERNEL <linux-kernel@vger.kernel.org>,
+	RTCLINUX <rtc-linux@googlegroups.com>,
+	DEVICETREE <devicetree@vger.kernel.org>,
+	David Dajun Chen <david.chen@diasemi.com>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Ian Campbell <ijc+devicetree@hellion.org.uk>,
+	Kumar Gala <galak@codeaurora.org>,
+	LINUXINPUT <linux-input@vger.kernel.org>,
+	LINUXWATCHDOG <linux-watchdog@vger.kernel.org>,
+	Lee Jones <lee.jones@linaro.org>,
+	Liam Girdwood <lgirdwood@gmail.com>,
+	Mark Brown <broonie@kernel.org>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Pawel Moll <pawel.moll@arm.com>, Rob Herring <robh+dt@kernel.org>,
+	Samuel Ortiz <sameo@linux.intel.com>,
+	Support Opensource <Support.Opensource@diasemi.com>,
+	Wim Van Sebroeck <wim@iguana.be>
+Subject: Re: [rtc-linux] [PATCH V1 3/6] rtc: da9062: DA9062 RTC driver
+Message-ID: <20150513133741.GY3338@piout.net>
+References: <cover.1429280614.git.stwiss.opensource@diasemi.com>
+ <860a3b6dc7f8dac95c0e36967f24551af8805f7b.1429280614.git.stwiss.opensource@diasemi.com>
+ <20150510095838.GF3338@piout.net>
+ <6ED8E3B22081A4459DAC7699F3695FB7014B22A3F3@SW-EX-MBX02.diasemi.com>
+ <20150513125858.GX3338@piout.net>
+ <55534BEF.7020409@roeck-us.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <55534BEF.7020409@roeck-us.net>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -33,33 +46,37 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Add Mediatek RTC driver to maintainer entry.
+On 13/05/2015 at 06:04:47 -0700, Guenter Roeck wrote :
+> Don't know how this is handled for rtc drivers, but in other subsystems
+> we just live with the original name. I don't see a need to rename a driver
+> just because it starts supporting more hardware, and xxx is weird anyway
+> since it suggests everything from 000 to 999, which is much worse than
+> just sticking with 9063.
+> 
 
-Signed-off-by: Eddie Huang <eddie.huang@mediatek.com>
----
- MAINTAINERS | 7 +++++++
- 1 file changed, 7 insertions(+)
+Yes, in particular if at some point in time a new IP matching those xxx
+is completely different from the previous one. I'm not fond of renaming
+the driver either but if diasemi thinks that what they want, I'm open to
+let it happen. But clearly, I don't want to end up in a situation like
+the tlv320aic where you don't know which driver correspond to which
+chip:
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 2e5bbc0..b36a86e 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -1223,6 +1223,13 @@ W:	http://www.digriz.org.uk/ts78xx/kernel
- S:	Maintained
- F:	arch/arm/mach-orion5x/ts78xx-*
- 
-+ARM/Mediatek RTC DRIVER
-+M:	Eddie Huang <eddie.huang@mediatek.com>
-+L:	linux-arm-kernel@lists.infradead.org (moderated for non-subscribers)
-+L:	linux-mediatek@lists.infradead.org (moderated for non-subscribers)
-+S:	Maintained
-+F:	drivers/rtc/rtc-mt6397.c
-+
- ARM/Mediatek SoC support
- M:	Matthias Brugger <matthias.bgg@gmail.com>
- L:	linux-arm-kernel@lists.infradead.org (moderated for non-subscribers)
+sound/soc/codecs/tlv320aic31xx.c
+sound/soc/codecs/tlv320aic31xx.h
+sound/soc/codecs/tlv320aic32x4.c
+sound/soc/codecs/tlv320aic32x4.h
+sound/soc/codecs/tlv320aic3x.c
+sound/soc/codecs/tlv320aic3x.h
+sound/soc/codecs/tlv320dac33.c
+sound/soc/codecs/tlv320dac33.h
+
+Go figure that the tlv320aic3104 can be supported by both tlv320aic3x.c
+and tlv320aic32x4.c but not tlv320aic31xx.c...
+
 -- 
-1.8.1.1.dirty
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
 -- 
 -- 
