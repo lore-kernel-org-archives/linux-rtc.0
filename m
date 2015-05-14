@@ -1,20 +1,22 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBENLSOVQKGQE233CPEI@googlegroups.com>
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id k10si217739wia.1.2015.05.26.13.20.33
-        for <rtc-linux@googlegroups.com>;
-        Tue, 26 May 2015 13:20:33 -0700 (PDT)
-Date: Tue, 26 May 2015 22:20:32 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Jean-Baptiste Theou <jtheou@adeneo-embedded.us>
-Cc: Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH 2/2] rtc-isl1208: add device tree support
-Message-ID: <20150526202032.GK3199@piout.net>
-References: <1432667550-24272-1-git-send-email-jtheou@adeneo-embedded.us>
- <1432667550-24272-2-git-send-email-jtheou@adeneo-embedded.us>
+Return-Path: <rtc-linux+bncBDMYB2E7SQCRBKWS2OVAKGQEXGLHDFA@googlegroups.com>
+Received: from na01-bn1-obe.outbound.protection.outlook.com (mail-bn1bon0131.outbound.protection.outlook.com. [157.56.111.131])
+        by gmr-mx.google.com with ESMTPS id do9si3871741qcb.0.2015.05.14.11.27.53
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
+        Thu, 14 May 2015 11:27:54 -0700 (PDT)
+From: <Frank.Li@freescale.com>
+To: <lznuaa@gmail.com>, <shawn.guo@linaro.org>, <dmitry.torokhov@gmail.com>,
+	<robh+dt@kernel.org>
+CC: <linux-arm-kernel@lists.infradead.org>, <linux-input@vger.kernel.org>,
+	<rtc-linux@googlegroups.com>, <linux-pm@vger.kernel.org>,
+	<devicetree@vger.kernel.org>, Frank Li <Frank.Li@freescale.com>
+Subject: [rtc-linux] [PATCH 3/7] Document: dt: fsl: snvs: change support syscon
+Date: Fri, 15 May 2015 01:18:49 +0800
+Message-ID: <1431623933-3473-4-git-send-email-Frank.Li@freescale.com>
+In-Reply-To: <1431623933-3473-1-git-send-email-Frank.Li@freescale.com>
+References: <1431623933-3473-1-git-send-email-Frank.Li@freescale.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1432667550-24272-2-git-send-email-jtheou@adeneo-embedded.us>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -25,55 +27,153 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Hi,
+From: Frank Li <Frank.Li@freescale.com>
 
-On 26/05/2015 at 12:12:30 -0700, Jean-Baptiste Theou wrote :
-> Add a basic device tree support for isl1208 driver
-> 
-> Signed-off-by: Jean-Baptiste Theou <jtheou@adeneo-embedded.us>
-> ---
->  drivers/rtc/rtc-isl1208.c | 9 +++++++++
->  1 file changed, 9 insertions(+)
-> 
-> diff --git a/drivers/rtc/rtc-isl1208.c b/drivers/rtc/rtc-isl1208.c
-> index c3c549d..b47a3f9 100644
-> --- a/drivers/rtc/rtc-isl1208.c
-> +++ b/drivers/rtc/rtc-isl1208.c
-> @@ -692,6 +692,14 @@ isl1208_remove(struct i2c_client *client)
->  	return 0;
->  }
->  
-> +#ifdef CONFIG_OF
-> +static const struct of_device_id isl1208_dt_match[] = {
-> +	{ .compatible = "isil,isl1208" },
-> +	{ .compatible = "isil,isl1218" },
-> +	{ },
-> +};
-> +#endif
-> +
->  static const struct i2c_device_id isl1208_id[] = {
->  	{ "isl1208", 0 },
->  	{ "isl1218", 0 },
-> @@ -702,6 +710,7 @@ MODULE_DEVICE_TABLE(i2c, isl1208_id);
->  static struct i2c_driver isl1208_driver = {
->  	.driver = {
->  		   .name = "rtc-isl1208",
-> +		   .of_match_table = of_match_ptr(isl1208_dt_match),
+snvs actually is multi fucntion driver.
+Change to use syscon to access register.
 
-This patch is unnecessary as the i2c subsystem will already match
-isil,isl1208 or isil,isl1218 with the i2c_device_id array.
+Signed-off-by: Frank Li <Frank.Li@freescale.com>
+---
+ .../devicetree/bindings/crypto/fsl-sec4.txt        | 51 ++++++++++++++++------
+ .../bindings/power_supply/imx-snvs-poweroff.txt    | 24 +---------
+ 2 files changed, 39 insertions(+), 36 deletions(-)
 
->  		   },
->  	.probe = isl1208_probe,
->  	.remove = isl1208_remove,
-> -- 
-> 2.4.0
-> 
-
+diff --git a/Documentation/devicetree/bindings/crypto/fsl-sec4.txt b/Documentation/devicetree/bindings/crypto/fsl-sec4.txt
+index e402277..ca04206 100644
+--- a/Documentation/devicetree/bindings/crypto/fsl-sec4.txt
++++ b/Documentation/devicetree/bindings/crypto/fsl-sec4.txt
+@@ -288,12 +288,13 @@ Secure Non-Volatile Storage (SNVS) Node
+     Node defines address range and the associated
+     interrupt for the SNVS function.  This function
+     monitors security state information & reports
+-    security violations.
++    security violations. This also included rtc,
++    system power off and ON/OFF key.
+ 
+   - compatible
+       Usage: required
+       Value type: <string>
+-      Definition: Must include "fsl,sec-v4.0-mon".
++      Definition: Must include "fsl,sec-v4.0-mon" and "syscon".
+ 
+   - reg
+       Usage: required
+@@ -324,7 +325,7 @@ Secure Non-Volatile Storage (SNVS) Node
+            the child address, parent address, & length.
+ 
+    - interrupts
+-      Usage: required
++      Usage: optional
+       Value type: <prop_encoded-array>
+       Definition:  Specifies the interrupts generated by this
+            device.  The value of the interrupts property
+@@ -341,7 +342,7 @@ Secure Non-Volatile Storage (SNVS) Node
+ 
+ EXAMPLE
+ 	sec_mon@314000 {
+-		compatible = "fsl,sec-v4.0-mon";
++		compatible = "fsl,sec-v4.0-mon", "syscon";
+ 		reg = <0x314000 0x1000>;
+ 		ranges = <0 0x314000 0x1000>;
+ 		interrupt-parent = <&mpic>;
+@@ -358,19 +359,41 @@ Secure Non-Volatile Storage (SNVS) Low Power (LP) RTC Node
+       Value type: <string>
+       Definition: Must include "fsl,sec-v4.0-mon-rtc-lp".
+ 
+-  - reg
++  - interrupts
+       Usage: required
+-      Value type: <prop-encoded-array>
+-      Definition: A standard property.  Specifies the physical
+-          address and length of the SNVS LP configuration registers.
++      Value type: <prop_encoded-array>
++      Definition: Specifies the interrupts generated by this
++	   device.  The value of the interrupts property
++	   consists of one interrupt specifier. The format
++	   of the specifier is defined by the binding document
++	   describing the node's interrupt parent.
+ 
+ EXAMPLE
+-	sec_mon_rtc_lp@314000 {
++	sec_mon_rtc_lp@1 {
+ 		compatible = "fsl,sec-v4.0-mon-rtc-lp";
+-		reg = <0x34 0x58>;
++		interrupts = <93 2>;
+ 	};
+ 
+ =====================================================================
++System power off Driver
++
++  A SNVS child node that define system power off
++  SNVS_LPCR in SNVS module can power off the whole system by pull
++  PMIC_ON_REQ low if PMIC_ON_REQ is connected with external PMIC.
++  If you don't want to use PMIC_ON_REQ as power on/off control,
++  please set status='disabled' to disable this driver.
++
++  - compatible
++      Usage: regquied
++      Value type: <string>
++      Definition: Must include "fsl,sec-v4.0-poweroff"
++
++EXAMPLE
++	snvs_poweroff: snvs-poweroff {
++		compatible = "fsl,sec-v4.0-poweroff";
++};
++
++=====================================================================
+ FULL EXAMPLE
+ 
+ 	crypto: crypto@300000 {
+@@ -443,13 +466,15 @@ FULL EXAMPLE
+ 		compatible = "fsl,sec-v4.0-mon";
+ 		reg = <0x314000 0x1000>;
+ 		ranges = <0 0x314000 0x1000>;
+-		interrupt-parent = <&mpic>;
+-		interrupts = <93 2>;
+ 
+ 		sec_mon_rtc_lp@34 {
+ 			compatible = "fsl,sec-v4.0-mon-rtc-lp";
+-			reg = <0x34 0x58>;
++			interrupts = <93 2>;
+ 		};
++
++		snvs_poweroff: snvs-poweroff@38 {
++                        compatible = "fsl,sec-v4.0-poweroff";
++                };
+ 	};
+ 
+ =====================================================================
+diff --git a/Documentation/devicetree/bindings/power_supply/imx-snvs-poweroff.txt b/Documentation/devicetree/bindings/power_supply/imx-snvs-poweroff.txt
+index dc7c9ba..70c1425 100644
+--- a/Documentation/devicetree/bindings/power_supply/imx-snvs-poweroff.txt
++++ b/Documentation/devicetree/bindings/power_supply/imx-snvs-poweroff.txt
+@@ -1,23 +1 @@
+-i.mx6 Poweroff Driver
+-
+-SNVS_LPCR in SNVS module can power off the whole system by pull
+-PMIC_ON_REQ low if PMIC_ON_REQ is connected with external PMIC.
+-If you don't want to use PMIC_ON_REQ as power on/off control,
+-please set status='disabled' to disable this driver.
+-
+-Required Properties:
+--compatible: "fsl,sec-v4.0-poweroff"
+--reg: Specifies the physical address of the SNVS_LPCR register
+-
+-Example:
+-	snvs@020cc000 {
+-		compatible = "fsl,sec-v4.0-mon", "simple-bus";
+-		#address-cells = <1>;
+-		#size-cells = <1>;
+-		ranges = <0 0x020cc000 0x4000>;
+-		.....
+-		snvs_poweroff: snvs-poweroff@38 {
+-			compatible = "fsl,sec-v4.0-poweroff";
+-			reg = <0x38 0x4>;
+-		};
+-	}
++See Documentation/devicetree/bindings/crypto/fsl-sec4.txt
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+1.9.1
 
 -- 
 -- 
