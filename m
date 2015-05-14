@@ -1,21 +1,19 @@
-Return-Path: <rtc-linux+bncBDMYB2E7SQCRBAUN3CVAKGQE2VF54TY@googlegroups.com>
-Received: from na01-bn1-obe.outbound.protection.outlook.com (mail-bn1on0134.outbound.protection.outlook.com. [157.56.110.134])
-        by gmr-mx.google.com with ESMTPS id ti15si221067pac.0.2015.05.15.07.45.21
+Return-Path: <rtc-linux+bncBDMYB2E7SQCRBIGS2OVAKGQEBDNUULQ@googlegroups.com>
+Received: from na01-bn1-obe.outbound.protection.outlook.com (mail-bn1on0148.outbound.protection.outlook.com. [157.56.110.148])
+        by gmr-mx.google.com with ESMTPS id ye6si2663433pbc.2.2015.05.14.11.27.43
         for <rtc-linux@googlegroups.com>
         (version=TLSv1.2 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
-        Fri, 15 May 2015 07:45:22 -0700 (PDT)
+        Thu, 14 May 2015 11:27:43 -0700 (PDT)
 From: <Frank.Li@freescale.com>
 To: <lznuaa@gmail.com>, <shawn.guo@linaro.org>, <dmitry.torokhov@gmail.com>,
-	<robh+dt@kernel.org>, <a.zummo@towertech.it>,
-	<alexandre.belloni@free-electrons.com>, <sachin.kamat@linaro.org>,
-	<p.zabel@pengutronix.de>
+	<robh+dt@kernel.org>
 CC: <linux-arm-kernel@lists.infradead.org>, <linux-input@vger.kernel.org>,
 	<rtc-linux@googlegroups.com>, <linux-pm@vger.kernel.org>,
 	<devicetree@vger.kernel.org>, Frank Li <Frank.Li@freescale.com>
-Subject: [rtc-linux] [PATCH resend 0/7] Change snvs rtc and poweroff to use
- syscon add pwrkey driver
-Date: Fri, 15 May 2015 21:36:23 +0800
-Message-ID: <1431696990-23078-1-git-send-email-Frank.Li@freescale.com>
+Subject: [rtc-linux] [PATCH 0/7] Change snvs rtc and poweroff to use syscon
+ add pwrkey driver
+Date: Fri, 15 May 2015 01:18:46 +0800
+Message-ID: <1431623933-3473-1-git-send-email-Frank.Li@freescale.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
@@ -29,8 +27,6 @@ List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegro
  <http://groups.google.com/group/rtc-linux/subscribe>
 
 From: Frank Li <Frank.Li@freescale.com>
-
-Resend to add rtc and reset  maintainer.
 
 SNVS is MPF module.
 include rtc, power off, ON/OFF power key
