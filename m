@@ -1,53 +1,27 @@
-Return-Path: <rtc-linux+bncBDHZXHXDRAMBBPERVSVAKGQELAV36XI@googlegroups.com>
-Received: from smtp.codeaurora.org (smtp.codeaurora.org. [198.145.29.96])
-        by gmr-mx.google.com with ESMTPS id ux4si396493igb.1.2015.05.06.23.39.56
+Return-Path: <rtc-linux+bncBCF2PQPV4MDRBYVZ2OVAKGQE6B4SSQQ@googlegroups.com>
+MIME-Version: 1.0
+Received: from mail-la0-x232.google.com (mail-la0-x232.google.com. [2a00:1450:4010:c03::232])
+        by gmr-mx.google.com with ESMTPS id su3si1707154lbb.1.2015.05.14.10.35.29
         for <rtc-linux@googlegroups.com>
         (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 06 May 2015 23:39:56 -0700 (PDT)
-Date: Wed, 6 May 2015 23:39:53 -0700
-From: Stephen Boyd <sboyd@codeaurora.org>
-To: Boris Brezillon <boris.brezillon@free-electrons.com>
-Cc: Mike Turquette <mturquette@linaro.org>, linux-clk@vger.kernel.org,
-	linux-kernel@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>,
-	Shawn Guo <shawn.guo@linaro.org>,
-	ascha Hauer <kernel@pengutronix.de>,
-	David Brown <davidb@codeaurora.org>,
-	Daniel Walker <dwalker@fifo99.com>,
-	Bryan Huntsman <bryanh@codeaurora.org>,
-	Tony Lindgren <tony@atomide.com>, Paul Walmsley <paul@pwsan.com>,
-	Liviu Dudau <liviu.dudau@arm.com>,
-	Sudeep Holla <sudeep.holla@arm.com>,
-	Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-	Ralf Baechle <ralf@linux-mips.org>,
-	Max Filippov <jcmvbkbc@gmail.com>, Heiko Stuebner <heiko@sntech.de>,
-	Sylwester Nawrocki <s.nawrocki@samsung.com>,
-	Tomasz Figa <tomasz.figa@gmail.com>, Barry Song <baohua@kernel.org>,
-	Viresh Kumar <viresh.linux@gmail.com>,
-	Emilio =?iso-8859-1?Q?L=F3pez?= <emilio@elopez.com.ar>,
-	Maxime Ripard <maxime.ripard@free-electrons.com>,
-	Peter De Schrijver <pdeschrijver@nvidia.com>,
-	Prashant Gaikwad <pgaikwad@nvidia.com>,
-	Stephen Warren <swarren@wwwdotorg.org>,
-	Thierry Reding <thierry.reding@gmail.com>,
-	Alexandre Courbot <gnurou@gmail.com>, Tero Kristo <t-kristo@ti.com>,
-	Ulf Hansson <ulf.hansson@linaro.org>,
-	Michal Simek <michal.simek@xilinx.com>,
-	Philipp Zabel <p.zabel@pengutronix.de>, linux-doc@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org, linux-arm-msm@vger.kernel.org,
-	linux-omap@vger.kernel.org, linux-mips@linux-mips.org,
-	patches@opensource.wolfsonmicro.com,
-	linux-rockchip@lists.infradead.org,
-	linux-samsung-soc@vger.kernel.org, spear-devel@list.st.com,
-	linux-tegra@vger.kernel.org, dri-devel@lists.freedesktop.org,
-	linux-media@vger.kernel.org, rtc-linux@googlegroups.com
-Subject: [rtc-linux] Re: [PATCH v2 1/2] clk: change clk_ops' ->round_rate() prototype
-Message-ID: <20150507063953.GC32399@codeaurora.org>
-References: <1430407809-31147-1-git-send-email-boris.brezillon@free-electrons.com>
- <1430407809-31147-2-git-send-email-boris.brezillon@free-electrons.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1430407809-31147-2-git-send-email-boris.brezillon@free-electrons.com>
+        Thu, 14 May 2015 10:35:29 -0700 (PDT)
+Received: by mail-la0-x232.google.com with SMTP id v1so77938658lag.3
+        for <rtc-linux@googlegroups.com>; Thu, 14 May 2015 10:35:29 -0700 (PDT)
+From: Joachim Eastwood <manabian@gmail.com>
+To: akpm@linux-foundation.org,
+	a.zummo@towertech.it
+Cc: Joachim Eastwood <manabian@gmail.com>,
+	wellsk40@gmail.com,
+	rtc-linux@googlegroups.com,
+	devicetree@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org
+Subject: [rtc-linux] [PATCH 1/2] rtc: add rtc-lpc24xx driver
+Date: Thu, 14 May 2015 19:34:34 +0200
+Message-Id: <1431624875-20990-2-git-send-email-manabian@gmail.com>
+In-Reply-To: <1431624875-20990-1-git-send-email-manabian@gmail.com>
+References: <1431624875-20990-1-git-send-email-manabian@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -57,51 +31,439 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On 04/30, Boris Brezillon wrote:
-> Clock rates are stored in an unsigned long field, but ->round_rate()
-> (which returns a rounded rate from a requested one) returns a long
-> value (errors are reported using negative error codes), which can lead
-> to long overflow if the clock rate exceed 2Ghz.
-> 
-> Change ->round_rate() prototype to return 0 or an error code, and pass the
-> requested rate as a pointer so that it can be adjusted depending on
-> hardware capabilities.
-> 
-> Signed-off-by: Boris Brezillon <boris.brezillon@free-electrons.com>
-> Tested-by: Heiko Stuebner <heiko@sntech.de>
-> Tested-by: Mikko Perttunen <mikko.perttunen@kapsi.fi>
-> Reviewed-by: Heiko Stuebner <heiko@sntech.de>
+Add driver for the RTC found on NXP LPC24xx/178x/18xx/43xx devices.
+The RTC provides calendar and clock functionality together with
+periodic tick and alarm interrupt support.
 
-This patch is fairly invasive, and it probably doesn't even
-matter for most of these clock providers to be able to round a
-rate above 2GHz. I've been trying to remove the .round_rate op
-from the framework by encouraging new features via the
-.determine_rate op. Sadly, we still have to do a flag day and
-change all the .determine_rate ops when we want to add things.
+Signed-off-by: Joachim Eastwood <manabian@gmail.com>
+---
+ drivers/rtc/Kconfig       |  11 ++
+ drivers/rtc/Makefile      |   1 +
+ drivers/rtc/rtc-lpc24xx.c | 379 ++++++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 391 insertions(+)
+ create mode 100644 drivers/rtc/rtc-lpc24xx.c
 
-What if we changed determine_rate ops to take a struct
-clk_determine_info (or some better named structure) instead of
-the current list of arguments that it currently takes? Then when
-we want to make these sorts of framework wide changes we can just
-throw a new member into that structure and be done.
-
-It doesn't solve the unsigned long to int return value problem
-though. We can solve that by gradually introducing a new op and
-handling another case in the rounding path. If we can come up
-with some good name for that new op like .decide_rate or
-something then it makes things nicer in the long run. I like the
-name .determine_rate though :/
-
-The benefit of all this is that we don't have to worry about
-finding the random clk providers that get added into other
-subsystems and fixing them up. If drivers actually care about
-this problem then they'll be fixed to use the proper op. FYI,
-last time we updated the function signature of .determine_rate we
-broke a couple drivers along the way.
-
+diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
+index 6149ae01e11f..42b890716b1c 100644
+--- a/drivers/rtc/Kconfig
++++ b/drivers/rtc/Kconfig
+@@ -1427,6 +1427,17 @@ config RTC_DRV_JZ4740
+ 	  This driver can also be buillt as a module. If so, the module
+ 	  will be called rtc-jz4740.
+ 
++config RTC_DRV_LPC24XX
++	depends on OF && (ARCH_LPC18XX || TEST_COMPILE)
++	tristate "NXP LPC2K RTC"
++	help
++	  This enables support for the NXP RTC found which can be found on
++	  LPC24xx/178x/18xx/43xx devices.
++
++	  If you have one of the devices above enable this driver to use
++	  the hardware RTC. This driver can also be buillt as a module. If
++	  so, the module will be called rtc-lpc24xx.
++
+ config RTC_DRV_LPC32XX
+ 	depends on ARCH_LPC32XX
+ 	tristate "NXP LPC32XX RTC"
+diff --git a/drivers/rtc/Makefile b/drivers/rtc/Makefile
+index c31731c29762..8687a2e13247 100644
+--- a/drivers/rtc/Makefile
++++ b/drivers/rtc/Makefile
+@@ -73,6 +73,7 @@ obj-$(CONFIG_RTC_DRV_ISL12022)	+= rtc-isl12022.o
+ obj-$(CONFIG_RTC_DRV_ISL12057)	+= rtc-isl12057.o
+ obj-$(CONFIG_RTC_DRV_JZ4740)	+= rtc-jz4740.o
+ obj-$(CONFIG_RTC_DRV_LP8788)	+= rtc-lp8788.o
++obj-$(CONFIG_RTC_DRV_LPC24XX)	+= rtc-lpc24xx.o
+ obj-$(CONFIG_RTC_DRV_LPC32XX)	+= rtc-lpc32xx.o
+ obj-$(CONFIG_RTC_DRV_LOONGSON1)	+= rtc-ls1x.o
+ obj-$(CONFIG_RTC_DRV_M41T80)	+= rtc-m41t80.o
+diff --git a/drivers/rtc/rtc-lpc24xx.c b/drivers/rtc/rtc-lpc24xx.c
+new file mode 100644
+index 000000000000..ffa6e568b308
+--- /dev/null
++++ b/drivers/rtc/rtc-lpc24xx.c
+@@ -0,0 +1,379 @@
++/*
++ * Driver for NXP LPC24xx/178x/18xx/43xx Real-Time Clock (RTC)
++ *
++ * Copyright (C) 2011 NXP Semiconductors
++ * Copyright (C) 2015 Joachim Eastwood <manabian@gmail.com>
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ */
++
++#include <linux/clk.h>
++#include <linux/io.h>
++#include <linux/kernel.h>
++#include <linux/module.h>
++#include <linux/of.h>
++#include <linux/of_device.h>
++#include <linux/platform_device.h>
++#include <linux/rtc.h>
++
++/* LPC24xx RTC register offsets */
++#define LPC24XX_ILR		0x00
++#define LPC24XX_CTC		0x04
++#define LPC24XX_CCR		0x08
++#define LPC24XX_CIIR		0x0c
++#define LPC24XX_AMR		0x10
++#define LPC24XX_CTIME0		0x14
++#define LPC24XX_CTIME1		0x18
++#define LPC24XX_CTIME2		0x1c
++#define LPC24XX_SEC		0x20
++#define LPC24XX_MIN		0x24
++#define LPC24XX_HOUR		0x28
++#define LPC24XX_DOM		0x2c
++#define LPC24XX_DOW		0x30
++#define LPC24XX_DOY		0x34
++#define LPC24XX_MONTH		0x38
++#define LPC24XX_YEAR		0x3c
++#define LPC24XX_CISS		0x40 /* LPC24xx only */
++#define LPC178X_CALIBRATION	0x40 /* LPC178x and up */
++#define LPC24XX_ALSEC		0x60
++#define LPC24XX_ALMIN		0x64
++#define LPC24XX_ALHOUR		0x68
++#define LPC24XX_ALDOM		0x6c
++#define LPC24XX_ALDOW		0x70
++#define LPC24XX_ALDOY		0x74
++#define LPC24XX_ALMON		0x78
++#define LPC24XX_ALYEAR		0x7c
++#define LPC24XX_PREINT		0x80 /* LPC24xx only */
++#define LPC24XX_PREFRAC		0x84 /* LPC24xx only */
++
++#define LPC24XX_RTCCIF		BIT(0)
++#define LPC24XX_RTCALF		BIT(1)
++#define LPC24XX_RTSSF		BIT(2) /* LPC24xx only */
++
++#define LPC24XX_CLKEN		BIT(0)
++#define LPC24XX_CTCRST		BIT(1)
++#define LPC24XX_CLKSRC		BIT(4) /* LPC24xx only */
++#define LPC178X_CCALEN		BIT(4) /* LPC178x and up */
++
++#define LPC24XX_IMSEC		BIT(0)
++#define LPC24XX_IMMIN		BIT(1)
++#define LPC24XX_IMHOUR		BIT(2)
++#define LPC24XX_IMDOM		BIT(3)
++#define LPC24XX_IMDOW		BIT(4)
++#define LPC24XX_IMDOY		BIT(5)
++#define LPC24XX_IMMON		BIT(6)
++#define LPC24XX_IMYEAR		BIT(7)
++
++#define LPC24XX_ALARM_DISABLE	0xff
++
++#define CT0_SECS(x)		(((x) >> 0)  & 0x3f)
++#define CT0_MINS(x)		(((x) >> 8)  & 0x3f)
++#define CT0_HOURS(x)		(((x) >> 16) & 0x1f)
++#define CT0_DOW(x)		(((x) >> 24) & 0x07)
++#define CT1_DOM(x)		(((x) >> 0)  & 0x1f)
++#define CT1_MONTH(x)		(((x) >> 8)  & 0x0f)
++#define CT1_YEAR(x)		(((x) >> 16) & 0xfff)
++#define CT2_DOY(x)		(((x) >> 0)  & 0xfff)
++
++#define rtc_readl(dev, reg)		readl((dev)->rtc_base + (reg))
++#define rtc_writel(dev, reg, val)	writel((val), (dev)->rtc_base + (reg))
++
++/* lpc2k-rtc driver feature flags */
++#define HAVE_SUBSECOND		BIT(0)
++#define HAVE_CALIBRATION	BIT(1)
++#define HAVE_PRESCALER		BIT(2)
++
++struct lpc24xx_rtc {
++	void __iomem *rtc_base;
++	struct rtc_device *rtc;
++	struct clk *clk_rtc;
++	struct clk *clk_reg;
++	u32 features;
++};
++
++static int lpc24xx_rtc_set_time(struct device *dev, struct rtc_time *tm)
++{
++	struct lpc24xx_rtc *rtc = dev_get_drvdata(dev);
++	u32 rtc_ctrl;
++
++	/* Disable RTC during update */
++	rtc_ctrl = rtc_readl(rtc, LPC24XX_CCR);
++	rtc_writel(rtc, LPC24XX_CCR, rtc_ctrl & ~LPC24XX_CLKEN);
++
++	rtc_writel(rtc, LPC24XX_SEC,	tm->tm_sec);
++	rtc_writel(rtc, LPC24XX_MIN,	tm->tm_min);
++	rtc_writel(rtc, LPC24XX_HOUR,	tm->tm_hour);
++	rtc_writel(rtc, LPC24XX_DOW,	tm->tm_wday);
++	rtc_writel(rtc, LPC24XX_DOM,	tm->tm_mday);
++	rtc_writel(rtc, LPC24XX_DOY,	tm->tm_yday);
++	rtc_writel(rtc, LPC24XX_MONTH,	tm->tm_mon);
++	rtc_writel(rtc, LPC24XX_YEAR,	tm->tm_year);
++
++	rtc_writel(rtc, LPC24XX_CCR, rtc_ctrl | LPC24XX_CLKEN);
++
++	return 0;
++}
++
++static int lpc24xx_rtc_read_time(struct device *dev, struct rtc_time *tm)
++{
++	struct lpc24xx_rtc *rtc = dev_get_drvdata(dev);
++	u32 ct0, ct1, ct2;
++
++	ct0 = rtc_readl(rtc, LPC24XX_CTIME0);
++	ct1 = rtc_readl(rtc, LPC24XX_CTIME1);
++	ct2 = rtc_readl(rtc, LPC24XX_CTIME2);
++
++	tm->tm_sec  = CT0_SECS(ct0);
++	tm->tm_min  = CT0_MINS(ct0);
++	tm->tm_hour = CT0_HOURS(ct0);
++	tm->tm_wday = CT0_DOW(ct0);
++	tm->tm_mon  = CT1_MONTH(ct1);
++	tm->tm_mday = CT1_DOM(ct1);
++	tm->tm_year = CT1_YEAR(ct1);
++	tm->tm_yday = CT2_DOY(ct2);
++
++	if (rtc_valid_tm(tm) < 0) {
++		dev_warn(dev, "retrieved date and time is invalid\n");
++		rtc_time64_to_tm(0, tm);
++		lpc24xx_rtc_set_time(dev, tm);
++	}
++
++	return 0;
++}
++
++static int lpc24xx_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *wkalrm)
++{
++	struct lpc24xx_rtc *rtc = dev_get_drvdata(dev);
++	struct rtc_time *tm = &wkalrm->time;
++
++	tm->tm_sec  = rtc_readl(rtc, LPC24XX_ALSEC);
++	tm->tm_min  = rtc_readl(rtc, LPC24XX_ALMIN);
++	tm->tm_hour = rtc_readl(rtc, LPC24XX_ALHOUR);
++	tm->tm_mday = rtc_readl(rtc, LPC24XX_ALDOM);
++	tm->tm_wday = rtc_readl(rtc, LPC24XX_ALDOW);
++	tm->tm_yday = rtc_readl(rtc, LPC24XX_ALDOY);
++	tm->tm_mon  = rtc_readl(rtc, LPC24XX_ALMON);
++	tm->tm_year = rtc_readl(rtc, LPC24XX_ALYEAR);
++
++	wkalrm->enabled = rtc_readl(rtc, LPC24XX_AMR) == 0;
++	wkalrm->pending = !!(rtc_readl(rtc, LPC24XX_ILR) & LPC24XX_RTCCIF);
++
++	return rtc_valid_tm(&wkalrm->time);
++}
++
++static int lpc24xx_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *wkalrm)
++{
++	struct lpc24xx_rtc *rtc = dev_get_drvdata(dev);
++	struct rtc_time *tm = &wkalrm->time;
++
++	/* Disable alarm IRQs during update */
++	rtc_writel(rtc, LPC24XX_AMR, LPC24XX_ALARM_DISABLE);
++
++	rtc_writel(rtc, LPC24XX_ALSEC,  tm->tm_sec);
++	rtc_writel(rtc, LPC24XX_ALMIN,  tm->tm_min);
++	rtc_writel(rtc, LPC24XX_ALHOUR, tm->tm_hour);
++	rtc_writel(rtc, LPC24XX_ALDOM,  tm->tm_mday);
++	rtc_writel(rtc, LPC24XX_ALDOW,  tm->tm_wday);
++	rtc_writel(rtc, LPC24XX_ALDOY,  tm->tm_yday);
++	rtc_writel(rtc, LPC24XX_ALMON,  tm->tm_mon);
++	rtc_writel(rtc, LPC24XX_ALYEAR, tm->tm_year);
++
++	if (wkalrm->enabled)
++		rtc_writel(rtc, LPC24XX_AMR, 0);
++
++	return 0;
++}
++
++static int lpc24xx_rtc_alarm_irq_enable(struct device *dev,
++					unsigned int enabled)
++{
++	struct lpc24xx_rtc *rtc = dev_get_drvdata(dev);
++
++	if (enabled)
++		rtc_writel(rtc, LPC24XX_AMR, 0);
++	else
++		rtc_writel(rtc, LPC24XX_AMR, LPC24XX_ALARM_DISABLE);
++
++	return 0;
++}
++
++static irqreturn_t lpc24xx_rtc_interrupt(int irq, void *dev)
++{
++	unsigned long events = RTC_IRQF;
++	struct lpc24xx_rtc *rtc = dev;
++	u32 rtc_iir;
++
++	/* Check interrupt cause */
++	rtc_iir = rtc_readl(rtc, LPC24XX_ILR);
++
++	/* 1s tick */
++	if (rtc_iir & LPC24XX_RTCCIF)
++		events |= RTC_UF;
++
++	/* Alarm */
++	if (rtc_iir & LPC24XX_RTCALF) {
++		events |= RTC_AF;
++		rtc_writel(rtc, LPC24XX_AMR, LPC24XX_ALARM_DISABLE);
++	}
++
++	/* Clear interrupt status and report event */
++	rtc_writel(rtc, LPC24XX_ILR, rtc_iir);
++	rtc_update_irq(rtc->rtc, 1, events);
++
++	return IRQ_HANDLED;
++}
++
++static const struct rtc_class_ops lpc24xx_rtc_ops = {
++	.read_time		= lpc24xx_rtc_read_time,
++	.set_time		= lpc24xx_rtc_set_time,
++	.read_alarm		= lpc24xx_rtc_read_alarm,
++	.set_alarm		= lpc24xx_rtc_set_alarm,
++	.alarm_irq_enable	= lpc24xx_rtc_alarm_irq_enable,
++};
++
++static const struct of_device_id lpc24xx_rtc_match[] = {
++	{ .compatible = "nxp,lpc1788-rtc", .data = (void *)HAVE_CALIBRATION},
++	{ }
++};
++MODULE_DEVICE_TABLE(of, lpc24xx_rtc_match);
++
++static int lpc24xx_rtc_probe(struct platform_device *pdev)
++{
++	const struct of_device_id *match;
++	struct lpc24xx_rtc *rtc;
++	struct resource *res;
++	u32 rtc_ccr = 0;
++	int irq, ret;
++
++	match = of_match_device(lpc24xx_rtc_match, &pdev->dev);
++	if (!match) {
++		dev_err(&pdev->dev, "no device match found\n");
++		return -ENODEV;
++	}
++
++	rtc = devm_kzalloc(&pdev->dev, sizeof(*rtc), GFP_KERNEL);
++	if (!rtc)
++		return -ENOMEM;
++
++	rtc->features = (u32)match->data;
++
++	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
++	rtc->rtc_base = devm_ioremap_resource(&pdev->dev, res);
++	if (IS_ERR(rtc->rtc_base))
++		return PTR_ERR(rtc->rtc_base);
++
++	irq = platform_get_irq(pdev, 0);
++	if (irq < 0) {
++		dev_warn(&pdev->dev, "can't get interrupt resource\n");
++		return irq;
++	}
++
++	rtc->clk_rtc = devm_clk_get(&pdev->dev, "rtc");
++	if (IS_ERR(rtc->clk_rtc)) {
++		dev_err(&pdev->dev, "error getting rtc clock\n");
++		return PTR_ERR(rtc->clk_rtc);
++	}
++
++	rtc->clk_reg = devm_clk_get(&pdev->dev, "reg");
++	if (IS_ERR(rtc->clk_reg)) {
++		dev_err(&pdev->dev, "error getting reg clock\n");
++		return PTR_ERR(rtc->clk_reg);
++	}
++
++	ret = clk_prepare_enable(rtc->clk_rtc);
++	if (ret) {
++		dev_err(&pdev->dev, "unable to enable rtc clock\n");
++		return ret;
++	}
++
++	ret = clk_prepare_enable(rtc->clk_reg);
++	if (ret) {
++		dev_err(&pdev->dev, "unable to enable reg clock\n");
++		goto disable_rtc_clk;
++	}
++
++	platform_set_drvdata(pdev, rtc);
++
++	/* Clear the counter increment state */
++	rtc_writel(rtc, LPC24XX_ILR, LPC24XX_RTCCIF);
++
++	if (rtc->features & HAVE_PRESCALER) {
++		/* Clock source is 32k oscillator */
++		rtc_ccr = LPC24XX_CLKSRC;
++		rtc_writel(rtc, LPC24XX_CCR, rtc_ccr);
++
++		/* Set prescaler to divide by 1 */
++		rtc_writel(rtc, LPC24XX_PREINT, 0);
++		rtc_writel(rtc, LPC24XX_PREFRAC, 0);
++	}
++
++	if (rtc->features & HAVE_SUBSECOND) {
++		/* Disable sub-second interrupt */
++		rtc_writel(rtc, LPC24XX_CISS, 0);
++	}
++
++	/* Only 1-second interrupt will generate interrupt */
++	rtc_writel(rtc, LPC24XX_CIIR, LPC24XX_IMSEC);
++
++	/* Enable RTC count */
++	rtc_writel(rtc, LPC24XX_CCR, rtc_ccr | LPC24XX_CLKEN);
++
++	ret = devm_request_irq(&pdev->dev, irq, lpc24xx_rtc_interrupt, 0,
++			       pdev->name, rtc);
++	if (ret < 0) {
++		dev_warn(&pdev->dev, "can't request interrupt\n");
++		goto disable_clks;
++	}
++
++	rtc->rtc = devm_rtc_device_register(&pdev->dev, "lpc2k-rtc",
++					    &lpc24xx_rtc_ops, THIS_MODULE);
++	if (IS_ERR(rtc->rtc)) {
++		dev_err(&pdev->dev, "can't register rtc device\n");
++		ret = PTR_ERR(rtc->rtc);
++		goto disable_clks;
++	}
++
++	return 0;
++
++disable_clks:
++	clk_disable_unprepare(rtc->clk_reg);
++disable_rtc_clk:
++	clk_disable_unprepare(rtc->clk_rtc);
++	return ret;
++}
++
++static int lpc24xx_rtc_remove(struct platform_device *pdev)
++{
++	struct lpc24xx_rtc *rtc = platform_get_drvdata(pdev);
++
++	/*
++	 * Disable alarm, but leave RTC enabled so it
++	 * remains valid across reset cycles.
++	 */
++	rtc_writel(rtc, LPC24XX_AMR, LPC24XX_ALARM_DISABLE);
++	rtc_writel(rtc, LPC24XX_CCR, 0);
++
++	clk_disable_unprepare(rtc->clk_rtc);
++	clk_disable_unprepare(rtc->clk_reg);
++
++	return 0;
++}
++
++static struct platform_driver lpc24xx_rtc_driver = {
++	.probe	= lpc24xx_rtc_probe,
++	.remove	= lpc24xx_rtc_remove,
++	.driver	= {
++		.name = "lpc2k-rtc",
++		.of_match_table	= lpc24xx_rtc_match,
++	},
++};
++module_platform_driver(lpc24xx_rtc_driver);
++
++MODULE_AUTHOR("Kevin Wells <wellsk40@gmail.com");
++MODULE_DESCRIPTION("RTC driver for the LPC24xx SoC");
++MODULE_LICENSE("GPL");
++MODULE_ALIAS("platform:lpc2k-rtc");
 -- 
-Qualcomm Innovation Center, Inc. is a member of Code Aurora Forum,
-a Linux Foundation Collaborative Project
+1.8.0
 
 -- 
 -- 
