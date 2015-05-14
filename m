@@ -1,20 +1,24 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRB77J52VAKGQEW3B4Z2A@googlegroups.com>
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id t6si30290wiz.0.2015.05.19.15.11.11
-        for <rtc-linux@googlegroups.com>;
-        Tue, 19 May 2015 15:11:11 -0700 (PDT)
-Date: Wed, 20 May 2015 00:11:09 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Jingoo Han <jg1.han@samsung.com>
-Cc: linux-kernel@vger.kernel.org, 'Alessandro Zummo' <a.zummo@towertech.it>,
-	rtc-linux@googlegroups.com,
-	'Igor Grinberg' <grinberg@compulab.co.il>
-Subject: [rtc-linux] Re: [V2] rtc: rtc-v3020: use gpio_request_array()
-Message-ID: <20150519221109.GD3338@piout.net>
-References: <008a01ce10a3$02d28db0$0877a910$%han@samsung.com>
+Return-Path: <rtc-linux+bncBDMYB2E7SQCRBLGS2OVAKGQE4RJ7XFY@googlegroups.com>
+Received: from na01-bl2-obe.outbound.protection.outlook.com (mail-bl2on0136.outbound.protection.outlook.com. [65.55.169.136])
+        by gmr-mx.google.com with ESMTPS id dq2si3916590qcb.3.2015.05.14.11.27.56
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
+        Thu, 14 May 2015 11:27:56 -0700 (PDT)
+From: <Frank.Li@freescale.com>
+To: <lznuaa@gmail.com>, <shawn.guo@linaro.org>, <dmitry.torokhov@gmail.com>,
+	<robh+dt@kernel.org>
+CC: <linux-arm-kernel@lists.infradead.org>, <linux-input@vger.kernel.org>,
+	<rtc-linux@googlegroups.com>, <linux-pm@vger.kernel.org>,
+	<devicetree@vger.kernel.org>, Frank Li <Frank.Li@freescale.com>, Robin Gong
+	<b38343@freescale.com>
+Subject: [rtc-linux] [PATCH 6/7] document: devicetree: input: imx: i.mx snvs
+ power device tree bindings
+Date: Fri, 15 May 2015 01:18:52 +0800
+Message-ID: <1431623933-3473-7-git-send-email-Frank.Li@freescale.com>
+In-Reply-To: <1431623933-3473-1-git-send-email-Frank.Li@freescale.com>
+References: <1431623933-3473-1-git-send-email-Frank.Li@freescale.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <008a01ce10a3$02d28db0$0877a910$%han@samsung.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -25,28 +29,89 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On 22/02/2013 at 11:19:15 +0900, Jingoo Han wrote :
-> Using gpio_request_array()/gpio_free_array() can make the code
-> simpler because it can set the direction and initial value
-> in one shot and the for loop is unnecessary.
-> 
-> Also, struct v3020_gpio is removed, because the struct v3020_gpio
-> is replaced with struct gpio.
-> 
-> Signed-off-by: Jingoo Han <jg1.han@samsung.com>
-> ---
-> Changes since v1:
-> - Replace gpio_request_one() with gpio_request_array()
-> 
->  drivers/rtc/rtc-v3020.c |   37 ++++++++++++-------------------------
->  1 files changed, 12 insertions(+), 25 deletions(-)
-> 
-Applied with the change suggested by Igor, thanks.
+From: Frank Li <Frank.Li@freescale.com>
 
+The snvs-pwrkey is designed to enable POWER key function which controlled
+by SNVS ONOFF. the driver can report the status of POWER key and wakeup
+system if pressed after system suspend.
+
+Signed-off-by: Frank Li <Frank.Li@freescale.com>
+Signed-off-by: Robin Gong <b38343@freescale.com>
+---
+ .../devicetree/bindings/crypto/fsl-sec4.txt        | 42 ++++++++++++++++++++++
+ .../devicetree/bindings/input/snvs-pwrkey.txt      |  1 +
+ 2 files changed, 43 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/input/snvs-pwrkey.txt
+
+diff --git a/Documentation/devicetree/bindings/crypto/fsl-sec4.txt b/Documentation/devicetree/bindings/crypto/fsl-sec4.txt
+index ca04206..99a57b7 100644
+--- a/Documentation/devicetree/bindings/crypto/fsl-sec4.txt
++++ b/Documentation/devicetree/bindings/crypto/fsl-sec4.txt
+@@ -394,6 +394,41 @@ EXAMPLE
+ };
+ 
+ =====================================================================
++System ON/OFF key driver
++
++  The snvs-pwrkey is designed to enable POWER key function which controlled
++  by SNVS ONOFF, the driver can report the status of POWER key and wakeup
++  system if pressed after system suspend.
++
++  - compatible:
++      Usage: required
++      Value type: <string>
++      Definition: Mush include "fsl,sec-v4.0-pwrkey".
++
++  - interrupts:
++      Usage: required
++      Value type: <prop_encoded-array>
++      Definition: The SNVS ON/OFF interrupt number to the CPU(s).
++
++  - linux,keycode:
++      Usage: option
++      Value type: <int>
++      Definition: Keycode to emit, KEY_POWER by default.
++
++  - wakeup:
++      Usage: option
++      Value type: <boo>
++      Definition: Button can wake-up the system
++
++EXAMPLE:
++	snvs-pwrkey@0x020cc000 {
++		compatible = "fsl,sec-v4.0-pwrkey";
++		interrupts = <0 4 0x4>
++	        linux,keycode = <116>; /* KEY_POWER */
++		wakeup;
++	};
++
++=====================================================================
+ FULL EXAMPLE
+ 
+ 	crypto: crypto@300000 {
+@@ -475,6 +510,13 @@ FULL EXAMPLE
+ 		snvs_poweroff: snvs-poweroff@38 {
+                         compatible = "fsl,sec-v4.0-poweroff";
+                 };
++
++		snvs-pwrkey@0x020cc000 {
++			compatible = "fsl,sec-v4.0-pwrkey";
++			interrupts = <0 4 0x4>;
++			linux,keycode = <116>; /* KEY_POWER */
++			wakeup;
++		};
+ 	};
+ 
+ =====================================================================
+diff --git a/Documentation/devicetree/bindings/input/snvs-pwrkey.txt b/Documentation/devicetree/bindings/input/snvs-pwrkey.txt
+new file mode 100644
+index 0000000..70c1425
+--- /dev/null
++++ b/Documentation/devicetree/bindings/input/snvs-pwrkey.txt
+@@ -0,0 +1 @@
++See Documentation/devicetree/bindings/crypto/fsl-sec4.txt
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+1.9.1
 
 -- 
 -- 
