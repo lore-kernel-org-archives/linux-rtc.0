@@ -1,32 +1,27 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBX4NXCVAKGQEAI5CCBY@googlegroups.com>
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id gt9si123051wib.2.2015.05.09.06.08.47
-        for <rtc-linux@googlegroups.com>;
-        Sat, 09 May 2015 06:08:47 -0700 (PDT)
-Date: Sat, 9 May 2015 15:08:46 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Eddie Huang <eddie.huang@mediatek.com>
-Cc: Lee Jones <lee.jones@linaro.org>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	srv_heupstream@mediatek.com, Samuel Ortiz <sameo@linux.intel.com>,
-	Matthias Brugger <matthias.bgg@gmail.com>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Greg KH <gregkh@linuxfoundation.org>,
-	"David S. Miller" <davem@davemloft.net>,
-	Mauro Carvalho Chehab <mchehab@osg.samsung.com>,
-	Joe Perches <joe@perches.com>, Tejun Heo <tj@kernel.org>,
-	linux-kernel@vger.kernel.org, rtc-linux@googlegroups.com,
-	linux-arm-kernel@lists.infradead.org,
-	linux-mediatek@lists.infradead.org,
-	Sascha Hauer <kernel@pengutronix.de>,
-	Tomasz Figa <tfiga@google.com>
-Subject: [rtc-linux] Re: [PATCH v4 0/3] Add Mediatek SoC RTC driver
-Message-ID: <20150509130846.GD3338@piout.net>
-References: <1430897022-63357-1-git-send-email-eddie.huang@mediatek.com>
+Return-Path: <rtc-linux+bncBCF2PQPV4MDRBY5Z2OVAKGQELXUL4HI@googlegroups.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1430897022-63357-1-git-send-email-eddie.huang@mediatek.com>
+Received: from mail-la0-x236.google.com (mail-la0-x236.google.com. [2a00:1450:4010:c03::236])
+        by gmr-mx.google.com with ESMTPS id su3si1706567lbb.1.2015.05.14.10.35.30
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 14 May 2015 10:35:30 -0700 (PDT)
+Received: by mail-la0-x236.google.com with SMTP id t2so77681427laa.1
+        for <rtc-linux@googlegroups.com>; Thu, 14 May 2015 10:35:30 -0700 (PDT)
+From: Joachim Eastwood <manabian@gmail.com>
+To: akpm@linux-foundation.org,
+	a.zummo@towertech.it
+Cc: Joachim Eastwood <manabian@gmail.com>,
+	wellsk40@gmail.com,
+	rtc-linux@googlegroups.com,
+	devicetree@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org
+Subject: [rtc-linux] [PATCH 2/2] doc: dt: add documentation for nxp,lpc1788-rtc
+Date: Thu, 14 May 2015 19:34:35 +0200
+Message-Id: <1431624875-20990-3-git-send-email-manabian@gmail.com>
+In-Reply-To: <1431624875-20990-1-git-send-email-manabian@gmail.com>
+References: <1431624875-20990-1-git-send-email-manabian@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -36,23 +31,41 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On 06/05/2015 at 15:23:39 +0800, Eddie Huang wrote :
-> RTC is one submodule of Mediatek MT6397 PMIC chip[1]. This series
-> support RTC driver that work with Mediatek SoC like MT8135, MT8173.
-> It implements second counter and also provide alarm function.
-> 
-> This series base on 4.1-rc1, Test ok on MT8173 platform.
-> 
-> [1] https://lkml.org/lkml/2015/1/23/325
-> 
+Signed-off-by: Joachim Eastwood <manabian@gmail.com>
+---
+ .../devicetree/bindings/rtc/nxp,lpc1788-rtc.txt     | 21 +++++++++++++++++++++
+ 1 file changed, 21 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/rtc/nxp,lpc1788-rtc.txt
 
-All applied, thanks!
-
-
+diff --git a/Documentation/devicetree/bindings/rtc/nxp,lpc1788-rtc.txt b/Documentation/devicetree/bindings/rtc/nxp,lpc1788-rtc.txt
+new file mode 100644
+index 000000000000..ad41a040432c
+--- /dev/null
++++ b/Documentation/devicetree/bindings/rtc/nxp,lpc1788-rtc.txt
+@@ -0,0 +1,21 @@
++NXP LPC1788 real-time clock
++
++The LPC1788 RTC provides calendar and clock functionality
++together with periodic tick and alarm interrupt support.
++
++Required properties:
++- compatible	: must contain "nxp,lpc1788-rtc"
++- reg		: Specifies base physical address and size of the registers.
++- interrupts	: A single interrupt specifier.
++- clocks	: Must contain entries for rtc and register clock
++- clock-names	: Must contain "rtc" and "reg"
++  See ../clocks/clock-bindings.txt for details.
++
++Example:
++rtc: rtc@40046000 {
++	compatible = "nxp,lpc1788-rtc";
++	reg = <0x40046000 0x1000>;
++	interrupts = <47>;
++	clocks = <&creg_clk 0>, <&ccu1 CLK_CPU_BUS>;
++	clock-names = "rtc", "reg";
++};
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+1.8.0
 
 -- 
 -- 
