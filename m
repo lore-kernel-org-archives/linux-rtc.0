@@ -1,38 +1,23 @@
-Return-Path: <rtc-linux+bncBDQ2L75W5QGBBYET66VAKGQEAKVP7LY@googlegroups.com>
-Received: from mezzanine.sirena.org.uk (mezzanine.sirena.org.uk. [2400:8900::f03c:91ff:fedb:4f4])
-        by gmr-mx.google.com with ESMTPS id k3si2287526pdm.0.2015.05.21.05.04.48
+Return-Path: <rtc-linux+bncBDMYB2E7SQCRBKOS2OVAKGQETB5PLKY@googlegroups.com>
+Received: from na01-bl2-obe.outbound.protection.outlook.com (mail-bl2on0144.outbound.protection.outlook.com. [65.55.169.144])
+        by gmr-mx.google.com with ESMTPS id kg1si3887303qcb.1.2015.05.14.11.27.53
         for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=RC4-SHA bits=128/128);
-        Thu, 21 May 2015 05:04:48 -0700 (PDT)
-Date: Thu, 21 May 2015 13:04:16 +0100
-From: Mark Brown <broonie@kernel.org>
-To: S Twiss <stwiss.opensource@diasemi.com>
-Cc: LINUXKERNEL <linux-kernel@vger.kernel.org>,
-	Liam Girdwood <lgirdwood@gmail.com>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	DEVICETREE <devicetree@vger.kernel.org>,
-	David Dajun Chen <david.chen@diasemi.com>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Ian Campbell <ijc+devicetree@hellion.org.uk>,
-	Kumar Gala <galak@codeaurora.org>,
-	LINUXINPUT <linux-input@vger.kernel.org>,
-	LINUXWATCHDOG <linux-watchdog@vger.kernel.org>,
-	Lee Jones <lee.jones@linaro.org>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Pawel Moll <pawel.moll@arm.com>,
-	RTCLINUX <rtc-linux@googlegroups.com>,
-	Rob Herring <robh+dt@kernel.org>,
-	Samuel Ortiz <sameo@linux.intel.com>,
-	Support Opensource <support.opensource@diasemi.com>,
-	Wim Van Sebroeck <wim@iguana.be>
-Message-ID: <20150521120416.GA21577@sirena.org.uk>
-References: <cover.1432041031.git.stwiss.opensource@diasemi.com>
- <aa98437b3c3fd6fbf89f8669edf0d426ec3338e9.1432041031.git.stwiss.opensource@diasemi.com>
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
+        Thu, 14 May 2015 11:27:53 -0700 (PDT)
+From: <Frank.Li@freescale.com>
+To: <lznuaa@gmail.com>, <shawn.guo@linaro.org>, <dmitry.torokhov@gmail.com>,
+	<robh+dt@kernel.org>
+CC: <linux-arm-kernel@lists.infradead.org>, <linux-input@vger.kernel.org>,
+	<rtc-linux@googlegroups.com>, <linux-pm@vger.kernel.org>,
+	<devicetree@vger.kernel.org>, Robin Gong <b38343@freescale.com>, Frank Li
+	<Frank.Li@freescale.com>
+Subject: [rtc-linux] [PATCH 5/7] input: keyboard: imx: add snvs power key driver
+Date: Fri, 15 May 2015 01:18:51 +0800
+Message-ID: <1431623933-3473-6-git-send-email-Frank.Li@freescale.com>
+In-Reply-To: <1431623933-3473-1-git-send-email-Frank.Li@freescale.com>
+References: <1431623933-3473-1-git-send-email-Frank.Li@freescale.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="W/IQTGW+1SjCkQmn"
-In-Reply-To: <aa98437b3c3fd6fbf89f8669edf0d426ec3338e9.1432041031.git.stwiss.opensource@diasemi.com>
-Subject: [rtc-linux] Re: [PATCH V3 2/4] regulator: da9062: DA9062 regulator driver
+Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -43,16 +28,301 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
---W/IQTGW+1SjCkQmn
-Content-Type: text/plain; charset=UTF-8
-Content-Disposition: inline
+From: Robin Gong <b38343@freescale.com>
 
-On Tue, May 19, 2015 at 02:10:30PM +0100, S Twiss wrote:
-> From: S Twiss <stwiss.opensource@diasemi.com>
-> 
-> Add BUCK and LDO regulator driver support for DA9062
+add snvs power key driver.
+It work in imx chips after i.mx6sx
 
-Applied, thanks.
+ON/OFF key used power on/off whole system.
+This driver make it wakeup from suspend state when short press
+ON/OFF key.
+
+Long time press will trig SNVS power off chip without software
+intervention.
+
+Signed-off-by: Robin Gong <b38343@freescale.com>
+Signed-off-by: Frank Li <Frank.Li@freescale.com>
+---
+ drivers/input/keyboard/Kconfig       |  11 ++
+ drivers/input/keyboard/Makefile      |   1 +
+ drivers/input/keyboard/snvs_pwrkey.c | 232 +++++++++++++++++++++++++++++++++++
+ 3 files changed, 244 insertions(+)
+ create mode 100644 drivers/input/keyboard/snvs_pwrkey.c
+
+diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
+index 106fbac..61b3fab 100644
+--- a/drivers/input/keyboard/Kconfig
++++ b/drivers/input/keyboard/Kconfig
+@@ -400,6 +400,17 @@ config KEYBOARD_MPR121
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called mpr121_touchkey.
+ 
++config KEYBOARD_SNVS_PWRKEY
++	tristate "IMX SNVS Power Key Driver"
++	depends on SOC_IMX6SX
++	depends on OF
++	help
++	  This is the snvs powerkey driver for the Freescale i.MX application
++	  processors that are newer than i.MX6 SX.
++
++	  To compile this driver as a module, choose M here; the
++	  module will be called snvs_pwrkey.
++
+ config KEYBOARD_IMX
+ 	tristate "IMX keypad support"
+ 	depends on ARCH_MXC
+diff --git a/drivers/input/keyboard/Makefile b/drivers/input/keyboard/Makefile
+index df28d55..1d416dd 100644
+--- a/drivers/input/keyboard/Makefile
++++ b/drivers/input/keyboard/Makefile
+@@ -51,6 +51,7 @@ obj-$(CONFIG_KEYBOARD_QT1070)           += qt1070.o
+ obj-$(CONFIG_KEYBOARD_QT2160)		+= qt2160.o
+ obj-$(CONFIG_KEYBOARD_SAMSUNG)		+= samsung-keypad.o
+ obj-$(CONFIG_KEYBOARD_SH_KEYSC)		+= sh_keysc.o
++obj-$(CONFIG_KEYBOARD_SNVS_PWRKEY)	+= snvs_pwrkey.o
+ obj-$(CONFIG_KEYBOARD_SPEAR)		+= spear-keyboard.o
+ obj-$(CONFIG_KEYBOARD_STMPE)		+= stmpe-keypad.o
+ obj-$(CONFIG_KEYBOARD_STOWAWAY)		+= stowaway.o
+diff --git a/drivers/input/keyboard/snvs_pwrkey.c b/drivers/input/keyboard/snvs_pwrkey.c
+new file mode 100644
+index 0000000..98c340e
+--- /dev/null
++++ b/drivers/input/keyboard/snvs_pwrkey.c
+@@ -0,0 +1,232 @@
++/*
++ * Driver for the IMX SNVS ON/OFF Power Key
++ * Copyright (C) 2015 Freescale Semiconductor, Inc. All Rights Reserved.
++ *
++ * The code contained herein is licensed under the GNU General Public
++ * License. You may obtain a copy of the GNU General Public License
++ * Version 2 or later at the following locations:
++ *
++ * http://www.opensource.org/licenses/gpl-license.html
++ * http://www.gnu.org/copyleft/gpl.html
++ */
++
++#include <linux/device.h>
++#include <linux/err.h>
++#include <linux/init.h>
++#include <linux/input.h>
++#include <linux/interrupt.h>
++#include <linux/io.h>
++#include <linux/jiffies.h>
++#include <linux/kernel.h>
++#include <linux/module.h>
++#include <linux/of.h>
++#include <linux/of_address.h>
++#include <linux/platform_device.h>
++#include <linux/mfd/syscon.h>
++#include <linux/regmap.h>
++
++#define SNVS_LPSR_REG	0x4C	/* LP Status Register */
++#define SNVS_LPCR_REG	0x38	/* LP Control Register */
++#define SNVS_HPSR_REG	0x14
++#define SNVS_HPSR_BTN	BIT(6)
++#define SNVS_LPSR_SPO	BIT(18)
++#define SNVS_LPCR_DEP_EN BIT(5)
++
++#define DEBOUNCE_TIME 30
++#define REPEAT_INTERVAL 60
++
++struct pwrkey_drv_data {
++	struct regmap *snvs;
++	int irq;
++	int keycode;
++	int keystate;  /* 1:pressed */
++	int wakeup;
++	struct timer_list check_timer;
++	struct input_dev *input;
++};
++
++static void imx_imx_snvs_check_for_events(unsigned long data)
++{
++	struct pwrkey_drv_data *pdata = (struct pwrkey_drv_data *) data;
++	struct input_dev *input = pdata->input;
++	u32 state;
++
++	regmap_read(pdata->snvs, SNVS_HPSR_REG, &state);
++	state = state & SNVS_HPSR_BTN ? 1 : 0;
++
++	/* only report new event if status changed */
++	if (state ^ pdata->keystate) {
++		pdata->keystate = state;
++		input_event(input, EV_KEY, pdata->keycode, state);
++		input_sync(input);
++		pm_relax(pdata->input->dev.parent);
++	}
++
++	/* repeat check if pressed long */
++	if (state) {
++		mod_timer(&pdata->check_timer,
++			  jiffies + msecs_to_jiffies(REPEAT_INTERVAL));
++	}
++}
++
++static irqreturn_t imx_snvs_pwrkey_interrupt(int irq, void *dev_id)
++{
++	struct platform_device *pdev = dev_id;
++	struct pwrkey_drv_data *pdata = platform_get_drvdata(pdev);
++	u32 lp_status;
++
++	pm_wakeup_event(pdata->input->dev.parent, 0);
++
++	regmap_read(pdata->snvs, SNVS_LPSR_REG, &lp_status);
++	if (lp_status & SNVS_LPSR_SPO)
++		mod_timer(&pdata->check_timer, jiffies + msecs_to_jiffies(DEBOUNCE_TIME));
++
++	/* clear SPO status */
++	regmap_write(pdata->snvs, SNVS_LPSR_REG, SNVS_LPSR_SPO);
++
++	return IRQ_HANDLED;
++}
++
++static void imx_snvs_pwrkey_act(void *pdata)
++{
++	struct pwrkey_drv_data *pd = pdata;
++
++	del_timer_sync(&pd->check_timer);
++}
++
++static int imx_snvs_pwrkey_probe(struct platform_device *pdev)
++{
++	struct pwrkey_drv_data *pdata = NULL;
++	struct input_dev *input = NULL;
++	struct device_node *np, *snvs_np;
++	int error;
++
++	/* Get SNVS register Page */
++	np = pdev->dev.of_node;
++	if (!np)
++		return -ENODEV;
++
++	pdata = devm_kzalloc(&pdev->dev, sizeof(*pdata), GFP_KERNEL);
++	if (!pdata)
++		return -ENOMEM;
++
++	snvs_np = of_get_parent(pdev->dev.of_node);
++	if (!snvs_np)
++		return -ENODEV;
++
++	pdata->snvs = syscon_node_to_regmap(snvs_np);
++	of_node_put(snvs_np);
++
++	if (!pdata->snvs) {
++		pr_err("Can't get snvs syscon\n");
++		return -ENODEV;
++	}
++
++	if (of_property_read_u32(np, "linux,keycode", &pdata->keycode)) {
++		pdata->keycode = KEY_POWER;
++		dev_warn(&pdev->dev, "KEY_POWER without setting in dts\n");
++	}
++
++	pdata->wakeup = of_property_read_bool(np, "wakeup");
++
++	pdata->irq = platform_get_irq(pdev, 0);
++	if (pdata->irq < 0) {
++		dev_err(&pdev->dev, "no irq defined in platform data\n");
++		return -EINVAL;
++	}
++
++	regmap_update_bits(pdata->snvs, SNVS_LPCR_REG, SNVS_LPCR_DEP_EN, SNVS_LPCR_DEP_EN);
++
++	/* clear the unexpected interrupt before driver ready */
++	regmap_write(pdata->snvs, SNVS_LPSR_REG, SNVS_LPSR_SPO);
++
++	setup_timer(&pdata->check_timer,
++		    imx_imx_snvs_check_for_events, (unsigned long) pdata);
++
++	input = devm_input_allocate_device(&pdev->dev);
++	if (!input) {
++		dev_err(&pdev->dev, "failed to allocate the input device\n");
++		return -ENOMEM;
++	}
++
++	input->name = pdev->name;
++	input->phys = "snvs-pwrkey/input0";
++	input->id.bustype = BUS_HOST;
++
++	input_set_capability(input, EV_KEY, pdata->keycode);
++
++	/* input customer action to cancel release timer */
++	error = devm_add_action(&pdev->dev, imx_snvs_pwrkey_act, pdata);
++	if (error) {
++		dev_err(&pdev->dev, "failed to register remove action\n");
++		return error;
++	}
++
++	error = devm_request_irq(&pdev->dev, pdata->irq,
++			       imx_snvs_pwrkey_interrupt,
++			       0, pdev->name, pdev);
++
++	if (error) {
++		dev_err(&pdev->dev, "interrupt not available.\n");
++		return error;
++	}
++
++	error = input_register_device(input);
++	if (error < 0) {
++		dev_err(&pdev->dev, "failed to register input device\n");
++		input_free_device(input);
++		return error;
++	}
++
++	pdata->input = input;
++	platform_set_drvdata(pdev, pdata);
++
++	device_init_wakeup(&pdev->dev, pdata->wakeup);
++
++	return 0;
++}
++
++static int imx_snvs_pwrkey_suspend(struct device *dev)
++{
++	struct platform_device *pdev = to_platform_device(dev);
++	struct pwrkey_drv_data *pdata = platform_get_drvdata(pdev);
++
++	if (device_may_wakeup(&pdev->dev))
++		enable_irq_wake(pdata->irq);
++
++	return 0;
++}
++
++static int imx_snvs_pwrkey_resume(struct device *dev)
++{
++	struct platform_device *pdev = to_platform_device(dev);
++	struct pwrkey_drv_data *pdata = platform_get_drvdata(pdev);
++
++	if (device_may_wakeup(&pdev->dev))
++		disable_irq_wake(pdata->irq);
++
++	return 0;
++}
++
++static const struct of_device_id imx_snvs_pwrkey_ids[] = {
++	{ .compatible = "fsl,sec-v4.0-pwrkey" },
++	{ /* sentinel */ }
++};
++MODULE_DEVICE_TABLE(of, imx_snvs_pwrkey_ids);
++
++static SIMPLE_DEV_PM_OPS(imx_snvs_pwrkey_pm_ops, imx_snvs_pwrkey_suspend,
++				imx_snvs_pwrkey_resume);
++
++static struct platform_driver imx_snvs_pwrkey_driver = {
++	.driver = {
++		.name = "snvs_pwrkey",
++		.pm     = &imx_snvs_pwrkey_pm_ops,
++		.of_match_table = imx_snvs_pwrkey_ids,
++	},
++	.probe = imx_snvs_pwrkey_probe,
++};
++module_platform_driver(imx_snvs_pwrkey_driver);
++
++MODULE_AUTHOR("Freescale Semiconductor");
++MODULE_DESCRIPTION("i.MX snvs power key Driver");
++MODULE_LICENSE("GPL");
+-- 
+1.9.1
 
 -- 
 -- 
@@ -64,21 +334,3 @@ before submitting a driver.
 You received this message because you are subscribed to the Google Groups "rtc-linux" group.
 To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
-
---W/IQTGW+1SjCkQmn
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
-
-iQEcBAEBCAAGBQJVXcnAAAoJECTWi3JdVIfQbmkIAIIh3K5bMmDdKNqEl3tqi8y5
-uGziAK2MebtJg6jxptidpFVWiYFx/o9H55rN308TeztT9+q4Z8rHo56SGSXldK9f
-uV2crtW1f7Ooa1qmHrlAjXHy7TIiOUcKsqPpE1Wn+GpX43dL3ZOvVzFhaSzXYg/m
-LMAvsfMR/w+2/z0zNgd02ukN+ltbm7ToVWo+BydOK1JAY5mUe3POf638AssaSUwg
-yR/GaHi/crHJpB+oXCN+jJ6UCD+BY1XHww4uvnwze1iTA9MonOG4jLTBEwP+3wHU
-nrGNPqKmFgXawdFjRl2+KylW9lrNbhtVEgxqxsaWkwNyHYxaF+vpw1adwMnS5kg=
-=AB6u
------END PGP SIGNATURE-----
-
---W/IQTGW+1SjCkQmn--
