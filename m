@@ -1,23 +1,23 @@
-Return-Path: <rtc-linux+bncBDMYB2E7SQCRBJWS2OVAKGQEWZQJ7DQ@googlegroups.com>
-Received: from na01-bn1-obe.outbound.protection.outlook.com (mail-bn1on0143.outbound.protection.outlook.com. [157.56.110.143])
-        by gmr-mx.google.com with ESMTPS id xz5si2672726pac.1.2015.05.14.11.27.49
+Return-Path: <rtc-linux+bncBDS4VBOTRMFRBS6O2OVAKGQEMYTL4LY@googlegroups.com>
+Received: from ni.com (skprod3.natinst.com. [130.164.80.24])
+        by gmr-mx.google.com with ESMTPS id lr7si847477igb.2.2015.05.14.11.19.54
         for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
-        Thu, 14 May 2015 11:27:50 -0700 (PDT)
-From: <Frank.Li@freescale.com>
-To: <lznuaa@gmail.com>, <shawn.guo@linaro.org>, <dmitry.torokhov@gmail.com>,
-	<robh+dt@kernel.org>
-CC: <linux-arm-kernel@lists.infradead.org>, <linux-input@vger.kernel.org>,
-	<rtc-linux@googlegroups.com>, <linux-pm@vger.kernel.org>,
-	<devicetree@vger.kernel.org>, Frank Li <Frank.Li@freescale.com>
-Subject: [rtc-linux] [PATCH 4/7] arm: dts: imx: update snvs to use syscon
- access register
-Date: Fri, 15 May 2015 01:18:50 +0800
-Message-ID: <1431623933-3473-5-git-send-email-Frank.Li@freescale.com>
-In-Reply-To: <1431623933-3473-1-git-send-email-Frank.Li@freescale.com>
-References: <1431623933-3473-1-git-send-email-Frank.Li@freescale.com>
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 14 May 2015 11:19:55 -0700 (PDT)
+Date: Thu, 14 May 2015 13:19:53 -0500
+From: Josh Cartwright <joshc@ni.com>
+To: Joachim Eastwood <manabian@gmail.com>
+Cc: akpm@linux-foundation.org, a.zummo@towertech.it,
+        devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        rtc-linux@googlegroups.com, wellsk40@gmail.com
+Subject: [rtc-linux] Re: [PATCH 1/2] rtc: add rtc-lpc24xx driver
+Message-ID: <20150514181953.GC23600@jcartwri.amer.corp.natinst.com>
+References: <1431624875-20990-1-git-send-email-manabian@gmail.com>
+ <1431624875-20990-2-git-send-email-manabian@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1431624875-20990-2-git-send-email-manabian@gmail.com>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="jousvV0MzM2p6OtC"
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -28,131 +28,62 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-From: Frank Li <Frank.Li@freescale.com>
+--jousvV0MzM2p6OtC
+Content-Type: text/plain; charset=UTF-8
+Content-Disposition: inline
 
-snvs is MFP device. Change dts to use syscon to allocate register resource.
+Hello Joachim,
 
-Signed-off-by: Frank Li <Frank.Li@freescale.com>
----
- arch/arm/boot/dts/imx6qdl.dtsi | 12 ++++--------
- arch/arm/boot/dts/imx6sl.dtsi  | 12 ++++--------
- arch/arm/boot/dts/imx6sx.dtsi  | 12 ++++--------
- arch/arm/boot/dts/vfxxx.dtsi   |  9 +++------
- 4 files changed, 15 insertions(+), 30 deletions(-)
+Just a quick comment/question below.
 
-diff --git a/arch/arm/boot/dts/imx6qdl.dtsi b/arch/arm/boot/dts/imx6qdl.dtsi
-index 0482a66..6d8161d 100644
---- a/arch/arm/boot/dts/imx6qdl.dtsi
-+++ b/arch/arm/boot/dts/imx6qdl.dtsi
-@@ -687,21 +687,17 @@
- 			};
- 
- 			snvs@020cc000 {
--				compatible = "fsl,sec-v4.0-mon", "simple-bus";
--				#address-cells = <1>;
--				#size-cells = <1>;
--				ranges = <0 0x020cc000 0x4000>;
-+				compatible = "fsl,sec-v4.0-mon", "syscon",  "simple-bus";
-+				reg = <0x020cc000 0x4000>;
- 
--				snvs_rtc: snvs-rtc-lp@34 {
-+				snvs_rtc: snvs-rtc-lp {
- 					compatible = "fsl,sec-v4.0-mon-rtc-lp";
--					reg = <0x34 0x58>;
- 					interrupts = <0 19 IRQ_TYPE_LEVEL_HIGH>,
- 						     <0 20 IRQ_TYPE_LEVEL_HIGH>;
- 				};
- 
--				snvs_poweroff: snvs-poweroff@38 {
-+				snvs_poweroff: snvs-poweroff {
- 					compatible = "fsl,sec-v4.0-poweroff";
--					reg = <0x38 0x4>;
- 					status = "disabled";
- 				};
- 			};
-diff --git a/arch/arm/boot/dts/imx6sl.dtsi b/arch/arm/boot/dts/imx6sl.dtsi
-index a78e715..2ec9021 100644
---- a/arch/arm/boot/dts/imx6sl.dtsi
-+++ b/arch/arm/boot/dts/imx6sl.dtsi
-@@ -564,21 +564,17 @@
- 			};
- 
- 			snvs@020cc000 {
--				compatible = "fsl,sec-v4.0-mon", "simple-bus";
--				#address-cells = <1>;
--				#size-cells = <1>;
--				ranges = <0 0x020cc000 0x4000>;
-+				compatible = "fsl,sec-v4.0-mon", "syscon", "simple-bus";
-+				reg = <0x020cc000 0x4000>;
- 
--				snvs_rtc: snvs-rtc-lp@34 {
-+				snvs_rtc: snvs-rtc-lp {
- 					compatible = "fsl,sec-v4.0-mon-rtc-lp";
--					reg = <0x34 0x58>;
- 					interrupts = <0 19 IRQ_TYPE_LEVEL_HIGH>,
- 						     <0 20 IRQ_TYPE_LEVEL_HIGH>;
- 				};
- 
--				snvs_poweroff: snvs-poweroff@38 {
-+				snvs_poweroff: snvs-poweroff {
- 					compatible = "fsl,sec-v4.0-poweroff";
--					reg = <0x38 0x4>;
- 					status = "disabled";
- 				};
- 			};
-diff --git a/arch/arm/boot/dts/imx6sx.dtsi b/arch/arm/boot/dts/imx6sx.dtsi
-index 708175d..7bc5b20 100644
---- a/arch/arm/boot/dts/imx6sx.dtsi
-+++ b/arch/arm/boot/dts/imx6sx.dtsi
-@@ -662,20 +662,16 @@
- 			};
- 
- 			snvs: snvs@020cc000 {
--				compatible = "fsl,sec-v4.0-mon", "simple-bus";
--				#address-cells = <1>;
--				#size-cells = <1>;
--				ranges = <0 0x020cc000 0x4000>;
-+				compatible = "fsl,sec-v4.0-mon", "syscon", "simple-bus";
-+				reg = <0x020cc000 0x4000>;
- 
--				snvs_rtc: snvs-rtc-lp@34 {
-+				snvs_rtc: snvs-rtc-lp {
- 					compatible = "fsl,sec-v4.0-mon-rtc-lp";
--					reg = <0x34 0x58>;
- 					interrupts = <GIC_SPI 19 IRQ_TYPE_LEVEL_HIGH>, <GIC_SPI 20 IRQ_TYPE_LEVEL_HIGH>;
- 				};
- 
--				snvs_poweroff: snvs-poweroff@38 {
-+				snvs_poweroff: snvs-poweroff {
- 					compatible = "fsl,sec-v4.0-poweroff";
--					reg = <0x38 0x4>;
- 					status = "disabled";
- 				};
- 			};
-diff --git a/arch/arm/boot/dts/vfxxx.dtsi b/arch/arm/boot/dts/vfxxx.dtsi
-index 4aa3351..e038378 100644
---- a/arch/arm/boot/dts/vfxxx.dtsi
-+++ b/arch/arm/boot/dts/vfxxx.dtsi
-@@ -404,14 +404,11 @@
- 			};
- 
- 			snvs0: snvs@400a7000 {
--			    compatible = "fsl,sec-v4.0-mon", "simple-bus";
--				#address-cells = <1>;
--				#size-cells = <1>;
--				ranges = <0 0x400a7000 0x2000>;
-+			    compatible = "fsl,sec-v4.0-mon", "syscon", "simple-bus";
-+				reg = <0x400a7000 0x2000>;
- 
--				snvsrtc: snvs-rtc-lp@34 {
-+				snvsrtc: snvs-rtc-lp {
- 					compatible = "fsl,sec-v4.0-mon-rtc-lp";
--					reg = <0x34 0x58>;
- 					interrupts = <100 IRQ_TYPE_LEVEL_HIGH>;
- 					clocks = <&clks VF610_CLK_SNVS>;
- 					clock-names = "snvs-rtc";
--- 
-1.9.1
+On Thu, May 14, 2015 at 07:34:34PM +0200, Joachim Eastwood wrote:
+> Add driver for the RTC found on NXP LPC24xx/178x/18xx/43xx devices.
+> The RTC provides calendar and clock functionality together with
+> periodic tick and alarm interrupt support.
+> 
+> Signed-off-by: Joachim Eastwood <manabian@gmail.com>
+> ---
+[..]
+> +
+> +static const struct of_device_id lpc24xx_rtc_match[] = {
+> +	{ .compatible = "nxp,lpc1788-rtc", .data = (void *)HAVE_CALIBRATION},
+> +	{ }
+> +};
+> +MODULE_DEVICE_TABLE(of, lpc24xx_rtc_match);
+> +
+> +static int lpc24xx_rtc_probe(struct platform_device *pdev)
+> +{
+> +	const struct of_device_id *match;
+> +	struct lpc24xx_rtc *rtc;
+> +	struct resource *res;
+> +	u32 rtc_ccr = 0;
+> +	int irq, ret;
+> +
+[..]
+> +
+> +	/* Clear the counter increment state */
+> +	rtc_writel(rtc, LPC24XX_ILR, LPC24XX_RTCCIF);
+> +
+> +	if (rtc->features & HAVE_PRESCALER) {
+> +		/* Clock source is 32k oscillator */
+> +		rtc_ccr = LPC24XX_CLKSRC;
+> +		rtc_writel(rtc, LPC24XX_CCR, rtc_ccr);
+> +
+> +		/* Set prescaler to divide by 1 */
+> +		rtc_writel(rtc, LPC24XX_PREINT, 0);
+> +		rtc_writel(rtc, LPC24XX_PREFRAC, 0);
+> +	}
+> +
+> +	if (rtc->features & HAVE_SUBSECOND) {
+> +		/* Disable sub-second interrupt */
+> +		rtc_writel(rtc, LPC24XX_CISS, 0);
+> +	}
+
+Neither HAVE_PRESCALER, nor HAVE_SUBSECOND are used for the claimed
+supported RTC, so this is effectively dead code.  Was this something you
+intended to add later?  Some remnant of the rework?
+
+  Josh
 
 -- 
 -- 
@@ -164,3 +95,20 @@ before submitting a driver.
 You received this message because you are subscribed to the Google Groups "rtc-linux" group.
 To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
+
+--jousvV0MzM2p6OtC
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQEcBAABCAAGBQJVVOdFAAoJEKp7ZBKwQFAreFoH/jEMVQAGY8PFXDOX1/TanMBo
++mTUBJueULKs1jbFi7TBvHzJOnOOYDIWU4DyFBOXt2yAZWGkEXj/+cnpUd0Xr0P2
+pVaeVkmDr6EtDFMr1CrmgKs3nqQD8xqTj6osG3Q47GTYvB0jhgYig60NiEOcAiW6
+YId1wgCVoACwRC2yBjd1IKikK2Fsgy7A/PJYySkGB2AWAW8YJXlNnWFkNLuib2K9
+LDprDqBpX+xt8K9tB2ZKUFN7ZqihiIclGIAUwG34Dyo6kCR/DFjkhkhzw/uWFlJo
+u+3idreaWNXMCdGS02KeaqkgwEYWY2+mwBIJcQ+VI98Lov9S6slepV9arwipdvM=
+=D+hp
+-----END PGP SIGNATURE-----
+
+--jousvV0MzM2p6OtC--
