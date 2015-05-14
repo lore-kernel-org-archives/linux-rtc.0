@@ -1,27 +1,25 @@
-Return-Path: <rtc-linux+bncBCHOPY7NVYCRBIFLTSVQKGQERBVPR7Y@googlegroups.com>
-Received: from mail-oi0-x234.google.com (mail-oi0-x234.google.com. [2607:f8b0:4003:c06::234])
-        by gmr-mx.google.com with ESMTPS id x12si1387054igx.1.2015.05.28.06.18.24
+Return-Path: <rtc-linux+bncBCF2PQPV4MDRB56V2OVAKGQEYUBE35Y@googlegroups.com>
+Received: from mail-la0-x22c.google.com (mail-la0-x22c.google.com. [2a00:1450:4010:c03::22c])
+        by gmr-mx.google.com with ESMTPS id su3si1715028lbb.1.2015.05.14.11.35.35
         for <rtc-linux@googlegroups.com>
         (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 28 May 2015 06:18:24 -0700 (PDT)
-Received: by mail-oi0-x234.google.com with SMTP id w2so31798136oiw.0
-        for <rtc-linux@googlegroups.com>; Thu, 28 May 2015 06:18:24 -0700 (PDT)
+        Thu, 14 May 2015 11:35:35 -0700 (PDT)
+Received: by mail-la0-x22c.google.com with SMTP id v1so80387935lag.3
+        for <rtc-linux@googlegroups.com>; Thu, 14 May 2015 11:35:35 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <20150528121353.GP2185@piout.net>
-References: <1432657562-5592-1-git-send-email-Frank.Li@freescale.com>
-	<20150527121052.GH16165@dragon>
-	<20150528121353.GP2185@piout.net>
-Date: Thu, 28 May 2015 08:18:24 -0500
-Message-ID: <CAHrpEqShyPKeKYdVZ05_qsbx0cC387a2QPCdbhR5C968n=ED0A@mail.gmail.com>
-Subject: [rtc-linux] Re: [PATCH v5 0/6] Change snvs rtc and poweroff to use
- syscon add pwrkey driver
-From: Zhi Li <lznuaa@gmail.com>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Shawn Guo <shawn.guo@linaro.org>, "Frank.Li@freescale.com" <Frank.Li@freescale.com>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>,
-	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, linux-input@vger.kernel.org,
-	rtc-linux@googlegroups.com,
-	"devicetree@vger.kernel.org" <devicetree@vger.kernel.org>
+In-Reply-To: <20150514181953.GC23600@jcartwri.amer.corp.natinst.com>
+References: <1431624875-20990-1-git-send-email-manabian@gmail.com>
+	<1431624875-20990-2-git-send-email-manabian@gmail.com>
+	<20150514181953.GC23600@jcartwri.amer.corp.natinst.com>
+Date: Thu, 14 May 2015 20:35:35 +0200
+Message-ID: <CAGhQ9Vxsgka_qWCN053JoT_PrbSrjsMzE7X0enTxJdmRvaJg=Q@mail.gmail.com>
+Subject: [rtc-linux] Re: [PATCH 1/2] rtc: add rtc-lpc24xx driver
+From: Joachim  Eastwood <manabian@gmail.com>
+To: Josh Cartwright <joshc@ni.com>
+Cc: akpm@linux-foundation.org, a.zummo@towertech.it,
+	devicetree@vger.kernel.org,
+	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, rtc-linux@googlegroups.com,
+	wellsk40@gmail.com
 Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
@@ -33,55 +31,74 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On Thu, May 28, 2015 at 7:13 AM, Alexandre Belloni
-<alexandre.belloni@free-electrons.com> wrote:
-> On 27/05/2015 at 20:10:53 +0800, Shawn Guo wrote :
->> On Wed, May 27, 2015 at 12:25:56AM +0800, Frank.Li@freescale.com wrote:
->> > Frank Li (5):
->> >   rtc: arm: imx: snvs: change use syscon to access register
->> >   Document: dt: fsl: snvs: change support syscon
->> >   ARM: dts: imx: update snvs to use syscon access register
->> >   Document: devicetree: input: imx: i.mx snvs power device tree bindin=
-gs
->> >   ARM: dts: imx6sx: enable snvs power key
->> >
->> > Robin Gong (1):
->> >   input: keyboard: imx: add snvs power key driver
+On 14 May 2015 at 20:19, Josh Cartwright <joshc@ni.com> wrote:
+> Hello Joachim,
+>
+> Just a quick comment/question below.
+>
+> On Thu, May 14, 2015 at 07:34:34PM +0200, Joachim Eastwood wrote:
+>> Add driver for the RTC found on NXP LPC24xx/178x/18xx/43xx devices.
+>> The RTC provides calendar and clock functionality together with
+>> periodic tick and alarm interrupt support.
 >>
->> The series looks fine to me now.  But I can only apply those two dts
->> patches after the driver and binding parts get landed on mainline.
->> Hopefully, you can get them in during the coming merge window through
->> subsystem trees, so that I can pick up dts part after v4.2-rc1 comes
->> out.
->>
+>> Signed-off-by: Joachim Eastwood <manabian@gmail.com>
+>> ---
+> [..]
+>> +
+>> +static const struct of_device_id lpc24xx_rtc_match[] = {
+>> +     { .compatible = "nxp,lpc1788-rtc", .data = (void *)HAVE_CALIBRATION},
+>> +     { }
+>> +};
+>> +MODULE_DEVICE_TABLE(of, lpc24xx_rtc_match);
+>> +
+>> +static int lpc24xx_rtc_probe(struct platform_device *pdev)
+>> +{
+>> +     const struct of_device_id *match;
+>> +     struct lpc24xx_rtc *rtc;
+>> +     struct resource *res;
+>> +     u32 rtc_ccr = 0;
+>> +     int irq, ret;
+>> +
+> [..]
+>> +
+>> +     /* Clear the counter increment state */
+>> +     rtc_writel(rtc, LPC24XX_ILR, LPC24XX_RTCCIF);
+>> +
+>> +     if (rtc->features & HAVE_PRESCALER) {
+>> +             /* Clock source is 32k oscillator */
+>> +             rtc_ccr = LPC24XX_CLKSRC;
+>> +             rtc_writel(rtc, LPC24XX_CCR, rtc_ccr);
+>> +
+>> +             /* Set prescaler to divide by 1 */
+>> +             rtc_writel(rtc, LPC24XX_PREINT, 0);
+>> +             rtc_writel(rtc, LPC24XX_PREFRAC, 0);
+>> +     }
+>> +
+>> +     if (rtc->features & HAVE_SUBSECOND) {
+>> +             /* Disable sub-second interrupt */
+>> +             rtc_writel(rtc, LPC24XX_CISS, 0);
+>> +     }
 >
-> Actually, I was thinking you could take the whole series in your tree
-> (at least, I'm speaking for the RTC part).
-> Else, I'm wondering who should take the documentation changes.
->
+> Neither HAVE_PRESCALER, nor HAVE_SUBSECOND are used for the claimed
+> supported RTC, so this is effectively dead code.  Was this something you
+> intended to add later?  Some remnant of the rework?
 
-Dmitry Torokhov:
+The features are only available on the old LPC24xx-series which isn't
+in mainline so, yeah, this can be removed. I'll send out a new version
+in a couple of days removing all of the LPC24xx support.
 
-what's your opinion about input part=EF=BC=9F
+Thanks for looking.
 
-best regards
-Frank Li
+regards,
+Joachim Eastwood
 
->
-> --
-> Alexandre Belloni, Free Electrons
-> Embedded Linux, Kernel and Android engineering
-> http://free-electrons.com
-
---=20
---=20
+-- 
+-- 
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
----=20
-You received this message because you are subscribed to the Google Groups "=
-rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an e=
-mail to rtc-linux+unsubscribe@googlegroups.com.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
