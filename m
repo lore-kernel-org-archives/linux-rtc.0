@@ -1,83 +1,129 @@
-Return-Path: <robert.jarzmik@free.fr>
-From: Robert Jarzmik <robert.jarzmik@free.fr>
-To: Rob Herring <robh@kernel.org>
-Cc: Russell King - ARM Linux <linux@arm.linux.org.uk>,  Alexandre Belloni <alexandre.belloni@free-electrons.com>,  Eric Miao <eric.y.miao@gmail.com>,  Haojian Zhuang <haojian.zhuang@gmail.com>,  Alessandro Zummo <a.zummo@towertech.it>,  rtc-linux@googlegroups.com,  Arnd Bergmann <arnd@arndb.de>,  "linux-arm-kernel\@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>,  Daniel Mack <daniel@zonque.org>
-Subject: Re: [PATCH v3 1/4] ARM: pxa: add memory resource to RTC device
-References: <1431384089-28367-1-git-send-email-robh@kernel.org>
-	<1431384089-28367-2-git-send-email-robh@kernel.org>
-	<20150511224934.GL2067@n2100.arm.linux.org.uk>
-	<CAL_Jsq+tNStipTDRH05XRHVDz30B8w92YTD1ZKUTrCp-Lj7=1w@mail.gmail.com>
-	<87lhgumi4b.fsf@belgarion.home>
-Date: Tue, 12 May 2015 22:24:49 +0200
-In-Reply-To: <87lhgumi4b.fsf@belgarion.home> (Robert Jarzmik's message of
-	"Tue, 12 May 2015 08:20:52 +0200")
-Message-ID: <878uctmtm6.fsf@belgarion.home>
+Return-Path: <rtc-linux+bncBCKMZDW5VIHBB75J3GVAKGQEJV33NBY@googlegroups.com>
+Received: from bh-25.webhostbox.net (bh-25.webhostbox.net. [208.91.199.152])
+        by gmr-mx.google.com with ESMTPS id x1si253467igb.2.2015.05.15.13.20.14
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1 cipher=RC4-SHA bits=128/128);
+        Fri, 15 May 2015 13:20:14 -0700 (PDT)
+Date: Fri, 15 May 2015 13:20:05 -0700
+From: Guenter Roeck <linux@roeck-us.net>
+To: "Opensource [Steve Twiss]" <stwiss.opensource@diasemi.com>
+Cc: LINUXKERNEL <linux-kernel@vger.kernel.org>,
+	LINUXWATCHDOG <linux-watchdog@vger.kernel.org>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	DEVICETREE <devicetree@vger.kernel.org>,
+	David Dajun Chen <david.chen@diasemi.com>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Ian Campbell <ijc+devicetree@hellion.org.uk>,
+	Kumar Gala <galak@codeaurora.org>,
+	LINUXINPUT <linux-input@vger.kernel.org>,
+	Lee Jones <lee.jones@linaro.org>,
+	Liam Girdwood <lgirdwood@gmail.com>,
+	Mark Brown <broonie@kernel.org>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Pawel Moll <pawel.moll@arm.com>,
+	RTCLINUX <rtc-linux@googlegroups.com>,
+	Rob Herring <robh+dt@kernel.org>,
+	Samuel Ortiz <sameo@linux.intel.com>,
+	Support Opensource <Support.Opensource@diasemi.com>
+Subject: [rtc-linux] Re: [PATCH V2 3/4] watchdog: da9062: DA9062 watchdog driver
+Message-ID: <20150515202005.GA23133@roeck-us.net>
+References: <cover.1431621833.git.stwiss.opensource@diasemi.com>
+ <6a51f163b99edfad9165ad29609abb072dbaa2b7.1431621833.git.stwiss.opensource@diasemi.com>
+ <55555639.8090505@roeck-us.net>
+ <6ED8E3B22081A4459DAC7699F3695FB7014B22B63A@SW-EX-MBX02.diasemi.com>
+ <5555ED4F.5070003@roeck-us.net>
+ <6ED8E3B22081A4459DAC7699F3695FB7014B22B6E2@SW-EX-MBX02.diasemi.com>
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <6ED8E3B22081A4459DAC7699F3695FB7014B22B6E2@SW-EX-MBX02.diasemi.com>
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
+List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
+List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
+List-Archive: <http://groups.google.com/group/rtc-linux
+Sender: rtc-linux@googlegroups.com
+List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
+List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
+ <http://groups.google.com/group/rtc-linux/subscribe>
 
-Robert Jarzmik <robert.jarzmik@free.fr> writes:
+On Fri, May 15, 2015 at 03:35:50PM +0000, Opensource [Steve Twiss] wrote:
+> 
+> > > +
+> > > +/* E_WDG_WARN interrupt handler */
+> > > +static irqreturn_t da9062_wdt_wdg_warn_irq_handler(int irq, void *data)
+> > > +{
+> > > +	struct da9062_watchdog *wdt = data;
+> > > +
+> > > +	dev_notice(wdt->hw->dev, "Watchdog timeout warning trigger.\n");
+> > > +	return IRQ_HANDLED;
+> > > +}
+> > > +
+> 
+> On 15 May 2015 13:58 Guenter Roeck wrote:
+> 
+>  [...]
+>  
+> > >>> +
+> > >>> +	irq = platform_get_irq_byname(pdev, "WDG_WARN");
+> > >>> +	if (irq < 0) {
+> > >>> +		dev_err(wdt->hw->dev, "Failed to get IRQ.\n");
+> > >>> +		ret = irq;
+> > >>> +		goto error;
+> 
+> [...]
+> 
+> > >
+> > >> Also, is the interrupt mandatory ? All it does is to display a message.
+> > >> Looks very optional to me.
+> > >
+> > > It is a place holder for something more application specific.
+> > > I could remove it, but I figured it would just get re-added when somebody takes the
+> > > driver and modifies it for their needs.
+> > >
+> > > If this is a problem however, it can go.
+> > > Please advise ..
+> > >
+> > 
+> > Then this someone should add the code. For the time being, it just increases
+> > kernel size and may cause the driver to fail for no good reason. Plus, given
+> > the driver apparently works without interrupt, even then it should be
+> > optional, and the driver does not have to fail loading if it is not supported on a
+> > given platform.
+> > 
+> 
+> Hi Guenter,
+> 
+> I'm not sure if I got my previous point across there ...
+> 
+> Leaving this in wouldn't really do any real harm I think. If this feature is not supported
+> in somebody's platform then there wouldn't be a problem, the IRQ would fire (as a
+> warning that the watchdog was about to time-out), the handler function would be
+> executed, it would handle the IRQ -- and that would be it. Nothing would happen apart
+> from a debug print.
 
-> Rob Herring <robh@kernel.org> writes:
->
->>> This really isn't a good idea - what do you think happens when
->>> the same struct resource gets passed into insert_resource()
->>> twice?
->>
->> Bad things. If you recall, we discussed this on v1[1]. See the commit
->> msg of patch 2 for the summary. There is not currently a problem
->> because the rtc-pxa driver does not request the resource.
->
-> I think you're talking about resource claiming, while Russell is talking about
-> resource declaration.
->
-> The point Russell is raising is if you do a platform_add_device() twice with the
-> same resource (which is done in pxa, once for sa1100-rtc, once for pxa-rtc), you
-> call insert_resource() twice with the same resource structure.
->
-> I had not thought of that before (that's in my reply noted "nasty consequences"
-> in [1]), and I'll do my homework this week, and try this only patch, but if I
-> follow Russell's thinking, then sa1100-rtc and pxa-rtc cannot be declared
-> together anymore.
+I didn't get my point across either. Problem is that your driver fails to load
+if the interrupt is not there. With the interrupt really being optional, I don't
+see the point in making it mandatory just to display a message if it fires.
 
-I made the try, and Russell was right, this breaks the pxa architecture. The
-relevant extract of kernel message is in [1].
+> 
+> There are already examples of this in the kernel, I've not looked very hard ...
+> http://lxr.free-electrons.com/source/drivers/mfd/qcom_rpm.c#L412
+> http://lxr.free-electrons.com/source/drivers/mfd/arizona-irq.c#L72
+> 
 
-The consequences with your patches :
- - pxa27x_init()
-   - platform_add_devices()
-     - the pxa_device_rtc fails (as resource is duplicated)
-     - all the devices are unregistered (rollback)
-And pxa27x fails.
+Never a good argument to make with me. 100 people doing something wrong
+doesn't mean you should continue to do so.
 
-Now I'm pondering about the right approach :
- - either remove sa1100_device_rtc from pxas
- - or remove pxa_device_rtc
- - or both
- - or something else
-
-Let me think a bit about it.
+Guenter
 
 -- 
-Robert
-
-[1]
-2015/05/12  22:12:57  ------------[ cut here ]------------
-2015/05/12  22:12:57  WARNING: CPU: 0 PID: 1 at kernel/resource.c:755 __insert_resource+0x74/0x134()
-2015/05/12  22:12:57  Modules linked in:
-2015/05/12  22:12:57  CPU: 0 PID: 1 Comm: swapper Tainted: G        W       4.0.0-00004-g7fa5ed0 #528
-2015/05/12  22:12:57  Hardware name: Intel HCDDBBVA0 Development Platform (aka Mainstone)
-2015/05/12  22:12:57  [<c000e170>] (unwind_backtrace) from [<c000c064>] (show_stack+0x10/0x14)
-2015/05/12  22:12:57  [<c000c064>] (show_stack) from [<c00176b0>] (warn_slowpath_common+0x7c/0xb4)
-2015/05/12  22:12:57  [<c00176b0>] (warn_slowpath_common) from [<c0017784>] (warn_slowpath_null+0x1c/0x24)
-2015/05/12  22:12:57  [<c0017784>] (warn_slowpath_null) from [<c001ada4>] (__insert_resource+0x74/0x134)
-2015/05/12  22:12:57  [<c001ada4>] (__insert_resource) from [<c001bfd4>] (insert_resource_conflict+0x20/0x60)
-2015/05/12  22:12:57  [<c001bfd4>] (insert_resource_conflict) from [<c001c01c>] (insert_resource+0x8/0x18)
-2015/05/12  22:12:57  [<c001c01c>] (insert_resource) from [<c0207a7c>] (platform_device_add+0x88/0x254)
-2015/05/12  22:12:57  [<c0207a7c>] (platform_device_add) from [<c02082c4>] (platform_add_devices+0x34/0x70)
-2015/05/12  22:12:57  [<c02082c4>] (platform_add_devices) from [<c00088e0>] (do_one_initcall+0xa8/0x204)
-2015/05/12  22:12:58  [<c00088e0>] (do_one_initcall) from [<c050dd6c>] (kernel_init_freeable+0xf4/0x1b4)
-2015/05/12  22:12:58  [<c050dd6c>] (kernel_init_freeable) from [<c03b5a9c>] (kernel_init+0x8/0xec)
-2015/05/12  22:12:58  [<c03b5a9c>] (kernel_init) from [<c0009698>] (ret_from_fork+0x14/0x3c)
-2015/05/12  22:12:58  ---[ end trace cb88537fdc8fa201 ]---
-2015/05/12  22:12:58  platform pxa-rtc: failed to claim resource 0
+-- 
+You received this message because you are subscribed to "rtc-linux".
+Membership options at http://groups.google.com/group/rtc-linux .
+Please read http://groups.google.com/group/rtc-linux/web/checklist
+before submitting a driver.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+For more options, visit https://groups.google.com/d/optout.
