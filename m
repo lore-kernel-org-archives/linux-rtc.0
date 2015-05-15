@@ -1,25 +1,24 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBVVBX6VAKGQEUQXWRAQ@googlegroups.com>
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id ec7si299296wib.3.2015.05.10.14.42.45
-        for <rtc-linux@googlegroups.com>;
-        Sun, 10 May 2015 14:42:45 -0700 (PDT)
-Date: Sun, 10 May 2015 23:42:44 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Lothar =?iso-8859-1?Q?Wa=DFmann?= <LW@KARO-electronics.de>,
-	Shawn Guo <shawn.guo@linaro.org>
-Cc: rtc-linux@googlegroups.com, Andrew Morton <akpm@linux-foundation.org>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Kim Phillips <kim.phillips@freescale.com>,
-	Sascha Hauer <s.hauer@pengutronix.de>,
-	Stephen Boyd <sboyd@codeaurora.org>,
-	linux-arm-kernel@lists.infradead.org
-Subject: [rtc-linux] Re: [PATCH] rtc: snvs: improve timeout handling in snvs_rtc_enable()
-Message-ID: <20150510214244.GJ3338@piout.net>
-References: <20527.38172.621130.368019@ipc1.ka-ro>
+Return-Path: <rtc-linux+bncBCN6JTVP2IEBBJ7222VAKGQERCLLNYI@googlegroups.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <20527.38172.621130.368019@ipc1.ka-ro>
+Received: from m50-111.126.com (m50-111.126.com. [123.125.50.111])
+        by gmr-mx.google.com with ESMTP id zr2si138222pbb.0.2015.05.15.02.32.22
+        for <rtc-linux@googlegroups.com>;
+        Fri, 15 May 2015 02:32:23 -0700 (PDT)
+From: Xunlei Pang <xlpang@126.com>
+To: linux-kernel@vger.kernel.org
+Cc: rtc-linux@googlegroups.com,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	John Stultz <john.stultz@linaro.org>,
+	Arnd Bergmann <arnd@arndb.de>,
+	"David S. Miller" <davem@davemloft.net>,
+	sparclinux@vger.kernel.org,
+	Xunlei Pang <pang.xunlei@linaro.org>
+Subject: [rtc-linux] [PATCH 1/2] drivers/rtc/interface.c: Change
+ rtc_set_mmss() to use time64_t
+Date: Fri, 15 May 2015 17:31:31 +0800
+Message-Id: <1431682292-29732-1-git-send-email-xlpang@126.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -29,117 +28,59 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Hi Shawn, Lothar,
+From: Xunlei Pang <pang.xunlei@linaro.org>
 
-On 18/08/2012 at 15:14:04 +0200, Lothar Wa=C3=9Fmann wrote :
-> Shawn Guo writes:
-> > On Sat, Aug 18, 2012 at 10:10:08AM +0200, Lothar Wa=C3=9Fmann wrote:
-> > > If snvs_rtc_enable() happens to be descheduled for a period longer
-> > > than the timout period, a timeout may be indicated even if the RTC
-> > > status has changed meanwhile. Force a status read at the end of the
-> > > timeout period to prevent bogus timeout errors.
-> > >=20
-> > >=20
-> > > Signed-off-by: Lothar Wa=C3=9Fmann <LW@KARO-electronics.de>
-> > > ---
-> > >  drivers/rtc/rtc-snvs.c |   22 +++++++++++++---------
-> > >  1 files changed, 13 insertions(+), 9 deletions(-)
-> > >=20
-> > >  Compile tested only due to lack of HW.
-> >=20
-> > Tested-by: Shawn Guo <shawn.guo@linaro.org>
-> >=20
+rtc_set_mmss() uses "unsigned long" as its second parameter which
+may have y2038 problem on 32-bit systems.
 
-It seems that patch never made it mainline. Can you check if it is still
-needed?
+Change it to use time64_t.
+
+All its call sites will be changed later(there are no problems
+leaving these call sites untouched).
+
+Signed-off-by: Xunlei Pang <pang.xunlei@linaro.org>
+---
+ drivers/rtc/interface.c | 2 +-
+ include/linux/rtc.h     | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/rtc/interface.c b/drivers/rtc/interface.c
+index d43ee40..480ee3c 100644
+--- a/drivers/rtc/interface.c
++++ b/drivers/rtc/interface.c
+@@ -90,7 +90,7 @@ int rtc_set_time(struct rtc_device *rtc, struct rtc_time *tm)
+ }
+ EXPORT_SYMBOL_GPL(rtc_set_time);
+ 
+-int rtc_set_mmss(struct rtc_device *rtc, unsigned long secs)
++int rtc_set_mmss(struct rtc_device *rtc, time64_t secs)
+ {
+ 	int err;
+ 
+diff --git a/include/linux/rtc.h b/include/linux/rtc.h
+index 8dcf682..9c3180e 100644
+--- a/include/linux/rtc.h
++++ b/include/linux/rtc.h
+@@ -161,7 +161,7 @@ extern void devm_rtc_device_unregister(struct device *dev,
+ 
+ extern int rtc_read_time(struct rtc_device *rtc, struct rtc_time *tm);
+ extern int rtc_set_time(struct rtc_device *rtc, struct rtc_time *tm);
+-extern int rtc_set_mmss(struct rtc_device *rtc, unsigned long secs);
++extern int rtc_set_mmss(struct rtc_device *rtc, time64_t secs);
+ extern int rtc_set_ntp_time(struct timespec64 now);
+ int __rtc_read_alarm(struct rtc_device *rtc, struct rtc_wkalrm *alarm);
+ extern int rtc_read_alarm(struct rtc_device *rtc,
+-- 
+1.9.1
 
 
-> > A small nitpick below.
-> >=20
-> > >=20
-> > > diff --git a/drivers/rtc/rtc-snvs.c b/drivers/rtc/rtc-snvs.c
-> > > index 912f116..dc921b2 100644
-> > > --- a/drivers/rtc/rtc-snvs.c
-> > > +++ b/drivers/rtc/rtc-snvs.c
-> > > @@ -81,6 +81,13 @@ static void rtc_write_sync_lp(void __iomem *ioaddr=
-)
-> > >  	}
-> > >  }
-> > > =20
-> > > +static int snvs_rtc_enable_done(int enable, void __iomem *addr)
-> >=20
-> > Can we rename parameter "addr" to "ioaddr" and put it before "enable",
-> > also change "enable" to bool?
-> >=20
-> OK. The resulting assembler code of the patch below is identical to
-> the previous version of this patch.
->=20
->=20
-> Signed-off-by: Lothar Wa=C3=9Fmann <LW@KARO-electronics.de>
-> Tested-by: Shawn Guo <shawn.guo@linaro.org>
-> ---
->  drivers/rtc/rtc-snvs.c |   22 +++++++++++++---------
->  1 files changed, 13 insertions(+), 9 deletions(-)
->=20
-> diff --git a/drivers/rtc/rtc-snvs.c b/drivers/rtc/rtc-snvs.c
-> index 912f116..a757cb9 100644
-> --- a/drivers/rtc/rtc-snvs.c
-> +++ b/drivers/rtc/rtc-snvs.c
-> @@ -81,6 +81,13 @@ static void rtc_write_sync_lp(void __iomem *ioaddr)
->  	}
->  }
-> =20
-> +static int snvs_rtc_enable_done(void __iomem *ioaddr, bool enable)
-> +{
-> +	u32 lpcr =3D readl(ioaddr + SNVS_LPCR);
-> +
-> +	return enable ^ !(lpcr & SNVS_LPCR_SRTC_ENV);
-> +}
-> +
->  static int snvs_rtc_enable(struct snvs_rtc_data *data, bool enable)
->  {
->  	unsigned long timeout =3D jiffies + msecs_to_jiffies(1);
-> @@ -99,18 +106,15 @@ static int snvs_rtc_enable(struct snvs_rtc_data *dat=
-a, bool enable)
->  	spin_unlock_irqrestore(&data->lock, flags);
-> =20
->  	while (1) {
-> -		lpcr =3D readl(data->ioaddr + SNVS_LPCR);
-> +		if (snvs_rtc_enable_done(data->ioaddr, enable))
-> +			break;
-> =20
-> -		if (enable) {
-> -			if (lpcr & SNVS_LPCR_SRTC_ENV)
-> -				break;
-> -		} else {
-> -			if (!(lpcr & SNVS_LPCR_SRTC_ENV))
-> +		if (time_after(jiffies, timeout)) {
-> +			if (snvs_rtc_enable_done(data->ioaddr, enable))
->  				break;
-> +			else
-> +				return -ETIMEDOUT;
->  		}
-> -
-> -		if (time_after(jiffies, timeout))
-> -			return -ETIMEDOUT;
->  	}
-> =20
->  	return 0;
-
---=20
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
-
---=20
---=20
+-- 
+-- 
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
----=20
-You received this message because you are subscribed to the Google Groups "=
-rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an e=
-mail to rtc-linux+unsubscribe@googlegroups.com.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
