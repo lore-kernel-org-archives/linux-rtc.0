@@ -1,23 +1,27 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRB24MS2VQKGQE7CPQ56Q@googlegroups.com>
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id q10si79515wiz.0.2015.05.27.01.55.07
-        for <rtc-linux@googlegroups.com>;
-        Wed, 27 May 2015 01:55:07 -0700 (PDT)
-Date: Wed, 27 May 2015 10:55:06 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Jan Kardell <jan.kardell@telliq.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org,
-	Vincent Donnefort <vdonnefort@gmail.com>,
-	Dan Carpenter <dan.carpenter@oracle.com>
-Subject: [rtc-linux] Re: [PATCH] rtc: pcf8563 fix: return -EINVAL if we read
- an invalid time.
-Message-ID: <20150527085506.GM3199@piout.net>
-References: <1432547474-3787-1-git-send-email-jan.kardell@telliq.com>
+Return-Path: <rtc-linux+bncBCF2PQPV4MDRBNPH26VAKGQE33OMDQA@googlegroups.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1432547474-3787-1-git-send-email-jan.kardell@telliq.com>
+Received: from mail-la0-x22b.google.com (mail-la0-x22b.google.com. [2a00:1450:4010:c03::22b])
+        by gmr-mx.google.com with ESMTPS id su3si83254lbb.1.2015.05.15.06.25.09
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Fri, 15 May 2015 06:25:09 -0700 (PDT)
+Received: by mail-la0-x22b.google.com with SMTP id t2so119021610laa.1
+        for <rtc-linux@googlegroups.com>; Fri, 15 May 2015 06:25:09 -0700 (PDT)
+From: Joachim Eastwood <manabian@gmail.com>
+To: akpm@linux-foundation.org,
+	a.zummo@towertech.it
+Cc: Joachim Eastwood <manabian@gmail.com>,
+	wellsk40@gmail.com,
+	rtc-linux@googlegroups.com,
+	devicetree@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	alexandre.belloni@free-electrons.com,
+	joshc@ni.com
+Subject: [rtc-linux] [PATCH v2 0/2] RTC support for NXP LPC18xx family
+Date: Fri, 15 May 2015 15:25:04 +0200
+Message-Id: <1431696306-19093-1-git-send-email-manabian@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -27,48 +31,43 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Hi,
+This patch set adds support for the RTC found on many NXP devices
+including LPC24xx/178x/18xx/43xx. The RTC provides calendar and
+clock functionality together with periodic tick and alarm interrupt
+support.
 
-On 25/05/2015 at 11:51:14 +0200, Jan Kardell wrote :
-> @@ -202,8 +202,9 @@ static int pcf8563_get_datetime(struct i2c_client *client, struct rtc_time *tm)
->  
->  	if (buf[PCF8563_REG_SC] & PCF8563_SC_LV) {
->  		pcf8563->voltage_low = 1;
-> -		dev_info(&client->dev,
-> +		dev_err(&client->dev,
->  			"low voltage detected, date/time is not reliable.\n");
-> +		return -EINVAL;
->  	}
->  
->  	dev_dbg(&client->dev,
-> @@ -234,11 +235,11 @@ static int pcf8563_get_datetime(struct i2c_client *client, struct rtc_time *tm)
->  		tm->tm_sec, tm->tm_min, tm->tm_hour,
->  		tm->tm_mday, tm->tm_mon, tm->tm_year, tm->tm_wday);
->  
-> -	/* the clock can give out invalid datetime, but we cannot return
-> -	 * -EINVAL otherwise hwclock will refuse to set the time on bootup.
-> -	 */
-> -	if (rtc_valid_tm(tm) < 0)
-> +	err = rtc_valid_tm(tm);
-> +	if (err < 0) {
->  		dev_err(&client->dev, "retrieved date/time is not valid.\n");
-> +		return err;
-> +	}
+The driver is a rework of an old driver by Kevin Wells. It has been
+modified to support modern resource allocation, device tree and
+generally cleaned up.
 
-I would avoid dev_err and directly return rtc_valid_tm(tm) or you could
-also return 0 and let the core do the rtc_valid_tm() check.
+This version address the comments from Josh Cartwright and Alexandre
+Belloni.
 
->  
->  	return 0;
->  }
-> -- 
-> 1.8.4.5
-> 
+changes since v1:
+ - s/lpc2k/lpc24xx for better consistency
+ - fix Kconfig entry
+ - drop support for old versions for the ip block
+
+Patch set is based on Linux v4.1-rc1.
+
+Base support for the NXP LPC18xx family can be found here:
+http://marc.info/?l=linux-arm-kernel&m=143016894704253&w=2
+
+
+Joachim Eastwood (2):
+  rtc: add rtc-lpc24xx driver
+  doc: dt: add documentation for nxp,lpc1788-rtc
+
+ .../devicetree/bindings/rtc/nxp,lpc1788-rtc.txt    |  21 ++
+ drivers/rtc/Kconfig                                |  13 +
+ drivers/rtc/Makefile                               |   1 +
+ drivers/rtc/rtc-lpc24xx.c                          | 341 +++++++++++++++++++++
+ 4 files changed, 376 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/rtc/nxp,lpc1788-rtc.txt
+ create mode 100644 drivers/rtc/rtc-lpc24xx.c
 
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+1.8.0
 
 -- 
 -- 
