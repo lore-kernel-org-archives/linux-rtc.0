@@ -1,23 +1,34 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBXHCS6VAKGQEMEYI36A@googlegroups.com>
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id p9si180882wiz.3.2015.05.03.02.58.51
-        for <rtc-linux@googlegroups.com>;
-        Sun, 03 May 2015 02:58:52 -0700 (PDT)
-Date: Sun, 3 May 2015 11:58:51 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Krzysztof Kozlowski <k.kozlowski.k@gmail.com>
-Cc: Linus Walleij <linus.walleij@linaro.org>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	linux-arm-kernel@lists.infradead.org, rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH 2/3] rtc: hid-sensor-time: Constify platform_device_id
-Message-ID: <20150503095851.GR12076@piout.net>
-References: <1430495077-31179-1-git-send-email-k.kozlowski.k@gmail.com>
- <1430495077-31179-2-git-send-email-k.kozlowski.k@gmail.com>
+Return-Path: <rtc-linux+bncBD5O5IWPJMIL52OZVICRUBGH5PZ72@googlegroups.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1430495077-31179-2-git-send-email-k.kozlowski.k@gmail.com>
+Received: from mail-wg0-x232.google.com (mail-wg0-x232.google.com. [2a00:1450:400c:c00::232])
+        by gmr-mx.google.com with ESMTPS id ec7si1412wib.3.2015.05.15.15.35.41
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Fri, 15 May 2015 15:35:41 -0700 (PDT)
+Received: by mail-wg0-x232.google.com with SMTP id v19so67114684wgu.1
+        for <rtc-linux@googlegroups.com>; Fri, 15 May 2015 15:35:41 -0700 (PDT)
+From: Philippe Reynes <tremyfr@gmail.com>
+To: shawn.guo@linaro.org,
+	kernel@pengutronix.de,
+	linux@arm.linux.org.uk,
+	a.zummo@towertech.it,
+	alexandre.belloni@free-electrons.com,
+	robh+dt@kernel.org,
+	pawel.moll@arm.com,
+	mark.rutland@arm.com,
+	ijc+devicetree@hellion.org.uk,
+	galak@codeaurora.org,
+	rtc-linux@googlegroups.com
+Cc: linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org,
+	devicetree@vger.kernel.org,
+	fabio.estevam@freescale.com,
+	Philippe Reynes <tremyfr@gmail.com>
+Subject: [rtc-linux] [PATCH 0/2] add dt support for mxc rtc
+Date: Sat, 16 May 2015 00:35:28 +0200
+Message-Id: <1431729330-7625-1-git-send-email-tremyfr@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -27,22 +38,21 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On 02/05/2015 at 00:44:36 +0900, Krzysztof Kozlowski wrote :
-> The platform_device_id is not modified by the driver and core uses it as
-> const.
-> 
-> Signed-off-by: Krzysztof Kozlowski <k.kozlowski.k@gmail.com>
-> ---
->  drivers/rtc/rtc-hid-sensor-time.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-Applied, thanks.
+This patch set add the device tree support for
+the rtc driver on mxc.
 
+Philippe Reynes (2):
+  rtc: mxc: add a second clock
+  rtc: mxc: add support of device tree
+
+ Documentation/devicetree/bindings/rtc/rtc-mxc.txt |   27 ++++++++++++
+ arch/arm/mach-imx/clk-imx31.c                     |    3 +-
+ drivers/rtc/rtc-mxc.c                             |   48 ++++++++++++++++----
+ 3 files changed, 67 insertions(+), 11 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/rtc/rtc-mxc.txt
 
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+1.7.4.4
 
 -- 
 -- 
