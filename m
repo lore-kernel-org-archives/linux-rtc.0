@@ -1,25 +1,25 @@
-Return-Path: <rtc-linux+bncBAABBU4T5OVAKGQEZWLRCFI@googlegroups.com>
-Received: from mail.kernel.org (mail.kernel.org. [198.145.29.136])
-        by gmr-mx.google.com with ESMTP id g4si789114igc.3.2015.05.18.22.27.46
-        for <rtc-linux@googlegroups.com>;
-        Mon, 18 May 2015 22:27:47 -0700 (PDT)
-Date: Tue, 19 May 2015 13:27:16 +0800
-From: Shawn Guo <shawnguo@kernel.org>
-To: Philippe Reynes <tremyfr@gmail.com>
-Cc: shawn.guo@linaro.org, kernel@pengutronix.de, linux@arm.linux.org.uk,
-	a.zummo@towertech.it, alexandre.belloni@free-electrons.com,
-	robh+dt@kernel.org, pawel.moll@arm.com, mark.rutland@arm.com,
-	ijc+devicetree@hellion.org.uk, galak@codeaurora.org,
-	rtc-linux@googlegroups.com, linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org, devicetree@vger.kernel.org,
-	fabio.estevam@freescale.com
-Subject: [rtc-linux] Re: [PATCH 1/2] rtc: mxc: add a second clock
-Message-ID: <20150519052716.GO1071@dragon>
-References: <1431729330-7625-1-git-send-email-tremyfr@gmail.com>
- <1431729330-7625-2-git-send-email-tremyfr@gmail.com>
+Return-Path: <rtc-linux+bncBDMYB2E7SQCRBCMN3CVAKGQERFUY37I@googlegroups.com>
+Received: from na01-bl2-obe.outbound.protection.outlook.com (mail-bl2on0121.outbound.protection.outlook.com. [65.55.169.121])
+        by gmr-mx.google.com with ESMTPS id do9si263888qcb.0.2015.05.15.07.45.29
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
+        Fri, 15 May 2015 07:45:29 -0700 (PDT)
+From: <Frank.Li@freescale.com>
+To: <lznuaa@gmail.com>, <shawn.guo@linaro.org>, <dmitry.torokhov@gmail.com>,
+	<robh+dt@kernel.org>, <a.zummo@towertech.it>,
+	<alexandre.belloni@free-electrons.com>, <sachin.kamat@linaro.org>,
+	<p.zabel@pengutronix.de>
+CC: <linux-arm-kernel@lists.infradead.org>, <linux-input@vger.kernel.org>,
+	<rtc-linux@googlegroups.com>, <linux-pm@vger.kernel.org>,
+	<devicetree@vger.kernel.org>, Frank Li <Frank.Li@freescale.com>
+Subject: [rtc-linux] [PATCH 1/7] arm: imx: power-off: change to syscon to
+ access register
+Date: Fri, 15 May 2015 21:36:24 +0800
+Message-ID: <1431696990-23078-2-git-send-email-Frank.Li@freescale.com>
+In-Reply-To: <1431696990-23078-1-git-send-email-Frank.Li@freescale.com>
+References: <1431696990-23078-1-git-send-email-Frank.Li@freescale.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1431729330-7625-2-git-send-email-tremyfr@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -30,110 +30,58 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On Sat, May 16, 2015 at 12:35:29AM +0200, Philippe Reynes wrote:
-> The mxc RTC needs two clocks, one for the input
-> reference, and one for the IP. But this driver
-> was only using one clock (for the reference).
-> This patch add the second clock (for the IP).
-> 
-> Signed-off-by: Philippe Reynes <tremyfr@gmail.com>
-> ---
->  arch/arm/mach-imx/clk-imx31.c |    3 ++-
+From: Frank Li <Frank.Li@freescale.com>
 
-We're moving the clock driver into drivers/clk/imx folder during this
-development cycle.  I suggest you patch the file from there, and update
-driver code in the next development cycle.
+snvs is MFP device, which included rtc, ON/OFF key, power off
 
-Shawn
+Signed-off-by: Frank Li <Frank.Li@freescale.com>
+---
+ drivers/power/reset/imx-snvs-poweroff.c | 21 +++++++++++++++------
+ 1 file changed, 15 insertions(+), 6 deletions(-)
 
->  drivers/rtc/rtc-mxc.c         |   26 +++++++++++++++++---------
->  2 files changed, 19 insertions(+), 10 deletions(-)
-> 
-> diff --git a/arch/arm/mach-imx/clk-imx31.c b/arch/arm/mach-imx/clk-imx31.c
-> index 286ef42..480c54f 100644
-> --- a/arch/arm/mach-imx/clk-imx31.c
-> +++ b/arch/arm/mach-imx/clk-imx31.c
-> @@ -130,7 +130,8 @@ int __init mx31_clocks_init(unsigned long fref)
->  	clk_register_clkdev(clk[cspi3_gate], NULL, "imx31-cspi.2");
->  	clk_register_clkdev(clk[pwm_gate], "pwm", NULL);
->  	clk_register_clkdev(clk[wdog_gate], NULL, "imx2-wdt.0");
-> -	clk_register_clkdev(clk[rtc_gate], NULL, "imx21-rtc");
-> +	clk_register_clkdev(clk[ckil], "rtc", "imx21-rtc");
-> +	clk_register_clkdev(clk[rtc_gate], "ipg", "imx21-rtc");
->  	clk_register_clkdev(clk[epit1_gate], "epit", NULL);
->  	clk_register_clkdev(clk[epit2_gate], "epit", NULL);
->  	clk_register_clkdev(clk[nfc], NULL, "imx27-nand.0");
-> diff --git a/drivers/rtc/rtc-mxc.c b/drivers/rtc/rtc-mxc.c
-> index 09d422b..e916a91 100644
-> --- a/drivers/rtc/rtc-mxc.c
-> +++ b/drivers/rtc/rtc-mxc.c
-> @@ -79,7 +79,8 @@ struct rtc_plat_data {
->  	struct rtc_device *rtc;
->  	void __iomem *ioaddr;
->  	int irq;
-> -	struct clk *clk;
-> +	struct clk *clk_rtc;
-> +	struct clk *clk_ipg;
->  	struct rtc_time g_rtc_alarm;
->  	enum imx_rtc_type devtype;
->  };
-> @@ -373,17 +374,24 @@ static int mxc_rtc_probe(struct platform_device *pdev)
->  	if (IS_ERR(pdata->ioaddr))
->  		return PTR_ERR(pdata->ioaddr);
->  
-> -	pdata->clk = devm_clk_get(&pdev->dev, NULL);
-> -	if (IS_ERR(pdata->clk)) {
-> -		dev_err(&pdev->dev, "unable to get clock!\n");
-> -		return PTR_ERR(pdata->clk);
-> +	pdata->clk_ipg = devm_clk_get(&pdev->dev, "ipg");
-> +	if (IS_ERR(pdata->clk_ipg)) {
-> +		dev_err(&pdev->dev, "unable to get ipg clock!\n");
-> +		return PTR_ERR(pdata->clk_ipg);
->  	}
->  
-> -	ret = clk_prepare_enable(pdata->clk);
-> +	ret = clk_prepare_enable(pdata->clk_ipg);
->  	if (ret)
->  		return ret;
->  
-> -	rate = clk_get_rate(pdata->clk);
-> +	pdata->clk_rtc = devm_clk_get(&pdev->dev, "rtc");
-> +	if (IS_ERR(pdata->clk_rtc)) {
-> +		dev_err(&pdev->dev, "unable to get rtc clock!\n");
-> +		ret = PTR_ERR(pdata->clk_rtc);
-> +		goto exit_put_clk;
-> +	}
-> +
-> +	rate = clk_get_rate(pdata->clk_rtc);
->  
->  	if (rate == 32768)
->  		reg = RTC_INPUT_CLK_32768HZ;
-> @@ -432,7 +440,7 @@ static int mxc_rtc_probe(struct platform_device *pdev)
->  	return 0;
->  
->  exit_put_clk:
-> -	clk_disable_unprepare(pdata->clk);
-> +	clk_disable_unprepare(pdata->clk_ipg);
->  
->  	return ret;
->  }
-> @@ -441,7 +449,7 @@ static int mxc_rtc_remove(struct platform_device *pdev)
->  {
->  	struct rtc_plat_data *pdata = platform_get_drvdata(pdev);
->  
-> -	clk_disable_unprepare(pdata->clk);
-> +	clk_disable_unprepare(pdata->clk_ipg);
->  
->  	return 0;
->  }
-> -- 
-> 1.7.4.4
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+diff --git a/drivers/power/reset/imx-snvs-poweroff.c b/drivers/power/reset/imx-snvs-poweroff.c
+index ad6ce50..b4881d7 100644
+--- a/drivers/power/reset/imx-snvs-poweroff.c
++++ b/drivers/power/reset/imx-snvs-poweroff.c
+@@ -22,21 +22,30 @@
+ #include <linux/of.h>
+ #include <linux/of_address.h>
+ #include <linux/platform_device.h>
++#include <linux/mfd/syscon.h>
++#include <linux/regmap.h>
+ 
+-static void __iomem *snvs_base;
++static struct regmap *snvs;
++
++#define SNVS_LPCR 0x38
+ 
+ static void do_imx_poweroff(void)
+ {
+-	u32 value = readl(snvs_base);
+-
+ 	/* set TOP and DP_EN bit */
+-	writel(value | 0x60, snvs_base);
++	regmap_update_bits(snvs, SNVS_LPCR, 0x60, 0x60);
+ }
+ 
+ static int imx_poweroff_probe(struct platform_device *pdev)
+ {
+-	snvs_base = of_iomap(pdev->dev.of_node, 0);
+-	if (!snvs_base) {
++	struct device_node *nd;
++
++	nd = of_get_parent(pdev->dev.of_node);
++	if (!nd)
++		return -ENODEV;
++	snvs = syscon_node_to_regmap (nd);
++	of_node_put(nd);
++
++	if (!snvs) {
+ 		dev_err(&pdev->dev, "failed to get memory\n");
+ 		return -ENODEV;
+ 	}
+-- 
+1.9.1
 
 -- 
 -- 
