@@ -1,28 +1,23 @@
-Return-Path: <rtc-linux+bncBCAJFDXE4QGBBDUHWKVAKGQEKDKXUAA@googlegroups.com>
+Return-Path: <rtc-linux+bncBCN6JTVP2IEBBKH222VAKGQE3WZK47Y@googlegroups.com>
 MIME-Version: 1.0
-Received: from mail-pd0-x22b.google.com (mail-pd0-x22b.google.com. [2607:f8b0:400e:c02::22b])
-        by gmr-mx.google.com with ESMTPS id x3si530746pdh.2.2015.05.08.02.36.14
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 08 May 2015 02:36:14 -0700 (PDT)
-Received: by mail-pd0-x22b.google.com with SMTP id nk13so74070720pdb.0
-        for <rtc-linux@googlegroups.com>; Fri, 08 May 2015 02:36:14 -0700 (PDT)
-From: Adrian Huang <adrianhuang0701@gmail.com>
-To: Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	rtc-linux@googlegroups.com
-Cc: Brecht Machiels <brecht@mos6581.org>,
-	Thomas Gleixner <tglx@linutronix.de>,
+Received: from m50-111.126.com (m50-111.126.com. [123.125.50.111])
+        by gmr-mx.google.com with ESMTP id k7si119175igu.0.2015.05.15.02.32.23
+        for <rtc-linux@googlegroups.com>;
+        Fri, 15 May 2015 02:32:23 -0700 (PDT)
+From: Xunlei Pang <xlpang@126.com>
+To: linux-kernel@vger.kernel.org
+Cc: rtc-linux@googlegroups.com,
+	Alessandro Zummo <a.zummo@towertech.it>,
 	John Stultz <john.stultz@linaro.org>,
-	Rabin Vincent <rabin.vincent@stericsson.com>,
-	Borislav Petkov <bp@suse.de>,
-	Nagananda Chumbalkar <nchumbalkar@lenovo.com>,
-	Adrian Huang <ahuang12@lenovo.com>,
-	Adrian Huang <adrianhuang0701@gmail.com>
-Subject: [rtc-linux] [RFC PATCH 2/2] rtc: Restore the RTC alarm time to the
- configured alarm time in BIOS Setup
-Date: Fri,  8 May 2015 17:35:06 +0800
-Message-Id: <1431077706-3560-1-git-send-email-adrianhuang0701@gmail.com>
+	Arnd Bergmann <arnd@arndb.de>,
+	"David S. Miller" <davem@davemloft.net>,
+	sparclinux@vger.kernel.org,
+	Xunlei Pang <pang.xunlei@linaro.org>
+Subject: [rtc-linux] [PATCH 2/2] sparc: time: Provide update_persistent_clock64()
+Date: Fri, 15 May 2015 17:31:32 +0800
+Message-Id: <1431682292-29732-2-git-send-email-xlpang@126.com>
+In-Reply-To: <1431682292-29732-1-git-send-email-xlpang@126.com>
+References: <1431682292-29732-1-git-send-email-xlpang@126.com>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -34,103 +29,85 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Steps to reproduce the problem:
-	1) Enable RTC wake-up option in BIOS Setup
-	2) Issue one of these commands in the OS: "poweroff" 
-	   or "shutdown -h now"
-	3) System will shut down and then reboot automatically
+From: Xunlei Pang <pang.xunlei@linaro.org>
 
-Root-cause of the issue:
-	1) During the shutdown process, the hwclock utility is used
-	   to save the system clock to hardware clock (RTC).
-	2) The hwclock utility invokes ioctl() with RTC_UIE_ON. The
-	   kernel configures the RTC alarm for the periodic interrupt
-	   (every 1 second).
-	3) The hwclock uitlity closes the /dev/rtc0 device, and the
-	   kernel disables the RTC alarm irq (AIE bit of Register B)
-	   via ioctl() with RTC_UIE_OFF. But, the configured alarm
-	   time is the current_time + 1.
-	4) After the next 1 second is elapsed, the AF (alarm
-	   interrupt flag) of Register C is set.
-	5) The S5 handler in BIOS is invoked to configure alarm
-	   registers (enable AIE bit and configure alarm date/time).
-	   But, BIOS does not clear the previous interrupt status
-	   during alarm configuration. Therefore, "AF=AIE=1" causes 
-	   the rtc device to trigger an interrupt.  
-	6) So, the machine reboots automatically right after shutdown.
+As part of addressing "y2038 problem" for in-kernel uses, this patch
+converts update_persistent_clock() to update_persistent_clock64()
+using timespec64 for both 32-bit and 64-bit sparc, since timekeeping
+had already supported update_persistent_clock64().
 
-This patch restores the configured alarm time (user configures the
-time in BIOS Setup) to rtc alarm registers. In some circumstances,
-the time of the rtc alarm registers is the past time because
-user-space programs (for example: hwclock) may invoke ioctl() with
-RTC_UIE_ON. In any case, this patch prevents the AF bit from getting
-set to 1. Note, AF=1 will cause the system to reboot after shut down.
-Therefore, this patch fixes the issue from occurring.
-
-Signed-off-by: Adrian Huang <ahuang12@lenovo.com>
-Reviewed-by: Nagananda Chumbalkar <nchumbalkar@lenovo.com>
+Signed-off-by: Xunlei Pang <pang.xunlei@linaro.org>
 ---
- drivers/rtc/interface.c | 21 +++++++++++++++++++++
- drivers/rtc/rtc-dev.c   |  1 +
- include/linux/rtc.h     |  1 +
- 3 files changed, 23 insertions(+)
+ arch/sparc/kernel/time_32.c | 27 ++++++++++-----------------
+ arch/sparc/kernel/time_64.c |  2 +-
+ 2 files changed, 11 insertions(+), 18 deletions(-)
 
-diff --git a/drivers/rtc/interface.c b/drivers/rtc/interface.c
-index 166fc60..2fe17da 100644
---- a/drivers/rtc/interface.c
-+++ b/drivers/rtc/interface.c
-@@ -986,4 +986,25 @@ int rtc_timer_cancel(struct rtc_device *rtc, struct rtc_timer *timer)
- 	return ret;
+diff --git a/arch/sparc/kernel/time_32.c b/arch/sparc/kernel/time_32.c
+index 18147a5..47b295f 100644
+--- a/arch/sparc/kernel/time_32.c
++++ b/arch/sparc/kernel/time_32.c
+@@ -65,8 +65,6 @@ DEFINE_PER_CPU(struct clock_event_device, sparc32_clockevent);
+ DEFINE_SPINLOCK(rtc_lock);
+ EXPORT_SYMBOL(rtc_lock);
+ 
+-static int set_rtc_mmss(unsigned long);
+-
+ unsigned long profile_pc(struct pt_regs *regs)
+ {
+ 	extern char __copy_user_begin[], __copy_user_end[];
+@@ -87,9 +85,17 @@ EXPORT_SYMBOL(profile_pc);
+ 
+ volatile u32 __iomem *master_l10_counter;
+ 
+-int update_persistent_clock(struct timespec now)
++int update_persistent_clock64(struct timespec64 now)
+ {
+-	return set_rtc_mmss(now.tv_sec);
++	struct rtc_device *rtc = rtc_class_open("rtc0");
++	int err = -1;
++
++	if (rtc) {
++		err = rtc_set_mmss(rtc, now.tv_sec);
++		rtc_class_close(rtc);
++	}
++
++	return err;
  }
  
-+/* rtc_alarm_restore - Restores the alarm time
-+ * @ rtc: rtc device to be used
-+ *
-+ * Kernel interface to restore the alarm time
-+ */
-+int rtc_alarm_restore(struct rtc_device *rtc)
-+{
-+	struct rtc_wkalrm aie_alarm;
-+	int err;
+ irqreturn_t notrace timer_interrupt(int dummy, void *dev_id)
+@@ -362,16 +368,3 @@ void __init time_init(void)
+ 		sbus_time_init();
+ }
  
-+	/* If someone has configured the AIE timer, do nothing. */
-+	if (rtc->aie_timer.enabled)
-+		return 0;
-+
-+	/* Read the alarm date/time from aie_timer. */
-+	err = rtc_read_alarm(rtc, &aie_alarm);
-+	if (err < 0)
-+		return err;
-+
-+	return __rtc_set_alarm(rtc, &aie_alarm);
-+}
-+EXPORT_SYMBOL_GPL(rtc_alarm_restore);
-diff --git a/drivers/rtc/rtc-dev.c b/drivers/rtc/rtc-dev.c
-index 799c34b..a5ea279 100644
---- a/drivers/rtc/rtc-dev.c
-+++ b/drivers/rtc/rtc-dev.c
-@@ -437,6 +437,7 @@ static int rtc_dev_release(struct inode *inode, struct file *file)
- 	rtc_dev_ioctl(file, RTC_UIE_OFF, 0);
- 	rtc_update_irq_enable(rtc, 0);
- 	rtc_irq_set_state(rtc, NULL, 0);
-+	rtc_alarm_restore(rtc);
+-
+-static int set_rtc_mmss(unsigned long secs)
+-{
+-	struct rtc_device *rtc = rtc_class_open("rtc0");
+-	int err = -1;
+-
+-	if (rtc) {
+-		err = rtc_set_mmss(rtc, secs);
+-		rtc_class_close(rtc);
+-	}
+-
+-	return err;
+-}
+diff --git a/arch/sparc/kernel/time_64.c b/arch/sparc/kernel/time_64.c
+index edbbeb1..7c8f819 100644
+--- a/arch/sparc/kernel/time_64.c
++++ b/arch/sparc/kernel/time_64.c
+@@ -394,7 +394,7 @@ static struct sparc64_tick_ops hbtick_operations __read_mostly = {
  
- 	if (rtc->ops->release)
- 		rtc->ops->release(rtc->dev.parent);
-diff --git a/include/linux/rtc.h b/include/linux/rtc.h
-index 8dcf682..bf945cb 100644
---- a/include/linux/rtc.h
-+++ b/include/linux/rtc.h
-@@ -188,6 +188,7 @@ extern int rtc_update_irq_enable(struct rtc_device *rtc, unsigned int enabled);
- extern int rtc_alarm_irq_enable(struct rtc_device *rtc, unsigned int enabled);
- extern int rtc_dev_update_irq_enable_emul(struct rtc_device *rtc,
- 						unsigned int enabled);
-+extern int rtc_alarm_restore(struct rtc_device *rtc);
+ static unsigned long timer_ticks_per_nsec_quotient __read_mostly;
  
- void rtc_handle_legacy_irq(struct rtc_device *rtc, int num, int mode);
- void rtc_aie_update_irq(void *private);
+-int update_persistent_clock(struct timespec now)
++int update_persistent_clock64(struct timespec64 now)
+ {
+ 	struct rtc_device *rtc = rtc_class_open("rtc0");
+ 	int err = -1;
 -- 
 1.9.1
+
 
 -- 
 -- 
