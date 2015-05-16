@@ -1,63 +1,126 @@
-Return-Path: <rtc-linux+bncBDD45AWIUUARBPMDU6VAKGQECYGCAGI@googlegroups.com>
-Received: from mx2.suse.de (cantor2.suse.de. [195.135.220.15])
-        by gmr-mx.google.com with ESMTPS id t6si34752wiz.0.2015.05.06.00.24.44
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1 cipher=ECDHE-RSA-RC4-SHA bits=128/128);
-        Wed, 06 May 2015 00:24:44 -0700 (PDT)
-Date: Wed, 6 May 2015 09:24:42 +0200
-From: Jean Delvare <jdelvare@suse.de>
-To: rtc-linux@googlegroups.com
-Cc: Alessandro Zummo <a.zummo@towertech.it>, Alexandre Belloni
- <alexandre.belloni@free-electrons.com>, Iyappan Subramanian
- <isubramanian@apm.com>, Keyur Chudgar <kchudgar@apm.com>
-Subject: [rtc-linux] [PATCH] rtc-xgene: Set hardware dependency
-Message-ID: <20150506092442.00396962@endymion.delvare>
+Date: Sat, 16 May 2015 10:53:28 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: S Twiss <stwiss.opensource@diasemi.com>
+Cc: LINUXKERNEL <linux-kernel@vger.kernel.org>,
+	Lee Jones <lee.jones@linaro.org>,
+	Samuel Ortiz <sameo@linux.intel.com>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	DEVICETREE <devicetree@vger.kernel.org>,
+	David Dajun Chen <david.chen@diasemi.com>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Ian Campbell <ijc+devicetree@hellion.org.uk>,
+	Kumar Gala <galak@codeaurora.org>,
+	LINUXINPUT <linux-input@vger.kernel.org>,
+	LINUXWATCHDOG <linux-watchdog@vger.kernel.org>,
+	Liam Girdwood <lgirdwood@gmail.com>,
+	Mark Brown <broonie@kernel.org>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Pawel Moll <pawel.moll@arm.com>,
+	RTCLINUX <rtc-linux@googlegroups.com>,
+	Rob Herring <robh+dt@kernel.org>,
+	Support Opensource <support.opensource@diasemi.com>,
+	Wim Van Sebroeck <wim@iguana.be>
+Subject: Re: [rtc-linux] [PATCH V2 1/4] mfd: da9062: DA9062 MFD core driver
+Message-ID: <20150516085328.GI3338@piout.net>
+References: <cover.1431621833.git.stwiss.opensource@diasemi.com>
+ <af5a7d289bb149e9111ebc70bb0589a994ee2407.1431621833.git.stwiss.opensource@diasemi.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <af5a7d289bb149e9111ebc70bb0589a994ee2407.1431621833.git.stwiss.opensource@diasemi.com>
 List-ID: <rtc-linux.googlegroups.com>
-List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
-List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
-List-Archive: <http://groups.google.com/group/rtc-linux
-Sender: rtc-linux@googlegroups.com
-List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
-List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
- <http://groups.google.com/group/rtc-linux/subscribe>
 
-The rtc-xgene driver is only useful on X-Gene SoC.
-    
-Signed-off-by: Jean Delvare <jdelvare@suse.de>
-Cc: Alessandro Zummo <a.zummo@towertech.it>
-Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Iyappan Subramanian <isubramanian@apm.com>
-Cc: Keyur Chudgar <kchudgar@apm.com>
----
- drivers/rtc/Kconfig |    1 +
- 1 file changed, 1 insertion(+)
+On 14/05/2015 at 17:43:52 +0100, S Twiss wrote :
+> +config MFD_DA9062
+> +	tristate "Dialog Semiconductor DA9062 PMIC Support"
+> +	select MFD_CORE
+> +	select REGMAP_I2C
+> +	select REGMAP_IRQ
+> +	depends on I2C=y
 
---- linux-4.1-rc2.orig/drivers/rtc/Kconfig	2015-04-27 02:59:10.000000000 +0200
-+++ linux-4.1-rc2/drivers/rtc/Kconfig	2015-05-06 09:16:08.405058425 +0200
-@@ -1523,6 +1523,7 @@ config RTC_DRV_MOXART
- config RTC_DRV_XGENE
- 	tristate "APM X-Gene RTC"
- 	depends on HAS_IOMEM
-+	depends on ARCH_XGENE || COMPILE_TEST
- 	help
- 	  If you say yes here you get support for the APM X-Gene SoC real time
- 	  clock.
+Isn't depends on I2C enough?
+
+> diff --git a/drivers/mfd/da9062-core.c b/drivers/mfd/da9062-core.c
+> new file mode 100644
+> index 0000000..e6a9878
+> --- /dev/null
+> +++ b/drivers/mfd/da9062-core.c
+> +#include <linux/kernel.h>
+> +#include <linux/module.h>
+> +#include <linux/init.h>
+> +#include <linux/slab.h>
+> +#include <linux/device.h>
+> +#include <linux/delay.h>
+> +#include <linux/interrupt.h>
+> +#include <linux/mutex.h>
+> +#include <linux/regmap.h>
+> +
+> +#include <linux/irq.h>
+> +#include <linux/mfd/core.h>
+> +#include <linux/i2c.h>
+> +#include <linux/err.h>
+> +
+> +#include <linux/mfd/da9062/core.h>
+> +#include <linux/mfd/da9062/registers.h>
+> +#include <linux/of.h>
+> +#include <linux/regulator/of_regulator.h>
+> +
+> +#include <linux/proc_fs.h>
+> +#include <linux/kthread.h>
+> +#include <linux/uaccess.h>
+> +
+
+You should order the header inclusions alphabetically
+
+[...]
+
+> +	{
+> +		.name		= "da9062-watchdog",
+> +		.num_resources	= ARRAY_SIZE(da9062_wdt_resources),
+> +		.resources	= da9062_wdt_resources,
+> +		.of_compatible  = "dlg,da9062-wdt",
+> +	},
+> +	{
+> +		.name		= "da9062-onkey",
+> +		.num_resources	= ARRAY_SIZE(da9062_onkey_resources),
+> +		.resources	= da9062_onkey_resources,
+> +		.of_compatible  = "dlg,da9062-onkey",
+> +	},
+> +	{
+> +		.name		= "da9062-thermal",
+> +		.num_resources	= ARRAY_SIZE(da9062_thermal_resources),
+> +		.resources	= da9062_thermal_resources,
+> +		.of_compatible  = "dlg,da9062-thermal",
+> +	},
+> +	{
+> +		.name		= "da9062-rtc",
+> +		.num_resources	= ARRAY_SIZE(da9062_rtc_resources),
+> +		.resources	= da9062_rtc_resources,
+> +		.of_compatible  = "dlg,da9062-rtc",
+
+Did you try to use "da9063-rtc"? The register set seems to be exactly
+the same. Unfortunately, the datasheet are not available on the diasemi
+website...
+
+Also, the .of_compatibles are not necessary because you don't add any of
+bindings to the underlying drivers. The match happens on .name.
+
+> diff --git a/include/linux/mfd/da9062/registers.h b/include/linux/mfd/da9062/registers.h
+> new file mode 100644
+> index 0000000..d07c2bc
+> --- /dev/null
+> +++ b/include/linux/mfd/da9062/registers.h
+
+Comparing that file with da9063/registers.h, It really seems that
+DA062AA, DA9063AD and DA9063BB are register compatible, apart from a few
+differences in the regulator and the gpio count.
+
+Also, at least the watchdog and rtc driver are duplicating their da9063
+counterpart. I'm not trying to annoy you, I just want you to understand
+that the less code is duplicated, the easiest it will be to maintain
+later.
 
 
 -- 
-Jean Delvare
-SUSE L3 Support
-
--- 
--- 
-You received this message because you are subscribed to "rtc-linux".
-Membership options at http://groups.google.com/group/rtc-linux .
-Please read http://groups.google.com/group/rtc-linux/web/checklist
-before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
-For more options, visit https://groups.google.com/d/optout.
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
