@@ -1,43 +1,27 @@
-Return-Path: <rtc-linux+bncBCIPJ6FA2QLBBI5MVSVAKGQEN3BOVVY@googlegroups.com>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBI7M3WVAKGQEABQHXVY@googlegroups.com>
 Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id ec7si68055wib.3.2015.05.07.00.37.06
+        by gmr-mx.google.com with ESMTP id m3si107787wia.1.2015.05.16.09.53.55
         for <rtc-linux@googlegroups.com>;
-        Thu, 07 May 2015 00:37:06 -0700 (PDT)
-Date: Thu, 7 May 2015 09:37:02 +0200
-From: Boris Brezillon <boris.brezillon@free-electrons.com>
-To: Stephen Boyd <sboyd@codeaurora.org>
-Cc: Mike Turquette <mturquette@linaro.org>, linux-clk@vger.kernel.org,
- linux-kernel@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, Shawn Guo
- <shawn.guo@linaro.org>, ascha Hauer <kernel@pengutronix.de>, David Brown
- <davidb@codeaurora.org>, Daniel Walker <dwalker@fifo99.com>, Bryan Huntsman
- <bryanh@codeaurora.org>, Tony Lindgren <tony@atomide.com>, Paul Walmsley
- <paul@pwsan.com>, Liviu Dudau <liviu.dudau@arm.com>, Sudeep Holla
- <sudeep.holla@arm.com>, Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>, Ralf
- Baechle <ralf@linux-mips.org>, Max Filippov <jcmvbkbc@gmail.com>, Heiko
- Stuebner <heiko@sntech.de>, Sylwester Nawrocki <s.nawrocki@samsung.com>,
- Tomasz Figa <tomasz.figa@gmail.com>, Barry Song <baohua@kernel.org>, Viresh
- Kumar <viresh.linux@gmail.com>, Emilio =?UTF-8?B?TMOzcGV6?=
- <emilio@elopez.com.ar>, Maxime Ripard <maxime.ripard@free-electrons.com>,
- Peter De Schrijver <pdeschrijver@nvidia.com>, Prashant Gaikwad
- <pgaikwad@nvidia.com>, Stephen Warren <swarren@wwwdotorg.org>, Thierry
- Reding <thierry.reding@gmail.com>, Alexandre Courbot <gnurou@gmail.com>,
- Tero Kristo <t-kristo@ti.com>, Ulf Hansson <ulf.hansson@linaro.org>, Michal
- Simek <michal.simek@xilinx.com>, Philipp Zabel <p.zabel@pengutronix.de>,
- linux-doc@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
- linux-arm-msm@vger.kernel.org, linux-omap@vger.kernel.org,
- linux-mips@linux-mips.org, patches@opensource.wolfsonmicro.com,
- linux-rockchip@lists.infradead.org, linux-samsung-soc@vger.kernel.org,
- spear-devel@list.st.com, linux-tegra@vger.kernel.org,
- dri-devel@lists.freedesktop.org, linux-media@vger.kernel.org,
- rtc-linux@googlegroups.com
-Subject: [rtc-linux] Re: [PATCH v2 1/2] clk: change clk_ops' ->round_rate() prototype
-Message-ID: <20150507093702.0b58753d@bbrezillon>
-In-Reply-To: <20150507063953.GC32399@codeaurora.org>
-References: <1430407809-31147-1-git-send-email-boris.brezillon@free-electrons.com>
-	<1430407809-31147-2-git-send-email-boris.brezillon@free-electrons.com>
-	<20150507063953.GC32399@codeaurora.org>
+        Sat, 16 May 2015 09:53:55 -0700 (PDT)
+Date: Sat, 16 May 2015 18:53:54 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Joachim Eastwood <manabian@gmail.com>
+Cc: Josh Cartwright <joshc@ni.com>, akpm@linux-foundation.org,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Kevin Wells <wellsk40@gmail.com>, rtc-linux@googlegroups.com,
+	devicetree@vger.kernel.org,
+	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
+Subject: [rtc-linux] Re: [PATCH v2 1/2] rtc: add rtc-lpc24xx driver
+Message-ID: <20150516165354.GN3338@piout.net>
+References: <1431696306-19093-1-git-send-email-manabian@gmail.com>
+ <1431696306-19093-2-git-send-email-manabian@gmail.com>
+ <20150515152312.GG23600@jcartwri.amer.corp.natinst.com>
+ <CAGhQ9VxpN-dSgWS0tJMeik7o_DsRdRo=Mf=Ap1L3j988abcHfQ@mail.gmail.com>
+ <20150515175330.GL23600@jcartwri.amer.corp.natinst.com>
+ <CAGhQ9VygfAvRmFCd5uiZpADpqtfyJgSJDbh1W4LcXE-YqNXmOA@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <CAGhQ9VygfAvRmFCd5uiZpADpqtfyJgSJDbh1W4LcXE-YqNXmOA@mail.gmail.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -48,91 +32,71 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Hi Stephen,
-
-On Wed, 6 May 2015 23:39:53 -0700
-Stephen Boyd <sboyd@codeaurora.org> wrote:
-
-> On 04/30, Boris Brezillon wrote:
-> > Clock rates are stored in an unsigned long field, but ->round_rate()
-> > (which returns a rounded rate from a requested one) returns a long
-> > value (errors are reported using negative error codes), which can lead
-> > to long overflow if the clock rate exceed 2Ghz.
-> > 
-> > Change ->round_rate() prototype to return 0 or an error code, and pass the
-> > requested rate as a pointer so that it can be adjusted depending on
-> > hardware capabilities.
-> > 
-> > Signed-off-by: Boris Brezillon <boris.brezillon@free-electrons.com>
-> > Tested-by: Heiko Stuebner <heiko@sntech.de>
-> > Tested-by: Mikko Perttunen <mikko.perttunen@kapsi.fi>
-> > Reviewed-by: Heiko Stuebner <heiko@sntech.de>
+On 15/05/2015 at 20:04:16 +0200, Joachim Eastwood wrote :
+> On 15 May 2015 at 19:53, Josh Cartwright <joshc@ni.com> wrote:
+> > On Fri, May 15, 2015 at 06:31:53PM +0200, Joachim Eastwood wrote:
+> >> On 15 May 2015 at 17:23, Josh Cartwright <joshc@ni.com> wrote:
+> >> > Hello again,
+> >> >
+> >> > On Fri, May 15, 2015 at 03:25:05PM +0200, Joachim Eastwood wrote:
+> >> >> Add driver for the RTC found on NXP LPC24xx/178x/18xx/43xx devices.
+> >> >> The RTC provides calendar and clock functionality together with
+> >> >> periodic tick and alarm interrupt support.
+> >> >>
+> >> >> Signed-off-by: Joachim Eastwood <manabian@gmail.com>
+> >> >> ---
+> > [..]
+> >> >> +static int lpc24xx_rtc_read_time(struct device *dev, struct rtc_time *tm)
+> >> >> +{
+> >> >> +     struct lpc24xx_rtc *rtc = dev_get_drvdata(dev);
+> >> >> +     u32 ct0, ct1, ct2;
+> >> >> +
+> >> >> +     ct0 = rtc_readl(rtc, LPC24XX_CTIME0);
+> >> >> +     ct1 = rtc_readl(rtc, LPC24XX_CTIME1);
+> >> >> +     ct2 = rtc_readl(rtc, LPC24XX_CTIME2);
+> >> >> +
+> >> >> +     tm->tm_sec  = CT0_SECS(ct0);
+> >> >> +     tm->tm_min  = CT0_MINS(ct0);
+> >> >> +     tm->tm_hour = CT0_HOURS(ct0);
+> >> >> +     tm->tm_wday = CT0_DOW(ct0);
+> >> >> +     tm->tm_mon  = CT1_MONTH(ct1);
+> >> >> +     tm->tm_mday = CT1_DOM(ct1);
+> >> >> +     tm->tm_year = CT1_YEAR(ct1);
+> >> >> +     tm->tm_yday = CT2_DOY(ct2);
+> >> >> +
+> >> >> +     if (rtc_valid_tm(tm) < 0) {
+> >> >> +             dev_warn(dev, "retrieved date and time is invalid\n");
+> >> >> +             rtc_time64_to_tm(0, tm);
+> >> >> +             lpc24xx_rtc_set_time(dev, tm);
+> >> >> +     }
+> >> >> +
+> >> >> +     return 0;
+> >> >
+> >> > Forcing the read time to be the epoch on failure seems like a pretty
+> >> > poor way to handle errors, in my opinion.
+> >>
+> >> When the device doesn't have battery the CTIME registers contains an
+> >> invalid value. So if you don't set them to something valid you will
+> >> get a warning each time you try to read the RTC. To "fix" that problem
+> >> I set the time at epoch which make the CTIME registers to contain a
+> >> valid value. Since the value is already useless I think setting it to
+> >> epoch is an improvement in this case.
+> >
+> > I see.  I think doing this setting in your read_time callback is the
+> > wrong place to do this check.  I'm thinking a better place for it would
+> > be in your driver's probe().
 > 
-> This patch is fairly invasive, and it probably doesn't even
-> matter for most of these clock providers to be able to round a
-> rate above 2GHz.
-
-Fair enough.
-
-> I've been trying to remove the .round_rate op
-> from the framework by encouraging new features via the
-> .determine_rate op.
-
-Oh, I wasn't aware of that (BTW, that's a good thing).
-Maybe this should be clearly stated (both in the struct clk_ops
-kerneldoc header and in Documentation/clk.txt).
-
-> Sadly, we still have to do a flag day and
-> change all the .determine_rate ops when we want to add things.
-
-Yes, but the number of clk drivers implementing ->determine_rate() is
-still quite limited compared to those implementing ->round_rate().
-
-> 
-> What if we changed determine_rate ops to take a struct
-> clk_determine_info (or some better named structure) instead of
-> the current list of arguments that it currently takes? Then when
-> we want to make these sorts of framework wide changes we can just
-> throw a new member into that structure and be done.
-
-I really like this idea, especially since I was wondering if we could
-pass other 'clk rate requirements' like the rounding policy (down,
-closest, up), or the maximum clk inaccuracy.
-
-> 
-> It doesn't solve the unsigned long to int return value problem
-> though. We can solve that by gradually introducing a new op and
-> handling another case in the rounding path. If we can come up
-> with some good name for that new op like .decide_rate or
-> something then it makes things nicer in the long run. I like the
-> name .determine_rate though :/
-
-Why not changing the ->determine_rate() prototype. As said above, the
-number of clk drivers implementing this function is still quite
-limited, and I guess we can have an ack for all of them.
-
-> 
-> The benefit of all this is that we don't have to worry about
-> finding the random clk providers that get added into other
-> subsystems and fixing them up. If drivers actually care about
-> this problem then they'll be fixed to use the proper op. FYI,
-> last time we updated the function signature of .determine_rate we
-> broke a couple drivers along the way.
+> That is a good idea. I'll move the check to probe instead.
 > 
 
-Hm, IMHO, adding a new op is not a good thing. I agree that it eases
-the transition, but ITOH you'll have to live with old/deprecated ops in
-your clk_ops structure with people introducing new drivers still using
-the old ops (see the number of clk drivers implementing ->round_rate()
-instead of ->determine_rate()).
-
-Best Regards,
-
-Boris
+Actually, it is never a good idea to set the time to epoch at all because
+then userspace, will assume that the time is valid. You should return
+an error until userspace sets the time. You can drop the dev_warn and
+simply return rtc_valid_tm(tm);
 
 -- 
-Boris Brezillon, Free Electrons
-Embedded Linux and Kernel engineering
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
 http://free-electrons.com
 
 -- 
