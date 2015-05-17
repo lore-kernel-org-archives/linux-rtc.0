@@ -1,19 +1,21 @@
-Return-Path: <rtc-linux+bncBDEKVJM7XAHRBBOGZGVAKGQECNVQEJQ@googlegroups.com>
-Received: from mout.kundenserver.de (mout.kundenserver.de. [212.227.126.131])
-        by gmr-mx.google.com with ESMTPS id m3si162718wia.1.2015.05.12.13.31.01
+Return-Path: <rtc-linux+bncBCGLJQVNREJBBLXC4GVAKGQEWAKTQ6A@googlegroups.com>
+Received: from mailgw01.mediatek.com ([210.61.82.183])
+        by gmr-mx.google.com with ESMTPS id x3si728860pdh.2.2015.05.17.03.45.01
         for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 12 May 2015 13:31:01 -0700 (PDT)
-From: Arnd Bergmann <arnd@arndb.de>
-To: Robert Jarzmik <robert.jarzmik@free.fr>
-Cc: Rob Herring <robh@kernel.org>, Russell King - ARM Linux <linux@arm.linux.org.uk>, Alexandre Belloni <alexandre.belloni@free-electrons.com>, Eric Miao <eric.y.miao@gmail.com>, Haojian Zhuang <haojian.zhuang@gmail.com>, Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Daniel Mack <daniel@zonque.org>
-Subject: [rtc-linux] Re: [PATCH v3 1/4] ARM: pxa: add memory resource to RTC device
-Date: Tue, 12 May 2015 22:30:12 +0200
-Message-ID: <53644246.uSkhGz7C05@wuerfel>
-In-Reply-To: <878uctmtm6.fsf@belgarion.home>
-References: <1431384089-28367-1-git-send-email-robh@kernel.org> <87lhgumi4b.fsf@belgarion.home> <878uctmtm6.fsf@belgarion.home>
-MIME-Version: 1.0
+        (version=TLSv1 cipher=RC4-SHA bits=128/128);
+        Sun, 17 May 2015 03:45:02 -0700 (PDT)
+Message-ID: <1431859498.31486.1.camel@mtksdaap41>
+Subject: [rtc-linux] Re: [PATCH] rtc: mt6397: fix build on some 32bits platforms
+From: Eddie Huang <eddie.huang@mediatek.com>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+CC: <linux-mediatek@lists.infradead.org>,
+	<linux-arm-kernel@lists.infradead.org>, <rtc-linux@googlegroups.com>,
+	<linux-kernel@vger.kernel.org>
+Date: Sun, 17 May 2015 18:44:58 +0800
+In-Reply-To: <1431636678-29525-1-git-send-email-alexandre.belloni@free-electrons.com>
+References: <1431636678-29525-1-git-send-email-alexandre.belloni@free-electrons.com>
 Content-Type: text/plain; charset=UTF-8
+MIME-Version: 1.0
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -24,33 +26,49 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On Tuesday 12 May 2015 22:24:49 Robert Jarzmik wrote:
+On Thu, 2015-05-14 at 22:51 +0200, Alexandre Belloni wrote:
+> On some !ARM 32bits platforms, the following compilation error happens
+> because of the division on a 64bits value in mtk_rtc_read_time():
 > 
-> I made the try, and Russell was right, this breaks the pxa architecture. The
-> relevant extract of kernel message is in [1].
+> drivers/built-in.o: In function `mtk_rtc_read_time':
+> rtc-mt6397.c:(.text+0x265d13f): undefined reference to `__divdi3'
+> rtc-mt6397.c:(.text+0x265d150): undefined reference to `__moddi3'
 > 
-> The consequences with your patches :
->  - pxa27x_init()
->    - platform_add_devices()
->      - the pxa_device_rtc fails (as resource is duplicated)
->      - all the devices are unregistered (rollback)
-> And pxa27x fails.
+> Use div_s64() as done in rtc_time64_to_tm() to solve that.
 > 
-> Now I'm pondering about the right approach :
->  - either remove sa1100_device_rtc from pxas
->  - or remove pxa_device_rtc
->  - or both
->  - or something else
+> Reported-by: kbuild test robot <fengguang.wu@intel.com>
+> Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+> ---
+>  drivers/rtc/rtc-mt6397.c | 5 +++--
+>  1 file changed, 3 insertions(+), 2 deletions(-)
 > 
-> Let me think a bit about it.
-> 
+> diff --git a/drivers/rtc/rtc-mt6397.c b/drivers/rtc/rtc-mt6397.c
+> index 8bed852e4961..c0090b698ff3 100644
+> --- a/drivers/rtc/rtc-mt6397.c
+> +++ b/drivers/rtc/rtc-mt6397.c
+> @@ -150,7 +150,7 @@ static int mtk_rtc_read_time(struct device *dev, struct rtc_time *tm)
+>  {
+>  	time64_t time;
+>  	struct mt6397_rtc *rtc = dev_get_drvdata(dev);
+> -	int sec, ret;
+> +	int days, sec, ret;
+>  
+>  	do {
+>  		ret = __mtk_rtc_read_time(rtc, tm, &sec);
+> @@ -171,7 +171,8 @@ static int mtk_rtc_read_time(struct device *dev, struct rtc_time *tm)
+>  	/* rtc_tm_to_time64 covert Gregorian date to seconds since
+>  	 * 01-01-1970 00:00:00, and this date is Thursday.
+>  	 */
+> -	tm->tm_wday = (time / 86400 + 4) % 7;
+> +	days = div_s64(time, 86400);
+> +	tm->tm_wday = (days + 4) % 7;
+>  
+>  exit:
+>  	return ret;
 
-To solve the problem with the duplicate registration of one resource,
-I'd suggest using platform_device_register_simple() for the registration,
-which will copy the resource. You can then mark the resource as __initconst
-and remove the device to save a little memory at runtime.
+Acked-by: Eddie Huang <eddie.huang@mediatek.com>
 
-	Arnd
+
 
 -- 
 -- 
