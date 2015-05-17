@@ -1,27 +1,22 @@
-Return-Path: <rtc-linux+bncBCH4V2OOTYHBBLUBWSVAKGQEJKDBWEI@googlegroups.com>
-Received: from mail-wg0-x22f.google.com (mail-wg0-x22f.google.com. [2a00:1450:400c:c00::22f])
-        by gmr-mx.google.com with ESMTPS id gt9si157wib.2.2015.05.08.11.30.06
+Return-Path: <rtc-linux+bncBCGLJQVNREJBBY7D4GVAKGQEEVVE7PY@googlegroups.com>
+Received: from mailgw01.mediatek.com ([210.61.82.183])
+        by gmr-mx.google.com with ESMTPS id x3si729509pdh.2.2015.05.17.03.48.02
         for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 08 May 2015 11:30:06 -0700 (PDT)
-Received: by wgic8 with SMTP id c8so53459490wgi.1
-        for <rtc-linux@googlegroups.com>; Fri, 08 May 2015 11:30:06 -0700 (PDT)
-Date: Fri, 8 May 2015 20:28:42 +0200 (CEST)
-From: Hans Ulli Kroll <ulli.kroll@googlemail.com>
-To: Roman Yeryomin <roman@advem.lv>
-cc: Hans Ulli Kroll <ulli.kroll@googlemail.com>, Arnd Bergmann <arnd@arndb.de>,
-    Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-    linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-    rtc-linux@googlegroups.com, Linus Walleij <linus.walleij@linaro.org>,
-    Russell King <rmk+kernel@arm.linux.org.uk>,
-    Felix Fietkau <nbd@openwrt.org>
-Subject: [rtc-linux] Re: [1/2] RTC: Add core rtc support for Gemini Soc devices
-In-Reply-To: <beaeec189608d669a47cac8ad589ee25@advem.lv>
-Message-ID: <alpine.LNX.2.00.1505081956480.15607@T520.local>
-References: <1292339307-14336-2-git-send-email-ulli.kroll@googlemail.com> <2694895.MomHLoCaoZ@wuerfel> <alpine.LNX.2.00.1505070455130.32495@T520.local> <5043733.xO9lSCKvly@wuerfel> <alpine.LNX.2.00.1505071936170.19877@T520.local>
- <beaeec189608d669a47cac8ad589ee25@advem.lv>
+        (version=TLSv1 cipher=RC4-SHA bits=128/128);
+        Sun, 17 May 2015 03:48:03 -0700 (PDT)
+Message-ID: <1431859679.31486.4.camel@mtksdaap41>
+Subject: Re: [rtc-linux] [PATCH] rtc: mt6397: fix build on some 32bits platforms
+From: Eddie Huang <eddie.huang@mediatek.com>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+CC: <linux-mediatek@lists.infradead.org>,
+	<linux-arm-kernel@lists.infradead.org>, <rtc-linux@googlegroups.com>,
+	<linux-kernel@vger.kernel.org>
+Date: Sun, 17 May 2015 18:47:59 +0800
+In-Reply-To: <20150514215504.GF3338@piout.net>
+References: <1431636678-29525-1-git-send-email-alexandre.belloni@free-electrons.com>
+	 <20150514215504.GF3338@piout.net>
+Content-Type: text/plain; charset=UTF-8
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -32,74 +27,38 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-
-Hi
-
-On Fri, 8 May 2015, Roman Yeryomin wrote:
-
-> On 2015-05-07 20:46, Hans Ulli Kroll wrote:
-> > Hi
-> > 
-> > On Thu, 7 May 2015, Arnd Bergmann wrote:
-> > 
-> > > On Thursday 07 May 2015 05:00:03 Hans Ulli Kroll wrote:
-> > > > On Wed, 6 May 2015, Arnd Bergmann wrote:
-> > > > > As far as I'm concerned, we should just merge all the patches from
-> > > > > http://git.openwrt.org/?p=openwrt.git;a=tree;f=target/linux/gemini/patches-3.18
-> > > > >
-> > > > > We should also try to find a maintainer that can respond to patches
-> > > > > in a timely manner. If Ulli has time for that again, that would be
-> > > > > great,
-> > > > > otherwise I think we should find someone from OpenWRT to take over.
-> > > >
-> > > > I'm back in busyness.
-> > > > Currently me dev device is right next to me.
-> > > > I moved some time ago and haav to find it in some 'hidden' box.
-> > > 
-> > > Awesome, welcome back!
-> > > 
-> > > Are you able to look at the patches I mentioned above and submit them
-> > > to arm@kernel.org, cc linux-arm-kernel@lists.infradead.org with proper
-> > > patch descriptions?
-> > > 
-> > >  Arnd
-> > > 
-> > 
-> > Already done,
-> > RTC driver send.
-> > Compilder fix for MACH-RECORD send.
-> > Maintainer Update send.
-> > 
-> > This device is a (very) bad design, to be polite !
-> > I think they didn't test this properly.
-> > And they fixed some software issues in hardware.
-> > To be exact :
-> > They switched the IDE channels in hardware, to get around the stupid
-> > Sausalito software.
+On Thu, 2015-05-14 at 23:55 +0200, Alexandre Belloni wrote:
+> Hi,
 > 
-> AFAIK, ide channels are switchable in the driver.
+> On 14/05/2015 at 22:51:18 +0200, Alexandre Belloni wrote :
+> > On some !ARM 32bits platforms, the following compilation error happens
+> > because of the division on a 64bits value in mtk_rtc_read_time():
+> > 
+> > drivers/built-in.o: In function `mtk_rtc_read_time':
+> > rtc-mt6397.c:(.text+0x265d13f): undefined reference to `__divdi3'
+> > rtc-mt6397.c:(.text+0x265d150): undefined reference to `__moddi3'
+> > 
+> > Use div_s64() as done in rtc_time64_to_tm() to solve that.
+> > 
+> > Reported-by: kbuild test robot <fengguang.wu@intel.com>
+> > Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+> 
+> I've already pushed that patch to rtc-next to repair the build for i386
+> and m68k but feel free to comment if you see anything wrong.
 
-Yes.
-But there is a HW switch.
-/* Values of IOMUX
- * 26:24 bits is "IDE IO Select"
- * 111:100 - Reserved
- * 011 - ata0 <-> sata0, sata1; bring out ata1
- * 010 - ata1 <-> sata1, sata0; bring out ata0
- * 001 - ata0 <-> sata0, ata1 <-> sata1; bring out ata1
- * 000 - ata0 <-> sata0, ata1 <-> sata1; bring out ata0
-*/
+Sorry for late. I am in vacation and can't receive mail last week.
+Thanks your effort to correct this.
 
-This is from an email long time ago, with Paulius Zaleckas who has the 
-yoriginal documentation to this SoC.
-I hacked some weeks (or months) to get this thing running.
+Eddie
 
-Some HDD are working well, others don't. At this time, this was only one 
-manufacturer, who has only the "bad" devices.
-Early this year, I got some report from one user. He has two hdd's from 
-the same manufacturer. One hdd is working well, the other don't.
 
-At the end of this "session" I've taken this device to some hidden place.
-;-)
-
-Ulli
+-- 
+-- 
+You received this message because you are subscribed to "rtc-linux".
+Membership options at http://groups.google.com/group/rtc-linux .
+Please read http://groups.google.com/group/rtc-linux/web/checklist
+before submitting a driver.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+For more options, visit https://groups.google.com/d/optout.
