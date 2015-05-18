@@ -1,21 +1,26 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRB6VQSOVAKGQEWH4AMXA@googlegroups.com>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBOGE5GVAKGQE7NTWBYA@googlegroups.com>
 Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id gt9si84945wib.2.2015.05.02.07.00.26
+        by gmr-mx.google.com with ESMTP id q10si447329wiz.0.2015.05.18.15.05.44
         for <rtc-linux@googlegroups.com>;
-        Sat, 02 May 2015 07:00:26 -0700 (PDT)
-Date: Sat, 2 May 2015 16:00:25 +0200
+        Mon, 18 May 2015 15:05:44 -0700 (PDT)
+Date: Tue, 19 May 2015 00:05:42 +0200
 From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Kukjin Kim <kgene.kim@samsung.com>
-Cc: linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org,
-	rtc-linux@googlegroups.com, ben-linux@fluff.org,
-	p_gortmaker@yahoo.com, a.zummo@towertech.it,
-	Wan ZongShun <mcuos.com@gmail.com>
-Subject: [rtc-linux] Re: [2/3] rtc: rtc-s3c: Add spin_lock_irq in s3c_rtc_setaie
-Message-ID: <20150502140025.GL12076@piout.net>
-References: <1289865774-31073-3-git-send-email-kgene.kim@samsung.com>
+To: Adrian Huang <adrianhuang0701@gmail.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
+	Brecht Machiels <brecht@mos6581.org>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	John Stultz <john.stultz@linaro.org>,
+	Rabin Vincent <rabin.vincent@stericsson.com>,
+	Borislav Petkov <bp@suse.de>,
+	Nagananda Chumbalkar <nchumbalkar@lenovo.com>,
+	Adrian Huang <ahuang12@lenovo.com>
+Subject: [rtc-linux] Re: [RFC PATCH 2/2] rtc: Restore the RTC alarm time to
+ the configured alarm time in BIOS Setup
+Message-ID: <20150518220542.GW3338@piout.net>
+References: <1431077706-3560-1-git-send-email-adrianhuang0701@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1289865774-31073-3-git-send-email-kgene.kim@samsung.com>
+In-Reply-To: <1431077706-3560-1-git-send-email-adrianhuang0701@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -26,42 +31,53 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Hi Kukjin,
+Hi,
 
-On 16/11/2010 at 09:02:53 +0900, Kukjin Kim wrote :
-> This patch adds spin_lock_irq() and spin_unlock_irq() during
-> alarm interrupt configuration to avoid interrupt missing.
+On 08/05/2015 at 17:35:06 +0800, Adrian Huang wrote :
+> Steps to reproduce the problem:
+> 	1) Enable RTC wake-up option in BIOS Setup
+> 	2) Issue one of these commands in the OS: "poweroff" 
+> 	   or "shutdown -h now"
+> 	3) System will shut down and then reboot automatically
 > 
-> Cc: Ben Dooks <ben-linux@fluff.org>
-> Cc: Wan ZongShun <mcuos.com@gmail.com>
-> Cc: Alessandro Zummo <a.zummo@towertech.it>
-> Signed-off-by: Kukjin Kim <kgene.kim@samsung.com>
-
-This patch never made it in the mainline, is it still necessary?
-
-> ---
->  drivers/rtc/rtc-s3c.c |    2 ++
->  1 files changed, 2 insertions(+), 0 deletions(-)
+> Root-cause of the issue:
+> 	1) During the shutdown process, the hwclock utility is used
+> 	   to save the system clock to hardware clock (RTC).
+> 	2) The hwclock utility invokes ioctl() with RTC_UIE_ON. The
+> 	   kernel configures the RTC alarm for the periodic interrupt
+> 	   (every 1 second).
+> 	3) The hwclock uitlity closes the /dev/rtc0 device, and the
+> 	   kernel disables the RTC alarm irq (AIE bit of Register B)
+> 	   via ioctl() with RTC_UIE_OFF. But, the configured alarm
+> 	   time is the current_time + 1.
+> 	4) After the next 1 second is elapsed, the AF (alarm
+> 	   interrupt flag) of Register C is set.
+> 	5) The S5 handler in BIOS is invoked to configure alarm
+> 	   registers (enable AIE bit and configure alarm date/time).
+> 	   But, BIOS does not clear the previous interrupt status
+> 	   during alarm configuration. Therefore, "AF=AIE=1" causes 
+> 	   the rtc device to trigger an interrupt.  
+> 	6) So, the machine reboots automatically right after shutdown.
 > 
-> diff --git a/drivers/rtc/rtc-s3c.c b/drivers/rtc/rtc-s3c.c
-> index e2636ff..bb88027 100644
-> --- a/drivers/rtc/rtc-s3c.c
-> +++ b/drivers/rtc/rtc-s3c.c
-> @@ -82,12 +82,14 @@ static int s3c_rtc_setaie(struct device *dev, unsigned int enabled)
->  
->  	pr_debug("%s: aie=%d\n", __func__, enabled);
->  
-> +	spin_lock_irq(&s3c_rtc_pie_lock);
->  	tmp = readb(s3c_rtc_base + S3C2410_RTCALM) & ~S3C2410_RTCALM_ALMEN;
->  
->  	if (enabled)
->  		tmp |= S3C2410_RTCALM_ALMEN;
->  
->  	writeb(tmp, s3c_rtc_base + S3C2410_RTCALM);
-> +	spin_unlock_irq(&s3c_rtc_pie_lock);
->  
->  	return 0;
->  }
+> This patch restores the configured alarm time (user configures the
+> time in BIOS Setup) to rtc alarm registers. In some circumstances,
+> the time of the rtc alarm registers is the past time because
+> user-space programs (for example: hwclock) may invoke ioctl() with
+> RTC_UIE_ON. In any case, this patch prevents the AF bit from getting
+> set to 1. Note, AF=1 will cause the system to reboot after shut down.
+> Therefore, this patch fixes the issue from occurring.
+> 
+
+Actually, I'm not sure that solves your issue. From what I
+understand, what is happening in step 4 is the bug you want to work
+around and it happens because AF gets set even if AIE is not set.
+
+So, your rtc_alarm_restore() basically calls cmos_set_alarm() which
+calls cmos_irq_disable() finally this one calls cmos_checkintr() which
+does read register C and so clears AF.
+
+What I'm not sure is why cmos_do_shutdown() isn't clearing AF properly.
+Is it correctly called at shutdown?
 
 -- 
 Alexandre Belloni, Free Electrons
