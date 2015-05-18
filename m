@@ -1,33 +1,30 @@
-Return-Path: <rtc-linux+bncBDA7X7F2WUEBBAHSY6VAKGQETUHS3TQ@googlegroups.com>
-MIME-Version: 1.0
-Received: from mail-wi0-f180.google.com (mail-wi0-f180.google.com. [209.85.212.180])
-        by gmr-mx.google.com with ESMTPS id p12si105894wiv.1.2015.05.12.05.58.40
+Return-Path: <rtc-linux+bncBCHOPY7NVYCRB2X35CVAKGQEIV6IKRA@googlegroups.com>
+Received: from mail-ob0-x230.google.com (mail-ob0-x230.google.com. [2607:f8b0:4003:c01::230])
+        by gmr-mx.google.com with ESMTPS id qr9si803845igb.0.2015.05.18.12.30.50
         for <rtc-linux@googlegroups.com>
         (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 12 May 2015 05:58:40 -0700 (PDT)
-Received: by mail-wi0-f180.google.com with SMTP id f7so111585116wie.0
-        for <rtc-linux@googlegroups.com>; Tue, 12 May 2015 05:58:40 -0700 (PDT)
-From: Lee Jones <lee.jones@linaro.org>
-To: linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org,
-	devicetree@vger.kernel.org,
-	daniel.lezcano@linaro.org,
-	tglx@linutronix.de,
-	wim@iguana.be,
-	a.zummo@towertech.it,
-	linux-watchdog@vger.kernel.org,
-	rtc-linux@googlegroups.com,
-	linux@roeck-us.net
-Cc: kernel@stlinux.com,
-	Lee Jones <lee.jones@linaro.org>
-Subject: [rtc-linux] [PATCH v2 10/12] ARM: STi: DT: STih407: Switch LPC mode
- from RTC to Clocksource
-Date: Tue, 12 May 2015 13:58:18 +0100
-Message-Id: <1431435500-22899-11-git-send-email-lee.jones@linaro.org>
-In-Reply-To: <1431435500-22899-1-git-send-email-lee.jones@linaro.org>
-References: <1431435500-22899-1-git-send-email-lee.jones@linaro.org>
-Reply-To: rtc-linux@googlegroups.com
+        Mon, 18 May 2015 12:30:50 -0700 (PDT)
+Received: by mail-ob0-x230.google.com with SMTP id lk2so138860000obb.0
+        for <rtc-linux@googlegroups.com>; Mon, 18 May 2015 12:30:50 -0700 (PDT)
+MIME-Version: 1.0
+In-Reply-To: <1431938725.3209.15.camel@pengutronix.de>
+References: <1431696990-23078-1-git-send-email-Frank.Li@freescale.com>
+	<1431696990-23078-5-git-send-email-Frank.Li@freescale.com>
+	<1431938725.3209.15.camel@pengutronix.de>
+Date: Mon, 18 May 2015 14:30:50 -0500
+Message-ID: <CAHrpEqSxgqUSWFkAh+R4K1oShsWfErE4nndxkYGGktMdkb3=xw@mail.gmail.com>
+Subject: [rtc-linux] Re: [PATCH 4/7] arm: dts: imx: update snvs to use syscon
+ access register
+From: Zhi Li <lznuaa@gmail.com>
+To: Philipp Zabel <p.zabel@pengutronix.de>
+Cc: "Frank.Li@freescale.com" <Frank.Li@freescale.com>, Shawn Guo <shawn.guo@linaro.org>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, a.zummo@towertech.it,
+	alexandre.belloni@free-electrons.com, sachin.kamat@linaro.org,
+	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, linux-input@vger.kernel.org,
+	rtc-linux@googlegroups.com, linux-pm@vger.kernel.org,
+	"devicetree@vger.kernel.org" <devicetree@vger.kernel.org>
 Content-Type: text/plain; charset=UTF-8
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -37,28 +34,44 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-This aligns with the internal configuration.
+On Mon, May 18, 2015 at 3:45 AM, Philipp Zabel <p.zabel@pengutronix.de> wrote:
+> Hi Frank,
+>
+> Am Freitag, den 15.05.2015, 21:36 +0800 schrieb Frank.Li@freescale.com:
+>> From: Frank Li <Frank.Li@freescale.com>
+>>
+>> snvs is MFP device. Change dts to use syscon to allocate register resource.
+>>
+>> Signed-off-by: Frank Li <Frank.Li@freescale.com>
+>> ---
+>>  arch/arm/boot/dts/imx6qdl.dtsi | 12 ++++--------
+>>  arch/arm/boot/dts/imx6sl.dtsi  | 12 ++++--------
+>>  arch/arm/boot/dts/imx6sx.dtsi  | 12 ++++--------
+>>  arch/arm/boot/dts/vfxxx.dtsi   |  9 +++------
+>>  4 files changed, 15 insertions(+), 30 deletions(-)
+>>
+>> diff --git a/arch/arm/boot/dts/imx6qdl.dtsi b/arch/arm/boot/dts/imx6qdl.dtsi
+>> index 0482a66..6d8161d 100644
+>> --- a/arch/arm/boot/dts/imx6qdl.dtsi
+>> +++ b/arch/arm/boot/dts/imx6qdl.dtsi
+>> @@ -687,21 +687,17 @@
+>>                       };
+>>
+>>                       snvs@020cc000 {
+>> -                             compatible = "fsl,sec-v4.0-mon", "simple-bus";
+>> -                             #address-cells = <1>;
+>> -                             #size-cells = <1>;
+>> -                             ranges = <0 0x020cc000 0x4000>;
+>> +                             compatible = "fsl,sec-v4.0-mon", "syscon",  "simple-bus";
+>
+> The compatible should change from "simple-bus" to "simple-mfd", then.
 
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
----
- arch/arm/boot/dts/stih407-family.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+After change to simple-mfd,  driver can't been probed. Anything missed?
 
-diff --git a/arch/arm/boot/dts/stih407-family.dtsi b/arch/arm/boot/dts/stih407-family.dtsi
-index 2b2315d..bf1c7f5 100644
---- a/arch/arm/boot/dts/stih407-family.dtsi
-+++ b/arch/arm/boot/dts/stih407-family.dtsi
-@@ -354,7 +354,7 @@
- 			reg = <0x8788000 0x1000>;
- 			interrupts = <GIC_SPI 130 IRQ_TYPE_EDGE_RISING>;
- 			clocks = <&clk_s_d3_flexgen CLK_LPC_1>;
--			st,lpc-mode = <ST_LPC_MODE_RTC>;
-+			st,lpc-mode = <ST_LPC_MODE_CLKSRC>;
- 		};
- 	};
- };
--- 
-1.9.1
+>
+> regards
+> Philipp
+>
 
 -- 
 -- 
