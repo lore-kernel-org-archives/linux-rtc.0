@@ -1,31 +1,27 @@
-Return-Path: <rtc-linux+bncBAABBXMZ5CVAKGQEU3RJ4GY@googlegroups.com>
-Received: from mx2.suse.de (cantor2.suse.de. [195.135.220.15])
-        by gmr-mx.google.com with ESMTPS id bc3si385708wib.2.2015.05.18.09.01.33
+Return-Path: <rtc-linux+bncBD5O5IWPJMIMTQHJVICRUBBD6U53M@googlegroups.com>
+Received: from mail-wg0-x232.google.com (mail-wg0-x232.google.com. [2a00:1450:400c:c00::232])
+        by gmr-mx.google.com with ESMTPS id p12si442661wiv.1.2015.05.18.14.57.29
         for <rtc-linux@googlegroups.com>
-        (version=TLSv1 cipher=ECDHE-RSA-RC4-SHA bits=128/128);
-        Mon, 18 May 2015 09:01:33 -0700 (PDT)
-Date: Mon, 18 May 2015 18:01:26 +0200
-From: Borislav Petkov <bp@suse.de>
-To: Diego Ercolani <diego.ercolani@gmail.com>
-Cc: Adrian Huang <adrianhuang0701@gmail.com>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	rtc-linux@googlegroups.com, Brecht Machiels <brecht@mos6581.org>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	John Stultz <john.stultz@linaro.org>,
-	Rabin Vincent <rabin.vincent@stericsson.com>,
-	Nagananda Chumbalkar <nchumbalkar@lenovo.com>,
-	Adrian Huang <ahuang12@lenovo.com>, Egbert Eich <eich@suse.com>
-Subject: [rtc-linux] Re: [RFC PATCH 1/2] Revert "rtc-cmos: Add an alarm
- disable quirk"
-Message-ID: <20150518160126.GI23662@pd.tnic>
-References: <1431077665-3493-1-git-send-email-adrianhuang0701@gmail.com>
- <20150518094755.GC23662@pd.tnic>
- <CANoYJu=utAHVNPU5PnPoBXtpMPVVbFf557xbBO=2GuHyx-JNHg@mail.gmail.com>
- <20150518101248.GE23662@pd.tnic>
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 18 May 2015 14:57:29 -0700 (PDT)
+Received: by mail-wg0-x232.google.com with SMTP id gq6so29444681wgb.3
+        for <rtc-linux@googlegroups.com>; Mon, 18 May 2015 14:57:29 -0700 (PDT)
+Message-ID: <555A603F.7000005@gmail.com>
+Date: Mon, 18 May 2015 23:57:19 +0200
+From: Philippe Reynes <tremyfr@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <20150518101248.GE23662@pd.tnic>
+To: "Enrico Weigelt, metux IT consult" <weigelt@melag.de>
+CC: shawn.guo@linaro.org, kernel@pengutronix.de, linux@arm.linux.org.uk,
+ a.zummo@towertech.it, alexandre.belloni@free-electrons.com,
+ robh+dt@kernel.org, pawel.moll@arm.com, mark.rutland@arm.com,
+ ijc+devicetree@hellion.org.uk, galak@codeaurora.org,
+ rtc-linux@googlegroups.com, linux-arm-kernel@lists.infradead.org,
+ linux-kernel@vger.kernel.org, devicetree@vger.kernel.org,
+ fabio.estevam@freescale.com
+Subject: [rtc-linux] Re: [PATCH 1/2] rtc: mxc: add a second clock
+References: <1431729330-7625-1-git-send-email-tremyfr@gmail.com> <1431729330-7625-2-git-send-email-tremyfr@gmail.com> <5559CC85.5040703@melag.de>
+In-Reply-To: <5559CC85.5040703@melag.de>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -36,34 +32,58 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On Mon, May 18, 2015 at 12:12:48PM +0200, Borislav Petkov wrote:
-> > In the meanwhile I upgraded my linux box to opensuse 13.2 with actual
-> > kernel: 3.16.7-21-desktop
-> 
-> Ok, I'll prepare one.
+Hi Enrico,
 
-Ok, I've uploaded a test kernel here - kernel-desktop, 64-bit:
+On 18/05/15 13:27, Enrico Weigelt, metux IT consult wrote:
+> Am 16.05.2015 um 00:35 schrieb Philippe Reynes:
+>> The mxc RTC needs two clocks, one for the input
+>> reference, and one for the IP. But this driver
+>> was only using one clock (for the reference).
+>> This patch add the second clock (for the IP).
+>
+>
+> Does this also apply to MX53, or just MX21 ?
 
-http://beta.suse.com/private/bpetkov/
+I don't found this rtc on mx53 manual. The mx53 seems to use rtc-imxdi.c.
+So, I think it's just for mx21.
 
-Let me know if you have trouble testing it.
+Regards,
+Philippe
+ =20
+> greetings,
+> --
+> Enrico Weigelt, metux IT consult
+> +49-151-27565287
+> MELAG Medizintechnik oHG Sitz Berlin Registergericht AG Charlottenburg HR=
+A 21333 B
+>
+> Wichtiger Hinweis: Diese Nachricht kann vertrauliche oder nur f=C3=BCr ei=
+nen begrenzten Personenkreis bestimmte Informationen enthalten. Sie ist aus=
+schlie=C3=9Flich f=C3=BCr denjenigen bestimmt, an den sie gerichtet worden =
+ist. Wenn Sie nicht der Adressat dieser E-Mail sind, d=C3=BCrfen Sie diese =
+nicht kopieren, weiterleiten, weitergeben oder sie ganz oder teilweise in i=
+rgendeiner Weise nutzen. Sollten Sie diese E-Mail irrt=C3=BCmlich erhalten =
+haben, so benachrichtigen Sie bitte den Absender, indem Sie auf diese Nachr=
+icht antworten. Bitte l=C3=B6schen Sie in diesem Fall diese Nachricht und a=
+lle Anh=C3=A4nge, ohne eine Kopie zu behalten.
+> Important Notice: This message may contain confidential or privileged inf=
+ormation. It is intended only for the person it was addressed to. If you ar=
+e not the intended recipient of this email you may not copy, forward, discl=
+ose or otherwise use it or any part of it in any form whatsoever. If you re=
+ceived this email in error please notify the sender by replying and delete =
+this message and any attachments without retaining a copy.
 
-Thanks.
+  s
 
--- 
-Regards/Gruss,
-    Boris.
-
-ECO tip #101: Trim your mails when you reply.
---
-
--- 
--- 
+--=20
+--=20
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+---=20
+You received this message because you are subscribed to the Google Groups "=
+rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an e=
+mail to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
