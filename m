@@ -1,48 +1,22 @@
-Return-Path: <rtc-linux+bncBCKMZDW5VIHBBSOPV2VAKGQEMDY3MYA@googlegroups.com>
-Received: from bh-25.webhostbox.net (bh-25.webhostbox.net. [208.91.199.152])
-        by gmr-mx.google.com with ESMTPS id x12si11284igx.1.2015.05.07.10.58.32
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1 cipher=RC4-SHA bits=128/128);
-        Thu, 07 May 2015 10:58:32 -0700 (PDT)
-Received: from mailnull by bh-25.webhostbox.net with sa-checked (Exim 4.85)
-	(envelope-from <linux@roeck-us.net>)
-	id 1YqQ48-002qiD-36
-	for rtc-linux@googlegroups.com; Thu, 07 May 2015 17:58:32 +0000
-Date: Thu, 7 May 2015 10:57:47 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-To: "Opensource [Steve Twiss]" <stwiss.opensource@diasemi.com>
-Cc: LINUXKERNEL <linux-kernel@vger.kernel.org>,
-	LINUXWATCHDOG <linux-watchdog@vger.kernel.org>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	DEVICETREE <devicetree@vger.kernel.org>,
-	David Dajun Chen <david.chen@diasemi.com>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Ian Campbell <ijc+devicetree@hellion.org.uk>,
-	Kumar Gala <galak@codeaurora.org>,
-	LINUXINPUT <linux-input@vger.kernel.org>,
-	Lee Jones <lee.jones@linaro.org>,
-	Liam Girdwood <lgirdwood@gmail.com>,
-	Mark Brown <broonie@kernel.org>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Pawel Moll <pawel.moll@arm.com>,
-	RTCLINUX <rtc-linux@googlegroups.com>,
-	Rob Herring <robh+dt@kernel.org>,
-	Samuel Ortiz <sameo@linux.intel.com>,
-	Support Opensource <Support.Opensource@diasemi.com>
-Subject: [rtc-linux] Re: [PATCH V1 5/6] watchdog: da9062: DA9062 watchdog driver
-Message-ID: <20150507175747.GB30372@roeck-us.net>
-References: <cover.1429280614.git.stwiss.opensource@diasemi.com>
- <2afd9f55c71553186e99bfe386312f0c7d7501ed.1429280614.git.stwiss.opensource@diasemi.com>
- <55327DDA.4080003@roeck-us.net>
- <6ED8E3B22081A4459DAC7699F3695FB7014B21924A@SW-EX-MBX02.diasemi.com>
- <20150506160227.GA28101@roeck-us.net>
- <6ED8E3B22081A4459DAC7699F3695FB7014B21925B@SW-EX-MBX02.diasemi.com>
- <20150506200631.GA25846@roeck-us.net>
- <6ED8E3B22081A4459DAC7699F3695FB7014B221DD2@SW-EX-MBX02.diasemi.com>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBE6O5GVAKGQEAHYZBIA@googlegroups.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id u10si444352wif.1.2015.05.18.15.26.27
+        for <rtc-linux@googlegroups.com>;
+        Mon, 18 May 2015 15:26:27 -0700 (PDT)
+Date: Tue, 19 May 2015 00:26:26 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Axel Lin <axel.lin@gmail.com>
+Cc: linux-kernel@vger.kernel.org, Alessandro Zummo <a.zummo@towertech.it>,
+	Dale Farnsworth <dale@farnsworth.org>,
+	Minkyu Kang <mk7.kang@samsung.com>,
+	Joonyoung Shim <jy0922.shim@samsung.com>,
+	rtc-linux@googlegroups.com
+Subject: [rtc-linux] Re: RTC: Add MODULE_DEVICE_TABLE to rtc-ds1672/rtc-max6900/rtc-max8998
+Message-ID: <20150518222625.GY3338@piout.net>
+References: <1303129017.8158.1.camel@phoenix>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <6ED8E3B22081A4459DAC7699F3695FB7014B221DD2@SW-EX-MBX02.diasemi.com>
+In-Reply-To: <1303129017.8158.1.camel@phoenix>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -53,94 +27,32 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On Thu, May 07, 2015 at 05:45:13PM +0000, Opensource [Steve Twiss] wrote:
-> On 06 May 2015 21:07 Guenter Roeck wrote:
+On 18/04/2011 at 20:16:57 +0800, Axel Lin wrote :
+> The device table is required to load modules based on modaliases.
+> After adding MODULE_DEVICE_TABLE, below entries will be added to modules.alias:
 > 
-> > > > > The DA9062 watchdog ping (register CONTROL_F) is "windowed" for protection
-> > > > > against spurious writes -- i.e. the ping function cannot be called within a 250ms
-> > > > > time limit or the PMIC will reset. This windowing protection also extends to altering
-> > > > > the timeout scale in the CONTROL_D register -- in which case if the timeout
-> > > > > register is altered and the ping() function is called within the 250ms limit, the
-> > > > > PMIC will reset. The delay is there to stop that from happening.
-> > > > >
-> > > > > I realised my previous patch was over-sanitised: by putting the time delay into the
-> > > > > ping() function I was protecting CONTROL_D in stop() and update_timeout_register(),
-> > > > > but I was being too over-protective of the ping() function. Therefore if there was an
-> > > > > "incorrect trigger signal", the watchdog would not be allowed to fail because the
-> > > > > driver would have filtered out the errors.
-> > > > >
-> > > > Hi Steve,
-> > > >
-> > > > From your description, it sounds like the protection is only necessary if there
-> > > > was a previous write to the same register(s).
+> alias i2c:ds1672 rtc_ds1672
+> alias i2c:max6900 rtc_max6900
+> alias platform:lp3974-rtc rtc_max8998
+> alias platform:max8998-rtc rtc_max8998
 > 
-> Hi Guenter,
+> Signed-off-by: Axel Lin <axel.lin@gmail.com>
+> Cc: Alessandro Zummo <a.zummo@towertech.it>
+> Cc: Dale Farnsworth <dale@farnsworth.org>
+> Cc: Minkyu Kang <mk7.kang@samsung.com>
+> Cc: Joonyoung Shim <jy0922.shim@samsung.com>
+> ---
+>  drivers/rtc/rtc-ds1672.c  |    1 +
+>  drivers/rtc/rtc-max6900.c |    1 +
+>  drivers/rtc/rtc-max8998.c |    1 +
+>  3 files changed, 3 insertions(+), 0 deletions(-)
 > 
-> A clarification from me. It is not the CONTROL_D register that needs protecting, but when
-> the CONTROL_D register is altered the function call also performs a CONTROL_F watchdog
-> ping. Too many pings close together would cause the PMIC reset.
-> 
-> > > > If so, it might make sense to record the time of such writes, and only add the delay
-> > > > if necessary, and only for the remainder of the time.
-> 
-> I've tried it several ways, but my previous suggestion of putting the delays in the stop() and 
-> update_timeout_register() functions just cause even more lengthy delays.
-> 
-> So, I've followed your suggestion and used a variable delay inside the ping() function instead:
-> this seems to cause a lot less delay. A debug message can be used to notify the user if the
-> watchdog is trying to be kicked too quickly -- that would be more preferable than just shutting
-> the PMIC down and still provide a notification that something wasn't quite right.
-> 
-> > > > Would this be possible ?
-> 
-> I'll run the tests overnight.
-> I'm going to do something like this:
-> 
-> diff --git a/linux-next/v4.0/drivers/watchdog/da9062_wdt.c b/linux-next/v4.0/drivers/watchdog/da9062_wdt.c
-> index ad80261..d596910 100644
-> --- a/gp_sparse/linux-next/v4.0/drivers/watchdog/da9062_wdt.c
-> +++ b/gp_sparse/linux-next/v4.0/drivers/watchdog/da9062_wdt.c
-> 
-> @@ -32,12 +33,37 @@ static const unsigned int wdt_timeout[] = { 0, 2, 4, 8, 16, 32, 65, 131 };
->  #define DA9062_WDT_MIN_TIMEOUT         wdt_timeout[DA9062_TWDSCALE_MIN]
->  #define DA9062_WDT_MAX_TIMEOUT         wdt_timeout[DA9062_TWDSCALE_MAX]
->  #define DA9062_WDG_DEFAULT_TIMEOUT     wdt_timeout[DA9062_TWDSCALE_MAX-1]
-> +#define DA9062_RESET_PROTECTION_MS     300
->  
->  struct da9062_watchdog {
->         struct da9062 *hw;
->         struct watchdog_device wdtdev;
-> +       unsigned long j_time_stamp;
->  };
->  
-> +static void da9062_set_window_start(struct da9062_watchdog *wdt)
-> +{
-> +       wdt->j_time_stamp = jiffies;
-> +}
-> +
-> +static void da9062_apply_window_protection(struct da9062_watchdog *wdt)
-> +{
-> +       unsigned long delay = msecs_to_jiffies(DA9062_RESET_PROTECTION_MS);
-> +       unsigned long timeout = wdt->j_time_stamp + delay;
-> +       unsigned long now = jiffies;
-> +       unsigned int diff_ms;
-> +
-> +       /* if time-limit has not elapsed then wait for remainder */
-> +       if (time_before(now, timeout)) {
-> +               diff_ms = jiffies_to_msecs(timeout-now);
-> +               dev_dbg(wdt->hw->dev,
-> +                       "Delaying watchdog ping by %u msecs\n", diff_ms);
+Applied, thanks.
 
-I would not bother about the dev_dbg, but that is your call.
-
-> +               mdelay(diff_ms);
-
-Can you use usleep_range() ?
-
-Othewise looks good. BTW, I had to do something similar in
-drivers/hwmon/pmbus/zl6100.c; this is where the idea comes from.
-
-Guenter
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
 -- 
 -- 
