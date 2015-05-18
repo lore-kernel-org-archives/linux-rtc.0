@@ -1,23 +1,31 @@
-Return-Path: <rtc-linux+bncBDMYB2E7SQCRBPP67SVAKGQE7UWLMPI@googlegroups.com>
-Received: from na01-bn1-obe.outbound.protection.outlook.com (mail-bn1bbn0107.outbound.protection.outlook.com. [157.56.111.107])
-        by gmr-mx.google.com with ESMTPS id x3si243596pdh.2.2015.05.22.07.37.49
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
-        Fri, 22 May 2015 07:37:49 -0700 (PDT)
-From: <Frank.Li@freescale.com>
-To: <lznuaa@gmail.com>, <shawn.guo@linaro.org>, <dmitry.torokhov@gmail.com>,
-	<robh+dt@kernel.org>, <alexandre.belloni@free-electrons.com>,
-	<linux@arm.linux.org.uk>
-CC: <linux-arm-kernel@lists.infradead.org>, <linux-input@vger.kernel.org>,
-	<rtc-linux@googlegroups.com>, <devicetree@vger.kernel.org>, Frank Li
-	<Frank.Li@freescale.com>
-Subject: [rtc-linux] [PATCH v4 6/6] arm: dts: imx6sx: enable snvs power key
-Date: Fri, 22 May 2015 22:36:39 +0800
-Message-ID: <1432305399-30571-7-git-send-email-Frank.Li@freescale.com>
-In-Reply-To: <1432305399-30571-1-git-send-email-Frank.Li@freescale.com>
-References: <1432305399-30571-1-git-send-email-Frank.Li@freescale.com>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRB3WJ5GVAKGQEYH4O2YQ@googlegroups.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id u10si443279wif.1.2015.05.18.15.17.18
+        for <rtc-linux@googlegroups.com>;
+        Mon, 18 May 2015 15:17:18 -0700 (PDT)
+Date: Tue, 19 May 2015 00:17:17 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Zhi Li <lznuaa@gmail.com>
+Cc: Philipp Zabel <p.zabel@pengutronix.de>,
+	"Frank.Li@freescale.com" <Frank.Li@freescale.com>,
+	Shawn Guo <shawn.guo@linaro.org>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Rob Herring <robh+dt@kernel.org>, a.zummo@towertech.it,
+	sachin.kamat@linaro.org,
+	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>,
+	linux-input@vger.kernel.org, rtc-linux@googlegroups.com,
+	linux-pm@vger.kernel.org,
+	"devicetree@vger.kernel.org" <devicetree@vger.kernel.org>
+Subject: [rtc-linux] Re: [PATCH 4/7] arm: dts: imx: update snvs to use syscon
+ access register
+Message-ID: <20150518221717.GX3338@piout.net>
+References: <1431696990-23078-1-git-send-email-Frank.Li@freescale.com>
+ <1431696990-23078-5-git-send-email-Frank.Li@freescale.com>
+ <1431938725.3209.15.camel@pengutronix.de>
+ <CAHrpEqSxgqUSWFkAh+R4K1oShsWfErE4nndxkYGGktMdkb3=xw@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <CAHrpEqSxgqUSWFkAh+R4K1oShsWfErE4nndxkYGGktMdkb3=xw@mail.gmail.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -28,35 +36,51 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-From: Frank Li <Frank.Li@freescale.com>
+On 18/05/2015 at 14:30:50 -0500, Zhi Li wrote :
+> On Mon, May 18, 2015 at 3:45 AM, Philipp Zabel <p.zabel@pengutronix.de> wrote:
+> > Hi Frank,
+> >
+> > Am Freitag, den 15.05.2015, 21:36 +0800 schrieb Frank.Li@freescale.com:
+> >> From: Frank Li <Frank.Li@freescale.com>
+> >>
+> >> snvs is MFP device. Change dts to use syscon to allocate register resource.
+> >>
+> >> Signed-off-by: Frank Li <Frank.Li@freescale.com>
+> >> ---
+> >>  arch/arm/boot/dts/imx6qdl.dtsi | 12 ++++--------
+> >>  arch/arm/boot/dts/imx6sl.dtsi  | 12 ++++--------
+> >>  arch/arm/boot/dts/imx6sx.dtsi  | 12 ++++--------
+> >>  arch/arm/boot/dts/vfxxx.dtsi   |  9 +++------
+> >>  4 files changed, 15 insertions(+), 30 deletions(-)
+> >>
+> >> diff --git a/arch/arm/boot/dts/imx6qdl.dtsi b/arch/arm/boot/dts/imx6qdl.dtsi
+> >> index 0482a66..6d8161d 100644
+> >> --- a/arch/arm/boot/dts/imx6qdl.dtsi
+> >> +++ b/arch/arm/boot/dts/imx6qdl.dtsi
+> >> @@ -687,21 +687,17 @@
+> >>                       };
+> >>
+> >>                       snvs@020cc000 {
+> >> -                             compatible = "fsl,sec-v4.0-mon", "simple-bus";
+> >> -                             #address-cells = <1>;
+> >> -                             #size-cells = <1>;
+> >> -                             ranges = <0 0x020cc000 0x4000>;
+> >> +                             compatible = "fsl,sec-v4.0-mon", "syscon",  "simple-bus";
+> >
+> > The compatible should change from "simple-bus" to "simple-mfd", then.
+> 
+> After change to simple-mfd,  driver can't been probed. Anything missed?
 
-enable snvs ONOFF power key support
+The pull request is there:
+http://lists.infradead.org/pipermail/linux-arm-kernel/2015-May/342131.html
 
-Signed-off-by: Frank Li <Frank.Li@freescale.com>
----
- arch/arm/boot/dts/imx6sx.dtsi | 7 +++++++
- 1 file changed, 7 insertions(+)
+It has landed in linux-next
 
-diff --git a/arch/arm/boot/dts/imx6sx.dtsi b/arch/arm/boot/dts/imx6sx.dtsi
-index 3cb3b5b..ad38aea 100644
---- a/arch/arm/boot/dts/imx6sx.dtsi
-+++ b/arch/arm/boot/dts/imx6sx.dtsi
-@@ -677,6 +677,13 @@
- 					mask = <0x60>;
- 					status = "disabled";
- 				};
-+
-+				snvs_pwrkey: snvs-powerkey {
-+					compatible = "fsl,sec-v4.0-pwrkey";
-+					interrupts = <GIC_SPI 4 IRQ_TYPE_LEVEL_HIGH>;
-+					linux,keycode = <116>; /* KEY_POWER */
-+					wakeup;
-+				};
- 			};
- 
- 			epit1: epit@020d0000 {
+
 -- 
-1.9.1
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
 -- 
 -- 
