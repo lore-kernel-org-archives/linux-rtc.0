@@ -1,19 +1,27 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRB2WZS6VAKGQEXKQFLZQ@googlegroups.com>
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id p12si195365wiv.1.2015.05.03.02.39.54
-        for <rtc-linux@googlegroups.com>;
-        Sun, 03 May 2015 02:39:54 -0700 (PDT)
-Date: Sun, 3 May 2015 11:39:53 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Krzysztof Kozlowski <k.kozlowski.k@gmail.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH 1/2] rtc: interface: Fix coding style violations
-Message-ID: <20150503093953.GN12076@piout.net>
-References: <1429791940-22169-1-git-send-email-k.kozlowski.k@gmail.com>
+Return-Path: <rtc-linux+bncBAABBUXK42VAKGQEBI43BOQ@googlegroups.com>
+Received: from mx2.suse.de (cantor2.suse.de. [195.135.220.15])
+        by gmr-mx.google.com with ESMTPS id p12si335874wiv.1.2015.05.18.02.48.01
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1 cipher=ECDHE-RSA-RC4-SHA bits=128/128);
+        Mon, 18 May 2015 02:48:01 -0700 (PDT)
+Date: Mon, 18 May 2015 11:47:55 +0200
+From: Borislav Petkov <bp@suse.de>
+To: Adrian Huang <adrianhuang0701@gmail.com>, diego.ercolani@gmail.com
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	rtc-linux@googlegroups.com, Brecht Machiels <brecht@mos6581.org>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	John Stultz <john.stultz@linaro.org>,
+	Rabin Vincent <rabin.vincent@stericsson.com>,
+	Nagananda Chumbalkar <nchumbalkar@lenovo.com>,
+	Adrian Huang <ahuang12@lenovo.com>, Egbert Eich <eich@suse.com>
+Subject: [rtc-linux] Re: [RFC PATCH 1/2] Revert "rtc-cmos: Add an alarm
+ disable quirk"
+Message-ID: <20150518094755.GC23662@pd.tnic>
+References: <1431077665-3493-1-git-send-email-adrianhuang0701@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1429791940-22169-1-git-send-email-k.kozlowski.k@gmail.com>
+In-Reply-To: <1431077665-3493-1-git-send-email-adrianhuang0701@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -24,48 +32,106 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Hi,
-
-On 23/04/2015 at 21:25:39 +0900, Krzysztof Kozlowski wrote :
-> Fix issues reported by checkpatch:
->   ERROR: open brace '{' following struct go on the same line
->   ERROR: "foo* bar" should be "foo *bar"
+On Fri, May 08, 2015 at 05:34:25PM +0800, Adrian Huang wrote:
+> Commit d5a1c7e3fc38 ("rtc-cmos: Add an alarm disable quirk") that
+> added a special quirk is not needed because PATCH [2/2] of this
+> patchset makes the kernel more robust:
+> rtc: restore the RTC alarm time to the configured alarm time in BIOS
+> Setup
 > 
-> Signed-off-by: Krzysztof Kozlowski <k.kozlowski.k@gmail.com>
+> Signed-off-by: Adrian Huang <ahuang12@lenovo.com>
 > ---
->  include/linux/rtc.h | 9 ++++-----
->  1 file changed, 4 insertions(+), 5 deletions(-)
+>  drivers/rtc/rtc-cmos.c | 52 --------------------------------------------------
+>  1 file changed, 52 deletions(-)
 > 
-> diff --git a/include/linux/rtc.h b/include/linux/rtc.h
-> index c8b68741994e..85b48b29a143 100644
-> --- a/include/linux/rtc.h
-> +++ b/include/linux/rtc.h
-> @@ -101,8 +101,7 @@ struct rtc_timer {
->  /* flags */
->  #define RTC_DEV_BUSY 0
+> diff --git a/drivers/rtc/rtc-cmos.c b/drivers/rtc/rtc-cmos.c
+> index a82556a..9754564 100644
+> --- a/drivers/rtc/rtc-cmos.c
+> +++ b/drivers/rtc/rtc-cmos.c
+> @@ -29,8 +29,6 @@
+>   * other drivers and utilities on correctly configured systems.
+>   */
 >  
-> -struct rtc_device
+> -#define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
+> -
+>  #include <linux/kernel.h>
+>  #include <linux/module.h>
+>  #include <linux/init.h>
+> @@ -41,7 +39,6 @@
+>  #include <linux/pm.h>
+>  #include <linux/of.h>
+>  #include <linux/of_platform.h>
+> -#include <linux/dmi.h>
+>  
+>  /* this is for "generic access to PC-style RTC" using CMOS_READ/CMOS_WRITE */
+>  #include <asm-generic/rtc.h>
+> @@ -380,50 +377,6 @@ static int cmos_set_alarm(struct device *dev, struct rtc_wkalrm *t)
+>  	return 0;
+>  }
+>  
+> -/*
+> - * Do not disable RTC alarm on shutdown - workaround for b0rked BIOSes.
+> - */
+> -static bool alarm_disable_quirk;
+> -
+> -static int __init set_alarm_disable_quirk(const struct dmi_system_id *id)
 > -{
-> +struct rtc_device {
->  	struct device dev;
->  	struct module *owner;
->  
-> @@ -202,10 +201,10 @@ int rtc_register(rtc_task_t *task);
->  int rtc_unregister(rtc_task_t *task);
->  int rtc_control(rtc_task_t *t, unsigned int cmd, unsigned long arg);
->  
-> -void rtc_timer_init(struct rtc_timer *timer, void (*f)(void* p), void* data);
-> -int rtc_timer_start(struct rtc_device *rtc, struct rtc_timer* timer,
-> +void rtc_timer_init(struct rtc_timer *timer, void (*f)(void *p), void *data);
-> +int rtc_timer_start(struct rtc_device *rtc, struct rtc_timer *timer,
->  			ktime_t expires, ktime_t period);
+> -	alarm_disable_quirk = true;
+> -	pr_info("BIOS has alarm-disable quirk - RTC alarms disabled\n");
+> -	return 0;
+> -}
+> -
+> -static const struct dmi_system_id rtc_quirks[] __initconst = {
+> -	/* https://bugzilla.novell.com/show_bug.cgi?id=805740 */
+> -	{
+> -		.callback = set_alarm_disable_quirk,
+> -		.ident    = "IBM Truman",
+> -		.matches  = {
+> -			DMI_MATCH(DMI_SYS_VENDOR, "TOSHIBA"),
+> -			DMI_MATCH(DMI_PRODUCT_NAME, "4852570"),
+> -		},
 
-While at it, alignment here should match the open parenthesis.
+So, your series really fix the reboot issue on this already notoriously
+buggy box.
+
+I did try to confirm it 5 times just to be sure and in all 5, the box
+remained off.
+
+We're testing another box currently which has the same issue.
+
+Now, for the next version of your patches, I'd ask you to put this patch
+second. I.e., you want to introduce the new fix first and *then* remove
+the quirk as this way we have a window where no quirk will be in place
+and possible bisection will be disturbed needlessly even though we can
+help it.
+
+> -	},
+> -	/* https://bugzilla.novell.com/show_bug.cgi?id=812592 */
+> -	{
+> -		.callback = set_alarm_disable_quirk,
+> -		.ident    = "Gigabyte GA-990XA-UD3",
+> -		.matches  = {
+> -			DMI_MATCH(DMI_SYS_VENDOR,
+> -					"Gigabyte Technology Co., Ltd."),
+> -			DMI_MATCH(DMI_PRODUCT_NAME, "GA-990XA-UD3"),
+> -		},
+
+Looking at the bugzilla entry above, that should be Diego's box.
+
+Diego, would you be able to test these patches? They're a better fix
+than what I did last year.
+
+If you want me to prepare an openSUSE kernel for you, let me know and
+I'll do one. I'd only need to know which distro.
+
+Thanks.
 
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+Regards/Gruss,
+    Boris.
+
+ECO tip #101: Trim your mails when you reply.
+--
 
 -- 
 -- 
