@@ -1,28 +1,38 @@
-Return-Path: <rtc-linux+bncBDA7X7F2WUEBBA7WV2VAKGQEVKXRCUY@googlegroups.com>
-Received: from mail-wi0-f171.google.com (mail-wi0-f171.google.com. [209.85.212.171])
-        by gmr-mx.google.com with ESMTPS id t6si39798wiz.0.2015.05.07.12.20.35
+Return-Path: <rtc-linux+bncBAABBP425CVAKGQE7LDWGZY@googlegroups.com>
+Received: from mail1.bemta5.messagelabs.com (mail1.bemta5.messagelabs.com. [195.245.231.137])
+        by gmr-mx.google.com with ESMTPS id m3si404840wia.1.2015.05.18.09.03.10
         for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 07 May 2015 12:20:35 -0700 (PDT)
-Received: by wiun10 with SMTP id n10so3195772wiu.1
-        for <rtc-linux@googlegroups.com>; Thu, 07 May 2015 12:20:35 -0700 (PDT)
-Date: Thu, 7 May 2015 20:20:31 +0100
-From: Lee Jones <lee.jones@linaro.org>
-To: Peter Griffin <peter.griffin@linaro.org>
-Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-	devicetree@vger.kernel.org, kernel@stlinux.com,
-	rtc-linux@googlegroups.com, a.zummo@towertech.it,
-	daniel.lezcano@linaro.org, wim@iguana.be, tglx@linutronix.de,
-	linux@roeck-us.net, linux-watchdog@vger.kernel.org
-Subject: [rtc-linux] Re: [STLinux Kernel] [PATCH 12/12] ARM: STi: Update
- platform level menuconfig 'help'
-Message-ID: <20150507192031.GD16220@x1>
-References: <1431005924-21777-1-git-send-email-lee.jones@linaro.org>
- <1431005924-21777-13-git-send-email-lee.jones@linaro.org>
- <20150507141526.GB9793@griffinp-ThinkPad-X1-Carbon-2nd>
-MIME-Version: 1.0
+        (version=TLSv1.2 cipher=RC4-SHA bits=128/128);
+        Mon, 18 May 2015 09:03:10 -0700 (PDT)
+From: "Opensource [Steve Twiss]" <stwiss.opensource@diasemi.com>
+To: Guenter Roeck <linux@roeck-us.net>, "Opensource [Steve Twiss]"
+	<stwiss.opensource@diasemi.com>
+CC: LINUXKERNEL <linux-kernel@vger.kernel.org>, LINUXWATCHDOG
+	<linux-watchdog@vger.kernel.org>, Wim Van Sebroeck <wim@iguana.be>,
+	Alessandro Zummo <a.zummo@towertech.it>, DEVICETREE
+	<devicetree@vger.kernel.org>, David Dajun Chen <david.chen@diasemi.com>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>, Ian Campbell
+	<ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>,
+	LINUXINPUT <linux-input@vger.kernel.org>, Lee Jones <lee.jones@linaro.org>,
+	Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, "Mark
+ Rutland" <mark.rutland@arm.com>, Pawel Moll <pawel.moll@arm.com>, RTCLINUX
+	<rtc-linux@googlegroups.com>, Rob Herring <robh+dt@kernel.org>, Samuel Ortiz
+	<sameo@linux.intel.com>, Support Opensource <Support.Opensource@diasemi.com>
+Subject: [rtc-linux] RE: [PATCH V2 3/4] watchdog: da9062: DA9062 watchdog driver
+Date: Mon, 18 May 2015 16:03:06 +0000
+Message-ID: <6ED8E3B22081A4459DAC7699F3695FB7014B22B8FE@SW-EX-MBX02.diasemi.com>
+References: <cover.1431621833.git.stwiss.opensource@diasemi.com>
+ <6a51f163b99edfad9165ad29609abb072dbaa2b7.1431621833.git.stwiss.opensource@diasemi.com>
+ <55555639.8090505@roeck-us.net>
+ <6ED8E3B22081A4459DAC7699F3695FB7014B22B63A@SW-EX-MBX02.diasemi.com>
+ <5555ED4F.5070003@roeck-us.net>
+ <6ED8E3B22081A4459DAC7699F3695FB7014B22B6E2@SW-EX-MBX02.diasemi.com>
+ <20150515202005.GA23133@roeck-us.net>
+ <6ED8E3B22081A4459DAC7699F3695FB7014B22B8C8@SW-EX-MBX02.diasemi.com>
+ <20150518152737.GA14403@roeck-us.net>
+In-Reply-To: <20150518152737.GA14403@roeck-us.net>
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <20150507141526.GB9793@griffinp-ThinkPad-X1-Carbon-2nd>
+MIME-Version: 1.0
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -33,65 +43,65 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On Thu, 07 May 2015, Peter Griffin wrote:
 
-> Hi Lee,
->=20
-> On Thu, 07 May 2015, Lee Jones wrote:
->=20
-> > Encompass newer STiH4{07,10} SoC based platforms.
-> >=20
-> > Signed-off-by: Lee Jones <lee.jones@linaro.org>
-> > ---
-> >  arch/arm/mach-sti/Kconfig | 8 +++-----
-> >  1 file changed, 3 insertions(+), 5 deletions(-)
-> >=20
-> > diff --git a/arch/arm/mach-sti/Kconfig b/arch/arm/mach-sti/Kconfig
-> > index cb886de..59928d9 100644
-> > --- a/arch/arm/mach-sti/Kconfig
-> > +++ b/arch/arm/mach-sti/Kconfig
-> > @@ -16,11 +16,9 @@ menuconfig ARCH_STI
-> >  	select PL310_ERRATA_769419 if CACHE_L2X0
-> >  	select RESET_CONTROLLER
-> >  	help
-> > -	  Include support for STiH41x SOCs like STiH415/416 using the device =
-tree
-> > -	  for discovery
-> > -	  More information at Documentation/arm/STiH41x and
-> > -	  at Documentation/devicetree
-> > -
-> > +	  Include support for STMicroelectronics' STiH415/416 and stih407/10
-> > +	  family SoCs using the Device Tree for discovery.  More information
-> > +	  can be found in Documentation/arm/sti/ & Documentation/devicetree.
->=20
-> You should use the same capitalisation throughout.
+On 18 May 2015 16:28 Guenter Roeck wrote:
 
-Good spot, that was unintentional.  Will fix.
+> On Mon, May 18, 2015 at 02:15:01PM +0000, Opensource [Steve Twiss]
+> wrote:
+> > On 15 May 2015 21:20 Guenter Roeck,
+> >
+> > > > > > +
+> > > > > > +/* E_WDG_WARN interrupt handler */
+> > > > > > +static irqreturn_t da9062_wdt_wdg_warn_irq_handler(int irq, void*data)
+> > > > > > +{
+> > > > > > +	struct da9062_watchdog *wdt = data;
+> > > > > > +
+> > > > > > +	dev_notice(wdt->hw->dev, "Watchdog timeout warning trigger.\n");
+> > > > > > +	return IRQ_HANDLED;
+> > > > > > +}
+> > > > > > +
+> > > >
+> > > > On 15 May 2015 13:58 Guenter Roeck wrote:
+> > > >
+> > > >  [...]
+> > > >
+> > > > > >>> +
+> > > > > >>> +	irq = platform_get_irq_byname(pdev, "WDG_WARN");
+> > > > > >>> +	if (irq < 0) {
+> > > > > >>> +		dev_err(wdt->hw->dev, "Failed to get IRQ.\n");
+> > > > > >>> +		ret = irq;
+> 
+> Hi Steve,
 
-> Also you can mention STiH418, as that is now supported upstream.
+Hi Guenter,
 
-Yep, thanks.
+> Since the interrupt is optional, the driver should also not fail to load
+> if no interrupt is assigned to it in the first place.
 
-> Once fixed you can add my: -
->      Acked-by: Peter Griffin <peter.griffin@linaro.org>
+Yeah. I've been thinking about it and I agree now. I'll erase the handler. 
 
-Ta.
+> On a separate note, there was a comment stating that the da9062 watchdog
+> is identical to the da9063 watchdog. If so, why can't you just use the da9063
+> watchdog driver ?
 
---=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+Well, the short answer to this is, it's not the same. I was just in the process of
+replying to that other thread. The OnKey and RTC are functionally similar, so I
+am going to look at integrating the two drivers in some future patch sets, but
+the watchdog is definitely not based upon DA9063.
 
---=20
---=20
+I did mention this in a previous thread: 
+https://lkml.org/lkml/2015/5/6/505
+
+Regards,
+Steve
+
+-- 
+-- 
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
----=20
-You received this message because you are subscribed to the Google Groups "=
-rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an e=
-mail to rtc-linux+unsubscribe@googlegroups.com.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
