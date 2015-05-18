@@ -1,13 +1,13 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBVGH5CVAKGQETVP2IWA@googlegroups.com>
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id m3si420528wia.1.2015.05.18.10.39.30
-        for <rtc-linux@googlegroups.com>;
-        Mon, 18 May 2015 10:39:30 -0700 (PDT)
-Date: Mon, 18 May 2015 19:39:27 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Return-Path: <rtc-linux+bncBCKMZDW5VIHBB4EJ5CVAKGQEG5JDQNI@googlegroups.com>
+Received: from bh-25.webhostbox.net (bh-25.webhostbox.net. [208.91.199.152])
+        by gmr-mx.google.com with ESMTPS id j18si615437igt.3.2015.05.18.08.27.43
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1 cipher=RC4-SHA bits=128/128);
+        Mon, 18 May 2015 08:27:43 -0700 (PDT)
+Date: Mon, 18 May 2015 08:27:37 -0700
+From: Guenter Roeck <linux@roeck-us.net>
 To: "Opensource [Steve Twiss]" <stwiss.opensource@diasemi.com>
-Cc: Guenter Roeck <linux@roeck-us.net>,
-	LINUXKERNEL <linux-kernel@vger.kernel.org>,
+Cc: LINUXKERNEL <linux-kernel@vger.kernel.org>,
 	LINUXWATCHDOG <linux-watchdog@vger.kernel.org>,
 	Wim Van Sebroeck <wim@iguana.be>,
 	Alessandro Zummo <a.zummo@towertech.it>,
@@ -26,8 +26,8 @@ Cc: Guenter Roeck <linux@roeck-us.net>,
 	Rob Herring <robh+dt@kernel.org>,
 	Samuel Ortiz <sameo@linux.intel.com>,
 	Support Opensource <Support.Opensource@diasemi.com>
-Subject: Re: [rtc-linux] RE: [PATCH V2 3/4] watchdog: da9062: DA9062 watchdog driver
-Message-ID: <20150518173927.GV3338@piout.net>
+Subject: [rtc-linux] Re: [PATCH V2 3/4] watchdog: da9062: DA9062 watchdog driver
+Message-ID: <20150518152737.GA14403@roeck-us.net>
 References: <cover.1431621833.git.stwiss.opensource@diasemi.com>
  <6a51f163b99edfad9165ad29609abb072dbaa2b7.1431621833.git.stwiss.opensource@diasemi.com>
  <55555639.8090505@roeck-us.net>
@@ -36,11 +36,9 @@ References: <cover.1431621833.git.stwiss.opensource@diasemi.com>
  <6ED8E3B22081A4459DAC7699F3695FB7014B22B6E2@SW-EX-MBX02.diasemi.com>
  <20150515202005.GA23133@roeck-us.net>
  <6ED8E3B22081A4459DAC7699F3695FB7014B22B8C8@SW-EX-MBX02.diasemi.com>
- <20150518152737.GA14403@roeck-us.net>
- <6ED8E3B22081A4459DAC7699F3695FB7014B22B8FE@SW-EX-MBX02.diasemi.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <6ED8E3B22081A4459DAC7699F3695FB7014B22B8FE@SW-EX-MBX02.diasemi.com>
+In-Reply-To: <6ED8E3B22081A4459DAC7699F3695FB7014B22B8C8@SW-EX-MBX02.diasemi.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -51,35 +49,41 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On 18/05/2015 at 16:03:06 +0000, Opensource [Steve Twiss] wrote :
-> > Since the interrupt is optional, the driver should also not fail to load
-> > if no interrupt is assigned to it in the first place.
+On Mon, May 18, 2015 at 02:15:01PM +0000, Opensource [Steve Twiss] wrote:
+> On 15 May 2015 21:20 Guenter Roeck,
 > 
-> Yeah. I've been thinking about it and I agree now. I'll erase the handler. 
-> 
-> > On a separate note, there was a comment stating that the da9062 watchdog
-> > is identical to the da9063 watchdog. If so, why can't you just use the da9063
-> > watchdog driver ?
-> 
-> Well, the short answer to this is, it's not the same. I was just in the process of
-> replying to that other thread. The OnKey and RTC are functionally similar, so I
-> am going to look at integrating the two drivers in some future patch sets, but
-> the watchdog is definitely not based upon DA9063.
-> 
-> I did mention this in a previous thread: 
-> https://lkml.org/lkml/2015/5/6/505
-> 
+> > > > > +
+> > > > > +/* E_WDG_WARN interrupt handler */
+> > > > > +static irqreturn_t da9062_wdt_wdg_warn_irq_handler(int irq, void*data)
+> > > > > +{
+> > > > > +	struct da9062_watchdog *wdt = data;
+> > > > > +
+> > > > > +	dev_notice(wdt->hw->dev, "Watchdog timeout warning trigger.\n");
+> > > > > +	return IRQ_HANDLED;
+> > > > > +}
+> > > > > +
+> > >
+> > > On 15 May 2015 13:58 Guenter Roeck wrote:
+> > >
+> > >  [...]
+> > >
+> > > > >>> +
+> > > > >>> +	irq = platform_get_irq_byname(pdev, "WDG_WARN");
+> > > > >>> +	if (irq < 0) {
+> > > > >>> +		dev_err(wdt->hw->dev, "Failed to get IRQ.\n");
+> > > > >>> +		ret = irq;
 
-Sure, what I understand is that the base functionality is the same and
-even the registers are compatible. Are you sure the new features can't
-be added to the da9063 and called conditionally? Plenty of drivers are
-doing that.
+Hi Steve,
 
+Since the interrupt is optional, the driver should also not fail to load
+if no interrupt is assigned to it in the first place.
 
--- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+On a separate note, there was a comment stating that the da9062 watchdog is
+identical to the da9063 watchdog. If so, why can't you just use the da9063
+watchdog driver ?
+
+Thanks,
+Guenter
 
 -- 
 -- 
