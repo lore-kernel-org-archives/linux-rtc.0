@@ -1,82 +1,77 @@
-Return-Path: <rtc-linux+bncBD62P6P6EQIJPT6NVICRUBACXZXNE@googlegroups.com>
-MIME-Version: 1.0
-Received: from mail-ob0-x231.google.com (mail-ob0-x231.google.com. [2607:f8b0:4003:c01::231])
-        by gmr-mx.google.com with ESMTPS id j18si484598igt.3.2015.05.13.08.02.47
+Return-Path: <rtc-linux+bncBAABBBU45SVAKGQEUQQYWTY@googlegroups.com>
+Received: from mail1.bemta5.messagelabs.com (mail1.bemta5.messagelabs.com. [195.245.231.141])
+        by gmr-mx.google.com with ESMTPS id m3si549848wia.1.2015.05.19.03.18.46
         for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 13 May 2015 08:02:47 -0700 (PDT)
-Received: by mail-ob0-x231.google.com with SMTP id e9so31647440obf.1
-        for <rtc-linux@googlegroups.com>; Wed, 13 May 2015 08:02:47 -0700 (PDT)
-Sender: rtc-linux@googlegroups.com
-From: Rob Herring <robh@kernel.org>
-To: Russell King <linux@arm.linux.org.uk>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Eric Miao <eric.y.miao@gmail.com>,
-	Haojian Zhuang <haojian.zhuang@gmail.com>,
-	Alessandro Zummo <a.zummo@towertech.it>
-Cc: rtc-linux@googlegroups.com,
-	Robert Jarzmik <robert.jarzmik@free.fr>,
-	Arnd Bergmann <arnd@arndb.de>,
-	linux-arm-kernel@lists.infradead.org,
-	Rob Herring <robh@kernel.org>
-Subject: [rtc-linux] [PATCH v4 0/6] SA1100/PXA RTC clean-up
-Date: Wed, 13 May 2015 10:02:24 -0500
-Message-Id: <1431529350-4597-1-git-send-email-robh@kernel.org>
-Reply-To: rtc-linux@googlegroups.com
+        (version=TLSv1.2 cipher=RC4-SHA bits=128/128);
+        Tue, 19 May 2015 03:18:46 -0700 (PDT)
+From: "Opensource [Steve Twiss]" <stwiss.opensource@diasemi.com>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>, Guenter Roeck
+	<linux@roeck-us.net>
+CC: LINUXKERNEL <linux-kernel@vger.kernel.org>, LINUXWATCHDOG
+	<linux-watchdog@vger.kernel.org>, Wim Van Sebroeck <wim@iguana.be>,
+	Alessandro Zummo <a.zummo@towertech.it>, DEVICETREE
+	<devicetree@vger.kernel.org>, David Dajun Chen <david.chen@diasemi.com>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>, Ian Campbell
+	<ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>,
+	LINUXINPUT <linux-input@vger.kernel.org>, Lee Jones <lee.jones@linaro.org>,
+	Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, "Mark
+ Rutland" <mark.rutland@arm.com>, Pawel Moll <pawel.moll@arm.com>, RTCLINUX
+	<rtc-linux@googlegroups.com>, Rob Herring <robh+dt@kernel.org>, Samuel Ortiz
+	<sameo@linux.intel.com>, Support Opensource <Support.Opensource@diasemi.com>
+Subject: RE: [rtc-linux] RE: [PATCH V2 3/4] watchdog: da9062: DA9062 watchdog driver
+Date: Tue, 19 May 2015 10:16:46 +0000
+Message-ID: <6ED8E3B22081A4459DAC7699F3695FB7014B22B994@SW-EX-MBX02.diasemi.com>
+References: <cover.1431621833.git.stwiss.opensource@diasemi.com>
+ <6a51f163b99edfad9165ad29609abb072dbaa2b7.1431621833.git.stwiss.opensource@diasemi.com>
+ <55555639.8090505@roeck-us.net>
+ <6ED8E3B22081A4459DAC7699F3695FB7014B22B63A@SW-EX-MBX02.diasemi.com>
+ <5555ED4F.5070003@roeck-us.net>
+ <6ED8E3B22081A4459DAC7699F3695FB7014B22B6E2@SW-EX-MBX02.diasemi.com>
+ <20150515202005.GA23133@roeck-us.net>
+ <6ED8E3B22081A4459DAC7699F3695FB7014B22B8C8@SW-EX-MBX02.diasemi.com>
+ <20150518152737.GA14403@roeck-us.net>
+ <6ED8E3B22081A4459DAC7699F3695FB7014B22B8FE@SW-EX-MBX02.diasemi.com>
+ <20150518173927.GV3338@piout.net>
+In-Reply-To: <20150518173927.GV3338@piout.net>
 Content-Type: text/plain; charset=UTF-8
+MIME-Version: 1.0
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
 List-Archive: <http://groups.google.com/group/rtc-linux
+Sender: rtc-linux@googlegroups.com
 List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-This series enables building the SA1100 RTC driver for ARM64 in
-preparation for enabling CONFIG_ARCH_MMP on ARM64. This is needed for
-supporting the PXA1928 SOC. Clean-up of SA1100 RTC is complicated by the
-fact that some PXA chips use both sa1100-rtc and pxa-rtc drivers and
-share the same registers. This does not work well with the Linux driver
-model. So the first step is removing this sharing by the 2 drivers and
-making sa1100-rtc and pxa-rtc mutually exclusive.
+On 18 May 2015 18:39 Alexandre Belloni wrote:
 
-The previous versions can be found here[1][2][3]. Patches 1 and 2 are new.
-Patches 3, 5, and 6 are unchanged. Patch 4 is mostly the same, but
-adjusted due to patches 1 and 2.
+> Sure, what I understand is that the base functionality is the same and
+> even the registers are compatible. Are you sure the new features can't
+> be added to the da9063 and called conditionally? Plenty of drivers are
+> doing that.
 
-A git branch is here[4]. I've tested sa1100-rtc on PXA1928. I need help
-testing on PXA27x/3xx.
+Hi Alexandre/Guenter,
 
-Rob
+I didn't say it couldn't be added to DA9063. Of course it's all possible, but I think
+it would become unmaintainable in future without separate drivers. There is some
+extra freeze functionality and a watchdog warn interrupt: both do not exist in the
+DA9063.
 
-[1] http://comments.gmane.org/gmane.linux.ports.arm.kernel/391410
-[2] http://comments.gmane.org/gmane.linux.ports.arm.kernel/409740
-[3] http://comments.gmane.org/gmane.linux.ports.arm.kernel/412047
-[4] git://git.kernel.org/pub/scm/linux/kernel/git/robh/linux.git marvell/rtc
+What I did say **one month ago** was the DA9062 watchdog driver does have some
+similarities with the DA9063 watchdog (https://lkml.org/lkml/2015/5/6/505).
 
-Rob Herring (6):
-  rtc: sa1100: prepare to share sa1100_rtc_ops
-  rtc: pxa: convert to use shared sa1100 functions
-  ARM: pxa: add memory resource to SA1100 RTC device
-  rtc: sa1100/pxa: convert to run-time register mapping
-  ARM: sa1100: remove unused RTC register definitions
-  ARM: mmp: remove unused RTC register definitions
+But I would prefer two drivers for watchdog in this case. When compared to the RTC and
+OnKey the watchdog is very different on the hardware side. Despite the appearance of
+some similarity, the watchdog is not a functional clone like the RTC and OnKey components.
 
- arch/arm/mach-mmp/include/mach/regs-rtc.h   |  23 -----
- arch/arm/mach-pxa/devices.c                 |  18 +---
- arch/arm/mach-pxa/pxa27x.c                  |   1 -
- arch/arm/mach-pxa/pxa3xx.c                  |   1 -
- arch/arm/mach-sa1100/include/mach/SA-1100.h |  34 -------
- drivers/rtc/Kconfig                         |   4 +-
- drivers/rtc/rtc-pxa.c                       |  55 +++++------
- drivers/rtc/rtc-sa1100.c                    | 139 +++++++++++++++++-----------
- drivers/rtc/rtc-sa1100.h                    |  23 +++++
- 9 files changed, 140 insertions(+), 158 deletions(-)
- delete mode 100644 arch/arm/mach-mmp/include/mach/regs-rtc.h
- create mode 100644 drivers/rtc/rtc-sa1100.h
+I would not like a combined watchdog driver because I think that the extra functions
+that the DA9062 contains would bloat out the DA9063 watchdog, and would make it difficult
+to test and to maintain for the future..
 
---
-2.1.0
+Regards,
+Steve
 
 -- 
 -- 
