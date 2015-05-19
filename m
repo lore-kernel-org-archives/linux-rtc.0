@@ -1,37 +1,28 @@
-Return-Path: <rtc-linux+bncBAABBBWMZWVAKGQEOEKEOVY@googlegroups.com>
-Received: from mail1.bemta5.messagelabs.com (mail1.bemta5.messagelabs.com. [195.245.231.140])
-        by gmr-mx.google.com with ESMTPS id t6si302123wiz.0.2015.05.13.07.56.06
+Return-Path: <rtc-linux+bncBAABBE7V5SVAKGQER7JDKNY@googlegroups.com>
+Received: from mail1.bemta14.messagelabs.com (mail1.bemta14.messagelabs.com. [193.109.254.116])
+        by gmr-mx.google.com with ESMTPS id p9si559703wiz.3.2015.05.19.06.28.50
         for <rtc-linux@googlegroups.com>
         (version=TLSv1.2 cipher=RC4-SHA bits=128/128);
-        Wed, 13 May 2015 07:56:06 -0700 (PDT)
-From: "Opensource [Steve Twiss]" <stwiss.opensource@diasemi.com>
-To: Guenter Roeck <linux@roeck-us.net>, Alexandre Belloni
-	<alexandre.belloni@free-electrons.com>
-CC: "Opensource [Steve Twiss]" <stwiss.opensource@diasemi.com>, "Alessandro
- Zummo" <a.zummo@towertech.it>, LINUXKERNEL <linux-kernel@vger.kernel.org>,
-	RTCLINUX <rtc-linux@googlegroups.com>, DEVICETREE
-	<devicetree@vger.kernel.org>, David Dajun Chen <david.chen@diasemi.com>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>, Ian Campbell
-	<ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>,
-	LINUXINPUT <linux-input@vger.kernel.org>, LINUXWATCHDOG
-	<linux-watchdog@vger.kernel.org>, Lee Jones <lee.jones@linaro.org>, "Liam
- Girdwood" <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, Mark
- Rutland <mark.rutland@arm.com>, Pawel Moll <pawel.moll@arm.com>, Rob Herring
-	<robh+dt@kernel.org>, Samuel Ortiz <sameo@linux.intel.com>, "Support
- Opensource" <Support.Opensource@diasemi.com>, Wim Van Sebroeck
-	<wim@iguana.be>
-Subject: RE: [rtc-linux] [PATCH V1 3/6] rtc: da9062: DA9062 RTC driver
-Date: Wed, 13 May 2015 14:56:04 +0000
-Message-ID: <6ED8E3B22081A4459DAC7699F3695FB7014B22A465@SW-EX-MBX02.diasemi.com>
-References: <cover.1429280614.git.stwiss.opensource@diasemi.com>
- <860a3b6dc7f8dac95c0e36967f24551af8805f7b.1429280614.git.stwiss.opensource@diasemi.com>
- <20150510095838.GF3338@piout.net>
- <6ED8E3B22081A4459DAC7699F3695FB7014B22A3F3@SW-EX-MBX02.diasemi.com>
- <20150513125858.GX3338@piout.net> <55534BEF.7020409@roeck-us.net>
- <20150513133741.GY3338@piout.net> <555355C1.9090907@roeck-us.net>
-In-Reply-To: <555355C1.9090907@roeck-us.net>
-Content-Type: text/plain; charset=UTF-8
+        Tue, 19 May 2015 06:28:50 -0700 (PDT)
+Message-ID: <cover.1432041031.git.stwiss.opensource@diasemi.com>
+From: S Twiss <stwiss.opensource@diasemi.com>
+Date: Tue, 19 May 2015 14:10:31 +0100
+Subject: [rtc-linux] [PATCH V3 0/4]  da9062: DA9062 driver submission
+To: Alessandro Zummo <a.zummo@towertech.it>, DEVICETREE
+	<devicetree@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala
+	<galak@codeaurora.org>, LINUXINPUT <linux-input@vger.kernel.org>, LINUXKERNEL
+	<linux-kernel@vger.kernel.org>, LINUXWATCHDOG
+	<linux-watchdog@vger.kernel.org>, Lee Jones <lee.jones@linaro.org>, Liam
+ Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, Mark Rutland
+	<mark.rutland@arm.com>, Pawel Moll <pawel.moll@arm.com>, RTCLINUX
+	<rtc-linux@googlegroups.com>, Rob Herring <robh+dt@kernel.org>, S Twiss
+	<stwiss.opensource@diasemi.com>, Samuel Ortiz <sameo@linux.intel.com>, Wim
+ Van Sebroeck <wim@iguana.be>
+CC: David Dajun Chen <david.chen@diasemi.com>, Support Opensource
+	<support.opensource@diasemi.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -42,45 +33,55 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Hi Guenter & Alexandre,
+From: S Twiss <stwiss.opensource@diasemi.com>
 
-On 13 May 2015 14:47 Guenter Roeck wrote:
-> On 05/13/2015 06:37 AM, Alexandre Belloni wrote:
-> > On 13/05/2015 at 06:04:47 -0700, Guenter Roeck wrote :
-> >> Don't know how this is handled for rtc drivers, but in other subsystems
-> >> we just live with the original name. I don't see a need to rename a driver
-> >> just because it starts supporting more hardware, and xxx is weird anyway
-> >> since it suggests everything from 000 to 999, which is much worse than
-> >> just sticking with 9063.
-> >>
-> >
-> > Yes, in particular if at some point in time a new IP matching those xxx
-> > is completely different from the previous one. I'm not fond of renaming
-> > the driver either but if diasemi thinks that what they want, I'm open to
-> > let it happen. But clearly, I don't want to end up in a situation like
-> > the tlv320aic where you don't know which driver correspond to which
-> > chip:
-> >
-> > sound/soc/codecs/tlv320aic31xx.c
-> > sound/soc/codecs/tlv320aic31xx.h
-> > sound/soc/codecs/tlv320aic32x4.c
-> > sound/soc/codecs/tlv320aic32x4.h
-> > sound/soc/codecs/tlv320aic3x.c
-> > sound/soc/codecs/tlv320aic3x.h
-> > sound/soc/codecs/tlv320dac33.c
-> > sound/soc/codecs/tlv320dac33.h
-> >
-> > Go figure that the tlv320aic3104 can be supported by both tlv320aic3x.c
-> > and tlv320aic32x4.c but not tlv320aic31xx.c...
-> >
-> 
-> Unfortunately that is exactly what is going to happen.
+This patch set adds support for the Dialog DA9062 Power Management IC.
 
-Thanks for this clarification.
-We'll follow your advice and keep the name as da9063
+In this patch set the following is provided:
+ - [PATCH V3 1/4]: MFD core support  
+ - [PATCH V3 2/4]: BUCK and LDO regulator driver
+ - [PATCH V3 3/4]: Watchdog driver
+ - [PATCH V3 4/4]: Add bindings for all DA9062 components
 
-Regards,
-Steve
+Changes in V2:
+ - Alter subject title in 'cover letter'
+ - Reordered the patch numbering: now 4/4 patches instead of 6/6
+   - Dropped PATCH V1 3/6 RTC driver
+   - Dropped PATCH V1 4/6 OnKey driver
+
+This patch applies against linux-next and v4.1-rc3 
+
+Thank you,
+Steve Twiss, Dialog Semiconductor Ltd.
+
+S Twiss (4):
+  mfd: da9062: DA9062 MFD core driver
+  regulator: da9062: DA9062 regulator driver
+  watchdog: da9062: DA9062 watchdog driver
+  devicetree: da9062: Add bindings for DA9062 driver
+
+ Documentation/devicetree/bindings/mfd/da9062.txt |   79 ++
+ drivers/mfd/Kconfig                              |   12 +
+ drivers/mfd/Makefile                             |    3 +-
+ drivers/mfd/da9062-core.c                        |  611 ++++++++++++
+ drivers/regulator/Kconfig                        |   10 +
+ drivers/regulator/Makefile                       |    1 +
+ drivers/regulator/da9062-regulator.c             |  843 ++++++++++++++++
+ drivers/watchdog/Kconfig                         |    9 +
+ drivers/watchdog/Makefile                        |    1 +
+ drivers/watchdog/da9062_wdt.c                    |  253 +++++
+ include/linux/mfd/da9062/core.h                  |   62 ++
+ include/linux/mfd/da9062/registers.h             | 1108 ++++++++++++++++++++++
+ 12 files changed, 2991 insertions(+), 1 deletion(-)
+ create mode 100644 Documentation/devicetree/bindings/mfd/da9062.txt
+ create mode 100644 drivers/mfd/da9062-core.c
+ create mode 100644 drivers/regulator/da9062-regulator.c
+ create mode 100644 drivers/watchdog/da9062_wdt.c
+ create mode 100644 include/linux/mfd/da9062/core.h
+ create mode 100644 include/linux/mfd/da9062/registers.h
+
+-- 
+end-of-patch for PATCH V3
 
 -- 
 -- 
