@@ -1,27 +1,24 @@
-Return-Path: <rtc-linux+bncBDF47HN2VEIRBA7HVWVAKGQE6DFI5CY@googlegroups.com>
-Received: from mail-wg0-f45.google.com (mail-wg0-f45.google.com. [74.125.82.45])
-        by gmr-mx.google.com with ESMTPS id p9si263716wiz.3.2015.05.07.07.15.30
+Return-Path: <rtc-linux+bncBDMYB2E7SQCRB6W35WVAKGQEYG5B4BA@googlegroups.com>
+Received: from na01-bn1-obe.outbound.protection.outlook.com (mail-bn1on0110.outbound.protection.outlook.com. [157.56.110.110])
+        by gmr-mx.google.com with ESMTPS id ti15si1626314pac.0.2015.05.19.10.08.09
         for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 07 May 2015 07:15:30 -0700 (PDT)
-Received: by mail-wg0-f45.google.com with SMTP id u9so44971922wgi.3
-        for <rtc-linux@googlegroups.com>; Thu, 07 May 2015 07:15:30 -0700 (PDT)
-Date: Thu, 7 May 2015 15:15:26 +0100
-From: Peter Griffin <peter.griffin@linaro.org>
-To: Lee Jones <lee.jones@linaro.org>
-Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-	devicetree@vger.kernel.org, kernel@stlinux.com,
-	rtc-linux@googlegroups.com, a.zummo@towertech.it,
-	daniel.lezcano@linaro.org, wim@iguana.be, tglx@linutronix.de,
-	linux@roeck-us.net, linux-watchdog@vger.kernel.org
-Subject: [rtc-linux] Re: [STLinux Kernel] [PATCH 12/12] ARM: STi: Update
- platform level menuconfig 'help'
-Message-ID: <20150507141526.GB9793@griffinp-ThinkPad-X1-Carbon-2nd>
-References: <1431005924-21777-1-git-send-email-lee.jones@linaro.org>
- <1431005924-21777-13-git-send-email-lee.jones@linaro.org>
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
+        Tue, 19 May 2015 10:08:09 -0700 (PDT)
+From: <Frank.Li@freescale.com>
+To: <lznuaa@gmail.com>, <shawn.guo@linaro.org>, <dmitry.torokhov@gmail.com>,
+	<robh+dt@kernel.org>, <a.zummo@towertech.it>, <p.zabel@pengutronix.de>,
+	<alexandre.belloni@free-electrons.com>
+CC: <linux-arm-kernel@lists.infradead.org>, <linux-input@vger.kernel.org>,
+	<rtc-linux@googlegroups.com>, <linux-pm@vger.kernel.org>,
+	<devicetree@vger.kernel.org>, Frank Li <Frank.Li@freescale.com>
+Subject: [rtc-linux] [PATCH v2 4/7] arm: dts: imx: update snvs to use syscon
+ access register
+Date: Wed, 20 May 2015 01:04:39 +0800
+Message-ID: <1432055082-28983-5-git-send-email-Frank.Li@freescale.com>
+In-Reply-To: <1432055082-28983-1-git-send-email-Frank.Li@freescale.com>
+References: <1432055082-28983-1-git-send-email-Frank.Li@freescale.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1431005924-21777-13-git-send-email-lee.jones@linaro.org>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -32,43 +29,131 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Hi Lee,
+From: Frank Li <Frank.Li@freescale.com>
 
-On Thu, 07 May 2015, Lee Jones wrote:
+snvs is MFP device. Change dts to use syscon to allocate register resource.
 
-> Encompass newer STiH4{07,10} SoC based platforms.
-> 
-> Signed-off-by: Lee Jones <lee.jones@linaro.org>
-> ---
->  arch/arm/mach-sti/Kconfig | 8 +++-----
->  1 file changed, 3 insertions(+), 5 deletions(-)
-> 
-> diff --git a/arch/arm/mach-sti/Kconfig b/arch/arm/mach-sti/Kconfig
-> index cb886de..59928d9 100644
-> --- a/arch/arm/mach-sti/Kconfig
-> +++ b/arch/arm/mach-sti/Kconfig
-> @@ -16,11 +16,9 @@ menuconfig ARCH_STI
->  	select PL310_ERRATA_769419 if CACHE_L2X0
->  	select RESET_CONTROLLER
->  	help
-> -	  Include support for STiH41x SOCs like STiH415/416 using the device tree
-> -	  for discovery
-> -	  More information at Documentation/arm/STiH41x and
-> -	  at Documentation/devicetree
-> -
-> +	  Include support for STMicroelectronics' STiH415/416 and stih407/10
-> +	  family SoCs using the Device Tree for discovery.  More information
-> +	  can be found in Documentation/arm/sti/ & Documentation/devicetree.
+Signed-off-by: Frank Li <Frank.Li@freescale.com>
+---
+ arch/arm/boot/dts/imx6qdl.dtsi | 12 ++++--------
+ arch/arm/boot/dts/imx6sl.dtsi  | 12 ++++--------
+ arch/arm/boot/dts/imx6sx.dtsi  | 12 ++++--------
+ arch/arm/boot/dts/vfxxx.dtsi   |  9 +++------
+ 4 files changed, 15 insertions(+), 30 deletions(-)
 
-You should use the same capitalisation throughout. Also you can mention STiH418,
-as that is now supported upstream.
-
-Once fixed you can add my: -
-     Acked-by: Peter Griffin <peter.griffin@linaro.org>
-
-regards,
-
-Peter.
+diff --git a/arch/arm/boot/dts/imx6qdl.dtsi b/arch/arm/boot/dts/imx6qdl.dtsi
+index 0482a66..9df9faf 100644
+--- a/arch/arm/boot/dts/imx6qdl.dtsi
++++ b/arch/arm/boot/dts/imx6qdl.dtsi
+@@ -687,21 +687,17 @@
+ 			};
+ 
+ 			snvs@020cc000 {
+-				compatible = "fsl,sec-v4.0-mon", "simple-bus";
+-				#address-cells = <1>;
+-				#size-cells = <1>;
+-				ranges = <0 0x020cc000 0x4000>;
++				compatible = "fsl,sec-v4.0-mon", "syscon",  "simple-mfd";
++				reg = <0x020cc000 0x4000>;
+ 
+-				snvs_rtc: snvs-rtc-lp@34 {
++				snvs_rtc: snvs-rtc-lp {
+ 					compatible = "fsl,sec-v4.0-mon-rtc-lp";
+-					reg = <0x34 0x58>;
+ 					interrupts = <0 19 IRQ_TYPE_LEVEL_HIGH>,
+ 						     <0 20 IRQ_TYPE_LEVEL_HIGH>;
+ 				};
+ 
+-				snvs_poweroff: snvs-poweroff@38 {
++				snvs_poweroff: snvs-poweroff {
+ 					compatible = "fsl,sec-v4.0-poweroff";
+-					reg = <0x38 0x4>;
+ 					status = "disabled";
+ 				};
+ 			};
+diff --git a/arch/arm/boot/dts/imx6sl.dtsi b/arch/arm/boot/dts/imx6sl.dtsi
+index a78e715..99f37f9 100644
+--- a/arch/arm/boot/dts/imx6sl.dtsi
++++ b/arch/arm/boot/dts/imx6sl.dtsi
+@@ -564,21 +564,17 @@
+ 			};
+ 
+ 			snvs@020cc000 {
+-				compatible = "fsl,sec-v4.0-mon", "simple-bus";
+-				#address-cells = <1>;
+-				#size-cells = <1>;
+-				ranges = <0 0x020cc000 0x4000>;
++				compatible = "fsl,sec-v4.0-mon", "syscon", "simple-mfd";
++				reg = <0x020cc000 0x4000>;
+ 
+-				snvs_rtc: snvs-rtc-lp@34 {
++				snvs_rtc: snvs-rtc-lp {
+ 					compatible = "fsl,sec-v4.0-mon-rtc-lp";
+-					reg = <0x34 0x58>;
+ 					interrupts = <0 19 IRQ_TYPE_LEVEL_HIGH>,
+ 						     <0 20 IRQ_TYPE_LEVEL_HIGH>;
+ 				};
+ 
+-				snvs_poweroff: snvs-poweroff@38 {
++				snvs_poweroff: snvs-poweroff {
+ 					compatible = "fsl,sec-v4.0-poweroff";
+-					reg = <0x38 0x4>;
+ 					status = "disabled";
+ 				};
+ 			};
+diff --git a/arch/arm/boot/dts/imx6sx.dtsi b/arch/arm/boot/dts/imx6sx.dtsi
+index 708175d..97de407 100644
+--- a/arch/arm/boot/dts/imx6sx.dtsi
++++ b/arch/arm/boot/dts/imx6sx.dtsi
+@@ -662,20 +662,16 @@
+ 			};
+ 
+ 			snvs: snvs@020cc000 {
+-				compatible = "fsl,sec-v4.0-mon", "simple-bus";
+-				#address-cells = <1>;
+-				#size-cells = <1>;
+-				ranges = <0 0x020cc000 0x4000>;
++				compatible = "fsl,sec-v4.0-mon", "syscon", "simple-mfd";
++				reg = <0x020cc000 0x4000>;
+ 
+-				snvs_rtc: snvs-rtc-lp@34 {
++				snvs_rtc: snvs-rtc-lp {
+ 					compatible = "fsl,sec-v4.0-mon-rtc-lp";
+-					reg = <0x34 0x58>;
+ 					interrupts = <GIC_SPI 19 IRQ_TYPE_LEVEL_HIGH>, <GIC_SPI 20 IRQ_TYPE_LEVEL_HIGH>;
+ 				};
+ 
+-				snvs_poweroff: snvs-poweroff@38 {
++				snvs_poweroff: snvs-poweroff {
+ 					compatible = "fsl,sec-v4.0-poweroff";
+-					reg = <0x38 0x4>;
+ 					status = "disabled";
+ 				};
+ 			};
+diff --git a/arch/arm/boot/dts/vfxxx.dtsi b/arch/arm/boot/dts/vfxxx.dtsi
+index 4aa3351..fccfc01 100644
+--- a/arch/arm/boot/dts/vfxxx.dtsi
++++ b/arch/arm/boot/dts/vfxxx.dtsi
+@@ -404,14 +404,11 @@
+ 			};
+ 
+ 			snvs0: snvs@400a7000 {
+-			    compatible = "fsl,sec-v4.0-mon", "simple-bus";
+-				#address-cells = <1>;
+-				#size-cells = <1>;
+-				ranges = <0 0x400a7000 0x2000>;
++			    compatible = "fsl,sec-v4.0-mon", "syscon", "simple-mfd";
++				reg = <0x400a7000 0x2000>;
+ 
+-				snvsrtc: snvs-rtc-lp@34 {
++				snvsrtc: snvs-rtc-lp {
+ 					compatible = "fsl,sec-v4.0-mon-rtc-lp";
+-					reg = <0x34 0x58>;
+ 					interrupts = <100 IRQ_TYPE_LEVEL_HIGH>;
+ 					clocks = <&clks VF610_CLK_SNVS>;
+ 					clock-names = "snvs-rtc";
+-- 
+1.9.1
 
 -- 
 -- 
