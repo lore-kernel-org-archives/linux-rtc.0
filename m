@@ -1,30 +1,24 @@
-Return-Path: <rtc-linux+bncBAABBJXW42VAKGQEVQ6DXSQ@googlegroups.com>
-Received: from mx2.suse.de (cantor2.suse.de. [195.135.220.15])
-        by gmr-mx.google.com with ESMTPS id t6si357469wiz.0.2015.05.18.03.12.54
+Return-Path: <rtc-linux+bncBDMYB2E7SQCRBZG35WVAKGQERJ225XQ@googlegroups.com>
+Received: from na01-bl2-obe.outbound.protection.outlook.com (mail-bl2on0747.outbound.protection.outlook.com. [2a01:111:f400:fc09::747])
+        by gmr-mx.google.com with ESMTPS id dq2si1989458qcb.3.2015.05.19.10.07.48
         for <rtc-linux@googlegroups.com>
-        (version=TLSv1 cipher=ECDHE-RSA-RC4-SHA bits=128/128);
-        Mon, 18 May 2015 03:12:54 -0700 (PDT)
-Date: Mon, 18 May 2015 12:12:48 +0200
-From: Borislav Petkov <bp@suse.de>
-To: Diego Ercolani <diego.ercolani@gmail.com>
-Cc: Adrian Huang <adrianhuang0701@gmail.com>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	rtc-linux@googlegroups.com, Brecht Machiels <brecht@mos6581.org>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	John Stultz <john.stultz@linaro.org>,
-	Rabin Vincent <rabin.vincent@stericsson.com>,
-	Nagananda Chumbalkar <nchumbalkar@lenovo.com>,
-	Adrian Huang <ahuang12@lenovo.com>, Egbert Eich <eich@suse.com>
-Subject: [rtc-linux] Re: [RFC PATCH 1/2] Revert "rtc-cmos: Add an alarm
- disable quirk"
-Message-ID: <20150518101248.GE23662@pd.tnic>
-References: <1431077665-3493-1-git-send-email-adrianhuang0701@gmail.com>
- <20150518094755.GC23662@pd.tnic>
- <CANoYJu=utAHVNPU5PnPoBXtpMPVVbFf557xbBO=2GuHyx-JNHg@mail.gmail.com>
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
+        Tue, 19 May 2015 10:07:48 -0700 (PDT)
+From: <Frank.Li@freescale.com>
+To: <lznuaa@gmail.com>, <shawn.guo@linaro.org>, <dmitry.torokhov@gmail.com>,
+	<robh+dt@kernel.org>, <a.zummo@towertech.it>, <p.zabel@pengutronix.de>,
+	<alexandre.belloni@free-electrons.com>
+CC: <linux-arm-kernel@lists.infradead.org>, <linux-input@vger.kernel.org>,
+	<rtc-linux@googlegroups.com>, <linux-pm@vger.kernel.org>,
+	<devicetree@vger.kernel.org>, Frank Li <Frank.Li@freescale.com>
+Subject: [rtc-linux] [PATCH v2 1/7] arm: imx: power-off: change to syscon to
+ access register
+Date: Wed, 20 May 2015 01:04:36 +0800
+Message-ID: <1432055082-28983-2-git-send-email-Frank.Li@freescale.com>
+In-Reply-To: <1432055082-28983-1-git-send-email-Frank.Li@freescale.com>
+References: <1432055082-28983-1-git-send-email-Frank.Li@freescale.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <CANoYJu=utAHVNPU5PnPoBXtpMPVVbFf557xbBO=2GuHyx-JNHg@mail.gmail.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -35,39 +29,58 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Hi Diego,
+From: Frank Li <Frank.Li@freescale.com>
 
-On Mon, May 18, 2015 at 12:00:22PM +0200, Diego Ercolani wrote:
-> Hello, sure I can.
+snvs is MFP device, which included rtc, ON/OFF key, power off
 
-cool, thanks! :-)
+Signed-off-by: Frank Li <Frank.Li@freescale.com>
+---
+ drivers/power/reset/imx-snvs-poweroff.c | 21 +++++++++++++++------
+ 1 file changed, 15 insertions(+), 6 deletions(-)
 
-> In the meanwhile I upgraded my linux box to opensuse 13.2 with actual
-> kernel: 3.16.7-21-desktop
-
-Ok, I'll prepare one.
-
-> so the patch should be applied to that kernel, and please, as is passed
-> some time please point out the tests you want me to try
-
-Simply executing
-
-"shutdown -h now"
-
-should keep the box off.
-
-You could also do the things you've tried when reporting the bug:
-
-https://bugzilla.suse.com/show_bug.cgi?id=812592#c0
-
-Anyway, thanks, I'll let you know.
-
+diff --git a/drivers/power/reset/imx-snvs-poweroff.c b/drivers/power/reset/imx-snvs-poweroff.c
+index ad6ce50..aab8588 100644
+--- a/drivers/power/reset/imx-snvs-poweroff.c
++++ b/drivers/power/reset/imx-snvs-poweroff.c
+@@ -22,21 +22,30 @@
+ #include <linux/of.h>
+ #include <linux/of_address.h>
+ #include <linux/platform_device.h>
++#include <linux/mfd/syscon.h>
++#include <linux/regmap.h>
+ 
+-static void __iomem *snvs_base;
++static struct regmap *snvs;
++
++#define SNVS_LPCR 0x38
+ 
+ static void do_imx_poweroff(void)
+ {
+-	u32 value = readl(snvs_base);
+-
+ 	/* set TOP and DP_EN bit */
+-	writel(value | 0x60, snvs_base);
++	regmap_update_bits(snvs, SNVS_LPCR, 0x60, 0x60);
+ }
+ 
+ static int imx_poweroff_probe(struct platform_device *pdev)
+ {
+-	snvs_base = of_iomap(pdev->dev.of_node, 0);
+-	if (!snvs_base) {
++	struct device_node *nd;
++
++	nd = of_get_parent(pdev->dev.of_node);
++	if (!nd)
++		return -ENODEV;
++	snvs = syscon_node_to_regmap(nd);
++	of_node_put(nd);
++
++	if (!snvs) {
+ 		dev_err(&pdev->dev, "failed to get memory\n");
+ 		return -ENODEV;
+ 	}
 -- 
-Regards/Gruss,
-    Boris.
-
-ECO tip #101: Trim your mails when you reply.
---
+1.9.1
 
 -- 
 -- 
