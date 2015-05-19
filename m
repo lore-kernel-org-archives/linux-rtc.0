@@ -1,24 +1,32 @@
-Return-Path: <rtc-linux+bncBDS4VBOTRMFRBZE63CVAKGQEBOE2BZI@googlegroups.com>
-Received: from ni.com (skprod3.natinst.com. [130.164.80.24])
-        by gmr-mx.google.com with ESMTPS id k7si191328igu.0.2015.05.15.08.23.16
+Return-Path: <rtc-linux+bncBAABBKHL5OVAKGQEG67YXRA@googlegroups.com>
+Received: from mail1.bemta3.messagelabs.com (mail1.bemta3.messagelabs.com. [195.245.230.167])
+        by gmr-mx.google.com with ESMTPS id k2si515636wif.0.2015.05.19.01.34.48
         for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 15 May 2015 08:23:16 -0700 (PDT)
-Date: Fri, 15 May 2015 10:23:12 -0500
-From: Josh Cartwright <joshc@ni.com>
-To: Joachim Eastwood <manabian@gmail.com>
-Cc: akpm@linux-foundation.org, a.zummo@towertech.it, wellsk40@gmail.com,
-        rtc-linux@googlegroups.com, devicetree@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        alexandre.belloni@free-electrons.com
-Subject: [rtc-linux] Re: [PATCH v2 1/2] rtc: add rtc-lpc24xx driver
-Message-ID: <20150515152312.GG23600@jcartwri.amer.corp.natinst.com>
-References: <1431696306-19093-1-git-send-email-manabian@gmail.com>
- <1431696306-19093-2-git-send-email-manabian@gmail.com>
+        (version=TLSv1.2 cipher=RC4-SHA bits=128/128);
+        Tue, 19 May 2015 01:34:48 -0700 (PDT)
+From: "Opensource [Steve Twiss]" <stwiss.opensource@diasemi.com>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+CC: LINUXKERNEL <linux-kernel@vger.kernel.org>, Lee Jones
+	<lee.jones@linaro.org>, Samuel Ortiz <sameo@linux.intel.com>, "Alessandro
+ Zummo" <a.zummo@towertech.it>, DEVICETREE <devicetree@vger.kernel.org>,
+	"David Dajun Chen" <david.chen@diasemi.com>, Dmitry Torokhov
+	<dmitry.torokhov@gmail.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>,
+	Kumar Gala <galak@codeaurora.org>, LINUXINPUT <linux-input@vger.kernel.org>,
+	LINUXWATCHDOG <linux-watchdog@vger.kernel.org>, Liam Girdwood
+	<lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, Mark Rutland
+	<mark.rutland@arm.com>, Pawel Moll <pawel.moll@arm.com>, RTCLINUX
+	<rtc-linux@googlegroups.com>, Rob Herring <robh+dt@kernel.org>, "Support
+ Opensource" <Support.Opensource@diasemi.com>, Wim Van Sebroeck
+	<wim@iguana.be>
+Subject: RE: [rtc-linux] [PATCH V2 1/4] mfd: da9062: DA9062 MFD core driver
+Date: Tue, 19 May 2015 08:34:45 +0000
+Message-ID: <6ED8E3B22081A4459DAC7699F3695FB7014B22B961@SW-EX-MBX02.diasemi.com>
+References: <cover.1431621833.git.stwiss.opensource@diasemi.com>
+ <af5a7d289bb149e9111ebc70bb0589a994ee2407.1431621833.git.stwiss.opensource@diasemi.com>
+ <20150516085328.GI3338@piout.net>
+In-Reply-To: <20150516085328.GI3338@piout.net>
+Content-Type: text/plain; charset=UTF-8
 MIME-Version: 1.0
-In-Reply-To: <1431696306-19093-2-git-send-email-manabian@gmail.com>
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="1Ow488MNN9B9o/ov"
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -29,85 +37,90 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
---1Ow488MNN9B9o/ov
-Content-Type: text/plain; charset=UTF-8
-Content-Disposition: inline
+On 16 May 2015 09:53 Alexandre Belloni wrote:
 
-Hello again,
+Hi Alexandre,
 
-On Fri, May 15, 2015 at 03:25:05PM +0200, Joachim Eastwood wrote:
-> Add driver for the RTC found on NXP LPC24xx/178x/18xx/43xx devices.
-> The RTC provides calendar and clock functionality together with
-> periodic tick and alarm interrupt support.
+> On 14/05/2015 at 17:43:52 +0100, S Twiss wrote :
+
+[...]
+
+> > +	{
+> > +		.name		= "da9062-watchdog",
+> > +		.num_resources	= ARRAY_SIZE(da9062_wdt_resources),
+> > +		.resources	= da9062_wdt_resources,
+> > +		.of_compatible  = "dlg,da9062-wdt",
+> > +	},
+> > +	{
+> > +		.name		= "da9062-onkey",
+> > +		.num_resources	= ARRAY_SIZE(da9062_onkey_resources),
+> > +		.resources	= da9062_onkey_resources,
+> > +		.of_compatible  = "dlg,da9062-onkey",
+> > +	},
+> > +	{
+> > +		.name		= "da9062-thermal",
+> > +		.num_resources	= ARRAY_SIZE(da9062_thermal_resources),
+> > +		.resources	= da9062_thermal_resources,
+> > +		.of_compatible  = "dlg,da9062-thermal",
+> > +	},
+> > +	{
+> > +		.name		= "da9062-rtc",
+> > +		.num_resources	= ARRAY_SIZE(da9062_rtc_resources),
+> > +		.resources	= da9062_rtc_resources,
+> > +		.of_compatible  = "dlg,da9062-rtc",
 > 
-> Signed-off-by: Joachim Eastwood <manabian@gmail.com>
-> ---
-[..]
-> +++ b/drivers/rtc/Kconfig
-> @@ -1427,6 +1427,19 @@ config RTC_DRV_JZ4740
->  	  This driver can also be buillt as a module. If so, the module
->  	  will be called rtc-jz4740.
->  
-> +config RTC_DRV_LPC24XX
-> +	depends on ARCH_LPC18XX || COMPILE_TEST
-> +	depends on HAS_IOMEM
-> +	depends on OF
-> +	tristate "NXP LPC24xx RTC"
-> +	help
-> +	  This enables support for the NXP RTC found which can be found on
-> +	  LPC24xx/178x/18xx/43xx devices.
+> Did you try to use "da9063-rtc"? The register set seems to be exactly
+> the same. Unfortunately, the datasheet are not available on the diasemi
+> website...
 
-Is this still true?
+I will remove the DA9062 OnKey and RTC parts with a view to putting them back
+when I do the work for the DA9063 alterations.
 
-> +
-> +	  If you have one of the devices above enable this driver to use
-> +	  the hardware RTC. This driver can also be buillt as a module. If
-> +	  so, the module will be called rtc-lpc24xx.
-> +
->  config RTC_DRV_LPC32XX
->  	depends on ARCH_LPC32XX
->  	tristate "NXP LPC32XX RTC"
-> diff --git a/drivers/rtc/Makefile b/drivers/rtc/Makefile
-> index c31731c29762..8687a2e13247 100644
-> --- a/drivers/rtc/Makefile
-[..]
-> +static int lpc24xx_rtc_read_time(struct device *dev, struct rtc_time *tm)
-> +{
-> +	struct lpc24xx_rtc *rtc = dev_get_drvdata(dev);
-> +	u32 ct0, ct1, ct2;
-> +
-> +	ct0 = rtc_readl(rtc, LPC24XX_CTIME0);
-> +	ct1 = rtc_readl(rtc, LPC24XX_CTIME1);
-> +	ct2 = rtc_readl(rtc, LPC24XX_CTIME2);
-> +
-> +	tm->tm_sec  = CT0_SECS(ct0);
-> +	tm->tm_min  = CT0_MINS(ct0);
-> +	tm->tm_hour = CT0_HOURS(ct0);
-> +	tm->tm_wday = CT0_DOW(ct0);
-> +	tm->tm_mon  = CT1_MONTH(ct1);
-> +	tm->tm_mday = CT1_DOM(ct1);
-> +	tm->tm_year = CT1_YEAR(ct1);
-> +	tm->tm_yday = CT2_DOY(ct2);
-> +
-> +	if (rtc_valid_tm(tm) < 0) {
-> +		dev_warn(dev, "retrieved date and time is invalid\n");
-> +		rtc_time64_to_tm(0, tm);
-> +		lpc24xx_rtc_set_time(dev, tm);
-> +	}
-> +
-> +	return 0;
+> Also, the .of_compatibles are not necessary because you don't add any of
+> bindings to the underlying drivers. The match happens on .name.
+> 
+> > diff --git a/include/linux/mfd/da9062/registers.h
+> b/include/linux/mfd/da9062/registers.h
+> > new file mode 100644
+> > index 0000000..d07c2bc
+> > --- /dev/null
+> > +++ b/include/linux/mfd/da9062/registers.h
+> 
+> Comparing that file with da9063/registers.h, It really seems that
+> DA062AA, DA9063AD and DA9063BB are register compatible, apart from a
+> few
+> differences in the regulator and the gpio count.
+> 
+> Also, at least the watchdog and rtc driver are duplicating their da9063
+> counterpart. I'm not trying to annoy you, I just want you to understand
+> that the less code is duplicated, the easiest it will be to maintain
+> later.
 
-Forcing the read time to be the epoch on failure seems like a pretty
-poor way to handle errors, in my opinion.
+This has come up a lot lately.
 
-Why not trickle an error up to the rtc class driver?
+https://lkml.org/lkml/2015/4/24/304
+https://lkml.org/lkml/2015/5/13/383
+https://lkml.org/lkml/2015/5/6/505
+https://lkml.org/lkml/2015/5/18/511
 
-Actually, the class driver is already doing a rtc_valid_tm() check, so
-that shouldn't even be necessary.  Just read your time here, and let the
-upper layer take care of handling an invalid time (and properly
-propagating an error up the stack).
+The short answer is that the DA9062 and DA9063 chips are not identical. Although
+their numbers are sequential and there are functional similarities for some of the
+components, this is not the norm for the two chips.
 
-  Josh
+In some cases re-using driver components from DA9063 is a good way forward, but
+making all components part of a monolithic driver would make both DA9062 and
+DA9063 over complicated and unmaintainable -- in my opinion.
+
+However it's not just my opinion we have to consider here I think.
+
+The RTC and OnKey in this case can be done fairly easily I think -- there can be some
+re-use in those components -- although there are fairly important RTC differences between
+the DA9063 AD and DA9063 BB silicon revisions (in the form of a new register, different
+functionality in the alarm and a register shift). So even that is not a straight-forward
+"swap" to run DA9062.
+
+Regards,
+Steve
 
 -- 
 -- 
@@ -119,20 +132,3 @@ before submitting a driver.
 You received this message because you are subscribed to the Google Groups "rtc-linux" group.
 To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
-
---1Ow488MNN9B9o/ov
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
-
-iQEcBAABCAAGBQJVVg9cAAoJEKp7ZBKwQFArsswH/jjzMTqZ7DfRdkyMmhhuecHb
-sVjOA5Ftq1PHsZGb3dCe6dqmIw5PcSdxagKEpS1rmRb+39vCdg/YzzNInBJJGAdV
-gojmqBSL1RwHDG7BsDaWnWLYxSu5CHtIz7g+X6fV7iFrdfbsT6HRcG2TPJvMDXZD
-xknBII8gcExmSwHfeSMGNHr5oNbOW6DAH1ABHgJiQ3QD1CyrqXNQyIPwaOWgnkdw
-sj4XXQeYrlzmRdiR0BK76UWieHBuqqWxo4s+8yId4Y2arz8OyfSAXZI55gpPNujL
-IE9ejf9r8Yn5tDrDu/88abeAVxXbyJbamwqcYNeWA0at3TpiuI63hV5n/ekvBho=
-=1gqb
------END PGP SIGNATURE-----
-
---1Ow488MNN9B9o/ov--
