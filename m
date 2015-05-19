@@ -1,24 +1,23 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBZ443WVAKGQEV4JUWRY@googlegroups.com>
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id m3si91250wia.1.2015.05.16.07.04.23
-        for <rtc-linux@googlegroups.com>;
-        Sat, 16 May 2015 07:04:23 -0700 (PDT)
-Date: Sat, 16 May 2015 16:04:22 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Frank.Li@freescale.com
-Cc: lznuaa@gmail.com, shawn.guo@linaro.org, dmitry.torokhov@gmail.com,
-	robh+dt@kernel.org, a.zummo@towertech.it, sachin.kamat@linaro.org,
-	p.zabel@pengutronix.de, linux-arm-kernel@lists.infradead.org,
-	linux-input@vger.kernel.org, rtc-linux@googlegroups.com,
-	linux-pm@vger.kernel.org, devicetree@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH 2/7] rtc: arm: imx: snvs: change use syscon to
- access register
-Message-ID: <20150516140422.GL3338@piout.net>
-References: <1431696990-23078-1-git-send-email-Frank.Li@freescale.com>
- <1431696990-23078-3-git-send-email-Frank.Li@freescale.com>
+Return-Path: <rtc-linux+bncBDMYB2E7SQCRBHO45WVAKGQE2TTJOFQ@googlegroups.com>
+Received: from na01-bn1-obe.outbound.protection.outlook.com (mail-bn1bbn0103.outbound.protection.outlook.com. [157.56.111.103])
+        by gmr-mx.google.com with ESMTPS id x3si1600520pdh.2.2015.05.19.10.08.45
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
+        Tue, 19 May 2015 10:08:45 -0700 (PDT)
+From: <Frank.Li@freescale.com>
+To: <lznuaa@gmail.com>, <shawn.guo@linaro.org>, <dmitry.torokhov@gmail.com>,
+	<robh+dt@kernel.org>, <a.zummo@towertech.it>, <p.zabel@pengutronix.de>,
+	<alexandre.belloni@free-electrons.com>
+CC: <linux-arm-kernel@lists.infradead.org>, <linux-input@vger.kernel.org>,
+	<rtc-linux@googlegroups.com>, <linux-pm@vger.kernel.org>,
+	<devicetree@vger.kernel.org>, Frank Li <Frank.Li@freescale.com>
+Subject: [rtc-linux] [PATCH v2 7/7] arm: dts: imx6sx: enable snvs power key
+Date: Wed, 20 May 2015 01:04:42 +0800
+Message-ID: <1432055082-28983-8-git-send-email-Frank.Li@freescale.com>
+In-Reply-To: <1432055082-28983-1-git-send-email-Frank.Li@freescale.com>
+References: <1432055082-28983-1-git-send-email-Frank.Li@freescale.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1431696990-23078-3-git-send-email-Frank.Li@freescale.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -29,65 +28,35 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Hi,
+From: Frank Li <Frank.Li@freescale.com>
 
-On 15/05/2015 at 21:36:25 +0800, Frank.Li@freescale.com wrote :
-> From: Frank Li <Frank.Li@freescale.com>
-> 
-> snvs included rtc, on/off key, power-off module
-> change to syscon to access register
-> 
-> Signed-off-by: Frank Li <Frank.Li@freescale.com>
-> ---
->  drivers/rtc/rtc-snvs.c | 124 +++++++++++++++++++++----------------------------
->  1 file changed, 54 insertions(+), 70 deletions(-)
-> 
-> diff --git a/drivers/rtc/rtc-snvs.c b/drivers/rtc/rtc-snvs.c
-> index 0479e80..4e85fbe 100644
-> --- a/drivers/rtc/rtc-snvs.c
-> +++ b/drivers/rtc/rtc-snvs.c
-> @@ -18,14 +18,16 @@
->  #include <linux/platform_device.h>
->  #include <linux/rtc.h>
->  #include <linux/clk.h>
-> +#include <linux/mfd/syscon.h>
-> +#include <linux/regmap.h>
->  
->  /* These register offsets are relative to LP (Low Power) range */
-Shouldn't you remove that comment ?
+enable snvs ONOFF power key support
 
-> -#define SNVS_LPCR		0x04
-> -#define SNVS_LPSR		0x18
-> -#define SNVS_LPSRTCMR		0x1c
-> -#define SNVS_LPSRTCLR		0x20
-> -#define SNVS_LPTAR		0x24
-> -#define SNVS_LPPGDR		0x30
-> +#define SNVS_LPCR		0x38
-> +#define SNVS_LPSR		0x4c
-> +#define SNVS_LPSRTCMR		0x50
-> +#define SNVS_LPSRTCLR		0x54
-> +#define SNVS_LPTAR		0x58
-> +#define SNVS_LPPGDR		0x64
->  
->  #define SNVS_LPCR_SRTC_ENV	(1 << 0)
->  #define SNVS_LPCR_LPTA_EN	(1 << 1)
-> @@ -37,31 +39,35 @@
->  
->  struct snvs_rtc_data {
->  	struct rtc_device *rtc;
-> -	void __iomem *ioaddr;
-> +	struct regmap *snvs;
->  	int irq;
->  	spinlock_t lock;
+Signed-off-by: Frank Li <Frank.Li@freescale.com>
+---
+ arch/arm/boot/dts/imx6sx.dtsi | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-This lock can probably be removed, if I'm not mistaken the only use left
-is its initialization.
-
-
+diff --git a/arch/arm/boot/dts/imx6sx.dtsi b/arch/arm/boot/dts/imx6sx.dtsi
+index 97de407..2977015 100644
+--- a/arch/arm/boot/dts/imx6sx.dtsi
++++ b/arch/arm/boot/dts/imx6sx.dtsi
+@@ -674,6 +674,13 @@
+ 					compatible = "fsl,sec-v4.0-poweroff";
+ 					status = "disabled";
+ 				};
++
++				snvs_pwrkey: snvs-powerkey {
++					compatible = "fsl,sec-v4.0-pwrkey";
++					interrupts = <GIC_SPI 4 IRQ_TYPE_LEVEL_HIGH>;
++					linux,keycode = <116>; /* KEY_POWER */
++					wakeup;
++				};
+ 			};
+ 
+ 			epit1: epit@020d0000 {
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+1.9.1
 
 -- 
 -- 
