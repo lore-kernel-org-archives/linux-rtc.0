@@ -1,29 +1,26 @@
-Return-Path: <rtc-linux+bncBCN6JTVP2IEBBIPYUGVQKGQEOD7BNUQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBDMYB2E7SQCRB5W25WVAKGQEPU3N54I@googlegroups.com>
+Received: from na01-bl2-obe.outbound.protection.outlook.com (mail-bl2on0139.outbound.protection.outlook.com. [65.55.169.139])
+        by gmr-mx.google.com with ESMTPS id dq2si1988358qcb.3.2015.05.19.10.05.57
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
+        Tue, 19 May 2015 10:05:58 -0700 (PDT)
+From: <Frank.Li@freescale.com>
+To: <lznuaa@gmail.com>, <shawn.guo@linaro.org>, <dmitry.torokhov@gmail.com>,
+	<robh+dt@kernel.org>, <a.zummo@towertech.it>, <p.zabel@pengutronix.de>,
+	<alexandre.belloni@free-electrons.com>
+CC: <linux-arm-kernel@lists.infradead.org>, <linux-input@vger.kernel.org>,
+	<rtc-linux@googlegroups.com>, <linux-pm@vger.kernel.org>,
+	<devicetree@vger.kernel.org>, Frank Li <Frank.Li@freescale.com>, Robin Gong
+	<b38343@freescale.com>
+Subject: [rtc-linux] [PATCH v2 6/7] document: devicetree: input: imx: i.mx
+ snvs power device tree bindings
+Date: Wed, 20 May 2015 01:04:41 +0800
+Message-ID: <1432055082-28983-7-git-send-email-Frank.Li@freescale.com>
+In-Reply-To: <1432055082-28983-1-git-send-email-Frank.Li@freescale.com>
+References: <1432055082-28983-1-git-send-email-Frank.Li@freescale.com>
 MIME-Version: 1.0
-Received: from m50-111.126.com (m50-111.126.com. [123.125.50.111])
-        by gmr-mx.google.com with ESMTP id ax9si174657igc.1.2015.05.29.07.47.55
-        for <rtc-linux@googlegroups.com>;
-        Fri, 29 May 2015 07:48:01 -0700 (PDT)
-From: Xunlei Pang <xlpang@126.com>
-To: linux-kernel@vger.kernel.org
-Cc: rtc-linux@googlegroups.com,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	John Stultz <john.stultz@linaro.org>,
-	Arnd Bergmann <arnd@arndb.de>,
-	"David S. Miller" <davem@davemloft.net>,
-	sparclinux@vger.kernel.org,
-	linux-cris-kernel@axis.com,
-	Mikael Starvik <starvik@axis.com>,
-	Jesper Nilsson <jesper.nilsson@axis.com>,
-	Xunlei Pang <pang.xunlei@linaro.org>
-Subject: [rtc-linux] [PATCH v2 2/4] sparc: time: Replace update_persistent_clock()
- with CONFIG_RTC_SYSTOHC
-Date: Fri, 29 May 2015 22:46:16 +0800
-Message-Id: <1432910778-314-2-git-send-email-xlpang@126.com>
-In-Reply-To: <1432910778-314-1-git-send-email-xlpang@126.com>
-References: <1432910778-314-1-git-send-email-xlpang@126.com>
-Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -33,126 +30,89 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-From: Xunlei Pang <pang.xunlei@linaro.org>
+From: Frank Li <Frank.Li@freescale.com>
 
-On Sparc systems, update_persistent_clock() uses RTC drivers to do
-the job, it makes more sense to hand it over to CONFIG_RTC_SYSTOHC.
+The snvs-pwrkey is designed to enable POWER key function which controlled
+by SNVS ONOFF. the driver can report the status of POWER key and wakeup
+system if pressed after system suspend.
 
-In the long run, all the update_persistent_clock() should migrate to
-proper class RTC drivers if any and use CONFIG_RTC_SYSTOHC instead.
-
-Signed-off-by: Xunlei Pang <pang.xunlei@linaro.org>
+Signed-off-by: Frank Li <Frank.Li@freescale.com>
+Signed-off-by: Robin Gong <b38343@freescale.com>
 ---
- arch/sparc/Kconfig          |  2 +-
- arch/sparc/kernel/time_32.c | 21 ---------------------
- arch/sparc/kernel/time_64.c | 14 --------------
- 3 files changed, 1 insertion(+), 36 deletions(-)
+ .../devicetree/bindings/crypto/fsl-sec4.txt        | 42 ++++++++++++++++++++++
+ .../devicetree/bindings/input/snvs-pwrkey.txt      |  1 +
+ 2 files changed, 43 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/input/snvs-pwrkey.txt
 
-diff --git a/arch/sparc/Kconfig b/arch/sparc/Kconfig
-index e49502a..56442d2 100644
---- a/arch/sparc/Kconfig
-+++ b/arch/sparc/Kconfig
-@@ -25,6 +25,7 @@ config SPARC
- 	select ARCH_HAS_ATOMIC64_DEC_IF_POSITIVE
- 	select RTC_CLASS
- 	select RTC_DRV_M48T59
-+	select RTC_SYSTOHC
- 	select HAVE_DMA_ATTRS
- 	select HAVE_DMA_API_DEBUG
- 	select HAVE_ARCH_JUMP_LABEL if SPARC64
-@@ -35,7 +36,6 @@ config SPARC
- 	select HAVE_BPF_JIT
- 	select HAVE_DEBUG_BUGVERBOSE
- 	select GENERIC_SMP_IDLE_THREAD
--	select GENERIC_CMOS_UPDATE
- 	select GENERIC_CLOCKEVENTS
- 	select GENERIC_STRNCPY_FROM_USER
- 	select GENERIC_STRNLEN_USER
-diff --git a/arch/sparc/kernel/time_32.c b/arch/sparc/kernel/time_32.c
-index 8caf45e..c9692f3 100644
---- a/arch/sparc/kernel/time_32.c
-+++ b/arch/sparc/kernel/time_32.c
-@@ -23,7 +23,6 @@
- #include <linux/mm.h>
- #include <linux/interrupt.h>
- #include <linux/time.h>
--#include <linux/rtc.h>
- #include <linux/rtc/m48t59.h>
- #include <linux/timex.h>
- #include <linux/clocksource.h>
-@@ -65,8 +64,6 @@ DEFINE_PER_CPU(struct clock_event_device, sparc32_clockevent);
- DEFINE_SPINLOCK(rtc_lock);
- EXPORT_SYMBOL(rtc_lock);
+diff --git a/Documentation/devicetree/bindings/crypto/fsl-sec4.txt b/Documentation/devicetree/bindings/crypto/fsl-sec4.txt
+index ca04206..99a57b7 100644
+--- a/Documentation/devicetree/bindings/crypto/fsl-sec4.txt
++++ b/Documentation/devicetree/bindings/crypto/fsl-sec4.txt
+@@ -394,6 +394,41 @@ EXAMPLE
+ };
  
--static int set_rtc_mmss(unsigned long);
--
- unsigned long profile_pc(struct pt_regs *regs)
- {
- 	extern char __copy_user_begin[], __copy_user_end[];
-@@ -87,11 +84,6 @@ EXPORT_SYMBOL(profile_pc);
+ =====================================================================
++System ON/OFF key driver
++
++  The snvs-pwrkey is designed to enable POWER key function which controlled
++  by SNVS ONOFF, the driver can report the status of POWER key and wakeup
++  system if pressed after system suspend.
++
++  - compatible:
++      Usage: required
++      Value type: <string>
++      Definition: Mush include "fsl,sec-v4.0-pwrkey".
++
++  - interrupts:
++      Usage: required
++      Value type: <prop_encoded-array>
++      Definition: The SNVS ON/OFF interrupt number to the CPU(s).
++
++  - linux,keycode:
++      Usage: option
++      Value type: <int>
++      Definition: Keycode to emit, KEY_POWER by default.
++
++  - wakeup:
++      Usage: option
++      Value type: <boo>
++      Definition: Button can wake-up the system
++
++EXAMPLE:
++	snvs-pwrkey@0x020cc000 {
++		compatible = "fsl,sec-v4.0-pwrkey";
++		interrupts = <0 4 0x4>
++	        linux,keycode = <116>; /* KEY_POWER */
++		wakeup;
++	};
++
++=====================================================================
+ FULL EXAMPLE
  
- volatile u32 __iomem *master_l10_counter;
+ 	crypto: crypto@300000 {
+@@ -475,6 +510,13 @@ FULL EXAMPLE
+ 		snvs_poweroff: snvs-poweroff@38 {
+                         compatible = "fsl,sec-v4.0-poweroff";
+                 };
++
++		snvs-pwrkey@0x020cc000 {
++			compatible = "fsl,sec-v4.0-pwrkey";
++			interrupts = <0 4 0x4>;
++			linux,keycode = <116>; /* KEY_POWER */
++			wakeup;
++		};
+ 	};
  
--int update_persistent_clock(struct timespec now)
--{
--	return set_rtc_mmss(now.tv_sec);
--}
--
- irqreturn_t notrace timer_interrupt(int dummy, void *dev_id)
- {
- 	if (timer_cs_enabled) {
-@@ -362,16 +354,3 @@ void __init time_init(void)
- 		sbus_time_init();
- }
- 
--
--static int set_rtc_mmss(unsigned long secs)
--{
--	struct rtc_device *rtc = rtc_class_open("rtc0");
--	int err = -1;
--
--	if (rtc) {
--		err = rtc_set_mmss(rtc, secs);
--		rtc_class_close(rtc);
--	}
--
--	return err;
--}
-diff --git a/arch/sparc/kernel/time_64.c b/arch/sparc/kernel/time_64.c
-index edbbeb1..2e6035c 100644
---- a/arch/sparc/kernel/time_64.c
-+++ b/arch/sparc/kernel/time_64.c
-@@ -28,7 +28,6 @@
- #include <linux/cpufreq.h>
- #include <linux/percpu.h>
- #include <linux/miscdevice.h>
--#include <linux/rtc.h>
- #include <linux/rtc/m48t59.h>
- #include <linux/kernel_stat.h>
- #include <linux/clockchips.h>
-@@ -394,19 +393,6 @@ static struct sparc64_tick_ops hbtick_operations __read_mostly = {
- 
- static unsigned long timer_ticks_per_nsec_quotient __read_mostly;
- 
--int update_persistent_clock(struct timespec now)
--{
--	struct rtc_device *rtc = rtc_class_open("rtc0");
--	int err = -1;
--
--	if (rtc) {
--		err = rtc_set_mmss(rtc, now.tv_sec);
--		rtc_class_close(rtc);
--	}
--
--	return err;
--}
--
- unsigned long cmos_regs;
- EXPORT_SYMBOL(cmos_regs);
- 
+ =====================================================================
+diff --git a/Documentation/devicetree/bindings/input/snvs-pwrkey.txt b/Documentation/devicetree/bindings/input/snvs-pwrkey.txt
+new file mode 100644
+index 0000000..70c1425
+--- /dev/null
++++ b/Documentation/devicetree/bindings/input/snvs-pwrkey.txt
+@@ -0,0 +1 @@
++See Documentation/devicetree/bindings/crypto/fsl-sec4.txt
 -- 
 1.9.1
-
 
 -- 
 -- 
