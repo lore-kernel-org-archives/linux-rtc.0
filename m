@@ -1,27 +1,23 @@
-Return-Path: <rtc-linux+bncBAABBUXK42VAKGQEBI43BOQ@googlegroups.com>
-Received: from mx2.suse.de (cantor2.suse.de. [195.135.220.15])
-        by gmr-mx.google.com with ESMTPS id p12si335874wiv.1.2015.05.18.02.48.01
+Return-Path: <rtc-linux+bncBDMYB2E7SQCRB2O25WVAKGQEXAUAJTY@googlegroups.com>
+Received: from na01-by2-obe.outbound.protection.outlook.com (mail-by2on0140.outbound.protection.outlook.com. [207.46.100.140])
+        by gmr-mx.google.com with ESMTPS id u10si615765wif.1.2015.05.19.10.05.44
         for <rtc-linux@googlegroups.com>
-        (version=TLSv1 cipher=ECDHE-RSA-RC4-SHA bits=128/128);
-        Mon, 18 May 2015 02:48:01 -0700 (PDT)
-Date: Mon, 18 May 2015 11:47:55 +0200
-From: Borislav Petkov <bp@suse.de>
-To: Adrian Huang <adrianhuang0701@gmail.com>, diego.ercolani@gmail.com
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	rtc-linux@googlegroups.com, Brecht Machiels <brecht@mos6581.org>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	John Stultz <john.stultz@linaro.org>,
-	Rabin Vincent <rabin.vincent@stericsson.com>,
-	Nagananda Chumbalkar <nchumbalkar@lenovo.com>,
-	Adrian Huang <ahuang12@lenovo.com>, Egbert Eich <eich@suse.com>
-Subject: [rtc-linux] Re: [RFC PATCH 1/2] Revert "rtc-cmos: Add an alarm
- disable quirk"
-Message-ID: <20150518094755.GC23662@pd.tnic>
-References: <1431077665-3493-1-git-send-email-adrianhuang0701@gmail.com>
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
+        Tue, 19 May 2015 10:05:45 -0700 (PDT)
+From: <Frank.Li@freescale.com>
+To: <lznuaa@gmail.com>, <shawn.guo@linaro.org>, <dmitry.torokhov@gmail.com>,
+	<robh+dt@kernel.org>, <a.zummo@towertech.it>, <p.zabel@pengutronix.de>,
+	<alexandre.belloni@free-electrons.com>
+CC: <linux-arm-kernel@lists.infradead.org>, <linux-input@vger.kernel.org>,
+	<rtc-linux@googlegroups.com>, <linux-pm@vger.kernel.org>,
+	<devicetree@vger.kernel.org>, Frank Li <Frank.Li@freescale.com>
+Subject: [rtc-linux] [PATCH v2 3/7] Document: dt: fsl: snvs: change support syscon
+Date: Wed, 20 May 2015 01:04:38 +0800
+Message-ID: <1432055082-28983-4-git-send-email-Frank.Li@freescale.com>
+In-Reply-To: <1432055082-28983-1-git-send-email-Frank.Li@freescale.com>
+References: <1432055082-28983-1-git-send-email-Frank.Li@freescale.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1431077665-3493-1-git-send-email-adrianhuang0701@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -32,106 +28,153 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On Fri, May 08, 2015 at 05:34:25PM +0800, Adrian Huang wrote:
-> Commit d5a1c7e3fc38 ("rtc-cmos: Add an alarm disable quirk") that
-> added a special quirk is not needed because PATCH [2/2] of this
-> patchset makes the kernel more robust:
-> rtc: restore the RTC alarm time to the configured alarm time in BIOS
-> Setup
-> 
-> Signed-off-by: Adrian Huang <ahuang12@lenovo.com>
-> ---
->  drivers/rtc/rtc-cmos.c | 52 --------------------------------------------------
->  1 file changed, 52 deletions(-)
-> 
-> diff --git a/drivers/rtc/rtc-cmos.c b/drivers/rtc/rtc-cmos.c
-> index a82556a..9754564 100644
-> --- a/drivers/rtc/rtc-cmos.c
-> +++ b/drivers/rtc/rtc-cmos.c
-> @@ -29,8 +29,6 @@
->   * other drivers and utilities on correctly configured systems.
->   */
->  
-> -#define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
-> -
->  #include <linux/kernel.h>
->  #include <linux/module.h>
->  #include <linux/init.h>
-> @@ -41,7 +39,6 @@
->  #include <linux/pm.h>
->  #include <linux/of.h>
->  #include <linux/of_platform.h>
-> -#include <linux/dmi.h>
->  
->  /* this is for "generic access to PC-style RTC" using CMOS_READ/CMOS_WRITE */
->  #include <asm-generic/rtc.h>
-> @@ -380,50 +377,6 @@ static int cmos_set_alarm(struct device *dev, struct rtc_wkalrm *t)
->  	return 0;
->  }
->  
-> -/*
-> - * Do not disable RTC alarm on shutdown - workaround for b0rked BIOSes.
-> - */
-> -static bool alarm_disable_quirk;
-> -
-> -static int __init set_alarm_disable_quirk(const struct dmi_system_id *id)
-> -{
-> -	alarm_disable_quirk = true;
-> -	pr_info("BIOS has alarm-disable quirk - RTC alarms disabled\n");
-> -	return 0;
-> -}
-> -
-> -static const struct dmi_system_id rtc_quirks[] __initconst = {
-> -	/* https://bugzilla.novell.com/show_bug.cgi?id=805740 */
-> -	{
-> -		.callback = set_alarm_disable_quirk,
-> -		.ident    = "IBM Truman",
-> -		.matches  = {
-> -			DMI_MATCH(DMI_SYS_VENDOR, "TOSHIBA"),
-> -			DMI_MATCH(DMI_PRODUCT_NAME, "4852570"),
-> -		},
+From: Frank Li <Frank.Li@freescale.com>
 
-So, your series really fix the reboot issue on this already notoriously
-buggy box.
+snvs actually is multi fucntion driver.
+Change to use syscon to access register.
 
-I did try to confirm it 5 times just to be sure and in all 5, the box
-remained off.
+Signed-off-by: Frank Li <Frank.Li@freescale.com>
+---
+ .../devicetree/bindings/crypto/fsl-sec4.txt        | 51 ++++++++++++++++------
+ .../bindings/power_supply/imx-snvs-poweroff.txt    | 24 +---------
+ 2 files changed, 39 insertions(+), 36 deletions(-)
 
-We're testing another box currently which has the same issue.
-
-Now, for the next version of your patches, I'd ask you to put this patch
-second. I.e., you want to introduce the new fix first and *then* remove
-the quirk as this way we have a window where no quirk will be in place
-and possible bisection will be disturbed needlessly even though we can
-help it.
-
-> -	},
-> -	/* https://bugzilla.novell.com/show_bug.cgi?id=812592 */
-> -	{
-> -		.callback = set_alarm_disable_quirk,
-> -		.ident    = "Gigabyte GA-990XA-UD3",
-> -		.matches  = {
-> -			DMI_MATCH(DMI_SYS_VENDOR,
-> -					"Gigabyte Technology Co., Ltd."),
-> -			DMI_MATCH(DMI_PRODUCT_NAME, "GA-990XA-UD3"),
-> -		},
-
-Looking at the bugzilla entry above, that should be Diego's box.
-
-Diego, would you be able to test these patches? They're a better fix
-than what I did last year.
-
-If you want me to prepare an openSUSE kernel for you, let me know and
-I'll do one. I'd only need to know which distro.
-
-Thanks.
-
+diff --git a/Documentation/devicetree/bindings/crypto/fsl-sec4.txt b/Documentation/devicetree/bindings/crypto/fsl-sec4.txt
+index e402277..ca04206 100644
+--- a/Documentation/devicetree/bindings/crypto/fsl-sec4.txt
++++ b/Documentation/devicetree/bindings/crypto/fsl-sec4.txt
+@@ -288,12 +288,13 @@ Secure Non-Volatile Storage (SNVS) Node
+     Node defines address range and the associated
+     interrupt for the SNVS function.  This function
+     monitors security state information & reports
+-    security violations.
++    security violations. This also included rtc,
++    system power off and ON/OFF key.
+ 
+   - compatible
+       Usage: required
+       Value type: <string>
+-      Definition: Must include "fsl,sec-v4.0-mon".
++      Definition: Must include "fsl,sec-v4.0-mon" and "syscon".
+ 
+   - reg
+       Usage: required
+@@ -324,7 +325,7 @@ Secure Non-Volatile Storage (SNVS) Node
+            the child address, parent address, & length.
+ 
+    - interrupts
+-      Usage: required
++      Usage: optional
+       Value type: <prop_encoded-array>
+       Definition:  Specifies the interrupts generated by this
+            device.  The value of the interrupts property
+@@ -341,7 +342,7 @@ Secure Non-Volatile Storage (SNVS) Node
+ 
+ EXAMPLE
+ 	sec_mon@314000 {
+-		compatible = "fsl,sec-v4.0-mon";
++		compatible = "fsl,sec-v4.0-mon", "syscon";
+ 		reg = <0x314000 0x1000>;
+ 		ranges = <0 0x314000 0x1000>;
+ 		interrupt-parent = <&mpic>;
+@@ -358,19 +359,41 @@ Secure Non-Volatile Storage (SNVS) Low Power (LP) RTC Node
+       Value type: <string>
+       Definition: Must include "fsl,sec-v4.0-mon-rtc-lp".
+ 
+-  - reg
++  - interrupts
+       Usage: required
+-      Value type: <prop-encoded-array>
+-      Definition: A standard property.  Specifies the physical
+-          address and length of the SNVS LP configuration registers.
++      Value type: <prop_encoded-array>
++      Definition: Specifies the interrupts generated by this
++	   device.  The value of the interrupts property
++	   consists of one interrupt specifier. The format
++	   of the specifier is defined by the binding document
++	   describing the node's interrupt parent.
+ 
+ EXAMPLE
+-	sec_mon_rtc_lp@314000 {
++	sec_mon_rtc_lp@1 {
+ 		compatible = "fsl,sec-v4.0-mon-rtc-lp";
+-		reg = <0x34 0x58>;
++		interrupts = <93 2>;
+ 	};
+ 
+ =====================================================================
++System power off Driver
++
++  A SNVS child node that define system power off
++  SNVS_LPCR in SNVS module can power off the whole system by pull
++  PMIC_ON_REQ low if PMIC_ON_REQ is connected with external PMIC.
++  If you don't want to use PMIC_ON_REQ as power on/off control,
++  please set status='disabled' to disable this driver.
++
++  - compatible
++      Usage: regquied
++      Value type: <string>
++      Definition: Must include "fsl,sec-v4.0-poweroff"
++
++EXAMPLE
++	snvs_poweroff: snvs-poweroff {
++		compatible = "fsl,sec-v4.0-poweroff";
++};
++
++=====================================================================
+ FULL EXAMPLE
+ 
+ 	crypto: crypto@300000 {
+@@ -443,13 +466,15 @@ FULL EXAMPLE
+ 		compatible = "fsl,sec-v4.0-mon";
+ 		reg = <0x314000 0x1000>;
+ 		ranges = <0 0x314000 0x1000>;
+-		interrupt-parent = <&mpic>;
+-		interrupts = <93 2>;
+ 
+ 		sec_mon_rtc_lp@34 {
+ 			compatible = "fsl,sec-v4.0-mon-rtc-lp";
+-			reg = <0x34 0x58>;
++			interrupts = <93 2>;
+ 		};
++
++		snvs_poweroff: snvs-poweroff@38 {
++                        compatible = "fsl,sec-v4.0-poweroff";
++                };
+ 	};
+ 
+ =====================================================================
+diff --git a/Documentation/devicetree/bindings/power_supply/imx-snvs-poweroff.txt b/Documentation/devicetree/bindings/power_supply/imx-snvs-poweroff.txt
+index dc7c9ba..70c1425 100644
+--- a/Documentation/devicetree/bindings/power_supply/imx-snvs-poweroff.txt
++++ b/Documentation/devicetree/bindings/power_supply/imx-snvs-poweroff.txt
+@@ -1,23 +1 @@
+-i.mx6 Poweroff Driver
+-
+-SNVS_LPCR in SNVS module can power off the whole system by pull
+-PMIC_ON_REQ low if PMIC_ON_REQ is connected with external PMIC.
+-If you don't want to use PMIC_ON_REQ as power on/off control,
+-please set status='disabled' to disable this driver.
+-
+-Required Properties:
+--compatible: "fsl,sec-v4.0-poweroff"
+--reg: Specifies the physical address of the SNVS_LPCR register
+-
+-Example:
+-	snvs@020cc000 {
+-		compatible = "fsl,sec-v4.0-mon", "simple-bus";
+-		#address-cells = <1>;
+-		#size-cells = <1>;
+-		ranges = <0 0x020cc000 0x4000>;
+-		.....
+-		snvs_poweroff: snvs-poweroff@38 {
+-			compatible = "fsl,sec-v4.0-poweroff";
+-			reg = <0x38 0x4>;
+-		};
+-	}
++See Documentation/devicetree/bindings/crypto/fsl-sec4.txt
 -- 
-Regards/Gruss,
-    Boris.
-
-ECO tip #101: Trim your mails when you reply.
---
+1.9.1
 
 -- 
 -- 
