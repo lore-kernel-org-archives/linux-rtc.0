@@ -1,28 +1,39 @@
-Return-Path: <rtc-linux+bncBCN6JTVP2IEBBFHYUGVQKGQELHCKEOY@googlegroups.com>
-MIME-Version: 1.0
-Received: from m50-111.126.com ([123.125.50.111])
-        by gmr-mx.google.com with ESMTP id k3si186088igf.1.2015.05.29.07.47.43
-        for <rtc-linux@googlegroups.com>;
-        Fri, 29 May 2015 07:47:48 -0700 (PDT)
-From: Xunlei Pang <xlpang@126.com>
-To: linux-kernel@vger.kernel.org
-Cc: rtc-linux@googlegroups.com,
+Return-Path: <rtc-linux+bncBCKMZDW5VIHBBYW56OVAKGQE6HWM5EI@googlegroups.com>
+Received: from bh-25.webhostbox.net (bh-25.webhostbox.net. [208.91.199.152])
+        by gmr-mx.google.com with ESMTPS id xz5si2056130pac.1.2015.05.20.13.30.25
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1 cipher=RC4-SHA bits=128/128);
+        Wed, 20 May 2015 13:30:26 -0700 (PDT)
+Date: Wed, 20 May 2015 13:30:16 -0700
+From: Guenter Roeck <linux@roeck-us.net>
+To: S Twiss <stwiss.opensource@diasemi.com>
+Cc: LINUXKERNEL <linux-kernel@vger.kernel.org>,
+	LINUXWATCHDOG <linux-watchdog@vger.kernel.org>,
+	Wim Van Sebroeck <wim@iguana.be>,
 	Alessandro Zummo <a.zummo@towertech.it>,
-	John Stultz <john.stultz@linaro.org>,
-	Arnd Bergmann <arnd@arndb.de>,
-	"David S. Miller" <davem@davemloft.net>,
-	sparclinux@vger.kernel.org,
-	linux-cris-kernel@axis.com,
-	Mikael Starvik <starvik@axis.com>,
-	Jesper Nilsson <jesper.nilsson@axis.com>,
-	Xunlei Pang <pang.xunlei@linaro.org>
-Subject: [rtc-linux] [PATCH v2 4/4] cris: time: Cleanup of persistent clock stuff
-Date: Fri, 29 May 2015 22:46:18 +0800
-Message-Id: <1432910778-314-4-git-send-email-xlpang@126.com>
-In-Reply-To: <1432910778-314-1-git-send-email-xlpang@126.com>
-References: <1432910778-314-1-git-send-email-xlpang@126.com>
-Reply-To: rtc-linux@googlegroups.com
+	DEVICETREE <devicetree@vger.kernel.org>,
+	David Dajun Chen <david.chen@diasemi.com>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Ian Campbell <ijc+devicetree@hellion.org.uk>,
+	Kumar Gala <galak@codeaurora.org>,
+	LINUXINPUT <linux-input@vger.kernel.org>,
+	Lee Jones <lee.jones@linaro.org>,
+	Liam Girdwood <lgirdwood@gmail.com>,
+	Mark Brown <broonie@kernel.org>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Pawel Moll <pawel.moll@arm.com>,
+	RTCLINUX <rtc-linux@googlegroups.com>,
+	Rob Herring <robh+dt@kernel.org>,
+	Samuel Ortiz <sameo@linux.intel.com>,
+	Support Opensource <support.opensource@diasemi.com>
+Subject: [rtc-linux] Re: [PATCH V3 3/4] watchdog: da9062: DA9062 watchdog driver
+Message-ID: <20150520203016.GA5710@roeck-us.net>
+References: <cover.1432041031.git.stwiss.opensource@diasemi.com>
+ <ded171f203fe1d0c72f0d7ea4c3d54257f4e970e.1432041031.git.stwiss.opensource@diasemi.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <ded171f203fe1d0c72f0d7ea4c3d54257f4e970e.1432041031.git.stwiss.opensource@diasemi.com>
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -32,68 +43,15 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-From: Xunlei Pang <pang.xunlei@linaro.org>
-
-- Remove update_persistent_clock(), as it does nothing now.
-- Remove read_persistent_clock(), let it fall back to the weak version.
-
-Signed-off-by: Xunlei Pang <pang.xunlei@linaro.org>
----
- arch/cris/Kconfig       |  1 -
- arch/cris/kernel/time.c | 25 -------------------------
- 2 files changed, 26 deletions(-)
-
-diff --git a/arch/cris/Kconfig b/arch/cris/Kconfig
-index 0314e32..982d562 100644
---- a/arch/cris/Kconfig
-+++ b/arch/cris/Kconfig
-@@ -46,7 +46,6 @@ config CRIS
- 	select ARCH_WANT_IPC_PARSE_VERSION
- 	select GENERIC_IRQ_SHOW
- 	select GENERIC_IOMAP
--	select GENERIC_CMOS_UPDATE
- 	select MODULES_USE_ELF_RELA
- 	select CLONE_BACKWARDS2
- 	select OLD_SIGSUSPEND
-diff --git a/arch/cris/kernel/time.c b/arch/cris/kernel/time.c
-index 7780d37..2dda6da 100644
---- a/arch/cris/kernel/time.c
-+++ b/arch/cris/kernel/time.c
-@@ -39,31 +39,6 @@
- extern unsigned long loops_per_jiffy; /* init/main.c */
- unsigned long loops_per_usec;
- 
--int set_rtc_mmss(unsigned long nowtime)
--{
--	D(printk(KERN_DEBUG "set_rtc_mmss(%lu)\n", nowtime));
--	return 0;
--}
--
--/* grab the time from the RTC chip */
--unsigned long get_cmos_time(void)
--{
--	return 0;
--}
--
--
--int update_persistent_clock(struct timespec now)
--{
--	return set_rtc_mmss(now.tv_sec);
--}
--
--void read_persistent_clock(struct timespec *ts)
--{
--	ts->tv_sec = 0;
--	ts->tv_nsec = 0;
--}
--
--
- extern void cris_profile_sample(struct pt_regs* regs);
- 
- void
--- 
-1.9.1
-
+On Tue, May 19, 2015 at 02:10:30PM +0100, S Twiss wrote:
+> From: S Twiss <stwiss.opensource@diasemi.com>
+> 
+> Add watchdog driver support for DA9062
+> 
+> 
+> Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
+> 
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 
 -- 
 -- 
