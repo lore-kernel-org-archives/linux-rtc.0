@@ -1,44 +1,70 @@
-Return-Path: <rtc-linux+bncBDKOZ45RYIGRBD5D56VAKGQEGXMNKDQ@googlegroups.com>
-Received: from p3plex2out04.prod.phx3.secureserver.net (p3plex2out04.prod.phx3.secureserver.net. [184.168.131.18])
-        by gmr-mx.google.com with ESMTP id x12si22227igx.1.2015.05.19.17.13.03
-        for <rtc-linux@googlegroups.com>;
-        Tue, 19 May 2015 17:13:03 -0700 (PDT)
-From: Hartley Sweeten <HartleyS@visionengravers.com>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>, "rtc-linux@googlegroups.com"
-	<rtc-linux@googlegroups.com>, "a.zummo@towertech.it" <a.zummo@towertech.it>
-Subject: [rtc-linux] RE: rtc: ep93xx: Use readl/writel for io
-Date: Wed, 20 May 2015 00:13:02 +0000
-Message-ID: <DC148C5AA1CEBA4E87973D432B1C2D88261F128D@P3PWEX4MB008.ex4.secureserver.net>
-References: <201203211055.31653.hartleys@visionengravers.com>
- <20150519203944.GB3338@piout.net>
-In-Reply-To: <20150519203944.GB3338@piout.net>
-Content-Type: text/plain; charset=UTF-8
+Return-Path: <rtc-linux+bncBCUYRNXYZECRBZVF6OVAKGQEZNUC5EQ@googlegroups.com>
+Received: from pandora.arm.linux.org.uk (pandora.arm.linux.org.uk. [2001:4d48:ad52:3201:214:fdff:fe10:1be6])
+        by gmr-mx.google.com with ESMTPS id u10si171825wif.1.2015.05.20.11.31.01
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1 cipher=RC4-SHA bits=128/128);
+        Wed, 20 May 2015 11:31:01 -0700 (PDT)
+Date: Wed, 20 May 2015 19:30:50 +0100
+From: Russell King - ARM Linux <linux@arm.linux.org.uk>
+To: Shawn Guo <shawnguo@kernel.org>
+Cc: a.zummo@towertech.it, Frank.Li@freescale.com,
+	rtc-linux@googlegroups.com, linux-pm@vger.kernel.org,
+	dmitry.torokhov@gmail.com, devicetree@vger.kernel.org,
+	robh+dt@kernel.org, alexandre.belloni@free-electrons.com,
+	p.zabel@pengutronix.de, linux-input@vger.kernel.org,
+	lznuaa@gmail.com, shawn.guo@linaro.org,
+	linux-arm-kernel@lists.infradead.org
+Subject: [rtc-linux] Re: [PATCH v2 0/7] Change snvs rtc and poweroff to use
+ syscon add pwrkey driver
+Message-ID: <20150520183050.GR2067@n2100.arm.linux.org.uk>
+References: <1432055082-28983-1-git-send-email-Frank.Li@freescale.com>
+ <20150520015851.GB1071@dragon>
+ <20150520182540.GQ2067@n2100.arm.linux.org.uk>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <20150520182540.GQ2067@n2100.arm.linux.org.uk>
+Sender: rtc-linux@googlegroups.com
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
 List-Archive: <http://groups.google.com/group/rtc-linux
-Sender: rtc-linux@googlegroups.com
 List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On Tuesday, May 19, 2015 1:40 PM, Alexandre Belloni wrote:
-> On 21/03/2012 at 10:55:31 -0700, hartleys wrote :
->> Drivers should not be using the __raw_* io accessors.
->> 
->> Signed-off-by: H Hartley Sweeten <hsweeten@visionengravers.com>
->> Cc: Alessandro Zummo <a.zummo@towertech.it>
+On Wed, May 20, 2015 at 07:25:41PM +0100, Russell King - ARM Linux wrote:
+> On Wed, May 20, 2015 at 09:58:51AM +0800, Shawn Guo wrote:
+> > On Wed, May 20, 2015 at 01:04:35AM +0800, Frank.Li@freescale.com wrote:
+> > > Frank Li (6):
+> > >   arm: imx: power-off: change to syscon to access register
+> > >   rtc: arm: imx: snvs: change use syscon to access register
+> > >   Document: dt: fsl: snvs: change support syscon
+> > >   arm: dts: imx: update snvs to use syscon access register
+> > >   document: devicetree: input: imx: i.mx snvs power device tree bindings
+> > >   arm: dts: imx6sx: enable snvs power key
+> > 
+> > So, the series will break existing DTBs for RTC and poweroff, right?
+> > If this is unavoidable, should we at least have some warning messages
+> > telling users about his breakage?
 > 
->
-> Rebased and applied, thanks!
+> What's the justification for breaking existing DTBs?  Really, this is
+> something we should strive to avoid, _and_ actually avoid by providing
+> backwards compatibility.
 
-Man. I forgot all about that patch... ;-)
+Looking at the RTC code, it would be pretty trivial to do.
 
-Thanks,
-Hartley
+Rather than passing around struct regmap, pass around the private data
+structure.
+
+Rename the regmap_* function calls to be private accessors.  Implement
+a set of new accessors - if the private data has the regmap, use the
+regmap API.  Otherwise, use the old method, and print a warning that an
+old DT is being used.
+
+-- 
+FTTC broadband for 0.8mile line: currently at 10.5Mbps down 400kbps up
+according to speedtest.net.
 
 -- 
 -- 
