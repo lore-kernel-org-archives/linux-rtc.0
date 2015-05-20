@@ -1,34 +1,31 @@
-Return-Path: <rtc-linux+bncBAABBPMDVGVAKGQERYMJX7A@googlegroups.com>
-Received: from mail1.bemta3.messagelabs.com (mail1.bemta3.messagelabs.com. [195.245.230.166])
-        by gmr-mx.google.com with ESMTPS id t6si115429wiz.0.2015.05.06.09.30.52
+Return-Path: <rtc-linux+bncBCHOPY7NVYCRBU6E6KVAKGQESSTQ77Y@googlegroups.com>
+Received: from mail-ob0-x230.google.com (mail-ob0-x230.google.com. [2607:f8b0:4003:c01::230])
+        by gmr-mx.google.com with ESMTPS id k3si215612igf.1.2015.05.20.08.03.47
         for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=RC4-SHA bits=128/128);
-        Wed, 06 May 2015 09:30:52 -0700 (PDT)
-From: "Opensource [Steve Twiss]" <stwiss.opensource@diasemi.com>
-To: Guenter Roeck <linux@roeck-us.net>, "Opensource [Steve Twiss]"
-	<stwiss.opensource@diasemi.com>
-CC: LINUXKERNEL <linux-kernel@vger.kernel.org>, LINUXWATCHDOG
-	<linux-watchdog@vger.kernel.org>, Wim Van Sebroeck <wim@iguana.be>,
-	Alessandro Zummo <a.zummo@towertech.it>, DEVICETREE
-	<devicetree@vger.kernel.org>, David Dajun Chen <david.chen@diasemi.com>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>, Ian Campbell
-	<ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>,
-	LINUXINPUT <linux-input@vger.kernel.org>, Lee Jones <lee.jones@linaro.org>,
-	Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, "Mark
- Rutland" <mark.rutland@arm.com>, Pawel Moll <pawel.moll@arm.com>, RTCLINUX
-	<rtc-linux@googlegroups.com>, Rob Herring <robh+dt@kernel.org>, Samuel Ortiz
-	<sameo@linux.intel.com>, Support Opensource <Support.Opensource@diasemi.com>
-Subject: [rtc-linux] RE: [PATCH V1 5/6] watchdog: da9062: DA9062 watchdog driver
-Date: Wed, 6 May 2015 16:30:50 +0000
-Message-ID: <6ED8E3B22081A4459DAC7699F3695FB7014B21925B@SW-EX-MBX02.diasemi.com>
-References: <cover.1429280614.git.stwiss.opensource@diasemi.com>
- <2afd9f55c71553186e99bfe386312f0c7d7501ed.1429280614.git.stwiss.opensource@diasemi.com>
- <55327DDA.4080003@roeck-us.net>
- <6ED8E3B22081A4459DAC7699F3695FB7014B21924A@SW-EX-MBX02.diasemi.com>
- <20150506160227.GA28101@roeck-us.net>
-In-Reply-To: <20150506160227.GA28101@roeck-us.net>
-Content-Type: text/plain; charset=UTF-8
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 20 May 2015 08:03:47 -0700 (PDT)
+Received: by mail-ob0-x230.google.com with SMTP id ea2so4068620obb.3
+        for <rtc-linux@googlegroups.com>; Wed, 20 May 2015 08:03:47 -0700 (PDT)
 MIME-Version: 1.0
+In-Reply-To: <6111368.e0EOBSJsmZ@jclayton-pc>
+References: <1432055082-28983-1-git-send-email-Frank.Li@freescale.com>
+	<20150520142205.GA24844@dragon>
+	<CAHrpEqSpeMO=zLyii8qZUznP+9EAQqJ-D3O8hbXj99m+UNvpzA@mail.gmail.com>
+	<6111368.e0EOBSJsmZ@jclayton-pc>
+Date: Wed, 20 May 2015 10:03:46 -0500
+Message-ID: <CAHrpEqQ9F1qXw6RmKPgwpqsFOq=O0dsNL7YtqNQ2ZUVBYz6DSw@mail.gmail.com>
+Subject: [rtc-linux] Re: [PATCH v2 0/7] Change snvs rtc and poweroff to use
+ syscon add pwrkey driver
+From: Zhi Li <lznuaa@gmail.com>
+To: Joshua Clayton <stillcompiling@gmail.com>
+Cc: "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Shawn Guo <shawn.guo@linaro.org>,
+	Alessandro Zummo <a.zummo@towertech.it>, "Frank.Li@freescale.com" <Frank.Li@freescale.com>,
+	rtc-linux@googlegroups.com,
+	"devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, linux-pm@vger.kernel.org,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>,
+	alexandre.belloni@free-electrons.com, Philipp Zabel <p.zabel@pengutronix.de>,
+	linux-input@vger.kernel.org, Shawn Guo <shawnguo@kernel.org>
+Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -39,81 +36,35 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
+On Wed, May 20, 2015 at 9:46 AM, Joshua Clayton
+<stillcompiling@gmail.com> wrote:
+>>
+>> +       snvs_np = of_get_parent(pdev->dev.of_node);
+>> +       if (!snvs_np)
+>> +               return -ENODEV;
+>> +
+>> +       data->snvs = syscon_node_to_regmap(snvs_np);
+>> +       of_node_put(snvs_np);
+>> +
+>> +       if (!data->snvs) {
+>> +               pr_err("Can't snvs syscon\n");
+>> +               return -ENODEV;
+>> +       }
+>>
+>> How about change error message to " Can't snvs syscon, probably use
+>> old dts file"?
+> How about simply: "Cannot find snvs syscon node in devicetree."
 
-On 06 May 2015 17:02 Guenter Roeck wrote:
+Shawn:
+          Are you okay for that?
 
-> On Wed, May 06, 2015 at 02:54:37PM +0000, Opensource [Steve Twiss] wrote:
-> > On 18 April 2015 16:53 Guenter Roeck wrote:
-> >
-> > Hi Guenter,
-> >
-> > Thanks for your comments.
-> >
-> > > On 04/17/2015 07:23 AM, S Twiss wrote:
-> > > > From: S Twiss <stwiss.opensource@diasemi.com>
-> > > >
-> > > > Add watchdog driver support for DA9062
-> > > >
-> > > > Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
-> > > >
-> > > Hi Steve,
-> > >
-> > > Key question here is if the da9062 is really so much different to the da9062
-> > > that you can not use the same driver.
-> >
-> > The DA9062 watchdog driver does have some similarities with the DA9063 watchdog
-> > base functionality -- however the watchdog component in the DA9062 chip has more
-> > features yet to be added in software. I do intend to add these other features ...
-> > however, if "not adding them here" is a problem I can drop the DA9062 watchdog
-> > driver from this patch-set until I have time to write in the newer changes.
-> >
-> > > I am especially concerned about the added da9062_reset_watchdog_timer(),
-> > > given the delay it introduces.
-> >
-> > After giving this some thought, I am going to remove this 300ms delay from the
-> > reset_watchdog_timer() function for my next submission attempt. However
-> > I am adding a 300ms delay into the stop() and update_timeout_register() functions
-> > instead.
-> >
-> > The DA9062 watchdog ping (register CONTROL_F) is "windowed" for protection
-> > against spurious writes -- i.e. the ping function cannot be called within a 250ms
-> > time limit or the PMIC will reset. This windowing protection also extends to altering
-> > the timeout scale in the CONTROL_D register -- in which case if the timeout
-> > register is altered and the ping() function is called within the 250ms limit, the
-> > PMIC will reset. The delay is there to stop that from happening.
-> >
-> > I realised my previous patch was over-sanitised: by putting the time delay into the
-> > ping() function I was protecting CONTROL_D in stop() and update_timeout_register(),
-> > but I was being too over-protective of the ping() function. Therefore if there was an
-> > "incorrect trigger signal", the watchdog would not be allowed to fail because the
-> > driver would have filtered out the errors.
-> >
-> Hi Steve,
-> 
-> From your description, it sounds like the protection is only necessary if there
-> was a previous write to the same register(s). If so, it might make sense to
-> record the time of such writes, and only add the delay if necessary, and only
-> for the remainder of the time.
-> 
-> Would this be possible ?
-> 
+best regards
+Frank Li
 
-Hi Guenter,
-
-I think so -- sounds like it should be possible.
-Internally, there are several places where the two registers are written in succession.
-Also, I'll have to re-write my tests in several places.
-
-Probably the best solution would be to defer this watchdog driver for now, and I'll
-re-submit it at a later date once the other parts of the DA9062 driver are [hopefully :)]
-accepted. That way I can concentrate a solid block of time on the re-testing ... this
-is the most time consuming.
-
-Is that acceptable to you? -- I don't want to lose your existing comments from your
-previous posts, so I will keep track of those changes you have already requested.
-
-Regards,
-Steve
+>
+>
+> --
+> ~Joshua Clayton
 
 -- 
 -- 
