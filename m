@@ -1,18 +1,31 @@
-Return-Path: <rtc-linux+bncBDEKVJM7XAHRB7OOZGVAKGQELNBW66Q@googlegroups.com>
-Received: from mout.kundenserver.de (mout.kundenserver.de. [212.227.17.10])
-        by gmr-mx.google.com with ESMTPS id t6si177011wiz.0.2015.05.12.13.50.05
+Return-Path: <rtc-linux+bncBCHOPY7NVYCRBXHD6SVAKGQETAWOVBY@googlegroups.com>
+Received: from mail-ob0-x234.google.com (mail-ob0-x234.google.com. [2607:f8b0:4003:c01::234])
+        by gmr-mx.google.com with ESMTPS id x1si14749igb.2.2015.05.20.18.16.12
         for <rtc-linux@googlegroups.com>
         (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 12 May 2015 13:50:05 -0700 (PDT)
-From: Arnd Bergmann <arnd@arndb.de>
-To: Russell King - ARM Linux <linux@arm.linux.org.uk>
-Cc: Robert Jarzmik <robert.jarzmik@free.fr>, Rob Herring <robh@kernel.org>, Alexandre Belloni <alexandre.belloni@free-electrons.com>, Eric Miao <eric.y.miao@gmail.com>, Haojian Zhuang <haojian.zhuang@gmail.com>, Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Daniel Mack <daniel@zonque.org>
-Subject: [rtc-linux] Re: [PATCH v3 1/4] ARM: pxa: add memory resource to RTC device
-Date: Tue, 12 May 2015 22:49:34 +0200
-Message-ID: <4925803.188r69qFM9@wuerfel>
-In-Reply-To: <20150512203613.GQ2067@n2100.arm.linux.org.uk>
-References: <1431384089-28367-1-git-send-email-robh@kernel.org> <53644246.uSkhGz7C05@wuerfel> <20150512203613.GQ2067@n2100.arm.linux.org.uk>
+        Wed, 20 May 2015 18:16:12 -0700 (PDT)
+Received: by obcus9 with SMTP id us9so49883027obc.2
+        for <rtc-linux@googlegroups.com>; Wed, 20 May 2015 18:16:11 -0700 (PDT)
 MIME-Version: 1.0
+In-Reply-To: <20150521002043.GI23809@dtor-ws>
+References: <1432055082-28983-1-git-send-email-Frank.Li@freescale.com>
+	<20150520015851.GB1071@dragon>
+	<20150520182540.GQ2067@n2100.arm.linux.org.uk>
+	<20150520183050.GR2067@n2100.arm.linux.org.uk>
+	<20150521002043.GI23809@dtor-ws>
+Date: Wed, 20 May 2015 20:16:11 -0500
+Message-ID: <CAHrpEqT0cjujJzr9KD7qhS7F2fZaAhuct4Q8YHYFe0uvaR9_qw@mail.gmail.com>
+Subject: [rtc-linux] Re: [PATCH v2 0/7] Change snvs rtc and poweroff to use
+ syscon add pwrkey driver
+From: Zhi Li <lznuaa@gmail.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Russell King - ARM Linux <linux@arm.linux.org.uk>, Shawn Guo <shawnguo@kernel.org>,
+	Alessandro Zummo <a.zummo@towertech.it>, "Frank.Li@freescale.com" <Frank.Li@freescale.com>,
+	rtc-linux@googlegroups.com, linux-pm@vger.kernel.org,
+	"devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, Rob Herring <robh+dt@kernel.org>,
+	alexandre.belloni@free-electrons.com, Philipp Zabel <p.zabel@pengutronix.de>,
+	linux-input@vger.kernel.org, Shawn Guo <shawn.guo@linaro.org>,
+	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
 Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
@@ -24,40 +37,49 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On Tuesday 12 May 2015 21:36:13 Russell King - ARM Linux wrote:
-> On Tue, May 12, 2015 at 10:30:12PM +0200, Arnd Bergmann wrote:
-> > On Tuesday 12 May 2015 22:24:49 Robert Jarzmik wrote:
-> > > 
-> > > I made the try, and Russell was right, this breaks the pxa architecture. The
-> > > relevant extract of kernel message is in [1].
-> > > 
-> > > The consequences with your patches :
-> > >  - pxa27x_init()
-> > >    - platform_add_devices()
-> > >      - the pxa_device_rtc fails (as resource is duplicated)
-> > >      - all the devices are unregistered (rollback)
-> > > And pxa27x fails.
-> > > 
-> > > Now I'm pondering about the right approach :
-> > >  - either remove sa1100_device_rtc from pxas
-> > >  - or remove pxa_device_rtc
-> > >  - or both
-> > >  - or something else
-> > > 
-> > > Let me think a bit about it.
-> > > 
-> > 
-> > To solve the problem with the duplicate registration of one resource,
-> > I'd suggest using platform_device_register_simple() for the registration,
-> > which will copy the resource. You can then mark the resource as __initconst
-> > and remove the device to save a little memory at runtime.
-> 
-> No, a better solution is to solve the problem which requires the
-> duplication in the first place, which is a broken driver structure.
+On Wed, May 20, 2015 at 7:20 PM, Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+> On Wed, May 20, 2015 at 07:30:50PM +0100, Russell King - ARM Linux wrote:
+>> On Wed, May 20, 2015 at 07:25:41PM +0100, Russell King - ARM Linux wrote:
+>> > On Wed, May 20, 2015 at 09:58:51AM +0800, Shawn Guo wrote:
+>> > > On Wed, May 20, 2015 at 01:04:35AM +0800, Frank.Li@freescale.com wrote:
+>> > > > Frank Li (6):
+>> > > >   arm: imx: power-off: change to syscon to access register
+>> > > >   rtc: arm: imx: snvs: change use syscon to access register
+>> > > >   Document: dt: fsl: snvs: change support syscon
+>> > > >   arm: dts: imx: update snvs to use syscon access register
+>> > > >   document: devicetree: input: imx: i.mx snvs power device tree bindings
+>> > > >   arm: dts: imx6sx: enable snvs power key
+>> > >
+>> > > So, the series will break existing DTBs for RTC and poweroff, right?
+>> > > If this is unavoidable, should we at least have some warning messages
+>> > > telling users about his breakage?
+>> >
+>> > What's the justification for breaking existing DTBs?  Really, this is
+>> > something we should strive to avoid, _and_ actually avoid by providing
+>> > backwards compatibility.
+>>
+>> Looking at the RTC code, it would be pretty trivial to do.
+>>
+>> Rather than passing around struct regmap, pass around the private data
+>> structure.
+>>
+>> Rename the regmap_* function calls to be private accessors.  Implement
+>> a set of new accessors - if the private data has the regmap, use the
+>> regmap API.  Otherwise, use the old method, and print a warning that an
+>> old DT is being used.
+>
+> Or maybe have drivers create regmap themselves if they see old DTS and
+> not bother with the 2 sets of accessors?
 
-Yes, makes sense. Or possibly do both ;-)
+Does any dt node convert to regmap regardless if there are "syscon"
+compatible string?
 
-	Arnd
+>
+> Thanks.
+>
+> --
+> Dmitry
 
 -- 
 -- 
