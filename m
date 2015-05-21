@@ -1,29 +1,31 @@
-Return-Path: <rtc-linux+bncBDF47HN2VEIRBN4GV6VAKGQEISGVGFA@googlegroups.com>
-Received: from mail-wi0-f170.google.com (mail-wi0-f170.google.com. [209.85.212.170])
-        by gmr-mx.google.com with ESMTPS id p12si190569wiv.1.2015.05.07.12.55.34
+Return-Path: <rtc-linux+bncBAABBNGE66VAKGQEZUJZERI@googlegroups.com>
+Received: from mail1.bemta3.messagelabs.com (mail1.bemta3.messagelabs.com. [195.245.230.170])
+        by gmr-mx.google.com with ESMTPS id m3si92164wia.1.2015.05.21.06.48.36
         for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 07 May 2015 12:55:34 -0700 (PDT)
-Received: by mail-wi0-f170.google.com with SMTP id n10so4092666wiu.1
-        for <rtc-linux@googlegroups.com>; Thu, 07 May 2015 12:55:34 -0700 (PDT)
-Date: Thu, 7 May 2015 20:55:29 +0100
-From: Peter Griffin <peter.griffin@linaro.org>
-To: Lee Jones <lee.jones@linaro.org>
-Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-	devicetree@vger.kernel.org, kernel@stlinux.com,
-	rtc-linux@googlegroups.com, a.zummo@towertech.it,
-	daniel.lezcano@linaro.org, wim@iguana.be, tglx@linutronix.de,
-	linux@roeck-us.net, linux-watchdog@vger.kernel.org
-Subject: [rtc-linux] Re: [STLinux Kernel] [PATCH 06/12] watchdog: bindings:
- Supply knowledge of a third supported device - clocksource
-Message-ID: <20150507195529.GA28554@griffinp-ThinkPad-X1-Carbon-2nd>
-References: <1431005924-21777-1-git-send-email-lee.jones@linaro.org>
- <1431005924-21777-7-git-send-email-lee.jones@linaro.org>
- <20150507141805.GC9793@griffinp-ThinkPad-X1-Carbon-2nd>
- <20150507191909.GC16220@x1>
-MIME-Version: 1.0
+        (version=TLSv1.2 cipher=RC4-SHA bits=128/128);
+        Thu, 21 May 2015 06:48:36 -0700 (PDT)
+From: "Opensource [Steve Twiss]" <stwiss.opensource@diasemi.com>
+To: Mark Brown <broonie@kernel.org>
+CC: LINUXKERNEL <linux-kernel@vger.kernel.org>, Liam Girdwood
+	<lgirdwood@gmail.com>, Alessandro Zummo <a.zummo@towertech.it>, DEVICETREE
+	<devicetree@vger.kernel.org>, David Dajun Chen <david.chen@diasemi.com>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>, Ian Campbell
+	<ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>,
+	LINUXINPUT <linux-input@vger.kernel.org>, LINUXWATCHDOG
+	<linux-watchdog@vger.kernel.org>, Lee Jones <lee.jones@linaro.org>, "Mark
+ Rutland" <mark.rutland@arm.com>, Pawel Moll <pawel.moll@arm.com>, RTCLINUX
+	<rtc-linux@googlegroups.com>, Rob Herring <robh+dt@kernel.org>, Samuel Ortiz
+	<sameo@linux.intel.com>, Support Opensource <Support.Opensource@diasemi.com>,
+	Wim Van Sebroeck <wim@iguana.be>
+Subject: [rtc-linux] RE: [PATCH V3 2/4] regulator: da9062: DA9062 regulator driver
+Date: Thu, 21 May 2015 13:48:27 +0000
+Message-ID: <6ED8E3B22081A4459DAC7699F3695FB7014B22C8E7@SW-EX-MBX02.diasemi.com>
+References: <cover.1432041031.git.stwiss.opensource@diasemi.com>
+ <aa98437b3c3fd6fbf89f8669edf0d426ec3338e9.1432041031.git.stwiss.opensource@diasemi.com>
+ <20150521120416.GA21577@sirena.org.uk>
+In-Reply-To: <20150521120416.GA21577@sirena.org.uk>
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <20150507191909.GC16220@x1>
+MIME-Version: 1.0
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -34,41 +36,20 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Hi Lee,
+On 21 May 2015 13:04 Mark Brown wrote:
 
-On Thu, 07 May 2015, Lee Jones wrote:
-
-<snip>
-
-> > >  Required properties
-> > >  
-> > > -- compatible 	: Must be one of: "st,stih407-lpc" "st,stih416-lpc"
-> > > -				  "st,stih415-lpc" "st,stid127-lpc"
-> > > +- compatible 	: Must be one of: "st,stih407-lpc"
-> > 
-> > The same comment as the RTC DT patch, you are removing the compatibles
-> > documentation for the other supported platforms like stih416-lpc.
-> > AFAIK they are required in the driver to get the correct sysconfig register.
+> Subject: Re: [PATCH V3 2/4] regulator: da9062: DA9062 regulator driver
 > 
-> That's intentional.  I haven't yet tested any of this IP on
-> STiH41{5,6} & STiH127.  Due to lack of documentation, I'm not even
-> sure if this IP even exists on some of the other platforms.  I will
-> add them back when support is added to both driver and DTB and I've
-> been able to test them.
+> On Tue, May 19, 2015 at 02:10:30PM +0100, S Twiss wrote:
+> > From: S Twiss <stwiss.opensource@diasemi.com>
+> >
+> > Add BUCK and LDO regulator driver support for DA9062
+> 
+> Applied, thanks.
 
-That was kind of my point, the driver code AFAIK already contains support
-for these SoC's.
-
-I would either expect the patch to remove support from the DT docs AND the
-driver, or leave it as is.
-
-It seems odd to only change the DT docs, and become unaligned to the
-code (this assumes I'm looking at the latest patchset here 
-https://lkml.org/lkml/2015/3/4/1088 which includes support for these SoCs).
-
-regards,
-
-Peter.
+Thank you
+Regards,
+Steve
 
 -- 
 -- 
