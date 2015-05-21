@@ -1,28 +1,36 @@
-Return-Path: <rtc-linux+bncBCKMZDW5VIHBB7H2V6VAKGQEK7FEQGY@googlegroups.com>
-Received: from bh-25.webhostbox.net (bh-25.webhostbox.net. [208.91.199.152])
-        by gmr-mx.google.com with ESMTPS id k7si383232igu.0.2015.05.07.17.04.11
+Return-Path: <rtc-linux+bncBCXJ7O7L3INRB3NS7GVAKGQE5ORX22Q@googlegroups.com>
+Received: from mx2.suse.de (cantor2.suse.de. [195.135.220.15])
+        by gmr-mx.google.com with ESMTPS id m3si163728wia.1.2015.05.21.15.17.17
         for <rtc-linux@googlegroups.com>
-        (version=TLSv1 cipher=RC4-SHA bits=128/128);
-        Thu, 07 May 2015 17:04:12 -0700 (PDT)
-Received: from mailnull by bh-25.webhostbox.net with sa-checked (Exim 4.85)
-	(envelope-from <linux@roeck-us.net>)
-	id 1YqVly-001uxc-Eh
-	for rtc-linux@googlegroups.com; Fri, 08 May 2015 00:04:10 +0000
-Message-ID: <554BFD75.1070601@roeck-us.net>
-Date: Thu, 07 May 2015 17:04:05 -0700
-From: Guenter Roeck <linux@roeck-us.net>
+        (version=TLSv1 cipher=ECDHE-RSA-RC4-SHA bits=128/128);
+        Thu, 21 May 2015 15:17:17 -0700 (PDT)
 MIME-Version: 1.0
-To: Lee Jones <lee.jones@linaro.org>,
- linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
-CC: kernel@stlinux.com, devicetree@vger.kernel.org,
- daniel.lezcano@linaro.org, tglx@linutronix.de, wim@iguana.be,
- a.zummo@towertech.it, linux-watchdog@vger.kernel.org,
- rtc-linux@googlegroups.com
-Subject: [rtc-linux] Re: [PATCH 05/12] watchdog: st_wdt: Update IP layout
- information to include Clocksource
-References: <1431005924-21777-1-git-send-email-lee.jones@linaro.org> <1431005924-21777-6-git-send-email-lee.jones@linaro.org>
-In-Reply-To: <1431005924-21777-6-git-send-email-lee.jones@linaro.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=UTF-8
+Message-ID: <21854.22871.816868.545978@linux-qknr.fritz.box>
+Date: Fri, 22 May 2015 00:16:55 +0200
+From: Egbert Eich <eich@suse.com>
+To: Borislav Petkov <bp@suse.de>
+Cc: Diego Ercolani <diego.ercolani@gmail.com>,
+    Adrian Huang <adrianhuang0701@gmail.com>,
+    Egbert Eich <eich@suse.com>,
+    Alessandro Zummo <a.zummo@towertech.it>,
+    Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+    rtc-linux@googlegroups.com,
+    Brecht Machiels <brecht@mos6581.org>,
+    Thomas Gleixner <tglx@linutronix.de>,
+    John Stultz <john.stultz@linaro.org>,
+    Nagananda Chumbalkar <nchumbalkar@lenovo.com>,
+    Adrian Huang <ahuang12@lenovo.com>
+Subject: [rtc-linux] Re: [RFC PATCH 1/2] Revert "rtc-cmos: Add an alarm
+ disable quirk"
+In-Reply-To: bp@suse.de wrote on Thursday, 21 May 2015 at 22:52:49 +0200
+References: <1431077665-3493-1-git-send-email-adrianhuang0701@gmail.com>
+	<20150518094755.GC23662@pd.tnic>
+	<CANoYJu=utAHVNPU5PnPoBXtpMPVVbFf557xbBO=2GuHyx-JNHg@mail.gmail.com>
+	<20150518101248.GE23662@pd.tnic>
+	<20150518160126.GI23662@pd.tnic>
+	<CANoYJumsPcXhEaFCgTKvE5mFKJELN0D4F3vjOH97RHPvTeo0fw@mail.gmail.com>
+	<20150521205248.GC23652@pd.tnic>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -33,34 +41,30 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On 05/07/2015 06:38 AM, Lee Jones wrote:
-> Initial submission adding support for this IP only included Watchdog and
-> the Real-Time Clock.  Now the third (and final) device is enabled this
-> trivial patch is required to update the comment in the Watchdog driver
-> to encompass Clocksource.
->
-> Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Borislav Petkov writes:
+ > On Thu, May 21, 2015 at 10:25:01PM +0200, Diego Ercolani wrote:
+ > > I confirm that I can shutdon the linux box with the kernel you provided
+ > > here it is the bootlog
+ > 
+ > Cool, very nice. Thanks a lot for testing!
+ > 
+ > @Adrian: I think you can add Tested-by:'s to your v2.
+ > 
+ > Here are mine:
+ > 
+ > Acked-by: Borislav Petkov <bp@suse.de>
+ > Tested-by: Borislav Petkov <bp@suse.de>
+ > 
+ > Egbert did test it on a bunch of machines too. Egbert, can you give your
+ > Tested-by: too please?
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 
-> ---
->   drivers/watchdog/st_lpc_wdt.c | 2 +-
->   1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/drivers/watchdog/st_lpc_wdt.c b/drivers/watchdog/st_lpc_wdt.c
-> index f32be15..6785afd 100644
-> --- a/drivers/watchdog/st_lpc_wdt.c
-> +++ b/drivers/watchdog/st_lpc_wdt.c
-> @@ -197,7 +197,7 @@ static int st_wdog_probe(struct platform_device *pdev)
->   		return -EINVAL;
->   	}
->
-> -	/* LPC can either run in RTC or WDT mode */
-> +	/* LPC can either run as a Clocksource or in RTC or WDT mode */
->   	if (mode != ST_LPC_MODE_WDT)
->   		return -ENODEV;
->
->
+You bet!
+
+Tested-by: Egbert Eich <eich@suse.de>
+
+Cheers,
+	Egbert.
 
 -- 
 -- 
