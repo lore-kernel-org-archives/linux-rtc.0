@@ -1,29 +1,20 @@
-Return-Path: <rtc-linux+bncBDKZNNNLXAHBBEOJU2VAKGQEWVDLYLI@googlegroups.com>
+Return-Path: <rtc-linux+bncBAABB2PT66VAKGQEE4Z7CRA@googlegroups.com>
 MIME-Version: 1.0
-Received: from mailout2.w1.samsung.com (mailout2.w1.samsung.com. [210.118.77.12])
-        by gmr-mx.google.com with ESMTPS id ye6si2688879pbc.2.2015.05.05.22.20.17
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1 cipher=RC4-SHA bits=128/128);
-        Tue, 05 May 2015 22:20:17 -0700 (PDT)
-Received: from eucpsbgm2.samsung.com (unknown [203.254.199.245])
- by mailout2.w1.samsung.com
- (Oracle Communications Messaging Server 7.0.5.31.0 64bit (built May  5 2014))
- with ESMTP id <0NNW00JFWXHOE570@mailout2.w1.samsung.com> for
- rtc-linux@googlegroups.com; Wed, 06 May 2015 06:20:12 +0100 (BST)
-From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-To: linux-kernel@vger.kernel.org, linux-clk@vger.kernel.org,
- rtc-linux@googlegroups.com, devicetree@vger.kernel.org
-Cc: linux-samsung-soc@vger.kernel.org,
- Krzysztof Kozlowski <k.kozlowski@samsung.com>,
- Sangbeom Kim <sbkim73@samsung.com>, Mike Turquette <mturquette@linaro.org>,
- Stephen Boyd <sboyd@codeaurora.org>, Alessandro Zummo <a.zummo@towertech.it>,
- Alexandre Belloni <alexandre.belloni@free-electrons.com>,
- Lee Jones <lee.jones@linaro.org>, Liam Girdwood <lgirdwood@gmail.com>,
- Mark Brown <broonie@kernel.org>
-Subject: [rtc-linux] [PATCH] MAINTAINERS: Extend Samsung MFD drivers entry and
- add myself
-Date: Wed, 06 May 2015 14:19:36 +0900
-Message-id: <1430889576-7779-1-git-send-email-k.kozlowski@samsung.com>
+Received: from mail.kmu-office.ch (mail.kmu-office.ch. [2a02:418:6a02::a2])
+        by gmr-mx.google.com with ESMTP id t6si127450wiz.0.2015.05.21.08.29.44
+        for <rtc-linux@googlegroups.com>;
+        Thu, 21 May 2015 08:29:44 -0700 (PDT)
+From: Stefan Agner <stefan@agner.ch>
+To: a.zummo@towertech.it,
+	alexandre.belloni@free-electrons.com
+Cc: maitysanchayan@gmail.com,
+	shawn.guo@linaro.org,
+	rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org,
+	Stefan Agner <stefan@agner.ch>
+Subject: [rtc-linux] [PATCH] rtc: snvs: fix wakealarm by call enable_irq_wake earlier
+Date: Thu, 21 May 2015 17:29:35 +0200
+Message-Id: <1432222175-30673-1-git-send-email-stefan@agner.ch>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -35,58 +26,80 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Extend the entry for Samsung MFD drivers for PMIC devices (Power
-Management Integrated Circuit) with bindings documentation, clock
-(clk-s2mps11.c) and RTC drivers (rtc-s5m.c).
+When entering suspend while an wakeup alarm is set, enable_set_wake
+should make sure that the RTC interrupt keep being enabled and the
+.irq_set_wake for the RTC interrupt get called. However, since the
+driver uses the suspend_noirq callback, the call to enable_irq_wake
+has been made after disabling the interrupts. While .irq_set_wake
+has been called properly, the interrupt remained disabled.
 
-These PMIC devices are used on many Exynos-based boards like Arndale
-Octa (S2MPS11), Gear 2 (S2MPS14).
+Use the suspend callback to call enable_irq_wake early enough to
+ensure the RTC interrupt remains enabled.
 
-Add myself as a supporter for reviewing them.
-I am not the author of these drivers. However I have recently
-contributed to most of them and I have access to datasheets and hardware.
-
-Cc: Sangbeom Kim <sbkim73@samsung.com>
-CC: Mike Turquette <mturquette@linaro.org>
-CC: Stephen Boyd <sboyd@codeaurora.org>
-CC: Alessandro Zummo <a.zummo@towertech.it>
-CC: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-CC: Lee Jones <lee.jones@linaro.org>
-CC: Liam Girdwood <lgirdwood@gmail.com>
-CC: Mark Brown <broonie@kernel.org>
-Signed-off-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+Fixes: 7654e9d4fd8f ("drivers/rtc/rtc-snvs: fix suspend/resume")
+Signed-off-by: Stefan Agner <stefan@agner.ch>
 ---
- MAINTAINERS | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ drivers/rtc/rtc-snvs.c | 30 +++++++++++++++++++++---------
+ 1 file changed, 21 insertions(+), 9 deletions(-)
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index e278814388f7..fc01dc9f96af 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -8533,14 +8533,20 @@ L:	linux-fbdev@vger.kernel.org
- S:	Maintained
- F:	drivers/video/fbdev/s3c-fb.c
+diff --git a/drivers/rtc/rtc-snvs.c b/drivers/rtc/rtc-snvs.c
+index 0479e80..d87a85c 100644
+--- a/drivers/rtc/rtc-snvs.c
++++ b/drivers/rtc/rtc-snvs.c
+@@ -322,6 +322,13 @@ static int snvs_rtc_suspend(struct device *dev)
+ 	if (device_may_wakeup(dev))
+ 		enable_irq_wake(data->irq);
  
--SAMSUNG MULTIFUNCTION DEVICE DRIVERS
-+SAMSUNG MULTIFUNCTION PMIC DEVICE DRIVERS
- M:	Sangbeom Kim <sbkim73@samsung.com>
-+M:	Krzysztof Kozlowski <k.kozlowski@samsung.com>
- L:	linux-kernel@vger.kernel.org
-+L:	linux-samsung-soc@vger.kernel.org
- S:	Supported
- F:	drivers/mfd/sec*.c
- F:	drivers/regulator/s2m*.c
- F:	drivers/regulator/s5m*.c
-+F:	drivers/clk/clk-s2mps11.c
-+F:	drivers/rtc/rtc-s5m.c
- F:	include/linux/mfd/samsung/
-+F:	Documentation/devicetree/bindings/regulator/s5m8767-regulator.txt
-+F:	Documentation/devicetree/bindings/mfd/s2mp*.txt
++	return 0;
++}
++
++static int snvs_rtc_suspend_noirq(struct device *dev)
++{
++	struct snvs_rtc_data *data = dev_get_drvdata(dev);
++
+ 	if (data->clk)
+ 		clk_disable_unprepare(data->clk);
  
- SAMSUNG S5P/EXYNOS4 SOC SERIES CAMERA SUBSYSTEM DRIVERS
- M:	Kyungmin Park <kyungmin.park@samsung.com>
+@@ -331,23 +338,28 @@ static int snvs_rtc_suspend(struct device *dev)
+ static int snvs_rtc_resume(struct device *dev)
+ {
+ 	struct snvs_rtc_data *data = dev_get_drvdata(dev);
+-	int ret;
+ 
+ 	if (device_may_wakeup(dev))
+-		disable_irq_wake(data->irq);
++		return disable_irq_wake(data->irq);
+ 
+-	if (data->clk) {
+-		ret = clk_prepare_enable(data->clk);
+-		if (ret)
+-			return ret;
+-	}
++	return 0;
++}
++
++static int snvs_rtc_resume_noirq(struct device *dev)
++{
++	struct snvs_rtc_data *data = dev_get_drvdata(dev);
++
++	if (data->clk)
++		return clk_prepare_enable(data->clk);
+ 
+ 	return 0;
+ }
+ 
+ static const struct dev_pm_ops snvs_rtc_pm_ops = {
+-	.suspend_noirq = snvs_rtc_suspend,
+-	.resume_noirq = snvs_rtc_resume,
++	.suspend = snvs_rtc_suspend,
++	.suspend_noirq = snvs_rtc_suspend_noirq,
++	.resume = snvs_rtc_resume,
++	.resume_noirq = snvs_rtc_resume_noirq,
+ };
+ 
+ #define SNVS_RTC_PM_OPS	(&snvs_rtc_pm_ops)
 -- 
-1.9.1
+2.4.1
 
 -- 
 -- 
