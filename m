@@ -1,22 +1,31 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBE6O5GVAKGQEAHYZBIA@googlegroups.com>
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id u10si444352wif.1.2015.05.18.15.26.27
-        for <rtc-linux@googlegroups.com>;
-        Mon, 18 May 2015 15:26:27 -0700 (PDT)
-Date: Tue, 19 May 2015 00:26:26 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Axel Lin <axel.lin@gmail.com>
-Cc: linux-kernel@vger.kernel.org, Alessandro Zummo <a.zummo@towertech.it>,
-	Dale Farnsworth <dale@farnsworth.org>,
-	Minkyu Kang <mk7.kang@samsung.com>,
-	Joonyoung Shim <jy0922.shim@samsung.com>,
-	rtc-linux@googlegroups.com
-Subject: [rtc-linux] Re: RTC: Add MODULE_DEVICE_TABLE to rtc-ds1672/rtc-max6900/rtc-max8998
-Message-ID: <20150518222625.GY3338@piout.net>
-References: <1303129017.8158.1.camel@phoenix>
+Return-Path: <rtc-linux+bncBDP6N55ZUYDRBYGJ6SVAKGQEF37YPKI@googlegroups.com>
+Received: from mail-ie0-x234.google.com (mail-ie0-x234.google.com. [2607:f8b0:4001:c03::234])
+        by gmr-mx.google.com with ESMTPS id x1si3683igb.2.2015.05.20.17.20.48
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 20 May 2015 17:20:48 -0700 (PDT)
+Received: by mail-ie0-x234.google.com with SMTP id zm2so51999259iec.1
+        for <rtc-linux@googlegroups.com>; Wed, 20 May 2015 17:20:48 -0700 (PDT)
+Date: Wed, 20 May 2015 17:20:43 -0700
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Russell King - ARM Linux <linux@arm.linux.org.uk>
+Cc: Shawn Guo <shawnguo@kernel.org>, a.zummo@towertech.it,
+	Frank.Li@freescale.com, rtc-linux@googlegroups.com,
+	linux-pm@vger.kernel.org, devicetree@vger.kernel.org,
+	robh+dt@kernel.org, alexandre.belloni@free-electrons.com,
+	p.zabel@pengutronix.de, linux-input@vger.kernel.org,
+	lznuaa@gmail.com, shawn.guo@linaro.org,
+	linux-arm-kernel@lists.infradead.org
+Subject: [rtc-linux] Re: [PATCH v2 0/7] Change snvs rtc and poweroff to use
+ syscon add pwrkey driver
+Message-ID: <20150521002043.GI23809@dtor-ws>
+References: <1432055082-28983-1-git-send-email-Frank.Li@freescale.com>
+ <20150520015851.GB1071@dragon>
+ <20150520182540.GQ2067@n2100.arm.linux.org.uk>
+ <20150520183050.GR2067@n2100.arm.linux.org.uk>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1303129017.8158.1.camel@phoenix>
+In-Reply-To: <20150520183050.GR2067@n2100.arm.linux.org.uk>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -27,32 +36,43 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On 18/04/2011 at 20:16:57 +0800, Axel Lin wrote :
-> The device table is required to load modules based on modaliases.
-> After adding MODULE_DEVICE_TABLE, below entries will be added to modules.alias:
+On Wed, May 20, 2015 at 07:30:50PM +0100, Russell King - ARM Linux wrote:
+> On Wed, May 20, 2015 at 07:25:41PM +0100, Russell King - ARM Linux wrote:
+> > On Wed, May 20, 2015 at 09:58:51AM +0800, Shawn Guo wrote:
+> > > On Wed, May 20, 2015 at 01:04:35AM +0800, Frank.Li@freescale.com wrote:
+> > > > Frank Li (6):
+> > > >   arm: imx: power-off: change to syscon to access register
+> > > >   rtc: arm: imx: snvs: change use syscon to access register
+> > > >   Document: dt: fsl: snvs: change support syscon
+> > > >   arm: dts: imx: update snvs to use syscon access register
+> > > >   document: devicetree: input: imx: i.mx snvs power device tree bindings
+> > > >   arm: dts: imx6sx: enable snvs power key
+> > > 
+> > > So, the series will break existing DTBs for RTC and poweroff, right?
+> > > If this is unavoidable, should we at least have some warning messages
+> > > telling users about his breakage?
+> > 
+> > What's the justification for breaking existing DTBs?  Really, this is
+> > something we should strive to avoid, _and_ actually avoid by providing
+> > backwards compatibility.
 > 
-> alias i2c:ds1672 rtc_ds1672
-> alias i2c:max6900 rtc_max6900
-> alias platform:lp3974-rtc rtc_max8998
-> alias platform:max8998-rtc rtc_max8998
+> Looking at the RTC code, it would be pretty trivial to do.
 > 
-> Signed-off-by: Axel Lin <axel.lin@gmail.com>
-> Cc: Alessandro Zummo <a.zummo@towertech.it>
-> Cc: Dale Farnsworth <dale@farnsworth.org>
-> Cc: Minkyu Kang <mk7.kang@samsung.com>
-> Cc: Joonyoung Shim <jy0922.shim@samsung.com>
-> ---
->  drivers/rtc/rtc-ds1672.c  |    1 +
->  drivers/rtc/rtc-max6900.c |    1 +
->  drivers/rtc/rtc-max8998.c |    1 +
->  3 files changed, 3 insertions(+), 0 deletions(-)
+> Rather than passing around struct regmap, pass around the private data
+> structure.
 > 
-Applied, thanks.
+> Rename the regmap_* function calls to be private accessors.  Implement
+> a set of new accessors - if the private data has the regmap, use the
+> regmap API.  Otherwise, use the old method, and print a warning that an
+> old DT is being used.
+
+Or maybe have drivers create regmap themselves if they see old DTS and
+not bother with the 2 sets of accessors?
+
+Thanks.
 
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+Dmitry
 
 -- 
 -- 
