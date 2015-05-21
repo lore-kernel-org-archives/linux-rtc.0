@@ -1,28 +1,23 @@
-Return-Path: <rtc-linux+bncBCZ273NM4EARBU4YU2VAKGQERI523RY@googlegroups.com>
-Received: from mailgw02.mediatek.com ([210.61.82.184])
-        by gmr-mx.google.com with ESMTPS id dv5si2678849pbb.0.2015.05.05.20.36.50
+Return-Path: <rtc-linux+bncBDMYB2E7SQCRBOMK7CVAKGQE7PXSVMA@googlegroups.com>
+Received: from na01-bl2-obe.outbound.protection.outlook.com (mail-bl2on0148.outbound.protection.outlook.com. [65.55.169.148])
+        by gmr-mx.google.com with ESMTPS id jk4si189456qcb.3.2015.05.21.09.18.00
         for <rtc-linux@googlegroups.com>
-        (version=TLSv1 cipher=RC4-SHA bits=128/128);
-        Tue, 05 May 2015 20:36:51 -0700 (PDT)
-Message-ID: <1430883407.28521.4.camel@mtksdaap41>
-Subject: Re: [rtc-linux] [PATCH v3 3/3] MAINTAINERS: add Mediatek RTC driver
-From: Eddie Huang <eddie.huang@mediatek.com>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-CC: Alessandro Zummo <a.zummo@towertech.it>, Samuel Ortiz
-	<sameo@linux.intel.com>, <srv_heupstream@mediatek.com>,
-	<rtc-linux@googlegroups.com>, Greg KH <gregkh@linuxfoundation.org>,
-	<linux-kernel@vger.kernel.org>, Tomasz Figa <tfiga@google.com>,
-	<linux-mediatek@lists.infradead.org>, Uwe =?ISO-8859-1?Q?Kleine-K=F6nig?=
-	<kernel@pengutronix.de>, Matthias Brugger <matthias.bgg@gmail.com>, "Joe
- Perches" <joe@perches.com>, Andrew Morton <akpm@linux-foundation.org>, "Lee
- Jones" <lee.jones@linaro.org>, <linux-arm-kernel@lists.infradead.org>
-Date: Wed, 6 May 2015 11:36:47 +0800
-In-Reply-To: <20150505200352.GQ4276@piout.net>
-References: <1430206556-18254-1-git-send-email-eddie.huang@mediatek.com>
-	 <1430206556-18254-4-git-send-email-eddie.huang@mediatek.com>
-	 <20150505200352.GQ4276@piout.net>
-Content-Type: text/plain; charset=UTF-8
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
+        Thu, 21 May 2015 09:18:00 -0700 (PDT)
+From: <Frank.Li@freescale.com>
+To: <lznuaa@gmail.com>, <shawn.guo@linaro.org>, <dmitry.torokhov@gmail.com>,
+	<robh+dt@kernel.org>, <alexandre.belloni@free-electrons.com>,
+	<linux@arm.linux.org.uk>
+CC: <linux-arm-kernel@lists.infradead.org>, <linux-input@vger.kernel.org>,
+	<rtc-linux@googlegroups.com>, <devicetree@vger.kernel.org>, Frank Li
+	<Frank.Li@freescale.com>
+Subject: [rtc-linux] [PATCH v3 6/6] arm: dts: imx6sx: enable snvs power key
+Date: Fri, 22 May 2015 00:16:52 +0800
+Message-ID: <1432225012-20598-7-git-send-email-Frank.Li@freescale.com>
+In-Reply-To: <1432225012-20598-1-git-send-email-Frank.Li@freescale.com>
+References: <1432225012-20598-1-git-send-email-Frank.Li@freescale.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -33,38 +28,35 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Hi Alexandre,
+From: Frank Li <Frank.Li@freescale.com>
 
-On Tue, 2015-05-05 at 22:03 +0200, Alexandre Belloni wrote:
-> Hi,
-> 
-> On 28/04/2015 at 15:35:56 +0800, Eddie Huang wrote :
-> > diff --git a/MAINTAINERS b/MAINTAINERS
-> > index 2e5bbc0..eb80610 100644
-> > --- a/MAINTAINERS
-> > +++ b/MAINTAINERS
-> > @@ -1223,6 +1223,13 @@ W:	http://www.digriz.org.uk/ts78xx/kernel
-> >  S:	Maintained
-> >  F:	arch/arm/mach-orion5x/ts78xx-*
-> >  
-> > +ARM/Mediatek RTC DRIVER
-> > +M:	Eddie Huang <eddie.huang@mediatek.com>
-> > +L:	linux-arm-kernel@lists.infradead.org (moderated for non-subscribers)
-> > +L:	linux-mediatek@lists.infradead.org (moderated for non-subscribers)
-> > +S:	Maintained
-> > +F:	drivers/rtc/rtc-mt*
-> 
-> I feel like this is a bit broad. Unless you want to really maintain
-> rtc-mt* which I guess may not be only Mediatek in the future, I would
-> use the full filename here. You will probably remember to update it if
-> you add more, that may not be the case for other developers.
-> 
-Yes, you are right, the rtc-mt* is too broad, use full filename is a
-better choice right now.
+enable snvs ONOFF power key support
 
-Eddie
+Signed-off-by: Frank Li <Frank.Li@freescale.com>
+---
+ arch/arm/boot/dts/imx6sx.dtsi | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-
+diff --git a/arch/arm/boot/dts/imx6sx.dtsi b/arch/arm/boot/dts/imx6sx.dtsi
+index 3cb3b5b..ad38aea 100644
+--- a/arch/arm/boot/dts/imx6sx.dtsi
++++ b/arch/arm/boot/dts/imx6sx.dtsi
+@@ -677,6 +677,13 @@
+ 					mask = <0x60>;
+ 					status = "disabled";
+ 				};
++
++				snvs_pwrkey: snvs-powerkey {
++					compatible = "fsl,sec-v4.0-pwrkey";
++					interrupts = <GIC_SPI 4 IRQ_TYPE_LEVEL_HIGH>;
++					linux,keycode = <116>; /* KEY_POWER */
++					wakeup;
++				};
+ 			};
+ 
+ 			epit1: epit@020d0000 {
+-- 
+1.9.1
 
 -- 
 -- 
