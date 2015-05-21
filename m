@@ -1,17 +1,21 @@
-Return-Path: <rtc-linux+bncBDEKVJM7XAHRBF6DU6VAKGQEF4PATEI@googlegroups.com>
-Received: from mout.kundenserver.de (mout.kundenserver.de. [212.227.126.187])
-        by gmr-mx.google.com with ESMTPS id bc3si40624wib.2.2015.05.06.02.40.39
+Return-Path: <rtc-linux+bncBDMYB2E7SQCRBLEK7CVAKGQEAAVLWYA@googlegroups.com>
+Received: from na01-bn1-obe.outbound.protection.outlook.com (mail-bn1bn0106.outbound.protection.outlook.com. [157.56.110.106])
+        by gmr-mx.google.com with ESMTPS id xv6si2353361pab.2.2015.05.21.09.17.48
         for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 06 May 2015 02:40:39 -0700 (PDT)
-From: Arnd Bergmann <arnd@arndb.de>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Hans Ulli Kroll <ulli.kroll@googlemail.com>, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, rtc-linux@googlegroups.com, Linus Walleij <linus.walleij@linaro.org>, Russell King <rmk+kernel@arm.linux.org.uk>, Felix Fietkau <nbd@openwrt.org>, Roman Yeryomin <roman@advem.lv>
-Subject: [rtc-linux] Re: [1/2] RTC: Add core rtc support for Gemini Soc devices
-Date: Wed, 06 May 2015 11:39:58 +0200
-Message-ID: <2694895.MomHLoCaoZ@wuerfel>
-In-Reply-To: <20150501234214.GK12076@piout.net>
-References: <1292339307-14336-2-git-send-email-ulli.kroll@googlemail.com> <20150501234214.GK12076@piout.net>
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
+        Thu, 21 May 2015 09:17:48 -0700 (PDT)
+From: <Frank.Li@freescale.com>
+To: <lznuaa@gmail.com>, <shawn.guo@linaro.org>, <dmitry.torokhov@gmail.com>,
+	<robh+dt@kernel.org>, <alexandre.belloni@free-electrons.com>,
+	<linux@arm.linux.org.uk>
+CC: <linux-arm-kernel@lists.infradead.org>, <linux-input@vger.kernel.org>,
+	<rtc-linux@googlegroups.com>, <devicetree@vger.kernel.org>, Frank Li
+	<Frank.Li@freescale.com>
+Subject: [rtc-linux] [PATCH v3 2/6] Document: dt: fsl: snvs: change support syscon
+Date: Fri, 22 May 2015 00:16:48 +0800
+Message-ID: <1432225012-20598-3-git-send-email-Frank.Li@freescale.com>
+In-Reply-To: <1432225012-20598-1-git-send-email-Frank.Li@freescale.com>
+References: <1432225012-20598-1-git-send-email-Frank.Li@freescale.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
@@ -24,40 +28,96 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On Saturday 02 May 2015 01:42:14 Alexandre Belloni wrote:
-> Hi,
-> 
-> On 14/12/2010 at 16:08:26 +0100, Hans Ulli Kroll wrote :
-> > driver for the rtc device
-> > on Cortina Systems CS3516 or StormlinkSemi SL3516 aka Gemini SoC
-> > 
-> > Signed-off-by: Hans Ulli Kroll <ulli.kroll@googlemail.com>
-> 
-> This driver has never been merged and the platform doesn't seem to be
-> active anymore. Is there still any interest in getting this driver
-> mainlined?
-> 
-> Only tree wide cleanups happened in mach-gemini since end of 2010, the
-> listed git repository (git://git.berlios.de/gemini-board) was on berliOS
-> (closed since 2011) and the sourceforge mirror seems empty. Is there
-> still interest in keeping that platform in the mainline?
+From: Frank Li <Frank.Li@freescale.com>
 
-As far as I know, the platform is still used by a number of people,
-and is supported by OpenWRT. The reason we haven't seen updates is that
-Ulli has been mostly absent from upstream development, and we haven't
-had any other person step up as maintainer.
+snvs actually is multi fucntion driver.
+Change to use syscon to access register.
 
-I have a patch to convert the platform to ARCH_MULTIPLATFORM, and
-the code doesn't really get in the way otherwise.
+Signed-off-by: Frank Li <Frank.Li@freescale.com>
+---
+ .../devicetree/bindings/crypto/fsl-sec4.txt        | 28 ++++++++++++----------
+ 1 file changed, 15 insertions(+), 13 deletions(-)
 
-As far as I'm concerned, we should just merge all the patches from
-http://git.openwrt.org/?p=openwrt.git;a=tree;f=target/linux/gemini/patches-3.18
-
-We should also try to find a maintainer that can respond to patches
-in a timely manner. If Ulli has time for that again, that would be great,
-otherwise I think we should find someone from OpenWRT to take over.
-
-	Arnd
+diff --git a/Documentation/devicetree/bindings/crypto/fsl-sec4.txt b/Documentation/devicetree/bindings/crypto/fsl-sec4.txt
+index e402277..87f5921 100644
+--- a/Documentation/devicetree/bindings/crypto/fsl-sec4.txt
++++ b/Documentation/devicetree/bindings/crypto/fsl-sec4.txt
+@@ -288,12 +288,13 @@ Secure Non-Volatile Storage (SNVS) Node
+     Node defines address range and the associated
+     interrupt for the SNVS function.  This function
+     monitors security state information & reports
+-    security violations.
++    security violations. This also included rtc,
++    system power off and ON/OFF key.
+ 
+   - compatible
+       Usage: required
+       Value type: <string>
+-      Definition: Must include "fsl,sec-v4.0-mon".
++      Definition: Must include "fsl,sec-v4.0-mon" and "syscon".
+ 
+   - reg
+       Usage: required
+@@ -324,7 +325,7 @@ Secure Non-Volatile Storage (SNVS) Node
+            the child address, parent address, & length.
+ 
+    - interrupts
+-      Usage: required
++      Usage: optional
+       Value type: <prop_encoded-array>
+       Definition:  Specifies the interrupts generated by this
+            device.  The value of the interrupts property
+@@ -341,7 +342,7 @@ Secure Non-Volatile Storage (SNVS) Node
+ 
+ EXAMPLE
+ 	sec_mon@314000 {
+-		compatible = "fsl,sec-v4.0-mon";
++		compatible = "fsl,sec-v4.0-mon", "syscon";
+ 		reg = <0x314000 0x1000>;
+ 		ranges = <0 0x314000 0x1000>;
+ 		interrupt-parent = <&mpic>;
+@@ -358,16 +359,19 @@ Secure Non-Volatile Storage (SNVS) Low Power (LP) RTC Node
+       Value type: <string>
+       Definition: Must include "fsl,sec-v4.0-mon-rtc-lp".
+ 
+-  - reg
++  - interrupts
+       Usage: required
+-      Value type: <prop-encoded-array>
+-      Definition: A standard property.  Specifies the physical
+-          address and length of the SNVS LP configuration registers.
++      Value type: <prop_encoded-array>
++      Definition: Specifies the interrupts generated by this
++	   device.  The value of the interrupts property
++	   consists of one interrupt specifier. The format
++	   of the specifier is defined by the binding document
++	   describing the node's interrupt parent.
+ 
+ EXAMPLE
+-	sec_mon_rtc_lp@314000 {
++	sec_mon_rtc_lp@1 {
+ 		compatible = "fsl,sec-v4.0-mon-rtc-lp";
+-		reg = <0x34 0x58>;
++		interrupts = <93 2>;
+ 	};
+ 
+ =====================================================================
+@@ -443,12 +447,10 @@ FULL EXAMPLE
+ 		compatible = "fsl,sec-v4.0-mon";
+ 		reg = <0x314000 0x1000>;
+ 		ranges = <0 0x314000 0x1000>;
+-		interrupt-parent = <&mpic>;
+-		interrupts = <93 2>;
+ 
+ 		sec_mon_rtc_lp@34 {
+ 			compatible = "fsl,sec-v4.0-mon-rtc-lp";
+-			reg = <0x34 0x58>;
++			interrupts = <93 2>;
+ 		};
+ 	};
+ 
+-- 
+1.9.1
 
 -- 
 -- 
