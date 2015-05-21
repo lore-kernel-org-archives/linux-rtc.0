@@ -1,96 +1,117 @@
-Return-Path: <rtc-linux+bncBD62P6P6EQIJXT6NVICRUBHGJVZU6@googlegroups.com>
-MIME-Version: 1.0
-Received: from mail-oi0-x229.google.com (mail-oi0-x229.google.com. [2607:f8b0:4003:c06::229])
-        by gmr-mx.google.com with ESMTPS id x12si483162igx.1.2015.05.13.08.02.51
+Return-Path: <rtc-linux+bncBDMYB2E7SQCRBNUK7CVAKGQE72THCQI@googlegroups.com>
+Received: from na01-bn1-obe.outbound.protection.outlook.com (mail-bn1bon0137.outbound.protection.outlook.com. [157.56.111.137])
+        by gmr-mx.google.com with ESMTPS id ye6si2349159pbc.2.2015.05.21.09.17.57
         for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 13 May 2015 08:02:51 -0700 (PDT)
-Received: by mail-oi0-x229.google.com with SMTP id o83so33264798oik.1
-        for <rtc-linux@googlegroups.com>; Wed, 13 May 2015 08:02:51 -0700 (PDT)
-Sender: rtc-linux@googlegroups.com
-From: Rob Herring <robh@kernel.org>
-To: Russell King <linux@arm.linux.org.uk>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Eric Miao <eric.y.miao@gmail.com>,
-	Haojian Zhuang <haojian.zhuang@gmail.com>,
-	Alessandro Zummo <a.zummo@towertech.it>
-Cc: rtc-linux@googlegroups.com,
-	Robert Jarzmik <robert.jarzmik@free.fr>,
-	Arnd Bergmann <arnd@arndb.de>,
-	linux-arm-kernel@lists.infradead.org,
-	Rob Herring <robh@kernel.org>
-Subject: [rtc-linux] [PATCH v4 5/6] ARM: sa1100: remove unused RTC register definitions
-Date: Wed, 13 May 2015 10:02:29 -0500
-Message-Id: <1431529350-4597-6-git-send-email-robh@kernel.org>
-In-Reply-To: <1431529350-4597-1-git-send-email-robh@kernel.org>
-References: <1431529350-4597-1-git-send-email-robh@kernel.org>
-Reply-To: rtc-linux@googlegroups.com
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
+        Thu, 21 May 2015 09:17:57 -0700 (PDT)
+From: <Frank.Li@freescale.com>
+To: <lznuaa@gmail.com>, <shawn.guo@linaro.org>, <dmitry.torokhov@gmail.com>,
+	<robh+dt@kernel.org>, <alexandre.belloni@free-electrons.com>,
+	<linux@arm.linux.org.uk>
+CC: <linux-arm-kernel@lists.infradead.org>, <linux-input@vger.kernel.org>,
+	<rtc-linux@googlegroups.com>, <devicetree@vger.kernel.org>, Frank Li
+	<Frank.Li@freescale.com>, Robin Gong <b38343@freescale.com>
+Subject: [rtc-linux] [PATCH v3 5/6] document: devicetree: input: imx: i.mx
+ snvs power device tree bindings
+Date: Fri, 22 May 2015 00:16:51 +0800
+Message-ID: <1432225012-20598-6-git-send-email-Frank.Li@freescale.com>
+In-Reply-To: <1432225012-20598-1-git-send-email-Frank.Li@freescale.com>
+References: <1432225012-20598-1-git-send-email-Frank.Li@freescale.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
 List-Archive: <http://groups.google.com/group/rtc-linux
+Sender: rtc-linux@googlegroups.com
 List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Now that register definitions have been moved to the driver, we can remove
-them from machine specific code.
+From: Frank Li <Frank.Li@freescale.com>
 
-Signed-off-by: Rob Herring <robh@kernel.org>
-Cc: Russell King <linux@arm.linux.org.uk>
-Cc: linux-arm-kernel@lists.infradead.org
+The snvs-pwrkey is designed to enable POWER key function which controlled
+by SNVS ONOFF. the driver can report the status of POWER key and wakeup
+system if pressed after system suspend.
+
+Signed-off-by: Frank Li <Frank.Li@freescale.com>
+Signed-off-by: Robin Gong <b38343@freescale.com>
 ---
- arch/arm/mach-sa1100/include/mach/SA-1100.h | 34 -----------------------------
- 1 file changed, 34 deletions(-)
+ .../devicetree/bindings/crypto/fsl-sec4.txt        | 42 ++++++++++++++++++++++
+ .../devicetree/bindings/input/snvs-pwrkey.txt      |  1 +
+ 2 files changed, 43 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/input/snvs-pwrkey.txt
 
-diff --git a/arch/arm/mach-sa1100/include/mach/SA-1100.h b/arch/arm/mach-sa1100/include/mach/SA-1100.h
-index 0ac6cc0..7972617 100644
---- a/arch/arm/mach-sa1100/include/mach/SA-1100.h
-+++ b/arch/arm/mach-sa1100/include/mach/SA-1100.h
-@@ -858,40 +858,6 @@
+diff --git a/Documentation/devicetree/bindings/crypto/fsl-sec4.txt b/Documentation/devicetree/bindings/crypto/fsl-sec4.txt
+index 87f5921..b2a417d 100644
+--- a/Documentation/devicetree/bindings/crypto/fsl-sec4.txt
++++ b/Documentation/devicetree/bindings/crypto/fsl-sec4.txt
+@@ -375,6 +375,41 @@ EXAMPLE
+ 	};
  
+ =====================================================================
++System ON/OFF key driver
++
++  The snvs-pwrkey is designed to enable POWER key function which controlled
++  by SNVS ONOFF, the driver can report the status of POWER key and wakeup
++  system if pressed after system suspend.
++
++  - compatible:
++      Usage: required
++      Value type: <string>
++      Definition: Mush include "fsl,sec-v4.0-pwrkey".
++
++  - interrupts:
++      Usage: required
++      Value type: <prop_encoded-array>
++      Definition: The SNVS ON/OFF interrupt number to the CPU(s).
++
++  - linux,keycode:
++      Usage: option
++      Value type: <int>
++      Definition: Keycode to emit, KEY_POWER by default.
++
++  - wakeup:
++      Usage: option
++      Value type: <boo>
++      Definition: Button can wake-up the system
++
++EXAMPLE:
++	snvs-pwrkey@0x020cc000 {
++		compatible = "fsl,sec-v4.0-pwrkey";
++		interrupts = <0 4 0x4>
++	        linux,keycode = <116>; /* KEY_POWER */
++		wakeup;
++	};
++
++=====================================================================
+ FULL EXAMPLE
  
- /*
-- * Real-Time Clock (RTC) control registers
-- *
-- * Registers
-- *    RTAR      	Real-Time Clock (RTC) Alarm Register (read/write).
-- *    RCNR      	Real-Time Clock (RTC) CouNt Register (read/write).
-- *    RTTR      	Real-Time Clock (RTC) Trim Register (read/write).
-- *    RTSR      	Real-Time Clock (RTC) Status Register (read/write).
-- *
-- * Clocks
-- *    frtx, Trtx	Frequency, period of the real-time clock crystal
-- *              	(32.768 kHz nominal).
-- *    frtc, Trtc	Frequency, period of the real-time clock counter
-- *              	(1 Hz nominal).
-- */
--
--#define RTAR		__REG(0x90010000)  /* RTC Alarm Reg. */
--#define RCNR		__REG(0x90010004)  /* RTC CouNt Reg. */
--#define RTTR		__REG(0x90010008)  /* RTC Trim Reg. */
--#define RTSR		__REG(0x90010010)  /* RTC Status Reg. */
--
--#define RTTR_C  	Fld (16, 0)	/* clock divider Count - 1         */
--#define RTTR_D  	Fld (10, 16)	/* trim Delete count               */
--                	        	/* frtc = (1023*(C + 1) - D)*frtx/ */
--                	        	/*        (1023*(C + 1)^2)         */
--                	        	/* Trtc = (1023*(C + 1)^2)*Trtx/   */
--                	        	/*        (1023*(C + 1) - D)       */
--
--#define RTSR_AL 	0x00000001	/* ALarm detected                  */
--#define RTSR_HZ 	0x00000002	/* 1 Hz clock detected             */
--#define RTSR_ALE	0x00000004	/* ALarm interrupt Enable          */
--#define RTSR_HZE	0x00000008	/* 1 Hz clock interrupt Enable     */
--
--
--/*
-  * Power Manager (PM) control registers
-  *
-  * Registers
+ 	crypto: crypto@300000 {
+@@ -452,6 +487,13 @@ FULL EXAMPLE
+ 			compatible = "fsl,sec-v4.0-mon-rtc-lp";
+ 			interrupts = <93 2>;
+ 		};
++
++		snvs-pwrkey@0x020cc000 {
++			compatible = "fsl,sec-v4.0-pwrkey";
++			interrupts = <0 4 0x4>;
++			linux,keycode = <116>; /* KEY_POWER */
++			wakeup;
++		};
+ 	};
+ 
+ =====================================================================
+diff --git a/Documentation/devicetree/bindings/input/snvs-pwrkey.txt b/Documentation/devicetree/bindings/input/snvs-pwrkey.txt
+new file mode 100644
+index 0000000..70c1425
+--- /dev/null
++++ b/Documentation/devicetree/bindings/input/snvs-pwrkey.txt
+@@ -0,0 +1 @@
++See Documentation/devicetree/bindings/crypto/fsl-sec4.txt
 -- 
-2.1.0
+1.9.1
 
 -- 
 -- 
