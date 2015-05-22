@@ -1,38 +1,28 @@
-Return-Path: <rtc-linux+bncBCKMZDW5VIHBBYW56OVAKGQE6HWM5EI@googlegroups.com>
-Received: from bh-25.webhostbox.net (bh-25.webhostbox.net. [208.91.199.152])
-        by gmr-mx.google.com with ESMTPS id xz5si2056130pac.1.2015.05.20.13.30.25
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1 cipher=RC4-SHA bits=128/128);
-        Wed, 20 May 2015 13:30:26 -0700 (PDT)
-Date: Wed, 20 May 2015 13:30:16 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-To: S Twiss <stwiss.opensource@diasemi.com>
-Cc: LINUXKERNEL <linux-kernel@vger.kernel.org>,
-	LINUXWATCHDOG <linux-watchdog@vger.kernel.org>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	DEVICETREE <devicetree@vger.kernel.org>,
-	David Dajun Chen <david.chen@diasemi.com>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Ian Campbell <ijc+devicetree@hellion.org.uk>,
-	Kumar Gala <galak@codeaurora.org>,
-	LINUXINPUT <linux-input@vger.kernel.org>,
-	Lee Jones <lee.jones@linaro.org>,
-	Liam Girdwood <lgirdwood@gmail.com>,
-	Mark Brown <broonie@kernel.org>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Pawel Moll <pawel.moll@arm.com>,
-	RTCLINUX <rtc-linux@googlegroups.com>,
-	Rob Herring <robh+dt@kernel.org>,
-	Samuel Ortiz <sameo@linux.intel.com>,
-	Support Opensource <support.opensource@diasemi.com>
-Subject: [rtc-linux] Re: [PATCH V3 3/4] watchdog: da9062: DA9062 watchdog driver
-Message-ID: <20150520203016.GA5710@roeck-us.net>
-References: <cover.1432041031.git.stwiss.opensource@diasemi.com>
- <ded171f203fe1d0c72f0d7ea4c3d54257f4e970e.1432041031.git.stwiss.opensource@diasemi.com>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBMX67OVAKGQEUGDRFAQ@googlegroups.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id p12si228274wiv.1.2015.05.22.03.04.34
+        for <rtc-linux@googlegroups.com>;
+        Fri, 22 May 2015 03:04:34 -0700 (PDT)
+Date: Fri, 22 May 2015 12:04:33 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Huang Adrian <adrianhuang0701@gmail.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
+	Brecht Machiels <brecht@mos6581.org>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	John Stultz <john.stultz@linaro.org>,
+	Rabin Vincent <rabin.vincent@stericsson.com>,
+	Borislav Petkov <bp@suse.de>,
+	Nagananda Chumbalkar <nchumbalkar@lenovo.com>,
+	Adrian Huang <ahuang12@lenovo.com>
+Subject: [rtc-linux] Re: [RFC PATCH 2/2] rtc: Restore the RTC alarm time to
+ the configured alarm time in BIOS Setup
+Message-ID: <20150522100433.GK3244@piout.net>
+References: <1431077706-3560-1-git-send-email-adrianhuang0701@gmail.com>
+ <20150518220542.GW3338@piout.net>
+ <CAHKZfL2+PKCzYcmL-XHC-33aXQ0hjZqOYLbbgN8O0sTvOFTj0A@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <ded171f203fe1d0c72f0d7ea4c3d54257f4e970e.1432041031.git.stwiss.opensource@diasemi.com>
+In-Reply-To: <CAHKZfL2+PKCzYcmL-XHC-33aXQ0hjZqOYLbbgN8O0sTvOFTj0A@mail.gmail.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -43,15 +33,107 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On Tue, May 19, 2015 at 02:10:30PM +0100, S Twiss wrote:
-> From: S Twiss <stwiss.opensource@diasemi.com>
+Hi,
+
+On 20/05/2015 at 12:30:27 +0800, Huang Adrian wrote :
+> >
+> > Actually, I'm not sure that solves your issue. From what I
+> > understand, what is happening in step 4 is the bug you want to work
+> > around and it happens because AF gets set even if AIE is not set.
+> >
 > 
-> Add watchdog driver support for DA9062
+> Yes.
+> 
+> > So, your rtc_alarm_restore() basically calls cmos_set_alarm() which
+> > calls cmos_irq_disable() finally this one calls cmos_checkintr() which
+> > does read register C and so clears AF.
+> >
+> 
+> The call path is correct. cmos_checkintr() did clear interrupt flags. But,
+> the problem is that AF is set in the next one second.
+> 
+> Assume 'n' is the current time.
+> 
+> 1) The call path is finished at 'n' (current time). It clears the
+> interrupt flags.
+> 2) At n + 1, AF is set because the HW alarm time is programmed at n +1.
+> 
+> This leads to the problem.
+> 
+> > What I'm not sure is why cmos_do_shutdown() isn't clearing AF properly.
+> > Is it correctly called at shutdown?
+> >
+> 
+> The function cmos_pnp_shutdown() simply returns because
+> cmos_poweroff() always returns 0 (CONFIG_PM and CONFIG_PNP are
+> set). The cmos_do_shutdown() is not invoked at shutdown. We did not
+> get a chance to clear interrupt flag. Here is the callpath:
+> 
+> kernel_restart_prepare() -> device_shutdown() -> cmos_pnp_shutdown()
+> 
+> [Experiment 1 - SLES11 SP3 with upstream kernel (without my patch)]
+> The revised code in cmos_pnp_shutdown() is shown as follows. It
+> ensures that cmos_do_shutdown() is invoked, which gets the last chance
+> to clear the interrupt flag before powering off the machine.
+> 
+> #if 0
+>         if (system_state == SYSTEM_POWER_OFF && !cmos_poweroff(dev))
+>                 return;
+> #endif
+>         cmos_poweroff(dev);
 > 
 > 
-> Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
+> The issue can be still reproduced. This implies that the time cost
+> between hwclock and cmos_do_shutdown() is within one second.
+> So, AF is not set yet.
 > 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+> [Experiment 2 - SLES11 SP3 with upstream kernel (without my patch)]
+> Still apply the code snippet in Experiment 1. The system stayed
+> power off when I intentionally added 'sleep 3' command in the end of
+> the 'stop' service of /etc/init.d/boot.clock (This script uses the
+> hwclock utility to set hardware clock
+> to the current system time). This proves that cmos_do_shutdown()
+> clears AF generated by RTC HW.
+> 
+> The system always stayed power off with 10-time shutdown tests.
+> 
+> [Experiment 3 - SLES11 SP3 with upstream kernel (without my patch)]
+> Do not apply the code snippet in Experiment 1. Also added 'sleep 3'
+> command in the end of the 'stop' service of /etc/init.d/boot.clock.
+> The issue can be reproduced. This proves that cmos_pnp_shutdown()
+> simply returns without invoking cmos_do_shutdown(). So, AF is not
+> cleared.
+> 
+> Experiments 1-3 show that the issue happens if the time cost
+> between hwclock and cmos_do_shutdown() is within one second.
+> If we want to clear the interrupt flag for every shutdown, we need
+> to re-write the cmos_pnp_shutdown() to ensure the
+> cmos_do_shutdown() is invoke for every shutdown.
+> 
+> Although my patch can work around the issue, kindly let me know
+> if you want to re-work cmos_pnp_shutdown(). We can come out a
+> better way to invoke cmos_do_shutdown() for every shutdown. But,
+> be remember, the issue still happens even though we make sure
+> cmos_do_shutdown() is invoked for every shutdown. The problem
+> is the one second interval.
+> 
+
+That's what I understood. How I see it is the following: your patch is
+reading and setting the alarm then clearing AF at a later point in the
+shutdown. This may as well be before that one second has elapsed so I
+don't feel this is a proper fix. Also, other RTCs don't suffer from that
+issue and this may actually break some of them.
+
+What I would do is ensure that AF gets cleared in cmos_do_shutdown()
+after setting the alarm to now or now - 1 when it is not used for
+wakeup/restart.
+
+Regards,
+
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
 -- 
 -- 
