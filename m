@@ -1,15 +1,21 @@
-Return-Path: <rtc-linux+bncBDEKVJM7XAHRBK7QZGVAKGQE7N4QSZI@googlegroups.com>
-Received: from mout.kundenserver.de (mout.kundenserver.de. [212.227.126.187])
-        by gmr-mx.google.com with ESMTPS id q10si183431wiz.0.2015.05.12.15.01.14
+Return-Path: <rtc-linux+bncBDMYB2E7SQCRBMH67SVAKGQEW5X4UKA@googlegroups.com>
+Received: from na01-by2-obe.outbound.protection.outlook.com (mail-by2on0136.outbound.protection.outlook.com. [207.46.100.136])
+        by gmr-mx.google.com with ESMTPS id gt9si263120wib.2.2015.05.22.07.37.35
         for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 12 May 2015 15:01:14 -0700 (PDT)
-From: Arnd Bergmann <arnd@arndb.de>
-To: alexandre.belloni@free-electrons.com
-Cc: a.zummo@towertech.it, rtc-linux@googlegroups.com, Gregory CLEMENT <gregory.clement@free-electrons.com>, Andrew Lunn <andrew@lunn.ch>, linux-arm-kernel@lists.infradead.org
-Subject: [rtc-linux] [PATCH] rtc: armada38x: remove unused variables
-Date: Wed, 13 May 2015 00:00:33 +0200
-Message-ID: <2116673.Ym6IPoTTaZ@wuerfel>
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
+        Fri, 22 May 2015 07:37:36 -0700 (PDT)
+From: <Frank.Li@freescale.com>
+To: <lznuaa@gmail.com>, <shawn.guo@linaro.org>, <dmitry.torokhov@gmail.com>,
+	<robh+dt@kernel.org>, <alexandre.belloni@free-electrons.com>,
+	<linux@arm.linux.org.uk>
+CC: <linux-arm-kernel@lists.infradead.org>, <linux-input@vger.kernel.org>,
+	<rtc-linux@googlegroups.com>, <devicetree@vger.kernel.org>, Frank Li
+	<Frank.Li@freescale.com>
+Subject: [rtc-linux] [PATCH v4 2/6] Document: dt: fsl: snvs: change support syscon
+Date: Fri, 22 May 2015 22:36:35 +0800
+Message-ID: <1432305399-30571-3-git-send-email-Frank.Li@freescale.com>
+In-Reply-To: <1432305399-30571-1-git-send-email-Frank.Li@freescale.com>
+References: <1432305399-30571-1-git-send-email-Frank.Li@freescale.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
@@ -22,43 +28,96 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-A recent bugfix introduced a new compiler warning in the rtc-armada38x
-driver:
+From: Frank Li <Frank.Li@freescale.com>
 
-drivers/rtc/rtc-armada38x.c: In function 'armada38x_rtc_read_time':
-drivers/rtc/rtc-armada38x.c:67:34: warning: unused variable 'flags' [-Wunused-variable]
-  unsigned long time, time_check, flags;
+snvs actually is multi fucntion driver.
+Change to use syscon to access register.
 
-This removes the now obsolete variables to get rid of the warning.
-As the orginal fix was marked for stable backports [4.0], this one
-should be backported as well.
+Signed-off-by: Frank Li <Frank.Li@freescale.com>
+---
+ .../devicetree/bindings/crypto/fsl-sec4.txt        | 28 ++++++++++++----------
+ 1 file changed, 15 insertions(+), 13 deletions(-)
 
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Fixes: 489405fe5ed38 ("rtc: armada38x: fix concurrency access in armada38x_rtc_set_time")
-Cc: stable@vger.kernel.org
-
-diff --git a/drivers/rtc/rtc-armada38x.c b/drivers/rtc/rtc-armada38x.c
-index cb70ced7e0db..2b08cac62f07 100644
---- a/drivers/rtc/rtc-armada38x.c
-+++ b/drivers/rtc/rtc-armada38x.c
-@@ -64,7 +64,7 @@ static void rtc_delayed_write(u32 val, struct armada38x_rtc *rtc, int offset)
- static int armada38x_rtc_read_time(struct device *dev, struct rtc_time *tm)
- {
- 	struct armada38x_rtc *rtc = dev_get_drvdata(dev);
--	unsigned long time, time_check, flags;
-+	unsigned long time, time_check;
+diff --git a/Documentation/devicetree/bindings/crypto/fsl-sec4.txt b/Documentation/devicetree/bindings/crypto/fsl-sec4.txt
+index e402277..87f5921 100644
+--- a/Documentation/devicetree/bindings/crypto/fsl-sec4.txt
++++ b/Documentation/devicetree/bindings/crypto/fsl-sec4.txt
+@@ -288,12 +288,13 @@ Secure Non-Volatile Storage (SNVS) Node
+     Node defines address range and the associated
+     interrupt for the SNVS function.  This function
+     monitors security state information & reports
+-    security violations.
++    security violations. This also included rtc,
++    system power off and ON/OFF key.
  
- 	mutex_lock(&rtc->mutex_time);
- 	time = readl(rtc->regs + RTC_TIME);
-@@ -88,7 +88,7 @@ static int armada38x_rtc_set_time(struct device *dev, struct rtc_time *tm)
- {
- 	struct armada38x_rtc *rtc = dev_get_drvdata(dev);
- 	int ret = 0;
--	unsigned long time, flags;
-+	unsigned long time;
+   - compatible
+       Usage: required
+       Value type: <string>
+-      Definition: Must include "fsl,sec-v4.0-mon".
++      Definition: Must include "fsl,sec-v4.0-mon" and "syscon".
  
- 	ret = rtc_tm_to_time(tm, &time);
+   - reg
+       Usage: required
+@@ -324,7 +325,7 @@ Secure Non-Volatile Storage (SNVS) Node
+            the child address, parent address, & length.
  
+    - interrupts
+-      Usage: required
++      Usage: optional
+       Value type: <prop_encoded-array>
+       Definition:  Specifies the interrupts generated by this
+            device.  The value of the interrupts property
+@@ -341,7 +342,7 @@ Secure Non-Volatile Storage (SNVS) Node
+ 
+ EXAMPLE
+ 	sec_mon@314000 {
+-		compatible = "fsl,sec-v4.0-mon";
++		compatible = "fsl,sec-v4.0-mon", "syscon";
+ 		reg = <0x314000 0x1000>;
+ 		ranges = <0 0x314000 0x1000>;
+ 		interrupt-parent = <&mpic>;
+@@ -358,16 +359,19 @@ Secure Non-Volatile Storage (SNVS) Low Power (LP) RTC Node
+       Value type: <string>
+       Definition: Must include "fsl,sec-v4.0-mon-rtc-lp".
+ 
+-  - reg
++  - interrupts
+       Usage: required
+-      Value type: <prop-encoded-array>
+-      Definition: A standard property.  Specifies the physical
+-          address and length of the SNVS LP configuration registers.
++      Value type: <prop_encoded-array>
++      Definition: Specifies the interrupts generated by this
++	   device.  The value of the interrupts property
++	   consists of one interrupt specifier. The format
++	   of the specifier is defined by the binding document
++	   describing the node's interrupt parent.
+ 
+ EXAMPLE
+-	sec_mon_rtc_lp@314000 {
++	sec_mon_rtc_lp@1 {
+ 		compatible = "fsl,sec-v4.0-mon-rtc-lp";
+-		reg = <0x34 0x58>;
++		interrupts = <93 2>;
+ 	};
+ 
+ =====================================================================
+@@ -443,12 +447,10 @@ FULL EXAMPLE
+ 		compatible = "fsl,sec-v4.0-mon";
+ 		reg = <0x314000 0x1000>;
+ 		ranges = <0 0x314000 0x1000>;
+-		interrupt-parent = <&mpic>;
+-		interrupts = <93 2>;
+ 
+ 		sec_mon_rtc_lp@34 {
+ 			compatible = "fsl,sec-v4.0-mon-rtc-lp";
+-			reg = <0x34 0x58>;
++			interrupts = <93 2>;
+ 		};
+ 	};
+ 
+-- 
+1.9.1
 
 -- 
 -- 
