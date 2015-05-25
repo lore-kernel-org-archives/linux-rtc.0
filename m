@@ -1,24 +1,27 @@
-Return-Path: <rtc-linux+bncBDKZNNNLXAHBBYWCSGVAKGQEPWNLCZQ@googlegroups.com>
-MIME-Version: 1.0
-Received: from mail-pa0-x234.google.com (mail-pa0-x234.google.com. [2607:f8b0:400e:c03::234])
-        by gmr-mx.google.com with ESMTPS id gu4si792420pac.1.2015.05.01.22.32.18
+Return-Path: <rtc-linux+bncBCV3TM5A74DRB7UJROVQKGQE6Q5D3YI@googlegroups.com>
+Received: from mail-pd0-f176.google.com (mail-pd0-f176.google.com. [209.85.192.176])
+        by gmr-mx.google.com with ESMTPS id xv6si993726pab.2.2015.05.24.23.45.18
         for <rtc-linux@googlegroups.com>
         (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 01 May 2015 22:32:18 -0700 (PDT)
-Received: by mail-pa0-x234.google.com with SMTP id tp1so109671733pab.2
-        for <rtc-linux@googlegroups.com>; Fri, 01 May 2015 22:32:18 -0700 (PDT)
-From: Krzysztof Kozlowski <k.kozlowski.k@gmail.com>
-To: Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org
-Cc: Krzysztof Kozlowski <k.kozlowski@samsung.com>,
-	Krzysztof Kozlowski <k.kozlowski.k@gmail.com>
-Subject: [rtc-linux] [PATCH v2] rtc: s3c: Integrate Exynos3250 into S3C6410
-Date: Sat,  2 May 2015 14:31:49 +0900
-Message-Id: <1430544709-12852-1-git-send-email-k.kozlowski.k@gmail.com>
-Reply-To: rtc-linux@googlegroups.com
+        Sun, 24 May 2015 23:45:18 -0700 (PDT)
+Received: by pdbqa5 with SMTP id qa5so63763401pdb.0
+        for <rtc-linux@googlegroups.com>; Sun, 24 May 2015 23:45:18 -0700 (PDT)
+Date: Mon, 25 May 2015 14:44:28 +0800
+From: Shawn Guo <shawn.guo@linaro.org>
+To: Frank.Li@freescale.com
+Cc: lznuaa@gmail.com, dmitry.torokhov@gmail.com, robh+dt@kernel.org,
+	alexandre.belloni@free-electrons.com, linux@arm.linux.org.uk,
+	linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org,
+	rtc-linux@googlegroups.com, devicetree@vger.kernel.org
+Subject: [rtc-linux] Re: [PATCH v4 1/6] rtc: arm: imx: snvs: change use syscon
+ to access register
+Message-ID: <20150525064427.GG3264@dragon>
+References: <1432305399-30571-1-git-send-email-Frank.Li@freescale.com>
+ <1432305399-30571-2-git-send-email-Frank.Li@freescale.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1432305399-30571-2-git-send-email-Frank.Li@freescale.com>
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -28,58 +31,75 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+On Fri, May 22, 2015 at 10:36:34PM +0800, Frank.Li@freescale.com wrote:
+>  static int snvs_rtc_probe(struct platform_device *pdev)
+>  {
+>  	struct snvs_rtc_data *data;
+>  	struct resource *res;
+>  	int ret;
+> +	struct device_node *snvs_np;
+> +	void __iomem *mmio;
+>  
+>  	data = devm_kzalloc(&pdev->dev, sizeof(*data), GFP_KERNEL);
+>  	if (!data)
+>  		return -ENOMEM;
+>  
+> -	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+> -	data->ioaddr = devm_ioremap_resource(&pdev->dev, res);
+> -	if (IS_ERR(data->ioaddr))
+> -		return PTR_ERR(data->ioaddr);
+> +	snvs_np = of_get_parent(pdev->dev.of_node);
+> +	if (!snvs_np)
+> +		return -ENODEV;
+> +
+> +	if (of_device_is_compatible(snvs_np, "syscon")) {
+> +		data->regmap = syscon_node_to_regmap(snvs_np);
+> +		data->offset = 0x34;
 
-There are now no differences between RTC on Exynos3250 and S3C6410.
-Merge everything into one so duplicated code could be removed.
+As I commented on dts patch, we should probably follow syscon-poweroff
+to have 'regmap' and 'offset' properties.
 
-Signed-off-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-Reviewed-by: Chanwoo Choi <cw00.choi@samsung.com>
-Acked-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Reviewed-by: Javier Martinez Canillas <javier.martinez@collabora.co.uk>
-Signed-off-by: Krzysztof Kozlowski <k.kozlowski.k@gmail.com>
+Shawn
 
----
-Changes since v1:
-1. Add acks and reviews.
----
- drivers/rtc/rtc-s3c.c | 14 +-------------
- 1 file changed, 1 insertion(+), 13 deletions(-)
-
-diff --git a/drivers/rtc/rtc-s3c.c b/drivers/rtc/rtc-s3c.c
-index 76cbad7a99d3..a0f832362199 100644
---- a/drivers/rtc/rtc-s3c.c
-+++ b/drivers/rtc/rtc-s3c.c
-@@ -772,18 +772,6 @@ static struct s3c_rtc_data const s3c6410_rtc_data = {
- 	.disable		= s3c6410_rtc_disable,
- };
- 
--static struct s3c_rtc_data const exynos3250_rtc_data = {
--	.max_user_freq		= 32768,
--	.needs_src_clk		= true,
--	.irq_handler		= s3c6410_rtc_irq,
--	.set_freq		= s3c6410_rtc_setfreq,
--	.enable_tick		= s3c6410_rtc_enable_tick,
--	.save_tick_cnt		= s3c6410_rtc_save_tick_cnt,
--	.restore_tick_cnt	= s3c6410_rtc_restore_tick_cnt,
--	.enable			= s3c24xx_rtc_enable,
--	.disable		= s3c6410_rtc_disable,
--};
--
- static const struct of_device_id s3c_rtc_dt_match[] = {
- 	{
- 		.compatible = "samsung,s3c2410-rtc",
-@@ -799,7 +787,7 @@ static const struct of_device_id s3c_rtc_dt_match[] = {
- 		.data = (void *)&s3c6410_rtc_data,
- 	}, {
- 		.compatible = "samsung,exynos3250-rtc",
--		.data = (void *)&exynos3250_rtc_data,
-+		.data = (void *)&s3c6410_rtc_data,
- 	},
- 	{ /* sentinel */ },
- };
--- 
-2.1.4
+> +	} else {
+> +		pr_warn("snvs rtc: you use old dts file, please update it\n");
+> +		res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+> +
+> +		mmio = devm_ioremap_resource(&pdev->dev, res);
+> +		if (IS_ERR(mmio))
+> +			return PTR_ERR(mmio);
+> +
+> +		data->regmap = devm_regmap_init_mmio(&pdev->dev, mmio, &snvs_rtc_config);
+> +	}
+> +
+> +	of_node_put(snvs_np);
+> +
+> +	if (!data->regmap) {
+> +		pr_err("Can't snvs syscon\n");
+> +		return -ENODEV;
+> +	}
+>  
+>  	data->irq = platform_get_irq(pdev, 0);
+>  	if (data->irq < 0)
+> @@ -276,13 +282,11 @@ static int snvs_rtc_probe(struct platform_device *pdev)
+>  
+>  	platform_set_drvdata(pdev, data);
+>  
+> -	spin_lock_init(&data->lock);
+> -
+>  	/* Initialize glitch detect */
+> -	writel(SNVS_LPPGDR_INIT, data->ioaddr + SNVS_LPPGDR);
+> +	regmap_write(data->regmap, data->offset + SNVS_LPPGDR, SNVS_LPPGDR_INIT);
+>  
+>  	/* Clear interrupt status */
+> -	writel(0xffffffff, data->ioaddr + SNVS_LPSR);
+> +	regmap_write(data->regmap, data->offset + SNVS_LPSR, 0xffffffff);
+>  
+>  	/* Enable RTC */
+>  	snvs_rtc_enable(data, true);
+> -- 
+> 1.9.1
+> 
 
 -- 
 -- 
