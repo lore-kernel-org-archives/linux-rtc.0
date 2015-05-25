@@ -1,44 +1,26 @@
-Return-Path: <rtc-linux+bncBCKMZDW5VIHBBRHWVCVAKGQE3UTTSAY@googlegroups.com>
-Received: from bh-25.webhostbox.net (bh-25.webhostbox.net. [208.91.199.152])
-        by gmr-mx.google.com with ESMTPS id x12si168487igx.1.2015.05.06.09.03.16
+Return-Path: <rtc-linux+bncBCV3TM5A74DRBQ4HROVQKGQEPAQTRDA@googlegroups.com>
+Received: from mail-pa0-f45.google.com (mail-pa0-f45.google.com. [209.85.220.45])
+        by gmr-mx.google.com with ESMTPS id xz5si1015422pac.1.2015.05.24.23.40.03
         for <rtc-linux@googlegroups.com>
-        (version=TLSv1 cipher=RC4-SHA bits=128/128);
-        Wed, 06 May 2015 09:03:16 -0700 (PDT)
-Received: from mailnull by bh-25.webhostbox.net with sa-checked (Exim 4.85)
-	(envelope-from <linux@roeck-us.net>)
-	id 1Yq1n1-001tM9-Ho
-	for rtc-linux@googlegroups.com; Wed, 06 May 2015 16:03:15 +0000
-Date: Wed, 6 May 2015 09:02:27 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-To: "Opensource [Steve Twiss]" <stwiss.opensource@diasemi.com>
-Cc: LINUXKERNEL <linux-kernel@vger.kernel.org>,
-	LINUXWATCHDOG <linux-watchdog@vger.kernel.org>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	DEVICETREE <devicetree@vger.kernel.org>,
-	David Dajun Chen <david.chen@diasemi.com>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Ian Campbell <ijc+devicetree@hellion.org.uk>,
-	Kumar Gala <galak@codeaurora.org>,
-	LINUXINPUT <linux-input@vger.kernel.org>,
-	Lee Jones <lee.jones@linaro.org>,
-	Liam Girdwood <lgirdwood@gmail.com>,
-	Mark Brown <broonie@kernel.org>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Pawel Moll <pawel.moll@arm.com>,
-	RTCLINUX <rtc-linux@googlegroups.com>,
-	Rob Herring <robh+dt@kernel.org>,
-	Samuel Ortiz <sameo@linux.intel.com>,
-	Support Opensource <Support.Opensource@diasemi.com>
-Subject: [rtc-linux] Re: [PATCH V1 5/6] watchdog: da9062: DA9062 watchdog driver
-Message-ID: <20150506160227.GA28101@roeck-us.net>
-References: <cover.1429280614.git.stwiss.opensource@diasemi.com>
- <2afd9f55c71553186e99bfe386312f0c7d7501ed.1429280614.git.stwiss.opensource@diasemi.com>
- <55327DDA.4080003@roeck-us.net>
- <6ED8E3B22081A4459DAC7699F3695FB7014B21924A@SW-EX-MBX02.diasemi.com>
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Sun, 24 May 2015 23:40:03 -0700 (PDT)
+Received: by pabru16 with SMTP id ru16so64943250pab.1
+        for <rtc-linux@googlegroups.com>; Sun, 24 May 2015 23:40:03 -0700 (PDT)
+Date: Mon, 25 May 2015 14:39:14 +0800
+From: Shawn Guo <shawn.guo@linaro.org>
+To: Frank.Li@freescale.com
+Cc: lznuaa@gmail.com, dmitry.torokhov@gmail.com, robh+dt@kernel.org,
+	alexandre.belloni@free-electrons.com, linux@arm.linux.org.uk,
+	linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org,
+	rtc-linux@googlegroups.com, devicetree@vger.kernel.org
+Subject: [rtc-linux] Re: [PATCH v4 3/6] arm: dts: imx: update snvs to use
+ syscon access register
+Message-ID: <20150525063913.GF3264@dragon>
+References: <1432305399-30571-1-git-send-email-Frank.Li@freescale.com>
+ <1432305399-30571-4-git-send-email-Frank.Li@freescale.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <6ED8E3B22081A4459DAC7699F3695FB7014B21924A@SW-EX-MBX02.diasemi.com>
+In-Reply-To: <1432305399-30571-4-git-send-email-Frank.Li@freescale.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -49,63 +31,162 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On Wed, May 06, 2015 at 02:54:37PM +0000, Opensource [Steve Twiss] wrote:
-> On 18 April 2015 16:53 Guenter Roeck wrote:
+On Fri, May 22, 2015 at 10:36:36PM +0800, Frank.Li@freescale.com wrote:
+> From: Frank Li <Frank.Li@freescale.com>
 > 
-> Hi Guenter,
+> snvs is MFP device. Change dts to use syscon to allocate register resource.
+> snvs power off also switch to common syscon-poweroff
 > 
-> Thanks for your comments.
+> Signed-off-by: Frank Li <Frank.Li@freescale.com>
+> ---
+>  arch/arm/boot/dts/imx6qdl.dtsi | 19 +++++++++----------
+>  arch/arm/boot/dts/imx6sl.dtsi  | 19 +++++++++----------
+>  arch/arm/boot/dts/imx6sx.dtsi  | 17 ++++++++---------
+>  arch/arm/boot/dts/vfxxx.dtsi   |  9 +++------
+>  4 files changed, 29 insertions(+), 35 deletions(-)
 > 
-> > On 04/17/2015 07:23 AM, S Twiss wrote:
-> > > From: S Twiss <stwiss.opensource@diasemi.com>
-> > >
-> > > Add watchdog driver support for DA9062
-> > >
-> > > Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
-> > >
-> > Hi Steve,
-> > 
-> > Key question here is if the da9062 is really so much different to the da9062
-> > that you can not use the same driver.
-> 
-> The DA9062 watchdog driver does have some similarities with the DA9063 watchdog 
-> base functionality -- however the watchdog component in the DA9062 chip has more
-> features yet to be added in software. I do intend to add these other features ...
-> however, if "not adding them here" is a problem I can drop the DA9062 watchdog
-> driver from this patch-set until I have time to write in the newer changes.
-> 
-> > I am especially concerned about the added da9062_reset_watchdog_timer(),
-> > given the delay it introduces.
-> 
-> After giving this some thought, I am going to remove this 300ms delay from the
-> reset_watchdog_timer() function for my next submission attempt.  However
-> I am adding a 300ms delay into the stop() and update_timeout_register() functions
-> instead.
-> 
-> The DA9062 watchdog ping (register CONTROL_F) is "windowed" for protection
-> against spurious writes -- i.e. the ping function cannot be called within a 250ms
-> time limit or the PMIC will reset. This windowing protection also extends to altering
-> the timeout scale in the CONTROL_D register -- in which case if the timeout
-> register is altered and the ping() function is called within the 250ms limit, the
-> PMIC will reset. The delay is there to stop that from happening.
-> 
-> I realised my previous patch was over-sanitised: by putting the time delay into the
-> ping() function I was protecting CONTROL_D in stop() and  update_timeout_register(),
-> but I was being too over-protective of the ping() function. Therefore if there was an 
-> "incorrect trigger signal", the watchdog would not be allowed to fail because the
-> driver would have filtered out the errors.
-> 
-Hi Steve,
+> diff --git a/arch/arm/boot/dts/imx6qdl.dtsi b/arch/arm/boot/dts/imx6qdl.dtsi
+> index 0482a66..4f3f5f4 100644
+> --- a/arch/arm/boot/dts/imx6qdl.dtsi
+> +++ b/arch/arm/boot/dts/imx6qdl.dtsi
+> @@ -686,22 +686,21 @@
+>  				fsl,anatop = <&anatop>;
+>  			};
+>  
+> -			snvs@020cc000 {
+> -				compatible = "fsl,sec-v4.0-mon", "simple-bus";
+> -				#address-cells = <1>;
+> -				#size-cells = <1>;
+> -				ranges = <0 0x020cc000 0x4000>;
+> +			snvs:snvs@020cc000 {
 
->From your description, it sounds like the protection is only necessary if there
-was a previous write to the same register(s). If so, it might make sense to
-record the time of such writes, and only add the delay if necessary, and only
-for the remainder of the time.
+There should be a space between label and node.
 
-Would this be possible ?
+> +				compatible = "fsl,sec-v4.0-mon", "syscon",  "simple-mfd";
 
-Thanks,
-Guenter
+One space is enough in between.
+
+> +				reg = <0x020cc000 0x4000>;
+>  
+> -				snvs_rtc: snvs-rtc-lp@34 {
+> +				snvs_rtc: snvs-rtc-lp {
+>  					compatible = "fsl,sec-v4.0-mon-rtc-lp";
+> -					reg = <0x34 0x58>;
+
+I think rtc node should have a similar property list like snvs-poweroff,
+i.e. regmap and offset.
+
+Shawn
+
+>  					interrupts = <0 19 IRQ_TYPE_LEVEL_HIGH>,
+>  						     <0 20 IRQ_TYPE_LEVEL_HIGH>;
+>  				};
+>  
+> -				snvs_poweroff: snvs-poweroff@38 {
+> -					compatible = "fsl,sec-v4.0-poweroff";
+> -					reg = <0x38 0x4>;
+> +				snvs_poweroff: snvs-poweroff {
+> +					compatible = "syscon-poweroff";
+> +					regmap = <&snvs>;
+> +					offset = <0x38>;
+> +					mask = <0x60>;
+>  					status = "disabled";
+>  				};
+>  			};
+> diff --git a/arch/arm/boot/dts/imx6sl.dtsi b/arch/arm/boot/dts/imx6sl.dtsi
+> index a78e715..2de6d46 100644
+> --- a/arch/arm/boot/dts/imx6sl.dtsi
+> +++ b/arch/arm/boot/dts/imx6sl.dtsi
+> @@ -563,22 +563,21 @@
+>  				fsl,anatop = <&anatop>;
+>  			};
+>  
+> -			snvs@020cc000 {
+> -				compatible = "fsl,sec-v4.0-mon", "simple-bus";
+> -				#address-cells = <1>;
+> -				#size-cells = <1>;
+> -				ranges = <0 0x020cc000 0x4000>;
+> +			snvs:snvs@020cc000 {
+> +				compatible = "fsl,sec-v4.0-mon", "syscon", "simple-mfd";
+> +				reg = <0x020cc000 0x4000>;
+>  
+> -				snvs_rtc: snvs-rtc-lp@34 {
+> +				snvs_rtc: snvs-rtc-lp {
+>  					compatible = "fsl,sec-v4.0-mon-rtc-lp";
+> -					reg = <0x34 0x58>;
+>  					interrupts = <0 19 IRQ_TYPE_LEVEL_HIGH>,
+>  						     <0 20 IRQ_TYPE_LEVEL_HIGH>;
+>  				};
+>  
+> -				snvs_poweroff: snvs-poweroff@38 {
+> -					compatible = "fsl,sec-v4.0-poweroff";
+> -					reg = <0x38 0x4>;
+> +				snvs_poweroff: snvs-poweroff {
+> +					compatible = "syscon-poweroff";
+> +					regmap = <&snvs>;
+> +					offset = <0x38>;
+> +					mask = <0x60>;
+>  					status = "disabled";
+>  				};
+>  			};
+> diff --git a/arch/arm/boot/dts/imx6sx.dtsi b/arch/arm/boot/dts/imx6sx.dtsi
+> index 708175d..3cb3b5b 100644
+> --- a/arch/arm/boot/dts/imx6sx.dtsi
+> +++ b/arch/arm/boot/dts/imx6sx.dtsi
+> @@ -662,20 +662,19 @@
+>  			};
+>  
+>  			snvs: snvs@020cc000 {
+> -				compatible = "fsl,sec-v4.0-mon", "simple-bus";
+> -				#address-cells = <1>;
+> -				#size-cells = <1>;
+> -				ranges = <0 0x020cc000 0x4000>;
+> +				compatible = "fsl,sec-v4.0-mon", "syscon", "simple-mfd";
+> +				reg = <0x020cc000 0x4000>;
+>  
+> -				snvs_rtc: snvs-rtc-lp@34 {
+> +				snvs_rtc: snvs-rtc-lp {
+>  					compatible = "fsl,sec-v4.0-mon-rtc-lp";
+> -					reg = <0x34 0x58>;
+>  					interrupts = <GIC_SPI 19 IRQ_TYPE_LEVEL_HIGH>, <GIC_SPI 20 IRQ_TYPE_LEVEL_HIGH>;
+>  				};
+>  
+> -				snvs_poweroff: snvs-poweroff@38 {
+> -					compatible = "fsl,sec-v4.0-poweroff";
+> -					reg = <0x38 0x4>;
+> +				snvs_poweroff: snvs-poweroff {
+> +					compatible = "syscon-poweroff";
+> +					regmap = <&snvs>;
+> +					offset = <0x38>;
+> +					mask = <0x60>;
+>  					status = "disabled";
+>  				};
+>  			};
+> diff --git a/arch/arm/boot/dts/vfxxx.dtsi b/arch/arm/boot/dts/vfxxx.dtsi
+> index 4aa3351..fccfc01 100644
+> --- a/arch/arm/boot/dts/vfxxx.dtsi
+> +++ b/arch/arm/boot/dts/vfxxx.dtsi
+> @@ -404,14 +404,11 @@
+>  			};
+>  
+>  			snvs0: snvs@400a7000 {
+> -			    compatible = "fsl,sec-v4.0-mon", "simple-bus";
+> -				#address-cells = <1>;
+> -				#size-cells = <1>;
+> -				ranges = <0 0x400a7000 0x2000>;
+> +			    compatible = "fsl,sec-v4.0-mon", "syscon", "simple-mfd";
+> +				reg = <0x400a7000 0x2000>;
+>  
+> -				snvsrtc: snvs-rtc-lp@34 {
+> +				snvsrtc: snvs-rtc-lp {
+>  					compatible = "fsl,sec-v4.0-mon-rtc-lp";
+> -					reg = <0x34 0x58>;
+>  					interrupts = <100 IRQ_TYPE_LEVEL_HIGH>;
+>  					clocks = <&clks VF610_CLK_SNVS>;
+>  					clock-names = "snvs-rtc";
+> -- 
+> 1.9.1
+> 
 
 -- 
 -- 
