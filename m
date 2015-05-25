@@ -1,33 +1,26 @@
-Return-Path: <rtc-linux+bncBDA7X7F2WUEBB4XRY6VAKGQEWKLC7GA@googlegroups.com>
-MIME-Version: 1.0
-Received: from mail-wi0-f176.google.com (mail-wi0-f176.google.com. [209.85.212.176])
-        by gmr-mx.google.com with ESMTPS id m3si95489wia.1.2015.05.12.05.58.26
+Return-Path: <rtc-linux+bncBCV3TM5A74DRBFMLROVQKGQEUIMP5MA@googlegroups.com>
+Received: from mail-pd0-f182.google.com (mail-pd0-f182.google.com. [209.85.192.182])
+        by gmr-mx.google.com with ESMTPS id x3si994311pdh.2.2015.05.24.23.47.49
         for <rtc-linux@googlegroups.com>
         (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 12 May 2015 05:58:26 -0700 (PDT)
-Received: by mail-wi0-f176.google.com with SMTP id k4so152377504wiz.1
-        for <rtc-linux@googlegroups.com>; Tue, 12 May 2015 05:58:26 -0700 (PDT)
-From: Lee Jones <lee.jones@linaro.org>
-To: linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org,
-	devicetree@vger.kernel.org,
-	daniel.lezcano@linaro.org,
-	tglx@linutronix.de,
-	wim@iguana.be,
-	a.zummo@towertech.it,
-	linux-watchdog@vger.kernel.org,
-	rtc-linux@googlegroups.com,
-	linux@roeck-us.net
-Cc: kernel@stlinux.com,
-	Lee Jones <lee.jones@linaro.org>
-Subject: [rtc-linux] [PATCH v2 01/12] mfd: dt-bindings: Provide human readable
- define for Clocksource mode
-Date: Tue, 12 May 2015 13:58:09 +0100
-Message-Id: <1431435500-22899-2-git-send-email-lee.jones@linaro.org>
-In-Reply-To: <1431435500-22899-1-git-send-email-lee.jones@linaro.org>
-References: <1431435500-22899-1-git-send-email-lee.jones@linaro.org>
-Reply-To: rtc-linux@googlegroups.com
+        Sun, 24 May 2015 23:47:49 -0700 (PDT)
+Received: by pdbki1 with SMTP id ki1so22142100pdb.1
+        for <rtc-linux@googlegroups.com>; Sun, 24 May 2015 23:47:49 -0700 (PDT)
+Date: Mon, 25 May 2015 14:47:00 +0800
+From: Shawn Guo <shawn.guo@linaro.org>
+To: Frank.Li@freescale.com
+Cc: lznuaa@gmail.com, dmitry.torokhov@gmail.com, robh+dt@kernel.org,
+	alexandre.belloni@free-electrons.com, linux@arm.linux.org.uk,
+	linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org,
+	rtc-linux@googlegroups.com, devicetree@vger.kernel.org
+Subject: [rtc-linux] Re: [PATCH v4 0/6] Change snvs rtc and poweroff to use
+ syscon add pwrkey driver
+Message-ID: <20150525064659.GH3264@dragon>
+References: <1432305399-30571-1-git-send-email-Frank.Li@freescale.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1432305399-30571-1-git-send-email-Frank.Li@freescale.com>
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -37,28 +30,21 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-ST's Low Power Controller can now operate in three supported modes;
-Watchdog, Real Time Clock and most recently as a Clocksource.  This new
-define will allow the LPC IP to be configured for Clocksource from DT.
+On Fri, May 22, 2015 at 10:36:33PM +0800, Frank.Li@freescale.com wrote:
+> Frank Li (5):
+>   rtc: arm: imx: snvs: change use syscon to access register
+>   Document: dt: fsl: snvs: change support syscon
+>   arm: dts: imx: update snvs to use syscon access register
+>   document: devicetree: input: imx: i.mx snvs power device tree bindings
+>   arm: dts: imx6sx: enable snvs power key
+> 
+> Robin Gong (1):
+>   input: keyboard: imx: add snvs power key driver
 
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
----
- include/dt-bindings/mfd/st-lpc.h | 1 +
- 1 file changed, 1 insertion(+)
+For patch subject prefix, I suggest you use some help from 'git log' to
+find out what the best practice is for the files you are patching.
 
-diff --git a/include/dt-bindings/mfd/st-lpc.h b/include/dt-bindings/mfd/st-lpc.h
-index e3e6c75..d05894a 100644
---- a/include/dt-bindings/mfd/st-lpc.h
-+++ b/include/dt-bindings/mfd/st-lpc.h
-@@ -11,5 +11,6 @@
- 
- #define ST_LPC_MODE_RTC		0
- #define ST_LPC_MODE_WDT		1
-+#define ST_LPC_MODE_CLKSRC	2
- 
- #endif /* __DT_BINDINGS_ST_LPC_H__ */
--- 
-1.9.1
+Shawn
 
 -- 
 -- 
