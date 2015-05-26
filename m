@@ -1,31 +1,21 @@
-Return-Path: <rtc-linux+bncBDA7X7F2WUEBB7VPYKVAKGQESUDCKNQ@googlegroups.com>
-Received: from mail-wi0-f171.google.com (mail-wi0-f171.google.com. [209.85.212.171])
-        by gmr-mx.google.com with ESMTPS id q10si402436wiz.0.2015.05.11.04.52.30
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 11 May 2015 04:52:30 -0700 (PDT)
-Received: by mail-wi0-f171.google.com with SMTP id n10so93150077wiu.1
-        for <rtc-linux@googlegroups.com>; Mon, 11 May 2015 04:52:30 -0700 (PDT)
-Date: Mon, 11 May 2015 12:52:26 +0100
-From: Lee Jones <lee.jones@linaro.org>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-	kernel@stlinux.com, devicetree@vger.kernel.org,
-	daniel.lezcano@linaro.org, tglx@linutronix.de, wim@iguana.be,
-	a.zummo@towertech.it, linux-watchdog@vger.kernel.org,
-	rtc-linux@googlegroups.com, linux@roeck-us.net
-Subject: Re: [rtc-linux] [PATCH 07/12] rtc: st: Update IP layout information
- to include Clocksource
-Message-ID: <20150511115226.GC20742@x1>
-References: <1431005924-21777-1-git-send-email-lee.jones@linaro.org>
- <1431005924-21777-8-git-send-email-lee.jones@linaro.org>
- <20150509135854.GE3338@piout.net>
- <20150511105433.GB20742@x1>
- <20150511110307.GL3338@piout.net>
+Return-Path: <rtc-linux+bncBAABBLOYSCVQKGQESNG6M3Q@googlegroups.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <20150511110307.GL3338@piout.net>
+Received: from mx.dave-tech.it (mx.dave-tech.it. [2.229.21.40])
+        by gmr-mx.google.com with ESMTP id bc3si471292wib.2.2015.05.26.01.17.49
+        for <rtc-linux@googlegroups.com>;
+        Tue, 26 May 2015 01:17:49 -0700 (PDT)
+From: rnd4@dave-tech.it
+To: r.cerrato@til-technologies.fr
+Cc: a.zummo@towertech.it,
+	rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org,
+	Andrea Scian <andrea.scian@dave.eu>
+Subject: [rtc-linux] [PATCH] driver: rtc: pcf2127: use OFS flag to detect
+ unreliable date and warn the user
+Date: Tue, 26 May 2015 10:17:40 +0200
+Message-Id: <1432628260-24652-1-git-send-email-rnd4@dave-tech.it>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -35,32 +25,81 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On Mon, 11 May 2015, Alexandre Belloni wrote:
-> On 11/05/2015 at 11:54:33 +0100, Lee Jones wrote :
-> > On Sat, 09 May 2015, Alexandre Belloni wrote:
-> > > I'm guessing this will go through the mfd tree along with the driver?
-> >=20
-> > Yes, that is the plan, if that's okay with you?
->=20
-> Sure!
+From: Andrea Scian <andrea.scian@dave.eu>
 
-Perfect.  Thanks Alexandre.
+I'm using PCF2127 in a custom ARM-based board and, by looking into PCF2127 datasheet 
+I've found that, in my understanding, it's wrong to say that the date in unreliable
+if BLF (battery low flag) is set but you should use OSF flag (seconds register) to
+check if oscillator, for any reason, stopped.
+Battery may be low (usually below 2V5 threshold) but the date may be anyway correct
+(tipically date is unreliable when input voltage is below 1V2).
 
---=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+Feel free to comment and apply if useful.
 
---=20
---=20
+Kind Regards,
+
+Andrea
+
+---
+
+Also change the power fail message, which does NOT mean that time is not
+valid but also states that user should replace the battery
+
+Signed-off-by: Andrea Scian <andrea.scian@dave.eu>
+---
+ drivers/rtc/rtc-pcf2127.c |   15 ++++++++++++---
+ 1 file changed, 12 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/rtc/rtc-pcf2127.c b/drivers/rtc/rtc-pcf2127.c
+index 1ee514a..2365788 100644
+--- a/drivers/rtc/rtc-pcf2127.c
++++ b/drivers/rtc/rtc-pcf2127.c
+@@ -59,7 +59,16 @@ static int pcf2127_get_datetime(struct i2c_client *client, struct rtc_time *tm)
+ 	if (buf[PCF2127_REG_CTRL3] & 0x04) {
+ 		pcf2127->voltage_low = 1;
+ 		dev_info(&client->dev,
+-			"low voltage detected, date/time is not reliable.\n");
++			"low voltage detected, check/replace RTC battery.\n");
++	}
++
++	if (buf[PCF2127_REG_SC] & 0x80) {
++		dev_warn(&client->dev,
++			"oscillator stop detected, date/time is not reliable.\n");
++		/*
++		 * no need clear the flag here,
++		 * it will be cleared once the new date is saved
++		 */
+ 	}
+ 
+ 	dev_dbg(&client->dev,
+@@ -112,7 +121,7 @@ static int pcf2127_set_datetime(struct i2c_client *client, struct rtc_time *tm)
+ 	buf[i++] = PCF2127_REG_SC;
+ 
+ 	/* hours, minutes and seconds */
+-	buf[i++] = bin2bcd(tm->tm_sec);
++	buf[i++] = bin2bcd(tm->tm_sec);	/* this will also clear OFS flag */
+ 	buf[i++] = bin2bcd(tm->tm_min);
+ 	buf[i++] = bin2bcd(tm->tm_hour);
+ 	buf[i++] = bin2bcd(tm->tm_mday);
+@@ -144,7 +153,7 @@ static int pcf2127_rtc_ioctl(struct device *dev,
+ 	switch (cmd) {
+ 	case RTC_VL_READ:
+ 		if (pcf2127->voltage_low)
+-			dev_info(dev, "low voltage detected, date/time is not reliable.\n");
++			dev_info(dev, "low voltage detected, check/replace battery\n");
+ 
+ 		if (copy_to_user((void __user *)arg, &pcf2127->voltage_low,
+ 					sizeof(int)))
+-- 
+1.7.9.5
+
+-- 
+-- 
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
----=20
-You received this message because you are subscribed to the Google Groups "=
-rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an e=
-mail to rtc-linux+unsubscribe@googlegroups.com.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
