@@ -1,31 +1,20 @@
-Return-Path: <rtc-linux+bncBAABBNGE66VAKGQEZUJZERI@googlegroups.com>
-Received: from mail1.bemta3.messagelabs.com (mail1.bemta3.messagelabs.com. [195.245.230.170])
-        by gmr-mx.google.com with ESMTPS id m3si92164wia.1.2015.05.21.06.48.36
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=RC4-SHA bits=128/128);
-        Thu, 21 May 2015 06:48:36 -0700 (PDT)
-From: "Opensource [Steve Twiss]" <stwiss.opensource@diasemi.com>
-To: Mark Brown <broonie@kernel.org>
-CC: LINUXKERNEL <linux-kernel@vger.kernel.org>, Liam Girdwood
-	<lgirdwood@gmail.com>, Alessandro Zummo <a.zummo@towertech.it>, DEVICETREE
-	<devicetree@vger.kernel.org>, David Dajun Chen <david.chen@diasemi.com>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>, Ian Campbell
-	<ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>,
-	LINUXINPUT <linux-input@vger.kernel.org>, LINUXWATCHDOG
-	<linux-watchdog@vger.kernel.org>, Lee Jones <lee.jones@linaro.org>, "Mark
- Rutland" <mark.rutland@arm.com>, Pawel Moll <pawel.moll@arm.com>, RTCLINUX
-	<rtc-linux@googlegroups.com>, Rob Herring <robh+dt@kernel.org>, Samuel Ortiz
-	<sameo@linux.intel.com>, Support Opensource <Support.Opensource@diasemi.com>,
-	Wim Van Sebroeck <wim@iguana.be>
-Subject: [rtc-linux] RE: [PATCH V3 2/4] regulator: da9062: DA9062 regulator driver
-Date: Thu, 21 May 2015 13:48:27 +0000
-Message-ID: <6ED8E3B22081A4459DAC7699F3695FB7014B22C8E7@SW-EX-MBX02.diasemi.com>
-References: <cover.1432041031.git.stwiss.opensource@diasemi.com>
- <aa98437b3c3fd6fbf89f8669edf0d426ec3338e9.1432041031.git.stwiss.opensource@diasemi.com>
- <20150521120416.GA21577@sirena.org.uk>
-In-Reply-To: <20150521120416.GA21577@sirena.org.uk>
-Content-Type: text/plain; charset=UTF-8
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBENLSOVQKGQE233CPEI@googlegroups.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id k10si217739wia.1.2015.05.26.13.20.33
+        for <rtc-linux@googlegroups.com>;
+        Tue, 26 May 2015 13:20:33 -0700 (PDT)
+Date: Tue, 26 May 2015 22:20:32 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Jean-Baptiste Theou <jtheou@adeneo-embedded.us>
+Cc: Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org
+Subject: [rtc-linux] Re: [PATCH 2/2] rtc-isl1208: add device tree support
+Message-ID: <20150526202032.GK3199@piout.net>
+References: <1432667550-24272-1-git-send-email-jtheou@adeneo-embedded.us>
+ <1432667550-24272-2-git-send-email-jtheou@adeneo-embedded.us>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1432667550-24272-2-git-send-email-jtheou@adeneo-embedded.us>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -36,20 +25,55 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On 21 May 2015 13:04 Mark Brown wrote:
+Hi,
 
-> Subject: Re: [PATCH V3 2/4] regulator: da9062: DA9062 regulator driver
+On 26/05/2015 at 12:12:30 -0700, Jean-Baptiste Theou wrote :
+> Add a basic device tree support for isl1208 driver
 > 
-> On Tue, May 19, 2015 at 02:10:30PM +0100, S Twiss wrote:
-> > From: S Twiss <stwiss.opensource@diasemi.com>
-> >
-> > Add BUCK and LDO regulator driver support for DA9062
+> Signed-off-by: Jean-Baptiste Theou <jtheou@adeneo-embedded.us>
+> ---
+>  drivers/rtc/rtc-isl1208.c | 9 +++++++++
+>  1 file changed, 9 insertions(+)
 > 
-> Applied, thanks.
+> diff --git a/drivers/rtc/rtc-isl1208.c b/drivers/rtc/rtc-isl1208.c
+> index c3c549d..b47a3f9 100644
+> --- a/drivers/rtc/rtc-isl1208.c
+> +++ b/drivers/rtc/rtc-isl1208.c
+> @@ -692,6 +692,14 @@ isl1208_remove(struct i2c_client *client)
+>  	return 0;
+>  }
+>  
+> +#ifdef CONFIG_OF
+> +static const struct of_device_id isl1208_dt_match[] = {
+> +	{ .compatible = "isil,isl1208" },
+> +	{ .compatible = "isil,isl1218" },
+> +	{ },
+> +};
+> +#endif
+> +
+>  static const struct i2c_device_id isl1208_id[] = {
+>  	{ "isl1208", 0 },
+>  	{ "isl1218", 0 },
+> @@ -702,6 +710,7 @@ MODULE_DEVICE_TABLE(i2c, isl1208_id);
+>  static struct i2c_driver isl1208_driver = {
+>  	.driver = {
+>  		   .name = "rtc-isl1208",
+> +		   .of_match_table = of_match_ptr(isl1208_dt_match),
 
-Thank you
-Regards,
-Steve
+This patch is unnecessary as the i2c subsystem will already match
+isil,isl1208 or isil,isl1218 with the i2c_device_id array.
+
+>  		   },
+>  	.probe = isl1208_probe,
+>  	.remove = isl1208_remove,
+> -- 
+> 2.4.0
+> 
+
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
 -- 
 -- 
