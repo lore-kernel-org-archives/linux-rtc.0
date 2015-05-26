@@ -1,20 +1,22 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBFUYTCVAKGQENNJP4DY@googlegroups.com>
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id m3si201381wia.1.2015.05.03.04.52.53
-        for <rtc-linux@googlegroups.com>;
-        Sun, 03 May 2015 04:52:53 -0700 (PDT)
-Date: Sun, 3 May 2015 13:52:51 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Krzysztof Kozlowski <k.kozlowski.k@gmail.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org,
-	Krzysztof Kozlowski <k.kozlowski@samsung.com>
-Subject: [rtc-linux] Re: [PATCH v2] rtc: s3c: Integrate Exynos3250 into S3C6410
-Message-ID: <20150503115251.GW12076@piout.net>
-References: <1430544709-12852-1-git-send-email-k.kozlowski.k@gmail.com>
+Return-Path: <rtc-linux+bncBDMYB2E7SQCRB2N5SKVQKGQEFHYT4PI@googlegroups.com>
+Received: from na01-by2-obe.outbound.protection.outlook.com (mail-by2on0114.outbound.protection.outlook.com. [207.46.100.114])
+        by gmr-mx.google.com with ESMTPS id k2si555401wif.0.2015.05.26.09.27.20
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
+        Tue, 26 May 2015 09:27:21 -0700 (PDT)
+From: <Frank.Li@freescale.com>
+To: <lznuaa@gmail.com>, <shawn.guo@linaro.org>, <dmitry.torokhov@gmail.com>,
+	<robh+dt@kernel.org>, <alexandre.belloni@free-electrons.com>
+CC: <linux-arm-kernel@lists.infradead.org>, <linux-input@vger.kernel.org>,
+	<rtc-linux@googlegroups.com>, <devicetree@vger.kernel.org>, Robin Gong
+	<b38343@freescale.com>, Frank Li <Frank.Li@freescale.com>
+Subject: [rtc-linux] [PATCH v5 4/6] input: keyboard: imx: add snvs power key driver
+Date: Wed, 27 May 2015 00:26:00 +0800
+Message-ID: <1432657562-5592-5-git-send-email-Frank.Li@freescale.com>
+In-Reply-To: <1432657562-5592-1-git-send-email-Frank.Li@freescale.com>
+References: <1432657562-5592-1-git-send-email-Frank.Li@freescale.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1430544709-12852-1-git-send-email-k.kozlowski.k@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -25,31 +27,296 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On 02/05/2015 at 14:31:49 +0900, Krzysztof Kozlowski wrote :
-> From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-> 
-> There are now no differences between RTC on Exynos3250 and S3C6410.
-> Merge everything into one so duplicated code could be removed.
-> 
-> Signed-off-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-> Reviewed-by: Chanwoo Choi <cw00.choi@samsung.com>
-> Acked-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-> Reviewed-by: Javier Martinez Canillas <javier.martinez@collabora.co.uk>
-> Signed-off-by: Krzysztof Kozlowski <k.kozlowski.k@gmail.com>
-> 
-> ---
-> Changes since v1:
-> 1. Add acks and reviews.
-> ---
->  drivers/rtc/rtc-s3c.c | 14 +-------------
->  1 file changed, 1 insertion(+), 13 deletions(-)
-> 
-Applied, thanks.
+From: Robin Gong <b38343@freescale.com>
 
+add snvs power key driver.
+It work in imx chips after i.mx6sx
+
+ON/OFF key used power on/off whole system.
+This driver make it wakeup from suspend state when short press
+ON/OFF key.
+
+Long time press will trig SNVS power off chip without software
+intervention.
+
+Signed-off-by: Robin Gong <b38343@freescale.com>
+Signed-off-by: Frank Li <Frank.Li@freescale.com>
+---
+ drivers/input/keyboard/Kconfig       |  11 ++
+ drivers/input/keyboard/Makefile      |   1 +
+ drivers/input/keyboard/snvs_pwrkey.c | 227 +++++++++++++++++++++++++++++++++++
+ 3 files changed, 239 insertions(+)
+ create mode 100644 drivers/input/keyboard/snvs_pwrkey.c
+
+diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
+index 106fbac..61b3fab 100644
+--- a/drivers/input/keyboard/Kconfig
++++ b/drivers/input/keyboard/Kconfig
+@@ -400,6 +400,17 @@ config KEYBOARD_MPR121
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called mpr121_touchkey.
+ 
++config KEYBOARD_SNVS_PWRKEY
++	tristate "IMX SNVS Power Key Driver"
++	depends on SOC_IMX6SX
++	depends on OF
++	help
++	  This is the snvs powerkey driver for the Freescale i.MX application
++	  processors that are newer than i.MX6 SX.
++
++	  To compile this driver as a module, choose M here; the
++	  module will be called snvs_pwrkey.
++
+ config KEYBOARD_IMX
+ 	tristate "IMX keypad support"
+ 	depends on ARCH_MXC
+diff --git a/drivers/input/keyboard/Makefile b/drivers/input/keyboard/Makefile
+index df28d55..1d416dd 100644
+--- a/drivers/input/keyboard/Makefile
++++ b/drivers/input/keyboard/Makefile
+@@ -51,6 +51,7 @@ obj-$(CONFIG_KEYBOARD_QT1070)           += qt1070.o
+ obj-$(CONFIG_KEYBOARD_QT2160)		+= qt2160.o
+ obj-$(CONFIG_KEYBOARD_SAMSUNG)		+= samsung-keypad.o
+ obj-$(CONFIG_KEYBOARD_SH_KEYSC)		+= sh_keysc.o
++obj-$(CONFIG_KEYBOARD_SNVS_PWRKEY)	+= snvs_pwrkey.o
+ obj-$(CONFIG_KEYBOARD_SPEAR)		+= spear-keyboard.o
+ obj-$(CONFIG_KEYBOARD_STMPE)		+= stmpe-keypad.o
+ obj-$(CONFIG_KEYBOARD_STOWAWAY)		+= stowaway.o
+diff --git a/drivers/input/keyboard/snvs_pwrkey.c b/drivers/input/keyboard/snvs_pwrkey.c
+new file mode 100644
+index 0000000..512a1fc
+--- /dev/null
++++ b/drivers/input/keyboard/snvs_pwrkey.c
+@@ -0,0 +1,227 @@
++/*
++ * Driver for the IMX SNVS ON/OFF Power Key
++ * Copyright (C) 2015 Freescale Semiconductor, Inc. All Rights Reserved.
++ *
++ * The code contained herein is licensed under the GNU General Public
++ * License. You may obtain a copy of the GNU General Public License
++ * Version 2 or later at the following locations:
++ *
++ * http://www.opensource.org/licenses/gpl-license.html
++ * http://www.gnu.org/copyleft/gpl.html
++ */
++
++#include <linux/device.h>
++#include <linux/err.h>
++#include <linux/init.h>
++#include <linux/input.h>
++#include <linux/interrupt.h>
++#include <linux/io.h>
++#include <linux/jiffies.h>
++#include <linux/kernel.h>
++#include <linux/module.h>
++#include <linux/of.h>
++#include <linux/of_address.h>
++#include <linux/platform_device.h>
++#include <linux/mfd/syscon.h>
++#include <linux/regmap.h>
++
++#define SNVS_LPSR_REG	0x4C	/* LP Status Register */
++#define SNVS_LPCR_REG	0x38	/* LP Control Register */
++#define SNVS_HPSR_REG	0x14
++#define SNVS_HPSR_BTN	BIT(6)
++#define SNVS_LPSR_SPO	BIT(18)
++#define SNVS_LPCR_DEP_EN BIT(5)
++
++#define DEBOUNCE_TIME 30
++#define REPEAT_INTERVAL 60
++
++struct pwrkey_drv_data {
++	struct regmap *snvs;
++	int irq;
++	int keycode;
++	int keystate;  /* 1:pressed */
++	int wakeup;
++	struct timer_list check_timer;
++	struct input_dev *input;
++};
++
++static void imx_imx_snvs_check_for_events(unsigned long data)
++{
++	struct pwrkey_drv_data *pdata = (struct pwrkey_drv_data *) data;
++	struct input_dev *input = pdata->input;
++	u32 state;
++
++	regmap_read(pdata->snvs, SNVS_HPSR_REG, &state);
++	state = state & SNVS_HPSR_BTN ? 1 : 0;
++
++	/* only report new event if status changed */
++	if (state ^ pdata->keystate) {
++		pdata->keystate = state;
++		input_event(input, EV_KEY, pdata->keycode, state);
++		input_sync(input);
++		pm_relax(pdata->input->dev.parent);
++	}
++
++	/* repeat check if pressed long */
++	if (state) {
++		mod_timer(&pdata->check_timer,
++			  jiffies + msecs_to_jiffies(REPEAT_INTERVAL));
++	}
++}
++
++static irqreturn_t imx_snvs_pwrkey_interrupt(int irq, void *dev_id)
++{
++	struct platform_device *pdev = dev_id;
++	struct pwrkey_drv_data *pdata = platform_get_drvdata(pdev);
++	u32 lp_status;
++
++	pm_wakeup_event(pdata->input->dev.parent, 0);
++
++	regmap_read(pdata->snvs, SNVS_LPSR_REG, &lp_status);
++	if (lp_status & SNVS_LPSR_SPO)
++		mod_timer(&pdata->check_timer, jiffies + msecs_to_jiffies(DEBOUNCE_TIME));
++
++	/* clear SPO status */
++	regmap_write(pdata->snvs, SNVS_LPSR_REG, SNVS_LPSR_SPO);
++
++	return IRQ_HANDLED;
++}
++
++static void imx_snvs_pwrkey_act(void *pdata)
++{
++	struct pwrkey_drv_data *pd = pdata;
++
++	del_timer_sync(&pd->check_timer);
++}
++
++static int imx_snvs_pwrkey_probe(struct platform_device *pdev)
++{
++	struct pwrkey_drv_data *pdata = NULL;
++	struct input_dev *input = NULL;
++	struct device_node *np;
++	int error;
++
++	/* Get SNVS register Page */
++	np = pdev->dev.of_node;
++	if (!np)
++		return -ENODEV;
++
++	pdata = devm_kzalloc(&pdev->dev, sizeof(*pdata), GFP_KERNEL);
++	if (!pdata)
++		return -ENOMEM;
++
++	pdata->snvs = syscon_regmap_lookup_by_phandle(np, "regmap");;
++
++	if (!pdata->snvs) {
++		dev_err(&pdev->dev, "Can't get snvs syscon\n");
++		return -ENODEV;
++	}
++
++	if (of_property_read_u32(np, "linux,keycode", &pdata->keycode)) {
++		pdata->keycode = KEY_POWER;
++		dev_warn(&pdev->dev, "KEY_POWER without setting in dts\n");
++	}
++
++	pdata->wakeup = of_property_read_bool(np, "wakeup");
++
++	pdata->irq = platform_get_irq(pdev, 0);
++	if (pdata->irq < 0) {
++		dev_err(&pdev->dev, "no irq defined in platform data\n");
++		return -EINVAL;
++	}
++
++	regmap_update_bits(pdata->snvs, SNVS_LPCR_REG, SNVS_LPCR_DEP_EN, SNVS_LPCR_DEP_EN);
++
++	/* clear the unexpected interrupt before driver ready */
++	regmap_write(pdata->snvs, SNVS_LPSR_REG, SNVS_LPSR_SPO);
++
++	setup_timer(&pdata->check_timer,
++		    imx_imx_snvs_check_for_events, (unsigned long) pdata);
++
++	input = devm_input_allocate_device(&pdev->dev);
++	if (!input) {
++		dev_err(&pdev->dev, "failed to allocate the input device\n");
++		return -ENOMEM;
++	}
++
++	input->name = pdev->name;
++	input->phys = "snvs-pwrkey/input0";
++	input->id.bustype = BUS_HOST;
++
++	input_set_capability(input, EV_KEY, pdata->keycode);
++
++	/* input customer action to cancel release timer */
++	error = devm_add_action(&pdev->dev, imx_snvs_pwrkey_act, pdata);
++	if (error) {
++		dev_err(&pdev->dev, "failed to register remove action\n");
++		return error;
++	}
++
++	error = devm_request_irq(&pdev->dev, pdata->irq,
++			       imx_snvs_pwrkey_interrupt,
++			       0, pdev->name, pdev);
++
++	if (error) {
++		dev_err(&pdev->dev, "interrupt not available.\n");
++		return error;
++	}
++
++	error = input_register_device(input);
++	if (error < 0) {
++		dev_err(&pdev->dev, "failed to register input device\n");
++		input_free_device(input);
++		return error;
++	}
++
++	pdata->input = input;
++	platform_set_drvdata(pdev, pdata);
++
++	device_init_wakeup(&pdev->dev, pdata->wakeup);
++
++	return 0;
++}
++
++static int imx_snvs_pwrkey_suspend(struct device *dev)
++{
++	struct platform_device *pdev = to_platform_device(dev);
++	struct pwrkey_drv_data *pdata = platform_get_drvdata(pdev);
++
++	if (device_may_wakeup(&pdev->dev))
++		enable_irq_wake(pdata->irq);
++
++	return 0;
++}
++
++static int imx_snvs_pwrkey_resume(struct device *dev)
++{
++	struct platform_device *pdev = to_platform_device(dev);
++	struct pwrkey_drv_data *pdata = platform_get_drvdata(pdev);
++
++	if (device_may_wakeup(&pdev->dev))
++		disable_irq_wake(pdata->irq);
++
++	return 0;
++}
++
++static const struct of_device_id imx_snvs_pwrkey_ids[] = {
++	{ .compatible = "fsl,sec-v4.0-pwrkey" },
++	{ /* sentinel */ }
++};
++MODULE_DEVICE_TABLE(of, imx_snvs_pwrkey_ids);
++
++static SIMPLE_DEV_PM_OPS(imx_snvs_pwrkey_pm_ops, imx_snvs_pwrkey_suspend,
++				imx_snvs_pwrkey_resume);
++
++static struct platform_driver imx_snvs_pwrkey_driver = {
++	.driver = {
++		.name = "snvs_pwrkey",
++		.pm     = &imx_snvs_pwrkey_pm_ops,
++		.of_match_table = imx_snvs_pwrkey_ids,
++	},
++	.probe = imx_snvs_pwrkey_probe,
++};
++module_platform_driver(imx_snvs_pwrkey_driver);
++
++MODULE_AUTHOR("Freescale Semiconductor");
++MODULE_DESCRIPTION("i.MX snvs power key Driver");
++MODULE_LICENSE("GPL");
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+1.9.1
 
 -- 
 -- 
