@@ -1,30 +1,19 @@
-Return-Path: <rtc-linux+bncBDA7X7F2WUEBB3WVVWVAKGQEJWQYKAA@googlegroups.com>
-Received: from mail-wg0-f43.google.com (mail-wg0-f43.google.com. [74.125.82.43])
-        by gmr-mx.google.com with ESMTPS id q10si134245wiz.0.2015.05.07.06.38.54
+Return-Path: <rtc-linux+bncBAABBLULSOVQKGQEOVOWZ6I@googlegroups.com>
+Received: from mxadeneo.adeneo-embedded.us (vpnchicago.adeneo-embedded.us. [65.182.180.190])
+        by gmr-mx.google.com with ESMTPS id xz5si1550429pac.1.2015.05.26.12.12.46
         for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 07 May 2015 06:38:54 -0700 (PDT)
-Received: by wgic8 with SMTP id c8so17340900wgi.1
-        for <rtc-linux@googlegroups.com>; Thu, 07 May 2015 06:38:54 -0700 (PDT)
-From: Lee Jones <lee.jones@linaro.org>
-To: linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org
-Cc: kernel@stlinux.com,
-	devicetree@vger.kernel.org,
-	daniel.lezcano@linaro.org,
-	tglx@linutronix.de,
-	wim@iguana.be,
-	a.zummo@towertech.it,
-	linux-watchdog@vger.kernel.org,
-	rtc-linux@googlegroups.com,
-	linux@roeck-us.net,
-	Lee Jones <lee.jones@linaro.org>
-Subject: [rtc-linux] [PATCH 02/12] clocksource: sti: Provide support for the
- ST LPC Clocksource IP
-Date: Thu,  7 May 2015 14:38:34 +0100
-Message-Id: <1431005924-21777-3-git-send-email-lee.jones@linaro.org>
-In-Reply-To: <1431005924-21777-1-git-send-email-lee.jones@linaro.org>
-References: <1431005924-21777-1-git-send-email-lee.jones@linaro.org>
+        (version=TLSv1 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
+        Tue, 26 May 2015 12:12:46 -0700 (PDT)
+From: Jean-Baptiste Theou <jtheou@adeneo-embedded.us>
+To: Alessandro Zummo <a.zummo@towertech.it>
+CC: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	<rtc-linux@googlegroups.com>, <linux-kernel@vger.kernel.org>, Jean-Baptiste
+ Theou <jtheou@adeneo-embedded.us>
+Subject: [rtc-linux] [PATCH 2/2] rtc-isl1208: add device tree support
+Date: Tue, 26 May 2015 12:12:30 -0700
+Message-ID: <1432667550-24272-2-git-send-email-jtheou@adeneo-embedded.us>
+In-Reply-To: <1432667550-24272-1-git-send-email-jtheou@adeneo-embedded.us>
+References: <1432667550-24272-1-git-send-email-jtheou@adeneo-embedded.us>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
@@ -37,191 +26,50 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-This IP is shared with Watchdog and RTC functionality.  Only one of
-these IPs can be used at the same time.  We use the device-driver
-model combined with a DT 'mode' property to enforce this.
+Add a basic device tree support for isl1208 driver
 
-The ST LPC Clocksource IP can be used as the system (tick) timer.
-
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Signed-off-by: Jean-Baptiste Theou <jtheou@adeneo-embedded.us>
 ---
- drivers/clocksource/Kconfig         |   8 +++
- drivers/clocksource/Makefile        |   1 +
- drivers/clocksource/clksrc_st_lpc.c | 123 ++++++++++++++++++++++++++++++++=
-++++
- 3 files changed, 132 insertions(+)
- create mode 100644 drivers/clocksource/clksrc_st_lpc.c
+ drivers/rtc/rtc-isl1208.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/drivers/clocksource/Kconfig b/drivers/clocksource/Kconfig
-index 68161f7..ac424cf 100644
---- a/drivers/clocksource/Kconfig
-+++ b/drivers/clocksource/Kconfig
-@@ -250,4 +250,12 @@ config CLKSRC_PXA
- 	help
- 	  This enables OST0 support available on PXA and SA-11x0
- 	  platforms.
+diff --git a/drivers/rtc/rtc-isl1208.c b/drivers/rtc/rtc-isl1208.c
+index c3c549d..b47a3f9 100644
+--- a/drivers/rtc/rtc-isl1208.c
++++ b/drivers/rtc/rtc-isl1208.c
+@@ -692,6 +692,14 @@ isl1208_remove(struct i2c_client *client)
+ 	return 0;
+ }
+ 
++#ifdef CONFIG_OF
++static const struct of_device_id isl1208_dt_match[] = {
++	{ .compatible = "isil,isl1208" },
++	{ .compatible = "isil,isl1218" },
++	{ },
++};
++#endif
 +
-+config CLKSRC_ST_LPC
-+	bool
-+	depends on ARCH_STI
-+	select CLKSRC_OF if OF
-+	help
-+	  Enable this option to use the Low Power controller timer
-+	  as clocksource.
- endmenu
-diff --git a/drivers/clocksource/Makefile b/drivers/clocksource/Makefile
-index 752d5c7..e08da4d 100644
---- a/drivers/clocksource/Makefile
-+++ b/drivers/clocksource/Makefile
-@@ -51,3 +51,4 @@ obj-$(CONFIG_ARCH_INTEGRATOR_AP)	+=3D timer-integrator-ap=
-.o
- obj-$(CONFIG_CLKSRC_VERSATILE)		+=3D versatile.o
- obj-$(CONFIG_CLKSRC_MIPS_GIC)		+=3D mips-gic-timer.o
- obj-$(CONFIG_ASM9260_TIMER)		+=3D asm9260_timer.o
-+obj-$(CONFIG_CLKSRC_ST_LPC)		+=3D clksrc_st_lpc.o
-diff --git a/drivers/clocksource/clksrc_st_lpc.c b/drivers/clocksource/clks=
-rc_st_lpc.c
-new file mode 100644
-index 0000000..18a7dcd0
---- /dev/null
-+++ b/drivers/clocksource/clksrc_st_lpc.c
-@@ -0,0 +1,123 @@
-+/*
-+ * Clocksource using the Low Power Timer found in the Low Power Controller=
- (LPC)
-+ *
-+ * Copyright (C) 2015 STMicroelectronics =E2=80=93 All Rights Reserved
-+ *
-+ * Author(s): Francesco Virlinzi <francesco.virlinzi@st.com>
-+ *	      Ajit Pal Singh <ajitpal.singh@st.com>
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ */
-+
-+#include <linux/clk.h>
-+#include <linux/clocksource.h>
-+#include <linux/init.h>
-+#include <linux/of_address.h>
-+#include <linux/slab.h>
-+
-+#include <dt-bindings/mfd/st-lpc.h>
-+
-+/* Low Power Timer */
-+#define LPC_LPT_LSB_OFF		0x400
-+#define LPC_LPT_MSB_OFF		0x404
-+#define LPC_LPT_START_OFF	0x408
-+
-+static struct st_clksrc_ddata {
-+	struct clk		*clk;
-+	void __iomem		*base;
-+} ddata;
-+
-+static void st_clksrc_reset(void)
-+{
-+	writel_relaxed(0, ddata.base + LPC_LPT_START_OFF);
-+	writel_relaxed(0, ddata.base + LPC_LPT_MSB_OFF);
-+	writel_relaxed(0, ddata.base + LPC_LPT_LSB_OFF);
-+	writel_relaxed(1, ddata.base + LPC_LPT_START_OFF);
-+}
-+
-+static int __init st_clksrc_init(void)
-+{
-+	unsigned long rate;
-+	int ret;
-+
-+	st_clksrc_reset();
-+
-+	rate =3D clk_get_rate(ddata.clk);
-+
-+	ret =3D clocksource_mmio_init(ddata.base + LPC_LPT_LSB_OFF,
-+				    "clksrc-st-lpc", rate, 300, 32,
-+				    clocksource_mmio_readl_up);
-+	if (ret) {
-+		pr_err("clksrc-st-lpc: Failed to register clocksource\n");
-+		return ret;
-+	}
-+
-+	return 0;
-+}
-+
-+static int st_clksrc_setup_clk(struct device_node *np)
-+{
-+	struct clk *clk;
-+	int ret;
-+
-+	clk =3D of_clk_get(np, 0);
-+	if (IS_ERR(clk)) {
-+		pr_err("clksrc-st-lpc: Failed to get LPC clock\n");
-+		ret =3D PTR_ERR(clk);
-+		return ret;
-+	}
-+
-+	if (clk_prepare_enable(clk)) {
-+		pr_err("clksrc-st-lpc: Failed to enable LPC clock\n");
-+		return -EINVAL;
-+	}
-+
-+	if (!clk_get_rate(clk)) {
-+		pr_err("clksrc-st-lpc: Failed to get LPC clock rate\n");
-+		clk_disable_unprepare(clk);
-+		return -EINVAL;
-+	}
-+
-+	ddata.clk =3D clk;
-+
-+	return 0;
-+}
-+
-+static void __init st_clksrc_of_register(struct device_node *np)
-+{
-+	int ret;
-+	uint32_t mode;
-+
-+	ret =3D of_property_read_u32(np, "st,lpc-mode", &mode);
-+	if (ret) {
-+		pr_err("clksrc-st-lpc: An LPC mode must be provided\n");
-+		return;
-+	}
-+
-+	/* LPC can either run as a Clocksource or in RTC or WDT mode */
-+	if (mode !=3D ST_LPC_MODE_CLKSRC)
-+		return;
-+
-+	ddata.base =3D of_iomap(np, 0);
-+	if (!ddata.base) {
-+		pr_err("clksrc-st-lpc: Unable to map iomem\n");
-+		return;
-+	}
-+
-+	if (st_clksrc_setup_clk(np)) {
-+		iounmap(ddata.base);
-+		return;
-+	}
-+
-+	if (st_clksrc_init()) {
-+		iounmap(ddata.base);
-+		return;
-+	}
-+
-+	pr_info("clksrc-st-lpc: clocksource initialised - running @ %luHz\n",
-+		clk_get_rate(ddata.clk));
-+}
-+CLOCKSOURCE_OF_DECLARE(ddata, "st,stih407-lpc", st_clksrc_of_register);
---=20
-1.9.1
+ static const struct i2c_device_id isl1208_id[] = {
+ 	{ "isl1208", 0 },
+ 	{ "isl1218", 0 },
+@@ -702,6 +710,7 @@ MODULE_DEVICE_TABLE(i2c, isl1208_id);
+ static struct i2c_driver isl1208_driver = {
+ 	.driver = {
+ 		   .name = "rtc-isl1208",
++		   .of_match_table = of_match_ptr(isl1208_dt_match),
+ 		   },
+ 	.probe = isl1208_probe,
+ 	.remove = isl1208_remove,
+-- 
+2.4.0
 
---=20
---=20
+-- 
+-- 
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
----=20
-You received this message because you are subscribed to the Google Groups "=
-rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an e=
-mail to rtc-linux+unsubscribe@googlegroups.com.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
