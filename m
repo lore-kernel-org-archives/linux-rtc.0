@@ -1,31 +1,22 @@
-Return-Path: <rtc-linux+bncBCHOPY7NVYCRBKVM6OVAKGQEHKRJ7SI@googlegroups.com>
-Received: from mail-oi0-x233.google.com (mail-oi0-x233.google.com. [2607:f8b0:4003:c06::233])
-        by gmr-mx.google.com with ESMTPS id g4si262442igc.3.2015.05.20.11.44.58
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 20 May 2015 11:44:58 -0700 (PDT)
-Received: by mail-oi0-x233.google.com with SMTP id b9so43105028oih.3
-        for <rtc-linux@googlegroups.com>; Wed, 20 May 2015 11:44:58 -0700 (PDT)
+Return-Path: <rtc-linux+bncBDS7HNEFSALRB24MS2VQKGQE7CPQ56Q@googlegroups.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id q10si79515wiz.0.2015.05.27.01.55.07
+        for <rtc-linux@googlegroups.com>;
+        Wed, 27 May 2015 01:55:07 -0700 (PDT)
+Date: Wed, 27 May 2015 10:55:06 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Jan Kardell <jan.kardell@telliq.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org,
+	Vincent Donnefort <vdonnefort@gmail.com>,
+	Dan Carpenter <dan.carpenter@oracle.com>
+Subject: [rtc-linux] Re: [PATCH] rtc: pcf8563 fix: return -EINVAL if we read
+ an invalid time.
+Message-ID: <20150527085506.GM3199@piout.net>
+References: <1432547474-3787-1-git-send-email-jan.kardell@telliq.com>
 MIME-Version: 1.0
-In-Reply-To: <20150520183050.GR2067@n2100.arm.linux.org.uk>
-References: <1432055082-28983-1-git-send-email-Frank.Li@freescale.com>
-	<20150520015851.GB1071@dragon>
-	<20150520182540.GQ2067@n2100.arm.linux.org.uk>
-	<20150520183050.GR2067@n2100.arm.linux.org.uk>
-Date: Wed, 20 May 2015 13:44:58 -0500
-Message-ID: <CAHrpEqSngMgOj5Bjp0XWpw9CJCjoiU63iRuAX3Zw_aEO+-5RHg@mail.gmail.com>
-Subject: [rtc-linux] Re: [PATCH v2 0/7] Change snvs rtc and poweroff to use
- syscon add pwrkey driver
-From: Zhi Li <lznuaa@gmail.com>
-To: Russell King - ARM Linux <linux@arm.linux.org.uk>
-Cc: Shawn Guo <shawnguo@kernel.org>, Alessandro Zummo <a.zummo@towertech.it>,
-	"Frank.Li@freescale.com" <Frank.Li@freescale.com>, rtc-linux@googlegroups.com,
-	linux-pm@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	"devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, Rob Herring <robh+dt@kernel.org>,
-	alexandre.belloni@free-electrons.com, Philipp Zabel <p.zabel@pengutronix.de>,
-	linux-input@vger.kernel.org, Shawn Guo <shawn.guo@linaro.org>,
-	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1432547474-3787-1-git-send-email-jan.kardell@telliq.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -36,50 +27,48 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On Wed, May 20, 2015 at 1:30 PM, Russell King - ARM Linux
-<linux@arm.linux.org.uk> wrote:
-> On Wed, May 20, 2015 at 07:25:41PM +0100, Russell King - ARM Linux wrote:
->> On Wed, May 20, 2015 at 09:58:51AM +0800, Shawn Guo wrote:
->> > On Wed, May 20, 2015 at 01:04:35AM +0800, Frank.Li@freescale.com wrote:
->> > > Frank Li (6):
->> > >   arm: imx: power-off: change to syscon to access register
->> > >   rtc: arm: imx: snvs: change use syscon to access register
->> > >   Document: dt: fsl: snvs: change support syscon
->> > >   arm: dts: imx: update snvs to use syscon access register
->> > >   document: devicetree: input: imx: i.mx snvs power device tree bindings
->> > >   arm: dts: imx6sx: enable snvs power key
->> >
->> > So, the series will break existing DTBs for RTC and poweroff, right?
->> > If this is unavoidable, should we at least have some warning messages
->> > telling users about his breakage?
->>
->> What's the justification for breaking existing DTBs?  Really, this is
->> something we should strive to avoid, _and_ actually avoid by providing
->> backwards compatibility.
->
-> Looking at the RTC code, it would be pretty trivial to do.
->
-> Rather than passing around struct regmap, pass around the private data
-> structure.
->
-> Rename the regmap_* function calls to be private accessors.  Implement
-> a set of new accessors - if the private data has the regmap, use the
-> regmap API.  Otherwise, use the old method, and print a warning that an
-> old DT is being used.
+Hi,
 
-This method work.  But code will become ugly and complex. I seach
-whole dts tree.
-Only imx6 use this driver.
+On 25/05/2015 at 11:51:14 +0200, Jan Kardell wrote :
+> @@ -202,8 +202,9 @@ static int pcf8563_get_datetime(struct i2c_client *client, struct rtc_time *tm)
+>  
+>  	if (buf[PCF8563_REG_SC] & PCF8563_SC_LV) {
+>  		pcf8563->voltage_low = 1;
+> -		dev_info(&client->dev,
+> +		dev_err(&client->dev,
+>  			"low voltage detected, date/time is not reliable.\n");
+> +		return -EINVAL;
+>  	}
+>  
+>  	dev_dbg(&client->dev,
+> @@ -234,11 +235,11 @@ static int pcf8563_get_datetime(struct i2c_client *client, struct rtc_time *tm)
+>  		tm->tm_sec, tm->tm_min, tm->tm_hour,
+>  		tm->tm_mday, tm->tm_mon, tm->tm_year, tm->tm_wday);
+>  
+> -	/* the clock can give out invalid datetime, but we cannot return
+> -	 * -EINVAL otherwise hwclock will refuse to set the time on bootup.
+> -	 */
+> -	if (rtc_valid_tm(tm) < 0)
+> +	err = rtc_valid_tm(tm);
+> +	if (err < 0) {
+>  		dev_err(&client->dev, "retrieved date/time is not valid.\n");
+> +		return err;
+> +	}
 
-Does it really valuable to keep compatiblity with cost of complex driver code?
+I would avoid dev_err and directly return rtc_valid_tm(tm) or you could
+also return 0 and let the core do the rtc_valid_tm() check.
 
-best regards
-Frank Li
+>  
+>  	return 0;
+>  }
+> -- 
+> 1.8.4.5
+> 
 
->
-> --
-> FTTC broadband for 0.8mile line: currently at 10.5Mbps down 400kbps up
-> according to speedtest.net.
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
 -- 
 -- 
