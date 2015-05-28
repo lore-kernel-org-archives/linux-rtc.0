@@ -1,21 +1,24 @@
-Return-Path: <rtc-linux+bncBDKZNNNLXAHBBAXCS6VAKGQE2XYSL3Q@googlegroups.com>
+Return-Path: <rtc-linux+bncBCS7NNUK74ORBXHUTKVQKGQEK7RCIIQ@googlegroups.com>
 MIME-Version: 1.0
-Received: from mail-pd0-x22e.google.com (mail-pd0-x22e.google.com. [2607:f8b0:400e:c02::22e])
-        by gmr-mx.google.com with ESMTPS id dv5si1289307pbb.0.2015.05.03.02.57.22
+Received: from mail-la0-f41.google.com (mail-la0-f41.google.com. [209.85.215.41])
+        by gmr-mx.google.com with ESMTPS id bm9si97258lbb.0.2015.05.27.23.49.00
         for <rtc-linux@googlegroups.com>
         (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sun, 03 May 2015 02:57:22 -0700 (PDT)
-Received: by pdbqd1 with SMTP id qd1so136978596pdb.2
-        for <rtc-linux@googlegroups.com>; Sun, 03 May 2015 02:57:22 -0700 (PDT)
-From: Krzysztof Kozlowski <k.kozlowski.k@gmail.com>
+        Wed, 27 May 2015 23:49:00 -0700 (PDT)
+Received: by mail-la0-f41.google.com with SMTP id py14so12352912lab.0
+        for <rtc-linux@googlegroups.com>; Wed, 27 May 2015 23:49:00 -0700 (PDT)
+From: Jan Kardell <jan.kardell@telliq.com>
 To: Alessandro Zummo <a.zummo@towertech.it>,
 	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
 	rtc-linux@googlegroups.com,
 	linux-kernel@vger.kernel.org
-Cc: Krzysztof Kozlowski <k.kozlowski.k@gmail.com>
-Subject: [rtc-linux] [PATCH v2 1/2] rtc: interface: Fix coding style violations
-Date: Sun,  3 May 2015 18:57:10 +0900
-Message-Id: <1430647031-13584-1-git-send-email-k.kozlowski.k@gmail.com>
+Cc: Vincent Donnefort <vdonnefort@gmail.com>,
+	Dan Carpenter <dan.carpenter@oracle.com>,
+	oen@telliq.com
+Subject: [rtc-linux] [PATCH v3] rtc: pcf8563 fix: return -EINVAL if we read an
+ invalid time.
+Date: Thu, 28 May 2015 08:48:45 +0200
+Message-Id: <1432795725-8350-1-git-send-email-jan.kardell@telliq.com>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -27,52 +30,62 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Fix issues reported by checkpatch:
-  ERROR: open brace '{' following struct go on the same line
-  ERROR: "foo* bar" should be "foo *bar"
-Additionally adjust alignment of wrapper function arguments.
+Return -EINVAL if the voltage low bit is set to avoid getting a bogus
+time at boot.
+There was a comment stating that util-linux hwclock refuses to set a
+new time if we return an error code on read, but at least the current
+version do set the time as expected. Remove the comment and the check
+for valid time, and let the rtc core check it for us.
 
-Signed-off-by: Krzysztof Kozlowski <k.kozlowski.k@gmail.com>
+Changes in v2: Remove the test for invalid time. Change dev_err to
+dev_info when voltage low is set.
 
+Changes in v3: Use dev_err when voltage low is set.
+
+Signed-off-by: Jan Kardell <jan.kardell@telliq.com>
 ---
+ drivers/rtc/rtc-pcf8563.c | 11 +++--------
+ 1 file changed, 3 insertions(+), 8 deletions(-)
 
-Changes since v1:
-1. Adjust alignment (suggested by Alexandre Belloni).
----
- include/linux/rtc.h | 11 +++++------
- 1 file changed, 5 insertions(+), 6 deletions(-)
-
-diff --git a/include/linux/rtc.h b/include/linux/rtc.h
-index c8b68741994e..4a5e2bda4358 100644
---- a/include/linux/rtc.h
-+++ b/include/linux/rtc.h
-@@ -101,8 +101,7 @@ struct rtc_timer {
- /* flags */
- #define RTC_DEV_BUSY 0
+diff --git a/drivers/rtc/rtc-pcf8563.c b/drivers/rtc/rtc-pcf8563.c
+index 0ba7e59..229426d 100644
+--- a/drivers/rtc/rtc-pcf8563.c
++++ b/drivers/rtc/rtc-pcf8563.c
+@@ -22,7 +22,7 @@
+ #include <linux/of.h>
+ #include <linux/err.h>
  
--struct rtc_device
--{
-+struct rtc_device {
- 	struct device dev;
- 	struct module *owner;
+-#define DRV_VERSION "0.4.3"
++#define DRV_VERSION "0.4.4"
  
-@@ -202,10 +201,10 @@ int rtc_register(rtc_task_t *task);
- int rtc_unregister(rtc_task_t *task);
- int rtc_control(rtc_task_t *t, unsigned int cmd, unsigned long arg);
+ #define PCF8563_REG_ST1		0x00 /* status */
+ #define PCF8563_REG_ST2		0x01
+@@ -202,8 +202,9 @@ static int pcf8563_get_datetime(struct i2c_client *client, struct rtc_time *tm)
  
--void rtc_timer_init(struct rtc_timer *timer, void (*f)(void* p), void* data);
--int rtc_timer_start(struct rtc_device *rtc, struct rtc_timer* timer,
--			ktime_t expires, ktime_t period);
--int rtc_timer_cancel(struct rtc_device *rtc, struct rtc_timer* timer);
-+void rtc_timer_init(struct rtc_timer *timer, void (*f)(void *p), void *data);
-+int rtc_timer_start(struct rtc_device *rtc, struct rtc_timer *timer,
-+		    ktime_t expires, ktime_t period);
-+int rtc_timer_cancel(struct rtc_device *rtc, struct rtc_timer *timer);
- void rtc_timer_do_work(struct work_struct *work);
+ 	if (buf[PCF8563_REG_SC] & PCF8563_SC_LV) {
+ 		pcf8563->voltage_low = 1;
+-		dev_info(&client->dev,
++		dev_err(&client->dev,
+ 			"low voltage detected, date/time is not reliable.\n");
++		return -EINVAL;
+ 	}
  
- static inline bool is_leap_year(unsigned int year)
+ 	dev_dbg(&client->dev,
+@@ -234,12 +235,6 @@ static int pcf8563_get_datetime(struct i2c_client *client, struct rtc_time *tm)
+ 		tm->tm_sec, tm->tm_min, tm->tm_hour,
+ 		tm->tm_mday, tm->tm_mon, tm->tm_year, tm->tm_wday);
+ 
+-	/* the clock can give out invalid datetime, but we cannot return
+-	 * -EINVAL otherwise hwclock will refuse to set the time on bootup.
+-	 */
+-	if (rtc_valid_tm(tm) < 0)
+-		dev_err(&client->dev, "retrieved date/time is not valid.\n");
+-
+ 	return 0;
+ }
+ 
 -- 
-2.1.4
+1.8.4.5
 
 -- 
 -- 
