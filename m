@@ -1,59 +1,53 @@
-Return-Path: <rtc-linux+bncBD62P6P6EQIJZTPHVICRUBHPSLUQU@googlegroups.com>
-Received: from mail-yh0-x229.google.com (mail-yh0-x229.google.com. [2607:f8b0:4002:c01::229])
-        by gmr-mx.google.com with ESMTPS id v17si551881yhc.0.2015.05.18.06.18.20
+Return-Path: <rtc-linux+bncBCW6VIXX2AARBPX7TSVQKGQEGY2RYGQ@googlegroups.com>
+MIME-Version: 1.0
+Received: from mail-lb0-x235.google.com (mail-lb0-x235.google.com. [2a00:1450:4010:c04::235])
+        by gmr-mx.google.com with ESMTPS id bm9si206368lbb.0.2015.05.28.09.18.06
         for <rtc-linux@googlegroups.com>
         (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 18 May 2015 06:18:20 -0700 (PDT)
-Received: by mail-yh0-x229.google.com with SMTP id a23so51072830yhd.2
-        for <rtc-linux@googlegroups.com>; Mon, 18 May 2015 06:18:20 -0700 (PDT)
-MIME-Version: 1.0
-Sender: rtc-linux@googlegroups.com
-In-Reply-To: <87pp62jdpj.fsf@belgarion.home>
-References: <1431529350-4597-1-git-send-email-robh@kernel.org> <87pp62jdpj.fsf@belgarion.home>
-From: Rob Herring <robh@kernel.org>
-Date: Mon, 18 May 2015 08:18:00 -0500
-Message-ID: <CAL_JsqJ-VMQHXFF9Gxf5mmPjYXZ6gyktYFjgvxAHRx-Kmuoq8A@mail.gmail.com>
-Subject: [rtc-linux] Re: [PATCH v4 0/6] SA1100/PXA RTC clean-up
-To: Robert Jarzmik <robert.jarzmik@free.fr>
+        Thu, 28 May 2015 09:18:06 -0700 (PDT)
+Received: by mail-lb0-x235.google.com with SMTP id qq2so31762229lbb.3
+        for <rtc-linux@googlegroups.com>; Thu, 28 May 2015 09:18:06 -0700 (PDT)
+From: Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>
+To: Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>
 Cc: Russell King <linux@arm.linux.org.uk>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>, Eric Miao <eric.y.miao@gmail.com>,
-	Haojian Zhuang <haojian.zhuang@gmail.com>, Alessandro Zummo <a.zummo@towertech.it>,
-	rtc-linux@googlegroups.com, Arnd Bergmann <arnd@arndb.de>,
-	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
-Content-Type: text/plain; charset=UTF-8
+	rtc-linux@googlegroups.com
+Subject: [rtc-linux] [PATCH] rtc: sa1100: drop mach/irqs.h include
+Date: Thu, 28 May 2015 19:17:42 +0300
+Message-Id: <1432829862-13614-1-git-send-email-dbaryshkov@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
 List-Archive: <http://groups.google.com/group/rtc-linux
+Sender: rtc-linux@googlegroups.com
 List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On Fri, May 15, 2015 at 6:13 AM, Robert Jarzmik <robert.jarzmik@free.fr> wrote:
-> Rob Herring <robh@kernel.org> writes:
->
->> A git branch is here[4]. I've tested sa1100-rtc on PXA1928. I need help
->> testing on PXA27x/3xx.
-> Hi Rob,
->
-> I tested on PXA27x. It works for the boards which used pxa-rtc.
-> For the others, their defconfig become broken, because the pxa boards with
-> sa1100-rtc do not work anymore. And of course no .config manipulation will fix
-> this, because PXA architecture is denied the sa1100-rtc driver.
+There is no reason to include <mach/irqs.h> anymore - the driver gets
+IRQs via platform_get_irq_byname().
 
-Ah, I didn't realize there is a mixture of use.
+Signed-off-by: Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>
+---
+ drivers/rtc/rtc-sa1100.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-I could just do something like this instead of removing
-sa1100_device_rtc registration:
-
-#ifndef CONFIG_RTC_DRV_PXA
-       &sa1100_device_rtc,
-#else
-        &pxa_device_rtc,
-#endif
-
-Rob
+diff --git a/drivers/rtc/rtc-sa1100.c b/drivers/rtc/rtc-sa1100.c
+index b6e1ca0..c221527 100644
+--- a/drivers/rtc/rtc-sa1100.c
++++ b/drivers/rtc/rtc-sa1100.c
+@@ -36,7 +36,6 @@
+ #include <linux/io.h>
+ 
+ #include <mach/hardware.h>
+-#include <mach/irqs.h>
+ 
+ #if defined(CONFIG_ARCH_PXA) || defined(CONFIG_ARCH_MMP)
+ #include <mach/regs-rtc.h>
+-- 
+2.1.4
 
 -- 
 -- 
