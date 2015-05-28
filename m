@@ -1,29 +1,25 @@
-Return-Path: <rtc-linux+bncBCF2PQPV4MDRBOHH26VAKGQENS6RK4Y@googlegroups.com>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBLMFTSVQKGQEDGTU23Y@googlegroups.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id p12si120088wiv.1.2015.05.28.04.57.32
+        for <rtc-linux@googlegroups.com>;
+        Thu, 28 May 2015 04:57:33 -0700 (PDT)
+Date: Thu, 28 May 2015 13:57:31 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Philippe Reynes <tremyfr@gmail.com>
+Cc: shawn.guo@linaro.org, kernel@pengutronix.de, linux@arm.linux.org.uk,
+	a.zummo@towertech.it, robh+dt@kernel.org, pawel.moll@arm.com,
+	mark.rutland@arm.com, ijc+devicetree@hellion.org.uk,
+	galak@codeaurora.org, rtc-linux@googlegroups.com,
+	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+	devicetree@vger.kernel.org, fabio.estevam@freescale.com
+Subject: [rtc-linux] Re: [PATCH 1/2] rtc: mxc: add a second clock
+Message-ID: <20150528115731.GN2185@piout.net>
+References: <1431729330-7625-1-git-send-email-tremyfr@gmail.com>
+ <1431729330-7625-2-git-send-email-tremyfr@gmail.com>
 MIME-Version: 1.0
-Received: from mail-la0-x229.google.com (mail-la0-x229.google.com. [2a00:1450:4010:c03::229])
-        by gmr-mx.google.com with ESMTPS id bm9si112675lbb.0.2015.05.15.06.25.12
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 15 May 2015 06:25:12 -0700 (PDT)
-Received: by mail-la0-x229.google.com with SMTP id v1so119057831lag.3
-        for <rtc-linux@googlegroups.com>; Fri, 15 May 2015 06:25:12 -0700 (PDT)
-From: Joachim Eastwood <manabian@gmail.com>
-To: akpm@linux-foundation.org,
-	a.zummo@towertech.it
-Cc: Joachim Eastwood <manabian@gmail.com>,
-	wellsk40@gmail.com,
-	rtc-linux@googlegroups.com,
-	devicetree@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	alexandre.belloni@free-electrons.com,
-	joshc@ni.com
-Subject: [rtc-linux] [PATCH v2 2/2] doc: dt: add documentation for nxp,lpc1788-rtc
-Date: Fri, 15 May 2015 15:25:06 +0200
-Message-Id: <1431696306-19093-3-git-send-email-manabian@gmail.com>
-In-Reply-To: <1431696306-19093-1-git-send-email-manabian@gmail.com>
-References: <1431696306-19093-1-git-send-email-manabian@gmail.com>
-Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1431729330-7625-2-git-send-email-tremyfr@gmail.com>
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -33,41 +29,116 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Signed-off-by: Joachim Eastwood <manabian@gmail.com>
----
- .../devicetree/bindings/rtc/nxp,lpc1788-rtc.txt     | 21 +++++++++++++++++++++
- 1 file changed, 21 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/rtc/nxp,lpc1788-rtc.txt
+Hi,
 
-diff --git a/Documentation/devicetree/bindings/rtc/nxp,lpc1788-rtc.txt b/Documentation/devicetree/bindings/rtc/nxp,lpc1788-rtc.txt
-new file mode 100644
-index 000000000000..ad41a040432c
---- /dev/null
-+++ b/Documentation/devicetree/bindings/rtc/nxp,lpc1788-rtc.txt
-@@ -0,0 +1,21 @@
-+NXP LPC1788 real-time clock
-+
-+The LPC1788 RTC provides calendar and clock functionality
-+together with periodic tick and alarm interrupt support.
-+
-+Required properties:
-+- compatible	: must contain "nxp,lpc1788-rtc"
-+- reg		: Specifies base physical address and size of the registers.
-+- interrupts	: A single interrupt specifier.
-+- clocks	: Must contain entries for rtc and register clock
-+- clock-names	: Must contain "rtc" and "reg"
-+  See ../clocks/clock-bindings.txt for details.
-+
-+Example:
-+rtc: rtc@40046000 {
-+	compatible = "nxp,lpc1788-rtc";
-+	reg = <0x40046000 0x1000>;
-+	interrupts = <47>;
-+	clocks = <&creg_clk 0>, <&ccu1 CLK_CPU_BUS>;
-+	clock-names = "rtc", "reg";
-+};
+On 16/05/2015 at 00:35:29 +0200, Philippe Reynes wrote :
+> The mxc RTC needs two clocks, one for the input
+> reference, and one for the IP. But this driver
+> was only using one clock (for the reference).
+> This patch add the second clock (for the IP).
+> 
+> Signed-off-by: Philippe Reynes <tremyfr@gmail.com>
+> ---
+>  arch/arm/mach-imx/clk-imx31.c |    3 ++-
+>  drivers/rtc/rtc-mxc.c         |   26 +++++++++++++++++---------
+>  2 files changed, 19 insertions(+), 10 deletions(-)
+> 
+> diff --git a/arch/arm/mach-imx/clk-imx31.c b/arch/arm/mach-imx/clk-imx31.c
+> index 286ef42..480c54f 100644
+> --- a/arch/arm/mach-imx/clk-imx31.c
+> +++ b/arch/arm/mach-imx/clk-imx31.c
+> @@ -130,7 +130,8 @@ int __init mx31_clocks_init(unsigned long fref)
+>  	clk_register_clkdev(clk[cspi3_gate], NULL, "imx31-cspi.2");
+>  	clk_register_clkdev(clk[pwm_gate], "pwm", NULL);
+>  	clk_register_clkdev(clk[wdog_gate], NULL, "imx2-wdt.0");
+> -	clk_register_clkdev(clk[rtc_gate], NULL, "imx21-rtc");
+> +	clk_register_clkdev(clk[ckil], "rtc", "imx21-rtc");
+> +	clk_register_clkdev(clk[rtc_gate], "ipg", "imx21-rtc");
+>  	clk_register_clkdev(clk[epit1_gate], "epit", NULL);
+>  	clk_register_clkdev(clk[epit2_gate], "epit", NULL);
+>  	clk_register_clkdev(clk[nfc], NULL, "imx27-nand.0");
+
+This should probably go in a separate patch so that Shawn can apply it.
+
+
+> diff --git a/drivers/rtc/rtc-mxc.c b/drivers/rtc/rtc-mxc.c
+> index 09d422b..e916a91 100644
+> --- a/drivers/rtc/rtc-mxc.c
+> +++ b/drivers/rtc/rtc-mxc.c
+> @@ -79,7 +79,8 @@ struct rtc_plat_data {
+>  	struct rtc_device *rtc;
+>  	void __iomem *ioaddr;
+>  	int irq;
+> -	struct clk *clk;
+> +	struct clk *clk_rtc;
+> +	struct clk *clk_ipg;
+>  	struct rtc_time g_rtc_alarm;
+>  	enum imx_rtc_type devtype;
+>  };
+> @@ -373,17 +374,24 @@ static int mxc_rtc_probe(struct platform_device *pdev)
+>  	if (IS_ERR(pdata->ioaddr))
+>  		return PTR_ERR(pdata->ioaddr);
+>  
+> -	pdata->clk = devm_clk_get(&pdev->dev, NULL);
+> -	if (IS_ERR(pdata->clk)) {
+> -		dev_err(&pdev->dev, "unable to get clock!\n");
+> -		return PTR_ERR(pdata->clk);
+> +	pdata->clk_ipg = devm_clk_get(&pdev->dev, "ipg");
+> +	if (IS_ERR(pdata->clk_ipg)) {
+> +		dev_err(&pdev->dev, "unable to get ipg clock!\n");
+> +		return PTR_ERR(pdata->clk_ipg);
+>  	}
+>  
+> -	ret = clk_prepare_enable(pdata->clk);
+> +	ret = clk_prepare_enable(pdata->clk_ipg);
+>  	if (ret)
+>  		return ret;
+>  
+> -	rate = clk_get_rate(pdata->clk);
+> +	pdata->clk_rtc = devm_clk_get(&pdev->dev, "rtc");
+> +	if (IS_ERR(pdata->clk_rtc)) {
+> +		dev_err(&pdev->dev, "unable to get rtc clock!\n");
+> +		ret = PTR_ERR(pdata->clk_rtc);
+> +		goto exit_put_clk;
+> +	}
+> +
+> +	rate = clk_get_rate(pdata->clk_rtc);
+
+You are getting the rate but don't you need to clk_prepare_enable()?
+
+Also, aren't those devm_clk_get now failing on i.mx35? Maybe it was
+already failing before that patch as I don't see any rtc clock being
+registeres in clk-imx35.c
+
+>  
+>  	if (rate == 32768)
+>  		reg = RTC_INPUT_CLK_32768HZ;
+> @@ -432,7 +440,7 @@ static int mxc_rtc_probe(struct platform_device *pdev)
+>  	return 0;
+>  
+>  exit_put_clk:
+> -	clk_disable_unprepare(pdata->clk);
+> +	clk_disable_unprepare(pdata->clk_ipg);
+>  
+>  	return ret;
+>  }
+> @@ -441,7 +449,7 @@ static int mxc_rtc_remove(struct platform_device *pdev)
+>  {
+>  	struct rtc_plat_data *pdata = platform_get_drvdata(pdev);
+>  
+> -	clk_disable_unprepare(pdata->clk);
+> +	clk_disable_unprepare(pdata->clk_ipg);
+>  
+>  	return 0;
+>  }
+> -- 
+> 1.7.4.4
+> 
+
 -- 
-1.8.0
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
 -- 
 -- 
