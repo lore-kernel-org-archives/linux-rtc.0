@@ -1,24 +1,20 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBLMFTSVQKGQEDGTU23Y@googlegroups.com>
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id p12si120088wiv.1.2015.05.28.04.57.32
-        for <rtc-linux@googlegroups.com>;
-        Thu, 28 May 2015 04:57:33 -0700 (PDT)
-Date: Thu, 28 May 2015 13:57:31 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Philippe Reynes <tremyfr@gmail.com>
-Cc: shawn.guo@linaro.org, kernel@pengutronix.de, linux@arm.linux.org.uk,
-	a.zummo@towertech.it, robh+dt@kernel.org, pawel.moll@arm.com,
-	mark.rutland@arm.com, ijc+devicetree@hellion.org.uk,
-	galak@codeaurora.org, rtc-linux@googlegroups.com,
-	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-	devicetree@vger.kernel.org, fabio.estevam@freescale.com
-Subject: [rtc-linux] Re: [PATCH 1/2] rtc: mxc: add a second clock
-Message-ID: <20150528115731.GN2185@piout.net>
-References: <1431729330-7625-1-git-send-email-tremyfr@gmail.com>
- <1431729330-7625-2-git-send-email-tremyfr@gmail.com>
+Return-Path: <rtc-linux+bncBD2OLRXW4ABBBGVRUGVQKGQEC6FT74Y@googlegroups.com>
+Received: from hqemgate14.nvidia.com (hqemgate14.nvidia.com. [216.228.121.143])
+        by gmr-mx.google.com with ESMTPS id xv6si564607pab.2.2015.05.29.05.16.26
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1 cipher=ECDHE-RSA-RC4-SHA bits=128/128);
+        Fri, 29 May 2015 05:16:26 -0700 (PDT)
+From: Laxman Dewangan <ldewangan@nvidia.com>
+To: <a.zummo@towertech.it>, <alexandre.belloni@free-electrons.com>,
+	<akpm@linux-foundation.org>
+CC: <rtc-linux@googlegroups.com>, <linux-kernel@vger.kernel.org>, Laxman
+ Dewangan <ldewangan@nvidia.com>
+Subject: [rtc-linux] [PATCH] rtc: palmas: Initialise bb_charging flag before
+ using it
+Date: Fri, 29 May 2015 17:44:05 +0530
+Message-ID: <1432901645-17478-1-git-send-email-ldewangan@nvidia.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1431729330-7625-2-git-send-email-tremyfr@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -29,124 +25,46 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Hi,
+Initialise the variable high_bb_charging before using it to avoid
+configuring wrong value and fix following compilation warning:
 
-On 16/05/2015 at 00:35:29 +0200, Philippe Reynes wrote :
-> The mxc RTC needs two clocks, one for the input
-> reference, and one for the IP. But this driver
-> was only using one clock (for the reference).
-> This patch add the second clock (for the IP).
-> 
-> Signed-off-by: Philippe Reynes <tremyfr@gmail.com>
-> ---
->  arch/arm/mach-imx/clk-imx31.c |    3 ++-
->  drivers/rtc/rtc-mxc.c         |   26 +++++++++++++++++---------
->  2 files changed, 19 insertions(+), 10 deletions(-)
-> 
-> diff --git a/arch/arm/mach-imx/clk-imx31.c b/arch/arm/mach-imx/clk-imx31.c
-> index 286ef42..480c54f 100644
-> --- a/arch/arm/mach-imx/clk-imx31.c
-> +++ b/arch/arm/mach-imx/clk-imx31.c
-> @@ -130,7 +130,8 @@ int __init mx31_clocks_init(unsigned long fref)
->  	clk_register_clkdev(clk[cspi3_gate], NULL, "imx31-cspi.2");
->  	clk_register_clkdev(clk[pwm_gate], "pwm", NULL);
->  	clk_register_clkdev(clk[wdog_gate], NULL, "imx2-wdt.0");
-> -	clk_register_clkdev(clk[rtc_gate], NULL, "imx21-rtc");
-> +	clk_register_clkdev(clk[ckil], "rtc", "imx21-rtc");
-> +	clk_register_clkdev(clk[rtc_gate], "ipg", "imx21-rtc");
->  	clk_register_clkdev(clk[epit1_gate], "epit", NULL);
->  	clk_register_clkdev(clk[epit2_gate], "epit", NULL);
->  	clk_register_clkdev(clk[nfc], NULL, "imx27-nand.0");
+/*
+rtc-palmas.c: In function =E2=80=98palmas_rtc_probe=E2=80=99:
+rtc-palmas.c:242:7: warning: =E2=80=98high_bb_charging=E2=80=99 may be used
+uninitialized in this function
+*/
 
-This should probably go in a separate patch so that Shawn can apply it.
+Signed-off-by: Laxman Dewangan <ldewangan@nvidia.com>
+---
+ drivers/rtc/rtc-palmas.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
+diff --git a/drivers/rtc/rtc-palmas.c b/drivers/rtc/rtc-palmas.c
+index 3b01d56..7ea2c47 100644
+--- a/drivers/rtc/rtc-palmas.c
++++ b/drivers/rtc/rtc-palmas.c
+@@ -239,7 +239,7 @@ static int palmas_rtc_probe(struct platform_device *pde=
+v)
+ 	struct palmas_rtc *palmas_rtc =3D NULL;
+ 	int ret;
+ 	bool enable_bb_charging =3D false;
+-	bool high_bb_charging;
++	bool high_bb_charging =3D false;
+=20
+ 	if (pdev->dev.of_node) {
+ 		enable_bb_charging =3D of_property_read_bool(pdev->dev.of_node,
+--=20
+2.1.4
 
-> diff --git a/drivers/rtc/rtc-mxc.c b/drivers/rtc/rtc-mxc.c
-> index 09d422b..e916a91 100644
-> --- a/drivers/rtc/rtc-mxc.c
-> +++ b/drivers/rtc/rtc-mxc.c
-> @@ -79,7 +79,8 @@ struct rtc_plat_data {
->  	struct rtc_device *rtc;
->  	void __iomem *ioaddr;
->  	int irq;
-> -	struct clk *clk;
-> +	struct clk *clk_rtc;
-> +	struct clk *clk_ipg;
->  	struct rtc_time g_rtc_alarm;
->  	enum imx_rtc_type devtype;
->  };
-> @@ -373,17 +374,24 @@ static int mxc_rtc_probe(struct platform_device *pdev)
->  	if (IS_ERR(pdata->ioaddr))
->  		return PTR_ERR(pdata->ioaddr);
->  
-> -	pdata->clk = devm_clk_get(&pdev->dev, NULL);
-> -	if (IS_ERR(pdata->clk)) {
-> -		dev_err(&pdev->dev, "unable to get clock!\n");
-> -		return PTR_ERR(pdata->clk);
-> +	pdata->clk_ipg = devm_clk_get(&pdev->dev, "ipg");
-> +	if (IS_ERR(pdata->clk_ipg)) {
-> +		dev_err(&pdev->dev, "unable to get ipg clock!\n");
-> +		return PTR_ERR(pdata->clk_ipg);
->  	}
->  
-> -	ret = clk_prepare_enable(pdata->clk);
-> +	ret = clk_prepare_enable(pdata->clk_ipg);
->  	if (ret)
->  		return ret;
->  
-> -	rate = clk_get_rate(pdata->clk);
-> +	pdata->clk_rtc = devm_clk_get(&pdev->dev, "rtc");
-> +	if (IS_ERR(pdata->clk_rtc)) {
-> +		dev_err(&pdev->dev, "unable to get rtc clock!\n");
-> +		ret = PTR_ERR(pdata->clk_rtc);
-> +		goto exit_put_clk;
-> +	}
-> +
-> +	rate = clk_get_rate(pdata->clk_rtc);
-
-You are getting the rate but don't you need to clk_prepare_enable()?
-
-Also, aren't those devm_clk_get now failing on i.mx35? Maybe it was
-already failing before that patch as I don't see any rtc clock being
-registeres in clk-imx35.c
-
->  
->  	if (rate == 32768)
->  		reg = RTC_INPUT_CLK_32768HZ;
-> @@ -432,7 +440,7 @@ static int mxc_rtc_probe(struct platform_device *pdev)
->  	return 0;
->  
->  exit_put_clk:
-> -	clk_disable_unprepare(pdata->clk);
-> +	clk_disable_unprepare(pdata->clk_ipg);
->  
->  	return ret;
->  }
-> @@ -441,7 +449,7 @@ static int mxc_rtc_remove(struct platform_device *pdev)
->  {
->  	struct rtc_plat_data *pdata = platform_get_drvdata(pdev);
->  
-> -	clk_disable_unprepare(pdata->clk);
-> +	clk_disable_unprepare(pdata->clk_ipg);
->  
->  	return 0;
->  }
-> -- 
-> 1.7.4.4
-> 
-
--- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
-
--- 
--- 
+--=20
+--=20
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+---=20
+You received this message because you are subscribed to the Google Groups "=
+rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an e=
+mail to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
