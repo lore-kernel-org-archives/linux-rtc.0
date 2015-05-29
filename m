@@ -1,27 +1,22 @@
-Return-Path: <rtc-linux+bncBCZ273NM4EARBSEEU6VAKGQEXXPITXI@googlegroups.com>
-Received: from mailgw01.mediatek.com ([210.61.82.183])
-        by gmr-mx.google.com with ESMTPS id xv6si2755244pab.2.2015.05.06.00.27.03
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1 cipher=RC4-SHA bits=128/128);
-        Wed, 06 May 2015 00:27:04 -0700 (PDT)
-From: Eddie Huang <eddie.huang@mediatek.com>
-To: Lee Jones <lee.jones@linaro.org>, Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>
-CC: <srv_heupstream@mediatek.com>, Samuel Ortiz <sameo@linux.intel.com>,
-	Matthias Brugger <matthias.bgg@gmail.com>, Andrew Morton
-	<akpm@linux-foundation.org>, Greg KH <gregkh@linuxfoundation.org>, "David S.
- Miller" <davem@davemloft.net>, Mauro Carvalho Chehab
-	<mchehab@osg.samsung.com>, Joe Perches <joe@perches.com>, Tejun Heo
-	<tj@kernel.org>, <linux-kernel@vger.kernel.org>,
-	<rtc-linux@googlegroups.com>, <linux-arm-kernel@lists.infradead.org>,
-	<linux-mediatek@lists.infradead.org>, Sascha Hauer <kernel@pengutronix.de>,
-	Tomasz Figa <tfiga@google.com>
-Subject: [rtc-linux] [PATCH v4 0/3] Add Mediatek SoC RTC driver
-Date: Wed, 6 May 2015 15:23:39 +0800
-Message-ID: <1430897022-63357-1-git-send-email-eddie.huang@mediatek.com>
+Return-Path: <rtc-linux+bncBCN6JTVP2IEBBNUAUKVQKGQECH2EIBY@googlegroups.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Received: from m50-111.126.com (m50-111.126.com. [123.125.50.111])
+        by gmr-mx.google.com with ESMTP id xv6si617269pab.2.2015.05.29.08.05.24
+        for <rtc-linux@googlegroups.com>;
+        Fri, 29 May 2015 08:05:26 -0700 (PDT)
+From: Xunlei Pang <xlpang@126.com>
+To: linux-kernel@vger.kernel.org
+Cc: rtc-linux@googlegroups.com,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	John Stultz <john.stultz@linaro.org>,
+	Arnd Bergmann <arnd@arndb.de>,
+	Xunlei Pang <pang.xunlei@linaro.org>
+Subject: [rtc-linux] [PATCH RESEND 1/3] drivers/rtc/pcf8563: Replace
+ deprecated rtc_time_to_tm() and rtc_tm_to_time()
+Date: Fri, 29 May 2015 23:04:35 +0800
+Message-Id: <1432911877-607-1-git-send-email-xlpang@126.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -31,74 +26,54 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-RTC is one submodule of Mediatek MT6397 PMIC chip[1]. This series
-support RTC driver that work with Mediatek SoC like MT8135, MT8173.
-It implements second counter and also provide alarm function.
+From: Xunlei Pang <pang.xunlei@linaro.org>
 
-This series base on 4.1-rc1, Test ok on MT8173 platform.
+pcf8563_rtc_set_alarm() uses deprecated rtc_tm_to_time()
+and rtc_time_to_tm(), which will overflow in year 2106
+on 32-bit machines.
 
-[1] https://lkml.org/lkml/2015/1/23/325
+This patch solves this by:
+ - Replacing rtc_time_to_tm() with rtc_time64_to_tm()
+ - Replacing rtc_tm_to_time() with rtc_tm_to_time64()
 
-Change in v4:
-1. Align mt6397-core.c resource in straight lines.
-2. Modify mtk_rtc_write_trigger according Joe Perches and
-   Alexandre Belloni suggestion.
-3. Align function parameters to the open parenthesis.
-4. Modify MAINTAINER to use file full name.
+Signed-off-by: Xunlei Pang <pang.xunlei@linaro.org>
+---
+ drivers/rtc/rtc-pcf8563.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-Change in v3:
-1. Replace magic number in mt6397-core.c
-2. Add comment for some equation and write trigger.
-3. Use regmap_bulk_read and regmap_bulk_write to avoid muliple regmap_read
-   and regmap_write
-4. Replace devm_request_threaded_irq with request_threaded_irq and add
-   irq_dispose_mapping
-5. Fix Tomasz Figa review comment.
-
-Change in v2:
-1. Move RTC address and interrupt to mt6397-core.c, and register
-   these resource in mfd_cell.
-   http://lists.infradead.org/pipermail/linux-arm-kernel/2015-February/3232=
-39.html
-2. Remove dt-binding document due to register resouce in mfd_cell, not from
-   device tree.
-3. Update MAINTAINER file to add Mediatek RTC mainainter.
-4. Add prefix mtk_ to some internal functions.
-5. Fix racy condition
-6. Check return value of regmap_read and regmap_write
-7. Remove some unnecessary register readback, clear, then write.
-8. Add disable alarm in mtk_rtc_set_alarm function
-9. Fix Uwe Kleine-K=C3=B6nig review comment
-
-Eddie Huang (2):
-  mfd: provide RTC resource in MT6397 MFD
-  MAINTAINERS: add Mediatek RTC driver
-
-Tianping Fang (1):
-  rtc: mediatek: Add MT6397 RTC driver
-
- MAINTAINERS               |   7 +
- drivers/mfd/mt6397-core.c |  18 +++
- drivers/rtc/Kconfig       |  10 ++
- drivers/rtc/Makefile      |   1 +
- drivers/rtc/rtc-mt6397.c  | 394 ++++++++++++++++++++++++++++++++++++++++++=
-++++
- 5 files changed, 430 insertions(+)
- create mode 100644 drivers/rtc/rtc-mt6397.c
-
---
-1.8.1.1.dirty
+diff --git a/drivers/rtc/rtc-pcf8563.c b/drivers/rtc/rtc-pcf8563.c
+index 0ba7e59..5f87f84 100644
+--- a/drivers/rtc/rtc-pcf8563.c
++++ b/drivers/rtc/rtc-pcf8563.c
+@@ -363,13 +363,13 @@ static int pcf8563_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *tm)
+ 	struct i2c_client *client = to_i2c_client(dev);
+ 	unsigned char buf[4];
+ 	int err;
+-	unsigned long alarm_time;
+ 
+ 	/* The alarm has no seconds, round up to nearest minute */
+ 	if (tm->time.tm_sec) {
+-		rtc_tm_to_time(&tm->time, &alarm_time);
+-		alarm_time += 60-tm->time.tm_sec;
+-		rtc_time_to_tm(alarm_time, &tm->time);
++		time64_t alarm_time = rtc_tm_to_time64(&tm->time);
++
++		alarm_time += 60 - tm->time.tm_sec;
++		rtc_time64_to_tm(alarm_time, &tm->time);
+ 	}
+ 
+ 	dev_dbg(dev, "%s, min=%d hour=%d wday=%d mday=%d "
+-- 
+1.9.1
 
 
---=20
---=20
+-- 
+-- 
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
----=20
-You received this message because you are subscribed to the Google Groups "=
-rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an e=
-mail to rtc-linux+unsubscribe@googlegroups.com.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
