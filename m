@@ -1,31 +1,26 @@
-Return-Path: <rtc-linux+bncBDA7X7F2WUEBB66VVWVAKGQEDDRDTXQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBCN6JTVP2IEBBFHYUGVQKGQELHCKEOY@googlegroups.com>
 MIME-Version: 1.0
-Received: from mail-wi0-f173.google.com (mail-wi0-f173.google.com. [209.85.212.173])
-        by gmr-mx.google.com with ESMTPS id gt9si130893wib.2.2015.05.07.06.39.07
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 07 May 2015 06:39:07 -0700 (PDT)
-Received: by mail-wi0-f173.google.com with SMTP id k4so243068635wiz.1
-        for <rtc-linux@googlegroups.com>; Thu, 07 May 2015 06:39:07 -0700 (PDT)
-From: Lee Jones <lee.jones@linaro.org>
-To: linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org
-Cc: kernel@stlinux.com,
-	devicetree@vger.kernel.org,
-	daniel.lezcano@linaro.org,
-	tglx@linutronix.de,
-	wim@iguana.be,
-	a.zummo@towertech.it,
-	linux-watchdog@vger.kernel.org,
-	rtc-linux@googlegroups.com,
-	linux@roeck-us.net,
-	Lee Jones <lee.jones@linaro.org>
-Subject: [rtc-linux] [PATCH 10/12] ARM: STi: DT: STih407: Switch LPC mode from
- RTC to Clocksource
-Date: Thu,  7 May 2015 14:38:42 +0100
-Message-Id: <1431005924-21777-11-git-send-email-lee.jones@linaro.org>
-In-Reply-To: <1431005924-21777-1-git-send-email-lee.jones@linaro.org>
-References: <1431005924-21777-1-git-send-email-lee.jones@linaro.org>
+Received: from m50-111.126.com ([123.125.50.111])
+        by gmr-mx.google.com with ESMTP id k3si186088igf.1.2015.05.29.07.47.43
+        for <rtc-linux@googlegroups.com>;
+        Fri, 29 May 2015 07:47:48 -0700 (PDT)
+From: Xunlei Pang <xlpang@126.com>
+To: linux-kernel@vger.kernel.org
+Cc: rtc-linux@googlegroups.com,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	John Stultz <john.stultz@linaro.org>,
+	Arnd Bergmann <arnd@arndb.de>,
+	"David S. Miller" <davem@davemloft.net>,
+	sparclinux@vger.kernel.org,
+	linux-cris-kernel@axis.com,
+	Mikael Starvik <starvik@axis.com>,
+	Jesper Nilsson <jesper.nilsson@axis.com>,
+	Xunlei Pang <pang.xunlei@linaro.org>
+Subject: [rtc-linux] [PATCH v2 4/4] cris: time: Cleanup of persistent clock stuff
+Date: Fri, 29 May 2015 22:46:18 +0800
+Message-Id: <1432910778-314-4-git-send-email-xlpang@126.com>
+In-Reply-To: <1432910778-314-1-git-send-email-xlpang@126.com>
+References: <1432910778-314-1-git-send-email-xlpang@126.com>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -37,28 +32,68 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-This aligns with the internal configuration.
+From: Xunlei Pang <pang.xunlei@linaro.org>
 
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
+- Remove update_persistent_clock(), as it does nothing now.
+- Remove read_persistent_clock(), let it fall back to the weak version.
+
+Signed-off-by: Xunlei Pang <pang.xunlei@linaro.org>
 ---
- arch/arm/boot/dts/stih407-family.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/cris/Kconfig       |  1 -
+ arch/cris/kernel/time.c | 25 -------------------------
+ 2 files changed, 26 deletions(-)
 
-diff --git a/arch/arm/boot/dts/stih407-family.dtsi b/arch/arm/boot/dts/stih407-family.dtsi
-index 2b2315d..bf1c7f5 100644
---- a/arch/arm/boot/dts/stih407-family.dtsi
-+++ b/arch/arm/boot/dts/stih407-family.dtsi
-@@ -354,7 +354,7 @@
- 			reg = <0x8788000 0x1000>;
- 			interrupts = <GIC_SPI 130 IRQ_TYPE_EDGE_RISING>;
- 			clocks = <&clk_s_d3_flexgen CLK_LPC_1>;
--			st,lpc-mode = <ST_LPC_MODE_RTC>;
-+			st,lpc-mode = <ST_LPC_MODE_CLKSRC>;
- 		};
- 	};
- };
+diff --git a/arch/cris/Kconfig b/arch/cris/Kconfig
+index 0314e32..982d562 100644
+--- a/arch/cris/Kconfig
++++ b/arch/cris/Kconfig
+@@ -46,7 +46,6 @@ config CRIS
+ 	select ARCH_WANT_IPC_PARSE_VERSION
+ 	select GENERIC_IRQ_SHOW
+ 	select GENERIC_IOMAP
+-	select GENERIC_CMOS_UPDATE
+ 	select MODULES_USE_ELF_RELA
+ 	select CLONE_BACKWARDS2
+ 	select OLD_SIGSUSPEND
+diff --git a/arch/cris/kernel/time.c b/arch/cris/kernel/time.c
+index 7780d37..2dda6da 100644
+--- a/arch/cris/kernel/time.c
++++ b/arch/cris/kernel/time.c
+@@ -39,31 +39,6 @@
+ extern unsigned long loops_per_jiffy; /* init/main.c */
+ unsigned long loops_per_usec;
+ 
+-int set_rtc_mmss(unsigned long nowtime)
+-{
+-	D(printk(KERN_DEBUG "set_rtc_mmss(%lu)\n", nowtime));
+-	return 0;
+-}
+-
+-/* grab the time from the RTC chip */
+-unsigned long get_cmos_time(void)
+-{
+-	return 0;
+-}
+-
+-
+-int update_persistent_clock(struct timespec now)
+-{
+-	return set_rtc_mmss(now.tv_sec);
+-}
+-
+-void read_persistent_clock(struct timespec *ts)
+-{
+-	ts->tv_sec = 0;
+-	ts->tv_nsec = 0;
+-}
+-
+-
+ extern void cris_profile_sample(struct pt_regs* regs);
+ 
+ void
 -- 
 1.9.1
+
 
 -- 
 -- 
