@@ -1,27 +1,29 @@
-Return-Path: <rtc-linux+bncBCV3TM5A74DRB7UJROVQKGQE6Q5D3YI@googlegroups.com>
-Received: from mail-pd0-f176.google.com (mail-pd0-f176.google.com. [209.85.192.176])
-        by gmr-mx.google.com with ESMTPS id xv6si993726pab.2.2015.05.24.23.45.18
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sun, 24 May 2015 23:45:18 -0700 (PDT)
-Received: by pdbqa5 with SMTP id qa5so63763401pdb.0
-        for <rtc-linux@googlegroups.com>; Sun, 24 May 2015 23:45:18 -0700 (PDT)
-Date: Mon, 25 May 2015 14:44:28 +0800
-From: Shawn Guo <shawn.guo@linaro.org>
-To: Frank.Li@freescale.com
-Cc: lznuaa@gmail.com, dmitry.torokhov@gmail.com, robh+dt@kernel.org,
-	alexandre.belloni@free-electrons.com, linux@arm.linux.org.uk,
-	linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org,
-	rtc-linux@googlegroups.com, devicetree@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH v4 1/6] rtc: arm: imx: snvs: change use syscon
- to access register
-Message-ID: <20150525064427.GG3264@dragon>
-References: <1432305399-30571-1-git-send-email-Frank.Li@freescale.com>
- <1432305399-30571-2-git-send-email-Frank.Li@freescale.com>
+Return-Path: <rtc-linux+bncBCN6JTVP2IEBBIPYUGVQKGQEOD7BNUQ@googlegroups.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1432305399-30571-2-git-send-email-Frank.Li@freescale.com>
+Received: from m50-111.126.com (m50-111.126.com. [123.125.50.111])
+        by gmr-mx.google.com with ESMTP id ax9si174657igc.1.2015.05.29.07.47.55
+        for <rtc-linux@googlegroups.com>;
+        Fri, 29 May 2015 07:48:01 -0700 (PDT)
+From: Xunlei Pang <xlpang@126.com>
+To: linux-kernel@vger.kernel.org
+Cc: rtc-linux@googlegroups.com,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	John Stultz <john.stultz@linaro.org>,
+	Arnd Bergmann <arnd@arndb.de>,
+	"David S. Miller" <davem@davemloft.net>,
+	sparclinux@vger.kernel.org,
+	linux-cris-kernel@axis.com,
+	Mikael Starvik <starvik@axis.com>,
+	Jesper Nilsson <jesper.nilsson@axis.com>,
+	Xunlei Pang <pang.xunlei@linaro.org>
+Subject: [rtc-linux] [PATCH v2 2/4] sparc: time: Replace update_persistent_clock()
+ with CONFIG_RTC_SYSTOHC
+Date: Fri, 29 May 2015 22:46:16 +0800
+Message-Id: <1432910778-314-2-git-send-email-xlpang@126.com>
+In-Reply-To: <1432910778-314-1-git-send-email-xlpang@126.com>
+References: <1432910778-314-1-git-send-email-xlpang@126.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -31,75 +33,126 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On Fri, May 22, 2015 at 10:36:34PM +0800, Frank.Li@freescale.com wrote:
->  static int snvs_rtc_probe(struct platform_device *pdev)
->  {
->  	struct snvs_rtc_data *data;
->  	struct resource *res;
->  	int ret;
-> +	struct device_node *snvs_np;
-> +	void __iomem *mmio;
->  
->  	data = devm_kzalloc(&pdev->dev, sizeof(*data), GFP_KERNEL);
->  	if (!data)
->  		return -ENOMEM;
->  
-> -	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-> -	data->ioaddr = devm_ioremap_resource(&pdev->dev, res);
-> -	if (IS_ERR(data->ioaddr))
-> -		return PTR_ERR(data->ioaddr);
-> +	snvs_np = of_get_parent(pdev->dev.of_node);
-> +	if (!snvs_np)
-> +		return -ENODEV;
-> +
-> +	if (of_device_is_compatible(snvs_np, "syscon")) {
-> +		data->regmap = syscon_node_to_regmap(snvs_np);
-> +		data->offset = 0x34;
+From: Xunlei Pang <pang.xunlei@linaro.org>
 
-As I commented on dts patch, we should probably follow syscon-poweroff
-to have 'regmap' and 'offset' properties.
+On Sparc systems, update_persistent_clock() uses RTC drivers to do
+the job, it makes more sense to hand it over to CONFIG_RTC_SYSTOHC.
 
-Shawn
+In the long run, all the update_persistent_clock() should migrate to
+proper class RTC drivers if any and use CONFIG_RTC_SYSTOHC instead.
 
-> +	} else {
-> +		pr_warn("snvs rtc: you use old dts file, please update it\n");
-> +		res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-> +
-> +		mmio = devm_ioremap_resource(&pdev->dev, res);
-> +		if (IS_ERR(mmio))
-> +			return PTR_ERR(mmio);
-> +
-> +		data->regmap = devm_regmap_init_mmio(&pdev->dev, mmio, &snvs_rtc_config);
-> +	}
-> +
-> +	of_node_put(snvs_np);
-> +
-> +	if (!data->regmap) {
-> +		pr_err("Can't snvs syscon\n");
-> +		return -ENODEV;
-> +	}
->  
->  	data->irq = platform_get_irq(pdev, 0);
->  	if (data->irq < 0)
-> @@ -276,13 +282,11 @@ static int snvs_rtc_probe(struct platform_device *pdev)
->  
->  	platform_set_drvdata(pdev, data);
->  
-> -	spin_lock_init(&data->lock);
-> -
->  	/* Initialize glitch detect */
-> -	writel(SNVS_LPPGDR_INIT, data->ioaddr + SNVS_LPPGDR);
-> +	regmap_write(data->regmap, data->offset + SNVS_LPPGDR, SNVS_LPPGDR_INIT);
->  
->  	/* Clear interrupt status */
-> -	writel(0xffffffff, data->ioaddr + SNVS_LPSR);
-> +	regmap_write(data->regmap, data->offset + SNVS_LPSR, 0xffffffff);
->  
->  	/* Enable RTC */
->  	snvs_rtc_enable(data, true);
-> -- 
-> 1.9.1
-> 
+Signed-off-by: Xunlei Pang <pang.xunlei@linaro.org>
+---
+ arch/sparc/Kconfig          |  2 +-
+ arch/sparc/kernel/time_32.c | 21 ---------------------
+ arch/sparc/kernel/time_64.c | 14 --------------
+ 3 files changed, 1 insertion(+), 36 deletions(-)
+
+diff --git a/arch/sparc/Kconfig b/arch/sparc/Kconfig
+index e49502a..56442d2 100644
+--- a/arch/sparc/Kconfig
++++ b/arch/sparc/Kconfig
+@@ -25,6 +25,7 @@ config SPARC
+ 	select ARCH_HAS_ATOMIC64_DEC_IF_POSITIVE
+ 	select RTC_CLASS
+ 	select RTC_DRV_M48T59
++	select RTC_SYSTOHC
+ 	select HAVE_DMA_ATTRS
+ 	select HAVE_DMA_API_DEBUG
+ 	select HAVE_ARCH_JUMP_LABEL if SPARC64
+@@ -35,7 +36,6 @@ config SPARC
+ 	select HAVE_BPF_JIT
+ 	select HAVE_DEBUG_BUGVERBOSE
+ 	select GENERIC_SMP_IDLE_THREAD
+-	select GENERIC_CMOS_UPDATE
+ 	select GENERIC_CLOCKEVENTS
+ 	select GENERIC_STRNCPY_FROM_USER
+ 	select GENERIC_STRNLEN_USER
+diff --git a/arch/sparc/kernel/time_32.c b/arch/sparc/kernel/time_32.c
+index 8caf45e..c9692f3 100644
+--- a/arch/sparc/kernel/time_32.c
++++ b/arch/sparc/kernel/time_32.c
+@@ -23,7 +23,6 @@
+ #include <linux/mm.h>
+ #include <linux/interrupt.h>
+ #include <linux/time.h>
+-#include <linux/rtc.h>
+ #include <linux/rtc/m48t59.h>
+ #include <linux/timex.h>
+ #include <linux/clocksource.h>
+@@ -65,8 +64,6 @@ DEFINE_PER_CPU(struct clock_event_device, sparc32_clockevent);
+ DEFINE_SPINLOCK(rtc_lock);
+ EXPORT_SYMBOL(rtc_lock);
+ 
+-static int set_rtc_mmss(unsigned long);
+-
+ unsigned long profile_pc(struct pt_regs *regs)
+ {
+ 	extern char __copy_user_begin[], __copy_user_end[];
+@@ -87,11 +84,6 @@ EXPORT_SYMBOL(profile_pc);
+ 
+ volatile u32 __iomem *master_l10_counter;
+ 
+-int update_persistent_clock(struct timespec now)
+-{
+-	return set_rtc_mmss(now.tv_sec);
+-}
+-
+ irqreturn_t notrace timer_interrupt(int dummy, void *dev_id)
+ {
+ 	if (timer_cs_enabled) {
+@@ -362,16 +354,3 @@ void __init time_init(void)
+ 		sbus_time_init();
+ }
+ 
+-
+-static int set_rtc_mmss(unsigned long secs)
+-{
+-	struct rtc_device *rtc = rtc_class_open("rtc0");
+-	int err = -1;
+-
+-	if (rtc) {
+-		err = rtc_set_mmss(rtc, secs);
+-		rtc_class_close(rtc);
+-	}
+-
+-	return err;
+-}
+diff --git a/arch/sparc/kernel/time_64.c b/arch/sparc/kernel/time_64.c
+index edbbeb1..2e6035c 100644
+--- a/arch/sparc/kernel/time_64.c
++++ b/arch/sparc/kernel/time_64.c
+@@ -28,7 +28,6 @@
+ #include <linux/cpufreq.h>
+ #include <linux/percpu.h>
+ #include <linux/miscdevice.h>
+-#include <linux/rtc.h>
+ #include <linux/rtc/m48t59.h>
+ #include <linux/kernel_stat.h>
+ #include <linux/clockchips.h>
+@@ -394,19 +393,6 @@ static struct sparc64_tick_ops hbtick_operations __read_mostly = {
+ 
+ static unsigned long timer_ticks_per_nsec_quotient __read_mostly;
+ 
+-int update_persistent_clock(struct timespec now)
+-{
+-	struct rtc_device *rtc = rtc_class_open("rtc0");
+-	int err = -1;
+-
+-	if (rtc) {
+-		err = rtc_set_mmss(rtc, now.tv_sec);
+-		rtc_class_close(rtc);
+-	}
+-
+-	return err;
+-}
+-
+ unsigned long cmos_regs;
+ EXPORT_SYMBOL(cmos_regs);
+ 
+-- 
+1.9.1
+
 
 -- 
 -- 
