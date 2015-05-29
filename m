@@ -1,22 +1,31 @@
-Return-Path: <rtc-linux+bncBDMYB2E7SQCRBIGS2OVAKGQEBDNUULQ@googlegroups.com>
-Received: from na01-bn1-obe.outbound.protection.outlook.com (mail-bn1on0148.outbound.protection.outlook.com. [157.56.110.148])
-        by gmr-mx.google.com with ESMTPS id ye6si2663433pbc.2.2015.05.14.11.27.43
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
-        Thu, 14 May 2015 11:27:43 -0700 (PDT)
-From: <Frank.Li@freescale.com>
-To: <lznuaa@gmail.com>, <shawn.guo@linaro.org>, <dmitry.torokhov@gmail.com>,
-	<robh+dt@kernel.org>
-CC: <linux-arm-kernel@lists.infradead.org>, <linux-input@vger.kernel.org>,
-	<rtc-linux@googlegroups.com>, <linux-pm@vger.kernel.org>,
-	<devicetree@vger.kernel.org>, Frank Li <Frank.Li@freescale.com>
-Subject: [rtc-linux] [PATCH 0/7] Change snvs rtc and poweroff to use syscon
- add pwrkey driver
-Date: Fri, 15 May 2015 01:18:46 +0800
-Message-ID: <1431623933-3473-1-git-send-email-Frank.Li@freescale.com>
+Return-Path: <rtc-linux+bncBCMNZUWXYYORBBWNUOVQKGQEPIQSY7Q@googlegroups.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Received: from mail-pd0-f174.google.com (mail-pd0-f174.google.com. [209.85.192.174])
+        by gmr-mx.google.com with ESMTPS id xz5si733492pac.1.2015.05.29.15.21.58
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Fri, 29 May 2015 15:21:58 -0700 (PDT)
+Received: by mail-pd0-f174.google.com with SMTP id qa5so62989784pdb.0
+        for <rtc-linux@googlegroups.com>; Fri, 29 May 2015 15:21:58 -0700 (PDT)
+From: Vaibhav Hiremath <vaibhav.hiremath@linaro.org>
+To: linux-arm-kernel@lists.infradead.org
+Cc: robh+dt@kernel.org,
+	devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	rtc-linux@googlegroups.com,
+	sameo@linux.intel.com,
+	lee.jones@linaro.org,
+	a.zummo@towertech.it,
+	alexandre.belloni@free-electrons.com,
+	Vaibhav Hiremath <vaibhav.hiremath@linaro.org>,
+	Chao Xie <chao.xie@marvell.com>
+Subject: [rtc-linux] [PATCH 3/4] rtc: 88pm80x: add device tree support
+Date: Sat, 30 May 2015 03:49:21 +0530
+Message-Id: <1432937962-4537-4-git-send-email-vaibhav.hiremath@linaro.org>
+In-Reply-To: <1432937962-4537-1-git-send-email-vaibhav.hiremath@linaro.org>
+References: <1432937962-4537-1-git-send-email-vaibhav.hiremath@linaro.org>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -26,51 +35,66 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-From: Frank Li <Frank.Li@freescale.com>
+Along with DT support, this patch also cleans up the unnecessary
+code around 'rtc_wakeup' initialization.
 
-SNVS is MPF module.
-include rtc, power off, ON/OFF power key
-  
-  arm: imx: power-off: change to syscon to access register
-  rtc: arm: imx: snvs: change use syscon to access register
-Above two patch change existed power-off and rtc use syscon
+Signed-off-by: Chao Xie <chao.xie@marvell.com>
+Signed-off-by: Vaibhav Hiremath <vaibhav.hiremath@linaro.org>
+---
+ drivers/rtc/rtc-88pm80x.c | 28 +++++++++++++++++-----------
+ 1 file changed, 17 insertions(+), 11 deletions(-)
 
-  Document: dt: fsl: snvs: change support syscon
-  arm: dts: imx: update snvs to use syscon access register
-Update dt file and document
-
-  input: keyboard: imx: add snvs power key driver
-  document: devicetree: input: imx: i.mx snvs power device tree bindings
-  arm: dts: imx6sx: enable snvs power key
-Added on/off key driver
-
-Frank Li (6):
-  arm: imx: power-off: change to syscon to access register
-  rtc: arm: imx: snvs: change use syscon to access register
-  Document: dt: fsl: snvs: change support syscon
-  arm: dts: imx: update snvs to use syscon access register
-  document: devicetree: input: imx: i.mx snvs power device tree bindings
-  arm: dts: imx6sx: enable snvs power key
-
-Robin Gong (1):
-  input: keyboard: imx: add snvs power key driver
-
- .../devicetree/bindings/crypto/fsl-sec4.txt        |  93 +++++++--
- .../devicetree/bindings/input/snvs-pwrkey.txt      |   1 +
- .../bindings/power_supply/imx-snvs-poweroff.txt    |  24 +--
- arch/arm/boot/dts/imx6qdl.dtsi                     |  12 +-
- arch/arm/boot/dts/imx6sl.dtsi                      |  12 +-
- arch/arm/boot/dts/imx6sx.dtsi                      |  19 +-
- arch/arm/boot/dts/vfxxx.dtsi                       |   9 +-
- drivers/input/keyboard/Kconfig                     |  11 +
- drivers/input/keyboard/Makefile                    |   1 +
- drivers/input/keyboard/snvs_pwrkey.c               | 232 +++++++++++++++++++++
- drivers/power/reset/imx-snvs-poweroff.c            |  21 +-
- drivers/rtc/rtc-snvs.c                             | 124 +++++------
- 12 files changed, 417 insertions(+), 142 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/input/snvs-pwrkey.txt
- create mode 100644 drivers/input/keyboard/snvs_pwrkey.c
-
+diff --git a/drivers/rtc/rtc-88pm80x.c b/drivers/rtc/rtc-88pm80x.c
+index 7df0579..8f66519 100644
+--- a/drivers/rtc/rtc-88pm80x.c
++++ b/drivers/rtc/rtc-88pm80x.c
+@@ -251,17 +251,26 @@ static SIMPLE_DEV_PM_OPS(pm80x_rtc_pm_ops, pm80x_rtc_suspend, pm80x_rtc_resume);
+ static int pm80x_rtc_probe(struct platform_device *pdev)
+ {
+ 	struct pm80x_chip *chip = dev_get_drvdata(pdev->dev.parent);
+-	struct pm80x_platform_data *pm80x_pdata =
+-				dev_get_platdata(pdev->dev.parent);
+-	struct pm80x_rtc_pdata *pdata = NULL;
++	struct pm80x_rtc_pdata *pdata = dev_get_platdata(&pdev->dev);
+ 	struct pm80x_rtc_info *info;
++	struct device_node *node = pdev->dev.of_node;
+ 	struct rtc_time tm;
+ 	unsigned long ticks = 0;
+ 	int ret;
+ 
+-	pdata = dev_get_platdata(&pdev->dev);
+-	if (pdata == NULL)
+-		dev_warn(&pdev->dev, "No platform data!\n");
++	if (!pdata && !node) {
++		dev_err(&pdev->dev,
++			"pm80x-rtc requires platform data or of_node\n");
++		return -EINVAL;
++	}
++
++	if (!pdata) {
++		pdata = devm_kzalloc(&pdev->dev, sizeof(*pdata), GFP_KERNEL);
++		if (!pdata) {
++			dev_err(&pdev->dev, "failed to allocate memory\n");
++			return -ENOMEM;
++		}
++	}
+ 
+ 	info =
+ 	    devm_kzalloc(&pdev->dev, sizeof(struct pm80x_rtc_info), GFP_KERNEL);
+@@ -327,11 +336,8 @@ static int pm80x_rtc_probe(struct platform_device *pdev)
+ 	regmap_update_bits(info->map, PM800_RTC_CONTROL, PM800_RTC1_USE_XO,
+ 			   PM800_RTC1_USE_XO);
+ 
+-	if (pm80x_pdata) {
+-		pdata = pm80x_pdata->rtc;
+-		if (pdata)
+-			info->rtc_dev->dev.platform_data = &pdata->rtc_wakeup;
+-	}
++	/* remeber whether this power up is caused by PMIC RTC or not */
++	info->rtc_dev->dev.platform_data = &pdata->rtc_wakeup;
+ 
+ 	device_init_wakeup(&pdev->dev, 1);
+ 
 -- 
 1.9.1
 
