@@ -1,37 +1,28 @@
-Return-Path: <rtc-linux+bncBCKMZDW5VIHBBVVLZWVAKGQEHJEYJNQ@googlegroups.com>
-Received: from bh-25.webhostbox.net (bh-25.webhostbox.net. [208.91.199.152])
-        by gmr-mx.google.com with ESMTPS id f17si479440igt.0.2015.05.13.06.47.01
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1 cipher=RC4-SHA bits=128/128);
-        Wed, 13 May 2015 06:47:01 -0700 (PDT)
-Message-ID: <555355C1.9090907@roeck-us.net>
-Date: Wed, 13 May 2015 06:46:41 -0700
-From: Guenter Roeck <linux@roeck-us.net>
+Return-Path: <rtc-linux+bncBCN6JTVP2IEBBEHYUGVQKGQETX3TK7I@googlegroups.com>
 MIME-Version: 1.0
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-CC: "Opensource [Steve Twiss]" <stwiss.opensource@diasemi.com>,
- Alessandro Zummo <a.zummo@towertech.it>,
- LINUXKERNEL <linux-kernel@vger.kernel.org>,
- RTCLINUX <rtc-linux@googlegroups.com>,
- DEVICETREE <devicetree@vger.kernel.org>,
- David Dajun Chen <david.chen@diasemi.com>,
- Dmitry Torokhov <dmitry.torokhov@gmail.com>,
- Ian Campbell <ijc+devicetree@hellion.org.uk>,
- Kumar Gala <galak@codeaurora.org>,
- LINUXINPUT <linux-input@vger.kernel.org>,
- LINUXWATCHDOG <linux-watchdog@vger.kernel.org>,
- Lee Jones <lee.jones@linaro.org>,
- Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>,
- Mark Rutland <mark.rutland@arm.com>,
- Pawel Moll <pawel.moll@arm.com>, Rob Herring <robh+dt@kernel.org>,
- Samuel Ortiz <sameo@linux.intel.com>,
- Support Opensource <Support.Opensource@diasemi.com>,
- Wim Van Sebroeck <wim@iguana.be>
-Subject: Re: [rtc-linux] [PATCH V1 3/6] rtc: da9062: DA9062 RTC driver
-References: <cover.1429280614.git.stwiss.opensource@diasemi.com> <860a3b6dc7f8dac95c0e36967f24551af8805f7b.1429280614.git.stwiss.opensource@diasemi.com> <20150510095838.GF3338@piout.net> <6ED8E3B22081A4459DAC7699F3695FB7014B22A3F3@SW-EX-MBX02.diasemi.com> <20150513125858.GX3338@piout.net> <55534BEF.7020409@roeck-us.net> <20150513133741.GY3338@piout.net>
-In-Reply-To: <20150513133741.GY3338@piout.net>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Received: from m50-111.126.com (m50-111.126.com. [123.125.50.111])
+        by gmr-mx.google.com with ESMTP id qr9si232910igb.0.2015.05.29.07.47.42
+        for <rtc-linux@googlegroups.com>;
+        Fri, 29 May 2015 07:47:44 -0700 (PDT)
+From: Xunlei Pang <xlpang@126.com>
+To: linux-kernel@vger.kernel.org
+Cc: rtc-linux@googlegroups.com,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	John Stultz <john.stultz@linaro.org>,
+	Arnd Bergmann <arnd@arndb.de>,
+	"David S. Miller" <davem@davemloft.net>,
+	sparclinux@vger.kernel.org,
+	linux-cris-kernel@axis.com,
+	Mikael Starvik <starvik@axis.com>,
+	Jesper Nilsson <jesper.nilsson@axis.com>,
+	Xunlei Pang <pang.xunlei@linaro.org>
+Subject: [rtc-linux] [PATCH v2 3/4] drivers/rtc/interface.c: Remove rtc_set_mmss()
+Date: Fri, 29 May 2015 22:46:17 +0800
+Message-Id: <1432910778-314-3-git-send-email-xlpang@126.com>
+In-Reply-To: <1432910778-314-1-git-send-email-xlpang@126.com>
+References: <1432910778-314-1-git-send-email-xlpang@126.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -41,38 +32,89 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On 05/13/2015 06:37 AM, Alexandre Belloni wrote:
-> On 13/05/2015 at 06:04:47 -0700, Guenter Roeck wrote :
->> Don't know how this is handled for rtc drivers, but in other subsystems
->> we just live with the original name. I don't see a need to rename a driver
->> just because it starts supporting more hardware, and xxx is weird anyway
->> since it suggests everything from 000 to 999, which is much worse than
->> just sticking with 9063.
->>
->
-> Yes, in particular if at some point in time a new IP matching those xxx
-> is completely different from the previous one. I'm not fond of renaming
-> the driver either but if diasemi thinks that what they want, I'm open to
-> let it happen. But clearly, I don't want to end up in a situation like
-> the tlv320aic where you don't know which driver correspond to which
-> chip:
->
-> sound/soc/codecs/tlv320aic31xx.c
-> sound/soc/codecs/tlv320aic31xx.h
-> sound/soc/codecs/tlv320aic32x4.c
-> sound/soc/codecs/tlv320aic32x4.h
-> sound/soc/codecs/tlv320aic3x.c
-> sound/soc/codecs/tlv320aic3x.h
-> sound/soc/codecs/tlv320dac33.c
-> sound/soc/codecs/tlv320dac33.h
->
-> Go figure that the tlv320aic3104 can be supported by both tlv320aic3x.c
-> and tlv320aic32x4.c but not tlv320aic31xx.c...
->
+From: Xunlei Pang <pang.xunlei@linaro.org>
 
-Unfortunately that is exactly what is going to happen.
+Now rtc_set_mmss() has no users, just remove it.
 
-Guenter
+We still have rtc_set_time() doing similar things.
+
+Signed-off-by: Xunlei Pang <pang.xunlei@linaro.org>
+---
+ drivers/rtc/interface.c | 45 ---------------------------------------------
+ include/linux/rtc.h     |  1 -
+ 2 files changed, 46 deletions(-)
+
+diff --git a/drivers/rtc/interface.c b/drivers/rtc/interface.c
+index 166fc60..b511aa1 100644
+--- a/drivers/rtc/interface.c
++++ b/drivers/rtc/interface.c
+@@ -91,51 +91,6 @@ int rtc_set_time(struct rtc_device *rtc, struct rtc_time *tm)
+ }
+ EXPORT_SYMBOL_GPL(rtc_set_time);
+ 
+-int rtc_set_mmss(struct rtc_device *rtc, unsigned long secs)
+-{
+-	int err;
+-
+-	err = mutex_lock_interruptible(&rtc->ops_lock);
+-	if (err)
+-		return err;
+-
+-	if (!rtc->ops)
+-		err = -ENODEV;
+-	else if (rtc->ops->set_mmss64)
+-		err = rtc->ops->set_mmss64(rtc->dev.parent, secs);
+-	else if (rtc->ops->set_mmss)
+-		err = rtc->ops->set_mmss(rtc->dev.parent, secs);
+-	else if (rtc->ops->read_time && rtc->ops->set_time) {
+-		struct rtc_time new, old;
+-
+-		err = rtc->ops->read_time(rtc->dev.parent, &old);
+-		if (err == 0) {
+-			rtc_time64_to_tm(secs, &new);
+-
+-			/*
+-			 * avoid writing when we're going to change the day of
+-			 * the month. We will retry in the next minute. This
+-			 * basically means that if the RTC must not drift
+-			 * by more than 1 minute in 11 minutes.
+-			 */
+-			if (!((old.tm_hour == 23 && old.tm_min == 59) ||
+-				(new.tm_hour == 23 && new.tm_min == 59)))
+-				err = rtc->ops->set_time(rtc->dev.parent,
+-						&new);
+-		}
+-	} else {
+-		err = -EINVAL;
+-	}
+-
+-	pm_stay_awake(rtc->dev.parent);
+-	mutex_unlock(&rtc->ops_lock);
+-	/* A timer might have just expired */
+-	schedule_work(&rtc->irqwork);
+-
+-	return err;
+-}
+-EXPORT_SYMBOL_GPL(rtc_set_mmss);
+-
+ static int rtc_read_alarm_internal(struct rtc_device *rtc, struct rtc_wkalrm *alarm)
+ {
+ 	int err;
+diff --git a/include/linux/rtc.h b/include/linux/rtc.h
+index 8dcf682..e8f2c3c 100644
+--- a/include/linux/rtc.h
++++ b/include/linux/rtc.h
+@@ -161,7 +161,6 @@ extern void devm_rtc_device_unregister(struct device *dev,
+ 
+ extern int rtc_read_time(struct rtc_device *rtc, struct rtc_time *tm);
+ extern int rtc_set_time(struct rtc_device *rtc, struct rtc_time *tm);
+-extern int rtc_set_mmss(struct rtc_device *rtc, unsigned long secs);
+ extern int rtc_set_ntp_time(struct timespec64 now);
+ int __rtc_read_alarm(struct rtc_device *rtc, struct rtc_wkalrm *alarm);
+ extern int rtc_read_alarm(struct rtc_device *rtc,
+-- 
+1.9.1
+
 
 -- 
 -- 
