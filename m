@@ -1,24 +1,31 @@
-Return-Path: <rtc-linux+bncBDMYB2E7SQCRBIOS2OVAKGQEFICNNUQ@googlegroups.com>
-Received: from na01-bn1-obe.outbound.protection.outlook.com (mail-bn1bn0106.outbound.protection.outlook.com. [157.56.110.106])
-        by gmr-mx.google.com with ESMTPS id xv6si2658336pab.2.2015.05.14.11.27.45
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
-        Thu, 14 May 2015 11:27:45 -0700 (PDT)
-From: <Frank.Li@freescale.com>
-To: <lznuaa@gmail.com>, <shawn.guo@linaro.org>, <dmitry.torokhov@gmail.com>,
-	<robh+dt@kernel.org>
-CC: <linux-arm-kernel@lists.infradead.org>, <linux-input@vger.kernel.org>,
-	<rtc-linux@googlegroups.com>, <linux-pm@vger.kernel.org>,
-	<devicetree@vger.kernel.org>, Frank Li <Frank.Li@freescale.com>
-Subject: [rtc-linux] [PATCH 2/7] rtc: arm: imx: snvs: change use syscon to
- access register
-Date: Fri, 15 May 2015 01:18:48 +0800
-Message-ID: <1431623933-3473-3-git-send-email-Frank.Li@freescale.com>
-In-Reply-To: <1431623933-3473-1-git-send-email-Frank.Li@freescale.com>
-References: <1431623933-3473-1-git-send-email-Frank.Li@freescale.com>
+Return-Path: <rtc-linux+bncBCMNZUWXYYORB7GMUOVQKGQEQBHPN2Q@googlegroups.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Received: from mail-pd0-f176.google.com (mail-pd0-f176.google.com. [209.85.192.176])
+        by gmr-mx.google.com with ESMTPS id ei3si737191pdb.1.2015.05.29.15.21.48
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Fri, 29 May 2015 15:21:48 -0700 (PDT)
+Received: by pdbki1 with SMTP id ki1so63010585pdb.1
+        for <rtc-linux@googlegroups.com>; Fri, 29 May 2015 15:21:48 -0700 (PDT)
+From: Vaibhav Hiremath <vaibhav.hiremath@linaro.org>
+To: linux-arm-kernel@lists.infradead.org
+Cc: robh+dt@kernel.org,
+	devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	rtc-linux@googlegroups.com,
+	sameo@linux.intel.com,
+	lee.jones@linaro.org,
+	a.zummo@towertech.it,
+	alexandre.belloni@free-electrons.com,
+	Vaibhav Hiremath <vaibhav.hiremath@linaro.org>,
+	Chao Xie <chao.xie@marvell.com>
+Subject: [rtc-linux] [PATCH 1/4] mfd: 88pm800: add device tree support
+Date: Sat, 30 May 2015 03:49:19 +0530
+Message-Id: <1432937962-4537-2-git-send-email-vaibhav.hiremath@linaro.org>
+In-Reply-To: <1432937962-4537-1-git-send-email-vaibhav.hiremath@linaro.org>
+References: <1432937962-4537-1-git-send-email-vaibhav.hiremath@linaro.org>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -28,281 +35,184 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-From: Frank Li <Frank.Li@freescale.com>
+Add DT support to the 88pm800 driver along with below properties
+	- marvell,88pm800-irq-write-clear :
+	  Idicates whether interrupt status is cleared by write
 
-snvs included rtc, on/off key, power-off module
-change to syscon to access register
+Also, creates the DT binding text file,
+Documentation/devicetree/bindings/mfd/88pm800.txt
 
-Signed-off-by: Frank Li <Frank.Li@freescale.com>
+Signed-off-by: Chao Xie <chao.xie@marvell.com>
+Signed-off-by: Vaibhav Hiremath <vaibhav.hiremath@linaro.org>
 ---
- drivers/rtc/rtc-snvs.c | 124 +++++++++++++++++++++----------------------------
- 1 file changed, 54 insertions(+), 70 deletions(-)
+ Documentation/devicetree/bindings/mfd/88pm800.txt | 57 +++++++++++++++++++++++
+ drivers/mfd/88pm800.c                             | 39 ++++++++++++++++
+ 2 files changed, 96 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/mfd/88pm800.txt
 
-diff --git a/drivers/rtc/rtc-snvs.c b/drivers/rtc/rtc-snvs.c
-index 0479e80..4e85fbe 100644
---- a/drivers/rtc/rtc-snvs.c
-+++ b/drivers/rtc/rtc-snvs.c
-@@ -18,14 +18,16 @@
- #include <linux/platform_device.h>
- #include <linux/rtc.h>
- #include <linux/clk.h>
-+#include <linux/mfd/syscon.h>
-+#include <linux/regmap.h>
+diff --git a/Documentation/devicetree/bindings/mfd/88pm800.txt b/Documentation/devicetree/bindings/mfd/88pm800.txt
+new file mode 100644
+index 0000000..094951b
+--- /dev/null
++++ b/Documentation/devicetree/bindings/mfd/88pm800.txt
+@@ -0,0 +1,57 @@
++* Marvell 88PM800 Power Management IC
++
++Required parent device properties:
++- compatible : "marvell,88pm800"
++- reg : the I2C slave address for the 88pm800 chip
++- interrupts : IRQ line for the 88pm800 chip
++- interrupt-controller: describes the 88pm800 as an interrupt controller
++- #interrupt-cells : should be 1.
++		- The cell is the 88pm800 local IRQ number
++
++Optional parent device properties:
++- marvell,88pm800-irq-write-clr: indicates whether interrupt status is cleared by write
++
++88pm800 consists of a large and varied group of sub-devices:
++
++Device			 Supply Names	 Description
++------			 ------------	 -----------
++88pm80x-onkey		:		: On key
++88pm80x-rtc		:		: RTC
++88pm80x			:		: Regulators
++
++Note: More device list will follow
++
++Example:
++
++	pmic: 88pm800@30 {
++		compatible = "marvell,88pm800";
++		reg = <0x30>;
++		interrupts = <0 77 0x4>;
++		interrupt-parent = <&gic>;
++		interrupt-controller;
++		#interrupt-cells = <1>;
++
++		marvell,88pm800-irq-write-clr;
++
++		regulators {
++			compatible = "marvell,88pm80x-regulator";
++
++			buck1a: BUCK1A {
++				regulator-compatible = "88PM800-BUCK1A";
++				regulator-min-microvolt = <600000>;
++				regulator-max-microvolt = <1800000>;
++				regulator-boot-on;
++				regulator-always-on;
++			};
++			ldo1: LDO1 {
++				regulator-compatible = "88PM800-LDO1";
++				regulator-min-microvolt = <1700000>;
++				regulator-max-microvolt = <3300000>;
++				regulator-boot-on;
++				regulator-always-on;
++			};
++		};
++		rtc {
++			compatible = "marvell,88pm80x-rtc";
++		};
++	};
+diff --git a/drivers/mfd/88pm800.c b/drivers/mfd/88pm800.c
+index 841717a..06ee058 100644
+--- a/drivers/mfd/88pm800.c
++++ b/drivers/mfd/88pm800.c
+@@ -27,6 +27,7 @@
+ #include <linux/mfd/core.h>
+ #include <linux/mfd/88pm80x.h>
+ #include <linux/slab.h>
++#include <linux/of_device.h>
  
- /* These register offsets are relative to LP (Low Power) range */
--#define SNVS_LPCR		0x04
--#define SNVS_LPSR		0x18
--#define SNVS_LPSRTCMR		0x1c
--#define SNVS_LPSRTCLR		0x20
--#define SNVS_LPTAR		0x24
--#define SNVS_LPPGDR		0x30
-+#define SNVS_LPCR		0x38
-+#define SNVS_LPSR		0x4c
-+#define SNVS_LPSRTCMR		0x50
-+#define SNVS_LPSRTCLR		0x54
-+#define SNVS_LPTAR		0x58
-+#define SNVS_LPPGDR		0x64
- 
- #define SNVS_LPCR_SRTC_ENV	(1 << 0)
- #define SNVS_LPCR_LPTA_EN	(1 << 1)
-@@ -37,31 +39,35 @@
- 
- struct snvs_rtc_data {
- 	struct rtc_device *rtc;
--	void __iomem *ioaddr;
-+	struct regmap *snvs;
- 	int irq;
- 	spinlock_t lock;
- 	struct clk *clk;
+ /* Interrupt Registers */
+ #define PM800_INT_STATUS1		(0x05)
+@@ -121,6 +122,11 @@ static const struct i2c_device_id pm80x_id_table[] = {
  };
+ MODULE_DEVICE_TABLE(i2c, pm80x_id_table);
  
--static u32 rtc_read_lp_counter(void __iomem *ioaddr)
-+static u32 rtc_read_lp_counter(struct regmap *snvs)
- {
- 	u64 read1, read2;
--
-+	u32 val;
- 	do {
--		read1 = readl(ioaddr + SNVS_LPSRTCMR);
-+		regmap_read(snvs, SNVS_LPSRTCMR, &val);
-+		read1 = val;
- 		read1 <<= 32;
--		read1 |= readl(ioaddr + SNVS_LPSRTCLR);
-+		regmap_read(snvs, SNVS_LPSRTCLR, &val);
-+		read1 |= val;
- 
--		read2 = readl(ioaddr + SNVS_LPSRTCMR);
-+		regmap_read(snvs, SNVS_LPSRTCMR, &val);
-+		read2 = val;
- 		read2 <<= 32;
--		read2 |= readl(ioaddr + SNVS_LPSRTCLR);
-+		regmap_read(snvs, SNVS_LPSRTCLR, &val);
-+		read2 |= val;
- 	} while (read1 != read2);
- 
- 	/* Convert 47-bit counter to 32-bit raw second count */
- 	return (u32) (read1 >> CNTR_TO_SECS_SH);
- }
- 
--static void rtc_write_sync_lp(void __iomem *ioaddr)
-+static void rtc_write_sync_lp(struct regmap *snvs)
- {
- 	u32 count1, count2, count3;
- 	int i;
-@@ -69,15 +75,15 @@ static void rtc_write_sync_lp(void __iomem *ioaddr)
- 	/* Wait for 3 CKIL cycles */
- 	for (i = 0; i < 3; i++) {
- 		do {
--			count1 = readl(ioaddr + SNVS_LPSRTCLR);
--			count2 = readl(ioaddr + SNVS_LPSRTCLR);
-+			regmap_read(snvs, SNVS_LPSRTCLR, &count1);
-+			regmap_read(snvs, SNVS_LPSRTCLR, &count2);
- 		} while (count1 != count2);
- 
- 		/* Now wait until counter value changes */
- 		do {
- 			do {
--				count2 = readl(ioaddr + SNVS_LPSRTCLR);
--				count3 = readl(ioaddr + SNVS_LPSRTCLR);
-+				regmap_read(snvs, SNVS_LPSRTCLR, &count2);
-+				regmap_read(snvs, SNVS_LPSRTCLR, &count3);
- 			} while (count2 != count3);
- 		} while (count3 == count1);
- 	}
-@@ -85,23 +91,14 @@ static void rtc_write_sync_lp(void __iomem *ioaddr)
- 
- static int snvs_rtc_enable(struct snvs_rtc_data *data, bool enable)
- {
--	unsigned long flags;
- 	int timeout = 1000;
- 	u32 lpcr;
- 
--	spin_lock_irqsave(&data->lock, flags);
--
--	lpcr = readl(data->ioaddr + SNVS_LPCR);
--	if (enable)
--		lpcr |= SNVS_LPCR_SRTC_ENV;
--	else
--		lpcr &= ~SNVS_LPCR_SRTC_ENV;
--	writel(lpcr, data->ioaddr + SNVS_LPCR);
--
--	spin_unlock_irqrestore(&data->lock, flags);
-+	regmap_update_bits(data->snvs, SNVS_LPCR, SNVS_LPCR_SRTC_ENV,
-+			   enable ? SNVS_LPCR_SRTC_ENV : 0);
- 
- 	while (--timeout) {
--		lpcr = readl(data->ioaddr + SNVS_LPCR);
-+		regmap_read(data->snvs, SNVS_LPCR, &lpcr);
- 
- 		if (enable) {
- 			if (lpcr & SNVS_LPCR_SRTC_ENV)
-@@ -121,7 +118,7 @@ static int snvs_rtc_enable(struct snvs_rtc_data *data, bool enable)
- static int snvs_rtc_read_time(struct device *dev, struct rtc_time *tm)
- {
- 	struct snvs_rtc_data *data = dev_get_drvdata(dev);
--	unsigned long time = rtc_read_lp_counter(data->ioaddr);
-+	unsigned long time = rtc_read_lp_counter(data->snvs);
- 
- 	rtc_time_to_tm(time, tm);
- 
-@@ -139,8 +136,8 @@ static int snvs_rtc_set_time(struct device *dev, struct rtc_time *tm)
- 	snvs_rtc_enable(data, false);
- 
- 	/* Write 32-bit time to 47-bit timer, leaving 15 LSBs blank */
--	writel(time << CNTR_TO_SECS_SH, data->ioaddr + SNVS_LPSRTCLR);
--	writel(time >> (32 - CNTR_TO_SECS_SH), data->ioaddr + SNVS_LPSRTCMR);
-+	regmap_write(data->snvs, SNVS_LPSRTCLR, time << CNTR_TO_SECS_SH);
-+	regmap_write(data->snvs, SNVS_LPSRTCMR, time >> (32 - CNTR_TO_SECS_SH));
- 
- 	/* Enable RTC again */
- 	snvs_rtc_enable(data, true);
-@@ -153,10 +150,10 @@ static int snvs_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
- 	struct snvs_rtc_data *data = dev_get_drvdata(dev);
- 	u32 lptar, lpsr;
- 
--	lptar = readl(data->ioaddr + SNVS_LPTAR);
-+	regmap_read(data->snvs, SNVS_LPTAR, &lptar);
- 	rtc_time_to_tm(lptar, &alrm->time);
- 
--	lpsr = readl(data->ioaddr + SNVS_LPSR);
-+	regmap_read(data->snvs, SNVS_LPSR, &lpsr);
- 	alrm->pending = (lpsr & SNVS_LPSR_LPTA) ? 1 : 0;
- 
- 	return 0;
-@@ -165,21 +162,11 @@ static int snvs_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
- static int snvs_rtc_alarm_irq_enable(struct device *dev, unsigned int enable)
- {
- 	struct snvs_rtc_data *data = dev_get_drvdata(dev);
--	u32 lpcr;
--	unsigned long flags;
- 
--	spin_lock_irqsave(&data->lock, flags);
-+	regmap_update_bits(data->snvs, SNVS_LPCR, (SNVS_LPCR_LPTA_EN | SNVS_LPCR_LPWUI_EN),
-+			   enable ? (SNVS_LPCR_LPTA_EN | SNVS_LPCR_LPWUI_EN) : 0);
- 
--	lpcr = readl(data->ioaddr + SNVS_LPCR);
--	if (enable)
--		lpcr |= (SNVS_LPCR_LPTA_EN | SNVS_LPCR_LPWUI_EN);
--	else
--		lpcr &= ~(SNVS_LPCR_LPTA_EN | SNVS_LPCR_LPWUI_EN);
--	writel(lpcr, data->ioaddr + SNVS_LPCR);
--
--	spin_unlock_irqrestore(&data->lock, flags);
--
--	rtc_write_sync_lp(data->ioaddr);
-+	rtc_write_sync_lp(data->snvs);
- 
- 	return 0;
- }
-@@ -189,24 +176,14 @@ static int snvs_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
- 	struct snvs_rtc_data *data = dev_get_drvdata(dev);
- 	struct rtc_time *alrm_tm = &alrm->time;
- 	unsigned long time;
--	unsigned long flags;
--	u32 lpcr;
- 
- 	rtc_tm_to_time(alrm_tm, &time);
- 
--	spin_lock_irqsave(&data->lock, flags);
--
--	/* Have to clear LPTA_EN before programming new alarm time in LPTAR */
--	lpcr = readl(data->ioaddr + SNVS_LPCR);
--	lpcr &= ~SNVS_LPCR_LPTA_EN;
--	writel(lpcr, data->ioaddr + SNVS_LPCR);
--
--	spin_unlock_irqrestore(&data->lock, flags);
--
--	writel(time, data->ioaddr + SNVS_LPTAR);
-+	regmap_update_bits(data->snvs, SNVS_LPCR, SNVS_LPCR_LPTA_EN, 0);
-+	regmap_write(data->snvs, SNVS_LPTAR, time);
- 
- 	/* Clear alarm interrupt status bit */
--	writel(SNVS_LPSR_LPTA, data->ioaddr + SNVS_LPSR);
-+	regmap_write(data->snvs, SNVS_LPSR, SNVS_LPSR_LPTA);
- 
- 	return snvs_rtc_alarm_irq_enable(dev, alrm->enabled);
- }
-@@ -226,7 +203,7 @@ static irqreturn_t snvs_rtc_irq_handler(int irq, void *dev_id)
- 	u32 lpsr;
- 	u32 events = 0;
- 
--	lpsr = readl(data->ioaddr + SNVS_LPSR);
-+	regmap_read(data->snvs, SNVS_LPSR, &lpsr);
- 
- 	if (lpsr & SNVS_LPSR_LPTA) {
- 		events |= (RTC_AF | RTC_IRQF);
-@@ -238,7 +215,7 @@ static irqreturn_t snvs_rtc_irq_handler(int irq, void *dev_id)
- 	}
- 
- 	/* clear interrupt status */
--	writel(lpsr, data->ioaddr + SNVS_LPSR);
-+	regmap_write(data->snvs, SNVS_LPSR, lpsr);
- 
- 	return events ? IRQ_HANDLED : IRQ_NONE;
- }
-@@ -246,17 +223,24 @@ static irqreturn_t snvs_rtc_irq_handler(int irq, void *dev_id)
- static int snvs_rtc_probe(struct platform_device *pdev)
- {
- 	struct snvs_rtc_data *data;
--	struct resource *res;
- 	int ret;
-+	struct device_node *snvs_np;
- 
- 	data = devm_kzalloc(&pdev->dev, sizeof(*data), GFP_KERNEL);
- 	if (!data)
- 		return -ENOMEM;
- 
--	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
--	data->ioaddr = devm_ioremap_resource(&pdev->dev, res);
--	if (IS_ERR(data->ioaddr))
--		return PTR_ERR(data->ioaddr);
-+	snvs_np = of_get_parent(pdev->dev.of_node);
-+	if (!snvs_np)
-+		return -ENODEV;
++static const struct of_device_id pm80x_of_match_table[] = {
++	{ .compatible = "marvell,88pm800", },
++	{},
++};
 +
-+	data->snvs = syscon_node_to_regmap(snvs_np);
-+	of_node_put(snvs_np);
+ static struct resource rtc_resources[] = {
+ 	{
+ 	 .name = "88pm80x-rtc",
+@@ -133,6 +139,7 @@ static struct resource rtc_resources[] = {
+ static struct mfd_cell rtc_devs[] = {
+ 	{
+ 	 .name = "88pm80x-rtc",
++	 .of_compatible = "marvell,88pm80x-rtc",
+ 	 .num_resources = ARRAY_SIZE(rtc_resources),
+ 	 .resources = &rtc_resources[0],
+ 	 .id = -1,
+@@ -151,6 +158,7 @@ static struct resource onkey_resources[] = {
+ static const struct mfd_cell onkey_devs[] = {
+ 	{
+ 	 .name = "88pm80x-onkey",
++	 .of_compatible = "marvell,88pm80x-onkey",
+ 	 .num_resources = 1,
+ 	 .resources = &onkey_resources[0],
+ 	 .id = -1,
+@@ -160,6 +168,7 @@ static const struct mfd_cell onkey_devs[] = {
+ static const struct mfd_cell regulator_devs[] = {
+ 	{
+ 	 .name = "88pm80x-regulator",
++	 .of_compatible = "marvell,88pm80x-regulator",
+ 	 .id = -1,
+ 	},
+ };
+@@ -538,14 +547,43 @@ out:
+ 	return ret;
+ }
+ 
++static int pm800_probe_dt(struct device_node *np,
++			 struct device *dev,
++			 struct pm80x_platform_data *pdata)
++{
++	pdata->irq_mode =
++		of_property_read_bool(np, "marvell,88pm800-irq-write-clear");
 +
-+	if (!data->snvs) {
-+		pr_err("Can't snvs syscon\n");
-+		return -ENODEV;
++	return 0;
++}
++
++
+ static int pm800_probe(struct i2c_client *client,
+ 				 const struct i2c_device_id *id)
+ {
+ 	int ret = 0;
+ 	struct pm80x_chip *chip;
+ 	struct pm80x_platform_data *pdata = dev_get_platdata(&client->dev);
++	struct device_node *node = client->dev.of_node;
+ 	struct pm80x_subchip *subchip;
+ 
++	if (!pdata && !node) {
++		dev_err(&client->dev,
++			"pm80x requires platform data or of_node\n");
++		return -EINVAL;
 +	}
- 
- 	data->irq = platform_get_irq(pdev, 0);
- 	if (data->irq < 0)
-@@ -279,10 +263,10 @@ static int snvs_rtc_probe(struct platform_device *pdev)
- 	spin_lock_init(&data->lock);
- 
- 	/* Initialize glitch detect */
--	writel(SNVS_LPPGDR_INIT, data->ioaddr + SNVS_LPPGDR);
-+	regmap_write(data->snvs, SNVS_LPPGDR, SNVS_LPPGDR_INIT);
- 
- 	/* Clear interrupt status */
--	writel(0xffffffff, data->ioaddr + SNVS_LPSR);
-+	regmap_write(data->snvs, SNVS_LPSR, 0xffffffff);
- 
- 	/* Enable RTC */
- 	snvs_rtc_enable(data, true);
++
++	if (!pdata) {
++		pdata = devm_kzalloc(&client->dev, sizeof(*pdata), GFP_KERNEL);
++		if (!pdata) {
++			dev_err(&client->dev, "failed to allocaate memory\n");
++			return -ENOMEM;
++		}
++		ret = pm800_probe_dt(node, &client->dev, pdata);
++		if (ret)
++			return ret;
++	}
++
+ 	ret = pm80x_init(client);
+ 	if (ret) {
+ 		dev_err(&client->dev, "pm800_init fail\n");
+@@ -611,6 +649,7 @@ static struct i2c_driver pm800_driver = {
+ 		.name = "88PM800",
+ 		.owner = THIS_MODULE,
+ 		.pm = &pm80x_pm_ops,
++		.of_match_table	= pm80x_of_match_table,
+ 		},
+ 	.probe = pm800_probe,
+ 	.remove = pm800_remove,
 -- 
 1.9.1
 
