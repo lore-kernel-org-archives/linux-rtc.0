@@ -1,30 +1,27 @@
-Return-Path: <rtc-linux+bncBAABBMEN4WVQKGQEWFS4SUQ@googlegroups.com>
-Received: from mail1.bemta3.messagelabs.com (mail1.bemta3.messagelabs.com. [195.245.230.166])
-        by gmr-mx.google.com with ESMTPS id p9si393885wiz.3.2015.06.11.01.28.32
+Return-Path: <rtc-linux+bncBDP6N55ZUYDRBNXMWKVQKGQEHH42WBY@googlegroups.com>
+Received: from mail-ie0-x22f.google.com (mail-ie0-x22f.google.com. [2607:f8b0:4001:c03::22f])
+        by gmr-mx.google.com with ESMTPS id x1si950208igb.2.2015.06.01.12.44.54
         for <rtc-linux@googlegroups.com>
         (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 11 Jun 2015 01:28:32 -0700 (PDT)
-From: "Opensource [Steve Twiss]" <stwiss.opensource@diasemi.com>
-To: 'Lee Jones' <lee.jones@linaro.org>
-CC: LINUXKERNEL <linux-kernel@vger.kernel.org>, Samuel Ortiz
-	<sameo@linux.intel.com>, Alessandro Zummo <a.zummo@towertech.it>, DEVICETREE
-	<devicetree@vger.kernel.org>, David Dajun Chen <david.chen@diasemi.com>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>, Ian Campbell
-	<ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>,
-	LINUXINPUT <linux-input@vger.kernel.org>, LINUXWATCHDOG
-	<linux-watchdog@vger.kernel.org>, Liam Girdwood <lgirdwood@gmail.com>, "Mark
- Brown" <broonie@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Pawel Moll
-	<pawel.moll@arm.com>, RTCLINUX <rtc-linux@googlegroups.com>, Rob Herring
-	<robh+dt@kernel.org>, Support Opensource <Support.Opensource@diasemi.com>,
-	Wim Van Sebroeck <wim@iguana.be>
-Subject: [rtc-linux] RE: [PATCH V3 1/4] mfd: da9062: DA9062 MFD core driver
-Date: Thu, 11 Jun 2015 08:27:57 +0000
-Message-ID: <6ED8E3B22081A4459DAC7699F3695FB7014B22F4C4@SW-EX-MBX02.diasemi.com>
-References: <cover.1432041031.git.stwiss.opensource@diasemi.com>
- <ecf72b79429e6758111a908fd1ded29c0b96da15.1432041031.git.stwiss.opensource@diasemi.com>
- <20150526161024.GQ11677@x1>
-Content-Type: text/plain; charset=UTF-8
+        Mon, 01 Jun 2015 12:44:54 -0700 (PDT)
+Received: by mail-ie0-x22f.google.com with SMTP id zm2so117024437iec.1
+        for <rtc-linux@googlegroups.com>; Mon, 01 Jun 2015 12:44:54 -0700 (PDT)
+Date: Mon, 1 Jun 2015 12:44:49 -0700
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Frank.Li@freescale.com
+Cc: lznuaa@gmail.com, shawn.guo@linaro.org, robh+dt@kernel.org,
+	alexandre.belloni@free-electrons.com,
+	linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org,
+	rtc-linux@googlegroups.com, devicetree@vger.kernel.org,
+	Robin Gong <b38343@freescale.com>
+Subject: [rtc-linux] Re: [PATCH v5 4/6] input: keyboard: imx: add snvs power
+ key driver
+Message-ID: <20150601194449.GC30024@dtor-ws>
+References: <1432657562-5592-1-git-send-email-Frank.Li@freescale.com>
+ <1432657562-5592-5-git-send-email-Frank.Li@freescale.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1432657562-5592-5-git-send-email-Frank.Li@freescale.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -35,134 +32,304 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On 28 May 2015 13:53, Steve Twiss wrote:
+On Wed, May 27, 2015 at 12:26:00AM +0800, Frank.Li@freescale.com wrote:
+> From: Robin Gong <b38343@freescale.com>
+> 
+> add snvs power key driver.
+> It work in imx chips after i.mx6sx
+> 
+> ON/OFF key used power on/off whole system.
+> This driver make it wakeup from suspend state when short press
+> ON/OFF key.
+> 
+> Long time press will trig SNVS power off chip without software
+> intervention.
+> 
+> Signed-off-by: Robin Gong <b38343@freescale.com>
+> Signed-off-by: Frank Li <Frank.Li@freescale.com>
 
-> To: 'Lee Jones'
-> Subject: RE: [PATCH V3 1/4] mfd: da9062: DA9062 MFD core driver
-> 
-> Hi Lee,
-> 
-> I will refactor a lot of the driver and implement your changes as requested.
+Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-Hi Lee,
+> ---
+>  drivers/input/keyboard/Kconfig       |  11 ++
+>  drivers/input/keyboard/Makefile      |   1 +
+>  drivers/input/keyboard/snvs_pwrkey.c | 227 +++++++++++++++++++++++++++++++++++
+>  3 files changed, 239 insertions(+)
+>  create mode 100644 drivers/input/keyboard/snvs_pwrkey.c
+> 
+> diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
+> index 106fbac..61b3fab 100644
+> --- a/drivers/input/keyboard/Kconfig
+> +++ b/drivers/input/keyboard/Kconfig
+> @@ -400,6 +400,17 @@ config KEYBOARD_MPR121
+>  	  To compile this driver as a module, choose M here: the
+>  	  module will be called mpr121_touchkey.
+>  
+> +config KEYBOARD_SNVS_PWRKEY
+> +	tristate "IMX SNVS Power Key Driver"
+> +	depends on SOC_IMX6SX
+> +	depends on OF
+> +	help
+> +	  This is the snvs powerkey driver for the Freescale i.MX application
+> +	  processors that are newer than i.MX6 SX.
+> +
+> +	  To compile this driver as a module, choose M here; the
+> +	  module will be called snvs_pwrkey.
+> +
+>  config KEYBOARD_IMX
+>  	tristate "IMX keypad support"
+>  	depends on ARCH_MXC
+> diff --git a/drivers/input/keyboard/Makefile b/drivers/input/keyboard/Makefile
+> index df28d55..1d416dd 100644
+> --- a/drivers/input/keyboard/Makefile
+> +++ b/drivers/input/keyboard/Makefile
+> @@ -51,6 +51,7 @@ obj-$(CONFIG_KEYBOARD_QT1070)           += qt1070.o
+>  obj-$(CONFIG_KEYBOARD_QT2160)		+= qt2160.o
+>  obj-$(CONFIG_KEYBOARD_SAMSUNG)		+= samsung-keypad.o
+>  obj-$(CONFIG_KEYBOARD_SH_KEYSC)		+= sh_keysc.o
+> +obj-$(CONFIG_KEYBOARD_SNVS_PWRKEY)	+= snvs_pwrkey.o
+>  obj-$(CONFIG_KEYBOARD_SPEAR)		+= spear-keyboard.o
+>  obj-$(CONFIG_KEYBOARD_STMPE)		+= stmpe-keypad.o
+>  obj-$(CONFIG_KEYBOARD_STOWAWAY)		+= stowaway.o
+> diff --git a/drivers/input/keyboard/snvs_pwrkey.c b/drivers/input/keyboard/snvs_pwrkey.c
+> new file mode 100644
+> index 0000000..512a1fc
+> --- /dev/null
+> +++ b/drivers/input/keyboard/snvs_pwrkey.c
+> @@ -0,0 +1,227 @@
+> +/*
+> + * Driver for the IMX SNVS ON/OFF Power Key
+> + * Copyright (C) 2015 Freescale Semiconductor, Inc. All Rights Reserved.
+> + *
+> + * The code contained herein is licensed under the GNU General Public
+> + * License. You may obtain a copy of the GNU General Public License
+> + * Version 2 or later at the following locations:
+> + *
+> + * http://www.opensource.org/licenses/gpl-license.html
+> + * http://www.gnu.org/copyleft/gpl.html
+> + */
+> +
+> +#include <linux/device.h>
+> +#include <linux/err.h>
+> +#include <linux/init.h>
+> +#include <linux/input.h>
+> +#include <linux/interrupt.h>
+> +#include <linux/io.h>
+> +#include <linux/jiffies.h>
+> +#include <linux/kernel.h>
+> +#include <linux/module.h>
+> +#include <linux/of.h>
+> +#include <linux/of_address.h>
+> +#include <linux/platform_device.h>
+> +#include <linux/mfd/syscon.h>
+> +#include <linux/regmap.h>
+> +
+> +#define SNVS_LPSR_REG	0x4C	/* LP Status Register */
+> +#define SNVS_LPCR_REG	0x38	/* LP Control Register */
+> +#define SNVS_HPSR_REG	0x14
+> +#define SNVS_HPSR_BTN	BIT(6)
+> +#define SNVS_LPSR_SPO	BIT(18)
+> +#define SNVS_LPCR_DEP_EN BIT(5)
+> +
+> +#define DEBOUNCE_TIME 30
+> +#define REPEAT_INTERVAL 60
+> +
+> +struct pwrkey_drv_data {
+> +	struct regmap *snvs;
+> +	int irq;
+> +	int keycode;
+> +	int keystate;  /* 1:pressed */
+> +	int wakeup;
+> +	struct timer_list check_timer;
+> +	struct input_dev *input;
+> +};
+> +
+> +static void imx_imx_snvs_check_for_events(unsigned long data)
+> +{
+> +	struct pwrkey_drv_data *pdata = (struct pwrkey_drv_data *) data;
+> +	struct input_dev *input = pdata->input;
+> +	u32 state;
+> +
+> +	regmap_read(pdata->snvs, SNVS_HPSR_REG, &state);
+> +	state = state & SNVS_HPSR_BTN ? 1 : 0;
+> +
+> +	/* only report new event if status changed */
+> +	if (state ^ pdata->keystate) {
+> +		pdata->keystate = state;
+> +		input_event(input, EV_KEY, pdata->keycode, state);
+> +		input_sync(input);
+> +		pm_relax(pdata->input->dev.parent);
+> +	}
+> +
+> +	/* repeat check if pressed long */
+> +	if (state) {
+> +		mod_timer(&pdata->check_timer,
+> +			  jiffies + msecs_to_jiffies(REPEAT_INTERVAL));
+> +	}
+> +}
+> +
+> +static irqreturn_t imx_snvs_pwrkey_interrupt(int irq, void *dev_id)
+> +{
+> +	struct platform_device *pdev = dev_id;
+> +	struct pwrkey_drv_data *pdata = platform_get_drvdata(pdev);
+> +	u32 lp_status;
+> +
+> +	pm_wakeup_event(pdata->input->dev.parent, 0);
+> +
+> +	regmap_read(pdata->snvs, SNVS_LPSR_REG, &lp_status);
+> +	if (lp_status & SNVS_LPSR_SPO)
+> +		mod_timer(&pdata->check_timer, jiffies + msecs_to_jiffies(DEBOUNCE_TIME));
+> +
+> +	/* clear SPO status */
+> +	regmap_write(pdata->snvs, SNVS_LPSR_REG, SNVS_LPSR_SPO);
+> +
+> +	return IRQ_HANDLED;
+> +}
+> +
+> +static void imx_snvs_pwrkey_act(void *pdata)
+> +{
+> +	struct pwrkey_drv_data *pd = pdata;
+> +
+> +	del_timer_sync(&pd->check_timer);
+> +}
+> +
+> +static int imx_snvs_pwrkey_probe(struct platform_device *pdev)
+> +{
+> +	struct pwrkey_drv_data *pdata = NULL;
+> +	struct input_dev *input = NULL;
+> +	struct device_node *np;
+> +	int error;
+> +
+> +	/* Get SNVS register Page */
+> +	np = pdev->dev.of_node;
+> +	if (!np)
+> +		return -ENODEV;
+> +
+> +	pdata = devm_kzalloc(&pdev->dev, sizeof(*pdata), GFP_KERNEL);
+> +	if (!pdata)
+> +		return -ENOMEM;
+> +
+> +	pdata->snvs = syscon_regmap_lookup_by_phandle(np, "regmap");;
+> +
+> +	if (!pdata->snvs) {
+> +		dev_err(&pdev->dev, "Can't get snvs syscon\n");
+> +		return -ENODEV;
+> +	}
+> +
+> +	if (of_property_read_u32(np, "linux,keycode", &pdata->keycode)) {
+> +		pdata->keycode = KEY_POWER;
+> +		dev_warn(&pdev->dev, "KEY_POWER without setting in dts\n");
+> +	}
+> +
+> +	pdata->wakeup = of_property_read_bool(np, "wakeup");
+> +
+> +	pdata->irq = platform_get_irq(pdev, 0);
+> +	if (pdata->irq < 0) {
+> +		dev_err(&pdev->dev, "no irq defined in platform data\n");
+> +		return -EINVAL;
+> +	}
+> +
+> +	regmap_update_bits(pdata->snvs, SNVS_LPCR_REG, SNVS_LPCR_DEP_EN, SNVS_LPCR_DEP_EN);
+> +
+> +	/* clear the unexpected interrupt before driver ready */
+> +	regmap_write(pdata->snvs, SNVS_LPSR_REG, SNVS_LPSR_SPO);
+> +
+> +	setup_timer(&pdata->check_timer,
+> +		    imx_imx_snvs_check_for_events, (unsigned long) pdata);
+> +
+> +	input = devm_input_allocate_device(&pdev->dev);
+> +	if (!input) {
+> +		dev_err(&pdev->dev, "failed to allocate the input device\n");
+> +		return -ENOMEM;
+> +	}
+> +
+> +	input->name = pdev->name;
+> +	input->phys = "snvs-pwrkey/input0";
+> +	input->id.bustype = BUS_HOST;
+> +
+> +	input_set_capability(input, EV_KEY, pdata->keycode);
+> +
+> +	/* input customer action to cancel release timer */
+> +	error = devm_add_action(&pdev->dev, imx_snvs_pwrkey_act, pdata);
+> +	if (error) {
+> +		dev_err(&pdev->dev, "failed to register remove action\n");
+> +		return error;
+> +	}
+> +
+> +	error = devm_request_irq(&pdev->dev, pdata->irq,
+> +			       imx_snvs_pwrkey_interrupt,
+> +			       0, pdev->name, pdev);
+> +
+> +	if (error) {
+> +		dev_err(&pdev->dev, "interrupt not available.\n");
+> +		return error;
+> +	}
+> +
+> +	error = input_register_device(input);
+> +	if (error < 0) {
+> +		dev_err(&pdev->dev, "failed to register input device\n");
+> +		input_free_device(input);
+> +		return error;
+> +	}
+> +
+> +	pdata->input = input;
+> +	platform_set_drvdata(pdev, pdata);
+> +
+> +	device_init_wakeup(&pdev->dev, pdata->wakeup);
+> +
+> +	return 0;
+> +}
+> +
+> +static int imx_snvs_pwrkey_suspend(struct device *dev)
+> +{
+> +	struct platform_device *pdev = to_platform_device(dev);
+> +	struct pwrkey_drv_data *pdata = platform_get_drvdata(pdev);
+> +
+> +	if (device_may_wakeup(&pdev->dev))
+> +		enable_irq_wake(pdata->irq);
+> +
+> +	return 0;
+> +}
+> +
+> +static int imx_snvs_pwrkey_resume(struct device *dev)
+> +{
+> +	struct platform_device *pdev = to_platform_device(dev);
+> +	struct pwrkey_drv_data *pdata = platform_get_drvdata(pdev);
+> +
+> +	if (device_may_wakeup(&pdev->dev))
+> +		disable_irq_wake(pdata->irq);
+> +
+> +	return 0;
+> +}
+> +
+> +static const struct of_device_id imx_snvs_pwrkey_ids[] = {
+> +	{ .compatible = "fsl,sec-v4.0-pwrkey" },
+> +	{ /* sentinel */ }
+> +};
+> +MODULE_DEVICE_TABLE(of, imx_snvs_pwrkey_ids);
+> +
+> +static SIMPLE_DEV_PM_OPS(imx_snvs_pwrkey_pm_ops, imx_snvs_pwrkey_suspend,
+> +				imx_snvs_pwrkey_resume);
+> +
+> +static struct platform_driver imx_snvs_pwrkey_driver = {
+> +	.driver = {
+> +		.name = "snvs_pwrkey",
+> +		.pm     = &imx_snvs_pwrkey_pm_ops,
+> +		.of_match_table = imx_snvs_pwrkey_ids,
+> +	},
+> +	.probe = imx_snvs_pwrkey_probe,
+> +};
+> +module_platform_driver(imx_snvs_pwrkey_driver);
+> +
+> +MODULE_AUTHOR("Freescale Semiconductor");
+> +MODULE_DESCRIPTION("i.MX snvs power key Driver");
+> +MODULE_LICENSE("GPL");
+> -- 
+> 1.9.1
+> 
 
-I realise this is a busy kernel time for you, as ever, so this is just to see if I am
-missing anything with the reply I sent about the requested alterations a couple
-of weeks ago. 
-
-It relates to the addition of support for the Dialog DA9062 Power Management IC
- - https://lkml.org/lkml/2015/5/28/358
-
-The main changes requested (for the core MFD) can be found in here:
- - https://lkml.org/lkml/2015/5/28/359
-
-I believe that the only two major differences with your previous comments were 
-those relating to the interrupt handler da9062_vdd_warn_event() -- which 
-has been erased,  and the header file -- which I would prefer the to remain
-[mostly] untouched if possible.
-
-The reasons for these two differences are described below:
-
-> > > +	/* VDD WARN event support */
-> > > +	irq_vdd_warn = regmap_irq_get_virq(chip->regmap_irq,
-> > > +					   DA9062_IRQ_VDD_WARN);
-> > > +	if (irq_vdd_warn < 0) {
-> > > +		dev_err(chip->dev, "Failed to get IRQ.\n");
-> > > +		return irq_vdd_warn;
-> > > +	}
-> > > +	chip->irq_vdd_warn = irq_vdd_warn;
-> > > +
-> > > +	ret = devm_request_threaded_irq(chip->dev, irq_vdd_warn,
-> > > +					NULL, da9062_vdd_warn_event,
-> > > +					IRQF_TRIGGER_LOW | IRQF_ONESHOT,
-> > > +					"VDD_WARN", chip);
-> > > +	if (ret) {
-> > > +		dev_warn(chip->dev,
-> > > +			 "Failed to request VDD_WARN IRQ.\n");
-> > > +		chip->irq_vdd_warn = -ENXIO;
-> > > +	}
-> >
-> > This looks like a lot of code, which doesn't really do anything.  What
-> > is a VDD warning indicator anyway?
-> >
-> 
-> I will remove this.
-> 
-> The IRQ handler da9062_vdd_warn_event() -- see earlier above -- does
-> not currently do anything apart from handle the IRQ that was requested
-> here. It prints a statement to say the main PMIC voltage supply dropped
-> below a defined trigger point, but doesn't actually do anything to mitigate
-> this problem.
-> 
-> Previously this VDD_WARN was in the regulator driver, however it should
-> be made available even if the regulator driver is not installed -- so I added it
-> to the core instead.
-> 
-> In a previous driver submission I had a similar problem, a warning IRQ was
-> just printing to the console to say there was an error -- the handler and
-> IRQ code was put in by me so it could be used if the driver was taken and
-> integrated into a fully working system.
-> 
-> I was asked to remove it in the other driver -- and I have done the same
-> here for now. I can always add it back later.
-> 
-
-And
-
-> > > diff --git a/include/linux/mfd/da9062/registers.h
-> > b/include/linux/mfd/da9062/registers.h
-> > > new file mode 100644
-> > > index 0000000..d07c2bc
-> > > --- /dev/null
-> > > +++ b/include/linux/mfd/da9062/registers.h
-> 
-> [...]
-> 
-> > > +/*
-> > > + * Registers
-> > > + */
-> >
-> > Really? ;)
-> >
-> > > +#define DA9062AA_PAGE_CON		0x000
-> > > +#define DA9062AA_STATUS_A		0x001
-> > > +#define DA9062AA_STATUS_B		0x002
-> 
-> [...]
-> 
-> > > +
-> > > +/*
-> > > + * Bit fields
-> > > + */
-> > > +
-> > > +/* DA9062AA_PAGE_CON = 0x000 */
-> > > +#define DA9062AA_PAGE_SHIFT		0
-> > > +#define DA9062AA_PAGE_MASK		(0x3f << 0)
-> > > +#define DA9062AA_WRITE_MODE_SHIFT	6
-> > > +#define DA9062AA_WRITE_MODE_MASK	(0x01 << 6)
-> >
-> > For 1 << X, you should use BIT(X).
-> >
-> 
-> For the two comments above "Registers" and "Bit fields" and the (1<<x)
-> definitions ...
-> 
-> The whole of this file is automatically generated by our hardware designers
-> I would prefer it if the register definitions and bit fields are not altered using
-> the #define BIT(nr) (1UL<<(nr)) macro and the comments removed because
-> we have scripts that can be used to check this file automatically.
-> 
-> Also if the register map is ever updated, then it will be easier for me to diff
-> the new delivered register and bit field definitions with the old one.
-> 
-> My preference would be not to change this header file.
-> 
-> [...]
- 
-If these last two things are a problem can you please let me know.
-
-regards,
-Steve
+-- 
+Dmitry
 
 -- 
 -- 
