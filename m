@@ -1,23 +1,26 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBA5X5KVQKGQEPGL6YFY@googlegroups.com>
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id t6si88391wiz.0.2015.06.12.01.42.43
-        for <rtc-linux@googlegroups.com>;
-        Fri, 12 Jun 2015 01:42:43 -0700 (PDT)
-Date: Fri, 12 Jun 2015 10:42:38 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Xunlei Pang <xlpang@126.com>, "David S. Miller" <davem@davemloft.net>
-Cc: linux-kernel@vger.kernel.org, rtc-linux@googlegroups.com,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	John Stultz <john.stultz@linaro.org>, Arnd Bergmann <arnd@arndb.de>,
-	sparclinux@vger.kernel.org, Xunlei Pang <pang.xunlei@linaro.org>
-Subject: [rtc-linux] Re: [PATCH v3 2/3] sparc: time: Replace
- update_persistent_clock() with CONFIG_RTC_SYSTOHC
-Message-ID: <20150612084238.GE3890@piout.net>
-References: <1434078618-16373-1-git-send-email-xlpang@126.com>
- <1434078618-16373-2-git-send-email-xlpang@126.com>
+Return-Path: <rtc-linux+bncBDA7X7F2WUEBBD5UWCVQKGQEMCLAPZA@googlegroups.com>
+Received: from mail-wg0-f48.google.com (mail-wg0-f48.google.com. [74.125.82.48])
+        by gmr-mx.google.com with ESMTPS id k10si492577wia.1.2015.06.01.01.38.39
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 01 Jun 2015 01:38:39 -0700 (PDT)
+Received: by mail-wg0-f48.google.com with SMTP id gq6so107837128wgb.3
+        for <rtc-linux@googlegroups.com>; Mon, 01 Jun 2015 01:38:39 -0700 (PDT)
+Date: Mon, 1 Jun 2015 09:38:35 +0100
+From: Lee Jones <lee.jones@linaro.org>
+To: Vaibhav Hiremath <vaibhav.hiremath@linaro.org>
+Cc: linux-arm-kernel@lists.infradead.org, robh+dt@kernel.org,
+	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+	rtc-linux@googlegroups.com, sameo@linux.intel.com,
+	a.zummo@towertech.it, alexandre.belloni@free-electrons.com,
+	Chao Xie <chao.xie@marvell.com>
+Subject: [rtc-linux] Re: [PATCH 1/4] mfd: 88pm800: add device tree support
+Message-ID: <20150601083835.GE3329@x1>
+References: <1432937962-4537-1-git-send-email-vaibhav.hiremath@linaro.org>
+ <1432937962-4537-2-git-send-email-vaibhav.hiremath@linaro.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1434078618-16373-2-git-send-email-xlpang@126.com>
+In-Reply-To: <1432937962-4537-2-git-send-email-vaibhav.hiremath@linaro.org>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -28,146 +31,236 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Dave,
+On Sat, 30 May 2015, Vaibhav Hiremath wrote:
 
-I would like to take that patch as part of the series once you have
-acked it.
-
-On 12/06/2015 at 11:10:17 +0800, Xunlei Pang wrote :
-> From: Xunlei Pang <pang.xunlei@linaro.org>
-> 
-> On Sparc systems, update_persistent_clock() uses RTC drivers to do
-> the job, it makes more sense to hand it over to CONFIG_RTC_SYSTOHC.
-> 
-> In the long run, all the update_persistent_clock() should migrate to
-> proper class RTC drivers if any and use CONFIG_RTC_SYSTOHC instead.
-> 
-> Signed-off-by: Xunlei Pang <pang.xunlei@linaro.org>
+> Add DT support to the 88pm800 driver along with below properties
+> 	- marvell,88pm800-irq-write-clear :
+> 	  Idicates whether interrupt status is cleared by write
+>=20
+> Also, creates the DT binding text file,
+> Documentation/devicetree/bindings/mfd/88pm800.txt
+>=20
+> Signed-off-by: Chao Xie <chao.xie@marvell.com>
+> Signed-off-by: Vaibhav Hiremath <vaibhav.hiremath@linaro.org>
 > ---
->  arch/sparc/Kconfig          |  2 +-
->  arch/sparc/kernel/time_32.c | 21 ---------------------
->  arch/sparc/kernel/time_64.c | 14 --------------
->  3 files changed, 1 insertion(+), 36 deletions(-)
-> 
-> diff --git a/arch/sparc/Kconfig b/arch/sparc/Kconfig
-> index e49502a..56442d2 100644
-> --- a/arch/sparc/Kconfig
-> +++ b/arch/sparc/Kconfig
-> @@ -25,6 +25,7 @@ config SPARC
->  	select ARCH_HAS_ATOMIC64_DEC_IF_POSITIVE
->  	select RTC_CLASS
->  	select RTC_DRV_M48T59
-> +	select RTC_SYSTOHC
->  	select HAVE_DMA_ATTRS
->  	select HAVE_DMA_API_DEBUG
->  	select HAVE_ARCH_JUMP_LABEL if SPARC64
-> @@ -35,7 +36,6 @@ config SPARC
->  	select HAVE_BPF_JIT
->  	select HAVE_DEBUG_BUGVERBOSE
->  	select GENERIC_SMP_IDLE_THREAD
-> -	select GENERIC_CMOS_UPDATE
->  	select GENERIC_CLOCKEVENTS
->  	select GENERIC_STRNCPY_FROM_USER
->  	select GENERIC_STRNLEN_USER
-> diff --git a/arch/sparc/kernel/time_32.c b/arch/sparc/kernel/time_32.c
-> index 8caf45e..c9692f3 100644
-> --- a/arch/sparc/kernel/time_32.c
-> +++ b/arch/sparc/kernel/time_32.c
-> @@ -23,7 +23,6 @@
->  #include <linux/mm.h>
->  #include <linux/interrupt.h>
->  #include <linux/time.h>
-> -#include <linux/rtc.h>
->  #include <linux/rtc/m48t59.h>
->  #include <linux/timex.h>
->  #include <linux/clocksource.h>
-> @@ -65,8 +64,6 @@ DEFINE_PER_CPU(struct clock_event_device, sparc32_clockevent);
->  DEFINE_SPINLOCK(rtc_lock);
->  EXPORT_SYMBOL(rtc_lock);
->  
-> -static int set_rtc_mmss(unsigned long);
-> -
->  unsigned long profile_pc(struct pt_regs *regs)
->  {
->  	extern char __copy_user_begin[], __copy_user_end[];
-> @@ -87,11 +84,6 @@ EXPORT_SYMBOL(profile_pc);
->  
->  volatile u32 __iomem *master_l10_counter;
->  
-> -int update_persistent_clock(struct timespec now)
-> -{
-> -	return set_rtc_mmss(now.tv_sec);
-> -}
-> -
->  irqreturn_t notrace timer_interrupt(int dummy, void *dev_id)
->  {
->  	if (timer_cs_enabled) {
-> @@ -362,16 +354,3 @@ void __init time_init(void)
->  		sbus_time_init();
+>  Documentation/devicetree/bindings/mfd/88pm800.txt | 57 +++++++++++++++++=
+++++++
+>  drivers/mfd/88pm800.c                             | 39 ++++++++++++++++
+
+These should be submitted separately.
+
+>  2 files changed, 96 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/mfd/88pm800.txt
+>=20
+> diff --git a/Documentation/devicetree/bindings/mfd/88pm800.txt b/Document=
+ation/devicetree/bindings/mfd/88pm800.txt
+> new file mode 100644
+> index 0000000..094951b
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/mfd/88pm800.txt
+> @@ -0,0 +1,57 @@
+> +* Marvell 88PM800 Power Management IC
+> +
+> +Required parent device properties:
+> +- compatible : "marvell,88pm800"
+> +- reg : the I2C slave address for the 88pm800 chip
+> +- interrupts : IRQ line for the 88pm800 chip
+> +- interrupt-controller: describes the 88pm800 as an interrupt controller
+> +- #interrupt-cells : should be 1.
+> +		- The cell is the 88pm800 local IRQ number
+> +
+> +Optional parent device properties:
+> +- marvell,88pm800-irq-write-clr: indicates whether interrupt status is c=
+leared by write
+
+Drop the device name.  These bindings should be as generic as possible.
+
+Also describe what the absence of the property means.
+
+> +88pm800 consists of a large and varied group of sub-devices:
+
+3?
+
+> +Device			 Supply Names	 Description
+> +------			 ------------	 -----------
+> +88pm80x-onkey		:		: On key
+> +88pm80x-rtc		:		: RTC
+> +88pm80x			:		: Regulators
+
+Surely regulators is 88pm80x-regulator, no?
+
+> +Note: More device list will follow
+> +
+> +Example:
+> +
+> +	pmic: 88pm800@30 {
+> +		compatible =3D "marvell,88pm800";
+> +		reg =3D <0x30>;
+> +		interrupts =3D <0 77 0x4>;
+
+Please use the #defines in include/dt-bindings/
+
+> +		interrupt-parent =3D <&gic>;
+> +		interrupt-controller;
+> +		#interrupt-cells =3D <1>;
+> +
+> +		marvell,88pm800-irq-write-clr;
+> +
+> +		regulators {
+> +			compatible =3D "marvell,88pm80x-regulator";
+> +
+> +			buck1a: BUCK1A {
+> +				regulator-compatible =3D "88PM800-BUCK1A";
+> +				regulator-min-microvolt =3D <600000>;
+> +				regulator-max-microvolt =3D <1800000>;
+> +				regulator-boot-on;
+> +				regulator-always-on;
+> +			};
+> +			ldo1: LDO1 {
+> +				regulator-compatible =3D "88PM800-LDO1";
+> +				regulator-min-microvolt =3D <1700000>;
+> +				regulator-max-microvolt =3D <3300000>;
+> +				regulator-boot-on;
+> +				regulator-always-on;
+> +			};
+> +		};
+
+'\n' here.
+
+> +		rtc {
+> +			compatible =3D "marvell,88pm80x-rtc";
+> +		};
+> +	};
+> diff --git a/drivers/mfd/88pm800.c b/drivers/mfd/88pm800.c
+> index 841717a..06ee058 100644
+> --- a/drivers/mfd/88pm800.c
+> +++ b/drivers/mfd/88pm800.c
+> @@ -27,6 +27,7 @@
+>  #include <linux/mfd/core.h>
+>  #include <linux/mfd/88pm80x.h>
+>  #include <linux/slab.h>
+> +#include <linux/of_device.h>
+> =20
+>  /* Interrupt Registers */
+>  #define PM800_INT_STATUS1		(0x05)
+> @@ -121,6 +122,11 @@ static const struct i2c_device_id pm80x_id_table[] =
+=3D {
+>  };
+>  MODULE_DEVICE_TABLE(i2c, pm80x_id_table);
+> =20
+> +static const struct of_device_id pm80x_of_match_table[] =3D {
+> +	{ .compatible =3D "marvell,88pm800", },
+> +	{},
+> +};
+> +
+>  static struct resource rtc_resources[] =3D {
+>  	{
+>  	 .name =3D "88pm80x-rtc",
+> @@ -133,6 +139,7 @@ static struct resource rtc_resources[] =3D {
+>  static struct mfd_cell rtc_devs[] =3D {
+>  	{
+>  	 .name =3D "88pm80x-rtc",
+> +	 .of_compatible =3D "marvell,88pm80x-rtc",
+>  	 .num_resources =3D ARRAY_SIZE(rtc_resources),
+>  	 .resources =3D &rtc_resources[0],
+>  	 .id =3D -1,
+> @@ -151,6 +158,7 @@ static struct resource onkey_resources[] =3D {
+>  static const struct mfd_cell onkey_devs[] =3D {
+>  	{
+>  	 .name =3D "88pm80x-onkey",
+> +	 .of_compatible =3D "marvell,88pm80x-onkey",
+>  	 .num_resources =3D 1,
+>  	 .resources =3D &onkey_resources[0],
+>  	 .id =3D -1,
+> @@ -160,6 +168,7 @@ static const struct mfd_cell onkey_devs[] =3D {
+>  static const struct mfd_cell regulator_devs[] =3D {
+>  	{
+>  	 .name =3D "88pm80x-regulator",
+> +	 .of_compatible =3D "marvell,88pm80x-regulator",
+>  	 .id =3D -1,
+>  	},
+>  };
+> @@ -538,14 +547,43 @@ out:
+>  	return ret;
 >  }
->  
-> -
-> -static int set_rtc_mmss(unsigned long secs)
-> -{
-> -	struct rtc_device *rtc = rtc_class_open("rtc0");
-> -	int err = -1;
-> -
-> -	if (rtc) {
-> -		err = rtc_set_mmss(rtc, secs);
-> -		rtc_class_close(rtc);
-> -	}
-> -
-> -	return err;
-> -}
-> diff --git a/arch/sparc/kernel/time_64.c b/arch/sparc/kernel/time_64.c
-> index edbbeb1..2e6035c 100644
-> --- a/arch/sparc/kernel/time_64.c
-> +++ b/arch/sparc/kernel/time_64.c
-> @@ -28,7 +28,6 @@
->  #include <linux/cpufreq.h>
->  #include <linux/percpu.h>
->  #include <linux/miscdevice.h>
-> -#include <linux/rtc.h>
->  #include <linux/rtc/m48t59.h>
->  #include <linux/kernel_stat.h>
->  #include <linux/clockchips.h>
-> @@ -394,19 +393,6 @@ static struct sparc64_tick_ops hbtick_operations __read_mostly = {
->  
->  static unsigned long timer_ticks_per_nsec_quotient __read_mostly;
->  
-> -int update_persistent_clock(struct timespec now)
-> -{
-> -	struct rtc_device *rtc = rtc_class_open("rtc0");
-> -	int err = -1;
-> -
-> -	if (rtc) {
-> -		err = rtc_set_mmss(rtc, now.tv_sec);
-> -		rtc_class_close(rtc);
-> -	}
-> -
-> -	return err;
-> -}
-> -
->  unsigned long cmos_regs;
->  EXPORT_SYMBOL(cmos_regs);
->  
-> -- 
-> 1.9.1
-> 
-> 
+> =20
+> +static int pm800_probe_dt(struct device_node *np,
+> +			 struct device *dev,
 
--- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+Do you even use dev?
 
--- 
--- 
+> +			 struct pm80x_platform_data *pdata)
+> +{
+> +	pdata->irq_mode =3D
+> +		of_property_read_bool(np, "marvell,88pm800-irq-write-clear");
+
+You write a new function for this?
+
+> +	return 0;
+> +}
+> +
+> +
+
+Superfluous '\n'.
+
+>  static int pm800_probe(struct i2c_client *client,
+>  				 const struct i2c_device_id *id)
+>  {
+>  	int ret =3D 0;
+>  	struct pm80x_chip *chip;
+>  	struct pm80x_platform_data *pdata =3D dev_get_platdata(&client->dev);
+> +	struct device_node *node =3D client->dev.of_node;
+
+It's more common to use 'np'.
+
+>  	struct pm80x_subchip *subchip;
+> =20
+> +	if (!pdata && !node) {
+> +		dev_err(&client->dev,
+> +			"pm80x requires platform data or of_node\n");
+> +		return -EINVAL;
+> +	}
+> +
+> +	if (!pdata) {
+> +		pdata =3D devm_kzalloc(&client->dev, sizeof(*pdata), GFP_KERNEL);
+> +		if (!pdata) {
+> +			dev_err(&client->dev, "failed to allocaate memory\n");
+> +			return -ENOMEM;
+> +		}
+> +		ret =3D pm800_probe_dt(node, &client->dev, pdata);
+> +		if (ret)
+> +			return ret;
+> +	}
+
+All this for a single attribute?  Please simplify.
+
+>  	ret =3D pm80x_init(client);
+>  	if (ret) {
+>  		dev_err(&client->dev, "pm800_init fail\n");
+> @@ -611,6 +649,7 @@ static struct i2c_driver pm800_driver =3D {
+>  		.name =3D "88PM800",
+>  		.owner =3D THIS_MODULE,
+>  		.pm =3D &pm80x_pm_ops,
+> +		.of_match_table	=3D pm80x_of_match_table,
+>  		},
+>  	.probe =3D pm800_probe,
+>  	.remove =3D pm800_remove,
+
+--=20
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org =E2=94=82 Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog
+
+--=20
+--=20
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+---=20
+You received this message because you are subscribed to the Google Groups "=
+rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an e=
+mail to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
