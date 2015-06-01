@@ -1,16 +1,24 @@
-Return-Path: <rtc-linux+bncBDCLVB47XQERBQWH2WVQKGQEC37ETRY@googlegroups.com>
-Received: from mga14.intel.com (mga14.intel.com. [192.55.52.115])
-        by gmr-mx.google.com with ESMTP id ct6si240213pdb.1.2015.06.08.02.43.30
-        for <rtc-linux@googlegroups.com>;
-        Mon, 08 Jun 2015 02:43:30 -0700 (PDT)
-From: Sylvain Chouleur <sylvain.chouleur@intel.com>
-To: rtc-linux@googlegroups.com
-Subject: [rtc-linux] [PATCH] Support of century in rtc-cmos
-Date: Mon, 08 Jun 2015 11:45:19 +0200
-Message-ID: <87lhfur0sw.fsf@schouleu-mobl1.ger.corp.intel.com>
+Return-Path: <rtc-linux+bncBAABBCOMWKVQKGQETHDNL2Q@googlegroups.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Received: from mail.kmu-office.ch (mail.kmu-office.ch. [2a02:418:6a02::a2])
+        by gmr-mx.google.com with ESMTP id gt9si547630wib.2.2015.06.01.11.35.53
+        for <rtc-linux@googlegroups.com>;
+        Mon, 01 Jun 2015 11:35:53 -0700 (PDT)
+From: Stefan Agner <stefan@agner.ch>
+To: a.zummo@towertech.it,
+	alexandre.belloni@free-electrons.com
+Cc: maitysanchayan@gmail.com,
+	shawn.guo@linaro.org,
+	rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org,
+	Stefan Agner <stefan@agner.ch>,
+	<stable@vger.kernel.org>
+Subject: [rtc-linux] [PATCH RESEND] rtc: snvs: fix wakealarm by call
+ enable_irq_wake earlier
+Date: Mon,  1 Jun 2015 20:35:39 +0200
+Message-Id: <1433183739-10956-1-git-send-email-stefan@agner.ch>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -20,118 +28,83 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-If century field is supported by the RTC CMOS device, then we should use
-it and then do not consider years greater that 169 as an error.
+When entering suspend while an wakeup alarm is set, enable_set_wake
+should make sure that the RTC interrupt keep being enabled and the
+.irq_set_wake for the RTC interrupt get called. However, since the
+driver uses the suspend_noirq callback, the call to enable_irq_wake
+has been made after disabling the interrupts. While .irq_set_wake
+has been called properly, the interrupt remained disabled.
 
-For information, the year field of the rtc_time structure contains the
-value to add to 1970 to obtain the current year.
+Use the suspend callback to call enable_irq_wake early enough to
+ensure the RTC interrupt remains enabled.
 
-This was a hack to be able to support years for 1970 to 2069.
-This patch remains compatible with this implementation.
-
-Change-Id: I24af7eabf8efc9043092ad04e61ba69cb761000e
-Signed-off-by: Sylvain Chouleur <sylvain.chouleur@intel.com>
+Fixes: 7654e9d4fd8f ("drivers/rtc/rtc-snvs: fix suspend/resume")
+Cc: <stable@vger.kernel.org> # 3.19
+Signed-off-by: Stefan Agner <stefan@agner.ch>
 ---
- include/asm-generic/rtc.h | 29 +++++++++++++++++++++++++++++
- 1 file changed, 29 insertions(+)
+Just added CC: <stable@vger.kernel.org> # 3.19
 
-diff --git a/include/asm-generic/rtc.h b/include/asm-generic/rtc.h
-index fa86f240c874..4e3b6558331e 100644
---- a/include/asm-generic/rtc.h
-+++ b/include/asm-generic/rtc.h
-@@ -16,6 +16,9 @@
- #include <linux/rtc.h>
- #include <linux/bcd.h>
- #include <linux/delay.h>
-+#ifdef CONFIG_ACPI
-+#include <linux/acpi.h>
-+#endif
+ drivers/rtc/rtc-snvs.c | 30 +++++++++++++++++++++---------
+ 1 file changed, 21 insertions(+), 9 deletions(-)
+
+diff --git a/drivers/rtc/rtc-snvs.c b/drivers/rtc/rtc-snvs.c
+index 0479e80..d87a85c 100644
+--- a/drivers/rtc/rtc-snvs.c
++++ b/drivers/rtc/rtc-snvs.c
+@@ -322,6 +322,13 @@ static int snvs_rtc_suspend(struct device *dev)
+ 	if (device_may_wakeup(dev))
+ 		enable_irq_wake(data->irq);
  
- #define RTC_PIE 0x40		/* periodic interrupt enable */
- #define RTC_AIE 0x20		/* alarm interrupt enable */
-@@ -46,6 +49,7 @@ static inline unsigned int __get_rtc_time(struct rtc_time *time)
++	return 0;
++}
++
++static int snvs_rtc_suspend_noirq(struct device *dev)
++{
++	struct snvs_rtc_data *data = dev_get_drvdata(dev);
++
+ 	if (data->clk)
+ 		clk_disable_unprepare(data->clk);
+ 
+@@ -331,23 +338,28 @@ static int snvs_rtc_suspend(struct device *dev)
+ static int snvs_rtc_resume(struct device *dev)
  {
- 	unsigned char ctrl;
- 	unsigned long flags;
-+	unsigned char century = 0;
+ 	struct snvs_rtc_data *data = dev_get_drvdata(dev);
+-	int ret;
  
- #ifdef CONFIG_MACH_DECSTATION
- 	unsigned int real_year;
-@@ -79,6 +83,11 @@ static inline unsigned int __get_rtc_time(struct rtc_time *time)
- #ifdef CONFIG_MACH_DECSTATION
- 	real_year = CMOS_READ(RTC_DEC_YEAR);
- #endif
-+#ifdef CONFIG_ACPI
-+	if (acpi_gbl_FADT.header.revision >= FADT2_REVISION_ID &&
-+	    acpi_gbl_FADT.century)
-+		century = CMOS_READ(acpi_gbl_FADT.century);
-+#endif
- 	ctrl = CMOS_READ(RTC_CONTROL);
- 	spin_unlock_irqrestore(&rtc_lock, flags);
+ 	if (device_may_wakeup(dev))
+-		disable_irq_wake(data->irq);
++		return disable_irq_wake(data->irq);
  
-@@ -90,12 +99,16 @@ static inline unsigned int __get_rtc_time(struct rtc_time *time)
- 		time->tm_mday = bcd2bin(time->tm_mday);
- 		time->tm_mon = bcd2bin(time->tm_mon);
- 		time->tm_year = bcd2bin(time->tm_year);
-+		century = bcd2bin(century);
- 	}
- 
- #ifdef CONFIG_MACH_DECSTATION
- 	time->tm_year += real_year - 72;
- #endif
- 
-+	if (century)
-+		time->tm_year += (century - 19) * 100;
+-	if (data->clk) {
+-		ret = clk_prepare_enable(data->clk);
+-		if (ret)
+-			return ret;
+-	}
++	return 0;
++}
 +
- 	/*
- 	 * Account for differences between how the RTC uses the values
- 	 * and how they are defined in a struct rtc_time;
-@@ -122,6 +135,7 @@ static inline int __set_rtc_time(struct rtc_time *time)
- #ifdef CONFIG_MACH_DECSTATION
- 	unsigned int real_yrs, leap_yr;
- #endif
-+	unsigned char century = 0;
- 
- 	yrs = time->tm_year;
- 	mon = time->tm_mon + 1;   /* tm_mon starts at zero */
-@@ -150,6 +164,15 @@ static inline int __set_rtc_time(struct rtc_time *time)
- 		yrs = 73;
- 	}
- #endif
++static int snvs_rtc_resume_noirq(struct device *dev)
++{
++	struct snvs_rtc_data *data = dev_get_drvdata(dev);
 +
-+#ifdef CONFIG_ACPI
-+	if (acpi_gbl_FADT.header.revision >= FADT2_REVISION_ID &&
-+	    acpi_gbl_FADT.century) {
-+		century = (yrs + 1900) / 100;
-+		yrs %= 100;
-+	}
-+#endif
-+
- 	/* These limits and adjustments are independent of
- 	 * whether the chip is in binary mode or not.
- 	 */
-@@ -169,6 +192,7 @@ static inline int __set_rtc_time(struct rtc_time *time)
- 		day = bin2bcd(day);
- 		mon = bin2bcd(mon);
- 		yrs = bin2bcd(yrs);
-+		century = bin2bcd(century);
- 	}
++	if (data->clk)
++		return clk_prepare_enable(data->clk);
  
- 	save_control = CMOS_READ(RTC_CONTROL);
-@@ -185,6 +209,11 @@ static inline int __set_rtc_time(struct rtc_time *time)
- 	CMOS_WRITE(hrs, RTC_HOURS);
- 	CMOS_WRITE(min, RTC_MINUTES);
- 	CMOS_WRITE(sec, RTC_SECONDS);
-+#ifdef CONFIG_ACPI
-+	if (acpi_gbl_FADT.header.revision >= FADT2_REVISION_ID &&
-+	    acpi_gbl_FADT.century)
-+		CMOS_WRITE(century, acpi_gbl_FADT.century);
-+#endif
+ 	return 0;
+ }
  
- 	CMOS_WRITE(save_control, RTC_CONTROL);
- 	CMOS_WRITE(save_freq_select, RTC_FREQ_SELECT);
+ static const struct dev_pm_ops snvs_rtc_pm_ops = {
+-	.suspend_noirq = snvs_rtc_suspend,
+-	.resume_noirq = snvs_rtc_resume,
++	.suspend = snvs_rtc_suspend,
++	.suspend_noirq = snvs_rtc_suspend_noirq,
++	.resume = snvs_rtc_resume,
++	.resume_noirq = snvs_rtc_resume_noirq,
+ };
+ 
+ #define SNVS_RTC_PM_OPS	(&snvs_rtc_pm_ops)
 -- 
-1.9.1
+2.4.2
 
 -- 
 -- 
