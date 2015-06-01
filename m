@@ -1,21 +1,20 @@
-Return-Path: <rtc-linux+bncBDMOV25X7AMRB2WY26VQKGQEJBGV2IY@googlegroups.com>
-Received: from bedivere.hansenpartnership.com (bedivere.hansenpartnership.com. [66.63.167.143])
-        by gmr-mx.google.com with ESMTP id xv6si426351pab.2.2015.06.08.12.26.34
-        for <rtc-linux@googlegroups.com>;
-        Mon, 08 Jun 2015 12:26:34 -0700 (PDT)
-Message-ID: <1433791592.2291.83.camel@HansenPartnership.com>
-Subject: [rtc-linux] Re: [PATCH] efi: rtc-efi: use correct EFI 'epoch'
-From: James Bottomley <James.Bottomley@HansenPartnership.com>
-To: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Cc: matt.fleming@intel.com, linux-efi@vger.kernel.org, roy.franz@linaro.org,
-  leif.lindholm@linaro.org, Alessandro Zummo <a.zummo@towertech.it>,
- Alexandre Belloni <alexandre.belloni@free-electrons.com>,
- rtc-linux@googlegroups.com
-Date: Mon, 08 Jun 2015 12:26:32 -0700
-In-Reply-To: <1433762834-17961-1-git-send-email-ard.biesheuvel@linaro.org>
-References: <1433762834-17961-1-git-send-email-ard.biesheuvel@linaro.org>
+Return-Path: <rtc-linux+bncBDEKVJM7XAHRB7XLWKVQKGQE75A4D5Q@googlegroups.com>
+Received: from mout.kundenserver.de (mout.kundenserver.de. [212.227.17.10])
+        by gmr-mx.google.com with ESMTPS id gt9si556184wib.2.2015.06.01.12.43.58
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 01 Jun 2015 12:43:58 -0700 (PDT)
+From: Arnd Bergmann <arnd@arndb.de>
+To: pang.xunlei@zte.com.cn
+Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>, Alessandro Zummo <a.zummo@towertech.it>, Andrew Christian <andrew.christian@hp.com>, CIH <cih@coventive.com>, John Stultz <john.stultz@linaro.org>, linux-kernel@vger.kernel.org, Nicolas Pitre <nico@fluxnic.net>, Xunlei Pang <pang.xunlei@linaro.org>, Richard Purdie <rpurdie@rpsys.net>, rtc-linux@googlegroups.com, Xunlei Pang <xlpang@126.com>
+Subject: [rtc-linux] Re: [5/5] drivers/rtc/sa1100: Replace deprecated
+ rtc_tm_to_time() and rtc_time_to_tm()
+Date: Mon, 01 Jun 2015 21:43:22 +0200
+Message-ID: <3404495.679z0IaaBp@wuerfel>
+In-Reply-To: <OF8AF02B38.A9E97627-ON48257E55.00352B8F-48257E55.0037661B@zte.com.cn>
+References: <1429089611-29776-5-git-send-email-xlpang@126.com> <OF1F6D43BC.C38481A0-ON48257E54.004FA90B-48257E54.004FD9D8@LocalDomain> <OF8AF02B38.A9E97627-ON48257E55.00352B8F-48257E55.0037661B@zte.com.cn>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Mime-Version: 1.0
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -26,119 +25,60 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On Mon, 2015-06-08 at 13:27 +0200, Ard Biesheuvel wrote:
-> The rtc-efi driver declares that the EFI 'epoch' is 1/1/1998, but
-> the UEFI spec does not define it at all. It does define a minimum
-> of 1900 for the 'Year' member of the EFI_TIME struct, so let's use
-> 1900 as the minimum year and not 1998.
+On Saturday 30 May 2015 18:05:10 pang.xunlei@zte.com.cn wrote:
+> PangXunLei10110855/user/zte_ltd wrote 2015-05-29 PM 10:32:15:
+> > Alexandre Belloni <alexandre.belloni@free-electrons.com> wrote 
+> > 2015-04-30 AM 07:28:24:
+> > > Re: [5/5] drivers/rtc/sa1100: Replace deprecated rtc_tm_to_time() 
+> > > and rtc_time_to_tm()
+> > > 
+> > > For the same reason that Russell pointed in patch 4/5, this hides that
+> > > it doesn't work after 2106-02-07 06:28:16 as the register is still 32
+> > > bits.
+> > > I would prefer that you return an error in that case.
+> > 
+> > Thanks for the review, I want to leave the ones like this untouched.
+> > 
 > 
-> This prevents rtc_read_time() failures when the RTC that backs the
-> EFI time services is set to a date before 1998.
+> To further explain, for the rtc hardware with 32-bit counters, we actually 
 > 
-> Cc: Alessandro Zummo <a.zummo@towertech.it>
-> Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-> Cc: rtc-linux@googlegroups.com
-> Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-> ---
->  drivers/rtc/rtc-efi.c | 13 +++++++------
->  1 file changed, 7 insertions(+), 6 deletions(-)
+> had a solution before: https://lkml.org/lkml/2014/11/27/341
 > 
-> diff --git a/drivers/rtc/rtc-efi.c b/drivers/rtc/rtc-efi.c
-> index cb989cd00b14..4a93b0bbf22c 100644
-> --- a/drivers/rtc/rtc-efi.c
-> +++ b/drivers/rtc/rtc-efi.c
-> @@ -25,9 +25,12 @@
->  
->  #define EFI_ISDST (EFI_TIME_ADJUST_DAYLIGHT|EFI_TIME_IN_DAYLIGHT)
->  /*
-> - * EFI Epoch is 1/1/1998
-> + * The UEFI spec does not literally define an epoch, but it does
-> + * define EFI_TIME::Year as having a value between 1900 and 9999.
-> + * (UEFI spec v2.5 paragraph 7.3)
-> + * So let's use 1900 as the EFI epoch year.
->   */
-> -#define EFI_RTC_EPOCH		1998
-> +#define EFI_RTC_EPOCH		1900
->  
->  /*
->   * returns day of the year [0-365]
-> @@ -40,8 +43,6 @@ compute_yday(efi_time_t *eft)
->  }
->  /*
->   * returns day of the week [0-6] 0=Sunday
-> - *
-> - * Don't try to provide a year that's before 1998, please !
->   */
->  static int
->  compute_wday(efi_time_t *eft)
-> @@ -60,9 +61,9 @@ compute_wday(efi_time_t *eft)
->  	ndays += compute_yday(eft);
->  
->  	/*
-> -	 * 4=1/1/1998 was a Thursday
-> +	 * 1=1/1/1900 was a Monday
->  	 */
-> -	return (ndays + 4) % 7;
-> +	return (ndays + 1) % 7;
->  }
+> But seems some guys don't like the solution, so rtc drivers like this one 
+> can't be simply changed to use the new-added y2038-safe interfaces.
+> 
+> Maybe those drivers will still retain the deprecated interfaces until a 
+> better solution is proposed.
 
-This is a bit nuts: increasing the for loop by a huge amount every time
-we call the date just so we can cope with the odd early date.  Why not
-just count backwards for the exception case?  That way the epoch becomes
-an optimisation point, every year actually works, but years far before
-the epoch get penalised in the loop, while our current "efficiency"
-remains ... perhaps plus points if we want to move the epoch to 2015?
+Note that Alexandre has stepped up as a new maintainer for RTC now,
+so whatever he wants is probably the way it should be done.
 
-James
+I think the way that your first approach came out was a bit unfortunate,
+because we didn't have agreement on how it should really be done.
 
----
+IMHO the rtc_time64_to_hw32 and rtc_hw32_to_time64 interfaces were a
+good concept, most importantly so we can easily find where the potential
+problems are, but the implementation was a bit too ambitious in trying
+to fix the underlying issue.
 
-diff --git a/drivers/rtc/rtc-efi.c b/drivers/rtc/rtc-efi.c
-index cb989cd..73f1ba6 100644
---- a/drivers/rtc/rtc-efi.c
-+++ b/drivers/rtc/rtc-efi.c
-@@ -40,8 +40,6 @@ compute_yday(efi_time_t *eft)
- }
- /*
-  * returns day of the week [0-6] 0=Sunday
-- *
-- * Don't try to provide a year that's before 1998, please !
-  */
- static int
- compute_wday(efi_time_t *eft)
-@@ -49,16 +47,25 @@ compute_wday(efi_time_t *eft)
- 	int y;
- 	int ndays = 0;
- 
--	if (eft->year < EFI_RTC_EPOCH) {
--		pr_err("EFI year < " __stringify(EFI_RTC_EPOCH) ", invalid date\n");
--		return -1;
-+	if (unlikely(eft->year < EFI_RTC_EPOCH)) {
-+		/* unlikely event, just count backwards */
-+		for (y = eft->year; y < EFI_RTC_EPOCH; y++)
-+			ndays -= 365 + (is_leap_year(y) ? 1 : 0);
-+	} else {
-+		for (y = EFI_RTC_EPOCH; y < eft->year; y++)
-+			ndays += 365 + (is_leap_year(y) ? 1 : 0);
- 	}
- 
--	for (y = EFI_RTC_EPOCH; y < eft->year; y++)
--		ndays += 365 + (is_leap_year(y) ? 1 : 0);
--
- 	ndays += compute_yday(eft);
- 
-+	if (ndays < 0)
-+		/* 
-+		 * make ndays positive by adding a multiple of seven because
-+		 * clock arithmetic using % doesn't work with negative
-+		 * numbers
-+		 */
-+		ndays += ((-ndays)/7 + 1)*7;
-+
- 	/*
- 	 * 4=1/1/1998 was a Thursday
- 	 */
+If we want to start this over again, I think a better approach would be
+to introduce trivial functions at first, like
 
+time64_t rtc_hw32_to_time64(u32 hwtime)
+{
+	/* 
+	 * this is safe until about 2106, when unsigned u32 seconds from the
+	 * 1970 epoch will overflow
+	 */
+	return (u64)hwtime;
+}
+EXPORT_SYMBOL_GPL(rtc_hw32_to_time64);
+
+This way, we can fix all the drivers without introducing any possible
+ambiguity and later decide how that function should in fact handle the
+2106 overflow. Our grandchildren can take care of that if necessary ;-)
+
+	Arnd
 
 -- 
 -- 
