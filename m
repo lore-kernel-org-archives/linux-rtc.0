@@ -1,17 +1,31 @@
-Return-Path: <rtc-linux+bncBDHPTCWTXEHRBN4O6CVQKGQEC6CPUCA@googlegroups.com>
-Received: from gloria.sntech.de (gloria.sntech.de. [95.129.55.99])
-        by gmr-mx.google.com with ESMTPS id q10si217901wiz.0.2015.06.13.03.34.30
+Return-Path: <rtc-linux+bncBDP6N55ZUYDRB5PMWKVQKGQEK3FY2PA@googlegroups.com>
+Received: from mail-ig0-x233.google.com (mail-ig0-x233.google.com. [2607:f8b0:4001:c05::233])
+        by gmr-mx.google.com with ESMTPS id x12si986841igx.1.2015.06.01.12.45.57
         for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=RC4-SHA bits=128/128);
-        Sat, 13 Jun 2015 03:34:30 -0700 (PDT)
-From: Heiko =?ISO-8859-1?Q?St=FCbner?= <heiko@sntech.de>
-To: Alessandro Zummo <a.zummo@towertech.it>, Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, rtc-linux@googlegroups.com, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [rtc-linux] [PATCH] rtc: hym8563: make the irq optional
-Date: Sat, 13 Jun 2015 12:34:04 +0200
-Message-ID: <2559079.JyXCpe7EYV@diego>
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 01 Jun 2015 12:45:57 -0700 (PDT)
+Received: by mail-ig0-x233.google.com with SMTP id sb11so70278190igb.0
+        for <rtc-linux@googlegroups.com>; Mon, 01 Jun 2015 12:45:57 -0700 (PDT)
+Date: Mon, 1 Jun 2015 12:45:52 -0700
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Zhi Li <lznuaa@gmail.com>
+Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Shawn Guo <shawn.guo@linaro.org>,
+	"Frank.Li@freescale.com" <Frank.Li@freescale.com>,
+	Rob Herring <robh+dt@kernel.org>,
+	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>,
+	linux-input@vger.kernel.org, rtc-linux@googlegroups.com,
+	"devicetree@vger.kernel.org" <devicetree@vger.kernel.org>
+Subject: [rtc-linux] Re: [PATCH v5 0/6] Change snvs rtc and poweroff to use
+ syscon add pwrkey driver
+Message-ID: <20150601194552.GD30024@dtor-ws>
+References: <1432657562-5592-1-git-send-email-Frank.Li@freescale.com>
+ <20150527121052.GH16165@dragon>
+ <20150528121353.GP2185@piout.net>
+ <CAHrpEqShyPKeKYdVZ05_qsbx0cC387a2QPCdbhR5C968n=ED0A@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <CAHrpEqShyPKeKYdVZ05_qsbx0cC387a2QPCdbhR5C968n=ED0A@mail.gmail.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -22,73 +36,56 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Sometimes the irq line is not connected to any soc-pin. This does
-not hinder basic timekeeping functionality of the rtc, so probe
-should not fail in this case.
+On Thu, May 28, 2015 at 08:18:24AM -0500, Zhi Li wrote:
+> On Thu, May 28, 2015 at 7:13 AM, Alexandre Belloni
+> <alexandre.belloni@free-electrons.com> wrote:
+> > On 27/05/2015 at 20:10:53 +0800, Shawn Guo wrote :
+> >> On Wed, May 27, 2015 at 12:25:56AM +0800, Frank.Li@freescale.com wrote=
+:
+> >> > Frank Li (5):
+> >> >   rtc: arm: imx: snvs: change use syscon to access register
+> >> >   Document: dt: fsl: snvs: change support syscon
+> >> >   ARM: dts: imx: update snvs to use syscon access register
+> >> >   Document: devicetree: input: imx: i.mx snvs power device tree bind=
+ings
+> >> >   ARM: dts: imx6sx: enable snvs power key
+> >> >
+> >> > Robin Gong (1):
+> >> >   input: keyboard: imx: add snvs power key driver
+> >>
+> >> The series looks fine to me now.  But I can only apply those two dts
+> >> patches after the driver and binding parts get landed on mainline.
+> >> Hopefully, you can get them in during the coming merge window through
+> >> subsystem trees, so that I can pick up dts part after v4.2-rc1 comes
+> >> out.
+> >>
+> >
+> > Actually, I was thinking you could take the whole series in your tree
+> > (at least, I'm speaking for the RTC part).
+> > Else, I'm wondering who should take the documentation changes.
+> >
+>=20
+> Dmitry Torokhov:
+>=20
+> what's your opinion about input part=EF=BC=9F
 
-Signed-off-by: Heiko Stuebner <heiko@sntech.de>
----
- .../devicetree/bindings/rtc/haoyu,hym8563.txt          |  2 +-
- drivers/rtc/rtc-hym8563.c                              | 18 ++++++++++--------
- 2 files changed, 11 insertions(+), 9 deletions(-)
+I am fine with it merged through Shawn's tree. I added my ack to the mail
+in question.
 
-diff --git a/Documentation/devicetree/bindings/rtc/haoyu,hym8563.txt b/Documentation/devicetree/bindings/rtc/haoyu,hym8563.txt
-index 5c199ee..a8934fe 100644
---- a/Documentation/devicetree/bindings/rtc/haoyu,hym8563.txt
-+++ b/Documentation/devicetree/bindings/rtc/haoyu,hym8563.txt
-@@ -6,11 +6,11 @@ as well as a clock output of up to 32kHz.
- Required properties:
- - compatible: should be: "haoyu,hym8563"
- - reg: i2c address
--- interrupts: rtc alarm/event interrupt
- - #clock-cells: the value should be 0
- 
- Optional properties:
- - clock-output-names: From common clock binding
-+- interrupts: rtc alarm/event interrupt
- 
- Example:
- 
-diff --git a/drivers/rtc/rtc-hym8563.c b/drivers/rtc/rtc-hym8563.c
-index 0f710e9..e9da795 100644
---- a/drivers/rtc/rtc-hym8563.c
-+++ b/drivers/rtc/rtc-hym8563.c
-@@ -548,14 +548,16 @@ static int hym8563_probe(struct i2c_client *client,
- 		return ret;
- 	}
- 
--	ret = devm_request_threaded_irq(&client->dev, client->irq,
--					NULL, hym8563_irq,
--					IRQF_TRIGGER_LOW | IRQF_ONESHOT,
--					client->name, hym8563);
--	if (ret < 0) {
--		dev_err(&client->dev, "irq %d request failed, %d\n",
--			client->irq, ret);
--		return ret;
-+	if (client->irq > 0) {
-+		ret = devm_request_threaded_irq(&client->dev, client->irq,
-+						NULL, hym8563_irq,
-+						IRQF_TRIGGER_LOW | IRQF_ONESHOT,
-+						client->name, hym8563);
-+		if (ret < 0) {
-+			dev_err(&client->dev, "irq %d request failed, %d\n",
-+				client->irq, ret);
-+			return ret;
-+		}
- 	}
- 
- 	/* check state of calendar information */
--- 
-2.1.4
+Thanks.
 
+--=20
+Dmitry
 
--- 
--- 
+--=20
+--=20
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+---=20
+You received this message because you are subscribed to the Google Groups "=
+rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an e=
+mail to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
