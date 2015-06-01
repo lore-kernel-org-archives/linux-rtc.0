@@ -1,23 +1,28 @@
-Return-Path: <rtc-linux+bncBAABB3G376VQKGQEGBTQJ2Q@googlegroups.com>
+Return-Path: <rtc-linux+bncBDA7X7F2WUEBBBFRWCVQKGQEO5NTD4A@googlegroups.com>
+Received: from mail-wg0-f54.google.com (mail-wg0-f54.google.com. [74.125.82.54])
+        by gmr-mx.google.com with ESMTPS id ec7si459427wib.3.2015.06.01.01.32.03
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 01 Jun 2015 01:32:03 -0700 (PDT)
+Received: by mail-wg0-f54.google.com with SMTP id gq6so107693605wgb.3
+        for <rtc-linux@googlegroups.com>; Mon, 01 Jun 2015 01:32:03 -0700 (PDT)
+Date: Mon, 1 Jun 2015 09:31:59 +0100
+From: Lee Jones <lee.jones@linaro.org>
+To: Vaibhav Hiremath <vaibhav.hiremath@linaro.org>
+Cc: linux-arm-kernel@lists.infradead.org, robh+dt@kernel.org,
+	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+	rtc-linux@googlegroups.com, sameo@linux.intel.com,
+	a.zummo@towertech.it, alexandre.belloni@free-electrons.com,
+	zhaoy <zhaoy@marvell.com>
+Subject: [rtc-linux] Re: [PATCH 2/4] mfd: 88pm800: use irq_mode to configure
+ interrupt status reg clear method
+Message-ID: <20150601083159.GD3329@x1>
+References: <1432937962-4537-1-git-send-email-vaibhav.hiremath@linaro.org>
+ <1432937962-4537-3-git-send-email-vaibhav.hiremath@linaro.org>
 MIME-Version: 1.0
-Received: from mx.dave-tech.it (mx.dave-tech.it. [2.229.21.40])
-        by gmr-mx.google.com with ESMTP id p9si642607wiz.3.2015.06.16.02.35.39
-        for <rtc-linux@googlegroups.com>;
-        Tue, 16 Jun 2015 02:35:39 -0700 (PDT)
-From: rnd4@dave-tech.it
-To: alexandre.belloni@free-electrons.com
-Cc: a.zummo@towertech.it,
-	rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org,
-	Andrea Scian <andrea.scian@dave.eu>
-Subject: [rtc-linux] [PATCH] driver: rtc: use rtc_valid_tm() error code when
- reading date/time
-Date: Tue, 16 Jun 2015 11:35:19 +0200
-Message-Id: <1434447319-23007-1-git-send-email-rnd4@dave-tech.it>
-In-Reply-To: <557EF5DD.9070300@dave-tech.it>
-References: <557EF5DD.9070300@dave-tech.it>
-Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1432937962-4537-3-git-send-email-vaibhav.hiremath@linaro.org>
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -27,105 +32,89 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-From: Andrea Scian <andrea.scian@dave.eu>
+On Sat, 30 May 2015, Vaibhav Hiremath wrote:
 
-There's a wrong commend in some RTC driver that say it's better to ignore
-rtc_valid_tm() when reading RTC timestamp. However this is wrong and is
-better to return to the userspace the an error if timestamp is not valid.
+> From the spec, bit 1 of reg 0xe (page 0): IN_CLEAR_MODE controls the
+> method of clearing interrupt status register of 88pm800;
+>=20
+>   0: clear on read
+>   1: clear on write
+>=20
+> Signed-off-by: zhaoy <zhaoy@marvell.com>
 
-Signed-off-by: Andrea Scian <andrea.scian@dave.eu>
----
- drivers/rtc/rtc-isl12022.c |    7 +------
- drivers/rtc/rtc-pcf2123.c  |    8 +-------
- drivers/rtc/rtc-pcf2127.c  |    8 +-------
- drivers/rtc/rtc-pcf8563.c  |    8 +-------
- 4 files changed, 4 insertions(+), 27 deletions(-)
+This signed-off is not acceptable.
 
-diff --git a/drivers/rtc/rtc-isl12022.c b/drivers/rtc/rtc-isl12022.c
-index a1bbbb8..54e9eca 100644
---- a/drivers/rtc/rtc-isl12022.c
-+++ b/drivers/rtc/rtc-isl12022.c
-@@ -148,12 +148,7 @@ static int isl12022_get_datetime(struct i2c_client *client, struct rtc_time *tm)
- 		tm->tm_sec, tm->tm_min, tm->tm_hour,
- 		tm->tm_mday, tm->tm_mon, tm->tm_year, tm->tm_wday);
- 
--	/* The clock can give out invalid datetime, but we cannot return
--	 * -EINVAL otherwise hwclock will refuse to set the time on bootup. */
--	if (rtc_valid_tm(tm) < 0)
--		dev_err(&client->dev, "retrieved date and time is invalid.\n");
--
--	return 0;
-+	return rtc_valid_tm(tm);
- }
- 
- static int isl12022_set_datetime(struct i2c_client *client, struct rtc_time *tm)
-diff --git a/drivers/rtc/rtc-pcf2123.c b/drivers/rtc/rtc-pcf2123.c
-index 796a6c5..e0a2469 100644
---- a/drivers/rtc/rtc-pcf2123.c
-+++ b/drivers/rtc/rtc-pcf2123.c
-@@ -159,13 +159,7 @@ static int pcf2123_rtc_read_time(struct device *dev, struct rtc_time *tm)
- 			tm->tm_sec, tm->tm_min, tm->tm_hour,
- 			tm->tm_mday, tm->tm_mon, tm->tm_year, tm->tm_wday);
- 
--	/* the clock can give out invalid datetime, but we cannot return
--	 * -EINVAL otherwise hwclock will refuse to set the time on bootup.
--	 */
--	if (rtc_valid_tm(tm) < 0)
--		dev_err(dev, "retrieved date/time is not valid.\n");
--
--	return 0;
-+	return rtc_valid_tm(tm);
- }
- 
- static int pcf2123_rtc_set_time(struct device *dev, struct rtc_time *tm)
-diff --git a/drivers/rtc/rtc-pcf2127.c b/drivers/rtc/rtc-pcf2127.c
-index 1ee514a..7f803b2 100644
---- a/drivers/rtc/rtc-pcf2127.c
-+++ b/drivers/rtc/rtc-pcf2127.c
-@@ -88,13 +88,7 @@ static int pcf2127_get_datetime(struct i2c_client *client, struct rtc_time *tm)
- 		tm->tm_sec, tm->tm_min, tm->tm_hour,
- 		tm->tm_mday, tm->tm_mon, tm->tm_year, tm->tm_wday);
- 
--	/* the clock can give out invalid datetime, but we cannot return
--	 * -EINVAL otherwise hwclock will refuse to set the time on bootup.
--	 */
--	if (rtc_valid_tm(tm) < 0)
--		dev_err(&client->dev, "retrieved date/time is not valid.\n");
--
--	return 0;
-+	return rtc_valid_tm(tm);
- }
- 
- static int pcf2127_set_datetime(struct i2c_client *client, struct rtc_time *tm)
-diff --git a/drivers/rtc/rtc-pcf8563.c b/drivers/rtc/rtc-pcf8563.c
-index 97b354a..3a6d7e0 100644
---- a/drivers/rtc/rtc-pcf8563.c
-+++ b/drivers/rtc/rtc-pcf8563.c
-@@ -131,13 +131,7 @@ static int pcf8563_get_datetime(struct i2c_client *client, struct rtc_time *tm)
- 		tm->tm_sec, tm->tm_min, tm->tm_hour,
- 		tm->tm_mday, tm->tm_mon, tm->tm_year, tm->tm_wday);
- 
--	/* the clock can give out invalid datetime, but we cannot return
--	 * -EINVAL otherwise hwclock will refuse to set the time on bootup.
--	 */
--	if (rtc_valid_tm(tm) < 0)
--		dev_err(&client->dev, "retrieved date/time is not valid.\n");
--
--	return 0;
-+	return rtc_valid_tm(tm);
- }
- 
- static int pcf8563_set_datetime(struct i2c_client *client, struct rtc_time *tm)
--- 
-1.7.9.5
+No nicknames.  Full names only.
 
--- 
--- 
+> Signed-off-by: Vaibhav Hiremath <vaibhav.hiremath@linaro.org>
+> ---
+>  drivers/mfd/88pm800.c       | 4 +++-
+>  include/linux/mfd/88pm80x.h | 2 ++
+>  2 files changed, 5 insertions(+), 1 deletion(-)
+>=20
+> diff --git a/drivers/mfd/88pm800.c b/drivers/mfd/88pm800.c
+> index 06ee058..8ea4467 100644
+> --- a/drivers/mfd/88pm800.c
+> +++ b/drivers/mfd/88pm800.c
+> @@ -391,7 +391,8 @@ static int device_irq_init_800(struct pm80x_chip *chi=
+p)
+>  	    PM800_WAKEUP2_INV_INT | PM800_WAKEUP2_INT_CLEAR |
+>  	    PM800_WAKEUP2_INT_MASK;
+> =20
+> -	data =3D PM800_WAKEUP2_INT_CLEAR;
+> +	data =3D (chip->irq_mode) ?
+> +		PM800_WAKEUP2_INT_WRITE_CLEAR : PM800_WAKEUP2_INT_READ_CLEAR;
+
+These variable names are terrible.  'irq_mode' as a bool tells me
+nothing.
+
+What does; irq_mode =3D 'yes' and irq_mode =3D 'no' mean?  If I didn't
+read the remainder of the code, I would assume if it was 'yes' then
+the device was in IRQ Mode and if not, it would be in PIO or Polling
+mode, but that's not what it means at all is it?
+
+As for 'data', well, isn't everything data?
+
+>  	ret =3D regmap_update_bits(map, PM800_WAKEUP2, mask, data);
+> =20
+>  	if (ret < 0)
+> @@ -514,6 +515,7 @@ static int device_800_init(struct pm80x_chip *chip,
+>  	}
+> =20
+>  	chip->regmap_irq_chip =3D &pm800_irq_chip;
+> +	chip->irq_mode =3D pdata->irq_mode;
+> =20
+>  	ret =3D device_irq_init_800(chip);
+>  	if (ret < 0) {
+> diff --git a/include/linux/mfd/88pm80x.h b/include/linux/mfd/88pm80x.h
+> index 97cb283..6ed6c16 100644
+> --- a/include/linux/mfd/88pm80x.h
+> +++ b/include/linux/mfd/88pm80x.h
+> @@ -77,6 +77,8 @@ enum {
+>  #define PM800_WAKEUP2		(0x0E)
+>  #define PM800_WAKEUP2_INV_INT		(1 << 0)
+>  #define PM800_WAKEUP2_INT_CLEAR		(1 << 1)
+> +#define PM800_WAKEUP2_INT_READ_CLEAR		(0 << 1)
+> +#define PM800_WAKEUP2_INT_WRITE_CLEAR		(1 << 1)
+>  #define PM800_WAKEUP2_INT_MASK		(1 << 2)
+> =20
+>  #define PM800_POWER_UP_LOG	(0x10)
+
+--=20
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org =E2=94=82 Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog
+
+--=20
+--=20
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+---=20
+You received this message because you are subscribed to the Google Groups "=
+rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an e=
+mail to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
