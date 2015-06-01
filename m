@@ -1,21 +1,27 @@
-Return-Path: <rtc-linux+bncBCO3XAUMTIFRBIEMU2WAKGQEH655NFQ@googlegroups.com>
-Received: from devils.ext.ti.com (devils.ext.ti.com. [198.47.26.153])
-        by gmr-mx.google.com with ESMTP id x1si5798igb.2.2015.06.23.09.15.27
-        for <rtc-linux@googlegroups.com>;
-        Tue, 23 Jun 2015 09:15:27 -0700 (PDT)
-From: Nishanth Menon <nm@ti.com>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        Alessandro Zummo
-	<a.zummo@towertech.it>
-CC: <linux-kernel@vger.kernel.org>, <rtc-linux@googlegroups.com>,
-        <linux-omap@vger.kernel.org>, <linux-arm-kernel@lists.infradead.org>,
-        <balbi@ti.com>, <grygorii.strashko@ti.com>, Nishanth Menon <nm@ti.com>
-Subject: [rtc-linux] [PATCH V2 0/5] drivers/rtc/rtc-ds1307.c: Basic cleanups
- and support for wakeupirq
-Date: Tue, 23 Jun 2015 11:15:09 -0500
-Message-ID: <1435076114-12416-1-git-send-email-nm@ti.com>
+Return-Path: <rtc-linux+bncBDA7X7F2WUEBBLNMWCVQKGQE76Q5L6Y@googlegroups.com>
+Received: from mail-wi0-f172.google.com (mail-wi0-f172.google.com. [209.85.212.172])
+        by gmr-mx.google.com with ESMTPS id k2si467790wif.0.2015.06.01.01.22.04
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 01 Jun 2015 01:22:04 -0700 (PDT)
+Received: by wizo1 with SMTP id o1so94526759wiz.1
+        for <rtc-linux@googlegroups.com>; Mon, 01 Jun 2015 01:22:04 -0700 (PDT)
+Date: Mon, 1 Jun 2015 09:22:00 +0100
+From: Lee Jones <lee.jones@linaro.org>
+To: Vaibhav Hiremath <vaibhav.hiremath@linaro.org>
+Cc: linux-arm-kernel@lists.infradead.org, robh+dt@kernel.org,
+	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+	rtc-linux@googlegroups.com, sameo@linux.intel.com,
+	a.zummo@towertech.it, alexandre.belloni@free-electrons.com,
+	Chao Xie <chao.xie@marvell.com>
+Subject: [rtc-linux] Re: [PATCH 4/4] mfd: 88pm800: allocate pdata->rtc if not
+ allocated earlier
+Message-ID: <20150601082200.GC3329@x1>
+References: <1432937962-4537-1-git-send-email-vaibhav.hiremath@linaro.org>
+ <1432937962-4537-5-git-send-email-vaibhav.hiremath@linaro.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1432937962-4537-5-git-send-email-vaibhav.hiremath@linaro.org>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -26,56 +32,73 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Hi,
+On Sat, 30 May 2015, Vaibhav Hiremath wrote:
 
-Here is the revamp of the patch posted eariler to support wakeupirq.
-This series does a few cleanups as well prior to introducing the
-generic apis required to support the wakeirq mechanism used on certain
-TI SoCs. Cleanups done here are just minimal set of the cleanups we
-discussed in [2].
+> RTC in pmic 88PM800 can run even the core is powered off, and user
+> can set alarm in RTC. When the alarm is timed out, the PMIC will power up
+> the core, and the whole system will boot up. And during PMIC driver probe=
+,
+> it will read some register to find out whether this boot is caused by RTC
+> timeout or not, and pass on this information to the RTC driver.
+>=20
+> So we need rtc platform data to be existed in PMIC driver to pass this
+> information.
+>=20
+> Signed-off-by: Chao Xie <chao.xie@marvell.com>
+> Signed-off-by: Vaibhav Hiremath <vaibhav.hiremath@linaro.org>
+> ---
+>  drivers/mfd/88pm800.c | 19 +++++++++++++++++++
+>  1 file changed, 19 insertions(+)
+>=20
+> diff --git a/drivers/mfd/88pm800.c b/drivers/mfd/88pm800.c
+> index 8ea4467..34546a1 100644
+> --- a/drivers/mfd/88pm800.c
+> +++ b/drivers/mfd/88pm800.c
+> @@ -586,6 +586,25 @@ static int pm800_probe(struct i2c_client *client,
+>  			return ret;
+>  	}
+> =20
+> +	/*
+> +	 * RTC in pmic can run even the core is powered off, and user can set
+> +	 * alarm in RTC. When the alarm is time out, the PMIC will power up
+> +	 * the core, and the whole system will boot up. When PMIC driver is
+> +	 * probed, it will read out some register to find out whether this
+> +	 * boot is caused by RTC timeout or not, and it need pass this
+> +	 * information to RTC driver.
+> +	 * So we need rtc platform data to be existed to pass this information.
+> +	 */
+> +	if (!pdata->rtc) {
+> +		pdata->rtc =3D devm_kzalloc(&client->dev,
+> +					  sizeof(*(pdata->rtc)), GFP_KERNEL);
+> +		if (!pdata->rtc) {
+> +			dev_err(&client->dev,
+> +					"failed to allocate memory for rtc\n");
+> +			return -ENOMEM;
+> +		}
+> +	}
+> +
 
-Series is based on next-20150623
+Where is this memory first used?
 
-Test log: http://pastebin.ubuntu.com/11763002/
+>  	ret =3D pm80x_init(client);
+>  	if (ret) {
+>  		dev_err(&client->dev, "pm800_init fail\n");
 
-NOTE1: I have only tested in mcp79410 device, and not on other
-ds1307-rtc driver compatbile devices as I dont have any other.
-additional testing might be nice to have.
-NOTE2: there are additional fixes that linux-next seems to need but
-those are in omap-rtc, cpufreq etc, but those are not related by the
-ds-1307.
+--=20
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org =E2=94=82 Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog
 
-V1: https://patchwork.kernel.org/patch/4759171/
-
-NOTE: Patch 5/5 of the series is meant to indicate the usage, and will
-be reposted along with other wakeup sources to be enabled once the
-driver changes are accepted.
-
-Felipe Balbi (1):
-  drivers/rtc/rtc-ds1307.c: Convert to threaded IRQ
-
-Nishanth Menon (4):
-  drivers/rtc/rtc-ds1307.c: Switch to managed irq allocation
-  drivers/rtc/rtc-ds1307.c: Sort the headers
-  drivers/rtc/rtc-ds1307.c: Support optional wakeup interrupt source
-  (TMP) ARM: dts: am57xx-beagle-x15: Add wakeup irq for mcp79410
-
- arch/arm/boot/dts/am57xx-beagle-x15.dts |    3 +-
- drivers/rtc/rtc-ds1307.c                |  110 +++++++++++++++++--------------
- 2 files changed, 63 insertions(+), 50 deletions(-)
-
--- 
-1.7.9.5
-
-[2] https://patchwork.kernel.org/patch/6245101/
-
--- 
--- 
+--=20
+--=20
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+---=20
+You received this message because you are subscribed to the Google Groups "=
+rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an e=
+mail to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
