@@ -1,26 +1,21 @@
-Return-Path: <rtc-linux+bncBCN6JTVP2IEBBQE45GVQKGQEEBYKWUI@googlegroups.com>
+Return-Path: <rtc-linux+bncBDEKVJM7XAHRBHHNWKVQKGQE6MIFA3A@googlegroups.com>
+Received: from mout.kundenserver.de (mout.kundenserver.de. [212.227.126.131])
+        by gmr-mx.google.com with ESMTPS id gt9si556561wib.2.2015.06.01.12.46.36
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 01 Jun 2015 12:46:36 -0700 (PDT)
+From: Arnd Bergmann <arnd@arndb.de>
+To: Xunlei Pang <xlpang@126.com>
+Cc: linux-kernel@vger.kernel.org, rtc-linux@googlegroups.com, Alessandro Zummo <a.zummo@towertech.it>, John Stultz <john.stultz@linaro.org>, Xunlei Pang <pang.xunlei@linaro.org>, alexandre.belloni@free-electrons.com
+Subject: [rtc-linux] Re: [PATCH RESEND 1/3] drivers/rtc/pcf8563: Replace
+ deprecated rtc_time_to_tm() and rtc_tm_to_time()
+Date: Mon, 01 Jun 2015 21:46:29 +0200
+Message-ID: <2840029.d0aORC2jsD@wuerfel>
+In-Reply-To: <1432911877-607-1-git-send-email-xlpang@126.com>
+References: <1432911877-607-1-git-send-email-xlpang@126.com>
 MIME-Version: 1.0
-Received: from m50-111.126.com (m50-111.126.com. [123.125.50.111])
-        by gmr-mx.google.com with ESMTP id ax9si53632igc.1.2015.06.11.20.13.03
-        for <rtc-linux@googlegroups.com>;
-        Thu, 11 Jun 2015 20:13:04 -0700 (PDT)
-From: Xunlei Pang <xlpang@126.com>
-To: linux-kernel@vger.kernel.org
-Cc: rtc-linux@googlegroups.com,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	John Stultz <john.stultz@linaro.org>,
-	Arnd Bergmann <arnd@arndb.de>,
-	"David S. Miller" <davem@davemloft.net>,
-	sparclinux@vger.kernel.org,
-	Xunlei Pang <pang.xunlei@linaro.org>,
-	Paul Bolle <pebolle@tiscali.nl>
-Subject: [rtc-linux] [PATCH v3 1/3] NTP: rtc: Add CONFIG_RTC_SYSTOHC_DEVICE
- for NTP synchronization
-Date: Fri, 12 Jun 2015 11:10:16 +0800
-Message-Id: <1434078618-16373-1-git-send-email-xlpang@126.com>
-Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -30,91 +25,52 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-From: Xunlei Pang <pang.xunlei@linaro.org>
+On Friday 29 May 2015 23:04:35 Xunlei Pang wrote:
+> From: Xunlei Pang <pang.xunlei@linaro.org>
+> 
+> pcf8563_rtc_set_alarm() uses deprecated rtc_tm_to_time()
+> and rtc_time_to_tm(), which will overflow in year 2106
+> on 32-bit machines.
+> 
+> This patch solves this by:
+>  - Replacing rtc_time_to_tm() with rtc_time64_to_tm()
+>  - Replacing rtc_tm_to_time() with rtc_tm_to_time64()
+> 
+> Signed-off-by: Xunlei Pang <pang.xunlei@linaro.org>
 
-Currently, CONFIG_RTC_SYSTOHC uses CONFIG_RTC_HCTOSYS_DEVICE which
-is originally used by CONFIG_RTC_HCTOSYS, but this rtc device has
-some limiations, for example, it must be battery-backed, be able
-to work with irq off and through system suspension, etc.
+(adding alexandre to Cc)
 
-So add CONFIG_RTC_SYSTOHC_DEVICE used exclusively for CONFIG_RTC_SYSTOHC,
-it is more lenient compared to CONFIG_RTC_HCTOSYS_DEVICE, and could
-be assigned any available RTC in the system.
+Looks good to me,
 
-Default value is CONFIG_RTC_HCTOSYS_DEVICE which is "rtc0" by default.
-After this patch, NTP will sync up "rtc0" by default.
+Acked-by: Arnd Bergmann <arnd@arndb.de>
 
-Cc: Paul Bolle <pebolle@tiscali.nl>
-Signed-off-by: Xunlei Pang <pang.xunlei@linaro.org>
----
- drivers/rtc/Kconfig   | 28 +++++++++++++++++++---------
- drivers/rtc/systohc.c |  2 +-
- 2 files changed, 20 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
-index 0fe4ad8..1dcfab4 100644
---- a/drivers/rtc/Kconfig
-+++ b/drivers/rtc/Kconfig
-@@ -25,17 +25,9 @@ config RTC_HCTOSYS
- 	  the value read from a specified RTC device. This is useful to avoid
- 	  unnecessary fsck runs at boot time, and to network better.
- 
--config RTC_SYSTOHC
--	bool "Set the RTC time based on NTP synchronization"
--	default y
--	help
--	  If you say yes here, the system time (wall clock) will be stored
--	  in the RTC specified by RTC_HCTOSYS_DEVICE approximately every 11
--	  minutes if userspace reports synchronized NTP status.
--
- config RTC_HCTOSYS_DEVICE
- 	string "RTC used to set the system time"
--	depends on RTC_HCTOSYS = y || RTC_SYSTOHC = y
-+	depends on RTC_HCTOSYS
- 	default "rtc0"
- 	help
- 	  The RTC device that will be used to (re)initialize the system
-@@ -56,6 +48,24 @@ config RTC_HCTOSYS_DEVICE
- 	  sleep states. Do not specify an RTC here unless it stays powered
- 	  during all this system's supported sleep states.
- 
-+config RTC_SYSTOHC
-+	bool "Set the RTC time based on NTP synchronization"
-+	default y
-+	help
-+	  If you say yes here, the system time (wall clock) will be stored
-+	  in the RTC specified by RTC_HCTOSYS_DEVICE approximately every 11
-+	  minutes if userspace reports synchronized NTP status.
-+
-+config RTC_SYSTOHC_DEVICE
-+	string "RTC used to synchronize NTP adjustment"
-+	depends on RTC_SYSTOHC
-+	default RTC_HCTOSYS_DEVICE
-+	help
-+	  The RTC device used for NTP synchronization. The main difference
-+	  between RTC_HCTOSYS_DEVICE and RTC_SYSTOHC_DEVICE is that this
-+	  one can sleep when setting time, because it runs in the workqueue
-+	  context.
-+
- config RTC_DEBUG
- 	bool "RTC debug support"
- 	help
-diff --git a/drivers/rtc/systohc.c b/drivers/rtc/systohc.c
-index 7728d5e..b4a68ff 100644
---- a/drivers/rtc/systohc.c
-+++ b/drivers/rtc/systohc.c
-@@ -31,7 +31,7 @@ int rtc_set_ntp_time(struct timespec64 now)
- 	else
- 		rtc_time64_to_tm(now.tv_sec + 1, &tm);
- 
--	rtc = rtc_class_open(CONFIG_RTC_HCTOSYS_DEVICE);
-+	rtc = rtc_class_open(CONFIG_RTC_SYSTOHC_DEVICE);
- 	if (rtc) {
- 		/* rtc_hctosys exclusively uses UTC, so we call set_time here,
- 		 * not set_mmss. */
--- 
-1.9.1
-
+>  drivers/rtc/rtc-pcf8563.c | 8 ++++----
+>  1 file changed, 4 insertions(+), 4 deletions(-)
+> 
+> diff --git a/drivers/rtc/rtc-pcf8563.c b/drivers/rtc/rtc-pcf8563.c
+> index 0ba7e59..5f87f84 100644
+> --- a/drivers/rtc/rtc-pcf8563.c
+> +++ b/drivers/rtc/rtc-pcf8563.c
+> @@ -363,13 +363,13 @@ static int pcf8563_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *tm)
+>  	struct i2c_client *client = to_i2c_client(dev);
+>  	unsigned char buf[4];
+>  	int err;
+> -	unsigned long alarm_time;
+>  
+>  	/* The alarm has no seconds, round up to nearest minute */
+>  	if (tm->time.tm_sec) {
+> -		rtc_tm_to_time(&tm->time, &alarm_time);
+> -		alarm_time += 60-tm->time.tm_sec;
+> -		rtc_time_to_tm(alarm_time, &tm->time);
+> +		time64_t alarm_time = rtc_tm_to_time64(&tm->time);
+> +
+> +		alarm_time += 60 - tm->time.tm_sec;
+> +		rtc_time64_to_tm(alarm_time, &tm->time);
+>  	}
+>  
+>  	dev_dbg(dev, "%s, min=%d hour=%d wday=%d mday=%d "
+> 
 
 -- 
 -- 
