@@ -1,22 +1,21 @@
-Return-Path: <rtc-linux+bncBAABBCOMWKVQKGQETHDNL2Q@googlegroups.com>
+Return-Path: <rtc-linux+bncBCN6JTVP2IEBB5HDWWVQKGQEPVT6CXI@googlegroups.com>
 MIME-Version: 1.0
-Received: from mail.kmu-office.ch (mail.kmu-office.ch. [2a02:418:6a02::a2])
-        by gmr-mx.google.com with ESMTP id gt9si547630wib.2.2015.06.01.11.35.53
+Received: from m50-110.126.com (m50-110.126.com. [123.125.50.110])
+        by gmr-mx.google.com with ESMTP id ns5si896215igb.0.2015.06.02.02.05.55
         for <rtc-linux@googlegroups.com>;
-        Mon, 01 Jun 2015 11:35:53 -0700 (PDT)
-From: Stefan Agner <stefan@agner.ch>
-To: a.zummo@towertech.it,
-	alexandre.belloni@free-electrons.com
-Cc: maitysanchayan@gmail.com,
-	shawn.guo@linaro.org,
-	rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org,
-	Stefan Agner <stefan@agner.ch>,
-	<stable@vger.kernel.org>
-Subject: [rtc-linux] [PATCH RESEND] rtc: snvs: fix wakealarm by call
- enable_irq_wake earlier
-Date: Mon,  1 Jun 2015 20:35:39 +0200
-Message-Id: <1433183739-10956-1-git-send-email-stefan@agner.ch>
+        Tue, 02 Jun 2015 02:05:55 -0700 (PDT)
+From: Xunlei Pang <xlpang@126.com>
+To: linux-kernel@vger.kernel.org
+Cc: rtc-linux@googlegroups.com,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	John Stultz <john.stultz@linaro.org>,
+	Arnd Bergmann <arnd@arndb.de>,
+	Xunlei Pang <pang.xunlei@linaro.org>
+Subject: [rtc-linux] [PATCH v2 1/4] drivers/rtc/pcf8563: Replace deprecated
+ rtc_time_to_tm() and rtc_tm_to_time()
+Date: Tue,  2 Jun 2015 17:04:19 +0800
+Message-Id: <1433235862-1638-1-git-send-email-xlpang@126.com>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -28,83 +27,47 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-When entering suspend while an wakeup alarm is set, enable_set_wake
-should make sure that the RTC interrupt keep being enabled and the
-.irq_set_wake for the RTC interrupt get called. However, since the
-driver uses the suspend_noirq callback, the call to enable_irq_wake
-has been made after disabling the interrupts. While .irq_set_wake
-has been called properly, the interrupt remained disabled.
+From: Xunlei Pang <pang.xunlei@linaro.org>
 
-Use the suspend callback to call enable_irq_wake early enough to
-ensure the RTC interrupt remains enabled.
+pcf8563_rtc_set_alarm() uses deprecated rtc_tm_to_time()
+and rtc_time_to_tm(), which will overflow in year 2106
+on 32-bit machines.
 
-Fixes: 7654e9d4fd8f ("drivers/rtc/rtc-snvs: fix suspend/resume")
-Cc: <stable@vger.kernel.org> # 3.19
-Signed-off-by: Stefan Agner <stefan@agner.ch>
+This patch solves this by:
+ - Replacing rtc_time_to_tm() with rtc_time64_to_tm()
+ - Replacing rtc_tm_to_time() with rtc_tm_to_time64()
+
+Acked-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Xunlei Pang <pang.xunlei@linaro.org>
 ---
-Just added CC: <stable@vger.kernel.org> # 3.19
+ drivers/rtc/rtc-pcf8563.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
- drivers/rtc/rtc-snvs.c | 30 +++++++++++++++++++++---------
- 1 file changed, 21 insertions(+), 9 deletions(-)
-
-diff --git a/drivers/rtc/rtc-snvs.c b/drivers/rtc/rtc-snvs.c
-index 0479e80..d87a85c 100644
---- a/drivers/rtc/rtc-snvs.c
-+++ b/drivers/rtc/rtc-snvs.c
-@@ -322,6 +322,13 @@ static int snvs_rtc_suspend(struct device *dev)
- 	if (device_may_wakeup(dev))
- 		enable_irq_wake(data->irq);
+diff --git a/drivers/rtc/rtc-pcf8563.c b/drivers/rtc/rtc-pcf8563.c
+index 0ba7e59..5f87f84 100644
+--- a/drivers/rtc/rtc-pcf8563.c
++++ b/drivers/rtc/rtc-pcf8563.c
+@@ -363,13 +363,13 @@ static int pcf8563_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *tm)
+ 	struct i2c_client *client = to_i2c_client(dev);
+ 	unsigned char buf[4];
+ 	int err;
+-	unsigned long alarm_time;
  
-+	return 0;
-+}
+ 	/* The alarm has no seconds, round up to nearest minute */
+ 	if (tm->time.tm_sec) {
+-		rtc_tm_to_time(&tm->time, &alarm_time);
+-		alarm_time += 60-tm->time.tm_sec;
+-		rtc_time_to_tm(alarm_time, &tm->time);
++		time64_t alarm_time = rtc_tm_to_time64(&tm->time);
 +
-+static int snvs_rtc_suspend_noirq(struct device *dev)
-+{
-+	struct snvs_rtc_data *data = dev_get_drvdata(dev);
-+
- 	if (data->clk)
- 		clk_disable_unprepare(data->clk);
++		alarm_time += 60 - tm->time.tm_sec;
++		rtc_time64_to_tm(alarm_time, &tm->time);
+ 	}
  
-@@ -331,23 +338,28 @@ static int snvs_rtc_suspend(struct device *dev)
- static int snvs_rtc_resume(struct device *dev)
- {
- 	struct snvs_rtc_data *data = dev_get_drvdata(dev);
--	int ret;
- 
- 	if (device_may_wakeup(dev))
--		disable_irq_wake(data->irq);
-+		return disable_irq_wake(data->irq);
- 
--	if (data->clk) {
--		ret = clk_prepare_enable(data->clk);
--		if (ret)
--			return ret;
--	}
-+	return 0;
-+}
-+
-+static int snvs_rtc_resume_noirq(struct device *dev)
-+{
-+	struct snvs_rtc_data *data = dev_get_drvdata(dev);
-+
-+	if (data->clk)
-+		return clk_prepare_enable(data->clk);
- 
- 	return 0;
- }
- 
- static const struct dev_pm_ops snvs_rtc_pm_ops = {
--	.suspend_noirq = snvs_rtc_suspend,
--	.resume_noirq = snvs_rtc_resume,
-+	.suspend = snvs_rtc_suspend,
-+	.suspend_noirq = snvs_rtc_suspend_noirq,
-+	.resume = snvs_rtc_resume,
-+	.resume_noirq = snvs_rtc_resume_noirq,
- };
- 
- #define SNVS_RTC_PM_OPS	(&snvs_rtc_pm_ops)
+ 	dev_dbg(dev, "%s, min=%d hour=%d wday=%d mday=%d "
 -- 
-2.4.2
+1.9.1
+
 
 -- 
 -- 
