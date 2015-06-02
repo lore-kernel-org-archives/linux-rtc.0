@@ -1,33 +1,22 @@
-Return-Path: <rtc-linux+bncBAABBHNJ4WVQKGQEES5HZUA@googlegroups.com>
-Received: from mail1.bemta5.messagelabs.com (mail1.bemta5.messagelabs.com. [195.245.231.151])
-        by gmr-mx.google.com with ESMTPS id gt9si26173wib.2.2015.06.11.02.27.56
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 11 Jun 2015 02:27:57 -0700 (PDT)
-From: "Opensource [Steve Twiss]" <stwiss.opensource@diasemi.com>
-To: Lee Jones <lee.jones@linaro.org>
-CC: LINUXKERNEL <linux-kernel@vger.kernel.org>, Samuel Ortiz
-	<sameo@linux.intel.com>, Alessandro Zummo <a.zummo@towertech.it>, DEVICETREE
-	<devicetree@vger.kernel.org>, David Dajun Chen <david.chen@diasemi.com>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>, Ian Campbell
-	<ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>,
-	LINUXINPUT <linux-input@vger.kernel.org>, LINUXWATCHDOG
-	<linux-watchdog@vger.kernel.org>, Liam Girdwood <lgirdwood@gmail.com>, "Mark
- Brown" <broonie@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Pawel Moll
-	<pawel.moll@arm.com>, RTCLINUX <rtc-linux@googlegroups.com>, Rob Herring
-	<robh+dt@kernel.org>, Support Opensource <Support.Opensource@diasemi.com>,
-	Wim Van Sebroeck <wim@iguana.be>
-Subject: [rtc-linux] RE: [PATCH V3 1/4] mfd: da9062: DA9062 MFD core driver
-Date: Thu, 11 Jun 2015 09:27:45 +0000
-Message-ID: <6ED8E3B22081A4459DAC7699F3695FB7014B22F4DC@SW-EX-MBX02.diasemi.com>
-References: <cover.1432041031.git.stwiss.opensource@diasemi.com>
- <ecf72b79429e6758111a908fd1ded29c0b96da15.1432041031.git.stwiss.opensource@diasemi.com>
- <20150526161024.GQ11677@x1>
- <6ED8E3B22081A4459DAC7699F3695FB7014B22F4C4@SW-EX-MBX02.diasemi.com>
- <20150611085653.GG2982@x1>
-In-Reply-To: <20150611085653.GG2982@x1>
-Content-Type: text/plain; charset=UTF-8
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBYUJW2VQKGQEIOG4Q6Q@googlegroups.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id p9si638141wiz.3.2015.06.02.03.26.42
+        for <rtc-linux@googlegroups.com>;
+        Tue, 02 Jun 2015 03:26:42 -0700 (PDT)
+Date: Tue, 2 Jun 2015 12:26:39 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Xunlei Pang <xlpang@126.com>
+Cc: linux-kernel@vger.kernel.org, rtc-linux@googlegroups.com,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	John Stultz <john.stultz@linaro.org>, Arnd Bergmann <arnd@arndb.de>,
+	Xunlei Pang <pang.xunlei@linaro.org>
+Subject: [rtc-linux] Re: [PATCH v2 1/4] drivers/rtc/pcf8563: Replace
+ deprecated rtc_time_to_tm() and rtc_tm_to_time()
+Message-ID: <20150602102639.GC1715@piout.net>
+References: <1433235862-1638-1-git-send-email-xlpang@126.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1433235862-1638-1-git-send-email-xlpang@126.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -38,70 +27,67 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On 11 June 2015 09:57 Lee Jones wrote:
+Xunlei,
 
-> To: Opensource [Steve Twiss]
-> Subject: Re: [PATCH V3 1/4] mfd: da9062: DA9062 MFD core driver
+Could you please include a cover letter describing what you are trying
+to achieve when sending your series?
+
+You have lot of pending patches (27 in patchwork right now) and until
+now, I've pushed back on the reviews because it is really really a pain
+to follow what you are sending, resending and dropping.
+
+Also, for some series, you sent multiple v2 in a 3 days interval.
+
+Thanks!
+
+On 02/06/2015 at 17:04:19 +0800, Xunlei Pang wrote :
+> From: Xunlei Pang <pang.xunlei@linaro.org>
 > 
-> > > > > diff --git a/include/linux/mfd/da9062/registers.h
+> pcf8563_rtc_set_alarm() uses deprecated rtc_tm_to_time()
+> and rtc_time_to_tm(), which will overflow in year 2106
+> on 32-bit machines.
+> 
+> This patch solves this by:
+>  - Replacing rtc_time_to_tm() with rtc_time64_to_tm()
+>  - Replacing rtc_tm_to_time() with rtc_tm_to_time64()
+> 
+> Acked-by: Arnd Bergmann <arnd@arndb.de>
+> Signed-off-by: Xunlei Pang <pang.xunlei@linaro.org>
+> ---
+>  drivers/rtc/rtc-pcf8563.c | 8 ++++----
+>  1 file changed, 4 insertions(+), 4 deletions(-)
+> 
+> diff --git a/drivers/rtc/rtc-pcf8563.c b/drivers/rtc/rtc-pcf8563.c
+> index 0ba7e59..5f87f84 100644
+> --- a/drivers/rtc/rtc-pcf8563.c
+> +++ b/drivers/rtc/rtc-pcf8563.c
+> @@ -363,13 +363,13 @@ static int pcf8563_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *tm)
+>  	struct i2c_client *client = to_i2c_client(dev);
+>  	unsigned char buf[4];
+>  	int err;
+> -	unsigned long alarm_time;
+>  
+>  	/* The alarm has no seconds, round up to nearest minute */
+>  	if (tm->time.tm_sec) {
+> -		rtc_tm_to_time(&tm->time, &alarm_time);
+> -		alarm_time += 60-tm->time.tm_sec;
+> -		rtc_time_to_tm(alarm_time, &tm->time);
+> +		time64_t alarm_time = rtc_tm_to_time64(&tm->time);
+> +
+> +		alarm_time += 60 - tm->time.tm_sec;
+> +		rtc_time64_to_tm(alarm_time, &tm->time);
+>  	}
+>  
+>  	dev_dbg(dev, "%s, min=%d hour=%d wday=%d mday=%d "
+> -- 
+> 1.9.1
+> 
+> 
 
-[...]
-
-> > > > > +#define DA9062AA_WRITE_MODE_SHIFT	6
-> > > > > +#define DA9062AA_WRITE_MODE_MASK	(0x01 << 6)
-> > > >
-> > > > For 1 << X, you should use BIT(X).
-> > > >
-> > >
-> > > For the two comments above "Registers" and "Bit fields" and the (1<<x)
-> > > definitions ...
-> > >
-> > > The whole of this file is automatically generated by our hardware designers
-> > > I would prefer it if the register definitions and bit fields are not altered using
-> > > the #define BIT(nr) (1UL<<(nr)) macro and the comments removed because
-> > > we have scripts that can be used to check this file automatically.
-> > >
-> > > Also if the register map is ever updated, then it will be easier for me to diff
-> > > the new delivered register and bit field definitions with the old one.
-> > >
-> > > My preference would be not to change this header file.
-> > >
-> > > [...]
-> >
-> > If these last two things are a problem can you please let me know.
-
-HI Lee,
-
-Thanks for replying so quickly.
-
-> I'm still not particularly happy with this.  Can yo speak to your H/W
-> guys and get them to change their scripts to output sensible header
-> files?
-
-Ah. Ok. 
-
-For our side, the generated headers might not just be used for Linux. I've
-just discussed this with my colleagues and they will need it to remain.
-So I guess internally we will keep the headers like this, but as it enters
-my submission process I can change it for the Linux community.
- 
-> To be honest, it's probably not a blocker for acceptance, but if someone
-> writes a patch next week to change all of the (0x01 << X) lines to
-> start using the BIT() macro, I will accept it.  Better to influenced
-> your guys so you are not overly inconvenienced.
-
-Yep: I will change this BIT() macro for the submissions in future.
-Depending on the next step, I will send a patch to this or update the submission
-if there are further comments on this patch set.
-
-> FWIW, when upstreaming code, the excuse "someone else wrote it", has
-> never been a good one to use on the lists.   Believe me, I've
-> tried. ;)
-
-heh okay :)
-
-Regards,
-Steve
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
 -- 
 -- 
