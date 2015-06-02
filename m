@@ -1,28 +1,33 @@
-Return-Path: <rtc-linux+bncBC2PPF5ZT4BBBYP4ZCWAKGQEZCL6PNQ@googlegroups.com>
-Received: from mail-la0-x22c.google.com (mail-la0-x22c.google.com. [2a00:1450:4010:c03::22c])
-        by gmr-mx.google.com with ESMTPS id su3si1534489lbb.1.2015.06.29.23.59.45
+Return-Path: <rtc-linux+bncBDA7X7F2WUEBB34AW2VQKGQE4FX4H2Q@googlegroups.com>
+Received: from mail-wi0-f172.google.com (mail-wi0-f172.google.com. [209.85.212.172])
+        by gmr-mx.google.com with ESMTPS id p9si635829wiz.3.2015.06.02.03.07.43
         for <rtc-linux@googlegroups.com>
         (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 29 Jun 2015 23:59:45 -0700 (PDT)
-Received: by mail-la0-x22c.google.com with SMTP id c2so745631lag.3
-        for <rtc-linux@googlegroups.com>; Mon, 29 Jun 2015 23:59:45 -0700 (PDT)
+        Tue, 02 Jun 2015 03:07:43 -0700 (PDT)
+Received: by wibut5 with SMTP id ut5so63903497wib.1
+        for <rtc-linux@googlegroups.com>; Tue, 02 Jun 2015 03:07:43 -0700 (PDT)
+Date: Tue, 2 Jun 2015 11:07:39 +0100
+From: Lee Jones <lee.jones@linaro.org>
+To: Vaibhav Hiremath <vaibhav.hiremath@linaro.org>
+Cc: linux-arm-kernel@lists.infradead.org, robh+dt@kernel.org,
+	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+	rtc-linux@googlegroups.com, sameo@linux.intel.com,
+	a.zummo@towertech.it, alexandre.belloni@free-electrons.com,
+	Chao Xie <chao.xie@marvell.com>
+Subject: [rtc-linux] Re: [PATCH 4/4] mfd: 88pm800: allocate pdata->rtc if not
+ allocated earlier
+Message-ID: <20150602100739.GK3329@x1>
+References: <1432937962-4537-1-git-send-email-vaibhav.hiremath@linaro.org>
+ <1432937962-4537-5-git-send-email-vaibhav.hiremath@linaro.org>
+ <20150601082200.GC3329@x1>
+ <556D3A14.6050505@linaro.org>
+ <20150602074004.GH3329@x1>
+ <556D71F6.4030608@linaro.org>
+ <20150602093323.GI3329@x1>
+ <556D7C32.9080806@linaro.org>
 MIME-Version: 1.0
-In-Reply-To: <CAHKZfL0H1mrj8pScggejtFStaA66zX43RZRYQnkYsZ4gVb-ojQ@mail.gmail.com>
-References: <1435642598-5073-1-git-send-email-adrianhuang0701@gmail.com>
-	<CAHKZfL0H1mrj8pScggejtFStaA66zX43RZRYQnkYsZ4gVb-ojQ@mail.gmail.com>
-Date: Tue, 30 Jun 2015 08:59:45 +0200
-Message-ID: <CANoYJu=0L7yUfS2Z87OJXc+_+Z6DmQ_oGZvg2AygS_2DTOixxQ@mail.gmail.com>
-Subject: [rtc-linux] Re: [RFC PATCH v3 0/2] rtc: Prevent the automatic reboot
- after powering off the system
-From: Diego Ercolani <diego.ercolani@gmail.com>
-To: Huang Adrian <adrianhuang0701@gmail.com>
-Cc: Borislav Petkov <bp@suse.de>, Egbert Eich <eich@suse.com>, rtc-linux@googlegroups.com,
-	Thomas Gleixner <tglx@linutronix.de>, John Stultz <john.stultz@linaro.org>,
-	Nagananda Chumbalkar <nchumbalkar@lenovo.com>, Max Asbock <amax@lenovo.com>,
-	Adrian Huang <ahuang12@lenovo.com>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Alessandro Zummo <a.zummo@towertech.it>
-Content-Type: multipart/alternative; boundary=001a11c25cc659cea60519b6c023
+Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <556D7C32.9080806@linaro.org>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -33,165 +38,146 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
---001a11c25cc659cea60519b6c023
-Content-Type: text/plain; charset=UTF-8
+On Tue, 02 Jun 2015, Vaibhav Hiremath wrote:
+> On Tuesday 02 June 2015 03:03 PM, Lee Jones wrote:
+> >On Tue, 02 Jun 2015, Vaibhav Hiremath wrote:
+> >>On Tuesday 02 June 2015 01:10 PM, Lee Jones wrote:
+> >>>On Tue, 02 Jun 2015, Vaibhav Hiremath wrote:
+> >>>>On Monday 01 June 2015 01:52 PM, Lee Jones wrote:
+> >>>>>On Sat, 30 May 2015, Vaibhav Hiremath wrote:
+> >>>>>
+> >>>>>>RTC in pmic 88PM800 can run even the core is powered off, and user
+> >>>>>>can set alarm in RTC. When the alarm is timed out, the PMIC will po=
+wer up
+> >>>>>>the core, and the whole system will boot up. And during PMIC driver=
+ probe,
+> >>>>>>it will read some register to find out whether this boot is caused =
+by RTC
+> >>>>>>timeout or not, and pass on this information to the RTC driver.
+> >>>>>>
+> >>>>>>So we need rtc platform data to be existed in PMIC driver to pass t=
+his
+> >>>>>>information.
+> >>>>>>
+> >>>>>>Signed-off-by: Chao Xie <chao.xie@marvell.com>
+> >>>>>>Signed-off-by: Vaibhav Hiremath <vaibhav.hiremath@linaro.org>
+> >>>>>>---
+> >>>>>>  drivers/mfd/88pm800.c | 19 +++++++++++++++++++
+> >>>>>>  1 file changed, 19 insertions(+)
+> >>>>>>
+> >>>>>>diff --git a/drivers/mfd/88pm800.c b/drivers/mfd/88pm800.c
+> >>>>>>index 8ea4467..34546a1 100644
+> >>>>>>--- a/drivers/mfd/88pm800.c
+> >>>>>>+++ b/drivers/mfd/88pm800.c
+> >>>>>>@@ -586,6 +586,25 @@ static int pm800_probe(struct i2c_client *clie=
+nt,
+> >>>>>>  			return ret;
+> >>>>>>  	}
+> >>>>>>
+> >>>>>>+	/*
+> >>>>>>+	 * RTC in pmic can run even the core is powered off, and user can=
+ set
+> >>>>>>+	 * alarm in RTC. When the alarm is time out, the PMIC will power =
+up
+> >>>>>>+	 * the core, and the whole system will boot up. When PMIC driver =
+is
+> >>>>>>+	 * probed, it will read out some register to find out whether thi=
+s
+> >>>>>>+	 * boot is caused by RTC timeout or not, and it need pass this
+> >>>>>>+	 * information to RTC driver.
+> >>>>>>+	 * So we need rtc platform data to be existed to pass this inform=
+ation.
+> >>>>>>+	 */
+> >>>>>>+	if (!pdata->rtc) {
+> >>>>>>+		pdata->rtc =3D devm_kzalloc(&client->dev,
+> >>>>>>+					  sizeof(*(pdata->rtc)), GFP_KERNEL);
+> >>>>>>+		if (!pdata->rtc) {
+> >>>>>>+			dev_err(&client->dev,
+> >>>>>>+					"failed to allocate memory for rtc\n");
+> >>>>>>+			return -ENOMEM;
+> >>>>>>+		}
+> >>>>>>+	}
+> >>>>>>+
+> >>>>>
+> >>>>>Where is this memory first used?
+> >>>>>
+> >>>>
+> >>>>In the same file, look for field "rtc_wakeup".
+> >>>>
+> >>>>FYI,
+> >>>>
+> >>>>This field is used in two files,
+> >>>>
+> >>>>drivers/mfd/88pm800.c
+> >>>>and
+> >>>>drivers/rtc/rtc-88pm800.c	[sets the "platform_data" field]
+> >>>
+> >>>Then were is the platform_data field subsequently used?
+> >>
+> >>Currently not used, but it is for future use, where we would be
+> >>interested to know that the wakeup is really from reset or RTC wakeup.
+> >
+> >Well it was introduced 3 years ago, so the chances of it being "used
+> >in the future" are probably pretty low.  Unless of course, you are
+> >planning on submitting that code.  In which case, you can add this
+> >patch to that set and I can re-review it then.
+> >
+> >>>Looking at the RTC platform data declaration I see:
+> >>>
+> >>>struct pm80x_rtc_pdata {
+> >>>     int             vrtc;
+> >>>     int             rtc_wakeup;
+> >>>};
+> >>>
+> >>>Is 'vrtc' even used?  If so, where?
+> >>
+> >>No, it is not.
+> >
+> >So either submit a patch-set that makes use of them, or let me know
+> >that you're not going to do that and I'll remove it altogether.
+> >Likewise for rtc_wakeup.
+> >
+>=20
+> I am ok with vrtc field, we can remove it.
 
-I'll be waiting for the built kernel.
-Thank you
-Diego
+Okay, I will do so, thanks.
 
-2015-06-30 7:52 GMT+02:00 Huang Adrian <adrianhuang0701@gmail.com>:
+> But,
+> I would recommend _not_ to remove rtc_wakeup, as it may not be used
+> immediately, but still have logical significance.
+>=20
+> Consuming rtc_wakeup in the code is dependant on overall power
+> management support, which is always long pole for development. As you
+> would have seen, we have just started with baseport for pxa1928 and I
+> am starting on upstreaming driver part.
+>=20
+>=20
+> From hardware perspective, this is important feature, where it indicate
+> whether the boot was triggered by reset assertion or by RTC wakeup. So
+> as of now from driver perspective I feel no harm to have one field for
+> this.
+>=20
+> Finally, its your call. I will let you decide.
+> The field can be added later when it actually gets consumed.
 
-> Boris, Egbert and Diego
->
-> Could you please test this patch set on your buggy boxes? Thanks in
-> advance.
->
-> BTW, Boris, could you please also build a patched openSUSE_13.2 kernel
-> for Diego's testing? Thanks again.
->
->
-> -- Adrian
->
->
-> On Tue, Jun 30, 2015 at 1:36 PM, Adrian Huang <adrianhuang0701@gmail.com>
-> wrote:
-> > Commit d5a1c7e3fc38 ("rtc-cmos: Add an alarm disable quirk") added the
-> > alarm disable quirk to work around the broken BIOSes. The same symptom
-> > is observed on Lenovo Thinkserver. Instead of adding the impacted
-> > servers to the "alarm disable" quirk, this patchset aims at preventing
-> > the issue so that the commit can be reverted.
-> >
-> > The brief description of the root cause is that: When configuring
-> > the RTC registers to setup a wake up event in the S5 handler (BIOS),
-> > the handler does not clear the interrupt flag bits by reading
-> > Register C of CMOS RTC.
-> >
-> > Changes from v2:
-> >   * Drop the approach "Clear interrupt flag if alarm time is less
-> >     equal to now+1". Instead, cancel the alarm if the configured
-> >     alarm time is equal to now+1 seconds. (Suggested by Alexandre)
-> >
-> > Changes from v1:
-> >   * Change the order of [PATCH 1/2] and [PATCH 2/2] (per Borislav)
-> >   * Drop the approach "RTC alarm timer restoration approach". Instead,
-> >     [PATCH 1/2] makes sure that AF is cleared in cmos_do_shutdown()
-> >     before powering off the machine. (Suggested by Alexandre)
-> >
-> > Adrian Huang (2):
-> >   rtc-cmos: Cancel alarm timer if alarm time is equal to now+1 seconds
-> >   rtc-cmos: Revert "rtc-cmos: Add an alarm disable quirk"
-> >
-> >  drivers/rtc/rtc-cmos.c | 113
-> ++++++++++++++++++++++++++-----------------------
-> >  1 file changed, 60 insertions(+), 53 deletions(-)
-> >
-> > --
-> > 1.9.1
-> >
->
+I will not remove the wake-up field.  Equally, I will not accept code
+which allocates memory for it whilst it is not being used.
 
--- 
--- 
+--=20
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org =E2=94=82 Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog
+
+--=20
+--=20
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
-For more options, visit https://groups.google.com/d/optout.
-
---001a11c25cc659cea60519b6c023
-Content-Type: text/html; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-
-<div dir=3D"ltr"><div><div>I&#39;ll be waiting for the built kernel.<br></d=
-iv>Thank you<br></div>Diego<br></div><div class=3D"gmail_extra"><br><div cl=
-ass=3D"gmail_quote">2015-06-30 7:52 GMT+02:00 Huang Adrian <span dir=3D"ltr=
-">&lt;<a href=3D"mailto:adrianhuang0701@gmail.com" target=3D"_blank">adrian=
-huang0701@gmail.com</a>&gt;</span>:<br><blockquote class=3D"gmail_quote" st=
-yle=3D"margin:0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1ex">Boris=
-, Egbert and Diego<br>
-<br>
-Could you please test this patch set on your buggy boxes? Thanks in advance=
-.<br>
-<br>
-BTW, Boris, could you please also build a patched openSUSE_13.2 kernel<br>
-for Diego&#39;s testing? Thanks again.<br>
-<span class=3D"HOEnZb"><font color=3D"#888888"><br>
-<br>
--- Adrian<br>
-</font></span><div class=3D"HOEnZb"><div class=3D"h5"><br>
-<br>
-On Tue, Jun 30, 2015 at 1:36 PM, Adrian Huang &lt;<a href=3D"mailto:adrianh=
-uang0701@gmail.com">adrianhuang0701@gmail.com</a>&gt; wrote:<br>
-&gt; Commit d5a1c7e3fc38 (&quot;rtc-cmos: Add an alarm disable quirk&quot;)=
- added the<br>
-&gt; alarm disable quirk to work around the broken BIOSes. The same symptom=
-<br>
-&gt; is observed on Lenovo Thinkserver. Instead of adding the impacted<br>
-&gt; servers to the &quot;alarm disable&quot; quirk, this patchset aims at =
-preventing<br>
-&gt; the issue so that the commit can be reverted.<br>
-&gt;<br>
-&gt; The brief description of the root cause is that: When configuring<br>
-&gt; the RTC registers to setup a wake up event in the S5 handler (BIOS),<b=
-r>
-&gt; the handler does not clear the interrupt flag bits by reading<br>
-&gt; Register C of CMOS RTC.<br>
-&gt;<br>
-&gt; Changes from v2:<br>
-&gt;=C2=A0 =C2=A0* Drop the approach &quot;Clear interrupt flag if alarm ti=
-me is less<br>
-&gt;=C2=A0 =C2=A0 =C2=A0equal to now+1&quot;. Instead, cancel the alarm if =
-the configured<br>
-&gt;=C2=A0 =C2=A0 =C2=A0alarm time is equal to now+1 seconds. (Suggested by=
- Alexandre)<br>
-&gt;<br>
-&gt; Changes from v1:<br>
-&gt;=C2=A0 =C2=A0* Change the order of [PATCH 1/2] and [PATCH 2/2] (per Bor=
-islav)<br>
-&gt;=C2=A0 =C2=A0* Drop the approach &quot;RTC alarm timer restoration appr=
-oach&quot;. Instead,<br>
-&gt;=C2=A0 =C2=A0 =C2=A0[PATCH 1/2] makes sure that AF is cleared in cmos_d=
-o_shutdown()<br>
-&gt;=C2=A0 =C2=A0 =C2=A0before powering off the machine. (Suggested by Alex=
-andre)<br>
-&gt;<br>
-&gt; Adrian Huang (2):<br>
-&gt;=C2=A0 =C2=A0rtc-cmos: Cancel alarm timer if alarm time is equal to now=
-+1 seconds<br>
-&gt;=C2=A0 =C2=A0rtc-cmos: Revert &quot;rtc-cmos: Add an alarm disable quir=
-k&quot;<br>
-&gt;<br>
-&gt;=C2=A0 drivers/rtc/rtc-cmos.c | 113 ++++++++++++++++++++++++++---------=
---------------<br>
-&gt;=C2=A0 1 file changed, 60 insertions(+), 53 deletions(-)<br>
-&gt;<br>
-&gt; --<br>
-&gt; 1.9.1<br>
-&gt;<br>
-</div></div></blockquote></div><br></div>
-
-<p></p>
-
--- <br />
--- <br />
-You received this message because you are subscribed to &quot;rtc-linux&quo=
-t;.<br />
-Membership options at <a href=3D"http://groups.google.com/group/rtc-linux">=
-http://groups.google.com/group/rtc-linux</a> .<br />
-Please read <a href=3D"http://groups.google.com/group/rtc-linux/web/checkli=
-st">http://groups.google.com/group/rtc-linux/web/checklist</a><br />
-before submitting a driver.<br />
---- <br />
-You received this message because you are subscribed to the Google Groups &=
-quot;rtc-linux&quot; group.<br />
+---=20
+You received this message because you are subscribed to the Google Groups "=
+rtc-linux" group.
 To unsubscribe from this group and stop receiving emails from it, send an e=
-mail to <a href=3D"mailto:rtc-linux+unsubscribe@googlegroups.com">rtc-linux=
-+unsubscribe@googlegroups.com</a>.<br />
-For more options, visit <a href=3D"https://groups.google.com/d/optout">http=
-s://groups.google.com/d/optout</a>.<br />
-
---001a11c25cc659cea60519b6c023--
+mail to rtc-linux+unsubscribe@googlegroups.com.
+For more options, visit https://groups.google.com/d/optout.
