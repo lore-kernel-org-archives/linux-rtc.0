@@ -1,29 +1,25 @@
-Return-Path: <rtc-linux+bncBDYNJBOFRECBBIO73KVQKGQEFPPUFIA@googlegroups.com>
+Return-Path: <rtc-linux+bncBAABB6MUW6VQKGQEX2STOMY@googlegroups.com>
+Received: from mx5.zte.com.cn (mx5.zte.com.cn. [63.217.80.70])
+        by gmr-mx.google.com with ESMTP id wh3si1408943pbc.0.2015.06.02.08.23.37
+        for <rtc-linux@googlegroups.com>;
+        Tue, 02 Jun 2015 08:23:37 -0700 (PDT)
+Received: from zte.com.cn (unknown [192.168.168.119])
+	by Websense Email Security Gateway with ESMTP id 9EABBAA75FB59
+	for <rtc-linux@googlegroups.com>; Tue,  2 Jun 2015 23:23:29 +0800 (CST)
+In-Reply-To: <20150602102639.GC1715@piout.net>
+References: <1433235862-1638-1-git-send-email-xlpang@126.com> <20150602102639.GC1715@piout.net>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>, Arnd Bergmann <arnd@arndb.de>,
+        John Stultz <john.stultz@linaro.org>, linux-kernel@vger.kernel.org,
+        Xunlei Pang <pang.xunlei@linaro.org>, rtc-linux@googlegroups.com
+Subject: [rtc-linux] Re: [PATCH v2 1/4] drivers/rtc/pcf8563: Replace
+ deprecated rtc_time_to_tm() and rtc_tm_to_time()
 MIME-Version: 1.0
-Received: from mail-wi0-f169.google.com (mail-wi0-f169.google.com. [209.85.212.169])
-        by gmr-mx.google.com with ESMTPS id ha2si58384wib.1.2015.06.09.02.19.29
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 09 Jun 2015 02:19:29 -0700 (PDT)
-Received: by wibdq8 with SMTP id dq8so9552952wib.1
-        for <rtc-linux@googlegroups.com>; Tue, 09 Jun 2015 02:19:29 -0700 (PDT)
-From: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-To: matt.fleming@intel.com,
-	linux-efi@vger.kernel.org,
-	James.Bottomley@hansenpartnership.com
-Cc: roy.franz@linaro.org,
-	leif.lindholm@linaro.org,
-	Ard Biesheuvel <ard.biesheuvel@linaro.org>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	rtc-linux@googlegroups.com
-Subject: [rtc-linux] [PATCH v2] efi: rtc-efi: use correct EFI 'epoch'
-Date: Tue,  9 Jun 2015 11:15:35 +0200
-Message-Id: <1433841335-10453-1-git-send-email-ard.biesheuvel@linaro.org>
-In-Reply-To: <1433762834-17961-1-git-send-email-ard.biesheuvel@linaro.org>
-References: <1433762834-17961-1-git-send-email-ard.biesheuvel@linaro.org>
-Reply-To: rtc-linux@googlegroups.com
+Message-ID: <OFC9CF9873.31308A95-ON48257E58.0053C0BA-C8257E58.00548ECE@zte.com.cn>
+From: pang.xunlei@zte.com.cn
+Date: Wed, 3 Jun 2015 00:23:40 +0900
 Content-Type: text/plain; charset=UTF-8
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -33,124 +29,59 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-The rtc-efi driver declares that the EFI 'epoch' is 1/1/1998, but
-the UEFI spec does not define it at all. It does define a range of
-[1900, 9999] for the 'Year' member of the EFI_TIME struct, so let's
-use 1900 as the minimum year and not 1998.
-Also, move the validation of the year to the convert_from_efi_time()
-routine where all other EFI_TIME fields are validated as well.
+Hi Alexandre,
 
-This prevents rtc_read_time() failures when the RTC that backs the
-EFI time services is set to a date before 1998, e.g., when it has
-lost power.
+Alexandre Belloni <alexandre.belloni@free-electrons.com> wrote 2015-06-02=
+=20
+PM 06:26:39:
+> Re: [PATCH v2 1/4] drivers/rtc/pcf8563: Replace deprecated=20
+> rtc_time_to_tm() and rtc_tm_to_time()
+>=20
+> Xunlei,
+>=20
+> Could you please include a cover letter describing what you are trying
+> to achieve when sending your series?
+>=20
+> You have lot of pending patches (27 in patchwork right now) and until
+> now, I've pushed back on the reviews because it is really really a pain
+> to follow what you are sending, resending and dropping.
+>=20
+> Also, for some series, you sent multiple v2 in a 3 days interval.
 
-This also optimizes the compute_wday() routine, by replacing the for
-loop with a simple arithmetic expression, and by reusing the yearday
-value that we need to compute anyway when populating the
-rtc_time::tm_yday field.
+Apologies for the spamming, please ignore all those former 27 pending=20
+patches.
 
-Cc: Alessandro Zummo <a.zummo@towertech.it>
-Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: rtc-linux@googlegroups.com
-Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
----
-v2:
-- optimize compute_wday() to prevent adding latency to the common case to
-  accommodate the exceptional case (i.e., RTC date << present date)
-- move year validation to convert_from_efi_time() and check the upper bound
-  as well (<= 9999)
+I'll re-organize them with a cover letter, will resend them as new ones=20
+tomorrow.
 
- drivers/rtc/rtc-efi.c | 39 ++++++++++++++-------------------------
- 1 file changed, 14 insertions(+), 25 deletions(-)
+Regards,
+-Xunlei
+--------------------------------------------------------
+ZTE Information Security Notice: The information contained in this mail (an=
+d any attachment transmitted herewith) is privileged and confidential and i=
+s intended for the exclusive use of the addressee(s).  If you are not an in=
+tended recipient, any disclosure, reproduction, distribution or other disse=
+mination or use of the information contained is strictly prohibited.  If yo=
+u have received this mail in error, please delete it and notify us immediat=
+ely.
+--------------------------------------------------------
+ZTE Information Security Notice: The information contained in this mail (an=
+d any attachment transmitted herewith) is privileged and confidential and i=
+s intended for the exclusive use of the addressee(s).  If you are not an in=
+tended recipient, any disclosure, reproduction, distribution or other disse=
+mination or use of the information contained is strictly prohibited.  If yo=
+u have received this mail in error, please delete it and notify us immediat=
+ely.
 
-diff --git a/drivers/rtc/rtc-efi.c b/drivers/rtc/rtc-efi.c
-index cb989cd00b14..6e917e2f5e86 100644
---- a/drivers/rtc/rtc-efi.c
-+++ b/drivers/rtc/rtc-efi.c
-@@ -24,10 +24,6 @@
- #include <linux/efi.h>
- 
- #define EFI_ISDST (EFI_TIME_ADJUST_DAYLIGHT|EFI_TIME_IN_DAYLIGHT)
--/*
-- * EFI Epoch is 1/1/1998
-- */
--#define EFI_RTC_EPOCH		1998
- 
- /*
-  * returns day of the year [0-365]
-@@ -38,31 +34,24 @@ compute_yday(efi_time_t *eft)
- 	/* efi_time_t.month is in the [1-12] so, we need -1 */
- 	return rtc_year_days(eft->day, eft->month - 1, eft->year);
- }
-+
- /*
-  * returns day of the week [0-6] 0=Sunday
-- *
-- * Don't try to provide a year that's before 1998, please !
-  */
- static int
--compute_wday(efi_time_t *eft)
-+compute_wday(efi_time_t *eft, int yday)
- {
--	int y;
--	int ndays = 0;
--
--	if (eft->year < EFI_RTC_EPOCH) {
--		pr_err("EFI year < " __stringify(EFI_RTC_EPOCH) ", invalid date\n");
--		return -1;
--	}
--
--	for (y = EFI_RTC_EPOCH; y < eft->year; y++)
--		ndays += 365 + (is_leap_year(y) ? 1 : 0);
--
--	ndays += compute_yday(eft);
-+	int ndays = eft->year * (365 % 7)
-+		    + (eft->year - 1) / 4
-+		    - (eft->year - 1) / 100
-+		    + (eft->year - 1) / 400
-+		    + yday;
- 
- 	/*
--	 * 4=1/1/1998 was a Thursday
-+	 * 1/1/0000 may or may not have been a Sunday (if it ever existed at
-+	 * all) but assuming it was makes this calculation work correctly.
- 	 */
--	return (ndays + 4) % 7;
-+	return ndays % 7;
- }
- 
- static void
-@@ -103,16 +92,16 @@ convert_from_efi_time(efi_time_t *eft, struct rtc_time *wtime)
- 	if (!eft->month || eft->month > 12)
- 		return false;
- 	wtime->tm_mon  = eft->month - 1;
--	wtime->tm_year = eft->year - 1900;
- 
--	/* day of the week [0-6], Sunday=0 */
--	wtime->tm_wday = compute_wday(eft);
--	if (wtime->tm_wday < 0)
-+	if (eft->year < 1900 || eft->year > 9999)
- 		return false;
-+	wtime->tm_year = eft->year - 1900;
- 
- 	/* day in the year [1-365]*/
- 	wtime->tm_yday = compute_yday(eft);
- 
-+	/* day of the week [0-6], Sunday=0 */
-+	wtime->tm_wday = compute_wday(eft, wtime->tm_yday);
- 
- 	switch (eft->daylight & EFI_ISDST) {
- 	case EFI_ISDST:
--- 
-1.9.1
-
--- 
--- 
+--=20
+--=20
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+---=20
+You received this message because you are subscribed to the Google Groups "=
+rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an e=
+mail to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
