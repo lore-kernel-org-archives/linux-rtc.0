@@ -1,25 +1,31 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBPFB5OVQKGQE6W6J4WI@googlegroups.com>
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id k10si86718wia.1.2015.06.12.05.29.47
-        for <rtc-linux@googlegroups.com>;
-        Fri, 12 Jun 2015 05:29:47 -0700 (PDT)
-Date: Fri, 12 Jun 2015 14:29:46 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: pang.xunlei@zte.com.cn
-Cc: Alessandro Zummo <a.zummo@towertech.it>, Arnd Bergmann <arnd@arndb.de>,
-	John Stultz <john.stultz@linaro.org>, linux-kernel@vger.kernel.org,
-	Xunlei Pang <pang.xunlei@linaro.org>, rtc-linux@googlegroups.com,
-	Xunlei Pang <xlpang@126.com>
-Subject: [rtc-linux] Re: [PATCH v3 1/4] drivers/rtc/pcf8563: Replace
- deprecated rtc_time_to_tm() and rtc_tm_to_time()
-Message-ID: <20150612122946.GG3890@piout.net>
-References: <1434074652-16054-1-git-send-email-xlpang@126.com>
- <20150612084027.GD3890@piout.net>
- <OFFC6B610F.4108EED3-ON48257E62.0032A044-48257E62.00330C68@zte.com.cn>
+Return-Path: <rtc-linux+bncBCV6LFM5RQJRB3WCXCVQKGQECPVHIOY@googlegroups.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <OFFC6B610F.4108EED3-ON48257E62.0032A044-48257E62.00330C68@zte.com.cn>
+Received: from mga02.intel.com (mga02.intel.com. [134.134.136.20])
+        by gmr-mx.google.com with ESMTP id 5si2019193pdt.0.2015.06.02.14.34.38
+        for <rtc-linux@googlegroups.com>;
+        Tue, 02 Jun 2015 14:34:38 -0700 (PDT)
+From: Octavian Purdila <octavian.purdila@intel.com>
+To: Linus Walleij <linus.walleij@linaro.org>
+Cc: Mika Westerberg <mika.westerberg@linux.intel.com>,
+	Jonathan Cameron <jic23@kernel.org>,
+	Hartmut Knaack <knaack.h@gmx.de>,
+	Lars-Peter Clausen <lars@metafoo.de>,
+	Peter Meerwald <pmeerw@pmeerw.net>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
+	linux-iio@vger.kernel.org,
+	rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org,
+	Octavian Purdila <octavian.purdila@intel.com>
+Subject: [rtc-linux] [PATCH 2/2] rtc: change "client->irq >= 0" to
+ "client->irq > 0"
+Date: Wed,  3 Jun 2015 00:34:13 +0300
+Message-Id: <1433280853-3988-3-git-send-email-octavian.purdila@intel.com>
+In-Reply-To: <1433280853-3988-1-git-send-email-octavian.purdila@intel.com>
+References: <1433280853-3988-1-git-send-email-octavian.purdila@intel.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -29,33 +35,53 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On 12/06/2015 at 17:17:39 +0800, pang.xunlei@zte.com.cn wrote :
-> Hi Alexandre,
-> 
-> Alexandre Belloni <alexandre.belloni@free-electrons.com> wrote 2015-06-12 
-> PM 04:40:27:
-> > 
-> > Re: [PATCH v3 1/4] drivers/rtc/pcf8563: Replace deprecated 
-> > rtc_time_to_tm() and rtc_tm_to_time()
-> > 
-> > Hi Xunlei,
-> > 
-> > Just to let you know that your series are usually classified as spam
-> > when coming from 126.com. This series in particular didn't make it to
-> > the mailing list.
-> 
-> Seems ok, I can see it in the mailing list now:
-> https://lkml.org/lkml/2015/6/11/767
-> 
+Since commit dab472eb931b ("i2c / ACPI: Use 0 to indicate that device
+does not have interrupt assigned"), 0 is not a valid i2c client irq
+anymore, so change all driver's checks accordingly.
 
-Yeah, but for example it didn't go through the RTC mailing list:
-https://groups.google.com/forum/#!forum/rtc-linux so the patch are not
-in patchwork.
+Signed-off-by: Octavian Purdila <octavian.purdila@intel.com>
+---
+ drivers/rtc/rtc-ds1374.c | 4 ++--
+ drivers/rtc/rtc-ds3232.c | 2 +-
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
+diff --git a/drivers/rtc/rtc-ds1374.c b/drivers/rtc/rtc-ds1374.c
+index 167783f..592458c 100644
+--- a/drivers/rtc/rtc-ds1374.c
++++ b/drivers/rtc/rtc-ds1374.c
+@@ -689,7 +689,7 @@ static int ds1374_suspend(struct device *dev)
+ {
+ 	struct i2c_client *client = to_i2c_client(dev);
+ 
+-	if (client->irq >= 0 && device_may_wakeup(&client->dev))
++	if (client->irq > 0 && device_may_wakeup(&client->dev))
+ 		enable_irq_wake(client->irq);
+ 	return 0;
+ }
+@@ -698,7 +698,7 @@ static int ds1374_resume(struct device *dev)
+ {
+ 	struct i2c_client *client = to_i2c_client(dev);
+ 
+-	if (client->irq >= 0 && device_may_wakeup(&client->dev))
++	if (client->irq > 0 && device_may_wakeup(&client->dev))
+ 		disable_irq_wake(client->irq);
+ 	return 0;
+ }
+diff --git a/drivers/rtc/rtc-ds3232.c b/drivers/rtc/rtc-ds3232.c
+index 7e48e53..f280dd1 100644
+--- a/drivers/rtc/rtc-ds3232.c
++++ b/drivers/rtc/rtc-ds3232.c
+@@ -443,7 +443,7 @@ static int ds3232_remove(struct i2c_client *client)
+ {
+ 	struct ds3232 *ds3232 = i2c_get_clientdata(client);
+ 
+-	if (client->irq >= 0) {
++	if (client->irq > 0) {
+ 		mutex_lock(&ds3232->mutex);
+ 		ds3232->exiting = 1;
+ 		mutex_unlock(&ds3232->mutex);
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+1.9.1
 
 -- 
 -- 
