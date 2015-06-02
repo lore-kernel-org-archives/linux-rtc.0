@@ -1,27 +1,31 @@
-Return-Path: <rtc-linux+bncBC5M7T4HYEKRB7X7VKWAKGQEZP7KEMI@googlegroups.com>
-Received: from arroyo.ext.ti.com (arroyo.ext.ti.com. [192.94.94.40])
-        by gmr-mx.google.com with ESMTPS id o7si189757igp.1.2015.06.24.07.34.37
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1 cipher=RC4-SHA bits=128/128);
-        Wed, 24 Jun 2015 07:34:37 -0700 (PDT)
-Date: Wed, 24 Jun 2015 09:34:32 -0500
-From: Felipe Balbi <balbi@ti.com>
-To: Nishanth Menon <nm@ti.com>
-CC: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        Alessandro Zummo
-	<a.zummo@towertech.it>,
-        <linux-kernel@vger.kernel.org>, <rtc-linux@googlegroups.com>,
-        <linux-omap@vger.kernel.org>, <linux-arm-kernel@lists.infradead.org>,
-        <balbi@ti.com>, <grygorii.strashko@ti.com>
-Subject: [rtc-linux] Re: [PATCH V2 0/5] drivers/rtc/rtc-ds1307.c: Basic
- cleanups and support for wakeupirq
-Message-ID: <20150624143432.GE21232@saruman.tx.rr.com>
-Reply-To: rtc-linux@googlegroups.com
-References: <1435076114-12416-1-git-send-email-nm@ti.com>
+Return-Path: <rtc-linux+bncBCV6LFM5RQJRB26CXCVQKGQEYU45J7A@googlegroups.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="IvGM3kKqwtniy32b"
-In-Reply-To: <1435076114-12416-1-git-send-email-nm@ti.com>
+Received: from mga02.intel.com (mga02.intel.com. [134.134.136.20])
+        by gmr-mx.google.com with ESMTP id 5si2019193pdt.0.2015.06.02.14.34.34
+        for <rtc-linux@googlegroups.com>;
+        Tue, 02 Jun 2015 14:34:34 -0700 (PDT)
+From: Octavian Purdila <octavian.purdila@intel.com>
+To: Linus Walleij <linus.walleij@linaro.org>
+Cc: Mika Westerberg <mika.westerberg@linux.intel.com>,
+	Jonathan Cameron <jic23@kernel.org>,
+	Hartmut Knaack <knaack.h@gmx.de>,
+	Lars-Peter Clausen <lars@metafoo.de>,
+	Peter Meerwald <pmeerw@pmeerw.net>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
+	linux-iio@vger.kernel.org,
+	rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org,
+	Octavian Purdila <octavian.purdila@intel.com>
+Subject: [rtc-linux] [PATCH 1/2] iio: change "client->irq >= 0" to
+ "client->irq > 0"
+Date: Wed,  3 Jun 2015 00:34:12 +0300
+Message-Id: <1433280853-3988-2-git-send-email-octavian.purdila@intel.com>
+In-Reply-To: <1433280853-3988-1-git-send-email-octavian.purdila@intel.com>
+References: <1433280853-3988-1-git-send-email-octavian.purdila@intel.com>
+Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -31,52 +35,94 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
---IvGM3kKqwtniy32b
-Content-Type: text/plain; charset=UTF-8
-Content-Disposition: inline
+Since commit dab472eb931b ("i2c / ACPI: Use 0 to indicate that device
+does not have interrupt assigned"), 0 is not a valid i2c client irq
+anymore, so change all driver's checks accordingly.
 
-Hi,
+Signed-off-by: Octavian Purdila <octavian.purdila@intel.com>
+---
+ drivers/iio/accel/bmc150-accel.c | 2 +-
+ drivers/iio/accel/kxcjk-1013.c   | 2 +-
+ drivers/iio/accel/mma9553.c      | 2 +-
+ drivers/iio/imu/kmx61.c          | 8 ++++----
+ 4 files changed, 7 insertions(+), 7 deletions(-)
 
-On Tue, Jun 23, 2015 at 11:15:09AM -0500, Nishanth Menon wrote:
-> Hi,
-> 
-> Here is the revamp of the patch posted eariler to support wakeupirq.
-> This series does a few cleanups as well prior to introducing the
-> generic apis required to support the wakeirq mechanism used on certain
-> TI SoCs. Cleanups done here are just minimal set of the cleanups we
-> discussed in [2].
-> 
-> Series is based on next-20150623
-> 
-> Test log: http://pastebin.ubuntu.com/11763002/
-> 
-> NOTE1: I have only tested in mcp79410 device, and not on other
-> ds1307-rtc driver compatbile devices as I dont have any other.
-> additional testing might be nice to have.
-> NOTE2: there are additional fixes that linux-next seems to need but
-> those are in omap-rtc, cpufreq etc, but those are not related by the
-> ds-1307.
-> 
-> V1: https://patchwork.kernel.org/patch/4759171/
-> 
-> NOTE: Patch 5/5 of the series is meant to indicate the usage, and will
-> be reposted along with other wakeup sources to be enabled once the
-> driver changes are accepted.
-> 
-> Felipe Balbi (1):
->   drivers/rtc/rtc-ds1307.c: Convert to threaded IRQ
-> 
-> Nishanth Menon (4):
->   drivers/rtc/rtc-ds1307.c: Switch to managed irq allocation
->   drivers/rtc/rtc-ds1307.c: Sort the headers
->   drivers/rtc/rtc-ds1307.c: Support optional wakeup interrupt source
-
-for the series, except the patch which I wrote :
-
-Acked-by: Felipe Balbi <balbi@ti.com>
-
+diff --git a/drivers/iio/accel/bmc150-accel.c b/drivers/iio/accel/bmc150-accel.c
+index 4e70f51..55751d9 100644
+--- a/drivers/iio/accel/bmc150-accel.c
++++ b/drivers/iio/accel/bmc150-accel.c
+@@ -1663,7 +1663,7 @@ static int bmc150_accel_probe(struct i2c_client *client,
+ 	if (client->irq < 0)
+ 		client->irq = bmc150_accel_gpio_probe(client, data);
+ 
+-	if (client->irq >= 0) {
++	if (client->irq > 0) {
+ 		ret = devm_request_threaded_irq(
+ 						&client->dev, client->irq,
+ 						bmc150_accel_irq_handler,
+diff --git a/drivers/iio/accel/kxcjk-1013.c b/drivers/iio/accel/kxcjk-1013.c
+index 0d9bd35..aa93cbd 100644
+--- a/drivers/iio/accel/kxcjk-1013.c
++++ b/drivers/iio/accel/kxcjk-1013.c
+@@ -1243,7 +1243,7 @@ static int kxcjk1013_probe(struct i2c_client *client,
+ 	if (client->irq < 0)
+ 		client->irq = kxcjk1013_gpio_probe(client, data);
+ 
+-	if (client->irq >= 0) {
++	if (client->irq > 0) {
+ 		ret = devm_request_threaded_irq(&client->dev, client->irq,
+ 						kxcjk1013_data_rdy_trig_poll,
+ 						kxcjk1013_event_handler,
+diff --git a/drivers/iio/accel/mma9553.c b/drivers/iio/accel/mma9553.c
+index 9d649c4..df043b3 100644
+--- a/drivers/iio/accel/mma9553.c
++++ b/drivers/iio/accel/mma9553.c
+@@ -1143,7 +1143,7 @@ static int mma9553_probe(struct i2c_client *client,
+ 	if (client->irq < 0)
+ 		client->irq = mma9553_gpio_probe(client);
+ 
+-	if (client->irq >= 0) {
++	if (client->irq > 0) {
+ 		ret = devm_request_threaded_irq(&client->dev, client->irq,
+ 						mma9553_irq_handler,
+ 						mma9553_event_handler,
+diff --git a/drivers/iio/imu/kmx61.c b/drivers/iio/imu/kmx61.c
+index 462a010..82cdf50 100644
+--- a/drivers/iio/imu/kmx61.c
++++ b/drivers/iio/imu/kmx61.c
+@@ -1363,7 +1363,7 @@ static int kmx61_probe(struct i2c_client *client,
+ 	if (client->irq < 0)
+ 		client->irq = kmx61_gpio_probe(client, data);
+ 
+-	if (client->irq >= 0) {
++	if (client->irq > 0) {
+ 		ret = devm_request_threaded_irq(&client->dev, client->irq,
+ 						kmx61_data_rdy_trig_poll,
+ 						kmx61_event_handler,
+@@ -1445,10 +1445,10 @@ err_iio_unregister_mag:
+ err_iio_unregister_acc:
+ 	iio_device_unregister(data->acc_indio_dev);
+ err_buffer_cleanup_mag:
+-	if (client->irq >= 0)
++	if (client->irq > 0)
+ 		iio_triggered_buffer_cleanup(data->mag_indio_dev);
+ err_buffer_cleanup_acc:
+-	if (client->irq >= 0)
++	if (client->irq > 0)
+ 		iio_triggered_buffer_cleanup(data->acc_indio_dev);
+ err_trigger_unregister_motion:
+ 	iio_trigger_unregister(data->motion_trig);
+@@ -1472,7 +1472,7 @@ static int kmx61_remove(struct i2c_client *client)
+ 	iio_device_unregister(data->acc_indio_dev);
+ 	iio_device_unregister(data->mag_indio_dev);
+ 
+-	if (client->irq >= 0) {
++	if (client->irq > 0) {
+ 		iio_triggered_buffer_cleanup(data->acc_indio_dev);
+ 		iio_triggered_buffer_cleanup(data->mag_indio_dev);
+ 		iio_trigger_unregister(data->acc_dready_trig);
 -- 
-balbi
+1.9.1
 
 -- 
 -- 
@@ -88,27 +134,3 @@ before submitting a driver.
 You received this message because you are subscribed to the Google Groups "rtc-linux" group.
 To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
-
---IvGM3kKqwtniy32b
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJVir/4AAoJEIaOsuA1yqREfxMQAKWlVvUcPrDpUMPK48OO8bZa
-Anm+UEMGwQmMYSSG3Cg575viJOH8LsagnPfdzaveq2ZKs5aPnAHu2MKjHBOM1Tqs
-CrIDLgZVUT/VyOKJ+OmqWn5xpCXYlkVlZeO/6CimqKfzAYFsGGeTr0EJQkA9YAP+
-JSK4teeX/5Ryz76MtJNK6W/qQ50ahIK36Nw9+00mJ8AXEnlAi5mDGjDJBA2Uzm/g
-9cXaZHQbdz3MEB3Dt1qpvlwCKGrHqZ2QZVTCMNJHACfffGH2ApqLYdgsRuXk3gkm
-WGCMAEtsaac9SlyzBFYcys8HV0yETgFiDSAXHL8fyW1Z4H8sNNpdjbdZGyQz2kOI
-uhAUWBJJks0w7O0P3cIZIVW8j7de3IS8seUPVRmqbQlW8Fx2XpyXWh3so2baigHR
-PET074oA19SLwlVPbyUF0JusIqlZk4GfUcKCIy5LI8z4563inZRiDqCqCvH5GM4p
-BgyljhPG7BvyMJczeAgwmfEM0sng3bllxvTmqjW1lfNKbi72Ns814E5mB0q8WT+i
-I+OBXA29IOtnJ2YgnoNd26OX6+fiurvkr4HZz2V0OnbHg0zuJsbP6Rt+55UUu+tZ
-6JE1sYBkBZHNo9iepJ07y+eKeQhxKDNeSZ0f4M30f5kZq2cfSBWg1eIed4nAXY5c
-vmF8X068D5SFFRzaVObW
-=fSug
------END PGP SIGNATURE-----
-
---IvGM3kKqwtniy32b--
