@@ -1,27 +1,25 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBFM5YOVQKGQEYLSWZMY@googlegroups.com>
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id bc3si16214wib.2.2015.06.04.15.17.57
-        for <rtc-linux@googlegroups.com>;
-        Thu, 04 Jun 2015 15:17:57 -0700 (PDT)
-Date: Fri, 5 Jun 2015 00:17:56 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Philippe Reynes <tremyfr@gmail.com>
-Cc: shawn.guo@linaro.org, kernel@pengutronix.de, linux@arm.linux.org.uk,
-	a.zummo@towertech.it, robh+dt@kernel.org, pawel.moll@arm.com,
-	mark.rutland@arm.com, ijc+devicetree@hellion.org.uk,
-	galak@codeaurora.org, rtc-linux@googlegroups.com,
-	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-	devicetree@vger.kernel.org, fabio.estevam@freescale.com
-Subject: [rtc-linux] Re: [PATCH 1/2] rtc: mxc: add a second clock
-Message-ID: <20150604221756.GD713@piout.net>
-References: <1431729330-7625-1-git-send-email-tremyfr@gmail.com>
- <1431729330-7625-2-git-send-email-tremyfr@gmail.com>
- <20150528115731.GN2185@piout.net>
- <5570BE33.9080103@gmail.com>
+Return-Path: <rtc-linux+bncBCN6JTVP2IEBBEXEWWVQKGQECUTJMIY@googlegroups.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <5570BE33.9080103@gmail.com>
+Received: from m50-110.126.com (m50-110.126.com. [123.125.50.110])
+        by gmr-mx.google.com with ESMTP id ax9si1092556igc.1.2015.06.02.02.06.25
+        for <rtc-linux@googlegroups.com>;
+        Tue, 02 Jun 2015 02:06:26 -0700 (PDT)
+From: Xunlei Pang <xlpang@126.com>
+To: linux-kernel@vger.kernel.org
+Cc: rtc-linux@googlegroups.com,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	John Stultz <john.stultz@linaro.org>,
+	Arnd Bergmann <arnd@arndb.de>,
+	Xunlei Pang <pang.xunlei@linaro.org>,
+	Herbert Valerio Riedel <hvr@gnu.org>
+Subject: [rtc-linux] [PATCH v2 3/4] drivers/rtc/isl1208: Replace deprecated rtc_tm_to_time()
+Date: Tue,  2 Jun 2015 17:04:21 +0800
+Message-Id: <1433235862-1638-3-git-send-email-xlpang@126.com>
+In-Reply-To: <1433235862-1638-1-git-send-email-xlpang@126.com>
+References: <1433235862-1638-1-git-send-email-xlpang@126.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -31,21 +29,51 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On 04/06/2015 at 23:08:03 +0200, Philippe Reynes wrote :
-> >You are getting the rate but don't you need to clk_prepare_enable()?
-> 
-> This IP needs the clock reference rate for his configuration,
-> so I think that I only need the rate.
-> 
+From: Xunlei Pang <pang.xunlei@linaro.org>
 
-I think we need to check whether we are guaranteed to get a result from
-get_rate even if the clock is not enabled.
+isl1208_i2c_set_alarm() uses deprecated rtc_tm_to_time(),
+which will overflow in year 2106 on 32-bit machines.
 
+This patch solves this by:
+ - Replacing rtc_tm_to_time() with rtc_tm_subtract()
 
+Cc: Herbert Valerio Riedel <hvr@gnu.org>
+Signed-off-by: Xunlei Pang <pang.xunlei@linaro.org>
+---
+ drivers/rtc/rtc-isl1208.c | 9 +--------
+ 1 file changed, 1 insertion(+), 8 deletions(-)
+
+diff --git a/drivers/rtc/rtc-isl1208.c b/drivers/rtc/rtc-isl1208.c
+index c3c549d..6eb5d36 100644
+--- a/drivers/rtc/rtc-isl1208.c
++++ b/drivers/rtc/rtc-isl1208.c
+@@ -370,22 +370,15 @@ isl1208_i2c_set_alarm(struct i2c_client *client, struct rtc_wkalrm *alarm)
+ 	struct rtc_time *alarm_tm = &alarm->time;
+ 	u8 regs[ISL1208_ALARM_SECTION_LEN] = { 0, };
+ 	const int offs = ISL1208_REG_SCA;
+-	unsigned long rtc_secs, alarm_secs;
+ 	struct rtc_time rtc_tm;
+ 	int err, enable;
+ 
+ 	err = isl1208_i2c_read_time(client, &rtc_tm);
+ 	if (err)
+ 		return err;
+-	err = rtc_tm_to_time(&rtc_tm, &rtc_secs);
+-	if (err)
+-		return err;
+-	err = rtc_tm_to_time(alarm_tm, &alarm_secs);
+-	if (err)
+-		return err;
+ 
+ 	/* If the alarm time is before the current time disable the alarm */
+-	if (!alarm->enabled || alarm_secs <= rtc_secs)
++	if (!alarm->enabled || rtc_tm_subtract(alarm_tm, &rtc_tm) <= 0)
+ 		enable = 0x00;
+ 	else
+ 		enable = 0x80;
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+1.9.1
+
 
 -- 
 -- 
