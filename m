@@ -1,21 +1,25 @@
-Return-Path: <rtc-linux+bncBDEKVJM7XAHRBUPOWKVQKGQEGVSVCXY@googlegroups.com>
-Received: from mout.kundenserver.de (mout.kundenserver.de. [212.227.17.24])
-        by gmr-mx.google.com with ESMTPS id ec7si552558wib.3.2015.06.01.12.49.36
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 01 Jun 2015 12:49:37 -0700 (PDT)
-From: Arnd Bergmann <arnd@arndb.de>
-To: Xunlei Pang <xlpang@126.com>
-Cc: linux-kernel@vger.kernel.org, rtc-linux@googlegroups.com, Alessandro Zummo <a.zummo@towertech.it>, John Stultz <john.stultz@linaro.org>, Xunlei Pang <pang.xunlei@linaro.org>, Herbert Valerio Riedel <hvr@gnu.org>
-Subject: [rtc-linux] Re: [PATCH RESEND 2/3] drivers/rtc/isl1208: Replace
- deprecated rtc_tm_to_time()
-Date: Mon, 01 Jun 2015 21:49:24 +0200
-Message-ID: <2324798.u1fgEdZHfl@wuerfel>
-In-Reply-To: <1432911877-607-2-git-send-email-xlpang@126.com>
-References: <1432911877-607-1-git-send-email-xlpang@126.com> <1432911877-607-2-git-send-email-xlpang@126.com>
+Return-Path: <rtc-linux+bncBCN6JTVP2IEBB4PDWWVQKGQERQVWIAI@googlegroups.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Received: from m50-110.126.com (m50-110.126.com. [123.125.50.110])
+        by gmr-mx.google.com with ESMTP id x1si1095175igb.2.2015.06.02.02.05.52
+        for <rtc-linux@googlegroups.com>;
+        Tue, 02 Jun 2015 02:05:53 -0700 (PDT)
+From: Xunlei Pang <xlpang@126.com>
+To: linux-kernel@vger.kernel.org
+Cc: rtc-linux@googlegroups.com,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	John Stultz <john.stultz@linaro.org>,
+	Arnd Bergmann <arnd@arndb.de>,
+	Xunlei Pang <pang.xunlei@linaro.org>,
+	Carlo Caione <carlo.caione@gmail.com>
+Subject: [rtc-linux] [PATCH v2 4/4] drivers/rtc/sunxi: Replace deprecated rtc_tm_to_time()
+Date: Tue,  2 Jun 2015 17:04:22 +0800
+Message-Id: <1433235862-1638-4-git-send-email-xlpang@126.com>
+In-Reply-To: <1433235862-1638-1-git-send-email-xlpang@126.com>
+References: <1433235862-1638-1-git-send-email-xlpang@126.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -25,60 +29,87 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On Friday 29 May 2015 23:04:36 Xunlei Pang wrote:
-> From: Xunlei Pang <pang.xunlei@linaro.org>
-> 
-> isl1208_i2c_set_alarm() uses deprecated rtc_tm_to_time(),
-> which will overflow in year 2106 on 32-bit machines.
-> 
-> This patch solves this by:
->  - Replacing rtc_tm_to_time() with rtc_tm_to_time64()
-> 
-> Cc: Herbert Valerio Riedel <hvr@gnu.org>
-> Signed-off-by: Xunlei Pang <pang.xunlei@linaro.org>
-> ---
->  drivers/rtc/rtc-isl1208.c | 11 ++++-------
->  1 file changed, 4 insertions(+), 7 deletions(-)
+From: Xunlei Pang <pang.xunlei@linaro.org>
 
-The patch looks correct, but I wonder if this is the best solution.
-The only use of the two time values in the function is in the
-'alarm_secs <= rtc_secs' comparison.
+sunxi_rtc_setalarm() uses deprecated rtc_tm_to_time(),
+which will overflow in year 2106 on 32-bit machines.
 
-Maybe we should introduce an 'rtc_tm_before' helper function that
-performs the same check? Do other drivers use the same piece
-of code as this one?
+This patch solves this by:
+- Replacing rtc_tm_to_time() with rtc_tm_subtract()
 
-	Arnd
+Also remove the unnecessary initial zeroing of some
+local variables in sunxi_rtc_setalarm().
 
-> diff --git a/drivers/rtc/rtc-isl1208.c b/drivers/rtc/rtc-isl1208.c
-> index c3c549d..06113e8 100644
-> --- a/drivers/rtc/rtc-isl1208.c
-> +++ b/drivers/rtc/rtc-isl1208.c
-> @@ -370,19 +370,16 @@ isl1208_i2c_set_alarm(struct i2c_client *client, struct rtc_wkalrm *alarm)
->  	struct rtc_time *alarm_tm = &alarm->time;
->  	u8 regs[ISL1208_ALARM_SECTION_LEN] = { 0, };
->  	const int offs = ISL1208_REG_SCA;
-> -	unsigned long rtc_secs, alarm_secs;
-> +	time64_t rtc_secs, alarm_secs;
->  	struct rtc_time rtc_tm;
->  	int err, enable;
->  
->  	err = isl1208_i2c_read_time(client, &rtc_tm);
->  	if (err)
->  		return err;
-> -	err = rtc_tm_to_time(&rtc_tm, &rtc_secs);
-> -	if (err)
-> -		return err;
-> -	err = rtc_tm_to_time(alarm_tm, &alarm_secs);
-> -	if (err)
-> -		return err;
-> +
-> +	rtc_secs = rtc_tm_to_time64(&rtc_tm);
-> +	alarm_secs = rtc_tm_to_time64(alarm_tm);
->  
->  	/* If the alarm time is before the current time disable the alarm */
->  	if (!alarm->enabled || alarm_secs <= rtc_secs)
-> 
+Cc: Carlo Caione <carlo.caione@gmail.com>
+Signed-off-by: Xunlei Pang <pang.xunlei@linaro.org>
+---
+ drivers/rtc/rtc-sunxi.c | 32 +++++++++++++++-----------------
+ 1 file changed, 15 insertions(+), 17 deletions(-)
+
+diff --git a/drivers/rtc/rtc-sunxi.c b/drivers/rtc/rtc-sunxi.c
+index 6e678fa..ecff5ed 100644
+--- a/drivers/rtc/rtc-sunxi.c
++++ b/drivers/rtc/rtc-sunxi.c
+@@ -269,14 +269,13 @@ static int sunxi_rtc_setalarm(struct device *dev, struct rtc_wkalrm *wkalrm)
+ 	struct sunxi_rtc_dev *chip = dev_get_drvdata(dev);
+ 	struct rtc_time *alrm_tm = &wkalrm->time;
+ 	struct rtc_time tm_now;
+-	u32 alrm = 0;
+-	unsigned long time_now = 0;
+-	unsigned long time_set = 0;
+-	unsigned long time_gap = 0;
+-	unsigned long time_gap_day = 0;
+-	unsigned long time_gap_hour = 0;
+-	unsigned long time_gap_min = 0;
+-	int ret = 0;
++	u32 alrm;
++	time64_t diff;
++	unsigned long time_gap;
++	unsigned long time_gap_day;
++	unsigned long time_gap_hour;
++	unsigned long time_gap_min;
++	int ret;
+ 
+ 	ret = sunxi_rtc_gettime(dev, &tm_now);
+ 	if (ret < 0) {
+@@ -284,14 +283,18 @@ static int sunxi_rtc_setalarm(struct device *dev, struct rtc_wkalrm *wkalrm)
+ 		return -EINVAL;
+ 	}
+ 
+-	rtc_tm_to_time(alrm_tm, &time_set);
+-	rtc_tm_to_time(&tm_now, &time_now);
+-	if (time_set <= time_now) {
++	diff = rtc_tm_subtract(alrm_tm, &tm_now);
++	if (diff <= 0) {
+ 		dev_err(dev, "Date to set in the past\n");
+ 		return -EINVAL;
+ 	}
+ 
+-	time_gap = time_set - time_now;
++	if (diff > 255 * SEC_IN_DAY) {
++		dev_err(dev, "Day must be in the range 0 - 255\n");
++		return -EINVAL;
++	}
++
++	time_gap = diff;
+ 	time_gap_day = time_gap / SEC_IN_DAY;
+ 	time_gap -= time_gap_day * SEC_IN_DAY;
+ 	time_gap_hour = time_gap / SEC_IN_HOUR;
+@@ -299,11 +302,6 @@ static int sunxi_rtc_setalarm(struct device *dev, struct rtc_wkalrm *wkalrm)
+ 	time_gap_min = time_gap / SEC_IN_MIN;
+ 	time_gap -= time_gap_min * SEC_IN_MIN;
+ 
+-	if (time_gap_day > 255) {
+-		dev_err(dev, "Day must be in the range 0 - 255\n");
+-		return -EINVAL;
+-	}
+-
+ 	sunxi_rtc_setaie(0, chip);
+ 	writel(0, chip->base + SUNXI_ALRM_DHMS);
+ 	usleep_range(100, 300);
+-- 
+1.9.1
+
 
 -- 
 -- 
