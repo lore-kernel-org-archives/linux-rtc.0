@@ -1,28 +1,25 @@
-Return-Path: <rtc-linux+bncBDP6N55ZUYDRBNXMWKVQKGQEHH42WBY@googlegroups.com>
-Received: from mail-ie0-x22f.google.com (mail-ie0-x22f.google.com. [2607:f8b0:4001:c03::22f])
-        by gmr-mx.google.com with ESMTPS id x1si950208igb.2.2015.06.01.12.44.54
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 01 Jun 2015 12:44:54 -0700 (PDT)
-Received: by mail-ie0-x22f.google.com with SMTP id zm2so117024437iec.1
-        for <rtc-linux@googlegroups.com>; Mon, 01 Jun 2015 12:44:54 -0700 (PDT)
-Date: Mon, 1 Jun 2015 12:44:49 -0700
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Frank.Li@freescale.com
-Cc: lznuaa@gmail.com, shawn.guo@linaro.org, robh+dt@kernel.org,
-	alexandre.belloni@free-electrons.com,
-	linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org,
-	rtc-linux@googlegroups.com, devicetree@vger.kernel.org,
-	Robin Gong <b38343@freescale.com>
-Subject: [rtc-linux] Re: [PATCH v5 4/6] input: keyboard: imx: add snvs power
- key driver
-Message-ID: <20150601194449.GC30024@dtor-ws>
-References: <1432657562-5592-1-git-send-email-Frank.Li@freescale.com>
- <1432657562-5592-5-git-send-email-Frank.Li@freescale.com>
+Return-Path: <rtc-linux+bncBCN6JTVP2IEBBO7IWWVQKGQE2WGTPFA@googlegroups.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1432657562-5592-5-git-send-email-Frank.Li@freescale.com>
+Received: from m50-110.126.com (m50-110.126.com. [123.125.50.110])
+        by gmr-mx.google.com with ESMTP id x12si1132813igx.1.2015.06.02.02.15.38
+        for <rtc-linux@googlegroups.com>;
+        Tue, 02 Jun 2015 02:15:39 -0700 (PDT)
+From: Xunlei Pang <xlpang@126.com>
+To: linux-kernel@vger.kernel.org
+Cc: rtc-linux@googlegroups.com,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	John Stultz <john.stultz@linaro.org>,
+	Arnd Bergmann <arnd@arndb.de>,
+	Xunlei Pang <pang.xunlei@linaro.org>
+Subject: [rtc-linux] [PATCH v2 2/4] sparc: time: Replace update_persistent_clock()
+ with CONFIG_RTC_SYSTOHC
+Date: Tue,  2 Jun 2015 17:14:35 +0800
+Message-Id: <1433236477-1724-2-git-send-email-xlpang@126.com>
+In-Reply-To: <1433236477-1724-1-git-send-email-xlpang@126.com>
+References: <1433236477-1724-1-git-send-email-xlpang@126.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -32,304 +29,126 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On Wed, May 27, 2015 at 12:26:00AM +0800, Frank.Li@freescale.com wrote:
-> From: Robin Gong <b38343@freescale.com>
-> 
-> add snvs power key driver.
-> It work in imx chips after i.mx6sx
-> 
-> ON/OFF key used power on/off whole system.
-> This driver make it wakeup from suspend state when short press
-> ON/OFF key.
-> 
-> Long time press will trig SNVS power off chip without software
-> intervention.
-> 
-> Signed-off-by: Robin Gong <b38343@freescale.com>
-> Signed-off-by: Frank Li <Frank.Li@freescale.com>
+From: Xunlei Pang <pang.xunlei@linaro.org>
 
-Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+On Sparc systems, update_persistent_clock() uses RTC drivers to do
+the job, it makes more sense to hand it over to CONFIG_RTC_SYSTOHC.
 
-> ---
->  drivers/input/keyboard/Kconfig       |  11 ++
->  drivers/input/keyboard/Makefile      |   1 +
->  drivers/input/keyboard/snvs_pwrkey.c | 227 +++++++++++++++++++++++++++++++++++
->  3 files changed, 239 insertions(+)
->  create mode 100644 drivers/input/keyboard/snvs_pwrkey.c
-> 
-> diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
-> index 106fbac..61b3fab 100644
-> --- a/drivers/input/keyboard/Kconfig
-> +++ b/drivers/input/keyboard/Kconfig
-> @@ -400,6 +400,17 @@ config KEYBOARD_MPR121
->  	  To compile this driver as a module, choose M here: the
->  	  module will be called mpr121_touchkey.
->  
-> +config KEYBOARD_SNVS_PWRKEY
-> +	tristate "IMX SNVS Power Key Driver"
-> +	depends on SOC_IMX6SX
-> +	depends on OF
-> +	help
-> +	  This is the snvs powerkey driver for the Freescale i.MX application
-> +	  processors that are newer than i.MX6 SX.
-> +
-> +	  To compile this driver as a module, choose M here; the
-> +	  module will be called snvs_pwrkey.
-> +
->  config KEYBOARD_IMX
->  	tristate "IMX keypad support"
->  	depends on ARCH_MXC
-> diff --git a/drivers/input/keyboard/Makefile b/drivers/input/keyboard/Makefile
-> index df28d55..1d416dd 100644
-> --- a/drivers/input/keyboard/Makefile
-> +++ b/drivers/input/keyboard/Makefile
-> @@ -51,6 +51,7 @@ obj-$(CONFIG_KEYBOARD_QT1070)           += qt1070.o
->  obj-$(CONFIG_KEYBOARD_QT2160)		+= qt2160.o
->  obj-$(CONFIG_KEYBOARD_SAMSUNG)		+= samsung-keypad.o
->  obj-$(CONFIG_KEYBOARD_SH_KEYSC)		+= sh_keysc.o
-> +obj-$(CONFIG_KEYBOARD_SNVS_PWRKEY)	+= snvs_pwrkey.o
->  obj-$(CONFIG_KEYBOARD_SPEAR)		+= spear-keyboard.o
->  obj-$(CONFIG_KEYBOARD_STMPE)		+= stmpe-keypad.o
->  obj-$(CONFIG_KEYBOARD_STOWAWAY)		+= stowaway.o
-> diff --git a/drivers/input/keyboard/snvs_pwrkey.c b/drivers/input/keyboard/snvs_pwrkey.c
-> new file mode 100644
-> index 0000000..512a1fc
-> --- /dev/null
-> +++ b/drivers/input/keyboard/snvs_pwrkey.c
-> @@ -0,0 +1,227 @@
-> +/*
-> + * Driver for the IMX SNVS ON/OFF Power Key
-> + * Copyright (C) 2015 Freescale Semiconductor, Inc. All Rights Reserved.
-> + *
-> + * The code contained herein is licensed under the GNU General Public
-> + * License. You may obtain a copy of the GNU General Public License
-> + * Version 2 or later at the following locations:
-> + *
-> + * http://www.opensource.org/licenses/gpl-license.html
-> + * http://www.gnu.org/copyleft/gpl.html
-> + */
-> +
-> +#include <linux/device.h>
-> +#include <linux/err.h>
-> +#include <linux/init.h>
-> +#include <linux/input.h>
-> +#include <linux/interrupt.h>
-> +#include <linux/io.h>
-> +#include <linux/jiffies.h>
-> +#include <linux/kernel.h>
-> +#include <linux/module.h>
-> +#include <linux/of.h>
-> +#include <linux/of_address.h>
-> +#include <linux/platform_device.h>
-> +#include <linux/mfd/syscon.h>
-> +#include <linux/regmap.h>
-> +
-> +#define SNVS_LPSR_REG	0x4C	/* LP Status Register */
-> +#define SNVS_LPCR_REG	0x38	/* LP Control Register */
-> +#define SNVS_HPSR_REG	0x14
-> +#define SNVS_HPSR_BTN	BIT(6)
-> +#define SNVS_LPSR_SPO	BIT(18)
-> +#define SNVS_LPCR_DEP_EN BIT(5)
-> +
-> +#define DEBOUNCE_TIME 30
-> +#define REPEAT_INTERVAL 60
-> +
-> +struct pwrkey_drv_data {
-> +	struct regmap *snvs;
-> +	int irq;
-> +	int keycode;
-> +	int keystate;  /* 1:pressed */
-> +	int wakeup;
-> +	struct timer_list check_timer;
-> +	struct input_dev *input;
-> +};
-> +
-> +static void imx_imx_snvs_check_for_events(unsigned long data)
-> +{
-> +	struct pwrkey_drv_data *pdata = (struct pwrkey_drv_data *) data;
-> +	struct input_dev *input = pdata->input;
-> +	u32 state;
-> +
-> +	regmap_read(pdata->snvs, SNVS_HPSR_REG, &state);
-> +	state = state & SNVS_HPSR_BTN ? 1 : 0;
-> +
-> +	/* only report new event if status changed */
-> +	if (state ^ pdata->keystate) {
-> +		pdata->keystate = state;
-> +		input_event(input, EV_KEY, pdata->keycode, state);
-> +		input_sync(input);
-> +		pm_relax(pdata->input->dev.parent);
-> +	}
-> +
-> +	/* repeat check if pressed long */
-> +	if (state) {
-> +		mod_timer(&pdata->check_timer,
-> +			  jiffies + msecs_to_jiffies(REPEAT_INTERVAL));
-> +	}
-> +}
-> +
-> +static irqreturn_t imx_snvs_pwrkey_interrupt(int irq, void *dev_id)
-> +{
-> +	struct platform_device *pdev = dev_id;
-> +	struct pwrkey_drv_data *pdata = platform_get_drvdata(pdev);
-> +	u32 lp_status;
-> +
-> +	pm_wakeup_event(pdata->input->dev.parent, 0);
-> +
-> +	regmap_read(pdata->snvs, SNVS_LPSR_REG, &lp_status);
-> +	if (lp_status & SNVS_LPSR_SPO)
-> +		mod_timer(&pdata->check_timer, jiffies + msecs_to_jiffies(DEBOUNCE_TIME));
-> +
-> +	/* clear SPO status */
-> +	regmap_write(pdata->snvs, SNVS_LPSR_REG, SNVS_LPSR_SPO);
-> +
-> +	return IRQ_HANDLED;
-> +}
-> +
-> +static void imx_snvs_pwrkey_act(void *pdata)
-> +{
-> +	struct pwrkey_drv_data *pd = pdata;
-> +
-> +	del_timer_sync(&pd->check_timer);
-> +}
-> +
-> +static int imx_snvs_pwrkey_probe(struct platform_device *pdev)
-> +{
-> +	struct pwrkey_drv_data *pdata = NULL;
-> +	struct input_dev *input = NULL;
-> +	struct device_node *np;
-> +	int error;
-> +
-> +	/* Get SNVS register Page */
-> +	np = pdev->dev.of_node;
-> +	if (!np)
-> +		return -ENODEV;
-> +
-> +	pdata = devm_kzalloc(&pdev->dev, sizeof(*pdata), GFP_KERNEL);
-> +	if (!pdata)
-> +		return -ENOMEM;
-> +
-> +	pdata->snvs = syscon_regmap_lookup_by_phandle(np, "regmap");;
-> +
-> +	if (!pdata->snvs) {
-> +		dev_err(&pdev->dev, "Can't get snvs syscon\n");
-> +		return -ENODEV;
-> +	}
-> +
-> +	if (of_property_read_u32(np, "linux,keycode", &pdata->keycode)) {
-> +		pdata->keycode = KEY_POWER;
-> +		dev_warn(&pdev->dev, "KEY_POWER without setting in dts\n");
-> +	}
-> +
-> +	pdata->wakeup = of_property_read_bool(np, "wakeup");
-> +
-> +	pdata->irq = platform_get_irq(pdev, 0);
-> +	if (pdata->irq < 0) {
-> +		dev_err(&pdev->dev, "no irq defined in platform data\n");
-> +		return -EINVAL;
-> +	}
-> +
-> +	regmap_update_bits(pdata->snvs, SNVS_LPCR_REG, SNVS_LPCR_DEP_EN, SNVS_LPCR_DEP_EN);
-> +
-> +	/* clear the unexpected interrupt before driver ready */
-> +	regmap_write(pdata->snvs, SNVS_LPSR_REG, SNVS_LPSR_SPO);
-> +
-> +	setup_timer(&pdata->check_timer,
-> +		    imx_imx_snvs_check_for_events, (unsigned long) pdata);
-> +
-> +	input = devm_input_allocate_device(&pdev->dev);
-> +	if (!input) {
-> +		dev_err(&pdev->dev, "failed to allocate the input device\n");
-> +		return -ENOMEM;
-> +	}
-> +
-> +	input->name = pdev->name;
-> +	input->phys = "snvs-pwrkey/input0";
-> +	input->id.bustype = BUS_HOST;
-> +
-> +	input_set_capability(input, EV_KEY, pdata->keycode);
-> +
-> +	/* input customer action to cancel release timer */
-> +	error = devm_add_action(&pdev->dev, imx_snvs_pwrkey_act, pdata);
-> +	if (error) {
-> +		dev_err(&pdev->dev, "failed to register remove action\n");
-> +		return error;
-> +	}
-> +
-> +	error = devm_request_irq(&pdev->dev, pdata->irq,
-> +			       imx_snvs_pwrkey_interrupt,
-> +			       0, pdev->name, pdev);
-> +
-> +	if (error) {
-> +		dev_err(&pdev->dev, "interrupt not available.\n");
-> +		return error;
-> +	}
-> +
-> +	error = input_register_device(input);
-> +	if (error < 0) {
-> +		dev_err(&pdev->dev, "failed to register input device\n");
-> +		input_free_device(input);
-> +		return error;
-> +	}
-> +
-> +	pdata->input = input;
-> +	platform_set_drvdata(pdev, pdata);
-> +
-> +	device_init_wakeup(&pdev->dev, pdata->wakeup);
-> +
-> +	return 0;
-> +}
-> +
-> +static int imx_snvs_pwrkey_suspend(struct device *dev)
-> +{
-> +	struct platform_device *pdev = to_platform_device(dev);
-> +	struct pwrkey_drv_data *pdata = platform_get_drvdata(pdev);
-> +
-> +	if (device_may_wakeup(&pdev->dev))
-> +		enable_irq_wake(pdata->irq);
-> +
-> +	return 0;
-> +}
-> +
-> +static int imx_snvs_pwrkey_resume(struct device *dev)
-> +{
-> +	struct platform_device *pdev = to_platform_device(dev);
-> +	struct pwrkey_drv_data *pdata = platform_get_drvdata(pdev);
-> +
-> +	if (device_may_wakeup(&pdev->dev))
-> +		disable_irq_wake(pdata->irq);
-> +
-> +	return 0;
-> +}
-> +
-> +static const struct of_device_id imx_snvs_pwrkey_ids[] = {
-> +	{ .compatible = "fsl,sec-v4.0-pwrkey" },
-> +	{ /* sentinel */ }
-> +};
-> +MODULE_DEVICE_TABLE(of, imx_snvs_pwrkey_ids);
-> +
-> +static SIMPLE_DEV_PM_OPS(imx_snvs_pwrkey_pm_ops, imx_snvs_pwrkey_suspend,
-> +				imx_snvs_pwrkey_resume);
-> +
-> +static struct platform_driver imx_snvs_pwrkey_driver = {
-> +	.driver = {
-> +		.name = "snvs_pwrkey",
-> +		.pm     = &imx_snvs_pwrkey_pm_ops,
-> +		.of_match_table = imx_snvs_pwrkey_ids,
-> +	},
-> +	.probe = imx_snvs_pwrkey_probe,
-> +};
-> +module_platform_driver(imx_snvs_pwrkey_driver);
-> +
-> +MODULE_AUTHOR("Freescale Semiconductor");
-> +MODULE_DESCRIPTION("i.MX snvs power key Driver");
-> +MODULE_LICENSE("GPL");
-> -- 
-> 1.9.1
-> 
+In the long run, all the update_persistent_clock() should migrate to
+proper class RTC drivers if any and use CONFIG_RTC_SYSTOHC instead.
 
+Signed-off-by: Xunlei Pang <pang.xunlei@linaro.org>
+---
+ arch/sparc/Kconfig          |  2 +-
+ arch/sparc/kernel/time_32.c | 21 ---------------------
+ arch/sparc/kernel/time_64.c | 14 --------------
+ 3 files changed, 1 insertion(+), 36 deletions(-)
+
+diff --git a/arch/sparc/Kconfig b/arch/sparc/Kconfig
+index e49502a..56442d2 100644
+--- a/arch/sparc/Kconfig
++++ b/arch/sparc/Kconfig
+@@ -25,6 +25,7 @@ config SPARC
+ 	select ARCH_HAS_ATOMIC64_DEC_IF_POSITIVE
+ 	select RTC_CLASS
+ 	select RTC_DRV_M48T59
++	select RTC_SYSTOHC
+ 	select HAVE_DMA_ATTRS
+ 	select HAVE_DMA_API_DEBUG
+ 	select HAVE_ARCH_JUMP_LABEL if SPARC64
+@@ -35,7 +36,6 @@ config SPARC
+ 	select HAVE_BPF_JIT
+ 	select HAVE_DEBUG_BUGVERBOSE
+ 	select GENERIC_SMP_IDLE_THREAD
+-	select GENERIC_CMOS_UPDATE
+ 	select GENERIC_CLOCKEVENTS
+ 	select GENERIC_STRNCPY_FROM_USER
+ 	select GENERIC_STRNLEN_USER
+diff --git a/arch/sparc/kernel/time_32.c b/arch/sparc/kernel/time_32.c
+index 8caf45e..c9692f3 100644
+--- a/arch/sparc/kernel/time_32.c
++++ b/arch/sparc/kernel/time_32.c
+@@ -23,7 +23,6 @@
+ #include <linux/mm.h>
+ #include <linux/interrupt.h>
+ #include <linux/time.h>
+-#include <linux/rtc.h>
+ #include <linux/rtc/m48t59.h>
+ #include <linux/timex.h>
+ #include <linux/clocksource.h>
+@@ -65,8 +64,6 @@ DEFINE_PER_CPU(struct clock_event_device, sparc32_clockevent);
+ DEFINE_SPINLOCK(rtc_lock);
+ EXPORT_SYMBOL(rtc_lock);
+ 
+-static int set_rtc_mmss(unsigned long);
+-
+ unsigned long profile_pc(struct pt_regs *regs)
+ {
+ 	extern char __copy_user_begin[], __copy_user_end[];
+@@ -87,11 +84,6 @@ EXPORT_SYMBOL(profile_pc);
+ 
+ volatile u32 __iomem *master_l10_counter;
+ 
+-int update_persistent_clock(struct timespec now)
+-{
+-	return set_rtc_mmss(now.tv_sec);
+-}
+-
+ irqreturn_t notrace timer_interrupt(int dummy, void *dev_id)
+ {
+ 	if (timer_cs_enabled) {
+@@ -362,16 +354,3 @@ void __init time_init(void)
+ 		sbus_time_init();
+ }
+ 
+-
+-static int set_rtc_mmss(unsigned long secs)
+-{
+-	struct rtc_device *rtc = rtc_class_open("rtc0");
+-	int err = -1;
+-
+-	if (rtc) {
+-		err = rtc_set_mmss(rtc, secs);
+-		rtc_class_close(rtc);
+-	}
+-
+-	return err;
+-}
+diff --git a/arch/sparc/kernel/time_64.c b/arch/sparc/kernel/time_64.c
+index edbbeb1..2e6035c 100644
+--- a/arch/sparc/kernel/time_64.c
++++ b/arch/sparc/kernel/time_64.c
+@@ -28,7 +28,6 @@
+ #include <linux/cpufreq.h>
+ #include <linux/percpu.h>
+ #include <linux/miscdevice.h>
+-#include <linux/rtc.h>
+ #include <linux/rtc/m48t59.h>
+ #include <linux/kernel_stat.h>
+ #include <linux/clockchips.h>
+@@ -394,19 +393,6 @@ static struct sparc64_tick_ops hbtick_operations __read_mostly = {
+ 
+ static unsigned long timer_ticks_per_nsec_quotient __read_mostly;
+ 
+-int update_persistent_clock(struct timespec now)
+-{
+-	struct rtc_device *rtc = rtc_class_open("rtc0");
+-	int err = -1;
+-
+-	if (rtc) {
+-		err = rtc_set_mmss(rtc, now.tv_sec);
+-		rtc_class_close(rtc);
+-	}
+-
+-	return err;
+-}
+-
+ unsigned long cmos_regs;
+ EXPORT_SYMBOL(cmos_regs);
+ 
 -- 
-Dmitry
+1.9.1
+
 
 -- 
 -- 
