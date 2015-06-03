@@ -1,19 +1,29 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBMWH22VQKGQEXWK3NRI@googlegroups.com>
-MIME-Version: 1.0
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id ec7si49740wib.3.2015.06.08.07.16.17
+Return-Path: <rtc-linux+bncBCF252X47MMRBGUZXSVQKGQEQERRDYQ@googlegroups.com>
+Received: from zabrina.hetzner-de.towertech.it (zabrina.hetzner-de.towertech.it. [178.63.16.19])
+        by gmr-mx.google.com with ESMTP id ec7si69453wib.3.2015.06.03.07.18.02
         for <rtc-linux@googlegroups.com>;
-        Mon, 08 Jun 2015 07:16:17 -0700 (PDT)
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: rtc-linux@googlegroups.com
-Cc: linux-kernel@vger.kernel.org,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Subject: [rtc-linux] [PATCH v2 1/2] rtc: mv: use BIT()
-Date: Mon,  8 Jun 2015 16:16:14 +0200
-Message-Id: <1433772975-15228-1-git-send-email-alexandre.belloni@free-electrons.com>
-Reply-To: rtc-linux@googlegroups.com
+        Wed, 03 Jun 2015 07:18:02 -0700 (PDT)
+Date: Wed, 3 Jun 2015 16:17:59 +0200
+From: Alessandro Zummo <a.zummo@towertech.it>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: Arnd Bergmann <arnd@arndb.de>, pang.xunlei@zte.com.cn, Andrew Christian
+ <andrew.christian@hp.com>, CIH <cih@coventive.com>, John Stultz
+ <john.stultz@linaro.org>, linux-kernel@vger.kernel.org, Nicolas Pitre
+ <nico@fluxnic.net>, Xunlei Pang <pang.xunlei@linaro.org>, Richard Purdie
+ <rpurdie@rpsys.net>, rtc-linux@googlegroups.com, Xunlei Pang
+ <xlpang@126.com>
+Subject: [rtc-linux] Re: [5/5] drivers/rtc/sa1100: Replace deprecated
+ rtc_tm_to_time() and rtc_time_to_tm()
+Message-ID: <20150603161759.014161cf@linux.lan.towertech.it>
+In-Reply-To: <20150601195909.GO4710@piout.net>
+References: <1429089611-29776-5-git-send-email-xlpang@126.com>
+	<OF1F6D43BC.C38481A0-ON48257E54.004FA90B-48257E54.004FD9D8@LocalDomain>
+	<OF8AF02B38.A9E97627-ON48257E55.00352B8F-48257E55.0037661B@zte.com.cn>
+	<3404495.679z0IaaBp@wuerfel>
+	<20150601195909.GO4710@piout.net>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -23,50 +33,22 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Use bit instead of hand coding the shift and correct the 24 hour vs 24
-hours typo.
+On Mon, 1 Jun 2015 21:59:09 +0200
+Alexandre Belloni <alexandre.belloni@free-electrons.com> wrote:
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
----
-Changes since v1:
- - split the patch, first switching to use BIT then fixing the error
-   message
+> I feel that we still have a bit of time before having to hurry and find
+> a proper solution ;)
 
- drivers/rtc/rtc-mv.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ agreed :)
 
-diff --git a/drivers/rtc/rtc-mv.c b/drivers/rtc/rtc-mv.c
-index 423762241042..7e84bb4072ad 100644
---- a/drivers/rtc/rtc-mv.c
-+++ b/drivers/rtc/rtc-mv.c
-@@ -10,6 +10,7 @@
- #include <linux/kernel.h>
- #include <linux/rtc.h>
- #include <linux/bcd.h>
-+#include <linux/bitops.h>
- #include <linux/io.h>
- #include <linux/platform_device.h>
- #include <linux/of.h>
-@@ -24,7 +25,7 @@
- #define RTC_MINUTES_OFFS	8
- #define RTC_HOURS_OFFS		16
- #define RTC_WDAY_OFFS		24
--#define RTC_HOURS_12H_MODE		(1 << 22) /* 12 hours mode */
-+#define RTC_HOURS_12H_MODE	BIT(22) /* 12 hour mode */
- 
- #define RTC_DATE_REG_OFFS	4
- #define RTC_MDAY_OFFS		0
-@@ -33,7 +34,7 @@
- 
- #define RTC_ALARM_TIME_REG_OFFS	8
- #define RTC_ALARM_DATE_REG_OFFS	0xc
--#define RTC_ALARM_VALID		(1 << 7)
-+#define RTC_ALARM_VALID		BIT(7)
- 
- #define RTC_ALARM_INTERRUPT_MASK_REG_OFFS	0x10
- #define RTC_ALARM_INTERRUPT_CASUE_REG_OFFS	0x14
 -- 
-2.1.4
+
+ Best regards,
+
+ Alessandro Zummo - CEO,
+  Tower Technologies - Torino, Italy
+
+  http://www.towertech.it
 
 -- 
 -- 
