@@ -1,23 +1,29 @@
-Return-Path: <rtc-linux+bncBCN6JTVP2IEBB5HDWWVQKGQEPVT6CXI@googlegroups.com>
-MIME-Version: 1.0
-Received: from m50-110.126.com (m50-110.126.com. [123.125.50.110])
-        by gmr-mx.google.com with ESMTP id ns5si896215igb.0.2015.06.02.02.05.55
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBU55XOVQKGQE7GPKOHQ@googlegroups.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id k10si859450wia.1.2015.06.03.04.02.42
         for <rtc-linux@googlegroups.com>;
-        Tue, 02 Jun 2015 02:05:55 -0700 (PDT)
-From: Xunlei Pang <xlpang@126.com>
-To: linux-kernel@vger.kernel.org
-Cc: rtc-linux@googlegroups.com,
+        Wed, 03 Jun 2015 04:02:42 -0700 (PDT)
+Date: Wed, 3 Jun 2015 13:02:41 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Octavian Purdila <octavian.purdila@intel.com>
+Cc: Linus Walleij <linus.walleij@linaro.org>,
+	Mika Westerberg <mika.westerberg@linux.intel.com>,
+	Jonathan Cameron <jic23@kernel.org>,
+	Hartmut Knaack <knaack.h@gmx.de>,
+	Lars-Peter Clausen <lars@metafoo.de>,
+	Peter Meerwald <pmeerw@pmeerw.net>,
 	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	John Stultz <john.stultz@linaro.org>,
-	Arnd Bergmann <arnd@arndb.de>,
-	Xunlei Pang <pang.xunlei@linaro.org>
-Subject: [rtc-linux] [PATCH v2 1/4] drivers/rtc/pcf8563: Replace deprecated
- rtc_time_to_tm() and rtc_tm_to_time()
-Date: Tue,  2 Jun 2015 17:04:19 +0800
-Message-Id: <1433235862-1638-1-git-send-email-xlpang@126.com>
-Reply-To: rtc-linux@googlegroups.com
+	Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
+	linux-iio@vger.kernel.org, rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org
+Subject: [rtc-linux] Re: [PATCH 0/2] change "client->irq >= 0" to "client->irq
+ > 0"
+Message-ID: <20150603110241.GK1715@piout.net>
+References: <1433280853-3988-1-git-send-email-octavian.purdila@intel.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1433280853-3988-1-git-send-email-octavian.purdila@intel.com>
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -27,47 +33,30 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-From: Xunlei Pang <pang.xunlei@linaro.org>
+On 03/06/2015 at 00:34:11 +0300, Octavian Purdila wrote :
+> This fixes an issue introduces by commit dab472eb931b ("i2c / ACPI:
+> Use 0 to indicate that device does not have interrupt assigned") where
+> drivers will try to request IRQ 0 when no GpioInt is defined in ACPI.
+> 
+> The same issue occurs when the device is instantiated via device tree
+> with no IRQ, or from the i2c sysfs interface, even before the patch
+> above.
+> 
+> Linus, since the commit above was already merged in the GPIO tree,
+> should these fixes be merged also via the GPIO tree (with ACKs from
+> the others subsystem maintainers)?
+> 
 
-pcf8563_rtc_set_alarm() uses deprecated rtc_tm_to_time()
-and rtc_time_to_tm(), which will overflow in year 2106
-on 32-bit machines.
+Side question, has it been considered that IRQ 0 is valid on some
+platform and that means i2c devices will not be able to be wired to that
+IRQ anymore? Though, I don't think there are any existing design that
+does so.
 
-This patch solves this by:
- - Replacing rtc_time_to_tm() with rtc_time64_to_tm()
- - Replacing rtc_tm_to_time() with rtc_tm_to_time64()
 
-Acked-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Xunlei Pang <pang.xunlei@linaro.org>
----
- drivers/rtc/rtc-pcf8563.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
-
-diff --git a/drivers/rtc/rtc-pcf8563.c b/drivers/rtc/rtc-pcf8563.c
-index 0ba7e59..5f87f84 100644
---- a/drivers/rtc/rtc-pcf8563.c
-+++ b/drivers/rtc/rtc-pcf8563.c
-@@ -363,13 +363,13 @@ static int pcf8563_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *tm)
- 	struct i2c_client *client = to_i2c_client(dev);
- 	unsigned char buf[4];
- 	int err;
--	unsigned long alarm_time;
- 
- 	/* The alarm has no seconds, round up to nearest minute */
- 	if (tm->time.tm_sec) {
--		rtc_tm_to_time(&tm->time, &alarm_time);
--		alarm_time += 60-tm->time.tm_sec;
--		rtc_time_to_tm(alarm_time, &tm->time);
-+		time64_t alarm_time = rtc_tm_to_time64(&tm->time);
-+
-+		alarm_time += 60 - tm->time.tm_sec;
-+		rtc_time64_to_tm(alarm_time, &tm->time);
- 	}
- 
- 	dev_dbg(dev, "%s, min=%d hour=%d wday=%d mday=%d "
 -- 
-1.9.1
-
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
 -- 
 -- 
