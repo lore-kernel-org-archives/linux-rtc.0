@@ -1,64 +1,85 @@
-Return-Path: <xlpang@126.com>
-From: Xunlei Pang <xlpang@126.com>
-To: linux-kernel@vger.kernel.org
-Cc: rtc-linux@googlegroups.com,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	John Stultz <john.stultz@linaro.org>,
-	Arnd Bergmann <arnd@arndb.de>,
-	Xunlei Pang <pang.xunlei@linaro.org>,
-	Herbert Valerio Riedel <hvr@gnu.org>
-Subject: [PATCH v3 3/4] drivers/rtc/isl1208: Replace deprecated rtc_tm_to_time()
-Date: Fri, 12 Jun 2015 10:04:11 +0800
-Message-Id: <1434074652-16054-3-git-send-email-xlpang@126.com>
-In-Reply-To: <1434074652-16054-1-git-send-email-xlpang@126.com>
-References: <1434074652-16054-1-git-send-email-xlpang@126.com>
+Return-Path: <robert.jarzmik@free.fr>
+From: Robert Jarzmik <robert.jarzmik@free.fr>
+To: Rob Herring <robh@kernel.org>
+Cc: Russell King <linux@arm.linux.org.uk>,  Alexandre Belloni <alexandre.belloni@free-electrons.com>,  Eric Miao <eric.y.miao@gmail.com>,  Haojian Zhuang <haojian.zhuang@gmail.com>,  Alessandro Zummo <a.zummo@towertech.it>,  rtc-linux@googlegroups.com,  Arnd Bergmann <arnd@arndb.de>,  "linux-arm-kernel\@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
+Subject: Re: [PATCH v4 0/6] SA1100/PXA RTC clean-up
+References: <1431529350-4597-1-git-send-email-robh@kernel.org>
+	<87pp62jdpj.fsf@belgarion.home>
+	<CAL_JsqJ-VMQHXFF9Gxf5mmPjYXZ6gyktYFjgvxAHRx-Kmuoq8A@mail.gmail.com>
+	<877fs5k9ps.fsf@belgarion.home>
+	<CAL_JsqKWNNH4stY+CNtKCiE7qcwDYaxZc36-iqqe1ddmG82g1Q@mail.gmail.com>
+Date: Fri, 05 Jun 2015 21:43:04 +0200
+In-Reply-To: <CAL_JsqKWNNH4stY+CNtKCiE7qcwDYaxZc36-iqqe1ddmG82g1Q@mail.gmail.com>
+	(Rob Herring's message of "Wed, 3 Jun 2015 00:31:58 -0500")
+Message-ID: <871thq54c7.fsf@belgarion.home>
+MIME-Version: 1.0
+Content-Type: text/plain
 List-ID: <rtc-linux.googlegroups.com>
 
-From: Xunlei Pang <pang.xunlei@linaro.org>
+Rob Herring <robh@kernel.org> writes:
 
-isl1208_i2c_set_alarm() uses deprecated rtc_tm_to_time(),
-which will overflow in year 2106 on 32-bit machines.
+>> I'm rather in a mood for a more aggressive approach :
+>>
+>>  - you fire an incremental patch to patch the 10 defconfigs on PXA architecture
+>>    (pxa27x and pxa3xx)
+>
+> Here's the breakdown of configs which enable SA1100 RTC only. Only the
+> last 6 need to change by my count:
+>
+> pxa25x
+> arch/arm/configs/h5000_defconfig
+> arch/arm/configs/xcep_defconfig
+> arch/arm/configs/viper_defconfig
+>
+> pxa255/270
+> arch/arm/configs/cm_x2xx_defconfig
+>
+> pxa270
+> arch/arm/configs/em_x270_defconfig
+> arch/arm/configs/magician_defconfig
+> arch/arm/configs/palmz72_defconfig
+> arch/arm/configs/pcm027_defconfig
+> arch/arm/configs/trizeps4_defconfig
+And arch/arm/configs/jornada720_defconfig I counted wrongly as it's sa1100.
+So I agree with your list of last 6 defconfigs.
 
-This patch solves this by:
- - Replacing rtc_tm_to_time() with rtc_tm_sub()
+>>  - in this patch, you replace 's/CONFIG_RTC_DRV_SA1100/CONFIG_RTC_DRV_PXA/'
+>>  - you send this patch to the maintainers and me
+>>  - you explain in the commit message that from a userland perspective, nothing
+>>    changes, except that the RTC IP will change, and any dependency on a
+>
+> The IP does not change here. rtc0 is still going to be the SA1100 RTC
+> being registered first. The only change will be the addition of rtc1.
+For boards which were only using rtc-pxa.c (as mioa701 for example), they relied
+on the fact that rtc0 == pxa_rtc. Their time is stored in PXA IP. Therefore,
+each of their hwclock will end up on sa1100-rtc instead of pxa-rtc.
 
-Cc: Herbert Valerio Riedel <hvr@gnu.org>
-Signed-off-by: Xunlei Pang <pang.xunlei@linaro.org>
----
-v2->v3:
-Rename rtc_tm_subtract() to rtc_tm_sub().
+So for these boards, ie. for all boards where only rtc-pxa.c was used, the IP
+addressed changes from a casual userspace perspective.
 
- drivers/rtc/rtc-isl1208.c | 9 +--------
- 1 file changed, 1 insertion(+), 8 deletions(-)
+>>    bootloader fidling with RTC should be considered as a source of regression.
+>
+> I'm not sure that I follow.
+Let's talk about how a double boot windows + linux box works.
+The bootloader ensures that :
+ - sa1100-rtc holds the number of seconds since the OS start (think jiffies)
+ - pxa-rtc holds the wall clock time
 
-diff --git a/drivers/rtc/rtc-isl1208.c b/drivers/rtc/rtc-isl1208.c
-index c3c549d..aa3b8f1 100644
---- a/drivers/rtc/rtc-isl1208.c
-+++ b/drivers/rtc/rtc-isl1208.c
-@@ -370,22 +370,15 @@ isl1208_i2c_set_alarm(struct i2c_client *client, struct rtc_wkalrm *alarm)
- 	struct rtc_time *alarm_tm = &alarm->time;
- 	u8 regs[ISL1208_ALARM_SECTION_LEN] = { 0, };
- 	const int offs = ISL1208_REG_SCA;
--	unsigned long rtc_secs, alarm_secs;
- 	struct rtc_time rtc_tm;
- 	int err, enable;
- 
- 	err = isl1208_i2c_read_time(client, &rtc_tm);
- 	if (err)
- 		return err;
--	err = rtc_tm_to_time(&rtc_tm, &rtc_secs);
--	if (err)
--		return err;
--	err = rtc_tm_to_time(alarm_tm, &alarm_secs);
--	if (err)
--		return err;
- 
- 	/* If the alarm time is before the current time disable the alarm */
--	if (!alarm->enabled || alarm_secs <= rtc_secs)
-+	if (!alarm->enabled || rtc_tm_sub(alarm_tm, &rtc_tm) <= 0)
- 		enable = 0x00;
- 	else
- 		enable = 0x80;
+Upon each reboot, sa1100-rtc is checked to see how much time has passed. If an
+"oustanding number" is detected, for example 10 years, the firmware resets the
+data partition.
+
+Now think what will happen when this change will be commited, upon the first
+reboot after the linux kernel has change sa1100-rtc time.
+
+>>    Moreover the first reboot will have the wrong date, until it is set.
+> Only for rtc1, right?
+Yes, right, unless the bootloader logic is ... over-engineered.
+
+All of this to say maintainers should be forwarned at least. After that, up to
+them to react.
+
+Cheers.
+
 -- 
-1.9.1
+Robert
