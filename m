@@ -1,24 +1,29 @@
-Return-Path: <rtc-linux+bncBDYNJBOFRECBBHXY2WVQKGQECW56T7Q@googlegroups.com>
+Return-Path: <rtc-linux+bncBCV6LFM5RQJRBMVSY2VQKGQE5MAHR7A@googlegroups.com>
 MIME-Version: 1.0
-Received: from mail-wi0-f180.google.com (mail-wi0-f180.google.com. [209.85.212.180])
-        by gmr-mx.google.com with ESMTPS id q10si22501wiz.0.2015.06.08.04.27.26
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 08 Jun 2015 04:27:26 -0700 (PDT)
-Received: by wibdq8 with SMTP id dq8so81515724wib.1
-        for <rtc-linux@googlegroups.com>; Mon, 08 Jun 2015 04:27:26 -0700 (PDT)
-From: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-To: matt.fleming@intel.com,
-	linux-efi@vger.kernel.org
-Cc: roy.franz@linaro.org,
-	leif.lindholm@linaro.org,
-	Ard Biesheuvel <ard.biesheuvel@linaro.org>,
+Received: from mga14.intel.com (mga14.intel.com. [192.55.52.115])
+        by gmr-mx.google.com with ESMTP id x3si775551pdh.2.2015.06.05.05.42.25
+        for <rtc-linux@googlegroups.com>;
+        Fri, 05 Jun 2015 05:42:25 -0700 (PDT)
+From: Octavian Purdila <octavian.purdila@intel.com>
+To: Linus Walleij <linus.walleij@linaro.org>
+Cc: Mika Westerberg <mika.westerberg@linux.intel.com>,
+	Jonathan Cameron <jic23@kernel.org>,
+	Hartmut Knaack <knaack.h@gmx.de>,
+	Lars-Peter Clausen <lars@metafoo.de>,
+	Peter Meerwald <pmeerw@pmeerw.net>,
 	Alessandro Zummo <a.zummo@towertech.it>,
 	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	rtc-linux@googlegroups.com
-Subject: [rtc-linux] [PATCH] efi: rtc-efi: use correct EFI 'epoch'
-Date: Mon,  8 Jun 2015 13:27:14 +0200
-Message-Id: <1433762834-17961-1-git-send-email-ard.biesheuvel@linaro.org>
+	Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
+	linux-iio@vger.kernel.org,
+	rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org,
+	Octavian Purdila <octavian.purdila@intel.com>
+Subject: [rtc-linux] [PATCH v2 1/2] iio: fix drivers that consider 0 as a
+ valid IRQ in client->irq
+Date: Fri,  5 Jun 2015 15:41:57 +0300
+Message-Id: <1433508118-3938-2-git-send-email-octavian.purdila@intel.com>
+In-Reply-To: <1433508118-3938-1-git-send-email-octavian.purdila@intel.com>
+References: <1433508118-3938-1-git-send-email-octavian.purdila@intel.com>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -30,62 +35,99 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-The rtc-efi driver declares that the EFI 'epoch' is 1/1/1998, but
-the UEFI spec does not define it at all. It does define a minimum
-of 1900 for the 'Year' member of the EFI_TIME struct, so let's use
-1900 as the minimum year and not 1998.
+Since patch "i2c / ACPI: Use 0 to indicate that device does not have
+interrupt assigned" [1], 0 is not a valid i2c client irq anymore, so
+change all driver's checks accordingly.
 
-This prevents rtc_read_time() failures when the RTC that backs the
-EFI time services is set to a date before 1998.
+The same issue occurs when the device is instantiated via device tree
+with no IRQ, or from the i2c sysfs interface, even before the patch
+above.
 
-Cc: Alessandro Zummo <a.zummo@towertech.it>
-Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: rtc-linux@googlegroups.com
-Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+[1] https://lkml.org/lkml/2015/5/6/279
+
+Signed-off-by: Octavian Purdila <octavian.purdila@intel.com>
+Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
 ---
- drivers/rtc/rtc-efi.c | 13 +++++++------
- 1 file changed, 7 insertions(+), 6 deletions(-)
+ drivers/iio/accel/bmc150-accel.c | 2 +-
+ drivers/iio/accel/kxcjk-1013.c   | 2 +-
+ drivers/iio/accel/mma9553.c      | 2 +-
+ drivers/iio/imu/kmx61.c          | 8 ++++----
+ 4 files changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/rtc/rtc-efi.c b/drivers/rtc/rtc-efi.c
-index cb989cd00b14..4a93b0bbf22c 100644
---- a/drivers/rtc/rtc-efi.c
-+++ b/drivers/rtc/rtc-efi.c
-@@ -25,9 +25,12 @@
+diff --git a/drivers/iio/accel/bmc150-accel.c b/drivers/iio/accel/bmc150-accel.c
+index 4e70f51..55751d9 100644
+--- a/drivers/iio/accel/bmc150-accel.c
++++ b/drivers/iio/accel/bmc150-accel.c
+@@ -1663,7 +1663,7 @@ static int bmc150_accel_probe(struct i2c_client *client,
+ 	if (client->irq < 0)
+ 		client->irq = bmc150_accel_gpio_probe(client, data);
  
- #define EFI_ISDST (EFI_TIME_ADJUST_DAYLIGHT|EFI_TIME_IN_DAYLIGHT)
- /*
-- * EFI Epoch is 1/1/1998
-+ * The UEFI spec does not literally define an epoch, but it does
-+ * define EFI_TIME::Year as having a value between 1900 and 9999.
-+ * (UEFI spec v2.5 paragraph 7.3)
-+ * So let's use 1900 as the EFI epoch year.
-  */
--#define EFI_RTC_EPOCH		1998
-+#define EFI_RTC_EPOCH		1900
+-	if (client->irq >= 0) {
++	if (client->irq > 0) {
+ 		ret = devm_request_threaded_irq(
+ 						&client->dev, client->irq,
+ 						bmc150_accel_irq_handler,
+diff --git a/drivers/iio/accel/kxcjk-1013.c b/drivers/iio/accel/kxcjk-1013.c
+index 0d9bd35..aa93cbd 100644
+--- a/drivers/iio/accel/kxcjk-1013.c
++++ b/drivers/iio/accel/kxcjk-1013.c
+@@ -1243,7 +1243,7 @@ static int kxcjk1013_probe(struct i2c_client *client,
+ 	if (client->irq < 0)
+ 		client->irq = kxcjk1013_gpio_probe(client, data);
  
- /*
-  * returns day of the year [0-365]
-@@ -40,8 +43,6 @@ compute_yday(efi_time_t *eft)
- }
- /*
-  * returns day of the week [0-6] 0=Sunday
-- *
-- * Don't try to provide a year that's before 1998, please !
-  */
- static int
- compute_wday(efi_time_t *eft)
-@@ -60,9 +61,9 @@ compute_wday(efi_time_t *eft)
- 	ndays += compute_yday(eft);
+-	if (client->irq >= 0) {
++	if (client->irq > 0) {
+ 		ret = devm_request_threaded_irq(&client->dev, client->irq,
+ 						kxcjk1013_data_rdy_trig_poll,
+ 						kxcjk1013_event_handler,
+diff --git a/drivers/iio/accel/mma9553.c b/drivers/iio/accel/mma9553.c
+index 9d649c4..df043b3 100644
+--- a/drivers/iio/accel/mma9553.c
++++ b/drivers/iio/accel/mma9553.c
+@@ -1143,7 +1143,7 @@ static int mma9553_probe(struct i2c_client *client,
+ 	if (client->irq < 0)
+ 		client->irq = mma9553_gpio_probe(client);
  
- 	/*
--	 * 4=1/1/1998 was a Thursday
-+	 * 1=1/1/1900 was a Monday
- 	 */
--	return (ndays + 4) % 7;
-+	return (ndays + 1) % 7;
- }
+-	if (client->irq >= 0) {
++	if (client->irq > 0) {
+ 		ret = devm_request_threaded_irq(&client->dev, client->irq,
+ 						mma9553_irq_handler,
+ 						mma9553_event_handler,
+diff --git a/drivers/iio/imu/kmx61.c b/drivers/iio/imu/kmx61.c
+index 462a010..82cdf50 100644
+--- a/drivers/iio/imu/kmx61.c
++++ b/drivers/iio/imu/kmx61.c
+@@ -1363,7 +1363,7 @@ static int kmx61_probe(struct i2c_client *client,
+ 	if (client->irq < 0)
+ 		client->irq = kmx61_gpio_probe(client, data);
  
- static void
+-	if (client->irq >= 0) {
++	if (client->irq > 0) {
+ 		ret = devm_request_threaded_irq(&client->dev, client->irq,
+ 						kmx61_data_rdy_trig_poll,
+ 						kmx61_event_handler,
+@@ -1445,10 +1445,10 @@ err_iio_unregister_mag:
+ err_iio_unregister_acc:
+ 	iio_device_unregister(data->acc_indio_dev);
+ err_buffer_cleanup_mag:
+-	if (client->irq >= 0)
++	if (client->irq > 0)
+ 		iio_triggered_buffer_cleanup(data->mag_indio_dev);
+ err_buffer_cleanup_acc:
+-	if (client->irq >= 0)
++	if (client->irq > 0)
+ 		iio_triggered_buffer_cleanup(data->acc_indio_dev);
+ err_trigger_unregister_motion:
+ 	iio_trigger_unregister(data->motion_trig);
+@@ -1472,7 +1472,7 @@ static int kmx61_remove(struct i2c_client *client)
+ 	iio_device_unregister(data->acc_indio_dev);
+ 	iio_device_unregister(data->mag_indio_dev);
+ 
+-	if (client->irq >= 0) {
++	if (client->irq > 0) {
+ 		iio_triggered_buffer_cleanup(data->acc_indio_dev);
+ 		iio_triggered_buffer_cleanup(data->mag_indio_dev);
+ 		iio_trigger_unregister(data->acc_dready_trig);
 -- 
 1.9.1
 
