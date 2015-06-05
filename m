@@ -1,129 +1,119 @@
-Return-Path: <rtc-linux+bncBCMNZUWXYYORB4EHQ6WAKGQES5QVVGA@googlegroups.com>
-MIME-Version: 1.0
-Received: from mail-pd0-f175.google.com (mail-pd0-f175.google.com. [209.85.192.175])
-        by gmr-mx.google.com with ESMTPS id fl5si663678pad.0.2015.06.17.12.01.04
+Return-Path: <rtc-linux+bncBD62P6P6EQIPLKGIVMCRUBAX6IAOW@googlegroups.com>
+Received: from mail-vn0-x232.google.com (mail-vn0-x232.google.com. [2607:f8b0:400c:c0f::232])
+        by gmr-mx.google.com with ESMTPS id ci2si359711vdd.3.2015.06.05.14.28.21
         for <rtc-linux@googlegroups.com>
         (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 17 Jun 2015 12:01:04 -0700 (PDT)
-Received: by mail-pd0-f175.google.com with SMTP id ki1so46712991pdb.1
-        for <rtc-linux@googlegroups.com>; Wed, 17 Jun 2015 12:01:04 -0700 (PDT)
-From: Vaibhav Hiremath <vaibhav.hiremath@linaro.org>
-To: linux-arm-kernel@lists.infradead.org
-Cc: robh+dt@kernel.org,
-	lee.jones@linaro.org,
-	devicetree@vger.kernel.org,
-	rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org,
-	Vaibhav Hiremath <vaibhav.hiremath@linaro.org>,
-	Chao Xie <chao.xie@marvell.com>
-Subject: [rtc-linux] [PATCH-v2 1/3] mfd: 88pm800: Add device tree support
-Date: Thu, 18 Jun 2015 00:28:05 +0530
-Message-Id: <1434567488-6477-2-git-send-email-vaibhav.hiremath@linaro.org>
-In-Reply-To: <1434567488-6477-1-git-send-email-vaibhav.hiremath@linaro.org>
-References: <vaibhav.hiremath@linaro.org>
- <1434567488-6477-1-git-send-email-vaibhav.hiremath@linaro.org>
-Reply-To: rtc-linux@googlegroups.com
+        Fri, 05 Jun 2015 14:28:21 -0700 (PDT)
+Received: by vnbg129 with SMTP id g129so10713502vnb.9
+        for <rtc-linux@googlegroups.com>; Fri, 05 Jun 2015 14:28:21 -0700 (PDT)
+MIME-Version: 1.0
+Sender: rtc-linux@googlegroups.com
+In-Reply-To: <871thq54c7.fsf@belgarion.home>
+References: <1431529350-4597-1-git-send-email-robh@kernel.org>
+ <87pp62jdpj.fsf@belgarion.home> <CAL_JsqJ-VMQHXFF9Gxf5mmPjYXZ6gyktYFjgvxAHRx-Kmuoq8A@mail.gmail.com>
+ <877fs5k9ps.fsf@belgarion.home> <CAL_JsqKWNNH4stY+CNtKCiE7qcwDYaxZc36-iqqe1ddmG82g1Q@mail.gmail.com>
+ <871thq54c7.fsf@belgarion.home>
+From: Rob Herring <robh@kernel.org>
+Date: Fri, 5 Jun 2015 16:28:00 -0500
+Message-ID: <CAL_JsqJnj+JLFoUmE6COqhr83_H0n1=Bdk_wYnMZEzsZRu=aew@mail.gmail.com>
+Subject: [rtc-linux] Re: [PATCH v4 0/6] SA1100/PXA RTC clean-up
+To: Robert Jarzmik <robert.jarzmik@free.fr>
+Cc: Russell King <linux@arm.linux.org.uk>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>, Eric Miao <eric.y.miao@gmail.com>,
+	Haojian Zhuang <haojian.zhuang@gmail.com>, Alessandro Zummo <a.zummo@towertech.it>,
+	rtc-linux@googlegroups.com, Arnd Bergmann <arnd@arndb.de>,
+	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
 Content-Type: text/plain; charset=UTF-8
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
 List-Archive: <http://groups.google.com/group/rtc-linux
-Sender: rtc-linux@googlegroups.com
 List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Add DT support to the 88pm800 driver, along with compatible
-field for it's sub-devices (rtc, onkey and regulator)
+On Fri, Jun 5, 2015 at 2:43 PM, Robert Jarzmik <robert.jarzmik@free.fr> wrote:
+> Rob Herring <robh@kernel.org> writes:
+>
+>>> I'm rather in a mood for a more aggressive approach :
+>>>
+>>>  - you fire an incremental patch to patch the 10 defconfigs on PXA architecture
+>>>    (pxa27x and pxa3xx)
+>>
+>> Here's the breakdown of configs which enable SA1100 RTC only. Only the
+>> last 6 need to change by my count:
+>>
+>> pxa25x
+>> arch/arm/configs/h5000_defconfig
+>> arch/arm/configs/xcep_defconfig
+>> arch/arm/configs/viper_defconfig
+>>
+>> pxa255/270
+>> arch/arm/configs/cm_x2xx_defconfig
+>>
+>> pxa270
+>> arch/arm/configs/em_x270_defconfig
+>> arch/arm/configs/magician_defconfig
+>> arch/arm/configs/palmz72_defconfig
+>> arch/arm/configs/pcm027_defconfig
+>> arch/arm/configs/trizeps4_defconfig
+> And arch/arm/configs/jornada720_defconfig I counted wrongly as it's sa1100.
+> So I agree with your list of last 6 defconfigs.
+>
+>>>  - in this patch, you replace 's/CONFIG_RTC_DRV_SA1100/CONFIG_RTC_DRV_PXA/'
+>>>  - you send this patch to the maintainers and me
+>>>  - you explain in the commit message that from a userland perspective, nothing
+>>>    changes, except that the RTC IP will change, and any dependency on a
+>>
+>> The IP does not change here. rtc0 is still going to be the SA1100 RTC
+>> being registered first. The only change will be the addition of rtc1.
+> For boards which were only using rtc-pxa.c (as mioa701 for example), they relied
+> on the fact that rtc0 == pxa_rtc. Their time is stored in PXA IP. Therefore,
+> each of their hwclock will end up on sa1100-rtc instead of pxa-rtc.
+>
+> So for these boards, ie. for all boards where only rtc-pxa.c was used, the IP
+> addressed changes from a casual userspace perspective.
 
-Signed-off-by: Chao Xie <chao.xie@marvell.com>
-Signed-off-by: Vaibhav Hiremath <vaibhav.hiremath@linaro.org>
----
- drivers/mfd/88pm800.c | 25 +++++++++++++++++++++++++
- 1 file changed, 25 insertions(+)
+Okay, so this is the case where the time will be wrong.
 
-diff --git a/drivers/mfd/88pm800.c b/drivers/mfd/88pm800.c
-index 841717a..059f01a 100644
---- a/drivers/mfd/88pm800.c
-+++ b/drivers/mfd/88pm800.c
-@@ -27,6 +27,7 @@
- #include <linux/mfd/core.h>
- #include <linux/mfd/88pm80x.h>
- #include <linux/slab.h>
-+#include <linux/of_device.h>
- 
- /* Interrupt Registers */
- #define PM800_INT_STATUS1		(0x05)
-@@ -121,6 +122,11 @@ static const struct i2c_device_id pm80x_id_table[] = {
- };
- MODULE_DEVICE_TABLE(i2c, pm80x_id_table);
- 
-+static const struct of_device_id pm80x_of_match_table[] = {
-+	{ .compatible = "marvell,88pm800", },
-+	{},
-+};
-+
- static struct resource rtc_resources[] = {
- 	{
- 	 .name = "88pm80x-rtc",
-@@ -133,6 +139,7 @@ static struct resource rtc_resources[] = {
- static struct mfd_cell rtc_devs[] = {
- 	{
- 	 .name = "88pm80x-rtc",
-+	 .of_compatible = "marvell,88pm80x-rtc",
- 	 .num_resources = ARRAY_SIZE(rtc_resources),
- 	 .resources = &rtc_resources[0],
- 	 .id = -1,
-@@ -151,6 +158,7 @@ static struct resource onkey_resources[] = {
- static const struct mfd_cell onkey_devs[] = {
- 	{
- 	 .name = "88pm80x-onkey",
-+	 .of_compatible = "marvell,88pm80x-onkey",
- 	 .num_resources = 1,
- 	 .resources = &onkey_resources[0],
- 	 .id = -1,
-@@ -160,6 +168,7 @@ static const struct mfd_cell onkey_devs[] = {
- static const struct mfd_cell regulator_devs[] = {
- 	{
- 	 .name = "88pm80x-regulator",
-+	 .of_compatible = "marvell,88pm80x-regulator",
- 	 .id = -1,
- 	},
- };
-@@ -544,8 +553,23 @@ static int pm800_probe(struct i2c_client *client,
- 	int ret = 0;
- 	struct pm80x_chip *chip;
- 	struct pm80x_platform_data *pdata = dev_get_platdata(&client->dev);
-+	struct device_node *np = client->dev.of_node;
- 	struct pm80x_subchip *subchip;
- 
-+	if (!pdata && !np) {
-+		dev_err(&client->dev,
-+			"pm80x requires platform data or of_node\n");
-+		return -EINVAL;
-+	}
-+
-+	if (!pdata) {
-+		pdata = devm_kzalloc(&client->dev, sizeof(*pdata), GFP_KERNEL);
-+		if (!pdata) {
-+			dev_err(&client->dev, "failed to allocaate memory\n");
-+			return -ENOMEM;
-+		}
-+	}
-+
- 	ret = pm80x_init(client);
- 	if (ret) {
- 		dev_err(&client->dev, "pm800_init fail\n");
-@@ -611,6 +635,7 @@ static struct i2c_driver pm800_driver = {
- 		.name = "88PM800",
- 		.owner = THIS_MODULE,
- 		.pm = &pm80x_pm_ops,
-+		.of_match_table	= pm80x_of_match_table,
- 		},
- 	.probe = pm800_probe,
- 	.remove = pm800_remove,
--- 
-1.9.1
+I could remove the select of the sa1100-rtc and do an empty function
+for sa1100_rtc_init. This would preserve current behavior.
+
+>
+>>>    bootloader fidling with RTC should be considered as a source of regression.
+>>
+>> I'm not sure that I follow.
+> Let's talk about how a double boot windows + linux box works.
+> The bootloader ensures that :
+>  - sa1100-rtc holds the number of seconds since the OS start (think jiffies)
+>  - pxa-rtc holds the wall clock time
+>
+> Upon each reboot, sa1100-rtc is checked to see how much time has passed. If an
+> "oustanding number" is detected, for example 10 years, the firmware resets the
+> data partition.
+>
+> Now think what will happen when this change will be commited, upon the first
+> reboot after the linux kernel has change sa1100-rtc time.
+
+That would be bad. But on these platforms, the kernel has been using
+both RTCs right? Presumably on platforms only using 1 of the RTCs, the
+bootloader does not touch the RTCs.
+
+Rob
+
+>
+>>>    Moreover the first reboot will have the wrong date, until it is set.
+>> Only for rtc1, right?
+> Yes, right, unless the bootloader logic is ... over-engineered.
+>
+> All of this to say maintainers should be forwarned at least. After that, up to
+> them to react.
+>
+> Cheers.
+>
+> --
+> Robert
 
 -- 
 -- 
