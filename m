@@ -1,27 +1,29 @@
-Return-Path: <rtc-linux+bncBDULZYNR2QMRBJHYSWWAKGQEQBV5UFY@googlegroups.com>
-Received: from mail-lb0-x230.google.com (mail-lb0-x230.google.com. [2a00:1450:4010:c04::230])
-        by gmr-mx.google.com with ESMTPS id bm9si584529lbb.0.2015.06.20.07.43.48
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sat, 20 Jun 2015 07:43:48 -0700 (PDT)
-Received: by mail-lb0-x230.google.com with SMTP id ti3so86765738lbb.1
-        for <rtc-linux@googlegroups.com>; Sat, 20 Jun 2015 07:43:48 -0700 (PDT)
+Return-Path: <rtc-linux+bncBCV6LFM5RQJRBYOWY2VQKGQEXX3SHDI@googlegroups.com>
 MIME-Version: 1.0
-In-Reply-To: <1434809732-8996-3-git-send-email-tremyfr@gmail.com>
-References: <1434809732-8996-1-git-send-email-tremyfr@gmail.com>
-	<1434809732-8996-3-git-send-email-tremyfr@gmail.com>
-Date: Sat, 20 Jun 2015 11:43:48 -0300
-Message-ID: <CAOMZO5DOC2WXAVLxv_srHAZVAtnhTaP1yqYL9iQvJivKHRj1jA@mail.gmail.com>
-Subject: [rtc-linux] Re: [PATCH v2 2/6] imx35: define two clocks for rtc
-From: Fabio Estevam <festevam@gmail.com>
-To: Philippe Reynes <tremyfr@gmail.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>, Shawn Guo <shawn.guo@linaro.org>,
-	Sascha Hauer <kernel@pengutronix.de>, Russell King <linux@arm.linux.org.uk>,
-	rtc-linux@googlegroups.com, linux-kernel <linux-kernel@vger.kernel.org>,
-	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
-Content-Type: text/plain; charset=UTF-8
+Received: from mga01.intel.com (mga01.intel.com. [192.55.52.88])
+        by gmr-mx.google.com with ESMTP id wh3si772102pbc.0.2015.06.05.07.00.01
+        for <rtc-linux@googlegroups.com>;
+        Fri, 05 Jun 2015 07:00:01 -0700 (PDT)
+From: Octavian Purdila <octavian.purdila@intel.com>
+To: Linus Walleij <linus.walleij@linaro.org>
+Cc: Mika Westerberg <mika.westerberg@linux.intel.com>,
+	Jonathan Cameron <jic23@kernel.org>,
+	Hartmut Knaack <knaack.h@gmx.de>,
+	Lars-Peter Clausen <lars@metafoo.de>,
+	Peter Meerwald <pmeerw@pmeerw.net>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
+	linux-iio@vger.kernel.org,
+	rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org,
+	Octavian Purdila <octavian.purdila@intel.com>
+Subject: [rtc-linux] [PATCH v3 0/2] fix drivers that consider 0 as a valid IRQ
+ in client->irq
+Date: Fri,  5 Jun 2015 16:59:41 +0300
+Message-Id: <1433512783-8183-1-git-send-email-octavian.purdila@intel.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -31,15 +33,41 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On Sat, Jun 20, 2015 at 11:15 AM, Philippe Reynes <tremyfr@gmail.com> wrote:
+Since patch "i2c / ACPI: Use 0 to indicate that device does not have
+interrupt assigned" [1], 0 is not a valid i2c client irq anymore, so
+change all driver's checks accordingly.
 
-> @@ -240,6 +241,9 @@ int __init mx35_clocks_init(void)
->         clk_register_clkdev(clk[ipg], "ipg", "imx21-uart.1");
->         clk_register_clkdev(clk[uart3_gate], "per", "imx21-uart.2");
->         clk_register_clkdev(clk[ipg], "ipg", "imx21-uart.2");
-> +       /* i.mx35 has the i.mx21 type uart */
+The same issue occurs when the device is instantiated via device tree
+with no IRQ, or from the i2c sysfs interface, even before the patch
+above.
 
-I think you meant rtc, not uart :-)
+[1] http://lkml.kernel.org/g/<1430908148-201129-3-git-send-email-mika.westerberg@linux.intel.com>
+
+Changes since v2:
+
+ * switch to using https://lkml.kernel.org/ instead of lkml.org
+
+Changes since v1:
+
+ * remove the commit id as the referenced patch is not yet merged
+
+ * rephrased the subject line to be more descriptive
+
+
+Octavian Purdila (2):
+  iio: fix drivers that consider 0 as a valid IRQ in client->irq
+  rtc: fix drivers that consider 0 as a valid IRQ in client->irq
+
+ drivers/iio/accel/bmc150-accel.c | 2 +-
+ drivers/iio/accel/kxcjk-1013.c   | 2 +-
+ drivers/iio/accel/mma9553.c      | 2 +-
+ drivers/iio/imu/kmx61.c          | 8 ++++----
+ drivers/rtc/rtc-ds1374.c         | 4 ++--
+ drivers/rtc/rtc-ds3232.c         | 2 +-
+ 6 files changed, 10 insertions(+), 10 deletions(-)
+
+-- 
+1.9.1
 
 -- 
 -- 
