@@ -1,28 +1,43 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBU55XOVQKGQE7GPKOHQ@googlegroups.com>
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id k10si859450wia.1.2015.06.03.04.02.42
-        for <rtc-linux@googlegroups.com>;
-        Wed, 03 Jun 2015 04:02:42 -0700 (PDT)
-Date: Wed, 3 Jun 2015 13:02:41 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Octavian Purdila <octavian.purdila@intel.com>
-Cc: Linus Walleij <linus.walleij@linaro.org>,
-	Mika Westerberg <mika.westerberg@linux.intel.com>,
-	Jonathan Cameron <jic23@kernel.org>,
-	Hartmut Knaack <knaack.h@gmx.de>,
-	Lars-Peter Clausen <lars@metafoo.de>,
-	Peter Meerwald <pmeerw@pmeerw.net>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
-	linux-iio@vger.kernel.org, rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH 0/2] change "client->irq >= 0" to "client->irq
- > 0"
-Message-ID: <20150603110241.GK1715@piout.net>
-References: <1433280853-3988-1-git-send-email-octavian.purdila@intel.com>
+Return-Path: <rtc-linux+bncBCS6LF74ZYGBBXGDYWVQKGQETYQMZEA@googlegroups.com>
+Received: from hqemgate14.nvidia.com (hqemgate14.nvidia.com. [216.228.121.143])
+        by gmr-mx.google.com with ESMTPS id fl5si703669pad.0.2015.06.05.01.46.20
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1 cipher=ECDHE-RSA-RC4-SHA bits=128/128);
+        Fri, 05 Jun 2015 01:46:20 -0700 (PDT)
+Message-ID: <557161D1.3040107@nvidia.com>
+Date: Fri, 5 Jun 2015 09:46:09 +0100
+From: Jon Hunter <jonathanh@nvidia.com>
 MIME-Version: 1.0
+To: Paul Walmsley <paul@pwsan.com>, Boris Brezillon
+	<boris.brezillon@free-electrons.com>
+CC: Mike Turquette <mturquette@linaro.org>, Stephen Boyd
+	<sboyd@codeaurora.org>, <linux-clk@vger.kernel.org>,
+	<linux-kernel@vger.kernel.org>, Jonathan Corbet <corbet@lwn.net>, Shawn Guo
+	<shawn.guo@linaro.org>, ascha Hauer <kernel@pengutronix.de>, David Brown
+	<davidb@codeaurora.org>, Daniel Walker <dwalker@fifo99.com>, Bryan Huntsman
+	<bryanh@codeaurora.org>, Tony Lindgren <tony@atomide.com>, Liviu Dudau
+	<liviu.dudau@arm.com>, Sudeep Holla <sudeep.holla@arm.com>, Lorenzo Pieralisi
+	<lorenzo.pieralisi@arm.com>, Ralf Baechle <ralf@linux-mips.org>, Max Filippov
+	<jcmvbkbc@gmail.com>, Heiko Stuebner <heiko@sntech.de>, Sylwester Nawrocki
+	<s.nawrocki@samsung.com>, Tomasz Figa <tomasz.figa@gmail.com>, Barry Song
+	<baohua@kernel.org>, Viresh Kumar <viresh.linux@gmail.com>,
+	=?UTF-8?B?RW1pbGlvIEzDs3Bleg==?= <emilio@elopez.com.ar>, Maxime Ripard
+	<maxime.ripard@free-electrons.com>, Peter De Schrijver
+	<pdeschrijver@nvidia.com>, Prashant Gaikwad <pgaikwad@nvidia.com>, Stephen
+ Warren <swarren@wwwdotorg.org>, Thierry Reding <thierry.reding@gmail.com>,
+	Alexandre Courbot <gnurou@gmail.com>, Tero Kristo <t-kristo@ti.com>, Ulf
+ Hansson <ulf.hansson@linaro.org>, Michal Simek <michal.simek@xilinx.com>,
+	Philipp Zabel <p.zabel@pengutronix.de>, <linux-doc@vger.kernel.org>,
+	<linux-arm-kernel@lists.infradead.org>, <linux-arm-msm@vger.kernel.org>,
+	<linux-omap@vger.kernel.org>, <linux-mips@linux-mips.org>,
+	<patches@opensource.wolfsonmicro.com>, <linux-rockchip@lists.infradead.org>,
+	<linux-samsung-soc@vger.kernel.org>, <spear-devel@list.st.com>,
+	<linux-tegra@vger.kernel.org>, <dri-devel@lists.freedesktop.org>,
+	<linux-media@vger.kernel.org>, <rtc-linux@googlegroups.com>
+Subject: [rtc-linux] Re: [PATCH v2 1/2] clk: change clk_ops' ->round_rate() prototype
+References: <1430407809-31147-1-git-send-email-boris.brezillon@free-electrons.com> <1430407809-31147-2-git-send-email-boris.brezillon@free-electrons.com> <alpine.DEB.2.02.1506042258530.12316@utopia.booyaka.com>
+In-Reply-To: <alpine.DEB.2.02.1506042258530.12316@utopia.booyaka.com>
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1433280853-3988-1-git-send-email-octavian.purdila@intel.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -33,30 +48,54 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On 03/06/2015 at 00:34:11 +0300, Octavian Purdila wrote :
-> This fixes an issue introduces by commit dab472eb931b ("i2c / ACPI:
-> Use 0 to indicate that device does not have interrupt assigned") where
-> drivers will try to request IRQ 0 when no GpioInt is defined in ACPI.
-> 
-> The same issue occurs when the device is instantiated via device tree
-> with no IRQ, or from the i2c sysfs interface, even before the patch
-> above.
-> 
-> Linus, since the commit above was already merged in the GPIO tree,
-> should these fixes be merged also via the GPIO tree (with ACKs from
-> the others subsystem maintainers)?
-> 
 
-Side question, has it been considered that IRQ 0 is valid on some
-platform and that means i2c devices will not be able to be wired to that
-IRQ anymore? Though, I don't think there are any existing design that
-does so.
+On 05/06/15 00:02, Paul Walmsley wrote:
+> Hi folks
+> 
+> just a brief comment on this one:
+> 
+> On Thu, 30 Apr 2015, Boris Brezillon wrote:
+> 
+>> Clock rates are stored in an unsigned long field, but ->round_rate()
+>> (which returns a rounded rate from a requested one) returns a long
+>> value (errors are reported using negative error codes), which can lead
+>> to long overflow if the clock rate exceed 2Ghz.
+>>
+>> Change ->round_rate() prototype to return 0 or an error code, and pass the
+>> requested rate as a pointer so that it can be adjusted depending on
+>> hardware capabilities.
+> 
+> ...
+> 
+>> diff --git a/Documentation/clk.txt b/Documentation/clk.txt
+>> index 0e4f90a..fca8b7a 100644
+>> --- a/Documentation/clk.txt
+>> +++ b/Documentation/clk.txt
+>> @@ -68,8 +68,8 @@ the operations defined in clk.h:
+>>  		int		(*is_enabled)(struct clk_hw *hw);
+>>  		unsigned long	(*recalc_rate)(struct clk_hw *hw,
+>>  						unsigned long parent_rate);
+>> -		long		(*round_rate)(struct clk_hw *hw,
+>> -						unsigned long rate,
+>> +		int		(*round_rate)(struct clk_hw *hw,
+>> +						unsigned long *rate,
+>>  						unsigned long *parent_rate);
+>>  		long		(*determine_rate)(struct clk_hw *hw,
+>>  						unsigned long rate,
+> 
+> I'd suggest that we should probably go straight to 64-bit rates.  There 
+> are already plenty of clock sources that can generate rates higher than 
+> 4GiHz.
 
+An alternative would be to introduce to a frequency "base" the default
+could be Hz (for backwards compatibility), but for CPUs we probably only
+care about MHz (or may be kHz) and so 32-bits would still suffice. Even
+if CPUs cared about Hz they could still use Hz, but in that case they
+probably don't care about GHz. Obviously, we don't want to break DT
+compatibility but may be the frequency base could be defined in DT and
+if it is missing then Hz is assumed. Just a thought ...
 
--- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+Jon
 
 -- 
 -- 
