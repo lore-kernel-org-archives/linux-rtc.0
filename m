@@ -1,22 +1,41 @@
-Return-Path: <rtc-linux+bncBCO3XAUMTIFRBI4MU2WAKGQE4KVK7DY@googlegroups.com>
-Received: from bear.ext.ti.com (bear.ext.ti.com. [192.94.94.41])
-        by gmr-mx.google.com with ESMTPS id ax9si4973igc.1.2015.06.23.09.15.30
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1 cipher=RC4-SHA bits=128/128);
-        Tue, 23 Jun 2015 09:15:30 -0700 (PDT)
-From: Nishanth Menon <nm@ti.com>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        Alessandro Zummo
-	<a.zummo@towertech.it>
-CC: <linux-kernel@vger.kernel.org>, <rtc-linux@googlegroups.com>,
-        <linux-omap@vger.kernel.org>, <linux-arm-kernel@lists.infradead.org>,
-        <balbi@ti.com>, <grygorii.strashko@ti.com>, Nishanth Menon <nm@ti.com>
-Subject: [rtc-linux] [PATCH V2 4/5] drivers/rtc/rtc-ds1307.c: Support optional
- wakeup interrupt source
-Date: Tue, 23 Jun 2015 11:15:13 -0500
-Message-ID: <1435076114-12416-5-git-send-email-nm@ti.com>
-In-Reply-To: <1435076114-12416-1-git-send-email-nm@ti.com>
-References: <1435076114-12416-1-git-send-email-nm@ti.com>
+Return-Path: <rtc-linux+bncBCIPJ6FA2QLBBJ4UY2VQKGQEVT3U4FQ@googlegroups.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id h1si76839wiw.1.2015.06.05.04.38.14
+        for <rtc-linux@googlegroups.com>;
+        Fri, 05 Jun 2015 04:38:14 -0700 (PDT)
+Date: Fri, 5 Jun 2015 13:38:03 +0200
+From: Boris Brezillon <boris.brezillon@free-electrons.com>
+To: Paul Walmsley <paul@pwsan.com>, Stephen Boyd <sboyd@codeaurora.org>
+Cc: Mike Turquette <mturquette@linaro.org>, linux-clk@vger.kernel.org,
+ linux-kernel@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, Shawn Guo
+ <shawn.guo@linaro.org>, ascha Hauer <kernel@pengutronix.de>, David Brown
+ <davidb@codeaurora.org>, Daniel Walker <dwalker@fifo99.com>, Bryan Huntsman
+ <bryanh@codeaurora.org>, Tony Lindgren <tony@atomide.com>, Liviu Dudau
+ <liviu.dudau@arm.com>, Sudeep Holla <sudeep.holla@arm.com>, Lorenzo
+ Pieralisi <lorenzo.pieralisi@arm.com>, Ralf Baechle <ralf@linux-mips.org>,
+ Max Filippov <jcmvbkbc@gmail.com>, Heiko Stuebner <heiko@sntech.de>,
+ Sylwester Nawrocki <s.nawrocki@samsung.com>, Tomasz Figa
+ <tomasz.figa@gmail.com>, Barry Song <baohua@kernel.org>, Viresh Kumar
+ <viresh.linux@gmail.com>, Emilio =?UTF-8?B?TMOzcGV6?=
+ <emilio@elopez.com.ar>, Maxime Ripard <maxime.ripard@free-electrons.com>,
+ Peter De Schrijver <pdeschrijver@nvidia.com>, Prashant Gaikwad
+ <pgaikwad@nvidia.com>, Stephen Warren <swarren@wwwdotorg.org>, Thierry
+ Reding <thierry.reding@gmail.com>, Alexandre Courbot <gnurou@gmail.com>,
+ Tero Kristo <t-kristo@ti.com>, Ulf Hansson <ulf.hansson@linaro.org>, Michal
+ Simek <michal.simek@xilinx.com>, Philipp Zabel <p.zabel@pengutronix.de>,
+ linux-doc@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+ linux-arm-msm@vger.kernel.org, linux-omap@vger.kernel.org,
+ linux-mips@linux-mips.org, patches@opensource.wolfsonmicro.com,
+ linux-rockchip@lists.infradead.org, linux-samsung-soc@vger.kernel.org,
+ spear-devel@list.st.com, linux-tegra@vger.kernel.org,
+ dri-devel@lists.freedesktop.org, linux-media@vger.kernel.org,
+ rtc-linux@googlegroups.com
+Subject: [rtc-linux] Re: [PATCH v2 1/2] clk: change clk_ops' ->round_rate() prototype
+Message-ID: <20150605133803.59990a66@bbrezillon>
+In-Reply-To: <alpine.DEB.2.02.1506042258530.12316@utopia.booyaka.com>
+References: <1430407809-31147-1-git-send-email-boris.brezillon@free-electrons.com>
+ <1430407809-31147-2-git-send-email-boris.brezillon@free-electrons.com>
+ <alpine.DEB.2.02.1506042258530.12316@utopia.booyaka.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
@@ -29,126 +48,66 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-With the recent pinctrl-single changes, SoCs such as Texas
-Instrument's OMAP processors can treat wake-up events from deeper idle
-states as interrupts.
+Hi Paul,
 
-Let's add support for the optional second interrupt for wake-up using
-the generic wakeirq support added in commit 4990d4fe327b ("PM /
-Wakeirq: Add automated device wake IRQ handling")
+On Thu, 4 Jun 2015 23:02:25 +0000 (UTC)
+Paul Walmsley <paul@pwsan.com> wrote:
 
-Finally, to pass the wake-up interrupt in the dts file,
-interrupts-extended property needs to be passed.
+> Hi folks
+> 
+> just a brief comment on this one:
+> 
+> On Thu, 30 Apr 2015, Boris Brezillon wrote:
+> 
+> > Clock rates are stored in an unsigned long field, but ->round_rate()
+> > (which returns a rounded rate from a requested one) returns a long
+> > value (errors are reported using negative error codes), which can lead
+> > to long overflow if the clock rate exceed 2Ghz.
+> > 
+> > Change ->round_rate() prototype to return 0 or an error code, and pass the
+> > requested rate as a pointer so that it can be adjusted depending on
+> > hardware capabilities.
+> 
+> ...
+> 
+> > diff --git a/Documentation/clk.txt b/Documentation/clk.txt
+> > index 0e4f90a..fca8b7a 100644
+> > --- a/Documentation/clk.txt
+> > +++ b/Documentation/clk.txt
+> > @@ -68,8 +68,8 @@ the operations defined in clk.h:
+> >  		int		(*is_enabled)(struct clk_hw *hw);
+> >  		unsigned long	(*recalc_rate)(struct clk_hw *hw,
+> >  						unsigned long parent_rate);
+> > -		long		(*round_rate)(struct clk_hw *hw,
+> > -						unsigned long rate,
+> > +		int		(*round_rate)(struct clk_hw *hw,
+> > +						unsigned long *rate,
+> >  						unsigned long *parent_rate);
+> >  		long		(*determine_rate)(struct clk_hw *hw,
+> >  						unsigned long rate,
+> 
+> I'd suggest that we should probably go straight to 64-bit rates.  There 
+> are already plenty of clock sources that can generate rates higher than 
+> 4GiHz.
 
-This is similar in approach to commit 2a0b965cfb6e ("serial: omap: Add
-support for optional wake-up") + ee83bd3b6483 ("serial: omap: Switch
-wake-up interrupt to generic wakeirq")
+Yep, that was something I was considering too. If Stephen agrees I'll
+change that in the next version.
+BTW, you're referring to the second version of this patch, but things
+have changed a bit: Stephen recommended to only modify the
+->determine_rate() prototype and pass a structure instead of a list of
+arguments.
+Here is the last version of this series [1].
 
-Signed-off-by: Nishanth Menon <nm@ti.com>
----
-Changes since V1:
-	- dropped the need for specific suspend-resume handlers generic api
-	  has adequate hooks for those
-	- little more code flow cleanups.
+Best Regards,
 
-V1: https://patchwork.kernel.org/patch/4759171/
+Boris
 
- drivers/rtc/rtc-ds1307.c |   41 ++++++++++++++++++++++++++++++++++++++---
- 1 file changed, 38 insertions(+), 3 deletions(-)
+[1]http://patchwork.linux-mips.org/patch/10092/
 
-diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
-index b03880fc32b5..b00d97dbf955 100644
---- a/drivers/rtc/rtc-ds1307.c
-+++ b/drivers/rtc/rtc-ds1307.c
-@@ -15,6 +15,9 @@
- #include <linux/i2c.h>
- #include <linux/init.h>
- #include <linux/module.h>
-+#include <linux/of_device.h>
-+#include <linux/of_irq.h>
-+#include <linux/pm_wakeirq.h>
- #include <linux/rtc/ds1307.h>
- #include <linux/rtc.h>
- #include <linux/slab.h>
-@@ -114,6 +117,7 @@ struct ds1307 {
- #define HAS_ALARM	1		/* bit 1 == irq claimed */
- 	struct i2c_client	*client;
- 	struct rtc_device	*rtc;
-+	int			wakeirq;
- 	s32 (*read_block_data)(const struct i2c_client *client, u8 command,
- 			       u8 length, u8 *values);
- 	s32 (*write_block_data)(const struct i2c_client *client, u8 command,
-@@ -1156,6 +1160,8 @@ read_rtc:
- 	}
- 
- 	if (want_irq) {
-+		struct device_node *node = client->dev.of_node;
-+
- 		err = devm_request_threaded_irq(&client->dev,
- 						client->irq, NULL, irq_handler,
- 						IRQF_SHARED | IRQF_ONESHOT,
-@@ -1163,13 +1169,36 @@ read_rtc:
- 		if (err) {
- 			client->irq = 0;
- 			dev_err(&client->dev, "unable to request IRQ!\n");
--		} else {
-+			goto no_irq;
-+		}
-+
-+		set_bit(HAS_ALARM, &ds1307->flags);
-+		dev_dbg(&client->dev, "got IRQ %d\n", client->irq);
- 
--			set_bit(HAS_ALARM, &ds1307->flags);
--			dev_dbg(&client->dev, "got IRQ %d\n", client->irq);
-+		/* Currently supported by OF code only! */
-+		if (!node)
-+			goto no_irq;
-+
-+		ds1307->wakeirq = of_irq_get(node, 1);
-+		if (ds1307->wakeirq <= 0) {
-+			if (ds1307->wakeirq == -EPROBE_DEFER) {
-+				err = ds1307->wakeirq;
-+				goto exit;
-+			}
-+			ds1307->wakeirq = 0;
-+			goto no_irq;
-+		}
-+
-+		err = dev_pm_set_dedicated_wake_irq(&client->dev,
-+						    ds1307->wakeirq);
-+		if (err) {
-+			dev_err(&client->dev, "unable to setup wakeIRQ %d\n",
-+				err);
-+			goto exit;
- 		}
- 	}
- 
-+no_irq:
- 	if (chip->nvram_size) {
- 
- 		ds1307->nvram = devm_kzalloc(&client->dev,
-@@ -1206,6 +1235,9 @@ read_rtc:
- 	return 0;
- 
- exit:
-+	if (ds1307->wakeirq)
-+		dev_pm_clear_wake_irq(&client->dev);
-+
- 	return err;
- }
- 
-@@ -1213,6 +1245,9 @@ static int ds1307_remove(struct i2c_client *client)
- {
- 	struct ds1307 *ds1307 = i2c_get_clientdata(client);
- 
-+	if (ds1307->wakeirq)
-+		dev_pm_clear_wake_irq(&client->dev);
-+
- 	if (test_and_clear_bit(HAS_NVRAM, &ds1307->flags))
- 		sysfs_remove_bin_file(&client->dev.kobj, ds1307->nvram);
- 
 -- 
-1.7.9.5
+Boris Brezillon, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
 
 -- 
 -- 
