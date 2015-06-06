@@ -1,21 +1,20 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBLM5YSWAKGQERS6K6AY@googlegroups.com>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBJ4HZ2VQKGQEJ2XL33A@googlegroups.com>
 Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id gt9si362629wib.2.2015.06.29.02.23.57
+        by gmr-mx.google.com with ESMTP id q10si35172wiz.0.2015.06.06.16.35.03
         for <rtc-linux@googlegroups.com>;
-        Mon, 29 Jun 2015 02:23:57 -0700 (PDT)
-Date: Mon, 29 Jun 2015 11:23:54 +0200
+        Sat, 06 Jun 2015 16:35:03 -0700 (PDT)
+Date: Sun, 7 Jun 2015 01:35:02 +0200
 From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Philippe Reynes <tremyfr@gmail.com>
-Cc: a.zummo@towertech.it, shawn.guo@linaro.org, kernel@pengutronix.de,
-	linux@arm.linux.org.uk, linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org, rtc-linux@googlegroups.com
-Subject: [rtc-linux] Re: [PATCH v3 3/6] rtc: mxc: use a second rtc clock
-Message-ID: <20150629092354.GW485@piout.net>
-References: <1434820360-21935-1-git-send-email-tremyfr@gmail.com>
- <1434820360-21935-4-git-send-email-tremyfr@gmail.com>
+To: Julia Lawall <julia.lawall@lip6.fr>
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+	kernel-janitors@vger.kernel.org, rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org
+Subject: [rtc-linux] Re: [17/29] drivers/rtc: simplify use of devm_ioremap_resource
+Message-ID: <20150606233502.GC3563@piout.net>
+References: <1376471493-22215-18-git-send-email-Julia.Lawall@lip6.fr>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1434820360-21935-4-git-send-email-tremyfr@gmail.com>
+In-Reply-To: <1376471493-22215-18-git-send-email-Julia.Lawall@lip6.fr>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -26,28 +25,36 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Hi,
+On 14/08/2013 at 11:11:21 +0200, Julia Lawall wrote :
+> From: Julia Lawall <Julia.Lawall@lip6.fr>
+> 
+> Remove unneeded error handling on the result of a call to
+> platform_get_resource when the value is passed to devm_ioremap_resource.
+> 
+> Move the call to platform_get_resource adjacent to the call to
+> devm_ioremap_resource to make the connection between them more clear.
+> 
+> A simplified version of the semantic patch that makes this change is as
+> follows: (http://coccinelle.lip6.fr/)
+> 
+> // <smpl>
+> @@
+> expression pdev,res,n,e,e1;
+> expression ret != 0;
+> identifier l;
+> @@
+> 
+> - res = platform_get_resource(pdev, IORESOURCE_MEM, n);
+>   ... when != res
+> - if (res == NULL) { ... \(goto l;\|return ret;\) }
+>   ... when != res
+> + res = platform_get_resource(pdev, IORESOURCE_MEM, n);
+>   e = devm_ioremap_resource(e1, res);
+> // </smpl>
+> 
+> Signed-off-by: Julia Lawall <Julia.Lawall@lip6.fr>
 
-On 20/06/2015 at 19:12:37 +0200, Philippe Reynes wrote :
-> -	rate = clk_get_rate(pdata->clk);
-> +	pdata->clk_rtc = devm_clk_get(&pdev->dev, "rtc");
-> +	if (IS_ERR(pdata->clk_rtc)) {
-> +		dev_err(&pdev->dev, "unable to get rtc clock!\n");
-> +		ret = PTR_ERR(pdata->clk_rtc);
-> +		goto exit_put_clk;
-> +	}
-> +
-> +	rate = clk_get_rate(pdata->clk_rtc);
->  
-
-You have to prepare_enable() before using get_rate(). Else, it is not
-guaranteed to work:
-"clk_get_rate - obtain the current clock rate (in Hz) for a clock source.
-                This is only valid once the clock source has been enabled."
-http://lxr.free-electrons.com/source/include/linux/clk.h#L269
-
-It may work right now because the clock is enabled elsewhere. But that
-may change at some point in time (we had the issue on at91).
+Rebased and applied, thanks.
 
 
 -- 
