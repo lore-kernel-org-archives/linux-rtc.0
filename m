@@ -1,53 +1,72 @@
-Return-Path: <xlpang@126.com>
-From: Xunlei Pang <xlpang@126.com>
-To: linux-kernel@vger.kernel.org
-Cc: rtc-linux@googlegroups.com,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	John Stultz <john.stultz@linaro.org>,
-	Arnd Bergmann <arnd@arndb.de>,
-	Xunlei Pang <pang.xunlei@linaro.org>
-Subject: [PATCH v3 2/4] rtc/lib: Introduce rtc_tm_sub() helper function
-Date: Fri, 12 Jun 2015 10:04:10 +0800
-Message-Id: <1434074652-16054-2-git-send-email-xlpang@126.com>
-In-Reply-To: <1434074652-16054-1-git-send-email-xlpang@126.com>
-References: <1434074652-16054-1-git-send-email-xlpang@126.com>
+Return-Path: <robert.jarzmik@free.fr>
+From: Robert Jarzmik <robert.jarzmik@free.fr>
+To: Rob Herring <robh@kernel.org>
+Cc: Russell King <linux@arm.linux.org.uk>,  Alexandre Belloni <alexandre.belloni@free-electrons.com>,  Eric Miao <eric.y.miao@gmail.com>,  Haojian Zhuang <haojian.zhuang@gmail.com>,  Alessandro Zummo <a.zummo@towertech.it>,  rtc-linux@googlegroups.com,  Arnd Bergmann <arnd@arndb.de>,  "linux-arm-kernel\@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
+Subject: Re: [PATCH v4 0/6] SA1100/PXA RTC clean-up
+References: <1431529350-4597-1-git-send-email-robh@kernel.org>
+	<87pp62jdpj.fsf@belgarion.home>
+	<CAL_JsqJ-VMQHXFF9Gxf5mmPjYXZ6gyktYFjgvxAHRx-Kmuoq8A@mail.gmail.com>
+	<877fs5k9ps.fsf@belgarion.home>
+	<CAL_JsqKWNNH4stY+CNtKCiE7qcwDYaxZc36-iqqe1ddmG82g1Q@mail.gmail.com>
+	<871thq54c7.fsf@belgarion.home>
+	<CAL_JsqJnj+JLFoUmE6COqhr83_H0n1=Bdk_wYnMZEzsZRu=aew@mail.gmail.com>
+Date: Sat, 06 Jun 2015 23:25:25 +0200
+In-Reply-To: <CAL_JsqJnj+JLFoUmE6COqhr83_H0n1=Bdk_wYnMZEzsZRu=aew@mail.gmail.com>
+	(Rob Herring's message of "Fri, 5 Jun 2015 16:28:00 -0500")
+Message-ID: <87wpzg4ji2.fsf@belgarion.home>
+MIME-Version: 1.0
+Content-Type: text/plain
 List-ID: <rtc-linux.googlegroups.com>
 
-From: Xunlei Pang <pang.xunlei@linaro.org>
+Rob Herring <robh@kernel.org> writes:
 
-There're many sites need comparing the two rtc_time variants for many
-rtc drivers, especially in the instances of rtc_class_ops::set_alarm().
+>>>>  - you explain in the commit message that from a userland perspective, nothing
+>>>>    changes, except that the RTC IP will change, and any dependency on a
+>>>
+>>> The IP does not change here. rtc0 is still going to be the SA1100 RTC
+>>> being registered first. The only change will be the addition of rtc1.
+>> For boards which were only using rtc-pxa.c (as mioa701 for example), they relied
+>> on the fact that rtc0 == pxa_rtc. Their time is stored in PXA IP. Therefore,
+>> each of their hwclock will end up on sa1100-rtc instead of pxa-rtc.
+>>
+>> So for these boards, ie. for all boards where only rtc-pxa.c was used, the IP
+>> addressed changes from a casual userspace perspective.
+>
+> Okay, so this is the case where the time will be wrong.
+>
+> I could remove the select of the sa1100-rtc and do an empty function
+> for sa1100_rtc_init. This would preserve current behavior.
+Please don't. I only ask for a sentence in the commit message.
 
-So add this common helper function to make things easy.
+>>>>    bootloader fidling with RTC should be considered as a source of regression.
+>>>
+>>> I'm not sure that I follow.
+>> Let's talk about how a double boot windows + linux box works.
+>> The bootloader ensures that :
+>>  - sa1100-rtc holds the number of seconds since the OS start (think jiffies)
+>>  - pxa-rtc holds the wall clock time
+>>
+>> Upon each reboot, sa1100-rtc is checked to see how much time has passed. If an
+>> "oustanding number" is detected, for example 10 years, the firmware resets the
+>> data partition.
+>>
+>> Now think what will happen when this change will be commited, upon the first
+>> reboot after the linux kernel has change sa1100-rtc time.
+>
+> That would be bad. But on these platforms, the kernel has been using
+> both RTCs right? Presumably on platforms only using 1 of the RTCs, the
+> bootloader does not touch the RTCs.
+No, the kernel has been using only pxa-rtc. The sa1100-rtc is not used, and yet
+it accounts the passed time in it.
 
-Suggested-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Xunlei Pang <pang.xunlei@linaro.org>
----
-v2->v3:
-Respin rtc_tm_subtract() to rtc_tm_sub() using "static inline".
+On platforms where all the OSes use only 1 RTC, the bootloader only touches one
+RTC, that's correct. Or said differently : the bootloader touches the union of
+all the RTCs the OSes it launches do touch.
 
- include/linux/rtc.h | 8 ++++++++
- 1 file changed, 8 insertions(+)
+>> All of this to say maintainers should be forwarned at least. After that, up to
+>> them to react.
 
-diff --git a/include/linux/rtc.h b/include/linux/rtc.h
-index 8dcf682..f46f765 100644
---- a/include/linux/rtc.h
-+++ b/include/linux/rtc.h
-@@ -24,6 +24,14 @@ extern void rtc_time64_to_tm(time64_t time, struct rtc_time *tm);
- ktime_t rtc_tm_to_ktime(struct rtc_time tm);
- struct rtc_time rtc_ktime_to_tm(ktime_t kt);
- 
-+/*
-+ * rtc_tm_sub - Return the difference in seconds.
-+ */
-+static inline time64_t rtc_tm_sub(struct rtc_time *lhs, struct rtc_time *rhs)
-+{
-+	return rtc_tm_to_time64(lhs) - rtc_tm_to_time64(rhs);
-+}
-+
- /**
-  * Deprecated. Use rtc_time64_to_tm().
-  */
+Cheers.
+
 -- 
-1.9.1
+Robert
