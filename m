@@ -1,22 +1,24 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRB7NV5KVQKGQEWLN35OI@googlegroups.com>
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id t6si88124wiz.0.2015.06.12.01.40.28
+Return-Path: <rtc-linux+bncBDMOV25X7AMRBNHV26VQKGQEYFOCO6I@googlegroups.com>
+Received: from bedivere.hansenpartnership.com (bedivere.hansenpartnership.com. [66.63.167.143])
+        by gmr-mx.google.com with ESMTP id ns6si439612pbc.2.2015.06.08.13.27.32
         for <rtc-linux@googlegroups.com>;
-        Fri, 12 Jun 2015 01:40:28 -0700 (PDT)
-Date: Fri, 12 Jun 2015 10:40:27 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Xunlei Pang <xlpang@126.com>
-Cc: linux-kernel@vger.kernel.org, rtc-linux@googlegroups.com,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	John Stultz <john.stultz@linaro.org>, Arnd Bergmann <arnd@arndb.de>,
-	Xunlei Pang <pang.xunlei@linaro.org>
-Subject: [rtc-linux] Re: [PATCH v3 1/4] drivers/rtc/pcf8563: Replace
- deprecated rtc_time_to_tm() and rtc_tm_to_time()
-Message-ID: <20150612084027.GD3890@piout.net>
-References: <1434074652-16054-1-git-send-email-xlpang@126.com>
-MIME-Version: 1.0
+        Mon, 08 Jun 2015 13:27:32 -0700 (PDT)
+Message-ID: <1433795250.2291.106.camel@HansenPartnership.com>
+Subject: [rtc-linux] Re: [PATCH] efi: rtc-efi: use correct EFI 'epoch'
+From: James Bottomley <James.Bottomley@HansenPartnership.com>
+To: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Cc: Matt Fleming <matt.fleming@intel.com>, "linux-efi@vger.kernel.org"
+ <linux-efi@vger.kernel.org>, Roy Franz <roy.franz@linaro.org>, Leif
+ Lindholm <leif.lindholm@linaro.org>, Alessandro Zummo
+ <a.zummo@towertech.it>,  Alexandre Belloni
+ <alexandre.belloni@free-electrons.com>, rtc-linux@googlegroups.com
+Date: Mon, 08 Jun 2015 13:27:30 -0700
+In-Reply-To: <CAKv+Gu-e03H7nP5UOoSR++CkAt96qsVz1YaR4K8wRPhg7LpEqQ@mail.gmail.com>
+References: <1433762834-17961-1-git-send-email-ard.biesheuvel@linaro.org>
+	 <1433791592.2291.83.camel@HansenPartnership.com>
+	 <CAKv+Gu-e03H7nP5UOoSR++CkAt96qsVz1YaR4K8wRPhg7LpEqQ@mail.gmail.com>
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1434074652-16054-1-git-send-email-xlpang@126.com>
+Mime-Version: 1.0
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -27,66 +29,98 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Hi Xunlei,
+On Mon, 2015-06-08 at 22:15 +0200, Ard Biesheuvel wrote:
+> On 8 June 2015 at 21:26, James Bottomley
+> <James.Bottomley@hansenpartnership.com> wrote:
+> > On Mon, 2015-06-08 at 13:27 +0200, Ard Biesheuvel wrote:
+> >> The rtc-efi driver declares that the EFI 'epoch' is 1/1/1998, but
+> >> the UEFI spec does not define it at all. It does define a minimum
+> >> of 1900 for the 'Year' member of the EFI_TIME struct, so let's use
+> >> 1900 as the minimum year and not 1998.
+> >>
+> >> This prevents rtc_read_time() failures when the RTC that backs the
+> >> EFI time services is set to a date before 1998.
+> >>
+> >> Cc: Alessandro Zummo <a.zummo@towertech.it>
+> >> Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+> >> Cc: rtc-linux@googlegroups.com
+> >> Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+> >> ---
+> >>  drivers/rtc/rtc-efi.c | 13 +++++++------
+> >>  1 file changed, 7 insertions(+), 6 deletions(-)
+> >>
+> >> diff --git a/drivers/rtc/rtc-efi.c b/drivers/rtc/rtc-efi.c
+> >> index cb989cd00b14..4a93b0bbf22c 100644
+> >> --- a/drivers/rtc/rtc-efi.c
+> >> +++ b/drivers/rtc/rtc-efi.c
+> >> @@ -25,9 +25,12 @@
+> >>
+> >>  #define EFI_ISDST (EFI_TIME_ADJUST_DAYLIGHT|EFI_TIME_IN_DAYLIGHT)
+> >>  /*
+> >> - * EFI Epoch is 1/1/1998
+> >> + * The UEFI spec does not literally define an epoch, but it does
+> >> + * define EFI_TIME::Year as having a value between 1900 and 9999.
+> >> + * (UEFI spec v2.5 paragraph 7.3)
+> >> + * So let's use 1900 as the EFI epoch year.
+> >>   */
+> >> -#define EFI_RTC_EPOCH                1998
+> >> +#define EFI_RTC_EPOCH                1900
+> >>
+> >>  /*
+> >>   * returns day of the year [0-365]
+> >> @@ -40,8 +43,6 @@ compute_yday(efi_time_t *eft)
+> >>  }
+> >>  /*
+> >>   * returns day of the week [0-6] 0=Sunday
+> >> - *
+> >> - * Don't try to provide a year that's before 1998, please !
+> >>   */
+> >>  static int
+> >>  compute_wday(efi_time_t *eft)
+> >> @@ -60,9 +61,9 @@ compute_wday(efi_time_t *eft)
+> >>       ndays += compute_yday(eft);
+> >>
+> >>       /*
+> >> -      * 4=1/1/1998 was a Thursday
+> >> +      * 1=1/1/1900 was a Monday
+> >>        */
+> >> -     return (ndays + 4) % 7;
+> >> +     return (ndays + 1) % 7;
+> >>  }
+> >
+> > This is a bit nuts: increasing the for loop by a huge amount every time
+> > we call the date just so we can cope with the odd early date.  Why not
+> > just count backwards for the exception case?  That way the epoch becomes
+> > an optimisation point, every year actually works, but years far before
+> > the epoch get penalised in the loop, while our current "efficiency"
+> > remains ... perhaps plus points if we want to move the epoch to 2015?
+> >
+> 
+> The 'epoch' is defined by the UEFI spec as starting at 1900, and
+> changing it to 2015 to optimize this for loop is equally silly imo.
 
-Just to let you know that your series are usually classified as spam
-when coming from 126.com. This series in particular didn't make it to
-the mailing list.
+The spec doesn't define an epoch in the sense we usually mean it, it
+just says the year in EFI_TIME should be between 1900 and 9999.  So I
+don't think EFI_RTC_EPOCH in the driver is really related.
 
-I'll take it anyway  but you may want to check that your other patches
-are being received by the maintainers.
+> Note that the core purpose of the patch is to change the cutoff point
+> below which years are rejected, but that context does not appear in
+> the diff.
 
-On 12/06/2015 at 10:04:09 +0800, Xunlei Pang wrote :
-> From: Xunlei Pang <pang.xunlei@linaro.org>
-> 
-> pcf8563_rtc_set_alarm() uses deprecated rtc_tm_to_time()
-> and rtc_time_to_tm(), which will overflow in year 2106
-> on 32-bit machines.
-> 
-> This patch solves this by:
->  - Replacing rtc_time_to_tm() with rtc_time64_to_tm()
->  - Replacing rtc_tm_to_time() with rtc_tm_to_time64()
-> 
-> Acked-by: Arnd Bergmann <arnd@arndb.de>
-> Signed-off-by: Xunlei Pang <pang.xunlei@linaro.org>
-> ---
-> v2->v3:
-> no changes.
-> 
->  drivers/rtc/rtc-pcf8563.c | 8 ++++----
->  1 file changed, 4 insertions(+), 4 deletions(-)
-> 
-> diff --git a/drivers/rtc/rtc-pcf8563.c b/drivers/rtc/rtc-pcf8563.c
-> index 0ba7e59..5f87f84 100644
-> --- a/drivers/rtc/rtc-pcf8563.c
-> +++ b/drivers/rtc/rtc-pcf8563.c
-> @@ -363,13 +363,13 @@ static int pcf8563_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *tm)
->  	struct i2c_client *client = to_i2c_client(dev);
->  	unsigned char buf[4];
->  	int err;
-> -	unsigned long alarm_time;
->  
->  	/* The alarm has no seconds, round up to nearest minute */
->  	if (tm->time.tm_sec) {
-> -		rtc_tm_to_time(&tm->time, &alarm_time);
-> -		alarm_time += 60-tm->time.tm_sec;
-> -		rtc_time_to_tm(alarm_time, &tm->time);
-> +		time64_t alarm_time = rtc_tm_to_time64(&tm->time);
-> +
-> +		alarm_time += 60 - tm->time.tm_sec;
-> +		rtc_time64_to_tm(alarm_time, &tm->time);
->  	}
->  
->  	dev_dbg(dev, "%s, min=%d hour=%d wday=%d mday=%d "
-> -- 
-> 1.9.1
-> 
-> 
+Both patches achieve that ... I just think doing a for loop from 1900 is
+very inefficient.
 
--- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+> rtc_time64_to_tm() already has a better way of counting the leap days
+> between two years. I'd be happy to propose a followup patch that gets
+> rid of the for loop entirely.
+> But those are two separate issues imo.
+
+Getting rid of the loop is better ... but creating a problem and then
+fixing it is still not really good operating procedure.  Just propose
+the final fix and we can apply that.
+
+James
+
 
 -- 
 -- 
