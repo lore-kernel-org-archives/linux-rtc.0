@@ -1,28 +1,26 @@
-Return-Path: <rtc-linux+bncBCZ4DZNV3IDBBS7LXSVQKGQEYWW3E6Q@googlegroups.com>
-Received: from smtp-out-080.synserver.de (smtp-out-080.synserver.de. [212.40.185.80])
-        by gmr-mx.google.com with ESMTP id ec7si93051wib.3.2015.06.03.10.13.47
-        for <rtc-linux@googlegroups.com>;
-        Wed, 03 Jun 2015 10:13:47 -0700 (PDT)
-Message-ID: <556F35C9.4090208@metafoo.de>
-Date: Wed, 03 Jun 2015 19:13:45 +0200
-From: Lars-Peter Clausen <lars@metafoo.de>
+Return-Path: <rtc-linux+bncBDYNJBOFRECBBHXY2WVQKGQECW56T7Q@googlegroups.com>
 MIME-Version: 1.0
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
- Octavian Purdila <octavian.purdila@intel.com>
-CC: Linus Walleij <linus.walleij@linaro.org>,
- Mika Westerberg <mika.westerberg@linux.intel.com>,
- Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>,
- Peter Meerwald <pmeerw@pmeerw.net>,
- Alessandro Zummo <a.zummo@towertech.it>,
- Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
- linux-iio@vger.kernel.org, rtc-linux@googlegroups.com,
- linux-kernel@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH 0/2] change "client->irq >= 0" to "client->irq
- > 0"
-References: <1433280853-3988-1-git-send-email-octavian.purdila@intel.com> <20150603110241.GK1715@piout.net>
-In-Reply-To: <20150603110241.GK1715@piout.net>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Received: from mail-wi0-f180.google.com (mail-wi0-f180.google.com. [209.85.212.180])
+        by gmr-mx.google.com with ESMTPS id q10si22501wiz.0.2015.06.08.04.27.26
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 08 Jun 2015 04:27:26 -0700 (PDT)
+Received: by wibdq8 with SMTP id dq8so81515724wib.1
+        for <rtc-linux@googlegroups.com>; Mon, 08 Jun 2015 04:27:26 -0700 (PDT)
+From: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+To: matt.fleming@intel.com,
+	linux-efi@vger.kernel.org
+Cc: roy.franz@linaro.org,
+	leif.lindholm@linaro.org,
+	Ard Biesheuvel <ard.biesheuvel@linaro.org>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	rtc-linux@googlegroups.com
+Subject: [rtc-linux] [PATCH] efi: rtc-efi: use correct EFI 'epoch'
+Date: Mon,  8 Jun 2015 13:27:14 +0200
+Message-Id: <1433762834-17961-1-git-send-email-ard.biesheuvel@linaro.org>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -32,32 +30,64 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On 06/03/2015 01:02 PM, Alexandre Belloni wrote:
-> On 03/06/2015 at 00:34:11 +0300, Octavian Purdila wrote :
->> This fixes an issue introduces by commit dab472eb931b ("i2c / ACPI:
->> Use 0 to indicate that device does not have interrupt assigned") where
->> drivers will try to request IRQ 0 when no GpioInt is defined in ACPI.
->>
->> The same issue occurs when the device is instantiated via device tree
->> with no IRQ, or from the i2c sysfs interface, even before the patch
->> above.
->>
->> Linus, since the commit above was already merged in the GPIO tree,
->> should these fixes be merged also via the GPIO tree (with ACKs from
->> the others subsystem maintainers)?
->>
->
-> Side question, has it been considered that IRQ 0 is valid on some
-> platform and that means i2c devices will not be able to be wired to that
-> IRQ anymore? Though, I don't think there are any existing design that
-> does so.
+The rtc-efi driver declares that the EFI 'epoch' is 1/1/1998, but
+the UEFI spec does not define it at all. It does define a minimum
+of 1900 for the 'Year' member of the EFI_TIME struct, so let's use
+1900 as the minimum year and not 1998.
 
-If IRQ 0 is valid, that's a bug. IRQ 0 has been an invalid IRQ number in the 
-global IRQ namespace for a while now. Though architectures are allowed to 
-have a valid IRQ 0, but it may only be used inside the architecture code 
-itself and must not be used for IRQs that are potentially be used by drivers.
+This prevents rtc_read_time() failures when the RTC that backs the
+EFI time services is set to a date before 1998.
 
-- Lars
+Cc: Alessandro Zummo <a.zummo@towertech.it>
+Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: rtc-linux@googlegroups.com
+Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+---
+ drivers/rtc/rtc-efi.c | 13 +++++++------
+ 1 file changed, 7 insertions(+), 6 deletions(-)
+
+diff --git a/drivers/rtc/rtc-efi.c b/drivers/rtc/rtc-efi.c
+index cb989cd00b14..4a93b0bbf22c 100644
+--- a/drivers/rtc/rtc-efi.c
++++ b/drivers/rtc/rtc-efi.c
+@@ -25,9 +25,12 @@
+ 
+ #define EFI_ISDST (EFI_TIME_ADJUST_DAYLIGHT|EFI_TIME_IN_DAYLIGHT)
+ /*
+- * EFI Epoch is 1/1/1998
++ * The UEFI spec does not literally define an epoch, but it does
++ * define EFI_TIME::Year as having a value between 1900 and 9999.
++ * (UEFI spec v2.5 paragraph 7.3)
++ * So let's use 1900 as the EFI epoch year.
+  */
+-#define EFI_RTC_EPOCH		1998
++#define EFI_RTC_EPOCH		1900
+ 
+ /*
+  * returns day of the year [0-365]
+@@ -40,8 +43,6 @@ compute_yday(efi_time_t *eft)
+ }
+ /*
+  * returns day of the week [0-6] 0=Sunday
+- *
+- * Don't try to provide a year that's before 1998, please !
+  */
+ static int
+ compute_wday(efi_time_t *eft)
+@@ -60,9 +61,9 @@ compute_wday(efi_time_t *eft)
+ 	ndays += compute_yday(eft);
+ 
+ 	/*
+-	 * 4=1/1/1998 was a Thursday
++	 * 1=1/1/1900 was a Monday
+ 	 */
+-	return (ndays + 4) % 7;
++	return (ndays + 1) % 7;
+ }
+ 
+ static void
+-- 
+1.9.1
 
 -- 
 -- 
