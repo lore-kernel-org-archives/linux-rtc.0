@@ -1,30 +1,19 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRB3NXY2VQKGQE7GPJMVQ@googlegroups.com>
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id k10si252947wia.1.2015.06.05.05.54.04
-        for <rtc-linux@googlegroups.com>;
-        Fri, 05 Jun 2015 05:54:05 -0700 (PDT)
-Date: Fri, 5 Jun 2015 14:54:04 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Octavian Purdila <octavian.purdila@intel.com>
-Cc: Linus Walleij <linus.walleij@linaro.org>,
-	Mika Westerberg <mika.westerberg@linux.intel.com>,
-	Jonathan Cameron <jic23@kernel.org>,
-	Hartmut Knaack <knaack.h@gmx.de>,
-	Lars-Peter Clausen <lars@metafoo.de>,
-	Peter Meerwald <pmeerw@pmeerw.net>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
-	linux-iio@vger.kernel.org, rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH v2 2/2] rtc: fix drivers that consider 0 as a
- valid IRQ in client->irq
-Message-ID: <20150605125404.GI713@piout.net>
-References: <1433508118-3938-1-git-send-email-octavian.purdila@intel.com>
- <1433508118-3938-3-git-send-email-octavian.purdila@intel.com>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBMWH22VQKGQEXWK3NRI@googlegroups.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1433508118-3938-3-git-send-email-octavian.purdila@intel.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id ec7si49740wib.3.2015.06.08.07.16.17
+        for <rtc-linux@googlegroups.com>;
+        Mon, 08 Jun 2015 07:16:17 -0700 (PDT)
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: rtc-linux@googlegroups.com
+Cc: linux-kernel@vger.kernel.org,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Subject: [rtc-linux] [PATCH v2 1/2] rtc: mv: use BIT()
+Date: Mon,  8 Jun 2015 16:16:14 +0200
+Message-Id: <1433772975-15228-1-git-send-email-alexandre.belloni@free-electrons.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -34,29 +23,50 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On 05/06/2015 at 15:41:58 +0300, Octavian Purdila wrote :
-> Since patch "i2c / ACPI: Use 0 to indicate that device does not have
-> interrupt assigned" [1], 0 is not a valid i2c client irq anymore, so
-> change all driver's checks accordingly.
-> 
-> The same issue occurs when the device is instantiated via device tree
-> with no IRQ, or from the i2c sysfs interface, even before the patch
-> above.
-> 
-> [1] https://lkml.org/lkml/2015/5/6/279
-> 
+Use bit instead of hand coding the shift and correct the 24 hour vs 24
+hours typo.
 
-lkml.org is not reliable and is currently losing messages. Like I
-suggested, you should use the redirector at https://lkml.kernel.org/
+Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+---
+Changes since v1:
+ - split the patch, first switching to use BIT then fixing the error
+   message
 
-That would be
-http://lkml.kernel.org/g/<1430908148-201129-3-git-send-email-mika.westerberg@linux.intel.com>
+ drivers/rtc/rtc-mv.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-
+diff --git a/drivers/rtc/rtc-mv.c b/drivers/rtc/rtc-mv.c
+index 423762241042..7e84bb4072ad 100644
+--- a/drivers/rtc/rtc-mv.c
++++ b/drivers/rtc/rtc-mv.c
+@@ -10,6 +10,7 @@
+ #include <linux/kernel.h>
+ #include <linux/rtc.h>
+ #include <linux/bcd.h>
++#include <linux/bitops.h>
+ #include <linux/io.h>
+ #include <linux/platform_device.h>
+ #include <linux/of.h>
+@@ -24,7 +25,7 @@
+ #define RTC_MINUTES_OFFS	8
+ #define RTC_HOURS_OFFS		16
+ #define RTC_WDAY_OFFS		24
+-#define RTC_HOURS_12H_MODE		(1 << 22) /* 12 hours mode */
++#define RTC_HOURS_12H_MODE	BIT(22) /* 12 hour mode */
+ 
+ #define RTC_DATE_REG_OFFS	4
+ #define RTC_MDAY_OFFS		0
+@@ -33,7 +34,7 @@
+ 
+ #define RTC_ALARM_TIME_REG_OFFS	8
+ #define RTC_ALARM_DATE_REG_OFFS	0xc
+-#define RTC_ALARM_VALID		(1 << 7)
++#define RTC_ALARM_VALID		BIT(7)
+ 
+ #define RTC_ALARM_INTERRUPT_MASK_REG_OFFS	0x10
+ #define RTC_ALARM_INTERRUPT_CASUE_REG_OFFS	0x14
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+2.1.4
 
 -- 
 -- 
