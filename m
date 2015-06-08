@@ -1,24 +1,19 @@
-Return-Path: <rtc-linux+bncBCQPVKWLVAIRBYUYVKWAKGQE3G37MUA@googlegroups.com>
-Received: from muru.com (muru.com. [72.249.23.125])
-        by gmr-mx.google.com with ESMTP id rs3si127006igb.2.2015.06.24.03.54.26
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBEXG26VQKGQECIYO2FY@googlegroups.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id gt9si108612wib.2.2015.06.08.12.54.56
         for <rtc-linux@googlegroups.com>;
-        Wed, 24 Jun 2015 03:54:26 -0700 (PDT)
-Date: Wed, 24 Jun 2015 03:54:21 -0700
-From: Tony Lindgren <tony@atomide.com>
-To: Nishanth Menon <nm@ti.com>
-Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	linux-kernel@vger.kernel.org, rtc-linux@googlegroups.com,
-	linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-	balbi@ti.com, grygorii.strashko@ti.com
-Subject: [rtc-linux] Re: [PATCH V2 4/5] drivers/rtc/rtc-ds1307.c: Support
- optional wakeup interrupt source
-Message-ID: <20150624105421.GD4156@atomide.com>
-References: <1435076114-12416-1-git-send-email-nm@ti.com>
- <1435076114-12416-5-git-send-email-nm@ti.com>
+        Mon, 08 Jun 2015 12:54:56 -0700 (PDT)
+Date: Mon, 8 Jun 2015 21:54:55 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Paul Gortmaker <paul.gortmaker@windriver.com>
+Cc: linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org,
+	Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com
+Subject: [rtc-linux] Re: [42/73] rtc: delete non-required instances of include <linux/init.h>
+Message-ID: <20150608195455.GF5222@piout.net>
+References: <1390339396-3479-43-git-send-email-paul.gortmaker@windriver.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1435076114-12416-5-git-send-email-nm@ti.com>
+In-Reply-To: <1390339396-3479-43-git-send-email-paul.gortmaker@windriver.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -29,25 +24,30 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-* Nishanth Menon <nm@ti.com> [150623 09:21]:
-> With the recent pinctrl-single changes, SoCs such as Texas
-> Instrument's OMAP processors can treat wake-up events from deeper idle
-> states as interrupts.
+On 21/01/2014 at 16:22:45 -0500, Paul Gortmaker wrote :
+> None of these files are actually using any __init type directives
+> and hence don't need to include <linux/init.h>.  Most are just a
+> left over from __devinit and __cpuinit removal, or simply due to
+> code getting copied from one driver to the next.
 > 
-> Let's add support for the optional second interrupt for wake-up using
-> the generic wakeirq support added in commit 4990d4fe327b ("PM /
-> Wakeirq: Add automated device wake IRQ handling")
-> 
-> Finally, to pass the wake-up interrupt in the dts file,
-> interrupts-extended property needs to be passed.
-> 
-> This is similar in approach to commit 2a0b965cfb6e ("serial: omap: Add
-> support for optional wake-up") + ee83bd3b6483 ("serial: omap: Switch
-> wake-up interrupt to generic wakeirq")
+> Cc: Alessandro Zummo <a.zummo@towertech.it>
+> Cc: rtc-linux@googlegroups.com
+> Signed-off-by: Paul Gortmaker <paul.gortmaker@windriver.com>
 
-The wakeirq related changes look good to me:
+I've contemplated applying that patch but I'm not sure it is actually a
+good idea because those 46 drivers are using a variant of module_driver
+which actually uses __init and __exit. After your patch it is still
+working simply because init.h gets included that way:
 
-Acked-by: Tony Lindgren <tony@atomide.com>
+linux/module.h:9
+linux/list.h:8
+linux/kernel.h:13
+linux/printk.h:5
+
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
 -- 
 -- 
