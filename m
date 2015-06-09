@@ -1,27 +1,29 @@
-Return-Path: <rtc-linux+bncBD5O5IWPJMIKL3MVVQCRUBFOI6XKK@googlegroups.com>
+Return-Path: <rtc-linux+bncBCAJFDXE4QGBBMH53KVQKGQES3QJVXY@googlegroups.com>
 MIME-Version: 1.0
-Received: from mail-wi0-x235.google.com (mail-wi0-x235.google.com. [2a00:1450:400c:c05::235])
-        by gmr-mx.google.com with ESMTPS id q10si431748wiz.0.2015.06.20.07.20.20
+Received: from mail-pa0-x234.google.com (mail-pa0-x234.google.com. [2607:f8b0:400e:c03::234])
+        by gmr-mx.google.com with ESMTPS id xz5si625059pac.1.2015.06.09.03.23.43
         for <rtc-linux@googlegroups.com>
         (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sat, 20 Jun 2015 07:20:20 -0700 (PDT)
-Received: by mail-wi0-x235.google.com with SMTP id l6so1738970wiw.0
-        for <rtc-linux@googlegroups.com>; Sat, 20 Jun 2015 07:20:20 -0700 (PDT)
-From: Philippe Reynes <tremyfr@gmail.com>
-To: a.zummo@towertech.it,
-	alexandre.belloni@free-electrons.com,
-	shawn.guo@linaro.org,
-	kernel@pengutronix.de,
-	linux@arm.linux.org.uk
-Cc: linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org,
-	rtc-linux@googlegroups.com,
-	Philippe Reynes <tremyfr@gmail.com>
-Subject: [rtc-linux] [PATCH v2 6/6] apf27: dt: add support of internal rtc
-Date: Sat, 20 Jun 2015 16:15:32 +0200
-Message-Id: <1434809732-8996-7-git-send-email-tremyfr@gmail.com>
-In-Reply-To: <1434809732-8996-1-git-send-email-tremyfr@gmail.com>
-References: <1434809732-8996-1-git-send-email-tremyfr@gmail.com>
+        Tue, 09 Jun 2015 03:23:43 -0700 (PDT)
+Received: by mail-pa0-x234.google.com with SMTP id yx8so10965508pac.2
+        for <rtc-linux@googlegroups.com>; Tue, 09 Jun 2015 03:23:43 -0700 (PDT)
+From: Adrian Huang <adrianhuang0701@gmail.com>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	rtc-linux@googlegroups.com
+Cc: Borislav Petkov <bp@suse.de>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	John Stultz <john.stultz@linaro.org>,
+	Diego Ercolani <diego.ercolani@gmail.com>,
+	Egbert Eich <eich@suse.com>,
+	Max Asbock <amax@lenovo.com>,
+	Nagananda Chumbalkar <nchumbalkar@lenovo.com>,
+	Adrian Huang <ahuang12@lenovo.com>,
+	Adrian Huang <adrianhuang0701@gmail.com>
+Subject: [rtc-linux] [RFC PATCH v2 0/2] rtc: Prevent the automatic reboot
+ after powering off the system
+Date: Tue,  9 Jun 2015 18:23:31 +0800
+Message-Id: <1433845413-13960-1-git-send-email-adrianhuang0701@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -33,49 +35,33 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Enable the internal mxc rtc driver on apf27.
+Commit d5a1c7e3fc38 ("rtc-cmos: Add an alarm disable quirk") added the
+alarm disable quirk to work around the broken BIOSes. The same symptom
+is observed on Lenovo Thinkserver. Instead of adding the impacted
+servers to the "alarm disable" quirk, this patchset aims at preventing
+the issue so that the commit can be reverted. 
 
-Signed-off-by: Philippe Reynes <tremyfr@gmail.com>
----
- arch/arm/boot/dts/imx27-apf27.dts |    4 ++++
- arch/arm/boot/dts/imx27.dtsi      |   10 ++++++++++
- 2 files changed, 14 insertions(+), 0 deletions(-)
+The brief description of the root cause is that: When configuring 
+the RTC registers to setup a wake up event in the S5 handler (BIOS),
+the handler does not clear the interrupt flag bits by reading 
+Register C of CMOS RTC.
 
-diff --git a/arch/arm/boot/dts/imx27-apf27.dts b/arch/arm/boot/dts/imx27-apf27.dts
-index 73aae4f..590d37a 100644
---- a/arch/arm/boot/dts/imx27-apf27.dts
-+++ b/arch/arm/boot/dts/imx27-apf27.dts
-@@ -122,3 +122,7 @@
- 		reg = <0x800000 0xf800000>;
- 	};
- };
-+
-+&rtc {
-+	status = "okay";
-+};
-diff --git a/arch/arm/boot/dts/imx27.dtsi b/arch/arm/boot/dts/imx27.dtsi
-index bc215e4..57fda6c 100644
---- a/arch/arm/boot/dts/imx27.dtsi
-+++ b/arch/arm/boot/dts/imx27.dtsi
-@@ -144,6 +144,16 @@
- 				clock-names = "ipg", "per";
- 			};
- 
-+			rtc: rtc@10007000 {
-+				compatible = "fsl,imx21-rtc";
-+				reg = <0x10007000 0x1000>;
-+				interrupts = <22>;
-+				clocks = <&clks IMX27_CLK_CKIL>,
-+					 <&clks IMX27_CLK_RTC_IPG_GATE>;
-+				clock-names = "rtc", "ipg";
-+				status = "disabled";
-+			};
-+
- 			kpp: kpp@10008000 {
- 				compatible = "fsl,imx27-kpp", "fsl,imx21-kpp";
- 				reg = <0x10008000 0x1000>;
+Changes from v1:
+  * Change the order of [PATCH 1/2] and [PATCH 2/2] (per Borislav)
+  * Drop the approach "RTC alarm timer restoration approach". Instead,
+    [PATCH 1/2] makes sure that AF is cleared in cmos_do_shutdown()
+    before powering off the machine. (Suggested by Alexandre)
+
+Adrian Huang (2):
+  rtc-cmos: Clear interrupt flag if alarm time is less equal to now+1
+    seconds
+  rtc-cmos: Revert "rtc-cmos: Add an alarm disable quirk"
+
+ drivers/rtc/rtc-cmos.c | 113 ++++++++++++++++++++++++++-----------------------
+ 1 file changed, 59 insertions(+), 54 deletions(-)
+
 -- 
-1.7.4.4
+1.9.1
 
 -- 
 -- 
