@@ -1,80 +1,77 @@
-Return-Path: <rtc-linux+bncBD5O5IWPJMIJH3MVVQCRUBH4Q5H6Y@googlegroups.com>
-MIME-Version: 1.0
-Received: from mail-wi0-x235.google.com (mail-wi0-x235.google.com. [2a00:1450:400c:c05::235])
-        by gmr-mx.google.com with ESMTPS id bk2si343465wib.1.2015.06.20.07.20.03
+Return-Path: <rtc-linux+bncBCGP7DNSRUMRBSVP32VQKGQEFRIUHTA@googlegroups.com>
+Received: from mail-wg0-x22f.google.com (mail-wg0-x22f.google.com. [2a00:1450:400c:c00::22f])
+        by gmr-mx.google.com with ESMTPS id ec7si177997wib.3.2015.06.09.18.50.02
         for <rtc-linux@googlegroups.com>
         (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sat, 20 Jun 2015 07:20:03 -0700 (PDT)
-Received: by mail-wi0-x235.google.com with SMTP id dq8so40219917wib.1
-        for <rtc-linux@googlegroups.com>; Sat, 20 Jun 2015 07:20:03 -0700 (PDT)
-From: Philippe Reynes <tremyfr@gmail.com>
-To: a.zummo@towertech.it,
-	alexandre.belloni@free-electrons.com,
-	shawn.guo@linaro.org,
-	kernel@pengutronix.de,
-	linux@arm.linux.org.uk
-Cc: linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org,
-	rtc-linux@googlegroups.com,
-	Philippe Reynes <tremyfr@gmail.com>
-Subject: [rtc-linux] [PATCH v2 2/6] imx35: define two clocks for rtc
-Date: Sat, 20 Jun 2015 16:15:28 +0200
-Message-Id: <1434809732-8996-3-git-send-email-tremyfr@gmail.com>
-In-Reply-To: <1434809732-8996-1-git-send-email-tremyfr@gmail.com>
-References: <1434809732-8996-1-git-send-email-tremyfr@gmail.com>
-Reply-To: rtc-linux@googlegroups.com
+        Tue, 09 Jun 2015 18:50:02 -0700 (PDT)
+Received: by mail-wg0-x22f.google.com with SMTP id z8so24627345wge.0
+        for <rtc-linux@googlegroups.com>; Tue, 09 Jun 2015 18:50:02 -0700 (PDT)
+MIME-Version: 1.0
+Sender: rtc-linux@googlegroups.com
+In-Reply-To: <20150609074946.GG5222@piout.net>
+References: <1390339396-3479-43-git-send-email-paul.gortmaker@windriver.com>
+ <20150608195455.GF5222@piout.net> <20150608210634.GJ7125@windriver.com> <20150609074946.GG5222@piout.net>
+From: Paul Gortmaker <paul.gortmaker@windriver.com>
+Date: Tue, 9 Jun 2015 21:49:31 -0400
+Message-ID: <CAP=VYLpGg0WkYVd6KcCg-j50pYNLRSXKxo1a6SwoT4cNm6CaSw@mail.gmail.com>
+Subject: [rtc-linux] Re: [42/73] rtc: delete non-required instances of include <linux/init.h>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: LKML <linux-kernel@vger.kernel.org>, linux-arch <linux-arch@vger.kernel.org>,
+	Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
 List-Archive: <http://groups.google.com/group/rtc-linux
-Sender: rtc-linux@googlegroups.com
 List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-The imx35 don't define clocks for rtc.
-This patch add two clocks, as needed
-by the mxc rtc driver.
+On Tue, Jun 9, 2015 at 3:49 AM, Alexandre Belloni
+<alexandre.belloni@free-electrons.com> wrote:
+> On 08/06/2015 at 17:06:34 -0400, Paul Gortmaker wrote :
+>> > I've contemplated applying that patch but I'm not sure it is actually a
+>> > good idea because those 46 drivers are using a variant of module_driver
+>> > which actually uses __init and __exit. After your patch it is still
+>> > working simply because init.h gets included that way:
+>>
+>> Firstly, I am kind of curious why an 18 month old patch is getting
+>> replied to now.   That aside, this interdependence between module.h and
+>> init.h was reconsidered and you can see the resolution solution here:
+>>
+>> https://lkml.kernel.org/r/1433276168-21550-1-git-send-email-paul.gortmaker@windriver.com
+>>
+>> To summarize what is said there, yes - you can ignore the one line
+>> removals for now.  We will revisit them after the above is merged.
+>>
+>
+> I've taken the RTC subsystem maintainership and I've been sorting the
+> 2372 patches left in patchwork down to 126 and yours was one of these.
+>
+> Seeing your answer, I think my question was legitimate. I'll be happy to
+> take your revised patch once ready.
 
-Signed-off-by: Philippe Reynes <tremyfr@gmail.com>
----
- arch/arm/mach-imx/clk-imx35.c |    6 +++++-
- 1 files changed, 5 insertions(+), 1 deletions(-)
+Yes, it was a legit (and correct) spotting ; just some months late.  :)
 
-diff --git a/arch/arm/mach-imx/clk-imx35.c b/arch/arm/mach-imx/clk-imx35.c
-index a0d2b57..8c2f507 100644
---- a/arch/arm/mach-imx/clk-imx35.c
-+++ b/arch/arm/mach-imx/clk-imx35.c
-@@ -51,7 +51,7 @@ static const char *std_sel[] = {"ppll", "arm"};
- static const char *ipg_per_sel[] = {"ahb_per_div", "arm_per_div"};
- 
- enum mx35_clks {
--	ckih, mpll, ppll, mpll_075, arm, hsp, hsp_div, hsp_sel, ahb, ipg,
-+	ckih, ckil, mpll, ppll, mpll_075, arm, hsp, hsp_div, hsp_sel, ahb, ipg,
- 	arm_per_div, ahb_per_div, ipg_per, uart_sel, uart_div, esdhc_sel,
- 	esdhc1_div, esdhc2_div, esdhc3_div, spdif_sel, spdif_div_pre,
- 	spdif_div_post, ssi_sel, ssi1_div_pre, ssi1_div_post, ssi2_div_pre,
-@@ -89,6 +89,7 @@ int __init mx35_clocks_init(void)
- 	}
- 
- 	clk[ckih] = imx_clk_fixed("ckih", 24000000);
-+	clk[ckil] = imx_clk_fixed("ckih", 32768);
- 	clk[mpll] = imx_clk_pllv1("mpll", "ckih", base + MX35_CCM_MPCTL);
- 	clk[ppll] = imx_clk_pllv1("ppll", "ckih", base + MX35_CCM_PPCTL);
- 
-@@ -240,6 +241,9 @@ int __init mx35_clocks_init(void)
- 	clk_register_clkdev(clk[ipg], "ipg", "imx21-uart.1");
- 	clk_register_clkdev(clk[uart3_gate], "per", "imx21-uart.2");
- 	clk_register_clkdev(clk[ipg], "ipg", "imx21-uart.2");
-+	/* i.mx35 has the i.mx21 type uart */
-+	clk_register_clkdev(clk[ckil], "rtc", "imx21-rtc");
-+	clk_register_clkdev(clk[rtc_gate], "ipg", "imx21-rtc");
- 	clk_register_clkdev(clk[usb_div], "per", "mxc-ehci.0");
- 	clk_register_clkdev(clk[ipg], "ipg", "mxc-ehci.0");
- 	clk_register_clkdev(clk[usbotg_gate], "ahb", "mxc-ehci.0");
--- 
-1.7.4.4
+I'll be sure to make sure you are CC'd on any updates.  And thanks
+for taking over maintainership of the rtc subsystem.   I'll go out on
+a limb here and guess that the original rtc driver author ; that idiot
+never imagined it would become a subsystem, else he'd thank you
+as well.
+
+Paul.
+--
+
+>
+> --
+> Alexandre Belloni, Free Electrons
+> Embedded Linux, Kernel and Android engineering
+> http://free-electrons.com
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-arch" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
 -- 
 -- 
