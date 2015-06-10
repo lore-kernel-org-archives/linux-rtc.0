@@ -1,20 +1,27 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBUNCV2VQKGQEO5J6JDI@googlegroups.com>
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id p12si417431wiv.1.2015.05.31.15.55.13
-        for <rtc-linux@googlegroups.com>;
-        Sun, 31 May 2015 15:55:13 -0700 (PDT)
-Date: Mon, 1 Jun 2015 00:55:12 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Loc Ho <lho@apm.com>
-Cc: a.zummo@towertech.it, rtc-linux@googlegroups.com,
-	devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-	jcm@redhat.com, patches@apm.com, broonie@kernel.org
-Subject: [rtc-linux] Re: [v2] rtc: Fix suspend/resume for APM X-Gene SoC RTC driver
-Message-ID: <20150531225512.GA4710@piout.net>
-References: <1397498944-8486-1-git-send-email-lho@apm.com>
+Return-Path: <rtc-linux+bncBCAJFDXE4QGBBSFA36VQKGQEFU3VAIQ@googlegroups.com>
+Received: from mail-wi0-x233.google.com (mail-wi0-x233.google.com. [2a00:1450:400c:c05::233])
+        by gmr-mx.google.com with ESMTPS id k2si195241wif.0.2015.06.09.22.51.03
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 09 Jun 2015 22:51:03 -0700 (PDT)
+Received: by mail-wi0-x233.google.com with SMTP id ut5so36756750wib.1
+        for <rtc-linux@googlegroups.com>; Tue, 09 Jun 2015 22:51:03 -0700 (PDT)
 MIME-Version: 1.0
+In-Reply-To: <1433845413-13960-2-git-send-email-adrianhuang0701@gmail.com>
+References: <1433845413-13960-1-git-send-email-adrianhuang0701@gmail.com>
+	<1433845413-13960-2-git-send-email-adrianhuang0701@gmail.com>
+Date: Wed, 10 Jun 2015 13:51:03 +0800
+Message-ID: <CAHKZfL3ne3m-O0oRyD-Lfjq_BCX5B8JzB7dUuE1yrF0Zp0eaTg@mail.gmail.com>
+Subject: [rtc-linux] Re: [RFC PATCH v2 1/2] rtc-cmos: Clear interrupt flag if
+ alarm time is
+From: Huang Adrian <adrianhuang0701@gmail.com>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com
+Cc: Borislav Petkov <bp@suse.de>, Thomas Gleixner <tglx@linutronix.de>, John Stultz <john.stultz@linaro.org>,
+	Diego Ercolani <diego.ercolani@gmail.com>, Egbert Eich <eich@suse.com>, Max Asbock <amax@lenovo.com>,
+	Nagananda Chumbalkar <nchumbalkar@lenovo.com>, Adrian Huang <ahuang12@lenovo.com>,
+	Adrian Huang <adrianhuang0701@gmail.com>
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1397498944-8486-1-git-send-email-lho@apm.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -25,131 +32,134 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Hi,
+Hi Alexandre,
 
-This patch was never merged, can you check whether it is still useful
-(I'd would say it is)?
+This reworked patch is based on your suggestion. Could you kindly
+review it? If it looks good to you, I'll ask Borislav, Diego and
+Egbert a favor for testing.
 
-On 14/04/2014 at 12:09:04 -0600, Loc Ho wrote :
-> This patch fixes suspend/resume functions properly for the APM X-Gene
-> SoC RTC driver. This patch requires the merged v2 of the APM X-Gene 
-> SoC RTC driver.
-> 
-> Signed-off-by: Loc Ho <lho@apm.com>
-> Reviewed-by: Mark Brown <broonie@linaro.org>
+Thanks in advance.
+
+-- Adrian
+
 > ---
->  drivers/rtc/rtc-xgene.c |   41 ++++++++++++++++++++++++++++++++---------
->  1 files changed, 32 insertions(+), 9 deletions(-)
-> 
-> diff --git a/drivers/rtc/rtc-xgene.c b/drivers/rtc/rtc-xgene.c
-> index 14129cc..d533edd 100644
-> --- a/drivers/rtc/rtc-xgene.c
-> +++ b/drivers/rtc/rtc-xgene.c
-> @@ -52,6 +52,7 @@ struct xgene_rtc_dev {
->  	void __iomem *csr_base;
->  	struct clk *clk;
->  	unsigned int irq_wake;
-> +	unsigned int irq_enabled;
->  };
->  
->  static int xgene_rtc_read_time(struct device *dev, struct rtc_time *tm)
-> @@ -104,15 +105,19 @@ static int xgene_rtc_alarm_irq_enable(struct device *dev, u32 enabled)
->  	return 0;
->  }
->  
-> +static int xgene_rtc_alarm_irq_enabled(struct device *dev)
-> +{
-> +	struct xgene_rtc_dev *pdata = dev_get_drvdata(dev);
+>  drivers/rtc/rtc-cmos.c | 65 ++++++++++++++++++++++++++++++++++++++++++++++----
+>  1 file changed, 60 insertions(+), 5 deletions(-)
+>
+> diff --git a/drivers/rtc/rtc-cmos.c b/drivers/rtc/rtc-cmos.c
+> index a82556a..4e60ac8 100644
+> --- a/drivers/rtc/rtc-cmos.c
+> +++ b/drivers/rtc/rtc-cmos.c
+> @@ -51,6 +51,7 @@ struct cmos_rtc {
+>         struct device           *dev;
+>         int                     irq;
+>         struct resource         *iomem;
+> +       time64_t                alarm_expires;
+>
+>         void                    (*wake_on)(struct device *);
+>         void                    (*wake_off)(struct device *);
+> @@ -377,6 +378,8 @@ static int cmos_set_alarm(struct device *dev, struct rtc_wkalrm *t)
+>
+>         spin_unlock_irq(&rtc_lock);
+>
+> +       cmos->alarm_expires = rtc_tm_to_time64(&t->time);
 > +
-> +	return readl(pdata->csr_base + RTC_CCR) & RTC_CCR_IE ? 1 : 0;
+>         return 0;
+>  }
+>
+> @@ -588,7 +591,7 @@ static struct bin_attribute nvram = {
+>
+>  /*----------------------------------------------------------------*/
+>
+> -static struct cmos_rtc cmos_rtc;
+> +static struct cmos_rtc cmos_rtc = { .alarm_expires = 0 };
+>
+>  static irqreturn_t cmos_interrupt(int irq, void *p)
+>  {
+> @@ -860,6 +863,52 @@ static void __exit cmos_do_remove(struct device *dev)
+>         cmos->dev = NULL;
+>  }
+>
+> +static int cmos_aie_poweroff(struct device *dev)
+> +{
+> +       struct cmos_rtc *cmos = dev_get_drvdata(dev);
+> +       struct rtc_time now;
+> +       int err;
+> +       time64_t t_now;
+> +       unsigned char rtc_control;
+> +
+> +       if (!cmos->alarm_expires)
+> +               return -EINVAL;
+> +
+> +       spin_lock_irq(&rtc_lock);
+> +       rtc_control = CMOS_READ(RTC_CONTROL);
+> +       spin_unlock_irq(&rtc_lock);
+> +
+> +       /* We only care about the situation where AIE is disabled. */
+> +       if (rtc_control & RTC_AIE)
+> +               return -EBUSY;
+> +
+> +       err = cmos_read_time(dev, &now);
+> +       if (err < 0)
+> +               return err;
+> +       t_now = rtc_tm_to_time64(&now);
+> +
+> +       /*
+> +        * When enabling "RTC wake-up" in BIOS setup, the machine reboots
+> +        * automatically right after shutdown on some buggy boxes.
+> +        * This automatic rebooting issue won't happen when the alarm
+> +        * time is larger than now+1 seconds.
+> +        *
+> +        * If the alarm time is equal to now+1 seconds, we need to wait
+> +        * for 1 second so that AF is set by CMOS hardware. Therefore, we
+> +        * can get a chance to clear AF in cmos_do_shutdown().
+> +        *
+> +        * If the alarm time is less equal to 'now', the function simply
+> +        * returns '0' so that we can get a chance to clear AF in
+> +        * cmos_do_shutdown().
+> +        */
+> +       if (cmos->alarm_expires > (t_now + 1))
+> +               return -EBUSY;
+> +       else if (cmos->alarm_expires == (t_now + 1))
+> +               msleep(1000);
+> +
+> +       return 0;
 > +}
 > +
->  static int xgene_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
->  {
->  	struct xgene_rtc_dev *pdata = dev_get_drvdata(dev);
-> -	unsigned long rtc_time;
->  	unsigned long alarm_time;
->  
-> -	rtc_time = readl(pdata->csr_base + RTC_CCVR);
->  	rtc_tm_to_time(&alrm->time, &alarm_time);
-> -
->  	pdata->alarm_time = alarm_time;
->  	writel((u32) pdata->alarm_time, pdata->csr_base + RTC_CMR);
->  
-> @@ -180,12 +185,18 @@ static int xgene_rtc_probe(struct platform_device *pdev)
->  		dev_err(&pdev->dev, "Couldn't get the clock for RTC\n");
->  		return -ENODEV;
->  	}
-> -	clk_prepare_enable(pdata->clk);
-> +	ret = clk_prepare_enable(pdata->clk);
-> +	if (ret)
-> +		return ret;
->  
->  	/* Turn on the clock and the crystal */
->  	writel(RTC_CCR_EN, pdata->csr_base + RTC_CCR);
->  
-> -	device_init_wakeup(&pdev->dev, 1);
-> +	ret = device_init_wakeup(&pdev->dev, 1);
-> +	if (ret) {
-> +		clk_disable_unprepare(pdata->clk);
-> +		return ret;
-> +	}
->  
->  	pdata->rtc = devm_rtc_device_register(&pdev->dev, pdev->name,
->  					 &xgene_rtc_ops, THIS_MODULE);
-> @@ -218,14 +229,20 @@ static int xgene_rtc_suspend(struct device *dev)
->  	int irq;
->  
->  	irq = platform_get_irq(pdev, 0);
-> +
-> +	/*
-> +	 * If this RTC alarm will be used for waking the system up,
-> +	 * don't disable it of course. Else we just disable the alarm
-> +	 * and await suspension.
-> +	 */
->  	if (device_may_wakeup(&pdev->dev)) {
->  		if (!enable_irq_wake(irq))
->  			pdata->irq_wake = 1;
->  	} else {
-> +		pdata->irq_enabled = xgene_rtc_alarm_irq_enabled(dev);
->  		xgene_rtc_alarm_irq_enable(dev, 0);
-> -		clk_disable(pdata->clk);
-> +		clk_disable_unprepare(pdata->clk);
->  	}
-> -
->  	return 0;
+>  #ifdef CONFIG_PM
+>
+>  static int cmos_suspend(struct device *dev)
+> @@ -1094,8 +1143,11 @@ static void cmos_pnp_shutdown(struct pnp_dev *pnp)
+>         struct device *dev = &pnp->dev;
+>         struct cmos_rtc *cmos = dev_get_drvdata(dev);
+>
+> -       if (system_state == SYSTEM_POWER_OFF && !cmos_poweroff(dev))
+> -               return;
+> +       if (system_state == SYSTEM_POWER_OFF) {
+> +               cmos_poweroff(dev);
+> +               if (cmos_aie_poweroff(dev) < 0)
+> +                       return;
+> +       }
+>
+>         cmos_do_shutdown(cmos->irq);
 >  }
->  
-> @@ -234,16 +251,22 @@ static int xgene_rtc_resume(struct device *dev)
->  	struct platform_device *pdev = to_platform_device(dev);
->  	struct xgene_rtc_dev *pdata = platform_get_drvdata(pdev);
->  	int irq;
-> +	int rc;
->  
->  	irq = platform_get_irq(pdev, 0);
-> +
->  	if (device_may_wakeup(&pdev->dev)) {
->  		if (pdata->irq_wake) {
->  			disable_irq_wake(irq);
->  			pdata->irq_wake = 0;
->  		}
->  	} else {
-> -		clk_enable(pdata->clk);
-> -		xgene_rtc_alarm_irq_enable(dev, 1);
-> +		rc = clk_prepare_enable(pdata->clk);
-> +		if (rc) {
-> +			dev_err(dev, "Unable to enable clock error %d\n", rc);
-> +			return rc;
-> +		}
-> +		xgene_rtc_alarm_irq_enable(dev, pdata->irq_enabled);
->  	}
->  
->  	return 0;
-
--- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+> @@ -1200,8 +1252,11 @@ static void cmos_platform_shutdown(struct platform_device *pdev)
+>         struct device *dev = &pdev->dev;
+>         struct cmos_rtc *cmos = dev_get_drvdata(dev);
+>
+> -       if (system_state == SYSTEM_POWER_OFF && !cmos_poweroff(dev))
+> -               return;
+> +       if (system_state == SYSTEM_POWER_OFF) {
+> +               cmos_poweroff(dev);
+> +               if (cmos_aie_poweroff(dev) < 0)
+> +                       return;
+> +       }
+>
+>         cmos_do_shutdown(cmos->irq);
+>  }
+> --
+> 1.9.1
+>
 
 -- 
 -- 
