@@ -1,26 +1,42 @@
-Return-Path: <rtc-linux+bncBCN6JTVP2IEBB7435GVQKGQEPEJG5QY@googlegroups.com>
-MIME-Version: 1.0
-Received: from m50-111.126.com (m50-111.126.com. [123.125.50.111])
-        by gmr-mx.google.com with ESMTP id rs3si53373igb.2.2015.06.11.20.11.58
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBNUD5CVQKGQE3U5UFQY@googlegroups.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id p9si497607wiz.3.2015.06.11.14.46.30
         for <rtc-linux@googlegroups.com>;
-        Thu, 11 Jun 2015 20:11:59 -0700 (PDT)
-From: Xunlei Pang <xlpang@126.com>
-To: linux-kernel@vger.kernel.org
-Cc: rtc-linux@googlegroups.com,
+        Thu, 11 Jun 2015 14:46:30 -0700 (PDT)
+Date: Thu, 11 Jun 2015 23:46:29 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: "Opensource [Steve Twiss]" <stwiss.opensource@diasemi.com>
+Cc: Lee Jones <lee.jones@linaro.org>,
+	LINUXKERNEL <linux-kernel@vger.kernel.org>,
+	Samuel Ortiz <sameo@linux.intel.com>,
 	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	John Stultz <john.stultz@linaro.org>,
-	Arnd Bergmann <arnd@arndb.de>,
-	"David S. Miller" <davem@davemloft.net>,
-	sparclinux@vger.kernel.org,
-	Xunlei Pang <pang.xunlei@linaro.org>
-Subject: [rtc-linux] [PATCH v3 3/3] drivers/rtc/interface.c: Remove rtc_set_mmss()
-Date: Fri, 12 Jun 2015 11:10:18 +0800
-Message-Id: <1434078618-16373-3-git-send-email-xlpang@126.com>
-In-Reply-To: <1434078618-16373-1-git-send-email-xlpang@126.com>
-References: <1434078618-16373-1-git-send-email-xlpang@126.com>
-Reply-To: rtc-linux@googlegroups.com
+	DEVICETREE <devicetree@vger.kernel.org>,
+	David Dajun Chen <david.chen@diasemi.com>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Ian Campbell <ijc+devicetree@hellion.org.uk>,
+	Kumar Gala <galak@codeaurora.org>,
+	LINUXINPUT <linux-input@vger.kernel.org>,
+	LINUXWATCHDOG <linux-watchdog@vger.kernel.org>,
+	Liam Girdwood <lgirdwood@gmail.com>,
+	Mark Brown <broonie@kernel.org>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Pawel Moll <pawel.moll@arm.com>,
+	RTCLINUX <rtc-linux@googlegroups.com>,
+	Rob Herring <robh+dt@kernel.org>,
+	Support Opensource <Support.Opensource@diasemi.com>,
+	Wim Van Sebroeck <wim@iguana.be>
+Subject: Re: [rtc-linux] RE: [PATCH V3 1/4] mfd: da9062: DA9062 MFD core driver
+Message-ID: <20150611214629.GA3890@piout.net>
+References: <cover.1432041031.git.stwiss.opensource@diasemi.com>
+ <ecf72b79429e6758111a908fd1ded29c0b96da15.1432041031.git.stwiss.opensource@diasemi.com>
+ <20150526161024.GQ11677@x1>
+ <6ED8E3B22081A4459DAC7699F3695FB7014B22F4C4@SW-EX-MBX02.diasemi.com>
+ <20150611085653.GG2982@x1>
+ <6ED8E3B22081A4459DAC7699F3695FB7014B22F4DC@SW-EX-MBX02.diasemi.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <6ED8E3B22081A4459DAC7699F3695FB7014B22F4DC@SW-EX-MBX02.diasemi.com>
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -30,89 +46,61 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-From: Xunlei Pang <pang.xunlei@linaro.org>
+Hi,
 
-Now rtc_set_mmss() has no users, just remove it.
+On 11/06/2015 at 09:27:45 +0000, Opensource [Steve Twiss] wrote :
+> 
+> Thanks for replying so quickly.
+> 
+> > I'm still not particularly happy with this.  Can yo speak to your H/W
+> > guys and get them to change their scripts to output sensible header
+> > files?
+> 
+> Ah. Ok. 
+> 
+> For our side, the generated headers might not just be used for Linux. I've
+> just discussed this with my colleagues and they will need it to remain.
+> So I guess internally we will keep the headers like this, but as it enters
+> my submission process I can change it for the Linux community.
+>  
+> > To be honest, it's probably not a blocker for acceptance, but if someone
+> > writes a patch next week to change all of the (0x01 << X) lines to
+> > start using the BIT() macro, I will accept it.  Better to influenced
+> > your guys so you are not overly inconvenienced.
+> 
+> Yep: I will change this BIT() macro for the submissions in future.
+> Depending on the next step, I will send a patch to this or update the submission
+> if there are further comments on this patch set.
+> 
 
-We still have rtc_set_time() doing similar things.
+Maybe a good solution would be to define BIT() at the top of your
+generated header so that you simply have to remove it or replace it with
+the proper include before mainline submission.
 
-Signed-off-by: Xunlei Pang <pang.xunlei@linaro.org>
----
- drivers/rtc/interface.c | 45 ---------------------------------------------
- include/linux/rtc.h     |  1 -
- 2 files changed, 46 deletions(-)
+> > FWIW, when upstreaming code, the excuse "someone else wrote it", has
+> > never been a good one to use on the lists.   Believe me, I've
+> > tried. ;)
+> 
+> heh okay :)
+> 
+> Regards,
+> Steve
+> 
+> -- 
+> -- 
+> You received this message because you are subscribed to "rtc-linux".
+> Membership options at http://groups.google.com/group/rtc-linux .
+> Please read http://groups.google.com/group/rtc-linux/web/checklist
+> before submitting a driver.
+> --- 
+> You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+> To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+> For more options, visit https://groups.google.com/d/optout.
 
-diff --git a/drivers/rtc/interface.c b/drivers/rtc/interface.c
-index 166fc60..b511aa1 100644
---- a/drivers/rtc/interface.c
-+++ b/drivers/rtc/interface.c
-@@ -91,51 +91,6 @@ int rtc_set_time(struct rtc_device *rtc, struct rtc_time *tm)
- }
- EXPORT_SYMBOL_GPL(rtc_set_time);
- 
--int rtc_set_mmss(struct rtc_device *rtc, unsigned long secs)
--{
--	int err;
--
--	err = mutex_lock_interruptible(&rtc->ops_lock);
--	if (err)
--		return err;
--
--	if (!rtc->ops)
--		err = -ENODEV;
--	else if (rtc->ops->set_mmss64)
--		err = rtc->ops->set_mmss64(rtc->dev.parent, secs);
--	else if (rtc->ops->set_mmss)
--		err = rtc->ops->set_mmss(rtc->dev.parent, secs);
--	else if (rtc->ops->read_time && rtc->ops->set_time) {
--		struct rtc_time new, old;
--
--		err = rtc->ops->read_time(rtc->dev.parent, &old);
--		if (err == 0) {
--			rtc_time64_to_tm(secs, &new);
--
--			/*
--			 * avoid writing when we're going to change the day of
--			 * the month. We will retry in the next minute. This
--			 * basically means that if the RTC must not drift
--			 * by more than 1 minute in 11 minutes.
--			 */
--			if (!((old.tm_hour == 23 && old.tm_min == 59) ||
--				(new.tm_hour == 23 && new.tm_min == 59)))
--				err = rtc->ops->set_time(rtc->dev.parent,
--						&new);
--		}
--	} else {
--		err = -EINVAL;
--	}
--
--	pm_stay_awake(rtc->dev.parent);
--	mutex_unlock(&rtc->ops_lock);
--	/* A timer might have just expired */
--	schedule_work(&rtc->irqwork);
--
--	return err;
--}
--EXPORT_SYMBOL_GPL(rtc_set_mmss);
--
- static int rtc_read_alarm_internal(struct rtc_device *rtc, struct rtc_wkalrm *alarm)
- {
- 	int err;
-diff --git a/include/linux/rtc.h b/include/linux/rtc.h
-index f46f765..f9c76a8 100644
---- a/include/linux/rtc.h
-+++ b/include/linux/rtc.h
-@@ -169,7 +169,6 @@ extern void devm_rtc_device_unregister(struct device *dev,
- 
- extern int rtc_read_time(struct rtc_device *rtc, struct rtc_time *tm);
- extern int rtc_set_time(struct rtc_device *rtc, struct rtc_time *tm);
--extern int rtc_set_mmss(struct rtc_device *rtc, unsigned long secs);
- extern int rtc_set_ntp_time(struct timespec64 now);
- int __rtc_read_alarm(struct rtc_device *rtc, struct rtc_wkalrm *alarm);
- extern int rtc_read_alarm(struct rtc_device *rtc,
 -- 
-1.9.1
-
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
 -- 
 -- 
