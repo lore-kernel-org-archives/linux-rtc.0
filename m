@@ -1,29 +1,24 @@
-Return-Path: <rtc-linux+bncBD5O5IWPJMIJRPUWVQCRUBHXNCX5M@googlegroups.com>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBE5Z46VQKGQEZKDQZGA@googlegroups.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id h1si104768wiw.1.2015.06.11.12.08.02
+        for <rtc-linux@googlegroups.com>;
+        Thu, 11 Jun 2015 12:08:02 -0700 (PDT)
+Date: Thu, 11 Jun 2015 21:08:01 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Xunlei Pang <xlpang@126.com>
+Cc: linux-kernel@vger.kernel.org, rtc-linux@googlegroups.com,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	John Stultz <john.stultz@linaro.org>, Arnd Bergmann <arnd@arndb.de>,
+	Xunlei Pang <pang.xunlei@linaro.org>,
+	Paul Bolle <pebolle@tiscali.nl>
+Subject: [rtc-linux] Re: [PATCH v2 1/4] NTP: rtc: Add CONFIG_RTC_SYSTOHC_DEVICE
+ for NTP synchronization
+Message-ID: <20150611190801.GO5222@piout.net>
+References: <1433236477-1724-1-git-send-email-xlpang@126.com>
 MIME-Version: 1.0
-Received: from mail-wg0-x232.google.com (mail-wg0-x232.google.com. [2a00:1450:400c:c00::232])
-        by gmr-mx.google.com with ESMTPS id t6si721138wiz.0.2015.06.20.10.12.56
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sat, 20 Jun 2015 10:12:56 -0700 (PDT)
-Received: by mail-wg0-x232.google.com with SMTP id z8so111209558wge.0
-        for <rtc-linux@googlegroups.com>; Sat, 20 Jun 2015 10:12:56 -0700 (PDT)
-From: Philippe Reynes <tremyfr@gmail.com>
-To: a.zummo@towertech.it,
-	alexandre.belloni@free-electrons.com,
-	shawn.guo@linaro.org,
-	kernel@pengutronix.de,
-	linux@arm.linux.org.uk
-Cc: linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org,
-	rtc-linux@googlegroups.com,
-	Philippe Reynes <tremyfr@gmail.com>
-Subject: [rtc-linux] [PATCH v3 3/6] rtc: mxc: use a second rtc clock
-Date: Sat, 20 Jun 2015 19:12:37 +0200
-Message-Id: <1434820360-21935-4-git-send-email-tremyfr@gmail.com>
-In-Reply-To: <1434820360-21935-1-git-send-email-tremyfr@gmail.com>
-References: <1434820360-21935-1-git-send-email-tremyfr@gmail.com>
-Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1433236477-1724-1-git-send-email-xlpang@126.com>
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -33,81 +28,30 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-The mxc RTC needs two clocks, one for the input
-reference, and one for the IP. But this driver
-was only using one clock (for the reference).
-This patch add the second clock (for the IP).
+Hi,
 
-Signed-off-by: Philippe Reynes <tremyfr@gmail.com>
----
- drivers/rtc/rtc-mxc.c |   26 +++++++++++++++++---------
- 1 files changed, 17 insertions(+), 9 deletions(-)
+On 02/06/2015 at 17:14:34 +0800, Xunlei Pang wrote :
+> +config RTC_SYSTOHC
+> +	bool "Set the RTC time based on NTP synchronization"
+> +	default y
+> +	help
+> +	  If you say yes here, the system time (wall clock) will be stored
+> +	  in the RTC specified by RTC_HCTOSYS_DEVICE approximately every 11
+> +	  minutes if userspace reports synchronized NTP status.
+> +
+> +config RTC_SYSTOHC_DEVICE
+> +	string "RTC used to synchronize NTP adjustment"
+> +	depends on RTC_SYSTOHC
+> +	default "rtc0"
 
-diff --git a/drivers/rtc/rtc-mxc.c b/drivers/rtc/rtc-mxc.c
-index 09d422b..e916a91 100644
---- a/drivers/rtc/rtc-mxc.c
-+++ b/drivers/rtc/rtc-mxc.c
-@@ -79,7 +79,8 @@ struct rtc_plat_data {
- 	struct rtc_device *rtc;
- 	void __iomem *ioaddr;
- 	int irq;
--	struct clk *clk;
-+	struct clk *clk_rtc;
-+	struct clk *clk_ipg;
- 	struct rtc_time g_rtc_alarm;
- 	enum imx_rtc_type devtype;
- };
-@@ -373,17 +374,24 @@ static int mxc_rtc_probe(struct platform_device *pdev)
- 	if (IS_ERR(pdata->ioaddr))
- 		return PTR_ERR(pdata->ioaddr);
- 
--	pdata->clk = devm_clk_get(&pdev->dev, NULL);
--	if (IS_ERR(pdata->clk)) {
--		dev_err(&pdev->dev, "unable to get clock!\n");
--		return PTR_ERR(pdata->clk);
-+	pdata->clk_ipg = devm_clk_get(&pdev->dev, "ipg");
-+	if (IS_ERR(pdata->clk_ipg)) {
-+		dev_err(&pdev->dev, "unable to get ipg clock!\n");
-+		return PTR_ERR(pdata->clk_ipg);
- 	}
- 
--	ret = clk_prepare_enable(pdata->clk);
-+	ret = clk_prepare_enable(pdata->clk_ipg);
- 	if (ret)
- 		return ret;
- 
--	rate = clk_get_rate(pdata->clk);
-+	pdata->clk_rtc = devm_clk_get(&pdev->dev, "rtc");
-+	if (IS_ERR(pdata->clk_rtc)) {
-+		dev_err(&pdev->dev, "unable to get rtc clock!\n");
-+		ret = PTR_ERR(pdata->clk_rtc);
-+		goto exit_put_clk;
-+	}
-+
-+	rate = clk_get_rate(pdata->clk_rtc);
- 
- 	if (rate == 32768)
- 		reg = RTC_INPUT_CLK_32768HZ;
-@@ -432,7 +440,7 @@ static int mxc_rtc_probe(struct platform_device *pdev)
- 	return 0;
- 
- exit_put_clk:
--	clk_disable_unprepare(pdata->clk);
-+	clk_disable_unprepare(pdata->clk_ipg);
- 
- 	return ret;
- }
-@@ -441,7 +449,7 @@ static int mxc_rtc_remove(struct platform_device *pdev)
- {
- 	struct rtc_plat_data *pdata = platform_get_drvdata(pdev);
- 
--	clk_disable_unprepare(pdata->clk);
-+	clk_disable_unprepare(pdata->clk_ipg);
- 
- 	return 0;
- }
+To make that working nicely with current configurations, I would use:
+default RTC_HCTOSYS_DEVICE
+
+
 -- 
-1.7.4.4
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
 -- 
 -- 
