@@ -1,33 +1,42 @@
-Return-Path: <rtc-linux+bncBCAJFDXE4QGBBQWWZCWAKGQEDI5YR4A@googlegroups.com>
-MIME-Version: 1.0
-Received: from mail-pd0-x230.google.com (mail-pd0-x230.google.com. [2607:f8b0:400e:c02::230])
-        by gmr-mx.google.com with ESMTPS id tq2si437785pbc.0.2015.06.29.22.38.10
+Return-Path: <rtc-linux+bncBDA7X7F2WUEBBWM24WVQKGQEII7T7TI@googlegroups.com>
+Received: from mail-wg0-f41.google.com (mail-wg0-f41.google.com. [74.125.82.41])
+        by gmr-mx.google.com with ESMTPS id gt9si20985wib.2.2015.06.11.01.56.56
         for <rtc-linux@googlegroups.com>
         (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 29 Jun 2015 22:38:10 -0700 (PDT)
-Received: by mail-pd0-x230.google.com with SMTP id ep18so107890392pdb.1
-        for <rtc-linux@googlegroups.com>; Mon, 29 Jun 2015 22:38:10 -0700 (PDT)
-From: Adrian Huang <adrianhuang0701@gmail.com>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Alessandro Zummo <a.zummo@towertech.it>
-Cc: rtc-linux@googlegroups.com,
-	Borislav Petkov <bp@suse.de>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	John Stultz <john.stultz@linaro.org>,
-	Egbert Eich <eich@suse.com>,
-	Diego Ercolani <diego.ercolani@gmail.com>,
-	Nagananda Chumbalkar <nchumbalkar@lenovo.com>,
-	Max Asbock <amax@lenovo.com>,
-	Adrian Huang <ahuang12@lenovo.com>,
-	Adrian Huang <adrianhuang0701@gmail.com>
-Subject: [rtc-linux] [RFC PATCH v3 2/2] rtc-cmos: Revert "rtc-cmos: Add an
- alarm disable quirk"
-Date: Tue, 30 Jun 2015 13:36:38 +0800
-Message-Id: <1435642598-5073-3-git-send-email-adrianhuang0701@gmail.com>
-In-Reply-To: <1435642598-5073-1-git-send-email-adrianhuang0701@gmail.com>
-References: <1435642598-5073-1-git-send-email-adrianhuang0701@gmail.com>
-Reply-To: rtc-linux@googlegroups.com
+        Thu, 11 Jun 2015 01:56:56 -0700 (PDT)
+Received: by mail-wg0-f41.google.com with SMTP id 5so706757wgv.1
+        for <rtc-linux@googlegroups.com>; Thu, 11 Jun 2015 01:56:56 -0700 (PDT)
+Date: Thu, 11 Jun 2015 09:56:53 +0100
+From: Lee Jones <lee.jones@linaro.org>
+To: "Opensource [Steve Twiss]" <stwiss.opensource@diasemi.com>
+Cc: LINUXKERNEL <linux-kernel@vger.kernel.org>,
+	Samuel Ortiz <sameo@linux.intel.com>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	DEVICETREE <devicetree@vger.kernel.org>,
+	David Dajun Chen <david.chen@diasemi.com>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Ian Campbell <ijc+devicetree@hellion.org.uk>,
+	Kumar Gala <galak@codeaurora.org>,
+	LINUXINPUT <linux-input@vger.kernel.org>,
+	LINUXWATCHDOG <linux-watchdog@vger.kernel.org>,
+	Liam Girdwood <lgirdwood@gmail.com>,
+	Mark Brown <broonie@kernel.org>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Pawel Moll <pawel.moll@arm.com>,
+	RTCLINUX <rtc-linux@googlegroups.com>,
+	Rob Herring <robh+dt@kernel.org>,
+	Support Opensource <Support.Opensource@diasemi.com>,
+	Wim Van Sebroeck <wim@iguana.be>
+Subject: [rtc-linux] Re: [PATCH V3 1/4] mfd: da9062: DA9062 MFD core driver
+Message-ID: <20150611085653.GG2982@x1>
+References: <cover.1432041031.git.stwiss.opensource@diasemi.com>
+ <ecf72b79429e6758111a908fd1ded29c0b96da15.1432041031.git.stwiss.opensource@diasemi.com>
+ <20150526161024.GQ11677@x1>
+ <6ED8E3B22081A4459DAC7699F3695FB7014B22F4C4@SW-EX-MBX02.diasemi.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <6ED8E3B22081A4459DAC7699F3695FB7014B22F4C4@SW-EX-MBX02.diasemi.com>
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -37,108 +46,89 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Commit d5a1c7e3fc38 ("rtc-cmos: Add an alarm disable quirk") that
-added a special quirk is not needed because [PATCH 1/2] of this
-patchset makes the kernel more robust:
-rtc-cmos: Cancel alarm timer if alarm time is equal to now+1 seconds
+> > > > diff --git a/include/linux/mfd/da9062/registers.h
+> > > b/include/linux/mfd/da9062/registers.h
+> > > > new file mode 100644
+> > > > index 0000000..d07c2bc
+> > > > --- /dev/null
+> > > > +++ b/include/linux/mfd/da9062/registers.h
+> >=20
+> > [...]
+> >=20
+> > > > +/*
+> > > > + * Registers
+> > > > + */
+> > >
+> > > Really? ;)
+> > >
+> > > > +#define DA9062AA_PAGE_CON		0x000
+> > > > +#define DA9062AA_STATUS_A		0x001
+> > > > +#define DA9062AA_STATUS_B		0x002
+> >=20
+> > [...]
+> >=20
+> > > > +
+> > > > +/*
+> > > > + * Bit fields
+> > > > + */
+> > > > +
+> > > > +/* DA9062AA_PAGE_CON =3D 0x000 */
+> > > > +#define DA9062AA_PAGE_SHIFT		0
+> > > > +#define DA9062AA_PAGE_MASK		(0x3f << 0)
+> > > > +#define DA9062AA_WRITE_MODE_SHIFT	6
+> > > > +#define DA9062AA_WRITE_MODE_MASK	(0x01 << 6)
+> > >
+> > > For 1 << X, you should use BIT(X).
+> > >
+> >=20
+> > For the two comments above "Registers" and "Bit fields" and the (1<<x)
+> > definitions ...
+> >=20
+> > The whole of this file is automatically generated by our hardware desig=
+ners
+> > I would prefer it if the register definitions and bit fields are not al=
+tered using
+> > the #define BIT(nr) (1UL<<(nr)) macro and the comments removed because
+> > we have scripts that can be used to check this file automatically.
+> >=20
+> > Also if the register map is ever updated, then it will be easier for me=
+ to diff
+> > the new delivered register and bit field definitions with the old one.
+> >=20
+> > My preference would be not to change this header file.
+> >=20
+> > [...]
+> =20
+> If these last two things are a problem can you please let me know.
 
-Signed-off-by: Adrian Huang <ahuang12@lenovo.com>
----
- drivers/rtc/rtc-cmos.c | 50 --------------------------------------------------
- 1 file changed, 50 deletions(-)
+I'm still not particularly happy with this.  Can yo speak to your H/W
+guys and get them to change their scripts to output sensible header
+files?
 
-diff --git a/drivers/rtc/rtc-cmos.c b/drivers/rtc/rtc-cmos.c
-index f8900aa..916bd1f 100644
---- a/drivers/rtc/rtc-cmos.c
-+++ b/drivers/rtc/rtc-cmos.c
-@@ -41,7 +41,6 @@
- #include <linux/pm.h>
- #include <linux/of.h>
- #include <linux/of_platform.h>
--#include <linux/dmi.h>
- 
- /* this is for "generic access to PC-style RTC" using CMOS_READ/CMOS_WRITE */
- #include <asm-generic/rtc.h>
-@@ -383,50 +382,6 @@ static int cmos_set_alarm(struct device *dev, struct rtc_wkalrm *t)
- 	return 0;
- }
- 
--/*
-- * Do not disable RTC alarm on shutdown - workaround for b0rked BIOSes.
-- */
--static bool alarm_disable_quirk;
--
--static int __init set_alarm_disable_quirk(const struct dmi_system_id *id)
--{
--	alarm_disable_quirk = true;
--	pr_info("BIOS has alarm-disable quirk - RTC alarms disabled\n");
--	return 0;
--}
--
--static const struct dmi_system_id rtc_quirks[] __initconst = {
--	/* https://bugzilla.novell.com/show_bug.cgi?id=805740 */
--	{
--		.callback = set_alarm_disable_quirk,
--		.ident    = "IBM Truman",
--		.matches  = {
--			DMI_MATCH(DMI_SYS_VENDOR, "TOSHIBA"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "4852570"),
--		},
--	},
--	/* https://bugzilla.novell.com/show_bug.cgi?id=812592 */
--	{
--		.callback = set_alarm_disable_quirk,
--		.ident    = "Gigabyte GA-990XA-UD3",
--		.matches  = {
--			DMI_MATCH(DMI_SYS_VENDOR,
--					"Gigabyte Technology Co., Ltd."),
--			DMI_MATCH(DMI_PRODUCT_NAME, "GA-990XA-UD3"),
--		},
--	},
--	/* http://permalink.gmane.org/gmane.linux.kernel/1604474 */
--	{
--		.callback = set_alarm_disable_quirk,
--		.ident    = "Toshiba Satellite L300",
--		.matches  = {
--			DMI_MATCH(DMI_SYS_VENDOR, "TOSHIBA"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "Satellite L300"),
--		},
--	},
--	{}
--};
--
- static int cmos_alarm_irq_enable(struct device *dev, unsigned int enabled)
- {
- 	struct cmos_rtc	*cmos = dev_get_drvdata(dev);
-@@ -435,9 +390,6 @@ static int cmos_alarm_irq_enable(struct device *dev, unsigned int enabled)
- 	if (!is_valid_irq(cmos->irq))
- 		return -EINVAL;
- 
--	if (alarm_disable_quirk)
--		return 0;
--
- 	spin_lock_irqsave(&rtc_lock, flags);
- 
- 	if (enabled)
-@@ -1300,8 +1252,6 @@ static int __init cmos_init(void)
- 			platform_driver_registered = true;
- 	}
- 
--	dmi_check_system(rtc_quirks);
--
- 	if (retval == 0)
- 		return 0;
- 
--- 
-1.9.1
+To be honest, it's probably not a blocker for acceptance, but if someone
+writes a patch next week to change all of the (0x01 << X) lines to
+start using the BIT() macro, I will accept it.  Better to influenced
+your guys so you are not overly inconvenienced.
 
--- 
--- 
+FWIW, when upstreaming code, the excuse "someone else wrote it", has
+never been a good one to use on the lists.   Believe me, I've
+tried. ;)
+
+--=20
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org =E2=94=82 Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog
+
+--=20
+--=20
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+---=20
+You received this message because you are subscribed to the Google Groups "=
+rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an e=
+mail to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
