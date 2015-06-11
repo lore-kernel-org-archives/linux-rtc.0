@@ -1,26 +1,23 @@
-Return-Path: <rtc-linux+bncBDA7X7F2WUEBB5EXWCVQKGQEMOXIWNY@googlegroups.com>
-Received: from mail-wi0-f175.google.com (mail-wi0-f175.google.com. [209.85.212.175])
-        by gmr-mx.google.com with ESMTPS id k2si461958wif.0.2015.06.01.00.38.27
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 01 Jun 2015 00:38:27 -0700 (PDT)
-Received: by wicmx19 with SMTP id mx19so66623278wic.0
-        for <rtc-linux@googlegroups.com>; Mon, 01 Jun 2015 00:38:27 -0700 (PDT)
-Date: Mon, 1 Jun 2015 08:38:23 +0100
-From: Lee Jones <lee.jones@linaro.org>
-To: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-	devicetree@vger.kernel.org, daniel.lezcano@linaro.org,
-	tglx@linutronix.de, wim@iguana.be, a.zummo@towertech.it,
-	linux-watchdog@vger.kernel.org, rtc-linux@googlegroups.com,
-	linux@roeck-us.net
-Cc: kernel@stlinux.com
-Subject: [rtc-linux] Re: [PATCH v2 00/12] mfd: Add support for Clocksource to
- LPC set
-Message-ID: <20150601073823.GB3329@x1>
-References: <1431435500-22899-1-git-send-email-lee.jones@linaro.org>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBDMA46VQKGQEFGLWS5A@googlegroups.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id gt9si90629wib.2.2015.06.11.10.06.20
+        for <rtc-linux@googlegroups.com>;
+        Thu, 11 Jun 2015 10:06:20 -0700 (PDT)
+Date: Thu, 11 Jun 2015 19:06:19 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Xunlei Pang <xlpang@126.com>
+Cc: linux-kernel@vger.kernel.org, rtc-linux@googlegroups.com,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	John Stultz <john.stultz@linaro.org>, Arnd Bergmann <arnd@arndb.de>,
+	Xunlei Pang <pang.xunlei@linaro.org>
+Subject: [rtc-linux] Re: [PATCH v2 2/4] rtc/lib: Introduce rtc_tm_subtract()
+ helper function
+Message-ID: <20150611170619.GM5222@piout.net>
+References: <1433235862-1638-1-git-send-email-xlpang@126.com>
+ <1433235862-1638-2-git-send-email-xlpang@126.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1431435500-22899-1-git-send-email-lee.jones@linaro.org>
+In-Reply-To: <1433235862-1638-2-git-send-email-xlpang@126.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -31,72 +28,59 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Device Tree Maintainers,
+Hi,
 
-All of the functional patches in this series have been Acked by the
-relevant maintainers, but the (pretty simple) DT changes are in need
-of a suitable Ack.
+I'm fine with the whole series, I would just rename things a bit:
 
-Would someone mine glancing over them please?
+On 02/06/2015 at 17:04:20 +0800, Xunlei Pang wrote :
+>  /*
+> + * rtc_tm_subtract - Return the difference in seconds.
+> + */
+> +time64_t rtc_tm_subtract(struct rtc_time *minuend, struct rtc_time *subtrahend)
+> +{
+> +	return rtc_tm_to_time64(minuend) - rtc_tm_to_time64(subtrahend);
+> +}
+> +EXPORT_SYMBOL_GPL(rtc_tm_subtract);
+> +
+> +/*
+>   * Convert rtc_time to ktime
+>   */
+>  ktime_t rtc_tm_to_ktime(struct rtc_time tm)
+> diff --git a/include/linux/rtc.h b/include/linux/rtc.h
+> index 8dcf682..13e4138 100644
+> --- a/include/linux/rtc.h
+> +++ b/include/linux/rtc.h
+> @@ -21,6 +21,8 @@ extern int rtc_year_days(unsigned int day, unsigned int month, unsigned int year
+>  extern int rtc_valid_tm(struct rtc_time *tm);
+>  extern time64_t rtc_tm_to_time64(struct rtc_time *tm);
+>  extern void rtc_time64_to_tm(time64_t time, struct rtc_time *tm);
+> +extern time64_t rtc_tm_subtract(struct rtc_time *minuend,
+> +		struct rtc_time *subtrahend);
 
-> ST's Low Power Controller (LPC) controls three devices; watchdog, RTC
-> and a Clocksource Timer.  Only one of the devices can be used at any
-> one time, which is enforced by the Device Driver model.
-> =20
-> This patchset provides support for the Clocksource driver.  Watchdog
-> and RTC are already in -next.
->=20
-> Lee Jones (12):
->   mfd: dt-bindings: Provide human readable define for Clocksource mode
->   clocksource: sti: Provide support for the ST LPC Clocksource IP
->   clocksource: sti: Provide 'use timer as sched clock' capability
->   clocksource: bindings: Provide bindings for ST's LPC Clocksource
->     device
->   watchdog: st_wdt: Update IP layout information to include Clocksource
->   watchdog: bindings: Supply knowledge of a third supported device -
->     clocksource
->   rtc: st: Update IP layout information to include Clocksource
->   rtc: bindings: Supply knowledge of a third supported device -
->     clocksource
->   MAINTAINERS: Add the LPC Clocksource to STi maintained driver list
->   ARM: STi: DT: STih407: Switch LPC mode from RTC to Clocksource
->   ARM: STi: Enable LPC Clocksource
->   ARM: STi: Update platform level menuconfig 'help'
->=20
->  .../devicetree/bindings/rtc/rtc-st-lpc.txt         |  15 ++-
->  .../devicetree/bindings/timer/st,stih407-lpc       |  28 +++++
->  .../devicetree/bindings/watchdog/st_lpc_wdt.txt    |  12 +-
->  MAINTAINERS                                        |   1 +
->  arch/arm/boot/dts/stih407-family.dtsi              |   2 +-
->  arch/arm/mach-sti/Kconfig                          |  10 +-
->  drivers/clocksource/Kconfig                        |   9 ++
->  drivers/clocksource/Makefile                       |   1 +
->  drivers/clocksource/clksrc_st_lpc.c                | 129 +++++++++++++++=
-++++++
->  drivers/rtc/rtc-st-lpc.c                           |   2 +-
->  drivers/watchdog/st_lpc_wdt.c                      |   2 +-
->  include/dt-bindings/mfd/st-lpc.h                   |   1 +
->  12 files changed, 194 insertions(+), 18 deletions(-)
->  create mode 100644 Documentation/devicetree/bindings/timer/st,stih407-lp=
-c
->  create mode 100644 drivers/clocksource/clksrc_st_lpc.c
->=20
+I would use something closer to what is done for timespecs in time.h,
+like:
 
---=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+static inline time64_t rtc_tm_sub(struct rtc_time *lhs, struct rtc_time *rhs)
+{
+	return rtc_tm_to_time64(lhs) - rtc_tm_to_time64(rhs);
+}
 
---=20
---=20
+and not modify rtc-lib.c
+
+Can you make that modification ?
+
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
+
+-- 
+-- 
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
----=20
-You received this message because you are subscribed to the Google Groups "=
-rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an e=
-mail to rtc-linux+unsubscribe@googlegroups.com.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
