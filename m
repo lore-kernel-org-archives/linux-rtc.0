@@ -1,24 +1,24 @@
-Return-Path: <rtc-linux+bncBCN6JTVP2IEBBO7IWWVQKGQE2WGTPFA@googlegroups.com>
-MIME-Version: 1.0
-Received: from m50-110.126.com (m50-110.126.com. [123.125.50.110])
-        by gmr-mx.google.com with ESMTP id s16si1089914ign.2.2015.06.02.02.15.38
+Return-Path: <rtc-linux+bncBDS7HNEFSALRB5U25KVQKGQETBHR3ZA@googlegroups.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id bc3si44186wib.2.2015.06.12.00.42.46
         for <rtc-linux@googlegroups.com>;
-        Tue, 02 Jun 2015 02:15:39 -0700 (PDT)
-From: Xunlei Pang <xlpang@126.com>
-To: linux-kernel@vger.kernel.org
-Cc: rtc-linux@googlegroups.com,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	John Stultz <john.stultz@linaro.org>,
-	Arnd Bergmann <arnd@arndb.de>,
-	Xunlei Pang <pang.xunlei@linaro.org>,
-	Paul Bolle <pebolle@tiscali.nl>
-Subject: [rtc-linux] [PATCH v2 1/4] NTP: rtc: Add CONFIG_RTC_SYSTOHC_DEVICE
- for NTP synchronization
-Date: Tue,  2 Jun 2015 17:14:34 +0800
-Message-Id: <1433236477-1724-1-git-send-email-xlpang@126.com>
-Reply-To: rtc-linux@googlegroups.com
+        Fri, 12 Jun 2015 00:42:46 -0700 (PDT)
+Date: Fri, 12 Jun 2015 09:42:45 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Andrea Scian <rnd4@dave-tech.it>
+Cc: r.cerrato@til-technologies.fr, a.zummo@towertech.it,
+	rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org,
+	Andrea Scian <andrea.scian@dave.eu>
+Subject: Re: [rtc-linux] [PATCH] driver: rtc: pcf2127: use OFS flag to detect
+ unreliable date and warn the user
+Message-ID: <20150612074245.GC3890@piout.net>
+References: <1432628260-24652-1-git-send-email-rnd4@dave-tech.it>
+ <20150608154251.GC5222@piout.net>
+ <55785615.4050709@dave-tech.it>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <55785615.4050709@dave-tech.it>
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -28,93 +28,65 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-From: Xunlei Pang <pang.xunlei@linaro.org>
+On 10/06/2015 at 17:21:57 +0200, Andrea Scian wrote :
+> >I would return -EINVAL here because the result might still pass
+> >rtc_valid_tm() but be outdated.
+> 
+> At first look I agree with you, but a bit later they say:
+> 
+> /* the clock can give out invalid datetime, but we cannot return
+>  * -EINVAL otherwise hwclock will refuse to set the time on bootup.
+>  */
+> 
+> http://git.kernel.org/cgit/linux/kernel/git/stable/linux-stable.git/tree/drivers/rtc/rtc-pcf2127.c#n91
+> 
+> so they don't actually return -EINVAL even if rtc_valid_tm() fails.
+> WDYT? I'm not an RTC subsystem expert, so maybe I'm missing something..
+> 
 
-Currently, CONFIG_RTC_SYSTOHC uses CONFIG_RTC_HCTOSYS_DEVICE which
-is originally used by CONFIG_RTC_HCTOSYS, but this rtc device has
-some limiations, for example, it must be battery-backed, be able
-to work with irq off and through system suspension, etc.
+This has been copy pasted from other drivers and this is simply not
+true.
 
-So add CONFIG_RTC_SYSTOHC_DEVICE used exclusively for CONFIG_RTC_SYSTOHC,
-it is more lenient compared to CONFIG_RTC_HCTOSYS_DEVICE, and could
-be assigned any available RTC in the system. Default value is "rtc0".
+> If the comment above is correct, so we can't return -EINVAL, I will reset
+> the time to epoch, with something like
+> 
+> rtc_time64_to_tm((time64_t)0, tm);
+> 
 
-After this patch, NTP will sync up "rtc0" by default.
+Doing that is worse. You really want userspace to know that the time is
+invalid instead of giving an incorrect value. This allow userspace to
+actually choose its policy when the time is invalid. For example, use
+epoch or any other later date that probabyl makes more sense for the
+product.
 
-Cc: Paul Bolle <pebolle@tiscali.nl>
-Signed-off-by: Xunlei Pang <pang.xunlei@linaro.org>
----
-v1->v2:
-Change "depends on RTC_XX = y" to "depends on RTC_XXX".
+> >>@@ -144,7 +153,7 @@ static int pcf2127_rtc_ioctl(struct device *dev,
+> >>  	switch (cmd) {
+> >>  	case RTC_VL_READ:
+> >>  		if (pcf2127->voltage_low)
+> >>-			dev_info(dev, "low voltage detected, date/time is not reliable.\n");
+> >>+			dev_info(dev, "low voltage detected, check/replace battery\n");
+> >
+> >I would also print a warning about OFS here.
+> >
+> 
+> I'll do.
+> Do you think is better to add another variable inside struct pcf2127 or is
+> better to re-read the RTC registers?
+> (for the former I have also to clear the variable inside
+> pcf2127_set_datetime(), for the latter I have to issue another read in a
+> function that, at the moment, does not read anything..)
+> 
 
- drivers/rtc/Kconfig   | 28 +++++++++++++++++++---------
- drivers/rtc/systohc.c |  2 +-
- 2 files changed, 20 insertions(+), 10 deletions(-)
+I don't really care. But since one of them is already cached, it is
+probably better to cache OFS. Maybe you could also use voltage_low as a
+bit field which would allow userspace to make the difference between a
+simple low voltage and the time loss condition.
 
-diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
-index 0fe4ad8..f422a46 100644
---- a/drivers/rtc/Kconfig
-+++ b/drivers/rtc/Kconfig
-@@ -25,17 +25,9 @@ config RTC_HCTOSYS
- 	  the value read from a specified RTC device. This is useful to avoid
- 	  unnecessary fsck runs at boot time, and to network better.
- 
--config RTC_SYSTOHC
--	bool "Set the RTC time based on NTP synchronization"
--	default y
--	help
--	  If you say yes here, the system time (wall clock) will be stored
--	  in the RTC specified by RTC_HCTOSYS_DEVICE approximately every 11
--	  minutes if userspace reports synchronized NTP status.
--
- config RTC_HCTOSYS_DEVICE
- 	string "RTC used to set the system time"
--	depends on RTC_HCTOSYS = y || RTC_SYSTOHC = y
-+	depends on RTC_HCTOSYS
- 	default "rtc0"
- 	help
- 	  The RTC device that will be used to (re)initialize the system
-@@ -56,6 +48,24 @@ config RTC_HCTOSYS_DEVICE
- 	  sleep states. Do not specify an RTC here unless it stays powered
- 	  during all this system's supported sleep states.
- 
-+config RTC_SYSTOHC
-+	bool "Set the RTC time based on NTP synchronization"
-+	default y
-+	help
-+	  If you say yes here, the system time (wall clock) will be stored
-+	  in the RTC specified by RTC_HCTOSYS_DEVICE approximately every 11
-+	  minutes if userspace reports synchronized NTP status.
-+
-+config RTC_SYSTOHC_DEVICE
-+	string "RTC used to synchronize NTP adjustment"
-+	depends on RTC_SYSTOHC
-+	default "rtc0"
-+	help
-+	  The RTC device used for NTP synchronization. The main difference
-+	  between RTC_HCTOSYS_DEVICE and RTC_SYSTOHC_DEVICE is that this
-+	  one can sleep when setting time, because it runs in the workqueue
-+	  context.
-+
- config RTC_DEBUG
- 	bool "RTC debug support"
- 	help
-diff --git a/drivers/rtc/systohc.c b/drivers/rtc/systohc.c
-index 7728d5e..b4a68ff 100644
---- a/drivers/rtc/systohc.c
-+++ b/drivers/rtc/systohc.c
-@@ -31,7 +31,7 @@ int rtc_set_ntp_time(struct timespec64 now)
- 	else
- 		rtc_time64_to_tm(now.tv_sec + 1, &tm);
- 
--	rtc = rtc_class_open(CONFIG_RTC_HCTOSYS_DEVICE);
-+	rtc = rtc_class_open(CONFIG_RTC_SYSTOHC_DEVICE);
- 	if (rtc) {
- 		/* rtc_hctosys exclusively uses UTC, so we call set_time here,
- 		 * not set_mmss. */
+
 -- 
-1.9.1
-
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
 -- 
 -- 
