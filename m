@@ -7,94 +7,58 @@ Cc: rtc-linux@googlegroups.com,
 	John Stultz <john.stultz@linaro.org>,
 	Arnd Bergmann <arnd@arndb.de>,
 	Xunlei Pang <pang.xunlei@linaro.org>,
-	Carlo Caione <carlo.caione@gmail.com>
-Subject: [PATCH v3 4/4] drivers/rtc/sunxi: Replace deprecated rtc_tm_to_time()
-Date: Fri, 12 Jun 2015 10:04:12 +0800
-Message-Id: <1434074652-16054-4-git-send-email-xlpang@126.com>
+	Herbert Valerio Riedel <hvr@gnu.org>
+Subject: [PATCH v3 3/4] drivers/rtc/isl1208: Replace deprecated rtc_tm_to_time()
+Date: Fri, 12 Jun 2015 10:04:11 +0800
+Message-Id: <1434074652-16054-3-git-send-email-xlpang@126.com>
 In-Reply-To: <1434074652-16054-1-git-send-email-xlpang@126.com>
 References: <1434074652-16054-1-git-send-email-xlpang@126.com>
 List-ID: <rtc-linux.googlegroups.com>
 
 From: Xunlei Pang <pang.xunlei@linaro.org>
 
-sunxi_rtc_setalarm() uses deprecated rtc_tm_to_time(),
+isl1208_i2c_set_alarm() uses deprecated rtc_tm_to_time(),
 which will overflow in year 2106 on 32-bit machines.
 
 This patch solves this by:
-- Replacing rtc_tm_to_time() with rtc_tm_sub()
+ - Replacing rtc_tm_to_time() with rtc_tm_sub()
 
-Also remove the unnecessary initial zeroing of some
-local variables in sunxi_rtc_setalarm().
-
-Cc: Carlo Caione <carlo.caione@gmail.com>
+Cc: Herbert Valerio Riedel <hvr@gnu.org>
 Signed-off-by: Xunlei Pang <pang.xunlei@linaro.org>
 ---
 v2->v3:
 Rename rtc_tm_subtract() to rtc_tm_sub().
 
- drivers/rtc/rtc-sunxi.c | 32 +++++++++++++++-----------------
- 1 file changed, 15 insertions(+), 17 deletions(-)
+ drivers/rtc/rtc-isl1208.c | 9 +--------
+ 1 file changed, 1 insertion(+), 8 deletions(-)
 
-diff --git a/drivers/rtc/rtc-sunxi.c b/drivers/rtc/rtc-sunxi.c
-index 6e678fa..52543ae 100644
---- a/drivers/rtc/rtc-sunxi.c
-+++ b/drivers/rtc/rtc-sunxi.c
-@@ -269,14 +269,13 @@ static int sunxi_rtc_setalarm(struct device *dev, struct rtc_wkalrm *wkalrm)
- 	struct sunxi_rtc_dev *chip = dev_get_drvdata(dev);
- 	struct rtc_time *alrm_tm = &wkalrm->time;
- 	struct rtc_time tm_now;
--	u32 alrm = 0;
--	unsigned long time_now = 0;
--	unsigned long time_set = 0;
--	unsigned long time_gap = 0;
--	unsigned long time_gap_day = 0;
--	unsigned long time_gap_hour = 0;
--	unsigned long time_gap_min = 0;
--	int ret = 0;
-+	u32 alrm;
-+	time64_t diff;
-+	unsigned long time_gap;
-+	unsigned long time_gap_day;
-+	unsigned long time_gap_hour;
-+	unsigned long time_gap_min;
-+	int ret;
+diff --git a/drivers/rtc/rtc-isl1208.c b/drivers/rtc/rtc-isl1208.c
+index c3c549d..aa3b8f1 100644
+--- a/drivers/rtc/rtc-isl1208.c
++++ b/drivers/rtc/rtc-isl1208.c
+@@ -370,22 +370,15 @@ isl1208_i2c_set_alarm(struct i2c_client *client, struct rtc_wkalrm *alarm)
+ 	struct rtc_time *alarm_tm = &alarm->time;
+ 	u8 regs[ISL1208_ALARM_SECTION_LEN] = { 0, };
+ 	const int offs = ISL1208_REG_SCA;
+-	unsigned long rtc_secs, alarm_secs;
+ 	struct rtc_time rtc_tm;
+ 	int err, enable;
  
- 	ret = sunxi_rtc_gettime(dev, &tm_now);
- 	if (ret < 0) {
-@@ -284,14 +283,18 @@ static int sunxi_rtc_setalarm(struct device *dev, struct rtc_wkalrm *wkalrm)
- 		return -EINVAL;
- 	}
+ 	err = isl1208_i2c_read_time(client, &rtc_tm);
+ 	if (err)
+ 		return err;
+-	err = rtc_tm_to_time(&rtc_tm, &rtc_secs);
+-	if (err)
+-		return err;
+-	err = rtc_tm_to_time(alarm_tm, &alarm_secs);
+-	if (err)
+-		return err;
  
--	rtc_tm_to_time(alrm_tm, &time_set);
--	rtc_tm_to_time(&tm_now, &time_now);
--	if (time_set <= time_now) {
-+	diff = rtc_tm_sub(alrm_tm, &tm_now);
-+	if (diff <= 0) {
- 		dev_err(dev, "Date to set in the past\n");
- 		return -EINVAL;
- 	}
- 
--	time_gap = time_set - time_now;
-+	if (diff > 255 * SEC_IN_DAY) {
-+		dev_err(dev, "Day must be in the range 0 - 255\n");
-+		return -EINVAL;
-+	}
-+
-+	time_gap = diff;
- 	time_gap_day = time_gap / SEC_IN_DAY;
- 	time_gap -= time_gap_day * SEC_IN_DAY;
- 	time_gap_hour = time_gap / SEC_IN_HOUR;
-@@ -299,11 +302,6 @@ static int sunxi_rtc_setalarm(struct device *dev, struct rtc_wkalrm *wkalrm)
- 	time_gap_min = time_gap / SEC_IN_MIN;
- 	time_gap -= time_gap_min * SEC_IN_MIN;
- 
--	if (time_gap_day > 255) {
--		dev_err(dev, "Day must be in the range 0 - 255\n");
--		return -EINVAL;
--	}
--
- 	sunxi_rtc_setaie(0, chip);
- 	writel(0, chip->base + SUNXI_ALRM_DHMS);
- 	usleep_range(100, 300);
+ 	/* If the alarm time is before the current time disable the alarm */
+-	if (!alarm->enabled || alarm_secs <= rtc_secs)
++	if (!alarm->enabled || rtc_tm_sub(alarm_tm, &rtc_tm) <= 0)
+ 		enable = 0x00;
+ 	else
+ 		enable = 0x80;
 -- 
 1.9.1
