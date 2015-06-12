@@ -1,32 +1,26 @@
-Return-Path: <rtc-linux+bncBDA7X7F2WUEBB2HQWWVQKGQEY7KNFUA@googlegroups.com>
-Received: from mail-wi0-f174.google.com (mail-wi0-f174.google.com. [209.85.212.174])
-        by gmr-mx.google.com with ESMTPS id p12si644398wiv.1.2015.06.02.02.33.27
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 02 Jun 2015 02:33:27 -0700 (PDT)
-Received: by mail-wi0-f174.google.com with SMTP id d19so12969749wiw.0
-        for <rtc-linux@googlegroups.com>; Tue, 02 Jun 2015 02:33:27 -0700 (PDT)
-Date: Tue, 2 Jun 2015 10:33:23 +0100
-From: Lee Jones <lee.jones@linaro.org>
-To: Vaibhav Hiremath <vaibhav.hiremath@linaro.org>
-Cc: linux-arm-kernel@lists.infradead.org, robh+dt@kernel.org,
-	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-	rtc-linux@googlegroups.com, sameo@linux.intel.com,
-	a.zummo@towertech.it, alexandre.belloni@free-electrons.com,
-	Chao Xie <chao.xie@marvell.com>
-Subject: [rtc-linux] Re: [PATCH 4/4] mfd: 88pm800: allocate pdata->rtc if not
- allocated earlier
-Message-ID: <20150602093323.GI3329@x1>
-References: <1432937962-4537-1-git-send-email-vaibhav.hiremath@linaro.org>
- <1432937962-4537-5-git-send-email-vaibhav.hiremath@linaro.org>
- <20150601082200.GC3329@x1>
- <556D3A14.6050505@linaro.org>
- <20150602074004.GH3329@x1>
- <556D71F6.4030608@linaro.org>
+Return-Path: <rtc-linux+bncBCN6JTVP2IEBB7435GVQKGQEPEJG5QY@googlegroups.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <556D71F6.4030608@linaro.org>
+Received: from m50-111.126.com (m50-111.126.com. [123.125.50.111])
+        by gmr-mx.google.com with ESMTP id rs3si53373igb.2.2015.06.11.20.11.58
+        for <rtc-linux@googlegroups.com>;
+        Thu, 11 Jun 2015 20:11:59 -0700 (PDT)
+From: Xunlei Pang <xlpang@126.com>
+To: linux-kernel@vger.kernel.org
+Cc: rtc-linux@googlegroups.com,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	John Stultz <john.stultz@linaro.org>,
+	Arnd Bergmann <arnd@arndb.de>,
+	"David S. Miller" <davem@davemloft.net>,
+	sparclinux@vger.kernel.org,
+	Xunlei Pang <pang.xunlei@linaro.org>
+Subject: [rtc-linux] [PATCH v3 3/3] drivers/rtc/interface.c: Remove rtc_set_mmss()
+Date: Fri, 12 Jun 2015 11:10:18 +0800
+Message-Id: <1434078618-16373-3-git-send-email-xlpang@126.com>
+In-Reply-To: <1434078618-16373-1-git-send-email-xlpang@126.com>
+References: <1434078618-16373-1-git-send-email-xlpang@126.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -36,115 +30,97 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On Tue, 02 Jun 2015, Vaibhav Hiremath wrote:
-> On Tuesday 02 June 2015 01:10 PM, Lee Jones wrote:
-> >On Tue, 02 Jun 2015, Vaibhav Hiremath wrote:
-> >>On Monday 01 June 2015 01:52 PM, Lee Jones wrote:
-> >>>On Sat, 30 May 2015, Vaibhav Hiremath wrote:
-> >>>
-> >>>>RTC in pmic 88PM800 can run even the core is powered off, and user
-> >>>>can set alarm in RTC. When the alarm is timed out, the PMIC will powe=
-r up
-> >>>>the core, and the whole system will boot up. And during PMIC driver p=
-robe,
-> >>>>it will read some register to find out whether this boot is caused by=
- RTC
-> >>>>timeout or not, and pass on this information to the RTC driver.
-> >>>>
-> >>>>So we need rtc platform data to be existed in PMIC driver to pass thi=
-s
-> >>>>information.
-> >>>>
-> >>>>Signed-off-by: Chao Xie <chao.xie@marvell.com>
-> >>>>Signed-off-by: Vaibhav Hiremath <vaibhav.hiremath@linaro.org>
-> >>>>---
-> >>>>  drivers/mfd/88pm800.c | 19 +++++++++++++++++++
-> >>>>  1 file changed, 19 insertions(+)
-> >>>>
-> >>>>diff --git a/drivers/mfd/88pm800.c b/drivers/mfd/88pm800.c
-> >>>>index 8ea4467..34546a1 100644
-> >>>>--- a/drivers/mfd/88pm800.c
-> >>>>+++ b/drivers/mfd/88pm800.c
-> >>>>@@ -586,6 +586,25 @@ static int pm800_probe(struct i2c_client *client=
-,
-> >>>>  			return ret;
-> >>>>  	}
-> >>>>
-> >>>>+	/*
-> >>>>+	 * RTC in pmic can run even the core is powered off, and user can s=
-et
-> >>>>+	 * alarm in RTC. When the alarm is time out, the PMIC will power up
-> >>>>+	 * the core, and the whole system will boot up. When PMIC driver is
-> >>>>+	 * probed, it will read out some register to find out whether this
-> >>>>+	 * boot is caused by RTC timeout or not, and it need pass this
-> >>>>+	 * information to RTC driver.
-> >>>>+	 * So we need rtc platform data to be existed to pass this informat=
-ion.
-> >>>>+	 */
-> >>>>+	if (!pdata->rtc) {
-> >>>>+		pdata->rtc =3D devm_kzalloc(&client->dev,
-> >>>>+					  sizeof(*(pdata->rtc)), GFP_KERNEL);
-> >>>>+		if (!pdata->rtc) {
-> >>>>+			dev_err(&client->dev,
-> >>>>+					"failed to allocate memory for rtc\n");
-> >>>>+			return -ENOMEM;
-> >>>>+		}
-> >>>>+	}
-> >>>>+
-> >>>
-> >>>Where is this memory first used?
-> >>>
-> >>
-> >>In the same file, look for field "rtc_wakeup".
-> >>
-> >>FYI,
-> >>
-> >>This field is used in two files,
-> >>
-> >>drivers/mfd/88pm800.c
-> >>and
-> >>drivers/rtc/rtc-88pm800.c	[sets the "platform_data" field]
-> >
-> >Then were is the platform_data field subsequently used?
->=20
-> Currently not used, but it is for future use, where we would be
-> interested to know that the wakeup is really from reset or RTC wakeup.
+From: Xunlei Pang <pang.xunlei@linaro.org>
 
-Well it was introduced 3 years ago, so the chances of it being "used
-in the future" are probably pretty low.  Unless of course, you are
-planning on submitting that code.  In which case, you can add this
-patch to that set and I can re-review it then.
+Now rtc_set_mmss() has no users, just remove it.
 
-> >Looking at the RTC platform data declaration I see:
-> >
-> >struct pm80x_rtc_pdata {
-> >     int             vrtc;
-> >     int             rtc_wakeup;
-> >};
-> >
-> >Is 'vrtc' even used?  If so, where?
->=20
-> No, it is not.
+We still have rtc_set_time() doing similar things.
 
-So either submit a patch-set that makes use of them, or let me know
-that you're not going to do that and I'll remove it altogether.
-Likewise for rtc_wakeup.
+Signed-off-by: Xunlei Pang <pang.xunlei@linaro.org>
+---
+ drivers/rtc/interface.c | 45 ---------------------------------------------
+ include/linux/rtc.h     |  1 -
+ 2 files changed, 46 deletions(-)
 
---=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+diff --git a/drivers/rtc/interface.c b/drivers/rtc/interface.c
+index 166fc60..b511aa1 100644
+--- a/drivers/rtc/interface.c
++++ b/drivers/rtc/interface.c
+@@ -91,51 +91,6 @@ int rtc_set_time(struct rtc_device *rtc, struct rtc_time *tm)
+ }
+ EXPORT_SYMBOL_GPL(rtc_set_time);
+ 
+-int rtc_set_mmss(struct rtc_device *rtc, unsigned long secs)
+-{
+-	int err;
+-
+-	err = mutex_lock_interruptible(&rtc->ops_lock);
+-	if (err)
+-		return err;
+-
+-	if (!rtc->ops)
+-		err = -ENODEV;
+-	else if (rtc->ops->set_mmss64)
+-		err = rtc->ops->set_mmss64(rtc->dev.parent, secs);
+-	else if (rtc->ops->set_mmss)
+-		err = rtc->ops->set_mmss(rtc->dev.parent, secs);
+-	else if (rtc->ops->read_time && rtc->ops->set_time) {
+-		struct rtc_time new, old;
+-
+-		err = rtc->ops->read_time(rtc->dev.parent, &old);
+-		if (err == 0) {
+-			rtc_time64_to_tm(secs, &new);
+-
+-			/*
+-			 * avoid writing when we're going to change the day of
+-			 * the month. We will retry in the next minute. This
+-			 * basically means that if the RTC must not drift
+-			 * by more than 1 minute in 11 minutes.
+-			 */
+-			if (!((old.tm_hour == 23 && old.tm_min == 59) ||
+-				(new.tm_hour == 23 && new.tm_min == 59)))
+-				err = rtc->ops->set_time(rtc->dev.parent,
+-						&new);
+-		}
+-	} else {
+-		err = -EINVAL;
+-	}
+-
+-	pm_stay_awake(rtc->dev.parent);
+-	mutex_unlock(&rtc->ops_lock);
+-	/* A timer might have just expired */
+-	schedule_work(&rtc->irqwork);
+-
+-	return err;
+-}
+-EXPORT_SYMBOL_GPL(rtc_set_mmss);
+-
+ static int rtc_read_alarm_internal(struct rtc_device *rtc, struct rtc_wkalrm *alarm)
+ {
+ 	int err;
+diff --git a/include/linux/rtc.h b/include/linux/rtc.h
+index f46f765..f9c76a8 100644
+--- a/include/linux/rtc.h
++++ b/include/linux/rtc.h
+@@ -169,7 +169,6 @@ extern void devm_rtc_device_unregister(struct device *dev,
+ 
+ extern int rtc_read_time(struct rtc_device *rtc, struct rtc_time *tm);
+ extern int rtc_set_time(struct rtc_device *rtc, struct rtc_time *tm);
+-extern int rtc_set_mmss(struct rtc_device *rtc, unsigned long secs);
+ extern int rtc_set_ntp_time(struct timespec64 now);
+ int __rtc_read_alarm(struct rtc_device *rtc, struct rtc_wkalrm *alarm);
+ extern int rtc_read_alarm(struct rtc_device *rtc,
+-- 
+1.9.1
 
---=20
---=20
+
+-- 
+-- 
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
----=20
-You received this message because you are subscribed to the Google Groups "=
-rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an e=
-mail to rtc-linux+unsubscribe@googlegroups.com.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
