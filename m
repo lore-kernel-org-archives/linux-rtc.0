@@ -1,72 +1,57 @@
-Return-Path: <robert.jarzmik@free.fr>
-From: Robert Jarzmik <robert.jarzmik@free.fr>
-To: Rob Herring <robh@kernel.org>
-Cc: Russell King <linux@arm.linux.org.uk>,  Alexandre Belloni <alexandre.belloni@free-electrons.com>,  Eric Miao <eric.y.miao@gmail.com>,  Haojian Zhuang <haojian.zhuang@gmail.com>,  Alessandro Zummo <a.zummo@towertech.it>,  rtc-linux@googlegroups.com,  Arnd Bergmann <arnd@arndb.de>,  "linux-arm-kernel\@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
-Subject: Re: [PATCH v4 0/6] SA1100/PXA RTC clean-up
-References: <1431529350-4597-1-git-send-email-robh@kernel.org>
-	<87pp62jdpj.fsf@belgarion.home>
-	<CAL_JsqJ-VMQHXFF9Gxf5mmPjYXZ6gyktYFjgvxAHRx-Kmuoq8A@mail.gmail.com>
-	<877fs5k9ps.fsf@belgarion.home>
-	<CAL_JsqKWNNH4stY+CNtKCiE7qcwDYaxZc36-iqqe1ddmG82g1Q@mail.gmail.com>
-	<871thq54c7.fsf@belgarion.home>
-	<CAL_JsqJnj+JLFoUmE6COqhr83_H0n1=Bdk_wYnMZEzsZRu=aew@mail.gmail.com>
-Date: Sat, 06 Jun 2015 23:25:25 +0200
-In-Reply-To: <CAL_JsqJnj+JLFoUmE6COqhr83_H0n1=Bdk_wYnMZEzsZRu=aew@mail.gmail.com>
-	(Rob Herring's message of "Fri, 5 Jun 2015 16:28:00 -0500")
-Message-ID: <87wpzg4ji2.fsf@belgarion.home>
-MIME-Version: 1.0
-Content-Type: text/plain
+Return-Path: <xlpang@126.com>
+From: Xunlei Pang <xlpang@126.com>
+To: linux-kernel@vger.kernel.org
+Cc: rtc-linux@googlegroups.com,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	John Stultz <john.stultz@linaro.org>,
+	Arnd Bergmann <arnd@arndb.de>,
+	Xunlei Pang <pang.xunlei@linaro.org>
+Subject: [PATCH v3 1/4] drivers/rtc/pcf8563: Replace deprecated rtc_time_to_tm() and rtc_tm_to_time()
+Date: Fri, 12 Jun 2015 10:04:09 +0800
+Message-Id: <1434074652-16054-1-git-send-email-xlpang@126.com>
 List-ID: <rtc-linux.googlegroups.com>
 
-Rob Herring <robh@kernel.org> writes:
+From: Xunlei Pang <pang.xunlei@linaro.org>
 
->>>>  - you explain in the commit message that from a userland perspective, nothing
->>>>    changes, except that the RTC IP will change, and any dependency on a
->>>
->>> The IP does not change here. rtc0 is still going to be the SA1100 RTC
->>> being registered first. The only change will be the addition of rtc1.
->> For boards which were only using rtc-pxa.c (as mioa701 for example), they relied
->> on the fact that rtc0 == pxa_rtc. Their time is stored in PXA IP. Therefore,
->> each of their hwclock will end up on sa1100-rtc instead of pxa-rtc.
->>
->> So for these boards, ie. for all boards where only rtc-pxa.c was used, the IP
->> addressed changes from a casual userspace perspective.
->
-> Okay, so this is the case where the time will be wrong.
->
-> I could remove the select of the sa1100-rtc and do an empty function
-> for sa1100_rtc_init. This would preserve current behavior.
-Please don't. I only ask for a sentence in the commit message.
+pcf8563_rtc_set_alarm() uses deprecated rtc_tm_to_time()
+and rtc_time_to_tm(), which will overflow in year 2106
+on 32-bit machines.
 
->>>>    bootloader fidling with RTC should be considered as a source of regression.
->>>
->>> I'm not sure that I follow.
->> Let's talk about how a double boot windows + linux box works.
->> The bootloader ensures that :
->>  - sa1100-rtc holds the number of seconds since the OS start (think jiffies)
->>  - pxa-rtc holds the wall clock time
->>
->> Upon each reboot, sa1100-rtc is checked to see how much time has passed. If an
->> "oustanding number" is detected, for example 10 years, the firmware resets the
->> data partition.
->>
->> Now think what will happen when this change will be commited, upon the first
->> reboot after the linux kernel has change sa1100-rtc time.
->
-> That would be bad. But on these platforms, the kernel has been using
-> both RTCs right? Presumably on platforms only using 1 of the RTCs, the
-> bootloader does not touch the RTCs.
-No, the kernel has been using only pxa-rtc. The sa1100-rtc is not used, and yet
-it accounts the passed time in it.
+This patch solves this by:
+ - Replacing rtc_time_to_tm() with rtc_time64_to_tm()
+ - Replacing rtc_tm_to_time() with rtc_tm_to_time64()
 
-On platforms where all the OSes use only 1 RTC, the bootloader only touches one
-RTC, that's correct. Or said differently : the bootloader touches the union of
-all the RTCs the OSes it launches do touch.
+Acked-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Xunlei Pang <pang.xunlei@linaro.org>
+---
+v2->v3:
+no changes.
 
->> All of this to say maintainers should be forwarned at least. After that, up to
->> them to react.
+ drivers/rtc/rtc-pcf8563.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-Cheers.
-
+diff --git a/drivers/rtc/rtc-pcf8563.c b/drivers/rtc/rtc-pcf8563.c
+index 0ba7e59..5f87f84 100644
+--- a/drivers/rtc/rtc-pcf8563.c
++++ b/drivers/rtc/rtc-pcf8563.c
+@@ -363,13 +363,13 @@ static int pcf8563_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *tm)
+ 	struct i2c_client *client = to_i2c_client(dev);
+ 	unsigned char buf[4];
+ 	int err;
+-	unsigned long alarm_time;
+ 
+ 	/* The alarm has no seconds, round up to nearest minute */
+ 	if (tm->time.tm_sec) {
+-		rtc_tm_to_time(&tm->time, &alarm_time);
+-		alarm_time += 60-tm->time.tm_sec;
+-		rtc_time_to_tm(alarm_time, &tm->time);
++		time64_t alarm_time = rtc_tm_to_time64(&tm->time);
++
++		alarm_time += 60 - tm->time.tm_sec;
++		rtc_time64_to_tm(alarm_time, &tm->time);
+ 	}
+ 
+ 	dev_dbg(dev, "%s, min=%d hour=%d wday=%d mday=%d "
 -- 
-Robert
+1.9.1
