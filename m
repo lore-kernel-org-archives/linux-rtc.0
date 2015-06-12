@@ -1,27 +1,23 @@
-Return-Path: <rtc-linux+bncBCAJFDXE4QGBBSFA36VQKGQEFU3VAIQ@googlegroups.com>
-Received: from mail-wi0-x233.google.com (mail-wi0-x233.google.com. [2a00:1450:400c:c05::233])
-        by gmr-mx.google.com with ESMTPS id k2si195241wif.0.2015.06.09.22.51.03
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 09 Jun 2015 22:51:03 -0700 (PDT)
-Received: by mail-wi0-x233.google.com with SMTP id ut5so36756750wib.1
-        for <rtc-linux@googlegroups.com>; Tue, 09 Jun 2015 22:51:03 -0700 (PDT)
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBA5X5KVQKGQEPGL6YFY@googlegroups.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id t6si88391wiz.0.2015.06.12.01.42.43
+        for <rtc-linux@googlegroups.com>;
+        Fri, 12 Jun 2015 01:42:43 -0700 (PDT)
+Date: Fri, 12 Jun 2015 10:42:38 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Xunlei Pang <xlpang@126.com>, "David S. Miller" <davem@davemloft.net>
+Cc: linux-kernel@vger.kernel.org, rtc-linux@googlegroups.com,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	John Stultz <john.stultz@linaro.org>, Arnd Bergmann <arnd@arndb.de>,
+	sparclinux@vger.kernel.org, Xunlei Pang <pang.xunlei@linaro.org>
+Subject: [rtc-linux] Re: [PATCH v3 2/3] sparc: time: Replace
+ update_persistent_clock() with CONFIG_RTC_SYSTOHC
+Message-ID: <20150612084238.GE3890@piout.net>
+References: <1434078618-16373-1-git-send-email-xlpang@126.com>
+ <1434078618-16373-2-git-send-email-xlpang@126.com>
 MIME-Version: 1.0
-In-Reply-To: <1433845413-13960-2-git-send-email-adrianhuang0701@gmail.com>
-References: <1433845413-13960-1-git-send-email-adrianhuang0701@gmail.com>
-	<1433845413-13960-2-git-send-email-adrianhuang0701@gmail.com>
-Date: Wed, 10 Jun 2015 13:51:03 +0800
-Message-ID: <CAHKZfL3ne3m-O0oRyD-Lfjq_BCX5B8JzB7dUuE1yrF0Zp0eaTg@mail.gmail.com>
-Subject: [rtc-linux] Re: [RFC PATCH v2 1/2] rtc-cmos: Clear interrupt flag if
- alarm time is
-From: Huang Adrian <adrianhuang0701@gmail.com>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com
-Cc: Borislav Petkov <bp@suse.de>, Thomas Gleixner <tglx@linutronix.de>, John Stultz <john.stultz@linaro.org>,
-	Diego Ercolani <diego.ercolani@gmail.com>, Egbert Eich <eich@suse.com>, Max Asbock <amax@lenovo.com>,
-	Nagananda Chumbalkar <nchumbalkar@lenovo.com>, Adrian Huang <ahuang12@lenovo.com>,
-	Adrian Huang <adrianhuang0701@gmail.com>
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1434078618-16373-2-git-send-email-xlpang@126.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -32,134 +28,138 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Hi Alexandre,
+Dave,
 
-This reworked patch is based on your suggestion. Could you kindly
-review it? If it looks good to you, I'll ask Borislav, Diego and
-Egbert a favor for testing.
+I would like to take that patch as part of the series once you have
+acked it.
 
-Thanks in advance.
-
--- Adrian
-
+On 12/06/2015 at 11:10:17 +0800, Xunlei Pang wrote :
+> From: Xunlei Pang <pang.xunlei@linaro.org>
+> 
+> On Sparc systems, update_persistent_clock() uses RTC drivers to do
+> the job, it makes more sense to hand it over to CONFIG_RTC_SYSTOHC.
+> 
+> In the long run, all the update_persistent_clock() should migrate to
+> proper class RTC drivers if any and use CONFIG_RTC_SYSTOHC instead.
+> 
+> Signed-off-by: Xunlei Pang <pang.xunlei@linaro.org>
 > ---
->  drivers/rtc/rtc-cmos.c | 65 ++++++++++++++++++++++++++++++++++++++++++++++----
->  1 file changed, 60 insertions(+), 5 deletions(-)
->
-> diff --git a/drivers/rtc/rtc-cmos.c b/drivers/rtc/rtc-cmos.c
-> index a82556a..4e60ac8 100644
-> --- a/drivers/rtc/rtc-cmos.c
-> +++ b/drivers/rtc/rtc-cmos.c
-> @@ -51,6 +51,7 @@ struct cmos_rtc {
->         struct device           *dev;
->         int                     irq;
->         struct resource         *iomem;
-> +       time64_t                alarm_expires;
->
->         void                    (*wake_on)(struct device *);
->         void                    (*wake_off)(struct device *);
-> @@ -377,6 +378,8 @@ static int cmos_set_alarm(struct device *dev, struct rtc_wkalrm *t)
->
->         spin_unlock_irq(&rtc_lock);
->
-> +       cmos->alarm_expires = rtc_tm_to_time64(&t->time);
-> +
->         return 0;
->  }
->
-> @@ -588,7 +591,7 @@ static struct bin_attribute nvram = {
->
->  /*----------------------------------------------------------------*/
->
-> -static struct cmos_rtc cmos_rtc;
-> +static struct cmos_rtc cmos_rtc = { .alarm_expires = 0 };
->
->  static irqreturn_t cmos_interrupt(int irq, void *p)
+>  arch/sparc/Kconfig          |  2 +-
+>  arch/sparc/kernel/time_32.c | 21 ---------------------
+>  arch/sparc/kernel/time_64.c | 14 --------------
+>  3 files changed, 1 insertion(+), 36 deletions(-)
+> 
+> diff --git a/arch/sparc/Kconfig b/arch/sparc/Kconfig
+> index e49502a..56442d2 100644
+> --- a/arch/sparc/Kconfig
+> +++ b/arch/sparc/Kconfig
+> @@ -25,6 +25,7 @@ config SPARC
+>  	select ARCH_HAS_ATOMIC64_DEC_IF_POSITIVE
+>  	select RTC_CLASS
+>  	select RTC_DRV_M48T59
+> +	select RTC_SYSTOHC
+>  	select HAVE_DMA_ATTRS
+>  	select HAVE_DMA_API_DEBUG
+>  	select HAVE_ARCH_JUMP_LABEL if SPARC64
+> @@ -35,7 +36,6 @@ config SPARC
+>  	select HAVE_BPF_JIT
+>  	select HAVE_DEBUG_BUGVERBOSE
+>  	select GENERIC_SMP_IDLE_THREAD
+> -	select GENERIC_CMOS_UPDATE
+>  	select GENERIC_CLOCKEVENTS
+>  	select GENERIC_STRNCPY_FROM_USER
+>  	select GENERIC_STRNLEN_USER
+> diff --git a/arch/sparc/kernel/time_32.c b/arch/sparc/kernel/time_32.c
+> index 8caf45e..c9692f3 100644
+> --- a/arch/sparc/kernel/time_32.c
+> +++ b/arch/sparc/kernel/time_32.c
+> @@ -23,7 +23,6 @@
+>  #include <linux/mm.h>
+>  #include <linux/interrupt.h>
+>  #include <linux/time.h>
+> -#include <linux/rtc.h>
+>  #include <linux/rtc/m48t59.h>
+>  #include <linux/timex.h>
+>  #include <linux/clocksource.h>
+> @@ -65,8 +64,6 @@ DEFINE_PER_CPU(struct clock_event_device, sparc32_clockevent);
+>  DEFINE_SPINLOCK(rtc_lock);
+>  EXPORT_SYMBOL(rtc_lock);
+>  
+> -static int set_rtc_mmss(unsigned long);
+> -
+>  unsigned long profile_pc(struct pt_regs *regs)
 >  {
-> @@ -860,6 +863,52 @@ static void __exit cmos_do_remove(struct device *dev)
->         cmos->dev = NULL;
+>  	extern char __copy_user_begin[], __copy_user_end[];
+> @@ -87,11 +84,6 @@ EXPORT_SYMBOL(profile_pc);
+>  
+>  volatile u32 __iomem *master_l10_counter;
+>  
+> -int update_persistent_clock(struct timespec now)
+> -{
+> -	return set_rtc_mmss(now.tv_sec);
+> -}
+> -
+>  irqreturn_t notrace timer_interrupt(int dummy, void *dev_id)
+>  {
+>  	if (timer_cs_enabled) {
+> @@ -362,16 +354,3 @@ void __init time_init(void)
+>  		sbus_time_init();
 >  }
->
-> +static int cmos_aie_poweroff(struct device *dev)
-> +{
-> +       struct cmos_rtc *cmos = dev_get_drvdata(dev);
-> +       struct rtc_time now;
-> +       int err;
-> +       time64_t t_now;
-> +       unsigned char rtc_control;
-> +
-> +       if (!cmos->alarm_expires)
-> +               return -EINVAL;
-> +
-> +       spin_lock_irq(&rtc_lock);
-> +       rtc_control = CMOS_READ(RTC_CONTROL);
-> +       spin_unlock_irq(&rtc_lock);
-> +
-> +       /* We only care about the situation where AIE is disabled. */
-> +       if (rtc_control & RTC_AIE)
-> +               return -EBUSY;
-> +
-> +       err = cmos_read_time(dev, &now);
-> +       if (err < 0)
-> +               return err;
-> +       t_now = rtc_tm_to_time64(&now);
-> +
-> +       /*
-> +        * When enabling "RTC wake-up" in BIOS setup, the machine reboots
-> +        * automatically right after shutdown on some buggy boxes.
-> +        * This automatic rebooting issue won't happen when the alarm
-> +        * time is larger than now+1 seconds.
-> +        *
-> +        * If the alarm time is equal to now+1 seconds, we need to wait
-> +        * for 1 second so that AF is set by CMOS hardware. Therefore, we
-> +        * can get a chance to clear AF in cmos_do_shutdown().
-> +        *
-> +        * If the alarm time is less equal to 'now', the function simply
-> +        * returns '0' so that we can get a chance to clear AF in
-> +        * cmos_do_shutdown().
-> +        */
-> +       if (cmos->alarm_expires > (t_now + 1))
-> +               return -EBUSY;
-> +       else if (cmos->alarm_expires == (t_now + 1))
-> +               msleep(1000);
-> +
-> +       return 0;
-> +}
-> +
->  #ifdef CONFIG_PM
->
->  static int cmos_suspend(struct device *dev)
-> @@ -1094,8 +1143,11 @@ static void cmos_pnp_shutdown(struct pnp_dev *pnp)
->         struct device *dev = &pnp->dev;
->         struct cmos_rtc *cmos = dev_get_drvdata(dev);
->
-> -       if (system_state == SYSTEM_POWER_OFF && !cmos_poweroff(dev))
-> -               return;
-> +       if (system_state == SYSTEM_POWER_OFF) {
-> +               cmos_poweroff(dev);
-> +               if (cmos_aie_poweroff(dev) < 0)
-> +                       return;
-> +       }
->
->         cmos_do_shutdown(cmos->irq);
->  }
-> @@ -1200,8 +1252,11 @@ static void cmos_platform_shutdown(struct platform_device *pdev)
->         struct device *dev = &pdev->dev;
->         struct cmos_rtc *cmos = dev_get_drvdata(dev);
->
-> -       if (system_state == SYSTEM_POWER_OFF && !cmos_poweroff(dev))
-> -               return;
-> +       if (system_state == SYSTEM_POWER_OFF) {
-> +               cmos_poweroff(dev);
-> +               if (cmos_aie_poweroff(dev) < 0)
-> +                       return;
-> +       }
->
->         cmos_do_shutdown(cmos->irq);
->  }
-> --
+>  
+> -
+> -static int set_rtc_mmss(unsigned long secs)
+> -{
+> -	struct rtc_device *rtc = rtc_class_open("rtc0");
+> -	int err = -1;
+> -
+> -	if (rtc) {
+> -		err = rtc_set_mmss(rtc, secs);
+> -		rtc_class_close(rtc);
+> -	}
+> -
+> -	return err;
+> -}
+> diff --git a/arch/sparc/kernel/time_64.c b/arch/sparc/kernel/time_64.c
+> index edbbeb1..2e6035c 100644
+> --- a/arch/sparc/kernel/time_64.c
+> +++ b/arch/sparc/kernel/time_64.c
+> @@ -28,7 +28,6 @@
+>  #include <linux/cpufreq.h>
+>  #include <linux/percpu.h>
+>  #include <linux/miscdevice.h>
+> -#include <linux/rtc.h>
+>  #include <linux/rtc/m48t59.h>
+>  #include <linux/kernel_stat.h>
+>  #include <linux/clockchips.h>
+> @@ -394,19 +393,6 @@ static struct sparc64_tick_ops hbtick_operations __read_mostly = {
+>  
+>  static unsigned long timer_ticks_per_nsec_quotient __read_mostly;
+>  
+> -int update_persistent_clock(struct timespec now)
+> -{
+> -	struct rtc_device *rtc = rtc_class_open("rtc0");
+> -	int err = -1;
+> -
+> -	if (rtc) {
+> -		err = rtc_set_mmss(rtc, now.tv_sec);
+> -		rtc_class_close(rtc);
+> -	}
+> -
+> -	return err;
+> -}
+> -
+>  unsigned long cmos_regs;
+>  EXPORT_SYMBOL(cmos_regs);
+>  
+> -- 
 > 1.9.1
->
+> 
+> 
+
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
 -- 
 -- 
