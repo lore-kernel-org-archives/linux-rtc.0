@@ -1,30 +1,24 @@
-Return-Path: <rtc-linux+bncBCXJ7O7L3INRB4EIZKWAKGQEKN333VA@googlegroups.com>
-Received: from mx2.suse.de (cantor2.suse.de. [195.135.220.15])
-        by gmr-mx.google.com with ESMTPS id da3si599393wib.1.2015.06.30.04.58.40
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1 cipher=ECDHE-RSA-RC4-SHA bits=128/128);
-        Tue, 30 Jun 2015 04:58:40 -0700 (PDT)
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBJWB6CVQKGQEPNPJAUA@googlegroups.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id q10si230023wiz.0.2015.06.13.05.23.02
+        for <rtc-linux@googlegroups.com>;
+        Sat, 13 Jun 2015 05:23:02 -0700 (PDT)
+Date: Sat, 13 Jun 2015 14:23:01 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Xunlei Pang <xlpang@126.com>
+Cc: linux-kernel@vger.kernel.org, rtc-linux@googlegroups.com,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	John Stultz <john.stultz@linaro.org>, Arnd Bergmann <arnd@arndb.de>,
+	"David S. Miller" <davem@davemloft.net>, sparclinux@vger.kernel.org,
+	Xunlei Pang <pang.xunlei@linaro.org>,
+	Paul Bolle <pebolle@tiscali.nl>
+Subject: [rtc-linux] Re: [PATCH v3 1/3] NTP: rtc: Add CONFIG_RTC_SYSTOHC_DEVICE
+ for NTP synchronization
+Message-ID: <20150613122301.GI3890@piout.net>
+References: <1434078618-16373-1-git-send-email-xlpang@126.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Message-ID: <21906.33882.783551.610854@linux-qknr.fritz.box>
-Date: Tue, 30 Jun 2015 13:58:18 +0200
-From: Egbert Eich <eich@suse.com>
-To: Adrian Huang <adrianhuang0701@gmail.com>
-Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-    Alessandro Zummo <a.zummo@towertech.it>,
-    rtc-linux@googlegroups.com,
-    Borislav Petkov <bp@suse.de>,
-    Thomas Gleixner <tglx@linutronix.de>,
-    John Stultz <john.stultz@linaro.org>,
-    Egbert Eich <eich@suse.com>,
-    Diego Ercolani <diego.ercolani@gmail.com>,
-    Nagananda Chumbalkar <nchumbalkar@lenovo.com>,
-    Max Asbock <amax@lenovo.com>,
-    Adrian Huang <ahuang12@lenovo.com>
-Subject: [rtc-linux] Re: [RFC PATCH v3 0/2] rtc: Prevent the automatic reboot
- after powering off the system
-In-Reply-To: adrianhuang0701@gmail.com wrote on Tuesday, 30 June 2015 at 13:36:36 +0800
-References: <1435642598-5073-1-git-send-email-adrianhuang0701@gmail.com>
+In-Reply-To: <1434078618-16373-1-git-send-email-xlpang@126.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -35,20 +29,24 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Adrian Huang writes:
- > Changes from v2:
- >   * Drop the approach "Clear interrupt flag if alarm time is less
- >     equal to now+1". Instead, cancel the alarm if the configured 
- >     alarm time is equal to now+1 seconds. (Suggested by Alexandre)
+Hi,
 
-Adrian,
+On 12/06/2015 at 11:10:16 +0800, Xunlei Pang wrote :
+> +config RTC_SYSTOHC_DEVICE
+> +	string "RTC used to synchronize NTP adjustment"
+> +	depends on RTC_SYSTOHC
+> +	default RTC_HCTOSYS_DEVICE
 
-I've tested this, it works for me. Thanks!
+Actually, I forgot one case so I changed it to:
++       default RTC_HCTOSYS_DEVICE if RTC_HCTOSYS
++       default "rtc0"
 
-Tested-by: Egbert Eich <eich@suse.de>
+I applied both series, thanks.
 
-Cheers,
-	Egbert.
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
 -- 
 -- 
