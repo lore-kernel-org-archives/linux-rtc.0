@@ -1,31 +1,18 @@
-Return-Path: <rtc-linux+bncBCV6LFM5RQJRBMVSY2VQKGQE5MAHR7A@googlegroups.com>
+Return-Path: <rtc-linux+bncBDHPTCWTXEHRBN4O6CVQKGQEC6CPUCA@googlegroups.com>
+Received: from gloria.sntech.de (gloria.sntech.de. [95.129.55.99])
+        by gmr-mx.google.com with ESMTPS id q10si217901wiz.0.2015.06.13.03.34.30
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1.2 cipher=RC4-SHA bits=128/128);
+        Sat, 13 Jun 2015 03:34:30 -0700 (PDT)
+From: Heiko =?ISO-8859-1?Q?St=FCbner?= <heiko@sntech.de>
+To: Alessandro Zummo <a.zummo@towertech.it>, Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, rtc-linux@googlegroups.com, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [rtc-linux] [PATCH] rtc: hym8563: make the irq optional
+Date: Sat, 13 Jun 2015 12:34:04 +0200
+Message-ID: <2559079.JyXCpe7EYV@diego>
 MIME-Version: 1.0
-Received: from mga14.intel.com (mga14.intel.com. [192.55.52.115])
-        by gmr-mx.google.com with ESMTP id x3si775551pdh.2.2015.06.05.05.42.25
-        for <rtc-linux@googlegroups.com>;
-        Fri, 05 Jun 2015 05:42:25 -0700 (PDT)
-From: Octavian Purdila <octavian.purdila@intel.com>
-To: Linus Walleij <linus.walleij@linaro.org>
-Cc: Mika Westerberg <mika.westerberg@linux.intel.com>,
-	Jonathan Cameron <jic23@kernel.org>,
-	Hartmut Knaack <knaack.h@gmx.de>,
-	Lars-Peter Clausen <lars@metafoo.de>,
-	Peter Meerwald <pmeerw@pmeerw.net>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
-	linux-iio@vger.kernel.org,
-	rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org,
-	Octavian Purdila <octavian.purdila@intel.com>
-Subject: [rtc-linux] [PATCH v2 1/2] iio: fix drivers that consider 0 as a
- valid IRQ in client->irq
-Date: Fri,  5 Jun 2015 15:41:57 +0300
-Message-Id: <1433508118-3938-2-git-send-email-octavian.purdila@intel.com>
-In-Reply-To: <1433508118-3938-1-git-send-email-octavian.purdila@intel.com>
-References: <1433508118-3938-1-git-send-email-octavian.purdila@intel.com>
-Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -35,101 +22,65 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Since patch "i2c / ACPI: Use 0 to indicate that device does not have
-interrupt assigned" [1], 0 is not a valid i2c client irq anymore, so
-change all driver's checks accordingly.
+Sometimes the irq line is not connected to any soc-pin. This does
+not hinder basic timekeeping functionality of the rtc, so probe
+should not fail in this case.
 
-The same issue occurs when the device is instantiated via device tree
-with no IRQ, or from the i2c sysfs interface, even before the patch
-above.
-
-[1] https://lkml.org/lkml/2015/5/6/279
-
-Signed-off-by: Octavian Purdila <octavian.purdila@intel.com>
-Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
 ---
- drivers/iio/accel/bmc150-accel.c | 2 +-
- drivers/iio/accel/kxcjk-1013.c   | 2 +-
- drivers/iio/accel/mma9553.c      | 2 +-
- drivers/iio/imu/kmx61.c          | 8 ++++----
- 4 files changed, 7 insertions(+), 7 deletions(-)
+ .../devicetree/bindings/rtc/haoyu,hym8563.txt          |  2 +-
+ drivers/rtc/rtc-hym8563.c                              | 18 ++++++++++--------
+ 2 files changed, 11 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/iio/accel/bmc150-accel.c b/drivers/iio/accel/bmc150-accel.c
-index 4e70f51..55751d9 100644
---- a/drivers/iio/accel/bmc150-accel.c
-+++ b/drivers/iio/accel/bmc150-accel.c
-@@ -1663,7 +1663,7 @@ static int bmc150_accel_probe(struct i2c_client *client,
- 	if (client->irq < 0)
- 		client->irq = bmc150_accel_gpio_probe(client, data);
+diff --git a/Documentation/devicetree/bindings/rtc/haoyu,hym8563.txt b/Documentation/devicetree/bindings/rtc/haoyu,hym8563.txt
+index 5c199ee..a8934fe 100644
+--- a/Documentation/devicetree/bindings/rtc/haoyu,hym8563.txt
++++ b/Documentation/devicetree/bindings/rtc/haoyu,hym8563.txt
+@@ -6,11 +6,11 @@ as well as a clock output of up to 32kHz.
+ Required properties:
+ - compatible: should be: "haoyu,hym8563"
+ - reg: i2c address
+-- interrupts: rtc alarm/event interrupt
+ - #clock-cells: the value should be 0
  
--	if (client->irq >= 0) {
-+	if (client->irq > 0) {
- 		ret = devm_request_threaded_irq(
- 						&client->dev, client->irq,
- 						bmc150_accel_irq_handler,
-diff --git a/drivers/iio/accel/kxcjk-1013.c b/drivers/iio/accel/kxcjk-1013.c
-index 0d9bd35..aa93cbd 100644
---- a/drivers/iio/accel/kxcjk-1013.c
-+++ b/drivers/iio/accel/kxcjk-1013.c
-@@ -1243,7 +1243,7 @@ static int kxcjk1013_probe(struct i2c_client *client,
- 	if (client->irq < 0)
- 		client->irq = kxcjk1013_gpio_probe(client, data);
+ Optional properties:
+ - clock-output-names: From common clock binding
++- interrupts: rtc alarm/event interrupt
  
--	if (client->irq >= 0) {
-+	if (client->irq > 0) {
- 		ret = devm_request_threaded_irq(&client->dev, client->irq,
- 						kxcjk1013_data_rdy_trig_poll,
- 						kxcjk1013_event_handler,
-diff --git a/drivers/iio/accel/mma9553.c b/drivers/iio/accel/mma9553.c
-index 9d649c4..df043b3 100644
---- a/drivers/iio/accel/mma9553.c
-+++ b/drivers/iio/accel/mma9553.c
-@@ -1143,7 +1143,7 @@ static int mma9553_probe(struct i2c_client *client,
- 	if (client->irq < 0)
- 		client->irq = mma9553_gpio_probe(client);
+ Example:
  
--	if (client->irq >= 0) {
-+	if (client->irq > 0) {
- 		ret = devm_request_threaded_irq(&client->dev, client->irq,
- 						mma9553_irq_handler,
- 						mma9553_event_handler,
-diff --git a/drivers/iio/imu/kmx61.c b/drivers/iio/imu/kmx61.c
-index 462a010..82cdf50 100644
---- a/drivers/iio/imu/kmx61.c
-+++ b/drivers/iio/imu/kmx61.c
-@@ -1363,7 +1363,7 @@ static int kmx61_probe(struct i2c_client *client,
- 	if (client->irq < 0)
- 		client->irq = kmx61_gpio_probe(client, data);
+diff --git a/drivers/rtc/rtc-hym8563.c b/drivers/rtc/rtc-hym8563.c
+index 0f710e9..e9da795 100644
+--- a/drivers/rtc/rtc-hym8563.c
++++ b/drivers/rtc/rtc-hym8563.c
+@@ -548,14 +548,16 @@ static int hym8563_probe(struct i2c_client *client,
+ 		return ret;
+ 	}
  
--	if (client->irq >= 0) {
+-	ret = devm_request_threaded_irq(&client->dev, client->irq,
+-					NULL, hym8563_irq,
+-					IRQF_TRIGGER_LOW | IRQF_ONESHOT,
+-					client->name, hym8563);
+-	if (ret < 0) {
+-		dev_err(&client->dev, "irq %d request failed, %d\n",
+-			client->irq, ret);
+-		return ret;
 +	if (client->irq > 0) {
- 		ret = devm_request_threaded_irq(&client->dev, client->irq,
- 						kmx61_data_rdy_trig_poll,
- 						kmx61_event_handler,
-@@ -1445,10 +1445,10 @@ err_iio_unregister_mag:
- err_iio_unregister_acc:
- 	iio_device_unregister(data->acc_indio_dev);
- err_buffer_cleanup_mag:
--	if (client->irq >= 0)
-+	if (client->irq > 0)
- 		iio_triggered_buffer_cleanup(data->mag_indio_dev);
- err_buffer_cleanup_acc:
--	if (client->irq >= 0)
-+	if (client->irq > 0)
- 		iio_triggered_buffer_cleanup(data->acc_indio_dev);
- err_trigger_unregister_motion:
- 	iio_trigger_unregister(data->motion_trig);
-@@ -1472,7 +1472,7 @@ static int kmx61_remove(struct i2c_client *client)
- 	iio_device_unregister(data->acc_indio_dev);
- 	iio_device_unregister(data->mag_indio_dev);
++		ret = devm_request_threaded_irq(&client->dev, client->irq,
++						NULL, hym8563_irq,
++						IRQF_TRIGGER_LOW | IRQF_ONESHOT,
++						client->name, hym8563);
++		if (ret < 0) {
++			dev_err(&client->dev, "irq %d request failed, %d\n",
++				client->irq, ret);
++			return ret;
++		}
+ 	}
  
--	if (client->irq >= 0) {
-+	if (client->irq > 0) {
- 		iio_triggered_buffer_cleanup(data->acc_indio_dev);
- 		iio_triggered_buffer_cleanup(data->mag_indio_dev);
- 		iio_trigger_unregister(data->acc_dready_trig);
+ 	/* check state of calendar information */
 -- 
-1.9.1
+2.1.4
+
 
 -- 
 -- 
