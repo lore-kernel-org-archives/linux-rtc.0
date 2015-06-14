@@ -1,82 +1,109 @@
-Date: Mon, 8 Jun 2015 17:42:51 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: rnd4@dave-tech.it
-Cc: r.cerrato@til-technologies.fr, a.zummo@towertech.it,
-	rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org,
-	Andrea Scian <andrea.scian@dave.eu>
-Subject: Re: [rtc-linux] [PATCH] driver: rtc: pcf2127: use OFS flag to detect
- unreliable date and warn the user
-Message-ID: <20150608154251.GC5222@piout.net>
-References: <1432628260-24652-1-git-send-email-rnd4@dave-tech.it>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBPG366VQKGQER4KYBEA@googlegroups.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1432628260-24652-1-git-send-email-rnd4@dave-tech.it>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id t6si422313wiz.0.2015.06.14.14.10.20
+        for <rtc-linux@googlegroups.com>;
+        Sun, 14 Jun 2015 14:10:20 -0700 (PDT)
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: rtc-linux@googlegroups.com
+Cc: linux-kernel@vger.kernel.org,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Subject: [rtc-linux] [PATCH] rtc: remove useless I2C dependencies
+Date: Sun, 14 Jun 2015 23:08:18 +0200
+Message-Id: <1434316098-23568-1-git-send-email-alexandre.belloni@free-electrons.com>
+Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
+List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
+List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
+List-Archive: <http://groups.google.com/group/rtc-linux
+Sender: rtc-linux@googlegroups.com
+List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
+List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
+ <http://groups.google.com/group/rtc-linux/subscribe>
 
-Hi,
+Multiple options depend on I2C but are already under under if I2C. Remove
+those useless dependencies.
 
-This seems ok, a few comments below:
+Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+---
+ drivers/rtc/Kconfig | 10 +++-------
+ 1 file changed, 3 insertions(+), 7 deletions(-)
 
-On 26/05/2015 at 10:17:40 +0200, rnd4@dave-tech.it wrote :
-> From: Andrea Scian <andrea.scian@dave.eu>
-> 
-> I'm using PCF2127 in a custom ARM-based board and, by looking into PCF2127 datasheet 
-> I've found that, in my understanding, it's wrong to say that the date in unreliable
-> if BLF (battery low flag) is set but you should use OSF flag (seconds register) to
-> check if oscillator, for any reason, stopped.
-> Battery may be low (usually below 2V5 threshold) but the date may be anyway correct
-> (tipically date is unreliable when input voltage is below 1V2).
-
-typically -^
-
-> diff --git a/drivers/rtc/rtc-pcf2127.c b/drivers/rtc/rtc-pcf2127.c
-> index 1ee514a..2365788 100644
-> --- a/drivers/rtc/rtc-pcf2127.c
-> +++ b/drivers/rtc/rtc-pcf2127.c
-> @@ -59,7 +59,16 @@ static int pcf2127_get_datetime(struct i2c_client *client, struct rtc_time *tm)
->  	if (buf[PCF2127_REG_CTRL3] & 0x04) {
->  		pcf2127->voltage_low = 1;
->  		dev_info(&client->dev,
-> -			"low voltage detected, date/time is not reliable.\n");
-> +			"low voltage detected, check/replace RTC battery.\n");
-> +	}
-> +
-> +	if (buf[PCF2127_REG_SC] & 0x80) {
-
-Maybe use a define instead of 0x80, remember to use the BIT() macro.
-
-> +		dev_warn(&client->dev,
-> +			"oscillator stop detected, date/time is not reliable.\n");
-
-I would return -EINVAL here because the result might still pass
-rtc_valid_tm() but be outdated.
-
-> +		/*
-> +		 * no need clear the flag here,
-> +		 * it will be cleared once the new date is saved
-> +		 */
->  	}
->  
->  	dev_dbg(&client->dev,
-> @@ -112,7 +121,7 @@ static int pcf2127_set_datetime(struct i2c_client *client, struct rtc_time *tm)
->  	buf[i++] = PCF2127_REG_SC;
->  
->  	/* hours, minutes and seconds */
-> -	buf[i++] = bin2bcd(tm->tm_sec);
-> +	buf[i++] = bin2bcd(tm->tm_sec);	/* this will also clear OFS flag */
->  	buf[i++] = bin2bcd(tm->tm_min);
->  	buf[i++] = bin2bcd(tm->tm_hour);
->  	buf[i++] = bin2bcd(tm->tm_mday);
-> @@ -144,7 +153,7 @@ static int pcf2127_rtc_ioctl(struct device *dev,
->  	switch (cmd) {
->  	case RTC_VL_READ:
->  		if (pcf2127->voltage_low)
-> -			dev_info(dev, "low voltage detected, date/time is not reliable.\n");
-> +			dev_info(dev, "low voltage detected, check/replace battery\n");
-
-I would also print a warning about OFS here.
+diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
+index 23a5bcdf34ec..c904c0f9ed5f 100644
+--- a/drivers/rtc/Kconfig
++++ b/drivers/rtc/Kconfig
+@@ -146,7 +146,7 @@ if I2C
+ 
+ config RTC_DRV_88PM860X
+ 	tristate "Marvell 88PM860x"
+-	depends on I2C && MFD_88PM860X
++	depends on MFD_88PM860X
+ 	help
+ 	  If you say yes here you get support for RTC function in Marvell
+ 	  88PM860x chips.
+@@ -156,7 +156,7 @@ config RTC_DRV_88PM860X
+ 
+ config RTC_DRV_88PM80X
+ 	tristate "Marvell 88PM80x"
+-	depends on I2C && MFD_88PM800
++	depends on MFD_88PM800
+ 	help
+ 	  If you say yes here you get support for RTC function in Marvell
+ 	  88PM80x chips.
+@@ -165,7 +165,6 @@ config RTC_DRV_88PM80X
+ 	  will be called rtc-88pm80x.
+ 
+ config RTC_DRV_ABB5ZES3
+-	depends on I2C
+ 	select REGMAP_I2C
+ 	tristate "Abracon AB-RTCMC-32.768kHz-B5ZE-S3"
+ 	help
+@@ -205,7 +204,6 @@ config RTC_DRV_DS1307
+ 
+ config RTC_DRV_DS1374
+ 	tristate "Dallas/Maxim DS1374"
+-	depends on I2C
+ 	help
+ 	  If you say yes here you get support for Dallas Semiconductor
+ 	  DS1374 real-time clock chips. If an interrupt is associated
+@@ -233,7 +231,6 @@ config RTC_DRV_DS1672
+ 
+ config RTC_DRV_DS3232
+ 	tristate "Dallas/Maxim DS3232"
+-	depends on I2C
+ 	help
+ 	  If you say yes here you get support for Dallas Semiconductor
+ 	  DS3232 real-time clock chips. If an interrupt is associated
+@@ -244,7 +241,7 @@ config RTC_DRV_DS3232
+ 
+ config RTC_DRV_HYM8563
+ 	tristate "Haoyu Microelectronics HYM8563"
+-	depends on I2C && OF
++	depends on OF
+ 	help
+ 	  Say Y to enable support for the HYM8563 I2C RTC chip. Apart
+ 	  from the usual rtc functions it provides a clock output of
+@@ -366,7 +363,6 @@ config RTC_DRV_ISL12022
+ 	  will be called rtc-isl12022.
+ 
+ config RTC_DRV_ISL12057
+-	depends on I2C
+ 	select REGMAP_I2C
+ 	tristate "Intersil ISL12057"
+ 	help
+-- 
+2.1.4
 
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+-- 
+You received this message because you are subscribed to "rtc-linux".
+Membership options at http://groups.google.com/group/rtc-linux .
+Please read http://groups.google.com/group/rtc-linux/web/checklist
+before submitting a driver.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+For more options, visit https://groups.google.com/d/optout.
