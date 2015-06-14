@@ -1,23 +1,17 @@
-Return-Path: <rtc-linux+bncBCN6JTVP2IEBBO7IWWVQKGQE2WGTPFA@googlegroups.com>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBZGR66VQKGQEX2XZSNI@googlegroups.com>
 MIME-Version: 1.0
-Received: from m50-110.126.com (m50-110.126.com. [123.125.50.110])
-        by gmr-mx.google.com with ESMTP id x12si1132813igx.1.2015.06.02.02.15.38
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id gt9si398833wib.2.2015.06.14.13.49.39
         for <rtc-linux@googlegroups.com>;
-        Tue, 02 Jun 2015 02:15:39 -0700 (PDT)
-From: Xunlei Pang <xlpang@126.com>
-To: linux-kernel@vger.kernel.org
-Cc: rtc-linux@googlegroups.com,
+        Sun, 14 Jun 2015 13:49:39 -0700 (PDT)
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: rtc-linux@googlegroups.com
+Cc: linux-kernel@vger.kernel.org,
 	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	John Stultz <john.stultz@linaro.org>,
-	Arnd Bergmann <arnd@arndb.de>,
-	Xunlei Pang <pang.xunlei@linaro.org>
-Subject: [rtc-linux] [PATCH v2 2/4] sparc: time: Replace update_persistent_clock()
- with CONFIG_RTC_SYSTOHC
-Date: Tue,  2 Jun 2015 17:14:35 +0800
-Message-Id: <1433236477-1724-2-git-send-email-xlpang@126.com>
-In-Reply-To: <1433236477-1724-1-git-send-email-xlpang@126.com>
-References: <1433236477-1724-1-git-send-email-xlpang@126.com>
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Subject: [rtc-linux] [PATCH] rtc: Properly sort Makefile
+Date: Sun, 14 Jun 2015 22:49:37 +0200
+Message-Id: <1434314977-21686-1-git-send-email-alexandre.belloni@free-electrons.com>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -29,126 +23,121 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-From: Xunlei Pang <pang.xunlei@linaro.org>
+Properly sort the Makefile by filename
 
-On Sparc systems, update_persistent_clock() uses RTC drivers to do
-the job, it makes more sense to hand it over to CONFIG_RTC_SYSTOHC.
-
-In the long run, all the update_persistent_clock() should migrate to
-proper class RTC drivers if any and use CONFIG_RTC_SYSTOHC instead.
-
-Signed-off-by: Xunlei Pang <pang.xunlei@linaro.org>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
 ---
- arch/sparc/Kconfig          |  2 +-
- arch/sparc/kernel/time_32.c | 21 ---------------------
- arch/sparc/kernel/time_64.c | 14 --------------
- 3 files changed, 1 insertion(+), 36 deletions(-)
+ drivers/rtc/Makefile | 34 +++++++++++++++++-----------------
+ 1 file changed, 17 insertions(+), 17 deletions(-)
 
-diff --git a/arch/sparc/Kconfig b/arch/sparc/Kconfig
-index e49502a..56442d2 100644
---- a/arch/sparc/Kconfig
-+++ b/arch/sparc/Kconfig
-@@ -25,6 +25,7 @@ config SPARC
- 	select ARCH_HAS_ATOMIC64_DEC_IF_POSITIVE
- 	select RTC_CLASS
- 	select RTC_DRV_M48T59
-+	select RTC_SYSTOHC
- 	select HAVE_DMA_ATTRS
- 	select HAVE_DMA_API_DEBUG
- 	select HAVE_ARCH_JUMP_LABEL if SPARC64
-@@ -35,7 +36,6 @@ config SPARC
- 	select HAVE_BPF_JIT
- 	select HAVE_DEBUG_BUGVERBOSE
- 	select GENERIC_SMP_IDLE_THREAD
--	select GENERIC_CMOS_UPDATE
- 	select GENERIC_CLOCKEVENTS
- 	select GENERIC_STRNCPY_FROM_USER
- 	select GENERIC_STRNLEN_USER
-diff --git a/arch/sparc/kernel/time_32.c b/arch/sparc/kernel/time_32.c
-index 8caf45e..c9692f3 100644
---- a/arch/sparc/kernel/time_32.c
-+++ b/arch/sparc/kernel/time_32.c
-@@ -23,7 +23,6 @@
- #include <linux/mm.h>
- #include <linux/interrupt.h>
- #include <linux/time.h>
--#include <linux/rtc.h>
- #include <linux/rtc/m48t59.h>
- #include <linux/timex.h>
- #include <linux/clocksource.h>
-@@ -65,8 +64,6 @@ DEFINE_PER_CPU(struct clock_event_device, sparc32_clockevent);
- DEFINE_SPINLOCK(rtc_lock);
- EXPORT_SYMBOL(rtc_lock);
+diff --git a/drivers/rtc/Makefile b/drivers/rtc/Makefile
+index 8a71296b1637..41ec0388a1c3 100644
+--- a/drivers/rtc/Makefile
++++ b/drivers/rtc/Makefile
+@@ -20,8 +20,8 @@ rtc-core-$(CONFIG_RTC_INTF_SYSFS) += rtc-sysfs.o
  
--static int set_rtc_mmss(unsigned long);
--
- unsigned long profile_pc(struct pt_regs *regs)
- {
- 	extern char __copy_user_begin[], __copy_user_end[];
-@@ -87,11 +84,6 @@ EXPORT_SYMBOL(profile_pc);
+ # Keep the list ordered.
  
- volatile u32 __iomem *master_l10_counter;
- 
--int update_persistent_clock(struct timespec now)
--{
--	return set_rtc_mmss(now.tv_sec);
--}
--
- irqreturn_t notrace timer_interrupt(int dummy, void *dev_id)
- {
- 	if (timer_cs_enabled) {
-@@ -362,16 +354,3 @@ void __init time_init(void)
- 		sbus_time_init();
- }
- 
--
--static int set_rtc_mmss(unsigned long secs)
--{
--	struct rtc_device *rtc = rtc_class_open("rtc0");
--	int err = -1;
--
--	if (rtc) {
--		err = rtc_set_mmss(rtc, secs);
--		rtc_class_close(rtc);
--	}
--
--	return err;
--}
-diff --git a/arch/sparc/kernel/time_64.c b/arch/sparc/kernel/time_64.c
-index edbbeb1..2e6035c 100644
---- a/arch/sparc/kernel/time_64.c
-+++ b/arch/sparc/kernel/time_64.c
-@@ -28,7 +28,6 @@
- #include <linux/cpufreq.h>
- #include <linux/percpu.h>
- #include <linux/miscdevice.h>
--#include <linux/rtc.h>
- #include <linux/rtc/m48t59.h>
- #include <linux/kernel_stat.h>
- #include <linux/clockchips.h>
-@@ -394,19 +393,6 @@ static struct sparc64_tick_ops hbtick_operations __read_mostly = {
- 
- static unsigned long timer_ticks_per_nsec_quotient __read_mostly;
- 
--int update_persistent_clock(struct timespec now)
--{
--	struct rtc_device *rtc = rtc_class_open("rtc0");
--	int err = -1;
--
--	if (rtc) {
--		err = rtc_set_mmss(rtc, now.tv_sec);
--		rtc_class_close(rtc);
--	}
--
--	return err;
--}
--
- unsigned long cmos_regs;
- EXPORT_SYMBOL(cmos_regs);
- 
+-obj-$(CONFIG_RTC_DRV_88PM860X)  += rtc-88pm860x.o
+ obj-$(CONFIG_RTC_DRV_88PM80X)	+= rtc-88pm80x.o
++obj-$(CONFIG_RTC_DRV_88PM860X)  += rtc-88pm860x.o
+ obj-$(CONFIG_RTC_DRV_AB3100)	+= rtc-ab3100.o
+ obj-$(CONFIG_RTC_DRV_AB8500)	+= rtc-ab8500.o
+ obj-$(CONFIG_RTC_DRV_ABB5ZES3)	+= rtc-ab-b5ze-s3.o
+@@ -42,7 +42,6 @@ obj-$(CONFIG_RTC_DRV_DA9063)	+= rtc-da9063.o
+ obj-$(CONFIG_RTC_DRV_DAVINCI)	+= rtc-davinci.o
+ obj-$(CONFIG_RTC_DRV_DIGICOLOR)	+= rtc-digicolor.o
+ obj-$(CONFIG_RTC_DRV_DM355EVM)	+= rtc-dm355evm.o
+-obj-$(CONFIG_RTC_DRV_VRTC)	+= rtc-mrst.o
+ obj-$(CONFIG_RTC_DRV_DS1216)	+= rtc-ds1216.o
+ obj-$(CONFIG_RTC_DRV_DS1286)	+= rtc-ds1286.o
+ obj-$(CONFIG_RTC_DRV_DS1302)	+= rtc-ds1302.o
+@@ -69,9 +68,9 @@ obj-$(CONFIG_RTC_DRV_GENERIC)	+= rtc-generic.o
+ obj-$(CONFIG_RTC_DRV_HID_SENSOR_TIME) += rtc-hid-sensor-time.o
+ obj-$(CONFIG_RTC_DRV_HYM8563)	+= rtc-hym8563.o
+ obj-$(CONFIG_RTC_DRV_IMXDI)	+= rtc-imxdi.o
+-obj-$(CONFIG_RTC_DRV_ISL1208)	+= rtc-isl1208.o
+ obj-$(CONFIG_RTC_DRV_ISL12022)	+= rtc-isl12022.o
+ obj-$(CONFIG_RTC_DRV_ISL12057)	+= rtc-isl12057.o
++obj-$(CONFIG_RTC_DRV_ISL1208)	+= rtc-isl1208.o
+ obj-$(CONFIG_RTC_DRV_JZ4740)	+= rtc-jz4740.o
+ obj-$(CONFIG_RTC_DRV_LP8788)	+= rtc-lp8788.o
+ obj-$(CONFIG_RTC_DRV_LPC32XX)	+= rtc-lpc32xx.o
+@@ -82,32 +81,35 @@ obj-$(CONFIG_RTC_DRV_M41T94)	+= rtc-m41t94.o
+ obj-$(CONFIG_RTC_DRV_M48T35)	+= rtc-m48t35.o
+ obj-$(CONFIG_RTC_DRV_M48T59)	+= rtc-m48t59.o
+ obj-$(CONFIG_RTC_DRV_M48T86)	+= rtc-m48t86.o
+-obj-$(CONFIG_RTC_DRV_MXC)	+= rtc-mxc.o
+ obj-$(CONFIG_RTC_DRV_MAX6900)	+= rtc-max6900.o
+-obj-$(CONFIG_RTC_DRV_MAX8907)	+= rtc-max8907.o
+-obj-$(CONFIG_RTC_DRV_MAX8925)	+= rtc-max8925.o
+-obj-$(CONFIG_RTC_DRV_MAX8998)	+= rtc-max8998.o
+-obj-$(CONFIG_RTC_DRV_MAX8997)	+= rtc-max8997.o
+ obj-$(CONFIG_RTC_DRV_MAX6902)	+= rtc-max6902.o
+ obj-$(CONFIG_RTC_DRV_MAX77686)	+= rtc-max77686.o
+ obj-$(CONFIG_RTC_DRV_MAX77802)  += rtc-max77802.o
++obj-$(CONFIG_RTC_DRV_MAX8907)	+= rtc-max8907.o
++obj-$(CONFIG_RTC_DRV_MAX8925)	+= rtc-max8925.o
++obj-$(CONFIG_RTC_DRV_MAX8997)	+= rtc-max8997.o
++obj-$(CONFIG_RTC_DRV_MAX8998)	+= rtc-max8998.o
+ obj-$(CONFIG_RTC_DRV_MC13XXX)	+= rtc-mc13xxx.o
+ obj-$(CONFIG_RTC_DRV_MCP795)	+= rtc-mcp795.o
+-obj-$(CONFIG_RTC_DRV_MSM6242)	+= rtc-msm6242.o
++obj-$(CONFIG_RTC_DRV_MOXART)	+= rtc-moxart.o
+ obj-$(CONFIG_RTC_DRV_MPC5121)	+= rtc-mpc5121.o
++obj-$(CONFIG_RTC_DRV_VRTC)	+= rtc-mrst.o
++obj-$(CONFIG_RTC_DRV_MSM6242)	+= rtc-msm6242.o
++obj-$(CONFIG_RTC_DRV_MT6397)	+= rtc-mt6397.o
+ obj-$(CONFIG_RTC_DRV_MV)	+= rtc-mv.o
++obj-$(CONFIG_RTC_DRV_MXC)	+= rtc-mxc.o
+ obj-$(CONFIG_RTC_DRV_NUC900)	+= rtc-nuc900.o
+-obj-$(CONFIG_RTC_DRV_OPAL)	+= rtc-opal.o
+ obj-$(CONFIG_RTC_DRV_OMAP)	+= rtc-omap.o
++obj-$(CONFIG_RTC_DRV_OPAL)	+= rtc-opal.o
+ obj-$(CONFIG_RTC_DRV_PALMAS)	+= rtc-palmas.o
+ obj-$(CONFIG_RTC_DRV_PCAP)	+= rtc-pcap.o
++obj-$(CONFIG_RTC_DRV_PCF2123)	+= rtc-pcf2123.o
+ obj-$(CONFIG_RTC_DRV_PCF2127)	+= rtc-pcf2127.o
++obj-$(CONFIG_RTC_DRV_PCF50633)	+= rtc-pcf50633.o
++obj-$(CONFIG_RTC_DRV_PCF85063)	+= rtc-pcf85063.o
+ obj-$(CONFIG_RTC_DRV_PCF8523)	+= rtc-pcf8523.o
+ obj-$(CONFIG_RTC_DRV_PCF8563)	+= rtc-pcf8563.o
+-obj-$(CONFIG_RTC_DRV_PCF85063)	+= rtc-pcf85063.o
+ obj-$(CONFIG_RTC_DRV_PCF8583)	+= rtc-pcf8583.o
+-obj-$(CONFIG_RTC_DRV_PCF2123)	+= rtc-pcf2123.o
+-obj-$(CONFIG_RTC_DRV_PCF50633)	+= rtc-pcf50633.o
+ obj-$(CONFIG_RTC_DRV_PL030)	+= rtc-pl030.o
+ obj-$(CONFIG_RTC_DRV_PL031)	+= rtc-pl031.o
+ obj-$(CONFIG_RTC_DRV_PM8XXX)	+= rtc-pm8xxx.o
+@@ -130,6 +132,7 @@ obj-$(CONFIG_RTC_DRV_S3C)	+= rtc-s3c.o
+ obj-$(CONFIG_RTC_DRV_S5M)	+= rtc-s5m.o
+ obj-$(CONFIG_RTC_DRV_SA1100)	+= rtc-sa1100.o
+ obj-$(CONFIG_RTC_DRV_SH)	+= rtc-sh.o
++obj-$(CONFIG_RTC_DRV_SIRFSOC)	+= rtc-sirfsoc.o
+ obj-$(CONFIG_RTC_DRV_SNVS)	+= rtc-snvs.o
+ obj-$(CONFIG_RTC_DRV_SPEAR)	+= rtc-spear.o
+ obj-$(CONFIG_RTC_DRV_STARFIRE)	+= rtc-starfire.o
+@@ -141,10 +144,10 @@ obj-$(CONFIG_RTC_DRV_SUNXI)	+= rtc-sunxi.o
+ obj-$(CONFIG_RTC_DRV_TEGRA)	+= rtc-tegra.o
+ obj-$(CONFIG_RTC_DRV_TEST)	+= rtc-test.o
+ obj-$(CONFIG_RTC_DRV_TILE)	+= rtc-tile.o
+-obj-$(CONFIG_RTC_DRV_TWL4030)	+= rtc-twl.o
+ obj-$(CONFIG_RTC_DRV_TPS6586X)	+= rtc-tps6586x.o
+ obj-$(CONFIG_RTC_DRV_TPS65910)	+= rtc-tps65910.o
+ obj-$(CONFIG_RTC_DRV_TPS80031)	+= rtc-tps80031.o
++obj-$(CONFIG_RTC_DRV_TWL4030)	+= rtc-twl.o
+ obj-$(CONFIG_RTC_DRV_TX4939)	+= rtc-tx4939.o
+ obj-$(CONFIG_RTC_DRV_V3020)	+= rtc-v3020.o
+ obj-$(CONFIG_RTC_DRV_VR41XX)	+= rtc-vr41xx.o
+@@ -153,6 +156,3 @@ obj-$(CONFIG_RTC_DRV_WM831X)	+= rtc-wm831x.o
+ obj-$(CONFIG_RTC_DRV_WM8350)	+= rtc-wm8350.o
+ obj-$(CONFIG_RTC_DRV_X1205)	+= rtc-x1205.o
+ obj-$(CONFIG_RTC_DRV_XGENE)	+= rtc-xgene.o
+-obj-$(CONFIG_RTC_DRV_SIRFSOC)	+= rtc-sirfsoc.o
+-obj-$(CONFIG_RTC_DRV_MOXART)	+= rtc-moxart.o
+-obj-$(CONFIG_RTC_DRV_MT6397)	+= rtc-mt6397.o
 -- 
-1.9.1
-
+2.1.4
 
 -- 
 -- 
