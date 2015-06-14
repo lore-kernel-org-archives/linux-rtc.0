@@ -1,88 +1,71 @@
-Return-Path: <rtc-linux+bncBCMNZUWXYYORBSPDV2WAKGQEO6IFS3Q@googlegroups.com>
-Received: from mail-pa0-f41.google.com (mail-pa0-f41.google.com. [209.85.220.41])
-        by gmr-mx.google.com with ESMTPS id wh3si3270186pbc.0.2015.06.25.00.46.17
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 25 Jun 2015 00:46:17 -0700 (PDT)
-Received: by mail-pa0-f41.google.com with SMTP id ev16so45079584pad.0
-        for <rtc-linux@googlegroups.com>; Thu, 25 Jun 2015 00:46:17 -0700 (PDT)
-Message-ID: <558BB1C1.2090400@linaro.org>
-Date: Thu, 25 Jun 2015 13:16:09 +0530
-From: Vaibhav Hiremath <vaibhav.hiremath@linaro.org>
+Return-Path: <robert.jarzmik@free.fr>
+From: Robert Jarzmik <robert.jarzmik@free.fr>
+To: Rob Herring <robherring2@gmail.com>
+Cc: Russell King <linux@arm.linux.org.uk>,  Alexandre Belloni <alexandre.belloni@free-electrons.com>,  Eric Miao <eric.y.miao@gmail.com>,  Haojian Zhuang <haojian.zhuang@gmail.com>,  Alessandro Zummo <a.zummo@towertech.it>,  rtc-linux@googlegroups.com,  Arnd Bergmann <arnd@arndb.de>,  "linux-arm-kernel\@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
+Subject: Re: [PATCH v4 0/6] SA1100/PXA RTC clean-up
+References: <1431529350-4597-1-git-send-email-robh@kernel.org>
+	<87pp62jdpj.fsf@belgarion.home>
+	<CAL_JsqJ-VMQHXFF9Gxf5mmPjYXZ6gyktYFjgvxAHRx-Kmuoq8A@mail.gmail.com>
+	<877fs5k9ps.fsf@belgarion.home>
+	<CAL_JsqKWNNH4stY+CNtKCiE7qcwDYaxZc36-iqqe1ddmG82g1Q@mail.gmail.com>
+	<871thq54c7.fsf@belgarion.home>
+	<CAL_JsqJnj+JLFoUmE6COqhr83_H0n1=Bdk_wYnMZEzsZRu=aew@mail.gmail.com>
+	<87wpzg4ji2.fsf@belgarion.home> <5575C85A.6010802@gmail.com>
+Date: Sun, 14 Jun 2015 10:11:05 +0200
+In-Reply-To: <5575C85A.6010802@gmail.com> (Rob Herring's message of "Mon, 08
+	Jun 2015 11:52:42 -0500")
+Message-ID: <87d20ybtgm.fsf@belgarion.home>
 MIME-Version: 1.0
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-CC: linux-arm-kernel@lists.infradead.org, robh+dt@kernel.org,
- lee.jones@linaro.org, devicetree@vger.kernel.org,
- rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org,
- Chao Xie <chao.xie@marvell.com>
-Subject: Re: [rtc-linux] [PATCH-v2] rtc: 88pm80x: add device tree support
-References: <vaibhav.hiremath@linaro.org> <1434567488-6477-1-git-send-email-vaibhav.hiremath@linaro.org> <1434567488-6477-3-git-send-email-vaibhav.hiremath@linaro.org> <20150620004354.GY27492@piout.net>
-In-Reply-To: <20150620004354.GY27492@piout.net>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain
 List-ID: <rtc-linux.googlegroups.com>
-List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
-List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
-List-Archive: <http://groups.google.com/group/rtc-linux
-Sender: rtc-linux@googlegroups.com
-List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
-List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
- <http://groups.google.com/group/rtc-linux/subscribe>
 
+Rob Herring <robherring2@gmail.com> writes:
 
-
-On Saturday 20 June 2015 06:13 AM, Alexandre Belloni wrote:
-> Hi,
+>> On platforms where all the OSes use only 1 RTC, the bootloader only touches one
+>> RTC, that's correct. Or said differently : the bootloader touches the union of
+>> all the RTCs the OSes it launches do touch.
 >
+> Sorry, I'm being dense here, but I'm not any less confused as to which 
+> scenarios you think have an issue. Rather than go around again on this, 
+> perhaps you can just provide the warning for the commit text. Here's 
+> what I have.
 
-Sorry I missed this email.
-Just wanted to send reminder email and saw this :)
-
-> On 18/06/2015 at 00:28:06 +0530, Vaibhav Hiremath wrote :
->> -	pdata = dev_get_platdata(&pdev->dev);
->> -	if (pdata == NULL)
->> -		dev_warn(&pdev->dev, "No platform data!\n");
->> +	if (!pdata && !node) {
->> +		dev_err(&pdev->dev,
->> +			"pm80x-rtc requires platform data or of_node\n");
->> +		return -EINVAL;
->> +	}
->> +
->> +	if (!pdata) {
->> +		pdata = devm_kzalloc(&pdev->dev, sizeof(*pdata), GFP_KERNEL);
+> 8<-------------------------------------------------------------------
+> From e43db14b27486faef8d8e74e4aa555aba7f31a0e Mon Sep 17 00:00:00 2001
+> From: Rob Herring <robh@kernel.org>
+> Date: Mon, 1 Jun 2015 07:53:01 -0500
+> Subject: [PATCH] ARM: config: Switch PXA27x platforms to use PXA RTC driver
 >
-> I had troubles to follow the rtc_wakeup initialization cleanup but it
-> seems OK.
-
-Probably, once we have complete PM support ready then it would be
-easier to understand. I think as of now lets have this minimal code for
-rtc_wakeup.
-
-> However, I'm wondering why you are adding DT support as this
-> will always be probed from the MFD driver which pass the platform_data
-> and avoids that allocation.
+> With the SA1100 and PXA RTC drivers be mutually exclusive and no
+> longer sharing hardware, PXA27x/PXA3xx platforms must use the PXA RTC
+> driver as the SA1100 platform device is no longer registered.
 >
+> This change should be transparent to userspace, but the first reboot
+> after the switch will have the wrong time.
 
-You are right.
+I'll switch that last sentence to :
+"This change should be almost transparent to userspace. Former users of pxa-rtc
+should be aware that 2 rtc will be available on their kernels, rtc0 being
+sa1100-rtc and rtc1 being pxa-rtc. Any userspace relying on the fact that rtc0
+was pxa-rtc should be fixed.
 
-Originally, it was cleanup patch,
+As a consequence :
+ - the first reboot after the switch will have the wrong time,
+ - on dual boot platform where the other OS programs some logic into the sa1100
+   rtc IP, a lack of fix in userspace, ie. a kernel changing sa1100-rtc thinking
+   it is pxa-rtc could have dire consequence, such as wiping the other OS data
+   partition.
+"
 
-  - remove pm80x_pdata
-  - Add check for pdata and np
-  - and around rtc_wakeup
+And add :
+Cc: Mike Rapoport <mike@compulab.co.il>
+Cc: Philipp Zabel <philipp.zabel@gmail.com>
 
-While doing that I added this nice to have allocation.
+With that, I'll be happy. I'll throw this serie at my jenkins, but there's no
+reason for it to complain, and unless I've forgotten some unaddressed comment,
+you'll have my ack within the next couple of days.
 
-Thanks,
-Vaibhav
+Cheers.
 
--- 
--- 
-You received this message because you are subscribed to "rtc-linux".
-Membership options at http://groups.google.com/group/rtc-linux .
-Please read http://groups.google.com/group/rtc-linux/web/checklist
-before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
-For more options, visit https://groups.google.com/d/optout.
+--
+Robert
