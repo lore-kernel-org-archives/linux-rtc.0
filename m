@@ -1,19 +1,27 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBZGR66VQKGQEX2XZSNI@googlegroups.com>
-MIME-Version: 1.0
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBPEE7CVQKGQE4QWGTNQ@googlegroups.com>
 Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id gt9si398833wib.2.2015.06.14.13.49.39
+        by gmr-mx.google.com with ESMTP id gt9si407247wib.2.2015.06.14.15.37.48
         for <rtc-linux@googlegroups.com>;
-        Sun, 14 Jun 2015 13:49:39 -0700 (PDT)
+        Sun, 14 Jun 2015 15:37:48 -0700 (PDT)
+Date: Mon, 15 Jun 2015 00:37:47 +0200
 From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: rtc-linux@googlegroups.com
-Cc: linux-kernel@vger.kernel.org,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Subject: [rtc-linux] [PATCH] rtc: Properly sort Makefile
-Date: Sun, 14 Jun 2015 22:49:37 +0200
-Message-Id: <1434314977-21686-1-git-send-email-alexandre.belloni@free-electrons.com>
-Reply-To: rtc-linux@googlegroups.com
+To: Adrian Huang <adrianhuang0701@gmail.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
+	Borislav Petkov <bp@suse.de>, Thomas Gleixner <tglx@linutronix.de>,
+	John Stultz <john.stultz@linaro.org>,
+	Diego Ercolani <diego.ercolani@gmail.com>,
+	Egbert Eich <eich@suse.com>, Max Asbock <amax@lenovo.com>,
+	Nagananda Chumbalkar <nchumbalkar@lenovo.com>,
+	Adrian Huang <ahuang12@lenovo.com>
+Subject: [rtc-linux] Re: [RFC PATCH v2 1/2] rtc-cmos: Clear interrupt flag if
+ alarm time is
+Message-ID: <20150614223747.GB17679@piout.net>
+References: <1433845413-13960-1-git-send-email-adrianhuang0701@gmail.com>
+ <1433845413-13960-2-git-send-email-adrianhuang0701@gmail.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1433845413-13960-2-git-send-email-adrianhuang0701@gmail.com>
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -23,121 +31,122 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Properly sort the Makefile by filename
+Hi,
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
----
- drivers/rtc/Makefile | 34 +++++++++++++++++-----------------
- 1 file changed, 17 insertions(+), 17 deletions(-)
+On 09/06/2015 at 18:23:32 +0800, Adrian Huang wrote :
+> @@ -588,7 +591,7 @@ static struct bin_attribute nvram = {
+>  
+>  /*----------------------------------------------------------------*/
+>  
+> -static struct cmos_rtc	cmos_rtc;
+> +static struct cmos_rtc	cmos_rtc = { .alarm_expires = 0 };
+>  
 
-diff --git a/drivers/rtc/Makefile b/drivers/rtc/Makefile
-index 8a71296b1637..41ec0388a1c3 100644
---- a/drivers/rtc/Makefile
-+++ b/drivers/rtc/Makefile
-@@ -20,8 +20,8 @@ rtc-core-$(CONFIG_RTC_INTF_SYSFS) += rtc-sysfs.o
- 
- # Keep the list ordered.
- 
--obj-$(CONFIG_RTC_DRV_88PM860X)  += rtc-88pm860x.o
- obj-$(CONFIG_RTC_DRV_88PM80X)	+= rtc-88pm80x.o
-+obj-$(CONFIG_RTC_DRV_88PM860X)  += rtc-88pm860x.o
- obj-$(CONFIG_RTC_DRV_AB3100)	+= rtc-ab3100.o
- obj-$(CONFIG_RTC_DRV_AB8500)	+= rtc-ab8500.o
- obj-$(CONFIG_RTC_DRV_ABB5ZES3)	+= rtc-ab-b5ze-s3.o
-@@ -42,7 +42,6 @@ obj-$(CONFIG_RTC_DRV_DA9063)	+= rtc-da9063.o
- obj-$(CONFIG_RTC_DRV_DAVINCI)	+= rtc-davinci.o
- obj-$(CONFIG_RTC_DRV_DIGICOLOR)	+= rtc-digicolor.o
- obj-$(CONFIG_RTC_DRV_DM355EVM)	+= rtc-dm355evm.o
--obj-$(CONFIG_RTC_DRV_VRTC)	+= rtc-mrst.o
- obj-$(CONFIG_RTC_DRV_DS1216)	+= rtc-ds1216.o
- obj-$(CONFIG_RTC_DRV_DS1286)	+= rtc-ds1286.o
- obj-$(CONFIG_RTC_DRV_DS1302)	+= rtc-ds1302.o
-@@ -69,9 +68,9 @@ obj-$(CONFIG_RTC_DRV_GENERIC)	+= rtc-generic.o
- obj-$(CONFIG_RTC_DRV_HID_SENSOR_TIME) += rtc-hid-sensor-time.o
- obj-$(CONFIG_RTC_DRV_HYM8563)	+= rtc-hym8563.o
- obj-$(CONFIG_RTC_DRV_IMXDI)	+= rtc-imxdi.o
--obj-$(CONFIG_RTC_DRV_ISL1208)	+= rtc-isl1208.o
- obj-$(CONFIG_RTC_DRV_ISL12022)	+= rtc-isl12022.o
- obj-$(CONFIG_RTC_DRV_ISL12057)	+= rtc-isl12057.o
-+obj-$(CONFIG_RTC_DRV_ISL1208)	+= rtc-isl1208.o
- obj-$(CONFIG_RTC_DRV_JZ4740)	+= rtc-jz4740.o
- obj-$(CONFIG_RTC_DRV_LP8788)	+= rtc-lp8788.o
- obj-$(CONFIG_RTC_DRV_LPC32XX)	+= rtc-lpc32xx.o
-@@ -82,32 +81,35 @@ obj-$(CONFIG_RTC_DRV_M41T94)	+= rtc-m41t94.o
- obj-$(CONFIG_RTC_DRV_M48T35)	+= rtc-m48t35.o
- obj-$(CONFIG_RTC_DRV_M48T59)	+= rtc-m48t59.o
- obj-$(CONFIG_RTC_DRV_M48T86)	+= rtc-m48t86.o
--obj-$(CONFIG_RTC_DRV_MXC)	+= rtc-mxc.o
- obj-$(CONFIG_RTC_DRV_MAX6900)	+= rtc-max6900.o
--obj-$(CONFIG_RTC_DRV_MAX8907)	+= rtc-max8907.o
--obj-$(CONFIG_RTC_DRV_MAX8925)	+= rtc-max8925.o
--obj-$(CONFIG_RTC_DRV_MAX8998)	+= rtc-max8998.o
--obj-$(CONFIG_RTC_DRV_MAX8997)	+= rtc-max8997.o
- obj-$(CONFIG_RTC_DRV_MAX6902)	+= rtc-max6902.o
- obj-$(CONFIG_RTC_DRV_MAX77686)	+= rtc-max77686.o
- obj-$(CONFIG_RTC_DRV_MAX77802)  += rtc-max77802.o
-+obj-$(CONFIG_RTC_DRV_MAX8907)	+= rtc-max8907.o
-+obj-$(CONFIG_RTC_DRV_MAX8925)	+= rtc-max8925.o
-+obj-$(CONFIG_RTC_DRV_MAX8997)	+= rtc-max8997.o
-+obj-$(CONFIG_RTC_DRV_MAX8998)	+= rtc-max8998.o
- obj-$(CONFIG_RTC_DRV_MC13XXX)	+= rtc-mc13xxx.o
- obj-$(CONFIG_RTC_DRV_MCP795)	+= rtc-mcp795.o
--obj-$(CONFIG_RTC_DRV_MSM6242)	+= rtc-msm6242.o
-+obj-$(CONFIG_RTC_DRV_MOXART)	+= rtc-moxart.o
- obj-$(CONFIG_RTC_DRV_MPC5121)	+= rtc-mpc5121.o
-+obj-$(CONFIG_RTC_DRV_VRTC)	+= rtc-mrst.o
-+obj-$(CONFIG_RTC_DRV_MSM6242)	+= rtc-msm6242.o
-+obj-$(CONFIG_RTC_DRV_MT6397)	+= rtc-mt6397.o
- obj-$(CONFIG_RTC_DRV_MV)	+= rtc-mv.o
-+obj-$(CONFIG_RTC_DRV_MXC)	+= rtc-mxc.o
- obj-$(CONFIG_RTC_DRV_NUC900)	+= rtc-nuc900.o
--obj-$(CONFIG_RTC_DRV_OPAL)	+= rtc-opal.o
- obj-$(CONFIG_RTC_DRV_OMAP)	+= rtc-omap.o
-+obj-$(CONFIG_RTC_DRV_OPAL)	+= rtc-opal.o
- obj-$(CONFIG_RTC_DRV_PALMAS)	+= rtc-palmas.o
- obj-$(CONFIG_RTC_DRV_PCAP)	+= rtc-pcap.o
-+obj-$(CONFIG_RTC_DRV_PCF2123)	+= rtc-pcf2123.o
- obj-$(CONFIG_RTC_DRV_PCF2127)	+= rtc-pcf2127.o
-+obj-$(CONFIG_RTC_DRV_PCF50633)	+= rtc-pcf50633.o
-+obj-$(CONFIG_RTC_DRV_PCF85063)	+= rtc-pcf85063.o
- obj-$(CONFIG_RTC_DRV_PCF8523)	+= rtc-pcf8523.o
- obj-$(CONFIG_RTC_DRV_PCF8563)	+= rtc-pcf8563.o
--obj-$(CONFIG_RTC_DRV_PCF85063)	+= rtc-pcf85063.o
- obj-$(CONFIG_RTC_DRV_PCF8583)	+= rtc-pcf8583.o
--obj-$(CONFIG_RTC_DRV_PCF2123)	+= rtc-pcf2123.o
--obj-$(CONFIG_RTC_DRV_PCF50633)	+= rtc-pcf50633.o
- obj-$(CONFIG_RTC_DRV_PL030)	+= rtc-pl030.o
- obj-$(CONFIG_RTC_DRV_PL031)	+= rtc-pl031.o
- obj-$(CONFIG_RTC_DRV_PM8XXX)	+= rtc-pm8xxx.o
-@@ -130,6 +132,7 @@ obj-$(CONFIG_RTC_DRV_S3C)	+= rtc-s3c.o
- obj-$(CONFIG_RTC_DRV_S5M)	+= rtc-s5m.o
- obj-$(CONFIG_RTC_DRV_SA1100)	+= rtc-sa1100.o
- obj-$(CONFIG_RTC_DRV_SH)	+= rtc-sh.o
-+obj-$(CONFIG_RTC_DRV_SIRFSOC)	+= rtc-sirfsoc.o
- obj-$(CONFIG_RTC_DRV_SNVS)	+= rtc-snvs.o
- obj-$(CONFIG_RTC_DRV_SPEAR)	+= rtc-spear.o
- obj-$(CONFIG_RTC_DRV_STARFIRE)	+= rtc-starfire.o
-@@ -141,10 +144,10 @@ obj-$(CONFIG_RTC_DRV_SUNXI)	+= rtc-sunxi.o
- obj-$(CONFIG_RTC_DRV_TEGRA)	+= rtc-tegra.o
- obj-$(CONFIG_RTC_DRV_TEST)	+= rtc-test.o
- obj-$(CONFIG_RTC_DRV_TILE)	+= rtc-tile.o
--obj-$(CONFIG_RTC_DRV_TWL4030)	+= rtc-twl.o
- obj-$(CONFIG_RTC_DRV_TPS6586X)	+= rtc-tps6586x.o
- obj-$(CONFIG_RTC_DRV_TPS65910)	+= rtc-tps65910.o
- obj-$(CONFIG_RTC_DRV_TPS80031)	+= rtc-tps80031.o
-+obj-$(CONFIG_RTC_DRV_TWL4030)	+= rtc-twl.o
- obj-$(CONFIG_RTC_DRV_TX4939)	+= rtc-tx4939.o
- obj-$(CONFIG_RTC_DRV_V3020)	+= rtc-v3020.o
- obj-$(CONFIG_RTC_DRV_VR41XX)	+= rtc-vr41xx.o
-@@ -153,6 +156,3 @@ obj-$(CONFIG_RTC_DRV_WM831X)	+= rtc-wm831x.o
- obj-$(CONFIG_RTC_DRV_WM8350)	+= rtc-wm8350.o
- obj-$(CONFIG_RTC_DRV_X1205)	+= rtc-x1205.o
- obj-$(CONFIG_RTC_DRV_XGENE)	+= rtc-xgene.o
--obj-$(CONFIG_RTC_DRV_SIRFSOC)	+= rtc-sirfsoc.o
--obj-$(CONFIG_RTC_DRV_MOXART)	+= rtc-moxart.o
--obj-$(CONFIG_RTC_DRV_MT6397)	+= rtc-mt6397.o
+That is probably unnecessary as the whole struct is already zeroed at
+initialization.
+
+>  static irqreturn_t cmos_interrupt(int irq, void *p)
+>  {
+> @@ -860,6 +863,52 @@ static void __exit cmos_do_remove(struct device *dev)
+>  	cmos->dev = NULL;
+>  }
+>  
+> +static int cmos_aie_poweroff(struct device *dev)
+> +{
+> +	struct cmos_rtc	*cmos = dev_get_drvdata(dev);
+> +	struct rtc_time now;
+> +	int err;
+> +	time64_t t_now;
+> +	unsigned char rtc_control;
+> +
+> +	if (!cmos->alarm_expires)
+> +		return -EINVAL;
+> +
+> +	spin_lock_irq(&rtc_lock);
+> +	rtc_control = CMOS_READ(RTC_CONTROL);
+> +	spin_unlock_irq(&rtc_lock);
+> +
+> +	/* We only care about the situation where AIE is disabled. */
+> +	if (rtc_control & RTC_AIE)
+> +		return -EBUSY;
+> +
+> +	err = cmos_read_time(dev, &now);
+> +	if (err < 0)
+> +		return err;
+> +	t_now = rtc_tm_to_time64(&now);
+> +
+> +	/*
+> +	 * When enabling "RTC wake-up" in BIOS setup, the machine reboots
+> +	 * automatically right after shutdown on some buggy boxes.
+> +	 * This automatic rebooting issue won't happen when the alarm
+> +	 * time is larger than now+1 seconds.
+> +	 *
+> +	 * If the alarm time is equal to now+1 seconds, we need to wait
+> +	 * for 1 second so that AF is set by CMOS hardware. Therefore, we
+> +	 * can get a chance to clear AF in cmos_do_shutdown().
+> +	 *
+> +	 * If the alarm time is less equal to 'now', the function simply
+> +	 * returns '0' so that we can get a chance to clear AF in
+> +	 * cmos_do_shutdown().
+> +	 */
+> +	if (cmos->alarm_expires > (t_now + 1))
+> +		return -EBUSY;
+> +	else if (cmos->alarm_expires == (t_now + 1))
+> +		msleep(1000);
+
+I'm not too happy about that one second wait. Isn't the idea of
+updating the alarm to a value in the past to cancel it working?
+
+> +
+> +	return 0;
+> +}
+> +
+>  #ifdef CONFIG_PM
+>  
+>  static int cmos_suspend(struct device *dev)
+> @@ -1094,8 +1143,11 @@ static void cmos_pnp_shutdown(struct pnp_dev *pnp)
+>  	struct device *dev = &pnp->dev;
+>  	struct cmos_rtc	*cmos = dev_get_drvdata(dev);
+>  
+> -	if (system_state == SYSTEM_POWER_OFF && !cmos_poweroff(dev))
+> -		return;
+> +	if (system_state == SYSTEM_POWER_OFF) {
+> +		cmos_poweroff(dev);
+
+You should test the return value of cmos_poweroff() at some point as the
+return is depending on it in the original code.
+
+However, I'm not sure why one would want to not execute
+cmos_do_shutdown() only when CONFIG_PM is not defined.
+
+> +		if (cmos_aie_poweroff(dev) < 0)
+> +			return;
+> +	}
+>  
+>  	cmos_do_shutdown(cmos->irq);
+>  }
+> @@ -1200,8 +1252,11 @@ static void cmos_platform_shutdown(struct platform_device *pdev)
+>  	struct device *dev = &pdev->dev;
+>  	struct cmos_rtc	*cmos = dev_get_drvdata(dev);
+>  
+> -	if (system_state == SYSTEM_POWER_OFF && !cmos_poweroff(dev))
+> -		return;
+> +	if (system_state == SYSTEM_POWER_OFF) {
+> +		cmos_poweroff(dev);
+
+Same comment here.
+
+> +		if (cmos_aie_poweroff(dev) < 0)
+> +			return;
+> +	}
+>  
+>  	cmos_do_shutdown(cmos->irq);
+>  }
+
 -- 
-2.1.4
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
 -- 
 -- 
