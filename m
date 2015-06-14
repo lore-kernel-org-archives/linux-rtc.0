@@ -1,25 +1,23 @@
-Return-Path: <rtc-linux+bncBCMNZUWXYYORBMPUWSVQKGQE6YCCOLA@googlegroups.com>
-Received: from mail-pa0-f43.google.com (mail-pa0-f43.google.com. [209.85.220.43])
-        by gmr-mx.google.com with ESMTPS id x3si1736466pdh.2.2015.06.01.22.08.01
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 01 Jun 2015 22:08:01 -0700 (PDT)
-Received: by mail-pa0-f43.google.com with SMTP id jw17so52836772pad.2
-        for <rtc-linux@googlegroups.com>; Mon, 01 Jun 2015 22:08:01 -0700 (PDT)
-Message-ID: <556D3A14.6050505@linaro.org>
-Date: Tue, 02 Jun 2015 10:37:32 +0530
-From: Vaibhav Hiremath <vaibhav.hiremath@linaro.org>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBIVS66VQKGQEJPGKI7Q@googlegroups.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id h1si392624wiw.1.2015.06.14.12.42.25
+        for <rtc-linux@googlegroups.com>;
+        Sun, 14 Jun 2015 12:42:25 -0700 (PDT)
+Date: Sun, 14 Jun 2015 21:42:24 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Heiko =?iso-8859-1?Q?St=FCbner?= <heiko@sntech.de>
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+	Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Ian Campbell <ijc+devicetree@hellion.org.uk>,
+	Kumar Gala <galak@codeaurora.org>, rtc-linux@googlegroups.com,
+	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [rtc-linux] Re: [PATCH] rtc: hym8563: make the irq optional
+Message-ID: <20150614194224.GA17679@piout.net>
+References: <2559079.JyXCpe7EYV@diego>
 MIME-Version: 1.0
-To: Lee Jones <lee.jones@linaro.org>
-CC: linux-arm-kernel@lists.infradead.org, robh+dt@kernel.org,
- devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
- rtc-linux@googlegroups.com, sameo@linux.intel.com, a.zummo@towertech.it,
- alexandre.belloni@free-electrons.com, Chao Xie <chao.xie@marvell.com>
-Subject: [rtc-linux] Re: [PATCH 4/4] mfd: 88pm800: allocate pdata->rtc if not
- allocated earlier
-References: <1432937962-4537-1-git-send-email-vaibhav.hiremath@linaro.org> <1432937962-4537-5-git-send-email-vaibhav.hiremath@linaro.org> <20150601082200.GC3329@x1>
-In-Reply-To: <20150601082200.GC3329@x1>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <2559079.JyXCpe7EYV@diego>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -30,80 +28,34 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
+On 13/06/2015 at 12:34:04 +0200, Heiko St=C3=BCbner wrote :
+> Sometimes the irq line is not connected to any soc-pin. This does
+> not hinder basic timekeeping functionality of the rtc, so probe
+> should not fail in this case.
+>=20
+> Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+> ---
+>  .../devicetree/bindings/rtc/haoyu,hym8563.txt          |  2 +-
+>  drivers/rtc/rtc-hym8563.c                              | 18 ++++++++++--=
+------
+>  2 files changed, 11 insertions(+), 9 deletions(-)
+>=20
+Applied, thanks.
 
+--=20
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
-On Monday 01 June 2015 01:52 PM, Lee Jones wrote:
-> On Sat, 30 May 2015, Vaibhav Hiremath wrote:
->
->> RTC in pmic 88PM800 can run even the core is powered off, and user
->> can set alarm in RTC. When the alarm is timed out, the PMIC will power up
->> the core, and the whole system will boot up. And during PMIC driver probe,
->> it will read some register to find out whether this boot is caused by RTC
->> timeout or not, and pass on this information to the RTC driver.
->>
->> So we need rtc platform data to be existed in PMIC driver to pass this
->> information.
->>
->> Signed-off-by: Chao Xie <chao.xie@marvell.com>
->> Signed-off-by: Vaibhav Hiremath <vaibhav.hiremath@linaro.org>
->> ---
->>   drivers/mfd/88pm800.c | 19 +++++++++++++++++++
->>   1 file changed, 19 insertions(+)
->>
->> diff --git a/drivers/mfd/88pm800.c b/drivers/mfd/88pm800.c
->> index 8ea4467..34546a1 100644
->> --- a/drivers/mfd/88pm800.c
->> +++ b/drivers/mfd/88pm800.c
->> @@ -586,6 +586,25 @@ static int pm800_probe(struct i2c_client *client,
->>   			return ret;
->>   	}
->>
->> +	/*
->> +	 * RTC in pmic can run even the core is powered off, and user can set
->> +	 * alarm in RTC. When the alarm is time out, the PMIC will power up
->> +	 * the core, and the whole system will boot up. When PMIC driver is
->> +	 * probed, it will read out some register to find out whether this
->> +	 * boot is caused by RTC timeout or not, and it need pass this
->> +	 * information to RTC driver.
->> +	 * So we need rtc platform data to be existed to pass this information.
->> +	 */
->> +	if (!pdata->rtc) {
->> +		pdata->rtc = devm_kzalloc(&client->dev,
->> +					  sizeof(*(pdata->rtc)), GFP_KERNEL);
->> +		if (!pdata->rtc) {
->> +			dev_err(&client->dev,
->> +					"failed to allocate memory for rtc\n");
->> +			return -ENOMEM;
->> +		}
->> +	}
->> +
->
-> Where is this memory first used?
->
-
-
-In the same file, look for field "rtc_wakeup".
-
-
-FYI,
-
-This field is used in two files,
-
-drivers/mfd/88pm800.c
-and
-drivers/rtc/rtc-88pm800.c	[sets the "platform_data" field]
-
-
-Thanks,
-Vaibhav
-
--- 
--- 
+--=20
+--=20
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+---=20
+You received this message because you are subscribed to the Google Groups "=
+rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an e=
+mail to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
