@@ -1,26 +1,12 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBEM7YOVQKGQENDU4L4I@googlegroups.com>
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id ha2si16101wib.1.2015.06.04.15.22.09
-        for <rtc-linux@googlegroups.com>;
-        Thu, 04 Jun 2015 15:22:09 -0700 (PDT)
-Date: Fri, 5 Jun 2015 00:22:08 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Philippe Reynes <tremyfr@gmail.com>
-Cc: shawn.guo@linaro.org, kernel@pengutronix.de, linux@arm.linux.org.uk,
-	a.zummo@towertech.it, robh+dt@kernel.org, pawel.moll@arm.com,
-	mark.rutland@arm.com, ijc+devicetree@hellion.org.uk,
-	galak@codeaurora.org, rtc-linux@googlegroups.com,
-	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-	devicetree@vger.kernel.org, fabio.estevam@freescale.com
-Subject: [rtc-linux] Re: [PATCH 2/2] rtc: mxc: add support of device tree
-Message-ID: <20150604222208.GE713@piout.net>
-References: <1431729330-7625-1-git-send-email-tremyfr@gmail.com>
- <1431729330-7625-3-git-send-email-tremyfr@gmail.com>
- <20150528120601.GO2185@piout.net>
- <5570C26D.5080204@gmail.com>
+Return-Path: <rtc-linux+bncBCSIRPX5CUIMJMP4VMCRUBABUCXOC@googlegroups.com>
+Date: Mon, 15 Jun 2015 11:26:11 -0700 (PDT)
+From: Alexey Mednyy <swexru@gmail.com>
+To: rtc-linux@googlegroups.com
+Message-Id: <13a98422-3d30-4ff0-a4b9-ecf67ed0a757@googlegroups.com>
+Subject: [rtc-linux] [QUESTION] rtc and regmap_irq wakeup
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <5570C26D.5080204@gmail.com>
+Content-Type: multipart/mixed;
+	boundary="----=_Part_471_638912712.1434392771569"
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -31,29 +17,39 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On 04/06/2015 at 23:26:05 +0200, Philippe Reynes wrote :
-> I'll do it in the next version of this patch.
-> >>+	} else
-> >>+		pdata->devtype = pdev->id_entry->driver_data;
-> >>
-> >
-> 
-> Do you prefer that I wait the clock driver has move to drivers/clk/imx
-> (as requested by Shawn) before sending a v2 ?
-> 
+------=_Part_471_638912712.1434392771569
+Content-Type: multipart/alternative;
+	boundary="----=_Part_472_787715584.1434392771569"
 
-It would have been good to get the clock change in 4.2 but it is already
-late in the cycle now so I'm not sure it can go in. That would have
-removed the dependency.
+------=_Part_472_787715584.1434392771569
+Content-Type: text/plain; charset=UTF-8
 
-The other solution is to merge everything through Shawn's tree.
+Hello all!
 
-Anyway, you can send the patches, we'll handle that part :)
+I'm trying to add wakealarm support to rtc-mc13xxx driver. But I've faced 
+some troubles.
 
--- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+It's using nested IRQs over mc13xxx-core driver.
+What I've done:
+1. Added device_init_wakeup to both mc13xxx-core (parent irq) and to 
+rtc-mc13xxx
+2. Added dev_pm_ops to both core and rtc
+3. Added enable_irq_wake to core suspend for core irq
+4. Disabled 1HZ irq in rtc-mc13xxx ( do not wakeup after 1 second)
+
+Now I've got wakealarm file and I can write to it. But device doesn't 
+wakeup.
+I've added some printk's to suspend core suspend (as it goes after child 
+suspend) and I can see that IRQ_TODA bit of IRQ_MASK1 register in mc13xxx 
+is masked(turned off).
+For some reason rtc or regmap irq, disabled TODA irq before suspend.
+Can't figure why. 
+
+If I unmask TODA irq directly over regmap machine wakes, but than hangs.
+
+So questions are:
+1. Why TODA irq turned off before suspend?
+2. Is there any restrictions in IRQs, rtc can use for wakeup?
 
 -- 
 -- 
@@ -65,3 +61,48 @@ before submitting a driver.
 You received this message because you are subscribed to the Google Groups "rtc-linux" group.
 To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
+
+------=_Part_472_787715584.1434392771569
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"ltr">Hello all!<br><br>I'm trying to add wakealarm support to r=
+tc-mc13xxx driver. But I've faced some troubles.<br><br>It's using nested I=
+RQs over mc13xxx-core driver.<br>What I've done:<br>1. Added device_init_wa=
+keup to both mc13xxx-core (parent irq) and to rtc-mc13xxx<br>2. Added dev_p=
+m_ops to both core and rtc<br>3. Added enable_irq_wake to core suspend for =
+core irq<br>4. Disabled 1HZ irq in rtc-mc13xxx ( do not wakeup after 1 seco=
+nd)<br><br>Now I've got wakealarm file and I can write to it. But device do=
+esn't wakeup.<br>I've added some printk's to suspend core suspend (as it go=
+es after child suspend) and I can see that IRQ_TODA bit of IRQ_MASK1 regist=
+er in mc13xxx is masked(turned off).<br>For some reason rtc or regmap irq, =
+disabled TODA irq before suspend.<br>Can't figure why. <br><br>If I unmask =
+TODA irq directly over regmap machine wakes, but than hangs.<br><br>So ques=
+tions are:<br>1. Why TODA irq turned off before suspend?<br>2. Is there any=
+ <span id=3D"result_box" class=3D"short_text" lang=3D"en"><span class=3D"hp=
+s">restrictions in IRQs, rtc can use for wakeup?</span></span><br><br></div=
+>
+
+<p></p>
+
+-- <br />
+-- <br />
+You received this message because you are subscribed to &quot;rtc-linux&quo=
+t;.<br />
+Membership options at <a href=3D"http://groups.google.com/group/rtc-linux">=
+http://groups.google.com/group/rtc-linux</a> .<br />
+Please read <a href=3D"http://groups.google.com/group/rtc-linux/web/checkli=
+st">http://groups.google.com/group/rtc-linux/web/checklist</a><br />
+before submitting a driver.<br />
+--- <br />
+You received this message because you are subscribed to the Google Groups &=
+quot;rtc-linux&quot; group.<br />
+To unsubscribe from this group and stop receiving emails from it, send an e=
+mail to <a href=3D"mailto:rtc-linux+unsubscribe@googlegroups.com">rtc-linux=
++unsubscribe@googlegroups.com</a>.<br />
+For more options, visit <a href=3D"https://groups.google.com/d/optout">http=
+s://groups.google.com/d/optout</a>.<br />
+
+------=_Part_472_787715584.1434392771569--
+
+------=_Part_471_638912712.1434392771569--
