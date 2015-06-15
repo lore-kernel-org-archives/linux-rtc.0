@@ -1,31 +1,21 @@
-Return-Path: <rtc-linux+bncBDP6N55ZUYDRB5PMWKVQKGQEK3FY2PA@googlegroups.com>
-Received: from mail-ig0-x233.google.com (mail-ig0-x233.google.com. [2607:f8b0:4001:c05::233])
-        by gmr-mx.google.com with ESMTPS id x12si986841igx.1.2015.06.01.12.45.57
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 01 Jun 2015 12:45:57 -0700 (PDT)
-Received: by mail-ig0-x233.google.com with SMTP id sb11so70278190igb.0
-        for <rtc-linux@googlegroups.com>; Mon, 01 Jun 2015 12:45:57 -0700 (PDT)
-Date: Mon, 1 Jun 2015 12:45:52 -0700
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Zhi Li <lznuaa@gmail.com>
-Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Shawn Guo <shawn.guo@linaro.org>,
-	"Frank.Li@freescale.com" <Frank.Li@freescale.com>,
-	Rob Herring <robh+dt@kernel.org>,
-	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>,
-	linux-input@vger.kernel.org, rtc-linux@googlegroups.com,
-	"devicetree@vger.kernel.org" <devicetree@vger.kernel.org>
-Subject: [rtc-linux] Re: [PATCH v5 0/6] Change snvs rtc and poweroff to use
- syscon add pwrkey driver
-Message-ID: <20150601194552.GD30024@dtor-ws>
-References: <1432657562-5592-1-git-send-email-Frank.Li@freescale.com>
- <20150527121052.GH16165@dragon>
- <20150528121353.GP2185@piout.net>
- <CAHrpEqShyPKeKYdVZ05_qsbx0cC387a2QPCdbhR5C968n=ED0A@mail.gmail.com>
+Return-Path: <rtc-linux+bncBAABBYHL7OVQKGQECXEHLWI@googlegroups.com>
+Received: from mx.dave-tech.it (mx.dave-tech.it. [2.229.21.40])
+        by gmr-mx.google.com with ESMTP id t6si539549wiz.0.2015.06.15.08.57.19
+        for <rtc-linux@googlegroups.com>;
+        Mon, 15 Jun 2015 08:57:19 -0700 (PDT)
+Message-ID: <557EF5DD.9070300@dave-tech.it>
+Date: Mon, 15 Jun 2015 17:57:17 +0200
+From: Andrea Scian <rnd4@dave-tech.it>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <CAHrpEqShyPKeKYdVZ05_qsbx0cC387a2QPCdbhR5C968n=ED0A@mail.gmail.com>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+CC: r.cerrato@til-technologies.fr, a.zummo@towertech.it,
+ rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org,
+ Andrea Scian <andrea.scian@dave.eu>
+Subject: Re: [rtc-linux] [PATCH] driver: rtc: pcf2127: use OFS flag to detect
+ unreliable date and warn the user
+References: <1432628260-24652-1-git-send-email-rnd4@dave-tech.it> <20150608154251.GC5222@piout.net> <55785615.4050709@dave-tech.it> <20150612074245.GC3890@piout.net>
+In-Reply-To: <20150612074245.GC3890@piout.net>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -36,56 +26,90 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On Thu, May 28, 2015 at 08:18:24AM -0500, Zhi Li wrote:
-> On Thu, May 28, 2015 at 7:13 AM, Alexandre Belloni
-> <alexandre.belloni@free-electrons.com> wrote:
-> > On 27/05/2015 at 20:10:53 +0800, Shawn Guo wrote :
-> >> On Wed, May 27, 2015 at 12:25:56AM +0800, Frank.Li@freescale.com wrote=
-:
-> >> > Frank Li (5):
-> >> >   rtc: arm: imx: snvs: change use syscon to access register
-> >> >   Document: dt: fsl: snvs: change support syscon
-> >> >   ARM: dts: imx: update snvs to use syscon access register
-> >> >   Document: devicetree: input: imx: i.mx snvs power device tree bind=
-ings
-> >> >   ARM: dts: imx6sx: enable snvs power key
-> >> >
-> >> > Robin Gong (1):
-> >> >   input: keyboard: imx: add snvs power key driver
-> >>
-> >> The series looks fine to me now.  But I can only apply those two dts
-> >> patches after the driver and binding parts get landed on mainline.
-> >> Hopefully, you can get them in during the coming merge window through
-> >> subsystem trees, so that I can pick up dts part after v4.2-rc1 comes
-> >> out.
-> >>
-> >
-> > Actually, I was thinking you could take the whole series in your tree
-> > (at least, I'm speaking for the RTC part).
-> > Else, I'm wondering who should take the documentation changes.
-> >
->=20
-> Dmitry Torokhov:
->=20
-> what's your opinion about input part=EF=BC=9F
 
-I am fine with it merged through Shawn's tree. I added my ack to the mail
-in question.
+Hi Alexandre,
 
-Thanks.
+On 12/06/2015 09:42, Alexandre Belloni wrote:
+> On 10/06/2015 at 17:21:57 +0200, Andrea Scian wrote :
+>>> I would return -EINVAL here because the result might still pass
+>>> rtc_valid_tm() but be outdated.
+>> At first look I agree with you, but a bit later they say:
+>>
+>> /* the clock can give out invalid datetime, but we cannot return
+>>   * -EINVAL otherwise hwclock will refuse to set the time on bootup.
+>>   */
+>>
+>> http://git.kernel.org/cgit/linux/kernel/git/stable/linux-stable.git/tree/drivers/rtc/rtc-pcf2127.c#n91
+>>
+>> so they don't actually return -EINVAL even if rtc_valid_tm() fails.
+>> WDYT? I'm not an RTC subsystem expert, so maybe I'm missing something..
+>>
+> This has been copy pasted from other drivers and this is simply not
+> true.
 
---=20
-Dmitry
+Thanks for point this out.
+I'll split the patch to fix this for all PCF drivers (which have nearly 
+all the same structure) and later add the OFS flag
 
---=20
---=20
+>> If the comment above is correct, so we can't return -EINVAL, I will reset
+>> the time to epoch, with something like
+>>
+>> rtc_time64_to_tm((time64_t)0, tm);
+>>
+> Doing that is worse. You really want userspace to know that the time is
+> invalid instead of giving an incorrect value. This allow userspace to
+> actually choose its policy when the time is invalid. For example, use
+> epoch or any other later date that probabyl makes more sense for the
+> product.
+
+Most of minimal RFS I saw reset the date to what's inside /etc/timestamp 
+(which is updated in runlevel 6). However, this is OT here.
+
+>>>> @@ -144,7 +153,7 @@ static int pcf2127_rtc_ioctl(struct device *dev,
+>>>>   	switch (cmd) {
+>>>>   	case RTC_VL_READ:
+>>>>   		if (pcf2127->voltage_low)
+>>>> -			dev_info(dev, "low voltage detected, date/time is not reliable.\n");
+>>>> +			dev_info(dev, "low voltage detected, check/replace battery\n");
+>>> I would also print a warning about OFS here.
+>>>
+>> I'll do.
+>> Do you think is better to add another variable inside struct pcf2127 or is
+>> better to re-read the RTC registers?
+>> (for the former I have also to clear the variable inside
+>> pcf2127_set_datetime(), for the latter I have to issue another read in a
+>> function that, at the moment, does not read anything..)
+>>
+> I don't really care. But since one of them is already cached, it is
+> probably better to cache OFS. Maybe you could also use voltage_low as a
+> bit field which would allow userspace to make the difference between a
+> simple low voltage and the time loss condition.
+>
+>
+
+I'll cache OFS too, in a different variable. Returning different values 
+depending on OFS when querying about voltage low may mislead some 
+application. Moreover I think that there's may be some cases when OFS is 
+set and voltage low is not (e.g. when replacing battery with a brand new 
+one).
+
+I'll send the updated patch soon
+
+Thanks for your comments/help,
+
+-- 
+
+Andrea SCIAN
+
+DAVE Embedded Systems
+
+-- 
+-- 
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
----=20
-You received this message because you are subscribed to the Google Groups "=
-rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an e=
-mail to rtc-linux+unsubscribe@googlegroups.com.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
