@@ -1,27 +1,21 @@
-Return-Path: <rtc-linux+bncBD5O5IWPJMIJVPUWVQCRUBCWKWDD2@googlegroups.com>
+Return-Path: <rtc-linux+bncBAABB2G576VQKGQEXTW4DQY@googlegroups.com>
 MIME-Version: 1.0
-Received: from mail-wi0-x22b.google.com (mail-wi0-x22b.google.com. [2a00:1450:400c:c05::22b])
-        by gmr-mx.google.com with ESMTPS id t6si721170wiz.0.2015.06.20.10.12.58
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sat, 20 Jun 2015 10:12:58 -0700 (PDT)
-Received: by mail-wi0-x22b.google.com with SMTP id nd19so43329093wic.1
-        for <rtc-linux@googlegroups.com>; Sat, 20 Jun 2015 10:12:58 -0700 (PDT)
-From: Philippe Reynes <tremyfr@gmail.com>
-To: a.zummo@towertech.it,
-	alexandre.belloni@free-electrons.com,
-	shawn.guo@linaro.org,
-	kernel@pengutronix.de,
-	linux@arm.linux.org.uk
-Cc: linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org,
+Received: from mx.dave-tech.it (mx.dave-tech.it. [2.229.21.40])
+        by gmr-mx.google.com with ESMTP id gt9si61812wib.2.2015.06.16.02.39.51
+        for <rtc-linux@googlegroups.com>;
+        Tue, 16 Jun 2015 02:39:51 -0700 (PDT)
+From: rnd4@dave-tech.it
+To: alexandre.belloni@free-electrons.com
+Cc: a.zummo@towertech.it,
 	rtc-linux@googlegroups.com,
-	Philippe Reynes <tremyfr@gmail.com>
-Subject: [rtc-linux] [PATCH v3 4/6] rtc: mxc: add support of device tree
-Date: Sat, 20 Jun 2015 19:12:38 +0200
-Message-Id: <1434820360-21935-5-git-send-email-tremyfr@gmail.com>
-In-Reply-To: <1434820360-21935-1-git-send-email-tremyfr@gmail.com>
-References: <1434820360-21935-1-git-send-email-tremyfr@gmail.com>
+	linux-kernel@vger.kernel.org,
+	Andrea Scian <andrea.scian@dave.eu>
+Subject: [rtc-linux] [PATCH v2] driver: rtc: pcf2127: use OFS flag to detect
+ unreliable date and warn the user
+Date: Tue, 16 Jun 2015 11:39:47 +0200
+Message-Id: <1434447587-23992-1-git-send-email-rnd4@dave-tech.it>
+In-Reply-To: <557EF5DD.9070300@dave-tech.it>
+References: <557EF5DD.9070300@dave-tech.it>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -33,71 +27,98 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Add device tree support for the mxc rtc driver.
+From: Andrea Scian <andrea.scian@dave.eu>
 
-Signed-off-by: Philippe Reynes <tremyfr@gmail.com>
+Signed-off-by: Andrea Scian <andrea.scian@dave.eu>
 ---
- drivers/rtc/rtc-mxc.c |   19 ++++++++++++++++++-
- 1 files changed, 18 insertions(+), 1 deletions(-)
 
-diff --git a/drivers/rtc/rtc-mxc.c b/drivers/rtc/rtc-mxc.c
-index e916a91..befe2c2 100644
---- a/drivers/rtc/rtc-mxc.c
-+++ b/drivers/rtc/rtc-mxc.c
-@@ -16,6 +16,8 @@
- #include <linux/interrupt.h>
- #include <linux/platform_device.h>
- #include <linux/clk.h>
-+#include <linux/of.h>
-+#include <linux/of_device.h>
+Changes since v1:
+* use BIT() to select the right bitfield instead of hardcode value
+* return -EINVAL if OFS is detected
+* cache OSF into driver structure to warn the user even later
+
+ drivers/rtc/rtc-pcf2127.c |   26 +++++++++++++++++++++++---
+ 1 file changed, 23 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/rtc/rtc-pcf2127.c b/drivers/rtc/rtc-pcf2127.c
+index 7f803b2..aecee0b 100644
+--- a/drivers/rtc/rtc-pcf2127.c
++++ b/drivers/rtc/rtc-pcf2127.c
+@@ -33,11 +33,14 @@
+ #define PCF2127_REG_MO          (0x08)
+ #define PCF2127_REG_YR          (0x09)
  
- #define RTC_INPUT_CLK_32768HZ	(0x00 << 5)
- #define RTC_INPUT_CLK_32000HZ	(0x01 << 5)
-@@ -98,6 +100,15 @@ static struct platform_device_id imx_rtc_devtype[] = {
- };
- MODULE_DEVICE_TABLE(platform, imx_rtc_devtype);
- 
-+#ifdef CONFIG_OF
-+static const struct of_device_id imx_rtc_dt_ids[] = {
-+	{ .compatible = "fsl,imx1-rtc", .data = (const void *)IMX1_RTC },
-+	{ .compatible = "fsl,imx21-rtc", .data = (const void *)IMX21_RTC },
-+	{}
-+};
-+MODULE_DEVICE_TABLE(of, imx_rtc_dt_ids);
-+#endif
++#define PCF2127_OSF             BIT(7)  /* Oscillator Fail flag */
 +
- static inline int is_imx1_rtc(struct rtc_plat_data *data)
+ static struct i2c_driver pcf2127_driver;
+ 
+ struct pcf2127 {
+ 	struct rtc_device *rtc;
+ 	int voltage_low; /* indicates if a low_voltage was detected */
++	int oscillator_failed; /* OSF was detected and date in unreliable */
+ };
+ 
+ /*
+@@ -59,7 +62,18 @@ static int pcf2127_get_datetime(struct i2c_client *client, struct rtc_time *tm)
+ 	if (buf[PCF2127_REG_CTRL3] & 0x04) {
+ 		pcf2127->voltage_low = 1;
+ 		dev_info(&client->dev,
+-			"low voltage detected, date/time is not reliable.\n");
++			"low voltage detected, check/replace RTC battery.\n");
++	}
++
++	if (buf[PCF2127_REG_SC] & PCF2127_OSF) {
++		/*
++		 * no need clear the flag here,
++		 * it will be cleared once the new date is saved
++		 */
++		pcf2127->oscillator_failed = 1;
++		dev_warn(&client->dev,
++			"oscillator stop detected, date/time is not reliable\n");
++		return -EINVAL;
+ 	}
+ 
+ 	dev_dbg(&client->dev,
+@@ -93,6 +107,7 @@ static int pcf2127_get_datetime(struct i2c_client *client, struct rtc_time *tm)
+ 
+ static int pcf2127_set_datetime(struct i2c_client *client, struct rtc_time *tm)
  {
- 	return data->devtype == IMX1_RTC;
-@@ -362,12 +373,17 @@ static int mxc_rtc_probe(struct platform_device *pdev)
- 	u32 reg;
- 	unsigned long rate;
- 	int ret;
-+	const struct of_device_id *of_id;
++	struct pcf2127 *pcf2127 = i2c_get_clientdata(client);
+ 	unsigned char buf[8];
+ 	int i = 0, err;
  
- 	pdata = devm_kzalloc(&pdev->dev, sizeof(*pdata), GFP_KERNEL);
- 	if (!pdata)
- 		return -ENOMEM;
+@@ -106,7 +121,7 @@ static int pcf2127_set_datetime(struct i2c_client *client, struct rtc_time *tm)
+ 	buf[i++] = PCF2127_REG_SC;
  
--	pdata->devtype = pdev->id_entry->driver_data;
-+	of_id = of_match_device(imx_rtc_dt_ids, &pdev->dev);
-+	if (of_id)
-+		pdata->devtype = (enum imx_rtc_type)of_id->data;
-+	else
-+		pdata->devtype = pdev->id_entry->driver_data;
+ 	/* hours, minutes and seconds */
+-	buf[i++] = bin2bcd(tm->tm_sec);
++	buf[i++] = bin2bcd(tm->tm_sec);	/* this will also clear OFS flag */
+ 	buf[i++] = bin2bcd(tm->tm_min);
+ 	buf[i++] = bin2bcd(tm->tm_hour);
+ 	buf[i++] = bin2bcd(tm->tm_mday);
+@@ -126,6 +141,9 @@ static int pcf2127_set_datetime(struct i2c_client *client, struct rtc_time *tm)
+ 		return -EIO;
+ 	}
  
- 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
- 	pdata->ioaddr = devm_ioremap_resource(&pdev->dev, res);
-@@ -481,6 +497,7 @@ static SIMPLE_DEV_PM_OPS(mxc_rtc_pm_ops, mxc_rtc_suspend, mxc_rtc_resume);
- static struct platform_driver mxc_rtc_driver = {
- 	.driver = {
- 		   .name	= "mxc_rtc",
-+		   .of_match_table = of_match_ptr(imx_rtc_dt_ids),
- 		   .pm		= &mxc_rtc_pm_ops,
- 	},
- 	.id_table = imx_rtc_devtype,
++	/* clear OSF flag in client data */
++	pcf2127->oscillator_failed = 0;
++
+ 	return 0;
+ }
+ 
+@@ -138,7 +156,9 @@ static int pcf2127_rtc_ioctl(struct device *dev,
+ 	switch (cmd) {
+ 	case RTC_VL_READ:
+ 		if (pcf2127->voltage_low)
+-			dev_info(dev, "low voltage detected, date/time is not reliable.\n");
++			dev_info(dev, "low voltage detected, check/replace battery\n");
++		if (pcf2127->oscillator_failed)
++			dev_info(dev, "oscillator stop detected, date/time is not reliable\n");
+ 
+ 		if (copy_to_user((void __user *)arg, &pcf2127->voltage_low,
+ 					sizeof(int)))
 -- 
-1.7.4.4
+1.7.9.5
 
 -- 
 -- 
