@@ -1,23 +1,28 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBDMA46VQKGQEFGLWS5A@googlegroups.com>
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id gt9si90629wib.2.2015.06.11.10.06.20
-        for <rtc-linux@googlegroups.com>;
-        Thu, 11 Jun 2015 10:06:20 -0700 (PDT)
-Date: Thu, 11 Jun 2015 19:06:19 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Xunlei Pang <xlpang@126.com>
-Cc: linux-kernel@vger.kernel.org, rtc-linux@googlegroups.com,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	John Stultz <john.stultz@linaro.org>, Arnd Bergmann <arnd@arndb.de>,
-	Xunlei Pang <pang.xunlei@linaro.org>
-Subject: [rtc-linux] Re: [PATCH v2 2/4] rtc/lib: Introduce rtc_tm_subtract()
- helper function
-Message-ID: <20150611170619.GM5222@piout.net>
-References: <1433235862-1638-1-git-send-email-xlpang@126.com>
- <1433235862-1638-2-git-send-email-xlpang@126.com>
+Return-Path: <rtc-linux+bncBD62P6P6EQIP3PEAVQCRUBD44SQSO@googlegroups.com>
+Received: from mail-yh0-x230.google.com (mail-yh0-x230.google.com. [2607:f8b0:4002:c01::230])
+        by gmr-mx.google.com with ESMTPS id l198si24875ywe.2.2015.06.16.06.02.53
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 16 Jun 2015 06:02:53 -0700 (PDT)
+Received: by mail-yh0-x230.google.com with SMTP id n97so10549691yhp.0
+        for <rtc-linux@googlegroups.com>; Tue, 16 Jun 2015 06:02:53 -0700 (PDT)
 MIME-Version: 1.0
+In-Reply-To: <557FD5AD.5020405@linaro.org>
+References: <1432937962-4537-1-git-send-email-vaibhav.hiremath@linaro.org>
+ <1432937962-4537-2-git-send-email-vaibhav.hiremath@linaro.org>
+ <20150601083835.GE3329@x1> <557FD5AD.5020405@linaro.org>
+From: Rob Herring <robherring2@gmail.com>
+Date: Tue, 16 Jun 2015 08:02:33 -0500
+Message-ID: <CAL_Jsq+6yk59Z4swi2xq4=_=m89pBUt-fNXJF8smjw7qS8xazA@mail.gmail.com>
+Subject: [rtc-linux] Re: [PATCH 1/4] mfd: 88pm800: add device tree support
+To: Vaibhav Hiremath <vaibhav.hiremath@linaro.org>
+Cc: Lee Jones <lee.jones@linaro.org>,
+	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Rob Herring <robh+dt@kernel.org>,
+	"devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, rtc-linux@googlegroups.com,
+	Samuel Ortiz <sameo@linux.intel.com>, Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>, Chao Xie <chao.xie@marvell.com>
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1433235862-1638-2-git-send-email-xlpang@126.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -28,51 +33,120 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Hi,
+On Tue, Jun 16, 2015 at 2:52 AM, Vaibhav Hiremath
+<vaibhav.hiremath@linaro.org> wrote:
+>
+>
+> On Monday 01 June 2015 02:08 PM, Lee Jones wrote:
+>>
+>> On Sat, 30 May 2015, Vaibhav Hiremath wrote:
+>>
+>
+> Thanks for your review. and sorry for delayed response.
+>
+>>> Add DT support to the 88pm800 driver along with below properties
+>>>         - marvell,88pm800-irq-write-clear :
+>>>           Idicates whether interrupt status is cleared by write
+>>>
+>>> Also, creates the DT binding text file,
+>>> Documentation/devicetree/bindings/mfd/88pm800.txt
+>>>
+>>> Signed-off-by: Chao Xie <chao.xie@marvell.com>
+>>> Signed-off-by: Vaibhav Hiremath <vaibhav.hiremath@linaro.org>
+>>> ---
+>>>   Documentation/devicetree/bindings/mfd/88pm800.txt | 57
+>>> +++++++++++++++++++++++
+>>>   drivers/mfd/88pm800.c                             | 39 ++++++++++++++++
+>>
+>>
+>> These should be submitted separately.
+>>
+>
+>
+> Ok, will separate it in next version.
+>
+>
+>>>   2 files changed, 96 insertions(+)
+>>>   create mode 100644 Documentation/devicetree/bindings/mfd/88pm800.txt
+>>>
+>>> diff --git a/Documentation/devicetree/bindings/mfd/88pm800.txt
+>>> b/Documentation/devicetree/bindings/mfd/88pm800.txt
+>>> new file mode 100644
+>>> index 0000000..094951b
+>>> --- /dev/null
+>>> +++ b/Documentation/devicetree/bindings/mfd/88pm800.txt
+>>> @@ -0,0 +1,57 @@
+>>> +* Marvell 88PM800 Power Management IC
 
-I'm fine with the whole series, I would just rename things a bit:
+Might as well name this 88PM8xx from the start.
 
-On 02/06/2015 at 17:04:20 +0800, Xunlei Pang wrote :
->  /*
-> + * rtc_tm_subtract - Return the difference in seconds.
-> + */
-> +time64_t rtc_tm_subtract(struct rtc_time *minuend, struct rtc_time *subtrahend)
-> +{
-> +	return rtc_tm_to_time64(minuend) - rtc_tm_to_time64(subtrahend);
-> +}
-> +EXPORT_SYMBOL_GPL(rtc_tm_subtract);
-> +
-> +/*
->   * Convert rtc_time to ktime
->   */
->  ktime_t rtc_tm_to_ktime(struct rtc_time tm)
-> diff --git a/include/linux/rtc.h b/include/linux/rtc.h
-> index 8dcf682..13e4138 100644
-> --- a/include/linux/rtc.h
-> +++ b/include/linux/rtc.h
-> @@ -21,6 +21,8 @@ extern int rtc_year_days(unsigned int day, unsigned int month, unsigned int year
->  extern int rtc_valid_tm(struct rtc_time *tm);
->  extern time64_t rtc_tm_to_time64(struct rtc_time *tm);
->  extern void rtc_time64_to_tm(time64_t time, struct rtc_time *tm);
-> +extern time64_t rtc_tm_subtract(struct rtc_time *minuend,
-> +		struct rtc_time *subtrahend);
+>>> +
+>>> +Required parent device properties:
+>>> +- compatible : "marvell,88pm800"
 
-I would use something closer to what is done for timespecs in time.h,
-like:
+You might as well include 88pm805 and 88pm860 here since 805 support
+is in the kernel and you will be submitting 860 support. They don't
+have to be added with driver support.
 
-static inline time64_t rtc_tm_sub(struct rtc_time *lhs, struct rtc_time *rhs)
-{
-	return rtc_tm_to_time64(lhs) - rtc_tm_to_time64(rhs);
-}
+>>> +- reg : the I2C slave address for the 88pm800 chip
+>>> +- interrupts : IRQ line for the 88pm800 chip
+>>> +- interrupt-controller: describes the 88pm800 as an interrupt controller
+>>> +- #interrupt-cells : should be 1.
+>>> +               - The cell is the 88pm800 local IRQ number
+>>> +
+>>> +Optional parent device properties:
+>>> +- marvell,88pm800-irq-write-clr: indicates whether interrupt status is
+>>> cleared by write
+>>
+>>
+>> Drop the device name.  These bindings should be as generic as possible.
+>>
+>
+> OK, how about simply
+>
+> "mfd-irq_clr_on_write"
 
-and not modify rtc-lib.c
+No, mfd is a Linux name which doesn't belong in bindings, and
+underscores are generally not used.
 
-Can you make that modification ?
+I think Lee meant marvell,irq-write-clr or irq-write-clr.
 
--- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+This could also just be dropped altogether and set based on the
+compatible strings with match data.
+
+>> Also describe what the absence of the property means.
+>>
+>
+> Ok.
+>
+>>> +88pm800 consists of a large and varied group of sub-devices:
+>>
+>>
+>> 3?
+>>
+>
+> I have explicitly mentioned in note that more device list will follow.
+> I just wanted to add entries as and when we add/enable driver support.
+>
+>>> +Device                  Supply Names    Description
+>>> +------                  ------------    -----------
+>>> +88pm80x-onkey          :               : On key
+>>> +88pm80x-rtc            :               : RTC
+>>> +88pm80x                        :               : Regulators
+>>
+>>
+>> Surely regulators is 88pm80x-regulator, no?
+>>
+>
+> did not understand what change is expected here.
+
+The node name for regulators node should be 88pm80x-regulator? But
+these don't correspond to node names based on the example and the
+example is correct IMO. So these are Linux driver names? If so, they
+don't belong in the binding doc. What you need is to document the
+sub-node compatible strings
+
+Rob
 
 -- 
 -- 
