@@ -1,27 +1,27 @@
-Return-Path: <rtc-linux+bncBD5O5IWPJMIPBBGDVMCRUBH23TQ26@googlegroups.com>
-Received: from mail-wi0-x22e.google.com (mail-wi0-x22e.google.com. [2a00:1450:400c:c05::22e])
-        by gmr-mx.google.com with ESMTPS id p12si7674wiv.1.2015.06.04.14.26.08
+Return-Path: <rtc-linux+bncBCMNZUWXYYORB24HQ6WAKGQEUIR5LQI@googlegroups.com>
+MIME-Version: 1.0
+Received: from mail-pd0-f175.google.com (mail-pd0-f175.google.com. [209.85.192.175])
+        by gmr-mx.google.com with ESMTPS id fl5si663678pad.0.2015.06.17.12.00.59
         for <rtc-linux@googlegroups.com>
         (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 04 Jun 2015 14:26:08 -0700 (PDT)
-Received: by mail-wi0-x22e.google.com with SMTP id d19so2092854wiw.0
-        for <rtc-linux@googlegroups.com>; Thu, 04 Jun 2015 14:26:08 -0700 (PDT)
-Message-ID: <5570C26D.5080204@gmail.com>
-Date: Thu, 04 Jun 2015 23:26:05 +0200
-From: Philippe Reynes <tremyfr@gmail.com>
-MIME-Version: 1.0
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-CC: shawn.guo@linaro.org, kernel@pengutronix.de, linux@arm.linux.org.uk,
- a.zummo@towertech.it, robh+dt@kernel.org, pawel.moll@arm.com,
- mark.rutland@arm.com, ijc+devicetree@hellion.org.uk,
- galak@codeaurora.org, rtc-linux@googlegroups.com,
- linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
- devicetree@vger.kernel.org, fabio.estevam@freescale.com
-Subject: [rtc-linux] Re: [PATCH 2/2] rtc: mxc: add support of device tree
-References: <1431729330-7625-1-git-send-email-tremyfr@gmail.com> <1431729330-7625-3-git-send-email-tremyfr@gmail.com> <20150528120601.GO2185@piout.net>
-In-Reply-To: <20150528120601.GO2185@piout.net>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+        Wed, 17 Jun 2015 12:00:59 -0700 (PDT)
+Received: by pdbki1 with SMTP id ki1so46712991pdb.1
+        for <rtc-linux@googlegroups.com>; Wed, 17 Jun 2015 12:00:58 -0700 (PDT)
+From: Vaibhav Hiremath <vaibhav.hiremath@linaro.org>
+To: linux-arm-kernel@lists.infradead.org
+Cc: robh+dt@kernel.org,
+	lee.jones@linaro.org,
+	devicetree@vger.kernel.org,
+	rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org,
+	Vaibhav Hiremath <vaibhav.hiremath@linaro.org>
+Subject: [rtc-linux] [PATCH-v2 0/3] mfd: 88pm800: Add Device tree support
+Date: Thu, 18 Jun 2015 00:28:04 +0530
+Message-Id: <1434567488-6477-1-git-send-email-vaibhav.hiremath@linaro.org>
+In-Reply-To: <vaibhav.hiremath@linaro.org>
+References: <vaibhav.hiremath@linaro.org>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -31,109 +31,45 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Hi Alexandre,
+This patch-series adds support for Device tree to 88PM800 mfd driver.
+It also enabled configuration of irq clear method through DT.
+
+Testing::
+ - Boot tested on PXA1928 based platform.
+ - probe of mfd, rtc and regulator function passing successfully.
+ - Basic read operations on registers
 
 
-On 28/05/15 14:06, Alexandre Belloni wrote:
-> Hi,
->
-> On 16/05/2015 at 00:35:30 +0200, Philippe Reynes wrote :
->>
->
-> Please always include a commit message.
+V1 => V1
+=======
+Link to V1: http://lkml.iu.edu/hypermail/linux/kernel/1505.3/04386.html
 
-Oh yes, sorry about that.
+  - Split binding changes from original commit
+  - Updated binding info as per Rob's suggestion
+  - Dropped PATCH 4/4, as discussed during review
+  - Dropped PATCH 3/4, as it is independent RTC code change,
+    so will submit it separately to ease merging.
+  - Fixed all other minor comments
 
->> Signed-off-by: Philippe Reynes<tremyfr@gmail.com>
->> ---
->>   Documentation/devicetree/bindings/rtc/rtc-mxc.txt |   27 +++++++++++++++++++++
->>   drivers/rtc/rtc-mxc.c                             |   22 ++++++++++++++++-
->>   2 files changed, 48 insertions(+), 1 deletions(-)
->>   create mode 100644 Documentation/devicetree/bindings/rtc/rtc-mxc.txt
->>
->> diff --git a/Documentation/devicetree/bindings/rtc/rtc-mxc.txt b/Documentation/devicetree/bindings/rtc/rtc-mxc.txt
->> new file mode 100644
->> index 0000000..5505493
->> --- /dev/null
->> +++ b/Documentation/devicetree/bindings/rtc/rtc-mxc.txt
->> @@ -0,0 +1,27 @@
->> +* Real Time Clock of the i.MX SoCs
->> +
->> +RTC controller for the i.MX SoCs
->> +
->> +Required properties:
->> +- compatible: Should be "fsl,imx1-rtc" or "fsl,imx21-rtc".
->> +- reg: physical base address of the controller and length of memory mapped
->> +  region.
->> +- interrupts: IRQ line for the RTC.
->> +- clocks: should contain two entries:
->> +  * one for the input reference
->> +  * one for the the SoC RTC
->> +- clock-names: should contain:
->> +  * "rtc" for the input reference clock
->> +  * "ipg" for the SoC RTC clock
->> +
->> +Example:
->> +
->> +rtc@10007000 {
->> +	compatible = "fsl,imx21-rtc";
->> +	reg =<0x10007000 0x1000>;
->> +	interrupts =<22>;
->> +	clocks =<&clks IMX27_CLK_CKIL>,
->> +	       	<&clks IMX27_CLK_RTC_IPG_GATE>;
->> +	clock-names = "rtc, "ipg";
->> +	status = "disabled";
->> +};
->> diff --git a/drivers/rtc/rtc-mxc.c b/drivers/rtc/rtc-mxc.c
->> index e916a91..df6483d 100644
->> --- a/drivers/rtc/rtc-mxc.c
->> +++ b/drivers/rtc/rtc-mxc.c
->> @@ -16,6 +16,8 @@
->>   #include<linux/interrupt.h>
->>   #include<linux/platform_device.h>
->>   #include<linux/clk.h>
->> +#include<linux/of.h>
->> +#include<linux/of_device.h>
->>
->>   #define RTC_INPUT_CLK_32768HZ	(0x00<<  5)
->>   #define RTC_INPUT_CLK_32000HZ	(0x01<<  5)
->> @@ -98,6 +100,15 @@ static struct platform_device_id imx_rtc_devtype[] = {
->>   };
->>   MODULE_DEVICE_TABLE(platform, imx_rtc_devtype);
->>
->> +#ifdef CONFIG_OF
->> +static const struct of_device_id imx_rtc_dt_ids[] = {
->> +	{ .compatible = "fsl,imx1-rtc", .data =&imx_rtc_devtype[IMX1_RTC] },
->> +	{ .compatible = "fsl,imx21-rtc", .data =&imx_rtc_devtype[IMX21_RTC] },
->
-> Maybe you can use directly IMX1_RTC and IMX21_RTC which...
+Attempt has been made to push some of the patches to the list sometime
+back in 2013.
 
-I've seen both "style" on the code. I may change the code to simply use IMX1_RTC
-and IMX21_RTC.
+Link to previous patch submission:
+        https://lkml.org/lkml/2013/8/14/86
 
->>
->> -	pdata->devtype = pdev->id_entry->driver_data;
->> +	of_id = of_match_device(imx_rtc_dt_ids,&pdev->dev);
->> +	if (of_id) {
->> +		struct platform_device_id *id_entry;
->> +
->> +		id_entry = (struct platform_device_id *)of_id->data;
->> +		pdata->devtype = id_entry->driver_data;
->
-> ... also simplifies that part.
+Vaibhav Hiremath (3):
+  mfd: 88pm800: Add device tree support
+  mfd: 88pm800: Allow configuration of interrupt clear method
+  mfd: devicetree: bindings: Add new 88pm800 mfd binding
 
-I'll do it in the next version of this patch.
-  
->> +	} else
->> +		pdata->devtype = pdev->id_entry->driver_data;
->>
->
+ Documentation/devicetree/bindings/mfd/88pm800.txt | 60 +++++++++++++++++++++++
+ drivers/mfd/88pm800.c                             | 40 +++++++++++++--
+ include/linux/mfd/88pm80x.h                       |  6 ++-
+ 3 files changed, 99 insertions(+), 7 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/mfd/88pm800.txt
 
-Do you prefer that I wait the clock driver has move to drivers/clk/imx
-(as requested by Shawn) before sending a v2 ?
-
-Regards,
-Philippe
+-- 
+1.9.1
 
 -- 
 -- 
