@@ -1,25 +1,27 @@
-Return-Path: <rtc-linux+bncBD5O5IWPJMIIJ3MVVQCRUBAMRDBLA@googlegroups.com>
+Return-Path: <rtc-linux+bncBCMNZUWXYYORB4EHQ6WAKGQES5QVVGA@googlegroups.com>
 MIME-Version: 1.0
-Received: from mail-wg0-x234.google.com (mail-wg0-x234.google.com. [2a00:1450:400c:c00::234])
-        by gmr-mx.google.com with ESMTPS id da3si684280wib.1.2015.06.20.07.19.48
+Received: from mail-pd0-f175.google.com (mail-pd0-f175.google.com. [209.85.192.175])
+        by gmr-mx.google.com with ESMTPS id fl5si663678pad.0.2015.06.17.12.01.04
         for <rtc-linux@googlegroups.com>
         (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sat, 20 Jun 2015 07:19:48 -0700 (PDT)
-Received: by mail-wg0-x234.google.com with SMTP id hy7so109329316wgb.2
-        for <rtc-linux@googlegroups.com>; Sat, 20 Jun 2015 07:19:48 -0700 (PDT)
-From: Philippe Reynes <tremyfr@gmail.com>
-To: a.zummo@towertech.it,
-	alexandre.belloni@free-electrons.com,
-	shawn.guo@linaro.org,
-	kernel@pengutronix.de,
-	linux@arm.linux.org.uk
-Cc: linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org,
+        Wed, 17 Jun 2015 12:01:04 -0700 (PDT)
+Received: by mail-pd0-f175.google.com with SMTP id ki1so46712991pdb.1
+        for <rtc-linux@googlegroups.com>; Wed, 17 Jun 2015 12:01:04 -0700 (PDT)
+From: Vaibhav Hiremath <vaibhav.hiremath@linaro.org>
+To: linux-arm-kernel@lists.infradead.org
+Cc: robh+dt@kernel.org,
+	lee.jones@linaro.org,
+	devicetree@vger.kernel.org,
 	rtc-linux@googlegroups.com,
-	Philippe Reynes <tremyfr@gmail.com>
-Subject: [rtc-linux] [PATCH v2 0/6] add device tree support for mxc rtc
-Date: Sat, 20 Jun 2015 16:15:26 +0200
-Message-Id: <1434809732-8996-1-git-send-email-tremyfr@gmail.com>
+	linux-kernel@vger.kernel.org,
+	Vaibhav Hiremath <vaibhav.hiremath@linaro.org>,
+	Chao Xie <chao.xie@marvell.com>
+Subject: [rtc-linux] [PATCH-v2 1/3] mfd: 88pm800: Add device tree support
+Date: Thu, 18 Jun 2015 00:28:05 +0530
+Message-Id: <1434567488-6477-2-git-send-email-vaibhav.hiremath@linaro.org>
+In-Reply-To: <1434567488-6477-1-git-send-email-vaibhav.hiremath@linaro.org>
+References: <vaibhav.hiremath@linaro.org>
+ <1434567488-6477-1-git-send-email-vaibhav.hiremath@linaro.org>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -31,37 +33,97 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-This serie add the device tree support for the mxc rtc driver.
-To do this, three steps are required :
-- define two rtc clocks for imx31 and imx35
-- enhance mxc rtc driver to use two clocks (rtc and ipg)
-- add device tree support to mxc rtc driver
+Add DT support to the 88pm800 driver, along with compatible
+field for it's sub-devices (rtc, onkey and regulator)
 
-Changelog:
-v2: (thanks Shawn Guo and Alexandre Belloni)
-- add a second clock to imx35
-- split the add of clock in a separate patches
-- split the dt documentation in a separate patch
+Signed-off-by: Chao Xie <chao.xie@marvell.com>
+Signed-off-by: Vaibhav Hiremath <vaibhav.hiremath@linaro.org>
+---
+ drivers/mfd/88pm800.c | 25 +++++++++++++++++++++++++
+ 1 file changed, 25 insertions(+)
 
-Philippe Reynes (6):
-  imx31: add a second rtc clock
-  imx35: define two clocks for rtc
-  rtc: mxc: use a second rtc clock
-  rtc: mxc: add support of device tree
-  dt-binding: document the binding for mxc rtc
-  apf27: dt: add support of internal rtc
-
- Documentation/devicetree/bindings/rtc/rtc-mxc.txt |   27 ++++++++++++
- arch/arm/boot/dts/imx27-apf27.dts                 |    4 ++
- arch/arm/boot/dts/imx27.dtsi                      |   10 +++++
- arch/arm/mach-imx/clk-imx31.c                     |    3 +-
- arch/arm/mach-imx/clk-imx35.c                     |    6 ++-
- drivers/rtc/rtc-mxc.c                             |   45 ++++++++++++++++-----
- 6 files changed, 83 insertions(+), 12 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/rtc/rtc-mxc.txt
-
+diff --git a/drivers/mfd/88pm800.c b/drivers/mfd/88pm800.c
+index 841717a..059f01a 100644
+--- a/drivers/mfd/88pm800.c
++++ b/drivers/mfd/88pm800.c
+@@ -27,6 +27,7 @@
+ #include <linux/mfd/core.h>
+ #include <linux/mfd/88pm80x.h>
+ #include <linux/slab.h>
++#include <linux/of_device.h>
+ 
+ /* Interrupt Registers */
+ #define PM800_INT_STATUS1		(0x05)
+@@ -121,6 +122,11 @@ static const struct i2c_device_id pm80x_id_table[] = {
+ };
+ MODULE_DEVICE_TABLE(i2c, pm80x_id_table);
+ 
++static const struct of_device_id pm80x_of_match_table[] = {
++	{ .compatible = "marvell,88pm800", },
++	{},
++};
++
+ static struct resource rtc_resources[] = {
+ 	{
+ 	 .name = "88pm80x-rtc",
+@@ -133,6 +139,7 @@ static struct resource rtc_resources[] = {
+ static struct mfd_cell rtc_devs[] = {
+ 	{
+ 	 .name = "88pm80x-rtc",
++	 .of_compatible = "marvell,88pm80x-rtc",
+ 	 .num_resources = ARRAY_SIZE(rtc_resources),
+ 	 .resources = &rtc_resources[0],
+ 	 .id = -1,
+@@ -151,6 +158,7 @@ static struct resource onkey_resources[] = {
+ static const struct mfd_cell onkey_devs[] = {
+ 	{
+ 	 .name = "88pm80x-onkey",
++	 .of_compatible = "marvell,88pm80x-onkey",
+ 	 .num_resources = 1,
+ 	 .resources = &onkey_resources[0],
+ 	 .id = -1,
+@@ -160,6 +168,7 @@ static const struct mfd_cell onkey_devs[] = {
+ static const struct mfd_cell regulator_devs[] = {
+ 	{
+ 	 .name = "88pm80x-regulator",
++	 .of_compatible = "marvell,88pm80x-regulator",
+ 	 .id = -1,
+ 	},
+ };
+@@ -544,8 +553,23 @@ static int pm800_probe(struct i2c_client *client,
+ 	int ret = 0;
+ 	struct pm80x_chip *chip;
+ 	struct pm80x_platform_data *pdata = dev_get_platdata(&client->dev);
++	struct device_node *np = client->dev.of_node;
+ 	struct pm80x_subchip *subchip;
+ 
++	if (!pdata && !np) {
++		dev_err(&client->dev,
++			"pm80x requires platform data or of_node\n");
++		return -EINVAL;
++	}
++
++	if (!pdata) {
++		pdata = devm_kzalloc(&client->dev, sizeof(*pdata), GFP_KERNEL);
++		if (!pdata) {
++			dev_err(&client->dev, "failed to allocaate memory\n");
++			return -ENOMEM;
++		}
++	}
++
+ 	ret = pm80x_init(client);
+ 	if (ret) {
+ 		dev_err(&client->dev, "pm800_init fail\n");
+@@ -611,6 +635,7 @@ static struct i2c_driver pm800_driver = {
+ 		.name = "88PM800",
+ 		.owner = THIS_MODULE,
+ 		.pm = &pm80x_pm_ops,
++		.of_match_table	= pm80x_of_match_table,
+ 		},
+ 	.probe = pm800_probe,
+ 	.remove = pm800_remove,
 -- 
-1.7.4.4
+1.9.1
 
 -- 
 -- 
