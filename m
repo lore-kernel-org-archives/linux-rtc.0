@@ -1,27 +1,28 @@
-Return-Path: <rtc-linux+bncBD5O5IWPJMIJT3MVVQCRUBEKEANXK@googlegroups.com>
+Return-Path: <rtc-linux+bncBCMNZUWXYYORB6UHQ6WAKGQE34FWWFQ@googlegroups.com>
 MIME-Version: 1.0
-Received: from mail-wg0-x234.google.com (mail-wg0-x234.google.com. [2a00:1450:400c:c00::234])
-        by gmr-mx.google.com with ESMTPS id bc3si428909wib.2.2015.06.20.07.20.09
+Received: from mail-pa0-f46.google.com (mail-pa0-f46.google.com. [209.85.220.46])
+        by gmr-mx.google.com with ESMTPS id ct6si677288pdb.1.2015.06.17.12.01.14
         for <rtc-linux@googlegroups.com>
         (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sat, 20 Jun 2015 07:20:09 -0700 (PDT)
-Received: by mail-wg0-x234.google.com with SMTP id q1so62705181wgf.1
-        for <rtc-linux@googlegroups.com>; Sat, 20 Jun 2015 07:20:09 -0700 (PDT)
-From: Philippe Reynes <tremyfr@gmail.com>
-To: a.zummo@towertech.it,
-	alexandre.belloni@free-electrons.com,
-	shawn.guo@linaro.org,
-	kernel@pengutronix.de,
-	linux@arm.linux.org.uk
-Cc: linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org,
+        Wed, 17 Jun 2015 12:01:14 -0700 (PDT)
+Received: by mail-pa0-f46.google.com with SMTP id eq1so17934019pac.3
+        for <rtc-linux@googlegroups.com>; Wed, 17 Jun 2015 12:01:14 -0700 (PDT)
+From: Vaibhav Hiremath <vaibhav.hiremath@linaro.org>
+To: linux-arm-kernel@lists.infradead.org
+Cc: robh+dt@kernel.org,
+	lee.jones@linaro.org,
+	devicetree@vger.kernel.org,
 	rtc-linux@googlegroups.com,
-	Philippe Reynes <tremyfr@gmail.com>
-Subject: [rtc-linux] [PATCH v2 3/6] rtc: mxc: use a second rtc clock
-Date: Sat, 20 Jun 2015 16:15:29 +0200
-Message-Id: <1434809732-8996-4-git-send-email-tremyfr@gmail.com>
-In-Reply-To: <1434809732-8996-1-git-send-email-tremyfr@gmail.com>
-References: <1434809732-8996-1-git-send-email-tremyfr@gmail.com>
+	linux-kernel@vger.kernel.org,
+	Vaibhav Hiremath <vaibhav.hiremath@linaro.org>,
+	Zhao Ye <zhaoy@marvell.com>
+Subject: [rtc-linux] [PATCH-v2 2/3] mfd: 88pm800: Allow configuration of
+ interrupt clear method
+Date: Thu, 18 Jun 2015 00:28:07 +0530
+Message-Id: <1434567488-6477-4-git-send-email-vaibhav.hiremath@linaro.org>
+In-Reply-To: <1434567488-6477-1-git-send-email-vaibhav.hiremath@linaro.org>
+References: <vaibhav.hiremath@linaro.org>
+ <1434567488-6477-1-git-send-email-vaibhav.hiremath@linaro.org>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -33,81 +34,110 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-The mxc RTC needs two clocks, one for the input
-reference, and one for the IP. But this driver
-was only using one clock (for the reference).
-This patch add the second clock (for the IP).
+As per the spec, bit 1 (INT_CLEAR_MODE) of reg addr 0xe
+(page 0) controls the method of clearing interrupt
+status of 88pm800 family of devices;
 
-Signed-off-by: Philippe Reynes <tremyfr@gmail.com>
+  0: clear on read
+  1: clear on write
+
+This patch allows to configure this field, through DT.
+
+Also, as suggested by "Lee Jones" renaming DT property and variable
+field to appropriate name.
+
+Signed-off-by: Zhao Ye <zhaoy@marvell.com>
+Signed-off-by: Vaibhav Hiremath <vaibhav.hiremath@linaro.org>
 ---
- drivers/rtc/rtc-mxc.c |   26 +++++++++++++++++---------
- 1 files changed, 17 insertions(+), 9 deletions(-)
+ drivers/mfd/88pm800.c       | 15 ++++++++++-----
+ include/linux/mfd/88pm80x.h |  6 ++++--
+ 2 files changed, 14 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/rtc/rtc-mxc.c b/drivers/rtc/rtc-mxc.c
-index 09d422b..e916a91 100644
---- a/drivers/rtc/rtc-mxc.c
-+++ b/drivers/rtc/rtc-mxc.c
-@@ -79,7 +79,8 @@ struct rtc_plat_data {
- 	struct rtc_device *rtc;
- 	void __iomem *ioaddr;
- 	int irq;
--	struct clk *clk;
-+	struct clk *clk_rtc;
-+	struct clk *clk_ipg;
- 	struct rtc_time g_rtc_alarm;
- 	enum imx_rtc_type devtype;
- };
-@@ -373,17 +374,24 @@ static int mxc_rtc_probe(struct platform_device *pdev)
- 	if (IS_ERR(pdata->ioaddr))
- 		return PTR_ERR(pdata->ioaddr);
+diff --git a/drivers/mfd/88pm800.c b/drivers/mfd/88pm800.c
+index 059f01a..c1a6306 100644
+--- a/drivers/mfd/88pm800.c
++++ b/drivers/mfd/88pm800.c
+@@ -376,7 +376,7 @@ static int device_irq_init_800(struct pm80x_chip *chip)
+ {
+ 	struct regmap *map = chip->regmap;
+ 	unsigned long flags = IRQF_ONESHOT;
+-	int data, mask, ret = -EINVAL;
++	int irq_clr_mode, mask, ret = -EINVAL;
  
--	pdata->clk = devm_clk_get(&pdev->dev, NULL);
--	if (IS_ERR(pdata->clk)) {
--		dev_err(&pdev->dev, "unable to get clock!\n");
--		return PTR_ERR(pdata->clk);
-+	pdata->clk_ipg = devm_clk_get(&pdev->dev, "ipg");
-+	if (IS_ERR(pdata->clk_ipg)) {
-+		dev_err(&pdev->dev, "unable to get ipg clock!\n");
-+		return PTR_ERR(pdata->clk_ipg);
+ 	if (!map || !chip->irq) {
+ 		dev_err(chip->dev, "incorrect parameters\n");
+@@ -384,15 +384,16 @@ static int device_irq_init_800(struct pm80x_chip *chip)
  	}
  
--	ret = clk_prepare_enable(pdata->clk);
-+	ret = clk_prepare_enable(pdata->clk_ipg);
- 	if (ret)
- 		return ret;
+ 	/*
+-	 * irq_mode defines the way of clearing interrupt. it's read-clear by
+-	 * default.
++	 * irq_clr_on_wr defines the way of clearing interrupt by
++	 * read/write(0/1).  It's read-clear by default.
+ 	 */
+ 	mask =
+ 	    PM800_WAKEUP2_INV_INT | PM800_WAKEUP2_INT_CLEAR |
+ 	    PM800_WAKEUP2_INT_MASK;
  
--	rate = clk_get_rate(pdata->clk);
-+	pdata->clk_rtc = devm_clk_get(&pdev->dev, "rtc");
-+	if (IS_ERR(pdata->clk_rtc)) {
-+		dev_err(&pdev->dev, "unable to get rtc clock!\n");
-+		ret = PTR_ERR(pdata->clk_rtc);
-+		goto exit_put_clk;
-+	}
+-	data = PM800_WAKEUP2_INT_CLEAR;
+-	ret = regmap_update_bits(map, PM800_WAKEUP2, mask, data);
++	irq_clr_mode = (chip->irq_clr_on_wr) ?
++		PM800_WAKEUP2_INT_WRITE_CLEAR : PM800_WAKEUP2_INT_READ_CLEAR;
++	ret = regmap_update_bits(map, PM800_WAKEUP2, mask, irq_clr_mode);
+ 
+ 	if (ret < 0)
+ 		goto out;
+@@ -514,6 +515,7 @@ static int device_800_init(struct pm80x_chip *chip,
+ 	}
+ 
+ 	chip->regmap_irq_chip = &pm800_irq_chip;
++	chip->irq_clr_on_wr = pdata->irq_clr_on_wr;
+ 
+ 	ret = device_irq_init_800(chip);
+ 	if (ret < 0) {
+@@ -568,6 +570,9 @@ static int pm800_probe(struct i2c_client *client,
+ 			dev_err(&client->dev, "failed to allocaate memory\n");
+ 			return -ENOMEM;
+ 		}
 +
-+	rate = clk_get_rate(pdata->clk_rtc);
++		pdata->irq_clr_on_wr = of_property_read_bool(np,
++					"marvell,irq-clr-on-write");
+ 	}
  
- 	if (rate == 32768)
- 		reg = RTC_INPUT_CLK_32768HZ;
-@@ -432,7 +440,7 @@ static int mxc_rtc_probe(struct platform_device *pdev)
- 	return 0;
+ 	ret = pm80x_init(client);
+diff --git a/include/linux/mfd/88pm80x.h b/include/linux/mfd/88pm80x.h
+index 97cb283..94b3dcd 100644
+--- a/include/linux/mfd/88pm80x.h
++++ b/include/linux/mfd/88pm80x.h
+@@ -77,6 +77,8 @@ enum {
+ #define PM800_WAKEUP2		(0x0E)
+ #define PM800_WAKEUP2_INV_INT		(1 << 0)
+ #define PM800_WAKEUP2_INT_CLEAR		(1 << 1)
++#define PM800_WAKEUP2_INT_READ_CLEAR		(0 << 1)
++#define PM800_WAKEUP2_INT_WRITE_CLEAR		(1 << 1)
+ #define PM800_WAKEUP2_INT_MASK		(1 << 2)
  
- exit_put_clk:
--	clk_disable_unprepare(pdata->clk);
-+	clk_disable_unprepare(pdata->clk_ipg);
- 
- 	return ret;
- }
-@@ -441,7 +449,7 @@ static int mxc_rtc_remove(struct platform_device *pdev)
- {
- 	struct rtc_plat_data *pdata = platform_get_drvdata(pdev);
- 
--	clk_disable_unprepare(pdata->clk);
-+	clk_disable_unprepare(pdata->clk_ipg);
- 
- 	return 0;
- }
+ #define PM800_POWER_UP_LOG	(0x10)
+@@ -300,7 +302,7 @@ struct pm80x_chip {
+ 	struct regmap_irq_chip_data *irq_data;
+ 	int type;
+ 	int irq;
+-	int irq_mode;
++	int irq_clr_on_wr;	/* '1': Clear on write, '0': Clear on read*/
+ 	unsigned long wu_flag;
+ 	spinlock_t lock;
+ };
+@@ -315,7 +317,7 @@ struct pm80x_platform_data {
+ 	 */
+ 	struct regulator_init_data *regulators[PM800_ID_RG_MAX];
+ 	unsigned int num_regulators;
+-	int irq_mode;		/* Clear interrupt by read/write(0/1) */
++	int irq_clr_on_wr;		/* Clear interrupt by read/write(0/1) */
+ 	int batt_det;		/* enable/disable */
+ 	int (*plat_config)(struct pm80x_chip *chip,
+ 				struct pm80x_platform_data *pdata);
 -- 
-1.7.4.4
+1.9.1
 
 -- 
 -- 
