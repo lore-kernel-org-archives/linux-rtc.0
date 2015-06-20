@@ -1,30 +1,29 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBKHIXCVQKGQEN5DXEEA@googlegroups.com>
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id p12si745138wiv.1.2015.06.02.15.54.32
-        for <rtc-linux@googlegroups.com>;
-        Tue, 02 Jun 2015 15:54:32 -0700 (PDT)
-Date: Wed, 3 Jun 2015 00:54:06 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Octavian Purdila <octavian.purdila@intel.com>
-Cc: Linus Walleij <linus.walleij@linaro.org>,
-	Mika Westerberg <mika.westerberg@linux.intel.com>,
-	Jonathan Cameron <jic23@kernel.org>,
-	Hartmut Knaack <knaack.h@gmx.de>,
-	Lars-Peter Clausen <lars@metafoo.de>,
-	Peter Meerwald <pmeerw@pmeerw.net>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
-	linux-iio@vger.kernel.org, rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH 2/2] rtc: change "client->irq >= 0" to
- "client->irq > 0"
-Message-ID: <20150602225406.GJ1715@piout.net>
-References: <1433280853-3988-1-git-send-email-octavian.purdila@intel.com>
- <1433280853-3988-3-git-send-email-octavian.purdila@intel.com>
+Return-Path: <rtc-linux+bncBD5O5IWPJMIJH3MVVQCRUBH4Q5H6Y@googlegroups.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1433280853-3988-3-git-send-email-octavian.purdila@intel.com>
+Received: from mail-wi0-x235.google.com (mail-wi0-x235.google.com. [2a00:1450:400c:c05::235])
+        by gmr-mx.google.com with ESMTPS id bk2si343465wib.1.2015.06.20.07.20.03
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Sat, 20 Jun 2015 07:20:03 -0700 (PDT)
+Received: by mail-wi0-x235.google.com with SMTP id dq8so40219917wib.1
+        for <rtc-linux@googlegroups.com>; Sat, 20 Jun 2015 07:20:03 -0700 (PDT)
+From: Philippe Reynes <tremyfr@gmail.com>
+To: a.zummo@towertech.it,
+	alexandre.belloni@free-electrons.com,
+	shawn.guo@linaro.org,
+	kernel@pengutronix.de,
+	linux@arm.linux.org.uk
+Cc: linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org,
+	rtc-linux@googlegroups.com,
+	Philippe Reynes <tremyfr@gmail.com>
+Subject: [rtc-linux] [PATCH v2 2/6] imx35: define two clocks for rtc
+Date: Sat, 20 Jun 2015 16:15:28 +0200
+Message-Id: <1434809732-8996-3-git-send-email-tremyfr@gmail.com>
+In-Reply-To: <1434809732-8996-1-git-send-email-tremyfr@gmail.com>
+References: <1434809732-8996-1-git-send-email-tremyfr@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -34,68 +33,48 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Hi,
+The imx35 don't define clocks for rtc.
+This patch add two clocks, as needed
+by the mxc rtc driver.
 
-On 03/06/2015 at 00:34:13 +0300, Octavian Purdila wrote :
-> Since commit dab472eb931b ("i2c / ACPI: Use 0 to indicate that device
+Signed-off-by: Philippe Reynes <tremyfr@gmail.com>
+---
+ arch/arm/mach-imx/clk-imx35.c |    6 +++++-
+ 1 files changed, 5 insertions(+), 1 deletions(-)
 
-You can't reference that commit ID as Linus Torvalds didn't pull that
-patch yet.
-
-I'd also prefer a more descriptive subject line.
-
-> does not have interrupt assigned"), 0 is not a valid i2c client irq
-> anymore, so change all driver's checks accordingly.
-> 
-> Signed-off-by: Octavian Purdila <octavian.purdila@intel.com>
-> ---
->  drivers/rtc/rtc-ds1374.c | 4 ++--
->  drivers/rtc/rtc-ds3232.c | 2 +-
->  2 files changed, 3 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/rtc/rtc-ds1374.c b/drivers/rtc/rtc-ds1374.c
-> index 167783f..592458c 100644
-> --- a/drivers/rtc/rtc-ds1374.c
-> +++ b/drivers/rtc/rtc-ds1374.c
-> @@ -689,7 +689,7 @@ static int ds1374_suspend(struct device *dev)
->  {
->  	struct i2c_client *client = to_i2c_client(dev);
->  
-> -	if (client->irq >= 0 && device_may_wakeup(&client->dev))
-> +	if (client->irq > 0 && device_may_wakeup(&client->dev))
->  		enable_irq_wake(client->irq);
->  	return 0;
->  }
-> @@ -698,7 +698,7 @@ static int ds1374_resume(struct device *dev)
->  {
->  	struct i2c_client *client = to_i2c_client(dev);
->  
-> -	if (client->irq >= 0 && device_may_wakeup(&client->dev))
-> +	if (client->irq > 0 && device_may_wakeup(&client->dev))
->  		disable_irq_wake(client->irq);
->  	return 0;
->  }
-> diff --git a/drivers/rtc/rtc-ds3232.c b/drivers/rtc/rtc-ds3232.c
-> index 7e48e53..f280dd1 100644
-> --- a/drivers/rtc/rtc-ds3232.c
-> +++ b/drivers/rtc/rtc-ds3232.c
-> @@ -443,7 +443,7 @@ static int ds3232_remove(struct i2c_client *client)
->  {
->  	struct ds3232 *ds3232 = i2c_get_clientdata(client);
->  
-> -	if (client->irq >= 0) {
-> +	if (client->irq > 0) {
->  		mutex_lock(&ds3232->mutex);
->  		ds3232->exiting = 1;
->  		mutex_unlock(&ds3232->mutex);
-> -- 
-> 1.9.1
-> 
-
+diff --git a/arch/arm/mach-imx/clk-imx35.c b/arch/arm/mach-imx/clk-imx35.c
+index a0d2b57..8c2f507 100644
+--- a/arch/arm/mach-imx/clk-imx35.c
++++ b/arch/arm/mach-imx/clk-imx35.c
+@@ -51,7 +51,7 @@ static const char *std_sel[] = {"ppll", "arm"};
+ static const char *ipg_per_sel[] = {"ahb_per_div", "arm_per_div"};
+ 
+ enum mx35_clks {
+-	ckih, mpll, ppll, mpll_075, arm, hsp, hsp_div, hsp_sel, ahb, ipg,
++	ckih, ckil, mpll, ppll, mpll_075, arm, hsp, hsp_div, hsp_sel, ahb, ipg,
+ 	arm_per_div, ahb_per_div, ipg_per, uart_sel, uart_div, esdhc_sel,
+ 	esdhc1_div, esdhc2_div, esdhc3_div, spdif_sel, spdif_div_pre,
+ 	spdif_div_post, ssi_sel, ssi1_div_pre, ssi1_div_post, ssi2_div_pre,
+@@ -89,6 +89,7 @@ int __init mx35_clocks_init(void)
+ 	}
+ 
+ 	clk[ckih] = imx_clk_fixed("ckih", 24000000);
++	clk[ckil] = imx_clk_fixed("ckih", 32768);
+ 	clk[mpll] = imx_clk_pllv1("mpll", "ckih", base + MX35_CCM_MPCTL);
+ 	clk[ppll] = imx_clk_pllv1("ppll", "ckih", base + MX35_CCM_PPCTL);
+ 
+@@ -240,6 +241,9 @@ int __init mx35_clocks_init(void)
+ 	clk_register_clkdev(clk[ipg], "ipg", "imx21-uart.1");
+ 	clk_register_clkdev(clk[uart3_gate], "per", "imx21-uart.2");
+ 	clk_register_clkdev(clk[ipg], "ipg", "imx21-uart.2");
++	/* i.mx35 has the i.mx21 type uart */
++	clk_register_clkdev(clk[ckil], "rtc", "imx21-rtc");
++	clk_register_clkdev(clk[rtc_gate], "ipg", "imx21-rtc");
+ 	clk_register_clkdev(clk[usb_div], "per", "mxc-ehci.0");
+ 	clk_register_clkdev(clk[ipg], "ipg", "mxc-ehci.0");
+ 	clk_register_clkdev(clk[usbotg_gate], "ahb", "mxc-ehci.0");
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+1.7.4.4
 
 -- 
 -- 
