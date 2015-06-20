@@ -1,25 +1,23 @@
-Return-Path: <rtc-linux+bncBAABBD45VOWAKGQET6KMG4Y@googlegroups.com>
-Received: from comal.ext.ti.com (comal.ext.ti.com. [198.47.26.152])
-        by gmr-mx.google.com with ESMTP id ns5si234202igb.0.2015.06.24.08.36.47
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBS7OSKWAKGQEUB4CKUQ@googlegroups.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id gt9si307126wib.2.2015.06.19.17.43.55
         for <rtc-linux@googlegroups.com>;
-        Wed, 24 Jun 2015 08:36:47 -0700 (PDT)
-Message-ID: <558ACE87.6040509@ti.com>
-Date: Wed, 24 Jun 2015 18:36:39 +0300
-From: Grygorii Strashko <grygorii.strashko@ti.com>
+        Fri, 19 Jun 2015 17:43:55 -0700 (PDT)
+Date: Sat, 20 Jun 2015 02:43:54 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Vaibhav Hiremath <vaibhav.hiremath@linaro.org>
+Cc: linux-arm-kernel@lists.infradead.org, robh+dt@kernel.org,
+	lee.jones@linaro.org, devicetree@vger.kernel.org,
+	rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org,
+	Chao Xie <chao.xie@marvell.com>
+Subject: Re: [rtc-linux] [PATCH-v2] rtc: 88pm80x: add device tree support
+Message-ID: <20150620004354.GY27492@piout.net>
+References: <vaibhav.hiremath@linaro.org>
+ <1434567488-6477-1-git-send-email-vaibhav.hiremath@linaro.org>
+ <1434567488-6477-3-git-send-email-vaibhav.hiremath@linaro.org>
 MIME-Version: 1.0
-To: Nishanth Menon <nm@ti.com>,
-        Alexandre Belloni
-	<alexandre.belloni@free-electrons.com>,
-        Alessandro Zummo
-	<a.zummo@towertech.it>
-CC: <linux-kernel@vger.kernel.org>, <rtc-linux@googlegroups.com>,
-        <linux-omap@vger.kernel.org>, <linux-arm-kernel@lists.infradead.org>,
-        <balbi@ti.com>
-Subject: [rtc-linux] Re: [PATCH V2 4/5] drivers/rtc/rtc-ds1307.c: Support
- optional wakeup interrupt source
-References: <1435076114-12416-1-git-send-email-nm@ti.com> <1435076114-12416-5-git-send-email-nm@ti.com>
-In-Reply-To: <1435076114-12416-5-git-send-email-nm@ti.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1434567488-6477-3-git-send-email-vaibhav.hiremath@linaro.org>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -30,142 +28,51 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On 06/23/2015 07:15 PM, Nishanth Menon wrote:
-> With the recent pinctrl-single changes, SoCs such as Texas
-> Instrument's OMAP processors can treat wake-up events from deeper idle
-> states as interrupts.
->
-> Let's add support for the optional second interrupt for wake-up using
-> the generic wakeirq support added in commit 4990d4fe327b ("PM /
-> Wakeirq: Add automated device wake IRQ handling")
->
-> Finally, to pass the wake-up interrupt in the dts file,
-> interrupts-extended property needs to be passed.
->
-> This is similar in approach to commit 2a0b965cfb6e ("serial: omap: Add
-> support for optional wake-up") + ee83bd3b6483 ("serial: omap: Switch
-> wake-up interrupt to generic wakeirq")
->
-> Signed-off-by: Nishanth Menon <nm@ti.com>
-> ---
-> Changes since V1:
-> 	- dropped the need for specific suspend-resume handlers generic api
-> 	  has adequate hooks for those
-> 	- little more code flow cleanups.
->
-> V1: https://patchwork.kernel.org/patch/4759171/
->
->   drivers/rtc/rtc-ds1307.c |   41 ++++++++++++++++++++++++++++++++++++++---
->   1 file changed, 38 insertions(+), 3 deletions(-)
->
-> diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
-> index b03880fc32b5..b00d97dbf955 100644
-> --- a/drivers/rtc/rtc-ds1307.c
-> +++ b/drivers/rtc/rtc-ds1307.c
-> @@ -15,6 +15,9 @@
->   #include <linux/i2c.h>
->   #include <linux/init.h>
->   #include <linux/module.h>
-> +#include <linux/of_device.h>
-> +#include <linux/of_irq.h>
-> +#include <linux/pm_wakeirq.h>
->   #include <linux/rtc/ds1307.h>
->   #include <linux/rtc.h>
->   #include <linux/slab.h>
-> @@ -114,6 +117,7 @@ struct ds1307 {
->   #define HAS_ALARM	1		/* bit 1 == irq claimed */
->   	struct i2c_client	*client;
->   	struct rtc_device	*rtc;
-> +	int			wakeirq;
->   	s32 (*read_block_data)(const struct i2c_client *client, u8 command,
->   			       u8 length, u8 *values);
->   	s32 (*write_block_data)(const struct i2c_client *client, u8 command,
-> @@ -1156,6 +1160,8 @@ read_rtc:
->   	}
->
->   	if (want_irq) {
-> +		struct device_node *node = client->dev.of_node;
+Hi,
+
+On 18/06/2015 at 00:28:06 +0530, Vaibhav Hiremath wrote :
+> -	pdata = dev_get_platdata(&pdev->dev);
+> -	if (pdata == NULL)
+> -		dev_warn(&pdev->dev, "No platform data!\n");
+> +	if (!pdata && !node) {
+> +		dev_err(&pdev->dev,
+> +			"pm80x-rtc requires platform data or of_node\n");
+> +		return -EINVAL;
+> +	}
 > +
->   		err = devm_request_threaded_irq(&client->dev,
->   						client->irq, NULL, irq_handler,
->   						IRQF_SHARED | IRQF_ONESHOT,
-> @@ -1163,13 +1169,36 @@ read_rtc:
->   		if (err) {
->   			client->irq = 0;
->   			dev_err(&client->dev, "unable to request IRQ!\n");
-> -		} else {
-> +			goto no_irq;
+> +	if (!pdata) {
+> +		pdata = devm_kzalloc(&pdev->dev, sizeof(*pdata), GFP_KERNEL);
+
+I had troubles to follow the rtc_wakeup initialization cleanup but it
+seems OK. However, I'm wondering why you are adding DT support as this
+will always be probed from the MFD driver which pass the platform_data
+and avoids that allocation.
+
+> +		if (!pdata) {
+> +			dev_err(&pdev->dev, "failed to allocate memory\n");
+> +			return -ENOMEM;
 > +		}
-> +
-> +		set_bit(HAS_ALARM, &ds1307->flags);
-> +		dev_dbg(&client->dev, "got IRQ %d\n", client->irq);
->
-> -			set_bit(HAS_ALARM, &ds1307->flags);
-> -			dev_dbg(&client->dev, "got IRQ %d\n", client->irq);
-> +		/* Currently supported by OF code only! */
-> +		if (!node)
-> +			goto no_irq;
-> +
-> +		ds1307->wakeirq = of_irq_get(node, 1);
-> +		if (ds1307->wakeirq <= 0) {
-> +			if (ds1307->wakeirq == -EPROBE_DEFER) {
-> +				err = ds1307->wakeirq;
-> +				goto exit;
-> +			}
-> +			ds1307->wakeirq = 0;
-> +			goto no_irq;
-> +		}
-
-Might be above code could be done a little bit simpler?
-
-		err = of_irq_get(node, 1);
-		if (err <= 0) {
-			if (err == -EPROBE_DEFER)
-				goto exit;
-			goto no_irq;
-		}
-		ds1307->wakeirq = err;
-
-> +
-> +		err = dev_pm_set_dedicated_wake_irq(&client->dev,
-> +						    ds1307->wakeirq);
-> +		if (err) {
-> +			dev_err(&client->dev, "unable to setup wakeIRQ %d\n",
-> +				err);
-> +			goto exit;
->   		}
->   	}
->
-> +no_irq:
->   	if (chip->nvram_size) {
->
->   		ds1307->nvram = devm_kzalloc(&client->dev,
-> @@ -1206,6 +1235,9 @@ read_rtc:
->   	return 0;
->
->   exit:
-> +	if (ds1307->wakeirq)
-> +		dev_pm_clear_wake_irq(&client->dev);
-> +
->   	return err;
->   }
->
-> @@ -1213,6 +1245,9 @@ static int ds1307_remove(struct i2c_client *client)
->   {
->   	struct ds1307 *ds1307 = i2c_get_clientdata(client);
->
-> +	if (ds1307->wakeirq)
-> +		dev_pm_clear_wake_irq(&client->dev);
-> +
->   	if (test_and_clear_bit(HAS_NVRAM, &ds1307->flags))
->   		sysfs_remove_bin_file(&client->dev.kobj, ds1307->nvram);
->
->
+> +	}
+>  
+>  	info =
+>  	    devm_kzalloc(&pdev->dev, sizeof(struct pm80x_rtc_info), GFP_KERNEL);
+> @@ -327,11 +336,8 @@ static int pm80x_rtc_probe(struct platform_device *pdev)
+>  	regmap_update_bits(info->map, PM800_RTC_CONTROL, PM800_RTC1_USE_XO,
+>  			   PM800_RTC1_USE_XO);
+>  
+> -	if (pm80x_pdata) {
+> -		pdata = pm80x_pdata->rtc;
+> -		if (pdata)
+> -			info->rtc_dev->dev.platform_data = &pdata->rtc_wakeup;
+> -	}
+> +	/* remeber whether this power up is caused by PMIC RTC or not */
+remember -^
 
 
 -- 
-regards,
--grygorii
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
 -- 
 -- 
