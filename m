@@ -1,17 +1,27 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBPG366VQKGQER4KYBEA@googlegroups.com>
+Return-Path: <rtc-linux+bncBD5O5IWPJMIJVPUWVQCRUBCWKWDD2@googlegroups.com>
 MIME-Version: 1.0
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id t6si422313wiz.0.2015.06.14.14.10.20
-        for <rtc-linux@googlegroups.com>;
-        Sun, 14 Jun 2015 14:10:20 -0700 (PDT)
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: rtc-linux@googlegroups.com
-Cc: linux-kernel@vger.kernel.org,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Subject: [rtc-linux] [PATCH] rtc: remove useless I2C dependencies
-Date: Sun, 14 Jun 2015 23:08:18 +0200
-Message-Id: <1434316098-23568-1-git-send-email-alexandre.belloni@free-electrons.com>
+Received: from mail-wi0-x22b.google.com (mail-wi0-x22b.google.com. [2a00:1450:400c:c05::22b])
+        by gmr-mx.google.com with ESMTPS id t6si721170wiz.0.2015.06.20.10.12.58
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Sat, 20 Jun 2015 10:12:58 -0700 (PDT)
+Received: by mail-wi0-x22b.google.com with SMTP id nd19so43329093wic.1
+        for <rtc-linux@googlegroups.com>; Sat, 20 Jun 2015 10:12:58 -0700 (PDT)
+From: Philippe Reynes <tremyfr@gmail.com>
+To: a.zummo@towertech.it,
+	alexandre.belloni@free-electrons.com,
+	shawn.guo@linaro.org,
+	kernel@pengutronix.de,
+	linux@arm.linux.org.uk
+Cc: linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org,
+	rtc-linux@googlegroups.com,
+	Philippe Reynes <tremyfr@gmail.com>
+Subject: [rtc-linux] [PATCH v3 4/6] rtc: mxc: add support of device tree
+Date: Sat, 20 Jun 2015 19:12:38 +0200
+Message-Id: <1434820360-21935-5-git-send-email-tremyfr@gmail.com>
+In-Reply-To: <1434820360-21935-1-git-send-email-tremyfr@gmail.com>
+References: <1434820360-21935-1-git-send-email-tremyfr@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -23,79 +33,71 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Multiple options depend on I2C but are already under under if I2C. Remove
-those useless dependencies.
+Add device tree support for the mxc rtc driver.
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Signed-off-by: Philippe Reynes <tremyfr@gmail.com>
 ---
- drivers/rtc/Kconfig | 10 +++-------
- 1 file changed, 3 insertions(+), 7 deletions(-)
+ drivers/rtc/rtc-mxc.c |   19 ++++++++++++++++++-
+ 1 files changed, 18 insertions(+), 1 deletions(-)
 
-diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
-index 23a5bcdf34ec..c904c0f9ed5f 100644
---- a/drivers/rtc/Kconfig
-+++ b/drivers/rtc/Kconfig
-@@ -146,7 +146,7 @@ if I2C
+diff --git a/drivers/rtc/rtc-mxc.c b/drivers/rtc/rtc-mxc.c
+index e916a91..befe2c2 100644
+--- a/drivers/rtc/rtc-mxc.c
++++ b/drivers/rtc/rtc-mxc.c
+@@ -16,6 +16,8 @@
+ #include <linux/interrupt.h>
+ #include <linux/platform_device.h>
+ #include <linux/clk.h>
++#include <linux/of.h>
++#include <linux/of_device.h>
  
- config RTC_DRV_88PM860X
- 	tristate "Marvell 88PM860x"
--	depends on I2C && MFD_88PM860X
-+	depends on MFD_88PM860X
- 	help
- 	  If you say yes here you get support for RTC function in Marvell
- 	  88PM860x chips.
-@@ -156,7 +156,7 @@ config RTC_DRV_88PM860X
+ #define RTC_INPUT_CLK_32768HZ	(0x00 << 5)
+ #define RTC_INPUT_CLK_32000HZ	(0x01 << 5)
+@@ -98,6 +100,15 @@ static struct platform_device_id imx_rtc_devtype[] = {
+ };
+ MODULE_DEVICE_TABLE(platform, imx_rtc_devtype);
  
- config RTC_DRV_88PM80X
- 	tristate "Marvell 88PM80x"
--	depends on I2C && MFD_88PM800
-+	depends on MFD_88PM800
- 	help
- 	  If you say yes here you get support for RTC function in Marvell
- 	  88PM80x chips.
-@@ -165,7 +165,6 @@ config RTC_DRV_88PM80X
- 	  will be called rtc-88pm80x.
++#ifdef CONFIG_OF
++static const struct of_device_id imx_rtc_dt_ids[] = {
++	{ .compatible = "fsl,imx1-rtc", .data = (const void *)IMX1_RTC },
++	{ .compatible = "fsl,imx21-rtc", .data = (const void *)IMX21_RTC },
++	{}
++};
++MODULE_DEVICE_TABLE(of, imx_rtc_dt_ids);
++#endif
++
+ static inline int is_imx1_rtc(struct rtc_plat_data *data)
+ {
+ 	return data->devtype == IMX1_RTC;
+@@ -362,12 +373,17 @@ static int mxc_rtc_probe(struct platform_device *pdev)
+ 	u32 reg;
+ 	unsigned long rate;
+ 	int ret;
++	const struct of_device_id *of_id;
  
- config RTC_DRV_ABB5ZES3
--	depends on I2C
- 	select REGMAP_I2C
- 	tristate "Abracon AB-RTCMC-32.768kHz-B5ZE-S3"
- 	help
-@@ -205,7 +204,6 @@ config RTC_DRV_DS1307
+ 	pdata = devm_kzalloc(&pdev->dev, sizeof(*pdata), GFP_KERNEL);
+ 	if (!pdata)
+ 		return -ENOMEM;
  
- config RTC_DRV_DS1374
- 	tristate "Dallas/Maxim DS1374"
--	depends on I2C
- 	help
- 	  If you say yes here you get support for Dallas Semiconductor
- 	  DS1374 real-time clock chips. If an interrupt is associated
-@@ -233,7 +231,6 @@ config RTC_DRV_DS1672
+-	pdata->devtype = pdev->id_entry->driver_data;
++	of_id = of_match_device(imx_rtc_dt_ids, &pdev->dev);
++	if (of_id)
++		pdata->devtype = (enum imx_rtc_type)of_id->data;
++	else
++		pdata->devtype = pdev->id_entry->driver_data;
  
- config RTC_DRV_DS3232
- 	tristate "Dallas/Maxim DS3232"
--	depends on I2C
- 	help
- 	  If you say yes here you get support for Dallas Semiconductor
- 	  DS3232 real-time clock chips. If an interrupt is associated
-@@ -244,7 +241,7 @@ config RTC_DRV_DS3232
- 
- config RTC_DRV_HYM8563
- 	tristate "Haoyu Microelectronics HYM8563"
--	depends on I2C && OF
-+	depends on OF
- 	help
- 	  Say Y to enable support for the HYM8563 I2C RTC chip. Apart
- 	  from the usual rtc functions it provides a clock output of
-@@ -366,7 +363,6 @@ config RTC_DRV_ISL12022
- 	  will be called rtc-isl12022.
- 
- config RTC_DRV_ISL12057
--	depends on I2C
- 	select REGMAP_I2C
- 	tristate "Intersil ISL12057"
- 	help
+ 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+ 	pdata->ioaddr = devm_ioremap_resource(&pdev->dev, res);
+@@ -481,6 +497,7 @@ static SIMPLE_DEV_PM_OPS(mxc_rtc_pm_ops, mxc_rtc_suspend, mxc_rtc_resume);
+ static struct platform_driver mxc_rtc_driver = {
+ 	.driver = {
+ 		   .name	= "mxc_rtc",
++		   .of_match_table = of_match_ptr(imx_rtc_dt_ids),
+ 		   .pm		= &mxc_rtc_pm_ops,
+ 	},
+ 	.id_table = imx_rtc_devtype,
 -- 
-2.1.4
+1.7.4.4
 
 -- 
 -- 
