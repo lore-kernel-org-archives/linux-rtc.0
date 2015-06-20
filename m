@@ -1,21 +1,26 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBZ45YSWAKGQETLRQZFI@googlegroups.com>
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id ec7si363170wib.3.2015.06.29.02.24.54
-        for <rtc-linux@googlegroups.com>;
-        Mon, 29 Jun 2015 02:24:55 -0700 (PDT)
-Date: Mon, 29 Jun 2015 11:24:45 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Philippe Reynes <tremyfr@gmail.com>
-Cc: a.zummo@towertech.it, shawn.guo@linaro.org, kernel@pengutronix.de,
-	linux@arm.linux.org.uk, linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org, rtc-linux@googlegroups.com
-Subject: [rtc-linux] Re: [PATCH v3 4/6] rtc: mxc: add support of device tree
-Message-ID: <20150629092445.GX485@piout.net>
-References: <1434820360-21935-1-git-send-email-tremyfr@gmail.com>
- <1434820360-21935-5-git-send-email-tremyfr@gmail.com>
+Return-Path: <rtc-linux+bncBDULZYNR2QMRBJHYSWWAKGQEQBV5UFY@googlegroups.com>
+Received: from mail-lb0-x230.google.com (mail-lb0-x230.google.com. [2a00:1450:4010:c04::230])
+        by gmr-mx.google.com with ESMTPS id bm9si584529lbb.0.2015.06.20.07.43.48
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Sat, 20 Jun 2015 07:43:48 -0700 (PDT)
+Received: by mail-lb0-x230.google.com with SMTP id ti3so86765738lbb.1
+        for <rtc-linux@googlegroups.com>; Sat, 20 Jun 2015 07:43:48 -0700 (PDT)
 MIME-Version: 1.0
+In-Reply-To: <1434809732-8996-3-git-send-email-tremyfr@gmail.com>
+References: <1434809732-8996-1-git-send-email-tremyfr@gmail.com>
+	<1434809732-8996-3-git-send-email-tremyfr@gmail.com>
+Date: Sat, 20 Jun 2015 11:43:48 -0300
+Message-ID: <CAOMZO5DOC2WXAVLxv_srHAZVAtnhTaP1yqYL9iQvJivKHRj1jA@mail.gmail.com>
+Subject: [rtc-linux] Re: [PATCH v2 2/6] imx35: define two clocks for rtc
+From: Fabio Estevam <festevam@gmail.com>
+To: Philippe Reynes <tremyfr@gmail.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>, Shawn Guo <shawn.guo@linaro.org>,
+	Sascha Hauer <kernel@pengutronix.de>, Russell King <linux@arm.linux.org.uk>,
+	rtc-linux@googlegroups.com, linux-kernel <linux-kernel@vger.kernel.org>,
+	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1434820360-21935-5-git-send-email-tremyfr@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -26,16 +31,15 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On 20/06/2015 at 19:12:38 +0200, Philippe Reynes wrote :
-> Add device tree support for the mxc rtc driver.
-> 
-> Signed-off-by: Philippe Reynes <tremyfr@gmail.com>
-Acked-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+On Sat, Jun 20, 2015 at 11:15 AM, Philippe Reynes <tremyfr@gmail.com> wrote:
 
--- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+> @@ -240,6 +241,9 @@ int __init mx35_clocks_init(void)
+>         clk_register_clkdev(clk[ipg], "ipg", "imx21-uart.1");
+>         clk_register_clkdev(clk[uart3_gate], "per", "imx21-uart.2");
+>         clk_register_clkdev(clk[ipg], "ipg", "imx21-uart.2");
+> +       /* i.mx35 has the i.mx21 type uart */
+
+I think you meant rtc, not uart :-)
 
 -- 
 -- 
