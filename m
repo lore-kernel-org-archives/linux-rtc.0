@@ -1,24 +1,29 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRB5U25KVQKGQETBHR3ZA@googlegroups.com>
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id bc3si44186wib.2.2015.06.12.00.42.46
-        for <rtc-linux@googlegroups.com>;
-        Fri, 12 Jun 2015 00:42:46 -0700 (PDT)
-Date: Fri, 12 Jun 2015 09:42:45 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Andrea Scian <rnd4@dave-tech.it>
-Cc: r.cerrato@til-technologies.fr, a.zummo@towertech.it,
-	rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org,
-	Andrea Scian <andrea.scian@dave.eu>
-Subject: Re: [rtc-linux] [PATCH] driver: rtc: pcf2127: use OFS flag to detect
- unreliable date and warn the user
-Message-ID: <20150612074245.GC3890@piout.net>
-References: <1432628260-24652-1-git-send-email-rnd4@dave-tech.it>
- <20150608154251.GC5222@piout.net>
- <55785615.4050709@dave-tech.it>
+Return-Path: <rtc-linux+bncBD5O5IWPJMIKL3MVVQCRUBFOI6XKK@googlegroups.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <55785615.4050709@dave-tech.it>
+Received: from mail-wi0-x235.google.com (mail-wi0-x235.google.com. [2a00:1450:400c:c05::235])
+        by gmr-mx.google.com with ESMTPS id q10si431748wiz.0.2015.06.20.07.20.20
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Sat, 20 Jun 2015 07:20:20 -0700 (PDT)
+Received: by mail-wi0-x235.google.com with SMTP id l6so1738970wiw.0
+        for <rtc-linux@googlegroups.com>; Sat, 20 Jun 2015 07:20:20 -0700 (PDT)
+From: Philippe Reynes <tremyfr@gmail.com>
+To: a.zummo@towertech.it,
+	alexandre.belloni@free-electrons.com,
+	shawn.guo@linaro.org,
+	kernel@pengutronix.de,
+	linux@arm.linux.org.uk
+Cc: linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org,
+	rtc-linux@googlegroups.com,
+	Philippe Reynes <tremyfr@gmail.com>
+Subject: [rtc-linux] [PATCH v2 6/6] apf27: dt: add support of internal rtc
+Date: Sat, 20 Jun 2015 16:15:32 +0200
+Message-Id: <1434809732-8996-7-git-send-email-tremyfr@gmail.com>
+In-Reply-To: <1434809732-8996-1-git-send-email-tremyfr@gmail.com>
+References: <1434809732-8996-1-git-send-email-tremyfr@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -28,65 +33,49 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On 10/06/2015 at 17:21:57 +0200, Andrea Scian wrote :
-> >I would return -EINVAL here because the result might still pass
-> >rtc_valid_tm() but be outdated.
-> 
-> At first look I agree with you, but a bit later they say:
-> 
-> /* the clock can give out invalid datetime, but we cannot return
->  * -EINVAL otherwise hwclock will refuse to set the time on bootup.
->  */
-> 
-> http://git.kernel.org/cgit/linux/kernel/git/stable/linux-stable.git/tree/drivers/rtc/rtc-pcf2127.c#n91
-> 
-> so they don't actually return -EINVAL even if rtc_valid_tm() fails.
-> WDYT? I'm not an RTC subsystem expert, so maybe I'm missing something..
-> 
+Enable the internal mxc rtc driver on apf27.
 
-This has been copy pasted from other drivers and this is simply not
-true.
+Signed-off-by: Philippe Reynes <tremyfr@gmail.com>
+---
+ arch/arm/boot/dts/imx27-apf27.dts |    4 ++++
+ arch/arm/boot/dts/imx27.dtsi      |   10 ++++++++++
+ 2 files changed, 14 insertions(+), 0 deletions(-)
 
-> If the comment above is correct, so we can't return -EINVAL, I will reset
-> the time to epoch, with something like
-> 
-> rtc_time64_to_tm((time64_t)0, tm);
-> 
-
-Doing that is worse. You really want userspace to know that the time is
-invalid instead of giving an incorrect value. This allow userspace to
-actually choose its policy when the time is invalid. For example, use
-epoch or any other later date that probabyl makes more sense for the
-product.
-
-> >>@@ -144,7 +153,7 @@ static int pcf2127_rtc_ioctl(struct device *dev,
-> >>  	switch (cmd) {
-> >>  	case RTC_VL_READ:
-> >>  		if (pcf2127->voltage_low)
-> >>-			dev_info(dev, "low voltage detected, date/time is not reliable.\n");
-> >>+			dev_info(dev, "low voltage detected, check/replace battery\n");
-> >
-> >I would also print a warning about OFS here.
-> >
-> 
-> I'll do.
-> Do you think is better to add another variable inside struct pcf2127 or is
-> better to re-read the RTC registers?
-> (for the former I have also to clear the variable inside
-> pcf2127_set_datetime(), for the latter I have to issue another read in a
-> function that, at the moment, does not read anything..)
-> 
-
-I don't really care. But since one of them is already cached, it is
-probably better to cache OFS. Maybe you could also use voltage_low as a
-bit field which would allow userspace to make the difference between a
-simple low voltage and the time loss condition.
-
-
+diff --git a/arch/arm/boot/dts/imx27-apf27.dts b/arch/arm/boot/dts/imx27-apf27.dts
+index 73aae4f..590d37a 100644
+--- a/arch/arm/boot/dts/imx27-apf27.dts
++++ b/arch/arm/boot/dts/imx27-apf27.dts
+@@ -122,3 +122,7 @@
+ 		reg = <0x800000 0xf800000>;
+ 	};
+ };
++
++&rtc {
++	status = "okay";
++};
+diff --git a/arch/arm/boot/dts/imx27.dtsi b/arch/arm/boot/dts/imx27.dtsi
+index bc215e4..57fda6c 100644
+--- a/arch/arm/boot/dts/imx27.dtsi
++++ b/arch/arm/boot/dts/imx27.dtsi
+@@ -144,6 +144,16 @@
+ 				clock-names = "ipg", "per";
+ 			};
+ 
++			rtc: rtc@10007000 {
++				compatible = "fsl,imx21-rtc";
++				reg = <0x10007000 0x1000>;
++				interrupts = <22>;
++				clocks = <&clks IMX27_CLK_CKIL>,
++					 <&clks IMX27_CLK_RTC_IPG_GATE>;
++				clock-names = "rtc", "ipg";
++				status = "disabled";
++			};
++
+ 			kpp: kpp@10008000 {
+ 				compatible = "fsl,imx27-kpp", "fsl,imx21-kpp";
+ 				reg = <0x10008000 0x1000>;
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+1.7.4.4
 
 -- 
 -- 
