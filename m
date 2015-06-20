@@ -1,29 +1,27 @@
-Return-Path: <rtc-linux+bncBCV6LFM5RQJRBY6WY2VQKGQE5IG5ICQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBD5O5IWPJMIJLPUWVQCRUBHILKVFO@googlegroups.com>
 MIME-Version: 1.0
-Received: from mga01.intel.com (mga01.intel.com. [192.55.52.88])
-        by gmr-mx.google.com with ESMTP id wh3si772102pbc.0.2015.06.05.07.00.03
-        for <rtc-linux@googlegroups.com>;
-        Fri, 05 Jun 2015 07:00:03 -0700 (PDT)
-From: Octavian Purdila <octavian.purdila@intel.com>
-To: Linus Walleij <linus.walleij@linaro.org>
-Cc: Mika Westerberg <mika.westerberg@linux.intel.com>,
-	Jonathan Cameron <jic23@kernel.org>,
-	Hartmut Knaack <knaack.h@gmx.de>,
-	Lars-Peter Clausen <lars@metafoo.de>,
-	Peter Meerwald <pmeerw@pmeerw.net>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
-	linux-iio@vger.kernel.org,
-	rtc-linux@googlegroups.com,
+Received: from mail-wi0-x22b.google.com (mail-wi0-x22b.google.com. [2a00:1450:400c:c05::22b])
+        by gmr-mx.google.com with ESMTPS id t6si721170wiz.0.2015.06.20.10.12.53
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Sat, 20 Jun 2015 10:12:53 -0700 (PDT)
+Received: by mail-wi0-x22b.google.com with SMTP id nd19so43329093wic.1
+        for <rtc-linux@googlegroups.com>; Sat, 20 Jun 2015 10:12:53 -0700 (PDT)
+From: Philippe Reynes <tremyfr@gmail.com>
+To: a.zummo@towertech.it,
+	alexandre.belloni@free-electrons.com,
+	shawn.guo@linaro.org,
+	kernel@pengutronix.de,
+	linux@arm.linux.org.uk
+Cc: linux-arm-kernel@lists.infradead.org,
 	linux-kernel@vger.kernel.org,
-	Octavian Purdila <octavian.purdila@intel.com>
-Subject: [rtc-linux] [PATCH v3 1/2] iio: fix drivers that consider 0 as a
- valid IRQ in client->irq
-Date: Fri,  5 Jun 2015 16:59:42 +0300
-Message-Id: <1433512783-8183-2-git-send-email-octavian.purdila@intel.com>
-In-Reply-To: <1433512783-8183-1-git-send-email-octavian.purdila@intel.com>
-References: <1433512783-8183-1-git-send-email-octavian.purdila@intel.com>
+	rtc-linux@googlegroups.com,
+	Philippe Reynes <tremyfr@gmail.com>
+Subject: [rtc-linux] [PATCH v3 1/6] imx31: add a second rtc clock
+Date: Sat, 20 Jun 2015 19:12:35 +0200
+Message-Id: <1434820360-21935-2-git-send-email-tremyfr@gmail.com>
+In-Reply-To: <1434820360-21935-1-git-send-email-tremyfr@gmail.com>
+References: <1434820360-21935-1-git-send-email-tremyfr@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -35,101 +33,31 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Since patch "i2c / ACPI: Use 0 to indicate that device does not have
-interrupt assigned" [1], 0 is not a valid i2c client irq anymore, so
-change all driver's checks accordingly.
+The mxc rtc driver needs two clock.
+It was defined only one clock, so we
+define the second clock.
 
-The same issue occurs when the device is instantiated via device tree
-with no IRQ, or from the i2c sysfs interface, even before the patch
-above.
-
-[1] http://lkml.kernel.org/g/<1430908148-201129-3-git-send-email-mika.westerberg@linux.intel.com>
-
-Signed-off-by: Octavian Purdila <octavian.purdila@intel.com>
-Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Signed-off-by: Philippe Reynes <tremyfr@gmail.com>
 ---
- drivers/iio/accel/bmc150-accel.c | 2 +-
- drivers/iio/accel/kxcjk-1013.c   | 2 +-
- drivers/iio/accel/mma9553.c      | 2 +-
- drivers/iio/imu/kmx61.c          | 8 ++++----
- 4 files changed, 7 insertions(+), 7 deletions(-)
+ arch/arm/mach-imx/clk-imx31.c |    3 ++-
+ 1 files changed, 2 insertions(+), 1 deletions(-)
 
-diff --git a/drivers/iio/accel/bmc150-accel.c b/drivers/iio/accel/bmc150-accel.c
-index 4e70f51..55751d9 100644
---- a/drivers/iio/accel/bmc150-accel.c
-+++ b/drivers/iio/accel/bmc150-accel.c
-@@ -1663,7 +1663,7 @@ static int bmc150_accel_probe(struct i2c_client *client,
- 	if (client->irq < 0)
- 		client->irq = bmc150_accel_gpio_probe(client, data);
- 
--	if (client->irq >= 0) {
-+	if (client->irq > 0) {
- 		ret = devm_request_threaded_irq(
- 						&client->dev, client->irq,
- 						bmc150_accel_irq_handler,
-diff --git a/drivers/iio/accel/kxcjk-1013.c b/drivers/iio/accel/kxcjk-1013.c
-index 0d9bd35..aa93cbd 100644
---- a/drivers/iio/accel/kxcjk-1013.c
-+++ b/drivers/iio/accel/kxcjk-1013.c
-@@ -1243,7 +1243,7 @@ static int kxcjk1013_probe(struct i2c_client *client,
- 	if (client->irq < 0)
- 		client->irq = kxcjk1013_gpio_probe(client, data);
- 
--	if (client->irq >= 0) {
-+	if (client->irq > 0) {
- 		ret = devm_request_threaded_irq(&client->dev, client->irq,
- 						kxcjk1013_data_rdy_trig_poll,
- 						kxcjk1013_event_handler,
-diff --git a/drivers/iio/accel/mma9553.c b/drivers/iio/accel/mma9553.c
-index 9d649c4..df043b3 100644
---- a/drivers/iio/accel/mma9553.c
-+++ b/drivers/iio/accel/mma9553.c
-@@ -1143,7 +1143,7 @@ static int mma9553_probe(struct i2c_client *client,
- 	if (client->irq < 0)
- 		client->irq = mma9553_gpio_probe(client);
- 
--	if (client->irq >= 0) {
-+	if (client->irq > 0) {
- 		ret = devm_request_threaded_irq(&client->dev, client->irq,
- 						mma9553_irq_handler,
- 						mma9553_event_handler,
-diff --git a/drivers/iio/imu/kmx61.c b/drivers/iio/imu/kmx61.c
-index 462a010..82cdf50 100644
---- a/drivers/iio/imu/kmx61.c
-+++ b/drivers/iio/imu/kmx61.c
-@@ -1363,7 +1363,7 @@ static int kmx61_probe(struct i2c_client *client,
- 	if (client->irq < 0)
- 		client->irq = kmx61_gpio_probe(client, data);
- 
--	if (client->irq >= 0) {
-+	if (client->irq > 0) {
- 		ret = devm_request_threaded_irq(&client->dev, client->irq,
- 						kmx61_data_rdy_trig_poll,
- 						kmx61_event_handler,
-@@ -1445,10 +1445,10 @@ err_iio_unregister_mag:
- err_iio_unregister_acc:
- 	iio_device_unregister(data->acc_indio_dev);
- err_buffer_cleanup_mag:
--	if (client->irq >= 0)
-+	if (client->irq > 0)
- 		iio_triggered_buffer_cleanup(data->mag_indio_dev);
- err_buffer_cleanup_acc:
--	if (client->irq >= 0)
-+	if (client->irq > 0)
- 		iio_triggered_buffer_cleanup(data->acc_indio_dev);
- err_trigger_unregister_motion:
- 	iio_trigger_unregister(data->motion_trig);
-@@ -1472,7 +1472,7 @@ static int kmx61_remove(struct i2c_client *client)
- 	iio_device_unregister(data->acc_indio_dev);
- 	iio_device_unregister(data->mag_indio_dev);
- 
--	if (client->irq >= 0) {
-+	if (client->irq > 0) {
- 		iio_triggered_buffer_cleanup(data->acc_indio_dev);
- 		iio_triggered_buffer_cleanup(data->mag_indio_dev);
- 		iio_trigger_unregister(data->acc_dready_trig);
+diff --git a/arch/arm/mach-imx/clk-imx31.c b/arch/arm/mach-imx/clk-imx31.c
+index 286ef42..480c54f 100644
+--- a/arch/arm/mach-imx/clk-imx31.c
++++ b/arch/arm/mach-imx/clk-imx31.c
+@@ -130,7 +130,8 @@ int __init mx31_clocks_init(unsigned long fref)
+ 	clk_register_clkdev(clk[cspi3_gate], NULL, "imx31-cspi.2");
+ 	clk_register_clkdev(clk[pwm_gate], "pwm", NULL);
+ 	clk_register_clkdev(clk[wdog_gate], NULL, "imx2-wdt.0");
+-	clk_register_clkdev(clk[rtc_gate], NULL, "imx21-rtc");
++	clk_register_clkdev(clk[ckil], "rtc", "imx21-rtc");
++	clk_register_clkdev(clk[rtc_gate], "ipg", "imx21-rtc");
+ 	clk_register_clkdev(clk[epit1_gate], "epit", NULL);
+ 	clk_register_clkdev(clk[epit2_gate], "epit", NULL);
+ 	clk_register_clkdev(clk[nfc], NULL, "imx27-nand.0");
 -- 
-1.9.1
+1.7.4.4
 
 -- 
 -- 
