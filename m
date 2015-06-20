@@ -1,27 +1,33 @@
-Return-Path: <rtc-linux+bncBCMNZUWXYYORB5UHQ6WAKGQEZUK2EQI@googlegroups.com>
+Return-Path: <rtc-linux+bncBD5O5IWPJMIKF3MVVQCRUBBL76FZA@googlegroups.com>
 MIME-Version: 1.0
-Received: from mail-pd0-f178.google.com (mail-pd0-f178.google.com. [209.85.192.178])
-        by gmr-mx.google.com with ESMTPS id ct6si677686pdb.1.2015.06.17.12.01.09
+Received: from mail-wi0-x229.google.com (mail-wi0-x229.google.com. [2a00:1450:400c:c05::229])
+        by gmr-mx.google.com with ESMTPS id bk2si343244wib.1.2015.06.20.07.20.17
         for <rtc-linux@googlegroups.com>
         (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 17 Jun 2015 12:01:09 -0700 (PDT)
-Received: by pdbnf5 with SMTP id nf5so46918049pdb.2
-        for <rtc-linux@googlegroups.com>; Wed, 17 Jun 2015 12:01:09 -0700 (PDT)
-From: Vaibhav Hiremath <vaibhav.hiremath@linaro.org>
-To: linux-arm-kernel@lists.infradead.org
-Cc: robh+dt@kernel.org,
-	lee.jones@linaro.org,
-	devicetree@vger.kernel.org,
-	rtc-linux@googlegroups.com,
+        Sat, 20 Jun 2015 07:20:17 -0700 (PDT)
+Received: by mail-wi0-x229.google.com with SMTP id a1so41246165wig.0
+        for <rtc-linux@googlegroups.com>; Sat, 20 Jun 2015 07:20:17 -0700 (PDT)
+From: Philippe Reynes <tremyfr@gmail.com>
+To: a.zummo@towertech.it,
+	alexandre.belloni@free-electrons.com,
+	shawn.guo@linaro.org,
+	kernel@pengutronix.de,
+	linux@arm.linux.org.uk
+Cc: linux-arm-kernel@lists.infradead.org,
 	linux-kernel@vger.kernel.org,
-	Vaibhav Hiremath <vaibhav.hiremath@linaro.org>,
-	Chao Xie <chao.xie@marvell.com>
-Subject: [rtc-linux] [PATCH-v2] rtc: 88pm80x: add device tree support
-Date: Thu, 18 Jun 2015 00:28:06 +0530
-Message-Id: <1434567488-6477-3-git-send-email-vaibhav.hiremath@linaro.org>
-In-Reply-To: <1434567488-6477-1-git-send-email-vaibhav.hiremath@linaro.org>
-References: <vaibhav.hiremath@linaro.org>
- <1434567488-6477-1-git-send-email-vaibhav.hiremath@linaro.org>
+	rtc-linux@googlegroups.com,
+	Philippe Reynes <tremyfr@gmail.com>,
+	Rob Herring <robh+dt@kernel.org>,
+	Pawel Moll <pawel.moll@arm.com>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Ian Campbell <ijc+devicetree@hellion.org.uk>,
+	Kumar Gala <galak@codeaurora.org>,
+	devicetree@vger.kernel.org
+Subject: [rtc-linux] [PATCH v2 5/6] dt-binding: document the binding for mxc rtc
+Date: Sat, 20 Jun 2015 16:15:31 +0200
+Message-Id: <1434809732-8996-6-git-send-email-tremyfr@gmail.com>
+In-Reply-To: <1434809732-8996-1-git-send-email-tremyfr@gmail.com>
+References: <1434809732-8996-1-git-send-email-tremyfr@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -33,70 +39,56 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Along with DT support, this patch also cleans up the unnecessary
-code around 'rtc_wakeup' initialization.
+This adds documentation of device tree bindings for the
+mxc rtc.
 
-Signed-off-by: Chao Xie <chao.xie@marvell.com>
-Signed-off-by: Vaibhav Hiremath <vaibhav.hiremath@linaro.org>
+Cc: Rob Herring <robh+dt@kernel.org>
+Cc: Pawel Moll <pawel.moll@arm.com>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Ian Campbell <ijc+devicetree@hellion.org.uk>
+Cc: Kumar Gala <galak@codeaurora.org>
+Cc: devicetree@vger.kernel.org
+Signed-off-by: Philippe Reynes <tremyfr@gmail.com>
 ---
-Link to V1: https://lkml.org/lkml/2015/5/29/757
+ Documentation/devicetree/bindings/rtc/rtc-mxc.txt |   27 +++++++++++++++++++++
+ 1 files changed, 27 insertions(+), 0 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/rtc/rtc-mxc.txt
 
- drivers/rtc/rtc-88pm80x.c | 28 +++++++++++++++++-----------
- 1 file changed, 17 insertions(+), 11 deletions(-)
-
-diff --git a/drivers/rtc/rtc-88pm80x.c b/drivers/rtc/rtc-88pm80x.c
-index 7df0579..8f66519 100644
---- a/drivers/rtc/rtc-88pm80x.c
-+++ b/drivers/rtc/rtc-88pm80x.c
-@@ -251,17 +251,26 @@ static SIMPLE_DEV_PM_OPS(pm80x_rtc_pm_ops, pm80x_rtc_suspend, pm80x_rtc_resume);
- static int pm80x_rtc_probe(struct platform_device *pdev)
- {
- 	struct pm80x_chip *chip = dev_get_drvdata(pdev->dev.parent);
--	struct pm80x_platform_data *pm80x_pdata =
--				dev_get_platdata(pdev->dev.parent);
--	struct pm80x_rtc_pdata *pdata = NULL;
-+	struct pm80x_rtc_pdata *pdata = dev_get_platdata(&pdev->dev);
- 	struct pm80x_rtc_info *info;
-+	struct device_node *node = pdev->dev.of_node;
- 	struct rtc_time tm;
- 	unsigned long ticks = 0;
- 	int ret;
- 
--	pdata = dev_get_platdata(&pdev->dev);
--	if (pdata == NULL)
--		dev_warn(&pdev->dev, "No platform data!\n");
-+	if (!pdata && !node) {
-+		dev_err(&pdev->dev,
-+			"pm80x-rtc requires platform data or of_node\n");
-+		return -EINVAL;
-+	}
+diff --git a/Documentation/devicetree/bindings/rtc/rtc-mxc.txt b/Documentation/devicetree/bindings/rtc/rtc-mxc.txt
+new file mode 100644
+index 0000000..5505493
+--- /dev/null
++++ b/Documentation/devicetree/bindings/rtc/rtc-mxc.txt
+@@ -0,0 +1,27 @@
++* Real Time Clock of the i.MX SoCs
 +
-+	if (!pdata) {
-+		pdata = devm_kzalloc(&pdev->dev, sizeof(*pdata), GFP_KERNEL);
-+		if (!pdata) {
-+			dev_err(&pdev->dev, "failed to allocate memory\n");
-+			return -ENOMEM;
-+		}
-+	}
- 
- 	info =
- 	    devm_kzalloc(&pdev->dev, sizeof(struct pm80x_rtc_info), GFP_KERNEL);
-@@ -327,11 +336,8 @@ static int pm80x_rtc_probe(struct platform_device *pdev)
- 	regmap_update_bits(info->map, PM800_RTC_CONTROL, PM800_RTC1_USE_XO,
- 			   PM800_RTC1_USE_XO);
- 
--	if (pm80x_pdata) {
--		pdata = pm80x_pdata->rtc;
--		if (pdata)
--			info->rtc_dev->dev.platform_data = &pdata->rtc_wakeup;
--	}
-+	/* remeber whether this power up is caused by PMIC RTC or not */
-+	info->rtc_dev->dev.platform_data = &pdata->rtc_wakeup;
- 
- 	device_init_wakeup(&pdev->dev, 1);
- 
++RTC controller for the i.MX SoCs
++
++Required properties:
++- compatible: Should be "fsl,imx1-rtc" or "fsl,imx21-rtc".
++- reg: physical base address of the controller and length of memory mapped
++  region.
++- interrupts: IRQ line for the RTC.
++- clocks: should contain two entries:
++  * one for the input reference
++  * one for the the SoC RTC
++- clock-names: should contain:
++  * "rtc" for the input reference clock
++  * "ipg" for the SoC RTC clock
++
++Example:
++
++rtc@10007000 {
++	compatible = "fsl,imx21-rtc";
++	reg = <0x10007000 0x1000>;
++	interrupts = <22>;
++	clocks = <&clks IMX27_CLK_CKIL>,
++	       	 <&clks IMX27_CLK_RTC_IPG_GATE>;
++	clock-names = "rtc, "ipg";
++	status = "disabled";
++};
 -- 
-1.9.1
+1.7.4.4
 
 -- 
 -- 
