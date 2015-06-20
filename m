@@ -1,24 +1,29 @@
-Return-Path: <rtc-linux+bncBAABBP45VOWAKGQE27WMUPI@googlegroups.com>
-Received: from comal.ext.ti.com (comal.ext.ti.com. [198.47.26.152])
-        by gmr-mx.google.com with ESMTP id pl5si210277igb.3.2015.06.24.08.37.34
-        for <rtc-linux@googlegroups.com>;
-        Wed, 24 Jun 2015 08:37:34 -0700 (PDT)
-Message-ID: <558ACEB8.2020406@ti.com>
-Date: Wed, 24 Jun 2015 18:37:28 +0300
-From: Grygorii Strashko <grygorii.strashko@ti.com>
+Return-Path: <rtc-linux+bncBD5O5IWPJMIJRPUWVQCRUBHXNCX5M@googlegroups.com>
 MIME-Version: 1.0
-To: <balbi@ti.com>, Nishanth Menon <nm@ti.com>
-CC: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        Alessandro Zummo
-	<a.zummo@towertech.it>,
-        <linux-kernel@vger.kernel.org>, <rtc-linux@googlegroups.com>,
-        <linux-omap@vger.kernel.org>, <linux-arm-kernel@lists.infradead.org>
-Subject: [rtc-linux] Re: [PATCH V2 0/5] drivers/rtc/rtc-ds1307.c: Basic
- cleanups and support for wakeupirq
-References: <1435076114-12416-1-git-send-email-nm@ti.com> <20150624143432.GE21232@saruman.tx.rr.com>
-In-Reply-To: <20150624143432.GE21232@saruman.tx.rr.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Received: from mail-wg0-x232.google.com (mail-wg0-x232.google.com. [2a00:1450:400c:c00::232])
+        by gmr-mx.google.com with ESMTPS id t6si721138wiz.0.2015.06.20.10.12.56
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Sat, 20 Jun 2015 10:12:56 -0700 (PDT)
+Received: by mail-wg0-x232.google.com with SMTP id z8so111209558wge.0
+        for <rtc-linux@googlegroups.com>; Sat, 20 Jun 2015 10:12:56 -0700 (PDT)
+From: Philippe Reynes <tremyfr@gmail.com>
+To: a.zummo@towertech.it,
+	alexandre.belloni@free-electrons.com,
+	shawn.guo@linaro.org,
+	kernel@pengutronix.de,
+	linux@arm.linux.org.uk
+Cc: linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org,
+	rtc-linux@googlegroups.com,
+	Philippe Reynes <tremyfr@gmail.com>
+Subject: [rtc-linux] [PATCH v3 3/6] rtc: mxc: use a second rtc clock
+Date: Sat, 20 Jun 2015 19:12:37 +0200
+Message-Id: <1434820360-21935-4-git-send-email-tremyfr@gmail.com>
+In-Reply-To: <1434820360-21935-1-git-send-email-tremyfr@gmail.com>
+References: <1434820360-21935-1-git-send-email-tremyfr@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -28,54 +33,81 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On 06/24/2015 05:34 PM, Felipe Balbi wrote:
-> Hi,
->
-> On Tue, Jun 23, 2015 at 11:15:09AM -0500, Nishanth Menon wrote:
->> Hi,
->>
->> Here is the revamp of the patch posted eariler to support wakeupirq.
->> This series does a few cleanups as well prior to introducing the
->> generic apis required to support the wakeirq mechanism used on certain
->> TI SoCs. Cleanups done here are just minimal set of the cleanups we
->> discussed in [2].
->>
->> Series is based on next-20150623
->>
->> Test log: http://pastebin.ubuntu.com/11763002/
->>
->> NOTE1: I have only tested in mcp79410 device, and not on other
->> ds1307-rtc driver compatbile devices as I dont have any other.
->> additional testing might be nice to have.
->> NOTE2: there are additional fixes that linux-next seems to need but
->> those are in omap-rtc, cpufreq etc, but those are not related by the
->> ds-1307.
->>
->> V1: https://patchwork.kernel.org/patch/4759171/
->>
->> NOTE: Patch 5/5 of the series is meant to indicate the usage, and will
->> be reposted along with other wakeup sources to be enabled once the
->> driver changes are accepted.
->>
->> Felipe Balbi (1):
->>    drivers/rtc/rtc-ds1307.c: Convert to threaded IRQ
->>
->> Nishanth Menon (4):
->>    drivers/rtc/rtc-ds1307.c: Switch to managed irq allocation
->>    drivers/rtc/rtc-ds1307.c: Sort the headers
->>    drivers/rtc/rtc-ds1307.c: Support optional wakeup interrupt source
->
-> for the series, except the patch which I wrote :
->
-> Acked-by: Felipe Balbi <balbi@ti.com>
->
+The mxc RTC needs two clocks, one for the input
+reference, and one for the IP. But this driver
+was only using one clock (for the reference).
+This patch add the second clock (for the IP).
 
-With minor comment to patch 4:
-Reviewed-by: Grygorii Strashko <grygorii.strashko@ti.com>
+Signed-off-by: Philippe Reynes <tremyfr@gmail.com>
+---
+ drivers/rtc/rtc-mxc.c |   26 +++++++++++++++++---------
+ 1 files changed, 17 insertions(+), 9 deletions(-)
 
+diff --git a/drivers/rtc/rtc-mxc.c b/drivers/rtc/rtc-mxc.c
+index 09d422b..e916a91 100644
+--- a/drivers/rtc/rtc-mxc.c
++++ b/drivers/rtc/rtc-mxc.c
+@@ -79,7 +79,8 @@ struct rtc_plat_data {
+ 	struct rtc_device *rtc;
+ 	void __iomem *ioaddr;
+ 	int irq;
+-	struct clk *clk;
++	struct clk *clk_rtc;
++	struct clk *clk_ipg;
+ 	struct rtc_time g_rtc_alarm;
+ 	enum imx_rtc_type devtype;
+ };
+@@ -373,17 +374,24 @@ static int mxc_rtc_probe(struct platform_device *pdev)
+ 	if (IS_ERR(pdata->ioaddr))
+ 		return PTR_ERR(pdata->ioaddr);
+ 
+-	pdata->clk = devm_clk_get(&pdev->dev, NULL);
+-	if (IS_ERR(pdata->clk)) {
+-		dev_err(&pdev->dev, "unable to get clock!\n");
+-		return PTR_ERR(pdata->clk);
++	pdata->clk_ipg = devm_clk_get(&pdev->dev, "ipg");
++	if (IS_ERR(pdata->clk_ipg)) {
++		dev_err(&pdev->dev, "unable to get ipg clock!\n");
++		return PTR_ERR(pdata->clk_ipg);
+ 	}
+ 
+-	ret = clk_prepare_enable(pdata->clk);
++	ret = clk_prepare_enable(pdata->clk_ipg);
+ 	if (ret)
+ 		return ret;
+ 
+-	rate = clk_get_rate(pdata->clk);
++	pdata->clk_rtc = devm_clk_get(&pdev->dev, "rtc");
++	if (IS_ERR(pdata->clk_rtc)) {
++		dev_err(&pdev->dev, "unable to get rtc clock!\n");
++		ret = PTR_ERR(pdata->clk_rtc);
++		goto exit_put_clk;
++	}
++
++	rate = clk_get_rate(pdata->clk_rtc);
+ 
+ 	if (rate == 32768)
+ 		reg = RTC_INPUT_CLK_32768HZ;
+@@ -432,7 +440,7 @@ static int mxc_rtc_probe(struct platform_device *pdev)
+ 	return 0;
+ 
+ exit_put_clk:
+-	clk_disable_unprepare(pdata->clk);
++	clk_disable_unprepare(pdata->clk_ipg);
+ 
+ 	return ret;
+ }
+@@ -441,7 +449,7 @@ static int mxc_rtc_remove(struct platform_device *pdev)
+ {
+ 	struct rtc_plat_data *pdata = platform_get_drvdata(pdev);
+ 
+-	clk_disable_unprepare(pdata->clk);
++	clk_disable_unprepare(pdata->clk_ipg);
+ 
+ 	return 0;
+ }
 -- 
-regards,
--grygorii
+1.7.4.4
 
 -- 
 -- 
