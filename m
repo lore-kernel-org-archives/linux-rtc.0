@@ -1,21 +1,29 @@
-Return-Path: <rtc-linux+bncBDEKVJM7XAHRBHHNWKVQKGQE6MIFA3A@googlegroups.com>
-Received: from mout.kundenserver.de (mout.kundenserver.de. [212.227.126.131])
-        by gmr-mx.google.com with ESMTPS id gt9si556561wib.2.2015.06.01.12.46.36
+Return-Path: <rtc-linux+bncBD5O5IWPJMIJPPUWVQCRUBDNGI4QU@googlegroups.com>
+MIME-Version: 1.0
+Received: from mail-wi0-x22b.google.com (mail-wi0-x22b.google.com. [2a00:1450:400c:c05::22b])
+        by gmr-mx.google.com with ESMTPS id t6si721170wiz.0.2015.06.20.10.12.54
         for <rtc-linux@googlegroups.com>
         (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 01 Jun 2015 12:46:36 -0700 (PDT)
-From: Arnd Bergmann <arnd@arndb.de>
-To: Xunlei Pang <xlpang@126.com>
-Cc: linux-kernel@vger.kernel.org, rtc-linux@googlegroups.com, Alessandro Zummo <a.zummo@towertech.it>, John Stultz <john.stultz@linaro.org>, Xunlei Pang <pang.xunlei@linaro.org>, alexandre.belloni@free-electrons.com
-Subject: [rtc-linux] Re: [PATCH RESEND 1/3] drivers/rtc/pcf8563: Replace
- deprecated rtc_time_to_tm() and rtc_tm_to_time()
-Date: Mon, 01 Jun 2015 21:46:29 +0200
-Message-ID: <2840029.d0aORC2jsD@wuerfel>
-In-Reply-To: <1432911877-607-1-git-send-email-xlpang@126.com>
-References: <1432911877-607-1-git-send-email-xlpang@126.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+        Sat, 20 Jun 2015 10:12:54 -0700 (PDT)
+Received: by mail-wi0-x22b.google.com with SMTP id nd19so43329093wic.1
+        for <rtc-linux@googlegroups.com>; Sat, 20 Jun 2015 10:12:54 -0700 (PDT)
+From: Philippe Reynes <tremyfr@gmail.com>
+To: a.zummo@towertech.it,
+	alexandre.belloni@free-electrons.com,
+	shawn.guo@linaro.org,
+	kernel@pengutronix.de,
+	linux@arm.linux.org.uk
+Cc: linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org,
+	rtc-linux@googlegroups.com,
+	Philippe Reynes <tremyfr@gmail.com>
+Subject: [rtc-linux] [PATCH v3 2/6] imx35: define two clocks for rtc
+Date: Sat, 20 Jun 2015 19:12:36 +0200
+Message-Id: <1434820360-21935-3-git-send-email-tremyfr@gmail.com>
+In-Reply-To: <1434820360-21935-1-git-send-email-tremyfr@gmail.com>
+References: <1434820360-21935-1-git-send-email-tremyfr@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -25,52 +33,48 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On Friday 29 May 2015 23:04:35 Xunlei Pang wrote:
-> From: Xunlei Pang <pang.xunlei@linaro.org>
-> 
-> pcf8563_rtc_set_alarm() uses deprecated rtc_tm_to_time()
-> and rtc_time_to_tm(), which will overflow in year 2106
-> on 32-bit machines.
-> 
-> This patch solves this by:
->  - Replacing rtc_time_to_tm() with rtc_time64_to_tm()
->  - Replacing rtc_tm_to_time() with rtc_tm_to_time64()
-> 
-> Signed-off-by: Xunlei Pang <pang.xunlei@linaro.org>
+The imx35 don't define clocks for rtc.
+This patch add two clocks, as needed
+by the mxc rtc driver.
 
-(adding alexandre to Cc)
+Signed-off-by: Philippe Reynes <tremyfr@gmail.com>
+---
+ arch/arm/mach-imx/clk-imx35.c |    6 +++++-
+ 1 files changed, 5 insertions(+), 1 deletions(-)
 
-Looks good to me,
-
-Acked-by: Arnd Bergmann <arnd@arndb.de>
-
-
->  drivers/rtc/rtc-pcf8563.c | 8 ++++----
->  1 file changed, 4 insertions(+), 4 deletions(-)
-> 
-> diff --git a/drivers/rtc/rtc-pcf8563.c b/drivers/rtc/rtc-pcf8563.c
-> index 0ba7e59..5f87f84 100644
-> --- a/drivers/rtc/rtc-pcf8563.c
-> +++ b/drivers/rtc/rtc-pcf8563.c
-> @@ -363,13 +363,13 @@ static int pcf8563_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *tm)
->  	struct i2c_client *client = to_i2c_client(dev);
->  	unsigned char buf[4];
->  	int err;
-> -	unsigned long alarm_time;
->  
->  	/* The alarm has no seconds, round up to nearest minute */
->  	if (tm->time.tm_sec) {
-> -		rtc_tm_to_time(&tm->time, &alarm_time);
-> -		alarm_time += 60-tm->time.tm_sec;
-> -		rtc_time_to_tm(alarm_time, &tm->time);
-> +		time64_t alarm_time = rtc_tm_to_time64(&tm->time);
-> +
-> +		alarm_time += 60 - tm->time.tm_sec;
-> +		rtc_time64_to_tm(alarm_time, &tm->time);
->  	}
->  
->  	dev_dbg(dev, "%s, min=%d hour=%d wday=%d mday=%d "
-> 
+diff --git a/arch/arm/mach-imx/clk-imx35.c b/arch/arm/mach-imx/clk-imx35.c
+index a0d2b57..8c84eee 100644
+--- a/arch/arm/mach-imx/clk-imx35.c
++++ b/arch/arm/mach-imx/clk-imx35.c
+@@ -51,7 +51,7 @@ static const char *std_sel[] = {"ppll", "arm"};
+ static const char *ipg_per_sel[] = {"ahb_per_div", "arm_per_div"};
+ 
+ enum mx35_clks {
+-	ckih, mpll, ppll, mpll_075, arm, hsp, hsp_div, hsp_sel, ahb, ipg,
++	ckih, ckil, mpll, ppll, mpll_075, arm, hsp, hsp_div, hsp_sel, ahb, ipg,
+ 	arm_per_div, ahb_per_div, ipg_per, uart_sel, uart_div, esdhc_sel,
+ 	esdhc1_div, esdhc2_div, esdhc3_div, spdif_sel, spdif_div_pre,
+ 	spdif_div_post, ssi_sel, ssi1_div_pre, ssi1_div_post, ssi2_div_pre,
+@@ -89,6 +89,7 @@ int __init mx35_clocks_init(void)
+ 	}
+ 
+ 	clk[ckih] = imx_clk_fixed("ckih", 24000000);
++	clk[ckil] = imx_clk_fixed("ckih", 32768);
+ 	clk[mpll] = imx_clk_pllv1("mpll", "ckih", base + MX35_CCM_MPCTL);
+ 	clk[ppll] = imx_clk_pllv1("ppll", "ckih", base + MX35_CCM_PPCTL);
+ 
+@@ -240,6 +241,9 @@ int __init mx35_clocks_init(void)
+ 	clk_register_clkdev(clk[ipg], "ipg", "imx21-uart.1");
+ 	clk_register_clkdev(clk[uart3_gate], "per", "imx21-uart.2");
+ 	clk_register_clkdev(clk[ipg], "ipg", "imx21-uart.2");
++	/* i.mx35 has the i.mx21 type rtc */
++	clk_register_clkdev(clk[ckil], "rtc", "imx21-rtc");
++	clk_register_clkdev(clk[rtc_gate], "ipg", "imx21-rtc");
+ 	clk_register_clkdev(clk[usb_div], "per", "mxc-ehci.0");
+ 	clk_register_clkdev(clk[ipg], "ipg", "mxc-ehci.0");
+ 	clk_register_clkdev(clk[usbotg_gate], "ahb", "mxc-ehci.0");
+-- 
+1.7.4.4
 
 -- 
 -- 
