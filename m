@@ -1,26 +1,27 @@
-Return-Path: <rtc-linux+bncBCMNZUWXYYORBRXYWWVQKGQEVKPZBHY@googlegroups.com>
-Received: from mail-pa0-f43.google.com (mail-pa0-f43.google.com. [209.85.220.43])
-        by gmr-mx.google.com with ESMTPS id xv6si1798413pab.2.2015.06.02.02.49.58
+Return-Path: <rtc-linux+bncBD5O5IWPJMIIJ3MVVQCRUBAMRDBLA@googlegroups.com>
+MIME-Version: 1.0
+Received: from mail-wg0-x234.google.com (mail-wg0-x234.google.com. [2a00:1450:400c:c00::234])
+        by gmr-mx.google.com with ESMTPS id da3si684280wib.1.2015.06.20.07.19.48
         for <rtc-linux@googlegroups.com>
         (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 02 Jun 2015 02:49:58 -0700 (PDT)
-Received: by padj3 with SMTP id j3so64046352pad.0
-        for <rtc-linux@googlegroups.com>; Tue, 02 Jun 2015 02:49:58 -0700 (PDT)
-Message-ID: <556D7C32.9080806@linaro.org>
-Date: Tue, 02 Jun 2015 15:19:38 +0530
-From: Vaibhav Hiremath <vaibhav.hiremath@linaro.org>
-MIME-Version: 1.0
-To: Lee Jones <lee.jones@linaro.org>
-CC: linux-arm-kernel@lists.infradead.org, robh+dt@kernel.org,
- devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
- rtc-linux@googlegroups.com, sameo@linux.intel.com, a.zummo@towertech.it,
- alexandre.belloni@free-electrons.com, Chao Xie <chao.xie@marvell.com>
-Subject: [rtc-linux] Re: [PATCH 4/4] mfd: 88pm800: allocate pdata->rtc if not
- allocated earlier
-References: <1432937962-4537-1-git-send-email-vaibhav.hiremath@linaro.org> <1432937962-4537-5-git-send-email-vaibhav.hiremath@linaro.org> <20150601082200.GC3329@x1> <556D3A14.6050505@linaro.org> <20150602074004.GH3329@x1> <556D71F6.4030608@linaro.org> <20150602093323.GI3329@x1>
-In-Reply-To: <20150602093323.GI3329@x1>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+        Sat, 20 Jun 2015 07:19:48 -0700 (PDT)
+Received: by mail-wg0-x234.google.com with SMTP id hy7so109329316wgb.2
+        for <rtc-linux@googlegroups.com>; Sat, 20 Jun 2015 07:19:48 -0700 (PDT)
+From: Philippe Reynes <tremyfr@gmail.com>
+To: a.zummo@towertech.it,
+	alexandre.belloni@free-electrons.com,
+	shawn.guo@linaro.org,
+	kernel@pengutronix.de,
+	linux@arm.linux.org.uk
+Cc: linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org,
+	rtc-linux@googlegroups.com,
+	Philippe Reynes <tremyfr@gmail.com>
+Subject: [rtc-linux] [PATCH v2 0/6] add device tree support for mxc rtc
+Date: Sat, 20 Jun 2015 16:15:26 +0200
+Message-Id: <1434809732-8996-1-git-send-email-tremyfr@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -30,120 +31,37 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
+This serie add the device tree support for the mxc rtc driver.
+To do this, three steps are required :
+- define two rtc clocks for imx31 and imx35
+- enhance mxc rtc driver to use two clocks (rtc and ipg)
+- add device tree support to mxc rtc driver
 
+Changelog:
+v2: (thanks Shawn Guo and Alexandre Belloni)
+- add a second clock to imx35
+- split the add of clock in a separate patches
+- split the dt documentation in a separate patch
 
-On Tuesday 02 June 2015 03:03 PM, Lee Jones wrote:
-> On Tue, 02 Jun 2015, Vaibhav Hiremath wrote:
->> On Tuesday 02 June 2015 01:10 PM, Lee Jones wrote:
->>> On Tue, 02 Jun 2015, Vaibhav Hiremath wrote:
->>>> On Monday 01 June 2015 01:52 PM, Lee Jones wrote:
->>>>> On Sat, 30 May 2015, Vaibhav Hiremath wrote:
->>>>>
->>>>>> RTC in pmic 88PM800 can run even the core is powered off, and user
->>>>>> can set alarm in RTC. When the alarm is timed out, the PMIC will power up
->>>>>> the core, and the whole system will boot up. And during PMIC driver probe,
->>>>>> it will read some register to find out whether this boot is caused by RTC
->>>>>> timeout or not, and pass on this information to the RTC driver.
->>>>>>
->>>>>> So we need rtc platform data to be existed in PMIC driver to pass this
->>>>>> information.
->>>>>>
->>>>>> Signed-off-by: Chao Xie <chao.xie@marvell.com>
->>>>>> Signed-off-by: Vaibhav Hiremath <vaibhav.hiremath@linaro.org>
->>>>>> ---
->>>>>>   drivers/mfd/88pm800.c | 19 +++++++++++++++++++
->>>>>>   1 file changed, 19 insertions(+)
->>>>>>
->>>>>> diff --git a/drivers/mfd/88pm800.c b/drivers/mfd/88pm800.c
->>>>>> index 8ea4467..34546a1 100644
->>>>>> --- a/drivers/mfd/88pm800.c
->>>>>> +++ b/drivers/mfd/88pm800.c
->>>>>> @@ -586,6 +586,25 @@ static int pm800_probe(struct i2c_client *client,
->>>>>>   			return ret;
->>>>>>   	}
->>>>>>
->>>>>> +	/*
->>>>>> +	 * RTC in pmic can run even the core is powered off, and user can set
->>>>>> +	 * alarm in RTC. When the alarm is time out, the PMIC will power up
->>>>>> +	 * the core, and the whole system will boot up. When PMIC driver is
->>>>>> +	 * probed, it will read out some register to find out whether this
->>>>>> +	 * boot is caused by RTC timeout or not, and it need pass this
->>>>>> +	 * information to RTC driver.
->>>>>> +	 * So we need rtc platform data to be existed to pass this information.
->>>>>> +	 */
->>>>>> +	if (!pdata->rtc) {
->>>>>> +		pdata->rtc = devm_kzalloc(&client->dev,
->>>>>> +					  sizeof(*(pdata->rtc)), GFP_KERNEL);
->>>>>> +		if (!pdata->rtc) {
->>>>>> +			dev_err(&client->dev,
->>>>>> +					"failed to allocate memory for rtc\n");
->>>>>> +			return -ENOMEM;
->>>>>> +		}
->>>>>> +	}
->>>>>> +
->>>>>
->>>>> Where is this memory first used?
->>>>>
->>>>
->>>> In the same file, look for field "rtc_wakeup".
->>>>
->>>> FYI,
->>>>
->>>> This field is used in two files,
->>>>
->>>> drivers/mfd/88pm800.c
->>>> and
->>>> drivers/rtc/rtc-88pm800.c	[sets the "platform_data" field]
->>>
->>> Then were is the platform_data field subsequently used?
->>
->> Currently not used, but it is for future use, where we would be
->> interested to know that the wakeup is really from reset or RTC wakeup.
->
-> Well it was introduced 3 years ago, so the chances of it being "used
-> in the future" are probably pretty low.  Unless of course, you are
-> planning on submitting that code.  In which case, you can add this
-> patch to that set and I can re-review it then.
->
->>> Looking at the RTC platform data declaration I see:
->>>
->>> struct pm80x_rtc_pdata {
->>>      int             vrtc;
->>>      int             rtc_wakeup;
->>> };
->>>
->>> Is 'vrtc' even used?  If so, where?
->>
->> No, it is not.
->
-> So either submit a patch-set that makes use of them, or let me know
-> that you're not going to do that and I'll remove it altogether.
-> Likewise for rtc_wakeup.
->
+Philippe Reynes (6):
+  imx31: add a second rtc clock
+  imx35: define two clocks for rtc
+  rtc: mxc: use a second rtc clock
+  rtc: mxc: add support of device tree
+  dt-binding: document the binding for mxc rtc
+  apf27: dt: add support of internal rtc
 
-I am ok with vrtc field, we can remove it.
+ Documentation/devicetree/bindings/rtc/rtc-mxc.txt |   27 ++++++++++++
+ arch/arm/boot/dts/imx27-apf27.dts                 |    4 ++
+ arch/arm/boot/dts/imx27.dtsi                      |   10 +++++
+ arch/arm/mach-imx/clk-imx31.c                     |    3 +-
+ arch/arm/mach-imx/clk-imx35.c                     |    6 ++-
+ drivers/rtc/rtc-mxc.c                             |   45 ++++++++++++++++-----
+ 6 files changed, 83 insertions(+), 12 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/rtc/rtc-mxc.txt
 
-But,
-I would recommend _not_ to remove rtc_wakeup, as it may not be used 
-immediately, but still have logical significance.
-
-Consuming rtc_wakeup in the code is dependant on overall power
-management support, which is always long pole for development. As you
-would have seen, we have just started with baseport for pxa1928 and I
-am starting on upstreaming driver part.
-
-
- From hardware perspective, this is important feature, where it indicate
-whether the boot was triggered by reset assertion or by RTC wakeup. So
-as of now from driver perspective I feel no harm to have one field for
-this.
-
-
-Finally, its your call. I will let you decide.
-The field can be added later when it actually gets consumed.
-
-Thanks,
-Vaibhav
+-- 
+1.7.4.4
 
 -- 
 -- 
