@@ -1,31 +1,29 @@
-Return-Path: <rtc-linux+bncBCHOPY7NVYCRB3H6WKVQKGQEMEBR6AY@googlegroups.com>
-Received: from mail-ob0-x22b.google.com (mail-ob0-x22b.google.com. [2607:f8b0:4003:c01::22b])
-        by gmr-mx.google.com with ESMTPS id f17si960353igt.0.2015.06.01.13.24.12
+Return-Path: <rtc-linux+bncBD5O5IWPJMIJT3MVVQCRUBEKEANXK@googlegroups.com>
+MIME-Version: 1.0
+Received: from mail-wg0-x234.google.com (mail-wg0-x234.google.com. [2a00:1450:400c:c00::234])
+        by gmr-mx.google.com with ESMTPS id bc3si428909wib.2.2015.06.20.07.20.09
         for <rtc-linux@googlegroups.com>
         (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 01 Jun 2015 13:24:12 -0700 (PDT)
-Received: by mail-ob0-x22b.google.com with SMTP id nx10so106950310obc.2
-        for <rtc-linux@googlegroups.com>; Mon, 01 Jun 2015 13:24:12 -0700 (PDT)
-MIME-Version: 1.0
-In-Reply-To: <20150601194552.GD30024@dtor-ws>
-References: <1432657562-5592-1-git-send-email-Frank.Li@freescale.com>
-	<20150527121052.GH16165@dragon>
-	<20150528121353.GP2185@piout.net>
-	<CAHrpEqShyPKeKYdVZ05_qsbx0cC387a2QPCdbhR5C968n=ED0A@mail.gmail.com>
-	<20150601194552.GD30024@dtor-ws>
-Date: Mon, 1 Jun 2015 15:24:11 -0500
-Message-ID: <CAHrpEqQ9BTtRtRNwKafHwWpQ7x_+zQ670sbuLZJMj=FFjMCZNQ@mail.gmail.com>
-Subject: [rtc-linux] Re: [PATCH v5 0/6] Change snvs rtc and poweroff to use
- syscon add pwrkey driver
-From: Zhi Li <lznuaa@gmail.com>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>, Shawn Guo <shawn.guo@linaro.org>,
-	"Frank.Li@freescale.com" <Frank.Li@freescale.com>, Rob Herring <robh+dt@kernel.org>,
-	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, linux-input@vger.kernel.org,
+        Sat, 20 Jun 2015 07:20:09 -0700 (PDT)
+Received: by mail-wg0-x234.google.com with SMTP id q1so62705181wgf.1
+        for <rtc-linux@googlegroups.com>; Sat, 20 Jun 2015 07:20:09 -0700 (PDT)
+From: Philippe Reynes <tremyfr@gmail.com>
+To: a.zummo@towertech.it,
+	alexandre.belloni@free-electrons.com,
+	shawn.guo@linaro.org,
+	kernel@pengutronix.de,
+	linux@arm.linux.org.uk
+Cc: linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org,
 	rtc-linux@googlegroups.com,
-	"devicetree@vger.kernel.org" <devicetree@vger.kernel.org>
-Content-Type: text/plain; charset=UTF-8
+	Philippe Reynes <tremyfr@gmail.com>
+Subject: [rtc-linux] [PATCH v2 3/6] rtc: mxc: use a second rtc clock
+Date: Sat, 20 Jun 2015 16:15:29 +0200
+Message-Id: <1434809732-8996-4-git-send-email-tremyfr@gmail.com>
+In-Reply-To: <1434809732-8996-1-git-send-email-tremyfr@gmail.com>
+References: <1434809732-8996-1-git-send-email-tremyfr@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -35,67 +33,89 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On Mon, Jun 1, 2015 at 2:45 PM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
-> On Thu, May 28, 2015 at 08:18:24AM -0500, Zhi Li wrote:
->> On Thu, May 28, 2015 at 7:13 AM, Alexandre Belloni
->> <alexandre.belloni@free-electrons.com> wrote:
->> > On 27/05/2015 at 20:10:53 +0800, Shawn Guo wrote :
->> >> On Wed, May 27, 2015 at 12:25:56AM +0800, Frank.Li@freescale.com wrot=
-e:
->> >> > Frank Li (5):
->> >> >   rtc: arm: imx: snvs: change use syscon to access register
->> >> >   Document: dt: fsl: snvs: change support syscon
->> >> >   ARM: dts: imx: update snvs to use syscon access register
->> >> >   Document: devicetree: input: imx: i.mx snvs power device tree bin=
-dings
->> >> >   ARM: dts: imx6sx: enable snvs power key
->> >> >
->> >> > Robin Gong (1):
->> >> >   input: keyboard: imx: add snvs power key driver
->> >>
->> >> The series looks fine to me now.  But I can only apply those two dts
->> >> patches after the driver and binding parts get landed on mainline.
->> >> Hopefully, you can get them in during the coming merge window through
->> >> subsystem trees, so that I can pick up dts part after v4.2-rc1 comes
->> >> out.
->> >>
->> >
->> > Actually, I was thinking you could take the whole series in your tree
->> > (at least, I'm speaking for the RTC part).
->> > Else, I'm wondering who should take the documentation changes.
->> >
->>
->> Dmitry Torokhov:
->>
->> what's your opinion about input part=EF=BC=9F
->
-> I am fine with it merged through Shawn's tree. I added my ack to the mail
-> in question.
+The mxc RTC needs two clocks, one for the input
+reference, and one for the IP. But this driver
+was only using one clock (for the reference).
+This patch add the second clock (for the IP).
 
-Shawn:
+Signed-off-by: Philippe Reynes <tremyfr@gmail.com>
+---
+ drivers/rtc/rtc-mxc.c |   26 +++++++++++++++++---------
+ 1 files changed, 17 insertions(+), 9 deletions(-)
 
-         Everyone agree merge through your tree.
-         Please help pick whole patches
+diff --git a/drivers/rtc/rtc-mxc.c b/drivers/rtc/rtc-mxc.c
+index 09d422b..e916a91 100644
+--- a/drivers/rtc/rtc-mxc.c
++++ b/drivers/rtc/rtc-mxc.c
+@@ -79,7 +79,8 @@ struct rtc_plat_data {
+ 	struct rtc_device *rtc;
+ 	void __iomem *ioaddr;
+ 	int irq;
+-	struct clk *clk;
++	struct clk *clk_rtc;
++	struct clk *clk_ipg;
+ 	struct rtc_time g_rtc_alarm;
+ 	enum imx_rtc_type devtype;
+ };
+@@ -373,17 +374,24 @@ static int mxc_rtc_probe(struct platform_device *pdev)
+ 	if (IS_ERR(pdata->ioaddr))
+ 		return PTR_ERR(pdata->ioaddr);
+ 
+-	pdata->clk = devm_clk_get(&pdev->dev, NULL);
+-	if (IS_ERR(pdata->clk)) {
+-		dev_err(&pdev->dev, "unable to get clock!\n");
+-		return PTR_ERR(pdata->clk);
++	pdata->clk_ipg = devm_clk_get(&pdev->dev, "ipg");
++	if (IS_ERR(pdata->clk_ipg)) {
++		dev_err(&pdev->dev, "unable to get ipg clock!\n");
++		return PTR_ERR(pdata->clk_ipg);
+ 	}
+ 
+-	ret = clk_prepare_enable(pdata->clk);
++	ret = clk_prepare_enable(pdata->clk_ipg);
+ 	if (ret)
+ 		return ret;
+ 
+-	rate = clk_get_rate(pdata->clk);
++	pdata->clk_rtc = devm_clk_get(&pdev->dev, "rtc");
++	if (IS_ERR(pdata->clk_rtc)) {
++		dev_err(&pdev->dev, "unable to get rtc clock!\n");
++		ret = PTR_ERR(pdata->clk_rtc);
++		goto exit_put_clk;
++	}
++
++	rate = clk_get_rate(pdata->clk_rtc);
+ 
+ 	if (rate == 32768)
+ 		reg = RTC_INPUT_CLK_32768HZ;
+@@ -432,7 +440,7 @@ static int mxc_rtc_probe(struct platform_device *pdev)
+ 	return 0;
+ 
+ exit_put_clk:
+-	clk_disable_unprepare(pdata->clk);
++	clk_disable_unprepare(pdata->clk_ipg);
+ 
+ 	return ret;
+ }
+@@ -441,7 +449,7 @@ static int mxc_rtc_remove(struct platform_device *pdev)
+ {
+ 	struct rtc_plat_data *pdata = platform_get_drvdata(pdev);
+ 
+-	clk_disable_unprepare(pdata->clk);
++	clk_disable_unprepare(pdata->clk_ipg);
+ 
+ 	return 0;
+ }
+-- 
+1.7.4.4
 
-best regards
-Frank Li
-
->
-> Thanks.
->
-> --
-> Dmitry
-
---=20
---=20
+-- 
+-- 
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
----=20
-You received this message because you are subscribed to the Google Groups "=
-rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an e=
-mail to rtc-linux+unsubscribe@googlegroups.com.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
