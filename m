@@ -1,28 +1,27 @@
-Return-Path: <rtc-linux+bncBCMNZUWXYYORB6UHQ6WAKGQE34FWWFQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBD5O5IWPJMIJ3PUWVQCRUBGHTXUJC@googlegroups.com>
 MIME-Version: 1.0
-Received: from mail-pa0-f46.google.com (mail-pa0-f46.google.com. [209.85.220.46])
-        by gmr-mx.google.com with ESMTPS id ct6si677288pdb.1.2015.06.17.12.01.14
+Received: from mail-wg0-x230.google.com (mail-wg0-x230.google.com. [2a00:1450:400c:c00::230])
+        by gmr-mx.google.com with ESMTPS id eo3si148839wib.0.2015.06.20.10.13.00
         for <rtc-linux@googlegroups.com>
         (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 17 Jun 2015 12:01:14 -0700 (PDT)
-Received: by mail-pa0-f46.google.com with SMTP id eq1so17934019pac.3
-        for <rtc-linux@googlegroups.com>; Wed, 17 Jun 2015 12:01:14 -0700 (PDT)
-From: Vaibhav Hiremath <vaibhav.hiremath@linaro.org>
-To: linux-arm-kernel@lists.infradead.org
-Cc: robh+dt@kernel.org,
-	lee.jones@linaro.org,
-	devicetree@vger.kernel.org,
-	rtc-linux@googlegroups.com,
+        Sat, 20 Jun 2015 10:13:00 -0700 (PDT)
+Received: by mail-wg0-x230.google.com with SMTP id hy7so111221986wgb.2
+        for <rtc-linux@googlegroups.com>; Sat, 20 Jun 2015 10:13:00 -0700 (PDT)
+From: Philippe Reynes <tremyfr@gmail.com>
+To: a.zummo@towertech.it,
+	alexandre.belloni@free-electrons.com,
+	shawn.guo@linaro.org,
+	kernel@pengutronix.de,
+	linux@arm.linux.org.uk
+Cc: linux-arm-kernel@lists.infradead.org,
 	linux-kernel@vger.kernel.org,
-	Vaibhav Hiremath <vaibhav.hiremath@linaro.org>,
-	Zhao Ye <zhaoy@marvell.com>
-Subject: [rtc-linux] [PATCH-v2 2/3] mfd: 88pm800: Allow configuration of
- interrupt clear method
-Date: Thu, 18 Jun 2015 00:28:07 +0530
-Message-Id: <1434567488-6477-4-git-send-email-vaibhav.hiremath@linaro.org>
-In-Reply-To: <1434567488-6477-1-git-send-email-vaibhav.hiremath@linaro.org>
-References: <vaibhav.hiremath@linaro.org>
- <1434567488-6477-1-git-send-email-vaibhav.hiremath@linaro.org>
+	rtc-linux@googlegroups.com,
+	Philippe Reynes <tremyfr@gmail.com>
+Subject: [rtc-linux] [PATCH v3 6/6] apf27: dt: add support of internal rtc
+Date: Sat, 20 Jun 2015 19:12:40 +0200
+Message-Id: <1434820360-21935-7-git-send-email-tremyfr@gmail.com>
+In-Reply-To: <1434820360-21935-1-git-send-email-tremyfr@gmail.com>
+References: <1434820360-21935-1-git-send-email-tremyfr@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -34,110 +33,49 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-As per the spec, bit 1 (INT_CLEAR_MODE) of reg addr 0xe
-(page 0) controls the method of clearing interrupt
-status of 88pm800 family of devices;
+Enable the internal mxc rtc driver on apf27.
 
-  0: clear on read
-  1: clear on write
-
-This patch allows to configure this field, through DT.
-
-Also, as suggested by "Lee Jones" renaming DT property and variable
-field to appropriate name.
-
-Signed-off-by: Zhao Ye <zhaoy@marvell.com>
-Signed-off-by: Vaibhav Hiremath <vaibhav.hiremath@linaro.org>
+Signed-off-by: Philippe Reynes <tremyfr@gmail.com>
 ---
- drivers/mfd/88pm800.c       | 15 ++++++++++-----
- include/linux/mfd/88pm80x.h |  6 ++++--
- 2 files changed, 14 insertions(+), 7 deletions(-)
+ arch/arm/boot/dts/imx27-apf27.dts |    4 ++++
+ arch/arm/boot/dts/imx27.dtsi      |   10 ++++++++++
+ 2 files changed, 14 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/mfd/88pm800.c b/drivers/mfd/88pm800.c
-index 059f01a..c1a6306 100644
---- a/drivers/mfd/88pm800.c
-+++ b/drivers/mfd/88pm800.c
-@@ -376,7 +376,7 @@ static int device_irq_init_800(struct pm80x_chip *chip)
- {
- 	struct regmap *map = chip->regmap;
- 	unsigned long flags = IRQF_ONESHOT;
--	int data, mask, ret = -EINVAL;
-+	int irq_clr_mode, mask, ret = -EINVAL;
- 
- 	if (!map || !chip->irq) {
- 		dev_err(chip->dev, "incorrect parameters\n");
-@@ -384,15 +384,16 @@ static int device_irq_init_800(struct pm80x_chip *chip)
- 	}
- 
- 	/*
--	 * irq_mode defines the way of clearing interrupt. it's read-clear by
--	 * default.
-+	 * irq_clr_on_wr defines the way of clearing interrupt by
-+	 * read/write(0/1).  It's read-clear by default.
- 	 */
- 	mask =
- 	    PM800_WAKEUP2_INV_INT | PM800_WAKEUP2_INT_CLEAR |
- 	    PM800_WAKEUP2_INT_MASK;
- 
--	data = PM800_WAKEUP2_INT_CLEAR;
--	ret = regmap_update_bits(map, PM800_WAKEUP2, mask, data);
-+	irq_clr_mode = (chip->irq_clr_on_wr) ?
-+		PM800_WAKEUP2_INT_WRITE_CLEAR : PM800_WAKEUP2_INT_READ_CLEAR;
-+	ret = regmap_update_bits(map, PM800_WAKEUP2, mask, irq_clr_mode);
- 
- 	if (ret < 0)
- 		goto out;
-@@ -514,6 +515,7 @@ static int device_800_init(struct pm80x_chip *chip,
- 	}
- 
- 	chip->regmap_irq_chip = &pm800_irq_chip;
-+	chip->irq_clr_on_wr = pdata->irq_clr_on_wr;
- 
- 	ret = device_irq_init_800(chip);
- 	if (ret < 0) {
-@@ -568,6 +570,9 @@ static int pm800_probe(struct i2c_client *client,
- 			dev_err(&client->dev, "failed to allocaate memory\n");
- 			return -ENOMEM;
- 		}
-+
-+		pdata->irq_clr_on_wr = of_property_read_bool(np,
-+					"marvell,irq-clr-on-write");
- 	}
- 
- 	ret = pm80x_init(client);
-diff --git a/include/linux/mfd/88pm80x.h b/include/linux/mfd/88pm80x.h
-index 97cb283..94b3dcd 100644
---- a/include/linux/mfd/88pm80x.h
-+++ b/include/linux/mfd/88pm80x.h
-@@ -77,6 +77,8 @@ enum {
- #define PM800_WAKEUP2		(0x0E)
- #define PM800_WAKEUP2_INV_INT		(1 << 0)
- #define PM800_WAKEUP2_INT_CLEAR		(1 << 1)
-+#define PM800_WAKEUP2_INT_READ_CLEAR		(0 << 1)
-+#define PM800_WAKEUP2_INT_WRITE_CLEAR		(1 << 1)
- #define PM800_WAKEUP2_INT_MASK		(1 << 2)
- 
- #define PM800_POWER_UP_LOG	(0x10)
-@@ -300,7 +302,7 @@ struct pm80x_chip {
- 	struct regmap_irq_chip_data *irq_data;
- 	int type;
- 	int irq;
--	int irq_mode;
-+	int irq_clr_on_wr;	/* '1': Clear on write, '0': Clear on read*/
- 	unsigned long wu_flag;
- 	spinlock_t lock;
+diff --git a/arch/arm/boot/dts/imx27-apf27.dts b/arch/arm/boot/dts/imx27-apf27.dts
+index 73aae4f..590d37a 100644
+--- a/arch/arm/boot/dts/imx27-apf27.dts
++++ b/arch/arm/boot/dts/imx27-apf27.dts
+@@ -122,3 +122,7 @@
+ 		reg = <0x800000 0xf800000>;
+ 	};
  };
-@@ -315,7 +317,7 @@ struct pm80x_platform_data {
- 	 */
- 	struct regulator_init_data *regulators[PM800_ID_RG_MAX];
- 	unsigned int num_regulators;
--	int irq_mode;		/* Clear interrupt by read/write(0/1) */
-+	int irq_clr_on_wr;		/* Clear interrupt by read/write(0/1) */
- 	int batt_det;		/* enable/disable */
- 	int (*plat_config)(struct pm80x_chip *chip,
- 				struct pm80x_platform_data *pdata);
++
++&rtc {
++	status = "okay";
++};
+diff --git a/arch/arm/boot/dts/imx27.dtsi b/arch/arm/boot/dts/imx27.dtsi
+index bc215e4..57fda6c 100644
+--- a/arch/arm/boot/dts/imx27.dtsi
++++ b/arch/arm/boot/dts/imx27.dtsi
+@@ -144,6 +144,16 @@
+ 				clock-names = "ipg", "per";
+ 			};
+ 
++			rtc: rtc@10007000 {
++				compatible = "fsl,imx21-rtc";
++				reg = <0x10007000 0x1000>;
++				interrupts = <22>;
++				clocks = <&clks IMX27_CLK_CKIL>,
++					 <&clks IMX27_CLK_RTC_IPG_GATE>;
++				clock-names = "rtc", "ipg";
++				status = "disabled";
++			};
++
+ 			kpp: kpp@10008000 {
+ 				compatible = "fsl,imx27-kpp", "fsl,imx21-kpp";
+ 				reg = <0x10008000 0x1000>;
 -- 
-1.9.1
+1.7.4.4
 
 -- 
 -- 
