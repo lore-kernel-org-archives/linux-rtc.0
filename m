@@ -1,44 +1,29 @@
-Return-Path: <rtc-linux+bncBCIPJ6FA2QLBBJ4UY2VQKGQEVT3U4FQ@googlegroups.com>
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id h1si76839wiw.1.2015.06.05.04.38.14
-        for <rtc-linux@googlegroups.com>;
-        Fri, 05 Jun 2015 04:38:14 -0700 (PDT)
-Date: Fri, 5 Jun 2015 13:38:03 +0200
-From: Boris Brezillon <boris.brezillon@free-electrons.com>
-To: Paul Walmsley <paul@pwsan.com>, Stephen Boyd <sboyd@codeaurora.org>
-Cc: Mike Turquette <mturquette@linaro.org>, linux-clk@vger.kernel.org,
- linux-kernel@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, Shawn Guo
- <shawn.guo@linaro.org>, ascha Hauer <kernel@pengutronix.de>, David Brown
- <davidb@codeaurora.org>, Daniel Walker <dwalker@fifo99.com>, Bryan Huntsman
- <bryanh@codeaurora.org>, Tony Lindgren <tony@atomide.com>, Liviu Dudau
- <liviu.dudau@arm.com>, Sudeep Holla <sudeep.holla@arm.com>, Lorenzo
- Pieralisi <lorenzo.pieralisi@arm.com>, Ralf Baechle <ralf@linux-mips.org>,
- Max Filippov <jcmvbkbc@gmail.com>, Heiko Stuebner <heiko@sntech.de>,
- Sylwester Nawrocki <s.nawrocki@samsung.com>, Tomasz Figa
- <tomasz.figa@gmail.com>, Barry Song <baohua@kernel.org>, Viresh Kumar
- <viresh.linux@gmail.com>, Emilio =?UTF-8?B?TMOzcGV6?=
- <emilio@elopez.com.ar>, Maxime Ripard <maxime.ripard@free-electrons.com>,
- Peter De Schrijver <pdeschrijver@nvidia.com>, Prashant Gaikwad
- <pgaikwad@nvidia.com>, Stephen Warren <swarren@wwwdotorg.org>, Thierry
- Reding <thierry.reding@gmail.com>, Alexandre Courbot <gnurou@gmail.com>,
- Tero Kristo <t-kristo@ti.com>, Ulf Hansson <ulf.hansson@linaro.org>, Michal
- Simek <michal.simek@xilinx.com>, Philipp Zabel <p.zabel@pengutronix.de>,
- linux-doc@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
- linux-arm-msm@vger.kernel.org, linux-omap@vger.kernel.org,
- linux-mips@linux-mips.org, patches@opensource.wolfsonmicro.com,
- linux-rockchip@lists.infradead.org, linux-samsung-soc@vger.kernel.org,
- spear-devel@list.st.com, linux-tegra@vger.kernel.org,
- dri-devel@lists.freedesktop.org, linux-media@vger.kernel.org,
- rtc-linux@googlegroups.com
-Subject: [rtc-linux] Re: [PATCH v2 1/2] clk: change clk_ops' ->round_rate() prototype
-Message-ID: <20150605133803.59990a66@bbrezillon>
-In-Reply-To: <alpine.DEB.2.02.1506042258530.12316@utopia.booyaka.com>
-References: <1430407809-31147-1-git-send-email-boris.brezillon@free-electrons.com>
- <1430407809-31147-2-git-send-email-boris.brezillon@free-electrons.com>
- <alpine.DEB.2.02.1506042258530.12316@utopia.booyaka.com>
+Return-Path: <rtc-linux+bncBD5O5IWPJMIJ53MVVQCRUBGJGMWHK@googlegroups.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Received: from mail-wi0-x22f.google.com (mail-wi0-x22f.google.com. [2a00:1450:400c:c05::22f])
+        by gmr-mx.google.com with ESMTPS id gt9si432283wib.2.2015.06.20.07.20.14
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Sat, 20 Jun 2015 07:20:14 -0700 (PDT)
+Received: by mail-wi0-x22f.google.com with SMTP id gi11so40255961wic.0
+        for <rtc-linux@googlegroups.com>; Sat, 20 Jun 2015 07:20:14 -0700 (PDT)
+From: Philippe Reynes <tremyfr@gmail.com>
+To: a.zummo@towertech.it,
+	alexandre.belloni@free-electrons.com,
+	shawn.guo@linaro.org,
+	kernel@pengutronix.de,
+	linux@arm.linux.org.uk
+Cc: linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org,
+	rtc-linux@googlegroups.com,
+	Philippe Reynes <tremyfr@gmail.com>
+Subject: [rtc-linux] [PATCH v2 4/6] rtc: mxc: add support of device tree
+Date: Sat, 20 Jun 2015 16:15:30 +0200
+Message-Id: <1434809732-8996-5-git-send-email-tremyfr@gmail.com>
+In-Reply-To: <1434809732-8996-1-git-send-email-tremyfr@gmail.com>
+References: <1434809732-8996-1-git-send-email-tremyfr@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -48,66 +33,71 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Hi Paul,
+Add device tree support for the mxc rtc driver.
 
-On Thu, 4 Jun 2015 23:02:25 +0000 (UTC)
-Paul Walmsley <paul@pwsan.com> wrote:
+Signed-off-by: Philippe Reynes <tremyfr@gmail.com>
+---
+ drivers/rtc/rtc-mxc.c |   19 ++++++++++++++++++-
+ 1 files changed, 18 insertions(+), 1 deletions(-)
 
-> Hi folks
-> 
-> just a brief comment on this one:
-> 
-> On Thu, 30 Apr 2015, Boris Brezillon wrote:
-> 
-> > Clock rates are stored in an unsigned long field, but ->round_rate()
-> > (which returns a rounded rate from a requested one) returns a long
-> > value (errors are reported using negative error codes), which can lead
-> > to long overflow if the clock rate exceed 2Ghz.
-> > 
-> > Change ->round_rate() prototype to return 0 or an error code, and pass the
-> > requested rate as a pointer so that it can be adjusted depending on
-> > hardware capabilities.
-> 
-> ...
-> 
-> > diff --git a/Documentation/clk.txt b/Documentation/clk.txt
-> > index 0e4f90a..fca8b7a 100644
-> > --- a/Documentation/clk.txt
-> > +++ b/Documentation/clk.txt
-> > @@ -68,8 +68,8 @@ the operations defined in clk.h:
-> >  		int		(*is_enabled)(struct clk_hw *hw);
-> >  		unsigned long	(*recalc_rate)(struct clk_hw *hw,
-> >  						unsigned long parent_rate);
-> > -		long		(*round_rate)(struct clk_hw *hw,
-> > -						unsigned long rate,
-> > +		int		(*round_rate)(struct clk_hw *hw,
-> > +						unsigned long *rate,
-> >  						unsigned long *parent_rate);
-> >  		long		(*determine_rate)(struct clk_hw *hw,
-> >  						unsigned long rate,
-> 
-> I'd suggest that we should probably go straight to 64-bit rates.  There 
-> are already plenty of clock sources that can generate rates higher than 
-> 4GiHz.
-
-Yep, that was something I was considering too. If Stephen agrees I'll
-change that in the next version.
-BTW, you're referring to the second version of this patch, but things
-have changed a bit: Stephen recommended to only modify the
-->determine_rate() prototype and pass a structure instead of a list of
-arguments.
-Here is the last version of this series [1].
-
-Best Regards,
-
-Boris
-
-[1]http://patchwork.linux-mips.org/patch/10092/
-
+diff --git a/drivers/rtc/rtc-mxc.c b/drivers/rtc/rtc-mxc.c
+index e916a91..befe2c2 100644
+--- a/drivers/rtc/rtc-mxc.c
++++ b/drivers/rtc/rtc-mxc.c
+@@ -16,6 +16,8 @@
+ #include <linux/interrupt.h>
+ #include <linux/platform_device.h>
+ #include <linux/clk.h>
++#include <linux/of.h>
++#include <linux/of_device.h>
+ 
+ #define RTC_INPUT_CLK_32768HZ	(0x00 << 5)
+ #define RTC_INPUT_CLK_32000HZ	(0x01 << 5)
+@@ -98,6 +100,15 @@ static struct platform_device_id imx_rtc_devtype[] = {
+ };
+ MODULE_DEVICE_TABLE(platform, imx_rtc_devtype);
+ 
++#ifdef CONFIG_OF
++static const struct of_device_id imx_rtc_dt_ids[] = {
++	{ .compatible = "fsl,imx1-rtc", .data = (const void *)IMX1_RTC },
++	{ .compatible = "fsl,imx21-rtc", .data = (const void *)IMX21_RTC },
++	{}
++};
++MODULE_DEVICE_TABLE(of, imx_rtc_dt_ids);
++#endif
++
+ static inline int is_imx1_rtc(struct rtc_plat_data *data)
+ {
+ 	return data->devtype == IMX1_RTC;
+@@ -362,12 +373,17 @@ static int mxc_rtc_probe(struct platform_device *pdev)
+ 	u32 reg;
+ 	unsigned long rate;
+ 	int ret;
++	const struct of_device_id *of_id;
+ 
+ 	pdata = devm_kzalloc(&pdev->dev, sizeof(*pdata), GFP_KERNEL);
+ 	if (!pdata)
+ 		return -ENOMEM;
+ 
+-	pdata->devtype = pdev->id_entry->driver_data;
++	of_id = of_match_device(imx_rtc_dt_ids, &pdev->dev);
++	if (of_id)
++		pdata->devtype = (enum imx_rtc_type)of_id->data;
++	else
++		pdata->devtype = pdev->id_entry->driver_data;
+ 
+ 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+ 	pdata->ioaddr = devm_ioremap_resource(&pdev->dev, res);
+@@ -481,6 +497,7 @@ static SIMPLE_DEV_PM_OPS(mxc_rtc_pm_ops, mxc_rtc_suspend, mxc_rtc_resume);
+ static struct platform_driver mxc_rtc_driver = {
+ 	.driver = {
+ 		   .name	= "mxc_rtc",
++		   .of_match_table = of_match_ptr(imx_rtc_dt_ids),
+ 		   .pm		= &mxc_rtc_pm_ops,
+ 	},
+ 	.id_table = imx_rtc_devtype,
 -- 
-Boris Brezillon, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+1.7.4.4
 
 -- 
 -- 
