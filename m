@@ -1,23 +1,31 @@
-Return-Path: <rtc-linux+bncBAABB2G576VQKGQEXTW4DQY@googlegroups.com>
+Return-Path: <rtc-linux+bncBD62P6P6EQIL5KNAVQCRUBGLP4TCW@googlegroups.com>
+Received: from mail-yk0-x235.google.com (mail-yk0-x235.google.com. [2607:f8b0:4002:c07::235])
+        by gmr-mx.google.com with ESMTPS id 4si384865yhq.1.2015.06.22.06.59.26
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 22 Jun 2015 06:59:26 -0700 (PDT)
+Received: by mail-yk0-x235.google.com with SMTP id r198so130743377ykd.3
+        for <rtc-linux@googlegroups.com>; Mon, 22 Jun 2015 06:59:26 -0700 (PDT)
 MIME-Version: 1.0
-Received: from mx.dave-tech.it (mx.dave-tech.it. [2.229.21.40])
-        by gmr-mx.google.com with ESMTP id gt9si61812wib.2.2015.06.16.02.39.51
-        for <rtc-linux@googlegroups.com>;
-        Tue, 16 Jun 2015 02:39:51 -0700 (PDT)
-From: rnd4@dave-tech.it
-To: alexandre.belloni@free-electrons.com
-Cc: a.zummo@towertech.it,
-	rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org,
-	Andrea Scian <andrea.scian@dave.eu>
-Subject: [rtc-linux] [PATCH v2] driver: rtc: pcf2127: use OFS flag to detect
- unreliable date and warn the user
-Date: Tue, 16 Jun 2015 11:39:47 +0200
-Message-Id: <1434447587-23992-1-git-send-email-rnd4@dave-tech.it>
-In-Reply-To: <557EF5DD.9070300@dave-tech.it>
-References: <557EF5DD.9070300@dave-tech.it>
-Reply-To: rtc-linux@googlegroups.com
+In-Reply-To: <1434820360-21935-6-git-send-email-tremyfr@gmail.com>
+References: <1434820360-21935-1-git-send-email-tremyfr@gmail.com> <1434820360-21935-6-git-send-email-tremyfr@gmail.com>
+From: Rob Herring <robherring2@gmail.com>
+Date: Mon, 22 Jun 2015 08:59:06 -0500
+Message-ID: <CAL_JsqKQzC=aSuORGhsuPQ0Ciha2JVpYOGU91M2iHaG8RousnQ@mail.gmail.com>
+Subject: [rtc-linux] Re: [PATCH v3 5/6] dt-binding: document the binding for
+ mxc rtc
+To: Philippe Reynes <tremyfr@gmail.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>, Shawn Guo <shawn.guo@linaro.org>,
+	"kernel@pengutronix.de" <kernel@pengutronix.de>, Russell King - ARM Linux <linux@arm.linux.org.uk>,
+	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, rtc-linux@googlegroups.com,
+	Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>,
+	Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>,
+	Kumar Gala <galak@codeaurora.org>,
+	"devicetree@vger.kernel.org" <devicetree@vger.kernel.org>
 Content-Type: text/plain; charset=UTF-8
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -27,98 +35,65 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-From: Andrea Scian <andrea.scian@dave.eu>
+On Sat, Jun 20, 2015 at 12:12 PM, Philippe Reynes <tremyfr@gmail.com> wrote:
+> This adds documentation of device tree bindings for the
+> mxc rtc.
 
-Signed-off-by: Andrea Scian <andrea.scian@dave.eu>
----
+Perhaps don't further propagate the long dead MXC name and use "imx"
+everywhere. What the Linux driver is called doesn't matter here.
 
-Changes since v1:
-* use BIT() to select the right bitfield instead of hardcode value
-* return -EINVAL if OFS is detected
-* cache OSF into driver structure to warn the user even later
+> Cc: Rob Herring <robh+dt@kernel.org>
+> Cc: Pawel Moll <pawel.moll@arm.com>
+> Cc: Mark Rutland <mark.rutland@arm.com>
+> Cc: Ian Campbell <ijc+devicetree@hellion.org.uk>
+> Cc: Kumar Gala <galak@codeaurora.org>
+> Cc: devicetree@vger.kernel.org
+> Signed-off-by: Philippe Reynes <tremyfr@gmail.com>
+> ---
+>  Documentation/devicetree/bindings/rtc/rtc-mxc.txt |   27 +++++++++++++++++++++
+>  1 files changed, 27 insertions(+), 0 deletions(-)
+>  create mode 100644 Documentation/devicetree/bindings/rtc/rtc-mxc.txt
+>
+> diff --git a/Documentation/devicetree/bindings/rtc/rtc-mxc.txt b/Documentation/devicetree/bindings/rtc/rtc-mxc.txt
+> new file mode 100644
+> index 0000000..5505493
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/rtc/rtc-mxc.txt
+> @@ -0,0 +1,27 @@
+> +* Real Time Clock of the i.MX SoCs
+> +
+> +RTC controller for the i.MX SoCs
+> +
+> +Required properties:
+> +- compatible: Should be "fsl,imx1-rtc" or "fsl,imx21-rtc".
 
- drivers/rtc/rtc-pcf2127.c |   26 +++++++++++++++++++++++---
- 1 file changed, 23 insertions(+), 3 deletions(-)
+What about newer versions with the secure functionality. IIRC, that
+was in MX31 and later.
 
-diff --git a/drivers/rtc/rtc-pcf2127.c b/drivers/rtc/rtc-pcf2127.c
-index 7f803b2..aecee0b 100644
---- a/drivers/rtc/rtc-pcf2127.c
-+++ b/drivers/rtc/rtc-pcf2127.c
-@@ -33,11 +33,14 @@
- #define PCF2127_REG_MO          (0x08)
- #define PCF2127_REG_YR          (0x09)
- 
-+#define PCF2127_OSF             BIT(7)  /* Oscillator Fail flag */
-+
- static struct i2c_driver pcf2127_driver;
- 
- struct pcf2127 {
- 	struct rtc_device *rtc;
- 	int voltage_low; /* indicates if a low_voltage was detected */
-+	int oscillator_failed; /* OSF was detected and date in unreliable */
- };
- 
- /*
-@@ -59,7 +62,18 @@ static int pcf2127_get_datetime(struct i2c_client *client, struct rtc_time *tm)
- 	if (buf[PCF2127_REG_CTRL3] & 0x04) {
- 		pcf2127->voltage_low = 1;
- 		dev_info(&client->dev,
--			"low voltage detected, date/time is not reliable.\n");
-+			"low voltage detected, check/replace RTC battery.\n");
-+	}
-+
-+	if (buf[PCF2127_REG_SC] & PCF2127_OSF) {
-+		/*
-+		 * no need clear the flag here,
-+		 * it will be cleared once the new date is saved
-+		 */
-+		pcf2127->oscillator_failed = 1;
-+		dev_warn(&client->dev,
-+			"oscillator stop detected, date/time is not reliable\n");
-+		return -EINVAL;
- 	}
- 
- 	dev_dbg(&client->dev,
-@@ -93,6 +107,7 @@ static int pcf2127_get_datetime(struct i2c_client *client, struct rtc_time *tm)
- 
- static int pcf2127_set_datetime(struct i2c_client *client, struct rtc_time *tm)
- {
-+	struct pcf2127 *pcf2127 = i2c_get_clientdata(client);
- 	unsigned char buf[8];
- 	int i = 0, err;
- 
-@@ -106,7 +121,7 @@ static int pcf2127_set_datetime(struct i2c_client *client, struct rtc_time *tm)
- 	buf[i++] = PCF2127_REG_SC;
- 
- 	/* hours, minutes and seconds */
--	buf[i++] = bin2bcd(tm->tm_sec);
-+	buf[i++] = bin2bcd(tm->tm_sec);	/* this will also clear OFS flag */
- 	buf[i++] = bin2bcd(tm->tm_min);
- 	buf[i++] = bin2bcd(tm->tm_hour);
- 	buf[i++] = bin2bcd(tm->tm_mday);
-@@ -126,6 +141,9 @@ static int pcf2127_set_datetime(struct i2c_client *client, struct rtc_time *tm)
- 		return -EIO;
- 	}
- 
-+	/* clear OSF flag in client data */
-+	pcf2127->oscillator_failed = 0;
-+
- 	return 0;
- }
- 
-@@ -138,7 +156,9 @@ static int pcf2127_rtc_ioctl(struct device *dev,
- 	switch (cmd) {
- 	case RTC_VL_READ:
- 		if (pcf2127->voltage_low)
--			dev_info(dev, "low voltage detected, date/time is not reliable.\n");
-+			dev_info(dev, "low voltage detected, check/replace battery\n");
-+		if (pcf2127->oscillator_failed)
-+			dev_info(dev, "oscillator stop detected, date/time is not reliable\n");
- 
- 		if (copy_to_user((void __user *)arg, &pcf2127->voltage_low,
- 					sizeof(int)))
--- 
-1.7.9.5
+> +- reg: physical base address of the controller and length of memory mapped
+> +  region.
+> +- interrupts: IRQ line for the RTC.
+> +- clocks: should contain two entries:
+> +  * one for the input reference
+> +  * one for the the SoC RTC
+> +- clock-names: should contain:
+> +  * "rtc" for the input reference clock
+> +  * "ipg" for the SoC RTC clock
+> +
+> +Example:
+> +
+> +rtc@10007000 {
+> +       compatible = "fsl,imx21-rtc";
+> +       reg = <0x10007000 0x1000>;
+> +       interrupts = <22>;
+> +       clocks = <&clks IMX27_CLK_CKIL>,
+> +                <&clks IMX27_CLK_RTC_IPG_GATE>;
+> +       clock-names = "rtc, "ipg";
+> +       status = "disabled";
+> +};
+> --
+> 1.7.4.4
+>
 
 -- 
 -- 
