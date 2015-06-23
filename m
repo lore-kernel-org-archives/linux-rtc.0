@@ -1,23 +1,22 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBS7OSKWAKGQEUB4CKUQ@googlegroups.com>
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id gt9si307126wib.2.2015.06.19.17.43.55
-        for <rtc-linux@googlegroups.com>;
-        Fri, 19 Jun 2015 17:43:55 -0700 (PDT)
-Date: Sat, 20 Jun 2015 02:43:54 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Vaibhav Hiremath <vaibhav.hiremath@linaro.org>
-Cc: linux-arm-kernel@lists.infradead.org, robh+dt@kernel.org,
-	lee.jones@linaro.org, devicetree@vger.kernel.org,
-	rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org,
-	Chao Xie <chao.xie@marvell.com>
-Subject: Re: [rtc-linux] [PATCH-v2] rtc: 88pm80x: add device tree support
-Message-ID: <20150620004354.GY27492@piout.net>
-References: <vaibhav.hiremath@linaro.org>
- <1434567488-6477-1-git-send-email-vaibhav.hiremath@linaro.org>
- <1434567488-6477-3-git-send-email-vaibhav.hiremath@linaro.org>
+Return-Path: <rtc-linux+bncBCMNZUWXYYORBDWTUOWAKGQELX3RXHQ@googlegroups.com>
+Received: from mail-pa0-f52.google.com (mail-pa0-f52.google.com. [209.85.220.52])
+        by gmr-mx.google.com with ESMTPS id fv10si1128332pac.2.2015.06.22.22.07.25
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 22 Jun 2015 22:07:25 -0700 (PDT)
+Received: by mail-pa0-f52.google.com with SMTP id ev16so148869556pad.0
+        for <rtc-linux@googlegroups.com>; Mon, 22 Jun 2015 22:07:25 -0700 (PDT)
+Message-ID: <5588E980.2010603@linaro.org>
+Date: Tue, 23 Jun 2015 10:37:12 +0530
+From: Vaibhav Hiremath <vaibhav.hiremath@linaro.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1434567488-6477-3-git-send-email-vaibhav.hiremath@linaro.org>
+To: linux-arm-kernel@lists.infradead.org
+CC: robh+dt@kernel.org, lee.jones@linaro.org, devicetree@vger.kernel.org,
+ rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org
+Subject: [rtc-linux] Re: [PATCH-v2 0/3] mfd: 88pm800: Add Device tree support
+References: <vaibhav.hiremath@linaro.org> <1434567488-6477-1-git-send-email-vaibhav.hiremath@linaro.org>
+In-Reply-To: <1434567488-6477-1-git-send-email-vaibhav.hiremath@linaro.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -28,51 +27,54 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Hi,
-
-On 18/06/2015 at 00:28:06 +0530, Vaibhav Hiremath wrote :
-> -	pdata = dev_get_platdata(&pdev->dev);
-> -	if (pdata == NULL)
-> -		dev_warn(&pdev->dev, "No platform data!\n");
-> +	if (!pdata && !node) {
-> +		dev_err(&pdev->dev,
-> +			"pm80x-rtc requires platform data or of_node\n");
-> +		return -EINVAL;
-> +	}
-> +
-> +	if (!pdata) {
-> +		pdata = devm_kzalloc(&pdev->dev, sizeof(*pdata), GFP_KERNEL);
-
-I had troubles to follow the rtc_wakeup initialization cleanup but it
-seems OK. However, I'm wondering why you are adding DT support as this
-will always be probed from the MFD driver which pass the platform_data
-and avoids that allocation.
-
-> +		if (!pdata) {
-> +			dev_err(&pdev->dev, "failed to allocate memory\n");
-> +			return -ENOMEM;
-> +		}
-> +	}
->  
->  	info =
->  	    devm_kzalloc(&pdev->dev, sizeof(struct pm80x_rtc_info), GFP_KERNEL);
-> @@ -327,11 +336,8 @@ static int pm80x_rtc_probe(struct platform_device *pdev)
->  	regmap_update_bits(info->map, PM800_RTC_CONTROL, PM800_RTC1_USE_XO,
->  			   PM800_RTC1_USE_XO);
->  
-> -	if (pm80x_pdata) {
-> -		pdata = pm80x_pdata->rtc;
-> -		if (pdata)
-> -			info->rtc_dev->dev.platform_data = &pdata->rtc_wakeup;
-> -	}
-> +	/* remeber whether this power up is caused by PMIC RTC or not */
-remember -^
 
 
--- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+On Thursday 18 June 2015 12:28 AM, Vaibhav Hiremath wrote:
+> This patch-series adds support for Device tree to 88PM800 mfd driver.
+> It also enabled configuration of irq clear method through DT.
+>
+> Testing::
+>   - Boot tested on PXA1928 based platform.
+>   - probe of mfd, rtc and regulator function passing successfully.
+>   - Basic read operations on registers
+>
+>
+> V1 => V1
+> =======
+> Link to V1: http://lkml.iu.edu/hypermail/linux/kernel/1505.3/04386.html
+>
+>    - Split binding changes from original commit
+>    - Updated binding info as per Rob's suggestion
+>    - Dropped PATCH 4/4, as discussed during review
+>    - Dropped PATCH 3/4, as it is independent RTC code change,
+>      so will submit it separately to ease merging.
+>    - Fixed all other minor comments
+>
+> Attempt has been made to push some of the patches to the list sometime
+> back in 2013.
+>
+> Link to previous patch submission:
+>          https://lkml.org/lkml/2013/8/14/86
+>
+> Vaibhav Hiremath (3):
+>    mfd: 88pm800: Add device tree support
+>    mfd: 88pm800: Allow configuration of interrupt clear method
+>    mfd: devicetree: bindings: Add new 88pm800 mfd binding
+>
+>   Documentation/devicetree/bindings/mfd/88pm800.txt | 60 +++++++++++++++++++++++
+>   drivers/mfd/88pm800.c                             | 40 +++++++++++++--
+>   include/linux/mfd/88pm80x.h                       |  6 ++-
+>   3 files changed, 99 insertions(+), 7 deletions(-)
+>   create mode 100644 Documentation/devicetree/bindings/mfd/88pm800.txt
+>
+
+
+Any update on this?
+
+If there are no review comments, then can it be queued ?
+
+Thanks,
+Vaibhav
 
 -- 
 -- 
