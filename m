@@ -1,33 +1,23 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBB6DUGWAKGQES7ORXWI@googlegroups.com>
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id gt9si914650wib.2.2015.06.22.12.27.03
+Return-Path: <rtc-linux+bncBCO3XAUMTIFRBIUMU2WAKGQEI4DY5RA@googlegroups.com>
+Received: from comal.ext.ti.com (comal.ext.ti.com. [198.47.26.152])
+        by gmr-mx.google.com with ESMTP id pl5si3735igb.3.2015.06.23.09.15.30
         for <rtc-linux@googlegroups.com>;
-        Mon, 22 Jun 2015 12:27:03 -0700 (PDT)
-Date: Mon, 22 Jun 2015 21:27:02 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Rob Herring <robherring2@gmail.com>
-Cc: Philippe Reynes <tremyfr@gmail.com>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Shawn Guo <shawn.guo@linaro.org>,
-	"kernel@pengutronix.de" <kernel@pengutronix.de>,
-	Russell King - ARM Linux <linux@arm.linux.org.uk>,
-	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-	rtc-linux@googlegroups.com, Rob Herring <robh+dt@kernel.org>,
-	Pawel Moll <pawel.moll@arm.com>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Ian Campbell <ijc+devicetree@hellion.org.uk>,
-	Kumar Gala <galak@codeaurora.org>,
-	"devicetree@vger.kernel.org" <devicetree@vger.kernel.org>
-Subject: [rtc-linux] Re: [PATCH v3 5/6] dt-binding: document the binding for
- mxc rtc
-Message-ID: <20150622192702.GC19203@piout.net>
-References: <1434820360-21935-1-git-send-email-tremyfr@gmail.com>
- <1434820360-21935-6-git-send-email-tremyfr@gmail.com>
- <CAL_JsqKQzC=aSuORGhsuPQ0Ciha2JVpYOGU91M2iHaG8RousnQ@mail.gmail.com>
+        Tue, 23 Jun 2015 09:15:30 -0700 (PDT)
+From: Nishanth Menon <nm@ti.com>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        Alessandro Zummo
+	<a.zummo@towertech.it>
+CC: <linux-kernel@vger.kernel.org>, <rtc-linux@googlegroups.com>,
+        <linux-omap@vger.kernel.org>, <linux-arm-kernel@lists.infradead.org>,
+        <balbi@ti.com>, <grygorii.strashko@ti.com>, Nishanth Menon <nm@ti.com>
+Subject: [rtc-linux] [PATCH V2 2/5] drivers/rtc/rtc-ds1307.c: Switch to
+ managed irq allocation
+Date: Tue, 23 Jun 2015 11:15:11 -0500
+Message-ID: <1435076114-12416-3-git-send-email-nm@ti.com>
+In-Reply-To: <1435076114-12416-1-git-send-email-nm@ti.com>
+References: <1435076114-12416-1-git-send-email-nm@ti.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <CAL_JsqKQzC=aSuORGhsuPQ0Ciha2JVpYOGU91M2iHaG8RousnQ@mail.gmail.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -38,18 +28,46 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On 22/06/2015 at 08:59:06 -0500, Rob Herring wrote :
-> What about newer versions with the secure functionality. IIRC, that
-> was in MX31 and later.
-> 
+Since we are not doing anything fancy in remove function that requires
+us to sequence IRQ free operation, we might as well switch over to devm_
+equivalent of managed IRQ allocation and remove the explicit free_irq
+since it'd be done automatically at remove.
 
-Aren't those covered by the snvs driver?
+Signed-off-by: Nishanth Menon <nm@ti.com>
+---
+ drivers/rtc/rtc-ds1307.c |   10 ++++------
+ 1 file changed, 4 insertions(+), 6 deletions(-)
 
-
+diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
+index 8ea496e54a2e..0a98d8a52791 100644
+--- a/drivers/rtc/rtc-ds1307.c
++++ b/drivers/rtc/rtc-ds1307.c
+@@ -1156,9 +1156,10 @@ read_rtc:
+ 	}
+ 
+ 	if (want_irq) {
+-		err = request_threaded_irq(client->irq, NULL, irq_handler,
+-					   IRQF_SHARED | IRQF_ONESHOT,
+-					   ds1307->rtc->name, client);
++		err = devm_request_threaded_irq(&client->dev,
++						client->irq, NULL, irq_handler,
++						IRQF_SHARED | IRQF_ONESHOT,
++						ds1307->rtc->name, client);
+ 		if (err) {
+ 			client->irq = 0;
+ 			dev_err(&client->dev, "unable to request IRQ!\n");
+@@ -1212,9 +1213,6 @@ static int ds1307_remove(struct i2c_client *client)
+ {
+ 	struct ds1307 *ds1307 = i2c_get_clientdata(client);
+ 
+-	if (test_and_clear_bit(HAS_ALARM, &ds1307->flags))
+-		free_irq(client->irq, client);
+-
+ 	if (test_and_clear_bit(HAS_NVRAM, &ds1307->flags))
+ 		sysfs_remove_bin_file(&client->dev.kobj, ds1307->nvram);
+ 
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+1.7.9.5
 
 -- 
 -- 
