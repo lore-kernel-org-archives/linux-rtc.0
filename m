@@ -1,24 +1,25 @@
-Return-Path: <rtc-linux+bncBCN6JTVP2IEBBO7IWWVQKGQE2WGTPFA@googlegroups.com>
-MIME-Version: 1.0
-Received: from m50-110.126.com (m50-110.126.com. [123.125.50.110])
-        by gmr-mx.google.com with ESMTP id k7si1107219igu.0.2015.06.02.02.15.38
+Return-Path: <rtc-linux+bncBCQPVKWLVAIRBYUYVKWAKGQE3G37MUA@googlegroups.com>
+Received: from muru.com (muru.com. [72.249.23.125])
+        by gmr-mx.google.com with ESMTP id rs3si127006igb.2.2015.06.24.03.54.26
         for <rtc-linux@googlegroups.com>;
-        Tue, 02 Jun 2015 02:15:38 -0700 (PDT)
-From: Xunlei Pang <xlpang@126.com>
-To: linux-kernel@vger.kernel.org
-Cc: rtc-linux@googlegroups.com,
+        Wed, 24 Jun 2015 03:54:26 -0700 (PDT)
+Date: Wed, 24 Jun 2015 03:54:21 -0700
+From: Tony Lindgren <tony@atomide.com>
+To: Nishanth Menon <nm@ti.com>
+Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
 	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	John Stultz <john.stultz@linaro.org>,
-	Arnd Bergmann <arnd@arndb.de>,
-	Xunlei Pang <pang.xunlei@linaro.org>
-Subject: [rtc-linux] [PATCH v2 3/4] drivers/rtc/interface.c: Remove rtc_set_mmss()
-Date: Tue,  2 Jun 2015 17:14:36 +0800
-Message-Id: <1433236477-1724-3-git-send-email-xlpang@126.com>
-In-Reply-To: <1433236477-1724-1-git-send-email-xlpang@126.com>
-References: <1433236477-1724-1-git-send-email-xlpang@126.com>
-Reply-To: rtc-linux@googlegroups.com
+	linux-kernel@vger.kernel.org, rtc-linux@googlegroups.com,
+	linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+	balbi@ti.com, grygorii.strashko@ti.com
+Subject: [rtc-linux] Re: [PATCH V2 4/5] drivers/rtc/rtc-ds1307.c: Support
+ optional wakeup interrupt source
+Message-ID: <20150624105421.GD4156@atomide.com>
+References: <1435076114-12416-1-git-send-email-nm@ti.com>
+ <1435076114-12416-5-git-send-email-nm@ti.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1435076114-12416-5-git-send-email-nm@ti.com>
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -28,89 +29,25 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-From: Xunlei Pang <pang.xunlei@linaro.org>
+* Nishanth Menon <nm@ti.com> [150623 09:21]:
+> With the recent pinctrl-single changes, SoCs such as Texas
+> Instrument's OMAP processors can treat wake-up events from deeper idle
+> states as interrupts.
+> 
+> Let's add support for the optional second interrupt for wake-up using
+> the generic wakeirq support added in commit 4990d4fe327b ("PM /
+> Wakeirq: Add automated device wake IRQ handling")
+> 
+> Finally, to pass the wake-up interrupt in the dts file,
+> interrupts-extended property needs to be passed.
+> 
+> This is similar in approach to commit 2a0b965cfb6e ("serial: omap: Add
+> support for optional wake-up") + ee83bd3b6483 ("serial: omap: Switch
+> wake-up interrupt to generic wakeirq")
 
-Now rtc_set_mmss() has no users, just remove it.
+The wakeirq related changes look good to me:
 
-We still have rtc_set_time() doing similar things.
-
-Signed-off-by: Xunlei Pang <pang.xunlei@linaro.org>
----
- drivers/rtc/interface.c | 45 ---------------------------------------------
- include/linux/rtc.h     |  1 -
- 2 files changed, 46 deletions(-)
-
-diff --git a/drivers/rtc/interface.c b/drivers/rtc/interface.c
-index 166fc60..b511aa1 100644
---- a/drivers/rtc/interface.c
-+++ b/drivers/rtc/interface.c
-@@ -91,51 +91,6 @@ int rtc_set_time(struct rtc_device *rtc, struct rtc_time *tm)
- }
- EXPORT_SYMBOL_GPL(rtc_set_time);
- 
--int rtc_set_mmss(struct rtc_device *rtc, unsigned long secs)
--{
--	int err;
--
--	err = mutex_lock_interruptible(&rtc->ops_lock);
--	if (err)
--		return err;
--
--	if (!rtc->ops)
--		err = -ENODEV;
--	else if (rtc->ops->set_mmss64)
--		err = rtc->ops->set_mmss64(rtc->dev.parent, secs);
--	else if (rtc->ops->set_mmss)
--		err = rtc->ops->set_mmss(rtc->dev.parent, secs);
--	else if (rtc->ops->read_time && rtc->ops->set_time) {
--		struct rtc_time new, old;
--
--		err = rtc->ops->read_time(rtc->dev.parent, &old);
--		if (err == 0) {
--			rtc_time64_to_tm(secs, &new);
--
--			/*
--			 * avoid writing when we're going to change the day of
--			 * the month. We will retry in the next minute. This
--			 * basically means that if the RTC must not drift
--			 * by more than 1 minute in 11 minutes.
--			 */
--			if (!((old.tm_hour == 23 && old.tm_min == 59) ||
--				(new.tm_hour == 23 && new.tm_min == 59)))
--				err = rtc->ops->set_time(rtc->dev.parent,
--						&new);
--		}
--	} else {
--		err = -EINVAL;
--	}
--
--	pm_stay_awake(rtc->dev.parent);
--	mutex_unlock(&rtc->ops_lock);
--	/* A timer might have just expired */
--	schedule_work(&rtc->irqwork);
--
--	return err;
--}
--EXPORT_SYMBOL_GPL(rtc_set_mmss);
--
- static int rtc_read_alarm_internal(struct rtc_device *rtc, struct rtc_wkalrm *alarm)
- {
- 	int err;
-diff --git a/include/linux/rtc.h b/include/linux/rtc.h
-index 13e4138..2e9b0e2 100644
---- a/include/linux/rtc.h
-+++ b/include/linux/rtc.h
-@@ -163,7 +163,6 @@ extern void devm_rtc_device_unregister(struct device *dev,
- 
- extern int rtc_read_time(struct rtc_device *rtc, struct rtc_time *tm);
- extern int rtc_set_time(struct rtc_device *rtc, struct rtc_time *tm);
--extern int rtc_set_mmss(struct rtc_device *rtc, unsigned long secs);
- extern int rtc_set_ntp_time(struct timespec64 now);
- int __rtc_read_alarm(struct rtc_device *rtc, struct rtc_wkalrm *alarm);
- extern int rtc_read_alarm(struct rtc_device *rtc,
--- 
-1.9.1
-
+Acked-by: Tony Lindgren <tony@atomide.com>
 
 -- 
 -- 
