@@ -1,22 +1,23 @@
-Return-Path: <rtc-linux+bncBCGP7DNSRUMRBX4H3CVQKGQEPVWKN5A@googlegroups.com>
-Received: from mail1.windriver.com (mail1.windriver.com. [147.11.146.13])
-        by gmr-mx.google.com with ESMTPS id u1si488814qck.0.2015.06.08.14.06.39
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1.1 cipher=ECDHE-RSA-RC4-SHA bits=128/128);
-        Mon, 08 Jun 2015 14:06:39 -0700 (PDT)
-Date: Mon, 8 Jun 2015 17:06:34 -0400
-From: Paul Gortmaker <paul.gortmaker@windriver.com>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-CC: <linux-kernel@vger.kernel.org>, <linux-arch@vger.kernel.org>,
-        Alessandro
- Zummo <a.zummo@towertech.it>, <rtc-linux@googlegroups.com>
-Subject: [rtc-linux] Re: [42/73] rtc: delete non-required instances of include <linux/init.h>
-Message-ID: <20150608210634.GJ7125@windriver.com>
-References: <1390339396-3479-43-git-send-email-paul.gortmaker@windriver.com>
- <20150608195455.GF5222@piout.net>
+Return-Path: <rtc-linux+bncBAABBP45VOWAKGQE27WMUPI@googlegroups.com>
+Received: from comal.ext.ti.com (comal.ext.ti.com. [198.47.26.152])
+        by gmr-mx.google.com with ESMTP id pl5si210277igb.3.2015.06.24.08.37.34
+        for <rtc-linux@googlegroups.com>;
+        Wed, 24 Jun 2015 08:37:34 -0700 (PDT)
+Message-ID: <558ACEB8.2020406@ti.com>
+Date: Wed, 24 Jun 2015 18:37:28 +0300
+From: Grygorii Strashko <grygorii.strashko@ti.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <20150608195455.GF5222@piout.net>
+To: <balbi@ti.com>, Nishanth Menon <nm@ti.com>
+CC: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        Alessandro Zummo
+	<a.zummo@towertech.it>,
+        <linux-kernel@vger.kernel.org>, <rtc-linux@googlegroups.com>,
+        <linux-omap@vger.kernel.org>, <linux-arm-kernel@lists.infradead.org>
+Subject: [rtc-linux] Re: [PATCH V2 0/5] drivers/rtc/rtc-ds1307.c: Basic
+ cleanups and support for wakeupirq
+References: <1435076114-12416-1-git-send-email-nm@ti.com> <20150624143432.GE21232@saruman.tx.rr.com>
+In-Reply-To: <20150624143432.GE21232@saruman.tx.rr.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -27,46 +28,54 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-[Re: [42/73] rtc: delete non-required instances of include <linux/init.h>] On 08/06/2015 (Mon 21:54) Alexandre Belloni wrote:
+On 06/24/2015 05:34 PM, Felipe Balbi wrote:
+> Hi,
+>
+> On Tue, Jun 23, 2015 at 11:15:09AM -0500, Nishanth Menon wrote:
+>> Hi,
+>>
+>> Here is the revamp of the patch posted eariler to support wakeupirq.
+>> This series does a few cleanups as well prior to introducing the
+>> generic apis required to support the wakeirq mechanism used on certain
+>> TI SoCs. Cleanups done here are just minimal set of the cleanups we
+>> discussed in [2].
+>>
+>> Series is based on next-20150623
+>>
+>> Test log: http://pastebin.ubuntu.com/11763002/
+>>
+>> NOTE1: I have only tested in mcp79410 device, and not on other
+>> ds1307-rtc driver compatbile devices as I dont have any other.
+>> additional testing might be nice to have.
+>> NOTE2: there are additional fixes that linux-next seems to need but
+>> those are in omap-rtc, cpufreq etc, but those are not related by the
+>> ds-1307.
+>>
+>> V1: https://patchwork.kernel.org/patch/4759171/
+>>
+>> NOTE: Patch 5/5 of the series is meant to indicate the usage, and will
+>> be reposted along with other wakeup sources to be enabled once the
+>> driver changes are accepted.
+>>
+>> Felipe Balbi (1):
+>>    drivers/rtc/rtc-ds1307.c: Convert to threaded IRQ
+>>
+>> Nishanth Menon (4):
+>>    drivers/rtc/rtc-ds1307.c: Switch to managed irq allocation
+>>    drivers/rtc/rtc-ds1307.c: Sort the headers
+>>    drivers/rtc/rtc-ds1307.c: Support optional wakeup interrupt source
+>
+> for the series, except the patch which I wrote :
+>
+> Acked-by: Felipe Balbi <balbi@ti.com>
+>
 
-> On 21/01/2014 at 16:22:45 -0500, Paul Gortmaker wrote :
-> > None of these files are actually using any __init type directives
-> > and hence don't need to include <linux/init.h>.  Most are just a
-> > left over from __devinit and __cpuinit removal, or simply due to
-> > code getting copied from one driver to the next.
-> > 
-> > Cc: Alessandro Zummo <a.zummo@towertech.it>
-> > Cc: rtc-linux@googlegroups.com
-> > Signed-off-by: Paul Gortmaker <paul.gortmaker@windriver.com>
-> 
-> I've contemplated applying that patch but I'm not sure it is actually a
-> good idea because those 46 drivers are using a variant of module_driver
-> which actually uses __init and __exit. After your patch it is still
-> working simply because init.h gets included that way:
+With minor comment to patch 4:
+Reviewed-by: Grygorii Strashko <grygorii.strashko@ti.com>
 
-Firstly, I am kind of curious why an 18 month old patch is getting
-replied to now.   That aside, this interdependence between module.h and
-init.h was reconsidered and you can see the resolution solution here:
-
-https://lkml.kernel.org/r/1433276168-21550-1-git-send-email-paul.gortmaker@windriver.com
-
-To summarize what is said there, yes - you can ignore the one line
-removals for now.  We will revisit them after the above is merged.
-
-Thanks,
-Paul.
---
-
-> 
-> linux/module.h:9
-> linux/list.h:8
-> linux/kernel.h:13
-> linux/printk.h:5
-> 
-> -- 
-> Alexandre Belloni, Free Electrons
-> Embedded Linux, Kernel and Android engineering
-> http://free-electrons.com
+-- 
+regards,
+-grygorii
 
 -- 
 -- 
