@@ -1,31 +1,27 @@
-Return-Path: <rtc-linux+bncBD62P6P6EQIL5KNAVQCRUBGLP4TCW@googlegroups.com>
-Received: from mail-yk0-x235.google.com (mail-yk0-x235.google.com. [2607:f8b0:4002:c07::235])
-        by gmr-mx.google.com with ESMTPS id 4si384865yhq.1.2015.06.22.06.59.26
+Return-Path: <rtc-linux+bncBC5M7T4HYEKRB7X7VKWAKGQEZP7KEMI@googlegroups.com>
+Received: from arroyo.ext.ti.com (arroyo.ext.ti.com. [192.94.94.40])
+        by gmr-mx.google.com with ESMTPS id o7si189757igp.1.2015.06.24.07.34.37
         for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 22 Jun 2015 06:59:26 -0700 (PDT)
-Received: by mail-yk0-x235.google.com with SMTP id r198so130743377ykd.3
-        for <rtc-linux@googlegroups.com>; Mon, 22 Jun 2015 06:59:26 -0700 (PDT)
-MIME-Version: 1.0
-In-Reply-To: <1434820360-21935-6-git-send-email-tremyfr@gmail.com>
-References: <1434820360-21935-1-git-send-email-tremyfr@gmail.com> <1434820360-21935-6-git-send-email-tremyfr@gmail.com>
-From: Rob Herring <robherring2@gmail.com>
-Date: Mon, 22 Jun 2015 08:59:06 -0500
-Message-ID: <CAL_JsqKQzC=aSuORGhsuPQ0Ciha2JVpYOGU91M2iHaG8RousnQ@mail.gmail.com>
-Subject: [rtc-linux] Re: [PATCH v3 5/6] dt-binding: document the binding for
- mxc rtc
-To: Philippe Reynes <tremyfr@gmail.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>, Shawn Guo <shawn.guo@linaro.org>,
-	"kernel@pengutronix.de" <kernel@pengutronix.de>, Russell King - ARM Linux <linux@arm.linux.org.uk>,
-	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, rtc-linux@googlegroups.com,
-	Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>,
-	Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>,
-	Kumar Gala <galak@codeaurora.org>,
-	"devicetree@vger.kernel.org" <devicetree@vger.kernel.org>
-Content-Type: text/plain; charset=UTF-8
+        (version=TLSv1 cipher=RC4-SHA bits=128/128);
+        Wed, 24 Jun 2015 07:34:37 -0700 (PDT)
+Date: Wed, 24 Jun 2015 09:34:32 -0500
+From: Felipe Balbi <balbi@ti.com>
+To: Nishanth Menon <nm@ti.com>
+CC: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        Alessandro Zummo
+	<a.zummo@towertech.it>,
+        <linux-kernel@vger.kernel.org>, <rtc-linux@googlegroups.com>,
+        <linux-omap@vger.kernel.org>, <linux-arm-kernel@lists.infradead.org>,
+        <balbi@ti.com>, <grygorii.strashko@ti.com>
+Subject: [rtc-linux] Re: [PATCH V2 0/5] drivers/rtc/rtc-ds1307.c: Basic
+ cleanups and support for wakeupirq
+Message-ID: <20150624143432.GE21232@saruman.tx.rr.com>
 Reply-To: rtc-linux@googlegroups.com
+References: <1435076114-12416-1-git-send-email-nm@ti.com>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="IvGM3kKqwtniy32b"
+In-Reply-To: <1435076114-12416-1-git-send-email-nm@ti.com>
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -35,65 +31,52 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On Sat, Jun 20, 2015 at 12:12 PM, Philippe Reynes <tremyfr@gmail.com> wrote:
-> This adds documentation of device tree bindings for the
-> mxc rtc.
+--IvGM3kKqwtniy32b
+Content-Type: text/plain; charset=UTF-8
+Content-Disposition: inline
 
-Perhaps don't further propagate the long dead MXC name and use "imx"
-everywhere. What the Linux driver is called doesn't matter here.
+Hi,
 
-> Cc: Rob Herring <robh+dt@kernel.org>
-> Cc: Pawel Moll <pawel.moll@arm.com>
-> Cc: Mark Rutland <mark.rutland@arm.com>
-> Cc: Ian Campbell <ijc+devicetree@hellion.org.uk>
-> Cc: Kumar Gala <galak@codeaurora.org>
-> Cc: devicetree@vger.kernel.org
-> Signed-off-by: Philippe Reynes <tremyfr@gmail.com>
-> ---
->  Documentation/devicetree/bindings/rtc/rtc-mxc.txt |   27 +++++++++++++++++++++
->  1 files changed, 27 insertions(+), 0 deletions(-)
->  create mode 100644 Documentation/devicetree/bindings/rtc/rtc-mxc.txt
->
-> diff --git a/Documentation/devicetree/bindings/rtc/rtc-mxc.txt b/Documentation/devicetree/bindings/rtc/rtc-mxc.txt
-> new file mode 100644
-> index 0000000..5505493
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/rtc/rtc-mxc.txt
-> @@ -0,0 +1,27 @@
-> +* Real Time Clock of the i.MX SoCs
-> +
-> +RTC controller for the i.MX SoCs
-> +
-> +Required properties:
-> +- compatible: Should be "fsl,imx1-rtc" or "fsl,imx21-rtc".
+On Tue, Jun 23, 2015 at 11:15:09AM -0500, Nishanth Menon wrote:
+> Hi,
+> 
+> Here is the revamp of the patch posted eariler to support wakeupirq.
+> This series does a few cleanups as well prior to introducing the
+> generic apis required to support the wakeirq mechanism used on certain
+> TI SoCs. Cleanups done here are just minimal set of the cleanups we
+> discussed in [2].
+> 
+> Series is based on next-20150623
+> 
+> Test log: http://pastebin.ubuntu.com/11763002/
+> 
+> NOTE1: I have only tested in mcp79410 device, and not on other
+> ds1307-rtc driver compatbile devices as I dont have any other.
+> additional testing might be nice to have.
+> NOTE2: there are additional fixes that linux-next seems to need but
+> those are in omap-rtc, cpufreq etc, but those are not related by the
+> ds-1307.
+> 
+> V1: https://patchwork.kernel.org/patch/4759171/
+> 
+> NOTE: Patch 5/5 of the series is meant to indicate the usage, and will
+> be reposted along with other wakeup sources to be enabled once the
+> driver changes are accepted.
+> 
+> Felipe Balbi (1):
+>   drivers/rtc/rtc-ds1307.c: Convert to threaded IRQ
+> 
+> Nishanth Menon (4):
+>   drivers/rtc/rtc-ds1307.c: Switch to managed irq allocation
+>   drivers/rtc/rtc-ds1307.c: Sort the headers
+>   drivers/rtc/rtc-ds1307.c: Support optional wakeup interrupt source
 
-What about newer versions with the secure functionality. IIRC, that
-was in MX31 and later.
+for the series, except the patch which I wrote :
 
-> +- reg: physical base address of the controller and length of memory mapped
-> +  region.
-> +- interrupts: IRQ line for the RTC.
-> +- clocks: should contain two entries:
-> +  * one for the input reference
-> +  * one for the the SoC RTC
-> +- clock-names: should contain:
-> +  * "rtc" for the input reference clock
-> +  * "ipg" for the SoC RTC clock
-> +
-> +Example:
-> +
-> +rtc@10007000 {
-> +       compatible = "fsl,imx21-rtc";
-> +       reg = <0x10007000 0x1000>;
-> +       interrupts = <22>;
-> +       clocks = <&clks IMX27_CLK_CKIL>,
-> +                <&clks IMX27_CLK_RTC_IPG_GATE>;
-> +       clock-names = "rtc, "ipg";
-> +       status = "disabled";
-> +};
-> --
-> 1.7.4.4
->
+Acked-by: Felipe Balbi <balbi@ti.com>
+
+-- 
+balbi
 
 -- 
 -- 
@@ -105,3 +88,27 @@ before submitting a driver.
 You received this message because you are subscribed to the Google Groups "rtc-linux" group.
 To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
+
+--IvGM3kKqwtniy32b
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJVir/4AAoJEIaOsuA1yqREfxMQAKWlVvUcPrDpUMPK48OO8bZa
+Anm+UEMGwQmMYSSG3Cg575viJOH8LsagnPfdzaveq2ZKs5aPnAHu2MKjHBOM1Tqs
+CrIDLgZVUT/VyOKJ+OmqWn5xpCXYlkVlZeO/6CimqKfzAYFsGGeTr0EJQkA9YAP+
+JSK4teeX/5Ryz76MtJNK6W/qQ50ahIK36Nw9+00mJ8AXEnlAi5mDGjDJBA2Uzm/g
+9cXaZHQbdz3MEB3Dt1qpvlwCKGrHqZ2QZVTCMNJHACfffGH2ApqLYdgsRuXk3gkm
+WGCMAEtsaac9SlyzBFYcys8HV0yETgFiDSAXHL8fyW1Z4H8sNNpdjbdZGyQz2kOI
+uhAUWBJJks0w7O0P3cIZIVW8j7de3IS8seUPVRmqbQlW8Fx2XpyXWh3so2baigHR
+PET074oA19SLwlVPbyUF0JusIqlZk4GfUcKCIy5LI8z4563inZRiDqCqCvH5GM4p
+BgyljhPG7BvyMJczeAgwmfEM0sng3bllxvTmqjW1lfNKbi72Ns814E5mB0q8WT+i
+I+OBXA29IOtnJ2YgnoNd26OX6+fiurvkr4HZz2V0OnbHg0zuJsbP6Rt+55UUu+tZ
+6JE1sYBkBZHNo9iepJ07y+eKeQhxKDNeSZ0f4M30f5kZq2cfSBWg1eIed4nAXY5c
+vmF8X068D5SFFRzaVObW
+=fSug
+-----END PGP SIGNATURE-----
+
+--IvGM3kKqwtniy32b--
