@@ -1,29 +1,24 @@
-Return-Path: <rtc-linux+bncBCO3XAUMTIFRBUVUVOWAKGQECTJ6RIY@googlegroups.com>
-Received: from arroyo.ext.ti.com (arroyo.ext.ti.com. [192.94.94.40])
-        by gmr-mx.google.com with ESMTPS id o7si228043igp.1.2015.06.24.09.26.57
+Return-Path: <rtc-linux+bncBCMNZUWXYYORB6P3VCWAKGQE4N474EY@googlegroups.com>
+Received: from mail-pd0-f174.google.com (mail-pd0-f174.google.com. [209.85.192.174])
+        by gmr-mx.google.com with ESMTPS id w7si2848532pdq.0.2015.06.23.22.19.53
         for <rtc-linux@googlegroups.com>
-        (version=TLSv1 cipher=RC4-SHA bits=128/128);
-        Wed, 24 Jun 2015 09:26:58 -0700 (PDT)
-Date: Wed, 24 Jun 2015 11:26:54 -0500
-From: Nishanth Menon <nm@ti.com>
-To: Grygorii Strashko <grygorii.strashko@ti.com>,
-        Alexandre Belloni
-	<alexandre.belloni@free-electrons.com>,
-        Alessandro Zummo
-	<a.zummo@towertech.it>
-CC: <linux-kernel@vger.kernel.org>, <rtc-linux@googlegroups.com>,
-        <linux-omap@vger.kernel.org>, <linux-arm-kernel@lists.infradead.org>,
-        <balbi@ti.com>
-Subject: [rtc-linux] Re: [PATCH V2 4/5] drivers/rtc/rtc-ds1307.c: Support
- optional wakeup interrupt source
-Message-ID: <20150624162654.GA29259@kahuna>
-References: <1435076114-12416-1-git-send-email-nm@ti.com>
- <1435076114-12416-5-git-send-email-nm@ti.com>
- <558ACE87.6040509@ti.com>
- <558AD5B1.8030406@ti.com>
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 23 Jun 2015 22:19:53 -0700 (PDT)
+Received: by pdcu2 with SMTP id u2so22404182pdc.3
+        for <rtc-linux@googlegroups.com>; Tue, 23 Jun 2015 22:19:53 -0700 (PDT)
+Message-ID: <558A3DF3.5030804@linaro.org>
+Date: Wed, 24 Jun 2015 10:49:47 +0530
+From: Vaibhav Hiremath <vaibhav.hiremath@linaro.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <558AD5B1.8030406@ti.com>
+To: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+CC: linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org,
+ rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org,
+ robh+dt@kernel.org, lee.jones@linaro.org
+Subject: [rtc-linux] Re: [PATCH-v2 3/3] mfd: devicetree: bindings: Add new
+ 88pm800 mfd binding
+References: <vaibhav.hiremath@linaro.org>	<1434567488-6477-1-git-send-email-vaibhav.hiremath@linaro.org>	<1434567488-6477-5-git-send-email-vaibhav.hiremath@linaro.org> <CAJKOXPf7OuGfxsZeewoimyyCRKGqjH+j-S81cAH=6DSRQmaS0A@mail.gmail.com>
+In-Reply-To: <CAJKOXPf7OuGfxsZeewoimyyCRKGqjH+j-S81cAH=6DSRQmaS0A@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -34,153 +29,81 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On 11:07-20150624, Nishanth Menon wrote:
-> On 06/24/2015 10:36 AM, Grygorii Strashko wrote:
-> > On 06/23/2015 07:15 PM, Nishanth Menon wrote:
-> [...]
-> 
-> >> +		ds1307->wakeirq = of_irq_get(node, 1);
-> >> +		if (ds1307->wakeirq <= 0) {
-> >> +			if (ds1307->wakeirq == -EPROBE_DEFER) {
-> >> +				err = ds1307->wakeirq;
-> >> +				goto exit;
-> >> +			}
-> >> +			ds1307->wakeirq = 0;
-> >> +			goto no_irq;
-> >> +		}
-> > 
-> > Might be above code could be done a little bit simpler?
-> > 
-> > 		err = of_irq_get(node, 1);
-> > 		if (err <= 0) {
-> > 			if (err == -EPROBE_DEFER)
-> > 				goto exit;
-> > 			goto no_irq;
-> 
-> I had considered it, but problem with this approach is that is err
-> does not get reset back to 0 and probe will fail as it flows through
-> the rest of the code.. which is not our intent.
 
-I am wrong here - code just returns 0 and ignores err. So, how about
-the following patch instead: (Alexandre, please do let me know if the
-entire series needs to be reposted):
- - improvement as suggested
- - Picked up previous acks
- - cleanup in probe does not need dev_pm_clear_wake_irq.
--->8<---
->From 12367f8edffc25613f6f920d9bd7b69dfed57ce1 Mon Sep 17 00:00:00 2001
-From: Nishanth Menon <nm@ti.com>
-Date: Mon, 22 Jun 2015 14:13:19 -0500
-Subject: [PATCH V3] drivers/rtc/rtc-ds1307.c: Support optional wakeup interrupt
- source
 
-With the recent pinctrl-single changes, SoCs such as Texas
-Instrument's OMAP processors can treat wake-up events from deeper idle
-states as interrupts.
+On Wednesday 24 June 2015 05:59 AM, Krzysztof Kozlowski wrote:
+> 2015-06-18 3:58 GMT+09:00 Vaibhav Hiremath <vaibhav.hiremath@linaro.org>:
+>> With addition of DT support to 88pm800 mfd driver, this patch
+>> adds new DT binding documentation along with respective properties.
+>>
+>> Signed-off-by: Vaibhav Hiremath <vaibhav.hiremath@linaro.org>
+>> ---
+>>   Documentation/devicetree/bindings/mfd/88pm800.txt | 60 +++++++++++++++++++++++
+>>   1 file changed, 60 insertions(+)
+>>   create mode 100644 Documentation/devicetree/bindings/mfd/88pm800.txt
+>>
+>> diff --git a/Documentation/devicetree/bindings/mfd/88pm800.txt b/Documentation/devicetree/bindings/mfd/88pm800.txt
+>> new file mode 100644
+>> index 0000000..b8e72df
+>> --- /dev/null
+>> +++ b/Documentation/devicetree/bindings/mfd/88pm800.txt
+>> @@ -0,0 +1,60 @@
+>> +* Marvell 88PM8xx Power Management IC
+>> +
+>> +Required parent device properties:
+>> +- compatible : "marvell,88pm800", "marvell,88pm805", "marvell,88pm860"
+>> +- reg : the I2C slave address for the 88pm8xx chip
+>> +- interrupts : IRQ line for the 88pm8xx chip
+>> +- interrupt-controller: describes the 88pm8xx as an interrupt controller
+>> +- #interrupt-cells : should be 1.
+>> +               - The cell is the 88pm8xx local IRQ number
+>> +
+>> +Optional parent device properties:
+>> +- marvell,irq-clr-on-write: indicates whether interrupt status is cleared
+>> +  by write or read.
+>> +  If enabled, interrupt is cleared by write else just read would do.
+>> +
+>> +88pm8xx family of devices consists of varied group of sub-devices:
+>> +
+>> +Device                 Supply Names     Description
+>> +------                 ------------     -----------
+>> +88pm80x-onkey          :               : On key
+>> +88pm80x-rtc            :               : RTC
+>> +88pm80x-regulator      :               : Regulators
+>> +
+>> +Note: More device list will follow
+>> +
+>> +Example:
+>> +
+>> +       pmic: 88pm800@30 {
+>> +               compatible = "marvell,88pm800";
+>> +               reg = <0x30>;
+>> +               interrupts = <GIC_SPI 77 IRQ_TYPE_LEVEL_HIGH>;
+>> +               interrupt-parent = <&gic>;
+>> +               interrupt-controller;
+>> +               #interrupt-cells = <1>;
+>> +
+>> +               marvell,irq-clr-on-write;
+>> +
+>> +               regulators {
+>> +                       compatible = "marvell,88pm80x-regulator";
+>> +
+>> +                       buck1a: BUCK1A {
+>> +                               regulator-compatible = "88PM800-BUCK1A";
+>
+> That's a deprecated property.
+> Documentation/devicetree/bindings/regulator/regulator.txt
+>
 
-Let's add support for the optional second interrupt for wake-up using
-the generic wakeirq support added in commit 4990d4fe327b ("PM /
-Wakeirq: Add automated device wake IRQ handling")
+Yes,
 
-Finally, to pass the wake-up interrupt in the dts file,
-interrupts-extended property needs to be passed.
+Will replace with regulator-name and resubmit shortly with Rob's
+Acked-by.
 
-This is similar in approach to commit 2a0b965cfb6e ("serial: omap: Add
-support for optional wake-up") + ee83bd3b6483 ("serial: omap: Switch
-wake-up interrupt to generic wakeirq")
 
-Acked-by: Tony Lindgren <tony@atomide.com>
-Acked-by: Felipe Balbi <balbi@ti.com>
-Signed-off-by: Nishanth Menon <nm@ti.com>
----
- drivers/rtc/rtc-ds1307.c |   36 +++++++++++++++++++++++++++++++++---
- 1 file changed, 33 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
-index b03880fc32b5..e16989c48a90 100644
---- a/drivers/rtc/rtc-ds1307.c
-+++ b/drivers/rtc/rtc-ds1307.c
-@@ -15,6 +15,9 @@
- #include <linux/i2c.h>
- #include <linux/init.h>
- #include <linux/module.h>
-+#include <linux/of_device.h>
-+#include <linux/of_irq.h>
-+#include <linux/pm_wakeirq.h>
- #include <linux/rtc/ds1307.h>
- #include <linux/rtc.h>
- #include <linux/slab.h>
-@@ -114,6 +117,7 @@ struct ds1307 {
- #define HAS_ALARM	1		/* bit 1 == irq claimed */
- 	struct i2c_client	*client;
- 	struct rtc_device	*rtc;
-+	int			wakeirq;
- 	s32 (*read_block_data)(const struct i2c_client *client, u8 command,
- 			       u8 length, u8 *values);
- 	s32 (*write_block_data)(const struct i2c_client *client, u8 command,
-@@ -1156,6 +1160,8 @@ read_rtc:
- 	}
- 
- 	if (want_irq) {
-+		struct device_node *node = client->dev.of_node;
-+
- 		err = devm_request_threaded_irq(&client->dev,
- 						client->irq, NULL, irq_handler,
- 						IRQF_SHARED | IRQF_ONESHOT,
-@@ -1163,13 +1169,34 @@ read_rtc:
- 		if (err) {
- 			client->irq = 0;
- 			dev_err(&client->dev, "unable to request IRQ!\n");
--		} else {
-+			goto no_irq;
-+		}
- 
--			set_bit(HAS_ALARM, &ds1307->flags);
--			dev_dbg(&client->dev, "got IRQ %d\n", client->irq);
-+		set_bit(HAS_ALARM, &ds1307->flags);
-+		dev_dbg(&client->dev, "got IRQ %d\n", client->irq);
-+
-+		/* Currently supported by OF code only! */
-+		if (!node)
-+			goto no_irq;
-+
-+		err = of_irq_get(node, 1);
-+		if (err <= 0) {
-+			if (err == -EPROBE_DEFER)
-+				goto exit;
-+			goto no_irq;
-+		}
-+		ds1307->wakeirq = err;
-+
-+		err = dev_pm_set_dedicated_wake_irq(&client->dev,
-+						    ds1307->wakeirq);
-+		if (err) {
-+			dev_err(&client->dev, "unable to setup wakeIRQ %d!\n",
-+				err);
-+			goto exit;
- 		}
- 	}
- 
-+no_irq:
- 	if (chip->nvram_size) {
- 
- 		ds1307->nvram = devm_kzalloc(&client->dev,
-@@ -1213,6 +1240,9 @@ static int ds1307_remove(struct i2c_client *client)
- {
- 	struct ds1307 *ds1307 = i2c_get_clientdata(client);
- 
-+	if (ds1307->wakeirq)
-+		dev_pm_clear_wake_irq(&client->dev);
-+
- 	if (test_and_clear_bit(HAS_NVRAM, &ds1307->flags))
- 		sysfs_remove_bin_file(&client->dev.kobj, ds1307->nvram);
- 
--- 
-1.7.9.5
-
--- 
-Regards,
-Nishanth Menon
+Thanks,
+Vaibhav
 
 -- 
 -- 
