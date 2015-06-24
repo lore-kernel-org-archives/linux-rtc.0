@@ -1,23 +1,25 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBNVZW6VQKGQEQFSAN6A@googlegroups.com>
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id bc3si697031wib.2.2015.06.02.09.41.26
+Return-Path: <rtc-linux+bncBAABBD45VOWAKGQET6KMG4Y@googlegroups.com>
+Received: from comal.ext.ti.com (comal.ext.ti.com. [198.47.26.152])
+        by gmr-mx.google.com with ESMTP id ns5si234202igb.0.2015.06.24.08.36.47
         for <rtc-linux@googlegroups.com>;
-        Tue, 02 Jun 2015 09:41:26 -0700 (PDT)
-Date: Tue, 2 Jun 2015 18:41:25 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: pang.xunlei@zte.com.cn
-Cc: Alessandro Zummo <a.zummo@towertech.it>, Arnd Bergmann <arnd@arndb.de>,
-	John Stultz <john.stultz@linaro.org>, linux-kernel@vger.kernel.org,
-	Xunlei Pang <pang.xunlei@linaro.org>, rtc-linux@googlegroups.com
-Subject: [rtc-linux] Re: [PATCH v2 1/4] drivers/rtc/pcf8563: Replace
- deprecated rtc_time_to_tm() and rtc_tm_to_time()
-Message-ID: <20150602164125.GF1715@piout.net>
-References: <1433235862-1638-1-git-send-email-xlpang@126.com>
- <20150602102639.GC1715@piout.net>
- <OFC9CF9873.31308A95-ON48257E58.0053C0BA-C8257E58.00548ECE@zte.com.cn>
+        Wed, 24 Jun 2015 08:36:47 -0700 (PDT)
+Message-ID: <558ACE87.6040509@ti.com>
+Date: Wed, 24 Jun 2015 18:36:39 +0300
+From: Grygorii Strashko <grygorii.strashko@ti.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <OFC9CF9873.31308A95-ON48257E58.0053C0BA-C8257E58.00548ECE@zte.com.cn>
+To: Nishanth Menon <nm@ti.com>,
+        Alexandre Belloni
+	<alexandre.belloni@free-electrons.com>,
+        Alessandro Zummo
+	<a.zummo@towertech.it>
+CC: <linux-kernel@vger.kernel.org>, <rtc-linux@googlegroups.com>,
+        <linux-omap@vger.kernel.org>, <linux-arm-kernel@lists.infradead.org>,
+        <balbi@ti.com>
+Subject: [rtc-linux] Re: [PATCH V2 4/5] drivers/rtc/rtc-ds1307.c: Support
+ optional wakeup interrupt source
+References: <1435076114-12416-1-git-send-email-nm@ti.com> <1435076114-12416-5-git-send-email-nm@ti.com>
+In-Reply-To: <1435076114-12416-5-git-send-email-nm@ti.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -28,48 +30,142 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On 03/06/2015 at 00:23:40 +0900, pang.xunlei@zte.com.cn wrote :
-> Apologies for the spamming, please ignore all those former 27 pending 
-> patches.
-> 
-> I'll re-organize them with a cover letter, will resend them as new ones 
-> tomorrow.
-> 
+On 06/23/2015 07:15 PM, Nishanth Menon wrote:
+> With the recent pinctrl-single changes, SoCs such as Texas
+> Instrument's OMAP processors can treat wake-up events from deeper idle
+> states as interrupts.
+>
+> Let's add support for the optional second interrupt for wake-up using
+> the generic wakeirq support added in commit 4990d4fe327b ("PM /
+> Wakeirq: Add automated device wake IRQ handling")
+>
+> Finally, to pass the wake-up interrupt in the dts file,
+> interrupts-extended property needs to be passed.
+>
+> This is similar in approach to commit 2a0b965cfb6e ("serial: omap: Add
+> support for optional wake-up") + ee83bd3b6483 ("serial: omap: Switch
+> wake-up interrupt to generic wakeirq")
+>
+> Signed-off-by: Nishanth Menon <nm@ti.com>
+> ---
+> Changes since V1:
+> 	- dropped the need for specific suspend-resume handlers generic api
+> 	  has adequate hooks for those
+> 	- little more code flow cleanups.
+>
+> V1: https://patchwork.kernel.org/patch/4759171/
+>
+>   drivers/rtc/rtc-ds1307.c |   41 ++++++++++++++++++++++++++++++++++++++---
+>   1 file changed, 38 insertions(+), 3 deletions(-)
+>
+> diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
+> index b03880fc32b5..b00d97dbf955 100644
+> --- a/drivers/rtc/rtc-ds1307.c
+> +++ b/drivers/rtc/rtc-ds1307.c
+> @@ -15,6 +15,9 @@
+>   #include <linux/i2c.h>
+>   #include <linux/init.h>
+>   #include <linux/module.h>
+> +#include <linux/of_device.h>
+> +#include <linux/of_irq.h>
+> +#include <linux/pm_wakeirq.h>
+>   #include <linux/rtc/ds1307.h>
+>   #include <linux/rtc.h>
+>   #include <linux/slab.h>
+> @@ -114,6 +117,7 @@ struct ds1307 {
+>   #define HAS_ALARM	1		/* bit 1 == irq claimed */
+>   	struct i2c_client	*client;
+>   	struct rtc_device	*rtc;
+> +	int			wakeirq;
+>   	s32 (*read_block_data)(const struct i2c_client *client, u8 command,
+>   			       u8 length, u8 *values);
+>   	s32 (*write_block_data)(const struct i2c_client *client, u8 command,
+> @@ -1156,6 +1160,8 @@ read_rtc:
+>   	}
+>
+>   	if (want_irq) {
+> +		struct device_node *node = client->dev.of_node;
+> +
+>   		err = devm_request_threaded_irq(&client->dev,
+>   						client->irq, NULL, irq_handler,
+>   						IRQF_SHARED | IRQF_ONESHOT,
+> @@ -1163,13 +1169,36 @@ read_rtc:
+>   		if (err) {
+>   			client->irq = 0;
+>   			dev_err(&client->dev, "unable to request IRQ!\n");
+> -		} else {
+> +			goto no_irq;
+> +		}
+> +
+> +		set_bit(HAS_ALARM, &ds1307->flags);
+> +		dev_dbg(&client->dev, "got IRQ %d\n", client->irq);
+>
+> -			set_bit(HAS_ALARM, &ds1307->flags);
+> -			dev_dbg(&client->dev, "got IRQ %d\n", client->irq);
+> +		/* Currently supported by OF code only! */
+> +		if (!node)
+> +			goto no_irq;
+> +
+> +		ds1307->wakeirq = of_irq_get(node, 1);
+> +		if (ds1307->wakeirq <= 0) {
+> +			if (ds1307->wakeirq == -EPROBE_DEFER) {
+> +				err = ds1307->wakeirq;
+> +				goto exit;
+> +			}
+> +			ds1307->wakeirq = 0;
+> +			goto no_irq;
+> +		}
 
-Or maybe, instead of resending, you can give me the status of those
-patches:
-415468 [RFC,2/4] rtc: Convert rtc_class_ops.set_mmss() to use time64_t
-415470 [RFC,3/4] rtc/lib: Provide interfaces to map between 32bit hardware and 64bit time
-428475 [RFC,v2,2/9] time: Provide y2106 safe get_seconds() replacement
-431162 [1/3] time: Don't bother to run rtc_resume() for nonstop clocksource
-431649 [1/5] drivers/rtc/interface.c: Update code to use y2038-safe time interfaces
-431650 [2/5] drivers/rtc/rtc-dev.c: Update code to use y2038-safe time interfaces
-431798 [v2,3/3] time: clocksource: Add a comment to CLOCK_SOURCE_SUSPEND_NONSTOP
-434592 [v3,1/2] time: Don't bother to run rtc_resume() for the nonstop clocksource
-448780 [5/8] ARM: tegra: clock: Provide y2038-safe tegra_read_persistent_clock() replacement
-448782 [6/8] ARM: time: Provide read_boot_clock64() and read_persistent_clock64()
-448781 [7/8] s390: time: Provide read_boot_clock64() and read_persistent_clock64()
-448783 [8/8] time: Remove read_boot_clock()
+Might be above code could be done a little bit simpler?
 
-You just sent those so I guess I still have to review them:
-477947 [RESEND,1/3] drivers/rtc/pcf8563: Replace deprecated rtc_time_to_tm() and rtc_tm_to_time()
-477949 [RESEND,2/3] drivers/rtc/isl1208: Replace deprecated rtc_tm_to_time()
-477948 [RESEND,3/3] drivers/rtc/sunxi: Replace deprecated rtc_tm_to_time()
-479350 [v2,1/4] drivers/rtc/pcf8563: Replace deprecated rtc_time_to_tm() and rtc_tm_to_time()
-479348 [v2,2/4] rtc/lib: Introduce rtc_tm_subtract() helper function
-479351 [v2,3/4] drivers/rtc/isl1208: Replace deprecated rtc_tm_to_time()
-479349 [v2,4/4] drivers/rtc/sunxi: Replace deprecated rtc_tm_to_time()
-479360 [v2,1/4] NTP: rtc: Add CONFIG_RTC_SYSTOHC_DEVICE for NTP synchronization
-479359 [v2,2/4] sparc: time: Replace update_persistent_clock() with CONFIG_RTC_SYSTOHC
-479358 [v2,3/4] drivers/rtc/interface.c: Remove rtc_set_mmss()
-479357 [v2,4/4] cris: time: Cleanup of persistent clock stuff
+		err = of_irq_get(node, 1);
+		if (err <= 0) {
+			if (err == -EPROBE_DEFER)
+				goto exit;
+			goto no_irq;
+		}
+		ds1307->wakeirq = err;
 
-Many thanks for your work.
+> +
+> +		err = dev_pm_set_dedicated_wake_irq(&client->dev,
+> +						    ds1307->wakeirq);
+> +		if (err) {
+> +			dev_err(&client->dev, "unable to setup wakeIRQ %d\n",
+> +				err);
+> +			goto exit;
+>   		}
+>   	}
+>
+> +no_irq:
+>   	if (chip->nvram_size) {
+>
+>   		ds1307->nvram = devm_kzalloc(&client->dev,
+> @@ -1206,6 +1235,9 @@ read_rtc:
+>   	return 0;
+>
+>   exit:
+> +	if (ds1307->wakeirq)
+> +		dev_pm_clear_wake_irq(&client->dev);
+> +
+>   	return err;
+>   }
+>
+> @@ -1213,6 +1245,9 @@ static int ds1307_remove(struct i2c_client *client)
+>   {
+>   	struct ds1307 *ds1307 = i2c_get_clientdata(client);
+>
+> +	if (ds1307->wakeirq)
+> +		dev_pm_clear_wake_irq(&client->dev);
+> +
+>   	if (test_and_clear_bit(HAS_NVRAM, &ds1307->flags))
+>   		sysfs_remove_bin_file(&client->dev.kobj, ds1307->nvram);
+>
+>
+
 
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+regards,
+-grygorii
 
 -- 
 -- 
