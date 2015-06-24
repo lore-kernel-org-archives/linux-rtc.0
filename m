@@ -1,152 +1,100 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBPEE7CVQKGQE4QWGTNQ@googlegroups.com>
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id gt9si407247wib.2.2015.06.14.15.37.48
-        for <rtc-linux@googlegroups.com>;
-        Sun, 14 Jun 2015 15:37:48 -0700 (PDT)
-Date: Mon, 15 Jun 2015 00:37:47 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Adrian Huang <adrianhuang0701@gmail.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
-	Borislav Petkov <bp@suse.de>, Thomas Gleixner <tglx@linutronix.de>,
-	John Stultz <john.stultz@linaro.org>,
-	Diego Ercolani <diego.ercolani@gmail.com>,
-	Egbert Eich <eich@suse.com>, Max Asbock <amax@lenovo.com>,
-	Nagananda Chumbalkar <nchumbalkar@lenovo.com>,
-	Adrian Huang <ahuang12@lenovo.com>
-Subject: [rtc-linux] Re: [RFC PATCH v2 1/2] rtc-cmos: Clear interrupt flag if
- alarm time is
-Message-ID: <20150614223747.GB17679@piout.net>
-References: <1433845413-13960-1-git-send-email-adrianhuang0701@gmail.com>
- <1433845413-13960-2-git-send-email-adrianhuang0701@gmail.com>
+Return-Path: <rtc-linux+bncBDKZNNNLXAHBBUHTU6WAKGQEX5SC6LA@googlegroups.com>
+Received: from mail-vn0-x234.google.com (mail-vn0-x234.google.com. [2607:f8b0:400c:c0f::234])
+        by gmr-mx.google.com with ESMTPS id fg5si330170vdb.1.2015.06.23.17.29.04
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 23 Jun 2015 17:29:04 -0700 (PDT)
+Received: by mail-vn0-x234.google.com with SMTP id f62so4039736vnb.10
+        for <rtc-linux@googlegroups.com>; Tue, 23 Jun 2015 17:29:04 -0700 (PDT)
 MIME-Version: 1.0
+Sender: rtc-linux@googlegroups.com
+In-Reply-To: <1434567488-6477-5-git-send-email-vaibhav.hiremath@linaro.org>
+References: <vaibhav.hiremath@linaro.org>
+	<1434567488-6477-1-git-send-email-vaibhav.hiremath@linaro.org>
+	<1434567488-6477-5-git-send-email-vaibhav.hiremath@linaro.org>
+Date: Wed, 24 Jun 2015 09:29:04 +0900
+Message-ID: <CAJKOXPf7OuGfxsZeewoimyyCRKGqjH+j-S81cAH=6DSRQmaS0A@mail.gmail.com>
+Subject: [rtc-linux] Re: [PATCH-v2 3/3] mfd: devicetree: bindings: Add new
+ 88pm800 mfd binding
+From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+To: Vaibhav Hiremath <vaibhav.hiremath@linaro.org>
+Cc: linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org,
+	rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org, robh+dt@kernel.org,
+	lee.jones@linaro.org
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1433845413-13960-2-git-send-email-adrianhuang0701@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
 List-Archive: <http://groups.google.com/group/rtc-linux
-Sender: rtc-linux@googlegroups.com
 List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Hi,
-
-On 09/06/2015 at 18:23:32 +0800, Adrian Huang wrote :
-> @@ -588,7 +591,7 @@ static struct bin_attribute nvram = {
->  
->  /*----------------------------------------------------------------*/
->  
-> -static struct cmos_rtc	cmos_rtc;
-> +static struct cmos_rtc	cmos_rtc = { .alarm_expires = 0 };
->  
-
-That is probably unnecessary as the whole struct is already zeroed at
-initialization.
-
->  static irqreturn_t cmos_interrupt(int irq, void *p)
->  {
-> @@ -860,6 +863,52 @@ static void __exit cmos_do_remove(struct device *dev)
->  	cmos->dev = NULL;
->  }
->  
-> +static int cmos_aie_poweroff(struct device *dev)
-> +{
-> +	struct cmos_rtc	*cmos = dev_get_drvdata(dev);
-> +	struct rtc_time now;
-> +	int err;
-> +	time64_t t_now;
-> +	unsigned char rtc_control;
+2015-06-18 3:58 GMT+09:00 Vaibhav Hiremath <vaibhav.hiremath@linaro.org>:
+> With addition of DT support to 88pm800 mfd driver, this patch
+> adds new DT binding documentation along with respective properties.
+>
+> Signed-off-by: Vaibhav Hiremath <vaibhav.hiremath@linaro.org>
+> ---
+>  Documentation/devicetree/bindings/mfd/88pm800.txt | 60 +++++++++++++++++++++++
+>  1 file changed, 60 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/mfd/88pm800.txt
+>
+> diff --git a/Documentation/devicetree/bindings/mfd/88pm800.txt b/Documentation/devicetree/bindings/mfd/88pm800.txt
+> new file mode 100644
+> index 0000000..b8e72df
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/mfd/88pm800.txt
+> @@ -0,0 +1,60 @@
+> +* Marvell 88PM8xx Power Management IC
 > +
-> +	if (!cmos->alarm_expires)
-> +		return -EINVAL;
+> +Required parent device properties:
+> +- compatible : "marvell,88pm800", "marvell,88pm805", "marvell,88pm860"
+> +- reg : the I2C slave address for the 88pm8xx chip
+> +- interrupts : IRQ line for the 88pm8xx chip
+> +- interrupt-controller: describes the 88pm8xx as an interrupt controller
+> +- #interrupt-cells : should be 1.
+> +               - The cell is the 88pm8xx local IRQ number
 > +
-> +	spin_lock_irq(&rtc_lock);
-> +	rtc_control = CMOS_READ(RTC_CONTROL);
-> +	spin_unlock_irq(&rtc_lock);
+> +Optional parent device properties:
+> +- marvell,irq-clr-on-write: indicates whether interrupt status is cleared
+> +  by write or read.
+> +  If enabled, interrupt is cleared by write else just read would do.
 > +
-> +	/* We only care about the situation where AIE is disabled. */
-> +	if (rtc_control & RTC_AIE)
-> +		return -EBUSY;
+> +88pm8xx family of devices consists of varied group of sub-devices:
 > +
-> +	err = cmos_read_time(dev, &now);
-> +	if (err < 0)
-> +		return err;
-> +	t_now = rtc_tm_to_time64(&now);
+> +Device                 Supply Names     Description
+> +------                 ------------     -----------
+> +88pm80x-onkey          :               : On key
+> +88pm80x-rtc            :               : RTC
+> +88pm80x-regulator      :               : Regulators
 > +
-> +	/*
-> +	 * When enabling "RTC wake-up" in BIOS setup, the machine reboots
-> +	 * automatically right after shutdown on some buggy boxes.
-> +	 * This automatic rebooting issue won't happen when the alarm
-> +	 * time is larger than now+1 seconds.
-> +	 *
-> +	 * If the alarm time is equal to now+1 seconds, we need to wait
-> +	 * for 1 second so that AF is set by CMOS hardware. Therefore, we
-> +	 * can get a chance to clear AF in cmos_do_shutdown().
-> +	 *
-> +	 * If the alarm time is less equal to 'now', the function simply
-> +	 * returns '0' so that we can get a chance to clear AF in
-> +	 * cmos_do_shutdown().
-> +	 */
-> +	if (cmos->alarm_expires > (t_now + 1))
-> +		return -EBUSY;
-> +	else if (cmos->alarm_expires == (t_now + 1))
-> +		msleep(1000);
-
-I'm not too happy about that one second wait. Isn't the idea of
-updating the alarm to a value in the past to cancel it working?
-
+> +Note: More device list will follow
 > +
-> +	return 0;
-> +}
+> +Example:
 > +
->  #ifdef CONFIG_PM
->  
->  static int cmos_suspend(struct device *dev)
-> @@ -1094,8 +1143,11 @@ static void cmos_pnp_shutdown(struct pnp_dev *pnp)
->  	struct device *dev = &pnp->dev;
->  	struct cmos_rtc	*cmos = dev_get_drvdata(dev);
->  
-> -	if (system_state == SYSTEM_POWER_OFF && !cmos_poweroff(dev))
-> -		return;
-> +	if (system_state == SYSTEM_POWER_OFF) {
-> +		cmos_poweroff(dev);
+> +       pmic: 88pm800@30 {
+> +               compatible = "marvell,88pm800";
+> +               reg = <0x30>;
+> +               interrupts = <GIC_SPI 77 IRQ_TYPE_LEVEL_HIGH>;
+> +               interrupt-parent = <&gic>;
+> +               interrupt-controller;
+> +               #interrupt-cells = <1>;
+> +
+> +               marvell,irq-clr-on-write;
+> +
+> +               regulators {
+> +                       compatible = "marvell,88pm80x-regulator";
+> +
+> +                       buck1a: BUCK1A {
+> +                               regulator-compatible = "88PM800-BUCK1A";
 
-You should test the return value of cmos_poweroff() at some point as the
-return is depending on it in the original code.
+That's a deprecated property.
+Documentation/devicetree/bindings/regulator/regulator.txt
 
-However, I'm not sure why one would want to not execute
-cmos_do_shutdown() only when CONFIG_PM is not defined.
-
-> +		if (cmos_aie_poweroff(dev) < 0)
-> +			return;
-> +	}
->  
->  	cmos_do_shutdown(cmos->irq);
->  }
-> @@ -1200,8 +1252,11 @@ static void cmos_platform_shutdown(struct platform_device *pdev)
->  	struct device *dev = &pdev->dev;
->  	struct cmos_rtc	*cmos = dev_get_drvdata(dev);
->  
-> -	if (system_state == SYSTEM_POWER_OFF && !cmos_poweroff(dev))
-> -		return;
-> +	if (system_state == SYSTEM_POWER_OFF) {
-> +		cmos_poweroff(dev);
-
-Same comment here.
-
-> +		if (cmos_aie_poweroff(dev) < 0)
-> +			return;
-> +	}
->  
->  	cmos_do_shutdown(cmos->irq);
->  }
-
--- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+Best regards,
+Krzysztof
 
 -- 
 -- 
