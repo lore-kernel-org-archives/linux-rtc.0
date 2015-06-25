@@ -1,30 +1,26 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRB65GXWVQKGQEL4ZPURI@googlegroups.com>
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id p12si110508wiv.1.2015.06.03.12.20.26
-        for <rtc-linux@googlegroups.com>;
-        Wed, 03 Jun 2015 12:20:27 -0700 (PDT)
-Date: Wed, 3 Jun 2015 21:20:26 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Octavian Purdila <octavian.purdila@intel.com>
-Cc: Linus Walleij <linus.walleij@linaro.org>,
-	Mika Westerberg <mika.westerberg@linux.intel.com>,
-	Jonathan Cameron <jic23@kernel.org>,
-	Hartmut Knaack <knaack.h@gmx.de>,
-	Lars-Peter Clausen <lars@metafoo.de>,
-	Peter Meerwald <pmeerw@pmeerw.net>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
-	"linux-iio@vger.kernel.org" <linux-iio@vger.kernel.org>,
-	rtc-linux@googlegroups.com, lkml <linux-kernel@vger.kernel.org>
-Subject: [rtc-linux] Re: [PATCH 0/2] change "client->irq >= 0" to "client->irq
- > 0"
-Message-ID: <20150603192026.GO1715@piout.net>
-References: <1433280853-3988-1-git-send-email-octavian.purdila@intel.com>
- <20150603110241.GK1715@piout.net>
- <CAE1zot+nb9dc=pUZBphf8yMKyUbNk98QTTcHsmy2b3677yzn+A@mail.gmail.com>
+Return-Path: <rtc-linux+bncBAABBFPSWCWAKGQEGOTMLDY@googlegroups.com>
+Received: from bear.ext.ti.com (bear.ext.ti.com. [192.94.94.41])
+        by gmr-mx.google.com with ESMTPS id g7si289057igr.0.2015.06.25.10.23.33
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1 cipher=RC4-SHA bits=128/128);
+        Thu, 25 Jun 2015 10:23:33 -0700 (PDT)
+Message-ID: <558C390B.3020904@ti.com>
+Date: Thu, 25 Jun 2015 20:23:23 +0300
+From: Grygorii Strashko <grygorii.strashko@ti.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <CAE1zot+nb9dc=pUZBphf8yMKyUbNk98QTTcHsmy2b3677yzn+A@mail.gmail.com>
+To: Nishanth Menon <nm@ti.com>,
+        Alexandre Belloni
+	<alexandre.belloni@free-electrons.com>,
+        Alessandro Zummo
+	<a.zummo@towertech.it>
+CC: <linux-kernel@vger.kernel.org>, <rtc-linux@googlegroups.com>,
+        <linux-omap@vger.kernel.org>, <linux-arm-kernel@lists.infradead.org>,
+        <balbi@ti.com>
+Subject: [rtc-linux] Re: [PATCH V2 4/5] drivers/rtc/rtc-ds1307.c: Support
+ optional wakeup interrupt source
+References: <1435076114-12416-1-git-send-email-nm@ti.com> <1435076114-12416-5-git-send-email-nm@ti.com> <558ACE87.6040509@ti.com> <558AD5B1.8030406@ti.com> <20150624162654.GA29259@kahuna>
+In-Reply-To: <20150624162654.GA29259@kahuna>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -35,45 +31,158 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On 03/06/2015 at 20:05:56 +0300, Octavian Purdila wrote :
-> On Wed, Jun 3, 2015 at 2:02 PM, Alexandre Belloni
-> <alexandre.belloni@free-electrons.com> wrote:
-> > On 03/06/2015 at 00:34:11 +0300, Octavian Purdila wrote :
-> >> This fixes an issue introduces by commit dab472eb931b ("i2c / ACPI:
-> >> Use 0 to indicate that device does not have interrupt assigned") where
-> >> drivers will try to request IRQ 0 when no GpioInt is defined in ACPI.
-> >>
-> >> The same issue occurs when the device is instantiated via device tree
-> >> with no IRQ, or from the i2c sysfs interface, even before the patch
-> >> above.
-> >>
-> >> Linus, since the commit above was already merged in the GPIO tree,
-> >> should these fixes be merged also via the GPIO tree (with ACKs from
-> >> the others subsystem maintainers)?
-> >>
-> >
-> > Side question, has it been considered that IRQ 0 is valid on some
-> > platform and that means i2c devices will not be able to be wired to that
-> > IRQ anymore? Though, I don't think there are any existing design that
-> > does so.
-> >
-> 
-> Device tree instantiation does not allow you to used IRQ 0 anyway. And
-> here is what Linus said about this:
-> 
-> http://yarchive.net/comp/linux/no_irq.html
+On 06/24/2015 07:26 PM, Nishanth Menon wrote:
+> On 11:07-20150624, Nishanth Menon wrote:
+>> On 06/24/2015 10:36 AM, Grygorii Strashko wrote:
+>>> On 06/23/2015 07:15 PM, Nishanth Menon wrote:
+>> [...]
+>>
+>>>> +		ds1307->wakeirq = of_irq_get(node, 1);
+>>>> +		if (ds1307->wakeirq <= 0) {
+>>>> +			if (ds1307->wakeirq == -EPROBE_DEFER) {
+>>>> +				err = ds1307->wakeirq;
+>>>> +				goto exit;
+>>>> +			}
+>>>> +			ds1307->wakeirq = 0;
+>>>> +			goto no_irq;
+>>>> +		}
+>>>
+>>> Might be above code could be done a little bit simpler?
+>>>
+>>> 		err = of_irq_get(node, 1);
+>>> 		if (err <= 0) {
+>>> 			if (err == -EPROBE_DEFER)
+>>> 				goto exit;
+>>> 			goto no_irq;
+>>
+>> I had considered it, but problem with this approach is that is err
+>> does not get reset back to 0 and probe will fail as it flows through
+>> the rest of the code.. which is not our intent.
+>
+> I am wrong here - code just returns 0 and ignores err. So, how about
+> the following patch instead: (Alexandre, please do let me know if the
+> entire series needs to be reposted):
+>   - improvement as suggested
+>   - Picked up previous acks
+>   - cleanup in probe does not need dev_pm_clear_wake_irq.
 
-I'm pretty sure his point doesn't hold anymore 10 years later. I don't
-believe ARM is "the small percentage of a small percentage of a small
-percentage" anymore and it is probably more tested than it was at the
-time. Anyway, I'm fine with the change, you can add my
-Acked-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-for your v2.
+
+Reviewed-by: Grygorii Strashko <grygorii.strashko@ti.com>
+
+> -->8<---
+>  From 12367f8edffc25613f6f920d9bd7b69dfed57ce1 Mon Sep 17 00:00:00 2001
+> From: Nishanth Menon <nm@ti.com>
+> Date: Mon, 22 Jun 2015 14:13:19 -0500
+> Subject: [PATCH V3] drivers/rtc/rtc-ds1307.c: Support optional wakeup interrupt
+>   source
+>
+> With the recent pinctrl-single changes, SoCs such as Texas
+> Instrument's OMAP processors can treat wake-up events from deeper idle
+> states as interrupts.
+>
+> Let's add support for the optional second interrupt for wake-up using
+> the generic wakeirq support added in commit 4990d4fe327b ("PM /
+> Wakeirq: Add automated device wake IRQ handling")
+>
+> Finally, to pass the wake-up interrupt in the dts file,
+> interrupts-extended property needs to be passed.
+>
+> This is similar in approach to commit 2a0b965cfb6e ("serial: omap: Add
+> support for optional wake-up") + ee83bd3b6483 ("serial: omap: Switch
+> wake-up interrupt to generic wakeirq")
+>
+> Acked-by: Tony Lindgren <tony@atomide.com>
+> Acked-by: Felipe Balbi <balbi@ti.com>
+> Signed-off-by: Nishanth Menon <nm@ti.com>
+> ---
+>   drivers/rtc/rtc-ds1307.c |   36 +++++++++++++++++++++++++++++++++---
+>   1 file changed, 33 insertions(+), 3 deletions(-)
+>
+> diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
+> index b03880fc32b5..e16989c48a90 100644
+> --- a/drivers/rtc/rtc-ds1307.c
+> +++ b/drivers/rtc/rtc-ds1307.c
+> @@ -15,6 +15,9 @@
+>   #include <linux/i2c.h>
+>   #include <linux/init.h>
+>   #include <linux/module.h>
+> +#include <linux/of_device.h>
+> +#include <linux/of_irq.h>
+> +#include <linux/pm_wakeirq.h>
+>   #include <linux/rtc/ds1307.h>
+>   #include <linux/rtc.h>
+>   #include <linux/slab.h>
+> @@ -114,6 +117,7 @@ struct ds1307 {
+>   #define HAS_ALARM	1		/* bit 1 == irq claimed */
+>   	struct i2c_client	*client;
+>   	struct rtc_device	*rtc;
+> +	int			wakeirq;
+>   	s32 (*read_block_data)(const struct i2c_client *client, u8 command,
+>   			       u8 length, u8 *values);
+>   	s32 (*write_block_data)(const struct i2c_client *client, u8 command,
+> @@ -1156,6 +1160,8 @@ read_rtc:
+>   	}
+>
+>   	if (want_irq) {
+> +		struct device_node *node = client->dev.of_node;
+> +
+>   		err = devm_request_threaded_irq(&client->dev,
+>   						client->irq, NULL, irq_handler,
+>   						IRQF_SHARED | IRQF_ONESHOT,
+> @@ -1163,13 +1169,34 @@ read_rtc:
+>   		if (err) {
+>   			client->irq = 0;
+>   			dev_err(&client->dev, "unable to request IRQ!\n");
+> -		} else {
+> +			goto no_irq;
+> +		}
+>
+> -			set_bit(HAS_ALARM, &ds1307->flags);
+> -			dev_dbg(&client->dev, "got IRQ %d\n", client->irq);
+> +		set_bit(HAS_ALARM, &ds1307->flags);
+> +		dev_dbg(&client->dev, "got IRQ %d\n", client->irq);
+> +
+> +		/* Currently supported by OF code only! */
+> +		if (!node)
+> +			goto no_irq;
+> +
+> +		err = of_irq_get(node, 1);
+> +		if (err <= 0) {
+> +			if (err == -EPROBE_DEFER)
+> +				goto exit;
+> +			goto no_irq;
+> +		}
+> +		ds1307->wakeirq = err;
+> +
+> +		err = dev_pm_set_dedicated_wake_irq(&client->dev,
+> +						    ds1307->wakeirq);
+> +		if (err) {
+> +			dev_err(&client->dev, "unable to setup wakeIRQ %d!\n",
+> +				err);
+> +			goto exit;
+>   		}
+>   	}
+>
+> +no_irq:
+>   	if (chip->nvram_size) {
+>
+>   		ds1307->nvram = devm_kzalloc(&client->dev,
+> @@ -1213,6 +1240,9 @@ static int ds1307_remove(struct i2c_client *client)
+>   {
+>   	struct ds1307 *ds1307 = i2c_get_clientdata(client);
+>
+> +	if (ds1307->wakeirq)
+> +		dev_pm_clear_wake_irq(&client->dev);
+> +
+>   	if (test_and_clear_bit(HAS_NVRAM, &ds1307->flags))
+>   		sysfs_remove_bin_file(&client->dev.kobj, ds1307->nvram);
+>
+>
+
 
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+regards,
+-grygorii
 
 -- 
 -- 
