@@ -1,106 +1,53 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBNUD5CVQKGQE3U5UFQY@googlegroups.com>
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id p9si497607wiz.3.2015.06.11.14.46.30
-        for <rtc-linux@googlegroups.com>;
-        Thu, 11 Jun 2015 14:46:30 -0700 (PDT)
-Date: Thu, 11 Jun 2015 23:46:29 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: "Opensource [Steve Twiss]" <stwiss.opensource@diasemi.com>
-Cc: Lee Jones <lee.jones@linaro.org>,
-	LINUXKERNEL <linux-kernel@vger.kernel.org>,
-	Samuel Ortiz <sameo@linux.intel.com>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	DEVICETREE <devicetree@vger.kernel.org>,
-	David Dajun Chen <david.chen@diasemi.com>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Ian Campbell <ijc+devicetree@hellion.org.uk>,
-	Kumar Gala <galak@codeaurora.org>,
-	LINUXINPUT <linux-input@vger.kernel.org>,
-	LINUXWATCHDOG <linux-watchdog@vger.kernel.org>,
-	Liam Girdwood <lgirdwood@gmail.com>,
-	Mark Brown <broonie@kernel.org>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Pawel Moll <pawel.moll@arm.com>,
-	RTCLINUX <rtc-linux@googlegroups.com>,
-	Rob Herring <robh+dt@kernel.org>,
-	Support Opensource <Support.Opensource@diasemi.com>,
-	Wim Van Sebroeck <wim@iguana.be>
-Subject: Re: [rtc-linux] RE: [PATCH V3 1/4] mfd: da9062: DA9062 MFD core driver
-Message-ID: <20150611214629.GA3890@piout.net>
-References: <cover.1432041031.git.stwiss.opensource@diasemi.com>
- <ecf72b79429e6758111a908fd1ded29c0b96da15.1432041031.git.stwiss.opensource@diasemi.com>
- <20150526161024.GQ11677@x1>
- <6ED8E3B22081A4459DAC7699F3695FB7014B22F4C4@SW-EX-MBX02.diasemi.com>
- <20150611085653.GG2982@x1>
- <6ED8E3B22081A4459DAC7699F3695FB7014B22F4DC@SW-EX-MBX02.diasemi.com>
+Return-Path: <rtc-linux+bncBC3ZPIWN3EFBBFPEWKWAKGQEK6ONSTY@googlegroups.com>
+Received: from mail-ie0-x236.google.com (mail-ie0-x236.google.com. [2607:f8b0:4001:c03::236])
+        by gmr-mx.google.com with ESMTPS id f17si9702igt.0.2015.06.25.18.59.48
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 25 Jun 2015 18:59:48 -0700 (PDT)
+Received: by mail-ie0-x236.google.com with SMTP id mu5so66523628ieb.1
+        for <rtc-linux@googlegroups.com>; Thu, 25 Jun 2015 18:59:48 -0700 (PDT)
 MIME-Version: 1.0
+Sender: rtc-linux@googlegroups.com
+In-Reply-To: <20150625191642.GA16184@piout.net>
+References: <20150625191642.GA16184@piout.net>
+Date: Thu, 25 Jun 2015 18:59:48 -0700
+Message-ID: <CA+55aFzyTuindK63-jiYBdq-uB=_WWO0dgPciurgdFALz62iWQ@mail.gmail.com>
+Subject: [rtc-linux] Re: [GIT PULL] RTC for 4.2
+From: Linus Torvalds <torvalds@linux-foundation.org>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: rtc-linux@googlegroups.com,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <6ED8E3B22081A4459DAC7699F3695FB7014B22F4DC@SW-EX-MBX02.diasemi.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
 List-Archive: <http://groups.google.com/group/rtc-linux
-Sender: rtc-linux@googlegroups.com
 List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Hi,
+On Thu, Jun 25, 2015 at 12:16 PM, Alexandre Belloni
+<alexandre.belloni@free-electrons.com> wrote:
+>
+> Here is the pull-request for the RTC susbsystem for 4.2. This is my
+> first pull-request to you, don't hesitate to tell me if I need to adjust
+> something.
 
-On 11/06/2015 at 09:27:45 +0000, Opensource [Steve Twiss] wrote :
-> 
-> Thanks for replying so quickly.
-> 
-> > I'm still not particularly happy with this.  Can yo speak to your H/W
-> > guys and get them to change their scripts to output sensible header
-> > files?
-> 
-> Ah. Ok. 
-> 
-> For our side, the generated headers might not just be used for Linux. I've
-> just discussed this with my colleagues and they will need it to remain.
-> So I guess internally we will keep the headers like this, but as it enters
-> my submission process I can change it for the Linux community.
->  
-> > To be honest, it's probably not a blocker for acceptance, but if someone
-> > writes a patch next week to change all of the (0x01 << X) lines to
-> > start using the BIT() macro, I will accept it.  Better to influenced
-> > your guys so you are not overly inconvenienced.
-> 
-> Yep: I will change this BIT() macro for the submissions in future.
-> Depending on the next step, I will send a patch to this or update the submission
-> if there are further comments on this patch set.
-> 
+Looks fine, but:
 
-Maybe a good solution would be to define BIT() at the top of your
-generated header so that you simply have to remove it or replace it with
-the proper include before mainline submission.
+> Conflicts:
+>    drivers/rtc/Makefile
+>
+> Trivial add/add conflicts with the mfd tree, solved in linux-next
+> Resolution: take both sides.
 
-> > FWIW, when upstreaming code, the excuse "someone else wrote it", has
-> > never been a good one to use on the lists.   Believe me, I've
-> > tried. ;)
-> 
-> heh okay :)
-> 
-> Regards,
-> Steve
-> 
-> -- 
-> -- 
-> You received this message because you are subscribed to "rtc-linux".
-> Membership options at http://groups.google.com/group/rtc-linux .
-> Please read http://groups.google.com/group/rtc-linux/web/checklist
-> before submitting a driver.
-> --- 
-> You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-> To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
-> For more options, visit https://groups.google.com/d/optout.
+That's not the resolution I took - the re-sorting of the file made for
+more complex.
 
--- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+Can you check my resolution?
+
+                    Linus
 
 -- 
 -- 
