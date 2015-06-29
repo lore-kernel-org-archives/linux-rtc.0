@@ -1,22 +1,25 @@
-Return-Path: <rtc-linux+bncBCMNZUWXYYORBDWTUOWAKGQELX3RXHQ@googlegroups.com>
-Received: from mail-pa0-f52.google.com (mail-pa0-f52.google.com. [209.85.220.52])
-        by gmr-mx.google.com with ESMTPS id fv10si1128332pac.2.2015.06.22.22.07.25
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 22 Jun 2015 22:07:25 -0700 (PDT)
-Received: by mail-pa0-f52.google.com with SMTP id ev16so148869556pad.0
-        for <rtc-linux@googlegroups.com>; Mon, 22 Jun 2015 22:07:25 -0700 (PDT)
-Message-ID: <5588E980.2010603@linaro.org>
-Date: Tue, 23 Jun 2015 10:37:12 +0530
-From: Vaibhav Hiremath <vaibhav.hiremath@linaro.org>
+Return-Path: <rtc-linux+bncBAABBBUIYSWAKGQELHX42AY@googlegroups.com>
+Received: from mail.kernel.org (mail.kernel.org. [198.145.29.136])
+        by gmr-mx.google.com with ESMTP id f17si610341igt.0.2015.06.29.01.38.30
+        for <rtc-linux@googlegroups.com>;
+        Mon, 29 Jun 2015 01:38:30 -0700 (PDT)
+Date: Mon, 29 Jun 2015 16:38:14 +0800
+From: Shawn Guo <shawnguo@kernel.org>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: Frank.Li@freescale.com, shawn.guo@linaro.org,
+	devicetree@vger.kernel.org, rtc-linux@googlegroups.com,
+	dmitry.torokhov@gmail.com, robh+dt@kernel.org,
+	linux-input@vger.kernel.org, lznuaa@gmail.com,
+	linux-arm-kernel@lists.infradead.org
+Subject: Re: [rtc-linux] [PATCH v5 1/6] rtc: arm: imx: snvs: change use syscon
+ to access register
+Message-ID: <20150629083814.GH10332@tiger>
+References: <1432657562-5592-1-git-send-email-Frank.Li@freescale.com>
+ <1432657562-5592-2-git-send-email-Frank.Li@freescale.com>
+ <20150601202507.GP4710@piout.net>
 MIME-Version: 1.0
-To: linux-arm-kernel@lists.infradead.org
-CC: robh+dt@kernel.org, lee.jones@linaro.org, devicetree@vger.kernel.org,
- rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH-v2 0/3] mfd: 88pm800: Add Device tree support
-References: <vaibhav.hiremath@linaro.org> <1434567488-6477-1-git-send-email-vaibhav.hiremath@linaro.org>
-In-Reply-To: <1434567488-6477-1-git-send-email-vaibhav.hiremath@linaro.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <20150601202507.GP4710@piout.net>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -27,54 +30,22 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
+On Mon, Jun 01, 2015 at 10:25:07PM +0200, Alexandre Belloni wrote:
+> On 27/05/2015 at 00:25:57 +0800, Frank.Li@freescale.com wrote :
+> > From: Frank Li <Frank.Li@freescale.com>
+> > 
+> > snvs included rtc, on/off key, power-off module
+> > change to syscon to access register
+> > 
+> > Signed-off-by: Frank Li <Frank.Li@freescale.com>
+> Acked-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+> 
+> Shawn, when applying could you please change the subject to:
+> rtc: snvs: use syscon to access registers
 
+Okay, will do.
 
-On Thursday 18 June 2015 12:28 AM, Vaibhav Hiremath wrote:
-> This patch-series adds support for Device tree to 88PM800 mfd driver.
-> It also enabled configuration of irq clear method through DT.
->
-> Testing::
->   - Boot tested on PXA1928 based platform.
->   - probe of mfd, rtc and regulator function passing successfully.
->   - Basic read operations on registers
->
->
-> V1 => V1
-> =======
-> Link to V1: http://lkml.iu.edu/hypermail/linux/kernel/1505.3/04386.html
->
->    - Split binding changes from original commit
->    - Updated binding info as per Rob's suggestion
->    - Dropped PATCH 4/4, as discussed during review
->    - Dropped PATCH 3/4, as it is independent RTC code change,
->      so will submit it separately to ease merging.
->    - Fixed all other minor comments
->
-> Attempt has been made to push some of the patches to the list sometime
-> back in 2013.
->
-> Link to previous patch submission:
->          https://lkml.org/lkml/2013/8/14/86
->
-> Vaibhav Hiremath (3):
->    mfd: 88pm800: Add device tree support
->    mfd: 88pm800: Allow configuration of interrupt clear method
->    mfd: devicetree: bindings: Add new 88pm800 mfd binding
->
->   Documentation/devicetree/bindings/mfd/88pm800.txt | 60 +++++++++++++++++++++++
->   drivers/mfd/88pm800.c                             | 40 +++++++++++++--
->   include/linux/mfd/88pm80x.h                       |  6 ++-
->   3 files changed, 99 insertions(+), 7 deletions(-)
->   create mode 100644 Documentation/devicetree/bindings/mfd/88pm800.txt
->
-
-
-Any update on this?
-
-If there are no review comments, then can it be queued ?
-
-Thanks,
-Vaibhav
+Shawn
 
 -- 
 -- 
