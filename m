@@ -1,31 +1,22 @@
-Return-Path: <rtc-linux+bncBCAJFDXE4QGBBMH53KVQKGQES3QJVXY@googlegroups.com>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBLM5YSWAKGQERS6K6AY@googlegroups.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id gt9si362629wib.2.2015.06.29.02.23.57
+        for <rtc-linux@googlegroups.com>;
+        Mon, 29 Jun 2015 02:23:57 -0700 (PDT)
+Date: Mon, 29 Jun 2015 11:23:54 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Philippe Reynes <tremyfr@gmail.com>
+Cc: a.zummo@towertech.it, shawn.guo@linaro.org, kernel@pengutronix.de,
+	linux@arm.linux.org.uk, linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org, rtc-linux@googlegroups.com
+Subject: [rtc-linux] Re: [PATCH v3 3/6] rtc: mxc: use a second rtc clock
+Message-ID: <20150629092354.GW485@piout.net>
+References: <1434820360-21935-1-git-send-email-tremyfr@gmail.com>
+ <1434820360-21935-4-git-send-email-tremyfr@gmail.com>
 MIME-Version: 1.0
-Received: from mail-pa0-x234.google.com (mail-pa0-x234.google.com. [2607:f8b0:400e:c03::234])
-        by gmr-mx.google.com with ESMTPS id xz5si625059pac.1.2015.06.09.03.23.43
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 09 Jun 2015 03:23:43 -0700 (PDT)
-Received: by mail-pa0-x234.google.com with SMTP id yx8so10965508pac.2
-        for <rtc-linux@googlegroups.com>; Tue, 09 Jun 2015 03:23:43 -0700 (PDT)
-From: Adrian Huang <adrianhuang0701@gmail.com>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	rtc-linux@googlegroups.com
-Cc: Borislav Petkov <bp@suse.de>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	John Stultz <john.stultz@linaro.org>,
-	Diego Ercolani <diego.ercolani@gmail.com>,
-	Egbert Eich <eich@suse.com>,
-	Max Asbock <amax@lenovo.com>,
-	Nagananda Chumbalkar <nchumbalkar@lenovo.com>,
-	Adrian Huang <ahuang12@lenovo.com>,
-	Adrian Huang <adrianhuang0701@gmail.com>
-Subject: [rtc-linux] [RFC PATCH v2 0/2] rtc: Prevent the automatic reboot
- after powering off the system
-Date: Tue,  9 Jun 2015 18:23:31 +0800
-Message-Id: <1433845413-13960-1-git-send-email-adrianhuang0701@gmail.com>
-Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1434820360-21935-4-git-send-email-tremyfr@gmail.com>
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -35,33 +26,34 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Commit d5a1c7e3fc38 ("rtc-cmos: Add an alarm disable quirk") added the
-alarm disable quirk to work around the broken BIOSes. The same symptom
-is observed on Lenovo Thinkserver. Instead of adding the impacted
-servers to the "alarm disable" quirk, this patchset aims at preventing
-the issue so that the commit can be reverted. 
+Hi,
 
-The brief description of the root cause is that: When configuring 
-the RTC registers to setup a wake up event in the S5 handler (BIOS),
-the handler does not clear the interrupt flag bits by reading 
-Register C of CMOS RTC.
+On 20/06/2015 at 19:12:37 +0200, Philippe Reynes wrote :
+> -	rate = clk_get_rate(pdata->clk);
+> +	pdata->clk_rtc = devm_clk_get(&pdev->dev, "rtc");
+> +	if (IS_ERR(pdata->clk_rtc)) {
+> +		dev_err(&pdev->dev, "unable to get rtc clock!\n");
+> +		ret = PTR_ERR(pdata->clk_rtc);
+> +		goto exit_put_clk;
+> +	}
+> +
+> +	rate = clk_get_rate(pdata->clk_rtc);
+>  
 
-Changes from v1:
-  * Change the order of [PATCH 1/2] and [PATCH 2/2] (per Borislav)
-  * Drop the approach "RTC alarm timer restoration approach". Instead,
-    [PATCH 1/2] makes sure that AF is cleared in cmos_do_shutdown()
-    before powering off the machine. (Suggested by Alexandre)
+You have to prepare_enable() before using get_rate(). Else, it is not
+guaranteed to work:
+"clk_get_rate - obtain the current clock rate (in Hz) for a clock source.
+                This is only valid once the clock source has been enabled."
+http://lxr.free-electrons.com/source/include/linux/clk.h#L269
 
-Adrian Huang (2):
-  rtc-cmos: Clear interrupt flag if alarm time is less equal to now+1
-    seconds
-  rtc-cmos: Revert "rtc-cmos: Add an alarm disable quirk"
+It may work right now because the clock is enabled elsewhere. But that
+may change at some point in time (we had the issue on at91).
 
- drivers/rtc/rtc-cmos.c | 113 ++++++++++++++++++++++++++-----------------------
- 1 file changed, 59 insertions(+), 54 deletions(-)
 
 -- 
-1.9.1
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
 -- 
 -- 
