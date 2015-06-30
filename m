@@ -1,28 +1,33 @@
-Return-Path: <rtc-linux+bncBCAJFDXE4QGBBTGVWOWAKGQE2HK3OHY@googlegroups.com>
-Received: from mail-wg0-x232.google.com (mail-wg0-x232.google.com. [2a00:1450:400c:c00::232])
-        by gmr-mx.google.com with ESMTPS id p9si29169wiz.3.2015.06.25.23.01.48
+Return-Path: <rtc-linux+bncBCAJFDXE4QGBBQWWZCWAKGQEDI5YR4A@googlegroups.com>
+MIME-Version: 1.0
+Received: from mail-pd0-x230.google.com (mail-pd0-x230.google.com. [2607:f8b0:400e:c02::230])
+        by gmr-mx.google.com with ESMTPS id tq2si437785pbc.0.2015.06.29.22.38.10
         for <rtc-linux@googlegroups.com>
         (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 25 Jun 2015 23:01:48 -0700 (PDT)
-Received: by mail-wg0-x232.google.com with SMTP id x7so6200324wgj.2
-        for <rtc-linux@googlegroups.com>; Thu, 25 Jun 2015 23:01:48 -0700 (PDT)
-MIME-Version: 1.0
-In-Reply-To: <20150614223747.GB17679@piout.net>
-References: <1433845413-13960-1-git-send-email-adrianhuang0701@gmail.com>
-	<1433845413-13960-2-git-send-email-adrianhuang0701@gmail.com>
-	<20150614223747.GB17679@piout.net>
-Date: Fri, 26 Jun 2015 14:01:48 +0800
-Message-ID: <CAHKZfL1+qi=OV6cO=KVzvVV52tD554U6USSSa9cwHbpAS6TobA@mail.gmail.com>
-Subject: [rtc-linux] Re: [RFC PATCH v2 1/2] rtc-cmos: Clear interrupt flag if
- alarm time is
-From: Huang Adrian <adrianhuang0701@gmail.com>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
-	Borislav Petkov <bp@suse.de>, Thomas Gleixner <tglx@linutronix.de>, John Stultz <john.stultz@linaro.org>,
-	Diego Ercolani <diego.ercolani@gmail.com>, Egbert Eich <eich@suse.com>, Max Asbock <amax@lenovo.com>,
-	Nagananda Chumbalkar <nchumbalkar@lenovo.com>, Adrian Huang <ahuang12@lenovo.com>
-Content-Type: text/plain; charset=UTF-8
+        Mon, 29 Jun 2015 22:38:10 -0700 (PDT)
+Received: by mail-pd0-x230.google.com with SMTP id ep18so107890392pdb.1
+        for <rtc-linux@googlegroups.com>; Mon, 29 Jun 2015 22:38:10 -0700 (PDT)
+From: Adrian Huang <adrianhuang0701@gmail.com>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Alessandro Zummo <a.zummo@towertech.it>
+Cc: rtc-linux@googlegroups.com,
+	Borislav Petkov <bp@suse.de>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	John Stultz <john.stultz@linaro.org>,
+	Egbert Eich <eich@suse.com>,
+	Diego Ercolani <diego.ercolani@gmail.com>,
+	Nagananda Chumbalkar <nchumbalkar@lenovo.com>,
+	Max Asbock <amax@lenovo.com>,
+	Adrian Huang <ahuang12@lenovo.com>,
+	Adrian Huang <adrianhuang0701@gmail.com>
+Subject: [rtc-linux] [RFC PATCH v3 2/2] rtc-cmos: Revert "rtc-cmos: Add an
+ alarm disable quirk"
+Date: Tue, 30 Jun 2015 13:36:38 +0800
+Message-Id: <1435642598-5073-3-git-send-email-adrianhuang0701@gmail.com>
+In-Reply-To: <1435642598-5073-1-git-send-email-adrianhuang0701@gmail.com>
+References: <1435642598-5073-1-git-send-email-adrianhuang0701@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -32,166 +37,99 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Hi,
+Commit d5a1c7e3fc38 ("rtc-cmos: Add an alarm disable quirk") that
+added a special quirk is not needed because [PATCH 1/2] of this
+patchset makes the kernel more robust:
+rtc-cmos: Cancel alarm timer if alarm time is equal to now+1 seconds
 
->>
->> -static struct cmos_rtc       cmos_rtc;
->> +static struct cmos_rtc       cmos_rtc = { .alarm_expires = 0 };
->>
->
-> That is probably unnecessary as the whole struct is already zeroed at
-> initialization.
->
-
-Yes. Good catch. Will keep the original code.
-
->> +     if (cmos->alarm_expires > (t_now + 1))
->> +             return -EBUSY;
->> +     else if (cmos->alarm_expires == (t_now + 1))
->> +             msleep(1000);
->
-> I'm not too happy about that one second wait. Isn't the idea of
-> updating the alarm to a value in the past to cancel it working?
->
-
-Updating the alarm to the past value can cancel it working.
-I've verified it on my local machine and the issue goes away.
-Thanks for the suggestion.
-
->>  static int cmos_suspend(struct device *dev)
->> @@ -1094,8 +1143,11 @@ static void cmos_pnp_shutdown(struct pnp_dev *pnp)
->>       struct device *dev = &pnp->dev;
->>       struct cmos_rtc *cmos = dev_get_drvdata(dev);
->>
->> -     if (system_state == SYSTEM_POWER_OFF && !cmos_poweroff(dev))
->> -             return;
->> +     if (system_state == SYSTEM_POWER_OFF) {
->> +             cmos_poweroff(dev);
->
-> You should test the return value of cmos_poweroff() at some point as the
-> return is depending on it in the original code.
->
-
-Yes, agreed.
-
-> However, I'm not sure why one would want to not execute
-> cmos_do_shutdown() only when CONFIG_PM is not defined.
->
-
-I have the same question about this one. BTW, cmos_do_shutdown()
-is not executed when CONFIG_PM is defined.
-
-
-I created the following patch based on your suggestion. Does it looks good
-to you? If it does, I'll prepare v3 for testing. Thanks in advance.
+Signed-off-by: Adrian Huang <ahuang12@lenovo.com>
+---
+ drivers/rtc/rtc-cmos.c | 50 --------------------------------------------------
+ 1 file changed, 50 deletions(-)
 
 diff --git a/drivers/rtc/rtc-cmos.c b/drivers/rtc/rtc-cmos.c
-index a82556a..f8900aa 100644
+index f8900aa..916bd1f 100644
 --- a/drivers/rtc/rtc-cmos.c
 +++ b/drivers/rtc/rtc-cmos.c
-@@ -51,6 +51,7 @@ struct cmos_rtc {
-        struct device           *dev;
-        int                     irq;
-        struct resource         *iomem;
-+       time64_t                alarm_expires;
-
-        void                    (*wake_on)(struct device *);
-        void                    (*wake_off)(struct device *);
-@@ -377,6 +378,8 @@ static int cmos_set_alarm(struct device *dev,
-struct rtc_wkalrm *t)
-
-        spin_unlock_irq(&rtc_lock);
-
-+       cmos->alarm_expires = rtc_tm_to_time64(&t->time);
-+
-        return 0;
+@@ -41,7 +41,6 @@
+ #include <linux/pm.h>
+ #include <linux/of.h>
+ #include <linux/of_platform.h>
+-#include <linux/dmi.h>
+ 
+ /* this is for "generic access to PC-style RTC" using CMOS_READ/CMOS_WRITE */
+ #include <asm-generic/rtc.h>
+@@ -383,50 +382,6 @@ static int cmos_set_alarm(struct device *dev, struct rtc_wkalrm *t)
+ 	return 0;
  }
-
-@@ -860,6 +863,52 @@ static void __exit cmos_do_remove(struct device *dev)
-        cmos->dev = NULL;
- }
-
-+static int cmos_aie_poweroff(struct device *dev)
-+{
-+       struct cmos_rtc *cmos = dev_get_drvdata(dev);
-+       struct rtc_time now;
-+       time64_t t_now;
-+       int retval = 0;
-+       unsigned char rtc_control;
-+
-+       if (!cmos->alarm_expires)
-+               return -EINVAL;
-+
-+       spin_lock_irq(&rtc_lock);
-+       rtc_control = CMOS_READ(RTC_CONTROL);
-+       spin_unlock_irq(&rtc_lock);
-+
-+       /* We only care about the situation where AIE is disabled. */
-+       if (rtc_control & RTC_AIE)
-+               return -EBUSY;
-+
-+       cmos_read_time(dev, &now);
-+       t_now = rtc_tm_to_time64(&now);
-+
-+       /*
-+        * When enabling "RTC wake-up" in BIOS setup, the machine reboots
-+        * automatically right after shutdown on some buggy boxes.
-+        * This automatic rebooting issue won't happen when the alarm
-+        * time is larger than now+1 seconds.
-+        *
-+        * If the alarm time is equal to now+1 seconds, the issue can be
-+        * prevented by cancelling the alarm.
-+        */
-+       if (cmos->alarm_expires == t_now + 1) {
-+               struct rtc_wkalrm alarm;
-+               int err;
-+
-+               /* Cancel the AIE timer by configuring the past time. */
-+               rtc_time64_to_tm(t_now - 1, &alarm.time);
-+               alarm.enabled = 0;
-+               retval = cmos_set_alarm(dev, &alarm);
-+       } else if (cmos->alarm_expires > t_now + 1) {
-+               retval = -EBUSY;
-+       }
-+
-+       return retval;
-+}
-+
- #ifdef CONFIG_PM
-
- static int cmos_suspend(struct device *dev)
-@@ -1094,8 +1143,12 @@ static void cmos_pnp_shutdown(struct pnp_dev *pnp)
-        struct device *dev = &pnp->dev;
-        struct cmos_rtc *cmos = dev_get_drvdata(dev);
-
--       if (system_state == SYSTEM_POWER_OFF && !cmos_poweroff(dev))
--               return;
-+       if (system_state == SYSTEM_POWER_OFF) {
-+               int retval = cmos_poweroff(dev);
-+
-+               if (cmos_aie_poweroff(dev) < 0 && !retval)
-+                       return;
-+       }
-
-        cmos_do_shutdown(cmos->irq);
- }
-@@ -1200,8 +1253,12 @@ static void cmos_platform_shutdown(struct
-platform_device *pdev)
-        struct device *dev = &pdev->dev;
-        struct cmos_rtc *cmos = dev_get_drvdata(dev);
-
--       if (system_state == SYSTEM_POWER_OFF && !cmos_poweroff(dev))
--               return;
-+       if (system_state == SYSTEM_POWER_OFF) {
-+               int retval = cmos_poweroff(dev);
-+
-+               if (cmos_aie_poweroff(dev) < 0 && !retval)
-+                       return;
-+       }
-
-        cmos_do_shutdown(cmos->irq);
- }
---
+ 
+-/*
+- * Do not disable RTC alarm on shutdown - workaround for b0rked BIOSes.
+- */
+-static bool alarm_disable_quirk;
+-
+-static int __init set_alarm_disable_quirk(const struct dmi_system_id *id)
+-{
+-	alarm_disable_quirk = true;
+-	pr_info("BIOS has alarm-disable quirk - RTC alarms disabled\n");
+-	return 0;
+-}
+-
+-static const struct dmi_system_id rtc_quirks[] __initconst = {
+-	/* https://bugzilla.novell.com/show_bug.cgi?id=805740 */
+-	{
+-		.callback = set_alarm_disable_quirk,
+-		.ident    = "IBM Truman",
+-		.matches  = {
+-			DMI_MATCH(DMI_SYS_VENDOR, "TOSHIBA"),
+-			DMI_MATCH(DMI_PRODUCT_NAME, "4852570"),
+-		},
+-	},
+-	/* https://bugzilla.novell.com/show_bug.cgi?id=812592 */
+-	{
+-		.callback = set_alarm_disable_quirk,
+-		.ident    = "Gigabyte GA-990XA-UD3",
+-		.matches  = {
+-			DMI_MATCH(DMI_SYS_VENDOR,
+-					"Gigabyte Technology Co., Ltd."),
+-			DMI_MATCH(DMI_PRODUCT_NAME, "GA-990XA-UD3"),
+-		},
+-	},
+-	/* http://permalink.gmane.org/gmane.linux.kernel/1604474 */
+-	{
+-		.callback = set_alarm_disable_quirk,
+-		.ident    = "Toshiba Satellite L300",
+-		.matches  = {
+-			DMI_MATCH(DMI_SYS_VENDOR, "TOSHIBA"),
+-			DMI_MATCH(DMI_PRODUCT_NAME, "Satellite L300"),
+-		},
+-	},
+-	{}
+-};
+-
+ static int cmos_alarm_irq_enable(struct device *dev, unsigned int enabled)
+ {
+ 	struct cmos_rtc	*cmos = dev_get_drvdata(dev);
+@@ -435,9 +390,6 @@ static int cmos_alarm_irq_enable(struct device *dev, unsigned int enabled)
+ 	if (!is_valid_irq(cmos->irq))
+ 		return -EINVAL;
+ 
+-	if (alarm_disable_quirk)
+-		return 0;
+-
+ 	spin_lock_irqsave(&rtc_lock, flags);
+ 
+ 	if (enabled)
+@@ -1300,8 +1252,6 @@ static int __init cmos_init(void)
+ 			platform_driver_registered = true;
+ 	}
+ 
+-	dmi_check_system(rtc_quirks);
+-
+ 	if (retval == 0)
+ 		return 0;
+ 
+-- 
 1.9.1
 
 -- 
