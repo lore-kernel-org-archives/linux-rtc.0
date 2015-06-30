@@ -1,27 +1,28 @@
-Return-Path: <rtc-linux+bncBD5O5IWPJMIJJPUWVQCRUBF77QPQM@googlegroups.com>
-MIME-Version: 1.0
-Received: from mail-wi0-x22b.google.com (mail-wi0-x22b.google.com. [2a00:1450:400c:c05::22b])
-        by gmr-mx.google.com with ESMTPS id t6si721170wiz.0.2015.06.20.10.12.51
+Return-Path: <rtc-linux+bncBCAJFDXE4QGBBNG5ZCWAKGQEMWRZO2Q@googlegroups.com>
+Received: from mail-wi0-x233.google.com (mail-wi0-x233.google.com. [2a00:1450:400c:c05::233])
+        by gmr-mx.google.com with ESMTPS id eo3si520093wib.0.2015.06.29.22.52.52
         for <rtc-linux@googlegroups.com>
         (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sat, 20 Jun 2015 10:12:51 -0700 (PDT)
-Received: by mail-wi0-x22b.google.com with SMTP id nd19so43329093wic.1
-        for <rtc-linux@googlegroups.com>; Sat, 20 Jun 2015 10:12:51 -0700 (PDT)
-From: Philippe Reynes <tremyfr@gmail.com>
-To: a.zummo@towertech.it,
-	alexandre.belloni@free-electrons.com,
-	shawn.guo@linaro.org,
-	kernel@pengutronix.de,
-	linux@arm.linux.org.uk
-Cc: linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org,
-	rtc-linux@googlegroups.com,
-	Philippe Reynes <tremyfr@gmail.com>
-Subject: [rtc-linux] [PATCH v3 0/6] add device tree support for mxc rtc
-Date: Sat, 20 Jun 2015 19:12:34 +0200
-Message-Id: <1434820360-21935-1-git-send-email-tremyfr@gmail.com>
-Reply-To: rtc-linux@googlegroups.com
+        Mon, 29 Jun 2015 22:52:52 -0700 (PDT)
+Received: by mail-wi0-x233.google.com with SMTP id r9so24155629wia.1
+        for <rtc-linux@googlegroups.com>; Mon, 29 Jun 2015 22:52:52 -0700 (PDT)
+MIME-Version: 1.0
+In-Reply-To: <1435642598-5073-1-git-send-email-adrianhuang0701@gmail.com>
+References: <1435642598-5073-1-git-send-email-adrianhuang0701@gmail.com>
+Date: Tue, 30 Jun 2015 13:52:52 +0800
+Message-ID: <CAHKZfL0H1mrj8pScggejtFStaA66zX43RZRYQnkYsZ4gVb-ojQ@mail.gmail.com>
+Subject: [rtc-linux] Re: [RFC PATCH v3 0/2] rtc: Prevent the automatic reboot
+ after powering off the system
+From: Huang Adrian <adrianhuang0701@gmail.com>
+To: Borislav Petkov <bp@suse.de>, Egbert Eich <eich@suse.com>, Diego Ercolani <diego.ercolani@gmail.com>
+Cc: rtc-linux@googlegroups.com, Thomas Gleixner <tglx@linutronix.de>,
+	John Stultz <john.stultz@linaro.org>, Nagananda Chumbalkar <nchumbalkar@lenovo.com>,
+	Max Asbock <amax@lenovo.com>, Adrian Huang <ahuang12@lenovo.com>,
+	Adrian Huang <adrianhuang0701@gmail.com>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Alessandro Zummo <a.zummo@towertech.it>
 Content-Type: text/plain; charset=UTF-8
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -31,39 +32,50 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-This serie add the device tree support for the mxc rtc driver.
-To do this, three steps are required :
-- define two rtc clocks for imx31 and imx35
-- enhance mxc rtc driver to use two clocks (rtc and ipg)
-- add device tree support to mxc rtc driver
+Boris, Egbert and Diego
 
-Changelog:
-v3: (thanks Fabio Estevam)
-- fix typo in imx35 clock comment
-v2: (thanks Shawn Guo and Alexandre Belloni)
-- add a second clock to imx35
-- split the add of clock in a separate patches
-- split the dt documentation in a separate patch
+Could you please test this patch set on your buggy boxes? Thanks in advance.
 
-Philippe Reynes (6):
-  imx31: add a second rtc clock
-  imx35: define two clocks for rtc
-  rtc: mxc: use a second rtc clock
-  rtc: mxc: add support of device tree
-  dt-binding: document the binding for mxc rtc
-  apf27: dt: add support of internal rtc
+BTW, Boris, could you please also build a patched openSUSE_13.2 kernel
+for Diego's testing? Thanks again.
 
- Documentation/devicetree/bindings/rtc/rtc-mxc.txt |   27 ++++++++++++
- arch/arm/boot/dts/imx27-apf27.dts                 |    4 ++
- arch/arm/boot/dts/imx27.dtsi                      |   10 +++++
- arch/arm/mach-imx/clk-imx31.c                     |    3 +-
- arch/arm/mach-imx/clk-imx35.c                     |    6 ++-
- drivers/rtc/rtc-mxc.c                             |   45 ++++++++++++++++-----
- 6 files changed, 83 insertions(+), 12 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/rtc/rtc-mxc.txt
 
--- 
-1.7.4.4
+-- Adrian
+
+
+On Tue, Jun 30, 2015 at 1:36 PM, Adrian Huang <adrianhuang0701@gmail.com> wrote:
+> Commit d5a1c7e3fc38 ("rtc-cmos: Add an alarm disable quirk") added the
+> alarm disable quirk to work around the broken BIOSes. The same symptom
+> is observed on Lenovo Thinkserver. Instead of adding the impacted
+> servers to the "alarm disable" quirk, this patchset aims at preventing
+> the issue so that the commit can be reverted.
+>
+> The brief description of the root cause is that: When configuring
+> the RTC registers to setup a wake up event in the S5 handler (BIOS),
+> the handler does not clear the interrupt flag bits by reading
+> Register C of CMOS RTC.
+>
+> Changes from v2:
+>   * Drop the approach "Clear interrupt flag if alarm time is less
+>     equal to now+1". Instead, cancel the alarm if the configured
+>     alarm time is equal to now+1 seconds. (Suggested by Alexandre)
+>
+> Changes from v1:
+>   * Change the order of [PATCH 1/2] and [PATCH 2/2] (per Borislav)
+>   * Drop the approach "RTC alarm timer restoration approach". Instead,
+>     [PATCH 1/2] makes sure that AF is cleared in cmos_do_shutdown()
+>     before powering off the machine. (Suggested by Alexandre)
+>
+> Adrian Huang (2):
+>   rtc-cmos: Cancel alarm timer if alarm time is equal to now+1 seconds
+>   rtc-cmos: Revert "rtc-cmos: Add an alarm disable quirk"
+>
+>  drivers/rtc/rtc-cmos.c | 113 ++++++++++++++++++++++++++-----------------------
+>  1 file changed, 60 insertions(+), 53 deletions(-)
+>
+> --
+> 1.9.1
+>
 
 -- 
 -- 
