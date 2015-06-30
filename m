@@ -1,24 +1,31 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBPN646VQKGQEY3YPEBI@googlegroups.com>
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id t6si1689wiz.0.2015.06.11.12.19.24
-        for <rtc-linux@googlegroups.com>;
-        Thu, 11 Jun 2015 12:19:24 -0700 (PDT)
-Date: Thu, 11 Jun 2015 21:19:23 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Xunlei Pang <xlpang@126.com>
-Cc: linux-kernel@vger.kernel.org, rtc-linux@googlegroups.com,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	John Stultz <john.stultz@linaro.org>, Arnd Bergmann <arnd@arndb.de>,
-	Xunlei Pang <pang.xunlei@linaro.org>
-Subject: [rtc-linux] Re: [PATCH v2 4/4] cris: time: Cleanup of persistent
- clock stuff
-Message-ID: <20150611191923.GQ5222@piout.net>
-References: <1433236477-1724-1-git-send-email-xlpang@126.com>
- <1433236477-1724-4-git-send-email-xlpang@126.com>
+Return-Path: <rtc-linux+bncBCAJFDXE4QGBBOWWZCWAKGQEKLJUMEA@googlegroups.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1433236477-1724-4-git-send-email-xlpang@126.com>
+Received: from mail-pd0-x231.google.com (mail-pd0-x231.google.com. [2607:f8b0:400e:c02::231])
+        by gmr-mx.google.com with ESMTPS id fv10si3569013pac.2.2015.06.29.22.38.02
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 29 Jun 2015 22:38:02 -0700 (PDT)
+Received: by mail-pd0-x231.google.com with SMTP id d13so4781989pdj.0
+        for <rtc-linux@googlegroups.com>; Mon, 29 Jun 2015 22:38:02 -0700 (PDT)
+From: Adrian Huang <adrianhuang0701@gmail.com>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Alessandro Zummo <a.zummo@towertech.it>
+Cc: rtc-linux@googlegroups.com,
+	Borislav Petkov <bp@suse.de>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	John Stultz <john.stultz@linaro.org>,
+	Egbert Eich <eich@suse.com>,
+	Diego Ercolani <diego.ercolani@gmail.com>,
+	Nagananda Chumbalkar <nchumbalkar@lenovo.com>,
+	Max Asbock <amax@lenovo.com>,
+	Adrian Huang <ahuang12@lenovo.com>,
+	Adrian Huang <adrianhuang0701@gmail.com>
+Subject: [rtc-linux] [RFC PATCH v3 0/2] rtc: Prevent the automatic reboot
+ after powering off the system
+Date: Tue, 30 Jun 2015 13:36:36 +0800
+Message-Id: <1435642598-5073-1-git-send-email-adrianhuang0701@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -28,24 +35,37 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On 02/06/2015 at 17:14:37 +0800, Xunlei Pang wrote :
-> From: Xunlei Pang <pang.xunlei@linaro.org>
-> 
-> - Remove update_persistent_clock(), as it does nothing now.
-> - Remove read_persistent_clock(), let it fall back to the weak version.
-> 
-> Signed-off-by: Xunlei Pang <pang.xunlei@linaro.org>
+Commit d5a1c7e3fc38 ("rtc-cmos: Add an alarm disable quirk") added the
+alarm disable quirk to work around the broken BIOSes. The same symptom
+is observed on Lenovo Thinkserver. Instead of adding the impacted
+servers to the "alarm disable" quirk, this patchset aims at preventing
+the issue so that the commit can be reverted. 
 
-That patch doesn't seem to have any dependencies, it should go through
-the cris maintainers tree:
-Mikael Starvik <starvik@axis.com> (maintainer:CRIS PORT)
-Jesper Nilsson <jesper.nilsson@axis.com> (maintainer:CRIS PORT)
-linux-cris-kernel@axis.com (open list:CRIS PORT)
+The brief description of the root cause is that: When configuring 
+the RTC registers to setup a wake up event in the S5 handler (BIOS),
+the handler does not clear the interrupt flag bits by reading 
+Register C of CMOS RTC.
+
+Changes from v2:
+  * Drop the approach "Clear interrupt flag if alarm time is less
+    equal to now+1". Instead, cancel the alarm if the configured 
+    alarm time is equal to now+1 seconds. (Suggested by Alexandre)
+
+Changes from v1:
+  * Change the order of [PATCH 1/2] and [PATCH 2/2] (per Borislav)
+  * Drop the approach "RTC alarm timer restoration approach". Instead,
+    [PATCH 1/2] makes sure that AF is cleared in cmos_do_shutdown()
+    before powering off the machine. (Suggested by Alexandre)
+
+Adrian Huang (2):
+  rtc-cmos: Cancel alarm timer if alarm time is equal to now+1 seconds
+  rtc-cmos: Revert "rtc-cmos: Add an alarm disable quirk"
+
+ drivers/rtc/rtc-cmos.c | 113 ++++++++++++++++++++++++++-----------------------
+ 1 file changed, 60 insertions(+), 53 deletions(-)
 
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+1.9.1
 
 -- 
 -- 
