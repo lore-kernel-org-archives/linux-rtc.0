@@ -1,27 +1,27 @@
-Return-Path: <rtc-linux+bncBAABBTHU3CWQKGQE3IBM5UA@googlegroups.com>
-Received: from mail.kernel.org (mail.kernel.org. [198.145.29.136])
-        by gmr-mx.google.com with ESMTP id f17si759023igt.0.2015.07.27.07.03.55
+Return-Path: <rtc-linux+bncBDS7HNEFSALRB3WFZ6WAKGQEP56P2NI@googlegroups.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id cj6si771684wib.1.2015.07.01.05.54.05
         for <rtc-linux@googlegroups.com>;
-        Mon, 27 Jul 2015 07:03:55 -0700 (PDT)
-Date: Mon, 27 Jul 2015 22:03:33 +0800
-From: Shawn Guo <shawnguo@kernel.org>
-To: Philippe Reynes <tremyfr@gmail.com>
-Cc: a.zummo@towertech.it, alexandre.belloni@free-electrons.com,
-	shawn.guo@linaro.org, kernel@pengutronix.de, linux@arm.linux.org.uk,
-	Mark Rutland <mark.rutland@arm.com>, devicetree@vger.kernel.org,
-	Pawel Moll <pawel.moll@arm.com>, rtc-linux@googlegroups.com,
-	Ian Campbell <ijc+devicetree@hellion.org.uk>,
-	linux-kernel@vger.kernel.org, Rob Herring <robh+dt@kernel.org>,
-	Kumar Gala <galak@codeaurora.org>,
-	linux-arm-kernel@lists.infradead.org
-Subject: [rtc-linux] Re: [PATCH v5 4/6] dt-binding: document the binding for
- mxc rtc
-Message-ID: <20150727140333.GN12927@tiger>
-References: <1437946673-7402-1-git-send-email-tremyfr@gmail.com>
- <1437946673-7402-5-git-send-email-tremyfr@gmail.com>
+        Wed, 01 Jul 2015 05:54:05 -0700 (PDT)
+Date: Wed, 1 Jul 2015 14:54:04 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Nishanth Menon <nm@ti.com>
+Cc: Grygorii Strashko <grygorii.strashko@ti.com>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	linux-kernel@vger.kernel.org, rtc-linux@googlegroups.com,
+	linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+	balbi@ti.com
+Subject: [rtc-linux] Re: [PATCH V2 4/5] drivers/rtc/rtc-ds1307.c: Support
+ optional wakeup interrupt source
+Message-ID: <20150701125404.GR485@piout.net>
+References: <1435076114-12416-1-git-send-email-nm@ti.com>
+ <1435076114-12416-5-git-send-email-nm@ti.com>
+ <558ACE87.6040509@ti.com>
+ <558AD5B1.8030406@ti.com>
+ <20150624162654.GA29259@kahuna>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1437946673-7402-5-git-send-email-tremyfr@gmail.com>
+In-Reply-To: <20150624162654.GA29259@kahuna>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -32,71 +32,137 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On Sun, Jul 26, 2015 at 11:37:51PM +0200, Philippe Reynes wrote:
-> This adds documentation of device tree bindings for the
-> mxc rtc.
+Hi,
+
+On 24/06/2015 at 11:26:54 -0500, Nishanth Menon wrote :
+> I am wrong here - code just returns 0 and ignores err. So, how about
+> the following patch instead: (Alexandre, please do let me know if the
+> entire series needs to be reposted):
+
+Can you resend just that one as v3? I'll take it right away. Thanks!
+
+>  - improvement as suggested
+>  - Picked up previous acks
+>  - cleanup in probe does not need dev_pm_clear_wake_irq.
+> -->8<---
+> From 12367f8edffc25613f6f920d9bd7b69dfed57ce1 Mon Sep 17 00:00:00 2001
+> From: Nishanth Menon <nm@ti.com>
+> Date: Mon, 22 Jun 2015 14:13:19 -0500
+> Subject: [PATCH V3] drivers/rtc/rtc-ds1307.c: Support optional wakeup interrupt
+>  source
 > 
-> Cc: Rob Herring <robh+dt@kernel.org>
-> Cc: Pawel Moll <pawel.moll@arm.com>
-> Cc: Mark Rutland <mark.rutland@arm.com>
-> Cc: Ian Campbell <ijc+devicetree@hellion.org.uk>
-> Cc: Kumar Gala <galak@codeaurora.org>
-
-DT maintainers,
-
-Any comments on the bindings?  Otherwise, I will queue the whole patch
-series on IMX tree for 4.3.
-
-Shawn
-
-> Cc: devicetree@vger.kernel.org
-> Signed-off-by: Philippe Reynes <tremyfr@gmail.com>
+> With the recent pinctrl-single changes, SoCs such as Texas
+> Instrument's OMAP processors can treat wake-up events from deeper idle
+> states as interrupts.
+> 
+> Let's add support for the optional second interrupt for wake-up using
+> the generic wakeirq support added in commit 4990d4fe327b ("PM /
+> Wakeirq: Add automated device wake IRQ handling")
+> 
+> Finally, to pass the wake-up interrupt in the dts file,
+> interrupts-extended property needs to be passed.
+> 
+> This is similar in approach to commit 2a0b965cfb6e ("serial: omap: Add
+> support for optional wake-up") + ee83bd3b6483 ("serial: omap: Switch
+> wake-up interrupt to generic wakeirq")
+> 
+> Acked-by: Tony Lindgren <tony@atomide.com>
+> Acked-by: Felipe Balbi <balbi@ti.com>
+> Signed-off-by: Nishanth Menon <nm@ti.com>
 > ---
->  Documentation/devicetree/bindings/rtc/rtc-mxc.txt |   26 +++++++++++++++++++++
->  1 files changed, 26 insertions(+), 0 deletions(-)
->  create mode 100644 Documentation/devicetree/bindings/rtc/rtc-mxc.txt
+>  drivers/rtc/rtc-ds1307.c |   36 +++++++++++++++++++++++++++++++++---
+>  1 file changed, 33 insertions(+), 3 deletions(-)
 > 
-> diff --git a/Documentation/devicetree/bindings/rtc/rtc-mxc.txt b/Documentation/devicetree/bindings/rtc/rtc-mxc.txt
-> new file mode 100644
-> index 0000000..49aa550
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/rtc/rtc-mxc.txt
-> @@ -0,0 +1,26 @@
-> +* Real Time Clock of the i.MX SoCs
+> diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
+> index b03880fc32b5..e16989c48a90 100644
+> --- a/drivers/rtc/rtc-ds1307.c
+> +++ b/drivers/rtc/rtc-ds1307.c
+> @@ -15,6 +15,9 @@
+>  #include <linux/i2c.h>
+>  #include <linux/init.h>
+>  #include <linux/module.h>
+> +#include <linux/of_device.h>
+> +#include <linux/of_irq.h>
+> +#include <linux/pm_wakeirq.h>
+>  #include <linux/rtc/ds1307.h>
+>  #include <linux/rtc.h>
+>  #include <linux/slab.h>
+> @@ -114,6 +117,7 @@ struct ds1307 {
+>  #define HAS_ALARM	1		/* bit 1 == irq claimed */
+>  	struct i2c_client	*client;
+>  	struct rtc_device	*rtc;
+> +	int			wakeirq;
+>  	s32 (*read_block_data)(const struct i2c_client *client, u8 command,
+>  			       u8 length, u8 *values);
+>  	s32 (*write_block_data)(const struct i2c_client *client, u8 command,
+> @@ -1156,6 +1160,8 @@ read_rtc:
+>  	}
+>  
+>  	if (want_irq) {
+> +		struct device_node *node = client->dev.of_node;
 > +
-> +RTC controller for the i.MX SoCs
+>  		err = devm_request_threaded_irq(&client->dev,
+>  						client->irq, NULL, irq_handler,
+>  						IRQF_SHARED | IRQF_ONESHOT,
+> @@ -1163,13 +1169,34 @@ read_rtc:
+>  		if (err) {
+>  			client->irq = 0;
+>  			dev_err(&client->dev, "unable to request IRQ!\n");
+> -		} else {
+> +			goto no_irq;
+> +		}
+>  
+> -			set_bit(HAS_ALARM, &ds1307->flags);
+> -			dev_dbg(&client->dev, "got IRQ %d\n", client->irq);
+> +		set_bit(HAS_ALARM, &ds1307->flags);
+> +		dev_dbg(&client->dev, "got IRQ %d\n", client->irq);
 > +
-> +Required properties:
-> +- compatible: Should be "fsl,imx1-rtc" or "fsl,imx21-rtc".
-> +- reg: physical base address of the controller and length of memory mapped
-> +  region.
-> +- interrupts: IRQ line for the RTC.
-> +- clocks: should contain two entries:
-> +  * one for the input reference
-> +  * one for the the SoC RTC
-> +- clock-names: should contain:
-> +  * "ref" for the input reference clock
-> +  * "ipg" for the SoC RTC clock
+> +		/* Currently supported by OF code only! */
+> +		if (!node)
+> +			goto no_irq;
 > +
-> +Example:
+> +		err = of_irq_get(node, 1);
+> +		if (err <= 0) {
+> +			if (err == -EPROBE_DEFER)
+> +				goto exit;
+> +			goto no_irq;
+> +		}
+> +		ds1307->wakeirq = err;
 > +
-> +rtc@10007000 {
-> +	compatible = "fsl,imx21-rtc";
-> +	reg = <0x10007000 0x1000>;
-> +	interrupts = <22>;
-> +	clocks = <&clks IMX27_CLK_CKIL>,
-> +	       	 <&clks IMX27_CLK_RTC_IPG_GATE>;
-> +	clock-names = "ref", "ipg";
-> +};
+> +		err = dev_pm_set_dedicated_wake_irq(&client->dev,
+> +						    ds1307->wakeirq);
+> +		if (err) {
+> +			dev_err(&client->dev, "unable to setup wakeIRQ %d!\n",
+> +				err);
+> +			goto exit;
+>  		}
+>  	}
+>  
+> +no_irq:
+>  	if (chip->nvram_size) {
+>  
+>  		ds1307->nvram = devm_kzalloc(&client->dev,
+> @@ -1213,6 +1240,9 @@ static int ds1307_remove(struct i2c_client *client)
+>  {
+>  	struct ds1307 *ds1307 = i2c_get_clientdata(client);
+>  
+> +	if (ds1307->wakeirq)
+> +		dev_pm_clear_wake_irq(&client->dev);
+> +
+>  	if (test_and_clear_bit(HAS_NVRAM, &ds1307->flags))
+>  		sysfs_remove_bin_file(&client->dev.kobj, ds1307->nvram);
+>  
 > -- 
-> 1.7.4.4
+> 1.7.9.5
 > 
-> 
-> _______________________________________________
-> linux-arm-kernel mailing list
-> linux-arm-kernel@lists.infradead.org
-> http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
-> 
+> -- 
+> Regards,
+> Nishanth Menon
+
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
 -- 
 -- 
