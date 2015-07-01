@@ -1,25 +1,28 @@
-Return-Path: <rtc-linux+bncBCF2PQPV4MDRB75EQWWQKGQEGB3XTIA@googlegroups.com>
-MIME-Version: 1.0
-Received: from mail-lb0-x232.google.com (mail-lb0-x232.google.com. [2a00:1450:4010:c04::232])
-        by gmr-mx.google.com with ESMTPS id sf5si377844lbb.2.2015.07.11.10.29.35
+Return-Path: <rtc-linux+bncBCAJFDXE4QGBBXPKZSWAKGQE6EFSMTI@googlegroups.com>
+Received: from mail-wg0-x231.google.com (mail-wg0-x231.google.com. [2a00:1450:400c:c00::231])
+        by gmr-mx.google.com with ESMTPS id bc3si683509wib.2.2015.06.30.17.33.32
         for <rtc-linux@googlegroups.com>
         (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sat, 11 Jul 2015 10:29:35 -0700 (PDT)
-Received: by lblf12 with SMTP id f12so37249353lbl.2
-        for <rtc-linux@googlegroups.com>; Sat, 11 Jul 2015 10:29:35 -0700 (PDT)
-From: Joachim Eastwood <manabian@gmail.com>
-To: alexandre.belloni@free-electrons.com,
-	a.zummo@towertech.it
-Cc: Joachim Eastwood <manabian@gmail.com>,
-	joshc@ni.com,
-	rtc-linux@googlegroups.com,
-	devicetree@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org
-Subject: [rtc-linux] [PATCH v3 0/2] RTC support for NXP LPC18xx family
-Date: Sat, 11 Jul 2015 19:28:48 +0200
-Message-Id: <1436635730-15617-1-git-send-email-manabian@gmail.com>
-Reply-To: rtc-linux@googlegroups.com
+        Tue, 30 Jun 2015 17:33:32 -0700 (PDT)
+Received: by mail-wg0-x231.google.com with SMTP id u7so22999140wgu.3
+        for <rtc-linux@googlegroups.com>; Tue, 30 Jun 2015 17:33:32 -0700 (PDT)
+MIME-Version: 1.0
+In-Reply-To: <21906.33882.783551.610854@linux-qknr.fritz.box>
+References: <1435642598-5073-1-git-send-email-adrianhuang0701@gmail.com>
+	<21906.33882.783551.610854@linux-qknr.fritz.box>
+Date: Wed, 1 Jul 2015 08:33:32 +0800
+Message-ID: <CAHKZfL2-6yi2qU=J+r5ui8nyAfMGS+R0ozgb8dZCSuNJYmz6Yg@mail.gmail.com>
+Subject: [rtc-linux] Re: [RFC PATCH v3 0/2] rtc: Prevent the automatic reboot
+ after powering off the system
+From: Huang Adrian <adrianhuang0701@gmail.com>
+To: Egbert Eich <eich@suse.com>
+Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
+	Borislav Petkov <bp@suse.de>, Thomas Gleixner <tglx@linutronix.de>, John Stultz <john.stultz@linaro.org>,
+	Diego Ercolani <diego.ercolani@gmail.com>, Nagananda Chumbalkar <nchumbalkar@lenovo.com>,
+	Max Asbock <amax@lenovo.com>, Adrian Huang <ahuang12@lenovo.com>
 Content-Type: text/plain; charset=UTF-8
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -29,49 +32,16 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-This patch set adds support for the RTC found on many NXP devices
-including LPC178x/18xx/408x/43xx. The RTC provides calendar and
-clock functionality together with alarm interrupt support.
+> Adrian,
+>
+> I've tested this, it works for me. Thanks!
+>
+> Tested-by: Egbert Eich <eich@suse.de>
+>
 
-The driver is a rework of an old driver by Kevin Wells. It has been
-modified to support modern resource allocation, device tree and
-generally cleaned up. Driver was originally written to support the
-LPC24xx platform but since this platform isn't upstream support has
-been removed. The LPC24xx name is still kept to preserve the origin
-of this hardware block.
+Nice! Thanks for testing, Egbert.
 
-Been a while since the last version, but this version should address
-all comments from Josh and Alexandre on v2. There has also been some
-rework from my side. Please have a look.
-
-changes since v2:
- - rework hw init
- - update Kconfig text
- - remove unused registers defines
- - misc clean ups
- - rebase on 4.2-rc1
-
-changes since v1:
- - s/lpc2k/lpc24xx for better consistency
- - fix Kconfig entry
- - drop support for old versions for the ip block
-
-Patch set is based on Linux v4.2-rc1.
-
-Joachim Eastwood (2):
-  rtc: add rtc-lpc24xx driver
-  doc: dt: add documentation for nxp,lpc1788-rtc
-
- .../devicetree/bindings/rtc/nxp,lpc1788-rtc.txt    |  21 ++
- drivers/rtc/Kconfig                                |  12 +
- drivers/rtc/Makefile                               |   1 +
- drivers/rtc/rtc-lpc24xx.c                          | 310 +++++++++++++++++++++
- 4 files changed, 344 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/rtc/nxp,lpc1788-rtc.txt
- create mode 100644 drivers/rtc/rtc-lpc24xx.c
-
--- 
-1.8.0
+-- Adrian
 
 -- 
 -- 
