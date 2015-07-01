@@ -1,34 +1,31 @@
-Return-Path: <rtc-linux+bncBDA7X7F2WUEBBO4GYSWQKGQEX7XFLGQ@googlegroups.com>
-Received: from mail-wi0-f174.google.com (mail-wi0-f174.google.com. [209.85.212.174])
-        by gmr-mx.google.com with ESMTPS id fj7si874365wib.3.2015.07.23.08.07.38
+Return-Path: <rtc-linux+bncBAABBTGSZ6WAKGQE5IK4F4Y@googlegroups.com>
+Received: from mail1.bemta14.messagelabs.com (mail1.bemta14.messagelabs.com. [193.109.254.107])
+        by gmr-mx.google.com with ESMTPS id ec7si110172wib.3.2015.07.01.06.21.15
         for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 23 Jul 2015 08:07:38 -0700 (PDT)
-Received: by wibxm9 with SMTP id xm9so212787995wib.0
-        for <rtc-linux@googlegroups.com>; Thu, 23 Jul 2015 08:07:38 -0700 (PDT)
-Date: Thu, 23 Jul 2015 16:07:35 +0100
-From: Lee Jones <lee.jones@linaro.org>
-To: S Twiss <stwiss.opensource@diasemi.com>
-Cc: DEVICETREE <devicetree@vger.kernel.org>,
-	LINUXINPUT <linux-input@vger.kernel.org>,
-	LINUXKERNEL <linux-kernel@vger.kernel.org>,
-	RTCLINUX <rtc-linux@googlegroups.com>,
-	Samuel Ortiz <sameo@linux.intel.com>,
-	David Dajun Chen <david.chen@diasemi.com>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Ian Campbell <ijc+devicetree@hellion.org.uk>,
-	Kumar Gala <galak@codeaurora.org>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Pawel Moll <pawel.moll@arm.com>, Rob Herring <robh+dt@kernel.org>,
-	Support Opensource <support.opensource@diasemi.com>
-Subject: [rtc-linux] Re: [PATCH V2 1/3] mfd: da9062: Support for the DA9063
- OnKey in the DA9062 core
-Message-ID: <20150723150735.GJ3436@x1>
-References: <cover.1437399438.git.stwiss.opensource@diasemi.com>
- <9c56142bcfae19a370da54e558f4f70e068d9529.1437399438.git.stwiss.opensource@diasemi.com>
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 01 Jul 2015 06:21:15 -0700 (PDT)
+Message-ID: <f7d3b86530f871549159fed1fd0519375997a2af.1435756293.git.stwiss.opensource@diasemi.com>
+In-Reply-To: <cover.1435756293.git.stwiss.opensource@diasemi.com>
+References: <cover.1435756293.git.stwiss.opensource@diasemi.com>
+From: S Twiss <stwiss.opensource@diasemi.com>
+Date: Wed, 1 Jul 2015 14:11:33 +0100
+Subject: [rtc-linux] [PATCH V5 2/2] devicetree: da9062: Add bindings for
+ DA9062 driver
+To: DEVICETREE <devicetree@vger.kernel.org>, Ian Campbell
+	<ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>,
+	LINUXKERNEL <linux-kernel@vger.kernel.org>, Mark Rutland
+	<mark.rutland@arm.com>, Pawel Moll <pawel.moll@arm.com>, Rob Herring
+	<robh+dt@kernel.org>
+CC: Alessandro Zummo <a.zummo@towertech.it>, David Dajun Chen
+	<david.chen@diasemi.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	LINUXINPUT <linux-input@vger.kernel.org>, LINUXWATCHDOG
+	<linux-watchdog@vger.kernel.org>, Lee Jones <lee.jones@linaro.org>, "Liam
+ Girdwood" <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, RTCLINUX
+	<rtc-linux@googlegroups.com>, S Twiss <stwiss.opensource@diasemi.com>,
+	"Samuel Ortiz" <sameo@linux.intel.com>, Support Opensource
+	<support.opensource@diasemi.com>, Wim Van Sebroeck <wim@iguana.be>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <9c56142bcfae19a370da54e558f4f70e068d9529.1437399438.git.stwiss.opensource@diasemi.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -39,79 +36,130 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On Mon, 20 Jul 2015, S Twiss wrote:
+From: S Twiss <stwiss.opensource@diasemi.com>
 
-> From: S Twiss <stwiss.opensource@diasemi.com>
->=20
-> Add MFD core driver support for a OnKey component
->=20
-> - MFD core adds the resource da9062_onkey_resources[] for the OnKey
-> - An appropriate value has been added into mfd_cell da9062_devs[] to
->   support component .name =3D "da9062-onkey" and
->   .of_compatible  =3D "dlg,da9062-onkey"
->=20
-> Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
->=20
-> ---
-> Checks performed with linux-next/next-20150708/scripts/checkpatch.pl
->  da9062-core.c             total: 0 errors, 0 warnings, 523 lines checked
-> Changes in V2:
->  - No change
->=20
-> This patch applies against linux-next and next-20150708=20
->=20
->=20
->  drivers/mfd/da9062-core.c | 11 +++++++++++
->  1 file changed, 11 insertions(+)
+Add device tree bindings for the DA9062 driver
 
-For my own reference:
-  Acked-by: Lee Jones <lee.jones@linaro.org>
+Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
 
-> diff --git a/drivers/mfd/da9062-core.c b/drivers/mfd/da9062-core.c
-> index 4cf0643..0732977 100644
-> --- a/drivers/mfd/da9062-core.c
-> +++ b/drivers/mfd/da9062-core.c
-> @@ -118,6 +118,10 @@ static struct resource da9062_wdt_resources[] =3D {
->  	DEFINE_RES_NAMED(DA9062_IRQ_WDG_WARN, 1, "WD_WARN", IORESOURCE_IRQ),
->  };
-> =20
-> +static struct resource da9062_onkey_resources[] =3D {
-> +	DEFINE_RES_NAMED(DA9062_IRQ_ONKEY, 1, "ONKEY", IORESOURCE_IRQ),
-> +};
-> +
->  static const struct mfd_cell da9062_devs[] =3D {
->  	{
->  		.name		=3D "da9062-core",
-> @@ -141,6 +145,13 @@ static const struct mfd_cell da9062_devs[] =3D {
->  		.resources	=3D da9062_thermal_resources,
->  		.of_compatible  =3D "dlg,da9062-thermal",
->  	},
-> +	{
-> +		.name		=3D "da9062-onkey",
-> +		.num_resources	=3D ARRAY_SIZE(da9062_onkey_resources),
-> +		.resources	=3D da9062_onkey_resources,
-> +		.of_compatible =3D "dlg,da9062-onkey",
-> +	},
-> +
->  };
-> =20
->  static int da9062_clear_fault_log(struct da9062 *chip)
+---
+Changes in V5:
+ - No change
 
---=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+Changes in V4:
+ - No change
 
---=20
---=20
+Changes in V3:
+ - No change
+ 
+Changes in V2:
+ - Dropped the RTC and Onkey binding information in this patch-set
+   Those drivers have been dropped from this patch set and the
+   binding information has been removed accordingly.
+
+This patch applies against linux-next and next-20150701 
+
+
+
+ Documentation/devicetree/bindings/mfd/da9062.txt | 79 ++++++++++++++++++++++++
+ 1 file changed, 79 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/mfd/da9062.txt
+
+diff --git a/Documentation/devicetree/bindings/mfd/da9062.txt b/Documentation/devicetree/bindings/mfd/da9062.txt
+new file mode 100644
+index 0000000..5765ed9
+--- /dev/null
++++ b/Documentation/devicetree/bindings/mfd/da9062.txt
+@@ -0,0 +1,79 @@
++* Dialog DA9062 Power Management Integrated Circuit (PMIC)
++
++DA9062 consists of a large and varied group of sub-devices:
++
++Device                   Supply Names    Description
++------                   ------------    -----------
++da9062-regulator        :               : LDOs & BUCKs
++da9062-watchdog         :               : Watchdog Timer
++
++======
++
++Required properties:
++
++- compatible : Should be "dlg,da9062".
++- reg : Specifies the I2C slave address (this defaults to 0x58 but it can be
++  modified to match the chip's OTP settings).
++- interrupt-parent : Specifies the reference to the interrupt controller for
++  the DA9062.
++- interrupts : IRQ line information.
++- interrupt-controller
++
++See Documentation/devicetree/bindings/interrupt-controller/interrupts.txt for
++further information on IRQ bindings.
++
++Sub-nodes:
++
++- regulators : This node defines the settings for the LDOs and BUCKs. The
++  DA9062 regulators are bound using their names listed below:
++
++    buck1    : BUCK_1
++    buck2    : BUCK_2
++    buck3    : BUCK_3
++    buck4    : BUCK_4
++    ldo1     : LDO_1
++    ldo2     : LDO_2
++    ldo3     : LDO_3
++    ldo4     : LDO_4
++
++  The component follows the standard regulator framework and the bindings
++  details of individual regulator device can be found in:
++  Documentation/devicetree/bindings/regulator/regulator.txt
++
++
++- watchdog: This node defines the settings for the watchdog driver associated
++  with the DA9062 PMIC. The compatible = "dlg,da9062-watchdog" should be added
++  if a node is created.
++
++
++Example:
++
++	pmic0: da9062@58 {
++		compatible = "dlg,da9062";
++		reg = <0x58>;
++		interrupt-parent = <&gpio6>;
++		interrupts = <11 IRQ_TYPE_LEVEL_LOW>;
++		interrupt-controller;
++
++		watchdog {
++			compatible = "dlg,da9062-watchdog";
++		};
++
++		regulators {
++			DA9062_BUCK1: buck1 {
++				regulator-name = "BUCK1";
++				regulator-min-microvolt = <300000>;
++				regulator-max-microvolt = <1570000>;
++				regulator-min-microamp = <500000>;
++				regulator-max-microamp = <2000000>;
++				regulator-boot-on;
++			};
++			DA9062_LDO1: ldo1 {
++				regulator-name = "LDO_1";
++				regulator-min-microvolt = <900000>;
++				regulator-max-microvolt = <3600000>;
++				regulator-boot-on;
++			};
++		};
++	};
++
+-- 
+end-of-patch for PATCH V5
+
+-- 
+-- 
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
----=20
-You received this message because you are subscribed to the Google Groups "=
-rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an e=
-mail to rtc-linux+unsubscribe@googlegroups.com.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
