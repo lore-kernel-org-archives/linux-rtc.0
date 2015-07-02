@@ -1,22 +1,24 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBUO54WWQKGQEESALLZA@googlegroups.com>
-MIME-Version: 1.0
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id c3si776923wiz.2.2015.07.29.17.24.49
-        for <rtc-linux@googlegroups.com>;
-        Wed, 29 Jul 2015 17:24:49 -0700 (PDT)
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Nicolas Ferre <nicolas.ferre@atmel.com>
-Cc: Boris Brezillon <boris.brezillon@free-electrons.com>,
-	linux-arm-kernel@lists.infradead.org,
-	rtc-linux@googlegroups.com,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	linux-kernel@vger.kernel.org,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Subject: [rtc-linux] [PATCH 1/5] rtc: at91sam9: properly handle error case
-Date: Thu, 30 Jul 2015 02:24:28 +0200
-Message-Id: <1438215872-27794-1-git-send-email-alexandre.belloni@free-electrons.com>
-Reply-To: rtc-linux@googlegroups.com
+Return-Path: <rtc-linux+bncBCGLJQVNREJBBHXW2OWAKGQENGQTMMI@googlegroups.com>
+Received: from mailgw01.mediatek.com ([210.61.82.183])
+        by gmr-mx.google.com with ESMTPS id w7si532270pdq.0.2015.07.02.01.49.33
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1 cipher=RC4-SHA bits=128/128);
+        Thu, 02 Jul 2015 01:49:34 -0700 (PDT)
+Message-ID: <1435826955.21679.2.camel@mtksdaap41>
+Subject: [rtc-linux] Re: [PATCH] rtc-mt6397: enable wakeup before registering
+ rtc device
+From: Eddie Huang <eddie.huang@mediatek.com>
+To: Wei-Ning Huang <wnhuang@chromium.org>
+CC: LKML <linux-kernel@vger.kernel.org>, Wei-Ning Huang <wnhuang@google.com>,
+	<a.zummo@towertech.it>, <alexandre.belloni@free-electrons.com>,
+	<linux-arm-kernel@lists.infradead.org>, <linux-mediatek@lists.infradead.org>,
+	<rtc-linux@googlegroups.com>
+Date: Thu, 2 Jul 2015 16:49:15 +0800
+In-Reply-To: <1435826216-11982-1-git-send-email-wnhuang@google.com>
+References: <1435826216-11982-1-git-send-email-wnhuang@google.com>
 Content-Type: text/plain; charset=UTF-8
+MIME-Version: 1.0
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -26,55 +28,43 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-In case of a probe error, it is possible to abort after issuing
-clk_prepare_enable(). Ensure the clock is disabled and unprepared in that
-case.
+On Thu, 2015-07-02 at 16:36 +0800, Wei-Ning Huang wrote:
+> rtc_sysfs_add_device checks if device can wakeup before creating the
+> wakealarm file in sysfs. Thus the driver must set wakeup capability
+> before registering the rtc device.
+> 
+> Signed-off-by: Wei-Ning Huang <wnhuang@google.com>
+> ---
+>  drivers/rtc/rtc-mt6397.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/rtc/rtc-mt6397.c b/drivers/rtc/rtc-mt6397.c
+> index c0090b6..eab230b 100644
+> --- a/drivers/rtc/rtc-mt6397.c
+> +++ b/drivers/rtc/rtc-mt6397.c
+> @@ -343,6 +343,8 @@ static int mtk_rtc_probe(struct platform_device *pdev)
+>  		goto out_dispose_irq;
+>  	}
+>  
+> +	device_init_wakeup(&pdev->dev, 1);
+> +
+>  	rtc->rtc_dev = rtc_device_register("mt6397-rtc", &pdev->dev,
+>  					   &mtk_rtc_ops, THIS_MODULE);
+>  	if (IS_ERR(rtc->rtc_dev)) {
+> @@ -351,8 +353,6 @@ static int mtk_rtc_probe(struct platform_device *pdev)
+>  		goto out_free_irq;
+>  	}
+>  
+> -	device_init_wakeup(&pdev->dev, 1);
+> -
+>  	return 0;
+>  
+>  out_free_irq:
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
----
- drivers/rtc/rtc-at91sam9.c | 13 ++++++++++---
- 1 file changed, 10 insertions(+), 3 deletions(-)
+Thanks your correction.
 
-diff --git a/drivers/rtc/rtc-at91sam9.c b/drivers/rtc/rtc-at91sam9.c
-index 5ccaee32df72..152cd816cc43 100644
---- a/drivers/rtc/rtc-at91sam9.c
-+++ b/drivers/rtc/rtc-at91sam9.c
-@@ -451,8 +451,10 @@ static int at91_rtc_probe(struct platform_device *pdev)
- 
- 	rtc->rtcdev = devm_rtc_device_register(&pdev->dev, pdev->name,
- 					&at91_rtc_ops, THIS_MODULE);
--	if (IS_ERR(rtc->rtcdev))
--		return PTR_ERR(rtc->rtcdev);
-+	if (IS_ERR(rtc->rtcdev)) {
-+		ret = PTR_ERR(rtc->rtcdev);
-+		goto err_clk;
-+	}
- 
- 	/* register irq handler after we know what name we'll use */
- 	ret = devm_request_irq(&pdev->dev, rtc->irq, at91_rtc_interrupt,
-@@ -460,7 +462,7 @@ static int at91_rtc_probe(struct platform_device *pdev)
- 			       dev_name(&rtc->rtcdev->dev), rtc);
- 	if (ret) {
- 		dev_dbg(&pdev->dev, "can't share IRQ %d?\n", rtc->irq);
--		return ret;
-+		goto err_clk;
- 	}
- 
- 	/* NOTE:  sam9260 rev A silicon has a ROM bug which resets the
-@@ -474,6 +476,11 @@ static int at91_rtc_probe(struct platform_device *pdev)
- 				dev_name(&rtc->rtcdev->dev));
- 
- 	return 0;
-+
-+err_clk:
-+	clk_disable_unprepare(rtc->sclk);
-+
-+	return ret;
- }
- 
- /*
--- 
-2.1.4
+Acked-by: Eddie Huang <eddie.huang@mediatek.com>
+
 
 -- 
 -- 
