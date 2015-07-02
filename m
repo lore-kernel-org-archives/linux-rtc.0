@@ -1,31 +1,22 @@
-Return-Path: <rtc-linux+bncBAABBQ4D56WAKGQE6DBMPDQ@googlegroups.com>
-Received: from mail1.bemta3.messagelabs.com (mail1.bemta3.messagelabs.com. [195.245.230.163])
-        by gmr-mx.google.com with ESMTPS id t6si1160215wiz.0.2015.07.07.05.10.42
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 07 Jul 2015 05:10:42 -0700 (PDT)
-From: "Opensource [Steve Twiss]" <stwiss.opensource@diasemi.com>
-To: Lee Jones <lee.jones@linaro.org>
-CC: LINUXKERNEL <linux-kernel@vger.kernel.org>, Samuel Ortiz
-	<sameo@linux.intel.com>, Alessandro Zummo <a.zummo@towertech.it>, DEVICETREE
-	<devicetree@vger.kernel.org>, David Dajun Chen <david.chen@diasemi.com>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>, Ian Campbell
-	<ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>,
-	LINUXINPUT <linux-input@vger.kernel.org>, LINUXWATCHDOG
-	<linux-watchdog@vger.kernel.org>, Liam Girdwood <lgirdwood@gmail.com>, "Mark
- Brown" <broonie@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Pawel Moll
-	<pawel.moll@arm.com>, RTCLINUX <rtc-linux@googlegroups.com>, Rob Herring
-	<robh+dt@kernel.org>, Support Opensource <Support.Opensource@diasemi.com>,
-	Wim Van Sebroeck <wim@iguana.be>
-Subject: [rtc-linux] RE: [PATCH V5 1/2] mfd: da9062: DA9062 MFD core driver
-Date: Tue, 7 Jul 2015 12:10:39 +0000
-Message-ID: <6ED8E3B22081A4459DAC7699F3695FB7014B23A300@SW-EX-MBX02.diasemi.com>
-References: <cover.1435756293.git.stwiss.opensource@diasemi.com>
- <8ada7382e08b0fc2a444c1df7b5a5c1502580816.1435756293.git.stwiss.opensource@diasemi.com>
- <20150707114217.GV3182@x1>
-In-Reply-To: <20150707114217.GV3182@x1>
-Content-Type: text/plain; charset=UTF-8
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBAP722WAKGQEJVLI22Y@googlegroups.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id ec7si364843wib.3.2015.07.02.15.47.29
+        for <rtc-linux@googlegroups.com>;
+        Thu, 02 Jul 2015 15:47:29 -0700 (PDT)
+Date: Fri, 3 Jul 2015 00:47:28 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Nishanth Menon <nm@ti.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>, linux-kernel@vger.kernel.org,
+	rtc-linux@googlegroups.com, linux-omap@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org, balbi@ti.com,
+	grygorii.strashko@ti.com
+Subject: [rtc-linux] Re: [PATCH V2 0/5] drivers/rtc/rtc-ds1307.c: Basic
+ cleanups and support for wakeupirq
+Message-ID: <20150702224728.GF3467@piout.net>
+References: <1435076114-12416-1-git-send-email-nm@ti.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1435076114-12416-1-git-send-email-nm@ti.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -36,29 +27,37 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On 07 July 2015 12:42, Lee Jones wrote:
+Hi,
 
-> To: Opensource [Steve Twiss]
-> Subject: Re: [PATCH V5 1/2] mfd: da9062: DA9062 MFD core driver
+On 23/06/2015 at 11:15:09 -0500, Nishanth Menon wrote :
+> NOTE1: I have only tested in mcp79410 device, and not on other
+> ds1307-rtc driver compatbile devices as I dont have any other.
+> additional testing might be nice to have.
+
+Patchwork picked up V3 of 4/5 correctly so I have applied the series and
+pushed it in rtc-next. It will land in linux-next tomorrow so hopefully,
+this will see more testing.
+
+> NOTE2: there are additional fixes that linux-next seems to need but
+> those are in omap-rtc, cpufreq etc, but those are not related by the
+> ds-1307.
 > 
-> > From: S Twiss <stwiss.opensource@diasemi.com>
-> >
-> > Add MFD core driver support for DA9062
-> >
-> > Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
-> >
-[...]
+> V1: https://patchwork.kernel.org/patch/4759171/
 > 
+> NOTE: Patch 5/5 of the series is meant to indicate the usage, and will
+> be reposted along with other wakeup sources to be enabled once the
+> driver changes are accepted.
 > 
-> Applied, thanks.
 
+I've left that one out so you can send it to the omap maintainers when
+ready.
 
-Hi Lee,
-Thank you for your efforts on this.
-Regards,
-Steve
+Thanks!
 
-[...]
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
 -- 
 -- 
