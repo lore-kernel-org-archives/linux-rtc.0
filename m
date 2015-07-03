@@ -1,22 +1,29 @@
-Return-Path: <rtc-linux+bncBCQO3K444ANRBLGP5WWAKGQEO5ZZCWA@googlegroups.com>
-Received: from mail-pd0-x22d.google.com (mail-pd0-x22d.google.com. [2607:f8b0:400e:c02::22d])
-        by gmr-mx.google.com with ESMTPS id tq2si2128184pbc.0.2015.07.06.22.46.20
+Return-Path: <rtc-linux+bncBD5O5IWPJMIKRL64VQCRUBDTDB2NU@googlegroups.com>
+MIME-Version: 1.0
+Received: from mail-wi0-x22e.google.com (mail-wi0-x22e.google.com. [2a00:1450:400c:c05::22e])
+        by gmr-mx.google.com with ESMTPS id q10si569243wiz.0.2015.07.03.16.15.52
         for <rtc-linux@googlegroups.com>
         (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 06 Jul 2015 22:46:20 -0700 (PDT)
-Received: by pdbep18 with SMTP id ep18so119177664pdb.1
-        for <rtc-linux@googlegroups.com>; Mon, 06 Jul 2015 22:46:20 -0700 (PDT)
-Date: Tue, 7 Jul 2015 11:16:14 +0530
-From: Vaishali Thakkar <vthakkar1994@gmail.com>
-To: Joshua Kinard <kumba@gentoo.org>
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org
-Subject: [rtc-linux] [PATCH] rtc: rtc-ds1685: Use module_platform_driver
-Message-ID: <20150707054614.GA9829@vaishali-Ideapad-Z570>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+        Fri, 03 Jul 2015 16:15:52 -0700 (PDT)
+Received: by mail-wi0-x22e.google.com with SMTP id r9so142362160wia.1
+        for <rtc-linux@googlegroups.com>; Fri, 03 Jul 2015 16:15:52 -0700 (PDT)
+From: Philippe Reynes <tremyfr@gmail.com>
+To: a.zummo@towertech.it,
+	alexandre.belloni@free-electrons.com,
+	shawn.guo@linaro.org,
+	kernel@pengutronix.de,
+	linux@arm.linux.org.uk
+Cc: linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org,
+	rtc-linux@googlegroups.com,
+	Philippe Reynes <tremyfr@gmail.com>
+Subject: [rtc-linux] [PATCH v4 6/7] imx27: dt: add support of internal rtc
+Date: Sat,  4 Jul 2015 01:15:19 +0200
+Message-Id: <1435965320-1478-7-git-send-email-tremyfr@gmail.com>
+In-Reply-To: <1435965320-1478-1-git-send-email-tremyfr@gmail.com>
+References: <1435965320-1478-1-git-send-email-tremyfr@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -26,76 +33,36 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Use module_platform_driver for drivers whose init and exit functions
-only register and unregister, respectively.
+Add support of internal rtc on imx27.
 
-A simplified version of the Coccinelle semantic patch that performs
-this transformation is as follows:
-
-@a@
-identifier f, x;
-@@
--static f(...) { return platform_driver_register(&x); }
-
-@b depends on a@
-identifier e, a.x;
-@@
--static e(...) { platform_driver_unregister(&x); }
-
-@c depends on a && b@
-identifier a.f;
-declarer name module_init;
-@@
--module_init(f);
-
-@d depends on a && b && c@
-identifier b.e, a.x;
-declarer name module_exit;
-declarer name module_platform_driver;
-@@
--module_exit(e);
-+module_platform_driver(x);
-
-Signed-off-by: Vaishali Thakkar <vthakkar1994@gmail.com>
+Signed-off-by: Philippe Reynes <tremyfr@gmail.com>
 ---
- drivers/rtc/rtc-ds1685.c | 22 +---------------------
- 1 file changed, 1 insertion(+), 21 deletions(-)
+ arch/arm/boot/dts/imx27.dtsi |   10 ++++++++++
+ 1 files changed, 10 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/rtc/rtc-ds1685.c b/drivers/rtc/rtc-ds1685.c
-index 818a363..05a51ef 100644
---- a/drivers/rtc/rtc-ds1685.c
-+++ b/drivers/rtc/rtc-ds1685.c
-@@ -2145,27 +2145,7 @@ static struct platform_driver ds1685_rtc_driver = {
- 	.probe		= ds1685_rtc_probe,
- 	.remove		= ds1685_rtc_remove,
- };
--
--/**
-- * ds1685_rtc_init - rtc module init.
-- */
--static int __init
--ds1685_rtc_init(void)
--{
--	return platform_driver_register(&ds1685_rtc_driver);
--}
--
--/**
-- * ds1685_rtc_exit - rtc module exit.
-- */
--static void __exit
--ds1685_rtc_exit(void)
--{
--	platform_driver_unregister(&ds1685_rtc_driver);
--}
--
--module_init(ds1685_rtc_init);
--module_exit(ds1685_rtc_exit);
-+module_platform_driver(ds1685_rtc_driver);
- /* ----------------------------------------------------------------------- */
+diff --git a/arch/arm/boot/dts/imx27.dtsi b/arch/arm/boot/dts/imx27.dtsi
+index b69be5c..38e6e84 100644
+--- a/arch/arm/boot/dts/imx27.dtsi
++++ b/arch/arm/boot/dts/imx27.dtsi
+@@ -144,6 +144,16 @@
+ 				clock-names = "ipg", "per";
+ 			};
  
- 
++			rtc: rtc@10007000 {
++				compatible = "fsl,imx21-rtc";
++				reg = <0x10007000 0x1000>;
++				interrupts = <22>;
++				clocks = <&clks IMX27_CLK_CKIL>,
++					 <&clks IMX27_CLK_RTC_IPG_GATE>;
++				clock-names = "rtc", "ipg";
++				status = "disabled";
++			};
++
+ 			kpp: kpp@10008000 {
+ 				compatible = "fsl,imx27-kpp", "fsl,imx21-kpp";
+ 				reg = <0x10008000 0x1000>;
 -- 
-1.9.1
+1.7.4.4
 
 -- 
 -- 
