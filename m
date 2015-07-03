@@ -1,24 +1,30 @@
-Return-Path: <rtc-linux+bncBDRMFBMIXEGBBZVMYOWQKGQESVA6LSY@googlegroups.com>
-Received: from foss.arm.com (foss.arm.com. [217.140.101.70])
-        by gmr-mx.google.com with ESMTP id b64si243042ywc.0.2015.07.23.04.56.22
-        for <rtc-linux@googlegroups.com>;
-        Thu, 23 Jul 2015 04:56:22 -0700 (PDT)
-Date: Thu, 23 Jul 2015 12:55:55 +0100
-From: Mark Rutland <mark.rutland@arm.com>
-To: Suneel Garapati <suneel.garapati@xilinx.com>
-Cc: "rtc-linux@googlegroups.com" <rtc-linux@googlegroups.com>,
-	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	"michals@xilinx.com" <michals@xilinx.com>,
-	"sorenb@xilinx.com" <sorenb@xilinx.com>
-Subject: [rtc-linux] Re: [PATCH 1/2] devicetree: bindings: rtc: add bindings
- for xilinx zynqmp rtc
-Message-ID: <20150723115555.GC12330@leverpostej>
-References: <1437648710-6857-1-git-send-email-suneel.garapati@xilinx.com>
+Return-Path: <rtc-linux+bncBC2PPF5ZT4BBBTVE3OWAKGQEQYQZCCA@googlegroups.com>
+Received: from mail-la0-x22f.google.com (mail-la0-x22f.google.com. [2a00:1450:4010:c03::22f])
+        by gmr-mx.google.com with ESMTPS id h8si307593lbd.3.2015.07.03.11.19.58
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Fri, 03 Jul 2015 11:19:58 -0700 (PDT)
+Received: by mail-la0-x22f.google.com with SMTP id h6so93111363lag.2
+        for <rtc-linux@googlegroups.com>; Fri, 03 Jul 2015 11:19:58 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1437648710-6857-1-git-send-email-suneel.garapati@xilinx.com>
+In-Reply-To: <20150701163946.GA30503@pd.tnic>
+References: <1435642598-5073-1-git-send-email-adrianhuang0701@gmail.com>
+	<CAHKZfL0H1mrj8pScggejtFStaA66zX43RZRYQnkYsZ4gVb-ojQ@mail.gmail.com>
+	<CANoYJu=0L7yUfS2Z87OJXc+_+Z6DmQ_oGZvg2AygS_2DTOixxQ@mail.gmail.com>
+	<20150701163946.GA30503@pd.tnic>
+Date: Fri, 3 Jul 2015 20:19:58 +0200
+Message-ID: <CANoYJunhbZB_P97u2Hu=i_u6-Xxk-cbe2FLHQ7skqKQyF10uTw@mail.gmail.com>
+Subject: [rtc-linux] Re: [RFC PATCH v3 0/2] rtc: Prevent the automatic reboot
+ after powering off the system
+From: Diego Ercolani <diego.ercolani@gmail.com>
+To: Borislav Petkov <bp@suse.de>
+Cc: Huang Adrian <adrianhuang0701@gmail.com>, Egbert Eich <eich@suse.com>, rtc-linux@googlegroups.com,
+	Thomas Gleixner <tglx@linutronix.de>, John Stultz <john.stultz@linaro.org>,
+	Nagananda Chumbalkar <nchumbalkar@lenovo.com>, Max Asbock <amax@lenovo.com>,
+	Adrian Huang <ahuang12@lenovo.com>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Alessandro Zummo <a.zummo@towertech.it>
+Content-Type: multipart/alternative; boundary=001a11c3b208806df90519fc9ac9
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -29,64 +35,31 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On Thu, Jul 23, 2015 at 11:51:49AM +0100, Suneel Garapati wrote:
-> adds file for description on device node bindings for RTC
-> found on Xilinx Zynq Ultrascale+ MPSoC.
-> 
-> Signed-off-by: Suneel Garapati <suneel.garapati@xilinx.com>
-> ---
->  Documentation/devicetree/bindings/rtc/xlnx-rtc.txt | 25 ++++++++++++++++++++++
->  1 file changed, 25 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/rtc/xlnx-rtc.txt
-> 
-> diff --git a/Documentation/devicetree/bindings/rtc/xlnx-rtc.txt b/Documentation/devicetree/bindings/rtc/xlnx-rtc.txt
-> new file mode 100644
-> index 0000000..2b05243
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/rtc/xlnx-rtc.txt
-> @@ -0,0 +1,25 @@
-> +* Xilinx Zynq Ultrascale+ MPSoC Real Time Clock
-> +
-> +RTC controller for the Xilinx Zynq MPSoC Real Time Clock
-> +Separate IRQ lines for seconds and alarm
-> +
-> +Required properties:
-> +- compatible: Should be "xlnx,zynqmp-rtc"
-> +- reg: Physical base address of the controller and length
-> +       of memory mapped region.
-> +- interrupts: IRQ lines for the RTC.
-> +- interrupt names: Names for interrupt lines
+--001a11c3b208806df90519fc9ac9
+Content-Type: text/plain; charset=UTF-8
 
-interrupt-names has a '-', and you need to state which names are
-expected.
+Thank you Borislav.
 
-> +
-> +Optional:
-> +- calibration: calibration value for 1 sec period which will
-> +		be programmed directly to calibration register
+Green Light for me!
 
-When and why would I set this?
+It works
 
-Mark.
+2015-07-01 18:39 GMT+02:00 Borislav Petkov <bp@suse.de>:
 
-> +
-> +Example:
-> +rtc: rtc@ffa60000 {
-> +	compatible = "xlnx,zynqmp-rtc";
-> +	reg = <0x0 0xffa60000 0x100>;
-> +	interrupt-parent = <&gic>;
-> +	interrupts = <0 26 4>, <0 27 4>;
-> +	interrupt-names = "alm", "sec";
-> +	calibration = <0x198233>;
-> +};
+> On Tue, Jun 30, 2015 at 08:59:45AM +0200, Diego Ercolani wrote:
+> > I'll be waiting for the built kernel.
+>
+> Here you go:
+>
+> http://beta.suse.com/private/bpetkov/
+>
 > --
-> 2.1.2
-> 
-> _______________________________________________
-> linux-arm-kernel mailing list
-> linux-arm-kernel@lists.infradead.org
-> http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
-> 
+> Regards/Gruss,
+>     Boris.
+>
+> ECO tip #101: Trim your mails when you reply.
+> --
+>
 
 -- 
 -- 
@@ -98,3 +71,51 @@ before submitting a driver.
 You received this message because you are subscribed to the Google Groups "rtc-linux" group.
 To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
+
+--001a11c3b208806df90519fc9ac9
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"ltr"><div><div>Thank you Borislav.<br><br></div>Green Light for=
+ me!<br><br></div>It works<br></div><div class=3D"gmail_extra"><br><div cla=
+ss=3D"gmail_quote">2015-07-01 18:39 GMT+02:00 Borislav Petkov <span dir=3D"=
+ltr">&lt;<a href=3D"mailto:bp@suse.de" target=3D"_blank">bp@suse.de</a>&gt;=
+</span>:<br><blockquote class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;bo=
+rder-left:1px #ccc solid;padding-left:1ex">On Tue, Jun 30, 2015 at 08:59:45=
+AM +0200, Diego Ercolani wrote:<br>
+&gt; I&#39;ll be waiting for the built kernel.<br>
+<br>
+Here you go:<br>
+<br>
+<a href=3D"http://beta.suse.com/private/bpetkov/" rel=3D"noreferrer" target=
+=3D"_blank">http://beta.suse.com/private/bpetkov/</a><br>
+<span class=3D"HOEnZb"><font color=3D"#888888"><br>
+--<br>
+Regards/Gruss,<br>
+=C2=A0 =C2=A0 Boris.<br>
+<br>
+ECO tip #101: Trim your mails when you reply.<br>
+--<br>
+</font></span></blockquote></div><br></div>
+
+<p></p>
+
+-- <br />
+-- <br />
+You received this message because you are subscribed to &quot;rtc-linux&quo=
+t;.<br />
+Membership options at <a href=3D"http://groups.google.com/group/rtc-linux">=
+http://groups.google.com/group/rtc-linux</a> .<br />
+Please read <a href=3D"http://groups.google.com/group/rtc-linux/web/checkli=
+st">http://groups.google.com/group/rtc-linux/web/checklist</a><br />
+before submitting a driver.<br />
+--- <br />
+You received this message because you are subscribed to the Google Groups &=
+quot;rtc-linux&quot; group.<br />
+To unsubscribe from this group and stop receiving emails from it, send an e=
+mail to <a href=3D"mailto:rtc-linux+unsubscribe@googlegroups.com">rtc-linux=
++unsubscribe@googlegroups.com</a>.<br />
+For more options, visit <a href=3D"https://groups.google.com/d/optout">http=
+s://groups.google.com/d/optout</a>.<br />
+
+--001a11c3b208806df90519fc9ac9--
