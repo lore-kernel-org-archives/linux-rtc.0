@@ -1,33 +1,31 @@
-Return-Path: <rtc-linux+bncBCAJFDXE4QGBBE4E5CWAKGQESC35V2I@googlegroups.com>
-MIME-Version: 1.0
-Received: from mail-pa0-x229.google.com (mail-pa0-x229.google.com. [2607:f8b0:400e:c03::229])
-        by gmr-mx.google.com with ESMTPS id ra16si1729551pac.0.2015.07.05.21.20.34
+Return-Path: <rtc-linux+bncBAABBIFJ3OWAKGQEUK6CO7Q@googlegroups.com>
+Received: from mx2.suse.de (cantor2.suse.de. [195.135.220.15])
+        by gmr-mx.google.com with ESMTPS id t6si543904wiz.0.2015.07.03.11.29.52
         for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sun, 05 Jul 2015 21:20:34 -0700 (PDT)
-Received: by mail-pa0-x229.google.com with SMTP id tm7so88425590pac.2
-        for <rtc-linux@googlegroups.com>; Sun, 05 Jul 2015 21:20:34 -0700 (PDT)
-From: Adrian Huang <adrianhuang0701@gmail.com>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Alessandro Zummo <a.zummo@towertech.it>
-Cc: rtc-linux@googlegroups.com,
-	Borislav Petkov <bp@suse.de>,
-	Thomas Gleixner <tglx@linutronix.de>,
+        (version=TLSv1 cipher=ECDHE-RSA-RC4-SHA bits=128/128);
+        Fri, 03 Jul 2015 11:29:52 -0700 (PDT)
+Date: Fri, 3 Jul 2015 20:29:25 +0200
+From: Borislav Petkov <bp@suse.de>
+To: Diego Ercolani <diego.ercolani@gmail.com>
+Cc: Huang Adrian <adrianhuang0701@gmail.com>, Egbert Eich <eich@suse.com>,
+	rtc-linux@googlegroups.com, Thomas Gleixner <tglx@linutronix.de>,
 	John Stultz <john.stultz@linaro.org>,
-	Egbert Eich <eich@suse.com>,
-	Diego Ercolani <diego.ercolani@gmail.com>,
 	Nagananda Chumbalkar <nchumbalkar@lenovo.com>,
-	Max Asbock <amax@lenovo.com>,
-	Adrian Huang <ahuang12@lenovo.com>,
-	Adrian Huang <adrianhuang0701@gmail.com>
-Subject: [rtc-linux] [RFC PATCH v4 2/2] rtc-cmos: Revert "rtc-cmos: Add an
- alarm disable quirk"
-Date: Mon,  6 Jul 2015 12:19:13 +0800
-Message-Id: <1436156353-3599-3-git-send-email-adrianhuang0701@gmail.com>
-In-Reply-To: <1436156353-3599-1-git-send-email-adrianhuang0701@gmail.com>
-References: <1436156353-3599-1-git-send-email-adrianhuang0701@gmail.com>
-Reply-To: rtc-linux@googlegroups.com
+	Max Asbock <amax@lenovo.com>, Adrian Huang <ahuang12@lenovo.com>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Alessandro Zummo <a.zummo@towertech.it>
+Subject: [rtc-linux] Re: [RFC PATCH v3 0/2] rtc: Prevent the automatic reboot
+ after powering off the system
+Message-ID: <20150703182925.GI2838@pd.tnic>
+References: <1435642598-5073-1-git-send-email-adrianhuang0701@gmail.com>
+ <CAHKZfL0H1mrj8pScggejtFStaA66zX43RZRYQnkYsZ4gVb-ojQ@mail.gmail.com>
+ <CANoYJu=0L7yUfS2Z87OJXc+_+Z6DmQ_oGZvg2AygS_2DTOixxQ@mail.gmail.com>
+ <20150701163946.GA30503@pd.tnic>
+ <CANoYJunhbZB_P97u2Hu=i_u6-Xxk-cbe2FLHQ7skqKQyF10uTw@mail.gmail.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <CANoYJunhbZB_P97u2Hu=i_u6-Xxk-cbe2FLHQ7skqKQyF10uTw@mail.gmail.com>
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -37,103 +35,23 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Commit d5a1c7e3fc38 ("rtc-cmos: Add an alarm disable quirk") that
-added a special quirk is not needed because [PATCH 1/2] of this
-patchset makes the kernel more robust:
-rtc-cmos: Cancel alarm timer if alarm time is equal to now+1 seconds
+On Fri, Jul 03, 2015 at 08:19:58PM +0200, Diego Ercolani wrote:
+> Thank you Borislav.
+> 
+> Green Light for me!
+> 
+> It works
 
-Signed-off-by: Adrian Huang <ahuang12@lenovo.com>
-Tested-by: Egbert Eich <eich@suse.de>
-Tested-by: Diego Ercolani <diego.ercolani@gmail.com>
-Cc: Borislav Petkov <bp@suse.de>
----
- drivers/rtc/rtc-cmos.c | 50 --------------------------------------------------
- 1 file changed, 50 deletions(-)
+Thanks for testing!
 
-diff --git a/drivers/rtc/rtc-cmos.c b/drivers/rtc/rtc-cmos.c
-index f8900aa..916bd1f 100644
---- a/drivers/rtc/rtc-cmos.c
-+++ b/drivers/rtc/rtc-cmos.c
-@@ -41,7 +41,6 @@
- #include <linux/pm.h>
- #include <linux/of.h>
- #include <linux/of_platform.h>
--#include <linux/dmi.h>
- 
- /* this is for "generic access to PC-style RTC" using CMOS_READ/CMOS_WRITE */
- #include <asm-generic/rtc.h>
-@@ -383,50 +382,6 @@ static int cmos_set_alarm(struct device *dev, struct rtc_wkalrm *t)
- 	return 0;
- }
- 
--/*
-- * Do not disable RTC alarm on shutdown - workaround for b0rked BIOSes.
-- */
--static bool alarm_disable_quirk;
--
--static int __init set_alarm_disable_quirk(const struct dmi_system_id *id)
--{
--	alarm_disable_quirk = true;
--	pr_info("BIOS has alarm-disable quirk - RTC alarms disabled\n");
--	return 0;
--}
--
--static const struct dmi_system_id rtc_quirks[] __initconst = {
--	/* https://bugzilla.novell.com/show_bug.cgi?id=805740 */
--	{
--		.callback = set_alarm_disable_quirk,
--		.ident    = "IBM Truman",
--		.matches  = {
--			DMI_MATCH(DMI_SYS_VENDOR, "TOSHIBA"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "4852570"),
--		},
--	},
--	/* https://bugzilla.novell.com/show_bug.cgi?id=812592 */
--	{
--		.callback = set_alarm_disable_quirk,
--		.ident    = "Gigabyte GA-990XA-UD3",
--		.matches  = {
--			DMI_MATCH(DMI_SYS_VENDOR,
--					"Gigabyte Technology Co., Ltd."),
--			DMI_MATCH(DMI_PRODUCT_NAME, "GA-990XA-UD3"),
--		},
--	},
--	/* http://permalink.gmane.org/gmane.linux.kernel/1604474 */
--	{
--		.callback = set_alarm_disable_quirk,
--		.ident    = "Toshiba Satellite L300",
--		.matches  = {
--			DMI_MATCH(DMI_SYS_VENDOR, "TOSHIBA"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "Satellite L300"),
--		},
--	},
--	{}
--};
--
- static int cmos_alarm_irq_enable(struct device *dev, unsigned int enabled)
- {
- 	struct cmos_rtc	*cmos = dev_get_drvdata(dev);
-@@ -435,9 +390,6 @@ static int cmos_alarm_irq_enable(struct device *dev, unsigned int enabled)
- 	if (!is_valid_irq(cmos->irq))
- 		return -EINVAL;
- 
--	if (alarm_disable_quirk)
--		return 0;
--
- 	spin_lock_irqsave(&rtc_lock, flags);
- 
- 	if (enabled)
-@@ -1300,8 +1252,6 @@ static int __init cmos_init(void)
- 			platform_driver_registered = true;
- 	}
- 
--	dmi_check_system(rtc_quirks);
--
- 	if (retval == 0)
- 		return 0;
- 
+Adrian, I think you can add Diego's Tested-by to your submission.
+
 -- 
-1.9.1
+Regards/Gruss,
+    Boris.
+
+ECO tip #101: Trim your mails when you reply.
+--
 
 -- 
 -- 
