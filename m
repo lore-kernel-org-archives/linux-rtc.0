@@ -1,23 +1,25 @@
-Return-Path: <rtc-linux+bncBCMNZUWXYYORBAFX7CWAKGQEOPETTTY@googlegroups.com>
+Return-Path: <rtc-linux+bncBD5O5IWPJMIJ3L64VQCRUBBOEZR7Q@googlegroups.com>
 MIME-Version: 1.0
-Received: from mail-pd0-f174.google.com (mail-pd0-f174.google.com. [209.85.192.174])
-        by gmr-mx.google.com with ESMTPS id ns6si498314pbc.2.2015.07.08.23.58.08
+Received: from mail-wi0-x233.google.com (mail-wi0-x233.google.com. [2a00:1450:400c:c05::233])
+        by gmr-mx.google.com with ESMTPS id fj7si183818wib.3.2015.07.03.16.15.41
         for <rtc-linux@googlegroups.com>
         (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 08 Jul 2015 23:58:08 -0700 (PDT)
-Received: by pdrg1 with SMTP id g1so28260538pdr.2
-        for <rtc-linux@googlegroups.com>; Wed, 08 Jul 2015 23:58:08 -0700 (PDT)
-From: Vaibhav Hiremath <vaibhav.hiremath@linaro.org>
-To: linux-arm-kernel@lists.infradead.org
-Cc: Vaibhav Hiremath <vaibhav.hiremath@linaro.org>,
-	Chao Xie <chao.xie@marvell.com>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	rtc-linux@googlegroups.com (open list:REAL TIME CLOCK (RTC) SUBSYSTEM),
-	linux-kernel@vger.kernel.org (open list)
-Subject: [rtc-linux] [RESEND PATCH-v2] rtc: 88pm80x: add device tree support
-Date: Thu,  9 Jul 2015 12:25:51 +0530
-Message-Id: <1436424952-29680-1-git-send-email-vaibhav.hiremath@linaro.org>
+        Fri, 03 Jul 2015 16:15:41 -0700 (PDT)
+Received: by mail-wi0-x233.google.com with SMTP id a1so187352664wig.0
+        for <rtc-linux@googlegroups.com>; Fri, 03 Jul 2015 16:15:41 -0700 (PDT)
+From: Philippe Reynes <tremyfr@gmail.com>
+To: a.zummo@towertech.it,
+	alexandre.belloni@free-electrons.com,
+	shawn.guo@linaro.org,
+	kernel@pengutronix.de,
+	linux@arm.linux.org.uk
+Cc: linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org,
+	rtc-linux@googlegroups.com,
+	Philippe Reynes <tremyfr@gmail.com>
+Subject: [rtc-linux] [PATCH v4 0/7] add device tree support for mxc rtc
+Date: Sat,  4 Jul 2015 01:15:13 +0200
+Message-Id: <1435965320-1478-1-git-send-email-tremyfr@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -29,68 +31,43 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Along with DT support, this patch also cleans up the unnecessary
-code around 'rtc_wakeup' initialization.
+This serie add the device tree support for the mxc rtc driver.
+To do this, three steps are required :
+- define two rtc clocks for imx31 and imx35
+- enhance mxc rtc driver to use two clocks (rtc and ipg)
+- add device tree support to mxc rtc driver
 
-Signed-off-by: Chao Xie <chao.xie@marvell.com>
-Signed-off-by: Vaibhav Hiremath <vaibhav.hiremath@linaro.org>
----
- drivers/rtc/rtc-88pm80x.c | 28 +++++++++++++++++-----------
- 1 file changed, 17 insertions(+), 11 deletions(-)
+Changelog:
+v4: (thanks Alexandre Belloni)
+- add prepare_clock for rtc clock
+- split apf27: dt: enable support in two patches
+v3: (thanks Fabio Estevam)
+- fix typo in imx35 clock comment
+v2: (thanks Shawn Guo and Alexandre Belloni)
+- add a second clock to imx35
+- split the add of clock in a separate patches
+- split the dt documentation in a separate patch
 
-diff --git a/drivers/rtc/rtc-88pm80x.c b/drivers/rtc/rtc-88pm80x.c
-index 7df0579..8f66519 100644
---- a/drivers/rtc/rtc-88pm80x.c
-+++ b/drivers/rtc/rtc-88pm80x.c
-@@ -251,17 +251,26 @@ static SIMPLE_DEV_PM_OPS(pm80x_rtc_pm_ops, pm80x_rtc_suspend, pm80x_rtc_resume);
- static int pm80x_rtc_probe(struct platform_device *pdev)
- {
- 	struct pm80x_chip *chip = dev_get_drvdata(pdev->dev.parent);
--	struct pm80x_platform_data *pm80x_pdata =
--				dev_get_platdata(pdev->dev.parent);
--	struct pm80x_rtc_pdata *pdata = NULL;
-+	struct pm80x_rtc_pdata *pdata = dev_get_platdata(&pdev->dev);
- 	struct pm80x_rtc_info *info;
-+	struct device_node *node = pdev->dev.of_node;
- 	struct rtc_time tm;
- 	unsigned long ticks = 0;
- 	int ret;
- 
--	pdata = dev_get_platdata(&pdev->dev);
--	if (pdata == NULL)
--		dev_warn(&pdev->dev, "No platform data!\n");
-+	if (!pdata && !node) {
-+		dev_err(&pdev->dev,
-+			"pm80x-rtc requires platform data or of_node\n");
-+		return -EINVAL;
-+	}
-+
-+	if (!pdata) {
-+		pdata = devm_kzalloc(&pdev->dev, sizeof(*pdata), GFP_KERNEL);
-+		if (!pdata) {
-+			dev_err(&pdev->dev, "failed to allocate memory\n");
-+			return -ENOMEM;
-+		}
-+	}
- 
- 	info =
- 	    devm_kzalloc(&pdev->dev, sizeof(struct pm80x_rtc_info), GFP_KERNEL);
-@@ -327,11 +336,8 @@ static int pm80x_rtc_probe(struct platform_device *pdev)
- 	regmap_update_bits(info->map, PM800_RTC_CONTROL, PM800_RTC1_USE_XO,
- 			   PM800_RTC1_USE_XO);
- 
--	if (pm80x_pdata) {
--		pdata = pm80x_pdata->rtc;
--		if (pdata)
--			info->rtc_dev->dev.platform_data = &pdata->rtc_wakeup;
--	}
-+	/* remeber whether this power up is caused by PMIC RTC or not */
-+	info->rtc_dev->dev.platform_data = &pdata->rtc_wakeup;
- 
- 	device_init_wakeup(&pdev->dev, 1);
- 
+Philippe Reynes (7):
+  imx31: add a second rtc clock
+  imx35: define two clocks for rtc
+  rtc: mxc: use a second rtc clock
+  rtc: mxc: add support of device tree
+  dt-binding: document the binding for mxc rtc
+  imx27: dt: add support of internal rtc
+  apf27: dt: enable support of internal rtc
+
+ Documentation/devicetree/bindings/rtc/rtc-mxc.txt |   27 +++++++++
+ arch/arm/boot/dts/imx27-apf27.dts                 |    4 ++
+ arch/arm/boot/dts/imx27.dtsi                      |   10 ++++
+ drivers/clk/imx/clk-imx31.c                       |    3 +-
+ drivers/clk/imx/clk-imx35.c                       |    6 ++-
+ drivers/rtc/rtc-mxc.c                             |   60 ++++++++++++++++-----
+ 6 files changed, 94 insertions(+), 16 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/rtc/rtc-mxc.txt
+
 -- 
-1.9.1
+1.7.4.4
 
 -- 
 -- 
