@@ -1,22 +1,21 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBV654WWQKGQE5RPWLTY@googlegroups.com>
+Return-Path: <rtc-linux+bncBDULZYNR2QMRBMGL4CWAKGQEQJOV2IA@googlegroups.com>
 MIME-Version: 1.0
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id v8si4046wiw.1.2015.07.29.17.24.54
-        for <rtc-linux@googlegroups.com>;
-        Wed, 29 Jul 2015 17:24:54 -0700 (PDT)
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Nicolas Ferre <nicolas.ferre@atmel.com>
-Cc: Boris Brezillon <boris.brezillon@free-electrons.com>,
-	linux-arm-kernel@lists.infradead.org,
+Received: from mail-qk0-x22c.google.com (mail-qk0-x22c.google.com. [2607:f8b0:400d:c09::22c])
+        by gmr-mx.google.com with ESMTPS id j14si895283ywa.5.2015.07.04.11.27.59
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Sat, 04 Jul 2015 11:27:59 -0700 (PDT)
+Received: by mail-qk0-x22c.google.com with SMTP id i195so91987156qke.3
+        for <rtc-linux@googlegroups.com>; Sat, 04 Jul 2015 11:27:59 -0700 (PDT)
+From: Fabio Estevam <festevam@gmail.com>
+To: alexandre.belloni@free-electrons.com
+Cc: gregory.clement@free-electrons.com,
 	rtc-linux@googlegroups.com,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	linux-kernel@vger.kernel.org,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Subject: [rtc-linux] [PATCH 5/5] rtc: at91rm9200: sort headers alphabetically
-Date: Thu, 30 Jul 2015 02:24:32 +0200
-Message-Id: <1438215872-27794-5-git-send-email-alexandre.belloni@free-electrons.com>
-In-Reply-To: <1438215872-27794-1-git-send-email-alexandre.belloni@free-electrons.com>
-References: <1438215872-27794-1-git-send-email-alexandre.belloni@free-electrons.com>
+	Fabio Estevam <fabio.estevam@freescale.com>
+Subject: [rtc-linux] [PATCH] drivers/rtc/rtc-armada38x: Remove unused variable
+ from armada38x_rtc_set_time()
+Date: Sat,  4 Jul 2015 15:27:34 -0300
+Message-Id: <1436034454-10473-1-git-send-email-festevam@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -28,49 +27,32 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Sort included headers alphabetically.
+From: Fabio Estevam <fabio.estevam@freescale.com>
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Remove the 'flags' variable in order to fix the following warning:
+
+drivers/rtc/rtc-armada38x.c:91:22: warning: unused variable 'flags' [-Wunused-variable]
+
+Signed-off-by: Fabio Estevam <fabio.estevam@freescale.com>
 ---
- drivers/rtc/rtc-at91rm9200.c | 16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ drivers/rtc/rtc-armada38x.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/rtc/rtc-at91rm9200.c b/drivers/rtc/rtc-at91rm9200.c
-index 8093d9e50619..cb62e214b52a 100644
---- a/drivers/rtc/rtc-at91rm9200.c
-+++ b/drivers/rtc/rtc-at91rm9200.c
-@@ -18,21 +18,21 @@
-  *
-  */
+diff --git a/drivers/rtc/rtc-armada38x.c b/drivers/rtc/rtc-armada38x.c
+index 4b62d1a..2b08cac 100644
+--- a/drivers/rtc/rtc-armada38x.c
++++ b/drivers/rtc/rtc-armada38x.c
+@@ -88,7 +88,7 @@ static int armada38x_rtc_set_time(struct device *dev, struct rtc_time *tm)
+ {
+ 	struct armada38x_rtc *rtc = dev_get_drvdata(dev);
+ 	int ret = 0;
+-	unsigned long time, flags;
++	unsigned long time;
  
--#include <linux/module.h>
--#include <linux/kernel.h>
--#include <linux/platform_device.h>
--#include <linux/time.h>
--#include <linux/rtc.h>
- #include <linux/bcd.h>
- #include <linux/clk.h>
-+#include <linux/completion.h>
- #include <linux/interrupt.h>
--#include <linux/spinlock.h>
- #include <linux/ioctl.h>
--#include <linux/completion.h>
- #include <linux/io.h>
--#include <linux/of.h>
-+#include <linux/kernel.h>
-+#include <linux/module.h>
- #include <linux/of_device.h>
-+#include <linux/of.h>
-+#include <linux/platform_device.h>
-+#include <linux/rtc.h>
-+#include <linux/spinlock.h>
- #include <linux/suspend.h>
-+#include <linux/time.h>
- #include <linux/uaccess.h>
+ 	ret = rtc_tm_to_time(tm, &time);
  
- #include "rtc-at91rm9200.h"
 -- 
-2.1.4
+1.9.1
 
 -- 
 -- 
