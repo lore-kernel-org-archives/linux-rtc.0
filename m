@@ -1,22 +1,20 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBZHQY6WQKGQEESDMYJY@googlegroups.com>
+Return-Path: <rtc-linux+bncBDJMJGESWAMRB5WX4CWAKGQEPICJJHI@googlegroups.com>
 Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id v8si239583wiw.1.2015.07.24.01.33.40
+        by gmr-mx.google.com with ESMTP id da3si742456wib.1.2015.07.04.11.54.45
         for <rtc-linux@googlegroups.com>;
-        Fri, 24 Jul 2015 01:33:40 -0700 (PDT)
-Date: Fri, 24 Jul 2015 10:33:39 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Roosen Henri <Henri.Roosen@ginzinger.com>
-Cc: "rtc-linux@googlegroups.com" <rtc-linux@googlegroups.com>,
-	"a.zummo@towertech.it" <a.zummo@towertech.it>
-Subject: [rtc-linux] Re: [PATCH] rtc: rtc-rx8025: remove obsolete
- local_irq_disable() and local_irq_enable() for rtc_update_irq()
-Message-ID: <20150724083339.GG14893@piout.net>
-References: <FC629F1A536C6F42B960B5E32E20BD35922297@exc2.buero.ginzinger.com>
- <20150722220529.GQ2853@piout.net>
- <FC629F1A536C6F42B960B5E32E20BD35922388@exc2.buero.ginzinger.com>
+        Sat, 04 Jul 2015 11:54:45 -0700 (PDT)
+Message-ID: <55982BF4.3020303@free-electrons.com>
+Date: Sat, 04 Jul 2015 20:54:44 +0200
+From: Gregory CLEMENT <gregory.clement@free-electrons.com>
 MIME-Version: 1.0
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+CC: Fabio Estevam <festevam@gmail.com>, rtc-linux@googlegroups.com,
+ Fabio Estevam <fabio.estevam@freescale.com>
+Subject: [rtc-linux] Re: [PATCH] drivers/rtc/rtc-armada38x: Remove unused
+ variable from armada38x_rtc_set_time()
+References: <1436034454-10473-1-git-send-email-festevam@gmail.com> <20150704184216.GA5497@piout.net>
+In-Reply-To: <20150704184216.GA5497@piout.net>
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <FC629F1A536C6F42B960B5E32E20BD35922388@exc2.buero.ginzinger.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -27,24 +25,57 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Hi,
+Hi Alexandre,
 
-On 24/07/2015 at 08:14:58 +0000, Roosen Henri wrote :
-> >
-> > Seems good to me, I had a similar cleanup that I didn't send yet. do you have
-> > an rx8025? I have more cleanups and I can't test them.
-> >
+On 04/07/2015 20:42, Alexandre Belloni wrote:
+> Hi Fabio,
 > 
-> Unfortunately I don't have a rx8025. But I have a system with a rx8803. The manufacturer is providing a driver which is derived from the rx8025 driver.
+> On 04/07/2015 at 15:27:34 -0300, Fabio Estevam wrote :
+>> From: Fabio Estevam <fabio.estevam@freescale.com>
+>>
+>> Remove the 'flags' variable in order to fix the following warning:
+>>
+>> drivers/rtc/rtc-armada38x.c:91:22: warning: unused variable 'flags' [-Wunused-variable]
+>>
 > 
+> Thank you but I'm pretty sure that one is fixed (that is the fourth
+> patch to do so) ;)
 
-Ok, my cleanup is then adding support for the rx8803. The provided
-driver is actually really bad. I'll submit this weekend.
+Well, it should be fixed however none of the patch sent were merged in Linus tree yet...
+
+Thanks,
+
+Gregory
+
+> 
+>> Signed-off-by: Fabio Estevam <fabio.estevam@freescale.com>
+>> ---
+>>  drivers/rtc/rtc-armada38x.c | 2 +-
+>>  1 file changed, 1 insertion(+), 1 deletion(-)
+>>
+>> diff --git a/drivers/rtc/rtc-armada38x.c b/drivers/rtc/rtc-armada38x.c
+>> index 4b62d1a..2b08cac 100644
+>> --- a/drivers/rtc/rtc-armada38x.c
+>> +++ b/drivers/rtc/rtc-armada38x.c
+>> @@ -88,7 +88,7 @@ static int armada38x_rtc_set_time(struct device *dev, struct rtc_time *tm)
+>>  {
+>>  	struct armada38x_rtc *rtc = dev_get_drvdata(dev);
+>>  	int ret = 0;
+>> -	unsigned long time, flags;
+>> +	unsigned long time;
+>>  
+>>  	ret = rtc_tm_to_time(tm, &time);
+>>  
+>> -- 
+>> 1.9.1
+>>
+> 
 
 
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
+Gregory Clement, Free Electrons
+Kernel, drivers, real-time and embedded Linux
+development, consulting, training and support.
 http://free-electrons.com
 
 -- 
