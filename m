@@ -1,26 +1,33 @@
-Return-Path: <rtc-linux+bncBAABBEFKYSWQKGQE3POADSA@googlegroups.com>
-Received: from mail1.bemta5.messagelabs.com (mail1.bemta5.messagelabs.com. [195.245.231.138])
-        by gmr-mx.google.com with ESMTPS id cj6si900472wib.1.2015.07.23.09.23.43
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 23 Jul 2015 09:23:43 -0700 (PDT)
-Message-ID: <cover.1437668261.git.stwiss.opensource@diasemi.com>
-From: S Twiss <stwiss.opensource@diasemi.com>
-Date: Thu, 23 Jul 2015 17:17:41 +0100
-Subject: [rtc-linux] [PATCH V3 0/3]  da9062: Add DA9062 OnKey support using
- the existing DA9063 OnKey driver
-To: DEVICETREE <devicetree@vger.kernel.org>, Dmitry Torokhov
-	<dmitry.torokhov@gmail.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>,
-	Kumar Gala <galak@codeaurora.org>, LINUXINPUT <linux-input@vger.kernel.org>,
-	LINUXKERNEL <linux-kernel@vger.kernel.org>, Lee Jones <lee.jones@linaro.org>,
-	Mark Rutland <mark.rutland@arm.com>, Pawel Moll <pawel.moll@arm.com>,
-	RTCLINUX <rtc-linux@googlegroups.com>, Rob Herring <robh+dt@kernel.org>, S
- Twiss <stwiss.opensource@diasemi.com>, Samuel Ortiz <sameo@linux.intel.com>
-CC: David Dajun Chen <david.chen@diasemi.com>, Support Opensource
-	<support.opensource@diasemi.com>
+Return-Path: <rtc-linux+bncBCAJFDXE4QGBBD4E5CWAKGQE5KSJCCI@googlegroups.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Received: from mail-pa0-x229.google.com (mail-pa0-x229.google.com. [2607:f8b0:400e:c03::229])
+        by gmr-mx.google.com with ESMTPS id fv10si1716920pac.2.2015.07.05.21.20.31
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Sun, 05 Jul 2015 21:20:31 -0700 (PDT)
+Received: by mail-pa0-x229.google.com with SMTP id gz10so14638592pac.3
+        for <rtc-linux@googlegroups.com>; Sun, 05 Jul 2015 21:20:31 -0700 (PDT)
+From: Adrian Huang <adrianhuang0701@gmail.com>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Alessandro Zummo <a.zummo@towertech.it>
+Cc: rtc-linux@googlegroups.com,
+	Borislav Petkov <bp@suse.de>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	John Stultz <john.stultz@linaro.org>,
+	Egbert Eich <eich@suse.com>,
+	Diego Ercolani <diego.ercolani@gmail.com>,
+	Nagananda Chumbalkar <nchumbalkar@lenovo.com>,
+	Max Asbock <amax@lenovo.com>,
+	Adrian Huang <ahuang12@lenovo.com>,
+	Adrian Huang <adrianhuang0701@gmail.com>
+Subject: [rtc-linux] [RFC PATCH v4 1/2] rtc-cmos: Cancel alarm timer if alarm
+ time is equal to now+1 seconds
+Date: Mon,  6 Jul 2015 12:19:12 +0800
+Message-Id: <1436156353-3599-2-git-send-email-adrianhuang0701@gmail.com>
+In-Reply-To: <1436156353-3599-1-git-send-email-adrianhuang0701@gmail.com>
+References: <1436156353-3599-1-git-send-email-adrianhuang0701@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -30,70 +37,174 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-From: S Twiss <stwiss.opensource@diasemi.com>
+Steps to reproduce the problem:
+	1) Enable RTC wake-up option in BIOS Setup
+	2) Issue one of these commands in the OS: "poweroff"
+	   or "shutdown -h now"
+	3) System will shut down and then reboot automatically
 
-This patch set adds OnKey support for the Dialog DA9062 Power Management IC.
-Changes are made to the existing DA9063 OnKey component so that functionality
-in this device driver can be re-used to support the DA9062 OnKey.
+Root-cause of the issue:
+	1) During the shutdown process, the hwclock utility is used
+	   to save the system clock to hardware clock (RTC).
+	2) The hwclock utility invokes ioctl() with RTC_UIE_ON. The
+	   kernel configures the RTC alarm for the periodic interrupt
+	   (every 1 second).
+	3) The hwclock uitlity closes the /dev/rtc0 device, and the
+	   kernel disables the RTC alarm irq (AIE bit of Register B)
+	   via ioctl() with RTC_UIE_OFF. But, the configured alarm
+	   time is the current_time + 1.
+	4) After the next 1 second is elapsed, the AF (alarm
+	   interrupt flag) of Register C is set.
+	5) The S5 handler in BIOS is invoked to configure alarm
+	   registers (enable AIE bit and configure alarm date/time).
+	   But, BIOS does not clear the previous interrupt status
+	   during alarm configuration. Therefore, "AF=AIE=1" causes
+	   the rtc device to trigger an interrupt.
+	6) So, the machine reboots automatically right after shutdown.
 
-This following patch set re-uses the existing kernel OnKey driver for chips
-whose OnKey blocks are functionally similar to the DA9063 OnKey.
+This patch cancels the alarm timer if the following condictions are
+met (suggested by Alexandre):
+	1) The configured alarm time is equal to current_time + 1
+	   seconds.
+	2) The AIE timer is not in use.
 
-The main points for the MFD core and device tree changes are as follows.
+The member 'alarm_expires' is introduced in struct cmos_rtc because
+of the following reasons:
+	1) The configured alarm time can be retrieved from
+	   cmos_read_alarm(), but we need to take the 'wrapped
+	   timestamp' and 'time rollover' into consideration. The
+	   function __rtc_read_alarm() eliminates the concerns. To
+	   avoid the duplicated code in the lower level RTC driver,
+	   invoking __rtc_read_alarm from the lower level RTC driver
+	   is not encouraged. Moreover, the compilation error 'the
+	   undefined __rtc_read_alarm" is observed if the lower level
+	   RTC driver is compiled as a kernel module.
+	2) The uie_rtctimer.node.expires and aie_timer.node.expires can
+	   be retrieved for the configured alarm time. But, the problem
+	   is that either of them might configure the CMOS alarm time.
+	   We cannot make sure UIE timer or AIE tiemr configured the
+	   CMOS alarm time before. (uie_rtctimer or aie_timer is enabled
+	   and then is disabled).
+	3) The patch introduces the member 'alarm_expires' to keep the
+	   newly configured alarm time, so the above-mentioned concerns
+	   can be eliminated.
 
-- Alteration of the DA9063 OnKey Kconfig needs to be updated to depend on
-  both MFD_DA9063 "or" MFD_DA9062. There is no explicit DA9062 OnKey Kconfig.
-- The DA9062 MFD core should add a new OnKey resource as usual and an entry
-  in the mfd_cell to support a component name and of_compatible for
-  "da9062-onkey" and "dlg,da9062-onkey".
-- The device tree binding support should include a compatible string for
-  "dlg,da9062-onkey"
+The issue goes away after 20-time shutdown tests.
 
-The main points for the OnKey changes are as follows:
+Signed-off-by: Adrian Huang <ahuang12@lenovo.com>
+Tested-by: Egbert Eich <eich@suse.de>
+Tested-by: Diego Ercolani <diego.ercolani@gmail.com>
+Cc: Borislav Petkov <bp@suse.de>
+---
+ drivers/rtc/rtc-cmos.c | 65 ++++++++++++++++++++++++++++++++++++++++++++++----
+ 1 file changed, 61 insertions(+), 4 deletions(-)
 
-A generic structure is used (called da906x_chip_config) to hold all generic
-registers and bitmasks for use with this type of OnKey component.
-
-Functions in the DA9063 OnKey will be refactored to use this compatibility
-struct and all accesses to generic registers/masks will be made through
-this table look-up instead of using defines from the register header files
-directly
-
-Linkage between the DA9062 MFD and the DA9063 OnKey driver is created through
-the use of an of_match_table entry in the platform_driver structure.
-A re-work of da9063_onkey_probe() is necessary to use the of_match_node() and
-dev_get_regmap() functions: this will provide initialisation of the generic
-registers and masks and allow access to the regmap according to the correct
-device tree specification.
-
-The addition of a of_device_id table for DA9063 and DA9062 default data
-is created. 
-
-In this patch set the following is provided:
- - [PATCH V3 1/3]: MFD changes in DA9062 to support OnKey
- - [PATCH V3 2/3]: Update existing DA9063 OnKey to add DA9062 support
- - [PATCH V3 3/3]: Device tree bindings for DA9062 OnKey component
-
-This patch applies against linux-next and next-20150708 
-
-Thank you,
-Steve Twiss, Dialog Semiconductor Ltd.
-
-S Twiss (3):
-  mfd: da9062: Support for the DA9063 OnKey in the DA9062 core
-  onkey: da9063: Add DA9062 OnKey capability to DA9063 OnKey driver
-  devicetree: da9062: Add device tree bindings for DA9062 OnKey
-
- .../devicetree/bindings/input/da9062-onkey.txt     |  36 ++++++
- Documentation/devicetree/bindings/mfd/da9062.txt   |   3 +
- drivers/input/misc/Kconfig                         |   8 +-
- drivers/input/misc/da9063_onkey.c                  | 129 +++++++++++++++++----
- drivers/mfd/da9062-core.c                          |  11 ++
- 5 files changed, 158 insertions(+), 29 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/input/da9062-onkey.txt
-
+diff --git a/drivers/rtc/rtc-cmos.c b/drivers/rtc/rtc-cmos.c
+index a82556a..f8900aa 100644
+--- a/drivers/rtc/rtc-cmos.c
++++ b/drivers/rtc/rtc-cmos.c
+@@ -51,6 +51,7 @@ struct cmos_rtc {
+ 	struct device		*dev;
+ 	int			irq;
+ 	struct resource		*iomem;
++	time64_t		alarm_expires;
+ 
+ 	void			(*wake_on)(struct device *);
+ 	void			(*wake_off)(struct device *);
+@@ -377,6 +378,8 @@ static int cmos_set_alarm(struct device *dev, struct rtc_wkalrm *t)
+ 
+ 	spin_unlock_irq(&rtc_lock);
+ 
++	cmos->alarm_expires = rtc_tm_to_time64(&t->time);
++
+ 	return 0;
+ }
+ 
+@@ -860,6 +863,52 @@ static void __exit cmos_do_remove(struct device *dev)
+ 	cmos->dev = NULL;
+ }
+ 
++static int cmos_aie_poweroff(struct device *dev)
++{
++	struct cmos_rtc	*cmos = dev_get_drvdata(dev);
++	struct rtc_time now;
++	time64_t t_now;
++	int retval = 0;
++	unsigned char rtc_control;
++
++	if (!cmos->alarm_expires)
++		return -EINVAL;
++
++	spin_lock_irq(&rtc_lock);
++	rtc_control = CMOS_READ(RTC_CONTROL);
++	spin_unlock_irq(&rtc_lock);
++
++	/* We only care about the situation where AIE is disabled. */
++	if (rtc_control & RTC_AIE)
++		return -EBUSY;
++
++	cmos_read_time(dev, &now);
++	t_now = rtc_tm_to_time64(&now);
++
++	/*
++	 * When enabling "RTC wake-up" in BIOS setup, the machine reboots
++	 * automatically right after shutdown on some buggy boxes.
++	 * This automatic rebooting issue won't happen when the alarm
++	 * time is larger than now+1 seconds.
++	 *
++	 * If the alarm time is equal to now+1 seconds, the issue can be
++	 * prevented by cancelling the alarm.
++	 */
++	if (cmos->alarm_expires == t_now + 1) {
++		struct rtc_wkalrm alarm;
++		int err;
++
++		/* Cancel the AIE timer by configuring the past time. */
++		rtc_time64_to_tm(t_now - 1, &alarm.time);
++		alarm.enabled = 0;
++		retval = cmos_set_alarm(dev, &alarm);
++	} else if (cmos->alarm_expires > t_now + 1) {
++		retval = -EBUSY;
++	}
++
++	return retval;
++}
++
+ #ifdef CONFIG_PM
+ 
+ static int cmos_suspend(struct device *dev)
+@@ -1094,8 +1143,12 @@ static void cmos_pnp_shutdown(struct pnp_dev *pnp)
+ 	struct device *dev = &pnp->dev;
+ 	struct cmos_rtc	*cmos = dev_get_drvdata(dev);
+ 
+-	if (system_state == SYSTEM_POWER_OFF && !cmos_poweroff(dev))
+-		return;
++	if (system_state == SYSTEM_POWER_OFF) {
++		int retval = cmos_poweroff(dev);
++
++		if (cmos_aie_poweroff(dev) < 0 && !retval)
++			return;
++	}
+ 
+ 	cmos_do_shutdown(cmos->irq);
+ }
+@@ -1200,8 +1253,12 @@ static void cmos_platform_shutdown(struct platform_device *pdev)
+ 	struct device *dev = &pdev->dev;
+ 	struct cmos_rtc	*cmos = dev_get_drvdata(dev);
+ 
+-	if (system_state == SYSTEM_POWER_OFF && !cmos_poweroff(dev))
+-		return;
++	if (system_state == SYSTEM_POWER_OFF) {
++		int retval = cmos_poweroff(dev);
++
++		if (cmos_aie_poweroff(dev) < 0 && !retval)
++			return;
++	}
+ 
+ 	cmos_do_shutdown(cmos->irq);
+ }
 -- 
-end-of-patch for PATCH V3
+1.9.1
 
 -- 
 -- 
