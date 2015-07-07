@@ -1,30 +1,40 @@
-Return-Path: <rtc-linux+bncBCRIZROPVQPBBSFH5WWQKGQEGOHWQDA@googlegroups.com>
-MIME-Version: 1.0
-Received: from mail-pd0-f177.google.com (mail-pd0-f177.google.com. [209.85.192.177])
-        by gmr-mx.google.com with ESMTPS id ff6si714345pac.2.2015.07.31.03.54.00
+Return-Path: <rtc-linux+bncBDA7X7F2WUEBBNXW52WAKGQEN7QYMOI@googlegroups.com>
+Received: from mail-wi0-f169.google.com (mail-wi0-f169.google.com. [209.85.212.169])
+        by gmr-mx.google.com with ESMTPS id gt9si1156204wib.2.2015.07.07.04.42.46
         for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 31 Jul 2015 03:54:00 -0700 (PDT)
-Received: by pdjr16 with SMTP id r16so41930926pdj.3
-        for <rtc-linux@googlegroups.com>; Fri, 31 Jul 2015 03:54:00 -0700 (PDT)
-From: Viresh Kumar <viresh.kumar@linaro.org>
-To: akpm@linux-foundation.org
-Cc: linaro-kernel@lists.linaro.org,
-	linux-kernel@vger.kernel.org,
-	Viresh Kumar <viresh.kumar@linaro.org>,
-	adi-buildroot-devel@lists.sourceforge.net (moderated list:BLACKFIN RTC DRIVER),
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 07 Jul 2015 04:42:46 -0700 (PDT)
+Received: by wiga1 with SMTP id a1so254112385wig.0
+        for <rtc-linux@googlegroups.com>; Tue, 07 Jul 2015 04:42:46 -0700 (PDT)
+Date: Tue, 7 Jul 2015 12:42:41 +0100
+From: Lee Jones <lee.jones@linaro.org>
+To: S Twiss <stwiss.opensource@diasemi.com>
+Cc: DEVICETREE <devicetree@vger.kernel.org>,
+	Ian Campbell <ijc+devicetree@hellion.org.uk>,
+	Kumar Gala <galak@codeaurora.org>,
+	LINUXKERNEL <linux-kernel@vger.kernel.org>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Pawel Moll <pawel.moll@arm.com>, Rob Herring <robh+dt@kernel.org>,
 	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Hans Ulli Kroll <ulli.kroll@googlemail.com>,
-	linux-arm-kernel@lists.infradead.org (moderated list:ARM/CORTINA SYSTEMS GEMINI ARM ARCHITECTURE),
-	rtc-linux@googlegroups.com (open list:REAL TIME CLOCK (RTC) SUBSYSTEM)
-Subject: [rtc-linux] [PATCH 9/15 V2] drivers: rtc: Drop (un)likely before IS_ERR(_OR_NULL)
-Date: Fri, 31 Jul 2015 16:23:43 +0530
-Message-Id: <b8be698a8625ceb9adc8da51cd9474626db7c3d1.1438339891.git.viresh.kumar@linaro.org>
-In-Reply-To: <cdfa3fb76901fe1c4a5756e7e64cb3370cf6317a.1438331416.git.viresh.kumar@linaro.org>
-References: <cdfa3fb76901fe1c4a5756e7e64cb3370cf6317a.1438331416.git.viresh.kumar@linaro.org>
-Reply-To: rtc-linux@googlegroups.com
+	David Dajun Chen <david.chen@diasemi.com>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	LINUXINPUT <linux-input@vger.kernel.org>,
+	LINUXWATCHDOG <linux-watchdog@vger.kernel.org>,
+	Liam Girdwood <lgirdwood@gmail.com>,
+	Mark Brown <broonie@kernel.org>,
+	RTCLINUX <rtc-linux@googlegroups.com>,
+	Samuel Ortiz <sameo@linux.intel.com>,
+	Support Opensource <support.opensource@diasemi.com>,
+	Wim Van Sebroeck <wim@iguana.be>
+Subject: [rtc-linux] Re: [PATCH V5 2/2] devicetree: da9062: Add bindings for
+ DA9062 driver
+Message-ID: <20150707114241.GW3182@x1>
+References: <cover.1435756293.git.stwiss.opensource@diasemi.com>
+ <f7d3b86530f871549159fed1fd0519375997a2af.1435756293.git.stwiss.opensource@diasemi.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <f7d3b86530f871549159fed1fd0519375997a2af.1435756293.git.stwiss.opensource@diasemi.com>
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -34,74 +44,149 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-IS_ERR(_OR_NULL) already contain an 'unlikely' compiler flag and there
-is no need to do that again from its callers. Drop it.
+On Wed, 01 Jul 2015, S Twiss wrote:
 
-gemini driver was using likely() for a failure case while the rtc driver
-is getting registered. That looks wrong and it should really be
-unlikely. But because we are killing all the unlikely() flags, lets kill
-that too.
+> From: S Twiss <stwiss.opensource@diasemi.com>
+>=20
+> Add device tree bindings for the DA9062 driver
+>=20
+> Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
+>=20
+> ---
+> Changes in V5:
+>  - No change
+>=20
+> Changes in V4:
+>  - No change
+>=20
+> Changes in V3:
+>  - No change
+> =20
+> Changes in V2:
+>  - Dropped the RTC and Onkey binding information in this patch-set
+>    Those drivers have been dropped from this patch set and the
+>    binding information has been removed accordingly.
+>=20
+> This patch applies against linux-next and next-20150701=20
+>=20
+>=20
+>=20
+>  Documentation/devicetree/bindings/mfd/da9062.txt | 79 ++++++++++++++++++=
+++++++
+>  1 file changed, 79 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/mfd/da9062.txt
 
-Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
----
-V1->V2:
-- Removed the likely() part from gemini driver and the changelog wasn't
-  updated to match that. Fixed the changelog now.
+Applied, thanks.
 
- drivers/rtc/interface.c  | 2 +-
- drivers/rtc/rtc-bfin.c   | 2 +-
- drivers/rtc/rtc-gemini.c | 2 +-
- 3 files changed, 3 insertions(+), 3 deletions(-)
+> diff --git a/Documentation/devicetree/bindings/mfd/da9062.txt b/Documenta=
+tion/devicetree/bindings/mfd/da9062.txt
+> new file mode 100644
+> index 0000000..5765ed9
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/mfd/da9062.txt
+> @@ -0,0 +1,79 @@
+> +* Dialog DA9062 Power Management Integrated Circuit (PMIC)
+> +
+> +DA9062 consists of a large and varied group of sub-devices:
+> +
+> +Device                   Supply Names    Description
+> +------                   ------------    -----------
+> +da9062-regulator        :               : LDOs & BUCKs
+> +da9062-watchdog         :               : Watchdog Timer
+> +
+> +=3D=3D=3D=3D=3D=3D
+> +
+> +Required properties:
+> +
+> +- compatible : Should be "dlg,da9062".
+> +- reg : Specifies the I2C slave address (this defaults to 0x58 but it ca=
+n be
+> +  modified to match the chip's OTP settings).
+> +- interrupt-parent : Specifies the reference to the interrupt controller=
+ for
+> +  the DA9062.
+> +- interrupts : IRQ line information.
+> +- interrupt-controller
+> +
+> +See Documentation/devicetree/bindings/interrupt-controller/interrupts.tx=
+t for
+> +further information on IRQ bindings.
+> +
+> +Sub-nodes:
+> +
+> +- regulators : This node defines the settings for the LDOs and BUCKs. Th=
+e
+> +  DA9062 regulators are bound using their names listed below:
+> +
+> +    buck1    : BUCK_1
+> +    buck2    : BUCK_2
+> +    buck3    : BUCK_3
+> +    buck4    : BUCK_4
+> +    ldo1     : LDO_1
+> +    ldo2     : LDO_2
+> +    ldo3     : LDO_3
+> +    ldo4     : LDO_4
+> +
+> +  The component follows the standard regulator framework and the binding=
+s
+> +  details of individual regulator device can be found in:
+> +  Documentation/devicetree/bindings/regulator/regulator.txt
+> +
+> +
+> +- watchdog: This node defines the settings for the watchdog driver assoc=
+iated
+> +  with the DA9062 PMIC. The compatible =3D "dlg,da9062-watchdog" should =
+be added
+> +  if a node is created.
+> +
+> +
+> +Example:
+> +
+> +	pmic0: da9062@58 {
+> +		compatible =3D "dlg,da9062";
+> +		reg =3D <0x58>;
+> +		interrupt-parent =3D <&gpio6>;
+> +		interrupts =3D <11 IRQ_TYPE_LEVEL_LOW>;
+> +		interrupt-controller;
+> +
+> +		watchdog {
+> +			compatible =3D "dlg,da9062-watchdog";
+> +		};
+> +
+> +		regulators {
+> +			DA9062_BUCK1: buck1 {
+> +				regulator-name =3D "BUCK1";
+> +				regulator-min-microvolt =3D <300000>;
+> +				regulator-max-microvolt =3D <1570000>;
+> +				regulator-min-microamp =3D <500000>;
+> +				regulator-max-microamp =3D <2000000>;
+> +				regulator-boot-on;
+> +			};
+> +			DA9062_LDO1: ldo1 {
+> +				regulator-name =3D "LDO_1";
+> +				regulator-min-microvolt =3D <900000>;
+> +				regulator-max-microvolt =3D <3600000>;
+> +				regulator-boot-on;
+> +			};
+> +		};
+> +	};
+> +
 
-diff --git a/drivers/rtc/interface.c b/drivers/rtc/interface.c
-index 11b639067312..5836751b8203 100644
---- a/drivers/rtc/interface.c
-+++ b/drivers/rtc/interface.c
-@@ -564,7 +564,7 @@ enum hrtimer_restart rtc_pie_update_irq(struct hrtimer *timer)
- void rtc_update_irq(struct rtc_device *rtc,
- 		unsigned long num, unsigned long events)
- {
--	if (unlikely(IS_ERR_OR_NULL(rtc)))
-+	if (IS_ERR_OR_NULL(rtc))
- 		return;
- 
- 	pm_stay_awake(rtc->dev.parent);
-diff --git a/drivers/rtc/rtc-bfin.c b/drivers/rtc/rtc-bfin.c
-index 3d44b11721ea..535a5f9338d0 100644
---- a/drivers/rtc/rtc-bfin.c
-+++ b/drivers/rtc/rtc-bfin.c
-@@ -361,7 +361,7 @@ static int bfin_rtc_probe(struct platform_device *pdev)
- 	/* Register our RTC with the RTC framework */
- 	rtc->rtc_dev = devm_rtc_device_register(dev, pdev->name, &bfin_rtc_ops,
- 						THIS_MODULE);
--	if (unlikely(IS_ERR(rtc->rtc_dev)))
-+	if (IS_ERR(rtc->rtc_dev))
- 		return PTR_ERR(rtc->rtc_dev);
- 
- 	/* Grab the IRQ and init the hardware */
-diff --git a/drivers/rtc/rtc-gemini.c b/drivers/rtc/rtc-gemini.c
-index 35f4486738fc..2fed93e1114a 100644
---- a/drivers/rtc/rtc-gemini.c
-+++ b/drivers/rtc/rtc-gemini.c
-@@ -148,7 +148,7 @@ static int gemini_rtc_probe(struct platform_device *pdev)
- 
- 	rtc->rtc_dev = rtc_device_register(pdev->name, dev,
- 					   &gemini_rtc_ops, THIS_MODULE);
--	if (likely(IS_ERR(rtc->rtc_dev)))
-+	if (IS_ERR(rtc->rtc_dev))
- 		return PTR_ERR(rtc->rtc_dev);
- 
- 	return 0;
--- 
-2.4.0
+--=20
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org =E2=94=82 Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog
 
--- 
--- 
+--=20
+--=20
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+---=20
+You received this message because you are subscribed to the Google Groups "=
+rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an e=
+mail to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
