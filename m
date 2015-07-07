@@ -1,24 +1,17 @@
-Return-Path: <rtc-linux+bncBAABBAOAXCWQKGQEYUCMUPQ@googlegroups.com>
-Received: from mail1.bemta14.messagelabs.com (mail1.bemta14.messagelabs.com. [193.109.254.116])
-        by gmr-mx.google.com with ESMTPS id t6si521584wiz.0.2015.07.21.03.33.36
+Return-Path: <rtc-linux+bncBAABBBO65WWAKGQE5A6VPGA@googlegroups.com>
+Received: from na01-bl2-obe.outbound.protection.outlook.com (mail-bl2on0131.outbound.protection.outlook.com. [65.55.169.131])
+        by gmr-mx.google.com with ESMTPS id s127si2237415ywc.6.2015.07.06.23.17.40
         for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 21 Jul 2015 03:33:36 -0700 (PDT)
-Message-ID: <cover.1437474547.git.stwiss.opensource@diasemi.com>
-From: S Twiss <stwiss.opensource@diasemi.com>
-Date: Tue, 21 Jul 2015 11:29:07 +0100
-Subject: [rtc-linux] [PATCH V3 0/3]  da9062: Add DA9062 RTC support using the
- existing DA9063 RTC driver
-To: Alessandro Zummo <a.zummo@towertech.it>, Alexandre Belloni
-	<alexandre.belloni@free-electrons.com>, DEVICETREE
-	<devicetree@vger.kernel.org>, Ian Campbell <ijc+devicetree@hellion.org.uk>,
-	Kumar Gala <galak@codeaurora.org>, LINUXINPUT <linux-input@vger.kernel.org>,
-	LINUXKERNEL <linux-kernel@vger.kernel.org>, Lee Jones <lee.jones@linaro.org>,
-	Mark Rutland <mark.rutland@arm.com>, Pawel Moll <pawel.moll@arm.com>,
-	RTCLINUX <rtc-linux@googlegroups.com>, Rob Herring <robh+dt@kernel.org>, S
- Twiss <stwiss.opensource@diasemi.com>, Samuel Ortiz <sameo@linux.intel.com>
-CC: David Dajun Chen <david.chen@diasemi.com>, Support Opensource
-	<support.opensource@diasemi.com>
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
+        Mon, 06 Jul 2015 23:17:40 -0700 (PDT)
+From: Dongsheng Wang <dongsheng.wang@freescale.com>
+To: <a.zummo@towertech.it>
+CC: <alexandre.belloni@free-electrons.com>, <rtc-linux@googlegroups.com>,
+	<linux-kernel@vger.kernel.org>, Wang Dongsheng <dongsheng.wang@freescale.com>
+Subject: [rtc-linux] [PATCH] rtc/ds3232: fix ds3232 get a WARNING trace in
+ resume function
+Date: Tue, 7 Jul 2015 14:12:56 +0800
+Message-ID: <1436249576-23233-1-git-send-email-dongsheng.wang@freescale.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
@@ -31,79 +24,75 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-From: S Twiss <stwiss.opensource@diasemi.com>
+From: Wang Dongsheng <dongsheng.wang@freescale.com>
 
-This patch set adds RTC support for the Dialog DA9062 Power Management IC.
-Changes are made to the existing DA9063 RTC component so that functionality
-in this device driver can be re-used to support the DA9062 RTC.
+If ds3232 work on some platform that is not implementation
+irq_set_wake, ds3232 will get a WARNING trace in resume.
+So fix ds3232->suspended state to false when irq_set_irq_wake
+return error.
 
-This following patch set is the proposed method for re-using existing kernel
-RTC drivers for chips whose RTC blocks are functionally similar to the
-DA9063 RTC.
+------------[ cut here ]------------
+WARNING: CPU: 0 PID: 729 at kernel/irq/manage.c:604
+irq_set_irq_wake+0x4b/0x8c()
+Unbalanced IRQ 201 wake disable
+Modules linked in:
+CPU: 0 PID: 729 Comm: sh Not tainted 3.12.19-rt30+ #25
+[<800107d9>] (unwind_backtrace+0x1/0x88) from [<8000e4ef>]
+(show_stack+0xb/0xc)
+[<8000e4ef>] (show_stack+0xb/0xc) from [<802b5fa9>]
+(dump_stack+0x4d/0x60)
+[<802b5fa9>] (dump_stack+0x4d/0x60) from [<800186dd>]
+(warn_slowpath_common+0x45/0x64)
+[<800186dd>] (warn_slowpath_common+0x45/0x64) from [<80018717>]
+(warn_slowpath_fmt+0x1b/0x24)
+[<80018717>] (warn_slowpath_fmt+0x1b/0x24) from [<8003a8d3>]
+(irq_set_irq_wake+0x4b/0x8c)
+[<8003a8d3>] (irq_set_irq_wake+0x4b/0x8c) from [<80204fcb>]
+(ds3232_resume+0x2d/0x36)
+[<80204fcb>] (ds3232_resume+0x2d/0x36) from [<801954c7>]
+(dpm_run_callback.isra.13+0xb/0x28)
+[<801954c7>] (dpm_run_callback.isra.13+0xb/0x28) from [<80195b1b>]
+(device_resume+0x7b/0xa2)
+[<80195b1b>] (device_resume+0x7b/0xa2) from [<80195f0f>]
+(dpm_resume+0xbb/0x19c)
+[<80195f0f>] (dpm_resume+0xbb/0x19c) from [<801960d9>]
+(dpm_resume_end+0x9/0x12)
+[<801960d9>] (dpm_resume_end+0x9/0x12) from [<80037e1d>]
+(suspend_devices_and_enter+0x17d/0x1d0)
+[<80037e1d>] (suspend_devices_and_enter+0x17d/0x1d0) from [<80037ee1>]
+(pm_suspend+0x71/0x128)
+[<80037ee1>] (pm_suspend+0x71/0x128) from [<80037449>]
+(state_store+0x6d/0x80)
+[<80037449>] (state_store+0x6d/0x80) from [<800af4d5>]
+(sysfs_write_file+0x9f/0xde)
+[<800af4d5>] (sysfs_write_file+0x9f/0xde) from [<8007a437>]
+(vfs_write+0x7b/0x104)
+[<8007a437>] (vfs_write+0x7b/0x104) from [<8007a7f7>]
+(SyS_write+0x27/0x48)
+[<8007a7f7>] (SyS_write+0x27/0x48) from [<8000c121>]
+(ret_fast_syscall+0x1/0x44)
+---[ end trace 640959d2e8de6ccc ]---
 
-There is already a precedence for reuse of this type in the kernel, see
-linux-mainline/v4.1 drivers/rtc/rtc-pm8xxx.c +34
-This patch set will follow that example.
+Signed-off-by: Wang Dongsheng <dongsheng.wang@freescale.com>
 
-The main points for the MFD core and device tree changes are as follows.
-
-- Alteration of the DA9063 RTC Kconfig needs to be updated to depend on
-  both MFD_DA9063 "or" MFD_DA9062. There is no explicit DA9062 RTC Kconfig.
-- The DA9062 MFD core should add a new RTC resource as usual and an entry
-  in the mfd_cell to support a component name and of_compatible for
-  "da9062-rtc" and "dlg,da9062-rtc".
-- The device tree binding support should include a compatible string for
-  "dlg,da9062-rtc"
-
-The main points for the RTC changes are as follows:
-
-A generic structure is used (called da9063_compatible_rtc_regmap) to hold
-all generic registers and bitmasks for use with this type of RTC component.
-
-Functions in the DA9063 RTC will be refactored to use this compatibility
-struct and all accesses to generic registers/masks will be made through
-this table look-up instead of using defines from the register header files
-directly
-
-Linkage between the DA9062 MFD and the DA9063 RTC driver is created through
-the use of an of_match_table entry in the platform_driver structure.
-A re-work of da9063_rtc_probe() is necessary to use the of_match_node() and
-dev_get_regmap() functions: this will provide initialisation of the generic
-registers and masks and allow access to the regmap according to the correct
-device tree specification.
-
-The addition of a of_device_id table for DA9063 and DA9062 default data
-is created. This method of initialisation for the DA9063 RTC component
-works well for different chip types, and is only slightly complicated when
-distinguishing the difference between support for DA9063-AD and DA9063-BB.
-
-In this patch set the following is provided:
- - [PATCH V3 1/3]: MFD changes in DA9062 to support RTC
- - [PATCH V3 2/3]: Device tree bindings for DA9062 RTC component
- - [PATCH V3 3/3]: Update existing DA9063 RTC to add DA9062 support
-
-This patch applies against linux-next and next-20150708 
-
-Thank you,
-Steve Twiss, Dialog Semiconductor Ltd.
-
-Changes in V2:
- - Reorder patches RFC PATCH 3/3 and 2/3 to remove the checkpatch warning
-   > WARNING: DT compatible string "dlg,da9062-rtc" appears un-documented
-
-S Twiss (3):
-  mfd: da9062: Support for the DA9063 RTC in the DA9062 core
-  devicetree: da9062: Add device tree bindings for DA9062 RTC
-  rtc: da9063: Add DA9062 RTC capability to DA9063 RTC driver
-
- Documentation/devicetree/bindings/mfd/da9062.txt |   9 +
- drivers/mfd/da9062-core.c                        |  11 +
- drivers/rtc/Kconfig                              |   6 +-
- drivers/rtc/rtc-da9063.c                         | 391 ++++++++++++++++-------
- 4 files changed, 302 insertions(+), 115 deletions(-)
-
+diff --git a/drivers/rtc/rtc-ds3232.c b/drivers/rtc/rtc-ds3232.c
+index 7e48e53..2081155 100644
+--- a/drivers/rtc/rtc-ds3232.c
++++ b/drivers/rtc/rtc-ds3232.c
+@@ -463,7 +463,10 @@ static int ds3232_suspend(struct device *dev)
+ 
+ 	if (device_can_wakeup(dev)) {
+ 		ds3232->suspended = true;
+-		irq_set_irq_wake(client->irq, 1);
++		if (irq_set_irq_wake(client->irq, 1)) {
++			dev_info(dev, "Cannot serve as a wakeup source\n");
++			ds3232->suspended = false;
++		}
+ 	}
+ 
+ 	return 0;
 -- 
-end-of-patch for PATCH V3
+2.1.0.27.g96db324
 
 -- 
 -- 
