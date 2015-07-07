@@ -1,27 +1,22 @@
-Return-Path: <rtc-linux+bncBDKZNNNLXAHBBQOR7WWAKGQERIIR7WY@googlegroups.com>
-MIME-Version: 1.0
-Received: from mailout1.w1.samsung.com (mailout1.w1.samsung.com. [210.118.77.11])
-        by gmr-mx.google.com with ESMTPS id ra16si857171pac.0.2015.07.09.23.40.00
+Return-Path: <rtc-linux+bncBCQO3K444ANRBLGP5WWAKGQEO5ZZCWA@googlegroups.com>
+Received: from mail-pd0-x22d.google.com (mail-pd0-x22d.google.com. [2607:f8b0:400e:c02::22d])
+        by gmr-mx.google.com with ESMTPS id tq2si2128184pbc.0.2015.07.06.22.46.20
         for <rtc-linux@googlegroups.com>
-        (version=TLSv1 cipher=RC4-SHA bits=128/128);
-        Thu, 09 Jul 2015 23:40:00 -0700 (PDT)
-Received: from eucpsbgm2.samsung.com (unknown [203.254.199.245])
- by mailout1.w1.samsung.com
- (Oracle Communications Messaging Server 7.0.5.31.0 64bit (built May  5 2014))
- with ESMTP id <0NR90042FEIK8M40@mailout1.w1.samsung.com> for
- rtc-linux@googlegroups.com; Fri, 10 Jul 2015 07:39:56 +0100 (BST)
-From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-To: Alessandro Zummo <a.zummo@towertech.it>,
- Alexandre Belloni <alexandre.belloni@free-electrons.com>,
- rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org
-Cc: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-Subject: [rtc-linux] [PATCH 2/2] rtc: Drop owner assignment from platform_driver
-Date: Fri, 10 Jul 2015 15:39:51 +0900
-Message-id: <1436510391-6001-3-git-send-email-k.kozlowski@samsung.com>
-In-reply-to: <1436510391-6001-1-git-send-email-k.kozlowski@samsung.com>
-References: <1436510391-6001-1-git-send-email-k.kozlowski@samsung.com>
-Reply-To: rtc-linux@googlegroups.com
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 06 Jul 2015 22:46:20 -0700 (PDT)
+Received: by pdbep18 with SMTP id ep18so119177664pdb.1
+        for <rtc-linux@googlegroups.com>; Mon, 06 Jul 2015 22:46:20 -0700 (PDT)
+Date: Tue, 7 Jul 2015 11:16:14 +0530
+From: Vaishali Thakkar <vthakkar1994@gmail.com>
+To: Joshua Kinard <kumba@gentoo.org>
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org
+Subject: [rtc-linux] [PATCH] rtc: rtc-ds1685: Use module_platform_driver
+Message-ID: <20150707054614.GA9829@vaishali-Ideapad-Z570>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -31,24 +26,74 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-platform_driver does not need to set an owner because
-platform_driver_register() will set it.
----
- drivers/rtc/rtc-opal.c | 1 -
- 1 file changed, 1 deletion(-)
+Use module_platform_driver for drivers whose init and exit functions
+only register and unregister, respectively.
 
-diff --git a/drivers/rtc/rtc-opal.c b/drivers/rtc/rtc-opal.c
-index 7061dcae2b09..417d7b4a5cd8 100644
---- a/drivers/rtc/rtc-opal.c
-+++ b/drivers/rtc/rtc-opal.c
-@@ -236,7 +236,6 @@ static struct platform_driver opal_rtc_driver = {
- 	.id_table	= opal_rtc_driver_ids,
- 	.driver		= {
- 		.name		= DRVNAME,
--		.owner		= THIS_MODULE,
- 		.of_match_table	= opal_rtc_match,
- 	},
+A simplified version of the Coccinelle semantic patch that performs
+this transformation is as follows:
+
+@a@
+identifier f, x;
+@@
+-static f(...) { return platform_driver_register(&x); }
+
+@b depends on a@
+identifier e, a.x;
+@@
+-static e(...) { platform_driver_unregister(&x); }
+
+@c depends on a && b@
+identifier a.f;
+declarer name module_init;
+@@
+-module_init(f);
+
+@d depends on a && b && c@
+identifier b.e, a.x;
+declarer name module_exit;
+declarer name module_platform_driver;
+@@
+-module_exit(e);
++module_platform_driver(x);
+
+Signed-off-by: Vaishali Thakkar <vthakkar1994@gmail.com>
+---
+ drivers/rtc/rtc-ds1685.c | 22 +---------------------
+ 1 file changed, 1 insertion(+), 21 deletions(-)
+
+diff --git a/drivers/rtc/rtc-ds1685.c b/drivers/rtc/rtc-ds1685.c
+index 818a363..05a51ef 100644
+--- a/drivers/rtc/rtc-ds1685.c
++++ b/drivers/rtc/rtc-ds1685.c
+@@ -2145,27 +2145,7 @@ static struct platform_driver ds1685_rtc_driver = {
+ 	.probe		= ds1685_rtc_probe,
+ 	.remove		= ds1685_rtc_remove,
  };
+-
+-/**
+- * ds1685_rtc_init - rtc module init.
+- */
+-static int __init
+-ds1685_rtc_init(void)
+-{
+-	return platform_driver_register(&ds1685_rtc_driver);
+-}
+-
+-/**
+- * ds1685_rtc_exit - rtc module exit.
+- */
+-static void __exit
+-ds1685_rtc_exit(void)
+-{
+-	platform_driver_unregister(&ds1685_rtc_driver);
+-}
+-
+-module_init(ds1685_rtc_init);
+-module_exit(ds1685_rtc_exit);
++module_platform_driver(ds1685_rtc_driver);
+ /* ----------------------------------------------------------------------- */
+ 
+ 
 -- 
 1.9.1
 
