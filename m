@@ -1,33 +1,25 @@
-Return-Path: <rtc-linux+bncBCAJFDXE4QGBBEHQ46WAKGQEEAMG3EY@googlegroups.com>
-Received: from mail-wg0-x230.google.com (mail-wg0-x230.google.com. [2a00:1450:400c:c00::230])
-        by gmr-mx.google.com with ESMTPS id fj7si514239wib.3.2015.07.05.20.37.52
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sun, 05 Jul 2015 20:37:52 -0700 (PDT)
-Received: by wguu7 with SMTP id u7so128741987wgu.3
-        for <rtc-linux@googlegroups.com>; Sun, 05 Jul 2015 20:37:52 -0700 (PDT)
+Return-Path: <rtc-linux+bncBAABBU4T6OWAKGQE5NLAUII@googlegroups.com>
 MIME-Version: 1.0
-In-Reply-To: <20150703182925.GI2838@pd.tnic>
-References: <1435642598-5073-1-git-send-email-adrianhuang0701@gmail.com>
-	<CAHKZfL0H1mrj8pScggejtFStaA66zX43RZRYQnkYsZ4gVb-ojQ@mail.gmail.com>
-	<CANoYJu=0L7yUfS2Z87OJXc+_+Z6DmQ_oGZvg2AygS_2DTOixxQ@mail.gmail.com>
-	<20150701163946.GA30503@pd.tnic>
-	<CANoYJunhbZB_P97u2Hu=i_u6-Xxk-cbe2FLHQ7skqKQyF10uTw@mail.gmail.com>
-	<20150703182925.GI2838@pd.tnic>
-Date: Mon, 6 Jul 2015 11:37:51 +0800
-Message-ID: <CAHKZfL1TQV6r1-oXV7jZ=HxRRbVPGpEr1ZLfoOnAQ=JG=+7K5Q@mail.gmail.com>
-Subject: [rtc-linux] Re: [RFC PATCH v3 0/2] rtc: Prevent the automatic reboot
- after powering off the system
-From: Huang Adrian <adrianhuang0701@gmail.com>
-To: Borislav Petkov <bp@suse.de>
-Cc: Diego Ercolani <diego.ercolani@gmail.com>, Egbert Eich <eich@suse.com>, rtc-linux@googlegroups.com,
-	Thomas Gleixner <tglx@linutronix.de>, John Stultz <john.stultz@linaro.org>,
-	Nagananda Chumbalkar <nchumbalkar@lenovo.com>, Max Asbock <amax@lenovo.com>,
-	Adrian Huang <ahuang12@lenovo.com>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Alessandro Zummo <a.zummo@towertech.it>
-Content-Type: text/plain; charset=UTF-8
+Received: from mailout1.samsung.com (mailout1.samsung.com. [203.254.224.24])
+        by gmr-mx.google.com with ESMTPS id x3si134138pdh.2.2015.07.07.23.57.23
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1 cipher=RC4-SHA bits=128/128);
+        Tue, 07 Jul 2015 23:57:23 -0700 (PDT)
+Received: from epcpsbgr2.samsung.com
+ (u142.gpu120.samsung.co.kr [203.254.230.142])
+ by mailout1.samsung.com (Oracle Communications Messaging Server 7.0.5.31.0
+ 64bit (built May  5 2014))
+ with ESMTP id <0NR502BX9PZLL640@mailout1.samsung.com> for
+ rtc-linux@googlegroups.com; Wed, 08 Jul 2015 15:57:21 +0900 (KST)
+From: Maninder Singh <maninder1.s@samsung.com>
+To: a.zummo@towertech.it, alexandre.belloni@free-electrons.com,
+ rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org
+Cc: pankaj.m@samsung.com, Maninder Singh <maninder1.s@samsung.com>
+Subject: [rtc-linux] [PATCH 1/1] drivers/rtc/rtc-bq32k.c: remove redundant check
+Date: Wed, 08 Jul 2015 12:26:47 +0530
+Message-id: <1436338607-43389-1-git-send-email-maninder1.s@samsung.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -37,17 +29,34 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On Sat, Jul 4, 2015 at 2:29 AM, Borislav Petkov <bp@suse.de> wrote:
-> On Fri, Jul 03, 2015 at 08:19:58PM +0200, Diego Ercolani wrote:
-> Thanks for testing!
->
-> Adrian, I think you can add Diego's Tested-by to your submission.
+removing below static analysis error:-
+(error) Possible null pointer dereference: client
 
-Yes. I'll add Diego's Tested-by and send v4 later.
+if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C))
+							^^^^^^^
+Error comes beacause client is dereferenced before NULL check.
+So probabily NULL this check is not required.
 
-Thanks, Diego and Boris.
+Signed-off-by: Maninder Singh <maninder1.s@samsung.com>
+---
+ drivers/rtc/rtc-bq32k.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
--- Adrian
+diff --git a/drivers/rtc/rtc-bq32k.c b/drivers/rtc/rtc-bq32k.c
+index 92679df..409de9f 100644
+--- a/drivers/rtc/rtc-bq32k.c
++++ b/drivers/rtc/rtc-bq32k.c
+@@ -212,7 +212,7 @@ static int bq32k_probe(struct i2c_client *client,
+ 	if (error)
+ 		return error;
+ 
+-	if (client && client->dev.of_node)
++	if (client->dev.of_node)
+ 		trickle_charger_of_init(dev, client->dev.of_node);
+ 
+ 	rtc = devm_rtc_device_register(&client->dev, bq32k_driver.driver.name,
+-- 
+1.7.9.5
 
 -- 
 -- 
