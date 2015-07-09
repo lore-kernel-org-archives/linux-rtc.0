@@ -1,28 +1,21 @@
-Return-Path: <rtc-linux+bncBDKZNNNLXAHBBIPVY2WQKGQEX43HPSA@googlegroups.com>
-Received: from mailout1.w1.samsung.com (mailout1.w1.samsung.com. [210.118.77.11])
-        by gmr-mx.google.com with ESMTPS id ct6si1309493pdb.1.2015.07.23.21.10.08
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1 cipher=RC4-SHA bits=128/128);
-        Thu, 23 Jul 2015 21:10:09 -0700 (PDT)
-Received: from eucpsbgm2.samsung.com (unknown [203.254.199.245])
- by mailout1.w1.samsung.com
- (Oracle Communications Messaging Server 7.0.5.31.0 64bit (built May  5 2014))
- with ESMTP id <0NRZ000904WSDW30@mailout1.w1.samsung.com> for
- rtc-linux@googlegroups.com; Fri, 24 Jul 2015 05:10:04 +0100 (BST)
-Message-id: <55B1BA9F.7070305@samsung.com>
-Date: Fri, 24 Jul 2015 13:10:07 +0900
-From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-MIME-version: 1.0
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
- Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
- linux-kernel@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH v2 3/3] RTC: switch to using is_visible() to
- control sysfs attributes
-References: <1437692468-24788-1-git-send-email-dmitry.torokhov@gmail.com>
- <1437692468-24788-3-git-send-email-dmitry.torokhov@gmail.com>
-In-reply-to: <1437692468-24788-3-git-send-email-dmitry.torokhov@gmail.com>
-Content-type: text/plain; charset=UTF-8
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBN6C7GWAKGQEHSSUNRI@googlegroups.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id t6si127881wiz.0.2015.07.09.04.55.35
+        for <rtc-linux@googlegroups.com>;
+        Thu, 09 Jul 2015 04:55:35 -0700 (PDT)
+Date: Thu, 9 Jul 2015 13:55:33 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Vaibhav Hiremath <vaibhav.hiremath@linaro.org>
+Cc: linux-arm-kernel@lists.infradead.org, Chao Xie <chao.xie@marvell.com>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	"open list:REAL TIME CLOCK (RTC) SUBSYSTEM" <rtc-linux@googlegroups.com>,
+	open list <linux-kernel@vger.kernel.org>
+Subject: [rtc-linux] Re: [RESEND PATCH-v2] rtc: 88pm80x: add device tree support
+Message-ID: <20150709115533.GY3127@piout.net>
+References: <1436424952-29680-1-git-send-email-vaibhav.hiremath@linaro.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1436424952-29680-1-git-send-email-vaibhav.hiremath@linaro.org>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -33,25 +26,34 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On 24.07.2015 08:01, Dmitry Torokhov wrote:
-> Instead of creating wakealarm attribute manually, after the device has been
-> registered, let's rely on facilities provided by the attribute groups to
-> control which attributes are visible and which are not. This allows to to
-> create all needed attributes at once, at the same time that we register RTC
-> class device.
+Hi,
+
+On 09/07/2015 at 12:25:51 +0530, Vaibhav Hiremath wrote :
+> Along with DT support, this patch also cleans up the unnecessary
+> code around 'rtc_wakeup' initialization.
 > 
-> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> ---
->  drivers/rtc/class.c     |  4 +---
->  drivers/rtc/rtc-core.h  | 19 +++-------------
->  drivers/rtc/rtc-sysfs.c | 59 +++++++++++++++++++++++++------------------------
->  3 files changed, 34 insertions(+), 48 deletions(-)
+> Signed-off-by: Chao Xie <chao.xie@marvell.com>
+> Signed-off-by: Vaibhav Hiremath <vaibhav.hiremath@linaro.org>
 
-Reviewed-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+No need to resend, I'll take it. I'm current busy with other things and
+it is still early in the development cycle.
 
-Best regards,
-Krzysztof
+> -	if (pm80x_pdata) {
+> -		pdata = pm80x_pdata->rtc;
+> -		if (pdata)
+> -			info->rtc_dev->dev.platform_data = &pdata->rtc_wakeup;
+> -	}
+> +	/* remeber whether this power up is caused by PMIC RTC or not */
 
+I'll fix that typo...
+
+> +	info->rtc_dev->dev.platform_data = &pdata->rtc_wakeup;
+>  
+
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
 -- 
 -- 
