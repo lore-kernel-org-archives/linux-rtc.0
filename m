@@ -1,27 +1,28 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRB3WFZ6WAKGQEP56P2NI@googlegroups.com>
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id cj6si771684wib.1.2015.07.01.05.54.05
-        for <rtc-linux@googlegroups.com>;
-        Wed, 01 Jul 2015 05:54:05 -0700 (PDT)
-Date: Wed, 1 Jul 2015 14:54:04 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Nishanth Menon <nm@ti.com>
-Cc: Grygorii Strashko <grygorii.strashko@ti.com>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	linux-kernel@vger.kernel.org, rtc-linux@googlegroups.com,
-	linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-	balbi@ti.com
-Subject: [rtc-linux] Re: [PATCH V2 4/5] drivers/rtc/rtc-ds1307.c: Support
- optional wakeup interrupt source
-Message-ID: <20150701125404.GR485@piout.net>
-References: <1435076114-12416-1-git-send-email-nm@ti.com>
- <1435076114-12416-5-git-send-email-nm@ti.com>
- <558ACE87.6040509@ti.com>
- <558AD5B1.8030406@ti.com>
- <20150624162654.GA29259@kahuna>
+Return-Path: <rtc-linux+bncBAABB2GP7CWAKGQEBGWVGIQ@googlegroups.com>
+Received: from mail1.bemta5.messagelabs.com (mail1.bemta5.messagelabs.com. [195.245.231.139])
+        by gmr-mx.google.com with ESMTPS id cj6si271682wib.1.2015.07.09.00.51.04
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 09 Jul 2015 00:51:04 -0700 (PDT)
+Message-ID: <e121177ed6ecae37ff94ff053478e3fb727f2619.1436427954.git.stwiss.opensource@diasemi.com>
+In-Reply-To: <cover.1436427954.git.stwiss.opensource@diasemi.com>
+References: <cover.1436427954.git.stwiss.opensource@diasemi.com>
+From: S Twiss <stwiss.opensource@diasemi.com>
+Date: Thu, 9 Jul 2015 08:45:53 +0100
+Subject: [rtc-linux] [PATCH RFC V1 1/3] mfd: da9062: Support for the DA9063
+ RTC in the DA9062 core
+To: DEVICETREE <devicetree@vger.kernel.org>, LINUXINPUT
+	<linux-input@vger.kernel.org>, LINUXKERNEL <linux-kernel@vger.kernel.org>,
+	Lee Jones <lee.jones@linaro.org>, RTCLINUX <rtc-linux@googlegroups.com>, "S
+ Twiss" <stwiss.opensource@diasemi.com>, Samuel Ortiz <sameo@linux.intel.com>
+CC: Alessandro Zummo <a.zummo@towertech.it>, Alexandre Belloni
+	<alexandre.belloni@free-electrons.com>, David Dajun Chen
+	<david.chen@diasemi.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar
+ Gala <galak@codeaurora.org>, Mark Rutland <mark.rutland@arm.com>, Pawel Moll
+	<pawel.moll@arm.com>, Rob Herring <robh+dt@kernel.org>, "Support Opensource"
+	<support.opensource@diasemi.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <20150624162654.GA29259@kahuna>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -32,137 +33,57 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Hi,
+From: S Twiss <stwiss.opensource@diasemi.com>
 
-On 24/06/2015 at 11:26:54 -0500, Nishanth Menon wrote :
-> I am wrong here - code just returns 0 and ignores err. So, how about
-> the following patch instead: (Alexandre, please do let me know if the
-> entire series needs to be reposted):
+Add MFD core driver support for a RTC component
 
-Can you resend just that one as v3? I'll take it right away. Thanks!
+- MFD core adds the RTC resources da9062_rtc_resources[] for the RTC
+  alarm and tick timer IRQ
+- An appropriate mfd_cell has been added into da9062_devs[] to support
+  a component .name = "da9062-rtc" and .of_compatible  = "dlg,da9062-rtc"
 
->  - improvement as suggested
->  - Picked up previous acks
->  - cleanup in probe does not need dev_pm_clear_wake_irq.
-> -->8<---
-> From 12367f8edffc25613f6f920d9bd7b69dfed57ce1 Mon Sep 17 00:00:00 2001
-> From: Nishanth Menon <nm@ti.com>
-> Date: Mon, 22 Jun 2015 14:13:19 -0500
-> Subject: [PATCH V3] drivers/rtc/rtc-ds1307.c: Support optional wakeup interrupt
->  source
-> 
-> With the recent pinctrl-single changes, SoCs such as Texas
-> Instrument's OMAP processors can treat wake-up events from deeper idle
-> states as interrupts.
-> 
-> Let's add support for the optional second interrupt for wake-up using
-> the generic wakeirq support added in commit 4990d4fe327b ("PM /
-> Wakeirq: Add automated device wake IRQ handling")
-> 
-> Finally, to pass the wake-up interrupt in the dts file,
-> interrupts-extended property needs to be passed.
-> 
-> This is similar in approach to commit 2a0b965cfb6e ("serial: omap: Add
-> support for optional wake-up") + ee83bd3b6483 ("serial: omap: Switch
-> wake-up interrupt to generic wakeirq")
-> 
-> Acked-by: Tony Lindgren <tony@atomide.com>
-> Acked-by: Felipe Balbi <balbi@ti.com>
-> Signed-off-by: Nishanth Menon <nm@ti.com>
-> ---
->  drivers/rtc/rtc-ds1307.c |   36 +++++++++++++++++++++++++++++++++---
->  1 file changed, 33 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
-> index b03880fc32b5..e16989c48a90 100644
-> --- a/drivers/rtc/rtc-ds1307.c
-> +++ b/drivers/rtc/rtc-ds1307.c
-> @@ -15,6 +15,9 @@
->  #include <linux/i2c.h>
->  #include <linux/init.h>
->  #include <linux/module.h>
-> +#include <linux/of_device.h>
-> +#include <linux/of_irq.h>
-> +#include <linux/pm_wakeirq.h>
->  #include <linux/rtc/ds1307.h>
->  #include <linux/rtc.h>
->  #include <linux/slab.h>
-> @@ -114,6 +117,7 @@ struct ds1307 {
->  #define HAS_ALARM	1		/* bit 1 == irq claimed */
->  	struct i2c_client	*client;
->  	struct rtc_device	*rtc;
-> +	int			wakeirq;
->  	s32 (*read_block_data)(const struct i2c_client *client, u8 command,
->  			       u8 length, u8 *values);
->  	s32 (*write_block_data)(const struct i2c_client *client, u8 command,
-> @@ -1156,6 +1160,8 @@ read_rtc:
->  	}
->  
->  	if (want_irq) {
-> +		struct device_node *node = client->dev.of_node;
-> +
->  		err = devm_request_threaded_irq(&client->dev,
->  						client->irq, NULL, irq_handler,
->  						IRQF_SHARED | IRQF_ONESHOT,
-> @@ -1163,13 +1169,34 @@ read_rtc:
->  		if (err) {
->  			client->irq = 0;
->  			dev_err(&client->dev, "unable to request IRQ!\n");
-> -		} else {
-> +			goto no_irq;
-> +		}
->  
-> -			set_bit(HAS_ALARM, &ds1307->flags);
-> -			dev_dbg(&client->dev, "got IRQ %d\n", client->irq);
-> +		set_bit(HAS_ALARM, &ds1307->flags);
-> +		dev_dbg(&client->dev, "got IRQ %d\n", client->irq);
-> +
-> +		/* Currently supported by OF code only! */
-> +		if (!node)
-> +			goto no_irq;
-> +
-> +		err = of_irq_get(node, 1);
-> +		if (err <= 0) {
-> +			if (err == -EPROBE_DEFER)
-> +				goto exit;
-> +			goto no_irq;
-> +		}
-> +		ds1307->wakeirq = err;
-> +
-> +		err = dev_pm_set_dedicated_wake_irq(&client->dev,
-> +						    ds1307->wakeirq);
-> +		if (err) {
-> +			dev_err(&client->dev, "unable to setup wakeIRQ %d!\n",
-> +				err);
-> +			goto exit;
->  		}
->  	}
->  
-> +no_irq:
->  	if (chip->nvram_size) {
->  
->  		ds1307->nvram = devm_kzalloc(&client->dev,
-> @@ -1213,6 +1240,9 @@ static int ds1307_remove(struct i2c_client *client)
->  {
->  	struct ds1307 *ds1307 = i2c_get_clientdata(client);
->  
-> +	if (ds1307->wakeirq)
-> +		dev_pm_clear_wake_irq(&client->dev);
-> +
->  	if (test_and_clear_bit(HAS_NVRAM, &ds1307->flags))
->  		sysfs_remove_bin_file(&client->dev.kobj, ds1307->nvram);
->  
-> -- 
-> 1.7.9.5
-> 
-> -- 
-> Regards,
-> Nishanth Menon
+Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
 
+---
+Checks performed with linux-next/next-20150708/scripts/checkpatch.pl
+ da9062-core.c             total: 0 errors, 0 warnings, 523 lines checked
+This patch applies against linux-next and next-20150708 
+
+
+ drivers/mfd/da9062-core.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
+
+diff --git a/drivers/mfd/da9062-core.c b/drivers/mfd/da9062-core.c
+index 4cf0643..b43cd24 100644
+--- a/drivers/mfd/da9062-core.c
++++ b/drivers/mfd/da9062-core.c
+@@ -118,6 +118,11 @@ static struct resource da9062_wdt_resources[] = {
+ 	DEFINE_RES_NAMED(DA9062_IRQ_WDG_WARN, 1, "WD_WARN", IORESOURCE_IRQ),
+ };
+ 
++static struct resource da9062_rtc_resources[] = {
++	DEFINE_RES_NAMED(DA9062_IRQ_ALARM, 1, "ALARM", IORESOURCE_IRQ),
++	DEFINE_RES_NAMED(DA9062_IRQ_TICK, 1, "TICK", IORESOURCE_IRQ),
++};
++
+ static const struct mfd_cell da9062_devs[] = {
+ 	{
+ 		.name		= "da9062-core",
+@@ -141,6 +146,12 @@ static const struct mfd_cell da9062_devs[] = {
+ 		.resources	= da9062_thermal_resources,
+ 		.of_compatible  = "dlg,da9062-thermal",
+ 	},
++	{
++		.name		= "da9062-rtc",
++		.num_resources	= ARRAY_SIZE(da9062_rtc_resources),
++		.resources	= da9062_rtc_resources,
++		.of_compatible  = "dlg,da9062-rtc",
++	},
+ };
+ 
+ static int da9062_clear_fault_log(struct da9062 *chip)
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+end-of-patch for PATCH RFC V1
 
 -- 
 -- 
