@@ -1,34 +1,23 @@
-Return-Path: <rtc-linux+bncBAABBEMDSOWQKGQECJ5UGOQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBCMNZUWXYYORBAFX7CWAKGQEOPETTTY@googlegroups.com>
 MIME-Version: 1.0
-Received: from e23smtp02.au.ibm.com (e23smtp02.au.ibm.com. [202.81.31.144])
-        by gmr-mx.google.com with ESMTPS id ra16si30930pac.0.2015.07.14.01.00.15
+Received: from mail-pd0-f174.google.com (mail-pd0-f174.google.com. [209.85.192.174])
+        by gmr-mx.google.com with ESMTPS id ns6si498314pbc.2.2015.07.08.23.58.08
         for <rtc-linux@googlegroups.com>
-        (version=TLSv1 cipher=AES128-SHA bits=128/128);
-        Tue, 14 Jul 2015 01:00:16 -0700 (PDT)
-Received: from /spool/local
-	by e23smtp02.au.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-	for <rtc-linux@googlegroups.com> from <vaibhav@linux.vnet.ibm.com>;
-	Tue, 14 Jul 2015 18:00:10 +1000
-Received: from d23relay10.au.ibm.com (d23relay10.au.ibm.com [9.190.26.77])
-	by d23dlp02.au.ibm.com (Postfix) with ESMTP id E26B12BB0047
-	for <rtc-linux@googlegroups.com>; Tue, 14 Jul 2015 18:00:06 +1000 (EST)
-Received: from d23av02.au.ibm.com (d23av02.au.ibm.com [9.190.235.138])
-	by d23relay10.au.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id t6E7xwju46661652
-	for <rtc-linux@googlegroups.com>; Tue, 14 Jul 2015 18:00:06 +1000
-Received: from d23av02.au.ibm.com (localhost [127.0.0.1])
-	by d23av02.au.ibm.com (8.14.4/8.14.4/NCO v10.0 AVout) with ESMTP id t6E7xY2p018889
-	for <rtc-linux@googlegroups.com>; Tue, 14 Jul 2015 17:59:34 +1000
-From: Vaibhav Jain <vaibhav@linux.vnet.ibm.com>
-To: linux-kernel@vger.kernel.org
-Cc: linuxppc-dev@lists.ozlabs.org, Neelesh Gupta <neelegup@linux.vnet.ibm.com>,
-        Michael Neuling <mikey@neuling.org>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        rtc-linux@googlegroups.com, Vaibhav Jain <vaibhav@linux.vnet.ibm.com>
-Subject: [rtc-linux] [PATCH] rtc/rtc-opal: Enable alarms only when opal
- supports tpo
-Date: Tue, 14 Jul 2015 13:28:28 +0530
-Message-Id: <1436860708-17058-1-git-send-email-vaibhav@linux.vnet.ibm.com>
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 08 Jul 2015 23:58:08 -0700 (PDT)
+Received: by pdrg1 with SMTP id g1so28260538pdr.2
+        for <rtc-linux@googlegroups.com>; Wed, 08 Jul 2015 23:58:08 -0700 (PDT)
+From: Vaibhav Hiremath <vaibhav.hiremath@linaro.org>
+To: linux-arm-kernel@lists.infradead.org
+Cc: Vaibhav Hiremath <vaibhav.hiremath@linaro.org>,
+	Chao Xie <chao.xie@marvell.com>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	rtc-linux@googlegroups.com (open list:REAL TIME CLOCK (RTC) SUBSYSTEM),
+	linux-kernel@vger.kernel.org (open list)
+Subject: [rtc-linux] [RESEND PATCH-v2] rtc: 88pm80x: add device tree support
+Date: Thu,  9 Jul 2015 12:25:51 +0530
+Message-Id: <1436424952-29680-1-git-send-email-vaibhav.hiremath@linaro.org>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -40,58 +29,68 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-rtc-opal driver provides support for rtc alarms via
-timed-power-on(tpo). However some Power platforms like BML use a fake
-rtc clock and don't support tpo. Such platforms are indicated by the
-missing 'has-tpo' property in the device tree.
+Along with DT support, this patch also cleans up the unnecessary
+code around 'rtc_wakeup' initialization.
 
-Current implementation however enables callback for
-rtc_class_ops.read/set alarm irrespective of the tpo support from the
-platform. This results in a failed opal call when kernel tries to read
-an existing alarms via opal_get_tpo_time during rtc device registration.
-
-This patch fixes this issue by setting opal_rtc_ops.read/set_alarm
-callback pointers only when tpo is supported.
-
-Acked-by: Michael Neuling <mikey@neuling.org>
-Acked-by: Neelesh Gupta <neelegup@linux.vnet.ibm.com>
-Signed-off-by: Vaibhav Jain <vaibhav@linux.vnet.ibm.com>
+Signed-off-by: Chao Xie <chao.xie@marvell.com>
+Signed-off-by: Vaibhav Hiremath <vaibhav.hiremath@linaro.org>
 ---
- drivers/rtc/rtc-opal.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ drivers/rtc/rtc-88pm80x.c | 28 +++++++++++++++++-----------
+ 1 file changed, 17 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/rtc/rtc-opal.c b/drivers/rtc/rtc-opal.c
-index 7061dca..1125641 100644
---- a/drivers/rtc/rtc-opal.c
-+++ b/drivers/rtc/rtc-opal.c
-@@ -190,11 +190,9 @@ exit:
- 	return rc;
- }
+diff --git a/drivers/rtc/rtc-88pm80x.c b/drivers/rtc/rtc-88pm80x.c
+index 7df0579..8f66519 100644
+--- a/drivers/rtc/rtc-88pm80x.c
++++ b/drivers/rtc/rtc-88pm80x.c
+@@ -251,17 +251,26 @@ static SIMPLE_DEV_PM_OPS(pm80x_rtc_pm_ops, pm80x_rtc_suspend, pm80x_rtc_resume);
+ static int pm80x_rtc_probe(struct platform_device *pdev)
+ {
+ 	struct pm80x_chip *chip = dev_get_drvdata(pdev->dev.parent);
+-	struct pm80x_platform_data *pm80x_pdata =
+-				dev_get_platdata(pdev->dev.parent);
+-	struct pm80x_rtc_pdata *pdata = NULL;
++	struct pm80x_rtc_pdata *pdata = dev_get_platdata(&pdev->dev);
+ 	struct pm80x_rtc_info *info;
++	struct device_node *node = pdev->dev.of_node;
+ 	struct rtc_time tm;
+ 	unsigned long ticks = 0;
+ 	int ret;
  
--static const struct rtc_class_ops opal_rtc_ops = {
-+static struct rtc_class_ops opal_rtc_ops = {
- 	.read_time	= opal_get_rtc_time,
- 	.set_time	= opal_set_rtc_time,
--	.read_alarm	= opal_get_tpo_time,
--	.set_alarm	= opal_set_tpo_time,
- };
- 
- static int opal_rtc_probe(struct platform_device *pdev)
-@@ -202,8 +200,11 @@ static int opal_rtc_probe(struct platform_device *pdev)
- 	struct rtc_device *rtc;
- 
- 	if (pdev->dev.of_node && of_get_property(pdev->dev.of_node, "has-tpo",
--						 NULL))
-+						 NULL)) {
- 		device_set_wakeup_capable(&pdev->dev, true);
-+		opal_rtc_ops.read_alarm	= opal_get_tpo_time;
-+		opal_rtc_ops.set_alarm = opal_set_tpo_time;
+-	pdata = dev_get_platdata(&pdev->dev);
+-	if (pdata == NULL)
+-		dev_warn(&pdev->dev, "No platform data!\n");
++	if (!pdata && !node) {
++		dev_err(&pdev->dev,
++			"pm80x-rtc requires platform data or of_node\n");
++		return -EINVAL;
++	}
++
++	if (!pdata) {
++		pdata = devm_kzalloc(&pdev->dev, sizeof(*pdata), GFP_KERNEL);
++		if (!pdata) {
++			dev_err(&pdev->dev, "failed to allocate memory\n");
++			return -ENOMEM;
++		}
 +	}
  
- 	rtc = devm_rtc_device_register(&pdev->dev, DRVNAME, &opal_rtc_ops,
- 				       THIS_MODULE);
+ 	info =
+ 	    devm_kzalloc(&pdev->dev, sizeof(struct pm80x_rtc_info), GFP_KERNEL);
+@@ -327,11 +336,8 @@ static int pm80x_rtc_probe(struct platform_device *pdev)
+ 	regmap_update_bits(info->map, PM800_RTC_CONTROL, PM800_RTC1_USE_XO,
+ 			   PM800_RTC1_USE_XO);
+ 
+-	if (pm80x_pdata) {
+-		pdata = pm80x_pdata->rtc;
+-		if (pdata)
+-			info->rtc_dev->dev.platform_data = &pdata->rtc_wakeup;
+-	}
++	/* remeber whether this power up is caused by PMIC RTC or not */
++	info->rtc_dev->dev.platform_data = &pdata->rtc_wakeup;
+ 
+ 	device_init_wakeup(&pdev->dev, 1);
+ 
 -- 
-2.2.1
+1.9.1
 
 -- 
 -- 
