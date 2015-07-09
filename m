@@ -1,33 +1,26 @@
-Return-Path: <rtc-linux+bncBDP6N55ZUYDRBRUNU2WQKGQERP3GOJI@googlegroups.com>
-Received: from mail-pa0-x229.google.com (mail-pa0-x229.google.com. [2607:f8b0:400e:c03::229])
-        by gmr-mx.google.com with ESMTPS id sg1si1371590pbb.1.2015.07.17.15.50.46
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 17 Jul 2015 15:50:46 -0700 (PDT)
-Received: by mail-pa0-x229.google.com with SMTP id ck2so67291533pad.0
-        for <rtc-linux@googlegroups.com>; Fri, 17 Jul 2015 15:50:46 -0700 (PDT)
-Date: Fri, 17 Jul 2015 15:50:42 -0700
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: S Twiss <stwiss.opensource@diasemi.com>
-Cc: DEVICETREE <devicetree@vger.kernel.org>,
-	LINUXINPUT <linux-input@vger.kernel.org>,
-	LINUXKERNEL <linux-kernel@vger.kernel.org>,
-	RTCLINUX <rtc-linux@googlegroups.com>,
-	David Dajun Chen <david.chen@diasemi.com>,
-	Ian Campbell <ijc+devicetree@hellion.org.uk>,
-	Kumar Gala <galak@codeaurora.org>, Lee Jones <lee.jones@linaro.org>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Pawel Moll <pawel.moll@arm.com>, Rob Herring <robh+dt@kernel.org>,
-	Samuel Ortiz <sameo@linux.intel.com>,
-	Support Opensource <support.opensource@diasemi.com>
-Subject: [rtc-linux] Re: [PATCH RFC V1 2/3] onkey: da9063: Add DA9062 OnKey
- capability to DA9063 OnKey driver
-Message-ID: <20150717225042.GF39282@dtor-ws>
-References: <cover.1436879270.git.stwiss.opensource@diasemi.com>
- <37d843a776028807e94e513a34847a34d821bf81.1436879270.git.stwiss.opensource@diasemi.com>
+Return-Path: <rtc-linux+bncBAABBZWL7KWAKGQELSWIPCI@googlegroups.com>
+Received: from mail.pbx.lv ([213.175.90.140])
+        by gmr-mx.google.com with ESMTP id h8si190282lbd.3.2015.07.09.09.48.38
+        for <rtc-linux@googlegroups.com>;
+        Thu, 09 Jul 2015 09:48:38 -0700 (PDT)
+To: Linus Walleij <linus.walleij@linaro.org>
+Subject: [rtc-linux] Re: Gemini Soc timers
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <37d843a776028807e94e513a34847a34d821bf81.1436879270.git.stwiss.opensource@diasemi.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Date: Thu, 09 Jul 2015 19:48:37 +0300
+From: Roman Yeryomin <roman@advem.lv>
+Cc: Hans Ulli Kroll <ulli.kroll@googlemail.com>, Arnd Bergmann
+ <arnd@arndb.de>, linux-arm-kernel@lists.infradead.org, Felix Fietkau
+ <nbd@openwrt.org>, rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org,
+ Alexandre Belloni <alexandre.belloni@free-electrons.com>, Russell King
+ <rmk+kernel@arm.linux.org.uk>
+In-Reply-To: <CACRpkdYm-W8FqBgvustJUweizocmX9LtVS6Q=7j8EjF8D+H77Q@mail.gmail.com>
+References: <1292339307-14336-2-git-send-email-ulli.kroll@googlemail.com>
+ <2131951.l0j0CIttAZ@wuerfel> <f22e65faa7d86074cda27973f83d7a52@advem.lv>
+ <1781580.JRD7b0UrJA@wuerfel> <alpine.LNX.2.00.1507091343150.24357@localhost>
+ <5e6214ee669fbd797ad2ef257ce52068@advem.lv>
+ <CACRpkdYm-W8FqBgvustJUweizocmX9LtVS6Q=7j8EjF8D+H77Q@mail.gmail.com>
+Message-ID: <975d474dd947bcef8d3dd70ef18a5c29@advem.lv>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -38,328 +31,69 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Hi Steve,
-
-On Tue, Jul 14, 2015 at 02:07:50PM +0100, S Twiss wrote:
-> From: S Twiss <stwiss.opensource@diasemi.com>
+On 2015-07-09 18:48, Linus Walleij wrote:
+> On Thu, Jul 9, 2015 at 3:02 PM, Roman Yeryomin <roman@advem.lv> wrote:
+>> On 2015-07-09 14:58, Hans Ulli Kroll wrote:
+>>> 
+>>> Hi
+>>> 
+>>> On Thu, 9 Jul 2015, Arnd Bergmann wrote:
+>>> 
+>>>> On Thursday 09 July 2015 01:29:39 Roman Yeryomin wrote:
+>>>> >
+>>>> > OK, here are the minimal changes required (see attachment). Tested on
+>>>> > 4.1.1
+>>>> > Let me know if you want me to submit it in some other way.
+>>>> >
+>>>> 
+>>>> The changes look ok to me. Please submit them as two separate
+>>>> patches (1. set up and use timer3, 2. register sched_clock) 
+>>>> according
+>>>> to the Documentation/SubmittingPatches description.
+>>>> 
+>>>> Thanks,
+>>>> 
+>>>>         Arnd
+>>>> 
+>>> 
+>>> have you seen this thread ...
+>>> [PATCH 00/18] ARM: Migrate clockevent drivers to 'set-state
+>>> http://permalink.gmane.org/gmane.linux.ports.arm.kernel/423992
+>>> 
+>>> arch/arm/mach-gemini/time.c              | 69 
+>>> ++++++++++++------------
+>>> 
+>>> Two or more weeks ago I send a patchset fixing this problem.
+>>> At this time Arnd was in holiday and until today I was very busy at 
+>>> work.
+>> 
+>> 
+>> Sorry, I didn't see your patches.
+>> Arnd requested minimal changes and until yesterday I was very busy 
+>> too.
+>> 
+>>> I can rework my patches on top of Viresh's patchset
+>> 
+>> 
+>> It looks that this patchset doesn't conflict with the fix needed.
 > 
-> Add DA9062 OnKey support into the existing DA9063 OnKey driver component by
-> using generic access tables for common register and bit mask definitions.
+> Can any of you guys just look at this thing from OpenWRT:
+> http://git.openwrt.org/?p=openwrt.git;a=blob;f=target/linux/gemini/patches-3.18/160-gemini-timers.patch;h=4b0edb45d162f751bfb7475f5b3158f28d69fe84;hb=HEAD
 > 
-> The following change will add generic register and bit mask support to the
-> DA9063 OnKey.
-> 
-> The following alterations have been made to the DA9063 OnKey:
-> 
-> - Addition of a da9063_compatible_onkey_regmap structure to hold all
->   generic registers and bitmasks for this type of OnKey component.
-> - Addition of an struct of_device_id table for DA9063 and DA9062
->   defaults
-> - Refactoring functions to use struct da9063_compatible_onkey accesses
->   to generic registers/masks instead of using defines from registers.h
-> - Re-work of da9063_onkey_probe() to use of_match_node() and
->   dev_get_regmap() to provide initialisation of generic registers and
->   masks and access to regmap
-> 
-> Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
+> As usual they are just keeping it out of mainline, and this
+> is adding sched_clock() and other goodies so should
+> probably be upstreamed ASAP.
 
-Looks generally good, just a few comments.
+This is what I initially submitted here.
+But Arnd wanted to see a smaller patch which only fixes gemini timer 
+issue (t.i. shed clock being 100Hz instead of 25MHz).
+Also I've submitted 4.1 support yesterday, but patches didn't change 
+much comparing to 3.18
+I would love to see all those patches/drivers in mainline - tell me 
+where do I submit all that :)
 
-> 
-> ---
-> Checks performed with linux-next/next-20150708/scripts/checkpatch.pl
->  Kconfig                   total: 0 errors, 14 warnings, 810 lines checked
->  da9063_onkey.c            total: 0 errors, 2 warnings, 305 lines checked
-> This patch applies against linux-next and next-20150708 
-> 
-> 
->  drivers/input/misc/Kconfig        |   6 +-
->  drivers/input/misc/da9063_onkey.c | 139 ++++++++++++++++++++++++++++++--------
->  2 files changed, 112 insertions(+), 33 deletions(-)
-> 
-> diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
-> index d4f0a81..42860f9 100644
-> --- a/drivers/input/misc/Kconfig
-> +++ b/drivers/input/misc/Kconfig
-> @@ -612,10 +612,10 @@ config INPUT_DA9055_ONKEY
->  
->  config INPUT_DA9063_ONKEY
->  	tristate "Dialog DA9063 OnKey"
-
-"Dialog DA9062/63 OnKey" maybe?
-
-> -	depends on MFD_DA9063
-> +	depends on MFD_DA9063 || MFD_DA9062
->  	help
-> -	  Support the ONKEY of Dialog DA9063 Power Management IC as an
-> -	  input device reporting power button statue.
-> +	  Support the ONKEY of Dialog DA9063 and DA9062 Power Management ICs
-> +	  as an input device capable for reporting the power button status.
->  
->  	  To compile this driver as a module, choose M here: the module
->  	  will be called da9063_onkey.
-> diff --git a/drivers/input/misc/da9063_onkey.c b/drivers/input/misc/da9063_onkey.c
-> index f577585..308de2e 100644
-> --- a/drivers/input/misc/da9063_onkey.c
-> +++ b/drivers/input/misc/da9063_onkey.c
-> @@ -1,5 +1,5 @@
->  /*
-> - * OnKey device driver for DA9063
-> + * OnKey device driver for DA9063 and DA9062 PMICs
->   * Copyright (C) 2015  Dialog Semiconductor Ltd.
->   *
->   * This program is free software; you can redistribute it and/or
-> @@ -24,36 +24,96 @@
->  #include <linux/mfd/da9063/core.h>
->  #include <linux/mfd/da9063/pdata.h>
->  #include <linux/mfd/da9063/registers.h>
-> +#include <linux/mfd/da9062/core.h>
-> +#include <linux/mfd/da9062/registers.h>
->  
-> -struct da9063_onkey {
-> -	struct da9063 *hw;
-> +struct da9063_compatible_onkey_regmap {
-
-Maybe call it da906x_chip_config?
-
-> +	/* REGS */
-> +	int onkey_status;
-> +	int onkey_pwr_signalling;
-> +	int onkey_fault_log;
-> +	int onkey_shutdown;
-> +	/* MASKS */
-> +	int onkey_nonkey_mask;
-> +	int onkey_nonkey_lock_mask;
-> +	int onkey_key_reset_mask;
-> +	int onkey_shutdown_mask;
-> +	/* NAMES */
-> +	char *name;
-
-const char *?
-
-> +};
-> +
-> +struct da9063_compatible_onkey {
-
-If you did not rename the structure your diff would be smaller.
-
->  	struct delayed_work work;
->  	struct input_dev *input;
->  	struct device *dev;
-> +	struct regmap *regmap;
-> +	const struct da9063_compatible_onkey_regmap *config;
-> +	char phys[32];
->  	bool key_power;
->  };
->  
-> +static const struct da9063_compatible_onkey_regmap da9063_regs = {
-> +	/* REGS */
-> +	.onkey_status = DA9063_REG_STATUS_A,
-> +	.onkey_pwr_signalling = DA9063_REG_CONTROL_B,
-> +	.onkey_fault_log = DA9063_REG_FAULT_LOG,
-> +	.onkey_shutdown = DA9063_REG_CONTROL_F,
-> +	/* MASKS */
-> +	.onkey_nonkey_mask = DA9063_NONKEY,
-> +	.onkey_nonkey_lock_mask = DA9063_NONKEY_LOCK,
-> +	.onkey_key_reset_mask = DA9063_KEY_RESET,
-> +	.onkey_shutdown_mask = DA9063_SHUTDOWN,
-> +	/* NAMES */
-> +	.name = DA9063_DRVNAME_ONKEY,
-> +};
-> +
-> +static const struct da9063_compatible_onkey_regmap da9062_regs = {
-> +	/* REGS */
-> +	.onkey_status = DA9062AA_STATUS_A,
-> +	.onkey_pwr_signalling = DA9062AA_CONTROL_B,
-> +	.onkey_fault_log = DA9062AA_FAULT_LOG,
-> +	.onkey_shutdown = DA9062AA_CONTROL_F,
-> +	/* MASKS */
-> +	.onkey_nonkey_mask = DA9062AA_NONKEY_MASK,
-> +	.onkey_nonkey_lock_mask = DA9062AA_NONKEY_LOCK_MASK,
-> +	.onkey_key_reset_mask = DA9062AA_KEY_RESET_MASK,
-> +	.onkey_shutdown_mask = DA9062AA_SHUTDOWN_MASK,
-> +	/* NAMES */
-> +	.name = "da9062-onkey",
-> +};
-> +
-> +static const struct of_device_id da9063_compatible_reg_id_table[] = {
-> +	{ .compatible = "dlg,da9063-onkey", .data = &da9063_regs },
-> +	{ .compatible = "dlg,da9062-onkey", .data = &da9062_regs },
-> +	{ },
-> +};
-> +
->  static void da9063_poll_on(struct work_struct *work)
->  {
-> -	struct da9063_onkey *onkey = container_of(work, struct da9063_onkey,
-> -						  work.work);
-> +	struct da9063_compatible_onkey *onkey = container_of(work,
-> +						struct da9063_compatible_onkey,
-> +						work.work);
-> +	const struct da9063_compatible_onkey_regmap *config = onkey->config;
->  	unsigned int val;
->  	int fault_log = 0;
->  	bool poll = true;
->  	int error;
->  
->  	/* Poll to see when the pin is released */
-> -	error = regmap_read(onkey->hw->regmap, DA9063_REG_STATUS_A, &val);
-> +	error = regmap_read(onkey->regmap,
-> +			    config->onkey_status,
-> +			    &val);
->  	if (error) {
->  		dev_err(onkey->dev,
->  			"Failed to read ON status: %d\n", error);
->  		goto err_poll;
->  	}
->  
-> -	if (!(val & DA9063_NONKEY)) {
-> -		error = regmap_update_bits(onkey->hw->regmap,
-> -					   DA9063_REG_CONTROL_B,
-> -					   DA9063_NONKEY_LOCK, 0);
-> +	if (!(val & config->onkey_nonkey_mask)) {
-> +		error = regmap_update_bits(onkey->regmap,
-> +					   config->onkey_pwr_signalling,
-> +					   config->onkey_nonkey_lock_mask,
-> +					   0);
->  		if (error) {
->  			dev_err(onkey->dev,
->  				"Failed to reset the Key Delay %d\n", error);
-> @@ -70,15 +130,16 @@ static void da9063_poll_on(struct work_struct *work)
->  	 * If the fault log KEY_RESET is detected, then clear it
->  	 * and shut down the system.
->  	 */
-> -	error = regmap_read(onkey->hw->regmap,
-> -			    DA9063_REG_FAULT_LOG, &fault_log);
-> +	error = regmap_read(onkey->regmap,
-> +			    config->onkey_fault_log,
-> +			    &fault_log);
->  	if (error) {
->  		dev_warn(&onkey->input->dev,
->  			 "Cannot read FAULT_LOG: %d\n", error);
-> -	} else if (fault_log & DA9063_KEY_RESET) {
-> -		error = regmap_write(onkey->hw->regmap,
-> -				     DA9063_REG_FAULT_LOG,
-> -				     DA9063_KEY_RESET);
-> +	} else if (fault_log & config->onkey_key_reset_mask) {
-> +		error = regmap_write(onkey->regmap,
-> +				     config->onkey_fault_log,
-> +				     config->onkey_key_reset_mask);
->  		if (error) {
->  			dev_warn(&onkey->input->dev,
->  				 "Cannot reset KEY_RESET fault log: %d\n",
-> @@ -88,10 +149,10 @@ static void da9063_poll_on(struct work_struct *work)
->  			 * and then send shutdown command
->  			 */
->  			dev_dbg(&onkey->input->dev,
-> -				 "Sending SHUTDOWN to DA9063 ...\n");
-> -			error = regmap_write(onkey->hw->regmap,
-> -					     DA9063_REG_CONTROL_F,
-> -					     DA9063_SHUTDOWN);
-> +				"Sending SHUTDOWN to DA9063 ...\n");
-> +			error = regmap_write(onkey->regmap,
-> +					     config->onkey_shutdown,
-> +					     config->onkey_shutdown_mask);
->  			if (error)
->  				dev_err(&onkey->input->dev,
->  					"Cannot SHUTDOWN DA9063: %d\n",
-> @@ -106,12 +167,15 @@ err_poll:
->  
->  static irqreturn_t da9063_onkey_irq_handler(int irq, void *data)
->  {
-> -	struct da9063_onkey *onkey = data;
-> +	struct da9063_compatible_onkey *onkey = data;
-> +	const struct da9063_compatible_onkey_regmap *config = onkey->config;
->  	unsigned int val;
->  	int error;
->  
-> -	error = regmap_read(onkey->hw->regmap, DA9063_REG_STATUS_A, &val);
-> -	if (onkey->key_power && !error && (val & DA9063_NONKEY)) {
-> +	error = regmap_read(onkey->regmap,
-> +			    config->onkey_status,
-> +			    &val);
-> +	if (onkey->key_power && !error && (val & config->onkey_nonkey_mask)) {
->  		input_report_key(onkey->input, KEY_POWER, 1);
->  		input_sync(onkey->input);
->  		schedule_delayed_work(&onkey->work, 0);
-> @@ -129,7 +193,7 @@ static irqreturn_t da9063_onkey_irq_handler(int irq, void *data)
->  
->  static void da9063_cancel_poll(void *data)
->  {
-> -	struct da9063_onkey *onkey = data;
-> +	struct da9063_compatible_onkey *onkey = data;
->  
->  	cancel_delayed_work_sync(&onkey->work);
->  }
-> @@ -138,19 +202,31 @@ static int da9063_onkey_probe(struct platform_device *pdev)
->  {
->  	struct da9063 *da9063 = dev_get_drvdata(pdev->dev.parent);
->  	struct da9063_pdata *pdata = dev_get_platdata(da9063->dev);
-> -	struct da9063_onkey *onkey;
-> +	struct da9063_compatible_onkey *onkey;
-> +	const struct of_device_id *match;
->  	int irq;
->  	int error;
->  
-> -	onkey = devm_kzalloc(&pdev->dev, sizeof(struct da9063_onkey),
-> +	match = of_match_node(da9063_compatible_reg_id_table,
-> +			      pdev->dev.of_node);
-> +	if (!match)
-> +		return -ENXIO;
-> +
-> +	onkey = devm_kzalloc(&pdev->dev, sizeof(struct da9063_compatible_onkey),
->  			     GFP_KERNEL);
->  	if (!onkey) {
->  		dev_err(&pdev->dev, "Failed to allocate memory.\n");
->  		return -ENOMEM;
->  	}
->  
-> +	onkey->config = match->data;
->  	onkey->dev = &pdev->dev;
-> -	onkey->hw = da9063;
-> +
-> +	onkey->regmap = dev_get_regmap(pdev->dev.parent, NULL);
-> +	if (!onkey->regmap) {
-> +		dev_err(&pdev->dev, "Parent regmap unavailable.\n");
-> +		return -ENXIO;
-> +	}
->  
->  	if (pdata)
->  		onkey->key_power = pdata->key_power;
-> @@ -165,8 +241,10 @@ static int da9063_onkey_probe(struct platform_device *pdev)
->  		return -ENOMEM;
->  	}
->  
-> -	onkey->input->name = DA9063_DRVNAME_ONKEY;
-> -	onkey->input->phys = DA9063_DRVNAME_ONKEY "/input0";
-> +	onkey->input->name = onkey->config->name;
-> +	snprintf(onkey->phys, sizeof(onkey->phys), "%s/input0",
-> +		 onkey->config->name);
-> +	onkey->input->phys = onkey->phys;
->  	onkey->input->dev.parent = &pdev->dev;
->  
->  	if (onkey->key_power)
-> @@ -216,11 +294,12 @@ static struct platform_driver da9063_onkey_driver = {
->  	.probe	= da9063_onkey_probe,
->  	.driver	= {
->  		.name	= DA9063_DRVNAME_ONKEY,
-> +		.of_match_table = da9063_compatible_reg_id_table,
->  	},
->  };
->  module_platform_driver(da9063_onkey_driver);
->  
->  MODULE_AUTHOR("S Twiss <stwiss.opensource@diasemi.com>");
-> -MODULE_DESCRIPTION("Onkey device driver for Dialog DA9063");
-> +MODULE_DESCRIPTION("Onkey device driver for Dialog DA9063 and DA9062");
->  MODULE_LICENSE("GPL");
->  MODULE_ALIAS("platform:" DA9063_DRVNAME_ONKEY);
-> -- 
-> end-of-patch for PATCH RFC V1
-> 
-
-Thanks.
-
--- 
-Dmitry
+Regards,
+Roman
 
 -- 
 -- 
