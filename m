@@ -1,35 +1,24 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBWUX5WWQKGQEC4USPNY@googlegroups.com>
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id ec7si122797wib.3.2015.07.31.03.20.10
+Return-Path: <rtc-linux+bncBAABB47B7GWAKGQEVMDWR7Q@googlegroups.com>
+Received: from mail.pbx.lv ([213.175.90.140])
+        by gmr-mx.google.com with ESMTP id sf5si173880lbb.2.2015.07.09.06.02.42
         for <rtc-linux@googlegroups.com>;
-        Fri, 31 Jul 2015 03:20:10 -0700 (PDT)
-Date: Fri, 31 Jul 2015 12:20:09 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Boris Brezillon <boris.brezillon@free-electrons.com>
-Cc: Nicolas Ferre <nicolas.ferre@atmel.com>,
-	Maxime Ripard <maxime.ripard@free-electrons.com>,
-	Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>,
-	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Arnd Bergmann <arnd@arndb.de>,
-	Daniel Lezcano <daniel.lezcano@linaro.org>,
-	Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	linux-clk@vger.kernel.org, linux-pm@vger.kernel.org,
-	linux-pwm@vger.kernel.org, linux-watchdog@vger.kernel.org,
-	Michael Turquette <mturquette@baylibre.com>,
-	rtc-linux@googlegroups.com, Sebastian Reichel <sre@kernel.org>,
-	Stephen Boyd <sboyd@codeaurora.org>,
-	Thierry Reding <thierry.reding@gmail.com>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Wim Van Sebroeck <wim@iguana.be>
-Subject: [rtc-linux] Re: [PATCH 00/23] ARM: at91: Properly handle slow clock
-Message-ID: <20150731102009.GH27985@piout.net>
-References: <1438335599-3301-1-git-send-email-alexandre.belloni@free-electrons.com>
- <20150731115903.4ef23e83@bbrezillon>
+        Thu, 09 Jul 2015 06:02:42 -0700 (PDT)
+To: Hans Ulli Kroll <ulli.kroll@googlemail.com>
+Subject: [rtc-linux] Gemini Soc timers
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <20150731115903.4ef23e83@bbrezillon>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Date: Thu, 09 Jul 2015 16:02:42 +0300
+From: Roman Yeryomin <roman@advem.lv>
+Cc: Arnd Bergmann <arnd@arndb.de>, linux-arm-kernel@lists.infradead.org,
+ Felix Fietkau <nbd@openwrt.org>, rtc-linux@googlegroups.com, Linus Walleij
+ <linus.walleij@linaro.org>, linux-kernel@vger.kernel.org, Alexandre Belloni
+ <alexandre.belloni@free-electrons.com>, Russell King
+ <rmk+kernel@arm.linux.org.uk>
+In-Reply-To: <alpine.LNX.2.00.1507091343150.24357@localhost>
+References: <1292339307-14336-2-git-send-email-ulli.kroll@googlemail.com>
+ <2131951.l0j0CIttAZ@wuerfel> <f22e65faa7d86074cda27973f83d7a52@advem.lv>
+ <1781580.JRD7b0UrJA@wuerfel> <alpine.LNX.2.00.1507091343150.24357@localhost>
+Message-ID: <5e6214ee669fbd797ad2ef257ce52068@advem.lv>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -40,20 +29,51 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Hi,
-
-On 31/07/2015 at 11:59:03 +0200, Boris Brezillon wrote :
-> I would have squashed commit 5 to 14 into a single patch, but apart
-> from that it looks good to me.
+On 2015-07-09 14:58, Hans Ulli Kroll wrote:
+> Hi
 > 
+> On Thu, 9 Jul 2015, Arnd Bergmann wrote:
+> 
+>> On Thursday 09 July 2015 01:29:39 Roman Yeryomin wrote:
+>> >
+>> > OK, here are the minimal changes required (see attachment). Tested on
+>> > 4.1.1
+>> > Let me know if you want me to submit it in some other way.
+>> >
+>> 
+>> The changes look ok to me. Please submit them as two separate
+>> patches (1. set up and use timer3, 2. register sched_clock) according
+>> to the Documentation/SubmittingPatches description.
+>> 
+>> Thanks,
+>> 
+>> 	Arnd
+>> 
+> 
+> have you seen this thread ...
+> [PATCH 00/18] ARM: Migrate clockevent drivers to 'set-state
+> http://permalink.gmane.org/gmane.linux.ports.arm.kernel/423992
+> 
+> arch/arm/mach-gemini/time.c              | 69 ++++++++++++------------
+> 
+> Two or more weeks ago I send a patchset fixing this problem.
+> At this time Arnd was in holiday and until today I was very busy at 
+> work.
 
-I wanted to clearly list were the slow clock was needed for each soc. It
-actually allowed me to find one that was missing.
+Sorry, I didn't see your patches.
+Arnd requested minimal changes and until yesterday I was very busy too.
 
--- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+> I can rework my patches on top of Viresh's patchset
+
+It looks that this patchset doesn't conflict with the fix needed.
+
+> and Roman please fix the subject.
+
+done
+
+
+Regards,
+Roman
 
 -- 
 -- 
