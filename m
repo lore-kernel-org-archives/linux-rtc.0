@@ -1,26 +1,22 @@
-Return-Path: <rtc-linux+bncBCH4V2OOTYHBBTOD7GWAKGQEA55O4LA@googlegroups.com>
-Received: from mail-wg0-x22c.google.com (mail-wg0-x22c.google.com. [2a00:1450:400c:c00::22c])
-        by gmr-mx.google.com with ESMTPS id ec7si284898wib.3.2015.07.09.04.58.05
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 09 Jul 2015 04:58:05 -0700 (PDT)
-Received: by mail-wg0-x22c.google.com with SMTP id m20so37816190wgx.3
-        for <rtc-linux@googlegroups.com>; Thu, 09 Jul 2015 04:58:05 -0700 (PDT)
-Date: Thu, 9 Jul 2015 13:58:02 +0200 (CEST)
-From: "'Hans Ulli Kroll' via rtc-linux" <rtc-linux@googlegroups.com>
-To: Arnd Bergmann <arnd@arndb.de>
-cc: linux-arm-kernel@lists.infradead.org, Roman Yeryomin <roman@advem.lv>,
-    Felix Fietkau <nbd@openwrt.org>, rtc-linux@googlegroups.com,
-    Linus Walleij <linus.walleij@linaro.org>, linux-kernel@vger.kernel.org,
-    Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-    Russell King <rmk+kernel@arm.linux.org.uk>,
-    Hans Ulli Kroll <ulli.kroll@googlemail.com>
-Subject: [rtc-linux] Re: [1/2] RTC: Add core rtc support for Gemini Soc devices
-In-Reply-To: <1781580.JRD7b0UrJA@wuerfel>
-Message-ID: <alpine.LNX.2.00.1507091343150.24357@localhost>
-References: <1292339307-14336-2-git-send-email-ulli.kroll@googlemail.com> <2131951.l0j0CIttAZ@wuerfel> <f22e65faa7d86074cda27973f83d7a52@advem.lv> <1781580.JRD7b0UrJA@wuerfel>
+Return-Path: <rtc-linux+bncBAABBKUM7KWAKGQEZXKFILQ@googlegroups.com>
+Received: from mail.kernel.org (mail.kernel.org. [198.145.29.136])
+        by gmr-mx.google.com with ESMTP id g7si238589igr.0.2015.07.09.07.33.14
+        for <rtc-linux@googlegroups.com>;
+        Thu, 09 Jul 2015 07:33:14 -0700 (PDT)
+Date: Thu, 9 Jul 2015 22:32:57 +0800
+From: Shawn Guo <shawnguo@kernel.org>
+To: Philippe Reynes <tremyfr@gmail.com>
+Cc: a.zummo@towertech.it, alexandre.belloni@free-electrons.com,
+	shawn.guo@linaro.org, kernel@pengutronix.de, linux@arm.linux.org.uk,
+	rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org
+Subject: [rtc-linux] Re: [PATCH v4 6/7] imx27: dt: add support of internal rtc
+Message-ID: <20150709143257.GJ23464@tiger>
+References: <1435965320-1478-1-git-send-email-tremyfr@gmail.com>
+ <1435965320-1478-7-git-send-email-tremyfr@gmail.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1435965320-1478-7-git-send-email-tremyfr@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -31,37 +27,60 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Hi
-
-On Thu, 9 Jul 2015, Arnd Bergmann wrote:
-
-> On Thursday 09 July 2015 01:29:39 Roman Yeryomin wrote:
-> > 
-> > OK, here are the minimal changes required (see attachment). Tested on 
-> > 4.1.1
-> > Let me know if you want me to submit it in some other way.
-> > 
+On Sat, Jul 04, 2015 at 01:15:19AM +0200, Philippe Reynes wrote:
+> Add support of internal rtc on imx27.
 > 
-> The changes look ok to me. Please submit them as two separate
-> patches (1. set up and use timer3, 2. register sched_clock) according
-> to the Documentation/SubmittingPatches description.
+> Signed-off-by: Philippe Reynes <tremyfr@gmail.com>
+> ---
+>  arch/arm/boot/dts/imx27.dtsi |   10 ++++++++++
+>  1 files changed, 10 insertions(+), 0 deletions(-)
 > 
-> Thanks,
+> diff --git a/arch/arm/boot/dts/imx27.dtsi b/arch/arm/boot/dts/imx27.dtsi
+> index b69be5c..38e6e84 100644
+> --- a/arch/arm/boot/dts/imx27.dtsi
+> +++ b/arch/arm/boot/dts/imx27.dtsi
+> @@ -144,6 +144,16 @@
+>  				clock-names = "ipg", "per";
+>  			};
+>  
+> +			rtc: rtc@10007000 {
+> +				compatible = "fsl,imx21-rtc";
+> +				reg = <0x10007000 0x1000>;
+> +				interrupts = <22>;
+> +				clocks = <&clks IMX27_CLK_CKIL>,
+> +					 <&clks IMX27_CLK_RTC_IPG_GATE>;
+> +				clock-names = "rtc", "ipg";
+> +				status = "disabled";
+
+It has neither pin-out nor board level configuration.  For such device,
+it makes more sense to drop status = "disabled" and enable the device by
+default.  The bonus point would be that patch #7 in the series can be
+saved.
+
+Shawn
+
+> +			};
+> +
+>  			kpp: kpp@10008000 {
+>  				compatible = "fsl,imx27-kpp", "fsl,imx21-kpp";
+>  				reg = <0x10008000 0x1000>;
+> -- 
+> 1.7.4.4
 > 
-> 	Arnd
+> 
+> _______________________________________________
+> linux-arm-kernel mailing list
+> linux-arm-kernel@lists.infradead.org
+> http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
 > 
 
-have you seen this thread ...
-[PATCH 00/18] ARM: Migrate clockevent drivers to 'set-state
-http://permalink.gmane.org/gmane.linux.ports.arm.kernel/423992
-
-arch/arm/mach-gemini/time.c              | 69 ++++++++++++------------ 
-
-Two or more weeks ago I send a patchset fixing this problem.
-At this time Arnd was in holiday and until today I was very busy at work.
-
-I can rework my patches on top of Viresh's patchset
-
-and Roman please fix the subject.
-
-Ulli
+-- 
+-- 
+You received this message because you are subscribed to "rtc-linux".
+Membership options at http://groups.google.com/group/rtc-linux .
+Please read http://groups.google.com/group/rtc-linux/web/checklist
+before submitting a driver.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+For more options, visit https://groups.google.com/d/optout.
