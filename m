@@ -1,22 +1,27 @@
-Return-Path: <rtc-linux+bncBCAMRWGQV4CRBPNL2WWQKGQEYN7ZSUA@googlegroups.com>
-MIME-Version: 1.0
-Received: from mail.mleia.com (li271-223.members.linode.com. [178.79.152.223])
-        by gmr-mx.google.com with ESMTPS id c3si255330wiz.2.2015.07.26.14.48.45
+Return-Path: <rtc-linux+bncBAABB2GP7CWAKGQEBGWVGIQ@googlegroups.com>
+Received: from mail1.bemta5.messagelabs.com (mail1.bemta5.messagelabs.com. [195.245.231.151])
+        by gmr-mx.google.com with ESMTPS id t6si90948wiz.0.2015.07.09.00.51.04
         for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sun, 26 Jul 2015 14:48:45 -0700 (PDT)
-From: Vladimir Zapolskiy <vz@mleia.com>
-To: Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: rtc-linux@googlegroups.com,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [rtc-linux] [PATCH 02/11] rtc: ds1305: clean up ds1305_nvram_read()/ds1305_nvram_write()
-Date: Mon, 27 Jul 2015 00:48:27 +0300
-Message-Id: <1437947316-5652-3-git-send-email-vz@mleia.com>
-In-Reply-To: <1437947316-5652-1-git-send-email-vz@mleia.com>
-References: <1437947316-5652-1-git-send-email-vz@mleia.com>
-Reply-To: rtc-linux@googlegroups.com
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 09 Jul 2015 00:51:04 -0700 (PDT)
+Message-ID: <cover.1436427954.git.stwiss.opensource@diasemi.com>
+From: S Twiss <stwiss.opensource@diasemi.com>
+Date: Thu, 9 Jul 2015 08:45:54 +0100
+Subject: [rtc-linux] [PATCH RFC V1 0/3]  da9062: Add DA9062 RTC support using
+ the existing DA9063 RTC driver
+To: Alessandro Zummo <a.zummo@towertech.it>, Alexandre Belloni
+	<alexandre.belloni@free-electrons.com>, DEVICETREE
+	<devicetree@vger.kernel.org>, Ian Campbell <ijc+devicetree@hellion.org.uk>,
+	Kumar Gala <galak@codeaurora.org>, LINUXINPUT <linux-input@vger.kernel.org>,
+	LINUXKERNEL <linux-kernel@vger.kernel.org>, Lee Jones <lee.jones@linaro.org>,
+	Mark Rutland <mark.rutland@arm.com>, Pawel Moll <pawel.moll@arm.com>,
+	RTCLINUX <rtc-linux@googlegroups.com>, Rob Herring <robh+dt@kernel.org>, "S
+ Twiss" <stwiss.opensource@diasemi.com>, Samuel Ortiz <sameo@linux.intel.com>
+CC: David Dajun Chen <david.chen@diasemi.com>, Support Opensource
+	<support.opensource@diasemi.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -26,52 +31,75 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-The change removes redundant sysfs binary file boundary checks, since
-this task is already done on caller size in fs/sysfs/file.c
+From: S Twiss <stwiss.opensource@diasemi.com>
 
-Signed-off-by: Vladimir Zapolskiy <vz@mleia.com>
----
- drivers/rtc/rtc-ds1305.c | 18 ------------------
- 1 file changed, 18 deletions(-)
+This patch set adds RTC support for the Dialog DA9062 Power Management IC.
+Changes are made to the existing DA9063 RTC component so that functionality
+in this device driver can be re-used to support the DA9062 RTC.
 
-diff --git a/drivers/rtc/rtc-ds1305.c b/drivers/rtc/rtc-ds1305.c
-index 12b0715..baa5d04 100644
---- a/drivers/rtc/rtc-ds1305.c
-+++ b/drivers/rtc/rtc-ds1305.c
-@@ -538,15 +538,6 @@ ds1305_nvram_read(struct file *filp, struct kobject *kobj,
- 
- 	spi = container_of(kobj, struct spi_device, dev.kobj);
- 
--	if (unlikely(off >= DS1305_NVRAM_LEN))
--		return 0;
--	if (count >= DS1305_NVRAM_LEN)
--		count = DS1305_NVRAM_LEN;
--	if ((off + count) > DS1305_NVRAM_LEN)
--		count = DS1305_NVRAM_LEN - off;
--	if (unlikely(!count))
--		return count;
--
- 	addr = DS1305_NVRAM + off;
- 	msg_init(&m, x, &addr, count, NULL, buf);
- 
-@@ -569,15 +560,6 @@ ds1305_nvram_write(struct file *filp, struct kobject *kobj,
- 
- 	spi = container_of(kobj, struct spi_device, dev.kobj);
- 
--	if (unlikely(off >= DS1305_NVRAM_LEN))
--		return -EFBIG;
--	if (count >= DS1305_NVRAM_LEN)
--		count = DS1305_NVRAM_LEN;
--	if ((off + count) > DS1305_NVRAM_LEN)
--		count = DS1305_NVRAM_LEN - off;
--	if (unlikely(!count))
--		return count;
--
- 	addr = (DS1305_WRITE | DS1305_NVRAM) + off;
- 	msg_init(&m, x, &addr, count, buf, NULL);
- 
+This following patch set is the proposed method for re-using existing kernel
+RTC drivers for chips whose RTC blocks are functionally similar to the
+DA9063 RTC.
+
+There is already a precedence for reuse of this type in the kernel, see
+linux-mainline/v4.1 drivers/rtc/rtc-pm8xxx.c +34
+This patch set will follow that example.
+
+The main points for the MFD core and device tree changes are as follows.
+
+- Alteration of the DA9063 RTC Kconfig needs to be updated to depend on
+  both MFD_DA9063 "or" MFD_DA9062. There is no explicit DA9062 RTC Kconfig.
+- The DA9062 MFD core should add a new RTC resource as usual and an entry
+  in the mfd_cell to support a component name and of_compatible for
+  "da9062-rtc" and "dlg,da9062-rtc".
+- The device tree binding support should include a compatible string for
+  "dlg,da9062-rtc"
+
+The main points for the RTC changes are as follows:
+
+A generic structure is used (called da9063_compatible_rtc_regmap) to hold
+all generic registers and bitmasks for use with this type of RTC component.
+
+Functions in the DA9063 RTC will be refactored to use this compatibility
+struct and all accesses to generic registers/masks will be made through
+this table look-up instead of using defines from the register header files
+directly
+
+Linkage between the DA9062 MFD and the DA9063 RTC driver is created through
+the use of an of_match_table entry in the platform_driver structure.
+A re-work of da9063_rtc_probe() is necessary to use the of_match_node() and
+dev_get_regmap() functions: this will provide initialisation of the generic
+registers and masks and allow access to the regmap according to the correct
+device tree specification.
+
+The addition of a of_device_id table for DA9063 and DA9062 default data
+is created. This method of initialisation for the DA9063 RTC component
+works well for different chip types, and is only slightly complicated when
+distinguishing the difference between support for DA9063-AD and DA9063-BB.
+
+In this patch set the following is provided:
+ - [PATCH V1 1/3]: MFD changes in DA9062 to support RTC
+ - [PATCH V1 2/3]: Update existing DA9063 RTC to add DA9062 support
+ - [PATCH V1 3/3]: Device tree bindings for DA9062 RTC component
+
+This patch applies against linux-next and next-20150708 
+
+Thank you,
+Steve Twiss, Dialog Semiconductor Ltd.
+
+S Twiss (3):
+  mfd: da9062: Support for the DA9063 RTC in the DA9062 core
+  rtc: da9063: Add DA9062 RTC capability to DA9063 RTC driver
+  devicetree: da9062: Add device tree bindings for DA9062 RTC
+
+ Documentation/devicetree/bindings/mfd/da9062.txt |   9 +
+ drivers/mfd/da9062-core.c                        |  11 +
+ drivers/rtc/Kconfig                              |   6 +-
+ drivers/rtc/rtc-da9063.c                         | 435 ++++++++++++++++-------
+ 4 files changed, 330 insertions(+), 131 deletions(-)
+
 -- 
-2.1.4
+end-of-patch for PATCH RFC V1
 
 -- 
 -- 
