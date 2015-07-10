@@ -1,20 +1,27 @@
-Return-Path: <rtc-linux+bncBDEKVJM7XAHRBBGW7CWAKGQE4YID5VQ@googlegroups.com>
-Received: from mout.kundenserver.de (mout.kundenserver.de. [212.227.17.13])
-        by gmr-mx.google.com with ESMTPS id t6si93469wiz.0.2015.07.09.01.04.20
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 09 Jul 2015 01:04:20 -0700 (PDT)
-From: Arnd Bergmann <arnd@arndb.de>
-To: linux-arm-kernel@lists.infradead.org
-Cc: Roman Yeryomin <roman@advem.lv>, Felix Fietkau <nbd@openwrt.org>, rtc-linux@googlegroups.com, Linus Walleij <linus.walleij@linaro.org>, linux-kernel@vger.kernel.org, Alexandre Belloni <alexandre.belloni@free-electrons.com>, Russell King <rmk+kernel@arm.linux.org.uk>, Hans Ulli Kroll <ulli.kroll@googlemail.com>
-Subject: [rtc-linux] Re: [1/2] RTC: Add core rtc support for Gemini Soc devices
-Date: Thu, 09 Jul 2015 10:04:14 +0200
-Message-ID: <1781580.JRD7b0UrJA@wuerfel>
-In-Reply-To: <f22e65faa7d86074cda27973f83d7a52@advem.lv>
-References: <1292339307-14336-2-git-send-email-ulli.kroll@googlemail.com> <2131951.l0j0CIttAZ@wuerfel> <f22e65faa7d86074cda27973f83d7a52@advem.lv>
+Return-Path: <rtc-linux+bncBDKZNNNLXAHBBQOR7WWAKGQERIIR7WY@googlegroups.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Received: from mailout1.w1.samsung.com (mailout1.w1.samsung.com. [210.118.77.11])
+        by gmr-mx.google.com with ESMTPS id ra16si857171pac.0.2015.07.09.23.40.00
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1 cipher=RC4-SHA bits=128/128);
+        Thu, 09 Jul 2015 23:40:00 -0700 (PDT)
+Received: from eucpsbgm2.samsung.com (unknown [203.254.199.245])
+ by mailout1.w1.samsung.com
+ (Oracle Communications Messaging Server 7.0.5.31.0 64bit (built May  5 2014))
+ with ESMTP id <0NR90042FEIK8M40@mailout1.w1.samsung.com> for
+ rtc-linux@googlegroups.com; Fri, 10 Jul 2015 07:39:56 +0100 (BST)
+From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+To: Alessandro Zummo <a.zummo@towertech.it>,
+ Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+ rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org
+Cc: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+Subject: [rtc-linux] [PATCH 2/2] rtc: Drop owner assignment from platform_driver
+Date: Fri, 10 Jul 2015 15:39:51 +0900
+Message-id: <1436510391-6001-3-git-send-email-k.kozlowski@samsung.com>
+In-reply-to: <1436510391-6001-1-git-send-email-k.kozlowski@samsung.com>
+References: <1436510391-6001-1-git-send-email-k.kozlowski@samsung.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -24,20 +31,26 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On Thursday 09 July 2015 01:29:39 Roman Yeryomin wrote:
-> 
-> OK, here are the minimal changes required (see attachment). Tested on 
-> 4.1.1
-> Let me know if you want me to submit it in some other way.
-> 
+platform_driver does not need to set an owner because
+platform_driver_register() will set it.
+---
+ drivers/rtc/rtc-opal.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-The changes look ok to me. Please submit them as two separate
-patches (1. set up and use timer3, 2. register sched_clock) according
-to the Documentation/SubmittingPatches description.
-
-Thanks,
-
-	Arnd
+diff --git a/drivers/rtc/rtc-opal.c b/drivers/rtc/rtc-opal.c
+index 7061dcae2b09..417d7b4a5cd8 100644
+--- a/drivers/rtc/rtc-opal.c
++++ b/drivers/rtc/rtc-opal.c
+@@ -236,7 +236,6 @@ static struct platform_driver opal_rtc_driver = {
+ 	.id_table	= opal_rtc_driver_ids,
+ 	.driver		= {
+ 		.name		= DRVNAME,
+-		.owner		= THIS_MODULE,
+ 		.of_match_table	= opal_rtc_match,
+ 	},
+ };
+-- 
+1.9.1
 
 -- 
 -- 
