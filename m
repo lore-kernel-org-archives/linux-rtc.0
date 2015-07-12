@@ -1,46 +1,19 @@
-Return-Path: <rtc-linux+bncBDP6N55ZUYDRBONF5GWQKGQECGB2E2Q@googlegroups.com>
-Received: from mail-pd0-x244.google.com (mail-pd0-x244.google.com. [2607:f8b0:400e:c02::244])
-        by gmr-mx.google.com with ESMTPS id ff6si255479pac.2.2015.07.30.09.37.13
+Return-Path: <rtc-linux+bncBDEKVJM7XAHRBW5NROWQKGQESCVC2DA@googlegroups.com>
+Received: from mout.kundenserver.de (mout.kundenserver.de. [212.227.17.10])
+        by gmr-mx.google.com with ESMTPS id gt9si268398wib.2.2015.07.12.14.06.35
         for <rtc-linux@googlegroups.com>
         (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 30 Jul 2015 09:37:13 -0700 (PDT)
-Received: by pdbmj9 with SMTP id mj9so2368203pdb.0
-        for <rtc-linux@googlegroups.com>; Thu, 30 Jul 2015 09:37:13 -0700 (PDT)
-Date: Thu, 30 Jul 2015 09:37:08 -0700
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Javier Martinez Canillas <javier@osg.samsung.com>
-Cc: linux-kernel@vger.kernel.org, alsa-devel@alsa-project.org,
-	Mark Brown <broonie@kernel.org>, linux-iio@vger.kernel.org,
-	linux-fbdev@vger.kernel.org, linux-i2c@vger.kernel.org,
-	linux-leds@vger.kernel.org,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Chanwoo Choi <cw00.choi@samsung.com>,
-	Tomi Valkeinen <tomi.valkeinen@ti.com>, lm-sensors@lm-sensors.org,
-	Sebastian Reichel <sre@kernel.org>, linux-input@vger.kernel.org,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	Jean Delvare <jdelvare@suse.com>,
-	Jonathan Cameron <jic23@kernel.org>, linux-media@vger.kernel.org,
-	rtc-linux@googlegroups.com, linux-pm@vger.kernel.org,
-	Mauro Carvalho Chehab <mchehab@osg.samsung.com>,
-	Guenter Roeck <linux@roeck-us.net>,
-	Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-	Wolfram Sang <wsa@the-dreams.de>, Takashi Iwai <tiwai@suse.com>,
-	Liam Girdwood <lgirdwood@gmail.com>,
-	Sjoerd Simons <sjoerd.simons@collabora.co.uk>,
-	Lee Jones <lee.jones@linaro.org>, Bryan Wu <cooloney@gmail.com>,
-	linux-omap@vger.kernel.org, Sakari Ailus <sakari.ailus@iki.fi>,
-	linux-usb@vger.kernel.org, linux-spi@vger.kernel.org,
-	Tony Lindgren <tony@atomide.com>,
-	MyungJoo Ham <myungjoo.ham@samsung.com>,
-	linuxppc-dev@lists.ozlabs.org
-Subject: [rtc-linux] Re: [PATCH 00/27] Export I2C and OF module aliases in
- missing drivers
-Message-ID: <20150730163708.GB13165@dtor-ws>
-References: <1438273132-20926-1-git-send-email-javier@osg.samsung.com>
- <20150730163517.GA13165@dtor-ws>
+        Sun, 12 Jul 2015 14:06:35 -0700 (PDT)
+From: Arnd Bergmann <arnd@arndb.de>
+To: Linus Walleij <linus.walleij@linaro.org>
+Cc: Roman Yeryomin <roman@advem.lv>, Hans Ulli Kroll <ulli.kroll@googlemail.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Felix Fietkau <nbd@openwrt.org>, "rtc-linux@googlegroups.com" <rtc-linux@googlegroups.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Alexandre Belloni <alexandre.belloni@free-electrons.com>, Russell King <rmk+kernel@arm.linux.org.uk>
+Subject: [rtc-linux] Re: Gemini Soc timers
+Date: Sun, 12 Jul 2015 23:06:03 +0200
+Message-ID: <9777530.lnQDW33Iqo@wuerfel>
+In-Reply-To: <CACRpkdbf2CfT7fJ6wAC3WB9=-Cp0A5xZAO1-Rh78o-U26Fr0Ag@mail.gmail.com>
+References: <1292339307-14336-2-git-send-email-ulli.kroll@googlemail.com> <975d474dd947bcef8d3dd70ef18a5c29@advem.lv> <CACRpkdbf2CfT7fJ6wAC3WB9=-Cp0A5xZAO1-Rh78o-U26Fr0Ag@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <20150730163517.GA13165@dtor-ws>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -51,41 +24,38 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On Thu, Jul 30, 2015 at 09:35:17AM -0700, Dmitry Torokhov wrote:
-> Hi Javier,
+On Friday 10 July 2015 10:48:26 Linus Walleij wrote:
+> On Thu, Jul 9, 2015 at 6:48 PM, Roman Yeryomin <roman@advem.lv> wrote:
+> > [Me]
+> >> As usual they are just keeping it out of mainline, and this
+> >> is adding sched_clock() and other goodies so should
+> >> probably be upstreamed ASAP.
+> >
+> >
+> > This is what I initially submitted here.
 > 
-> On Thu, Jul 30, 2015 at 06:18:25PM +0200, Javier Martinez Canillas wrote:
-> > Hello,
-> > 
-> > Short version:
-> > 
-> > This series add the missing MODULE_DEVICE_TABLE() for OF and I2C tables
-> > to export that information so modules have the correct aliases built-in
-> > and autoloading works correctly.
-> > 
-> > Longer version:
-> > 
-> > Currently it's mandatory for I2C drivers to have an I2C device ID table
-> > regardless if the device was registered using platform data or OF. This
-> > is because the I2C core needs an I2C device ID table for two reasons:
-> > 
-> > 1) Match the I2C client with a I2C device ID so a struct i2c_device_id
-> >    is passed to the I2C driver probe() function.
-> > 
-> > 2) Export the module aliases from the I2C device ID table so userspace
-> >    can auto-load the correct module. This is because i2c_device_uevent
-> >    always reports a MODALIAS of the form i2c:<client->name>.
+> Ah. I missed part of the start of the discussion it seems.
 > 
-> Why are we not fixing this? We emit specially carved uevent for
-> ACPI-based devices, why not the same for OF? Platform bus does this...
+> > But Arnd wanted to see a smaller patch which only fixes gemini timer issue
+> > (t.i. shed clock being 100Hz instead of 25MHz).
+> > Also I've submitted 4.1 support yesterday, but patches didn't change much
+> > comparing to 3.18
+> 
+> On the other hand I think the bigger patch is OK actually.
+> 
+> I rewrote the timer support some time back and did not get
+> anyone to test it properly at the time, so the patch went in
+> untested. So this is a fix.
 
-Ah, now I see the 27/27 patch. I think it is exactly what we need. And
-probably for SPI bus as well.
+The bigger patch seemed a little too verbose to have it backported
+to stable kernels, so I asked for a minimal fix that could be marked
+as stable, with the other changes applied on top for the current
+arm-soc tree.
 
-Thanks.
+I'm still on parental leave and not dealing with patches directly,
+so whichever patch we want should get routed through Ulli to arm@kernel.org
 
--- 
-Dmitry
+	Arnd
 
 -- 
 -- 
