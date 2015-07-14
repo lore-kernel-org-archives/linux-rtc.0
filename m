@@ -1,33 +1,26 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBQO44WWQKGQEJ7Y3YAY@googlegroups.com>
+Return-Path: <rtc-linux+bncBAABB2MVSSWQKGQEYULN5SQ@googlegroups.com>
+Received: from mail1.bemta14.messagelabs.com (mail1.bemta14.messagelabs.com. [193.109.254.119])
+        by gmr-mx.google.com with ESMTPS id bk2si81973wib.1.2015.07.14.06.13.13
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 14 Jul 2015 06:13:13 -0700 (PDT)
+Message-ID: <cover.1436879270.git.stwiss.opensource@diasemi.com>
+From: S Twiss <stwiss.opensource@diasemi.com>
+Date: Tue, 14 Jul 2015 14:07:50 +0100
+Subject: [rtc-linux] [PATCH RFC V1 0/3]  da9062: Add DA9062 OnKey support
+ using the existing DA9063 OnKey driver
+To: DEVICETREE <devicetree@vger.kernel.org>, Dmitry Torokhov
+	<dmitry.torokhov@gmail.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>,
+	Kumar Gala <galak@codeaurora.org>, LINUXINPUT <linux-input@vger.kernel.org>,
+	LINUXKERNEL <linux-kernel@vger.kernel.org>, Lee Jones <lee.jones@linaro.org>,
+	Mark Rutland <mark.rutland@arm.com>, Pawel Moll <pawel.moll@arm.com>,
+	RTCLINUX <rtc-linux@googlegroups.com>, Rob Herring <robh+dt@kernel.org>, "S
+ Twiss" <stwiss.opensource@diasemi.com>, Samuel Ortiz <sameo@linux.intel.com>
+CC: David Dajun Chen <david.chen@diasemi.com>, Support Opensource
+	<support.opensource@diasemi.com>
 MIME-Version: 1.0
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id cj6si777019wib.1.2015.07.29.17.22.24
-        for <rtc-linux@googlegroups.com>;
-        Wed, 29 Jul 2015 17:22:24 -0700 (PDT)
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Nicolas Ferre <nicolas.ferre@atmel.com>
-Cc: Boris Brezillon <boris.brezillon@free-electrons.com>,
-	Maxime Ripard <maxime.ripard@free-electrons.com>,
-	linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	rtc-linux@googlegroups.com,
-	Wim Van Sebroeck <wim@iguana.be>,
-	linux-watchdog@vger.kernel.org,
-	Sebastian Reichel <sre@kernel.org>,
-	Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>,
-	linux-pm@vger.kernel.org,
-	Daniel Lezcano <daniel.lezcano@linaro.org>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Michael Turquette <mturquette@baylibre.com>,
-	Stephen Boyd <sboyd@codeaurora.org>,
-	linux-clk@vger.kernel.org
-Subject: [rtc-linux] [PATCH 00/20] ARM: at91: Properly handle slow clock
-Date: Thu, 30 Jul 2015 02:21:46 +0200
-Message-Id: <1438215726-27452-1-git-send-email-alexandre.belloni@free-electrons.com>
-Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -37,87 +30,69 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Hi,
+From: S Twiss <stwiss.opensource@diasemi.com>
 
-It was discovered that all the slow clock user were not properly claiming it.
-This can end up in a system hang because the last registered user is releasing
-it, and it gets disabled.
+This patch set adds OnKey support for the Dialog DA9062 Power Management IC.
+Changes are made to the existing DA9063 OnKey component so that functionality
+in this device driver can be re-used to support the DA9062 OnKey.
 
-commit dca1a4b5ff6e ("clk: at91: keep slow clk enabled to prevent system hang")
-was a workaround. This series is adding the slow clock to the necessary drivers
-to avoid the issue and then removes that workaround.
+This following patch set is the proposed method for re-using the existing
+kernel OnKey drivers for chips whose OnKey blocks are functionally similar
+to the DA9063 OnKey.
 
-The Documentation updates and DT patches should probably go through the AT91
-tree this cycle to avoid breakage.
+The main points for the MFD core and device tree changes are as follows.
 
-Then the other patches can go through each subsystem tree. They are trivial
-enough to also go in this cycle.
+- Alteration of the DA9063 OnKey Kconfig needs to be updated to depend on
+  both MFD_DA9063 "or" MFD_DA9062. There is no explicit DA9062 OnKey Kconfig.
+- The DA9062 MFD core should add a new OnKey resource as usual and an entry
+  in the mfd_cell to support a component name and of_compatible for
+  "da9062-onkey" and "dlg,da9062-onkey".
+- The device tree binding support should include a compatible string for
+  "dlg,da9062-onkey"
 
-The final clk patch depends on the other ones and may be taken for the next
-cycle to avoid synchronization issues.
+The main points for the OnKey changes are as follows:
 
-I've thrown in a cleanup for at91-reset as it avoids adding support for that
-clock to the platform data initialization
+A generic structure is used (called da9063_compatible_onkey_regmap) to hold
+all generic registers and bitmasks for use with this type of OnKey component.
 
-Cc: Alessandro Zummo <a.zummo@towertech.it>
-Cc: rtc-linux@googlegroups.com
-Cc: Wim Van Sebroeck <wim@iguana.be>
-Cc: linux-watchdog@vger.kernel.org
-Cc: Sebastian Reichel <sre@kernel.org>
-Cc: Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>
-Cc: linux-pm@vger.kernel.org
-Cc: Daniel Lezcano <daniel.lezcano@linaro.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Michael Turquette <mturquette@baylibre.com>
-Cc: Stephen Boyd <sboyd@codeaurora.org>
-Cc: linux-clk@vger.kernel.org
+Functions in the DA9063 OnKey will be refactored to use this compatibility
+struct and all accesses to generic registers/masks will be made through
+this table look-up instead of using defines from the register header files
+directly
 
-Alexandre Belloni (20):
-  Documentation: dt: atmel-at91: add clocks to system timer, rstc and
-    shdwc
-  Documentation: watchdog: at91sam9_wdt: add clocks property
-  Documentation: dt: rtc: at91rm9200: add clocks property
-  ARM: at91/dt: at91rm9200: use slow clock where necessary
-  ARM: at91/dt: at91sam9260: use slow clock where necessary
-  ARM: at91/dt: at91sam9261: use slow clock where necessary
-  ARM: at91/dt: at91sam9263: use slow clock where necessary
-  ARM: at91/dt: at91sam9g45: use slow clock where necessary
-  ARM: at91/dt: at91sam9n12: use slow clock where necessary
-  ARM: at91/dt: at91sam9rl: use slow clock where necessary
-  ARM: at91/dt: at91sam9x5: use slow clock where necessary
-  ARM: at91/dt: sama5d3: use slow clock where necessary
-  ARM: at91/dt: sama5d4: use slow clock where necessary
-  rtc: at91rm9200: get and use slow clock
-  watchdog: at91sam9: get and use slow clock
-  power/reset: at91-reset: remove useless at91_reset_platform_probe()
-  power/reset: at91-reset: get and use slow clock
-  power/reset: at91-poweroff: get and use slow clock
-  clocksource: atmel-st: get and use slow clock
-  clk: at91: Revert "keep slow clk enabled to prevent system hang"
+Linkage between the DA9062 MFD and the DA9063 OnKey driver is created through
+the use of an of_match_table entry in the platform_driver structure.
+A re-work of da9063_onkey_probe() is necessary to use the of_match_node() and
+dev_get_regmap() functions: this will provide initialisation of the generic
+registers and masks and allow access to the regmap according to the correct
+device tree specification.
 
- .../devicetree/bindings/arm/atmel-at91.txt         | 11 +++--
- .../bindings/rtc/atmel,at91rm9200-rtc.txt          |  2 +
- .../devicetree/bindings/watchdog/atmel-wdt.txt     |  2 +
- arch/arm/boot/dts/at91rm9200.dtsi                  |  2 +
- arch/arm/boot/dts/at91sam9260.dtsi                 |  3 ++
- arch/arm/boot/dts/at91sam9261.dtsi                 |  3 ++
- arch/arm/boot/dts/at91sam9263.dtsi                 |  3 ++
- arch/arm/boot/dts/at91sam9g45.dtsi                 |  4 ++
- arch/arm/boot/dts/at91sam9n12.dtsi                 |  4 ++
- arch/arm/boot/dts/at91sam9rl.dtsi                  |  4 ++
- arch/arm/boot/dts/at91sam9x5.dtsi                  |  4 ++
- arch/arm/boot/dts/sama5d3.dtsi                     |  4 ++
- arch/arm/boot/dts/sama5d4.dtsi                     |  4 ++
- drivers/clk/at91/clk-slow.c                        | 27 -------------
- drivers/clocksource/timer-atmel-st.c               | 31 +++++++++-----
- drivers/power/reset/at91-poweroff.c                | 13 ++++++
- drivers/power/reset/at91-reset.c                   | 47 ++++++----------------
- drivers/rtc/rtc-at91rm9200.c                       | 27 +++++++++++--
- drivers/watchdog/at91sam9_wdt.c                    | 22 +++++++++-
- 19 files changed, 138 insertions(+), 79 deletions(-)
+The addition of a of_device_id table for DA9063 and DA9062 default data
+is created. 
+
+In this patch set the following is provided:
+ - [PATCH V1 1/3]: MFD changes in DA9062 to support OnKey
+ - [PATCH V1 2/3]: Update existing DA9063 OnKey to add DA9062 support
+ - [PATCH V1 3/3]: Device tree bindings for DA9062 OnKey component
+
+This patch applies against linux-next and next-20150708 
+
+Thank you,
+Steve Twiss, Dialog Semiconductor Ltd.
+
+S Twiss (3):
+  mfd: da9062: Support for the DA9063 OnKey in the DA9062 core
+  onkey: da9063: Add DA9062 OnKey capability to DA9063 OnKey driver
+  devicetree: da9062: Add device tree bindings for DA9062 OnKey
+
+ Documentation/devicetree/bindings/mfd/da9062.txt |  18 +++
+ drivers/input/misc/Kconfig                       |   6 +-
+ drivers/input/misc/da9063_onkey.c                | 139 ++++++++++++++++++-----
+ drivers/mfd/da9062-core.c                        |  11 ++
+ 4 files changed, 141 insertions(+), 33 deletions(-)
 
 -- 
-2.1.4
+end-of-patch for PATCH RFC V1
 
 -- 
 -- 
