@@ -1,22 +1,34 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBVW54WWQKGQERM6RLBI@googlegroups.com>
+Return-Path: <rtc-linux+bncBAABBEMDSOWQKGQECJ5UGOQ@googlegroups.com>
 MIME-Version: 1.0
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id cj6si777351wib.1.2015.07.29.17.24.54
-        for <rtc-linux@googlegroups.com>;
-        Wed, 29 Jul 2015 17:24:54 -0700 (PDT)
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Nicolas Ferre <nicolas.ferre@atmel.com>
-Cc: Boris Brezillon <boris.brezillon@free-electrons.com>,
-	linux-arm-kernel@lists.infradead.org,
-	rtc-linux@googlegroups.com,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	linux-kernel@vger.kernel.org,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Subject: [rtc-linux] [PATCH 4/5] rtc: at91sam9: get sclk rate after enabling it
-Date: Thu, 30 Jul 2015 02:24:31 +0200
-Message-Id: <1438215872-27794-4-git-send-email-alexandre.belloni@free-electrons.com>
-In-Reply-To: <1438215872-27794-1-git-send-email-alexandre.belloni@free-electrons.com>
-References: <1438215872-27794-1-git-send-email-alexandre.belloni@free-electrons.com>
+Received: from e23smtp02.au.ibm.com (e23smtp02.au.ibm.com. [202.81.31.144])
+        by gmr-mx.google.com with ESMTPS id ra16si30930pac.0.2015.07.14.01.00.15
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1 cipher=AES128-SHA bits=128/128);
+        Tue, 14 Jul 2015 01:00:16 -0700 (PDT)
+Received: from /spool/local
+	by e23smtp02.au.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+	for <rtc-linux@googlegroups.com> from <vaibhav@linux.vnet.ibm.com>;
+	Tue, 14 Jul 2015 18:00:10 +1000
+Received: from d23relay10.au.ibm.com (d23relay10.au.ibm.com [9.190.26.77])
+	by d23dlp02.au.ibm.com (Postfix) with ESMTP id E26B12BB0047
+	for <rtc-linux@googlegroups.com>; Tue, 14 Jul 2015 18:00:06 +1000 (EST)
+Received: from d23av02.au.ibm.com (d23av02.au.ibm.com [9.190.235.138])
+	by d23relay10.au.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id t6E7xwju46661652
+	for <rtc-linux@googlegroups.com>; Tue, 14 Jul 2015 18:00:06 +1000
+Received: from d23av02.au.ibm.com (localhost [127.0.0.1])
+	by d23av02.au.ibm.com (8.14.4/8.14.4/NCO v10.0 AVout) with ESMTP id t6E7xY2p018889
+	for <rtc-linux@googlegroups.com>; Tue, 14 Jul 2015 17:59:34 +1000
+From: Vaibhav Jain <vaibhav@linux.vnet.ibm.com>
+To: linux-kernel@vger.kernel.org
+Cc: linuxppc-dev@lists.ozlabs.org, Neelesh Gupta <neelegup@linux.vnet.ibm.com>,
+        Michael Neuling <mikey@neuling.org>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        rtc-linux@googlegroups.com, Vaibhav Jain <vaibhav@linux.vnet.ibm.com>
+Subject: [rtc-linux] [PATCH] rtc/rtc-opal: Enable alarms only when opal
+ supports tpo
+Date: Tue, 14 Jul 2015 13:28:28 +0530
+Message-Id: <1436860708-17058-1-git-send-email-vaibhav@linux.vnet.ibm.com>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -28,48 +40,58 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-See help for clk_get_rate(): "obtain the current clock rate (in Hz) for a
-clock source. This is only valid once the clock source has been enabled."
+rtc-opal driver provides support for rtc alarms via
+timed-power-on(tpo). However some Power platforms like BML use a fake
+rtc clock and don't support tpo. Such platforms are indicated by the
+missing 'has-tpo' property in the device tree.
 
-It currently returns the correct value but that may not stay that way.
+Current implementation however enables callback for
+rtc_class_ops.read/set alarm irrespective of the tpo support from the
+platform. This results in a failed opal call when kernel tries to read
+an existing alarms via opal_get_tpo_time during rtc device registration.
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+This patch fixes this issue by setting opal_rtc_ops.read/set_alarm
+callback pointers only when tpo is supported.
+
+Acked-by: Michael Neuling <mikey@neuling.org>
+Acked-by: Neelesh Gupta <neelegup@linux.vnet.ibm.com>
+Signed-off-by: Vaibhav Jain <vaibhav@linux.vnet.ibm.com>
 ---
- drivers/rtc/rtc-at91sam9.c | 13 +++++++------
- 1 file changed, 7 insertions(+), 6 deletions(-)
+ drivers/rtc/rtc-opal.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/rtc/rtc-at91sam9.c b/drivers/rtc/rtc-at91sam9.c
-index 23f721d049b2..f9e85ace5e71 100644
---- a/drivers/rtc/rtc-at91sam9.c
-+++ b/drivers/rtc/rtc-at91sam9.c
-@@ -425,18 +425,19 @@ static int at91_rtc_probe(struct platform_device *pdev)
- 	if (IS_ERR(rtc->sclk))
- 		return PTR_ERR(rtc->sclk);
+diff --git a/drivers/rtc/rtc-opal.c b/drivers/rtc/rtc-opal.c
+index 7061dca..1125641 100644
+--- a/drivers/rtc/rtc-opal.c
++++ b/drivers/rtc/rtc-opal.c
+@@ -190,11 +190,9 @@ exit:
+ 	return rc;
+ }
  
--	sclk_rate = clk_get_rate(rtc->sclk);
--	if (!sclk_rate || sclk_rate > AT91_RTT_RTPRES) {
--		dev_err(&pdev->dev, "Invalid slow clock rate\n");
--		return -EINVAL;
--	}
--
- 	ret = clk_prepare_enable(rtc->sclk);
- 	if (ret) {
- 		dev_err(&pdev->dev, "Could not enable slow clock\n");
- 		return ret;
- 	}
+-static const struct rtc_class_ops opal_rtc_ops = {
++static struct rtc_class_ops opal_rtc_ops = {
+ 	.read_time	= opal_get_rtc_time,
+ 	.set_time	= opal_set_rtc_time,
+-	.read_alarm	= opal_get_tpo_time,
+-	.set_alarm	= opal_set_tpo_time,
+ };
  
-+	sclk_rate = clk_get_rate(rtc->sclk);
-+	if (!sclk_rate || sclk_rate > AT91_RTT_RTPRES) {
-+		dev_err(&pdev->dev, "Invalid slow clock rate\n");
-+		ret = -EINVAL;
-+		goto err_clk;
+ static int opal_rtc_probe(struct platform_device *pdev)
+@@ -202,8 +200,11 @@ static int opal_rtc_probe(struct platform_device *pdev)
+ 	struct rtc_device *rtc;
+ 
+ 	if (pdev->dev.of_node && of_get_property(pdev->dev.of_node, "has-tpo",
+-						 NULL))
++						 NULL)) {
+ 		device_set_wakeup_capable(&pdev->dev, true);
++		opal_rtc_ops.read_alarm	= opal_get_tpo_time;
++		opal_rtc_ops.set_alarm = opal_set_tpo_time;
 +	}
-+
- 	mr = rtt_readl(rtc, MR);
  
- 	/* unless RTT is counting at 1 Hz, re-initialize it */
+ 	rtc = devm_rtc_device_register(&pdev->dev, DRVNAME, &opal_rtc_ops,
+ 				       THIS_MODULE);
 -- 
-2.1.4
+2.2.1
 
 -- 
 -- 
