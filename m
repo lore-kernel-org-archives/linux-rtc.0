@@ -1,25 +1,27 @@
-Return-Path: <rtc-linux+bncBDE6RCFOWIARBD5Q4KWQKGQEDADPPQA@googlegroups.com>
-Received: from mail-ob0-f180.google.com (mail-ob0-f180.google.com. [209.85.214.180])
-        by gmr-mx.google.com with ESMTPS id a11si1399815igv.3.2015.07.29.02.08.31
+Return-Path: <rtc-linux+bncBAABB24VSSWQKGQEUUN4LEA@googlegroups.com>
+Received: from mail1.bemta14.messagelabs.com (mail1.bemta14.messagelabs.com. [193.109.254.115])
+        by gmr-mx.google.com with ESMTPS id eo3si556801wib.0.2015.07.14.06.13.15
         for <rtc-linux@googlegroups.com>
         (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 29 Jul 2015 02:08:31 -0700 (PDT)
-Received: by mail-ob0-f180.google.com with SMTP id eg2so2668761obd.0
-        for <rtc-linux@googlegroups.com>; Wed, 29 Jul 2015 02:08:31 -0700 (PDT)
+        Tue, 14 Jul 2015 06:13:15 -0700 (PDT)
+Message-ID: <b3c74ac91cce63d6906c1c87b3bed98f36400752.1436879270.git.stwiss.opensource@diasemi.com>
+In-Reply-To: <cover.1436879270.git.stwiss.opensource@diasemi.com>
+References: <cover.1436879270.git.stwiss.opensource@diasemi.com>
+From: S Twiss <stwiss.opensource@diasemi.com>
+Date: Tue, 14 Jul 2015 14:07:50 +0100
+Subject: [rtc-linux] [PATCH RFC V1 3/3] devicetree: da9062: Add device tree
+ bindings for DA9062 OnKey
+To: DEVICETREE <devicetree@vger.kernel.org>, Ian Campbell
+	<ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>,
+	LINUXINPUT <linux-input@vger.kernel.org>, LINUXKERNEL
+	<linux-kernel@vger.kernel.org>, Lee Jones <lee.jones@linaro.org>, "Mark
+ Rutland" <mark.rutland@arm.com>, Pawel Moll <pawel.moll@arm.com>, RTCLINUX
+	<rtc-linux@googlegroups.com>, Rob Herring <robh+dt@kernel.org>, S Twiss
+	<stwiss.opensource@diasemi.com>
+CC: David Dajun Chen <david.chen@diasemi.com>, Dmitry Torokhov
+	<dmitry.torokhov@gmail.com>, Samuel Ortiz <sameo@linux.intel.com>, "Support
+ Opensource" <support.opensource@diasemi.com>
 MIME-Version: 1.0
-In-Reply-To: <1438149721-11072-1-git-send-email-leo.yan@linaro.org>
-References: <1438149721-11072-1-git-send-email-leo.yan@linaro.org>
-Date: Wed, 29 Jul 2015 11:08:30 +0200
-Message-ID: <CACRpkdZ5Kvc0LPeG_HAHwejoCRV4JRbpA2+zwNCAxTqzxdDYzQ@mail.gmail.com>
-Subject: Re: [rtc-linux] [PATCH] drivers/rtc/rtc-pl031.c: reset registers in
- init flow
-From: Linus Walleij <linus.walleij@linaro.org>
-To: "rtc-linux@googlegroups.com" <rtc-linux@googlegroups.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Deepak Saxena <dsaxena@plexity.net>,
-	Leo Yan <leo.yan@linaro.org>
 Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
@@ -31,56 +33,66 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On Wed, Jul 29, 2015 at 8:02 AM, Leo Yan <leo.yan@linaro.org> wrote:
+From: S Twiss <stwiss.opensource@diasemi.com>
 
-> When use rtc-pl031 for suspend test on Hisilicon's SoC Hi6220, Usually
-> the data register (DR) will read back as value zero. So the suspend
-> test code will set the match register (MR) for 10 seconds' timeout; But
-> there have chance later will read back some random values from DR
-> register; So finally miss with match value and will not trigger
-> waken up event anymore.
->
-> This issue can be dismissed by reset registers in initialization flow;
-> And this code have no harm for ST's variant.
->
-> Signed-off-by: Leo Yan <leo.yan@linaro.org>
+Add device tree bindings for the DA9062 OnKey driver component
 
-I don't understand this...
+Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
 
-> +       /* Init registers */
-> +       writel(0x0, ldata->base + RTC_LR);
+---
+Checks performed with linux-next/next-20150708/scripts/checkpatch.pl
+ da9062.txt                total: 0 errors, 0 warnings, 97 lines checked
+This patch applies against linux-next and next-20150708 
 
-This will reset the clock to jan 1st 1970 on every reboot.
-The idea is that the RTC should *preserve* the system time
-if you reboot the system, so NACK.
 
-Usually userspace has a script using hwclock to read the
-system time from the rtc to system time with hwclock -s
-after userspace comes up. Likewise it writes it back with
-hwclock -w before rebooting.
+ Documentation/devicetree/bindings/mfd/da9062.txt | 18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
 
-> +       writel(0x0, ldata->base + RTC_DR);
-
-This is a read-only register in the PL031 clean variant.
-What do you want to achieve here? Is this register writeable
-on the HiSilicon?
-
-> +       writel(0x0, ldata->base + RTC_IMSC);
-
-OK
-
-> +       writel(RTC_BIT_AI, ldata->base + RTC_ICR);
-
-So why do we want to have the alarm enabled by
-default, before the kernel nor userspace has requested
-it?
-
-If your problem is with suspend/resume I suggest you work
-on the [runtime]_suspend/resume hooks instead of probe().
-Possibly you need to save/restore state across suspend/resume.
-
-Yours,
-Linus Walleij
+diff --git a/Documentation/devicetree/bindings/mfd/da9062.txt b/Documentation/devicetree/bindings/mfd/da9062.txt
+index 5765ed9..7752093 100644
+--- a/Documentation/devicetree/bindings/mfd/da9062.txt
++++ b/Documentation/devicetree/bindings/mfd/da9062.txt
+@@ -5,6 +5,7 @@ DA9062 consists of a large and varied group of sub-devices:
+ Device                   Supply Names    Description
+ ------                   ------------    -----------
+ da9062-regulator        :               : LDOs & BUCKs
++da9062-onkey            :               : On Key
+ da9062-watchdog         :               : Watchdog Timer
+ 
+ ======
+@@ -41,6 +42,18 @@ Sub-nodes:
+   Documentation/devicetree/bindings/regulator/regulator.txt
+ 
+ 
++- onkey : This node defines the OnKey settings for controlling the key
++  functionality of the device. The node should contain the compatible property
++  with the value "dlg,da9063-onkey".
++
++  Optional onkey properties:
++
++  - dlg,disable-key-power : Disable power-down using a long key-press. If this
++    entry exists the OnKey driver will remove support for the KEY_POWER key
++    press. If this entry does not exist then by default the key-press
++    triggered power down is enabled and the OnKey will support both KEY_POWER
++    and KEY_SLEEP.
++
+ - watchdog: This node defines the settings for the watchdog driver associated
+   with the DA9062 PMIC. The compatible = "dlg,da9062-watchdog" should be added
+   if a node is created.
+@@ -59,6 +72,11 @@ Example:
+ 			compatible = "dlg,da9062-watchdog";
+ 		};
+ 
++		onkey {
++			compatible = "dlg,da9063-onkey";
++			dlg,disable-key-power;
++		};
++
+ 		regulators {
+ 			DA9062_BUCK1: buck1 {
+ 				regulator-name = "BUCK1";
+-- 
+end-of-patch for PATCH RFC V1
 
 -- 
 -- 
