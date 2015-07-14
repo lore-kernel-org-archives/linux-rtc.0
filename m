@@ -1,19 +1,25 @@
-Return-Path: <rtc-linux+bncBCIPJ6FA2QLBBWW446WQKGQEU2XWPSY@googlegroups.com>
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id ec7si46690wib.3.2015.07.30.02.28.58
-        for <rtc-linux@googlegroups.com>;
-        Thu, 30 Jul 2015 02:28:58 -0700 (PDT)
-Date: Thu, 30 Jul 2015 11:28:52 +0200
-From: Boris Brezillon <boris.brezillon@free-electrons.com>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Nicolas Ferre <nicolas.ferre@atmel.com>,
- linux-arm-kernel@lists.infradead.org, rtc-linux@googlegroups.com,
- Alessandro Zummo <a.zummo@towertech.it>, linux-kernel@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH 1/5] rtc: at91sam9: properly handle error case
-Message-ID: <20150730112852.79dcb30a@bbrezillon>
-In-Reply-To: <1438215872-27794-1-git-send-email-alexandre.belloni@free-electrons.com>
-References: <1438215872-27794-1-git-send-email-alexandre.belloni@free-electrons.com>
+Return-Path: <rtc-linux+bncBDULZYNR2QMRBWUSSSWQKGQERPITYXI@googlegroups.com>
+Received: from mail-lb0-x230.google.com (mail-lb0-x230.google.com. [2a00:1450:4010:c04::230])
+        by gmr-mx.google.com with ESMTPS id sf5si30828lbb.2.2015.07.14.06.06.34
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 14 Jul 2015 06:06:34 -0700 (PDT)
+Received: by mail-lb0-x230.google.com with SMTP id zr7so5661383lbb.1
+        for <rtc-linux@googlegroups.com>; Tue, 14 Jul 2015 06:06:34 -0700 (PDT)
 MIME-Version: 1.0
+In-Reply-To: <20150704190221.GB5497@piout.net>
+References: <1436034454-10473-1-git-send-email-festevam@gmail.com>
+	<20150704184216.GA5497@piout.net>
+	<55982BF4.3020303@free-electrons.com>
+	<20150704190221.GB5497@piout.net>
+Date: Tue, 14 Jul 2015 10:06:34 -0300
+Message-ID: <CAOMZO5AHxoRHE9GZH+wG0TmvV4t4jOhx8ywa541QJV_AteYbzw@mail.gmail.com>
+Subject: [rtc-linux] Re: [PATCH] drivers/rtc/rtc-armada38x: Remove unused
+ variable from armada38x_rtc_set_time()
+From: Fabio Estevam <festevam@gmail.com>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: Gregory CLEMENT <gregory.clement@free-electrons.com>, rtc-linux@googlegroups.com,
+	Fabio Estevam <fabio.estevam@freescale.com>
 Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
@@ -25,68 +31,13 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On Thu, 30 Jul 2015 02:24:28 +0200
-Alexandre Belloni <alexandre.belloni@free-electrons.com> wrote:
+On Sat, Jul 4, 2015 at 4:02 PM, Alexandre Belloni
+<alexandre.belloni@free-electrons.com> wrote:
 
-> In case of a probe error, it is possible to abort after issuing
-> clk_prepare_enable(). Ensure the clock is disabled and unprepared in that
-> case.
-> 
-> Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+>
+> Hum, okay, I just realized f98b733e93e00365b4df78fbb33c2cad3080f6bb is not fixing it...
 
-To the whole series:
-
-Acked-by: Boris Brezillon <boris.brezillon@free-electrons.com>
-
-> ---
->  drivers/rtc/rtc-at91sam9.c | 13 ++++++++++---
->  1 file changed, 10 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/rtc/rtc-at91sam9.c b/drivers/rtc/rtc-at91sam9.c
-> index 5ccaee32df72..152cd816cc43 100644
-> --- a/drivers/rtc/rtc-at91sam9.c
-> +++ b/drivers/rtc/rtc-at91sam9.c
-> @@ -451,8 +451,10 @@ static int at91_rtc_probe(struct platform_device *pdev)
->  
->  	rtc->rtcdev = devm_rtc_device_register(&pdev->dev, pdev->name,
->  					&at91_rtc_ops, THIS_MODULE);
-> -	if (IS_ERR(rtc->rtcdev))
-> -		return PTR_ERR(rtc->rtcdev);
-> +	if (IS_ERR(rtc->rtcdev)) {
-> +		ret = PTR_ERR(rtc->rtcdev);
-> +		goto err_clk;
-> +	}
->  
->  	/* register irq handler after we know what name we'll use */
->  	ret = devm_request_irq(&pdev->dev, rtc->irq, at91_rtc_interrupt,
-> @@ -460,7 +462,7 @@ static int at91_rtc_probe(struct platform_device *pdev)
->  			       dev_name(&rtc->rtcdev->dev), rtc);
->  	if (ret) {
->  		dev_dbg(&pdev->dev, "can't share IRQ %d?\n", rtc->irq);
-> -		return ret;
-> +		goto err_clk;
->  	}
->  
->  	/* NOTE:  sam9260 rev A silicon has a ROM bug which resets the
-> @@ -474,6 +476,11 @@ static int at91_rtc_probe(struct platform_device *pdev)
->  				dev_name(&rtc->rtcdev->dev));
->  
->  	return 0;
-> +
-> +err_clk:
-> +	clk_disable_unprepare(rtc->sclk);
-> +
-> +	return ret;
->  }
->  
->  /*
-
-
-
--- 
-Boris Brezillon, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+Yes, the build warning is still present in linux-next.
 
 -- 
 -- 
