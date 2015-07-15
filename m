@@ -1,25 +1,24 @@
-Return-Path: <rtc-linux+bncBAABBU4T6OWAKGQE5NLAUII@googlegroups.com>
-MIME-Version: 1.0
-Received: from mailout1.samsung.com (mailout1.samsung.com. [203.254.224.24])
-        by gmr-mx.google.com with ESMTPS id x3si134138pdh.2.2015.07.07.23.57.23
+Return-Path: <rtc-linux+bncBAABBEMAS6WQKGQE4X2ACDY@googlegroups.com>
+Received: from na01-bn1-obe.outbound.protection.outlook.com (mail-bn1on0130.outbound.protection.outlook.com. [157.56.110.130])
+        by gmr-mx.google.com with ESMTPS id j14si301069ywa.5.2015.07.14.19.06.08
         for <rtc-linux@googlegroups.com>
-        (version=TLSv1 cipher=RC4-SHA bits=128/128);
-        Tue, 07 Jul 2015 23:57:23 -0700 (PDT)
-Received: from epcpsbgr2.samsung.com
- (u142.gpu120.samsung.co.kr [203.254.230.142])
- by mailout1.samsung.com (Oracle Communications Messaging Server 7.0.5.31.0
- 64bit (built May  5 2014))
- with ESMTP id <0NR502BX9PZLL640@mailout1.samsung.com> for
- rtc-linux@googlegroups.com; Wed, 08 Jul 2015 15:57:21 +0900 (KST)
-From: Maninder Singh <maninder1.s@samsung.com>
-To: a.zummo@towertech.it, alexandre.belloni@free-electrons.com,
- rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org
-Cc: pankaj.m@samsung.com, Maninder Singh <maninder1.s@samsung.com>
-Subject: [rtc-linux] [PATCH 1/1] drivers/rtc/rtc-bq32k.c: remove redundant check
-Date: Wed, 08 Jul 2015 12:26:47 +0530
-Message-id: <1436338607-43389-1-git-send-email-maninder1.s@samsung.com>
-Reply-To: rtc-linux@googlegroups.com
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
+        Tue, 14 Jul 2015 19:06:08 -0700 (PDT)
+From: Wang Dongsheng <Dongsheng.Wang@freescale.com>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+CC: "a.zummo@towertech.it" <a.zummo@towertech.it>,
+	"rtc-linux@googlegroups.com" <rtc-linux@googlegroups.com>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: [rtc-linux] RE: [PATCH] rtc/ds3232: fix ds3232 get a WARNING trace in
+ resume function
+Date: Wed, 15 Jul 2015 02:06:06 +0000
+Message-ID: <SN1PR0301MB1616B0FACCF377D8C476BE419D9A0@SN1PR0301MB1616.namprd03.prod.outlook.com>
+References: <1436249576-23233-1-git-send-email-dongsheng.wang@freescale.com>
+ <20150714225041.GH20482@piout.net>
+In-Reply-To: <20150714225041.GH20482@piout.net>
 Content-Type: text/plain; charset=UTF-8
+MIME-Version: 1.0
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -29,34 +28,44 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-removing below static analysis error:-
-(error) Possible null pointer dereference: client
+Thanks Belloni. :)
 
-if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C))
-							^^^^^^^
-Error comes beacause client is dereferenced before NULL check.
-So probabily NULL this check is not required.
+Regards,
+-Dongsheng
 
-Signed-off-by: Maninder Singh <maninder1.s@samsung.com>
----
- drivers/rtc/rtc-bq32k.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/rtc/rtc-bq32k.c b/drivers/rtc/rtc-bq32k.c
-index 92679df..409de9f 100644
---- a/drivers/rtc/rtc-bq32k.c
-+++ b/drivers/rtc/rtc-bq32k.c
-@@ -212,7 +212,7 @@ static int bq32k_probe(struct i2c_client *client,
- 	if (error)
- 		return error;
- 
--	if (client && client->dev.of_node)
-+	if (client->dev.of_node)
- 		trickle_charger_of_init(dev, client->dev.of_node);
- 
- 	rtc = devm_rtc_device_register(&client->dev, bq32k_driver.driver.name,
--- 
-1.7.9.5
+> -----Original Message-----
+> From: Alexandre Belloni [mailto:alexandre.belloni@free-electrons.com]
+> Sent: Wednesday, July 15, 2015 6:51 AM
+> To: Wang Dongsheng-B40534
+> Cc: a.zummo@towertech.it; rtc-linux@googlegroups.com; linux-
+> kernel@vger.kernel.org
+> Subject: Re: [PATCH] rtc/ds3232: fix ds3232 get a WARNING trace in resume
+> function
+> 
+> Hi,
+> 
+> This seems ok, one small nitpick:
+> 
+> On 07/07/2015 at 14:12:56 +0800, Dongsheng Wang wrote :
+> > From: Wang Dongsheng <dongsheng.wang@freescale.com> diff --git
+> > a/drivers/rtc/rtc-ds3232.c b/drivers/rtc/rtc-ds3232.c index
+> > 7e48e53..2081155 100644
+> > --- a/drivers/rtc/rtc-ds3232.c
+> > +++ b/drivers/rtc/rtc-ds3232.c
+> > @@ -463,7 +463,10 @@ static int ds3232_suspend(struct device *dev)
+> >
+> >  	if (device_can_wakeup(dev)) {
+> >  		ds3232->suspended = true;
+> > -		irq_set_irq_wake(client->irq, 1);
+> > +		if (irq_set_irq_wake(client->irq, 1)) {
+> > +			dev_info(dev, "Cannot serve as a wakeup source\n");
+> 
+> I would use dev_warn_once or dev_info_once here to avoid spamming the log each
+> time the machine is suspended.
+> 
+> --
+> Alexandre Belloni, Free Electrons
+> Embedded Linux, Kernel and Android engineering http://free-electrons.com
 
 -- 
 -- 
