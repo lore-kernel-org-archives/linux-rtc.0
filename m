@@ -1,26 +1,36 @@
-Return-Path: <rtc-linux+bncBAABBNNJXCWQKGQE3WH4XTQ@googlegroups.com>
-Received: from mail1.bemta14.messagelabs.com (mail1.bemta14.messagelabs.com. [193.109.254.114])
-        by gmr-mx.google.com with ESMTPS id gt9si512002wib.2.2015.07.21.02.45.25
+Return-Path: <rtc-linux+bncBDSMJPPV7QFRB4NZS6WQKGQEYQVF5UQ@googlegroups.com>
+Received: from e38.co.us.ibm.com (e38.co.us.ibm.com. [32.97.110.159])
+        by gmr-mx.google.com with ESMTPS id ra16si341172pac.0.2015.07.14.21.09.20
         for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 21 Jul 2015 02:45:25 -0700 (PDT)
-Message-ID: <4e56d79b368e5ba3a15ad32ef08bc5095d8f7217.1437471790.git.stwiss.opensource@diasemi.com>
-In-Reply-To: <cover.1437471790.git.stwiss.opensource@diasemi.com>
-References: <cover.1437471790.git.stwiss.opensource@diasemi.com>
-From: S Twiss <stwiss.opensource@diasemi.com>
-Date: Tue, 21 Jul 2015 10:43:09 +0100
-Subject: [rtc-linux] [PATCH V2 2/3] devicetree: da9062: Add device tree
- bindings for DA9062 RTC
-To: DEVICETREE <devicetree@vger.kernel.org>, Ian Campbell
-	<ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>,
-	LINUXINPUT <linux-input@vger.kernel.org>, LINUXKERNEL
-	<linux-kernel@vger.kernel.org>, Mark Rutland <mark.rutland@arm.com>, Pawel
- Moll <pawel.moll@arm.com>, RTCLINUX <rtc-linux@googlegroups.com>, Rob Herring
-	<robh+dt@kernel.org>, S Twiss <stwiss.opensource@diasemi.com>
-CC: Alessandro Zummo <a.zummo@towertech.it>, Alexandre Belloni
-	<alexandre.belloni@free-electrons.com>, David Dajun Chen
-	<david.chen@diasemi.com>, Lee Jones <lee.jones@linaro.org>, Samuel Ortiz
-	<sameo@linux.intel.com>, Support Opensource <support.opensource@diasemi.com>
+        (version=TLS1 cipher=AES128-SHA bits=128/128);
+        Tue, 14 Jul 2015 21:09:21 -0700 (PDT)
+Received: from /spool/local
+	by e38.co.us.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+	for <rtc-linux@googlegroups.com> from <stewart@linux.vnet.ibm.com>;
+	Tue, 14 Jul 2015 22:09:20 -0600
+Received: from b03cxnp08026.gho.boulder.ibm.com (b03cxnp08026.gho.boulder.ibm.com [9.17.130.18])
+	by d03dlp01.boulder.ibm.com (Postfix) with ESMTP id 82CBF1FF0042
+	for <rtc-linux@googlegroups.com>; Tue, 14 Jul 2015 22:00:27 -0600 (MDT)
+Received: from d03av04.boulder.ibm.com (d03av04.boulder.ibm.com [9.17.195.170])
+	by b03cxnp08026.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id t6F48mQE46006298
+	for <rtc-linux@googlegroups.com>; Tue, 14 Jul 2015 21:08:48 -0700
+Received: from d03av04.boulder.ibm.com (loopback [127.0.0.1])
+	by d03av04.boulder.ibm.com (8.14.4/8.14.4/NCO v10.0 AVout) with ESMTP id t6F49GSI003731
+	for <rtc-linux@googlegroups.com>; Tue, 14 Jul 2015 22:09:16 -0600
+From: Stewart Smith <stewart@linux.vnet.ibm.com>
+To: Vaibhav Jain <vaibhav@linux.vnet.ibm.com>, linux-kernel@vger.kernel.org
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+        Michael Neuling <mikey@neuling.org>, rtc-linux@googlegroups.com,
+        Vaibhav Jain <vaibhav@linux.vnet.ibm.com>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        Neelesh Gupta <neelegup@linux.vnet.ibm.com>,
+        linuxppc-dev@lists.ozlabs.org
+Subject: [rtc-linux] Re: [PATCH] rtc/rtc-opal: Enable alarms only when opal
+ supports tpo
+In-Reply-To: <1436860708-17058-1-git-send-email-vaibhav@linux.vnet.ibm.com>
+References: <1436860708-17058-1-git-send-email-vaibhav@linux.vnet.ibm.com>
+Date: Wed, 15 Jul 2015 14:09:15 +1000
+Message-ID: <m3egkaukno.fsf@oc8180480414.ibm.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
@@ -33,57 +43,31 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-From: S Twiss <stwiss.opensource@diasemi.com>
+Vaibhav Jain <vaibhav@linux.vnet.ibm.com> writes:
+> rtc-opal driver provides support for rtc alarms via
+> timed-power-on(tpo). However some Power platforms like BML use a fake
+> rtc clock and don't support tpo. Such platforms are indicated by the
+> missing 'has-tpo' property in the device tree.
+>
+> Current implementation however enables callback for
+> rtc_class_ops.read/set alarm irrespective of the tpo support from the
+> platform. This results in a failed opal call when kernel tries to read
+> an existing alarms via opal_get_tpo_time during rtc device registration.
+>
+> This patch fixes this issue by setting opal_rtc_ops.read/set_alarm
+> callback pointers only when tpo is supported.
+>
+> Acked-by: Michael Neuling <mikey@neuling.org>
+> Acked-by: Neelesh Gupta <neelegup@linux.vnet.ibm.com>
+> Signed-off-by: Vaibhav Jain <vaibhav@linux.vnet.ibm.com>
 
-Add device tree bindings for the DA9062 RTC driver component
+Acked-by: Stewart Smith <stewart@linux.vnet.ibm.com>
 
-Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
+FWIW I'm updating OPAL docs with this. The TPO calls aren't actually
+documented :(
 
----
-Checks performed with linux-next/next-20150708/scripts/checkpatch.pl
- da9062.txt                total: 0 errors, 0 warnings, 88 lines checked
-This patch applies against linux-next and next-20150708 
-
-
- Documentation/devicetree/bindings/mfd/da9062.txt | 9 +++++++++
- 1 file changed, 9 insertions(+)
-
-diff --git a/Documentation/devicetree/bindings/mfd/da9062.txt b/Documentation/devicetree/bindings/mfd/da9062.txt
-index 5765ed9..38802b5 100644
---- a/Documentation/devicetree/bindings/mfd/da9062.txt
-+++ b/Documentation/devicetree/bindings/mfd/da9062.txt
-@@ -5,6 +5,7 @@ DA9062 consists of a large and varied group of sub-devices:
- Device                   Supply Names    Description
- ------                   ------------    -----------
- da9062-regulator        :               : LDOs & BUCKs
-+da9062-rtc              :               : Real-Time Clock
- da9062-watchdog         :               : Watchdog Timer
- 
- ======
-@@ -41,6 +42,10 @@ Sub-nodes:
-   Documentation/devicetree/bindings/regulator/regulator.txt
- 
- 
-+- rtc : This node defines settings required for the Real-Time Clock associated
-+  with the DA9062. There are currently no entries in this binding, however
-+  compatible = "dlg,da9062-rtc" should be added if a node is created.
-+
- - watchdog: This node defines the settings for the watchdog driver associated
-   with the DA9062 PMIC. The compatible = "dlg,da9062-watchdog" should be added
-   if a node is created.
-@@ -55,6 +60,10 @@ Example:
- 		interrupts = <11 IRQ_TYPE_LEVEL_LOW>;
- 		interrupt-controller;
- 
-+		rtc {
-+			compatible = "dlg,da9062-rtc";
-+		};
-+
- 		watchdog {
- 			compatible = "dlg,da9062-watchdog";
- 		};
--- 
-end-of-patch for PATCH V2
+In future, it'd be great if there was an accompanying skiboot patch
+updating the documentation there too.
 
 -- 
 -- 
