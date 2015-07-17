@@ -1,35 +1,32 @@
-Return-Path: <rtc-linux+bncBD5O5IWPJMIMHJWVVUCRUBDS7ZGQS@googlegroups.com>
-MIME-Version: 1.0
-Received: from mail-wi0-x229.google.com (mail-wi0-x229.google.com. [2a00:1450:400c:c05::229])
-        by gmr-mx.google.com with ESMTPS id gt9si260596wib.2.2015.07.26.14.38.10
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sun, 26 Jul 2015 14:38:10 -0700 (PDT)
-Received: by mail-wi0-x229.google.com with SMTP id xm9so92578493wib.1
-        for <rtc-linux@googlegroups.com>; Sun, 26 Jul 2015 14:38:10 -0700 (PDT)
-From: Philippe Reynes <tremyfr@gmail.com>
-To: a.zummo@towertech.it,
-	alexandre.belloni@free-electrons.com,
-	shawn.guo@linaro.org,
-	kernel@pengutronix.de,
-	linux@arm.linux.org.uk
-Cc: linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org,
-	rtc-linux@googlegroups.com,
-	Philippe Reynes <tremyfr@gmail.com>,
-	Rob Herring <robh+dt@kernel.org>,
-	Pawel Moll <pawel.moll@arm.com>,
-	Mark Rutland <mark.rutland@arm.com>,
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBF5HU2WQKGQEYL4YC6A@googlegroups.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id q10si6973wiz.0.2015.07.17.16.45.26
+        for <rtc-linux@googlegroups.com>;
+        Fri, 17 Jul 2015 16:45:26 -0700 (PDT)
+Date: Sat, 18 Jul 2015 01:45:25 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: S Twiss <stwiss.opensource@diasemi.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+	DEVICETREE <devicetree@vger.kernel.org>,
+	LINUXINPUT <linux-input@vger.kernel.org>,
+	LINUXKERNEL <linux-kernel@vger.kernel.org>,
+	RTCLINUX <rtc-linux@googlegroups.com>,
+	David Dajun Chen <david.chen@diasemi.com>,
 	Ian Campbell <ijc+devicetree@hellion.org.uk>,
-	Kumar Gala <galak@codeaurora.org>,
-	devicetree@vger.kernel.org
-Subject: [rtc-linux] [PATCH v5 4/6] dt-binding: document the binding for mxc rtc
-Date: Sun, 26 Jul 2015 23:37:51 +0200
-Message-Id: <1437946673-7402-5-git-send-email-tremyfr@gmail.com>
-In-Reply-To: <1437946673-7402-1-git-send-email-tremyfr@gmail.com>
-References: <1437946673-7402-1-git-send-email-tremyfr@gmail.com>
-Reply-To: rtc-linux@googlegroups.com
+	Kumar Gala <galak@codeaurora.org>, Lee Jones <lee.jones@linaro.org>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Pawel Moll <pawel.moll@arm.com>, Rob Herring <robh+dt@kernel.org>,
+	Samuel Ortiz <sameo@linux.intel.com>,
+	Support Opensource <support.opensource@diasemi.com>
+Subject: [rtc-linux] Re: [PATCH RFC V1 2/3] rtc: da9063: Add DA9062 RTC
+ capability to DA9063 RTC driver
+Message-ID: <20150717234525.GI3487@piout.net>
+References: <cover.1436427954.git.stwiss.opensource@diasemi.com>
+ <e2de6b382e8e81b40c0eb466f7b19364c13ba5a9.1436427954.git.stwiss.opensource@diasemi.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <e2de6b382e8e81b40c0eb466f7b19364c13ba5a9.1436427954.git.stwiss.opensource@diasemi.com>
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -39,55 +36,132 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-This adds documentation of device tree bindings for the
-mxc rtc.
+Hi,
 
-Cc: Rob Herring <robh+dt@kernel.org>
-Cc: Pawel Moll <pawel.moll@arm.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Ian Campbell <ijc+devicetree@hellion.org.uk>
-Cc: Kumar Gala <galak@codeaurora.org>
-Cc: devicetree@vger.kernel.org
-Signed-off-by: Philippe Reynes <tremyfr@gmail.com>
----
- Documentation/devicetree/bindings/rtc/rtc-mxc.txt |   26 +++++++++++++++++++++
- 1 files changed, 26 insertions(+), 0 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/rtc/rtc-mxc.txt
+On 09/07/2015 at 08:45:53 +0100, S Twiss wrote :
+> From: S Twiss <stwiss.opensource@diasemi.com>
+> 
+> Add DA9062 RTC support into the existing DA9063 RTC driver component by
+> using generic access tables for common register and bit mask definitions.
+> 
+> The following change will add generic register and bit mask support to the
+> DA9063 RTC. The changes are slightly complicated by requiring support for
+> three register sets: DA9063-AD, DA9063-BB and DA9062-AA.
+> 
+> The following alterations have been made to the DA9063 RTC:
+> 
+> - Addition of a da9063_compatible_rtc_regmap structure to hold all generic
+>   registers and bitmasks for this type of RTC component.
+> - A re-write of struct da9063 to use pointers for regmap and compatible
+>   registers/masks definitions
+> - Addition of a of_device_id table for DA9063 and DA9062 defaults
+> - Refactoring functions to use struct da9063_compatible_rtc accesses to
+>   generic registers/masks instead of using defines from registers.h
+> - Addition of a re-try when reading the RTC inside da9063_rtc_read_time()
 
-diff --git a/Documentation/devicetree/bindings/rtc/rtc-mxc.txt b/Documentation/devicetree/bindings/rtc/rtc-mxc.txt
-new file mode 100644
-index 0000000..49aa550
---- /dev/null
-+++ b/Documentation/devicetree/bindings/rtc/rtc-mxc.txt
-@@ -0,0 +1,26 @@
-+* Real Time Clock of the i.MX SoCs
-+
-+RTC controller for the i.MX SoCs
-+
-+Required properties:
-+- compatible: Should be "fsl,imx1-rtc" or "fsl,imx21-rtc".
-+- reg: physical base address of the controller and length of memory mapped
-+  region.
-+- interrupts: IRQ line for the RTC.
-+- clocks: should contain two entries:
-+  * one for the input reference
-+  * one for the the SoC RTC
-+- clock-names: should contain:
-+  * "ref" for the input reference clock
-+  * "ipg" for the SoC RTC clock
-+
-+Example:
-+
-+rtc@10007000 {
-+	compatible = "fsl,imx21-rtc";
-+	reg = <0x10007000 0x1000>;
-+	interrupts = <22>;
-+	clocks = <&clks IMX27_CLK_CKIL>,
-+	       	 <&clks IMX27_CLK_RTC_IPG_GATE>;
-+	clock-names = "ref", "ipg";
-+};
+Can you separate that change in another patch as it is a change in the
+behaviour of the driver? And maybe give a word or two on why this is
+needed.
+
+> - Re-work of da9063_rtc_probe() to use of_match_node() and dev_get_regmap()
+>   to provide initialisation of generic registers and masks and access to
+>   regmap
+> 
+> Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
+> 
+> ---
+> Checks performed with linux-next/next-20150708/scripts/checkpatch.pl
+>  Kconfig                   total: 0 errors, 15 warnings, 1600 lines checked
+>  rtc-da9063.c              total: 0 errors, 0 warnings, 531 lines checked
+
+This is not true, there is a warning:
+WARNING: DT compatible string "dlg,da9062-rtc" appears un-documented
+-- check /home/alex/M/linux/Documentation/devicetree/bindings/
+#275: FILE: drivers/rtc/rtc-da9063.c:171:
++     { .compatible = "dlg,da9062-rtc", .data = &da9062_aa_regs },
+
+patch 3/3 should come before 2/3 if you want to avoid that.
+
+> diff --git a/drivers/rtc/rtc-da9063.c b/drivers/rtc/rtc-da9063.c
+> index 7ffc570..e94fb6d 100644
+> --- a/drivers/rtc/rtc-da9063.c
+> +++ b/drivers/rtc/rtc-da9063.c
+> @@ -1,127 +1,274 @@
+> -/* rtc-da9063.c - Real time clock device driver for DA9063
+> - * Copyright (C) 2013-14  Dialog Semiconductor Ltd.
+> +/*
+> + * Real time clock device driver for DA9063/DA9062
+> + * Copyright (C) 2013-15  Dialog Semiconductor Ltd.
+>   *
+> - * This library is free software; you can redistribute it and/or
+> - * modify it under the terms of the GNU Library General Public
+> - * License as published by the Free Software Foundation; either
+> - * version 2 of the License, or (at your option) any later version.
+> + * This program is free software; you can redistribute it and/or
+> + * modify it under the terms of the GNU General Public License
+> + * as published by the Free Software Foundation; either version 2
+> + * of the License, or (at your option) any later version.
+>   *
+> - * This library is distributed in the hope that it will be useful,
+> + * This program is distributed in the hope that it will be useful,
+>   * but WITHOUT ANY WARRANTY; without even the implied warranty of
+> - * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+> - * Library General Public License for more details.
+> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+> + * GNU General Public License for more details.
+>   */
+>  
+
+Please also list that license change in the commit log. It should also
+probably be separated in another patch.
+
+[...]
+
+>  static int da9063_rtc_probe(struct platform_device *pdev)
+>  {
+> -	struct da9063 *da9063 = dev_get_drvdata(pdev->dev.parent);
+> -	struct da9063_rtc *rtc;
+> +	struct da9063_compatible_rtc *rtc;
+> +	const struct da9063_compatible_rtc_regmap *config;
+> +	const struct of_device_id *match;
+>  	int irq_alarm;
+>  	u8 data[RTC_DATA_LEN];
+>  	int ret;
+>  
+> -	ret = regmap_update_bits(da9063->regmap, DA9063_REG_CONTROL_E,
+> -				 DA9063_RTC_EN, DA9063_RTC_EN);
+> +	match = of_match_node(da9063_compatible_reg_id_table,
+> +			      pdev->dev.of_node);
+> +	if (!match)
+
+This will never happen if you are only probed from DT and this is waht
+you expect now.
+
+> +		return -ENXIO;
+> +
+> +	rtc = devm_kzalloc(&pdev->dev, sizeof(*rtc), GFP_KERNEL);
+> +	if (!rtc)
+> +		return -ENOMEM;
+> +
+> +	if (strncmp(match->name, "dlg,da9063-rtc", 14) == 0) {
+
+You must not do that.
+
+You should add a new compatible and change the of_compatible string of
+the mfd_cell in drivers/mfd/da9063-core.c onc you know the variant.
+
+> +		struct da9063 *chip = dev_get_drvdata(pdev->dev.parent);
+> +
+> +		if (chip->variant_code == PMIC_DA9063_AD)
+> +			rtc->config = &da9063_ad_regs;
+> +	} else
+> +		rtc->config = match->data;
+
+
 -- 
-1.7.4.4
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
 -- 
 -- 
