@@ -1,22 +1,22 @@
-Return-Path: <rtc-linux+bncBCAMRWGQV4CRBPFL2WWQKGQEECGUTQY@googlegroups.com>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBNV5WCWQKGQEH2VH5CA@googlegroups.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id q10si292098wiz.0.2015.07.19.15.03.34
+        for <rtc-linux@googlegroups.com>;
+        Sun, 19 Jul 2015 15:03:34 -0700 (PDT)
+Date: Mon, 20 Jul 2015 00:03:33 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: rnd4@dave-tech.it
+Cc: a.zummo@towertech.it, rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org, Andrea Scian <andrea.scian@dave.eu>
+Subject: Re: [rtc-linux] [PATCH v2] driver: rtc: pcf2127: use OFS flag to
+ detect unreliable date and warn the user
+Message-ID: <20150719220333.GB15539@piout.net>
+References: <557EF5DD.9070300@dave-tech.it>
+ <1434447587-23992-1-git-send-email-rnd4@dave-tech.it>
 MIME-Version: 1.0
-Received: from mail.mleia.com (li271-223.members.linode.com. [178.79.152.223])
-        by gmr-mx.google.com with ESMTPS id c3si255328wiz.2.2015.07.26.14.48.44
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sun, 26 Jul 2015 14:48:44 -0700 (PDT)
-From: Vladimir Zapolskiy <vz@mleia.com>
-To: Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: rtc-linux@googlegroups.com,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [rtc-linux] [PATCH 01/11] rtc: cmos: clean up cmos_nvram_read()/cmos_nvram_write()
-Date: Mon, 27 Jul 2015 00:48:26 +0300
-Message-Id: <1437947316-5652-2-git-send-email-vz@mleia.com>
-In-Reply-To: <1437947316-5652-1-git-send-email-vz@mleia.com>
-References: <1437947316-5652-1-git-send-email-vz@mleia.com>
-Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1434447587-23992-1-git-send-email-rnd4@dave-tech.it>
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -26,47 +26,28 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-The change removes redundant sysfs binary file boundary checks, since
-this task is already done on caller side in fs/sysfs/file.c
+On 16/06/2015 at 11:39:47 +0200, rnd4@dave-tech.it wrote :
+> From: Andrea Scian <andrea.scian@dave.eu>
+> 
+> Signed-off-by: Andrea Scian <andrea.scian@dave.eu>
+> ---
+> 
+> Changes since v1:
+> * use BIT() to select the right bitfield instead of hardcode value
+> * return -EINVAL if OFS is detected
+> * cache OSF into driver structure to warn the user even later
+> 
+>  drivers/rtc/rtc-pcf2127.c |   26 +++++++++++++++++++++++---
+>  1 file changed, 23 insertions(+), 3 deletions(-)
+> 
 
-Signed-off-by: Vladimir Zapolskiy <vz@mleia.com>
----
- drivers/rtc/rtc-cmos.c | 13 -------------
- 1 file changed, 13 deletions(-)
+Applied, after adding back the commit message. Thanks!
 
-diff --git a/drivers/rtc/rtc-cmos.c b/drivers/rtc/rtc-cmos.c
-index a82556a..1ecd374 100644
---- a/drivers/rtc/rtc-cmos.c
-+++ b/drivers/rtc/rtc-cmos.c
-@@ -512,13 +512,6 @@ cmos_nvram_read(struct file *filp, struct kobject *kobj,
- {
- 	int	retval;
- 
--	if (unlikely(off >= attr->size))
--		return 0;
--	if (unlikely(off < 0))
--		return -EINVAL;
--	if ((off + count) > attr->size)
--		count = attr->size - off;
--
- 	off += NVRAM_OFFSET;
- 	spin_lock_irq(&rtc_lock);
- 	for (retval = 0; count; count--, off++, retval++) {
-@@ -543,12 +536,6 @@ cmos_nvram_write(struct file *filp, struct kobject *kobj,
- 	int		retval;
- 
- 	cmos = dev_get_drvdata(container_of(kobj, struct device, kobj));
--	if (unlikely(off >= attr->size))
--		return -EFBIG;
--	if (unlikely(off < 0))
--		return -EINVAL;
--	if ((off + count) > attr->size)
--		count = attr->size - off;
- 
- 	/* NOTE:  on at least PCs and Ataris, the boot firmware uses a
- 	 * checksum on part of the NVRAM data.  That's currently ignored
+
 -- 
-2.1.4
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
 -- 
 -- 
