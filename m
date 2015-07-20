@@ -1,23 +1,24 @@
-Return-Path: <rtc-linux+bncBAABBKUM7KWAKGQEZXKFILQ@googlegroups.com>
-Received: from mail.kernel.org (mail.kernel.org. [198.145.29.136])
-        by gmr-mx.google.com with ESMTP id g7si238589igr.0.2015.07.09.07.33.14
-        for <rtc-linux@googlegroups.com>;
-        Thu, 09 Jul 2015 07:33:14 -0700 (PDT)
-Date: Thu, 9 Jul 2015 22:32:57 +0800
-From: Shawn Guo <shawnguo@kernel.org>
-To: Philippe Reynes <tremyfr@gmail.com>
-Cc: a.zummo@towertech.it, alexandre.belloni@free-electrons.com,
-	shawn.guo@linaro.org, kernel@pengutronix.de, linux@arm.linux.org.uk,
-	rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org
-Subject: [rtc-linux] Re: [PATCH v4 6/7] imx27: dt: add support of internal rtc
-Message-ID: <20150709143257.GJ23464@tiger>
-References: <1435965320-1478-1-git-send-email-tremyfr@gmail.com>
- <1435965320-1478-7-git-send-email-tremyfr@gmail.com>
+Return-Path: <rtc-linux+bncBDP6N55ZUYDRBIX4WWWQKGQEGONXXNY@googlegroups.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1435965320-1478-7-git-send-email-tremyfr@gmail.com>
+Received: from mail-pd0-x231.google.com (mail-pd0-x231.google.com. [2607:f8b0:400e:c02::231])
+        by gmr-mx.google.com with ESMTPS id x3si2657565pdh.2.2015.07.20.16.02.58
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 20 Jul 2015 16:02:58 -0700 (PDT)
+Received: by mail-pd0-x231.google.com with SMTP id bh15so62868345pdb.1
+        for <rtc-linux@googlegroups.com>; Mon, 20 Jul 2015 16:02:58 -0700 (PDT)
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org
+Subject: [rtc-linux] [PATCH 2/4] RTC: remove unnecessary device_get() in rtc_device_unregister
+Date: Mon, 20 Jul 2015 16:02:50 -0700
+Message-Id: <1437433372-15425-2-git-send-email-dmitry.torokhov@gmail.com>
+In-Reply-To: <1437433372-15425-1-git-send-email-dmitry.torokhov@gmail.com>
+References: <1437433372-15425-1-git-send-email-dmitry.torokhov@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -27,52 +28,54 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On Sat, Jul 04, 2015 at 01:15:19AM +0200, Philippe Reynes wrote:
-> Add support of internal rtc on imx27.
-> 
-> Signed-off-by: Philippe Reynes <tremyfr@gmail.com>
-> ---
->  arch/arm/boot/dts/imx27.dtsi |   10 ++++++++++
->  1 files changed, 10 insertions(+), 0 deletions(-)
-> 
-> diff --git a/arch/arm/boot/dts/imx27.dtsi b/arch/arm/boot/dts/imx27.dtsi
-> index b69be5c..38e6e84 100644
-> --- a/arch/arm/boot/dts/imx27.dtsi
-> +++ b/arch/arm/boot/dts/imx27.dtsi
-> @@ -144,6 +144,16 @@
->  				clock-names = "ipg", "per";
->  			};
->  
-> +			rtc: rtc@10007000 {
-> +				compatible = "fsl,imx21-rtc";
-> +				reg = <0x10007000 0x1000>;
-> +				interrupts = <22>;
-> +				clocks = <&clks IMX27_CLK_CKIL>,
-> +					 <&clks IMX27_CLK_RTC_IPG_GATE>;
-> +				clock-names = "rtc", "ipg";
-> +				status = "disabled";
+Technically the address of rtc->dev can never be NULL, so get_device()
+can never fail. Also caller of rtc_device_unregister() supposed to be
+the owner of the device and thus have a valid reference. Therefore
+call to get_device() is not needed here.
 
-It has neither pin-out nor board level configuration.  For such device,
-it makes more sense to drop status = "disabled" and enable the device by
-default.  The bonus point would be that patch #7 in the series can be
-saved.
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+---
+ drivers/rtc/class.c | 25 ++++++++++++-------------
+ 1 file changed, 12 insertions(+), 13 deletions(-)
 
-Shawn
-
-> +			};
-> +
->  			kpp: kpp@10008000 {
->  				compatible = "fsl,imx27-kpp", "fsl,imx21-kpp";
->  				reg = <0x10008000 0x1000>;
-> -- 
-> 1.7.4.4
-> 
-> 
-> _______________________________________________
-> linux-arm-kernel mailing list
-> linux-arm-kernel@lists.infradead.org
-> http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
-> 
+diff --git a/drivers/rtc/class.c b/drivers/rtc/class.c
+index eb82ec2..de7707f 100644
+--- a/drivers/rtc/class.c
++++ b/drivers/rtc/class.c
+@@ -266,19 +266,18 @@ EXPORT_SYMBOL_GPL(rtc_device_register);
+  */
+ void rtc_device_unregister(struct rtc_device *rtc)
+ {
+-	if (get_device(&rtc->dev) != NULL) {
+-		mutex_lock(&rtc->ops_lock);
+-		/* remove innards of this RTC, then disable it, before
+-		 * letting any rtc_class_open() users access it again
+-		 */
+-		rtc_sysfs_del_device(rtc);
+-		rtc_dev_del_device(rtc);
+-		rtc_proc_del_device(rtc);
+-		device_unregister(&rtc->dev);
+-		rtc->ops = NULL;
+-		mutex_unlock(&rtc->ops_lock);
+-		put_device(&rtc->dev);
+-	}
++	mutex_lock(&rtc->ops_lock);
++	/*
++	 * Remove innards of this RTC, then disable it, before
++	 * letting any rtc_class_open() users access it again
++	 */
++	rtc_sysfs_del_device(rtc);
++	rtc_dev_del_device(rtc);
++	rtc_proc_del_device(rtc);
++	device_del(&rtc->dev);
++	rtc->ops = NULL;
++	mutex_unlock(&rtc->ops_lock);
++	put_device(&rtc->dev);
+ }
+ EXPORT_SYMBOL_GPL(rtc_device_unregister);
+ 
+-- 
+2.4.3.573.g4eafbef
 
 -- 
 -- 
