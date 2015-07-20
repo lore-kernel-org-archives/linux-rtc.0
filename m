@@ -1,35 +1,36 @@
-Return-Path: <rtc-linux+bncBD5O5IWPJMIKNL64VQCRUBFGFPAJU@googlegroups.com>
-MIME-Version: 1.0
-Received: from mail-wg0-x230.google.com (mail-wg0-x230.google.com. [2a00:1450:400c:c00::230])
-        by gmr-mx.google.com with ESMTPS id eo3si1231246wib.0.2015.07.03.16.15.50
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 03 Jul 2015 16:15:50 -0700 (PDT)
-Received: by mail-wg0-x230.google.com with SMTP id k11so97926157wgc.0
-        for <rtc-linux@googlegroups.com>; Fri, 03 Jul 2015 16:15:50 -0700 (PDT)
-From: Philippe Reynes <tremyfr@gmail.com>
-To: a.zummo@towertech.it,
-	alexandre.belloni@free-electrons.com,
-	shawn.guo@linaro.org,
-	kernel@pengutronix.de,
-	linux@arm.linux.org.uk
-Cc: linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org,
-	rtc-linux@googlegroups.com,
-	Philippe Reynes <tremyfr@gmail.com>,
-	Rob Herring <robh+dt@kernel.org>,
-	Pawel Moll <pawel.moll@arm.com>,
-	Mark Rutland <mark.rutland@arm.com>,
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBCGGWWWQKGQETN2PPMQ@googlegroups.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id v8si441385wiw.1.2015.07.20.14.07.20
+        for <rtc-linux@googlegroups.com>;
+        Mon, 20 Jul 2015 14:07:20 -0700 (PDT)
+Date: Mon, 20 Jul 2015 23:07:17 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: "Opensource [Steve Twiss]" <stwiss.opensource@diasemi.com>
+Cc: DEVICETREE <devicetree@vger.kernel.org>,
 	Ian Campbell <ijc+devicetree@hellion.org.uk>,
 	Kumar Gala <galak@codeaurora.org>,
-	devicetree@vger.kernel.org
-Subject: [rtc-linux] [PATCH v4 5/7] dt-binding: document the binding for mxc rtc
-Date: Sat,  4 Jul 2015 01:15:18 +0200
-Message-Id: <1435965320-1478-6-git-send-email-tremyfr@gmail.com>
-In-Reply-To: <1435965320-1478-1-git-send-email-tremyfr@gmail.com>
-References: <1435965320-1478-1-git-send-email-tremyfr@gmail.com>
-Reply-To: rtc-linux@googlegroups.com
+	LINUXINPUT <linux-input@vger.kernel.org>,
+	LINUXKERNEL <linux-kernel@vger.kernel.org>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Pawel Moll <pawel.moll@arm.com>,
+	RTCLINUX <rtc-linux@googlegroups.com>,
+	Rob Herring <robh+dt@kernel.org>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	David Dajun Chen <david.chen@diasemi.com>,
+	Lee Jones <lee.jones@linaro.org>,
+	Samuel Ortiz <sameo@linux.intel.com>,
+	Support Opensource <Support.Opensource@diasemi.com>
+Subject: [rtc-linux] Re: [PATCH RFC V1 3/3] devicetree: da9062: Add device
+ tree bindings for DA9062 RTC
+Message-ID: <20150720210717.GN15539@piout.net>
+References: <cover.1436427954.git.stwiss.opensource@diasemi.com>
+ <b47f52abd6a574e5f95760a07a59f445031baefc.1436427954.git.stwiss.opensource@diasemi.com>
+ <20150717234737.GJ3487@piout.net>
+ <6ED8E3B22081A4459DAC7699F3695FB7014B253DAD@SW-EX-MBX02.diasemi.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <6ED8E3B22081A4459DAC7699F3695FB7014B253DAD@SW-EX-MBX02.diasemi.com>
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -39,56 +40,21 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-This adds documentation of device tree bindings for the
-mxc rtc.
+Hi,
 
-Cc: Rob Herring <robh+dt@kernel.org>
-Cc: Pawel Moll <pawel.moll@arm.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Ian Campbell <ijc+devicetree@hellion.org.uk>
-Cc: Kumar Gala <galak@codeaurora.org>
-Cc: devicetree@vger.kernel.org
-Signed-off-by: Philippe Reynes <tremyfr@gmail.com>
----
- Documentation/devicetree/bindings/rtc/rtc-mxc.txt |   27 +++++++++++++++++++++
- 1 files changed, 27 insertions(+), 0 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/rtc/rtc-mxc.txt
+On 20/07/2015 at 17:08:00 +0000, Opensource [Steve Twiss] wrote :
+> If I miss out the compatible line for the RTC in the DTSI for DA9062, or is I alter it
+> so it does not match the string specified in the DA9063 RTC driver, the DA9063 RTC
+> driver will not be probed for the DA9062 compatibility.
+> The RTC compatible = "dlg,da9062-rtc"  is essential in this case.
+> 
 
-diff --git a/Documentation/devicetree/bindings/rtc/rtc-mxc.txt b/Documentation/devicetree/bindings/rtc/rtc-mxc.txt
-new file mode 100644
-index 0000000..5505493
---- /dev/null
-+++ b/Documentation/devicetree/bindings/rtc/rtc-mxc.txt
-@@ -0,0 +1,27 @@
-+* Real Time Clock of the i.MX SoCs
-+
-+RTC controller for the i.MX SoCs
-+
-+Required properties:
-+- compatible: Should be "fsl,imx1-rtc" or "fsl,imx21-rtc".
-+- reg: physical base address of the controller and length of memory mapped
-+  region.
-+- interrupts: IRQ line for the RTC.
-+- clocks: should contain two entries:
-+  * one for the input reference
-+  * one for the the SoC RTC
-+- clock-names: should contain:
-+  * "rtc" for the input reference clock
-+  * "ipg" for the SoC RTC clock
-+
-+Example:
-+
-+rtc@10007000 {
-+	compatible = "fsl,imx21-rtc";
-+	reg = <0x10007000 0x1000>;
-+	interrupts = <22>;
-+	clocks = <&clks IMX27_CLK_CKIL>,
-+	       	 <&clks IMX27_CLK_RTC_IPG_GATE>;
-+	clock-names = "rtc, "ipg";
-+	status = "disabled";
-+};
+You are right. Disregard my comment.
+
 -- 
-1.7.4.4
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
 -- 
 -- 
