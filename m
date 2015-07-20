@@ -1,24 +1,24 @@
-Return-Path: <rtc-linux+bncBDP6N55ZUYDRBDFLW2WQKGQE32XKSNI@googlegroups.com>
-Received: from mail-lb0-x22e.google.com (mail-lb0-x22e.google.com. [2a00:1450:4010:c04::22e])
-        by gmr-mx.google.com with ESMTPS id vp9si627825lbb.3.2015.07.20.17.42.52
+Return-Path: <rtc-linux+bncBAABBIEAWSWQKGQETMGXYQQ@googlegroups.com>
+Received: from mail1.bemta3.messagelabs.com (mail1.bemta3.messagelabs.com. [195.245.230.177])
+        by gmr-mx.google.com with ESMTPS id v8si388613wiw.1.2015.07.20.07.05.19
         for <rtc-linux@googlegroups.com>
         (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 20 Jul 2015 17:42:52 -0700 (PDT)
-Received: by mail-lb0-x22e.google.com with SMTP id zr7so105409403lbb.1
-        for <rtc-linux@googlegroups.com>; Mon, 20 Jul 2015 17:42:52 -0700 (PDT)
+        Mon, 20 Jul 2015 07:05:19 -0700 (PDT)
+Message-ID: <cover.1437399438.git.stwiss.opensource@diasemi.com>
+From: S Twiss <stwiss.opensource@diasemi.com>
+Date: Mon, 20 Jul 2015 14:37:18 +0100
+Subject: [rtc-linux] [PATCH V2 0/3]  da9062: Add DA9062 OnKey support using
+ the existing DA9063 OnKey driver
+To: DEVICETREE <devicetree@vger.kernel.org>, Dmitry Torokhov
+	<dmitry.torokhov@gmail.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>,
+	Kumar Gala <galak@codeaurora.org>, LINUXINPUT <linux-input@vger.kernel.org>,
+	LINUXKERNEL <linux-kernel@vger.kernel.org>, Lee Jones <lee.jones@linaro.org>,
+	Mark Rutland <mark.rutland@arm.com>, Pawel Moll <pawel.moll@arm.com>,
+	RTCLINUX <rtc-linux@googlegroups.com>, Rob Herring <robh+dt@kernel.org>, S
+ Twiss <stwiss.opensource@diasemi.com>, Samuel Ortiz <sameo@linux.intel.com>
+CC: David Dajun Chen <david.chen@diasemi.com>, Support Opensource
+	<support.opensource@diasemi.com>
 MIME-Version: 1.0
-In-Reply-To: <CAJKOXPcXszaRxVnm2H9XAB-diLfitCadfsL0u2UNwXg_ZBT2HA@mail.gmail.com>
-References: <1437433372-15425-1-git-send-email-dmitry.torokhov@gmail.com>
-	<CAJKOXPcXszaRxVnm2H9XAB-diLfitCadfsL0u2UNwXg_ZBT2HA@mail.gmail.com>
-Date: Mon, 20 Jul 2015 17:42:51 -0700
-Message-ID: <CAKdAkRQCeZaeZaBB1DzPdcFbk9swdGx9EZ7GU3+3p_eqwxxZPA@mail.gmail.com>
-Subject: Re: [rtc-linux] [PATCH 1/4] RTC: fix double free in
- rtc_register_device() error path
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-Cc: RTCLINUX <rtc-linux@googlegroups.com>, Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>, lkml <linux-kernel@vger.kernel.org>,
-	Vasiliy Kulikov <segooon@gmail.com>
 Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
@@ -30,29 +30,68 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On Mon, Jul 20, 2015 at 5:32 PM, Krzysztof Kozlowski
-<k.kozlowski@samsung.com> wrote:
-> 2015-07-21 8:02 GMT+09:00 Dmitry Torokhov <dmitry.torokhov@gmail.com>:
->> Commit 59cca865f21e9e7beab73fcf79ba4eb776a4c228 correctly noted that naked
->> kfree() should not be used after failed device_register() call, however,
->> while it added the needed put_device() it forgot to remove the original
->> kfree() causing double-free.
->>
->> Cc: Vasiliy Kulikov <segooon@gmail.com>
->> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
->> ---
->>  drivers/rtc/class.c | 6 ++----
->>  1 file changed, 2 insertions(+), 4 deletions(-)
->
-> I think it can be cc'ed stable (with fixes tag).
+From: S Twiss <stwiss.opensource@diasemi.com>
 
-I considered that, but it does not happen on normally working systems.
-I'll leave it up to maintainers to annotate as they see fit.
+This patch set adds OnKey support for the Dialog DA9062 Power Management IC.
+Changes are made to the existing DA9063 OnKey component so that functionality
+in this device driver can be re-used to support the DA9062 OnKey.
 
-Thanks.
+This following patch set re-uses the existing kernel OnKey driver for chips
+whose OnKey blocks are functionally similar to the DA9063 OnKey.
+
+The main points for the MFD core and device tree changes are as follows.
+
+- Alteration of the DA9063 OnKey Kconfig needs to be updated to depend on
+  both MFD_DA9063 "or" MFD_DA9062. There is no explicit DA9062 OnKey Kconfig.
+- The DA9062 MFD core should add a new OnKey resource as usual and an entry
+  in the mfd_cell to support a component name and of_compatible for
+  "da9062-onkey" and "dlg,da9062-onkey".
+- The device tree binding support should include a compatible string for
+  "dlg,da9062-onkey"
+
+The main points for the OnKey changes are as follows:
+
+A generic structure is used (called da906x_chip_config) to hold all generic
+registers and bitmasks for use with this type of OnKey component.
+
+Functions in the DA9063 OnKey will be refactored to use this compatibility
+struct and all accesses to generic registers/masks will be made through
+this table look-up instead of using defines from the register header files
+directly
+
+Linkage between the DA9062 MFD and the DA9063 OnKey driver is created through
+the use of an of_match_table entry in the platform_driver structure.
+A re-work of da9063_onkey_probe() is necessary to use the of_match_node() and
+dev_get_regmap() functions: this will provide initialisation of the generic
+registers and masks and allow access to the regmap according to the correct
+device tree specification.
+
+The addition of a of_device_id table for DA9063 and DA9062 default data
+is created. 
+
+In this patch set the following is provided:
+ - [PATCH V2 1/3]: MFD changes in DA9062 to support OnKey
+ - [PATCH V2 2/3]: Update existing DA9063 OnKey to add DA9062 support
+ - [PATCH V2 3/3]: Device tree bindings for DA9062 OnKey component
+
+This patch applies against linux-next and next-20150708 
+
+Thank you,
+Steve Twiss, Dialog Semiconductor Ltd.
+
+S Twiss (3):
+  mfd: da9062: Support for the DA9063 OnKey in the DA9062 core
+  onkey: da9063: Add DA9062 OnKey capability to DA9063 OnKey driver
+  devicetree: da9062: Add device tree bindings for DA9062 OnKey
+
+ Documentation/devicetree/bindings/mfd/da9062.txt |  18 ++++
+ drivers/input/misc/Kconfig                       |   8 +-
+ drivers/input/misc/da9063_onkey.c                | 129 ++++++++++++++++++-----
+ drivers/mfd/da9062-core.c                        |  11 ++
+ 4 files changed, 137 insertions(+), 29 deletions(-)
 
 -- 
-Dmitry
+end-of-patch for PATCH V2
 
 -- 
 -- 
