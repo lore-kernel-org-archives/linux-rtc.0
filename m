@@ -1,23 +1,27 @@
-Return-Path: <rtc-linux+bncBCHOPY7NVYCRBQU7R6WQKGQEZLYMY5Y@googlegroups.com>
-Received: from mail-oi0-x232.google.com (mail-oi0-x232.google.com. [2607:f8b0:4003:c06::232])
-        by gmr-mx.google.com with ESMTPS id rs3si647550igb.2.2015.07.13.07.48.34
+Return-Path: <rtc-linux+bncBAABBIMAWSWQKGQEKIJZV3Q@googlegroups.com>
+Received: from mail1.bemta3.messagelabs.com (mail1.bemta3.messagelabs.com. [195.245.230.167])
+        by gmr-mx.google.com with ESMTPS id hm7si397825wib.0.2015.07.20.07.05.20
         for <rtc-linux@googlegroups.com>
         (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 13 Jul 2015 07:48:34 -0700 (PDT)
-Received: by mail-oi0-x232.google.com with SMTP id n4so24905595oib.3
-        for <rtc-linux@googlegroups.com>; Mon, 13 Jul 2015 07:48:34 -0700 (PDT)
+        Mon, 20 Jul 2015 07:05:20 -0700 (PDT)
+Message-ID: <f3630d64fd819832dc2d0925b49c1dca9b11644b.1437399438.git.stwiss.opensource@diasemi.com>
+In-Reply-To: <cover.1437399438.git.stwiss.opensource@diasemi.com>
+References: <cover.1437399438.git.stwiss.opensource@diasemi.com>
+From: S Twiss <stwiss.opensource@diasemi.com>
+Date: Mon, 20 Jul 2015 14:37:18 +0100
+Subject: [rtc-linux] [PATCH V2 3/3] devicetree: da9062: Add device tree
+ bindings for DA9062 OnKey
+To: DEVICETREE <devicetree@vger.kernel.org>, Ian Campbell
+	<ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>,
+	LINUXINPUT <linux-input@vger.kernel.org>, LINUXKERNEL
+	<linux-kernel@vger.kernel.org>, Lee Jones <lee.jones@linaro.org>, Mark
+ Rutland <mark.rutland@arm.com>, Pawel Moll <pawel.moll@arm.com>, RTCLINUX
+	<rtc-linux@googlegroups.com>, Rob Herring <robh+dt@kernel.org>, S Twiss
+	<stwiss.opensource@diasemi.com>
+CC: David Dajun Chen <david.chen@diasemi.com>, Dmitry Torokhov
+	<dmitry.torokhov@gmail.com>, Samuel Ortiz <sameo@linux.intel.com>, Support
+ Opensource <support.opensource@diasemi.com>
 MIME-Version: 1.0
-In-Reply-To: <1436775075-15037-1-git-send-email-shawnguo@kernel.org>
-References: <1436775075-15037-1-git-send-email-shawnguo@kernel.org>
-Date: Mon, 13 Jul 2015 09:48:33 -0500
-Message-ID: <CAHrpEqSi=BPuZrqSvozvggAFsnXy2DqnfkzP5dpsP2cShzM7Hg@mail.gmail.com>
-Subject: [rtc-linux] Re: [PATCH] rtc: snvs: select option REGMAP_MMIO
-From: Zhi Li <lznuaa@gmail.com>
-To: Shawn Guo <shawnguo@kernel.org>
-Cc: rtc-linux@googlegroups.com, Frank Li <Frank.Li@freescale.com>,
-	kbuild test robot <fengguang.wu@intel.com>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
 Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
@@ -29,48 +33,66 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On Mon, Jul 13, 2015 at 3:11 AM, Shawn Guo <shawnguo@kernel.org> wrote:
-> Select REGMAP_MMIO to fix the following build error seen with x86_64
-> randconfig.
->
->   drivers/built-in.o: In function `snvs_rtc_probe':
-> rtc-snvs.c:(.text+0x567730): undefined reference to `devm_regmap_init_mmio_clk'
->
-> Reported-by: kbuild test robot <fengguang.wu@intel.com>
-> Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+From: S Twiss <stwiss.opensource@diasemi.com>
 
-Acked-by: Frank Li <Frank.Li@freescale.com>
+Add device tree bindings for the DA9062 OnKey driver component
 
-> ---
-> This is a fix to patch "rtc: snvs: use syscon to access register",
-> which I queued on IMX tree for 4.3.  So I will apply it to the same
-> branch.
->
-> Shawn
->
->  drivers/rtc/Kconfig | 1 +
->  1 file changed, 1 insertion(+)
->
-> diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
-> index 83b4b89b9d5a..533bfa3b6039 100644
-> --- a/drivers/rtc/Kconfig
-> +++ b/drivers/rtc/Kconfig
-> @@ -1523,6 +1523,7 @@ config RTC_DRV_MXC
->
->  config RTC_DRV_SNVS
->         tristate "Freescale SNVS RTC support"
-> +       select REGMAP_MMIO
->         depends on HAS_IOMEM
->         depends on OF
->         help
-> --
-> 1.9.1
->
->
-> _______________________________________________
-> linux-arm-kernel mailing list
-> linux-arm-kernel@lists.infradead.org
-> http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
+Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
+
+---
+Checks performed with linux-next/next-20150708/scripts/checkpatch.pl
+ da9062.txt                total: 0 errors, 0 warnings, 97 lines checked
+This patch applies against linux-next and next-20150708 
+
+
+ Documentation/devicetree/bindings/mfd/da9062.txt | 18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
+
+diff --git a/Documentation/devicetree/bindings/mfd/da9062.txt b/Documentation/devicetree/bindings/mfd/da9062.txt
+index 5765ed9..7752093 100644
+--- a/Documentation/devicetree/bindings/mfd/da9062.txt
++++ b/Documentation/devicetree/bindings/mfd/da9062.txt
+@@ -5,6 +5,7 @@ DA9062 consists of a large and varied group of sub-devices:
+ Device                   Supply Names    Description
+ ------                   ------------    -----------
+ da9062-regulator        :               : LDOs & BUCKs
++da9062-onkey            :               : On Key
+ da9062-watchdog         :               : Watchdog Timer
+ 
+ ======
+@@ -41,6 +42,18 @@ Sub-nodes:
+   Documentation/devicetree/bindings/regulator/regulator.txt
+ 
+ 
++- onkey : This node defines the OnKey settings for controlling the key
++  functionality of the device. The node should contain the compatible property
++  with the value "dlg,da9063-onkey".
++
++  Optional onkey properties:
++
++  - dlg,disable-key-power : Disable power-down using a long key-press. If this
++    entry exists the OnKey driver will remove support for the KEY_POWER key
++    press. If this entry does not exist then by default the key-press
++    triggered power down is enabled and the OnKey will support both KEY_POWER
++    and KEY_SLEEP.
++
+ - watchdog: This node defines the settings for the watchdog driver associated
+   with the DA9062 PMIC. The compatible = "dlg,da9062-watchdog" should be added
+   if a node is created.
+@@ -59,6 +72,11 @@ Example:
+ 			compatible = "dlg,da9062-watchdog";
+ 		};
+ 
++		onkey {
++			compatible = "dlg,da9063-onkey";
++			dlg,disable-key-power;
++		};
++
+ 		regulators {
+ 			DA9062_BUCK1: buck1 {
+ 				regulator-name = "BUCK1";
+-- 
+end-of-patch for PATCH V2
 
 -- 
 -- 
