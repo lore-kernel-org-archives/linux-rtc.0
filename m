@@ -1,28 +1,25 @@
-Return-Path: <rtc-linux+bncBDP6N55ZUYDRBUU5YCWQKGQEXFUL6BY@googlegroups.com>
-Received: from mail-pd0-x22e.google.com (mail-pd0-x22e.google.com. [2607:f8b0:400e:c02::22e])
-        by gmr-mx.google.com with ESMTPS id ys2si529171pac.0.2015.07.22.14.44.50
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 22 Jul 2015 14:44:50 -0700 (PDT)
-Received: by mail-pd0-x22e.google.com with SMTP id g1so144895171pdr.2
-        for <rtc-linux@googlegroups.com>; Wed, 22 Jul 2015 14:44:50 -0700 (PDT)
-Date: Wed, 22 Jul 2015 14:44:46 -0700
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Krzysztof Kozlowski <k.kozlowski@samsung.com>,
-	rtc-linux@googlegroups.com, Alessandro Zummo <a.zummo@towertech.it>,
-	linux-kernel@vger.kernel.org
-Subject: Re: [rtc-linux] [PATCH 4/4] RTC: switch to using is_visible() to
- control sysfs attributes
-Message-ID: <20150722214446.GE14875@dtor-ws>
-References: <1437433372-15425-1-git-send-email-dmitry.torokhov@gmail.com>
- <1437433372-15425-4-git-send-email-dmitry.torokhov@gmail.com>
- <CAJKOXPevQGGwCYgcH9zJ6b9c4u=XV6pO2tzne0Ub3uinDjLqvQ@mail.gmail.com>
- <20150722205735.GP2853@piout.net>
+Return-Path: <rtc-linux+bncBDP6N55ZUYDRBJ74WWWQKGQEOMJHXBQ@googlegroups.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <20150722205735.GP2853@piout.net>
+Received: from mail-pa0-x236.google.com (mail-pa0-x236.google.com. [2607:f8b0:400e:c03::236])
+        by gmr-mx.google.com with ESMTPS id x3si2657524pdh.2.2015.07.20.16.03.03
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 20 Jul 2015 16:03:03 -0700 (PDT)
+Received: by mail-pa0-x236.google.com with SMTP id an13so109130641pac.1
+        for <rtc-linux@googlegroups.com>; Mon, 20 Jul 2015 16:03:03 -0700 (PDT)
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org
+Subject: [rtc-linux] [PATCH 4/4] RTC: switch to using is_visible() to control
+ sysfs attributes
+Date: Mon, 20 Jul 2015 16:02:52 -0700
+Message-Id: <1437433372-15425-4-git-send-email-dmitry.torokhov@gmail.com>
+In-Reply-To: <1437433372-15425-1-git-send-email-dmitry.torokhov@gmail.com>
+References: <1437433372-15425-1-git-send-email-dmitry.torokhov@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -32,76 +29,205 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On Wed, Jul 22, 2015 at 10:57:35PM +0200, Alexandre Belloni wrote:
-> (Krzysztof, be careful, Dmitry was not in copy of your maili, you should
-> probably check your mailer config)
-> 
-> On 21/07/2015 at 10:21:11 +0900, Krzysztof Kozlowski wrote :
-> > 2015-07-21 8:02 GMT+09:00 Dmitry Torokhov <dmitry.torokhov@gmail.com>:
-> > >  static ssize_t
-> > > -rtc_sysfs_set_wakealarm(struct device *dev, struct device_attribute *attr,
-> > > +wakealarm_store(struct device *dev, struct device_attribute *attr,
-> > >                 const char *buf, size_t n)
-> > >  {
-> > >         ssize_t retval;
-> > > @@ -221,45 +209,58 @@ rtc_sysfs_set_wakealarm(struct device *dev, struct device_attribute *attr,
-> > >         retval = rtc_set_alarm(rtc, &alm);
-> > >         return (retval < 0) ? retval : n;
-> > >  }
-> > > -static DEVICE_ATTR(wakealarm, S_IRUGO | S_IWUSR,
-> > > -               rtc_sysfs_show_wakealarm, rtc_sysfs_set_wakealarm);
-> > > +static DEVICE_ATTR_RW(wakealarm);
-> > 
-> > This and renaming of show/store functions look unrelated
-> > 
-> 
-> I don't really mind that one but I would also prefer if it could be
-> separated.
+Instead of creating an attribute manually, after the device has been
+registered, let's rely on facilities provided by the attribute groups to
+control which attributes are visible and which are not. This allows to to
+create all needed attributes at once, at the same time that we register
+RTC class device.
 
-OK, I will.
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+---
+ drivers/rtc/class.c     |  4 +--
+ drivers/rtc/rtc-core.h  | 19 ++-----------
+ drivers/rtc/rtc-sysfs.c | 75 +++++++++++++++++++++++++------------------------
+ 3 files changed, 42 insertions(+), 56 deletions(-)
 
-> 
-> > >
-> > > +static struct attribute *rtc_attrs[] = {
-> > > +       &dev_attr_name.attr,
-> > > +       &dev_attr_date.attr,
-> > > +       &dev_attr_time.attr,
-> > > +       &dev_attr_since_epoch.attr,
-> > > +       &dev_attr_max_user_freq.attr,
-> > > +       &dev_attr_hctosys.attr,
-> > > +       &dev_attr_wakealarm.attr,
-> > > +       NULL,
-> > > +};
-> > >
-> > > -/* The reason to trigger an alarm with no process watching it (via sysfs)
-> > > +/*
-> > > + * The reason to trigger an alarm with no process watching it (via sysfs)
-> > >   * is its side effect:  waking from a system state like suspend-to-RAM or
-> > >   * suspend-to-disk.  So: no attribute unless that side effect is possible.
-> > >   * (Userspace may disable that mechanism later.)
-> > >   */
-> > > -static inline int rtc_does_wakealarm(struct rtc_device *rtc)
-> > > +static bool rtc_does_wakealarm(struct rtc_device *rtc)
-> > >  {
-> > >         if (!device_can_wakeup(rtc->dev.parent))
-> > > -               return 0;
-> > > +               return false;
-> > > +
-> > >         return rtc->ops->set_alarm != NULL;
-> > >  }
-> > 
-> > This looks unrelated too and confuses me. Could you split such cleanup
-> > from main goal of the patch?
-> > 
-> 
-> That one is bothering me too.
-
-Will separate this too.
-
-Thanks.
-
+diff --git a/drivers/rtc/class.c b/drivers/rtc/class.c
+index de7707f..de86578 100644
+--- a/drivers/rtc/class.c
++++ b/drivers/rtc/class.c
+@@ -202,6 +202,7 @@ struct rtc_device *rtc_device_register(const char *name, struct device *dev,
+ 	rtc->max_user_freq = 64;
+ 	rtc->dev.parent = dev;
+ 	rtc->dev.class = rtc_class;
++	rtc->dev.groups = rtc_get_dev_attribute_groups();
+ 	rtc->dev.release = rtc_device_release;
+ 
+ 	mutex_init(&rtc->ops_lock);
+@@ -240,7 +241,6 @@ struct rtc_device *rtc_device_register(const char *name, struct device *dev,
+ 	}
+ 
+ 	rtc_dev_add_device(rtc);
+-	rtc_sysfs_add_device(rtc);
+ 	rtc_proc_add_device(rtc);
+ 
+ 	dev_info(dev, "rtc core: registered %s as %s\n",
+@@ -271,7 +271,6 @@ void rtc_device_unregister(struct rtc_device *rtc)
+ 	 * Remove innards of this RTC, then disable it, before
+ 	 * letting any rtc_class_open() users access it again
+ 	 */
+-	rtc_sysfs_del_device(rtc);
+ 	rtc_dev_del_device(rtc);
+ 	rtc_proc_del_device(rtc);
+ 	device_del(&rtc->dev);
+@@ -360,7 +359,6 @@ static int __init rtc_init(void)
+ 	}
+ 	rtc_class->pm = RTC_CLASS_DEV_PM_OPS;
+ 	rtc_dev_init();
+-	rtc_sysfs_init(rtc_class);
+ 	return 0;
+ }
+ 
+diff --git a/drivers/rtc/rtc-core.h b/drivers/rtc/rtc-core.h
+index 5f9df74..a098aea 100644
+--- a/drivers/rtc/rtc-core.h
++++ b/drivers/rtc/rtc-core.h
+@@ -48,23 +48,10 @@ static inline void rtc_proc_del_device(struct rtc_device *rtc)
+ #endif
+ 
+ #ifdef CONFIG_RTC_INTF_SYSFS
+-
+-extern void __init rtc_sysfs_init(struct class *);
+-extern void rtc_sysfs_add_device(struct rtc_device *rtc);
+-extern void rtc_sysfs_del_device(struct rtc_device *rtc);
+-
++const struct attribute_group **rtc_get_dev_attribute_groups(void);
+ #else
+-
+-static inline void rtc_sysfs_init(struct class *rtc)
+-{
+-}
+-
+-static inline void rtc_sysfs_add_device(struct rtc_device *rtc)
++static inline const struct attribute_group **rtc_get_dev_attribute_groups(void)
+ {
++	return NULL;
+ }
+-
+-static inline void rtc_sysfs_del_device(struct rtc_device *rtc)
+-{
+-}
+-
+ #endif
+diff --git a/drivers/rtc/rtc-sysfs.c b/drivers/rtc/rtc-sysfs.c
+index babd43b..0b4366c 100644
+--- a/drivers/rtc/rtc-sysfs.c
++++ b/drivers/rtc/rtc-sysfs.c
+@@ -122,20 +122,8 @@ hctosys_show(struct device *dev, struct device_attribute *attr, char *buf)
+ }
+ static DEVICE_ATTR_RO(hctosys);
+ 
+-static struct attribute *rtc_attrs[] = {
+-	&dev_attr_name.attr,
+-	&dev_attr_date.attr,
+-	&dev_attr_time.attr,
+-	&dev_attr_since_epoch.attr,
+-	&dev_attr_max_user_freq.attr,
+-	&dev_attr_hctosys.attr,
+-	NULL,
+-};
+-ATTRIBUTE_GROUPS(rtc);
+-
+ static ssize_t
+-rtc_sysfs_show_wakealarm(struct device *dev, struct device_attribute *attr,
+-		char *buf)
++wakealarm_show(struct device *dev, struct device_attribute *attr, char *buf)
+ {
+ 	ssize_t retval;
+ 	unsigned long alarm;
+@@ -159,7 +147,7 @@ rtc_sysfs_show_wakealarm(struct device *dev, struct device_attribute *attr,
+ }
+ 
+ static ssize_t
+-rtc_sysfs_set_wakealarm(struct device *dev, struct device_attribute *attr,
++wakealarm_store(struct device *dev, struct device_attribute *attr,
+ 		const char *buf, size_t n)
+ {
+ 	ssize_t retval;
+@@ -221,45 +209,58 @@ rtc_sysfs_set_wakealarm(struct device *dev, struct device_attribute *attr,
+ 	retval = rtc_set_alarm(rtc, &alm);
+ 	return (retval < 0) ? retval : n;
+ }
+-static DEVICE_ATTR(wakealarm, S_IRUGO | S_IWUSR,
+-		rtc_sysfs_show_wakealarm, rtc_sysfs_set_wakealarm);
++static DEVICE_ATTR_RW(wakealarm);
+ 
++static struct attribute *rtc_attrs[] = {
++	&dev_attr_name.attr,
++	&dev_attr_date.attr,
++	&dev_attr_time.attr,
++	&dev_attr_since_epoch.attr,
++	&dev_attr_max_user_freq.attr,
++	&dev_attr_hctosys.attr,
++	&dev_attr_wakealarm.attr,
++	NULL,
++};
+ 
+-/* The reason to trigger an alarm with no process watching it (via sysfs)
++/*
++ * The reason to trigger an alarm with no process watching it (via sysfs)
+  * is its side effect:  waking from a system state like suspend-to-RAM or
+  * suspend-to-disk.  So: no attribute unless that side effect is possible.
+  * (Userspace may disable that mechanism later.)
+  */
+-static inline int rtc_does_wakealarm(struct rtc_device *rtc)
++static bool rtc_does_wakealarm(struct rtc_device *rtc)
+ {
+ 	if (!device_can_wakeup(rtc->dev.parent))
+-		return 0;
++		return false;
++
+ 	return rtc->ops->set_alarm != NULL;
+ }
+ 
+-
+-void rtc_sysfs_add_device(struct rtc_device *rtc)
++static umode_t rtc_attr_is_visible(struct kobject *kobj,
++				   struct attribute *attr, int n)
+ {
+-	int err;
++	struct device *dev = container_of(kobj, struct device, kobj);
++	struct rtc_device *rtc = to_rtc_device(dev);
++	umode_t mode = attr->mode;
+ 
+-	/* not all RTCs support both alarms and wakeup */
+-	if (!rtc_does_wakealarm(rtc))
+-		return;
++	if (attr == &dev_attr_wakealarm.attr)
++		if (!rtc_does_wakealarm(rtc))
++			mode = 0;
+ 
+-	err = device_create_file(&rtc->dev, &dev_attr_wakealarm);
+-	if (err)
+-		dev_err(rtc->dev.parent,
+-			"failed to create alarm attribute, %d\n", err);
++	return mode;
+ }
+ 
+-void rtc_sysfs_del_device(struct rtc_device *rtc)
+-{
+-	/* REVISIT did we add it successfully? */
+-	if (rtc_does_wakealarm(rtc))
+-		device_remove_file(&rtc->dev, &dev_attr_wakealarm);
+-}
++static struct attribute_group rtc_attr_group = {
++	.is_visible	= rtc_attr_is_visible,
++	.attrs		= rtc_attrs,
++};
++
++static const struct attribute_group *rtc_attr_groups[] = {
++	&rtc_attr_group,
++	NULL
++};
+ 
+-void __init rtc_sysfs_init(struct class *rtc_class)
++const struct attribute_group** rtc_get_dev_attribute_groups(void)
+ {
+-	rtc_class->dev_groups = rtc_groups;
++	return rtc_attr_groups;
+ }
 -- 
-Dmitry
+2.4.3.573.g4eafbef
 
 -- 
 -- 
