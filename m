@@ -1,27 +1,31 @@
-Return-Path: <rtc-linux+bncBCF2PQPV4MDRBAVFQWWQKGQEB47PRAA@googlegroups.com>
-MIME-Version: 1.0
-Received: from mail-lb0-x229.google.com (mail-lb0-x229.google.com. [2a00:1450:4010:c04::229])
-        by gmr-mx.google.com with ESMTPS id h8si374083lbd.3.2015.07.11.10.29.37
+Return-Path: <rtc-linux+bncBAABBIPNWSWQKGQEFTKKU4I@googlegroups.com>
+Received: from mail1.bemta3.messagelabs.com (mail1.bemta3.messagelabs.com. [195.245.230.161])
+        by gmr-mx.google.com with ESMTPS id gt9si421628wib.2.2015.07.20.10.57.52
         for <rtc-linux@googlegroups.com>
         (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sat, 11 Jul 2015 10:29:37 -0700 (PDT)
-Received: by lbbyj8 with SMTP id yj8so21888742lbb.0
-        for <rtc-linux@googlegroups.com>; Sat, 11 Jul 2015 10:29:37 -0700 (PDT)
-From: Joachim Eastwood <manabian@gmail.com>
-To: alexandre.belloni@free-electrons.com,
-	a.zummo@towertech.it
-Cc: Joachim Eastwood <manabian@gmail.com>,
-	joshc@ni.com,
-	rtc-linux@googlegroups.com,
-	devicetree@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org
-Subject: [rtc-linux] [PATCH v3 2/2] doc: dt: add documentation for nxp,lpc1788-rtc
-Date: Sat, 11 Jul 2015 19:28:50 +0200
-Message-Id: <1436635730-15617-3-git-send-email-manabian@gmail.com>
-In-Reply-To: <1436635730-15617-1-git-send-email-manabian@gmail.com>
-References: <1436635730-15617-1-git-send-email-manabian@gmail.com>
-Reply-To: rtc-linux@googlegroups.com
+        Mon, 20 Jul 2015 10:57:52 -0700 (PDT)
+From: "Opensource [Steve Twiss]" <stwiss.opensource@diasemi.com>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+CC: Alessandro Zummo <a.zummo@towertech.it>, Lee Jones <lee.jones@linaro.org>,
+	DEVICETREE <devicetree@vger.kernel.org>, LINUXINPUT
+	<linux-input@vger.kernel.org>, LINUXKERNEL <linux-kernel@vger.kernel.org>,
+	RTCLINUX <rtc-linux@googlegroups.com>, David Dajun Chen
+	<david.chen@diasemi.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>,
+	"Kumar Gala" <galak@codeaurora.org>, Mark Rutland <mark.rutland@arm.com>,
+	Pawel Moll <pawel.moll@arm.com>, Rob Herring <robh+dt@kernel.org>, Samuel
+ Ortiz <sameo@linux.intel.com>, Support Opensource
+	<Support.Opensource@diasemi.com>
+Subject: [rtc-linux] RE: [PATCH RFC V1 2/3] rtc: da9063: Add DA9062 RTC
+ capability to DA9063 RTC driver
+Date: Mon, 20 Jul 2015 17:57:50 +0000
+Message-ID: <6ED8E3B22081A4459DAC7699F3695FB7014B253DC9@SW-EX-MBX02.diasemi.com>
+References: <cover.1436427954.git.stwiss.opensource@diasemi.com>
+ <e2de6b382e8e81b40c0eb466f7b19364c13ba5a9.1436427954.git.stwiss.opensource@diasemi.com>
+ <20150717234525.GI3487@piout.net>
+In-Reply-To: <20150717234525.GI3487@piout.net>
 Content-Type: text/plain; charset=UTF-8
+MIME-Version: 1.0
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -31,41 +35,156 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Signed-off-by: Joachim Eastwood <manabian@gmail.com>
----
- .../devicetree/bindings/rtc/nxp,lpc1788-rtc.txt     | 21 +++++++++++++++++++++
- 1 file changed, 21 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/rtc/nxp,lpc1788-rtc.txt
+On 18 July 2015 00:45, Alexandre Belloni wrote:
 
-diff --git a/Documentation/devicetree/bindings/rtc/nxp,lpc1788-rtc.txt b/Documentation/devicetree/bindings/rtc/nxp,lpc1788-rtc.txt
-new file mode 100644
-index 000000000000..ad41a040432c
---- /dev/null
-+++ b/Documentation/devicetree/bindings/rtc/nxp,lpc1788-rtc.txt
-@@ -0,0 +1,21 @@
-+NXP LPC1788 real-time clock
-+
-+The LPC1788 RTC provides calendar and clock functionality
-+together with periodic tick and alarm interrupt support.
-+
-+Required properties:
-+- compatible	: must contain "nxp,lpc1788-rtc"
-+- reg		: Specifies base physical address and size of the registers.
-+- interrupts	: A single interrupt specifier.
-+- clocks	: Must contain entries for rtc and register clock
-+- clock-names	: Must contain "rtc" and "reg"
-+  See ../clocks/clock-bindings.txt for details.
-+
-+Example:
-+rtc: rtc@40046000 {
-+	compatible = "nxp,lpc1788-rtc";
-+	reg = <0x40046000 0x1000>;
-+	interrupts = <47>;
-+	clocks = <&creg_clk 0>, <&ccu1 CLK_CPU_BUS>;
-+	clock-names = "rtc", "reg";
-+};
--- 
-1.8.0
+> On 09/07/2015 at 08:45:53 +0100, S Twiss wrote :
+> > From: S Twiss <stwiss.opensource@diasemi.com>
+> >
+> > Add DA9062 RTC support into the existing DA9063 RTC driver component by
+> > using generic access tables for common register and bit mask definitions.
+> >
+> > The following change will add generic register and bit mask support to the
+> > DA9063 RTC. The changes are slightly complicated by requiring support for
+> > three register sets: DA9063-AD, DA9063-BB and DA9062-AA.
+> >
+> > The following alterations have been made to the DA9063 RTC:
+
+[...]
+
+> > - Addition of a re-try when reading the RTC inside da9063_rtc_read_time()
+> 
+> Can you separate that change in another patch as it is a change in the
+> behaviour of the driver? And maybe give a word or two on why this is
+> needed.
+
+Sure.
+
+I will separate this into a new patch and add it at a later date. It is a recommendation
+to have this in for both DA9062/3 now, although I have not seen this happen during
+my testing -- it should be added.
+Something similar happened with the RTC previously -- everything tested fine 
+with earlier kernels until the RTC core functions were improved and I picked up a
+synchronisation problem with my testing:
+
+http://lxr.free-electrons.com/source/drivers/rtc/rtc-da9063.c#L129
+
+[...]
+
+> > Checks performed with linux-next/next-20150708/scripts/checkpatch.pl
+> >  Kconfig                   total: 0 errors, 15 warnings, 1600 lines checked
+> >  rtc-da9063.c              total: 0 errors, 0 warnings, 531 lines checked
+> 
+> This is not true, there is a warning:
+> WARNING: DT compatible string "dlg,da9062-rtc" appears un-documented
+> -- check /home/alex/M/linux/Documentation/devicetree/bindings/
+> #275: FILE: drivers/rtc/rtc-da9063.c:171:
+> +     { .compatible = "dlg,da9062-rtc", .data = &da9062_aa_regs },
+> 
+> patch 3/3 should come before 2/3 if you want to avoid that.
+
+I will re-order the patches accordingly.
+
+[...]
+
+> > diff --git a/drivers/rtc/rtc-da9063.c b/drivers/rtc/rtc-da9063.c
+> > index 7ffc570..e94fb6d 100644
+> > --- a/drivers/rtc/rtc-da9063.c
+> > +++ b/drivers/rtc/rtc-da9063.c
+> > @@ -1,127 +1,274 @@
+> > -/* rtc-da9063.c - Real time clock device driver for DA9063
+> > - * Copyright (C) 2013-14  Dialog Semiconductor Ltd.
+> > +/*
+> > + * Real time clock device driver for DA9063/DA9062
+> > + * Copyright (C) 2013-15  Dialog Semiconductor Ltd.
+> >   *
+> > - * This library is free software; you can redistribute it and/or
+> > - * modify it under the terms of the GNU Library General Public
+> > - * License as published by the Free Software Foundation; either
+> > - * version 2 of the License, or (at your option) any later version.
+> > + * This program is free software; you can redistribute it and/or
+> > + * modify it under the terms of the GNU General Public License
+> > + * as published by the Free Software Foundation; either version 2
+> > + * of the License, or (at your option) any later version.
+> >   *
+> > - * This library is distributed in the hope that it will be useful,
+> > + * This program is distributed in the hope that it will be useful,
+> >   * but WITHOUT ANY WARRANTY; without even the implied warranty of
+> > - * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+> > - * Library General Public License for more details.
+> > + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+> > + * GNU General Public License for more details.
+> >   */
+> >
+> 
+> Please also list that license change in the commit log. It should also
+> probably be separated in another patch.
+> 
+
+I can add this to a different patch and change it at a later date.
+It is to fix a minor wording problem with the GPL header so it matches the correct
+MODULE_LICENSE(""); macro. 
+
+https://lkml.org/lkml/2015/4/18/19
+
+The info at the top of the file needs to remove the LGPL worded text where appropriate:
+words such as "Library" from the line "GNU Library General Public License"; and replace
+the word "library" with "program" in several places
+
+> [...]
+> 
+> >  static int da9063_rtc_probe(struct platform_device *pdev)
+> >  {
+> > -	struct da9063 *da9063 = dev_get_drvdata(pdev->dev.parent);
+> > -	struct da9063_rtc *rtc;
+> > +	struct da9063_compatible_rtc *rtc;
+> > +	const struct da9063_compatible_rtc_regmap *config;
+> > +	const struct of_device_id *match;
+> >  	int irq_alarm;
+> >  	u8 data[RTC_DATA_LEN];
+> >  	int ret;
+> >
+> > -	ret = regmap_update_bits(da9063->regmap, DA9063_REG_CONTROL_E,
+> > -				 DA9063_RTC_EN, DA9063_RTC_EN);
+> > +	match = of_match_node(da9063_compatible_reg_id_table,
+> > +			      pdev->dev.of_node);
+> > +	if (!match)
+> 
+> This will never happen if you are only probed from DT and this is waht
+> you expect now.
+
+Yes, I will change this.
+
+> > +		return -ENXIO;
+> > +
+> > +	rtc = devm_kzalloc(&pdev->dev, sizeof(*rtc), GFP_KERNEL);
+> > +	if (!rtc)
+> > +		return -ENOMEM;
+> > +
+> > +	if (strncmp(match->name, "dlg,da9063-rtc", 14) == 0) {
+> 
+> You must not do that.
+> You should add a new compatible and change the of_compatible string of
+> the mfd_cell in drivers/mfd/da9063-core.c onc you know the variant.
+
+I can check for a binary comparison against the address of the 
+static const struct of_device_id da9063_compatible_reg_id_table[] = {}
+entry for DA9063.
+
+The DA9063 driver already associates "dlg,da9063-rtc" with both BB and AD
+register maps. I think that altering the string at this point would break backwards
+compatibility in the device tree for the DA9063.
+
+The DA9063 core dynamically checks for the chip variant at run-time and then saves
+it in the "variant_code". This comes from the original submission of the driver.
+Distinguishing DT compatible strings was suggested, but the method conflicted with the
+automatic variant detection of the DA9063 chip, and so it was decided against.
+
+https://lkml.org/lkml/2015/1/19/144
+
+[...]
+
+Regards,
+Steve
 
 -- 
 -- 
