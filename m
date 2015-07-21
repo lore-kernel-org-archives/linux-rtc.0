@@ -1,33 +1,29 @@
-Return-Path: <rtc-linux+bncBCAJFDXE4QGBBD4E5CWAKGQE5KSJCCI@googlegroups.com>
-MIME-Version: 1.0
-Received: from mail-pa0-x229.google.com (mail-pa0-x229.google.com. [2607:f8b0:400e:c03::229])
-        by gmr-mx.google.com with ESMTPS id fv10si1716920pac.2.2015.07.05.21.20.31
+Return-Path: <rtc-linux+bncBAABBAWAXCWQKGQEV3JFS2Q@googlegroups.com>
+Received: from mail1.bemta3.messagelabs.com (mail1.bemta3.messagelabs.com. [195.245.230.172])
+        by gmr-mx.google.com with ESMTPS id t6si521589wiz.0.2015.07.21.03.33.37
         for <rtc-linux@googlegroups.com>
         (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sun, 05 Jul 2015 21:20:31 -0700 (PDT)
-Received: by mail-pa0-x229.google.com with SMTP id gz10so14638592pac.3
-        for <rtc-linux@googlegroups.com>; Sun, 05 Jul 2015 21:20:31 -0700 (PDT)
-From: Adrian Huang <adrianhuang0701@gmail.com>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Alessandro Zummo <a.zummo@towertech.it>
-Cc: rtc-linux@googlegroups.com,
-	Borislav Petkov <bp@suse.de>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	John Stultz <john.stultz@linaro.org>,
-	Egbert Eich <eich@suse.com>,
-	Diego Ercolani <diego.ercolani@gmail.com>,
-	Nagananda Chumbalkar <nchumbalkar@lenovo.com>,
-	Max Asbock <amax@lenovo.com>,
-	Adrian Huang <ahuang12@lenovo.com>,
-	Adrian Huang <adrianhuang0701@gmail.com>
-Subject: [rtc-linux] [RFC PATCH v4 1/2] rtc-cmos: Cancel alarm timer if alarm
- time is equal to now+1 seconds
-Date: Mon,  6 Jul 2015 12:19:12 +0800
-Message-Id: <1436156353-3599-2-git-send-email-adrianhuang0701@gmail.com>
-In-Reply-To: <1436156353-3599-1-git-send-email-adrianhuang0701@gmail.com>
-References: <1436156353-3599-1-git-send-email-adrianhuang0701@gmail.com>
-Reply-To: rtc-linux@googlegroups.com
+        Tue, 21 Jul 2015 03:33:38 -0700 (PDT)
+Message-ID: <7abaa10f4089b1adec4970d9c581a9f35992ee02.1437474547.git.stwiss.opensource@diasemi.com>
+In-Reply-To: <cover.1437474547.git.stwiss.opensource@diasemi.com>
+References: <cover.1437474547.git.stwiss.opensource@diasemi.com>
+From: S Twiss <stwiss.opensource@diasemi.com>
+Date: Tue, 21 Jul 2015 11:29:06 +0100
+Subject: [rtc-linux] [PATCH V3 1/3] mfd: da9062: Support for the DA9063 RTC in
+ the DA9062 core
+To: DEVICETREE <devicetree@vger.kernel.org>, LINUXINPUT
+	<linux-input@vger.kernel.org>, LINUXKERNEL <linux-kernel@vger.kernel.org>,
+	Lee Jones <lee.jones@linaro.org>, RTCLINUX <rtc-linux@googlegroups.com>, S
+ Twiss <stwiss.opensource@diasemi.com>, Samuel Ortiz <sameo@linux.intel.com>
+CC: Alessandro Zummo <a.zummo@towertech.it>, Alexandre Belloni
+	<alexandre.belloni@free-electrons.com>, David Dajun Chen
+	<david.chen@diasemi.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar
+ Gala <galak@codeaurora.org>, Mark Rutland <mark.rutland@arm.com>, Pawel Moll
+	<pawel.moll@arm.com>, Rob Herring <robh+dt@kernel.org>, Support Opensource
+	<support.opensource@diasemi.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -37,174 +33,57 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Steps to reproduce the problem:
-	1) Enable RTC wake-up option in BIOS Setup
-	2) Issue one of these commands in the OS: "poweroff"
-	   or "shutdown -h now"
-	3) System will shut down and then reboot automatically
+From: S Twiss <stwiss.opensource@diasemi.com>
 
-Root-cause of the issue:
-	1) During the shutdown process, the hwclock utility is used
-	   to save the system clock to hardware clock (RTC).
-	2) The hwclock utility invokes ioctl() with RTC_UIE_ON. The
-	   kernel configures the RTC alarm for the periodic interrupt
-	   (every 1 second).
-	3) The hwclock uitlity closes the /dev/rtc0 device, and the
-	   kernel disables the RTC alarm irq (AIE bit of Register B)
-	   via ioctl() with RTC_UIE_OFF. But, the configured alarm
-	   time is the current_time + 1.
-	4) After the next 1 second is elapsed, the AF (alarm
-	   interrupt flag) of Register C is set.
-	5) The S5 handler in BIOS is invoked to configure alarm
-	   registers (enable AIE bit and configure alarm date/time).
-	   But, BIOS does not clear the previous interrupt status
-	   during alarm configuration. Therefore, "AF=AIE=1" causes
-	   the rtc device to trigger an interrupt.
-	6) So, the machine reboots automatically right after shutdown.
+Add MFD core driver support for a RTC component
 
-This patch cancels the alarm timer if the following condictions are
-met (suggested by Alexandre):
-	1) The configured alarm time is equal to current_time + 1
-	   seconds.
-	2) The AIE timer is not in use.
+- MFD core adds the RTC resources da9062_rtc_resources[] for the RTC
+  alarm and tick timer IRQ
+- An appropriate mfd_cell has been added into da9062_devs[] to support
+  a component .name = "da9062-rtc" and .of_compatible  = "dlg,da9062-rtc"
 
-The member 'alarm_expires' is introduced in struct cmos_rtc because
-of the following reasons:
-	1) The configured alarm time can be retrieved from
-	   cmos_read_alarm(), but we need to take the 'wrapped
-	   timestamp' and 'time rollover' into consideration. The
-	   function __rtc_read_alarm() eliminates the concerns. To
-	   avoid the duplicated code in the lower level RTC driver,
-	   invoking __rtc_read_alarm from the lower level RTC driver
-	   is not encouraged. Moreover, the compilation error 'the
-	   undefined __rtc_read_alarm" is observed if the lower level
-	   RTC driver is compiled as a kernel module.
-	2) The uie_rtctimer.node.expires and aie_timer.node.expires can
-	   be retrieved for the configured alarm time. But, the problem
-	   is that either of them might configure the CMOS alarm time.
-	   We cannot make sure UIE timer or AIE tiemr configured the
-	   CMOS alarm time before. (uie_rtctimer or aie_timer is enabled
-	   and then is disabled).
-	3) The patch introduces the member 'alarm_expires' to keep the
-	   newly configured alarm time, so the above-mentioned concerns
-	   can be eliminated.
+Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
 
-The issue goes away after 20-time shutdown tests.
-
-Signed-off-by: Adrian Huang <ahuang12@lenovo.com>
-Tested-by: Egbert Eich <eich@suse.de>
-Tested-by: Diego Ercolani <diego.ercolani@gmail.com>
-Cc: Borislav Petkov <bp@suse.de>
 ---
- drivers/rtc/rtc-cmos.c | 65 ++++++++++++++++++++++++++++++++++++++++++++++----
- 1 file changed, 61 insertions(+), 4 deletions(-)
+Checks performed with linux-next/next-20150708/scripts/checkpatch.pl
+ da9062-core.c             total: 0 errors, 0 warnings, 523 lines checked
+This patch applies against linux-next and next-20150708 
 
-diff --git a/drivers/rtc/rtc-cmos.c b/drivers/rtc/rtc-cmos.c
-index a82556a..f8900aa 100644
---- a/drivers/rtc/rtc-cmos.c
-+++ b/drivers/rtc/rtc-cmos.c
-@@ -51,6 +51,7 @@ struct cmos_rtc {
- 	struct device		*dev;
- 	int			irq;
- 	struct resource		*iomem;
-+	time64_t		alarm_expires;
+
+ drivers/mfd/da9062-core.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
+
+diff --git a/drivers/mfd/da9062-core.c b/drivers/mfd/da9062-core.c
+index 4cf0643..b43cd24 100644
+--- a/drivers/mfd/da9062-core.c
++++ b/drivers/mfd/da9062-core.c
+@@ -118,6 +118,11 @@ static struct resource da9062_wdt_resources[] = {
+ 	DEFINE_RES_NAMED(DA9062_IRQ_WDG_WARN, 1, "WD_WARN", IORESOURCE_IRQ),
+ };
  
- 	void			(*wake_on)(struct device *);
- 	void			(*wake_off)(struct device *);
-@@ -377,6 +378,8 @@ static int cmos_set_alarm(struct device *dev, struct rtc_wkalrm *t)
++static struct resource da9062_rtc_resources[] = {
++	DEFINE_RES_NAMED(DA9062_IRQ_ALARM, 1, "ALARM", IORESOURCE_IRQ),
++	DEFINE_RES_NAMED(DA9062_IRQ_TICK, 1, "TICK", IORESOURCE_IRQ),
++};
++
+ static const struct mfd_cell da9062_devs[] = {
+ 	{
+ 		.name		= "da9062-core",
+@@ -141,6 +146,12 @@ static const struct mfd_cell da9062_devs[] = {
+ 		.resources	= da9062_thermal_resources,
+ 		.of_compatible  = "dlg,da9062-thermal",
+ 	},
++	{
++		.name		= "da9062-rtc",
++		.num_resources	= ARRAY_SIZE(da9062_rtc_resources),
++		.resources	= da9062_rtc_resources,
++		.of_compatible  = "dlg,da9062-rtc",
++	},
+ };
  
- 	spin_unlock_irq(&rtc_lock);
- 
-+	cmos->alarm_expires = rtc_tm_to_time64(&t->time);
-+
- 	return 0;
- }
- 
-@@ -860,6 +863,52 @@ static void __exit cmos_do_remove(struct device *dev)
- 	cmos->dev = NULL;
- }
- 
-+static int cmos_aie_poweroff(struct device *dev)
-+{
-+	struct cmos_rtc	*cmos = dev_get_drvdata(dev);
-+	struct rtc_time now;
-+	time64_t t_now;
-+	int retval = 0;
-+	unsigned char rtc_control;
-+
-+	if (!cmos->alarm_expires)
-+		return -EINVAL;
-+
-+	spin_lock_irq(&rtc_lock);
-+	rtc_control = CMOS_READ(RTC_CONTROL);
-+	spin_unlock_irq(&rtc_lock);
-+
-+	/* We only care about the situation where AIE is disabled. */
-+	if (rtc_control & RTC_AIE)
-+		return -EBUSY;
-+
-+	cmos_read_time(dev, &now);
-+	t_now = rtc_tm_to_time64(&now);
-+
-+	/*
-+	 * When enabling "RTC wake-up" in BIOS setup, the machine reboots
-+	 * automatically right after shutdown on some buggy boxes.
-+	 * This automatic rebooting issue won't happen when the alarm
-+	 * time is larger than now+1 seconds.
-+	 *
-+	 * If the alarm time is equal to now+1 seconds, the issue can be
-+	 * prevented by cancelling the alarm.
-+	 */
-+	if (cmos->alarm_expires == t_now + 1) {
-+		struct rtc_wkalrm alarm;
-+		int err;
-+
-+		/* Cancel the AIE timer by configuring the past time. */
-+		rtc_time64_to_tm(t_now - 1, &alarm.time);
-+		alarm.enabled = 0;
-+		retval = cmos_set_alarm(dev, &alarm);
-+	} else if (cmos->alarm_expires > t_now + 1) {
-+		retval = -EBUSY;
-+	}
-+
-+	return retval;
-+}
-+
- #ifdef CONFIG_PM
- 
- static int cmos_suspend(struct device *dev)
-@@ -1094,8 +1143,12 @@ static void cmos_pnp_shutdown(struct pnp_dev *pnp)
- 	struct device *dev = &pnp->dev;
- 	struct cmos_rtc	*cmos = dev_get_drvdata(dev);
- 
--	if (system_state == SYSTEM_POWER_OFF && !cmos_poweroff(dev))
--		return;
-+	if (system_state == SYSTEM_POWER_OFF) {
-+		int retval = cmos_poweroff(dev);
-+
-+		if (cmos_aie_poweroff(dev) < 0 && !retval)
-+			return;
-+	}
- 
- 	cmos_do_shutdown(cmos->irq);
- }
-@@ -1200,8 +1253,12 @@ static void cmos_platform_shutdown(struct platform_device *pdev)
- 	struct device *dev = &pdev->dev;
- 	struct cmos_rtc	*cmos = dev_get_drvdata(dev);
- 
--	if (system_state == SYSTEM_POWER_OFF && !cmos_poweroff(dev))
--		return;
-+	if (system_state == SYSTEM_POWER_OFF) {
-+		int retval = cmos_poweroff(dev);
-+
-+		if (cmos_aie_poweroff(dev) < 0 && !retval)
-+			return;
-+	}
- 
- 	cmos_do_shutdown(cmos->irq);
- }
+ static int da9062_clear_fault_log(struct da9062 *chip)
 -- 
-1.9.1
+end-of-patch for PATCH V3
 
 -- 
 -- 
