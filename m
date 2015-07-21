@@ -1,24 +1,31 @@
-Return-Path: <rtc-linux+bncBCMNZUWXYYORBI7H5WWAKGQEMWK6NNY@googlegroups.com>
-Received: from mail-pd0-f181.google.com (mail-pd0-f181.google.com. [209.85.192.181])
-        by gmr-mx.google.com with ESMTPS id xz5si2142784pac.1.2015.07.06.23.37.23
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 06 Jul 2015 23:37:23 -0700 (PDT)
-Received: by pddu5 with SMTP id u5so32510231pdd.3
-        for <rtc-linux@googlegroups.com>; Mon, 06 Jul 2015 23:37:23 -0700 (PDT)
-Message-ID: <559B739A.3080300@linaro.org>
-Date: Tue, 07 Jul 2015 12:07:14 +0530
-From: Vaibhav Hiremath <vaibhav.hiremath@linaro.org>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBENRXCWQKGQE63MZS4A@googlegroups.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id c3si513777wiz.2.2015.07.21.03.01.53
+        for <rtc-linux@googlegroups.com>;
+        Tue, 21 Jul 2015 03:01:53 -0700 (PDT)
+Date: Tue, 21 Jul 2015 12:01:51 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: S Twiss <stwiss.opensource@diasemi.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+	DEVICETREE <devicetree@vger.kernel.org>,
+	LINUXINPUT <linux-input@vger.kernel.org>,
+	LINUXKERNEL <linux-kernel@vger.kernel.org>,
+	RTCLINUX <rtc-linux@googlegroups.com>,
+	David Dajun Chen <david.chen@diasemi.com>,
+	Ian Campbell <ijc+devicetree@hellion.org.uk>,
+	Kumar Gala <galak@codeaurora.org>, Lee Jones <lee.jones@linaro.org>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Pawel Moll <pawel.moll@arm.com>, Rob Herring <robh+dt@kernel.org>,
+	Samuel Ortiz <sameo@linux.intel.com>,
+	Support Opensource <support.opensource@diasemi.com>
+Subject: [rtc-linux] Re: [PATCH V2 3/3] rtc: da9063: Add DA9062 RTC capability
+ to DA9063 RTC driver
+Message-ID: <20150721100151.GC2853@piout.net>
+References: <cover.1437471790.git.stwiss.opensource@diasemi.com>
+ <93f0906ed7db18b893385b60a43b02f248dfe9a6.1437471790.git.stwiss.opensource@diasemi.com>
 MIME-Version: 1.0
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-CC: linux-arm-kernel@lists.infradead.org, robh+dt@kernel.org,
- lee.jones@linaro.org, devicetree@vger.kernel.org,
- rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org,
- Chao Xie <chao.xie@marvell.com>
-Subject: Re: [rtc-linux] [PATCH-v2] rtc: 88pm80x: add device tree support
-References: <vaibhav.hiremath@linaro.org> <1434567488-6477-1-git-send-email-vaibhav.hiremath@linaro.org> <1434567488-6477-3-git-send-email-vaibhav.hiremath@linaro.org> <20150620004354.GY27492@piout.net> <558BB1C1.2090400@linaro.org>
-In-Reply-To: <558BB1C1.2090400@linaro.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <93f0906ed7db18b893385b60a43b02f248dfe9a6.1437471790.git.stwiss.opensource@diasemi.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -29,58 +36,52 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
+Hi Steve,
+
+it looks mostly good, a few more comments:
+
+On 21/07/2015 at 10:43:10 +0100, S Twiss wrote :
+> -	if (val & (DA9063_E_ALARM))
+> +	if (val & (config->rtc_event_alarm_mask))
+unneeded parenthesis here
+
+> +	if (of_device_is_compatible(pdev->dev.of_node, "dlg,da9063-rtc")) {
+> +		struct da9063 *chip = dev_get_drvdata(pdev->dev.parent);
+> +
+> +		if (chip->variant_code == PMIC_DA9063_AD)
+> +			rtc->config = &da9063_ad_regs;
+> +	} else
+> +		rtc->config = match->data;
+
+Both arms of the if should use braces.
+
+Also, what happens if it is a da9063, BB variant? I guess rtc->config
+will not be set.
+
+maybe you should write:
+
+rtc->config = match->data;
+if (of_device_is_compatible(pdev->dev.of_node, "dlg,da9063-rtc")) {
+     struct da9063 *chip = dev_get_drvdata(pdev->dev.parent);
+
+     if (chip->variant_code == PMIC_DA9063_AD)
+         rtc->config = &da9063_ad_regs;
+}
 
 
-On Thursday 25 June 2015 01:16 PM, Vaibhav Hiremath wrote:
->
->
-> On Saturday 20 June 2015 06:13 AM, Alexandre Belloni wrote:
->> Hi,
->>
->
-> Sorry I missed this email.
-> Just wanted to send reminder email and saw this :)
->
->> On 18/06/2015 at 00:28:06 +0530, Vaibhav Hiremath wrote :
->>> -    pdata = dev_get_platdata(&pdev->dev);
->>> -    if (pdata == NULL)
->>> -        dev_warn(&pdev->dev, "No platform data!\n");
->>> +    if (!pdata && !node) {
->>> +        dev_err(&pdev->dev,
->>> +            "pm80x-rtc requires platform data or of_node\n");
->>> +        return -EINVAL;
->>> +    }
->>> +
->>> +    if (!pdata) {
->>> +        pdata = devm_kzalloc(&pdev->dev, sizeof(*pdata), GFP_KERNEL);
->>
->> I had troubles to follow the rtc_wakeup initialization cleanup but it
->> seems OK.
->
-> Probably, once we have complete PM support ready then it would be
-> easier to understand. I think as of now lets have this minimal code for
-> rtc_wakeup.
->
->> However, I'm wondering why you are adding DT support as this
->> will always be probed from the MFD driver which pass the platform_data
->> and avoids that allocation.
->>
->
-> You are right.
->
-> Originally, it was cleanup patch,
->
->   - remove pm80x_pdata
->   - Add check for pdata and np
->   - and around rtc_wakeup
->
-> While doing that I added this nice to have allocation.
->
+> @@ -348,5 +515,5 @@ module_platform_driver(da9063_rtc_driver);
+>  
+>  MODULE_AUTHOR("S Twiss <stwiss.opensource@diasemi.com>");
+>  MODULE_DESCRIPTION("Real time clock device driver for Dialog DA9063");
+> -MODULE_LICENSE("GPL v2");
+> +MODULE_LICENSE("GPL");
 
-Any update/feedback on this?
+This should be part of the license change.
 
-Thanks,
-Vaibhav
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
 -- 
 -- 
