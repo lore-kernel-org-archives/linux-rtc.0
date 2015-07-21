@@ -1,39 +1,36 @@
-Return-Path: <rtc-linux+bncBDA7X7F2WUEBBNXW52WAKGQEN7QYMOI@googlegroups.com>
-Received: from mail-wi0-f169.google.com (mail-wi0-f169.google.com. [209.85.212.169])
-        by gmr-mx.google.com with ESMTPS id gt9si1156204wib.2.2015.07.07.04.42.46
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 07 Jul 2015 04:42:46 -0700 (PDT)
-Received: by wiga1 with SMTP id a1so254112385wig.0
-        for <rtc-linux@googlegroups.com>; Tue, 07 Jul 2015 04:42:46 -0700 (PDT)
-Date: Tue, 7 Jul 2015 12:42:41 +0100
-From: Lee Jones <lee.jones@linaro.org>
-To: S Twiss <stwiss.opensource@diasemi.com>
-Cc: DEVICETREE <devicetree@vger.kernel.org>,
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBK4KXCWQKGQEZD3HCHI@googlegroups.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id hm7si510414wib.0.2015.07.21.01.39.07
+        for <rtc-linux@googlegroups.com>;
+        Tue, 21 Jul 2015 01:39:07 -0700 (PDT)
+Date: Tue, 21 Jul 2015 10:39:05 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: "Opensource [Steve Twiss]" <stwiss.opensource@diasemi.com>
+Cc: Lee Jones <lee.jones@linaro.org>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	DEVICETREE <devicetree@vger.kernel.org>,
+	LINUXINPUT <linux-input@vger.kernel.org>,
+	LINUXKERNEL <linux-kernel@vger.kernel.org>,
+	RTCLINUX <rtc-linux@googlegroups.com>,
+	David Dajun Chen <david.chen@diasemi.com>,
 	Ian Campbell <ijc+devicetree@hellion.org.uk>,
 	Kumar Gala <galak@codeaurora.org>,
-	LINUXKERNEL <linux-kernel@vger.kernel.org>,
 	Mark Rutland <mark.rutland@arm.com>,
 	Pawel Moll <pawel.moll@arm.com>, Rob Herring <robh+dt@kernel.org>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	David Dajun Chen <david.chen@diasemi.com>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	LINUXINPUT <linux-input@vger.kernel.org>,
-	LINUXWATCHDOG <linux-watchdog@vger.kernel.org>,
-	Liam Girdwood <lgirdwood@gmail.com>,
-	Mark Brown <broonie@kernel.org>,
-	RTCLINUX <rtc-linux@googlegroups.com>,
 	Samuel Ortiz <sameo@linux.intel.com>,
-	Support Opensource <support.opensource@diasemi.com>,
-	Wim Van Sebroeck <wim@iguana.be>
-Subject: [rtc-linux] Re: [PATCH V5 2/2] devicetree: da9062: Add bindings for
- DA9062 driver
-Message-ID: <20150707114241.GW3182@x1>
-References: <cover.1435756293.git.stwiss.opensource@diasemi.com>
- <f7d3b86530f871549159fed1fd0519375997a2af.1435756293.git.stwiss.opensource@diasemi.com>
+	Support Opensource <Support.Opensource@diasemi.com>
+Subject: [rtc-linux] Re: [PATCH RFC V1 2/3] rtc: da9063: Add DA9062 RTC
+ capability to DA9063 RTC driver
+Message-ID: <20150721083905.GB2853@piout.net>
+References: <cover.1436427954.git.stwiss.opensource@diasemi.com>
+ <e2de6b382e8e81b40c0eb466f7b19364c13ba5a9.1436427954.git.stwiss.opensource@diasemi.com>
+ <20150717234525.GI3487@piout.net>
+ <6ED8E3B22081A4459DAC7699F3695FB7014B253DC9@SW-EX-MBX02.diasemi.com>
+ <20150720215045.GO15539@piout.net>
+ <6ED8E3B22081A4459DAC7699F3695FB7014B253FD1@SW-EX-MBX02.diasemi.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <f7d3b86530f871549159fed1fd0519375997a2af.1435756293.git.stwiss.opensource@diasemi.com>
+In-Reply-To: <6ED8E3B22081A4459DAC7699F3695FB7014B253FD1@SW-EX-MBX02.diasemi.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -44,149 +41,64 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On Wed, 01 Jul 2015, S Twiss wrote:
+Hi,
 
-> From: S Twiss <stwiss.opensource@diasemi.com>
->=20
-> Add device tree bindings for the DA9062 driver
->=20
-> Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
->=20
-> ---
-> Changes in V5:
->  - No change
->=20
-> Changes in V4:
->  - No change
->=20
-> Changes in V3:
->  - No change
-> =20
-> Changes in V2:
->  - Dropped the RTC and Onkey binding information in this patch-set
->    Those drivers have been dropped from this patch set and the
->    binding information has been removed accordingly.
->=20
-> This patch applies against linux-next and next-20150701=20
->=20
->=20
->=20
->  Documentation/devicetree/bindings/mfd/da9062.txt | 79 ++++++++++++++++++=
-++++++
->  1 file changed, 79 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/mfd/da9062.txt
+On 21/07/2015 at 08:05:32 +0000, Opensource [Steve Twiss] wrote :
+> > > > > +
+> > > > > +	rtc = devm_kzalloc(&pdev->dev, sizeof(*rtc), GFP_KERNEL);
+> > > > > +	if (!rtc)
+> > > > > +		return -ENOMEM;
+> > > > > +
+> > > > > +	if (strncmp(match->name, "dlg,da9063-rtc", 14) == 0) {
+> > > > > +		struct da9063 *chip = dev_get_drvdata(pdev->dev.parent);
+> > > > > +
+> > > > > +		if (chip->variant_code == PMIC_DA9063_AD)
+> > > > > +			rtc->config = &da9063_ad_regs;
+> > > > > +	} else
+> > > > > +		rtc->config = match->data;
+> > > >
+> > > > You must not do that.
+> > > > You should add a new compatible and change the of_compatible string of
+> > > > the mfd_cell in drivers/mfd/da9063-core.c onc you know the variant.
+> > >
+> > > I can check for a binary comparison against the address of the
+> > > static const struct of_device_id da9063_compatible_reg_id_table[] = {}
+> > > entry for DA9063.
+> > 
+> > You also must not compare pointers that way. You can use
+> > of_device_is_compatible().
+> > 
+> > > The DA9063 driver already associates "dlg,da9063-rtc" with both BB and AD
+> > > register maps. I think that altering the string at this point would break backwards
+> > > compatibility in the device tree for the DA9063.
+> > 
+> > I'm not fond of the backward compatibility exactly for that kind of
+> > issue. The proper way to handle it is to have tow different compatible
+> > strings because obviously, the BB and AD variants are not compatible.
+> 
+> I think I understand what you are saying about modifying the mfd_cell in the
+> DA9063 core driver at run-time so that it changes the of_compatible string to [something like]
+> "dlg,da9063-ad-rtc". That way the RTC driver can be probed using the correct
+> string.
+> 
+> Ok, I think I see now .. I'll make a patch v2 and send it soon.
+> 
 
-Applied, thanks.
+This is not needed if you simply change your strncmp with
+of_device_is_compatible
 
-> diff --git a/Documentation/devicetree/bindings/mfd/da9062.txt b/Documenta=
-tion/devicetree/bindings/mfd/da9062.txt
-> new file mode 100644
-> index 0000000..5765ed9
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/mfd/da9062.txt
-> @@ -0,0 +1,79 @@
-> +* Dialog DA9062 Power Management Integrated Circuit (PMIC)
-> +
-> +DA9062 consists of a large and varied group of sub-devices:
-> +
-> +Device                   Supply Names    Description
-> +------                   ------------    -----------
-> +da9062-regulator        :               : LDOs & BUCKs
-> +da9062-watchdog         :               : Watchdog Timer
-> +
-> +=3D=3D=3D=3D=3D=3D
-> +
-> +Required properties:
-> +
-> +- compatible : Should be "dlg,da9062".
-> +- reg : Specifies the I2C slave address (this defaults to 0x58 but it ca=
-n be
-> +  modified to match the chip's OTP settings).
-> +- interrupt-parent : Specifies the reference to the interrupt controller=
- for
-> +  the DA9062.
-> +- interrupts : IRQ line information.
-> +- interrupt-controller
-> +
-> +See Documentation/devicetree/bindings/interrupt-controller/interrupts.tx=
-t for
-> +further information on IRQ bindings.
-> +
-> +Sub-nodes:
-> +
-> +- regulators : This node defines the settings for the LDOs and BUCKs. Th=
-e
-> +  DA9062 regulators are bound using their names listed below:
-> +
-> +    buck1    : BUCK_1
-> +    buck2    : BUCK_2
-> +    buck3    : BUCK_3
-> +    buck4    : BUCK_4
-> +    ldo1     : LDO_1
-> +    ldo2     : LDO_2
-> +    ldo3     : LDO_3
-> +    ldo4     : LDO_4
-> +
-> +  The component follows the standard regulator framework and the binding=
-s
-> +  details of individual regulator device can be found in:
-> +  Documentation/devicetree/bindings/regulator/regulator.txt
-> +
-> +
-> +- watchdog: This node defines the settings for the watchdog driver assoc=
-iated
-> +  with the DA9062 PMIC. The compatible =3D "dlg,da9062-watchdog" should =
-be added
-> +  if a node is created.
-> +
-> +
-> +Example:
-> +
-> +	pmic0: da9062@58 {
-> +		compatible =3D "dlg,da9062";
-> +		reg =3D <0x58>;
-> +		interrupt-parent =3D <&gpio6>;
-> +		interrupts =3D <11 IRQ_TYPE_LEVEL_LOW>;
-> +		interrupt-controller;
-> +
-> +		watchdog {
-> +			compatible =3D "dlg,da9062-watchdog";
-> +		};
-> +
-> +		regulators {
-> +			DA9062_BUCK1: buck1 {
-> +				regulator-name =3D "BUCK1";
-> +				regulator-min-microvolt =3D <300000>;
-> +				regulator-max-microvolt =3D <1570000>;
-> +				regulator-min-microamp =3D <500000>;
-> +				regulator-max-microamp =3D <2000000>;
-> +				regulator-boot-on;
-> +			};
-> +			DA9062_LDO1: ldo1 {
-> +				regulator-name =3D "LDO_1";
-> +				regulator-min-microvolt =3D <900000>;
-> +				regulator-max-microvolt =3D <3600000>;
-> +				regulator-boot-on;
-> +			};
-> +		};
-> +	};
-> +
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
---=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
-
---=20
---=20
+-- 
+-- 
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
----=20
-You received this message because you are subscribed to the Google Groups "=
-rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an e=
-mail to rtc-linux+unsubscribe@googlegroups.com.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
