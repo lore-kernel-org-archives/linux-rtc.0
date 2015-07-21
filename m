@@ -1,28 +1,19 @@
-Return-Path: <rtc-linux+bncBAABB24VSSWQKGQEUUN4LEA@googlegroups.com>
-Received: from mail1.bemta14.messagelabs.com (mail1.bemta14.messagelabs.com. [193.109.254.115])
-        by gmr-mx.google.com with ESMTPS id eo3si556801wib.0.2015.07.14.06.13.15
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 14 Jul 2015 06:13:15 -0700 (PDT)
-Message-ID: <b3c74ac91cce63d6906c1c87b3bed98f36400752.1436879270.git.stwiss.opensource@diasemi.com>
-In-Reply-To: <cover.1436879270.git.stwiss.opensource@diasemi.com>
-References: <cover.1436879270.git.stwiss.opensource@diasemi.com>
-From: S Twiss <stwiss.opensource@diasemi.com>
-Date: Tue, 14 Jul 2015 14:07:50 +0100
-Subject: [rtc-linux] [PATCH RFC V1 3/3] devicetree: da9062: Add device tree
- bindings for DA9062 OnKey
-To: DEVICETREE <devicetree@vger.kernel.org>, Ian Campbell
-	<ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>,
-	LINUXINPUT <linux-input@vger.kernel.org>, LINUXKERNEL
-	<linux-kernel@vger.kernel.org>, Lee Jones <lee.jones@linaro.org>, "Mark
- Rutland" <mark.rutland@arm.com>, Pawel Moll <pawel.moll@arm.com>, RTCLINUX
-	<rtc-linux@googlegroups.com>, Rob Herring <robh+dt@kernel.org>, S Twiss
-	<stwiss.opensource@diasemi.com>
-CC: David Dajun Chen <david.chen@diasemi.com>, Dmitry Torokhov
-	<dmitry.torokhov@gmail.com>, Samuel Ortiz <sameo@linux.intel.com>, "Support
- Opensource" <support.opensource@diasemi.com>
-MIME-Version: 1.0
+Return-Path: <rtc-linux+bncBAABBCXBW6WQKGQEP3SD36Q@googlegroups.com>
+Received: from mail.ginzinger.com (mail.ginzinger.com. [31.193.165.229])
+        by gmr-mx.google.com with ESMTP id gt9si493263wib.2.2015.07.21.00.11.04
+        for <rtc-linux@googlegroups.com>;
+        Tue, 21 Jul 2015 00:11:04 -0700 (PDT)
+From: Roosen Henri <Henri.Roosen@ginzinger.com>
+To: "rtc-linux@googlegroups.com" <rtc-linux@googlegroups.com>,
+	"alexandre.belloni@free-electrons.com"
+	<alexandre.belloni@free-electrons.com>, "a.zummo@towertech.it"
+	<a.zummo@towertech.it>
+Subject: [rtc-linux] [PATCH] rtc: rtc-rx8025: remove obsolete
+ local_irq_disable() and  local_irq_enable() for rtc_update_irq()
+Date: Tue, 21 Jul 2015 07:11:02 +0000
+Message-ID: <FC629F1A536C6F42B960B5E32E20BD35922297@exc2.buero.ginzinger.com>
 Content-Type: text/plain; charset=UTF-8
+MIME-Version: 1.0
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -33,66 +24,61 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-From: S Twiss <stwiss.opensource@diasemi.com>
+>From b68f4bd992a6bf538edb860662be3178394f8bf5 Mon Sep 17 00:00:00 2001
+From: Henri Roosen <henri.roosen@ginzinger.com>
+Date: Thu, 16 Jul 2015 10:16:41 +0200
+Subject: [PATCH] rtc: rtc-rx8025: remove obsolete local_irq_disable() and
+ local_irq_enable() for rtc_update_irq()
 
-Add device tree bindings for the DA9062 OnKey driver component
+Since commit e6229bec25be4ba00f31dd26e25721cc96c22262 rtc_update_irq()
+is callable with irqs enabled.
 
-Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
-
+Signed-off-by: Henri Roosen <henri.roosen@ginzinger.com>
 ---
-Checks performed with linux-next/next-20150708/scripts/checkpatch.pl
- da9062.txt                total: 0 errors, 0 warnings, 97 lines checked
-This patch applies against linux-next and next-20150708 
+ drivers/rtc/rtc-rx8025.c | 4 ----
+ 1 file changed, 4 deletions(-)
 
+diff --git a/drivers/rtc/rtc-rx8025.c b/drivers/rtc/rtc-rx8025.c
+index e6298e0..9be9c37 100644
+--- a/drivers/rtc/rtc-rx8025.c
++++ b/drivers/rtc/rtc-rx8025.c
+@@ -161,9 +161,7 @@ static void rx8025_work(struct work_struct *work)
+        if (status & RX8025_BIT_CTRL2_CTFG) {
+                /* periodic */
+                status &= ~RX8025_BIT_CTRL2_CTFG;
+-               local_irq_disable();
+                rtc_update_irq(rx8025->rtc, 1, RTC_PF | RTC_IRQF);
+-               local_irq_enable();
+        }
 
- Documentation/devicetree/bindings/mfd/da9062.txt | 18 ++++++++++++++++++
- 1 file changed, 18 insertions(+)
+        if (status & RX8025_BIT_CTRL2_DAFG) {
+@@ -172,9 +170,7 @@ static void rx8025_work(struct work_struct *work)
+                if (rx8025_write_reg(client, RX8025_REG_CTRL1,
+                                     rx8025->ctrl1 & ~RX8025_BIT_CTRL1_DALE))
+                        goto out;
+-               local_irq_disable();
+                rtc_update_irq(rx8025->rtc, 1, RTC_AF | RTC_IRQF);
+-               local_irq_enable();
+        }
 
-diff --git a/Documentation/devicetree/bindings/mfd/da9062.txt b/Documentation/devicetree/bindings/mfd/da9062.txt
-index 5765ed9..7752093 100644
---- a/Documentation/devicetree/bindings/mfd/da9062.txt
-+++ b/Documentation/devicetree/bindings/mfd/da9062.txt
-@@ -5,6 +5,7 @@ DA9062 consists of a large and varied group of sub-devices:
- Device                   Supply Names    Description
- ------                   ------------    -----------
- da9062-regulator        :               : LDOs & BUCKs
-+da9062-onkey            :               : On Key
- da9062-watchdog         :               : Watchdog Timer
- 
- ======
-@@ -41,6 +42,18 @@ Sub-nodes:
-   Documentation/devicetree/bindings/regulator/regulator.txt
- 
- 
-+- onkey : This node defines the OnKey settings for controlling the key
-+  functionality of the device. The node should contain the compatible property
-+  with the value "dlg,da9063-onkey".
-+
-+  Optional onkey properties:
-+
-+  - dlg,disable-key-power : Disable power-down using a long key-press. If this
-+    entry exists the OnKey driver will remove support for the KEY_POWER key
-+    press. If this entry does not exist then by default the key-press
-+    triggered power down is enabled and the OnKey will support both KEY_POWER
-+    and KEY_SLEEP.
-+
- - watchdog: This node defines the settings for the watchdog driver associated
-   with the DA9062 PMIC. The compatible = "dlg,da9062-watchdog" should be added
-   if a node is created.
-@@ -59,6 +72,11 @@ Example:
- 			compatible = "dlg,da9062-watchdog";
- 		};
- 
-+		onkey {
-+			compatible = "dlg,da9063-onkey";
-+			dlg,disable-key-power;
-+		};
-+
- 		regulators {
- 			DA9062_BUCK1: buck1 {
- 				regulator-name = "BUCK1";
--- 
-end-of-patch for PATCH RFC V1
+        /* acknowledge IRQ */
+--
+2.1.4
+
+________________________________
+
+Ginzinger electronic systems GmbH
+Gewerbegebiet Pirath 16
+4952 Weng im Innkreis
+www.ginzinger.com
+
+Firmenbuchnummer: FN 364958d
+Firmenbuchgericht: Ried im Innkreis
+UID-Nr.: ATU66521089
+
+________________________________
+*** BETRIEBSURLAUB VON MONTAG, DEN 27. JULI 2015 BIS FREITAG, DEN 7. AUGUST 2015 ***
+*** COMPANY HOLIDAY FROM MONDAY, THE 27 JULY 2015 TO FRIDAY, 7 AUGUST 2015 ***
 
 -- 
 -- 
