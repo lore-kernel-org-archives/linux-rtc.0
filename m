@@ -1,35 +1,19 @@
-Return-Path: <rtc-linux+bncBDA7X7F2WUEBBI4GYSWQKGQE53ESV3A@googlegroups.com>
-Received: from mail-wi0-f173.google.com (mail-wi0-f173.google.com. [209.85.212.173])
-        by gmr-mx.google.com with ESMTPS id bk2si266245wib.1.2015.07.23.08.07.14
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 23 Jul 2015 08:07:14 -0700 (PDT)
-Received: by mail-wi0-f173.google.com with SMTP id ud3so28702870wib.1
-        for <rtc-linux@googlegroups.com>; Thu, 23 Jul 2015 08:07:14 -0700 (PDT)
-Date: Thu, 23 Jul 2015 16:07:11 +0100
-From: Lee Jones <lee.jones@linaro.org>
-To: S Twiss <stwiss.opensource@diasemi.com>
-Cc: DEVICETREE <devicetree@vger.kernel.org>,
-	Ian Campbell <ijc+devicetree@hellion.org.uk>,
-	Kumar Gala <galak@codeaurora.org>,
-	LINUXINPUT <linux-input@vger.kernel.org>,
-	LINUXKERNEL <linux-kernel@vger.kernel.org>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Pawel Moll <pawel.moll@arm.com>,
-	RTCLINUX <rtc-linux@googlegroups.com>,
-	Rob Herring <robh+dt@kernel.org>,
-	David Dajun Chen <david.chen@diasemi.com>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Samuel Ortiz <sameo@linux.intel.com>,
-	Support Opensource <support.opensource@diasemi.com>
-Subject: [rtc-linux] Re: [PATCH V2 3/3] devicetree: da9062: Add device tree
- bindings for DA9062 OnKey
-Message-ID: <20150723150711.GI3436@x1>
-References: <cover.1437399438.git.stwiss.opensource@diasemi.com>
- <f3630d64fd819832dc2d0925b49c1dca9b11644b.1437399438.git.stwiss.opensource@diasemi.com>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBR7GXGWQKGQEO37JGEY@googlegroups.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id gt9si564318wib.2.2015.07.21.09.28.54
+        for <rtc-linux@googlegroups.com>;
+        Tue, 21 Jul 2015 09:28:54 -0700 (PDT)
+Date: Tue, 21 Jul 2015 18:28:50 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Joachim Eastwood <manabian@gmail.com>
+Cc: a.zummo@towertech.it, joshc@ni.com, rtc-linux@googlegroups.com,
+	devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Subject: [rtc-linux] Re: [PATCH v3 0/2] RTC support for NXP LPC18xx family
+Message-ID: <20150721162850.GE2853@piout.net>
+References: <1436635730-15617-1-git-send-email-manabian@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <f3630d64fd819832dc2d0925b49c1dca9b11644b.1437399438.git.stwiss.opensource@diasemi.com>
+In-Reply-To: <1436635730-15617-1-git-send-email-manabian@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -40,93 +24,60 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On Mon, 20 Jul 2015, S Twiss wrote:
+Hi,
 
-> From: S Twiss <stwiss.opensource@diasemi.com>
->=20
-> Add device tree bindings for the DA9062 OnKey driver component
->=20
-> Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
->=20
-> ---
-> Checks performed with linux-next/next-20150708/scripts/checkpatch.pl
->  da9062.txt                total: 0 errors, 0 warnings, 97 lines checked
-> This patch applies against linux-next and next-20150708=20
->=20
->=20
->  Documentation/devicetree/bindings/mfd/da9062.txt | 18 ++++++++++++++++++
->  1 file changed, 18 insertions(+)
->=20
-> diff --git a/Documentation/devicetree/bindings/mfd/da9062.txt b/Documenta=
-tion/devicetree/bindings/mfd/da9062.txt
-> index 5765ed9..7752093 100644
-> --- a/Documentation/devicetree/bindings/mfd/da9062.txt
-> +++ b/Documentation/devicetree/bindings/mfd/da9062.txt
-> @@ -5,6 +5,7 @@ DA9062 consists of a large and varied group of sub-device=
-s:
->  Device                   Supply Names    Description
->  ------                   ------------    -----------
->  da9062-regulator        :               : LDOs & BUCKs
-> +da9062-onkey            :               : On Key
->  da9062-watchdog         :               : Watchdog Timer
-> =20
->  =3D=3D=3D=3D=3D=3D
-> @@ -41,6 +42,18 @@ Sub-nodes:
->    Documentation/devicetree/bindings/regulator/regulator.txt
-> =20
-> =20
-> +- onkey : This node defines the OnKey settings for controlling the key
-> +  functionality of the device. The node should contain the compatible pr=
-operty
-> +  with the value "dlg,da9063-onkey".
-> +
-> +  Optional onkey properties:
-> +
-> +  - dlg,disable-key-power : Disable power-down using a long key-press. I=
-f this
-> +    entry exists the OnKey driver will remove support for the KEY_POWER =
-key
-> +    press. If this entry does not exist then by default the key-press
-> +    triggered power down is enabled and the OnKey will support both KEY_=
-POWER
-> +    and KEY_SLEEP.
+On 11/07/2015 at 19:28:48 +0200, Joachim Eastwood wrote :
+> This patch set adds support for the RTC found on many NXP devices
+> including LPC178x/18xx/408x/43xx. The RTC provides calendar and
+> clock functionality together with alarm interrupt support.
+> 
+> The driver is a rework of an old driver by Kevin Wells. It has been
+> modified to support modern resource allocation, device tree and
+> generally cleaned up. Driver was originally written to support the
+> LPC24xx platform but since this platform isn't upstream support has
+> been removed. The LPC24xx name is still kept to preserve the origin
+> of this hardware block.
+> 
+> Been a while since the last version, but this version should address
+> all comments from Josh and Alexandre on v2. There has also been some
+> rework from my side. Please have a look.
+> 
+> changes since v2:
+>  - rework hw init
+>  - update Kconfig text
+>  - remove unused registers defines
+>  - misc clean ups
+>  - rebase on 4.2-rc1
+> 
+> changes since v1:
+>  - s/lpc2k/lpc24xx for better consistency
+>  - fix Kconfig entry
+>  - drop support for old versions for the ip block
+> 
+> Patch set is based on Linux v4.2-rc1.
+> 
+> Joachim Eastwood (2):
+>   rtc: add rtc-lpc24xx driver
+>   doc: dt: add documentation for nxp,lpc1788-rtc
+> 
 
-Child driver specifics should be separated out into other SS'
-documents, in this case ../input.
+Applied both after adding a proper commit log to the second patch,
+reordering to avoid a checkpatch warning and fixing the typo in kevin's
+mail address.
 
->  - watchdog: This node defines the settings for the watchdog driver assoc=
-iated
->    with the DA9062 PMIC. The compatible =3D "dlg,da9062-watchdog" should =
-be added
->    if a node is created.
-> @@ -59,6 +72,11 @@ Example:
->  			compatible =3D "dlg,da9062-watchdog";
->  		};
-> =20
-> +		onkey {
-> +			compatible =3D "dlg,da9063-onkey";
-> +			dlg,disable-key-power;
-> +		};
-> +
->  		regulators {
->  			DA9062_BUCK1: buck1 {
->  				regulator-name =3D "BUCK1";
 
---=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
---=20
---=20
+-- 
+-- 
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
----=20
-You received this message because you are subscribed to the Google Groups "=
-rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an e=
-mail to rtc-linux+unsubscribe@googlegroups.com.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
