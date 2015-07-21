@@ -1,27 +1,23 @@
-Return-Path: <rtc-linux+bncBAABBIMAWSWQKGQEKIJZV3Q@googlegroups.com>
-Received: from mail1.bemta3.messagelabs.com (mail1.bemta3.messagelabs.com. [195.245.230.167])
-        by gmr-mx.google.com with ESMTPS id hm7si397825wib.0.2015.07.20.07.05.20
+Return-Path: <rtc-linux+bncBCF2PQPV4MDRBU7OXGWQKGQESRPCQKA@googlegroups.com>
+Received: from mail-la0-x234.google.com (mail-la0-x234.google.com. [2a00:1450:4010:c03::234])
+        by gmr-mx.google.com with ESMTPS id su3si931477lbb.1.2015.07.21.09.46.11
         for <rtc-linux@googlegroups.com>
         (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 20 Jul 2015 07:05:20 -0700 (PDT)
-Message-ID: <f3630d64fd819832dc2d0925b49c1dca9b11644b.1437399438.git.stwiss.opensource@diasemi.com>
-In-Reply-To: <cover.1437399438.git.stwiss.opensource@diasemi.com>
-References: <cover.1437399438.git.stwiss.opensource@diasemi.com>
-From: S Twiss <stwiss.opensource@diasemi.com>
-Date: Mon, 20 Jul 2015 14:37:18 +0100
-Subject: [rtc-linux] [PATCH V2 3/3] devicetree: da9062: Add device tree
- bindings for DA9062 OnKey
-To: DEVICETREE <devicetree@vger.kernel.org>, Ian Campbell
-	<ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>,
-	LINUXINPUT <linux-input@vger.kernel.org>, LINUXKERNEL
-	<linux-kernel@vger.kernel.org>, Lee Jones <lee.jones@linaro.org>, Mark
- Rutland <mark.rutland@arm.com>, Pawel Moll <pawel.moll@arm.com>, RTCLINUX
-	<rtc-linux@googlegroups.com>, Rob Herring <robh+dt@kernel.org>, S Twiss
-	<stwiss.opensource@diasemi.com>
-CC: David Dajun Chen <david.chen@diasemi.com>, Dmitry Torokhov
-	<dmitry.torokhov@gmail.com>, Samuel Ortiz <sameo@linux.intel.com>, Support
- Opensource <support.opensource@diasemi.com>
+        Tue, 21 Jul 2015 09:46:11 -0700 (PDT)
+Received: by mail-la0-x234.google.com with SMTP id e2so59285453lah.1
+        for <rtc-linux@googlegroups.com>; Tue, 21 Jul 2015 09:46:11 -0700 (PDT)
 MIME-Version: 1.0
+In-Reply-To: <20150721162850.GE2853@piout.net>
+References: <1436635730-15617-1-git-send-email-manabian@gmail.com>
+	<20150721162850.GE2853@piout.net>
+Date: Tue, 21 Jul 2015 18:46:11 +0200
+Message-ID: <CAGhQ9VwJvs8qwhDrUd8P0Fz3v-MtQOq+Nfd5YegZZEVbDYNgqg@mail.gmail.com>
+Subject: [rtc-linux] Re: [PATCH v3 0/2] RTC support for NXP LPC18xx family
+From: Joachim  Eastwood <manabian@gmail.com>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>, Josh Cartwright <joshc@ni.com>, rtc-linux@googlegroups.com,
+	devicetree@vger.kernel.org,
+	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
 Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
@@ -33,66 +29,53 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-From: S Twiss <stwiss.opensource@diasemi.com>
+On 21 July 2015 at 18:28, Alexandre Belloni
+<alexandre.belloni@free-electrons.com> wrote:
+> Hi,
+>
+> On 11/07/2015 at 19:28:48 +0200, Joachim Eastwood wrote :
+>> This patch set adds support for the RTC found on many NXP devices
+>> including LPC178x/18xx/408x/43xx. The RTC provides calendar and
+>> clock functionality together with alarm interrupt support.
+>>
+>> The driver is a rework of an old driver by Kevin Wells. It has been
+>> modified to support modern resource allocation, device tree and
+>> generally cleaned up. Driver was originally written to support the
+>> LPC24xx platform but since this platform isn't upstream support has
+>> been removed. The LPC24xx name is still kept to preserve the origin
+>> of this hardware block.
+>>
+>> Been a while since the last version, but this version should address
+>> all comments from Josh and Alexandre on v2. There has also been some
+>> rework from my side. Please have a look.
+>>
+>> changes since v2:
+>>  - rework hw init
+>>  - update Kconfig text
+>>  - remove unused registers defines
+>>  - misc clean ups
+>>  - rebase on 4.2-rc1
+>>
+>> changes since v1:
+>>  - s/lpc2k/lpc24xx for better consistency
+>>  - fix Kconfig entry
+>>  - drop support for old versions for the ip block
+>>
+>> Patch set is based on Linux v4.2-rc1.
+>>
+>> Joachim Eastwood (2):
+>>   rtc: add rtc-lpc24xx driver
+>>   doc: dt: add documentation for nxp,lpc1788-rtc
+>>
+>
+> Applied both after adding a proper commit log to the second patch,
+> reordering to avoid a checkpatch warning and fixing the typo in kevin's
+> mail address.
 
-Add device tree bindings for the DA9062 OnKey driver component
+Thanks for fixing up and applying, Alexandre.
 
-Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
-
----
-Checks performed with linux-next/next-20150708/scripts/checkpatch.pl
- da9062.txt                total: 0 errors, 0 warnings, 97 lines checked
-This patch applies against linux-next and next-20150708 
-
-
- Documentation/devicetree/bindings/mfd/da9062.txt | 18 ++++++++++++++++++
- 1 file changed, 18 insertions(+)
-
-diff --git a/Documentation/devicetree/bindings/mfd/da9062.txt b/Documentation/devicetree/bindings/mfd/da9062.txt
-index 5765ed9..7752093 100644
---- a/Documentation/devicetree/bindings/mfd/da9062.txt
-+++ b/Documentation/devicetree/bindings/mfd/da9062.txt
-@@ -5,6 +5,7 @@ DA9062 consists of a large and varied group of sub-devices:
- Device                   Supply Names    Description
- ------                   ------------    -----------
- da9062-regulator        :               : LDOs & BUCKs
-+da9062-onkey            :               : On Key
- da9062-watchdog         :               : Watchdog Timer
- 
- ======
-@@ -41,6 +42,18 @@ Sub-nodes:
-   Documentation/devicetree/bindings/regulator/regulator.txt
- 
- 
-+- onkey : This node defines the OnKey settings for controlling the key
-+  functionality of the device. The node should contain the compatible property
-+  with the value "dlg,da9063-onkey".
-+
-+  Optional onkey properties:
-+
-+  - dlg,disable-key-power : Disable power-down using a long key-press. If this
-+    entry exists the OnKey driver will remove support for the KEY_POWER key
-+    press. If this entry does not exist then by default the key-press
-+    triggered power down is enabled and the OnKey will support both KEY_POWER
-+    and KEY_SLEEP.
-+
- - watchdog: This node defines the settings for the watchdog driver associated
-   with the DA9062 PMIC. The compatible = "dlg,da9062-watchdog" should be added
-   if a node is created.
-@@ -59,6 +72,11 @@ Example:
- 			compatible = "dlg,da9062-watchdog";
- 		};
- 
-+		onkey {
-+			compatible = "dlg,da9063-onkey";
-+			dlg,disable-key-power;
-+		};
-+
- 		regulators {
- 			DA9062_BUCK1: buck1 {
- 				regulator-name = "BUCK1";
--- 
-end-of-patch for PATCH V2
+regards,
+Joachim Eastwood
 
 -- 
 -- 
