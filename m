@@ -1,26 +1,27 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBAMF5WWQKGQEHQ763BI@googlegroups.com>
+Return-Path: <rtc-linux+bncBAABBAOAXCWQKGQEYUCMUPQ@googlegroups.com>
+Received: from mail1.bemta14.messagelabs.com (mail1.bemta14.messagelabs.com. [193.109.254.116])
+        by gmr-mx.google.com with ESMTPS id t6si521584wiz.0.2015.07.21.03.33.36
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 21 Jul 2015 03:33:36 -0700 (PDT)
+Message-ID: <cover.1437474547.git.stwiss.opensource@diasemi.com>
+From: S Twiss <stwiss.opensource@diasemi.com>
+Date: Tue, 21 Jul 2015 11:29:07 +0100
+Subject: [rtc-linux] [PATCH V3 0/3]  da9062: Add DA9062 RTC support using the
+ existing DA9063 RTC driver
+To: Alessandro Zummo <a.zummo@towertech.it>, Alexandre Belloni
+	<alexandre.belloni@free-electrons.com>, DEVICETREE
+	<devicetree@vger.kernel.org>, Ian Campbell <ijc+devicetree@hellion.org.uk>,
+	Kumar Gala <galak@codeaurora.org>, LINUXINPUT <linux-input@vger.kernel.org>,
+	LINUXKERNEL <linux-kernel@vger.kernel.org>, Lee Jones <lee.jones@linaro.org>,
+	Mark Rutland <mark.rutland@arm.com>, Pawel Moll <pawel.moll@arm.com>,
+	RTCLINUX <rtc-linux@googlegroups.com>, Rob Herring <robh+dt@kernel.org>, S
+ Twiss <stwiss.opensource@diasemi.com>, Samuel Ortiz <sameo@linux.intel.com>
+CC: David Dajun Chen <david.chen@diasemi.com>, Support Opensource
+	<support.opensource@diasemi.com>
 MIME-Version: 1.0
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id cj6si124849wib.1.2015.07.31.02.40.16
-        for <rtc-linux@googlegroups.com>;
-        Fri, 31 Jul 2015 02:40:16 -0700 (PDT)
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Nicolas Ferre <nicolas.ferre@atmel.com>
-Cc: Boris Brezillon <boris.brezillon@free-electrons.com>,
-	Maxime Ripard <maxime.ripard@free-electrons.com>,
-	Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>,
-	linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	rtc-linux@googlegroups.com
-Subject: [rtc-linux] [PATCH 15/23] rtc: at91rm9200: get and use slow clock
-Date: Fri, 31 Jul 2015 11:39:51 +0200
-Message-Id: <1438335599-3301-16-git-send-email-alexandre.belloni@free-electrons.com>
-In-Reply-To: <1438335599-3301-1-git-send-email-alexandre.belloni@free-electrons.com>
-References: <1438335599-3301-1-git-send-email-alexandre.belloni@free-electrons.com>
-Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -30,101 +31,79 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Commit dca1a4b5ff6e ("clk: at91: keep slow clk enabled to prevent system
-hang") added a workaround for the slow clock as it is not properly handled
-by its users.
+From: S Twiss <stwiss.opensource@diasemi.com>
 
-Get and use the slow clock as it is necessary for the at91rm9200 rtc.
+This patch set adds RTC support for the Dialog DA9062 Power Management IC.
+Changes are made to the existing DA9063 RTC component so that functionality
+in this device driver can be re-used to support the DA9062 RTC.
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
----
-Cc: Alessandro Zummo <a.zummo@towertech.it>
-Cc: rtc-linux@googlegroups.com
- drivers/rtc/rtc-at91rm9200.c | 27 ++++++++++++++++++++++++---
- 1 file changed, 24 insertions(+), 3 deletions(-)
+This following patch set is the proposed method for re-using existing kernel
+RTC drivers for chips whose RTC blocks are functionally similar to the
+DA9063 RTC.
 
-diff --git a/drivers/rtc/rtc-at91rm9200.c b/drivers/rtc/rtc-at91rm9200.c
-index 35efd3f75b18..8093d9e50619 100644
---- a/drivers/rtc/rtc-at91rm9200.c
-+++ b/drivers/rtc/rtc-at91rm9200.c
-@@ -24,6 +24,7 @@
- #include <linux/time.h>
- #include <linux/rtc.h>
- #include <linux/bcd.h>
-+#include <linux/clk.h>
- #include <linux/interrupt.h>
- #include <linux/spinlock.h>
- #include <linux/ioctl.h>
-@@ -59,6 +60,7 @@ static bool suspended;
- static DEFINE_SPINLOCK(suspended_lock);
- static unsigned long cached_events;
- static u32 at91_rtc_imr;
-+static struct clk *sclk;
- 
- static void at91_rtc_write_ier(u32 mask)
- {
-@@ -407,6 +409,16 @@ static int __init at91_rtc_probe(struct platform_device *pdev)
- 		return -ENOMEM;
- 	}
- 
-+	sclk = devm_clk_get(&pdev->dev, NULL);
-+	if (IS_ERR(sclk))
-+		return PTR_ERR(sclk);
-+
-+	ret = clk_prepare_enable(sclk);
-+	if (ret) {
-+		dev_err(&pdev->dev, "Could not enable slow clock\n");
-+		return ret;
-+	}
-+
- 	at91_rtc_write(AT91_RTC_CR, 0);
- 	at91_rtc_write(AT91_RTC_MR, 0);		/* 24 hour mode */
- 
-@@ -420,7 +432,7 @@ static int __init at91_rtc_probe(struct platform_device *pdev)
- 			       "at91_rtc", pdev);
- 	if (ret) {
- 		dev_err(&pdev->dev, "IRQ %d already in use.\n", irq);
--		return ret;
-+		goto err_clk;
- 	}
- 
- 	/* cpu init code should really have flagged this device as
-@@ -431,8 +443,10 @@ static int __init at91_rtc_probe(struct platform_device *pdev)
- 
- 	rtc = devm_rtc_device_register(&pdev->dev, pdev->name,
- 				&at91_rtc_ops, THIS_MODULE);
--	if (IS_ERR(rtc))
--		return PTR_ERR(rtc);
-+	if (IS_ERR(rtc)) {
-+		ret = PTR_ERR(rtc);
-+		goto err_clk;
-+	}
- 	platform_set_drvdata(pdev, rtc);
- 
- 	/* enable SECEV interrupt in order to initialize at91_rtc_upd_rdy
-@@ -442,6 +456,11 @@ static int __init at91_rtc_probe(struct platform_device *pdev)
- 
- 	dev_info(&pdev->dev, "AT91 Real Time Clock driver.\n");
- 	return 0;
-+
-+err_clk:
-+	clk_disable_unprepare(sclk);
-+
-+	return ret;
- }
- 
- /*
-@@ -454,6 +473,8 @@ static int __exit at91_rtc_remove(struct platform_device *pdev)
- 					AT91_RTC_SECEV | AT91_RTC_TIMEV |
- 					AT91_RTC_CALEV);
- 
-+	clk_disable_unprepare(sclk);
-+
- 	return 0;
- }
- 
+There is already a precedence for reuse of this type in the kernel, see
+linux-mainline/v4.1 drivers/rtc/rtc-pm8xxx.c +34
+This patch set will follow that example.
+
+The main points for the MFD core and device tree changes are as follows.
+
+- Alteration of the DA9063 RTC Kconfig needs to be updated to depend on
+  both MFD_DA9063 "or" MFD_DA9062. There is no explicit DA9062 RTC Kconfig.
+- The DA9062 MFD core should add a new RTC resource as usual and an entry
+  in the mfd_cell to support a component name and of_compatible for
+  "da9062-rtc" and "dlg,da9062-rtc".
+- The device tree binding support should include a compatible string for
+  "dlg,da9062-rtc"
+
+The main points for the RTC changes are as follows:
+
+A generic structure is used (called da9063_compatible_rtc_regmap) to hold
+all generic registers and bitmasks for use with this type of RTC component.
+
+Functions in the DA9063 RTC will be refactored to use this compatibility
+struct and all accesses to generic registers/masks will be made through
+this table look-up instead of using defines from the register header files
+directly
+
+Linkage between the DA9062 MFD and the DA9063 RTC driver is created through
+the use of an of_match_table entry in the platform_driver structure.
+A re-work of da9063_rtc_probe() is necessary to use the of_match_node() and
+dev_get_regmap() functions: this will provide initialisation of the generic
+registers and masks and allow access to the regmap according to the correct
+device tree specification.
+
+The addition of a of_device_id table for DA9063 and DA9062 default data
+is created. This method of initialisation for the DA9063 RTC component
+works well for different chip types, and is only slightly complicated when
+distinguishing the difference between support for DA9063-AD and DA9063-BB.
+
+In this patch set the following is provided:
+ - [PATCH V3 1/3]: MFD changes in DA9062 to support RTC
+ - [PATCH V3 2/3]: Device tree bindings for DA9062 RTC component
+ - [PATCH V3 3/3]: Update existing DA9063 RTC to add DA9062 support
+
+This patch applies against linux-next and next-20150708 
+
+Thank you,
+Steve Twiss, Dialog Semiconductor Ltd.
+
+Changes in V2:
+ - Reorder patches RFC PATCH 3/3 and 2/3 to remove the checkpatch warning
+   > WARNING: DT compatible string "dlg,da9062-rtc" appears un-documented
+
+S Twiss (3):
+  mfd: da9062: Support for the DA9063 RTC in the DA9062 core
+  devicetree: da9062: Add device tree bindings for DA9062 RTC
+  rtc: da9063: Add DA9062 RTC capability to DA9063 RTC driver
+
+ Documentation/devicetree/bindings/mfd/da9062.txt |   9 +
+ drivers/mfd/da9062-core.c                        |  11 +
+ drivers/rtc/Kconfig                              |   6 +-
+ drivers/rtc/rtc-da9063.c                         | 391 ++++++++++++++++-------
+ 4 files changed, 302 insertions(+), 115 deletions(-)
+
 -- 
-2.1.4
+end-of-patch for PATCH V3
 
 -- 
 -- 
