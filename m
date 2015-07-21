@@ -1,26 +1,27 @@
-Return-Path: <rtc-linux+bncBC4IFTUFXEFBBIO64GWQKGQEKVM3BTI@googlegroups.com>
-MIME-Version: 1.0
-Received: from mail-pa0-f54.google.com (mail-pa0-f54.google.com. [209.85.220.54])
-        by gmr-mx.google.com with ESMTPS id ff6si3978152pac.2.2015.07.28.23.13.53
+Return-Path: <rtc-linux+bncBAABBNNJXCWQKGQE3WH4XTQ@googlegroups.com>
+Received: from mail1.bemta14.messagelabs.com (mail1.bemta14.messagelabs.com. [193.109.254.115])
+        by gmr-mx.google.com with ESMTPS id q10si523100wiz.0.2015.07.21.02.45.24
         for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 28 Jul 2015 23:13:53 -0700 (PDT)
-Received: by pacan13 with SMTP id an13so91298pac.1
-        for <rtc-linux@googlegroups.com>; Tue, 28 Jul 2015 23:13:53 -0700 (PDT)
-From: Leo Yan <leo.yan@linaro.org>
-To: Linus Walleij <linus.walleij@linaro.org>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	linux-arm-kernel@lists.infradead.org,
-	rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org,
-	Deepak Saxena <dsaxena@plexity.net>
-Cc: Leo Yan <leo.yan@linaro.org>
-Subject: [rtc-linux] [PATCH] drivers/rtc/rtc-pl031.c: fix typo for author email
-Date: Wed, 29 Jul 2015 14:13:40 +0800
-Message-Id: <1438150420-15035-1-git-send-email-leo.yan@linaro.org>
-Reply-To: rtc-linux@googlegroups.com
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 21 Jul 2015 02:45:24 -0700 (PDT)
+Message-ID: <cover.1437471790.git.stwiss.opensource@diasemi.com>
+From: S Twiss <stwiss.opensource@diasemi.com>
+Date: Tue, 21 Jul 2015 10:43:10 +0100
+Subject: [rtc-linux] [PATCH V2 0/3]  da9062: Add DA9062 RTC support using the
+ existing DA9063 RTC driver
+To: Alessandro Zummo <a.zummo@towertech.it>, Alexandre Belloni
+	<alexandre.belloni@free-electrons.com>, DEVICETREE
+	<devicetree@vger.kernel.org>, Ian Campbell <ijc+devicetree@hellion.org.uk>,
+	Kumar Gala <galak@codeaurora.org>, LINUXINPUT <linux-input@vger.kernel.org>,
+	LINUXKERNEL <linux-kernel@vger.kernel.org>, Lee Jones <lee.jones@linaro.org>,
+	Mark Rutland <mark.rutland@arm.com>, Pawel Moll <pawel.moll@arm.com>,
+	RTCLINUX <rtc-linux@googlegroups.com>, Rob Herring <robh+dt@kernel.org>, S
+ Twiss <stwiss.opensource@diasemi.com>, Samuel Ortiz <sameo@linux.intel.com>
+CC: David Dajun Chen <david.chen@diasemi.com>, Support Opensource
+	<support.opensource@diasemi.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -30,27 +31,79 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-The email address missed character ">", so add it.
+From: S Twiss <stwiss.opensource@diasemi.com>
 
-Signed-off-by: Leo Yan <leo.yan@linaro.org>
----
- drivers/rtc/rtc-pl031.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+This patch set adds RTC support for the Dialog DA9062 Power Management IC.
+Changes are made to the existing DA9063 RTC component so that functionality
+in this device driver can be re-used to support the DA9062 RTC.
 
-diff --git a/drivers/rtc/rtc-pl031.c b/drivers/rtc/rtc-pl031.c
-index 99181fff..41dcb7d 100644
---- a/drivers/rtc/rtc-pl031.c
-+++ b/drivers/rtc/rtc-pl031.c
-@@ -476,6 +476,6 @@ static struct amba_driver pl031_driver = {
- 
- module_amba_driver(pl031_driver);
- 
--MODULE_AUTHOR("Deepak Saxena <dsaxena@plexity.net");
-+MODULE_AUTHOR("Deepak Saxena <dsaxena@plexity.net>");
- MODULE_DESCRIPTION("ARM AMBA PL031 RTC Driver");
- MODULE_LICENSE("GPL");
+This following patch set is the proposed method for re-using existing kernel
+RTC drivers for chips whose RTC blocks are functionally similar to the
+DA9063 RTC.
+
+There is already a precedence for reuse of this type in the kernel, see
+linux-mainline/v4.1 drivers/rtc/rtc-pm8xxx.c +34
+This patch set will follow that example.
+
+The main points for the MFD core and device tree changes are as follows.
+
+- Alteration of the DA9063 RTC Kconfig needs to be updated to depend on
+  both MFD_DA9063 "or" MFD_DA9062. There is no explicit DA9062 RTC Kconfig.
+- The DA9062 MFD core should add a new RTC resource as usual and an entry
+  in the mfd_cell to support a component name and of_compatible for
+  "da9062-rtc" and "dlg,da9062-rtc".
+- The device tree binding support should include a compatible string for
+  "dlg,da9062-rtc"
+
+The main points for the RTC changes are as follows:
+
+A generic structure is used (called da9063_compatible_rtc_regmap) to hold
+all generic registers and bitmasks for use with this type of RTC component.
+
+Functions in the DA9063 RTC will be refactored to use this compatibility
+struct and all accesses to generic registers/masks will be made through
+this table look-up instead of using defines from the register header files
+directly
+
+Linkage between the DA9062 MFD and the DA9063 RTC driver is created through
+the use of an of_match_table entry in the platform_driver structure.
+A re-work of da9063_rtc_probe() is necessary to use the of_match_node() and
+dev_get_regmap() functions: this will provide initialisation of the generic
+registers and masks and allow access to the regmap according to the correct
+device tree specification.
+
+The addition of a of_device_id table for DA9063 and DA9062 default data
+is created. This method of initialisation for the DA9063 RTC component
+works well for different chip types, and is only slightly complicated when
+distinguishing the difference between support for DA9063-AD and DA9063-BB.
+
+In this patch set the following is provided:
+ - [PATCH V2 1/3]: MFD changes in DA9062 to support RTC
+ - [PATCH V2 2/3]: Device tree bindings for DA9062 RTC component
+ - [PATCH V2 3/3]: Update existing DA9063 RTC to add DA9062 support
+
+This patch applies against linux-next and next-20150708 
+
+Thank you,
+Steve Twiss, Dialog Semiconductor Ltd.
+
+Changes in V2:
+ - Reorder patches RFC PATCH 3/3 and 2/3 to remove the checkpatch warning
+   > WARNING: DT compatible string "dlg,da9062-rtc" appears un-documented
+
+S Twiss (3):
+  mfd: da9062: Support for the DA9063 RTC in the DA9062 core
+  devicetree: da9062: Add device tree bindings for DA9062 RTC
+  rtc: da9063: Add DA9062 RTC capability to DA9063 RTC driver
+
+ Documentation/devicetree/bindings/mfd/da9062.txt |   9 +
+ drivers/mfd/da9062-core.c                        |  11 +
+ drivers/rtc/Kconfig                              |   6 +-
+ drivers/rtc/rtc-da9063.c                         | 393 ++++++++++++++++-------
+ 4 files changed, 303 insertions(+), 116 deletions(-)
+
 -- 
-1.9.1
+end-of-patch for PATCH V2
 
 -- 
 -- 
