@@ -1,31 +1,23 @@
-Return-Path: <rtc-linux+bncBCV6LFM5RQJRBFUSYOWQKGQECZBTMQA@googlegroups.com>
-Received: from mail-wi0-f177.google.com (mail-wi0-f177.google.com. [209.85.212.177])
-        by gmr-mx.google.com with ESMTPS id bk2si227303wib.1.2015.07.23.03.59.33
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 23 Jul 2015 03:59:33 -0700 (PDT)
-Received: by mail-wi0-f177.google.com with SMTP id mv11so18527449wic.0
-        for <rtc-linux@googlegroups.com>; Thu, 23 Jul 2015 03:59:33 -0700 (PDT)
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBQMHYCWQKGQEMCTF5MY@googlegroups.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id bk2si141100wib.1.2015.07.22.13.57.37
+        for <rtc-linux@googlegroups.com>;
+        Wed, 22 Jul 2015 13:57:37 -0700 (PDT)
+Date: Wed, 22 Jul 2015 22:57:35 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Krzysztof Kozlowski <k.kozlowski@samsung.com>,
+	rtc-linux@googlegroups.com, Alessandro Zummo <a.zummo@towertech.it>,
+	linux-kernel@vger.kernel.org
+Subject: Re: [rtc-linux] [PATCH 4/4] RTC: switch to using is_visible() to
+ control sysfs attributes
+Message-ID: <20150722205735.GP2853@piout.net>
+References: <1437433372-15425-1-git-send-email-dmitry.torokhov@gmail.com>
+ <1437433372-15425-4-git-send-email-dmitry.torokhov@gmail.com>
+ <CAJKOXPevQGGwCYgcH9zJ6b9c4u=XV6pO2tzne0Ub3uinDjLqvQ@mail.gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <1433512783-8183-2-git-send-email-octavian.purdila@intel.com>
-References: <1433512783-8183-1-git-send-email-octavian.purdila@intel.com>
-	<1433512783-8183-2-git-send-email-octavian.purdila@intel.com>
-Date: Thu, 23 Jul 2015 13:59:33 +0300
-Message-ID: <CAE1zotJ_u+ysf+HkD=4=Nv_mJ-4++SZxjKGMRkbKzYzyunLJUg@mail.gmail.com>
-Subject: [rtc-linux] Re: [PATCH v3 1/2] iio: fix drivers that consider 0 as a
- valid IRQ in client->irq
-From: Octavian Purdila <octavian.purdila@intel.com>
-To: Jonathan Cameron <jic23@kernel.org>
-Cc: Mika Westerberg <mika.westerberg@linux.intel.com>,
-	Linus Walleij <linus.walleij@linaro.org>, Hartmut Knaack <knaack.h@gmx.de>,
-	Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald <pmeerw@pmeerw.net>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
-	"linux-iio@vger.kernel.org" <linux-iio@vger.kernel.org>, rtc-linux@googlegroups.com,
-	lkml <linux-kernel@vger.kernel.org>,
-	Octavian Purdila <octavian.purdila@intel.com>
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <CAJKOXPevQGGwCYgcH9zJ6b9c4u=XV6pO2tzne0Ub3uinDjLqvQ@mail.gmail.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -36,114 +28,72 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On Fri, Jun 5, 2015 at 4:59 PM, Octavian Purdila
-<octavian.purdila@intel.com> wrote:
-> Since patch "i2c / ACPI: Use 0 to indicate that device does not have
-> interrupt assigned" [1], 0 is not a valid i2c client irq anymore, so
-> change all driver's checks accordingly.
->
-> The same issue occurs when the device is instantiated via device tree
-> with no IRQ, or from the i2c sysfs interface, even before the patch
-> above.
->
-> [1] http://lkml.kernel.org/g/<1430908148-201129-3-git-send-email-mika.westerberg@linux.intel.com>
->
-> Signed-off-by: Octavian Purdila <octavian.purdila@intel.com>
-> Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+(Krzysztof, be careful, Dmitry was not in copy of your maili, you should
+probably check your mailer config)
 
-Hi Jonathan,
+On 21/07/2015 at 10:21:11 +0900, Krzysztof Kozlowski wrote :
+> 2015-07-21 8:02 GMT+09:00 Dmitry Torokhov <dmitry.torokhov@gmail.com>:
+> >  static ssize_t
+> > -rtc_sysfs_set_wakealarm(struct device *dev, struct device_attribute *attr,
+> > +wakealarm_store(struct device *dev, struct device_attribute *attr,
+> >                 const char *buf, size_t n)
+> >  {
+> >         ssize_t retval;
+> > @@ -221,45 +209,58 @@ rtc_sysfs_set_wakealarm(struct device *dev, struct device_attribute *attr,
+> >         retval = rtc_set_alarm(rtc, &alm);
+> >         return (retval < 0) ? retval : n;
+> >  }
+> > -static DEVICE_ATTR(wakealarm, S_IRUGO | S_IWUSR,
+> > -               rtc_sysfs_show_wakealarm, rtc_sysfs_set_wakealarm);
+> > +static DEVICE_ATTR_RW(wakealarm);
+> 
+> This and renaming of show/store functions look unrelated
+> 
 
-Does this look OK to you? If so, could you pleas ACK the patch so that
-Linus can pick it up in its for-next branch if/when needed?
+I don't really mind that one but I would also prefer if it could be
+separated.
 
-Thanks,
-Tavi
+> >
+> > +static struct attribute *rtc_attrs[] = {
+> > +       &dev_attr_name.attr,
+> > +       &dev_attr_date.attr,
+> > +       &dev_attr_time.attr,
+> > +       &dev_attr_since_epoch.attr,
+> > +       &dev_attr_max_user_freq.attr,
+> > +       &dev_attr_hctosys.attr,
+> > +       &dev_attr_wakealarm.attr,
+> > +       NULL,
+> > +};
+> >
+> > -/* The reason to trigger an alarm with no process watching it (via sysfs)
+> > +/*
+> > + * The reason to trigger an alarm with no process watching it (via sysfs)
+> >   * is its side effect:  waking from a system state like suspend-to-RAM or
+> >   * suspend-to-disk.  So: no attribute unless that side effect is possible.
+> >   * (Userspace may disable that mechanism later.)
+> >   */
+> > -static inline int rtc_does_wakealarm(struct rtc_device *rtc)
+> > +static bool rtc_does_wakealarm(struct rtc_device *rtc)
+> >  {
+> >         if (!device_can_wakeup(rtc->dev.parent))
+> > -               return 0;
+> > +               return false;
+> > +
+> >         return rtc->ops->set_alarm != NULL;
+> >  }
+> 
+> This looks unrelated too and confuses me. Could you split such cleanup
+> from main goal of the patch?
+> 
+
+That one is bothering me too.
 
 
-> ---
->  drivers/iio/accel/bmc150-accel.c | 2 +-
->  drivers/iio/accel/kxcjk-1013.c   | 2 +-
->  drivers/iio/accel/mma9553.c      | 2 +-
->  drivers/iio/imu/kmx61.c          | 8 ++++----
->  4 files changed, 7 insertions(+), 7 deletions(-)
->
-> diff --git a/drivers/iio/accel/bmc150-accel.c b/drivers/iio/accel/bmc150-accel.c
-> index 4e70f51..55751d9 100644
-> --- a/drivers/iio/accel/bmc150-accel.c
-> +++ b/drivers/iio/accel/bmc150-accel.c
-> @@ -1663,7 +1663,7 @@ static int bmc150_accel_probe(struct i2c_client *client,
->         if (client->irq < 0)
->                 client->irq = bmc150_accel_gpio_probe(client, data);
->
-> -       if (client->irq >= 0) {
-> +       if (client->irq > 0) {
->                 ret = devm_request_threaded_irq(
->                                                 &client->dev, client->irq,
->                                                 bmc150_accel_irq_handler,
-> diff --git a/drivers/iio/accel/kxcjk-1013.c b/drivers/iio/accel/kxcjk-1013.c
-> index 0d9bd35..aa93cbd 100644
-> --- a/drivers/iio/accel/kxcjk-1013.c
-> +++ b/drivers/iio/accel/kxcjk-1013.c
-> @@ -1243,7 +1243,7 @@ static int kxcjk1013_probe(struct i2c_client *client,
->         if (client->irq < 0)
->                 client->irq = kxcjk1013_gpio_probe(client, data);
->
-> -       if (client->irq >= 0) {
-> +       if (client->irq > 0) {
->                 ret = devm_request_threaded_irq(&client->dev, client->irq,
->                                                 kxcjk1013_data_rdy_trig_poll,
->                                                 kxcjk1013_event_handler,
-> diff --git a/drivers/iio/accel/mma9553.c b/drivers/iio/accel/mma9553.c
-> index 9d649c4..df043b3 100644
-> --- a/drivers/iio/accel/mma9553.c
-> +++ b/drivers/iio/accel/mma9553.c
-> @@ -1143,7 +1143,7 @@ static int mma9553_probe(struct i2c_client *client,
->         if (client->irq < 0)
->                 client->irq = mma9553_gpio_probe(client);
->
-> -       if (client->irq >= 0) {
-> +       if (client->irq > 0) {
->                 ret = devm_request_threaded_irq(&client->dev, client->irq,
->                                                 mma9553_irq_handler,
->                                                 mma9553_event_handler,
-> diff --git a/drivers/iio/imu/kmx61.c b/drivers/iio/imu/kmx61.c
-> index 462a010..82cdf50 100644
-> --- a/drivers/iio/imu/kmx61.c
-> +++ b/drivers/iio/imu/kmx61.c
-> @@ -1363,7 +1363,7 @@ static int kmx61_probe(struct i2c_client *client,
->         if (client->irq < 0)
->                 client->irq = kmx61_gpio_probe(client, data);
->
-> -       if (client->irq >= 0) {
-> +       if (client->irq > 0) {
->                 ret = devm_request_threaded_irq(&client->dev, client->irq,
->                                                 kmx61_data_rdy_trig_poll,
->                                                 kmx61_event_handler,
-> @@ -1445,10 +1445,10 @@ err_iio_unregister_mag:
->  err_iio_unregister_acc:
->         iio_device_unregister(data->acc_indio_dev);
->  err_buffer_cleanup_mag:
-> -       if (client->irq >= 0)
-> +       if (client->irq > 0)
->                 iio_triggered_buffer_cleanup(data->mag_indio_dev);
->  err_buffer_cleanup_acc:
-> -       if (client->irq >= 0)
-> +       if (client->irq > 0)
->                 iio_triggered_buffer_cleanup(data->acc_indio_dev);
->  err_trigger_unregister_motion:
->         iio_trigger_unregister(data->motion_trig);
-> @@ -1472,7 +1472,7 @@ static int kmx61_remove(struct i2c_client *client)
->         iio_device_unregister(data->acc_indio_dev);
->         iio_device_unregister(data->mag_indio_dev);
->
-> -       if (client->irq >= 0) {
-> +       if (client->irq > 0) {
->                 iio_triggered_buffer_cleanup(data->acc_indio_dev);
->                 iio_triggered_buffer_cleanup(data->mag_indio_dev);
->                 iio_trigger_unregister(data->acc_dready_trig);
-> --
-> 1.9.1
->
+
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
 -- 
 -- 
