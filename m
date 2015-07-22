@@ -1,28 +1,22 @@
-Return-Path: <rtc-linux+bncBAABBAWAXCWQKGQEV3JFS2Q@googlegroups.com>
-Received: from mail1.bemta3.messagelabs.com (mail1.bemta3.messagelabs.com. [195.245.230.172])
-        by gmr-mx.google.com with ESMTPS id t6si521589wiz.0.2015.07.21.03.33.37
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 21 Jul 2015 03:33:38 -0700 (PDT)
-Message-ID: <7abaa10f4089b1adec4970d9c581a9f35992ee02.1437474547.git.stwiss.opensource@diasemi.com>
-In-Reply-To: <cover.1437474547.git.stwiss.opensource@diasemi.com>
-References: <cover.1437474547.git.stwiss.opensource@diasemi.com>
-From: S Twiss <stwiss.opensource@diasemi.com>
-Date: Tue, 21 Jul 2015 11:29:06 +0100
-Subject: [rtc-linux] [PATCH V3 1/3] mfd: da9062: Support for the DA9063 RTC in
- the DA9062 core
-To: DEVICETREE <devicetree@vger.kernel.org>, LINUXINPUT
-	<linux-input@vger.kernel.org>, LINUXKERNEL <linux-kernel@vger.kernel.org>,
-	Lee Jones <lee.jones@linaro.org>, RTCLINUX <rtc-linux@googlegroups.com>, S
- Twiss <stwiss.opensource@diasemi.com>, Samuel Ortiz <sameo@linux.intel.com>
-CC: Alessandro Zummo <a.zummo@towertech.it>, Alexandre Belloni
-	<alexandre.belloni@free-electrons.com>, David Dajun Chen
-	<david.chen@diasemi.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar
- Gala <galak@codeaurora.org>, Mark Rutland <mark.rutland@arm.com>, Pawel Moll
-	<pawel.moll@arm.com>, Rob Herring <robh+dt@kernel.org>, Support Opensource
-	<support.opensource@diasemi.com>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBOM5X6WQKGQEIGO7DWY@googlegroups.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id v8si744884wiw.1.2015.07.22.10.11.20
+        for <rtc-linux@googlegroups.com>;
+        Wed, 22 Jul 2015 10:11:20 -0700 (PDT)
+Date: Wed, 22 Jul 2015 19:11:19 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Vaibhav Jain <vaibhav@linux.vnet.ibm.com>
+Cc: linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+	Neelesh Gupta <neelegup@linux.vnet.ibm.com>,
+	Michael Neuling <mikey@neuling.org>,
+	Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com
+Subject: [rtc-linux] Re: [PATCH] rtc/rtc-opal: Enable alarms only when opal
+ supports tpo
+Message-ID: <20150722171119.GJ2853@piout.net>
+References: <1436860708-17058-1-git-send-email-vaibhav@linux.vnet.ibm.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1436860708-17058-1-git-send-email-vaibhav@linux.vnet.ibm.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -33,57 +27,33 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-From: S Twiss <stwiss.opensource@diasemi.com>
+On 14/07/2015 at 13:28:28 +0530, Vaibhav Jain wrote :
+> rtc-opal driver provides support for rtc alarms via
+> timed-power-on(tpo). However some Power platforms like BML use a fake
+> rtc clock and don't support tpo. Such platforms are indicated by the
+> missing 'has-tpo' property in the device tree.
+> 
+> Current implementation however enables callback for
+> rtc_class_ops.read/set alarm irrespective of the tpo support from the
+> platform. This results in a failed opal call when kernel tries to read
+> an existing alarms via opal_get_tpo_time during rtc device registration.
+> 
+> This patch fixes this issue by setting opal_rtc_ops.read/set_alarm
+> callback pointers only when tpo is supported.
+> 
+> Acked-by: Michael Neuling <mikey@neuling.org>
+> Acked-by: Neelesh Gupta <neelegup@linux.vnet.ibm.com>
+> Signed-off-by: Vaibhav Jain <vaibhav@linux.vnet.ibm.com>
+> ---
+>  drivers/rtc/rtc-opal.c | 9 +++++----
+>  1 file changed, 5 insertions(+), 4 deletions(-)
+> 
+Applied, thanks.
 
-Add MFD core driver support for a RTC component
-
-- MFD core adds the RTC resources da9062_rtc_resources[] for the RTC
-  alarm and tick timer IRQ
-- An appropriate mfd_cell has been added into da9062_devs[] to support
-  a component .name = "da9062-rtc" and .of_compatible  = "dlg,da9062-rtc"
-
-Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
-
----
-Checks performed with linux-next/next-20150708/scripts/checkpatch.pl
- da9062-core.c             total: 0 errors, 0 warnings, 523 lines checked
-This patch applies against linux-next and next-20150708 
-
-
- drivers/mfd/da9062-core.c | 11 +++++++++++
- 1 file changed, 11 insertions(+)
-
-diff --git a/drivers/mfd/da9062-core.c b/drivers/mfd/da9062-core.c
-index 4cf0643..b43cd24 100644
---- a/drivers/mfd/da9062-core.c
-+++ b/drivers/mfd/da9062-core.c
-@@ -118,6 +118,11 @@ static struct resource da9062_wdt_resources[] = {
- 	DEFINE_RES_NAMED(DA9062_IRQ_WDG_WARN, 1, "WD_WARN", IORESOURCE_IRQ),
- };
- 
-+static struct resource da9062_rtc_resources[] = {
-+	DEFINE_RES_NAMED(DA9062_IRQ_ALARM, 1, "ALARM", IORESOURCE_IRQ),
-+	DEFINE_RES_NAMED(DA9062_IRQ_TICK, 1, "TICK", IORESOURCE_IRQ),
-+};
-+
- static const struct mfd_cell da9062_devs[] = {
- 	{
- 		.name		= "da9062-core",
-@@ -141,6 +146,12 @@ static const struct mfd_cell da9062_devs[] = {
- 		.resources	= da9062_thermal_resources,
- 		.of_compatible  = "dlg,da9062-thermal",
- 	},
-+	{
-+		.name		= "da9062-rtc",
-+		.num_resources	= ARRAY_SIZE(da9062_rtc_resources),
-+		.resources	= da9062_rtc_resources,
-+		.of_compatible  = "dlg,da9062-rtc",
-+	},
- };
- 
- static int da9062_clear_fault_log(struct da9062 *chip)
 -- 
-end-of-patch for PATCH V3
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
 -- 
 -- 
