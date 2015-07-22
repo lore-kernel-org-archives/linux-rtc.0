@@ -1,28 +1,27 @@
-Return-Path: <rtc-linux+bncBAABBCE232WQKGQEYCNCJKI@googlegroups.com>
-Received: from mail1.bemta5.messagelabs.com (mail1.bemta5.messagelabs.com. [195.245.231.152])
-        by gmr-mx.google.com with ESMTPS id cj6si536578wib.1.2015.07.28.07.09.12
+Return-Path: <rtc-linux+bncBDP6N55ZUYDRBUU5YCWQKGQEXFUL6BY@googlegroups.com>
+Received: from mail-pd0-x22e.google.com (mail-pd0-x22e.google.com. [2607:f8b0:400e:c02::22e])
+        by gmr-mx.google.com with ESMTPS id ys2si529171pac.0.2015.07.22.14.44.50
         for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 28 Jul 2015 07:09:12 -0700 (PDT)
-From: "Opensource [Steve Twiss]" <stwiss.opensource@diasemi.com>
-To: Lee Jones <lee.jones@linaro.org>
-CC: DEVICETREE <devicetree@vger.kernel.org>, Dmitry Torokhov
-	<dmitry.torokhov@gmail.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>,
-	Kumar Gala <galak@codeaurora.org>, LINUXINPUT <linux-input@vger.kernel.org>,
-	LINUXKERNEL <linux-kernel@vger.kernel.org>, Mark Rutland
-	<mark.rutland@arm.com>, Pawel Moll <pawel.moll@arm.com>, RTCLINUX
-	<rtc-linux@googlegroups.com>, Rob Herring <robh+dt@kernel.org>, Samuel Ortiz
-	<sameo@linux.intel.com>, David Dajun Chen <david.chen@diasemi.com>, "Support
- Opensource" <Support.Opensource@diasemi.com>
-Subject: [rtc-linux] RE: [PATCH V3 0/3]  da9062: Add DA9062 OnKey support
- using the existing DA9063 OnKey driver
-Date: Tue, 28 Jul 2015 14:09:09 +0000
-Message-ID: <6ED8E3B22081A4459DAC7699F3695FB7014B25D5FD@SW-EX-MBX02.diasemi.com>
-References: <cover.1437668261.git.stwiss.opensource@diasemi.com>
- <20150728085216.GP14943@x1>
-In-Reply-To: <20150728085216.GP14943@x1>
-Content-Type: text/plain; charset=UTF-8
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 22 Jul 2015 14:44:50 -0700 (PDT)
+Received: by mail-pd0-x22e.google.com with SMTP id g1so144895171pdr.2
+        for <rtc-linux@googlegroups.com>; Wed, 22 Jul 2015 14:44:50 -0700 (PDT)
+Date: Wed, 22 Jul 2015 14:44:46 -0700
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: Krzysztof Kozlowski <k.kozlowski@samsung.com>,
+	rtc-linux@googlegroups.com, Alessandro Zummo <a.zummo@towertech.it>,
+	linux-kernel@vger.kernel.org
+Subject: Re: [rtc-linux] [PATCH 4/4] RTC: switch to using is_visible() to
+ control sysfs attributes
+Message-ID: <20150722214446.GE14875@dtor-ws>
+References: <1437433372-15425-1-git-send-email-dmitry.torokhov@gmail.com>
+ <1437433372-15425-4-git-send-email-dmitry.torokhov@gmail.com>
+ <CAJKOXPevQGGwCYgcH9zJ6b9c4u=XV6pO2tzne0Ub3uinDjLqvQ@mail.gmail.com>
+ <20150722205735.GP2853@piout.net>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <20150722205735.GP2853@piout.net>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -33,34 +32,76 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On 28 July 2015 09:52 Lee Jones wrote:
-
-> To: Opensource [Steve Twiss]
+On Wed, Jul 22, 2015 at 10:57:35PM +0200, Alexandre Belloni wrote:
+> (Krzysztof, be careful, Dmitry was not in copy of your maili, you should
+> probably check your mailer config)
 > 
-> Steve,
+> On 21/07/2015 at 10:21:11 +0900, Krzysztof Kozlowski wrote :
+> > 2015-07-21 8:02 GMT+09:00 Dmitry Torokhov <dmitry.torokhov@gmail.com>:
+> > >  static ssize_t
+> > > -rtc_sysfs_set_wakealarm(struct device *dev, struct device_attribute *attr,
+> > > +wakealarm_store(struct device *dev, struct device_attribute *attr,
+> > >                 const char *buf, size_t n)
+> > >  {
+> > >         ssize_t retval;
+> > > @@ -221,45 +209,58 @@ rtc_sysfs_set_wakealarm(struct device *dev, struct device_attribute *attr,
+> > >         retval = rtc_set_alarm(rtc, &alm);
+> > >         return (retval < 0) ? retval : n;
+> > >  }
+> > > -static DEVICE_ATTR(wakealarm, S_IRUGO | S_IWUSR,
+> > > -               rtc_sysfs_show_wakealarm, rtc_sysfs_set_wakealarm);
+> > > +static DEVICE_ATTR_RW(wakealarm);
+> > 
+> > This and renaming of show/store functions look unrelated
+> > 
 > 
-> Can you sort out your git configuration please.  Your name should be
-> represented in full.  No abbreviations or synonyms please.
+> I don't really mind that one but I would also prefer if it could be
+> separated.
+
+OK, I will.
+
 > 
-> I would expect to see: 'Steve Twiss <stwiss.opensource@diasemi.com>'
+> > >
+> > > +static struct attribute *rtc_attrs[] = {
+> > > +       &dev_attr_name.attr,
+> > > +       &dev_attr_date.attr,
+> > > +       &dev_attr_time.attr,
+> > > +       &dev_attr_since_epoch.attr,
+> > > +       &dev_attr_max_user_freq.attr,
+> > > +       &dev_attr_hctosys.attr,
+> > > +       &dev_attr_wakealarm.attr,
+> > > +       NULL,
+> > > +};
+> > >
+> > > -/* The reason to trigger an alarm with no process watching it (via sysfs)
+> > > +/*
+> > > + * The reason to trigger an alarm with no process watching it (via sysfs)
+> > >   * is its side effect:  waking from a system state like suspend-to-RAM or
+> > >   * suspend-to-disk.  So: no attribute unless that side effect is possible.
+> > >   * (Userspace may disable that mechanism later.)
+> > >   */
+> > > -static inline int rtc_does_wakealarm(struct rtc_device *rtc)
+> > > +static bool rtc_does_wakealarm(struct rtc_device *rtc)
+> > >  {
+> > >         if (!device_can_wakeup(rtc->dev.parent))
+> > > -               return 0;
+> > > +               return false;
+> > > +
+> > >         return rtc->ops->set_alarm != NULL;
+> > >  }
+> > 
+> > This looks unrelated too and confuses me. Could you split such cleanup
+> > from main goal of the patch?
+> > 
+> 
+> That one is bothering me too.
 
-Sure, I will do that for all future patches.
+Will separate this too.
 
-> The mailer is less important, but I suggest 'Steve Twiss' would be
-> more professional than either 'S Twiss' or 'Opensource [Steve Twiss]'.
-> I appreciate it might be company policy, but is there any chance of
-> reversing that to read 'Steve Twiss [Opensource]' instead?
+Thanks.
 
-The client-based replies are less under my control unfortunately. But I do
-agree with you and I have asked several times for just "Steve Twiss" to
-happen and to get rid of the "[]" stuff -- the last time I asked I was over-ruled
-by the IT department.
-As far as I know, it is just a cosmetic style from their side. I will ask again.
-
-[...]
-
-Regards,
-Steve
+-- 
+Dmitry
 
 -- 
 -- 
