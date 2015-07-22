@@ -1,33 +1,20 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBGVIU2WQKGQENBQHJ5A@googlegroups.com>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBEP4X6WQKGQE7BCB5XA@googlegroups.com>
 Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id q10si7200wiz.0.2015.07.17.16.47.38
+        by gmr-mx.google.com with ESMTP id t6si717143wiz.0.2015.07.22.13.33.21
         for <rtc-linux@googlegroups.com>;
-        Fri, 17 Jul 2015 16:47:38 -0700 (PDT)
-Date: Sat, 18 Jul 2015 01:47:37 +0200
+        Wed, 22 Jul 2015 13:33:21 -0700 (PDT)
+Date: Wed, 22 Jul 2015 22:33:19 +0200
 From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: S Twiss <stwiss.opensource@diasemi.com>
-Cc: DEVICETREE <devicetree@vger.kernel.org>,
-	Ian Campbell <ijc+devicetree@hellion.org.uk>,
-	Kumar Gala <galak@codeaurora.org>,
-	LINUXINPUT <linux-input@vger.kernel.org>,
-	LINUXKERNEL <linux-kernel@vger.kernel.org>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Pawel Moll <pawel.moll@arm.com>,
-	RTCLINUX <rtc-linux@googlegroups.com>,
-	Rob Herring <robh+dt@kernel.org>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	David Dajun Chen <david.chen@diasemi.com>,
-	Lee Jones <lee.jones@linaro.org>,
-	Samuel Ortiz <sameo@linux.intel.com>,
-	Support Opensource <support.opensource@diasemi.com>
-Subject: [rtc-linux] Re: [PATCH RFC V1 3/3] devicetree: da9062: Add device
- tree bindings for DA9062 RTC
-Message-ID: <20150717234737.GJ3487@piout.net>
-References: <cover.1436427954.git.stwiss.opensource@diasemi.com>
- <b47f52abd6a574e5f95760a07a59f445031baefc.1436427954.git.stwiss.opensource@diasemi.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org
+Subject: [rtc-linux] Re: [PATCH 2/4] RTC: remove unnecessary device_get() in rtc_device_unregister
+Message-ID: <20150722203319.GM2853@piout.net>
+References: <1437433372-15425-1-git-send-email-dmitry.torokhov@gmail.com>
+ <1437433372-15425-2-git-send-email-dmitry.torokhov@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <b47f52abd6a574e5f95760a07a59f445031baefc.1436427954.git.stwiss.opensource@diasemi.com>
+In-Reply-To: <1437433372-15425-2-git-send-email-dmitry.torokhov@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -38,64 +25,17 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On 09/07/2015 at 08:45:54 +0100, S Twiss wrote :
-> From: S Twiss <stwiss.opensource@diasemi.com>
+On 20/07/2015 at 16:02:50 -0700, Dmitry Torokhov wrote :
+> Technically the address of rtc->dev can never be NULL, so get_device()
+> can never fail. Also caller of rtc_device_unregister() supposed to be
+> the owner of the device and thus have a valid reference. Therefore
+> call to get_device() is not needed here.
 > 
-> Add device tree bindings for the DA9062 RTC driver component
-> 
-> Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
-> 
+> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 > ---
-> Checks performed with linux-next/next-20150708/scripts/checkpatch.pl
->  da9062.txt                total: 0 errors, 0 warnings, 88 lines checked
-> This patch applies against linux-next and next-20150708 
-> 
-> 
->  Documentation/devicetree/bindings/mfd/da9062.txt | 9 +++++++++
->  1 file changed, 9 insertions(+)
-> 
-> diff --git a/Documentation/devicetree/bindings/mfd/da9062.txt b/Documentation/devicetree/bindings/mfd/da9062.txt
-> index 5765ed9..38802b5 100644
-> --- a/Documentation/devicetree/bindings/mfd/da9062.txt
-> +++ b/Documentation/devicetree/bindings/mfd/da9062.txt
-> @@ -5,6 +5,7 @@ DA9062 consists of a large and varied group of sub-devices:
->  Device                   Supply Names    Description
->  ------                   ------------    -----------
->  da9062-regulator        :               : LDOs & BUCKs
-> +da9062-rtc              :               : Real-Time Clock
->  da9062-watchdog         :               : Watchdog Timer
->  
->  ======
-> @@ -41,6 +42,10 @@ Sub-nodes:
->    Documentation/devicetree/bindings/regulator/regulator.txt
->  
->  
-> +- rtc : This node defines settings required for the Real-Time Clock associated
-> +  with the DA9062. There are currently no entries in this binding, however
-> +  compatible = "dlg,da9062-rtc" should be added if a node is created.
-> +
->  - watchdog: This node defines the settings for the watchdog driver associated
->    with the DA9062 PMIC. The compatible = "dlg,da9062-watchdog" should be added
->    if a node is created.
-> @@ -55,6 +60,10 @@ Example:
->  		interrupts = <11 IRQ_TYPE_LEVEL_LOW>;
->  		interrupt-controller;
->  
-> +		rtc {
-> +			compatible = "dlg,da9062-rtc";
-> +		};
-> +
-
-Are those subnodes even parsed? As the parent node is not compatible
-with "simple-bus" or "simple-mfd", I guess not. You driver is probed
-from the mfd_cells in da9063-core.c
-
->  		watchdog {
->  			compatible = "dlg,da9062-watchdog";
->  		};
-> -- 
-> end-of-patch for PATCH RFC V1
-> 
+>  drivers/rtc/class.c | 25 ++++++++++++-------------
+>  1 file changed, 12 insertions(+), 13 deletions(-)
+Applied, thanks.
 
 -- 
 Alexandre Belloni, Free Electrons
