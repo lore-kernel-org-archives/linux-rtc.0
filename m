@@ -1,19 +1,20 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBI5AS2WQKGQELQ2OYUY@googlegroups.com>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBAH4X6WQKGQE4BNXFMY@googlegroups.com>
 Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id gt9si154588wib.2.2015.07.14.15.41.39
+        by gmr-mx.google.com with ESMTP id v8si768802wiw.1.2015.07.22.13.33.03
         for <rtc-linux@googlegroups.com>;
-        Tue, 14 Jul 2015 15:41:39 -0700 (PDT)
-Date: Wed, 15 Jul 2015 00:41:38 +0200
+        Wed, 22 Jul 2015 13:33:03 -0700 (PDT)
+Date: Wed, 22 Jul 2015 22:32:59 +0200
 From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Maninder Singh <maninder1.s@samsung.com>
-Cc: a.zummo@towertech.it, rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org, pankaj.m@samsung.com
-Subject: [rtc-linux] Re: [PATCH 1/1] drivers/rtc/rtc-bq32k.c: remove redundant check
-Message-ID: <20150714224138.GG20482@piout.net>
-References: <1436338607-43389-1-git-send-email-maninder1.s@samsung.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org, Vasiliy Kulikov <segooon@gmail.com>
+Subject: [rtc-linux] Re: [PATCH 1/4] RTC: fix double free in
+ rtc_register_device() error path
+Message-ID: <20150722203259.GL2853@piout.net>
+References: <1437433372-15425-1-git-send-email-dmitry.torokhov@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1436338607-43389-1-git-send-email-maninder1.s@samsung.com>
+In-Reply-To: <1437433372-15425-1-git-send-email-dmitry.torokhov@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -24,24 +25,19 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Hi,
-
-On 08/07/2015 at 12:26:47 +0530, Maninder Singh wrote :
-> removing below static analysis error:-
-
-What tool did you use?
-
-> (error) Possible null pointer dereference: client
+On 20/07/2015 at 16:02:49 -0700, Dmitry Torokhov wrote :
+> Commit 59cca865f21e9e7beab73fcf79ba4eb776a4c228 correctly noted that naked
+> kfree() should not be used after failed device_register() call, however,
+> while it added the needed put_device() it forgot to remove the original
+> kfree() causing double-free.
 > 
-> if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C))
-> 							^^^^^^^
-> Error comes beacause client is dereferenced before NULL check.
-> So probabily NULL this check is not required.
-> 
-> Signed-off-by: Maninder Singh <maninder1.s@samsung.com>
+> Cc: Vasiliy Kulikov <segooon@gmail.com>
+> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 > ---
->  drivers/rtc/rtc-bq32k.c |    2 +-
-Applied, to rtc-next.
+>  drivers/rtc/class.c | 6 ++----
+>  1 file changed, 2 insertions(+), 4 deletions(-)
+Applied after fixing the commit description in the commit log, thanks.
+
 
 -- 
 Alexandre Belloni, Free Electrons
