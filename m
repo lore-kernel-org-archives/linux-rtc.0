@@ -1,27 +1,31 @@
-Return-Path: <rtc-linux+bncBDKZNNNLXAHBBXXUY2WQKGQEQWRZNIQ@googlegroups.com>
-Received: from mailout4.w1.samsung.com (mailout4.w1.samsung.com. [210.118.77.14])
-        by gmr-mx.google.com with ESMTPS id x3si1243301pdh.2.2015.07.23.21.09.01
+Return-Path: <rtc-linux+bncBCV6LFM5RQJRBFUSYOWQKGQECZBTMQA@googlegroups.com>
+Received: from mail-wi0-f177.google.com (mail-wi0-f177.google.com. [209.85.212.177])
+        by gmr-mx.google.com with ESMTPS id bk2si227303wib.1.2015.07.23.03.59.33
         for <rtc-linux@googlegroups.com>
-        (version=TLSv1 cipher=RC4-SHA bits=128/128);
-        Thu, 23 Jul 2015 21:09:02 -0700 (PDT)
-Received: from eucpsbgm2.samsung.com (unknown [203.254.199.245])
- by mailout4.w1.samsung.com
- (Oracle Communications Messaging Server 7.0.5.31.0 64bit (built May  5 2014))
- with ESMTP id <0NRZ00JGN4UX5T30@mailout4.w1.samsung.com> for
- rtc-linux@googlegroups.com; Fri, 24 Jul 2015 05:08:57 +0100 (BST)
-Message-id: <55B1BA5A.7020401@samsung.com>
-Date: Fri, 24 Jul 2015 13:08:58 +0900
-From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-MIME-version: 1.0
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
- Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
- linux-kernel@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH v2 2/3] RTC: switch wakealarm attribute to DEVICE_ATTR_RW
-References: <1437692468-24788-1-git-send-email-dmitry.torokhov@gmail.com>
- <1437692468-24788-2-git-send-email-dmitry.torokhov@gmail.com>
-In-reply-to: <1437692468-24788-2-git-send-email-dmitry.torokhov@gmail.com>
-Content-type: text/plain; charset=UTF-8
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 23 Jul 2015 03:59:33 -0700 (PDT)
+Received: by mail-wi0-f177.google.com with SMTP id mv11so18527449wic.0
+        for <rtc-linux@googlegroups.com>; Thu, 23 Jul 2015 03:59:33 -0700 (PDT)
+MIME-Version: 1.0
+In-Reply-To: <1433512783-8183-2-git-send-email-octavian.purdila@intel.com>
+References: <1433512783-8183-1-git-send-email-octavian.purdila@intel.com>
+	<1433512783-8183-2-git-send-email-octavian.purdila@intel.com>
+Date: Thu, 23 Jul 2015 13:59:33 +0300
+Message-ID: <CAE1zotJ_u+ysf+HkD=4=Nv_mJ-4++SZxjKGMRkbKzYzyunLJUg@mail.gmail.com>
+Subject: [rtc-linux] Re: [PATCH v3 1/2] iio: fix drivers that consider 0 as a
+ valid IRQ in client->irq
+From: Octavian Purdila <octavian.purdila@intel.com>
+To: Jonathan Cameron <jic23@kernel.org>
+Cc: Mika Westerberg <mika.westerberg@linux.intel.com>,
+	Linus Walleij <linus.walleij@linaro.org>, Hartmut Knaack <knaack.h@gmx.de>,
+	Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald <pmeerw@pmeerw.net>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
+	"linux-iio@vger.kernel.org" <linux-iio@vger.kernel.org>, rtc-linux@googlegroups.com,
+	lkml <linux-kernel@vger.kernel.org>,
+	Octavian Purdila <octavian.purdila@intel.com>
+Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -32,21 +36,114 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On 24.07.2015 08:01, Dmitry Torokhov wrote:
-> Instead of using older style DEVICE_ATTR for wakealarm attribute let's
-> switch to using DEVICE_ATTR_RW that ensures consistent across the kernel
-> permissions on the attribute.
-> 
-> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+On Fri, Jun 5, 2015 at 4:59 PM, Octavian Purdila
+<octavian.purdila@intel.com> wrote:
+> Since patch "i2c / ACPI: Use 0 to indicate that device does not have
+> interrupt assigned" [1], 0 is not a valid i2c client irq anymore, so
+> change all driver's checks accordingly.
+>
+> The same issue occurs when the device is instantiated via device tree
+> with no IRQ, or from the i2c sysfs interface, even before the patch
+> above.
+>
+> [1] http://lkml.kernel.org/g/<1430908148-201129-3-git-send-email-mika.westerberg@linux.intel.com>
+>
+> Signed-off-by: Octavian Purdila <octavian.purdila@intel.com>
+> Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+
+Hi Jonathan,
+
+Does this look OK to you? If so, could you pleas ACK the patch so that
+Linus can pick it up in its for-next branch if/when needed?
+
+Thanks,
+Tavi
+
+
 > ---
->  drivers/rtc/rtc-sysfs.c | 8 +++-----
->  1 file changed, 3 insertions(+), 5 deletions(-)
-> 
-
-Reviewed-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-
-Best regards,
-Krzysztof
+>  drivers/iio/accel/bmc150-accel.c | 2 +-
+>  drivers/iio/accel/kxcjk-1013.c   | 2 +-
+>  drivers/iio/accel/mma9553.c      | 2 +-
+>  drivers/iio/imu/kmx61.c          | 8 ++++----
+>  4 files changed, 7 insertions(+), 7 deletions(-)
+>
+> diff --git a/drivers/iio/accel/bmc150-accel.c b/drivers/iio/accel/bmc150-accel.c
+> index 4e70f51..55751d9 100644
+> --- a/drivers/iio/accel/bmc150-accel.c
+> +++ b/drivers/iio/accel/bmc150-accel.c
+> @@ -1663,7 +1663,7 @@ static int bmc150_accel_probe(struct i2c_client *client,
+>         if (client->irq < 0)
+>                 client->irq = bmc150_accel_gpio_probe(client, data);
+>
+> -       if (client->irq >= 0) {
+> +       if (client->irq > 0) {
+>                 ret = devm_request_threaded_irq(
+>                                                 &client->dev, client->irq,
+>                                                 bmc150_accel_irq_handler,
+> diff --git a/drivers/iio/accel/kxcjk-1013.c b/drivers/iio/accel/kxcjk-1013.c
+> index 0d9bd35..aa93cbd 100644
+> --- a/drivers/iio/accel/kxcjk-1013.c
+> +++ b/drivers/iio/accel/kxcjk-1013.c
+> @@ -1243,7 +1243,7 @@ static int kxcjk1013_probe(struct i2c_client *client,
+>         if (client->irq < 0)
+>                 client->irq = kxcjk1013_gpio_probe(client, data);
+>
+> -       if (client->irq >= 0) {
+> +       if (client->irq > 0) {
+>                 ret = devm_request_threaded_irq(&client->dev, client->irq,
+>                                                 kxcjk1013_data_rdy_trig_poll,
+>                                                 kxcjk1013_event_handler,
+> diff --git a/drivers/iio/accel/mma9553.c b/drivers/iio/accel/mma9553.c
+> index 9d649c4..df043b3 100644
+> --- a/drivers/iio/accel/mma9553.c
+> +++ b/drivers/iio/accel/mma9553.c
+> @@ -1143,7 +1143,7 @@ static int mma9553_probe(struct i2c_client *client,
+>         if (client->irq < 0)
+>                 client->irq = mma9553_gpio_probe(client);
+>
+> -       if (client->irq >= 0) {
+> +       if (client->irq > 0) {
+>                 ret = devm_request_threaded_irq(&client->dev, client->irq,
+>                                                 mma9553_irq_handler,
+>                                                 mma9553_event_handler,
+> diff --git a/drivers/iio/imu/kmx61.c b/drivers/iio/imu/kmx61.c
+> index 462a010..82cdf50 100644
+> --- a/drivers/iio/imu/kmx61.c
+> +++ b/drivers/iio/imu/kmx61.c
+> @@ -1363,7 +1363,7 @@ static int kmx61_probe(struct i2c_client *client,
+>         if (client->irq < 0)
+>                 client->irq = kmx61_gpio_probe(client, data);
+>
+> -       if (client->irq >= 0) {
+> +       if (client->irq > 0) {
+>                 ret = devm_request_threaded_irq(&client->dev, client->irq,
+>                                                 kmx61_data_rdy_trig_poll,
+>                                                 kmx61_event_handler,
+> @@ -1445,10 +1445,10 @@ err_iio_unregister_mag:
+>  err_iio_unregister_acc:
+>         iio_device_unregister(data->acc_indio_dev);
+>  err_buffer_cleanup_mag:
+> -       if (client->irq >= 0)
+> +       if (client->irq > 0)
+>                 iio_triggered_buffer_cleanup(data->mag_indio_dev);
+>  err_buffer_cleanup_acc:
+> -       if (client->irq >= 0)
+> +       if (client->irq > 0)
+>                 iio_triggered_buffer_cleanup(data->acc_indio_dev);
+>  err_trigger_unregister_motion:
+>         iio_trigger_unregister(data->motion_trig);
+> @@ -1472,7 +1472,7 @@ static int kmx61_remove(struct i2c_client *client)
+>         iio_device_unregister(data->acc_indio_dev);
+>         iio_device_unregister(data->mag_indio_dev);
+>
+> -       if (client->irq >= 0) {
+> +       if (client->irq > 0) {
+>                 iio_triggered_buffer_cleanup(data->acc_indio_dev);
+>                 iio_triggered_buffer_cleanup(data->mag_indio_dev);
+>                 iio_trigger_unregister(data->acc_dready_trig);
+> --
+> 1.9.1
+>
 
 -- 
 -- 
