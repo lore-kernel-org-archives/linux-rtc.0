@@ -1,28 +1,24 @@
-Return-Path: <rtc-linux+bncBAABBR6SZ6WAKGQEHBUFVII@googlegroups.com>
-Received: from mail1.bemta3.messagelabs.com (mail1.bemta3.messagelabs.com. [195.245.230.165])
-        by gmr-mx.google.com with ESMTPS id t6si142292wiz.0.2015.07.01.06.21.11
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 01 Jul 2015 06:21:11 -0700 (PDT)
-Message-ID: <cover.1435756293.git.stwiss.opensource@diasemi.com>
-From: S Twiss <stwiss.opensource@diasemi.com>
-Date: Wed, 1 Jul 2015 14:11:33 +0100
-Subject: [rtc-linux] [PATCH V5 0/2]  da9062: DA9062 driver submission
-To: Alessandro Zummo <a.zummo@towertech.it>, DEVICETREE
-	<devicetree@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala
-	<galak@codeaurora.org>, LINUXINPUT <linux-input@vger.kernel.org>, LINUXKERNEL
-	<linux-kernel@vger.kernel.org>, LINUXWATCHDOG
-	<linux-watchdog@vger.kernel.org>, Lee Jones <lee.jones@linaro.org>, "Liam
- Girdwood" <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, "Mark
- Rutland" <mark.rutland@arm.com>, Pawel Moll <pawel.moll@arm.com>, RTCLINUX
-	<rtc-linux@googlegroups.com>, Rob Herring <robh+dt@kernel.org>, S Twiss
-	<stwiss.opensource@diasemi.com>, Samuel Ortiz <sameo@linux.intel.com>, "Wim
- Van Sebroeck" <wim@iguana.be>
-CC: David Dajun Chen <david.chen@diasemi.com>, Support Opensource
-	<support.opensource@diasemi.com>
+Return-Path: <rtc-linux+bncBDRMFBMIXEGBBZVMYOWQKGQESVA6LSY@googlegroups.com>
+Received: from foss.arm.com (foss.arm.com. [217.140.101.70])
+        by gmr-mx.google.com with ESMTP id b64si243042ywc.0.2015.07.23.04.56.22
+        for <rtc-linux@googlegroups.com>;
+        Thu, 23 Jul 2015 04:56:22 -0700 (PDT)
+Date: Thu, 23 Jul 2015 12:55:55 +0100
+From: Mark Rutland <mark.rutland@arm.com>
+To: Suneel Garapati <suneel.garapati@xilinx.com>
+Cc: "rtc-linux@googlegroups.com" <rtc-linux@googlegroups.com>,
+	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	"michals@xilinx.com" <michals@xilinx.com>,
+	"sorenb@xilinx.com" <sorenb@xilinx.com>
+Subject: [rtc-linux] Re: [PATCH 1/2] devicetree: bindings: rtc: add bindings
+ for xilinx zynqmp rtc
+Message-ID: <20150723115555.GC12330@leverpostej>
+References: <1437648710-6857-1-git-send-email-suneel.garapati@xilinx.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1437648710-6857-1-git-send-email-suneel.garapati@xilinx.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -33,56 +29,64 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-From: S Twiss <stwiss.opensource@diasemi.com>
+On Thu, Jul 23, 2015 at 11:51:49AM +0100, Suneel Garapati wrote:
+> adds file for description on device node bindings for RTC
+> found on Xilinx Zynq Ultrascale+ MPSoC.
+> 
+> Signed-off-by: Suneel Garapati <suneel.garapati@xilinx.com>
+> ---
+>  Documentation/devicetree/bindings/rtc/xlnx-rtc.txt | 25 ++++++++++++++++++++++
+>  1 file changed, 25 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/rtc/xlnx-rtc.txt
+> 
+> diff --git a/Documentation/devicetree/bindings/rtc/xlnx-rtc.txt b/Documentation/devicetree/bindings/rtc/xlnx-rtc.txt
+> new file mode 100644
+> index 0000000..2b05243
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/rtc/xlnx-rtc.txt
+> @@ -0,0 +1,25 @@
+> +* Xilinx Zynq Ultrascale+ MPSoC Real Time Clock
+> +
+> +RTC controller for the Xilinx Zynq MPSoC Real Time Clock
+> +Separate IRQ lines for seconds and alarm
+> +
+> +Required properties:
+> +- compatible: Should be "xlnx,zynqmp-rtc"
+> +- reg: Physical base address of the controller and length
+> +       of memory mapped region.
+> +- interrupts: IRQ lines for the RTC.
+> +- interrupt names: Names for interrupt lines
 
-This patch set adds support for the Dialog DA9062 Power Management IC.
+interrupt-names has a '-', and you need to state which names are
+expected.
 
-In this patch set the following is provided:
- - [PATCH V5 1/2]: MFD core support  
- - [PATCH V5 2/2]: Add bindings for all DA9062 components
+> +
+> +Optional:
+> +- calibration: calibration value for 1 sec period which will
+> +		be programmed directly to calibration register
 
-Changes in V5
- - The [PATCH V4 2/3] Watchdog driver has made it into linux-next
-   next-20150701 and has been dropped from this patch set.
+When and why would I set this?
 
-Changes in V4
- - Rebase patches from linux-next/v4.1-rc3 to linux-next/v4.1-rc5
- - [PATCH V3 2/4] BUCK and LDO regulator driver accepted by Mark Brown
-   - See https://lkml.org/lkml/2015/5/21/313 for details
- - Reorder remaining patches for the PATCH V4 submission
+Mark.
 
-Changes in V3:
- - No overall main changes, see individal patches for details
-
-Changes in V2:
- - Alter subject title in cover letter
- - Reordered the patch numbering: now 4/4 patches instead of 6/6
-   - Dropped [PATCH V1 3/6] RTC driver
-   - Dropped [PATCH V1 4/6] OnKey driver
-
-This patch set applies against linux-next and next-20150701
-
-Thank you,
-Steve Twiss, Dialog Semiconductor Ltd.
-
-S Twiss (2):
-  mfd: da9062: DA9062 MFD core driver
-  devicetree: da9062: Add bindings for DA9062 driver
-
- Documentation/devicetree/bindings/mfd/da9062.txt |   79 ++
- drivers/mfd/Kconfig                              |   12 +
- drivers/mfd/Makefile                             |    3 +-
- drivers/mfd/da9062-core.c                        |  512 ++++++++++
- include/linux/mfd/da9062/core.h                  |   50 +
- include/linux/mfd/da9062/registers.h             | 1108 ++++++++++++++++++++++
- 6 files changed, 1763 insertions(+), 1 deletion(-)
- create mode 100644 Documentation/devicetree/bindings/mfd/da9062.txt
- create mode 100644 drivers/mfd/da9062-core.c
- create mode 100644 include/linux/mfd/da9062/core.h
- create mode 100644 include/linux/mfd/da9062/registers.h
-
--- 
-end-of-patch for PATCH V5
+> +
+> +Example:
+> +rtc: rtc@ffa60000 {
+> +	compatible = "xlnx,zynqmp-rtc";
+> +	reg = <0x0 0xffa60000 0x100>;
+> +	interrupt-parent = <&gic>;
+> +	interrupts = <0 26 4>, <0 27 4>;
+> +	interrupt-names = "alm", "sec";
+> +	calibration = <0x198233>;
+> +};
+> --
+> 2.1.2
+> 
+> _______________________________________________
+> linux-arm-kernel mailing list
+> linux-arm-kernel@lists.infradead.org
+> http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
+> 
 
 -- 
 -- 
