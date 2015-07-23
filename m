@@ -1,22 +1,34 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBPW34CWAKGQEZ2XCXBQ@googlegroups.com>
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id bk2si722152wib.1.2015.07.04.12.02.22
-        for <rtc-linux@googlegroups.com>;
-        Sat, 04 Jul 2015 12:02:22 -0700 (PDT)
-Date: Sat, 4 Jul 2015 21:02:21 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Gregory CLEMENT <gregory.clement@free-electrons.com>
-Cc: Fabio Estevam <festevam@gmail.com>, rtc-linux@googlegroups.com,
-	Fabio Estevam <fabio.estevam@freescale.com>
-Subject: [rtc-linux] Re: [PATCH] drivers/rtc/rtc-armada38x: Remove unused
- variable from armada38x_rtc_set_time()
-Message-ID: <20150704190221.GB5497@piout.net>
-References: <1436034454-10473-1-git-send-email-festevam@gmail.com>
- <20150704184216.GA5497@piout.net>
- <55982BF4.3020303@free-electrons.com>
+Return-Path: <rtc-linux+bncBDA7X7F2WUEBBO4GYSWQKGQEX7XFLGQ@googlegroups.com>
+Received: from mail-wi0-f174.google.com (mail-wi0-f174.google.com. [209.85.212.174])
+        by gmr-mx.google.com with ESMTPS id fj7si874365wib.3.2015.07.23.08.07.38
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 23 Jul 2015 08:07:38 -0700 (PDT)
+Received: by wibxm9 with SMTP id xm9so212787995wib.0
+        for <rtc-linux@googlegroups.com>; Thu, 23 Jul 2015 08:07:38 -0700 (PDT)
+Date: Thu, 23 Jul 2015 16:07:35 +0100
+From: Lee Jones <lee.jones@linaro.org>
+To: S Twiss <stwiss.opensource@diasemi.com>
+Cc: DEVICETREE <devicetree@vger.kernel.org>,
+	LINUXINPUT <linux-input@vger.kernel.org>,
+	LINUXKERNEL <linux-kernel@vger.kernel.org>,
+	RTCLINUX <rtc-linux@googlegroups.com>,
+	Samuel Ortiz <sameo@linux.intel.com>,
+	David Dajun Chen <david.chen@diasemi.com>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Ian Campbell <ijc+devicetree@hellion.org.uk>,
+	Kumar Gala <galak@codeaurora.org>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Pawel Moll <pawel.moll@arm.com>, Rob Herring <robh+dt@kernel.org>,
+	Support Opensource <support.opensource@diasemi.com>
+Subject: [rtc-linux] Re: [PATCH V2 1/3] mfd: da9062: Support for the DA9063
+ OnKey in the DA9062 core
+Message-ID: <20150723150735.GJ3436@x1>
+References: <cover.1437399438.git.stwiss.opensource@diasemi.com>
+ <9c56142bcfae19a370da54e558f4f70e068d9529.1437399438.git.stwiss.opensource@diasemi.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <55982BF4.3020303@free-electrons.com>
+In-Reply-To: <9c56142bcfae19a370da54e558f4f70e068d9529.1437399438.git.stwiss.opensource@diasemi.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -27,42 +39,79 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Hi,
+On Mon, 20 Jul 2015, S Twiss wrote:
 
-On 04/07/2015 at 20:54:44 +0200, Gregory CLEMENT wrote :
-> Hi Alexandre,
-> 
-> On 04/07/2015 20:42, Alexandre Belloni wrote:
-> > Hi Fabio,
-> > 
-> > On 04/07/2015 at 15:27:34 -0300, Fabio Estevam wrote :
-> >> From: Fabio Estevam <fabio.estevam@freescale.com>
-> >>
-> >> Remove the 'flags' variable in order to fix the following warning:
-> >>
-> >> drivers/rtc/rtc-armada38x.c:91:22: warning: unused variable 'flags' [-Wunused-variable]
-> >>
-> > 
-> > Thank you but I'm pretty sure that one is fixed (that is the fourth
-> > patch to do so) ;)
-> 
-> Well, it should be fixed however none of the patch sent were merged in Linus tree yet...
-> 
+> From: S Twiss <stwiss.opensource@diasemi.com>
+>=20
+> Add MFD core driver support for a OnKey component
+>=20
+> - MFD core adds the resource da9062_onkey_resources[] for the OnKey
+> - An appropriate value has been added into mfd_cell da9062_devs[] to
+>   support component .name =3D "da9062-onkey" and
+>   .of_compatible  =3D "dlg,da9062-onkey"
+>=20
+> Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
+>=20
+> ---
+> Checks performed with linux-next/next-20150708/scripts/checkpatch.pl
+>  da9062-core.c             total: 0 errors, 0 warnings, 523 lines checked
+> Changes in V2:
+>  - No change
+>=20
+> This patch applies against linux-next and next-20150708=20
+>=20
+>=20
+>  drivers/mfd/da9062-core.c | 11 +++++++++++
+>  1 file changed, 11 insertions(+)
 
-Hum, okay, I just realized f98b733e93e00365b4df78fbb33c2cad3080f6bb is not fixing it...
+For my own reference:
+  Acked-by: Lee Jones <lee.jones@linaro.org>
 
--- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+> diff --git a/drivers/mfd/da9062-core.c b/drivers/mfd/da9062-core.c
+> index 4cf0643..0732977 100644
+> --- a/drivers/mfd/da9062-core.c
+> +++ b/drivers/mfd/da9062-core.c
+> @@ -118,6 +118,10 @@ static struct resource da9062_wdt_resources[] =3D {
+>  	DEFINE_RES_NAMED(DA9062_IRQ_WDG_WARN, 1, "WD_WARN", IORESOURCE_IRQ),
+>  };
+> =20
+> +static struct resource da9062_onkey_resources[] =3D {
+> +	DEFINE_RES_NAMED(DA9062_IRQ_ONKEY, 1, "ONKEY", IORESOURCE_IRQ),
+> +};
+> +
+>  static const struct mfd_cell da9062_devs[] =3D {
+>  	{
+>  		.name		=3D "da9062-core",
+> @@ -141,6 +145,13 @@ static const struct mfd_cell da9062_devs[] =3D {
+>  		.resources	=3D da9062_thermal_resources,
+>  		.of_compatible  =3D "dlg,da9062-thermal",
+>  	},
+> +	{
+> +		.name		=3D "da9062-onkey",
+> +		.num_resources	=3D ARRAY_SIZE(da9062_onkey_resources),
+> +		.resources	=3D da9062_onkey_resources,
+> +		.of_compatible =3D "dlg,da9062-onkey",
+> +	},
+> +
+>  };
+> =20
+>  static int da9062_clear_fault_log(struct da9062 *chip)
 
--- 
--- 
+--=20
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org =E2=94=82 Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog
+
+--=20
+--=20
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+---=20
+You received this message because you are subscribed to the Google Groups "=
+rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an e=
+mail to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
