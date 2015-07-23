@@ -1,45 +1,20 @@
-Return-Path: <rtc-linux+bncBDP6N55ZUYDRBS5E5GWQKGQEXK2JJCQ@googlegroups.com>
-Received: from mail-pd0-x243.google.com (mail-pd0-x243.google.com. [2607:f8b0:400e:c02::243])
-        by gmr-mx.google.com with ESMTPS id ct6si284335pdb.1.2015.07.30.09.35.23
+Return-Path: <rtc-linux+bncBAABBWUOYOWQKGQEFMELUIY@googlegroups.com>
+Received: from na01-bn1-obe.outbound.protection.outlook.com (mail-bn1bon0097.outbound.protection.outlook.com. [157.56.111.97])
+        by gmr-mx.google.com with ESMTPS id x3si769884pdh.2.2015.07.23.03.52.09
         for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 30 Jul 2015 09:35:23 -0700 (PDT)
-Received: by mail-pd0-x243.google.com with SMTP id fq13so2371579pdb.3
-        for <rtc-linux@googlegroups.com>; Thu, 30 Jul 2015 09:35:23 -0700 (PDT)
-Date: Thu, 30 Jul 2015 09:35:17 -0700
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Javier Martinez Canillas <javier@osg.samsung.com>
-Cc: linux-kernel@vger.kernel.org, alsa-devel@alsa-project.org,
-	Mark Brown <broonie@kernel.org>, linux-iio@vger.kernel.org,
-	linux-fbdev@vger.kernel.org, linux-i2c@vger.kernel.org,
-	linux-leds@vger.kernel.org,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Chanwoo Choi <cw00.choi@samsung.com>,
-	Tomi Valkeinen <tomi.valkeinen@ti.com>, lm-sensors@lm-sensors.org,
-	Sebastian Reichel <sre@kernel.org>, linux-input@vger.kernel.org,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	Jean Delvare <jdelvare@suse.com>,
-	Jonathan Cameron <jic23@kernel.org>, linux-media@vger.kernel.org,
-	rtc-linux@googlegroups.com, linux-pm@vger.kernel.org,
-	Mauro Carvalho Chehab <mchehab@osg.samsung.com>,
-	Guenter Roeck <linux@roeck-us.net>,
-	Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-	Wolfram Sang <wsa@the-dreams.de>, Takashi Iwai <tiwai@suse.com>,
-	Liam Girdwood <lgirdwood@gmail.com>,
-	Sjoerd Simons <sjoerd.simons@collabora.co.uk>,
-	Lee Jones <lee.jones@linaro.org>, Bryan Wu <cooloney@gmail.com>,
-	linux-omap@vger.kernel.org, Sakari Ailus <sakari.ailus@iki.fi>,
-	linux-usb@vger.kernel.org, linux-spi@vger.kernel.org,
-	Tony Lindgren <tony@atomide.com>,
-	MyungJoo Ham <myungjoo.ham@samsung.com>,
-	linuxppc-dev@lists.ozlabs.org
-Subject: [rtc-linux] Re: [PATCH 00/27] Export I2C and OF module aliases in
- missing drivers
-Message-ID: <20150730163517.GA13165@dtor-ws>
-References: <1438273132-20926-1-git-send-email-javier@osg.samsung.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
+        Thu, 23 Jul 2015 03:52:09 -0700 (PDT)
+From: Suneel Garapati <suneel.garapati@xilinx.com>
+To: <rtc-linux@googlegroups.com>, <linux-arm-kernel@lists.infradead.org>,
+	<linux-kernel@vger.kernel.org>
+CC: <michals@xilinx.com>, <sorenb@xilinx.com>, Alessandro Zummo
+	<a.zummo@towertech.it>, Suneel Garapati <suneel.garapati@xilinx.com>
+Subject: [rtc-linux] [PATCH 1/2] devicetree: bindings: rtc: add bindings for
+ xilinx zynqmp rtc
+Date: Thu, 23 Jul 2015 16:21:49 +0530
+Message-ID: <1437648710-6857-1-git-send-email-suneel.garapati@xilinx.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1438273132-20926-1-git-send-email-javier@osg.samsung.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -50,37 +25,48 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Hi Javier,
+adds file for description on device node bindings for RTC
+found on Xilinx Zynq Ultrascale+ MPSoC.
 
-On Thu, Jul 30, 2015 at 06:18:25PM +0200, Javier Martinez Canillas wrote:
-> Hello,
-> 
-> Short version:
-> 
-> This series add the missing MODULE_DEVICE_TABLE() for OF and I2C tables
-> to export that information so modules have the correct aliases built-in
-> and autoloading works correctly.
-> 
-> Longer version:
-> 
-> Currently it's mandatory for I2C drivers to have an I2C device ID table
-> regardless if the device was registered using platform data or OF. This
-> is because the I2C core needs an I2C device ID table for two reasons:
-> 
-> 1) Match the I2C client with a I2C device ID so a struct i2c_device_id
->    is passed to the I2C driver probe() function.
-> 
-> 2) Export the module aliases from the I2C device ID table so userspace
->    can auto-load the correct module. This is because i2c_device_uevent
->    always reports a MODALIAS of the form i2c:<client->name>.
+Signed-off-by: Suneel Garapati <suneel.garapati@xilinx.com>
+---
+ Documentation/devicetree/bindings/rtc/xlnx-rtc.txt | 25 ++++++++++++++++++++++
+ 1 file changed, 25 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/rtc/xlnx-rtc.txt
 
-Why are we not fixing this? We emit specially carved uevent for
-ACPI-based devices, why not the same for OF? Platform bus does this...
-
-Thanks.
-
--- 
-Dmitry
+diff --git a/Documentation/devicetree/bindings/rtc/xlnx-rtc.txt b/Documentation/devicetree/bindings/rtc/xlnx-rtc.txt
+new file mode 100644
+index 0000000..2b05243
+--- /dev/null
++++ b/Documentation/devicetree/bindings/rtc/xlnx-rtc.txt
+@@ -0,0 +1,25 @@
++* Xilinx Zynq Ultrascale+ MPSoC Real Time Clock
++
++RTC controller for the Xilinx Zynq MPSoC Real Time Clock
++Separate IRQ lines for seconds and alarm
++
++Required properties:
++- compatible: Should be "xlnx,zynqmp-rtc"
++- reg: Physical base address of the controller and length
++       of memory mapped region.
++- interrupts: IRQ lines for the RTC.
++- interrupt names: Names for interrupt lines
++
++Optional:
++- calibration: calibration value for 1 sec period which will
++		be programmed directly to calibration register
++
++Example:
++rtc: rtc@ffa60000 {
++	compatible = "xlnx,zynqmp-rtc";
++	reg = <0x0 0xffa60000 0x100>;
++	interrupt-parent = <&gic>;
++	interrupts = <0 26 4>, <0 27 4>;
++	interrupt-names = "alm", "sec";
++	calibration = <0x198233>;
++};
+--
+2.1.2
 
 -- 
 -- 
