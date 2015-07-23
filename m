@@ -1,28 +1,32 @@
-Return-Path: <rtc-linux+bncBAABB2GP7CWAKGQEBGWVGIQ@googlegroups.com>
-Received: from mail1.bemta5.messagelabs.com (mail1.bemta5.messagelabs.com. [195.245.231.139])
-        by gmr-mx.google.com with ESMTPS id cj6si271682wib.1.2015.07.09.00.51.04
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 09 Jul 2015 00:51:04 -0700 (PDT)
-Message-ID: <e121177ed6ecae37ff94ff053478e3fb727f2619.1436427954.git.stwiss.opensource@diasemi.com>
-In-Reply-To: <cover.1436427954.git.stwiss.opensource@diasemi.com>
-References: <cover.1436427954.git.stwiss.opensource@diasemi.com>
-From: S Twiss <stwiss.opensource@diasemi.com>
-Date: Thu, 9 Jul 2015 08:45:53 +0100
-Subject: [rtc-linux] [PATCH RFC V1 1/3] mfd: da9062: Support for the DA9063
- RTC in the DA9062 core
-To: DEVICETREE <devicetree@vger.kernel.org>, LINUXINPUT
-	<linux-input@vger.kernel.org>, LINUXKERNEL <linux-kernel@vger.kernel.org>,
-	Lee Jones <lee.jones@linaro.org>, RTCLINUX <rtc-linux@googlegroups.com>, "S
- Twiss" <stwiss.opensource@diasemi.com>, Samuel Ortiz <sameo@linux.intel.com>
-CC: Alessandro Zummo <a.zummo@towertech.it>, Alexandre Belloni
-	<alexandre.belloni@free-electrons.com>, David Dajun Chen
-	<david.chen@diasemi.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar
- Gala <galak@codeaurora.org>, Mark Rutland <mark.rutland@arm.com>, Pawel Moll
-	<pawel.moll@arm.com>, Rob Herring <robh+dt@kernel.org>, "Support Opensource"
-	<support.opensource@diasemi.com>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBH6XYOWQKGQEMHGDBKQ@googlegroups.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id hm7si875364wib.0.2015.07.23.06.26.54
+        for <rtc-linux@googlegroups.com>;
+        Thu, 23 Jul 2015 06:26:54 -0700 (PDT)
+Date: Thu, 23 Jul 2015 15:26:53 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Linus Walleij <linus.walleij@linaro.org>
+Cc: Octavian Purdila <octavian.purdila@intel.com>,
+	Jonathan Cameron <jic23@kernel.org>,
+	Mika Westerberg <mika.westerberg@linux.intel.com>,
+	Hartmut Knaack <knaack.h@gmx.de>,
+	Lars-Peter Clausen <lars@metafoo.de>,
+	Peter Meerwald <pmeerw@pmeerw.net>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
+	"linux-iio@vger.kernel.org" <linux-iio@vger.kernel.org>,
+	"rtc-linux@googlegroups.com" <rtc-linux@googlegroups.com>,
+	lkml <linux-kernel@vger.kernel.org>
+Subject: [rtc-linux] Re: [PATCH v3 1/2] iio: fix drivers that consider 0 as a
+ valid IRQ in client->irq
+Message-ID: <20150723132653.GT2853@piout.net>
+References: <1433512783-8183-1-git-send-email-octavian.purdila@intel.com>
+ <1433512783-8183-2-git-send-email-octavian.purdila@intel.com>
+ <CAE1zotJ_u+ysf+HkD=4=Nv_mJ-4++SZxjKGMRkbKzYzyunLJUg@mail.gmail.com>
+ <CACRpkdYE2HG3Cm74Hg9jXy2FwvwveqpbJbwTPKvmOm6aR7BNmQ@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <CACRpkdYE2HG3Cm74Hg9jXy2FwvwveqpbJbwTPKvmOm6aR7BNmQ@mail.gmail.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -33,57 +37,49 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-From: S Twiss <stwiss.opensource@diasemi.com>
+On 23/07/2015 at 15:11:47 +0200, Linus Walleij wrote :
+> On Thu, Jul 23, 2015 at 12:59 PM, Octavian Purdila
+> <octavian.purdila@intel.com> wrote:
+> > On Fri, Jun 5, 2015 at 4:59 PM, Octavian Purdila
+> > <octavian.purdila@intel.com> wrote:
+> >> Since patch "i2c / ACPI: Use 0 to indicate that device does not have
+> >> interrupt assigned" [1], 0 is not a valid i2c client irq anymore, so
+> >> change all driver's checks accordingly.
+> >>
+> >> The same issue occurs when the device is instantiated via device tree
+> >> with no IRQ, or from the i2c sysfs interface, even before the patch
+> >> above.
+> >>
+> >> [1] http://lkml.kernel.org/g/<1430908148-201129-3-git-send-email-mika.westerberg@linux.intel.com>
+> >>
+> >> Signed-off-by: Octavian Purdila <octavian.purdila@intel.com>
+> >> Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+> >
+> > Hi Jonathan,
+> >
+> > Does this look OK to you? If so, could you pleas ACK the patch so that
+> > Linus can pick it up in its for-next branch if/when needed?
+> 
+> Me or Torvalds?
+> 
+> This looks more like a Wolfram patch to me if it should not
+> go through IIO.
+> 
 
-Add MFD core driver support for a RTC component
+The first cover letter had:
 
-- MFD core adds the RTC resources da9062_rtc_resources[] for the RTC
-  alarm and tick timer IRQ
-- An appropriate mfd_cell has been added into da9062_devs[] to support
-  a component .name = "da9062-rtc" and .of_compatible  = "dlg,da9062-rtc"
+"Linus, since the commit above was already merged in the GPIO tree,
+should these fixes be merged also via the GPIO tree (with ACKs from
+the others subsystem maintainers)?"
 
-Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
-
----
-Checks performed with linux-next/next-20150708/scripts/checkpatch.pl
- da9062-core.c             total: 0 errors, 0 warnings, 523 lines checked
-This patch applies against linux-next and next-20150708 
+I believe it was referring to you ;). I can take the rtc patch if you
+don't plan to take it.
 
 
- drivers/mfd/da9062-core.c | 11 +++++++++++
- 1 file changed, 11 insertions(+)
-
-diff --git a/drivers/mfd/da9062-core.c b/drivers/mfd/da9062-core.c
-index 4cf0643..b43cd24 100644
---- a/drivers/mfd/da9062-core.c
-+++ b/drivers/mfd/da9062-core.c
-@@ -118,6 +118,11 @@ static struct resource da9062_wdt_resources[] = {
- 	DEFINE_RES_NAMED(DA9062_IRQ_WDG_WARN, 1, "WD_WARN", IORESOURCE_IRQ),
- };
- 
-+static struct resource da9062_rtc_resources[] = {
-+	DEFINE_RES_NAMED(DA9062_IRQ_ALARM, 1, "ALARM", IORESOURCE_IRQ),
-+	DEFINE_RES_NAMED(DA9062_IRQ_TICK, 1, "TICK", IORESOURCE_IRQ),
-+};
-+
- static const struct mfd_cell da9062_devs[] = {
- 	{
- 		.name		= "da9062-core",
-@@ -141,6 +146,12 @@ static const struct mfd_cell da9062_devs[] = {
- 		.resources	= da9062_thermal_resources,
- 		.of_compatible  = "dlg,da9062-thermal",
- 	},
-+	{
-+		.name		= "da9062-rtc",
-+		.num_resources	= ARRAY_SIZE(da9062_rtc_resources),
-+		.resources	= da9062_rtc_resources,
-+		.of_compatible  = "dlg,da9062-rtc",
-+	},
- };
- 
- static int da9062_clear_fault_log(struct da9062 *chip)
 -- 
-end-of-patch for PATCH RFC V1
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
 -- 
 -- 
