@@ -1,29 +1,31 @@
-Return-Path: <rtc-linux+bncBD5O5IWPJMIMDJWVVUCRUBF5474GE@googlegroups.com>
-MIME-Version: 1.0
-Received: from mail-wi0-x229.google.com (mail-wi0-x229.google.com. [2a00:1450:400c:c05::229])
-        by gmr-mx.google.com with ESMTPS id gt9si260596wib.2.2015.07.26.14.38.08
+Return-Path: <rtc-linux+bncBDE6RCFOWIARBFGQYOWQKGQEYM7ILQI@googlegroups.com>
+Received: from mail-ob0-f182.google.com (mail-ob0-f182.google.com. [209.85.214.182])
+        by gmr-mx.google.com with ESMTPS id x12si180794igx.1.2015.07.23.06.11.47
         for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sun, 26 Jul 2015 14:38:08 -0700 (PDT)
-Received: by mail-wi0-x229.google.com with SMTP id xm9so92578493wib.1
-        for <rtc-linux@googlegroups.com>; Sun, 26 Jul 2015 14:38:08 -0700 (PDT)
-From: Philippe Reynes <tremyfr@gmail.com>
-To: a.zummo@towertech.it,
-	alexandre.belloni@free-electrons.com,
-	shawn.guo@linaro.org,
-	kernel@pengutronix.de,
-	linux@arm.linux.org.uk
-Cc: linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org,
-	rtc-linux@googlegroups.com,
-	Philippe Reynes <tremyfr@gmail.com>
-Subject: [rtc-linux] [PATCH v5 3/6] rtc: mxc: use a second rtc clock
-Date: Sun, 26 Jul 2015 23:37:50 +0200
-Message-Id: <1437946673-7402-4-git-send-email-tremyfr@gmail.com>
-In-Reply-To: <1437946673-7402-1-git-send-email-tremyfr@gmail.com>
-References: <1437946673-7402-1-git-send-email-tremyfr@gmail.com>
-Reply-To: rtc-linux@googlegroups.com
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 23 Jul 2015 06:11:47 -0700 (PDT)
+Received: by obdeg2 with SMTP id eg2so57610249obd.0
+        for <rtc-linux@googlegroups.com>; Thu, 23 Jul 2015 06:11:47 -0700 (PDT)
+MIME-Version: 1.0
+In-Reply-To: <CAE1zotJ_u+ysf+HkD=4=Nv_mJ-4++SZxjKGMRkbKzYzyunLJUg@mail.gmail.com>
+References: <1433512783-8183-1-git-send-email-octavian.purdila@intel.com>
+	<1433512783-8183-2-git-send-email-octavian.purdila@intel.com>
+	<CAE1zotJ_u+ysf+HkD=4=Nv_mJ-4++SZxjKGMRkbKzYzyunLJUg@mail.gmail.com>
+Date: Thu, 23 Jul 2015 15:11:47 +0200
+Message-ID: <CACRpkdYE2HG3Cm74Hg9jXy2FwvwveqpbJbwTPKvmOm6aR7BNmQ@mail.gmail.com>
+Subject: [rtc-linux] Re: [PATCH v3 1/2] iio: fix drivers that consider 0 as a
+ valid IRQ in client->irq
+From: Linus Walleij <linus.walleij@linaro.org>
+To: Octavian Purdila <octavian.purdila@intel.com>
+Cc: Jonathan Cameron <jic23@kernel.org>, Mika Westerberg <mika.westerberg@linux.intel.com>,
+	Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald <pmeerw@pmeerw.net>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
+	"linux-iio@vger.kernel.org" <linux-iio@vger.kernel.org>,
+	"rtc-linux@googlegroups.com" <rtc-linux@googlegroups.com>, lkml <linux-kernel@vger.kernel.org>
 Content-Type: text/plain; charset=UTF-8
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -33,117 +35,35 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-The mxc RTC needs two clocks, one for the input
-reference, and one for the IP. But this driver
-was only using one clock (for the reference).
-This patch add the second clock (for the IP).
+On Thu, Jul 23, 2015 at 12:59 PM, Octavian Purdila
+<octavian.purdila@intel.com> wrote:
+> On Fri, Jun 5, 2015 at 4:59 PM, Octavian Purdila
+> <octavian.purdila@intel.com> wrote:
+>> Since patch "i2c / ACPI: Use 0 to indicate that device does not have
+>> interrupt assigned" [1], 0 is not a valid i2c client irq anymore, so
+>> change all driver's checks accordingly.
+>>
+>> The same issue occurs when the device is instantiated via device tree
+>> with no IRQ, or from the i2c sysfs interface, even before the patch
+>> above.
+>>
+>> [1] http://lkml.kernel.org/g/<1430908148-201129-3-git-send-email-mika.westerberg@linux.intel.com>
+>>
+>> Signed-off-by: Octavian Purdila <octavian.purdila@intel.com>
+>> Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+>
+> Hi Jonathan,
+>
+> Does this look OK to you? If so, could you pleas ACK the patch so that
+> Linus can pick it up in its for-next branch if/when needed?
 
-Acked-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Signed-off-by: Philippe Reynes <tremyfr@gmail.com>
----
- drivers/rtc/rtc-mxc.c |   41 ++++++++++++++++++++++++++++-------------
- 1 files changed, 28 insertions(+), 13 deletions(-)
+Me or Torvalds?
 
-diff --git a/drivers/rtc/rtc-mxc.c b/drivers/rtc/rtc-mxc.c
-index 5fc292c..880d485 100644
---- a/drivers/rtc/rtc-mxc.c
-+++ b/drivers/rtc/rtc-mxc.c
-@@ -79,7 +79,8 @@ struct rtc_plat_data {
- 	struct rtc_device *rtc;
- 	void __iomem *ioaddr;
- 	int irq;
--	struct clk *clk;
-+	struct clk *clk_ref;
-+	struct clk *clk_ipg;
- 	struct rtc_time g_rtc_alarm;
- 	enum imx_rtc_type devtype;
- };
-@@ -373,17 +374,28 @@ static int mxc_rtc_probe(struct platform_device *pdev)
- 	if (IS_ERR(pdata->ioaddr))
- 		return PTR_ERR(pdata->ioaddr);
- 
--	pdata->clk = devm_clk_get(&pdev->dev, NULL);
--	if (IS_ERR(pdata->clk)) {
--		dev_err(&pdev->dev, "unable to get clock!\n");
--		return PTR_ERR(pdata->clk);
-+	pdata->clk_ipg = devm_clk_get(&pdev->dev, "ipg");
-+	if (IS_ERR(pdata->clk_ipg)) {
-+		dev_err(&pdev->dev, "unable to get ipg clock!\n");
-+		return PTR_ERR(pdata->clk_ipg);
- 	}
- 
--	ret = clk_prepare_enable(pdata->clk);
-+	ret = clk_prepare_enable(pdata->clk_ipg);
- 	if (ret)
- 		return ret;
- 
--	rate = clk_get_rate(pdata->clk);
-+	pdata->clk_ref = devm_clk_get(&pdev->dev, "ref");
-+	if (IS_ERR(pdata->clk_ref)) {
-+		dev_err(&pdev->dev, "unable to get ref clock!\n");
-+		ret = PTR_ERR(pdata->clk_ref);
-+		goto exit_put_clk_ipg;
-+	}
-+
-+	ret = clk_prepare_enable(pdata->clk_ref);
-+	if (ret)
-+		goto exit_put_clk_ipg;
-+
-+	rate = clk_get_rate(pdata->clk_ref);
- 
- 	if (rate == 32768)
- 		reg = RTC_INPUT_CLK_32768HZ;
-@@ -394,7 +406,7 @@ static int mxc_rtc_probe(struct platform_device *pdev)
- 	else {
- 		dev_err(&pdev->dev, "rtc clock is not valid (%lu)\n", rate);
- 		ret = -EINVAL;
--		goto exit_put_clk;
-+		goto exit_put_clk_ref;
- 	}
- 
- 	reg |= RTC_ENABLE_BIT;
-@@ -402,7 +414,7 @@ static int mxc_rtc_probe(struct platform_device *pdev)
- 	if (((readw(pdata->ioaddr + RTC_RTCCTL)) & RTC_ENABLE_BIT) == 0) {
- 		dev_err(&pdev->dev, "hardware module can't be enabled!\n");
- 		ret = -EIO;
--		goto exit_put_clk;
-+		goto exit_put_clk_ref;
- 	}
- 
- 	platform_set_drvdata(pdev, pdata);
-@@ -424,15 +436,17 @@ static int mxc_rtc_probe(struct platform_device *pdev)
- 				  THIS_MODULE);
- 	if (IS_ERR(rtc)) {
- 		ret = PTR_ERR(rtc);
--		goto exit_put_clk;
-+		goto exit_put_clk_ref;
- 	}
- 
- 	pdata->rtc = rtc;
- 
- 	return 0;
- 
--exit_put_clk:
--	clk_disable_unprepare(pdata->clk);
-+exit_put_clk_ref:
-+	clk_disable_unprepare(pdata->clk_ref);
-+exit_put_clk_ipg:
-+	clk_disable_unprepare(pdata->clk_ipg);
- 
- 	return ret;
- }
-@@ -441,7 +455,8 @@ static int mxc_rtc_remove(struct platform_device *pdev)
- {
- 	struct rtc_plat_data *pdata = platform_get_drvdata(pdev);
- 
--	clk_disable_unprepare(pdata->clk);
-+	clk_disable_unprepare(pdata->clk_ref);
-+	clk_disable_unprepare(pdata->clk_ipg);
- 
- 	return 0;
- }
--- 
-1.7.4.4
+This looks more like a Wolfram patch to me if it should not
+go through IIO.
+
+Yours,
+Linus Walleij
 
 -- 
 -- 
