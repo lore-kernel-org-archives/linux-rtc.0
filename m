@@ -1,34 +1,32 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBZFE52WQKGQEEXD5RFY@googlegroups.com>
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id cj6si184309wib.1.2015.07.31.08.21.07
-        for <rtc-linux@googlegroups.com>;
-        Fri, 31 Jul 2015 08:21:07 -0700 (PDT)
-Date: Fri, 31 Jul 2015 17:21:06 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Nicolas Ferre <nicolas.ferre@atmel.com>
-Cc: Boris Brezillon <boris.brezillon@free-electrons.com>,
-	Maxime Ripard <maxime.ripard@free-electrons.com>,
-	Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>,
-	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Arnd Bergmann <arnd@arndb.de>,
-	Daniel Lezcano <daniel.lezcano@linaro.org>,
-	Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	linux-clk@vger.kernel.org, linux-pm@vger.kernel.org,
-	linux-pwm@vger.kernel.org, linux-watchdog@vger.kernel.org,
-	Michael Turquette <mturquette@baylibre.com>,
-	rtc-linux@googlegroups.com, Sebastian Reichel <sre@kernel.org>,
-	Stephen Boyd <sboyd@codeaurora.org>,
-	Thierry Reding <thierry.reding@gmail.com>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Wim Van Sebroeck <wim@iguana.be>
-Subject: [rtc-linux] Re: [PATCH 00/23] ARM: at91: Properly handle slow clock
-Message-ID: <20150731152106.GK27985@piout.net>
-References: <1438335599-3301-1-git-send-email-alexandre.belloni@free-electrons.com>
+Return-Path: <rtc-linux+bncBCV6LFM5RQJRB2XYYOWQKGQEAZHIVZY@googlegroups.com>
+Received: from mail-wi0-f169.google.com (mail-wi0-f169.google.com. [209.85.212.169])
+        by gmr-mx.google.com with ESMTPS id cj6si884539wib.1.2015.07.23.07.38.33
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 23 Jul 2015 07:38:33 -0700 (PDT)
+Received: by wicgb10 with SMTP id gb10so146184707wic.1
+        for <rtc-linux@googlegroups.com>; Thu, 23 Jul 2015 07:38:33 -0700 (PDT)
 MIME-Version: 1.0
+In-Reply-To: <20150723140516.A3C9E4314B@saturn.retrosnub.co.uk>
+References: <1433512783-8183-1-git-send-email-octavian.purdila@intel.com>
+	<1433512783-8183-2-git-send-email-octavian.purdila@intel.com>
+	<CAE1zotJ_u+ysf+HkD=4=Nv_mJ-4++SZxjKGMRkbKzYzyunLJUg@mail.gmail.com>
+	<20150723140516.A3C9E4314B@saturn.retrosnub.co.uk>
+Date: Thu, 23 Jul 2015 17:38:33 +0300
+Message-ID: <CAE1zotJiuHsicKuPwyK_rKRY9qDyLV=nFEqJ4ATuroN924nHVg@mail.gmail.com>
+Subject: [rtc-linux] Re: [PATCH v3 1/2] iio: fix drivers that consider 0 as a
+ valid IRQ in client->irq
+From: Octavian Purdila <octavian.purdila@intel.com>
+To: Jonathan Cameron <jic23@jic23.retrosnub.co.uk>
+Cc: Jonathan Cameron <jic23@kernel.org>, Mika Westerberg <mika.westerberg@linux.intel.com>,
+	Linus Walleij <linus.walleij@linaro.org>, Hartmut Knaack <knaack.h@gmx.de>,
+	Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald <pmeerw@pmeerw.net>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
+	"linux-iio@vger.kernel.org" <linux-iio@vger.kernel.org>, rtc-linux@googlegroups.com,
+	lkml <linux-kernel@vger.kernel.org>
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1438335599-3301-1-git-send-email-alexandre.belloni@free-electrons.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -39,119 +37,44 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Hi,
+On Thu, Jul 23, 2015 at 5:05 PM, <jic23@jic23.retrosnub.co.uk> wrote:
+>
+> Octavian Purdila writes:
+>>
+>> On Fri, Jun 5, 2015 at 4:59 PM, Octavian Purdila
+>> <octavian.purdila@intel.com> wrote:
+>>>
+>>> Since patch "i2c / ACPI: Use 0 to indicate that device does not have
+>>> interrupt assigned" [1], 0 is not a valid i2c client irq anymore, so
+>>> change all driver's checks accordingly.
+>>> The same issue occurs when the device is instantiated via device tree
+>>> with no IRQ, or from the i2c sysfs interface, even before the patch
+>>> above.
+>>> [1] http://lkml.kernel.org/g/<1430908148-201129-3-git-send-email-mika.westerberg@linux.intel.com>
+>>> Signed-off-by: Octavian Purdila <octavian.purdila@intel.com>
+>>> Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+>>
+>>
+>> Hi Jonathan,
+>> Does this look OK to you? If so, could you pleas ACK the patch so that
+>> Linus can pick it up in its for-next branch if/when needed?
+>> Thanks,
+>> Tavi
+>
+> Hi Tavi,
+> This is fine, but is there a particular rush to get it in?
+> Otherwise I'll just take it through the IIO tree.
+> Acked-by: Jonathan Cameron <jic23@kernel.org>
 
-I realize now that I forgot to add the v2 tag in the subject lines. This
-is really v2 :)
+Hi Jonathan,
 
-On 31/07/2015 at 11:39:36 +0200, Alexandre Belloni wrote :
-> Hi,
-> 
-> It was discovered that all the slow clock user were not properly claiming it.
-> This can end up in a system hang because the last registered user is releasing
-> it, and it gets disabled.
-> 
-> commit dca1a4b5ff6e ("clk: at91: keep slow clk enabled to prevent system hang")
-> was a workaround. This series is adding the slow clock to the necessary drivers
-> to avoid the issue and then removes that workaround.
-> 
-> The Documentation updates and DT patches should probably go through the AT91
-> tree this cycle to avoid breakage.
-> 
-> Then the other patches can go through each subsystem tree. They are trivial
-> enough to also go in this cycle.
-> 
-> The final clk patch depends on the other ones and may be taken for the next
-> cycle to avoid synchronization issues.
-> 
-> I've thrown in a cleanup for at91-reset as it avoids adding support for that
-> clock to the platform data initialization
-> 
-> Changes in v2:
->  - statisticize the global in the atmel-st change
->  - merge at91_reset_of_probe() in at91_reset_probe()
->  - added patches from Boris for the TCB
->  - added the slow clock to the TCB
-> 
-> Cc: Alessandro Zummo <a.zummo@towertech.it>
-> Cc: Arnd Bergmann <arnd@arndb.de>
-> Cc: Daniel Lezcano <daniel.lezcano@linaro.org>
-> Cc: Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>
-> Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> Cc: linux-clk@vger.kernel.org
-> Cc: linux-pm@vger.kernel.org
-> Cc: linux-pwm@vger.kernel.org
-> Cc: linux-watchdog@vger.kernel.org
-> Cc: Michael Turquette <mturquette@baylibre.com>
-> Cc: rtc-linux@googlegroups.com
-> Cc: Sebastian Reichel <sre@kernel.org>
-> Cc: Stephen Boyd <sboyd@codeaurora.org>
-> Cc: Thierry Reding <thierry.reding@gmail.com>
-> Cc: Thomas Gleixner <tglx@linutronix.de>
-> Cc: Wim Van Sebroeck <wim@iguana.be>
-> 
-> Alexandre Belloni (20):
->   Documentation: dt: atmel-at91: add clocks to system timer, rstc and
->     shdwc
->   Documentation: watchdog: at91sam9_wdt: add clocks property
->   Documentation: dt: rtc: at91rm9200: add clocks property
->   ARM: at91/dt: at91rm9200: use slow clock where necessary
->   ARM: at91/dt: at91sam9260: use slow clock where necessary
->   ARM: at91/dt: at91sam9261: use slow clock where necessary
->   ARM: at91/dt: at91sam9263: use slow clock where necessary
->   ARM: at91/dt: at91sam9g45: use slow clock where necessary
->   ARM: at91/dt: at91sam9n12: use slow clock where necessary
->   ARM: at91/dt: at91sam9rl: use slow clock where necessary
->   ARM: at91/dt: at91sam9x5: use slow clock where necessary
->   ARM: at91/dt: sama5d3: use slow clock where necessary
->   ARM: at91/dt: sama5d4: use slow clock where necessary
->   rtc: at91rm9200: get and use slow clock
->   watchdog: at91sam9: get and use slow clock
->   power/reset: at91-reset: remove useless at91_reset_platform_probe()
->   power/reset: at91-reset: get and use slow clock
->   power/reset: at91-poweroff: get and use slow clock
->   clocksource: atmel-st: get and use slow clock
->   clk: at91: Revert "keep slow clk enabled to prevent system hang"
-> 
-> Boris Brezillon (3):
->   Documentation: dt: atmel-at91: add slow clock to tcb
->   clocksource: tcb_clksrc: fix setup_clkevents error path
->   misc: atmel_tclib: get and use slow clock
-> 
->  .../devicetree/bindings/arm/atmel-at91.txt         | 13 +++--
->  .../bindings/rtc/atmel,at91rm9200-rtc.txt          |  2 +
->  .../devicetree/bindings/watchdog/atmel-wdt.txt     |  2 +
->  arch/arm/boot/dts/at91rm9200.dtsi                  | 10 ++--
->  arch/arm/boot/dts/at91sam9260.dtsi                 | 11 +++--
->  arch/arm/boot/dts/at91sam9261.dtsi                 |  7 ++-
->  arch/arm/boot/dts/at91sam9263.dtsi                 |  7 ++-
->  arch/arm/boot/dts/at91sam9g45.dtsi                 | 12 +++--
->  arch/arm/boot/dts/at91sam9n12.dtsi                 | 12 +++--
->  arch/arm/boot/dts/at91sam9rl.dtsi                  |  8 ++-
->  arch/arm/boot/dts/at91sam9x5.dtsi                  | 12 +++--
->  arch/arm/boot/dts/sama5d3.dtsi                     |  8 ++-
->  arch/arm/boot/dts/sama5d3_tcb1.dtsi                |  4 +-
->  arch/arm/boot/dts/sama5d4.dtsi                     | 12 +++--
->  drivers/clk/at91/clk-slow.c                        | 27 ----------
->  drivers/clocksource/tcb_clksrc.c                   | 10 +++-
->  drivers/clocksource/timer-atmel-st.c               | 31 ++++++++----
->  drivers/misc/atmel_tclib.c                         |  4 ++
->  drivers/power/reset/at91-poweroff.c                | 13 +++++
->  drivers/power/reset/at91-reset.c                   | 57 ++++++----------------
->  drivers/pwm/pwm-atmel-tcb.c                        | 23 ++++++---
->  drivers/rtc/rtc-at91rm9200.c                       | 27 ++++++++--
->  drivers/watchdog/at91sam9_wdt.c                    | 22 ++++++++-
->  include/linux/atmel_tc.h                           |  1 +
->  24 files changed, 206 insertions(+), 129 deletions(-)
-> 
-> -- 
-> 2.1.4
-> 
+Didn't mean to rush things, I haven't seen any activity on this for
+some time and thought it was forgotten. I was also confused with the
+status of Mika's patch, but now that I learned it was merged in 4.2,
+its clear to me that this patch needs to go through the IIO tree.
 
--- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+Thanks,
+Tavi
 
 -- 
 -- 
