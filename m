@@ -1,31 +1,27 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBENRXCWQKGQE63MZS4A@googlegroups.com>
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id c3si513777wiz.2.2015.07.21.03.01.53
-        for <rtc-linux@googlegroups.com>;
-        Tue, 21 Jul 2015 03:01:53 -0700 (PDT)
-Date: Tue, 21 Jul 2015 12:01:51 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: S Twiss <stwiss.opensource@diasemi.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
-	DEVICETREE <devicetree@vger.kernel.org>,
-	LINUXINPUT <linux-input@vger.kernel.org>,
-	LINUXKERNEL <linux-kernel@vger.kernel.org>,
-	RTCLINUX <rtc-linux@googlegroups.com>,
-	David Dajun Chen <david.chen@diasemi.com>,
-	Ian Campbell <ijc+devicetree@hellion.org.uk>,
-	Kumar Gala <galak@codeaurora.org>, Lee Jones <lee.jones@linaro.org>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Pawel Moll <pawel.moll@arm.com>, Rob Herring <robh+dt@kernel.org>,
-	Samuel Ortiz <sameo@linux.intel.com>,
-	Support Opensource <support.opensource@diasemi.com>
-Subject: [rtc-linux] Re: [PATCH V2 3/3] rtc: da9063: Add DA9062 RTC capability
- to DA9063 RTC driver
-Message-ID: <20150721100151.GC2853@piout.net>
-References: <cover.1437471790.git.stwiss.opensource@diasemi.com>
- <93f0906ed7db18b893385b60a43b02f248dfe9a6.1437471790.git.stwiss.opensource@diasemi.com>
+Return-Path: <rtc-linux+bncBAABBEFKYSWQKGQE3POADSA@googlegroups.com>
+Received: from mail1.bemta5.messagelabs.com (mail1.bemta5.messagelabs.com. [195.245.231.143])
+        by gmr-mx.google.com with ESMTPS id q10si298034wiz.0.2015.07.23.09.23.43
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 23 Jul 2015 09:23:43 -0700 (PDT)
+Message-ID: <983c3fe61ca732985f70c7d77bdb146860daf467.1437668261.git.stwiss.opensource@diasemi.com>
+In-Reply-To: <cover.1437668261.git.stwiss.opensource@diasemi.com>
+References: <cover.1437668261.git.stwiss.opensource@diasemi.com>
+From: S Twiss <stwiss.opensource@diasemi.com>
+Date: Thu, 23 Jul 2015 17:17:41 +0100
+Subject: [rtc-linux] [PATCH V3 1/3] mfd: da9062: Support for the DA9063 OnKey
+ in the DA9062 core
+To: DEVICETREE <devicetree@vger.kernel.org>, LINUXINPUT
+	<linux-input@vger.kernel.org>, LINUXKERNEL <linux-kernel@vger.kernel.org>,
+	Lee Jones <lee.jones@linaro.org>, RTCLINUX <rtc-linux@googlegroups.com>, S
+ Twiss <stwiss.opensource@diasemi.com>, Samuel Ortiz <sameo@linux.intel.com>
+CC: David Dajun Chen <david.chen@diasemi.com>, Dmitry Torokhov
+	<dmitry.torokhov@gmail.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>,
+	Kumar Gala <galak@codeaurora.org>, Mark Rutland <mark.rutland@arm.com>, Pawel
+ Moll <pawel.moll@arm.com>, Rob Herring <robh+dt@kernel.org>, Support
+ Opensource <support.opensource@diasemi.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <93f0906ed7db18b893385b60a43b02f248dfe9a6.1437471790.git.stwiss.opensource@diasemi.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -36,52 +32,61 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Hi Steve,
+From: S Twiss <stwiss.opensource@diasemi.com>
 
-it looks mostly good, a few more comments:
+Add MFD core driver support for a OnKey component
 
-On 21/07/2015 at 10:43:10 +0100, S Twiss wrote :
-> -	if (val & (DA9063_E_ALARM))
-> +	if (val & (config->rtc_event_alarm_mask))
-unneeded parenthesis here
+- MFD core adds the resource da9062_onkey_resources[] for the OnKey
+- An appropriate value has been added into mfd_cell da9062_devs[] to
+  support component .name = "da9062-onkey" and
+  .of_compatible  = "dlg,da9062-onkey"
 
-> +	if (of_device_is_compatible(pdev->dev.of_node, "dlg,da9063-rtc")) {
-> +		struct da9063 *chip = dev_get_drvdata(pdev->dev.parent);
-> +
-> +		if (chip->variant_code == PMIC_DA9063_AD)
-> +			rtc->config = &da9063_ad_regs;
-> +	} else
-> +		rtc->config = match->data;
+Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
+Acked-by: Lee Jones <lee.jones@linaro.org>
 
-Both arms of the if should use braces.
+---
+Changes in V3:
+ - Added Ack from Lee Jones
+Changes in V2:
+ - No change
 
-Also, what happens if it is a da9063, BB variant? I guess rtc->config
-will not be set.
-
-maybe you should write:
-
-rtc->config = match->data;
-if (of_device_is_compatible(pdev->dev.of_node, "dlg,da9063-rtc")) {
-     struct da9063 *chip = dev_get_drvdata(pdev->dev.parent);
-
-     if (chip->variant_code == PMIC_DA9063_AD)
-         rtc->config = &da9063_ad_regs;
-}
+This patch applies against linux-next and next-20150708 
 
 
-> @@ -348,5 +515,5 @@ module_platform_driver(da9063_rtc_driver);
->  
->  MODULE_AUTHOR("S Twiss <stwiss.opensource@diasemi.com>");
->  MODULE_DESCRIPTION("Real time clock device driver for Dialog DA9063");
-> -MODULE_LICENSE("GPL v2");
-> +MODULE_LICENSE("GPL");
+ drivers/mfd/da9062-core.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-This should be part of the license change.
-
+diff --git a/drivers/mfd/da9062-core.c b/drivers/mfd/da9062-core.c
+index 4cf0643..0732977 100644
+--- a/drivers/mfd/da9062-core.c
++++ b/drivers/mfd/da9062-core.c
+@@ -118,6 +118,10 @@ static struct resource da9062_wdt_resources[] = {
+ 	DEFINE_RES_NAMED(DA9062_IRQ_WDG_WARN, 1, "WD_WARN", IORESOURCE_IRQ),
+ };
+ 
++static struct resource da9062_onkey_resources[] = {
++	DEFINE_RES_NAMED(DA9062_IRQ_ONKEY, 1, "ONKEY", IORESOURCE_IRQ),
++};
++
+ static const struct mfd_cell da9062_devs[] = {
+ 	{
+ 		.name		= "da9062-core",
+@@ -141,6 +145,13 @@ static const struct mfd_cell da9062_devs[] = {
+ 		.resources	= da9062_thermal_resources,
+ 		.of_compatible  = "dlg,da9062-thermal",
+ 	},
++	{
++		.name		= "da9062-onkey",
++		.num_resources	= ARRAY_SIZE(da9062_onkey_resources),
++		.resources	= da9062_onkey_resources,
++		.of_compatible = "dlg,da9062-onkey",
++	},
++
+ };
+ 
+ static int da9062_clear_fault_log(struct da9062 *chip)
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+end-of-patch for PATCH V3
 
 -- 
 -- 
