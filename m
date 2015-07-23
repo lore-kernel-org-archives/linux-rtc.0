@@ -1,22 +1,23 @@
-Return-Path: <rtc-linux+bncBAABB27T3CWQKGQEH3BQFXI@googlegroups.com>
-Received: from mail.kernel.org (mail.kernel.org. [198.145.29.136])
-        by gmr-mx.google.com with ESMTP id x1si742909igb.2.2015.07.27.07.02.18
-        for <rtc-linux@googlegroups.com>;
-        Mon, 27 Jul 2015 07:02:19 -0700 (PDT)
-Date: Mon, 27 Jul 2015 22:01:53 +0800
-From: Shawn Guo <shawnguo@kernel.org>
-To: Philippe Reynes <tremyfr@gmail.com>
-Cc: a.zummo@towertech.it, alexandre.belloni@free-electrons.com,
-	shawn.guo@linaro.org, kernel@pengutronix.de, linux@arm.linux.org.uk,
-	rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org
-Subject: [rtc-linux] Re: [PATCH v5 0/6] add device tree support for mxc rtc
-Message-ID: <20150727140153.GM12927@tiger>
-References: <1437946673-7402-1-git-send-email-tremyfr@gmail.com>
+Return-Path: <rtc-linux+bncBDP6N55ZUYDRBOXEYWWQKGQEMHMJARI@googlegroups.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1437946673-7402-1-git-send-email-tremyfr@gmail.com>
+Received: from mail-pa0-x229.google.com (mail-pa0-x229.google.com. [2607:f8b0:400e:c03::229])
+        by gmr-mx.google.com with ESMTPS id x3si1112909pdh.2.2015.07.23.16.01.14
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 23 Jul 2015 16:01:14 -0700 (PDT)
+Received: by mail-pa0-x229.google.com with SMTP id kd10so3334016pab.2
+        for <rtc-linux@googlegroups.com>; Thu, 23 Jul 2015 16:01:14 -0700 (PDT)
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+	rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org,
+	Krzysztof Kozlowski <k.kozlowski@samsung.com>
+Subject: [rtc-linux] [PATCH v2 1/3] RTC: make rtc_does_wakealarm() return boolean
+Date: Thu, 23 Jul 2015 16:01:06 -0700
+Message-Id: <1437692468-24788-1-git-send-email-dmitry.torokhov@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -26,60 +27,34 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On Sun, Jul 26, 2015 at 11:37:47PM +0200, Philippe Reynes wrote:
-> This serie add the device tree support for the mxc rtc driver.
-> To do this, three steps are required :
-> - define two rtc clocks for imx31 and imx35
-> - enhance mxc rtc driver to use two clocks (ref and ipg)
-> - add device tree support to mxc rtc driver
+Users of rtc_does_wakealarm() return value treat it as boolean so let's
+change the signature accordingly.
 
-Looks good to me.  As we already have Alexandre's ACK on rtc-mxc driver
-part, I will queue the series on IMX tree with waiting for a couple of
-days to see if there is any objection.
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+---
+ drivers/rtc/rtc-sysfs.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-Shawn
-
-> 
-> Changelog:
-> v5: (thanks Shawn Guo, Rob Herring and Alexandre Belloni)
-> - rename rtc clock to ref
-> - fix typo in binding documentation
-> - enable rtc by default on imx27
-> v4: (thanks Alexandre Belloni)
-> - add prepare_clock for rtc clock
-> - split apf27: dt: enable support in two patches
-> v3: (thanks Fabio Estevam)
-> - fix typo in imx35 clock comment
-> v2: (thanks Shawn Guo and Alexandre Belloni)
-> - add a second clock to imx35
-> - split the add of clock in a separate patches
-> - split the dt documentation in a separate patch
-> 
-> Philippe Reynes (6):
->   imx31: add a second rtc clock
->   imx35: define two clocks for rtc
->   rtc: mxc: use a second rtc clock
->   dt-binding: document the binding for mxc rtc
->   rtc: mxc: add support of device tree
->   imx27: dt: add support of internal rtc
-> 
->  Documentation/devicetree/bindings/rtc/rtc-mxc.txt |   26 +++++++++
->  arch/arm/boot/dts/imx27.dtsi                      |    9 +++
->  drivers/clk/imx/clk-imx31.c                       |    3 +-
->  drivers/clk/imx/clk-imx35.c                       |    6 ++-
->  drivers/rtc/rtc-mxc.c                             |   60 ++++++++++++++++-----
->  5 files changed, 88 insertions(+), 16 deletions(-)
->  create mode 100644 Documentation/devicetree/bindings/rtc/rtc-mxc.txt
-> 
-> -- 
-> 1.7.4.4
-> 
-> 
-> _______________________________________________
-> linux-arm-kernel mailing list
-> linux-arm-kernel@lists.infradead.org
-> http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
-> 
+diff --git a/drivers/rtc/rtc-sysfs.c b/drivers/rtc/rtc-sysfs.c
+index babd43b..2fbc11b 100644
+--- a/drivers/rtc/rtc-sysfs.c
++++ b/drivers/rtc/rtc-sysfs.c
+@@ -230,10 +230,11 @@ static DEVICE_ATTR(wakealarm, S_IRUGO | S_IWUSR,
+  * suspend-to-disk.  So: no attribute unless that side effect is possible.
+  * (Userspace may disable that mechanism later.)
+  */
+-static inline int rtc_does_wakealarm(struct rtc_device *rtc)
++static bool rtc_does_wakealarm(struct rtc_device *rtc)
+ {
+ 	if (!device_can_wakeup(rtc->dev.parent))
+-		return 0;
++		return false;
++
+ 	return rtc->ops->set_alarm != NULL;
+ }
+ 
+-- 
+2.5.0.rc2.392.g76e840b
 
 -- 
 -- 
