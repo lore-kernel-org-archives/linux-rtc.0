@@ -1,34 +1,25 @@
-Return-Path: <rtc-linux+bncBDA7X7F2WUEBBZEA3WWQKGQE3Q236LY@googlegroups.com>
-Received: from mail-wi0-f179.google.com (mail-wi0-f179.google.com. [209.85.212.179])
-        by gmr-mx.google.com with ESMTPS id ec7si498456wib.3.2015.07.28.01.42.11
+Return-Path: <rtc-linux+bncBAABBEFKYSWQKGQE3POADSA@googlegroups.com>
+Received: from mail1.bemta5.messagelabs.com (mail1.bemta5.messagelabs.com. [195.245.231.138])
+        by gmr-mx.google.com with ESMTPS id cj6si900472wib.1.2015.07.23.09.23.43
         for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 28 Jul 2015 01:42:11 -0700 (PDT)
-Received: by wibud3 with SMTP id ud3so148708150wib.0
-        for <rtc-linux@googlegroups.com>; Tue, 28 Jul 2015 01:42:11 -0700 (PDT)
-Date: Tue, 28 Jul 2015 09:42:07 +0100
-From: Lee Jones <lee.jones@linaro.org>
-To: S Twiss <stwiss.opensource@diasemi.com>
-Cc: DEVICETREE <devicetree@vger.kernel.org>,
-	LINUXINPUT <linux-input@vger.kernel.org>,
-	LINUXKERNEL <linux-kernel@vger.kernel.org>,
-	RTCLINUX <rtc-linux@googlegroups.com>,
-	Samuel Ortiz <sameo@linux.intel.com>,
-	David Dajun Chen <david.chen@diasemi.com>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Ian Campbell <ijc+devicetree@hellion.org.uk>,
-	Kumar Gala <galak@codeaurora.org>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Pawel Moll <pawel.moll@arm.com>, Rob Herring <robh+dt@kernel.org>,
-	Support Opensource <support.opensource@diasemi.com>
-Subject: [rtc-linux] Re: [PATCH V3 1/3] mfd: da9062: Support for the DA9063
- OnKey in the DA9062 core
-Message-ID: <20150728084207.GO14943@x1>
-References: <cover.1437668261.git.stwiss.opensource@diasemi.com>
- <983c3fe61ca732985f70c7d77bdb146860daf467.1437668261.git.stwiss.opensource@diasemi.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 23 Jul 2015 09:23:43 -0700 (PDT)
+Message-ID: <cover.1437668261.git.stwiss.opensource@diasemi.com>
+From: S Twiss <stwiss.opensource@diasemi.com>
+Date: Thu, 23 Jul 2015 17:17:41 +0100
+Subject: [rtc-linux] [PATCH V3 0/3]  da9062: Add DA9062 OnKey support using
+ the existing DA9063 OnKey driver
+To: DEVICETREE <devicetree@vger.kernel.org>, Dmitry Torokhov
+	<dmitry.torokhov@gmail.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>,
+	Kumar Gala <galak@codeaurora.org>, LINUXINPUT <linux-input@vger.kernel.org>,
+	LINUXKERNEL <linux-kernel@vger.kernel.org>, Lee Jones <lee.jones@linaro.org>,
+	Mark Rutland <mark.rutland@arm.com>, Pawel Moll <pawel.moll@arm.com>,
+	RTCLINUX <rtc-linux@googlegroups.com>, Rob Herring <robh+dt@kernel.org>, S
+ Twiss <stwiss.opensource@diasemi.com>, Samuel Ortiz <sameo@linux.intel.com>
+CC: David Dajun Chen <david.chen@diasemi.com>, Support Opensource
+	<support.opensource@diasemi.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <983c3fe61ca732985f70c7d77bdb146860daf467.1437668261.git.stwiss.opensource@diasemi.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -39,49 +30,78 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On Thu, 23 Jul 2015, S Twiss wrote:
+From: S Twiss <stwiss.opensource@diasemi.com>
 
-> From: S Twiss <stwiss.opensource@diasemi.com>
->=20
-> Add MFD core driver support for a OnKey component
->=20
-> - MFD core adds the resource da9062_onkey_resources[] for the OnKey
-> - An appropriate value has been added into mfd_cell da9062_devs[] to
->   support component .name =3D "da9062-onkey" and
->   .of_compatible  =3D "dlg,da9062-onkey"
->=20
-> Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
-> Acked-by: Lee Jones <lee.jones@linaro.org>
->=20
-> ---
-> Changes in V3:
->  - Added Ack from Lee Jones
-> Changes in V2:
->  - No change
->=20
-> This patch applies against linux-next and next-20150708=20
->=20
->=20
->  drivers/mfd/da9062-core.c | 11 +++++++++++
->  1 file changed, 11 insertions(+)
+This patch set adds OnKey support for the Dialog DA9062 Power Management IC.
+Changes are made to the existing DA9063 OnKey component so that functionality
+in this device driver can be re-used to support the DA9062 OnKey.
 
-Applied, thanks.
+This following patch set re-uses the existing kernel OnKey driver for chips
+whose OnKey blocks are functionally similar to the DA9063 OnKey.
 
---=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+The main points for the MFD core and device tree changes are as follows.
 
---=20
---=20
+- Alteration of the DA9063 OnKey Kconfig needs to be updated to depend on
+  both MFD_DA9063 "or" MFD_DA9062. There is no explicit DA9062 OnKey Kconfig.
+- The DA9062 MFD core should add a new OnKey resource as usual and an entry
+  in the mfd_cell to support a component name and of_compatible for
+  "da9062-onkey" and "dlg,da9062-onkey".
+- The device tree binding support should include a compatible string for
+  "dlg,da9062-onkey"
+
+The main points for the OnKey changes are as follows:
+
+A generic structure is used (called da906x_chip_config) to hold all generic
+registers and bitmasks for use with this type of OnKey component.
+
+Functions in the DA9063 OnKey will be refactored to use this compatibility
+struct and all accesses to generic registers/masks will be made through
+this table look-up instead of using defines from the register header files
+directly
+
+Linkage between the DA9062 MFD and the DA9063 OnKey driver is created through
+the use of an of_match_table entry in the platform_driver structure.
+A re-work of da9063_onkey_probe() is necessary to use the of_match_node() and
+dev_get_regmap() functions: this will provide initialisation of the generic
+registers and masks and allow access to the regmap according to the correct
+device tree specification.
+
+The addition of a of_device_id table for DA9063 and DA9062 default data
+is created. 
+
+In this patch set the following is provided:
+ - [PATCH V3 1/3]: MFD changes in DA9062 to support OnKey
+ - [PATCH V3 2/3]: Update existing DA9063 OnKey to add DA9062 support
+ - [PATCH V3 3/3]: Device tree bindings for DA9062 OnKey component
+
+This patch applies against linux-next and next-20150708 
+
+Thank you,
+Steve Twiss, Dialog Semiconductor Ltd.
+
+S Twiss (3):
+  mfd: da9062: Support for the DA9063 OnKey in the DA9062 core
+  onkey: da9063: Add DA9062 OnKey capability to DA9063 OnKey driver
+  devicetree: da9062: Add device tree bindings for DA9062 OnKey
+
+ .../devicetree/bindings/input/da9062-onkey.txt     |  36 ++++++
+ Documentation/devicetree/bindings/mfd/da9062.txt   |   3 +
+ drivers/input/misc/Kconfig                         |   8 +-
+ drivers/input/misc/da9063_onkey.c                  | 129 +++++++++++++++++----
+ drivers/mfd/da9062-core.c                          |  11 ++
+ 5 files changed, 158 insertions(+), 29 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/input/da9062-onkey.txt
+
+-- 
+end-of-patch for PATCH V3
+
+-- 
+-- 
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
----=20
-You received this message because you are subscribed to the Google Groups "=
-rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an e=
-mail to rtc-linux+unsubscribe@googlegroups.com.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
