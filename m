@@ -1,31 +1,23 @@
-Return-Path: <rtc-linux+bncBAABBIFJ3OWAKGQEUK6CO7Q@googlegroups.com>
-Received: from mx2.suse.de (cantor2.suse.de. [195.135.220.15])
-        by gmr-mx.google.com with ESMTPS id t6si543904wiz.0.2015.07.03.11.29.52
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1 cipher=ECDHE-RSA-RC4-SHA bits=128/128);
-        Fri, 03 Jul 2015 11:29:52 -0700 (PDT)
-Date: Fri, 3 Jul 2015 20:29:25 +0200
-From: Borislav Petkov <bp@suse.de>
-To: Diego Ercolani <diego.ercolani@gmail.com>
-Cc: Huang Adrian <adrianhuang0701@gmail.com>, Egbert Eich <eich@suse.com>,
-	rtc-linux@googlegroups.com, Thomas Gleixner <tglx@linutronix.de>,
-	John Stultz <john.stultz@linaro.org>,
-	Nagananda Chumbalkar <nchumbalkar@lenovo.com>,
-	Max Asbock <amax@lenovo.com>, Adrian Huang <ahuang12@lenovo.com>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Alessandro Zummo <a.zummo@towertech.it>
-Subject: [rtc-linux] Re: [RFC PATCH v3 0/2] rtc: Prevent the automatic reboot
- after powering off the system
-Message-ID: <20150703182925.GI2838@pd.tnic>
-References: <1435642598-5073-1-git-send-email-adrianhuang0701@gmail.com>
- <CAHKZfL0H1mrj8pScggejtFStaA66zX43RZRYQnkYsZ4gVb-ojQ@mail.gmail.com>
- <CANoYJu=0L7yUfS2Z87OJXc+_+Z6DmQ_oGZvg2AygS_2DTOixxQ@mail.gmail.com>
- <20150701163946.GA30503@pd.tnic>
- <CANoYJunhbZB_P97u2Hu=i_u6-Xxk-cbe2FLHQ7skqKQyF10uTw@mail.gmail.com>
+Return-Path: <rtc-linux+bncBDZJ3QO3SMHBB7HIY6WQKGQEMKDYJ2Y@googlegroups.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <CANoYJunhbZB_P97u2Hu=i_u6-Xxk-cbe2FLHQ7skqKQyF10uTw@mail.gmail.com>
+Received: from mail-wi0-x232.google.com (mail-wi0-x232.google.com. [2a00:1450:400c:c05::232])
+        by gmr-mx.google.com with ESMTPS id gt9si82743wib.2.2015.07.24.01.17.00
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Fri, 24 Jul 2015 01:17:00 -0700 (PDT)
+Received: by mail-wi0-x232.google.com with SMTP id xm9so17613704wib.0
+        for <rtc-linux@googlegroups.com>; Fri, 24 Jul 2015 01:17:00 -0700 (PDT)
+From: Henri Roosen <henriroosen@gmail.com>
+To: rtc-linux@googlegroups.com
+Cc: alexandre.belloni@free-electrons.com,
+	a.zummo@towertech.it,
+	Henri Roosen <henriroosen@gmail.com>
+Subject: [rtc-linux] [PATCH v3] rtc: rtc-rx8025: remove obsolete
+ local_irq_disable() and local_irq_enable() for rtc_update_irq()
+Date: Fri, 24 Jul 2015 10:16:06 +0200
+Message-Id: <1437725766-4031-1-git-send-email-henriroosen@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -35,23 +27,40 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On Fri, Jul 03, 2015 at 08:19:58PM +0200, Diego Ercolani wrote:
-> Thank you Borislav.
-> 
-> Green Light for me!
-> 
-> It works
+Since commit e6229bec25be ("rtc: make rtc_update_irq callable with irqs
+enabled") rtc_update_irq() is callable with irqs enabled.
 
-Thanks for testing!
+Signed-off-by: Henri Roosen <henriroosen@gmail.com>
+---
+ drivers/rtc/rtc-rx8025.c | 4 ----
+ 1 file changed, 4 deletions(-)
 
-Adrian, I think you can add Diego's Tested-by to your submission.
-
+diff --git a/drivers/rtc/rtc-rx8025.c b/drivers/rtc/rtc-rx8025.c
+index e6298e0..9be9c37 100644
+--- a/drivers/rtc/rtc-rx8025.c
++++ b/drivers/rtc/rtc-rx8025.c
+@@ -161,9 +161,7 @@ static void rx8025_work(struct work_struct *work)
+ 	if (status & RX8025_BIT_CTRL2_CTFG) {
+ 		/* periodic */
+ 		status &= ~RX8025_BIT_CTRL2_CTFG;
+-		local_irq_disable();
+ 		rtc_update_irq(rx8025->rtc, 1, RTC_PF | RTC_IRQF);
+-		local_irq_enable();
+ 	}
+ 
+ 	if (status & RX8025_BIT_CTRL2_DAFG) {
+@@ -172,9 +170,7 @@ static void rx8025_work(struct work_struct *work)
+ 		if (rx8025_write_reg(client, RX8025_REG_CTRL1,
+ 				     rx8025->ctrl1 & ~RX8025_BIT_CTRL1_DALE))
+ 			goto out;
+-		local_irq_disable();
+ 		rtc_update_irq(rx8025->rtc, 1, RTC_AF | RTC_IRQF);
+-		local_irq_enable();
+ 	}
+ 
+ 	/* acknowledge IRQ */
 -- 
-Regards/Gruss,
-    Boris.
-
-ECO tip #101: Trim your mails when you reply.
---
+2.1.4
 
 -- 
 -- 
