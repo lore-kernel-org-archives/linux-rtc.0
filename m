@@ -1,21 +1,26 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBFF4WCWQKGQEPZRNISY@googlegroups.com>
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id c3si279789wiz.2.2015.07.19.15.00.51
-        for <rtc-linux@googlegroups.com>;
-        Sun, 19 Jul 2015 15:00:51 -0700 (PDT)
-Date: Mon, 20 Jul 2015 00:00:48 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: rnd4@dave-tech.it
-Cc: a.zummo@towertech.it, rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org, Andrea Scian <andrea.scian@dave.eu>
-Subject: Re: [rtc-linux] [PATCH] driver: rtc: use rtc_valid_tm() error code
- when reading date/time
-Message-ID: <20150719220048.GA15539@piout.net>
-References: <557EF5DD.9070300@dave-tech.it>
- <1434447319-23007-1-git-send-email-rnd4@dave-tech.it>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1434447319-23007-1-git-send-email-rnd4@dave-tech.it>
+Return-Path: <rtc-linux+bncBDKZNNNLXAHBBK7VY2WQKGQEZIMBCCA@googlegroups.com>
+Received: from mailout3.w1.samsung.com (mailout3.w1.samsung.com. [210.118.77.13])
+        by gmr-mx.google.com with ESMTPS id ff6si1243391pac.2.2015.07.23.21.10.19
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1 cipher=RC4-SHA bits=128/128);
+        Thu, 23 Jul 2015 21:10:19 -0700 (PDT)
+Received: from eucpsbgm2.samsung.com (unknown [203.254.199.245])
+ by mailout3.w1.samsung.com
+ (Oracle Communications Messaging Server 7.0.5.31.0 64bit (built May  5 2014))
+ with ESMTP id <0NRZ007BN4X3YW30@mailout3.w1.samsung.com> for
+ rtc-linux@googlegroups.com; Fri, 24 Jul 2015 05:10:15 +0100 (BST)
+Message-id: <55B1BAAA.8080800@samsung.com>
+Date: Fri, 24 Jul 2015 13:10:18 +0900
+From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+MIME-version: 1.0
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+ Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
+ linux-kernel@vger.kernel.org
+Subject: [rtc-linux] Re: [PATCH v2 1/3] RTC: make rtc_does_wakealarm() return boolean
+References: <1437692468-24788-1-git-send-email-dmitry.torokhov@gmail.com>
+In-reply-to: <1437692468-24788-1-git-send-email-dmitry.torokhov@gmail.com>
+Content-type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -26,30 +31,21 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On 16/06/2015 at 11:35:19 +0200, rnd4@dave-tech.it wrote :
-> From: Andrea Scian <andrea.scian@dave.eu>
+On 24.07.2015 08:01, Dmitry Torokhov wrote:
+> Users of rtc_does_wakealarm() return value treat it as boolean so let's
+> change the signature accordingly.
 > 
-> There's a wrong commend in some RTC driver that say it's better to ignore
-> rtc_valid_tm() when reading RTC timestamp. However this is wrong and is
-> better to return to the userspace the an error if timestamp is not valid.
-> 
-> Signed-off-by: Andrea Scian <andrea.scian@dave.eu>
+> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 > ---
->  drivers/rtc/rtc-isl12022.c |    7 +------
->  drivers/rtc/rtc-pcf2123.c  |    8 +-------
->  drivers/rtc/rtc-pcf2127.c  |    8 +-------
->  drivers/rtc/rtc-pcf8563.c  |    8 +-------
->  4 files changed, 4 insertions(+), 27 deletions(-)
-> 
+>  drivers/rtc/rtc-sysfs.c | 5 +++--
+>  1 file changed, 3 insertions(+), 2 deletions(-)
 
-Applied, after dropping the pcf8563 part as it was part of another
-patch.
+Thanks for splitting this.
 
+Reviewed-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
 
--- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+Best regards,
+Krzysztof
 
 -- 
 -- 
