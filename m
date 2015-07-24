@@ -1,38 +1,22 @@
-Return-Path: <rtc-linux+bncBDSMJPPV7QFRB4NZS6WQKGQEYQVF5UQ@googlegroups.com>
-Received: from e38.co.us.ibm.com (e38.co.us.ibm.com. [32.97.110.159])
-        by gmr-mx.google.com with ESMTPS id ra16si341172pac.0.2015.07.14.21.09.20
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1 cipher=AES128-SHA bits=128/128);
-        Tue, 14 Jul 2015 21:09:21 -0700 (PDT)
-Received: from /spool/local
-	by e38.co.us.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-	for <rtc-linux@googlegroups.com> from <stewart@linux.vnet.ibm.com>;
-	Tue, 14 Jul 2015 22:09:20 -0600
-Received: from b03cxnp08026.gho.boulder.ibm.com (b03cxnp08026.gho.boulder.ibm.com [9.17.130.18])
-	by d03dlp01.boulder.ibm.com (Postfix) with ESMTP id 82CBF1FF0042
-	for <rtc-linux@googlegroups.com>; Tue, 14 Jul 2015 22:00:27 -0600 (MDT)
-Received: from d03av04.boulder.ibm.com (d03av04.boulder.ibm.com [9.17.195.170])
-	by b03cxnp08026.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id t6F48mQE46006298
-	for <rtc-linux@googlegroups.com>; Tue, 14 Jul 2015 21:08:48 -0700
-Received: from d03av04.boulder.ibm.com (loopback [127.0.0.1])
-	by d03av04.boulder.ibm.com (8.14.4/8.14.4/NCO v10.0 AVout) with ESMTP id t6F49GSI003731
-	for <rtc-linux@googlegroups.com>; Tue, 14 Jul 2015 22:09:16 -0600
-From: Stewart Smith <stewart@linux.vnet.ibm.com>
-To: Vaibhav Jain <vaibhav@linux.vnet.ibm.com>, linux-kernel@vger.kernel.org
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
-        Michael Neuling <mikey@neuling.org>, rtc-linux@googlegroups.com,
-        Vaibhav Jain <vaibhav@linux.vnet.ibm.com>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        Neelesh Gupta <neelegup@linux.vnet.ibm.com>,
-        linuxppc-dev@lists.ozlabs.org
-Subject: [rtc-linux] Re: [PATCH] rtc/rtc-opal: Enable alarms only when opal
- supports tpo
-In-Reply-To: <1436860708-17058-1-git-send-email-vaibhav@linux.vnet.ibm.com>
-References: <1436860708-17058-1-git-send-email-vaibhav@linux.vnet.ibm.com>
-Date: Wed, 15 Jul 2015 14:09:15 +1000
-Message-ID: <m3egkaukno.fsf@oc8180480414.ibm.com>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBZHQY6WQKGQEESDMYJY@googlegroups.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id v8si239583wiw.1.2015.07.24.01.33.40
+        for <rtc-linux@googlegroups.com>;
+        Fri, 24 Jul 2015 01:33:40 -0700 (PDT)
+Date: Fri, 24 Jul 2015 10:33:39 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Roosen Henri <Henri.Roosen@ginzinger.com>
+Cc: "rtc-linux@googlegroups.com" <rtc-linux@googlegroups.com>,
+	"a.zummo@towertech.it" <a.zummo@towertech.it>
+Subject: [rtc-linux] Re: [PATCH] rtc: rtc-rx8025: remove obsolete
+ local_irq_disable() and local_irq_enable() for rtc_update_irq()
+Message-ID: <20150724083339.GG14893@piout.net>
+References: <FC629F1A536C6F42B960B5E32E20BD35922297@exc2.buero.ginzinger.com>
+ <20150722220529.GQ2853@piout.net>
+ <FC629F1A536C6F42B960B5E32E20BD35922388@exc2.buero.ginzinger.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <FC629F1A536C6F42B960B5E32E20BD35922388@exc2.buero.ginzinger.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -43,31 +27,25 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Vaibhav Jain <vaibhav@linux.vnet.ibm.com> writes:
-> rtc-opal driver provides support for rtc alarms via
-> timed-power-on(tpo). However some Power platforms like BML use a fake
-> rtc clock and don't support tpo. Such platforms are indicated by the
-> missing 'has-tpo' property in the device tree.
->
-> Current implementation however enables callback for
-> rtc_class_ops.read/set alarm irrespective of the tpo support from the
-> platform. This results in a failed opal call when kernel tries to read
-> an existing alarms via opal_get_tpo_time during rtc device registration.
->
-> This patch fixes this issue by setting opal_rtc_ops.read/set_alarm
-> callback pointers only when tpo is supported.
->
-> Acked-by: Michael Neuling <mikey@neuling.org>
-> Acked-by: Neelesh Gupta <neelegup@linux.vnet.ibm.com>
-> Signed-off-by: Vaibhav Jain <vaibhav@linux.vnet.ibm.com>
+Hi,
 
-Acked-by: Stewart Smith <stewart@linux.vnet.ibm.com>
+On 24/07/2015 at 08:14:58 +0000, Roosen Henri wrote :
+> >
+> > Seems good to me, I had a similar cleanup that I didn't send yet. do you have
+> > an rx8025? I have more cleanups and I can't test them.
+> >
+> 
+> Unfortunately I don't have a rx8025. But I have a system with a rx8803. The manufacturer is providing a driver which is derived from the rx8025 driver.
+> 
 
-FWIW I'm updating OPAL docs with this. The TPO calls aren't actually
-documented :(
+Ok, my cleanup is then adding support for the rx8803. The provided
+driver is actually really bad. I'll submit this weekend.
 
-In future, it'd be great if there was an accompanying skiboot patch
-updating the documentation there too.
+
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
 -- 
 -- 
