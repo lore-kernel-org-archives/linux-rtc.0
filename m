@@ -1,31 +1,29 @@
-Return-Path: <rtc-linux+bncBC2PPF5ZT4BBBTVE3OWAKGQEQYQZCCA@googlegroups.com>
-Received: from mail-la0-x22f.google.com (mail-la0-x22f.google.com. [2a00:1450:4010:c03::22f])
-        by gmr-mx.google.com with ESMTPS id h8si307593lbd.3.2015.07.03.11.19.58
+Return-Path: <rtc-linux+bncBD5O5IWPJMIL7JWVVUCRUBA2LP4KO@googlegroups.com>
+MIME-Version: 1.0
+Received: from mail-wi0-x22b.google.com (mail-wi0-x22b.google.com. [2a00:1450:400c:c05::22b])
+        by gmr-mx.google.com with ESMTPS id t6si246143wiz.0.2015.07.26.14.38.07
         for <rtc-linux@googlegroups.com>
         (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 03 Jul 2015 11:19:58 -0700 (PDT)
-Received: by mail-la0-x22f.google.com with SMTP id h6so93111363lag.2
-        for <rtc-linux@googlegroups.com>; Fri, 03 Jul 2015 11:19:58 -0700 (PDT)
-MIME-Version: 1.0
-In-Reply-To: <20150701163946.GA30503@pd.tnic>
-References: <1435642598-5073-1-git-send-email-adrianhuang0701@gmail.com>
-	<CAHKZfL0H1mrj8pScggejtFStaA66zX43RZRYQnkYsZ4gVb-ojQ@mail.gmail.com>
-	<CANoYJu=0L7yUfS2Z87OJXc+_+Z6DmQ_oGZvg2AygS_2DTOixxQ@mail.gmail.com>
-	<20150701163946.GA30503@pd.tnic>
-Date: Fri, 3 Jul 2015 20:19:58 +0200
-Message-ID: <CANoYJunhbZB_P97u2Hu=i_u6-Xxk-cbe2FLHQ7skqKQyF10uTw@mail.gmail.com>
-Subject: [rtc-linux] Re: [RFC PATCH v3 0/2] rtc: Prevent the automatic reboot
- after powering off the system
-From: Diego Ercolani <diego.ercolani@gmail.com>
-To: Borislav Petkov <bp@suse.de>
-Cc: Huang Adrian <adrianhuang0701@gmail.com>, Egbert Eich <eich@suse.com>, rtc-linux@googlegroups.com,
-	Thomas Gleixner <tglx@linutronix.de>, John Stultz <john.stultz@linaro.org>,
-	Nagananda Chumbalkar <nchumbalkar@lenovo.com>, Max Asbock <amax@lenovo.com>,
-	Adrian Huang <ahuang12@lenovo.com>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Alessandro Zummo <a.zummo@towertech.it>
-Content-Type: multipart/alternative; boundary=001a11c3b208806df90519fc9ac9
+        Sun, 26 Jul 2015 14:38:07 -0700 (PDT)
+Received: by mail-wi0-x22b.google.com with SMTP id ud3so117707903wib.1
+        for <rtc-linux@googlegroups.com>; Sun, 26 Jul 2015 14:38:07 -0700 (PDT)
+From: Philippe Reynes <tremyfr@gmail.com>
+To: a.zummo@towertech.it,
+	alexandre.belloni@free-electrons.com,
+	shawn.guo@linaro.org,
+	kernel@pengutronix.de,
+	linux@arm.linux.org.uk
+Cc: linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org,
+	rtc-linux@googlegroups.com,
+	Philippe Reynes <tremyfr@gmail.com>
+Subject: [rtc-linux] [PATCH v5 2/6] imx35: define two clocks for rtc
+Date: Sun, 26 Jul 2015 23:37:49 +0200
+Message-Id: <1437946673-7402-3-git-send-email-tremyfr@gmail.com>
+In-Reply-To: <1437946673-7402-1-git-send-email-tremyfr@gmail.com>
+References: <1437946673-7402-1-git-send-email-tremyfr@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -35,31 +33,48 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
---001a11c3b208806df90519fc9ac9
-Content-Type: text/plain; charset=UTF-8
+The imx35 don't define clocks for rtc.
+This patch add two clocks, as needed
+by the mxc rtc driver.
 
-Thank you Borislav.
+Signed-off-by: Philippe Reynes <tremyfr@gmail.com>
+---
+ drivers/clk/imx/clk-imx35.c |    6 +++++-
+ 1 files changed, 5 insertions(+), 1 deletions(-)
 
-Green Light for me!
-
-It works
-
-2015-07-01 18:39 GMT+02:00 Borislav Petkov <bp@suse.de>:
-
-> On Tue, Jun 30, 2015 at 08:59:45AM +0200, Diego Ercolani wrote:
-> > I'll be waiting for the built kernel.
->
-> Here you go:
->
-> http://beta.suse.com/private/bpetkov/
->
-> --
-> Regards/Gruss,
->     Boris.
->
-> ECO tip #101: Trim your mails when you reply.
-> --
->
+diff --git a/drivers/clk/imx/clk-imx35.c b/drivers/clk/imx/clk-imx35.c
+index 69138ba..8623cd4 100644
+--- a/drivers/clk/imx/clk-imx35.c
++++ b/drivers/clk/imx/clk-imx35.c
+@@ -66,7 +66,7 @@ static const char *std_sel[] = {"ppll", "arm"};
+ static const char *ipg_per_sel[] = {"ahb_per_div", "arm_per_div"};
+ 
+ enum mx35_clks {
+-	ckih, mpll, ppll, mpll_075, arm, hsp, hsp_div, hsp_sel, ahb, ipg,
++	ckih, ckil, mpll, ppll, mpll_075, arm, hsp, hsp_div, hsp_sel, ahb, ipg,
+ 	arm_per_div, ahb_per_div, ipg_per, uart_sel, uart_div, esdhc_sel,
+ 	esdhc1_div, esdhc2_div, esdhc3_div, spdif_sel, spdif_div_pre,
+ 	spdif_div_post, ssi_sel, ssi1_div_pre, ssi1_div_post, ssi2_div_pre,
+@@ -107,6 +107,7 @@ int __init mx35_clocks_init(void)
+ 	}
+ 
+ 	clk[ckih] = imx_clk_fixed("ckih", 24000000);
++	clk[ckil] = imx_clk_fixed("ckih", 32768);
+ 	clk[mpll] = imx_clk_pllv1(IMX_PLLV1_IMX35, "mpll", "ckih", base + MX35_CCM_MPCTL);
+ 	clk[ppll] = imx_clk_pllv1(IMX_PLLV1_IMX35, "ppll", "ckih", base + MX35_CCM_PPCTL);
+ 
+@@ -258,6 +259,9 @@ int __init mx35_clocks_init(void)
+ 	clk_register_clkdev(clk[ipg], "ipg", "imx21-uart.1");
+ 	clk_register_clkdev(clk[uart3_gate], "per", "imx21-uart.2");
+ 	clk_register_clkdev(clk[ipg], "ipg", "imx21-uart.2");
++	/* i.mx35 has the i.mx21 type rtc */
++	clk_register_clkdev(clk[ckil], "ref", "imx21-rtc");
++	clk_register_clkdev(clk[rtc_gate], "ipg", "imx21-rtc");
+ 	clk_register_clkdev(clk[usb_div], "per", "mxc-ehci.0");
+ 	clk_register_clkdev(clk[ipg], "ipg", "mxc-ehci.0");
+ 	clk_register_clkdev(clk[usbotg_gate], "ahb", "mxc-ehci.0");
+-- 
+1.7.4.4
 
 -- 
 -- 
@@ -71,51 +86,3 @@ before submitting a driver.
 You received this message because you are subscribed to the Google Groups "rtc-linux" group.
 To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
-
---001a11c3b208806df90519fc9ac9
-Content-Type: text/html; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-
-<div dir=3D"ltr"><div><div>Thank you Borislav.<br><br></div>Green Light for=
- me!<br><br></div>It works<br></div><div class=3D"gmail_extra"><br><div cla=
-ss=3D"gmail_quote">2015-07-01 18:39 GMT+02:00 Borislav Petkov <span dir=3D"=
-ltr">&lt;<a href=3D"mailto:bp@suse.de" target=3D"_blank">bp@suse.de</a>&gt;=
-</span>:<br><blockquote class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;bo=
-rder-left:1px #ccc solid;padding-left:1ex">On Tue, Jun 30, 2015 at 08:59:45=
-AM +0200, Diego Ercolani wrote:<br>
-&gt; I&#39;ll be waiting for the built kernel.<br>
-<br>
-Here you go:<br>
-<br>
-<a href=3D"http://beta.suse.com/private/bpetkov/" rel=3D"noreferrer" target=
-=3D"_blank">http://beta.suse.com/private/bpetkov/</a><br>
-<span class=3D"HOEnZb"><font color=3D"#888888"><br>
---<br>
-Regards/Gruss,<br>
-=C2=A0 =C2=A0 Boris.<br>
-<br>
-ECO tip #101: Trim your mails when you reply.<br>
---<br>
-</font></span></blockquote></div><br></div>
-
-<p></p>
-
--- <br />
--- <br />
-You received this message because you are subscribed to &quot;rtc-linux&quo=
-t;.<br />
-Membership options at <a href=3D"http://groups.google.com/group/rtc-linux">=
-http://groups.google.com/group/rtc-linux</a> .<br />
-Please read <a href=3D"http://groups.google.com/group/rtc-linux/web/checkli=
-st">http://groups.google.com/group/rtc-linux/web/checklist</a><br />
-before submitting a driver.<br />
---- <br />
-You received this message because you are subscribed to the Google Groups &=
-quot;rtc-linux&quot; group.<br />
-To unsubscribe from this group and stop receiving emails from it, send an e=
-mail to <a href=3D"mailto:rtc-linux+unsubscribe@googlegroups.com">rtc-linux=
-+unsubscribe@googlegroups.com</a>.<br />
-For more options, visit <a href=3D"https://groups.google.com/d/optout">http=
-s://groups.google.com/d/optout</a>.<br />
-
---001a11c3b208806df90519fc9ac9--
