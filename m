@@ -1,29 +1,22 @@
-Return-Path: <rtc-linux+bncBAABBA6AXCWQKGQEWQK4ZOQ@googlegroups.com>
-Received: from mail1.bemta3.messagelabs.com (mail1.bemta3.messagelabs.com. [195.245.230.167])
-        by gmr-mx.google.com with ESMTPS id v8si521751wiw.1.2015.07.21.03.33.38
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 21 Jul 2015 03:33:38 -0700 (PDT)
-Message-ID: <f899992aaa9b5ea54cb2e27c1cabf626d5969c07.1437474547.git.stwiss.opensource@diasemi.com>
-In-Reply-To: <cover.1437474547.git.stwiss.opensource@diasemi.com>
-References: <cover.1437474547.git.stwiss.opensource@diasemi.com>
-From: S Twiss <stwiss.opensource@diasemi.com>
-Date: Tue, 21 Jul 2015 11:29:06 +0100
-Subject: [rtc-linux] [PATCH V3 2/3] devicetree: da9062: Add device tree
- bindings for DA9062 RTC
-To: DEVICETREE <devicetree@vger.kernel.org>, Ian Campbell
-	<ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>,
-	LINUXINPUT <linux-input@vger.kernel.org>, LINUXKERNEL
-	<linux-kernel@vger.kernel.org>, Mark Rutland <mark.rutland@arm.com>, Pawel
- Moll <pawel.moll@arm.com>, RTCLINUX <rtc-linux@googlegroups.com>, Rob Herring
-	<robh+dt@kernel.org>, S Twiss <stwiss.opensource@diasemi.com>
-CC: Alessandro Zummo <a.zummo@towertech.it>, Alexandre Belloni
-	<alexandre.belloni@free-electrons.com>, David Dajun Chen
-	<david.chen@diasemi.com>, Lee Jones <lee.jones@linaro.org>, Samuel Ortiz
-	<sameo@linux.intel.com>, Support Opensource <support.opensource@diasemi.com>
+Return-Path: <rtc-linux+bncBCAMRWGQV4CRBPVL2WWQKGQEO2YMNOQ@googlegroups.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Received: from mail.mleia.com (li271-223.members.linode.com. [178.79.152.223])
+        by gmr-mx.google.com with ESMTPS id t6si247181wiz.0.2015.07.26.14.48.46
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Sun, 26 Jul 2015 14:48:46 -0700 (PDT)
+From: Vladimir Zapolskiy <vz@mleia.com>
+To: Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: rtc-linux@googlegroups.com,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: [rtc-linux] [PATCH 06/11] rtc: ds1553: clean up ds1553_nvram_read()/ds1553_nvram_write()
+Date: Mon, 27 Jul 2015 00:48:31 +0300
+Message-Id: <1437947316-5652-7-git-send-email-vz@mleia.com>
+In-Reply-To: <1437947316-5652-1-git-send-email-vz@mleia.com>
+References: <1437947316-5652-1-git-send-email-vz@mleia.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -33,57 +26,38 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-From: S Twiss <stwiss.opensource@diasemi.com>
+The change removes redundant sysfs binary file boundary checks, since
+this task is already done on caller side in fs/sysfs/file.c
 
-Add device tree bindings for the DA9062 RTC driver component
-
-Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
-
+Signed-off-by: Vladimir Zapolskiy <vz@mleia.com>
 ---
-Checks performed with linux-next/next-20150708/scripts/checkpatch.pl
- da9062.txt                total: 0 errors, 0 warnings, 88 lines checked
-This patch applies against linux-next and next-20150708 
+ drivers/rtc/rtc-ds1553.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-
- Documentation/devicetree/bindings/mfd/da9062.txt | 9 +++++++++
- 1 file changed, 9 insertions(+)
-
-diff --git a/Documentation/devicetree/bindings/mfd/da9062.txt b/Documentation/devicetree/bindings/mfd/da9062.txt
-index 5765ed9..38802b5 100644
---- a/Documentation/devicetree/bindings/mfd/da9062.txt
-+++ b/Documentation/devicetree/bindings/mfd/da9062.txt
-@@ -5,6 +5,7 @@ DA9062 consists of a large and varied group of sub-devices:
- Device                   Supply Names    Description
- ------                   ------------    -----------
- da9062-regulator        :               : LDOs & BUCKs
-+da9062-rtc              :               : Real-Time Clock
- da9062-watchdog         :               : Watchdog Timer
+diff --git a/drivers/rtc/rtc-ds1553.c b/drivers/rtc/rtc-ds1553.c
+index a24e091..38422ab 100644
+--- a/drivers/rtc/rtc-ds1553.c
++++ b/drivers/rtc/rtc-ds1553.c
+@@ -245,7 +245,7 @@ static ssize_t ds1553_nvram_read(struct file *filp, struct kobject *kobj,
+ 	void __iomem *ioaddr = pdata->ioaddr;
+ 	ssize_t count;
  
- ======
-@@ -41,6 +42,10 @@ Sub-nodes:
-   Documentation/devicetree/bindings/regulator/regulator.txt
+-	for (count = 0; size > 0 && pos < RTC_OFFSET; count++, size--)
++	for (count = 0; count < size; count++)
+ 		*buf++ = readb(ioaddr + pos++);
+ 	return count;
+ }
+@@ -260,7 +260,7 @@ static ssize_t ds1553_nvram_write(struct file *filp, struct kobject *kobj,
+ 	void __iomem *ioaddr = pdata->ioaddr;
+ 	ssize_t count;
  
- 
-+- rtc : This node defines settings required for the Real-Time Clock associated
-+  with the DA9062. There are currently no entries in this binding, however
-+  compatible = "dlg,da9062-rtc" should be added if a node is created.
-+
- - watchdog: This node defines the settings for the watchdog driver associated
-   with the DA9062 PMIC. The compatible = "dlg,da9062-watchdog" should be added
-   if a node is created.
-@@ -55,6 +60,10 @@ Example:
- 		interrupts = <11 IRQ_TYPE_LEVEL_LOW>;
- 		interrupt-controller;
- 
-+		rtc {
-+			compatible = "dlg,da9062-rtc";
-+		};
-+
- 		watchdog {
- 			compatible = "dlg,da9062-watchdog";
- 		};
+-	for (count = 0; size > 0 && pos < RTC_OFFSET; count++, size--)
++	for (count = 0; count < size; count++)
+ 		writeb(*buf++, ioaddr + pos++);
+ 	return count;
+ }
 -- 
-end-of-patch for PATCH V3
+2.1.4
 
 -- 
 -- 
