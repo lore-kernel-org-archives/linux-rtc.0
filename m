@@ -1,27 +1,20 @@
-Return-Path: <rtc-linux+bncBD5O5IWPJMIKBL64VQCRUBC2B2Y7E@googlegroups.com>
+Return-Path: <rtc-linux+bncBCAMRWGQV4CRBPNL2WWQKGQEYN7ZSUA@googlegroups.com>
 MIME-Version: 1.0
-Received: from mail-wg0-x233.google.com (mail-wg0-x233.google.com. [2a00:1450:400c:c00::233])
-        by gmr-mx.google.com with ESMTPS id da3si586381wib.1.2015.07.03.16.15.44
+Received: from mail.mleia.com (li271-223.members.linode.com. [178.79.152.223])
+        by gmr-mx.google.com with ESMTPS id c3si255330wiz.2.2015.07.26.14.48.45
         for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 03 Jul 2015 16:15:44 -0700 (PDT)
-Received: by mail-wg0-x233.google.com with SMTP id u7so97869570wgu.3
-        for <rtc-linux@googlegroups.com>; Fri, 03 Jul 2015 16:15:44 -0700 (PDT)
-From: Philippe Reynes <tremyfr@gmail.com>
-To: a.zummo@towertech.it,
-	alexandre.belloni@free-electrons.com,
-	shawn.guo@linaro.org,
-	kernel@pengutronix.de,
-	linux@arm.linux.org.uk
-Cc: linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org,
-	rtc-linux@googlegroups.com,
-	Philippe Reynes <tremyfr@gmail.com>
-Subject: [rtc-linux] [PATCH v4 2/7] imx35: define two clocks for rtc
-Date: Sat,  4 Jul 2015 01:15:15 +0200
-Message-Id: <1435965320-1478-3-git-send-email-tremyfr@gmail.com>
-In-Reply-To: <1435965320-1478-1-git-send-email-tremyfr@gmail.com>
-References: <1435965320-1478-1-git-send-email-tremyfr@gmail.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Sun, 26 Jul 2015 14:48:45 -0700 (PDT)
+From: Vladimir Zapolskiy <vz@mleia.com>
+To: Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: rtc-linux@googlegroups.com,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: [rtc-linux] [PATCH 02/11] rtc: ds1305: clean up ds1305_nvram_read()/ds1305_nvram_write()
+Date: Mon, 27 Jul 2015 00:48:27 +0300
+Message-Id: <1437947316-5652-3-git-send-email-vz@mleia.com>
+In-Reply-To: <1437947316-5652-1-git-send-email-vz@mleia.com>
+References: <1437947316-5652-1-git-send-email-vz@mleia.com>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -33,48 +26,52 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-The imx35 don't define clocks for rtc.
-This patch add two clocks, as needed
-by the mxc rtc driver.
+The change removes redundant sysfs binary file boundary checks, since
+this task is already done on caller size in fs/sysfs/file.c
 
-Signed-off-by: Philippe Reynes <tremyfr@gmail.com>
+Signed-off-by: Vladimir Zapolskiy <vz@mleia.com>
 ---
- drivers/clk/imx/clk-imx35.c |    6 +++++-
- 1 files changed, 5 insertions(+), 1 deletions(-)
+ drivers/rtc/rtc-ds1305.c | 18 ------------------
+ 1 file changed, 18 deletions(-)
 
-diff --git a/drivers/clk/imx/clk-imx35.c b/drivers/clk/imx/clk-imx35.c
-index 69138ba..c5052b6 100644
---- a/drivers/clk/imx/clk-imx35.c
-+++ b/drivers/clk/imx/clk-imx35.c
-@@ -66,7 +66,7 @@ static const char *std_sel[] = {"ppll", "arm"};
- static const char *ipg_per_sel[] = {"ahb_per_div", "arm_per_div"};
+diff --git a/drivers/rtc/rtc-ds1305.c b/drivers/rtc/rtc-ds1305.c
+index 12b0715..baa5d04 100644
+--- a/drivers/rtc/rtc-ds1305.c
++++ b/drivers/rtc/rtc-ds1305.c
+@@ -538,15 +538,6 @@ ds1305_nvram_read(struct file *filp, struct kobject *kobj,
  
- enum mx35_clks {
--	ckih, mpll, ppll, mpll_075, arm, hsp, hsp_div, hsp_sel, ahb, ipg,
-+	ckih, ckil, mpll, ppll, mpll_075, arm, hsp, hsp_div, hsp_sel, ahb, ipg,
- 	arm_per_div, ahb_per_div, ipg_per, uart_sel, uart_div, esdhc_sel,
- 	esdhc1_div, esdhc2_div, esdhc3_div, spdif_sel, spdif_div_pre,
- 	spdif_div_post, ssi_sel, ssi1_div_pre, ssi1_div_post, ssi2_div_pre,
-@@ -107,6 +107,7 @@ int __init mx35_clocks_init(void)
- 	}
+ 	spi = container_of(kobj, struct spi_device, dev.kobj);
  
- 	clk[ckih] = imx_clk_fixed("ckih", 24000000);
-+	clk[ckil] = imx_clk_fixed("ckih", 32768);
- 	clk[mpll] = imx_clk_pllv1(IMX_PLLV1_IMX35, "mpll", "ckih", base + MX35_CCM_MPCTL);
- 	clk[ppll] = imx_clk_pllv1(IMX_PLLV1_IMX35, "ppll", "ckih", base + MX35_CCM_PPCTL);
+-	if (unlikely(off >= DS1305_NVRAM_LEN))
+-		return 0;
+-	if (count >= DS1305_NVRAM_LEN)
+-		count = DS1305_NVRAM_LEN;
+-	if ((off + count) > DS1305_NVRAM_LEN)
+-		count = DS1305_NVRAM_LEN - off;
+-	if (unlikely(!count))
+-		return count;
+-
+ 	addr = DS1305_NVRAM + off;
+ 	msg_init(&m, x, &addr, count, NULL, buf);
  
-@@ -258,6 +259,9 @@ int __init mx35_clocks_init(void)
- 	clk_register_clkdev(clk[ipg], "ipg", "imx21-uart.1");
- 	clk_register_clkdev(clk[uart3_gate], "per", "imx21-uart.2");
- 	clk_register_clkdev(clk[ipg], "ipg", "imx21-uart.2");
-+	/* i.mx35 has the i.mx21 type rtc */
-+	clk_register_clkdev(clk[ckil], "rtc", "imx21-rtc");
-+	clk_register_clkdev(clk[rtc_gate], "ipg", "imx21-rtc");
- 	clk_register_clkdev(clk[usb_div], "per", "mxc-ehci.0");
- 	clk_register_clkdev(clk[ipg], "ipg", "mxc-ehci.0");
- 	clk_register_clkdev(clk[usbotg_gate], "ahb", "mxc-ehci.0");
+@@ -569,15 +560,6 @@ ds1305_nvram_write(struct file *filp, struct kobject *kobj,
+ 
+ 	spi = container_of(kobj, struct spi_device, dev.kobj);
+ 
+-	if (unlikely(off >= DS1305_NVRAM_LEN))
+-		return -EFBIG;
+-	if (count >= DS1305_NVRAM_LEN)
+-		count = DS1305_NVRAM_LEN;
+-	if ((off + count) > DS1305_NVRAM_LEN)
+-		count = DS1305_NVRAM_LEN - off;
+-	if (unlikely(!count))
+-		return count;
+-
+ 	addr = (DS1305_WRITE | DS1305_NVRAM) + off;
+ 	msg_init(&m, x, &addr, count, buf, NULL);
+ 
 -- 
-1.7.4.4
+2.1.4
 
 -- 
 -- 
