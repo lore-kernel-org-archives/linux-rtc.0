@@ -1,23 +1,20 @@
-Return-Path: <rtc-linux+bncBDP6N55ZUYDRBPHEYWWQKGQENBBQFLQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBCAMRWGQV4CRBQFL2WWQKGQEN6ABK6A@googlegroups.com>
 MIME-Version: 1.0
-Received: from mail-pd0-x22c.google.com (mail-pd0-x22c.google.com. [2607:f8b0:400e:c02::22c])
-        by gmr-mx.google.com with ESMTPS id x3si1114149pdh.2.2015.07.23.16.01.16
+Received: from mail.mleia.com (li271-223.members.linode.com. [178.79.152.223])
+        by gmr-mx.google.com with ESMTPS id t6si247184wiz.0.2015.07.26.14.48.47
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 23 Jul 2015 16:01:16 -0700 (PDT)
-Received: by pdbbh15 with SMTP id bh15so3235766pdb.1
-        for <rtc-linux@googlegroups.com>; Thu, 23 Jul 2015 16:01:16 -0700 (PDT)
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
-	rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org,
-	Krzysztof Kozlowski <k.kozlowski@samsung.com>
-Subject: [rtc-linux] [PATCH v2 2/3] RTC: switch wakealarm attribute to DEVICE_ATTR_RW
-Date: Thu, 23 Jul 2015 16:01:07 -0700
-Message-Id: <1437692468-24788-2-git-send-email-dmitry.torokhov@gmail.com>
-In-Reply-To: <1437692468-24788-1-git-send-email-dmitry.torokhov@gmail.com>
-References: <1437692468-24788-1-git-send-email-dmitry.torokhov@gmail.com>
+        Sun, 26 Jul 2015 14:48:47 -0700 (PDT)
+From: Vladimir Zapolskiy <vz@mleia.com>
+To: Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: rtc-linux@googlegroups.com,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: [rtc-linux] [PATCH 09/11] rtc: rp5c01: clean up rp5c01_nvram_read()/rp5c01_nvram_write()
+Date: Mon, 27 Jul 2015 00:48:34 +0300
+Message-Id: <1437947316-5652-10-git-send-email-vz@mleia.com>
+In-Reply-To: <1437947316-5652-1-git-send-email-vz@mleia.com>
+References: <1437947316-5652-1-git-send-email-vz@mleia.com>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -29,50 +26,38 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Instead of using older style DEVICE_ATTR for wakealarm attribute let's
-switch to using DEVICE_ATTR_RW that ensures consistent across the kernel
-permissions on the attribute.
+The change removes redundant sysfs binary file boundary checks, since
+this task is already done on caller side in fs/sysfs/file.c
 
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Vladimir Zapolskiy <vz@mleia.com>
 ---
- drivers/rtc/rtc-sysfs.c | 8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
+ drivers/rtc/rtc-rp5c01.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/rtc/rtc-sysfs.c b/drivers/rtc/rtc-sysfs.c
-index 2fbc11b..e3ce1dc 100644
---- a/drivers/rtc/rtc-sysfs.c
-+++ b/drivers/rtc/rtc-sysfs.c
-@@ -134,8 +134,7 @@ static struct attribute *rtc_attrs[] = {
- ATTRIBUTE_GROUPS(rtc);
+diff --git a/drivers/rtc/rtc-rp5c01.c b/drivers/rtc/rtc-rp5c01.c
+index b548551..0260353 100644
+--- a/drivers/rtc/rtc-rp5c01.c
++++ b/drivers/rtc/rtc-rp5c01.c
+@@ -170,7 +170,7 @@ static ssize_t rp5c01_nvram_read(struct file *filp, struct kobject *kobj,
  
- static ssize_t
--rtc_sysfs_show_wakealarm(struct device *dev, struct device_attribute *attr,
--		char *buf)
-+wakealarm_show(struct device *dev, struct device_attribute *attr, char *buf)
- {
- 	ssize_t retval;
- 	unsigned long alarm;
-@@ -159,7 +158,7 @@ rtc_sysfs_show_wakealarm(struct device *dev, struct device_attribute *attr,
- }
+ 	spin_lock_irq(&priv->lock);
  
- static ssize_t
--rtc_sysfs_set_wakealarm(struct device *dev, struct device_attribute *attr,
-+wakealarm_store(struct device *dev, struct device_attribute *attr,
- 		const char *buf, size_t n)
- {
- 	ssize_t retval;
-@@ -221,8 +220,7 @@ rtc_sysfs_set_wakealarm(struct device *dev, struct device_attribute *attr,
- 	retval = rtc_set_alarm(rtc, &alm);
- 	return (retval < 0) ? retval : n;
- }
--static DEVICE_ATTR(wakealarm, S_IRUGO | S_IWUSR,
--		rtc_sysfs_show_wakealarm, rtc_sysfs_set_wakealarm);
-+static DEVICE_ATTR_RW(wakealarm);
+-	for (count = 0; size > 0 && pos < RP5C01_MODE; count++, size--) {
++	for (count = 0; count < size; count++) {
+ 		u8 data;
  
+ 		rp5c01_write(priv,
+@@ -200,7 +200,7 @@ static ssize_t rp5c01_nvram_write(struct file *filp, struct kobject *kobj,
  
- /* The reason to trigger an alarm with no process watching it (via sysfs)
+ 	spin_lock_irq(&priv->lock);
+ 
+-	for (count = 0; size > 0 && pos < RP5C01_MODE; count++, size--) {
++	for (count = 0; count < size; count++) {
+ 		u8 data = *buf++;
+ 
+ 		rp5c01_write(priv,
 -- 
-2.5.0.rc2.392.g76e840b
+2.1.4
 
 -- 
 -- 
