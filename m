@@ -1,18 +1,18 @@
-Return-Path: <rtc-linux+bncBCAMRWGQV4CRBQFL2WWQKGQEN6ABK6A@googlegroups.com>
+Return-Path: <rtc-linux+bncBCAMRWGQV4CRBPVL2WWQKGQEO2YMNOQ@googlegroups.com>
 MIME-Version: 1.0
 Received: from mail.mleia.com (li271-223.members.linode.com. [178.79.152.223])
-        by gmr-mx.google.com with ESMTPS id cj6si259423wib.1.2015.07.26.14.48.48
+        by gmr-mx.google.com with ESMTPS id t6si247180wiz.0.2015.07.26.14.48.46
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sun, 26 Jul 2015 14:48:48 -0700 (PDT)
+        Sun, 26 Jul 2015 14:48:46 -0700 (PDT)
 From: Vladimir Zapolskiy <vz@mleia.com>
 To: Alessandro Zummo <a.zummo@towertech.it>,
 	Alexandre Belloni <alexandre.belloni@free-electrons.com>
 Cc: rtc-linux@googlegroups.com,
 	Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [rtc-linux] [PATCH 11/11] rtc: tx4939: clean up tx4939_rtc_nvram_read()/tx4939_rtc_nvram_write()
-Date: Mon, 27 Jul 2015 00:48:36 +0300
-Message-Id: <1437947316-5652-12-git-send-email-vz@mleia.com>
+Subject: [rtc-linux] [PATCH 04/11] rtc: ds1343: clean up ds1343_nvram_read()/ds1343_nvram_write()
+Date: Mon, 27 Jul 2015 00:48:29 +0300
+Message-Id: <1437947316-5652-5-git-send-email-vz@mleia.com>
 In-Reply-To: <1437947316-5652-1-git-send-email-vz@mleia.com>
 References: <1437947316-5652-1-git-send-email-vz@mleia.com>
 Reply-To: rtc-linux@googlegroups.com
@@ -31,33 +31,39 @@ this task is already done on caller side in fs/sysfs/file.c
 
 Signed-off-by: Vladimir Zapolskiy <vz@mleia.com>
 ---
- drivers/rtc/rtc-tx4939.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ drivers/rtc/rtc-ds1343.c | 12 ------------
+ 1 file changed, 12 deletions(-)
 
-diff --git a/drivers/rtc/rtc-tx4939.c b/drivers/rtc/rtc-tx4939.c
-index cb7f94e..560d9a5 100644
---- a/drivers/rtc/rtc-tx4939.c
-+++ b/drivers/rtc/rtc-tx4939.c
-@@ -199,8 +199,7 @@ static ssize_t tx4939_rtc_nvram_read(struct file *filp, struct kobject *kobj,
- 	ssize_t count;
+diff --git a/drivers/rtc/rtc-ds1343.c b/drivers/rtc/rtc-ds1343.c
+index ae9f997..79a06dd 100644
+--- a/drivers/rtc/rtc-ds1343.c
++++ b/drivers/rtc/rtc-ds1343.c
+@@ -162,12 +162,6 @@ static ssize_t ds1343_nvram_write(struct file *filp, struct kobject *kobj,
+ 	struct device *dev = kobj_to_dev(kobj);
+ 	struct ds1343_priv *priv = dev_get_drvdata(dev);
  
- 	spin_lock_irq(&pdata->lock);
--	for (count = 0; size > 0 && pos < TX4939_RTC_REG_RAMSIZE;
--	     count++, size--) {
-+	for (count = 0; count < size; count++) {
- 		__raw_writel(pos++, &rtcreg->adr);
- 		*buf++ = __raw_readl(&rtcreg->dat);
- 	}
-@@ -218,8 +217,7 @@ static ssize_t tx4939_rtc_nvram_write(struct file *filp, struct kobject *kobj,
- 	ssize_t count;
+-	if (unlikely(!count))
+-		return count;
+-
+-	if ((count + off) > DS1343_NVRAM_LEN)
+-		count = DS1343_NVRAM_LEN - off;
+-
+ 	address = DS1343_NVRAM + off;
  
- 	spin_lock_irq(&pdata->lock);
--	for (count = 0; size > 0 && pos < TX4939_RTC_REG_RAMSIZE;
--	     count++, size--) {
-+	for (count = 0; count < size; count++) {
- 		__raw_writel(pos++, &rtcreg->adr);
- 		__raw_writel(*buf++, &rtcreg->dat);
- 	}
+ 	ret = regmap_bulk_write(priv->map, address, buf, count);
+@@ -187,12 +181,6 @@ static ssize_t ds1343_nvram_read(struct file *filp, struct kobject *kobj,
+ 	struct device *dev = kobj_to_dev(kobj);
+ 	struct ds1343_priv *priv = dev_get_drvdata(dev);
+ 
+-	if (unlikely(!count))
+-		return count;
+-
+-	if ((count + off) > DS1343_NVRAM_LEN)
+-		count = DS1343_NVRAM_LEN - off;
+-
+ 	address = DS1343_NVRAM + off;
+ 
+ 	ret = regmap_bulk_read(priv->map, address, buf, count);
 -- 
 2.1.4
 
