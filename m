@@ -1,36 +1,22 @@
-Return-Path: <rtc-linux+bncBDA7X7F2WUEBBSEPYSWQKGQE7YM3UCY@googlegroups.com>
-Received: from mail-wi0-f172.google.com (mail-wi0-f172.google.com. [209.85.212.172])
-        by gmr-mx.google.com with ESMTPS id q10si289681wiz.0.2015.07.23.08.27.04
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 23 Jul 2015 08:27:04 -0700 (PDT)
-Received: by mail-wi0-f172.google.com with SMTP id gb10so148218288wic.1
-        for <rtc-linux@googlegroups.com>; Thu, 23 Jul 2015 08:27:04 -0700 (PDT)
-Date: Thu, 23 Jul 2015 16:27:01 +0100
-From: Lee Jones <lee.jones@linaro.org>
-To: S Twiss <stwiss.opensource@diasemi.com>
-Cc: DEVICETREE <devicetree@vger.kernel.org>,
-	LINUXINPUT <linux-input@vger.kernel.org>,
-	LINUXKERNEL <linux-kernel@vger.kernel.org>,
-	RTCLINUX <rtc-linux@googlegroups.com>,
-	Samuel Ortiz <sameo@linux.intel.com>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	David Dajun Chen <david.chen@diasemi.com>,
-	Ian Campbell <ijc+devicetree@hellion.org.uk>,
-	Kumar Gala <galak@codeaurora.org>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Pawel Moll <pawel.moll@arm.com>, Rob Herring <robh+dt@kernel.org>,
-	Support Opensource <support.opensource@diasemi.com>
-Subject: [rtc-linux] Re: [PATCH V3 1/3] mfd: da9062: Support for the DA9063
- RTC in the DA9062 core
-Message-ID: <20150723152701.GN3436@x1>
-References: <cover.1437474547.git.stwiss.opensource@diasemi.com>
- <7abaa10f4089b1adec4970d9c581a9f35992ee02.1437474547.git.stwiss.opensource@diasemi.com>
+Return-Path: <rtc-linux+bncBCAMRWGQV4CRBPFL2WWQKGQEECGUTQY@googlegroups.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <7abaa10f4089b1adec4970d9c581a9f35992ee02.1437474547.git.stwiss.opensource@diasemi.com>
+Received: from mail.mleia.com (li271-223.members.linode.com. [178.79.152.223])
+        by gmr-mx.google.com with ESMTPS id c3si255328wiz.2.2015.07.26.14.48.44
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Sun, 26 Jul 2015 14:48:44 -0700 (PDT)
+From: Vladimir Zapolskiy <vz@mleia.com>
+To: Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: rtc-linux@googlegroups.com,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: [rtc-linux] [PATCH 01/11] rtc: cmos: clean up cmos_nvram_read()/cmos_nvram_write()
+Date: Mon, 27 Jul 2015 00:48:26 +0300
+Message-Id: <1437947316-5652-2-git-send-email-vz@mleia.com>
+In-Reply-To: <1437947316-5652-1-git-send-email-vz@mleia.com>
+References: <1437947316-5652-1-git-send-email-vz@mleia.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -40,76 +26,55 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On Tue, 21 Jul 2015, S Twiss wrote:
+The change removes redundant sysfs binary file boundary checks, since
+this task is already done on caller side in fs/sysfs/file.c
 
-> From: S Twiss <stwiss.opensource@diasemi.com>
->=20
-> Add MFD core driver support for a RTC component
->=20
-> - MFD core adds the RTC resources da9062_rtc_resources[] for the RTC
->   alarm and tick timer IRQ
-> - An appropriate mfd_cell has been added into da9062_devs[] to support
->   a component .name =3D "da9062-rtc" and .of_compatible  =3D "dlg,da9062-=
-rtc"
->=20
-> Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
->=20
-> ---
-> Checks performed with linux-next/next-20150708/scripts/checkpatch.pl
->  da9062-core.c             total: 0 errors, 0 warnings, 523 lines checked
-> This patch applies against linux-next and next-20150708=20
->=20
->=20
->  drivers/mfd/da9062-core.c | 11 +++++++++++
->  1 file changed, 11 insertions(+)
+Signed-off-by: Vladimir Zapolskiy <vz@mleia.com>
+---
+ drivers/rtc/rtc-cmos.c | 13 -------------
+ 1 file changed, 13 deletions(-)
 
-Applied, thanks.
+diff --git a/drivers/rtc/rtc-cmos.c b/drivers/rtc/rtc-cmos.c
+index a82556a..1ecd374 100644
+--- a/drivers/rtc/rtc-cmos.c
++++ b/drivers/rtc/rtc-cmos.c
+@@ -512,13 +512,6 @@ cmos_nvram_read(struct file *filp, struct kobject *kobj,
+ {
+ 	int	retval;
+ 
+-	if (unlikely(off >= attr->size))
+-		return 0;
+-	if (unlikely(off < 0))
+-		return -EINVAL;
+-	if ((off + count) > attr->size)
+-		count = attr->size - off;
+-
+ 	off += NVRAM_OFFSET;
+ 	spin_lock_irq(&rtc_lock);
+ 	for (retval = 0; count; count--, off++, retval++) {
+@@ -543,12 +536,6 @@ cmos_nvram_write(struct file *filp, struct kobject *kobj,
+ 	int		retval;
+ 
+ 	cmos = dev_get_drvdata(container_of(kobj, struct device, kobj));
+-	if (unlikely(off >= attr->size))
+-		return -EFBIG;
+-	if (unlikely(off < 0))
+-		return -EINVAL;
+-	if ((off + count) > attr->size)
+-		count = attr->size - off;
+ 
+ 	/* NOTE:  on at least PCs and Ataris, the boot firmware uses a
+ 	 * checksum on part of the NVRAM data.  That's currently ignored
+-- 
+2.1.4
 
-> diff --git a/drivers/mfd/da9062-core.c b/drivers/mfd/da9062-core.c
-> index 4cf0643..b43cd24 100644
-> --- a/drivers/mfd/da9062-core.c
-> +++ b/drivers/mfd/da9062-core.c
-> @@ -118,6 +118,11 @@ static struct resource da9062_wdt_resources[] =3D {
->  	DEFINE_RES_NAMED(DA9062_IRQ_WDG_WARN, 1, "WD_WARN", IORESOURCE_IRQ),
->  };
-> =20
-> +static struct resource da9062_rtc_resources[] =3D {
-> +	DEFINE_RES_NAMED(DA9062_IRQ_ALARM, 1, "ALARM", IORESOURCE_IRQ),
-> +	DEFINE_RES_NAMED(DA9062_IRQ_TICK, 1, "TICK", IORESOURCE_IRQ),
-> +};
-> +
->  static const struct mfd_cell da9062_devs[] =3D {
->  	{
->  		.name		=3D "da9062-core",
-> @@ -141,6 +146,12 @@ static const struct mfd_cell da9062_devs[] =3D {
->  		.resources	=3D da9062_thermal_resources,
->  		.of_compatible  =3D "dlg,da9062-thermal",
->  	},
-> +	{
-> +		.name		=3D "da9062-rtc",
-> +		.num_resources	=3D ARRAY_SIZE(da9062_rtc_resources),
-> +		.resources	=3D da9062_rtc_resources,
-> +		.of_compatible  =3D "dlg,da9062-rtc",
-> +	},
->  };
-> =20
->  static int da9062_clear_fault_log(struct da9062 *chip)
-
---=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
-
---=20
---=20
+-- 
+-- 
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
----=20
-You received this message because you are subscribed to the Google Groups "=
-rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an e=
-mail to rtc-linux+unsubscribe@googlegroups.com.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
