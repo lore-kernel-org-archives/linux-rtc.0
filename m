@@ -1,22 +1,35 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBNV5WCWQKGQEH2VH5CA@googlegroups.com>
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id q10si292098wiz.0.2015.07.19.15.03.34
-        for <rtc-linux@googlegroups.com>;
-        Sun, 19 Jul 2015 15:03:34 -0700 (PDT)
-Date: Mon, 20 Jul 2015 00:03:33 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: rnd4@dave-tech.it
-Cc: a.zummo@towertech.it, rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org, Andrea Scian <andrea.scian@dave.eu>
-Subject: Re: [rtc-linux] [PATCH v2] driver: rtc: pcf2127: use OFS flag to
- detect unreliable date and warn the user
-Message-ID: <20150719220333.GB15539@piout.net>
-References: <557EF5DD.9070300@dave-tech.it>
- <1434447587-23992-1-git-send-email-rnd4@dave-tech.it>
+Return-Path: <rtc-linux+bncBD5O5IWPJMIMHJWVVUCRUBDS7ZGQS@googlegroups.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1434447587-23992-1-git-send-email-rnd4@dave-tech.it>
+Received: from mail-wi0-x229.google.com (mail-wi0-x229.google.com. [2a00:1450:400c:c05::229])
+        by gmr-mx.google.com with ESMTPS id gt9si260596wib.2.2015.07.26.14.38.10
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Sun, 26 Jul 2015 14:38:10 -0700 (PDT)
+Received: by mail-wi0-x229.google.com with SMTP id xm9so92578493wib.1
+        for <rtc-linux@googlegroups.com>; Sun, 26 Jul 2015 14:38:10 -0700 (PDT)
+From: Philippe Reynes <tremyfr@gmail.com>
+To: a.zummo@towertech.it,
+	alexandre.belloni@free-electrons.com,
+	shawn.guo@linaro.org,
+	kernel@pengutronix.de,
+	linux@arm.linux.org.uk
+Cc: linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org,
+	rtc-linux@googlegroups.com,
+	Philippe Reynes <tremyfr@gmail.com>,
+	Rob Herring <robh+dt@kernel.org>,
+	Pawel Moll <pawel.moll@arm.com>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Ian Campbell <ijc+devicetree@hellion.org.uk>,
+	Kumar Gala <galak@codeaurora.org>,
+	devicetree@vger.kernel.org
+Subject: [rtc-linux] [PATCH v5 4/6] dt-binding: document the binding for mxc rtc
+Date: Sun, 26 Jul 2015 23:37:51 +0200
+Message-Id: <1437946673-7402-5-git-send-email-tremyfr@gmail.com>
+In-Reply-To: <1437946673-7402-1-git-send-email-tremyfr@gmail.com>
+References: <1437946673-7402-1-git-send-email-tremyfr@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -26,28 +39,55 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On 16/06/2015 at 11:39:47 +0200, rnd4@dave-tech.it wrote :
-> From: Andrea Scian <andrea.scian@dave.eu>
-> 
-> Signed-off-by: Andrea Scian <andrea.scian@dave.eu>
-> ---
-> 
-> Changes since v1:
-> * use BIT() to select the right bitfield instead of hardcode value
-> * return -EINVAL if OFS is detected
-> * cache OSF into driver structure to warn the user even later
-> 
->  drivers/rtc/rtc-pcf2127.c |   26 +++++++++++++++++++++++---
->  1 file changed, 23 insertions(+), 3 deletions(-)
-> 
+This adds documentation of device tree bindings for the
+mxc rtc.
 
-Applied, after adding back the commit message. Thanks!
+Cc: Rob Herring <robh+dt@kernel.org>
+Cc: Pawel Moll <pawel.moll@arm.com>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Ian Campbell <ijc+devicetree@hellion.org.uk>
+Cc: Kumar Gala <galak@codeaurora.org>
+Cc: devicetree@vger.kernel.org
+Signed-off-by: Philippe Reynes <tremyfr@gmail.com>
+---
+ Documentation/devicetree/bindings/rtc/rtc-mxc.txt |   26 +++++++++++++++++++++
+ 1 files changed, 26 insertions(+), 0 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/rtc/rtc-mxc.txt
 
-
+diff --git a/Documentation/devicetree/bindings/rtc/rtc-mxc.txt b/Documentation/devicetree/bindings/rtc/rtc-mxc.txt
+new file mode 100644
+index 0000000..49aa550
+--- /dev/null
++++ b/Documentation/devicetree/bindings/rtc/rtc-mxc.txt
+@@ -0,0 +1,26 @@
++* Real Time Clock of the i.MX SoCs
++
++RTC controller for the i.MX SoCs
++
++Required properties:
++- compatible: Should be "fsl,imx1-rtc" or "fsl,imx21-rtc".
++- reg: physical base address of the controller and length of memory mapped
++  region.
++- interrupts: IRQ line for the RTC.
++- clocks: should contain two entries:
++  * one for the input reference
++  * one for the the SoC RTC
++- clock-names: should contain:
++  * "ref" for the input reference clock
++  * "ipg" for the SoC RTC clock
++
++Example:
++
++rtc@10007000 {
++	compatible = "fsl,imx21-rtc";
++	reg = <0x10007000 0x1000>;
++	interrupts = <22>;
++	clocks = <&clks IMX27_CLK_CKIL>,
++	       	 <&clks IMX27_CLK_RTC_IPG_GATE>;
++	clock-names = "ref", "ipg";
++};
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+1.7.4.4
 
 -- 
 -- 
