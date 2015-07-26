@@ -1,25 +1,20 @@
-Return-Path: <rtc-linux+bncBCF2PQPV4MDRBANFQWWQKGQEZVRFEIA@googlegroups.com>
+Return-Path: <rtc-linux+bncBCAMRWGQV4CRBPVL2WWQKGQEO2YMNOQ@googlegroups.com>
 MIME-Version: 1.0
-Received: from mail-lb0-x232.google.com (mail-lb0-x232.google.com. [2a00:1450:4010:c04::232])
-        by gmr-mx.google.com with ESMTPS id sf5si377844lbb.2.2015.07.11.10.29.36
+Received: from mail.mleia.com (li271-223.members.linode.com. [178.79.152.223])
+        by gmr-mx.google.com with ESMTPS id ec7si263232wib.3.2015.07.26.14.48.45
         for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sat, 11 Jul 2015 10:29:36 -0700 (PDT)
-Received: by mail-lb0-x232.google.com with SMTP id f12so37249353lbl.2
-        for <rtc-linux@googlegroups.com>; Sat, 11 Jul 2015 10:29:36 -0700 (PDT)
-From: Joachim Eastwood <manabian@gmail.com>
-To: alexandre.belloni@free-electrons.com,
-	a.zummo@towertech.it
-Cc: Joachim Eastwood <manabian@gmail.com>,
-	joshc@ni.com,
-	rtc-linux@googlegroups.com,
-	devicetree@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org
-Subject: [rtc-linux] [PATCH v3 1/2] rtc: add rtc-lpc24xx driver
-Date: Sat, 11 Jul 2015 19:28:49 +0200
-Message-Id: <1436635730-15617-2-git-send-email-manabian@gmail.com>
-In-Reply-To: <1436635730-15617-1-git-send-email-manabian@gmail.com>
-References: <1436635730-15617-1-git-send-email-manabian@gmail.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Sun, 26 Jul 2015 14:48:45 -0700 (PDT)
+From: Vladimir Zapolskiy <vz@mleia.com>
+To: Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: rtc-linux@googlegroups.com,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: [rtc-linux] [PATCH 03/11] rtc: ds1307: clean up ds1307_nvram_read()/ds1307_nvram_write()
+Date: Mon, 27 Jul 2015 00:48:28 +0300
+Message-Id: <1437947316-5652-4-git-send-email-vz@mleia.com>
+In-Reply-To: <1437947316-5652-1-git-send-email-vz@mleia.com>
+References: <1437947316-5652-1-git-send-email-vz@mleia.com>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -31,371 +26,48 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Add driver for the RTC found on NXP LPC178x/18xx/408x/43xx devices.
-The RTC provides calendar and clock functionality together with
-alarm interrupt support.
+The change removes redundant sysfs binary file boundary checks, since
+this task is already done on caller side in fs/sysfs/file.c
 
-Signed-off-by: Joachim Eastwood <manabian@gmail.com>
+Signed-off-by: Vladimir Zapolskiy <vz@mleia.com>
 ---
- drivers/rtc/Kconfig       |  12 ++
- drivers/rtc/Makefile      |   1 +
- drivers/rtc/rtc-lpc24xx.c | 310 ++++++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 323 insertions(+)
- create mode 100644 drivers/rtc/rtc-lpc24xx.c
+ drivers/rtc/rtc-ds1307.c | 14 --------------
+ 1 file changed, 14 deletions(-)
 
-diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
-index 83b4b89b9d5a..f732e9e5bfd7 100644
---- a/drivers/rtc/Kconfig
-+++ b/drivers/rtc/Kconfig
-@@ -1456,6 +1456,18 @@ config RTC_DRV_JZ4740
- 	  This driver can also be buillt as a module. If so, the module
- 	  will be called rtc-jz4740.
+diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
+index 6e76de1..f1ba3cc 100644
+--- a/drivers/rtc/rtc-ds1307.c
++++ b/drivers/rtc/rtc-ds1307.c
+@@ -798,13 +798,6 @@ ds1307_nvram_read(struct file *filp, struct kobject *kobj,
+ 	client = kobj_to_i2c_client(kobj);
+ 	ds1307 = i2c_get_clientdata(client);
  
-+config RTC_DRV_LPC24XX
-+	tristate "NXP RTC for LPC178x/18xx/408x/43xx"
-+	depends on ARCH_LPC18XX || COMPILE_TEST
-+	depends on OF && HAS_IOMEM
-+	help
-+	  This enables support for the NXP RTC found which can be found on
-+	  NXP LPC178x/18xx/408x/43xx devices.
-+
-+	  If you have one of the devices above enable this driver to use
-+	  the hardware RTC. This driver can also be buillt as a module. If
-+	  so, the module will be called rtc-lpc24xx.
-+
- config RTC_DRV_LPC32XX
- 	depends on ARCH_LPC32XX
- 	tristate "NXP LPC32XX RTC"
-diff --git a/drivers/rtc/Makefile b/drivers/rtc/Makefile
-index 1b09a62fcf4b..279738449a8d 100644
---- a/drivers/rtc/Makefile
-+++ b/drivers/rtc/Makefile
-@@ -74,6 +74,7 @@ obj-$(CONFIG_RTC_DRV_ISL12057)	+= rtc-isl12057.o
- obj-$(CONFIG_RTC_DRV_ISL1208)	+= rtc-isl1208.o
- obj-$(CONFIG_RTC_DRV_JZ4740)	+= rtc-jz4740.o
- obj-$(CONFIG_RTC_DRV_LP8788)	+= rtc-lp8788.o
-+obj-$(CONFIG_RTC_DRV_LPC24XX)	+= rtc-lpc24xx.o
- obj-$(CONFIG_RTC_DRV_LPC32XX)	+= rtc-lpc32xx.o
- obj-$(CONFIG_RTC_DRV_LOONGSON1)	+= rtc-ls1x.o
- obj-$(CONFIG_RTC_DRV_M41T80)	+= rtc-m41t80.o
-diff --git a/drivers/rtc/rtc-lpc24xx.c b/drivers/rtc/rtc-lpc24xx.c
-new file mode 100644
-index 000000000000..dabdfa30f3d5
---- /dev/null
-+++ b/drivers/rtc/rtc-lpc24xx.c
-@@ -0,0 +1,310 @@
-+/*
-+ * RTC driver for NXP LPC178x/18xx/43xx Real-Time Clock (RTC)
-+ *
-+ * Copyright (C) 2011 NXP Semiconductors
-+ * Copyright (C) 2015 Joachim Eastwood <manabian@gmail.com>
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ */
-+
-+#include <linux/clk.h>
-+#include <linux/io.h>
-+#include <linux/kernel.h>
-+#include <linux/module.h>
-+#include <linux/of.h>
-+#include <linux/of_device.h>
-+#include <linux/platform_device.h>
-+#include <linux/rtc.h>
-+
-+/* LPC24xx RTC register offsets and bits */
-+#define LPC24XX_ILR		0x00
-+#define  LPC24XX_RTCCIF		BIT(0)
-+#define  LPC24XX_RTCALF		BIT(1)
-+#define LPC24XX_CTC		0x04
-+#define LPC24XX_CCR		0x08
-+#define  LPC24XX_CLKEN		BIT(0)
-+#define  LPC178X_CCALEN		BIT(4)
-+#define LPC24XX_CIIR		0x0c
-+#define LPC24XX_AMR		0x10
-+#define  LPC24XX_ALARM_DISABLE	0xff
-+#define LPC24XX_CTIME0		0x14
-+#define LPC24XX_CTIME1		0x18
-+#define LPC24XX_CTIME2		0x1c
-+#define LPC24XX_SEC		0x20
-+#define LPC24XX_MIN		0x24
-+#define LPC24XX_HOUR		0x28
-+#define LPC24XX_DOM		0x2c
-+#define LPC24XX_DOW		0x30
-+#define LPC24XX_DOY		0x34
-+#define LPC24XX_MONTH		0x38
-+#define LPC24XX_YEAR		0x3c
-+#define LPC24XX_ALSEC		0x60
-+#define LPC24XX_ALMIN		0x64
-+#define LPC24XX_ALHOUR		0x68
-+#define LPC24XX_ALDOM		0x6c
-+#define LPC24XX_ALDOW		0x70
-+#define LPC24XX_ALDOY		0x74
-+#define LPC24XX_ALMON		0x78
-+#define LPC24XX_ALYEAR		0x7c
-+
-+/* Macros to read fields in consolidated time (CT) registers */
-+#define CT0_SECS(x)		(((x) >> 0)  & 0x3f)
-+#define CT0_MINS(x)		(((x) >> 8)  & 0x3f)
-+#define CT0_HOURS(x)		(((x) >> 16) & 0x1f)
-+#define CT0_DOW(x)		(((x) >> 24) & 0x07)
-+#define CT1_DOM(x)		(((x) >> 0)  & 0x1f)
-+#define CT1_MONTH(x)		(((x) >> 8)  & 0x0f)
-+#define CT1_YEAR(x)		(((x) >> 16) & 0xfff)
-+#define CT2_DOY(x)		(((x) >> 0)  & 0xfff)
-+
-+#define rtc_readl(dev, reg)		readl((dev)->rtc_base + (reg))
-+#define rtc_writel(dev, reg, val)	writel((val), (dev)->rtc_base + (reg))
-+
-+struct lpc24xx_rtc {
-+	void __iomem *rtc_base;
-+	struct rtc_device *rtc;
-+	struct clk *clk_rtc;
-+	struct clk *clk_reg;
-+};
-+
-+static int lpc24xx_rtc_set_time(struct device *dev, struct rtc_time *tm)
-+{
-+	struct lpc24xx_rtc *rtc = dev_get_drvdata(dev);
-+
-+	/* Disable RTC during update */
-+	rtc_writel(rtc, LPC24XX_CCR, LPC178X_CCALEN);
-+
-+	rtc_writel(rtc, LPC24XX_SEC,	tm->tm_sec);
-+	rtc_writel(rtc, LPC24XX_MIN,	tm->tm_min);
-+	rtc_writel(rtc, LPC24XX_HOUR,	tm->tm_hour);
-+	rtc_writel(rtc, LPC24XX_DOW,	tm->tm_wday);
-+	rtc_writel(rtc, LPC24XX_DOM,	tm->tm_mday);
-+	rtc_writel(rtc, LPC24XX_DOY,	tm->tm_yday);
-+	rtc_writel(rtc, LPC24XX_MONTH,	tm->tm_mon);
-+	rtc_writel(rtc, LPC24XX_YEAR,	tm->tm_year);
-+
-+	rtc_writel(rtc, LPC24XX_CCR, LPC24XX_CLKEN | LPC178X_CCALEN);
-+
-+	return 0;
-+}
-+
-+static int lpc24xx_rtc_read_time(struct device *dev, struct rtc_time *tm)
-+{
-+	struct lpc24xx_rtc *rtc = dev_get_drvdata(dev);
-+	u32 ct0, ct1, ct2;
-+
-+	ct0 = rtc_readl(rtc, LPC24XX_CTIME0);
-+	ct1 = rtc_readl(rtc, LPC24XX_CTIME1);
-+	ct2 = rtc_readl(rtc, LPC24XX_CTIME2);
-+
-+	tm->tm_sec  = CT0_SECS(ct0);
-+	tm->tm_min  = CT0_MINS(ct0);
-+	tm->tm_hour = CT0_HOURS(ct0);
-+	tm->tm_wday = CT0_DOW(ct0);
-+	tm->tm_mon  = CT1_MONTH(ct1);
-+	tm->tm_mday = CT1_DOM(ct1);
-+	tm->tm_year = CT1_YEAR(ct1);
-+	tm->tm_yday = CT2_DOY(ct2);
-+
-+	return rtc_valid_tm(tm);
-+}
-+
-+static int lpc24xx_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *wkalrm)
-+{
-+	struct lpc24xx_rtc *rtc = dev_get_drvdata(dev);
-+	struct rtc_time *tm = &wkalrm->time;
-+
-+	tm->tm_sec  = rtc_readl(rtc, LPC24XX_ALSEC);
-+	tm->tm_min  = rtc_readl(rtc, LPC24XX_ALMIN);
-+	tm->tm_hour = rtc_readl(rtc, LPC24XX_ALHOUR);
-+	tm->tm_mday = rtc_readl(rtc, LPC24XX_ALDOM);
-+	tm->tm_wday = rtc_readl(rtc, LPC24XX_ALDOW);
-+	tm->tm_yday = rtc_readl(rtc, LPC24XX_ALDOY);
-+	tm->tm_mon  = rtc_readl(rtc, LPC24XX_ALMON);
-+	tm->tm_year = rtc_readl(rtc, LPC24XX_ALYEAR);
-+
-+	wkalrm->enabled = rtc_readl(rtc, LPC24XX_AMR) == 0;
-+	wkalrm->pending = !!(rtc_readl(rtc, LPC24XX_ILR) & LPC24XX_RTCCIF);
-+
-+	return rtc_valid_tm(&wkalrm->time);
-+}
-+
-+static int lpc24xx_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *wkalrm)
-+{
-+	struct lpc24xx_rtc *rtc = dev_get_drvdata(dev);
-+	struct rtc_time *tm = &wkalrm->time;
-+
-+	/* Disable alarm irq during update */
-+	rtc_writel(rtc, LPC24XX_AMR, LPC24XX_ALARM_DISABLE);
-+
-+	rtc_writel(rtc, LPC24XX_ALSEC,  tm->tm_sec);
-+	rtc_writel(rtc, LPC24XX_ALMIN,  tm->tm_min);
-+	rtc_writel(rtc, LPC24XX_ALHOUR, tm->tm_hour);
-+	rtc_writel(rtc, LPC24XX_ALDOM,  tm->tm_mday);
-+	rtc_writel(rtc, LPC24XX_ALDOW,  tm->tm_wday);
-+	rtc_writel(rtc, LPC24XX_ALDOY,  tm->tm_yday);
-+	rtc_writel(rtc, LPC24XX_ALMON,  tm->tm_mon);
-+	rtc_writel(rtc, LPC24XX_ALYEAR, tm->tm_year);
-+
-+	if (wkalrm->enabled)
-+		rtc_writel(rtc, LPC24XX_AMR, 0);
-+
-+	return 0;
-+}
-+
-+static int lpc24xx_rtc_alarm_irq_enable(struct device *dev, unsigned int enable)
-+{
-+	struct lpc24xx_rtc *rtc = dev_get_drvdata(dev);
-+
-+	if (enable)
-+		rtc_writel(rtc, LPC24XX_AMR, 0);
-+	else
-+		rtc_writel(rtc, LPC24XX_AMR, LPC24XX_ALARM_DISABLE);
-+
-+	return 0;
-+}
-+
-+static irqreturn_t lpc24xx_rtc_interrupt(int irq, void *data)
-+{
-+	unsigned long events = RTC_IRQF;
-+	struct lpc24xx_rtc *rtc = data;
-+	u32 rtc_iir;
-+
-+	/* Check interrupt cause */
-+	rtc_iir = rtc_readl(rtc, LPC24XX_ILR);
-+	if (rtc_iir & LPC24XX_RTCALF) {
-+		events |= RTC_AF;
-+		rtc_writel(rtc, LPC24XX_AMR, LPC24XX_ALARM_DISABLE);
-+	}
-+
-+	/* Clear interrupt status and report event */
-+	rtc_writel(rtc, LPC24XX_ILR, rtc_iir);
-+	rtc_update_irq(rtc->rtc, 1, events);
-+
-+	return IRQ_HANDLED;
-+}
-+
-+static const struct rtc_class_ops lpc24xx_rtc_ops = {
-+	.read_time		= lpc24xx_rtc_read_time,
-+	.set_time		= lpc24xx_rtc_set_time,
-+	.read_alarm		= lpc24xx_rtc_read_alarm,
-+	.set_alarm		= lpc24xx_rtc_set_alarm,
-+	.alarm_irq_enable	= lpc24xx_rtc_alarm_irq_enable,
-+};
-+
-+static int lpc24xx_rtc_probe(struct platform_device *pdev)
-+{
-+	struct lpc24xx_rtc *rtc;
-+	struct resource *res;
-+	int irq, ret;
-+
-+	rtc = devm_kzalloc(&pdev->dev, sizeof(*rtc), GFP_KERNEL);
-+	if (!rtc)
-+		return -ENOMEM;
-+
-+	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-+	rtc->rtc_base = devm_ioremap_resource(&pdev->dev, res);
-+	if (IS_ERR(rtc->rtc_base))
-+		return PTR_ERR(rtc->rtc_base);
-+
-+	irq = platform_get_irq(pdev, 0);
-+	if (irq < 0) {
-+		dev_warn(&pdev->dev, "can't get interrupt resource\n");
-+		return irq;
-+	}
-+
-+	rtc->clk_rtc = devm_clk_get(&pdev->dev, "rtc");
-+	if (IS_ERR(rtc->clk_rtc)) {
-+		dev_err(&pdev->dev, "error getting rtc clock\n");
-+		return PTR_ERR(rtc->clk_rtc);
-+	}
-+
-+	rtc->clk_reg = devm_clk_get(&pdev->dev, "reg");
-+	if (IS_ERR(rtc->clk_reg)) {
-+		dev_err(&pdev->dev, "error getting reg clock\n");
-+		return PTR_ERR(rtc->clk_reg);
-+	}
-+
-+	ret = clk_prepare_enable(rtc->clk_rtc);
-+	if (ret) {
-+		dev_err(&pdev->dev, "unable to enable rtc clock\n");
-+		return ret;
-+	}
-+
-+	ret = clk_prepare_enable(rtc->clk_reg);
-+	if (ret) {
-+		dev_err(&pdev->dev, "unable to enable reg clock\n");
-+		goto disable_rtc_clk;
-+	}
-+
-+	platform_set_drvdata(pdev, rtc);
-+
-+	/* Clear any pending interrupts */
-+	rtc_writel(rtc, LPC24XX_ILR, LPC24XX_RTCCIF | LPC24XX_RTCALF);
-+
-+	/* Enable RTC count */
-+	rtc_writel(rtc, LPC24XX_CCR, LPC24XX_CLKEN | LPC178X_CCALEN);
-+
-+	ret = devm_request_irq(&pdev->dev, irq, lpc24xx_rtc_interrupt, 0,
-+			       pdev->name, rtc);
-+	if (ret < 0) {
-+		dev_warn(&pdev->dev, "can't request interrupt\n");
-+		goto disable_clks;
-+	}
-+
-+	rtc->rtc = devm_rtc_device_register(&pdev->dev, "lpc24xx-rtc",
-+					    &lpc24xx_rtc_ops, THIS_MODULE);
-+	if (IS_ERR(rtc->rtc)) {
-+		dev_err(&pdev->dev, "can't register rtc device\n");
-+		ret = PTR_ERR(rtc->rtc);
-+		goto disable_clks;
-+	}
-+
-+	return 0;
-+
-+disable_clks:
-+	clk_disable_unprepare(rtc->clk_reg);
-+disable_rtc_clk:
-+	clk_disable_unprepare(rtc->clk_rtc);
-+	return ret;
-+}
-+
-+static int lpc24xx_rtc_remove(struct platform_device *pdev)
-+{
-+	struct lpc24xx_rtc *rtc = platform_get_drvdata(pdev);
-+
-+	/* Ensure all interrupt sources are masked */
-+	rtc_writel(rtc, LPC24XX_AMR, LPC24XX_ALARM_DISABLE);
-+	rtc_writel(rtc, LPC24XX_CIIR, 0);
-+
-+	rtc_writel(rtc, LPC24XX_CCR, LPC178X_CCALEN);
-+
-+	clk_disable_unprepare(rtc->clk_rtc);
-+	clk_disable_unprepare(rtc->clk_reg);
-+
-+	return 0;
-+}
-+
-+static const struct of_device_id lpc24xx_rtc_match[] = {
-+	{ .compatible = "nxp,lpc1788-rtc" },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(of, lpc24xx_rtc_match);
-+
-+static struct platform_driver lpc24xx_rtc_driver = {
-+	.probe	= lpc24xx_rtc_probe,
-+	.remove	= lpc24xx_rtc_remove,
-+	.driver	= {
-+		.name = "lpc24xx-rtc",
-+		.of_match_table	= lpc24xx_rtc_match,
-+	},
-+};
-+module_platform_driver(lpc24xx_rtc_driver);
-+
-+MODULE_AUTHOR("Kevin Wells <wellsk40@gmail.com");
-+MODULE_DESCRIPTION("RTC driver for the LPC178x/18xx/408x/43xx SoCs");
-+MODULE_LICENSE("GPL");
+-	if (unlikely(off >= ds1307->nvram->size))
+-		return 0;
+-	if ((off + count) > ds1307->nvram->size)
+-		count = ds1307->nvram->size - off;
+-	if (unlikely(!count))
+-		return count;
+-
+ 	result = ds1307->read_block_data(client, ds1307->nvram_offset + off,
+ 								count, buf);
+ 	if (result < 0)
+@@ -824,13 +817,6 @@ ds1307_nvram_write(struct file *filp, struct kobject *kobj,
+ 	client = kobj_to_i2c_client(kobj);
+ 	ds1307 = i2c_get_clientdata(client);
+ 
+-	if (unlikely(off >= ds1307->nvram->size))
+-		return -EFBIG;
+-	if ((off + count) > ds1307->nvram->size)
+-		count = ds1307->nvram->size - off;
+-	if (unlikely(!count))
+-		return count;
+-
+ 	result = ds1307->write_block_data(client, ds1307->nvram_offset + off,
+ 								count, buf);
+ 	if (result < 0) {
 -- 
-1.8.0
+2.1.4
 
 -- 
 -- 
