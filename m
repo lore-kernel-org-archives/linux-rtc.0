@@ -1,29 +1,27 @@
-Return-Path: <rtc-linux+bncBCAJFDXE4QGBBC4E5CWAKGQEI3US4ZQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBD5O5IWPJMIMJJWVVUCRUBHAMOOQS@googlegroups.com>
 MIME-Version: 1.0
-Received: from mail-pd0-x22d.google.com (mail-pd0-x22d.google.com. [2607:f8b0:400e:c02::22d])
-        by gmr-mx.google.com with ESMTPS id tq2si1725347pbc.0.2015.07.05.21.20.27
+Received: from mail-wi0-x229.google.com (mail-wi0-x229.google.com. [2a00:1450:400c:c05::229])
+        by gmr-mx.google.com with ESMTPS id gt9si260596wib.2.2015.07.26.14.38.12
         for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sun, 05 Jul 2015 21:20:27 -0700 (PDT)
-Received: by mail-pd0-x22d.google.com with SMTP id ep18so98208868pdb.1
-        for <rtc-linux@googlegroups.com>; Sun, 05 Jul 2015 21:20:27 -0700 (PDT)
-From: Adrian Huang <adrianhuang0701@gmail.com>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Alessandro Zummo <a.zummo@towertech.it>
-Cc: rtc-linux@googlegroups.com,
-	Borislav Petkov <bp@suse.de>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	John Stultz <john.stultz@linaro.org>,
-	Egbert Eich <eich@suse.com>,
-	Diego Ercolani <diego.ercolani@gmail.com>,
-	Nagananda Chumbalkar <nchumbalkar@lenovo.com>,
-	Max Asbock <amax@lenovo.com>,
-	Adrian Huang <ahuang12@lenovo.com>,
-	Adrian Huang <adrianhuang0701@gmail.com>
-Subject: [rtc-linux] [RFC PATCH v4 0/2] rtc: Prevent the automatic reboot
- after powering off the system
-Date: Mon,  6 Jul 2015 12:19:11 +0800
-Message-Id: <1436156353-3599-1-git-send-email-adrianhuang0701@gmail.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Sun, 26 Jul 2015 14:38:12 -0700 (PDT)
+Received: by mail-wi0-x229.google.com with SMTP id xm9so92578493wib.1
+        for <rtc-linux@googlegroups.com>; Sun, 26 Jul 2015 14:38:12 -0700 (PDT)
+From: Philippe Reynes <tremyfr@gmail.com>
+To: a.zummo@towertech.it,
+	alexandre.belloni@free-electrons.com,
+	shawn.guo@linaro.org,
+	kernel@pengutronix.de,
+	linux@arm.linux.org.uk
+Cc: linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org,
+	rtc-linux@googlegroups.com,
+	Philippe Reynes <tremyfr@gmail.com>
+Subject: [rtc-linux] [PATCH v5 5/6] rtc: mxc: add support of device tree
+Date: Sun, 26 Jul 2015 23:37:52 +0200
+Message-Id: <1437946673-7402-6-git-send-email-tremyfr@gmail.com>
+In-Reply-To: <1437946673-7402-1-git-send-email-tremyfr@gmail.com>
+References: <1437946673-7402-1-git-send-email-tremyfr@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -35,40 +33,72 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Commit d5a1c7e3fc38 ("rtc-cmos: Add an alarm disable quirk") added the
-alarm disable quirk to work around the broken BIOSes. The same symptom
-is observed on Lenovo Thinkserver. Instead of adding the impacted
-servers to the "alarm disable" quirk, this patchset aims at preventing
-the issue so that the commit can be reverted. 
+Add device tree support for the mxc rtc driver.
 
-The brief description of the root cause is that: When configuring 
-the RTC registers to setup a wake up event in the S5 handler (BIOS),
-the handler does not clear the interrupt flag bits by reading 
-Register C of CMOS RTC.
+Acked-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Signed-off-by: Philippe Reynes <tremyfr@gmail.com>
+---
+ drivers/rtc/rtc-mxc.c |   19 ++++++++++++++++++-
+ 1 files changed, 18 insertions(+), 1 deletions(-)
 
-Changes from v3:
-  * Add Tested-by tags
-
-Changes from v2:
-  * Drop the approach "Clear interrupt flag if alarm time is less
-    equal to now+1". Instead, cancel the alarm if the configured 
-    alarm time is equal to now+1 seconds. (Suggested by Alexandre)
-
-Changes from v1:
-  * Change the order of [PATCH 1/2] and [PATCH 2/2] (per Borislav)
-  * Drop the approach "RTC alarm timer restoration approach". Instead,
-    [PATCH 1/2] makes sure that AF is cleared in cmos_do_shutdown()
-    before powering off the machine. (Suggested by Alexandre)
-
-Adrian Huang (2):
-  rtc-cmos: Cancel alarm timer if alarm time is equal to now+1 seconds
-  rtc-cmos: Revert "rtc-cmos: Add an alarm disable quirk"
-
- drivers/rtc/rtc-cmos.c | 113 ++++++++++++++++++++++++++-----------------------
- 1 file changed, 60 insertions(+), 53 deletions(-)
-
+diff --git a/drivers/rtc/rtc-mxc.c b/drivers/rtc/rtc-mxc.c
+index 880d485..7bd89d9 100644
+--- a/drivers/rtc/rtc-mxc.c
++++ b/drivers/rtc/rtc-mxc.c
+@@ -16,6 +16,8 @@
+ #include <linux/interrupt.h>
+ #include <linux/platform_device.h>
+ #include <linux/clk.h>
++#include <linux/of.h>
++#include <linux/of_device.h>
+ 
+ #define RTC_INPUT_CLK_32768HZ	(0x00 << 5)
+ #define RTC_INPUT_CLK_32000HZ	(0x01 << 5)
+@@ -98,6 +100,15 @@ static const struct platform_device_id imx_rtc_devtype[] = {
+ };
+ MODULE_DEVICE_TABLE(platform, imx_rtc_devtype);
+ 
++#ifdef CONFIG_OF
++static const struct of_device_id imx_rtc_dt_ids[] = {
++	{ .compatible = "fsl,imx1-rtc", .data = (const void *)IMX1_RTC },
++	{ .compatible = "fsl,imx21-rtc", .data = (const void *)IMX21_RTC },
++	{}
++};
++MODULE_DEVICE_TABLE(of, imx_rtc_dt_ids);
++#endif
++
+ static inline int is_imx1_rtc(struct rtc_plat_data *data)
+ {
+ 	return data->devtype == IMX1_RTC;
+@@ -362,12 +373,17 @@ static int mxc_rtc_probe(struct platform_device *pdev)
+ 	u32 reg;
+ 	unsigned long rate;
+ 	int ret;
++	const struct of_device_id *of_id;
+ 
+ 	pdata = devm_kzalloc(&pdev->dev, sizeof(*pdata), GFP_KERNEL);
+ 	if (!pdata)
+ 		return -ENOMEM;
+ 
+-	pdata->devtype = pdev->id_entry->driver_data;
++	of_id = of_match_device(imx_rtc_dt_ids, &pdev->dev);
++	if (of_id)
++		pdata->devtype = (enum imx_rtc_type)of_id->data;
++	else
++		pdata->devtype = pdev->id_entry->driver_data;
+ 
+ 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+ 	pdata->ioaddr = devm_ioremap_resource(&pdev->dev, res);
+@@ -488,6 +504,7 @@ static SIMPLE_DEV_PM_OPS(mxc_rtc_pm_ops, mxc_rtc_suspend, mxc_rtc_resume);
+ static struct platform_driver mxc_rtc_driver = {
+ 	.driver = {
+ 		   .name	= "mxc_rtc",
++		   .of_match_table = of_match_ptr(imx_rtc_dt_ids),
+ 		   .pm		= &mxc_rtc_pm_ops,
+ 	},
+ 	.id_table = imx_rtc_devtype,
 -- 
-1.9.1
+1.7.4.4
 
 -- 
 -- 
