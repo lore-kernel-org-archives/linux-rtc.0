@@ -1,20 +1,27 @@
-Return-Path: <rtc-linux+bncBCAMRWGQV4CRBP5L2WWQKGQETZ6Q34Q@googlegroups.com>
+Return-Path: <rtc-linux+bncBD5O5IWPJMIMNJWVVUCRUBCJI3WQO@googlegroups.com>
 MIME-Version: 1.0
-Received: from mail.mleia.com (li271-223.members.linode.com. [178.79.152.223])
-        by gmr-mx.google.com with ESMTPS id cj6si259422wib.1.2015.07.26.14.48.46
+Received: from mail-wi0-x229.google.com (mail-wi0-x229.google.com. [2a00:1450:400c:c05::229])
+        by gmr-mx.google.com with ESMTPS id v8si241213wiw.1.2015.07.26.14.38.13
         for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sun, 26 Jul 2015 14:48:46 -0700 (PDT)
-From: Vladimir Zapolskiy <vz@mleia.com>
-To: Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: rtc-linux@googlegroups.com,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [rtc-linux] [PATCH 07/11] rtc: ds1742: clean up ds1742_nvram_read()/ds1742_nvram_write()
-Date: Mon, 27 Jul 2015 00:48:32 +0300
-Message-Id: <1437947316-5652-8-git-send-email-vz@mleia.com>
-In-Reply-To: <1437947316-5652-1-git-send-email-vz@mleia.com>
-References: <1437947316-5652-1-git-send-email-vz@mleia.com>
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Sun, 26 Jul 2015 14:38:13 -0700 (PDT)
+Received: by mail-wi0-x229.google.com with SMTP id ud3so91942044wib.0
+        for <rtc-linux@googlegroups.com>; Sun, 26 Jul 2015 14:38:13 -0700 (PDT)
+From: Philippe Reynes <tremyfr@gmail.com>
+To: a.zummo@towertech.it,
+	alexandre.belloni@free-electrons.com,
+	shawn.guo@linaro.org,
+	kernel@pengutronix.de,
+	linux@arm.linux.org.uk
+Cc: linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org,
+	rtc-linux@googlegroups.com,
+	Philippe Reynes <tremyfr@gmail.com>
+Subject: [rtc-linux] [PATCH v5 6/6] imx27: dt: add support of internal rtc
+Date: Sun, 26 Jul 2015 23:37:53 +0200
+Message-Id: <1437946673-7402-7-git-send-email-tremyfr@gmail.com>
+In-Reply-To: <1437946673-7402-1-git-send-email-tremyfr@gmail.com>
+References: <1437946673-7402-1-git-send-email-tremyfr@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -26,38 +33,35 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-The change removes redundant sysfs binary file boundary checks, since
-this task is already done on caller side in fs/sysfs/file.c
+Add support of internal rtc on imx27.
 
-Signed-off-by: Vladimir Zapolskiy <vz@mleia.com>
+Signed-off-by: Philippe Reynes <tremyfr@gmail.com>
 ---
- drivers/rtc/rtc-ds1742.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/arm/boot/dts/imx27.dtsi |    9 +++++++++
+ 1 files changed, 9 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/rtc/rtc-ds1742.c b/drivers/rtc/rtc-ds1742.c
-index 0f8d8ac..c5168b3 100644
---- a/drivers/rtc/rtc-ds1742.c
-+++ b/drivers/rtc/rtc-ds1742.c
-@@ -134,7 +134,7 @@ static ssize_t ds1742_nvram_read(struct file *filp, struct kobject *kobj,
- 	void __iomem *ioaddr = pdata->ioaddr_nvram;
- 	ssize_t count;
+diff --git a/arch/arm/boot/dts/imx27.dtsi b/arch/arm/boot/dts/imx27.dtsi
+index b69be5c..feb9d34 100644
+--- a/arch/arm/boot/dts/imx27.dtsi
++++ b/arch/arm/boot/dts/imx27.dtsi
+@@ -144,6 +144,15 @@
+ 				clock-names = "ipg", "per";
+ 			};
  
--	for (count = 0; size > 0 && pos < pdata->size_nvram; count++, size--)
-+	for (count = 0; count < size; count++)
- 		*buf++ = readb(ioaddr + pos++);
- 	return count;
- }
-@@ -149,7 +149,7 @@ static ssize_t ds1742_nvram_write(struct file *filp, struct kobject *kobj,
- 	void __iomem *ioaddr = pdata->ioaddr_nvram;
- 	ssize_t count;
- 
--	for (count = 0; size > 0 && pos < pdata->size_nvram; count++, size--)
-+	for (count = 0; count < size; count++)
- 		writeb(*buf++, ioaddr + pos++);
- 	return count;
- }
++			rtc: rtc@10007000 {
++				compatible = "fsl,imx21-rtc";
++				reg = <0x10007000 0x1000>;
++				interrupts = <22>;
++				clocks = <&clks IMX27_CLK_CKIL>,
++					 <&clks IMX27_CLK_RTC_IPG_GATE>;
++				clock-names = "ref", "ipg";
++			};
++
+ 			kpp: kpp@10008000 {
+ 				compatible = "fsl,imx27-kpp", "fsl,imx21-kpp";
+ 				reg = <0x10008000 0x1000>;
 -- 
-2.1.4
+1.7.4.4
 
 -- 
 -- 
