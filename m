@@ -1,18 +1,18 @@
 Return-Path: <rtc-linux+bncBCAMRWGQV4CRBPVL2WWQKGQEO2YMNOQ@googlegroups.com>
 MIME-Version: 1.0
 Received: from mail.mleia.com (li271-223.members.linode.com. [178.79.152.223])
-        by gmr-mx.google.com with ESMTPS id ec7si263232wib.3.2015.07.26.14.48.45
+        by gmr-mx.google.com with ESMTPS id fj7si254418wib.3.2015.07.26.14.48.46
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sun, 26 Jul 2015 14:48:45 -0700 (PDT)
+        Sun, 26 Jul 2015 14:48:46 -0700 (PDT)
 From: Vladimir Zapolskiy <vz@mleia.com>
 To: Alessandro Zummo <a.zummo@towertech.it>,
 	Alexandre Belloni <alexandre.belloni@free-electrons.com>
 Cc: rtc-linux@googlegroups.com,
 	Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [rtc-linux] [PATCH 03/11] rtc: ds1307: clean up ds1307_nvram_read()/ds1307_nvram_write()
-Date: Mon, 27 Jul 2015 00:48:28 +0300
-Message-Id: <1437947316-5652-4-git-send-email-vz@mleia.com>
+Subject: [rtc-linux] [PATCH 05/11] rtc: ds1511: clean up ds1511_nvram_read()/ds1511_nvram_write()
+Date: Mon, 27 Jul 2015 00:48:30 +0300
+Message-Id: <1437947316-5652-6-git-send-email-vz@mleia.com>
 In-Reply-To: <1437947316-5652-1-git-send-email-vz@mleia.com>
 References: <1437947316-5652-1-git-send-email-vz@mleia.com>
 Reply-To: rtc-linux@googlegroups.com
@@ -31,41 +31,73 @@ this task is already done on caller side in fs/sysfs/file.c
 
 Signed-off-by: Vladimir Zapolskiy <vz@mleia.com>
 ---
- drivers/rtc/rtc-ds1307.c | 14 --------------
- 1 file changed, 14 deletions(-)
+ drivers/rtc/rtc-ds1511.c | 38 ++++++++------------------------------
+ 1 file changed, 8 insertions(+), 30 deletions(-)
 
-diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
-index 6e76de1..f1ba3cc 100644
---- a/drivers/rtc/rtc-ds1307.c
-+++ b/drivers/rtc/rtc-ds1307.c
-@@ -798,13 +798,6 @@ ds1307_nvram_read(struct file *filp, struct kobject *kobj,
- 	client = kobj_to_i2c_client(kobj);
- 	ds1307 = i2c_get_clientdata(client);
+diff --git a/drivers/rtc/rtc-ds1511.c b/drivers/rtc/rtc-ds1511.c
+index 7415c2b..2213fab 100644
+--- a/drivers/rtc/rtc-ds1511.c
++++ b/drivers/rtc/rtc-ds1511.c
+@@ -407,25 +407,14 @@ ds1511_nvram_read(struct file *filp, struct kobject *kobj,
+ {
+ 	ssize_t count;
  
--	if (unlikely(off >= ds1307->nvram->size))
--		return 0;
--	if ((off + count) > ds1307->nvram->size)
--		count = ds1307->nvram->size - off;
--	if (unlikely(!count))
--		return count;
+-	/*
+-	 * if count is more than one, turn on "burst" mode
+-	 * turn it off when you're done
+-	 */
+-	if (size > 1)
+-		rtc_write((rtc_read(RTC_CMD) | DS1511_BME), RTC_CMD);
 -
- 	result = ds1307->read_block_data(client, ds1307->nvram_offset + off,
- 								count, buf);
- 	if (result < 0)
-@@ -824,13 +817,6 @@ ds1307_nvram_write(struct file *filp, struct kobject *kobj,
- 	client = kobj_to_i2c_client(kobj);
- 	ds1307 = i2c_get_clientdata(client);
+-	if (pos > DS1511_RAM_MAX)
+-		pos = DS1511_RAM_MAX;
+-
+-	if (size + pos > DS1511_RAM_MAX + 1)
+-		size = DS1511_RAM_MAX - pos + 1;
++	/* turn on "burst" mode, turn it off when you're done */
++	rtc_write((rtc_read(RTC_CMD) | DS1511_BME), RTC_CMD);
  
--	if (unlikely(off >= ds1307->nvram->size))
--		return -EFBIG;
--	if ((off + count) > ds1307->nvram->size)
--		count = ds1307->nvram->size - off;
--	if (unlikely(!count))
--		return count;
+ 	rtc_write(pos, DS1511_RAMADDR_LSB);
+-	for (count = 0; size > 0; count++, size--)
++	for (count = 0; count < size; count++)
+ 		*buf++ = rtc_read(DS1511_RAMDATA);
+ 
+-	if (count > 1)
+-		rtc_write((rtc_read(RTC_CMD) & ~DS1511_BME), RTC_CMD);
++	rtc_write((rtc_read(RTC_CMD) & ~DS1511_BME), RTC_CMD);
+ 
+ 	return count;
+ }
+@@ -437,25 +426,14 @@ ds1511_nvram_write(struct file *filp, struct kobject *kobj,
+ {
+ 	ssize_t count;
+ 
+-	/*
+-	 * if count is more than one, turn on "burst" mode
+-	 * turn it off when you're done
+-	 */
+-	if (size > 1)
+-		rtc_write((rtc_read(RTC_CMD) | DS1511_BME), RTC_CMD);
 -
- 	result = ds1307->write_block_data(client, ds1307->nvram_offset + off,
- 								count, buf);
- 	if (result < 0) {
+-	if (pos > DS1511_RAM_MAX)
+-		pos = DS1511_RAM_MAX;
+-
+-	if (size + pos > DS1511_RAM_MAX + 1)
+-		size = DS1511_RAM_MAX - pos + 1;
++	/* turn on "burst" mode, turn it off when you're done */
++	rtc_write((rtc_read(RTC_CMD) | DS1511_BME), RTC_CMD);
+ 
+ 	rtc_write(pos, DS1511_RAMADDR_LSB);
+-	for (count = 0; size > 0; count++, size--)
++	for (count = 0; count < size; count++)
+ 		rtc_write(*buf++, DS1511_RAMDATA);
+ 
+-	if (count > 1)
+-		rtc_write((rtc_read(RTC_CMD) & ~DS1511_BME), RTC_CMD);
++	rtc_write((rtc_read(RTC_CMD) & ~DS1511_BME), RTC_CMD);
+ 
+ 	return count;
+ }
 -- 
 2.1.4
 
