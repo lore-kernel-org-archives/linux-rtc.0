@@ -1,21 +1,25 @@
-Return-Path: <rtc-linux+bncBDZJ3QO3SMHBB7HIY6WQKGQEMKDYJ2Y@googlegroups.com>
+Return-Path: <rtc-linux+bncBD5O5IWPJMILZJWVVUCRUBBEWYCMC@googlegroups.com>
 MIME-Version: 1.0
-Received: from mail-wi0-x232.google.com (mail-wi0-x232.google.com. [2a00:1450:400c:c05::232])
-        by gmr-mx.google.com with ESMTPS id gt9si82743wib.2.2015.07.24.01.17.00
+Received: from mail-wi0-x22e.google.com (mail-wi0-x22e.google.com. [2a00:1450:400c:c05::22e])
+        by gmr-mx.google.com with ESMTPS id ec7si262327wib.3.2015.07.26.14.38.03
         for <rtc-linux@googlegroups.com>
         (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 24 Jul 2015 01:17:00 -0700 (PDT)
-Received: by mail-wi0-x232.google.com with SMTP id xm9so17613704wib.0
-        for <rtc-linux@googlegroups.com>; Fri, 24 Jul 2015 01:17:00 -0700 (PDT)
-From: Henri Roosen <henriroosen@gmail.com>
-To: rtc-linux@googlegroups.com
-Cc: alexandre.belloni@free-electrons.com,
-	a.zummo@towertech.it,
-	Henri Roosen <henriroosen@gmail.com>
-Subject: [rtc-linux] [PATCH v3] rtc: rtc-rx8025: remove obsolete
- local_irq_disable() and local_irq_enable() for rtc_update_irq()
-Date: Fri, 24 Jul 2015 10:16:06 +0200
-Message-Id: <1437725766-4031-1-git-send-email-henriroosen@gmail.com>
+        Sun, 26 Jul 2015 14:38:03 -0700 (PDT)
+Received: by wicmv11 with SMTP id mv11so117146085wic.0
+        for <rtc-linux@googlegroups.com>; Sun, 26 Jul 2015 14:38:03 -0700 (PDT)
+From: Philippe Reynes <tremyfr@gmail.com>
+To: a.zummo@towertech.it,
+	alexandre.belloni@free-electrons.com,
+	shawn.guo@linaro.org,
+	kernel@pengutronix.de,
+	linux@arm.linux.org.uk
+Cc: linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org,
+	rtc-linux@googlegroups.com,
+	Philippe Reynes <tremyfr@gmail.com>
+Subject: [rtc-linux] [PATCH v5 0/6] add device tree support for mxc rtc
+Date: Sun, 26 Jul 2015 23:37:47 +0200
+Message-Id: <1437946673-7402-1-git-send-email-tremyfr@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -27,40 +31,45 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Since commit e6229bec25be ("rtc: make rtc_update_irq callable with irqs
-enabled") rtc_update_irq() is callable with irqs enabled.
+This serie add the device tree support for the mxc rtc driver.
+To do this, three steps are required :
+- define two rtc clocks for imx31 and imx35
+- enhance mxc rtc driver to use two clocks (ref and ipg)
+- add device tree support to mxc rtc driver
 
-Signed-off-by: Henri Roosen <henriroosen@gmail.com>
----
- drivers/rtc/rtc-rx8025.c | 4 ----
- 1 file changed, 4 deletions(-)
+Changelog:
+v5: (thanks Shawn Guo, Rob Herring and Alexandre Belloni)
+- rename rtc clock to ref
+- fix typo in binding documentation
+- enable rtc by default on imx27
+v4: (thanks Alexandre Belloni)
+- add prepare_clock for rtc clock
+- split apf27: dt: enable support in two patches
+v3: (thanks Fabio Estevam)
+- fix typo in imx35 clock comment
+v2: (thanks Shawn Guo and Alexandre Belloni)
+- add a second clock to imx35
+- split the add of clock in a separate patches
+- split the dt documentation in a separate patch
 
-diff --git a/drivers/rtc/rtc-rx8025.c b/drivers/rtc/rtc-rx8025.c
-index e6298e0..9be9c37 100644
---- a/drivers/rtc/rtc-rx8025.c
-+++ b/drivers/rtc/rtc-rx8025.c
-@@ -161,9 +161,7 @@ static void rx8025_work(struct work_struct *work)
- 	if (status & RX8025_BIT_CTRL2_CTFG) {
- 		/* periodic */
- 		status &= ~RX8025_BIT_CTRL2_CTFG;
--		local_irq_disable();
- 		rtc_update_irq(rx8025->rtc, 1, RTC_PF | RTC_IRQF);
--		local_irq_enable();
- 	}
- 
- 	if (status & RX8025_BIT_CTRL2_DAFG) {
-@@ -172,9 +170,7 @@ static void rx8025_work(struct work_struct *work)
- 		if (rx8025_write_reg(client, RX8025_REG_CTRL1,
- 				     rx8025->ctrl1 & ~RX8025_BIT_CTRL1_DALE))
- 			goto out;
--		local_irq_disable();
- 		rtc_update_irq(rx8025->rtc, 1, RTC_AF | RTC_IRQF);
--		local_irq_enable();
- 	}
- 
- 	/* acknowledge IRQ */
+Philippe Reynes (6):
+  imx31: add a second rtc clock
+  imx35: define two clocks for rtc
+  rtc: mxc: use a second rtc clock
+  dt-binding: document the binding for mxc rtc
+  rtc: mxc: add support of device tree
+  imx27: dt: add support of internal rtc
+
+ Documentation/devicetree/bindings/rtc/rtc-mxc.txt |   26 +++++++++
+ arch/arm/boot/dts/imx27.dtsi                      |    9 +++
+ drivers/clk/imx/clk-imx31.c                       |    3 +-
+ drivers/clk/imx/clk-imx35.c                       |    6 ++-
+ drivers/rtc/rtc-mxc.c                             |   60 ++++++++++++++++-----
+ 5 files changed, 88 insertions(+), 16 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/rtc/rtc-mxc.txt
+
 -- 
-2.1.4
+1.7.4.4
 
 -- 
 -- 
