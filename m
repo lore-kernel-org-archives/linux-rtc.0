@@ -1,36 +1,22 @@
-Return-Path: <rtc-linux+bncBDP6N55ZUYDRB6HH3KWQKGQEXF23LZY@googlegroups.com>
-Received: from mail-pa0-x22a.google.com (mail-pa0-x22a.google.com. [2607:f8b0:400e:c03::22a])
-        by gmr-mx.google.com with ESMTPS id i1si2844435pdh.0.2015.07.27.15.43.04
+Return-Path: <rtc-linux+bncBCAMRWGQV4CRBP5L2WWQKGQETZ6Q34Q@googlegroups.com>
+MIME-Version: 1.0
+Received: from mail.mleia.com (li271-223.members.linode.com. [178.79.152.223])
+        by gmr-mx.google.com with ESMTPS id q10si280079wiz.0.2015.07.26.14.48.47
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 27 Jul 2015 15:43:04 -0700 (PDT)
-Received: by pachj5 with SMTP id hj5so58115957pac.3
-        for <rtc-linux@googlegroups.com>; Mon, 27 Jul 2015 15:43:04 -0700 (PDT)
-Date: Mon, 27 Jul 2015 15:43:00 -0700
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: S Twiss <stwiss.opensource@diasemi.com>
-Cc: DEVICETREE <devicetree@vger.kernel.org>,
-	Ian Campbell <ijc+devicetree@hellion.org.uk>,
-	Kumar Gala <galak@codeaurora.org>,
-	LINUXINPUT <linux-input@vger.kernel.org>,
-	LINUXKERNEL <linux-kernel@vger.kernel.org>,
-	Lee Jones <lee.jones@linaro.org>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Pawel Moll <pawel.moll@arm.com>,
-	RTCLINUX <rtc-linux@googlegroups.com>,
-	Rob Herring <robh+dt@kernel.org>,
-	David Dajun Chen <david.chen@diasemi.com>,
-	Samuel Ortiz <sameo@linux.intel.com>,
-	Support Opensource <support.opensource@diasemi.com>
-Subject: [rtc-linux] Re: [PATCH V3 3/3] devicetree: da9062: Add device tree
- bindings for DA9062 OnKey
-Message-ID: <20150727224300.GG3613@dtor-ws>
-References: <cover.1437668261.git.stwiss.opensource@diasemi.com>
- <6bfae9b4f5475b59bddc4b71091121f1c0697a2d.1437668261.git.stwiss.opensource@diasemi.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <6bfae9b4f5475b59bddc4b71091121f1c0697a2d.1437668261.git.stwiss.opensource@diasemi.com>
+        Sun, 26 Jul 2015 14:48:47 -0700 (PDT)
+From: Vladimir Zapolskiy <vz@mleia.com>
+To: Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: rtc-linux@googlegroups.com,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: [rtc-linux] [PATCH 08/11] rtc: m48t59: clean up m48t59_nvram_read()/m48t59_nvram_write()
+Date: Mon, 27 Jul 2015 00:48:33 +0300
+Message-Id: <1437947316-5652-9-git-send-email-vz@mleia.com>
+In-Reply-To: <1437947316-5652-1-git-send-email-vz@mleia.com>
+References: <1437947316-5652-1-git-send-email-vz@mleia.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -40,33 +26,55 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On Thu, Jul 23, 2015 at 05:17:41PM +0100, S Twiss wrote:
-> From: S Twiss <stwiss.opensource@diasemi.com>
-> 
-> Add device tree bindings for the DA9062 OnKey driver component
-> 
-> Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
-> 
-> ---
-> Changes in V3:
->  - Child driver specifics separated out into separate document
->    in this case ../input/da9062-onkey.txt
-> Changes in V2:
->  - No change
-> 
-> This patch applies against linux-next and next-20150708 
-> 
-> 
->  .../devicetree/bindings/input/da9062-onkey.txt     | 36 ++++++++++++++++++++++
->  Documentation/devicetree/bindings/mfd/da9062.txt   |  3 ++
+The change removes redundant sysfs binary file boundary checks, since
+this task is already done on caller side in fs/sysfs/file.c
 
-I dropped bits for mfd/da9062.txt, changed to mention both 9062 and
-9063, folded into the onkey patch and applied.
+Spinlock acquisition/release is moved out of the loop body to get
+atomic states of NVRAM reading and writing operations.
 
-Thanks.
+Signed-off-by: Vladimir Zapolskiy <vz@mleia.com>
+---
+ drivers/rtc/rtc-m48t59.c | 16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
+
+diff --git a/drivers/rtc/rtc-m48t59.c b/drivers/rtc/rtc-m48t59.c
+index 90abb5b..512c44b 100644
+--- a/drivers/rtc/rtc-m48t59.c
++++ b/drivers/rtc/rtc-m48t59.c
+@@ -345,11 +345,12 @@ static ssize_t m48t59_nvram_read(struct file *filp, struct kobject *kobj,
+ 	ssize_t cnt = 0;
+ 	unsigned long flags;
  
+-	for (; size > 0 && pos < pdata->offset; cnt++, size--) {
+-		spin_lock_irqsave(&m48t59->lock, flags);
++	spin_lock_irqsave(&m48t59->lock, flags);
++
++	for (; cnt < size; cnt++)
+ 		*buf++ = M48T59_READ(cnt);
+-		spin_unlock_irqrestore(&m48t59->lock, flags);
+-	}
++
++	spin_unlock_irqrestore(&m48t59->lock, flags);
+ 
+ 	return cnt;
+ }
+@@ -365,11 +366,10 @@ static ssize_t m48t59_nvram_write(struct file *filp, struct kobject *kobj,
+ 	ssize_t cnt = 0;
+ 	unsigned long flags;
+ 
+-	for (; size > 0 && pos < pdata->offset; cnt++, size--) {
+-		spin_lock_irqsave(&m48t59->lock, flags);
++	spin_lock_irqsave(&m48t59->lock, flags);
++
++	for (; cnt < size; cnt++)
+ 		M48T59_WRITE(*buf++, cnt);
+-		spin_unlock_irqrestore(&m48t59->lock, flags);
+-	}
+ 
+ 	return cnt;
+ }
 -- 
-Dmitry
+2.1.4
 
 -- 
 -- 
