@@ -1,23 +1,24 @@
-Return-Path: <rtc-linux+bncBCGLJQVNREJBBSFA5OWQKGQEWNJSGZI@googlegroups.com>
-Received: from mailgw01.mediatek.com ([210.61.82.183])
-        by gmr-mx.google.com with ESMTPS id ys2si531501pac.0.2015.07.30.18.32.55
+Return-Path: <rtc-linux+bncBCWZNOXQ7EDBBFXI3CWQKGQEBU5FFVQ@googlegroups.com>
+Received: from mail-ig0-f178.google.com (mail-ig0-f178.google.com. [209.85.213.178])
+        by gmr-mx.google.com with ESMTPS id rs3si735186igb.2.2015.07.27.06.37.26
         for <rtc-linux@googlegroups.com>
-        (version=TLSv1 cipher=RC4-SHA bits=128/128);
-        Thu, 30 Jul 2015 18:32:56 -0700 (PDT)
-Message-ID: <1438306372.26690.2.camel@mtksdaap41>
-Subject: [rtc-linux] Re: [PATCH] rtc: mt6397: implement suspend/resume
- function in rtc-mt6397 driver
-From: Eddie Huang <eddie.huang@mediatek.com>
-To: Henry Chen <henryc.chen@mediatek.com>
-CC: Alexandre Belloni <alexandre.belloni@free-electrons.com>, "Alessandro
- Zummo" <a.zummo@towertech.it>, Matthias Brugger <matthias.bgg@gmail.com>,
-	<linux-arm-kernel@lists.infradead.org>, <linux-mediatek@lists.infradead.org>,
-	<rtc-linux@googlegroups.com>, <linux-kernel@vger.kernel.org>
-Date: Fri, 31 Jul 2015 09:32:52 +0800
-In-Reply-To: <1438267994-13934-1-git-send-email-henryc.chen@mediatek.com>
-References: <1438267994-13934-1-git-send-email-henryc.chen@mediatek.com>
-Content-Type: text/plain; charset=UTF-8
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 27 Jul 2015 06:37:26 -0700 (PDT)
+Received: by mail-ig0-f178.google.com with SMTP id ij6so71736973igb.1
+        for <rtc-linux@googlegroups.com>; Mon, 27 Jul 2015 06:37:26 -0700 (PDT)
+Date: Mon, 27 Jul 2015 09:37:20 -0400
+From: Matt Porter <mporter@konsulko.com>
+To: Joachim Eastwood <manabian@gmail.com>
+Cc: alexandre.belloni@free-electrons.com, a.zummo@towertech.it,
+	devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+	rtc-linux@googlegroups.com, joshc@ni.com
+Subject: [rtc-linux] Re: [PATCH v3 2/2] doc: dt: add documentation for nxp,lpc1788-rtc
+Message-ID: <20150727133720.GA15004@beef>
+References: <1436635730-15617-1-git-send-email-manabian@gmail.com>
+ <1436635730-15617-3-git-send-email-manabian@gmail.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1436635730-15617-3-git-send-email-manabian@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -28,63 +29,45 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On Thu, 2015-07-30 at 22:53 +0800, Henry Chen wrote:
-> Implement the suspend/resume function in order to control rtc's irq_wake flag and handle as wakeup source.
-> 
-> Signed-off-by: Henry Chen <henryc.chen@mediatek.com>
+On Sat, Jul 11, 2015 at 07:28:50PM +0200, Joachim Eastwood wrote:
+> Signed-off-by: Joachim Eastwood <manabian@gmail.com>
 > ---
->  drivers/rtc/rtc-mt6397.c | 26 ++++++++++++++++++++++++++
->  1 file changed, 26 insertions(+)
+>  .../devicetree/bindings/rtc/nxp,lpc1788-rtc.txt     | 21 +++++++++++++++++++++
+>  1 file changed, 21 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/rtc/nxp,lpc1788-rtc.txt
 > 
-> diff --git a/drivers/rtc/rtc-mt6397.c b/drivers/rtc/rtc-mt6397.c
-> index c0090b6..9f6c9f8 100644
-> --- a/drivers/rtc/rtc-mt6397.c
-> +++ b/drivers/rtc/rtc-mt6397.c
-> @@ -373,6 +373,31 @@ static int mtk_rtc_remove(struct platform_device *pdev)
->  	return 0;
->  }
->  
-> +#ifdef CONFIG_PM_SLEEP
-> +static int mt6397_rtc_suspend(struct device *dev)
-> +{
-> +	struct mt6397_rtc *rtc = dev_get_drvdata(dev);
+> diff --git a/Documentation/devicetree/bindings/rtc/nxp,lpc1788-rtc.txt b/Documentation/devicetree/bindings/rtc/nxp,lpc1788-rtc.txt
+> new file mode 100644
+> index 000000000000..ad41a040432c
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/rtc/nxp,lpc1788-rtc.txt
+> @@ -0,0 +1,21 @@
+> +NXP LPC1788 real-time clock
 > +
-> +	if (device_may_wakeup(dev))
-> +		enable_irq_wake(rtc->irq);
+> +The LPC1788 RTC provides calendar and clock functionality
+> +together with periodic tick and alarm interrupt support.
 > +
-> +	return 0;
-> +}
-> +
-> +static int mt6397_rtc_resume(struct device *dev)
-> +{
-> +	struct mt6397_rtc *rtc = dev_get_drvdata(dev);
-> +
-> +	if (device_may_wakeup(dev))
-> +		disable_irq_wake(rtc->irq);
-> +
-> +	return 0;
-> +}
-> +#endif
-> +
-> +static SIMPLE_DEV_PM_OPS(mt6397_pm_ops, mt6397_rtc_suspend,
-> +			mt6397_rtc_resume);
-> +
->  static const struct of_device_id mt6397_rtc_of_match[] = {
->  	{ .compatible = "mediatek,mt6397-rtc", },
->  	{ }
-> @@ -382,6 +407,7 @@ static struct platform_driver mtk_rtc_driver = {
->  	.driver = {
->  		.name = "mt6397-rtc",
->  		.of_match_table = mt6397_rtc_of_match,
-> +		.pm = &mt6397_pm_ops,
->  	},
->  	.probe	= mtk_rtc_probe,
->  	.remove = mtk_rtc_remove,
+> +Required properties:
+> +- compatible	: must contain "nxp,lpc1788-rtc"
+> +- reg		: Specifies base physical address and size of the registers.
+> +- interrupts	: A single interrupt specifier.
+> +- clocks	: Must contain entries for rtc and register clock
 
-It looks good to me.
+"Must contain clock specifiers for rtc and register clock" ?
 
-Acked-by: Eddie Huang <eddie.huang@mediatek.com>
+-Matt
 
+> +- clock-names	: Must contain "rtc" and "reg"
+> +  See ../clocks/clock-bindings.txt for details.
+> +
+> +Example:
+> +rtc: rtc@40046000 {
+> +	compatible = "nxp,lpc1788-rtc";
+> +	reg = <0x40046000 0x1000>;
+> +	interrupts = <47>;
+> +	clocks = <&creg_clk 0>, <&ccu1 CLK_CPU_BUS>;
+> +	clock-names = "rtc", "reg";
+> +};
 
 -- 
 -- 
