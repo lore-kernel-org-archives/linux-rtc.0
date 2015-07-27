@@ -1,24 +1,21 @@
-Return-Path: <rtc-linux+bncBAABBCON7KWAKGQEFVJGCRY@googlegroups.com>
-Received: from mail.pbx.lv ([213.175.90.140])
-        by gmr-mx.google.com with ESMTP id sf5si194424lbb.2.2015.07.09.09.51.21
+Return-Path: <rtc-linux+bncBAABB27T3CWQKGQEH3BQFXI@googlegroups.com>
+Received: from mail.kernel.org (mail.kernel.org. [198.145.29.136])
+        by gmr-mx.google.com with ESMTP id x1si742909igb.2.2015.07.27.07.02.18
         for <rtc-linux@googlegroups.com>;
-        Thu, 09 Jul 2015 09:51:21 -0700 (PDT)
-To: Arnd Bergmann <arnd@arndb.de>
-Subject: [rtc-linux] Re: [1/2] RTC: Add core rtc support for Gemini Soc devices
+        Mon, 27 Jul 2015 07:02:19 -0700 (PDT)
+Date: Mon, 27 Jul 2015 22:01:53 +0800
+From: Shawn Guo <shawnguo@kernel.org>
+To: Philippe Reynes <tremyfr@gmail.com>
+Cc: a.zummo@towertech.it, alexandre.belloni@free-electrons.com,
+	shawn.guo@linaro.org, kernel@pengutronix.de, linux@arm.linux.org.uk,
+	rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org
+Subject: [rtc-linux] Re: [PATCH v5 0/6] add device tree support for mxc rtc
+Message-ID: <20150727140153.GM12927@tiger>
+References: <1437946673-7402-1-git-send-email-tremyfr@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Date: Thu, 09 Jul 2015 19:51:20 +0300
-From: Roman Yeryomin <roman@advem.lv>
-Cc: linux-arm-kernel@lists.infradead.org, Felix Fietkau <nbd@openwrt.org>,
- rtc-linux@googlegroups.com, Linus Walleij <linus.walleij@linaro.org>,
- linux-kernel@vger.kernel.org, Alexandre Belloni
- <alexandre.belloni@free-electrons.com>, Russell King
- <rmk+kernel@arm.linux.org.uk>, Hans Ulli Kroll <ulli.kroll@googlemail.com>
-In-Reply-To: <1781580.JRD7b0UrJA@wuerfel>
-References: <1292339307-14336-2-git-send-email-ulli.kroll@googlemail.com>
- <2131951.l0j0CIttAZ@wuerfel> <f22e65faa7d86074cda27973f83d7a52@advem.lv>
- <1781580.JRD7b0UrJA@wuerfel>
-Message-ID: <89dc8e097d12d9400217a237b7a6ca6e@advem.lv>
+Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1437946673-7402-1-git-send-email-tremyfr@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -29,25 +26,60 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On 2015-07-09 11:04, Arnd Bergmann wrote:
-> On Thursday 09 July 2015 01:29:39 Roman Yeryomin wrote:
->> 
->> OK, here are the minimal changes required (see attachment). Tested on
->> 4.1.1
->> Let me know if you want me to submit it in some other way.
->> 
-> 
-> The changes look ok to me. Please submit them as two separate
-> patches (1. set up and use timer3, 2. register sched_clock) according
-> to the Documentation/SubmittingPatches description.
-> 
+On Sun, Jul 26, 2015 at 11:37:47PM +0200, Philippe Reynes wrote:
+> This serie add the device tree support for the mxc rtc driver.
+> To do this, three steps are required :
+> - define two rtc clocks for imx31 and imx35
+> - enhance mxc rtc driver to use two clocks (ref and ipg)
+> - add device tree support to mxc rtc driver
 
-So what do we do?
-Do you still want me to split this as you said and submit or you want 
-Hans's patches rebased/resubmitted?
+Looks good to me.  As we already have Alexandre's ACK on rtc-mxc driver
+part, I will queue the series on IMX tree with waiting for a couple of
+days to see if there is any objection.
 
-Regards,
-Roman
+Shawn
+
+> 
+> Changelog:
+> v5: (thanks Shawn Guo, Rob Herring and Alexandre Belloni)
+> - rename rtc clock to ref
+> - fix typo in binding documentation
+> - enable rtc by default on imx27
+> v4: (thanks Alexandre Belloni)
+> - add prepare_clock for rtc clock
+> - split apf27: dt: enable support in two patches
+> v3: (thanks Fabio Estevam)
+> - fix typo in imx35 clock comment
+> v2: (thanks Shawn Guo and Alexandre Belloni)
+> - add a second clock to imx35
+> - split the add of clock in a separate patches
+> - split the dt documentation in a separate patch
+> 
+> Philippe Reynes (6):
+>   imx31: add a second rtc clock
+>   imx35: define two clocks for rtc
+>   rtc: mxc: use a second rtc clock
+>   dt-binding: document the binding for mxc rtc
+>   rtc: mxc: add support of device tree
+>   imx27: dt: add support of internal rtc
+> 
+>  Documentation/devicetree/bindings/rtc/rtc-mxc.txt |   26 +++++++++
+>  arch/arm/boot/dts/imx27.dtsi                      |    9 +++
+>  drivers/clk/imx/clk-imx31.c                       |    3 +-
+>  drivers/clk/imx/clk-imx35.c                       |    6 ++-
+>  drivers/rtc/rtc-mxc.c                             |   60 ++++++++++++++++-----
+>  5 files changed, 88 insertions(+), 16 deletions(-)
+>  create mode 100644 Documentation/devicetree/bindings/rtc/rtc-mxc.txt
+> 
+> -- 
+> 1.7.4.4
+> 
+> 
+> _______________________________________________
+> linux-arm-kernel mailing list
+> linux-arm-kernel@lists.infradead.org
+> http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
+> 
 
 -- 
 -- 
