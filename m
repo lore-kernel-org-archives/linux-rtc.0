@@ -1,20 +1,37 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBCWS4CWAKGQECZPSBDQ@googlegroups.com>
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id da3si741363wib.1.2015.07.04.11.42.17
-        for <rtc-linux@googlegroups.com>;
-        Sat, 04 Jul 2015 11:42:17 -0700 (PDT)
-Date: Sat, 4 Jul 2015 20:42:16 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Fabio Estevam <festevam@gmail.com>
-Cc: gregory.clement@free-electrons.com, rtc-linux@googlegroups.com,
-	Fabio Estevam <fabio.estevam@freescale.com>
-Subject: [rtc-linux] Re: [PATCH] drivers/rtc/rtc-armada38x: Remove unused
- variable from armada38x_rtc_set_time()
-Message-ID: <20150704184216.GA5497@piout.net>
-References: <1436034454-10473-1-git-send-email-festevam@gmail.com>
+Return-Path: <rtc-linux+bncBDA7X7F2WUEBB5773SWQKGQEPWACLCA@googlegroups.com>
+Received: from mail-wi0-f181.google.com (mail-wi0-f181.google.com. [209.85.212.181])
+        by gmr-mx.google.com with ESMTPS id bk2si456770wib.1.2015.07.28.01.40.23
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 28 Jul 2015 01:40:23 -0700 (PDT)
+Received: by mail-wi0-f181.google.com with SMTP id mv11so169566552wic.0
+        for <rtc-linux@googlegroups.com>; Tue, 28 Jul 2015 01:40:23 -0700 (PDT)
+Date: Tue, 28 Jul 2015 09:40:19 +0100
+From: Lee Jones <lee.jones@linaro.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: S Twiss <stwiss.opensource@diasemi.com>,
+	DEVICETREE <devicetree@vger.kernel.org>,
+	Ian Campbell <ijc+devicetree@hellion.org.uk>,
+	Kumar Gala <galak@codeaurora.org>,
+	LINUXINPUT <linux-input@vger.kernel.org>,
+	LINUXKERNEL <linux-kernel@vger.kernel.org>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Pawel Moll <pawel.moll@arm.com>,
+	RTCLINUX <rtc-linux@googlegroups.com>,
+	Rob Herring <robh+dt@kernel.org>,
+	David Dajun Chen <david.chen@diasemi.com>,
+	Samuel Ortiz <sameo@linux.intel.com>,
+	Support Opensource <support.opensource@diasemi.com>
+Subject: [rtc-linux] Re: [PATCH V3 3/3] devicetree: da9062: Add device tree
+ bindings for DA9062 OnKey
+Message-ID: <20150728084019.GM14943@x1>
+References: <cover.1437668261.git.stwiss.opensource@diasemi.com>
+ <6bfae9b4f5475b59bddc4b71091121f1c0697a2d.1437668261.git.stwiss.opensource@diasemi.com>
+ <20150727224300.GG3613@dtor-ws>
+ <20150728054024.GA4558@dtor-ws>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1436034454-10473-1-git-send-email-festevam@gmail.com>
+In-Reply-To: <20150728054024.GA4558@dtor-ws>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -25,53 +42,104 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Hi Fabio,
+On Mon, 27 Jul 2015, Dmitry Torokhov wrote:
 
-On 04/07/2015 at 15:27:34 -0300, Fabio Estevam wrote :
-> From: Fabio Estevam <fabio.estevam@freescale.com>
-> 
-> Remove the 'flags' variable in order to fix the following warning:
-> 
-> drivers/rtc/rtc-armada38x.c:91:22: warning: unused variable 'flags' [-Wunused-variable]
-> 
+> On Mon, Jul 27, 2015 at 03:43:00PM -0700, Dmitry Torokhov wrote:
+> > On Thu, Jul 23, 2015 at 05:17:41PM +0100, S Twiss wrote:
+> > > From: S Twiss <stwiss.opensource@diasemi.com>
+> > >=20
+> > > Add device tree bindings for the DA9062 OnKey driver component
+> > >=20
+> > > Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
+> > >=20
+> > > ---
+> > > Changes in V3:
+> > >  - Child driver specifics separated out into separate document
+> > >    in this case ../input/da9062-onkey.txt
+> > > Changes in V2:
+> > >  - No change
+> > >=20
+> > > This patch applies against linux-next and next-20150708=20
+> > >=20
+> > >=20
+> > >  .../devicetree/bindings/input/da9062-onkey.txt     | 36 ++++++++++++=
+++++++++++
+> > >  Documentation/devicetree/bindings/mfd/da9062.txt   |  3 ++
+> >=20
+> > I dropped bits for mfd/da9062.txt, changed to mention both 9062 and
+> > 9063, folded into the onkey patch and applied.
+>=20
+> Argh, da9062 core is not in mainline yet... OK, below is the patch I
+> had; if Lee does not pick it up I'll re-apply it when da9062 core hits
+> mainline.
 
-Thank you but I'm pretty sure that one is fixed (that is the fourth
-patch to do so) ;)
+Hmm... that's annoying.  You've put the patch below your signature
+'--', so my mailer cuts it off.
 
-> Signed-off-by: Fabio Estevam <fabio.estevam@freescale.com>
+[pasting]
+
+> Input: add DA9062 OnKey capability to DA9063 OnKey driver
+>=20
+> From: S Twiss <stwiss.opensource@diasemi.com>
+>=20
+> Add DA9062 OnKey support into the existing DA9063 OnKey driver component =
+by
+> using generic access tables for common register and bit mask definitions.
+>=20
+> The following change will add generic register and bit mask support to th=
+e
+> DA9063 OnKey.
+>=20
+> The following alterations have been made to the DA9063 OnKey:
+>=20
+> - Addition of a da906x_chip_config structure to hold all
+>   generic registers and bitmasks for this type of OnKey component.
+> - Addition of an struct of_device_id table for DA9063 and DA9062
+>   defaults
+> - Refactoring functions to use struct da9063_onkey accesses to generic
+>   registers/masks instead of using defines from registers.h
+> - Re-work of da9063_onkey_probe() to use of_match_node() and
+>   dev_get_regmap() to provide initialisation of generic registers and
+>   masks and access to regmap
+>=20
+> Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
+> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 > ---
->  drivers/rtc/rtc-armada38x.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/rtc/rtc-armada38x.c b/drivers/rtc/rtc-armada38x.c
-> index 4b62d1a..2b08cac 100644
-> --- a/drivers/rtc/rtc-armada38x.c
-> +++ b/drivers/rtc/rtc-armada38x.c
-> @@ -88,7 +88,7 @@ static int armada38x_rtc_set_time(struct device *dev, struct rtc_time *tm)
->  {
->  	struct armada38x_rtc *rtc = dev_get_drvdata(dev);
->  	int ret = 0;
-> -	unsigned long time, flags;
-> +	unsigned long time;
->  
->  	ret = rtc_tm_to_time(tm, &time);
->  
-> -- 
-> 1.9.1
-> 
+>  .../devicetree/bindings/input/da9062-onkey.txt     |   32 +++++
+>  drivers/input/misc/Kconfig                         |    8 +
+>  drivers/input/misc/da9063_onkey.c                  |  129 ++++++++++++++=
+++----
+>  3 files changed, 140 insertions(+), 29 deletions(-)
+>  create mode 100644 Documentation/devicetree/bindings/input/da9062-onkey.=
+txt
+=20
+I'm confused.  What's the dependency?
 
--- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+There shouldn't be any issue applying input patches, just because
+there isn't an MFD counterpart.  In fact, I would take prior
+acceptance of the child into consideration (would be like a +1 vote)
+when reviewing the MFD part.
 
--- 
--- 
+One suggestion however, I would ask for the DT binding and the driver
+to be separated, as per [0].
+
+[0] Documentation/devicetree/bindings/submitting-patches.txt
+
+--=20
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org =E2=94=82 Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog
+
+--=20
+--=20
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+---=20
+You received this message because you are subscribed to the Google Groups "=
+rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an e=
+mail to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
