@@ -1,25 +1,35 @@
-Return-Path: <rtc-linux+bncBDP6N55ZUYDRBJ74WWWQKGQEOMJHXBQ@googlegroups.com>
-MIME-Version: 1.0
-Received: from mail-pa0-x236.google.com (mail-pa0-x236.google.com. [2607:f8b0:400e:c03::236])
-        by gmr-mx.google.com with ESMTPS id x3si2657524pdh.2.2015.07.20.16.03.03
+Return-Path: <rtc-linux+bncBDA7X7F2WUEBBREF3WWQKGQEJ4Y2P4I@googlegroups.com>
+Received: from mail-wi0-f176.google.com (mail-wi0-f176.google.com. [209.85.212.176])
+        by gmr-mx.google.com with ESMTPS id bk2si458564wib.1.2015.07.28.01.52.20
         for <rtc-linux@googlegroups.com>
         (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 20 Jul 2015 16:03:03 -0700 (PDT)
-Received: by mail-pa0-x236.google.com with SMTP id an13so109130641pac.1
-        for <rtc-linux@googlegroups.com>; Mon, 20 Jul 2015 16:03:03 -0700 (PDT)
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org
-Subject: [rtc-linux] [PATCH 4/4] RTC: switch to using is_visible() to control
- sysfs attributes
-Date: Mon, 20 Jul 2015 16:02:52 -0700
-Message-Id: <1437433372-15425-4-git-send-email-dmitry.torokhov@gmail.com>
-In-Reply-To: <1437433372-15425-1-git-send-email-dmitry.torokhov@gmail.com>
-References: <1437433372-15425-1-git-send-email-dmitry.torokhov@gmail.com>
-Reply-To: rtc-linux@googlegroups.com
+        Tue, 28 Jul 2015 01:52:20 -0700 (PDT)
+Received: by wibxm9 with SMTP id xm9so150205136wib.1
+        for <rtc-linux@googlegroups.com>; Tue, 28 Jul 2015 01:52:20 -0700 (PDT)
+Date: Tue, 28 Jul 2015 09:52:16 +0100
+From: Lee Jones <lee.jones@linaro.org>
+To: S Twiss <stwiss.opensource@diasemi.com>
+Cc: DEVICETREE <devicetree@vger.kernel.org>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Ian Campbell <ijc+devicetree@hellion.org.uk>,
+	Kumar Gala <galak@codeaurora.org>,
+	LINUXINPUT <linux-input@vger.kernel.org>,
+	LINUXKERNEL <linux-kernel@vger.kernel.org>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Pawel Moll <pawel.moll@arm.com>,
+	RTCLINUX <rtc-linux@googlegroups.com>,
+	Rob Herring <robh+dt@kernel.org>,
+	Samuel Ortiz <sameo@linux.intel.com>,
+	David Dajun Chen <david.chen@diasemi.com>,
+	Support Opensource <support.opensource@diasemi.com>
+Subject: [rtc-linux] Re: [PATCH V3 0/3]  da9062: Add DA9062 OnKey support
+ using the existing DA9063 OnKey driver
+Message-ID: <20150728085216.GP14943@x1>
+References: <cover.1437668261.git.stwiss.opensource@diasemi.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <cover.1437668261.git.stwiss.opensource@diasemi.com>
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -29,213 +39,111 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Instead of creating an attribute manually, after the device has been
-registered, let's rely on facilities provided by the attribute groups to
-control which attributes are visible and which are not. This allows to to
-create all needed attributes at once, at the same time that we register
-RTC class device.
+> From: S Twiss <stwiss.opensource@diasemi.com>
 
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
----
- drivers/rtc/class.c     |  4 +--
- drivers/rtc/rtc-core.h  | 19 ++-----------
- drivers/rtc/rtc-sysfs.c | 75 +++++++++++++++++++++++++------------------------
- 3 files changed, 42 insertions(+), 56 deletions(-)
+Steve,
 
-diff --git a/drivers/rtc/class.c b/drivers/rtc/class.c
-index de7707f..de86578 100644
---- a/drivers/rtc/class.c
-+++ b/drivers/rtc/class.c
-@@ -202,6 +202,7 @@ struct rtc_device *rtc_device_register(const char *name, struct device *dev,
- 	rtc->max_user_freq = 64;
- 	rtc->dev.parent = dev;
- 	rtc->dev.class = rtc_class;
-+	rtc->dev.groups = rtc_get_dev_attribute_groups();
- 	rtc->dev.release = rtc_device_release;
- 
- 	mutex_init(&rtc->ops_lock);
-@@ -240,7 +241,6 @@ struct rtc_device *rtc_device_register(const char *name, struct device *dev,
- 	}
- 
- 	rtc_dev_add_device(rtc);
--	rtc_sysfs_add_device(rtc);
- 	rtc_proc_add_device(rtc);
- 
- 	dev_info(dev, "rtc core: registered %s as %s\n",
-@@ -271,7 +271,6 @@ void rtc_device_unregister(struct rtc_device *rtc)
- 	 * Remove innards of this RTC, then disable it, before
- 	 * letting any rtc_class_open() users access it again
- 	 */
--	rtc_sysfs_del_device(rtc);
- 	rtc_dev_del_device(rtc);
- 	rtc_proc_del_device(rtc);
- 	device_del(&rtc->dev);
-@@ -360,7 +359,6 @@ static int __init rtc_init(void)
- 	}
- 	rtc_class->pm = RTC_CLASS_DEV_PM_OPS;
- 	rtc_dev_init();
--	rtc_sysfs_init(rtc_class);
- 	return 0;
- }
- 
-diff --git a/drivers/rtc/rtc-core.h b/drivers/rtc/rtc-core.h
-index 5f9df74..a098aea 100644
---- a/drivers/rtc/rtc-core.h
-+++ b/drivers/rtc/rtc-core.h
-@@ -48,23 +48,10 @@ static inline void rtc_proc_del_device(struct rtc_device *rtc)
- #endif
- 
- #ifdef CONFIG_RTC_INTF_SYSFS
--
--extern void __init rtc_sysfs_init(struct class *);
--extern void rtc_sysfs_add_device(struct rtc_device *rtc);
--extern void rtc_sysfs_del_device(struct rtc_device *rtc);
--
-+const struct attribute_group **rtc_get_dev_attribute_groups(void);
- #else
--
--static inline void rtc_sysfs_init(struct class *rtc)
--{
--}
--
--static inline void rtc_sysfs_add_device(struct rtc_device *rtc)
-+static inline const struct attribute_group **rtc_get_dev_attribute_groups(void)
- {
-+	return NULL;
- }
--
--static inline void rtc_sysfs_del_device(struct rtc_device *rtc)
--{
--}
--
- #endif
-diff --git a/drivers/rtc/rtc-sysfs.c b/drivers/rtc/rtc-sysfs.c
-index babd43b..0b4366c 100644
---- a/drivers/rtc/rtc-sysfs.c
-+++ b/drivers/rtc/rtc-sysfs.c
-@@ -122,20 +122,8 @@ hctosys_show(struct device *dev, struct device_attribute *attr, char *buf)
- }
- static DEVICE_ATTR_RO(hctosys);
- 
--static struct attribute *rtc_attrs[] = {
--	&dev_attr_name.attr,
--	&dev_attr_date.attr,
--	&dev_attr_time.attr,
--	&dev_attr_since_epoch.attr,
--	&dev_attr_max_user_freq.attr,
--	&dev_attr_hctosys.attr,
--	NULL,
--};
--ATTRIBUTE_GROUPS(rtc);
--
- static ssize_t
--rtc_sysfs_show_wakealarm(struct device *dev, struct device_attribute *attr,
--		char *buf)
-+wakealarm_show(struct device *dev, struct device_attribute *attr, char *buf)
- {
- 	ssize_t retval;
- 	unsigned long alarm;
-@@ -159,7 +147,7 @@ rtc_sysfs_show_wakealarm(struct device *dev, struct device_attribute *attr,
- }
- 
- static ssize_t
--rtc_sysfs_set_wakealarm(struct device *dev, struct device_attribute *attr,
-+wakealarm_store(struct device *dev, struct device_attribute *attr,
- 		const char *buf, size_t n)
- {
- 	ssize_t retval;
-@@ -221,45 +209,58 @@ rtc_sysfs_set_wakealarm(struct device *dev, struct device_attribute *attr,
- 	retval = rtc_set_alarm(rtc, &alm);
- 	return (retval < 0) ? retval : n;
- }
--static DEVICE_ATTR(wakealarm, S_IRUGO | S_IWUSR,
--		rtc_sysfs_show_wakealarm, rtc_sysfs_set_wakealarm);
-+static DEVICE_ATTR_RW(wakealarm);
- 
-+static struct attribute *rtc_attrs[] = {
-+	&dev_attr_name.attr,
-+	&dev_attr_date.attr,
-+	&dev_attr_time.attr,
-+	&dev_attr_since_epoch.attr,
-+	&dev_attr_max_user_freq.attr,
-+	&dev_attr_hctosys.attr,
-+	&dev_attr_wakealarm.attr,
-+	NULL,
-+};
- 
--/* The reason to trigger an alarm with no process watching it (via sysfs)
-+/*
-+ * The reason to trigger an alarm with no process watching it (via sysfs)
-  * is its side effect:  waking from a system state like suspend-to-RAM or
-  * suspend-to-disk.  So: no attribute unless that side effect is possible.
-  * (Userspace may disable that mechanism later.)
-  */
--static inline int rtc_does_wakealarm(struct rtc_device *rtc)
-+static bool rtc_does_wakealarm(struct rtc_device *rtc)
- {
- 	if (!device_can_wakeup(rtc->dev.parent))
--		return 0;
-+		return false;
-+
- 	return rtc->ops->set_alarm != NULL;
- }
- 
--
--void rtc_sysfs_add_device(struct rtc_device *rtc)
-+static umode_t rtc_attr_is_visible(struct kobject *kobj,
-+				   struct attribute *attr, int n)
- {
--	int err;
-+	struct device *dev = container_of(kobj, struct device, kobj);
-+	struct rtc_device *rtc = to_rtc_device(dev);
-+	umode_t mode = attr->mode;
- 
--	/* not all RTCs support both alarms and wakeup */
--	if (!rtc_does_wakealarm(rtc))
--		return;
-+	if (attr == &dev_attr_wakealarm.attr)
-+		if (!rtc_does_wakealarm(rtc))
-+			mode = 0;
- 
--	err = device_create_file(&rtc->dev, &dev_attr_wakealarm);
--	if (err)
--		dev_err(rtc->dev.parent,
--			"failed to create alarm attribute, %d\n", err);
-+	return mode;
- }
- 
--void rtc_sysfs_del_device(struct rtc_device *rtc)
--{
--	/* REVISIT did we add it successfully? */
--	if (rtc_does_wakealarm(rtc))
--		device_remove_file(&rtc->dev, &dev_attr_wakealarm);
--}
-+static struct attribute_group rtc_attr_group = {
-+	.is_visible	= rtc_attr_is_visible,
-+	.attrs		= rtc_attrs,
-+};
-+
-+static const struct attribute_group *rtc_attr_groups[] = {
-+	&rtc_attr_group,
-+	NULL
-+};
- 
--void __init rtc_sysfs_init(struct class *rtc_class)
-+const struct attribute_group** rtc_get_dev_attribute_groups(void)
- {
--	rtc_class->dev_groups = rtc_groups;
-+	return rtc_attr_groups;
- }
--- 
-2.4.3.573.g4eafbef
+Can you sort out your git configuration please.  Your name should be
+represented in full.  No abbreviations or synonyms please.
 
--- 
--- 
+I would expect to see: 'Steve Twiss <stwiss.opensource@diasemi.com>'
+
+The mailer is less important, but I suggest 'Steve Twiss' would be
+more professional than either 'S Twiss' or 'Opensource [Steve Twiss]'.
+
+I appreciate it might be company policy, but is there any chance of
+reversing that to read 'Steve Twiss [Opensource]' instead?
+
+> This patch set adds OnKey support for the Dialog DA9062 Power Management =
+IC.
+> Changes are made to the existing DA9063 OnKey component so that functiona=
+lity
+> in this device driver can be re-used to support the DA9062 OnKey.
+>=20
+> This following patch set re-uses the existing kernel OnKey driver for chi=
+ps
+> whose OnKey blocks are functionally similar to the DA9063 OnKey.
+>=20
+> The main points for the MFD core and device tree changes are as follows.
+>=20
+> - Alteration of the DA9063 OnKey Kconfig needs to be updated to depend on
+>   both MFD_DA9063 "or" MFD_DA9062. There is no explicit DA9062 OnKey Kcon=
+fig.
+> - The DA9062 MFD core should add a new OnKey resource as usual and an ent=
+ry
+>   in the mfd_cell to support a component name and of_compatible for
+>   "da9062-onkey" and "dlg,da9062-onkey".
+> - The device tree binding support should include a compatible string for
+>   "dlg,da9062-onkey"
+>=20
+> The main points for the OnKey changes are as follows:
+>=20
+> A generic structure is used (called da906x_chip_config) to hold all gener=
+ic
+> registers and bitmasks for use with this type of OnKey component.
+>=20
+> Functions in the DA9063 OnKey will be refactored to use this compatibilit=
+y
+> struct and all accesses to generic registers/masks will be made through
+> this table look-up instead of using defines from the register header file=
+s
+> directly
+>=20
+> Linkage between the DA9062 MFD and the DA9063 OnKey driver is created thr=
+ough
+> the use of an of_match_table entry in the platform_driver structure.
+> A re-work of da9063_onkey_probe() is necessary to use the of_match_node()=
+ and
+> dev_get_regmap() functions: this will provide initialisation of the gener=
+ic
+> registers and masks and allow access to the regmap according to the corre=
+ct
+> device tree specification.
+>=20
+> The addition of a of_device_id table for DA9063 and DA9062 default data
+> is created.=20
+>=20
+> In this patch set the following is provided:
+>  - [PATCH V3 1/3]: MFD changes in DA9062 to support OnKey
+>  - [PATCH V3 2/3]: Update existing DA9063 OnKey to add DA9062 support
+>  - [PATCH V3 3/3]: Device tree bindings for DA9062 OnKey component
+>=20
+> This patch applies against linux-next and next-20150708=20
+>=20
+> Thank you,
+> Steve Twiss, Dialog Semiconductor Ltd.
+>=20
+> S Twiss (3):
+>   mfd: da9062: Support for the DA9063 OnKey in the DA9062 core
+>   onkey: da9063: Add DA9062 OnKey capability to DA9063 OnKey driver
+>   devicetree: da9062: Add device tree bindings for DA9062 OnKey
+>=20
+>  .../devicetree/bindings/input/da9062-onkey.txt     |  36 ++++++
+>  Documentation/devicetree/bindings/mfd/da9062.txt   |   3 +
+>  drivers/input/misc/Kconfig                         |   8 +-
+>  drivers/input/misc/da9063_onkey.c                  | 129 +++++++++++++++=
+++----
+>  drivers/mfd/da9062-core.c                          |  11 ++
+>  5 files changed, 158 insertions(+), 29 deletions(-)
+>  create mode 100644 Documentation/devicetree/bindings/input/da9062-onkey.=
+txt
+>=20
+
+--=20
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org =E2=94=82 Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog
+
+--=20
+--=20
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+---=20
+You received this message because you are subscribed to the Google Groups "=
+rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an e=
+mail to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
