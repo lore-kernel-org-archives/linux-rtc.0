@@ -1,41 +1,25 @@
-Return-Path: <rtc-linux+bncBCS6LF74ZYGBB6FM2WVQKGQEQC6LBKA@googlegroups.com>
-Received: from hqemgate15.nvidia.com (hqemgate15.nvidia.com. [216.228.121.64])
-        by gmr-mx.google.com with ESMTPS id f8si223153qce.2.2015.06.08.01.46.47
+Return-Path: <rtc-linux+bncBDE6RCFOWIARBD5Q4KWQKGQEDADPPQA@googlegroups.com>
+Received: from mail-ob0-f180.google.com (mail-ob0-f180.google.com. [209.85.214.180])
+        by gmr-mx.google.com with ESMTPS id a11si1399815igv.3.2015.07.29.02.08.31
         for <rtc-linux@googlegroups.com>
-        (version=TLSv1 cipher=ECDHE-RSA-RC4-SHA bits=128/128);
-        Mon, 08 Jun 2015 01:46:48 -0700 (PDT)
-Message-ID: <5575566A.4060503@nvidia.com>
-Date: Mon, 8 Jun 2015 09:46:34 +0100
-From: Jon Hunter <jonathanh@nvidia.com>
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 29 Jul 2015 02:08:31 -0700 (PDT)
+Received: by mail-ob0-f180.google.com with SMTP id eg2so2668761obd.0
+        for <rtc-linux@googlegroups.com>; Wed, 29 Jul 2015 02:08:31 -0700 (PDT)
 MIME-Version: 1.0
-To: Boris Brezillon <boris.brezillon@free-electrons.com>
-CC: Paul Walmsley <paul@pwsan.com>, Mike Turquette <mturquette@linaro.org>,
-	Stephen Boyd <sboyd@codeaurora.org>, <linux-clk@vger.kernel.org>,
-	<linux-kernel@vger.kernel.org>, Jonathan Corbet <corbet@lwn.net>, Shawn Guo
-	<shawn.guo@linaro.org>, ascha Hauer <kernel@pengutronix.de>, David Brown
-	<davidb@codeaurora.org>, Daniel Walker <dwalker@fifo99.com>, Bryan Huntsman
-	<bryanh@codeaurora.org>, Tony Lindgren <tony@atomide.com>, Liviu Dudau
-	<liviu.dudau@arm.com>, Sudeep Holla <sudeep.holla@arm.com>, Lorenzo Pieralisi
-	<lorenzo.pieralisi@arm.com>, Ralf Baechle <ralf@linux-mips.org>, Max Filippov
-	<jcmvbkbc@gmail.com>, Heiko Stuebner <heiko@sntech.de>, Sylwester Nawrocki
-	<s.nawrocki@samsung.com>, Tomasz Figa <tomasz.figa@gmail.com>, Barry Song
-	<baohua@kernel.org>, Viresh Kumar <viresh.linux@gmail.com>,
-	=?windows-1252?Q?Emilio_L=F3pez?= <emilio@elopez.com.ar>, Maxime Ripard
-	<maxime.ripard@free-electrons.com>, Peter De Schrijver
-	<pdeschrijver@nvidia.com>, Prashant Gaikwad <pgaikwad@nvidia.com>, "Stephen
- Warren" <swarren@wwwdotorg.org>, Thierry Reding <thierry.reding@gmail.com>,
-	Alexandre Courbot <gnurou@gmail.com>, Tero Kristo <t-kristo@ti.com>, "Ulf
- Hansson" <ulf.hansson@linaro.org>, Michal Simek <michal.simek@xilinx.com>,
-	Philipp Zabel <p.zabel@pengutronix.de>, <linux-doc@vger.kernel.org>,
-	<linux-arm-kernel@lists.infradead.org>, <linux-arm-msm@vger.kernel.org>,
-	<linux-omap@vger.kernel.org>, <linux-mips@linux-mips.org>,
-	<patches@opensource.wolfsonmicro.com>, <linux-rockchip@lists.infradead.org>,
-	<linux-samsung-soc@vger.kernel.org>, <spear-devel@list.st.com>,
-	<linux-tegra@vger.kernel.org>, <dri-devel@lists.freedesktop.org>,
-	<linux-media@vger.kernel.org>, <rtc-linux@googlegroups.com>
-Subject: [rtc-linux] Re: [PATCH v2 1/2] clk: change clk_ops' ->round_rate() prototype
-References: <1430407809-31147-1-git-send-email-boris.brezillon@free-electrons.com> <1430407809-31147-2-git-send-email-boris.brezillon@free-electrons.com> <alpine.DEB.2.02.1506042258530.12316@utopia.booyaka.com> <557161D1.3040107@nvidia.com> <20150605133928.66909901@bbrezillon>
-In-Reply-To: <20150605133928.66909901@bbrezillon>
+In-Reply-To: <1438149721-11072-1-git-send-email-leo.yan@linaro.org>
+References: <1438149721-11072-1-git-send-email-leo.yan@linaro.org>
+Date: Wed, 29 Jul 2015 11:08:30 +0200
+Message-ID: <CACRpkdZ5Kvc0LPeG_HAHwejoCRV4JRbpA2+zwNCAxTqzxdDYzQ@mail.gmail.com>
+Subject: Re: [rtc-linux] [PATCH] drivers/rtc/rtc-pl031.c: reset registers in
+ init flow
+From: Linus Walleij <linus.walleij@linaro.org>
+To: "rtc-linux@googlegroups.com" <rtc-linux@googlegroups.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Deepak Saxena <dsaxena@plexity.net>,
+	Leo Yan <leo.yan@linaro.org>
 Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
@@ -47,74 +31,56 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Hi Boris,
+On Wed, Jul 29, 2015 at 8:02 AM, Leo Yan <leo.yan@linaro.org> wrote:
 
-On 05/06/15 12:39, Boris Brezillon wrote:
-> Hi Jon,
-> 
-> On Fri, 5 Jun 2015 09:46:09 +0100
-> Jon Hunter <jonathanh@nvidia.com> wrote:
-> 
->>
->> On 05/06/15 00:02, Paul Walmsley wrote:
->>> Hi folks
->>>
->>> just a brief comment on this one:
->>>
->>> On Thu, 30 Apr 2015, Boris Brezillon wrote:
->>>
->>>> Clock rates are stored in an unsigned long field, but ->round_rate()
->>>> (which returns a rounded rate from a requested one) returns a long
->>>> value (errors are reported using negative error codes), which can lead
->>>> to long overflow if the clock rate exceed 2Ghz.
->>>>
->>>> Change ->round_rate() prototype to return 0 or an error code, and pass the
->>>> requested rate as a pointer so that it can be adjusted depending on
->>>> hardware capabilities.
->>>
->>> ...
->>>
->>>> diff --git a/Documentation/clk.txt b/Documentation/clk.txt
->>>> index 0e4f90a..fca8b7a 100644
->>>> --- a/Documentation/clk.txt
->>>> +++ b/Documentation/clk.txt
->>>> @@ -68,8 +68,8 @@ the operations defined in clk.h:
->>>>  		int		(*is_enabled)(struct clk_hw *hw);
->>>>  		unsigned long	(*recalc_rate)(struct clk_hw *hw,
->>>>  						unsigned long parent_rate);
->>>> -		long		(*round_rate)(struct clk_hw *hw,
->>>> -						unsigned long rate,
->>>> +		int		(*round_rate)(struct clk_hw *hw,
->>>> +						unsigned long *rate,
->>>>  						unsigned long *parent_rate);
->>>>  		long		(*determine_rate)(struct clk_hw *hw,
->>>>  						unsigned long rate,
->>>
->>> I'd suggest that we should probably go straight to 64-bit rates.  There 
->>> are already plenty of clock sources that can generate rates higher than 
->>> 4GiHz.
->>
->> An alternative would be to introduce to a frequency "base" the default
->> could be Hz (for backwards compatibility), but for CPUs we probably only
->> care about MHz (or may be kHz) and so 32-bits would still suffice. Even
->> if CPUs cared about Hz they could still use Hz, but in that case they
->> probably don't care about GHz. Obviously, we don't want to break DT
->> compatibility but may be the frequency base could be defined in DT and
->> if it is missing then Hz is assumed. Just a thought ...
-> 
-> Yes, but is it really worth the additional complexity. You'll have to
-> add the unit information anyway, so using an unsigned long for the
-> value and another field for the unit (an enum ?) is just like using a
-> 64 bit integer.
+> When use rtc-pl031 for suspend test on Hisilicon's SoC Hi6220, Usually
+> the data register (DR) will read back as value zero. So the suspend
+> test code will set the match register (MR) for 10 seconds' timeout; But
+> there have chance later will read back some random values from DR
+> register; So finally miss with match value and will not trigger
+> waken up event anymore.
+>
+> This issue can be dismissed by reset registers in initialization flow;
+> And this code have no harm for ST's variant.
+>
+> Signed-off-by: Leo Yan <leo.yan@linaro.org>
 
-For a storage perspective, yes it would be the same. However, there are
-probably a lot of devices that would not need the extra range, but would
-now have to deal with 64-bit types. I have no idea how much overhead
-that would be in reality. If the overhead is negligible then a 64-bit
-type is definitely the way to go, as I agree it is simpler and cleaner.
+I don't understand this...
 
-Cheers
-Jon
+> +       /* Init registers */
+> +       writel(0x0, ldata->base + RTC_LR);
+
+This will reset the clock to jan 1st 1970 on every reboot.
+The idea is that the RTC should *preserve* the system time
+if you reboot the system, so NACK.
+
+Usually userspace has a script using hwclock to read the
+system time from the rtc to system time with hwclock -s
+after userspace comes up. Likewise it writes it back with
+hwclock -w before rebooting.
+
+> +       writel(0x0, ldata->base + RTC_DR);
+
+This is a read-only register in the PL031 clean variant.
+What do you want to achieve here? Is this register writeable
+on the HiSilicon?
+
+> +       writel(0x0, ldata->base + RTC_IMSC);
+
+OK
+
+> +       writel(RTC_BIT_AI, ldata->base + RTC_ICR);
+
+So why do we want to have the alarm enabled by
+default, before the kernel nor userspace has requested
+it?
+
+If your problem is with suspend/resume I suggest you work
+on the [runtime]_suspend/resume hooks instead of probe().
+Possibly you need to save/restore state across suspend/resume.
+
+Yours,
+Linus Walleij
 
 -- 
 -- 
