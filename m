@@ -1,21 +1,26 @@
-Return-Path: <rtc-linux+bncBAABBCEO5WWQKGQE4RSSKQA@googlegroups.com>
-Received: from na01-by2-obe.outbound.protection.outlook.com (mail-by2on0093.outbound.protection.outlook.com. [207.46.100.93])
-        by gmr-mx.google.com with ESMTPS id f17si281162igt.0.2015.07.31.02.59.35
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
-        Fri, 31 Jul 2015 02:59:36 -0700 (PDT)
-From: Suneel Garapati <suneel.garapati@xilinx.com>
-To: <rtc-linux@googlegroups.com>, <linux-arm-kernel@lists.infradead.org>,
-	<linux-kernel@vger.kernel.org>
-CC: <michals@xilinx.com>, <sorenb@xilinx.com>, Alessandro Zummo
-	<a.zummo@towertech.it>, Suneel Garapati <suneel.garapati@xilinx.com>
-Subject: [rtc-linux] [PATCH v2 1/2] devicetree: bindings: rtc: add bindings
- for xilinx zynqmp rtc
-Date: Fri, 31 Jul 2015 15:29:16 +0530
-Message-ID: <1438336757-23404-1-git-send-email-suneel.garapati@xilinx.com>
+Return-Path: <rtc-linux+bncBC4IFTUFXEFBBIO64GWQKGQEKVM3BTI@googlegroups.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Received: from mail-pa0-f54.google.com (mail-pa0-f54.google.com. [209.85.220.54])
+        by gmr-mx.google.com with ESMTPS id ff6si3978152pac.2.2015.07.28.23.13.53
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 28 Jul 2015 23:13:53 -0700 (PDT)
+Received: by pacan13 with SMTP id an13so91298pac.1
+        for <rtc-linux@googlegroups.com>; Tue, 28 Jul 2015 23:13:53 -0700 (PDT)
+From: Leo Yan <leo.yan@linaro.org>
+To: Linus Walleij <linus.walleij@linaro.org>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	linux-arm-kernel@lists.infradead.org,
+	rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org,
+	Deepak Saxena <dsaxena@plexity.net>
+Cc: Leo Yan <leo.yan@linaro.org>
+Subject: [rtc-linux] [PATCH] drivers/rtc/rtc-pl031.c: fix typo for author email
+Date: Wed, 29 Jul 2015 14:13:40 +0800
+Message-Id: <1438150420-15035-1-git-send-email-leo.yan@linaro.org>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -25,52 +30,27 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-adds file for description on device node bindings for RTC
-found on Xilinx Zynq Ultrascale+ MPSoC.
+The email address missed character ">", so add it.
 
-Signed-off-by: Suneel Garapati <suneel.garapati@xilinx.com>
+Signed-off-by: Leo Yan <leo.yan@linaro.org>
 ---
-Changes v2
-- add examples for interrupt-names
-- change alm to alarm
----
- Documentation/devicetree/bindings/rtc/xlnx-rtc.txt | 25 ++++++++++++++++++++++
- 1 file changed, 25 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/rtc/xlnx-rtc.txt
+ drivers/rtc/rtc-pl031.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/Documentation/devicetree/bindings/rtc/xlnx-rtc.txt b/Documentation/devicetree/bindings/rtc/xlnx-rtc.txt
-new file mode 100644
-index 0000000..0df6f01
---- /dev/null
-+++ b/Documentation/devicetree/bindings/rtc/xlnx-rtc.txt
-@@ -0,0 +1,25 @@
-+* Xilinx Zynq Ultrascale+ MPSoC Real Time Clock
-+
-+RTC controller for the Xilinx Zynq MPSoC Real Time Clock
-+Separate IRQ lines for seconds and alarm
-+
-+Required properties:
-+- compatible: Should be "xlnx,zynqmp-rtc"
-+- reg: Physical base address of the controller and length
-+       of memory mapped region.
-+- interrupts: IRQ lines for the RTC.
-+- interrupt-names: interrupt line names eg. "sec" "alarm"
-+
-+Optional:
-+- calibration: calibration value for 1 sec period which will
-+		be programmed directly to calibration register
-+
-+Example:
-+rtc: rtc@ffa60000 {
-+	compatible = "xlnx,zynqmp-rtc";
-+	reg = <0x0 0xffa60000 0x100>;
-+	interrupt-parent = <&gic>;
-+	interrupts = <0 26 4>, <0 27 4>;
-+	interrupt-names = "alarm", "sec";
-+	calibration = <0x198233>;
-+};
---
-2.1.2
+diff --git a/drivers/rtc/rtc-pl031.c b/drivers/rtc/rtc-pl031.c
+index 99181fff..41dcb7d 100644
+--- a/drivers/rtc/rtc-pl031.c
++++ b/drivers/rtc/rtc-pl031.c
+@@ -476,6 +476,6 @@ static struct amba_driver pl031_driver = {
+ 
+ module_amba_driver(pl031_driver);
+ 
+-MODULE_AUTHOR("Deepak Saxena <dsaxena@plexity.net");
++MODULE_AUTHOR("Deepak Saxena <dsaxena@plexity.net>");
+ MODULE_DESCRIPTION("ARM AMBA PL031 RTC Driver");
+ MODULE_LICENSE("GPL");
+-- 
+1.9.1
 
 -- 
 -- 
