@@ -1,25 +1,24 @@
-Return-Path: <rtc-linux+bncBCF2PQPV4MDRBU7OXGWQKGQESRPCQKA@googlegroups.com>
-Received: from mail-la0-x234.google.com (mail-la0-x234.google.com. [2a00:1450:4010:c03::234])
-        by gmr-mx.google.com with ESMTPS id su3si931477lbb.1.2015.07.21.09.46.11
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 21 Jul 2015 09:46:11 -0700 (PDT)
-Received: by mail-la0-x234.google.com with SMTP id e2so59285453lah.1
-        for <rtc-linux@googlegroups.com>; Tue, 21 Jul 2015 09:46:11 -0700 (PDT)
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBUW54WWQKGQEQREYW5Y@googlegroups.com>
 MIME-Version: 1.0
-In-Reply-To: <20150721162850.GE2853@piout.net>
-References: <1436635730-15617-1-git-send-email-manabian@gmail.com>
-	<20150721162850.GE2853@piout.net>
-Date: Tue, 21 Jul 2015 18:46:11 +0200
-Message-ID: <CAGhQ9VwJvs8qwhDrUd8P0Fz3v-MtQOq+Nfd5YegZZEVbDYNgqg@mail.gmail.com>
-Subject: [rtc-linux] Re: [PATCH v3 0/2] RTC support for NXP LPC18xx family
-From: Joachim  Eastwood <manabian@gmail.com>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>, Josh Cartwright <joshc@ni.com>, rtc-linux@googlegroups.com,
-	devicetree@vger.kernel.org,
-	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
-Content-Type: text/plain; charset=UTF-8
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id c3si776926wiz.2.2015.07.29.17.24.50
+        for <rtc-linux@googlegroups.com>;
+        Wed, 29 Jul 2015 17:24:50 -0700 (PDT)
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Nicolas Ferre <nicolas.ferre@atmel.com>
+Cc: Boris Brezillon <boris.brezillon@free-electrons.com>,
+	linux-arm-kernel@lists.infradead.org,
+	rtc-linux@googlegroups.com,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	linux-kernel@vger.kernel.org,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Subject: [rtc-linux] [PATCH 3/5] rtc: at91sam9: sort headers alphabetically
+Date: Thu, 30 Jul 2015 02:24:30 +0200
+Message-Id: <1438215872-27794-3-git-send-email-alexandre.belloni@free-electrons.com>
+In-Reply-To: <1438215872-27794-1-git-send-email-alexandre.belloni@free-electrons.com>
+References: <1438215872-27794-1-git-send-email-alexandre.belloni@free-electrons.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -29,53 +28,48 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On 21 July 2015 at 18:28, Alexandre Belloni
-<alexandre.belloni@free-electrons.com> wrote:
-> Hi,
->
-> On 11/07/2015 at 19:28:48 +0200, Joachim Eastwood wrote :
->> This patch set adds support for the RTC found on many NXP devices
->> including LPC178x/18xx/408x/43xx. The RTC provides calendar and
->> clock functionality together with alarm interrupt support.
->>
->> The driver is a rework of an old driver by Kevin Wells. It has been
->> modified to support modern resource allocation, device tree and
->> generally cleaned up. Driver was originally written to support the
->> LPC24xx platform but since this platform isn't upstream support has
->> been removed. The LPC24xx name is still kept to preserve the origin
->> of this hardware block.
->>
->> Been a while since the last version, but this version should address
->> all comments from Josh and Alexandre on v2. There has also been some
->> rework from my side. Please have a look.
->>
->> changes since v2:
->>  - rework hw init
->>  - update Kconfig text
->>  - remove unused registers defines
->>  - misc clean ups
->>  - rebase on 4.2-rc1
->>
->> changes since v1:
->>  - s/lpc2k/lpc24xx for better consistency
->>  - fix Kconfig entry
->>  - drop support for old versions for the ip block
->>
->> Patch set is based on Linux v4.2-rc1.
->>
->> Joachim Eastwood (2):
->>   rtc: add rtc-lpc24xx driver
->>   doc: dt: add documentation for nxp,lpc1788-rtc
->>
->
-> Applied both after adding a proper commit log to the second patch,
-> reordering to avoid a checkpatch warning and fixing the typo in kevin's
-> mail address.
+Sort included headers alphabetically.
 
-Thanks for fixing up and applying, Alexandre.
+Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+---
+ drivers/rtc/rtc-at91sam9.c | 16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
-regards,
-Joachim Eastwood
+diff --git a/drivers/rtc/rtc-at91sam9.c b/drivers/rtc/rtc-at91sam9.c
+index 0a8485ac3864..23f721d049b2 100644
+--- a/drivers/rtc/rtc-at91sam9.c
++++ b/drivers/rtc/rtc-at91sam9.c
+@@ -11,20 +11,20 @@
+  * 2 of the License, or (at your option) any later version.
+  */
+ 
+-#include <linux/module.h>
+-#include <linux/kernel.h>
+-#include <linux/platform_device.h>
+-#include <linux/time.h>
+-#include <linux/rtc.h>
++#include <linux/clk.h>
+ #include <linux/interrupt.h>
+ #include <linux/ioctl.h>
+-#include <linux/slab.h>
+-#include <linux/platform_data/atmel.h>
+ #include <linux/io.h>
++#include <linux/kernel.h>
+ #include <linux/mfd/syscon.h>
++#include <linux/module.h>
++#include <linux/platform_data/atmel.h>
++#include <linux/platform_device.h>
+ #include <linux/regmap.h>
++#include <linux/rtc.h>
++#include <linux/slab.h>
+ #include <linux/suspend.h>
+-#include <linux/clk.h>
++#include <linux/time.h>
+ 
+ /*
+  * This driver uses two configurable hardware resources that live in the
+-- 
+2.1.4
 
 -- 
 -- 
