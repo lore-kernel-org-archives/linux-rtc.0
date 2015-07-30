@@ -1,49 +1,96 @@
-Return-Path: <rtc-linux+bncBDKZNNNLXAHBBMNQW2WQKGQEPO5P44Q@googlegroups.com>
-Received: from mail-qk0-x232.google.com (mail-qk0-x232.google.com. [2607:f8b0:400d:c09::232])
-        by gmr-mx.google.com with ESMTPS id b76si2017204ywe.1.2015.07.20.17.54.09
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 20 Jul 2015 17:54:09 -0700 (PDT)
-Received: by mail-qk0-x232.google.com with SMTP id v3so123639146qkd.3
-        for <rtc-linux@googlegroups.com>; Mon, 20 Jul 2015 17:54:09 -0700 (PDT)
+Return-Path: <rtc-linux+bncBAABBPM55GWQKGQE6DGMHPY@googlegroups.com>
 MIME-Version: 1.0
-Sender: rtc-linux@googlegroups.com
-In-Reply-To: <1437433372-15425-3-git-send-email-dmitry.torokhov@gmail.com>
-References: <1437433372-15425-1-git-send-email-dmitry.torokhov@gmail.com>
-	<1437433372-15425-3-git-send-email-dmitry.torokhov@gmail.com>
-Date: Tue, 21 Jul 2015 09:54:09 +0900
-Message-ID: <CAJKOXPdt1fJTQuuyxDj5K3OK=S=3nAXtg4o9nXzY1ZCBYj0X1w@mail.gmail.com>
-Subject: Re: [rtc-linux] [PATCH 3/4] RTC: properly manage lifetime of dev and
- cdev in rtc device
-From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-To: rtc-linux@googlegroups.com
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>, linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset=UTF-8
+Received: from lists.s-osg.org (lists.s-osg.org. [54.187.51.154])
+        by gmr-mx.google.com with ESMTP id bu1si282653pac.1.2015.07.30.09.20.12
+        for <rtc-linux@googlegroups.com>;
+        Thu, 30 Jul 2015 09:20:12 -0700 (PDT)
+From: Javier Martinez Canillas <javier@osg.samsung.com>
+To: linux-kernel@vger.kernel.org
+Cc: Javier Martinez Canillas <javier@osg.samsung.com>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	rtc-linux@googlegroups.com
+Subject: [rtc-linux] [PATCH 21/27] rtc: Export OF module alias information in
+ missing drivers
+Date: Thu, 30 Jul 2015 18:18:46 +0200
+Message-Id: <1438273132-20926-22-git-send-email-javier@osg.samsung.com>
+In-Reply-To: <1438273132-20926-1-git-send-email-javier@osg.samsung.com>
+References: <1438273132-20926-1-git-send-email-javier@osg.samsung.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
 List-Archive: <http://groups.google.com/group/rtc-linux
+Sender: rtc-linux@googlegroups.com
 List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-2015-07-21 8:02 GMT+09:00 Dmitry Torokhov <dmitry.torokhov@gmail.com>:
-> struct rtc embeds both struct dev and struct cdev.  Unfortunately character
-> device structure may outlive the parent rtc structure unless we set it up
-> as parent of character device so that it will stay pinned until character
-> device is freed.
->
-> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> ---
->  drivers/rtc/rtc-dev.c | 1 +
->  1 file changed, 1 insertion(+)
+The I2C core always reports the MODALIAS uevent as "i2c:<client name"
+regardless if the driver was matched using the I2C id_table or the
+of_match_table. So technically there's no need for a driver to export
+the OF table since currently it's not used.
 
-Reviewed-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+In fact, the I2C device ID table is mandatory for I2C drivers since
+a i2c_device_id is passed to the driver's probe function even if the
+I2C core used the OF table to match the driver.
 
-Best regards,
-Krzysztof
+And since the I2C core uses different tables, OF-only drivers needs to
+have duplicated data that has to be kept in sync and also the dev node
+compatible manufacturer prefix is stripped when reporting the MODALIAS.
+
+To avoid the above, the I2C core behavior may be changed in the future
+to not require an I2C device table for OF-only drivers and report the
+OF module alias. So, it's better to also export the OF table to prevent
+breaking module autoloading if that happens.
+
+Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
+
+---
+
+ drivers/rtc/rtc-ab-b5ze-s3.c | 1 +
+ drivers/rtc/rtc-isl12022.c   | 1 +
+ drivers/rtc/rtc-isl12057.c   | 1 +
+ 3 files changed, 3 insertions(+)
+
+diff --git a/drivers/rtc/rtc-ab-b5ze-s3.c b/drivers/rtc/rtc-ab-b5ze-s3.c
+index 0fb1d767afa9..a319bf1e49de 100644
+--- a/drivers/rtc/rtc-ab-b5ze-s3.c
++++ b/drivers/rtc/rtc-ab-b5ze-s3.c
+@@ -1009,6 +1009,7 @@ static const struct of_device_id abb5zes3_dt_match[] = {
+ 	{ .compatible = "abracon,abb5zes3" },
+ 	{ },
+ };
++MODULE_DEVICE_TABLE(of, abb5zes3_dt_match);
+ #endif
+ 
+ static const struct i2c_device_id abb5zes3_id[] = {
+diff --git a/drivers/rtc/rtc-isl12022.c b/drivers/rtc/rtc-isl12022.c
+index 372627136786..839d1fd63cd7 100644
+--- a/drivers/rtc/rtc-isl12022.c
++++ b/drivers/rtc/rtc-isl12022.c
+@@ -274,6 +274,7 @@ static const struct of_device_id isl12022_dt_match[] = {
+ 	{ .compatible = "isil,isl12022" },
+ 	{ },
+ };
++MODULE_DEVICE_TABLE(of, isl12022_dt_match);
+ #endif
+ 
+ static const struct i2c_device_id isl12022_id[] = {
+diff --git a/drivers/rtc/rtc-isl12057.c b/drivers/rtc/rtc-isl12057.c
+index ee3e8dbcacaf..a0462e5430c7 100644
+--- a/drivers/rtc/rtc-isl12057.c
++++ b/drivers/rtc/rtc-isl12057.c
+@@ -648,6 +648,7 @@ static const struct of_device_id isl12057_dt_match[] = {
+ 	{ .compatible = "isil,isl12057" },
+ 	{ },
+ };
++MODULE_DEVICE_TABLE(of, isl12057_dt_match);
+ #endif
+ 
+ static const struct i2c_device_id isl12057_id[] = {
+-- 
+2.4.3
 
 -- 
 -- 
