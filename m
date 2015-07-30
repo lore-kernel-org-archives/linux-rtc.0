@@ -1,39 +1,45 @@
-Return-Path: <rtc-linux+bncBDA7X7F2WUEBBWHY32WQKGQEQMNEXUA@googlegroups.com>
-Received: from mail-wi0-f178.google.com (mail-wi0-f178.google.com. [209.85.212.178])
-        by gmr-mx.google.com with ESMTPS id ec7si583441wib.3.2015.07.28.10.31.04
+Return-Path: <rtc-linux+bncBDP6N55ZUYDRBS5E5GWQKGQEXK2JJCQ@googlegroups.com>
+Received: from mail-pd0-x243.google.com (mail-pd0-x243.google.com. [2607:f8b0:400e:c02::243])
+        by gmr-mx.google.com with ESMTPS id ct6si284335pdb.1.2015.07.30.09.35.23
         for <rtc-linux@googlegroups.com>
         (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 28 Jul 2015 10:31:04 -0700 (PDT)
-Received: by mail-wi0-f178.google.com with SMTP id xm9so167267011wib.0
-        for <rtc-linux@googlegroups.com>; Tue, 28 Jul 2015 10:31:04 -0700 (PDT)
-Date: Tue, 28 Jul 2015 18:30:58 +0100
-From: Lee Jones <lee.jones@linaro.org>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: S Twiss <stwiss.opensource@diasemi.com>,
-	DEVICETREE <devicetree@vger.kernel.org>,
-	Ian Campbell <ijc+devicetree@hellion.org.uk>,
-	Kumar Gala <galak@codeaurora.org>,
-	LINUXINPUT <linux-input@vger.kernel.org>,
-	LINUXKERNEL <linux-kernel@vger.kernel.org>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Pawel Moll <pawel.moll@arm.com>,
-	RTCLINUX <rtc-linux@googlegroups.com>,
-	Rob Herring <robh+dt@kernel.org>,
-	David Dajun Chen <david.chen@diasemi.com>,
-	Samuel Ortiz <sameo@linux.intel.com>,
-	Support Opensource <support.opensource@diasemi.com>
-Subject: [rtc-linux] Re: [PATCH V3 3/3] devicetree: da9062: Add device tree
- bindings for DA9062 OnKey
-Message-ID: <20150728173058.GB2284@x1>
-References: <cover.1437668261.git.stwiss.opensource@diasemi.com>
- <6bfae9b4f5475b59bddc4b71091121f1c0697a2d.1437668261.git.stwiss.opensource@diasemi.com>
- <20150727224300.GG3613@dtor-ws>
- <20150728054024.GA4558@dtor-ws>
- <20150728084019.GM14943@x1>
- <20150728172018.GB19610@dtor-ws>
+        Thu, 30 Jul 2015 09:35:23 -0700 (PDT)
+Received: by mail-pd0-x243.google.com with SMTP id fq13so2371579pdb.3
+        for <rtc-linux@googlegroups.com>; Thu, 30 Jul 2015 09:35:23 -0700 (PDT)
+Date: Thu, 30 Jul 2015 09:35:17 -0700
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Javier Martinez Canillas <javier@osg.samsung.com>
+Cc: linux-kernel@vger.kernel.org, alsa-devel@alsa-project.org,
+	Mark Brown <broonie@kernel.org>, linux-iio@vger.kernel.org,
+	linux-fbdev@vger.kernel.org, linux-i2c@vger.kernel.org,
+	linux-leds@vger.kernel.org,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Chanwoo Choi <cw00.choi@samsung.com>,
+	Tomi Valkeinen <tomi.valkeinen@ti.com>, lm-sensors@lm-sensors.org,
+	Sebastian Reichel <sre@kernel.org>, linux-input@vger.kernel.org,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	Jean Delvare <jdelvare@suse.com>,
+	Jonathan Cameron <jic23@kernel.org>, linux-media@vger.kernel.org,
+	rtc-linux@googlegroups.com, linux-pm@vger.kernel.org,
+	Mauro Carvalho Chehab <mchehab@osg.samsung.com>,
+	Guenter Roeck <linux@roeck-us.net>,
+	Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+	Wolfram Sang <wsa@the-dreams.de>, Takashi Iwai <tiwai@suse.com>,
+	Liam Girdwood <lgirdwood@gmail.com>,
+	Sjoerd Simons <sjoerd.simons@collabora.co.uk>,
+	Lee Jones <lee.jones@linaro.org>, Bryan Wu <cooloney@gmail.com>,
+	linux-omap@vger.kernel.org, Sakari Ailus <sakari.ailus@iki.fi>,
+	linux-usb@vger.kernel.org, linux-spi@vger.kernel.org,
+	Tony Lindgren <tony@atomide.com>,
+	MyungJoo Ham <myungjoo.ham@samsung.com>,
+	linuxppc-dev@lists.ozlabs.org
+Subject: [rtc-linux] Re: [PATCH 00/27] Export I2C and OF module aliases in
+ missing drivers
+Message-ID: <20150730163517.GA13165@dtor-ws>
+References: <1438273132-20926-1-git-send-email-javier@osg.samsung.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <20150728172018.GB19610@dtor-ws>
+In-Reply-To: <1438273132-20926-1-git-send-email-javier@osg.samsung.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -44,135 +50,45 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On Tue, 28 Jul 2015, Dmitry Torokhov wrote:
+Hi Javier,
 
-> On Tue, Jul 28, 2015 at 09:40:19AM +0100, Lee Jones wrote:
-> > On Mon, 27 Jul 2015, Dmitry Torokhov wrote:
-> >=20
-> > > On Mon, Jul 27, 2015 at 03:43:00PM -0700, Dmitry Torokhov wrote:
-> > > > On Thu, Jul 23, 2015 at 05:17:41PM +0100, S Twiss wrote:
-> > > > > From: S Twiss <stwiss.opensource@diasemi.com>
-> > > > >=20
-> > > > > Add device tree bindings for the DA9062 OnKey driver component
-> > > > >=20
-> > > > > Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
-> > > > >=20
-> > > > > ---
-> > > > > Changes in V3:
-> > > > >  - Child driver specifics separated out into separate document
-> > > > >    in this case ../input/da9062-onkey.txt
-> > > > > Changes in V2:
-> > > > >  - No change
-> > > > >=20
-> > > > > This patch applies against linux-next and next-20150708=20
-> > > > >=20
-> > > > >=20
-> > > > >  .../devicetree/bindings/input/da9062-onkey.txt     | 36 ++++++++=
-++++++++++++++
-> > > > >  Documentation/devicetree/bindings/mfd/da9062.txt   |  3 ++
-> > > >=20
-> > > > I dropped bits for mfd/da9062.txt, changed to mention both 9062 and
-> > > > 9063, folded into the onkey patch and applied.
-> > >=20
-> > > Argh, da9062 core is not in mainline yet... OK, below is the patch I
-> > > had; if Lee does not pick it up I'll re-apply it when da9062 core hit=
-s
-> > > mainline.
-> >=20
-> > Hmm... that's annoying.  You've put the patch below your signature
-> > '--', so my mailer cuts it off.
->=20
-> OK, sorry, I'll make sure to put in before the signature next time.
+On Thu, Jul 30, 2015 at 06:18:25PM +0200, Javier Martinez Canillas wrote:
+> Hello,
+> 
+> Short version:
+> 
+> This series add the missing MODULE_DEVICE_TABLE() for OF and I2C tables
+> to export that information so modules have the correct aliases built-in
+> and autoloading works correctly.
+> 
+> Longer version:
+> 
+> Currently it's mandatory for I2C drivers to have an I2C device ID table
+> regardless if the device was registered using platform data or OF. This
+> is because the I2C core needs an I2C device ID table for two reasons:
+> 
+> 1) Match the I2C client with a I2C device ID so a struct i2c_device_id
+>    is passed to the I2C driver probe() function.
+> 
+> 2) Export the module aliases from the I2C device ID table so userspace
+>    can auto-load the correct module. This is because i2c_device_uevent
+>    always reports a MODALIAS of the form i2c:<client->name>.
 
-Appreciated.
+Why are we not fixing this? We emit specially carved uevent for
+ACPI-based devices, why not the same for OF? Platform bus does this...
 
-> > [pasting]
-> >=20
-> > > Input: add DA9062 OnKey capability to DA9063 OnKey driver
-> > >=20
-> > > From: S Twiss <stwiss.opensource@diasemi.com>
-> > >=20
-> > > Add DA9062 OnKey support into the existing DA9063 OnKey driver compon=
-ent by
-> > > using generic access tables for common register and bit mask definiti=
-ons.
-> > >=20
-> > > The following change will add generic register and bit mask support t=
-o the
-> > > DA9063 OnKey.
-> > >=20
-> > > The following alterations have been made to the DA9063 OnKey:
-> > >=20
-> > > - Addition of a da906x_chip_config structure to hold all
-> > >   generic registers and bitmasks for this type of OnKey component.
-> > > - Addition of an struct of_device_id table for DA9063 and DA9062
-> > >   defaults
-> > > - Refactoring functions to use struct da9063_onkey accesses to generi=
-c
-> > >   registers/masks instead of using defines from registers.h
-> > > - Re-work of da9063_onkey_probe() to use of_match_node() and
-> > >   dev_get_regmap() to provide initialisation of generic registers and
-> > >   masks and access to regmap
-> > >=20
-> > > Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
-> > > Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> > > ---
-> > >  .../devicetree/bindings/input/da9062-onkey.txt     |   32 +++++
-> > >  drivers/input/misc/Kconfig                         |    8 +
-> > >  drivers/input/misc/da9063_onkey.c                  |  129 ++++++++++=
-++++++----
-> > >  3 files changed, 140 insertions(+), 29 deletions(-)
-> > >  create mode 100644 Documentation/devicetree/bindings/input/da9062-on=
-key.txt
-> > =20
-> > I'm confused.  What's the dependency?
-> >=20
-> > There shouldn't be any issue applying input patches, just because
-> > there isn't an MFD counterpart.  In fact, I would take prior
-> > acceptance of the child into consideration (would be like a +1 vote)
-> > when reviewing the MFD part.
->=20
-> It's this chunk:
->=20
-> +#include <linux/mfd/da9062/core.h>
-> +#include <linux/mfd/da9062/registers.h>
->=20
-> and these header files are not in mainline yet.
+Thanks.
 
-Ah, thanks for the clarification.
+-- 
+Dmitry
 
-I will apply the other patches.
-
-> > One suggestion however, I would ask for the DT binding and the driver
-> > to be separated, as per [0].
-> >=20
-> > [0] Documentation/devicetree/bindings/submitting-patches.txt
->=20
-> Right, but that says about submitting patches, not applying them ;)
->=20
-> When I chatted with Grant he said that the policy of separating binding
-> and code into separate patches is done so not to overwhelm devicetree
-> list and that is is perfectly fine to actually apply them as a single
-> commit. I try to combine them together so that when looking through
-> history they show up as one.
-
-Got you. :)
-
---=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
-
---=20
---=20
+-- 
+-- 
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
----=20
-You received this message because you are subscribed to the Google Groups "=
-rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an e=
-mail to rtc-linux+unsubscribe@googlegroups.com.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
