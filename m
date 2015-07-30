@@ -1,29 +1,21 @@
-Return-Path: <rtc-linux+bncBDE6RCFOWIARBFGQYOWQKGQEYM7ILQI@googlegroups.com>
-Received: from mail-ob0-f182.google.com (mail-ob0-f182.google.com. [209.85.214.182])
-        by gmr-mx.google.com with ESMTPS id x12si180794igx.1.2015.07.23.06.11.47
+Return-Path: <rtc-linux+bncBCF2NJW5XMORB3XU5CWQKGQEKOUYKTI@googlegroups.com>
+Received: from mailgw01.mediatek.com ([210.61.82.183])
+        by gmr-mx.google.com with ESMTPS id ys2si247822pac.0.2015.07.30.07.53.33
         for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 23 Jul 2015 06:11:47 -0700 (PDT)
-Received: by obdeg2 with SMTP id eg2so57610249obd.0
-        for <rtc-linux@googlegroups.com>; Thu, 23 Jul 2015 06:11:47 -0700 (PDT)
+        (version=TLSv1 cipher=RC4-SHA bits=128/128);
+        Thu, 30 Jul 2015 07:53:34 -0700 (PDT)
+From: Henry Chen <henryc.chen@mediatek.com>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+CC: Alessandro Zummo <a.zummo@towertech.it>, Eddie Huang
+	<eddie.huang@mediatek.com>, Matthias Brugger <matthias.bgg@gmail.com>,
+	<linux-arm-kernel@lists.infradead.org>, <linux-mediatek@lists.infradead.org>,
+	<rtc-linux@googlegroups.com>, <linux-kernel@vger.kernel.org>, Henry Chen
+	<henryc.chen@mediatek.com>
+Subject: [rtc-linux] [PATCH] rtc: mt6397: implement suspend/resume function in
+ rtc-mt6397 driver
+Date: Thu, 30 Jul 2015 22:53:14 +0800
+Message-ID: <1438267994-13934-1-git-send-email-henryc.chen@mediatek.com>
 MIME-Version: 1.0
-In-Reply-To: <CAE1zotJ_u+ysf+HkD=4=Nv_mJ-4++SZxjKGMRkbKzYzyunLJUg@mail.gmail.com>
-References: <1433512783-8183-1-git-send-email-octavian.purdila@intel.com>
-	<1433512783-8183-2-git-send-email-octavian.purdila@intel.com>
-	<CAE1zotJ_u+ysf+HkD=4=Nv_mJ-4++SZxjKGMRkbKzYzyunLJUg@mail.gmail.com>
-Date: Thu, 23 Jul 2015 15:11:47 +0200
-Message-ID: <CACRpkdYE2HG3Cm74Hg9jXy2FwvwveqpbJbwTPKvmOm6aR7BNmQ@mail.gmail.com>
-Subject: [rtc-linux] Re: [PATCH v3 1/2] iio: fix drivers that consider 0 as a
- valid IRQ in client->irq
-From: Linus Walleij <linus.walleij@linaro.org>
-To: Octavian Purdila <octavian.purdila@intel.com>
-Cc: Jonathan Cameron <jic23@kernel.org>, Mika Westerberg <mika.westerberg@linux.intel.com>,
-	Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald <pmeerw@pmeerw.net>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
-	"linux-iio@vger.kernel.org" <linux-iio@vger.kernel.org>,
-	"rtc-linux@googlegroups.com" <rtc-linux@googlegroups.com>, lkml <linux-kernel@vger.kernel.org>
 Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
@@ -35,35 +27,59 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On Thu, Jul 23, 2015 at 12:59 PM, Octavian Purdila
-<octavian.purdila@intel.com> wrote:
-> On Fri, Jun 5, 2015 at 4:59 PM, Octavian Purdila
-> <octavian.purdila@intel.com> wrote:
->> Since patch "i2c / ACPI: Use 0 to indicate that device does not have
->> interrupt assigned" [1], 0 is not a valid i2c client irq anymore, so
->> change all driver's checks accordingly.
->>
->> The same issue occurs when the device is instantiated via device tree
->> with no IRQ, or from the i2c sysfs interface, even before the patch
->> above.
->>
->> [1] http://lkml.kernel.org/g/<1430908148-201129-3-git-send-email-mika.westerberg@linux.intel.com>
->>
->> Signed-off-by: Octavian Purdila <octavian.purdila@intel.com>
->> Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
->
-> Hi Jonathan,
->
-> Does this look OK to you? If so, could you pleas ACK the patch so that
-> Linus can pick it up in its for-next branch if/when needed?
+Implement the suspend/resume function in order to control rtc's irq_wake flag and handle as wakeup source.
 
-Me or Torvalds?
+Signed-off-by: Henry Chen <henryc.chen@mediatek.com>
+---
+ drivers/rtc/rtc-mt6397.c | 26 ++++++++++++++++++++++++++
+ 1 file changed, 26 insertions(+)
 
-This looks more like a Wolfram patch to me if it should not
-go through IIO.
-
-Yours,
-Linus Walleij
+diff --git a/drivers/rtc/rtc-mt6397.c b/drivers/rtc/rtc-mt6397.c
+index c0090b6..9f6c9f8 100644
+--- a/drivers/rtc/rtc-mt6397.c
++++ b/drivers/rtc/rtc-mt6397.c
+@@ -373,6 +373,31 @@ static int mtk_rtc_remove(struct platform_device *pdev)
+ 	return 0;
+ }
+ 
++#ifdef CONFIG_PM_SLEEP
++static int mt6397_rtc_suspend(struct device *dev)
++{
++	struct mt6397_rtc *rtc = dev_get_drvdata(dev);
++
++	if (device_may_wakeup(dev))
++		enable_irq_wake(rtc->irq);
++
++	return 0;
++}
++
++static int mt6397_rtc_resume(struct device *dev)
++{
++	struct mt6397_rtc *rtc = dev_get_drvdata(dev);
++
++	if (device_may_wakeup(dev))
++		disable_irq_wake(rtc->irq);
++
++	return 0;
++}
++#endif
++
++static SIMPLE_DEV_PM_OPS(mt6397_pm_ops, mt6397_rtc_suspend,
++			mt6397_rtc_resume);
++
+ static const struct of_device_id mt6397_rtc_of_match[] = {
+ 	{ .compatible = "mediatek,mt6397-rtc", },
+ 	{ }
+@@ -382,6 +407,7 @@ static struct platform_driver mtk_rtc_driver = {
+ 	.driver = {
+ 		.name = "mt6397-rtc",
+ 		.of_match_table = mt6397_rtc_of_match,
++		.pm = &mt6397_pm_ops,
+ 	},
+ 	.probe	= mtk_rtc_probe,
+ 	.remove = mtk_rtc_remove,
+-- 
+1.8.1.1.dirty
 
 -- 
 -- 
