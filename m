@@ -1,30 +1,19 @@
-Return-Path: <rtc-linux+bncBAABB57E3SWQKGQEKRE3PQY@googlegroups.com>
-Received: from mail1.bemta5.messagelabs.com (mail1.bemta5.messagelabs.com. [195.245.231.147])
-        by gmr-mx.google.com with ESMTPS id ec7si489219wib.3.2015.07.28.00.42.47
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 28 Jul 2015 00:42:47 -0700 (PDT)
-From: "Opensource [Steve Twiss]" <stwiss.opensource@diasemi.com>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lee Jones
-	<lee.jones@linaro.org>
-CC: DEVICETREE <devicetree@vger.kernel.org>, Ian Campbell
-	<ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>,
-	LINUXINPUT <linux-input@vger.kernel.org>, LINUXKERNEL
-	<linux-kernel@vger.kernel.org>, Mark Rutland <mark.rutland@arm.com>, "Pawel
- Moll" <pawel.moll@arm.com>, RTCLINUX <rtc-linux@googlegroups.com>, Rob
- Herring <robh+dt@kernel.org>, David Dajun Chen <david.chen@diasemi.com>,
-	Samuel Ortiz <sameo@linux.intel.com>, Support Opensource
-	<Support.Opensource@diasemi.com>
-Subject: [rtc-linux] RE: [PATCH V3 3/3] devicetree: da9062: Add device tree
- bindings for DA9062 OnKey
-Date: Tue, 28 Jul 2015 07:42:42 +0000
-Message-ID: <6ED8E3B22081A4459DAC7699F3695FB7014B25C554@SW-EX-MBX02.diasemi.com>
-References: <cover.1437668261.git.stwiss.opensource@diasemi.com>
- <6bfae9b4f5475b59bddc4b71091121f1c0697a2d.1437668261.git.stwiss.opensource@diasemi.com>
- <20150727224300.GG3613@dtor-ws> <20150728054024.GA4558@dtor-ws>
-In-Reply-To: <20150728054024.GA4558@dtor-ws>
-Content-Type: text/plain; charset=UTF-8
+Return-Path: <rtc-linux+bncBDYN53XCUYHBBTU35GWQKGQEOISEKRY@googlegroups.com>
+Date: Thu, 30 Jul 2015 09:16:12 -0700 (PDT)
+From: suneelgarapati@gmail.com
+To: rtc-linux <rtc-linux@googlegroups.com>
+Cc: suneel.garapati@xilinx.com, linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org, a.zummo@towertech.it,
+	michals@xilinx.com, sorenb@xilinx.com, mark.rutland@arm.com
+Message-Id: <3278813f-e7ac-4749-a040-25ba0508ab29@googlegroups.com>
+In-Reply-To: <20150723115555.GC12330@leverpostej>
+References: <1437648710-6857-1-git-send-email-suneel.garapati@xilinx.com>
+ <20150723115555.GC12330@leverpostej>
+Subject: [rtc-linux] Re: [PATCH 1/2] devicetree: bindings: rtc: add bindings
+ for xilinx zynqmp rtc
 MIME-Version: 1.0
+Content-Type: multipart/mixed;
+	boundary="----=_Part_7448_287527463.1438272973091"
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -35,388 +24,90 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On 28 July 2015 06:40, Dmitry Torokhov wrote:
+------=_Part_7448_287527463.1438272973091
+Content-Type: multipart/alternative;
+	boundary="----=_Part_7449_1352081459.1438272973092"
 
-> Subject: Re: [PATCH V3 3/3] devicetree: da9062: Add device tree bindings for DA9062 OnKey
-> 
-> On Mon, Jul 27, 2015 at 03:43:00PM -0700, Dmitry Torokhov wrote:
-> > On Thu, Jul 23, 2015 at 05:17:41PM +0100, S Twiss wrote:
-> > > From: S Twiss <stwiss.opensource@diasemi.com>
-> > >
-> > > Add device tree bindings for the DA9062 OnKey driver component
-> > >
-> > > Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
-> > > ---
-> > > This patch applies against linux-next and next-20150708
-> > >
-> > >
-> > >  .../devicetree/bindings/input/da9062-onkey.txt     | 36
-> ++++++++++++++++++++++
-> > >  Documentation/devicetree/bindings/mfd/da9062.txt   |  3 ++
-> >
-> > I dropped bits for mfd/da9062.txt, changed to mention both 9062 and
-> > 9063, folded into the onkey patch and applied.
-> 
-> Argh, da9062 core is not in mainline yet... OK, below is the patch I
-> had; if Lee does not pick it up I'll re-apply it when da9062 core hits
-> mainline.
-> 
-> Thanks.
-> --
-> Dmitry
+------=_Part_7449_1352081459.1438272973092
+Content-Type: text/plain; charset=UTF-8
 
-Thanks Dmitry,
-The DA9062 core has been in linux-next for a couple of weeks now I think.
+Hi Mark,
 
-Hi Lee,
-I'm not certain of the procedure with this: the DA9062 core is in linux-next/next-2015mmdd 
-but has not yet made it to a mainline/v4.2-rcX so I guess it's not getting picked up for some other
-patches I have submitted for the DA9062 OnKey and RTC -- actually you already know about
-those two patch threads because you reviewed the MFD and DT parts last week!
-Oh well -- I guess I have drawn your attention to this anyway, I'm just not certain of the 
-timeline on this because it's something I've not done before.
+On Thursday, July 23, 2015 at 5:26:22 PM UTC+5:30, Mark Rutland wrote:
+>
+> On Thu, Jul 23, 2015 at 11:51:49AM +0100, Suneel Garapati wrote: 
+> > adds file for description on device node bindings for RTC 
+> > found on Xilinx Zynq Ultrascale+ MPSoC. 
+> > 
+> > Signed-off-by: Suneel Garapati <suneel....@xilinx.com <javascript:>> 
+> > --- 
+> >  Documentation/devicetree/bindings/rtc/xlnx-rtc.txt | 25 
+> ++++++++++++++++++++++ 
+> >  1 file changed, 25 insertions(+) 
+> >  create mode 100644 Documentation/devicetree/bindings/rtc/xlnx-rtc.txt 
+> > 
+> > diff --git a/Documentation/devicetree/bindings/rtc/xlnx-rtc.txt 
+> b/Documentation/devicetree/bindings/rtc/xlnx-rtc.txt 
+> > new file mode 100644 
+> > index 0000000..2b05243 
+> > --- /dev/null 
+> > +++ b/Documentation/devicetree/bindings/rtc/xlnx-rtc.txt 
+> > @@ -0,0 +1,25 @@ 
+> > +* Xilinx Zynq Ultrascale+ MPSoC Real Time Clock 
+> > + 
+> > +RTC controller for the Xilinx Zynq MPSoC Real Time Clock 
+> > +Separate IRQ lines for seconds and alarm 
+> > + 
+> > +Required properties: 
+> > +- compatible: Should be "xlnx,zynqmp-rtc" 
+> > +- reg: Physical base address of the controller and length 
+> > +       of memory mapped region. 
+> > +- interrupts: IRQ lines for the RTC. 
+> > +- interrupt names: Names for interrupt lines 
+>
+> interrupt-names has a '-', and you need to state which names are 
+> expected. 
+>
+> I will add the names and resend 
+
+> > + 
+> > +Optional: 
+> > +- calibration: calibration value for 1 sec period which will 
+> > +                be programmed directly to calibration register 
+>
+> When and why would I set this?
+
+Crystal efficiency varies from board to board based on ppm, this effects 
+the # ticks per sec and also temperature changes has an effect.
+This is one way to configure calibration value of # ticks per sec through 
+device tree, based on observations for a board.
 
 Regards,
-Stephen
+Suneel 
 
-> Input: add DA9062 OnKey capability to DA9063 OnKey driver
-> 
-> From: S Twiss <stwiss.opensource@diasemi.com>
-> 
-> Add DA9062 OnKey support into the existing DA9063 OnKey driver
-> component by
-> using generic access tables for common register and bit mask definitions.
-> 
-> The following change will add generic register and bit mask support to the
-> DA9063 OnKey.
-> 
-> The following alterations have been made to the DA9063 OnKey:
-> 
-> - Addition of a da906x_chip_config structure to hold all
->   generic registers and bitmasks for this type of OnKey component.
-> - Addition of an struct of_device_id table for DA9063 and DA9062
->   defaults
-> - Refactoring functions to use struct da9063_onkey accesses to generic
->   registers/masks instead of using defines from registers.h
-> - Re-work of da9063_onkey_probe() to use of_match_node() and
->   dev_get_regmap() to provide initialisation of generic registers and
->   masks and access to regmap
-> 
-> Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
-> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> ---
->  .../devicetree/bindings/input/da9062-onkey.txt     |   32 +++++
->  drivers/input/misc/Kconfig                         |    8 +
->  drivers/input/misc/da9063_onkey.c                  |  129 ++++++++++++++++----
->  3 files changed, 140 insertions(+), 29 deletions(-)
->  create mode 100644 Documentation/devicetree/bindings/input/da9062-
-> onkey.txt
-> 
-> diff --git a/Documentation/devicetree/bindings/input/da9062-onkey.txt
-> b/Documentation/devicetree/bindings/input/da9062-onkey.txt
-> new file mode 100644
-> index 0000000..ab0e048
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/input/da9062-onkey.txt
-> @@ -0,0 +1,32 @@
-> +* Dialog DA9062/63 OnKey Module
-> +
-> +This module is part of the DA9062/DA9063. For more details about entire
-> +chips see Documentation/devicetree/bindings/mfd/da9062.txt and
-> +Documentation/devicetree/bindings/mfd/da9063.txt
-> +
-> +This module provides KEY_POWER, KEY_SLEEP and events.
-> +
-> +Required properties:
-> +
-> +  - compatible: should be one of:
-> +	dlg,da9062-onkey
-> +	dlg,da9063-onkey
-> +
-> +Optional properties:
-> +
-> +  - dlg,disable-key-power : Disable power-down using a long key-press. If
-> this
-> +    entry exists the OnKey driver will remove support for the KEY_POWER
-> key
-> +    press. If this entry does not exist then by default the key-press
-> +    triggered power down is enabled and the OnKey will support both
-> KEY_POWER
-> +    and KEY_SLEEP.
-> +
-> +Example:
-> +
-> +	pmic0: da9062@58 {
-> +
-> +		onkey {
-> +			compatible = "dlg,da9063-onkey";
-> +			dlg,disable-key-power;
-> +		};
-> +
-> +	};
-> diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
-> index d4f0a81..d4b993d 100644
-> --- a/drivers/input/misc/Kconfig
-> +++ b/drivers/input/misc/Kconfig
-> @@ -611,11 +611,11 @@ config INPUT_DA9055_ONKEY
->  	  will be called da9055_onkey.
-> 
->  config INPUT_DA9063_ONKEY
-> -	tristate "Dialog DA9063 OnKey"
-> -	depends on MFD_DA9063
-> +	tristate "Dialog DA9062/63 OnKey"
-> +	depends on MFD_DA9063 || MFD_DA9062
->  	help
-> -	  Support the ONKEY of Dialog DA9063 Power Management IC as an
-> -	  input device reporting power button statue.
-> +	  Support the ONKEY of Dialog DA9063 and DA9062 Power
-> Management ICs
-> +	  as an input device capable of reporting the power button status.
-> 
->  	  To compile this driver as a module, choose M here: the module
->  	  will be called da9063_onkey.
-> diff --git a/drivers/input/misc/da9063_onkey.c
-> b/drivers/input/misc/da9063_onkey.c
-> index f577585..8eb697d 100644
-> --- a/drivers/input/misc/da9063_onkey.c
-> +++ b/drivers/input/misc/da9063_onkey.c
-> @@ -1,5 +1,5 @@
->  /*
-> - * OnKey device driver for DA9063
-> + * OnKey device driver for DA9063 and DA9062 PMICs
->   * Copyright (C) 2015  Dialog Semiconductor Ltd.
->   *
->   * This program is free software; you can redistribute it and/or
-> @@ -24,36 +24,96 @@
->  #include <linux/mfd/da9063/core.h>
->  #include <linux/mfd/da9063/pdata.h>
->  #include <linux/mfd/da9063/registers.h>
-> +#include <linux/mfd/da9062/core.h>
-> +#include <linux/mfd/da9062/registers.h>
-> +
-> +struct da906x_chip_config {
-> +	/* REGS */
-> +	int onkey_status;
-> +	int onkey_pwr_signalling;
-> +	int onkey_fault_log;
-> +	int onkey_shutdown;
-> +	/* MASKS */
-> +	int onkey_nonkey_mask;
-> +	int onkey_nonkey_lock_mask;
-> +	int onkey_key_reset_mask;
-> +	int onkey_shutdown_mask;
-> +	/* NAMES */
-> +	const char *name;
-> +};
-> 
->  struct da9063_onkey {
-> -	struct da9063 *hw;
->  	struct delayed_work work;
->  	struct input_dev *input;
->  	struct device *dev;
-> +	struct regmap *regmap;
-> +	const struct da906x_chip_config *config;
-> +	char phys[32];
->  	bool key_power;
->  };
-> 
-> +static const struct da906x_chip_config da9063_regs = {
-> +	/* REGS */
-> +	.onkey_status = DA9063_REG_STATUS_A,
-> +	.onkey_pwr_signalling = DA9063_REG_CONTROL_B,
-> +	.onkey_fault_log = DA9063_REG_FAULT_LOG,
-> +	.onkey_shutdown = DA9063_REG_CONTROL_F,
-> +	/* MASKS */
-> +	.onkey_nonkey_mask = DA9063_NONKEY,
-> +	.onkey_nonkey_lock_mask = DA9063_NONKEY_LOCK,
-> +	.onkey_key_reset_mask = DA9063_KEY_RESET,
-> +	.onkey_shutdown_mask = DA9063_SHUTDOWN,
-> +	/* NAMES */
-> +	.name = DA9063_DRVNAME_ONKEY,
-> +};
-> +
-> +static const struct da906x_chip_config da9062_regs = {
-> +	/* REGS */
-> +	.onkey_status = DA9062AA_STATUS_A,
-> +	.onkey_pwr_signalling = DA9062AA_CONTROL_B,
-> +	.onkey_fault_log = DA9062AA_FAULT_LOG,
-> +	.onkey_shutdown = DA9062AA_CONTROL_F,
-> +	/* MASKS */
-> +	.onkey_nonkey_mask = DA9062AA_NONKEY_MASK,
-> +	.onkey_nonkey_lock_mask = DA9062AA_NONKEY_LOCK_MASK,
-> +	.onkey_key_reset_mask = DA9062AA_KEY_RESET_MASK,
-> +	.onkey_shutdown_mask = DA9062AA_SHUTDOWN_MASK,
-> +	/* NAMES */
-> +	.name = "da9062-onkey",
-> +};
-> +
-> +static const struct of_device_id da9063_compatible_reg_id_table[] = {
-> +	{ .compatible = "dlg,da9063-onkey", .data = &da9063_regs },
-> +	{ .compatible = "dlg,da9062-onkey", .data = &da9062_regs },
-> +	{ },
-> +};
-> +
->  static void da9063_poll_on(struct work_struct *work)
->  {
-> -	struct da9063_onkey *onkey = container_of(work, struct
-> da9063_onkey,
-> -						  work.work);
-> +	struct da9063_onkey *onkey = container_of(work,
-> +						struct da9063_onkey,
-> +						work.work);
-> +	const struct da906x_chip_config *config = onkey->config;
->  	unsigned int val;
->  	int fault_log = 0;
->  	bool poll = true;
->  	int error;
-> 
->  	/* Poll to see when the pin is released */
-> -	error = regmap_read(onkey->hw->regmap,
-> DA9063_REG_STATUS_A, &val);
-> +	error = regmap_read(onkey->regmap,
-> +			    config->onkey_status,
-> +			    &val);
->  	if (error) {
->  		dev_err(onkey->dev,
->  			"Failed to read ON status: %d\n", error);
->  		goto err_poll;
->  	}
-> 
-> -	if (!(val & DA9063_NONKEY)) {
-> -		error = regmap_update_bits(onkey->hw->regmap,
-> -					   DA9063_REG_CONTROL_B,
-> -					   DA9063_NONKEY_LOCK, 0);
-> +	if (!(val & config->onkey_nonkey_mask)) {
-> +		error = regmap_update_bits(onkey->regmap,
-> +					   config->onkey_pwr_signalling,
-> +					   config->onkey_nonkey_lock_mask,
-> +					   0);
->  		if (error) {
->  			dev_err(onkey->dev,
->  				"Failed to reset the Key Delay %d\n", error);
-> @@ -70,15 +130,16 @@ static void da9063_poll_on(struct work_struct
-> *work)
->  	 * If the fault log KEY_RESET is detected, then clear it
->  	 * and shut down the system.
->  	 */
-> -	error = regmap_read(onkey->hw->regmap,
-> -			    DA9063_REG_FAULT_LOG, &fault_log);
-> +	error = regmap_read(onkey->regmap,
-> +			    config->onkey_fault_log,
-> +			    &fault_log);
->  	if (error) {
->  		dev_warn(&onkey->input->dev,
->  			 "Cannot read FAULT_LOG: %d\n", error);
-> -	} else if (fault_log & DA9063_KEY_RESET) {
-> -		error = regmap_write(onkey->hw->regmap,
-> -				     DA9063_REG_FAULT_LOG,
-> -				     DA9063_KEY_RESET);
-> +	} else if (fault_log & config->onkey_key_reset_mask) {
-> +		error = regmap_write(onkey->regmap,
-> +				     config->onkey_fault_log,
-> +				     config->onkey_key_reset_mask);
->  		if (error) {
->  			dev_warn(&onkey->input->dev,
->  				 "Cannot reset KEY_RESET fault log: %d\n",
-> @@ -88,10 +149,10 @@ static void da9063_poll_on(struct work_struct
-> *work)
->  			 * and then send shutdown command
->  			 */
->  			dev_dbg(&onkey->input->dev,
-> -				 "Sending SHUTDOWN to DA9063 ...\n");
-> -			error = regmap_write(onkey->hw->regmap,
-> -					     DA9063_REG_CONTROL_F,
-> -					     DA9063_SHUTDOWN);
-> +				"Sending SHUTDOWN to DA9063 ...\n");
-> +			error = regmap_write(onkey->regmap,
-> +					     config->onkey_shutdown,
-> +					     config->onkey_shutdown_mask);
->  			if (error)
->  				dev_err(&onkey->input->dev,
->  					"Cannot SHUTDOWN DA9063: %d\n",
-> @@ -107,11 +168,14 @@ err_poll:
->  static irqreturn_t da9063_onkey_irq_handler(int irq, void *data)
->  {
->  	struct da9063_onkey *onkey = data;
-> +	const struct da906x_chip_config *config = onkey->config;
->  	unsigned int val;
->  	int error;
-> 
-> -	error = regmap_read(onkey->hw->regmap,
-> DA9063_REG_STATUS_A, &val);
-> -	if (onkey->key_power && !error && (val & DA9063_NONKEY)) {
-> +	error = regmap_read(onkey->regmap,
-> +			    config->onkey_status,
-> +			    &val);
-> +	if (onkey->key_power && !error && (val & config-
-> >onkey_nonkey_mask)) {
->  		input_report_key(onkey->input, KEY_POWER, 1);
->  		input_sync(onkey->input);
->  		schedule_delayed_work(&onkey->work, 0);
-> @@ -139,9 +203,15 @@ static int da9063_onkey_probe(struct
-> platform_device *pdev)
->  	struct da9063 *da9063 = dev_get_drvdata(pdev->dev.parent);
->  	struct da9063_pdata *pdata = dev_get_platdata(da9063->dev);
->  	struct da9063_onkey *onkey;
-> +	const struct of_device_id *match;
->  	int irq;
->  	int error;
-> 
-> +	match = of_match_node(da9063_compatible_reg_id_table,
-> +			      pdev->dev.of_node);
-> +	if (!match)
-> +		return -ENXIO;
-> +
->  	onkey = devm_kzalloc(&pdev->dev, sizeof(struct da9063_onkey),
->  			     GFP_KERNEL);
->  	if (!onkey) {
-> @@ -149,8 +219,14 @@ static int da9063_onkey_probe(struct
-> platform_device *pdev)
->  		return -ENOMEM;
->  	}
-> 
-> +	onkey->config = match->data;
->  	onkey->dev = &pdev->dev;
-> -	onkey->hw = da9063;
-> +
-> +	onkey->regmap = dev_get_regmap(pdev->dev.parent, NULL);
-> +	if (!onkey->regmap) {
-> +		dev_err(&pdev->dev, "Parent regmap unavailable.\n");
-> +		return -ENXIO;
-> +	}
-> 
->  	if (pdata)
->  		onkey->key_power = pdata->key_power;
-> @@ -165,8 +241,10 @@ static int da9063_onkey_probe(struct
-> platform_device *pdev)
->  		return -ENOMEM;
->  	}
-> 
-> -	onkey->input->name = DA9063_DRVNAME_ONKEY;
-> -	onkey->input->phys = DA9063_DRVNAME_ONKEY "/input0";
-> +	onkey->input->name = onkey->config->name;
-> +	snprintf(onkey->phys, sizeof(onkey->phys), "%s/input0",
-> +		 onkey->config->name);
-> +	onkey->input->phys = onkey->phys;
->  	onkey->input->dev.parent = &pdev->dev;
-> 
->  	if (onkey->key_power)
-> @@ -216,11 +294,12 @@ static struct platform_driver da9063_onkey_driver
-> = {
->  	.probe	= da9063_onkey_probe,
->  	.driver	= {
->  		.name	= DA9063_DRVNAME_ONKEY,
-> +		.of_match_table = da9063_compatible_reg_id_table,
->  	},
->  };
->  module_platform_driver(da9063_onkey_driver);
-> 
->  MODULE_AUTHOR("S Twiss <stwiss.opensource@diasemi.com>");
-> -MODULE_DESCRIPTION("Onkey device driver for Dialog DA9063");
-> +MODULE_DESCRIPTION("Onkey device driver for Dialog DA9063 and
-> DA9062");
->  MODULE_LICENSE("GPL");
->  MODULE_ALIAS("platform:" DA9063_DRVNAME_ONKEY);
+
+>
+> Mark. 
+>
+> > + 
+> > +Example: 
+> > +rtc: rtc@ffa60000 { 
+> > +        compatible = "xlnx,zynqmp-rtc"; 
+> > +        reg = <0x0 0xffa60000 0x100>; 
+> > +        interrupt-parent = <&gic>; 
+> > +        interrupts = <0 26 4>, <0 27 4>; 
+> > +        interrupt-names = "alm", "sec"; 
+> > +        calibration = <0x198233>; 
+> > +}; 
+> > -- 
+> > 2.1.2 
+> > 
+> > _______________________________________________ 
+> > linux-arm-kernel mailing list 
+> > linux-ar...@lists.infradead.org <javascript:> 
+> > http://lists.infradead.org/mailman/listinfo/linux-arm-kernel 
+> > 
+>
 
 -- 
 -- 
@@ -428,3 +119,127 @@ before submitting a driver.
 You received this message because you are subscribed to the Google Groups "rtc-linux" group.
 To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
+
+------=_Part_7449_1352081459.1438272973092
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+Hi Mark,<br><br>On Thursday, July 23, 2015 at 5:26:22 PM UTC+5:30, Mark Rut=
+land wrote:<blockquote class=3D"gmail_quote" style=3D"margin: 0;margin-left=
+: 0.8ex;border-left: 1px #ccc solid;padding-left: 1ex;">On Thu, Jul 23, 201=
+5 at 11:51:49AM +0100, Suneel Garapati wrote:
+<br>&gt; adds file for description on device node bindings for RTC
+<br>&gt; found on Xilinx Zynq Ultrascale+ MPSoC.
+<br>&gt;=20
+<br>&gt; Signed-off-by: Suneel Garapati &lt;<a href=3D"javascript:" target=
+=3D"_blank" rel=3D"nofollow" onmousedown=3D"this.href=3D&#39;javascript:&#3=
+9;;return true;" onclick=3D"this.href=3D&#39;javascript:&#39;;return true;"=
+>suneel....@xilinx.com</a>&gt;
+<br>&gt; ---
+<br>&gt; =C2=A0Documentation/devicetree/bindings/rtc/xlnx-rtc.txt | 25 ++++=
+++++++++++++++++++
+<br>&gt; =C2=A01 file changed, 25 insertions(+)
+<br>&gt; =C2=A0create mode 100644 Documentation/devicetree/bindings/rtc/xln=
+x-rtc.txt
+<br>&gt;=20
+<br>&gt; diff --git a/Documentation/devicetree/bindings/rtc/xlnx-rtc.txt b/=
+Documentation/devicetree/bindings/rtc/xlnx-rtc.txt
+<br>&gt; new file mode 100644
+<br>&gt; index 0000000..2b05243
+<br>&gt; --- /dev/null
+<br>&gt; +++ b/Documentation/devicetree/bindings/rtc/xlnx-rtc.txt
+<br>&gt; @@ -0,0 +1,25 @@
+<br>&gt; +* Xilinx Zynq Ultrascale+ MPSoC Real Time Clock
+<br>&gt; +
+<br>&gt; +RTC controller for the Xilinx Zynq MPSoC Real Time Clock
+<br>&gt; +Separate IRQ lines for seconds and alarm
+<br>&gt; +
+<br>&gt; +Required properties:
+<br>&gt; +- compatible: Should be &quot;xlnx,zynqmp-rtc&quot;
+<br>&gt; +- reg: Physical base address of the controller and length
+<br>&gt; + =C2=A0 =C2=A0 =C2=A0 of memory mapped region.
+<br>&gt; +- interrupts: IRQ lines for the RTC.
+<br>&gt; +- interrupt names: Names for interrupt lines
+<br>
+<br>interrupt-names has a &#39;-&#39;, and you need to state which names ar=
+e
+<br>expected.
+<br>
+<br></blockquote><div>I will add the names and resend=C2=A0</div><blockquot=
+e class=3D"gmail_quote" style=3D"margin: 0;margin-left: 0.8ex;border-left: =
+1px #ccc solid;padding-left: 1ex;">&gt; +
+<br>&gt; +Optional:
+<br>&gt; +- calibration: calibration value for 1 sec period which will
+<br>&gt; +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0be programmed directly to calibration regi=
+ster
+<br>
+<br>When and why would I set this?</blockquote><div>Crystal efficiency vari=
+es from board to board based on ppm, this effects the # ticks per sec and a=
+lso temperature changes has an effect.</div><div>This is one way to configu=
+re calibration value of # ticks per sec through device tree, based on obser=
+vations for a board.</div><div><br></div><div>Regards,</div><div>Suneel=C2=
+=A0</div><div><br></div><blockquote class=3D"gmail_quote" style=3D"margin: =
+0;margin-left: 0.8ex;border-left: 1px #ccc solid;padding-left: 1ex;">
+<br>
+<br>Mark.
+<br>
+<br>&gt; +
+<br>&gt; +Example:
+<br>&gt; +rtc: rtc@ffa60000 {
+<br>&gt; +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0compatible =3D &q=
+uot;xlnx,zynqmp-rtc&quot;;
+<br>&gt; +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0reg =3D &lt;0x0 0=
+xffa60000 0x100&gt;;
+<br>&gt; +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0interrupt-parent =
+=3D &lt;&amp;gic&gt;;
+<br>&gt; +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0interrupts =3D &l=
+t;0 26 4&gt;, &lt;0 27 4&gt;;
+<br>&gt; +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0interrupt-names =
+=3D &quot;alm&quot;, &quot;sec&quot;;
+<br>&gt; +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0calibration =3D &=
+lt;0x198233&gt;;
+<br>&gt; +};
+<br>&gt; --
+<br>&gt; 2.1.2
+<br>&gt;=20
+<br>&gt; _______________________________________________
+<br>&gt; linux-arm-kernel mailing list
+<br>&gt; <a href=3D"javascript:" target=3D"_blank" rel=3D"nofollow" onmouse=
+down=3D"this.href=3D&#39;javascript:&#39;;return true;" onclick=3D"this.hre=
+f=3D&#39;javascript:&#39;;return true;">linux-ar...@lists.infradead.org</a>
+<br>&gt; <a href=3D"http://lists.infradead.org/mailman/listinfo/linux-arm-k=
+ernel" target=3D"_blank" rel=3D"nofollow" onmousedown=3D"this.href=3D&#39;h=
+ttp://www.google.com/url?q\75http%3A%2F%2Flists.infradead.org%2Fmailman%2Fl=
+istinfo%2Flinux-arm-kernel\46sa\75D\46sntz\0751\46usg\75AFQjCNFVK8OeuW9xY29=
+4bGsUtm4f-5lcRQ&#39;;return true;" onclick=3D"this.href=3D&#39;http://www.g=
+oogle.com/url?q\75http%3A%2F%2Flists.infradead.org%2Fmailman%2Flistinfo%2Fl=
+inux-arm-kernel\46sa\75D\46sntz\0751\46usg\75AFQjCNFVK8OeuW9xY294bGsUtm4f-5=
+lcRQ&#39;;return true;">http://lists.infradead.org/mailman/listinfo/linux-a=
+rm-kernel</a>
+<br>&gt;=20
+<br></blockquote>
+
+<p></p>
+
+-- <br />
+-- <br />
+You received this message because you are subscribed to &quot;rtc-linux&quo=
+t;.<br />
+Membership options at <a href=3D"http://groups.google.com/group/rtc-linux">=
+http://groups.google.com/group/rtc-linux</a> .<br />
+Please read <a href=3D"http://groups.google.com/group/rtc-linux/web/checkli=
+st">http://groups.google.com/group/rtc-linux/web/checklist</a><br />
+before submitting a driver.<br />
+--- <br />
+You received this message because you are subscribed to the Google Groups &=
+quot;rtc-linux&quot; group.<br />
+To unsubscribe from this group and stop receiving emails from it, send an e=
+mail to <a href=3D"mailto:rtc-linux+unsubscribe@googlegroups.com">rtc-linux=
++unsubscribe@googlegroups.com</a>.<br />
+For more options, visit <a href=3D"https://groups.google.com/d/optout">http=
+s://groups.google.com/d/optout</a>.<br />
+
+------=_Part_7449_1352081459.1438272973092--
+
+------=_Part_7448_287527463.1438272973091--
