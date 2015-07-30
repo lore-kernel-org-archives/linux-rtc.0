@@ -1,21 +1,24 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBMMPS2WQKGQEZR3ZFFA@googlegroups.com>
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id ec7si149178wib.3.2015.07.14.15.05.36
-        for <rtc-linux@googlegroups.com>;
-        Tue, 14 Jul 2015 15:05:36 -0700 (PDT)
-Date: Wed, 15 Jul 2015 00:05:35 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Fabio Estevam <festevam@gmail.com>
-Cc: gregory.clement@free-electrons.com, rtc-linux@googlegroups.com,
-	Fabio Estevam <fabio.estevam@freescale.com>
-Subject: Re: [rtc-linux] [PATCH] drivers/rtc/rtc-armada38x: Remove unused
- variable from armada38x_rtc_set_time()
-Message-ID: <20150714220535.GD20482@piout.net>
-References: <1436034454-10473-1-git-send-email-festevam@gmail.com>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBVW54WWQKGQERM6RLBI@googlegroups.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1436034454-10473-1-git-send-email-festevam@gmail.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id cj6si777351wib.1.2015.07.29.17.24.54
+        for <rtc-linux@googlegroups.com>;
+        Wed, 29 Jul 2015 17:24:54 -0700 (PDT)
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Nicolas Ferre <nicolas.ferre@atmel.com>
+Cc: Boris Brezillon <boris.brezillon@free-electrons.com>,
+	linux-arm-kernel@lists.infradead.org,
+	rtc-linux@googlegroups.com,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	linux-kernel@vger.kernel.org,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Subject: [rtc-linux] [PATCH 4/5] rtc: at91sam9: get sclk rate after enabling it
+Date: Thu, 30 Jul 2015 02:24:31 +0200
+Message-Id: <1438215872-27794-4-git-send-email-alexandre.belloni@free-electrons.com>
+In-Reply-To: <1438215872-27794-1-git-send-email-alexandre.belloni@free-electrons.com>
+References: <1438215872-27794-1-git-send-email-alexandre.belloni@free-electrons.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -25,21 +28,48 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On 04/07/2015 at 15:27:34 -0300, Fabio Estevam wrote :
-> From: Fabio Estevam <fabio.estevam@freescale.com>
-> 
-> Remove the 'flags' variable in order to fix the following warning:
-> 
-> drivers/rtc/rtc-armada38x.c:91:22: warning: unused variable 'flags' [-Wunused-variable]
-> 
-> Signed-off-by: Fabio Estevam <fabio.estevam@freescale.com>
-Applied, thanks.
+See help for clk_get_rate(): "obtain the current clock rate (in Hz) for a
+clock source. This is only valid once the clock source has been enabled."
 
+It currently returns the correct value but that may not stay that way.
 
+Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+---
+ drivers/rtc/rtc-at91sam9.c | 13 +++++++------
+ 1 file changed, 7 insertions(+), 6 deletions(-)
+
+diff --git a/drivers/rtc/rtc-at91sam9.c b/drivers/rtc/rtc-at91sam9.c
+index 23f721d049b2..f9e85ace5e71 100644
+--- a/drivers/rtc/rtc-at91sam9.c
++++ b/drivers/rtc/rtc-at91sam9.c
+@@ -425,18 +425,19 @@ static int at91_rtc_probe(struct platform_device *pdev)
+ 	if (IS_ERR(rtc->sclk))
+ 		return PTR_ERR(rtc->sclk);
+ 
+-	sclk_rate = clk_get_rate(rtc->sclk);
+-	if (!sclk_rate || sclk_rate > AT91_RTT_RTPRES) {
+-		dev_err(&pdev->dev, "Invalid slow clock rate\n");
+-		return -EINVAL;
+-	}
+-
+ 	ret = clk_prepare_enable(rtc->sclk);
+ 	if (ret) {
+ 		dev_err(&pdev->dev, "Could not enable slow clock\n");
+ 		return ret;
+ 	}
+ 
++	sclk_rate = clk_get_rate(rtc->sclk);
++	if (!sclk_rate || sclk_rate > AT91_RTT_RTPRES) {
++		dev_err(&pdev->dev, "Invalid slow clock rate\n");
++		ret = -EINVAL;
++		goto err_clk;
++	}
++
+ 	mr = rtt_readl(rtc, MR);
+ 
+ 	/* unless RTT is counting at 1 Hz, re-initialize it */
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+2.1.4
 
 -- 
 -- 
