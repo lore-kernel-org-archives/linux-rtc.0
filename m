@@ -1,28 +1,32 @@
-Return-Path: <rtc-linux+bncBAABBIEAWSWQKGQETMGXYQQ@googlegroups.com>
-Received: from mail1.bemta3.messagelabs.com (mail1.bemta3.messagelabs.com. [195.245.230.163])
-        by gmr-mx.google.com with ESMTPS id q10si399461wiz.0.2015.07.20.07.05.20
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 20 Jul 2015 07:05:20 -0700 (PDT)
-Message-ID: <5bfa3e1947b9d04de86d9bbc59acd98dbb8b9e07.1437399438.git.stwiss.opensource@diasemi.com>
-In-Reply-To: <cover.1437399438.git.stwiss.opensource@diasemi.com>
-References: <cover.1437399438.git.stwiss.opensource@diasemi.com>
-From: S Twiss <stwiss.opensource@diasemi.com>
-Date: Mon, 20 Jul 2015 14:37:18 +0100
-Subject: [rtc-linux] [PATCH V2 2/3] onkey: da9063: Add DA9062 OnKey capability
- to DA9063 OnKey driver
-To: DEVICETREE <devicetree@vger.kernel.org>, Dmitry Torokhov
-	<dmitry.torokhov@gmail.com>, LINUXINPUT <linux-input@vger.kernel.org>,
-	LINUXKERNEL <linux-kernel@vger.kernel.org>, RTCLINUX
-	<rtc-linux@googlegroups.com>, S Twiss <stwiss.opensource@diasemi.com>
-CC: David Dajun Chen <david.chen@diasemi.com>, Ian Campbell
-	<ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Lee Jones
-	<lee.jones@linaro.org>, Mark Rutland <mark.rutland@arm.com>, Pawel Moll
-	<pawel.moll@arm.com>, Rob Herring <robh+dt@kernel.org>, Samuel Ortiz
-	<sameo@linux.intel.com>, Support Opensource <support.opensource@diasemi.com>
+Return-Path: <rtc-linux+bncBCRIZROPVQPBBT7I5SWQKGQEGRNOAHI@googlegroups.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Received: from mail-pa0-f47.google.com (mail-pa0-f47.google.com. [209.85.220.47])
+        by gmr-mx.google.com with ESMTPS id ys2si711272pac.0.2015.07.31.01.39.42
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Fri, 31 Jul 2015 01:39:42 -0700 (PDT)
+Received: by mail-pa0-f47.google.com with SMTP id hj5so37461640pac.3
+        for <rtc-linux@googlegroups.com>; Fri, 31 Jul 2015 01:39:42 -0700 (PDT)
+From: Viresh Kumar <viresh.kumar@linaro.org>
+To: akpm@linux-foundation.org
+Cc: linaro-kernel@lists.linaro.org,
+	linux-kernel@vger.kernel.org,
+	Viresh Kumar <viresh.kumar@linaro.org>,
+	adi-buildroot-devel@lists.sourceforge.net (moderated list:BLACKFIN RTC DRIVER),
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Hans Ulli Kroll <ulli.kroll@googlemail.com>,
+	linux-arm-kernel@lists.infradead.org (moderated list:ARM/CORTINA SYSTEMS GEMINI ARM ARCHITECTURE),
+	rtc-linux@googlegroups.com (open list:REAL TIME CLOCK (RTC) SUBSYSTEM)
+Subject: [rtc-linux] [PATCH 09/15] drivers: rtc: Drop unlikely before IS_ERR(_OR_NULL)
+Date: Fri, 31 Jul 2015 14:08:29 +0530
+Message-Id: <cdfa3fb76901fe1c4a5756e7e64cb3370cf6317a.1438331416.git.viresh.kumar@linaro.org>
+In-Reply-To: <cover.1438331416.git.viresh.kumar@linaro.org>
+References: <cover.1438331416.git.viresh.kumar@linaro.org>
+In-Reply-To: <cover.1438331416.git.viresh.kumar@linaro.org>
+References: <cover.1438331416.git.viresh.kumar@linaro.org>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -32,297 +36,57 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-From: S Twiss <stwiss.opensource@diasemi.com>
+IS_ERR(_OR_NULL) already contain an 'unlikely' compiler flag and there
+is no need to do that again from its callers. Drop it.
 
-Add DA9062 OnKey support into the existing DA9063 OnKey driver component by
-using generic access tables for common register and bit mask definitions.
-
-The following change will add generic register and bit mask support to the
-DA9063 OnKey.
-
-The following alterations have been made to the DA9063 OnKey:
-
-- Addition of a da906x_chip_config structure to hold all
-  generic registers and bitmasks for this type of OnKey component.
-- Addition of an struct of_device_id table for DA9063 and DA9062
-  defaults
-- Refactoring functions to use struct da9063_onkey accesses to generic
-  registers/masks instead of using defines from registers.h
-- Re-work of da9063_onkey_probe() to use of_match_node() and
-  dev_get_regmap() to provide initialisation of generic registers and
-  masks and access to regmap
-
-Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
-
+Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
 ---
-Checks performed with linux-next/next-20150708/scripts/checkpatch.pl
- Kconfig                   total: 0 errors, 14 warnings, 810 lines checked
- da9063_onkey.c            total: 0 errors, 2 warnings, 305 lines checked
-Changes in V2:
- - Altered Kconfig to use the line "Dialog DA9062/63 OnKey"
- - Rename of da9063_compatible_onkey_regmap to da906x_chip_config
- - char *name changed to const char *name
- - Rename struct da9063_compatible_onkey {} back to struct da9063_onkey
+ drivers/rtc/interface.c  | 2 +-
+ drivers/rtc/rtc-bfin.c   | 2 +-
+ drivers/rtc/rtc-gemini.c | 2 +-
+ 3 files changed, 3 insertions(+), 3 deletions(-)
 
-This patch applies against linux-next and next-20150708 
-
-
- drivers/input/misc/Kconfig        |   8 +--
- drivers/input/misc/da9063_onkey.c | 129 ++++++++++++++++++++++++++++++--------
- 2 files changed, 108 insertions(+), 29 deletions(-)
-
-diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
-index d4f0a81..2610cfa 100644
---- a/drivers/input/misc/Kconfig
-+++ b/drivers/input/misc/Kconfig
-@@ -611,11 +611,11 @@ config INPUT_DA9055_ONKEY
- 	  will be called da9055_onkey.
- 
- config INPUT_DA9063_ONKEY
--	tristate "Dialog DA9063 OnKey"
--	depends on MFD_DA9063
-+	tristate "Dialog DA9062/63 OnKey"
-+	depends on MFD_DA9063 || MFD_DA9062
- 	help
--	  Support the ONKEY of Dialog DA9063 Power Management IC as an
--	  input device reporting power button statue.
-+	  Support the ONKEY of Dialog DA9063 and DA9062 Power Management ICs
-+	  as an input device capable for reporting the power button status.
- 
- 	  To compile this driver as a module, choose M here: the module
- 	  will be called da9063_onkey.
-diff --git a/drivers/input/misc/da9063_onkey.c b/drivers/input/misc/da9063_onkey.c
-index f577585..8eb697d 100644
---- a/drivers/input/misc/da9063_onkey.c
-+++ b/drivers/input/misc/da9063_onkey.c
-@@ -1,5 +1,5 @@
- /*
-- * OnKey device driver for DA9063
-+ * OnKey device driver for DA9063 and DA9062 PMICs
-  * Copyright (C) 2015  Dialog Semiconductor Ltd.
-  *
-  * This program is free software; you can redistribute it and/or
-@@ -24,36 +24,96 @@
- #include <linux/mfd/da9063/core.h>
- #include <linux/mfd/da9063/pdata.h>
- #include <linux/mfd/da9063/registers.h>
-+#include <linux/mfd/da9062/core.h>
-+#include <linux/mfd/da9062/registers.h>
-+
-+struct da906x_chip_config {
-+	/* REGS */
-+	int onkey_status;
-+	int onkey_pwr_signalling;
-+	int onkey_fault_log;
-+	int onkey_shutdown;
-+	/* MASKS */
-+	int onkey_nonkey_mask;
-+	int onkey_nonkey_lock_mask;
-+	int onkey_key_reset_mask;
-+	int onkey_shutdown_mask;
-+	/* NAMES */
-+	const char *name;
-+};
- 
- struct da9063_onkey {
--	struct da9063 *hw;
- 	struct delayed_work work;
- 	struct input_dev *input;
- 	struct device *dev;
-+	struct regmap *regmap;
-+	const struct da906x_chip_config *config;
-+	char phys[32];
- 	bool key_power;
- };
- 
-+static const struct da906x_chip_config da9063_regs = {
-+	/* REGS */
-+	.onkey_status = DA9063_REG_STATUS_A,
-+	.onkey_pwr_signalling = DA9063_REG_CONTROL_B,
-+	.onkey_fault_log = DA9063_REG_FAULT_LOG,
-+	.onkey_shutdown = DA9063_REG_CONTROL_F,
-+	/* MASKS */
-+	.onkey_nonkey_mask = DA9063_NONKEY,
-+	.onkey_nonkey_lock_mask = DA9063_NONKEY_LOCK,
-+	.onkey_key_reset_mask = DA9063_KEY_RESET,
-+	.onkey_shutdown_mask = DA9063_SHUTDOWN,
-+	/* NAMES */
-+	.name = DA9063_DRVNAME_ONKEY,
-+};
-+
-+static const struct da906x_chip_config da9062_regs = {
-+	/* REGS */
-+	.onkey_status = DA9062AA_STATUS_A,
-+	.onkey_pwr_signalling = DA9062AA_CONTROL_B,
-+	.onkey_fault_log = DA9062AA_FAULT_LOG,
-+	.onkey_shutdown = DA9062AA_CONTROL_F,
-+	/* MASKS */
-+	.onkey_nonkey_mask = DA9062AA_NONKEY_MASK,
-+	.onkey_nonkey_lock_mask = DA9062AA_NONKEY_LOCK_MASK,
-+	.onkey_key_reset_mask = DA9062AA_KEY_RESET_MASK,
-+	.onkey_shutdown_mask = DA9062AA_SHUTDOWN_MASK,
-+	/* NAMES */
-+	.name = "da9062-onkey",
-+};
-+
-+static const struct of_device_id da9063_compatible_reg_id_table[] = {
-+	{ .compatible = "dlg,da9063-onkey", .data = &da9063_regs },
-+	{ .compatible = "dlg,da9062-onkey", .data = &da9062_regs },
-+	{ },
-+};
-+
- static void da9063_poll_on(struct work_struct *work)
+diff --git a/drivers/rtc/interface.c b/drivers/rtc/interface.c
+index 11b639067312..5836751b8203 100644
+--- a/drivers/rtc/interface.c
++++ b/drivers/rtc/interface.c
+@@ -564,7 +564,7 @@ enum hrtimer_restart rtc_pie_update_irq(struct hrtimer *timer)
+ void rtc_update_irq(struct rtc_device *rtc,
+ 		unsigned long num, unsigned long events)
  {
--	struct da9063_onkey *onkey = container_of(work, struct da9063_onkey,
--						  work.work);
-+	struct da9063_onkey *onkey = container_of(work,
-+						struct da9063_onkey,
-+						work.work);
-+	const struct da906x_chip_config *config = onkey->config;
- 	unsigned int val;
- 	int fault_log = 0;
- 	bool poll = true;
- 	int error;
+-	if (unlikely(IS_ERR_OR_NULL(rtc)))
++	if (IS_ERR_OR_NULL(rtc))
+ 		return;
  
- 	/* Poll to see when the pin is released */
--	error = regmap_read(onkey->hw->regmap, DA9063_REG_STATUS_A, &val);
-+	error = regmap_read(onkey->regmap,
-+			    config->onkey_status,
-+			    &val);
- 	if (error) {
- 		dev_err(onkey->dev,
- 			"Failed to read ON status: %d\n", error);
- 		goto err_poll;
- 	}
+ 	pm_stay_awake(rtc->dev.parent);
+diff --git a/drivers/rtc/rtc-bfin.c b/drivers/rtc/rtc-bfin.c
+index 3d44b11721ea..535a5f9338d0 100644
+--- a/drivers/rtc/rtc-bfin.c
++++ b/drivers/rtc/rtc-bfin.c
+@@ -361,7 +361,7 @@ static int bfin_rtc_probe(struct platform_device *pdev)
+ 	/* Register our RTC with the RTC framework */
+ 	rtc->rtc_dev = devm_rtc_device_register(dev, pdev->name, &bfin_rtc_ops,
+ 						THIS_MODULE);
+-	if (unlikely(IS_ERR(rtc->rtc_dev)))
++	if (IS_ERR(rtc->rtc_dev))
+ 		return PTR_ERR(rtc->rtc_dev);
  
--	if (!(val & DA9063_NONKEY)) {
--		error = regmap_update_bits(onkey->hw->regmap,
--					   DA9063_REG_CONTROL_B,
--					   DA9063_NONKEY_LOCK, 0);
-+	if (!(val & config->onkey_nonkey_mask)) {
-+		error = regmap_update_bits(onkey->regmap,
-+					   config->onkey_pwr_signalling,
-+					   config->onkey_nonkey_lock_mask,
-+					   0);
- 		if (error) {
- 			dev_err(onkey->dev,
- 				"Failed to reset the Key Delay %d\n", error);
-@@ -70,15 +130,16 @@ static void da9063_poll_on(struct work_struct *work)
- 	 * If the fault log KEY_RESET is detected, then clear it
- 	 * and shut down the system.
- 	 */
--	error = regmap_read(onkey->hw->regmap,
--			    DA9063_REG_FAULT_LOG, &fault_log);
-+	error = regmap_read(onkey->regmap,
-+			    config->onkey_fault_log,
-+			    &fault_log);
- 	if (error) {
- 		dev_warn(&onkey->input->dev,
- 			 "Cannot read FAULT_LOG: %d\n", error);
--	} else if (fault_log & DA9063_KEY_RESET) {
--		error = regmap_write(onkey->hw->regmap,
--				     DA9063_REG_FAULT_LOG,
--				     DA9063_KEY_RESET);
-+	} else if (fault_log & config->onkey_key_reset_mask) {
-+		error = regmap_write(onkey->regmap,
-+				     config->onkey_fault_log,
-+				     config->onkey_key_reset_mask);
- 		if (error) {
- 			dev_warn(&onkey->input->dev,
- 				 "Cannot reset KEY_RESET fault log: %d\n",
-@@ -88,10 +149,10 @@ static void da9063_poll_on(struct work_struct *work)
- 			 * and then send shutdown command
- 			 */
- 			dev_dbg(&onkey->input->dev,
--				 "Sending SHUTDOWN to DA9063 ...\n");
--			error = regmap_write(onkey->hw->regmap,
--					     DA9063_REG_CONTROL_F,
--					     DA9063_SHUTDOWN);
-+				"Sending SHUTDOWN to DA9063 ...\n");
-+			error = regmap_write(onkey->regmap,
-+					     config->onkey_shutdown,
-+					     config->onkey_shutdown_mask);
- 			if (error)
- 				dev_err(&onkey->input->dev,
- 					"Cannot SHUTDOWN DA9063: %d\n",
-@@ -107,11 +168,14 @@ err_poll:
- static irqreturn_t da9063_onkey_irq_handler(int irq, void *data)
- {
- 	struct da9063_onkey *onkey = data;
-+	const struct da906x_chip_config *config = onkey->config;
- 	unsigned int val;
- 	int error;
+ 	/* Grab the IRQ and init the hardware */
+diff --git a/drivers/rtc/rtc-gemini.c b/drivers/rtc/rtc-gemini.c
+index 35f4486738fc..2fed93e1114a 100644
+--- a/drivers/rtc/rtc-gemini.c
++++ b/drivers/rtc/rtc-gemini.c
+@@ -148,7 +148,7 @@ static int gemini_rtc_probe(struct platform_device *pdev)
  
--	error = regmap_read(onkey->hw->regmap, DA9063_REG_STATUS_A, &val);
--	if (onkey->key_power && !error && (val & DA9063_NONKEY)) {
-+	error = regmap_read(onkey->regmap,
-+			    config->onkey_status,
-+			    &val);
-+	if (onkey->key_power && !error && (val & config->onkey_nonkey_mask)) {
- 		input_report_key(onkey->input, KEY_POWER, 1);
- 		input_sync(onkey->input);
- 		schedule_delayed_work(&onkey->work, 0);
-@@ -139,9 +203,15 @@ static int da9063_onkey_probe(struct platform_device *pdev)
- 	struct da9063 *da9063 = dev_get_drvdata(pdev->dev.parent);
- 	struct da9063_pdata *pdata = dev_get_platdata(da9063->dev);
- 	struct da9063_onkey *onkey;
-+	const struct of_device_id *match;
- 	int irq;
- 	int error;
+ 	rtc->rtc_dev = rtc_device_register(pdev->name, dev,
+ 					   &gemini_rtc_ops, THIS_MODULE);
+-	if (likely(IS_ERR(rtc->rtc_dev)))
++	if (IS_ERR(rtc->rtc_dev))
+ 		return PTR_ERR(rtc->rtc_dev);
  
-+	match = of_match_node(da9063_compatible_reg_id_table,
-+			      pdev->dev.of_node);
-+	if (!match)
-+		return -ENXIO;
-+
- 	onkey = devm_kzalloc(&pdev->dev, sizeof(struct da9063_onkey),
- 			     GFP_KERNEL);
- 	if (!onkey) {
-@@ -149,8 +219,14 @@ static int da9063_onkey_probe(struct platform_device *pdev)
- 		return -ENOMEM;
- 	}
- 
-+	onkey->config = match->data;
- 	onkey->dev = &pdev->dev;
--	onkey->hw = da9063;
-+
-+	onkey->regmap = dev_get_regmap(pdev->dev.parent, NULL);
-+	if (!onkey->regmap) {
-+		dev_err(&pdev->dev, "Parent regmap unavailable.\n");
-+		return -ENXIO;
-+	}
- 
- 	if (pdata)
- 		onkey->key_power = pdata->key_power;
-@@ -165,8 +241,10 @@ static int da9063_onkey_probe(struct platform_device *pdev)
- 		return -ENOMEM;
- 	}
- 
--	onkey->input->name = DA9063_DRVNAME_ONKEY;
--	onkey->input->phys = DA9063_DRVNAME_ONKEY "/input0";
-+	onkey->input->name = onkey->config->name;
-+	snprintf(onkey->phys, sizeof(onkey->phys), "%s/input0",
-+		 onkey->config->name);
-+	onkey->input->phys = onkey->phys;
- 	onkey->input->dev.parent = &pdev->dev;
- 
- 	if (onkey->key_power)
-@@ -216,11 +294,12 @@ static struct platform_driver da9063_onkey_driver = {
- 	.probe	= da9063_onkey_probe,
- 	.driver	= {
- 		.name	= DA9063_DRVNAME_ONKEY,
-+		.of_match_table = da9063_compatible_reg_id_table,
- 	},
- };
- module_platform_driver(da9063_onkey_driver);
- 
- MODULE_AUTHOR("S Twiss <stwiss.opensource@diasemi.com>");
--MODULE_DESCRIPTION("Onkey device driver for Dialog DA9063");
-+MODULE_DESCRIPTION("Onkey device driver for Dialog DA9063 and DA9062");
- MODULE_LICENSE("GPL");
- MODULE_ALIAS("platform:" DA9063_DRVNAME_ONKEY);
+ 	return 0;
 -- 
-end-of-patch for PATCH V2
+2.4.0
 
 -- 
 -- 
