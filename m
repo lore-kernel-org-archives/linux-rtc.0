@@ -1,28 +1,38 @@
-Return-Path: <rtc-linux+bncBAABB2MVSSWQKGQEYULN5SQ@googlegroups.com>
-Received: from mail1.bemta14.messagelabs.com (mail1.bemta14.messagelabs.com. [193.109.254.116])
-        by gmr-mx.google.com with ESMTPS id bk2si81974wib.1.2015.07.14.06.13.13
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 14 Jul 2015 06:13:13 -0700 (PDT)
-Message-ID: <70bb99452b0b38623ab1c25b2912eafa92d1826d.1436879270.git.stwiss.opensource@diasemi.com>
-In-Reply-To: <cover.1436879270.git.stwiss.opensource@diasemi.com>
-References: <cover.1436879270.git.stwiss.opensource@diasemi.com>
-From: S Twiss <stwiss.opensource@diasemi.com>
-Date: Tue, 14 Jul 2015 14:07:50 +0100
-Subject: [rtc-linux] [PATCH RFC V1 1/3] mfd: da9062: Support for the DA9063
- OnKey in the DA9062 core
-To: DEVICETREE <devicetree@vger.kernel.org>, LINUXINPUT
-	<linux-input@vger.kernel.org>, LINUXKERNEL <linux-kernel@vger.kernel.org>,
-	Lee Jones <lee.jones@linaro.org>, RTCLINUX <rtc-linux@googlegroups.com>, "S
- Twiss" <stwiss.opensource@diasemi.com>, Samuel Ortiz <sameo@linux.intel.com>
-CC: David Dajun Chen <david.chen@diasemi.com>, Dmitry Torokhov
-	<dmitry.torokhov@gmail.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>,
-	Kumar Gala <galak@codeaurora.org>, Mark Rutland <mark.rutland@arm.com>, Pawel
- Moll <pawel.moll@arm.com>, Rob Herring <robh+dt@kernel.org>, Support
- Opensource <support.opensource@diasemi.com>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRB5UE5WWQKGQENWUBZYY@googlegroups.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id c3si120142wiz.2.2015.07.31.02.40.06
+        for <rtc-linux@googlegroups.com>;
+        Fri, 31 Jul 2015 02:40:06 -0700 (PDT)
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Nicolas Ferre <nicolas.ferre@atmel.com>
+Cc: Boris Brezillon <boris.brezillon@free-electrons.com>,
+	Maxime Ripard <maxime.ripard@free-electrons.com>,
+	Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>,
+	linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Arnd Bergmann <arnd@arndb.de>,
+	Daniel Lezcano <daniel.lezcano@linaro.org>,
+	Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	linux-clk@vger.kernel.org,
+	linux-pm@vger.kernel.org,
+	linux-pwm@vger.kernel.org,
+	linux-watchdog@vger.kernel.org,
+	Michael Turquette <mturquette@baylibre.com>,
+	rtc-linux@googlegroups.com,
+	Sebastian Reichel <sre@kernel.org>,
+	Stephen Boyd <sboyd@codeaurora.org>,
+	Thierry Reding <thierry.reding@gmail.com>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Wim Van Sebroeck <wim@iguana.be>
+Subject: [rtc-linux] [PATCH 00/23] ARM: at91: Properly handle slow clock
+Date: Fri, 31 Jul 2015 11:39:36 +0200
+Message-Id: <1438335599-3301-1-git-send-email-alexandre.belloni@free-electrons.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -32,57 +42,107 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-From: S Twiss <stwiss.opensource@diasemi.com>
+Hi,
 
-Add MFD core driver support for a OnKey component
+It was discovered that all the slow clock user were not properly claiming it.
+This can end up in a system hang because the last registered user is releasing
+it, and it gets disabled.
 
-- MFD core adds the resource da9062_onkey_resources[] for the OnKey
-- An appropriate value has been added into mfd_cell da9062_devs[] to
-  support component .name = "da9062-onkey" and
-  .of_compatible  = "dlg,da9062-onkey"
+commit dca1a4b5ff6e ("clk: at91: keep slow clk enabled to prevent system hang")
+was a workaround. This series is adding the slow clock to the necessary drivers
+to avoid the issue and then removes that workaround.
 
-Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
+The Documentation updates and DT patches should probably go through the AT91
+tree this cycle to avoid breakage.
 
----
-Checks performed with linux-next/next-20150708/scripts/checkpatch.pl
- da9062-core.c             total: 0 errors, 0 warnings, 523 lines checked
-This patch applies against linux-next and next-20150708 
+Then the other patches can go through each subsystem tree. They are trivial
+enough to also go in this cycle.
 
+The final clk patch depends on the other ones and may be taken for the next
+cycle to avoid synchronization issues.
 
- drivers/mfd/da9062-core.c | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+I've thrown in a cleanup for at91-reset as it avoids adding support for that
+clock to the platform data initialization
 
-diff --git a/drivers/mfd/da9062-core.c b/drivers/mfd/da9062-core.c
-index 4cf0643..0732977 100644
---- a/drivers/mfd/da9062-core.c
-+++ b/drivers/mfd/da9062-core.c
-@@ -118,6 +118,10 @@ static struct resource da9062_wdt_resources[] = {
- 	DEFINE_RES_NAMED(DA9062_IRQ_WDG_WARN, 1, "WD_WARN", IORESOURCE_IRQ),
- };
- 
-+static struct resource da9062_onkey_resources[] = {
-+	DEFINE_RES_NAMED(DA9062_IRQ_ONKEY, 1, "ONKEY", IORESOURCE_IRQ),
-+};
-+
- static const struct mfd_cell da9062_devs[] = {
- 	{
- 		.name		= "da9062-core",
-@@ -141,6 +145,13 @@ static const struct mfd_cell da9062_devs[] = {
- 		.resources	= da9062_thermal_resources,
- 		.of_compatible  = "dlg,da9062-thermal",
- 	},
-+	{
-+		.name		= "da9062-onkey",
-+		.num_resources	= ARRAY_SIZE(da9062_onkey_resources),
-+		.resources	= da9062_onkey_resources,
-+		.of_compatible = "dlg,da9062-onkey",
-+	},
-+
- };
- 
- static int da9062_clear_fault_log(struct da9062 *chip)
+Changes in v2:
+ - statisticize the global in the atmel-st change
+ - merge at91_reset_of_probe() in at91_reset_probe()
+ - added patches from Boris for the TCB
+ - added the slow clock to the TCB
+
+Cc: Alessandro Zummo <a.zummo@towertech.it>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Daniel Lezcano <daniel.lezcano@linaro.org>
+Cc: Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: linux-clk@vger.kernel.org
+Cc: linux-pm@vger.kernel.org
+Cc: linux-pwm@vger.kernel.org
+Cc: linux-watchdog@vger.kernel.org
+Cc: Michael Turquette <mturquette@baylibre.com>
+Cc: rtc-linux@googlegroups.com
+Cc: Sebastian Reichel <sre@kernel.org>
+Cc: Stephen Boyd <sboyd@codeaurora.org>
+Cc: Thierry Reding <thierry.reding@gmail.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Wim Van Sebroeck <wim@iguana.be>
+
+Alexandre Belloni (20):
+  Documentation: dt: atmel-at91: add clocks to system timer, rstc and
+    shdwc
+  Documentation: watchdog: at91sam9_wdt: add clocks property
+  Documentation: dt: rtc: at91rm9200: add clocks property
+  ARM: at91/dt: at91rm9200: use slow clock where necessary
+  ARM: at91/dt: at91sam9260: use slow clock where necessary
+  ARM: at91/dt: at91sam9261: use slow clock where necessary
+  ARM: at91/dt: at91sam9263: use slow clock where necessary
+  ARM: at91/dt: at91sam9g45: use slow clock where necessary
+  ARM: at91/dt: at91sam9n12: use slow clock where necessary
+  ARM: at91/dt: at91sam9rl: use slow clock where necessary
+  ARM: at91/dt: at91sam9x5: use slow clock where necessary
+  ARM: at91/dt: sama5d3: use slow clock where necessary
+  ARM: at91/dt: sama5d4: use slow clock where necessary
+  rtc: at91rm9200: get and use slow clock
+  watchdog: at91sam9: get and use slow clock
+  power/reset: at91-reset: remove useless at91_reset_platform_probe()
+  power/reset: at91-reset: get and use slow clock
+  power/reset: at91-poweroff: get and use slow clock
+  clocksource: atmel-st: get and use slow clock
+  clk: at91: Revert "keep slow clk enabled to prevent system hang"
+
+Boris Brezillon (3):
+  Documentation: dt: atmel-at91: add slow clock to tcb
+  clocksource: tcb_clksrc: fix setup_clkevents error path
+  misc: atmel_tclib: get and use slow clock
+
+ .../devicetree/bindings/arm/atmel-at91.txt         | 13 +++--
+ .../bindings/rtc/atmel,at91rm9200-rtc.txt          |  2 +
+ .../devicetree/bindings/watchdog/atmel-wdt.txt     |  2 +
+ arch/arm/boot/dts/at91rm9200.dtsi                  | 10 ++--
+ arch/arm/boot/dts/at91sam9260.dtsi                 | 11 +++--
+ arch/arm/boot/dts/at91sam9261.dtsi                 |  7 ++-
+ arch/arm/boot/dts/at91sam9263.dtsi                 |  7 ++-
+ arch/arm/boot/dts/at91sam9g45.dtsi                 | 12 +++--
+ arch/arm/boot/dts/at91sam9n12.dtsi                 | 12 +++--
+ arch/arm/boot/dts/at91sam9rl.dtsi                  |  8 ++-
+ arch/arm/boot/dts/at91sam9x5.dtsi                  | 12 +++--
+ arch/arm/boot/dts/sama5d3.dtsi                     |  8 ++-
+ arch/arm/boot/dts/sama5d3_tcb1.dtsi                |  4 +-
+ arch/arm/boot/dts/sama5d4.dtsi                     | 12 +++--
+ drivers/clk/at91/clk-slow.c                        | 27 ----------
+ drivers/clocksource/tcb_clksrc.c                   | 10 +++-
+ drivers/clocksource/timer-atmel-st.c               | 31 ++++++++----
+ drivers/misc/atmel_tclib.c                         |  4 ++
+ drivers/power/reset/at91-poweroff.c                | 13 +++++
+ drivers/power/reset/at91-reset.c                   | 57 ++++++----------------
+ drivers/pwm/pwm-atmel-tcb.c                        | 23 ++++++---
+ drivers/rtc/rtc-at91rm9200.c                       | 27 ++++++++--
+ drivers/watchdog/at91sam9_wdt.c                    | 22 ++++++++-
+ include/linux/atmel_tc.h                           |  1 +
+ 24 files changed, 206 insertions(+), 129 deletions(-)
+
 -- 
-end-of-patch for PATCH RFC V1
+2.1.4
 
 -- 
 -- 
