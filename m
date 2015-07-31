@@ -1,23 +1,27 @@
-Return-Path: <rtc-linux+bncBCF2NJW5XMORB3XU5CWQKGQEKOUYKTI@googlegroups.com>
-Received: from mailgw01.mediatek.com ([210.61.82.183])
-        by gmr-mx.google.com with ESMTPS id ys2si247822pac.0.2015.07.30.07.53.33
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1 cipher=RC4-SHA bits=128/128);
-        Thu, 30 Jul 2015 07:53:34 -0700 (PDT)
-From: Henry Chen <henryc.chen@mediatek.com>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-CC: Alessandro Zummo <a.zummo@towertech.it>, Eddie Huang
-	<eddie.huang@mediatek.com>, Matthias Brugger <matthias.bgg@gmail.com>,
-	<linux-arm-kernel@lists.infradead.org>, <linux-mediatek@lists.infradead.org>,
-	<rtc-linux@googlegroups.com>, <linux-kernel@vger.kernel.org>, Henry Chen
-	<henryc.chen@mediatek.com>
-Subject: [rtc-linux] [PATCH] rtc: mt6397: implement suspend/resume function in
- rtc-mt6397 driver
-Date: Thu, 30 Jul 2015 22:53:14 +0800
-Message-ID: <1438267994-13934-1-git-send-email-henryc.chen@mediatek.com>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRB5UE5WWQKGQENWUBZYY@googlegroups.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id c3si120139wiz.2.2015.07.31.02.40.06
+        for <rtc-linux@googlegroups.com>;
+        Fri, 31 Jul 2015 02:40:06 -0700 (PDT)
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Nicolas Ferre <nicolas.ferre@atmel.com>
+Cc: Boris Brezillon <boris.brezillon@free-electrons.com>,
+	Maxime Ripard <maxime.ripard@free-electrons.com>,
+	Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>,
+	linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	rtc-linux@googlegroups.com
+Subject: [rtc-linux] [PATCH 04/23] Documentation: dt: rtc: at91rm9200: add
+ clocks property
+Date: Fri, 31 Jul 2015 11:39:40 +0200
+Message-Id: <1438335599-3301-5-git-send-email-alexandre.belloni@free-electrons.com>
+In-Reply-To: <1438335599-3301-1-git-send-email-alexandre.belloni@free-electrons.com>
+References: <1438335599-3301-1-git-send-email-alexandre.belloni@free-electrons.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -27,59 +31,36 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Implement the suspend/resume function in order to control rtc's irq_wake flag and handle as wakeup source.
+The RTC needs an input clock, it is the slow clock. It is required as it
+will not function without it.
 
-Signed-off-by: Henry Chen <henryc.chen@mediatek.com>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
 ---
- drivers/rtc/rtc-mt6397.c | 26 ++++++++++++++++++++++++++
- 1 file changed, 26 insertions(+)
+Cc: Alessandro Zummo <a.zummo@towertech.it>
+Cc: rtc-linux@googlegroups.com
+ Documentation/devicetree/bindings/rtc/atmel,at91rm9200-rtc.txt | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/rtc/rtc-mt6397.c b/drivers/rtc/rtc-mt6397.c
-index c0090b6..9f6c9f8 100644
---- a/drivers/rtc/rtc-mt6397.c
-+++ b/drivers/rtc/rtc-mt6397.c
-@@ -373,6 +373,31 @@ static int mtk_rtc_remove(struct platform_device *pdev)
- 	return 0;
- }
+diff --git a/Documentation/devicetree/bindings/rtc/atmel,at91rm9200-rtc.txt b/Documentation/devicetree/bindings/rtc/atmel,at91rm9200-rtc.txt
+index 34c1505774bf..5d3791e789c6 100644
+--- a/Documentation/devicetree/bindings/rtc/atmel,at91rm9200-rtc.txt
++++ b/Documentation/devicetree/bindings/rtc/atmel,at91rm9200-rtc.txt
+@@ -5,6 +5,7 @@ Required properties:
+ - reg: physical base address of the controller and length of memory mapped
+   region.
+ - interrupts: rtc alarm/event interrupt
++- clocks: phandle to input clock.
  
-+#ifdef CONFIG_PM_SLEEP
-+static int mt6397_rtc_suspend(struct device *dev)
-+{
-+	struct mt6397_rtc *rtc = dev_get_drvdata(dev);
-+
-+	if (device_may_wakeup(dev))
-+		enable_irq_wake(rtc->irq);
-+
-+	return 0;
-+}
-+
-+static int mt6397_rtc_resume(struct device *dev)
-+{
-+	struct mt6397_rtc *rtc = dev_get_drvdata(dev);
-+
-+	if (device_may_wakeup(dev))
-+		disable_irq_wake(rtc->irq);
-+
-+	return 0;
-+}
-+#endif
-+
-+static SIMPLE_DEV_PM_OPS(mt6397_pm_ops, mt6397_rtc_suspend,
-+			mt6397_rtc_resume);
-+
- static const struct of_device_id mt6397_rtc_of_match[] = {
- 	{ .compatible = "mediatek,mt6397-rtc", },
- 	{ }
-@@ -382,6 +407,7 @@ static struct platform_driver mtk_rtc_driver = {
- 	.driver = {
- 		.name = "mt6397-rtc",
- 		.of_match_table = mt6397_rtc_of_match,
-+		.pm = &mt6397_pm_ops,
- 	},
- 	.probe	= mtk_rtc_probe,
- 	.remove = mtk_rtc_remove,
+ Example:
+ 
+@@ -12,4 +13,5 @@ rtc@fffffe00 {
+ 	compatible = "atmel,at91rm9200-rtc";
+ 	reg = <0xfffffe00 0x100>;
+ 	interrupts = <1 4 7>;
++	clocks = <&clk32k>;
+ };
 -- 
-1.8.1.1.dirty
+2.1.4
 
 -- 
 -- 
