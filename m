@@ -1,26 +1,22 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBKWTV2XAKGQE4PM5AKQ@googlegroups.com>
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id ek3si698321wid.1.2015.08.12.13.16.42
-        for <rtc-linux@googlegroups.com>;
-        Wed, 12 Aug 2015 13:16:42 -0700 (PDT)
-Date: Wed, 12 Aug 2015 22:16:36 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Keerthy <a0393675@ti.com>
-Cc: Paul Walmsley <paul@pwsan.com>, Keerthy <j-keerthy@ti.com>,
-	tony@atomide.com, linux-omap@vger.kernel.org, pawel.moll@arm.com,
-	galak@codeaurora.org, akpm@linux-foundation.org, johan@kernel.org,
-	grygorii.strashko@ti.com, rtc-linux@googlegroups.com,
-	bcousson@baylibre.com, nm@ti.com, devicetree@vger.kernel.org,
-	t-kristo@ti.com
-Subject: [rtc-linux] Re: [PATCH v2 2/6] rtc: omap: Add external clock enabling support
-Message-ID: <20150812201636.GJ3411@piout.net>
-References: <1439198906-31189-1-git-send-email-j-keerthy@ti.com>
- <1439198906-31189-3-git-send-email-j-keerthy@ti.com>
- <alpine.DEB.2.02.1508121422020.7154@utopia.booyaka.com>
- <55CB99C2.7010007@ti.com>
+Return-Path: <rtc-linux+bncBAABBSES6SWQKGQE3PZI4RY@googlegroups.com>
+Received: from mx02.posteo.de (mx02.posteo.de. [89.146.194.165])
+        by gmr-mx.google.com with ESMTPS id ec7si99966wib.3.2015.08.01.11.00.39
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Sat, 01 Aug 2015 11:00:39 -0700 (PDT)
+Received: from dovecot04.posteo.de (unknown [185.67.36.27])
+	by mx02.posteo.de (Postfix) with ESMTPS id 7E2B125ACC58
+	for <rtc-linux@googlegroups.com>; Sat,  1 Aug 2015 20:00:39 +0200 (CEST)
+Received: from mail.posteo.de (localhost [127.0.0.1])
+	by dovecot04.posteo.de (Postfix) with ESMTPSA id 3mkCvC2nKMzFpVj
+	for <rtc-linux@googlegroups.com>; Sat,  1 Aug 2015 20:00:39 +0200 (CEST)
+Date: Sat, 1 Aug 2015 19:59:24 +0200
+From: Felix Janda <felix.janda@posteo.de>
+To: rtc-linux@googlegroups.com
+Subject: [rtc-linux] [PATCH] rtc: as3772: Fix off-by-one error in month value
+Message-ID: <20150801175924.GA5371@nyan>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <55CB99C2.7010007@ti.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -31,26 +27,44 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Hi,
+The RTC's month value starts at 1, whereas the kernel's starts at 0.
 
-On 13/08/2015 at 00:38:50 +0530, Keerthy wrote :
-> The intent here is to switch to a higher precision clock which is the
-> internal clock when available.
-> 
-> Alexandre,
-> 
-> Is dynamic switching preferred over sticking  to external clock always if
-> present?
-> 
+Signed-off-by: Felix Janda <felix.janda@posteo.de>
+---
+This is my first kernel patch. It's content is actually from
 
-I'd say that I don't really care. I'd say the best would be to make a
-decision based on clock-accuracy but maybe that is an information you
-don't have yet. Anyway, this could be added at a later date.
+https://chromium.googlesource.com/chromiumos/third_party/kernel-next/+/9ce8d10f39c441642fba58ab8248d78951cec7a7
 
+How can this be acknowledged? The patch from the chromiumos kernel
+can't be taken as it is, can it?
+---
+ drivers/rtc/rtc-as3722.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/rtc/rtc-as3722.c b/drivers/rtc/rtc-as3722.c
+index 9f38eda..56cc582 100644
+--- a/drivers/rtc/rtc-as3722.c
++++ b/drivers/rtc/rtc-as3722.c
+@@ -45,7 +45,7 @@ static void as3722_time_to_reg(u8 *rbuff, struct rtc_time *tm)
+ 	rbuff[1] = bin2bcd(tm->tm_min);
+ 	rbuff[2] = bin2bcd(tm->tm_hour);
+ 	rbuff[3] = bin2bcd(tm->tm_mday);
+-	rbuff[4] = bin2bcd(tm->tm_mon);
++	rbuff[4] = bin2bcd(tm->tm_mon + 1);
+ 	rbuff[5] = bin2bcd(tm->tm_year - (AS3722_RTC_START_YEAR - 1900));
+ }
+ 
+@@ -55,7 +55,7 @@ static void as3722_reg_to_time(u8 *rbuff, struct rtc_time *tm)
+ 	tm->tm_min = bcd2bin(rbuff[1] & 0x7F);
+ 	tm->tm_hour = bcd2bin(rbuff[2] & 0x3F);
+ 	tm->tm_mday = bcd2bin(rbuff[3] & 0x3F);
+-	tm->tm_mon = bcd2bin(rbuff[4] & 0x1F);
++	tm->tm_mon = bcd2bin(rbuff[4] & 0x1F) - 1;
+ 	tm->tm_year = (AS3722_RTC_START_YEAR - 1900) + bcd2bin(rbuff[5] & 0x7F);
+ 	return;
+ }
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+2.3.6
 
 -- 
 -- 
