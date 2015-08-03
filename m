@@ -1,28 +1,28 @@
-Return-Path: <rtc-linux+bncBDEZ72H55YIBBWFYU6XAKGQEM7BNBEQ@googlegroups.com>
-MIME-Version: 1.0
-Received: from mailout3.samsung.com (mailout3.samsung.com. [203.254.224.33])
-        by gmr-mx.google.com with ESMTPS id fy14si160786pdb.2.2015.08.11.04.28.24
+Return-Path: <rtc-linux+bncBDE6RCFOWIARBXN77SWQKGQEB6KLDNQ@googlegroups.com>
+Received: from mail-ob0-f171.google.com (mail-ob0-f171.google.com. [209.85.214.171])
+        by gmr-mx.google.com with ESMTPS id a11si699629igv.3.2015.08.03.01.01.32
         for <rtc-linux@googlegroups.com>
-        (version=TLSv1 cipher=RC4-SHA bits=128/128);
-        Tue, 11 Aug 2015 04:28:24 -0700 (PDT)
-Received: from epcpsbgr1.samsung.com
- (u141.gpu120.samsung.co.kr [203.254.230.141])
- by mailout3.samsung.com (Oracle Communications Messaging Server 7.0.5.31.0
- 64bit (built May  5 2014))
- with ESMTP id <0NSX02V3I17AUWD0@mailout3.samsung.com> for
- rtc-linux@googlegroups.com; Tue, 11 Aug 2015 20:28:22 +0900 (KST)
-From: Joonyoung Shim <jy0922.shim@samsung.com>
-To: rtc-linux@googlegroups.com
-Cc: linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org,
- a.zummo@towertech.it, alexandre.belloni@free-electrons.com,
- cw00.choi@samsung.com, k.kozlowski@samsung.com, jy0922.shim@samsung.com
-Subject: [rtc-linux] [PATCH 2/4] rtc: s3c: remove unnecessary NULL assignment
-Date: Tue, 11 Aug 2015 20:28:20 +0900
-Message-id: <1439292502-22912-2-git-send-email-jy0922.shim@samsung.com>
-In-reply-to: <1439292502-22912-1-git-send-email-jy0922.shim@samsung.com>
-References: <1439292502-22912-1-git-send-email-jy0922.shim@samsung.com>
-Reply-To: rtc-linux@googlegroups.com
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 03 Aug 2015 01:01:32 -0700 (PDT)
+Received: by obdeg2 with SMTP id eg2so93423213obd.0
+        for <rtc-linux@googlegroups.com>; Mon, 03 Aug 2015 01:01:31 -0700 (PDT)
+MIME-Version: 1.0
+In-Reply-To: <20150729111700.GA12912@leoy-linaro>
+References: <1438149721-11072-1-git-send-email-leo.yan@linaro.org>
+	<CACRpkdZ5Kvc0LPeG_HAHwejoCRV4JRbpA2+zwNCAxTqzxdDYzQ@mail.gmail.com>
+	<20150729111700.GA12912@leoy-linaro>
+Date: Mon, 3 Aug 2015 10:01:31 +0200
+Message-ID: <CACRpkdYnr8bw_3a7jnaSZqMmA6j+yyVKNrdA+TzSTdNxzaUu+A@mail.gmail.com>
+Subject: Re: [rtc-linux] [PATCH] drivers/rtc/rtc-pl031.c: reset registers in
+ init flow
+From: Linus Walleij <linus.walleij@linaro.org>
+To: "rtc-linux@googlegroups.com" <rtc-linux@googlegroups.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Deepak Saxena <dsaxena@plexity.net>
 Content-Type: text/plain; charset=UTF-8
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -32,28 +32,106 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-It's unnecessary the code that assigns info->rtc_clk to NULL in
-s3c_rtc_remove.
+On Wed, Jul 29, 2015 at 1:17 PM, Leo Yan <leo.yan@linaro.org> wrote:
 
-Signed-off-by: Joonyoung Shim <jy0922.shim@samsung.com>
----
- drivers/rtc/rtc-s3c.c | 1 -
- 1 file changed, 1 deletion(-)
+> This issue is found when i use file
+> kernel/power/suspend_test.c to verify the system suspend. Before the
+> system suspend, the flow need set 10's alarm in RTC for waken up
+> event.
+>
+> But what i observed the phenomenon is:
+>
+> At the init phase:
+> RTC_LR = 0x0;
+> RTC_DR = 0x0;
+> RTC_MR = 0x0;
+>
+> According to the timeout is 10s, the function *pl031_set_alarm()* will
+> set RTC_MR = 10; So usually RTC_DR will increase one for every second
+> and will trigger interrupt when RTC_DR equal to RTC_MR. But on
+> Hi6220, though the RTC_DR init value is zero, but very soon it will be
+> set a random value which is bigger than 10.
 
-diff --git a/drivers/rtc/rtc-s3c.c b/drivers/rtc/rtc-s3c.c
-index d1866a4..44b2921 100644
---- a/drivers/rtc/rtc-s3c.c
-+++ b/drivers/rtc/rtc-s3c.c
-@@ -413,7 +413,6 @@ static int s3c_rtc_remove(struct platform_device *pdev)
- 	if (info->data->needs_src_clk)
- 		clk_unprepare(info->rtc_src_clk);
- 	clk_unprepare(info->rtc_clk);
--	info->rtc_clk = NULL;
- 
- 	return 0;
- }
--- 
-1.9.1
+Aha, that's annoying.
+
+> So it will never match with
+> RTC_MR register anymore; finally the system cannot resume back due the
+> waken up event will not be triggered.
+
+OK I see.
+
+> So suspect RTC_LR has not been initailized correctly and it will load
+> random value to RTC_DR. After reset the RTC_LR, this issue will be
+> fixed.
+>
+>> > +       /* Init registers */
+>> > +       writel(0x0, ldata->base + RTC_LR);
+>>
+>> This will reset the clock to jan 1st 1970 on every reboot.
+>> The idea is that the RTC should *preserve* the system time
+>> if you reboot the system, so NACK.
+>>
+>> Usually userspace has a script using hwclock to read the
+>> system time from the rtc to system time with hwclock -s
+>> after userspace comes up. Likewise it writes it back with
+>> hwclock -w before rebooting.
+>
+> This change is wrong.
+
+I don't see what you mean here...
+
+Most RTCs in the world have a battery back-up, so they
+sustain time during shutdown. On an ARM system like this,
+this PL031 derivative probably loose the time on shutdown,
+but not on a soft reset.
+
+However probe() will be called no matter if a shutdown or
+soft reset happened, and the time will be reset to
+1970-01-01 in any case with this change, even if it was
+a soft reset and the time in the RTC is actually valid.
+
+>> > +       writel(RTC_BIT_AI, ldata->base + RTC_ICR);
+>>
+>> So why do we want to have the alarm enabled by
+>> default, before the kernel nor userspace has requested
+>> it?
+>
+> This is to clear any pending interrupt, but not enable alarm.
+
+OK.
+
+>
+>> If your problem is with suspend/resume I suggest you work
+>> on the [runtime]_suspend/resume hooks instead of probe().
+>> Possibly you need to save/restore state across suspend/resume.
+>
+> Do you think below change is make sense?
+
+It's not using suspend/resume hooks but let's see...
+
+> +       /* Init registers */
+> +       writel(0x0, ldata->base + RTC_IMSC);
+> +       writel(RTC_BIT_AI, ldata->base + RTC_ICR);
+
+Looks OK.
+
+> @@ -368,6 +372,9 @@ static int pl031_probe(struct amba_device *adev, const struct amba_id *id)
+>                                 writel(time, ldata->base + RTC_LR);
+>                         }
+>                 }
+> +       } else {
+> +               time = readl(ldata->base + RTC_DR);
+> +               writel(time, ldata->base + RTC_LR);
+>         }
+
+This badly needs a comment in the else-clause describing
+what is happening here.
+
+But I think it looks right! This will preserve the time across
+soft reboots properly if I read it right.
+
+Yours,
+Linus Walleij
 
 -- 
 -- 
