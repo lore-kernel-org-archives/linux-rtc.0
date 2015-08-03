@@ -1,28 +1,28 @@
-Return-Path: <rtc-linux+bncBAABBENZWWXAKGQEVUZDL4Q@googlegroups.com>
-Received: from na01-bn1-obe.outbound.protection.outlook.com (mail-bn1bn0108.outbound.protection.outlook.com. [157.56.110.108])
-        by gmr-mx.google.com with ESMTPS id eq2si464670pbb.2.2015.08.13.20.12.16
+Return-Path: <rtc-linux+bncBCH4V2OOTYHBBTW57OWQKGQEHKPFLWQ@googlegroups.com>
+Received: from mail-wi0-x229.google.com (mail-wi0-x229.google.com. [2a00:1450:400c:c05::229])
+        by gmr-mx.google.com with ESMTPS id bk2si270168wib.1.2015.08.02.21.32.14
         for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
-        Thu, 13 Aug 2015 20:12:17 -0700 (PDT)
-From: Wang Dongsheng <Dongsheng.Wang@freescale.com>
-To: Linus Walleij <linus.walleij@linaro.org>, John Stultz
-	<john.stultz@linaro.org>, Alessandro Zummo <a.zummo@towertech.it>, "Alexandre
- Belloni" <alexandre.belloni@free-electrons.com>
-CC: Shawn Guo <shawn.guo@linaro.org>, "Nair, Sandeep" <sandeep_n@ti.com>,
-	"Hans de Goede" <hdegoede@redhat.com>, Huan Wang <alison.wang@freescale.com>,
-	"linux-arm-kernel@lists.infradead.org"
-	<linux-arm-kernel@lists.infradead.org>, "linux-kernel@vger.kernel.org"
-	<linux-kernel@vger.kernel.org>, "rtc-linux@googlegroups.com"
-	<rtc-linux@googlegroups.com>
-Subject: [rtc-linux] RE: [PATCH 2/2] soc/fsl: add ftm alarm driver for ls1021a platform
-Date: Fri, 14 Aug 2015 03:12:13 +0000
-Message-ID: <SN1PR0301MB161682A7FC5200580BED09119D7C0@SN1PR0301MB1616.namprd03.prod.outlook.com>
-References: <1439358807-9024-1-git-send-email-dongsheng.wang@freescale.com>
-	<1439358807-9024-2-git-send-email-dongsheng.wang@freescale.com>
- <CACRpkdbninKuGzhEc5mN+85j-=w_wYQgra-Ark_Du6gWKN2=tg@mail.gmail.com>
-In-Reply-To: <CACRpkdbninKuGzhEc5mN+85j-=w_wYQgra-Ark_Du6gWKN2=tg@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Sun, 02 Aug 2015 21:32:14 -0700 (PDT)
+Received: by mail-wi0-x229.google.com with SMTP id xm9so97281824wib.1
+        for <rtc-linux@googlegroups.com>; Sun, 02 Aug 2015 21:32:14 -0700 (PDT)
+Date: Mon, 3 Aug 2015 06:32:02 +0200 (CEST)
+From: "'Hans Ulli Kroll' via rtc-linux" <rtc-linux@googlegroups.com>
+To: Viresh Kumar <viresh.kumar@linaro.org>
+cc: akpm@linux-foundation.org, linaro-kernel@lists.linaro.org,
+    linux-kernel@vger.kernel.org,
+    "moderated list:BLACKFIN RTC DRIVER" <adi-buildroot-devel@lists.sourceforge.net>,
+    Alessandro Zummo <a.zummo@towertech.it>,
+    Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+    Hans Ulli Kroll <ulli.kroll@googlemail.com>,
+    "moderated list:ARM/CORTINA SYSTEMS GEMINI ARM ARCHITECTURE" <linux-arm-kernel@lists.infradead.org>,
+    "open list:REAL TIME CLOCK (RTC) SUBSYSTEM" <rtc-linux@googlegroups.com>
+Subject: [rtc-linux] Re: [PATCH 9/15 V2] drivers: rtc: Drop (un)likely before IS_ERR(_OR_NULL)
+In-Reply-To: <b8be698a8625ceb9adc8da51cd9474626db7c3d1.1438339891.git.viresh.kumar@linaro.org>
+Message-ID: <alpine.LNX.2.00.1508030631150.8913@T520.work>
+References: <cdfa3fb76901fe1c4a5756e7e64cb3370cf6317a.1438331416.git.viresh.kumar@linaro.org> <b8be698a8625ceb9adc8da51cd9474626db7c3d1.1438339891.git.viresh.kumar@linaro.org>
 MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -33,87 +33,72 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
+Hi
 
+On Fri, 31 Jul 2015, Viresh Kumar wrote:
 
-> -----Original Message-----
-> From: Linus Walleij [mailto:linus.walleij@linaro.org]
-> Sent: Thursday, August 13, 2015 9:54 PM
-> To: Wang Dongsheng-B40534; John Stultz; Alessandro Zummo; Alexandre Belloni
-> Cc: Shawn Guo; Nair, Sandeep; Hans de Goede; Wang Huan-B18965; linux-arm-
-> kernel@lists.infradead.org; linux-kernel@vger.kernel.org; rtc-
-> linux@googlegroups.com
-> Subject: Re: [PATCH 2/2] soc/fsl: add ftm alarm driver for ls1021a platform
+> IS_ERR(_OR_NULL) already contain an 'unlikely' compiler flag and there
+> is no need to do that again from its callers. Drop it.
 > 
-> On Wed, Aug 12, 2015 at 7:53 AM, Dongsheng Wang
-> <dongsheng.wang@freescale.com> wrote:
+> gemini driver was using likely() for a failure case while the rtc driver
+> is getting registered. That looks wrong and it should really be
+> unlikely. But because we are killing all the unlikely() flags, lets kill
+> that too.
 > 
-> > From: Wang Dongsheng <dongsheng.wang@freescale.com>
-> >
-> > Only Ftm0 can be used when system going to deep sleep. So this driver
-> > to support ftm0 as a wakeup source.
-> >
-> > Signed-off-by: Wang Dongsheng <dongsheng.wang@freescale.com>
-> > ---
-> > *V2*
-> > Change Copyright 2014 to 2015.
-> (...)
-> > +config FTM_ALARM
-> > +       bool "FTM alarm driver"
-> > +       depends on SOC_LS1021A
-> > +       default n
-> > +       help
-> > +         Say y here to enable FTM alarm support.  The FTM alarm provides
-> > +         alarm functions for wakeup system from deep sleep.  There is only
-> > +         one FTM can be used in ALARM(FTM 0).
-> (...)
-> > +static u32 time_to_cycle(unsigned long time)
-> > +static u32 cycle_to_time(u32 cycle)
-> > +static int ftm_set_alarm(u64 cycle)
-> > +static irqreturn_t ftm_alarm_interrupt(int irq, void *dev_id)
-> > +static ssize_t ftm_alarm_show(struct device *dev,
-> > +                             struct device_attribute *attr,
-> > +                             char *buf)
-> > +static ssize_t ftm_alarm_store(struct device *dev,
-> > +                              struct device_attribute *attr,
-> > +                              const char *buf, size_t count)
-> (...)
-> > +static struct device_attribute ftm_alarm_attributes = __ATTR(ftm_alarm, 0644,
-> > +                       ftm_alarm_show, ftm_alarm_store);
+> Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
+> ---
+> V1->V2:
+> - Removed the likely() part from gemini driver and the changelog wasn't
+>   updated to match that. Fixed the changelog now.
 > 
-> If you're gonna invent ABIs, document then in Documentation/ABI/testing/*.
+>  drivers/rtc/interface.c  | 2 +-
+>  drivers/rtc/rtc-bfin.c   | 2 +-
+>  drivers/rtc/rtc-gemini.c | 2 +-
+>  3 files changed, 3 insertions(+), 3 deletions(-)
 > 
-> But I don't get it. Why is this driver not in drivers/rtc?
+> diff --git a/drivers/rtc/interface.c b/drivers/rtc/interface.c
+> index 11b639067312..5836751b8203 100644
+> --- a/drivers/rtc/interface.c
+> +++ b/drivers/rtc/interface.c
+> @@ -564,7 +564,7 @@ enum hrtimer_restart rtc_pie_update_irq(struct hrtimer *timer)
+>  void rtc_update_irq(struct rtc_device *rtc,
+>  		unsigned long num, unsigned long events)
+>  {
+> -	if (unlikely(IS_ERR_OR_NULL(rtc)))
+> +	if (IS_ERR_OR_NULL(rtc))
+>  		return;
+>  
+>  	pm_stay_awake(rtc->dev.parent);
+> diff --git a/drivers/rtc/rtc-bfin.c b/drivers/rtc/rtc-bfin.c
+> index 3d44b11721ea..535a5f9338d0 100644
+> --- a/drivers/rtc/rtc-bfin.c
+> +++ b/drivers/rtc/rtc-bfin.c
+> @@ -361,7 +361,7 @@ static int bfin_rtc_probe(struct platform_device *pdev)
+>  	/* Register our RTC with the RTC framework */
+>  	rtc->rtc_dev = devm_rtc_device_register(dev, pdev->name, &bfin_rtc_ops,
+>  						THIS_MODULE);
+> -	if (unlikely(IS_ERR(rtc->rtc_dev)))
+> +	if (IS_ERR(rtc->rtc_dev))
+>  		return PTR_ERR(rtc->rtc_dev);
+>  
+>  	/* Grab the IRQ and init the hardware */
+> diff --git a/drivers/rtc/rtc-gemini.c b/drivers/rtc/rtc-gemini.c
+> index 35f4486738fc..2fed93e1114a 100644
+> --- a/drivers/rtc/rtc-gemini.c
+> +++ b/drivers/rtc/rtc-gemini.c
+> @@ -148,7 +148,7 @@ static int gemini_rtc_probe(struct platform_device *pdev)
+>  
+>  	rtc->rtc_dev = rtc_device_register(pdev->name, dev,
+>  					   &gemini_rtc_ops, THIS_MODULE);
+> -	if (likely(IS_ERR(rtc->rtc_dev)))
+> +	if (IS_ERR(rtc->rtc_dev))
+>  		return PTR_ERR(rtc->rtc_dev);
+>  
+>  	return 0;
+> -- 
+> 2.4.0
 > 
-> It does a subset of what an RTC does. The ioctl()'s of an RTC
-> can do what you want to do. And much much more.
-> 
-> If it can't do all an RTC can do, surely the RTC subsystem
-> can be augmented to host it anyway. It's way to close to
-> an RTC to have it's own random sysfs driver like this.
-> 
-> Unless I'm totally off, rewrite this to an RTC driver and post
-> it to the RTC maintainers.
 > 
 
-FlexTimer is not a RTC device and not have any rtc deivce function. They belong to
-different devices, why we need to register this to RTC framework? I am confused about this.
-
-Now in freescale layerscape platform this driver is only for FlexTimer0, and not
-fit for each flextimer. Because only FlexTimer0 still turn-on when system in the Deep Sleep.
-
-If the "alarm" make you feel confused or mislead you think this is a RTC devices. I think
-I need to change the "alarm" to "timer".
-
-Regards,
--Dongsheng
-
--- 
--- 
-You received this message because you are subscribed to "rtc-linux".
-Membership options at http://groups.google.com/group/rtc-linux .
-Please read http://groups.google.com/group/rtc-linux/web/checklist
-before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
-For more options, visit https://groups.google.com/d/optout.
+For the mach-gemini part
+Acked-by: Hans Ulli Kroll <ulli.kroll@googlemail.com>
