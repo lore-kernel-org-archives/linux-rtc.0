@@ -1,19 +1,22 @@
-Return-Path: <rtc-linux+bncBDYN53XCUYHBBNXTSCXAKGQEOGSXNPI@googlegroups.com>
-Date: Thu, 6 Aug 2015 21:53:09 -0700 (PDT)
-From: suneelgarapati@gmail.com
-To: rtc-linux <rtc-linux@googlegroups.com>
-Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-	michals@xilinx.com, sorenb@xilinx.com, a.zummo@towertech.it,
-	suneel.garapati@xilinx.com, anirudh@xilinx.com
-Message-Id: <7f57f610-7eea-434c-b7b8-3fb15cea18c0@googlegroups.com>
-In-Reply-To: <1438336757-23404-1-git-send-email-suneel.garapati@xilinx.com>
-References: <1438336757-23404-1-git-send-email-suneel.garapati@xilinx.com>
-Subject: [rtc-linux] Re: [PATCH v2 1/2] devicetree: bindings: rtc: add
- bindings for xilinx zynqmp rtc
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBSUTQKXAKGQEX7H7DEY@googlegroups.com>
 MIME-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----=_Part_1696_1072829008.1438923189305"
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id hm7si54171wib.0.2015.08.04.02.45.45
+        for <rtc-linux@googlegroups.com>;
+        Tue, 04 Aug 2015 02:45:45 -0700 (PDT)
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: rtc-linux@googlegroups.com
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+	linux-kernel@vger.kernel.org,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Subject: [rtc-linux] [PATCH 06/15] rtc: rx8025: only handle dates between 2000
+ and 2099
+Date: Tue,  4 Aug 2015 11:45:25 +0200
+Message-Id: <1438681534-12027-7-git-send-email-alexandre.belloni@free-electrons.com>
+In-Reply-To: <1438681534-12027-1-git-send-email-alexandre.belloni@free-electrons.com>
+References: <1438681534-12027-1-git-send-email-alexandre.belloni@free-electrons.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -23,71 +26,55 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-------=_Part_1696_1072829008.1438923189305
-Content-Type: multipart/alternative;
-	boundary="----=_Part_1697_290737977.1438923189305"
+The hardware is only capable of handling dates between 2000 and 2099,
+enforce that.
 
-------=_Part_1697_290737977.1438923189305
-Content-Type: text/plain; charset=UTF-8
+Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+---
+ drivers/rtc/rtc-rx8025.c | 14 ++++----------
+ 1 file changed, 4 insertions(+), 10 deletions(-)
 
-Hi Alexandre Belloni,
-
-Any review comments on v2 series?
-
-Regards,
-Suneel
-
-On Friday, July 31, 2015 at 3:29:36 PM UTC+5:30, Suneel Garapati wrote:
->
-> adds file for description on device node bindings for RTC 
-> found on Xilinx Zynq Ultrascale+ MPSoC. 
->
-> Signed-off-by: Suneel Garapati <suneel....@xilinx.com <javascript:>> 
-> --- 
-> Changes v2 
-> - add examples for interrupt-names 
-> - change alm to alarm 
-> --- 
->  Documentation/devicetree/bindings/rtc/xlnx-rtc.txt | 25 
-> ++++++++++++++++++++++ 
->  1 file changed, 25 insertions(+) 
->  create mode 100644 Documentation/devicetree/bindings/rtc/xlnx-rtc.txt 
->
-> diff --git a/Documentation/devicetree/bindings/rtc/xlnx-rtc.txt 
-> b/Documentation/devicetree/bindings/rtc/xlnx-rtc.txt 
-> new file mode 100644 
-> index 0000000..0df6f01 
-> --- /dev/null 
-> +++ b/Documentation/devicetree/bindings/rtc/xlnx-rtc.txt 
-> @@ -0,0 +1,25 @@ 
-> +* Xilinx Zynq Ultrascale+ MPSoC Real Time Clock 
-> + 
-> +RTC controller for the Xilinx Zynq MPSoC Real Time Clock 
-> +Separate IRQ lines for seconds and alarm 
-> + 
-> +Required properties: 
-> +- compatible: Should be "xlnx,zynqmp-rtc" 
-> +- reg: Physical base address of the controller and length 
-> +       of memory mapped region. 
-> +- interrupts: IRQ lines for the RTC. 
-> +- interrupt-names: interrupt line names eg. "sec" "alarm" 
-> + 
-> +Optional: 
-> +- calibration: calibration value for 1 sec period which will 
-> +                be programmed directly to calibration register 
-> + 
-> +Example: 
-> +rtc: rtc@ffa60000 { 
-> +        compatible = "xlnx,zynqmp-rtc"; 
-> +        reg = <0x0 0xffa60000 0x100>; 
-> +        interrupt-parent = <&gic>; 
-> +        interrupts = <0 26 4>, <0 27 4>; 
-> +        interrupt-names = "alarm", "sec"; 
-> +        calibration = <0x198233>; 
-> +}; 
-> -- 
-> 2.1.2 
->
+diff --git a/drivers/rtc/rtc-rx8025.c b/drivers/rtc/rtc-rx8025.c
+index 52683eda1da2..3612362b65ac 100644
+--- a/drivers/rtc/rtc-rx8025.c
++++ b/drivers/rtc/rtc-rx8025.c
+@@ -188,10 +188,7 @@ static int rx8025_get_time(struct device *dev, struct rtc_time *dt)
+ 
+ 	dt->tm_mday = bcd2bin(date[RX8025_REG_MDAY] & 0x3f);
+ 	dt->tm_mon = bcd2bin(date[RX8025_REG_MONTH] & 0x1f) - 1;
+-	dt->tm_year = bcd2bin(date[RX8025_REG_YEAR]);
+-
+-	if (dt->tm_year < 70)
+-		dt->tm_year += 100;
++	dt->tm_year = bcd2bin(date[RX8025_REG_YEAR]) + 100;
+ 
+ 	dev_dbg(dev, "%s: date %ds %dm %dh %dmd %dm %dy\n", __func__,
+ 		dt->tm_sec, dt->tm_min, dt->tm_hour,
+@@ -205,11 +202,8 @@ static int rx8025_set_time(struct device *dev, struct rtc_time *dt)
+ 	struct rx8025_data *rx8025 = dev_get_drvdata(dev);
+ 	u8 date[7];
+ 
+-	/*
+-	 * BUG: The HW assumes every year that is a multiple of 4 to be a leap
+-	 * year.  Next time this is wrong is 2100, which will not be a leap
+-	 * year.
+-	 */
++	if ((dt->tm_year < 100) || (dt->tm_year > 199))
++		return -EINVAL;
+ 
+ 	/*
+ 	 * Here the read-only bits are written as "0".  I'm not sure if that
+@@ -226,7 +220,7 @@ static int rx8025_set_time(struct device *dev, struct rtc_time *dt)
+ 	date[RX8025_REG_WDAY] = bin2bcd(dt->tm_wday);
+ 	date[RX8025_REG_MDAY] = bin2bcd(dt->tm_mday);
+ 	date[RX8025_REG_MONTH] = bin2bcd(dt->tm_mon + 1);
+-	date[RX8025_REG_YEAR] = bin2bcd(dt->tm_year % 100);
++	date[RX8025_REG_YEAR] = bin2bcd(dt->tm_year - 100);
+ 
+ 	dev_dbg(dev,
+ 		"%s: write 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x\n",
+-- 
+2.1.4
 
 -- 
 -- 
@@ -99,98 +86,3 @@ before submitting a driver.
 You received this message because you are subscribed to the Google Groups "rtc-linux" group.
 To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
-
-------=_Part_1697_290737977.1438923189305
-Content-Type: text/html; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-
-<div dir=3D"ltr">Hi Alexandre Belloni,<div><br></div><div>Any review commen=
-ts on v2 series?</div><div><br></div><div>Regards,</div><div>Suneel</div><d=
-iv><br>On Friday, July 31, 2015 at 3:29:36 PM UTC+5:30, Suneel Garapati wro=
-te:<blockquote class=3D"gmail_quote" style=3D"margin: 0;margin-left: 0.8ex;=
-border-left: 1px #ccc solid;padding-left: 1ex;">adds file for description o=
-n device node bindings for RTC
-<br>found on Xilinx Zynq Ultrascale+ MPSoC.
-<br>
-<br>Signed-off-by: Suneel Garapati &lt;<a href=3D"javascript:" target=3D"_b=
-lank" gdf-obfuscated-mailto=3D"LWAsUAuGBAAJ" rel=3D"nofollow" onmousedown=
-=3D"this.href=3D&#39;javascript:&#39;;return true;" onclick=3D"this.href=3D=
-&#39;javascript:&#39;;return true;">suneel....@xilinx.com</a>&gt;
-<br>---
-<br>Changes v2
-<br>- add examples for interrupt-names
-<br>- change alm to alarm
-<br>---
-<br>=C2=A0Documentation/devicetree/<wbr>bindings/rtc/xlnx-rtc.txt | 25 ++++=
-++++++++++++++++++
-<br>=C2=A01 file changed, 25 insertions(+)
-<br>=C2=A0create mode 100644 Documentation/devicetree/<wbr>bindings/rtc/xln=
-x-rtc.txt
-<br>
-<br>diff --git a/Documentation/devicetree/<wbr>bindings/rtc/xlnx-rtc.txt b/=
-Documentation/devicetree/<wbr>bindings/rtc/xlnx-rtc.txt
-<br>new file mode 100644
-<br>index 0000000..0df6f01
-<br>--- /dev/null
-<br>+++ b/Documentation/devicetree/<wbr>bindings/rtc/xlnx-rtc.txt
-<br>@@ -0,0 +1,25 @@
-<br>+* Xilinx Zynq Ultrascale+ MPSoC Real Time Clock
-<br>+
-<br>+RTC controller for the Xilinx Zynq MPSoC Real Time Clock
-<br>+Separate IRQ lines for seconds and alarm
-<br>+
-<br>+Required properties:
-<br>+- compatible: Should be &quot;xlnx,zynqmp-rtc&quot;
-<br>+- reg: Physical base address of the controller and length
-<br>+ =C2=A0 =C2=A0 =C2=A0 of memory mapped region.
-<br>+- interrupts: IRQ lines for the RTC.
-<br>+- interrupt-names: interrupt line names eg. &quot;sec&quot; &quot;alar=
-m&quot;
-<br>+
-<br>+Optional:
-<br>+- calibration: calibration value for 1 sec period which will
-<br>+=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0=C2=A0=C2=A0=C2=A0be programmed directly to calibration register
-<br>+
-<br>+Example:
-<br>+rtc: rtc@ffa60000 {
-<br>+=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0compatible =3D &quot;x=
-lnx,zynqmp-rtc&quot;;
-<br>+=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0reg =3D &lt;0x0 0xffa6=
-0000 0x100&gt;;
-<br>+=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0interrupt-parent =3D &=
-lt;&amp;gic&gt;;
-<br>+=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0interrupts =3D &lt;0 2=
-6 4&gt;, &lt;0 27 4&gt;;
-<br>+=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0interrupt-names =3D &q=
-uot;alarm&quot;, &quot;sec&quot;;
-<br>+=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0calibration =3D &lt;0x=
-198233&gt;;
-<br>+};
-<br>--
-<br>2.1.2
-<br></blockquote></div></div>
-
-<p></p>
-
--- <br />
--- <br />
-You received this message because you are subscribed to &quot;rtc-linux&quo=
-t;.<br />
-Membership options at <a href=3D"http://groups.google.com/group/rtc-linux">=
-http://groups.google.com/group/rtc-linux</a> .<br />
-Please read <a href=3D"http://groups.google.com/group/rtc-linux/web/checkli=
-st">http://groups.google.com/group/rtc-linux/web/checklist</a><br />
-before submitting a driver.<br />
---- <br />
-You received this message because you are subscribed to the Google Groups &=
-quot;rtc-linux&quot; group.<br />
-To unsubscribe from this group and stop receiving emails from it, send an e=
-mail to <a href=3D"mailto:rtc-linux+unsubscribe@googlegroups.com">rtc-linux=
-+unsubscribe@googlegroups.com</a>.<br />
-For more options, visit <a href=3D"https://groups.google.com/d/optout">http=
-s://groups.google.com/d/optout</a>.<br />
-
-------=_Part_1697_290737977.1438923189305--
-
-------=_Part_1696_1072829008.1438923189305--
