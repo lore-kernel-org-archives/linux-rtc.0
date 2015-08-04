@@ -1,27 +1,21 @@
-Return-Path: <rtc-linux+bncBDKZNNNLXAHBBM4MZOXAKGQE7MBDJGA@googlegroups.com>
-Received: from mailout4.w1.samsung.com (mailout4.w1.samsung.com. [210.118.77.14])
-        by gmr-mx.google.com with ESMTPS id dx8si1117463pab.1.2015.08.17.22.44.19
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1 cipher=RC4-SHA bits=128/128);
-        Mon, 17 Aug 2015 22:44:19 -0700 (PDT)
-Received: from eucpsbgm1.samsung.com (unknown [203.254.199.244])
- by mailout4.w1.samsung.com
- (Oracle Communications Messaging Server 7.0.5.31.0 64bit (built May  5 2014))
- with ESMTP id <0NT900CXRJXR2P00@mailout4.w1.samsung.com> for
- rtc-linux@googlegroups.com; Tue, 18 Aug 2015 06:44:15 +0100 (BST)
-Message-id: <55D2C62B.1010209@samsung.com>
-Date: Tue, 18 Aug 2015 14:44:11 +0900
-From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-MIME-version: 1.0
-To: Joonyoung Shim <jy0922.shim@samsung.com>, rtc-linux@googlegroups.com
-Cc: linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org,
- stable@vger.kernel.org, a.zummo@towertech.it,
- alexandre.belloni@free-electrons.com, cw00.choi@samsung.com
-Subject: [rtc-linux] Re: [PATCH v2] rtc: s3c: fix disabled clocks for alarm
-References: <1439374906-27841-1-git-send-email-jy0922.shim@samsung.com>
-In-reply-to: <1439374906-27841-1-git-send-email-jy0922.shim@samsung.com>
-Content-type: text/plain; charset=UTF-8
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBSUTQKXAKGQEX7H7DEY@googlegroups.com>
+MIME-Version: 1.0
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id cj6si48395wib.1.2015.08.04.02.45.46
+        for <rtc-linux@googlegroups.com>;
+        Tue, 04 Aug 2015 02:45:46 -0700 (PDT)
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: rtc-linux@googlegroups.com
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+	linux-kernel@vger.kernel.org,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Subject: [rtc-linux] [PATCH 12/15] rtc: rx8025: reset validity when setting time
+Date: Tue,  4 Aug 2015 11:45:31 +0200
+Message-Id: <1438681534-12027-13-git-send-email-alexandre.belloni@free-electrons.com>
+In-Reply-To: <1438681534-12027-1-git-send-email-alexandre.belloni@free-electrons.com>
+References: <1438681534-12027-1-git-send-email-alexandre.belloni@free-electrons.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -31,36 +25,104 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On 12.08.2015 19:21, Joonyoung Shim wrote:
-> The clock enable/disable codes for alarm have been removed from
-> commit 24e1455493da ("drivers/rtc/rtc-s3c.c: delete duplicate clock
-> control") and the clocks are disabled even if alarm is set, so alarm
-> interrupt can't happen.
-> 
-> The s3c_rtc_setaie function can be called several times with 'enabled'
-> argument having same value, so it needs to check whether clocks are
-> enabled or not.
-> 
-> Signed-off-by: Joonyoung Shim <jy0922.shim@samsung.com>
-> Cc: <stable@vger.kernel.org> # v4.1
-> ---
-> This is v2 of prior patch "[PATCH 4/4] rtc: s3c: enable/disable clocks
-> for alarm".
-> 
-> Changelog for v2:
-> - commit messages is modified by Krzysztof suggestion
-> - make to backportable patch
-> - add Cc-stable
-> 
->  drivers/rtc/rtc-s3c.c | 24 ++++++++++++++++++------
->  1 file changed, 18 insertions(+), 6 deletions(-)
-> 
+Wait for the user to set the time to reset the validity bits. Until then,
+the time may be invalid.
 
-Looks good now:
-Reviewed-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+---
+ drivers/rtc/rtc-rx8025.c | 31 ++++++++++++++++++++-----------
+ 1 file changed, 20 insertions(+), 11 deletions(-)
 
-Best regards,
-Krzysztof
+diff --git a/drivers/rtc/rtc-rx8025.c b/drivers/rtc/rtc-rx8025.c
+index 22ce08d6e807..340133a5d907 100644
+--- a/drivers/rtc/rtc-rx8025.c
++++ b/drivers/rtc/rtc-rx8025.c
+@@ -104,6 +104,19 @@ static s32 rx8025_write_regs(const struct i2c_client *client,
+ 					      length, values);
+ }
+ 
++static int rx8025_reset_validity(struct i2c_client *client)
++{
++	int ctrl2 = rx8025_read_reg(client, RX8025_REG_CTRL2);
++
++	if (ctrl2 < 0)
++		return ctrl2;
++
++	ctrl2 &= ~(RX8025_BIT_CTRL2_PON | RX8025_BIT_CTRL2_VDET);
++
++	return rx8025_write_reg(client, RX8025_REG_CTRL2,
++				ctrl2 | RX8025_BIT_CTRL2_XST);
++}
++
+ static irqreturn_t rx8025_handle_irq(int irq, void *dev_id)
+ {
+ 	struct i2c_client *client = dev_id;
+@@ -133,10 +146,6 @@ static irqreturn_t rx8025_handle_irq(int irq, void *dev_id)
+ 		rtc_update_irq(rx8025->rtc, 1, RTC_AF | RTC_IRQF);
+ 	}
+ 
+-	/* acknowledge IRQ */
+-	rx8025_write_reg(client, RX8025_REG_CTRL2,
+-			 status | RX8025_BIT_CTRL2_XST);
+-
+ out:
+ 	return IRQ_HANDLED;
+ }
+@@ -193,6 +202,7 @@ static int rx8025_set_time(struct device *dev, struct rtc_time *dt)
+ {
+ 	struct rx8025_data *rx8025 = dev_get_drvdata(dev);
+ 	u8 date[7];
++	int ret;
+ 
+ 	if ((dt->tm_year < 100) || (dt->tm_year > 199))
+ 		return -EINVAL;
+@@ -219,7 +229,11 @@ static int rx8025_set_time(struct device *dev, struct rtc_time *dt)
+ 		__func__,
+ 		date[0], date[1], date[2], date[3], date[4], date[5], date[6]);
+ 
+-	return rx8025_write_regs(rx8025->client, RX8025_REG_SEC, 7, date);
++	ret = rx8025_write_regs(rx8025->client, RX8025_REG_SEC, 7, date);
++	if (ret < 0)
++		return ret;
++
++	return rx8025_reset_validity(rx8025->client);
+ }
+ 
+ static int rx8025_init_client(struct i2c_client *client)
+@@ -239,19 +253,16 @@ static int rx8025_init_client(struct i2c_client *client)
+ 	if (ctrl[1] & RX8025_BIT_CTRL2_PON) {
+ 		dev_warn(&client->dev, "power-on reset was detected, "
+ 			 "you may have to readjust the clock\n");
+-		need_clear = 1;
+ 	}
+ 
+ 	if (ctrl[1] & RX8025_BIT_CTRL2_VDET) {
+ 		dev_warn(&client->dev, "a power voltage drop was detected, "
+ 			 "you may have to readjust the clock\n");
+-		need_clear = 1;
+ 	}
+ 
+ 	if (!(ctrl[1] & RX8025_BIT_CTRL2_XST)) {
+ 		dev_warn(&client->dev, "Oscillation stop was detected,"
+ 			 "you may have to readjust the clock\n");
+-		need_clear = 1;
+ 	}
+ 
+ 	if (ctrl[1] & (RX8025_BIT_CTRL2_DAFG | RX8025_BIT_CTRL2_WAFG)) {
+@@ -264,10 +275,8 @@ static int rx8025_init_client(struct i2c_client *client)
+ 
+ 	if (need_clear) {
+ 		ctrl2 = ctrl[1];
+-		ctrl2 &= ~(RX8025_BIT_CTRL2_PON | RX8025_BIT_CTRL2_VDET |
+-			   RX8025_BIT_CTRL2_CTFG | RX8025_BIT_CTRL2_WAFG |
++		ctrl2 &= ~(RX8025_BIT_CTRL2_CTFG | RX8025_BIT_CTRL2_WAFG |
+ 			   RX8025_BIT_CTRL2_DAFG);
+-		ctrl2 |= RX8025_BIT_CTRL2_XST;
+ 
+ 		err = rx8025_write_reg(client, RX8025_REG_CTRL2, ctrl2);
+ 	}
+-- 
+2.1.4
 
 -- 
 -- 
