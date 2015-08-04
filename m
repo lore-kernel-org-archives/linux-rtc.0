@@ -1,74 +1,111 @@
-Return-Path: <rtc-linux+bncBD2536XZRAKBBRFWZOXAKGQEUB2VVHQ@googlegroups.com>
-Received: from mail-la0-x22d.google.com (mail-la0-x22d.google.com. [2a00:1450:4010:c03::22d])
-        by gmr-mx.google.com with ESMTPS id qc10si587026lbb.1.2015.08.18.00.14.11
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 18 Aug 2015 00:14:11 -0700 (PDT)
-Received: by mail-la0-x22d.google.com with SMTP id i9so93096749lah.2
-        for <rtc-linux@googlegroups.com>; Tue, 18 Aug 2015 00:14:11 -0700 (PDT)
-Sender: rtc-linux@googlegroups.com
-Date: Tue, 18 Aug 2015 09:14:10 +0200
-From: Johan Hovold <johan@kernel.org>
-To: Keerthy <j-keerthy@ti.com>
-Cc: alexandre.belloni@free-electrons.com, tony@atomide.com,
-	johan@kernel.org, linux-omap@vger.kernel.org,
-	rtc-linux@googlegroups.com, grygorii.strashko@ti.com
-Subject: [rtc-linux] Re: [PATCH v3 3/3] rtc: omap: Add external clock enabling support
-Message-ID: <20150818071410.GA8151@localhost>
-References: <1439878724-5828-1-git-send-email-j-keerthy@ti.com>
- <1439878724-5828-4-git-send-email-j-keerthy@ti.com>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBSUTQKXAKGQEX7H7DEY@googlegroups.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1439878724-5828-4-git-send-email-j-keerthy@ti.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id gt9si43823wib.2.2015.08.04.02.45.46
+        for <rtc-linux@googlegroups.com>;
+        Tue, 04 Aug 2015 02:45:46 -0700 (PDT)
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: rtc-linux@googlegroups.com
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+	linux-kernel@vger.kernel.org,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Subject: [rtc-linux] [PATCH 04/15] rtc: rx8025: remove useless probe error message
+Date: Tue,  4 Aug 2015 11:45:23 +0200
+Message-Id: <1438681534-12027-5-git-send-email-alexandre.belloni@free-electrons.com>
+In-Reply-To: <1438681534-12027-1-git-send-email-alexandre.belloni@free-electrons.com>
+References: <1438681534-12027-1-git-send-email-alexandre.belloni@free-electrons.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
 List-Archive: <http://groups.google.com/group/rtc-linux
+Sender: rtc-linux@googlegroups.com
 List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On Tue, Aug 18, 2015 at 11:48:44AM +0530, Keerthy wrote:
-> Configure the clock source to external clock if available.
-> External clock is preferred as it can be ticking during suspend.
-> 
-> Signed-off-by: Keerthy <j-keerthy@ti.com>
-> ---
->  drivers/rtc/rtc-omap.c | 33 ++++++++++++++++++++++++++++++---
->  1 file changed, 30 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/rtc/rtc-omap.c b/drivers/rtc/rtc-omap.c
-> index f31c012..255f7b7 100644
-> --- a/drivers/rtc/rtc-omap.c
-> +++ b/drivers/rtc/rtc-omap.c
+It is useless to print a message when probe fails as the user is already
+aware that it failed.
+
+Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+---
+ drivers/rtc/rtc-rx8025.c | 22 ++++++----------------
+ 1 file changed, 6 insertions(+), 16 deletions(-)
+
+diff --git a/drivers/rtc/rtc-rx8025.c b/drivers/rtc/rtc-rx8025.c
+index be91e922a139..612b6876cbd5 100644
+--- a/drivers/rtc/rtc-rx8025.c
++++ b/drivers/rtc/rtc-rx8025.c
+@@ -513,20 +513,18 @@ static int rx8025_probe(struct i2c_client *client,
+ {
+ 	struct i2c_adapter *adapter = to_i2c_adapter(client->dev.parent);
+ 	struct rx8025_data *rx8025;
+-	int err, need_reset = 0;
++	int err = 0, need_reset = 0;
  
-> @@ -555,11 +557,19 @@ static int omap_rtc_probe(struct platform_device *pdev)
->  	if (rtc->irq_alarm <= 0)
->  		return -ENOENT;
->  
-> -	rtc->clk = devm_clk_get(&pdev->dev, "int-clk");
-> -
-> -	if (!IS_ERR(rtc->clk))
-> +	rtc->clk = devm_clk_get(&pdev->dev, "ext-clk");
-> +	if (!IS_ERR(rtc->clk)) {
-> +		rtc->has_ext_clk = true;
->  		clk_prepare_enable(rtc->clk);
-> +	} else {
-> +		rtc->clk = devm_clk_get(&pdev->dev, "int-clk");
-> +		if (IS_ERR(rtc->clk))
-> +			goto no_clk;
-> +	}
->
-> +	clk_prepare_enable(rtc->clk);
-
-Just always check for errors before enabling here, and get rid of the
-double enable and goto above.
-
-> +
-> +no_clk:
-
-Johan
+ 	if (!i2c_check_functionality(adapter, I2C_FUNC_SMBUS_BYTE_DATA
+ 				     | I2C_FUNC_SMBUS_I2C_BLOCK)) {
+ 		dev_err(&adapter->dev,
+ 			"doesn't support required functionality\n");
+-		err = -EIO;
+-		goto errout;
++		return -EIO;
+ 	}
+ 
+ 	rx8025 = devm_kzalloc(&client->dev, sizeof(*rx8025), GFP_KERNEL);
+ 	if (!rx8025) {
+-		err = -ENOMEM;
+-		goto errout;
++		return -ENOMEM;
+ 	}
+ 
+ 	rx8025->client = client;
+@@ -534,7 +532,7 @@ static int rx8025_probe(struct i2c_client *client,
+ 
+ 	err = rx8025_init_client(client, &need_reset);
+ 	if (err)
+-		goto errout;
++		return err;
+ 
+ 	if (need_reset) {
+ 		struct rtc_time tm;
+@@ -547,9 +545,8 @@ static int rx8025_probe(struct i2c_client *client,
+ 	rx8025->rtc = devm_rtc_device_register(&client->dev, client->name,
+ 					  &rx8025_rtc_ops, THIS_MODULE);
+ 	if (IS_ERR(rx8025->rtc)) {
+-		err = PTR_ERR(rx8025->rtc);
+ 		dev_err(&client->dev, "unable to register the class device\n");
+-		goto errout;
++		return PTR_ERR(rx8025->rtc);
+ 	}
+ 
+ 	if (client->irq > 0) {
+@@ -559,7 +556,7 @@ static int rx8025_probe(struct i2c_client *client,
+ 						client);
+ 		if (err) {
+ 			dev_err(&client->dev, "unable to request IRQ\n");
+-			goto errout;
++			return err;
+ 		}
+ 	}
+ 
+@@ -567,13 +564,6 @@ static int rx8025_probe(struct i2c_client *client,
+ 	rx8025->rtc->max_user_freq = 1;
+ 
+ 	err = rx8025_sysfs_register(&client->dev);
+-	if (err)
+-		goto errout;
+-
+-	return 0;
+-
+-errout:
+-	dev_err(&adapter->dev, "probing for rx8025 failed\n");
+ 	return err;
+ }
+ 
+-- 
+2.1.4
 
 -- 
 -- 
