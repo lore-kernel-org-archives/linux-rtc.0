@@ -1,27 +1,19 @@
-Return-Path: <rtc-linux+bncBDEZ72H55YIBBWNYU6XAKGQEMFJD62A@googlegroups.com>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBSUTQKXAKGQEX7H7DEY@googlegroups.com>
 MIME-Version: 1.0
-Received: from mailout2.samsung.com (mailout2.samsung.com. [203.254.224.25])
-        by gmr-mx.google.com with ESMTPS id qa1si188205pdb.1.2015.08.11.04.28.24
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1 cipher=RC4-SHA bits=128/128);
-        Tue, 11 Aug 2015 04:28:24 -0700 (PDT)
-Received: from epcpsbgr1.samsung.com
- (u141.gpu120.samsung.co.kr [203.254.230.141])
- by mailout2.samsung.com (Oracle Communications Messaging Server 7.0.5.31.0
- 64bit (built May  5 2014))
- with ESMTP id <0NSX006VV17AIN80@mailout2.samsung.com> for
- rtc-linux@googlegroups.com; Tue, 11 Aug 2015 20:28:22 +0900 (KST)
-From: Joonyoung Shim <jy0922.shim@samsung.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id hm7si54172wib.0.2015.08.04.02.45.45
+        for <rtc-linux@googlegroups.com>;
+        Tue, 04 Aug 2015 02:45:45 -0700 (PDT)
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
 To: rtc-linux@googlegroups.com
-Cc: linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org,
- a.zummo@towertech.it, alexandre.belloni@free-electrons.com,
- cw00.choi@samsung.com, k.kozlowski@samsung.com, jy0922.shim@samsung.com
-Subject: [rtc-linux] [PATCH 3/4] rtc: s3c: use unified functions for
- enable/disable of clk
-Date: Tue, 11 Aug 2015 20:28:21 +0900
-Message-id: <1439292502-22912-3-git-send-email-jy0922.shim@samsung.com>
-In-reply-to: <1439292502-22912-1-git-send-email-jy0922.shim@samsung.com>
-References: <1439292502-22912-1-git-send-email-jy0922.shim@samsung.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+	linux-kernel@vger.kernel.org,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Subject: [rtc-linux] [PATCH 05/15] rtc: rx8025: use BIT()
+Date: Tue,  4 Aug 2015 11:45:24 +0200
+Message-Id: <1438681534-12027-6-git-send-email-alexandre.belloni@free-electrons.com>
+In-Reply-To: <1438681534-12027-1-git-send-email-alexandre.belloni@free-electrons.com>
+References: <1438681534-12027-1-git-send-email-alexandre.belloni@free-electrons.com>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -33,61 +25,56 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-The driver uses clk_prepare_enable()/clk_disable_unprepare() only in
-probe only, elsewhere, use the unified functions for enable/disable of
-clk, e.g. s3c_rtc_enable_clk() / s3c_rtc_disable_clk(), so it's better
-to use them for consistency of code.
+Use BIT() instead of hand coding.
 
-Signed-off-by: Joonyoung Shim <jy0922.shim@samsung.com>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
 ---
- drivers/rtc/rtc-s3c.c | 14 +++++++++-----
- 1 file changed, 9 insertions(+), 5 deletions(-)
+ drivers/rtc/rtc-rx8025.c | 23 ++++++++++++-----------
+ 1 file changed, 12 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/rtc/rtc-s3c.c b/drivers/rtc/rtc-s3c.c
-index 44b2921..abe2a6d 100644
---- a/drivers/rtc/rtc-s3c.c
-+++ b/drivers/rtc/rtc-s3c.c
-@@ -476,19 +476,21 @@ static int s3c_rtc_probe(struct platform_device *pdev)
- 		dev_err(&pdev->dev, "failed to find rtc clock\n");
- 		return PTR_ERR(info->rtc_clk);
- 	}
--	clk_prepare_enable(info->rtc_clk);
-+	clk_prepare(info->rtc_clk);
- 
- 	if (info->data->needs_src_clk) {
- 		info->rtc_src_clk = devm_clk_get(&pdev->dev, "rtc_src");
- 		if (IS_ERR(info->rtc_src_clk)) {
- 			dev_err(&pdev->dev,
- 				"failed to find rtc source clock\n");
--			clk_disable_unprepare(info->rtc_clk);
-+			clk_unprepare(info->rtc_clk);
- 			return PTR_ERR(info->rtc_src_clk);
- 		}
--		clk_prepare_enable(info->rtc_src_clk);
-+		clk_prepare(info->rtc_src_clk);
- 	}
- 
-+	s3c_rtc_enable_clk(info);
+diff --git a/drivers/rtc/rtc-rx8025.c b/drivers/rtc/rtc-rx8025.c
+index 612b6876cbd5..52683eda1da2 100644
+--- a/drivers/rtc/rtc-rx8025.c
++++ b/drivers/rtc/rtc-rx8025.c
+@@ -19,6 +19,7 @@
+  * version 2 as published by the Free Software Foundation.
+  */
+ #include <linux/bcd.h>
++#include <linux/bitops.h>
+ #include <linux/i2c.h>
+ #include <linux/kernel.h>
+ #include <linux/module.h>
+@@ -45,17 +46,17 @@
+ #define RX8025_BIT_CTRL1_CT	(7 << 0)
+ /* 1 Hz periodic level irq */
+ #define RX8025_BIT_CTRL1_CT_1HZ	4
+-#define RX8025_BIT_CTRL1_TEST	(1 << 3)
+-#define RX8025_BIT_CTRL1_1224	(1 << 5)
+-#define RX8025_BIT_CTRL1_DALE	(1 << 6)
+-#define RX8025_BIT_CTRL1_WALE	(1 << 7)
+-
+-#define RX8025_BIT_CTRL2_DAFG	(1 << 0)
+-#define RX8025_BIT_CTRL2_WAFG	(1 << 1)
+-#define RX8025_BIT_CTRL2_CTFG	(1 << 2)
+-#define RX8025_BIT_CTRL2_PON	(1 << 4)
+-#define RX8025_BIT_CTRL2_XST	(1 << 5)
+-#define RX8025_BIT_CTRL2_VDET	(1 << 6)
++#define RX8025_BIT_CTRL1_TEST	BIT(3)
++#define RX8025_BIT_CTRL1_1224	BIT(5)
++#define RX8025_BIT_CTRL1_DALE	BIT(6)
++#define RX8025_BIT_CTRL1_WALE	BIT(7)
 +
- 	/* check to see if everything is setup correctly */
- 	if (info->data->enable)
- 		info->data->enable(info);
-@@ -548,9 +550,11 @@ static int s3c_rtc_probe(struct platform_device *pdev)
- 	if (info->data->disable)
- 		info->data->disable(info);
++#define RX8025_BIT_CTRL2_DAFG	BIT(0)
++#define RX8025_BIT_CTRL2_WAFG	BIT(1)
++#define RX8025_BIT_CTRL2_CTFG	BIT(2)
++#define RX8025_BIT_CTRL2_PON	BIT(4)
++#define RX8025_BIT_CTRL2_XST	BIT(5)
++#define RX8025_BIT_CTRL2_VDET	BIT(6)
  
-+	s3c_rtc_disable_clk(info);
-+
- 	if (info->data->needs_src_clk)
--		clk_disable_unprepare(info->rtc_src_clk);
--	clk_disable_unprepare(info->rtc_clk);
-+		clk_unprepare(info->rtc_src_clk);
-+	clk_unprepare(info->rtc_clk);
- 
- 	return ret;
- }
+ /* Clock precision adjustment */
+ #define RX8025_ADJ_RESOLUTION	3050 /* in ppb */
 -- 
-1.9.1
+2.1.4
 
 -- 
 -- 
