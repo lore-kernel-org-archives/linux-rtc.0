@@ -1,32 +1,21 @@
-Return-Path: <rtc-linux+bncBDKZNNNLXAHBBXG33OXAKGQENCVAXCA@googlegroups.com>
-Received: from mailout3.w1.samsung.com (mailout3.w1.samsung.com. [210.118.77.13])
-        by gmr-mx.google.com with ESMTPS id bm5si646675pbc.1.2015.08.21.02.22.35
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1 cipher=RC4-SHA bits=128/128);
-        Fri, 21 Aug 2015 02:22:36 -0700 (PDT)
-Received: from eucpsbgm2.samsung.com (unknown [203.254.199.245])
- by mailout3.w1.samsung.com
- (Oracle Communications Messaging Server 7.0.5.31.0 64bit (built May  5 2014))
- with ESMTP id <0NTF00ELGE1JYV80@mailout3.w1.samsung.com> for
- rtc-linux@googlegroups.com; Fri, 21 Aug 2015 10:22:31 +0100 (BST)
-Message-id: <55D6EDD9.3090702@samsung.com>
-Date: Fri, 21 Aug 2015 18:22:33 +0900
-From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-MIME-version: 1.0
-To: Joonyoung Shim <jy0922.shim@samsung.com>,
- Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: rtc-linux@googlegroups.com, linux-samsung-soc@vger.kernel.org,
- linux-kernel@vger.kernel.org, stable@vger.kernel.org, a.zummo@towertech.it,
- sbkim73@samsung.com
-Subject: [rtc-linux] Re: [PATCH] rtc: s5m: fix to update ctrl register
-References: <1439455764-23526-1-git-send-email-jy0922.shim@samsung.com>
- <20150820231551.GE3769@piout.net> <55D67487.3040503@samsung.com>
- <55D67838.6080902@samsung.com> <55D67D14.9060809@samsung.com>
- <55D6CC1C.9040402@samsung.com> <55D6D24C.3010109@samsung.com>
- <55D6E627.8060908@samsung.com>
-In-reply-to: <55D6E627.8060908@samsung.com>
-Content-type: text/plain; charset=UTF-8
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBS4TQKXAKGQEYFFENWA@googlegroups.com>
+MIME-Version: 1.0
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id jf3si51224wic.0.2015.08.04.02.45.47
+        for <rtc-linux@googlegroups.com>;
+        Tue, 04 Aug 2015 02:45:47 -0700 (PDT)
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: rtc-linux@googlegroups.com
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+	linux-kernel@vger.kernel.org,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Subject: [rtc-linux] [PATCH 15/15] rtc: rx8025: check time validity when necessary
+Date: Tue,  4 Aug 2015 11:45:34 +0200
+Message-Id: <1438681534-12027-16-git-send-email-alexandre.belloni@free-electrons.com>
+In-Reply-To: <1438681534-12027-1-git-send-email-alexandre.belloni@free-electrons.com>
+References: <1438681534-12027-1-git-send-email-alexandre.belloni@free-electrons.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -36,86 +25,99 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On 21.08.2015 17:49, Joonyoung Shim wrote:
-> On 08/21/2015 04:25 PM, Krzysztof Kozlowski wrote:
->> On 21.08.2015 15:58, Joonyoung Shim wrote:
->>> On 08/21/2015 10:21 AM, Krzysztof Kozlowski wrote:
->>>> On 21.08.2015 10:00, Joonyoung Shim wrote:
->>>>> On 08/21/2015 09:44 AM, Krzysztof Kozlowski wrote:
->>>>>> On 21.08.2015 08:15, Alexandre Belloni wrote:
->>>>>>> Hi,
->>>>>>>
->>>>>>> On 13/08/2015 at 17:49:24 +0900, Joonyoung Shim wrote :
->>>>>>>> According to datasheet, the S2MPS13X and S2MPS14X should update write
->>>>>>>> buffer via setting WUDR bit to high after ctrl register is updated.
->>>>>>>>
->>>>>>>> If not, ALARM interrupt of rtc-s5m doesn't happen first time when i use
->>>>>>>> tools/testing/selftests/timers/rtctest.c test program and hour format is
->>>>>>>> used to 12 hour mode in Odroid-XU3 board.
->>>>>>>>
->>>>>>>
->>>>>>> >From what I understood, I should expect a v2 of tihat patch also setting
->>>>>>> RUDR, is that right? OR would you prefer that I apply that one and then
->>>>>>> fix RUDR in a following patch?
->>>>>>
->>>>>> Right, I would expect that as well... or a comment if this is not needed.
->>>>>>
->>>>>
->>>>> Hmm, the driver only writes control register now, so i don't feel the
->>>>> need of patch setting RUDR for control register.
->>>>
->>>> Yes, you're right. There is only regmap_write() (not
->>>> remap_update_bits()) so your patch is completely fine. Thanks for
->>>> explanation.
->>>>
->>>> Reviewed-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
->>>>
->>>
->>> Thanks for review.
->>>
->>> I found one more issue, the RTC doesn't keep time on Odroid-XU3 board
->>> when i turn on board after power off even if RTC battery is connected.
->>>
->>> A difference with RTC driver of hardkernel kernel is that it sets
->>> not only WUDR bit but also RUDR bit to high at the same time after
->>> RTC_CTRL register is written. It's same with condition of only writing
->>> ALARM registers like below description.
->>
->> It seems that setting RUDR to high is needed...  but it shouldn't. For
->> example in SM-G900H with S2MPS11 it is set before reading RTC_CTRL
->> register. Mainline driver does not perform read.
->>
->> Maybe RUDR is not set high properly before some next time read and your
->> code is a coincidence, a work-around?
-> 
-> As you know, the driver sets RUDR bit to high always before reads time.
-> I'm not sure whether any delay time needs to guarantee that RUDR bit is
-> set properly, but it fails keeping time.
-> 
-> I tried setting RUDR bit to high after or before setting WUDR bit to
-> high for writing of RTC_CTRL register but it also fails keeping time.
-> If achieve keeping time, i should set WUDR & RUDR bits to high at the
-> same time.
-> 
-> I'm referring also rtc-sec driver source of SM-N910U_SEA(Samsung Note4)
-> from SM-N910U_SEA_KK_Opensource.zip file[1]. It also does the same
-> operation setting WUDR & RUDR bits to high for writing of RTC_CTRL
-> register.
-> 
-> [1] http://opensource.samsung.com/reception/receptionSub.do?method=sub&sub=F&searchValue=N910U
-> 
+Check time validity when reading time as this is when we need to know.
 
-Indeed, vendor code sets both WUDR and RUDR for S2MPS11 and S2MPS13 even
-though datasheet says something different. Probably datasheet we have is
-not correct or up to date.
+Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+---
+ drivers/rtc/rtc-rx8025.c | 58 ++++++++++++++++++++++++------------------------
+ 1 file changed, 29 insertions(+), 29 deletions(-)
 
-Can you send updated patch with a comment next to
-s5m8767_rtc_set_alarm_reg() call why it is needed?
-
-I'll give it later a try on Rinato board (S2MPS14) and my Odroid at home.
-
-Best regards,
-Krzysztof
+diff --git a/drivers/rtc/rtc-rx8025.c b/drivers/rtc/rtc-rx8025.c
+index f3f1de26c228..24c3d69ce1b9 100644
+--- a/drivers/rtc/rtc-rx8025.c
++++ b/drivers/rtc/rtc-rx8025.c
+@@ -104,6 +104,31 @@ static s32 rx8025_write_regs(const struct i2c_client *client,
+ 					      length, values);
+ }
+ 
++static int rx8025_check_validity(struct device *dev)
++{
++	struct rx8025_data *rx8025 = dev_get_drvdata(dev);
++	int ctrl2;
++
++	ctrl2 = rx8025_read_reg(rx8025->client, RX8025_REG_CTRL2);
++	if (ctrl2 < 0)
++		return ctrl2;
++
++	if (ctrl2 & RX8025_BIT_CTRL2_VDET)
++		dev_warn(dev, "power voltage drop detected\n");
++
++	if (ctrl2 & RX8025_BIT_CTRL2_PON) {
++		dev_warn(dev, "power-on reset detected, date is invalid\n");
++		return -EINVAL;
++	}
++
++	if (!(ctrl2 & RX8025_BIT_CTRL2_XST)) {
++		dev_warn(dev, "crystal stopped, date is invalid\n");
++		return -EINVAL;
++	}
++
++	return 0;
++}
++
+ static int rx8025_reset_validity(struct i2c_client *client)
+ {
+ 	int ctrl2 = rx8025_read_reg(client, RX8025_REG_CTRL2);
+@@ -154,21 +179,11 @@ static int rx8025_get_time(struct device *dev, struct rtc_time *dt)
+ {
+ 	struct rx8025_data *rx8025 = dev_get_drvdata(dev);
+ 	u8 date[7];
+-	int ctrl, err;
+-
+-	ctrl = rx8025_read_reg(rx8025->client, RX8025_REG_CTRL2);
+-	if (ctrl < 0)
+-		return ctrl;
+-
+-	if (ctrl & RX8025_BIT_CTRL2_PON) {
+-		dev_warn(dev, "power-on reset detected, date is invalid\n");
+-		return -EINVAL;
+-	}
++	int err;
+ 
+-	if (!(ctrl & RX8025_BIT_CTRL2_XST)) {
+-		dev_warn(dev, "crystal stopped, date is invalid\n");
+-		return -EINVAL;
+-	}
++	err = rx8025_check_validity(dev);
++	if (err)
++		return err;
+ 
+ 	err = rx8025_read_regs(rx8025->client, RX8025_REG_SEC, 7, date);
+ 	if (err)
+@@ -250,21 +265,6 @@ static int rx8025_init_client(struct i2c_client *client)
+ 	/* Keep test bit zero ! */
+ 	rx8025->ctrl1 = ctrl[0] & ~RX8025_BIT_CTRL1_TEST;
+ 
+-	if (ctrl[1] & RX8025_BIT_CTRL2_PON) {
+-		dev_warn(&client->dev, "power-on reset was detected, "
+-			 "you may have to readjust the clock\n");
+-	}
+-
+-	if (ctrl[1] & RX8025_BIT_CTRL2_VDET) {
+-		dev_warn(&client->dev, "a power voltage drop was detected, "
+-			 "you may have to readjust the clock\n");
+-	}
+-
+-	if (!(ctrl[1] & RX8025_BIT_CTRL2_XST)) {
+-		dev_warn(&client->dev, "Oscillation stop was detected,"
+-			 "you may have to readjust the clock\n");
+-	}
+-
+ 	if (ctrl[1] & (RX8025_BIT_CTRL2_DAFG | RX8025_BIT_CTRL2_WAFG)) {
+ 		dev_warn(&client->dev, "Alarm was detected\n");
+ 		need_clear = 1;
+-- 
+2.1.4
 
 -- 
 -- 
