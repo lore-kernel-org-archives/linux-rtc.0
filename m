@@ -1,20 +1,24 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRB2URQ6XAKGQEELFD4EY@googlegroups.com>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBZGVQWXAKGQEMAUDSJA@googlegroups.com>
 Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id cj6si221871wib.1.2015.08.05.01.27.22
+        by gmr-mx.google.com with ESMTP id hm7si187995wib.0.2015.08.04.18.46.11
         for <rtc-linux@googlegroups.com>;
-        Wed, 05 Aug 2015 01:27:22 -0700 (PDT)
-Date: Wed, 5 Aug 2015 10:27:21 +0200
+        Tue, 04 Aug 2015 18:46:11 -0700 (PDT)
+Date: Wed, 5 Aug 2015 03:46:11 +0200
 From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Vladimir Zapolskiy <vz@mleia.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [rtc-linux] Re: [PATCH 08/11] rtc: m48t59: clean up m48t59_nvram_read()/m48t59_nvram_write()
-Message-ID: <20150805082721.GB3486@piout.net>
-References: <1437947316-5652-1-git-send-email-vz@mleia.com>
- <1437947316-5652-9-git-send-email-vz@mleia.com>
+To: Henry Chen <henryc.chen@mediatek.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+	Eddie Huang <eddie.huang@mediatek.com>,
+	Matthias Brugger <matthias.bgg@gmail.com>,
+	linux-arm-kernel@lists.infradead.org,
+	linux-mediatek@lists.infradead.org, rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org
+Subject: [rtc-linux] Re: [PATCH] rtc: mt6397: implement suspend/resume
+ function in rtc-mt6397 driver
+Message-ID: <20150805014611.GY3486@piout.net>
+References: <1438267994-13934-1-git-send-email-henryc.chen@mediatek.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1437947316-5652-9-git-send-email-vz@mleia.com>
+In-Reply-To: <1438267994-13934-1-git-send-email-henryc.chen@mediatek.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -25,22 +29,15 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On 27/07/2015 at 00:48:33 +0300, Vladimir Zapolskiy wrote :
-> @@ -365,11 +366,10 @@ static ssize_t m48t59_nvram_write(struct file *filp, struct kobject *kobj,
->  	ssize_t cnt = 0;
->  	unsigned long flags;
->  
-> -	for (; size > 0 && pos < pdata->offset; cnt++, size--) {
-> -		spin_lock_irqsave(&m48t59->lock, flags);
-> +	spin_lock_irqsave(&m48t59->lock, flags);
-> +
-> +	for (; cnt < size; cnt++)
->  		M48T59_WRITE(*buf++, cnt);
-> -		spin_unlock_irqrestore(&m48t59->lock, flags);
-> -	}
->  
-
-Isn't a spin_unlock_irqrestore() missing?
+On 30/07/2015 at 22:53:14 +0800, Henry Chen wrote :
+> Implement the suspend/resume function in order to control rtc's irq_wake flag and handle as wakeup source.
+> 
+> Signed-off-by: Henry Chen <henryc.chen@mediatek.com>
+> ---
+>  drivers/rtc/rtc-mt6397.c | 26 ++++++++++++++++++++++++++
+>  1 file changed, 26 insertions(+)
+> 
+Applied, thanks.
 
 -- 
 Alexandre Belloni, Free Electrons
