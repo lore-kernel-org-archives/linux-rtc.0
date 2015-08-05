@@ -1,20 +1,20 @@
-Return-Path: <rtc-linux+bncBD66BCOYSQBBBQHAZOXAKGQE6V2TBVY@googlegroups.com>
-Received: from comal.ext.ti.com (comal.ext.ti.com. [198.47.26.152])
-        by gmr-mx.google.com with ESMTPS id j6si1037063igx.0.2015.08.18.01.43.44
+Return-Path: <rtc-linux+bncBCAMRWGQV4CRBLXQRCXAKGQES454PJQ@googlegroups.com>
+Received: from mail.mleia.com (li271-223.members.linode.com. [178.79.152.223])
+        by gmr-mx.google.com with ESMTPS id bk2si282270wib.1.2015.08.05.09.22.05
         for <rtc-linux@googlegroups.com>
-        (version=TLSv1 cipher=RC4-SHA bits=128/128);
-        Tue, 18 Aug 2015 01:43:44 -0700 (PDT)
-From: Keerthy <j-keerthy@ti.com>
-To: <alexandre.belloni@free-electrons.com>, <tony@atomide.com>
-CC: <johan@kernel.org>, <linux-omap@vger.kernel.org>,
-        <rtc-linux@googlegroups.com>, <grygorii.strashko@ti.com>,
-        <j-keerthy@ti.com>
-Subject: [rtc-linux] [PATCH v4 2/3] rtc: omap: Add internal clock enabling support
-Date: Tue, 18 Aug 2015 14:13:30 +0530
-Message-ID: <1439887411-15576-3-git-send-email-j-keerthy@ti.com>
-In-Reply-To: <1439887411-15576-1-git-send-email-j-keerthy@ti.com>
-References: <1439887411-15576-1-git-send-email-j-keerthy@ti.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 05 Aug 2015 09:22:05 -0700 (PDT)
+Message-ID: <55C2382C.7010606@mleia.com>
+Date: Wed, 05 Aug 2015 19:22:04 +0300
+From: Vladimir Zapolskiy <vz@mleia.com>
 MIME-Version: 1.0
+To: rtc-linux@googlegroups.com,
+ Alexandre Belloni <alexandre.belloni@free-electrons.com>
+CC: Alessandro Zummo <a.zummo@towertech.it>,
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: Re: [rtc-linux] Re: [PATCH 05/11] rtc: ds1511: clean up ds1511_nvram_read()/ds1511_nvram_write()
+References: <1437947316-5652-1-git-send-email-vz@mleia.com> <1437947316-5652-6-git-send-email-vz@mleia.com> <20150805082402.GA3486@piout.net>
+In-Reply-To: <20150805082402.GA3486@piout.net>
 Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
@@ -26,58 +26,127 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-The rtc can be clocked by an internal 32K clock. Adding the support
-to enable the same.
+Hi Alexandre,
 
-Signed-off-by: Keerthy <j-keerthy@ti.com>
----
- drivers/rtc/rtc-omap.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+On 05.08.2015 11:24, Alexandre Belloni wrote:
+> Hi,
+> 
+> On 27/07/2015 at 00:48:30 +0300, Vladimir Zapolskiy wrote :
+>> The change removes redundant sysfs binary file boundary checks, since
+>> this task is already done on caller side in fs/sysfs/file.c
+>>
+>> Signed-off-by: Vladimir Zapolskiy <vz@mleia.com>
+>> ---
+>>  drivers/rtc/rtc-ds1511.c | 38 ++++++++------------------------------
+>>  1 file changed, 8 insertions(+), 30 deletions(-)
+>>
+>> diff --git a/drivers/rtc/rtc-ds1511.c b/drivers/rtc/rtc-ds1511.c
+>> index 7415c2b..2213fab 100644
+>> --- a/drivers/rtc/rtc-ds1511.c
+>> +++ b/drivers/rtc/rtc-ds1511.c
+>> @@ -407,25 +407,14 @@ ds1511_nvram_read(struct file *filp, struct kobject *kobj,
+>>  {
+>>  	ssize_t count;
+>>  
+>> -	/*
+>> -	 * if count is more than one, turn on "burst" mode
+>> -	 * turn it off when you're done
+>> -	 */
+>> -	if (size > 1)
+>> -		rtc_write((rtc_read(RTC_CMD) | DS1511_BME), RTC_CMD);
+>> -
+>> -	if (pos > DS1511_RAM_MAX)
+>> -		pos = DS1511_RAM_MAX;
+>> -
+>> -	if (size + pos > DS1511_RAM_MAX + 1)
+>> -		size = DS1511_RAM_MAX - pos + 1;
+>> +	/* turn on "burst" mode, turn it off when you're done */
+>> +	rtc_write((rtc_read(RTC_CMD) | DS1511_BME), RTC_CMD);
+> 
+> That one feels wrong, you are now unconditionally using burst mode, this
+> was not the case before. If this has been tested and works, I'd ay that
+> this at least require a mention in the commit message.
+> 
 
-diff --git a/drivers/rtc/rtc-omap.c b/drivers/rtc/rtc-omap.c
-index 8b6355f..f31c012 100644
---- a/drivers/rtc/rtc-omap.c
-+++ b/drivers/rtc/rtc-omap.c
-@@ -25,6 +25,7 @@
- #include <linux/of_device.h>
- #include <linux/pm_runtime.h>
- #include <linux/io.h>
-+#include <linux/clk.h>
- 
- /*
-  * The OMAP RTC is a year/month/day/hours/minutes/seconds BCD clock
-@@ -132,6 +133,7 @@ struct omap_rtc_device_type {
- struct omap_rtc {
- 	struct rtc_device *rtc;
- 	void __iomem *base;
-+	struct clk *clk;
- 	int irq_alarm;
- 	int irq_timer;
- 	u8 interrupts_reg;
-@@ -553,6 +555,11 @@ static int omap_rtc_probe(struct platform_device *pdev)
- 	if (rtc->irq_alarm <= 0)
- 		return -ENOENT;
- 
-+	rtc->clk = devm_clk_get(&pdev->dev, "int-clk");
-+
-+	if (!IS_ERR(rtc->clk))
-+		clk_prepare_enable(rtc->clk);
-+
- 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
- 	rtc->base = devm_ioremap_resource(&pdev->dev, res);
- 	if (IS_ERR(rtc->base))
-@@ -681,6 +688,9 @@ static int __exit omap_rtc_remove(struct platform_device *pdev)
- 
- 	device_init_wakeup(&pdev->dev, 0);
- 
-+	if (!IS_ERR(rtc->clk))
-+		clk_disable_unprepare(rtc->clk);
-+
- 	rtc->type->unlock(rtc);
- 	/* leave rtc running, but disable irqs */
- 	rtc_write(rtc, OMAP_RTC_INTERRUPTS_REG, 0);
--- 
-1.9.1
+I believe this is a correct fix, burst mode should be always enabled,
+probably it might be better even to move its configuration to probe().
+
+>From the spec:
+
+  The burst-mode enable bit allows the extended user RAM address
+  registers to automatically increment for consecutive reads and writes.
+
+  When BME is set to 1, the automatic incrementing is enabled; when BME
+  is set to 0, the automatic incrementing is disabled.
+
+Prior to the change the sequence of
+
+  read(fd, buf, 1);
+  read(fd, buf, 1);
+  read(fd, buf, 1);
+  ...
+
+won't sequentially read NVRAM byte by byte as it should be IMO, at least
+it contradicts to common and expected usage of read().
+
+If there is no objections, I'll keep this part of the proposed change
+unmodified, but thanks for attracting my attention to the potential
+problem, I've managed to notice that DS1511_RAM_MAX value is invalid, it
+must be 256 --- the current value of 0xff *and* "no-burst" mode for
+1-byte reading probably is done as a clumsy attempt to avoid overflow.
+
+I'll resend the change with DS1511_RAM_MAX update and improved commit
+message.
+
+With best wishes,
+Vladimir
+
+>>  
+>>  	rtc_write(pos, DS1511_RAMADDR_LSB);
+>> -	for (count = 0; size > 0; count++, size--)
+>> +	for (count = 0; count < size; count++)
+>>  		*buf++ = rtc_read(DS1511_RAMDATA);
+>>  
+>> -	if (count > 1)
+>> -		rtc_write((rtc_read(RTC_CMD) & ~DS1511_BME), RTC_CMD);
+>> +	rtc_write((rtc_read(RTC_CMD) & ~DS1511_BME), RTC_CMD);
+>>  
+>>  	return count;
+>>  }
+>> @@ -437,25 +426,14 @@ ds1511_nvram_write(struct file *filp, struct kobject *kobj,
+>>  {
+>>  	ssize_t count;
+>>  
+>> -	/*
+>> -	 * if count is more than one, turn on "burst" mode
+>> -	 * turn it off when you're done
+>> -	 */
+>> -	if (size > 1)
+>> -		rtc_write((rtc_read(RTC_CMD) | DS1511_BME), RTC_CMD);
+>> -
+>> -	if (pos > DS1511_RAM_MAX)
+>> -		pos = DS1511_RAM_MAX;
+>> -
+>> -	if (size + pos > DS1511_RAM_MAX + 1)
+>> -		size = DS1511_RAM_MAX - pos + 1;
+>> +	/* turn on "burst" mode, turn it off when you're done */
+>> +	rtc_write((rtc_read(RTC_CMD) | DS1511_BME), RTC_CMD);
+>>  
+>>  	rtc_write(pos, DS1511_RAMADDR_LSB);
+>> -	for (count = 0; size > 0; count++, size--)
+>> +	for (count = 0; count < size; count++)
+>>  		rtc_write(*buf++, DS1511_RAMDATA);
+>>  
+>> -	if (count > 1)
+>> -		rtc_write((rtc_read(RTC_CMD) & ~DS1511_BME), RTC_CMD);
+>> +	rtc_write((rtc_read(RTC_CMD) & ~DS1511_BME), RTC_CMD);
+>>  
+>>  	return count;
+>>  }
+>> -- 
+>> 2.1.4
+>>
+> 
 
 -- 
 -- 
