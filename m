@@ -1,24 +1,22 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBYP6VOXAKGQEFEHJF5Q@googlegroups.com>
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id x20si203514wia.0.2015.08.12.01.10.08
-        for <rtc-linux@googlegroups.com>;
-        Wed, 12 Aug 2015 01:10:09 -0700 (PDT)
-Date: Wed, 12 Aug 2015 10:10:07 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Wang Dongsheng <Dongsheng.Wang@freescale.com>
-Cc: "a.zummo@towertech.it" <a.zummo@towertech.it>,
-	"rtc-linux@googlegroups.com" <rtc-linux@googlegroups.com>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: [rtc-linux] Re: [PATCH] rtc/ds3232: fix ds3232 get a WARNING trace in
- resume function
-Message-ID: <20150812081007.GZ3411@piout.net>
-References: <1436249576-23233-1-git-send-email-dongsheng.wang@freescale.com>
- <20150714225041.GH20482@piout.net>
- <SN1PR0301MB161694E7F5018A10A74DD2AC9D7E0@SN1PR0301MB1616.namprd03.prod.outlook.com>
+Return-Path: <rtc-linux+bncBCAMRWGQV4CRBL5ERGXAKGQEGHFEABA@googlegroups.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <SN1PR0301MB161694E7F5018A10A74DD2AC9D7E0@SN1PR0301MB1616.namprd03.prod.outlook.com>
+Received: from mail.mleia.com (li271-223.members.linode.com. [178.79.152.223])
+        by gmr-mx.google.com with ESMTPS id fj7si282712wib.3.2015.08.05.11.13.03
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 05 Aug 2015 11:13:03 -0700 (PDT)
+From: Vladimir Zapolskiy <vz@mleia.com>
+To: Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: rtc-linux@googlegroups.com,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: [rtc-linux] [PATCH v2 05/11] rtc: ds1511: clean up ds1511_nvram_read()/ds1511_nvram_write()
+Date: Wed,  5 Aug 2015 21:12:58 +0300
+Message-Id: <1438798378-11290-1-git-send-email-vz@mleia.com>
+In-Reply-To: <1437947316-5652-6-git-send-email-vz@mleia.com>
+References: <1437947316-5652-6-git-send-email-vz@mleia.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -28,72 +26,129 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Hi,
+The change removes redundant sysfs binary file boundary checks, since
+this task is already done on caller side in fs/sysfs/file.c
 
-On 12/08/2015 at 07:50:03 +0000, Wang Dongsheng wrote :
-> Hi Belloni,
-> 
-> I am not found this patch in your tree(rtc-fixes and rtc-next), Need I send v2 patch? :)
-> 
+The change enables burst mode of access to SRAM for any read()/write()
+operations, it is worth to mention that this may influence on
+userspace, for instance prior to the change
 
-Yes, I was expecting that you would send a new version.
+  read(fd, buf, 1);
+  read(fd, buf + 1, 1);
 
-> Regards,
-> -Dongsheng
-> 
-> > -----Original Message-----
-> > From: Wang Dongsheng-B40534
-> > Sent: Wednesday, July 15, 2015 10:06 AM
-> > To: 'Alexandre Belloni'
-> > Cc: a.zummo@towertech.it; rtc-linux@googlegroups.com; linux-
-> > kernel@vger.kernel.org
-> > Subject: RE: [PATCH] rtc/ds3232: fix ds3232 get a WARNING trace in resume
-> > function
-> > 
-> > Thanks Belloni. :)
-> > 
-> > Regards,
-> > -Dongsheng
-> > 
-> > > -----Original Message-----
-> > > From: Alexandre Belloni [mailto:alexandre.belloni@free-electrons.com]
-> > > Sent: Wednesday, July 15, 2015 6:51 AM
-> > > To: Wang Dongsheng-B40534
-> > > Cc: a.zummo@towertech.it; rtc-linux@googlegroups.com; linux-
-> > > kernel@vger.kernel.org
-> > > Subject: Re: [PATCH] rtc/ds3232: fix ds3232 get a WARNING trace in
-> > > resume function
-> > >
-> > > Hi,
-> > >
-> > > This seems ok, one small nitpick:
-> > >
-> > > On 07/07/2015 at 14:12:56 +0800, Dongsheng Wang wrote :
-> > > > From: Wang Dongsheng <dongsheng.wang@freescale.com> diff --git
-> > > > a/drivers/rtc/rtc-ds3232.c b/drivers/rtc/rtc-ds3232.c index
-> > > > 7e48e53..2081155 100644
-> > > > --- a/drivers/rtc/rtc-ds3232.c
-> > > > +++ b/drivers/rtc/rtc-ds3232.c
-> > > > @@ -463,7 +463,10 @@ static int ds3232_suspend(struct device *dev)
-> > > >
-> > > >  	if (device_can_wakeup(dev)) {
-> > > >  		ds3232->suspended = true;
-> > > > -		irq_set_irq_wake(client->irq, 1);
-> > > > +		if (irq_set_irq_wake(client->irq, 1)) {
-> > > > +			dev_info(dev, "Cannot serve as a wakeup source\n");
-> > >
-> > > I would use dev_warn_once or dev_info_once here to avoid spamming the
-> > > log each time the machine is suspended.
-> > >
-> > > --
-> > > Alexandre Belloni, Free Electrons
-> > > Embedded Linux, Kernel and Android engineering
-> > > http://free-electrons.com
+and
 
+  read(fd, buf, 2);
+
+sequences of syscalls over DS1511's sysfs "nvram" fd led to different
+DS1511 state changes and/or buf content, if some userspace applications
+are written specifically for DS1511 and exploit this strange
+"feature", they may be impacted.
+
+Also the change corrects NVRAM size accessible to userspace from 255
+bytes to 256 bytes.
+
+Signed-off-by: Vladimir Zapolskiy <vz@mleia.com>
+---
+Changes from v1 to v2:
+* configuration of burst mode access to NVRAM from probe() allows to
+  remove another 10 lines of code,
+* NVRAM size is set correctly to 256 bytes,
+* extended commit message with a warning addressed to any potentially
+  impacted userspace applications due to always enabled burst mode
+
+ drivers/rtc/rtc-ds1511.c | 42 +++++-------------------------------------
+ 1 file changed, 5 insertions(+), 37 deletions(-)
+
+diff --git a/drivers/rtc/rtc-ds1511.c b/drivers/rtc/rtc-ds1511.c
+index 7415c2b..da3d04c 100644
+--- a/drivers/rtc/rtc-ds1511.c
++++ b/drivers/rtc/rtc-ds1511.c
+@@ -64,7 +64,7 @@ enum ds1511reg {
+ #define DS1511_KIE	0x04
+ #define DS1511_WDE	0x02
+ #define DS1511_WDS	0x01
+-#define DS1511_RAM_MAX	0xff
++#define DS1511_RAM_MAX	0x100
+ 
+ #define RTC_CMD		DS1511_CONTROL_B
+ #define RTC_CMD1	DS1511_CONTROL_A
+@@ -159,7 +159,7 @@ ds1511_wdog_set(unsigned long deciseconds)
+ 	/*
+ 	 * set wdog enable and wdog 'steering' bit to issue a reset
+ 	 */
+-	rtc_write(DS1511_WDE | DS1511_WDS, RTC_CMD);
++	rtc_write(rtc_read(RTC_CMD) | DS1511_WDE | DS1511_WDS, RTC_CMD);
+ }
+ 
+ void
+@@ -407,26 +407,10 @@ ds1511_nvram_read(struct file *filp, struct kobject *kobj,
+ {
+ 	ssize_t count;
+ 
+-	/*
+-	 * if count is more than one, turn on "burst" mode
+-	 * turn it off when you're done
+-	 */
+-	if (size > 1)
+-		rtc_write((rtc_read(RTC_CMD) | DS1511_BME), RTC_CMD);
+-
+-	if (pos > DS1511_RAM_MAX)
+-		pos = DS1511_RAM_MAX;
+-
+-	if (size + pos > DS1511_RAM_MAX + 1)
+-		size = DS1511_RAM_MAX - pos + 1;
+-
+ 	rtc_write(pos, DS1511_RAMADDR_LSB);
+-	for (count = 0; size > 0; count++, size--)
++	for (count = 0; count < size; count++)
+ 		*buf++ = rtc_read(DS1511_RAMDATA);
+ 
+-	if (count > 1)
+-		rtc_write((rtc_read(RTC_CMD) & ~DS1511_BME), RTC_CMD);
+-
+ 	return count;
+ }
+ 
+@@ -437,26 +421,10 @@ ds1511_nvram_write(struct file *filp, struct kobject *kobj,
+ {
+ 	ssize_t count;
+ 
+-	/*
+-	 * if count is more than one, turn on "burst" mode
+-	 * turn it off when you're done
+-	 */
+-	if (size > 1)
+-		rtc_write((rtc_read(RTC_CMD) | DS1511_BME), RTC_CMD);
+-
+-	if (pos > DS1511_RAM_MAX)
+-		pos = DS1511_RAM_MAX;
+-
+-	if (size + pos > DS1511_RAM_MAX + 1)
+-		size = DS1511_RAM_MAX - pos + 1;
+-
+ 	rtc_write(pos, DS1511_RAMADDR_LSB);
+-	for (count = 0; size > 0; count++, size--)
++	for (count = 0; count < size; count++)
+ 		rtc_write(*buf++, DS1511_RAMDATA);
+ 
+-	if (count > 1)
+-		rtc_write((rtc_read(RTC_CMD) & ~DS1511_BME), RTC_CMD);
+-
+ 	return count;
+ }
+ 
+@@ -490,7 +458,7 @@ static int ds1511_rtc_probe(struct platform_device *pdev)
+ 	/*
+ 	 * turn on the clock and the crystal, etc.
+ 	 */
+-	rtc_write(0, RTC_CMD);
++	rtc_write(DS1511_BME, RTC_CMD);
+ 	rtc_write(0, RTC_CMD1);
+ 	/*
+ 	 * clear the wdog counter
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+2.1.4
 
 -- 
 -- 
