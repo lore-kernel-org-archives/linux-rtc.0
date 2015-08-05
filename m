@@ -1,22 +1,22 @@
-Return-Path: <rtc-linux+bncBD66BCOYSQBBBT44ZOXAKGQEYN5YNWI@googlegroups.com>
-Received: from comal.ext.ti.com (comal.ext.ti.com. [198.47.26.152])
-        by gmr-mx.google.com with ESMTPS id ax9si1005164igc.1.2015.08.17.23.18.54
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1 cipher=RC4-SHA bits=128/128);
-        Mon, 17 Aug 2015 23:18:54 -0700 (PDT)
-From: Keerthy <j-keerthy@ti.com>
-To: <alexandre.belloni@free-electrons.com>, <tony@atomide.com>
-CC: <johan@kernel.org>, <linux-omap@vger.kernel.org>,
-        <rtc-linux@googlegroups.com>, <grygorii.strashko@ti.com>,
-        <j-keerthy@ti.com>
-Subject: [rtc-linux] [PATCH v3 1/3] ARM: dts: AM437x: Add the internal and
- external clock nodes for rtc
-Date: Tue, 18 Aug 2015 11:48:42 +0530
-Message-ID: <1439878724-5828-2-git-send-email-j-keerthy@ti.com>
-In-Reply-To: <1439878724-5828-1-git-send-email-j-keerthy@ti.com>
-References: <1439878724-5828-1-git-send-email-j-keerthy@ti.com>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBMWTQWXAKGQEG3P4OYI@googlegroups.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id v8si163397wiw.1.2015.08.04.18.41.06
+        for <rtc-linux@googlegroups.com>;
+        Tue, 04 Aug 2015 18:41:06 -0700 (PDT)
+Date: Wed, 5 Aug 2015 03:41:05 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org,
+	Krzysztof Kozlowski <k.kozlowski@samsung.com>
+Subject: [rtc-linux] Re: [PATCH v2 3/3] RTC: switch to using is_visible() to
+ control sysfs attributes
+Message-ID: <20150805014105.GX3486@piout.net>
+References: <1437692468-24788-1-git-send-email-dmitry.torokhov@gmail.com>
+ <1437692468-24788-3-git-send-email-dmitry.torokhov@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1437692468-24788-3-git-send-email-dmitry.torokhov@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -27,115 +27,20 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-rtc can either be supplied from internal 32k clock or external crystal
-generated 32k clock. Internal clock is SOC specific and the external
-clock is board dependent. Adding the corresponding nodes.
+On 23/07/2015 at 16:01:08 -0700, Dmitry Torokhov wrote :
+> Instead of creating wakealarm attribute manually, after the device has been
+> registered, let's rely on facilities provided by the attribute groups to
+> control which attributes are visible and which are not. This allows to to
+> create all needed attributes at once, at the same time that we register RTC
+> class device.
+> 
+> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Applied, thanks.
 
-Signed-off-by: Keerthy <j-keerthy@ti.com>
----
- arch/arm/boot/dts/am4372.dtsi        |  2 ++
- arch/arm/boot/dts/am437x-gp-evm.dts  | 13 +++++++++++++
- arch/arm/boot/dts/am437x-idk-evm.dts |  9 +++++++++
- arch/arm/boot/dts/am437x-sk-evm.dts  |  9 +++++++++
- 4 files changed, 33 insertions(+)
-
-diff --git a/arch/arm/boot/dts/am4372.dtsi b/arch/arm/boot/dts/am4372.dtsi
-index d99b2ee..484f092 100644
---- a/arch/arm/boot/dts/am4372.dtsi
-+++ b/arch/arm/boot/dts/am4372.dtsi
-@@ -336,6 +336,8 @@
- 			interrupts = <GIC_SPI 75 IRQ_TYPE_LEVEL_HIGH
- 				      GIC_SPI 76 IRQ_TYPE_LEVEL_HIGH>;
- 			ti,hwmods = "rtc";
-+			clocks = <&clk_32768_ck>;
-+			clock-names = "int-clk";
- 			status = "disabled";
- 		};
- 
-diff --git a/arch/arm/boot/dts/am437x-gp-evm.dts b/arch/arm/boot/dts/am437x-gp-evm.dts
-index 215775d..22038f2 100644
---- a/arch/arm/boot/dts/am437x-gp-evm.dts
-+++ b/arch/arm/boot/dts/am437x-gp-evm.dts
-@@ -112,6 +112,13 @@
- 		clock-frequency = <12000000>;
- 	};
- 
-+	/* fixed 32k external oscillator clock */
-+	clk_32k_rtc: clk_32k_rtc {
-+		#clock-cells = <0>;
-+		compatible = "fixed-clock";
-+		clock-frequency = <32768>;
-+	};
-+
- 	sound0: sound@0 {
- 		compatible = "simple-audio-card";
- 		simple-audio-card,name = "AM437x-GP-EVM";
-@@ -941,3 +948,9 @@
- 	tx-num-evt = <32>;
- 	rx-num-evt = <32>;
- };
-+
-+&rtc {
-+	clocks = <&clk_32k_rtc>, <&clk_32768_ck>;
-+	clock-names = "ext-clk", "int-clk";
-+	status = "okay";
-+};
-diff --git a/arch/arm/boot/dts/am437x-idk-evm.dts b/arch/arm/boot/dts/am437x-idk-evm.dts
-index 37834427..af25801 100644
---- a/arch/arm/boot/dts/am437x-idk-evm.dts
-+++ b/arch/arm/boot/dts/am437x-idk-evm.dts
-@@ -110,6 +110,13 @@
- 			gpios = <&gpio4 2 GPIO_ACTIVE_LOW>;
- 		};
- 	};
-+
-+	/* fixed 32k external oscillator clock */
-+	clk_32k_rtc: clk_32k_rtc {
-+		#clock-cells = <0>;
-+		compatible = "fixed-clock";
-+		clock-frequency = <32768>;
-+	};
- };
- 
- &am43xx_pinmux {
-@@ -394,6 +401,8 @@
- };
- 
- &rtc {
-+	clocks = <&clk_32k_rtc>, <&clk_32768_ck>;
-+	clock-names = "ext-clk", "int-clk";
- 	status = "okay";
- };
- 
-diff --git a/arch/arm/boot/dts/am437x-sk-evm.dts b/arch/arm/boot/dts/am437x-sk-evm.dts
-index 22af448..7da7c2d 100644
---- a/arch/arm/boot/dts/am437x-sk-evm.dts
-+++ b/arch/arm/boot/dts/am437x-sk-evm.dts
-@@ -24,6 +24,13 @@
- 		display0 = &lcd0;
- 	};
- 
-+	/* fixed 32k external oscillator clock */
-+	clk_32k_rtc: clk_32k_rtc {
-+		#clock-cells = <0>;
-+		compatible = "fixed-clock";
-+		clock-frequency = <32768>;
-+	};
-+
- 	backlight {
- 		compatible = "pwm-backlight";
- 		pwms = <&ecap0 0 50000 PWM_POLARITY_INVERTED>;
-@@ -697,6 +704,8 @@
- };
- 
- &rtc {
-+	clocks = <&clk_32k_rtc>, <&clk_32768_ck>;
-+	clock-names = "ext-clk", "int-clk";
- 	status = "okay";
- };
- 
 -- 
-1.9.1
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
 -- 
 -- 
