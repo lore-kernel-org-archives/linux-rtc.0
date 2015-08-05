@@ -1,21 +1,30 @@
-Return-Path: <rtc-linux+bncBAABBIUJXCXAKGQEZEGDSMY@googlegroups.com>
-Received: from na01-bn1-obe.outbound.protection.outlook.com (mail-bn1bon0054.outbound.protection.outlook.com. [157.56.111.54])
-        by gmr-mx.google.com with ESMTPS id k128si634540ywe.0.2015.08.14.08.09.21
+Return-Path: <rtc-linux+bncBAABBFXUQ2XAKGQEGXCFN6I@googlegroups.com>
+Received: from mail1.bemta14.messagelabs.com (mail1.bemta14.messagelabs.com. [193.109.254.118])
+        by gmr-mx.google.com with ESMTPS id v8si193388wiw.1.2015.08.05.00.24.05
         for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
-        Fri, 14 Aug 2015 08:09:21 -0700 (PDT)
-From: Suneel Garapati <suneel.garapati@xilinx.com>
-To: <rtc-linux@googlegroups.com>, <linux-arm-kernel@lists.infradead.org>,
-	<linux-kernel@vger.kernel.org>
-CC: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	<michals@xilinx.com>, <sorenb@xilinx.com>, Alessandro Zummo
-	<a.zummo@towertech.it>, Suneel Garapati <suneel.garapati@xilinx.com>
-Subject: [rtc-linux] [PATCH v3 1/2] devicetree: bindings: rtc: add bindings
- for xilinx zynqmp rtc
-Date: Fri, 14 Aug 2015 20:39:02 +0530
-Message-ID: <1439564943-21590-1-git-send-email-suneel.garapati@xilinx.com>
-MIME-Version: 1.0
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 05 Aug 2015 00:24:05 -0700 (PDT)
+From: "Opensource [Steve Twiss]" <stwiss.opensource@diasemi.com>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+CC: Alessandro Zummo <a.zummo@towertech.it>, DEVICETREE
+	<devicetree@vger.kernel.org>, LINUXINPUT <linux-input@vger.kernel.org>,
+	LINUXKERNEL <linux-kernel@vger.kernel.org>, RTCLINUX
+	<rtc-linux@googlegroups.com>, David Dajun Chen <david.chen@diasemi.com>,
+	"Ian Campbell" <ijc+devicetree@hellion.org.uk>, Kumar Gala
+	<galak@codeaurora.org>, Lee Jones <lee.jones@linaro.org>, Mark Rutland
+	<mark.rutland@arm.com>, "Pawel Moll" <pawel.moll@arm.com>, Rob Herring
+	<robh+dt@kernel.org>, Samuel Ortiz <sameo@linux.intel.com>, Support
+ Opensource <Support.Opensource@diasemi.com>
+Subject: [rtc-linux] RE: [PATCH V3 3/3] rtc: da9063: Add DA9062 RTC capability
+ to DA9063 RTC driver
+Date: Wed, 5 Aug 2015 07:24:03 +0000
+Message-ID: <6ED8E3B22081A4459DAC7699F3695FB7014B2606F8@SW-EX-MBX02.diasemi.com>
+References: <cover.1437474547.git.stwiss.opensource@diasemi.com>
+ <b79c0b5d1b96bd06ab81a2459c493e68ec6b1971.1437474547.git.stwiss.opensource@diasemi.com>
+ <20150805015519.GZ3486@piout.net>
+In-Reply-To: <20150805015519.GZ3486@piout.net>
 Content-Type: text/plain; charset=UTF-8
+MIME-Version: 1.0
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -26,54 +35,38 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-adds file for description on device node bindings for RTC
-found on Xilinx Zynq Ultrascale+ MPSoC.
+On 05 August 2015 02:55 Alexandre Belloni wrote:
 
-Signed-off-by: Suneel Garapati <suneel.garapati@xilinx.com>
----
-Changes v3 
-- none 
-Changes v2 
-- add examples for interrupt-names 
-- change alm to alarm 
----
- Documentation/devicetree/bindings/rtc/xlnx-rtc.txt | 25 ++++++++++++++++++++++
- 1 file changed, 25 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/rtc/xlnx-rtc.txt
+> Subject: Re: [PATCH V3 3/3] rtc: da9063: Add DA9062 RTC capability to DA9063 RTC driver
+> 
+> On 21/07/2015 at 11:29:07 +0100, S Twiss wrote :
+> > From: S Twiss <stwiss.opensource@diasemi.com>
+> >
+> > Add DA9062 RTC support into the existing DA9063 RTC driver component by
+> > using generic access tables for common register and bit mask definitions.
+> >
+> > The following change will add generic register and bit mask support to the
+> > DA9063 RTC. The changes are slightly complicated by requiring support for
+> > three register sets: DA9063-AD, DA9063-BB and DA9062-AA.
+> >
+> > The following alterations have been made to the DA9063 RTC:
+> >
+> > - Addition of a da9063_compatible_rtc_regmap structure to hold all generic
+> >   registers and bitmasks for this type of RTC component.
+> > - A re-write of struct da9063 to use pointers for regmap and compatible
+> >   registers/masks definitions
+> > - Addition of a of_device_id table for DA9063 and DA9062 defaults
+> > - Refactoring functions to use struct da9063_compatible_rtc accesses to
+> >   generic registers/masks instead of using defines from registers.h
+> > - Re-work of da9063_rtc_probe() to use of_match_node() and dev_get_regmap()
+> >   to provide initialisation of generic registers and masks and access to
+> >   regmap
+> >
+> > Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
+> >
+> Applied, thanks.
 
-diff --git a/Documentation/devicetree/bindings/rtc/xlnx-rtc.txt b/Documentation/devicetree/bindings/rtc/xlnx-rtc.txt
-new file mode 100644
-index 0000000..0df6f01
---- /dev/null
-+++ b/Documentation/devicetree/bindings/rtc/xlnx-rtc.txt
-@@ -0,0 +1,25 @@
-+* Xilinx Zynq Ultrascale+ MPSoC Real Time Clock
-+
-+RTC controller for the Xilinx Zynq MPSoC Real Time Clock
-+Separate IRQ lines for seconds and alarm
-+
-+Required properties:
-+- compatible: Should be "xlnx,zynqmp-rtc"
-+- reg: Physical base address of the controller and length
-+       of memory mapped region.
-+- interrupts: IRQ lines for the RTC.
-+- interrupt-names: interrupt line names eg. "sec" "alarm"
-+
-+Optional:
-+- calibration: calibration value for 1 sec period which will
-+		be programmed directly to calibration register
-+
-+Example:
-+rtc: rtc@ffa60000 {
-+	compatible = "xlnx,zynqmp-rtc";
-+	reg = <0x0 0xffa60000 0x100>;
-+	interrupt-parent = <&gic>;
-+	interrupts = <0 26 4>, <0 27 4>;
-+	interrupt-names = "alarm", "sec";
-+	calibration = <0x198233>;
-+};
--- 
-2.1.2
+Thank you.
 
 -- 
 -- 
