@@ -1,19 +1,22 @@
-Return-Path: <rtc-linux+bncBD66BCOYSQBBBT44ZOXAKGQEYN5YNWI@googlegroups.com>
-Received: from devils.ext.ti.com (devils.ext.ti.com. [198.47.26.153])
-        by gmr-mx.google.com with ESMTPS id i10si1001793igh.3.2015.08.17.23.18.54
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1 cipher=RC4-SHA bits=128/128);
-        Mon, 17 Aug 2015 23:18:54 -0700 (PDT)
-From: Keerthy <j-keerthy@ti.com>
-To: <alexandre.belloni@free-electrons.com>, <tony@atomide.com>
-CC: <johan@kernel.org>, <linux-omap@vger.kernel.org>,
-        <rtc-linux@googlegroups.com>, <grygorii.strashko@ti.com>,
-        <j-keerthy@ti.com>
-Subject: [rtc-linux] [PATCH v3 0/2]  ARM: AM437X: Add rtc clock handling
-Date: Tue, 18 Aug 2015 11:48:41 +0530
-Message-ID: <1439878724-5828-1-git-send-email-j-keerthy@ti.com>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBZU4Q6XAKGQEH4WMVSQ@googlegroups.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id fj7si213188wib.3.2015.08.05.01.50.45
+        for <rtc-linux@googlegroups.com>;
+        Wed, 05 Aug 2015 01:50:45 -0700 (PDT)
+Date: Wed, 5 Aug 2015 10:50:44 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Matt Porter <mporter@konsulko.com>
+Cc: Joachim Eastwood <manabian@gmail.com>, a.zummo@towertech.it,
+	devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+	rtc-linux@googlegroups.com, joshc@ni.com
+Subject: [rtc-linux] Re: [PATCH v3 2/2] doc: dt: add documentation for nxp,lpc1788-rtc
+Message-ID: <20150805085044.GC3486@piout.net>
+References: <1436635730-15617-1-git-send-email-manabian@gmail.com>
+ <1436635730-15617-3-git-send-email-manabian@gmail.com>
+ <20150727133720.GA15004@beef>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <20150727133720.GA15004@beef>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -24,27 +27,24 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-The series is applicable for all am437x series of processors.
-It adds clock handling support. Boot tested on am437x-gp-evm.
+Hi,
 
-Keerthy (2):
-  ARM: dts: AM437x: Add the internal and external clock nodes for rtc
-  rtc: omap: Add external clock enabling support
+On 27/07/2015 at 09:37:20 -0400, Matt Porter wrote :
+> > +Required properties:
+> > +- compatible	: must contain "nxp,lpc1788-rtc"
+> > +- reg		: Specifies base physical address and size of the registers.
+> > +- interrupts	: A single interrupt specifier.
+> > +- clocks	: Must contain entries for rtc and register clock
+> 
+> "Must contain clock specifiers for rtc and register clock" ?
+> 
 
-Changes in v3:
-
-  * Split internal and external clock enabling to separate patches.
-  * Using one variable to store the clk info in omap_rtc struct.
-
- arch/arm/boot/dts/am4372.dtsi        |  2 ++
- arch/arm/boot/dts/am437x-gp-evm.dts  | 13 +++++++++++
- arch/arm/boot/dts/am437x-idk-evm.dts |  9 ++++++++
- arch/arm/boot/dts/am437x-sk-evm.dts  |  9 ++++++++
- drivers/rtc/rtc-omap.c               | 44 ++++++++++++++++++++++++++++++++++++
- 5 files changed, 77 insertions(+)
+I fixed it up in the patch.
 
 -- 
-1.9.1
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
 -- 
 -- 
