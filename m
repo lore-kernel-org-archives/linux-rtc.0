@@ -1,22 +1,22 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBS4TQKXAKGQEYFFENWA@googlegroups.com>
-MIME-Version: 1.0
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBGOTQWXAKGQENARPU5I@googlegroups.com>
 Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id fj7si37236wib.3.2015.08.04.02.45.47
+        by gmr-mx.google.com with ESMTP id cj6si181886wib.1.2015.08.04.18.40.40
         for <rtc-linux@googlegroups.com>;
-        Tue, 04 Aug 2015 02:45:47 -0700 (PDT)
+        Tue, 04 Aug 2015 18:40:40 -0700 (PDT)
+Date: Wed, 5 Aug 2015 03:40:40 +0200
 From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: rtc-linux@googlegroups.com
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
 	linux-kernel@vger.kernel.org,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Subject: [rtc-linux] [PATCH 10/15] rtc: rx8025: continue without alarm when
- irq request fails
-Date: Tue,  4 Aug 2015 11:45:29 +0200
-Message-Id: <1438681534-12027-11-git-send-email-alexandre.belloni@free-electrons.com>
-In-Reply-To: <1438681534-12027-1-git-send-email-alexandre.belloni@free-electrons.com>
-References: <1438681534-12027-1-git-send-email-alexandre.belloni@free-electrons.com>
-Reply-To: rtc-linux@googlegroups.com
+	Krzysztof Kozlowski <k.kozlowski@samsung.com>
+Subject: [rtc-linux] Re: [PATCH v2 2/3] RTC: switch wakealarm attribute to DEVICE_ATTR_RW
+Message-ID: <20150805014040.GW3486@piout.net>
+References: <1437692468-24788-1-git-send-email-dmitry.torokhov@gmail.com>
+ <1437692468-24788-2-git-send-email-dmitry.torokhov@gmail.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1437692468-24788-2-git-send-email-dmitry.torokhov@gmail.com>
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -26,32 +26,18 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Instead of bailing out, disable alarms and continue when
-devm_request_threaded_irq() fails. This allows to still provide some
-functionality.
+On 23/07/2015 at 16:01:07 -0700, Dmitry Torokhov wrote :
+> Instead of using older style DEVICE_ATTR for wakealarm attribute let's
+> switch to using DEVICE_ATTR_RW that ensures consistent across the kernel
+> permissions on the attribute.
+> 
+> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Applied, thanks.
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
----
- drivers/rtc/rtc-rx8025.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/rtc/rtc-rx8025.c b/drivers/rtc/rtc-rx8025.c
-index bf96f40fd200..ab5fb4fe2a83 100644
---- a/drivers/rtc/rtc-rx8025.c
-+++ b/drivers/rtc/rtc-rx8025.c
-@@ -533,8 +533,8 @@ static int rx8025_probe(struct i2c_client *client,
- 						rx8025_handle_irq, 0, "rx8025",
- 						client);
- 		if (err) {
--			dev_err(&client->dev, "unable to request IRQ\n");
--			return err;
-+			dev_err(&client->dev, "unable to request IRQ, alarms disabled\n");
-+			client->irq = 0;
- 		}
- 	}
- 
 -- 
-2.1.4
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
 -- 
 -- 
