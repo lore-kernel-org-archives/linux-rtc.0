@@ -1,25 +1,31 @@
-Return-Path: <rtc-linux+bncBAABB3URY2XAKGQEMZ4KBXI@googlegroups.com>
-Received: from na01-bn1-obe.outbound.protection.outlook.com (mail-bn1bbn0106.outbound.protection.outlook.com. [157.56.111.106])
-        by gmr-mx.google.com with ESMTPS id ff6si1541800pac.2.2015.08.17.00.10.38
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
-        Mon, 17 Aug 2015 00:10:38 -0700 (PDT)
-From: Wang Dongsheng <Dongsheng.Wang@freescale.com>
-To: "alexandre.belloni@free-electrons.com"
-	<alexandre.belloni@free-electrons.com>
-CC: "a.zummo@towertech.it" <a.zummo@towertech.it>,
-	"rtc-linux@googlegroups.com" <rtc-linux@googlegroups.com>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Wang Dongsheng
-	<Dongsheng.Wang@freescale.com>
-Subject: [rtc-linux] RE: [PATCH v2] rtc/ds3232: fix ds3232 get a WARNING trace
- in resume function
-Date: Mon, 17 Aug 2015 07:10:35 +0000
-Message-ID: <SN1PR0301MB161656D00F33D665B6CD488B9D790@SN1PR0301MB1616.namprd03.prod.outlook.com>
-References: <1439370853-32282-1-git-send-email-dongsheng.wang@freescale.com>
-In-Reply-To: <1439370853-32282-1-git-send-email-dongsheng.wang@freescale.com>
-Content-Type: text/plain; charset=UTF-8
+Return-Path: <rtc-linux+bncBDJMJGESWAMRBZPVRWXAKGQEGIGUZAQ@googlegroups.com>
 MIME-Version: 1.0
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id fj7si81849wib.3.2015.08.06.08.19.00
+        for <rtc-linux@googlegroups.com>;
+        Thu, 06 Aug 2015 08:19:00 -0700 (PDT)
+From: Gregory CLEMENT <gregory.clement@free-electrons.com>
+To: Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	rtc-linux@googlegroups.com
+Cc: Jason Cooper <jason@lakedaemon.net>,
+	Andrew Lunn <andrew@lunn.ch>,
+	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
+	Gregory CLEMENT <gregory.clement@free-electrons.com>,
+	Thomas Petazzoni <thomas.petazzoni@free-electrons.com>,
+	Ezequiel Garcia <ezequiel.garcia@free-electrons.com>,
+	linux-arm-kernel@lists.infradead.org,
+	Maxime Ripard <maxime.ripard@free-electrons.com>,
+	Boris BREZILLON <boris.brezillon@free-electrons.com>,
+	Lior Amsalem <alior@marvell.com>,
+	Tawfik Bayouk <tawfik@marvell.com>,
+	Nadav Haklai <nadavh@marvell.com>
+Subject: [rtc-linux] [PATCH] rtc: armada38x: Align RTC set time procedure with
+ the official errata
+Date: Thu,  6 Aug 2015 17:18:48 +0200
+Message-Id: <1438874328-31844-1-git-send-email-gregory.clement@free-electrons.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -29,94 +35,118 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Hi Alexandre,
+From: Nadav Haklai <nadavh@marvell.com>
 
-Could you apply this patch?
+According to the Armada38x functional errata FE-3124064, writing to
+the RTC TIME register may fail. As a workaround, after writing to RTC
+TIME register, issue a dummy write of 0x0 twice to the RTC Status
+register.  This is the updated implementation of the Errata that
+eliminates the need of the long 100ms delay during the RTC set time
+procedure.
 
-Regards,
--Dongsheng
+[gregory.clement@free-electrons.com]: removed the mutex and use the
+spinlock again
 
-> -----Original Message-----
-> From: Dongsheng Wang [mailto:dongsheng.wang@freescale.com]
-> Sent: Wednesday, August 12, 2015 5:14 PM
-> To: alexandre.belloni@free-electrons.com
-> Cc: a.zummo@towertech.it; rtc-linux@googlegroups.com; linux-
-> kernel@vger.kernel.org; Wang Dongsheng-B40534
-> Subject: [PATCH v2] rtc/ds3232: fix ds3232 get a WARNING trace in resume
-> function
-> 
-> From: Wang Dongsheng <dongsheng.wang@freescale.com>
-> 
-> If ds3232 work on some platform that is not implementation
-> irq_set_wake, ds3232 will get a WARNING trace in resume.
-> So fix ds3232->suspended state to false when irq_set_irq_wake
-> return error.
-> 
-> ------------[ cut here ]------------
-> WARNING: CPU: 0 PID: 729 at kernel/irq/manage.c:604
-> irq_set_irq_wake+0x4b/0x8c()
-> Unbalanced IRQ 201 wake disable
-> Modules linked in:
-> CPU: 0 PID: 729 Comm: sh Not tainted 3.12.19-rt30+ #25
-> [<800107d9>] (unwind_backtrace+0x1/0x88) from [<8000e4ef>]
-> (show_stack+0xb/0xc)
-> [<8000e4ef>] (show_stack+0xb/0xc) from [<802b5fa9>]
-> (dump_stack+0x4d/0x60)
-> [<802b5fa9>] (dump_stack+0x4d/0x60) from [<800186dd>]
-> (warn_slowpath_common+0x45/0x64)
-> [<800186dd>] (warn_slowpath_common+0x45/0x64) from [<80018717>]
-> (warn_slowpath_fmt+0x1b/0x24)
-> [<80018717>] (warn_slowpath_fmt+0x1b/0x24) from [<8003a8d3>]
-> (irq_set_irq_wake+0x4b/0x8c)
-> [<8003a8d3>] (irq_set_irq_wake+0x4b/0x8c) from [<80204fcb>]
-> (ds3232_resume+0x2d/0x36)
-> [<80204fcb>] (ds3232_resume+0x2d/0x36) from [<801954c7>]
-> (dpm_run_callback.isra.13+0xb/0x28)
-> [<801954c7>] (dpm_run_callback.isra.13+0xb/0x28) from [<80195b1b>]
-> (device_resume+0x7b/0xa2)
-> [<80195b1b>] (device_resume+0x7b/0xa2) from [<80195f0f>]
-> (dpm_resume+0xbb/0x19c)
-> [<80195f0f>] (dpm_resume+0xbb/0x19c) from [<801960d9>]
-> (dpm_resume_end+0x9/0x12)
-> [<801960d9>] (dpm_resume_end+0x9/0x12) from [<80037e1d>]
-> (suspend_devices_and_enter+0x17d/0x1d0)
-> [<80037e1d>] (suspend_devices_and_enter+0x17d/0x1d0) from [<80037ee1>]
-> (pm_suspend+0x71/0x128)
-> [<80037ee1>] (pm_suspend+0x71/0x128) from [<80037449>]
-> (state_store+0x6d/0x80)
-> [<80037449>] (state_store+0x6d/0x80) from [<800af4d5>]
-> (sysfs_write_file+0x9f/0xde)
-> [<800af4d5>] (sysfs_write_file+0x9f/0xde) from [<8007a437>]
-> (vfs_write+0x7b/0x104)
-> [<8007a437>] (vfs_write+0x7b/0x104) from [<8007a7f7>]
-> (SyS_write+0x27/0x48)
-> [<8007a7f7>] (SyS_write+0x27/0x48) from [<8000c121>]
-> (ret_fast_syscall+0x1/0x44)
-> ---[ end trace 640959d2e8de6ccc ]---
-> 
-> Signed-off-by: Wang Dongsheng <dongsheng.wang@freescale.com>
-> ---
-> *v2*
-> - Use dev_warn_once to instead of dev_info
-> 
-> diff --git a/drivers/rtc/rtc-ds3232.c b/drivers/rtc/rtc-ds3232.c
-> index 7e48e53..3554970 100644
-> --- a/drivers/rtc/rtc-ds3232.c
-> +++ b/drivers/rtc/rtc-ds3232.c
-> @@ -463,7 +463,10 @@ static int ds3232_suspend(struct device *dev)
-> 
->  	if (device_can_wakeup(dev)) {
->  		ds3232->suspended = true;
-> -		irq_set_irq_wake(client->irq, 1);
-> +		if (irq_set_irq_wake(client->irq, 1)) {
-> +			dev_warn_once(dev, "Can not set wakeup sources\n");
-> +			ds3232->suspended = false;
-> +		}
->  	}
-> 
->  	return 0;
-> --
-> 2.1.0.27.g96db324
+Signed-off-by: Nadav Haklai <nadavh@marvell.com>
+Reviewed-by: Neta Zur Hershkovits <neta@marvell.com>
+Signed-off-by: Gregory CLEMENT <gregory.clement@free-electrons.com>
+---
+Hi,
+
+Finally the long 100ms wait was not needed! So we can remove the mutex
+introduced in an earlier commit.
+It would be great if this patch could be part of the 4.2-rc.
+
+Thanks
+
+Gregory
+
+
+ drivers/rtc/rtc-armada38x.c | 32 ++++++++++++--------------------
+ 1 file changed, 12 insertions(+), 20 deletions(-)
+
+diff --git a/drivers/rtc/rtc-armada38x.c b/drivers/rtc/rtc-armada38x.c
+index 2b08cac62f07..06c6bd5eab41 100644
+--- a/drivers/rtc/rtc-armada38x.c
++++ b/drivers/rtc/rtc-armada38x.c
+@@ -40,13 +40,6 @@ struct armada38x_rtc {
+ 	void __iomem	    *regs;
+ 	void __iomem	    *regs_soc;
+ 	spinlock_t	    lock;
+-	/*
+-	 * While setting the time, the RTC TIME register should not be
+-	 * accessed. Setting the RTC time involves sleeping during
+-	 * 100ms, so a mutex instead of a spinlock is used to protect
+-	 * it
+-	 */
+-	struct mutex	    mutex_time;
+ 	int		    irq;
+ };
+ 
+@@ -64,9 +57,9 @@ static void rtc_delayed_write(u32 val, struct armada38x_rtc *rtc, int offset)
+ static int armada38x_rtc_read_time(struct device *dev, struct rtc_time *tm)
+ {
+ 	struct armada38x_rtc *rtc = dev_get_drvdata(dev);
+-	unsigned long time, time_check;
++	unsigned long time, time_check, flags;
+ 
+-	mutex_lock(&rtc->mutex_time);
++	spin_lock_irqsave(&rtc->lock, flags);
+ 	time = readl(rtc->regs + RTC_TIME);
+ 	/*
+ 	 * WA for failing time set attempts. As stated in HW ERRATA if
+@@ -77,7 +70,7 @@ static int armada38x_rtc_read_time(struct device *dev, struct rtc_time *tm)
+ 	if ((time_check - time) > 1)
+ 		time_check = readl(rtc->regs + RTC_TIME);
+ 
+-	mutex_unlock(&rtc->mutex_time);
++	spin_unlock_irqrestore(&rtc->lock, flags);
+ 
+ 	rtc_time_to_tm(time_check, tm);
+ 
+@@ -88,23 +81,23 @@ static int armada38x_rtc_set_time(struct device *dev, struct rtc_time *tm)
+ {
+ 	struct armada38x_rtc *rtc = dev_get_drvdata(dev);
+ 	int ret = 0;
+-	unsigned long time;
++	unsigned long time, flags;
+ 
+ 	ret = rtc_tm_to_time(tm, &time);
+ 
+ 	if (ret)
+ 		goto out;
+ 	/*
+-	 * Setting the RTC time not always succeeds. According to the
+-	 * errata we need to first write on the status register and
+-	 * then wait for 100ms before writing to the time register to be
+-	 * sure that the data will be taken into account.
++	 * According to errata FE-3124064, Write to RTC TIME register
++	 * may fail. As a workaround, after writing to RTC TIME
++	 * register, issue a dummy write of 0x0 twice to RTC Status
++	 * register.
+ 	 */
+-	mutex_lock(&rtc->mutex_time);
+-	rtc_delayed_write(0, rtc, RTC_STATUS);
+-	msleep(100);
++	spin_lock_irqsave(&rtc->lock, flags);
+ 	rtc_delayed_write(time, rtc, RTC_TIME);
+-	mutex_unlock(&rtc->mutex_time);
++	rtc_delayed_write(0, rtc, RTC_STATUS);
++	rtc_delayed_write(0, rtc, RTC_STATUS);
++	spin_unlock_irqrestore(&rtc->lock, flags);
+ 
+ out:
+ 	return ret;
+@@ -229,7 +222,6 @@ static __init int armada38x_rtc_probe(struct platform_device *pdev)
+ 		return -ENOMEM;
+ 
+ 	spin_lock_init(&rtc->lock);
+-	mutex_init(&rtc->mutex_time);
+ 
+ 	res = platform_get_resource_byname(pdev, IORESOURCE_MEM, "rtc");
+ 	rtc->regs = devm_ioremap_resource(&pdev->dev, res);
+-- 
+2.1.0
 
 -- 
 -- 
