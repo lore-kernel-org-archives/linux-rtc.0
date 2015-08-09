@@ -1,24 +1,20 @@
-Return-Path: <rtc-linux+bncBD66BCOYSQBBBWO5UGXAKGQEZ2XTOXI@googlegroups.com>
-Received: from comal.ext.ti.com (comal.ext.ti.com. [198.47.26.152])
-        by gmr-mx.google.com with ESMTPS id f17si696947igt.0.2015.08.10.02.28.57
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1 cipher=RC4-SHA bits=128/128);
-        Mon, 10 Aug 2015 02:28:57 -0700 (PDT)
-From: Keerthy <j-keerthy@ti.com>
-To: <tony@atomide.com>, <linux-omap@vger.kernel.org>, <pawel.moll@arm.com>
-CC: <galak@codeaurora.org>, <paul@pwsan.com>,
-        <alexandre.belloni@free-electrons.com>, <akpm@linux-foundation.org>,
-        <johan@kernel.org>, <grygorii.strashko@ti.com>,
-        <rtc-linux@googlegroups.com>, <bcousson@baylibre.com>, <nm@ti.com>,
-        <devicetree@vger.kernel.org>, <t-kristo@ti.com>, <j-keerthy@ti.com>
-Subject: [rtc-linux] [PATCH v2 4/6] ARM: dts: am43x-epos-evm: Add the am438
- compatible string
-Date: Mon, 10 Aug 2015 14:58:24 +0530
-Message-ID: <1439198906-31189-5-git-send-email-j-keerthy@ti.com>
-In-Reply-To: <1439198906-31189-1-git-send-email-j-keerthy@ti.com>
-References: <1439198906-31189-1-git-send-email-j-keerthy@ti.com>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBU5WT6XAKGQE6WYT4IA@googlegroups.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id ek3si251108wid.1.2015.08.09.15.59.30
+        for <rtc-linux@googlegroups.com>;
+        Sun, 09 Aug 2015 15:59:30 -0700 (PDT)
+Date: Mon, 10 Aug 2015 00:59:30 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Javier Martinez Canillas <javier@osg.samsung.com>
+Cc: linux-kernel@vger.kernel.org, rtc-linux@googlegroups.com
+Subject: [rtc-linux] Re: [PATCH 21/27] rtc: Export OF module alias information
+ in missing drivers
+Message-ID: <20150809225930.GE3411@piout.net>
+References: <1438273132-20926-1-git-send-email-javier@osg.samsung.com>
+ <1438273132-20926-22-git-send-email-javier@osg.samsung.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1438273132-20926-22-git-send-email-javier@osg.samsung.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -29,29 +25,32 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-The SoCs on am43x-epos-evm are named am438x.
-Hence add the compatiblity string and remove the am4372 string.
+On 30/07/2015 at 18:18:46 +0200, Javier Martinez Canillas wrote :
+> The I2C core always reports the MODALIAS uevent as "i2c:<client name"
+> regardless if the driver was matched using the I2C id_table or the
+> of_match_table. So technically there's no need for a driver to export
+> the OF table since currently it's not used.
+> 
+> In fact, the I2C device ID table is mandatory for I2C drivers since
+> a i2c_device_id is passed to the driver's probe function even if the
+> I2C core used the OF table to match the driver.
+> 
+> And since the I2C core uses different tables, OF-only drivers needs to
+> have duplicated data that has to be kept in sync and also the dev node
+> compatible manufacturer prefix is stripped when reporting the MODALIAS.
+> 
+> To avoid the above, the I2C core behavior may be changed in the future
+> to not require an I2C device table for OF-only drivers and report the
+> OF module alias. So, it's better to also export the OF table to prevent
+> breaking module autoloading if that happens.
+> 
+> Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
+Applied, thanks.
 
-Signed-off-by: Keerthy <j-keerthy@ti.com>
----
- arch/arm/boot/dts/am43x-epos-evm.dts | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/arch/arm/boot/dts/am43x-epos-evm.dts b/arch/arm/boot/dts/am43x-epos-evm.dts
-index 86c2dfb..7e473c2 100644
---- a/arch/arm/boot/dts/am43x-epos-evm.dts
-+++ b/arch/arm/boot/dts/am43x-epos-evm.dts
-@@ -18,7 +18,7 @@
- 
- / {
- 	model = "TI AM43x EPOS EVM";
--	compatible = "ti,am43x-epos-evm","ti,am4372","ti,am43";
-+	compatible = "ti,am43x-epos-evm","ti,am438x","ti,am43";
- 
- 	aliases {
- 		display0 = &lcd0;
 -- 
-1.9.1
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
 -- 
 -- 
