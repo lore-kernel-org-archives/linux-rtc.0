@@ -1,29 +1,23 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBQPCVSXAKGQEPOTBMOY@googlegroups.com>
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id ec7si201878wib.3.2015.08.12.04.42.57
-        for <rtc-linux@googlegroups.com>;
-        Wed, 12 Aug 2015 04:42:57 -0700 (PDT)
-Date: Wed, 12 Aug 2015 13:42:56 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Viresh Kumar <viresh.kumar@linaro.org>
-Cc: trivial@kernel.org, linaro-kernel@lists.linaro.org,
-	linux-kernel@vger.kernel.org,
-	Hans Ulli Kroll <ulli.kroll@googlemail.com>,
-	"moderated list:BLACKFIN RTC DRIVER" <adi-buildroot-devel@lists.sourceforge.net>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	"moderated list:ARM/CORTINA SYSTEMS GEMINI ARM ARCHITECTURE" <linux-arm-kernel@lists.infradead.org>,
-	"open list:REAL TIME CLOCK (RTC) SUBSYSTEM" <rtc-linux@googlegroups.com>
-Subject: [rtc-linux] Re: [PATCH V1 Resend 06/10] drivers: rtc: Drop (un)likely
- before IS_ERR(_OR_NULL)
-Message-ID: <20150812114256.GF3411@piout.net>
-References: <cover.1439375087.git.viresh.kumar@linaro.org>
- <1a92f2e1af5309ece9736f79f312e90486a98825.1439375087.git.viresh.kumar@linaro.org>
- <20150812104133.GE3411@piout.net>
- <20150812104625.GB20238@linux>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBR7MUKXAKGQEENSITNA@googlegroups.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <20150812104625.GB20238@linux>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id gt9si350703wib.2.2015.08.10.07.33.42
+        for <rtc-linux@googlegroups.com>;
+        Mon, 10 Aug 2015 07:33:42 -0700 (PDT)
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Nicolas Ferre <nicolas.ferre@atmel.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+	rtc-linux@googlegroups.com,
+	linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Subject: [rtc-linux] [PATCH 2/2] rtc: at91sam9: remove useless include
+Date: Mon, 10 Aug 2015 16:33:40 +0200
+Message-Id: <1439217220-13561-2-git-send-email-alexandre.belloni@free-electrons.com>
+In-Reply-To: <1439217220-13561-1-git-send-email-alexandre.belloni@free-electrons.com>
+References: <1439217220-13561-1-git-send-email-alexandre.belloni@free-electrons.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -33,34 +27,28 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On 12/08/2015 at 16:16:25 +0530, Viresh Kumar wrote :
-> On 12-08-15, 12:41, Alexandre Belloni wrote:
-> > Hi Viresh,
-> > 
-> > Why are you resending?
-> 
-> I never got a reply from Andrew Morton on V1, so resent it again. And
-> today Andrew asked me to take this via trivial tree.
-> 
-> So the resent.
-> 
-> I need to find a sane way to get few more people to the cover-letter.
-> The problem is that I am generating the cc-list with get_maintainers,
-> and if I combine that list for all the patches, it becomes huge. And
-> really can't send the cover-letter to those people then. Few lists may
-> block it as well, due to high number of cc'd people.
-> 
-> I am telling this because, the cover-letter did contain the reason for
-> resend.
-> 
+Definitions from linux/platform_data/atmel.h are not used, remove the
+include.
 
-The fact is that I sent you a mail yesterday stating that I applied that
-particular patch.
+Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+---
+ drivers/rtc/rtc-at91sam9.c | 1 -
+ 1 file changed, 1 deletion(-)
 
+diff --git a/drivers/rtc/rtc-at91sam9.c b/drivers/rtc/rtc-at91sam9.c
+index 9f6c3631b8d5..7ef30221812c 100644
+--- a/drivers/rtc/rtc-at91sam9.c
++++ b/drivers/rtc/rtc-at91sam9.c
+@@ -19,7 +19,6 @@
+ #include <linux/interrupt.h>
+ #include <linux/ioctl.h>
+ #include <linux/slab.h>
+-#include <linux/platform_data/atmel.h>
+ #include <linux/io.h>
+ #include <linux/mfd/syscon.h>
+ #include <linux/regmap.h>
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+2.1.4
 
 -- 
 -- 
