@@ -1,22 +1,18 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBZU4Q6XAKGQEH4WMVSQ@googlegroups.com>
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id fj7si213188wib.3.2015.08.05.01.50.45
-        for <rtc-linux@googlegroups.com>;
-        Wed, 05 Aug 2015 01:50:45 -0700 (PDT)
-Date: Wed, 5 Aug 2015 10:50:44 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Matt Porter <mporter@konsulko.com>
-Cc: Joachim Eastwood <manabian@gmail.com>, a.zummo@towertech.it,
-	devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-	rtc-linux@googlegroups.com, joshc@ni.com
-Subject: [rtc-linux] Re: [PATCH v3 2/2] doc: dt: add documentation for nxp,lpc1788-rtc
-Message-ID: <20150805085044.GC3486@piout.net>
-References: <1436635730-15617-1-git-send-email-manabian@gmail.com>
- <1436635730-15617-3-git-send-email-manabian@gmail.com>
- <20150727133720.GA15004@beef>
+Return-Path: <rtc-linux+bncBCEKJX4XQ4ORBAN3UKXAKGQE7DUHDGQ@googlegroups.com>
+Received: from na01-by2-obe.outbound.protection.outlook.com (mail-by2on0124.outbound.protection.outlook.com. [207.46.100.124])
+        by gmr-mx.google.com with ESMTPS id qa1si690356pdb.1.2015.08.10.05.48.01
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
+        Mon, 10 Aug 2015 05:48:01 -0700 (PDT)
+From: Fabio Estevam <fabio.estevam@freescale.com>
+To: <alexandre.belloni@free-electrons.com>
+CC: <festevam@gmail.com>, <rtc-linux@googlegroups.com>, Fabio Estevam
+	<fabio.estevam@freescale.com>
+Subject: [rtc-linux] [PATCH 1/2] rtc: rtc-cmos: Remove unused variable
+Date: Mon, 10 Aug 2015 09:47:44 -0300
+Message-ID: <1439210865-8611-1-git-send-email-fabio.estevam@freescale.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <20150727133720.GA15004@beef>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -27,24 +23,30 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Hi,
+Remove unused variable 'err' and fix the following build warning:
 
-On 27/07/2015 at 09:37:20 -0400, Matt Porter wrote :
-> > +Required properties:
-> > +- compatible	: must contain "nxp,lpc1788-rtc"
-> > +- reg		: Specifies base physical address and size of the registers.
-> > +- interrupts	: A single interrupt specifier.
-> > +- clocks	: Must contain entries for rtc and register clock
-> 
-> "Must contain clock specifiers for rtc and register clock" ?
-> 
+ drivers/rtc/rtc-cmos.c:851:7: warning: unused variable 'err' [-Wunused-variable]
 
-I fixed it up in the patch.
+Reported-by: Olof's autobuilder <build@lixom.net>
+Signed-off-by: Fabio Estevam <fabio.estevam@freescale.com>
+---
+ drivers/rtc/rtc-cmos.c | 1 -
+ 1 file changed, 1 deletion(-)
 
+diff --git a/drivers/rtc/rtc-cmos.c b/drivers/rtc/rtc-cmos.c
+index 916bd1f..c2e90c6 100644
+--- a/drivers/rtc/rtc-cmos.c
++++ b/drivers/rtc/rtc-cmos.c
+@@ -848,7 +848,6 @@ static int cmos_aie_poweroff(struct device *dev)
+ 	 */
+ 	if (cmos->alarm_expires == t_now + 1) {
+ 		struct rtc_wkalrm alarm;
+-		int err;
+ 
+ 		/* Cancel the AIE timer by configuring the past time. */
+ 		rtc_time64_to_tm(t_now - 1, &alarm.time);
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+1.9.1
 
 -- 
 -- 
