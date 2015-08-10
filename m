@@ -1,18 +1,19 @@
-Return-Path: <rtc-linux+bncBD66BCOYSQBBBT4EWGXAKGQE6JGI2TA@googlegroups.com>
-Received: from devils.ext.ti.com (devils.ext.ti.com. [198.47.26.153])
-        by gmr-mx.google.com with ESMTPS id 4si122769igl.1.2015.08.13.00.07.59
+Return-Path: <rtc-linux+bncBD66BCOYSQBBBTO5UGXAKGQERWZABTI@googlegroups.com>
+Received: from comal.ext.ti.com (comal.ext.ti.com. [198.47.26.152])
+        by gmr-mx.google.com with ESMTPS id x1si693052igb.2.2015.08.10.02.28.45
         for <rtc-linux@googlegroups.com>
-        (version=TLSv1 cipher=RC4-SHA bits=128/128);
-        Thu, 13 Aug 2015 00:07:59 -0700 (PDT)
+        (version=TLS1 cipher=RC4-SHA bits=128/128);
+        Mon, 10 Aug 2015 02:28:45 -0700 (PDT)
 From: Keerthy <j-keerthy@ti.com>
-To: <linux-omap@vger.kernel.org>, <rtc-linux@googlegroups.com>
-CC: <tony@atomide.com>, <alexandre.belloni@free-electrons.com>,
-        <akpm@linux-foundation.org>, <johan@kernel.org>,
-        <grygorii.strashko@ti.com>, <bcousson@baylibre.com>,
+To: <tony@atomide.com>, <linux-omap@vger.kernel.org>, <pawel.moll@arm.com>
+CC: <galak@codeaurora.org>, <paul@pwsan.com>,
+        <alexandre.belloni@free-electrons.com>, <akpm@linux-foundation.org>,
+        <johan@kernel.org>, <grygorii.strashko@ti.com>,
+        <rtc-linux@googlegroups.com>, <bcousson@baylibre.com>, <nm@ti.com>,
         <devicetree@vger.kernel.org>, <t-kristo@ti.com>, <j-keerthy@ti.com>
-Subject: [rtc-linux] [PATCH 0/2]  ARM: AM437X: Add rtc clock handling
-Date: Thu, 13 Aug 2015 12:37:46 +0530
-Message-ID: <1439449668-32301-1-git-send-email-j-keerthy@ti.com>
+Subject: [rtc-linux] [PATCH v2 0/6]  ARM: AM4372: Enable RTC
+Date: Mon, 10 Aug 2015 14:58:20 +0530
+Message-ID: <1439198906-31189-1-git-send-email-j-keerthy@ti.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
@@ -25,19 +26,41 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-The series is applicable for all am437x series of processors.
-It adds clock handling support. Boot tested on am437x-gp-evm.
+The series brings multiple fixes needed to get rtc ticking
+on am437x-gp-evm.
 
-Keerthy (2):
-  ARM: dts: AM437x: Add the internal and external clock nodes for rtc
+This is tested on top of omap-for-v4.3/dt-v2 branch. Boot tested on
+AM437X-GP-EVM also tested rtc ticking via sysfs nodes. 
+
+The series is on top of this patch:
+http://comments.gmane.org/gmane.linux.drivers.devicetree/131026
+
+Keerthy (6):
+  ARM: dts: AM43XX: Add clk_32k_rtc node
   rtc: omap: Add external clock enabling support
+  ARM: AM43xx: Introduce a separate soc_is function for am438x series of
+    SoCs
+  ARM: dts: am43x-epos-evm: Add the am438 compatible string
+  ARM: AM43XX: HWMOD: Add rtc hwmod
+  ARM: dts: AM437X-GP-EVM: Enable rtc
 
- arch/arm/boot/dts/am4372.dtsi        |  2 ++
- arch/arm/boot/dts/am437x-gp-evm.dts  | 13 +++++++++++
- arch/arm/boot/dts/am437x-idk-evm.dts |  9 ++++++++
- arch/arm/boot/dts/am437x-sk-evm.dts  |  9 ++++++++
- drivers/rtc/rtc-omap.c               | 44 ++++++++++++++++++++++++++++++++++++
- 5 files changed, 77 insertions(+)
+Changes in v2:
+
+  * Couple of patches already pulled in.
+  * Removed dt ext-clk-src and made use of clocks property to determine
+    presence of external clock source.
+
+ .../devicetree/bindings/arm/omap/omap.txt          |  3 +++
+ arch/arm/boot/dts/am4372.dtsi                      |  2 ++
+ arch/arm/boot/dts/am437x-gp-evm.dts                |  4 +++
+ arch/arm/boot/dts/am43x-epos-evm.dts               |  2 +-
+ arch/arm/boot/dts/am43xx-clocks.dtsi               |  6 +++++
+ arch/arm/mach-omap2/board-generic.c                |  1 +
+ arch/arm/mach-omap2/id.c                           |  2 ++
+ arch/arm/mach-omap2/omap_hwmod_43xx_data.c         | 16 ++++++++++--
+ arch/arm/mach-omap2/soc.h                          |  7 +++--
+ drivers/rtc/rtc-omap.c                             | 30 ++++++++++++++++++++++
+ 10 files changed, 68 insertions(+), 5 deletions(-)
 
 -- 
 1.9.1
