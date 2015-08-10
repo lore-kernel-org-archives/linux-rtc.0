@@ -1,19 +1,20 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRB46TXGXAKGQEVAFHLBA@googlegroups.com>
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id p7si127876wib.1.2015.08.14.15.21.38
-        for <rtc-linux@googlegroups.com>;
-        Fri, 14 Aug 2015 15:21:38 -0700 (PDT)
-Date: Sat, 15 Aug 2015 00:21:37 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Vladimir Zapolskiy <vz@mleia.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Re: [rtc-linux] [PATCH 00/11] rtc: clean up bin attribute read/write functions
-Message-ID: <20150814222137.GO22269@piout.net>
-References: <1437947316-5652-1-git-send-email-vz@mleia.com>
+Return-Path: <rtc-linux+bncBCEKJX4XQ4ORBAV3UKXAKGQE6VYFGSI@googlegroups.com>
+Received: from na01-bn1-obe.outbound.protection.outlook.com (mail-bn1on0145.outbound.protection.outlook.com. [157.56.110.145])
+        by gmr-mx.google.com with ESMTPS id m197si916857ywd.2.2015.08.10.05.48.01
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
+        Mon, 10 Aug 2015 05:48:01 -0700 (PDT)
+From: Fabio Estevam <fabio.estevam@freescale.com>
+To: <alexandre.belloni@free-electrons.com>
+CC: <festevam@gmail.com>, <rtc-linux@googlegroups.com>, Fabio Estevam
+	<fabio.estevam@freescale.com>
+Subject: [rtc-linux] [PATCH 2/2] rtc: rtc-ds1374: Remove unused variable
+Date: Mon, 10 Aug 2015 09:47:45 -0300
+Message-ID: <1439210865-8611-2-git-send-email-fabio.estevam@freescale.com>
+In-Reply-To: <1439210865-8611-1-git-send-email-fabio.estevam@freescale.com>
+References: <1439210865-8611-1-git-send-email-fabio.estevam@freescale.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1437947316-5652-1-git-send-email-vz@mleia.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -24,50 +25,31 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On 27/07/2015 at 00:48:25 +0300, Vladimir Zapolskiy wrote :
-> This change removes a number of redundant checks on bin attribute
-> client's side, the same checks are done by sysfs_kf_bin_read() or
-> sysfs_kf_bin_write() caller from fs/sysfs/file.c.
-> 
-> Note, drivers/rtc/rtc-ds1685.c may be updated in a similar way,
-> however due to #ifndef magic involved this task is not done.
-> 
-> No functional change intended.
-> 
-> Vladimir Zapolskiy (11):
->   rtc: cmos: clean up cmos_nvram_read()/cmos_nvram_write()
->   rtc: ds1305: clean up ds1305_nvram_read()/ds1305_nvram_write()
->   rtc: ds1307: clean up ds1307_nvram_read()/ds1307_nvram_write()
->   rtc: ds1343: clean up ds1343_nvram_read()/ds1343_nvram_write()
->   rtc: ds1511: clean up ds1511_nvram_read()/ds1511_nvram_write()
->   rtc: ds1553: clean up ds1553_nvram_read()/ds1553_nvram_write()
->   rtc: ds1742: clean up ds1742_nvram_read()/ds1742_nvram_write()
->   rtc: m48t59: clean up m48t59_nvram_read()/m48t59_nvram_write()
->   rtc: rp5c01: clean up rp5c01_nvram_read()/rp5c01_nvram_write()
->   rtc: stk17ta8: clean up stk17ta8_nvram_read()/stk17ta8_nvram_write()
->   rtc: tx4939: clean up tx4939_rtc_nvram_read()/tx4939_rtc_nvram_write()
-> 
->  drivers/rtc/rtc-cmos.c     | 13 -------------
->  drivers/rtc/rtc-ds1305.c   | 18 ------------------
->  drivers/rtc/rtc-ds1307.c   | 14 --------------
->  drivers/rtc/rtc-ds1343.c   | 12 ------------
->  drivers/rtc/rtc-ds1511.c   | 38 ++++++++------------------------------
->  drivers/rtc/rtc-ds1553.c   |  4 ++--
->  drivers/rtc/rtc-ds1742.c   |  4 ++--
->  drivers/rtc/rtc-m48t59.c   | 16 ++++++++--------
->  drivers/rtc/rtc-rp5c01.c   |  4 ++--
->  drivers/rtc/rtc-stk17ta8.c |  4 ++--
->  drivers/rtc/rtc-tx4939.c   |  6 ++----
->  11 files changed, 26 insertions(+), 107 deletions(-)
-> 
+Remove unused variable 'res' and fix the following build warning:
 
-All applied (v2 when available), thanks
+drivers/rtc/rtc-ds1374.c:667:6: warning: unused variable 'res' [-Wunused-variable]
 
+Reported-by: Olof's autobuilder <build@lixom.net>
+Signed-off-by: Fabio Estevam <fabio.estevam@freescale.com>
+---
+ drivers/rtc/rtc-ds1374.c | 2 --
+ 1 file changed, 2 deletions(-)
 
+diff --git a/drivers/rtc/rtc-ds1374.c b/drivers/rtc/rtc-ds1374.c
+index 7067232..3b3049c 100644
+--- a/drivers/rtc/rtc-ds1374.c
++++ b/drivers/rtc/rtc-ds1374.c
+@@ -664,8 +664,6 @@ static int ds1374_remove(struct i2c_client *client)
+ {
+ 	struct ds1374 *ds1374 = i2c_get_clientdata(client);
+ #ifdef CONFIG_RTC_DRV_DS1374_WDT
+-	int res;
+-
+ 	misc_deregister(&ds1374_miscdev);
+ 	ds1374_miscdev.parent = NULL;
+ 	unregister_reboot_notifier(&ds1374_wdt_notifier);
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+1.9.1
 
 -- 
 -- 
