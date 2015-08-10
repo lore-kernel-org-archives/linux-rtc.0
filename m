@@ -1,20 +1,21 @@
-Return-Path: <rtc-linux+bncBD66BCOYSQBBBP7AZOXAKGQEWQG6ZOY@googlegroups.com>
-Received: from arroyo.ext.ti.com (arroyo.ext.ti.com. [192.94.94.40])
-        by gmr-mx.google.com with ESMTPS id a11si1015471igv.3.2015.08.18.01.43.43
+Return-Path: <rtc-linux+bncBD66BCOYSQBBBY65UGXAKGQE6SKOKXI@googlegroups.com>
+Received: from bear.ext.ti.com (bear.ext.ti.com. [192.94.94.41])
+        by gmr-mx.google.com with ESMTPS id rs3si686475igb.2.2015.08.10.02.29.06
         for <rtc-linux@googlegroups.com>
         (version=TLS1 cipher=RC4-SHA bits=128/128);
-        Tue, 18 Aug 2015 01:43:43 -0700 (PDT)
+        Mon, 10 Aug 2015 02:29:06 -0700 (PDT)
 From: Keerthy <j-keerthy@ti.com>
-To: <alexandre.belloni@free-electrons.com>, <tony@atomide.com>
-CC: <johan@kernel.org>, <linux-omap@vger.kernel.org>,
-        <rtc-linux@googlegroups.com>, <grygorii.strashko@ti.com>,
-        <j-keerthy@ti.com>
-Subject: [rtc-linux] [PATCH v4 1/3] ARM: dts: AM437x: Add the internal and
- external clock nodes for rtc
-Date: Tue, 18 Aug 2015 14:13:29 +0530
-Message-ID: <1439887411-15576-2-git-send-email-j-keerthy@ti.com>
-In-Reply-To: <1439887411-15576-1-git-send-email-j-keerthy@ti.com>
-References: <1439887411-15576-1-git-send-email-j-keerthy@ti.com>
+To: <tony@atomide.com>, <linux-omap@vger.kernel.org>, <pawel.moll@arm.com>
+CC: <galak@codeaurora.org>, <paul@pwsan.com>,
+        <alexandre.belloni@free-electrons.com>, <akpm@linux-foundation.org>,
+        <johan@kernel.org>, <grygorii.strashko@ti.com>,
+        <rtc-linux@googlegroups.com>, <bcousson@baylibre.com>, <nm@ti.com>,
+        <devicetree@vger.kernel.org>, <t-kristo@ti.com>, <j-keerthy@ti.com>
+Subject: [rtc-linux] [PATCH v2 5/6] ARM: AM43XX: HWMOD: Add rtc hwmod
+Date: Mon, 10 Aug 2015 14:58:25 +0530
+Message-ID: <1439198906-31189-6-git-send-email-j-keerthy@ti.com>
+In-Reply-To: <1439198906-31189-1-git-send-email-j-keerthy@ti.com>
+References: <1439198906-31189-1-git-send-email-j-keerthy@ti.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
@@ -27,113 +28,50 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-rtc can either be supplied from internal 32k clock or external crystal
-generated 32k clock. Internal clock is SOC specific and the external
-clock is board dependent. Adding the corresponding nodes.
+The patch adds rtc hwmod. This is present on gp and sk evm and not on
+epos evm. Hence adding it selectively using a seprate list.
 
 Signed-off-by: Keerthy <j-keerthy@ti.com>
 ---
- arch/arm/boot/dts/am4372.dtsi        |  2 ++
- arch/arm/boot/dts/am437x-gp-evm.dts  | 13 +++++++++++++
- arch/arm/boot/dts/am437x-idk-evm.dts |  9 +++++++++
- arch/arm/boot/dts/am437x-sk-evm.dts  |  9 +++++++++
- 4 files changed, 33 insertions(+)
+ arch/arm/mach-omap2/omap_hwmod_43xx_data.c | 16 ++++++++++++++--
+ 1 file changed, 14 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm/boot/dts/am4372.dtsi b/arch/arm/boot/dts/am4372.dtsi
-index d99b2ee..484f092 100644
---- a/arch/arm/boot/dts/am4372.dtsi
-+++ b/arch/arm/boot/dts/am4372.dtsi
-@@ -336,6 +336,8 @@
- 			interrupts = <GIC_SPI 75 IRQ_TYPE_LEVEL_HIGH
- 				      GIC_SPI 76 IRQ_TYPE_LEVEL_HIGH>;
- 			ti,hwmods = "rtc";
-+			clocks = <&clk_32768_ck>;
-+			clock-names = "int-clk";
- 			status = "disabled";
- 		};
+diff --git a/arch/arm/mach-omap2/omap_hwmod_43xx_data.c b/arch/arm/mach-omap2/omap_hwmod_43xx_data.c
+index 215d5ef..a0850b9 100644
+--- a/arch/arm/mach-omap2/omap_hwmod_43xx_data.c
++++ b/arch/arm/mach-omap2/omap_hwmod_43xx_data.c
+@@ -21,7 +21,7 @@
+ #include "prcm43xx.h"
+ #include "omap_hwmod_common_data.h"
+ #include "hdq1w.h"
+-
++#include "soc.h"
  
-diff --git a/arch/arm/boot/dts/am437x-gp-evm.dts b/arch/arm/boot/dts/am437x-gp-evm.dts
-index 215775d..22038f2 100644
---- a/arch/arm/boot/dts/am437x-gp-evm.dts
-+++ b/arch/arm/boot/dts/am437x-gp-evm.dts
-@@ -112,6 +112,13 @@
- 		clock-frequency = <12000000>;
- 	};
- 
-+	/* fixed 32k external oscillator clock */
-+	clk_32k_rtc: clk_32k_rtc {
-+		#clock-cells = <0>;
-+		compatible = "fixed-clock";
-+		clock-frequency = <32768>;
-+	};
-+
- 	sound0: sound@0 {
- 		compatible = "simple-audio-card";
- 		simple-audio-card,name = "AM437x-GP-EVM";
-@@ -941,3 +948,9 @@
- 	tx-num-evt = <32>;
- 	rx-num-evt = <32>;
+ /* IP blocks */
+ static struct omap_hwmod am43xx_emif_hwmod = {
+@@ -1020,9 +1020,21 @@ static struct omap_hwmod_ocp_if *am43xx_hwmod_ocp_ifs[] __initdata = {
+ 	NULL,
  };
-+
-+&rtc {
-+	clocks = <&clk_32k_rtc>, <&clk_32768_ck>;
-+	clock-names = "ext-clk", "int-clk";
-+	status = "okay";
+ 
++static struct omap_hwmod_ocp_if *am43xx_rtc_hwmod_ocp_ifs[] __initdata = {
++	&am33xx_l4_wkup__rtc,
++	NULL,
 +};
-diff --git a/arch/arm/boot/dts/am437x-idk-evm.dts b/arch/arm/boot/dts/am437x-idk-evm.dts
-index 37834427..af25801 100644
---- a/arch/arm/boot/dts/am437x-idk-evm.dts
-+++ b/arch/arm/boot/dts/am437x-idk-evm.dts
-@@ -110,6 +110,13 @@
- 			gpios = <&gpio4 2 GPIO_ACTIVE_LOW>;
- 		};
- 	};
 +
-+	/* fixed 32k external oscillator clock */
-+	clk_32k_rtc: clk_32k_rtc {
-+		#clock-cells = <0>;
-+		compatible = "fixed-clock";
-+		clock-frequency = <32768>;
-+	};
- };
- 
- &am43xx_pinmux {
-@@ -394,6 +401,8 @@
- };
- 
- &rtc {
-+	clocks = <&clk_32k_rtc>, <&clk_32768_ck>;
-+	clock-names = "ext-clk", "int-clk";
- 	status = "okay";
- };
- 
-diff --git a/arch/arm/boot/dts/am437x-sk-evm.dts b/arch/arm/boot/dts/am437x-sk-evm.dts
-index 22af448..7da7c2d 100644
---- a/arch/arm/boot/dts/am437x-sk-evm.dts
-+++ b/arch/arm/boot/dts/am437x-sk-evm.dts
-@@ -24,6 +24,13 @@
- 		display0 = &lcd0;
- 	};
- 
-+	/* fixed 32k external oscillator clock */
-+	clk_32k_rtc: clk_32k_rtc {
-+		#clock-cells = <0>;
-+		compatible = "fixed-clock";
-+		clock-frequency = <32768>;
-+	};
+ int __init am43xx_hwmod_init(void)
+ {
++	int ret;
 +
- 	backlight {
- 		compatible = "pwm-backlight";
- 		pwms = <&ecap0 0 50000 PWM_POLARITY_INVERTED>;
-@@ -697,6 +704,8 @@
- };
- 
- &rtc {
-+	clocks = <&clk_32k_rtc>, <&clk_32768_ck>;
-+	clock-names = "ext-clk", "int-clk";
- 	status = "okay";
- };
- 
+ 	omap_hwmod_am43xx_reg();
+ 	omap_hwmod_init();
+-	return omap_hwmod_register_links(am43xx_hwmod_ocp_ifs);
++	ret = omap_hwmod_register_links(am43xx_hwmod_ocp_ifs);
++
++	if (!soc_is_am438x())
++		ret = omap_hwmod_register_links(am43xx_rtc_hwmod_ocp_ifs);
++
++	return ret;
+ }
 -- 
 1.9.1
 
