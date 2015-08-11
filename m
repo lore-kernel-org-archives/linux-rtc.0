@@ -1,24 +1,29 @@
-Return-Path: <rtc-linux+bncBD66BCOYSQBBBTO5UGXAKGQERWZABTI@googlegroups.com>
-Received: from comal.ext.ti.com (comal.ext.ti.com. [198.47.26.152])
-        by gmr-mx.google.com with ESMTPS id j6si695321igx.0.2015.08.10.02.28.45
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1 cipher=RC4-SHA bits=128/128);
-        Mon, 10 Aug 2015 02:28:45 -0700 (PDT)
-From: Keerthy <j-keerthy@ti.com>
-To: <tony@atomide.com>, <linux-omap@vger.kernel.org>, <pawel.moll@arm.com>
-CC: <galak@codeaurora.org>, <paul@pwsan.com>,
-        <alexandre.belloni@free-electrons.com>, <akpm@linux-foundation.org>,
-        <johan@kernel.org>, <grygorii.strashko@ti.com>,
-        <rtc-linux@googlegroups.com>, <bcousson@baylibre.com>, <nm@ti.com>,
-        <devicetree@vger.kernel.org>, <t-kristo@ti.com>, <j-keerthy@ti.com>
-Subject: [rtc-linux] [PATCH v2 1/6] ARM: dts: AM43XX: Add clk_32k_rtc node
-Date: Mon, 10 Aug 2015 14:58:21 +0530
-Message-ID: <1439198906-31189-2-git-send-email-j-keerthy@ti.com>
-In-Reply-To: <1439198906-31189-1-git-send-email-j-keerthy@ti.com>
-References: <1439198906-31189-1-git-send-email-j-keerthy@ti.com>
+Return-Path: <rtc-linux+bncBDEZ72H55YIBBWNYU6XAKGQEMFJD62A@googlegroups.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Received: from mailout2.samsung.com (mailout2.samsung.com. [203.254.224.25])
+        by gmr-mx.google.com with ESMTPS id qa1si188205pdb.1.2015.08.11.04.28.24
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1 cipher=RC4-SHA bits=128/128);
+        Tue, 11 Aug 2015 04:28:24 -0700 (PDT)
+Received: from epcpsbgr1.samsung.com
+ (u141.gpu120.samsung.co.kr [203.254.230.141])
+ by mailout2.samsung.com (Oracle Communications Messaging Server 7.0.5.31.0
+ 64bit (built May  5 2014))
+ with ESMTP id <0NSX006VV17AIN80@mailout2.samsung.com> for
+ rtc-linux@googlegroups.com; Tue, 11 Aug 2015 20:28:22 +0900 (KST)
+From: Joonyoung Shim <jy0922.shim@samsung.com>
+To: rtc-linux@googlegroups.com
+Cc: linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org,
+ a.zummo@towertech.it, alexandre.belloni@free-electrons.com,
+ cw00.choi@samsung.com, k.kozlowski@samsung.com, jy0922.shim@samsung.com
+Subject: [rtc-linux] [PATCH 3/4] rtc: s3c: use unified functions for
+ enable/disable of clk
+Date: Tue, 11 Aug 2015 20:28:21 +0900
+Message-id: <1439292502-22912-3-git-send-email-jy0922.shim@samsung.com>
+In-reply-to: <1439292502-22912-1-git-send-email-jy0922.shim@samsung.com>
+References: <1439292502-22912-1-git-send-email-jy0922.shim@samsung.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -28,44 +33,59 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Add the clk_32k_rtc this is the external clock source
-for the rtc.
+The driver uses clk_prepare_enable()/clk_disable_unprepare() only in
+probe only, elsewhere, use the unified functions for enable/disable of
+clk, e.g. s3c_rtc_enable_clk() / s3c_rtc_disable_clk(), so it's better
+to use them for consistency of code.
 
-Signed-off-by: Keerthy <j-keerthy@ti.com>
+Signed-off-by: Joonyoung Shim <jy0922.shim@samsung.com>
 ---
- arch/arm/boot/dts/am43xx-clocks.dtsi | 6 ++++++
- drivers/clk/ti/clk-43xx.c            | 1 +
- 2 files changed, 7 insertions(+)
+ drivers/rtc/rtc-s3c.c | 14 +++++++++-----
+ 1 file changed, 9 insertions(+), 5 deletions(-)
 
-diff --git a/arch/arm/boot/dts/am43xx-clocks.dtsi b/arch/arm/boot/dts/am43xx-clocks.dtsi
-index d0c0dfa..31f1d96 100644
---- a/arch/arm/boot/dts/am43xx-clocks.dtsi
-+++ b/arch/arm/boot/dts/am43xx-clocks.dtsi
-@@ -159,6 +159,12 @@
- 		clock-frequency = <32768>;
- 	};
+diff --git a/drivers/rtc/rtc-s3c.c b/drivers/rtc/rtc-s3c.c
+index 44b2921..abe2a6d 100644
+--- a/drivers/rtc/rtc-s3c.c
++++ b/drivers/rtc/rtc-s3c.c
+@@ -476,19 +476,21 @@ static int s3c_rtc_probe(struct platform_device *pdev)
+ 		dev_err(&pdev->dev, "failed to find rtc clock\n");
+ 		return PTR_ERR(info->rtc_clk);
+ 	}
+-	clk_prepare_enable(info->rtc_clk);
++	clk_prepare(info->rtc_clk);
  
-+	clk_32k_rtc: clk_32k_rtc {
-+		#clock-cells = <0>;
-+		compatible = "fixed-clock";
-+		clock-frequency = <32768>;
-+	};
+ 	if (info->data->needs_src_clk) {
+ 		info->rtc_src_clk = devm_clk_get(&pdev->dev, "rtc_src");
+ 		if (IS_ERR(info->rtc_src_clk)) {
+ 			dev_err(&pdev->dev,
+ 				"failed to find rtc source clock\n");
+-			clk_disable_unprepare(info->rtc_clk);
++			clk_unprepare(info->rtc_clk);
+ 			return PTR_ERR(info->rtc_src_clk);
+ 		}
+-		clk_prepare_enable(info->rtc_src_clk);
++		clk_prepare(info->rtc_src_clk);
+ 	}
+ 
++	s3c_rtc_enable_clk(info);
 +
- 	clk_rc32k_ck: clk_rc32k_ck {
- 		#clock-cells = <0>;
- 		compatible = "fixed-clock";
-diff --git a/drivers/clk/ti/clk-43xx.c b/drivers/clk/ti/clk-43xx.c
-index 3795fce..af393c2 100644
---- a/drivers/clk/ti/clk-43xx.c
-+++ b/drivers/clk/ti/clk-43xx.c
-@@ -22,6 +22,7 @@
- static struct ti_dt_clk am43xx_clks[] = {
- 	DT_CLK(NULL, "clk_32768_ck", "clk_32768_ck"),
- 	DT_CLK(NULL, "clk_rc32k_ck", "clk_rc32k_ck"),
-+	DT_CLK(NULL, "clk_32k_rtc", "clk_32k_rtc"),
- 	DT_CLK(NULL, "virt_19200000_ck", "virt_19200000_ck"),
- 	DT_CLK(NULL, "virt_24000000_ck", "virt_24000000_ck"),
- 	DT_CLK(NULL, "virt_25000000_ck", "virt_25000000_ck"),
+ 	/* check to see if everything is setup correctly */
+ 	if (info->data->enable)
+ 		info->data->enable(info);
+@@ -548,9 +550,11 @@ static int s3c_rtc_probe(struct platform_device *pdev)
+ 	if (info->data->disable)
+ 		info->data->disable(info);
+ 
++	s3c_rtc_disable_clk(info);
++
+ 	if (info->data->needs_src_clk)
+-		clk_disable_unprepare(info->rtc_src_clk);
+-	clk_disable_unprepare(info->rtc_clk);
++		clk_unprepare(info->rtc_src_clk);
++	clk_unprepare(info->rtc_clk);
+ 
+ 	return ret;
+ }
 -- 
 1.9.1
 
