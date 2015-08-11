@@ -1,21 +1,24 @@
-Return-Path: <rtc-linux+bncBCAMRWGQV4CRBLXQRCXAKGQES454PJQ@googlegroups.com>
-Received: from mail.mleia.com (li271-223.members.linode.com. [178.79.152.223])
-        by gmr-mx.google.com with ESMTPS id bk2si282270wib.1.2015.08.05.09.22.05
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 05 Aug 2015 09:22:05 -0700 (PDT)
-Message-ID: <55C2382C.7010606@mleia.com>
-Date: Wed, 05 Aug 2015 19:22:04 +0300
-From: Vladimir Zapolskiy <vz@mleia.com>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBSNVVCXAKGQEJQKCF7A@googlegroups.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id gt9si97771wib.2.2015.08.11.08.54.49
+        for <rtc-linux@googlegroups.com>;
+        Tue, 11 Aug 2015 08:54:49 -0700 (PDT)
+Date: Tue, 11 Aug 2015 17:54:48 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Viresh Kumar <viresh.kumar@linaro.org>
+Cc: akpm@linux-foundation.org, linux-kernel@vger.kernel.org,
+	kbuild test robot <fengguang.wu@intel.com>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Hans Ulli Kroll <ulli.kroll@googlemail.com>,
+	"moderated list:ARM/CORTINA SYSTEMS GEMINI ARM ARCHITECTURE" <linux-arm-kernel@lists.infradead.org>,
+	"open list:REAL TIME CLOCK (RTC) SUBSYSTEM" <rtc-linux@googlegroups.com>
+Subject: [rtc-linux] Re: [PATCH] drivers: rtc: fix ptr_ret.cocci warnings
+Message-ID: <20150811155448.GU3411@piout.net>
+References: <cdfa3fb76901fe1c4a5756e7e64cb3370cf6317a.1438331416.git.viresh.kumar@linaro.org>
+ <20150731091703.GA140615@lkp-ib03>
 MIME-Version: 1.0
-To: rtc-linux@googlegroups.com,
- Alexandre Belloni <alexandre.belloni@free-electrons.com>
-CC: Alessandro Zummo <a.zummo@towertech.it>,
- Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Re: [rtc-linux] Re: [PATCH 05/11] rtc: ds1511: clean up ds1511_nvram_read()/ds1511_nvram_write()
-References: <1437947316-5652-1-git-send-email-vz@mleia.com> <1437947316-5652-6-git-send-email-vz@mleia.com> <20150805082402.GA3486@piout.net>
-In-Reply-To: <20150805082402.GA3486@piout.net>
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <20150731091703.GA140615@lkp-ib03>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -26,127 +29,30 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Hi Alexandre,
-
-On 05.08.2015 11:24, Alexandre Belloni wrote:
-> Hi,
+On 31/07/2015 at 15:01:04 +0530, Viresh Kumar wrote :
+> From: kbuild test robot <fengguang.wu@intel.com>
 > 
-> On 27/07/2015 at 00:48:30 +0300, Vladimir Zapolskiy wrote :
->> The change removes redundant sysfs binary file boundary checks, since
->> this task is already done on caller side in fs/sysfs/file.c
->>
->> Signed-off-by: Vladimir Zapolskiy <vz@mleia.com>
->> ---
->>  drivers/rtc/rtc-ds1511.c | 38 ++++++++------------------------------
->>  1 file changed, 8 insertions(+), 30 deletions(-)
->>
->> diff --git a/drivers/rtc/rtc-ds1511.c b/drivers/rtc/rtc-ds1511.c
->> index 7415c2b..2213fab 100644
->> --- a/drivers/rtc/rtc-ds1511.c
->> +++ b/drivers/rtc/rtc-ds1511.c
->> @@ -407,25 +407,14 @@ ds1511_nvram_read(struct file *filp, struct kobject *kobj,
->>  {
->>  	ssize_t count;
->>  
->> -	/*
->> -	 * if count is more than one, turn on "burst" mode
->> -	 * turn it off when you're done
->> -	 */
->> -	if (size > 1)
->> -		rtc_write((rtc_read(RTC_CMD) | DS1511_BME), RTC_CMD);
->> -
->> -	if (pos > DS1511_RAM_MAX)
->> -		pos = DS1511_RAM_MAX;
->> -
->> -	if (size + pos > DS1511_RAM_MAX + 1)
->> -		size = DS1511_RAM_MAX - pos + 1;
->> +	/* turn on "burst" mode, turn it off when you're done */
->> +	rtc_write((rtc_read(RTC_CMD) | DS1511_BME), RTC_CMD);
+> drivers/rtc/rtc-gemini.c:151:1-3: WARNING: PTR_ERR_OR_ZERO can be used
 > 
-> That one feels wrong, you are now unconditionally using burst mode, this
-> was not the case before. If this has been tested and works, I'd ay that
-> this at least require a mention in the commit message.
 > 
-
-I believe this is a correct fix, burst mode should be always enabled,
-probably it might be better even to move its configuration to probe().
-
->From the spec:
-
-  The burst-mode enable bit allows the extended user RAM address
-  registers to automatically increment for consecutive reads and writes.
-
-  When BME is set to 1, the automatic incrementing is enabled; when BME
-  is set to 0, the automatic incrementing is disabled.
-
-Prior to the change the sequence of
-
-  read(fd, buf, 1);
-  read(fd, buf, 1);
-  read(fd, buf, 1);
-  ...
-
-won't sequentially read NVRAM byte by byte as it should be IMO, at least
-it contradicts to common and expected usage of read().
-
-If there is no objections, I'll keep this part of the proposed change
-unmodified, but thanks for attracting my attention to the potential
-problem, I've managed to notice that DS1511_RAM_MAX value is invalid, it
-must be 256 --- the current value of 0xff *and* "no-burst" mode for
-1-byte reading probably is done as a clumsy attempt to avoid overflow.
-
-I'll resend the change with DS1511_RAM_MAX update and improved commit
-message.
-
-With best wishes,
-Vladimir
-
->>  
->>  	rtc_write(pos, DS1511_RAMADDR_LSB);
->> -	for (count = 0; size > 0; count++, size--)
->> +	for (count = 0; count < size; count++)
->>  		*buf++ = rtc_read(DS1511_RAMDATA);
->>  
->> -	if (count > 1)
->> -		rtc_write((rtc_read(RTC_CMD) & ~DS1511_BME), RTC_CMD);
->> +	rtc_write((rtc_read(RTC_CMD) & ~DS1511_BME), RTC_CMD);
->>  
->>  	return count;
->>  }
->> @@ -437,25 +426,14 @@ ds1511_nvram_write(struct file *filp, struct kobject *kobj,
->>  {
->>  	ssize_t count;
->>  
->> -	/*
->> -	 * if count is more than one, turn on "burst" mode
->> -	 * turn it off when you're done
->> -	 */
->> -	if (size > 1)
->> -		rtc_write((rtc_read(RTC_CMD) | DS1511_BME), RTC_CMD);
->> -
->> -	if (pos > DS1511_RAM_MAX)
->> -		pos = DS1511_RAM_MAX;
->> -
->> -	if (size + pos > DS1511_RAM_MAX + 1)
->> -		size = DS1511_RAM_MAX - pos + 1;
->> +	/* turn on "burst" mode, turn it off when you're done */
->> +	rtc_write((rtc_read(RTC_CMD) | DS1511_BME), RTC_CMD);
->>  
->>  	rtc_write(pos, DS1511_RAMADDR_LSB);
->> -	for (count = 0; size > 0; count++, size--)
->> +	for (count = 0; count < size; count++)
->>  		rtc_write(*buf++, DS1511_RAMDATA);
->>  
->> -	if (count > 1)
->> -		rtc_write((rtc_read(RTC_CMD) & ~DS1511_BME), RTC_CMD);
->> +	rtc_write((rtc_read(RTC_CMD) & ~DS1511_BME), RTC_CMD);
->>  
->>  	return count;
->>  }
->> -- 
->> 2.1.4
->>
+>  Use PTR_ERR_OR_ZERO rather than if(IS_ERR(...)) + PTR_ERR
 > 
+> Generated by: scripts/coccinelle/api/ptr_ret.cocci
+> 
+> Signed-off-by: Fengguang Wu <fengguang.wu@intel.com>
+> Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
+> ---
+> Got a cleanup patch from Fengguang, maybe we can apply this too.
+> 
+>  rtc-gemini.c |    5 +----
+>  1 file changed, 1 insertion(+), 4 deletions(-)
+> 
+Applied, thanks.
+
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
 -- 
 -- 
