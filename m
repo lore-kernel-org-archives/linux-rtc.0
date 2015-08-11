@@ -1,21 +1,23 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBIN33GXAKGQE5J3ETBQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBFEHVCXAKGQEMFDZOMA@googlegroups.com>
 Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id gt6si14660wib.1.2015.08.20.16.07.13
+        by gmr-mx.google.com with ESMTP id jv9si431218wid.0.2015.08.11.07.15.48
         for <rtc-linux@googlegroups.com>;
-        Thu, 20 Aug 2015 16:07:13 -0700 (PDT)
-Date: Fri, 21 Aug 2015 01:07:12 +0200
+        Tue, 11 Aug 2015 07:15:48 -0700 (PDT)
+Date: Tue, 11 Aug 2015 16:15:47 +0200
 From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Joonyoung Shim <jy0922.shim@samsung.com>
-Cc: rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org,
-	linux-samsung-soc@vger.kernel.org, a.zummo@towertech.it,
-	cw00.choi@samsung.com, k.kozlowski@samsung.com
-Subject: [rtc-linux] Re: [PATCH 2/4] rtc: s3c: remove unnecessary NULL assignment
-Message-ID: <20150820230712.GD3769@piout.net>
-References: <1439292502-22912-1-git-send-email-jy0922.shim@samsung.com>
- <1439292502-22912-2-git-send-email-jy0922.shim@samsung.com>
+To: Paul Gortmaker <paul.gortmaker@windriver.com>
+Cc: linux-kernel@vger.kernel.org, Adrian Huang <ahuang12@lenovo.com>,
+	Egbert Eich <eich@suse.de>,
+	Diego Ercolani <diego.ercolani@gmail.com>,
+	Borislav Petkov <bp@suse.de>,
+	Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com
+Subject: [rtc-linux] Re: [PATCH] drivers/rtc: fix compile warning introduced
+ by 1s reboot fix
+Message-ID: <20150811141547.GP3411@piout.net>
+References: <1439301844-22710-1-git-send-email-paul.gortmaker@windriver.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1439292502-22912-2-git-send-email-jy0922.shim@samsung.com>
+In-Reply-To: <1439301844-22710-1-git-send-email-paul.gortmaker@windriver.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -26,16 +28,42 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On 11/08/2015 at 20:28:20 +0900, Joonyoung Shim wrote :
-> It's unnecessary the code that assigns info->rtc_clk to NULL in
-> s3c_rtc_remove.
+Hi Paul,
+
+On 11/08/2015 at 10:04:04 -0400, Paul Gortmaker wrote :
+> We currently see this warning:
 > 
-> Signed-off-by: Joonyoung Shim <jy0922.shim@samsung.com>
+> drivers/rtc/rtc-cmos.c:851:7: warning: unused variable 'err'
+> 
+> introduced by commit 7b4a008088a28ea936fffbbfa770d0184468a0ce ("rtc-cmos:
+> Cancel alarm timer if alarm time is equal to now+1 seconds").
+> 
+> Presumably some WIP version of the commit was doing error checking
+> but then the variable was not removed prior to submission, and the
+> pending commits weren't on kernel.org for kbuild bot to spot the new
+> warning created.
+> 
+> Cc: Adrian Huang <ahuang12@lenovo.com>
+> Cc: Egbert Eich <eich@suse.de>
+> Cc: Diego Ercolani <diego.ercolani@gmail.com>
+> Cc: Borislav Petkov <bp@suse.de>
+> Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+> Cc: Alessandro Zummo <a.zummo@towertech.it>
+> Cc: rtc-linux@googlegroups.com
+> Signed-off-by: Paul Gortmaker <paul.gortmaker@windriver.com>
 > ---
->  drivers/rtc/rtc-s3c.c | 1 -
->  1 file changed, 1 deletion(-)
 > 
-Applied, thanks.
+> [Note: patch is against linux-next, so if the rtc tree is rebased,
+>  then the above commit ID reference will be stale.  Feel free to
+>  adjust the commit log appropriately, if need be, or even squash
+>  this into the original offending patch, if rebasing back that far.
+>  Also ensuring your tree is on kernel.org will allow kbuild bot
+>  to spot these on your behalf via the zero day builds.]
+> 
+
+I'm pretty sure my rtc-next branch on kernel.org already carry the fix.
+I fixed it on monday: 2015-08-10 07:12:44 (GMT). It just seems that
+linux-next has not been updated since then.
 
 -- 
 Alexandre Belloni, Free Electrons
