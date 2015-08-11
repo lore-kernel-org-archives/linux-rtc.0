@@ -1,32 +1,29 @@
-Return-Path: <rtc-linux+bncBCRIZROPVQPBBW7EVSXAKGQEDCTDHFI@googlegroups.com>
-Received: from mail-pa0-f47.google.com (mail-pa0-f47.google.com. [209.85.220.47])
-        by gmr-mx.google.com with ESMTPS id eq2si566253pbb.2.2015.08.12.04.47.39
+Return-Path: <rtc-linux+bncBDEZ72H55YIBBR5YU6XAKGQEZL27RZY@googlegroups.com>
+Received: from mailout3.samsung.com (mailout3.samsung.com. [203.254.224.33])
+        by gmr-mx.google.com with ESMTPS id fy14si160714pdb.2.2015.08.11.04.28.07
         for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 12 Aug 2015 04:47:39 -0700 (PDT)
-Received: by mail-pa0-f47.google.com with SMTP id gr6so13120357pac.2
-        for <rtc-linux@googlegroups.com>; Wed, 12 Aug 2015 04:47:39 -0700 (PDT)
-Date: Wed, 12 Aug 2015 17:17:32 +0530
-From: Viresh Kumar <viresh.kumar@linaro.org>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: trivial@kernel.org, linaro-kernel@lists.linaro.org,
-	linux-kernel@vger.kernel.org,
-	Hans Ulli Kroll <ulli.kroll@googlemail.com>,
-	"moderated list:BLACKFIN RTC DRIVER" <adi-buildroot-devel@lists.sourceforge.net>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	"moderated list:ARM/CORTINA SYSTEMS GEMINI ARM ARCHITECTURE" <linux-arm-kernel@lists.infradead.org>,
-	"open list:REAL TIME CLOCK (RTC) SUBSYSTEM" <rtc-linux@googlegroups.com>
-Subject: [rtc-linux] Re: [PATCH V1 Resend 06/10] drivers: rtc: Drop (un)likely
- before IS_ERR(_OR_NULL)
-Message-ID: <20150812114732.GE20238@linux>
-References: <cover.1439375087.git.viresh.kumar@linaro.org>
- <1a92f2e1af5309ece9736f79f312e90486a98825.1439375087.git.viresh.kumar@linaro.org>
- <20150812104133.GE3411@piout.net>
- <20150812104625.GB20238@linux>
- <20150812114256.GF3411@piout.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <20150812114256.GF3411@piout.net>
+        (version=TLSv1 cipher=RC4-SHA bits=128/128);
+        Tue, 11 Aug 2015 04:28:07 -0700 (PDT)
+Received: from epcpsbgr4.samsung.com
+ (u144.gpu120.samsung.co.kr [203.254.230.144])
+ by mailout3.samsung.com (Oracle Communications Messaging Server 7.0.5.31.0
+ 64bit (built May  5 2014))
+ with ESMTP id <0NSX018EB16SXT10@mailout3.samsung.com> for
+ rtc-linux@googlegroups.com; Tue, 11 Aug 2015 20:28:04 +0900 (KST)
+Message-id: <55C9DC45.4090102@samsung.com>
+Date: Tue, 11 Aug 2015 20:28:05 +0900
+From: Joonyoung Shim <jy0922.shim@samsung.com>
+MIME-version: 1.0
+To: rtc-linux@googlegroups.com
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+ linux-samsung-soc <linux-samsung-soc@vger.kernel.org>, a.zummo@towertech.it,
+ alexandre.belloni@free-electrons.com,
+ =?UTF-8?B?Iuy1nOywrOyasC9TL1cgUGxhdGZvcm0gTGFiKERNQ+yXsCkvUzQo7ISg7J6EKS8=?=
+ =?UTF-8?B?7IK87ISx7KCE7J6QIg==?= <cw00.choi@samsung.com>,
+ Krzysztof Kozlowski <k.kozlowski@samsung.com>,
+ Joonyoung Shim <jy0922.shim@samsung.com>
+Subject: [rtc-linux] [PATCH 0/4] modify clock codes of rtc-s3c driver
+Content-type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -37,19 +34,23 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On 12-08-15, 13:42, Alexandre Belloni wrote:
-> The fact is that I sent you a mail yesterday stating that I applied that
-> particular patch.
+Hi,
 
-Urg ..
+This patchset modifies clock codes of rtc-s3c driver. Main change is to
+fix the problem that alarm interrupt can't happen. Also there are some
+fixes incluing cleanup.
 
-I looked at the 'V1 Resend' series to see which all are applied, and
-missed your reply on the first version.
+Thanks.
 
-Sorry about that.
+----------------------------------------------------------------
+Joonyoung Shim (4):
+      rtc: s3c: add missing clk control
+      rtc: s3c: remove unnecessary NULL assignment
+      rtc: s3c: use unified functions for enable/disable of clk
+      rtc: s3c: enable/disable clocks for alarm
 
--- 
-viresh
+ drivers/rtc/rtc-s3c.c | 40 +++++++++++++++++++++++++++++-----------
+ 1 file changed, 29 insertions(+), 11 deletions(-)
 
 -- 
 -- 
