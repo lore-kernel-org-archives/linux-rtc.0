@@ -1,23 +1,25 @@
-Return-Path: <rtc-linux+bncBD66BCOYSQBBBY65UGXAKGQE6SKOKXI@googlegroups.com>
-Received: from bear.ext.ti.com (bear.ext.ti.com. [192.94.94.41])
-        by gmr-mx.google.com with ESMTPS id rs3si686475igb.2.2015.08.10.02.29.06
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1 cipher=RC4-SHA bits=128/128);
-        Mon, 10 Aug 2015 02:29:06 -0700 (PDT)
-From: Keerthy <j-keerthy@ti.com>
-To: <tony@atomide.com>, <linux-omap@vger.kernel.org>, <pawel.moll@arm.com>
-CC: <galak@codeaurora.org>, <paul@pwsan.com>,
-        <alexandre.belloni@free-electrons.com>, <akpm@linux-foundation.org>,
-        <johan@kernel.org>, <grygorii.strashko@ti.com>,
-        <rtc-linux@googlegroups.com>, <bcousson@baylibre.com>, <nm@ti.com>,
-        <devicetree@vger.kernel.org>, <t-kristo@ti.com>, <j-keerthy@ti.com>
-Subject: [rtc-linux] [PATCH v2 5/6] ARM: AM43XX: HWMOD: Add rtc hwmod
-Date: Mon, 10 Aug 2015 14:58:25 +0530
-Message-ID: <1439198906-31189-6-git-send-email-j-keerthy@ti.com>
-In-Reply-To: <1439198906-31189-1-git-send-email-j-keerthy@ti.com>
-References: <1439198906-31189-1-git-send-email-j-keerthy@ti.com>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBO5VVCXAKGQEOF4RJ3A@googlegroups.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id gt9si97754wib.2.2015.08.11.08.54.35
+        for <rtc-linux@googlegroups.com>;
+        Tue, 11 Aug 2015 08:54:35 -0700 (PDT)
+Date: Tue, 11 Aug 2015 17:54:34 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Viresh Kumar <viresh.kumar@linaro.org>
+Cc: akpm@linux-foundation.org, linaro-kernel@lists.linaro.org,
+	linux-kernel@vger.kernel.org,
+	"moderated list:BLACKFIN RTC DRIVER" <adi-buildroot-devel@lists.sourceforge.net>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Hans Ulli Kroll <ulli.kroll@googlemail.com>,
+	"moderated list:ARM/CORTINA SYSTEMS GEMINI ARM ARCHITECTURE" <linux-arm-kernel@lists.infradead.org>,
+	"open list:REAL TIME CLOCK (RTC) SUBSYSTEM" <rtc-linux@googlegroups.com>
+Subject: [rtc-linux] Re: [PATCH 9/15 V2] drivers: rtc: Drop (un)likely before IS_ERR(_OR_NULL)
+Message-ID: <20150811155434.GT3411@piout.net>
+References: <cdfa3fb76901fe1c4a5756e7e64cb3370cf6317a.1438331416.git.viresh.kumar@linaro.org>
+ <b8be698a8625ceb9adc8da51cd9474626db7c3d1.1438339891.git.viresh.kumar@linaro.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <b8be698a8625ceb9adc8da51cd9474626db7c3d1.1438339891.git.viresh.kumar@linaro.org>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -28,52 +30,33 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-The patch adds rtc hwmod. This is present on gp and sk evm and not on
-epos evm. Hence adding it selectively using a seprate list.
+On 31/07/2015 at 16:23:43 +0530, Viresh Kumar wrote :
+> IS_ERR(_OR_NULL) already contain an 'unlikely' compiler flag and there
+> is no need to do that again from its callers. Drop it.
+> 
+> gemini driver was using likely() for a failure case while the rtc driver
+> is getting registered. That looks wrong and it should really be
+> unlikely. But because we are killing all the unlikely() flags, lets kill
+> that too.
+> 
+> Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
+> ---
+> V1->V2:
+> - Removed the likely() part from gemini driver and the changelog wasn't
+>   updated to match that. Fixed the changelog now.
+> 
+>  drivers/rtc/interface.c  | 2 +-
+>  drivers/rtc/rtc-bfin.c   | 2 +-
+>  drivers/rtc/rtc-gemini.c | 2 +-
+>  3 files changed, 3 insertions(+), 3 deletions(-)
+> 
 
-Signed-off-by: Keerthy <j-keerthy@ti.com>
----
- arch/arm/mach-omap2/omap_hwmod_43xx_data.c | 16 ++++++++++++++--
- 1 file changed, 14 insertions(+), 2 deletions(-)
+Applied, thanks.
 
-diff --git a/arch/arm/mach-omap2/omap_hwmod_43xx_data.c b/arch/arm/mach-omap2/omap_hwmod_43xx_data.c
-index 215d5ef..a0850b9 100644
---- a/arch/arm/mach-omap2/omap_hwmod_43xx_data.c
-+++ b/arch/arm/mach-omap2/omap_hwmod_43xx_data.c
-@@ -21,7 +21,7 @@
- #include "prcm43xx.h"
- #include "omap_hwmod_common_data.h"
- #include "hdq1w.h"
--
-+#include "soc.h"
- 
- /* IP blocks */
- static struct omap_hwmod am43xx_emif_hwmod = {
-@@ -1020,9 +1020,21 @@ static struct omap_hwmod_ocp_if *am43xx_hwmod_ocp_ifs[] __initdata = {
- 	NULL,
- };
- 
-+static struct omap_hwmod_ocp_if *am43xx_rtc_hwmod_ocp_ifs[] __initdata = {
-+	&am33xx_l4_wkup__rtc,
-+	NULL,
-+};
-+
- int __init am43xx_hwmod_init(void)
- {
-+	int ret;
-+
- 	omap_hwmod_am43xx_reg();
- 	omap_hwmod_init();
--	return omap_hwmod_register_links(am43xx_hwmod_ocp_ifs);
-+	ret = omap_hwmod_register_links(am43xx_hwmod_ocp_ifs);
-+
-+	if (!soc_is_am438x())
-+		ret = omap_hwmod_register_links(am43xx_rtc_hwmod_ocp_ifs);
-+
-+	return ret;
- }
 -- 
-1.9.1
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
 -- 
 -- 
