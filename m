@@ -1,77 +1,34 @@
-Return-Path: <rtc-linux+bncBD66BCOYSQBBBTO5UGXAKGQERWZABTI@googlegroups.com>
-Received: from comal.ext.ti.com (comal.ext.ti.com. [198.47.26.152])
-        by gmr-mx.google.com with ESMTPS id x1si693052igb.2.2015.08.10.02.28.45
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1 cipher=RC4-SHA bits=128/128);
-        Mon, 10 Aug 2015 02:28:45 -0700 (PDT)
-From: Keerthy <j-keerthy@ti.com>
-To: <tony@atomide.com>, <linux-omap@vger.kernel.org>, <pawel.moll@arm.com>
-CC: <galak@codeaurora.org>, <paul@pwsan.com>,
-        <alexandre.belloni@free-electrons.com>, <akpm@linux-foundation.org>,
-        <johan@kernel.org>, <grygorii.strashko@ti.com>,
-        <rtc-linux@googlegroups.com>, <bcousson@baylibre.com>, <nm@ti.com>,
-        <devicetree@vger.kernel.org>, <t-kristo@ti.com>, <j-keerthy@ti.com>
-Subject: [rtc-linux] [PATCH v2 0/6]  ARM: AM4372: Enable RTC
-Date: Mon, 10 Aug 2015 14:58:20 +0530
-Message-ID: <1439198906-31189-1-git-send-email-j-keerthy@ti.com>
+Date: Tue, 11 Aug 2015 20:01:44 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Sylvain Chouleur <sylvain.chouleur@intel.com>
+Cc: rtc-linux@googlegroups.com
+Subject: Re: [rtc-linux] [PATCH] Support of century in rtc-cmos
+Message-ID: <20150811180144.GV3411@piout.net>
+References: <87lhfur0sw.fsf@schouleu-mobl1.ger.corp.intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <87lhfur0sw.fsf@schouleu-mobl1.ger.corp.intel.com>
 List-ID: <rtc-linux.googlegroups.com>
-List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
-List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
-List-Archive: <http://groups.google.com/group/rtc-linux
-Sender: rtc-linux@googlegroups.com
-List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
-List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
- <http://groups.google.com/group/rtc-linux/subscribe>
 
-The series brings multiple fixes needed to get rtc ticking
-on am437x-gp-evm.
-
-This is tested on top of omap-for-v4.3/dt-v2 branch. Boot tested on
-AM437X-GP-EVM also tested rtc ticking via sysfs nodes. 
-
-The series is on top of this patch:
-http://comments.gmane.org/gmane.linux.drivers.devicetree/131026
-
-Keerthy (6):
-  ARM: dts: AM43XX: Add clk_32k_rtc node
-  rtc: omap: Add external clock enabling support
-  ARM: AM43xx: Introduce a separate soc_is function for am438x series of
-    SoCs
-  ARM: dts: am43x-epos-evm: Add the am438 compatible string
-  ARM: AM43XX: HWMOD: Add rtc hwmod
-  ARM: dts: AM437X-GP-EVM: Enable rtc
-
-Changes in v2:
-
-  * Couple of patches already pulled in.
-  * Removed dt ext-clk-src and made use of clocks property to determine
-    presence of external clock source.
-
- .../devicetree/bindings/arm/omap/omap.txt          |  3 +++
- arch/arm/boot/dts/am4372.dtsi                      |  2 ++
- arch/arm/boot/dts/am437x-gp-evm.dts                |  4 +++
- arch/arm/boot/dts/am43x-epos-evm.dts               |  2 +-
- arch/arm/boot/dts/am43xx-clocks.dtsi               |  6 +++++
- arch/arm/mach-omap2/board-generic.c                |  1 +
- arch/arm/mach-omap2/id.c                           |  2 ++
- arch/arm/mach-omap2/omap_hwmod_43xx_data.c         | 16 ++++++++++--
- arch/arm/mach-omap2/soc.h                          |  7 +++--
- drivers/rtc/rtc-omap.c                             | 30 ++++++++++++++++++++++
- 10 files changed, 68 insertions(+), 5 deletions(-)
+On 08/06/2015 at 11:45:19 +0200, Sylvain Chouleur wrote :
+> If century field is supported by the RTC CMOS device, then we should use
+> it and then do not consider years greater that 169 as an error.
+> 
+> For information, the year field of the rtc_time structure contains the
+> value to add to 1970 to obtain the current year.
+> 
+> This was a hack to be able to support years for 1970 to 2069.
+> This patch remains compatible with this implementation.
+> 
+> Change-Id: I24af7eabf8efc9043092ad04e61ba69cb761000e
+> Signed-off-by: Sylvain Chouleur <sylvain.chouleur@intel.com>
+> ---
+>  include/asm-generic/rtc.h | 29 +++++++++++++++++++++++++++++
+>  1 file changed, 29 insertions(+)
+> 
+Applied, thanks.
 
 -- 
-1.9.1
-
--- 
--- 
-You received this message because you are subscribed to "rtc-linux".
-Membership options at http://groups.google.com/group/rtc-linux .
-Please read http://groups.google.com/group/rtc-linux/web/checklist
-before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
-For more options, visit https://groups.google.com/d/optout.
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
