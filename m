@@ -1,33 +1,22 @@
-Return-Path: <rtc-linux+bncBCRIZROPVQPBBSECUGXAKGQEWXY6DQA@googlegroups.com>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBBH7VCXAKGQEIYWQAQI@googlegroups.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id c3si533730wiz.2.2015.08.11.11.31.32
+        for <rtc-linux@googlegroups.com>;
+        Tue, 11 Aug 2015 11:31:32 -0700 (PDT)
+Date: Tue, 11 Aug 2015 20:31:31 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Suneel Garapati <suneel.garapati@xilinx.com>
+Cc: rtc-linux@googlegroups.com, linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org, michals@xilinx.com, sorenb@xilinx.com,
+	Alessandro Zummo <a.zummo@towertech.it>
+Subject: Re: [rtc-linux] [PATCH v2 2/2] drivers: rtc: add xilinx zynqmp rtc driver
+Message-ID: <20150811183131.GW3411@piout.net>
+References: <1438336757-23404-1-git-send-email-suneel.garapati@xilinx.com>
+ <1438336757-23404-2-git-send-email-suneel.garapati@xilinx.com>
 MIME-Version: 1.0
-Received: from mail-pd0-f169.google.com (mail-pd0-f169.google.com. [209.85.192.169])
-        by gmr-mx.google.com with ESMTPS id qa1si579358pdb.1.2015.08.09.23.14.32
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sun, 09 Aug 2015 23:14:32 -0700 (PDT)
-Received: by pdco4 with SMTP id o4so67773350pdc.3
-        for <rtc-linux@googlegroups.com>; Sun, 09 Aug 2015 23:14:32 -0700 (PDT)
-From: Viresh Kumar <viresh.kumar@linaro.org>
-To: akpm@linux-foundation.org
-Cc: linaro-kernel@lists.linaro.org,
-	linux-kernel@vger.kernel.org,
-	Viresh Kumar <viresh.kumar@linaro.org>,
-	Hans Ulli Kroll <ulli.kroll@googlemail.com>,
-	adi-buildroot-devel@lists.sourceforge.net (moderated list:BLACKFIN RTC DRIVER),
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	linux-arm-kernel@lists.infradead.org (moderated list:ARM/CORTINA SYSTEMS GEMINI ARM ARCHITECTURE),
-	rtc-linux@googlegroups.com (open list:REAL TIME CLOCK (RTC) SUBSYSTEM)
-Subject: [rtc-linux] [PATCH V1 Resend 07/11] drivers: rtc: Drop (un)likely
- before IS_ERR(_OR_NULL)
-Date: Mon, 10 Aug 2015 11:42:29 +0530
-Message-Id: <2ea7e46d3a63b1229889b1e8f0a9976725578189.1439187003.git.viresh.kumar@linaro.org>
-In-Reply-To: <cover.1439187003.git.viresh.kumar@linaro.org>
-References: <cover.1439187003.git.viresh.kumar@linaro.org>
-In-Reply-To: <cover.1439187003.git.viresh.kumar@linaro.org>
-References: <cover.1439187003.git.viresh.kumar@linaro.org>
-Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1438336757-23404-2-git-send-email-suneel.garapati@xilinx.com>
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -37,63 +26,176 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-IS_ERR(_OR_NULL) already contain an 'unlikely' compiler flag and there
-is no need to do that again from its callers. Drop it.
+Hi,
 
-gemini driver was using likely() for a failure case while the rtc driver
-is getting registered. That looks wrong and it should really be
-unlikely. But because we are killing all the unlikely() flags, lets kill
-that too.
+Please run checkpatch --strict and fix the issues.
 
-Acked-by: Hans Ulli Kroll <ulli.kroll@googlemail.com> (gemini)
-Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
----
- drivers/rtc/interface.c  | 2 +-
- drivers/rtc/rtc-bfin.c   | 2 +-
- drivers/rtc/rtc-gemini.c | 2 +-
- 3 files changed, 3 insertions(+), 3 deletions(-)
+On 31/07/2015 at 15:29:17 +0530, Suneel Garapati wrote :
+> +#include <linux/init.h>
+> +#include <linux/module.h>
+> +#include <linux/of.h>
+> +#include <linux/platform_device.h>
+> +#include <linux/io.h>
+> +#include <linux/delay.h>
+> +#include <linux/rtc.h>
+> +
 
-diff --git a/drivers/rtc/interface.c b/drivers/rtc/interface.c
-index 11b639067312..5836751b8203 100644
---- a/drivers/rtc/interface.c
-+++ b/drivers/rtc/interface.c
-@@ -564,7 +564,7 @@ enum hrtimer_restart rtc_pie_update_irq(struct hrtimer *timer)
- void rtc_update_irq(struct rtc_device *rtc,
- 		unsigned long num, unsigned long events)
- {
--	if (unlikely(IS_ERR_OR_NULL(rtc)))
-+	if (IS_ERR_OR_NULL(rtc))
- 		return;
- 
- 	pm_stay_awake(rtc->dev.parent);
-diff --git a/drivers/rtc/rtc-bfin.c b/drivers/rtc/rtc-bfin.c
-index 3d44b11721ea..535a5f9338d0 100644
---- a/drivers/rtc/rtc-bfin.c
-+++ b/drivers/rtc/rtc-bfin.c
-@@ -361,7 +361,7 @@ static int bfin_rtc_probe(struct platform_device *pdev)
- 	/* Register our RTC with the RTC framework */
- 	rtc->rtc_dev = devm_rtc_device_register(dev, pdev->name, &bfin_rtc_ops,
- 						THIS_MODULE);
--	if (unlikely(IS_ERR(rtc->rtc_dev)))
-+	if (IS_ERR(rtc->rtc_dev))
- 		return PTR_ERR(rtc->rtc_dev);
- 
- 	/* Grab the IRQ and init the hardware */
-diff --git a/drivers/rtc/rtc-gemini.c b/drivers/rtc/rtc-gemini.c
-index 35f4486738fc..2fed93e1114a 100644
---- a/drivers/rtc/rtc-gemini.c
-+++ b/drivers/rtc/rtc-gemini.c
-@@ -148,7 +148,7 @@ static int gemini_rtc_probe(struct platform_device *pdev)
- 
- 	rtc->rtc_dev = rtc_device_register(pdev->name, dev,
- 					   &gemini_rtc_ops, THIS_MODULE);
--	if (likely(IS_ERR(rtc->rtc_dev)))
-+	if (IS_ERR(rtc->rtc_dev))
- 		return PTR_ERR(rtc->rtc_dev);
- 
- 	return 0;
+The includes hav to be sorted alphabetically.
+
+> +static int xlnx_rtc_set_time(struct device *dev, struct rtc_time *tm)
+> +{
+> +	struct xlnx_rtc_dev *xrtcdev = dev_get_drvdata(dev);
+> +	unsigned long new_time;
+> +
+> +	rtc_tm_to_time(tm, &new_time);
+
+You should use rtc_tm_to_time64() and rtc_time64_to_tm() throughout the
+file.
+
+> +	writel(new_time, xrtcdev->reg_base + RTC_SET_TM_WR);
+> +
+
+Is that a 32bits register? If yes, you probably want to return an error
+if the year is 2106 or after.
+
+> +	return 0;
+> +}
+> +
+
+[...]
+
+> +static int xlnx_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
+> +{
+> +	struct xlnx_rtc_dev *xrtcdev = dev_get_drvdata(dev);
+> +	unsigned long alarm_time;
+> +
+
+Same comment, you probably want to error out if the time overflows a
+32bits register.
+
+> +	rtc_tm_to_time(&alrm->time, &alarm_time);
+> +
+> +	writel((u32) alarm_time, (xrtcdev->reg_base + RTC_ALRM));
+> +
+> +	xlnx_rtc_alarm_irq_enable(dev, alrm->enabled);
+> +
+> +	return 0;
+> +}
+> +
+> +static void xlnx_init_rtc(struct xlnx_rtc_dev *xrtcdev, u32 calibval)
+> +{
+> +	/*
+> +	 * Based on crystal freq of 33.330 KHz
+> +	 * set the secounds counter and enable, set fractions counter
+typo --------------^
+
+> +	 * to default value suggested as per design spec
+> +	 * to correct RTC delay in frequency over period of time.
+> +	 */
+> +	calibval &= RTC_CALIB_MASK;
+> +	writel(calibval, (xrtcdev->reg_base + RTC_CALIB_WR));
+> +}
+> +
+> +static const struct rtc_class_ops xlnx_rtc_ops = {
+> +	.set_time	  = xlnx_rtc_set_time,
+> +	.read_time	  = xlnx_rtc_read_time,
+> +	.read_alarm	  = xlnx_rtc_read_alarm,
+> +	.set_alarm	  = xlnx_rtc_set_alarm,
+> +	.alarm_irq_enable = xlnx_rtc_alarm_irq_enable,
+> +};
+> +
+> +static irqreturn_t xlnx_rtc_interrupt(int irq, void *id)
+> +{
+> +	struct xlnx_rtc_dev *xrtcdev = (struct xlnx_rtc_dev *) id;
+> +	unsigned int status;
+> +
+> +	status = readl(xrtcdev->reg_base + RTC_INT_STS);
+> +	/* Check if interrupt asserted */
+> +	if (!(status & (RTC_INT_SEC | RTC_INT_ALRM)))
+> +		return IRQ_NONE;
+> +
+> +	/* Clear interrupt */
+> +	writel(status, xrtcdev->reg_base + RTC_INT_STS);
+> +
+> +	if (status & RTC_INT_SEC)
+> +		rtc_update_irq(xrtcdev->rtc, 1, RTC_IRQF | RTC_UF);
+> +	if (status & RTC_INT_ALRM)
+> +		rtc_update_irq(xrtcdev->rtc, 1, RTC_IRQF | RTC_AF);
+> +	if (status & RTC_INT_ALRM)
+> +		printk("alarm interrupt\n");
+
+I guess this is a debug message that you forgot to remove.
+
+> +static int xlnx_rtc_probe(struct platform_device *pdev)
+> +{
+> +	struct xlnx_rtc_dev *xrtcdev;
+> +	struct resource *res;
+> +	int ret;
+> +	unsigned int calibvalue;
+> +
+> +	xrtcdev = devm_kzalloc(&pdev->dev, sizeof(*xrtcdev), GFP_KERNEL);
+> +	if (!xrtcdev)
+> +		return -ENOMEM;
+> +
+> +	platform_set_drvdata(pdev, xrtcdev);
+> +
+> +	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+> +
+> +	xrtcdev->reg_base = devm_ioremap_resource(&pdev->dev, res);
+> +	if (IS_ERR(xrtcdev->reg_base))
+> +		return PTR_ERR(xrtcdev->reg_base);
+> +
+> +	xrtcdev->alarm_irq = platform_get_irq_byname(pdev, "alarm");
+> +	if (xrtcdev->alarm_irq < 0) {
+> +		dev_err(&pdev->dev, "no irq resource\n");
+> +		return xrtcdev->alarm_irq;
+> +	}
+> +	ret = devm_request_irq(&pdev->dev, xrtcdev->alarm_irq,
+> +				xlnx_rtc_interrupt, 0,
+> +				dev_name(&pdev->dev), xrtcdev);
+> +	if (ret) {
+> +		dev_err(&pdev->dev, "request irq failed\n");
+> +		return ret;
+> +	}
+> +
+> +	xrtcdev->sec_irq = platform_get_irq_byname(pdev, "sec");
+> +	if (xrtcdev->sec_irq < 0) {
+> +		dev_err(&pdev->dev, "no irq resource\n");
+> +		return xrtcdev->sec_irq;
+> +	}
+> +	ret = devm_request_irq(&pdev->dev, xrtcdev->sec_irq,
+> +				xlnx_rtc_interrupt, 0,
+> +				dev_name(&pdev->dev), xrtcdev);
+> +	if (ret) {
+> +		dev_err(&pdev->dev, "request irq failed\n");
+> +		return ret;
+> +	}
+> +
+> +	ret = of_property_read_u32(pdev->dev.of_node, "calibration",
+> +					&calibvalue);
+> +	if (ret)
+> +		calibvalue = RTC_CALIB_DEF;
+> +
+> +	xlnx_init_rtc(xrtcdev, calibvalue);
+> +
+> +	device_init_wakeup(&pdev->dev, 1);
+> +
+> +	xrtcdev->rtc = devm_rtc_device_register(&pdev->dev, pdev->name,
+> +					 &xlnx_rtc_ops, THIS_MODULE);
+> +	if (IS_ERR(xrtcdev->rtc)) {
+> +		return PTR_ERR(xrtcdev->rtc);
+> +	}
+> +
+> +	return 0;
+
+You should use PTR_ERR_OR_ZERO here.
+
+Thanks,
+
 -- 
-2.4.0
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
 -- 
 -- 
