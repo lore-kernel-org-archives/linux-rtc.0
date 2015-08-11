@@ -1,31 +1,23 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBCG2QWXAKGQES6Z7E5I@googlegroups.com>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBF4AVCXAKGQEADQYHRA@googlegroups.com>
 Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id gt9si179198wib.2.2015.08.04.18.55.19
+        by gmr-mx.google.com with ESMTP id gt6si383080wib.1.2015.08.11.07.00.55
         for <rtc-linux@googlegroups.com>;
-        Tue, 04 Aug 2015 18:55:20 -0700 (PDT)
-Date: Wed, 5 Aug 2015 03:55:19 +0200
+        Tue, 11 Aug 2015 07:00:55 -0700 (PDT)
+Date: Tue, 11 Aug 2015 16:00:54 +0200
 From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: S Twiss <stwiss.opensource@diasemi.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
-	DEVICETREE <devicetree@vger.kernel.org>,
-	LINUXINPUT <linux-input@vger.kernel.org>,
-	LINUXKERNEL <linux-kernel@vger.kernel.org>,
-	RTCLINUX <rtc-linux@googlegroups.com>,
-	David Dajun Chen <david.chen@diasemi.com>,
-	Ian Campbell <ijc+devicetree@hellion.org.uk>,
-	Kumar Gala <galak@codeaurora.org>, Lee Jones <lee.jones@linaro.org>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Pawel Moll <pawel.moll@arm.com>, Rob Herring <robh+dt@kernel.org>,
-	Samuel Ortiz <sameo@linux.intel.com>,
-	Support Opensource <support.opensource@diasemi.com>
-Subject: [rtc-linux] Re: [PATCH V3 3/3] rtc: da9063: Add DA9062 RTC capability
- to DA9063 RTC driver
-Message-ID: <20150805015519.GZ3486@piout.net>
-References: <cover.1437474547.git.stwiss.opensource@diasemi.com>
- <b79c0b5d1b96bd06ab81a2459c493e68ec6b1971.1437474547.git.stwiss.opensource@diasemi.com>
+To: Keerthy <j-keerthy@ti.com>
+Cc: tony@atomide.com, linux-omap@vger.kernel.org, pawel.moll@arm.com,
+	galak@codeaurora.org, paul@pwsan.com, akpm@linux-foundation.org,
+	johan@kernel.org, grygorii.strashko@ti.com,
+	rtc-linux@googlegroups.com, bcousson@baylibre.com, nm@ti.com,
+	devicetree@vger.kernel.org, t-kristo@ti.com
+Subject: [rtc-linux] Re: [PATCH v2 2/6] rtc: omap: Add external clock enabling support
+Message-ID: <20150811140054.GM3411@piout.net>
+References: <1439198906-31189-1-git-send-email-j-keerthy@ti.com>
+ <1439198906-31189-3-git-send-email-j-keerthy@ti.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <b79c0b5d1b96bd06ab81a2459c493e68ec6b1971.1437474547.git.stwiss.opensource@diasemi.com>
+In-Reply-To: <1439198906-31189-3-git-send-email-j-keerthy@ti.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -36,32 +28,55 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On 21/07/2015 at 11:29:07 +0100, S Twiss wrote :
-> From: S Twiss <stwiss.opensource@diasemi.com>
-> 
-> Add DA9062 RTC support into the existing DA9063 RTC driver component by
-> using generic access tables for common register and bit mask definitions.
-> 
-> The following change will add generic register and bit mask support to the
-> DA9063 RTC. The changes are slightly complicated by requiring support for
-> three register sets: DA9063-AD, DA9063-BB and DA9062-AA.
-> 
-> The following alterations have been made to the DA9063 RTC:
-> 
-> - Addition of a da9063_compatible_rtc_regmap structure to hold all generic
->   registers and bitmasks for this type of RTC component.
-> - A re-write of struct da9063 to use pointers for regmap and compatible
->   registers/masks definitions
-> - Addition of a of_device_id table for DA9063 and DA9062 defaults
-> - Refactoring functions to use struct da9063_compatible_rtc accesses to
->   generic registers/masks instead of using defines from registers.h
-> - Re-work of da9063_rtc_probe() to use of_match_node() and dev_get_regmap()
->   to provide initialisation of generic registers and masks and access to
->   regmap
-> 
-> Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
-> 
-Applied, thanks.
+Hi,
+
+This seems better but:
+
+On 10/08/2015 at 14:58:22 +0530, Keerthy wrote :
+> diff --git a/arch/arm/boot/dts/am4372.dtsi b/arch/arm/boot/dts/am4372.dtsi
+> index d99b2ee..756819f 100644
+> --- a/arch/arm/boot/dts/am4372.dtsi
+> +++ b/arch/arm/boot/dts/am4372.dtsi
+> @@ -336,6 +336,8 @@
+>  			interrupts = <GIC_SPI 75 IRQ_TYPE_LEVEL_HIGH
+>  				      GIC_SPI 76 IRQ_TYPE_LEVEL_HIGH>;
+>  			ti,hwmods = "rtc";
+> +			clocks = <&clk_32768_ck>, <&clk_32k_rtc>;
+> +			clock-names = "int-clk", "ext-clk";
+>  			status = "disabled";
+>  		};
+>  
+
+This change has to be part of another patch.
+
+> @@ -698,6 +706,7 @@ static int __exit omap_rtc_remove(struct platform_device *pdev)
+>  static int omap_rtc_suspend(struct device *dev)
+>  {
+>  	struct omap_rtc *rtc = dev_get_drvdata(dev);
+> +	u8 reg;
+>  
+>  	rtc->interrupts_reg = rtc_read(rtc, OMAP_RTC_INTERRUPTS_REG);
+>  
+> @@ -711,6 +720,18 @@ static int omap_rtc_suspend(struct device *dev)
+>  		enable_irq_wake(rtc->irq_alarm);
+>  	else
+>  		rtc_write(rtc, OMAP_RTC_INTERRUPTS_REG, 0);
+> +
+> +	/*
+> +	 * If we have the luxury of external clock then
+> +	 * Switch to external clock so we can keep ticking
+> +	 * acorss suspend
+> +	 */
+> +	if (rtc->has_ext_clk) {
+> +		reg = rtc_read(rtc, OMAP_RTC_OSC_REG);
+> +		rtc_write(rtc, OMAP_RTC_OSC_REG, reg |
+> +			  OMAP_RTC_OSC_SEL_32KCLK_SRC);
+> +	}
+> +
+
+You should probably prepare/enable the clock before switching to it. I
+know it doesn't matter right now but that may not be the case on other
+boards.
 
 -- 
 Alexandre Belloni, Free Electrons
