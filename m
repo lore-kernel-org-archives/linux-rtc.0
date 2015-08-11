@@ -1,19 +1,21 @@
-Return-Path: <rtc-linux+bncBD66BCOYSQBBBPPAZOXAKGQE6EOMDEY@googlegroups.com>
-Received: from comal.ext.ti.com (comal.ext.ti.com. [198.47.26.152])
-        by gmr-mx.google.com with ESMTPS id o7si1032235igp.1.2015.08.18.01.43.40
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1 cipher=RC4-SHA bits=128/128);
-        Tue, 18 Aug 2015 01:43:40 -0700 (PDT)
-From: Keerthy <j-keerthy@ti.com>
-To: <alexandre.belloni@free-electrons.com>, <tony@atomide.com>
-CC: <johan@kernel.org>, <linux-omap@vger.kernel.org>,
-        <rtc-linux@googlegroups.com>, <grygorii.strashko@ti.com>,
-        <j-keerthy@ti.com>
-Subject: [rtc-linux] [PATCH v4 0/2]  ARM: AM437X: Add rtc clock handling
-Date: Tue, 18 Aug 2015 14:13:28 +0530
-Message-ID: <1439887411-15576-1-git-send-email-j-keerthy@ti.com>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBIFQVCXAKGQE5IN4BPA@googlegroups.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id fj7si467699wib.3.2015.08.11.08.43.28
+        for <rtc-linux@googlegroups.com>;
+        Tue, 11 Aug 2015 08:43:28 -0700 (PDT)
+Date: Tue, 11 Aug 2015 17:43:27 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Leo Yan <leo.yan@linaro.org>
+Cc: Linus Walleij <linus.walleij@linaro.org>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	linux-arm-kernel@lists.infradead.org, rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org, Deepak Saxena <dsaxena@plexity.net>
+Subject: [rtc-linux] Re: [PATCH] drivers/rtc/rtc-pl031.c: fix typo for author email
+Message-ID: <20150811154327.GS3411@piout.net>
+References: <1438150420-15035-1-git-send-email-leo.yan@linaro.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1438150420-15035-1-git-send-email-leo.yan@linaro.org>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -24,31 +26,20 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-The series is applicable for all am437x series of processors.
-It adds clock handling support. Boot tested on am437x-gp-evm.
-
-Keerthy (2):
-  ARM: dts: AM437x: Add the internal and external clock nodes for rtc
-  rtc: omap: Add external clock enabling support
-
-Changes in v4:
-
-  * Optimized pointer checks for clk pointer.
-
-Changes in v3:
-
-  * Split internal and external clock enabling to separate patches.
-  * Using one variable to store the clk info in omap_rtc struct.
-
- arch/arm/boot/dts/am4372.dtsi        |  2 ++
- arch/arm/boot/dts/am437x-gp-evm.dts  | 13 +++++++++++
- arch/arm/boot/dts/am437x-idk-evm.dts |  9 ++++++++
- arch/arm/boot/dts/am437x-sk-evm.dts  |  9 ++++++++
- drivers/rtc/rtc-omap.c               | 44 ++++++++++++++++++++++++++++++++++++
- 5 files changed, 77 insertions(+)
+On 29/07/2015 at 14:13:40 +0800, Leo Yan wrote :
+> The email address missed character ">", so add it.
+> 
+> Signed-off-by: Leo Yan <leo.yan@linaro.org>
+> ---
+>  drivers/rtc/rtc-pl031.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+Applied, thanks.
 
 -- 
-1.9.1
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
 -- 
 -- 
