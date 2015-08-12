@@ -1,19 +1,31 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBTETQKXAKGQE4KWQEWI@googlegroups.com>
+Return-Path: <rtc-linux+bncBCRIZROPVQPBBQOAVSXAKGQEDS5RVBQ@googlegroups.com>
 MIME-Version: 1.0
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id bk2si47221wib.1.2015.08.04.02.45.47
-        for <rtc-linux@googlegroups.com>;
-        Tue, 04 Aug 2015 02:45:47 -0700 (PDT)
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: rtc-linux@googlegroups.com
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
+Received: from mail-pa0-f50.google.com (mail-pa0-f50.google.com. [209.85.220.50])
+        by gmr-mx.google.com with ESMTPS id eq2si546312pbb.2.2015.08.12.03.30.24
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 12 Aug 2015 03:30:24 -0700 (PDT)
+Received: by pawu10 with SMTP id u10so11975108paw.1
+        for <rtc-linux@googlegroups.com>; Wed, 12 Aug 2015 03:30:24 -0700 (PDT)
+From: Viresh Kumar <viresh.kumar@linaro.org>
+To: trivial@kernel.org
+Cc: linaro-kernel@lists.linaro.org,
 	linux-kernel@vger.kernel.org,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Subject: [rtc-linux] [PATCH 14/15] rtc: rx8025: fix RX8025_BIT_CTRL2_CTFG initialization
-Date: Tue,  4 Aug 2015 11:45:33 +0200
-Message-Id: <1438681534-12027-15-git-send-email-alexandre.belloni@free-electrons.com>
-In-Reply-To: <1438681534-12027-1-git-send-email-alexandre.belloni@free-electrons.com>
-References: <1438681534-12027-1-git-send-email-alexandre.belloni@free-electrons.com>
+	Viresh Kumar <viresh.kumar@linaro.org>,
+	Hans Ulli Kroll <ulli.kroll@googlemail.com>,
+	adi-buildroot-devel@lists.sourceforge.net (moderated list:BLACKFIN RTC DRIVER),
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	linux-arm-kernel@lists.infradead.org (moderated list:ARM/CORTINA SYSTEMS GEMINI ARM ARCHITECTURE),
+	rtc-linux@googlegroups.com (open list:REAL TIME CLOCK (RTC) SUBSYSTEM)
+Subject: [rtc-linux] [PATCH V1 Resend 06/10] drivers: rtc: Drop (un)likely
+ before IS_ERR(_OR_NULL)
+Date: Wed, 12 Aug 2015 15:59:43 +0530
+Message-Id: <1a92f2e1af5309ece9736f79f312e90486a98825.1439375087.git.viresh.kumar@linaro.org>
+In-Reply-To: <cover.1439375087.git.viresh.kumar@linaro.org>
+References: <cover.1439375087.git.viresh.kumar@linaro.org>
+In-Reply-To: <cover.1439375087.git.viresh.kumar@linaro.org>
+References: <cover.1439375087.git.viresh.kumar@linaro.org>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -25,28 +37,63 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-RX8025_BIT_CTRL2_CTFG was set to 0 only when it was already 0.
+IS_ERR(_OR_NULL) already contain an 'unlikely' compiler flag and there
+is no need to do that again from its callers. Drop it.
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+gemini driver was using likely() for a failure case while the rtc driver
+is getting registered. That looks wrong and it should really be
+unlikely. But because we are killing all the unlikely() flags, lets kill
+that too.
+
+Acked-by: Hans Ulli Kroll <ulli.kroll@googlemail.com> (gemini)
+Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
 ---
- drivers/rtc/rtc-rx8025.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/rtc/interface.c  | 2 +-
+ drivers/rtc/rtc-bfin.c   | 2 +-
+ drivers/rtc/rtc-gemini.c | 2 +-
+ 3 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/rtc/rtc-rx8025.c b/drivers/rtc/rtc-rx8025.c
-index f9b86b92943f..f3f1de26c228 100644
---- a/drivers/rtc/rtc-rx8025.c
-+++ b/drivers/rtc/rtc-rx8025.c
-@@ -270,7 +270,7 @@ static int rx8025_init_client(struct i2c_client *client)
- 		need_clear = 1;
- 	}
+diff --git a/drivers/rtc/interface.c b/drivers/rtc/interface.c
+index 11b639067312..5836751b8203 100644
+--- a/drivers/rtc/interface.c
++++ b/drivers/rtc/interface.c
+@@ -564,7 +564,7 @@ enum hrtimer_restart rtc_pie_update_irq(struct hrtimer *timer)
+ void rtc_update_irq(struct rtc_device *rtc,
+ 		unsigned long num, unsigned long events)
+ {
+-	if (unlikely(IS_ERR_OR_NULL(rtc)))
++	if (IS_ERR_OR_NULL(rtc))
+ 		return;
  
--	if (!(ctrl[1] & RX8025_BIT_CTRL2_CTFG))
-+	if (ctrl[1] & RX8025_BIT_CTRL2_CTFG)
- 		need_clear = 1;
+ 	pm_stay_awake(rtc->dev.parent);
+diff --git a/drivers/rtc/rtc-bfin.c b/drivers/rtc/rtc-bfin.c
+index 3d44b11721ea..535a5f9338d0 100644
+--- a/drivers/rtc/rtc-bfin.c
++++ b/drivers/rtc/rtc-bfin.c
+@@ -361,7 +361,7 @@ static int bfin_rtc_probe(struct platform_device *pdev)
+ 	/* Register our RTC with the RTC framework */
+ 	rtc->rtc_dev = devm_rtc_device_register(dev, pdev->name, &bfin_rtc_ops,
+ 						THIS_MODULE);
+-	if (unlikely(IS_ERR(rtc->rtc_dev)))
++	if (IS_ERR(rtc->rtc_dev))
+ 		return PTR_ERR(rtc->rtc_dev);
  
- 	if (need_clear) {
+ 	/* Grab the IRQ and init the hardware */
+diff --git a/drivers/rtc/rtc-gemini.c b/drivers/rtc/rtc-gemini.c
+index 35f4486738fc..2fed93e1114a 100644
+--- a/drivers/rtc/rtc-gemini.c
++++ b/drivers/rtc/rtc-gemini.c
+@@ -148,7 +148,7 @@ static int gemini_rtc_probe(struct platform_device *pdev)
+ 
+ 	rtc->rtc_dev = rtc_device_register(pdev->name, dev,
+ 					   &gemini_rtc_ops, THIS_MODULE);
+-	if (likely(IS_ERR(rtc->rtc_dev)))
++	if (IS_ERR(rtc->rtc_dev))
+ 		return PTR_ERR(rtc->rtc_dev);
+ 
+ 	return 0;
 -- 
-2.1.4
+2.4.0
 
 -- 
 -- 
