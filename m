@@ -1,31 +1,29 @@
-Return-Path: <rtc-linux+bncBDJMJGESWAMRBZPVRWXAKGQEGIGUZAQ@googlegroups.com>
-MIME-Version: 1.0
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBQPCVSXAKGQEPOTBMOY@googlegroups.com>
 Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id fj7si81849wib.3.2015.08.06.08.19.00
+        by gmr-mx.google.com with ESMTP id ec7si201878wib.3.2015.08.12.04.42.57
         for <rtc-linux@googlegroups.com>;
-        Thu, 06 Aug 2015 08:19:00 -0700 (PDT)
-From: Gregory CLEMENT <gregory.clement@free-electrons.com>
-To: Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	rtc-linux@googlegroups.com
-Cc: Jason Cooper <jason@lakedaemon.net>,
-	Andrew Lunn <andrew@lunn.ch>,
-	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
-	Gregory CLEMENT <gregory.clement@free-electrons.com>,
-	Thomas Petazzoni <thomas.petazzoni@free-electrons.com>,
-	Ezequiel Garcia <ezequiel.garcia@free-electrons.com>,
-	linux-arm-kernel@lists.infradead.org,
-	Maxime Ripard <maxime.ripard@free-electrons.com>,
-	Boris BREZILLON <boris.brezillon@free-electrons.com>,
-	Lior Amsalem <alior@marvell.com>,
-	Tawfik Bayouk <tawfik@marvell.com>,
-	Nadav Haklai <nadavh@marvell.com>
-Subject: [rtc-linux] [PATCH] rtc: armada38x: Align RTC set time procedure with
- the official errata
-Date: Thu,  6 Aug 2015 17:18:48 +0200
-Message-Id: <1438874328-31844-1-git-send-email-gregory.clement@free-electrons.com>
-Reply-To: rtc-linux@googlegroups.com
+        Wed, 12 Aug 2015 04:42:57 -0700 (PDT)
+Date: Wed, 12 Aug 2015 13:42:56 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Viresh Kumar <viresh.kumar@linaro.org>
+Cc: trivial@kernel.org, linaro-kernel@lists.linaro.org,
+	linux-kernel@vger.kernel.org,
+	Hans Ulli Kroll <ulli.kroll@googlemail.com>,
+	"moderated list:BLACKFIN RTC DRIVER" <adi-buildroot-devel@lists.sourceforge.net>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	"moderated list:ARM/CORTINA SYSTEMS GEMINI ARM ARCHITECTURE" <linux-arm-kernel@lists.infradead.org>,
+	"open list:REAL TIME CLOCK (RTC) SUBSYSTEM" <rtc-linux@googlegroups.com>
+Subject: [rtc-linux] Re: [PATCH V1 Resend 06/10] drivers: rtc: Drop (un)likely
+ before IS_ERR(_OR_NULL)
+Message-ID: <20150812114256.GF3411@piout.net>
+References: <cover.1439375087.git.viresh.kumar@linaro.org>
+ <1a92f2e1af5309ece9736f79f312e90486a98825.1439375087.git.viresh.kumar@linaro.org>
+ <20150812104133.GE3411@piout.net>
+ <20150812104625.GB20238@linux>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <20150812104625.GB20238@linux>
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -35,118 +33,34 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-From: Nadav Haklai <nadavh@marvell.com>
+On 12/08/2015 at 16:16:25 +0530, Viresh Kumar wrote :
+> On 12-08-15, 12:41, Alexandre Belloni wrote:
+> > Hi Viresh,
+> > 
+> > Why are you resending?
+> 
+> I never got a reply from Andrew Morton on V1, so resent it again. And
+> today Andrew asked me to take this via trivial tree.
+> 
+> So the resent.
+> 
+> I need to find a sane way to get few more people to the cover-letter.
+> The problem is that I am generating the cc-list with get_maintainers,
+> and if I combine that list for all the patches, it becomes huge. And
+> really can't send the cover-letter to those people then. Few lists may
+> block it as well, due to high number of cc'd people.
+> 
+> I am telling this because, the cover-letter did contain the reason for
+> resend.
+> 
 
-According to the Armada38x functional errata FE-3124064, writing to
-the RTC TIME register may fail. As a workaround, after writing to RTC
-TIME register, issue a dummy write of 0x0 twice to the RTC Status
-register.  This is the updated implementation of the Errata that
-eliminates the need of the long 100ms delay during the RTC set time
-procedure.
+The fact is that I sent you a mail yesterday stating that I applied that
+particular patch.
 
-[gregory.clement@free-electrons.com]: removed the mutex and use the
-spinlock again
-
-Signed-off-by: Nadav Haklai <nadavh@marvell.com>
-Reviewed-by: Neta Zur Hershkovits <neta@marvell.com>
-Signed-off-by: Gregory CLEMENT <gregory.clement@free-electrons.com>
----
-Hi,
-
-Finally the long 100ms wait was not needed! So we can remove the mutex
-introduced in an earlier commit.
-It would be great if this patch could be part of the 4.2-rc.
-
-Thanks
-
-Gregory
-
-
- drivers/rtc/rtc-armada38x.c | 32 ++++++++++++--------------------
- 1 file changed, 12 insertions(+), 20 deletions(-)
-
-diff --git a/drivers/rtc/rtc-armada38x.c b/drivers/rtc/rtc-armada38x.c
-index 2b08cac62f07..06c6bd5eab41 100644
---- a/drivers/rtc/rtc-armada38x.c
-+++ b/drivers/rtc/rtc-armada38x.c
-@@ -40,13 +40,6 @@ struct armada38x_rtc {
- 	void __iomem	    *regs;
- 	void __iomem	    *regs_soc;
- 	spinlock_t	    lock;
--	/*
--	 * While setting the time, the RTC TIME register should not be
--	 * accessed. Setting the RTC time involves sleeping during
--	 * 100ms, so a mutex instead of a spinlock is used to protect
--	 * it
--	 */
--	struct mutex	    mutex_time;
- 	int		    irq;
- };
- 
-@@ -64,9 +57,9 @@ static void rtc_delayed_write(u32 val, struct armada38x_rtc *rtc, int offset)
- static int armada38x_rtc_read_time(struct device *dev, struct rtc_time *tm)
- {
- 	struct armada38x_rtc *rtc = dev_get_drvdata(dev);
--	unsigned long time, time_check;
-+	unsigned long time, time_check, flags;
- 
--	mutex_lock(&rtc->mutex_time);
-+	spin_lock_irqsave(&rtc->lock, flags);
- 	time = readl(rtc->regs + RTC_TIME);
- 	/*
- 	 * WA for failing time set attempts. As stated in HW ERRATA if
-@@ -77,7 +70,7 @@ static int armada38x_rtc_read_time(struct device *dev, struct rtc_time *tm)
- 	if ((time_check - time) > 1)
- 		time_check = readl(rtc->regs + RTC_TIME);
- 
--	mutex_unlock(&rtc->mutex_time);
-+	spin_unlock_irqrestore(&rtc->lock, flags);
- 
- 	rtc_time_to_tm(time_check, tm);
- 
-@@ -88,23 +81,23 @@ static int armada38x_rtc_set_time(struct device *dev, struct rtc_time *tm)
- {
- 	struct armada38x_rtc *rtc = dev_get_drvdata(dev);
- 	int ret = 0;
--	unsigned long time;
-+	unsigned long time, flags;
- 
- 	ret = rtc_tm_to_time(tm, &time);
- 
- 	if (ret)
- 		goto out;
- 	/*
--	 * Setting the RTC time not always succeeds. According to the
--	 * errata we need to first write on the status register and
--	 * then wait for 100ms before writing to the time register to be
--	 * sure that the data will be taken into account.
-+	 * According to errata FE-3124064, Write to RTC TIME register
-+	 * may fail. As a workaround, after writing to RTC TIME
-+	 * register, issue a dummy write of 0x0 twice to RTC Status
-+	 * register.
- 	 */
--	mutex_lock(&rtc->mutex_time);
--	rtc_delayed_write(0, rtc, RTC_STATUS);
--	msleep(100);
-+	spin_lock_irqsave(&rtc->lock, flags);
- 	rtc_delayed_write(time, rtc, RTC_TIME);
--	mutex_unlock(&rtc->mutex_time);
-+	rtc_delayed_write(0, rtc, RTC_STATUS);
-+	rtc_delayed_write(0, rtc, RTC_STATUS);
-+	spin_unlock_irqrestore(&rtc->lock, flags);
- 
- out:
- 	return ret;
-@@ -229,7 +222,6 @@ static __init int armada38x_rtc_probe(struct platform_device *pdev)
- 		return -ENOMEM;
- 
- 	spin_lock_init(&rtc->lock);
--	mutex_init(&rtc->mutex_time);
- 
- 	res = platform_get_resource_byname(pdev, IORESOURCE_MEM, "rtc");
- 	rtc->regs = devm_ioremap_resource(&pdev->dev, res);
 -- 
-2.1.0
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
 -- 
 -- 
