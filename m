@@ -1,33 +1,30 @@
-Return-Path: <rtc-linux+bncBCRIZROPVQPBBQOAVSXAKGQEDS5RVBQ@googlegroups.com>
-MIME-Version: 1.0
-Received: from mail-pa0-f50.google.com (mail-pa0-f50.google.com. [209.85.220.50])
-        by gmr-mx.google.com with ESMTPS id eq2si546312pbb.2.2015.08.12.03.30.24
+Return-Path: <rtc-linux+bncBDEZ72H55YIBBO5ZVKXAKGQEB7I33ZY@googlegroups.com>
+Received: from mailout4.samsung.com (mailout4.samsung.com. [203.254.224.34])
+        by gmr-mx.google.com with ESMTPS id ff6si437004pac.2.2015.08.11.18.09.14
         for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 12 Aug 2015 03:30:24 -0700 (PDT)
-Received: by pawu10 with SMTP id u10so11975108paw.1
-        for <rtc-linux@googlegroups.com>; Wed, 12 Aug 2015 03:30:24 -0700 (PDT)
-From: Viresh Kumar <viresh.kumar@linaro.org>
-To: trivial@kernel.org
-Cc: linaro-kernel@lists.linaro.org,
-	linux-kernel@vger.kernel.org,
-	Viresh Kumar <viresh.kumar@linaro.org>,
-	Hans Ulli Kroll <ulli.kroll@googlemail.com>,
-	adi-buildroot-devel@lists.sourceforge.net (moderated list:BLACKFIN RTC DRIVER),
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	linux-arm-kernel@lists.infradead.org (moderated list:ARM/CORTINA SYSTEMS GEMINI ARM ARCHITECTURE),
-	rtc-linux@googlegroups.com (open list:REAL TIME CLOCK (RTC) SUBSYSTEM)
-Subject: [rtc-linux] [PATCH V1 Resend 06/10] drivers: rtc: Drop (un)likely
- before IS_ERR(_OR_NULL)
-Date: Wed, 12 Aug 2015 15:59:43 +0530
-Message-Id: <1a92f2e1af5309ece9736f79f312e90486a98825.1439375087.git.viresh.kumar@linaro.org>
-In-Reply-To: <cover.1439375087.git.viresh.kumar@linaro.org>
-References: <cover.1439375087.git.viresh.kumar@linaro.org>
-In-Reply-To: <cover.1439375087.git.viresh.kumar@linaro.org>
-References: <cover.1439375087.git.viresh.kumar@linaro.org>
+        (version=TLSv1 cipher=RC4-SHA bits=128/128);
+        Tue, 11 Aug 2015 18:09:14 -0700 (PDT)
+Received: from epcpsbgr1.samsung.com
+ (u141.gpu120.samsung.co.kr [203.254.230.141])
+ by mailout4.samsung.com (Oracle Communications Messaging Server 7.0.5.31.0
+ 64bit (built May  5 2014))
+ with ESMTP id <0NSY021U437CNA60@mailout4.samsung.com> for
+ rtc-linux@googlegroups.com; Wed, 12 Aug 2015 10:09:12 +0900 (KST)
+Message-id: <55CA9CB9.1050007@samsung.com>
+Date: Wed, 12 Aug 2015 10:09:13 +0900
+From: Joonyoung Shim <jy0922.shim@samsung.com>
+MIME-version: 1.0
+To: Krzysztof Kozlowski <k.kozlowski@samsung.com>, rtc-linux@googlegroups.com
+Cc: linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org,
+ a.zummo@towertech.it, alexandre.belloni@free-electrons.com,
+ cw00.choi@samsung.com
+Subject: [rtc-linux] Re: [PATCH 4/4] rtc: s3c: enable/disable clocks for alarm
+References: <1439292502-22912-1-git-send-email-jy0922.shim@samsung.com>
+ <1439292502-22912-4-git-send-email-jy0922.shim@samsung.com>
+ <55CA9330.9070700@samsung.com>
+In-reply-to: <55CA9330.9070700@samsung.com>
+Content-type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
-Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -37,63 +34,37 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-IS_ERR(_OR_NULL) already contain an 'unlikely' compiler flag and there
-is no need to do that again from its callers. Drop it.
+On 08/12/2015 09:28 AM, Krzysztof Kozlowski wrote:
+> On 11.08.2015 20:28, Joonyoung Shim wrote:
+>> The clock enable/disable codes for alarm have removed from
+> 
+> What do you mean in this paragraph? The clock code was removing something?
+> 
+>> 'commit 24e1455493da ("drivers/rtc/rtc-s3c.c: delete duplicate clock
+> 
+> Remove the 'apostrophe.
+> 
+>> control")' and the clocks keep disabling even if alarm is set, so alarm
+>> interrupt can't happen.
+> ...and the clocks are disabled even...
+> 
+> 
+>>
+>> The s3c_rtc_setaie function can be called several times with that
+>> enabled argument has same value,
+> ...several times with 'enabled' argument having same value
+> 
+>> so it needs to check whether clocks is
+>> enabled or not.
+> s/is/are/
+> 
+>>
+>> Signed-off-by: Joonyoung Shim <jy0922.shim@samsung.com>
+> 
+> Please add Cc-stable and fixes tag. To backport the patch probably
+> you'll have to remove the dependency on previous patches.
 
-gemini driver was using likely() for a failure case while the rtc driver
-is getting registered. That looks wrong and it should really be
-unlikely. But because we are killing all the unlikely() flags, lets kill
-that too.
-
-Acked-by: Hans Ulli Kroll <ulli.kroll@googlemail.com> (gemini)
-Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
----
- drivers/rtc/interface.c  | 2 +-
- drivers/rtc/rtc-bfin.c   | 2 +-
- drivers/rtc/rtc-gemini.c | 2 +-
- 3 files changed, 3 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/rtc/interface.c b/drivers/rtc/interface.c
-index 11b639067312..5836751b8203 100644
---- a/drivers/rtc/interface.c
-+++ b/drivers/rtc/interface.c
-@@ -564,7 +564,7 @@ enum hrtimer_restart rtc_pie_update_irq(struct hrtimer *timer)
- void rtc_update_irq(struct rtc_device *rtc,
- 		unsigned long num, unsigned long events)
- {
--	if (unlikely(IS_ERR_OR_NULL(rtc)))
-+	if (IS_ERR_OR_NULL(rtc))
- 		return;
- 
- 	pm_stay_awake(rtc->dev.parent);
-diff --git a/drivers/rtc/rtc-bfin.c b/drivers/rtc/rtc-bfin.c
-index 3d44b11721ea..535a5f9338d0 100644
---- a/drivers/rtc/rtc-bfin.c
-+++ b/drivers/rtc/rtc-bfin.c
-@@ -361,7 +361,7 @@ static int bfin_rtc_probe(struct platform_device *pdev)
- 	/* Register our RTC with the RTC framework */
- 	rtc->rtc_dev = devm_rtc_device_register(dev, pdev->name, &bfin_rtc_ops,
- 						THIS_MODULE);
--	if (unlikely(IS_ERR(rtc->rtc_dev)))
-+	if (IS_ERR(rtc->rtc_dev))
- 		return PTR_ERR(rtc->rtc_dev);
- 
- 	/* Grab the IRQ and init the hardware */
-diff --git a/drivers/rtc/rtc-gemini.c b/drivers/rtc/rtc-gemini.c
-index 35f4486738fc..2fed93e1114a 100644
---- a/drivers/rtc/rtc-gemini.c
-+++ b/drivers/rtc/rtc-gemini.c
-@@ -148,7 +148,7 @@ static int gemini_rtc_probe(struct platform_device *pdev)
- 
- 	rtc->rtc_dev = rtc_device_register(pdev->name, dev,
- 					   &gemini_rtc_ops, THIS_MODULE);
--	if (likely(IS_ERR(rtc->rtc_dev)))
-+	if (IS_ERR(rtc->rtc_dev))
- 		return PTR_ERR(rtc->rtc_dev);
- 
- 	return 0;
--- 
-2.4.0
+Thanks for the point, i didn't think it.
 
 -- 
 -- 
