@@ -1,23 +1,30 @@
-Return-Path: <rtc-linux+bncBD66BCOYSQBBBCOA5KXAKGQEVQUMB2Y@googlegroups.com>
-Received: from bear.ext.ti.com (bear.ext.ti.com. [192.94.94.41])
-        by gmr-mx.google.com with ESMTPS id o7si859339igp.1.2015.08.23.21.39.37
+Return-Path: <rtc-linux+bncBDEZ72H55YIBB3V6VSXAKGQEDZJQK5A@googlegroups.com>
+Received: from mailout1.samsung.com (mailout1.samsung.com. [203.254.224.24])
+        by gmr-mx.google.com with ESMTPS id zg3si546023pbc.1.2015.08.12.03.26.53
         for <rtc-linux@googlegroups.com>
-        (version=TLS1 cipher=RC4-SHA bits=128/128);
-        Sun, 23 Aug 2015 21:39:37 -0700 (PDT)
-Message-ID: <55DAA000.1050301@ti.com>
-Date: Mon, 24 Aug 2015 10:09:28 +0530
-From: Keerthy <a0393675@ti.com>
-MIME-Version: 1.0
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        Keerthy
-	<j-keerthy@ti.com>
-CC: <tony@atomide.com>, <bcousson@baylibre.com>, <johan@kernel.org>,
-        <linux-omap@vger.kernel.org>, <rtc-linux@googlegroups.com>,
-        <grygorii.strashko@ti.com>
-Subject: [rtc-linux] Re: [PATCH v5 2/3] rtc: omap: Add internal clock enabling support
-References: <1439890876-19024-1-git-send-email-j-keerthy@ti.com> <1439890876-19024-3-git-send-email-j-keerthy@ti.com> <20150821213642.GJ3769@piout.net>
-In-Reply-To: <20150821213642.GJ3769@piout.net>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+        (version=TLSv1 cipher=RC4-SHA bits=128/128);
+        Wed, 12 Aug 2015 03:26:54 -0700 (PDT)
+Received: from epcpsbgr1.samsung.com
+ (u141.gpu120.samsung.co.kr [203.254.230.141])
+ by mailout1.samsung.com (Oracle Communications Messaging Server 7.0.5.31.0
+ 64bit (built May  5 2014))
+ with ESMTP id <0NSY02YYLT0R1W50@mailout1.samsung.com> for
+ rtc-linux@googlegroups.com; Wed, 12 Aug 2015 19:26:51 +0900 (KST)
+Message-id: <55CB1F6C.4080207@samsung.com>
+Date: Wed, 12 Aug 2015 19:26:52 +0900
+From: Joonyoung Shim <jy0922.shim@samsung.com>
+MIME-version: 1.0
+To: Krzysztof Kozlowski <k.kozlowski@samsung.com>, rtc-linux@googlegroups.com
+Cc: linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org,
+ a.zummo@towertech.it, alexandre.belloni@free-electrons.com,
+ cw00.choi@samsung.com
+Subject: [rtc-linux] Re: [PATCH 3/4] rtc: s3c: use unified functions for
+ enable/disable of clk
+References: <1439292502-22912-1-git-send-email-jy0922.shim@samsung.com>
+ <1439292502-22912-3-git-send-email-jy0922.shim@samsung.com>
+ <55CA8EDE.8000006@samsung.com>
+In-reply-to: <55CA8EDE.8000006@samsung.com>
+Content-type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -28,33 +35,29 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-
-
-On Saturday 22 August 2015 03:06 AM, Alexandre Belloni wrote:
-> Hi,
->
-> On 18/08/2015 at 15:11:15 +0530, Keerthy wrote :
->> @@ -681,6 +688,9 @@ static int __exit omap_rtc_remove(struct platform_device *pdev)
+On 08/12/2015 09:10 AM, Krzysztof Kozlowski wrote:
+> On 11.08.2015 20:28, Joonyoung Shim wrote:
+>> The driver uses clk_prepare_enable()/clk_disable_unprepare() only in
+>> probe only, elsewhere, use the unified functions for enable/disable of
+>> clk, e.g. s3c_rtc_enable_clk() / s3c_rtc_disable_clk(), so it's better
+>> to use them for consistency of code.
 >>
->>   	device_init_wakeup(&pdev->dev, 0);
->>
->> +	if (!IS_ERR(rtc->clk))
->> +		clk_disable_unprepare(rtc->clk);
->> +
->>   	rtc->type->unlock(rtc);
->>   	/* leave rtc running, but disable irqs */
->
-> Is it actually still running once the clock is disabled?
+>> Signed-off-by: Joonyoung Shim <jy0922.shim@samsung.com>
+>> ---
+>>  drivers/rtc/rtc-s3c.c | 14 +++++++++-----
+>>  1 file changed, 9 insertions(+), 5 deletions(-)
+> 
+> First of all - the code is larger (9 insertions, 5 deletion) so I have
+> doubts if this is better.
+> 
+> Second - this is not equivalent change. The s3c_rtc_enable_clk/disable
+> calls grab spin lock which is not necessary in probe.
+> 
 
-With the current set of patches on Aegis the disabling the external 
-clock toggles it to be sourced from internal clock. So rtc will still be 
-running.
+I made this patch because of patch 4/4, but patch 4/4 should be removed
+dependency from previous patches, so i will drop this patch.
 
->
->>   	rtc_write(rtc, OMAP_RTC_INTERRUPTS_REG, 0);
->
->
->
+Thanks.
 
 -- 
 -- 
