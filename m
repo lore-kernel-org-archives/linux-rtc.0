@@ -1,30 +1,23 @@
-Return-Path: <rtc-linux+bncBCRIZROPVQPBBC6IVSXAKGQEYLBHBWA@googlegroups.com>
-Received: from mail-pd0-f169.google.com (mail-pd0-f169.google.com. [209.85.192.169])
-        by gmr-mx.google.com with ESMTPS id c1si532961pdg.0.2015.08.12.03.46.35
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 12 Aug 2015 03:46:35 -0700 (PDT)
-Received: by pdbfa8 with SMTP id fa8so6170362pdb.1
-        for <rtc-linux@googlegroups.com>; Wed, 12 Aug 2015 03:46:35 -0700 (PDT)
-Date: Wed, 12 Aug 2015 16:16:25 +0530
-From: Viresh Kumar <viresh.kumar@linaro.org>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: trivial@kernel.org, linaro-kernel@lists.linaro.org,
-	linux-kernel@vger.kernel.org,
-	Hans Ulli Kroll <ulli.kroll@googlemail.com>,
-	"moderated list:BLACKFIN RTC DRIVER" <adi-buildroot-devel@lists.sourceforge.net>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	"moderated list:ARM/CORTINA SYSTEMS GEMINI ARM ARCHITECTURE" <linux-arm-kernel@lists.infradead.org>,
-	"open list:REAL TIME CLOCK (RTC) SUBSYSTEM" <rtc-linux@googlegroups.com>
-Subject: [rtc-linux] Re: [PATCH V1 Resend 06/10] drivers: rtc: Drop (un)likely
- before IS_ERR(_OR_NULL)
-Message-ID: <20150812104625.GB20238@linux>
-References: <cover.1439375087.git.viresh.kumar@linaro.org>
- <1a92f2e1af5309ece9736f79f312e90486a98825.1439375087.git.viresh.kumar@linaro.org>
- <20150812104133.GE3411@piout.net>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBYP6VOXAKGQEFEHJF5Q@googlegroups.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id x20si203514wia.0.2015.08.12.01.10.08
+        for <rtc-linux@googlegroups.com>;
+        Wed, 12 Aug 2015 01:10:09 -0700 (PDT)
+Date: Wed, 12 Aug 2015 10:10:07 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Wang Dongsheng <Dongsheng.Wang@freescale.com>
+Cc: "a.zummo@towertech.it" <a.zummo@towertech.it>,
+	"rtc-linux@googlegroups.com" <rtc-linux@googlegroups.com>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: [rtc-linux] Re: [PATCH] rtc/ds3232: fix ds3232 get a WARNING trace in
+ resume function
+Message-ID: <20150812081007.GZ3411@piout.net>
+References: <1436249576-23233-1-git-send-email-dongsheng.wang@freescale.com>
+ <20150714225041.GH20482@piout.net>
+ <SN1PR0301MB161694E7F5018A10A74DD2AC9D7E0@SN1PR0301MB1616.namprd03.prod.outlook.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <20150812104133.GE3411@piout.net>
+In-Reply-To: <SN1PR0301MB161694E7F5018A10A74DD2AC9D7E0@SN1PR0301MB1616.namprd03.prod.outlook.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -35,27 +28,72 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On 12-08-15, 12:41, Alexandre Belloni wrote:
-> Hi Viresh,
+Hi,
+
+On 12/08/2015 at 07:50:03 +0000, Wang Dongsheng wrote :
+> Hi Belloni,
 > 
-> Why are you resending?
+> I am not found this patch in your tree(rtc-fixes and rtc-next), Need I send v2 patch? :)
+> 
 
-I never got a reply from Andrew Morton on V1, so resent it again. And
-today Andrew asked me to take this via trivial tree.
+Yes, I was expecting that you would send a new version.
 
-So the resent.
-
-I need to find a sane way to get few more people to the cover-letter.
-The problem is that I am generating the cc-list with get_maintainers,
-and if I combine that list for all the patches, it becomes huge. And
-really can't send the cover-letter to those people then. Few lists may
-block it as well, due to high number of cc'd people.
-
-I am telling this because, the cover-letter did contain the reason for
-resend.
+> Regards,
+> -Dongsheng
+> 
+> > -----Original Message-----
+> > From: Wang Dongsheng-B40534
+> > Sent: Wednesday, July 15, 2015 10:06 AM
+> > To: 'Alexandre Belloni'
+> > Cc: a.zummo@towertech.it; rtc-linux@googlegroups.com; linux-
+> > kernel@vger.kernel.org
+> > Subject: RE: [PATCH] rtc/ds3232: fix ds3232 get a WARNING trace in resume
+> > function
+> > 
+> > Thanks Belloni. :)
+> > 
+> > Regards,
+> > -Dongsheng
+> > 
+> > > -----Original Message-----
+> > > From: Alexandre Belloni [mailto:alexandre.belloni@free-electrons.com]
+> > > Sent: Wednesday, July 15, 2015 6:51 AM
+> > > To: Wang Dongsheng-B40534
+> > > Cc: a.zummo@towertech.it; rtc-linux@googlegroups.com; linux-
+> > > kernel@vger.kernel.org
+> > > Subject: Re: [PATCH] rtc/ds3232: fix ds3232 get a WARNING trace in
+> > > resume function
+> > >
+> > > Hi,
+> > >
+> > > This seems ok, one small nitpick:
+> > >
+> > > On 07/07/2015 at 14:12:56 +0800, Dongsheng Wang wrote :
+> > > > From: Wang Dongsheng <dongsheng.wang@freescale.com> diff --git
+> > > > a/drivers/rtc/rtc-ds3232.c b/drivers/rtc/rtc-ds3232.c index
+> > > > 7e48e53..2081155 100644
+> > > > --- a/drivers/rtc/rtc-ds3232.c
+> > > > +++ b/drivers/rtc/rtc-ds3232.c
+> > > > @@ -463,7 +463,10 @@ static int ds3232_suspend(struct device *dev)
+> > > >
+> > > >  	if (device_can_wakeup(dev)) {
+> > > >  		ds3232->suspended = true;
+> > > > -		irq_set_irq_wake(client->irq, 1);
+> > > > +		if (irq_set_irq_wake(client->irq, 1)) {
+> > > > +			dev_info(dev, "Cannot serve as a wakeup source\n");
+> > >
+> > > I would use dev_warn_once or dev_info_once here to avoid spamming the
+> > > log each time the machine is suspended.
+> > >
+> > > --
+> > > Alexandre Belloni, Free Electrons
+> > > Embedded Linux, Kernel and Android engineering
+> > > http://free-electrons.com
 
 -- 
-viresh
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
 -- 
 -- 
