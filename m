@@ -1,27 +1,27 @@
-Return-Path: <rtc-linux+bncBCGP7DNSRUMRBZEBVCXAKGQEGPQWBRA@googlegroups.com>
-Received: from mail1.windriver.com (mail1.windriver.com. [147.11.146.13])
-        by gmr-mx.google.com with ESMTPS id ys2si219664pac.0.2015.08.11.07.04.20
+Return-Path: <rtc-linux+bncBDKZNNNLXAHBBN5GVKXAKGQE42ACI2Q@googlegroups.com>
+Received: from mailout1.w1.samsung.com (mailout1.w1.samsung.com. [210.118.77.11])
+        by gmr-mx.google.com with ESMTPS id zg3si402746pbc.1.2015.08.11.17.28.38
         for <rtc-linux@googlegroups.com>
-        (version=TLSv1.1 cipher=ECDHE-RSA-RC4-SHA bits=128/128);
-        Tue, 11 Aug 2015 07:04:20 -0700 (PDT)
-From: Paul Gortmaker <paul.gortmaker@windriver.com>
-To: <linux-kernel@vger.kernel.org>
-CC: Paul Gortmaker <paul.gortmaker@windriver.com>,
-        Adrian Huang
-	<ahuang12@lenovo.com>, Egbert Eich <eich@suse.de>,
-        Diego Ercolani
-	<diego.ercolani@gmail.com>,
-        Borislav Petkov <bp@suse.de>,
-        Alexandre Belloni
-	<alexandre.belloni@free-electrons.com>,
-        Alessandro Zummo
-	<a.zummo@towertech.it>, <rtc-linux@googlegroups.com>
-Subject: [rtc-linux] [PATCH] drivers/rtc: fix compile warning introduced by 1s
- reboot fix
-Date: Tue, 11 Aug 2015 10:04:04 -0400
-Message-ID: <1439301844-22710-1-git-send-email-paul.gortmaker@windriver.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+        (version=TLSv1 cipher=RC4-SHA bits=128/128);
+        Tue, 11 Aug 2015 17:28:38 -0700 (PDT)
+Received: from eucpsbgm1.samsung.com (unknown [203.254.199.244])
+ by mailout1.w1.samsung.com
+ (Oracle Communications Messaging Server 7.0.5.31.0 64bit (built May  5 2014))
+ with ESMTP id <0NSY00J7V1BM6140@mailout1.w1.samsung.com> for
+ rtc-linux@googlegroups.com; Wed, 12 Aug 2015 01:28:34 +0100 (BST)
+Message-id: <55CA9330.9070700@samsung.com>
+Date: Wed, 12 Aug 2015 09:28:32 +0900
+From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+MIME-version: 1.0
+To: Joonyoung Shim <jy0922.shim@samsung.com>, rtc-linux@googlegroups.com
+Cc: linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org,
+ a.zummo@towertech.it, alexandre.belloni@free-electrons.com,
+ cw00.choi@samsung.com
+Subject: [rtc-linux] Re: [PATCH 4/4] rtc: s3c: enable/disable clocks for alarm
+References: <1439292502-22912-1-git-send-email-jy0922.shim@samsung.com>
+ <1439292502-22912-4-git-send-email-jy0922.shim@samsung.com>
+In-reply-to: <1439292502-22912-4-git-send-email-jy0922.shim@samsung.com>
+Content-type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -32,52 +32,102 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-We currently see this warning:
+On 11.08.2015 20:28, Joonyoung Shim wrote:
+> The clock enable/disable codes for alarm have removed from
 
-drivers/rtc/rtc-cmos.c:851:7: warning: unused variable 'err'
+What do you mean in this paragraph? The clock code was removing something?
 
-introduced by commit 7b4a008088a28ea936fffbbfa770d0184468a0ce ("rtc-cmos:
-Cancel alarm timer if alarm time is equal to now+1 seconds").
+> 'commit 24e1455493da ("drivers/rtc/rtc-s3c.c: delete duplicate clock
 
-Presumably some WIP version of the commit was doing error checking
-but then the variable was not removed prior to submission, and the
-pending commits weren't on kernel.org for kbuild bot to spot the new
-warning created.
+Remove the 'apostrophe.
 
-Cc: Adrian Huang <ahuang12@lenovo.com>
-Cc: Egbert Eich <eich@suse.de>
-Cc: Diego Ercolani <diego.ercolani@gmail.com>
-Cc: Borislav Petkov <bp@suse.de>
-Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>
-Cc: rtc-linux@googlegroups.com
-Signed-off-by: Paul Gortmaker <paul.gortmaker@windriver.com>
----
+> control")' and the clocks keep disabling even if alarm is set, so alarm
+> interrupt can't happen.
+...and the clocks are disabled even...
 
-[Note: patch is against linux-next, so if the rtc tree is rebased,
- then the above commit ID reference will be stale.  Feel free to
- adjust the commit log appropriately, if need be, or even squash
- this into the original offending patch, if rebasing back that far.
- Also ensuring your tree is on kernel.org will allow kbuild bot
- to spot these on your behalf via the zero day builds.]
 
- drivers/rtc/rtc-cmos.c | 1 -
- 1 file changed, 1 deletion(-)
+> 
+> The s3c_rtc_setaie function can be called several times with that
+> enabled argument has same value,
+...several times with 'enabled' argument having same value
 
-diff --git a/drivers/rtc/rtc-cmos.c b/drivers/rtc/rtc-cmos.c
-index 916bd1f555e5..c2e90c62a59c 100644
---- a/drivers/rtc/rtc-cmos.c
-+++ b/drivers/rtc/rtc-cmos.c
-@@ -848,7 +848,6 @@ static int cmos_aie_poweroff(struct device *dev)
- 	 */
- 	if (cmos->alarm_expires == t_now + 1) {
- 		struct rtc_wkalrm alarm;
--		int err;
- 
- 		/* Cancel the AIE timer by configuring the past time. */
- 		rtc_time64_to_tm(t_now - 1, &alarm.time);
--- 
-2.5.0
+> so it needs to check whether clocks is
+> enabled or not.
+s/is/are/
+
+> 
+> Signed-off-by: Joonyoung Shim <jy0922.shim@samsung.com>
+
+Please add Cc-stable and fixes tag. To backport the patch probably
+you'll have to remove the dependency on previous patches.
+
+> ---
+>  drivers/rtc/rtc-s3c.c | 24 ++++++++++++++++++------
+>  1 file changed, 18 insertions(+), 6 deletions(-)
+> 
+> diff --git a/drivers/rtc/rtc-s3c.c b/drivers/rtc/rtc-s3c.c
+> index abe2a6d..fce078c 100644
+> --- a/drivers/rtc/rtc-s3c.c
+> +++ b/drivers/rtc/rtc-s3c.c
+> @@ -39,6 +39,7 @@ struct s3c_rtc {
+>  	void __iomem *base;
+>  	struct clk *rtc_clk;
+>  	struct clk *rtc_src_clk;
+> +	bool clk_enabled;
+>  
+>  	struct s3c_rtc_data *data;
+>  
+> @@ -71,9 +72,12 @@ static void s3c_rtc_enable_clk(struct s3c_rtc *info)
+>  	unsigned long irq_flags;
+>  
+>  	spin_lock_irqsave(&info->alarm_clk_lock, irq_flags);
+> -	clk_enable(info->rtc_clk);
+> -	if (info->data->needs_src_clk)
+> -		clk_enable(info->rtc_src_clk);
+> +	if (!info->clk_enabled) {
+> +		clk_enable(info->rtc_clk);
+> +		if (info->data->needs_src_clk)
+> +			clk_enable(info->rtc_src_clk);
+> +		info->clk_enabled = true;
+> +	}
+>  	spin_unlock_irqrestore(&info->alarm_clk_lock, irq_flags);
+>  }
+>  
+> @@ -82,9 +86,12 @@ static void s3c_rtc_disable_clk(struct s3c_rtc *info)
+>  	unsigned long irq_flags;
+>  
+>  	spin_lock_irqsave(&info->alarm_clk_lock, irq_flags);
+> -	if (info->data->needs_src_clk)
+> -		clk_disable(info->rtc_src_clk);
+> -	clk_disable(info->rtc_clk);
+> +	if (info->clk_enabled) {
+> +		if (info->data->needs_src_clk)
+> +			clk_disable(info->rtc_src_clk);
+> +		clk_disable(info->rtc_clk);
+> +		info->clk_enabled = false;
+> +	}
+>  	spin_unlock_irqrestore(&info->alarm_clk_lock, irq_flags);
+>  }
+>  
+> @@ -128,6 +135,11 @@ static int s3c_rtc_setaie(struct device *dev, unsigned int enabled)
+>  
+>  	s3c_rtc_disable_clk(info);
+>  
+> +	if (enabled)
+> +		s3c_rtc_enable_clk(info);
+> +	else
+> +		s3c_rtc_disable_clk(info);
+> +
+>  	return 0;
+>  }
+
+During probe the clk_enabled is false, so the clock won't be disabled at
+the end of probe with s3c_rtc_disable_clk(). Maybe previous patch
+interferes here so it would work after applying all 4 patches but not
+when backporting. The patch in current form looks non-backportable.
+
+Best regards,
+KRzysztof
 
 -- 
 -- 
