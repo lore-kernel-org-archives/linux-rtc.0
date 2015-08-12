@@ -1,22 +1,28 @@
-Return-Path: <rtc-linux+bncBAABBLPVVOXAKGQETETA5YI@googlegroups.com>
-Received: from na01-by2-obe.outbound.protection.outlook.com (mail-by2on0132.outbound.protection.outlook.com. [207.46.100.132])
-        by gmr-mx.google.com with ESMTPS id fy14si503051pdb.2.2015.08.12.00.50.04
+Return-Path: <rtc-linux+bncBDKZNNNLXAHBBZM5VKXAKGQEY2U5OAY@googlegroups.com>
+Received: from mailout2.w1.samsung.com (mailout2.w1.samsung.com. [210.118.77.12])
+        by gmr-mx.google.com with ESMTPS id zt8si403993pbc.0.2015.08.11.17.10.13
         for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
-        Wed, 12 Aug 2015 00:50:05 -0700 (PDT)
-From: Wang Dongsheng <Dongsheng.Wang@freescale.com>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-CC: "a.zummo@towertech.it" <a.zummo@towertech.it>,
-	"rtc-linux@googlegroups.com" <rtc-linux@googlegroups.com>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: [rtc-linux] RE: [PATCH] rtc/ds3232: fix ds3232 get a WARNING trace in
- resume function
-Date: Wed, 12 Aug 2015 07:50:03 +0000
-Message-ID: <SN1PR0301MB161694E7F5018A10A74DD2AC9D7E0@SN1PR0301MB1616.namprd03.prod.outlook.com>
-References: <1436249576-23233-1-git-send-email-dongsheng.wang@freescale.com>
- <20150714225041.GH20482@piout.net>
-Content-Type: text/plain; charset=UTF-8
-MIME-Version: 1.0
+        (version=TLSv1 cipher=RC4-SHA bits=128/128);
+        Tue, 11 Aug 2015 17:10:13 -0700 (PDT)
+Received: from eucpsbgm1.samsung.com (unknown [203.254.199.244])
+ by mailout2.w1.samsung.com
+ (Oracle Communications Messaging Server 7.0.5.31.0 64bit (built May  5 2014))
+ with ESMTP id <0NSY001XF0GWU830@mailout2.w1.samsung.com> for
+ rtc-linux@googlegroups.com; Wed, 12 Aug 2015 01:10:08 +0100 (BST)
+Message-id: <55CA8EDE.8000006@samsung.com>
+Date: Wed, 12 Aug 2015 09:10:06 +0900
+From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+MIME-version: 1.0
+To: Joonyoung Shim <jy0922.shim@samsung.com>, rtc-linux@googlegroups.com
+Cc: linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org,
+ a.zummo@towertech.it, alexandre.belloni@free-electrons.com,
+ cw00.choi@samsung.com
+Subject: [rtc-linux] Re: [PATCH 3/4] rtc: s3c: use unified functions for
+ enable/disable of clk
+References: <1439292502-22912-1-git-send-email-jy0922.shim@samsung.com>
+ <1439292502-22912-3-git-send-email-jy0922.shim@samsung.com>
+In-reply-to: <1439292502-22912-3-git-send-email-jy0922.shim@samsung.com>
+Content-type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -27,61 +33,71 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Hi Belloni,
-
-I am not found this patch in your tree(rtc-fixes and rtc-next), Need I send v2 patch? :)
-
-Regards,
--Dongsheng
-
-> -----Original Message-----
-> From: Wang Dongsheng-B40534
-> Sent: Wednesday, July 15, 2015 10:06 AM
-> To: 'Alexandre Belloni'
-> Cc: a.zummo@towertech.it; rtc-linux@googlegroups.com; linux-
-> kernel@vger.kernel.org
-> Subject: RE: [PATCH] rtc/ds3232: fix ds3232 get a WARNING trace in resume
-> function
+On 11.08.2015 20:28, Joonyoung Shim wrote:
+> The driver uses clk_prepare_enable()/clk_disable_unprepare() only in
+> probe only, elsewhere, use the unified functions for enable/disable of
+> clk, e.g. s3c_rtc_enable_clk() / s3c_rtc_disable_clk(), so it's better
+> to use them for consistency of code.
 > 
-> Thanks Belloni. :)
+> Signed-off-by: Joonyoung Shim <jy0922.shim@samsung.com>
+> ---
+>  drivers/rtc/rtc-s3c.c | 14 +++++++++-----
+>  1 file changed, 9 insertions(+), 5 deletions(-)
+
+First of all - the code is larger (9 insertions, 5 deletion) so I have
+doubts if this is better.
+
+Second - this is not equivalent change. The s3c_rtc_enable_clk/disable
+calls grab spin lock which is not necessary in probe.
+
+Best regards,
+Krzysztof
+
 > 
-> Regards,
-> -Dongsheng
+> diff --git a/drivers/rtc/rtc-s3c.c b/drivers/rtc/rtc-s3c.c
+> index 44b2921..abe2a6d 100644
+> --- a/drivers/rtc/rtc-s3c.c
+> +++ b/drivers/rtc/rtc-s3c.c
+> @@ -476,19 +476,21 @@ static int s3c_rtc_probe(struct platform_device *pdev)
+>  		dev_err(&pdev->dev, "failed to find rtc clock\n");
+>  		return PTR_ERR(info->rtc_clk);
+>  	}
+> -	clk_prepare_enable(info->rtc_clk);
+> +	clk_prepare(info->rtc_clk);
+>  
+>  	if (info->data->needs_src_clk) {
+>  		info->rtc_src_clk = devm_clk_get(&pdev->dev, "rtc_src");
+>  		if (IS_ERR(info->rtc_src_clk)) {
+>  			dev_err(&pdev->dev,
+>  				"failed to find rtc source clock\n");
+> -			clk_disable_unprepare(info->rtc_clk);
+> +			clk_unprepare(info->rtc_clk);
+>  			return PTR_ERR(info->rtc_src_clk);
+>  		}
+> -		clk_prepare_enable(info->rtc_src_clk);
+> +		clk_prepare(info->rtc_src_clk);
+>  	}
+>  
+> +	s3c_rtc_enable_clk(info);
+> +
+>  	/* check to see if everything is setup correctly */
+>  	if (info->data->enable)
+>  		info->data->enable(info);
+> @@ -548,9 +550,11 @@ static int s3c_rtc_probe(struct platform_device *pdev)
+>  	if (info->data->disable)
+>  		info->data->disable(info);
+>  
+> +	s3c_rtc_disable_clk(info);
+> +
+>  	if (info->data->needs_src_clk)
+> -		clk_disable_unprepare(info->rtc_src_clk);
+> -	clk_disable_unprepare(info->rtc_clk);
+> +		clk_unprepare(info->rtc_src_clk);
+> +	clk_unprepare(info->rtc_clk);
+>  
+>  	return ret;
+>  }
 > 
-> > -----Original Message-----
-> > From: Alexandre Belloni [mailto:alexandre.belloni@free-electrons.com]
-> > Sent: Wednesday, July 15, 2015 6:51 AM
-> > To: Wang Dongsheng-B40534
-> > Cc: a.zummo@towertech.it; rtc-linux@googlegroups.com; linux-
-> > kernel@vger.kernel.org
-> > Subject: Re: [PATCH] rtc/ds3232: fix ds3232 get a WARNING trace in
-> > resume function
-> >
-> > Hi,
-> >
-> > This seems ok, one small nitpick:
-> >
-> > On 07/07/2015 at 14:12:56 +0800, Dongsheng Wang wrote :
-> > > From: Wang Dongsheng <dongsheng.wang@freescale.com> diff --git
-> > > a/drivers/rtc/rtc-ds3232.c b/drivers/rtc/rtc-ds3232.c index
-> > > 7e48e53..2081155 100644
-> > > --- a/drivers/rtc/rtc-ds3232.c
-> > > +++ b/drivers/rtc/rtc-ds3232.c
-> > > @@ -463,7 +463,10 @@ static int ds3232_suspend(struct device *dev)
-> > >
-> > >  	if (device_can_wakeup(dev)) {
-> > >  		ds3232->suspended = true;
-> > > -		irq_set_irq_wake(client->irq, 1);
-> > > +		if (irq_set_irq_wake(client->irq, 1)) {
-> > > +			dev_info(dev, "Cannot serve as a wakeup source\n");
-> >
-> > I would use dev_warn_once or dev_info_once here to avoid spamming the
-> > log each time the machine is suspended.
-> >
-> > --
-> > Alexandre Belloni, Free Electrons
-> > Embedded Linux, Kernel and Android engineering
-> > http://free-electrons.com
 
 -- 
 -- 
