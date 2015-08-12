@@ -1,21 +1,27 @@
-Return-Path: <rtc-linux+bncBAABBQEFXCXAKGQE4HXIN5I@googlegroups.com>
-Received: from na01-bl2-obe.outbound.protection.outlook.com (mail-bl2on0059.outbound.protection.outlook.com. [65.55.169.59])
-        by gmr-mx.google.com with ESMTPS id s186si624019ywe.4.2015.08.14.08.01.20
+Return-Path: <rtc-linux+bncBDKZNNNLXAHBBK44VKXAKGQE3GGCTKA@googlegroups.com>
+Received: from mailout1.w1.samsung.com (mailout1.w1.samsung.com. [210.118.77.11])
+        by gmr-mx.google.com with ESMTPS id pm1si398109pac.1.2015.08.11.17.07.06
         for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
-        Fri, 14 Aug 2015 08:01:20 -0700 (PDT)
-From: Suneel Garapati <suneel.garapati@xilinx.com>
-To: <rtc-linux@googlegroups.com>, <linux-arm-kernel@lists.infradead.org>,
-	<linux-kernel@vger.kernel.org>
-CC: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	<michals@xilinx.com>, <sorenb@xilinx.com>, Alessandro Zummo
-	<a.zummo@towertech.it>, Suneel Garapati <suneel.garapati@xilinx.com>
-Subject: [rtc-linux] [PATCH v3 1/3] devicetree: bindings: rtc: add bindings
- for xilinx zynqmp rtc
-Date: Fri, 14 Aug 2015 20:31:01 +0530
-Message-ID: <1439564462-21252-1-git-send-email-suneel.garapati@xilinx.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+        (version=TLSv1 cipher=RC4-SHA bits=128/128);
+        Tue, 11 Aug 2015 17:07:06 -0700 (PDT)
+Received: from eucpsbgm1.samsung.com (unknown [203.254.199.244])
+ by mailout1.w1.samsung.com
+ (Oracle Communications Messaging Server 7.0.5.31.0 64bit (built May  5 2014))
+ with ESMTP id <0NSY00J3X0BQ6140@mailout1.w1.samsung.com> for
+ rtc-linux@googlegroups.com; Wed, 12 Aug 2015 01:07:02 +0100 (BST)
+Message-id: <55CA8E25.7060808@samsung.com>
+Date: Wed, 12 Aug 2015 09:07:01 +0900
+From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+MIME-version: 1.0
+To: Joonyoung Shim <jy0922.shim@samsung.com>, rtc-linux@googlegroups.com
+Cc: linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org,
+ a.zummo@towertech.it, alexandre.belloni@free-electrons.com,
+ cw00.choi@samsung.com
+Subject: [rtc-linux] Re: [PATCH 2/4] rtc: s3c: remove unnecessary NULL assignment
+References: <1439292502-22912-1-git-send-email-jy0922.shim@samsung.com>
+ <1439292502-22912-2-git-send-email-jy0922.shim@samsung.com>
+In-reply-to: <1439292502-22912-2-git-send-email-jy0922.shim@samsung.com>
+Content-type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -26,54 +32,20 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-adds file for description on device node bindings for RTC
-found on Xilinx Zynq Ultrascale+ MPSoC.
+On 11.08.2015 20:28, Joonyoung Shim wrote:
+> It's unnecessary the code that assigns info->rtc_clk to NULL in
+> s3c_rtc_remove.
+> 
+> Signed-off-by: Joonyoung Shim <jy0922.shim@samsung.com>
+> ---
+>  drivers/rtc/rtc-s3c.c | 1 -
+>  1 file changed, 1 deletion(-)
 
-Signed-off-by: Suneel Garapati <suneel.garapati@xilinx.com>
----
-Changes v3
-- none
-Changes v2 
-- add examples for interrupt-names 
-- change alm to alarm 
----
- Documentation/devicetree/bindings/rtc/xlnx-rtc.txt | 25 ++++++++++++++++++++++
- 1 file changed, 25 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/rtc/xlnx-rtc.txt
+Reviewed-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
 
-diff --git a/Documentation/devicetree/bindings/rtc/xlnx-rtc.txt b/Documentation/devicetree/bindings/rtc/xlnx-rtc.txt
-new file mode 100644
-index 0000000..0df6f01
---- /dev/null
-+++ b/Documentation/devicetree/bindings/rtc/xlnx-rtc.txt
-@@ -0,0 +1,25 @@
-+* Xilinx Zynq Ultrascale+ MPSoC Real Time Clock
-+
-+RTC controller for the Xilinx Zynq MPSoC Real Time Clock
-+Separate IRQ lines for seconds and alarm
-+
-+Required properties:
-+- compatible: Should be "xlnx,zynqmp-rtc"
-+- reg: Physical base address of the controller and length
-+       of memory mapped region.
-+- interrupts: IRQ lines for the RTC.
-+- interrupt-names: interrupt line names eg. "sec" "alarm"
-+
-+Optional:
-+- calibration: calibration value for 1 sec period which will
-+		be programmed directly to calibration register
-+
-+Example:
-+rtc: rtc@ffa60000 {
-+	compatible = "xlnx,zynqmp-rtc";
-+	reg = <0x0 0xffa60000 0x100>;
-+	interrupt-parent = <&gic>;
-+	interrupts = <0 26 4>, <0 27 4>;
-+	interrupt-names = "alarm", "sec";
-+	calibration = <0x198233>;
-+};
--- 
-2.1.2
+Best regards,
+Krzysztof
+
 
 -- 
 -- 
