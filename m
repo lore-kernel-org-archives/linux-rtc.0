@@ -1,22 +1,26 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBUGPW2XAKGQEBKLZXRY@googlegroups.com>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBX6FVSXAKGQEF5KSU2A@googlegroups.com>
 Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id gt6si49683wib.1.2015.08.14.01.33.20
+        by gmr-mx.google.com with ESMTP id jv9si526978wid.0.2015.08.12.03.41.34
         for <rtc-linux@googlegroups.com>;
-        Fri, 14 Aug 2015 01:33:20 -0700 (PDT)
-Date: Fri, 14 Aug 2015 10:33:19 +0200
+        Wed, 12 Aug 2015 03:41:34 -0700 (PDT)
+Date: Wed, 12 Aug 2015 12:41:33 +0200
 From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Keerthy <j-keerthy@ti.com>
-Cc: linux-omap@vger.kernel.org, rtc-linux@googlegroups.com,
-	tony@atomide.com, akpm@linux-foundation.org, johan@kernel.org,
-	grygorii.strashko@ti.com, bcousson@baylibre.com,
-	devicetree@vger.kernel.org, t-kristo@ti.com
-Subject: [rtc-linux] Re: [PATCH 2/2] rtc: omap: Add external clock enabling support
-Message-ID: <20150814083319.GG22269@piout.net>
-References: <1439449668-32301-1-git-send-email-j-keerthy@ti.com>
- <1439449668-32301-3-git-send-email-j-keerthy@ti.com>
+To: Viresh Kumar <viresh.kumar@linaro.org>
+Cc: trivial@kernel.org, linaro-kernel@lists.linaro.org,
+	linux-kernel@vger.kernel.org,
+	Hans Ulli Kroll <ulli.kroll@googlemail.com>,
+	"moderated list:BLACKFIN RTC DRIVER" <adi-buildroot-devel@lists.sourceforge.net>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	"moderated list:ARM/CORTINA SYSTEMS GEMINI ARM ARCHITECTURE" <linux-arm-kernel@lists.infradead.org>,
+	"open list:REAL TIME CLOCK (RTC) SUBSYSTEM" <rtc-linux@googlegroups.com>
+Subject: [rtc-linux] Re: [PATCH V1 Resend 06/10] drivers: rtc: Drop (un)likely
+ before IS_ERR(_OR_NULL)
+Message-ID: <20150812104133.GE3411@piout.net>
+References: <cover.1439375087.git.viresh.kumar@linaro.org>
+ <1a92f2e1af5309ece9736f79f312e90486a98825.1439375087.git.viresh.kumar@linaro.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1439449668-32301-3-git-send-email-j-keerthy@ti.com>
+In-Reply-To: <1a92f2e1af5309ece9736f79f312e90486a98825.1439375087.git.viresh.kumar@linaro.org>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -27,137 +31,68 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On 13/08/2015 at 12:37:48 +0530, Keerthy wrote :
-> Configure the clock source to either internal clock
-> or external clock based on the availability of the clocks.
-> External clock is preferred as it can be ticking during suspend.
+Hi Viresh,
+
+Why are you resending?
+
+On 12/08/2015 at 15:59:43 +0530, Viresh Kumar wrote :
+> IS_ERR(_OR_NULL) already contain an 'unlikely' compiler flag and there
+> is no need to do that again from its callers. Drop it.
 > 
-> Signed-off-by: Keerthy <j-keerthy@ti.com>
+> gemini driver was using likely() for a failure case while the rtc driver
+> is getting registered. That looks wrong and it should really be
+> unlikely. But because we are killing all the unlikely() flags, lets kill
+> that too.
+> 
+> Acked-by: Hans Ulli Kroll <ulli.kroll@googlemail.com> (gemini)
+> Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
 > ---
->  drivers/rtc/rtc-omap.c | 44 ++++++++++++++++++++++++++++++++++++++++++++
->  1 file changed, 44 insertions(+)
+>  drivers/rtc/interface.c  | 2 +-
+>  drivers/rtc/rtc-bfin.c   | 2 +-
+>  drivers/rtc/rtc-gemini.c | 2 +-
+>  3 files changed, 3 insertions(+), 3 deletions(-)
 > 
-> diff --git a/drivers/rtc/rtc-omap.c b/drivers/rtc/rtc-omap.c
-> index 8b6355f..479f730 100644
-> --- a/drivers/rtc/rtc-omap.c
-> +++ b/drivers/rtc/rtc-omap.c
-> @@ -25,6 +25,7 @@
->  #include <linux/of_device.h>
->  #include <linux/pm_runtime.h>
->  #include <linux/io.h>
-> +#include <linux/clk.h>
->  
->  /*
->   * The OMAP RTC is a year/month/day/hours/minutes/seconds BCD clock
-> @@ -107,6 +108,7 @@
->  
->  /* OMAP_RTC_OSC_REG bit fields: */
->  #define OMAP_RTC_OSC_32KCLK_EN		BIT(6)
-> +#define OMAP_RTC_OSC_SEL_32KCLK_SRC	BIT(3)
->  
->  /* OMAP_RTC_IRQWAKEEN bit fields: */
->  #define OMAP_RTC_IRQWAKEEN_ALARM_WAKEEN	BIT(1)
-> @@ -136,6 +138,7 @@ struct omap_rtc {
->  	int irq_timer;
->  	u8 interrupts_reg;
->  	bool is_pmic_controller;
-> +	bool has_ext_clk;
->  	const struct omap_rtc_device_type *type;
->  };
->  
-> @@ -525,6 +528,7 @@ static int omap_rtc_probe(struct platform_device *pdev)
+> diff --git a/drivers/rtc/interface.c b/drivers/rtc/interface.c
+> index 11b639067312..5836751b8203 100644
+> --- a/drivers/rtc/interface.c
+> +++ b/drivers/rtc/interface.c
+> @@ -564,7 +564,7 @@ enum hrtimer_restart rtc_pie_update_irq(struct hrtimer *timer)
+>  void rtc_update_irq(struct rtc_device *rtc,
+>  		unsigned long num, unsigned long events)
 >  {
->  	struct omap_rtc	*rtc;
->  	struct resource	*res;
-> +	struct clk *ext_clk, *int_clk;
->  	u8 reg, mask, new_ctrl;
->  	const struct platform_device_id *id_entry;
->  	const struct of_device_id *of_id;
-> @@ -553,6 +557,17 @@ static int omap_rtc_probe(struct platform_device *pdev)
->  	if (rtc->irq_alarm <= 0)
->  		return -ENOENT;
+> -	if (unlikely(IS_ERR_OR_NULL(rtc)))
+> +	if (IS_ERR_OR_NULL(rtc))
+>  		return;
 >  
-> +	ext_clk = devm_clk_get(&pdev->dev, "ext-clk");
-> +	if (!IS_ERR(ext_clk)) {
-> +		rtc->has_ext_clk = true;
-> +		clk_prepare(ext_clk);
-
-I'd say this has to be prepare_enable because you are not enabling those
-clocks anywhere
-
-> +	} else {
-> +		int_clk = devm_clk_get(&pdev->dev, "int-clk");
-> +
-> +		if (!IS_ERR(int_clk))
-> +			clk_prepare(int_clk);
-> +	}
-> +
->  	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
->  	rtc->base = devm_ioremap_resource(&pdev->dev, res);
->  	if (IS_ERR(rtc->base))
-> @@ -627,6 +642,17 @@ static int omap_rtc_probe(struct platform_device *pdev)
->  	if (reg != new_ctrl)
->  		rtc_write(rtc, OMAP_RTC_CTRL_REG, new_ctrl);
+>  	pm_stay_awake(rtc->dev.parent);
+> diff --git a/drivers/rtc/rtc-bfin.c b/drivers/rtc/rtc-bfin.c
+> index 3d44b11721ea..535a5f9338d0 100644
+> --- a/drivers/rtc/rtc-bfin.c
+> +++ b/drivers/rtc/rtc-bfin.c
+> @@ -361,7 +361,7 @@ static int bfin_rtc_probe(struct platform_device *pdev)
+>  	/* Register our RTC with the RTC framework */
+>  	rtc->rtc_dev = devm_rtc_device_register(dev, pdev->name, &bfin_rtc_ops,
+>  						THIS_MODULE);
+> -	if (unlikely(IS_ERR(rtc->rtc_dev)))
+> +	if (IS_ERR(rtc->rtc_dev))
+>  		return PTR_ERR(rtc->rtc_dev);
 >  
-> +	/*
-> +	 * If we have the external clock then
-> +	 * Switch to external clock so we can keep ticking
-> +	 * acorss suspend
-> +	 */
-> +	if (rtc->has_ext_clk) {
-> +		reg = rtc_read(rtc, OMAP_RTC_OSC_REG);
-> +		rtc_write(rtc, OMAP_RTC_OSC_REG, reg |
-> +			  OMAP_RTC_OSC_SEL_32KCLK_SRC);
-> +	}
-> +
->  	rtc->type->lock(rtc);
+>  	/* Grab the IRQ and init the hardware */
+> diff --git a/drivers/rtc/rtc-gemini.c b/drivers/rtc/rtc-gemini.c
+> index 35f4486738fc..2fed93e1114a 100644
+> --- a/drivers/rtc/rtc-gemini.c
+> +++ b/drivers/rtc/rtc-gemini.c
+> @@ -148,7 +148,7 @@ static int gemini_rtc_probe(struct platform_device *pdev)
 >  
->  	device_init_wakeup(&pdev->dev, true);
-> @@ -672,6 +698,8 @@ err:
->  static int __exit omap_rtc_remove(struct platform_device *pdev)
->  {
->  	struct omap_rtc *rtc = platform_get_drvdata(pdev);
-> +	struct clk *ext_clk, *int_clk;
-> +	u8 reg;
+>  	rtc->rtc_dev = rtc_device_register(pdev->name, dev,
+>  					   &gemini_rtc_ops, THIS_MODULE);
+> -	if (likely(IS_ERR(rtc->rtc_dev)))
+> +	if (IS_ERR(rtc->rtc_dev))
+>  		return PTR_ERR(rtc->rtc_dev);
 >  
->  	if (pm_power_off == omap_rtc_power_off &&
->  			omap_rtc_power_off_rtc == rtc) {
-> @@ -681,10 +709,26 @@ static int __exit omap_rtc_remove(struct platform_device *pdev)
->  
->  	device_init_wakeup(&pdev->dev, 0);
->  
-> +	ext_clk = devm_clk_get(&pdev->dev, "ext-clk");
-> +	if (!IS_ERR(ext_clk)) {
-> +		clk_unprepare(ext_clk);
-> +	} else {
-> +		int_clk = devm_clk_get(&pdev->dev, "int-clk");
-> +
-> +		if (!IS_ERR(int_clk))
-> +			clk_unprepare(int_clk);
-> +	}
-> +
-
-You can probably add ext_clk and int_clk to struct omap_rtc and avoid
-those devm_clk_get.
-
->  	rtc->type->unlock(rtc);
->  	/* leave rtc running, but disable irqs */
->  	rtc_write(rtc, OMAP_RTC_INTERRUPTS_REG, 0);
->  
-> +	if (rtc->has_ext_clk) {
-
-Then you could also avoid has_ext_clk and simply test rtc->ext_clk.
-
-> +		reg = rtc_read(rtc, OMAP_RTC_OSC_REG);
-> +		reg &= ~OMAP_RTC_OSC_SEL_32KCLK_SRC;
-> +		rtc_write(rtc, OMAP_RTC_OSC_REG, reg);
-> +	}
-> +
->  	rtc->type->lock(rtc);
->  
->  	/* Disable the clock/module */
+>  	return 0;
 > -- 
-> 1.9.1
+> 2.4.0
 > 
 
 -- 
