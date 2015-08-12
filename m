@@ -1,133 +1,50 @@
-Return-Path: <rtc-linux+bncBD2536XZRAKBBHM6Y6XAKGQEXFCCSVA@googlegroups.com>
-Received: from mail-la0-x234.google.com (mail-la0-x234.google.com. [2a00:1450:4010:c03::234])
-        by gmr-mx.google.com with ESMTPS id ku1si485030lbc.3.2015.08.17.05.10.04
+Return-Path: <rtc-linux+bncBDKZNNNLXAHBBDE4VKXAKGQEUUCURKI@googlegroups.com>
+Received: from mailout1.w1.samsung.com (mailout1.w1.samsung.com. [210.118.77.11])
+        by gmr-mx.google.com with ESMTPS id c1si392976pdg.0.2015.08.11.17.06.35
         for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 17 Aug 2015 05:10:04 -0700 (PDT)
-Received: by mail-la0-x234.google.com with SMTP id z9so77611451lag.3
-        for <rtc-linux@googlegroups.com>; Mon, 17 Aug 2015 05:10:04 -0700 (PDT)
-Sender: rtc-linux@googlegroups.com
-Date: Mon, 17 Aug 2015 14:10:02 +0200
-From: Johan Hovold <johan@kernel.org>
-To: Keerthy <a0393675@ti.com>
-Cc: Johan Hovold <johan@kernel.org>, Keerthy <j-keerthy@ti.com>,
-	linux-omap@vger.kernel.org, rtc-linux@googlegroups.com,
-	tony@atomide.com, alexandre.belloni@free-electrons.com,
-	akpm@linux-foundation.org, grygorii.strashko@ti.com,
-	bcousson@baylibre.com, devicetree@vger.kernel.org, t-kristo@ti.com
-Subject: [rtc-linux] Re: [PATCH v2 2/2] rtc: omap: Add external clock enabling support
-Message-ID: <20150817121002.GG7053@localhost>
-References: <1439787338-27396-1-git-send-email-j-keerthy@ti.com>
- <1439787338-27396-3-git-send-email-j-keerthy@ti.com>
- <20150817113000.GF7053@localhost>
- <55D1C7CF.3070406@ti.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <55D1C7CF.3070406@ti.com>
+        (version=TLSv1 cipher=RC4-SHA bits=128/128);
+        Tue, 11 Aug 2015 17:06:36 -0700 (PDT)
+Received: from eucpsbgm2.samsung.com (unknown [203.254.199.245])
+ by mailout1.w1.samsung.com
+ (Oracle Communications Messaging Server 7.0.5.31.0 64bit (built May  5 2014))
+ with ESMTP id <0NSY00GBN0AU7P40@mailout1.w1.samsung.com> for
+ rtc-linux@googlegroups.com; Wed, 12 Aug 2015 01:06:30 +0100 (BST)
+Message-id: <55CA8E05.1000704@samsung.com>
+Date: Wed, 12 Aug 2015 09:06:29 +0900
+From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+MIME-version: 1.0
+To: Joonyoung Shim <jy0922.shim@samsung.com>, rtc-linux@googlegroups.com
+Cc: linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org,
+ a.zummo@towertech.it, alexandre.belloni@free-electrons.com,
+ cw00.choi@samsung.com
+Subject: [rtc-linux] Re: [PATCH 1/4] rtc: s3c: add missing clk control
+References: <1439292502-22912-1-git-send-email-jy0922.shim@samsung.com>
+In-reply-to: <1439292502-22912-1-git-send-email-jy0922.shim@samsung.com>
+Content-type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
 List-Archive: <http://groups.google.com/group/rtc-linux
+Sender: rtc-linux@googlegroups.com
 List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On Mon, Aug 17, 2015 at 05:08:55PM +0530, Keerthy wrote:
+On 11.08.2015 20:28, Joonyoung Shim wrote:
+> It's missed to call clk_unprepare() about info->rtc_src_clk in
+> s3c_rtc_remove and to call clk_disable_unprepare about info->rtc_clk in
+> error routine of s3c_rtc_probe.
 > 
-> 
-> On Monday 17 August 2015 05:00 PM, Johan Hovold wrote:
-> > On Mon, Aug 17, 2015 at 10:25:38AM +0530, Keerthy wrote:
-> >> Configure the clock source to either internal clock
-> >> or external clock based on the availability of the clocks.
-> >> External clock is preferred as it can be ticking during suspend.
-> >>
-> >> Signed-off-by: Keerthy <j-keerthy@ti.com>
-> >> ---
-> >>
-> >> Changes in V2:
-> >>
-> >>    * Changed clk_prepare calls to clk_prepare_enable.
-> >>    * Changed clk_unprepare calls to clk_disable_unprepare.
-> >>    * Added clk pointers for external and internal clock to omap_rtc structure.
-> >>
-> >>   drivers/rtc/rtc-omap.c | 40 ++++++++++++++++++++++++++++++++++++++++
-> >>   1 file changed, 40 insertions(+)
-> >>
-> >> diff --git a/drivers/rtc/rtc-omap.c b/drivers/rtc/rtc-omap.c
-> >> index 8b6355f..46b3944 100644
-> >> --- a/drivers/rtc/rtc-omap.c
-> >> +++ b/drivers/rtc/rtc-omap.c
-> >> @@ -25,6 +25,7 @@
-> >>   #include <linux/of_device.h>
-> >>   #include <linux/pm_runtime.h>
-> >>   #include <linux/io.h>
-> >> +#include <linux/clk.h>
-> >>
-> >>   /*
-> >>    * The OMAP RTC is a year/month/day/hours/minutes/seconds BCD clock
-> >> @@ -107,6 +108,7 @@
-> >>
-> >>   /* OMAP_RTC_OSC_REG bit fields: */
-> >>   #define OMAP_RTC_OSC_32KCLK_EN		BIT(6)
-> >> +#define OMAP_RTC_OSC_SEL_32KCLK_SRC	BIT(3)
-> >>
-> >>   /* OMAP_RTC_IRQWAKEEN bit fields: */
-> >>   #define OMAP_RTC_IRQWAKEEN_ALARM_WAKEEN	BIT(1)
-> >> @@ -132,10 +134,13 @@ struct omap_rtc_device_type {
-> >>   struct omap_rtc {
-> >>   	struct rtc_device *rtc;
-> >>   	void __iomem *base;
-> >> +	struct clk *ext_clk;
-> >> +	struct clk *int_clk;
-> >
-> > As was already suggested, you could just use one clock here for now.
-> 
-> If the intent is to enable dynamic switching in future why not have both 
-> the clock pointers ready?
+> Signed-off-by: Joonyoung Shim <jy0922.shim@samsung.com>
+> ---
+>  drivers/rtc/rtc-s3c.c | 3 +++
+>  1 file changed, 3 insertions(+)
 
-Because it needlessly complicates the clock handling below, and those
-bits would need to be rewritten anyway when/if dynamic switching is
-implemented.
+Reviewed-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
 
-> >
-> >>   	int irq_alarm;
-> >>   	int irq_timer;
-> >>   	u8 interrupts_reg;
-> >>   	bool is_pmic_controller;
-> >> +	bool has_ext_clk;
-> >>   	const struct omap_rtc_device_type *type;
-> >>   };
-> >>
-> >> @@ -553,6 +558,17 @@ static int omap_rtc_probe(struct platform_device *pdev)
-> >>   	if (rtc->irq_alarm <= 0)
-> >>   		return -ENOENT;
-> >>
-> >> +	rtc->ext_clk = devm_clk_get(&pdev->dev, "ext-clk");
-> >> +	if (!IS_ERR(rtc->ext_clk)) {
-> >> +		rtc->has_ext_clk = true;
-> >> +		clk_prepare_enable(rtc->ext_clk);
-> >> +	} else {
-> >> +		rtc->int_clk = devm_clk_get(&pdev->dev, "int-clk");
-> >> +
-> >> +		if (!IS_ERR(rtc->int_clk))
-> >> +			clk_prepare_enable(rtc->int_clk);
-> >> +	}
-> >> +
-> >
-> > Which would allow some simplification here.
-> >
-> > But shouldn't enabling the internal clock go in its own patch before you
-> > add support for the external clock?
-> 
-> I am okay with splitting but for now its either or situation so enabling 
-> in one patch made sense to me.
-
-Since you're doing two different things here (fixing the missing clock
-enable and adding support for the external clock), I'd suggest doing it
-in two patches.
-
-Johan
+Best regards,
+Krzysztof
 
 -- 
 -- 
