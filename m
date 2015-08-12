@@ -1,26 +1,27 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBO5VVCXAKGQEOF4RJ3A@googlegroups.com>
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id gt9si97754wib.2.2015.08.11.08.54.35
-        for <rtc-linux@googlegroups.com>;
-        Tue, 11 Aug 2015 08:54:35 -0700 (PDT)
-Date: Tue, 11 Aug 2015 17:54:34 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Viresh Kumar <viresh.kumar@linaro.org>
-Cc: akpm@linux-foundation.org, linaro-kernel@lists.linaro.org,
-	linux-kernel@vger.kernel.org,
-	"moderated list:BLACKFIN RTC DRIVER" <adi-buildroot-devel@lists.sourceforge.net>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Hans Ulli Kroll <ulli.kroll@googlemail.com>,
-	"moderated list:ARM/CORTINA SYSTEMS GEMINI ARM ARCHITECTURE" <linux-arm-kernel@lists.infradead.org>,
-	"open list:REAL TIME CLOCK (RTC) SUBSYSTEM" <rtc-linux@googlegroups.com>
-Subject: [rtc-linux] Re: [PATCH 9/15 V2] drivers: rtc: Drop (un)likely before IS_ERR(_OR_NULL)
-Message-ID: <20150811155434.GT3411@piout.net>
-References: <cdfa3fb76901fe1c4a5756e7e64cb3370cf6317a.1438331416.git.viresh.kumar@linaro.org>
- <b8be698a8625ceb9adc8da51cd9474626db7c3d1.1438339891.git.viresh.kumar@linaro.org>
+Return-Path: <rtc-linux+bncBDEZ72H55YIBBPF4VSXAKGQEOLXH6QA@googlegroups.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <b8be698a8625ceb9adc8da51cd9474626db7c3d1.1438339891.git.viresh.kumar@linaro.org>
+Received: from mailout4.samsung.com (mailout4.samsung.com. [203.254.224.34])
+        by gmr-mx.google.com with ESMTPS id ff6si586790pac.2.2015.08.12.03.21.47
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1 cipher=RC4-SHA bits=128/128);
+        Wed, 12 Aug 2015 03:21:48 -0700 (PDT)
+Received: from epcpsbgr1.samsung.com
+ (u141.gpu120.samsung.co.kr [203.254.230.141])
+ by mailout4.samsung.com (Oracle Communications Messaging Server 7.0.5.31.0
+ 64bit (built May  5 2014))
+ with ESMTP id <0NSY02T8ASS9MO50@mailout4.samsung.com> for
+ rtc-linux@googlegroups.com; Wed, 12 Aug 2015 19:21:45 +0900 (KST)
+From: Joonyoung Shim <jy0922.shim@samsung.com>
+To: rtc-linux@googlegroups.com
+Cc: linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org,
+ stable@vger.kernel.org, a.zummo@towertech.it,
+ alexandre.belloni@free-electrons.com, cw00.choi@samsung.com,
+ k.kozlowski@samsung.com, jy0922.shim@samsung.com
+Subject: [rtc-linux] [PATCH v2] rtc: s3c: fix disabled clocks for alarm
+Date: Wed, 12 Aug 2015 19:21:46 +0900
+Message-id: <1439374906-27841-1-git-send-email-jy0922.shim@samsung.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -30,33 +31,87 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On 31/07/2015 at 16:23:43 +0530, Viresh Kumar wrote :
-> IS_ERR(_OR_NULL) already contain an 'unlikely' compiler flag and there
-> is no need to do that again from its callers. Drop it.
-> 
-> gemini driver was using likely() for a failure case while the rtc driver
-> is getting registered. That looks wrong and it should really be
-> unlikely. But because we are killing all the unlikely() flags, lets kill
-> that too.
-> 
-> Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
-> ---
-> V1->V2:
-> - Removed the likely() part from gemini driver and the changelog wasn't
->   updated to match that. Fixed the changelog now.
-> 
->  drivers/rtc/interface.c  | 2 +-
->  drivers/rtc/rtc-bfin.c   | 2 +-
->  drivers/rtc/rtc-gemini.c | 2 +-
->  3 files changed, 3 insertions(+), 3 deletions(-)
-> 
+The clock enable/disable codes for alarm have been removed from
+commit 24e1455493da ("drivers/rtc/rtc-s3c.c: delete duplicate clock
+control") and the clocks are disabled even if alarm is set, so alarm
+interrupt can't happen.
 
-Applied, thanks.
+The s3c_rtc_setaie function can be called several times with 'enabled'
+argument having same value, so it needs to check whether clocks are
+enabled or not.
 
+Signed-off-by: Joonyoung Shim <jy0922.shim@samsung.com>
+Cc: <stable@vger.kernel.org> # v4.1
+---
+This is v2 of prior patch "[PATCH 4/4] rtc: s3c: enable/disable clocks
+for alarm".
+
+Changelog for v2:
+- commit messages is modified by Krzysztof suggestion
+- make to backportable patch
+- add Cc-stable
+
+ drivers/rtc/rtc-s3c.c | 24 ++++++++++++++++++------
+ 1 file changed, 18 insertions(+), 6 deletions(-)
+
+diff --git a/drivers/rtc/rtc-s3c.c b/drivers/rtc/rtc-s3c.c
+index 44b2921..7cc8f73 100644
+--- a/drivers/rtc/rtc-s3c.c
++++ b/drivers/rtc/rtc-s3c.c
+@@ -39,6 +39,7 @@ struct s3c_rtc {
+ 	void __iomem *base;
+ 	struct clk *rtc_clk;
+ 	struct clk *rtc_src_clk;
++	bool clk_disabled;
+ 
+ 	struct s3c_rtc_data *data;
+ 
+@@ -71,9 +72,12 @@ static void s3c_rtc_enable_clk(struct s3c_rtc *info)
+ 	unsigned long irq_flags;
+ 
+ 	spin_lock_irqsave(&info->alarm_clk_lock, irq_flags);
+-	clk_enable(info->rtc_clk);
+-	if (info->data->needs_src_clk)
+-		clk_enable(info->rtc_src_clk);
++	if (info->clk_disabled) {
++		clk_enable(info->rtc_clk);
++		if (info->data->needs_src_clk)
++			clk_enable(info->rtc_src_clk);
++		info->clk_disabled = false;
++	}
+ 	spin_unlock_irqrestore(&info->alarm_clk_lock, irq_flags);
+ }
+ 
+@@ -82,9 +86,12 @@ static void s3c_rtc_disable_clk(struct s3c_rtc *info)
+ 	unsigned long irq_flags;
+ 
+ 	spin_lock_irqsave(&info->alarm_clk_lock, irq_flags);
+-	if (info->data->needs_src_clk)
+-		clk_disable(info->rtc_src_clk);
+-	clk_disable(info->rtc_clk);
++	if (!info->clk_disabled) {
++		if (info->data->needs_src_clk)
++			clk_disable(info->rtc_src_clk);
++		clk_disable(info->rtc_clk);
++		info->clk_disabled = true;
++	}
+ 	spin_unlock_irqrestore(&info->alarm_clk_lock, irq_flags);
+ }
+ 
+@@ -128,6 +135,11 @@ static int s3c_rtc_setaie(struct device *dev, unsigned int enabled)
+ 
+ 	s3c_rtc_disable_clk(info);
+ 
++	if (enabled)
++		s3c_rtc_enable_clk(info);
++	else
++		s3c_rtc_disable_clk(info);
++
+ 	return 0;
+ }
+ 
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+1.9.1
 
 -- 
 -- 
