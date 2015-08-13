@@ -1,24 +1,22 @@
-Return-Path: <rtc-linux+bncBD66BCOYSQBBBR53WGXAKGQEJKMWUXY@googlegroups.com>
+Return-Path: <rtc-linux+bncBDA2TOHIQEARBWXWWCXAKGQEPHLAP5A@googlegroups.com>
 Received: from devils.ext.ti.com (devils.ext.ti.com. [198.47.26.153])
-        by gmr-mx.google.com with ESMTPS id 4si151887igl.1.2015.08.13.02.05.11
+        by gmr-mx.google.com with ESMTPS id j6si138477igx.0.2015.08.12.23.38.17
         for <rtc-linux@googlegroups.com>
         (version=TLSv1 cipher=RC4-SHA bits=128/128);
-        Thu, 13 Aug 2015 02:05:11 -0700 (PDT)
-Message-ID: <55CC5DB4.7040704@ti.com>
-Date: Thu, 13 Aug 2015 14:34:52 +0530
-From: Keerthy <a0393675@ti.com>
+        Wed, 12 Aug 2015 23:38:17 -0700 (PDT)
+Message-ID: <55CC3B8E.2090802@ti.com>
+Date: Thu, 13 Aug 2015 09:39:10 +0300
+From: Tero Kristo <t-kristo@ti.com>
 MIME-Version: 1.0
-To: Tony Lindgren <tony@atomide.com>
-CC: Keerthy <j-keerthy@ti.com>, <linux-omap@vger.kernel.org>,
-        <pawel.moll@arm.com>, <galak@codeaurora.org>, <paul@pwsan.com>,
-        <alexandre.belloni@free-electrons.com>, <akpm@linux-foundation.org>,
-        <johan@kernel.org>, <grygorii.strashko@ti.com>,
-        <rtc-linux@googlegroups.com>, <bcousson@baylibre.com>, <nm@ti.com>,
-        <devicetree@vger.kernel.org>, <t-kristo@ti.com>
-Subject: [rtc-linux] Re: [PATCH v2 3/6] ARM: AM43xx: Introduce a separate
- soc_is function for am438x series of SoCs
-References: <1439198906-31189-1-git-send-email-j-keerthy@ti.com> <1439198906-31189-4-git-send-email-j-keerthy@ti.com> <20150811125515.GN4215@atomide.com> <55CA36D2.3080509@ti.com> <20150812083718.GS4215@atomide.com>
-In-Reply-To: <20150812083718.GS4215@atomide.com>
+To: Paul Walmsley <paul@pwsan.com>, Keerthy <j-keerthy@ti.com>
+CC: <tony@atomide.com>, <linux-omap@vger.kernel.org>, <pawel.moll@arm.com>,
+        <galak@codeaurora.org>, <alexandre.belloni@free-electrons.com>,
+        <akpm@linux-foundation.org>, <johan@kernel.org>,
+        <grygorii.strashko@ti.com>, <rtc-linux@googlegroups.com>,
+        <bcousson@baylibre.com>, <nm@ti.com>, <devicetree@vger.kernel.org>
+Subject: [rtc-linux] Re: [PATCH v2 5/6] ARM: AM43XX: HWMOD: Add rtc hwmod
+References: <1439198906-31189-1-git-send-email-j-keerthy@ti.com> <1439198906-31189-6-git-send-email-j-keerthy@ti.com> <alpine.DEB.2.02.1508121434190.7154@utopia.booyaka.com>
+In-Reply-To: <alpine.DEB.2.02.1508121434190.7154@utopia.booyaka.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
@@ -30,59 +28,35 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-
-
-On Wednesday 12 August 2015 02:07 PM, Tony Lindgren wrote:
-> * Keerthy <a0393675@ti.com> [150811 10:57]:
+On 08/12/2015 05:39 PM, Paul Walmsley wrote:
+> On Mon, 10 Aug 2015, Keerthy wrote:
+>
+>> The patch adds rtc hwmod. This is present on gp and sk evm and not on
+>> epos evm. Hence adding it selectively using a seprate list.
 >>
->>
->> On Tuesday 11 August 2015 06:25 PM, Tony Lindgren wrote:
->>> * Keerthy <j-keerthy@ti.com> [150810 02:31]:
->>>> @@ -371,8 +372,10 @@ IS_OMAP_TYPE(3430, 0x3430)
->>>>   #ifdef	CONFIG_SOC_AM43XX
->>>>   # undef soc_is_am43xx
->>>>   # undef soc_is_am437x
->>>> -# define soc_is_am43xx()		is_am43xx()
->>>> -# define soc_is_am437x()		is_am437x()
->>>> +# undef soc_is_am438x
->>>> +# define soc_is_am43xx()		of_machine_is_compatible("ti,am43")
->>>> +# define soc_is_am437x()		of_machine_is_compatible("ti,am4372")
->>>> +# define soc_is_am438x()		of_machine_is_compatible("ti,am438x")
->>>>   #endif
->>>
->>> Hmm didn't I already comment on this change? I don't want to do it
->>> for one SoC. Please add the SoC detection the old way for am43xx,
->>> then do another series that changes all the DT only SoCs to use
->>> of_machine_is_compatible() after it's been properly tested so now
->>> regressions are caused for the early init code.
->>
->> Okay. I misinterpreted your earlier comment. Thanks for clarifying.
->> I will re-do.
+>> Signed-off-by: Keerthy <j-keerthy@ti.com>
 >
-> Actually, can you please do the following patches first while at it:
+> So just to confirm, the RTC IP block has been physically removed or
+> permanently disabled on these new AM438x chips?  So the registers are no
+> longer accessible by the MPU?
 >
-> 1.  Change dra7 SoC detection to intialize soc_name and soc_rev
->      registers based on the of_machine_is_compatible so we don't
->      do pointless string comparisons with the current code
+> Is there a TRM available for these chips?
 
-Tony,
+No public TRM available, as the SoC mostly contains secure environment 
+support on them.
 
-just another confirmation. So the intent here is to directly do
-of_machine_is_compatible checks instead if soc_is_dra* and try to remove 
-soc_is calls from mach-omap2 code right?
+The RTC module is physically present on the SoC, but it is permanently 
+disabled. A secure RTC is used instead on these devices, where needed.
 
--Keerthy
+-Tero
+
 >
-> 2. Add am437x detection the same way
 >
-> 3. Change all the existing DT only SoCs to do the same (this
->     can be done in a separate series)
->
-> That should allow us to drop most of the SoC detection code.
->
-> Regards,
->
-> Tony
+> - Paul
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-omap" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 >
 
 -- 
