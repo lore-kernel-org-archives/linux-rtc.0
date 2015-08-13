@@ -1,28 +1,29 @@
-Return-Path: <rtc-linux+bncBCH4V2OOTYHBBTW57OWQKGQEHKPFLWQ@googlegroups.com>
-Received: from mail-wi0-x229.google.com (mail-wi0-x229.google.com. [2a00:1450:400c:c05::229])
-        by gmr-mx.google.com with ESMTPS id bk2si270168wib.1.2015.08.02.21.32.14
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sun, 02 Aug 2015 21:32:14 -0700 (PDT)
-Received: by mail-wi0-x229.google.com with SMTP id xm9so97281824wib.1
-        for <rtc-linux@googlegroups.com>; Sun, 02 Aug 2015 21:32:14 -0700 (PDT)
-Date: Mon, 3 Aug 2015 06:32:02 +0200 (CEST)
-From: "'Hans Ulli Kroll' via rtc-linux" <rtc-linux@googlegroups.com>
-To: Viresh Kumar <viresh.kumar@linaro.org>
-cc: akpm@linux-foundation.org, linaro-kernel@lists.linaro.org,
-    linux-kernel@vger.kernel.org,
-    "moderated list:BLACKFIN RTC DRIVER" <adi-buildroot-devel@lists.sourceforge.net>,
-    Alessandro Zummo <a.zummo@towertech.it>,
-    Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-    Hans Ulli Kroll <ulli.kroll@googlemail.com>,
-    "moderated list:ARM/CORTINA SYSTEMS GEMINI ARM ARCHITECTURE" <linux-arm-kernel@lists.infradead.org>,
-    "open list:REAL TIME CLOCK (RTC) SUBSYSTEM" <rtc-linux@googlegroups.com>
-Subject: [rtc-linux] Re: [PATCH 9/15 V2] drivers: rtc: Drop (un)likely before IS_ERR(_OR_NULL)
-In-Reply-To: <b8be698a8625ceb9adc8da51cd9474626db7c3d1.1438339891.git.viresh.kumar@linaro.org>
-Message-ID: <alpine.LNX.2.00.1508030631150.8913@T520.work>
-References: <cdfa3fb76901fe1c4a5756e7e64cb3370cf6317a.1438331416.git.viresh.kumar@linaro.org> <b8be698a8625ceb9adc8da51cd9474626db7c3d1.1438339891.git.viresh.kumar@linaro.org>
+Return-Path: <rtc-linux+bncBCQPVKWLVAIRB6WUWGXAKGQE2BODJPY@googlegroups.com>
+Received: from muru.com (muru.com. [72.249.23.125])
+        by gmr-mx.google.com with ESMTP id 4si163402igl.1.2015.08.13.02.59.22
+        for <rtc-linux@googlegroups.com>;
+        Thu, 13 Aug 2015 02:59:22 -0700 (PDT)
+Date: Thu, 13 Aug 2015 02:59:15 -0700
+From: Tony Lindgren <tony@atomide.com>
+To: Keerthy <a0393675@ti.com>
+Cc: Keerthy <j-keerthy@ti.com>, linux-omap@vger.kernel.org,
+	pawel.moll@arm.com, galak@codeaurora.org, paul@pwsan.com,
+	alexandre.belloni@free-electrons.com, akpm@linux-foundation.org,
+	johan@kernel.org, grygorii.strashko@ti.com,
+	rtc-linux@googlegroups.com, bcousson@baylibre.com, nm@ti.com,
+	devicetree@vger.kernel.org, t-kristo@ti.com
+Subject: [rtc-linux] Re: [PATCH v2 3/6] ARM: AM43xx: Introduce a separate
+ soc_is function for am438x series of SoCs
+Message-ID: <20150813095915.GD4215@atomide.com>
+References: <1439198906-31189-1-git-send-email-j-keerthy@ti.com>
+ <1439198906-31189-4-git-send-email-j-keerthy@ti.com>
+ <20150811125515.GN4215@atomide.com>
+ <55CA36D2.3080509@ti.com>
+ <20150812083718.GS4215@atomide.com>
+ <55CC5DB4.7040704@ti.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <55CC5DB4.7040704@ti.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -33,72 +34,60 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Hi
+* Keerthy <a0393675@ti.com> [150813 02:08]:
+> 
+> 
+> On Wednesday 12 August 2015 02:07 PM, Tony Lindgren wrote:
+> >* Keerthy <a0393675@ti.com> [150811 10:57]:
+> >>
+> >>
+> >>On Tuesday 11 August 2015 06:25 PM, Tony Lindgren wrote:
+> >>>* Keerthy <j-keerthy@ti.com> [150810 02:31]:
+> >>>>@@ -371,8 +372,10 @@ IS_OMAP_TYPE(3430, 0x3430)
+> >>>>  #ifdef	CONFIG_SOC_AM43XX
+> >>>>  # undef soc_is_am43xx
+> >>>>  # undef soc_is_am437x
+> >>>>-# define soc_is_am43xx()		is_am43xx()
+> >>>>-# define soc_is_am437x()		is_am437x()
+> >>>>+# undef soc_is_am438x
+> >>>>+# define soc_is_am43xx()		of_machine_is_compatible("ti,am43")
+> >>>>+# define soc_is_am437x()		of_machine_is_compatible("ti,am4372")
+> >>>>+# define soc_is_am438x()		of_machine_is_compatible("ti,am438x")
+> >>>>  #endif
+> >>>
+> >>>Hmm didn't I already comment on this change? I don't want to do it
+> >>>for one SoC. Please add the SoC detection the old way for am43xx,
+> >>>then do another series that changes all the DT only SoCs to use
+> >>>of_machine_is_compatible() after it's been properly tested so now
+> >>>regressions are caused for the early init code.
+> >>
+> >>Okay. I misinterpreted your earlier comment. Thanks for clarifying.
+> >>I will re-do.
+> >
+> >Actually, can you please do the following patches first while at it:
+> >
+> >1.  Change dra7 SoC detection to intialize soc_name and soc_rev
+> >     registers based on the of_machine_is_compatible so we don't
+> >     do pointless string comparisons with the current code
+> 
+> just another confirmation. So the intent here is to directly do
+> of_machine_is_compatible checks instead if soc_is_dra* and try to remove
+> soc_is calls from mach-omap2 code right?
 
-On Fri, 31 Jul 2015, Viresh Kumar wrote:
+Only do of_machine_is_compatible check once to initialize
+the necessary variables for soc_is_* to use. 
 
-> IS_ERR(_OR_NULL) already contain an 'unlikely' compiler flag and there
-> is no need to do that again from its callers. Drop it.
-> 
-> gemini driver was using likely() for a failure case while the rtc driver
-> is getting registered. That looks wrong and it should really be
-> unlikely. But because we are killing all the unlikely() flags, lets kill
-> that too.
-> 
-> Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
-> ---
-> V1->V2:
-> - Removed the likely() part from gemini driver and the changelog wasn't
->   updated to match that. Fixed the changelog now.
-> 
->  drivers/rtc/interface.c  | 2 +-
->  drivers/rtc/rtc-bfin.c   | 2 +-
->  drivers/rtc/rtc-gemini.c | 2 +-
->  3 files changed, 3 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/rtc/interface.c b/drivers/rtc/interface.c
-> index 11b639067312..5836751b8203 100644
-> --- a/drivers/rtc/interface.c
-> +++ b/drivers/rtc/interface.c
-> @@ -564,7 +564,7 @@ enum hrtimer_restart rtc_pie_update_irq(struct hrtimer *timer)
->  void rtc_update_irq(struct rtc_device *rtc,
->  		unsigned long num, unsigned long events)
->  {
-> -	if (unlikely(IS_ERR_OR_NULL(rtc)))
-> +	if (IS_ERR_OR_NULL(rtc))
->  		return;
->  
->  	pm_stay_awake(rtc->dev.parent);
-> diff --git a/drivers/rtc/rtc-bfin.c b/drivers/rtc/rtc-bfin.c
-> index 3d44b11721ea..535a5f9338d0 100644
-> --- a/drivers/rtc/rtc-bfin.c
-> +++ b/drivers/rtc/rtc-bfin.c
-> @@ -361,7 +361,7 @@ static int bfin_rtc_probe(struct platform_device *pdev)
->  	/* Register our RTC with the RTC framework */
->  	rtc->rtc_dev = devm_rtc_device_register(dev, pdev->name, &bfin_rtc_ops,
->  						THIS_MODULE);
-> -	if (unlikely(IS_ERR(rtc->rtc_dev)))
-> +	if (IS_ERR(rtc->rtc_dev))
->  		return PTR_ERR(rtc->rtc_dev);
->  
->  	/* Grab the IRQ and init the hardware */
-> diff --git a/drivers/rtc/rtc-gemini.c b/drivers/rtc/rtc-gemini.c
-> index 35f4486738fc..2fed93e1114a 100644
-> --- a/drivers/rtc/rtc-gemini.c
-> +++ b/drivers/rtc/rtc-gemini.c
-> @@ -148,7 +148,7 @@ static int gemini_rtc_probe(struct platform_device *pdev)
->  
->  	rtc->rtc_dev = rtc_device_register(pdev->name, dev,
->  					   &gemini_rtc_ops, THIS_MODULE);
-> -	if (likely(IS_ERR(rtc->rtc_dev)))
-> +	if (IS_ERR(rtc->rtc_dev))
->  		return PTR_ERR(rtc->rtc_dev);
->  
->  	return 0;
-> -- 
-> 2.4.0
-> 
-> 
+Rgarads,
 
-For the mach-gemini part
-Acked-by: Hans Ulli Kroll <ulli.kroll@googlemail.com>
+Tony
+
+-- 
+-- 
+You received this message because you are subscribed to "rtc-linux".
+Membership options at http://groups.google.com/group/rtc-linux .
+Please read http://groups.google.com/group/rtc-linux/web/checklist
+before submitting a driver.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+For more options, visit https://groups.google.com/d/optout.
