@@ -1,22 +1,21 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBSUTQKXAKGQEX7H7DEY@googlegroups.com>
+Return-Path: <rtc-linux+bncBAABBLPDWOXAKGQEVFHQ3VA@googlegroups.com>
+Received: from mx02.posteo.de (mx02.posteo.de. [89.146.194.165])
+        by gmr-mx.google.com with ESMTPS id c3si120623wiz.2.2015.08.13.12.36.13
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 13 Aug 2015 12:36:13 -0700 (PDT)
+Date: Thu, 13 Aug 2015 21:33:27 +0200
+From: Felix Janda <felix.janda@posteo.de>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: rtc-linux@googlegroups.com
+Subject: Re: [rtc-linux] [PATCH] rtc: as3772: Fix off-by-one error in month value
+Message-ID: <20150813193327.GA7843@nyan>
+References: <20150801175924.GA5371@nyan>
+ <20150812132759.GI3411@piout.net>
 MIME-Version: 1.0
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id hm7si54171wib.0.2015.08.04.02.45.45
-        for <rtc-linux@googlegroups.com>;
-        Tue, 04 Aug 2015 02:45:45 -0700 (PDT)
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: rtc-linux@googlegroups.com
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
-	linux-kernel@vger.kernel.org,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Subject: [rtc-linux] [PATCH 06/15] rtc: rx8025: only handle dates between 2000
- and 2099
-Date: Tue,  4 Aug 2015 11:45:25 +0200
-Message-Id: <1438681534-12027-7-git-send-email-alexandre.belloni@free-electrons.com>
-In-Reply-To: <1438681534-12027-1-git-send-email-alexandre.belloni@free-electrons.com>
-References: <1438681534-12027-1-git-send-email-alexandre.belloni@free-electrons.com>
-Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <20150812132759.GI3411@piout.net>
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -26,55 +25,34 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-The hardware is only capable of handling dates between 2000 and 2099,
-enforce that.
+Alexandre Belloni wrote:
+> Hi,
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
----
- drivers/rtc/rtc-rx8025.c | 14 ++++----------
- 1 file changed, 4 insertions(+), 10 deletions(-)
+Thank you very much for your help!
 
-diff --git a/drivers/rtc/rtc-rx8025.c b/drivers/rtc/rtc-rx8025.c
-index 52683eda1da2..3612362b65ac 100644
---- a/drivers/rtc/rtc-rx8025.c
-+++ b/drivers/rtc/rtc-rx8025.c
-@@ -188,10 +188,7 @@ static int rx8025_get_time(struct device *dev, struct rtc_time *dt)
- 
- 	dt->tm_mday = bcd2bin(date[RX8025_REG_MDAY] & 0x3f);
- 	dt->tm_mon = bcd2bin(date[RX8025_REG_MONTH] & 0x1f) - 1;
--	dt->tm_year = bcd2bin(date[RX8025_REG_YEAR]);
--
--	if (dt->tm_year < 70)
--		dt->tm_year += 100;
-+	dt->tm_year = bcd2bin(date[RX8025_REG_YEAR]) + 100;
- 
- 	dev_dbg(dev, "%s: date %ds %dm %dh %dmd %dm %dy\n", __func__,
- 		dt->tm_sec, dt->tm_min, dt->tm_hour,
-@@ -205,11 +202,8 @@ static int rx8025_set_time(struct device *dev, struct rtc_time *dt)
- 	struct rx8025_data *rx8025 = dev_get_drvdata(dev);
- 	u8 date[7];
- 
--	/*
--	 * BUG: The HW assumes every year that is a multiple of 4 to be a leap
--	 * year.  Next time this is wrong is 2100, which will not be a leap
--	 * year.
--	 */
-+	if ((dt->tm_year < 100) || (dt->tm_year > 199))
-+		return -EINVAL;
- 
- 	/*
- 	 * Here the read-only bits are written as "0".  I'm not sure if that
-@@ -226,7 +220,7 @@ static int rx8025_set_time(struct device *dev, struct rtc_time *dt)
- 	date[RX8025_REG_WDAY] = bin2bcd(dt->tm_wday);
- 	date[RX8025_REG_MDAY] = bin2bcd(dt->tm_mday);
- 	date[RX8025_REG_MONTH] = bin2bcd(dt->tm_mon + 1);
--	date[RX8025_REG_YEAR] = bin2bcd(dt->tm_year % 100);
-+	date[RX8025_REG_YEAR] = bin2bcd(dt->tm_year - 100);
- 
- 	dev_dbg(dev,
- 		"%s: write 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x\n",
--- 
-2.1.4
+> On 01/08/2015 at 19:59:24 +0200, Felix Janda wrote :
+> > The RTC's month value starts at 1, whereas the kernel's starts at 0.
+> > 
+> > Signed-off-by: Felix Janda <felix.janda@posteo.de>
+> > ---
+> > This is my first kernel patch. It's content is actually from
+> > 
+> > https://chromium.googlesource.com/chromiumos/third_party/kernel-next/+/9ce8d10f39c441642fba58ab8248d78951cec7a7
+> > 
+> > How can this be acknowledged? The patch from the chromiumos kernel
+> > can't be taken as it is, can it?
+> 
+> You should send the patch with "Bibek Basu <bbasu@nvidia.com>" as the
+> author and both SoB tags, Bibek's and yours. The other, gerrit related,
+> tags can be removed.
+> 
+> It will look like:
+> https://groups.google.com/forum/#!topic/rtc-linux/9NJUEAJWIkI
+
+So I should better not rewrite the commit message? At least the
+"CHROMIUM: " prefix of the title seems inappropriate.
+
+Felix
 
 -- 
 -- 
