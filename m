@@ -1,96 +1,89 @@
-Return-Path: <rtc-linux+bncBDKZNNNLXAHBBL6WWGXAKGQEWGSECXQ@googlegroups.com>
-Received: from mail-pd0-x22f.google.com (mail-pd0-x22f.google.com. [2607:f8b0:400e:c02::22f])
-        by gmr-mx.google.com with ESMTPS id pm1si185496pac.1.2015.08.13.03.02.22
+Return-Path: <rtc-linux+bncBD66BCOYSQBBBR53WGXAKGQEJKMWUXY@googlegroups.com>
+Received: from devils.ext.ti.com (devils.ext.ti.com. [198.47.26.153])
+        by gmr-mx.google.com with ESMTPS id 4si151887igl.1.2015.08.13.02.05.11
         for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 13 Aug 2015 03:02:22 -0700 (PDT)
-Received: by mail-pd0-x22f.google.com with SMTP id fa8so17545584pdb.1
-        for <rtc-linux@googlegroups.com>; Thu, 13 Aug 2015 03:02:22 -0700 (PDT)
-Sender: rtc-linux@googlegroups.com
-Message-ID: <55CC6B28.5010707@samsung.com>
-Date: Thu, 13 Aug 2015 19:02:16 +0900
-From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+        (version=TLSv1 cipher=RC4-SHA bits=128/128);
+        Thu, 13 Aug 2015 02:05:11 -0700 (PDT)
+Message-ID: <55CC5DB4.7040704@ti.com>
+Date: Thu, 13 Aug 2015 14:34:52 +0530
+From: Keerthy <a0393675@ti.com>
 MIME-Version: 1.0
-To: rtc-linux@googlegroups.com
-CC: linux-samsung-soc@vger.kernel.org, linux-kernel@vger.kernel.org,
- stable@vger.kernel.org, a.zummo@towertech.it,
- alexandre.belloni@free-electrons.com, sbkim73@samsung.com,
- jy0922.shim@samsung.com
-Subject: Re: [rtc-linux] [PATCH] rtc: s5m: fix to update ctrl register
-References: <1439455764-23526-1-git-send-email-jy0922.shim@samsung.com>
-In-Reply-To: <1439455764-23526-1-git-send-email-jy0922.shim@samsung.com>
-Content-Type: text/plain; charset=UTF-8
+To: Tony Lindgren <tony@atomide.com>
+CC: Keerthy <j-keerthy@ti.com>, <linux-omap@vger.kernel.org>,
+        <pawel.moll@arm.com>, <galak@codeaurora.org>, <paul@pwsan.com>,
+        <alexandre.belloni@free-electrons.com>, <akpm@linux-foundation.org>,
+        <johan@kernel.org>, <grygorii.strashko@ti.com>,
+        <rtc-linux@googlegroups.com>, <bcousson@baylibre.com>, <nm@ti.com>,
+        <devicetree@vger.kernel.org>, <t-kristo@ti.com>
+Subject: [rtc-linux] Re: [PATCH v2 3/6] ARM: AM43xx: Introduce a separate
+ soc_is function for am438x series of SoCs
+References: <1439198906-31189-1-git-send-email-j-keerthy@ti.com> <1439198906-31189-4-git-send-email-j-keerthy@ti.com> <20150811125515.GN4215@atomide.com> <55CA36D2.3080509@ti.com> <20150812083718.GS4215@atomide.com>
+In-Reply-To: <20150812083718.GS4215@atomide.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
 List-Archive: <http://groups.google.com/group/rtc-linux
+Sender: rtc-linux@googlegroups.com
 List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-W dniu 13.08.2015 o 17:49, Joonyoung Shim pisze:
-> According to datasheet, the S2MPS13X and S2MPS14X should update write
-> buffer via setting WUDR bit to high after ctrl register is updated.
-
-Hi,
-
-I cannot find this information in S2MPS14 datasheet. On which page is it?
 
 
-> 
-> If not, ALARM interrupt of rtc-s5m doesn't happen first time when i use
-> tools/testing/selftests/timers/rtctest.c test program and hour format is
-> used to 12 hour mode in Odroid-XU3 board.
+On Wednesday 12 August 2015 02:07 PM, Tony Lindgren wrote:
+> * Keerthy <a0393675@ti.com> [150811 10:57]:
+>>
+>>
+>> On Tuesday 11 August 2015 06:25 PM, Tony Lindgren wrote:
+>>> * Keerthy <j-keerthy@ti.com> [150810 02:31]:
+>>>> @@ -371,8 +372,10 @@ IS_OMAP_TYPE(3430, 0x3430)
+>>>>   #ifdef	CONFIG_SOC_AM43XX
+>>>>   # undef soc_is_am43xx
+>>>>   # undef soc_is_am437x
+>>>> -# define soc_is_am43xx()		is_am43xx()
+>>>> -# define soc_is_am437x()		is_am437x()
+>>>> +# undef soc_is_am438x
+>>>> +# define soc_is_am43xx()		of_machine_is_compatible("ti,am43")
+>>>> +# define soc_is_am437x()		of_machine_is_compatible("ti,am4372")
+>>>> +# define soc_is_am438x()		of_machine_is_compatible("ti,am438x")
+>>>>   #endif
+>>>
+>>> Hmm didn't I already comment on this change? I don't want to do it
+>>> for one SoC. Please add the SoC detection the old way for am43xx,
+>>> then do another series that changes all the DT only SoCs to use
+>>> of_machine_is_compatible() after it's been properly tested so now
+>>> regressions are caused for the early init code.
+>>
+>> Okay. I misinterpreted your earlier comment. Thanks for clarifying.
+>> I will re-do.
+>
+> Actually, can you please do the following patches first while at it:
+>
+> 1.  Change dra7 SoC detection to intialize soc_name and soc_rev
+>      registers based on the of_machine_is_compatible so we don't
+>      do pointless string comparisons with the current code
 
-Two questions here:
-1. Earlier you mentioned S2MPS1[34], now Odroid XU3 which has S2MPS11.
-Are you sure that this applies to all of them (S2MPS11, S2MPS13 and
-S2MP14)? There are some minor differences between them so I would not be
-surprised if only some of them required this action.
+Tony,
 
-2. The driver operates in 24-hour omode. Actually it sets the 24-hour
-mode just before your new regmap_update_bits() call. What do you mean by
-12-hour mode?
+just another confirmation. So the intent here is to directly do
+of_machine_is_compatible checks instead if soc_is_dra* and try to remove 
+soc_is calls from mach-omap2 code right?
 
-> Signed-off-by: Joonyoung Shim <jy0922.shim@samsung.com>
-> Cc: <stable@vger.kernel.org>
-
-Thanks for putting a cc-stable tag. How far this should be ported? If
-this is needed only for S2MPS11 then v4.1. If all of them then probably
-for earlier version?
-
-Best regards,
-Krzysztof
-
-> ---
->  drivers/rtc/rtc-s5m.c | 12 ++++++++++++
->  1 file changed, 12 insertions(+)
-> 
-> diff --git a/drivers/rtc/rtc-s5m.c b/drivers/rtc/rtc-s5m.c
-> index 8c70d78..03828bb 100644
-> --- a/drivers/rtc/rtc-s5m.c
-> +++ b/drivers/rtc/rtc-s5m.c
-> @@ -635,6 +635,18 @@ static int s5m8767_rtc_init_reg(struct s5m_rtc_info *info)
->  	case S2MPS13X:
->  		data[0] = (0 << BCD_EN_SHIFT) | (1 << MODEL24_SHIFT);
->  		ret = regmap_write(info->regmap, info->regs->ctrl, data[0]);
-> +		if (ret < 0)
-> +			break;
-> +
-> +		ret = regmap_update_bits(info->regmap,
-> +				info->regs->rtc_udr_update,
-> +				info->regs->rtc_udr_mask,
-> +				info->regs->rtc_udr_mask);
-> +		if (ret < 0)
-> +			break;
-> +
-> +		ret = s5m8767_wait_for_udr_update(info);
-> +
->  		break;
->  
->  	default:
-> 
+-Keerthy
+>
+> 2. Add am437x detection the same way
+>
+> 3. Change all the existing DT only SoCs to do the same (this
+>     can be done in a separate series)
+>
+> That should allow us to drop most of the SoC detection code.
+>
+> Regards,
+>
+> Tony
+>
 
 -- 
 -- 
