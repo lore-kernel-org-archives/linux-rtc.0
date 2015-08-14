@@ -1,29 +1,26 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBWXTZOXAKGQEOTC4BGQ@googlegroups.com>
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id x20si493029wia.0.2015.08.18.02.24.42
-        for <rtc-linux@googlegroups.com>;
-        Tue, 18 Aug 2015 02:24:42 -0700 (PDT)
-Date: Tue, 18 Aug 2015 11:21:52 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Gregory CLEMENT <gregory.clement@free-electrons.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
-	Jason Cooper <jason@lakedaemon.net>, Andrew Lunn <andrew@lunn.ch>,
-	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
-	Thomas Petazzoni <thomas.petazzoni@free-electrons.com>,
-	Ezequiel Garcia <ezequiel.garcia@free-electrons.com>,
-	linux-arm-kernel@lists.infradead.org,
-	Maxime Ripard <maxime.ripard@free-electrons.com>,
-	Boris BREZILLON <boris.brezillon@free-electrons.com>,
-	Lior Amsalem <alior@marvell.com>,
-	Tawfik Bayouk <tawfik@marvell.com>,
-	Nadav Haklai <nadavh@marvell.com>
-Subject: [rtc-linux] Re: [PATCH] rtc: armada38x: Align RTC set time procedure
- with the official errata
-Message-ID: <20150818092152.GV22269@piout.net>
-References: <1438874328-31844-1-git-send-email-gregory.clement@free-electrons.com>
+Return-Path: <rtc-linux+bncBD66BCOYSQBBBQHJWWXAKGQEX6R3NNA@googlegroups.com>
+Received: from devils.ext.ti.com (devils.ext.ti.com. [198.47.26.153])
+        by gmr-mx.google.com with ESMTPS id g7si100679igr.0.2015.08.13.21.55.28
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1 cipher=RC4-SHA bits=128/128);
+        Thu, 13 Aug 2015 21:55:28 -0700 (PDT)
+Message-ID: <55CD74AF.4020803@ti.com>
+Date: Fri, 14 Aug 2015 10:25:11 +0530
+From: Keerthy <a0393675@ti.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1438874328-31844-1-git-send-email-gregory.clement@free-electrons.com>
+To: Paul Walmsley <paul@pwsan.com>,
+        Alexandre Belloni
+	<alexandre.belloni@free-electrons.com>,
+        Keerthy <j-keerthy@ti.com>
+CC: <tony@atomide.com>, <linux-omap@vger.kernel.org>, <pawel.moll@arm.com>,
+        <galak@codeaurora.org>, <akpm@linux-foundation.org>,
+        <johan@kernel.org>, <grygorii.strashko@ti.com>,
+        <rtc-linux@googlegroups.com>, <bcousson@baylibre.com>, <nm@ti.com>,
+        <devicetree@vger.kernel.org>, <t-kristo@ti.com>
+Subject: [rtc-linux] Re: [PATCH v2 2/6] rtc: omap: Add external clock enabling support
+References: <1439198906-31189-1-git-send-email-j-keerthy@ti.com> <1439198906-31189-3-git-send-email-j-keerthy@ti.com> <alpine.DEB.2.02.1508121422020.7154@utopia.booyaka.com> <55CB99C2.7010007@ti.com> <20150812201636.GJ3411@piout.net> <alpine.DEB.2.02.1508131822510.1009@utopia.booyaka.com>
+In-Reply-To: <alpine.DEB.2.02.1508131822510.1009@utopia.booyaka.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -34,28 +31,45 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On 06/08/2015 at 17:18:48 +0200, Gregory CLEMENT wrote :
-> From: Nadav Haklai <nadavh@marvell.com>
-> 
-> According to the Armada38x functional errata FE-3124064, writing to
-> the RTC TIME register may fail. As a workaround, after writing to RTC
-> TIME register, issue a dummy write of 0x0 twice to the RTC Status
-> register.  This is the updated implementation of the Errata that
-> eliminates the need of the long 100ms delay during the RTC set time
-> procedure.
-> 
-> [gregory.clement@free-electrons.com]: removed the mutex and use the
-> spinlock again
-> 
-> Signed-off-by: Nadav Haklai <nadavh@marvell.com>
-> Reviewed-by: Neta Zur Hershkovits <neta@marvell.com>
-> Signed-off-by: Gregory CLEMENT <gregory.clement@free-electrons.com>
-Applied, thanks.
 
--- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+
+On Friday 14 August 2015 01:47 AM, Paul Walmsley wrote:
+> Hi guys
+>
+> On Wed, 12 Aug 2015, Alexandre Belloni wrote:
+>
+>> On 13/08/2015 at 00:38:50 +0530, Keerthy wrote :
+>>> The intent here is to switch to a higher precision clock which is the
+>>> internal clock when available.
+>>>
+>>> Alexandre,
+>>>
+>>> Is dynamic switching preferred over sticking  to external clock always if
+>>> present?
+>>
+>> I'd say that I don't really care. I'd say the best would be to make a
+>> decision based on clock-accuracy but maybe that is an information you
+>> don't have yet. Anyway, this could be added at a later date.
+>
+> Either the clock mux logic is glitchless, in which case the RTC is likely
+> to lose at least 31 microseconds per switch; or it's not glitchless, in
+> which case it's unsafe to switch the RTC clock source while the clock
+> isn't gated.  Keerthy, before submitting this patch for merging, I'd
+> suggest consulting your hardware folks to figure out which case it is.
+
+Paul,
+
+Thanks. Yes so i am doing the static way first. Keeping external clock 
+always if available. Switching dynamically can be done later with more 
+clarifications.
+
+Thanks,
+Keerthy
+
+>
+>
+> - Paul
+>
 
 -- 
 -- 
