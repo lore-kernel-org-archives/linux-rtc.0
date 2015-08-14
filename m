@@ -1,64 +1,73 @@
-Return-Path: <rtc-linux+bncBD2536XZRAKBBY4RW6XAKGQE2EFUYBY@googlegroups.com>
-Received: from mail-la0-x235.google.com (mail-la0-x235.google.com. [2a00:1450:4010:c03::235])
-        by gmr-mx.google.com with ESMTPS id ku1si181070lbc.3.2015.08.14.03.54.26
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 14 Aug 2015 03:54:26 -0700 (PDT)
-Received: by mail-la0-x235.google.com with SMTP id i9so41440597lah.2
-        for <rtc-linux@googlegroups.com>; Fri, 14 Aug 2015 03:54:26 -0700 (PDT)
-Sender: rtc-linux@googlegroups.com
-Date: Fri, 14 Aug 2015 12:54:23 +0200
-From: Johan Hovold <johan@kernel.org>
-To: Keerthy <j-keerthy@ti.com>
-Cc: linux-omap@vger.kernel.org, rtc-linux@googlegroups.com,
-	tony@atomide.com, alexandre.belloni@free-electrons.com,
-	akpm@linux-foundation.org, johan@kernel.org,
-	grygorii.strashko@ti.com, bcousson@baylibre.com,
-	devicetree@vger.kernel.org, t-kristo@ti.com
-Subject: [rtc-linux] Re: [PATCH 2/2] rtc: omap: Add external clock enabling support
-Message-ID: <20150814105423.GA20570@localhost>
-References: <1439449668-32301-1-git-send-email-j-keerthy@ti.com>
- <1439449668-32301-3-git-send-email-j-keerthy@ti.com>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRB46TXGXAKGQEVAFHLBA@googlegroups.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id p7si127876wib.1.2015.08.14.15.21.38
+        for <rtc-linux@googlegroups.com>;
+        Fri, 14 Aug 2015 15:21:38 -0700 (PDT)
+Date: Sat, 15 Aug 2015 00:21:37 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Vladimir Zapolskiy <vz@mleia.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: Re: [rtc-linux] [PATCH 00/11] rtc: clean up bin attribute read/write functions
+Message-ID: <20150814222137.GO22269@piout.net>
+References: <1437947316-5652-1-git-send-email-vz@mleia.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1439449668-32301-3-git-send-email-j-keerthy@ti.com>
+In-Reply-To: <1437947316-5652-1-git-send-email-vz@mleia.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
 List-Archive: <http://groups.google.com/group/rtc-linux
+Sender: rtc-linux@googlegroups.com
 List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On Thu, Aug 13, 2015 at 12:37:48PM +0530, Keerthy wrote:
-> Configure the clock source to either internal clock
-> or external clock based on the availability of the clocks.
-> External clock is preferred as it can be ticking during suspend.
+On 27/07/2015 at 00:48:25 +0300, Vladimir Zapolskiy wrote :
+> This change removes a number of redundant checks on bin attribute
+> client's side, the same checks are done by sysfs_kf_bin_read() or
+> sysfs_kf_bin_write() caller from fs/sysfs/file.c.
 > 
-> Signed-off-by: Keerthy <j-keerthy@ti.com>
+> Note, drivers/rtc/rtc-ds1685.c may be updated in a similar way,
+> however due to #ifndef magic involved this task is not done.
+> 
+> No functional change intended.
+> 
+> Vladimir Zapolskiy (11):
+>   rtc: cmos: clean up cmos_nvram_read()/cmos_nvram_write()
+>   rtc: ds1305: clean up ds1305_nvram_read()/ds1305_nvram_write()
+>   rtc: ds1307: clean up ds1307_nvram_read()/ds1307_nvram_write()
+>   rtc: ds1343: clean up ds1343_nvram_read()/ds1343_nvram_write()
+>   rtc: ds1511: clean up ds1511_nvram_read()/ds1511_nvram_write()
+>   rtc: ds1553: clean up ds1553_nvram_read()/ds1553_nvram_write()
+>   rtc: ds1742: clean up ds1742_nvram_read()/ds1742_nvram_write()
+>   rtc: m48t59: clean up m48t59_nvram_read()/m48t59_nvram_write()
+>   rtc: rp5c01: clean up rp5c01_nvram_read()/rp5c01_nvram_write()
+>   rtc: stk17ta8: clean up stk17ta8_nvram_read()/stk17ta8_nvram_write()
+>   rtc: tx4939: clean up tx4939_rtc_nvram_read()/tx4939_rtc_nvram_write()
+> 
+>  drivers/rtc/rtc-cmos.c     | 13 -------------
+>  drivers/rtc/rtc-ds1305.c   | 18 ------------------
+>  drivers/rtc/rtc-ds1307.c   | 14 --------------
+>  drivers/rtc/rtc-ds1343.c   | 12 ------------
+>  drivers/rtc/rtc-ds1511.c   | 38 ++++++++------------------------------
+>  drivers/rtc/rtc-ds1553.c   |  4 ++--
+>  drivers/rtc/rtc-ds1742.c   |  4 ++--
+>  drivers/rtc/rtc-m48t59.c   | 16 ++++++++--------
+>  drivers/rtc/rtc-rp5c01.c   |  4 ++--
+>  drivers/rtc/rtc-stk17ta8.c |  4 ++--
+>  drivers/rtc/rtc-tx4939.c   |  6 ++----
+>  11 files changed, 26 insertions(+), 107 deletions(-)
+> 
 
-> @@ -627,6 +642,17 @@ static int omap_rtc_probe(struct platform_device *pdev)
->  	if (reg != new_ctrl)
->  		rtc_write(rtc, OMAP_RTC_CTRL_REG, new_ctrl);
->  
-> +	/*
-> +	 * If we have the external clock then
-> +	 * Switch to external clock so we can keep ticking
-> +	 * acorss suspend
-> +	 */
+All applied (v2 when available), thanks
 
-You should fix up the comment (e.g. stray capitalisation and typo) as
-well.
 
-Perhaps reword as
-
-	/*
-	 * If we have an external clock then switch to it so we can keep
-	 * ticking across suspend.
-	 */
-
-Johan
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
 -- 
 -- 
