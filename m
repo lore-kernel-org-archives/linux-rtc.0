@@ -1,31 +1,29 @@
-Return-Path: <rtc-linux+bncBAABB37T7OXAKGQEBVHUVBY@googlegroups.com>
-MIME-Version: 1.0
-Received: from lists.s-osg.org (lists.s-osg.org. [54.187.51.154])
-        by gmr-mx.google.com with ESMTP id bm5si293603pbc.1.2015.08.27.04.52.15
+Return-Path: <rtc-linux+bncBDS7HNEFSALRB4GNW2XAKGQENDDGBCI@googlegroups.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id gt9si38290wib.2.2015.08.14.01.29.36
         for <rtc-linux@googlegroups.com>;
-        Thu, 27 Aug 2015 04:52:15 -0700 (PDT)
-From: Javier Martinez Canillas <javier@osg.samsung.com>
-To: linux-kernel@vger.kernel.org
-Cc: Luis de Bethencourt <luis.bg@samsung.com>,
-	Javier Martinez Canillas <javier@osg.samsung.com>,
-	Gregory Clement <gregory.clement@free-electrons.com>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Support Opensource <support.opensource@diasemi.com>,
-	Linus Walleij <linus.walleij@linaro.org>,
-	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
-	Jason Cooper <jason@lakedaemon.net>,
-	Andrew Lunn <andrew@lunn.ch>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	linux-mediatek@lists.infradead.org,
-	Eddie Huang <eddie.huang@mediatek.com>,
-	Tony Prisk <linux@prisktech.co.nz>,
-	rtc-linux@googlegroups.com,
-	linux-arm-kernel@lists.infradead.org
-Subject: [rtc-linux] [PATCH] rtc: Fix module autoload for OF platform drivers
-Date: Thu, 27 Aug 2015 13:52:02 +0200
-Message-Id: <1440676322-19870-1-git-send-email-javier@osg.samsung.com>
-Reply-To: rtc-linux@googlegroups.com
+        Fri, 14 Aug 2015 01:29:36 -0700 (PDT)
+Date: Fri, 14 Aug 2015 10:29:35 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Paul Walmsley <paul@pwsan.com>
+Cc: Keerthy <a0393675@ti.com>, Keerthy <j-keerthy@ti.com>, tony@atomide.com,
+	linux-omap@vger.kernel.org, pawel.moll@arm.com,
+	galak@codeaurora.org, akpm@linux-foundation.org, johan@kernel.org,
+	grygorii.strashko@ti.com, rtc-linux@googlegroups.com,
+	bcousson@baylibre.com, nm@ti.com, devicetree@vger.kernel.org,
+	t-kristo@ti.com
+Subject: [rtc-linux] Re: [PATCH v2 2/6] rtc: omap: Add external clock enabling support
+Message-ID: <20150814082935.GF22269@piout.net>
+References: <1439198906-31189-1-git-send-email-j-keerthy@ti.com>
+ <1439198906-31189-3-git-send-email-j-keerthy@ti.com>
+ <alpine.DEB.2.02.1508121422020.7154@utopia.booyaka.com>
+ <55CB99C2.7010007@ti.com>
+ <20150812201636.GJ3411@piout.net>
+ <alpine.DEB.2.02.1508131822510.1009@utopia.booyaka.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <alpine.DEB.2.02.1508131822510.1009@utopia.booyaka.com>
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -35,121 +33,28 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-These platform drivers have a OF device ID table but the OF module
-alias information is not created so module autoloading won't work.
+On 13/08/2015 at 20:17:23 +0000, Paul Walmsley wrote :
+> > I'd say that I don't really care. I'd say the best would be to make a
+> > decision based on clock-accuracy but maybe that is an information you
+> > don't have yet. Anyway, this could be added at a later date.
+> 
+> Either the clock mux logic is glitchless, in which case the RTC is likely 
+> to lose at least 31 microseconds per switch; or it's not glitchless, in 
+> which case it's unsafe to switch the RTC clock source while the clock 
+> isn't gated.  Keerthy, before submitting this patch for merging, I'd 
+> suggest consulting your hardware folks to figure out which case it is.
+> 
 
-Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
+Don't take me wrong, your point is perfectly valid. I was just saying
+that I didn't care what was done in the driver. Obviously, this has to
+match what is best from a hardware point of view. But since we agreed on
+the DT bindings, I'd say that we can still adjust the driver later.
 
----
 
- drivers/rtc/rtc-armada38x.c | 1 +
- drivers/rtc/rtc-coh901331.c | 1 +
- drivers/rtc/rtc-da9063.c    | 1 +
- drivers/rtc/rtc-moxart.c    | 1 +
- drivers/rtc/rtc-mpc5121.c   | 1 +
- drivers/rtc/rtc-mt6397.c    | 1 +
- drivers/rtc/rtc-mv.c        | 1 +
- drivers/rtc/rtc-vt8500.c    | 1 +
- 8 files changed, 8 insertions(+)
-
-diff --git a/drivers/rtc/rtc-armada38x.c b/drivers/rtc/rtc-armada38x.c
-index 06c6bd5eab41..9a3f2a6f512e 100644
---- a/drivers/rtc/rtc-armada38x.c
-+++ b/drivers/rtc/rtc-armada38x.c
-@@ -295,6 +295,7 @@ static const struct of_device_id armada38x_rtc_of_match_table[] = {
- 	{ .compatible = "marvell,armada-380-rtc", },
- 	{}
- };
-+MODULE_DEVICE_TABLE(of, armada38x_rtc_of_match_table);
- #endif
- 
- static struct platform_driver armada38x_rtc_driver = {
-diff --git a/drivers/rtc/rtc-coh901331.c b/drivers/rtc/rtc-coh901331.c
-index 56343b2fbc68..101b7a240e0f 100644
---- a/drivers/rtc/rtc-coh901331.c
-+++ b/drivers/rtc/rtc-coh901331.c
-@@ -263,6 +263,7 @@ static const struct of_device_id coh901331_dt_match[] = {
- 	{ .compatible = "stericsson,coh901331" },
- 	{},
- };
-+MODULE_DEVICE_TABLE(of, coh901331_dt_match);
- 
- static struct platform_driver coh901331_driver = {
- 	.driver = {
-diff --git a/drivers/rtc/rtc-da9063.c b/drivers/rtc/rtc-da9063.c
-index 5f38a5c84b56..00a8f7f4f87c 100644
---- a/drivers/rtc/rtc-da9063.c
-+++ b/drivers/rtc/rtc-da9063.c
-@@ -169,6 +169,7 @@ static const struct of_device_id da9063_compatible_reg_id_table[] = {
- 	{ .compatible = "dlg,da9062-rtc", .data = &da9062_aa_regs },
- 	{ },
- };
-+MODULE_DEVICE_TABLE(of, da9063_compatible_reg_id_table);
- 
- static void da9063_data_to_tm(u8 *data, struct rtc_time *tm,
- 			      struct da9063_compatible_rtc *rtc)
-diff --git a/drivers/rtc/rtc-moxart.c b/drivers/rtc/rtc-moxart.c
-index 73759c9a4527..07b30a373a92 100644
---- a/drivers/rtc/rtc-moxart.c
-+++ b/drivers/rtc/rtc-moxart.c
-@@ -312,6 +312,7 @@ static const struct of_device_id moxart_rtc_match[] = {
- 	{ .compatible = "moxa,moxart-rtc" },
- 	{ },
- };
-+MODULE_DEVICE_TABLE(of, moxart_rtc_match);
- 
- static struct platform_driver moxart_rtc_driver = {
- 	.probe	= moxart_rtc_probe,
-diff --git a/drivers/rtc/rtc-mpc5121.c b/drivers/rtc/rtc-mpc5121.c
-index 1767e18d5bd4..4ca4daa0b8f3 100644
---- a/drivers/rtc/rtc-mpc5121.c
-+++ b/drivers/rtc/rtc-mpc5121.c
-@@ -406,6 +406,7 @@ static const struct of_device_id mpc5121_rtc_match[] = {
- 	{ .compatible = "fsl,mpc5200-rtc", },
- 	{},
- };
-+MODULE_DEVICE_TABLE(of, mpc5121_rtc_match);
- #endif
- 
- static struct platform_driver mpc5121_rtc_driver = {
-diff --git a/drivers/rtc/rtc-mt6397.c b/drivers/rtc/rtc-mt6397.c
-index 30c926b36361..06a5c52b292f 100644
---- a/drivers/rtc/rtc-mt6397.c
-+++ b/drivers/rtc/rtc-mt6397.c
-@@ -402,6 +402,7 @@ static const struct of_device_id mt6397_rtc_of_match[] = {
- 	{ .compatible = "mediatek,mt6397-rtc", },
- 	{ }
- };
-+MODULE_DEVICE_TABLE(of, mt6397_rtc_of_match);
- 
- static struct platform_driver mtk_rtc_driver = {
- 	.driver = {
-diff --git a/drivers/rtc/rtc-mv.c b/drivers/rtc/rtc-mv.c
-index 7f50d2ef7f6e..79bb28617d45 100644
---- a/drivers/rtc/rtc-mv.c
-+++ b/drivers/rtc/rtc-mv.c
-@@ -324,6 +324,7 @@ static const struct of_device_id rtc_mv_of_match_table[] = {
- 	{ .compatible = "marvell,orion-rtc", },
- 	{}
- };
-+MODULE_DEVICE_TABLE(of, rtc_mv_of_match_table);
- #endif
- 
- static struct platform_driver mv_rtc_driver = {
-diff --git a/drivers/rtc/rtc-vt8500.c b/drivers/rtc/rtc-vt8500.c
-index a58b6d17e6f0..27e896995e9b 100644
---- a/drivers/rtc/rtc-vt8500.c
-+++ b/drivers/rtc/rtc-vt8500.c
-@@ -271,6 +271,7 @@ static const struct of_device_id wmt_dt_ids[] = {
- 	{ .compatible = "via,vt8500-rtc", },
- 	{}
- };
-+MODULE_DEVICE_TABLE(of, wmt_dt_ids);
- 
- static struct platform_driver vt8500_rtc_driver = {
- 	.probe		= vt8500_rtc_probe,
 -- 
-2.4.3
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
 -- 
 -- 
