@@ -1,23 +1,21 @@
-Return-Path: <rtc-linux+bncBDENZBE5PQIOTL5NVYCRUBAA5MVCW@googlegroups.com>
-Received: from utopia.booyaka.com (utopia.booyaka.com. [74.50.51.50])
-        by gmr-mx.google.com with ESMTPS id f17si1504524igt.0.2015.08.12.07.27.52
+Return-Path: <rtc-linux+bncBAABBQEFXCXAKGQE4HXIN5I@googlegroups.com>
+Received: from na01-bl2-obe.outbound.protection.outlook.com (mail-bl2on0059.outbound.protection.outlook.com. [65.55.169.59])
+        by gmr-mx.google.com with ESMTPS id s186si624019ywe.4.2015.08.14.08.01.20
         for <rtc-linux@googlegroups.com>
-        (version=TLSv1 cipher=RC4-SHA bits=128/128);
-        Wed, 12 Aug 2015 07:27:52 -0700 (PDT)
-Date: Wed, 12 Aug 2015 14:27:49 +0000 (UTC)
-From: Paul Walmsley <paul@pwsan.com>
-To: Keerthy <j-keerthy@ti.com>
-cc: tony@atomide.com, linux-omap@vger.kernel.org, pawel.moll@arm.com,
-  galak@codeaurora.org, alexandre.belloni@free-electrons.com,
-  akpm@linux-foundation.org, johan@kernel.org, grygorii.strashko@ti.com,
-  rtc-linux@googlegroups.com, bcousson@baylibre.com, nm@ti.com,
-  devicetree@vger.kernel.org, t-kristo@ti.com
-Subject: [rtc-linux] Re: [PATCH v2 2/6] rtc: omap: Add external clock enabling support
-In-Reply-To: <1439198906-31189-3-git-send-email-j-keerthy@ti.com>
-Message-ID: <alpine.DEB.2.02.1508121422020.7154@utopia.booyaka.com>
-References: <1439198906-31189-1-git-send-email-j-keerthy@ti.com> <1439198906-31189-3-git-send-email-j-keerthy@ti.com>
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
+        Fri, 14 Aug 2015 08:01:20 -0700 (PDT)
+From: Suneel Garapati <suneel.garapati@xilinx.com>
+To: <rtc-linux@googlegroups.com>, <linux-arm-kernel@lists.infradead.org>,
+	<linux-kernel@vger.kernel.org>
+CC: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	<michals@xilinx.com>, <sorenb@xilinx.com>, Alessandro Zummo
+	<a.zummo@towertech.it>, Suneel Garapati <suneel.garapati@xilinx.com>
+Subject: [rtc-linux] [PATCH v3 1/3] devicetree: bindings: rtc: add bindings
+ for xilinx zynqmp rtc
+Date: Fri, 14 Aug 2015 20:31:01 +0530
+Message-ID: <1439564462-21252-1-git-send-email-suneel.garapati@xilinx.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -28,16 +26,62 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On Mon, 10 Aug 2015, Keerthy wrote:
+adds file for description on device node bindings for RTC
+found on Xilinx Zynq Ultrascale+ MPSoC.
 
-> Switch to external clock source during suspend and switch back
-> to internal source on resume. This helps rtc ticking across suspend.
+Signed-off-by: Suneel Garapati <suneel.garapati@xilinx.com>
+---
+Changes v3
+- none
+Changes v2 
+- add examples for interrupt-names 
+- change alm to alarm 
+---
+ Documentation/devicetree/bindings/rtc/xlnx-rtc.txt | 25 ++++++++++++++++++++++
+ 1 file changed, 25 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/rtc/xlnx-rtc.txt
 
-Doesn't this type of dynamic switching make it likely that ticks will be 
-lost?
+diff --git a/Documentation/devicetree/bindings/rtc/xlnx-rtc.txt b/Documentation/devicetree/bindings/rtc/xlnx-rtc.txt
+new file mode 100644
+index 0000000..0df6f01
+--- /dev/null
++++ b/Documentation/devicetree/bindings/rtc/xlnx-rtc.txt
+@@ -0,0 +1,25 @@
++* Xilinx Zynq Ultrascale+ MPSoC Real Time Clock
++
++RTC controller for the Xilinx Zynq MPSoC Real Time Clock
++Separate IRQ lines for seconds and alarm
++
++Required properties:
++- compatible: Should be "xlnx,zynqmp-rtc"
++- reg: Physical base address of the controller and length
++       of memory mapped region.
++- interrupts: IRQ lines for the RTC.
++- interrupt-names: interrupt line names eg. "sec" "alarm"
++
++Optional:
++- calibration: calibration value for 1 sec period which will
++		be programmed directly to calibration register
++
++Example:
++rtc: rtc@ffa60000 {
++	compatible = "xlnx,zynqmp-rtc";
++	reg = <0x0 0xffa60000 0x100>;
++	interrupt-parent = <&gic>;
++	interrupts = <0 26 4>, <0 27 4>;
++	interrupt-names = "alarm", "sec";
++	calibration = <0x198233>;
++};
+-- 
+2.1.2
 
-If the external, optional source is present, isn't it best just to use the 
-external source 100% of the time?
-
-
-- Paul
+-- 
+-- 
+You received this message because you are subscribed to "rtc-linux".
+Membership options at http://groups.google.com/group/rtc-linux .
+Please read http://groups.google.com/group/rtc-linux/web/checklist
+before submitting a driver.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+For more options, visit https://groups.google.com/d/optout.
