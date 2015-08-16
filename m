@@ -1,51 +1,221 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBRXMUKXAKGQEV4JPLGI@googlegroups.com>
+Return-Path: <rtc-linux+bncBDKZNNNLXAHBBT6EYGXAKGQEAEQTRTQ@googlegroups.com>
+Received: from mail-pa0-x22d.google.com (mail-pa0-x22d.google.com. [2607:f8b0:400e:c03::22d])
+        by gmr-mx.google.com with ESMTPS id fy14si1115314pdb.2.2015.08.16.03.13.34
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Sun, 16 Aug 2015 03:13:34 -0700 (PDT)
+Received: by mail-pa0-x22d.google.com with SMTP id cq16so44317424pac.1
+        for <rtc-linux@googlegroups.com>; Sun, 16 Aug 2015 03:13:34 -0700 (PDT)
+Sender: rtc-linux@googlegroups.com
+Message-ID: <55D0624A.2020109@samsung.com>
+Date: Sun, 16 Aug 2015 19:13:30 +0900
+From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
 MIME-Version: 1.0
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id gt9si350702wib.2.2015.08.10.07.33.42
-        for <rtc-linux@googlegroups.com>;
-        Mon, 10 Aug 2015 07:33:42 -0700 (PDT)
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Nicolas Ferre <nicolas.ferre@atmel.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
-	rtc-linux@googlegroups.com,
-	linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Subject: [rtc-linux] [PATCH 1/2] rtc: at91sam9: include linux/of.h
-Date: Mon, 10 Aug 2015 16:33:39 +0200
-Message-Id: <1439217220-13561-1-git-send-email-alexandre.belloni@free-electrons.com>
-Reply-To: rtc-linux@googlegroups.com
+To: rtc-linux@googlegroups.com, alexandre.belloni@free-electrons.com
+CC: Fabio Estevam <fabio.estevam@freescale.com>
+Subject: Re: [rtc-linux] [PATCH] rtc: Pass the IRQF_ONESHOT flag
+References: <1439518416-13044-1-git-send-email-festevam@gmail.com>
+In-Reply-To: <1439518416-13044-1-git-send-email-festevam@gmail.com>
 Content-Type: text/plain; charset=UTF-8
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
 List-Archive: <http://groups.google.com/group/rtc-linux
-Sender: rtc-linux@googlegroups.com
 List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-This driver is using device tree but is not including of.h
+W dniu 14.08.2015 o 11:13, Fabio Estevam pisze:
+> From: Fabio Estevam <fabio.estevam@freescale.com>
+> 
+> Since commit 1c6c69525b40eb76de8adf039409722015927dc3 ("genirq: Reject
+> bogus threaded irq requests") threaded IRQs without a primary handler
+> need to be requested with IRQF_ONESHOT, otherwise the request will fail.
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
----
- drivers/rtc/rtc-at91sam9.c | 1 +
- 1 file changed, 1 insertion(+)
+That statement is not entirely correct... because the request does not
+fail. It works. At least for max77686 and rtc-s5m.
 
-diff --git a/drivers/rtc/rtc-at91sam9.c b/drivers/rtc/rtc-at91sam9.c
-index 5ccaee32df72..9f6c3631b8d5 100644
---- a/drivers/rtc/rtc-at91sam9.c
-+++ b/drivers/rtc/rtc-at91sam9.c
-@@ -25,6 +25,7 @@
- #include <linux/regmap.h>
- #include <linux/suspend.h>
- #include <linux/clk.h>
-+#include <linux/of.h>
- 
- /*
-  * This driver uses two configurable hardware resources that live in the
--- 
-2.1.4
+After looking at __setup_irq, your change does nothing because the flag
+will be cleared:
+	if (desc->irq_data.chip->flags & IRQCHIP_ONESHOT_SAFE)
+		new->flags &= ~IRQF_ONESHOT;
+
+Best regards,
+Krzysztof
+
+
+> 
+> So pass the IRQF_ONESHOT flag in this case.
+> 
+> The semantic patch that makes this change is available
+> in scripts/coccinelle/misc/irqf_oneshot.cocci
+> 
+> Signed-off-by: Fabio Estevam <fabio.estevam@freescale.com>
+> ---
+>  drivers/rtc/rtc-isl1208.c  | 2 +-
+>  drivers/rtc/rtc-lp8788.c   | 2 +-
+>  drivers/rtc/rtc-max77686.c | 3 ++-
+>  drivers/rtc/rtc-max77802.c | 3 ++-
+>  drivers/rtc/rtc-max8997.c  | 2 +-
+>  drivers/rtc/rtc-max8998.c  | 3 ++-
+>  drivers/rtc/rtc-rc5t583.c  | 2 +-
+>  drivers/rtc/rtc-rk808.c    | 2 +-
+>  drivers/rtc/rtc-s5m.c      | 3 ++-
+>  drivers/rtc/rtc-tps65910.c | 3 ++-
+>  drivers/rtc/rtc-wm831x.c   | 3 ++-
+>  11 files changed, 17 insertions(+), 11 deletions(-)
+> 
+> diff --git a/drivers/rtc/rtc-isl1208.c b/drivers/rtc/rtc-isl1208.c
+> index aa3b8f1..b57a304 100644
+> --- a/drivers/rtc/rtc-isl1208.c
+> +++ b/drivers/rtc/rtc-isl1208.c
+> @@ -638,7 +638,7 @@ isl1208_probe(struct i2c_client *client, const struct i2c_device_id *id)
+>  	if (client->irq > 0) {
+>  		rc = devm_request_threaded_irq(&client->dev, client->irq, NULL,
+>  					       isl1208_rtc_interrupt,
+> -					       IRQF_SHARED,
+> +					       IRQF_SHARED | IRQF_ONESHOT,
+>  					       isl1208_driver.driver.name,
+>  					       client);
+>  		if (!rc) {
+> diff --git a/drivers/rtc/rtc-lp8788.c b/drivers/rtc/rtc-lp8788.c
+> index e20e7bd..e0de665 100644
+> --- a/drivers/rtc/rtc-lp8788.c
+> +++ b/drivers/rtc/rtc-lp8788.c
+> @@ -280,7 +280,7 @@ static int lp8788_alarm_irq_register(struct platform_device *pdev,
+>  
+>  	return devm_request_threaded_irq(&pdev->dev, rtc->irq, NULL,
+>  				lp8788_alarm_irq_handler,
+> -				0, LP8788_ALM_IRQ, rtc);
+> +				IRQF_ONESHOT, LP8788_ALM_IRQ, rtc);
+>  }
+>  
+>  static int lp8788_rtc_probe(struct platform_device *pdev)
+> diff --git a/drivers/rtc/rtc-max77686.c b/drivers/rtc/rtc-max77686.c
+> index 7184a0e..06d1354 100644
+> --- a/drivers/rtc/rtc-max77686.c
+> +++ b/drivers/rtc/rtc-max77686.c
+> @@ -471,7 +471,8 @@ static int max77686_rtc_probe(struct platform_device *pdev)
+>  	}
+>  
+>  	ret = devm_request_threaded_irq(&pdev->dev, info->virq, NULL,
+> -				max77686_rtc_alarm_irq, 0, "rtc-alarm1", info);
+> +				max77686_rtc_alarm_irq, IRQF_ONESHOT,
+> +				"rtc-alarm1", info);
+>  	if (ret < 0)
+>  		dev_err(&pdev->dev, "Failed to request alarm IRQ: %d: %d\n",
+>  			info->virq, ret);
+> diff --git a/drivers/rtc/rtc-max77802.c b/drivers/rtc/rtc-max77802.c
+> index 82ffcc5..e275d9b 100644
+> --- a/drivers/rtc/rtc-max77802.c
+> +++ b/drivers/rtc/rtc-max77802.c
+> @@ -444,7 +444,8 @@ static int max77802_rtc_probe(struct platform_device *pdev)
+>  	}
+>  
+>  	ret = devm_request_threaded_irq(&pdev->dev, info->virq, NULL,
+> -					max77802_rtc_alarm_irq, 0, "rtc-alarm1",
+> +					max77802_rtc_alarm_irq, IRQF_ONESHOT,
+> +					"rtc-alarm1",
+>  					info);
+>  	if (ret < 0)
+>  		dev_err(&pdev->dev, "Failed to request alarm IRQ: %d: %d\n",
+> diff --git a/drivers/rtc/rtc-max8997.c b/drivers/rtc/rtc-max8997.c
+> index 9e02bcd..48e8ae4 100644
+> --- a/drivers/rtc/rtc-max8997.c
+> +++ b/drivers/rtc/rtc-max8997.c
+> @@ -499,7 +499,7 @@ static int max8997_rtc_probe(struct platform_device *pdev)
+>  	info->virq = virq;
+>  
+>  	ret = devm_request_threaded_irq(&pdev->dev, virq, NULL,
+> -				max8997_rtc_alarm_irq, 0,
+> +				max8997_rtc_alarm_irq, IRQF_ONESHOT,
+>  				"rtc-alarm0", info);
+>  	if (ret < 0)
+>  		dev_err(&pdev->dev, "Failed to request alarm IRQ: %d: %d\n",
+> diff --git a/drivers/rtc/rtc-max8998.c b/drivers/rtc/rtc-max8998.c
+> index 30804b0..bcd4956 100644
+> --- a/drivers/rtc/rtc-max8998.c
+> +++ b/drivers/rtc/rtc-max8998.c
+> @@ -287,7 +287,8 @@ static int max8998_rtc_probe(struct platform_device *pdev)
+>  	}
+>  
+>  	ret = devm_request_threaded_irq(&pdev->dev, info->irq, NULL,
+> -				max8998_rtc_alarm_irq, 0, "rtc-alarm0", info);
+> +				max8998_rtc_alarm_irq, IRQF_ONESHOT,
+> +				"rtc-alarm0", info);
+>  
+>  	if (ret < 0)
+>  		dev_err(&pdev->dev, "Failed to request alarm IRQ: %d: %d\n",
+> diff --git a/drivers/rtc/rtc-rc5t583.c b/drivers/rtc/rtc-rc5t583.c
+> index f28d577..a9b02af 100644
+> --- a/drivers/rtc/rtc-rc5t583.c
+> +++ b/drivers/rtc/rtc-rc5t583.c
+> @@ -248,7 +248,7 @@ static int rc5t583_rtc_probe(struct platform_device *pdev)
+>  
+>  	irq += RC5T583_IRQ_YALE;
+>  	ret = devm_request_threaded_irq(&pdev->dev, irq, NULL,
+> -		rc5t583_rtc_interrupt, IRQF_TRIGGER_LOW,
+> +		rc5t583_rtc_interrupt, IRQF_TRIGGER_LOW | IRQF_ONESHOT,
+>  		"rtc-rc5t583", &pdev->dev);
+>  	if (ret < 0) {
+>  		dev_err(&pdev->dev, "IRQ is not free.\n");
+> diff --git a/drivers/rtc/rtc-rk808.c b/drivers/rtc/rtc-rk808.c
+> index 91ca0bc..bf118da 100644
+> --- a/drivers/rtc/rtc-rk808.c
+> +++ b/drivers/rtc/rtc-rk808.c
+> @@ -393,7 +393,7 @@ static int rk808_rtc_probe(struct platform_device *pdev)
+>  
+>  	/* request alarm irq of rk808 */
+>  	ret = devm_request_threaded_irq(&pdev->dev, rk808_rtc->irq, NULL,
+> -					rk808_alarm_irq, 0,
+> +					rk808_alarm_irq, IRQF_ONESHOT,
+>  					"RTC alarm", rk808_rtc);
+>  	if (ret) {
+>  		dev_err(&pdev->dev, "Failed to request alarm IRQ %d: %d\n",
+> diff --git a/drivers/rtc/rtc-s5m.c b/drivers/rtc/rtc-s5m.c
+> index 8c70d78..dab0c34 100644
+> --- a/drivers/rtc/rtc-s5m.c
+> +++ b/drivers/rtc/rtc-s5m.c
+> @@ -740,7 +740,8 @@ static int s5m_rtc_probe(struct platform_device *pdev)
+>  	}
+>  
+>  	ret = devm_request_threaded_irq(&pdev->dev, info->irq, NULL,
+> -					s5m_rtc_alarm_irq, 0, "rtc-alarm0",
+> +					s5m_rtc_alarm_irq, IRQF_ONESHOT,
+> +					"rtc-alarm0",
+>  					info);
+>  	if (ret < 0) {
+>  		dev_err(&pdev->dev, "Failed to request alarm IRQ: %d: %d\n",
+> diff --git a/drivers/rtc/rtc-tps65910.c b/drivers/rtc/rtc-tps65910.c
+> index f42aa2b..9afafde 100644
+> --- a/drivers/rtc/rtc-tps65910.c
+> +++ b/drivers/rtc/rtc-tps65910.c
+> @@ -268,7 +268,8 @@ static int tps65910_rtc_probe(struct platform_device *pdev)
+>  	}
+>  
+>  	ret = devm_request_threaded_irq(&pdev->dev, irq, NULL,
+> -		tps65910_rtc_interrupt, IRQF_TRIGGER_LOW | IRQF_EARLY_RESUME,
+> +		tps65910_rtc_interrupt,
+> +		IRQF_TRIGGER_LOW | IRQF_EARLY_RESUME | IRQF_ONESHOT,
+>  		dev_name(&pdev->dev), &pdev->dev);
+>  	if (ret < 0) {
+>  		dev_err(&pdev->dev, "IRQ is not free.\n");
+> diff --git a/drivers/rtc/rtc-wm831x.c b/drivers/rtc/rtc-wm831x.c
+> index 75aea4c..54504d5 100644
+> --- a/drivers/rtc/rtc-wm831x.c
+> +++ b/drivers/rtc/rtc-wm831x.c
+> @@ -445,7 +445,8 @@ static int wm831x_rtc_probe(struct platform_device *pdev)
+>  
+>  	ret = devm_request_threaded_irq(&pdev->dev, alm_irq, NULL,
+>  				wm831x_alm_irq,
+> -				IRQF_TRIGGER_RISING, "RTC alarm",
+> +				IRQF_TRIGGER_RISING | IRQF_ONESHOT,
+> +				"RTC alarm",
+>  				wm831x_rtc);
+>  	if (ret != 0) {
+>  		dev_err(&pdev->dev, "Failed to request alarm IRQ %d: %d\n",
+> 
 
 -- 
 -- 
