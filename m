@@ -1,23 +1,23 @@
-Return-Path: <rtc-linux+bncBCQPVKWLVAIRB7H566XAKGQEICDL22I@googlegroups.com>
-Received: from muru.com (muru.com. [72.249.23.125])
-        by gmr-mx.google.com with ESMTP id bm5si2376921pbc.1.2015.08.26.11.01.31
-        for <rtc-linux@googlegroups.com>;
-        Wed, 26 Aug 2015 11:01:32 -0700 (PDT)
-Date: Wed, 26 Aug 2015 11:01:27 -0700
-From: Tony Lindgren <tony@atomide.com>
-To: Keerthy <a0393675@ti.com>
-Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Keerthy <j-keerthy@ti.com>, bcousson@baylibre.com, johan@kernel.org,
-	linux-omap@vger.kernel.org, rtc-linux@googlegroups.com,
-	grygorii.strashko@ti.com
-Subject: [rtc-linux] Re: [PATCH v5 0/3] ARM: AM437X: Add rtc clock handling
-Message-ID: <20150826180126.GS4215@atomide.com>
-References: <1439890876-19024-1-git-send-email-j-keerthy@ti.com>
- <20150821211812.GI3769@piout.net>
- <55DDEE88.3020407@ti.com>
+Return-Path: <rtc-linux+bncBD66BCOYSQBBBWUPY6XAKGQEXGX4NHY@googlegroups.com>
+Received: from comal.ext.ti.com (comal.ext.ti.com. [198.47.26.152])
+        by gmr-mx.google.com with ESMTPS id kr5si554355igb.2.2015.08.17.04.39.06
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1 cipher=RC4-SHA bits=128/128);
+        Mon, 17 Aug 2015 04:39:06 -0700 (PDT)
+Message-ID: <55D1C7CF.3070406@ti.com>
+Date: Mon, 17 Aug 2015 17:08:55 +0530
+From: Keerthy <a0393675@ti.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <55DDEE88.3020407@ti.com>
+To: Johan Hovold <johan@kernel.org>, Keerthy <j-keerthy@ti.com>
+CC: <linux-omap@vger.kernel.org>, <rtc-linux@googlegroups.com>,
+        <tony@atomide.com>, <alexandre.belloni@free-electrons.com>,
+        <akpm@linux-foundation.org>, <grygorii.strashko@ti.com>,
+        <bcousson@baylibre.com>, <devicetree@vger.kernel.org>,
+        <t-kristo@ti.com>
+Subject: [rtc-linux] Re: [PATCH v2 2/2] rtc: omap: Add external clock enabling support
+References: <1439787338-27396-1-git-send-email-j-keerthy@ti.com> <1439787338-27396-3-git-send-email-j-keerthy@ti.com> <20150817113000.GF7053@localhost>
+In-Reply-To: <20150817113000.GF7053@localhost>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -28,37 +28,162 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-* Keerthy <a0393675@ti.com> [150826 09:54]:
-> Tony,
-> 
-> On Saturday 22 August 2015 02:48 AM, Alexandre Belloni wrote:
-> >Tony,
-> >
-> >On 18/08/2015 at 15:11:13 +0530, Keerthy wrote :
-> >>The series is applicable for all am437x series of processors.
-> >>It adds clock handling support. Boot tested on am437x-gp-evm.
-> >>
-> >>Keerthy (3):
-> >>   ARM: dts: AM437x: Add the internal and external clock nodes for rtc
-> >>   rtc: omap: Add internal clock enabling support
-> >>   rtc: omap: Add external clock enabling support
-> >>
-> >
-> >I'm wondering how you want to get those patches merged. I can let you
-> >take 2 and 3 through arm-soc but you will miss 4.3. Or I can take 2 and
-> >3 for 4.3 but the documentation will be missing.
-> 
-> A gentle ping on this series.
 
-Alexandre, it's probably best that you take them all. The dts changes
-apply against Linux next with fuzz so there should not be any merge
-conflict. Feel free to add:
 
-Acked-by: Tony Lindgren <tony@atomide.com>
+On Monday 17 August 2015 05:00 PM, Johan Hovold wrote:
+> On Mon, Aug 17, 2015 at 10:25:38AM +0530, Keerthy wrote:
+>> Configure the clock source to either internal clock
+>> or external clock based on the availability of the clocks.
+>> External clock is preferred as it can be ticking during suspend.
+>>
+>> Signed-off-by: Keerthy <j-keerthy@ti.com>
+>> ---
+>>
+>> Changes in V2:
+>>
+>>    * Changed clk_prepare calls to clk_prepare_enable.
+>>    * Changed clk_unprepare calls to clk_disable_unprepare.
+>>    * Added clk pointers for external and internal clock to omap_rtc structure.
+>>
+>>   drivers/rtc/rtc-omap.c | 40 ++++++++++++++++++++++++++++++++++++++++
+>>   1 file changed, 40 insertions(+)
+>>
+>> diff --git a/drivers/rtc/rtc-omap.c b/drivers/rtc/rtc-omap.c
+>> index 8b6355f..46b3944 100644
+>> --- a/drivers/rtc/rtc-omap.c
+>> +++ b/drivers/rtc/rtc-omap.c
+>> @@ -25,6 +25,7 @@
+>>   #include <linux/of_device.h>
+>>   #include <linux/pm_runtime.h>
+>>   #include <linux/io.h>
+>> +#include <linux/clk.h>
+>>
+>>   /*
+>>    * The OMAP RTC is a year/month/day/hours/minutes/seconds BCD clock
+>> @@ -107,6 +108,7 @@
+>>
+>>   /* OMAP_RTC_OSC_REG bit fields: */
+>>   #define OMAP_RTC_OSC_32KCLK_EN		BIT(6)
+>> +#define OMAP_RTC_OSC_SEL_32KCLK_SRC	BIT(3)
+>>
+>>   /* OMAP_RTC_IRQWAKEEN bit fields: */
+>>   #define OMAP_RTC_IRQWAKEEN_ALARM_WAKEEN	BIT(1)
+>> @@ -132,10 +134,13 @@ struct omap_rtc_device_type {
+>>   struct omap_rtc {
+>>   	struct rtc_device *rtc;
+>>   	void __iomem *base;
+>> +	struct clk *ext_clk;
+>> +	struct clk *int_clk;
+>
+> As was already suggested, you could just use one clock here for now.
 
-Regards,
+If the intent is to enable dynamic switching in future why not have both 
+the clock pointers ready?
 
-Tony
+>
+>>   	int irq_alarm;
+>>   	int irq_timer;
+>>   	u8 interrupts_reg;
+>>   	bool is_pmic_controller;
+>> +	bool has_ext_clk;
+>>   	const struct omap_rtc_device_type *type;
+>>   };
+>>
+>> @@ -553,6 +558,17 @@ static int omap_rtc_probe(struct platform_device *pdev)
+>>   	if (rtc->irq_alarm <= 0)
+>>   		return -ENOENT;
+>>
+>> +	rtc->ext_clk = devm_clk_get(&pdev->dev, "ext-clk");
+>> +	if (!IS_ERR(rtc->ext_clk)) {
+>> +		rtc->has_ext_clk = true;
+>> +		clk_prepare_enable(rtc->ext_clk);
+>> +	} else {
+>> +		rtc->int_clk = devm_clk_get(&pdev->dev, "int-clk");
+>> +
+>> +		if (!IS_ERR(rtc->int_clk))
+>> +			clk_prepare_enable(rtc->int_clk);
+>> +	}
+>> +
+>
+> Which would allow some simplification here.
+>
+> But shouldn't enabling the internal clock go in its own patch before you
+> add support for the external clock?
+
+I am okay with splitting but for now its either or situation so enabling 
+in one patch made sense to me.
+
+>
+>>   	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+>>   	rtc->base = devm_ioremap_resource(&pdev->dev, res);
+>>   	if (IS_ERR(rtc->base))
+>> @@ -627,6 +643,16 @@ static int omap_rtc_probe(struct platform_device *pdev)
+>>   	if (reg != new_ctrl)
+>>   		rtc_write(rtc, OMAP_RTC_CTRL_REG, new_ctrl);
+>>
+>> +	/*
+>> +	 * If we have the external clock then switch to it so we can keep
+>> +	 * ticking acorss suspend.
+>
+> You forgot to fix the "acorss" typo.
+
+I will fix it.
+
+>
+>> +	 */
+>> +	if (rtc->has_ext_clk) {
+>> +		reg = rtc_read(rtc, OMAP_RTC_OSC_REG);
+>> +		rtc_write(rtc, OMAP_RTC_OSC_REG, reg |
+>> +			  OMAP_RTC_OSC_SEL_32KCLK_SRC);
+>
+> Odd line break, break after the final comma instead?
+
+Okay. I will fix it.
+
+>
+>> +	}
+>> +
+>>   	rtc->type->lock(rtc);
+>>
+>>   	device_init_wakeup(&pdev->dev, true);
+>> @@ -672,6 +698,7 @@ err:
+>>   static int __exit omap_rtc_remove(struct platform_device *pdev)
+>>   {
+>>   	struct omap_rtc *rtc = platform_get_drvdata(pdev);
+>> +	u8 reg;
+>>
+>>   	if (pm_power_off == omap_rtc_power_off &&
+>>   			omap_rtc_power_off_rtc == rtc) {
+>> @@ -681,10 +708,23 @@ static int __exit omap_rtc_remove(struct platform_device *pdev)
+>>
+>>   	device_init_wakeup(&pdev->dev, 0);
+>>
+>> +	if (!IS_ERR(rtc->ext_clk)) {
+>> +		clk_disable_unprepare(rtc->ext_clk);
+>> +	} else {
+>> +		if (!IS_ERR(rtc->int_clk))
+>> +			clk_disable_unprepare(rtc->int_clk);
+>> +	}
+>> +
+>
+> This could also be simplified with a single clock entry in rtc.
+>
+>>   	rtc->type->unlock(rtc);
+>>   	/* leave rtc running, but disable irqs */
+>>   	rtc_write(rtc, OMAP_RTC_INTERRUPTS_REG, 0);
+>>
+>> +	if (rtc->has_ext_clk) {
+>> +		reg = rtc_read(rtc, OMAP_RTC_OSC_REG);
+>> +		reg &= ~OMAP_RTC_OSC_SEL_32KCLK_SRC;
+>> +		rtc_write(rtc, OMAP_RTC_OSC_REG, reg);
+>> +	}
+>> +
+>>   	rtc->type->lock(rtc);
+>>
+>>   	/* Disable the clock/module */
+>
+> Johan
+>
 
 -- 
 -- 
