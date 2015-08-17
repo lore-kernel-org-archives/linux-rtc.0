@@ -1,19 +1,29 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBQMTQKXAKGQEICEEITY@googlegroups.com>
-MIME-Version: 1.0
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id fj7si37210wib.3.2015.08.04.02.45.36
-        for <rtc-linux@googlegroups.com>;
-        Tue, 04 Aug 2015 02:45:36 -0700 (PDT)
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: rtc-linux@googlegroups.com
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
-	linux-kernel@vger.kernel.org,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Subject: [rtc-linux] [PATCH 00/15] rtc: rx8025: cleanup
-Date: Tue,  4 Aug 2015 11:45:19 +0200
-Message-Id: <1438681534-12027-1-git-send-email-alexandre.belloni@free-electrons.com>
+Return-Path: <rtc-linux+bncBDEZ72H55YIBBVX2YSXAKGQEKKBXNEI@googlegroups.com>
+Received: from mailout2.samsung.com (mailout2.samsung.com. [203.254.224.25])
+        by gmr-mx.google.com with ESMTPS id c1si1350169pdg.0.2015.08.16.18.48.05
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1 cipher=RC4-SHA bits=128/128);
+        Sun, 16 Aug 2015 18:48:06 -0700 (PDT)
+Received: from epcpsbgr1.samsung.com
+ (u141.gpu120.samsung.co.kr [203.254.230.141])
+ by mailout2.samsung.com (Oracle Communications Messaging Server 7.0.5.31.0
+ 64bit (built May  5 2014))
+ with ESMTP id <0NT702SYUEC3JF80@mailout2.samsung.com> for
+ rtc-linux@googlegroups.com; Mon, 17 Aug 2015 10:48:03 +0900 (KST)
+Message-id: <55D13D53.3060902@samsung.com>
+Date: Mon, 17 Aug 2015 10:48:03 +0900
+From: Joonyoung Shim <jy0922.shim@samsung.com>
+MIME-version: 1.0
+To: Krzysztof Kozlowski <k.kozlowski@samsung.com>, rtc-linux@googlegroups.com
+Cc: linux-samsung-soc@vger.kernel.org, linux-kernel@vger.kernel.org,
+ stable@vger.kernel.org, a.zummo@towertech.it,
+ alexandre.belloni@free-electrons.com, sbkim73@samsung.com
+Subject: Re: [rtc-linux] [PATCH] rtc: s5m: fix to update ctrl register
+References: <1439455764-23526-1-git-send-email-jy0922.shim@samsung.com>
+ <55CC6B28.5010707@samsung.com> <55CC7479.6080902@samsung.com>
+In-reply-to: <55CC7479.6080902@samsung.com>
+Content-type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
-Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -23,33 +33,66 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Hi,
+On 08/13/2015 07:42 PM, Krzysztof Kozlowski wrote:
+> W dniu 13.08.2015 o 19:02, Krzysztof Kozlowski pisze:
+>> W dniu 13.08.2015 o 17:49, Joonyoung Shim pisze:
+>>> According to datasheet, the S2MPS13X and S2MPS14X should update write
+>>> buffer via setting WUDR bit to high after ctrl register is updated.
+>>
+>> Hi,
+>>
+>> I cannot find this information in S2MPS14 datasheet. On which page is it?
+>>
+>>
+>>>
+>>> If not, ALARM interrupt of rtc-s5m doesn't happen first time when i use
+>>> tools/testing/selftests/timers/rtctest.c test program and hour format is
+>>> used to 12 hour mode in Odroid-XU3 board.
+>>
+>> Two questions here:
+>> 1. Earlier you mentioned S2MPS1[34], now Odroid XU3 which has S2MPS11.
+>> Are you sure that this applies to all of them (S2MPS11, S2MPS13 and
+>> S2MP14)? There are some minor differences between them so I would not be
+>> surprised if only some of them required this action.
+>>
+>> 2. The driver operates in 24-hour omode. Actually it sets the 24-hour
+>> mode just before your new regmap_update_bits() call. What do you mean by
+>> 12-hour mode?
+>>
+>>> Signed-off-by: Joonyoung Shim <jy0922.shim@samsung.com>
+>>> Cc: <stable@vger.kernel.org>
+>>
+>> Thanks for putting a cc-stable tag. How far this should be ported? If
+>> this is needed only for S2MPS11 then v4.1. If all of them then probably
+>> for earlier version?
+>>
+>> Best regards,
+>> Krzysztof
+> 
+> One more doubt. On my Odroid XU3 first and consecutive executions
+> (including first) of rtctest run fine. They pass. Can you describe
+> exactly observable issue and how to reproduce it? This is also important
+> as a reason for stable backport.
 
-This series is a cleanup for the rx8025 driver in order to prepare it for the
-inclusion of the support of new models.
+I just tested it on next-20150810 with Odroid-XU3 board. First rtctest
+execution is blocked,
 
-Alexandre Belloni (15):
-  rtc: rx8025: remove useless headers and reorder them
-  rtc: rx8025: Convert to threaded IRQ
-  rtc: rx8025: switch to managed irq allocation
-  rtc: rx8025: remove useless probe error message
-  rtc: rx8025: use BIT()
-  rtc: rx8025: only handle dates between 2000 and 2099
-  rtc: rx8025: fix transfer mode
-  rtc: rx8025: don't reset the time
-  rtc: rx8025: cleanup accessors
-  rtc: rx8025: continue without alarm when irq request fails
-  rtc: rx8025: fix rx8025_init_client()
-  rtc: rx8025: reset validity when setting time
-  rtc: rx8025: remove useless initialization
-  rtc: rx8025: fix RX8025_BIT_CTRL2_CTFG initialization
-  rtc: rx8025: check time validity when necessary
+# ./rtctest 
 
- drivers/rtc/rtc-rx8025.c | 272 ++++++++++++++++++-----------------------------
- 1 file changed, 105 insertions(+), 167 deletions(-)
+                        RTC Driver Test Example.
 
--- 
-2.1.4
+Counting 5 update (1/sec) interrupts from reading /dev/rtc0:
+
+Any no progress.
+
+> 
+> I tested it on next-20150729 on board with Hardkernel bootloader. Maybe
+> the bootloader sets 12-hour mode which cannot be switched to 24-hour?
+> 
+
+My bootloader doesn't touch any registers of s5m-rtc.
+
+Thanks.
 
 -- 
 -- 
