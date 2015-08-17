@@ -1,17 +1,20 @@
-Return-Path: <rtc-linux+bncBD66BCOYSQBBBRX3ZOXAKGQELKEW7BI@googlegroups.com>
-Received: from devils.ext.ti.com (devils.ext.ti.com. [198.47.26.153])
-        by gmr-mx.google.com with ESMTPS id i10si1033515igh.3.2015.08.18.02.41.26
+Return-Path: <rtc-linux+bncBD66BCOYSQBBBXGSYWXAKGQESNCYOGY@googlegroups.com>
+Received: from comal.ext.ti.com (comal.ext.ti.com. [198.47.26.152])
+        by gmr-mx.google.com with ESMTPS id a11si716098igv.3.2015.08.16.21.55.55
         for <rtc-linux@googlegroups.com>
         (version=TLSv1 cipher=RC4-SHA bits=128/128);
-        Tue, 18 Aug 2015 02:41:26 -0700 (PDT)
+        Sun, 16 Aug 2015 21:55:55 -0700 (PDT)
 From: Keerthy <j-keerthy@ti.com>
-To: <alexandre.belloni@free-electrons.com>, <tony@atomide.com>
-CC: <bcousson@baylibre.com>, <johan@kernel.org>, <linux-omap@vger.kernel.org>,
-        <rtc-linux@googlegroups.com>, <grygorii.strashko@ti.com>,
-        <j-keerthy@ti.com>
-Subject: [rtc-linux] [PATCH v5 0/3] ARM: AM437X: Add rtc clock handling
-Date: Tue, 18 Aug 2015 15:11:13 +0530
-Message-ID: <1439890876-19024-1-git-send-email-j-keerthy@ti.com>
+To: <linux-omap@vger.kernel.org>, <rtc-linux@googlegroups.com>
+CC: <tony@atomide.com>, <alexandre.belloni@free-electrons.com>,
+        <akpm@linux-foundation.org>, <johan@kernel.org>,
+        <grygorii.strashko@ti.com>, <bcousson@baylibre.com>,
+        <devicetree@vger.kernel.org>, <t-kristo@ti.com>, <j-keerthy@ti.com>
+Subject: [rtc-linux] [PATCH v2 2/2] rtc: omap: Add external clock enabling support
+Date: Mon, 17 Aug 2015 10:25:38 +0530
+Message-ID: <1439787338-27396-3-git-send-email-j-keerthy@ti.com>
+In-Reply-To: <1439787338-27396-1-git-send-email-j-keerthy@ti.com>
+References: <1439787338-27396-1-git-send-email-j-keerthy@ti.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
@@ -24,35 +27,123 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-The series is applicable for all am437x series of processors.
-It adds clock handling support. Boot tested on am437x-gp-evm.
+Configure the clock source to either internal clock
+or external clock based on the availability of the clocks.
+External clock is preferred as it can be ticking during suspend.
 
-Keerthy (3):
-  ARM: dts: AM437x: Add the internal and external clock nodes for rtc
-  rtc: omap: Add internal clock enabling support
-  rtc: omap: Add external clock enabling support
+Signed-off-by: Keerthy <j-keerthy@ti.com>
+---
 
-Changes in v5:
+Changes in V2:
 
-  * Added devicetree documentation for omap-rtc clocks.
+  * Changed clk_prepare calls to clk_prepare_enable.
+  * Changed clk_unprepare calls to clk_disable_unprepare.
+  * Added clk pointers for external and internal clock to omap_rtc structure.
 
-Changes in v4:
+ drivers/rtc/rtc-omap.c | 40 ++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 40 insertions(+)
 
-  * Optimized pointer checks for clk pointer.
-
-Changes in v3:
-
-  * Split internal and external clock enabling to separate patches.
-  * Using one variable to store the clk info in omap_rtc struct.
-
- Documentation/devicetree/bindings/rtc/rtc-omap.txt |  4 +++
- arch/arm/boot/dts/am4372.dtsi                      |  2 ++
- arch/arm/boot/dts/am437x-gp-evm.dts                | 13 +++++++++
- arch/arm/boot/dts/am437x-idk-evm.dts               |  9 ++++++
- arch/arm/boot/dts/am437x-sk-evm.dts                |  9 ++++++
- drivers/rtc/rtc-omap.c                             | 33 ++++++++++++++++++++++
- 6 files changed, 70 insertions(+)
-
+diff --git a/drivers/rtc/rtc-omap.c b/drivers/rtc/rtc-omap.c
+index 8b6355f..46b3944 100644
+--- a/drivers/rtc/rtc-omap.c
++++ b/drivers/rtc/rtc-omap.c
+@@ -25,6 +25,7 @@
+ #include <linux/of_device.h>
+ #include <linux/pm_runtime.h>
+ #include <linux/io.h>
++#include <linux/clk.h>
+ 
+ /*
+  * The OMAP RTC is a year/month/day/hours/minutes/seconds BCD clock
+@@ -107,6 +108,7 @@
+ 
+ /* OMAP_RTC_OSC_REG bit fields: */
+ #define OMAP_RTC_OSC_32KCLK_EN		BIT(6)
++#define OMAP_RTC_OSC_SEL_32KCLK_SRC	BIT(3)
+ 
+ /* OMAP_RTC_IRQWAKEEN bit fields: */
+ #define OMAP_RTC_IRQWAKEEN_ALARM_WAKEEN	BIT(1)
+@@ -132,10 +134,13 @@ struct omap_rtc_device_type {
+ struct omap_rtc {
+ 	struct rtc_device *rtc;
+ 	void __iomem *base;
++	struct clk *ext_clk;
++	struct clk *int_clk;
+ 	int irq_alarm;
+ 	int irq_timer;
+ 	u8 interrupts_reg;
+ 	bool is_pmic_controller;
++	bool has_ext_clk;
+ 	const struct omap_rtc_device_type *type;
+ };
+ 
+@@ -553,6 +558,17 @@ static int omap_rtc_probe(struct platform_device *pdev)
+ 	if (rtc->irq_alarm <= 0)
+ 		return -ENOENT;
+ 
++	rtc->ext_clk = devm_clk_get(&pdev->dev, "ext-clk");
++	if (!IS_ERR(rtc->ext_clk)) {
++		rtc->has_ext_clk = true;
++		clk_prepare_enable(rtc->ext_clk);
++	} else {
++		rtc->int_clk = devm_clk_get(&pdev->dev, "int-clk");
++
++		if (!IS_ERR(rtc->int_clk))
++			clk_prepare_enable(rtc->int_clk);
++	}
++
+ 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+ 	rtc->base = devm_ioremap_resource(&pdev->dev, res);
+ 	if (IS_ERR(rtc->base))
+@@ -627,6 +643,16 @@ static int omap_rtc_probe(struct platform_device *pdev)
+ 	if (reg != new_ctrl)
+ 		rtc_write(rtc, OMAP_RTC_CTRL_REG, new_ctrl);
+ 
++	/*
++	 * If we have the external clock then switch to it so we can keep
++	 * ticking acorss suspend.
++	 */
++	if (rtc->has_ext_clk) {
++		reg = rtc_read(rtc, OMAP_RTC_OSC_REG);
++		rtc_write(rtc, OMAP_RTC_OSC_REG, reg |
++			  OMAP_RTC_OSC_SEL_32KCLK_SRC);
++	}
++
+ 	rtc->type->lock(rtc);
+ 
+ 	device_init_wakeup(&pdev->dev, true);
+@@ -672,6 +698,7 @@ err:
+ static int __exit omap_rtc_remove(struct platform_device *pdev)
+ {
+ 	struct omap_rtc *rtc = platform_get_drvdata(pdev);
++	u8 reg;
+ 
+ 	if (pm_power_off == omap_rtc_power_off &&
+ 			omap_rtc_power_off_rtc == rtc) {
+@@ -681,10 +708,23 @@ static int __exit omap_rtc_remove(struct platform_device *pdev)
+ 
+ 	device_init_wakeup(&pdev->dev, 0);
+ 
++	if (!IS_ERR(rtc->ext_clk)) {
++		clk_disable_unprepare(rtc->ext_clk);
++	} else {
++		if (!IS_ERR(rtc->int_clk))
++			clk_disable_unprepare(rtc->int_clk);
++	}
++
+ 	rtc->type->unlock(rtc);
+ 	/* leave rtc running, but disable irqs */
+ 	rtc_write(rtc, OMAP_RTC_INTERRUPTS_REG, 0);
+ 
++	if (rtc->has_ext_clk) {
++		reg = rtc_read(rtc, OMAP_RTC_OSC_REG);
++		reg &= ~OMAP_RTC_OSC_SEL_32KCLK_SRC;
++		rtc_write(rtc, OMAP_RTC_OSC_REG, reg);
++	}
++
+ 	rtc->type->lock(rtc);
+ 
+ 	/* Disable the clock/module */
 -- 
 1.9.1
 
