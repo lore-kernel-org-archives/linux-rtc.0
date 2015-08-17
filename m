@@ -1,27 +1,22 @@
-Return-Path: <rtc-linux+bncBDE6RCFOWIARBC6DWKXAKGQE7RGK6II@googlegroups.com>
-Received: from mail-oi0-f49.google.com (mail-oi0-f49.google.com. [209.85.218.49])
-        by gmr-mx.google.com with ESMTPS id x1si235395igb.2.2015.08.13.06.54.18
+Return-Path: <rtc-linux+bncBD66BCOYSQBBBWGSYWXAKGQEEODHX5Q@googlegroups.com>
+Received: from bear.ext.ti.com (bear.ext.ti.com. [192.94.94.41])
+        by gmr-mx.google.com with ESMTPS id 4si708441igl.1.2015.08.16.21.55.52
         for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 13 Aug 2015 06:54:18 -0700 (PDT)
-Received: by oio137 with SMTP id 137so26875557oio.0
-        for <rtc-linux@googlegroups.com>; Thu, 13 Aug 2015 06:54:18 -0700 (PDT)
+        (version=TLSv1 cipher=RC4-SHA bits=128/128);
+        Sun, 16 Aug 2015 21:55:52 -0700 (PDT)
+From: Keerthy <j-keerthy@ti.com>
+To: <linux-omap@vger.kernel.org>, <rtc-linux@googlegroups.com>
+CC: <tony@atomide.com>, <alexandre.belloni@free-electrons.com>,
+        <akpm@linux-foundation.org>, <johan@kernel.org>,
+        <grygorii.strashko@ti.com>, <bcousson@baylibre.com>,
+        <devicetree@vger.kernel.org>, <t-kristo@ti.com>, <j-keerthy@ti.com>
+Subject: [rtc-linux] [PATCH v2 1/2] ARM: dts: AM437x: Add the internal and
+ external clock nodes for rtc
+Date: Mon, 17 Aug 2015 10:25:37 +0530
+Message-ID: <1439787338-27396-2-git-send-email-j-keerthy@ti.com>
+In-Reply-To: <1439787338-27396-1-git-send-email-j-keerthy@ti.com>
+References: <1439787338-27396-1-git-send-email-j-keerthy@ti.com>
 MIME-Version: 1.0
-In-Reply-To: <1439358807-9024-2-git-send-email-dongsheng.wang@freescale.com>
-References: <1439358807-9024-1-git-send-email-dongsheng.wang@freescale.com>
-	<1439358807-9024-2-git-send-email-dongsheng.wang@freescale.com>
-Date: Thu, 13 Aug 2015 15:54:18 +0200
-Message-ID: <CACRpkdbninKuGzhEc5mN+85j-=w_wYQgra-Ark_Du6gWKN2=tg@mail.gmail.com>
-Subject: [rtc-linux] Re: [PATCH 2/2] soc/fsl: add ftm alarm driver for ls1021a platform
-From: Linus Walleij <linus.walleij@linaro.org>
-To: Dongsheng Wang <dongsheng.wang@freescale.com>, John Stultz <john.stultz@linaro.org>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Shawn Guo <shawn.guo@linaro.org>, "Nair, Sandeep" <sandeep_n@ti.com>,
-	Hans de Goede <hdegoede@redhat.com>, alison.wang@freescale.com,
-	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-	"rtc-linux@googlegroups.com" <rtc-linux@googlegroups.com>
 Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
@@ -33,58 +28,115 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On Wed, Aug 12, 2015 at 7:53 AM, Dongsheng Wang
-<dongsheng.wang@freescale.com> wrote:
+rtc can either be supplied from internal 32k clock or external crystal
+generated 32k clock. Internal clock is SOC specific and the external
+clock is board dependent. Adding the corresponding nodes.
 
-> From: Wang Dongsheng <dongsheng.wang@freescale.com>
->
-> Only Ftm0 can be used when system going to deep sleep. So this driver
-> to support ftm0 as a wakeup source.
->
-> Signed-off-by: Wang Dongsheng <dongsheng.wang@freescale.com>
-> ---
-> *V2*
-> Change Copyright 2014 to 2015.
-(...)
-> +config FTM_ALARM
-> +       bool "FTM alarm driver"
-> +       depends on SOC_LS1021A
-> +       default n
-> +       help
-> +         Say y here to enable FTM alarm support.  The FTM alarm provides
-> +         alarm functions for wakeup system from deep sleep.  There is only
-> +         one FTM can be used in ALARM(FTM 0).
-(...)
-> +static u32 time_to_cycle(unsigned long time)
-> +static u32 cycle_to_time(u32 cycle)
-> +static int ftm_set_alarm(u64 cycle)
-> +static irqreturn_t ftm_alarm_interrupt(int irq, void *dev_id)
-> +static ssize_t ftm_alarm_show(struct device *dev,
-> +                             struct device_attribute *attr,
-> +                             char *buf)
-> +static ssize_t ftm_alarm_store(struct device *dev,
-> +                              struct device_attribute *attr,
-> +                              const char *buf, size_t count)
-(...)
-> +static struct device_attribute ftm_alarm_attributes = __ATTR(ftm_alarm, 0644,
-> +                       ftm_alarm_show, ftm_alarm_store);
+Signed-off-by: Keerthy <j-keerthy@ti.com>
+---
+ arch/arm/boot/dts/am4372.dtsi        |  2 ++
+ arch/arm/boot/dts/am437x-gp-evm.dts  | 13 +++++++++++++
+ arch/arm/boot/dts/am437x-idk-evm.dts |  9 +++++++++
+ arch/arm/boot/dts/am437x-sk-evm.dts  |  9 +++++++++
+ 4 files changed, 33 insertions(+)
 
-If you're gonna invent ABIs, document then in Documentation/ABI/testing/*.
-
-But I don't get it. Why is this driver not in drivers/rtc?
-
-It does a subset of what an RTC does. The ioctl()'s of an RTC
-can do what you want to do. And much much more.
-
-If it can't do all an RTC can do, surely the RTC subsystem
-can be augmented to host it anyway. It's way to close to
-an RTC to have it's own random sysfs driver like this.
-
-Unless I'm totally off, rewrite this to an RTC driver and post
-it to the RTC maintainers.
-
-Yours,
-Linus Walleij
+diff --git a/arch/arm/boot/dts/am4372.dtsi b/arch/arm/boot/dts/am4372.dtsi
+index d99b2ee..484f092 100644
+--- a/arch/arm/boot/dts/am4372.dtsi
++++ b/arch/arm/boot/dts/am4372.dtsi
+@@ -336,6 +336,8 @@
+ 			interrupts = <GIC_SPI 75 IRQ_TYPE_LEVEL_HIGH
+ 				      GIC_SPI 76 IRQ_TYPE_LEVEL_HIGH>;
+ 			ti,hwmods = "rtc";
++			clocks = <&clk_32768_ck>;
++			clock-names = "int-clk";
+ 			status = "disabled";
+ 		};
+ 
+diff --git a/arch/arm/boot/dts/am437x-gp-evm.dts b/arch/arm/boot/dts/am437x-gp-evm.dts
+index 215775d..22038f2 100644
+--- a/arch/arm/boot/dts/am437x-gp-evm.dts
++++ b/arch/arm/boot/dts/am437x-gp-evm.dts
+@@ -112,6 +112,13 @@
+ 		clock-frequency = <12000000>;
+ 	};
+ 
++	/* fixed 32k external oscillator clock */
++	clk_32k_rtc: clk_32k_rtc {
++		#clock-cells = <0>;
++		compatible = "fixed-clock";
++		clock-frequency = <32768>;
++	};
++
+ 	sound0: sound@0 {
+ 		compatible = "simple-audio-card";
+ 		simple-audio-card,name = "AM437x-GP-EVM";
+@@ -941,3 +948,9 @@
+ 	tx-num-evt = <32>;
+ 	rx-num-evt = <32>;
+ };
++
++&rtc {
++	clocks = <&clk_32k_rtc>, <&clk_32768_ck>;
++	clock-names = "ext-clk", "int-clk";
++	status = "okay";
++};
+diff --git a/arch/arm/boot/dts/am437x-idk-evm.dts b/arch/arm/boot/dts/am437x-idk-evm.dts
+index 37834427..af25801 100644
+--- a/arch/arm/boot/dts/am437x-idk-evm.dts
++++ b/arch/arm/boot/dts/am437x-idk-evm.dts
+@@ -110,6 +110,13 @@
+ 			gpios = <&gpio4 2 GPIO_ACTIVE_LOW>;
+ 		};
+ 	};
++
++	/* fixed 32k external oscillator clock */
++	clk_32k_rtc: clk_32k_rtc {
++		#clock-cells = <0>;
++		compatible = "fixed-clock";
++		clock-frequency = <32768>;
++	};
+ };
+ 
+ &am43xx_pinmux {
+@@ -394,6 +401,8 @@
+ };
+ 
+ &rtc {
++	clocks = <&clk_32k_rtc>, <&clk_32768_ck>;
++	clock-names = "ext-clk", "int-clk";
+ 	status = "okay";
+ };
+ 
+diff --git a/arch/arm/boot/dts/am437x-sk-evm.dts b/arch/arm/boot/dts/am437x-sk-evm.dts
+index 22af448..7da7c2d 100644
+--- a/arch/arm/boot/dts/am437x-sk-evm.dts
++++ b/arch/arm/boot/dts/am437x-sk-evm.dts
+@@ -24,6 +24,13 @@
+ 		display0 = &lcd0;
+ 	};
+ 
++	/* fixed 32k external oscillator clock */
++	clk_32k_rtc: clk_32k_rtc {
++		#clock-cells = <0>;
++		compatible = "fixed-clock";
++		clock-frequency = <32768>;
++	};
++
+ 	backlight {
+ 		compatible = "pwm-backlight";
+ 		pwms = <&ecap0 0 50000 PWM_POLARITY_INVERTED>;
+@@ -697,6 +704,8 @@
+ };
+ 
+ &rtc {
++	clocks = <&clk_32k_rtc>, <&clk_32768_ck>;
++	clock-names = "ext-clk", "int-clk";
+ 	status = "okay";
+ };
+ 
+-- 
+1.9.1
 
 -- 
 -- 
