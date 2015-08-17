@@ -1,21 +1,29 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBS4TQKXAKGQEYFFENWA@googlegroups.com>
-MIME-Version: 1.0
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id jf3si51225wic.0.2015.08.04.02.45.47
-        for <rtc-linux@googlegroups.com>;
-        Tue, 04 Aug 2015 02:45:47 -0700 (PDT)
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: rtc-linux@googlegroups.com
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
-	linux-kernel@vger.kernel.org,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Subject: [rtc-linux] [PATCH 08/15] rtc: rx8025: don't reset the time
-Date: Tue,  4 Aug 2015 11:45:27 +0200
-Message-Id: <1438681534-12027-9-git-send-email-alexandre.belloni@free-electrons.com>
-In-Reply-To: <1438681534-12027-1-git-send-email-alexandre.belloni@free-electrons.com>
-References: <1438681534-12027-1-git-send-email-alexandre.belloni@free-electrons.com>
+Return-Path: <rtc-linux+bncBDEZ72H55YIBBWX2YSXAKGQEIHDBUPI@googlegroups.com>
+Received: from mailout1.samsung.com (mailout1.samsung.com. [203.254.224.24])
+        by gmr-mx.google.com with ESMTPS id fy14si1280817pdb.2.2015.08.16.18.48.10
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1 cipher=RC4-SHA bits=128/128);
+        Sun, 16 Aug 2015 18:48:10 -0700 (PDT)
+Received: from epcpsbgr3.samsung.com
+ (u143.gpu120.samsung.co.kr [203.254.230.143])
+ by mailout1.samsung.com (Oracle Communications Messaging Server 7.0.5.31.0
+ 64bit (built May  5 2014))
+ with ESMTP id <0NT7028BPEBTYXD0@mailout1.samsung.com> for
+ rtc-linux@googlegroups.com; Mon, 17 Aug 2015 10:47:53 +0900 (KST)
+Message-id: <55D13D49.1040504@samsung.com>
+Date: Mon, 17 Aug 2015 10:47:53 +0900
+From: Joonyoung Shim <jy0922.shim@samsung.com>
+MIME-version: 1.0
+To: Krzysztof Kozlowski <k.kozlowski@samsung.com>, rtc-linux@googlegroups.com
+Cc: linux-samsung-soc@vger.kernel.org, linux-kernel@vger.kernel.org,
+ stable@vger.kernel.org, a.zummo@towertech.it,
+ alexandre.belloni@free-electrons.com, sbkim73@samsung.com
+Subject: Re: [rtc-linux] [PATCH] rtc: s5m: fix to update ctrl register
+References: <1439455764-23526-1-git-send-email-jy0922.shim@samsung.com>
+ <55CC6B28.5010707@samsung.com>
+In-reply-to: <55CC6B28.5010707@samsung.com>
+Content-type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
-Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -25,116 +33,118 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Stop setting the time to epoch when it is invalid. The proper way to handle
-that is to return an error when it is invalid instead of returning an
-incorrect value.
+Hi,
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
----
- drivers/rtc/rtc-rx8025.c | 38 ++++++++++++++++++++++----------------
- 1 file changed, 22 insertions(+), 16 deletions(-)
+On 08/13/2015 07:02 PM, Krzysztof Kozlowski wrote:
+> W dniu 13.08.2015 o 17:49, Joonyoung Shim pisze:
+>> According to datasheet, the S2MPS13X and S2MPS14X should update write
+>> buffer via setting WUDR bit to high after ctrl register is updated.
+> 
+> Hi,
+> 
+> I cannot find this information in S2MPS14 datasheet. On which page is it?
+> 
 
-diff --git a/drivers/rtc/rtc-rx8025.c b/drivers/rtc/rtc-rx8025.c
-index 771558602409..d158a640299e 100644
---- a/drivers/rtc/rtc-rx8025.c
-+++ b/drivers/rtc/rtc-rx8025.c
-@@ -166,9 +166,23 @@ out:
- static int rx8025_get_time(struct device *dev, struct rtc_time *dt)
- {
- 	struct rx8025_data *rx8025 = dev_get_drvdata(dev);
--	u8 date[7];
-+	u8 date[7], ctrl;
- 	int err;
- 
-+	err = rx8025_read_reg(rx8025->client, RX8025_REG_CTRL2, &ctrl);
-+	if (err)
-+		return err;
-+
-+	if (ctrl & RX8025_BIT_CTRL2_PON) {
-+		dev_warn(dev, "power-on reset detected, date is invalid\n");
-+		return -EINVAL;
-+	}
-+
-+	if (!(ctrl & RX8025_BIT_CTRL2_XST)) {
-+		dev_warn(dev, "crystal stopped, date is invalid\n");
-+		return -EINVAL;
-+	}
-+
- 	err = rx8025_read_regs(rx8025->client, RX8025_REG_SEC, 7, date);
- 	if (err)
- 		return err;
-@@ -230,7 +244,7 @@ static int rx8025_set_time(struct device *dev, struct rtc_time *dt)
- 	return rx8025_write_regs(rx8025->client, RX8025_REG_SEC, 7, date);
- }
- 
--static int rx8025_init_client(struct i2c_client *client, int *need_reset)
-+static int rx8025_init_client(struct i2c_client *client)
- {
- 	struct rx8025_data *rx8025 = i2c_get_clientdata(client);
- 	u8 ctrl[2], ctrl2;
-@@ -247,19 +261,19 @@ static int rx8025_init_client(struct i2c_client *client, int *need_reset)
- 	if (ctrl[1] & RX8025_BIT_CTRL2_PON) {
- 		dev_warn(&client->dev, "power-on reset was detected, "
- 			 "you may have to readjust the clock\n");
--		*need_reset = 1;
-+		need_clear = 1;
- 	}
- 
- 	if (ctrl[1] & RX8025_BIT_CTRL2_VDET) {
- 		dev_warn(&client->dev, "a power voltage drop was detected, "
- 			 "you may have to readjust the clock\n");
--		*need_reset = 1;
-+		need_clear = 1;
- 	}
- 
- 	if (!(ctrl[1] & RX8025_BIT_CTRL2_XST)) {
- 		dev_warn(&client->dev, "Oscillation stop was detected,"
- 			 "you may have to readjust the clock\n");
--		*need_reset = 1;
-+		need_clear = 1;
- 	}
- 
- 	if (ctrl[1] & (RX8025_BIT_CTRL2_DAFG | RX8025_BIT_CTRL2_WAFG)) {
-@@ -270,7 +284,7 @@ static int rx8025_init_client(struct i2c_client *client, int *need_reset)
- 	if (!(ctrl[1] & RX8025_BIT_CTRL2_CTFG))
- 		need_clear = 1;
- 
--	if (*need_reset || need_clear) {
-+	if (need_clear) {
- 		ctrl2 = ctrl[0];
- 		ctrl2 &= ~(RX8025_BIT_CTRL2_PON | RX8025_BIT_CTRL2_VDET |
- 			   RX8025_BIT_CTRL2_CTFG | RX8025_BIT_CTRL2_WAFG |
-@@ -508,7 +522,7 @@ static int rx8025_probe(struct i2c_client *client,
- {
- 	struct i2c_adapter *adapter = to_i2c_adapter(client->dev.parent);
- 	struct rx8025_data *rx8025;
--	int err = 0, need_reset = 0;
-+	int err = 0;
- 
- 	if (!i2c_check_functionality(adapter, I2C_FUNC_SMBUS_BYTE_DATA
- 				     | I2C_FUNC_SMBUS_I2C_BLOCK)) {
-@@ -525,18 +539,10 @@ static int rx8025_probe(struct i2c_client *client,
- 	rx8025->client = client;
- 	i2c_set_clientdata(client, rx8025);
- 
--	err = rx8025_init_client(client, &need_reset);
-+	err = rx8025_init_client(client);
- 	if (err)
- 		return err;
- 
--	if (need_reset) {
--		struct rtc_time tm;
--		dev_info(&client->dev,
--			 "bad conditions detected, resetting date\n");
--		rtc_time_to_tm(0, &tm);	/* 1970/1/1 */
--		rx8025_set_time(&client->dev, &tm);
--	}
--
- 	rx8025->rtc = devm_rtc_device_register(&client->dev, client->name,
- 					  &rx8025_rtc_ops, THIS_MODULE);
- 	if (IS_ERR(rx8025->rtc)) {
--- 
-2.1.4
+I got below information from S2MPS14_Data Sheet_REV0.1 document.
+
+5.2.2.3 RTC_UPDATE
+...
+
+NOTE: 
+1.  For write Time Registers (0x00, 0x04~0x0A) & Alarm 0&1 Registers 
+(0x0B~0x18), set WUDR bit to high.
+
+> 
+>>
+>> If not, ALARM interrupt of rtc-s5m doesn't happen first time when i use
+>> tools/testing/selftests/timers/rtctest.c test program and hour format is
+>> used to 12 hour mode in Odroid-XU3 board.
+> 
+> Two questions here:
+> 1. Earlier you mentioned S2MPS1[34], now Odroid XU3 which has S2MPS11.
+> Are you sure that this applies to all of them (S2MPS11, S2MPS13 and
+> S2MP14)? There are some minor differences between them so I would not be
+> surprised if only some of them required this action.
+> 
+
+I'm not sure about that because i don't have S2MPS11 datasheet. I just
+got the information that S2MPS11 also use S2MPS14 rtc from sec-core mfd
+driver,
+
+static const struct mfd_cell s2mps11_devs[] = {                                                                       
+        {                                                                                                             
+                .name = "s2mps11-pmic",                                                                               
+        }, {                                                                                                          
+                .name = "s2mps14-rtc",                                                                                
+        }, {                                                                                                          
+                .name = "s2mps11-clk",                                                                                
+                .of_compatible = "samsung,s2mps11-clk",                                                               
+        }                                                                                                             
+};
+
+> 2. The driver operates in 24-hour omode. Actually it sets the 24-hour
+> mode just before your new regmap_update_bits() call. What do you mean by
+> 12-hour mode?
+> 
+
+RTC_CTRL register value is 0 until write buffer is updated, so it is
+used to 12-hour mode.
+
+>> Signed-off-by: Joonyoung Shim <jy0922.shim@samsung.com>
+>> Cc: <stable@vger.kernel.org>
+> 
+> Thanks for putting a cc-stable tag. How far this should be ported? If
+> this is needed only for S2MPS11 then v4.1. If all of them then probably
+> for earlier version?
+> 
+
+If find exact version, i think it will be a version after below commit
+was applied.
+
+The commit 0c5deb1ea92f("rtc: s5m: add support for S2MPS14 RTC")
+
+$ git name-rev 0c5deb1ea92f
+0c5deb1ea92f tags/v3.16-rc1~53^2~1
+
+Thanks.
+
+> Best regards,
+> Krzysztof
+> 
+>> ---
+>>  drivers/rtc/rtc-s5m.c | 12 ++++++++++++
+>>  1 file changed, 12 insertions(+)
+>>
+>> diff --git a/drivers/rtc/rtc-s5m.c b/drivers/rtc/rtc-s5m.c
+>> index 8c70d78..03828bb 100644
+>> --- a/drivers/rtc/rtc-s5m.c
+>> +++ b/drivers/rtc/rtc-s5m.c
+>> @@ -635,6 +635,18 @@ static int s5m8767_rtc_init_reg(struct s5m_rtc_info *info)
+>>  	case S2MPS13X:
+>>  		data[0] = (0 << BCD_EN_SHIFT) | (1 << MODEL24_SHIFT);
+>>  		ret = regmap_write(info->regmap, info->regs->ctrl, data[0]);
+>> +		if (ret < 0)
+>> +			break;
+>> +
+>> +		ret = regmap_update_bits(info->regmap,
+>> +				info->regs->rtc_udr_update,
+>> +				info->regs->rtc_udr_mask,
+>> +				info->regs->rtc_udr_mask);
+>> +		if (ret < 0)
+>> +			break;
+>> +
+>> +		ret = s5m8767_wait_for_udr_update(info);
+>> +
+>>  		break;
+>>  
+>>  	default:
+>>
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-samsung-soc" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 
 
 -- 
 -- 
