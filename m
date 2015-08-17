@@ -1,163 +1,174 @@
-Return-Path: <rtc-linux+bncBDEZ72H55YIBBIUY3OXAKGQEWZIMBWQ@googlegroups.com>
-Received: from mailout2.samsung.com (mailout2.samsung.com. [203.254.224.25])
-        by gmr-mx.google.com with ESMTPS id ys2si777746pac.0.2015.08.20.23.58.41
+Return-Path: <rtc-linux+bncBD2536XZRAKBBOULY6XAKGQEC4SMVPY@googlegroups.com>
+Received: from mail-la0-x229.google.com (mail-la0-x229.google.com. [2a00:1450:4010:c03::229])
+        by gmr-mx.google.com with ESMTPS id ku1si481928lbc.3.2015.08.17.04.30.02
         for <rtc-linux@googlegroups.com>
-        (version=TLSv1 cipher=RC4-SHA bits=128/128);
-        Thu, 20 Aug 2015 23:58:42 -0700 (PDT)
-Received: from epcpsbgr3.samsung.com
- (u143.gpu120.samsung.co.kr [203.254.230.143])
- by mailout2.samsung.com (Oracle Communications Messaging Server 7.0.5.31.0
- 64bit (built May  5 2014))
- with ESMTP id <0NTF004CK7DM1T70@mailout2.samsung.com> for
- rtc-linux@googlegroups.com; Fri, 21 Aug 2015 15:58:34 +0900 (KST)
-Message-id: <55D6CC1C.9040402@samsung.com>
-Date: Fri, 21 Aug 2015 15:58:36 +0900
-From: Joonyoung Shim <jy0922.shim@samsung.com>
-MIME-version: 1.0
-To: Krzysztof Kozlowski <k.kozlowski@samsung.com>,
- Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: rtc-linux@googlegroups.com, linux-samsung-soc@vger.kernel.org,
- linux-kernel@vger.kernel.org, stable@vger.kernel.org, a.zummo@towertech.it,
- sbkim73@samsung.com
-Subject: [rtc-linux] Re: [PATCH] rtc: s5m: fix to update ctrl register
-References: <1439455764-23526-1-git-send-email-jy0922.shim@samsung.com>
- <20150820231551.GE3769@piout.net> <55D67487.3040503@samsung.com>
- <55D67838.6080902@samsung.com> <55D67D14.9060809@samsung.com>
-In-reply-to: <55D67D14.9060809@samsung.com>
-Content-type: text/plain; charset=UTF-8
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 17 Aug 2015 04:30:02 -0700 (PDT)
+Received: by mail-la0-x229.google.com with SMTP id z9so77007271lag.3
+        for <rtc-linux@googlegroups.com>; Mon, 17 Aug 2015 04:30:02 -0700 (PDT)
+Sender: rtc-linux@googlegroups.com
+Date: Mon, 17 Aug 2015 13:30:00 +0200
+From: Johan Hovold <johan@kernel.org>
+To: Keerthy <j-keerthy@ti.com>
+Cc: linux-omap@vger.kernel.org, rtc-linux@googlegroups.com,
+	tony@atomide.com, alexandre.belloni@free-electrons.com,
+	akpm@linux-foundation.org, johan@kernel.org,
+	grygorii.strashko@ti.com, bcousson@baylibre.com,
+	devicetree@vger.kernel.org, t-kristo@ti.com
+Subject: [rtc-linux] Re: [PATCH v2 2/2] rtc: omap: Add external clock enabling support
+Message-ID: <20150817113000.GF7053@localhost>
+References: <1439787338-27396-1-git-send-email-j-keerthy@ti.com>
+ <1439787338-27396-3-git-send-email-j-keerthy@ti.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1439787338-27396-3-git-send-email-j-keerthy@ti.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
 List-Archive: <http://groups.google.com/group/rtc-linux
-Sender: rtc-linux@googlegroups.com
 List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On 08/21/2015 10:21 AM, Krzysztof Kozlowski wrote:
-> On 21.08.2015 10:00, Joonyoung Shim wrote:
->> On 08/21/2015 09:44 AM, Krzysztof Kozlowski wrote:
->>> On 21.08.2015 08:15, Alexandre Belloni wrote:
->>>> Hi,
->>>>
->>>> On 13/08/2015 at 17:49:24 +0900, Joonyoung Shim wrote :
->>>>> According to datasheet, the S2MPS13X and S2MPS14X should update write
->>>>> buffer via setting WUDR bit to high after ctrl register is updated.
->>>>>
->>>>> If not, ALARM interrupt of rtc-s5m doesn't happen first time when i use
->>>>> tools/testing/selftests/timers/rtctest.c test program and hour format is
->>>>> used to 12 hour mode in Odroid-XU3 board.
->>>>>
->>>>
->>>> >From what I understood, I should expect a v2 of tihat patch also setting
->>>> RUDR, is that right? OR would you prefer that I apply that one and then
->>>> fix RUDR in a following patch?
->>>
->>> Right, I would expect that as well... or a comment if this is not needed.
->>>
->>
->> Hmm, the driver only writes control register now, so i don't feel the
->> need of patch setting RUDR for control register.
+On Mon, Aug 17, 2015 at 10:25:38AM +0530, Keerthy wrote:
+> Configure the clock source to either internal clock
+> or external clock based on the availability of the clocks.
+> External clock is preferred as it can be ticking during suspend.
 > 
-> Yes, you're right. There is only regmap_write() (not
-> remap_update_bits()) so your patch is completely fine. Thanks for
-> explanation.
+> Signed-off-by: Keerthy <j-keerthy@ti.com>
+> ---
 > 
-> Reviewed-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+> Changes in V2:
 > 
-
-Thanks for review.
-
-I found one more issue, the RTC doesn't keep time on Odroid-XU3 board
-when i turn on board after power off even if RTC battery is connected.
-
-A difference with RTC driver of hardkernel kernel is that it sets
-not only WUDR bit but also RUDR bit to high at the same time after
-RTC_CTRL register is written. It's same with condition of only writing
-ALARM registers like below description.
-
-from S2MPS14 datasheet:
-"3.  For write only Alarm 0&1 Registers (0x0B~0x18), set WUDR & RUDR
-bits to high."
-
-So i tried it and it works well with keeping time. I'm not sure RTC of
-S2MPS13 type also has a similar issue because it differs a little bit.
-
-from S2MPS13 datasheet:
-"3.  For write only Alarm 0&1 Registers (0x0B~0x18), set WUDR & A_UDR
-bits to high."
-
-If S2MPS13 also has same issue, we can fix the problem via just below
-patch.
-
-diff --git a/drivers/rtc/rtc-s5m.c b/drivers/rtc/rtc-s5m.c
-index 8c70d78..bb8e888 100644
---- a/drivers/rtc/rtc-s5m.c
-+++ b/drivers/rtc/rtc-s5m.c
-@@ -635,6 +635,10 @@ static int s5m8767_rtc_init_reg(struct s5m_rtc_info *info)
- 	case S2MPS13X:
- 		data[0] = (0 << BCD_EN_SHIFT) | (1 << MODEL24_SHIFT);
- 		ret = regmap_write(info->regmap, info->regs->ctrl, data[0]);
-+		if (ret < 0)
-+			break;
-+
-+		ret = s5m8767_rtc_set_alarm_reg(info);
- 		break;
- 
- 	default:
-
-But i can't find any reasonable reason about this fix from datasheet,
-
-Thanks.
-
-> Best regards,
-> Krzysztof
+>   * Changed clk_prepare calls to clk_prepare_enable.
+>   * Changed clk_unprepare calls to clk_disable_unprepare.
+>   * Added clk pointers for external and internal clock to omap_rtc structure.
 > 
->>
->>> Best regards,
->>> Krzysztof
->>>
->>>
->>>>
->>>>> Signed-off-by: Joonyoung Shim <jy0922.shim@samsung.com>
->>>>> Cc: <stable@vger.kernel.org>
->>>>
->>>> can you update the stable tag with the kernel version introducing the
->>>> issue?
->>
->> Sure, i think it should be v3.16.
->>
->>>>
->>>>> ---
->>>>>  drivers/rtc/rtc-s5m.c | 12 ++++++++++++
->>>>>  1 file changed, 12 insertions(+)
->>>>
->>>>> diff --git a/drivers/rtc/rtc-s5m.c b/drivers/rtc/rtc-s5m.c
->>>>> index 8c70d78..03828bb 100644
->>>>> --- a/drivers/rtc/rtc-s5m.c
->>>>> +++ b/drivers/rtc/rtc-s5m.c
->>>>> @@ -635,6 +635,18 @@ static int s5m8767_rtc_init_reg(struct s5m_rtc_info *info)
->>>>>  	case S2MPS13X:
->>>>>  		data[0] = (0 << BCD_EN_SHIFT) | (1 << MODEL24_SHIFT);
->>>>>  		ret = regmap_write(info->regmap, info->regs->ctrl, data[0]);
->>>>> +		if (ret < 0)
->>>>> +			break;
->>>>> +
->>>>> +		ret = regmap_update_bits(info->regmap,
->>>>> +				info->regs->rtc_udr_update,
->>>>> +				info->regs->rtc_udr_mask,
->>>>> +				info->regs->rtc_udr_mask);
->>>>
->>>> Very small indentation issue here, it should be aligned with the open
->>>> parenthesis.
->>
->> OK, i will.
->>
->> Thanks.
->>
+>  drivers/rtc/rtc-omap.c | 40 ++++++++++++++++++++++++++++++++++++++++
+>  1 file changed, 40 insertions(+)
 > 
-> 
+> diff --git a/drivers/rtc/rtc-omap.c b/drivers/rtc/rtc-omap.c
+> index 8b6355f..46b3944 100644
+> --- a/drivers/rtc/rtc-omap.c
+> +++ b/drivers/rtc/rtc-omap.c
+> @@ -25,6 +25,7 @@
+>  #include <linux/of_device.h>
+>  #include <linux/pm_runtime.h>
+>  #include <linux/io.h>
+> +#include <linux/clk.h>
+>  
+>  /*
+>   * The OMAP RTC is a year/month/day/hours/minutes/seconds BCD clock
+> @@ -107,6 +108,7 @@
+>  
+>  /* OMAP_RTC_OSC_REG bit fields: */
+>  #define OMAP_RTC_OSC_32KCLK_EN		BIT(6)
+> +#define OMAP_RTC_OSC_SEL_32KCLK_SRC	BIT(3)
+>  
+>  /* OMAP_RTC_IRQWAKEEN bit fields: */
+>  #define OMAP_RTC_IRQWAKEEN_ALARM_WAKEEN	BIT(1)
+> @@ -132,10 +134,13 @@ struct omap_rtc_device_type {
+>  struct omap_rtc {
+>  	struct rtc_device *rtc;
+>  	void __iomem *base;
+> +	struct clk *ext_clk;
+> +	struct clk *int_clk;
+
+As was already suggested, you could just use one clock here for now.
+
+>  	int irq_alarm;
+>  	int irq_timer;
+>  	u8 interrupts_reg;
+>  	bool is_pmic_controller;
+> +	bool has_ext_clk;
+>  	const struct omap_rtc_device_type *type;
+>  };
+>  
+> @@ -553,6 +558,17 @@ static int omap_rtc_probe(struct platform_device *pdev)
+>  	if (rtc->irq_alarm <= 0)
+>  		return -ENOENT;
+>  
+> +	rtc->ext_clk = devm_clk_get(&pdev->dev, "ext-clk");
+> +	if (!IS_ERR(rtc->ext_clk)) {
+> +		rtc->has_ext_clk = true;
+> +		clk_prepare_enable(rtc->ext_clk);
+> +	} else {
+> +		rtc->int_clk = devm_clk_get(&pdev->dev, "int-clk");
+> +
+> +		if (!IS_ERR(rtc->int_clk))
+> +			clk_prepare_enable(rtc->int_clk);
+> +	}
+> +
+
+Which would allow some simplification here.
+
+But shouldn't enabling the internal clock go in its own patch before you
+add support for the external clock?
+
+>  	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+>  	rtc->base = devm_ioremap_resource(&pdev->dev, res);
+>  	if (IS_ERR(rtc->base))
+> @@ -627,6 +643,16 @@ static int omap_rtc_probe(struct platform_device *pdev)
+>  	if (reg != new_ctrl)
+>  		rtc_write(rtc, OMAP_RTC_CTRL_REG, new_ctrl);
+>  
+> +	/*
+> +	 * If we have the external clock then switch to it so we can keep
+> +	 * ticking acorss suspend.
+
+You forgot to fix the "acorss" typo.
+
+> +	 */
+> +	if (rtc->has_ext_clk) {
+> +		reg = rtc_read(rtc, OMAP_RTC_OSC_REG);
+> +		rtc_write(rtc, OMAP_RTC_OSC_REG, reg |
+> +			  OMAP_RTC_OSC_SEL_32KCLK_SRC);
+
+Odd line break, break after the final comma instead?
+
+> +	}
+> +
+>  	rtc->type->lock(rtc);
+>  
+>  	device_init_wakeup(&pdev->dev, true);
+> @@ -672,6 +698,7 @@ err:
+>  static int __exit omap_rtc_remove(struct platform_device *pdev)
+>  {
+>  	struct omap_rtc *rtc = platform_get_drvdata(pdev);
+> +	u8 reg;
+>  
+>  	if (pm_power_off == omap_rtc_power_off &&
+>  			omap_rtc_power_off_rtc == rtc) {
+> @@ -681,10 +708,23 @@ static int __exit omap_rtc_remove(struct platform_device *pdev)
+>  
+>  	device_init_wakeup(&pdev->dev, 0);
+>  
+> +	if (!IS_ERR(rtc->ext_clk)) {
+> +		clk_disable_unprepare(rtc->ext_clk);
+> +	} else {
+> +		if (!IS_ERR(rtc->int_clk))
+> +			clk_disable_unprepare(rtc->int_clk);
+> +	}
+> +
+
+This could also be simplified with a single clock entry in rtc.
+
+>  	rtc->type->unlock(rtc);
+>  	/* leave rtc running, but disable irqs */
+>  	rtc_write(rtc, OMAP_RTC_INTERRUPTS_REG, 0);
+>  
+> +	if (rtc->has_ext_clk) {
+> +		reg = rtc_read(rtc, OMAP_RTC_OSC_REG);
+> +		reg &= ~OMAP_RTC_OSC_SEL_32KCLK_SRC;
+> +		rtc_write(rtc, OMAP_RTC_OSC_REG, reg);
+> +	}
+> +
+>  	rtc->type->lock(rtc);
+>  
+>  	/* Disable the clock/module */
+
+Johan
 
 -- 
 -- 
