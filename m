@@ -1,21 +1,22 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBS4TQKXAKGQEYFFENWA@googlegroups.com>
+Return-Path: <rtc-linux+bncBD66BCOYSQBBBS73ZOXAKGQEA3XOEMA@googlegroups.com>
+Received: from comal.ext.ti.com (comal.ext.ti.com. [198.47.26.152])
+        by gmr-mx.google.com with ESMTPS id x1si1040387igb.2.2015.08.18.02.41.31
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1 cipher=RC4-SHA bits=128/128);
+        Tue, 18 Aug 2015 02:41:31 -0700 (PDT)
+From: Keerthy <j-keerthy@ti.com>
+To: <alexandre.belloni@free-electrons.com>, <tony@atomide.com>
+CC: <bcousson@baylibre.com>, <johan@kernel.org>, <linux-omap@vger.kernel.org>,
+        <rtc-linux@googlegroups.com>, <grygorii.strashko@ti.com>,
+        <j-keerthy@ti.com>
+Subject: [rtc-linux] [PATCH v5 2/3] rtc: omap: Add internal clock enabling support
+Date: Tue, 18 Aug 2015 15:11:15 +0530
+Message-ID: <1439890876-19024-3-git-send-email-j-keerthy@ti.com>
+In-Reply-To: <1439890876-19024-1-git-send-email-j-keerthy@ti.com>
+References: <1439890876-19024-1-git-send-email-j-keerthy@ti.com>
 MIME-Version: 1.0
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id bk2si47220wib.1.2015.08.04.02.45.46
-        for <rtc-linux@googlegroups.com>;
-        Tue, 04 Aug 2015 02:45:46 -0700 (PDT)
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: rtc-linux@googlegroups.com
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
-	linux-kernel@vger.kernel.org,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Subject: [rtc-linux] [PATCH 13/15] rtc: rx8025: remove useless initialization
-Date: Tue,  4 Aug 2015 11:45:32 +0200
-Message-Id: <1438681534-12027-14-git-send-email-alexandre.belloni@free-electrons.com>
-In-Reply-To: <1438681534-12027-1-git-send-email-alexandre.belloni@free-electrons.com>
-References: <1438681534-12027-1-git-send-email-alexandre.belloni@free-electrons.com>
-Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -25,27 +26,58 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-irq_freq is already initialized to 1 in rtc_device_register()
+The rtc can be clocked by an internal 32K clock. Adding the support
+to enable the same.
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Signed-off-by: Keerthy <j-keerthy@ti.com>
 ---
- drivers/rtc/rtc-rx8025.c | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/rtc/rtc-omap.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/drivers/rtc/rtc-rx8025.c b/drivers/rtc/rtc-rx8025.c
-index 340133a5d907..f9b86b92943f 100644
---- a/drivers/rtc/rtc-rx8025.c
-+++ b/drivers/rtc/rtc-rx8025.c
-@@ -547,7 +547,6 @@ static int rx8025_probe(struct i2c_client *client,
- 		}
- 	}
+diff --git a/drivers/rtc/rtc-omap.c b/drivers/rtc/rtc-omap.c
+index 8b6355f..f31c012 100644
+--- a/drivers/rtc/rtc-omap.c
++++ b/drivers/rtc/rtc-omap.c
+@@ -25,6 +25,7 @@
+ #include <linux/of_device.h>
+ #include <linux/pm_runtime.h>
+ #include <linux/io.h>
++#include <linux/clk.h>
  
--	rx8025->rtc->irq_freq = 1;
- 	rx8025->rtc->max_user_freq = 1;
+ /*
+  * The OMAP RTC is a year/month/day/hours/minutes/seconds BCD clock
+@@ -132,6 +133,7 @@ struct omap_rtc_device_type {
+ struct omap_rtc {
+ 	struct rtc_device *rtc;
+ 	void __iomem *base;
++	struct clk *clk;
+ 	int irq_alarm;
+ 	int irq_timer;
+ 	u8 interrupts_reg;
+@@ -553,6 +555,11 @@ static int omap_rtc_probe(struct platform_device *pdev)
+ 	if (rtc->irq_alarm <= 0)
+ 		return -ENOENT;
  
- 	err = rx8025_sysfs_register(&client->dev);
++	rtc->clk = devm_clk_get(&pdev->dev, "int-clk");
++
++	if (!IS_ERR(rtc->clk))
++		clk_prepare_enable(rtc->clk);
++
+ 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+ 	rtc->base = devm_ioremap_resource(&pdev->dev, res);
+ 	if (IS_ERR(rtc->base))
+@@ -681,6 +688,9 @@ static int __exit omap_rtc_remove(struct platform_device *pdev)
+ 
+ 	device_init_wakeup(&pdev->dev, 0);
+ 
++	if (!IS_ERR(rtc->clk))
++		clk_disable_unprepare(rtc->clk);
++
+ 	rtc->type->unlock(rtc);
+ 	/* leave rtc running, but disable irqs */
+ 	rtc_write(rtc, OMAP_RTC_INTERRUPTS_REG, 0);
 -- 
-2.1.4
+1.9.1
 
 -- 
 -- 
