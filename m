@@ -1,21 +1,27 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBTETQKXAKGQE4KWQEWI@googlegroups.com>
-MIME-Version: 1.0
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id fj7si37237wib.3.2015.08.04.02.45.48
-        for <rtc-linux@googlegroups.com>;
-        Tue, 04 Aug 2015 02:45:48 -0700 (PDT)
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: rtc-linux@googlegroups.com
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
-	linux-kernel@vger.kernel.org,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Subject: [rtc-linux] [PATCH 07/15] rtc: rx8025: fix transfer mode
-Date: Tue,  4 Aug 2015 11:45:26 +0200
-Message-Id: <1438681534-12027-8-git-send-email-alexandre.belloni@free-electrons.com>
-In-Reply-To: <1438681534-12027-1-git-send-email-alexandre.belloni@free-electrons.com>
-References: <1438681534-12027-1-git-send-email-alexandre.belloni@free-electrons.com>
+Return-Path: <rtc-linux+bncBDKZNNNLXAHBBM4MZOXAKGQE7MBDJGA@googlegroups.com>
+Received: from mailout4.w1.samsung.com (mailout4.w1.samsung.com. [210.118.77.14])
+        by gmr-mx.google.com with ESMTPS id dx8si1117463pab.1.2015.08.17.22.44.19
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1 cipher=RC4-SHA bits=128/128);
+        Mon, 17 Aug 2015 22:44:19 -0700 (PDT)
+Received: from eucpsbgm1.samsung.com (unknown [203.254.199.244])
+ by mailout4.w1.samsung.com
+ (Oracle Communications Messaging Server 7.0.5.31.0 64bit (built May  5 2014))
+ with ESMTP id <0NT900CXRJXR2P00@mailout4.w1.samsung.com> for
+ rtc-linux@googlegroups.com; Tue, 18 Aug 2015 06:44:15 +0100 (BST)
+Message-id: <55D2C62B.1010209@samsung.com>
+Date: Tue, 18 Aug 2015 14:44:11 +0900
+From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+MIME-version: 1.0
+To: Joonyoung Shim <jy0922.shim@samsung.com>, rtc-linux@googlegroups.com
+Cc: linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org,
+ stable@vger.kernel.org, a.zummo@towertech.it,
+ alexandre.belloni@free-electrons.com, cw00.choi@samsung.com
+Subject: [rtc-linux] Re: [PATCH v2] rtc: s3c: fix disabled clocks for alarm
+References: <1439374906-27841-1-git-send-email-jy0922.shim@samsung.com>
+In-reply-to: <1439374906-27841-1-git-send-email-jy0922.shim@samsung.com>
+Content-type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
-Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -25,48 +31,36 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-The datasheet specifies that transfer mode must be 0 for write and either
-0x4 (simplified read) or 0 (standard read). 0x8 is not specified, use
-standard mode.
+On 12.08.2015 19:21, Joonyoung Shim wrote:
+> The clock enable/disable codes for alarm have been removed from
+> commit 24e1455493da ("drivers/rtc/rtc-s3c.c: delete duplicate clock
+> control") and the clocks are disabled even if alarm is set, so alarm
+> interrupt can't happen.
+> 
+> The s3c_rtc_setaie function can be called several times with 'enabled'
+> argument having same value, so it needs to check whether clocks are
+> enabled or not.
+> 
+> Signed-off-by: Joonyoung Shim <jy0922.shim@samsung.com>
+> Cc: <stable@vger.kernel.org> # v4.1
+> ---
+> This is v2 of prior patch "[PATCH 4/4] rtc: s3c: enable/disable clocks
+> for alarm".
+> 
+> Changelog for v2:
+> - commit messages is modified by Krzysztof suggestion
+> - make to backportable patch
+> - add Cc-stable
+> 
+>  drivers/rtc/rtc-s3c.c | 24 ++++++++++++++++++------
+>  1 file changed, 18 insertions(+), 6 deletions(-)
+> 
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
----
- drivers/rtc/rtc-rx8025.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+Looks good now:
+Reviewed-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
 
-diff --git a/drivers/rtc/rtc-rx8025.c b/drivers/rtc/rtc-rx8025.c
-index 3612362b65ac..771558602409 100644
---- a/drivers/rtc/rtc-rx8025.c
-+++ b/drivers/rtc/rtc-rx8025.c
-@@ -77,7 +77,7 @@ struct rx8025_data {
- 
- static int rx8025_read_reg(struct i2c_client *client, int number, u8 *value)
- {
--	int ret = i2c_smbus_read_byte_data(client, (number << 4) | 0x08);
-+	int ret = i2c_smbus_read_byte_data(client, number << 4);
- 
- 	if (ret < 0) {
- 		dev_err(&client->dev, "Unable to read register #%d\n", number);
-@@ -91,7 +91,7 @@ static int rx8025_read_reg(struct i2c_client *client, int number, u8 *value)
- static int rx8025_read_regs(struct i2c_client *client,
- 			    int number, u8 length, u8 *values)
- {
--	int ret = i2c_smbus_read_i2c_block_data(client, (number << 4) | 0x08,
-+	int ret = i2c_smbus_read_i2c_block_data(client, number << 4,
- 						length, values);
- 
- 	if (ret != length) {
-@@ -117,7 +117,7 @@ static int rx8025_write_reg(struct i2c_client *client, int number, u8 value)
- static int rx8025_write_regs(struct i2c_client *client,
- 			     int number, u8 length, u8 *values)
- {
--	int ret = i2c_smbus_write_i2c_block_data(client, (number << 4) | 0x08,
-+	int ret = i2c_smbus_write_i2c_block_data(client, number << 4,
- 						 length, values);
- 
- 	if (ret)
--- 
-2.1.4
+Best regards,
+Krzysztof
 
 -- 
 -- 
