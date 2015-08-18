@@ -1,20 +1,21 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBC65UKXAKGQE3VDD6CA@googlegroups.com>
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id c3si340843wiz.2.2015.08.10.07.00.43
-        for <rtc-linux@googlegroups.com>;
-        Mon, 10 Aug 2015 07:00:43 -0700 (PDT)
-Date: Mon, 10 Aug 2015 16:00:42 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	Fabio Estevam <fabio.estevam@freescale.com>
-Cc: festevam@gmail.com, rtc-linux@googlegroups.com
-Subject: [rtc-linux] Re: [PATCH 2/2] rtc: rtc-ds1374: Remove unused variable
-Message-ID: <20150810140042.GF3411@piout.net>
-References: <1439210865-8611-1-git-send-email-fabio.estevam@freescale.com>
- <1439210865-8611-2-git-send-email-fabio.estevam@freescale.com>
+Return-Path: <rtc-linux+bncBD66BCOYSQBBBTH3ZOXAKGQERCB4POA@googlegroups.com>
+Received: from comal.ext.ti.com (comal.ext.ti.com. [198.47.26.152])
+        by gmr-mx.google.com with ESMTPS id x1si1040392igb.2.2015.08.18.02.41.32
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1 cipher=RC4-SHA bits=128/128);
+        Tue, 18 Aug 2015 02:41:32 -0700 (PDT)
+From: Keerthy <j-keerthy@ti.com>
+To: <alexandre.belloni@free-electrons.com>, <tony@atomide.com>
+CC: <bcousson@baylibre.com>, <johan@kernel.org>, <linux-omap@vger.kernel.org>,
+        <rtc-linux@googlegroups.com>, <grygorii.strashko@ti.com>,
+        <j-keerthy@ti.com>
+Subject: [rtc-linux] [PATCH v5 3/3] rtc: omap: Add external clock enabling support
+Date: Tue, 18 Aug 2015 15:11:16 +0530
+Message-ID: <1439890876-19024-4-git-send-email-j-keerthy@ti.com>
+In-Reply-To: <1439890876-19024-1-git-send-email-j-keerthy@ti.com>
+References: <1439890876-19024-1-git-send-email-j-keerthy@ti.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1439210865-8611-2-git-send-email-fabio.estevam@freescale.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -25,44 +26,87 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Greg,
+Configure the clock source to external clock if available.
+External clock is preferred as it can be ticking during suspend.
 
-Can you take this one or squash it in your misc_deregister patch?
+Signed-off-by: Keerthy <j-keerthy@ti.com>
+---
+ drivers/rtc/rtc-omap.c | 25 ++++++++++++++++++++++++-
+ 1 file changed, 24 insertions(+), 1 deletion(-)
 
-Original is at: http://patchwork.ozlabs.org/patch/505614/
-
-On 10/08/2015 at 09:47:45 -0300, Fabio Estevam wrote :
-> Remove unused variable 'res' and fix the following build warning:
-> 
-> drivers/rtc/rtc-ds1374.c:667:6: warning: unused variable 'res' [-Wunused-variable]
-> 
-> Reported-by: Olof's autobuilder <build@lixom.net>
-> Signed-off-by: Fabio Estevam <fabio.estevam@freescale.com>
-> ---
->  drivers/rtc/rtc-ds1374.c | 2 --
->  1 file changed, 2 deletions(-)
-> 
-> diff --git a/drivers/rtc/rtc-ds1374.c b/drivers/rtc/rtc-ds1374.c
-> index 7067232..3b3049c 100644
-> --- a/drivers/rtc/rtc-ds1374.c
-> +++ b/drivers/rtc/rtc-ds1374.c
-> @@ -664,8 +664,6 @@ static int ds1374_remove(struct i2c_client *client)
->  {
->  	struct ds1374 *ds1374 = i2c_get_clientdata(client);
->  #ifdef CONFIG_RTC_DRV_DS1374_WDT
-> -	int res;
-> -
->  	misc_deregister(&ds1374_miscdev);
->  	ds1374_miscdev.parent = NULL;
->  	unregister_reboot_notifier(&ds1374_wdt_notifier);
-> -- 
-> 1.9.1
-> 
-
+diff --git a/drivers/rtc/rtc-omap.c b/drivers/rtc/rtc-omap.c
+index f31c012..ec2e9c5 100644
+--- a/drivers/rtc/rtc-omap.c
++++ b/drivers/rtc/rtc-omap.c
+@@ -108,6 +108,7 @@
+ 
+ /* OMAP_RTC_OSC_REG bit fields: */
+ #define OMAP_RTC_OSC_32KCLK_EN		BIT(6)
++#define OMAP_RTC_OSC_SEL_32KCLK_SRC	BIT(3)
+ 
+ /* OMAP_RTC_IRQWAKEEN bit fields: */
+ #define OMAP_RTC_IRQWAKEEN_ALARM_WAKEEN	BIT(1)
+@@ -138,6 +139,7 @@ struct omap_rtc {
+ 	int irq_timer;
+ 	u8 interrupts_reg;
+ 	bool is_pmic_controller;
++	bool has_ext_clk;
+ 	const struct omap_rtc_device_type *type;
+ };
+ 
+@@ -555,7 +557,11 @@ static int omap_rtc_probe(struct platform_device *pdev)
+ 	if (rtc->irq_alarm <= 0)
+ 		return -ENOENT;
+ 
+-	rtc->clk = devm_clk_get(&pdev->dev, "int-clk");
++	rtc->clk = devm_clk_get(&pdev->dev, "ext-clk");
++	if (!IS_ERR(rtc->clk))
++		rtc->has_ext_clk = true;
++	else
++		rtc->clk = devm_clk_get(&pdev->dev, "int-clk");
+ 
+ 	if (!IS_ERR(rtc->clk))
+ 		clk_prepare_enable(rtc->clk);
+@@ -634,6 +640,16 @@ static int omap_rtc_probe(struct platform_device *pdev)
+ 	if (reg != new_ctrl)
+ 		rtc_write(rtc, OMAP_RTC_CTRL_REG, new_ctrl);
+ 
++	/*
++	 * If we have the external clock then switch to it so we can keep
++	 * ticking across suspend.
++	 */
++	if (rtc->has_ext_clk) {
++		reg = rtc_read(rtc, OMAP_RTC_OSC_REG);
++		rtc_write(rtc, OMAP_RTC_OSC_REG,
++			  reg | OMAP_RTC_OSC_SEL_32KCLK_SRC);
++	}
++
+ 	rtc->type->lock(rtc);
+ 
+ 	device_init_wakeup(&pdev->dev, true);
+@@ -679,6 +695,7 @@ err:
+ static int __exit omap_rtc_remove(struct platform_device *pdev)
+ {
+ 	struct omap_rtc *rtc = platform_get_drvdata(pdev);
++	u8 reg;
+ 
+ 	if (pm_power_off == omap_rtc_power_off &&
+ 			omap_rtc_power_off_rtc == rtc) {
+@@ -695,6 +712,12 @@ static int __exit omap_rtc_remove(struct platform_device *pdev)
+ 	/* leave rtc running, but disable irqs */
+ 	rtc_write(rtc, OMAP_RTC_INTERRUPTS_REG, 0);
+ 
++	if (rtc->has_ext_clk) {
++		reg = rtc_read(rtc, OMAP_RTC_OSC_REG);
++		reg &= ~OMAP_RTC_OSC_SEL_32KCLK_SRC;
++		rtc_write(rtc, OMAP_RTC_OSC_REG, reg);
++	}
++
+ 	rtc->type->lock(rtc);
+ 
+ 	/* Disable the clock/module */
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+1.9.1
 
 -- 
 -- 
