@@ -1,23 +1,29 @@
-Return-Path: <rtc-linux+bncBDENZBE5PQIJHNNNVYCRUBGGAB5XW@googlegroups.com>
-Received: from utopia.booyaka.com (utopia.booyaka.com. [74.50.51.50])
-        by gmr-mx.google.com with ESMTPS id ax9si1502973igc.1.2015.08.12.07.39.13
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1 cipher=RC4-SHA bits=128/128);
-        Wed, 12 Aug 2015 07:39:13 -0700 (PDT)
-Date: Wed, 12 Aug 2015 14:39:11 +0000 (UTC)
-From: Paul Walmsley <paul@pwsan.com>
-To: Keerthy <j-keerthy@ti.com>
-cc: tony@atomide.com, linux-omap@vger.kernel.org, pawel.moll@arm.com,
-  galak@codeaurora.org, alexandre.belloni@free-electrons.com,
-  akpm@linux-foundation.org, johan@kernel.org, grygorii.strashko@ti.com,
-  rtc-linux@googlegroups.com, bcousson@baylibre.com, nm@ti.com,
-  devicetree@vger.kernel.org, t-kristo@ti.com
-Subject: [rtc-linux] Re: [PATCH v2 5/6] ARM: AM43XX: HWMOD: Add rtc hwmod
-In-Reply-To: <1439198906-31189-6-git-send-email-j-keerthy@ti.com>
-Message-ID: <alpine.DEB.2.02.1508121434190.7154@utopia.booyaka.com>
-References: <1439198906-31189-1-git-send-email-j-keerthy@ti.com> <1439198906-31189-6-git-send-email-j-keerthy@ti.com>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBWXTZOXAKGQEOTC4BGQ@googlegroups.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id x20si493029wia.0.2015.08.18.02.24.42
+        for <rtc-linux@googlegroups.com>;
+        Tue, 18 Aug 2015 02:24:42 -0700 (PDT)
+Date: Tue, 18 Aug 2015 11:21:52 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Gregory CLEMENT <gregory.clement@free-electrons.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
+	Jason Cooper <jason@lakedaemon.net>, Andrew Lunn <andrew@lunn.ch>,
+	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
+	Thomas Petazzoni <thomas.petazzoni@free-electrons.com>,
+	Ezequiel Garcia <ezequiel.garcia@free-electrons.com>,
+	linux-arm-kernel@lists.infradead.org,
+	Maxime Ripard <maxime.ripard@free-electrons.com>,
+	Boris BREZILLON <boris.brezillon@free-electrons.com>,
+	Lior Amsalem <alior@marvell.com>,
+	Tawfik Bayouk <tawfik@marvell.com>,
+	Nadav Haklai <nadavh@marvell.com>
+Subject: [rtc-linux] Re: [PATCH] rtc: armada38x: Align RTC set time procedure
+ with the official errata
+Message-ID: <20150818092152.GV22269@piout.net>
+References: <1438874328-31844-1-git-send-email-gregory.clement@free-electrons.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1438874328-31844-1-git-send-email-gregory.clement@free-electrons.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -28,18 +34,36 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On Mon, 10 Aug 2015, Keerthy wrote:
-
-> The patch adds rtc hwmod. This is present on gp and sk evm and not on
-> epos evm. Hence adding it selectively using a seprate list.
+On 06/08/2015 at 17:18:48 +0200, Gregory CLEMENT wrote :
+> From: Nadav Haklai <nadavh@marvell.com>
 > 
-> Signed-off-by: Keerthy <j-keerthy@ti.com>
+> According to the Armada38x functional errata FE-3124064, writing to
+> the RTC TIME register may fail. As a workaround, after writing to RTC
+> TIME register, issue a dummy write of 0x0 twice to the RTC Status
+> register.  This is the updated implementation of the Errata that
+> eliminates the need of the long 100ms delay during the RTC set time
+> procedure.
+> 
+> [gregory.clement@free-electrons.com]: removed the mutex and use the
+> spinlock again
+> 
+> Signed-off-by: Nadav Haklai <nadavh@marvell.com>
+> Reviewed-by: Neta Zur Hershkovits <neta@marvell.com>
+> Signed-off-by: Gregory CLEMENT <gregory.clement@free-electrons.com>
+Applied, thanks.
 
-So just to confirm, the RTC IP block has been physically removed or 
-permanently disabled on these new AM438x chips?  So the registers are no 
-longer accessible by the MPU?
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
-Is there a TRM available for these chips?
-
-
-- Paul
+-- 
+-- 
+You received this message because you are subscribed to "rtc-linux".
+Membership options at http://groups.google.com/group/rtc-linux .
+Please read http://groups.google.com/group/rtc-linux/web/checklist
+before submitting a driver.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+For more options, visit https://groups.google.com/d/optout.
