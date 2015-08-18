@@ -1,23 +1,19 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRB37K7CXAKGQETLNNCXI@googlegroups.com>
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id hm7si403058wib.0.2015.08.26.14.53.51
-        for <rtc-linux@googlegroups.com>;
-        Wed, 26 Aug 2015 14:53:51 -0700 (PDT)
-Date: Wed, 26 Aug 2015 23:53:50 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Tony Lindgren <tony@atomide.com>
-Cc: Keerthy <a0393675@ti.com>, Keerthy <j-keerthy@ti.com>,
-	bcousson@baylibre.com, johan@kernel.org, linux-omap@vger.kernel.org,
-	rtc-linux@googlegroups.com, grygorii.strashko@ti.com
-Subject: [rtc-linux] Re: [PATCH v5 0/3] ARM: AM437X: Add rtc clock handling
-Message-ID: <20150826215350.GS13155@piout.net>
-References: <1439890876-19024-1-git-send-email-j-keerthy@ti.com>
- <20150821211812.GI3769@piout.net>
- <55DDEE88.3020407@ti.com>
- <20150826180126.GS4215@atomide.com>
+Return-Path: <rtc-linux+bncBD66BCOYSQBBBT44ZOXAKGQEYN5YNWI@googlegroups.com>
+Received: from devils.ext.ti.com (devils.ext.ti.com. [198.47.26.153])
+        by gmr-mx.google.com with ESMTPS id i10si1001793igh.3.2015.08.17.23.18.54
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1 cipher=RC4-SHA bits=128/128);
+        Mon, 17 Aug 2015 23:18:54 -0700 (PDT)
+From: Keerthy <j-keerthy@ti.com>
+To: <alexandre.belloni@free-electrons.com>, <tony@atomide.com>
+CC: <johan@kernel.org>, <linux-omap@vger.kernel.org>,
+        <rtc-linux@googlegroups.com>, <grygorii.strashko@ti.com>,
+        <j-keerthy@ti.com>
+Subject: [rtc-linux] [PATCH v3 0/2]  ARM: AM437X: Add rtc clock handling
+Date: Tue, 18 Aug 2015 11:48:41 +0530
+Message-ID: <1439878724-5828-1-git-send-email-j-keerthy@ti.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <20150826180126.GS4215@atomide.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -28,46 +24,27 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On 26/08/2015 at 11:01:27 -0700, Tony Lindgren wrote :
-> * Keerthy <a0393675@ti.com> [150826 09:54]:
-> > Tony,
-> > 
-> > On Saturday 22 August 2015 02:48 AM, Alexandre Belloni wrote:
-> > >Tony,
-> > >
-> > >On 18/08/2015 at 15:11:13 +0530, Keerthy wrote :
-> > >>The series is applicable for all am437x series of processors.
-> > >>It adds clock handling support. Boot tested on am437x-gp-evm.
-> > >>
-> > >>Keerthy (3):
-> > >>   ARM: dts: AM437x: Add the internal and external clock nodes for rtc
-> > >>   rtc: omap: Add internal clock enabling support
-> > >>   rtc: omap: Add external clock enabling support
-> > >>
-> > >
-> > >I'm wondering how you want to get those patches merged. I can let you
-> > >take 2 and 3 through arm-soc but you will miss 4.3. Or I can take 2 and
-> > >3 for 4.3 but the documentation will be missing.
-> > 
-> > A gentle ping on this series.
-> 
-> Alexandre, it's probably best that you take them all. The dts changes
-> apply against Linux next with fuzz so there should not be any merge
-> conflict. Feel free to add:
-> 
-> Acked-by: Tony Lindgren <tony@atomide.com>
-> 
+The series is applicable for all am437x series of processors.
+It adds clock handling support. Boot tested on am437x-gp-evm.
 
-So, I've rebased 1/3 on rtc-next to avoid depending on arm-soc. I've
-pushed everything and hopefully there won't be any issues in linux-next.
-We are quite close to the merge window so I would be much more confident
-sending them to Linus if you could test linux-next once the patches land
-there.
+Keerthy (2):
+  ARM: dts: AM437x: Add the internal and external clock nodes for rtc
+  rtc: omap: Add external clock enabling support
+
+Changes in v3:
+
+  * Split internal and external clock enabling to separate patches.
+  * Using one variable to store the clk info in omap_rtc struct.
+
+ arch/arm/boot/dts/am4372.dtsi        |  2 ++
+ arch/arm/boot/dts/am437x-gp-evm.dts  | 13 +++++++++++
+ arch/arm/boot/dts/am437x-idk-evm.dts |  9 ++++++++
+ arch/arm/boot/dts/am437x-sk-evm.dts  |  9 ++++++++
+ drivers/rtc/rtc-omap.c               | 44 ++++++++++++++++++++++++++++++++++++
+ 5 files changed, 77 insertions(+)
 
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+1.9.1
 
 -- 
 -- 
