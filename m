@@ -1,21 +1,20 @@
-Return-Path: <rtc-linux+bncBD66BCOYSQBBBUMEWGXAKGQEAIWSUMY@googlegroups.com>
-Received: from devils.ext.ti.com (devils.ext.ti.com. [198.47.26.153])
-        by gmr-mx.google.com with ESMTPS id a11si123632igv.3.2015.08.13.00.08.01
+Return-Path: <rtc-linux+bncBD66BCOYSQBBBT44ZOXAKGQEYN5YNWI@googlegroups.com>
+Received: from comal.ext.ti.com (comal.ext.ti.com. [198.47.26.152])
+        by gmr-mx.google.com with ESMTPS id ax9si1005164igc.1.2015.08.17.23.18.54
         for <rtc-linux@googlegroups.com>
         (version=TLSv1 cipher=RC4-SHA bits=128/128);
-        Thu, 13 Aug 2015 00:08:01 -0700 (PDT)
+        Mon, 17 Aug 2015 23:18:54 -0700 (PDT)
 From: Keerthy <j-keerthy@ti.com>
-To: <linux-omap@vger.kernel.org>, <rtc-linux@googlegroups.com>
-CC: <tony@atomide.com>, <alexandre.belloni@free-electrons.com>,
-        <akpm@linux-foundation.org>, <johan@kernel.org>,
-        <grygorii.strashko@ti.com>, <bcousson@baylibre.com>,
-        <devicetree@vger.kernel.org>, <t-kristo@ti.com>, <j-keerthy@ti.com>
-Subject: [rtc-linux] [PATCH 1/2] ARM: dts: AM437x: Add the internal and
+To: <alexandre.belloni@free-electrons.com>, <tony@atomide.com>
+CC: <johan@kernel.org>, <linux-omap@vger.kernel.org>,
+        <rtc-linux@googlegroups.com>, <grygorii.strashko@ti.com>,
+        <j-keerthy@ti.com>
+Subject: [rtc-linux] [PATCH v3 1/3] ARM: dts: AM437x: Add the internal and
  external clock nodes for rtc
-Date: Thu, 13 Aug 2015 12:37:47 +0530
-Message-ID: <1439449668-32301-2-git-send-email-j-keerthy@ti.com>
-In-Reply-To: <1439449668-32301-1-git-send-email-j-keerthy@ti.com>
-References: <1439449668-32301-1-git-send-email-j-keerthy@ti.com>
+Date: Tue, 18 Aug 2015 11:48:42 +0530
+Message-ID: <1439878724-5828-2-git-send-email-j-keerthy@ti.com>
+In-Reply-To: <1439878724-5828-1-git-send-email-j-keerthy@ti.com>
+References: <1439878724-5828-1-git-send-email-j-keerthy@ti.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
