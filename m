@@ -1,18 +1,19 @@
-Return-Path: <rtc-linux+bncBCEPHYMUQEJRBGXPXCXAKGQEJ7BXKCQ@googlegroups.com>
-Received: from mx02.posteo.de (mx02.posteo.de. [89.146.194.165])
-        by gmr-mx.google.com with ESMTPS id jv9si113914wid.0.2015.08.14.11.46.50
+Return-Path: <rtc-linux+bncBD66BCOYSQBBBPPAZOXAKGQE6EOMDEY@googlegroups.com>
+Received: from comal.ext.ti.com (comal.ext.ti.com. [198.47.26.152])
+        by gmr-mx.google.com with ESMTPS id o7si1032235igp.1.2015.08.18.01.43.40
         for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 14 Aug 2015 11:46:50 -0700 (PDT)
-Date: Fri, 14 Aug 2015 20:44:02 +0200
-From: Bibek Basu <bbasu@nvidia.com>
-To: rtc-linux@googlegroups.com
-Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Subject: [rtc-linux] [PATCH v2] drivers/rtc/rtc-as3722: correct month value
-Message-ID: <20150814184402.GA8953@nyan>
+        (version=TLSv1 cipher=RC4-SHA bits=128/128);
+        Tue, 18 Aug 2015 01:43:40 -0700 (PDT)
+From: Keerthy <j-keerthy@ti.com>
+To: <alexandre.belloni@free-electrons.com>, <tony@atomide.com>
+CC: <johan@kernel.org>, <linux-omap@vger.kernel.org>,
+        <rtc-linux@googlegroups.com>, <grygorii.strashko@ti.com>,
+        <j-keerthy@ti.com>
+Subject: [rtc-linux] [PATCH v4 0/2]  ARM: AM437X: Add rtc clock handling
+Date: Tue, 18 Aug 2015 14:13:28 +0530
+Message-ID: <1439887411-15576-1-git-send-email-j-keerthy@ti.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <20150814084515.GH22269@piout.net>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -23,41 +24,31 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-The RTCmonth value is 1-indexed, but the kernel assumes it is 0-indexed.
-This may result in the RTC not rolling over correctly.
+The series is applicable for all am437x series of processors.
+It adds clock handling support. Boot tested on am437x-gp-evm.
 
-Signed-off-by: Bibek Basu <bbasu@nvidia.com>
-Signed-off-by: Felix Janda <felix.janda@posteo.de>
----
-v1 -> v2: Correct attribution and use original commit message
----
- drivers/rtc/rtc-as3722.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+Keerthy (2):
+  ARM: dts: AM437x: Add the internal and external clock nodes for rtc
+  rtc: omap: Add external clock enabling support
 
-diff --git a/drivers/rtc/rtc-as3722.c b/drivers/rtc/rtc-as3722.c
-index 9f38eda..56cc582 100644
---- a/drivers/rtc/rtc-as3722.c
-+++ b/drivers/rtc/rtc-as3722.c
-@@ -45,7 +45,7 @@ static void as3722_time_to_reg(u8 *rbuff, struct rtc_time *tm)
- 	rbuff[1] = bin2bcd(tm->tm_min);
- 	rbuff[2] = bin2bcd(tm->tm_hour);
- 	rbuff[3] = bin2bcd(tm->tm_mday);
--	rbuff[4] = bin2bcd(tm->tm_mon);
-+	rbuff[4] = bin2bcd(tm->tm_mon + 1);
- 	rbuff[5] = bin2bcd(tm->tm_year - (AS3722_RTC_START_YEAR - 1900));
- }
- 
-@@ -55,7 +55,7 @@ static void as3722_reg_to_time(u8 *rbuff, struct rtc_time *tm)
- 	tm->tm_min = bcd2bin(rbuff[1] & 0x7F);
- 	tm->tm_hour = bcd2bin(rbuff[2] & 0x3F);
- 	tm->tm_mday = bcd2bin(rbuff[3] & 0x3F);
--	tm->tm_mon = bcd2bin(rbuff[4] & 0x1F);
-+	tm->tm_mon = bcd2bin(rbuff[4] & 0x1F) - 1;
- 	tm->tm_year = (AS3722_RTC_START_YEAR - 1900) + bcd2bin(rbuff[5] & 0x7F);
- 	return;
- }
+Changes in v4:
+
+  * Optimized pointer checks for clk pointer.
+
+Changes in v3:
+
+  * Split internal and external clock enabling to separate patches.
+  * Using one variable to store the clk info in omap_rtc struct.
+
+ arch/arm/boot/dts/am4372.dtsi        |  2 ++
+ arch/arm/boot/dts/am437x-gp-evm.dts  | 13 +++++++++++
+ arch/arm/boot/dts/am437x-idk-evm.dts |  9 ++++++++
+ arch/arm/boot/dts/am437x-sk-evm.dts  |  9 ++++++++
+ drivers/rtc/rtc-omap.c               | 44 ++++++++++++++++++++++++++++++++++++
+ 5 files changed, 77 insertions(+)
+
 -- 
-2.4.6
+1.9.1
 
 -- 
 -- 
