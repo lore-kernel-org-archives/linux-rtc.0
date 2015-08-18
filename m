@@ -1,28 +1,22 @@
-Return-Path: <rtc-linux+bncBDKZNNNLXAHBBZM5VKXAKGQEY2U5OAY@googlegroups.com>
-Received: from mailout2.w1.samsung.com (mailout2.w1.samsung.com. [210.118.77.12])
-        by gmr-mx.google.com with ESMTPS id zt8si403993pbc.0.2015.08.11.17.10.13
+Return-Path: <rtc-linux+bncBD66BCOYSQBBBP7AZOXAKGQEWQG6ZOY@googlegroups.com>
+Received: from arroyo.ext.ti.com (arroyo.ext.ti.com. [192.94.94.40])
+        by gmr-mx.google.com with ESMTPS id a11si1015471igv.3.2015.08.18.01.43.43
         for <rtc-linux@googlegroups.com>
-        (version=TLSv1 cipher=RC4-SHA bits=128/128);
-        Tue, 11 Aug 2015 17:10:13 -0700 (PDT)
-Received: from eucpsbgm1.samsung.com (unknown [203.254.199.244])
- by mailout2.w1.samsung.com
- (Oracle Communications Messaging Server 7.0.5.31.0 64bit (built May  5 2014))
- with ESMTP id <0NSY001XF0GWU830@mailout2.w1.samsung.com> for
- rtc-linux@googlegroups.com; Wed, 12 Aug 2015 01:10:08 +0100 (BST)
-Message-id: <55CA8EDE.8000006@samsung.com>
-Date: Wed, 12 Aug 2015 09:10:06 +0900
-From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-MIME-version: 1.0
-To: Joonyoung Shim <jy0922.shim@samsung.com>, rtc-linux@googlegroups.com
-Cc: linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org,
- a.zummo@towertech.it, alexandre.belloni@free-electrons.com,
- cw00.choi@samsung.com
-Subject: [rtc-linux] Re: [PATCH 3/4] rtc: s3c: use unified functions for
- enable/disable of clk
-References: <1439292502-22912-1-git-send-email-jy0922.shim@samsung.com>
- <1439292502-22912-3-git-send-email-jy0922.shim@samsung.com>
-In-reply-to: <1439292502-22912-3-git-send-email-jy0922.shim@samsung.com>
-Content-type: text/plain; charset=UTF-8
+        (version=TLS1 cipher=RC4-SHA bits=128/128);
+        Tue, 18 Aug 2015 01:43:43 -0700 (PDT)
+From: Keerthy <j-keerthy@ti.com>
+To: <alexandre.belloni@free-electrons.com>, <tony@atomide.com>
+CC: <johan@kernel.org>, <linux-omap@vger.kernel.org>,
+        <rtc-linux@googlegroups.com>, <grygorii.strashko@ti.com>,
+        <j-keerthy@ti.com>
+Subject: [rtc-linux] [PATCH v4 1/3] ARM: dts: AM437x: Add the internal and
+ external clock nodes for rtc
+Date: Tue, 18 Aug 2015 14:13:29 +0530
+Message-ID: <1439887411-15576-2-git-send-email-j-keerthy@ti.com>
+In-Reply-To: <1439887411-15576-1-git-send-email-j-keerthy@ti.com>
+References: <1439887411-15576-1-git-send-email-j-keerthy@ti.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -33,71 +27,115 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On 11.08.2015 20:28, Joonyoung Shim wrote:
-> The driver uses clk_prepare_enable()/clk_disable_unprepare() only in
-> probe only, elsewhere, use the unified functions for enable/disable of
-> clk, e.g. s3c_rtc_enable_clk() / s3c_rtc_disable_clk(), so it's better
-> to use them for consistency of code.
-> 
-> Signed-off-by: Joonyoung Shim <jy0922.shim@samsung.com>
-> ---
->  drivers/rtc/rtc-s3c.c | 14 +++++++++-----
->  1 file changed, 9 insertions(+), 5 deletions(-)
+rtc can either be supplied from internal 32k clock or external crystal
+generated 32k clock. Internal clock is SOC specific and the external
+clock is board dependent. Adding the corresponding nodes.
 
-First of all - the code is larger (9 insertions, 5 deletion) so I have
-doubts if this is better.
+Signed-off-by: Keerthy <j-keerthy@ti.com>
+---
+ arch/arm/boot/dts/am4372.dtsi        |  2 ++
+ arch/arm/boot/dts/am437x-gp-evm.dts  | 13 +++++++++++++
+ arch/arm/boot/dts/am437x-idk-evm.dts |  9 +++++++++
+ arch/arm/boot/dts/am437x-sk-evm.dts  |  9 +++++++++
+ 4 files changed, 33 insertions(+)
 
-Second - this is not equivalent change. The s3c_rtc_enable_clk/disable
-calls grab spin lock which is not necessary in probe.
-
-Best regards,
-Krzysztof
-
-> 
-> diff --git a/drivers/rtc/rtc-s3c.c b/drivers/rtc/rtc-s3c.c
-> index 44b2921..abe2a6d 100644
-> --- a/drivers/rtc/rtc-s3c.c
-> +++ b/drivers/rtc/rtc-s3c.c
-> @@ -476,19 +476,21 @@ static int s3c_rtc_probe(struct platform_device *pdev)
->  		dev_err(&pdev->dev, "failed to find rtc clock\n");
->  		return PTR_ERR(info->rtc_clk);
->  	}
-> -	clk_prepare_enable(info->rtc_clk);
-> +	clk_prepare(info->rtc_clk);
->  
->  	if (info->data->needs_src_clk) {
->  		info->rtc_src_clk = devm_clk_get(&pdev->dev, "rtc_src");
->  		if (IS_ERR(info->rtc_src_clk)) {
->  			dev_err(&pdev->dev,
->  				"failed to find rtc source clock\n");
-> -			clk_disable_unprepare(info->rtc_clk);
-> +			clk_unprepare(info->rtc_clk);
->  			return PTR_ERR(info->rtc_src_clk);
->  		}
-> -		clk_prepare_enable(info->rtc_src_clk);
-> +		clk_prepare(info->rtc_src_clk);
->  	}
->  
-> +	s3c_rtc_enable_clk(info);
-> +
->  	/* check to see if everything is setup correctly */
->  	if (info->data->enable)
->  		info->data->enable(info);
-> @@ -548,9 +550,11 @@ static int s3c_rtc_probe(struct platform_device *pdev)
->  	if (info->data->disable)
->  		info->data->disable(info);
->  
-> +	s3c_rtc_disable_clk(info);
-> +
->  	if (info->data->needs_src_clk)
-> -		clk_disable_unprepare(info->rtc_src_clk);
-> -	clk_disable_unprepare(info->rtc_clk);
-> +		clk_unprepare(info->rtc_src_clk);
-> +	clk_unprepare(info->rtc_clk);
->  
->  	return ret;
->  }
-> 
+diff --git a/arch/arm/boot/dts/am4372.dtsi b/arch/arm/boot/dts/am4372.dtsi
+index d99b2ee..484f092 100644
+--- a/arch/arm/boot/dts/am4372.dtsi
++++ b/arch/arm/boot/dts/am4372.dtsi
+@@ -336,6 +336,8 @@
+ 			interrupts = <GIC_SPI 75 IRQ_TYPE_LEVEL_HIGH
+ 				      GIC_SPI 76 IRQ_TYPE_LEVEL_HIGH>;
+ 			ti,hwmods = "rtc";
++			clocks = <&clk_32768_ck>;
++			clock-names = "int-clk";
+ 			status = "disabled";
+ 		};
+ 
+diff --git a/arch/arm/boot/dts/am437x-gp-evm.dts b/arch/arm/boot/dts/am437x-gp-evm.dts
+index 215775d..22038f2 100644
+--- a/arch/arm/boot/dts/am437x-gp-evm.dts
++++ b/arch/arm/boot/dts/am437x-gp-evm.dts
+@@ -112,6 +112,13 @@
+ 		clock-frequency = <12000000>;
+ 	};
+ 
++	/* fixed 32k external oscillator clock */
++	clk_32k_rtc: clk_32k_rtc {
++		#clock-cells = <0>;
++		compatible = "fixed-clock";
++		clock-frequency = <32768>;
++	};
++
+ 	sound0: sound@0 {
+ 		compatible = "simple-audio-card";
+ 		simple-audio-card,name = "AM437x-GP-EVM";
+@@ -941,3 +948,9 @@
+ 	tx-num-evt = <32>;
+ 	rx-num-evt = <32>;
+ };
++
++&rtc {
++	clocks = <&clk_32k_rtc>, <&clk_32768_ck>;
++	clock-names = "ext-clk", "int-clk";
++	status = "okay";
++};
+diff --git a/arch/arm/boot/dts/am437x-idk-evm.dts b/arch/arm/boot/dts/am437x-idk-evm.dts
+index 37834427..af25801 100644
+--- a/arch/arm/boot/dts/am437x-idk-evm.dts
++++ b/arch/arm/boot/dts/am437x-idk-evm.dts
+@@ -110,6 +110,13 @@
+ 			gpios = <&gpio4 2 GPIO_ACTIVE_LOW>;
+ 		};
+ 	};
++
++	/* fixed 32k external oscillator clock */
++	clk_32k_rtc: clk_32k_rtc {
++		#clock-cells = <0>;
++		compatible = "fixed-clock";
++		clock-frequency = <32768>;
++	};
+ };
+ 
+ &am43xx_pinmux {
+@@ -394,6 +401,8 @@
+ };
+ 
+ &rtc {
++	clocks = <&clk_32k_rtc>, <&clk_32768_ck>;
++	clock-names = "ext-clk", "int-clk";
+ 	status = "okay";
+ };
+ 
+diff --git a/arch/arm/boot/dts/am437x-sk-evm.dts b/arch/arm/boot/dts/am437x-sk-evm.dts
+index 22af448..7da7c2d 100644
+--- a/arch/arm/boot/dts/am437x-sk-evm.dts
++++ b/arch/arm/boot/dts/am437x-sk-evm.dts
+@@ -24,6 +24,13 @@
+ 		display0 = &lcd0;
+ 	};
+ 
++	/* fixed 32k external oscillator clock */
++	clk_32k_rtc: clk_32k_rtc {
++		#clock-cells = <0>;
++		compatible = "fixed-clock";
++		clock-frequency = <32768>;
++	};
++
+ 	backlight {
+ 		compatible = "pwm-backlight";
+ 		pwms = <&ecap0 0 50000 PWM_POLARITY_INVERTED>;
+@@ -697,6 +704,8 @@
+ };
+ 
+ &rtc {
++	clocks = <&clk_32k_rtc>, <&clk_32768_ck>;
++	clock-names = "ext-clk", "int-clk";
+ 	status = "okay";
+ };
+ 
+-- 
+1.9.1
 
 -- 
 -- 
