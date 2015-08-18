@@ -1,81 +1,122 @@
-Return-Path: <rtc-linux+bncBDKZNNNLXAHBB77IWGXAKGQEDAVVFSQ@googlegroups.com>
-Received: from mail-pa0-x233.google.com (mail-pa0-x233.google.com. [2607:f8b0:400e:c03::233])
-        by gmr-mx.google.com with ESMTPS id qa1si195510pdb.1.2015.08.13.03.42.07
+Return-Path: <rtc-linux+bncBD66BCOYSQBBBU44ZOXAKGQEKTDG2JA@googlegroups.com>
+Received: from comal.ext.ti.com (comal.ext.ti.com. [198.47.26.152])
+        by gmr-mx.google.com with ESMTPS id i10si1001802igh.3.2015.08.17.23.18.59
         for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 13 Aug 2015 03:42:07 -0700 (PDT)
-Received: by mail-pa0-x233.google.com with SMTP id yb7so35255108pab.0
-        for <rtc-linux@googlegroups.com>; Thu, 13 Aug 2015 03:42:07 -0700 (PDT)
-Sender: rtc-linux@googlegroups.com
-Message-ID: <55CC7479.6080902@samsung.com>
-Date: Thu, 13 Aug 2015 19:42:01 +0900
-From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+        (version=TLSv1 cipher=RC4-SHA bits=128/128);
+        Mon, 17 Aug 2015 23:18:59 -0700 (PDT)
+From: Keerthy <j-keerthy@ti.com>
+To: <alexandre.belloni@free-electrons.com>, <tony@atomide.com>
+CC: <johan@kernel.org>, <linux-omap@vger.kernel.org>,
+        <rtc-linux@googlegroups.com>, <grygorii.strashko@ti.com>,
+        <j-keerthy@ti.com>
+Subject: [rtc-linux] [PATCH v3 3/3] rtc: omap: Add external clock enabling support
+Date: Tue, 18 Aug 2015 11:48:44 +0530
+Message-ID: <1439878724-5828-4-git-send-email-j-keerthy@ti.com>
+In-Reply-To: <1439878724-5828-1-git-send-email-j-keerthy@ti.com>
+References: <1439878724-5828-1-git-send-email-j-keerthy@ti.com>
 MIME-Version: 1.0
-To: rtc-linux@googlegroups.com
-CC: linux-samsung-soc@vger.kernel.org, linux-kernel@vger.kernel.org,
- stable@vger.kernel.org, a.zummo@towertech.it,
- alexandre.belloni@free-electrons.com, sbkim73@samsung.com,
- jy0922.shim@samsung.com
-Subject: Re: [rtc-linux] [PATCH] rtc: s5m: fix to update ctrl register
-References: <1439455764-23526-1-git-send-email-jy0922.shim@samsung.com> <55CC6B28.5010707@samsung.com>
-In-Reply-To: <55CC6B28.5010707@samsung.com>
 Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
 List-Archive: <http://groups.google.com/group/rtc-linux
+Sender: rtc-linux@googlegroups.com
 List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-W dniu 13.08.2015 o 19:02, Krzysztof Kozlowski pisze:
-> W dniu 13.08.2015 o 17:49, Joonyoung Shim pisze:
->> According to datasheet, the S2MPS13X and S2MPS14X should update write
->> buffer via setting WUDR bit to high after ctrl register is updated.
-> 
-> Hi,
-> 
-> I cannot find this information in S2MPS14 datasheet. On which page is it?
-> 
-> 
->>
->> If not, ALARM interrupt of rtc-s5m doesn't happen first time when i use
->> tools/testing/selftests/timers/rtctest.c test program and hour format is
->> used to 12 hour mode in Odroid-XU3 board.
-> 
-> Two questions here:
-> 1. Earlier you mentioned S2MPS1[34], now Odroid XU3 which has S2MPS11.
-> Are you sure that this applies to all of them (S2MPS11, S2MPS13 and
-> S2MP14)? There are some minor differences between them so I would not be
-> surprised if only some of them required this action.
-> 
-> 2. The driver operates in 24-hour omode. Actually it sets the 24-hour
-> mode just before your new regmap_update_bits() call. What do you mean by
-> 12-hour mode?
-> 
->> Signed-off-by: Joonyoung Shim <jy0922.shim@samsung.com>
->> Cc: <stable@vger.kernel.org>
-> 
-> Thanks for putting a cc-stable tag. How far this should be ported? If
-> this is needed only for S2MPS11 then v4.1. If all of them then probably
-> for earlier version?
-> 
-> Best regards,
-> Krzysztof
+Configure the clock source to external clock if available.
+External clock is preferred as it can be ticking during suspend.
 
-One more doubt. On my Odroid XU3 first and consecutive executions
-(including first) of rtctest run fine. They pass. Can you describe
-exactly observable issue and how to reproduce it? This is also important
-as a reason for stable backport.
+Signed-off-by: Keerthy <j-keerthy@ti.com>
+---
+ drivers/rtc/rtc-omap.c | 33 ++++++++++++++++++++++++++++++---
+ 1 file changed, 30 insertions(+), 3 deletions(-)
 
-I tested it on next-20150729 on board with Hardkernel bootloader. Maybe
-the bootloader sets 12-hour mode which cannot be switched to 24-hour?
-
-Best regards,
-Krzysztof
-
-
+diff --git a/drivers/rtc/rtc-omap.c b/drivers/rtc/rtc-omap.c
+index f31c012..255f7b7 100644
+--- a/drivers/rtc/rtc-omap.c
++++ b/drivers/rtc/rtc-omap.c
+@@ -108,6 +108,7 @@
+ 
+ /* OMAP_RTC_OSC_REG bit fields: */
+ #define OMAP_RTC_OSC_32KCLK_EN		BIT(6)
++#define OMAP_RTC_OSC_SEL_32KCLK_SRC	BIT(3)
+ 
+ /* OMAP_RTC_IRQWAKEEN bit fields: */
+ #define OMAP_RTC_IRQWAKEEN_ALARM_WAKEEN	BIT(1)
+@@ -138,6 +139,7 @@ struct omap_rtc {
+ 	int irq_timer;
+ 	u8 interrupts_reg;
+ 	bool is_pmic_controller;
++	bool has_ext_clk;
+ 	const struct omap_rtc_device_type *type;
+ };
+ 
+@@ -555,11 +557,19 @@ static int omap_rtc_probe(struct platform_device *pdev)
+ 	if (rtc->irq_alarm <= 0)
+ 		return -ENOENT;
+ 
+-	rtc->clk = devm_clk_get(&pdev->dev, "int-clk");
+-
+-	if (!IS_ERR(rtc->clk))
++	rtc->clk = devm_clk_get(&pdev->dev, "ext-clk");
++	if (!IS_ERR(rtc->clk)) {
++		rtc->has_ext_clk = true;
+ 		clk_prepare_enable(rtc->clk);
++	} else {
++		rtc->clk = devm_clk_get(&pdev->dev, "int-clk");
++		if (IS_ERR(rtc->clk))
++			goto no_clk;
++	}
+ 
++	clk_prepare_enable(rtc->clk);
++
++no_clk:
+ 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+ 	rtc->base = devm_ioremap_resource(&pdev->dev, res);
+ 	if (IS_ERR(rtc->base))
+@@ -634,6 +644,16 @@ static int omap_rtc_probe(struct platform_device *pdev)
+ 	if (reg != new_ctrl)
+ 		rtc_write(rtc, OMAP_RTC_CTRL_REG, new_ctrl);
+ 
++	/*
++	 * If we have the external clock then switch to it so we can keep
++	 * ticking across suspend.
++	 */
++	if (rtc->has_ext_clk) {
++		reg = rtc_read(rtc, OMAP_RTC_OSC_REG);
++		rtc_write(rtc, OMAP_RTC_OSC_REG,
++			  reg | OMAP_RTC_OSC_SEL_32KCLK_SRC);
++	}
++
+ 	rtc->type->lock(rtc);
+ 
+ 	device_init_wakeup(&pdev->dev, true);
+@@ -679,6 +699,7 @@ err:
+ static int __exit omap_rtc_remove(struct platform_device *pdev)
+ {
+ 	struct omap_rtc *rtc = platform_get_drvdata(pdev);
++	u8 reg;
+ 
+ 	if (pm_power_off == omap_rtc_power_off &&
+ 			omap_rtc_power_off_rtc == rtc) {
+@@ -695,6 +716,12 @@ static int __exit omap_rtc_remove(struct platform_device *pdev)
+ 	/* leave rtc running, but disable irqs */
+ 	rtc_write(rtc, OMAP_RTC_INTERRUPTS_REG, 0);
+ 
++	if (rtc->has_ext_clk) {
++		reg = rtc_read(rtc, OMAP_RTC_OSC_REG);
++		reg &= ~OMAP_RTC_OSC_SEL_32KCLK_SRC;
++		rtc_write(rtc, OMAP_RTC_OSC_REG, reg);
++	}
++
+ 	rtc->type->lock(rtc);
+ 
+ 	/* Disable the clock/module */
+-- 
+1.9.1
 
 -- 
 -- 
