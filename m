@@ -1,80 +1,88 @@
-Return-Path: <k.kozlowski@samsung.com>
-Message-id: <55DA5DCA.6080802@samsung.com>
-Date: Mon, 24 Aug 2015 08:56:58 +0900
-From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-MIME-version: 1.0
-To: Joonyoung Shim <jy0922.shim@samsung.com>, rtc-linux@googlegroups.com
-Cc: linux-samsung-soc@vger.kernel.org, linux-kernel@vger.kernel.org,
- stable@vger.kernel.org, alexandre.belloni@free-electrons.com,
- a.zummo@towertech.it, sbkim73@samsung.com
-Subject: Re: [PATCH v2] rtc: s5m: fix to update ctrl register
-References: <1440150221-2609-1-git-send-email-jy0922.shim@samsung.com>
-In-reply-to: <1440150221-2609-1-git-send-email-jy0922.shim@samsung.com>
-Content-type: text/plain; charset=windows-1252
+Return-Path: <rtc-linux+bncBAABBJ5E2GXAKGQELMKEDPY@googlegroups.com>
+Received: from na01-bl2-obe.outbound.protection.outlook.com (mail-bl2on0056.outbound.protection.outlook.com. [65.55.169.56])
+        by gmr-mx.google.com with ESMTPS id o7si40883igp.1.2015.08.19.02.53.42
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
+        Wed, 19 Aug 2015 02:53:42 -0700 (PDT)
+From: Suneel Garapati <suneel.garapati@xilinx.com>
+To: <rtc-linux@googlegroups.com>, <linux-arm-kernel@lists.infradead.org>,
+	<linux-kernel@vger.kernel.org>
+CC: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	<michals@xilinx.com>, <sorenb@xilinx.com>, Alessandro Zummo
+	<a.zummo@towertech.it>, <punnaia@xilinx.com>, <anuragku@xilinx.com>,
+	<anirudh@xilinx.com>, Suneel Garapati <suneel.garapati@xilinx.com>
+Subject: [rtc-linux] [PATCH v3 1/2] devicetree: bindings: rtc: add bindings
+ for xilinx zynqmp rtc
+Date: Wed, 19 Aug 2015 15:23:21 +0530
+Message-ID: <1439978002-12157-1-git-send-email-suneel.garapati@xilinx.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
+List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
+List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
+List-Archive: <http://groups.google.com/group/rtc-linux
+Sender: rtc-linux@googlegroups.com
+List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
+List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
+ <http://groups.google.com/group/rtc-linux/subscribe>
 
-On 21.08.2015 18:43, Joonyoung Shim wrote:
-> According to datasheet, the S2MPS13X and S2MPS14X should update write
-> buffer via setting WUDR bit to high after ctrl register is written.
-> 
-> If not, ALARM interrupt of rtc-s5m doesn't happen first time when i use
-> tools/testing/selftests/timers/rtctest.c test program and hour format is
-> used to 12 hour mode in Odroid-XU3 board.
-> 
-> One more issue is the RTC doesn't keep time on Odroid-XU3 board when i
-> turn on board after power off even if RTC battery is connected. It can
-> be solved as setting WUDR & RUDR bits to high at the same time after
-> RTC_CTRL register is written. It's same with condition of only writing
-> ALARM registers, so this is for only S2MPS14 and we should set WUDR &
-> A_UDR bits to high on S2MPS13.
-> 
-> I can't find any reasonable description about this like fix from
-> datasheet, but can find similar codes from rtc driver source of
-> hardkernel kernel and vender kernel.
+adds file for description on device node bindings for RTC
+found on Xilinx Zynq Ultrascale+ MPSoC.
 
-s/vender/vendor/
+Signed-off-by: Suneel Garapati <suneel.garapati@xilinx.com>
+---
+Changes v3 
+- none 
+Changes v2 
+- add examples for interrupt-names 
+- change alm to alarm 
+---
+ Documentation/devicetree/bindings/rtc/xlnx-rtc.txt | 25 ++++++++++++++++++++++
+ 1 file changed, 25 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/rtc/xlnx-rtc.txt
 
-> 
-> Signed-off-by: Joonyoung Shim <jy0922.shim@samsung.com>
-> Cc: <stable@vger.kernel.org> # v3.16
-> ---
-> Changelog for v2:
-> - update commit description and code to fix time keeping problem
-> - update the stable tag with the kernel version
-> 
->  drivers/rtc/rtc-s5m.c | 10 ++++++++++
->  1 file changed, 10 insertions(+)
-> 
-> diff --git a/drivers/rtc/rtc-s5m.c b/drivers/rtc/rtc-s5m.c
-> index 8c70d78..646bf45 100644
-> --- a/drivers/rtc/rtc-s5m.c
-> +++ b/drivers/rtc/rtc-s5m.c
-> @@ -635,6 +635,16 @@ static int s5m8767_rtc_init_reg(struct s5m_rtc_info *info)
->  	case S2MPS13X:
->  		data[0] = (0 << BCD_EN_SHIFT) | (1 << MODEL24_SHIFT);
->  		ret = regmap_write(info->regmap, info->regs->ctrl, data[0]);
-> +		if (ret < 0)
-> +			break;
-> +
-> +		/*
-> +		 * Should set WUDR & (RUDR or AUDR) bits to high after writing
-> +		 * RTC_CTRL register like writing Alarm registers. We can't find
-> +		 * the description from datasheet but vender code does that
+diff --git a/Documentation/devicetree/bindings/rtc/xlnx-rtc.txt b/Documentation/devicetree/bindings/rtc/xlnx-rtc.txt
+new file mode 100644
+index 0000000..0df6f01
+--- /dev/null
++++ b/Documentation/devicetree/bindings/rtc/xlnx-rtc.txt
+@@ -0,0 +1,25 @@
++* Xilinx Zynq Ultrascale+ MPSoC Real Time Clock
++
++RTC controller for the Xilinx Zynq MPSoC Real Time Clock
++Separate IRQ lines for seconds and alarm
++
++Required properties:
++- compatible: Should be "xlnx,zynqmp-rtc"
++- reg: Physical base address of the controller and length
++       of memory mapped region.
++- interrupts: IRQ lines for the RTC.
++- interrupt-names: interrupt line names eg. "sec" "alarm"
++
++Optional:
++- calibration: calibration value for 1 sec period which will
++		be programmed directly to calibration register
++
++Example:
++rtc: rtc@ffa60000 {
++	compatible = "xlnx,zynqmp-rtc";
++	reg = <0x0 0xffa60000 0x100>;
++	interrupt-parent = <&gic>;
++	interrupts = <0 26 4>, <0 27 4>;
++	interrupt-names = "alarm", "sec";
++	calibration = <0x198233>;
++};
+-- 
+2.1.2
 
-s/vender/vendor/
-
-> +		 * really.
-> +		 */
-> +		ret = s5m8767_rtc_set_alarm_reg(info);
->  		break;
->  
->  	default:
-> 
-
-Reviewed-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-
-Tested on S2MPS14 and S2MPS11:
-Tested-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-
-Best regards,
-Krzysztof
+-- 
+-- 
+You received this message because you are subscribed to "rtc-linux".
+Membership options at http://groups.google.com/group/rtc-linux .
+Please read http://groups.google.com/group/rtc-linux/web/checklist
+before submitting a driver.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+For more options, visit https://groups.google.com/d/optout.
