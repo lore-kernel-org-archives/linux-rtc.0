@@ -1,30 +1,21 @@
-Return-Path: <rtc-linux+bncBDKZNNNLXAHBBA6W72XAKGQECOTDDXA@googlegroups.com>
-Received: from mailout2.w1.samsung.com (mailout2.w1.samsung.com. [210.118.77.12])
-        by gmr-mx.google.com with ESMTPS id ys2si608509pac.0.2015.08.27.17.27.47
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1 cipher=RC4-SHA bits=128/128);
-        Thu, 27 Aug 2015 17:27:47 -0700 (PDT)
-Received: from eucpsbgm2.samsung.com (unknown [203.254.199.245])
- by mailout2.w1.samsung.com
- (Oracle Communications Messaging Server 7.0.5.31.0 64bit (built May  5 2014))
- with ESMTP id <0NTR002GNNY6VY30@mailout2.w1.samsung.com> for
- rtc-linux@googlegroups.com; Fri, 28 Aug 2015 01:27:42 +0100 (BST)
-Subject: [rtc-linux] Re: [PATCH] rtc: Fix module autoload for
- rtc-{ab8500,max8997,s5m} drivers
-To: Javier Martinez Canillas <javier@osg.samsung.com>,
- linux-kernel@vger.kernel.org
-References: <1440671672-26590-1-git-send-email-javier@osg.samsung.com>
-Cc: Luis de Bethencourt <luis.bg@samsung.com>,
- linux-samsung-soc@vger.kernel.org, Alessandro Zummo <a.zummo@towertech.it>,
- Sangbeom Kim <sbkim73@samsung.com>, Linus Walleij <linus.walleij@linaro.org>,
- Alexandre Belloni <alexandre.belloni@free-electrons.com>,
- rtc-linux@googlegroups.com, linux-arm-kernel@lists.infradead.org
-From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-Message-id: <55DFAAF9.3020202@samsung.com>
-Date: Fri, 28 Aug 2015 09:27:37 +0900
-MIME-version: 1.0
-In-reply-to: <1440671672-26590-1-git-send-email-javier@osg.samsung.com>
-Content-type: text/plain; charset=UTF-8
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBIN33GXAKGQE5J3ETBQ@googlegroups.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id gt6si14660wib.1.2015.08.20.16.07.13
+        for <rtc-linux@googlegroups.com>;
+        Thu, 20 Aug 2015 16:07:13 -0700 (PDT)
+Date: Fri, 21 Aug 2015 01:07:12 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Joonyoung Shim <jy0922.shim@samsung.com>
+Cc: rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org,
+	linux-samsung-soc@vger.kernel.org, a.zummo@towertech.it,
+	cw00.choi@samsung.com, k.kozlowski@samsung.com
+Subject: [rtc-linux] Re: [PATCH 2/4] rtc: s3c: remove unnecessary NULL assignment
+Message-ID: <20150820230712.GD3769@piout.net>
+References: <1439292502-22912-1-git-send-email-jy0922.shim@samsung.com>
+ <1439292502-22912-2-git-send-email-jy0922.shim@samsung.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1439292502-22912-2-git-send-email-jy0922.shim@samsung.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -35,24 +26,21 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On 27.08.2015 19:34, Javier Martinez Canillas wrote:
-> These platform drivers have a platform device ID table but the module
-> alias information is not created so module autoloading will not work.
+On 11/08/2015 at 20:28:20 +0900, Joonyoung Shim wrote :
+> It's unnecessary the code that assigns info->rtc_clk to NULL in
+> s3c_rtc_remove.
 > 
-> Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
-> 
+> Signed-off-by: Joonyoung Shim <jy0922.shim@samsung.com>
 > ---
+>  drivers/rtc/rtc-s3c.c | 1 -
+>  1 file changed, 1 deletion(-)
 > 
->  drivers/rtc/rtc-ab8500.c  | 1 +
->  drivers/rtc/rtc-max8997.c | 1 +
->  drivers/rtc/rtc-s5m.c     | 1 +
->  3 files changed, 3 insertions(+)
+Applied, thanks.
 
-Makes sense:
-Reviewed-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-
-Best regards,
-Krzysztof
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
 -- 
 -- 
