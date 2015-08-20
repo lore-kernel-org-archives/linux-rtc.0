@@ -1,30 +1,19 @@
-Return-Path: <rtc-linux+bncBDKZNNNLXAHBBTVE3OXAKGQEYE5GWUA@googlegroups.com>
-Received: from mailout3.w1.samsung.com (mailout3.w1.samsung.com. [210.118.77.13])
-        by gmr-mx.google.com with ESMTPS id zt8si760812pbc.0.2015.08.21.00.25.02
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1 cipher=RC4-SHA bits=128/128);
-        Fri, 21 Aug 2015 00:25:02 -0700 (PDT)
-Received: from eucpsbgm2.samsung.com (unknown [203.254.199.245])
- by mailout3.w1.samsung.com
- (Oracle Communications Messaging Server 7.0.5.31.0 64bit (built May  5 2014))
- with ESMTP id <0NTF00DVS8LMXR50@mailout3.w1.samsung.com> for
- rtc-linux@googlegroups.com; Fri, 21 Aug 2015 08:24:58 +0100 (BST)
-Message-id: <55D6D24C.3010109@samsung.com>
-Date: Fri, 21 Aug 2015 16:25:00 +0900
-From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-MIME-version: 1.0
-To: Joonyoung Shim <jy0922.shim@samsung.com>,
- Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: rtc-linux@googlegroups.com, linux-samsung-soc@vger.kernel.org,
- linux-kernel@vger.kernel.org, stable@vger.kernel.org, a.zummo@towertech.it,
- sbkim73@samsung.com
-Subject: [rtc-linux] Re: [PATCH] rtc: s5m: fix to update ctrl register
-References: <1439455764-23526-1-git-send-email-jy0922.shim@samsung.com>
- <20150820231551.GE3769@piout.net> <55D67487.3040503@samsung.com>
- <55D67838.6080902@samsung.com> <55D67D14.9060809@samsung.com>
- <55D6CC1C.9040402@samsung.com>
-In-reply-to: <55D6CC1C.9040402@samsung.com>
-Content-type: text/plain; charset=UTF-8
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBBGN3GXAKGQE6U7TIGQ@googlegroups.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id x20si21210wia.0.2015.08.20.16.45.07
+        for <rtc-linux@googlegroups.com>;
+        Thu, 20 Aug 2015 16:45:07 -0700 (PDT)
+Date: Fri, 21 Aug 2015 01:45:05 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Felix Janda <felix.janda@posteo.de>, Bibek Basu <bbasu@nvidia.com>
+Cc: rtc-linux@googlegroups.com
+Subject: [rtc-linux] Re: [PATCH v2] drivers/rtc/rtc-as3722: correct month value
+Message-ID: <20150820234505.GG3769@piout.net>
+References: <20150814084515.GH22269@piout.net>
+ <20150814184402.GA8953@nyan>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <20150814184402.GA8953@nyan>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -35,143 +24,25 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On 21.08.2015 15:58, Joonyoung Shim wrote:
-> On 08/21/2015 10:21 AM, Krzysztof Kozlowski wrote:
->> On 21.08.2015 10:00, Joonyoung Shim wrote:
->>> On 08/21/2015 09:44 AM, Krzysztof Kozlowski wrote:
->>>> On 21.08.2015 08:15, Alexandre Belloni wrote:
->>>>> Hi,
->>>>>
->>>>> On 13/08/2015 at 17:49:24 +0900, Joonyoung Shim wrote :
->>>>>> According to datasheet, the S2MPS13X and S2MPS14X should update write
->>>>>> buffer via setting WUDR bit to high after ctrl register is updated.
->>>>>>
->>>>>> If not, ALARM interrupt of rtc-s5m doesn't happen first time when i use
->>>>>> tools/testing/selftests/timers/rtctest.c test program and hour format is
->>>>>> used to 12 hour mode in Odroid-XU3 board.
->>>>>>
->>>>>
->>>>> >From what I understood, I should expect a v2 of tihat patch also setting
->>>>> RUDR, is that right? OR would you prefer that I apply that one and then
->>>>> fix RUDR in a following patch?
->>>>
->>>> Right, I would expect that as well... or a comment if this is not needed.
->>>>
->>>
->>> Hmm, the driver only writes control register now, so i don't feel the
->>> need of patch setting RUDR for control register.
->>
->> Yes, you're right. There is only regmap_write() (not
->> remap_update_bits()) so your patch is completely fine. Thanks for
->> explanation.
->>
->> Reviewed-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
->>
+On 14/08/2015 at 20:44:02 +0200, Bibek Basu wrote :
+> The RTCmonth value is 1-indexed, but the kernel assumes it is 0-indexed.
+> This may result in the RTC not rolling over correctly.
 > 
-> Thanks for review.
+> Signed-off-by: Bibek Basu <bbasu@nvidia.com>
+> Signed-off-by: Felix Janda <felix.janda@posteo.de>
+> ---
+> v1 -> v2: Correct attribution and use original commit message
+> ---
+>  drivers/rtc/rtc-as3722.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
 > 
-> I found one more issue, the RTC doesn't keep time on Odroid-XU3 board
-> when i turn on board after power off even if RTC battery is connected.
-> 
-> A difference with RTC driver of hardkernel kernel is that it sets
-> not only WUDR bit but also RUDR bit to high at the same time after
-> RTC_CTRL register is written. It's same with condition of only writing
-> ALARM registers like below description.
+Applied, thanks. However, it was not necessary to spoof the From: in
+your email, It is enough to have a From: line in the body of the mail.
 
-It seems that setting RUDR to high is needed...  but it shouldn't. For
-example in SM-G900H with S2MPS11 it is set before reading RTC_CTRL
-register. Mainline driver does not perform read.
-
-Maybe RUDR is not set high properly before some next time read and your
-code is a coincidence, a work-around?
-
-Best regards,
-Krzysztof
-
-> 
-> from S2MPS14 datasheet:
-> "3.  For write only Alarm 0&1 Registers (0x0B~0x18), set WUDR & RUDR
-> bits to high."
-> 
-> So i tried it and it works well with keeping time. I'm not sure RTC of
-> S2MPS13 type also has a similar issue because it differs a little bit.
-> 
-> from S2MPS13 datasheet:
-> "3.  For write only Alarm 0&1 Registers (0x0B~0x18), set WUDR & A_UDR
-> bits to high."
-> 
-> If S2MPS13 also has same issue, we can fix the problem via just below
-> patch.
-> 
-> diff --git a/drivers/rtc/rtc-s5m.c b/drivers/rtc/rtc-s5m.c
-> index 8c70d78..bb8e888 100644
-> --- a/drivers/rtc/rtc-s5m.c
-> +++ b/drivers/rtc/rtc-s5m.c
-> @@ -635,6 +635,10 @@ static int s5m8767_rtc_init_reg(struct s5m_rtc_info *info)
->  	case S2MPS13X:
->  		data[0] = (0 << BCD_EN_SHIFT) | (1 << MODEL24_SHIFT);
->  		ret = regmap_write(info->regmap, info->regs->ctrl, data[0]);
-> +		if (ret < 0)
-> +			break;
-> +
-> +		ret = s5m8767_rtc_set_alarm_reg(info);
->  		break;
->  
->  	default:
-> 
-> But i can't find any reasonable reason about this fix from datasheet,
-> 
-> Thanks.
-> 
->> Best regards,
->> Krzysztof
->>
->>>
->>>> Best regards,
->>>> Krzysztof
->>>>
->>>>
->>>>>
->>>>>> Signed-off-by: Joonyoung Shim <jy0922.shim@samsung.com>
->>>>>> Cc: <stable@vger.kernel.org>
->>>>>
->>>>> can you update the stable tag with the kernel version introducing the
->>>>> issue?
->>>
->>> Sure, i think it should be v3.16.
->>>
->>>>>
->>>>>> ---
->>>>>>  drivers/rtc/rtc-s5m.c | 12 ++++++++++++
->>>>>>  1 file changed, 12 insertions(+)
->>>>>
->>>>>> diff --git a/drivers/rtc/rtc-s5m.c b/drivers/rtc/rtc-s5m.c
->>>>>> index 8c70d78..03828bb 100644
->>>>>> --- a/drivers/rtc/rtc-s5m.c
->>>>>> +++ b/drivers/rtc/rtc-s5m.c
->>>>>> @@ -635,6 +635,18 @@ static int s5m8767_rtc_init_reg(struct s5m_rtc_info *info)
->>>>>>  	case S2MPS13X:
->>>>>>  		data[0] = (0 << BCD_EN_SHIFT) | (1 << MODEL24_SHIFT);
->>>>>>  		ret = regmap_write(info->regmap, info->regs->ctrl, data[0]);
->>>>>> +		if (ret < 0)
->>>>>> +			break;
->>>>>> +
->>>>>> +		ret = regmap_update_bits(info->regmap,
->>>>>> +				info->regs->rtc_udr_update,
->>>>>> +				info->regs->rtc_udr_mask,
->>>>>> +				info->regs->rtc_udr_mask);
->>>>>
->>>>> Very small indentation issue here, it should be aligned with the open
->>>>> parenthesis.
->>>
->>> OK, i will.
->>>
->>> Thanks.
->>>
->>
->>
-> 
-> 
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
 -- 
 -- 
