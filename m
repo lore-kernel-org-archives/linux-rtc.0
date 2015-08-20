@@ -1,22 +1,21 @@
-Return-Path: <rtc-linux+bncBAABBSES6SWQKGQE3PZI4RY@googlegroups.com>
-Received: from mx02.posteo.de (mx02.posteo.de. [89.146.194.165])
-        by gmr-mx.google.com with ESMTPS id ec7si99966wib.3.2015.08.01.11.00.39
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sat, 01 Aug 2015 11:00:39 -0700 (PDT)
-Received: from dovecot04.posteo.de (unknown [185.67.36.27])
-	by mx02.posteo.de (Postfix) with ESMTPS id 7E2B125ACC58
-	for <rtc-linux@googlegroups.com>; Sat,  1 Aug 2015 20:00:39 +0200 (CEST)
-Received: from mail.posteo.de (localhost [127.0.0.1])
-	by dovecot04.posteo.de (Postfix) with ESMTPSA id 3mkCvC2nKMzFpVj
-	for <rtc-linux@googlegroups.com>; Sat,  1 Aug 2015 20:00:39 +0200 (CEST)
-Date: Sat, 1 Aug 2015 19:59:24 +0200
-From: Felix Janda <felix.janda@posteo.de>
-To: rtc-linux@googlegroups.com
-Subject: [rtc-linux] [PATCH] rtc: as3772: Fix off-by-one error in month value
-Message-ID: <20150801175924.GA5371@nyan>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBH6C3GXAKGQEF3JHGOA@googlegroups.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id p7si16399wib.1.2015.08.20.16.22.07
+        for <rtc-linux@googlegroups.com>;
+        Thu, 20 Aug 2015 16:22:07 -0700 (PDT)
+Date: Fri, 21 Aug 2015 01:22:06 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Dongsheng Wang <dongsheng.wang@freescale.com>,
+	Krzysztof Kozlowski <k.kozlowski@samsung.com>
+Cc: a.zummo@towertech.it, rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org
+Subject: [rtc-linux] Re: [PATCH v2] rtc/ds3232: fix ds3232 get a WARNING trace
+ in resume function
+Message-ID: <20150820232206.GF3769@piout.net>
+References: <1439370853-32282-1-git-send-email-dongsheng.wang@freescale.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1439370853-32282-1-git-send-email-dongsheng.wang@freescale.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -27,44 +26,69 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-The RTC's month value starts at 1, whereas the kernel's starts at 0.
+On 12/08/2015 at 17:14:13 +0800, Dongsheng Wang wrote :
+> From: Wang Dongsheng <dongsheng.wang@freescale.com>
+> 
+> If ds3232 work on some platform that is not implementation
+> irq_set_wake, ds3232 will get a WARNING trace in resume.
+> So fix ds3232->suspended state to false when irq_set_irq_wake
+> return error.
+> 
+> ------------[ cut here ]------------
+> WARNING: CPU: 0 PID: 729 at kernel/irq/manage.c:604
+> irq_set_irq_wake+0x4b/0x8c()
+> Unbalanced IRQ 201 wake disable
+> Modules linked in:
+> CPU: 0 PID: 729 Comm: sh Not tainted 3.12.19-rt30+ #25
+> [<800107d9>] (unwind_backtrace+0x1/0x88) from [<8000e4ef>]
+> (show_stack+0xb/0xc)
+> [<8000e4ef>] (show_stack+0xb/0xc) from [<802b5fa9>]
+> (dump_stack+0x4d/0x60)
+> [<802b5fa9>] (dump_stack+0x4d/0x60) from [<800186dd>]
+> (warn_slowpath_common+0x45/0x64)
+> [<800186dd>] (warn_slowpath_common+0x45/0x64) from [<80018717>]
+> (warn_slowpath_fmt+0x1b/0x24)
+> [<80018717>] (warn_slowpath_fmt+0x1b/0x24) from [<8003a8d3>]
+> (irq_set_irq_wake+0x4b/0x8c)
+> [<8003a8d3>] (irq_set_irq_wake+0x4b/0x8c) from [<80204fcb>]
+> (ds3232_resume+0x2d/0x36)
+> [<80204fcb>] (ds3232_resume+0x2d/0x36) from [<801954c7>]
+> (dpm_run_callback.isra.13+0xb/0x28)
+> [<801954c7>] (dpm_run_callback.isra.13+0xb/0x28) from [<80195b1b>]
+> (device_resume+0x7b/0xa2)
+> [<80195b1b>] (device_resume+0x7b/0xa2) from [<80195f0f>]
+> (dpm_resume+0xbb/0x19c)
+> [<80195f0f>] (dpm_resume+0xbb/0x19c) from [<801960d9>]
+> (dpm_resume_end+0x9/0x12)
+> [<801960d9>] (dpm_resume_end+0x9/0x12) from [<80037e1d>]
+> (suspend_devices_and_enter+0x17d/0x1d0)
+> [<80037e1d>] (suspend_devices_and_enter+0x17d/0x1d0) from [<80037ee1>]
+> (pm_suspend+0x71/0x128)
+> [<80037ee1>] (pm_suspend+0x71/0x128) from [<80037449>]
+> (state_store+0x6d/0x80)
+> [<80037449>] (state_store+0x6d/0x80) from [<800af4d5>]
+> (sysfs_write_file+0x9f/0xde)
+> [<800af4d5>] (sysfs_write_file+0x9f/0xde) from [<8007a437>]
+> (vfs_write+0x7b/0x104)
+> [<8007a437>] (vfs_write+0x7b/0x104) from [<8007a7f7>]
+> (SyS_write+0x27/0x48)
+> [<8007a7f7>] (SyS_write+0x27/0x48) from [<8000c121>]
+> (ret_fast_syscall+0x1/0x44)
+> ---[ end trace 640959d2e8de6ccc ]---
+> 
+> Signed-off-by: Wang Dongsheng <dongsheng.wang@freescale.com>
+> ---
+> *v2*
+> - Use dev_warn_once to instead of dev_info
+> 
 
-Signed-off-by: Felix Janda <felix.janda@posteo.de>
----
-This is my first kernel patch. It's content is actually from
+Applied, after fixing the kernel trace and the message like suggested by
+Krzysztof.
 
-https://chromium.googlesource.com/chromiumos/third_party/kernel-next/+/9ce8d10f39c441642fba58ab8248d78951cec7a7
-
-How can this be acknowledged? The patch from the chromiumos kernel
-can't be taken as it is, can it?
----
- drivers/rtc/rtc-as3722.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/rtc/rtc-as3722.c b/drivers/rtc/rtc-as3722.c
-index 9f38eda..56cc582 100644
---- a/drivers/rtc/rtc-as3722.c
-+++ b/drivers/rtc/rtc-as3722.c
-@@ -45,7 +45,7 @@ static void as3722_time_to_reg(u8 *rbuff, struct rtc_time *tm)
- 	rbuff[1] = bin2bcd(tm->tm_min);
- 	rbuff[2] = bin2bcd(tm->tm_hour);
- 	rbuff[3] = bin2bcd(tm->tm_mday);
--	rbuff[4] = bin2bcd(tm->tm_mon);
-+	rbuff[4] = bin2bcd(tm->tm_mon + 1);
- 	rbuff[5] = bin2bcd(tm->tm_year - (AS3722_RTC_START_YEAR - 1900));
- }
- 
-@@ -55,7 +55,7 @@ static void as3722_reg_to_time(u8 *rbuff, struct rtc_time *tm)
- 	tm->tm_min = bcd2bin(rbuff[1] & 0x7F);
- 	tm->tm_hour = bcd2bin(rbuff[2] & 0x3F);
- 	tm->tm_mday = bcd2bin(rbuff[3] & 0x3F);
--	tm->tm_mon = bcd2bin(rbuff[4] & 0x1F);
-+	tm->tm_mon = bcd2bin(rbuff[4] & 0x1F) - 1;
- 	tm->tm_year = (AS3722_RTC_START_YEAR - 1900) + bcd2bin(rbuff[5] & 0x7F);
- 	return;
- }
 -- 
-2.3.6
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
 -- 
 -- 
