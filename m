@@ -1,18 +1,28 @@
-Return-Path: <rtc-linux+bncBAABBKM7VSXAKGQENVFZZFY@googlegroups.com>
-Received: from na01-bn1-obe.outbound.protection.outlook.com (mail-bn1bbn0105.outbound.protection.outlook.com. [157.56.111.105])
-        by gmr-mx.google.com with ESMTPS id ff6si569439pac.2.2015.08.12.02.19.37
+Return-Path: <rtc-linux+bncBDS45Q5OSEIRBDUA3CXAKGQEBU2WVMQ@googlegroups.com>
+Received: from mail-wi0-f177.google.com (mail-wi0-f177.google.com. [209.85.212.177])
+        by gmr-mx.google.com with ESMTPS id x20si238968wia.0.2015.08.20.09.27.57
         for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
-        Wed, 12 Aug 2015 02:19:37 -0700 (PDT)
-From: Dongsheng Wang <dongsheng.wang@freescale.com>
-To: <alexandre.belloni@free-electrons.com>
-CC: <a.zummo@towertech.it>, <rtc-linux@googlegroups.com>,
-	<linux-kernel@vger.kernel.org>, Wang Dongsheng <dongsheng.wang@freescale.com>
-Subject: [rtc-linux] [PATCH v2] rtc/ds3232: fix ds3232 get a WARNING trace in
- resume function
-Date: Wed, 12 Aug 2015 17:14:13 +0800
-Message-ID: <1439370853-32282-1-git-send-email-dongsheng.wang@freescale.com>
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 20 Aug 2015 09:27:57 -0700 (PDT)
+Received: by mail-wi0-f177.google.com with SMTP id ja10so40692251wic.1
+        for <rtc-linux@googlegroups.com>; Thu, 20 Aug 2015 09:27:57 -0700 (PDT)
 MIME-Version: 1.0
+In-Reply-To: <c713c202-1d5e-4656-9e4f-1e15bc4dac14@googlegroups.com>
+References: <1439978002-12157-1-git-send-email-suneel.garapati@xilinx.com>
+	<1439978002-12157-2-git-send-email-suneel.garapati@xilinx.com>
+	<CAAtXAHf7Vngo8gz6cCRauxUSnrQgs4+UNGWpQ6wy0fvBPMQO_A@mail.gmail.com>
+	<c713c202-1d5e-4656-9e4f-1e15bc4dac14@googlegroups.com>
+Date: Thu, 20 Aug 2015 09:27:57 -0700
+Message-ID: <CAAtXAHfaUbS8a=7YkAxcdYMaQWhPVJhU_fMv9zTyh1eFSsOk_A@mail.gmail.com>
+Subject: [rtc-linux] Re: [PATCH v3 2/2] drivers: rtc: add xilinx zynqmp rtc driver
+From: Moritz Fischer <moritz.fischer@ettus.com>
+To: suneelgarapati@gmail.com
+Cc: rtc-linux <rtc-linux@googlegroups.com>,
+	Suneel Garapati <suneel.garapati@xilinx.com>,
+	linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, linux-kernel@vger.kernel.org,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>, anuragku@xilinx.com,
+	michals@xilinx.com, sorenb@xilinx.com, anirudh@xilinx.com, punnaia@xilinx.com
 Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
@@ -24,78 +34,393 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-From: Wang Dongsheng <dongsheng.wang@freescale.com>
+Hi Suneel
 
-If ds3232 work on some platform that is not implementation
-irq_set_wake, ds3232 will get a WARNING trace in resume.
-So fix ds3232->suspended state to false when irq_set_irq_wake
-return error.
+On Wed, Aug 19, 2015 at 9:37 PM,  <suneelgarapati@gmail.com> wrote:
+> Hi Moritz,
+>
+> devm_ioremap_resource validates the argument pointer of struct resource.
+> Hence no explicit validation of return value of platform_get_resource
+> function.
+> It seems to be common practice with all other drivers in drivers/rtc.
 
-------------[ cut here ]------------
-WARNING: CPU: 0 PID: 729 at kernel/irq/manage.c:604
-irq_set_irq_wake+0x4b/0x8c()
-Unbalanced IRQ 201 wake disable
-Modules linked in:
-CPU: 0 PID: 729 Comm: sh Not tainted 3.12.19-rt30+ #25
-[<800107d9>] (unwind_backtrace+0x1/0x88) from [<8000e4ef>]
-(show_stack+0xb/0xc)
-[<8000e4ef>] (show_stack+0xb/0xc) from [<802b5fa9>]
-(dump_stack+0x4d/0x60)
-[<802b5fa9>] (dump_stack+0x4d/0x60) from [<800186dd>]
-(warn_slowpath_common+0x45/0x64)
-[<800186dd>] (warn_slowpath_common+0x45/0x64) from [<80018717>]
-(warn_slowpath_fmt+0x1b/0x24)
-[<80018717>] (warn_slowpath_fmt+0x1b/0x24) from [<8003a8d3>]
-(irq_set_irq_wake+0x4b/0x8c)
-[<8003a8d3>] (irq_set_irq_wake+0x4b/0x8c) from [<80204fcb>]
-(ds3232_resume+0x2d/0x36)
-[<80204fcb>] (ds3232_resume+0x2d/0x36) from [<801954c7>]
-(dpm_run_callback.isra.13+0xb/0x28)
-[<801954c7>] (dpm_run_callback.isra.13+0xb/0x28) from [<80195b1b>]
-(device_resume+0x7b/0xa2)
-[<80195b1b>] (device_resume+0x7b/0xa2) from [<80195f0f>]
-(dpm_resume+0xbb/0x19c)
-[<80195f0f>] (dpm_resume+0xbb/0x19c) from [<801960d9>]
-(dpm_resume_end+0x9/0x12)
-[<801960d9>] (dpm_resume_end+0x9/0x12) from [<80037e1d>]
-(suspend_devices_and_enter+0x17d/0x1d0)
-[<80037e1d>] (suspend_devices_and_enter+0x17d/0x1d0) from [<80037ee1>]
-(pm_suspend+0x71/0x128)
-[<80037ee1>] (pm_suspend+0x71/0x128) from [<80037449>]
-(state_store+0x6d/0x80)
-[<80037449>] (state_store+0x6d/0x80) from [<800af4d5>]
-(sysfs_write_file+0x9f/0xde)
-[<800af4d5>] (sysfs_write_file+0x9f/0xde) from [<8007a437>]
-(vfs_write+0x7b/0x104)
-[<8007a437>] (vfs_write+0x7b/0x104) from [<8007a7f7>]
-(SyS_write+0x27/0x48)
-[<8007a7f7>] (SyS_write+0x27/0x48) from [<8000c121>]
-(ret_fast_syscall+0x1/0x44)
----[ end trace 640959d2e8de6ccc ]---
+Fair enough.
 
-Signed-off-by: Wang Dongsheng <dongsheng.wang@freescale.com>
----
-*v2*
-- Use dev_warn_once to instead of dev_info
+Acked-by: Moritz Fischer <moritz.fischer@ettus.com>
+>
+> Regards,
+> Suneel
+>
+> On Wednesday, August 19, 2015 at 11:49:49 PM UTC+5:30, Moritz Fischer wrote:
+>>
+>> Hi Suneel,
+>>
+>> looks good, minor nit below.
+>>
+>> On Wed, Aug 19, 2015 at 2:53 AM, Suneel Garapati
+>> <suneel....@xilinx.com> wrote:
+>> > adds support for RTC controller found on
+>> > Xilinx Zynq Ultrascale+ MPSoC platform.
+>> >
+>> > Signed-off-by: Suneel Garapati <suneel....@xilinx.com>
+>> > ---
+>> > Changes v3
+>> > - fix checkpatch errors
+>> > - check time in secs arg against max sec val
+>> > - order header files
+>> > - use ptr_err_or_zero macro
+>> > - use time64 variants
+>> > Changes v2
+>> > - change alm to alarm
+>> > ---
+>> >  drivers/rtc/Kconfig      |   7 ++
+>> >  drivers/rtc/Makefile     |   1 +
+>> >  drivers/rtc/rtc-zynqmp.c | 279
+>> > +++++++++++++++++++++++++++++++++++++++++++++++
+>> >  3 files changed, 287 insertions(+)
+>> >  create mode 100644 drivers/rtc/rtc-zynqmp.c
+>> >
+>> > diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
+>> > index 35ea04c..bc96277 100644
+>> > --- a/drivers/rtc/Kconfig
+>> > +++ b/drivers/rtc/Kconfig
+>> > @@ -1116,6 +1116,13 @@ config RTC_DRV_OPAL
+>> >           This driver can also be built as a module. If so, the module
+>> >           will be called rtc-opal.
+>> >
+>> > +config RTC_DRV_ZYNQMP
+>> > +       tristate "Xilinx Zynq Ultrascale+ MPSoC RTC"
+>> > +       depends on OF
+>> > +       help
+>> > +         If you say yes here you get support for the RTC controller
+>> > found on
+>> > +         Xilinx Zynq Ultrascale+ MPSoC.
+>> > +
+>> >  comment "on-CPU RTC drivers"
+>> >
+>> >  config RTC_DRV_DAVINCI
+>> > diff --git a/drivers/rtc/Makefile b/drivers/rtc/Makefile
+>> > index 2797384..e491eb5 100644
+>> > --- a/drivers/rtc/Makefile
+>> > +++ b/drivers/rtc/Makefile
+>> > @@ -159,3 +159,4 @@ obj-$(CONFIG_RTC_DRV_WM831X)        += rtc-wm831x.o
+>> >  obj-$(CONFIG_RTC_DRV_WM8350)   += rtc-wm8350.o
+>> >  obj-$(CONFIG_RTC_DRV_X1205)    += rtc-x1205.o
+>> >  obj-$(CONFIG_RTC_DRV_XGENE)    += rtc-xgene.o
+>> > +obj-$(CONFIG_RTC_DRV_ZYNQMP)   += rtc-zynqmp.o
+>> > diff --git a/drivers/rtc/rtc-zynqmp.c b/drivers/rtc/rtc-zynqmp.c
+>> > new file mode 100644
+>> > index 0000000..8b28762
+>> > --- /dev/null
+>> > +++ b/drivers/rtc/rtc-zynqmp.c
+>> > @@ -0,0 +1,279 @@
+>> > +/*
+>> > + * Xilinx Zynq Ultrascale+ MPSoC Real Time Clock Driver
+>> > + *
+>> > + * Copyright (C) 2015 Xilinx, Inc.
+>> > + *
+>> > + * This program is free software; you can redistribute it and/or modify
+>> > it
+>> > + * under the terms and conditions of the GNU General Public License,
+>> > + * version 2, as published by the Free Software Foundation.
+>> > + *
+>> > + * This program is distributed in the hope it will be useful, but
+>> > WITHOUT
+>> > + * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+>> > or
+>> > + * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
+>> > for
+>> > + * more details.
+>> > + *
+>> > + * You should have received a copy of the GNU General Public License
+>> > along with
+>> > + * this program. If not, see <http://www.gnu.org/licenses/>.
+>> > + *
+>> > + */
+>> > +
+>> > +#include <linux/delay.h>
+>> > +#include <linux/init.h>
+>> > +#include <linux/io.h>
+>> > +#include <linux/module.h>
+>> > +#include <linux/of.h>
+>> > +#include <linux/platform_device.h>
+>> > +#include <linux/rtc.h>
+>> > +
+>> > +/* RTC Registers */
+>> > +#define RTC_SET_TM_WR          0x00
+>> > +#define RTC_SET_TM_RD          0x04
+>> > +#define RTC_CALIB_WR           0x08
+>> > +#define RTC_CALIB_RD           0x0C
+>> > +#define RTC_CUR_TM             0x10
+>> > +#define RTC_CUR_TICK           0x14
+>> > +#define RTC_ALRM               0x18
+>> > +#define RTC_INT_STS            0x20
+>> > +#define RTC_INT_MASK           0x24
+>> > +#define RTC_INT_EN             0x28
+>> > +#define RTC_INT_DIS            0x2C
+>> > +#define RTC_CTRL               0x40
+>> > +
+>> > +#define RTC_FR_EN              BIT(20)
+>> > +#define RTC_FR_DATSHIFT                16
+>> > +#define RTC_TICK_MASK          0xFFFF
+>> > +#define RTC_INT_SEC            BIT(0)
+>> > +#define RTC_INT_ALRM           BIT(1)
+>> > +#define RTC_OSC_EN             BIT(24)
+>> > +
+>> > +#define RTC_CALIB_DEF          0x198233
+>> > +#define RTC_CALIB_MASK         0x1FFFFF
+>> > +#define RTC_SEC_MAX_VAL                0xFFFFFFFF
+>> > +
+>> > +struct xlnx_rtc_dev {
+>> > +       struct rtc_device       *rtc;
+>> > +       void __iomem            *reg_base;
+>> > +       int                     alarm_irq;
+>> > +       int                     sec_irq;
+>> > +};
+>> > +
+>> > +static int xlnx_rtc_set_time(struct device *dev, struct rtc_time *tm)
+>> > +{
+>> > +       struct xlnx_rtc_dev *xrtcdev = dev_get_drvdata(dev);
+>> > +       unsigned long new_time;
+>> > +
+>> > +       new_time = rtc_tm_to_time64(tm);
+>> > +
+>> > +       if (new_time > RTC_SEC_MAX_VAL)
+>> > +               return -EINVAL;
+>> > +
+>> > +       writel(new_time, xrtcdev->reg_base + RTC_SET_TM_WR);
+>> > +
+>> > +       return 0;
+>> > +}
+>> > +
+>> > +static int xlnx_rtc_read_time(struct device *dev, struct rtc_time *tm)
+>> > +{
+>> > +       struct xlnx_rtc_dev *xrtcdev = dev_get_drvdata(dev);
+>> > +
+>> > +       rtc_time64_to_tm(readl(xrtcdev->reg_base + RTC_CUR_TM), tm);
+>> > +
+>> > +       return rtc_valid_tm(tm);
+>> > +}
+>> > +
+>> > +static int xlnx_rtc_read_alarm(struct device *dev, struct rtc_wkalrm
+>> > *alrm)
+>> > +{
+>> > +       struct xlnx_rtc_dev *xrtcdev = dev_get_drvdata(dev);
+>> > +
+>> > +       rtc_time64_to_tm(readl(xrtcdev->reg_base + RTC_ALRM),
+>> > &alrm->time);
+>> > +       alrm->enabled = readl(xrtcdev->reg_base + RTC_INT_MASK) &
+>> > RTC_INT_ALRM;
+>> > +
+>> > +       return 0;
+>> > +}
+>> > +
+>> > +static int xlnx_rtc_alarm_irq_enable(struct device *dev, u32 enabled)
+>> > +{
+>> > +       struct xlnx_rtc_dev *xrtcdev = dev_get_drvdata(dev);
+>> > +
+>> > +       if (enabled)
+>> > +               writel(RTC_INT_ALRM, xrtcdev->reg_base + RTC_INT_EN);
+>> > +       else
+>> > +               writel(RTC_INT_ALRM, xrtcdev->reg_base + RTC_INT_DIS);
+>> > +
+>> > +       return 0;
+>> > +}
+>> > +
+>> > +static int xlnx_rtc_set_alarm(struct device *dev, struct rtc_wkalrm
+>> > *alrm)
+>> > +{
+>> > +       struct xlnx_rtc_dev *xrtcdev = dev_get_drvdata(dev);
+>> > +       unsigned long alarm_time;
+>> > +
+>> > +       alarm_time = rtc_tm_to_time64(&alrm->time);
+>> > +
+>> > +       if (alarm_time > RTC_SEC_MAX_VAL)
+>> > +               return -EINVAL;
+>> > +
+>> > +       writel((u32)alarm_time, (xrtcdev->reg_base + RTC_ALRM));
+>> > +
+>> > +       xlnx_rtc_alarm_irq_enable(dev, alrm->enabled);
+>> > +
+>> > +       return 0;
+>> > +}
+>> > +
+>> > +static void xlnx_init_rtc(struct xlnx_rtc_dev *xrtcdev, u32 calibval)
+>> > +{
+>> > +       /*
+>> > +        * Based on crystal freq of 33.330 KHz
+>> > +        * set the seconds counter and enable, set fractions counter
+>> > +        * to default value suggested as per design spec
+>> > +        * to correct RTC delay in frequency over period of time.
+>> > +        */
+>> > +       calibval &= RTC_CALIB_MASK;
+>> > +       writel(calibval, (xrtcdev->reg_base + RTC_CALIB_WR));
+>> > +}
+>> > +
+>> > +static const struct rtc_class_ops xlnx_rtc_ops = {
+>> > +       .set_time         = xlnx_rtc_set_time,
+>> > +       .read_time        = xlnx_rtc_read_time,
+>> > +       .read_alarm       = xlnx_rtc_read_alarm,
+>> > +       .set_alarm        = xlnx_rtc_set_alarm,
+>> > +       .alarm_irq_enable = xlnx_rtc_alarm_irq_enable,
+>> > +};
+>> > +
+>> > +static irqreturn_t xlnx_rtc_interrupt(int irq, void *id)
+>> > +{
+>> > +       struct xlnx_rtc_dev *xrtcdev = (struct xlnx_rtc_dev *)id;
+>> > +       unsigned int status;
+>> > +
+>> > +       status = readl(xrtcdev->reg_base + RTC_INT_STS);
+>> > +       /* Check if interrupt asserted */
+>> > +       if (!(status & (RTC_INT_SEC | RTC_INT_ALRM)))
+>> > +               return IRQ_NONE;
+>> > +
+>> > +       /* Clear interrupt */
+>> > +       writel(status, xrtcdev->reg_base + RTC_INT_STS);
+>> > +
+>> > +       if (status & RTC_INT_SEC)
+>> > +               rtc_update_irq(xrtcdev->rtc, 1, RTC_IRQF | RTC_UF);
+>> > +       if (status & RTC_INT_ALRM)
+>> > +               rtc_update_irq(xrtcdev->rtc, 1, RTC_IRQF | RTC_AF);
+>> > +
+>> > +       return IRQ_HANDLED;
+>> > +}
+>> > +
+>> > +static int xlnx_rtc_probe(struct platform_device *pdev)
+>> > +{
+>> > +       struct xlnx_rtc_dev *xrtcdev;
+>> > +       struct resource *res;
+>> > +       int ret;
+>> > +       unsigned int calibvalue;
+>> > +
+>> > +       xrtcdev = devm_kzalloc(&pdev->dev, sizeof(*xrtcdev),
+>> > GFP_KERNEL);
+>> > +       if (!xrtcdev)
+>> > +               return -ENOMEM;
+>> > +
+>> > +       platform_set_drvdata(pdev, xrtcdev);
+>> > +
+>> > +       res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+>> Do you want to check for return value here?
+>> > +
+>> > +       xrtcdev->reg_base = devm_ioremap_resource(&pdev->dev, res);
+>> > +       if (IS_ERR(xrtcdev->reg_base))
+>> > +               return PTR_ERR(xrtcdev->reg_base);
+>> > +
+>> > +       xrtcdev->alarm_irq = platform_get_irq_byname(pdev, "alarm");
+>> > +       if (xrtcdev->alarm_irq < 0) {
+>> > +               dev_err(&pdev->dev, "no irq resource\n");
+>> > +               return xrtcdev->alarm_irq;
+>> > +       }
+>> > +       ret = devm_request_irq(&pdev->dev, xrtcdev->alarm_irq,
+>> > +                              xlnx_rtc_interrupt, 0,
+>> > +                              dev_name(&pdev->dev), xrtcdev);
+>> > +       if (ret) {
+>> > +               dev_err(&pdev->dev, "request irq failed\n");
+>> > +               return ret;
+>> > +       }
+>> > +
+>> > +       xrtcdev->sec_irq = platform_get_irq_byname(pdev, "sec");
+>> > +       if (xrtcdev->sec_irq < 0) {
+>> > +               dev_err(&pdev->dev, "no irq resource\n");
+>> > +               return xrtcdev->sec_irq;
+>> > +       }
+>> > +       ret = devm_request_irq(&pdev->dev, xrtcdev->sec_irq,
+>> > +                              xlnx_rtc_interrupt, 0,
+>> > +                              dev_name(&pdev->dev), xrtcdev);
+>> > +       if (ret) {
+>> > +               dev_err(&pdev->dev, "request irq failed\n");
+>> > +               return ret;
+>> > +       }
+>> > +
+>> > +       ret = of_property_read_u32(pdev->dev.of_node, "calibration",
+>> > +                                  &calibvalue);
+>> > +       if (ret)
+>> > +               calibvalue = RTC_CALIB_DEF;
+>> > +
+>> > +       xlnx_init_rtc(xrtcdev, calibvalue);
+>> > +
+>> > +       device_init_wakeup(&pdev->dev, 1);
+>> > +
+>> > +       xrtcdev->rtc = devm_rtc_device_register(&pdev->dev, pdev->name,
+>> > +                                        &xlnx_rtc_ops, THIS_MODULE);
+>> > +       return PTR_ERR_OR_ZERO(xrtcdev->rtc);
+>> > +}
+>> > +
+>> > +static int xlnx_rtc_remove(struct platform_device *pdev)
+>> > +{
+>> > +       xlnx_rtc_alarm_irq_enable(&pdev->dev, 0);
+>> > +       device_init_wakeup(&pdev->dev, 0);
+>> > +
+>> > +       return 0;
+>> > +}
+>> > +
+>> > +static int __maybe_unused xlnx_rtc_suspend(struct device *dev)
+>> > +{
+>> > +       struct platform_device *pdev = to_platform_device(dev);
+>> > +       struct xlnx_rtc_dev *xrtcdev = platform_get_drvdata(pdev);
+>> > +
+>> > +       if (device_may_wakeup(&pdev->dev))
+>> > +               enable_irq_wake(xrtcdev->alarm_irq);
+>> > +       else
+>> > +               xlnx_rtc_alarm_irq_enable(dev, 0);
+>> > +
+>> > +       return 0;
+>> > +}
+>> > +
+>> > +static int __maybe_unused xlnx_rtc_resume(struct device *dev)
+>> > +{
+>> > +       struct platform_device *pdev = to_platform_device(dev);
+>> > +       struct xlnx_rtc_dev *xrtcdev = platform_get_drvdata(pdev);
+>> > +
+>> > +       if (device_may_wakeup(&pdev->dev))
+>> > +               disable_irq_wake(xrtcdev->alarm_irq);
+>> > +       else
+>> > +               xlnx_rtc_alarm_irq_enable(dev, 1);
+>> > +
+>> > +       return 0;
+>> > +}
+>> > +
+>> > +static SIMPLE_DEV_PM_OPS(xlnx_rtc_pm_ops, xlnx_rtc_suspend,
+>> > xlnx_rtc_resume);
+>> > +
+>> > +static const struct of_device_id xlnx_rtc_of_match[] = {
+>> > +       {.compatible = "xlnx,zynqmp-rtc" },
+>> > +       { }
+>> > +};
+>> > +MODULE_DEVICE_TABLE(of, xlnx_rtc_of_match);
+>> > +
+>> > +static struct platform_driver xlnx_rtc_driver = {
+>> > +       .probe          = xlnx_rtc_probe,
+>> > +       .remove         = xlnx_rtc_remove,
+>> > +       .driver         = {
+>> > +               .name   = KBUILD_MODNAME,
+>> > +               .pm     = &xlnx_rtc_pm_ops,
+>> > +               .of_match_table = xlnx_rtc_of_match,
+>> > +       },
+>> > +};
+>> > +
+>> > +module_platform_driver(xlnx_rtc_driver);
+>> > +
+>> > +MODULE_DESCRIPTION("Xilinx Zynq MPSoC RTC driver");
+>> > +MODULE_AUTHOR("Xilinx Inc.");
+>> > +MODULE_LICENSE("GPL v2");
+>> > --
+>> > 2.1.2
+>> >
+>> >
+>> > _______________________________________________
+>> > linux-arm-kernel mailing list
+>> > linux-ar...@lists.infradead.org
+>> > http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
+>>
+>> Cheers,
+>>
+>> Moritz
 
-diff --git a/drivers/rtc/rtc-ds3232.c b/drivers/rtc/rtc-ds3232.c
-index 7e48e53..3554970 100644
---- a/drivers/rtc/rtc-ds3232.c
-+++ b/drivers/rtc/rtc-ds3232.c
-@@ -463,7 +463,10 @@ static int ds3232_suspend(struct device *dev)
- 
- 	if (device_can_wakeup(dev)) {
- 		ds3232->suspended = true;
--		irq_set_irq_wake(client->irq, 1);
-+		if (irq_set_irq_wake(client->irq, 1)) {
-+			dev_warn_once(dev, "Can not set wakeup sources\n");
-+			ds3232->suspended = false;
-+		}
- 	}
- 
- 	return 0;
--- 
-2.1.0.27.g96db324
+Cheers,
+
+Moritz
 
 -- 
 -- 
