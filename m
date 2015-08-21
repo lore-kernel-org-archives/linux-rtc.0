@@ -1,30 +1,29 @@
-Return-Path: <rtc-linux+bncBDJNHL5JSEOBB3X77OXAKGQEEUATP3Y@googlegroups.com>
-Received: from vps0.lunn.ch (vps0.lunn.ch. [178.209.37.122])
-        by gmr-mx.google.com with ESMTPS id z4si163093wiy.3.2015.08.27.05.17.49
+Return-Path: <rtc-linux+bncBDKZNNNLXAHBBF723GXAKGQENVJYF7Y@googlegroups.com>
+Received: from mailout3.w1.samsung.com (mailout3.w1.samsung.com. [210.118.77.13])
+        by gmr-mx.google.com with ESMTPS id c1si643985pdg.0.2015.08.20.18.21.27
         for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=RC4-SHA bits=128/128);
-        Thu, 27 Aug 2015 05:17:49 -0700 (PDT)
-Date: Thu, 27 Aug 2015 14:09:58 +0200
-From: Andrew Lunn <andrew@lunn.ch>
-To: Javier Martinez Canillas <javier@osg.samsung.com>
-Cc: linux-kernel@vger.kernel.org, Luis de Bethencourt <luis.bg@samsung.com>,
-	Gregory Clement <gregory.clement@free-electrons.com>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Support Opensource <support.opensource@diasemi.com>,
-	Linus Walleij <linus.walleij@linaro.org>,
-	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
-	Jason Cooper <jason@lakedaemon.net>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	linux-mediatek@lists.infradead.org,
-	Eddie Huang <eddie.huang@mediatek.com>,
-	Tony Prisk <linux@prisktech.co.nz>, rtc-linux@googlegroups.com,
-	linux-arm-kernel@lists.infradead.org
-Subject: [rtc-linux] Re: [PATCH] rtc: Fix module autoload for OF platform drivers
-Message-ID: <20150827120958.GD8094@lunn.ch>
-References: <1440676322-19870-1-git-send-email-javier@osg.samsung.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1440676322-19870-1-git-send-email-javier@osg.samsung.com>
+        (version=TLSv1 cipher=RC4-SHA bits=128/128);
+        Thu, 20 Aug 2015 18:21:27 -0700 (PDT)
+Received: from eucpsbgm1.samsung.com (unknown [203.254.199.244])
+ by mailout3.w1.samsung.com
+ (Oracle Communications Messaging Server 7.0.5.31.0 64bit (built May  5 2014))
+ with ESMTP id <0NTE00DEURRM7M20@mailout3.w1.samsung.com> for
+ rtc-linux@googlegroups.com; Fri, 21 Aug 2015 02:21:22 +0100 (BST)
+Message-id: <55D67D14.9060809@samsung.com>
+Date: Fri, 21 Aug 2015 10:21:24 +0900
+From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+MIME-version: 1.0
+To: Joonyoung Shim <jy0922.shim@samsung.com>,
+ Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: rtc-linux@googlegroups.com, linux-samsung-soc@vger.kernel.org,
+ linux-kernel@vger.kernel.org, stable@vger.kernel.org, a.zummo@towertech.it,
+ sbkim73@samsung.com
+Subject: [rtc-linux] Re: [PATCH] rtc: s5m: fix to update ctrl register
+References: <1439455764-23526-1-git-send-email-jy0922.shim@samsung.com>
+ <20150820231551.GE3769@piout.net> <55D67487.3040503@samsung.com>
+ <55D67838.6080902@samsung.com>
+In-reply-to: <55D67838.6080902@samsung.com>
+Content-type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -35,131 +34,80 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On Thu, Aug 27, 2015 at 01:52:02PM +0200, Javier Martinez Canillas wrote:
-> These platform drivers have a OF device ID table but the OF module
-> alias information is not created so module autoloading won't work.
+On 21.08.2015 10:00, Joonyoung Shim wrote:
+> On 08/21/2015 09:44 AM, Krzysztof Kozlowski wrote:
+>> On 21.08.2015 08:15, Alexandre Belloni wrote:
+>>> Hi,
+>>>
+>>> On 13/08/2015 at 17:49:24 +0900, Joonyoung Shim wrote :
+>>>> According to datasheet, the S2MPS13X and S2MPS14X should update write
+>>>> buffer via setting WUDR bit to high after ctrl register is updated.
+>>>>
+>>>> If not, ALARM interrupt of rtc-s5m doesn't happen first time when i use
+>>>> tools/testing/selftests/timers/rtctest.c test program and hour format is
+>>>> used to 12 hour mode in Odroid-XU3 board.
+>>>>
+>>>
+>>> >From what I understood, I should expect a v2 of tihat patch also setting
+>>> RUDR, is that right? OR would you prefer that I apply that one and then
+>>> fix RUDR in a following patch?
+>>
+>> Right, I would expect that as well... or a comment if this is not needed.
+>>
 > 
-> Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
+> Hmm, the driver only writes control register now, so i don't feel the
+> need of patch setting RUDR for control register.
 
-Hi Javier
+Yes, you're right. There is only regmap_write() (not
+remap_update_bits()) so your patch is completely fine. Thanks for
+explanation.
 
-Acked-by: Andrew Lunn <andrew@lunn.ch>
+Reviewed-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
 
-for mv and armada38x.
+Best regards,
+Krzysztof
 
-Thanks
-	Andrew
 > 
-> ---
+>> Best regards,
+>> Krzysztof
+>>
+>>
+>>>
+>>>> Signed-off-by: Joonyoung Shim <jy0922.shim@samsung.com>
+>>>> Cc: <stable@vger.kernel.org>
+>>>
+>>> can you update the stable tag with the kernel version introducing the
+>>> issue?
 > 
->  drivers/rtc/rtc-armada38x.c | 1 +
->  drivers/rtc/rtc-coh901331.c | 1 +
->  drivers/rtc/rtc-da9063.c    | 1 +
->  drivers/rtc/rtc-moxart.c    | 1 +
->  drivers/rtc/rtc-mpc5121.c   | 1 +
->  drivers/rtc/rtc-mt6397.c    | 1 +
->  drivers/rtc/rtc-mv.c        | 1 +
->  drivers/rtc/rtc-vt8500.c    | 1 +
->  8 files changed, 8 insertions(+)
+> Sure, i think it should be v3.16.
 > 
-> diff --git a/drivers/rtc/rtc-armada38x.c b/drivers/rtc/rtc-armada38x.c
-> index 06c6bd5eab41..9a3f2a6f512e 100644
-> --- a/drivers/rtc/rtc-armada38x.c
-> +++ b/drivers/rtc/rtc-armada38x.c
-> @@ -295,6 +295,7 @@ static const struct of_device_id armada38x_rtc_of_match_table[] = {
->  	{ .compatible = "marvell,armada-380-rtc", },
->  	{}
->  };
-> +MODULE_DEVICE_TABLE(of, armada38x_rtc_of_match_table);
->  #endif
->  
->  static struct platform_driver armada38x_rtc_driver = {
-> diff --git a/drivers/rtc/rtc-coh901331.c b/drivers/rtc/rtc-coh901331.c
-> index 56343b2fbc68..101b7a240e0f 100644
-> --- a/drivers/rtc/rtc-coh901331.c
-> +++ b/drivers/rtc/rtc-coh901331.c
-> @@ -263,6 +263,7 @@ static const struct of_device_id coh901331_dt_match[] = {
->  	{ .compatible = "stericsson,coh901331" },
->  	{},
->  };
-> +MODULE_DEVICE_TABLE(of, coh901331_dt_match);
->  
->  static struct platform_driver coh901331_driver = {
->  	.driver = {
-> diff --git a/drivers/rtc/rtc-da9063.c b/drivers/rtc/rtc-da9063.c
-> index 5f38a5c84b56..00a8f7f4f87c 100644
-> --- a/drivers/rtc/rtc-da9063.c
-> +++ b/drivers/rtc/rtc-da9063.c
-> @@ -169,6 +169,7 @@ static const struct of_device_id da9063_compatible_reg_id_table[] = {
->  	{ .compatible = "dlg,da9062-rtc", .data = &da9062_aa_regs },
->  	{ },
->  };
-> +MODULE_DEVICE_TABLE(of, da9063_compatible_reg_id_table);
->  
->  static void da9063_data_to_tm(u8 *data, struct rtc_time *tm,
->  			      struct da9063_compatible_rtc *rtc)
-> diff --git a/drivers/rtc/rtc-moxart.c b/drivers/rtc/rtc-moxart.c
-> index 73759c9a4527..07b30a373a92 100644
-> --- a/drivers/rtc/rtc-moxart.c
-> +++ b/drivers/rtc/rtc-moxart.c
-> @@ -312,6 +312,7 @@ static const struct of_device_id moxart_rtc_match[] = {
->  	{ .compatible = "moxa,moxart-rtc" },
->  	{ },
->  };
-> +MODULE_DEVICE_TABLE(of, moxart_rtc_match);
->  
->  static struct platform_driver moxart_rtc_driver = {
->  	.probe	= moxart_rtc_probe,
-> diff --git a/drivers/rtc/rtc-mpc5121.c b/drivers/rtc/rtc-mpc5121.c
-> index 1767e18d5bd4..4ca4daa0b8f3 100644
-> --- a/drivers/rtc/rtc-mpc5121.c
-> +++ b/drivers/rtc/rtc-mpc5121.c
-> @@ -406,6 +406,7 @@ static const struct of_device_id mpc5121_rtc_match[] = {
->  	{ .compatible = "fsl,mpc5200-rtc", },
->  	{},
->  };
-> +MODULE_DEVICE_TABLE(of, mpc5121_rtc_match);
->  #endif
->  
->  static struct platform_driver mpc5121_rtc_driver = {
-> diff --git a/drivers/rtc/rtc-mt6397.c b/drivers/rtc/rtc-mt6397.c
-> index 30c926b36361..06a5c52b292f 100644
-> --- a/drivers/rtc/rtc-mt6397.c
-> +++ b/drivers/rtc/rtc-mt6397.c
-> @@ -402,6 +402,7 @@ static const struct of_device_id mt6397_rtc_of_match[] = {
->  	{ .compatible = "mediatek,mt6397-rtc", },
->  	{ }
->  };
-> +MODULE_DEVICE_TABLE(of, mt6397_rtc_of_match);
->  
->  static struct platform_driver mtk_rtc_driver = {
->  	.driver = {
-> diff --git a/drivers/rtc/rtc-mv.c b/drivers/rtc/rtc-mv.c
-> index 7f50d2ef7f6e..79bb28617d45 100644
-> --- a/drivers/rtc/rtc-mv.c
-> +++ b/drivers/rtc/rtc-mv.c
-> @@ -324,6 +324,7 @@ static const struct of_device_id rtc_mv_of_match_table[] = {
->  	{ .compatible = "marvell,orion-rtc", },
->  	{}
->  };
-> +MODULE_DEVICE_TABLE(of, rtc_mv_of_match_table);
->  #endif
->  
->  static struct platform_driver mv_rtc_driver = {
-> diff --git a/drivers/rtc/rtc-vt8500.c b/drivers/rtc/rtc-vt8500.c
-> index a58b6d17e6f0..27e896995e9b 100644
-> --- a/drivers/rtc/rtc-vt8500.c
-> +++ b/drivers/rtc/rtc-vt8500.c
-> @@ -271,6 +271,7 @@ static const struct of_device_id wmt_dt_ids[] = {
->  	{ .compatible = "via,vt8500-rtc", },
->  	{}
->  };
-> +MODULE_DEVICE_TABLE(of, wmt_dt_ids);
->  
->  static struct platform_driver vt8500_rtc_driver = {
->  	.probe		= vt8500_rtc_probe,
-> -- 
-> 2.4.3
+>>>
+>>>> ---
+>>>>  drivers/rtc/rtc-s5m.c | 12 ++++++++++++
+>>>>  1 file changed, 12 insertions(+)
+>>>
+>>>> diff --git a/drivers/rtc/rtc-s5m.c b/drivers/rtc/rtc-s5m.c
+>>>> index 8c70d78..03828bb 100644
+>>>> --- a/drivers/rtc/rtc-s5m.c
+>>>> +++ b/drivers/rtc/rtc-s5m.c
+>>>> @@ -635,6 +635,18 @@ static int s5m8767_rtc_init_reg(struct s5m_rtc_info *info)
+>>>>  	case S2MPS13X:
+>>>>  		data[0] = (0 << BCD_EN_SHIFT) | (1 << MODEL24_SHIFT);
+>>>>  		ret = regmap_write(info->regmap, info->regs->ctrl, data[0]);
+>>>> +		if (ret < 0)
+>>>> +			break;
+>>>> +
+>>>> +		ret = regmap_update_bits(info->regmap,
+>>>> +				info->regs->rtc_udr_update,
+>>>> +				info->regs->rtc_udr_mask,
+>>>> +				info->regs->rtc_udr_mask);
+>>>
+>>> Very small indentation issue here, it should be aligned with the open
+>>> parenthesis.
+> 
+> OK, i will.
+> 
+> Thanks.
 > 
 
 -- 
