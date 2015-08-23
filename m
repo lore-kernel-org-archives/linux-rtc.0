@@ -1,18 +1,25 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBZETVWXAKGQEPUBSDQY@googlegroups.com>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRB5P45CXAKGQE3TCSVCA@googlegroups.com>
 Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id hm7si573141wib.0.2015.08.12.06.28.03
+        by gmr-mx.google.com with ESMTP id fj7si485883wib.3.2015.08.23.14.43.16
         for <rtc-linux@googlegroups.com>;
-        Wed, 12 Aug 2015 06:28:03 -0700 (PDT)
-Date: Wed, 12 Aug 2015 15:27:59 +0200
+        Sun, 23 Aug 2015 14:43:16 -0700 (PDT)
+Date: Sun, 23 Aug 2015 23:43:15 +0200
 From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Felix Janda <felix.janda@posteo.de>
-Cc: rtc-linux@googlegroups.com
-Subject: Re: [rtc-linux] [PATCH] rtc: as3772: Fix off-by-one error in month value
-Message-ID: <20150812132759.GI3411@piout.net>
-References: <20150801175924.GA5371@nyan>
+To: Rob Herring <robherring2@gmail.com>
+Cc: Daniel Mack <daniel@zonque.org>,
+	Haojian Zhuang <haojian.zhuang@gmail.com>,
+	Sergey Lapin <slapin@ossfans.org>,
+	Russell King <linux@arm.linux.org.uk>,
+	Mike Rapoport <mike@compulab.co.il>,
+	Philipp Zabel <philipp.zabel@gmail.com>,
+	Robert Jarzmik <robert.jarzmik@free.fr>, rtc-linux@googlegroups.com,
+	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
+Subject: [rtc-linux] Re: [GIT PULL] SA1100/PXA RTC for 4.3
+Message-ID: <20150823214315.GB13155@piout.net>
+References: <CAL_JsqKMN1SEQoJRSPixih4ckDh1pGb4x3T_t+2oWVvW8fqzmg@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <20150801175924.GA5371@nyan>
+In-Reply-To: <CAL_JsqKMN1SEQoJRSPixih4ckDh1pGb4x3T_t+2oWVvW8fqzmg@mail.gmail.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -25,24 +32,32 @@ List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegro
 
 Hi,
 
-On 01/08/2015 at 19:59:24 +0200, Felix Janda wrote :
-> The RTC's month value starts at 1, whereas the kernel's starts at 0.
+On 14/08/2015 at 11:09:21 -0500, Rob Herring wrote :
+> Alexandre,
 > 
-> Signed-off-by: Felix Janda <felix.janda@posteo.de>
-> ---
-> This is my first kernel patch. It's content is actually from
+> Please pull SA1100/PXA changes for 4.3. This series has had several
+> rounds of review over several months without comment from PXA
+> maintainers other than Robert.
 > 
-> https://chromium.googlesource.com/chromiumos/third_party/kernel-next/+/9ce8d10f39c441642fba58ab8248d78951cec7a7
+> Rob
 > 
-> How can this be acknowledged? The patch from the chromiumos kernel
-> can't be taken as it is, can it?
+> The following changes since commit 52721d9d3334c1cb1f76219a161084094ec634dc:
+> 
+>   Linux 4.2-rc3 (2015-07-19 14:45:02 -0700)
+> 
+> are available in the git repository at:
+> 
+>   git://git.kernel.org/pub/scm/linux/kernel/git/robh/linux.git
+> tags/pxa-rtc-for-4.3
+> 
+> for you to fetch changes up to e473ff0fe8548941ef67bf956a6b7943f4663ab1:
+> 
+>   ARM: config: Switch PXA27x platforms to use PXA RTC driver
+> (2015-08-14 10:53:44 -0500)
+> 
 
-You should send the patch with "Bibek Basu <bbasu@nvidia.com>" as the
-author and both SoB tags, Bibek's and yours. The other, gerrit related,
-tags can be removed.
-
-It will look like:
-https://groups.google.com/forum/#!topic/rtc-linux/9NJUEAJWIkI
+Pulled three days ago, it has been in rtc-next since then but didn't hit
+linux-next yet. Thanks!
 
 -- 
 Alexandre Belloni, Free Electrons
