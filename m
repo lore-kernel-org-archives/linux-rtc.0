@@ -1,20 +1,22 @@
-Return-Path: <rtc-linux+bncBCAMRWGQV4CRBD7IRCXAKGQE4XW375Q@googlegroups.com>
-Received: from mail.mleia.com (li271-223.members.linode.com. [178.79.152.223])
-        by gmr-mx.google.com with ESMTPS id gt9si275457wib.2.2015.08.05.09.04.30
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 05 Aug 2015 09:04:30 -0700 (PDT)
-Message-ID: <55C2340D.4060506@mleia.com>
-Date: Wed, 05 Aug 2015 19:04:29 +0300
-From: Vladimir Zapolskiy <vz@mleia.com>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBAMW5OXAKGQETFR4OOI@googlegroups.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id fj7si553169wib.3.2015.08.24.00.42.57
+        for <rtc-linux@googlegroups.com>;
+        Mon, 24 Aug 2015 00:42:57 -0700 (PDT)
+Date: Mon, 24 Aug 2015 09:42:56 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Suneel Garapati <suneel.garapati@xilinx.com>
+Cc: rtc-linux@googlegroups.com, linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org, michals@xilinx.com, sorenb@xilinx.com,
+	Alessandro Zummo <a.zummo@towertech.it>, punnaia@xilinx.com,
+	anuragku@xilinx.com, anirudh@xilinx.com
+Subject: [rtc-linux] Re: [PATCH v3 1/2] devicetree: bindings: rtc: add
+ bindings for xilinx zynqmp rtc
+Message-ID: <20150824074256.GE13155@piout.net>
+References: <1439978002-12157-1-git-send-email-suneel.garapati@xilinx.com>
 MIME-Version: 1.0
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-CC: rtc-linux@googlegroups.com, Alessandro Zummo <a.zummo@towertech.it>,
- Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Re: [rtc-linux] Re: [PATCH 08/11] rtc: m48t59: clean up m48t59_nvram_read()/m48t59_nvram_write()
-References: <1437947316-5652-1-git-send-email-vz@mleia.com> <1437947316-5652-9-git-send-email-vz@mleia.com> <20150805082721.GB3486@piout.net>
-In-Reply-To: <20150805082721.GB3486@piout.net>
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1439978002-12157-1-git-send-email-suneel.garapati@xilinx.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -25,31 +27,28 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Hi Alexandre,
-
-On 05.08.2015 11:27, Alexandre Belloni wrote:
-> On 27/07/2015 at 00:48:33 +0300, Vladimir Zapolskiy wrote :
->> @@ -365,11 +366,10 @@ static ssize_t m48t59_nvram_write(struct file *filp, struct kobject *kobj,
->>  	ssize_t cnt = 0;
->>  	unsigned long flags;
->>  
->> -	for (; size > 0 && pos < pdata->offset; cnt++, size--) {
->> -		spin_lock_irqsave(&m48t59->lock, flags);
->> +	spin_lock_irqsave(&m48t59->lock, flags);
->> +
->> +	for (; cnt < size; cnt++)
->>  		M48T59_WRITE(*buf++, cnt);
->> -		spin_unlock_irqrestore(&m48t59->lock, flags);
->> -	}
->>  
+On 19/08/2015 at 15:23:21 +0530, Suneel Garapati wrote :
+> adds file for description on device node bindings for RTC
+> found on Xilinx Zynq Ultrascale+ MPSoC.
 > 
-> Isn't a spin_unlock_irqrestore() missing?
+> Signed-off-by: Suneel Garapati <suneel.garapati@xilinx.com>
+> ---
+> Changes v3 
+> - none 
+> Changes v2 
+> - add examples for interrupt-names 
+> - change alm to alarm 
+> ---
+>  Documentation/devicetree/bindings/rtc/xlnx-rtc.txt | 25 ++++++++++++++++++++++
+>  1 file changed, 25 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/rtc/xlnx-rtc.txt
 > 
+Applied, thanks.
 
-oops, you are correct, will update this change.
-
-With best wishes,
-Vladimir
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
 -- 
 -- 
