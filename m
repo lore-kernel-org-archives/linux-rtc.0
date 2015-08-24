@@ -1,20 +1,25 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBU5WT6XAKGQE6WYT4IA@googlegroups.com>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBYNB5OXAKGQEOBP5JZY@googlegroups.com>
 Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id ek3si251108wid.1.2015.08.09.15.59.30
+        by gmr-mx.google.com with ESMTP id x20si570982wia.0.2015.08.24.01.08.01
         for <rtc-linux@googlegroups.com>;
-        Sun, 09 Aug 2015 15:59:30 -0700 (PDT)
-Date: Mon, 10 Aug 2015 00:59:30 +0200
+        Mon, 24 Aug 2015 01:08:01 -0700 (PDT)
+Date: Mon, 24 Aug 2015 10:08:00 +0200
 From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Javier Martinez Canillas <javier@osg.samsung.com>
-Cc: linux-kernel@vger.kernel.org, rtc-linux@googlegroups.com
-Subject: [rtc-linux] Re: [PATCH 21/27] rtc: Export OF module alias information
- in missing drivers
-Message-ID: <20150809225930.GE3411@piout.net>
-References: <1438273132-20926-1-git-send-email-javier@osg.samsung.com>
- <1438273132-20926-22-git-send-email-javier@osg.samsung.com>
+To: Michal Simek <michal.simek@xilinx.com>
+Cc: Suneel Garapati <suneel.garapati@xilinx.com>,
+	rtc-linux@googlegroups.com, linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org, sorenb@xilinx.com,
+	Alessandro Zummo <a.zummo@towertech.it>, punnaia@xilinx.com,
+	anuragku@xilinx.com, anirudh@xilinx.com
+Subject: [rtc-linux] Re: [PATCH v3 2/2] drivers: rtc: add xilinx zynqmp rtc driver
+Message-ID: <20150824080800.GG13155@piout.net>
+References: <1439978002-12157-1-git-send-email-suneel.garapati@xilinx.com>
+ <1439978002-12157-2-git-send-email-suneel.garapati@xilinx.com>
+ <20150824074310.GF13155@piout.net>
+ <55DACC5A.80707@xilinx.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1438273132-20926-22-git-send-email-javier@osg.samsung.com>
+In-Reply-To: <55DACC5A.80707@xilinx.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -25,27 +30,42 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On 30/07/2015 at 18:18:46 +0200, Javier Martinez Canillas wrote :
-> The I2C core always reports the MODALIAS uevent as "i2c:<client name"
-> regardless if the driver was matched using the I2C id_table or the
-> of_match_table. So technically there's no need for a driver to export
-> the OF table since currently it's not used.
+On 24/08/2015 at 09:48:42 +0200, Michal Simek wrote :
+> On 08/24/2015 09:43 AM, Alexandre Belloni wrote:
+> > On 19/08/2015 at 15:23:22 +0530, Suneel Garapati wrote :
+> >> adds support for RTC controller found on
+> >> Xilinx Zynq Ultrascale+ MPSoC platform.
+> >>
+> >> Signed-off-by: Suneel Garapati <suneel.garapati@xilinx.com>
+> >> ---
+> >> Changes v3 
+> >> - fix checkpatch errors 
+> >> - check time in secs arg against max sec val 
+> >> - order header files 
+> >> - use ptr_err_or_zero macro 
+> >> - use time64 variants 
+> >> Changes v2 
+> >> - change alm to alarm 
+> >> ---
+> >>  drivers/rtc/Kconfig      |   7 ++
+> >>  drivers/rtc/Makefile     |   1 +
+> >>  drivers/rtc/rtc-zynqmp.c | 279 +++++++++++++++++++++++++++++++++++++++++++++++
+> >>  3 files changed, 287 insertions(+)
+> >>  create mode 100644 drivers/rtc/rtc-zynqmp.c
+> >>
+> > Applied, thanks.
+> > 
 > 
-> In fact, the I2C device ID table is mandatory for I2C drivers since
-> a i2c_device_id is passed to the driver's probe function even if the
-> I2C core used the OF table to match the driver.
-> 
-> And since the I2C core uses different tables, OF-only drivers needs to
-> have duplicated data that has to be kept in sync and also the dev node
-> compatible manufacturer prefix is stripped when reporting the MODALIAS.
-> 
-> To avoid the above, the I2C core behavior may be changed in the future
-> to not require an I2C device table for OF-only drivers and report the
-> OF module alias. So, it's better to also export the OF table to prevent
-> breaking module autoloading if that happens.
-> 
-> Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
-Applied, thanks.
+
+Actually, I got the following message:
+A message that you sent could not be delivered to one or more of its
+recipients. This is a permanent error. The following address(es) failed:
+
+  suneel.garapati@xilinx.com
+    Unknown User
+
+I'm not fond of carrying patches with uncontactable authors. Is that a
+permanent error?
 
 -- 
 Alexandre Belloni, Free Electrons
