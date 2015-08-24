@@ -1,24 +1,27 @@
-Return-Path: <rtc-linux+bncBD66BCOYSQBBBVNTV2XAKGQEKPCI6CI@googlegroups.com>
-Received: from devils.ext.ti.com (devils.ext.ti.com. [198.47.26.153])
-        by gmr-mx.google.com with ESMTPS id 4si1294027igl.1.2015.08.12.12.09.09
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1 cipher=RC4-SHA bits=128/128);
-        Wed, 12 Aug 2015 12:09:09 -0700 (PDT)
-Message-ID: <55CB99C2.7010007@ti.com>
-Date: Thu, 13 Aug 2015 00:38:50 +0530
-From: Keerthy <a0393675@ti.com>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBDWQ5OXAKGQEYFDZ37Q@googlegroups.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id et8si59573wib.2.2015.08.24.02.46.53
+        for <rtc-linux@googlegroups.com>;
+        Mon, 24 Aug 2015 02:46:53 -0700 (PDT)
+Date: Mon, 24 Aug 2015 11:45:02 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Michal Simek <michal.simek@xilinx.com>
+Cc: Suneel Garapati <suneel.garapati@xilinx.com>,
+	rtc-linux@googlegroups.com, linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org, sorenb@xilinx.com,
+	Alessandro Zummo <a.zummo@towertech.it>, punnaia@xilinx.com,
+	anuragku@xilinx.com, anirudh@xilinx.com
+Subject: [rtc-linux] Re: [PATCH v3 2/2] drivers: rtc: add xilinx zynqmp rtc driver
+Message-ID: <20150824094502.GI13155@piout.net>
+References: <1439978002-12157-1-git-send-email-suneel.garapati@xilinx.com>
+ <1439978002-12157-2-git-send-email-suneel.garapati@xilinx.com>
+ <20150824074310.GF13155@piout.net>
+ <55DACC5A.80707@xilinx.com>
+ <20150824080800.GG13155@piout.net>
+ <55DAE15B.6090602@xilinx.com>
 MIME-Version: 1.0
-To: Paul Walmsley <paul@pwsan.com>, Keerthy <j-keerthy@ti.com>,
-        <alexandre.belloni@free-electrons.com>
-CC: <tony@atomide.com>, <linux-omap@vger.kernel.org>, <pawel.moll@arm.com>,
-        <galak@codeaurora.org>, <akpm@linux-foundation.org>,
-        <johan@kernel.org>, <grygorii.strashko@ti.com>,
-        <rtc-linux@googlegroups.com>, <bcousson@baylibre.com>, <nm@ti.com>,
-        <devicetree@vger.kernel.org>, <t-kristo@ti.com>
-Subject: [rtc-linux] Re: [PATCH v2 2/6] rtc: omap: Add external clock enabling support
-References: <1439198906-31189-1-git-send-email-j-keerthy@ti.com> <1439198906-31189-3-git-send-email-j-keerthy@ti.com> <alpine.DEB.2.02.1508121422020.7154@utopia.booyaka.com>
-In-Reply-To: <alpine.DEB.2.02.1508121422020.7154@utopia.booyaka.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <55DAE15B.6090602@xilinx.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -29,45 +32,48 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
+On 24/08/2015 at 11:18:19 +0200, Michal Simek wrote :
+> > I'm not fond of carrying patches with uncontactable authors. Is that a
+> > permanent error?
+>=20
+> Unfortunately. That guy left Xilinx last week but don't be scared that
+> none will be responsible about this driver. I have well proven history
+> on Linux and others project and I am here if you need to do some testing
+> or ACK for changes. Just let me know when you need something.
+>=20
+> get_maintainer returns me and Soren that's why you shouldn't have any
+> problem with it.
+>=20
+> [linux]$ ./scripts/get_maintainer.pl -f drivers/rtc/rtc-zynqmp.c
+> Alessandro Zummo <a.zummo@towertech.it> (maintainer:REAL TIME CLOCK
+> (RTC) SUBSYSTEM)
+> Alexandre Belloni <alexandre.belloni@free-electrons.com>
+> (maintainer:REAL TIME CLOCK (RTC) SUBSYSTEM)
+> Michal Simek <michal.simek@xilinx.com> (supporter:ARM/ZYNQ ARCHITECTURE)
+> "S=C3=B6ren Brinkmann" <soren.brinkmann@xilinx.com> (reviewer)
+> rtc-linux@googlegroups.com (open list:REAL TIME CLOCK (RTC) SUBSYSTEM)
+> linux-arm-kernel@lists.infradead.org (moderated list:ARM/ZYNQ ARCHITECTUR=
+E)
+> linux-kernel@vger.kernel.org (open list)
+>=20
+
+Perfect, thanks!
 
 
-On Wednesday 12 August 2015 07:57 PM, Paul Walmsley wrote:
-> On Mon, 10 Aug 2015, Keerthy wrote:
->
->> Switch to external clock source during suspend and switch back
->> to internal source on resume. This helps rtc ticking across suspend.
->
-> Doesn't this type of dynamic switching make it likely that ticks will be
-> lost?
->
-> If the external, optional source is present, isn't it best just to use the
-> external source 100% of the time?
+--=20
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
-
-Paul,
-
-The intent here is to switch to a higher precision clock which is the 
-internal clock when available.
-
-Alexandre,
-
-Is dynamic switching preferred over sticking  to external clock always 
-if present?
-
-Regards,
-Keerthy
->
->
-> - Paul
->
-
--- 
--- 
+--=20
+--=20
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+---=20
+You received this message because you are subscribed to the Google Groups "=
+rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an e=
+mail to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
