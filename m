@@ -1,28 +1,22 @@
-Return-Path: <rtc-linux+bncBAABBOU2VGXAKGQEBKTEOYQ@googlegroups.com>
-Received: from na01-bn1-obe.outbound.protection.outlook.com (mail-bn1bon0083.outbound.protection.outlook.com. [157.56.111.83])
-        by gmr-mx.google.com with ESMTPS id eq2si316377pbb.2.2015.08.11.12.30.01
+Return-Path: <rtc-linux+bncBD66BCOYSQBBBGG566XAKGQENC5J2VQ@googlegroups.com>
+Received: from devils.ext.ti.com (devils.ext.ti.com. [198.47.26.153])
+        by gmr-mx.google.com with ESMTPS id l4si270823igt.0.2015.08.26.09.51.36
         for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
-        Tue, 11 Aug 2015 12:30:01 -0700 (PDT)
-From: Suneel Garapati <suneel.garapati@xilinx.com>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	"suneelgarapati@gmail.com" <suneelgarapati@gmail.com>
-CC: rtc-linux <rtc-linux@googlegroups.com>,
-	"linux-arm-kernel@lists.infradead.org"
-	<linux-arm-kernel@lists.infradead.org>, "linux-kernel@vger.kernel.org"
-	<linux-kernel@vger.kernel.org>, Michal Simek <michals@xilinx.com>, "Soren
- Brinkmann" <sorenb@xilinx.com>, "a.zummo@towertech.it"
-	<a.zummo@towertech.it>, Anirudha Sarangi <anirudh@xilinx.com>
-Subject: RE: [rtc-linux] Re: [PATCH v2 1/2] devicetree: bindings: rtc: add
- bindings for xilinx zynqmp rtc
-Date: Tue, 11 Aug 2015 19:29:54 +0000
-Message-ID: <EE0C027E1B1062419E7D6F61B9CF3AF65EDC2845@XAP-PVEXMBX01.xlnx.xilinx.com>
-References: <1438336757-23404-1-git-send-email-suneel.garapati@xilinx.com>
- <7f57f610-7eea-434c-b7b8-3fb15cea18c0@googlegroups.com>
- <20150811183209.GX3411@piout.net>
-In-Reply-To: <20150811183209.GX3411@piout.net>
-Content-Type: text/plain; charset=UTF-8
+        (version=TLSv1 cipher=RC4-SHA bits=128/128);
+        Wed, 26 Aug 2015 09:51:36 -0700 (PDT)
+Message-ID: <55DDEE88.3020407@ti.com>
+Date: Wed, 26 Aug 2015 22:21:20 +0530
+From: Keerthy <a0393675@ti.com>
 MIME-Version: 1.0
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        Keerthy
+	<j-keerthy@ti.com>, <tony@atomide.com>
+CC: <bcousson@baylibre.com>, <johan@kernel.org>, <linux-omap@vger.kernel.org>,
+        <rtc-linux@googlegroups.com>, <grygorii.strashko@ti.com>
+Subject: [rtc-linux] Re: [PATCH v5 0/3] ARM: AM437X: Add rtc clock handling
+References: <1439890876-19024-1-git-send-email-j-keerthy@ti.com> <20150821211812.GI3769@piout.net>
+In-Reply-To: <20150821211812.GI3769@piout.net>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -33,56 +27,39 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Hi Alexandre,
+Tony,
 
-For unknown reason, Alessandro zummo is shown by get_maintainer.pl.
-I will fix and send v3 with all comments addressed.
+On Saturday 22 August 2015 02:48 AM, Alexandre Belloni wrote:
+> Tony,
+>
+> On 18/08/2015 at 15:11:13 +0530, Keerthy wrote :
+>> The series is applicable for all am437x series of processors.
+>> It adds clock handling support. Boot tested on am437x-gp-evm.
+>>
+>> Keerthy (3):
+>>    ARM: dts: AM437x: Add the internal and external clock nodes for rtc
+>>    rtc: omap: Add internal clock enabling support
+>>    rtc: omap: Add external clock enabling support
+>>
+>
+> I'm wondering how you want to get those patches merged. I can let you
+> take 2 and 3 through arm-soc but you will miss 4.3. Or I can take 2 and
+> 3 for 4.3 but the documentation will be missing.
+
+A gentle ping on this series.
 
 Regards,
-Suneel
+Keerthy
+>
+>
 
-> -----Original Message-----
-> From: Alexandre Belloni [mailto:alexandre.belloni@free-electrons.com]
-> Sent: Wednesday, August 12, 2015 0:02 AM
-> To: suneelgarapati@gmail.com
-> Cc: rtc-linux; linux-arm-kernel@lists.infradead.org; linux-
-> kernel@vger.kernel.org; Michal Simek; Soren Brinkmann;
-> a.zummo@towertech.it; Suneel Garapati; Anirudha Sarangi
-> Subject: Re: [rtc-linux] Re: [PATCH v2 1/2] devicetree: bindings: rtc: ad=
-d
-> bindings for xilinx zynqmp rtc
->
-> Hi,
->
-> On 06/08/2015 at 21:53:09 -0700, suneelgarapati@gmail.com wrote :
-> > Hi Alexandre Belloni,
-> >
-> > Any review comments on v2 series?
-> >
->
-> Done. It would probably help if I was in copy of your mails ;)
->
->
-> --
-> Alexandre Belloni, Free Electrons
-> Embedded Linux, Kernel and Android engineering http://free-electrons.com
-
-
-This email and any attachments are intended for the sole use of the named r=
-ecipient(s) and contain(s) confidential information that may be proprietary=
-, privileged or copyrighted under applicable law. If you are not the intend=
-ed recipient, do not read, copy, or forward this email message or any attac=
-hments. Delete this email message and any attachments immediately.
-
---=20
---=20
+-- 
+-- 
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
----=20
-You received this message because you are subscribed to the Google Groups "=
-rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an e=
-mail to rtc-linux+unsubscribe@googlegroups.com.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
