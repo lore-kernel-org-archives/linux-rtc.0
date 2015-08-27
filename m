@@ -1,24 +1,20 @@
-Return-Path: <rtc-linux+bncBD66BCOYSQBBBWGSYWXAKGQEEODHX5Q@googlegroups.com>
-Received: from bear.ext.ti.com (bear.ext.ti.com. [192.94.94.41])
-        by gmr-mx.google.com with ESMTPS id 4si708441igl.1.2015.08.16.21.55.52
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1 cipher=RC4-SHA bits=128/128);
-        Sun, 16 Aug 2015 21:55:52 -0700 (PDT)
-From: Keerthy <j-keerthy@ti.com>
-To: <linux-omap@vger.kernel.org>, <rtc-linux@googlegroups.com>
-CC: <tony@atomide.com>, <alexandre.belloni@free-electrons.com>,
-        <akpm@linux-foundation.org>, <johan@kernel.org>,
-        <grygorii.strashko@ti.com>, <bcousson@baylibre.com>,
-        <devicetree@vger.kernel.org>, <t-kristo@ti.com>, <j-keerthy@ti.com>
-Subject: [rtc-linux] [PATCH v2 1/2] ARM: dts: AM437x: Add the internal and
- external clock nodes for rtc
-Date: Mon, 17 Aug 2015 10:25:37 +0530
-Message-ID: <1439787338-27396-2-git-send-email-j-keerthy@ti.com>
-In-Reply-To: <1439787338-27396-1-git-send-email-j-keerthy@ti.com>
-References: <1439787338-27396-1-git-send-email-j-keerthy@ti.com>
+Return-Path: <rtc-linux+bncBAABBKOT7OXAKGQEGGSPVZY@googlegroups.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Received: from lists.s-osg.org (lists.s-osg.org. [54.187.51.154])
+        by gmr-mx.google.com with ESMTP id zt8si268050pbc.0.2015.08.27.03.42.48
+        for <rtc-linux@googlegroups.com>;
+        Thu, 27 Aug 2015 03:42:48 -0700 (PDT)
+From: Javier Martinez Canillas <javier@osg.samsung.com>
+To: linux-kernel@vger.kernel.org
+Cc: Javier Martinez Canillas <javier@osg.samsung.com>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	rtc-linux@googlegroups.com,
+	Alessandro Zummo <a.zummo@towertech.it>
+Subject: [rtc-linux] [PATCH] rtc: ds1374: Remove unused variable
+Date: Thu, 27 Aug 2015 12:42:39 +0200
+Message-Id: <1440672159-8249-1-git-send-email-javier@osg.samsung.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -28,115 +24,29 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-rtc can either be supplied from internal 32k clock or external crystal
-generated 32k clock. Internal clock is SOC specific and the external
-clock is board dependent. Adding the corresponding nodes.
+The res variable in ds1374_remove() is not used so remove it.
 
-Signed-off-by: Keerthy <j-keerthy@ti.com>
+Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
+
 ---
- arch/arm/boot/dts/am4372.dtsi        |  2 ++
- arch/arm/boot/dts/am437x-gp-evm.dts  | 13 +++++++++++++
- arch/arm/boot/dts/am437x-idk-evm.dts |  9 +++++++++
- arch/arm/boot/dts/am437x-sk-evm.dts  |  9 +++++++++
- 4 files changed, 33 insertions(+)
 
-diff --git a/arch/arm/boot/dts/am4372.dtsi b/arch/arm/boot/dts/am4372.dtsi
-index d99b2ee..484f092 100644
---- a/arch/arm/boot/dts/am4372.dtsi
-+++ b/arch/arm/boot/dts/am4372.dtsi
-@@ -336,6 +336,8 @@
- 			interrupts = <GIC_SPI 75 IRQ_TYPE_LEVEL_HIGH
- 				      GIC_SPI 76 IRQ_TYPE_LEVEL_HIGH>;
- 			ti,hwmods = "rtc";
-+			clocks = <&clk_32768_ck>;
-+			clock-names = "int-clk";
- 			status = "disabled";
- 		};
+ drivers/rtc/rtc-ds1374.c | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/drivers/rtc/rtc-ds1374.c b/drivers/rtc/rtc-ds1374.c
+index 7067232ba507..84d9a6da08fb 100644
+--- a/drivers/rtc/rtc-ds1374.c
++++ b/drivers/rtc/rtc-ds1374.c
+@@ -664,7 +664,6 @@ static int ds1374_remove(struct i2c_client *client)
+ {
+ 	struct ds1374 *ds1374 = i2c_get_clientdata(client);
+ #ifdef CONFIG_RTC_DRV_DS1374_WDT
+-	int res;
  
-diff --git a/arch/arm/boot/dts/am437x-gp-evm.dts b/arch/arm/boot/dts/am437x-gp-evm.dts
-index 215775d..22038f2 100644
---- a/arch/arm/boot/dts/am437x-gp-evm.dts
-+++ b/arch/arm/boot/dts/am437x-gp-evm.dts
-@@ -112,6 +112,13 @@
- 		clock-frequency = <12000000>;
- 	};
- 
-+	/* fixed 32k external oscillator clock */
-+	clk_32k_rtc: clk_32k_rtc {
-+		#clock-cells = <0>;
-+		compatible = "fixed-clock";
-+		clock-frequency = <32768>;
-+	};
-+
- 	sound0: sound@0 {
- 		compatible = "simple-audio-card";
- 		simple-audio-card,name = "AM437x-GP-EVM";
-@@ -941,3 +948,9 @@
- 	tx-num-evt = <32>;
- 	rx-num-evt = <32>;
- };
-+
-+&rtc {
-+	clocks = <&clk_32k_rtc>, <&clk_32768_ck>;
-+	clock-names = "ext-clk", "int-clk";
-+	status = "okay";
-+};
-diff --git a/arch/arm/boot/dts/am437x-idk-evm.dts b/arch/arm/boot/dts/am437x-idk-evm.dts
-index 37834427..af25801 100644
---- a/arch/arm/boot/dts/am437x-idk-evm.dts
-+++ b/arch/arm/boot/dts/am437x-idk-evm.dts
-@@ -110,6 +110,13 @@
- 			gpios = <&gpio4 2 GPIO_ACTIVE_LOW>;
- 		};
- 	};
-+
-+	/* fixed 32k external oscillator clock */
-+	clk_32k_rtc: clk_32k_rtc {
-+		#clock-cells = <0>;
-+		compatible = "fixed-clock";
-+		clock-frequency = <32768>;
-+	};
- };
- 
- &am43xx_pinmux {
-@@ -394,6 +401,8 @@
- };
- 
- &rtc {
-+	clocks = <&clk_32k_rtc>, <&clk_32768_ck>;
-+	clock-names = "ext-clk", "int-clk";
- 	status = "okay";
- };
- 
-diff --git a/arch/arm/boot/dts/am437x-sk-evm.dts b/arch/arm/boot/dts/am437x-sk-evm.dts
-index 22af448..7da7c2d 100644
---- a/arch/arm/boot/dts/am437x-sk-evm.dts
-+++ b/arch/arm/boot/dts/am437x-sk-evm.dts
-@@ -24,6 +24,13 @@
- 		display0 = &lcd0;
- 	};
- 
-+	/* fixed 32k external oscillator clock */
-+	clk_32k_rtc: clk_32k_rtc {
-+		#clock-cells = <0>;
-+		compatible = "fixed-clock";
-+		clock-frequency = <32768>;
-+	};
-+
- 	backlight {
- 		compatible = "pwm-backlight";
- 		pwms = <&ecap0 0 50000 PWM_POLARITY_INVERTED>;
-@@ -697,6 +704,8 @@
- };
- 
- &rtc {
-+	clocks = <&clk_32k_rtc>, <&clk_32768_ck>;
-+	clock-names = "ext-clk", "int-clk";
- 	status = "okay";
- };
- 
+ 	misc_deregister(&ds1374_miscdev);
+ 	ds1374_miscdev.parent = NULL;
 -- 
-1.9.1
+2.4.3
 
 -- 
 -- 
