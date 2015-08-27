@@ -1,29 +1,27 @@
-Return-Path: <rtc-linux+bncBDEZ72H55YIBBO5ZVKXAKGQEB7I33ZY@googlegroups.com>
-Received: from mailout4.samsung.com (mailout4.samsung.com. [203.254.224.34])
-        by gmr-mx.google.com with ESMTPS id ff6si437004pac.2.2015.08.11.18.09.14
+Return-Path: <rtc-linux+bncBCSL7B6LWYHBBE4B7SXAKGQELDLVELY@googlegroups.com>
+Received: from mail-wi0-x22e.google.com (mail-wi0-x22e.google.com. [2a00:1450:400c:c05::22e])
+        by gmr-mx.google.com with ESMTPS id z4si163662wiy.3.2015.08.27.05.20.34
         for <rtc-linux@googlegroups.com>
-        (version=TLSv1 cipher=RC4-SHA bits=128/128);
-        Tue, 11 Aug 2015 18:09:14 -0700 (PDT)
-Received: from epcpsbgr1.samsung.com
- (u141.gpu120.samsung.co.kr [203.254.230.141])
- by mailout4.samsung.com (Oracle Communications Messaging Server 7.0.5.31.0
- 64bit (built May  5 2014))
- with ESMTP id <0NSY021U437CNA60@mailout4.samsung.com> for
- rtc-linux@googlegroups.com; Wed, 12 Aug 2015 10:09:12 +0900 (KST)
-Message-id: <55CA9CB9.1050007@samsung.com>
-Date: Wed, 12 Aug 2015 10:09:13 +0900
-From: Joonyoung Shim <jy0922.shim@samsung.com>
-MIME-version: 1.0
-To: Krzysztof Kozlowski <k.kozlowski@samsung.com>, rtc-linux@googlegroups.com
-Cc: linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org,
- a.zummo@towertech.it, alexandre.belloni@free-electrons.com,
- cw00.choi@samsung.com
-Subject: [rtc-linux] Re: [PATCH 4/4] rtc: s3c: enable/disable clocks for alarm
-References: <1439292502-22912-1-git-send-email-jy0922.shim@samsung.com>
- <1439292502-22912-4-git-send-email-jy0922.shim@samsung.com>
- <55CA9330.9070700@samsung.com>
-In-reply-to: <55CA9330.9070700@samsung.com>
-Content-type: text/plain; charset=UTF-8
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 27 Aug 2015 05:20:34 -0700 (PDT)
+Received: by mail-wi0-x22e.google.com with SMTP id dq5so76184163wid.1
+        for <rtc-linux@googlegroups.com>; Thu, 27 Aug 2015 05:20:34 -0700 (PDT)
+MIME-Version: 1.0
+In-Reply-To: <1440671672-26590-1-git-send-email-javier@osg.samsung.com>
+References: <1440671672-26590-1-git-send-email-javier@osg.samsung.com>
+Date: Thu, 27 Aug 2015 15:20:34 +0300
+Message-ID: <CAPAsAGyrEm--=WfGB4wSFSXE8HZpp+HDuV=p4JmFbV-X2keQCg@mail.gmail.com>
+Subject: [rtc-linux] Re: [PATCH] rtc: Fix module autoload for
+ rtc-{ab8500,max8997,s5m} drivers
+From: Andrey Ryabinin <ryabinin.a.a@gmail.com>
+To: Javier Martinez Canillas <javier@osg.samsung.com>
+Cc: LKML <linux-kernel@vger.kernel.org>, Luis de Bethencourt <luis.bg@samsung.com>,
+	linux-samsung-soc@vger.kernel.org, Alessandro Zummo <a.zummo@towertech.it>,
+	Sangbeom Kim <sbkim73@samsung.com>, Linus Walleij <linus.walleij@linaro.org>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Krzysztof Kozlowski <k.kozlowski@samsung.com>, rtc-linux@googlegroups.com,
+	linux-arm-kernel@lists.infradead.org
+Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -34,37 +32,32 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On 08/12/2015 09:28 AM, Krzysztof Kozlowski wrote:
-> On 11.08.2015 20:28, Joonyoung Shim wrote:
->> The clock enable/disable codes for alarm have removed from
-> 
-> What do you mean in this paragraph? The clock code was removing something?
-> 
->> 'commit 24e1455493da ("drivers/rtc/rtc-s3c.c: delete duplicate clock
-> 
-> Remove the 'apostrophe.
-> 
->> control")' and the clocks keep disabling even if alarm is set, so alarm
->> interrupt can't happen.
-> ...and the clocks are disabled even...
-> 
-> 
->>
->> The s3c_rtc_setaie function can be called several times with that
->> enabled argument has same value,
-> ...several times with 'enabled' argument having same value
-> 
->> so it needs to check whether clocks is
->> enabled or not.
-> s/is/are/
-> 
->>
->> Signed-off-by: Joonyoung Shim <jy0922.shim@samsung.com>
-> 
-> Please add Cc-stable and fixes tag. To backport the patch probably
-> you'll have to remove the dependency on previous patches.
+2015-08-27 13:34 GMT+03:00 Javier Martinez Canillas <javier@osg.samsung.com>:
+> These platform drivers have a platform device ID table but the module
+> alias information is not created so module autoloading will not work.
+>
+> Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
+>
+> ---
+>
+>  drivers/rtc/rtc-ab8500.c  | 1 +
+>  drivers/rtc/rtc-max8997.c | 1 +
+>  drivers/rtc/rtc-s5m.c     | 1 +
+>  3 files changed, 3 insertions(+)
+>
+> diff --git a/drivers/rtc/rtc-ab8500.c b/drivers/rtc/rtc-ab8500.c
+> index 133d2e2e1a25..8537d1e3a995 100644
+> --- a/drivers/rtc/rtc-ab8500.c
+> +++ b/drivers/rtc/rtc-ab8500.c
+> @@ -446,6 +446,7 @@ static const struct platform_device_id ab85xx_rtc_ids[] = {
+>         { "ab8500-rtc", (kernel_ulong_t)&ab8500_rtc_ops, },
+>         { "ab8540-rtc", (kernel_ulong_t)&ab8540_rtc_ops, },
 
-Thanks for the point, i didn't think it.
+Completely irrelevant, but this array should have an empty terminating element.
+
+>  };
+> +MODULE_DEVICE_TABLE(platform, ab85xx_rtc_ids);
+>
 
 -- 
 -- 
