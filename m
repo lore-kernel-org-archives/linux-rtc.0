@@ -1,30 +1,27 @@
-Return-Path: <rtc-linux+bncBAABBFXUQ2XAKGQEGXCFN6I@googlegroups.com>
-Received: from mail1.bemta14.messagelabs.com (mail1.bemta14.messagelabs.com. [193.109.254.118])
-        by gmr-mx.google.com with ESMTPS id v8si193388wiw.1.2015.08.05.00.24.05
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 05 Aug 2015 00:24:05 -0700 (PDT)
-From: "Opensource [Steve Twiss]" <stwiss.opensource@diasemi.com>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-CC: Alessandro Zummo <a.zummo@towertech.it>, DEVICETREE
-	<devicetree@vger.kernel.org>, LINUXINPUT <linux-input@vger.kernel.org>,
-	LINUXKERNEL <linux-kernel@vger.kernel.org>, RTCLINUX
-	<rtc-linux@googlegroups.com>, David Dajun Chen <david.chen@diasemi.com>,
-	"Ian Campbell" <ijc+devicetree@hellion.org.uk>, Kumar Gala
-	<galak@codeaurora.org>, Lee Jones <lee.jones@linaro.org>, Mark Rutland
-	<mark.rutland@arm.com>, "Pawel Moll" <pawel.moll@arm.com>, Rob Herring
-	<robh+dt@kernel.org>, Samuel Ortiz <sameo@linux.intel.com>, Support
- Opensource <Support.Opensource@diasemi.com>
-Subject: [rtc-linux] RE: [PATCH V3 3/3] rtc: da9063: Add DA9062 RTC capability
- to DA9063 RTC driver
-Date: Wed, 5 Aug 2015 07:24:03 +0000
-Message-ID: <6ED8E3B22081A4459DAC7699F3695FB7014B2606F8@SW-EX-MBX02.diasemi.com>
-References: <cover.1437474547.git.stwiss.opensource@diasemi.com>
- <b79c0b5d1b96bd06ab81a2459c493e68ec6b1971.1437474547.git.stwiss.opensource@diasemi.com>
- <20150805015519.GZ3486@piout.net>
-In-Reply-To: <20150805015519.GZ3486@piout.net>
-Content-Type: text/plain; charset=UTF-8
+Return-Path: <rtc-linux+bncBAABBOUC7SXAKGQEA7CQBJQ@googlegroups.com>
+Received: from lists.s-osg.org (lists.s-osg.org. [54.187.51.154])
+        by gmr-mx.google.com with ESMTP id ff6si296380pac.2.2015.08.27.05.23.21
+        for <rtc-linux@googlegroups.com>;
+        Thu, 27 Aug 2015 05:23:21 -0700 (PDT)
+Subject: [rtc-linux] Re: [PATCH] rtc: Fix module autoload for
+ rtc-{ab8500,max8997,s5m} drivers
+To: Andrey Ryabinin <ryabinin.a.a@gmail.com>
+References: <1440671672-26590-1-git-send-email-javier@osg.samsung.com>
+ <CAPAsAGyrEm--=WfGB4wSFSXE8HZpp+HDuV=p4JmFbV-X2keQCg@mail.gmail.com>
+Cc: LKML <linux-kernel@vger.kernel.org>,
+ Luis de Bethencourt <luis.bg@samsung.com>,
+ linux-samsung-soc@vger.kernel.org, Alessandro Zummo <a.zummo@towertech.it>,
+ Sangbeom Kim <sbkim73@samsung.com>, Linus Walleij
+ <linus.walleij@linaro.org>,
+ Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+ Krzysztof Kozlowski <k.kozlowski@samsung.com>, rtc-linux@googlegroups.com,
+ linux-arm-kernel@lists.infradead.org
+From: Javier Martinez Canillas <javier@osg.samsung.com>
+Message-ID: <55DF0133.2070009@osg.samsung.com>
+Date: Thu, 27 Aug 2015 14:23:15 +0200
 MIME-Version: 1.0
+In-Reply-To: <CAPAsAGyrEm--=WfGB4wSFSXE8HZpp+HDuV=p4JmFbV-X2keQCg@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -35,38 +32,45 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On 05 August 2015 02:55 Alexandre Belloni wrote:
+Hello Andrey,
 
-> Subject: Re: [PATCH V3 3/3] rtc: da9063: Add DA9062 RTC capability to DA9063 RTC driver
+On 08/27/2015 02:20 PM, Andrey Ryabinin wrote:
+> 2015-08-27 13:34 GMT+03:00 Javier Martinez Canillas <javier@osg.samsung.com>:
+>> These platform drivers have a platform device ID table but the module
+>> alias information is not created so module autoloading will not work.
+>>
+>> Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
+>>
+>> ---
+>>
+>>  drivers/rtc/rtc-ab8500.c  | 1 +
+>>  drivers/rtc/rtc-max8997.c | 1 +
+>>  drivers/rtc/rtc-s5m.c     | 1 +
+>>  3 files changed, 3 insertions(+)
+>>
+>> diff --git a/drivers/rtc/rtc-ab8500.c b/drivers/rtc/rtc-ab8500.c
+>> index 133d2e2e1a25..8537d1e3a995 100644
+>> --- a/drivers/rtc/rtc-ab8500.c
+>> +++ b/drivers/rtc/rtc-ab8500.c
+>> @@ -446,6 +446,7 @@ static const struct platform_device_id ab85xx_rtc_ids[] = {
+>>         { "ab8500-rtc", (kernel_ulong_t)&ab8500_rtc_ops, },
+>>         { "ab8540-rtc", (kernel_ulong_t)&ab8540_rtc_ops, },
 > 
-> On 21/07/2015 at 11:29:07 +0100, S Twiss wrote :
-> > From: S Twiss <stwiss.opensource@diasemi.com>
-> >
-> > Add DA9062 RTC support into the existing DA9063 RTC driver component by
-> > using generic access tables for common register and bit mask definitions.
-> >
-> > The following change will add generic register and bit mask support to the
-> > DA9063 RTC. The changes are slightly complicated by requiring support for
-> > three register sets: DA9063-AD, DA9063-BB and DA9062-AA.
-> >
-> > The following alterations have been made to the DA9063 RTC:
-> >
-> > - Addition of a da9063_compatible_rtc_regmap structure to hold all generic
-> >   registers and bitmasks for this type of RTC component.
-> > - A re-write of struct da9063 to use pointers for regmap and compatible
-> >   registers/masks definitions
-> > - Addition of a of_device_id table for DA9063 and DA9062 defaults
-> > - Refactoring functions to use struct da9063_compatible_rtc accesses to
-> >   generic registers/masks instead of using defines from registers.h
-> > - Re-work of da9063_rtc_probe() to use of_match_node() and dev_get_regmap()
-> >   to provide initialisation of generic registers and masks and access to
-> >   regmap
-> >
-> > Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
-> >
-> Applied, thanks.
+> Completely irrelevant, but this array should have an empty terminating element.
+>
 
-Thank you.
+You are right, it's missing a sentinel indeed. But
+that change should be done in a separate patch.
+ 
+>>  };
+>> +MODULE_DEVICE_TABLE(platform, ab85xx_rtc_ids);
+>>
+
+Best regards,
+-- 
+Javier Martinez Canillas
+Open Source Group
+Samsung Research America
 
 -- 
 -- 
