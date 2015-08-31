@@ -1,18 +1,28 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBN65UKXAKGQEMZ7PCOQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBW7LSKXQKGQEJXU7PCQ@googlegroups.com>
 Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id ec7si326902wib.3.2015.08.10.07.01.26
+        by gmr-mx.google.com with ESMTP id jv9si47090wid.0.2015.08.31.13.15.23
         for <rtc-linux@googlegroups.com>;
-        Mon, 10 Aug 2015 07:01:26 -0700 (PDT)
-Date: Mon, 10 Aug 2015 16:01:26 +0200
+        Mon, 31 Aug 2015 13:15:23 -0700 (PDT)
+Date: Mon, 31 Aug 2015 22:15:23 +0200
 From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Fabio Estevam <fabio.estevam@freescale.com>
-Cc: festevam@gmail.com, rtc-linux@googlegroups.com
-Subject: [rtc-linux] Re: [PATCH 1/2] rtc: rtc-cmos: Remove unused variable
-Message-ID: <20150810140126.GG3411@piout.net>
-References: <1439210865-8611-1-git-send-email-fabio.estevam@freescale.com>
+To: Javier Martinez Canillas <javier@osg.samsung.com>
+Cc: linux-kernel@vger.kernel.org, Luis de Bethencourt <luis.bg@samsung.com>,
+	Gregory Clement <gregory.clement@free-electrons.com>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Support Opensource <support.opensource@diasemi.com>,
+	Linus Walleij <linus.walleij@linaro.org>,
+	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
+	Jason Cooper <jason@lakedaemon.net>, Andrew Lunn <andrew@lunn.ch>,
+	linux-mediatek@lists.infradead.org,
+	Eddie Huang <eddie.huang@mediatek.com>,
+	Tony Prisk <linux@prisktech.co.nz>, rtc-linux@googlegroups.com,
+	linux-arm-kernel@lists.infradead.org
+Subject: [rtc-linux] Re: [PATCH] rtc: Fix module autoload for OF platform drivers
+Message-ID: <20150831201523.GB3409@piout.net>
+References: <1440676322-19870-1-git-send-email-javier@osg.samsung.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1439210865-8611-1-git-send-email-fabio.estevam@freescale.com>
+In-Reply-To: <1440676322-19870-1-git-send-email-javier@osg.samsung.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -23,36 +33,25 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Hi Fabio,
-
-Thanks for that patch but I fixed it in tree just a bit before you ;)
-
-On 10/08/2015 at 09:47:44 -0300, Fabio Estevam wrote :
-> Remove unused variable 'err' and fix the following build warning:
+On 27/08/2015 at 13:52:02 +0200, Javier Martinez Canillas wrote :
+> These platform drivers have a OF device ID table but the OF module
+> alias information is not created so module autoloading won't work.
 > 
->  drivers/rtc/rtc-cmos.c:851:7: warning: unused variable 'err' [-Wunused-variable]
+> Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
 > 
-> Reported-by: Olof's autobuilder <build@lixom.net>
-> Signed-off-by: Fabio Estevam <fabio.estevam@freescale.com>
 > ---
->  drivers/rtc/rtc-cmos.c | 1 -
->  1 file changed, 1 deletion(-)
 > 
-> diff --git a/drivers/rtc/rtc-cmos.c b/drivers/rtc/rtc-cmos.c
-> index 916bd1f..c2e90c6 100644
-> --- a/drivers/rtc/rtc-cmos.c
-> +++ b/drivers/rtc/rtc-cmos.c
-> @@ -848,7 +848,6 @@ static int cmos_aie_poweroff(struct device *dev)
->  	 */
->  	if (cmos->alarm_expires == t_now + 1) {
->  		struct rtc_wkalrm alarm;
-> -		int err;
->  
->  		/* Cancel the AIE timer by configuring the past time. */
->  		rtc_time64_to_tm(t_now - 1, &alarm.time);
-> -- 
-> 1.9.1
+>  drivers/rtc/rtc-armada38x.c | 1 +
+>  drivers/rtc/rtc-coh901331.c | 1 +
+>  drivers/rtc/rtc-da9063.c    | 1 +
+>  drivers/rtc/rtc-moxart.c    | 1 +
+>  drivers/rtc/rtc-mpc5121.c   | 1 +
+>  drivers/rtc/rtc-mt6397.c    | 1 +
+>  drivers/rtc/rtc-mv.c        | 1 +
+>  drivers/rtc/rtc-vt8500.c    | 1 +
+>  8 files changed, 8 insertions(+)
 > 
+Applied, thanks.
 
 -- 
 Alexandre Belloni, Free Electrons
