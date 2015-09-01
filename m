@@ -1,22 +1,25 @@
-Return-Path: <rtc-linux+bncBCZ7NMHQ3YLRBN646CXQKGQEQF7MQSY@googlegroups.com>
+Return-Path: <rtc-linux+bncBCQPVKWLVAIRB4MHS6XQKGQEKFEGXXA@googlegroups.com>
+Received: from muru.com (muru.com. [72.249.23.125])
+        by gmr-mx.google.com with ESMTP id qc10si795512lbb.1.2015.09.01.08.27.45
+        for <rtc-linux@googlegroups.com>;
+        Tue, 01 Sep 2015 08:27:45 -0700 (PDT)
+Date: Tue, 1 Sep 2015 08:27:40 -0700
+From: Tony Lindgren <tony@atomide.com>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: Keerthy <a0393675@ti.com>, Keerthy <j-keerthy@ti.com>,
+	bcousson@baylibre.com, johan@kernel.org, linux-omap@vger.kernel.org,
+	rtc-linux@googlegroups.com, grygorii.strashko@ti.com
+Subject: [rtc-linux] Re: [PATCH v5 0/3] ARM: AM437X: Add rtc clock handling
+Message-ID: <20150901152740.GH4215@atomide.com>
+References: <1439890876-19024-1-git-send-email-j-keerthy@ti.com>
+ <20150821211812.GI3769@piout.net>
+ <55DDEE88.3020407@ti.com>
+ <20150826180126.GS4215@atomide.com>
+ <20150826215350.GS13155@piout.net>
 MIME-Version: 1.0
-Received: from mail-wi0-x22f.google.com (mail-wi0-x22f.google.com. [2a00:1450:400c:c05::22f])
-        by gmr-mx.google.com with ESMTPS id ch7si250159wib.2.2015.09.18.08.31.03
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 18 Sep 2015 08:31:03 -0700 (PDT)
-Received: by mail-wi0-x22f.google.com with SMTP id fx3so35573445wic.0
-        for <rtc-linux@googlegroups.com>; Fri, 18 Sep 2015 08:31:03 -0700 (PDT)
-From: Ivan Grimaldi <grimaldi.ivan@gmail.com>
-To: a.zummo@towertech.it,
-	mpfj@mimc.co.uk
-Cc: rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org
-Subject: [rtc-linux] [PATCH v3 1/2] Fixed ds1390_get_reg returned value
-Date: Fri, 18 Sep 2015 17:27:56 +0200
-Message-Id: <1442590077-29816-1-git-send-email-grimaldi.ivan@gmail.com>
-Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <20150826215350.GS13155@piout.net>
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -26,29 +29,48 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-spi_write_then_read puts in rx_buf the received data starting from
-the first byte of the rx_buf
+* Alexandre Belloni <alexandre.belloni@free-electrons.com> [150826 14:57]:
+> On 26/08/2015 at 11:01:27 -0700, Tony Lindgren wrote :
+> > * Keerthy <a0393675@ti.com> [150826 09:54]:
+> > > Tony,
+> > > 
+> > > On Saturday 22 August 2015 02:48 AM, Alexandre Belloni wrote:
+> > > >Tony,
+> > > >
+> > > >On 18/08/2015 at 15:11:13 +0530, Keerthy wrote :
+> > > >>The series is applicable for all am437x series of processors.
+> > > >>It adds clock handling support. Boot tested on am437x-gp-evm.
+> > > >>
+> > > >>Keerthy (3):
+> > > >>   ARM: dts: AM437x: Add the internal and external clock nodes for rtc
+> > > >>   rtc: omap: Add internal clock enabling support
+> > > >>   rtc: omap: Add external clock enabling support
+> > > >>
+> > > >
+> > > >I'm wondering how you want to get those patches merged. I can let you
+> > > >take 2 and 3 through arm-soc but you will miss 4.3. Or I can take 2 and
+> > > >3 for 4.3 but the documentation will be missing.
+> > > 
+> > > A gentle ping on this series.
+> > 
+> > Alexandre, it's probably best that you take them all. The dts changes
+> > apply against Linux next with fuzz so there should not be any merge
+> > conflict. Feel free to add:
+> > 
+> > Acked-by: Tony Lindgren <tony@atomide.com>
+> > 
+> 
+> So, I've rebased 1/3 on rtc-next to avoid depending on arm-soc. I've
+> pushed everything and hopefully there won't be any issues in linux-next.
+> We are quite close to the merge window so I would be much more confident
+> sending them to Linus if you could test linux-next once the patches land
+> there.
 
-Signed-off-by: Ivan Grimaldi <grimaldi.ivan@gmail.com>
----
- drivers/rtc/rtc-ds1390.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Keerthy, I presume you have now tested these with Linux next?
 
-diff --git a/drivers/rtc/rtc-ds1390.c b/drivers/rtc/rtc-ds1390.c
-index e67bfcb..a4303b4 100644
---- a/drivers/rtc/rtc-ds1390.c
-+++ b/drivers/rtc/rtc-ds1390.c
-@@ -62,7 +62,7 @@ static int ds1390_get_reg(struct device *dev, unsigned char address,
- 	if (status != 0)
- 		return status;
- 
--	*data = chip->txrx_buf[1];
-+	*data = chip->txrx_buf[0];
- 
- 	return 0;
- }
--- 
-2.5.2
+Regards,
+
+Tony
 
 -- 
 -- 
