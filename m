@@ -1,27 +1,25 @@
-Return-Path: <rtc-linux+bncBD7ZDTFR7QFRBNONQCYAKGQEB4YV55Q@googlegroups.com>
-MIME-Version: 1.0
-Received: from foss.arm.com (foss.arm.com. [217.140.101.70])
-        by gmr-mx.google.com with ESMTP id fk4si3112869pbc.2.2015.09.21.08.48.04
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBAPTS6XQKGQEYL53BDI@googlegroups.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id fj7si218873wib.3.2015.09.01.12.16.17
         for <rtc-linux@googlegroups.com>;
-        Mon, 21 Sep 2015 08:48:04 -0700 (PDT)
-From: Sudeep Holla <sudeep.holla@arm.com>
-To: linux-pm@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Cc: Sudeep Holla <sudeep.holla@arm.com>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	"Rafael J. Wysocki" <rjw@rjwysocki.net>,
-	Linus Walleij <linus.walleij@linaro.org>,
+        Tue, 01 Sep 2015 12:16:17 -0700 (PDT)
+Date: Tue, 1 Sep 2015 21:16:16 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Paul Gortmaker <paul.gortmaker@windriver.com>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
 	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	rtc-linux@googlegroups.com
-Subject: [rtc-linux] [PATCH 01/17] rtc: pl031: remove misuse of
- IRQF_NO_SUSPEND flag
-Date: Mon, 21 Sep 2015 16:46:57 +0100
-Message-Id: <1442850433-5903-2-git-send-email-sudeep.holla@arm.com>
-In-Reply-To: <1442850433-5903-1-git-send-email-sudeep.holla@arm.com>
-References: <1442850433-5903-1-git-send-email-sudeep.holla@arm.com>
-Reply-To: rtc-linux@googlegroups.com
+	RTCLINUX <rtc-linux@googlegroups.com>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: [rtc-linux] Re: [PATCH -next] rtc: drop unused ret variable orphaned
+ by misc_deregister becoming void
+Message-ID: <20150901191616.GG3409@piout.net>
+References: <1440271591-5640-1-git-send-email-paul.gortmaker@windriver.com>
+ <CAMuHMdXMHg-HR10WQavREmnva6u5-i0ekFeGM5za5UUHgiN0dA@mail.gmail.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <CAMuHMdXMHg-HR10WQavREmnva6u5-i0ekFeGM5za5UUHgiN0dA@mail.gmail.com>
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -31,93 +29,36 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-The IRQF_NO_SUSPEND flag is used to identify the interrupts that should
-be left enabled so as to allow them to work as expected during the
-suspend-resume cycle, but doesn't guarantee that it will wake the system
-from a suspended state, enable_irq_wake is recommended to be used for
-the wakeup.
+Hi,
 
-This patch removes the use of IRQF_NO_SUSPEND flags and uses newly
-introduce PM wakeup APIs dev_pm_{set,clear}_wake_irq.
+On 01/09/2015 at 19:37:07 +0200, Geert Uytterhoeven wrote :
+> On Sat, Aug 22, 2015 at 9:26 PM, Paul Gortmaker
+> <paul.gortmaker@windriver.com> wrote:
+> > In commit f368ed6088ae9c1fbe1c897bb5f215ce5e63fa1e ("char: make
+> > misc_deregister a void function") this ret variable became unused
+> > which now generates a compile warning.  Get rid of it.
+> >
+> > Cc: Alessandro Zummo <a.zummo@towertech.it>
+> > Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+> > Cc: rtc-linux@googlegroups.com
+> > Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> > Signed-off-by: Paul Gortmaker <paul.gortmaker@windriver.com>
+> 
+> Acked-by: Geert Uytterhoeven <geert@linux-m68k.org>
+> 
+> It's funny how these things end up in mainline, despite at least two
+> people providing a patch.
+> 
 
-Cc: Linus Walleij <linus.walleij@linaro.org>
-Cc: Alessandro Zummo <a.zummo@towertech.it>
-Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: rtc-linux@googlegroups.com
-Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
----
- drivers/rtc/rtc-pl031.c | 13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+The fact is that I've asked Greg to take the first fix as he is the one
+carrying the offending patch. He didn't do it so I'll ensure that the
+fix reaches Linus before -rc1.
 
-diff --git a/drivers/rtc/rtc-pl031.c b/drivers/rtc/rtc-pl031.c
-index 41dcb7ddb906..e1687e19c59f 100644
---- a/drivers/rtc/rtc-pl031.c
-+++ b/drivers/rtc/rtc-pl031.c
-@@ -23,6 +23,7 @@
- #include <linux/io.h>
- #include <linux/bcd.h>
- #include <linux/delay.h>
-+#include <linux/pm_wakeirq.h>
- #include <linux/slab.h>
- 
- /*
-@@ -305,6 +306,8 @@ static int pl031_remove(struct amba_device *adev)
- {
- 	struct pl031_local *ldata = dev_get_drvdata(&adev->dev);
- 
-+	dev_pm_clear_wake_irq(&adev->dev);
-+	device_init_wakeup(&adev->dev, false);
- 	free_irq(adev->irq[0], ldata);
- 	rtc_device_unregister(ldata->rtc);
- 	iounmap(ldata->base);
-@@ -370,7 +373,7 @@ static int pl031_probe(struct amba_device *adev, const struct amba_id *id)
- 		}
- 	}
- 
--	device_init_wakeup(&adev->dev, 1);
-+	device_init_wakeup(&adev->dev, true);
- 	ldata->rtc = rtc_device_register("pl031", &adev->dev, ops,
- 					THIS_MODULE);
- 	if (IS_ERR(ldata->rtc)) {
-@@ -383,7 +386,7 @@ static int pl031_probe(struct amba_device *adev, const struct amba_id *id)
- 		ret = -EIO;
- 		goto out_no_irq;
- 	}
--
-+	dev_pm_set_wake_irq(&adev->dev, adev->irq[0]);
- 	return 0;
- 
- out_no_irq:
-@@ -408,7 +411,6 @@ static struct pl031_vendor_data arm_pl031 = {
- 		.set_alarm = pl031_set_alarm,
- 		.alarm_irq_enable = pl031_alarm_irq_enable,
- 	},
--	.irqflags = IRQF_NO_SUSPEND,
- };
- 
- /* The First ST derivative */
-@@ -422,7 +424,6 @@ static struct pl031_vendor_data stv1_pl031 = {
- 	},
- 	.clockwatch = true,
- 	.st_weekday = true,
--	.irqflags = IRQF_NO_SUSPEND,
- };
- 
- /* And the second ST derivative */
-@@ -439,8 +440,10 @@ static struct pl031_vendor_data stv2_pl031 = {
- 	/*
- 	 * This variant shares the IRQ with another block and must not
- 	 * suspend that IRQ line.
-+	 * TODO check if it shares with IRQF_NO_SUSPEND user, else we can
-+	 * remove IRQF_COND_SUSPEND
- 	 */
--	.irqflags = IRQF_SHARED | IRQF_NO_SUSPEND,
-+	.irqflags = IRQF_SHARED | IRQF_COND_SUSPEND,
- };
- 
- static struct amba_id pl031_ids[] = {
+
 -- 
-1.9.1
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
 -- 
 -- 
