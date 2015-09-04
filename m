@@ -1,55 +1,57 @@
-Return-Path: <rtc-linux+bncBCZ7NMHQ3YLRBAWZ6CXQKGQEL4U2SDI@googlegroups.com>
-MIME-Version: 1.0
-Received: from mail-wi0-x233.google.com (mail-wi0-x233.google.com. [2a00:1450:400c:c05::233])
-        by gmr-mx.google.com with ESMTPS id et8si241880wib.2.2015.09.18.08.23.46
+Return-Path: <rtc-linux+bncBDKZNNNLXAHBB5XHUOXQKGQERTV3ZKA@googlegroups.com>
+Received: from mail-qk0-x22e.google.com (mail-qk0-x22e.google.com. [2607:f8b0:400d:c09::22e])
+        by gmr-mx.google.com with ESMTPS id u67si80661ywf.5.2015.09.03.18.29.26
         for <rtc-linux@googlegroups.com>
         (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 18 Sep 2015 08:23:46 -0700 (PDT)
-Received: by mail-wi0-x233.google.com with SMTP id fx3so68750083wic.1
-        for <rtc-linux@googlegroups.com>; Fri, 18 Sep 2015 08:23:46 -0700 (PDT)
-From: Ivan Grimaldi <grimaldi.ivan@gmail.com>
-To: a.zummo@towertech.it,
-	mpfj@mimc.co.uk,
-	alexandre.belloni@free-electrons.com
-Cc: rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org
-Subject: [rtc-linux] [PATCH v3 1/2] Fixed ds1390_get_reg returned value
-Date: Fri, 18 Sep 2015 17:20:39 +0200
-Message-Id: <1442589640-29347-1-git-send-email-grimaldi.ivan@gmail.com>
-Reply-To: rtc-linux@googlegroups.com
+        Thu, 03 Sep 2015 18:29:26 -0700 (PDT)
+Received: by mail-qk0-x22e.google.com with SMTP id v1so3204547qkd.0
+        for <rtc-linux@googlegroups.com>; Thu, 03 Sep 2015 18:29:25 -0700 (PDT)
+MIME-Version: 1.0
+Sender: rtc-linux@googlegroups.com
+In-Reply-To: <1441305318-24773-1-git-send-email-festevam@gmail.com>
+References: <1441305318-24773-1-git-send-email-festevam@gmail.com>
+Date: Fri, 4 Sep 2015 10:29:25 +0900
+Message-ID: <CAJKOXPe8n8CkJcOQDjddgQuXDfHqQL0Z+nJxi_jK4VHoCjJDHw@mail.gmail.com>
+Subject: Re: [rtc-linux] [PATCH] rtc: ab8500: Add a sentinel to ab85xx_rtc_ids[]
+From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+To: rtc-linux@googlegroups.com
+Cc: alexandre.belloni@free-electrons.com, linus.walleij@linaro.org,
+	Fabio Estevam <fabio.estevam@freescale.com>
 Content-Type: text/plain; charset=UTF-8
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
 List-Archive: <http://groups.google.com/group/rtc-linux
-Sender: rtc-linux@googlegroups.com
 List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-spi_write_then_read puts in rx_buf the received data starting from
-the first byte of the rx_buf
+2015-09-04 3:35 GMT+09:00 Fabio Estevam <festevam@gmail.com>:
+> From: Fabio Estevam <fabio.estevam@freescale.com>
+>
+> Add a sentinel to ab85xx_rtc_ids[] in order to fix the following error:
+>
+> drivers/rtc/rtc-ab8500: struct platform_device_id is 24 bytes.  The last of 2 is:
+> 0x61 0x62 0x38 0x35 0x34 0x30 0x2d 0x72 0x74 0x63 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x8c
+> FATAL: drivers/rtc/rtc-ab8500: struct platform_device_id is not terminated with a NULL entry!
+>
+> Reported-by: Olof's autobuilder <build@lixom.net>
+> Signed-off-by: Fabio Estevam <fabio.estevam@freescale.com>
+> ---
+>  drivers/rtc/rtc-ab8500.c | 1 +
+>  1 file changed, 1 insertion(+)
 
-Signed-off-by: Ivan Grimaldi <grimaldi.ivan@gmail.com>
----
- drivers/rtc/rtc-ds1390.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Reviewed-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
 
-diff --git a/drivers/rtc/rtc-ds1390.c b/drivers/rtc/rtc-ds1390.c
-index e67bfcb..a4303b4 100644
---- a/drivers/rtc/rtc-ds1390.c
-+++ b/drivers/rtc/rtc-ds1390.c
-@@ -62,7 +62,7 @@ static int ds1390_get_reg(struct device *dev, unsigned char address,
- 	if (status != 0)
- 		return status;
- 
--	*data = chip->txrx_buf[1];
-+	*data = chip->txrx_buf[0];
- 
- 	return 0;
- }
--- 
-2.5.2
+However this was also reported earlier by:
+Andrey Ryabinin <ryabinin.a.a@gmail.com>
+http://www.spinics.net/lists/arm-kernel/msg441707.html
+
+Could you give him the credits as well?
+
+Best regards,
+Krzysztof
 
 -- 
 -- 
