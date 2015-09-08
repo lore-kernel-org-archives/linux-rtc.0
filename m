@@ -1,19 +1,22 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBTMT6KXQKGQEVQNYDWQ@googlegroups.com>
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id ch7si7309wib.2.2015.09.18.15.01.49
-        for <rtc-linux@googlegroups.com>;
-        Fri, 18 Sep 2015 15:01:49 -0700 (PDT)
-Date: Sat, 19 Sep 2015 00:01:48 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Ivan Grimaldi <grimaldi.ivan@gmail.com>
-Cc: a.zummo@towertech.it, mpfj@mimc.co.uk, rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org
-Subject: Re: [rtc-linux] [PATCH v3 1/2] Fixed ds1390_get_reg returned value
-Message-ID: <20150918220148.GH4287@piout.net>
-References: <1442590077-29816-1-git-send-email-grimaldi.ivan@gmail.com>
+Return-Path: <rtc-linux+bncBDE6RCFOWIARBV6ZXOXQKGQEY6G53WY@googlegroups.com>
+Received: from mail-oi0-f48.google.com (mail-oi0-f48.google.com. [209.85.218.48])
+        by gmr-mx.google.com with ESMTPS id a11si257911igv.3.2015.09.08.07.12.37
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 08 Sep 2015 07:12:37 -0700 (PDT)
+Received: by mail-oi0-f48.google.com with SMTP id w128so59244283oiw.2
+        for <rtc-linux@googlegroups.com>; Tue, 08 Sep 2015 07:12:37 -0700 (PDT)
 MIME-Version: 1.0
+In-Reply-To: <1441305318-24773-1-git-send-email-festevam@gmail.com>
+References: <1441305318-24773-1-git-send-email-festevam@gmail.com>
+Date: Tue, 8 Sep 2015 16:12:36 +0200
+Message-ID: <CACRpkdbypR_LO9txaHqh24V1h0YDcm1BLpHicU9txJTpe6ORKg@mail.gmail.com>
+Subject: [rtc-linux] Re: [PATCH] rtc: ab8500: Add a sentinel to ab85xx_rtc_ids[]
+From: Linus Walleij <linus.walleij@linaro.org>
+To: Fabio Estevam <festevam@gmail.com>
+Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	"rtc-linux@googlegroups.com" <rtc-linux@googlegroups.com>, Fabio Estevam <fabio.estevam@freescale.com>
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1442590077-29816-1-git-send-email-grimaldi.ivan@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -24,54 +27,23 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Hi,
+On Thu, Sep 3, 2015 at 8:35 PM, Fabio Estevam <festevam@gmail.com> wrote:
 
-You've sent that series so many times that I'm not sure which one I
-should look at...
+> From: Fabio Estevam <fabio.estevam@freescale.com>
+>
+> Add a sentinel to ab85xx_rtc_ids[] in order to fix the following error:
+>
+> drivers/rtc/rtc-ab8500: struct platform_device_id is 24 bytes.  The last of 2 is:
+> 0x61 0x62 0x38 0x35 0x34 0x30 0x2d 0x72 0x74 0x63 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x8c
+> FATAL: drivers/rtc/rtc-ab8500: struct platform_device_id is not terminated with a NULL entry!
+>
+> Reported-by: Olof's autobuilder <build@lixom.net>
+> Signed-off-by: Fabio Estevam <fabio.estevam@freescale.com>
 
-Also, please include a changelog when submitting a new version of a
-patch.
+Acked-by: Linus Walleij <linus.walleij@linaro.org>
 
-On 18/09/2015 at 17:27:56 +0200, Ivan Grimaldi wrote :
-> spi_write_then_read puts in rx_buf the received data starting from
-> the first byte of the rx_buf
-> 
-> Signed-off-by: Ivan Grimaldi <grimaldi.ivan@gmail.com>
-> ---
->  drivers/rtc/rtc-ds1390.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/rtc/rtc-ds1390.c b/drivers/rtc/rtc-ds1390.c
-> index e67bfcb..a4303b4 100644
-> --- a/drivers/rtc/rtc-ds1390.c
-> +++ b/drivers/rtc/rtc-ds1390.c
-> @@ -62,7 +62,7 @@ static int ds1390_get_reg(struct device *dev, unsigned char address,
->  	if (status != 0)
->  		return status;
->  
-> -	*data = chip->txrx_buf[1];
-> +	*data = chip->txrx_buf[0];
->  
->  	return 0;
->  }
-> -- 
-> 2.5.2
-> 
-> -- 
-> -- 
-> You received this message because you are subscribed to "rtc-linux".
-> Membership options at http://groups.google.com/group/rtc-linux .
-> Please read http://groups.google.com/group/rtc-linux/web/checklist
-> before submitting a driver.
-> --- 
-> You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-> To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
-> For more options, visit https://groups.google.com/d/optout.
-
--- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+Yours,
+Linus Walleij
 
 -- 
 -- 
