@@ -1,19 +1,18 @@
-Return-Path: <rtc-linux+bncBDJ4N37Q6EERBAVXUOYAKGQE3G6L4BY@googlegroups.com>
-Received: from mga03.intel.com (mga03.intel.com. [134.134.136.65])
-        by gmr-mx.google.com with ESMTP id zg1si2063077pbb.2.2015.09.27.23.17.38
-        for <rtc-linux@googlegroups.com>;
-        Sun, 27 Sep 2015 23:17:38 -0700 (PDT)
-Date: Mon, 28 Sep 2015 14:16:33 +0800
-From: kbuild test robot <lkp@intel.com>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: kbuild-all@01.org, Alessandro Zummo <a.zummo@towertech.it>,
-	rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Subject: [rtc-linux] Re: [PATCH] rtc: Add a driver for Micro Crystal RV8803
-Message-ID: <201509281456.Hj7H13F6%fengguang.wu@intel.com>
+Return-Path: <rtc-linux+bncBAABBI5O4SXQKGQELCJDQZY@googlegroups.com>
+Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de. [2001:67c:670:201:290:27ff:fe1d:cc33])
+        by gmr-mx.google.com with ESMTPS id bn1si102340wib.0.2015.09.16.00.15.46
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=AES128-SHA256 bits=128/128);
+        Wed, 16 Sep 2015 00:15:46 -0700 (PDT)
+Date: Wed, 16 Sep 2015 09:15:45 +0200
+From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <u.kleine-koenig@pengutronix.de>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	rtc-linux@googlegroups.com
+Cc: Alessandro Zummo <a.zummo@towertech.it>
+Subject: [rtc-linux] rtctest woes
+Message-ID: <20150916071545.GA28635@pengutronix.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1443275679-21459-1-git-send-email-alexandre.belloni@free-electrons.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -24,30 +23,44 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Hi Alexandre,
+Hello,
 
-[auto build test results on v4.3-rc2 -- if it's inappropriate base, please ignore]
+I'm running rtctest (i.e. tools/testing/selftests/timers/rtctest.c)
+against a pcf2127 i2c rtc. The driver doesn't have alarm support.
 
+The first problem is that calling ioctl(fd, RTC_UIE_ON, 0) returns -1
+and sets errno to EINVAL but rtctest expects ENOTTY if update irqs are
+not supported. (I'll send a patch in reply to this mail.)
 
-coccinelle warnings: (new ones prefixed by >>)
+Then with this issue fixed the next failure is at ioctl(fd,
+RTC_ALM_READ, &rtc_tm) after ioctl(fd, RTC_ALM_SET, &rtc_tm) succeeded.
+If I understand the code correctly the RTC_ALM_SET is emulated using
+kernel timers but ALM_GET is not. I'd say the right fix here is that
+RTC_ALM_SET should already fail in this case, but as I'm not sure I
+didn't create a patch.
 
->> drivers/rtc/rtc-rv8803.c:494:3-8: No need to set .owner here. The core will do it.
---
->> drivers/rtc/rtc-rv8803.c:350:2-5: WARNING: end returns can be simpified if negative or 0 value
+BTW, asking scripts/get_maintainer.pl where to send a patch touching
+rtctest the reply includes the timekeeping and selftest maintainer
+entrys but not the rtc one. I suggest to move rtctest to
+tools/testing/selftests/rtc/rtctest.c.
 
-Please review and possibly fold the followup patch.
+Best regards
+Uwe
 
----
-0-DAY kernel test infrastructure                Open Source Technology Center
-https://lists.01.org/pipermail/kbuild-all                   Intel Corporation
+--=20
+Pengutronix e.K.                           | Uwe Kleine-K=C3=B6nig         =
+   |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
 
--- 
--- 
+--=20
+--=20
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+---=20
+You received this message because you are subscribed to the Google Groups "=
+rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an e=
+mail to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
