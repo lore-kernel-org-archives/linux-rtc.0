@@ -1,177 +1,41 @@
-Return-Path: <rtc-linux+bncBCZ7NMHQ3YLRB6OZ6CXQKGQE6Y52WQA@googlegroups.com>
+Return-Path: <ukl@pengutronix.de>
+From: =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	rtc-linux@googlegroups.com
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+	kernel@pengutronix.de
+Subject: [PATCH] rtc: rtctest: enabling UIE for a chip that doesn't support it returns EINVAL
+Date: Wed, 16 Sep 2015 09:16:51 +0200
+Message-Id: <1442387811-5384-1-git-send-email-u.kleine-koenig@pengutronix.de>
+In-Reply-To: <20150916071545.GA28635@pengutronix.de>
+References: <20150916071545.GA28635@pengutronix.de>
 MIME-Version: 1.0
-Received: from mail-wi0-x229.google.com (mail-wi0-x229.google.com. [2a00:1450:400c:c05::229])
-        by gmr-mx.google.com with ESMTPS id k7si157322wif.1.2015.09.18.08.25.45
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 18 Sep 2015 08:25:45 -0700 (PDT)
-Received: by mail-wi0-x229.google.com with SMTP id ge5so37592984wic.0
-        for <rtc-linux@googlegroups.com>; Fri, 18 Sep 2015 08:25:45 -0700 (PDT)
-From: Ivan Grimaldi <grimaldi.ivan@gmail.com>
-To: a.zummo@towertech.it,
-	mpfj@mimc.co.uk,
-	alexandre.belloni@free-electrons.com
-Cc: rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org
-Subject: [rtc-linux] [PATCH v3 2/2] Added trickle charger device tree binding
-Date: Fri, 18 Sep 2015 17:22:39 +0200
-Message-Id: <1442589759-29538-2-git-send-email-grimaldi.ivan@gmail.com>
-In-Reply-To: <1442589759-29538-1-git-send-email-grimaldi.ivan@gmail.com>
-References: <1442589759-29538-1-git-send-email-grimaldi.ivan@gmail.com>
-Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
-List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
-List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
-List-Archive: <http://groups.google.com/group/rtc-linux
-Sender: rtc-linux@googlegroups.com
-List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
-List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
- <http://groups.google.com/group/rtc-linux/subscribe>
 
-Introduce a device tree binding for specifying the trickle charger
-configuration for ds1339.
+Calling ioctl(..., RTC_UIE_ON, ...) without CONFIG_RTC_INTF_DEV_UIE_EMUL
+either ends in rtc_update_irq_enable if rtc->uie_unsupported is true
+or in __rtc_set_alarm in the if (!rtc->ops->set_alarm) branch. In both
+cases the return value is -EINVAL. So check for that one instead of
+ENOTTY.
 
-Signed-off-by: Ivan Grimaldi <grimaldi.ivan@gmail.com>
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 ---
- .../devicetree/bindings/rtc/dallas,ds1390.txt      | 18 +++++++
- drivers/rtc/rtc-ds1390.c                           | 62 ++++++++++++++++++++++
- 2 files changed, 80 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/rtc/dallas,ds1390.txt
+ tools/testing/selftests/timers/rtctest.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/Documentation/devicetree/bindings/rtc/dallas,ds1390.txt b/Documentation/devicetree/bindings/rtc/dallas,ds1390.txt
-new file mode 100644
-index 0000000..8e76f26
---- /dev/null
-+++ b/Documentation/devicetree/bindings/rtc/dallas,ds1390.txt
-@@ -0,0 +1,18 @@
-+* Dallas DS1390		SPI Serial Real-Time Clock
-+
-+Required properties:
-+- compatible: Should contain "dallas,ds1390".
-+- reg: SPI address for chip
-+
-+Optional properties:
-+- trickle-resistor-ohms : Selected resistor for trickle charger
-+	Values usable for ds1390 are 250, 2000, 4000
-+	Should be given if trickle charger should be enabled
-+- trickle-diode-disable : Do not use internal trickle charger diode
-+	Should be given if internal trickle charger diode should be disabled
-+Example:
-+	ds1390: rtc@68 {
-+		compatible = "dallas,ds1390";
-+		trickle-resistor-ohms = <250>;
-+		reg = <0>;
-+	};
-diff --git a/drivers/rtc/rtc-ds1390.c b/drivers/rtc/rtc-ds1390.c
-index a4303b4..8daebf4 100644
---- a/drivers/rtc/rtc-ds1390.c
-+++ b/drivers/rtc/rtc-ds1390.c
-@@ -20,6 +20,7 @@
- #include <linux/spi/spi.h>
- #include <linux/bcd.h>
- #include <linux/slab.h>
-+#include <linux/of.h>
- 
- #define DS1390_REG_100THS		0x00
- #define DS1390_REG_SECONDS		0x01
-@@ -40,11 +41,31 @@
- #define DS1390_REG_STATUS		0x0E
- #define DS1390_REG_TRICKLE		0x0F
- 
-+#define DS1390_TRICKLE_ENABLE_CHARGER   0xA0
-+#define DS1390_TRICKLE_CHARGER_250_OHM  0x01
-+#define DS1390_TRICKLE_CHARGER_2K_OHM   0x02
-+#define DS1390_TRICKLE_CHARGER_4K_OHM   0x03
-+#define DS1390_TRICKLE_CHARGER_NO_DIODE 0x04
-+#define DS1390_TRICKLE_CHARGER_DIODE    0x08
-+
- struct ds1390 {
- 	struct rtc_device *rtc;
- 	u8 txrx_buf[9];	/* cmd + 8 registers */
- };
- 
-+static void ds1390_set_reg(struct device *dev, unsigned char address,
-+		unsigned char data)
-+{
-+	struct spi_device *spi = to_spi_device(dev);
-+	unsigned char buf[2];
-+
-+	/* MSB must be '1' to write */
-+	buf[0] = address | 0x80;
-+	buf[1] = data;
-+
-+	spi_write(spi, buf, 2);
-+}
-+
- static int ds1390_get_reg(struct device *dev, unsigned char address,
- 				unsigned char *data)
- {
-@@ -67,6 +88,44 @@ static int ds1390_get_reg(struct device *dev, unsigned char address,
- 	return 0;
- }
- 
-+static void ds1390_trickle_of_init(struct spi_device *spi)
-+{
-+	uint32_t ohms = 0;
-+	uint8_t value;
-+
-+	if (of_property_read_u32(spi->dev.of_node, "trickle-resistor-ohms", &ohms))
-+		goto out;
-+
-+	/* Enable charger */
-+	value = DS1390_TRICKLE_ENABLE_CHARGER;
-+	if (of_property_read_bool(spi->dev.of_node, "trickle-diode-disable"))
-+		value |= DS1390_TRICKLE_CHARGER_NO_DIODE;
-+	else
-+		value |= DS1390_TRICKLE_CHARGER_DIODE;
-+
-+	/* Resistor select */
-+	switch (ohms) {
-+	case 250:
-+		value |= DS1390_TRICKLE_CHARGER_250_OHM;
-+		break;
-+	case 2000:
-+		value |= DS1390_TRICKLE_CHARGER_2K_OHM;
-+		break;
-+	case 4000:
-+		value |= DS1390_TRICKLE_CHARGER_4K_OHM;
-+		break;
-+	default:
-+		dev_warn(&spi->dev,
-+			 "Unsupported ohm value %02ux in dt\n", ohms);
-+		return;
-+	}
-+
-+	ds1390_set_reg(&spi->dev, DS1390_REG_TRICKLE, value);
-+
-+out:
-+	return;
-+}
-+
- static int ds1390_read_time(struct device *dev, struct rtc_time *dt)
- {
- 	struct spi_device *spi = to_spi_device(dev);
-@@ -143,6 +202,9 @@ static int ds1390_probe(struct spi_device *spi)
- 		return res;
- 	}
- 
-+	if (spi->dev.of_node)
-+		ds1390_trickle_of_init(spi);
-+
- 	chip->rtc = devm_rtc_device_register(&spi->dev, "ds1390",
- 					&ds1390_rtc_ops, THIS_MODULE);
- 	if (IS_ERR(chip->rtc)) {
+diff --git a/tools/testing/selftests/timers/rtctest.c b/tools/testing/selftests/timers/rtctest.c
+index d80ae852334d..624bce51b27d 100644
+--- a/tools/testing/selftests/timers/rtctest.c
++++ b/tools/testing/selftests/timers/rtctest.c
+@@ -61,7 +61,7 @@ int main(int argc, char **argv)
+ 	/* Turn on update interrupts (one per second) */
+ 	retval = ioctl(fd, RTC_UIE_ON, 0);
+ 	if (retval == -1) {
+-		if (errno == ENOTTY) {
++		if (errno == EINVAL) {
+ 			fprintf(stderr,
+ 				"\n...Update IRQs not supported.\n");
+ 			goto test_READ;
 -- 
-2.5.2
-
--- 
--- 
-You received this message because you are subscribed to "rtc-linux".
-Membership options at http://groups.google.com/group/rtc-linux .
-Please read http://groups.google.com/group/rtc-linux/web/checklist
-before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
-For more options, visit https://groups.google.com/d/optout.
+2.5.0
