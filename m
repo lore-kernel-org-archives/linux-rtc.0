@@ -1,23 +1,23 @@
-Return-Path: <rtc-linux+bncBC7LNKXBRUKBBQHL5KXQKGQECE47GRY@googlegroups.com>
-Received: from regular1.263xmail.com (regular1.263xmail.com. [211.150.99.132])
-        by gmr-mx.google.com with ESMTPS id w5si397262pbt.1.2015.09.17.05.44.48
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1 cipher=RC4-SHA bits=128/128);
-        Thu, 17 Sep 2015 05:44:48 -0700 (PDT)
-Message-ID: <55FAB5B6.3010605@rock-chips.com>
-Date: Thu, 17 Sep 2015 20:44:38 +0800
-From: Xing Zheng <zhengxing@rock-chips.com>
+Return-Path: <rtc-linux+bncBCZ7NMHQ3YLRBAWZ6CXQKGQEL4U2SDI@googlegroups.com>
 MIME-Version: 1.0
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-CC: =?UTF-8?B?SGVpa28gU3TDvGJuZXI=?= <heiko@sntech.de>,
- a.zummo@towertech.it, rtc-linux@googlegroups.com,
- linux-kernel@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH v2 9/9] rtc: hym8563: make sure hym8563 can be
- normal work
-References: <1442478540-15068-1-git-send-email-zhengxing@rock-chips.com> <1442486368-1912-1-git-send-email-zhengxing@rock-chips.com> <3439697.Ymf0XB1EzX@diego> <20150917123138.GG4287@piout.net>
-In-Reply-To: <20150917123138.GG4287@piout.net>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Received: from mail-wi0-x233.google.com (mail-wi0-x233.google.com. [2a00:1450:400c:c05::233])
+        by gmr-mx.google.com with ESMTPS id et8si241880wib.2.2015.09.18.08.23.46
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Fri, 18 Sep 2015 08:23:46 -0700 (PDT)
+Received: by mail-wi0-x233.google.com with SMTP id fx3so68750083wic.1
+        for <rtc-linux@googlegroups.com>; Fri, 18 Sep 2015 08:23:46 -0700 (PDT)
+From: Ivan Grimaldi <grimaldi.ivan@gmail.com>
+To: a.zummo@towertech.it,
+	mpfj@mimc.co.uk,
+	alexandre.belloni@free-electrons.com
+Cc: rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org
+Subject: [rtc-linux] [PATCH v3 1/2] Fixed ds1390_get_reg returned value
+Date: Fri, 18 Sep 2015 17:20:39 +0200
+Message-Id: <1442589640-29347-1-git-send-email-grimaldi.ivan@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -27,50 +27,37 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On 2015=E5=B9=B409=E6=9C=8817=E6=97=A5 20:31, Alexandre Belloni wrote:
-> Hi,
->
-> On 17/09/2015 at 14:07:47 +0200, Heiko St=C3=BCbner wrote :
->> Am Donnerstag, 17. September 2015, 18:39:28 schrieb Xing Zheng:
->>> The rtc hym8563 maybe failed to register if first startup or rtc
->>> powerdown:
->>> [    0.988540 ] rtc-hym8563 1-0051: no valid clock/calendar values avai=
-lable
->>> [    0.995642 ] rtc-hym8563 1-0051: rtc core: registered hym8563 as rtc=
-0 [
->>>    1.078985 ] rtc-hym8563 1-0051: no valid clock/calendar values availa=
-ble [
->>>     1.085698 ] rtc-hym8563 1-0051: hctosys: unable to read the hardware
->>> clock
->>>
->>> We can set initial time for rtc and register it:
->>> [    0.995678 ] rtc-hym8563 1-0051: rtc core: registered hym8563 as rtc=
-0
->>> [    1.080313 ] rtc-hym8563 1-0051: setting system clock to 2000-01-01
->>> 00:02:00 UTC (946684920)
->> hmm, not setting a false date was actually intentional when I did the dr=
-iver.
->>
->> In my mind it is better to shout and keep programs from using wrong valu=
-es
->> than to set some arbitary date and let programs silently use this wrong =
-value.
->>
-> Indeed, I find it worse to set a wrong value instead of returning an
-> error. Userspace has to define its policy when reading the time fails.
->
-OK, I got it, this patch will be abandoned at next version.
-Thanks.
+spi_write_then_read puts in rx_buf the received data starting from
+the first byte of the rx_buf
 
---=20
---=20
+Signed-off-by: Ivan Grimaldi <grimaldi.ivan@gmail.com>
+---
+ drivers/rtc/rtc-ds1390.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/rtc/rtc-ds1390.c b/drivers/rtc/rtc-ds1390.c
+index e67bfcb..a4303b4 100644
+--- a/drivers/rtc/rtc-ds1390.c
++++ b/drivers/rtc/rtc-ds1390.c
+@@ -62,7 +62,7 @@ static int ds1390_get_reg(struct device *dev, unsigned char address,
+ 	if (status != 0)
+ 		return status;
+ 
+-	*data = chip->txrx_buf[1];
++	*data = chip->txrx_buf[0];
+ 
+ 	return 0;
+ }
+-- 
+2.5.2
+
+-- 
+-- 
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
----=20
-You received this message because you are subscribed to the Google Groups "=
-rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an e=
-mail to rtc-linux+unsubscribe@googlegroups.com.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
