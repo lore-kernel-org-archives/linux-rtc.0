@@ -1,38 +1,22 @@
-Return-Path: <rtc-linux+bncBDP6N55ZUYDRBJGJVSYAKGQEMU6CGGY@googlegroups.com>
-Received: from mail-pa0-x22c.google.com (mail-pa0-x22c.google.com. [2607:f8b0:400e:c03::22c])
-        by gmr-mx.google.com with ESMTPS id zg1si3573244pbb.2.2015.09.29.16.54.11
+Return-Path: <rtc-linux+bncBCZ7NMHQ3YLRBANP6KXQKGQE4JLAEJA@googlegroups.com>
+Received: from mail-wi0-x22b.google.com (mail-wi0-x22b.google.com. [2a00:1450:400c:c05::22b])
+        by gmr-mx.google.com with ESMTPS id ch7si13016wib.2.2015.09.18.16.00.17
         for <rtc-linux@googlegroups.com>
         (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 29 Sep 2015 16:54:11 -0700 (PDT)
-Received: by padhy16 with SMTP id hy16so19931272pad.1
-        for <rtc-linux@googlegroups.com>; Tue, 29 Sep 2015 16:54:11 -0700 (PDT)
-Date: Tue, 29 Sep 2015 16:54:08 -0700
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: "Opensource [Steve Twiss]" <stwiss.opensource@diasemi.com>
-Cc: Lee Jones <lee.jones@linaro.org>,
-	DEVICETREE <devicetree@vger.kernel.org>,
-	Ian Campbell <ijc+devicetree@hellion.org.uk>,
-	Kumar Gala <galak@codeaurora.org>,
-	LINUXINPUT <linux-input@vger.kernel.org>,
-	LINUXKERNEL <linux-kernel@vger.kernel.org>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Pawel Moll <pawel.moll@arm.com>,
-	RTCLINUX <rtc-linux@googlegroups.com>,
-	Rob Herring <robh+dt@kernel.org>,
-	David Dajun Chen <david.chen@diasemi.com>,
-	Samuel Ortiz <sameo@linux.intel.com>,
-	Support Opensource <Support.Opensource@diasemi.com>
-Subject: [rtc-linux] Re: [PATCH V3 3/3] devicetree: da9062: Add device tree
- bindings for DA9062 OnKey
-Message-ID: <20150929235408.GC29469@dtor-ws>
-References: <cover.1437668261.git.stwiss.opensource@diasemi.com>
- <6bfae9b4f5475b59bddc4b71091121f1c0697a2d.1437668261.git.stwiss.opensource@diasemi.com>
- <20150727224300.GG3613@dtor-ws>
- <20150728054024.GA4558@dtor-ws>
- <6ED8E3B22081A4459DAC7699F3695FB70173D121FD@SW-EX-MBX02.diasemi.com>
+        Fri, 18 Sep 2015 16:00:17 -0700 (PDT)
+Received: by mail-wi0-x22b.google.com with SMTP id gb1so49780198wic.1
+        for <rtc-linux@googlegroups.com>; Fri, 18 Sep 2015 16:00:17 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <6ED8E3B22081A4459DAC7699F3695FB70173D121FD@SW-EX-MBX02.diasemi.com>
+In-Reply-To: <20150918220148.GH4287@piout.net>
+References: <1442590077-29816-1-git-send-email-grimaldi.ivan@gmail.com> <20150918220148.GH4287@piout.net>
+From: Ivan Grimaldi <grimaldi.ivan@gmail.com>
+Date: Sat, 19 Sep 2015 00:59:57 +0200
+Message-ID: <CAO1575Xr1DUfkTtd8_DBQb5crH29q9cTrDYZQ2ohpLrfLDs65g@mail.gmail.com>
+Subject: Re: [rtc-linux] [PATCH v3 1/2] Fixed ds1390_get_reg returned value
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: a.zummo@towertech.it, mpfj@mimc.co.uk, rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org
+Content-Type: multipart/alternative; boundary=f46d043bdb0ec5834105200d7ee9
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -43,54 +27,74 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On Mon, Sep 28, 2015 at 08:19:27AM +0000, Opensource [Steve Twiss] wrote:
-> 
-> > Subject: Re: [PATCH V3 3/3] devicetree: da9062: Add device tree bindings for DA9062 OnKey
-> > 
-> > On Mon, Jul 27, 2015 at 03:43:00PM -0700, Dmitry Torokhov wrote:
-> > > On Thu, Jul 23, 2015 at 05:17:41PM +0100, S Twiss wrote:
-> > > > From: S Twiss <stwiss.opensource@diasemi.com>
-> > > >
-> > > > Add device tree bindings for the DA9062 OnKey driver component
-> > > >
-> > > > Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
-> > > >
-> > > > ---
-> > > > Changes in V3:
-> > > >  - Child driver specifics separated out into separate document
-> > > >    in this case ../input/da9062-onkey.txt
-> > > > Changes in V2:
-> > > >  - No change
-> > > >
-> > > > This patch applies against linux-next and next-20150708
-> > > >
-> > > >
-> > > >  .../devicetree/bindings/input/da9062-onkey.txt     | 36
-> > ++++++++++++++++++++++
-> > > >  Documentation/devicetree/bindings/mfd/da9062.txt   |  3 ++
-> > >
-> > > I dropped bits for mfd/da9062.txt, changed to mention both 9062 and
-> > > 9063, folded into the onkey patch and applied.
-> > 
-> > Argh, da9062 core is not in mainline yet... OK, below is the patch I
-> > had; if Lee does not pick it up I'll re-apply it when da9062 core hits
-> > mainline.
-> > 
-> 
-> Hi Lee and Dmitry,
-> 
-> This patch seems to have been missed. It is the main OnKey driver for DA9062 and this
-> component was waiting for the DA9062 MFD core to make it into linux-mainline/v4.3-rc1.
-> 
-> Is there any reply on this yet please? There just seems to be a little patch administration
-> problem holding things up.
+--f46d043bdb0ec5834105200d7ee9
+Content-Type: text/plain; charset=UTF-8
 
-I queued it for 4.4.
+I'm sorry, but I had trouble with my client behind the corporate proxy.
 
-Thanks.
+The correct version of the patches are version 3; if you have problems with
+them, I can resend to you (I promise this time I will send it only once
+:-)).
 
--- 
-Dmitry
+Next time I add also the changelog.
+
+Ivan
+
+2015-09-19 0:01 GMT+02:00 Alexandre Belloni <
+alexandre.belloni@free-electrons.com>:
+
+> Hi,
+>
+> You've sent that series so many times that I'm not sure which one I
+> should look at...
+>
+> Also, please include a changelog when submitting a new version of a
+> patch.
+>
+> On 18/09/2015 at 17:27:56 +0200, Ivan Grimaldi wrote :
+> > spi_write_then_read puts in rx_buf the received data starting from
+> > the first byte of the rx_buf
+> >
+> > Signed-off-by: Ivan Grimaldi <grimaldi.ivan@gmail.com>
+> > ---
+> >  drivers/rtc/rtc-ds1390.c | 2 +-
+> >  1 file changed, 1 insertion(+), 1 deletion(-)
+> >
+> > diff --git a/drivers/rtc/rtc-ds1390.c b/drivers/rtc/rtc-ds1390.c
+> > index e67bfcb..a4303b4 100644
+> > --- a/drivers/rtc/rtc-ds1390.c
+> > +++ b/drivers/rtc/rtc-ds1390.c
+> > @@ -62,7 +62,7 @@ static int ds1390_get_reg(struct device *dev, unsigned
+> char address,
+> >       if (status != 0)
+> >               return status;
+> >
+> > -     *data = chip->txrx_buf[1];
+> > +     *data = chip->txrx_buf[0];
+> >
+> >       return 0;
+> >  }
+> > --
+> > 2.5.2
+> >
+> > --
+> > --
+> > You received this message because you are subscribed to "rtc-linux".
+> > Membership options at http://groups.google.com/group/rtc-linux .
+> > Please read http://groups.google.com/group/rtc-linux/web/checklist
+> > before submitting a driver.
+> > ---
+> > You received this message because you are subscribed to the Google
+> Groups "rtc-linux" group.
+> > To unsubscribe from this group and stop receiving emails from it, send
+> an email to rtc-linux+unsubscribe@googlegroups.com.
+> > For more options, visit https://groups.google.com/d/optout.
+>
+> --
+> Alexandre Belloni, Free Electrons
+> Embedded Linux, Kernel and Android engineering
+> http://free-electrons.com
+>
 
 -- 
 -- 
@@ -102,3 +106,104 @@ before submitting a driver.
 You received this message because you are subscribed to the Google Groups "rtc-linux" group.
 To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
+
+--f46d043bdb0ec5834105200d7ee9
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"ltr"><div><div>I&#39;m sorry, but I had trouble with my client =
+behind the corporate proxy.</div><div><br></div><div>The correct version of=
+ the patches are version 3; if you have problems with them, I can resend to=
+ you (I promise this time I will send it only once :-)).</div><div><br></di=
+v><div>Next time I add also the changelog.</div><div><br></div><div>Ivan</d=
+iv></div><div class=3D"gmail_extra"><br><div class=3D"gmail_quote">2015-09-=
+19 0:01 GMT+02:00 Alexandre Belloni <span dir=3D"ltr">&lt;<a href=3D"mailto=
+:alexandre.belloni@free-electrons.com" target=3D"_blank">alexandre.belloni@=
+free-electrons.com</a>&gt;</span>:<br><blockquote class=3D"gmail_quote" sty=
+le=3D"margin:0px 0px 0px 0.8ex;border-left-width:1px;border-left-color:rgb(=
+204,204,204);border-left-style:solid;padding-left:1ex">Hi,<br>
+<br>
+You&#39;ve sent that series so many times that I&#39;m not sure which one I=
+<br>
+should look at...<br>
+<br>
+Also, please include a changelog when submitting a new version of a<br>
+patch.<br>
+<div><div><br>
+On 18/09/2015 at 17:27:56 +0200, Ivan Grimaldi wrote :<br>
+&gt; spi_write_then_read puts in rx_buf the received data starting from<br>
+&gt; the first byte of the rx_buf<br>
+&gt;<br>
+&gt; Signed-off-by: Ivan Grimaldi &lt;<a href=3D"mailto:grimaldi.ivan@gmail=
+.com" target=3D"_blank">grimaldi.ivan@gmail.com</a>&gt;<br>
+&gt; ---<br>
+&gt;=C2=A0 drivers/rtc/rtc-ds1390.c | 2 +-<br>
+&gt;=C2=A0 1 file changed, 1 insertion(+), 1 deletion(-)<br>
+&gt;<br>
+&gt; diff --git a/drivers/rtc/rtc-ds1390.c b/drivers/rtc/rtc-ds1390.c<br>
+&gt; index e67bfcb..a4303b4 100644<br>
+&gt; --- a/drivers/rtc/rtc-ds1390.c<br>
+&gt; +++ b/drivers/rtc/rtc-ds1390.c<br>
+&gt; @@ -62,7 +62,7 @@ static int ds1390_get_reg(struct device *dev, unsign=
+ed char address,<br>
+&gt;=C2=A0 =C2=A0 =C2=A0 =C2=A0if (status !=3D 0)<br>
+&gt;=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0return status;<b=
+r>
+&gt;<br>
+&gt; -=C2=A0 =C2=A0 =C2=A0*data =3D chip-&gt;txrx_buf[1];<br>
+&gt; +=C2=A0 =C2=A0 =C2=A0*data =3D chip-&gt;txrx_buf[0];<br>
+&gt;<br>
+&gt;=C2=A0 =C2=A0 =C2=A0 =C2=A0return 0;<br>
+&gt;=C2=A0 }<br>
+&gt; --<br>
+&gt; 2.5.2<br>
+&gt;<br>
+</div></div>&gt; --<br>
+<span><font color=3D"#888888">&gt; --<br>
+&gt; You received this message because you are subscribed to &quot;rtc-linu=
+x&quot;.<br>
+&gt; Membership options at <a href=3D"http://groups.google.com/group/rtc-li=
+nux" rel=3D"noreferrer" target=3D"_blank">http://groups.google.com/group/rt=
+c-linux</a> .<br>
+&gt; Please read <a href=3D"http://groups.google.com/group/rtc-linux/web/ch=
+ecklist" rel=3D"noreferrer" target=3D"_blank">http://groups.google.com/grou=
+p/rtc-linux/web/checklist</a><br>
+&gt; before submitting a driver.<br>
+&gt; ---<br>
+&gt; You received this message because you are subscribed to the Google Gro=
+ups &quot;rtc-linux&quot; group.<br>
+&gt; To unsubscribe from this group and stop receiving emails from it, send=
+ an email to <a href=3D"mailto:rtc-linux%2Bunsubscribe@googlegroups.com" ta=
+rget=3D"_blank">rtc-linux+unsubscribe@googlegroups.com</a>.<br>
+&gt; For more options, visit <a href=3D"https://groups.google.com/d/optout"=
+ rel=3D"noreferrer" target=3D"_blank">https://groups.google.com/d/optout</a=
+>.<br>
+<br>
+--<br>
+Alexandre Belloni, Free Electrons<br>
+Embedded Linux, Kernel and Android engineering<br>
+<a href=3D"http://free-electrons.com" rel=3D"noreferrer" target=3D"_blank">=
+http://free-electrons.com</a><br>
+</font></span></blockquote></div><br></div></div>
+
+<p></p>
+
+-- <br />
+-- <br />
+You received this message because you are subscribed to &quot;rtc-linux&quo=
+t;.<br />
+Membership options at <a href=3D"http://groups.google.com/group/rtc-linux">=
+http://groups.google.com/group/rtc-linux</a> .<br />
+Please read <a href=3D"http://groups.google.com/group/rtc-linux/web/checkli=
+st">http://groups.google.com/group/rtc-linux/web/checklist</a><br />
+before submitting a driver.<br />
+--- <br />
+You received this message because you are subscribed to the Google Groups &=
+quot;rtc-linux&quot; group.<br />
+To unsubscribe from this group and stop receiving emails from it, send an e=
+mail to <a href=3D"mailto:rtc-linux+unsubscribe@googlegroups.com">rtc-linux=
++unsubscribe@googlegroups.com</a>.<br />
+For more options, visit <a href=3D"https://groups.google.com/d/optout">http=
+s://groups.google.com/d/optout</a>.<br />
+
+--f46d043bdb0ec5834105200d7ee9--
