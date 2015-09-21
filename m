@@ -1,22 +1,25 @@
-Return-Path: <rtc-linux+bncBCZN3WFA24DRBOG2TKXQKGQESHKTZZQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBD7ZDTFR7QFRBNONQCYAKGQEB4YV55Q@googlegroups.com>
 MIME-Version: 1.0
-Received: from mail-wi0-x235.google.com (mail-wi0-x235.google.com. [2a00:1450:400c:c05::235])
-        by gmr-mx.google.com with ESMTPS id r1si103421wiz.1.2015.09.02.01.03.03
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 02 Sep 2015 01:03:03 -0700 (PDT)
-Received: by mail-wi0-x235.google.com with SMTP id z8so55747480wib.1
-        for <rtc-linux@googlegroups.com>; Wed, 02 Sep 2015 01:03:03 -0700 (PDT)
-From: Mitja Spes <mitja@lxnav.com>
-To: Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Philippe De Muyter <phdm@macqel.be>,
-	rtc-linux@googlegroups.com,
+Received: from foss.arm.com (foss.arm.com. [217.140.101.70])
+        by gmr-mx.google.com with ESMTP id fk4si3112869pbc.2.2015.09.21.08.48.04
+        for <rtc-linux@googlegroups.com>;
+        Mon, 21 Sep 2015 08:48:04 -0700 (PDT)
+From: Sudeep Holla <sudeep.holla@arm.com>
+To: linux-pm@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Cc: Mitja Spes <mitja@lxnav.com>
-Subject: [rtc-linux] [PATCH] rtc: Abracon ABX8XX write RTC fix
-Date: Wed,  2 Sep 2015 10:02:29 +0200
-Message-Id: <eb60f012f707d580f3c57f2f16e4c7aba9a4cc23.1441179975.git.mitja@lxnav.com>
+Cc: Sudeep Holla <sudeep.holla@arm.com>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	"Rafael J. Wysocki" <rjw@rjwysocki.net>,
+	Linus Walleij <linus.walleij@linaro.org>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	rtc-linux@googlegroups.com
+Subject: [rtc-linux] [PATCH 01/17] rtc: pl031: remove misuse of
+ IRQF_NO_SUSPEND flag
+Date: Mon, 21 Sep 2015 16:46:57 +0100
+Message-Id: <1442850433-5903-2-git-send-email-sudeep.holla@arm.com>
+In-Reply-To: <1442850433-5903-1-git-send-email-sudeep.holla@arm.com>
+References: <1442850433-5903-1-git-send-email-sudeep.holla@arm.com>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -28,26 +31,91 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Fixed RTC write bit as per application manual
+The IRQF_NO_SUSPEND flag is used to identify the interrupts that should
+be left enabled so as to allow them to work as expected during the
+suspend-resume cycle, but doesn't guarantee that it will wake the system
+from a suspended state, enable_irq_wake is recommended to be used for
+the wakeup.
 
-Signed-off-by: Mitja Spes <mitja@lxnav.com>
+This patch removes the use of IRQF_NO_SUSPEND flags and uses newly
+introduce PM wakeup APIs dev_pm_{set,clear}_wake_irq.
+
+Cc: Linus Walleij <linus.walleij@linaro.org>
+Cc: Alessandro Zummo <a.zummo@towertech.it>
+Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: rtc-linux@googlegroups.com
+Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
 ---
- drivers/rtc/rtc-abx80x.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/rtc/rtc-pl031.c | 13 ++++++++-----
+ 1 file changed, 8 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/rtc/rtc-abx80x.c b/drivers/rtc/rtc-abx80x.c
-index 4337c3b..afea84c 100644
---- a/drivers/rtc/rtc-abx80x.c
-+++ b/drivers/rtc/rtc-abx80x.c
-@@ -28,7 +28,7 @@
- #define ABX8XX_REG_WD		0x07
+diff --git a/drivers/rtc/rtc-pl031.c b/drivers/rtc/rtc-pl031.c
+index 41dcb7ddb906..e1687e19c59f 100644
+--- a/drivers/rtc/rtc-pl031.c
++++ b/drivers/rtc/rtc-pl031.c
+@@ -23,6 +23,7 @@
+ #include <linux/io.h>
+ #include <linux/bcd.h>
+ #include <linux/delay.h>
++#include <linux/pm_wakeirq.h>
+ #include <linux/slab.h>
  
- #define ABX8XX_REG_CTRL1	0x10
--#define ABX8XX_CTRL_WRITE	BIT(1)
-+#define ABX8XX_CTRL_WRITE	BIT(0)
- #define ABX8XX_CTRL_12_24	BIT(6)
+ /*
+@@ -305,6 +306,8 @@ static int pl031_remove(struct amba_device *adev)
+ {
+ 	struct pl031_local *ldata = dev_get_drvdata(&adev->dev);
  
- #define ABX8XX_REG_CFG_KEY	0x1f
++	dev_pm_clear_wake_irq(&adev->dev);
++	device_init_wakeup(&adev->dev, false);
+ 	free_irq(adev->irq[0], ldata);
+ 	rtc_device_unregister(ldata->rtc);
+ 	iounmap(ldata->base);
+@@ -370,7 +373,7 @@ static int pl031_probe(struct amba_device *adev, const struct amba_id *id)
+ 		}
+ 	}
+ 
+-	device_init_wakeup(&adev->dev, 1);
++	device_init_wakeup(&adev->dev, true);
+ 	ldata->rtc = rtc_device_register("pl031", &adev->dev, ops,
+ 					THIS_MODULE);
+ 	if (IS_ERR(ldata->rtc)) {
+@@ -383,7 +386,7 @@ static int pl031_probe(struct amba_device *adev, const struct amba_id *id)
+ 		ret = -EIO;
+ 		goto out_no_irq;
+ 	}
+-
++	dev_pm_set_wake_irq(&adev->dev, adev->irq[0]);
+ 	return 0;
+ 
+ out_no_irq:
+@@ -408,7 +411,6 @@ static struct pl031_vendor_data arm_pl031 = {
+ 		.set_alarm = pl031_set_alarm,
+ 		.alarm_irq_enable = pl031_alarm_irq_enable,
+ 	},
+-	.irqflags = IRQF_NO_SUSPEND,
+ };
+ 
+ /* The First ST derivative */
+@@ -422,7 +424,6 @@ static struct pl031_vendor_data stv1_pl031 = {
+ 	},
+ 	.clockwatch = true,
+ 	.st_weekday = true,
+-	.irqflags = IRQF_NO_SUSPEND,
+ };
+ 
+ /* And the second ST derivative */
+@@ -439,8 +440,10 @@ static struct pl031_vendor_data stv2_pl031 = {
+ 	/*
+ 	 * This variant shares the IRQ with another block and must not
+ 	 * suspend that IRQ line.
++	 * TODO check if it shares with IRQF_NO_SUSPEND user, else we can
++	 * remove IRQF_COND_SUSPEND
+ 	 */
+-	.irqflags = IRQF_SHARED | IRQF_NO_SUSPEND,
++	.irqflags = IRQF_SHARED | IRQF_COND_SUSPEND,
+ };
+ 
+ static struct amba_id pl031_ids[] = {
 -- 
 1.9.1
 
