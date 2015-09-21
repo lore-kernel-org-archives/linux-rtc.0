@@ -1,21 +1,30 @@
-Return-Path: <rtc-linux+bncBDHPTCWTXEHRBGW25KXQKGQEFPI2CAI@googlegroups.com>
-Received: from gloria.sntech.de (gloria.sntech.de. [95.129.55.99])
-        by gmr-mx.google.com with ESMTPS id fg9si13805wib.0.2015.09.17.05.07.54
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=RC4-SHA bits=128/128);
-        Thu, 17 Sep 2015 05:07:54 -0700 (PDT)
-From: Heiko =?ISO-8859-1?Q?St=FCbner?= <heiko@sntech.de>
-To: Xing Zheng <zhengxing@rock-chips.com>
-Cc: a.zummo@towertech.it, alexandre.belloni@free-electrons.com, rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH v2 9/9] rtc: hym8563: make sure hym8563 can be
- normal work
-Date: Thu, 17 Sep 2015 14:07:47 +0200
-Message-ID: <3439697.Ymf0XB1EzX@diego>
-In-Reply-To: <1442486368-1912-1-git-send-email-zhengxing@rock-chips.com>
-References: <1442478540-15068-1-git-send-email-zhengxing@rock-chips.com> <1442486368-1912-1-git-send-email-zhengxing@rock-chips.com>
+Return-Path: <rtc-linux+bncBAABBWEPQCYAKGQEPVGQIAQ@googlegroups.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Received: from mailout4.w1.samsung.com (mailout4.w1.samsung.com. [210.118.77.14])
+        by gmr-mx.google.com with ESMTPS id w5si3187418pbt.1.2015.09.21.06.36.23
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1 cipher=RC4-SHA bits=128/128);
+        Mon, 21 Sep 2015 06:36:24 -0700 (PDT)
+Received: from eucpsbgm2.samsung.com (unknown [203.254.199.245])
+ by mailout4.w1.samsung.com
+ (Oracle Communications Messaging Server 7.0.5.31.0 64bit (built May  5 2014))
+ with ESMTP id <0NV100MUG4GJDS30@mailout4.w1.samsung.com> for
+ rtc-linux@googlegroups.com; Mon, 21 Sep 2015 14:36:19 +0100 (BST)
+From: Andrzej Hajda <a.hajda@samsung.com>
+To: linux-kernel@vger.kernel.org
+Cc: Andrzej Hajda <a.hajda@samsung.com>,
+ Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
+ Marek Szyprowski <m.szyprowski@samsung.com>,
+ Alessandro Zummo <a.zummo@towertech.it>,
+ Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+ rtc-linux@googlegroups.com
+Subject: [rtc-linux] [PATCH 24/38] rtc: opal: fix type of token
+Date: Mon, 21 Sep 2015 15:33:56 +0200
+Message-id: <1442842450-29769-25-git-send-email-a.hajda@samsung.com>
+In-reply-to: <1442842450-29769-1-git-send-email-a.hajda@samsung.com>
+References: <1442842450-29769-1-git-send-email-a.hajda@samsung.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -25,171 +34,37 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Am Donnerstag, 17. September 2015, 18:39:28 schrieb Xing Zheng:
-> The rtc hym8563 maybe failed to register if first startup or rtc
-> powerdown:
-> [    0.988540 ] rtc-hym8563 1-0051: no valid clock/calendar values available
-> [    0.995642 ] rtc-hym8563 1-0051: rtc core: registered hym8563 as rtc0 [ 
->   1.078985 ] rtc-hym8563 1-0051: no valid clock/calendar values available [
->    1.085698 ] rtc-hym8563 1-0051: hctosys: unable to read the hardware
-> clock
-> 
-> We can set initial time for rtc and register it:
-> [    0.995678 ] rtc-hym8563 1-0051: rtc core: registered hym8563 as rtc0
-> [    1.080313 ] rtc-hym8563 1-0051: setting system clock to 2000-01-01
-> 00:02:00 UTC (946684920)
+The variable can take signed values.
 
-hmm, not setting a false date was actually intentional when I did the driver.
+The problem has been detected using proposed semantic patch
+scripts/coccinelle/tests/unsigned_lesser_than_zero.cocci [1].
 
-In my mind it is better to shout and keep programs from using wrong values 
-than to set some arbitary date and let programs silently use this wrong value.
+[1]: http://permalink.gmane.org/gmane.linux.kernel/2038576
 
+Signed-off-by: Andrzej Hajda <a.hajda@samsung.com>
+---
+ drivers/rtc/rtc-opal.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-But I guess we'll let the rtc maintainers decide what is actually the better 
-approach.
-
-
-Heiko
-
-> 
-> ---
-> 
-> Changes in v2:
-> Signed-off-by: Xing Zheng <zhengxing@rock-chips.com>
-> 
->  drivers/rtc/rtc-hym8563.c |   93
-> +++++++++++++++++++++++++++++++++++++++++++++ 1 file changed, 93
-> insertions(+)
-> 
-> diff --git a/drivers/rtc/rtc-hym8563.c b/drivers/rtc/rtc-hym8563.c
-> index 097325d..ea37fdf 100644
-> --- a/drivers/rtc/rtc-hym8563.c
-> +++ b/drivers/rtc/rtc-hym8563.c
-> @@ -83,6 +83,8 @@
-> 
->  #define HYM8563_TMR_CNT		0x0f
-> 
-> +#define HYM8563_RTC_SECTION_LEN	0x07
-> +
->  struct hym8563 {
->  	struct i2c_client	*client;
->  	struct rtc_device	*rtc;
-> @@ -527,9 +529,77 @@ static int hym8563_resume(struct device *dev)
-> 
->  static SIMPLE_DEV_PM_OPS(hym8563_pm_ops, hym8563_suspend, hym8563_resume);
-> 
-> +static int hym8563_set_time(struct i2c_client *client, struct rtc_time *tm)
-> +{
-> +	u8 regs[HYM8563_RTC_SECTION_LEN] = {0};
-> +	u8 mon_day;
-> +	int ret = 0;
-> +
-> +	dev_dbg(&client->dev, "%s -- %4d-%02d-%02d(%d) %02d:%02d:%02d\n",
-> __func__, +		1900 + tm->tm_year, tm->tm_mon + 1, tm->tm_mday, tm-
->tm_wday,
-> +		tm->tm_hour, tm->tm_min, tm->tm_sec);
-> +
-> +	mon_day = rtc_month_days((tm->tm_mon), tm->tm_year + 1900);
-> +
-> +	if (tm->tm_sec >= 60 || tm->tm_sec < 0)
-> +		regs[0x00] = bin2bcd(0x00);
-> +	else
-> +		regs[0x00] = bin2bcd(tm->tm_sec);
-> +
-> +	if (tm->tm_min >= 60 || tm->tm_min < 0)
-> +		regs[0x01] = bin2bcd(0x00);
-> +	else
-> +		regs[0x01] = bin2bcd(tm->tm_min);
-> +
-> +	if (tm->tm_hour >= 24 || tm->tm_hour < 0)
-> +		regs[0x02] = bin2bcd(0x00);
-> +	else
-> +		regs[0x02] = bin2bcd(tm->tm_hour);
-> +
-> +	if ((tm->tm_mday) > mon_day)
-> +		regs[0x03] = bin2bcd(mon_day);
-> +	else if ((tm->tm_mday) > 0)
-> +		regs[0x03] = bin2bcd(tm->tm_mday);
-> +	else if ((tm->tm_mday) <= 0)
-> +		regs[0x03] = bin2bcd(0x01);
-> +
-> +	if (tm->tm_year >= 200)
-> +		regs[0x06] = bin2bcd(99);
-> +	else if (tm->tm_year >= 100)
-> +		regs[0x06] = bin2bcd(tm->tm_year - 100);
-> +	else if (tm->tm_year >= 0) {
-> +		regs[0x06] = bin2bcd(tm->tm_year);
-> +		regs[0x05] |= 0x80;
-> +	} else {
-> +		regs[0x06] = bin2bcd(0);
-> +		regs[0x05] |= 0x80;
-> +	}
-> +
-> +	regs[0x04] = bin2bcd(tm->tm_wday);
-> +	regs[0x05] = (regs[0x05] & 0x80) | (bin2bcd(tm->tm_mon + 1) & 0x7F);
-> +
-> +	ret = i2c_smbus_write_byte_data(client, HYM8563_SEC, *regs);
-> +	if (ret < 0) {
-> +		dev_err(&client->dev, "%s: error writing i2c data %d\n",
-> +			__func__, ret);
-> +		return ret;
-> +	}
-> +
-> +	return 0;
-> +}
-> +
->  static int hym8563_probe(struct i2c_client *client,
->  			 const struct i2c_device_id *id)
->  {
-> +	struct rtc_time tm_read, tm = {
-> +		.tm_sec = 0,
-> +		.tm_min = 0,
-> +		.tm_hour = 12,
-> +		.tm_mday = 1,
-> +		.tm_mon = 0,
-> +		.tm_year = 111,
-> +		.tm_wday = 6,
-> +	};
->  	struct hym8563 *hym8563;
->  	int ret;
-> 
-> @@ -562,6 +632,7 @@ static int hym8563_probe(struct i2c_client *client,
-> 
->  	/* check state of calendar information */
->  	ret = i2c_smbus_read_byte_data(client, HYM8563_SEC);
-> +
->  	if (ret < 0)
->  		return ret;
-> 
-> @@ -569,6 +640,28 @@ static int hym8563_probe(struct i2c_client *client,
->  	dev_dbg(&client->dev, "rtc information is %s\n",
->  		hym8563->valid ? "valid" : "invalid");
-> 
-> +	if (!hym8563->valid) {
-> +		ret = hym8563_set_time(client, &tm);
-> +		if (ret < 0) {
-> +			dev_err(&client->dev, "rtc set time failed, %d\n", ret);
-> +			return ret;
-> +		}
-> +
-> +		hym8563->valid = true;
-> +	}
-> +
-> +	/* read current time */
-> +	ret = hym8563_rtc_read_time(&client->dev, &tm_read);
-> +	if (ret < 0) {
-> +		dev_err(&client->dev, "rtc read time failed, %d\n", ret);
-> +		return ret;
-> +	}
-> +
-> +	dev_dbg(&client->dev, "tm_sec = %d, tm_min = %d, tm_hour = %d,tm_mday =
-> %d\n", +		tm_read.tm_sec, tm_read.tm_min, tm_read.tm_hour,
-> tm_read.tm_mday); +	dev_dbg(&client->dev, "tm_mon = %d, tm_year = %d,
-> tm_wday = %d\n", +		tm_read.tm_mon, tm_read.tm_year, tm_read.tm_wday);
-> +
->  	hym8563->rtc = devm_rtc_device_register(&client->dev, client->name,
->  						&hym8563_rtc_ops, THIS_MODULE);
->  	if (IS_ERR(hym8563->rtc))
+diff --git a/drivers/rtc/rtc-opal.c b/drivers/rtc/rtc-opal.c
+index 6fbf9e6..590e1a4 100644
+--- a/drivers/rtc/rtc-opal.c
++++ b/drivers/rtc/rtc-opal.c
+@@ -152,10 +152,10 @@ exit:
+ /* Set Timed Power-On */
+ static int opal_set_tpo_time(struct device *dev, struct rtc_wkalrm *alarm)
+ {
+-	u64 h_m_s_ms = 0, token;
++	u64 h_m_s_ms = 0;
+ 	struct opal_msg msg;
+ 	u32 y_m_d = 0;
+-	int rc;
++	int token, rc;
+ 
+ 	tm_to_opal(&alarm->time, &y_m_d, &h_m_s_ms);
+ 
+-- 
+1.9.1
 
 -- 
 -- 
