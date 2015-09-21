@@ -1,25 +1,27 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBAPTS6XQKGQEYL53BDI@googlegroups.com>
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id fj7si218873wib.3.2015.09.01.12.16.17
-        for <rtc-linux@googlegroups.com>;
-        Tue, 01 Sep 2015 12:16:17 -0700 (PDT)
-Date: Tue, 1 Sep 2015 21:16:16 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Paul Gortmaker <paul.gortmaker@windriver.com>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	RTCLINUX <rtc-linux@googlegroups.com>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [rtc-linux] Re: [PATCH -next] rtc: drop unused ret variable orphaned
- by misc_deregister becoming void
-Message-ID: <20150901191616.GG3409@piout.net>
-References: <1440271591-5640-1-git-send-email-paul.gortmaker@windriver.com>
- <CAMuHMdXMHg-HR10WQavREmnva6u5-i0ekFeGM5za5UUHgiN0dA@mail.gmail.com>
+Return-Path: <rtc-linux+bncBD7ZDTFR7QFRBNWNQCYAKGQEPCS6IJQ@googlegroups.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <CAMuHMdXMHg-HR10WQavREmnva6u5-i0ekFeGM5za5UUHgiN0dA@mail.gmail.com>
+Received: from foss.arm.com (foss.arm.com. [217.140.101.70])
+        by gmr-mx.google.com with ESMTP id el2si2078074pbb.0.2015.09.21.08.48.06
+        for <rtc-linux@googlegroups.com>;
+        Mon, 21 Sep 2015 08:48:06 -0700 (PDT)
+From: Sudeep Holla <sudeep.holla@arm.com>
+To: linux-pm@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Cc: Sudeep Holla <sudeep.holla@arm.com>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	"Rafael J. Wysocki" <rjw@rjwysocki.net>,
+	Linus Walleij <linus.walleij@linaro.org>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	rtc-linux@googlegroups.com
+Subject: [rtc-linux] [PATCH 02/17] rtc: ab8500: remove misuse of
+ IRQF_NO_SUSPEND flag
+Date: Mon, 21 Sep 2015 16:46:58 +0100
+Message-Id: <1442850433-5903-3-git-send-email-sudeep.holla@arm.com>
+In-Reply-To: <1442850433-5903-1-git-send-email-sudeep.holla@arm.com>
+References: <1442850433-5903-1-git-send-email-sudeep.holla@arm.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -29,36 +31,61 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Hi,
+The IRQF_NO_SUSPEND flag is used to identify the interrupts that should
+be left enabled so as to allow them to work as expected during the
+suspend-resume cycle, but doesn't guarantee that it will wake the system
+from a suspended state, enable_irq_wake is recommended to be used for
+the wakeup.
 
-On 01/09/2015 at 19:37:07 +0200, Geert Uytterhoeven wrote :
-> On Sat, Aug 22, 2015 at 9:26 PM, Paul Gortmaker
-> <paul.gortmaker@windriver.com> wrote:
-> > In commit f368ed6088ae9c1fbe1c897bb5f215ce5e63fa1e ("char: make
-> > misc_deregister a void function") this ret variable became unused
-> > which now generates a compile warning.  Get rid of it.
-> >
-> > Cc: Alessandro Zummo <a.zummo@towertech.it>
-> > Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-> > Cc: rtc-linux@googlegroups.com
-> > Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> > Signed-off-by: Paul Gortmaker <paul.gortmaker@windriver.com>
-> 
-> Acked-by: Geert Uytterhoeven <geert@linux-m68k.org>
-> 
-> It's funny how these things end up in mainline, despite at least two
-> people providing a patch.
-> 
+This patch removes the use of IRQF_NO_SUSPEND flags and uses newly
+introduce PM wakeup APIs dev_pm_{set,clear}_wake_irq.
 
-The fact is that I've asked Greg to take the first fix as he is the one
-carrying the offending patch. He didn't do it so I'll ensure that the
-fix reaches Linus before -rc1.
+Cc: Linus Walleij <linus.walleij@linaro.org>
+Cc: Alessandro Zummo <a.zummo@towertech.it>
+Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: rtc-linux@googlegroups.com
+Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
+---
+ drivers/rtc/rtc-ab8500.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-
+diff --git a/drivers/rtc/rtc-ab8500.c b/drivers/rtc/rtc-ab8500.c
+index 51407c4c7bd2..24a0af650a1b 100644
+--- a/drivers/rtc/rtc-ab8500.c
++++ b/drivers/rtc/rtc-ab8500.c
+@@ -18,6 +18,7 @@
+ #include <linux/mfd/abx500/ab8500.h>
+ #include <linux/delay.h>
+ #include <linux/of.h>
++#include <linux/pm_wakeirq.h>
+ 
+ #define AB8500_RTC_SOFF_STAT_REG	0x00
+ #define AB8500_RTC_CC_CONF_REG		0x01
+@@ -493,11 +494,12 @@ static int ab8500_rtc_probe(struct platform_device *pdev)
+ 	}
+ 
+ 	err = devm_request_threaded_irq(&pdev->dev, irq, NULL,
+-			rtc_alarm_handler, IRQF_NO_SUSPEND | IRQF_ONESHOT,
++			rtc_alarm_handler, IRQF_ONESHOT,
+ 			"ab8500-rtc", rtc);
+ 	if (err < 0)
+ 		return err;
+ 
++	dev_pm_set_wake_irq(&pdev->dev, irq);
+ 	platform_set_drvdata(pdev, rtc);
+ 
+ 	err = ab8500_sysfs_rtc_register(&pdev->dev);
+@@ -513,6 +515,8 @@ static int ab8500_rtc_probe(struct platform_device *pdev)
+ 
+ static int ab8500_rtc_remove(struct platform_device *pdev)
+ {
++	dev_pm_clear_wake_irq(&pdev->dev);
++	device_init_wakeup(&pdev->dev, false);
+ 	ab8500_sysfs_rtc_unregister(&pdev->dev);
+ 
+ 	return 0;
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+1.9.1
 
 -- 
 -- 
