@@ -1,30 +1,42 @@
-Return-Path: <rtc-linux+bncBAABBWEPQCYAKGQEPVGQIAQ@googlegroups.com>
-MIME-Version: 1.0
+Return-Path: <rtc-linux+bncBAABBVFXQSYAKGQENRDN2QA@googlegroups.com>
 Received: from mailout4.w1.samsung.com (mailout4.w1.samsung.com. [210.118.77.14])
-        by gmr-mx.google.com with ESMTPS id w5si3187418pbt.1.2015.09.21.06.36.23
+        by gmr-mx.google.com with ESMTPS id el2si121810pbb.0.2015.09.22.02.13.55
         for <rtc-linux@googlegroups.com>
         (version=TLSv1 cipher=RC4-SHA bits=128/128);
-        Mon, 21 Sep 2015 06:36:24 -0700 (PDT)
-Received: from eucpsbgm2.samsung.com (unknown [203.254.199.245])
+        Tue, 22 Sep 2015 02:13:56 -0700 (PDT)
+Received: from eucpsbgm1.samsung.com (unknown [203.254.199.244])
  by mailout4.w1.samsung.com
  (Oracle Communications Messaging Server 7.0.5.31.0 64bit (built May  5 2014))
- with ESMTP id <0NV100MUG4GJDS30@mailout4.w1.samsung.com> for
- rtc-linux@googlegroups.com; Mon, 21 Sep 2015 14:36:19 +0100 (BST)
-From: Andrzej Hajda <a.hajda@samsung.com>
-To: linux-kernel@vger.kernel.org
+ with ESMTP id <0NV200D60MZ4DV70@mailout4.w1.samsung.com> for
+ rtc-linux@googlegroups.com; Tue, 22 Sep 2015 10:13:52 +0100 (BST)
+Subject: [rtc-linux] Re: [PATCH 00/38] Fixes related to incorrect usage of
+ unsigned types
+To: David Howells <dhowells@redhat.com>
+References: <1442842450-29769-1-git-send-email-a.hajda@samsung.com>
+ <17571.1442842945@warthog.procyon.org.uk>
 Cc: Andrzej Hajda <a.hajda@samsung.com>,
  Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
- Marek Szyprowski <m.szyprowski@samsung.com>,
- Alessandro Zummo <a.zummo@towertech.it>,
- Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+ Marek Szyprowski <m.szyprowski@samsung.com>, linux-kernel@vger.kernel.org,
+ brcm80211-dev-list@broadcom.com, devel@driverdev.osuosl.org,
+ dev@openvswitch.org, dri-devel@lists.freedesktop.org,
+ intel-gfx@lists.freedesktop.org, linux-api@vger.kernel.org,
+ linux-arm-kernel@lists.infradead.org, linux-cachefs@redhat.com,
+ linux-clk@vger.kernel.org, linux-crypto@vger.kernel.org,
+ linux-fbdev@vger.kernel.org, linux-input@vger.kernel.org,
+ linux-kernel@vger.kernel.org, linux-leds@vger.kernel.org,
+ linux-media@vger.kernel.org, linux-mips@linux-mips.org, linux-mm@kvack.org,
+ linux-omap@vger.kernel.org, linux-rdma@vger.kernel.org,
+ linux-serial@vger.kernel.org, linux-sh@vger.kernel.org,
+ linux-usb@vger.kernel.org, linux-wireless@vger.kernel.org,
+ lustre-devel@lists.lustre.org, netdev@vger.kernel.org,
  rtc-linux@googlegroups.com
-Subject: [rtc-linux] [PATCH 24/38] rtc: opal: fix type of token
-Date: Mon, 21 Sep 2015 15:33:56 +0200
-Message-id: <1442842450-29769-25-git-send-email-a.hajda@samsung.com>
-In-reply-to: <1442842450-29769-1-git-send-email-a.hajda@samsung.com>
-References: <1442842450-29769-1-git-send-email-a.hajda@samsung.com>
+From: Andrzej Hajda <a.hajda@samsung.com>
+Message-id: <56011BB9.5030004@samsung.com>
+Date: Tue, 22 Sep 2015 11:13:29 +0200
+MIME-version: 1.0
+In-reply-to: <17571.1442842945@warthog.procyon.org.uk>
+Content-type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
-Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -34,37 +46,58 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-The variable can take signed values.
+On 09/21/2015 03:42 PM, David Howells wrote:
+> Andrzej Hajda <a.hajda-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org> wrote:
+> 
+>> Semantic patch finds comparisons of types:
+>>     unsigned < 0
+>>     unsigned >= 0
+>> The former is always false, the latter is always true.
+>> Such comparisons are useless, so theoretically they could be
+>> safely removed, but their presence quite often indicates bugs.
+> 
+> Or someone has left them in because they don't matter and there's the
+> possibility that the type being tested might be or become signed under some
+> circumstances.  If the comparison is useless, I'd expect the compiler to just
+> discard it - for such cases your patch is pointless.
+> 
+> If I have, for example:
+> 
+> 	unsigned x;
+> 
+> 	if (x == 0 || x > 27)
+> 		give_a_range_error();
+> 
+> I will write this as:
+> 
+> 	unsigned x;
+> 
+> 	if (x <= 0 || x > 27)
+> 		give_a_range_error();
+> 
+> because it that gives a way to handle x being changed to signed at some point
+> in the future for no cost.  In which case, your changing the <= to an ==
+> "because the < part of the case is useless" is arguably wrong.
 
-The problem has been detected using proposed semantic patch
-scripts/coccinelle/tests/unsigned_lesser_than_zero.cocci [1].
+This is why I have not checked for such cases - I have skipped checks of type
+	unsigned <= 0
+exactly for the reasons above.
 
-[1]: http://permalink.gmane.org/gmane.linux.kernel/2038576
+However I have left two other checks as they seems to me more suspicious - they
+are always true or false. But as Dmitry and Andrew pointed out Linus have quite
+strong opinion against removing range checks in such cases as he finds it
+clearer. I think it applies to patches 29-36. I am not sure about patches 26-28,37.
 
-Signed-off-by: Andrzej Hajda <a.hajda@samsung.com>
----
- drivers/rtc/rtc-opal.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+Regards
+Andrzej
 
-diff --git a/drivers/rtc/rtc-opal.c b/drivers/rtc/rtc-opal.c
-index 6fbf9e6..590e1a4 100644
---- a/drivers/rtc/rtc-opal.c
-+++ b/drivers/rtc/rtc-opal.c
-@@ -152,10 +152,10 @@ exit:
- /* Set Timed Power-On */
- static int opal_set_tpo_time(struct device *dev, struct rtc_wkalrm *alarm)
- {
--	u64 h_m_s_ms = 0, token;
-+	u64 h_m_s_ms = 0;
- 	struct opal_msg msg;
- 	u32 y_m_d = 0;
--	int rc;
-+	int token, rc;
- 
- 	tm_to_opal(&alarm->time, &y_m_d, &h_m_s_ms);
- 
--- 
-1.9.1
+> 
+> David
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-wireless" in
+> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 
 
 -- 
 -- 
