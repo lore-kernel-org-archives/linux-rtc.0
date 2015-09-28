@@ -1,17 +1,17 @@
-Return-Path: <rtc-linux+bncBDJ4N37Q6EERB5G5TKYAKGQEWKZ6J2I@googlegroups.com>
-Received: from mga03.intel.com (mga03.intel.com. [134.134.136.65])
-        by gmr-mx.google.com with ESMTP id w5si1223247pbt.1.2015.09.26.07.42.59
+Return-Path: <rtc-linux+bncBDJ4N37Q6EERBCNXUOYAKGQEWMSHFXQ@googlegroups.com>
+Received: from mga02.intel.com (mga02.intel.com. [134.134.136.20])
+        by gmr-mx.google.com with ESMTP id uv4si2467814pac.0.2015.09.27.23.17.44
         for <rtc-linux@googlegroups.com>;
-        Sat, 26 Sep 2015 07:42:59 -0700 (PDT)
-Date: Sat, 26 Sep 2015 22:42:07 +0800
+        Sun, 27 Sep 2015 23:17:44 -0700 (PDT)
+Date: Mon, 28 Sep 2015 14:16:33 +0800
 From: kbuild test robot <lkp@intel.com>
 To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
 Cc: kbuild-all@01.org, Alessandro Zummo <a.zummo@towertech.it>,
 	rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org,
 	Alexandre Belloni <alexandre.belloni@free-electrons.com>
 Subject: [rtc-linux] [PATCH] rtc: fix platform_no_drv_owner.cocci warnings
-Message-ID: <20150926144207.GA209151@lkp-ib03>
-References: <201509262245.qTOvBbXQ%fengguang.wu@intel.com>
+Message-ID: <20150928061633.GA133226@lkp-ib03>
+References: <201509281456.Hj7H13F6%fengguang.wu@intel.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 In-Reply-To: <1443275679-21459-1-git-send-email-alexandre.belloni@free-electrons.com>
