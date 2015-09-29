@@ -1,21 +1,39 @@
-Return-Path: <rtc-linux+bncBDU5DXUG4MFRBUNWW2XQKGQEPIWRYVA@googlegroups.com>
-MIME-Version: 1.0
-Received: from youngberry.canonical.com (youngberry.canonical.com. [91.189.89.112])
-        by gmr-mx.google.com with ESMTPS id k7si193517wif.1.2015.09.07.07.12.32
+Return-Path: <rtc-linux+bncBDP6N55ZUYDRBJGJVSYAKGQEMU6CGGY@googlegroups.com>
+Received: from mail-pa0-x22c.google.com (mail-pa0-x22c.google.com. [2607:f8b0:400e:c03::22c])
+        by gmr-mx.google.com with ESMTPS id zg1si3573244pbb.2.2015.09.29.16.54.11
         for <rtc-linux@googlegroups.com>
-        (version=TLSv1 cipher=RC4-SHA bits=128/128);
-        Mon, 07 Sep 2015 07:12:32 -0700 (PDT)
-From: Colin King <colin.king@canonical.com>
-To: Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	rtc-linux@googlegroups.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [rtc-linux] [PATCH] char: remove unused variable res to clean up
- build warning
-Date: Mon,  7 Sep 2015 15:12:29 +0100
-Message-Id: <1441635149-6131-1-git-send-email-colin.king@canonical.com>
-Reply-To: rtc-linux@googlegroups.com
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 29 Sep 2015 16:54:11 -0700 (PDT)
+Received: by padhy16 with SMTP id hy16so19931272pad.1
+        for <rtc-linux@googlegroups.com>; Tue, 29 Sep 2015 16:54:11 -0700 (PDT)
+Date: Tue, 29 Sep 2015 16:54:08 -0700
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: "Opensource [Steve Twiss]" <stwiss.opensource@diasemi.com>
+Cc: Lee Jones <lee.jones@linaro.org>,
+	DEVICETREE <devicetree@vger.kernel.org>,
+	Ian Campbell <ijc+devicetree@hellion.org.uk>,
+	Kumar Gala <galak@codeaurora.org>,
+	LINUXINPUT <linux-input@vger.kernel.org>,
+	LINUXKERNEL <linux-kernel@vger.kernel.org>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Pawel Moll <pawel.moll@arm.com>,
+	RTCLINUX <rtc-linux@googlegroups.com>,
+	Rob Herring <robh+dt@kernel.org>,
+	David Dajun Chen <david.chen@diasemi.com>,
+	Samuel Ortiz <sameo@linux.intel.com>,
+	Support Opensource <Support.Opensource@diasemi.com>
+Subject: [rtc-linux] Re: [PATCH V3 3/3] devicetree: da9062: Add device tree
+ bindings for DA9062 OnKey
+Message-ID: <20150929235408.GC29469@dtor-ws>
+References: <cover.1437668261.git.stwiss.opensource@diasemi.com>
+ <6bfae9b4f5475b59bddc4b71091121f1c0697a2d.1437668261.git.stwiss.opensource@diasemi.com>
+ <20150727224300.GG3613@dtor-ws>
+ <20150728054024.GA4558@dtor-ws>
+ <6ED8E3B22081A4459DAC7699F3695FB70173D121FD@SW-EX-MBX02.diasemi.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <6ED8E3B22081A4459DAC7699F3695FB70173D121FD@SW-EX-MBX02.diasemi.com>
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -25,40 +43,54 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-From: Colin Ian King <colin.king@canonical.com>
+On Mon, Sep 28, 2015 at 08:19:27AM +0000, Opensource [Steve Twiss] wrote:
+> 
+> > Subject: Re: [PATCH V3 3/3] devicetree: da9062: Add device tree bindings for DA9062 OnKey
+> > 
+> > On Mon, Jul 27, 2015 at 03:43:00PM -0700, Dmitry Torokhov wrote:
+> > > On Thu, Jul 23, 2015 at 05:17:41PM +0100, S Twiss wrote:
+> > > > From: S Twiss <stwiss.opensource@diasemi.com>
+> > > >
+> > > > Add device tree bindings for the DA9062 OnKey driver component
+> > > >
+> > > > Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
+> > > >
+> > > > ---
+> > > > Changes in V3:
+> > > >  - Child driver specifics separated out into separate document
+> > > >    in this case ../input/da9062-onkey.txt
+> > > > Changes in V2:
+> > > >  - No change
+> > > >
+> > > > This patch applies against linux-next and next-20150708
+> > > >
+> > > >
+> > > >  .../devicetree/bindings/input/da9062-onkey.txt     | 36
+> > ++++++++++++++++++++++
+> > > >  Documentation/devicetree/bindings/mfd/da9062.txt   |  3 ++
+> > >
+> > > I dropped bits for mfd/da9062.txt, changed to mention both 9062 and
+> > > 9063, folded into the onkey patch and applied.
+> > 
+> > Argh, da9062 core is not in mainline yet... OK, below is the patch I
+> > had; if Lee does not pick it up I'll re-apply it when da9062 core hits
+> > mainline.
+> > 
+> 
+> Hi Lee and Dmitry,
+> 
+> This patch seems to have been missed. It is the main OnKey driver for DA9062 and this
+> component was waiting for the DA9062 MFD core to make it into linux-mainline/v4.3-rc1.
+> 
+> Is there any reply on this yet please? There just seems to be a little patch administration
+> problem holding things up.
 
-Commit f368ed6088ae9 ("char: make misc_deregister a void function")
-did not remove unused variable res and now we get a build warning:
+I queued it for 4.4.
 
-drivers/rtc/rtc-ds1374.c: In function 'ds1374_remove':
-drivers/rtc/rtc-ds1374.c:667:6: warning: unused variable 'res' 
-[-Wunused-variable]
-  int res;
+Thanks.
 
-simply remove this unused variable.
-
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
----
- drivers/rtc/rtc-ds1374.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
-
-diff --git a/drivers/rtc/rtc-ds1374.c b/drivers/rtc/rtc-ds1374.c
-index 72c9333..36b1b84 100644
---- a/drivers/rtc/rtc-ds1374.c
-+++ b/drivers/rtc/rtc-ds1374.c
-@@ -663,9 +663,8 @@ static int ds1374_probe(struct i2c_client *client,
- static int ds1374_remove(struct i2c_client *client)
- {
- 	struct ds1374 *ds1374 = i2c_get_clientdata(client);
--#ifdef CONFIG_RTC_DRV_DS1374_WDT
--	int res;
- 
-+#ifdef CONFIG_RTC_DRV_DS1374_WDT
- 	misc_deregister(&ds1374_miscdev);
- 	ds1374_miscdev.parent = NULL;
- 	unregister_reboot_notifier(&ds1374_wdt_notifier);
 -- 
-2.5.0
+Dmitry
 
 -- 
 -- 
