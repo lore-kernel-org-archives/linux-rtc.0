@@ -1,25 +1,19 @@
-Return-Path: <rtc-linux+bncBCQPVKWLVAIRB4MHS6XQKGQEKFEGXXA@googlegroups.com>
-Received: from muru.com (muru.com. [72.249.23.125])
-        by gmr-mx.google.com with ESMTP id qc10si795512lbb.1.2015.09.01.08.27.45
-        for <rtc-linux@googlegroups.com>;
-        Tue, 01 Sep 2015 08:27:45 -0700 (PDT)
-Date: Tue, 1 Sep 2015 08:27:40 -0700
-From: Tony Lindgren <tony@atomide.com>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Keerthy <a0393675@ti.com>, Keerthy <j-keerthy@ti.com>,
-	bcousson@baylibre.com, johan@kernel.org, linux-omap@vger.kernel.org,
-	rtc-linux@googlegroups.com, grygorii.strashko@ti.com
-Subject: [rtc-linux] Re: [PATCH v5 0/3] ARM: AM437X: Add rtc clock handling
-Message-ID: <20150901152740.GH4215@atomide.com>
-References: <1439890876-19024-1-git-send-email-j-keerthy@ti.com>
- <20150821211812.GI3769@piout.net>
- <55DDEE88.3020407@ti.com>
- <20150826180126.GS4215@atomide.com>
- <20150826215350.GS13155@piout.net>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRB6XYVOYAKGQE5W3HPIQ@googlegroups.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <20150826215350.GS13155@piout.net>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id fj10si802710wib.1.2015.09.29.14.02.49
+        for <rtc-linux@googlegroups.com>;
+        Tue, 29 Sep 2015 14:02:49 -0700 (PDT)
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Alessandro Zummo <a.zummo@towertech.it>
+Cc: rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Subject: [rtc-linux] [PATCH] rtc: pcf85063: return an error when date is invalid
+Date: Tue, 29 Sep 2015 23:02:46 +0200
+Message-Id: <1443560566-20136-1-git-send-email-alexandre.belloni@free-electrons.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -29,48 +23,35 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-* Alexandre Belloni <alexandre.belloni@free-electrons.com> [150826 14:57]:
-> On 26/08/2015 at 11:01:27 -0700, Tony Lindgren wrote :
-> > * Keerthy <a0393675@ti.com> [150826 09:54]:
-> > > Tony,
-> > > 
-> > > On Saturday 22 August 2015 02:48 AM, Alexandre Belloni wrote:
-> > > >Tony,
-> > > >
-> > > >On 18/08/2015 at 15:11:13 +0530, Keerthy wrote :
-> > > >>The series is applicable for all am437x series of processors.
-> > > >>It adds clock handling support. Boot tested on am437x-gp-evm.
-> > > >>
-> > > >>Keerthy (3):
-> > > >>   ARM: dts: AM437x: Add the internal and external clock nodes for rtc
-> > > >>   rtc: omap: Add internal clock enabling support
-> > > >>   rtc: omap: Add external clock enabling support
-> > > >>
-> > > >
-> > > >I'm wondering how you want to get those patches merged. I can let you
-> > > >take 2 and 3 through arm-soc but you will miss 4.3. Or I can take 2 and
-> > > >3 for 4.3 but the documentation will be missing.
-> > > 
-> > > A gentle ping on this series.
-> > 
-> > Alexandre, it's probably best that you take them all. The dts changes
-> > apply against Linux next with fuzz so there should not be any merge
-> > conflict. Feel free to add:
-> > 
-> > Acked-by: Tony Lindgren <tony@atomide.com>
-> > 
-> 
-> So, I've rebased 1/3 on rtc-next to avoid depending on arm-soc. I've
-> pushed everything and hopefully there won't be any issues in linux-next.
-> We are quite close to the merge window so I would be much more confident
-> sending them to Linus if you could test linux-next once the patches land
-> there.
+Return an error when the date is invalid as the policy should be
+implemented there.
 
-Keerthy, I presume you have now tested these with Linux next?
+Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+---
+ drivers/rtc/rtc-pcf85063.c | 8 +-------
+ 1 file changed, 1 insertion(+), 7 deletions(-)
 
-Regards,
-
-Tony
+diff --git a/drivers/rtc/rtc-pcf85063.c b/drivers/rtc/rtc-pcf85063.c
+index b6d73dd881f2..63334cbeca41 100644
+--- a/drivers/rtc/rtc-pcf85063.c
++++ b/drivers/rtc/rtc-pcf85063.c
+@@ -80,13 +80,7 @@ static int pcf85063_get_datetime(struct i2c_client *client, struct rtc_time *tm)
+ 	pcf85063->c_polarity = (buf[PCF85063_REG_MO] & PCF85063_MO_C) ?
+ 		(tm->tm_year >= 100) : (tm->tm_year < 100);
+ 
+-	/* the clock can give out invalid datetime, but we cannot return
+-	 * -EINVAL otherwise hwclock will refuse to set the time on bootup.
+-	 */
+-	if (rtc_valid_tm(tm) < 0)
+-		dev_err(&client->dev, "retrieved date/time is not valid.\n");
+-
+-	return 0;
++	return rtc_valid_tm(tm);
+ }
+ 
+ static int pcf85063_set_datetime(struct i2c_client *client, struct rtc_time *tm)
+-- 
+2.1.4
 
 -- 
 -- 
