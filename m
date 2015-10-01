@@ -1,27 +1,25 @@
-Return-Path: <rtc-linux+bncBDE6RCFOWIARBNN6XGYAKGQETUYRM3Y@googlegroups.com>
-Received: from mail-ob0-f179.google.com (mail-ob0-f179.google.com. [209.85.214.179])
-        by gmr-mx.google.com with ESMTPS id a11si624190igv.3.2015.10.02.03.40.53
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 02 Oct 2015 03:40:53 -0700 (PDT)
-Received: by obbbh8 with SMTP id bh8so78753128obb.0
-        for <rtc-linux@googlegroups.com>; Fri, 02 Oct 2015 03:40:53 -0700 (PDT)
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBBHYWWYAKGQE5XARUYA@googlegroups.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id bn1si134513wib.0.2015.10.01.11.31.31
+        for <rtc-linux@googlegroups.com>;
+        Thu, 01 Oct 2015 11:31:32 -0700 (PDT)
+Date: Thu, 1 Oct 2015 20:31:31 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: harald@ccbib.org
+Cc: rtc-linux@googlegroups.com, Wolfram Sang <wsa@the-dreams.de>,
+	Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org
+Subject: Re: [rtc-linux] [PATCH] watchdog: stmp3xxx: Implement GETBOOTSTATUS
+Message-ID: <20151001183131.GA10444@piout.net>
+References: <1428522355-5164-1-git-send-email-harald@ccbib.org>
+ <20150417093023.GF29796@piout.net>
+ <3a787a0b2777c4b734a4f153e1a3f7d7@imap.cosmopool.net>
+ <20150419153743.GA4353@piout.net>
+ <480bd3b38b87b44913868cbd2f3e24c6@imap.cosmopool.net>
+ <20150505094031.GH4276@piout.net>
+ <c75c3f0a5a1a136bac7c882178b01815@imap.cosmopool.net>
 MIME-Version: 1.0
-In-Reply-To: <1442850433-5903-2-git-send-email-sudeep.holla@arm.com>
-References: <1442850433-5903-1-git-send-email-sudeep.holla@arm.com>
-	<1442850433-5903-2-git-send-email-sudeep.holla@arm.com>
-Date: Fri, 2 Oct 2015 03:40:53 -0700
-Message-ID: <CACRpkdaa+J76vMGHrZsTZukUS-VyDQFPqwg6teV=m050a=P8Pg@mail.gmail.com>
-Subject: [rtc-linux] Re: [PATCH 01/17] rtc: pl031: remove misuse of
- IRQF_NO_SUSPEND flag
-From: Linus Walleij <linus.walleij@linaro.org>
-To: Sudeep Holla <sudeep.holla@arm.com>
-Cc: "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Thomas Gleixner <tglx@linutronix.de>,
-	"Rafael J. Wysocki" <rjw@rjwysocki.net>, Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	"rtc-linux@googlegroups.com" <rtc-linux@googlegroups.com>
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <c75c3f0a5a1a136bac7c882178b01815@imap.cosmopool.net>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -32,28 +30,51 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On Mon, Sep 21, 2015 at 8:46 AM, Sudeep Holla <sudeep.holla@arm.com> wrote:
+Hi,
 
-> The IRQF_NO_SUSPEND flag is used to identify the interrupts that should
-> be left enabled so as to allow them to work as expected during the
-> suspend-resume cycle, but doesn't guarantee that it will wake the system
-> from a suspended state, enable_irq_wake is recommended to be used for
-> the wakeup.
->
-> This patch removes the use of IRQF_NO_SUSPEND flags and uses newly
-> introduce PM wakeup APIs dev_pm_{set,clear}_wake_irq.
->
-> Cc: Linus Walleij <linus.walleij@linaro.org>
-> Cc: Alessandro Zummo <a.zummo@towertech.it>
-> Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-> Cc: rtc-linux@googlegroups.com
-> Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
+On 01/10/2015 at 19:20:32 +0200, harald@ccbib.org wrote :
+> Since the rtc and watchdog drivers need different bits of the same control
+> register, we would need to use regmap_fields to pass them around.
+> Unfortunately this means we can't use the _SET and _CLR registers, which
+> means we need to use regmap everywhere to get proper locking. A lot of
+> overhead for no benefit.
+> 
+> After reading lots of messages around the genesis and usage of
+> regmap_mmio,
+> it seems to me the intended usecases are to fix some endianness issues
+> and to have a register cache available during suspend - both of which
+> don't
+> apply in this case.
+> 
 
-Looks correct to me.
-Acked-by: Linus Walleij <linus.walleij@linaro.org>
+I'd say one of the main advantage of regmap is that it does proper
+locking of shared registers and I think that is the main reason of using
+it when with platform drivers. Obviously, because you have _SET and _CLR
+register on that platform you don't really care about locking.
 
-Yours,
-Linus Walleij
+> If you want to get rid of the callbacks we should just pass the pointer
+> to the register block to the child device, I think. Which way is
+> preferable
+> is probably only a matter of taste so I won't override the driver authors
+> decision unless there is some clear statement that this is the preferred
+> style in the rtc subsystem.
+> 
+
+Ok. Like I said, this is not blocking, it was just a cleanup I was
+suggesting.
+However, this device is clearly an MFD and that callback feels a bit
+hackish. Also registering the watchdog would probably better be done
+from the mfd subsystem (this is the only RTC driver doing so).
+If you have a look at the history, this was a patch from 2011 taken in
+2013 so the kernel had plenty of time to evolve in between ;)
+
+We are dealing with legacy and I'm fine with that driver staying that
+way until it is absolutely necessary to change it.
+
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
 -- 
 -- 
