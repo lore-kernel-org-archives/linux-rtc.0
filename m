@@ -1,28 +1,25 @@
-Return-Path: <rtc-linux+bncBD747RFBYUPBB26OY2YQKGQENYT34EA@googlegroups.com>
-MIME-Version: 1.0
-Received: from mailout4.samsung.com (mailout4.samsung.com. [203.254.224.34])
-        by gmr-mx.google.com with ESMTPS id sm2si3905215pab.0.2015.10.28.21.58.19
+Return-Path: <rtc-linux+bncBAABBS4XXGYAKGQEEOTLLIY@googlegroups.com>
+Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de. [2001:67c:670:201:290:27ff:fe1d:cc33])
+        by gmr-mx.google.com with ESMTPS id c1si202429wiv.3.2015.10.02.02.18.03
         for <rtc-linux@googlegroups.com>
-        (version=TLSv1 cipher=RC4-SHA bits=128/128);
-        Wed, 28 Oct 2015 21:58:19 -0700 (PDT)
-Received: from epcpsbgr4.samsung.com
- (u144.gpu120.samsung.co.kr [203.254.230.144])
- by mailout4.samsung.com (Oracle Communications Messaging Server 7.0.5.31.0
- 64bit (built May  5 2014))
- with ESMTP id <0NWY0133YTT5IU50@mailout4.samsung.com> for
- rtc-linux@googlegroups.com; Thu, 29 Oct 2015 13:58:17 +0900 (KST)
-From: Alim Akhtar <alim.akhtar@samsung.com>
-To: lee.jones@linaro.org, broonie@kernel.org
-Cc: k.kozlowski@samsung.com, linux-samsung-soc@vger.kernel.org,
- rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org,
- Thomas Abraham <thomas.ab@samsung.com>
-Subject: [rtc-linux] [PATCH v4 2/4] mfd: sec: Add support for S2MPS15 PMIC
-Date: Thu, 29 Oct 2015 10:28:39 +0530
-Message-id: <1446094723-6212-3-git-send-email-alim.akhtar@samsung.com>
-In-reply-to: <1446094723-6212-1-git-send-email-alim.akhtar@samsung.com>
-References: <1446094723-6212-1-git-send-email-alim.akhtar@samsung.com>
-Reply-To: rtc-linux@googlegroups.com
+        (version=TLS1_2 cipher=AES128-SHA256 bits=128/128);
+        Fri, 02 Oct 2015 02:18:03 -0700 (PDT)
+From: =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+	rtc-linux@googlegroups.com,
+	kernel@pengutronix.de,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	linux-kernel@vger.kernel.org
+Subject: [rtc-linux] [PATCH v1 1/4] rtc: pcf2127: fix reading uninitialized
+ value on RTC_READ_VL ioctl
+Date: Fri,  2 Oct 2015 11:17:19 +0200
+Message-Id: <1443777442-15920-2-git-send-email-u.kleine-koenig@pengutronix.de>
+In-Reply-To: <1443777442-15920-1-git-send-email-u.kleine-koenig@pengutronix.de>
+References: <1443777442-15920-1-git-send-email-u.kleine-koenig@pengutronix.de>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -32,314 +29,145 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-From: Thomas Abraham <thomas.ab@samsung.com>
+The flag reported on the RTC_READ_VL ioctl is only initialized when the
+date is read out. So the voltage low value doesn't represent reality but
+the status at the time the date was read (or 0 if the date was not read
+yet).
 
-Add support for S2MPS15 PMIC which is similar to S2MPS11 PMIC. The S2MPS15
-PMIC supports 27 LDO regulators, 10 buck regulators, RTC, three 32.768KHz
-clock outputs and battery charger. This patch adds initial support for
-LDO and buck regulators of S2MPS15 device.
+Moreover when userspace requests a value via an ioctl there is no added
+benefit to also make a prosa representation of this (and other) values
+appear in the kernel log so remove the calls to dev_info and the driver
+data members to track their state.
 
-Signed-off-by: Thomas Abraham <thomas.ab@samsung.com>
-Signed-off-by: Alim Akhtar <alim.akhtar@samsung.com>
-[Alim: Added s2mps15_devs like rtc and clk and related changes]
-Reviewed-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+Signed-off-by: Uwe Kleine-K=C3=B6nig <u.kleine-koenig@pengutronix.de>
 ---
- drivers/mfd/sec-core.c              |   31 +++++++
- drivers/mfd/sec-irq.c               |    8 ++
- include/linux/mfd/samsung/core.h    |    1 +
- include/linux/mfd/samsung/s2mps15.h |  158 +++++++++++++++++++++++++++++++++++
- 4 files changed, 198 insertions(+)
- create mode 100644 include/linux/mfd/samsung/s2mps15.h
 
-diff --git a/drivers/mfd/sec-core.c b/drivers/mfd/sec-core.c
-index 2626fc0b5b8c..fbb8a5715597 100644
---- a/drivers/mfd/sec-core.c
-+++ b/drivers/mfd/sec-core.c
-@@ -29,6 +29,7 @@
- #include <linux/mfd/samsung/s2mps11.h>
- #include <linux/mfd/samsung/s2mps13.h>
- #include <linux/mfd/samsung/s2mps14.h>
-+#include <linux/mfd/samsung/s2mps15.h>
- #include <linux/mfd/samsung/s2mpu02.h>
- #include <linux/mfd/samsung/s5m8763.h>
- #include <linux/mfd/samsung/s5m8767.h>
-@@ -96,6 +97,17 @@ static const struct mfd_cell s2mps14_devs[] = {
+Notes:
+    While this is a fix I don't think it is critical enough to backport it =
+to
+    stable (or apply it during the rc phase).
+   =20
+    Looking at
+   =20
+    	http://codesearch.debian.net/perpackage-results/RTC_VL_READ
+   =20
+    this ioctl isn't used much.
+
+ drivers/rtc/rtc-pcf2127.c | 36 ++++++++++++++++++------------------
+ 1 file changed, 18 insertions(+), 18 deletions(-)
+
+diff --git a/drivers/rtc/rtc-pcf2127.c b/drivers/rtc/rtc-pcf2127.c
+index 4c7738f706c1..4f66c4216b5a 100644
+--- a/drivers/rtc/rtc-pcf2127.c
++++ b/drivers/rtc/rtc-pcf2127.c
+@@ -39,8 +39,6 @@ static struct i2c_driver pcf2127_driver;
+=20
+ struct pcf2127 {
+ 	struct rtc_device *rtc;
+-	int voltage_low; /* indicates if a low_voltage was detected */
+-	int oscillator_failed; /* OSF was detected and date is unreliable */
+ };
+=20
+ /*
+@@ -49,7 +47,6 @@ struct pcf2127 {
+  */
+ static int pcf2127_get_datetime(struct i2c_client *client, struct rtc_time=
+ *tm)
+ {
+-	struct pcf2127 *pcf2127 =3D i2c_get_clientdata(client);
+ 	unsigned char buf[10] =3D { PCF2127_REG_CTRL1 };
+=20
+ 	/* read registers */
+@@ -59,18 +56,15 @@ static int pcf2127_get_datetime(struct i2c_client *clie=
+nt, struct rtc_time *tm)
+ 		return -EIO;
  	}
- };
- 
-+static const struct mfd_cell s2mps15_devs[] = {
-+	{
-+		.name = "s2mps15-regulator",
-+	}, {
-+		.name = "s2mps15-rtc",
-+	}, {
-+		.name = "s2mps13-clk",
-+		.of_compatible = "samsung,s2mps13-clk",
-+	},
-+};
+=20
+-	if (buf[PCF2127_REG_CTRL3] & 0x04) {
+-		pcf2127->voltage_low =3D 1;
++	if (buf[PCF2127_REG_CTRL3] & 0x04)
+ 		dev_info(&client->dev,
+ 			"low voltage detected, check/replace RTC battery.\n");
+-	}
+=20
+ 	if (buf[PCF2127_REG_SC] & PCF2127_OSF) {
+ 		/*
+ 		 * no need clear the flag here,
+ 		 * it will be cleared once the new date is saved
+ 		 */
+-		pcf2127->oscillator_failed =3D 1;
+ 		dev_warn(&client->dev,
+ 			 "oscillator stop detected, date/time is not reliable\n");
+ 		return -EINVAL;
+@@ -107,7 +101,6 @@ static int pcf2127_get_datetime(struct i2c_client *clie=
+nt, struct rtc_time *tm)
+=20
+ static int pcf2127_set_datetime(struct i2c_client *client, struct rtc_time=
+ *tm)
+ {
+-	struct pcf2127 *pcf2127 =3D i2c_get_clientdata(client);
+ 	unsigned char buf[8];
+ 	int i =3D 0, err;
+=20
+@@ -141,9 +134,6 @@ static int pcf2127_set_datetime(struct i2c_client *clie=
+nt, struct rtc_time *tm)
+ 		return -EIO;
+ 	}
+=20
+-	/* clear OSF flag in client data */
+-	pcf2127->oscillator_failed =3D 0;
+-
+ 	return 0;
+ }
+=20
+@@ -151,17 +141,27 @@ static int pcf2127_set_datetime(struct i2c_client *cl=
+ient, struct rtc_time *tm)
+ static int pcf2127_rtc_ioctl(struct device *dev,
+ 				unsigned int cmd, unsigned long arg)
+ {
+-	struct pcf2127 *pcf2127 =3D i2c_get_clientdata(to_i2c_client(dev));
++	struct i2c_client *client =3D to_i2c_client(dev);
++	unsigned char buf =3D PCF2127_REG_CTRL3;
++	int ret;
+=20
+ 	switch (cmd) {
+ 	case RTC_VL_READ:
+-		if (pcf2127->voltage_low)
+-			dev_info(dev, "low voltage detected, check/replace battery\n");
+-		if (pcf2127->oscillator_failed)
+-			dev_info(dev, "oscillator stop detected, date/time is not reliable\n");
++		ret =3D i2c_master_send(client, &buf, 1);
++		if (!ret)
++			ret =3D -EIO;
++		if (ret < 0)
++			return ret;
 +
- static const struct mfd_cell s2mpa01_devs[] = {
- 	{
- 		.name = "s2mpa01-pmic",
-@@ -125,6 +137,9 @@ static const struct of_device_id sec_dt_match[] = {
- 		.compatible = "samsung,s2mps14-pmic",
- 		.data = (void *)S2MPS14X,
- 	}, {
-+		.compatible = "samsung,s2mps15-pmic",
-+		.data = (void *)S2MPS15X,
-+	}, {
- 		.compatible = "samsung,s2mpa01-pmic",
- 		.data = (void *)S2MPA01,
- 	}, {
-@@ -226,6 +241,15 @@ static const struct regmap_config s2mps14_regmap_config = {
- 	.cache_type = REGCACHE_FLAT,
- };
- 
-+static const struct regmap_config s2mps15_regmap_config = {
-+	.reg_bits = 8,
-+	.val_bits = 8,
++		ret =3D i2c_master_recv(client, &buf, 1);
++		if (!ret)
++			ret =3D -EIO;
++		if (ret < 0)
++			return ret;
 +
-+	.max_register = S2MPS15_REG_LDODSCH4,
-+	.volatile_reg = s2mps11_volatile,
-+	.cache_type = REGCACHE_FLAT,
-+};
-+
- static const struct regmap_config s2mpu02_regmap_config = {
- 	.reg_bits = 8,
- 	.val_bits = 8,
-@@ -387,6 +411,9 @@ static int sec_pmic_probe(struct i2c_client *i2c,
- 	case S2MPS14X:
- 		regmap = &s2mps14_regmap_config;
- 		break;
-+	case S2MPS15X:
-+		regmap = &s2mps15_regmap_config;
-+		break;
- 	case S5M8763X:
- 		regmap = &s5m8763_regmap_config;
- 		break;
-@@ -445,6 +472,10 @@ static int sec_pmic_probe(struct i2c_client *i2c,
- 		sec_devs = s2mps14_devs;
- 		num_sec_devs = ARRAY_SIZE(s2mps14_devs);
- 		break;
-+	case S2MPS15X:
-+		sec_devs = s2mps15_devs;
-+		num_sec_devs = ARRAY_SIZE(s2mps15_devs);
-+		break;
- 	case S2MPU02:
- 		sec_devs = s2mpu02_devs;
- 		num_sec_devs = ARRAY_SIZE(s2mpu02_devs);
-diff --git a/drivers/mfd/sec-irq.c b/drivers/mfd/sec-irq.c
-index 806fa8dbb22d..d77de431cc50 100644
---- a/drivers/mfd/sec-irq.c
-+++ b/drivers/mfd/sec-irq.c
-@@ -407,6 +407,11 @@ static const struct regmap_irq_chip s2mps14_irq_chip = {
- 	S2MPS1X_IRQ_CHIP_COMMON_DATA,
- };
- 
-+static const struct regmap_irq_chip s2mps15_irq_chip = {
-+	.name = "s2mps15",
-+	S2MPS1X_IRQ_CHIP_COMMON_DATA,
-+};
-+
- static const struct regmap_irq_chip s2mpu02_irq_chip = {
- 	.name = "s2mpu02",
- 	.irqs = s2mpu02_irqs,
-@@ -466,6 +471,9 @@ int sec_irq_init(struct sec_pmic_dev *sec_pmic)
- 	case S2MPS14X:
- 		sec_irq_chip = &s2mps14_irq_chip;
- 		break;
-+	case S2MPS15X:
-+		sec_irq_chip = &s2mps15_irq_chip;
-+		break;
- 	case S2MPU02:
- 		sec_irq_chip = &s2mpu02_irq_chip;
- 		break;
-diff --git a/include/linux/mfd/samsung/core.h b/include/linux/mfd/samsung/core.h
-index a06098639399..6bc4bcd488ac 100644
---- a/include/linux/mfd/samsung/core.h
-+++ b/include/linux/mfd/samsung/core.h
-@@ -44,6 +44,7 @@ enum sec_device_type {
- 	S2MPS11X,
- 	S2MPS13X,
- 	S2MPS14X,
-+	S2MPS15X,
- 	S2MPU02,
- };
- 
-diff --git a/include/linux/mfd/samsung/s2mps15.h b/include/linux/mfd/samsung/s2mps15.h
-new file mode 100644
-index 000000000000..36d35287c3c0
---- /dev/null
-+++ b/include/linux/mfd/samsung/s2mps15.h
-@@ -0,0 +1,158 @@
-+/*
-+ * Copyright (c) 2015 Samsung Electronics Co., Ltd
-+ *              http://www.samsung.com
-+ *
-+ * This program is free software; you can redistribute  it and/or modify it
-+ * under  the terms of  the GNU General  Public License as published by the
-+ * Free Software Foundation;  either version 2 of the  License, or (at your
-+ * option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ */
-+
-+#ifndef __LINUX_MFD_S2MPS15_H
-+#define __LINUX_MFD_S2MPS15_H
-+
-+/* S2MPS15 registers */
-+enum s2mps15_reg {
-+	S2MPS15_REG_ID,
-+	S2MPS15_REG_INT1,
-+	S2MPS15_REG_INT2,
-+	S2MPS15_REG_INT3,
-+	S2MPS15_REG_INT1M,
-+	S2MPS15_REG_INT2M,
-+	S2MPS15_REG_INT3M,
-+	S2MPS15_REG_ST1,
-+	S2MPS15_REG_ST2,
-+	S2MPS15_REG_PWRONSRC,
-+	S2MPS15_REG_OFFSRC,
-+	S2MPS15_REG_BU_CHG,
-+	S2MPS15_REG_RTC_BUF,
-+	S2MPS15_REG_CTRL1,
-+	S2MPS15_REG_CTRL2,
-+	S2MPS15_REG_RSVD1,
-+	S2MPS15_REG_RSVD2,
-+	S2MPS15_REG_RSVD3,
-+	S2MPS15_REG_RSVD4,
-+	S2MPS15_REG_RSVD5,
-+	S2MPS15_REG_RSVD6,
-+	S2MPS15_REG_CTRL3,
-+	S2MPS15_REG_RSVD7,
-+	S2MPS15_REG_RSVD8,
-+	S2MPS15_REG_RSVD9,
-+	S2MPS15_REG_B1CTRL1,
-+	S2MPS15_REG_B1CTRL2,
-+	S2MPS15_REG_B2CTRL1,
-+	S2MPS15_REG_B2CTRL2,
-+	S2MPS15_REG_B3CTRL1,
-+	S2MPS15_REG_B3CTRL2,
-+	S2MPS15_REG_B4CTRL1,
-+	S2MPS15_REG_B4CTRL2,
-+	S2MPS15_REG_B5CTRL1,
-+	S2MPS15_REG_B5CTRL2,
-+	S2MPS15_REG_B6CTRL1,
-+	S2MPS15_REG_B6CTRL2,
-+	S2MPS15_REG_B7CTRL1,
-+	S2MPS15_REG_B7CTRL2,
-+	S2MPS15_REG_B8CTRL1,
-+	S2MPS15_REG_B8CTRL2,
-+	S2MPS15_REG_B9CTRL1,
-+	S2MPS15_REG_B9CTRL2,
-+	S2MPS15_REG_B10CTRL1,
-+	S2MPS15_REG_B10CTRL2,
-+	S2MPS15_REG_BBCTRL1,
-+	S2MPS15_REG_BBCTRL2,
-+	S2MPS15_REG_BRAMP,
-+	S2MPS15_REG_LDODVS1,
-+	S2MPS15_REG_LDODVS2,
-+	S2MPS15_REG_LDODVS3,
-+	S2MPS15_REG_LDODVS4,
-+	S2MPS15_REG_L1CTRL,
-+	S2MPS15_REG_L2CTRL,
-+	S2MPS15_REG_L3CTRL,
-+	S2MPS15_REG_L4CTRL,
-+	S2MPS15_REG_L5CTRL,
-+	S2MPS15_REG_L6CTRL,
-+	S2MPS15_REG_L7CTRL,
-+	S2MPS15_REG_L8CTRL,
-+	S2MPS15_REG_L9CTRL,
-+	S2MPS15_REG_L10CTRL,
-+	S2MPS15_REG_L11CTRL,
-+	S2MPS15_REG_L12CTRL,
-+	S2MPS15_REG_L13CTRL,
-+	S2MPS15_REG_L14CTRL,
-+	S2MPS15_REG_L15CTRL,
-+	S2MPS15_REG_L16CTRL,
-+	S2MPS15_REG_L17CTRL,
-+	S2MPS15_REG_L18CTRL,
-+	S2MPS15_REG_L19CTRL,
-+	S2MPS15_REG_L20CTRL,
-+	S2MPS15_REG_L21CTRL,
-+	S2MPS15_REG_L22CTRL,
-+	S2MPS15_REG_L23CTRL,
-+	S2MPS15_REG_L24CTRL,
-+	S2MPS15_REG_L25CTRL,
-+	S2MPS15_REG_L26CTRL,
-+	S2MPS15_REG_L27CTRL,
-+	S2MPS15_REG_LDODSCH1,
-+	S2MPS15_REG_LDODSCH2,
-+	S2MPS15_REG_LDODSCH3,
-+	S2MPS15_REG_LDODSCH4,
-+};
-+
-+/* S2MPS15 regulator ids */
-+enum s2mps15_regulators {
-+	S2MPS15_LDO1,
-+	S2MPS15_LDO2,
-+	S2MPS15_LDO3,
-+	S2MPS15_LDO4,
-+	S2MPS15_LDO5,
-+	S2MPS15_LDO6,
-+	S2MPS15_LDO7,
-+	S2MPS15_LDO8,
-+	S2MPS15_LDO9,
-+	S2MPS15_LDO10,
-+	S2MPS15_LDO11,
-+	S2MPS15_LDO12,
-+	S2MPS15_LDO13,
-+	S2MPS15_LDO14,
-+	S2MPS15_LDO15,
-+	S2MPS15_LDO16,
-+	S2MPS15_LDO17,
-+	S2MPS15_LDO18,
-+	S2MPS15_LDO19,
-+	S2MPS15_LDO20,
-+	S2MPS15_LDO21,
-+	S2MPS15_LDO22,
-+	S2MPS15_LDO23,
-+	S2MPS15_LDO24,
-+	S2MPS15_LDO25,
-+	S2MPS15_LDO26,
-+	S2MPS15_LDO27,
-+	S2MPS15_BUCK1,
-+	S2MPS15_BUCK2,
-+	S2MPS15_BUCK3,
-+	S2MPS15_BUCK4,
-+	S2MPS15_BUCK5,
-+	S2MPS15_BUCK6,
-+	S2MPS15_BUCK7,
-+	S2MPS15_BUCK8,
-+	S2MPS15_BUCK9,
-+	S2MPS15_BUCK10,
-+	S2MPS15_BUCK11,
-+	S2MPS15_REGULATOR_MAX,
-+};
-+
-+#define S2MPS15_LDO_VSEL_MASK		(0x3F)
-+#define S2MPS15_BUCK_VSEL_MASK		(0xFF)
-+
-+#define S2MPS15_ENABLE_SHIFT		(0x06)
-+#define S2MPS15_ENABLE_MASK		(0x03 << S2MPS15_ENABLE_SHIFT)
-+
-+#define S2MPS15_LDO_N_VOLTAGES		(S2MPS15_LDO_VSEL_MASK + 1)
-+#define S2MPS15_BUCK_N_VOLTAGES	(S2MPS15_BUCK_VSEL_MASK + 1)
-+
-+#endif /* __LINUX_MFD_S2MPS15_H */
--- 
-1.7.10.4
++		buf =3D buf & PCF2127_REG_CTRL3_BLF ? 1 : 0;
+=20
+-		if (copy_to_user((void __user *)arg, &pcf2127->voltage_low,
+-					sizeof(int)))
++		if (copy_to_user((void __user *)arg, &buf, sizeof(int)))
+ 			return -EFAULT;
+ 		return 0;
+ 	default:
+--=20
+2.6.0
 
--- 
--- 
+--=20
+--=20
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+---=20
+You received this message because you are subscribed to the Google Groups "=
+rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an e=
+mail to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
