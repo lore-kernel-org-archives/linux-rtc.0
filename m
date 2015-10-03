@@ -1,26 +1,22 @@
-Return-Path: <rtc-linux+bncBDIK5VOGT4GRBRPY3CYAKGQE5X6NIJI@googlegroups.com>
-Received: from szxga02-in.huawei.com (szxga02-in.huawei.com. [119.145.14.65])
-        by gmr-mx.google.com with ESMTPS id z7si163109igw.0.2015.10.08.02.49.56
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1 cipher=RC4-SHA bits=128/128);
-        Thu, 08 Oct 2015 02:49:57 -0700 (PDT)
-From: Zhen Lei <thunder.leizhen@huawei.com>
-To: Arnd Bergmann <arnd@arndb.de>, Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        rtc-linux
-	<rtc-linux@googlegroups.com>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-CC: Zefan Li <lizefan@huawei.com>, Xinwei Hu <huxinwei@huawei.com>,
-        "Tianhong
- Ding" <dingtianhong@huawei.com>,
-        Hanjun Guo <guohanjun@huawei.com>,
-        Zhen Lei
-	<thunder.leizhen@huawei.com>
-Subject: [rtc-linux] [PATCH 1/1] rtc: fix type information of rtc-proc
-Date: Thu, 8 Oct 2015 17:47:32 +0800
-Message-ID: <1444297652-10328-1-git-send-email-thunder.leizhen@huawei.com>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBYPHX6YAKGQE3YXI7AY@googlegroups.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id xl3si222925wib.1.2015.10.03.08.27.29
+        for <rtc-linux@googlegroups.com>;
+        Sat, 03 Oct 2015 08:27:29 -0700 (PDT)
+Date: Sat, 3 Oct 2015 17:27:28 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Steve Twiss <stwiss.opensource@diasemi.com>
+Cc: Allessandro Zummo <a.zummo@towertech.it>,
+	David Dajun Chen <david.chen@diasemi.com>,
+	LKML <linux-kernel@vger.kernel.org>,
+	RTC <rtc-linux@googlegroups.com>,
+	Support Opensource <support.opensource@diasemi.com>
+Subject: [rtc-linux] Re: [PATCH V1] rtc: GPL copyright inconsistency fix
+Message-ID: <20151003152728.GD2694@piout.net>
+References: <201510021025.t92AP2Bn026715@swsrvapps-01.diasemi.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <201510021025.t92AP2Bn026715@swsrvapps-01.diasemi.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -31,47 +27,46 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Display the whole word of "alarm", make it look more comfortable.
+On 02/10/2015 at 11:21:11 +0100, Steve Twiss wrote :
+> From: Steve Twiss <stwiss.opensource@diasemi.com>
+> 
+> Fix misleading and inconsistent copyright header wording.
+> 
+> Alter the copyright header text and MODULE_LICENSE macro to ensure the
+> GPL v2 licence description is correctly represented.
+> 
+> It will remove the incorrectly LGPL worded text. Words such as "Library"
+> from the line "GNU Library General Public License"; and replace the word
+> "library" with "program" in several other places.
+> 
+> The copyright should match the GPL v2 description as specified in the GNU
+> license found here: http://www.gnu.org/licenses/gpl-2.0.html
+> 
+> It should also match this copyright text with the correct MODULE_LICENSE
+> macro text as found in the kernel: include/linux/module.h
+> In this case "GNU Public License v2 or later" is linked with "GPL".
+> 
 
-Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
----
- drivers/rtc/rtc-proc.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+I would have though diasemi would stick to GPL 2 only.
 
-diff --git a/drivers/rtc/rtc-proc.c b/drivers/rtc/rtc-proc.c
-index ffa69e1..ef83f34 100644
---- a/drivers/rtc/rtc-proc.c
-+++ b/drivers/rtc/rtc-proc.c
-@@ -58,7 +58,7 @@ static int rtc_proc_show(struct seq_file *seq, void *offset)
+> 
+> Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
+> 
+> ---
+> 
+> This patch applies against linux-next and v4.3-rc3 
+> 
+> 
+> 
+>  drivers/rtc/rtc-da9063.c | 18 +++++++++---------
+>  1 file changed, 9 insertions(+), 9 deletions(-)
+> 
+Applied, thanks.
 
- 	err = rtc_read_alarm(rtc, &alrm);
- 	if (err == 0) {
--		seq_printf(seq, "alrm_time\t: ");
-+		seq_printf(seq, "alarm_time\t: ");
- 		if ((unsigned int)alrm.time.tm_hour <= 24)
- 			seq_printf(seq, "%02d:", alrm.time.tm_hour);
- 		else
-@@ -72,7 +72,7 @@ static int rtc_proc_show(struct seq_file *seq, void *offset)
- 		else
- 			seq_printf(seq, "**\n");
-
--		seq_printf(seq, "alrm_date\t: ");
-+		seq_printf(seq, "alarm_date\t: ");
- 		if ((unsigned int)alrm.time.tm_year <= 200)
- 			seq_printf(seq, "%04d-", alrm.time.tm_year + 1900);
- 		else
-@@ -87,7 +87,7 @@ static int rtc_proc_show(struct seq_file *seq, void *offset)
- 			seq_printf(seq, "**\n");
- 		seq_printf(seq, "alarm_IRQ\t: %s\n",
- 				alrm.enabled ? "yes" : "no");
--		seq_printf(seq, "alrm_pending\t: %s\n",
-+		seq_printf(seq, "alarm_pending\t: %s\n",
- 				alrm.pending ? "yes" : "no");
- 		seq_printf(seq, "update IRQ enabled\t: %s\n",
- 			(rtc->uie_rtctimer.enabled) ? "yes" : "no");
---
-2.5.0
-
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
 -- 
 -- 
