@@ -1,21 +1,29 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRB7GRVOYQKGQEPL7Y7PA@googlegroups.com>
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id c7si184306wiy.3.2015.10.23.19.12.11
-        for <rtc-linux@googlegroups.com>;
-        Fri, 23 Oct 2015 19:12:11 -0700 (PDT)
-Date: Sat, 24 Oct 2015 04:12:11 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Sebastian Reichel <sre@kernel.org>
-Cc: Tim Harvey <tharvey@gateworks.com>, linux-pm@vger.kernel.org,
-	rtc-linux@googlegroups.com
-Subject: Re: [rtc-linux] Re: where in sysfs should I put the ability to power
- down a board for a specific time?
-Message-ID: <20151024021211.GA8105@piout.net>
-References: <CAJ+vNU3V-i2uJTpyE_swqjCvjVr+-j1+jjp+WuZLDA8Os74y=g@mail.gmail.com>
- <20151020212127.GA25882@earth>
+Return-Path: <rtc-linux+bncBDE6RCFOWIARB7XSZCYAKGQEPHPA6JQ@googlegroups.com>
+Received: from mail-ob0-f178.google.com (mail-ob0-f178.google.com. [209.85.214.178])
+        by gmr-mx.google.com with ESMTPS id o1si317896igp.1.2015.10.05.01.49.01
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 05 Oct 2015 01:49:01 -0700 (PDT)
+Received: by obcgx8 with SMTP id gx8so123197296obc.3
+        for <rtc-linux@googlegroups.com>; Mon, 05 Oct 2015 01:49:01 -0700 (PDT)
 MIME-Version: 1.0
+In-Reply-To: <560E603E.8080603@arm.com>
+References: <1442850433-5903-1-git-send-email-sudeep.holla@arm.com>
+	<1442850433-5903-2-git-send-email-sudeep.holla@arm.com>
+	<CACRpkdaa+J76vMGHrZsTZukUS-VyDQFPqwg6teV=m050a=P8Pg@mail.gmail.com>
+	<560E603E.8080603@arm.com>
+Date: Mon, 5 Oct 2015 10:49:01 +0200
+Message-ID: <CACRpkdYURqgeh9kzED7yvwgR29qUPd9KgxrTAXZkAUdXazoJLA@mail.gmail.com>
+Subject: [rtc-linux] Re: [PATCH 01/17] rtc: pl031: remove misuse of
+ IRQF_NO_SUSPEND flag
+From: Linus Walleij <linus.walleij@linaro.org>
+To: Sudeep Holla <sudeep.holla@arm.com>
+Cc: "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Thomas Gleixner <tglx@linutronix.de>,
+	"Rafael J. Wysocki" <rjw@rjwysocki.net>, Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	"rtc-linux@googlegroups.com" <rtc-linux@googlegroups.com>
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <20151020212127.GA25882@earth>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -26,43 +34,20 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Hi,
+On Fri, Oct 2, 2015 at 12:45 PM, Sudeep Holla <sudeep.holla@arm.com> wrote:
 
-On 20/10/2015 at 23:21:27 +0200, Sebastian Reichel wrote :
-> Hi,
-> 
-> On Tue, Oct 20, 2015 at 08:12:09AM -0700, Tim Harvey wrote:
-> > There is a system controller [1] on a set of embedded boards I support
-> > that allows disabling the board's primary power supply. It can disable
-> > it (until a physical pushbutton event occurs) and/or disable it for a
-> > certain number of seconds (up to 2^16 seconds).
-> > 
-> > I've been in the process of writing a mfd driver to fully support this
-> > device and I'm a bit stumped on how to handle the power management
-> > capabilities.
-> > 
-> > What is the correct API for this type of device in sysfs? I'm thinking
-> > it needs a power-supply class driver, but after looking over the docs
-> > and code I'm not seeing examples of similar devices. Can anyone point
-> > me to an example or provide some suggestions?
-> 
-> Usually this is an RTC feature exposed as wakealarm. See for example
-> this article for the description of the userspace interface:
-> 
-> https://www.linux.com/learn/docs/672849-wake-up-linux-with-an-rtc-alarm-clock
+>> Looks correct to me.
+>> Acked-by: Linus Walleij <linus.walleij@linaro.org>
+>
+> Thanks, while you are at it, do you know what interrupt stv2_pl031
+> shares so that I can fix the TODO in the comment or the code(whichever
+> applicable).
 
-Indeed, if you can set the time, then shutdown in two discreet steps,
-then you can probably expose an alarm and a poweroff controller.
-If there is only one step involved, then this will not fit well in any
-subsystem but I guess it makes more sense to put it in the RTC
-subsystem as it has all the utilities to handle dates and times.
+This is shared with a hardware called RTT (real-time timer) that has
+no upstream driver as of now.
 
-
-
--- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+Yours,
+Linus Walleij
 
 -- 
 -- 
