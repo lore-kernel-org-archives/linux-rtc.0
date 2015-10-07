@@ -1,30 +1,26 @@
-Return-Path: <rtc-linux+bncBDKZNNNLXAHBBP7KY2YQKGQEOQUIB2Y@googlegroups.com>
-Received: from mailout4.w1.samsung.com (mailout4.w1.samsung.com. [210.118.77.14])
-        by gmr-mx.google.com with ESMTPS id vy6si5275606pbc.1.2015.10.28.22.57.18
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1 cipher=RC4-SHA bits=128/128);
-        Wed, 28 Oct 2015 22:57:18 -0700 (PDT)
-Received: from eucpsbgm1.samsung.com (unknown [203.254.199.244])
- by mailout4.w1.samsung.com
- (Oracle Communications Messaging Server 7.0.5.31.0 64bit (built May  5 2014))
- with ESMTP id <0NWY002GCWJE9Z10@mailout4.w1.samsung.com> for
- rtc-linux@googlegroups.com; Thu, 29 Oct 2015 05:57:14 +0000 (GMT)
-Subject: [rtc-linux] Re: [PATCH v4 1/4] dt-bindings: mfd: s2mps11: add
- documentation for s2mps15 PMIC
-To: Alim Akhtar <alim.akhtar@samsung.com>, lee.jones@linaro.org,
- broonie@kernel.org
-References: <1446094723-6212-1-git-send-email-alim.akhtar@samsung.com>
- <1446094723-6212-2-git-send-email-alim.akhtar@samsung.com>
-Cc: linux-samsung-soc@vger.kernel.org, rtc-linux@googlegroups.com,
- linux-kernel@vger.kernel.org, Thomas Abraham <thomas.ab@samsung.com>,
- devicetree@vger.kernel.org
-From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-Message-id: <5631B537.1090404@samsung.com>
-Date: Thu, 29 Oct 2015 14:57:11 +0900
-MIME-version: 1.0
-In-reply-to: <1446094723-6212-2-git-send-email-alim.akhtar@samsung.com>
-Content-type: text/plain; charset=UTF-8
+Return-Path: <rtc-linux+bncBAABBVE32SYAKGQETUWAX3Y@googlegroups.com>
+MIME-Version: 1.0
+Received: from mail.cosmopool.net (mail.cosmopool.net. [2a01:4f8:160:20c1::10:107])
+        by gmr-mx.google.com with ESMTP id w4si109165wiz.0.2015.10.07.05.19.31
+        for <rtc-linux@googlegroups.com>;
+        Wed, 07 Oct 2015 05:19:31 -0700 (PDT)
+From: Harald Geyer <harald@ccbib.org>
+To: Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	Guenter Roeck <linux@roeck-us.net>
+Cc: rtc-linux@googlegroups.com,
+	linux-watchdog@vger.kernel.org,
+	kernel@pengutronix.de,
+	Wolfram Sang <wsa@the-dreams.de>,
+	Fabio Estevam <festevam@gmail.com>,
+	Harald Geyer <harald@ccbib.org>
+Subject: [rtc-linux] [PATCHv3 1/2] watchdog: stmp3xxx: Stop the watchdog on
+ system halt
+Date: Wed,  7 Oct 2015 12:19:11 +0000
+Message-Id: <1444220352-20548-1-git-send-email-harald@ccbib.org>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -34,80 +30,80 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On 29.10.2015 13:58, Alim Akhtar wrote:
-> From: Thomas Abraham <thomas.ab@samsung.com>
-> 
-> Add dt-binding documentation for s2mps15 PMIC device. The s2mps15 device
-> is similar to s2mps11/14 PMIC device and has 27 LDO and 10 buck regulators.
-> 
-> Cc: devicetree@vger.kernel.org
-> Signed-off-by: Thomas Abraham <thomas.ab@samsung.com>
-> Signed-off-by: Alim Akhtar <alim.akhtar@samsung.com>
-> Reviewed-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-> Acked-by: Lee Jones <lee.jones@linaro.org>
-> ---
->  Documentation/devicetree/bindings/mfd/s2mps11.txt |   23 ++++++++++++++-------
->  1 file changed, 15 insertions(+), 8 deletions(-)
-> 
-> diff --git a/Documentation/devicetree/bindings/mfd/s2mps11.txt b/Documentation/devicetree/bindings/mfd/s2mps11.txt
-> index 890f0b0e1643..c0427c9d0886 100644
-> --- a/Documentation/devicetree/bindings/mfd/s2mps11.txt
-> +++ b/Documentation/devicetree/bindings/mfd/s2mps11.txt
-> @@ -1,5 +1,5 @@
->  
-> -* Samsung S2MPS11, S2MPS13, S2MPS14 and S2MPU02 Voltage and Current Regulator
-> +* Samsung S2MPS11/13/14/15 and S2MPU02 Voltage and Current Regulator
->  
->  The Samsung S2MPS11 is a multi-function device which includes voltage and
->  current regulators, RTC, charger controller and other sub-blocks. It is
-> @@ -7,8 +7,12 @@ interfaced to the host controller using an I2C interface. Each sub-block is
->  addressed by the host system using different I2C slave addresses.
->  
->  Required properties:
-> -- compatible: Should be "samsung,s2mps11-pmic" or "samsung,s2mps13-pmic"
-> -	      or "samsung,s2mps14-pmic" or "samsung,s2mpu02-pmic".
-> +- compatible: Should be one of the following
-> +	- "samsung,s2mps11-pmic"
-> +	- "samsung,s2mps13-pmic"
-> +	- "samsung,s2mps14-pmic"
-> +	- "samsung,s2mps15-pmic"
-> +	- "samsung,s2mpu02-pmic".
->  - reg: Specifies the I2C slave address of the pmic block. It should be 0x66.
->  
->  Optional properties:
-> @@ -24,7 +28,7 @@ Optional properties:
->    unwanted buck warm reset (setting buck voltages to default values).
->  
->  Optional nodes:
-> -- clocks: s2mps11, s2mps13 and s5m8767 provide three(AP/CP/BT) buffered 32.768
-> +- clocks: s2mps11, s2mps13, s2mps15 and s5m8767 provide three(AP/CP/BT) buffered 32.768
->    KHz outputs, so to register these as clocks with common clock framework
->    instantiate a sub-node named "clocks". It uses the common clock binding
->    documented in :
-> @@ -37,12 +41,13 @@ Optional nodes:
->      the clock which they consume.
->      Clock               ID           Devices
->      ----------------------------------------------------------
-> -    32KhzAP		0            S2MPS11, S2MPS13, S2MPS14, S5M8767
-> -    32KhzCP		1            S2MPS11, S2MPS13, S5M8767
-> -    32KhzBT		2            S2MPS11, S2MPS13, S2MPS14, S5M8767
-> +    32KhzAP		0            S2MPS11, S2MPS13, S2MPS14, S2MPS15, S5M8767
-> +    32KhzCP		1            S2MPS11, S2MPS13, S2MPS15, S5M8767
-> +    32KhzBT		2            S2MPS11, S2MPS13, S2MPS14, S2MPS15, S5M8767
->  
->    - compatible: Should be one of: "samsung,s2mps11-clk", "samsung,s2mps13-clk",
-> -		"samsung,s2mps14-clk", "samsung,s5m8767-clk"
-> +		"samsung,s2mps14-clk", "samsung,s2mps15-clk",
-> +		"samsung,s5m8767-clk"
+This allows the system to actually halt even if userspace forgot to
+disable the watchdog first. Old behaviour was that the watchdog forced
+the system to boot again.
 
-Noooo. Why "samsung,s2mps15-clk"?
+Signed-off-by: Harald Geyer <harald@ccbib.org>
+---
+Changes since v2:
+* split this out as a separate patch
 
-Adding a new compatible to bindings is a major change so my review tag
-(from v1 where there was no such compatible) should be dropped. Please
-drop it.
+ drivers/watchdog/stmp3xxx_rtc_wdt.c |   28 ++++++++++++++++++++++++++++
+ 1 file changed, 28 insertions(+)
 
-Best regards,
-Krzysztof
+diff --git a/drivers/watchdog/stmp3xxx_rtc_wdt.c b/drivers/watchdog/stmp3xxx_rtc_wdt.c
+index 3ee6128..e09a01f 100644
+--- a/drivers/watchdog/stmp3xxx_rtc_wdt.c
++++ b/drivers/watchdog/stmp3xxx_rtc_wdt.c
+@@ -14,6 +14,8 @@
+ #include <linux/watchdog.h>
+ #include <linux/platform_device.h>
+ #include <linux/stmp3xxx_rtc_wdt.h>
++#include <linux/notifier.h>
++#include <linux/reboot.h>
+ 
+ #define WDOG_TICK_RATE 1000 /* 1 kHz clock */
+ #define STMP3XXX_DEFAULT_TIMEOUT 19
+@@ -69,6 +71,28 @@ static struct watchdog_device stmp3xxx_wdd = {
+ 	.status = WATCHDOG_NOWAYOUT_INIT_STATUS,
+ };
+ 
++static int wdt_notify_sys(struct notifier_block *nb, unsigned long code,
++			  void *unused)
++{
++	struct device *dev = watchdog_get_drvdata(&stmp3xxx_wdd);
++	struct stmp3xxx_wdt_pdata *pdata = dev_get_platdata(dev);
++
++	switch (code) {
++	case SYS_DOWN:	/* keep enabled, system might crash while going down */
++		break;
++	case SYS_HALT:  /* allow the system to actually halt */
++	case SYS_POWER_OFF:
++		wdt_stop(&stmp3xxx_wdd);
++		break;
++	}
++
++	return NOTIFY_DONE;
++}
++
++static struct notifier_block wdt_notifier = {
++	.notifier_call  = wdt_notify_sys,
++};
++
+ static int stmp3xxx_wdt_probe(struct platform_device *pdev)
+ {
+ 	int ret;
+@@ -84,6 +108,9 @@ static int stmp3xxx_wdt_probe(struct platform_device *pdev)
+ 		return ret;
+ 	}
+ 
++	if (register_reboot_notifier(&wdt_notifier))
++		dev_warn(&pdev->dev, "cannot register reboot notifier\n");
++
+ 	dev_info(&pdev->dev, "initialized watchdog with heartbeat %ds\n",
+ 			stmp3xxx_wdd.timeout);
+ 	return 0;
+@@ -91,6 +118,7 @@ static int stmp3xxx_wdt_probe(struct platform_device *pdev)
+ 
+ static int stmp3xxx_wdt_remove(struct platform_device *pdev)
+ {
++	unregister_reboot_notifier(&wdt_notifier);
+ 	watchdog_unregister_device(&stmp3xxx_wdd);
+ 	return 0;
+ }
+-- 
+1.7.10.4
 
 -- 
 -- 
