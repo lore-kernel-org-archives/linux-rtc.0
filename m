@@ -1,31 +1,27 @@
-Return-Path: <rtc-linux+bncBDKZNNNLXAHBB755YGYQKGQEI5U2GPQ@googlegroups.com>
-Received: from mailout4.w1.samsung.com (mailout4.w1.samsung.com. [210.118.77.14])
-        by gmr-mx.google.com with ESMTPS id el2si4645240pbb.0.2015.10.27.22.37.02
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1 cipher=RC4-SHA bits=128/128);
-        Tue, 27 Oct 2015 22:37:03 -0700 (PDT)
-Received: from eucpsbgm1.samsung.com (unknown [203.254.199.244])
- by mailout4.w1.samsung.com
- (Oracle Communications Messaging Server 7.0.5.31.0 64bit (built May  5 2014))
- with ESMTP id <0NWX006AT0XMTS20@mailout4.w1.samsung.com> for
- rtc-linux@googlegroups.com; Wed, 28 Oct 2015 05:36:58 +0000 (GMT)
-Subject: [rtc-linux] Re: [PATCH v3 4/5] clk: s2mps15: Add support for S2MPS15 clocks
-To: Alim Akhtar <alim.akhtar@samsung.com>, lee.jones@linaro.org,
- broonie@kernel.org
-References: <1445863883-5187-1-git-send-email-alim.akhtar@samsung.com>
- <1445863883-5187-5-git-send-email-alim.akhtar@samsung.com>
- <5630243E.1080608@samsung.com> <5630503A.3070404@samsung.com>
- <5630554E.8070301@samsung.com>
-Cc: mturquette@baylibre.com, linux-samsung-soc@vger.kernel.org,
- linux-clk@vger.kernel.org, rtc-linux@googlegroups.com,
- linux-kernel@vger.kernel.org
-From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-Message-id: <56305EF5.1080709@samsung.com>
-Date: Wed, 28 Oct 2015 14:36:53 +0900
-MIME-version: 1.0
-In-reply-to: <5630554E.8070301@samsung.com>
-Content-type: text/plain; charset=UTF-8
+Return-Path: <rtc-linux+bncBAABBVM32SYAKGQEBCRBC2Y@googlegroups.com>
+MIME-Version: 1.0
+Received: from mail.cosmopool.net (mail.cosmopool.net. [2a01:4f8:160:20c1::10:107])
+        by gmr-mx.google.com with ESMTP id hs5si99654wib.1.2015.10.07.05.19.33
+        for <rtc-linux@googlegroups.com>;
+        Wed, 07 Oct 2015 05:19:33 -0700 (PDT)
+From: Harald Geyer <harald@ccbib.org>
+To: Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	Guenter Roeck <linux@roeck-us.net>
+Cc: rtc-linux@googlegroups.com,
+	linux-watchdog@vger.kernel.org,
+	kernel@pengutronix.de,
+	Wolfram Sang <wsa@the-dreams.de>,
+	Fabio Estevam <festevam@gmail.com>,
+	Harald Geyer <harald@ccbib.org>
+Subject: [rtc-linux] [PATCH 2/2] watchdog: stmp3xxx: Implement GETBOOTSTATUS
+Date: Wed,  7 Oct 2015 12:19:12 +0000
+Message-Id: <1444220352-20548-2-git-send-email-harald@ccbib.org>
+In-Reply-To: <1444220352-20548-1-git-send-email-harald@ccbib.org>
+References: <1444220352-20548-1-git-send-email-harald@ccbib.org>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -35,109 +31,174 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On 28.10.2015 13:55, Alim Akhtar wrote:
-> 
-> 
-> On 10/28/2015 10:04 AM, Krzysztof Kozlowski wrote:
->> On 28.10.2015 10:26, Krzysztof Kozlowski wrote:
->>> On 26.10.2015 21:51, Alim Akhtar wrote:
->>>> S2MPS15 PMIC has three 32k buffered clocks outputs. This patch
->>>> adds supports for the same to the s2mps11 clock driver.
->>>>
->>>> Signed-off-by: Alim Akhtar <alim.akhtar@samsung.com>
->>>> ---
->>>>   drivers/clk/Kconfig       |    5 +++--
->>>>   drivers/clk/clk-s2mps11.c |   24 ++++++++++++++++++++++++
->>>>   2 files changed, 27 insertions(+), 2 deletions(-)
->>>>
->>>> diff --git a/drivers/clk/Kconfig b/drivers/clk/Kconfig
->>>> index a1fa61159179..037a314b5d76 100644
->>>> --- a/drivers/clk/Kconfig
->>>> +++ b/drivers/clk/Kconfig
->>>> @@ -120,9 +120,10 @@ config COMMON_CLK_S2MPS11
->>>>       tristate "Clock driver for S2MPS1X/S5M8767 MFD"
->>>>       depends on MFD_SEC_CORE
->>>>       ---help---
->>>> -      This driver supports S2MPS11/S2MPS14/S5M8767 crystal oscillator
->>>> +      This driver supports S2MPS1X/S5M8767 crystal oscillator
->>>>         clock. These multi-function devices have two (S2MPS14) or three
->>>> -      (S2MPS11, S5M8767) fixed-rate oscillators, clocked at 32KHz
->>>> each.
->>>> +      (S2MPS11/S2MPS13/S2MPS15/S5M8767) fixed-rate oscillators,
->>>> +      clocked at 32KHz each.
->>>>
->>>>   config CLK_TWL6040
->>>>       tristate "External McPDM functional clock from twl6040"
->>>> diff --git a/drivers/clk/clk-s2mps11.c b/drivers/clk/clk-s2mps11.c
->>>> index d266299dfdb1..455500dca653 100644
->>>> --- a/drivers/clk/clk-s2mps11.c
->>>> +++ b/drivers/clk/clk-s2mps11.c
->>>> @@ -25,6 +25,7 @@
->>>>   #include <linux/mfd/samsung/s2mps11.h>
->>>>   #include <linux/mfd/samsung/s2mps13.h>
->>>>   #include <linux/mfd/samsung/s2mps14.h>
->>>> +#include <linux/mfd/samsung/s2mps15.h>
->>>>   #include <linux/mfd/samsung/s5m8767.h>
->>>>   #include <linux/mfd/samsung/core.h>
->>>>
->>>> @@ -148,6 +149,24 @@ static struct clk_init_data
->>>> s2mps14_clks_init[S2MPS11_CLKS_NUM] = {
->>>>       },
->>>>   };
->>>>
->>>> +static struct clk_init_data s2mps15_clks_init[S2MPS11_CLKS_NUM] = {
->>>> +    [S2MPS11_CLK_AP] = {
->>>> +        .name = "s2mps15_ap",
->>>> +        .ops = &s2mps11_clk_ops,
->>>> +        .flags = CLK_IS_ROOT,
->>>> +    },
->>>> +    [S2MPS11_CLK_CP] = {
->>>> +        .name = "s2mps15_cp",
->>>> +        .ops = &s2mps11_clk_ops,
->>>> +        .flags = CLK_IS_ROOT,
->>>> +    },
->>>> +    [S2MPS11_CLK_BT] = {
->>>> +        .name = "s2mps15_bt",
->>>> +        .ops = &s2mps11_clk_ops,
->>>> +        .flags = CLK_IS_ROOT,
->>>> +    },
->>>> +};
->>>> +
->>>>   static struct device_node *s2mps11_clk_parse_dt(struct
->>>> platform_device *pdev,
->>>>           struct clk_init_data *clks_init)
->>>>   {
->>>> @@ -207,6 +226,10 @@ static int s2mps11_clk_probe(struct
->>>> platform_device *pdev)
->>>>           s2mps11_reg = S2MPS14_REG_RTCCTRL;
->>>>           clks_init = s2mps14_clks_init;
->>>>           break;
->>>> +    case S2MPS15X:
->>>> +        s2mps11_reg = S2MPS15_REG_RTC_BUF;
->>>> +        clks_init = s2mps15_clks_init;
->>>
->>> Another question (after looking at RTC driver):
->>> Is this the same register address as S2MPS14?
->>
->> I found the answer - this is the same address as in S2MPS13 and S2MPS14:
->> 0xc. The S2MPS14 has only two clocks though but S2MPS13 has three.
->> Again, as in RTC, you should re-use existing support.
->>
->> It looks there is no need for this patch at all.
->>
-> Yes, checked that, rtc looks same to s2mps14 and clk looks same as
-> s2mps13{ not s2mps11}, because of the RTC_BUF address changes.
-> Will drop patch 4 and 5 and use the existing names where applicable.
+This device doesn't provide any information about boot status.
+As workaround we use a persitent bit to track watchdog activity.
 
-Thanks!
+Signed-off-by: Harald Geyer <harald@ccbib.org>
+---
+Changes since v2:
+* make code ordering more consistent
+* move part of the commit message to a code comment
+* rewrite the commit message
 
-> I think I don't have to change the binding or Kconfig changes?
+Changes since v1:
+* make code formatting more consistent with the rest of the driver
+* Cc some people who might have better documentation then I do
 
-I think you don't have to. Only the main MFD driver will be updated with
-respective child driver names and compatible.
+Changes since initially posting this patch on 08/04/2015:
+* fix a spelling error in the commit message
+* rebase to a recent version
 
-Best regards,
-Krzysztof
+ drivers/rtc/rtc-stmp3xxx.c          |   37 +++++++++++++++++++++++++++++++++++
+ drivers/watchdog/stmp3xxx_rtc_wdt.c |    6 +++++-
+ include/linux/stmp3xxx_rtc_wdt.h    |    2 ++
+ 3 files changed, 44 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/rtc/rtc-stmp3xxx.c b/drivers/rtc/rtc-stmp3xxx.c
+index ca54d03..47947ea 100644
+--- a/drivers/rtc/rtc-stmp3xxx.c
++++ b/drivers/rtc/rtc-stmp3xxx.c
+@@ -30,6 +30,7 @@
+ #include <linux/of.h>
+ #include <linux/stmp_device.h>
+ #include <linux/stmp3xxx_rtc_wdt.h>
++#include <linux/watchdog.h>
+ 
+ #define STMP3XXX_RTC_CTRL			0x0
+ #define STMP3XXX_RTC_CTRL_ALARM_IRQ_EN		0x00000001
+@@ -62,6 +63,9 @@
+ /* missing bitmask in headers */
+ #define STMP3XXX_RTC_PERSISTENT1_FORCE_UPDATER	0x80000000
+ 
++#define STMP3XXX_RTC_PERSISTENT2		0x80
++#define STMP3XXX_RTC_PERSISTENT2_WDT_ACTIVE	0x00000001
++
+ struct stmp3xxx_rtc_data {
+ 	struct rtc_device *rtc;
+ 	void __iomem *io;
+@@ -81,6 +85,20 @@ struct stmp3xxx_rtc_data {
+  * The watchdog driver is passed the below accessor function via platform_data
+  * to configure the watchdog. Locking is not needed because accessing SET/CLR
+  * registers is atomic.
++ *
++ * Since this device doesn't report the cause of the last reset, we use
++ * a persistent bit to track watchdog activity. The code from the Freescale
++ * BSP uses the STMP3XXX_RTC_PERSISTENT1 register, which is dedicated to
++ * controlling the boot ROM, for this purpose. However it seems the bit
++ * there can't be cleared once it has been set. So we are using
++ * STMP3XXX_RTC_PERSISTENT2 instead, which is the first register available
++ * for "software use" without restriction.
++ *
++ * I (Harald Geyer <harald@ccbib.org>) don't know if the code touching the
++ * STMP3XXX_RTC_PERSISTENT1 register is doing anything useful. Maybe this
++ * is just a leftover from the BSP code, but then maybe there is something
++ * in the boot ROM or in some bootloader that is using this. Hard to tell
++ * without proper documentation about this register.
+  */
+ 
+ static void stmp3xxx_wdt_set_timeout(struct device *dev, u32 timeout)
+@@ -93,16 +111,30 @@ static void stmp3xxx_wdt_set_timeout(struct device *dev, u32 timeout)
+ 		       rtc_data->io + STMP3XXX_RTC_CTRL + STMP_OFFSET_REG_SET);
+ 		writel(STMP3XXX_RTC_PERSISTENT1_FORCE_UPDATER,
+ 		       rtc_data->io + STMP3XXX_RTC_PERSISTENT1 + STMP_OFFSET_REG_SET);
++		writel(STMP3XXX_RTC_PERSISTENT2_WDT_ACTIVE,
++		       rtc_data->io + STMP3XXX_RTC_PERSISTENT2 + STMP_OFFSET_REG_SET);
+ 	} else {
+ 		writel(STMP3XXX_RTC_CTRL_WATCHDOGEN,
+ 		       rtc_data->io + STMP3XXX_RTC_CTRL + STMP_OFFSET_REG_CLR);
+ 		writel(STMP3XXX_RTC_PERSISTENT1_FORCE_UPDATER,
+ 		       rtc_data->io + STMP3XXX_RTC_PERSISTENT1 + STMP_OFFSET_REG_CLR);
++		writel(STMP3XXX_RTC_PERSISTENT2_WDT_ACTIVE,
++		       rtc_data->io + STMP3XXX_RTC_PERSISTENT2 + STMP_OFFSET_REG_CLR);
+ 	}
+ }
+ 
++static void stmp3xxx_wdt_clear_bootstatus(struct device *dev)
++{
++	struct stmp3xxx_rtc_data *rtc_data = dev_get_drvdata(dev);
++
++	writel(STMP3XXX_RTC_PERSISTENT2_WDT_ACTIVE,
++	       rtc_data->io + STMP3XXX_RTC_PERSISTENT2 + STMP_OFFSET_REG_CLR);
++}
++
+ static struct stmp3xxx_wdt_pdata wdt_pdata = {
+ 	.wdt_set_timeout = stmp3xxx_wdt_set_timeout,
++	.wdt_clear_bootstatus = stmp3xxx_wdt_clear_bootstatus,
++	.bootstatus = 0,
+ };
+ 
+ static void stmp3xxx_wdt_register(struct platform_device *rtc_pdev)
+@@ -110,6 +142,8 @@ static void stmp3xxx_wdt_register(struct platform_device *rtc_pdev)
+ 	struct platform_device *wdt_pdev =
+ 		platform_device_alloc("stmp3xxx_rtc_wdt", rtc_pdev->id);
+ 
++	stmp3xxx_wdt_clear_bootstatus(&rtc_pdev->dev);
++
+ 	if (wdt_pdev) {
+ 		wdt_pdev->dev.parent = &rtc_pdev->dev;
+ 		wdt_pdev->dev.platform_data = &wdt_pdata;
+@@ -357,6 +391,9 @@ static int stmp3xxx_rtc_probe(struct platform_device *pdev)
+ 		return err;
+ 	}
+ 
++	if (readl(STMP3XXX_RTC_PERSISTENT2 + rtc_data->io) &
++			 STMP3XXX_RTC_PERSISTENT2_WDT_ACTIVE)
++		wdt_pdata.bootstatus |= WDIOF_CARDRESET;
+ 	stmp3xxx_wdt_register(pdev);
+ 	return 0;
+ }
+diff --git a/drivers/watchdog/stmp3xxx_rtc_wdt.c b/drivers/watchdog/stmp3xxx_rtc_wdt.c
+index e09a01f..7609f78 100644
+--- a/drivers/watchdog/stmp3xxx_rtc_wdt.c
++++ b/drivers/watchdog/stmp3xxx_rtc_wdt.c
+@@ -52,7 +52,8 @@ static int wdt_set_timeout(struct watchdog_device *wdd, unsigned new_timeout)
+ }
+ 
+ static const struct watchdog_info stmp3xxx_wdt_ident = {
+-	.options = WDIOF_MAGICCLOSE | WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING,
++	.options = WDIOF_MAGICCLOSE | WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING |
++		WDIOF_CARDRESET,
+ 	.identity = "STMP3XXX RTC Watchdog",
+ };
+ 
+@@ -79,6 +80,7 @@ static int wdt_notify_sys(struct notifier_block *nb, unsigned long code,
+ 
+ 	switch (code) {
+ 	case SYS_DOWN:	/* keep enabled, system might crash while going down */
++		pdata->wdt_clear_bootstatus(dev->parent);
+ 		break;
+ 	case SYS_HALT:  /* allow the system to actually halt */
+ 	case SYS_POWER_OFF:
+@@ -95,12 +97,14 @@ static struct notifier_block wdt_notifier = {
+ 
+ static int stmp3xxx_wdt_probe(struct platform_device *pdev)
+ {
++	struct stmp3xxx_wdt_pdata *pdata = dev_get_platdata(&pdev->dev);
+ 	int ret;
+ 
+ 	watchdog_set_drvdata(&stmp3xxx_wdd, &pdev->dev);
+ 
+ 	stmp3xxx_wdd.timeout = clamp_t(unsigned, heartbeat, 1, STMP3XXX_MAX_TIMEOUT);
+ 	stmp3xxx_wdd.parent = &pdev->dev;
++	stmp3xxx_wdd.bootstatus = pdata->bootstatus;
+ 
+ 	ret = watchdog_register_device(&stmp3xxx_wdd);
+ 	if (ret < 0) {
+diff --git a/include/linux/stmp3xxx_rtc_wdt.h b/include/linux/stmp3xxx_rtc_wdt.h
+index 1dd12c9..62dd9e6 100644
+--- a/include/linux/stmp3xxx_rtc_wdt.h
++++ b/include/linux/stmp3xxx_rtc_wdt.h
+@@ -10,6 +10,8 @@
+ 
+ struct stmp3xxx_wdt_pdata {
+ 	void (*wdt_set_timeout)(struct device *dev, u32 timeout);
++	void (*wdt_clear_bootstatus)(struct device *dev);
++	unsigned int bootstatus;
+ };
+ 
+ #endif /* __LINUX_STMP3XXX_RTC_WDT_H */
+-- 
+1.7.10.4
 
 -- 
 -- 
