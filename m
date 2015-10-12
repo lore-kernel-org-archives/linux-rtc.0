@@ -1,20 +1,23 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBQGN6WYAKGQEHO6X6DQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBZFR5WYAKGQE4BWSAJQ@googlegroups.com>
 Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id hs5si811278wib.1.2015.10.13.13.17.04
+        by gmr-mx.google.com with ESMTP id hs5si437596wib.1.2015.10.11.23.53.24
         for <rtc-linux@googlegroups.com>;
-        Tue, 13 Oct 2015 13:17:04 -0700 (PDT)
-Date: Tue, 13 Oct 2015 22:17:03 +0200
+        Sun, 11 Oct 2015 23:53:24 -0700 (PDT)
+Date: Mon, 12 Oct 2015 08:53:23 +0200
 From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Heiko Schocher <hs@denx.de>
-Cc: linux-kernel@vger.kernel.org, Georg.Soffel@bosch-si.com,
-	rtc-linux@googlegroups.com, Alessandro Zummo <a.zummo@towertech.it>,
-	devicetree@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH] rtc: pcf8563: disable CLKOUT
-Message-ID: <20151013201703.GA3421@piout.net>
-References: <1444712938-22865-1-git-send-email-hs@denx.de>
+To: Wenyou Yang <wenyou.yang@atmel.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+	Nicolas Ferre <nicolas.ferre@atmel.com>,
+	Ludovic Desroches <ludovic.desroches@atmel.com>,
+	rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org
+Subject: [rtc-linux] Re: [PATCH] rtc: at91rm9200: clear RTC alarm status flag
+ prior to suspending
+Message-ID: <20151012065323.GA3558@piout.net>
+References: <1444612677-26178-1-git-send-email-wenyou.yang@atmel.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1444712938-22865-1-git-send-email-hs@denx.de>
+In-Reply-To: <1444612677-26178-1-git-send-email-wenyou.yang@atmel.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -25,21 +28,38 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Hi,
+Hi Wenyou,
 
-On 13/10/2015 at 07:08:58 +0200, Heiko Schocher wrote :
-> Disable the CLKOUT of the RTC after power-up.
-> After power-up/reset of the RTC, CLKOUT is enabled by default,
-> with CLKOUT enabled the RTC chip has 2-3 times higher power
-> consumption. If you do not need CLKOUT, you can disable the
-> CLKOUT with setting "disable-clkout" property.
+On 12/10/2015 at 09:17:57 +0800, Wenyou Yang wrote :
+> This patch is to clear the RTC alarm status flag prior to suspending
+> to avoid the erroneous wake-up activity.
 > 
 
-I think you can simply unconditionally disable clkout. My preferred way
-of doing what you suggest is probably to register a clock in the CCF. If
-the clock is not used, it will be automatically disabled.
-It will also provide a generic way of setting the clkout frequency (some
-RTC are able to output 32kHZ, 1kHz and 1Hz).
+Is this a new issue appearing with the sama5d2 or was it present from
+the beginning?
+
+> Signed-off-by: Wenyou Yang <wenyou.yang@atmel.com>
+> ---
+> 
+>  drivers/rtc/rtc-at91rm9200.c |    2 ++
+>  1 file changed, 2 insertions(+)
+> 
+> diff --git a/drivers/rtc/rtc-at91rm9200.c b/drivers/rtc/rtc-at91rm9200.c
+> index cb62e21..b60fd47 100644
+> --- a/drivers/rtc/rtc-at91rm9200.c
+> +++ b/drivers/rtc/rtc-at91rm9200.c
+> @@ -495,6 +495,8 @@ static int at91_rtc_suspend(struct device *dev)
+>  	/* this IRQ is shared with DBGU and other hardware which isn't
+>  	 * necessarily doing PM like we are...
+>  	 */
+> +	at91_rtc_write(AT91_RTC_SCCR, AT91_RTC_ALARM);
+> +
+>  	at91_rtc_imr = at91_rtc_read_imr()
+>  			& (AT91_RTC_ALARM|AT91_RTC_SECEV);
+>  	if (at91_rtc_imr) {
+> -- 
+> 1.7.9.5
+> 
 
 -- 
 Alexandre Belloni, Free Electrons
