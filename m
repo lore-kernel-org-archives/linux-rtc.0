@@ -1,28 +1,22 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBBVUYKYQKGQEC7FK7OQ@googlegroups.com>
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id cm6si1005618wib.1.2015.10.28.02.48.54
-        for <rtc-linux@googlegroups.com>;
-        Wed, 28 Oct 2015 02:48:54 -0700 (PDT)
-Date: Wed, 28 Oct 2015 10:48:53 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-Cc: Alim Akhtar <alim.akhtar@samsung.com>, Mark Brown <broonie@kernel.org>,
-	lee.jones@linaro.org, mturquette@baylibre.com,
-	linux-samsung-soc@vger.kernel.org, linux-clk@vger.kernel.org,
-	rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org
-Subject: Re: [rtc-linux] Re: [PATCH v3 5/5] drivers/rtc/rtc-s5m.c: add support
- for S2MPS15 RTC
-Message-ID: <20151028094853.GM22331@piout.net>
-References: <1445863883-5187-1-git-send-email-alim.akhtar@samsung.com>
- <1445863883-5187-6-git-send-email-alim.akhtar@samsung.com>
- <56302514.4090407@samsung.com>
- <20151028015323.GZ28319@sirena.org.uk>
- <56303054.8060804@samsung.com>
- <56303DA3.5020306@samsung.com>
- <5630419F.1000300@samsung.com>
+Return-Path: <rtc-linux+bncBAABBJHF5WYAKGQEXZ76WYQ@googlegroups.com>
+Received: from eusmtp01.atmel.com (eusmtp01.atmel.com. [212.144.249.242])
+        by gmr-mx.google.com with ESMTPS id m4si420429wib.0.2015.10.12.01.43.15
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
+        Mon, 12 Oct 2015 01:43:15 -0700 (PDT)
+From: Wenyou Yang <wenyou.yang@atmel.com>
+To: Alessandro Zummo <a.zummo@towertech.it>, Alexandre Belloni
+	<alexandre.belloni@free-electrons.com>
+CC: Nicolas Ferre <nicolas.ferre@atmel.com>, Ludovic Desroches
+	<ludovic.desroches@atmel.com>, <rtc-linux@googlegroups.com>,
+	<linux-kernel@vger.kernel.org>, <linux-arm-kernel@lists.infradead.org>,
+	Wenyou Yang <wenyou.yang@atmel.com>
+Subject: [rtc-linux] [PATCH v2] rtc: at91rm9200: clear RTC alarm status flag
+ prior to suspending
+Date: Mon, 12 Oct 2015 16:39:23 +0800
+Message-ID: <1444639163-14255-1-git-send-email-wenyou.yang@atmel.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <5630419F.1000300@samsung.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -33,31 +27,38 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On 28/10/2015 at 12:31:43 +0900, Krzysztof Kozlowski wrote :
-> The s2mps13 clock driver added new name and compatible... which was
-> probably totally unneeded (I missed that during review). We don't have
-> to make this as a rule...
-> 
-> Since we do not have any data about future workarounds and the
-> differences then just follow Ockham's razor - use the same name and
-> compatible.
-> 
+As said in the SAMA5D2 datasheet, "Prior to instructing the device
+to enter ULP mode 1, ... and the internal sources of wake-up must
+be cleared."
 
-So you don't care about DT backward compatibility because when a
-workaround will be needed for one of the IPs, then you will have to
-update the old dtb to use it.
+This patch is to clear the RTC alarm status flag prior to suspending
+to avoid the erroneous wake-up activity, as it is often used as
+the wake-up source for the ULP mode 1.
 
-Unless you are sure that the IP is the same, doing
+Signed-off-by: Wenyou Yang <wenyou.yang@atmel.com>
+---
 
-{ "s2mps15-rtc",	S2MPS14X },
+Changes in v2:
+ - Add more detail commit log.
 
-is probably the best way to handle that. Note that I personally don't
-care about the DT ABI, I'm just pointing out what may happen ;)
+ drivers/rtc/rtc-at91rm9200.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
+diff --git a/drivers/rtc/rtc-at91rm9200.c b/drivers/rtc/rtc-at91rm9200.c
+index cb62e21..b60fd47 100644
+--- a/drivers/rtc/rtc-at91rm9200.c
++++ b/drivers/rtc/rtc-at91rm9200.c
+@@ -495,6 +495,8 @@ static int at91_rtc_suspend(struct device *dev)
+ 	/* this IRQ is shared with DBGU and other hardware which isn't
+ 	 * necessarily doing PM like we are...
+ 	 */
++	at91_rtc_write(AT91_RTC_SCCR, AT91_RTC_ALARM);
++
+ 	at91_rtc_imr = at91_rtc_read_imr()
+ 			& (AT91_RTC_ALARM|AT91_RTC_SECEV);
+ 	if (at91_rtc_imr) {
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+1.7.9.5
 
 -- 
 -- 
