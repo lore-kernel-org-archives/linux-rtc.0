@@ -1,23 +1,26 @@
-Return-Path: <rtc-linux+bncBCKMZDW5VIHBB6GRYWYAKGQE2FNJGIY@googlegroups.com>
-Received: from bh-25.webhostbox.net (bh-25.webhostbox.net. [208.91.199.152])
-        by gmr-mx.google.com with ESMTPS id n7si757031iga.3.2015.10.04.10.59.19
+Return-Path: <rtc-linux+bncBAABBSGL5WYAKGQEASMTOSA@googlegroups.com>
+Received: from DVREDG02.corp.atmel.com (nasmtp01.atmel.com. [192.199.1.246])
+        by gmr-mx.google.com with ESMTPS id j7si585160igu.1.2015.10.12.00.48.24
         for <rtc-linux@googlegroups.com>
-        (version=TLSv1 cipher=RC4-SHA bits=128/128);
-        Sun, 04 Oct 2015 10:59:19 -0700 (PDT)
-Subject: [rtc-linux] Re: [PATCHv2] watchdog: stmp3xxx: Implement GETBOOTSTATUS
-To: Harald Geyer <harald@ccbib.org>, Alessandro Zummo <a.zummo@towertech.it>,
- Alexandre Belloni <alexandre.belloni@free-electrons.com>,
- Wim Van Sebroeck <wim@iguana.be>
-References: <1443909258-24914-1-git-send-email-harald@ccbib.org>
-Cc: rtc-linux@googlegroups.com, linux-watchdog@vger.kernel.org,
- kernel@pengutronix.de, Wolfram Sang <wsa@the-dreams.de>,
- Fabio Estevam <festevam@gmail.com>
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <561168F2.8090701@roeck-us.net>
-Date: Sun, 4 Oct 2015 10:59:14 -0700
+        (version=TLS1 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
+        Mon, 12 Oct 2015 00:48:24 -0700 (PDT)
+From: "Yang, Wenyou" <Wenyou.Yang@atmel.com>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+CC: Alessandro Zummo <a.zummo@towertech.it>, "Ferre, Nicolas"
+	<Nicolas.FERRE@atmel.com>, "Desroches, Ludovic"
+	<Ludovic.Desroches@atmel.com>, "rtc-linux@googlegroups.com"
+	<rtc-linux@googlegroups.com>, "linux-kernel@vger.kernel.org"
+	<linux-kernel@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org"
+	<linux-arm-kernel@lists.infradead.org>
+Subject: [rtc-linux] RE: [PATCH] rtc: at91rm9200: clear RTC alarm status flag
+ prior to suspending
+Date: Mon, 12 Oct 2015 07:48:18 +0000
+Message-ID: <B256D81BAE5131468A838E5D7A243641D632111B@penmbx01>
+References: <1444612677-26178-1-git-send-email-wenyou.yang@atmel.com>
+ <20151012065323.GA3558@piout.net>
+In-Reply-To: <20151012065323.GA3558@piout.net>
+Content-Type: text/plain; charset=UTF-8
 MIME-Version: 1.0
-In-Reply-To: <1443909258-24914-1-git-send-email-harald@ccbib.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -28,232 +31,71 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On 10/03/2015 02:54 PM, Harald Geyer wrote:
-> When the watchdog is enabled, we set a persitent bit. After booting
-> we query the bit and see if the system was reset by the watchdog.
->
-> This is somewhat similar to what the legacy driver from freescale
-> does. However we use STMP3XXX_RTC_PERSISTENT2 instead of
-> STMP3XXX_RTC_PERSISTENT1. I tried that first, but it seems I can't
-> clear the bit there once it is set. I didn't find any documentation
-> what this register does - only vague hints that it is meant to
-> control the boot ROM.
->
-> Part of the code from the legacy driver touching this register
-> is still included. Maybe this is stale, but this patch doesn't
-> touch any of it because I don't know what it really does or is
-> meant to do.
->
+Hi Alexandre,
 
-You should describe what you are doing, not how. The reason for
-using persistent2 might be worth a comment in the code; it does not
-belong into the description.
+> -----Original Message-----
+> From: Alexandre Belloni [mailto:alexandre.belloni@free-electrons.com]
+> Sent: 2015=E5=B9=B410=E6=9C=8812=E6=97=A5 14:53
+> To: Yang, Wenyou
+> Cc: Alessandro Zummo; Ferre, Nicolas; Desroches, Ludovic; rtc-
+> linux@googlegroups.com; linux-kernel@vger.kernel.org; linux-arm-
+> kernel@lists.infradead.org
+> Subject: Re: [PATCH] rtc: at91rm9200: clear RTC alarm status flag prior t=
+o
+> suspending
+>=20
+> Hi Wenyou,
+>=20
+> On 12/10/2015 at 09:17:57 +0800, Wenyou Yang wrote :
+> > This patch is to clear the RTC alarm status flag prior to suspending
+> > to avoid the erroneous wake-up activity.
+> >
+>=20
+> Is this a new issue appearing with the sama5d2 or was it present from the
+> beginning?
+With the sama5d2 ULP1 mode, not from the beginning.
 
-This should be two patches, one to introduce boot status and one
-to register the notifier in the watchdog driver. The notifier patch
-should possibly come first.
+>=20
+> > Signed-off-by: Wenyou Yang <wenyou.yang@atmel.com>
+> > ---
+> >
+> >  drivers/rtc/rtc-at91rm9200.c |    2 ++
+> >  1 file changed, 2 insertions(+)
+> >
+> > diff --git a/drivers/rtc/rtc-at91rm9200.c
+> > b/drivers/rtc/rtc-at91rm9200.c index cb62e21..b60fd47 100644
+> > --- a/drivers/rtc/rtc-at91rm9200.c
+> > +++ b/drivers/rtc/rtc-at91rm9200.c
+> > @@ -495,6 +495,8 @@ static int at91_rtc_suspend(struct device *dev)
+> >  	/* this IRQ is shared with DBGU and other hardware which isn't
+> >  	 * necessarily doing PM like we are...
+> >  	 */
+> > +	at91_rtc_write(AT91_RTC_SCCR, AT91_RTC_ALARM);
+> > +
+> >  	at91_rtc_imr =3D at91_rtc_read_imr()
+> >  			& (AT91_RTC_ALARM|AT91_RTC_SECEV);
+> >  	if (at91_rtc_imr) {
+> > --
+> > 1.7.9.5
+> >
+>=20
+> --
+> Alexandre Belloni, Free Electrons
+> Embedded Linux, Kernel and Android engineering
+> http://free-electrons.com
 
-> Signed-off-by: Harald Geyer <harald@ccbib.org>
-> ---
-> Changes since v1:
-> * make code formatting more consistent with the rest of the driver
-> * Cc some people who might have better documentation then I do
->
-> Changes since initially posting this patch on 08/04/2015:
-> * fix a spelling error in the commit message
-> * rebase to a recent version
->
->   drivers/rtc/rtc-stmp3xxx.c          |   23 +++++++++++++++++++++++
->   drivers/watchdog/stmp3xxx_rtc_wdt.c |   34 +++++++++++++++++++++++++++++++++-
->   include/linux/stmp3xxx_rtc_wdt.h    |    2 ++
->   3 files changed, 58 insertions(+), 1 deletion(-)
->
-> diff --git a/drivers/rtc/rtc-stmp3xxx.c b/drivers/rtc/rtc-stmp3xxx.c
-> index ca54d03..4ab0aeb 100644
-> --- a/drivers/rtc/rtc-stmp3xxx.c
-> +++ b/drivers/rtc/rtc-stmp3xxx.c
-> @@ -30,6 +30,7 @@
->   #include <linux/of.h>
->   #include <linux/stmp_device.h>
->   #include <linux/stmp3xxx_rtc_wdt.h>
-> +#include <linux/watchdog.h>
->
->   #define STMP3XXX_RTC_CTRL			0x0
->   #define STMP3XXX_RTC_CTRL_ALARM_IRQ_EN		0x00000001
-> @@ -62,6 +63,9 @@
->   /* missing bitmask in headers */
->   #define STMP3XXX_RTC_PERSISTENT1_FORCE_UPDATER	0x80000000
->
-> +#define STMP3XXX_RTC_PERSISTENT2		0x80
-> +#define STMP3XXX_RTC_PERSISTENT2_WDT_ACTIVE	0x00000001
-> +
->   struct stmp3xxx_rtc_data {
->   	struct rtc_device *rtc;
->   	void __iomem *io;
-> @@ -83,6 +87,14 @@ struct stmp3xxx_rtc_data {
->    * registers is atomic.
->    */
->
-> +static void stmp3xxx_wdt_clear_bootstatus(struct device *dev)
-> +{
-> +	struct stmp3xxx_rtc_data *rtc_data = dev_get_drvdata(dev);
-> +
-> +	writel(STMP3XXX_RTC_PERSISTENT2_WDT_ACTIVE,
-> +	       rtc_data->io + STMP3XXX_RTC_PERSISTENT2 + STMP_OFFSET_REG_CLR);
-> +}
-> +
->   static void stmp3xxx_wdt_set_timeout(struct device *dev, u32 timeout)
->   {
->   	struct stmp3xxx_rtc_data *rtc_data = dev_get_drvdata(dev);
-> @@ -93,16 +105,22 @@ static void stmp3xxx_wdt_set_timeout(struct device *dev, u32 timeout)
->   		       rtc_data->io + STMP3XXX_RTC_CTRL + STMP_OFFSET_REG_SET);
->   		writel(STMP3XXX_RTC_PERSISTENT1_FORCE_UPDATER,
->   		       rtc_data->io + STMP3XXX_RTC_PERSISTENT1 + STMP_OFFSET_REG_SET);
-> +		writel(STMP3XXX_RTC_PERSISTENT2_WDT_ACTIVE,
-> +		       rtc_data->io + STMP3XXX_RTC_PERSISTENT2 + STMP_OFFSET_REG_SET);
->   	} else {
->   		writel(STMP3XXX_RTC_CTRL_WATCHDOGEN,
->   		       rtc_data->io + STMP3XXX_RTC_CTRL + STMP_OFFSET_REG_CLR);
->   		writel(STMP3XXX_RTC_PERSISTENT1_FORCE_UPDATER,
->   		       rtc_data->io + STMP3XXX_RTC_PERSISTENT1 + STMP_OFFSET_REG_CLR);
-> +		writel(STMP3XXX_RTC_PERSISTENT2_WDT_ACTIVE,
-> +		       rtc_data->io + STMP3XXX_RTC_PERSISTENT2 + STMP_OFFSET_REG_CLR);
->   	}
->   }
->
->   static struct stmp3xxx_wdt_pdata wdt_pdata = {
->   	.wdt_set_timeout = stmp3xxx_wdt_set_timeout,
-> +	.wdt_clear_bootstatus = stmp3xxx_wdt_clear_bootstatus,
-> +	.bootstatus = 0,
->   };
->
->   static void stmp3xxx_wdt_register(struct platform_device *rtc_pdev)
-> @@ -110,6 +128,8 @@ static void stmp3xxx_wdt_register(struct platform_device *rtc_pdev)
->   	struct platform_device *wdt_pdev =
->   		platform_device_alloc("stmp3xxx_rtc_wdt", rtc_pdev->id);
->
-> +	stmp3xxx_wdt_clear_bootstatus(&rtc_pdev->dev);
-> +
->   	if (wdt_pdev) {
->   		wdt_pdev->dev.parent = &rtc_pdev->dev;
->   		wdt_pdev->dev.platform_data = &wdt_pdata;
-> @@ -357,6 +377,9 @@ static int stmp3xxx_rtc_probe(struct platform_device *pdev)
->   		return err;
->   	}
->
-> +	if (readl(STMP3XXX_RTC_PERSISTENT2 + rtc_data->io) &
-> +			 STMP3XXX_RTC_PERSISTENT2_WDT_ACTIVE)
-> +		wdt_pdata.bootstatus |= WDIOF_CARDRESET;
->   	stmp3xxx_wdt_register(pdev);
->   	return 0;
->   }
-> diff --git a/drivers/watchdog/stmp3xxx_rtc_wdt.c b/drivers/watchdog/stmp3xxx_rtc_wdt.c
-> index 3ee6128..7609f78 100644
-> --- a/drivers/watchdog/stmp3xxx_rtc_wdt.c
-> +++ b/drivers/watchdog/stmp3xxx_rtc_wdt.c
-> @@ -14,6 +14,8 @@
->   #include <linux/watchdog.h>
->   #include <linux/platform_device.h>
->   #include <linux/stmp3xxx_rtc_wdt.h>
-> +#include <linux/notifier.h>
-> +#include <linux/reboot.h>
->
->   #define WDOG_TICK_RATE 1000 /* 1 kHz clock */
->   #define STMP3XXX_DEFAULT_TIMEOUT 19
-> @@ -50,7 +52,8 @@ static int wdt_set_timeout(struct watchdog_device *wdd, unsigned new_timeout)
->   }
->
->   static const struct watchdog_info stmp3xxx_wdt_ident = {
-> -	.options = WDIOF_MAGICCLOSE | WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING,
-> +	.options = WDIOF_MAGICCLOSE | WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING |
-> +		WDIOF_CARDRESET,
->   	.identity = "STMP3XXX RTC Watchdog",
->   };
->
-> @@ -69,14 +72,39 @@ static struct watchdog_device stmp3xxx_wdd = {
->   	.status = WATCHDOG_NOWAYOUT_INIT_STATUS,
->   };
->
-> +static int wdt_notify_sys(struct notifier_block *nb, unsigned long code,
-> +			  void *unused)
-> +{
-> +	struct device *dev = watchdog_get_drvdata(&stmp3xxx_wdd);
-> +	struct stmp3xxx_wdt_pdata *pdata = dev_get_platdata(dev);
-> +
-> +	switch (code) {
-> +	case SYS_DOWN:	/* keep enabled, system might crash while going down */
-> +		pdata->wdt_clear_bootstatus(dev->parent);
+Best Regards,
+Wenyou Yang
 
-If the system may crash while going down, which may cause a watchdog reset,
-why clear the boot status here ?
-
-> +		break;
-> +	case SYS_HALT:  /* allow the system to actually halt */
-> +	case SYS_POWER_OFF:
-> +		wdt_stop(&stmp3xxx_wdd);
-> +		break;
-> +	}
-> +
-> +	return NOTIFY_DONE;
-> +}
-> +
-> +static struct notifier_block wdt_notifier = {
-> +	.notifier_call  = wdt_notify_sys,
-> +};
-> +
->   static int stmp3xxx_wdt_probe(struct platform_device *pdev)
->   {
-> +	struct stmp3xxx_wdt_pdata *pdata = dev_get_platdata(&pdev->dev);
->   	int ret;
->
->   	watchdog_set_drvdata(&stmp3xxx_wdd, &pdev->dev);
->
->   	stmp3xxx_wdd.timeout = clamp_t(unsigned, heartbeat, 1, STMP3XXX_MAX_TIMEOUT);
->   	stmp3xxx_wdd.parent = &pdev->dev;
-> +	stmp3xxx_wdd.bootstatus = pdata->bootstatus;
->
->   	ret = watchdog_register_device(&stmp3xxx_wdd);
->   	if (ret < 0) {
-> @@ -84,6 +112,9 @@ static int stmp3xxx_wdt_probe(struct platform_device *pdev)
->   		return ret;
->   	}
->
-> +	if (register_reboot_notifier(&wdt_notifier))
-> +		dev_warn(&pdev->dev, "cannot register reboot notifier\n");
-> +
->   	dev_info(&pdev->dev, "initialized watchdog with heartbeat %ds\n",
->   			stmp3xxx_wdd.timeout);
->   	return 0;
-> @@ -91,6 +122,7 @@ static int stmp3xxx_wdt_probe(struct platform_device *pdev)
->
->   static int stmp3xxx_wdt_remove(struct platform_device *pdev)
->   {
-> +	unregister_reboot_notifier(&wdt_notifier);
->   	watchdog_unregister_device(&stmp3xxx_wdd);
->   	return 0;
->   }
-> diff --git a/include/linux/stmp3xxx_rtc_wdt.h b/include/linux/stmp3xxx_rtc_wdt.h
-> index 1dd12c9..62dd9e6 100644
-> --- a/include/linux/stmp3xxx_rtc_wdt.h
-> +++ b/include/linux/stmp3xxx_rtc_wdt.h
-> @@ -10,6 +10,8 @@
->
->   struct stmp3xxx_wdt_pdata {
->   	void (*wdt_set_timeout)(struct device *dev, u32 timeout);
-> +	void (*wdt_clear_bootstatus)(struct device *dev);
-> +	unsigned int bootstatus;
->   };
->
->   #endif /* __LINUX_STMP3XXX_RTC_WDT_H */
->
-
--- 
--- 
+--=20
+--=20
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+---=20
+You received this message because you are subscribed to the Google Groups "=
+rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an e=
+mail to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
