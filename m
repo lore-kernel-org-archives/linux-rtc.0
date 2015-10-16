@@ -1,30 +1,23 @@
-Return-Path: <rtc-linux+bncBDKZNNNLXAHBBHOKYCYQKGQEF5N7BPA@googlegroups.com>
-Received: from mailout4.w1.samsung.com (mailout4.w1.samsung.com. [210.118.77.14])
-        by gmr-mx.google.com with ESMTPS id el2si4563373pbb.0.2015.10.27.18.30.05
+Return-Path: <rtc-linux+bncBCXY5EGBQUIBBSVHQOYQKGQE2I4TRBA@googlegroups.com>
+MIME-Version: 1.0
+Received: from mail-out.m-online.net (mail-out.m-online.net. [212.18.0.9])
+        by gmr-mx.google.com with ESMTPS id q6si79080wif.2.2015.10.16.03.39.06
         for <rtc-linux@googlegroups.com>
-        (version=TLSv1 cipher=RC4-SHA bits=128/128);
-        Tue, 27 Oct 2015 18:30:05 -0700 (PDT)
-Received: from eucpsbgm2.samsung.com (unknown [203.254.199.245])
- by mailout4.w1.samsung.com
- (Oracle Communications Messaging Server 7.0.5.31.0 64bit (built May  5 2014))
- with ESMTP id <0NWW006HJPI1B900@mailout4.w1.samsung.com> for
- rtc-linux@googlegroups.com; Wed, 28 Oct 2015 01:30:01 +0000 (GMT)
-Subject: [rtc-linux] Re: [PATCH v3 5/5] drivers/rtc/rtc-s5m.c: add support for
- S2MPS15 RTC
-To: Alim Akhtar <alim.akhtar@samsung.com>, lee.jones@linaro.org,
- broonie@kernel.org
-References: <1445863883-5187-1-git-send-email-alim.akhtar@samsung.com>
- <1445863883-5187-6-git-send-email-alim.akhtar@samsung.com>
-Cc: mturquette@baylibre.com, linux-samsung-soc@vger.kernel.org,
- linux-clk@vger.kernel.org, rtc-linux@googlegroups.com,
- linux-kernel@vger.kernel.org
-From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-Message-id: <56302514.4090407@samsung.com>
-Date: Wed, 28 Oct 2015 10:29:56 +0900
-MIME-version: 1.0
-In-reply-to: <1445863883-5187-6-git-send-email-alim.akhtar@samsung.com>
-Content-type: text/plain; charset=UTF-8
+        (version=TLS1 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
+        Fri, 16 Oct 2015 03:39:06 -0700 (PDT)
+From: Heiko Schocher <hs@denx.de>
+To: linux-kernel@vger.kernel.org
+Cc: Heiko Schocher <hs@denx.de>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Georg.Soffel@bosch-si.com,
+	rtc-linux@googlegroups.com,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	devicetree@vger.kernel.org
+Subject: [rtc-linux] [PATCH v3] rtc: pcf8563: add CLKOUT to common clock framework
+Date: Fri, 16 Oct 2015 12:39:01 +0200
+Message-Id: <1444991941-3564-1-git-send-email-hs@denx.de>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -34,130 +27,275 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On 26.10.2015 21:51, Alim Akhtar wrote:
-> RTC found in s2mps15 is almost same as one found in s2mps14.
-> This patch add required changes to enable s2mps15 rtc timer.
-> 
-> Signed-off-by: Alim Akhtar <alim.akhtar@samsung.com>
-> ---
->  drivers/rtc/rtc-s5m.c |   14 +++++++++++++-
->  1 file changed, 13 insertions(+), 1 deletion(-)
+Add the clkout output clk to the common clock framework.
+Disable the CLKOUT of the RTC after power-up.
+After power-up/reset of the RTC, CLKOUT is enabled by default,
+with CLKOUT enabled the RTC chip has 2-3 times higher power
+consumption.
 
-NACK.
+Signed-off-by: Heiko Schocher <hs@denx.de>
+---
 
-I don't have S2MPS15 datasheet but looking at the code right now this
-looks *exactly the same* device as S2MPS14.
+Changes in v3:
+- use CONFIG_COMMON_CLK for common clk framework
+  changes
 
-If that's true, then don't add new compatibles, new names etc. Re-use.
-No new code needed, no changes needed. Keep it simple.
+Changes in v2:
+- add comments from Alexandre Belloni
+  - remove the DT property, instead
+    register for the CLKOUT a clk in the common
+    clk framework. The clk is disabled by default.
 
-Best regards,
-Krzysztof
+ Documentation/devicetree/bindings/rtc/pcf8563.txt |  28 ++++
+ drivers/rtc/rtc-pcf8563.c                         | 170 +++++++++++++++++++++-
+ 2 files changed, 197 insertions(+), 1 deletion(-)
+ create mode 100644 Documentation/devicetree/bindings/rtc/pcf8563.txt
 
-> 
-> diff --git a/drivers/rtc/rtc-s5m.c b/drivers/rtc/rtc-s5m.c
-> index f2504b4eef34..ac3286a267ba 100644
-> --- a/drivers/rtc/rtc-s5m.c
-> +++ b/drivers/rtc/rtc-s5m.c
-> @@ -188,6 +188,7 @@ static inline int s5m_check_peding_alarm_interrupt(struct s5m_rtc_info *info,
->  		ret = regmap_read(info->regmap, S5M_RTC_STATUS, &val);
->  		val &= S5M_ALARM0_STATUS;
->  		break;
-> +	case S2MPS15X:
->  	case S2MPS14X:
->  	case S2MPS13X:
->  		ret = regmap_read(info->s5m87xx->regmap_pmic, S2MPS14_REG_ST2,
-> @@ -253,6 +254,7 @@ static inline int s5m8767_rtc_set_alarm_reg(struct s5m_rtc_info *info)
->  		data &= ~S5M_RTC_TIME_EN_MASK;
->  		break;
->  	case S2MPS14X:
-> +	case S2MPS15X:
->  		data |= S2MPS_RTC_RUDR_MASK;
->  		break;
->  	case S2MPS13X:
-> @@ -317,7 +319,8 @@ static int s5m_rtc_read_time(struct device *dev, struct rtc_time *tm)
->  	u8 data[info->regs->regs_count];
->  	int ret;
->  
-> -	if (info->device_type == S2MPS14X || info->device_type == S2MPS13X) {
-> +	if (info->device_type == S2MPS14X || info->device_type == S2MPS15X ||
-> +						info->device_type == S2MPS13X) {
->  		ret = regmap_update_bits(info->regmap,
->  				info->regs->rtc_udr_update,
->  				S2MPS_RTC_RUDR_MASK, S2MPS_RTC_RUDR_MASK);
-> @@ -339,6 +342,7 @@ static int s5m_rtc_read_time(struct device *dev, struct rtc_time *tm)
->  		break;
->  
->  	case S5M8767X:
-> +	case S2MPS15X:
->  	case S2MPS14X:
->  	case S2MPS13X:
->  		s5m8767_data_to_tm(data, tm, info->rtc_24hr_mode);
-> @@ -366,6 +370,7 @@ static int s5m_rtc_set_time(struct device *dev, struct rtc_time *tm)
->  		s5m8763_tm_to_data(tm, data);
->  		break;
->  	case S5M8767X:
-> +	case S2MPS15X:
->  	case S2MPS14X:
->  	case S2MPS13X:
->  		ret = s5m8767_tm_to_data(tm, data);
-> @@ -414,6 +419,7 @@ static int s5m_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
->  		break;
->  
->  	case S5M8767X:
-> +	case S2MPS15X:
->  	case S2MPS14X:
->  	case S2MPS13X:
->  		s5m8767_data_to_tm(data, &alrm->time, info->rtc_24hr_mode);
-> @@ -463,6 +469,7 @@ static int s5m_rtc_stop_alarm(struct s5m_rtc_info *info)
->  		break;
->  
->  	case S5M8767X:
-> +	case S2MPS15X:
->  	case S2MPS14X:
->  	case S2MPS13X:
->  		for (i = 0; i < info->regs->regs_count; i++)
-> @@ -508,6 +515,7 @@ static int s5m_rtc_start_alarm(struct s5m_rtc_info *info)
->  		break;
->  
->  	case S5M8767X:
-> +	case S2MPS15X:
->  	case S2MPS14X:
->  	case S2MPS13X:
->  		data[RTC_SEC] |= ALARM_ENABLE_MASK;
-> @@ -548,6 +556,7 @@ static int s5m_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
->  		break;
->  
->  	case S5M8767X:
-> +	case S2MPS15X:
->  	case S2MPS14X:
->  	case S2MPS13X:
->  		s5m8767_tm_to_data(&alrm->time, data);
-> @@ -631,6 +640,7 @@ static int s5m8767_rtc_init_reg(struct s5m_rtc_info *info)
->  		ret = regmap_raw_write(info->regmap, S5M_ALARM0_CONF, data, 2);
->  		break;
->  
-> +	case S2MPS15X:
->  	case S2MPS14X:
->  	case S2MPS13X:
->  		data[0] = (0 << BCD_EN_SHIFT) | (1 << MODEL24_SHIFT);
-> @@ -679,6 +689,7 @@ static int s5m_rtc_probe(struct platform_device *pdev)
->  		return -ENOMEM;
->  
->  	switch (platform_get_device_id(pdev)->driver_data) {
-> +	case S2MPS15X:
->  	case S2MPS14X:
->  	case S2MPS13X:
->  		regmap_cfg = &s2mps14_rtc_regmap_config;
-> @@ -805,6 +816,7 @@ static const struct platform_device_id s5m_rtc_id[] = {
->  	{ "s5m-rtc",		S5M8767X },
->  	{ "s2mps13-rtc",	S2MPS13X },
->  	{ "s2mps14-rtc",	S2MPS14X },
-> +	{ "s2mps15-rtc",	S2MPS15X },
->  	{ },
->  };
->  MODULE_DEVICE_TABLE(platform, s5m_rtc_id);
-> 
+diff --git a/Documentation/devicetree/bindings/rtc/pcf8563.txt b/Documentation/devicetree/bindings/rtc/pcf8563.txt
+new file mode 100644
+index 0000000..cdb81ef
+--- /dev/null
++++ b/Documentation/devicetree/bindings/rtc/pcf8563.txt
+@@ -0,0 +1,28 @@
++* Philips PCF8563/Epson RTC8564 Real Time Clock
++
++Philips PCF8563/Epson RTC8564 Real Time Clock
++
++Required properties:
++see: Documentation/devicetree/bindings/i2c/trivial-devices.txt
++
++Optional property:
++- #clock-cells: Should be 1.
++- clocks: Reference to the clock entry.
++- clock-output-names:
++  overwrite the default clock name "pcf8563-clkout"
++
++Example:
++
++rtcclk: rtcclk {
++	compatible = "fixed-clock";
++	#clock-cells = <1>;
++	clock-frequency = <1>;
++	clock-output-names = "rtcclk";
++};
++
++pcf8563@51 {
++	compatible = "nxp,pcf8563";
++	reg = <0x51>;
++	#clock-cells = <1>;
++	clocks = <&rtcclk 0>;
++};
+diff --git a/drivers/rtc/rtc-pcf8563.c b/drivers/rtc/rtc-pcf8563.c
+index e569243..9db3c1f 100644
+--- a/drivers/rtc/rtc-pcf8563.c
++++ b/drivers/rtc/rtc-pcf8563.c
+@@ -14,6 +14,7 @@
+  * published by the Free Software Foundation.
+  */
+ 
++#include <linux/clk-provider.h>
+ #include <linux/i2c.h>
+ #include <linux/bcd.h>
+ #include <linux/rtc.h>
+@@ -40,7 +41,14 @@
+ 
+ #define PCF8563_REG_AMN		0x09 /* alarm */
+ 
+-#define PCF8563_REG_CLKO	0x0D /* clock out */
++#define PCF8563_REG_CLKO		0x0D /* clock out */
++#define PCF8563_REG_CLKO_FE		0x80 /* clock out enabled */
++#define PCF8563_REG_CLKO_F_MASK		0x03 /* frequenc mask */
++#define PCF8563_REG_CLKO_F_32768HZ	0x00
++#define PCF8563_REG_CLKO_F_1024HZ	0x01
++#define PCF8563_REG_CLKO_F_32HZ		0x02
++#define PCF8563_REG_CLKO_F_1HZ		0x03
++
+ #define PCF8563_REG_TMRC	0x0E /* timer control */
+ #define PCF8563_TMRC_ENABLE	BIT(7)
+ #define PCF8563_TMRC_4096	0
+@@ -76,6 +84,9 @@ struct pcf8563 {
+ 	int voltage_low; /* incicates if a low_voltage was detected */
+ 
+ 	struct i2c_client *client;
++#ifdef CONFIG_COMMON_CLK
++	struct clk_hw		clkout_hw;
++#endif
+ };
+ 
+ static int pcf8563_read_block_data(struct i2c_client *client, unsigned char reg,
+@@ -390,6 +401,158 @@ static int pcf8563_irq_enable(struct device *dev, unsigned int enabled)
+ 	return pcf8563_set_alarm_mode(to_i2c_client(dev), !!enabled);
+ }
+ 
++#ifdef CONFIG_COMMON_CLK
++/*
++ * Handling of the clkout
++ */
++
++#define clkout_hw_to_pcf8563(_hw) container_of(_hw, struct pcf8563, clkout_hw)
++
++static int clkout_rates[] = {
++	32768,
++	1024,
++	32,
++	1,
++};
++
++static unsigned long pcf8563_clkout_recalc_rate(struct clk_hw *hw,
++						unsigned long parent_rate)
++{
++	struct pcf8563 *pcf8563 = clkout_hw_to_pcf8563(hw);
++	struct i2c_client *client = pcf8563->client;
++	unsigned char buf;
++	int ret = pcf8563_read_block_data(client, PCF8563_REG_CLKO, 1, &buf);
++
++	if (ret < 0)
++		return 0;
++
++	buf &= PCF8563_REG_CLKO_F_MASK;
++	return clkout_rates[ret];
++}
++
++static long pcf8563_clkout_round_rate(struct clk_hw *hw, unsigned long rate,
++				      unsigned long *prate)
++{
++	int i;
++
++	for (i = 0; i < ARRAY_SIZE(clkout_rates); i++)
++		if (clkout_rates[i] <= rate)
++			return clkout_rates[i];
++
++	return 0;
++}
++
++static int pcf8563_clkout_set_rate(struct clk_hw *hw, unsigned long rate,
++				   unsigned long parent_rate)
++{
++	struct pcf8563 *pcf8563 = clkout_hw_to_pcf8563(hw);
++	struct i2c_client *client = pcf8563->client;
++	unsigned char buf;
++	int ret = pcf8563_read_block_data(client, PCF8563_REG_CLKO, 1, &buf);
++	int i;
++
++	if (ret < 0)
++		return ret;
++
++	for (i = 0; i < ARRAY_SIZE(clkout_rates); i++)
++		if (clkout_rates[i] == rate) {
++			buf &= ~PCF8563_REG_CLKO_F_MASK;
++			buf |= i;
++			ret = pcf8563_write_block_data(client,
++						       PCF8563_REG_CLKO, 1,
++						       &buf);
++			return ret;
++		}
++
++	return -EINVAL;
++}
++
++static int pcf8563_clkout_control(struct clk_hw *hw, bool enable)
++{
++	struct pcf8563 *pcf8563 = clkout_hw_to_pcf8563(hw);
++	struct i2c_client *client = pcf8563->client;
++	unsigned char buf;
++	int ret = pcf8563_read_block_data(client, PCF8563_REG_CLKO, 1, &buf);
++
++	if (ret < 0)
++		return ret;
++
++	if (enable)
++		buf |= PCF8563_REG_CLKO_FE;
++	else
++		buf &= ~PCF8563_REG_CLKO_FE;
++
++	ret = pcf8563_write_block_data(client, PCF8563_REG_CLKO, 1, &buf);
++	return ret;
++}
++
++static int pcf8563_clkout_prepare(struct clk_hw *hw)
++{
++	return pcf8563_clkout_control(hw, 1);
++}
++
++static void pcf8563_clkout_unprepare(struct clk_hw *hw)
++{
++	pcf8563_clkout_control(hw, 0);
++}
++
++static int pcf8563_clkout_is_prepared(struct clk_hw *hw)
++{
++	struct pcf8563 *pcf8563 = clkout_hw_to_pcf8563(hw);
++	struct i2c_client *client = pcf8563->client;
++	unsigned char buf;
++	int ret = pcf8563_read_block_data(client, PCF8563_REG_CLKO, 1, &buf);
++
++	if (ret < 0)
++		return ret;
++
++	return !!(buf & PCF8563_REG_CLKO_FE);
++}
++
++static const struct clk_ops pcf8563_clkout_ops = {
++	.prepare = pcf8563_clkout_prepare,
++	.unprepare = pcf8563_clkout_unprepare,
++	.is_prepared = pcf8563_clkout_is_prepared,
++	.recalc_rate = pcf8563_clkout_recalc_rate,
++	.round_rate = pcf8563_clkout_round_rate,
++	.set_rate = pcf8563_clkout_set_rate,
++};
++
++static struct clk *pcf8563_clkout_register_clk(struct pcf8563 *pcf8563)
++{
++	struct i2c_client *client = pcf8563->client;
++	struct device_node *node = client->dev.of_node;
++	struct clk *clk;
++	struct clk_init_data init;
++	int ret;
++	unsigned char buf;
++
++	/* disable the clkout output */
++	buf = 0;
++	ret = pcf8563_write_block_data(client, PCF8563_REG_CLKO, 1, &buf);
++	if (ret < 0)
++		return ERR_PTR(ret);
++
++	init.name = "pcf8563-clkout";
++	init.ops = &pcf8563_clkout_ops;
++	init.flags = CLK_IS_ROOT;
++	init.parent_names = NULL;
++	init.num_parents = 0;
++	pcf8563->clkout_hw.init = &init;
++
++	/* optional override of the clockname */
++	of_property_read_string(node, "clock-output-names", &init.name);
++
++	/* register the clock */
++	clk = clk_register(&client->dev, &pcf8563->clkout_hw);
++
++	if (!IS_ERR(clk))
++		of_clk_add_provider(node, of_clk_src_simple_get, clk);
++
++	return clk;
++}
++#endif
++
+ static const struct rtc_class_ops pcf8563_rtc_ops = {
+ 	.ioctl		= pcf8563_rtc_ioctl,
+ 	.read_time	= pcf8563_rtc_read_time,
+@@ -459,6 +622,11 @@ static int pcf8563_probe(struct i2c_client *client,
+ 
+ 	}
+ 
++#ifdef CONFIG_COMMON_CLK
++	/* register clk in common clk framework */
++	pcf8563_clkout_register_clk(pcf8563);
++#endif
++
+ 	/* the pcf8563 alarm only supports a minute accuracy */
+ 	pcf8563->rtc->uie_unsupported = 1;
+ 
+-- 
+2.1.0
 
 -- 
 -- 
