@@ -1,32 +1,22 @@
-Return-Path: <rtc-linux+bncBD747RFBYUPBBZH7YCYQKGQEUQYDXXY@googlegroups.com>
-Received: from mailout4.samsung.com (mailout4.samsung.com. [203.254.224.34])
-        by gmr-mx.google.com with ESMTPS id fa8si4612385pab.1.2015.10.27.20.24.20
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1 cipher=RC4-SHA bits=128/128);
-        Tue, 27 Oct 2015 20:24:20 -0700 (PDT)
-Received: from epcpsbgr2.samsung.com
- (u142.gpu120.samsung.co.kr [203.254.230.142])
- by mailout4.samsung.com (Oracle Communications Messaging Server 7.0.5.31.0
- 64bit (built May  5 2014))
- with ESMTP id <0NWW02I92USIJ5B0@mailout4.samsung.com> for
- rtc-linux@googlegroups.com; Wed, 28 Oct 2015 12:24:18 +0900 (KST)
-Message-id: <56303DA3.5020306@samsung.com>
-Date: Wed, 28 Oct 2015 08:44:43 +0530
-From: Alim Akhtar <alim.akhtar@samsung.com>
-MIME-version: 1.0
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBTU2Q2YQKGQENY5HYUA@googlegroups.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id hs5si184671wib.1.2015.10.16.16.50.37
+        for <rtc-linux@googlegroups.com>;
+        Fri, 16 Oct 2015 16:50:37 -0700 (PDT)
+Date: Sat, 17 Oct 2015 01:50:37 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
 To: Krzysztof Kozlowski <k.kozlowski@samsung.com>,
- Mark Brown <broonie@kernel.org>
-Cc: lee.jones@linaro.org, mturquette@baylibre.com,
- linux-samsung-soc@vger.kernel.org, linux-clk@vger.kernel.org,
- rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH v3 5/5] drivers/rtc/rtc-s5m.c: add support for
- S2MPS15 RTC
-References: <1445863883-5187-1-git-send-email-alim.akhtar@samsung.com>
- <1445863883-5187-6-git-send-email-alim.akhtar@samsung.com>
- <56302514.4090407@samsung.com> <20151028015323.GZ28319@sirena.org.uk>
- <56303054.8060804@samsung.com>
-In-reply-to: <56303054.8060804@samsung.com>
-Content-type: text/plain; charset=UTF-8; format=flowed
+	Fabio Estevam <festevam@gmail.com>
+Cc: Fabio Estevam <fabio.estevam@freescale.com>, rtc-linux@googlegroups.com
+Subject: Re: [rtc-linux] [PATCH] rtc: Pass the IRQF_ONESHOT flag
+Message-ID: <20151016235037.GT3421@piout.net>
+References: <1439518416-13044-1-git-send-email-festevam@gmail.com>
+ <55D0624A.2020109@samsung.com>
+ <55D06B25.3000401@samsung.com>
+ <CAJKOXPdhKTy8tvwz3FOtrQLiW=qBM86em_prGLnOr5nc_q3qFQ@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <CAJKOXPdhKTy8tvwz3FOtrQLiW=qBM86em_prGLnOr5nc_q3qFQ@mail.gmail.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -37,42 +27,25 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Hello,
+Hi,
 
-On 10/28/2015 07:47 AM, Krzysztof Kozlowski wrote:
-> On 28.10.2015 10:53, Mark Brown wrote:
->> On Wed, Oct 28, 2015 at 10:29:56AM +0900, Krzysztof Kozlowski wrote:
->>
->>> If that's true, then don't add new compatibles, new names etc. Re-use.
->>> No new code needed, no changes needed. Keep it simple.
->>
->> Well, it depends - it can be useful to get the information about it
->> being a different part into DT so that if in future we realise that
->> there is some difference (perhaps a bug workaround even if the IP is
->> intended to be the same).  Though in the case of a MFD that information
->> can be obtained from the MFD for the device.
->
-> We can always differentiate later and introduce new compatible.
-> Declaring a compatible right now would be useful only if we really cared
-> about using the workaround on older DTBs.
->
-> Since I cannot judge the difference (I don't have the datasheet of
-> S2MPS15) then I don't see the need of adding new compatible/name for the
-> "same device".
->
-> Of course maybe there is such need? Alim?
->
-Well I did think of keeping the changes as minimal as possible, like 
-just have "{ "s2mps15-rtc",        S2MPS14X }", since I don't have 
-access to s2mps14 UM, I could not confirm that s2mps14 and s2mps15 are 
-exactly the same w.r.t rtc block. So I proposed the current changes.
+On 16/08/2015 at 19:54:33 +0900, Krzysztof Kozlowski wrote :
+> Overall the patch is not needed, description is misleading (small
+> difference between "works" and "will fail") and cocci script generates
+> false positive (at least for max77686, max77802 and rtc-s5m).
+> 
+> From another point of view, have you tested the patch on these devices?
+> This introduces small functional change - the irq becomes oneshot...
+> 
 
-Well I do agree with Mark here, a name/compatible matching with the pmic 
-is good to at least avoid confusion while looking at the sysfs.
+I had a good look and they are actually all false positive apart from
+isl1208 (they are all MFDs). Fabio, do you mind reworking?
 
-> Best regards,
-> Krzysztof
->
+
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
 -- 
 -- 
