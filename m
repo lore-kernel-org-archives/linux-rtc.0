@@ -1,22 +1,21 @@
-Return-Path: <rtc-linux+bncBAABBG6NXOYAKGQEROEXYXA@googlegroups.com>
+Return-Path: <rtc-linux+bncBCXY5EGBQUIBBG6AQOYQKGQEO4SHFDA@googlegroups.com>
 MIME-Version: 1.0
-Received: from mail.cosmopool.net (mail.cosmopool.net. [2a01:4f8:160:20c1::10:107])
-        by gmr-mx.google.com with ESMTP id bn1si27923wib.0.2015.10.02.13.18.35
-        for <rtc-linux@googlegroups.com>;
-        Fri, 02 Oct 2015 13:18:35 -0700 (PDT)
-From: Harald Geyer <harald@ccbib.org>
-To: Alessandro Zummo <a.zummo@towertech.it>,
+Received: from mail-out.m-online.net (mail-out.m-online.net. [2001:a60:0:28:0:1:25:1])
+        by gmr-mx.google.com with ESMTPS id hs5si103675wib.1.2015.10.16.04.31.38
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1 cipher=ECDHE-RSA-RC4-SHA bits=128/128);
+        Fri, 16 Oct 2015 04:31:38 -0700 (PDT)
+From: Heiko Schocher <hs@denx.de>
+To: linux-kernel@vger.kernel.org
+Cc: Heiko Schocher <hs@denx.de>,
 	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Wim Van Sebroeck <wim@iguana.be>
-Cc: rtc-linux@googlegroups.com,
-	linux-watchdog@vger.kernel.org,
-	kernel@pengutronix.de,
-	Harald Geyer <harald@ccbib.org>
-Subject: [rtc-linux] [PATCH 2/2] watchdog: stmp3xxx: Implement GETBOOTSTATUS
-Date: Fri,  2 Oct 2015 20:18:02 +0000
-Message-Id: <1443817082-24370-2-git-send-email-harald@ccbib.org>
-In-Reply-To: <1443817082-24370-1-git-send-email-harald@ccbib.org>
-References: <1443817082-24370-1-git-send-email-harald@ccbib.org>
+	Georg.Soffel@bosch-si.com,
+	rtc-linux@googlegroups.com,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	devicetree@vger.kernel.org
+Subject: [rtc-linux] [PATCH v4] rtc: pcf8563: add CLKOUT to common clock framework
+Date: Fri, 16 Oct 2015 13:31:29 +0200
+Message-Id: <1444995089-14493-1-git-send-email-hs@denx.de>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -28,207 +27,277 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-When the watchdog is enabled, we set a persitent bit. After booting
-we query the bit and see if the system was reset by the watchdog.
+Add the clkout output clk to the common clock framework.
+Disable the CLKOUT of the RTC after power-up.
+After power-up/reset of the RTC, CLKOUT is enabled by default,
+with CLKOUT enabled the RTC chip has 2-3 times higher power
+consumption.
 
-This is somewhat similar to what the legacy driver from freescale
-does. However we use STMP3XXX_RTC_PERSISTENT2 instead of
-STMP3XXX_RTC_PERSISTENT1. I tried that first, but it seems I can't
-clear the bit there once it is set. I didn't find any documentation
-what this register does - only vague hints that it is meant to
-control the boot ROM.
-
-Part of the code from the legacy driver touching this register
-is still included. Maybe this is stale, but this patch doesn't
-touch any of it because I don't know what it really does or is
-meant to do.
-
-Signed-off-by: Harald Geyer <harald@ccbib.org>
+Signed-off-by: Heiko Schocher <hs@denx.de>
 ---
-Changes since initially posting this patch on 08/04/2015:
-* fix a spelling error in the commit message
-* rebase to a recent version
 
- drivers/rtc/rtc-stmp3xxx.c          |   23 +++++++++++++++++++++++
- drivers/watchdog/stmp3xxx_rtc_wdt.c |   34 +++++++++++++++++++++++++++++++++-
- include/linux/stmp3xxx_rtc_wdt.h    |    2 ++
- 3 files changed, 58 insertions(+), 1 deletion(-)
+Changes in v4:
+- add comments from Alexandre Belloni
+  - use devm_clk_register() instead of clk_register()
+  - rework Documentation
 
-diff --git a/drivers/rtc/rtc-stmp3xxx.c b/drivers/rtc/rtc-stmp3xxx.c
-index ca54d03..5d68090 100644
---- a/drivers/rtc/rtc-stmp3xxx.c
-+++ b/drivers/rtc/rtc-stmp3xxx.c
-@@ -30,6 +30,7 @@
- #include <linux/of.h>
- #include <linux/stmp_device.h>
- #include <linux/stmp3xxx_rtc_wdt.h>
-+#include <linux/watchdog.h>
- 
- #define STMP3XXX_RTC_CTRL			0x0
- #define STMP3XXX_RTC_CTRL_ALARM_IRQ_EN		0x00000001
-@@ -62,6 +63,9 @@
- /* missing bitmask in headers */
- #define STMP3XXX_RTC_PERSISTENT1_FORCE_UPDATER	0x80000000
- 
-+#define STMP3XXX_RTC_PERSISTENT2		0x80
-+#define STMP3XXX_RTC_PERSISTENT2_WDT_ACTIVE	0x00000001
+Changes in v3:
+- use CONFIG_COMMON_CLK for common clk framework
+  changes
+
+Changes in v2:
+- add comments from Alexandre Belloni
+  - remove the DT property, instead
+    register for the CLKOUT a clk in the common
+    clk framework. The clk is disabled by default.
+
+ Documentation/devicetree/bindings/rtc/pcf8563.txt |  25 ++++
+ drivers/rtc/rtc-pcf8563.c                         | 170 +++++++++++++++++++++-
+ 2 files changed, 194 insertions(+), 1 deletion(-)
+ create mode 100644 Documentation/devicetree/bindings/rtc/pcf8563.txt
+
+diff --git a/Documentation/devicetree/bindings/rtc/pcf8563.txt b/Documentation/devicetree/bindings/rtc/pcf8563.txt
+new file mode 100644
+index 0000000..72f6d2c
+--- /dev/null
++++ b/Documentation/devicetree/bindings/rtc/pcf8563.txt
+@@ -0,0 +1,25 @@
++* Philips PCF8563/Epson RTC8564 Real Time Clock
 +
- struct stmp3xxx_rtc_data {
- 	struct rtc_device *rtc;
- 	void __iomem *io;
-@@ -83,6 +87,14 @@ struct stmp3xxx_rtc_data {
-  * registers is atomic.
-  */
- 
-+static void stmp3xxx_wdt_clear_bootstatus(struct device *dev)
-+{
-+	struct stmp3xxx_rtc_data *rtc_data = dev_get_drvdata(dev);
++Philips PCF8563/Epson RTC8564 Real Time Clock
 +
-+	writel(STMP3XXX_RTC_PERSISTENT2_WDT_ACTIVE,
-+	       STMP3XXX_RTC_PERSISTENT2 + STMP_OFFSET_REG_CLR + rtc_data->io);
-+}
++Required properties:
++see: Documentation/devicetree/bindings/i2c/trivial-devices.txt
 +
- static void stmp3xxx_wdt_set_timeout(struct device *dev, u32 timeout)
- {
- 	struct stmp3xxx_rtc_data *rtc_data = dev_get_drvdata(dev);
-@@ -93,16 +105,22 @@ static void stmp3xxx_wdt_set_timeout(struct device *dev, u32 timeout)
- 		       rtc_data->io + STMP3XXX_RTC_CTRL + STMP_OFFSET_REG_SET);
- 		writel(STMP3XXX_RTC_PERSISTENT1_FORCE_UPDATER,
- 		       rtc_data->io + STMP3XXX_RTC_PERSISTENT1 + STMP_OFFSET_REG_SET);
-+		writel(STMP3XXX_RTC_PERSISTENT2_WDT_ACTIVE,
-+		       rtc_data->io + STMP3XXX_RTC_PERSISTENT2 + STMP_OFFSET_REG_SET);
- 	} else {
- 		writel(STMP3XXX_RTC_CTRL_WATCHDOGEN,
- 		       rtc_data->io + STMP3XXX_RTC_CTRL + STMP_OFFSET_REG_CLR);
- 		writel(STMP3XXX_RTC_PERSISTENT1_FORCE_UPDATER,
- 		       rtc_data->io + STMP3XXX_RTC_PERSISTENT1 + STMP_OFFSET_REG_CLR);
-+		writel(STMP3XXX_RTC_PERSISTENT2_WDT_ACTIVE,
-+		       rtc_data->io + STMP3XXX_RTC_PERSISTENT2 + STMP_OFFSET_REG_CLR);
- 	}
- }
- 
- static struct stmp3xxx_wdt_pdata wdt_pdata = {
- 	.wdt_set_timeout = stmp3xxx_wdt_set_timeout,
-+	.wdt_clear_bootstatus = stmp3xxx_wdt_clear_bootstatus,
-+	.bootstatus = 0,
- };
- 
- static void stmp3xxx_wdt_register(struct platform_device *rtc_pdev)
-@@ -110,6 +128,8 @@ static void stmp3xxx_wdt_register(struct platform_device *rtc_pdev)
- 	struct platform_device *wdt_pdev =
- 		platform_device_alloc("stmp3xxx_rtc_wdt", rtc_pdev->id);
- 
-+	stmp3xxx_wdt_clear_bootstatus(&rtc_pdev->dev);
++Optional property:
++- #clock-cells: Should be 0.
++- clock-output-names:
++  overwrite the default clock name "pcf8563-clkout"
 +
- 	if (wdt_pdev) {
- 		wdt_pdev->dev.parent = &rtc_pdev->dev;
- 		wdt_pdev->dev.platform_data = &wdt_pdata;
-@@ -357,6 +377,9 @@ static int stmp3xxx_rtc_probe(struct platform_device *pdev)
- 		return err;
- 	}
- 
-+	if (readl(STMP3XXX_RTC_PERSISTENT2 + rtc_data->io) &
-+			 STMP3XXX_RTC_PERSISTENT2_WDT_ACTIVE)
-+		wdt_pdata.bootstatus |= WDIOF_CARDRESET;
- 	stmp3xxx_wdt_register(pdev);
- 	return 0;
- }
-diff --git a/drivers/watchdog/stmp3xxx_rtc_wdt.c b/drivers/watchdog/stmp3xxx_rtc_wdt.c
-index 3ee6128..7609f78 100644
---- a/drivers/watchdog/stmp3xxx_rtc_wdt.c
-+++ b/drivers/watchdog/stmp3xxx_rtc_wdt.c
-@@ -14,6 +14,8 @@
- #include <linux/watchdog.h>
- #include <linux/platform_device.h>
- #include <linux/stmp3xxx_rtc_wdt.h>
-+#include <linux/notifier.h>
-+#include <linux/reboot.h>
- 
- #define WDOG_TICK_RATE 1000 /* 1 kHz clock */
- #define STMP3XXX_DEFAULT_TIMEOUT 19
-@@ -50,7 +52,8 @@ static int wdt_set_timeout(struct watchdog_device *wdd, unsigned new_timeout)
- }
- 
- static const struct watchdog_info stmp3xxx_wdt_ident = {
--	.options = WDIOF_MAGICCLOSE | WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING,
-+	.options = WDIOF_MAGICCLOSE | WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING |
-+		WDIOF_CARDRESET,
- 	.identity = "STMP3XXX RTC Watchdog",
- };
- 
-@@ -69,14 +72,39 @@ static struct watchdog_device stmp3xxx_wdd = {
- 	.status = WATCHDOG_NOWAYOUT_INIT_STATUS,
- };
- 
-+static int wdt_notify_sys(struct notifier_block *nb, unsigned long code,
-+			  void *unused)
-+{
-+	struct device *dev = watchdog_get_drvdata(&stmp3xxx_wdd);
-+	struct stmp3xxx_wdt_pdata *pdata = dev_get_platdata(dev);
++Example:
 +
-+	switch (code) {
-+	case SYS_DOWN:	/* keep enabled, system might crash while going down */
-+		pdata->wdt_clear_bootstatus(dev->parent);
-+		break;
-+	case SYS_HALT:  /* allow the system to actually halt */
-+	case SYS_POWER_OFF:
-+		wdt_stop(&stmp3xxx_wdd);
-+		break;
-+	}
-+
-+	return NOTIFY_DONE;
-+}
-+
-+static struct notifier_block wdt_notifier = {
-+	.notifier_call  = wdt_notify_sys,
++pcf8563: pcf8563@51 {
++	compatible = "nxp,pcf8563";
++	reg = <0x51>;
++	#clock-cells = <0>;
 +};
 +
- static int stmp3xxx_wdt_probe(struct platform_device *pdev)
- {
-+	struct stmp3xxx_wdt_pdata *pdata = dev_get_platdata(&pdev->dev);
- 	int ret;
++device {
++...
++	clocks = <&pcf8563>;
++...
++};
+diff --git a/drivers/rtc/rtc-pcf8563.c b/drivers/rtc/rtc-pcf8563.c
+index e569243..c8f95b8 100644
+--- a/drivers/rtc/rtc-pcf8563.c
++++ b/drivers/rtc/rtc-pcf8563.c
+@@ -14,6 +14,7 @@
+  * published by the Free Software Foundation.
+  */
  
- 	watchdog_set_drvdata(&stmp3xxx_wdd, &pdev->dev);
++#include <linux/clk-provider.h>
+ #include <linux/i2c.h>
+ #include <linux/bcd.h>
+ #include <linux/rtc.h>
+@@ -40,7 +41,14 @@
  
- 	stmp3xxx_wdd.timeout = clamp_t(unsigned, heartbeat, 1, STMP3XXX_MAX_TIMEOUT);
- 	stmp3xxx_wdd.parent = &pdev->dev;
-+	stmp3xxx_wdd.bootstatus = pdata->bootstatus;
+ #define PCF8563_REG_AMN		0x09 /* alarm */
  
- 	ret = watchdog_register_device(&stmp3xxx_wdd);
- 	if (ret < 0) {
-@@ -84,6 +112,9 @@ static int stmp3xxx_wdt_probe(struct platform_device *pdev)
- 		return ret;
- 	}
- 
-+	if (register_reboot_notifier(&wdt_notifier))
-+		dev_warn(&pdev->dev, "cannot register reboot notifier\n");
+-#define PCF8563_REG_CLKO	0x0D /* clock out */
++#define PCF8563_REG_CLKO		0x0D /* clock out */
++#define PCF8563_REG_CLKO_FE		0x80 /* clock out enabled */
++#define PCF8563_REG_CLKO_F_MASK		0x03 /* frequenc mask */
++#define PCF8563_REG_CLKO_F_32768HZ	0x00
++#define PCF8563_REG_CLKO_F_1024HZ	0x01
++#define PCF8563_REG_CLKO_F_32HZ		0x02
++#define PCF8563_REG_CLKO_F_1HZ		0x03
 +
- 	dev_info(&pdev->dev, "initialized watchdog with heartbeat %ds\n",
- 			stmp3xxx_wdd.timeout);
- 	return 0;
-@@ -91,6 +122,7 @@ static int stmp3xxx_wdt_probe(struct platform_device *pdev)
+ #define PCF8563_REG_TMRC	0x0E /* timer control */
+ #define PCF8563_TMRC_ENABLE	BIT(7)
+ #define PCF8563_TMRC_4096	0
+@@ -76,6 +84,9 @@ struct pcf8563 {
+ 	int voltage_low; /* incicates if a low_voltage was detected */
  
- static int stmp3xxx_wdt_remove(struct platform_device *pdev)
- {
-+	unregister_reboot_notifier(&wdt_notifier);
- 	watchdog_unregister_device(&stmp3xxx_wdd);
- 	return 0;
- }
-diff --git a/include/linux/stmp3xxx_rtc_wdt.h b/include/linux/stmp3xxx_rtc_wdt.h
-index 1dd12c9..62dd9e6 100644
---- a/include/linux/stmp3xxx_rtc_wdt.h
-+++ b/include/linux/stmp3xxx_rtc_wdt.h
-@@ -10,6 +10,8 @@
- 
- struct stmp3xxx_wdt_pdata {
- 	void (*wdt_set_timeout)(struct device *dev, u32 timeout);
-+	void (*wdt_clear_bootstatus)(struct device *dev);
-+	unsigned int bootstatus;
+ 	struct i2c_client *client;
++#ifdef CONFIG_COMMON_CLK
++	struct clk_hw		clkout_hw;
++#endif
  };
  
- #endif /* __LINUX_STMP3XXX_RTC_WDT_H */
+ static int pcf8563_read_block_data(struct i2c_client *client, unsigned char reg,
+@@ -390,6 +401,158 @@ static int pcf8563_irq_enable(struct device *dev, unsigned int enabled)
+ 	return pcf8563_set_alarm_mode(to_i2c_client(dev), !!enabled);
+ }
+ 
++#ifdef CONFIG_COMMON_CLK
++/*
++ * Handling of the clkout
++ */
++
++#define clkout_hw_to_pcf8563(_hw) container_of(_hw, struct pcf8563, clkout_hw)
++
++static int clkout_rates[] = {
++	32768,
++	1024,
++	32,
++	1,
++};
++
++static unsigned long pcf8563_clkout_recalc_rate(struct clk_hw *hw,
++						unsigned long parent_rate)
++{
++	struct pcf8563 *pcf8563 = clkout_hw_to_pcf8563(hw);
++	struct i2c_client *client = pcf8563->client;
++	unsigned char buf;
++	int ret = pcf8563_read_block_data(client, PCF8563_REG_CLKO, 1, &buf);
++
++	if (ret < 0)
++		return 0;
++
++	buf &= PCF8563_REG_CLKO_F_MASK;
++	return clkout_rates[ret];
++}
++
++static long pcf8563_clkout_round_rate(struct clk_hw *hw, unsigned long rate,
++				      unsigned long *prate)
++{
++	int i;
++
++	for (i = 0; i < ARRAY_SIZE(clkout_rates); i++)
++		if (clkout_rates[i] <= rate)
++			return clkout_rates[i];
++
++	return 0;
++}
++
++static int pcf8563_clkout_set_rate(struct clk_hw *hw, unsigned long rate,
++				   unsigned long parent_rate)
++{
++	struct pcf8563 *pcf8563 = clkout_hw_to_pcf8563(hw);
++	struct i2c_client *client = pcf8563->client;
++	unsigned char buf;
++	int ret = pcf8563_read_block_data(client, PCF8563_REG_CLKO, 1, &buf);
++	int i;
++
++	if (ret < 0)
++		return ret;
++
++	for (i = 0; i < ARRAY_SIZE(clkout_rates); i++)
++		if (clkout_rates[i] == rate) {
++			buf &= ~PCF8563_REG_CLKO_F_MASK;
++			buf |= i;
++			ret = pcf8563_write_block_data(client,
++						       PCF8563_REG_CLKO, 1,
++						       &buf);
++			return ret;
++		}
++
++	return -EINVAL;
++}
++
++static int pcf8563_clkout_control(struct clk_hw *hw, bool enable)
++{
++	struct pcf8563 *pcf8563 = clkout_hw_to_pcf8563(hw);
++	struct i2c_client *client = pcf8563->client;
++	unsigned char buf;
++	int ret = pcf8563_read_block_data(client, PCF8563_REG_CLKO, 1, &buf);
++
++	if (ret < 0)
++		return ret;
++
++	if (enable)
++		buf |= PCF8563_REG_CLKO_FE;
++	else
++		buf &= ~PCF8563_REG_CLKO_FE;
++
++	ret = pcf8563_write_block_data(client, PCF8563_REG_CLKO, 1, &buf);
++	return ret;
++}
++
++static int pcf8563_clkout_prepare(struct clk_hw *hw)
++{
++	return pcf8563_clkout_control(hw, 1);
++}
++
++static void pcf8563_clkout_unprepare(struct clk_hw *hw)
++{
++	pcf8563_clkout_control(hw, 0);
++}
++
++static int pcf8563_clkout_is_prepared(struct clk_hw *hw)
++{
++	struct pcf8563 *pcf8563 = clkout_hw_to_pcf8563(hw);
++	struct i2c_client *client = pcf8563->client;
++	unsigned char buf;
++	int ret = pcf8563_read_block_data(client, PCF8563_REG_CLKO, 1, &buf);
++
++	if (ret < 0)
++		return ret;
++
++	return !!(buf & PCF8563_REG_CLKO_FE);
++}
++
++static const struct clk_ops pcf8563_clkout_ops = {
++	.prepare = pcf8563_clkout_prepare,
++	.unprepare = pcf8563_clkout_unprepare,
++	.is_prepared = pcf8563_clkout_is_prepared,
++	.recalc_rate = pcf8563_clkout_recalc_rate,
++	.round_rate = pcf8563_clkout_round_rate,
++	.set_rate = pcf8563_clkout_set_rate,
++};
++
++static struct clk *pcf8563_clkout_register_clk(struct pcf8563 *pcf8563)
++{
++	struct i2c_client *client = pcf8563->client;
++	struct device_node *node = client->dev.of_node;
++	struct clk *clk;
++	struct clk_init_data init;
++	int ret;
++	unsigned char buf;
++
++	/* disable the clkout output */
++	buf = 0;
++	ret = pcf8563_write_block_data(client, PCF8563_REG_CLKO, 1, &buf);
++	if (ret < 0)
++		return ERR_PTR(ret);
++
++	init.name = "pcf8563-clkout";
++	init.ops = &pcf8563_clkout_ops;
++	init.flags = CLK_IS_ROOT;
++	init.parent_names = NULL;
++	init.num_parents = 0;
++	pcf8563->clkout_hw.init = &init;
++
++	/* optional override of the clockname */
++	of_property_read_string(node, "clock-output-names", &init.name);
++
++	/* register the clock */
++	clk = devm_clk_register(&client->dev, &pcf8563->clkout_hw);
++
++	if (!IS_ERR(clk))
++		of_clk_add_provider(node, of_clk_src_simple_get, clk);
++
++	return clk;
++}
++#endif
++
+ static const struct rtc_class_ops pcf8563_rtc_ops = {
+ 	.ioctl		= pcf8563_rtc_ioctl,
+ 	.read_time	= pcf8563_rtc_read_time,
+@@ -459,6 +622,11 @@ static int pcf8563_probe(struct i2c_client *client,
+ 
+ 	}
+ 
++#ifdef CONFIG_COMMON_CLK
++	/* register clk in common clk framework */
++	pcf8563_clkout_register_clk(pcf8563);
++#endif
++
+ 	/* the pcf8563 alarm only supports a minute accuracy */
+ 	pcf8563->rtc->uie_unsupported = 1;
+ 
 -- 
-1.7.10.4
+2.1.0
 
 -- 
 -- 
