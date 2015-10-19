@@ -1,23 +1,19 @@
-Return-Path: <rtc-linux+bncBD747RFBYUPBBR42ZSYQKGQEOJHXDAQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBDULZYNR2QMRBDXISCYQKGQEU3W6FDA@googlegroups.com>
 MIME-Version: 1.0
-Received: from mailout1.samsung.com (mailout1.samsung.com. [203.254.224.24])
-        by gmr-mx.google.com with ESMTPS id vy6si584195pbc.1.2015.10.29.23.25.11
+Received: from mail-qg0-x233.google.com (mail-qg0-x233.google.com. [2607:f8b0:400d:c04::233])
+        by gmr-mx.google.com with ESMTPS id i140si188251ywe.3.2015.10.18.17.06.38
         for <rtc-linux@googlegroups.com>
-        (version=TLSv1 cipher=RC4-SHA bits=128/128);
-        Thu, 29 Oct 2015 23:25:11 -0700 (PDT)
-Received: from epcpsbgr2.samsung.com
- (u142.gpu120.samsung.co.kr [203.254.230.142])
- by mailout1.samsung.com (Oracle Communications Messaging Server 7.0.5.31.0
- 64bit (built May  5 2014))
- with ESMTP id <0NX001UP8SHXL380@mailout1.samsung.com> for
- rtc-linux@googlegroups.com; Fri, 30 Oct 2015 15:25:09 +0900 (KST)
-From: Alim Akhtar <alim.akhtar@samsung.com>
-To: lee.jones@linaro.org, broonie@kernel.org
-Cc: k.kozlowski@samsung.com, linux-samsung-soc@vger.kernel.org,
- rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org
-Subject: [rtc-linux] [PATCH v5 0/4] mfd: sec: add S2MPS15 PMIC support
-Date: Fri, 30 Oct 2015 11:55:30 +0530
-Message-id: <1446186334-16510-1-git-send-email-alim.akhtar@samsung.com>
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Sun, 18 Oct 2015 17:06:38 -0700 (PDT)
+Received: by mail-qg0-x233.google.com with SMTP id o38so100186413qge.0
+        for <rtc-linux@googlegroups.com>; Sun, 18 Oct 2015 17:06:38 -0700 (PDT)
+From: Fabio Estevam <festevam@gmail.com>
+To: alexandre.belloni@free-electrons.com
+Cc: rtc-linux@googlegroups.com,
+	Fabio Estevam <fabio.estevam@freescale.com>
+Subject: [rtc-linux] [PATCH] rtc: isl1208: Pass the IRQF_ONESHOT flag
+Date: Sun, 18 Oct 2015 22:06:22 -0200
+Message-Id: <1445213182-5214-1-git-send-email-festevam@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -29,66 +25,37 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Samsung's S2MPS15 PMIC is targetted to be used with Samsung's Exynos7 SoC.
-The S2MPS15 PMIC is similar in functionality to S2MPS11/14 PMIC. It contains
-27 LDO and 10 Buck regulators, RTC, three 32.768 KHz clock outputs and allows
-programming these blocks via a I2C interface. This patch series adds initial
-support for LDO/Buck regulators of S2MPS15 PMIC.
+From: Fabio Estevam <fabio.estevam@freescale.com>
 
-Changes since v4:
-* Dorpped Krzysztof reviewed-by and Lee Acked-by tags from patch 1/4,
-  because of the new changes to DT bindings. Seeking a fresh review/ack tags.
-* Removed samsung,s2mps15-clk compatible as we can reuse exsisting compatible of s2mps13.
-* Added acked-by on patch 2/4
-* Modified rtc driver as s2mps15 differs from s2mps14/13 etc, addressed Krzysztof
-  concerns on rtc patch.
-  There are some other improvement suggestion from Krzystof for the rtc, I feel that can be done
-  as a sperate patch later.
+Since commit 1c6c69525b40eb76de8adf039409722015927dc3 ("genirq: Reject
+bogus threaded irq requests") threaded IRQs without a primary handler
+need to be requested with IRQF_ONESHOT, otherwise the request will fail.
 
-Changes since v3:
-* Changes regulator driver name from s2mps15-pmic -> s2mps15-regulator as disscussed here [2]
-* Re-use the exsisting compatible/names for s2mps15 clock block.
+So pass the IRQF_ONESHOT flag in this case.
 
-Changes since v2:
-* Addressed Lee Jones review comments.
+The semantic patch that makes this change is available
+in scripts/coccinelle/misc/irqf_oneshot.cocci
 
-Changes since v1:
-* Added suggestion from Krzysztof [1].
-* Added s2mps15's 32.768 clocks support.
-* Added s2mps15's rtc support.
+Signed-off-by: Fabio Estevam <fabio.estevam@freescale.com>
+---
+ drivers/rtc/rtc-isl1208.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-V1 of these patches (with a lesser features) were posted a year back,
-since then there is not much progress on this, this is my attempt to
-move things forward.
-
-[1]-> https://lkml.org/lkml/2014/10/14/67
-[2]-> https://lkml.org/lkml/2015/10/28/417
-
-This series is based on linux-next-20151022.
-This is tested on exynos7-espresso board.
-
-Alim Akhtar (1):
-  drivers/rtc/rtc-s5m.c: add support for S2MPS15 RTC
-
-Thomas Abraham (3):
-  dt-bindings: mfd: s2mps11: add documentation for s2mps15 PMIC
-  mfd: sec: Add support for S2MPS15 PMIC
-  regulator: s2mps11: add support for S2MPS15 regulators
-
- Documentation/devicetree/bindings/mfd/s2mps11.txt |   21 ++-
- drivers/mfd/sec-core.c                            |   31 ++++
- drivers/mfd/sec-irq.c                             |    8 ++
- drivers/regulator/Kconfig                         |    4 +-
- drivers/regulator/s2mps11.c                       |  135 +++++++++++++++++-
- drivers/rtc/rtc-s5m.c                             |   37 ++++-
- include/linux/mfd/samsung/core.h                  |    1 +
- include/linux/mfd/samsung/rtc.h                   |    2 +
- include/linux/mfd/samsung/s2mps15.h               |  158 +++++++++++++++++++++
- 9 files changed, 383 insertions(+), 14 deletions(-)
- create mode 100644 include/linux/mfd/samsung/s2mps15.h
-
+diff --git a/drivers/rtc/rtc-isl1208.c b/drivers/rtc/rtc-isl1208.c
+index aa3b8f1..b57a304 100644
+--- a/drivers/rtc/rtc-isl1208.c
++++ b/drivers/rtc/rtc-isl1208.c
+@@ -638,7 +638,7 @@ isl1208_probe(struct i2c_client *client, const struct i2c_device_id *id)
+ 	if (client->irq > 0) {
+ 		rc = devm_request_threaded_irq(&client->dev, client->irq, NULL,
+ 					       isl1208_rtc_interrupt,
+-					       IRQF_SHARED,
++					       IRQF_SHARED | IRQF_ONESHOT,
+ 					       isl1208_driver.driver.name,
+ 					       client);
+ 		if (!rc) {
 -- 
-1.7.10.4
+1.9.1
 
 -- 
 -- 
