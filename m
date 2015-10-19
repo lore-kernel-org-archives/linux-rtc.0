@@ -1,23 +1,18 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBZFR5WYAKGQE4BWSAJQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRB4PTSCYQKGQEL7FYIIQ@googlegroups.com>
 Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id hs5si437596wib.1.2015.10.11.23.53.24
+        by gmr-mx.google.com with ESMTP id m4si412703wib.0.2015.10.18.17.31.45
         for <rtc-linux@googlegroups.com>;
-        Sun, 11 Oct 2015 23:53:24 -0700 (PDT)
-Date: Mon, 12 Oct 2015 08:53:23 +0200
+        Sun, 18 Oct 2015 17:31:45 -0700 (PDT)
+Date: Mon, 19 Oct 2015 02:31:34 +0200
 From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Wenyou Yang <wenyou.yang@atmel.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
-	Nicolas Ferre <nicolas.ferre@atmel.com>,
-	Ludovic Desroches <ludovic.desroches@atmel.com>,
-	rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org
-Subject: [rtc-linux] Re: [PATCH] rtc: at91rm9200: clear RTC alarm status flag
- prior to suspending
-Message-ID: <20151012065323.GA3558@piout.net>
-References: <1444612677-26178-1-git-send-email-wenyou.yang@atmel.com>
+To: Fabio Estevam <festevam@gmail.com>
+Cc: rtc-linux@googlegroups.com, Fabio Estevam <fabio.estevam@freescale.com>
+Subject: [rtc-linux] Re: [PATCH] rtc: isl1208: Pass the IRQF_ONESHOT flag
+Message-ID: <20151019003134.GB3421@piout.net>
+References: <1445213182-5214-1-git-send-email-festevam@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1444612677-26178-1-git-send-email-wenyou.yang@atmel.com>
+In-Reply-To: <1445213182-5214-1-git-send-email-festevam@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -28,38 +23,24 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Hi Wenyou,
-
-On 12/10/2015 at 09:17:57 +0800, Wenyou Yang wrote :
-> This patch is to clear the RTC alarm status flag prior to suspending
-> to avoid the erroneous wake-up activity.
+On 18/10/2015 at 22:06:22 -0200, Fabio Estevam wrote :
+> From: Fabio Estevam <fabio.estevam@freescale.com>
 > 
-
-Is this a new issue appearing with the sama5d2 or was it present from
-the beginning?
-
-> Signed-off-by: Wenyou Yang <wenyou.yang@atmel.com>
+> Since commit 1c6c69525b40eb76de8adf039409722015927dc3 ("genirq: Reject
+> bogus threaded irq requests") threaded IRQs without a primary handler
+> need to be requested with IRQF_ONESHOT, otherwise the request will fail.
+> 
+> So pass the IRQF_ONESHOT flag in this case.
+> 
+> The semantic patch that makes this change is available
+> in scripts/coccinelle/misc/irqf_oneshot.cocci
+> 
+> Signed-off-by: Fabio Estevam <fabio.estevam@freescale.com>
 > ---
+>  drivers/rtc/rtc-isl1208.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 > 
->  drivers/rtc/rtc-at91rm9200.c |    2 ++
->  1 file changed, 2 insertions(+)
-> 
-> diff --git a/drivers/rtc/rtc-at91rm9200.c b/drivers/rtc/rtc-at91rm9200.c
-> index cb62e21..b60fd47 100644
-> --- a/drivers/rtc/rtc-at91rm9200.c
-> +++ b/drivers/rtc/rtc-at91rm9200.c
-> @@ -495,6 +495,8 @@ static int at91_rtc_suspend(struct device *dev)
->  	/* this IRQ is shared with DBGU and other hardware which isn't
->  	 * necessarily doing PM like we are...
->  	 */
-> +	at91_rtc_write(AT91_RTC_SCCR, AT91_RTC_ALARM);
-> +
->  	at91_rtc_imr = at91_rtc_read_imr()
->  			& (AT91_RTC_ALARM|AT91_RTC_SECEV);
->  	if (at91_rtc_imr) {
-> -- 
-> 1.7.9.5
-> 
+Applied, thanks.
 
 -- 
 Alexandre Belloni, Free Electrons
