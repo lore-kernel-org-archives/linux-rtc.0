@@ -1,23 +1,25 @@
-Return-Path: <rtc-linux+bncBCXY5EGBQUIBBVFP66YAKGQEAU4Q6LI@googlegroups.com>
-Received: from mail-out.m-online.net (mail-out.m-online.net. [2001:a60:0:28:0:1:25:1])
-        by gmr-mx.google.com with ESMTPS id bh7si829058wib.1.2015.10.13.21.19.32
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1 cipher=ECDHE-RSA-RC4-SHA bits=128/128);
-        Tue, 13 Oct 2015 21:19:32 -0700 (PDT)
-Subject: [rtc-linux] Re: [PATCH] rtc: pcf8563: disable CLKOUT
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-References: <1444712938-22865-1-git-send-email-hs@denx.de>
- <20151013201703.GA3421@piout.net>
-Cc: linux-kernel@vger.kernel.org, Georg.Soffel@bosch-si.com,
- rtc-linux@googlegroups.com, Alessandro Zummo <a.zummo@towertech.it>,
- devicetree@vger.kernel.org
-Reply-To: rtc-linux@googlegroups.com
-From: Heiko Schocher <hs@denx.de>
-Message-ID: <561DD7D1.5040102@denx.de>
-Date: Wed, 14 Oct 2015 06:19:29 +0200
+Return-Path: <rtc-linux+bncBD7ZDTFR7QFRBJGJTWYQKGQEQVED25Q@googlegroups.com>
 MIME-Version: 1.0
-In-Reply-To: <20151013201703.GA3421@piout.net>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Received: from foss.arm.com (foss.arm.com. [217.140.101.70])
+        by gmr-mx.google.com with ESMTP id el2si990788pbb.0.2015.10.21.03.10.44
+        for <rtc-linux@googlegroups.com>;
+        Wed, 21 Oct 2015 03:10:44 -0700 (PDT)
+From: Sudeep Holla <sudeep.holla@arm.com>
+To: linux-kernel@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	devicetree@vger.kernel.org
+Cc: Sudeep Holla <sudeep.holla@arm.com>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	rtc-linux@googlegroups.com
+Subject: [rtc-linux] [PATCH 04/19] rtc: isl12057: enable support for the
+ standard "wakeup-source" property
+Date: Wed, 21 Oct 2015 11:10:01 +0100
+Message-Id: <1445422216-29375-5-git-send-email-sudeep.holla@arm.com>
+In-Reply-To: <1445422216-29375-1-git-send-email-sudeep.holla@arm.com>
+References: <1445422216-29375-1-git-send-email-sudeep.holla@arm.com>
+Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -27,34 +29,52 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Hello Alexandre,
+Though the isl12057 rtc driver should and will continue to support the
+legacy "isil,irq2-can-wakeup-machine" property to enable RTC as the
+wakeup source, we need to add support for the new standard property
+"wakeup-source".
 
-Am 13.10.2015 um 22:17 schrieb Alexandre Belloni:
-> Hi,
->
-> On 13/10/2015 at 07:08:58 +0200, Heiko Schocher wrote :
->> Disable the CLKOUT of the RTC after power-up.
->> After power-up/reset of the RTC, CLKOUT is enabled by default,
->> with CLKOUT enabled the RTC chip has 2-3 times higher power
->> consumption. If you do not need CLKOUT, you can disable the
->> CLKOUT with setting "disable-clkout" property.
->>
->
-> I think you can simply unconditionally disable clkout. My preferred way
-> of doing what you suggest is probably to register a clock in the CCF. If
-> the clock is not used, it will be automatically disabled.
-> It will also provide a generic way of setting the clkout frequency (some
-> RTC are able to output 32kHZ, 1kHz and 1Hz).
+This patch adds support for "wakeup-source" property in addition to the
+existing "isil,irq2-can-wakeup-machine" property.
 
-Does disabling it ot break some boards?
+Cc: Alessandro Zummo <a.zummo@towertech.it>
+Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: rtc-linux@googlegroups.com
+Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
+---
+ drivers/rtc/rtc-isl12057.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-I take a look into CCF, good idea.
-
-bye,
-Heiko
+diff --git a/drivers/rtc/rtc-isl12057.c b/drivers/rtc/rtc-isl12057.c
+index a0462e5430c7..54328d4ac0d3 100644
+--- a/drivers/rtc/rtc-isl12057.c
++++ b/drivers/rtc/rtc-isl12057.c
+@@ -466,9 +466,8 @@ static int isl12057_check_rtc_status(struct device *dev, struct regmap *regmap)
+  * is for instance the case on ReadyNAS 102, 104 and 2120. On those
+  * devices with no IRQ driectly connected to the SoC, the RTC chip
+  * can be forced as a wakeup source by stating that explicitly in
+- * the device's .dts file using the "isil,irq2-can-wakeup-machine"
+- * boolean property. This will guarantee 'wakealarm' sysfs entry is
+- * available on the device.
++ * the device's .dts file using the "wakeup-source" boolean property.
++ * This will guarantee 'wakealarm' sysfs entry is available on the device.
+  *
+  * The function below returns 1, i.e. the capability of the chip to
+  * wakeup the device, based on IRQ availability or if the boolean
+@@ -479,8 +478,9 @@ static bool isl12057_can_wakeup_machine(struct device *dev)
+ {
+ 	struct isl12057_rtc_data *data = dev_get_drvdata(dev);
+ 
+-	return (data->irq || of_property_read_bool(dev->of_node,
+-					      "isil,irq2-can-wakeup-machine"));
++	return data->irq || of_property_read_bool(dev->of_node, "wakeup-source")
++		|| of_property_read_bool(dev->of_node, /* legacy */
++					 "isil,irq2-can-wakeup-machine");
+ }
+ #else
+ static bool isl12057_can_wakeup_machine(struct device *dev)
 -- 
-DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
-HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
+1.9.1
 
 -- 
 -- 
