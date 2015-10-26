@@ -1,32 +1,28 @@
-Return-Path: <rtc-linux+bncBD747RFBYUPBB5PPZSYQKGQE65IRT4Q@googlegroups.com>
-Received: from mailout1.samsung.com (mailout1.samsung.com. [203.254.224.24])
-        by gmr-mx.google.com with ESMTPS id iz5si539124pbc.2.2015.10.30.02.27.17
+Return-Path: <rtc-linux+bncBD747RFBYUPBBWMJXCYQKGQE35WIUUA@googlegroups.com>
+MIME-Version: 1.0
+Received: from mailout3.samsung.com (mailout3.samsung.com. [203.254.224.33])
+        by gmr-mx.google.com with ESMTPS id el2si3443757pbb.0.2015.10.26.03.47.52
         for <rtc-linux@googlegroups.com>
         (version=TLSv1 cipher=RC4-SHA bits=128/128);
-        Fri, 30 Oct 2015 02:27:17 -0700 (PDT)
-Received: from epcpsbgr3.samsung.com
- (u143.gpu120.samsung.co.kr [203.254.230.143])
- by mailout1.samsung.com (Oracle Communications Messaging Server 7.0.5.31.0
+        Mon, 26 Oct 2015 03:47:53 -0700 (PDT)
+Received: from epcpsbgr5.samsung.com
+ (u145.gpu120.samsung.co.kr [203.254.230.145])
+ by mailout3.samsung.com (Oracle Communications Messaging Server 7.0.5.31.0
  64bit (built May  5 2014))
- with ESMTP id <0NX10261N0XFB710@mailout1.samsung.com> for
- rtc-linux@googlegroups.com; Fri, 30 Oct 2015 18:27:15 +0900 (KST)
-Message-id: <5633382F.4000300@samsung.com>
-Date: Fri, 30 Oct 2015 14:58:15 +0530
+ with ESMTP id <0NWT02WFFPZRPLA0@mailout3.samsung.com> for
+ rtc-linux@googlegroups.com; Mon, 26 Oct 2015 19:47:51 +0900 (KST)
 From: Alim Akhtar <alim.akhtar@samsung.com>
-MIME-version: 1.0
-To: Krzysztof Kozlowski <k.kozlowski@samsung.com>, lee.jones@linaro.org,
- broonie@kernel.org
-Cc: linux-samsung-soc@vger.kernel.org, rtc-linux@googlegroups.com,
- linux-kernel@vger.kernel.org,
- Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Subject: [rtc-linux] Re: [PATCH v5 4/4] drivers/rtc/rtc-s5m.c: add support for
- S2MPS15 RTC
-References: <1446186334-16510-1-git-send-email-alim.akhtar@samsung.com>
- <1446186334-16510-5-git-send-email-alim.akhtar@samsung.com>
- <56332C69.1050608@samsung.com>
-In-reply-to: <56332C69.1050608@samsung.com>
-Content-type: text/plain; charset=UTF-8; format=flowed
+To: lee.jones@linaro.org, broonie@kernel.org
+Cc: k.kozlowski@samsung.com, mturquette@baylibre.com,
+ linux-samsung-soc@vger.kernel.org, linux-clk@vger.kernel.org,
+ rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org
+Subject: [rtc-linux] [PATCH v2 4/5] clk: s2mps15: Add support for S2MPS15 clocks
+Date: Mon, 26 Oct 2015 16:06:42 +0530
+Message-id: <1445855803-26973-5-git-send-email-alim.akhtar@samsung.com>
+In-reply-to: <1445855803-26973-1-git-send-email-alim.akhtar@samsung.com>
+References: <1445855803-26973-1-git-send-email-alim.akhtar@samsung.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -36,45 +32,90 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Hi Krzysztof,
+S2MPS15 PMIC has three 32k buffered clocks outputs. This patch
+adds supports for the same to the s2mps11 clock driver.
 
-On 10/30/2015 02:08 PM, Krzysztof Kozlowski wrote:
-> On 30.10.2015 15:25, Alim Akhtar wrote:
->> RTC found in s2mps15 is almost same as one found on s2mps13
->> with few differences in RTC_UPDATE register fields, like:
->> 1> Bit[4] and Bit[1] are reversed
->>     - On s2mps13
->>            WUDR -> bit[4], AUDR -> bit[1]
->>     - On s2mps15
->> 	  WUDR -> bit[1], AUDR -> bit[4]
->> 2> In case of s2mps13, for alarm register, need to set both
->>     WDUR and ADUR high, whereas for s2mps15 only set AUDR to high.
->> 3> On s2mps15, WUDR, RUDR and AUDR functions should never be used
->>     at the same time.
->>
->> This patch add required changes to enable s2mps15 rtc timer.
->>
->> Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
->> Signed-off-by: Alim Akhtar <alim.akhtar@samsung.com>
->> ---
->>   drivers/rtc/rtc-s5m.c           |   37 +++++++++++++++++++++++++++++++++----
->>   include/linux/mfd/samsung/rtc.h |    2 ++
->>   2 files changed, 35 insertions(+), 4 deletions(-)
->>
->
-> The usage of rtc_udr_mask is now a little bit messy and not-consistent
-> but this can be fixed in separate patch.
->
-> Current approach is the simplest way to add S2MPS15 and looks correct:
->
-> Reviewed-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
->
-Thanks!
+Signed-off-by: Alim Akhtar <alim.akhtar@samsung.com>
+---
+ drivers/clk/Kconfig       |    5 +++--
+ drivers/clk/clk-s2mps11.c |   24 ++++++++++++++++++++++++
+ 2 files changed, 27 insertions(+), 2 deletions(-)
 
-> Best regards,
-> Krzysztof
->
->
+diff --git a/drivers/clk/Kconfig b/drivers/clk/Kconfig
+index a1fa61159179..037a314b5d76 100644
+--- a/drivers/clk/Kconfig
++++ b/drivers/clk/Kconfig
+@@ -120,9 +120,10 @@ config COMMON_CLK_S2MPS11
+ 	tristate "Clock driver for S2MPS1X/S5M8767 MFD"
+ 	depends on MFD_SEC_CORE
+ 	---help---
+-	  This driver supports S2MPS11/S2MPS14/S5M8767 crystal oscillator
++	  This driver supports S2MPS1X/S5M8767 crystal oscillator
+ 	  clock. These multi-function devices have two (S2MPS14) or three
+-	  (S2MPS11, S5M8767) fixed-rate oscillators, clocked at 32KHz each.
++	  (S2MPS11/S2MPS13/S2MPS15/S5M8767) fixed-rate oscillators,
++	  clocked at 32KHz each.
+ 
+ config CLK_TWL6040
+ 	tristate "External McPDM functional clock from twl6040"
+diff --git a/drivers/clk/clk-s2mps11.c b/drivers/clk/clk-s2mps11.c
+index d266299dfdb1..455500dca653 100644
+--- a/drivers/clk/clk-s2mps11.c
++++ b/drivers/clk/clk-s2mps11.c
+@@ -25,6 +25,7 @@
+ #include <linux/mfd/samsung/s2mps11.h>
+ #include <linux/mfd/samsung/s2mps13.h>
+ #include <linux/mfd/samsung/s2mps14.h>
++#include <linux/mfd/samsung/s2mps15.h>
+ #include <linux/mfd/samsung/s5m8767.h>
+ #include <linux/mfd/samsung/core.h>
+ 
+@@ -148,6 +149,24 @@ static struct clk_init_data s2mps14_clks_init[S2MPS11_CLKS_NUM] = {
+ 	},
+ };
+ 
++static struct clk_init_data s2mps15_clks_init[S2MPS11_CLKS_NUM] = {
++	[S2MPS11_CLK_AP] = {
++		.name = "s2mps15_ap",
++		.ops = &s2mps11_clk_ops,
++		.flags = CLK_IS_ROOT,
++	},
++	[S2MPS11_CLK_CP] = {
++		.name = "s2mps15_cp",
++		.ops = &s2mps11_clk_ops,
++		.flags = CLK_IS_ROOT,
++	},
++	[S2MPS11_CLK_BT] = {
++		.name = "s2mps15_bt",
++		.ops = &s2mps11_clk_ops,
++		.flags = CLK_IS_ROOT,
++	},
++};
++
+ static struct device_node *s2mps11_clk_parse_dt(struct platform_device *pdev,
+ 		struct clk_init_data *clks_init)
+ {
+@@ -207,6 +226,10 @@ static int s2mps11_clk_probe(struct platform_device *pdev)
+ 		s2mps11_reg = S2MPS14_REG_RTCCTRL;
+ 		clks_init = s2mps14_clks_init;
+ 		break;
++	case S2MPS15X:
++		s2mps11_reg = S2MPS15_REG_RTC_BUF;
++		clks_init = s2mps15_clks_init;
++		break;
+ 	case S5M8767X:
+ 		s2mps11_reg = S5M8767_REG_CTRL1;
+ 		clks_init = s2mps11_clks_init;
+@@ -292,6 +315,7 @@ static const struct platform_device_id s2mps11_clk_id[] = {
+ 	{ "s2mps11-clk", S2MPS11X},
+ 	{ "s2mps13-clk", S2MPS13X},
+ 	{ "s2mps14-clk", S2MPS14X},
++	{ "s2mps15-clk", S2MPS15X},
+ 	{ "s5m8767-clk", S5M8767X},
+ 	{ },
+ };
+-- 
+1.7.10.4
 
 -- 
 -- 
