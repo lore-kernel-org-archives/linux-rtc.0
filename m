@@ -1,23 +1,31 @@
-Return-Path: <rtc-linux+bncBAABBQ4XXGYAKGQETZIOX3A@googlegroups.com>
-Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de. [2001:67c:670:201:290:27ff:fe1d:cc33])
-        by gmr-mx.google.com with ESMTPS id bn1si210179wib.0.2015.10.02.02.17.55
+Return-Path: <rtc-linux+bncBD747RFBYUPBB7WDXCYQKGQER73FZVY@googlegroups.com>
+Received: from mailout2.samsung.com (mailout2.samsung.com. [203.254.224.25])
+        by gmr-mx.google.com with ESMTPS id pe1si3501633pac.2.2015.10.26.05.52.14
         for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=AES128-SHA256 bits=128/128);
-        Fri, 02 Oct 2015 02:17:55 -0700 (PDT)
-From: =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
-	rtc-linux@googlegroups.com,
-	kernel@pengutronix.de,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	linux-kernel@vger.kernel.org
-Subject: [rtc-linux] [PATCH v1 2/4] rtc: pcf2127: remove useless driver version
-Date: Fri,  2 Oct 2015 11:17:20 +0200
-Message-Id: <1443777442-15920-3-git-send-email-u.kleine-koenig@pengutronix.de>
-In-Reply-To: <1443777442-15920-1-git-send-email-u.kleine-koenig@pengutronix.de>
-References: <1443777442-15920-1-git-send-email-u.kleine-koenig@pengutronix.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+        (version=TLSv1 cipher=RC4-SHA bits=128/128);
+        Mon, 26 Oct 2015 05:52:14 -0700 (PDT)
+Received: from epcpsbgr5.samsung.com
+ (u145.gpu120.samsung.co.kr [203.254.230.145])
+ by mailout2.samsung.com (Oracle Communications Messaging Server 7.0.5.31.0
+ 64bit (built May  5 2014))
+ with ESMTP id <0NWT014Q2VR18P20@mailout2.samsung.com> for
+ rtc-linux@googlegroups.com; Mon, 26 Oct 2015 21:52:13 +0900 (KST)
+Message-id: <562E1FB5.1000600@samsung.com>
+Date: Mon, 26 Oct 2015 18:12:29 +0530
+From: Alim Akhtar <alim.akhtar@samsung.com>
+MIME-version: 1.0
+To: Lee Jones <lee.jones@linaro.org>
+Cc: broonie@kernel.org, k.kozlowski@samsung.com, mturquette@baylibre.com,
+ linux-samsung-soc@vger.kernel.org, linux-clk@vger.kernel.org,
+ rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org,
+ Thomas Abraham <thomas.ab@samsung.com>, devicetree@vger.kernel.org
+Subject: [rtc-linux] Re: [PATCH v2 1/5] dt-bindings: mfd: s2mps11: add
+ documentation for s2mps15 PMIC
+References: <1445855803-26973-1-git-send-email-alim.akhtar@samsung.com>
+ <1445855803-26973-2-git-send-email-alim.akhtar@samsung.com>
+ <20151026110924.GI597@x1>
+In-reply-to: <20151026110924.GI597@x1>
+Content-type: text/plain; charset=UTF-8; format=flowed
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -28,54 +36,109 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-A driver version is only really sensible for oot drivers. Also the
-dev_info about having found a chip only signals that allocating the
-driver data succeeded and so isn't worth much.
 
-Signed-off-by: Uwe Kleine-K=C3=B6nig <u.kleine-koenig@pengutronix.de>
----
- drivers/rtc/rtc-pcf2127.c | 5 -----
- 1 file changed, 5 deletions(-)
 
-diff --git a/drivers/rtc/rtc-pcf2127.c b/drivers/rtc/rtc-pcf2127.c
-index 4f66c4216b5a..7eb6ff26185e 100644
---- a/drivers/rtc/rtc-pcf2127.c
-+++ b/drivers/rtc/rtc-pcf2127.c
-@@ -20,8 +20,6 @@
- #include <linux/module.h>
- #include <linux/of.h>
-=20
--#define DRV_VERSION "0.0.1"
--
- #define PCF2127_REG_CTRL1       (0x00)  /* Control Register 1 */
- #define PCF2127_REG_CTRL2       (0x01)  /* Control Register 2 */
- #define PCF2127_REG_CTRL3       (0x02)  /* Control Register 3 */
-@@ -203,8 +201,6 @@ static int pcf2127_probe(struct i2c_client *client,
- 	if (!pcf2127)
- 		return -ENOMEM;
-=20
--	dev_info(&client->dev, "chip found, driver version " DRV_VERSION "\n");
--
- 	i2c_set_clientdata(client, pcf2127);
-=20
- 	pcf2127->rtc =3D devm_rtc_device_register(&client->dev,
-@@ -243,4 +239,3 @@ module_i2c_driver(pcf2127_driver);
- MODULE_AUTHOR("Renaud Cerrato <r.cerrato@til-technologies.fr>");
- MODULE_DESCRIPTION("NXP PCF2127 RTC driver");
- MODULE_LICENSE("GPL v2");
--MODULE_VERSION(DRV_VERSION);
---=20
-2.6.0
+On 10/26/2015 04:39 PM, Lee Jones wrote:
+> On Mon, 26 Oct 2015, Alim Akhtar wrote:
+>
+>> From: Thomas Abraham <thomas.ab@samsung.com>
+>>
+>> Add dt-binding documentation for s2mps15 PMIC device. The s2mps15 device
+>> is similar to s2mps11/14 PMIC device and has 27 LDO and 10 buck regulators.
+>>
+>> Cc: devicetree@vger.kernel.org
+>> Signed-off-by: Thomas Abraham <thomas.ab@samsung.com>
+>> Signed-off-by: Alim Akhtar <alim.akhtar@samsung.com>
+>> Reviewed-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+>> ---
+>>   Documentation/devicetree/bindings/mfd/s2mps11.txt |   23 ++++++++++++++-------
+>>   1 file changed, 15 insertions(+), 8 deletions(-)
+>
+> Nothing to controversial here.
+>
+> For my own reference:
+>    Acked-by: Lee Jones <lee.jones@linaro.org>
+>
+Thanks, will send v3 of this series.
 
---=20
---=20
+>> diff --git a/Documentation/devicetree/bindings/mfd/s2mps11.txt b/Documentation/devicetree/bindings/mfd/s2mps11.txt
+>> index 890f0b0e1643..c0427c9d0886 100644
+>> --- a/Documentation/devicetree/bindings/mfd/s2mps11.txt
+>> +++ b/Documentation/devicetree/bindings/mfd/s2mps11.txt
+>> @@ -1,5 +1,5 @@
+>>
+>> -* Samsung S2MPS11, S2MPS13, S2MPS14 and S2MPU02 Voltage and Current Regulator
+>> +* Samsung S2MPS11/13/14/15 and S2MPU02 Voltage and Current Regulator
+>>
+>>   The Samsung S2MPS11 is a multi-function device which includes voltage and
+>>   current regulators, RTC, charger controller and other sub-blocks. It is
+>> @@ -7,8 +7,12 @@ interfaced to the host controller using an I2C interface. Each sub-block is
+>>   addressed by the host system using different I2C slave addresses.
+>>
+>>   Required properties:
+>> -- compatible: Should be "samsung,s2mps11-pmic" or "samsung,s2mps13-pmic"
+>> -	      or "samsung,s2mps14-pmic" or "samsung,s2mpu02-pmic".
+>> +- compatible: Should be one of the following
+>> +	- "samsung,s2mps11-pmic"
+>> +	- "samsung,s2mps13-pmic"
+>> +	- "samsung,s2mps14-pmic"
+>> +	- "samsung,s2mps15-pmic"
+>> +	- "samsung,s2mpu02-pmic".
+>>   - reg: Specifies the I2C slave address of the pmic block. It should be 0x66.
+>>
+>>   Optional properties:
+>> @@ -24,7 +28,7 @@ Optional properties:
+>>     unwanted buck warm reset (setting buck voltages to default values).
+>>
+>>   Optional nodes:
+>> -- clocks: s2mps11, s2mps13 and s5m8767 provide three(AP/CP/BT) buffered 32.768
+>> +- clocks: s2mps11, s2mps13, s2mps15 and s5m8767 provide three(AP/CP/BT) buffered 32.768
+>>     KHz outputs, so to register these as clocks with common clock framework
+>>     instantiate a sub-node named "clocks". It uses the common clock binding
+>>     documented in :
+>> @@ -37,12 +41,13 @@ Optional nodes:
+>>       the clock which they consume.
+>>       Clock               ID           Devices
+>>       ----------------------------------------------------------
+>> -    32KhzAP		0            S2MPS11, S2MPS13, S2MPS14, S5M8767
+>> -    32KhzCP		1            S2MPS11, S2MPS13, S5M8767
+>> -    32KhzBT		2            S2MPS11, S2MPS13, S2MPS14, S5M8767
+>> +    32KhzAP		0            S2MPS11, S2MPS13, S2MPS14, S2MPS15, S5M8767
+>> +    32KhzCP		1            S2MPS11, S2MPS13, S2MPS15, S5M8767
+>> +    32KhzBT		2            S2MPS11, S2MPS13, S2MPS14, S2MPS15, S5M8767
+>>
+>>     - compatible: Should be one of: "samsung,s2mps11-clk", "samsung,s2mps13-clk",
+>> -		"samsung,s2mps14-clk", "samsung,s5m8767-clk"
+>> +		"samsung,s2mps14-clk", "samsung,s2mps15-clk",
+>> +		"samsung,s5m8767-clk"
+>>
+>>   - regulators: The regulators of s2mps11 that have to be instantiated should be
+>>   included in a sub-node named 'regulators'. Regulator nodes included in this
+>> @@ -90,6 +95,7 @@ as per the datasheet of s2mps11.
+>>   			- S2MPS11: 1 to 38
+>>   			- S2MPS13: 1 to 40
+>>   			- S2MPS14: 1 to 25
+>> +			- S2MPS15: 1 to 27
+>>   			- S2MPU02: 1 to 28
+>>   		  - Example: LDO1, LDO2, LDO28
+>>   	- BUCKn
+>> @@ -97,6 +103,7 @@ as per the datasheet of s2mps11.
+>>   			- S2MPS11: 1 to 10
+>>   			- S2MPS13: 1 to 10
+>>   			- S2MPS14: 1 to 5
+>> +			- S2MPS15: 1 to 10
+>>   			- S2MPU02: 1 to 7
+>>   		  - Example: BUCK1, BUCK2, BUCK9
+>>
+>
+
+-- 
+-- 
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
----=20
-You received this message because you are subscribed to the Google Groups "=
-rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an e=
-mail to rtc-linux+unsubscribe@googlegroups.com.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
