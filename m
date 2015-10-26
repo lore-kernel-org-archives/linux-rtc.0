@@ -1,24 +1,24 @@
-Return-Path: <rtc-linux+bncBAABBVE32SYAKGQETUWAX3Y@googlegroups.com>
+Return-Path: <rtc-linux+bncBD747RFBYUPBB7EIXCYQKGQEUQLQOVY@googlegroups.com>
 MIME-Version: 1.0
-Received: from mail.cosmopool.net (mail.cosmopool.net. [2a01:4f8:160:20c1::10:107])
-        by gmr-mx.google.com with ESMTP id w4si109165wiz.0.2015.10.07.05.19.31
-        for <rtc-linux@googlegroups.com>;
-        Wed, 07 Oct 2015 05:19:31 -0700 (PDT)
-From: Harald Geyer <harald@ccbib.org>
-To: Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	Guenter Roeck <linux@roeck-us.net>
-Cc: rtc-linux@googlegroups.com,
-	linux-watchdog@vger.kernel.org,
-	kernel@pengutronix.de,
-	Wolfram Sang <wsa@the-dreams.de>,
-	Fabio Estevam <festevam@gmail.com>,
-	Harald Geyer <harald@ccbib.org>
-Subject: [rtc-linux] [PATCHv3 1/2] watchdog: stmp3xxx: Stop the watchdog on
- system halt
-Date: Wed,  7 Oct 2015 12:19:11 +0000
-Message-Id: <1444220352-20548-1-git-send-email-harald@ccbib.org>
+Received: from mailout1.samsung.com (mailout1.samsung.com. [203.254.224.24])
+        by gmr-mx.google.com with ESMTPS id el2si3443290pbb.0.2015.10.26.03.46.20
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1 cipher=RC4-SHA bits=128/128);
+        Mon, 26 Oct 2015 03:46:20 -0700 (PDT)
+Received: from epcpsbgr1.samsung.com
+ (u141.gpu120.samsung.co.kr [203.254.230.141])
+ by mailout1.samsung.com (Oracle Communications Messaging Server 7.0.5.31.0
+ 64bit (built May  5 2014))
+ with ESMTP id <0NWT02RO6PX6Z5A0@mailout1.samsung.com> for
+ rtc-linux@googlegroups.com; Mon, 26 Oct 2015 19:46:18 +0900 (KST)
+From: Alim Akhtar <alim.akhtar@samsung.com>
+To: lee.jones@linaro.org, broonie@kernel.org
+Cc: k.kozlowski@samsung.com, mturquette@baylibre.com,
+ linux-samsung-soc@vger.kernel.org, linux-clk@vger.kernel.org,
+ rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org
+Subject: [rtc-linux] [PATCH v2 0/5] mfd: sec: add S2MPS15 PMIC support
+Date: Mon, 26 Oct 2015 16:06:38 +0530
+Message-id: <1445855803-26973-1-git-send-email-alim.akhtar@samsung.com>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -30,78 +30,48 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-This allows the system to actually halt even if userspace forgot to
-disable the watchdog first. Old behaviour was that the watchdog forced
-the system to boot again.
+Samsung's S2MPS15 PMIC is targetted to be used with Samsung's Exynos7 SoC.
+The S2MPS15 PMIC is similar in functionality to S2MPS11/14 PMIC. It contains
+27 LDO and 10 Buck regulators, RTC, three 32.768 KHz clock outputs and allows
+programming these blocks via a I2C interface. This patch series adds initial
+support for LDO/Buck regulators of S2MPS15 PMIC.
 
-Signed-off-by: Harald Geyer <harald@ccbib.org>
----
-Changes since v2:
-* split this out as a separate patch
+Changes since v1:
+* Added suggestion from Krzysztof [1].
+* Added s2mps15's 32.768 clocks support.
+* Added s2mps15's rtc support.
 
- drivers/watchdog/stmp3xxx_rtc_wdt.c |   28 ++++++++++++++++++++++++++++
- 1 file changed, 28 insertions(+)
+V1 of these patches (with a lesser features) were posted a year back,
+since then there is not much progress on this, this is my attempt to
+move things forward.
 
-diff --git a/drivers/watchdog/stmp3xxx_rtc_wdt.c b/drivers/watchdog/stmp3xxx_rtc_wdt.c
-index 3ee6128..e09a01f 100644
---- a/drivers/watchdog/stmp3xxx_rtc_wdt.c
-+++ b/drivers/watchdog/stmp3xxx_rtc_wdt.c
-@@ -14,6 +14,8 @@
- #include <linux/watchdog.h>
- #include <linux/platform_device.h>
- #include <linux/stmp3xxx_rtc_wdt.h>
-+#include <linux/notifier.h>
-+#include <linux/reboot.h>
- 
- #define WDOG_TICK_RATE 1000 /* 1 kHz clock */
- #define STMP3XXX_DEFAULT_TIMEOUT 19
-@@ -69,6 +71,28 @@ static struct watchdog_device stmp3xxx_wdd = {
- 	.status = WATCHDOG_NOWAYOUT_INIT_STATUS,
- };
- 
-+static int wdt_notify_sys(struct notifier_block *nb, unsigned long code,
-+			  void *unused)
-+{
-+	struct device *dev = watchdog_get_drvdata(&stmp3xxx_wdd);
-+	struct stmp3xxx_wdt_pdata *pdata = dev_get_platdata(dev);
-+
-+	switch (code) {
-+	case SYS_DOWN:	/* keep enabled, system might crash while going down */
-+		break;
-+	case SYS_HALT:  /* allow the system to actually halt */
-+	case SYS_POWER_OFF:
-+		wdt_stop(&stmp3xxx_wdd);
-+		break;
-+	}
-+
-+	return NOTIFY_DONE;
-+}
-+
-+static struct notifier_block wdt_notifier = {
-+	.notifier_call  = wdt_notify_sys,
-+};
-+
- static int stmp3xxx_wdt_probe(struct platform_device *pdev)
- {
- 	int ret;
-@@ -84,6 +108,9 @@ static int stmp3xxx_wdt_probe(struct platform_device *pdev)
- 		return ret;
- 	}
- 
-+	if (register_reboot_notifier(&wdt_notifier))
-+		dev_warn(&pdev->dev, "cannot register reboot notifier\n");
-+
- 	dev_info(&pdev->dev, "initialized watchdog with heartbeat %ds\n",
- 			stmp3xxx_wdd.timeout);
- 	return 0;
-@@ -91,6 +118,7 @@ static int stmp3xxx_wdt_probe(struct platform_device *pdev)
- 
- static int stmp3xxx_wdt_remove(struct platform_device *pdev)
- {
-+	unregister_reboot_notifier(&wdt_notifier);
- 	watchdog_unregister_device(&stmp3xxx_wdd);
- 	return 0;
- }
+[1]-> https://lkml.org/lkml/2014/10/14/67
+
+This series is based on linux-next-20151022.
+This is tested on exynos7-espresso board.
+
+Alim Akhtar (2):
+  clk: s2mps15: Add support for S2MPS15 clocks
+  drivers/rtc/rtc-s5m.c: add support for S2MPS15 RTC
+
+Thomas Abraham (3):
+  dt-bindings: mfd: s2mps11: add documentation for s2mps15 PMIC
+  mfd: sec: Add support for S2MPS15 PMIC
+  regulator: s2mps11: add support for S2MPS15 regulators
+
+ Documentation/devicetree/bindings/mfd/s2mps11.txt |   23 ++-
+ drivers/clk/Kconfig                               |    5 +-
+ drivers/clk/clk-s2mps11.c                         |   24 +++
+ drivers/mfd/sec-core.c                            |   31 ++++
+ drivers/mfd/sec-irq.c                             |    8 +
+ drivers/regulator/Kconfig                         |    4 +-
+ drivers/regulator/s2mps11.c                       |  135 ++++++++++++++++-
+ drivers/rtc/rtc-s5m.c                             |   14 +-
+ include/linux/mfd/samsung/core.h                  |    1 +
+ include/linux/mfd/samsung/s2mps15.h               |  161 +++++++++++++++++++++
+ 10 files changed, 392 insertions(+), 14 deletions(-)
+ create mode 100644 include/linux/mfd/samsung/s2mps15.h
+
 -- 
 1.7.10.4
 
