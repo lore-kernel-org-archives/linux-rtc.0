@@ -1,25 +1,26 @@
-Return-Path: <rtc-linux+bncBDA7X7F2WUEBBZ7TXCYQKGQEAYFXNBQ@googlegroups.com>
-Received: from mail-wi0-x233.google.com (mail-wi0-x233.google.com. [2a00:1450:400c:c05::233])
-        by gmr-mx.google.com with ESMTPS id g9si51963wmd.2.2015.10.26.07.34.15
+Return-Path: <rtc-linux+bncBDA7X7F2WUEBB2ETXCYQKGQEY4GQD6A@googlegroups.com>
+Received: from mail-wi0-x231.google.com (mail-wi0-x231.google.com. [2a00:1450:400c:c05::231])
+        by gmr-mx.google.com with ESMTPS id h1si142144wiy.0.2015.10.26.04.09.27
         for <rtc-linux@googlegroups.com>
         (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 26 Oct 2015 07:34:15 -0700 (PDT)
-Received: by mail-wi0-x233.google.com with SMTP id q8so167749152wik.1
-        for <rtc-linux@googlegroups.com>; Mon, 26 Oct 2015 07:34:15 -0700 (PDT)
-Date: Mon, 26 Oct 2015 14:34:11 +0000
+        Mon, 26 Oct 2015 04:09:27 -0700 (PDT)
+Received: by mail-wi0-x231.google.com with SMTP id ll6so108424268wic.0
+        for <rtc-linux@googlegroups.com>; Mon, 26 Oct 2015 04:09:27 -0700 (PDT)
+Date: Mon, 26 Oct 2015 11:09:24 +0000
 From: Lee Jones <lee.jones@linaro.org>
 To: Alim Akhtar <alim.akhtar@samsung.com>
 Cc: broonie@kernel.org, k.kozlowski@samsung.com, mturquette@baylibre.com,
 	linux-samsung-soc@vger.kernel.org, linux-clk@vger.kernel.org,
 	rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org,
-	Thomas Abraham <thomas.ab@samsung.com>
-Subject: [rtc-linux] Re: [PATCH v3 2/5] mfd: sec: Add support for S2MPS15 PMIC
-Message-ID: <20151026143411.GL597@x1>
-References: <1445863883-5187-1-git-send-email-alim.akhtar@samsung.com>
- <1445863883-5187-3-git-send-email-alim.akhtar@samsung.com>
+	Thomas Abraham <thomas.ab@samsung.com>, devicetree@vger.kernel.org
+Subject: [rtc-linux] Re: [PATCH v2 1/5] dt-bindings: mfd: s2mps11: add
+ documentation for s2mps15 PMIC
+Message-ID: <20151026110924.GI597@x1>
+References: <1445855803-26973-1-git-send-email-alim.akhtar@samsung.com>
+ <1445855803-26973-2-git-send-email-alim.akhtar@samsung.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1445863883-5187-3-git-send-email-alim.akhtar@samsung.com>
+In-Reply-To: <1445855803-26973-2-git-send-email-alim.akhtar@samsung.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -34,314 +35,105 @@ On Mon, 26 Oct 2015, Alim Akhtar wrote:
 
 > From: Thomas Abraham <thomas.ab@samsung.com>
 >=20
-> Add support for S2MPS15 PMIC which is similar to S2MPS11 PMIC. The S2MPS1=
-5
-> PMIC supports 27 LDO regulators, 10 buck regulators, RTC, three 32.768KHz
-> clock outputs and battery charger. This patch adds initial support for
-> LDO and buck regulators of S2MPS15 device.
+> Add dt-binding documentation for s2mps15 PMIC device. The s2mps15 device
+> is similar to s2mps11/14 PMIC device and has 27 LDO and 10 buck regulator=
+s.
 >=20
+> Cc: devicetree@vger.kernel.org
 > Signed-off-by: Thomas Abraham <thomas.ab@samsung.com>
 > Signed-off-by: Alim Akhtar <alim.akhtar@samsung.com>
-> [Alim: Added s2mps15_devs like rtc and clk and related changes]
 > Reviewed-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
 > ---
->  drivers/mfd/sec-core.c              |   31 +++++++
->  drivers/mfd/sec-irq.c               |    8 ++
->  include/linux/mfd/samsung/core.h    |    1 +
->  include/linux/mfd/samsung/s2mps15.h |  158 +++++++++++++++++++++++++++++=
-++++++
->  4 files changed, 198 insertions(+)
->  create mode 100644 include/linux/mfd/samsung/s2mps15.h
+>  Documentation/devicetree/bindings/mfd/s2mps11.txt |   23 ++++++++++++++-=
+------
+>  1 file changed, 15 insertions(+), 8 deletions(-)
 
-I replied to the previous set and won't be reviewing this one until
-all of the open points are solved.
+Nothing to controversial here.
 
-> diff --git a/drivers/mfd/sec-core.c b/drivers/mfd/sec-core.c
-> index 2626fc0b5b8c..db3d4d4ff805 100644
-> --- a/drivers/mfd/sec-core.c
-> +++ b/drivers/mfd/sec-core.c
-> @@ -29,6 +29,7 @@
->  #include <linux/mfd/samsung/s2mps11.h>
->  #include <linux/mfd/samsung/s2mps13.h>
->  #include <linux/mfd/samsung/s2mps14.h>
-> +#include <linux/mfd/samsung/s2mps15.h>
->  #include <linux/mfd/samsung/s2mpu02.h>
->  #include <linux/mfd/samsung/s5m8763.h>
->  #include <linux/mfd/samsung/s5m8767.h>
-> @@ -96,6 +97,17 @@ static const struct mfd_cell s2mps14_devs[] =3D {
->  	}
->  };
+For my own reference:
+  Acked-by: Lee Jones <lee.jones@linaro.org>
+
+> diff --git a/Documentation/devicetree/bindings/mfd/s2mps11.txt b/Document=
+ation/devicetree/bindings/mfd/s2mps11.txt
+> index 890f0b0e1643..c0427c9d0886 100644
+> --- a/Documentation/devicetree/bindings/mfd/s2mps11.txt
+> +++ b/Documentation/devicetree/bindings/mfd/s2mps11.txt
+> @@ -1,5 +1,5 @@
 > =20
-> +static const struct mfd_cell s2mps15_devs[] =3D {
-> +	{
-> +		.name =3D "s2mps15-pmic",
-> +	}, {
-> +		.name =3D "s2mps15-rtc",
-> +	}, {
-> +		.name =3D "s2mps15-clk",
-> +		.of_compatible =3D "samsung,s2mps15-clk",
-> +	},
-> +};
-> +
->  static const struct mfd_cell s2mpa01_devs[] =3D {
->  	{
->  		.name =3D "s2mpa01-pmic",
-> @@ -125,6 +137,9 @@ static const struct of_device_id sec_dt_match[] =3D {
->  		.compatible =3D "samsung,s2mps14-pmic",
->  		.data =3D (void *)S2MPS14X,
->  	}, {
-> +		.compatible =3D "samsung,s2mps15-pmic",
-> +		.data =3D (void *)S2MPS15X,
-> +	}, {
->  		.compatible =3D "samsung,s2mpa01-pmic",
->  		.data =3D (void *)S2MPA01,
->  	}, {
-> @@ -226,6 +241,15 @@ static const struct regmap_config s2mps14_regmap_con=
-fig =3D {
->  	.cache_type =3D REGCACHE_FLAT,
->  };
+> -* Samsung S2MPS11, S2MPS13, S2MPS14 and S2MPU02 Voltage and Current Regu=
+lator
+> +* Samsung S2MPS11/13/14/15 and S2MPU02 Voltage and Current Regulator
 > =20
-> +static const struct regmap_config s2mps15_regmap_config =3D {
-> +	.reg_bits =3D 8,
-> +	.val_bits =3D 8,
-> +
-> +	.max_register =3D S2MPS15_REG_LDODSCH4,
-> +	.volatile_reg =3D s2mps11_volatile,
-> +	.cache_type =3D REGCACHE_FLAT,
-> +};
-> +
->  static const struct regmap_config s2mpu02_regmap_config =3D {
->  	.reg_bits =3D 8,
->  	.val_bits =3D 8,
-> @@ -387,6 +411,9 @@ static int sec_pmic_probe(struct i2c_client *i2c,
->  	case S2MPS14X:
->  		regmap =3D &s2mps14_regmap_config;
->  		break;
-> +	case S2MPS15X:
-> +		regmap =3D &s2mps15_regmap_config;
-> +		break;
->  	case S5M8763X:
->  		regmap =3D &s5m8763_regmap_config;
->  		break;
-> @@ -445,6 +472,10 @@ static int sec_pmic_probe(struct i2c_client *i2c,
->  		sec_devs =3D s2mps14_devs;
->  		num_sec_devs =3D ARRAY_SIZE(s2mps14_devs);
->  		break;
-> +	case S2MPS15X:
-> +		sec_devs =3D s2mps15_devs;
-> +		num_sec_devs =3D ARRAY_SIZE(s2mps15_devs);
-> +		break;
->  	case S2MPU02:
->  		sec_devs =3D s2mpu02_devs;
->  		num_sec_devs =3D ARRAY_SIZE(s2mpu02_devs);
-> diff --git a/drivers/mfd/sec-irq.c b/drivers/mfd/sec-irq.c
-> index 806fa8dbb22d..d77de431cc50 100644
-> --- a/drivers/mfd/sec-irq.c
-> +++ b/drivers/mfd/sec-irq.c
-> @@ -407,6 +407,11 @@ static const struct regmap_irq_chip s2mps14_irq_chip=
- =3D {
->  	S2MPS1X_IRQ_CHIP_COMMON_DATA,
->  };
+>  The Samsung S2MPS11 is a multi-function device which includes voltage an=
+d
+>  current regulators, RTC, charger controller and other sub-blocks. It is
+> @@ -7,8 +7,12 @@ interfaced to the host controller using an I2C interface=
+. Each sub-block is
+>  addressed by the host system using different I2C slave addresses.
 > =20
-> +static const struct regmap_irq_chip s2mps15_irq_chip =3D {
-> +	.name =3D "s2mps15",
-> +	S2MPS1X_IRQ_CHIP_COMMON_DATA,
-> +};
-> +
->  static const struct regmap_irq_chip s2mpu02_irq_chip =3D {
->  	.name =3D "s2mpu02",
->  	.irqs =3D s2mpu02_irqs,
-> @@ -466,6 +471,9 @@ int sec_irq_init(struct sec_pmic_dev *sec_pmic)
->  	case S2MPS14X:
->  		sec_irq_chip =3D &s2mps14_irq_chip;
->  		break;
-> +	case S2MPS15X:
-> +		sec_irq_chip =3D &s2mps15_irq_chip;
-> +		break;
->  	case S2MPU02:
->  		sec_irq_chip =3D &s2mpu02_irq_chip;
->  		break;
-> diff --git a/include/linux/mfd/samsung/core.h b/include/linux/mfd/samsung=
-/core.h
-> index a06098639399..6bc4bcd488ac 100644
-> --- a/include/linux/mfd/samsung/core.h
-> +++ b/include/linux/mfd/samsung/core.h
-> @@ -44,6 +44,7 @@ enum sec_device_type {
->  	S2MPS11X,
->  	S2MPS13X,
->  	S2MPS14X,
-> +	S2MPS15X,
->  	S2MPU02,
->  };
+>  Required properties:
+> -- compatible: Should be "samsung,s2mps11-pmic" or "samsung,s2mps13-pmic"
+> -	      or "samsung,s2mps14-pmic" or "samsung,s2mpu02-pmic".
+> +- compatible: Should be one of the following
+> +	- "samsung,s2mps11-pmic"
+> +	- "samsung,s2mps13-pmic"
+> +	- "samsung,s2mps14-pmic"
+> +	- "samsung,s2mps15-pmic"
+> +	- "samsung,s2mpu02-pmic".
+>  - reg: Specifies the I2C slave address of the pmic block. It should be 0=
+x66.
 > =20
-> diff --git a/include/linux/mfd/samsung/s2mps15.h b/include/linux/mfd/sams=
-ung/s2mps15.h
-> new file mode 100644
-> index 000000000000..36d35287c3c0
-> --- /dev/null
-> +++ b/include/linux/mfd/samsung/s2mps15.h
-> @@ -0,0 +1,158 @@
-> +/*
-> + * Copyright (c) 2015 Samsung Electronics Co., Ltd
-> + *              http://www.samsung.com
-> + *
-> + * This program is free software; you can redistribute  it and/or modify=
- it
-> + * under  the terms of  the GNU General  Public License as published by =
-the
-> + * Free Software Foundation;  either version 2 of the  License, or (at y=
-our
-> + * option) any later version.
-> + *
-> + * This program is distributed in the hope that it will be useful,
-> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
-> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-> + * GNU General Public License for more details.
-> + */
-> +
-> +#ifndef __LINUX_MFD_S2MPS15_H
-> +#define __LINUX_MFD_S2MPS15_H
-> +
-> +/* S2MPS15 registers */
-> +enum s2mps15_reg {
-> +	S2MPS15_REG_ID,
-> +	S2MPS15_REG_INT1,
-> +	S2MPS15_REG_INT2,
-> +	S2MPS15_REG_INT3,
-> +	S2MPS15_REG_INT1M,
-> +	S2MPS15_REG_INT2M,
-> +	S2MPS15_REG_INT3M,
-> +	S2MPS15_REG_ST1,
-> +	S2MPS15_REG_ST2,
-> +	S2MPS15_REG_PWRONSRC,
-> +	S2MPS15_REG_OFFSRC,
-> +	S2MPS15_REG_BU_CHG,
-> +	S2MPS15_REG_RTC_BUF,
-> +	S2MPS15_REG_CTRL1,
-> +	S2MPS15_REG_CTRL2,
-> +	S2MPS15_REG_RSVD1,
-> +	S2MPS15_REG_RSVD2,
-> +	S2MPS15_REG_RSVD3,
-> +	S2MPS15_REG_RSVD4,
-> +	S2MPS15_REG_RSVD5,
-> +	S2MPS15_REG_RSVD6,
-> +	S2MPS15_REG_CTRL3,
-> +	S2MPS15_REG_RSVD7,
-> +	S2MPS15_REG_RSVD8,
-> +	S2MPS15_REG_RSVD9,
-> +	S2MPS15_REG_B1CTRL1,
-> +	S2MPS15_REG_B1CTRL2,
-> +	S2MPS15_REG_B2CTRL1,
-> +	S2MPS15_REG_B2CTRL2,
-> +	S2MPS15_REG_B3CTRL1,
-> +	S2MPS15_REG_B3CTRL2,
-> +	S2MPS15_REG_B4CTRL1,
-> +	S2MPS15_REG_B4CTRL2,
-> +	S2MPS15_REG_B5CTRL1,
-> +	S2MPS15_REG_B5CTRL2,
-> +	S2MPS15_REG_B6CTRL1,
-> +	S2MPS15_REG_B6CTRL2,
-> +	S2MPS15_REG_B7CTRL1,
-> +	S2MPS15_REG_B7CTRL2,
-> +	S2MPS15_REG_B8CTRL1,
-> +	S2MPS15_REG_B8CTRL2,
-> +	S2MPS15_REG_B9CTRL1,
-> +	S2MPS15_REG_B9CTRL2,
-> +	S2MPS15_REG_B10CTRL1,
-> +	S2MPS15_REG_B10CTRL2,
-> +	S2MPS15_REG_BBCTRL1,
-> +	S2MPS15_REG_BBCTRL2,
-> +	S2MPS15_REG_BRAMP,
-> +	S2MPS15_REG_LDODVS1,
-> +	S2MPS15_REG_LDODVS2,
-> +	S2MPS15_REG_LDODVS3,
-> +	S2MPS15_REG_LDODVS4,
-> +	S2MPS15_REG_L1CTRL,
-> +	S2MPS15_REG_L2CTRL,
-> +	S2MPS15_REG_L3CTRL,
-> +	S2MPS15_REG_L4CTRL,
-> +	S2MPS15_REG_L5CTRL,
-> +	S2MPS15_REG_L6CTRL,
-> +	S2MPS15_REG_L7CTRL,
-> +	S2MPS15_REG_L8CTRL,
-> +	S2MPS15_REG_L9CTRL,
-> +	S2MPS15_REG_L10CTRL,
-> +	S2MPS15_REG_L11CTRL,
-> +	S2MPS15_REG_L12CTRL,
-> +	S2MPS15_REG_L13CTRL,
-> +	S2MPS15_REG_L14CTRL,
-> +	S2MPS15_REG_L15CTRL,
-> +	S2MPS15_REG_L16CTRL,
-> +	S2MPS15_REG_L17CTRL,
-> +	S2MPS15_REG_L18CTRL,
-> +	S2MPS15_REG_L19CTRL,
-> +	S2MPS15_REG_L20CTRL,
-> +	S2MPS15_REG_L21CTRL,
-> +	S2MPS15_REG_L22CTRL,
-> +	S2MPS15_REG_L23CTRL,
-> +	S2MPS15_REG_L24CTRL,
-> +	S2MPS15_REG_L25CTRL,
-> +	S2MPS15_REG_L26CTRL,
-> +	S2MPS15_REG_L27CTRL,
-> +	S2MPS15_REG_LDODSCH1,
-> +	S2MPS15_REG_LDODSCH2,
-> +	S2MPS15_REG_LDODSCH3,
-> +	S2MPS15_REG_LDODSCH4,
-> +};
-> +
-> +/* S2MPS15 regulator ids */
-> +enum s2mps15_regulators {
-> +	S2MPS15_LDO1,
-> +	S2MPS15_LDO2,
-> +	S2MPS15_LDO3,
-> +	S2MPS15_LDO4,
-> +	S2MPS15_LDO5,
-> +	S2MPS15_LDO6,
-> +	S2MPS15_LDO7,
-> +	S2MPS15_LDO8,
-> +	S2MPS15_LDO9,
-> +	S2MPS15_LDO10,
-> +	S2MPS15_LDO11,
-> +	S2MPS15_LDO12,
-> +	S2MPS15_LDO13,
-> +	S2MPS15_LDO14,
-> +	S2MPS15_LDO15,
-> +	S2MPS15_LDO16,
-> +	S2MPS15_LDO17,
-> +	S2MPS15_LDO18,
-> +	S2MPS15_LDO19,
-> +	S2MPS15_LDO20,
-> +	S2MPS15_LDO21,
-> +	S2MPS15_LDO22,
-> +	S2MPS15_LDO23,
-> +	S2MPS15_LDO24,
-> +	S2MPS15_LDO25,
-> +	S2MPS15_LDO26,
-> +	S2MPS15_LDO27,
-> +	S2MPS15_BUCK1,
-> +	S2MPS15_BUCK2,
-> +	S2MPS15_BUCK3,
-> +	S2MPS15_BUCK4,
-> +	S2MPS15_BUCK5,
-> +	S2MPS15_BUCK6,
-> +	S2MPS15_BUCK7,
-> +	S2MPS15_BUCK8,
-> +	S2MPS15_BUCK9,
-> +	S2MPS15_BUCK10,
-> +	S2MPS15_BUCK11,
-> +	S2MPS15_REGULATOR_MAX,
-> +};
-> +
-> +#define S2MPS15_LDO_VSEL_MASK		(0x3F)
-> +#define S2MPS15_BUCK_VSEL_MASK		(0xFF)
-> +
-> +#define S2MPS15_ENABLE_SHIFT		(0x06)
-> +#define S2MPS15_ENABLE_MASK		(0x03 << S2MPS15_ENABLE_SHIFT)
-> +
-> +#define S2MPS15_LDO_N_VOLTAGES		(S2MPS15_LDO_VSEL_MASK + 1)
-> +#define S2MPS15_BUCK_N_VOLTAGES	(S2MPS15_BUCK_VSEL_MASK + 1)
-> +
-> +#endif /* __LINUX_MFD_S2MPS15_H */
+>  Optional properties:
+> @@ -24,7 +28,7 @@ Optional properties:
+>    unwanted buck warm reset (setting buck voltages to default values).
+> =20
+>  Optional nodes:
+> -- clocks: s2mps11, s2mps13 and s5m8767 provide three(AP/CP/BT) buffered =
+32.768
+> +- clocks: s2mps11, s2mps13, s2mps15 and s5m8767 provide three(AP/CP/BT) =
+buffered 32.768
+>    KHz outputs, so to register these as clocks with common clock framewor=
+k
+>    instantiate a sub-node named "clocks". It uses the common clock bindin=
+g
+>    documented in :
+> @@ -37,12 +41,13 @@ Optional nodes:
+>      the clock which they consume.
+>      Clock               ID           Devices
+>      ----------------------------------------------------------
+> -    32KhzAP		0            S2MPS11, S2MPS13, S2MPS14, S5M8767
+> -    32KhzCP		1            S2MPS11, S2MPS13, S5M8767
+> -    32KhzBT		2            S2MPS11, S2MPS13, S2MPS14, S5M8767
+> +    32KhzAP		0            S2MPS11, S2MPS13, S2MPS14, S2MPS15, S5M8767
+> +    32KhzCP		1            S2MPS11, S2MPS13, S2MPS15, S5M8767
+> +    32KhzBT		2            S2MPS11, S2MPS13, S2MPS14, S2MPS15, S5M8767
+> =20
+>    - compatible: Should be one of: "samsung,s2mps11-clk", "samsung,s2mps1=
+3-clk",
+> -		"samsung,s2mps14-clk", "samsung,s5m8767-clk"
+> +		"samsung,s2mps14-clk", "samsung,s2mps15-clk",
+> +		"samsung,s5m8767-clk"
+> =20
+>  - regulators: The regulators of s2mps11 that have to be instantiated sho=
+uld be
+>  included in a sub-node named 'regulators'. Regulator nodes included in t=
+his
+> @@ -90,6 +95,7 @@ as per the datasheet of s2mps11.
+>  			- S2MPS11: 1 to 38
+>  			- S2MPS13: 1 to 40
+>  			- S2MPS14: 1 to 25
+> +			- S2MPS15: 1 to 27
+>  			- S2MPU02: 1 to 28
+>  		  - Example: LDO1, LDO2, LDO28
+>  	- BUCKn
+> @@ -97,6 +103,7 @@ as per the datasheet of s2mps11.
+>  			- S2MPS11: 1 to 10
+>  			- S2MPS13: 1 to 10
+>  			- S2MPS14: 1 to 5
+> +			- S2MPS15: 1 to 10
+>  			- S2MPU02: 1 to 7
+>  		  - Example: BUCK1, BUCK2, BUCK9
+> =20
 
 --=20
 Lee Jones
