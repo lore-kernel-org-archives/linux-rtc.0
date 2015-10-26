@@ -1,18 +1,26 @@
-Return-Path: <rtc-linux+bncBDEKVJM7XAHRBI7E52YAKGQEHFYJMAI@googlegroups.com>
-Received: from mout.kundenserver.de (mout.kundenserver.de. [212.227.126.187])
-        by gmr-mx.google.com with ESMTPS id q6si478937wif.2.2015.10.12.06.14.11
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 12 Oct 2015 06:14:11 -0700 (PDT)
-From: Arnd Bergmann <arnd@arndb.de>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Sekhar Nori <nsekhar@ti.com>, Kevin Hilman <khilman@deeprootsystems.com>, Miguel Aguilar <miguel.aguilar@ridgerun.com>
-Subject: [rtc-linux] [PATCH] rtc: davinci: remove incorrect reference to probe function
-Date: Mon, 12 Oct 2015 15:14:05 +0200
-Message-ID: <5677325.oZsHpDNL2Z@wuerfel>
+Return-Path: <rtc-linux+bncBD747RFBYUPBBIOIXCYQKGQEW2HOX2Y@googlegroups.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Received: from mailout2.samsung.com (mailout2.samsung.com. [203.254.224.25])
+        by gmr-mx.google.com with ESMTPS id el2si3487560pbb.0.2015.10.26.06.01.20
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1 cipher=RC4-SHA bits=128/128);
+        Mon, 26 Oct 2015 06:01:20 -0700 (PDT)
+Received: from epcpsbgr2.samsung.com
+ (u142.gpu120.samsung.co.kr [203.254.230.142])
+ by mailout2.samsung.com (Oracle Communications Messaging Server 7.0.5.31.0
+ 64bit (built May  5 2014))
+ with ESMTP id <0NWT01419W668P30@mailout2.samsung.com> for
+ rtc-linux@googlegroups.com; Mon, 26 Oct 2015 22:01:18 +0900 (KST)
+From: Alim Akhtar <alim.akhtar@samsung.com>
+To: lee.jones@linaro.org, broonie@kernel.org
+Cc: k.kozlowski@samsung.com, mturquette@baylibre.com,
+ linux-samsung-soc@vger.kernel.org, linux-clk@vger.kernel.org,
+ rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org
+Subject: [rtc-linux] [PATCH v3 0/5] mfd: sec: add S2MPS15 PMIC support
+Date: Mon, 26 Oct 2015 18:21:17 +0530
+Message-id: <1445863883-5187-1-git-send-email-alim.akhtar@samsung.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -22,35 +30,53 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-The davinci rtc driver uses the module_platform_driver_probe()
-helper to call the probe function and mark it as __init, but
-it also puts a reference into its davinci_rtc_driver function.
+Samsung's S2MPS15 PMIC is targetted to be used with Samsung's Exynos7 SoC.
+The S2MPS15 PMIC is similar in functionality to S2MPS11/14 PMIC. It contains
+27 LDO and 10 Buck regulators, RTC, three 32.768 KHz clock outputs and allows
+programming these blocks via a I2C interface. This patch series adds initial
+support for LDO/Buck regulators of S2MPS15 PMIC.
 
-This will crash if we ever get a deferred probe and the probe
-function is called again after the init section has been removed.
-kbuild warns about this:
+Changes since v2:
+* Addressed Lee Jones review comments.
 
-WARNING: vmlinux.o(.data+0x1aa2b4): Section mismatch in reference from the variable davinci_rtc_driver to the function .init.text:davinci_rtc_probe()
-The variable davinci_rtc_driver references
-the function __init davinci_rtc_probe()
+Changes since v1:
+* Added suggestion from Krzysztof [1].
+* Added s2mps15's 32.768 clocks support.
+* Added s2mps15's rtc support.
 
-This patch removes the .probe callback from the platform driver,
-which avoids those problems.
+V1 of these patches (with a lesser features) were posted a year back,
+since then there is not much progress on this, this is my attempt to
+move things forward.
 
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+[1]-> https://lkml.org/lkml/2014/10/14/67
 
-diff --git a/drivers/rtc/rtc-davinci.c b/drivers/rtc/rtc-davinci.c
-index c84f46168a52..c5432bf64e1c 100644
---- a/drivers/rtc/rtc-davinci.c
-+++ b/drivers/rtc/rtc-davinci.c
-@@ -546,7 +546,6 @@ static int __exit davinci_rtc_remove(struct platform_device *pdev)
- }
- 
- static struct platform_driver davinci_rtc_driver = {
--	.probe		= davinci_rtc_probe,
- 	.remove		= __exit_p(davinci_rtc_remove),
- 	.driver		= {
- 		.name = "rtc_davinci",
+This series is based on linux-next-20151022.
+This is tested on exynos7-espresso board.
+
+Alim Akhtar (2):
+  clk: s2mps15: Add support for S2MPS15 clocks
+  drivers/rtc/rtc-s5m.c: add support for S2MPS15 RTC
+
+Thomas Abraham (3):
+  dt-bindings: mfd: s2mps11: add documentation for s2mps15 PMIC
+  mfd: sec: Add support for S2MPS15 PMIC
+  regulator: s2mps11: add support for S2MPS15 regulators
+
+ Documentation/devicetree/bindings/mfd/s2mps11.txt |   23 +--
+ drivers/clk/Kconfig                               |    5 +-
+ drivers/clk/clk-s2mps11.c                         |   24 ++++
+ drivers/mfd/sec-core.c                            |   31 ++++
+ drivers/mfd/sec-irq.c                             |    8 ++
+ drivers/regulator/Kconfig                         |    4 +-
+ drivers/regulator/s2mps11.c                       |  135 +++++++++++++++++-
+ drivers/rtc/rtc-s5m.c                             |   14 +-
+ include/linux/mfd/samsung/core.h                  |    1 +
+ include/linux/mfd/samsung/s2mps15.h               |  158 +++++++++++++++++++++
+ 10 files changed, 389 insertions(+), 14 deletions(-)
+ create mode 100644 include/linux/mfd/samsung/s2mps15.h
+
+-- 
+1.7.10.4
 
 -- 
 -- 
