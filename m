@@ -1,28 +1,27 @@
-Return-Path: <rtc-linux+bncBAABB3OO5WYAKGQEPNIFXYI@googlegroups.com>
-Received: from SJOEDG01.corp.atmel.com (nasmtp02.atmel.com. [204.2.163.16])
-        by gmr-mx.google.com with ESMTPS id f4si525605igo.2.2015.10.12.00.55.24
+Return-Path: <rtc-linux+bncBDA7X7F2WUEBBT7RXCYQKGQEWD4B7UY@googlegroups.com>
+Received: from mail-wi0-x234.google.com (mail-wi0-x234.google.com. [2a00:1450:400c:c05::234])
+        by gmr-mx.google.com with ESMTPS id bn7si473955wib.0.2015.10.26.07.29.34
         for <rtc-linux@googlegroups.com>
-        (version=TLS1 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
-        Mon, 12 Oct 2015 00:55:25 -0700 (PDT)
-From: "Yang, Wenyou" <Wenyou.Yang@atmel.com>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-CC: Alessandro Zummo <a.zummo@towertech.it>, "Ferre, Nicolas"
-	<Nicolas.FERRE@atmel.com>, "Desroches, Ludovic"
-	<Ludovic.Desroches@atmel.com>, "rtc-linux@googlegroups.com"
-	<rtc-linux@googlegroups.com>, "linux-kernel@vger.kernel.org"
-	<linux-kernel@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org"
-	<linux-arm-kernel@lists.infradead.org>
-Subject: [rtc-linux] RE: [PATCH] rtc: at91rm9200: clear RTC alarm status flag
- prior to suspending
-Date: Mon, 12 Oct 2015 07:55:13 +0000
-Message-ID: <B256D81BAE5131468A838E5D7A243641D632214D@penmbx01>
-References: <1444612677-26178-1-git-send-email-wenyou.yang@atmel.com>
- <20151012065323.GA3558@piout.net>
- <B256D81BAE5131468A838E5D7A243641D632111B@penmbx01>
- <20151012075115.GC3558@piout.net>
-In-Reply-To: <20151012075115.GC3558@piout.net>
-Content-Type: text/plain; charset=UTF-8
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 26 Oct 2015 07:29:34 -0700 (PDT)
+Received: by mail-wi0-x234.google.com with SMTP id q8so167455045wik.1
+        for <rtc-linux@googlegroups.com>; Mon, 26 Oct 2015 07:29:34 -0700 (PDT)
+Date: Mon, 26 Oct 2015 14:29:30 +0000
+From: Lee Jones <lee.jones@linaro.org>
+To: Alim Akhtar <alim.akhtar@samsung.com>
+Cc: broonie@kernel.org, k.kozlowski@samsung.com, mturquette@baylibre.com,
+	linux-samsung-soc@vger.kernel.org, linux-clk@vger.kernel.org,
+	rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org,
+	Thomas Abraham <thomas.ab@samsung.com>
+Subject: [rtc-linux] Re: [PATCH v2 2/5] mfd: sec: Add support for S2MPS15 PMIC
+Message-ID: <20151026142930.GJ597@x1>
+References: <1445855803-26973-1-git-send-email-alim.akhtar@samsung.com>
+ <1445855803-26973-3-git-send-email-alim.akhtar@samsung.com>
+ <20151026110611.GH597@x1>
+ <562E1F84.2000105@samsung.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <562E1F84.2000105@samsung.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -33,40 +32,77 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
+On Mon, 26 Oct 2015, Alim Akhtar wrote:
 
-
-> -----Original Message-----
-> From: Alexandre Belloni [mailto:alexandre.belloni@free-electrons.com]
-> Sent: 2015=E5=B9=B410=E6=9C=8812=E6=97=A5 15:51
-> To: Yang, Wenyou
-> Cc: Alessandro Zummo; Ferre, Nicolas; Desroches, Ludovic; rtc-
-> linux@googlegroups.com; linux-kernel@vger.kernel.org; linux-arm-
-> kernel@lists.infradead.org
-> Subject: Re: [PATCH] rtc: at91rm9200: clear RTC alarm status flag prior t=
-o
-> suspending
+> Hi Lee,
+> Thanks for looking into this.
 >=20
-> On 12/10/2015 at 07:48:18 +0000, Yang, Wenyou wrote :
-> > > On 12/10/2015 at 09:17:57 +0800, Wenyou Yang wrote :
-> > > > This patch is to clear the RTC alarm status flag prior to
-> > > > suspending to avoid the erroneous wake-up activity.
-> > > >
-> > >
-> > > Is this a new issue appearing with the sama5d2 or was it present
-> > > from the beginning?
-> > With the sama5d2 ULP1 mode, not from the beginning.
+> On 10/26/2015 04:36 PM, Lee Jones wrote:
+> >On Mon, 26 Oct 2015, Alim Akhtar wrote:
 > >
->=20
-> I think this information should appear in the commit log.
-I will add it in the next version, thanks.
+> >>From: Thomas Abraham <thomas.ab@samsung.com>
+> >>
+> >>Add support for S2MPS15 PMIC which is similar to S2MPS11 PMIC. The S2MP=
+S15
+> >>PMIC supports 27 LDO regulators, 10 buck regulators, RTC, three 32.768K=
+Hz
+> >>clock outputs and battery charger. This patch adds initial support for
+> >>LDO and buck regulators of S2MPS15 device.
+> >>
+> >>Signed-off-by: Thomas Abraham <thomas.ab@samsung.com>
+> >>Signed-off-by: Alim Akhtar <alim.akhtar@samsung.com>
+> >>[Alim: Added s2mps15_devs like rtc and clk and related changes]
+> >>Reviewed-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+> >>---
+> >>  drivers/mfd/sec-core.c              |   31 +++++++
+> >>  drivers/mfd/sec-irq.c               |    8 ++
+> >>  include/linux/mfd/samsung/core.h    |    1 +
+> >>  include/linux/mfd/samsung/s2mps15.h |  161 ++++++++++++++++++++++++++=
++++++++++
+> >>  4 files changed, 201 insertions(+)
+> >>  create mode 100644 include/linux/mfd/samsung/s2mps15.h
+> >>
+> >>diff --git a/drivers/mfd/sec-core.c b/drivers/mfd/sec-core.c
+> >>index 2626fc0b5b8c..db3d4d4ff805 100644
+> >>--- a/drivers/mfd/sec-core.c
+> >>+++ b/drivers/mfd/sec-core.c
+> >>@@ -29,6 +29,7 @@
+> >>  #include <linux/mfd/samsung/s2mps11.h>
+> >>  #include <linux/mfd/samsung/s2mps13.h>
+> >>  #include <linux/mfd/samsung/s2mps14.h>
+> >>+#include <linux/mfd/samsung/s2mps15.h>
+> >>  #include <linux/mfd/samsung/s2mpu02.h>
+> >>  #include <linux/mfd/samsung/s5m8763.h>
+> >>  #include <linux/mfd/samsung/s5m8767.h>
+> >>@@ -96,6 +97,17 @@ static const struct mfd_cell s2mps14_devs[] =3D {
+> >>  	}
+> >>  };
+> >>
+> >>+static const struct mfd_cell s2mps15_devs[] =3D {
+> >>+	{
+> >>+		.name =3D "s2mps15-pmic",
+> >>+	}, {
+> >>+		.name =3D "s2mps15-rtc",
+> >>+	}, {
+> >
+> >Why don't these have compatibles?
+> >
+> s2mps15-pmic does have compatible below in sec_dt_match[].
 
->=20
-> --
-> Alexandre Belloni, Free Electrons
-> Embedded Linux, Kernel and Android engineering http://free-electrons.com
+Woah!!  What's going on here?  You're matching the MFD and Regulator
+drivers with the same compatible string.  And then registering the
+Regulator device as an MFD.  That's a bit confusing don't you think?
 
-Best Regards,
-Wenyou Yang
+> s2mps15-rtc does not need one as rtc driver does not support OF yet.
+> So no DT node for this as of now.
+
+[...]
+
+--=20
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org =E2=94=82 Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog
 
 --=20
 --=20
