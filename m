@@ -1,19 +1,23 @@
-Return-Path: <rtc-linux+bncBAABBYWWWWYAKGQEVCAWJTA@googlegroups.com>
-Received: from mail.cosmopool.net (mail.cosmopool.net. [2a01:4f8:160:20c1::10:107])
-        by gmr-mx.google.com with ESMTP id c1si121055wiv.3.2015.10.01.10.20.33
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBWEDYCYQKGQEIF5C6TI@googlegroups.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id en3si601710wib.3.2015.10.27.15.59.36
         for <rtc-linux@googlegroups.com>;
-        Thu, 01 Oct 2015 10:20:33 -0700 (PDT)
+        Tue, 27 Oct 2015 15:59:36 -0700 (PDT)
+Date: Tue, 27 Oct 2015 23:59:34 +0100
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Alim Akhtar <alim.akhtar@samsung.com>
+Cc: lee.jones@linaro.org, broonie@kernel.org, k.kozlowski@samsung.com,
+	mturquette@baylibre.com, linux-samsung-soc@vger.kernel.org,
+	linux-clk@vger.kernel.org, rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org
+Subject: Re: [rtc-linux] [PATCH v3 5/5] drivers/rtc/rtc-s5m.c: add support for
+ S2MPS15 RTC
+Message-ID: <20151027225934.GL22331@piout.net>
+References: <1445863883-5187-1-git-send-email-alim.akhtar@samsung.com>
+ <1445863883-5187-6-git-send-email-alim.akhtar@samsung.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Date: Thu, 01 Oct 2015 19:20:32 +0200
-From: <harald@ccbib.org>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: <rtc-linux@googlegroups.com>, Wolfram Sang <wsa@the-dreams.de>,
- Wim Van Sebroeck <wim@iguana.be>, <linux-watchdog@vger.kernel.org>
-Subject: Re: [rtc-linux] [PATCH] watchdog: stmp3xxx: Implement GETBOOTSTATUS
-In-Reply-To: <20150505094031.GH4276@piout.net>
-References: <1428522355-5164-1-git-send-email-harald@ccbib.org> <20150417093023.GF29796@piout.net> <3a787a0b2777c4b734a4f153e1a3f7d7@imap.cosmopool.net> <20150419153743.GA4353@piout.net> <480bd3b38b87b44913868cbd2f3e24c6@imap.cosmopool.net> <20150505094031.GH4276@piout.net>
-Message-ID: <c75c3f0a5a1a136bac7c882178b01815@imap.cosmopool.net>
+In-Reply-To: <1445863883-5187-6-git-send-email-alim.akhtar@samsung.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -24,72 +28,37 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Hi Alexandre,
-
-sorry for the very long delay. 
-
-I tried your suggestion to switch the watchdog driver to regmap several
-times but couldn't come up with something that wasn't either very ugly
-or completely pointless - i.e. no better then passing a pointer to the
-register block. See below.
-
-On Tue, 5 May 2015 11:40:31 +0200, Alexandre Belloni
-<alexandre.belloni@free-electrons.com> wrote:
-> Hi,
+On 26/10/2015 at 18:21:22 +0530, Alim Akhtar wrote :
+> RTC found in s2mps15 is almost same as one found in s2mps14.
+> This patch add required changes to enable s2mps15 rtc timer.
 > 
-> On 20/04/2015 at 09:11:02 +0200, harald@ccbib.org wrote :
->> Hi Alexandre,
->> 
->> On Sun, 19 Apr 2015 17:37:43 +0200, Alexandre Belloni
->> <alexandre.belloni@free-electrons.com> wrote:
->> > On 19/04/2015 at 15:41:42 +0200, harald@ccbib.org wrote :
->> >> >  - use syscon instead of passing callbacks to the watchdog driver
->> >> 
->> >> I will put looking into this onto my todo list, but I'm not familiar
->> >> with syscon yet and it is not obvious to me how to port the rtc
-driver
->> >> to syscon without breaking devicetree backwards compatibility. So
-I'd
->> >> like to defer this for later unless somebody gives me some guidance.
->> > 
->> > As the rtc driver is the one instantiating the watchdog driver, there
->> > is
->> > no reason why the DT ABI would be broken. You simply have to create
->> > the syscon in the RTC driver and then pass it to the watchdog driver,
->> > the same way it is done with the callbacks.
->> 
->> Ok, this is less invasive than what I have been thinking. This makes
->> sense. 
+> Signed-off-by: Alim Akhtar <alim.akhtar@samsung.com>
+
+One really small nitpick below else you can add my
+Acked-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+
+> ---
+>  drivers/rtc/rtc-s5m.c |   14 +++++++++++++-
+>  1 file changed, 13 insertions(+), 1 deletion(-)
 > 
-> I realized I confused syscon with regmap. So indeed, switching to syscon
-> will require a not nice change to the DT. But what I really meant was
-> creating a regmap from the rtc driver and pass it to the watchdog
-> driver.
+> @@ -317,7 +319,8 @@ static int s5m_rtc_read_time(struct device *dev, struct rtc_time *tm)
+>  	u8 data[info->regs->regs_count];
+>  	int ret;
+>  
+> -	if (info->device_type == S2MPS14X || info->device_type == S2MPS13X) {
+> +	if (info->device_type == S2MPS14X || info->device_type == S2MPS15X ||
+> +						info->device_type == S2MPS13X) {
 
-Since the rtc and watchdog drivers need different bits of the same control
-register, we would need to use regmap_fields to pass them around.
-Unfortunately this means we can't use the _SET and _CLR registers, which
-means we need to use regmap everywhere to get proper locking. A lot of
-overhead for no benefit.
+This line is not properly aligned.
 
-After reading lots of messages around the genesis and usage of
-regmap_mmio,
-it seems to me the intended usecases are to fix some endianness issues
-and to have a register cache available during suspend - both of which
-don't
-apply in this case.
+>  		ret = regmap_update_bits(info->regmap,
+>  				info->regs->rtc_udr_update,
+>  				S2MPS_RTC_RUDR_MASK, S2MPS_RTC_RUDR_MASK);
 
-If you want to get rid of the callbacks we should just pass the pointer
-to the register block to the child device, I think. Which way is
-preferable
-is probably only a matter of taste so I won't override the driver authors
-decision unless there is some clear statement that this is the preferred
-style in the rtc subsystem.
-
-I will send the other patch (unify register access macros) you asked about
-shortly.
-
-Harald
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
 -- 
 -- 
