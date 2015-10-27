@@ -1,29 +1,22 @@
-Return-Path: <rtc-linux+bncBDKZNNNLXAHBBO5KY6YQKGQE2KW2OZI@googlegroups.com>
-Received: from mailout4.w1.samsung.com (mailout4.w1.samsung.com. [210.118.77.14])
-        by gmr-mx.google.com with ESMTPS id vy6si55903pbc.1.2015.10.29.01.13.47
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1 cipher=RC4-SHA bits=128/128);
-        Thu, 29 Oct 2015 01:13:47 -0700 (PDT)
-Received: from eucpsbgm1.samsung.com (unknown [203.254.199.244])
- by mailout4.w1.samsung.com
- (Oracle Communications Messaging Server 7.0.5.31.0 64bit (built May  5 2014))
- with ESMTP id <0NWZ002XV2UV9Z30@mailout4.w1.samsung.com> for
- rtc-linux@googlegroups.com; Thu, 29 Oct 2015 08:13:43 +0000 (GMT)
-Subject: [rtc-linux] Re: [PATCH v4 3/4] regulator: s2mps11: add support for
- S2MPS15 regulators
-To: Lee Jones <lee.jones@linaro.org>, Alim Akhtar <alim.akhtar@samsung.com>
-References: <1446094723-6212-1-git-send-email-alim.akhtar@samsung.com>
- <1446094723-6212-4-git-send-email-alim.akhtar@samsung.com>
- <20151029080835.GM4058@x1>
-Cc: broonie@kernel.org, linux-samsung-soc@vger.kernel.org,
- rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org,
- Thomas Abraham <thomas.ab@samsung.com>
-From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-Message-id: <5631D533.6070807@samsung.com>
-Date: Thu, 29 Oct 2015 17:13:39 +0900
-MIME-version: 1.0
-In-reply-to: <20151029080835.GM4058@x1>
-Content-type: text/plain; charset=UTF-8
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBXMAYCYQKGQEUK2PMFY@googlegroups.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id q6si487233wiz.0.2015.10.27.15.53.16
+        for <rtc-linux@googlegroups.com>;
+        Tue, 27 Oct 2015 15:53:16 -0700 (PDT)
+Date: Tue, 27 Oct 2015 23:53:15 +0100
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Sudeep Holla <sudeep.holla@arm.com>
+Cc: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+	devicetree@vger.kernel.org, Alessandro Zummo <a.zummo@towertech.it>,
+	rtc-linux@googlegroups.com
+Subject: [rtc-linux] Re: [PATCH 04/19] rtc: isl12057: enable support for the
+ standard "wakeup-source" property
+Message-ID: <20151027225315.GJ22331@piout.net>
+References: <1445422216-29375-1-git-send-email-sudeep.holla@arm.com>
+ <1445422216-29375-5-git-send-email-sudeep.holla@arm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1445422216-29375-5-git-send-email-sudeep.holla@arm.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -34,42 +27,29 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On 29.10.2015 17:08, Lee Jones wrote:
-> On Thu, 29 Oct 2015, Alim Akhtar wrote:
+On 21/10/2015 at 11:10:01 +0100, Sudeep Holla wrote :
+> Though the isl12057 rtc driver should and will continue to support the
+> legacy "isil,irq2-can-wakeup-machine" property to enable RTC as the
+> wakeup source, we need to add support for the new standard property
+> "wakeup-source".
 > 
->> From: Thomas Abraham <thomas.ab@samsung.com>
->>
->> The S2MPS15 PMIC is similar in functionality to S2MPS11/14 PMIC. It contains
->> 27 LDO and 10 Buck regulators and allows programming these regulators via a
->> I2C interface. This patch adds initial support for LDO/Buck regulators of
->> S2MPS15 PMIC.
->>
->> Signed-off-by: Thomas Abraham <thomas.ab@samsung.com>
->> Signed-off-by: Alim Akhtar <alim.akhtar@samsung.com>
->> Reviewed-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
->> ---
->>  drivers/regulator/Kconfig   |    4 +-
->>  drivers/regulator/s2mps11.c |  135 ++++++++++++++++++++++++++++++++++++++++++-
->>  2 files changed, 136 insertions(+), 3 deletions(-)
+> This patch adds support for "wakeup-source" property in addition to the
+> existing "isil,irq2-can-wakeup-machine" property.
 > 
-> [...]
+> Cc: Alessandro Zummo <a.zummo@towertech.it>
+> Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+> Cc: rtc-linux@googlegroups.com
+> Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
+> ---
+>  drivers/rtc/rtc-isl12057.c | 10 +++++-----
+>  1 file changed, 5 insertions(+), 5 deletions(-)
 > 
->> @@ -1070,6 +1202,7 @@ static const struct platform_device_id s2mps11_pmic_id[] = {
->>  	{ "s2mps11-pmic", S2MPS11X},
->>  	{ "s2mps13-pmic", S2MPS13X},
->>  	{ "s2mps14-pmic", S2MPS14X},
->> +	{ "s2mps15-regulator", S2MPS15X},
->>  	{ "s2mpu02-pmic", S2MPU02},
->>  	{ },
->>  };
-> 
-> Are you going to s/pmic/regulator/ for the existing devices too?
+Applied, thanks.
 
-Yeah, I expected that as well... but of course it is orthogonal to this
-patchset.
-
-Best regards,
-Krzysztof
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
 -- 
 -- 
