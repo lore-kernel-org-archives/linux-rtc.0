@@ -1,20 +1,28 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBC5FX6YAKGQELYW77TA@googlegroups.com>
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id bj4si104023wib.1.2015.10.03.06.05.14
-        for <rtc-linux@googlegroups.com>;
-        Sat, 03 Oct 2015 06:05:14 -0700 (PDT)
-Date: Sat, 3 Oct 2015 15:05:13 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Ivan Grimaldi <grimaldi.ivan@gmail.com>
-Cc: a.zummo@towertech.it, mpfj@mimc.co.uk, rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH v3 2/2] Added trickle charger device tree binding
-Message-ID: <20151003130513.GG10444@piout.net>
-References: <1442589759-29538-1-git-send-email-grimaldi.ivan@gmail.com>
- <1442589759-29538-2-git-send-email-grimaldi.ivan@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1442589759-29538-2-git-send-email-grimaldi.ivan@gmail.com>
+Return-Path: <rtc-linux+bncBDKZNNNLXAHBBSGIYCYQKGQETXMD7EI@googlegroups.com>
+Received: from mailout1.w1.samsung.com (mailout1.w1.samsung.com. [210.118.77.11])
+        by gmr-mx.google.com with ESMTPS id fa8si4573050pab.1.2015.10.27.18.26.31
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1 cipher=RC4-SHA bits=128/128);
+        Tue, 27 Oct 2015 18:26:32 -0700 (PDT)
+Received: from eucpsbgm2.samsung.com (unknown [203.254.199.245])
+ by mailout1.w1.samsung.com
+ (Oracle Communications Messaging Server 7.0.5.31.0 64bit (built May  5 2014))
+ with ESMTP id <0NWW000HOPC35X00@mailout1.w1.samsung.com> for
+ rtc-linux@googlegroups.com; Wed, 28 Oct 2015 01:26:27 +0000 (GMT)
+Subject: [rtc-linux] Re: [PATCH v3 4/5] clk: s2mps15: Add support for S2MPS15 clocks
+To: Alim Akhtar <alim.akhtar@samsung.com>, lee.jones@linaro.org,
+ broonie@kernel.org
+References: <1445863883-5187-1-git-send-email-alim.akhtar@samsung.com>
+ <1445863883-5187-5-git-send-email-alim.akhtar@samsung.com>
+Cc: mturquette@baylibre.com, linux-samsung-soc@vger.kernel.org,
+ linux-clk@vger.kernel.org, rtc-linux@googlegroups.com,
+ linux-kernel@vger.kernel.org
+From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+Message-id: <5630243E.1080608@samsung.com>
+Date: Wed, 28 Oct 2015 10:26:22 +0900
+MIME-version: 1.0
+In-reply-to: <1445863883-5187-5-git-send-email-alim.akhtar@samsung.com>
+Content-type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -25,23 +33,83 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On 18/09/2015 at 17:22:39 +0200, Ivan Grimaldi wrote :
-> Introduce a device tree binding for specifying the trickle charger
-> configuration for ds1339.
+On 26.10.2015 21:51, Alim Akhtar wrote:
+> S2MPS15 PMIC has three 32k buffered clocks outputs. This patch
+> adds supports for the same to the s2mps11 clock driver.
 > 
-> Signed-off-by: Ivan Grimaldi <grimaldi.ivan@gmail.com>
+> Signed-off-by: Alim Akhtar <alim.akhtar@samsung.com>
 > ---
->  .../devicetree/bindings/rtc/dallas,ds1390.txt      | 18 +++++++
->  drivers/rtc/rtc-ds1390.c                           | 62 ++++++++++++++++++++++
->  2 files changed, 80 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/rtc/dallas,ds1390.txt
+>  drivers/clk/Kconfig       |    5 +++--
+>  drivers/clk/clk-s2mps11.c |   24 ++++++++++++++++++++++++
+>  2 files changed, 27 insertions(+), 2 deletions(-)
 > 
-Applied, after doing a few whitespace modifications, thanks.
+> diff --git a/drivers/clk/Kconfig b/drivers/clk/Kconfig
+> index a1fa61159179..037a314b5d76 100644
+> --- a/drivers/clk/Kconfig
+> +++ b/drivers/clk/Kconfig
+> @@ -120,9 +120,10 @@ config COMMON_CLK_S2MPS11
+>  	tristate "Clock driver for S2MPS1X/S5M8767 MFD"
+>  	depends on MFD_SEC_CORE
+>  	---help---
+> -	  This driver supports S2MPS11/S2MPS14/S5M8767 crystal oscillator
+> +	  This driver supports S2MPS1X/S5M8767 crystal oscillator
+>  	  clock. These multi-function devices have two (S2MPS14) or three
+> -	  (S2MPS11, S5M8767) fixed-rate oscillators, clocked at 32KHz each.
+> +	  (S2MPS11/S2MPS13/S2MPS15/S5M8767) fixed-rate oscillators,
+> +	  clocked at 32KHz each.
+>  
+>  config CLK_TWL6040
+>  	tristate "External McPDM functional clock from twl6040"
+> diff --git a/drivers/clk/clk-s2mps11.c b/drivers/clk/clk-s2mps11.c
+> index d266299dfdb1..455500dca653 100644
+> --- a/drivers/clk/clk-s2mps11.c
+> +++ b/drivers/clk/clk-s2mps11.c
+> @@ -25,6 +25,7 @@
+>  #include <linux/mfd/samsung/s2mps11.h>
+>  #include <linux/mfd/samsung/s2mps13.h>
+>  #include <linux/mfd/samsung/s2mps14.h>
+> +#include <linux/mfd/samsung/s2mps15.h>
+>  #include <linux/mfd/samsung/s5m8767.h>
+>  #include <linux/mfd/samsung/core.h>
+>  
+> @@ -148,6 +149,24 @@ static struct clk_init_data s2mps14_clks_init[S2MPS11_CLKS_NUM] = {
+>  	},
+>  };
+>  
+> +static struct clk_init_data s2mps15_clks_init[S2MPS11_CLKS_NUM] = {
+> +	[S2MPS11_CLK_AP] = {
+> +		.name = "s2mps15_ap",
+> +		.ops = &s2mps11_clk_ops,
+> +		.flags = CLK_IS_ROOT,
+> +	},
+> +	[S2MPS11_CLK_CP] = {
+> +		.name = "s2mps15_cp",
+> +		.ops = &s2mps11_clk_ops,
+> +		.flags = CLK_IS_ROOT,
+> +	},
+> +	[S2MPS11_CLK_BT] = {
+> +		.name = "s2mps15_bt",
+> +		.ops = &s2mps11_clk_ops,
+> +		.flags = CLK_IS_ROOT,
+> +	},
+> +};
+> +
+>  static struct device_node *s2mps11_clk_parse_dt(struct platform_device *pdev,
+>  		struct clk_init_data *clks_init)
+>  {
+> @@ -207,6 +226,10 @@ static int s2mps11_clk_probe(struct platform_device *pdev)
+>  		s2mps11_reg = S2MPS14_REG_RTCCTRL;
+>  		clks_init = s2mps14_clks_init;
+>  		break;
+> +	case S2MPS15X:
+> +		s2mps11_reg = S2MPS15_REG_RTC_BUF;
+> +		clks_init = s2mps15_clks_init;
 
--- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+Another question (after looking at RTC driver):
+Is this the same register address as S2MPS14?
+
+Best regards,
+Krzysztof
 
 -- 
 -- 
