@@ -1,23 +1,31 @@
-Return-Path: <rtc-linux+bncBCXY5EGBQUIBBZW4QKYQKGQEG5WTZTI@googlegroups.com>
-MIME-Version: 1.0
-Received: from mail-out.m-online.net (mail-out.m-online.net. [212.18.0.10])
-        by gmr-mx.google.com with ESMTPS id hs5si73876wib.1.2015.10.16.00.59.34
+Return-Path: <rtc-linux+bncBDKZNNNLXAHBB755YGYQKGQEI5U2GPQ@googlegroups.com>
+Received: from mailout4.w1.samsung.com (mailout4.w1.samsung.com. [210.118.77.14])
+        by gmr-mx.google.com with ESMTPS id el2si4645240pbb.0.2015.10.27.22.37.02
         for <rtc-linux@googlegroups.com>
-        (version=TLSv1 cipher=ECDHE-RSA-RC4-SHA bits=128/128);
-        Fri, 16 Oct 2015 00:59:34 -0700 (PDT)
-From: Heiko Schocher <hs@denx.de>
-To: linux-kernel@vger.kernel.org
-Cc: Heiko Schocher <hs@denx.de>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Georg.Soffel@bosch-si.com,
-	rtc-linux@googlegroups.com,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	devicetree@vger.kernel.org
-Subject: [rtc-linux] [PATCH v2] rtc: pcf8563: add CLKOUT to common clock framework
-Date: Fri, 16 Oct 2015 09:59:29 +0200
-Message-Id: <1444982369-26046-1-git-send-email-hs@denx.de>
+        (version=TLSv1 cipher=RC4-SHA bits=128/128);
+        Tue, 27 Oct 2015 22:37:03 -0700 (PDT)
+Received: from eucpsbgm1.samsung.com (unknown [203.254.199.244])
+ by mailout4.w1.samsung.com
+ (Oracle Communications Messaging Server 7.0.5.31.0 64bit (built May  5 2014))
+ with ESMTP id <0NWX006AT0XMTS20@mailout4.w1.samsung.com> for
+ rtc-linux@googlegroups.com; Wed, 28 Oct 2015 05:36:58 +0000 (GMT)
+Subject: [rtc-linux] Re: [PATCH v3 4/5] clk: s2mps15: Add support for S2MPS15 clocks
+To: Alim Akhtar <alim.akhtar@samsung.com>, lee.jones@linaro.org,
+ broonie@kernel.org
+References: <1445863883-5187-1-git-send-email-alim.akhtar@samsung.com>
+ <1445863883-5187-5-git-send-email-alim.akhtar@samsung.com>
+ <5630243E.1080608@samsung.com> <5630503A.3070404@samsung.com>
+ <5630554E.8070301@samsung.com>
+Cc: mturquette@baylibre.com, linux-samsung-soc@vger.kernel.org,
+ linux-clk@vger.kernel.org, rtc-linux@googlegroups.com,
+ linux-kernel@vger.kernel.org
+From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+Message-id: <56305EF5.1080709@samsung.com>
+Date: Wed, 28 Oct 2015 14:36:53 +0900
+MIME-version: 1.0
+In-reply-to: <5630554E.8070301@samsung.com>
+Content-type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
-Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -27,265 +35,109 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Add the clkout output clk to the common clock framework.
-Disable the CLKOUT of the RTC after power-up.
-After power-up/reset of the RTC, CLKOUT is enabled by default,
-with CLKOUT enabled the RTC chip has 2-3 times higher power
-consumption.
+On 28.10.2015 13:55, Alim Akhtar wrote:
+> 
+> 
+> On 10/28/2015 10:04 AM, Krzysztof Kozlowski wrote:
+>> On 28.10.2015 10:26, Krzysztof Kozlowski wrote:
+>>> On 26.10.2015 21:51, Alim Akhtar wrote:
+>>>> S2MPS15 PMIC has three 32k buffered clocks outputs. This patch
+>>>> adds supports for the same to the s2mps11 clock driver.
+>>>>
+>>>> Signed-off-by: Alim Akhtar <alim.akhtar@samsung.com>
+>>>> ---
+>>>>   drivers/clk/Kconfig       |    5 +++--
+>>>>   drivers/clk/clk-s2mps11.c |   24 ++++++++++++++++++++++++
+>>>>   2 files changed, 27 insertions(+), 2 deletions(-)
+>>>>
+>>>> diff --git a/drivers/clk/Kconfig b/drivers/clk/Kconfig
+>>>> index a1fa61159179..037a314b5d76 100644
+>>>> --- a/drivers/clk/Kconfig
+>>>> +++ b/drivers/clk/Kconfig
+>>>> @@ -120,9 +120,10 @@ config COMMON_CLK_S2MPS11
+>>>>       tristate "Clock driver for S2MPS1X/S5M8767 MFD"
+>>>>       depends on MFD_SEC_CORE
+>>>>       ---help---
+>>>> -      This driver supports S2MPS11/S2MPS14/S5M8767 crystal oscillator
+>>>> +      This driver supports S2MPS1X/S5M8767 crystal oscillator
+>>>>         clock. These multi-function devices have two (S2MPS14) or three
+>>>> -      (S2MPS11, S5M8767) fixed-rate oscillators, clocked at 32KHz
+>>>> each.
+>>>> +      (S2MPS11/S2MPS13/S2MPS15/S5M8767) fixed-rate oscillators,
+>>>> +      clocked at 32KHz each.
+>>>>
+>>>>   config CLK_TWL6040
+>>>>       tristate "External McPDM functional clock from twl6040"
+>>>> diff --git a/drivers/clk/clk-s2mps11.c b/drivers/clk/clk-s2mps11.c
+>>>> index d266299dfdb1..455500dca653 100644
+>>>> --- a/drivers/clk/clk-s2mps11.c
+>>>> +++ b/drivers/clk/clk-s2mps11.c
+>>>> @@ -25,6 +25,7 @@
+>>>>   #include <linux/mfd/samsung/s2mps11.h>
+>>>>   #include <linux/mfd/samsung/s2mps13.h>
+>>>>   #include <linux/mfd/samsung/s2mps14.h>
+>>>> +#include <linux/mfd/samsung/s2mps15.h>
+>>>>   #include <linux/mfd/samsung/s5m8767.h>
+>>>>   #include <linux/mfd/samsung/core.h>
+>>>>
+>>>> @@ -148,6 +149,24 @@ static struct clk_init_data
+>>>> s2mps14_clks_init[S2MPS11_CLKS_NUM] = {
+>>>>       },
+>>>>   };
+>>>>
+>>>> +static struct clk_init_data s2mps15_clks_init[S2MPS11_CLKS_NUM] = {
+>>>> +    [S2MPS11_CLK_AP] = {
+>>>> +        .name = "s2mps15_ap",
+>>>> +        .ops = &s2mps11_clk_ops,
+>>>> +        .flags = CLK_IS_ROOT,
+>>>> +    },
+>>>> +    [S2MPS11_CLK_CP] = {
+>>>> +        .name = "s2mps15_cp",
+>>>> +        .ops = &s2mps11_clk_ops,
+>>>> +        .flags = CLK_IS_ROOT,
+>>>> +    },
+>>>> +    [S2MPS11_CLK_BT] = {
+>>>> +        .name = "s2mps15_bt",
+>>>> +        .ops = &s2mps11_clk_ops,
+>>>> +        .flags = CLK_IS_ROOT,
+>>>> +    },
+>>>> +};
+>>>> +
+>>>>   static struct device_node *s2mps11_clk_parse_dt(struct
+>>>> platform_device *pdev,
+>>>>           struct clk_init_data *clks_init)
+>>>>   {
+>>>> @@ -207,6 +226,10 @@ static int s2mps11_clk_probe(struct
+>>>> platform_device *pdev)
+>>>>           s2mps11_reg = S2MPS14_REG_RTCCTRL;
+>>>>           clks_init = s2mps14_clks_init;
+>>>>           break;
+>>>> +    case S2MPS15X:
+>>>> +        s2mps11_reg = S2MPS15_REG_RTC_BUF;
+>>>> +        clks_init = s2mps15_clks_init;
+>>>
+>>> Another question (after looking at RTC driver):
+>>> Is this the same register address as S2MPS14?
+>>
+>> I found the answer - this is the same address as in S2MPS13 and S2MPS14:
+>> 0xc. The S2MPS14 has only two clocks though but S2MPS13 has three.
+>> Again, as in RTC, you should re-use existing support.
+>>
+>> It looks there is no need for this patch at all.
+>>
+> Yes, checked that, rtc looks same to s2mps14 and clk looks same as
+> s2mps13{ not s2mps11}, because of the RTC_BUF address changes.
+> Will drop patch 4 and 5 and use the existing names where applicable.
 
-Signed-off-by: Heiko Schocher <hs@denx.de>
----
+Thanks!
 
-Changes in v2:
-- add comments from Alexandre Belloni
-  - remove the DT property, instead
-    register for the CLKOUT a clk in the common
-    clk framework. The clk is disabled by default.
+> I think I don't have to change the binding or Kconfig changes?
 
- Documentation/devicetree/bindings/rtc/pcf8563.txt |  28 ++++
- drivers/rtc/rtc-pcf8563.c                         | 164 +++++++++++++++++++++-
- 2 files changed, 191 insertions(+), 1 deletion(-)
- create mode 100644 Documentation/devicetree/bindings/rtc/pcf8563.txt
+I think you don't have to. Only the main MFD driver will be updated with
+respective child driver names and compatible.
 
-diff --git a/Documentation/devicetree/bindings/rtc/pcf8563.txt b/Documentation/devicetree/bindings/rtc/pcf8563.txt
-new file mode 100644
-index 0000000..cdb81ef
---- /dev/null
-+++ b/Documentation/devicetree/bindings/rtc/pcf8563.txt
-@@ -0,0 +1,28 @@
-+* Philips PCF8563/Epson RTC8564 Real Time Clock
-+
-+Philips PCF8563/Epson RTC8564 Real Time Clock
-+
-+Required properties:
-+see: Documentation/devicetree/bindings/i2c/trivial-devices.txt
-+
-+Optional property:
-+- #clock-cells: Should be 1.
-+- clocks: Reference to the clock entry.
-+- clock-output-names:
-+  overwrite the default clock name "pcf8563-clkout"
-+
-+Example:
-+
-+rtcclk: rtcclk {
-+	compatible = "fixed-clock";
-+	#clock-cells = <1>;
-+	clock-frequency = <1>;
-+	clock-output-names = "rtcclk";
-+};
-+
-+pcf8563@51 {
-+	compatible = "nxp,pcf8563";
-+	reg = <0x51>;
-+	#clock-cells = <1>;
-+	clocks = <&rtcclk 0>;
-+};
-diff --git a/drivers/rtc/rtc-pcf8563.c b/drivers/rtc/rtc-pcf8563.c
-index e569243..0c2f85f 100644
---- a/drivers/rtc/rtc-pcf8563.c
-+++ b/drivers/rtc/rtc-pcf8563.c
-@@ -14,6 +14,7 @@
-  * published by the Free Software Foundation.
-  */
- 
-+#include <linux/clk-provider.h>
- #include <linux/i2c.h>
- #include <linux/bcd.h>
- #include <linux/rtc.h>
-@@ -40,7 +41,14 @@
- 
- #define PCF8563_REG_AMN		0x09 /* alarm */
- 
--#define PCF8563_REG_CLKO	0x0D /* clock out */
-+#define PCF8563_REG_CLKO		0x0D /* clock out */
-+#define PCF8563_REG_CLKO_FE		0x80 /* clock out enabled */
-+#define PCF8563_REG_CLKO_F_MASK		0x03 /* frequenc mask */
-+#define PCF8563_REG_CLKO_F_32768HZ	0x00
-+#define PCF8563_REG_CLKO_F_1024HZ	0x01
-+#define PCF8563_REG_CLKO_F_32HZ		0x02
-+#define PCF8563_REG_CLKO_F_1HZ		0x03
-+
- #define PCF8563_REG_TMRC	0x0E /* timer control */
- #define PCF8563_TMRC_ENABLE	BIT(7)
- #define PCF8563_TMRC_4096	0
-@@ -76,6 +84,7 @@ struct pcf8563 {
- 	int voltage_low; /* incicates if a low_voltage was detected */
- 
- 	struct i2c_client *client;
-+	struct clk_hw		clkout_hw;
- };
- 
- static int pcf8563_read_block_data(struct i2c_client *client, unsigned char reg,
-@@ -390,6 +399,156 @@ static int pcf8563_irq_enable(struct device *dev, unsigned int enabled)
- 	return pcf8563_set_alarm_mode(to_i2c_client(dev), !!enabled);
- }
- 
-+/*
-+ * Handling of the clkout
-+ */
-+
-+#define clkout_hw_to_pcf8563(_hw) container_of(_hw, struct pcf8563, clkout_hw)
-+
-+static int clkout_rates[] = {
-+	32768,
-+	1024,
-+	32,
-+	1,
-+};
-+
-+static unsigned long pcf8563_clkout_recalc_rate(struct clk_hw *hw,
-+						unsigned long parent_rate)
-+{
-+	struct pcf8563 *pcf8563 = clkout_hw_to_pcf8563(hw);
-+	struct i2c_client *client = pcf8563->client;
-+	unsigned char buf;
-+	int ret = pcf8563_read_block_data(client, PCF8563_REG_CLKO, 1, &buf);
-+
-+	if (ret < 0)
-+		return 0;
-+
-+	buf &= PCF8563_REG_CLKO_F_MASK;
-+	return clkout_rates[ret];
-+}
-+
-+static long pcf8563_clkout_round_rate(struct clk_hw *hw, unsigned long rate,
-+				      unsigned long *prate)
-+{
-+	int i;
-+
-+	for (i = 0; i < ARRAY_SIZE(clkout_rates); i++)
-+		if (clkout_rates[i] <= rate)
-+			return clkout_rates[i];
-+
-+	return 0;
-+}
-+
-+static int pcf8563_clkout_set_rate(struct clk_hw *hw, unsigned long rate,
-+				   unsigned long parent_rate)
-+{
-+	struct pcf8563 *pcf8563 = clkout_hw_to_pcf8563(hw);
-+	struct i2c_client *client = pcf8563->client;
-+	unsigned char buf;
-+	int ret = pcf8563_read_block_data(client, PCF8563_REG_CLKO, 1, &buf);
-+	int i;
-+
-+	if (ret < 0)
-+		return ret;
-+
-+	for (i = 0; i < ARRAY_SIZE(clkout_rates); i++)
-+		if (clkout_rates[i] == rate) {
-+			buf &= ~PCF8563_REG_CLKO_F_MASK;
-+			buf |= i;
-+			ret = pcf8563_write_block_data(client,
-+						       PCF8563_REG_CLKO, 1,
-+						       &buf);
-+			return ret;
-+		}
-+
-+	return -EINVAL;
-+}
-+
-+static int pcf8563_clkout_control(struct clk_hw *hw, bool enable)
-+{
-+	struct pcf8563 *pcf8563 = clkout_hw_to_pcf8563(hw);
-+	struct i2c_client *client = pcf8563->client;
-+	unsigned char buf;
-+	int ret = pcf8563_read_block_data(client, PCF8563_REG_CLKO, 1, &buf);
-+
-+	if (ret < 0)
-+		return ret;
-+
-+	if (enable)
-+		buf |= PCF8563_REG_CLKO_FE;
-+	else
-+		buf &= ~PCF8563_REG_CLKO_FE;
-+
-+	ret = pcf8563_write_block_data(client, PCF8563_REG_CLKO, 1, &buf);
-+	return ret;
-+}
-+
-+static int pcf8563_clkout_prepare(struct clk_hw *hw)
-+{
-+	return pcf8563_clkout_control(hw, 1);
-+}
-+
-+static void pcf8563_clkout_unprepare(struct clk_hw *hw)
-+{
-+	pcf8563_clkout_control(hw, 0);
-+}
-+
-+static int pcf8563_clkout_is_prepared(struct clk_hw *hw)
-+{
-+	struct pcf8563 *pcf8563 = clkout_hw_to_pcf8563(hw);
-+	struct i2c_client *client = pcf8563->client;
-+	unsigned char buf;
-+	int ret = pcf8563_read_block_data(client, PCF8563_REG_CLKO, 1, &buf);
-+
-+	if (ret < 0)
-+		return ret;
-+
-+	return !!(buf & PCF8563_REG_CLKO_FE);
-+}
-+
-+static const struct clk_ops pcf8563_clkout_ops = {
-+	.prepare = pcf8563_clkout_prepare,
-+	.unprepare = pcf8563_clkout_unprepare,
-+	.is_prepared = pcf8563_clkout_is_prepared,
-+	.recalc_rate = pcf8563_clkout_recalc_rate,
-+	.round_rate = pcf8563_clkout_round_rate,
-+	.set_rate = pcf8563_clkout_set_rate,
-+};
-+
-+static struct clk *pcf8563_clkout_register_clk(struct pcf8563 *pcf8563)
-+{
-+	struct i2c_client *client = pcf8563->client;
-+	struct device_node *node = client->dev.of_node;
-+	struct clk *clk;
-+	struct clk_init_data init;
-+	int ret;
-+	unsigned char buf;
-+
-+	/* disable the clkout output */
-+	buf = 0;
-+	ret = pcf8563_write_block_data(client, PCF8563_REG_CLKO, 1, &buf);
-+	if (ret < 0)
-+		return ERR_PTR(ret);
-+
-+	init.name = "pcf8563-clkout";
-+	init.ops = &pcf8563_clkout_ops;
-+	init.flags = CLK_IS_ROOT;
-+	init.parent_names = NULL;
-+	init.num_parents = 0;
-+	pcf8563->clkout_hw.init = &init;
-+
-+	/* optional override of the clockname */
-+	of_property_read_string(node, "clock-output-names", &init.name);
-+
-+	/* register the clock */
-+	clk = clk_register(&client->dev, &pcf8563->clkout_hw);
-+
-+	if (!IS_ERR(clk))
-+		of_clk_add_provider(node, of_clk_src_simple_get, clk);
-+
-+	return clk;
-+}
-+
- static const struct rtc_class_ops pcf8563_rtc_ops = {
- 	.ioctl		= pcf8563_rtc_ioctl,
- 	.read_time	= pcf8563_rtc_read_time,
-@@ -459,6 +618,9 @@ static int pcf8563_probe(struct i2c_client *client,
- 
- 	}
- 
-+	/* register clk in common clk framework */
-+	pcf8563_clkout_register_clk(pcf8563);
-+
- 	/* the pcf8563 alarm only supports a minute accuracy */
- 	pcf8563->rtc->uie_unsupported = 1;
- 
--- 
-2.1.0
+Best regards,
+Krzysztof
 
 -- 
 -- 
