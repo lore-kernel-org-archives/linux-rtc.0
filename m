@@ -1,238 +1,118 @@
-Return-Path: <rtc-linux+bncBAABBHM5YGYAKGQEA4W5VVQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBDKZNNNLXAHBBMNCYOYQKGQE2PGSGVQ@googlegroups.com>
+Received: from mail-pa0-x231.google.com (mail-pa0-x231.google.com. [2607:f8b0:400e:c03::231])
+        by gmr-mx.google.com with ESMTPS id vy6si4776999pbc.1.2015.10.28.06.44.17
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 28 Oct 2015 06:44:17 -0700 (PDT)
+Received: by mail-pa0-x231.google.com with SMTP id hk11so7715993pad.1
+        for <rtc-linux@googlegroups.com>; Wed, 28 Oct 2015 06:44:17 -0700 (PDT)
+Sender: rtc-linux@googlegroups.com
+Subject: [rtc-linux] Re: [PATCH v3 2/5] mfd: sec: Add support for S2MPS15 PMIC
+To: Lee Jones <lee.jones@linaro.org>
+References: <1445863883-5187-1-git-send-email-alim.akhtar@samsung.com>
+ <1445863883-5187-3-git-send-email-alim.akhtar@samsung.com>
+ <20151026143411.GL597@x1> <563021AF.6030100@samsung.com>
+ <20151028084609.GG5828@x1>
+Cc: k.kozlowski.k@gmail.com, Alim Akhtar <alim.akhtar@samsung.com>,
+ broonie@kernel.org, mturquette@baylibre.com,
+ linux-samsung-soc@vger.kernel.org, linux-clk@vger.kernel.org,
+ rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org,
+ Thomas Abraham <thomas.ab@samsung.com>
+From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+Message-ID: <5630D12C.2030008@samsung.com>
+Date: Wed, 28 Oct 2015 22:44:12 +0900
 MIME-Version: 1.0
-Received: from mail.cosmopool.net (mail.cosmopool.net. [2a01:4f8:160:20c1::10:107])
-        by gmr-mx.google.com with ESMTP id ch7si151108wib.2.2015.10.03.14.54.36
-        for <rtc-linux@googlegroups.com>;
-        Sat, 03 Oct 2015 14:54:36 -0700 (PDT)
-From: Harald Geyer <harald@ccbib.org>
-To: Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Wim Van Sebroeck <wim@iguana.be>
-Cc: rtc-linux@googlegroups.com,
-	linux-watchdog@vger.kernel.org,
-	kernel@pengutronix.de,
-	Wolfram Sang <wsa@the-dreams.de>,
-	Fabio Estevam <festevam@gmail.com>,
-	Harald Geyer <harald@ccbib.org>
-Subject: [rtc-linux] [PATCHv2] watchdog: stmp3xxx: Implement GETBOOTSTATUS
-Date: Sat,  3 Oct 2015 21:54:18 +0000
-Message-Id: <1443909258-24914-1-git-send-email-harald@ccbib.org>
-Reply-To: rtc-linux@googlegroups.com
+In-Reply-To: <20151028084609.GG5828@x1>
 Content-Type: text/plain; charset=UTF-8
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
 List-Archive: <http://groups.google.com/group/rtc-linux
-Sender: rtc-linux@googlegroups.com
 List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-When the watchdog is enabled, we set a persitent bit. After booting
-we query the bit and see if the system was reset by the watchdog.
+W dniu 28.10.2015 o 17:46, Lee Jones pisze:
+> On Wed, 28 Oct 2015, Krzysztof Kozlowski wrote:
+> 
+>> On 26.10.2015 23:34, Lee Jones wrote:
+>>> On Mon, 26 Oct 2015, Alim Akhtar wrote:
+>>>
+>>>> From: Thomas Abraham <thomas.ab@samsung.com>
+>>>>
+>>>> Add support for S2MPS15 PMIC which is similar to S2MPS11 PMIC. The S2MPS15
+>>>> PMIC supports 27 LDO regulators, 10 buck regulators, RTC, three 32.768KHz
+>>>> clock outputs and battery charger. This patch adds initial support for
+>>>> LDO and buck regulators of S2MPS15 device.
+>>>>
+>>>> Signed-off-by: Thomas Abraham <thomas.ab@samsung.com>
+>>>> Signed-off-by: Alim Akhtar <alim.akhtar@samsung.com>
+>>>> [Alim: Added s2mps15_devs like rtc and clk and related changes]
+>>>> Reviewed-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+>>>> ---
+>>>>  drivers/mfd/sec-core.c              |   31 +++++++
+>>>>  drivers/mfd/sec-irq.c               |    8 ++
+>>>>  include/linux/mfd/samsung/core.h    |    1 +
+>>>>  include/linux/mfd/samsung/s2mps15.h |  158 +++++++++++++++++++++++++++++++++++
+>>>>  4 files changed, 198 insertions(+)
+>>>>  create mode 100644 include/linux/mfd/samsung/s2mps15.h
+>>>
+>>> I replied to the previous set and won't be reviewing this one until
+>>> all of the open points are solved.
+>>
+>> The naming and compatibles used by the driver are confusing but how it
+>> was at beginning. Beside the confusion, the names are correct:
+>>
+>> 1. Main mfd driver:
+>>  - compatible: samsung,s2mps1*-pmic
+>>  - driver name: sec_pmic
+>>
+>> 2. Regulator driver:
+>>  - no compatible (because it always searches for "regulators" subnode of
+>> its parent... that is the convention/legacy behaviour)
+>>  - driver name: s2mps1*-pmic
+>>
+>> I hope that explains your concerns.
+> 
+> It explains *why*, but doesn't ease my concerns in any way.
+> 
+> Unfortunately I've only just realised the disparity we have between
+> MFD and the Regulator subsystem, which is annoying because it's now
+> almost impossible to rectify.  
+> 
+> We should have taken one of two views.  Either a) The MFD is the PMIC
+> device which encompasses regulator control.  In which case the MFD
+> and it's corresponding compatible string would be named *-pmic and the
+> regulator driver would be called *-regulator. Or b) The MFD could be
+> considered a normal MFD and be named after the model number, then the
+> regulator 'could' be named *-pmic.
+> 
+> However, with reference to b), how much other Power Management does
+> the regulator driver do besides control regulators?  I suspect not
+> much.  Therefore my preference would be for a).  My second choice
+> would be a mixuture of the two where nothing gets named *-pmic.  The
+> last option on my list would be the current situation where we seem to
+> be calling both the MFD (PMIC) itself and the Regulator driver
+> *-pmic, which is not good.
 
-This is somewhat similar to what the legacy driver from freescale
-does. However we use STMP3XXX_RTC_PERSISTENT2 instead of
-STMP3XXX_RTC_PERSISTENT1. I tried that first, but it seems I can't
-clear the bit there once it is set. I didn't find any documentation
-what this register does - only vague hints that it is meant to
-control the boot ROM.
+Starting from the description of device-family. This is called "Power
+Management IC" but it is rather a "Power Deliver/Distribute IC". There
+isn't any logic inside except enable/disable/configure/set low power
+mode for regulators.
 
-Part of the code from the legacy driver touching this register
-is still included. Maybe this is stale, but this patch doesn't
-touch any of it because I don't know what it really does or is
-meant to do.
+However in the same time the IC comes (always) with:
+ - 32kHz clocks,
+ - RTC,
+ - backup battery charger (no driver for it),
+ - reset for SoC,
+ - shutdown on thermal alert (also no driver for this control).
 
-Signed-off-by: Harald Geyer <harald@ccbib.org>
----
-Changes since v1:
-* make code formatting more consistent with the rest of the driver
-* Cc some people who might have better documentation then I do
+The solution a) seems fine to me. Make sense and it looks entirely
+backward compatible - only driver names will be modified.
 
-Changes since initially posting this patch on 08/04/2015:
-* fix a spelling error in the commit message
-* rebase to a recent version
-
- drivers/rtc/rtc-stmp3xxx.c          |   23 +++++++++++++++++++++++
- drivers/watchdog/stmp3xxx_rtc_wdt.c |   34 +++++++++++++++++++++++++++++++++-
- include/linux/stmp3xxx_rtc_wdt.h    |    2 ++
- 3 files changed, 58 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/rtc/rtc-stmp3xxx.c b/drivers/rtc/rtc-stmp3xxx.c
-index ca54d03..4ab0aeb 100644
---- a/drivers/rtc/rtc-stmp3xxx.c
-+++ b/drivers/rtc/rtc-stmp3xxx.c
-@@ -30,6 +30,7 @@
- #include <linux/of.h>
- #include <linux/stmp_device.h>
- #include <linux/stmp3xxx_rtc_wdt.h>
-+#include <linux/watchdog.h>
- 
- #define STMP3XXX_RTC_CTRL			0x0
- #define STMP3XXX_RTC_CTRL_ALARM_IRQ_EN		0x00000001
-@@ -62,6 +63,9 @@
- /* missing bitmask in headers */
- #define STMP3XXX_RTC_PERSISTENT1_FORCE_UPDATER	0x80000000
- 
-+#define STMP3XXX_RTC_PERSISTENT2		0x80
-+#define STMP3XXX_RTC_PERSISTENT2_WDT_ACTIVE	0x00000001
-+
- struct stmp3xxx_rtc_data {
- 	struct rtc_device *rtc;
- 	void __iomem *io;
-@@ -83,6 +87,14 @@ struct stmp3xxx_rtc_data {
-  * registers is atomic.
-  */
- 
-+static void stmp3xxx_wdt_clear_bootstatus(struct device *dev)
-+{
-+	struct stmp3xxx_rtc_data *rtc_data = dev_get_drvdata(dev);
-+
-+	writel(STMP3XXX_RTC_PERSISTENT2_WDT_ACTIVE,
-+	       rtc_data->io + STMP3XXX_RTC_PERSISTENT2 + STMP_OFFSET_REG_CLR);
-+}
-+
- static void stmp3xxx_wdt_set_timeout(struct device *dev, u32 timeout)
- {
- 	struct stmp3xxx_rtc_data *rtc_data = dev_get_drvdata(dev);
-@@ -93,16 +105,22 @@ static void stmp3xxx_wdt_set_timeout(struct device *dev, u32 timeout)
- 		       rtc_data->io + STMP3XXX_RTC_CTRL + STMP_OFFSET_REG_SET);
- 		writel(STMP3XXX_RTC_PERSISTENT1_FORCE_UPDATER,
- 		       rtc_data->io + STMP3XXX_RTC_PERSISTENT1 + STMP_OFFSET_REG_SET);
-+		writel(STMP3XXX_RTC_PERSISTENT2_WDT_ACTIVE,
-+		       rtc_data->io + STMP3XXX_RTC_PERSISTENT2 + STMP_OFFSET_REG_SET);
- 	} else {
- 		writel(STMP3XXX_RTC_CTRL_WATCHDOGEN,
- 		       rtc_data->io + STMP3XXX_RTC_CTRL + STMP_OFFSET_REG_CLR);
- 		writel(STMP3XXX_RTC_PERSISTENT1_FORCE_UPDATER,
- 		       rtc_data->io + STMP3XXX_RTC_PERSISTENT1 + STMP_OFFSET_REG_CLR);
-+		writel(STMP3XXX_RTC_PERSISTENT2_WDT_ACTIVE,
-+		       rtc_data->io + STMP3XXX_RTC_PERSISTENT2 + STMP_OFFSET_REG_CLR);
- 	}
- }
- 
- static struct stmp3xxx_wdt_pdata wdt_pdata = {
- 	.wdt_set_timeout = stmp3xxx_wdt_set_timeout,
-+	.wdt_clear_bootstatus = stmp3xxx_wdt_clear_bootstatus,
-+	.bootstatus = 0,
- };
- 
- static void stmp3xxx_wdt_register(struct platform_device *rtc_pdev)
-@@ -110,6 +128,8 @@ static void stmp3xxx_wdt_register(struct platform_device *rtc_pdev)
- 	struct platform_device *wdt_pdev =
- 		platform_device_alloc("stmp3xxx_rtc_wdt", rtc_pdev->id);
- 
-+	stmp3xxx_wdt_clear_bootstatus(&rtc_pdev->dev);
-+
- 	if (wdt_pdev) {
- 		wdt_pdev->dev.parent = &rtc_pdev->dev;
- 		wdt_pdev->dev.platform_data = &wdt_pdata;
-@@ -357,6 +377,9 @@ static int stmp3xxx_rtc_probe(struct platform_device *pdev)
- 		return err;
- 	}
- 
-+	if (readl(STMP3XXX_RTC_PERSISTENT2 + rtc_data->io) &
-+			 STMP3XXX_RTC_PERSISTENT2_WDT_ACTIVE)
-+		wdt_pdata.bootstatus |= WDIOF_CARDRESET;
- 	stmp3xxx_wdt_register(pdev);
- 	return 0;
- }
-diff --git a/drivers/watchdog/stmp3xxx_rtc_wdt.c b/drivers/watchdog/stmp3xxx_rtc_wdt.c
-index 3ee6128..7609f78 100644
---- a/drivers/watchdog/stmp3xxx_rtc_wdt.c
-+++ b/drivers/watchdog/stmp3xxx_rtc_wdt.c
-@@ -14,6 +14,8 @@
- #include <linux/watchdog.h>
- #include <linux/platform_device.h>
- #include <linux/stmp3xxx_rtc_wdt.h>
-+#include <linux/notifier.h>
-+#include <linux/reboot.h>
- 
- #define WDOG_TICK_RATE 1000 /* 1 kHz clock */
- #define STMP3XXX_DEFAULT_TIMEOUT 19
-@@ -50,7 +52,8 @@ static int wdt_set_timeout(struct watchdog_device *wdd, unsigned new_timeout)
- }
- 
- static const struct watchdog_info stmp3xxx_wdt_ident = {
--	.options = WDIOF_MAGICCLOSE | WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING,
-+	.options = WDIOF_MAGICCLOSE | WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING |
-+		WDIOF_CARDRESET,
- 	.identity = "STMP3XXX RTC Watchdog",
- };
- 
-@@ -69,14 +72,39 @@ static struct watchdog_device stmp3xxx_wdd = {
- 	.status = WATCHDOG_NOWAYOUT_INIT_STATUS,
- };
- 
-+static int wdt_notify_sys(struct notifier_block *nb, unsigned long code,
-+			  void *unused)
-+{
-+	struct device *dev = watchdog_get_drvdata(&stmp3xxx_wdd);
-+	struct stmp3xxx_wdt_pdata *pdata = dev_get_platdata(dev);
-+
-+	switch (code) {
-+	case SYS_DOWN:	/* keep enabled, system might crash while going down */
-+		pdata->wdt_clear_bootstatus(dev->parent);
-+		break;
-+	case SYS_HALT:  /* allow the system to actually halt */
-+	case SYS_POWER_OFF:
-+		wdt_stop(&stmp3xxx_wdd);
-+		break;
-+	}
-+
-+	return NOTIFY_DONE;
-+}
-+
-+static struct notifier_block wdt_notifier = {
-+	.notifier_call  = wdt_notify_sys,
-+};
-+
- static int stmp3xxx_wdt_probe(struct platform_device *pdev)
- {
-+	struct stmp3xxx_wdt_pdata *pdata = dev_get_platdata(&pdev->dev);
- 	int ret;
- 
- 	watchdog_set_drvdata(&stmp3xxx_wdd, &pdev->dev);
- 
- 	stmp3xxx_wdd.timeout = clamp_t(unsigned, heartbeat, 1, STMP3XXX_MAX_TIMEOUT);
- 	stmp3xxx_wdd.parent = &pdev->dev;
-+	stmp3xxx_wdd.bootstatus = pdata->bootstatus;
- 
- 	ret = watchdog_register_device(&stmp3xxx_wdd);
- 	if (ret < 0) {
-@@ -84,6 +112,9 @@ static int stmp3xxx_wdt_probe(struct platform_device *pdev)
- 		return ret;
- 	}
- 
-+	if (register_reboot_notifier(&wdt_notifier))
-+		dev_warn(&pdev->dev, "cannot register reboot notifier\n");
-+
- 	dev_info(&pdev->dev, "initialized watchdog with heartbeat %ds\n",
- 			stmp3xxx_wdd.timeout);
- 	return 0;
-@@ -91,6 +122,7 @@ static int stmp3xxx_wdt_probe(struct platform_device *pdev)
- 
- static int stmp3xxx_wdt_remove(struct platform_device *pdev)
- {
-+	unregister_reboot_notifier(&wdt_notifier);
- 	watchdog_unregister_device(&stmp3xxx_wdd);
- 	return 0;
- }
-diff --git a/include/linux/stmp3xxx_rtc_wdt.h b/include/linux/stmp3xxx_rtc_wdt.h
-index 1dd12c9..62dd9e6 100644
---- a/include/linux/stmp3xxx_rtc_wdt.h
-+++ b/include/linux/stmp3xxx_rtc_wdt.h
-@@ -10,6 +10,8 @@
- 
- struct stmp3xxx_wdt_pdata {
- 	void (*wdt_set_timeout)(struct device *dev, u32 timeout);
-+	void (*wdt_clear_bootstatus)(struct device *dev);
-+	unsigned int bootstatus;
- };
- 
- #endif /* __LINUX_STMP3XXX_RTC_WDT_H */
--- 
-1.7.10.4
+Best regards,
+Krzysztof
 
 -- 
 -- 
