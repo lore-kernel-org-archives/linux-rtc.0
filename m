@@ -1,22 +1,30 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBXMAYCYQKGQEUK2PMFY@googlegroups.com>
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id q6si487233wiz.0.2015.10.27.15.53.16
-        for <rtc-linux@googlegroups.com>;
-        Tue, 27 Oct 2015 15:53:16 -0700 (PDT)
-Date: Tue, 27 Oct 2015 23:53:15 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Sudeep Holla <sudeep.holla@arm.com>
-Cc: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-	devicetree@vger.kernel.org, Alessandro Zummo <a.zummo@towertech.it>,
-	rtc-linux@googlegroups.com
-Subject: [rtc-linux] Re: [PATCH 04/19] rtc: isl12057: enable support for the
- standard "wakeup-source" property
-Message-ID: <20151027225315.GJ22331@piout.net>
-References: <1445422216-29375-1-git-send-email-sudeep.holla@arm.com>
- <1445422216-29375-5-git-send-email-sudeep.holla@arm.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1445422216-29375-5-git-send-email-sudeep.holla@arm.com>
+Return-Path: <rtc-linux+bncBD747RFBYUPBBAUKYGYQKGQES4HK5VA@googlegroups.com>
+Received: from mailout1.samsung.com (mailout1.samsung.com. [203.254.224.24])
+        by gmr-mx.google.com with ESMTPS id pe1si4666819pac.2.2015.10.27.20.46.09
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1 cipher=RC4-SHA bits=128/128);
+        Tue, 27 Oct 2015 20:46:09 -0700 (PDT)
+Received: from epcpsbgr5.samsung.com
+ (u145.gpu120.samsung.co.kr [203.254.230.145])
+ by mailout1.samsung.com (Oracle Communications Messaging Server 7.0.5.31.0
+ 64bit (built May  5 2014))
+ with ESMTP id <0NWW02OOEVSW3GC0@mailout1.samsung.com> for
+ rtc-linux@googlegroups.com; Wed, 28 Oct 2015 12:46:08 +0900 (KST)
+Message-id: <563042D7.7020907@samsung.com>
+Date: Wed, 28 Oct 2015 09:06:55 +0530
+From: Alim Akhtar <alim.akhtar@samsung.com>
+MIME-version: 1.0
+To: Krzysztof Kozlowski <k.kozlowski@samsung.com>, lee.jones@linaro.org,
+ broonie@kernel.org
+Cc: mturquette@baylibre.com, linux-samsung-soc@vger.kernel.org,
+ linux-clk@vger.kernel.org, rtc-linux@googlegroups.com,
+ linux-kernel@vger.kernel.org
+Subject: [rtc-linux] Re: [PATCH v3 4/5] clk: s2mps15: Add support for S2MPS15 clocks
+References: <1445863883-5187-1-git-send-email-alim.akhtar@samsung.com>
+ <1445863883-5187-5-git-send-email-alim.akhtar@samsung.com>
+ <5630234A.8080905@samsung.com>
+In-reply-to: <5630234A.8080905@samsung.com>
+Content-type: text/plain; charset=UTF-8; format=flowed
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -27,29 +35,79 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On 21/10/2015 at 11:10:01 +0100, Sudeep Holla wrote :
-> Though the isl12057 rtc driver should and will continue to support the
-> legacy "isil,irq2-can-wakeup-machine" property to enable RTC as the
-> wakeup source, we need to add support for the new standard property
-> "wakeup-source".
-> 
-> This patch adds support for "wakeup-source" property in addition to the
-> existing "isil,irq2-can-wakeup-machine" property.
-> 
-> Cc: Alessandro Zummo <a.zummo@towertech.it>
-> Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-> Cc: rtc-linux@googlegroups.com
-> Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
-> ---
->  drivers/rtc/rtc-isl12057.c | 10 +++++-----
->  1 file changed, 5 insertions(+), 5 deletions(-)
-> 
-Applied, thanks.
+Hello
 
--- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+On 10/28/2015 06:52 AM, Krzysztof Kozlowski wrote:
+> On 26.10.2015 21:51, Alim Akhtar wrote:
+>> S2MPS15 PMIC has three 32k buffered clocks outputs. This patch
+>> adds supports for the same to the s2mps11 clock driver.
+>>
+>> Signed-off-by: Alim Akhtar <alim.akhtar@samsung.com>
+>> ---
+>>   drivers/clk/Kconfig       |    5 +++--
+>>   drivers/clk/clk-s2mps11.c |   24 ++++++++++++++++++++++++
+>>   2 files changed, 27 insertions(+), 2 deletions(-)
+>>
+>> diff --git a/drivers/clk/Kconfig b/drivers/clk/Kconfig
+>> index a1fa61159179..037a314b5d76 100644
+>> --- a/drivers/clk/Kconfig
+>> +++ b/drivers/clk/Kconfig
+>> @@ -120,9 +120,10 @@ config COMMON_CLK_S2MPS11
+>>   	tristate "Clock driver for S2MPS1X/S5M8767 MFD"
+>>   	depends on MFD_SEC_CORE
+>>   	---help---
+>> -	  This driver supports S2MPS11/S2MPS14/S5M8767 crystal oscillator
+>> +	  This driver supports S2MPS1X/S5M8767 crystal oscillator
+>>   	  clock. These multi-function devices have two (S2MPS14) or three
+>> -	  (S2MPS11, S5M8767) fixed-rate oscillators, clocked at 32KHz each.
+>> +	  (S2MPS11/S2MPS13/S2MPS15/S5M8767) fixed-rate oscillators,
+>> +	  clocked at 32KHz each.
+>>
+>>   config CLK_TWL6040
+>>   	tristate "External McPDM functional clock from twl6040"
+>> diff --git a/drivers/clk/clk-s2mps11.c b/drivers/clk/clk-s2mps11.c
+>> index d266299dfdb1..455500dca653 100644
+>> --- a/drivers/clk/clk-s2mps11.c
+>> +++ b/drivers/clk/clk-s2mps11.c
+>> @@ -25,6 +25,7 @@
+>>   #include <linux/mfd/samsung/s2mps11.h>
+>>   #include <linux/mfd/samsung/s2mps13.h>
+>>   #include <linux/mfd/samsung/s2mps14.h>
+>> +#include <linux/mfd/samsung/s2mps15.h>
+>>   #include <linux/mfd/samsung/s5m8767.h>
+>>   #include <linux/mfd/samsung/core.h>
+>>
+>> @@ -148,6 +149,24 @@ static struct clk_init_data s2mps14_clks_init[S2MPS11_CLKS_NUM] = {
+>>   	},
+>>   };
+>>
+>> +static struct clk_init_data s2mps15_clks_init[S2MPS11_CLKS_NUM] = {
+>> +	[S2MPS11_CLK_AP] = {
+>> +		.name = "s2mps15_ap",
+>> +		.ops = &s2mps11_clk_ops,
+>> +		.flags = CLK_IS_ROOT,
+>> +	},
+>> +	[S2MPS11_CLK_CP] = {
+>> +		.name = "s2mps15_cp",
+>> +		.ops = &s2mps11_clk_ops,
+>> +		.flags = CLK_IS_ROOT,
+>> +	},
+>> +	[S2MPS11_CLK_BT] = {
+>> +		.name = "s2mps15_bt",
+>> +		.ops = &s2mps11_clk_ops,
+>> +		.flags = CLK_IS_ROOT,
+>> +	},
+>> +};
+>
+> I see that for S2MPS13 we already added similar array which duplicates
+> the S2MPS11. This actually looks wrong. Just re-use existing
+> s2mps11_clks_init.
+>
+hmm..ok will do.
+> Best regards,
+> Krzysztof
+>
+>
 
 -- 
 -- 
