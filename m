@@ -1,26 +1,26 @@
-Return-Path: <rtc-linux+bncBAABBSGL5WYAKGQEASMTOSA@googlegroups.com>
-Received: from DVREDG02.corp.atmel.com (nasmtp01.atmel.com. [192.199.1.246])
-        by gmr-mx.google.com with ESMTPS id j7si585160igu.1.2015.10.12.00.48.24
+Return-Path: <rtc-linux+bncBDQ2L75W5QGBBI6VYCYQKGQE4QAE2DY@googlegroups.com>
+Received: from mezzanine.sirena.org.uk (mezzanine.sirena.org.uk. [2400:8900::f03c:91ff:fedb:4f4])
+        by gmr-mx.google.com with ESMTPS id vy6si4519269pbc.1.2015.10.27.18.53.39
         for <rtc-linux@googlegroups.com>
-        (version=TLS1 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
-        Mon, 12 Oct 2015 00:48:24 -0700 (PDT)
-From: "Yang, Wenyou" <Wenyou.Yang@atmel.com>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-CC: Alessandro Zummo <a.zummo@towertech.it>, "Ferre, Nicolas"
-	<Nicolas.FERRE@atmel.com>, "Desroches, Ludovic"
-	<Ludovic.Desroches@atmel.com>, "rtc-linux@googlegroups.com"
-	<rtc-linux@googlegroups.com>, "linux-kernel@vger.kernel.org"
-	<linux-kernel@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org"
-	<linux-arm-kernel@lists.infradead.org>
-Subject: [rtc-linux] RE: [PATCH] rtc: at91rm9200: clear RTC alarm status flag
- prior to suspending
-Date: Mon, 12 Oct 2015 07:48:18 +0000
-Message-ID: <B256D81BAE5131468A838E5D7A243641D632111B@penmbx01>
-References: <1444612677-26178-1-git-send-email-wenyou.yang@atmel.com>
- <20151012065323.GA3558@piout.net>
-In-Reply-To: <20151012065323.GA3558@piout.net>
-Content-Type: text/plain; charset=UTF-8
+        (version=TLSv1.2 cipher=RC4-SHA bits=128/128);
+        Tue, 27 Oct 2015 18:53:39 -0700 (PDT)
+Date: Wed, 28 Oct 2015 10:53:23 +0900
+From: Mark Brown <broonie@kernel.org>
+To: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+Cc: Alim Akhtar <alim.akhtar@samsung.com>, lee.jones@linaro.org,
+	mturquette@baylibre.com, linux-samsung-soc@vger.kernel.org,
+	linux-clk@vger.kernel.org, rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org
+Message-ID: <20151028015323.GZ28319@sirena.org.uk>
+References: <1445863883-5187-1-git-send-email-alim.akhtar@samsung.com>
+ <1445863883-5187-6-git-send-email-alim.akhtar@samsung.com>
+ <56302514.4090407@samsung.com>
 MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="KQ2iXOoQ638mtNze"
+In-Reply-To: <56302514.4090407@samsung.com>
+Subject: [rtc-linux] Re: [PATCH v3 5/5] drivers/rtc/rtc-s5m.c: add support for
+ S2MPS15 RTC
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -31,71 +31,45 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Hi Alexandre,
+--KQ2iXOoQ638mtNze
+Content-Type: text/plain; charset=UTF-8
+Content-Disposition: inline
 
-> -----Original Message-----
-> From: Alexandre Belloni [mailto:alexandre.belloni@free-electrons.com]
-> Sent: 2015=E5=B9=B410=E6=9C=8812=E6=97=A5 14:53
-> To: Yang, Wenyou
-> Cc: Alessandro Zummo; Ferre, Nicolas; Desroches, Ludovic; rtc-
-> linux@googlegroups.com; linux-kernel@vger.kernel.org; linux-arm-
-> kernel@lists.infradead.org
-> Subject: Re: [PATCH] rtc: at91rm9200: clear RTC alarm status flag prior t=
-o
-> suspending
->=20
-> Hi Wenyou,
->=20
-> On 12/10/2015 at 09:17:57 +0800, Wenyou Yang wrote :
-> > This patch is to clear the RTC alarm status flag prior to suspending
-> > to avoid the erroneous wake-up activity.
-> >
->=20
-> Is this a new issue appearing with the sama5d2 or was it present from the
-> beginning?
-With the sama5d2 ULP1 mode, not from the beginning.
+On Wed, Oct 28, 2015 at 10:29:56AM +0900, Krzysztof Kozlowski wrote:
 
->=20
-> > Signed-off-by: Wenyou Yang <wenyou.yang@atmel.com>
-> > ---
-> >
-> >  drivers/rtc/rtc-at91rm9200.c |    2 ++
-> >  1 file changed, 2 insertions(+)
-> >
-> > diff --git a/drivers/rtc/rtc-at91rm9200.c
-> > b/drivers/rtc/rtc-at91rm9200.c index cb62e21..b60fd47 100644
-> > --- a/drivers/rtc/rtc-at91rm9200.c
-> > +++ b/drivers/rtc/rtc-at91rm9200.c
-> > @@ -495,6 +495,8 @@ static int at91_rtc_suspend(struct device *dev)
-> >  	/* this IRQ is shared with DBGU and other hardware which isn't
-> >  	 * necessarily doing PM like we are...
-> >  	 */
-> > +	at91_rtc_write(AT91_RTC_SCCR, AT91_RTC_ALARM);
-> > +
-> >  	at91_rtc_imr =3D at91_rtc_read_imr()
-> >  			& (AT91_RTC_ALARM|AT91_RTC_SECEV);
-> >  	if (at91_rtc_imr) {
-> > --
-> > 1.7.9.5
-> >
->=20
-> --
-> Alexandre Belloni, Free Electrons
-> Embedded Linux, Kernel and Android engineering
-> http://free-electrons.com
+> If that's true, then don't add new compatibles, new names etc. Re-use.
+> No new code needed, no changes needed. Keep it simple.
 
-Best Regards,
-Wenyou Yang
+Well, it depends - it can be useful to get the information about it
+being a different part into DT so that if in future we realise that
+there is some difference (perhaps a bug workaround even if the IP is
+intended to be the same).  Though in the case of a MFD that information
+can be obtained from the MFD for the device.
 
---=20
---=20
+-- 
+-- 
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
----=20
-You received this message because you are subscribed to the Google Groups "=
-rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an e=
-mail to rtc-linux+unsubscribe@googlegroups.com.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
+
+--KQ2iXOoQ638mtNze
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQEcBAEBCAAGBQJWMCqPAAoJECTWi3JdVIfQ4xYH/j4G3S5X7WjyczTIZ00O2321
+T1RDXLoEYYjVS0AvRTNbR15/mFw2Zbm3Tpq14EpoWItBNP3VNmjknWH2N+3dEiFA
+nD2xto1RCCzXb/4Vi908Y39rqEN2MRcjO4NtPh0ZEH3RnbKfCj4/X+F8Kv4MWVm3
+4pBDefmn0JhyS1VxlVfPV5Ot/jApXZTei2OWI/iwBtATaIwa41z0EdWCUrAzONld
+RQMmG8UK1NYbsED3bqiLtVatNED/oAlgaHGslxgA4pUbc52Jk7cS/cO3fK+RmOS/
+Ji9IeIOfmWSgHMl0aqKiBBn8tQca5ou6q32rRgYiwLEorsE9Iq1+pKaWAbmtUzY=
+=7yDC
+-----END PGP SIGNATURE-----
+
+--KQ2iXOoQ638mtNze--
