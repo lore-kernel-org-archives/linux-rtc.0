@@ -1,28 +1,30 @@
-Return-Path: <rtc-linux+bncBDKZNNNLXAHBBWOGYCYQKGQEKK7OGCQ@googlegroups.com>
-Received: from mailout1.w1.samsung.com (mailout1.w1.samsung.com. [210.118.77.11])
-        by gmr-mx.google.com with ESMTPS id zg1si4649358pbb.2.2015.10.27.18.22.33
+Return-Path: <rtc-linux+bncBDA7X7F2WUEBB6NFYOYQKGQEHSOWJEQ@googlegroups.com>
+Received: from mail-wi0-x22e.google.com (mail-wi0-x22e.google.com. [2a00:1450:400c:c05::22e])
+        by gmr-mx.google.com with ESMTPS id cm6si1033993wib.1.2015.10.28.06.51.53
         for <rtc-linux@googlegroups.com>
-        (version=TLSv1 cipher=RC4-SHA bits=128/128);
-        Tue, 27 Oct 2015 18:22:33 -0700 (PDT)
-Received: from eucpsbgm2.samsung.com (unknown [203.254.199.245])
- by mailout1.w1.samsung.com
- (Oracle Communications Messaging Server 7.0.5.31.0 64bit (built May  5 2014))
- with ESMTP id <0NWW000GYP5H5700@mailout1.w1.samsung.com> for
- rtc-linux@googlegroups.com; Wed, 28 Oct 2015 01:22:29 +0000 (GMT)
-Subject: [rtc-linux] Re: [PATCH v3 4/5] clk: s2mps15: Add support for S2MPS15 clocks
-To: Alim Akhtar <alim.akhtar@samsung.com>, lee.jones@linaro.org,
- broonie@kernel.org
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 28 Oct 2015 06:51:53 -0700 (PDT)
+Received: by mail-wi0-x22e.google.com with SMTP id fv8so13446394wic.0
+        for <rtc-linux@googlegroups.com>; Wed, 28 Oct 2015 06:51:53 -0700 (PDT)
+Date: Wed, 28 Oct 2015 13:51:49 +0000
+From: Lee Jones <lee.jones@linaro.org>
+To: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+Cc: k.kozlowski.k@gmail.com, Alim Akhtar <alim.akhtar@samsung.com>,
+	broonie@kernel.org, mturquette@baylibre.com,
+	linux-samsung-soc@vger.kernel.org, linux-clk@vger.kernel.org,
+	rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org,
+	Thomas Abraham <thomas.ab@samsung.com>
+Subject: [rtc-linux] Re: [PATCH v3 2/5] mfd: sec: Add support for S2MPS15 PMIC
+Message-ID: <20151028135149.GF4058@x1>
 References: <1445863883-5187-1-git-send-email-alim.akhtar@samsung.com>
- <1445863883-5187-5-git-send-email-alim.akhtar@samsung.com>
-Cc: mturquette@baylibre.com, linux-samsung-soc@vger.kernel.org,
- linux-clk@vger.kernel.org, rtc-linux@googlegroups.com,
- linux-kernel@vger.kernel.org
-From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-Message-id: <5630234A.8080905@samsung.com>
-Date: Wed, 28 Oct 2015 10:22:18 +0900
-MIME-version: 1.0
-In-reply-to: <1445863883-5187-5-git-send-email-alim.akhtar@samsung.com>
-Content-type: text/plain; charset=UTF-8
+ <1445863883-5187-3-git-send-email-alim.akhtar@samsung.com>
+ <20151026143411.GL597@x1>
+ <563021AF.6030100@samsung.com>
+ <20151028084609.GG5828@x1>
+ <5630D12C.2030008@samsung.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <5630D12C.2030008@samsung.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -33,81 +35,110 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On 26.10.2015 21:51, Alim Akhtar wrote:
-> S2MPS15 PMIC has three 32k buffered clocks outputs. This patch
-> adds supports for the same to the s2mps11 clock driver.
-> 
-> Signed-off-by: Alim Akhtar <alim.akhtar@samsung.com>
-> ---
->  drivers/clk/Kconfig       |    5 +++--
->  drivers/clk/clk-s2mps11.c |   24 ++++++++++++++++++++++++
->  2 files changed, 27 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/clk/Kconfig b/drivers/clk/Kconfig
-> index a1fa61159179..037a314b5d76 100644
-> --- a/drivers/clk/Kconfig
-> +++ b/drivers/clk/Kconfig
-> @@ -120,9 +120,10 @@ config COMMON_CLK_S2MPS11
->  	tristate "Clock driver for S2MPS1X/S5M8767 MFD"
->  	depends on MFD_SEC_CORE
->  	---help---
-> -	  This driver supports S2MPS11/S2MPS14/S5M8767 crystal oscillator
-> +	  This driver supports S2MPS1X/S5M8767 crystal oscillator
->  	  clock. These multi-function devices have two (S2MPS14) or three
-> -	  (S2MPS11, S5M8767) fixed-rate oscillators, clocked at 32KHz each.
-> +	  (S2MPS11/S2MPS13/S2MPS15/S5M8767) fixed-rate oscillators,
-> +	  clocked at 32KHz each.
->  
->  config CLK_TWL6040
->  	tristate "External McPDM functional clock from twl6040"
-> diff --git a/drivers/clk/clk-s2mps11.c b/drivers/clk/clk-s2mps11.c
-> index d266299dfdb1..455500dca653 100644
-> --- a/drivers/clk/clk-s2mps11.c
-> +++ b/drivers/clk/clk-s2mps11.c
-> @@ -25,6 +25,7 @@
->  #include <linux/mfd/samsung/s2mps11.h>
->  #include <linux/mfd/samsung/s2mps13.h>
->  #include <linux/mfd/samsung/s2mps14.h>
-> +#include <linux/mfd/samsung/s2mps15.h>
->  #include <linux/mfd/samsung/s5m8767.h>
->  #include <linux/mfd/samsung/core.h>
->  
-> @@ -148,6 +149,24 @@ static struct clk_init_data s2mps14_clks_init[S2MPS11_CLKS_NUM] = {
->  	},
->  };
->  
-> +static struct clk_init_data s2mps15_clks_init[S2MPS11_CLKS_NUM] = {
-> +	[S2MPS11_CLK_AP] = {
-> +		.name = "s2mps15_ap",
-> +		.ops = &s2mps11_clk_ops,
-> +		.flags = CLK_IS_ROOT,
-> +	},
-> +	[S2MPS11_CLK_CP] = {
-> +		.name = "s2mps15_cp",
-> +		.ops = &s2mps11_clk_ops,
-> +		.flags = CLK_IS_ROOT,
-> +	},
-> +	[S2MPS11_CLK_BT] = {
-> +		.name = "s2mps15_bt",
-> +		.ops = &s2mps11_clk_ops,
-> +		.flags = CLK_IS_ROOT,
-> +	},
-> +};
+On Wed, 28 Oct 2015, Krzysztof Kozlowski wrote:
 
-I see that for S2MPS13 we already added similar array which duplicates
-the S2MPS11. This actually looks wrong. Just re-use existing
-s2mps11_clks_init.
+> W dniu 28.10.2015 o 17:46, Lee Jones pisze:
+> > On Wed, 28 Oct 2015, Krzysztof Kozlowski wrote:
+> >=20
+> >> On 26.10.2015 23:34, Lee Jones wrote:
+> >>> On Mon, 26 Oct 2015, Alim Akhtar wrote:
+> >>>
+> >>>> From: Thomas Abraham <thomas.ab@samsung.com>
+> >>>>
+> >>>> Add support for S2MPS15 PMIC which is similar to S2MPS11 PMIC. The S=
+2MPS15
+> >>>> PMIC supports 27 LDO regulators, 10 buck regulators, RTC, three 32.7=
+68KHz
+> >>>> clock outputs and battery charger. This patch adds initial support f=
+or
+> >>>> LDO and buck regulators of S2MPS15 device.
+> >>>>
+> >>>> Signed-off-by: Thomas Abraham <thomas.ab@samsung.com>
+> >>>> Signed-off-by: Alim Akhtar <alim.akhtar@samsung.com>
+> >>>> [Alim: Added s2mps15_devs like rtc and clk and related changes]
+> >>>> Reviewed-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+> >>>> ---
+> >>>>  drivers/mfd/sec-core.c              |   31 +++++++
+> >>>>  drivers/mfd/sec-irq.c               |    8 ++
+> >>>>  include/linux/mfd/samsung/core.h    |    1 +
+> >>>>  include/linux/mfd/samsung/s2mps15.h |  158 ++++++++++++++++++++++++=
++++++++++++
+> >>>>  4 files changed, 198 insertions(+)
+> >>>>  create mode 100644 include/linux/mfd/samsung/s2mps15.h
+> >>>
+> >>> I replied to the previous set and won't be reviewing this one until
+> >>> all of the open points are solved.
+> >>
+> >> The naming and compatibles used by the driver are confusing but how it
+> >> was at beginning. Beside the confusion, the names are correct:
+> >>
+> >> 1. Main mfd driver:
+> >>  - compatible: samsung,s2mps1*-pmic
+> >>  - driver name: sec_pmic
+> >>
+> >> 2. Regulator driver:
+> >>  - no compatible (because it always searches for "regulators" subnode =
+of
+> >> its parent... that is the convention/legacy behaviour)
+> >>  - driver name: s2mps1*-pmic
+> >>
+> >> I hope that explains your concerns.
+> >=20
+> > It explains *why*, but doesn't ease my concerns in any way.
+> >=20
+> > Unfortunately I've only just realised the disparity we have between
+> > MFD and the Regulator subsystem, which is annoying because it's now
+> > almost impossible to rectify. =20
+> >=20
+> > We should have taken one of two views.  Either a) The MFD is the PMIC
+> > device which encompasses regulator control.  In which case the MFD
+> > and it's corresponding compatible string would be named *-pmic and the
+> > regulator driver would be called *-regulator. Or b) The MFD could be
+> > considered a normal MFD and be named after the model number, then the
+> > regulator 'could' be named *-pmic.
+> >=20
+> > However, with reference to b), how much other Power Management does
+> > the regulator driver do besides control regulators?  I suspect not
+> > much.  Therefore my preference would be for a).  My second choice
+> > would be a mixuture of the two where nothing gets named *-pmic.  The
+> > last option on my list would be the current situation where we seem to
+> > be calling both the MFD (PMIC) itself and the Regulator driver
+> > *-pmic, which is not good.
+>=20
+> Starting from the description of device-family. This is called "Power
+> Management IC" but it is rather a "Power Deliver/Distribute IC". There
+> isn't any logic inside except enable/disable/configure/set low power
+> mode for regulators.
+>=20
+> However in the same time the IC comes (always) with:
+>  - 32kHz clocks,
+>  - RTC,
+>  - backup battery charger (no driver for it),
+>  - reset for SoC,
+>  - shutdown on thermal alert (also no driver for this control).
+>=20
+> The solution a) seems fine to me. Make sense and it looks entirely
+> backward compatible - only driver names will be modified.
 
-Best regards,
-Krzysztof
+Perfect solution from my PoV.
 
--- 
--- 
+Thanks Krzysztof.
+
+--=20
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org =E2=94=82 Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog
+
+--=20
+--=20
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+---=20
+You received this message because you are subscribed to the Google Groups "=
+rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an e=
+mail to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
