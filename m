@@ -1,22 +1,30 @@
-Return-Path: <rtc-linux+bncBAABBU6WYOYAKGQE74ABZTA@googlegroups.com>
-Received: from mail.cosmopool.net (mail.cosmopool.net. [2a01:4f8:160:20c1::10:107])
-        by gmr-mx.google.com with ESMTP id c1si184089wiv.3.2015.10.04.02.03.15
-        for <rtc-linux@googlegroups.com>;
-        Sun, 04 Oct 2015 02:03:15 -0700 (PDT)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Date: Sun, 04 Oct 2015 11:02:56 +0200
-From: <harald@ccbib.org>
-To: Fabio Estevam <festevam@gmail.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
- Alexandre Belloni <alexandre.belloni@free-electrons.com>,
- Wim Van Sebroeck <wim@iguana.be>, <rtc-linux@googlegroups.com>,
- <linux-watchdog@vger.kernel.org>, Sascha Hauer <kernel@pengutronix.de>,
- Wolfram Sang <wsa@the-dreams.de>
-Subject: [rtc-linux] Re: [PATCHv2] watchdog: stmp3xxx: Implement GETBOOTSTATUS
-In-Reply-To: <CAOMZO5A=dUVUXh+-zYBq6F9FGwk2rRiqS2PXfOLrsAqHKpDyBA@mail.gmail.com>
-References: <1443909258-24914-1-git-send-email-harald@ccbib.org> <CAOMZO5A=dUVUXh+-zYBq6F9FGwk2rRiqS2PXfOLrsAqHKpDyBA@mail.gmail.com>
-Message-ID: <ad6fdebace028000826ac5823beb082c@imap.cosmopool.net>
+Return-Path: <rtc-linux+bncBDKZNNNLXAHBBXXAYCYQKGQECSAKUSQ@googlegroups.com>
+Received: from mailout1.w1.samsung.com (mailout1.w1.samsung.com. [210.118.77.11])
+        by gmr-mx.google.com with ESMTPS id vy6si4527878pbc.1.2015.10.27.19.18.05
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1 cipher=RC4-SHA bits=128/128);
+        Tue, 27 Oct 2015 19:18:06 -0700 (PDT)
+Received: from eucpsbgm2.samsung.com (unknown [203.254.199.245])
+ by mailout1.w1.samsung.com
+ (Oracle Communications Messaging Server 7.0.5.31.0 64bit (built May  5 2014))
+ with ESMTP id <0NWW000TLRQ15700@mailout1.w1.samsung.com> for
+ rtc-linux@googlegroups.com; Wed, 28 Oct 2015 02:18:02 +0000 (GMT)
+Subject: [rtc-linux] Re: [PATCH v3 5/5] drivers/rtc/rtc-s5m.c: add support for
+ S2MPS15 RTC
+To: Mark Brown <broonie@kernel.org>
+References: <1445863883-5187-1-git-send-email-alim.akhtar@samsung.com>
+ <1445863883-5187-6-git-send-email-alim.akhtar@samsung.com>
+ <56302514.4090407@samsung.com> <20151028015323.GZ28319@sirena.org.uk>
+Cc: Alim Akhtar <alim.akhtar@samsung.com>, lee.jones@linaro.org,
+ mturquette@baylibre.com, linux-samsung-soc@vger.kernel.org,
+ linux-clk@vger.kernel.org, rtc-linux@googlegroups.com,
+ linux-kernel@vger.kernel.org
+From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+Message-id: <56303054.8060804@samsung.com>
+Date: Wed, 28 Oct 2015 11:17:56 +0900
+MIME-version: 1.0
+In-reply-to: <20151028015323.GZ28319@sirena.org.uk>
+Content-type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -27,50 +35,30 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Hi Fabio!
-
-On Sat, 3 Oct 2015 19:13:26 -0300, Fabio Estevam <festevam@gmail.com>
-wrote:
-> Hi Harald,
+On 28.10.2015 10:53, Mark Brown wrote:
+> On Wed, Oct 28, 2015 at 10:29:56AM +0900, Krzysztof Kozlowski wrote:
 > 
-> On Sat, Oct 3, 2015 at 6:54 PM, Harald Geyer <harald@ccbib.org> wrote:
->> When the watchdog is enabled, we set a persitent bit. After booting
->> we query the bit and see if the system was reset by the watchdog.
->>
->> This is somewhat similar to what the legacy driver from freescale
->> does. However we use STMP3XXX_RTC_PERSISTENT2 instead of
->> STMP3XXX_RTC_PERSISTENT1. I tried that first, but it seems I can't
->> clear the bit there once it is set. I didn't find any documentation
->> what this register does - only vague hints that it is meant to
->> control the boot ROM.
->>
->> Part of the code from the legacy driver touching this register
->> is still included. Maybe this is stale, but this patch doesn't
->> touch any of it because I don't know what it really does or is
->> meant to do.
->>
->> Signed-off-by: Harald Geyer <harald@ccbib.org>
+>> If that's true, then don't add new compatibles, new names etc. Re-use.
+>> No new code needed, no changes needed. Keep it simple.
 > 
-> I read your commit log, but it is not clear for me what is the real
-> issue you are trying to solve with this patch.
+> Well, it depends - it can be useful to get the information about it
+> being a different part into DT so that if in future we realise that
+> there is some difference (perhaps a bug workaround even if the IP is
+> intended to be the same).  Though in the case of a MFD that information
+> can be obtained from the MFD for the device.
 
-The purpose of the patch is to implement the GETBOOTSTATUS ioctl on
-this device, so that userspace can check if the last reboot was caused
-by the watchdog.
+We can always differentiate later and introduce new compatible.
+Declaring a compatible right now would be useful only if we really cared
+about using the workaround on older DTBs.
 
-Since I don't completely understand the code I'm modifying, I wrote
-the rather lenghty commit message to document what I know:
+Since I cannot judge the difference (I don't have the datasheet of
+S2MPS15) then I don't see the need of adding new compatible/name for the
+"same device".
 
-* The feature this patch implements was already present in the BSP
-* Following the implementation of the BSP didn't work for me
-  (Maybe it works with some other boot method - I can't tell
-   without better documentation. I'm using uboot, not bootlets.)
-* Some bits of the code from the BSP are present in the current
-  mainline kernel. I don't know if this code is doing anything
-  useful.
+Of course maybe there is such need? Alim?
 
-HTE,
-Harald
+Best regards,
+Krzysztof
 
 -- 
 -- 
