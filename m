@@ -1,27 +1,31 @@
-Return-Path: <rtc-linux+bncBDE6RCFOWIARBYV6XGYAKGQETHJ2A6Y@googlegroups.com>
-Received: from mail-ob0-f179.google.com (mail-ob0-f179.google.com. [209.85.214.179])
-        by gmr-mx.google.com with ESMTPS id a11si624190igv.3.2015.10.02.03.41.37
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 02 Oct 2015 03:41:37 -0700 (PDT)
-Received: by mail-ob0-f179.google.com with SMTP id bh8so78753128obb.0
-        for <rtc-linux@googlegroups.com>; Fri, 02 Oct 2015 03:41:37 -0700 (PDT)
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBBFCYOYQKGQEHVYYBHA@googlegroups.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id g18si117616wmd.1.2015.10.28.06.43.32
+        for <rtc-linux@googlegroups.com>;
+        Wed, 28 Oct 2015 06:43:32 -0700 (PDT)
+Date: Wed, 28 Oct 2015 14:43:00 +0100
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+Cc: k.kozlowski.k@gmail.com, Alim Akhtar <alim.akhtar@samsung.com>,
+	Mark Brown <broonie@kernel.org>, lee.jones@linaro.org,
+	mturquette@baylibre.com, linux-samsung-soc@vger.kernel.org,
+	linux-clk@vger.kernel.org, rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org
+Subject: Re: [rtc-linux] Re: [PATCH v3 5/5] drivers/rtc/rtc-s5m.c: add support
+ for S2MPS15 RTC
+Message-ID: <20151028134300.GN22331@piout.net>
+References: <1445863883-5187-1-git-send-email-alim.akhtar@samsung.com>
+ <1445863883-5187-6-git-send-email-alim.akhtar@samsung.com>
+ <56302514.4090407@samsung.com>
+ <20151028015323.GZ28319@sirena.org.uk>
+ <56303054.8060804@samsung.com>
+ <56303DA3.5020306@samsung.com>
+ <5630419F.1000300@samsung.com>
+ <20151028094853.GM22331@piout.net>
+ <5630CE44.7070204@samsung.com>
 MIME-Version: 1.0
-In-Reply-To: <1442850433-5903-3-git-send-email-sudeep.holla@arm.com>
-References: <1442850433-5903-1-git-send-email-sudeep.holla@arm.com>
-	<1442850433-5903-3-git-send-email-sudeep.holla@arm.com>
-Date: Fri, 2 Oct 2015 03:41:37 -0700
-Message-ID: <CACRpkdZO2nPex=aKCXEw_Cpq7GMvJBAwiRq471mL-iwUVGZJMA@mail.gmail.com>
-Subject: [rtc-linux] Re: [PATCH 02/17] rtc: ab8500: remove misuse of
- IRQF_NO_SUSPEND flag
-From: Linus Walleij <linus.walleij@linaro.org>
-To: Sudeep Holla <sudeep.holla@arm.com>
-Cc: "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Thomas Gleixner <tglx@linutronix.de>,
-	"Rafael J. Wysocki" <rjw@rjwysocki.net>, Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	"rtc-linux@googlegroups.com" <rtc-linux@googlegroups.com>
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <5630CE44.7070204@samsung.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -32,27 +36,22 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On Mon, Sep 21, 2015 at 8:46 AM, Sudeep Holla <sudeep.holla@arm.com> wrote:
+On 28/10/2015 at 22:31:48 +0900, Krzysztof Kozlowski wrote :
+> > So you don't care about DT backward compatibility because when a
+> > workaround will be needed for one of the IPs, then you will have to
+> > update the old dtb to use it.
+> 
+> Nope, DTB does not contain the name for RTC driver (s2mps15-rtc). It
+> will be exactly the same.
+> 
 
-> The IRQF_NO_SUSPEND flag is used to identify the interrupts that should
-> be left enabled so as to allow them to work as expected during the
-> suspend-resume cycle, but doesn't guarantee that it will wake the system
-> from a suspended state, enable_irq_wake is recommended to be used for
-> the wakeup.
->
-> This patch removes the use of IRQF_NO_SUSPEND flags and uses newly
-> introduce PM wakeup APIs dev_pm_{set,clear}_wake_irq.
->
-> Cc: Linus Walleij <linus.walleij@linaro.org>
-> Cc: Alessandro Zummo <a.zummo@towertech.it>
-> Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-> Cc: rtc-linux@googlegroups.com
-> Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
+Sure, I see it now. So no change is needed in the rtc driver until you
+need to use that particular bit that is different.
 
-Acked-by: Linus Walleij <linus.walleij@linaro.org>
-
-Yours,
-Linus Walleij
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
 -- 
 -- 
