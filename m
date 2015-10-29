@@ -1,31 +1,29 @@
-Return-Path: <rtc-linux+bncBD747RFBYUPBBAUKYGYQKGQES4HK5VA@googlegroups.com>
-Received: from mailout1.samsung.com (mailout1.samsung.com. [203.254.224.24])
-        by gmr-mx.google.com with ESMTPS id pe1si4666819pac.2.2015.10.27.20.46.09
+Return-Path: <rtc-linux+bncBD747RFBYUPBB76OY2YQKGQEF4IMTXI@googlegroups.com>
+MIME-Version: 1.0
+Received: from mailout3.samsung.com (mailout3.samsung.com. [203.254.224.33])
+        by gmr-mx.google.com with ESMTPS id iz5si429119pbc.2.2015.10.28.21.58.39
         for <rtc-linux@googlegroups.com>
         (version=TLSv1 cipher=RC4-SHA bits=128/128);
-        Tue, 27 Oct 2015 20:46:09 -0700 (PDT)
-Received: from epcpsbgr5.samsung.com
- (u145.gpu120.samsung.co.kr [203.254.230.145])
- by mailout1.samsung.com (Oracle Communications Messaging Server 7.0.5.31.0
+        Wed, 28 Oct 2015 21:58:39 -0700 (PDT)
+Received: from epcpsbgr4.samsung.com
+ (u144.gpu120.samsung.co.kr [203.254.230.144])
+ by mailout3.samsung.com (Oracle Communications Messaging Server 7.0.5.31.0
  64bit (built May  5 2014))
- with ESMTP id <0NWW02OOEVSW3GC0@mailout1.samsung.com> for
- rtc-linux@googlegroups.com; Wed, 28 Oct 2015 12:46:08 +0900 (KST)
-Message-id: <563042D7.7020907@samsung.com>
-Date: Wed, 28 Oct 2015 09:06:55 +0530
+ with ESMTP id <0NWY01KA7TTLRU40@mailout3.samsung.com> for
+ rtc-linux@googlegroups.com; Thu, 29 Oct 2015 13:58:33 +0900 (KST)
 From: Alim Akhtar <alim.akhtar@samsung.com>
-MIME-version: 1.0
-To: Krzysztof Kozlowski <k.kozlowski@samsung.com>, lee.jones@linaro.org,
- broonie@kernel.org
-Cc: mturquette@baylibre.com, linux-samsung-soc@vger.kernel.org,
- linux-clk@vger.kernel.org, rtc-linux@googlegroups.com,
- linux-kernel@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH v3 4/5] clk: s2mps15: Add support for S2MPS15 clocks
-References: <1445863883-5187-1-git-send-email-alim.akhtar@samsung.com>
- <1445863883-5187-5-git-send-email-alim.akhtar@samsung.com>
- <5630234A.8080905@samsung.com>
-In-reply-to: <5630234A.8080905@samsung.com>
-Content-type: text/plain; charset=UTF-8; format=flowed
+To: lee.jones@linaro.org, broonie@kernel.org
+Cc: k.kozlowski@samsung.com, linux-samsung-soc@vger.kernel.org,
+ rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org,
+ Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Subject: [rtc-linux] [PATCH v4 4/4] drivers/rtc/rtc-s5m.c: add support for
+ S2MPS15 RTC
+Date: Thu, 29 Oct 2015 10:28:41 +0530
+Message-id: <1446094723-6212-5-git-send-email-alim.akhtar@samsung.com>
+In-reply-to: <1446094723-6212-1-git-send-email-alim.akhtar@samsung.com>
+References: <1446094723-6212-1-git-send-email-alim.akhtar@samsung.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -35,79 +33,157 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Hello
+RTC found in s2mps15 is almost same as one found on s2mps14/13
+with few differences in RTC_UPDATE register fields, like
+bit fields are changed for WUDR and AUDR.
+This patch add required changes to enable s2mps15 rtc timer.
 
-On 10/28/2015 06:52 AM, Krzysztof Kozlowski wrote:
-> On 26.10.2015 21:51, Alim Akhtar wrote:
->> S2MPS15 PMIC has three 32k buffered clocks outputs. This patch
->> adds supports for the same to the s2mps11 clock driver.
->>
->> Signed-off-by: Alim Akhtar <alim.akhtar@samsung.com>
->> ---
->>   drivers/clk/Kconfig       |    5 +++--
->>   drivers/clk/clk-s2mps11.c |   24 ++++++++++++++++++++++++
->>   2 files changed, 27 insertions(+), 2 deletions(-)
->>
->> diff --git a/drivers/clk/Kconfig b/drivers/clk/Kconfig
->> index a1fa61159179..037a314b5d76 100644
->> --- a/drivers/clk/Kconfig
->> +++ b/drivers/clk/Kconfig
->> @@ -120,9 +120,10 @@ config COMMON_CLK_S2MPS11
->>   	tristate "Clock driver for S2MPS1X/S5M8767 MFD"
->>   	depends on MFD_SEC_CORE
->>   	---help---
->> -	  This driver supports S2MPS11/S2MPS14/S5M8767 crystal oscillator
->> +	  This driver supports S2MPS1X/S5M8767 crystal oscillator
->>   	  clock. These multi-function devices have two (S2MPS14) or three
->> -	  (S2MPS11, S5M8767) fixed-rate oscillators, clocked at 32KHz each.
->> +	  (S2MPS11/S2MPS13/S2MPS15/S5M8767) fixed-rate oscillators,
->> +	  clocked at 32KHz each.
->>
->>   config CLK_TWL6040
->>   	tristate "External McPDM functional clock from twl6040"
->> diff --git a/drivers/clk/clk-s2mps11.c b/drivers/clk/clk-s2mps11.c
->> index d266299dfdb1..455500dca653 100644
->> --- a/drivers/clk/clk-s2mps11.c
->> +++ b/drivers/clk/clk-s2mps11.c
->> @@ -25,6 +25,7 @@
->>   #include <linux/mfd/samsung/s2mps11.h>
->>   #include <linux/mfd/samsung/s2mps13.h>
->>   #include <linux/mfd/samsung/s2mps14.h>
->> +#include <linux/mfd/samsung/s2mps15.h>
->>   #include <linux/mfd/samsung/s5m8767.h>
->>   #include <linux/mfd/samsung/core.h>
->>
->> @@ -148,6 +149,24 @@ static struct clk_init_data s2mps14_clks_init[S2MPS11_CLKS_NUM] = {
->>   	},
->>   };
->>
->> +static struct clk_init_data s2mps15_clks_init[S2MPS11_CLKS_NUM] = {
->> +	[S2MPS11_CLK_AP] = {
->> +		.name = "s2mps15_ap",
->> +		.ops = &s2mps11_clk_ops,
->> +		.flags = CLK_IS_ROOT,
->> +	},
->> +	[S2MPS11_CLK_CP] = {
->> +		.name = "s2mps15_cp",
->> +		.ops = &s2mps11_clk_ops,
->> +		.flags = CLK_IS_ROOT,
->> +	},
->> +	[S2MPS11_CLK_BT] = {
->> +		.name = "s2mps15_bt",
->> +		.ops = &s2mps11_clk_ops,
->> +		.flags = CLK_IS_ROOT,
->> +	},
->> +};
->
-> I see that for S2MPS13 we already added similar array which duplicates
-> the S2MPS11. This actually looks wrong. Just re-use existing
-> s2mps11_clks_init.
->
-hmm..ok will do.
-> Best regards,
-> Krzysztof
->
->
+Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Signed-off-by: Alim Akhtar <alim.akhtar@samsung.com>
+---
+ drivers/rtc/rtc-s5m.c           |   20 ++++++++++++++++++--
+ include/linux/mfd/samsung/rtc.h |    4 ++++
+ 2 files changed, 22 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/rtc/rtc-s5m.c b/drivers/rtc/rtc-s5m.c
+index f2504b4eef34..0d106a99958f 100644
+--- a/drivers/rtc/rtc-s5m.c
++++ b/drivers/rtc/rtc-s5m.c
+@@ -188,6 +188,7 @@ static inline int s5m_check_peding_alarm_interrupt(struct s5m_rtc_info *info,
+ 		ret = regmap_read(info->regmap, S5M_RTC_STATUS, &val);
+ 		val &= S5M_ALARM0_STATUS;
+ 		break;
++	case S2MPS15X:
+ 	case S2MPS14X:
+ 	case S2MPS13X:
+ 		ret = regmap_read(info->s5m87xx->regmap_pmic, S2MPS14_REG_ST2,
+@@ -223,6 +224,9 @@ static inline int s5m8767_rtc_set_time_reg(struct s5m_rtc_info *info)
+ 	if (info->device_type == S5M8763X || info->device_type == S5M8767X)
+ 		data |= S5M_RTC_TIME_EN_MASK;
+ 
++	if (info->device_type == S2MPS15X)
++		data |= S2MPS15_RTC_WUDR_MASK;
++
+ 	ret = regmap_write(info->regmap, info->regs->rtc_udr_update, data);
+ 	if (ret < 0) {
+ 		dev_err(info->dev, "failed to write update reg(%d)\n", ret);
+@@ -252,6 +256,9 @@ static inline int s5m8767_rtc_set_alarm_reg(struct s5m_rtc_info *info)
+ 	case S5M8767X:
+ 		data &= ~S5M_RTC_TIME_EN_MASK;
+ 		break;
++	case S2MPS15X:
++		data |= S2MPS15_RTC_AUDR_MASK;
++		break;
+ 	case S2MPS14X:
+ 		data |= S2MPS_RTC_RUDR_MASK;
+ 		break;
+@@ -275,7 +282,6 @@ static inline int s5m8767_rtc_set_alarm_reg(struct s5m_rtc_info *info)
+ 	if (info->device_type == S2MPS13X)
+ 		regmap_update_bits(info->regmap, info->regs->rtc_udr_update,
+ 				   S2MPS13_RTC_AUDR_MASK, 0);
+-
+ 	return ret;
+ }
+ 
+@@ -317,7 +323,8 @@ static int s5m_rtc_read_time(struct device *dev, struct rtc_time *tm)
+ 	u8 data[info->regs->regs_count];
+ 	int ret;
+ 
+-	if (info->device_type == S2MPS14X || info->device_type == S2MPS13X) {
++	if (info->device_type == S2MPS15X || info->device_type == S2MPS14X ||
++			info->device_type == S2MPS13X) {
+ 		ret = regmap_update_bits(info->regmap,
+ 				info->regs->rtc_udr_update,
+ 				S2MPS_RTC_RUDR_MASK, S2MPS_RTC_RUDR_MASK);
+@@ -339,6 +346,7 @@ static int s5m_rtc_read_time(struct device *dev, struct rtc_time *tm)
+ 		break;
+ 
+ 	case S5M8767X:
++	case S2MPS15X:
+ 	case S2MPS14X:
+ 	case S2MPS13X:
+ 		s5m8767_data_to_tm(data, tm, info->rtc_24hr_mode);
+@@ -366,6 +374,7 @@ static int s5m_rtc_set_time(struct device *dev, struct rtc_time *tm)
+ 		s5m8763_tm_to_data(tm, data);
+ 		break;
+ 	case S5M8767X:
++	case S2MPS15X:
+ 	case S2MPS14X:
+ 	case S2MPS13X:
+ 		ret = s5m8767_tm_to_data(tm, data);
+@@ -414,6 +423,7 @@ static int s5m_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
+ 		break;
+ 
+ 	case S5M8767X:
++	case S2MPS15X:
+ 	case S2MPS14X:
+ 	case S2MPS13X:
+ 		s5m8767_data_to_tm(data, &alrm->time, info->rtc_24hr_mode);
+@@ -463,6 +473,7 @@ static int s5m_rtc_stop_alarm(struct s5m_rtc_info *info)
+ 		break;
+ 
+ 	case S5M8767X:
++	case S2MPS15X:
+ 	case S2MPS14X:
+ 	case S2MPS13X:
+ 		for (i = 0; i < info->regs->regs_count; i++)
+@@ -508,6 +519,7 @@ static int s5m_rtc_start_alarm(struct s5m_rtc_info *info)
+ 		break;
+ 
+ 	case S5M8767X:
++	case S2MPS15X:
+ 	case S2MPS14X:
+ 	case S2MPS13X:
+ 		data[RTC_SEC] |= ALARM_ENABLE_MASK;
+@@ -548,6 +560,7 @@ static int s5m_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
+ 		break;
+ 
+ 	case S5M8767X:
++	case S2MPS15X:
+ 	case S2MPS14X:
+ 	case S2MPS13X:
+ 		s5m8767_tm_to_data(&alrm->time, data);
+@@ -631,6 +644,7 @@ static int s5m8767_rtc_init_reg(struct s5m_rtc_info *info)
+ 		ret = regmap_raw_write(info->regmap, S5M_ALARM0_CONF, data, 2);
+ 		break;
+ 
++	case S2MPS15X:
+ 	case S2MPS14X:
+ 	case S2MPS13X:
+ 		data[0] = (0 << BCD_EN_SHIFT) | (1 << MODEL24_SHIFT);
+@@ -679,6 +693,7 @@ static int s5m_rtc_probe(struct platform_device *pdev)
+ 		return -ENOMEM;
+ 
+ 	switch (platform_get_device_id(pdev)->driver_data) {
++	case S2MPS15X:
+ 	case S2MPS14X:
+ 	case S2MPS13X:
+ 		regmap_cfg = &s2mps14_rtc_regmap_config;
+@@ -805,6 +820,7 @@ static const struct platform_device_id s5m_rtc_id[] = {
+ 	{ "s5m-rtc",		S5M8767X },
+ 	{ "s2mps13-rtc",	S2MPS13X },
+ 	{ "s2mps14-rtc",	S2MPS14X },
++	{ "s2mps15-rtc",	S2MPS15X },
+ 	{ },
+ };
+ MODULE_DEVICE_TABLE(platform, s5m_rtc_id);
+diff --git a/include/linux/mfd/samsung/rtc.h b/include/linux/mfd/samsung/rtc.h
+index 29c30ac36020..0be45fccc52b 100644
+--- a/include/linux/mfd/samsung/rtc.h
++++ b/include/linux/mfd/samsung/rtc.h
+@@ -107,6 +107,10 @@ enum s2mps_rtc_reg {
+ #define S2MPS_RTC_WUDR_MASK	(1 << S2MPS_RTC_WUDR_SHIFT)
+ #define S2MPS13_RTC_AUDR_SHIFT	1
+ #define S2MPS13_RTC_AUDR_MASK	(1 << S2MPS13_RTC_AUDR_SHIFT)
++#define S2MPS15_RTC_AUDR_SHIFT	4
++#define S2MPS15_RTC_AUDR_MASK	(1 << S2MPS15_RTC_AUDR_SHIFT)
++#define S2MPS15_RTC_WUDR_SHIFT	1
++#define S2MPS15_RTC_WUDR_MASK	(1 << S2MPS15_RTC_WUDR_SHIFT)
+ #define S2MPS_RTC_RUDR_SHIFT	0
+ #define S2MPS_RTC_RUDR_MASK	(1 << S2MPS_RTC_RUDR_SHIFT)
+ #define RTC_TCON_SHIFT		1
+-- 
+1.7.10.4
 
 -- 
 -- 
