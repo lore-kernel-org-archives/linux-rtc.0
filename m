@@ -1,147 +1,133 @@
-Return-Path: <rtc-linux+bncBDKZNNNLXAHBBHUJZCYQKGQEGK2HLXA@googlegroups.com>
-Received: from mail-qk0-x234.google.com (mail-qk0-x234.google.com. [2607:f8b0:400d:c09::234])
-        by gmr-mx.google.com with ESMTPS id y206si61892ywd.6.2015.10.29.04.35.58
+Return-Path: <rtc-linux+bncBD747RFBYUPBB5V3Y2YQKGQEHEHJQUA@googlegroups.com>
+Received: from mailout2.samsung.com (mailout2.samsung.com. [203.254.224.25])
+        by gmr-mx.google.com with ESMTPS id sm2si3885424pab.0.2015.10.28.21.17.58
         for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 29 Oct 2015 04:35:58 -0700 (PDT)
-Received: by mail-qk0-x234.google.com with SMTP id l190so15540055qkb.2
-        for <rtc-linux@googlegroups.com>; Thu, 29 Oct 2015 04:35:58 -0700 (PDT)
-MIME-Version: 1.0
-Sender: rtc-linux@googlegroups.com
-In-Reply-To: <563200F2.4010202@samsung.com>
-References: <1446094723-6212-1-git-send-email-alim.akhtar@samsung.com>
-	<1446094723-6212-5-git-send-email-alim.akhtar@samsung.com>
-	<5631B487.3050501@samsung.com>
-	<5631CF0A.90109@samsung.com>
-	<CAJKOXPeJcjoGMqPhdOg-sH7xojF0m3bbTh0OqBEHTuo9sQrNug@mail.gmail.com>
-	<563200F2.4010202@samsung.com>
-Date: Thu, 29 Oct 2015 20:35:58 +0900
-Message-ID: <CAJKOXPeefkJHs=34z__K1ON4vk9iXAix8QWOMrWczO7ATzAaiA@mail.gmail.com>
-Subject: Re: [rtc-linux] Re: [PATCH v4 4/4] drivers/rtc/rtc-s5m.c: add support
- for S2MPS15 RTC
-From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-To: rtc-linux@googlegroups.com
-Cc: Krzysztof Kozlowski <k.kozlowski@samsung.com>, lee.jones@linaro.org, broonie@kernel.org,
-	linux-samsung-soc@vger.kernel.org, linux-kernel@vger.kernel.org,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Content-Type: text/plain; charset=UTF-8
+        (version=TLSv1 cipher=RC4-SHA bits=128/128);
+        Wed, 28 Oct 2015 21:17:58 -0700 (PDT)
+Received: from epcpsbgr5.samsung.com
+ (u145.gpu120.samsung.co.kr [203.254.230.145])
+ by mailout2.samsung.com (Oracle Communications Messaging Server 7.0.5.31.0
+ 64bit (built May  5 2014))
+ with ESMTP id <0NWY00Y66RXWPL20@mailout2.samsung.com> for
+ rtc-linux@googlegroups.com; Thu, 29 Oct 2015 13:17:56 +0900 (KST)
+Message-id: <56319E36.1000700@samsung.com>
+Date: Thu, 29 Oct 2015 09:49:02 +0530
+From: Alim Akhtar <alim.akhtar@samsung.com>
+MIME-version: 1.0
+To: Lee Jones <lee.jones@linaro.org>,
+ Krzysztof Kozlowski <k.kozlowski@samsung.com>
+Cc: k.kozlowski.k@gmail.com, broonie@kernel.org, mturquette@baylibre.com,
+ linux-samsung-soc@vger.kernel.org, linux-clk@vger.kernel.org,
+ rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org,
+ Thomas Abraham <thomas.ab@samsung.com>
+Subject: [rtc-linux] Re: [PATCH v3 2/5] mfd: sec: Add support for S2MPS15 PMIC
+References: <1445863883-5187-1-git-send-email-alim.akhtar@samsung.com>
+ <1445863883-5187-3-git-send-email-alim.akhtar@samsung.com>
+ <20151026143411.GL597@x1> <563021AF.6030100@samsung.com>
+ <20151028084609.GG5828@x1> <5630D12C.2030008@samsung.com>
+ <20151028135149.GF4058@x1>
+In-reply-to: <20151028135149.GF4058@x1>
+Content-type: text/plain; charset=UTF-8; format=flowed
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
 List-Archive: <http://groups.google.com/group/rtc-linux
+Sender: rtc-linux@googlegroups.com
 List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-2015-10-29 20:20 GMT+09:00 Alim Akhtar <alim.akhtar@samsung.com>:
->>> I am testing this patch before sending them, what I have found is if you
->>> don't update WUDR the time does not changes in rtc.
->>> e.g.
->>> if you don't do above changes then you will see below:
->>> -----
->>> # date --set="Oct 29 14:10:40 2015" <update the a new date>
->>> Thu Oct 29 14:10:40 UTC 2015
->>> #
->>> # hwclock --systohc <copy system clock to hardware clock/rtc>
->>> # hwclock <read back hwclock>
->>> Thu Oct 29 12:52:32 2015  .922889 seconds
->>> ----
->>> which is not excepted.
->>>
->>> And with the above change I see:
->>>
->>> ----
->>>   # date --set="Oct 29 14:30:10 2015" <update the a new date>
->>> Thu Oct 29 14:30:10 UTC 2015
->>> # date
->>> Thu Oct 29 14:30:12 UTC 2015
->>> # hwclock --systohc <copy system clock to hardware clock/rtc>
->>> # hwclock <read back hwclock>
->>> Thu Oct 29 14:30:21 2015  .333006 seconds
->>> ----
->>>
->>> Which is as expected.
->>
->>
->> Okay, but I said that vendor is setting only WUDR which is bit 4. You
+
+
+On 10/28/2015 07:21 PM, Lee Jones wrote:
+> On Wed, 28 Oct 2015, Krzysztof Kozlowski wrote:
 >
-> bit:4 is AUDR (for alarm). not WUDR and bit: 1 is WDUR(for timer)
-
-Damn, the mismatch in names is confusing. The vendor sets WUDR which
-on S2MPS15 is bit 1.
-
-You are setting bit 1 (okay) and bit 4. This is different which makes
-me asking questions.
-
->>
->> are setting bit 1 and bit 4. Your reply - about the need of setting
->> WUDR (bit 4 I guess) - does not explain my concerns. Do you have to
->> set bit 1?
->>
-> Yes, I think we need to set both for timer and alarm.
-> I have send you a snapshot of the rtc_update register in UM via internal
-> email. PTAL.
-
-Okay, I will take a look when I get to the office tomorrow.
-
->
+>> W dniu 28.10.2015 o 17:46, Lee Jones pisze:
+>>> On Wed, 28 Oct 2015, Krzysztof Kozlowski wrote:
 >>>
->>>>>          ret = regmap_write(info->regmap, info->regs->rtc_udr_update,
->>>>> data);
->>>>>          if (ret < 0) {
->>>>>                  dev_err(info->dev, "failed to write update reg(%d)\n",
->>>>> ret);
->>>>> @@ -252,6 +256,9 @@ static inline int s5m8767_rtc_set_alarm_reg(struct
->>>>> s5m_rtc_info *info)
->>>>>          case S5M8767X:
->>>>>                  data &= ~S5M_RTC_TIME_EN_MASK;
->>>>>                  break;
->>>>> +       case S2MPS15X:
->>>>> +               data |= S2MPS15_RTC_AUDR_MASK;
->>>>> +               break;
->>>>>          case S2MPS14X:
->>>>>                  data |= S2MPS_RTC_RUDR_MASK;
->>>>>                  break;
+>>>> On 26.10.2015 23:34, Lee Jones wrote:
+>>>>> On Mon, 26 Oct 2015, Alim Akhtar wrote:
+>>>>>
+>>>>>> From: Thomas Abraham <thomas.ab@samsung.com>
+>>>>>>
+>>>>>> Add support for S2MPS15 PMIC which is similar to S2MPS11 PMIC. The S2MPS15
+>>>>>> PMIC supports 27 LDO regulators, 10 buck regulators, RTC, three 32.768KHz
+>>>>>> clock outputs and battery charger. This patch adds initial support for
+>>>>>> LDO and buck regulators of S2MPS15 device.
+>>>>>>
+>>>>>> Signed-off-by: Thomas Abraham <thomas.ab@samsung.com>
+>>>>>> Signed-off-by: Alim Akhtar <alim.akhtar@samsung.com>
+>>>>>> [Alim: Added s2mps15_devs like rtc and clk and related changes]
+>>>>>> Reviewed-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+>>>>>> ---
+>>>>>>   drivers/mfd/sec-core.c              |   31 +++++++
+>>>>>>   drivers/mfd/sec-irq.c               |    8 ++
+>>>>>>   include/linux/mfd/samsung/core.h    |    1 +
+>>>>>>   include/linux/mfd/samsung/s2mps15.h |  158 +++++++++++++++++++++++++++++++++++
+>>>>>>   4 files changed, 198 insertions(+)
+>>>>>>   create mode 100644 include/linux/mfd/samsung/s2mps15.h
+>>>>>
+>>>>> I replied to the previous set and won't be reviewing this one until
+>>>>> all of the open points are solved.
 >>>>
+>>>> The naming and compatibles used by the driver are confusing but how it
+>>>> was at beginning. Beside the confusion, the names are correct:
 >>>>
+>>>> 1. Main mfd driver:
+>>>>   - compatible: samsung,s2mps1*-pmic
+>>>>   - driver name: sec_pmic
 >>>>
->>>> Another difference: you are setting here exactly the same values as
->>>> S2MPS13 - bit 1 and bit 4. However vendor code sets only bit 4 (called
->>>> WUDR there)?
+>>>> 2. Regulator driver:
+>>>>   - no compatible (because it always searches for "regulators" subnode of
+>>>> its parent... that is the convention/legacy behaviour)
+>>>>   - driver name: s2mps1*-pmic
 >>>>
->>> No they are not, AUDR on s2mps13 is bit:1 where as it is bit:4 on
->>> s2mps15.
->>>>
->>>>
->>>> What exactly is necessary to update alarm and time registers on S2MPS15?
->>>>
->>> As explained above in example, it is required to update the 'write alarm
->>> buffer(AUDR)' and 'write time buffer(WUDR)' bits in-order to get rtc
->>> working.
+>>>> I hope that explains your concerns.
+>>>
+>>> It explains *why*, but doesn't ease my concerns in any way.
+>>>
+>>> Unfortunately I've only just realised the disparity we have between
+>>> MFD and the Regulator subsystem, which is annoying because it's now
+>>> almost impossible to rectify.
+>>>
+>>> We should have taken one of two views.  Either a) The MFD is the PMIC
+>>> device which encompasses regulator control.  In which case the MFD
+>>> and it's corresponding compatible string would be named *-pmic and the
+>>> regulator driver would be called *-regulator. Or b) The MFD could be
+>>> considered a normal MFD and be named after the model number, then the
+>>> regulator 'could' be named *-pmic.
+>>>
+>>> However, with reference to b), how much other Power Management does
+>>> the regulator driver do besides control regulators?  I suspect not
+>>> much.  Therefore my preference would be for a).  My second choice
+>>> would be a mixuture of the two where nothing gets named *-pmic.  The
+>>> last option on my list would be the current situation where we seem to
+>>> be calling both the MFD (PMIC) itself and the Regulator driver
+>>> *-pmic, which is not good.
 >>
+>> Starting from the description of device-family. This is called "Power
+>> Management IC" but it is rather a "Power Deliver/Distribute IC". There
+>> isn't any logic inside except enable/disable/configure/set low power
+>> mode for regulators.
 >>
->> For updating time and alarm registers? Or only for updating alarm
->> registers?
+>> However in the same time the IC comes (always) with:
+>>   - 32kHz clocks,
+>>   - RTC,
+>>   - backup battery charger (no driver for it),
+>>   - reset for SoC,
+>>   - shutdown on thermal alert (also no driver for this control).
 >>
-> example was only for the timer register.
+>> The solution a) seems fine to me. Make sense and it looks entirely
+>> backward compatible - only driver names will be modified.
 >
+> Perfect solution from my PoV.
+>
+> Thanks Krzysztof.
+>
+Thanks Jones/Krzysztof as always.
+Will update the patches.
 
-Anyway setting alarm above is strange. You are setting bit 4 twice. One as:
-  data |= info->regs->rtc_udr_mask;
-and then:
-  case S2MPS15X:
-    data |= S2MPS15_RTC_AUDR_MASK;
-
-Yeah, I know this is misleading. Could you document expected behavior
-exactly somewhere in the code or in the commit message? "bit fields
-are changed for WUDR and AUDR." seems not enough. Instead I would be
-happy to see a statement: "to set time registers, AUDR and WUDR must
-be set, to set alarm ....  etc. where AUDR and WUDR on S2MPS15 are
-reversed"
-
-Best regards,
-Krzysztof
 
 -- 
 -- 
