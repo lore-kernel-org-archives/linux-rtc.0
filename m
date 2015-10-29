@@ -1,25 +1,30 @@
-Return-Path: <rtc-linux+bncBD747RFBYUPBBVGOY2YQKGQEK7XJJGQ@googlegroups.com>
-MIME-Version: 1.0
-Received: from mailout2.samsung.com (mailout2.samsung.com. [203.254.224.25])
-        by gmr-mx.google.com with ESMTPS id iz5si428773pbc.2.2015.10.28.21.57.56
+Return-Path: <rtc-linux+bncBDKZNNNLXAHBBO5KY6YQKGQE2KW2OZI@googlegroups.com>
+Received: from mailout4.w1.samsung.com (mailout4.w1.samsung.com. [210.118.77.14])
+        by gmr-mx.google.com with ESMTPS id vy6si55903pbc.1.2015.10.29.01.13.47
         for <rtc-linux@googlegroups.com>
         (version=TLSv1 cipher=RC4-SHA bits=128/128);
-        Wed, 28 Oct 2015 21:57:56 -0700 (PDT)
-Received: from epcpsbgr1.samsung.com
- (u141.gpu120.samsung.co.kr [203.254.230.141])
- by mailout2.samsung.com (Oracle Communications Messaging Server 7.0.5.31.0
- 64bit (built May  5 2014))
- with ESMTP id <0NWY015ZHTSIU240@mailout2.samsung.com> for
- rtc-linux@googlegroups.com; Thu, 29 Oct 2015 13:57:54 +0900 (KST)
-From: Alim Akhtar <alim.akhtar@samsung.com>
-To: lee.jones@linaro.org, broonie@kernel.org
-Cc: k.kozlowski@samsung.com, linux-samsung-soc@vger.kernel.org,
- rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org
-Subject: [rtc-linux] [PATCH v4 0/4] mfd: sec: add S2MPS15 PMIC support
-Date: Thu, 29 Oct 2015 10:28:37 +0530
-Message-id: <1446094723-6212-1-git-send-email-alim.akhtar@samsung.com>
+        Thu, 29 Oct 2015 01:13:47 -0700 (PDT)
+Received: from eucpsbgm1.samsung.com (unknown [203.254.199.244])
+ by mailout4.w1.samsung.com
+ (Oracle Communications Messaging Server 7.0.5.31.0 64bit (built May  5 2014))
+ with ESMTP id <0NWZ002XV2UV9Z30@mailout4.w1.samsung.com> for
+ rtc-linux@googlegroups.com; Thu, 29 Oct 2015 08:13:43 +0000 (GMT)
+Subject: [rtc-linux] Re: [PATCH v4 3/4] regulator: s2mps11: add support for
+ S2MPS15 regulators
+To: Lee Jones <lee.jones@linaro.org>, Alim Akhtar <alim.akhtar@samsung.com>
+References: <1446094723-6212-1-git-send-email-alim.akhtar@samsung.com>
+ <1446094723-6212-4-git-send-email-alim.akhtar@samsung.com>
+ <20151029080835.GM4058@x1>
+Cc: broonie@kernel.org, linux-samsung-soc@vger.kernel.org,
+ rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org,
+ Thomas Abraham <thomas.ab@samsung.com>
+From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+Message-id: <5631D533.6070807@samsung.com>
+Date: Thu, 29 Oct 2015 17:13:39 +0900
+MIME-version: 1.0
+In-reply-to: <20151029080835.GM4058@x1>
+Content-type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
-Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -29,57 +34,42 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Samsung's S2MPS15 PMIC is targetted to be used with Samsung's Exynos7 SoC.
-The S2MPS15 PMIC is similar in functionality to S2MPS11/14 PMIC. It contains
-27 LDO and 10 Buck regulators, RTC, three 32.768 KHz clock outputs and allows
-programming these blocks via a I2C interface. This patch series adds initial
-support for LDO/Buck regulators of S2MPS15 PMIC.
+On 29.10.2015 17:08, Lee Jones wrote:
+> On Thu, 29 Oct 2015, Alim Akhtar wrote:
+> 
+>> From: Thomas Abraham <thomas.ab@samsung.com>
+>>
+>> The S2MPS15 PMIC is similar in functionality to S2MPS11/14 PMIC. It contains
+>> 27 LDO and 10 Buck regulators and allows programming these regulators via a
+>> I2C interface. This patch adds initial support for LDO/Buck regulators of
+>> S2MPS15 PMIC.
+>>
+>> Signed-off-by: Thomas Abraham <thomas.ab@samsung.com>
+>> Signed-off-by: Alim Akhtar <alim.akhtar@samsung.com>
+>> Reviewed-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+>> ---
+>>  drivers/regulator/Kconfig   |    4 +-
+>>  drivers/regulator/s2mps11.c |  135 ++++++++++++++++++++++++++++++++++++++++++-
+>>  2 files changed, 136 insertions(+), 3 deletions(-)
+> 
+> [...]
+> 
+>> @@ -1070,6 +1202,7 @@ static const struct platform_device_id s2mps11_pmic_id[] = {
+>>  	{ "s2mps11-pmic", S2MPS11X},
+>>  	{ "s2mps13-pmic", S2MPS13X},
+>>  	{ "s2mps14-pmic", S2MPS14X},
+>> +	{ "s2mps15-regulator", S2MPS15X},
+>>  	{ "s2mpu02-pmic", S2MPU02},
+>>  	{ },
+>>  };
+> 
+> Are you going to s/pmic/regulator/ for the existing devices too?
 
-Changes since v3:
-* Changes regulator driver name from s2mps15-pmic -> s2mps15-regulator as disscussed here [2]
-* Re-use the exsisting compatible/names for s2mps15 clock block.
+Yeah, I expected that as well... but of course it is orthogonal to this
+patchset.
 
-Changes since v2:
-* Addressed Lee Jones review comments.
-
-Changes since v1:
-* Added suggestion from Krzysztof [1].
-* Added s2mps15's 32.768 clocks support.
-* Added s2mps15's rtc support.
-
-V1 of these patches (with a lesser features) were posted a year back,
-since then there is not much progress on this, this is my attempt to
-move things forward.
-
-[1]-> https://lkml.org/lkml/2014/10/14/67
-[2]-> https://lkml.org/lkml/2015/10/28/417
-
-This series is based on linux-next-20151022.
-This is tested on exynos7-espresso board.
-
-
-Alim Akhtar (1):
-  drivers/rtc/rtc-s5m.c: add support for S2MPS15 RTC
-
-Thomas Abraham (3):
-  dt-bindings: mfd: s2mps11: add documentation for s2mps15 PMIC
-  mfd: sec: Add support for S2MPS15 PMIC
-  regulator: s2mps11: add support for S2MPS15 regulators
-
- Documentation/devicetree/bindings/mfd/s2mps11.txt |   23 +--
- drivers/mfd/sec-core.c                            |   31 ++++
- drivers/mfd/sec-irq.c                             |    8 ++
- drivers/regulator/Kconfig                         |    4 +-
- drivers/regulator/s2mps11.c                       |  135 +++++++++++++++++-
- drivers/rtc/rtc-s5m.c                             |   20 ++-
- include/linux/mfd/samsung/core.h                  |    1 +
- include/linux/mfd/samsung/rtc.h                   |    4 +
- include/linux/mfd/samsung/s2mps15.h               |  158 +++++++++++++++++++++
- 9 files changed, 371 insertions(+), 13 deletions(-)
- create mode 100644 include/linux/mfd/samsung/s2mps15.h
-
--- 
-1.7.10.4
+Best regards,
+Krzysztof
 
 -- 
 -- 
