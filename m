@@ -1,41 +1,129 @@
-Return-Path: <ukl@pengutronix.de>
-From: =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	rtc-linux@googlegroups.com
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
-	kernel@pengutronix.de
-Subject: [PATCH] rtc: rtctest: enabling UIE for a chip that doesn't support it returns EINVAL
-Date: Wed, 16 Sep 2015 09:16:51 +0200
-Message-Id: <1442387811-5384-1-git-send-email-u.kleine-koenig@pengutronix.de>
-In-Reply-To: <20150916071545.GA28635@pengutronix.de>
-References: <20150916071545.GA28635@pengutronix.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Return-Path: <rtc-linux+bncBD747RFBYUPBBQE6Y6YQKGQEZVLHP4Y@googlegroups.com>
+Received: from mailout1.samsung.com (mailout1.samsung.com. [203.254.224.24])
+        by gmr-mx.google.com with ESMTPS id el2si54428pbb.0.2015.10.29.00.48.15
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1 cipher=RC4-SHA bits=128/128);
+        Thu, 29 Oct 2015 00:48:16 -0700 (PDT)
+Received: from epcpsbgr1.samsung.com
+ (u141.gpu120.samsung.co.kr [203.254.230.141])
+ by mailout1.samsung.com (Oracle Communications Messaging Server 7.0.5.31.0
+ 64bit (built May  5 2014))
+ with ESMTP id <0NWZ0061Q1O6IZ70@mailout1.samsung.com> for
+ rtc-linux@googlegroups.com; Thu, 29 Oct 2015 16:48:06 +0900 (KST)
+Message-id: <5631CF63.3070204@samsung.com>
+Date: Thu, 29 Oct 2015 13:18:51 +0530
+From: Alim Akhtar <alim.akhtar@samsung.com>
+MIME-version: 1.0
+To: Krzysztof Kozlowski <k.kozlowski@samsung.com>, lee.jones@linaro.org,
+ broonie@kernel.org
+Cc: linux-samsung-soc@vger.kernel.org, rtc-linux@googlegroups.com,
+ linux-kernel@vger.kernel.org, Thomas Abraham <thomas.ab@samsung.com>,
+ devicetree@vger.kernel.org
+Subject: [rtc-linux] Re: [PATCH v4 1/4] dt-bindings: mfd: s2mps11: add
+ documentation for s2mps15 PMIC
+References: <1446094723-6212-1-git-send-email-alim.akhtar@samsung.com>
+ <1446094723-6212-2-git-send-email-alim.akhtar@samsung.com>
+ <5631B537.1090404@samsung.com>
+In-reply-to: <5631B537.1090404@samsung.com>
+Content-type: text/plain; charset=UTF-8; format=flowed
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
+List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
+List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
+List-Archive: <http://groups.google.com/group/rtc-linux
+Sender: rtc-linux@googlegroups.com
+List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
+List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
+ <http://groups.google.com/group/rtc-linux/subscribe>
 
-Calling ioctl(..., RTC_UIE_ON, ...) without CONFIG_RTC_INTF_DEV_UIE_EMUL
-either ends in rtc_update_irq_enable if rtc->uie_unsupported is true
-or in __rtc_set_alarm in the if (!rtc->ops->set_alarm) branch. In both
-cases the return value is -EINVAL. So check for that one instead of
-ENOTTY.
 
-Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
----
- tools/testing/selftests/timers/rtctest.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/testing/selftests/timers/rtctest.c b/tools/testing/selftests/timers/rtctest.c
-index d80ae852334d..624bce51b27d 100644
---- a/tools/testing/selftests/timers/rtctest.c
-+++ b/tools/testing/selftests/timers/rtctest.c
-@@ -61,7 +61,7 @@ int main(int argc, char **argv)
- 	/* Turn on update interrupts (one per second) */
- 	retval = ioctl(fd, RTC_UIE_ON, 0);
- 	if (retval == -1) {
--		if (errno == ENOTTY) {
-+		if (errno == EINVAL) {
- 			fprintf(stderr,
- 				"\n...Update IRQs not supported.\n");
- 			goto test_READ;
+On 10/29/2015 11:27 AM, Krzysztof Kozlowski wrote:
+> On 29.10.2015 13:58, Alim Akhtar wrote:
+>> From: Thomas Abraham <thomas.ab@samsung.com>
+>>
+>> Add dt-binding documentation for s2mps15 PMIC device. The s2mps15 device
+>> is similar to s2mps11/14 PMIC device and has 27 LDO and 10 buck regulators.
+>>
+>> Cc: devicetree@vger.kernel.org
+>> Signed-off-by: Thomas Abraham <thomas.ab@samsung.com>
+>> Signed-off-by: Alim Akhtar <alim.akhtar@samsung.com>
+>> Reviewed-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+>> Acked-by: Lee Jones <lee.jones@linaro.org>
+>> ---
+>>   Documentation/devicetree/bindings/mfd/s2mps11.txt |   23 ++++++++++++++-------
+>>   1 file changed, 15 insertions(+), 8 deletions(-)
+>>
+>> diff --git a/Documentation/devicetree/bindings/mfd/s2mps11.txt b/Documentation/devicetree/bindings/mfd/s2mps11.txt
+>> index 890f0b0e1643..c0427c9d0886 100644
+>> --- a/Documentation/devicetree/bindings/mfd/s2mps11.txt
+>> +++ b/Documentation/devicetree/bindings/mfd/s2mps11.txt
+>> @@ -1,5 +1,5 @@
+>>
+>> -* Samsung S2MPS11, S2MPS13, S2MPS14 and S2MPU02 Voltage and Current Regulator
+>> +* Samsung S2MPS11/13/14/15 and S2MPU02 Voltage and Current Regulator
+>>
+>>   The Samsung S2MPS11 is a multi-function device which includes voltage and
+>>   current regulators, RTC, charger controller and other sub-blocks. It is
+>> @@ -7,8 +7,12 @@ interfaced to the host controller using an I2C interface. Each sub-block is
+>>   addressed by the host system using different I2C slave addresses.
+>>
+>>   Required properties:
+>> -- compatible: Should be "samsung,s2mps11-pmic" or "samsung,s2mps13-pmic"
+>> -	      or "samsung,s2mps14-pmic" or "samsung,s2mpu02-pmic".
+>> +- compatible: Should be one of the following
+>> +	- "samsung,s2mps11-pmic"
+>> +	- "samsung,s2mps13-pmic"
+>> +	- "samsung,s2mps14-pmic"
+>> +	- "samsung,s2mps15-pmic"
+>> +	- "samsung,s2mpu02-pmic".
+>>   - reg: Specifies the I2C slave address of the pmic block. It should be 0x66.
+>>
+>>   Optional properties:
+>> @@ -24,7 +28,7 @@ Optional properties:
+>>     unwanted buck warm reset (setting buck voltages to default values).
+>>
+>>   Optional nodes:
+>> -- clocks: s2mps11, s2mps13 and s5m8767 provide three(AP/CP/BT) buffered 32.768
+>> +- clocks: s2mps11, s2mps13, s2mps15 and s5m8767 provide three(AP/CP/BT) buffered 32.768
+>>     KHz outputs, so to register these as clocks with common clock framework
+>>     instantiate a sub-node named "clocks". It uses the common clock binding
+>>     documented in :
+>> @@ -37,12 +41,13 @@ Optional nodes:
+>>       the clock which they consume.
+>>       Clock               ID           Devices
+>>       ----------------------------------------------------------
+>> -    32KhzAP		0            S2MPS11, S2MPS13, S2MPS14, S5M8767
+>> -    32KhzCP		1            S2MPS11, S2MPS13, S5M8767
+>> -    32KhzBT		2            S2MPS11, S2MPS13, S2MPS14, S5M8767
+>> +    32KhzAP		0            S2MPS11, S2MPS13, S2MPS14, S2MPS15, S5M8767
+>> +    32KhzCP		1            S2MPS11, S2MPS13, S2MPS15, S5M8767
+>> +    32KhzBT		2            S2MPS11, S2MPS13, S2MPS14, S2MPS15, S5M8767
+>>
+>>     - compatible: Should be one of: "samsung,s2mps11-clk", "samsung,s2mps13-clk",
+>> -		"samsung,s2mps14-clk", "samsung,s5m8767-clk"
+>> +		"samsung,s2mps14-clk", "samsung,s2mps15-clk",
+>> +		"samsung,s5m8767-clk"
+>
+> Noooo. Why "samsung,s2mps15-clk"?
+>
+> Adding a new compatible to bindings is a major change so my review tag
+> (from v1 where there was no such compatible) should be dropped. Please
+> drop it.
+>
+My bad, will drop it.
+> Best regards,
+> Krzysztof
+>
+>
+
 -- 
-2.5.0
+-- 
+You received this message because you are subscribed to "rtc-linux".
+Membership options at http://groups.google.com/group/rtc-linux .
+Please read http://groups.google.com/group/rtc-linux/web/checklist
+before submitting a driver.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+For more options, visit https://groups.google.com/d/optout.
