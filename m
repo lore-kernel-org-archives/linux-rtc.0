@@ -1,25 +1,25 @@
-Return-Path: <rtc-linux+bncBAABBS4XXGYAKGQEEOTLLIY@googlegroups.com>
-Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de. [2001:67c:670:201:290:27ff:fe1d:cc33])
-        by gmr-mx.google.com with ESMTPS id c1si202429wiv.3.2015.10.02.02.18.03
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=AES128-SHA256 bits=128/128);
-        Fri, 02 Oct 2015 02:18:03 -0700 (PDT)
-From: =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
-	rtc-linux@googlegroups.com,
-	kernel@pengutronix.de,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	linux-kernel@vger.kernel.org
-Subject: [rtc-linux] [PATCH v1 1/4] rtc: pcf2127: fix reading uninitialized
- value on RTC_READ_VL ioctl
-Date: Fri,  2 Oct 2015 11:17:19 +0200
-Message-Id: <1443777442-15920-2-git-send-email-u.kleine-koenig@pengutronix.de>
-In-Reply-To: <1443777442-15920-1-git-send-email-u.kleine-koenig@pengutronix.de>
-References: <1443777442-15920-1-git-send-email-u.kleine-koenig@pengutronix.de>
+Return-Path: <rtc-linux+bncBD747RFBYUPBBVGOY2YQKGQEK7XJJGQ@googlegroups.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Received: from mailout2.samsung.com (mailout2.samsung.com. [203.254.224.25])
+        by gmr-mx.google.com with ESMTPS id iz5si428773pbc.2.2015.10.28.21.57.56
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1 cipher=RC4-SHA bits=128/128);
+        Wed, 28 Oct 2015 21:57:56 -0700 (PDT)
+Received: from epcpsbgr1.samsung.com
+ (u141.gpu120.samsung.co.kr [203.254.230.141])
+ by mailout2.samsung.com (Oracle Communications Messaging Server 7.0.5.31.0
+ 64bit (built May  5 2014))
+ with ESMTP id <0NWY015ZHTSIU240@mailout2.samsung.com> for
+ rtc-linux@googlegroups.com; Thu, 29 Oct 2015 13:57:54 +0900 (KST)
+From: Alim Akhtar <alim.akhtar@samsung.com>
+To: lee.jones@linaro.org, broonie@kernel.org
+Cc: k.kozlowski@samsung.com, linux-samsung-soc@vger.kernel.org,
+ rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org
+Subject: [rtc-linux] [PATCH v4 0/4] mfd: sec: add S2MPS15 PMIC support
+Date: Thu, 29 Oct 2015 10:28:37 +0530
+Message-id: <1446094723-6212-1-git-send-email-alim.akhtar@samsung.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -29,145 +29,65 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-The flag reported on the RTC_READ_VL ioctl is only initialized when the
-date is read out. So the voltage low value doesn't represent reality but
-the status at the time the date was read (or 0 if the date was not read
-yet).
+Samsung's S2MPS15 PMIC is targetted to be used with Samsung's Exynos7 SoC.
+The S2MPS15 PMIC is similar in functionality to S2MPS11/14 PMIC. It contains
+27 LDO and 10 Buck regulators, RTC, three 32.768 KHz clock outputs and allows
+programming these blocks via a I2C interface. This patch series adds initial
+support for LDO/Buck regulators of S2MPS15 PMIC.
 
-Moreover when userspace requests a value via an ioctl there is no added
-benefit to also make a prosa representation of this (and other) values
-appear in the kernel log so remove the calls to dev_info and the driver
-data members to track their state.
+Changes since v3:
+* Changes regulator driver name from s2mps15-pmic -> s2mps15-regulator as disscussed here [2]
+* Re-use the exsisting compatible/names for s2mps15 clock block.
 
-Signed-off-by: Uwe Kleine-K=C3=B6nig <u.kleine-koenig@pengutronix.de>
----
+Changes since v2:
+* Addressed Lee Jones review comments.
 
-Notes:
-    While this is a fix I don't think it is critical enough to backport it =
-to
-    stable (or apply it during the rc phase).
-   =20
-    Looking at
-   =20
-    	http://codesearch.debian.net/perpackage-results/RTC_VL_READ
-   =20
-    this ioctl isn't used much.
+Changes since v1:
+* Added suggestion from Krzysztof [1].
+* Added s2mps15's 32.768 clocks support.
+* Added s2mps15's rtc support.
 
- drivers/rtc/rtc-pcf2127.c | 36 ++++++++++++++++++------------------
- 1 file changed, 18 insertions(+), 18 deletions(-)
+V1 of these patches (with a lesser features) were posted a year back,
+since then there is not much progress on this, this is my attempt to
+move things forward.
 
-diff --git a/drivers/rtc/rtc-pcf2127.c b/drivers/rtc/rtc-pcf2127.c
-index 4c7738f706c1..4f66c4216b5a 100644
---- a/drivers/rtc/rtc-pcf2127.c
-+++ b/drivers/rtc/rtc-pcf2127.c
-@@ -39,8 +39,6 @@ static struct i2c_driver pcf2127_driver;
-=20
- struct pcf2127 {
- 	struct rtc_device *rtc;
--	int voltage_low; /* indicates if a low_voltage was detected */
--	int oscillator_failed; /* OSF was detected and date is unreliable */
- };
-=20
- /*
-@@ -49,7 +47,6 @@ struct pcf2127 {
-  */
- static int pcf2127_get_datetime(struct i2c_client *client, struct rtc_time=
- *tm)
- {
--	struct pcf2127 *pcf2127 =3D i2c_get_clientdata(client);
- 	unsigned char buf[10] =3D { PCF2127_REG_CTRL1 };
-=20
- 	/* read registers */
-@@ -59,18 +56,15 @@ static int pcf2127_get_datetime(struct i2c_client *clie=
-nt, struct rtc_time *tm)
- 		return -EIO;
- 	}
-=20
--	if (buf[PCF2127_REG_CTRL3] & 0x04) {
--		pcf2127->voltage_low =3D 1;
-+	if (buf[PCF2127_REG_CTRL3] & 0x04)
- 		dev_info(&client->dev,
- 			"low voltage detected, check/replace RTC battery.\n");
--	}
-=20
- 	if (buf[PCF2127_REG_SC] & PCF2127_OSF) {
- 		/*
- 		 * no need clear the flag here,
- 		 * it will be cleared once the new date is saved
- 		 */
--		pcf2127->oscillator_failed =3D 1;
- 		dev_warn(&client->dev,
- 			 "oscillator stop detected, date/time is not reliable\n");
- 		return -EINVAL;
-@@ -107,7 +101,6 @@ static int pcf2127_get_datetime(struct i2c_client *clie=
-nt, struct rtc_time *tm)
-=20
- static int pcf2127_set_datetime(struct i2c_client *client, struct rtc_time=
- *tm)
- {
--	struct pcf2127 *pcf2127 =3D i2c_get_clientdata(client);
- 	unsigned char buf[8];
- 	int i =3D 0, err;
-=20
-@@ -141,9 +134,6 @@ static int pcf2127_set_datetime(struct i2c_client *clie=
-nt, struct rtc_time *tm)
- 		return -EIO;
- 	}
-=20
--	/* clear OSF flag in client data */
--	pcf2127->oscillator_failed =3D 0;
--
- 	return 0;
- }
-=20
-@@ -151,17 +141,27 @@ static int pcf2127_set_datetime(struct i2c_client *cl=
-ient, struct rtc_time *tm)
- static int pcf2127_rtc_ioctl(struct device *dev,
- 				unsigned int cmd, unsigned long arg)
- {
--	struct pcf2127 *pcf2127 =3D i2c_get_clientdata(to_i2c_client(dev));
-+	struct i2c_client *client =3D to_i2c_client(dev);
-+	unsigned char buf =3D PCF2127_REG_CTRL3;
-+	int ret;
-=20
- 	switch (cmd) {
- 	case RTC_VL_READ:
--		if (pcf2127->voltage_low)
--			dev_info(dev, "low voltage detected, check/replace battery\n");
--		if (pcf2127->oscillator_failed)
--			dev_info(dev, "oscillator stop detected, date/time is not reliable\n");
-+		ret =3D i2c_master_send(client, &buf, 1);
-+		if (!ret)
-+			ret =3D -EIO;
-+		if (ret < 0)
-+			return ret;
-+
-+		ret =3D i2c_master_recv(client, &buf, 1);
-+		if (!ret)
-+			ret =3D -EIO;
-+		if (ret < 0)
-+			return ret;
-+
-+		buf =3D buf & PCF2127_REG_CTRL3_BLF ? 1 : 0;
-=20
--		if (copy_to_user((void __user *)arg, &pcf2127->voltage_low,
--					sizeof(int)))
-+		if (copy_to_user((void __user *)arg, &buf, sizeof(int)))
- 			return -EFAULT;
- 		return 0;
- 	default:
---=20
-2.6.0
+[1]-> https://lkml.org/lkml/2014/10/14/67
+[2]-> https://lkml.org/lkml/2015/10/28/417
 
---=20
---=20
+This series is based on linux-next-20151022.
+This is tested on exynos7-espresso board.
+
+
+Alim Akhtar (1):
+  drivers/rtc/rtc-s5m.c: add support for S2MPS15 RTC
+
+Thomas Abraham (3):
+  dt-bindings: mfd: s2mps11: add documentation for s2mps15 PMIC
+  mfd: sec: Add support for S2MPS15 PMIC
+  regulator: s2mps11: add support for S2MPS15 regulators
+
+ Documentation/devicetree/bindings/mfd/s2mps11.txt |   23 +--
+ drivers/mfd/sec-core.c                            |   31 ++++
+ drivers/mfd/sec-irq.c                             |    8 ++
+ drivers/regulator/Kconfig                         |    4 +-
+ drivers/regulator/s2mps11.c                       |  135 +++++++++++++++++-
+ drivers/rtc/rtc-s5m.c                             |   20 ++-
+ include/linux/mfd/samsung/core.h                  |    1 +
+ include/linux/mfd/samsung/rtc.h                   |    4 +
+ include/linux/mfd/samsung/s2mps15.h               |  158 +++++++++++++++++++++
+ 9 files changed, 371 insertions(+), 13 deletions(-)
+ create mode 100644 include/linux/mfd/samsung/s2mps15.h
+
+-- 
+1.7.10.4
+
+-- 
+-- 
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
----=20
-You received this message because you are subscribed to the Google Groups "=
-rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an e=
-mail to rtc-linux+unsubscribe@googlegroups.com.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
