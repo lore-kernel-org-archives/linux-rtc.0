@@ -1,22 +1,29 @@
-Return-Path: <rtc-linux+bncBCO3XAUMTIFRBXNSV2YQKGQE2HTBIVY@googlegroups.com>
-Received: from comal.ext.ti.com (comal.ext.ti.com. [198.47.26.152])
-        by gmr-mx.google.com with ESMTPS id mh4si416562igb.0.2015.10.24.07.44.45
+Return-Path: <rtc-linux+bncBD747RFBYUPBBYOOY2YQKGQEDLCRM7Y@googlegroups.com>
+MIME-Version: 1.0
+Received: from mailout1.samsung.com (mailout1.samsung.com. [203.254.224.24])
+        by gmr-mx.google.com with ESMTPS id iz5si428859pbc.2.2015.10.28.21.58.08
         for <rtc-linux@googlegroups.com>
         (version=TLSv1 cipher=RC4-SHA bits=128/128);
-        Sat, 24 Oct 2015 07:44:45 -0700 (PDT)
-Subject: [rtc-linux] Re: [PATCH] rtc: ds1307: Fix alarm programming for mcp794xx
-To: Tero Kristo <t-kristo@ti.com>, <a.zummo@towertech.it>,
-        <alexandre.belloni@free-electrons.com>
-References: <1445581797-19693-1-git-send-email-t-kristo@ti.com>
-CC: <linux-kernel@vger.kernel.org>, <rtc-linux@googlegroups.com>,
-        <linux-arm-kernel@lists.infradead.org>, <linux-omap@vger.kernel.org>
-From: Nishanth Menon <nm@ti.com>
-Message-ID: <562B9955.40308@ti.com>
-Date: Sat, 24 Oct 2015 09:44:37 -0500
-MIME-Version: 1.0
-In-Reply-To: <1445581797-19693-1-git-send-email-t-kristo@ti.com>
-Content-Type: text/plain; charset=UTF-8
+        Wed, 28 Oct 2015 21:58:09 -0700 (PDT)
+Received: from epcpsbgr2.samsung.com
+ (u142.gpu120.samsung.co.kr [203.254.230.142])
+ by mailout1.samsung.com (Oracle Communications Messaging Server 7.0.5.31.0
+ 64bit (built May  5 2014))
+ with ESMTP id <0NWY01F2XTSVE640@mailout1.samsung.com> for
+ rtc-linux@googlegroups.com; Thu, 29 Oct 2015 13:58:07 +0900 (KST)
+From: Alim Akhtar <alim.akhtar@samsung.com>
+To: lee.jones@linaro.org, broonie@kernel.org
+Cc: k.kozlowski@samsung.com, linux-samsung-soc@vger.kernel.org,
+ rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org,
+ Thomas Abraham <thomas.ab@samsung.com>, devicetree@vger.kernel.org
+Subject: [rtc-linux] [PATCH v4 1/4] dt-bindings: mfd: s2mps11: add
+ documentation for s2mps15 PMIC
+Date: Thu, 29 Oct 2015 10:28:38 +0530
+Message-id: <1446094723-6212-2-git-send-email-alim.akhtar@samsung.com>
+In-reply-to: <1446094723-6212-1-git-send-email-alim.akhtar@samsung.com>
+References: <1446094723-6212-1-git-send-email-alim.akhtar@samsung.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -26,47 +33,91 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On 10/23/2015 01:29 AM, Tero Kristo wrote:
-> mcp794xx alarm registers must be written in BCD format. However, the
-> alarm programming logic neglected this by adding one to the value
-> after bin2bcd conversion has been already done, writing bad values
-> to month register in case the alarm being set is in October. In this
-> case, the alarm month value becomes 0x0a instead of the expected 0x10.
-> 
-> Fix by moving the +1 addition within the bin2bcd call also.
-> 
-> Fixes: 1d1945d261a2 ("drivers/rtc/rtc-ds1307.c: add alarm support for mcp7941x chips")
-> 
-> Signed-off-by: Tero Kristo <t-kristo@ti.com>
+From: Thomas Abraham <thomas.ab@samsung.com>
 
-Nice catch.
-Acked-by: Nishanth Menon <nm@ti.com>
-> ---
->  drivers/rtc/rtc-ds1307.c |    4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
-> index a705e64..188006c 100644
-> --- a/drivers/rtc/rtc-ds1307.c
-> +++ b/drivers/rtc/rtc-ds1307.c
-> @@ -718,9 +718,9 @@ static int mcp794xx_set_alarm(struct device *dev, struct rtc_wkalrm *t)
->  	regs[3] = bin2bcd(t->time.tm_sec);
->  	regs[4] = bin2bcd(t->time.tm_min);
->  	regs[5] = bin2bcd(t->time.tm_hour);
-> -	regs[6] = bin2bcd(t->time.tm_wday) + 1;
-> +	regs[6] = bin2bcd(t->time.tm_wday + 1);
->  	regs[7] = bin2bcd(t->time.tm_mday);
-> -	regs[8] = bin2bcd(t->time.tm_mon) + 1;
-> +	regs[8] = bin2bcd(t->time.tm_mon + 1);
->  
->  	/* Clear the alarm 0 interrupt flag. */
->  	regs[6] &= ~MCP794XX_BIT_ALMX_IF;
-> 
+Add dt-binding documentation for s2mps15 PMIC device. The s2mps15 device
+is similar to s2mps11/14 PMIC device and has 27 LDO and 10 buck regulators.
 
+Cc: devicetree@vger.kernel.org
+Signed-off-by: Thomas Abraham <thomas.ab@samsung.com>
+Signed-off-by: Alim Akhtar <alim.akhtar@samsung.com>
+Reviewed-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+Acked-by: Lee Jones <lee.jones@linaro.org>
+---
+ Documentation/devicetree/bindings/mfd/s2mps11.txt |   23 ++++++++++++++-------
+ 1 file changed, 15 insertions(+), 8 deletions(-)
 
+diff --git a/Documentation/devicetree/bindings/mfd/s2mps11.txt b/Documentation/devicetree/bindings/mfd/s2mps11.txt
+index 890f0b0e1643..c0427c9d0886 100644
+--- a/Documentation/devicetree/bindings/mfd/s2mps11.txt
++++ b/Documentation/devicetree/bindings/mfd/s2mps11.txt
+@@ -1,5 +1,5 @@
+ 
+-* Samsung S2MPS11, S2MPS13, S2MPS14 and S2MPU02 Voltage and Current Regulator
++* Samsung S2MPS11/13/14/15 and S2MPU02 Voltage and Current Regulator
+ 
+ The Samsung S2MPS11 is a multi-function device which includes voltage and
+ current regulators, RTC, charger controller and other sub-blocks. It is
+@@ -7,8 +7,12 @@ interfaced to the host controller using an I2C interface. Each sub-block is
+ addressed by the host system using different I2C slave addresses.
+ 
+ Required properties:
+-- compatible: Should be "samsung,s2mps11-pmic" or "samsung,s2mps13-pmic"
+-	      or "samsung,s2mps14-pmic" or "samsung,s2mpu02-pmic".
++- compatible: Should be one of the following
++	- "samsung,s2mps11-pmic"
++	- "samsung,s2mps13-pmic"
++	- "samsung,s2mps14-pmic"
++	- "samsung,s2mps15-pmic"
++	- "samsung,s2mpu02-pmic".
+ - reg: Specifies the I2C slave address of the pmic block. It should be 0x66.
+ 
+ Optional properties:
+@@ -24,7 +28,7 @@ Optional properties:
+   unwanted buck warm reset (setting buck voltages to default values).
+ 
+ Optional nodes:
+-- clocks: s2mps11, s2mps13 and s5m8767 provide three(AP/CP/BT) buffered 32.768
++- clocks: s2mps11, s2mps13, s2mps15 and s5m8767 provide three(AP/CP/BT) buffered 32.768
+   KHz outputs, so to register these as clocks with common clock framework
+   instantiate a sub-node named "clocks". It uses the common clock binding
+   documented in :
+@@ -37,12 +41,13 @@ Optional nodes:
+     the clock which they consume.
+     Clock               ID           Devices
+     ----------------------------------------------------------
+-    32KhzAP		0            S2MPS11, S2MPS13, S2MPS14, S5M8767
+-    32KhzCP		1            S2MPS11, S2MPS13, S5M8767
+-    32KhzBT		2            S2MPS11, S2MPS13, S2MPS14, S5M8767
++    32KhzAP		0            S2MPS11, S2MPS13, S2MPS14, S2MPS15, S5M8767
++    32KhzCP		1            S2MPS11, S2MPS13, S2MPS15, S5M8767
++    32KhzBT		2            S2MPS11, S2MPS13, S2MPS14, S2MPS15, S5M8767
+ 
+   - compatible: Should be one of: "samsung,s2mps11-clk", "samsung,s2mps13-clk",
+-		"samsung,s2mps14-clk", "samsung,s5m8767-clk"
++		"samsung,s2mps14-clk", "samsung,s2mps15-clk",
++		"samsung,s5m8767-clk"
+ 
+ - regulators: The regulators of s2mps11 that have to be instantiated should be
+ included in a sub-node named 'regulators'. Regulator nodes included in this
+@@ -90,6 +95,7 @@ as per the datasheet of s2mps11.
+ 			- S2MPS11: 1 to 38
+ 			- S2MPS13: 1 to 40
+ 			- S2MPS14: 1 to 25
++			- S2MPS15: 1 to 27
+ 			- S2MPU02: 1 to 28
+ 		  - Example: LDO1, LDO2, LDO28
+ 	- BUCKn
+@@ -97,6 +103,7 @@ as per the datasheet of s2mps11.
+ 			- S2MPS11: 1 to 10
+ 			- S2MPS13: 1 to 10
+ 			- S2MPS14: 1 to 5
++			- S2MPS15: 1 to 10
+ 			- S2MPU02: 1 to 7
+ 		  - Example: BUCK1, BUCK2, BUCK9
+ 
 -- 
-Regards,
-Nishanth Menon
+1.7.10.4
 
 -- 
 -- 
