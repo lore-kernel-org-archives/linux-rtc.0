@@ -1,30 +1,26 @@
-Return-Path: <rtc-linux+bncBD747RFBYUPBB25OYGYQKGQE55SGDNA@googlegroups.com>
-Received: from mailout3.samsung.com (mailout3.samsung.com. [203.254.224.33])
-        by gmr-mx.google.com with ESMTPS id pe1si4695242pac.2.2015.10.27.22.04.42
+Return-Path: <rtc-linux+bncBDA7X7F2WUEBBBVIY6YQKGQEOPEIXNY@googlegroups.com>
+Received: from mail-wm0-x22a.google.com (mail-wm0-x22a.google.com. [2a00:1450:400c:c09::22a])
+        by gmr-mx.google.com with ESMTPS id t18si195102wme.0.2015.10.29.01.08.38
         for <rtc-linux@googlegroups.com>
-        (version=TLSv1 cipher=RC4-SHA bits=128/128);
-        Tue, 27 Oct 2015 22:04:42 -0700 (PDT)
-Received: from epcpsbgr4.samsung.com
- (u144.gpu120.samsung.co.kr [203.254.230.144])
- by mailout3.samsung.com (Oracle Communications Messaging Server 7.0.5.31.0
- 64bit (built May  5 2014))
- with ESMTP id <0NWW01ENXZFTQJ50@mailout3.samsung.com> for
- rtc-linux@googlegroups.com; Wed, 28 Oct 2015 14:04:41 +0900 (KST)
-Message-id: <5630554E.8070301@samsung.com>
-Date: Wed, 28 Oct 2015 10:25:42 +0530
-From: Alim Akhtar <alim.akhtar@samsung.com>
-MIME-version: 1.0
-To: Krzysztof Kozlowski <k.kozlowski@samsung.com>, lee.jones@linaro.org,
- broonie@kernel.org
-Cc: mturquette@baylibre.com, linux-samsung-soc@vger.kernel.org,
- linux-clk@vger.kernel.org, rtc-linux@googlegroups.com,
- linux-kernel@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH v3 4/5] clk: s2mps15: Add support for S2MPS15 clocks
-References: <1445863883-5187-1-git-send-email-alim.akhtar@samsung.com>
- <1445863883-5187-5-git-send-email-alim.akhtar@samsung.com>
- <5630243E.1080608@samsung.com> <5630503A.3070404@samsung.com>
-In-reply-to: <5630503A.3070404@samsung.com>
-Content-type: text/plain; charset=UTF-8; format=flowed
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 29 Oct 2015 01:08:38 -0700 (PDT)
+Received: by mail-wm0-x22a.google.com with SMTP id l128so19982411wml.0
+        for <rtc-linux@googlegroups.com>; Thu, 29 Oct 2015 01:08:38 -0700 (PDT)
+Date: Thu, 29 Oct 2015 08:08:35 +0000
+From: Lee Jones <lee.jones@linaro.org>
+To: Alim Akhtar <alim.akhtar@samsung.com>
+Cc: broonie@kernel.org, k.kozlowski@samsung.com,
+	linux-samsung-soc@vger.kernel.org, rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org,
+	Thomas Abraham <thomas.ab@samsung.com>
+Subject: [rtc-linux] Re: [PATCH v4 3/4] regulator: s2mps11: add support for
+ S2MPS15 regulators
+Message-ID: <20151029080835.GM4058@x1>
+References: <1446094723-6212-1-git-send-email-alim.akhtar@samsung.com>
+ <1446094723-6212-4-git-send-email-alim.akhtar@samsung.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1446094723-6212-4-git-send-email-alim.akhtar@samsung.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -35,108 +31,57 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
+On Thu, 29 Oct 2015, Alim Akhtar wrote:
 
+> From: Thomas Abraham <thomas.ab@samsung.com>
+>=20
+> The S2MPS15 PMIC is similar in functionality to S2MPS11/14 PMIC. It conta=
+ins
+> 27 LDO and 10 Buck regulators and allows programming these regulators via=
+ a
+> I2C interface. This patch adds initial support for LDO/Buck regulators of
+> S2MPS15 PMIC.
+>=20
+> Signed-off-by: Thomas Abraham <thomas.ab@samsung.com>
+> Signed-off-by: Alim Akhtar <alim.akhtar@samsung.com>
+> Reviewed-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+> ---
+>  drivers/regulator/Kconfig   |    4 +-
+>  drivers/regulator/s2mps11.c |  135 +++++++++++++++++++++++++++++++++++++=
++++++-
+>  2 files changed, 136 insertions(+), 3 deletions(-)
 
-On 10/28/2015 10:04 AM, Krzysztof Kozlowski wrote:
-> On 28.10.2015 10:26, Krzysztof Kozlowski wrote:
->> On 26.10.2015 21:51, Alim Akhtar wrote:
->>> S2MPS15 PMIC has three 32k buffered clocks outputs. This patch
->>> adds supports for the same to the s2mps11 clock driver.
->>>
->>> Signed-off-by: Alim Akhtar <alim.akhtar@samsung.com>
->>> ---
->>>   drivers/clk/Kconfig       |    5 +++--
->>>   drivers/clk/clk-s2mps11.c |   24 ++++++++++++++++++++++++
->>>   2 files changed, 27 insertions(+), 2 deletions(-)
->>>
->>> diff --git a/drivers/clk/Kconfig b/drivers/clk/Kconfig
->>> index a1fa61159179..037a314b5d76 100644
->>> --- a/drivers/clk/Kconfig
->>> +++ b/drivers/clk/Kconfig
->>> @@ -120,9 +120,10 @@ config COMMON_CLK_S2MPS11
->>>   	tristate "Clock driver for S2MPS1X/S5M8767 MFD"
->>>   	depends on MFD_SEC_CORE
->>>   	---help---
->>> -	  This driver supports S2MPS11/S2MPS14/S5M8767 crystal oscillator
->>> +	  This driver supports S2MPS1X/S5M8767 crystal oscillator
->>>   	  clock. These multi-function devices have two (S2MPS14) or three
->>> -	  (S2MPS11, S5M8767) fixed-rate oscillators, clocked at 32KHz each.
->>> +	  (S2MPS11/S2MPS13/S2MPS15/S5M8767) fixed-rate oscillators,
->>> +	  clocked at 32KHz each.
->>>
->>>   config CLK_TWL6040
->>>   	tristate "External McPDM functional clock from twl6040"
->>> diff --git a/drivers/clk/clk-s2mps11.c b/drivers/clk/clk-s2mps11.c
->>> index d266299dfdb1..455500dca653 100644
->>> --- a/drivers/clk/clk-s2mps11.c
->>> +++ b/drivers/clk/clk-s2mps11.c
->>> @@ -25,6 +25,7 @@
->>>   #include <linux/mfd/samsung/s2mps11.h>
->>>   #include <linux/mfd/samsung/s2mps13.h>
->>>   #include <linux/mfd/samsung/s2mps14.h>
->>> +#include <linux/mfd/samsung/s2mps15.h>
->>>   #include <linux/mfd/samsung/s5m8767.h>
->>>   #include <linux/mfd/samsung/core.h>
->>>
->>> @@ -148,6 +149,24 @@ static struct clk_init_data s2mps14_clks_init[S2MPS11_CLKS_NUM] = {
->>>   	},
->>>   };
->>>
->>> +static struct clk_init_data s2mps15_clks_init[S2MPS11_CLKS_NUM] = {
->>> +	[S2MPS11_CLK_AP] = {
->>> +		.name = "s2mps15_ap",
->>> +		.ops = &s2mps11_clk_ops,
->>> +		.flags = CLK_IS_ROOT,
->>> +	},
->>> +	[S2MPS11_CLK_CP] = {
->>> +		.name = "s2mps15_cp",
->>> +		.ops = &s2mps11_clk_ops,
->>> +		.flags = CLK_IS_ROOT,
->>> +	},
->>> +	[S2MPS11_CLK_BT] = {
->>> +		.name = "s2mps15_bt",
->>> +		.ops = &s2mps11_clk_ops,
->>> +		.flags = CLK_IS_ROOT,
->>> +	},
->>> +};
->>> +
->>>   static struct device_node *s2mps11_clk_parse_dt(struct platform_device *pdev,
->>>   		struct clk_init_data *clks_init)
->>>   {
->>> @@ -207,6 +226,10 @@ static int s2mps11_clk_probe(struct platform_device *pdev)
->>>   		s2mps11_reg = S2MPS14_REG_RTCCTRL;
->>>   		clks_init = s2mps14_clks_init;
->>>   		break;
->>> +	case S2MPS15X:
->>> +		s2mps11_reg = S2MPS15_REG_RTC_BUF;
->>> +		clks_init = s2mps15_clks_init;
->>
->> Another question (after looking at RTC driver):
->> Is this the same register address as S2MPS14?
->
-> I found the answer - this is the same address as in S2MPS13 and S2MPS14:
-> 0xc. The S2MPS14 has only two clocks though but S2MPS13 has three.
-> Again, as in RTC, you should re-use existing support.
->
-> It looks there is no need for this patch at all.
->
-Yes, checked that, rtc looks same to s2mps14 and clk looks same as 
-s2mps13{ not s2mps11}, because of the RTC_BUF address changes.
-Will drop patch 4 and 5 and use the existing names where applicable.
-I think I don't have to change the binding or Kconfig changes?
+[...]
 
+> @@ -1070,6 +1202,7 @@ static const struct platform_device_id s2mps11_pmic=
+_id[] =3D {
+>  	{ "s2mps11-pmic", S2MPS11X},
+>  	{ "s2mps13-pmic", S2MPS13X},
+>  	{ "s2mps14-pmic", S2MPS14X},
+> +	{ "s2mps15-regulator", S2MPS15X},
+>  	{ "s2mpu02-pmic", S2MPU02},
+>  	{ },
+>  };
 
-> Best regards,
-> Krzysztof
->
+Are you going to s/pmic/regulator/ for the existing devices too?
 
--- 
--- 
+[...]
+
+--=20
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org =E2=94=82 Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog
+
+--=20
+--=20
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+---=20
+You received this message because you are subscribed to the Google Groups "=
+rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an e=
+mail to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
