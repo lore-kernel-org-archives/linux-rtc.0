@@ -1,29 +1,17 @@
-Return-Path: <rtc-linux+bncBDA7X7F2WUEBBA6O3SYQKGQE6LTFUUI@googlegroups.com>
-Received: from mail-wi0-x22c.google.com (mail-wi0-x22c.google.com. [2a00:1450:400c:c05::22c])
-        by gmr-mx.google.com with ESMTPS id m135si468845wmb.0.2015.11.02.01.04.03
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 02 Nov 2015 01:04:03 -0800 (PST)
-Received: by mail-wi0-x22c.google.com with SMTP id q8so46625480wik.1
-        for <rtc-linux@googlegroups.com>; Mon, 02 Nov 2015 01:04:03 -0800 (PST)
-Date: Mon, 2 Nov 2015 09:03:59 +0000
-From: Lee Jones <lee.jones@linaro.org>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Krzysztof Kozlowski <k.kozlowski@samsung.com>,
-	Alim Akhtar <alim.akhtar@samsung.com>, broonie@kernel.org,
-	linux-samsung-soc@vger.kernel.org, rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH v5 4/4] drivers/rtc/rtc-s5m.c: add support for
- S2MPS15 RTC
-Message-ID: <20151102090359.GR4058@x1>
-References: <1446186334-16510-1-git-send-email-alim.akhtar@samsung.com>
- <1446186334-16510-5-git-send-email-alim.akhtar@samsung.com>
- <20151101174048.GD22331@piout.net>
- <5636A44D.4090908@samsung.com>
- <20151102004722.GI22331@piout.net>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBW533GYQKGQELNT6UBQ@googlegroups.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id l1si394406wmb.3.2015.11.01.10.45.47
+        for <rtc-linux@googlegroups.com>;
+        Sun, 01 Nov 2015 10:45:47 -0800 (PST)
+Date: Sun, 1 Nov 2015 19:45:45 +0100
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Steffen Trumtrar <s.trumtrar@pengutronix.de>,
+	Juergen Borleis <jbe@pengutronix.de>
+Cc: rtc-linux@googlegroups.com
+Subject: [rtc-linux] Pending RTC patches for imx/mxs
+Message-ID: <20151101184545.GE22331@piout.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <20151102004722.GI22331@piout.net>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -34,62 +22,32 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On Mon, 02 Nov 2015, Alexandre Belloni wrote:
+Steffen, Juergen,
 
-> On 02/11/2015 at 08:46:21 +0900, Krzysztof Kozlowski wrote :
-> > On 02.11.2015 02:40, Alexandre Belloni wrote:
-> > > On 30/10/2015 at 11:55:34 +0530, Alim Akhtar wrote :
-> > >> RTC found in s2mps15 is almost same as one found on s2mps13
-> > >> with few differences in RTC_UPDATE register fields, like:
-> > >> 1> Bit[4] and Bit[1] are reversed
-> > >>    - On s2mps13
-> > >>           WUDR -> bit[4], AUDR -> bit[1]
-> > >>    - On s2mps15
-> > >> 	  WUDR -> bit[1], AUDR -> bit[4]
-> > >> 2> In case of s2mps13, for alarm register, need to set both
-> > >>    WDUR and ADUR high, whereas for s2mps15 only set AUDR to high.
-> > >> 3> On s2mps15, WUDR, RUDR and AUDR functions should never be used
-> > >>    at the same time.
-> > >>
-> > >> This patch add required changes to enable s2mps15 rtc timer.
-> > >>
-> > >> Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-> > >> Signed-off-by: Alim Akhtar <alim.akhtar@samsung.com>
-> > >> ---
-> > >>  drivers/rtc/rtc-s5m.c           |   37 ++++++++++++++++++++++++++++=
-+++++----
-> > >>  include/linux/mfd/samsung/rtc.h |    2 ++
-> > >>  2 files changed, 35 insertions(+), 4 deletions(-)
-> > >>
-> > > Applied after fixing the small alignment issue, thanks.
-> > >=20
-> >=20
-> > I think you cannot apply it directly because it depends on headers from
-> > patch 2/4. It won't build.
-> >=20
->=20
-> Yeah, this depends on the mfd tree. I don't thin Lee applied patch 2/4
-> yet so I'm taking that one for 4.5.
+I have a few pending patches from 2013 that I'm not quite sure what to
+do with them. Could you spend a few minutes reviewing those changes and
+tell me if they are worth reviewing/rebasing/applying?
 
-I don't mind if you take it, but if you do so you need to take the
-Regulator patch as well AND provide Mark and I a pull-request from an
-immutable branch please.=20
+You'll find the list at:
+http://patchwork.ozlabs.org/project/rtc-linux/list/?submitter=15369
 
---=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+I think there is a comment from Shawn to address and I have a few
+comments also if you want to still push those.
 
---=20
---=20
+Thanks!
+
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
+
+-- 
+-- 
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
----=20
-You received this message because you are subscribed to the Google Groups "=
-rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an e=
-mail to rtc-linux+unsubscribe@googlegroups.com.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
