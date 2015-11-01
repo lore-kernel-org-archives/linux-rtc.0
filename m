@@ -1,25 +1,22 @@
-Return-Path: <rtc-linux+bncBDQ2L75W5QGBBOMEY6ZAKGQE2I6JPIA@googlegroups.com>
-Received: from mezzanine.sirena.org.uk (mezzanine.sirena.org.uk. [2400:8900::f03c:91ff:fedb:4f4])
-        by gmr-mx.google.com with ESMTPS id fg10si671238pad.0.2015.11.22.05.25.13
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=AES128-SHA bits=128/128);
-        Sun, 22 Nov 2015 05:25:13 -0800 (PST)
-Date: Sun, 22 Nov 2015 13:24:55 +0000
-From: Mark Brown <broonie@kernel.org>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBIM53GYQKGQE7AMOJMA@googlegroups.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id t72si376791wme.0.2015.11.01.09.40.49
+        for <rtc-linux@googlegroups.com>;
+        Sun, 01 Nov 2015 09:40:49 -0800 (PST)
+Date: Sun, 1 Nov 2015 18:40:48 +0100
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
 To: Alim Akhtar <alim.akhtar@samsung.com>
-Cc: lee.jones@linaro.org, k.kozlowski@samsung.com,
-	alexandre.belloni@free-electrons.com, linux-kernel@vger.kernel.org,
+Cc: lee.jones@linaro.org, broonie@kernel.org, k.kozlowski@samsung.com,
 	linux-samsung-soc@vger.kernel.org, rtc-linux@googlegroups.com,
-	Thomas Abraham <thomas.ab@samsung.com>
-Message-ID: <20151122132455.GP26072@sirena.org.uk>
-References: <1448015873-8743-1-git-send-email-alim.akhtar@samsung.com>
- <1448015873-8743-3-git-send-email-alim.akhtar@samsung.com>
+	linux-kernel@vger.kernel.org
+Subject: [rtc-linux] Re: [PATCH v5 4/4] drivers/rtc/rtc-s5m.c: add support for
+ S2MPS15 RTC
+Message-ID: <20151101174048.GD22331@piout.net>
+References: <1446186334-16510-1-git-send-email-alim.akhtar@samsung.com>
+ <1446186334-16510-5-git-send-email-alim.akhtar@samsung.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="e2bLSPRkEYxxSNev"
-In-Reply-To: <1448015873-8743-3-git-send-email-alim.akhtar@samsung.com>
-Subject: [rtc-linux] Re: [RESEND PATCH v5 2/3] regulator: s2mps11: add support
- for S2MPS15 regulators
+Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1446186334-16510-5-git-send-email-alim.akhtar@samsung.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -30,19 +27,34 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
---e2bLSPRkEYxxSNev
-Content-Type: text/plain; charset=UTF-8
-Content-Disposition: inline
-
-On Fri, Nov 20, 2015 at 04:07:52PM +0530, Alim Akhtar wrote:
-> From: Thomas Abraham <thomas.ab@samsung.com>
+On 30/10/2015 at 11:55:34 +0530, Alim Akhtar wrote :
+> RTC found in s2mps15 is almost same as one found on s2mps13
+> with few differences in RTC_UPDATE register fields, like:
+> 1> Bit[4] and Bit[1] are reversed
+>    - On s2mps13
+>           WUDR -> bit[4], AUDR -> bit[1]
+>    - On s2mps15
+> 	  WUDR -> bit[1], AUDR -> bit[4]
+> 2> In case of s2mps13, for alarm register, need to set both
+>    WDUR and ADUR high, whereas for s2mps15 only set AUDR to high.
+> 3> On s2mps15, WUDR, RUDR and AUDR functions should never be used
+>    at the same time.
 > 
-> The S2MPS15 PMIC is similar in functionality to S2MPS11/14 PMIC. It contains
-> 27 LDO and 10 Buck regulators and allows programming these regulators via a
-> I2C interface. This patch adds initial support for LDO/Buck regulators of
-> S2MPS15 PMIC.
+> This patch add required changes to enable s2mps15 rtc timer.
+> 
+> Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+> Signed-off-by: Alim Akhtar <alim.akhtar@samsung.com>
+> ---
+>  drivers/rtc/rtc-s5m.c           |   37 +++++++++++++++++++++++++++++++++----
+>  include/linux/mfd/samsung/rtc.h |    2 ++
+>  2 files changed, 35 insertions(+), 4 deletions(-)
+> 
+Applied after fixing the small alignment issue, thanks.
 
-Acked-by: Mark Brown <broonie@kernel.org>
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
 -- 
 -- 
@@ -54,20 +66,3 @@ before submitting a driver.
 You received this message because you are subscribed to the Google Groups "rtc-linux" group.
 To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
-
---e2bLSPRkEYxxSNev
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
-
-iQEcBAEBCAAGBQJWUcImAAoJECTWi3JdVIfQRfsH/0z7aVPEZ/0UewsXS6a1T+ck
-ZY5lIkR3J2SVWgNHkrJaXT+5sZGsq/gdpWCUsT1MCEXmNii8E9PporqFPS4OVwKf
-maBUu9zWAupBmXdf8YoXCq1DYE/GWDxp0nU/ouMn5O9MwQpyefNdsU3Vz8z/K2kx
-e5TLMvmWH8bDCR1H07GpSMD6Sc3DF9m2PGWMQZ9seS3GazuWZe0Es/Ut2XJUB8GW
-I4MbCekgdq3i6ehct/lx4ou4iLfuQn0wigDwlbvSLTXb3hDNZZbUmRAS0WvVCISU
-gbAT0cV2ah1/W8vTIvrpaBGnwTli2w7VGK3QYBHClq5bEhieSkIvNPr0WgkvdRI=
-=U7YO
------END PGP SIGNATURE-----
-
---e2bLSPRkEYxxSNev--
