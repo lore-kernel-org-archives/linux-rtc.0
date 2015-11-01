@@ -1,27 +1,22 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBNPR3SYQKGQEYTS3NGY@googlegroups.com>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBQU23GYQKGQEYPR3I5Q@googlegroups.com>
 Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id g9si478228wmd.2.2015.11.02.02.19.32
+        by gmr-mx.google.com with ESMTP id t2si379240wme.1.2015.11.01.09.34.57
         for <rtc-linux@googlegroups.com>;
-        Mon, 02 Nov 2015 02:19:32 -0800 (PST)
-Date: Mon, 2 Nov 2015 11:19:31 +0100
+        Sun, 01 Nov 2015 09:34:57 -0800 (PST)
+Date: Sun, 1 Nov 2015 18:34:57 +0100
 From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Lee Jones <lee.jones@linaro.org>
-Cc: Krzysztof Kozlowski <k.kozlowski@samsung.com>,
-	Alim Akhtar <alim.akhtar@samsung.com>, broonie@kernel.org,
-	linux-samsung-soc@vger.kernel.org, rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH v5 4/4] drivers/rtc/rtc-s5m.c: add support for
- S2MPS15 RTC
-Message-ID: <20151102101931.GK22331@piout.net>
-References: <1446186334-16510-1-git-send-email-alim.akhtar@samsung.com>
- <1446186334-16510-5-git-send-email-alim.akhtar@samsung.com>
- <20151101174048.GD22331@piout.net>
- <5636A44D.4090908@samsung.com>
- <20151102004722.GI22331@piout.net>
- <20151102090359.GR4058@x1>
+To: Krzysztof Kozlowski <k.kozlowski.k@gmail.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org, Donggeun Kim <dg77.kim@samsung.com>,
+	MyungJoo Ham <myungjoo.kim@samsung.com>,
+	KyungMin Park <kyungmin.park@samsung.com>
+Subject: [rtc-linux] Re: [PATCH v3] rtc: rtc-s3c: Set year, month, day value
+ for setting alarm
+Message-ID: <20151101173457.GC22331@piout.net>
+References: <1446378544-18020-1-git-send-email-k.kozlowski.k@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <20151102090359.GR4058@x1>
+In-Reply-To: <1446378544-18020-1-git-send-email-k.kozlowski.k@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -32,23 +27,21 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On 02/11/2015 at 09:03:59 +0000, Lee Jones wrote :
-> > > I think you cannot apply it directly because it depends on headers from
-> > > patch 2/4. It won't build.
-> > > 
-> > 
-> > Yeah, this depends on the mfd tree. I don't thin Lee applied patch 2/4
-> > yet so I'm taking that one for 4.5.
+On 01/11/2015 at 20:49:04 +0900, Krzysztof Kozlowski wrote :
+> This patch sets year, month, day value for set_alarm function.
+> The current driver omits to set the values.
 > 
-> I don't mind if you take it, but if you do so you need to take the
-> Regulator patch as well AND provide Mark and I a pull-request from an
-> immutable branch please. 
+> This fixes setting wake alarm for dates different than current day.
+> Without the patch the alarm scheduled for tomorrow would fire today on
+> chosen time.
 > 
-
-Actually, I was thinking that you would take 2/4 through your tree and I
-would either base myself on that or delay the patch for 4.5. You could
-also take the rtc patch if you plan to apply 2/4, feel free to add my
-acked-by.
+> Signed-off-by: Donggeun Kim <dg77.kim@samsung.com>
+> Signed-off-by: MyungJoo Ham <myungjoo.kim@samsung.com>
+> Signed-off-by: KyungMin Park <kyungmin.park@samsung.com>
+> [k.kozlowski: Rebase and test the patch, update commit message]
+> Signed-off-by: Krzysztof Kozlowski <k.kozlowski.k@gmail.com>
+> 
+Applied, many thanks for your reviews.
 
 -- 
 Alexandre Belloni, Free Electrons
