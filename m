@@ -1,68 +1,62 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRB2HA4GZAKGQE7M6PN5A@googlegroups.com>
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id d185si238583wmf.0.2015.11.27.07.01.59
-        for <rtc-linux@googlegroups.com>;
-        Fri, 27 Nov 2015 07:01:59 -0800 (PST)
-Date: Fri, 27 Nov 2015 16:01:58 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Enrico Scholz <enrico.scholz@sigma-chemnitz.de>
-Cc: rtc-linux@googlegroups.com, Alessandro Zummo <a.zummo@towertech.it>,
-	Support Opensource <support.opensource@diasemi.com>
-Subject: [rtc-linux] Re: [PATCH] rtc-da9063: avoid writing undefined data to rtc
-Message-ID: <20151127150158.GC4268@piout.net>
-References: <1448625775-15531-1-git-send-email-enrico.scholz@sigma-chemnitz.de>
+Return-Path: <rtc-linux+bncBDKZNNNLXAHBBV7S26YQKGQELXAD7QQ@googlegroups.com>
+Received: from mail-pa0-x22d.google.com (mail-pa0-x22d.google.com. [2607:f8b0:400e:c03::22d])
+        by gmr-mx.google.com with ESMTPS id el2si1512457pbb.0.2015.11.01.03.36.55
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Sun, 01 Nov 2015 03:36:55 -0800 (PST)
+Received: by mail-pa0-x22d.google.com with SMTP id fv9so123588528pac.3
+        for <rtc-linux@googlegroups.com>; Sun, 01 Nov 2015 03:36:55 -0800 (PST)
+Sender: rtc-linux@googlegroups.com
+Subject: [rtc-linux] Re: Pending rtc-s3c patches
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+ Kukjin Kim <kgene.kim@samsung.com>
+References: <20151028101449.GA13014@piout.net>
+Cc: k.kozlowski.k@gmail.com, linux-samsung-soc@vger.kernel.org,
+ rtc-linux@googlegroups.com
+From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+Message-ID: <5635F953.6080702@samsung.com>
+Date: Sun, 1 Nov 2015 20:36:51 +0900
 MIME-Version: 1.0
+In-Reply-To: <20151028101449.GA13014@piout.net>
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1448625775-15531-1-git-send-email-enrico.scholz@sigma-chemnitz.de>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
 List-Archive: <http://groups.google.com/group/rtc-linux
-Sender: rtc-linux@googlegroups.com
 List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Hi,
-
-On 27/11/2015 at 13:02:55 +0100, Enrico Scholz wrote :
-> driver did
+W dniu 28.10.2015 o 19:14, Alexandre Belloni pisze:
+> Hi,
 > 
-> | static void da9063_tm_to_data(struct rtc_time *tm, u8 *data,
-> | {
-> |  	const struct da9063_compatible_rtc_regmap *config = rtc->config;
-> |
-> | 	data[RTC_SEC] &= ~config->rtc_count_sec_mask;
-> | 	data[RTC_SEC] |= tm->tm_sec & config->rtc_count_sec_mask;
-> | ...
-> | }
-> | ...
-> | static int da9063_rtc_set_time(struct device *dev, struct rtc_time *tm)
-> | {
-> |       ...
-> |	u8 data[RTC_DATA_LEN];
-> |	int ret;
-> |
-> |	da9063_tm_to_data(tm, data, rtc);
+> There are three pending patches (from 2010 and 2011) for rtc-s3c. I'd
+> like to get an update and either drop or apply those.
 > 
-> which means that some bits of stack content (in 'data[]') was masked out
-> and written to the RTC.
+> Can someone take a few minutes to review them?
 > 
-> Because da9063_tm_to_data() is used only by da9063_rtc_set_time() and
-> da9063_rtc_set_alarm(), we can write fields directly.
-> 
+> The patches are:
+> http://patchwork.ozlabs.org/patch/71318/
 
-Unfortunately, the datasheets are behind a register wall and I can't
-check. Is there any meaningful bits mixed in the date/time registers?
+This is not needed. The pie_lock (replacing s3c_rtc_pie_lock) protects
+set_freq() which:
+1. is called only during probe;
+2. is accessing different registers than s3c_rtc_setaie().
 
-I think this was intended to keep those bits to their previous value but
-this is not yet implemented.
 
--- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+> http://patchwork.ozlabs.org/patch/99857/
+
+This is good although does not apply cleanly. I rebased, tested and send
+the patch.
+
+> http://patchwork.ozlabs.org/patch/101732/
+
+This does not look good. Code is actually used so commit description
+does not match current state. I think you can ignore it.
+
+Best regards,
+Krzysztof
 
 -- 
 -- 
