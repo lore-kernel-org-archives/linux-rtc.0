@@ -1,24 +1,26 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBG7F3KYQKGQEQACOIOQ@googlegroups.com>
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id t72si411142wme.0.2015.11.01.16.47.23
-        for <rtc-linux@googlegroups.com>;
-        Sun, 01 Nov 2015 16:47:23 -0800 (PST)
-Date: Mon, 2 Nov 2015 01:47:22 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-Cc: Alim Akhtar <alim.akhtar@samsung.com>, lee.jones@linaro.org,
-	broonie@kernel.org, linux-samsung-soc@vger.kernel.org,
-	rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH v5 4/4] drivers/rtc/rtc-s5m.c: add support for
- S2MPS15 RTC
-Message-ID: <20151102004722.GI22331@piout.net>
-References: <1446186334-16510-1-git-send-email-alim.akhtar@samsung.com>
- <1446186334-16510-5-git-send-email-alim.akhtar@samsung.com>
- <20151101174048.GD22331@piout.net>
- <5636A44D.4090908@samsung.com>
+Return-Path: <rtc-linux+bncBDKZNNNLXAHBBIPV26YQKGQEZLXT46A@googlegroups.com>
+Received: from mail-pa0-x22c.google.com (mail-pa0-x22c.google.com. [2607:f8b0:400e:c03::22c])
+        by gmr-mx.google.com with ESMTPS id sm2si1395020pab.0.2015.11.01.03.42.24
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Sun, 01 Nov 2015 03:42:24 -0800 (PST)
+Received: by pasz6 with SMTP id z6so118680047pas.2
+        for <rtc-linux@googlegroups.com>; Sun, 01 Nov 2015 03:42:24 -0800 (PST)
+Subject: [rtc-linux] Re: [PATCH v2] rtc: rtc-s3c: Set year, month, day value
+ for setting alarm
+To: Alessandro Zummo <a.zummo@towertech.it>,
+ Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+ rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org
+References: <1446378002-8343-1-git-send-email-k.kozlowski.k@gmail.com>
+Cc: Donggeun Kim <dg77.kim@samsung.com>,
+ MyungJoo Ham <myungjoo.kim@samsung.com>,
+ KyungMin Park <kyungmin.park@samsung.com>
+From: Krzysztof Kozlowski <k.kozlowski.k@gmail.com>
+Message-ID: <5635FA9C.6020206@gmail.com>
+Date: Sun, 1 Nov 2015 20:42:20 +0900
 MIME-Version: 1.0
+In-Reply-To: <1446378002-8343-1-git-send-email-k.kozlowski.k@gmail.com>
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <5636A44D.4090908@samsung.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -29,44 +31,77 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On 02/11/2015 at 08:46:21 +0900, Krzysztof Kozlowski wrote :
-> On 02.11.2015 02:40, Alexandre Belloni wrote:
-> > On 30/10/2015 at 11:55:34 +0530, Alim Akhtar wrote :
-> >> RTC found in s2mps15 is almost same as one found on s2mps13
-> >> with few differences in RTC_UPDATE register fields, like:
-> >> 1> Bit[4] and Bit[1] are reversed
-> >>    - On s2mps13
-> >>           WUDR -> bit[4], AUDR -> bit[1]
-> >>    - On s2mps15
-> >> 	  WUDR -> bit[1], AUDR -> bit[4]
-> >> 2> In case of s2mps13, for alarm register, need to set both
-> >>    WDUR and ADUR high, whereas for s2mps15 only set AUDR to high.
-> >> 3> On s2mps15, WUDR, RUDR and AUDR functions should never be used
-> >>    at the same time.
-> >>
-> >> This patch add required changes to enable s2mps15 rtc timer.
-> >>
-> >> Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-> >> Signed-off-by: Alim Akhtar <alim.akhtar@samsung.com>
-> >> ---
-> >>  drivers/rtc/rtc-s5m.c           |   37 +++++++++++++++++++++++++++++++++----
-> >>  include/linux/mfd/samsung/rtc.h |    2 ++
-> >>  2 files changed, 35 insertions(+), 4 deletions(-)
-> >>
-> > Applied after fixing the small alignment issue, thanks.
-> > 
+W dniu 01.11.2015 o 20:40, Krzysztof Kozlowski pisze:
+> From: Donggeun Kim <dg77.kim@samsung.com>
 > 
-> I think you cannot apply it directly because it depends on headers from
-> patch 2/4. It won't build.
+> This patch sets year, month, day value for set_alarm function.
+> The current driver omits to set the values.
 > 
+> This fixes setting wake alarm for dates different than current day.
+> Without the patch the alarm scheduled for tomorrow would fire today on
+> chosen time.
+> 
+> Signed-off-by: Donggeun Kim <dg77.kim@samsung.com>
+> Signed-off-by: MyungJoo Ham <myungjoo.kim@samsung.com>
+> Signed-off-by: KyungMin Park <kyungmin.park@samsung.com>
+> [k.kozlowski: Rebase and test the patch, update commit message]
+> Signed-off-by: Krzysztof Kozlowski <k.kozlowski.k@gmail.com>
+> ---
+>  drivers/rtc/rtc-s3c.c | 17 +++++++++++++++++
+>  1 file changed, 17 insertions(+)
+> 
+> diff --git a/drivers/rtc/rtc-s3c.c b/drivers/rtc/rtc-s3c.c
+> index 7cc8f73a3fe8..5604ebbef222 100644
+> --- a/drivers/rtc/rtc-s3c.c
+> +++ b/drivers/rtc/rtc-s3c.c
+> @@ -149,6 +149,7 @@ static int s3c_rtc_setfreq(struct s3c_rtc *info, int freq)
+>  	if (!is_power_of_2(freq))
+>  		return -EINVAL;
+>  
+> +	WARN_ON(1);
 
-Yeah, this depends on the mfd tree. I don't thin Lee applied patch 2/4
-yet so I'm taking that one for 4.5.
+Ehhh, this is debug. Sorry for the noise.
 
--- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+These emails: dg77.kim@samsung.com and myungjoo.kim@samsung.com do not
+exist anymore. I'll replace the author with myself in that case.
+
+Best regards,
+Krzysztof
+
+>  	spin_lock_irq(&info->pie_lock);
+>  
+>  	if (info->data->set_freq)
+> @@ -302,6 +303,7 @@ static int s3c_rtc_setalarm(struct device *dev, struct rtc_wkalrm *alrm)
+>  	struct s3c_rtc *info = dev_get_drvdata(dev);
+>  	struct rtc_time *tm = &alrm->time;
+>  	unsigned int alrm_en;
+> +	int year = tm->tm_year - 100;
+>  
+>  	dev_dbg(dev, "s3c_rtc_setalarm: %d, %04d.%02d.%02d %02d:%02d:%02d\n",
+>  		 alrm->enabled,
+> @@ -328,6 +330,21 @@ static int s3c_rtc_setalarm(struct device *dev, struct rtc_wkalrm *alrm)
+>  		writeb(bin2bcd(tm->tm_hour), info->base + S3C2410_ALMHOUR);
+>  	}
+>  
+> +	if (year < 100 && year >= 0) {
+> +		alrm_en |= S3C2410_RTCALM_YEAREN;
+> +		writeb(bin2bcd(year), info->base + S3C2410_ALMYEAR);
+> +	}
+> +
+> +	if (tm->tm_mon < 12 && tm->tm_mon >= 0) {
+> +		alrm_en |= S3C2410_RTCALM_MONEN;
+> +		writeb(bin2bcd(tm->tm_mon + 1), info->base + S3C2410_ALMMON);
+> +	}
+> +
+> +	if (tm->tm_mday <= 31 && tm->tm_mday >= 1) {
+> +		alrm_en |= S3C2410_RTCALM_DAYEN;
+> +		writeb(bin2bcd(tm->tm_mday), info->base + S3C2410_ALMDATE);
+> +	}
+> +
+>  	dev_dbg(dev, "setting S3C2410_RTCALM to %08x\n", alrm_en);
+>  
+>  	writeb(alrm_en, info->base + S3C2410_RTCALM);
+> 
 
 -- 
 -- 
