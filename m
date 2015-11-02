@@ -1,28 +1,24 @@
-Return-Path: <rtc-linux+bncBAABBM7S2WZAKGQES3PLMPQ@googlegroups.com>
-Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de. [2001:67c:670:201:290:27ff:fe1d:cc33])
-        by gmr-mx.google.com with ESMTPS id k189si124327wmg.2.2015.11.25.01.02.43
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=AES128-SHA bits=128/128);
-        Wed, 25 Nov 2015 01:02:43 -0800 (PST)
-Date: Wed, 25 Nov 2015 10:02:36 +0100
-From: Steffen Trumtrar <s.trumtrar@pengutronix.de>
-To: Rob Herring <robh@kernel.org>
-Cc: Philipp Zabel <p.zabel@pengutronix.de>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Mark Rutland <mark.rutland@arm.com>, devicetree@vger.kernel.org,
-	rtc-linux@googlegroups.com, Pawel Moll <pawel.moll@arm.com>,
-	Ian Campbell <ijc+devicetree@hellion.org.uk>, kernel@pengutronix.de,
-	Kumar Gala <galak@codeaurora.org>
-Subject: [rtc-linux] Re: [PATCH 1/2] Documentation: devicetree: add epson
- rx6110 binding
-Message-ID: <20151125090236.GF14709@pengutronix.de>
-References: <1448361533-10728-1-git-send-email-s.trumtrar@pengutronix.de>
- <1448363561.3346.57.camel@pengutronix.de>
- <20151124235524.GB18195@rob-hp-laptop>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBG7F3KYQKGQEQACOIOQ@googlegroups.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id t72si411142wme.0.2015.11.01.16.47.23
+        for <rtc-linux@googlegroups.com>;
+        Sun, 01 Nov 2015 16:47:23 -0800 (PST)
+Date: Mon, 2 Nov 2015 01:47:22 +0100
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+Cc: Alim Akhtar <alim.akhtar@samsung.com>, lee.jones@linaro.org,
+	broonie@kernel.org, linux-samsung-soc@vger.kernel.org,
+	rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org
+Subject: [rtc-linux] Re: [PATCH v5 4/4] drivers/rtc/rtc-s5m.c: add support for
+ S2MPS15 RTC
+Message-ID: <20151102004722.GI22331@piout.net>
+References: <1446186334-16510-1-git-send-email-alim.akhtar@samsung.com>
+ <1446186334-16510-5-git-send-email-alim.akhtar@samsung.com>
+ <20151101174048.GD22331@piout.net>
+ <5636A44D.4090908@samsung.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <20151124235524.GB18195@rob-hp-laptop>
+In-Reply-To: <5636A44D.4090908@samsung.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -33,30 +29,44 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On Tue, Nov 24, 2015 at 05:55:24PM -0600, Rob Herring wrote:
-> On Tue, Nov 24, 2015 at 12:12:41PM +0100, Philipp Zabel wrote:
-> > Am Dienstag, den 24.11.2015, 11:38 +0100 schrieb Steffen Trumtrar:
-> > > Add the binding documentation for the Epson RX6110 RTC.
-> > > 
-> > > Signed-off-by: Steffen Trumtrar <s.trumtrar@pengutronix.de>
-> 
-> [...]
-> 
-> > > +Required properties:
-> > > +- compatible: should be: "epson,rtc-rx6110"
+On 02/11/2015 at 08:46:21 +0900, Krzysztof Kozlowski wrote :
+> On 02.11.2015 02:40, Alexandre Belloni wrote:
+> > On 30/10/2015 at 11:55:34 +0530, Alim Akhtar wrote :
+> >> RTC found in s2mps15 is almost same as one found on s2mps13
+> >> with few differences in RTC_UPDATE register fields, like:
+> >> 1> Bit[4] and Bit[1] are reversed
+> >>    - On s2mps13
+> >>           WUDR -> bit[4], AUDR -> bit[1]
+> >>    - On s2mps15
+> >> 	  WUDR -> bit[1], AUDR -> bit[4]
+> >> 2> In case of s2mps13, for alarm register, need to set both
+> >>    WDUR and ADUR high, whereas for s2mps15 only set AUDR to high.
+> >> 3> On s2mps15, WUDR, RUDR and AUDR functions should never be used
+> >>    at the same time.
+> >>
+> >> This patch add required changes to enable s2mps15 rtc timer.
+> >>
+> >> Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+> >> Signed-off-by: Alim Akhtar <alim.akhtar@samsung.com>
+> >> ---
+> >>  drivers/rtc/rtc-s5m.c           |   37 +++++++++++++++++++++++++++++++++----
+> >>  include/linux/mfd/samsung/rtc.h |    2 ++
+> >>  2 files changed, 35 insertions(+), 4 deletions(-)
+> >>
+> > Applied after fixing the small alignment issue, thanks.
 > > 
-> > Should this just be "epson,rx6110" ?
 > 
-> Yes.
+> I think you cannot apply it directly because it depends on headers from
+> patch 2/4. It won't build.
 > 
 
-Okay.
+Yeah, this depends on the mfd tree. I don't thin Lee applied patch 2/4
+yet so I'm taking that one for 4.5.
 
 -- 
-Pengutronix e.K.                           |                             |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
-Peiner Str. 6-8, 31137 Hildesheim, Germany | Phone: +49-5121-206917-0    |
-Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
 -- 
 -- 
