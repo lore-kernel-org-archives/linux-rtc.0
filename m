@@ -1,27 +1,20 @@
-Return-Path: <rtc-linux+bncBAABBTXL3SZAKGQEDC44KHI@googlegroups.com>
-Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de. [2001:67c:670:201:290:27ff:fe1d:cc33])
-        by gmr-mx.google.com with ESMTPS id 204si136854wmx.1.2015.11.26.08.39.42
+Return-Path: <rtc-linux+bncBDZJXP7F6YLRBT524GYQKGQEVZ4FOAI@googlegroups.com>
+Received: from mail2-relais-roc.national.inria.fr (mail2-relais-roc.national.inria.fr. [192.134.164.83])
+        by gmr-mx.google.com with ESMTPS id t2si606478wme.1.2015.11.02.23.07.58
         for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=AES128-SHA bits=128/128);
-        Thu, 26 Nov 2015 08:39:42 -0800 (PST)
-Date: Thu, 26 Nov 2015 17:39:36 +0100
-From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <u.kleine-koenig@pengutronix.de>
-To: Harald Geyer <harald@ccbib.org>
-Cc: Alessandro Zummo <a.zummo@towertech.it>, linux-watchdog@vger.kernel.org,
-	rtc-linux@googlegroups.com, Wolfram Sang <wsa@the-dreams.de>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	kernel@pengutronix.de, Fabio Estevam <festevam@gmail.com>,
-	Guenter Roeck <linux@roeck-us.net>
-Subject: [rtc-linux] Re: [PATCH 2/2] watchdog: stmp3xxx: Implement GETBOOTSTATUS
-Message-ID: <20151126163936.GO19888@pengutronix.de>
-References: <1444220352-20548-1-git-send-email-harald@ccbib.org>
- <1444220352-20548-2-git-send-email-harald@ccbib.org>
- <20151126092526.GM19888@pengutronix.de>
- <E1a1wm1-0000XO-S7@stardust.g4.wien.funkfeuer.at>
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 02 Nov 2015 23:07:59 -0800 (PST)
+Date: Tue, 3 Nov 2015 08:07:57 +0100 (CET)
+From: Julia Lawall <julia.lawall@lip6.fr>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+cc: kbuild-all@01.org, Alessandro Zummo <a.zummo@towertech.it>,
+    rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org
+Subject: [rtc-linux] Re: [PATCHv2] rtc: Add a driver for Micro Crystal RV8803
+In-Reply-To: <201511030710.GSjglrml%fengguang.wu@intel.com>
+Message-ID: <alpine.DEB.2.02.1511030806570.2043@localhost6.localdomain6>
+References: <201511030710.GSjglrml%fengguang.wu@intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <E1a1wm1-0000XO-S7@stardust.g4.wien.funkfeuer.at>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -32,47 +25,49 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Hello Harald,
+It looks like it is worth a check.
 
-On Thu, Nov 26, 2015 at 02:39:45PM +0100, Harald Geyer wrote:
-> Uwe Kleine-K=C3=B6nig writes:
-> > On Wed, Oct 07, 2015 at 12:19:12PM +0000, Harald Geyer wrote:
-> > > This device doesn't provide any information about boot status.
-> > > As workaround we use a persitent bit to track watchdog activity.
-> >=20
-> > Hmm, so you set a bit in a persistent register iff the watchdog is
-> > running.  And if that bit is set during probe you assume the watchdog
-> > reset the machine. But this also happens, when the user presses the
-> > reset button which makes the detection unreliable.
->=20
-> Yes, kind of. I'm using this driver on an imx233-olinuxino, where the
-> reset button causes the device to power cycle and thus clears the
-> persitent bit. So I can't test your case, but surely there are some paths
+julia
 
-So the rtc isn't properly battery backed? AFAIUI the persistent bits
-should survive a power cycle?! I think somewhere in our hardware
-repository at Pengutronix we have a machine where I can test that, I
-will check that.
+On Tue, 3 Nov 2015, kbuild test robot wrote:
 
-> into reset, that don't clear the bit and cause false positives.
-
-Best regards
-Uwe
-
---=20
-Pengutronix e.K.                           | Uwe Kleine-K=C3=B6nig         =
-   |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
-
---=20
---=20
-You received this message because you are subscribed to "rtc-linux".
-Membership options at http://groups.google.com/group/rtc-linux .
-Please read http://groups.google.com/group/rtc-linux/web/checklist
-before submitting a driver.
----=20
-You received this message because you are subscribed to the Google Groups "=
-rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an e=
-mail to rtc-linux+unsubscribe@googlegroups.com.
-For more options, visit https://groups.google.com/d/optout.
+> CC: kbuild-all@01.org
+> In-Reply-To: <1446504512-9079-1-git-send-email-alexandre.belloni@free-electrons.com>
+> TO: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+> CC: Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org, Alexandre Belloni <alexandre.belloni@free-electrons.com>
+> CC: rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org, Alexandre Belloni <alexandre.belloni@free-electrons.com>
+> 
+> Hi Alexandre,
+> 
+> [auto build test WARNING on abelloni/rtc-next -- if it's inappropriate base, please suggest rules for selecting the more suitable base]
+> 
+> url:    https://github.com/0day-ci/linux/commits/Alexandre-Belloni/rtc-Add-a-driver-for-Micro-Crystal-RV8803/20151103-065235
+> :::::: branch date: 51 minutes ago
+> :::::: commit date: 51 minutes ago
+> 
+> >> drivers/rtc/rtc-rv8803.c:244:2-8: preceding lock on line 240
+> 
+> git remote add linux-review https://github.com/0day-ci/linux
+> git remote update linux-review
+> git checkout f8c59e6bf4a130cb2f46cad981771dddecc406ff
+> vim +244 drivers/rtc/rtc-rv8803.c
+> 
+> f8c59e6b Alexandre Belloni 2015-11-02  234  		time64_t alarm_time = rtc_tm_to_time64(&alrm->time);
+> f8c59e6b Alexandre Belloni 2015-11-02  235  
+> f8c59e6b Alexandre Belloni 2015-11-02  236  		alarm_time += 60 - alrm->time.tm_sec;
+> f8c59e6b Alexandre Belloni 2015-11-02  237  		rtc_time64_to_tm(alarm_time, &alrm->time);
+> f8c59e6b Alexandre Belloni 2015-11-02  238  	}
+> f8c59e6b Alexandre Belloni 2015-11-02  239  
+> f8c59e6b Alexandre Belloni 2015-11-02 @240  	spin_lock_irqsave(&rv8803->flags_lock, irqflags);
+> f8c59e6b Alexandre Belloni 2015-11-02  241  
+> f8c59e6b Alexandre Belloni 2015-11-02  242  	ret = i2c_smbus_read_i2c_block_data(client, RV8803_FLAG, 2, ctrl);
+> f8c59e6b Alexandre Belloni 2015-11-02  243  	if (ret != 2)
+> f8c59e6b Alexandre Belloni 2015-11-02 @244  		return ret < 0 ? ret : -EIO;
+> f8c59e6b Alexandre Belloni 2015-11-02  245  
+> f8c59e6b Alexandre Belloni 2015-11-02  246  	alarmvals[0] = bin2bcd(alrm->time.tm_min);
+> f8c59e6b Alexandre Belloni 2015-11-02  247  	alarmvals[1] = bin2bcd(alrm->time.tm_hour);
+> 
+> ---
+> 0-DAY kernel test infrastructure                Open Source Technology Center
+> https://lists.01.org/pipermail/kbuild-all                   Intel Corporation
+> 
