@@ -1,21 +1,21 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRB2NX2OZAKGQETFPOYIY@googlegroups.com>
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id w187si90079wmw.1.2015.11.24.13.51.37
-        for <rtc-linux@googlegroups.com>;
-        Tue, 24 Nov 2015 13:51:37 -0800 (PST)
-Date: Tue, 24 Nov 2015 22:51:36 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Joshua Clayton <stillcompiling@gmail.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH 1/9] rtc-pcf2123: Document all registers and
- useful bits
-Message-ID: <20151124215136.GD3950@piout.net>
-References: <cover.1446587705.git.stillcompiling@gmail.com>
- <ad6500ca32145d4f0b9cbfbc4b815d734e2da5e8.1446587705.git.stillcompiling@gmail.com>
+Return-Path: <rtc-linux+bncBDZJXP7F6YLRBPH74GYQKGQEPWFAYTY@googlegroups.com>
+Received: from mail2-relais-roc.national.inria.fr (mail2-relais-roc.national.inria.fr. [192.134.164.83])
+        by gmr-mx.google.com with ESMTPS id vy6si2527334pbc.1.2015.11.03.01.34.51
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 03 Nov 2015 01:34:51 -0800 (PST)
+Date: Tue, 3 Nov 2015 10:34:45 +0100 (CET)
+From: Julia Lawall <julia.lawall@lip6.fr>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+cc: Julia Lawall <julia.lawall@lip6.fr>, kbuild-all@01.org,
+    Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
+    linux-kernel@vger.kernel.org
+Subject: [rtc-linux] Re: [PATCHv2] rtc: Add a driver for Micro Crystal RV8803
+In-Reply-To: <20151103093129.GS22331@piout.net>
+Message-ID: <alpine.DEB.2.10.1511031034071.2403@hadrien>
+References: <201511030710.GSjglrml%fengguang.wu@intel.com> <alpine.DEB.2.02.1511030806570.2043@localhost6.localdomain6> <20151103093129.GS22331@piout.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <ad6500ca32145d4f0b9cbfbc4b815d734e2da5e8.1446587705.git.stillcompiling@gmail.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -26,70 +26,70 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Hi,
+On Tue, 3 Nov 2015, Alexandre Belloni wrote:
 
-On 04/11/2015 at 07:36:32 -0800, Joshua Clayton wrote :
-> Document all 16 registers in the pcf2123, as well as
-> useful bit masks from the Control1 and seconds registers
-> 
-> Signed-off-by: Joshua Clayton <stillcompiling@gmail.com>
-> ---
->  drivers/rtc/rtc-pcf2123.c | 23 ++++++++++++++++++++++-
->  1 file changed, 22 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/rtc/rtc-pcf2123.c b/drivers/rtc/rtc-pcf2123.c
-> index d1953bb..7756210 100644
-> --- a/drivers/rtc/rtc-pcf2123.c
-> +++ b/drivers/rtc/rtc-pcf2123.c
-> @@ -47,6 +47,7 @@
->  
->  #define DRV_VERSION "0.6"
->  
-> +/* REGISTERS */
->  #define PCF2123_REG_CTRL1	(0x00)	/* Control Register 1 */
->  #define PCF2123_REG_CTRL2	(0x01)	/* Control Register 2 */
->  #define PCF2123_REG_SC		(0x02)	/* datetime */
-> @@ -56,7 +57,27 @@
->  #define PCF2123_REG_DW		(0x06)
->  #define PCF2123_REG_MO		(0x07)
->  #define PCF2123_REG_YR		(0x08)
-> -
-> +#define PCF2123_REG_ALRM_MN	(0x09)	/* Alarm Registers */
-> +#define PCF2123_REG_ALRM_HR	(0x0a)
-> +#define PCF2123_REG_ALRM_DM	(0x0b)
-> +#define PCF2123_REG_ALRM_DW	(0x0c)
-> +#define PCF2123_REG_OFFSET	(0x0d)	/* Clock Rate Offset Register */
-> +#define PCF2123_REG_TMR_CLKOUT	(0x0e)	/* Timer Registers */
-> +#define PCF2123_REG_CTDWN_TMR	(0x0f)
-> +#define PCF2123_REG_MAX		(PCF2123_REG_CTDWN_TMR)
-> +
-> +/* PCF2123_REG_CTRL1 BITS */
-> +#define CTRL1_CLEAR		(0x00)	/* Clear */
-> +#define CTRL1_CORRECTION_INT	(0x02)	/* Correction Interrupt */
-> +#define CTRL1_12_HOUR		(0x04)	/* 12 hour time */
-> +#define CTRL1_STOP		(0x20)	/* Stop the clock */
-> +#define CTRL1_SW_RESET		(0x58)	/* Software reset */
-> +#define CTRL1_EXT_TEST		(0x80)	/* External Clock Test mode */
-> +
-> +/* PCF2123_REG_SC BITS */
-> +#define OSC_HAS_STOPPED		(0x80)	/* Clock has been stopped */
-> +
+> On 03/11/2015 at 08:07:57 +0100, Julia Lawall wrote :
+> > It looks like it is worth a check.
+> >
+>
+> Indeed, I missed that one.
+>
+> Strangely, I didn't get that mail from the kbuild test robot (and the
+> list doesn't seem to have a copy either). Is that intended?
 
-Can you use the BIT() macro?
+Yes, they go to me first, I check if they look like real problems, and
+then forward them on to the mentioned people.
 
+julia
 
--- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
-
--- 
--- 
-You received this message because you are subscribed to "rtc-linux".
-Membership options at http://groups.google.com/group/rtc-linux .
-Please read http://groups.google.com/group/rtc-linux/web/checklist
-before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
-For more options, visit https://groups.google.com/d/optout.
+>
+> > julia
+> >
+> > On Tue, 3 Nov 2015, kbuild test robot wrote:
+> >
+> > > CC: kbuild-all@01.org
+> > > In-Reply-To: <1446504512-9079-1-git-send-email-alexandre.belloni@free-electrons.com>
+> > > TO: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+> > > CC: Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org, Alexandre Belloni <alexandre.belloni@free-electrons.com>
+> > > CC: rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org, Alexandre Belloni <alexandre.belloni@free-electrons.com>
+> > >
+> > > Hi Alexandre,
+> > >
+> > > [auto build test WARNING on abelloni/rtc-next -- if it's inappropriate base, please suggest rules for selecting the more suitable base]
+> > >
+> > > url:    https://github.com/0day-ci/linux/commits/Alexandre-Belloni/rtc-Add-a-driver-for-Micro-Crystal-RV8803/20151103-065235
+> > > :::::: branch date: 51 minutes ago
+> > > :::::: commit date: 51 minutes ago
+> > >
+> > > >> drivers/rtc/rtc-rv8803.c:244:2-8: preceding lock on line 240
+> > >
+> > > git remote add linux-review https://github.com/0day-ci/linux
+> > > git remote update linux-review
+> > > git checkout f8c59e6bf4a130cb2f46cad981771dddecc406ff
+> > > vim +244 drivers/rtc/rtc-rv8803.c
+> > >
+> > > f8c59e6b Alexandre Belloni 2015-11-02  234  		time64_t alarm_time = rtc_tm_to_time64(&alrm->time);
+> > > f8c59e6b Alexandre Belloni 2015-11-02  235
+> > > f8c59e6b Alexandre Belloni 2015-11-02  236  		alarm_time += 60 - alrm->time.tm_sec;
+> > > f8c59e6b Alexandre Belloni 2015-11-02  237  		rtc_time64_to_tm(alarm_time, &alrm->time);
+> > > f8c59e6b Alexandre Belloni 2015-11-02  238  	}
+> > > f8c59e6b Alexandre Belloni 2015-11-02  239
+> > > f8c59e6b Alexandre Belloni 2015-11-02 @240  	spin_lock_irqsave(&rv8803->flags_lock, irqflags);
+> > > f8c59e6b Alexandre Belloni 2015-11-02  241
+> > > f8c59e6b Alexandre Belloni 2015-11-02  242  	ret = i2c_smbus_read_i2c_block_data(client, RV8803_FLAG, 2, ctrl);
+> > > f8c59e6b Alexandre Belloni 2015-11-02  243  	if (ret != 2)
+> > > f8c59e6b Alexandre Belloni 2015-11-02 @244  		return ret < 0 ? ret : -EIO;
+> > > f8c59e6b Alexandre Belloni 2015-11-02  245
+> > > f8c59e6b Alexandre Belloni 2015-11-02  246  	alarmvals[0] = bin2bcd(alrm->time.tm_min);
+> > > f8c59e6b Alexandre Belloni 2015-11-02  247  	alarmvals[1] = bin2bcd(alrm->time.tm_hour);
+> > >
+> > > ---
+> > > 0-DAY kernel test infrastructure                Open Source Technology Center
+> > > https://lists.01.org/pipermail/kbuild-all                   Intel Corporation
+> > >
+>
+> --
+> Alexandre Belloni, Free Electrons
+> Embedded Linux, Kernel and Android engineering
+> http://free-electrons.com
+>
