@@ -1,25 +1,27 @@
-Return-Path: <rtc-linux+bncBDA7X7F2WUEBBL6FZSZAKGQEVYBRGWA@googlegroups.com>
-Received: from mail-wm0-x22d.google.com (mail-wm0-x22d.google.com. [2a00:1450:400c:c09::22d])
-        by gmr-mx.google.com with ESMTPS id e201si436784wma.3.2015.11.23.06.29.03
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 23 Nov 2015 06:29:03 -0800 (PST)
-Received: by mail-wm0-x22d.google.com with SMTP id v187so163351327wmv.1
-        for <rtc-linux@googlegroups.com>; Mon, 23 Nov 2015 06:29:03 -0800 (PST)
-Date: Mon, 23 Nov 2015 14:29:00 +0000
-From: Lee Jones <lee.jones@linaro.org>
-To: Alim Akhtar <alim.akhtar@samsung.com>
-Cc: broonie@kernel.org, k.kozlowski@samsung.com,
-	alexandre.belloni@free-electrons.com, linux-kernel@vger.kernel.org,
-	linux-samsung-soc@vger.kernel.org, rtc-linux@googlegroups.com
-Subject: [rtc-linux] [GIT PULL] Immutable branch between MFD, Regulator and RTC
-Message-ID: <20151123142900.GL3098@x1>
-References: <1448015873-8743-1-git-send-email-alim.akhtar@samsung.com>
- <20151123142737.GK3098@x1>
+Return-Path: <rtc-linux+bncBCNNJWF7RUMRBIWM5CYQKGQERX2GCGI@googlegroups.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <20151123142737.GK3098@x1>
+Received: from mail-pa0-x232.google.com (mail-pa0-x232.google.com. [2607:f8b0:400e:c03::232])
+        by gmr-mx.google.com with ESMTPS id fa8si182608pab.1.2015.11.04.07.37.05
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 04 Nov 2015 07:37:05 -0800 (PST)
+Received: by mail-pa0-x232.google.com with SMTP id fh17so56007588pab.0
+        for <rtc-linux@googlegroups.com>; Wed, 04 Nov 2015 07:37:05 -0800 (PST)
+From: Joshua Clayton <stillcompiling@gmail.com>
+To: Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org,
+	Joshua Clayton <stillcompiling@gmail.com>
+Subject: [rtc-linux] [PATCH 2/9] rtc-pcf2123: clean up reads from the chip
+Date: Wed,  4 Nov 2015 07:36:33 -0800
+Message-Id: <d13636dfaabcaf43d4409068bdd6b579d34b0de4.1446587705.git.stillcompiling@gmail.com>
+In-Reply-To: <cover.1446587705.git.stillcompiling@gmail.com>
+References: <cover.1446587705.git.stillcompiling@gmail.com>
+In-Reply-To: <cover.1446587705.git.stillcompiling@gmail.com>
+References: <cover.1446587705.git.stillcompiling@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -29,64 +31,109 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Better $SUBJECT for ya'll -- so it doesn't get lost in the noise.
+put read operations into a function.
+This makes the starting register more prominent and hides the delay.
 
-> Mark, Alexandre,
->=20
-> Enjoy!
->=20
-> The following changes since commit 1ec218373b8ebda821aec00bb156a9c94fad9c=
-d4:
->=20
->   Linux 4.4-rc2 (2015-11-22 16:45:59 -0800)
->=20
-> are available in the git repository at:
->=20
->   git://git.kernel.org/pub/scm/linux/kernel/git/lee/mfd.git tags/ib-mfd-r=
-egulator-rtc-v4.5
->=20
-> for you to fetch changes up to a65e5efa7c5faa8c320fe56cc351d47fcd006749:
->=20
->   rtc: s5m.c: Add support for S2MPS15 RTC (2015-11-23 10:34:38 +0000)
->=20
-> ----------------------------------------------------------------
-> Immutable branch between MFD, Regulator and RTC for the v4.5 merge window
->=20
-> ----------------------------------------------------------------
-> Alim Akhtar (1):
->       rtc: s5m.c: Add support for S2MPS15 RTC
->=20
-> Thomas Abraham (2):
->       mfd: sec: Add support for S2MPS15 PMIC
->       regulator: s2mps11: Add support for S2MPS15 regulators
->=20
->  drivers/mfd/sec-core.c              |  31 +++++
->  drivers/mfd/sec-irq.c               |   8 ++
->  drivers/regulator/Kconfig           |   4 +-
->  drivers/regulator/s2mps11.c         | 135 +++++++++++++++++-
->  drivers/rtc/rtc-s5m.c               |  37 ++++-
->  include/linux/mfd/samsung/core.h    |   1 +
->  include/linux/mfd/samsung/rtc.h     |   2 +
->  include/linux/mfd/samsung/s2mps15.h | 158 ++++++++++++++++++++++
->  8 files changed, 369 insertions(+), 7 deletions(-)
->  create mode 100644 include/linux/mfd/samsung/s2mps15.h
->=20
+Signed-off-by: Joshua Clayton <stillcompiling@gmail.com>
+---
+ drivers/rtc/rtc-pcf2123.c | 39 ++++++++++++++++++++++-----------------
+ 1 file changed, 22 insertions(+), 17 deletions(-)
 
---=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+diff --git a/drivers/rtc/rtc-pcf2123.c b/drivers/rtc/rtc-pcf2123.c
+index 7756210..648cb74 100644
+--- a/drivers/rtc/rtc-pcf2123.c
++++ b/drivers/rtc/rtc-pcf2123.c
+@@ -104,12 +104,26 @@ static inline void pcf2123_delay_trec(void)
+ 	ndelay(30);
+ }
+ 
++static int pcf2123_read(struct device *dev, u8 reg, u8 *rxbuf, size_t size)
++{
++	struct spi_device *spi = to_spi_device(dev);
++	int ret;
++
++	if (reg > PCF2123_REG_MAX)
++		return -EFAULT;
++
++	reg |= PCF2123_READ;
++	ret = spi_write_then_read(spi, &reg, 1, rxbuf, size);
++	pcf2123_delay_trec();
++
++	return ret;
++}
++
+ static ssize_t pcf2123_show(struct device *dev, struct device_attribute *attr,
+ 			    char *buffer)
+ {
+-	struct spi_device *spi = to_spi_device(dev);
+ 	struct pcf2123_sysfs_reg *r;
+-	u8 txbuf[1], rxbuf[1];
++	u8 rxbuf[1];
+ 	unsigned long reg;
+ 	int ret;
+ 
+@@ -119,11 +133,10 @@ static ssize_t pcf2123_show(struct device *dev, struct device_attribute *attr,
+ 	if (ret)
+ 		return ret;
+ 
+-	txbuf[0] = PCF2123_READ | reg;
+-	ret = spi_write_then_read(spi, txbuf, 1, rxbuf, 1);
++	ret = pcf2123_read(dev, reg, rxbuf, 1);
+ 	if (ret < 0)
+ 		return -EIO;
+-	pcf2123_delay_trec();
++
+ 	return sprintf(buffer, "0x%x\n", rxbuf[0]);
+ }
+ 
+@@ -158,16 +171,12 @@ static ssize_t pcf2123_store(struct device *dev, struct device_attribute *attr,
+ 
+ static int pcf2123_rtc_read_time(struct device *dev, struct rtc_time *tm)
+ {
+-	struct spi_device *spi = to_spi_device(dev);
+-	u8 txbuf[1], rxbuf[7];
++	u8 rxbuf[7];
+ 	int ret;
+ 
+-	txbuf[0] = PCF2123_READ | PCF2123_REG_SC;
+-	ret = spi_write_then_read(spi, txbuf, sizeof(txbuf),
+-			rxbuf, sizeof(rxbuf));
++	ret = pcf2123_read(dev, PCF2123_REG_SC, rxbuf, sizeof(rxbuf));
+ 	if (ret < 0)
+ 		return ret;
+-	pcf2123_delay_trec();
+ 
+ 	tm->tm_sec = bcd2bin(rxbuf[0] & 0x7F);
+ 	tm->tm_min = bcd2bin(rxbuf[1] & 0x7F);
+@@ -279,16 +288,12 @@ static int pcf2123_probe(struct spi_device *spi)
+ 	pcf2123_delay_trec();
+ 
+ 	/* See if the counter was actually stopped */
+-	txbuf[0] = PCF2123_READ | PCF2123_REG_CTRL1;
+-	dev_dbg(&spi->dev, "checking for presence of RTC (0x%02X)\n",
+-			txbuf[0]);
+-	ret = spi_write_then_read(spi, txbuf, 1 * sizeof(u8),
+-					rxbuf, 2 * sizeof(u8));
++	dev_dbg(&spi->dev, "checking for presence of RTC\n");
++	ret = pcf2123_read(&spi->dev, PCF2123_REG_CTRL1, rxbuf, sizeof(rxbuf));
+ 	dev_dbg(&spi->dev, "received data from RTC (0x%02X 0x%02X)\n",
+ 			rxbuf[0], rxbuf[1]);
+ 	if (ret < 0)
+ 		goto kfree_exit;
+-	pcf2123_delay_trec();
+ 
+ 	if (!(rxbuf[0] & 0x20)) {
+ 		dev_err(&spi->dev, "chip not found\n");
+-- 
+2.5.0
 
---=20
---=20
+-- 
+-- 
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
----=20
-You received this message because you are subscribed to the Google Groups "=
-rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an e=
-mail to rtc-linux+unsubscribe@googlegroups.com.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
