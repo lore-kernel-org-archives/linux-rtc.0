@@ -1,21 +1,22 @@
-Return-Path: <rtc-linux+bncBCNNJWF7RUMRBKGM5CYQKGQE7DUQOFQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBCNNJWF7RUMRBIGM5CYQKGQE4UFAY6A@googlegroups.com>
 MIME-Version: 1.0
-Received: from mail-pa0-x232.google.com (mail-pa0-x232.google.com. [2607:f8b0:400e:c03::232])
-        by gmr-mx.google.com with ESMTPS id fa8si182608pab.1.2015.11.04.07.37.11
+Received: from mail-pa0-x22d.google.com (mail-pa0-x22d.google.com. [2607:f8b0:400e:c03::22d])
+        by gmr-mx.google.com with ESMTPS id el2si190828pbb.0.2015.11.04.07.37.04
         for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 04 Nov 2015 07:37:11 -0800 (PST)
-Received: by mail-pa0-x232.google.com with SMTP id fh17so56007588pab.0
-        for <rtc-linux@googlegroups.com>; Wed, 04 Nov 2015 07:37:11 -0800 (PST)
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 04 Nov 2015 07:37:04 -0800 (PST)
+Received: by mail-pa0-x22d.google.com with SMTP id z6so57706706pas.2
+        for <rtc-linux@googlegroups.com>; Wed, 04 Nov 2015 07:37:04 -0800 (PST)
 From: Joshua Clayton <stillcompiling@gmail.com>
 To: Alessandro Zummo <a.zummo@towertech.it>,
 	Alexandre Belloni <alexandre.belloni@free-electrons.com>
 Cc: rtc-linux@googlegroups.com,
 	linux-kernel@vger.kernel.org,
 	Joshua Clayton <stillcompiling@gmail.com>
-Subject: [rtc-linux] [PATCH 6/9] rtc-pcf2123: avoid resetting the clock if possible
-Date: Wed,  4 Nov 2015 07:36:37 -0800
-Message-Id: <f801d4f26d4c4944b1a5353d5b5fde4e507b45b2.1446587705.git.stillcompiling@gmail.com>
+Subject: [rtc-linux] [PATCH 1/9] rtc-pcf2123: Document all registers and
+ useful bits
+Date: Wed,  4 Nov 2015 07:36:32 -0800
+Message-Id: <ad6500ca32145d4f0b9cbfbc4b815d734e2da5e8.1446587705.git.stillcompiling@gmail.com>
 In-Reply-To: <cover.1446587705.git.stillcompiling@gmail.com>
 References: <cover.1446587705.git.stillcompiling@gmail.com>
 In-Reply-To: <cover.1446587705.git.stillcompiling@gmail.com>
@@ -31,83 +32,55 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-pcf2123 data sheet recommends a software reset when the chip
-is first powered on. This change avoids resetting the chip
-every time the driver is loaded, which has some negative effects.
-
-There are several registers including a clock rate adjustment that really
-should survive a reload of the driver (or reboot).
-
-In addition, stopping and restarting the clock to verify the chip is
-there is not a good thing once the time is set.
-
-According to the data sheet, the seconds register has a 1 in
-the high bit when the voltage has gotten low. We check for this
-condition, as well as whether the time retrieved from the chip is
-valid. We reset the rtc only if the time is not reliable and valid.
-This is sufficient for checking for the presence of the chip,
-as either all zeros or all 0xff will result in an invalid time/date
+Document all 16 registers in the pcf2123, as well as
+useful bit masks from the Control1 and seconds registers
 
 Signed-off-by: Joshua Clayton <stillcompiling@gmail.com>
 ---
- drivers/rtc/rtc-pcf2123.c | 37 +++++++++++++++++++++++++++++++++----
- 1 file changed, 33 insertions(+), 4 deletions(-)
+ drivers/rtc/rtc-pcf2123.c | 23 ++++++++++++++++++++++-
+ 1 file changed, 22 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/rtc/rtc-pcf2123.c b/drivers/rtc/rtc-pcf2123.c
-index d3c1447..4964d5c 100644
+index d1953bb..7756210 100644
 --- a/drivers/rtc/rtc-pcf2123.c
 +++ b/drivers/rtc/rtc-pcf2123.c
-@@ -260,6 +260,33 @@ static int pcf2123_rtc_set_time(struct device *dev, struct rtc_time *tm)
- 	return 0;
- }
+@@ -47,6 +47,7 @@
  
-+static bool pcf2123_time_valid(struct device *dev)
-+{
-+	u8 seconds;
-+	struct rtc_time tm;
-+	int ret;
-+
-+	ret = pcf2123_read(dev, PCF2123_REG_SC, &seconds, 1);
-+	if (ret < 0)
-+		return false;
-+
-+	if (seconds & OSC_HAS_STOPPED) {
-+		dev_info(dev, "clock was stopped. seconds: 0x%02X\n", seconds);
-+		return false;
-+	}
-+
-+	ret = pcf2123_rtc_read_time(dev, &tm);
-+	if (ret < 0)
-+		return false;
-+
-+	if (rtc_valid_tm(&tm) < 0) {
-+		dev_err(dev, "retrieved date/time is not valid.\n");
-+		return false;
-+	}
-+
-+	return true;
-+}
-+
- static int pcf2123_reset(struct device *dev)
- {
- 	int ret;
-@@ -311,10 +338,12 @@ static int pcf2123_probe(struct spi_device *spi)
- 		return -ENOMEM;
- 	spi->dev.platform_data = pdata;
+ #define DRV_VERSION "0.6"
  
--	ret = pcf2123_reset(&spi->dev);
--	if (ret < 0) {
--		dev_err(&spi->dev, "chip not found\n");
--		goto kfree_exit;
-+	if (!pcf2123_time_valid(&spi->dev)) {
-+		ret = pcf2123_reset(&spi->dev);
-+		if (ret < 0) {
-+			dev_err(&spi->dev, "chip not found\n");
-+			goto kfree_exit;
-+		}
- 	}
- 
- 	dev_info(&spi->dev, "chip found, driver version " DRV_VERSION "\n");
++/* REGISTERS */
+ #define PCF2123_REG_CTRL1	(0x00)	/* Control Register 1 */
+ #define PCF2123_REG_CTRL2	(0x01)	/* Control Register 2 */
+ #define PCF2123_REG_SC		(0x02)	/* datetime */
+@@ -56,7 +57,27 @@
+ #define PCF2123_REG_DW		(0x06)
+ #define PCF2123_REG_MO		(0x07)
+ #define PCF2123_REG_YR		(0x08)
+-
++#define PCF2123_REG_ALRM_MN	(0x09)	/* Alarm Registers */
++#define PCF2123_REG_ALRM_HR	(0x0a)
++#define PCF2123_REG_ALRM_DM	(0x0b)
++#define PCF2123_REG_ALRM_DW	(0x0c)
++#define PCF2123_REG_OFFSET	(0x0d)	/* Clock Rate Offset Register */
++#define PCF2123_REG_TMR_CLKOUT	(0x0e)	/* Timer Registers */
++#define PCF2123_REG_CTDWN_TMR	(0x0f)
++#define PCF2123_REG_MAX		(PCF2123_REG_CTDWN_TMR)
++
++/* PCF2123_REG_CTRL1 BITS */
++#define CTRL1_CLEAR		(0x00)	/* Clear */
++#define CTRL1_CORRECTION_INT	(0x02)	/* Correction Interrupt */
++#define CTRL1_12_HOUR		(0x04)	/* 12 hour time */
++#define CTRL1_STOP		(0x20)	/* Stop the clock */
++#define CTRL1_SW_RESET		(0x58)	/* Software reset */
++#define CTRL1_EXT_TEST		(0x80)	/* External Clock Test mode */
++
++/* PCF2123_REG_SC BITS */
++#define OSC_HAS_STOPPED		(0x80)	/* Clock has been stopped */
++
++/* READ/WRITE ADDRESS BITS */
+ #define PCF2123_SUBADDR		(1 << 4)
+ #define PCF2123_WRITE		((0 << 7) | PCF2123_SUBADDR)
+ #define PCF2123_READ		((1 << 7) | PCF2123_SUBADDR)
 -- 
 2.5.0
 
