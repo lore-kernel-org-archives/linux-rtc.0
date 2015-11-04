@@ -1,23 +1,19 @@
-Return-Path: <rtc-linux+bncBDJIP47K7MERBSGV6SYQKGQEVYTON6Q@googlegroups.com>
-Received: from mail.kernel.org (mail.kernel.org. [198.145.29.136])
-        by gmr-mx.google.com with ESMTP id el2si278173pbb.0.2015.11.06.14.33.44
-        for <rtc-linux@googlegroups.com>;
-        Fri, 06 Nov 2015 14:33:44 -0800 (PST)
-Date: Fri, 6 Nov 2015 16:33:39 -0600
-From: Rob Herring <robh@kernel.org>
-To: Alim Akhtar <alim.akhtar@samsung.com>
-Cc: lee.jones@linaro.org, broonie@kernel.org, k.kozlowski@samsung.com,
-	linux-samsung-soc@vger.kernel.org, rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org,
-	Thomas Abraham <thomas.ab@samsung.com>, devicetree@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH v5 1/4] dt-bindings: mfd: s2mps11: add
- documentation for s2mps15 PMIC
-Message-ID: <20151106223339.GA22411@rob-hp-laptop>
-References: <1446186334-16510-1-git-send-email-alim.akhtar@samsung.com>
- <1446186334-16510-2-git-send-email-alim.akhtar@samsung.com>
+Return-Path: <rtc-linux+bncBAABBO7A42YQKGQEVZ5BLKA@googlegroups.com>
+Received: from na01-bn1-obe.outbound.protection.outlook.com (mail-bn1bon0096.outbound.protection.outlook.com. [157.56.111.96])
+        by gmr-mx.google.com with ESMTPS id sm2si2007pab.0.2015.11.03.23.14.02
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
+        Tue, 03 Nov 2015 23:14:03 -0800 (PST)
+From: Soren Brinkmann <soren.brinkmann@xilinx.com>
+To: Alessandro Zummo <a.zummo@towertech.it>, Alexandre Belloni
+	<alexandre.belloni@free-electrons.com>
+CC: <rtc-linux@googlegroups.com>, <linux-kernel@vger.kernel.org>, "Soren
+ Brinkmann" <soren.brinkmann@xilinx.com>
+Subject: [rtc-linux] [PATCH] rtc: Group Kconfig entries by vendor
+Date: Tue, 3 Nov 2015 23:13:46 -0800
+Message-ID: <1446621226-28429-1-git-send-email-soren.brinkmann@xilinx.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1446186334-16510-2-git-send-email-alim.akhtar@samsung.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -28,56 +24,182 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On Fri, Oct 30, 2015 at 11:55:31AM +0530, Alim Akhtar wrote:
-> From: Thomas Abraham <thomas.ab@samsung.com>
-> 
-> Add dt-binding documentation for s2mps15 PMIC device. The s2mps15 device
-> is similar to s2mps11/14 PMIC device and has 27 LDO and 10 buck regulators.
-> This also supports RTC and three 32.768KHz clock outputs.
-> 
-> Cc: devicetree@vger.kernel.org
-> Signed-off-by: Thomas Abraham <thomas.ab@samsung.com>
-> Signed-off-by: Alim Akhtar <alim.akhtar@samsung.com>
-> ---
->  Documentation/devicetree/bindings/mfd/s2mps11.txt |   21 ++++++++++++++-------
->  1 file changed, 14 insertions(+), 7 deletions(-)
-> 
-> diff --git a/Documentation/devicetree/bindings/mfd/s2mps11.txt b/Documentation/devicetree/bindings/mfd/s2mps11.txt
-> index 890f0b0e1643..4c0543ceec25 100644
-> --- a/Documentation/devicetree/bindings/mfd/s2mps11.txt
-> +++ b/Documentation/devicetree/bindings/mfd/s2mps11.txt
-> @@ -1,5 +1,5 @@
->  
-> -* Samsung S2MPS11, S2MPS13, S2MPS14 and S2MPU02 Voltage and Current Regulator
-> +* Samsung S2MPS11/13/14/15 and S2MPU02 Voltage and Current Regulator
->  
->  The Samsung S2MPS11 is a multi-function device which includes voltage and
->  current regulators, RTC, charger controller and other sub-blocks. It is
-> @@ -7,8 +7,12 @@ interfaced to the host controller using an I2C interface. Each sub-block is
->  addressed by the host system using different I2C slave addresses.
->  
->  Required properties:
-> -- compatible: Should be "samsung,s2mps11-pmic" or "samsung,s2mps13-pmic"
-> -	      or "samsung,s2mps14-pmic" or "samsung,s2mpu02-pmic".
-> +- compatible: Should be one of the following
-> +	- "samsung,s2mps11-pmic"
-> +	- "samsung,s2mps13-pmic"
-> +	- "samsung,s2mps14-pmic"
-> +	- "samsung,s2mps15-pmic"
-> +	- "samsung,s2mpu02-pmic".
->  - reg: Specifies the I2C slave address of the pmic block. It should be 0x66.
->  
->  Optional properties:
-> @@ -24,7 +28,7 @@ Optional properties:
->    unwanted buck warm reset (setting buck voltages to default values).
->  
->  Optional nodes:
-> -- clocks: s2mps11, s2mps13 and s5m8767 provide three(AP/CP/BT) buffered 32.768
-> +- clocks: s2mps11, s2mps13, s2mps15 and s5m8767 provide three(AP/CP/BT) buffered 32.768
+The RTC entries are mostly grouped by vendor. Move the few outliers in
+place.
+Also, change the one occurrence of 'nxp' to 'NXP' to make all NXP
+entries consistent.
 
-s5m8767 doesn't seem to be documented. Can you please fix or remove.
+Signed-off-by: Soren Brinkmann <soren.brinkmann@xilinx.com>
+---
+ drivers/rtc/Kconfig | 90 ++++++++++++++++++++++++++---------------------------
+ 1 file changed, 45 insertions(+), 45 deletions(-)
 
-Rob
+diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
+index 2a524244afec..ea7f43f12f69 100644
+--- a/drivers/rtc/Kconfig
++++ b/drivers/rtc/Kconfig
+@@ -325,16 +325,6 @@ config RTC_DRV_MAX77686
+ 	  This driver can also be built as a module. If so, the module
+ 	  will be called rtc-max77686.
+ 
+-config RTC_DRV_RK808
+-	tristate "Rockchip RK808 RTC"
+-	depends on MFD_RK808
+-	help
+-	  If you say yes here you will get support for the
+-	  RTC of RK808 PMIC.
+-
+-	  This driver can also be built as a module. If so, the module
+-	  will be called rk808-rtc.
+-
+ config RTC_DRV_MAX77802
+ 	tristate "Maxim 77802 RTC"
+ 	depends on MFD_MAX77686
+@@ -345,6 +335,16 @@ config RTC_DRV_MAX77802
+ 	  This driver can also be built as a module. If so, the module
+ 	  will be called rtc-max77802.
+ 
++config RTC_DRV_RK808
++	tristate "Rockchip RK808 RTC"
++	depends on MFD_RK808
++	help
++	  If you say yes here you will get support for the
++	  RTC of RK808 PMIC.
++
++	  This driver can also be built as a module. If so, the module
++	  will be called rk808-rtc.
++
+ config RTC_DRV_RS5C372
+ 	tristate "Ricoh R2025S/D, RS5C372A/B, RV5C386, RV5C387A"
+ 	help
+@@ -391,16 +391,6 @@ config RTC_DRV_X1205
+ 	  This driver can also be built as a module. If so, the module
+ 	  will be called rtc-x1205.
+ 
+-config RTC_DRV_PALMAS
+-	tristate "TI Palmas RTC driver"
+-	depends on MFD_PALMAS
+-	help
+-	  If you say yes here you get support for the RTC of TI PALMA series PMIC
+-	  chips.
+-
+-	  This driver can also be built as a module. If so, the module
+-	  will be called rtc-palma.
+-
+ config RTC_DRV_PCF2127
+ 	tristate "NXP PCF2127"
+ 	help
+@@ -419,6 +409,14 @@ config RTC_DRV_PCF8523
+ 	  This driver can also be built as a module. If so, the module
+ 	  will be called rtc-pcf8523.
+ 
++config RTC_DRV_PCF85063
++	tristate "NXP PCF85063"
++	help
++	  If you say yes here you get support for the PCF85063 RTC chip
++
++	  This driver can also be built as a module. If so, the module
++	  will be called rtc-pcf85063.
++
+ config RTC_DRV_PCF8563
+ 	tristate "Philips PCF8563/Epson RTC8564"
+ 	help
+@@ -429,14 +427,6 @@ config RTC_DRV_PCF8563
+ 	  This driver can also be built as a module. If so, the module
+ 	  will be called rtc-pcf8563.
+ 
+-config RTC_DRV_PCF85063
+-	tristate "nxp PCF85063"
+-	help
+-	  If you say yes here you get support for the PCF85063 RTC chip
+-
+-	  This driver can also be built as a module. If so, the module
+-	  will be called rtc-pcf85063.
+-
+ config RTC_DRV_PCF8583
+ 	tristate "Philips PCF8583"
+ 	help
+@@ -501,6 +491,16 @@ config RTC_DRV_TWL4030
+ 	  This driver can also be built as a module. If so, the module
+ 	  will be called rtc-twl.
+ 
++config RTC_DRV_PALMAS
++	tristate "TI Palmas RTC driver"
++	depends on MFD_PALMAS
++	help
++	  If you say yes here you get support for the RTC of TI PALMA series PMIC
++	  chips.
++
++	  This driver can also be built as a module. If so, the module
++	  will be called rtc-palma.
++
+ config RTC_DRV_TPS6586X
+ 	tristate "TI TPS6586X RTC driver"
+ 	depends on MFD_TPS6586X
+@@ -681,15 +681,6 @@ config RTC_DRV_DS1390
+ 	  This driver can also be built as a module. If so, the module
+ 	  will be called rtc-ds1390.
+ 
+-config RTC_DRV_MAX6902
+-	tristate "Maxim MAX6902"
+-	help
+-	  If you say yes here you will get support for the
+-	  Maxim MAX6902 SPI RTC chip.
+-
+-	  This driver can also be built as a module. If so, the module
+-	  will be called rtc-max6902.
+-
+ config RTC_DRV_R9701
+ 	tristate "Epson RTC-9701JE"
+ 	help
+@@ -699,6 +690,14 @@ config RTC_DRV_R9701
+ 	  This driver can also be built as a module. If so, the module
+ 	  will be called rtc-r9701.
+ 
++config RTC_DRV_RX4581
++	tristate "Epson RX-4581"
++	help
++	  If you say yes here you will get support for the Epson RX-4581.
++
++	  This driver can also be built as a module. If so the module
++	  will be called rtc-rx4581.
++
+ config RTC_DRV_RS5C348
+ 	tristate "Ricoh RS5C348A/B"
+ 	help
+@@ -708,6 +707,15 @@ config RTC_DRV_RS5C348
+ 	  This driver can also be built as a module. If so, the module
+ 	  will be called rtc-rs5c348.
+ 
++config RTC_DRV_MAX6902
++	tristate "Maxim MAX6902"
++	help
++	  If you say yes here you will get support for the
++	  Maxim MAX6902 SPI RTC chip.
++
++	  This driver can also be built as a module. If so, the module
++	  will be called rtc-max6902.
++
+ config RTC_DRV_DS3234
+ 	tristate "Maxim/Dallas DS3234"
+ 	help
+@@ -726,14 +734,6 @@ config RTC_DRV_PCF2123
+ 	  This driver can also be built as a module. If so, the module
+ 	  will be called rtc-pcf2123.
+ 
+-config RTC_DRV_RX4581
+-	tristate "Epson RX-4581"
+-	help
+-	  If you say yes here you will get support for the Epson RX-4581.
+-
+-	  This driver can also be built as a module. If so the module
+-	  will be called rtc-rx4581.
+-
+ config RTC_DRV_MCP795
+ 	tristate "Microchip MCP795"
+ 	help
+-- 
+2.6.2.3.ga463a5b
 
 -- 
 -- 
