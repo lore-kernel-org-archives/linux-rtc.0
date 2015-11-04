@@ -1,28 +1,27 @@
-Return-Path: <rtc-linux+bncBAABBG7S2WZAKGQEERGK3AA@googlegroups.com>
-Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de. [2001:67c:670:201:290:27ff:fe1d:cc33])
-        by gmr-mx.google.com with ESMTPS id q80si159668wmg.0.2015.11.25.01.02.18
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=AES128-SHA bits=128/128);
-        Wed, 25 Nov 2015 01:02:18 -0800 (PST)
-Date: Wed, 25 Nov 2015 10:02:14 +0100
-From: Steffen Trumtrar <s.trumtrar@pengutronix.de>
-To: Philipp Zabel <p.zabel@pengutronix.de>
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Mark Rutland <mark.rutland@arm.com>, devicetree@vger.kernel.org,
-	rtc-linux@googlegroups.com, Pawel Moll <pawel.moll@arm.com>,
-	Ian Campbell <ijc+devicetree@hellion.org.uk>,
-	Rob Herring <robh+dt@kernel.org>, kernel@pengutronix.de,
-	Kumar Gala <galak@codeaurora.org>
-Subject: [rtc-linux] Re: [PATCH 1/2] Documentation: devicetree: add epson
- rx6110 binding
-Message-ID: <20151125090214.GE14709@pengutronix.de>
-References: <1448361533-10728-1-git-send-email-s.trumtrar@pengutronix.de>
- <1448363561.3346.57.camel@pengutronix.de>
+Return-Path: <rtc-linux+bncBCNNJWF7RUMRBJWM5CYQKGQEWBCQ5AI@googlegroups.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1448363561.3346.57.camel@pengutronix.de>
+Received: from mail-pa0-x22d.google.com (mail-pa0-x22d.google.com. [2607:f8b0:400e:c03::22d])
+        by gmr-mx.google.com with ESMTPS id el2si190828pbb.0.2015.11.04.07.37.08
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 04 Nov 2015 07:37:08 -0800 (PST)
+Received: by mail-pa0-x22d.google.com with SMTP id z6so57706706pas.2
+        for <rtc-linux@googlegroups.com>; Wed, 04 Nov 2015 07:37:08 -0800 (PST)
+From: Joshua Clayton <stillcompiling@gmail.com>
+To: Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org,
+	Joshua Clayton <stillcompiling@gmail.com>
+Subject: [rtc-linux] [PATCH 4/9] rtc-pcf2123: replace magic numbers with defines
+Date: Wed,  4 Nov 2015 07:36:35 -0800
+Message-Id: <e239e183b907e072b2360a138f52fbdc201e1997.1446587705.git.stillcompiling@gmail.com>
+In-Reply-To: <cover.1446587705.git.stillcompiling@gmail.com>
+References: <cover.1446587705.git.stillcompiling@gmail.com>
+In-Reply-To: <cover.1446587705.git.stillcompiling@gmail.com>
+References: <cover.1446587705.git.stillcompiling@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -32,68 +31,72 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On Tue, Nov 24, 2015 at 12:12:41PM +0100, Philipp Zabel wrote:
-> Am Dienstag, den 24.11.2015, 11:38 +0100 schrieb Steffen Trumtrar:
-> > Add the binding documentation for the Epson RX6110 RTC.
-> > 
-> > Signed-off-by: Steffen Trumtrar <s.trumtrar@pengutronix.de>
-> > ---
-> > I'm not sure what the current policy for such simple SPI bindings is.
-> > Are they necessary?
-> 
-> Like for i2c there is trivial-devices.txt? Although in this case it's
-> not just a compatible. Here you have a certain spi configuration that is
-> necessary for the rtc to work.
-> 
-> >  .../devicetree/bindings/rtc/epson,rtc-rx6110.txt   | 25 ++++++++++++++++++++++
-> >  1 file changed, 25 insertions(+)
-> >  create mode 100644 Documentation/devicetree/bindings/rtc/epson,rtc-rx6110.txt
-> > 
-> > diff --git a/Documentation/devicetree/bindings/rtc/epson,rtc-rx6110.txt b/Documentation/devicetree/bindings/rtc/epson,rtc-rx6110.txt
-> > new file mode 100644
-> > index 000000000000..7ce7ae761657
-> > --- /dev/null
-> > +++ b/Documentation/devicetree/bindings/rtc/epson,rtc-rx6110.txt
-> > @@ -0,0 +1,25 @@
-> > +Epson RX6110 Real Time Clock
-> > +============================
-> > +
-> > +The Epson RX6110 can be used with SPI or I2C busses. The kind of
-> > +bus depends on the SPISEL pin and can not be configured via software.
-> > +
-> > +SPI mode
-> > +--------
-> > +
-> > +Required properties:
-> > +- compatible: should be: "epson,rtc-rx6110"
-> 
-> Should this just be "epson,rx6110" ?
-> 
-> > +- reg: chip select number
-> > +- spi-cs-high: RX6110 needs chipselect high
-> > +- spi-cpha: RX6110 works with SPI shifted clock phase
-> > +- spi-cpol: RX6110 works with SPI inverse clock polarity
-> > +
-> > +Example:
-> > +
-> > +	rtc: rtc@3 {
-> > +		compatible = "epson,rtc-rx6110"
-> > +		reg = <3>
-> > +		spi-cs-high;
-> > +		spi-cpba;
-> 
-> s/b/h/
+All of the magic numbers pertain to register CTRL1.
+document all the values in CTRL1 with defines from the datasheet
 
-I thought I copy-pasted this; seems I didn't =-o
+Signed-off-by: Joshua Clayton <stillcompiling@gmail.com>
+---
+ drivers/rtc/rtc-pcf2123.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-Thanks,
-Steffen
-
+diff --git a/drivers/rtc/rtc-pcf2123.c b/drivers/rtc/rtc-pcf2123.c
+index 3acb2c8..257ce7d 100644
+--- a/drivers/rtc/rtc-pcf2123.c
++++ b/drivers/rtc/rtc-pcf2123.c
+@@ -234,7 +234,7 @@ static int pcf2123_rtc_set_time(struct device *dev, struct rtc_time *tm)
+ 			tm->tm_mday, tm->tm_mon, tm->tm_year, tm->tm_wday);
+ 
+ 	/* Stop the counter first */
+-	ret = pcf2123_write_reg(dev, PCF2123_REG_CTRL1, 0x20);
++	ret = pcf2123_write_reg(dev, PCF2123_REG_CTRL1, CTRL1_STOP);
+ 	if (ret < 0)
+ 		return ret;
+ 
+@@ -253,7 +253,7 @@ static int pcf2123_rtc_set_time(struct device *dev, struct rtc_time *tm)
+ 		return ret;
+ 
+ 	/* Start the counter */
+-	ret = pcf2123_write_reg(dev, PCF2123_REG_CTRL1, 0x00);
++	ret = pcf2123_write_reg(dev, PCF2123_REG_CTRL1, CTRL1_CLEAR);
+ 	if (ret < 0)
+ 		return ret;
+ 
+@@ -280,13 +280,13 @@ static int pcf2123_probe(struct spi_device *spi)
+ 
+ 	/* Send a software reset command */
+ 	dev_dbg(&spi->dev, "resetting RTC\n");
+-	ret = pcf2123_write_reg(&spi->dev, PCF2123_REG_CTRL1, 0x58);
++	ret = pcf2123_write_reg(&spi->dev, PCF2123_REG_CTRL1, CTRL1_SW_RESET);
+ 	if (ret < 0)
+ 		goto kfree_exit;
+ 
+ 	/* Stop the counter */
+ 	dev_dbg(&spi->dev, "stopping RTC\n");
+-	ret = pcf2123_write_reg(&spi->dev, PCF2123_REG_CTRL1, 0x20);
++	ret = pcf2123_write_reg(&spi->dev, PCF2123_REG_CTRL1, CTRL1_STOP);
+ 	if (ret < 0)
+ 		goto kfree_exit;
+ 
+@@ -298,7 +298,7 @@ static int pcf2123_probe(struct spi_device *spi)
+ 	if (ret < 0)
+ 		goto kfree_exit;
+ 
+-	if (!(rxbuf[0] & 0x20)) {
++	if (!(rxbuf[0] & CTRL1_STOP)) {
+ 		dev_err(&spi->dev, "chip not found\n");
+ 		ret = -ENODEV;
+ 		goto kfree_exit;
+@@ -309,7 +309,7 @@ static int pcf2123_probe(struct spi_device *spi)
+ 			(spi->max_speed_hz + 500) / 1000);
+ 
+ 	/* Start the counter */
+-	ret = pcf2123_write_reg(&spi->dev, PCF2123_REG_CTRL1, 0x00);
++	ret = pcf2123_write_reg(&spi->dev, PCF2123_REG_CTRL1, CTRL1_CLEAR);
+ 	if (ret < 0)
+ 		goto kfree_exit;
+ 
 -- 
-Pengutronix e.K.                           |                             |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
-Peiner Str. 6-8, 31137 Hildesheim, Germany | Phone: +49-5121-206917-0    |
-Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |
+2.5.0
 
 -- 
 -- 
