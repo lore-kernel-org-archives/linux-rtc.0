@@ -1,73 +1,96 @@
-Return-Path: <rtc-linux+bncBDSYZY5FQMCBBCHN4GZAKGQE4GAPUPA@googlegroups.com>
-Received: from mail.cvg.de (mail.cvg.de. [62.153.82.30])
-        by gmr-mx.google.com with ESMTPS id g21si294603wmd.3.2015.11.27.07.28.05
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 27 Nov 2015 07:28:06 -0800 (PST)
-From: Enrico Scholz <enrico.scholz@sigma-chemnitz.de>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: rtc-linux@googlegroups.com, Alessandro Zummo <a.zummo@towertech.it>,
-        Support Opensource <support.opensource@diasemi.com>
-Subject: [rtc-linux] Re: [PATCH] rtc-da9063: avoid writing undefined data to rtc
-References: <1448625775-15531-1-git-send-email-enrico.scholz@sigma-chemnitz.de>
-	<20151127150158.GC4268@piout.net>
-Date: Fri, 27 Nov 2015 16:27:25 +0100
-In-Reply-To: <20151127150158.GC4268@piout.net> (Alexandre Belloni's message of
-	"Fri, 27 Nov 2015 16:01:58 +0100")
-Message-ID: <ly1tbbea3m.fsf@ensc-virt.intern.sigma-chemnitz.de>
+Return-Path: <rtc-linux+bncBD7YLCN32UNBBNWD5SYQKGQE5CGYXJA@googlegroups.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Sender: rtc-linux@googlegroups.com
+Received: from mail-wm0-x234.google.com (mail-wm0-x234.google.com. [2a00:1450:400c:c09::234])
+        by gmr-mx.google.com with ESMTPS id t2si269177wme.1.2015.11.05.01.30.30
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 05 Nov 2015 01:30:30 -0800 (PST)
+Received: by mail-wm0-x234.google.com with SMTP id g8so7644241wme.1
+        for <rtc-linux@googlegroups.com>; Thu, 05 Nov 2015 01:30:30 -0800 (PST)
+From: LABBE Corentin <clabbe.montjoie@gmail.com>
+To: alexandre.belloni@free-electrons.com,
+	a.zummo@towertech.it,
+	linux-arm-kernel@lists.infradead.org,
+	maxime.ripard@free-electrons.com,
+	wens@csie.org
+Cc: LABBE Corentin <clabbe.montjoie@gmail.com>,
+	linux-kernel@vger.kernel.org,
+	rtc-linux@googlegroups.com
+Subject: [rtc-linux] [PATCH] rtc: sunxi: fix some misceanellous problems
+Date: Thu,  5 Nov 2015 10:29:49 +0100
+Message-Id: <1446715789-10460-1-git-send-email-clabbe.montjoie@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
 List-Archive: <http://groups.google.com/group/rtc-linux
+Sender: rtc-linux@googlegroups.com
 List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Alexandre Belloni <alexandre.belloni@free-electrons.com> writes:
+year must be set as unsigned since it is use with
+sunxi_rtc_data_year{.min|.max} and as parameter of is_leap_year() which
+wait for unsigned int.
+Only tm_year is not unsigned, but it is long.
+This patch fix also the format of printing of min/max. (must %u since
+they are unsigned)
 
->> | static void da9063_tm_to_data(struct rtc_time *tm, u8 *data,
->> | {
->> |  	const struct da9063_compatible_rtc_regmap *config = rtc->config;
->> |
->> | 	data[RTC_SEC] &= ~config->rtc_count_sec_mask;
->> | 	data[RTC_SEC] |= tm->tm_sec & config->rtc_count_sec_mask;
->> | ...
->> | }
->> ...
->> which means that some bits of stack content (in 'data[]') was masked out
->> and written to the RTC.
->> 
->> Because da9063_tm_to_data() is used only by da9063_rtc_set_time() and
->> da9063_rtc_set_alarm(), we can write fields directly.
->
-> Unfortunately, the datasheets are behind a register wall and I can't
-> check. Is there any meaningful bits mixed in the date/time registers?
+The parameter to of sunxi_rtc_setaie() must be set to uint since callers
+give always uint data.
 
-We can set "RTC_EN and CRYSTAL writing disabled" (COUNT_Y[6]) randomly;
-this bit has a different meaning for read ("RTC clock okay") and write
-("disable writing"; not clearable).
+The struct data_year_param is never modified, so it can be set const.
 
-ALARM_MO[4] "Period of the Tick (0: every second, 1: every minute)" or
-ALARM_Y[7+6] (enable tick/alarm) should not be set randomly either.
+Signed-off-by: LABBE Corentin <clabbe.montjoie@gmail.com>
+---
+ drivers/rtc/rtc-sunxi.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-
-I think, it is always a bad idea to write random data from stack to a
-device.
-
-
-> I think this was intended to keep those bits to their previous value but
-> this is not yet implemented.
-
-Datasheet does not say how to deal with "reserved" bits; but it would be
-imo overkill to apply a regmap_update_bits() like access to the RTC
-registers.
-
-
-Enrico
+diff --git a/drivers/rtc/rtc-sunxi.c b/drivers/rtc/rtc-sunxi.c
+index 52543ae..9287afc 100644
+--- a/drivers/rtc/rtc-sunxi.c
++++ b/drivers/rtc/rtc-sunxi.c
+@@ -133,7 +133,7 @@ struct sunxi_rtc_data_year {
+ 	unsigned char leap_shift;	/* bit shift to get the leap year */
+ };
+ 
+-static struct sunxi_rtc_data_year data_year_param[] = {
++static const struct sunxi_rtc_data_year data_year_param[] = {
+ 	[0] = {
+ 		.min		= 2010,
+ 		.max		= 2073,
+@@ -175,7 +175,7 @@ static irqreturn_t sunxi_rtc_alarmirq(int irq, void *id)
+ 	return IRQ_NONE;
+ }
+ 
+-static void sunxi_rtc_setaie(int to, struct sunxi_rtc_dev *chip)
++static void sunxi_rtc_setaie(unsigned int to, struct sunxi_rtc_dev *chip)
+ {
+ 	u32 alrm_val = 0;
+ 	u32 alrm_irq_val = 0;
+@@ -343,7 +343,7 @@ static int sunxi_rtc_settime(struct device *dev, struct rtc_time *rtc_tm)
+ 	struct sunxi_rtc_dev *chip = dev_get_drvdata(dev);
+ 	u32 date = 0;
+ 	u32 time = 0;
+-	int year;
++	unsigned int year;
+ 
+ 	/*
+ 	 * the input rtc_tm->tm_year is the offset relative to 1900. We use
+@@ -353,8 +353,8 @@ static int sunxi_rtc_settime(struct device *dev, struct rtc_time *rtc_tm)
+ 
+ 	year = rtc_tm->tm_year + 1900;
+ 	if (year < chip->data_year->min || year > chip->data_year->max) {
+-		dev_err(dev, "rtc only supports year in range %d - %d\n",
+-				chip->data_year->min, chip->data_year->max);
++		dev_err(dev, "rtc only supports year in range %u - %u\n",
++			chip->data_year->min, chip->data_year->max);
+ 		return -EINVAL;
+ 	}
+ 
+-- 
+2.4.10
 
 -- 
 -- 
