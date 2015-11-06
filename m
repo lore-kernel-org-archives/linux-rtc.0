@@ -1,26 +1,18 @@
-Return-Path: <rtc-linux+bncBDNNFENL2IBRB7M76WYQKGQEQ3EMJ4I@googlegroups.com>
-Received: from mail-io0-x22d.google.com (mail-io0-x22d.google.com. [2607:f8b0:4001:c06::22d])
-        by gmr-mx.google.com with ESMTPS id tg5si83783igb.2.2015.11.06.17.12.29
+Return-Path: <rtc-linux+bncBAABB2NO6OYQKGQEZF3TX2Q@googlegroups.com>
+Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de. [2001:67c:670:201:290:27ff:fe1d:cc33])
+        by gmr-mx.google.com with ESMTPS id s134si157486wmb.3.2015.11.06.08.38.01
         for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 06 Nov 2015 17:12:29 -0800 (PST)
-Received: by mail-io0-x22d.google.com with SMTP id y8so139014232iod.1
-        for <rtc-linux@googlegroups.com>; Fri, 06 Nov 2015 17:12:29 -0800 (PST)
+        (version=TLSv1.2 cipher=RC4-SHA bits=128/128);
+        Fri, 06 Nov 2015 08:38:01 -0800 (PST)
+From: =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>
+To: Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: rtc-linux@googlegroups.com,
+	kernel@pengutronix.de
+Subject: [rtc-linux] [PATCH] rtc: pcf8523: refuse to write dates later than 2099
+Date: Fri,  6 Nov 2015 17:37:56 +0100
+Message-Id: <1446827876-31613-1-git-send-email-u.kleine-koenig@pengutronix.de>
 MIME-Version: 1.0
-In-Reply-To: <20151106223339.GA22411@rob-hp-laptop>
-References: <1446186334-16510-1-git-send-email-alim.akhtar@samsung.com>
- <1446186334-16510-2-git-send-email-alim.akhtar@samsung.com> <20151106223339.GA22411@rob-hp-laptop>
-From: Alim Akhtar <alim.akhtar@gmail.com>
-Date: Sat, 7 Nov 2015 06:41:49 +0530
-Message-ID: <CAGOxZ52LkKPogBBsY1yh4U7tAVogqxh1Vh5yQa_C-ORQu0BTWw@mail.gmail.com>
-Subject: [rtc-linux] Re: [PATCH v5 1/4] dt-bindings: mfd: s2mps11: add
- documentation for s2mps15 PMIC
-To: Rob Herring <robh@kernel.org>
-Cc: Alim Akhtar <alim.akhtar@samsung.com>, Lee Jones <lee.jones@linaro.org>, broonie@kernel.org,
-	=?UTF-8?Q?Krzysztof_Koz=C5=82owski?= <k.kozlowski@samsung.com>,
-	"linux-samsung-soc@vger.kernel.org" <linux-samsung-soc@vger.kernel.org>, rtc-linux@googlegroups.com,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Thomas Abraham <thomas.ab@samsung.com>,
-	"devicetree@vger.kernel.org" <devicetree@vger.kernel.org>
 Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
@@ -32,79 +24,65 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Hi Rob,
+When the chip increments the YEAR register and it already holds
+bin2bcd(99) it reads as 0 afterwards. With this behaviour the last valid
+day (without trickery) that has a representation is 2099-12-31 23:59:59.
+So refuse to write later dates.
 
-On Sat, Nov 7, 2015 at 4:03 AM, Rob Herring <robh@kernel.org> wrote:
-> On Fri, Oct 30, 2015 at 11:55:31AM +0530, Alim Akhtar wrote:
->> From: Thomas Abraham <thomas.ab@samsung.com>
->>
->> Add dt-binding documentation for s2mps15 PMIC device. The s2mps15 device
->> is similar to s2mps11/14 PMIC device and has 27 LDO and 10 buck regulators.
->> This also supports RTC and three 32.768KHz clock outputs.
->>
->> Cc: devicetree@vger.kernel.org
->> Signed-off-by: Thomas Abraham <thomas.ab@samsung.com>
->> Signed-off-by: Alim Akhtar <alim.akhtar@samsung.com>
->> ---
->>  Documentation/devicetree/bindings/mfd/s2mps11.txt |   21 ++++++++++++++-------
->>  1 file changed, 14 insertions(+), 7 deletions(-)
->>
->> diff --git a/Documentation/devicetree/bindings/mfd/s2mps11.txt b/Documentation/devicetree/bindings/mfd/s2mps11.txt
->> index 890f0b0e1643..4c0543ceec25 100644
->> --- a/Documentation/devicetree/bindings/mfd/s2mps11.txt
->> +++ b/Documentation/devicetree/bindings/mfd/s2mps11.txt
->> @@ -1,5 +1,5 @@
->>
->> -* Samsung S2MPS11, S2MPS13, S2MPS14 and S2MPU02 Voltage and Current Regulator
->> +* Samsung S2MPS11/13/14/15 and S2MPU02 Voltage and Current Regulator
->>
->>  The Samsung S2MPS11 is a multi-function device which includes voltage and
->>  current regulators, RTC, charger controller and other sub-blocks. It is
->> @@ -7,8 +7,12 @@ interfaced to the host controller using an I2C interface. Each sub-block is
->>  addressed by the host system using different I2C slave addresses.
->>
->>  Required properties:
->> -- compatible: Should be "samsung,s2mps11-pmic" or "samsung,s2mps13-pmic"
->> -           or "samsung,s2mps14-pmic" or "samsung,s2mpu02-pmic".
->> +- compatible: Should be one of the following
->> +     - "samsung,s2mps11-pmic"
->> +     - "samsung,s2mps13-pmic"
->> +     - "samsung,s2mps14-pmic"
->> +     - "samsung,s2mps15-pmic"
->> +     - "samsung,s2mpu02-pmic".
->>  - reg: Specifies the I2C slave address of the pmic block. It should be 0x66.
->>
->>  Optional properties:
->> @@ -24,7 +28,7 @@ Optional properties:
->>    unwanted buck warm reset (setting buck voltages to default values).
->>
->>  Optional nodes:
->> -- clocks: s2mps11, s2mps13 and s5m8767 provide three(AP/CP/BT) buffered 32.768
->> +- clocks: s2mps11, s2mps13, s2mps15 and s5m8767 provide three(AP/CP/BT) buffered 32.768
->
-> s5m8767 doesn't seem to be documented. Can you please fix or remove.
->
-Ok, will take a look.
+Signed-off-by: Uwe Kleine-K=C3=B6nig <u.kleine-koenig@pengutronix.de>
+---
+Hello,
 
-> Rob
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-samsung-soc" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+When setting the YEAR register to bin2bcd(100) =3D=3D 0xa0 it increments
+just fine up to bin2bcd(159) =3D=3D 0xf9 but these values are forbidden in
+the manual. But this doesn't help to expand (or shift) the range of
+supported dates.
 
+An alternative to this patch would be to save tm_year % 100 because
+that's what happens when waiting long enough anyhow. Would that be
+better? Do we already care at all for year-2100-problems?
 
+Best regards
+Uwe
 
--- 
-Regards,
-Alim
+ drivers/rtc/rtc-pcf8523.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
--- 
--- 
+diff --git a/drivers/rtc/rtc-pcf8523.c b/drivers/rtc/rtc-pcf8523.c
+index 4cdb64be061b..261d65e67c8b 100644
+--- a/drivers/rtc/rtc-pcf8523.c
++++ b/drivers/rtc/rtc-pcf8523.c
+@@ -219,6 +219,17 @@ static int pcf8523_rtc_set_time(struct device *dev, st=
+ruct rtc_time *tm)
+ 	u8 regs[8];
+ 	int err;
+=20
++	/*
++	 * The hardware can only store values between 0 and 99 in it's YEAR
++	 * register (with 99 overflowing to 0 on increment).
++	 * After 2100-02-28 we could start interpreting the year to be in the
++	 * interval [2100, 2199], but there is no path to switch in a smooth way
++	 * because the chip handles YEAR=3D0x00 (and the out-of-spec
++	 * YEAR=3D0xa0) as a leap year, but 2100 isn't.
++	 */
++	if (tm->tm_year < 100 || tm->tm_year >=3D 200)
++		return -EINVAL;
++
+ 	err =3D pcf8523_stop_rtc(client);
+ 	if (err < 0)
+ 		return err;
+--=20
+2.6.1
+
+--=20
+--=20
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+---=20
+You received this message because you are subscribed to the Google Groups "=
+rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an e=
+mail to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
