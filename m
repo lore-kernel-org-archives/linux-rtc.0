@@ -1,102 +1,103 @@
-Return-Path: <rtc-linux+bncBCNNJWF7RUMRBJWM5CYQKGQEWBCQ5AI@googlegroups.com>
-MIME-Version: 1.0
-Received: from mail-pa0-x22d.google.com (mail-pa0-x22d.google.com. [2607:f8b0:400e:c03::22d])
-        by gmr-mx.google.com with ESMTPS id el2si190828pbb.0.2015.11.04.07.37.08
+Return-Path: <rtc-linux+bncBDKZNNNLXAHBB56W6WYQKGQENWEWMJY@googlegroups.com>
+Received: from mail-pa0-x22e.google.com (mail-pa0-x22e.google.com. [2607:f8b0:400e:c03::22e])
+        by gmr-mx.google.com with ESMTPS id vy6si354276pbc.1.2015.11.06.19.09.43
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 04 Nov 2015 07:37:08 -0800 (PST)
-Received: by mail-pa0-x22d.google.com with SMTP id z6so57706706pas.2
-        for <rtc-linux@googlegroups.com>; Wed, 04 Nov 2015 07:37:08 -0800 (PST)
-From: Joshua Clayton <stillcompiling@gmail.com>
-To: Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org,
-	Joshua Clayton <stillcompiling@gmail.com>
-Subject: [rtc-linux] [PATCH 4/9] rtc-pcf2123: replace magic numbers with defines
-Date: Wed,  4 Nov 2015 07:36:35 -0800
-Message-Id: <e239e183b907e072b2360a138f52fbdc201e1997.1446587705.git.stillcompiling@gmail.com>
-In-Reply-To: <cover.1446587705.git.stillcompiling@gmail.com>
-References: <cover.1446587705.git.stillcompiling@gmail.com>
-In-Reply-To: <cover.1446587705.git.stillcompiling@gmail.com>
-References: <cover.1446587705.git.stillcompiling@gmail.com>
-Reply-To: rtc-linux@googlegroups.com
+        Fri, 06 Nov 2015 19:09:43 -0800 (PST)
+Received: by mail-pa0-x22e.google.com with SMTP id dm15so116272400pac.3
+        for <rtc-linux@googlegroups.com>; Fri, 06 Nov 2015 19:09:43 -0800 (PST)
+Sender: rtc-linux@googlegroups.com
+Subject: Re: [rtc-linux] Re: [PATCH v5 1/4] dt-bindings: mfd: s2mps11: add
+ documentation for s2mps15 PMIC
+To: rtc-linux@googlegroups.com, Alim Akhtar <alim.akhtar@samsung.com>
+References: <1446186334-16510-1-git-send-email-alim.akhtar@samsung.com>
+ <1446186334-16510-2-git-send-email-alim.akhtar@samsung.com>
+ <20151106223339.GA22411@rob-hp-laptop>
+Cc: k.kozlowski.k@gmail.com, lee.jones@linaro.org, broonie@kernel.org,
+ linux-samsung-soc@vger.kernel.org, linux-kernel@vger.kernel.org,
+ Thomas Abraham <thomas.ab@samsung.com>, devicetree@vger.kernel.org
+From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+Message-ID: <563D6B72.9010004@samsung.com>
+Date: Sat, 7 Nov 2015 12:09:38 +0900
+MIME-Version: 1.0
+In-Reply-To: <20151106223339.GA22411@rob-hp-laptop>
 Content-Type: text/plain; charset=UTF-8
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
 List-Archive: <http://groups.google.com/group/rtc-linux
-Sender: rtc-linux@googlegroups.com
 List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-All of the magic numbers pertain to register CTRL1.
-document all the values in CTRL1 with defines from the datasheet
+W dniu 07.11.2015 o 07:33, Rob Herring pisze:
+> On Fri, Oct 30, 2015 at 11:55:31AM +0530, Alim Akhtar wrote:
+>> From: Thomas Abraham <thomas.ab@samsung.com>
+>>
+>> Add dt-binding documentation for s2mps15 PMIC device. The s2mps15 device
+>> is similar to s2mps11/14 PMIC device and has 27 LDO and 10 buck regulators.
+>> This also supports RTC and three 32.768KHz clock outputs.
+>>
+>> Cc: devicetree@vger.kernel.org
+>> Signed-off-by: Thomas Abraham <thomas.ab@samsung.com>
+>> Signed-off-by: Alim Akhtar <alim.akhtar@samsung.com>
+>> ---
+>>  Documentation/devicetree/bindings/mfd/s2mps11.txt |   21 ++++++++++++++-------
+>>  1 file changed, 14 insertions(+), 7 deletions(-)
+>>
+>> diff --git a/Documentation/devicetree/bindings/mfd/s2mps11.txt b/Documentation/devicetree/bindings/mfd/s2mps11.txt
+>> index 890f0b0e1643..4c0543ceec25 100644
+>> --- a/Documentation/devicetree/bindings/mfd/s2mps11.txt
+>> +++ b/Documentation/devicetree/bindings/mfd/s2mps11.txt
+>> @@ -1,5 +1,5 @@
+>>  
+>> -* Samsung S2MPS11, S2MPS13, S2MPS14 and S2MPU02 Voltage and Current Regulator
+>> +* Samsung S2MPS11/13/14/15 and S2MPU02 Voltage and Current Regulator
+>>  
+>>  The Samsung S2MPS11 is a multi-function device which includes voltage and
+>>  current regulators, RTC, charger controller and other sub-blocks. It is
+>> @@ -7,8 +7,12 @@ interfaced to the host controller using an I2C interface. Each sub-block is
+>>  addressed by the host system using different I2C slave addresses.
+>>  
+>>  Required properties:
+>> -- compatible: Should be "samsung,s2mps11-pmic" or "samsung,s2mps13-pmic"
+>> -	      or "samsung,s2mps14-pmic" or "samsung,s2mpu02-pmic".
+>> +- compatible: Should be one of the following
+>> +	- "samsung,s2mps11-pmic"
+>> +	- "samsung,s2mps13-pmic"
+>> +	- "samsung,s2mps14-pmic"
+>> +	- "samsung,s2mps15-pmic"
+>> +	- "samsung,s2mpu02-pmic".
+>>  - reg: Specifies the I2C slave address of the pmic block. It should be 0x66.
+>>  
+>>  Optional properties:
+>> @@ -24,7 +28,7 @@ Optional properties:
+>>    unwanted buck warm reset (setting buck voltages to default values).
+>>  
+>>  Optional nodes:
+>> -- clocks: s2mps11, s2mps13 and s5m8767 provide three(AP/CP/BT) buffered 32.768
+>> +- clocks: s2mps11, s2mps13, s2mps15 and s5m8767 provide three(AP/CP/BT) buffered 32.768
+> 
+> s5m8767 doesn't seem to be documented. Can you please fix or remove.
 
-Signed-off-by: Joshua Clayton <stillcompiling@gmail.com>
----
- drivers/rtc/rtc-pcf2123.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+What exactly do you have in mind?
 
-diff --git a/drivers/rtc/rtc-pcf2123.c b/drivers/rtc/rtc-pcf2123.c
-index 3acb2c8..257ce7d 100644
---- a/drivers/rtc/rtc-pcf2123.c
-+++ b/drivers/rtc/rtc-pcf2123.c
-@@ -234,7 +234,7 @@ static int pcf2123_rtc_set_time(struct device *dev, struct rtc_time *tm)
- 			tm->tm_mday, tm->tm_mon, tm->tm_year, tm->tm_wday);
- 
- 	/* Stop the counter first */
--	ret = pcf2123_write_reg(dev, PCF2123_REG_CTRL1, 0x20);
-+	ret = pcf2123_write_reg(dev, PCF2123_REG_CTRL1, CTRL1_STOP);
- 	if (ret < 0)
- 		return ret;
- 
-@@ -253,7 +253,7 @@ static int pcf2123_rtc_set_time(struct device *dev, struct rtc_time *tm)
- 		return ret;
- 
- 	/* Start the counter */
--	ret = pcf2123_write_reg(dev, PCF2123_REG_CTRL1, 0x00);
-+	ret = pcf2123_write_reg(dev, PCF2123_REG_CTRL1, CTRL1_CLEAR);
- 	if (ret < 0)
- 		return ret;
- 
-@@ -280,13 +280,13 @@ static int pcf2123_probe(struct spi_device *spi)
- 
- 	/* Send a software reset command */
- 	dev_dbg(&spi->dev, "resetting RTC\n");
--	ret = pcf2123_write_reg(&spi->dev, PCF2123_REG_CTRL1, 0x58);
-+	ret = pcf2123_write_reg(&spi->dev, PCF2123_REG_CTRL1, CTRL1_SW_RESET);
- 	if (ret < 0)
- 		goto kfree_exit;
- 
- 	/* Stop the counter */
- 	dev_dbg(&spi->dev, "stopping RTC\n");
--	ret = pcf2123_write_reg(&spi->dev, PCF2123_REG_CTRL1, 0x20);
-+	ret = pcf2123_write_reg(&spi->dev, PCF2123_REG_CTRL1, CTRL1_STOP);
- 	if (ret < 0)
- 		goto kfree_exit;
- 
-@@ -298,7 +298,7 @@ static int pcf2123_probe(struct spi_device *spi)
- 	if (ret < 0)
- 		goto kfree_exit;
- 
--	if (!(rxbuf[0] & 0x20)) {
-+	if (!(rxbuf[0] & CTRL1_STOP)) {
- 		dev_err(&spi->dev, "chip not found\n");
- 		ret = -ENODEV;
- 		goto kfree_exit;
-@@ -309,7 +309,7 @@ static int pcf2123_probe(struct spi_device *spi)
- 			(spi->max_speed_hz + 500) / 1000);
- 
- 	/* Start the counter */
--	ret = pcf2123_write_reg(&spi->dev, PCF2123_REG_CTRL1, 0x00);
-+	ret = pcf2123_write_reg(&spi->dev, PCF2123_REG_CTRL1, CTRL1_CLEAR);
- 	if (ret < 0)
- 		goto kfree_exit;
- 
--- 
-2.5.0
+The s5m8767-clk is already documented as part of clk-s2mps11.c driver:
+Documentation/devicetree/bindings/mfd/s2mps11.txt
+
+The main s5m8767 MFD driver is documented as part of regulator driver:
+Documentation/devicetree/bindings/regulator/s5m8767-regulator.txt
+
+Yes, this may be confusing... They S2M and S5M family devices share:
+ - main mfd driver,
+ - rtc driver,
+ - clk driver.
+
+but regulator drivers are separate.
+
+Best regards,
+Krzysztof
 
 -- 
 -- 
