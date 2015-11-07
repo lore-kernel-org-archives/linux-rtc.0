@@ -1,31 +1,20 @@
-Return-Path: <rtc-linux+bncBAABBYWI5OZAKGQEUMNNI5Y@googlegroups.com>
-Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de. [2001:67c:670:201:290:27ff:fe1d:cc33])
-        by gmr-mx.google.com with ESMTPS id y203si391274wmc.2.2015.11.29.03.41.22
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=AES128-SHA bits=128/128);
-        Sun, 29 Nov 2015 03:41:22 -0800 (PST)
-Date: Sun, 29 Nov 2015 12:41:11 +0100
-From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <u.kleine-koenig@pengutronix.de>
-To: Harald Geyer <harald@ccbib.org>
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	Guenter Roeck <linux@roeck-us.net>, linux-watchdog@vger.kernel.org,
-	rtc-linux@googlegroups.com, Wolfram Sang <wsa@the-dreams.de>,
-	kernel@pengutronix.de, Fabio Estevam <festevam@gmail.com>
-Subject: [rtc-linux] Re: [PATCH 2/2] watchdog: stmp3xxx: Implement GETBOOTSTATUS
-Message-ID: <20151129114111.GB10431@pengutronix.de>
-References: <1444220352-20548-1-git-send-email-harald@ccbib.org>
- <1444220352-20548-2-git-send-email-harald@ccbib.org>
- <20151126092526.GM19888@pengutronix.de>
- <E1a1wm1-0000XO-S7@stardust.g4.wien.funkfeuer.at>
- <20151127100254.GR19888@pengutronix.de>
- <20151127104402.GT19888@pengutronix.de>
- <b09608aa29195b41fc114a414d67af0f@ccbib.org>
+Return-Path: <rtc-linux+bncBC4PNG5H2MBBBFHP6WYQKGQEKBG2UTQ@googlegroups.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <b09608aa29195b41fc114a414d67af0f@ccbib.org>
+Received: from m50-134.163.com (m50-134.163.com. [123.125.50.134])
+        by gmr-mx.google.com with ESMTP id sm2si369980pab.0.2015.11.06.20.01.23
+        for <rtc-linux@googlegroups.com>;
+        Fri, 06 Nov 2015 20:01:24 -0800 (PST)
+From: Geliang Tang <geliangtang@163.com>
+To: Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: Geliang Tang <geliangtang@163.com>,
+	rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org
+Subject: [rtc-linux] [PATCH 1/2] rtc: fix module reference count in rtc-proc
+Date: Sat,  7 Nov 2015 12:00:21 +0800
+Message-Id: <9d57abe4fe1acdbc4a63496142ea4b78f152e621.1446868545.git.geliangtang@163.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -35,72 +24,55 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Hello Harald,
+rtc-proc.c is not built as a module. Thus, rather than dealing with
+THIS_MODULE's reference count, we should deal with rtc->owner's
+reference count.
 
-On Sun, Nov 29, 2015 at 11:41:22AM +0100, Harald Geyer wrote:
-> On 27.11.2015 11:44, Uwe Kleine-K=C3=B6nig wrote:
-> >Hello Harald,
-> >
-> >On Fri, Nov 27, 2015 at 11:02:54AM +0100, Uwe Kleine-K=C3=B6nig wrote:
-> >>On Thu, Nov 26, 2015 at 02:39:45PM +0100, Harald Geyer wrote:
-> >>> Uwe Kleine-K=C3=B6nig writes:
-> >>> > On Wed, Oct 07, 2015 at 12:19:12PM +0000, Harald Geyer wrote:
-> >>> > > This device doesn't provide any information about boot status.
-> >>> > > As workaround we use a persitent bit to track watchdog activity.
-> >>> >
-> >>> > Hmm, so you set a bit in a persistent register iff the watchdog is
-> >>> > running.  And if that bit is set during probe you assume the
-> >>watchdog
-> >>> > reset the machine. But this also happens, when the user presses the
-> >>> > reset button which makes the detection unreliable.
-> >>>
-> >>> Yes, kind of. I'm using this driver on an imx233-olinuxino, where the
-> >>> reset button causes the device to power cycle and thus clears the
-> >>> persitent bit. So I can't test your case, but surely there are some
-> >>paths
-> >>> into reset, that don't clear the bit and cause false positives.
-> >>
-> >>OK, I found a i.MX28 machine in our repository:
-> >>
-> >>	barebox# mw 0x80056080 0xbabecafe
-> >>	barebox# boot
-> >>	...
-> >>	linux# reboot
-> >>	barebox# md 0x80056080+4
-> >>	80056080: babecafe
-> >>
-> >>After a power cycle the value disappears (I didn't check the details, i=
-f
-> >>there is a battery it might be empty).
->=20
-> Are there any concerns left on your side? Ie do you want me to do
-> any additional tests before sending v4 of this patch with the
-> whitespace changes and added URL to the freescale kernel?
+Signed-off-by: Geliang Tang <geliangtang@163.com>
+---
+ drivers/rtc/rtc-proc.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-I just notice that I failed to do the proper test. I.e. I reset the
-machine using "reboot" instead of a reset button. But I'd expect that
-doing the latter also keeps the value of the persistant register, which
-would make your patch wrong here. I will check that tomorrow when I can
-make someone do this test for me. (I'm 600 km from the machine above
-away.)
-=20
-Best regards
-Uwe
+diff --git a/drivers/rtc/rtc-proc.c b/drivers/rtc/rtc-proc.c
+index ffa69e1..31e7e23 100644
+--- a/drivers/rtc/rtc-proc.c
++++ b/drivers/rtc/rtc-proc.c
+@@ -112,19 +112,21 @@ static int rtc_proc_open(struct inode *inode, struct file *file)
+ 	int ret;
+ 	struct rtc_device *rtc = PDE_DATA(inode);
+ 
+-	if (!try_module_get(THIS_MODULE))
++	if (!try_module_get(rtc->owner))
+ 		return -ENODEV;
+ 
+ 	ret = single_open(file, rtc_proc_show, rtc);
+ 	if (ret)
+-		module_put(THIS_MODULE);
++		module_put(rtc->owner);
+ 	return ret;
+ }
+ 
+ static int rtc_proc_release(struct inode *inode, struct file *file)
+ {
+ 	int res = single_release(inode, file);
+-	module_put(THIS_MODULE);
++	struct rtc_device *rtc = PDE_DATA(inode);
++
++	module_put(rtc->owner);
+ 	return res;
+ }
+ 
+-- 
+2.5.0
 
---=20
-Pengutronix e.K.                           | Uwe Kleine-K=C3=B6nig         =
-   |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
 
---=20
---=20
+-- 
+-- 
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
----=20
-You received this message because you are subscribed to the Google Groups "=
-rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an e=
-mail to rtc-linux+unsubscribe@googlegroups.com.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
