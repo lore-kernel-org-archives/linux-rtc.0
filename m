@@ -1,25 +1,30 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRB654RSZAKGQE6MO5I4A@googlegroups.com>
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id l1si648312wmb.1.2015.11.11.02.54.50
-        for <rtc-linux@googlegroups.com>;
-        Wed, 11 Nov 2015 02:54:50 -0800 (PST)
-Date: Wed, 11 Nov 2015 11:54:50 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: "Leizhen (ThunderTown)" <thunder.leizhen@huawei.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
-	rtc-linux <rtc-linux@googlegroups.com>,
-	linux-kernel <linux-kernel@vger.kernel.org>,
-	Arnd Bergmann <arnd@arndb.de>, Zefan Li <lizefan@huawei.com>,
-	Xinwei Hu <huxinwei@huawei.com>,
-	Tianhong Ding <dingtianhong@huawei.com>,
-	Hanjun Guo <guohanjun@huawei.com>
-Subject: [rtc-linux] Re: [PATCH 1/1] rtc: fix type information of rtc-proc
-Message-ID: <20151111105450.GC4519@piout.net>
-References: <1444297652-10328-1-git-send-email-thunder.leizhen@huawei.com>
- <564294AB.1080500@huawei.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <564294AB.1080500@huawei.com>
+Return-Path: <rtc-linux+bncBD747RFBYUPBBDHKQCZAKGQEBCF7BHI@googlegroups.com>
+Received: from mailout1.samsung.com (mailout1.samsung.com. [203.254.224.24])
+        by gmr-mx.google.com with ESMTPS id el2si1171977pbb.0.2015.11.08.21.54.19
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1 cipher=RC4-SHA bits=128/128);
+        Sun, 08 Nov 2015 21:54:20 -0800 (PST)
+Received: from epcpsbgr2.samsung.com
+ (u142.gpu120.samsung.co.kr [203.254.230.142])
+ by mailout1.samsung.com (Oracle Communications Messaging Server 7.0.5.31.0
+ 64bit (built May  5 2014))
+ with ESMTP id <0NXJ02U3V9QIQRD0@mailout1.samsung.com> for
+ rtc-linux@googlegroups.com; Mon, 09 Nov 2015 14:54:18 +0900 (KST)
+Message-id: <56403525.7000808@samsung.com>
+Date: Mon, 09 Nov 2015 11:24:45 +0530
+From: Alim Akhtar <alim.akhtar@samsung.com>
+MIME-version: 1.0
+To: Krzysztof Kozlowski <k.kozlowski@samsung.com>, rtc-linux@googlegroups.com
+Cc: k.kozlowski.k@gmail.com, lee.jones@linaro.org, broonie@kernel.org,
+ linux-samsung-soc@vger.kernel.org, linux-kernel@vger.kernel.org,
+ Thomas Abraham <thomas.ab@samsung.com>, devicetree@vger.kernel.org
+Subject: Re: [rtc-linux] Re: [PATCH v5 1/4] dt-bindings: mfd: s2mps11: add
+ documentation for s2mps15 PMIC
+References: <1446186334-16510-1-git-send-email-alim.akhtar@samsung.com>
+ <1446186334-16510-2-git-send-email-alim.akhtar@samsung.com>
+ <20151106223339.GA22411@rob-hp-laptop> <563D6B72.9010004@samsung.com>
+In-reply-to: <563D6B72.9010004@samsung.com>
+Content-type: text/plain; charset=UTF-8; format=flowed
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -30,35 +35,83 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On 11/11/2015 at 09:06:51 +0800, Leizhen (ThunderTown) wrote :
-> Hi, all
-> 
-> I'm sorry. Maybe I didn't describe clearly enough before. These words are finally
-> shown to the end user. The end user maybe not a programmer, abbreviation word is unsuitable.
-> 
+Hi Krzysztof,
 
-Yes, that is exactly m point. What if an end user currently has a
-program parsing the file and looking for alrm_time or alrm_date? After
-updating his kernel, the program won't work anymore which is something
-we don't want.
+On 11/07/2015 08:39 AM, Krzysztof Kozlowski wrote:
+> W dniu 07.11.2015 o 07:33, Rob Herring pisze:
+>> On Fri, Oct 30, 2015 at 11:55:31AM +0530, Alim Akhtar wrote:
+>>> From: Thomas Abraham <thomas.ab@samsung.com>
+>>>
+>>> Add dt-binding documentation for s2mps15 PMIC device. The s2mps15 device
+>>> is similar to s2mps11/14 PMIC device and has 27 LDO and 10 buck regulators.
+>>> This also supports RTC and three 32.768KHz clock outputs.
+>>>
+>>> Cc: devicetree@vger.kernel.org
+>>> Signed-off-by: Thomas Abraham <thomas.ab@samsung.com>
+>>> Signed-off-by: Alim Akhtar <alim.akhtar@samsung.com>
+>>> ---
+>>>   Documentation/devicetree/bindings/mfd/s2mps11.txt |   21 ++++++++++++++-------
+>>>   1 file changed, 14 insertions(+), 7 deletions(-)
+>>>
+>>> diff --git a/Documentation/devicetree/bindings/mfd/s2mps11.txt b/Documentation/devicetree/bindings/mfd/s2mps11.txt
+>>> index 890f0b0e1643..4c0543ceec25 100644
+>>> --- a/Documentation/devicetree/bindings/mfd/s2mps11.txt
+>>> +++ b/Documentation/devicetree/bindings/mfd/s2mps11.txt
+>>> @@ -1,5 +1,5 @@
+>>>
+>>> -* Samsung S2MPS11, S2MPS13, S2MPS14 and S2MPU02 Voltage and Current Regulator
+>>> +* Samsung S2MPS11/13/14/15 and S2MPU02 Voltage and Current Regulator
+>>>
+>>>   The Samsung S2MPS11 is a multi-function device which includes voltage and
+>>>   current regulators, RTC, charger controller and other sub-blocks. It is
+>>> @@ -7,8 +7,12 @@ interfaced to the host controller using an I2C interface. Each sub-block is
+>>>   addressed by the host system using different I2C slave addresses.
+>>>
+>>>   Required properties:
+>>> -- compatible: Should be "samsung,s2mps11-pmic" or "samsung,s2mps13-pmic"
+>>> -	      or "samsung,s2mps14-pmic" or "samsung,s2mpu02-pmic".
+>>> +- compatible: Should be one of the following
+>>> +	- "samsung,s2mps11-pmic"
+>>> +	- "samsung,s2mps13-pmic"
+>>> +	- "samsung,s2mps14-pmic"
+>>> +	- "samsung,s2mps15-pmic"
+>>> +	- "samsung,s2mpu02-pmic".
+>>>   - reg: Specifies the I2C slave address of the pmic block. It should be 0x66.
+>>>
+>>>   Optional properties:
+>>> @@ -24,7 +28,7 @@ Optional properties:
+>>>     unwanted buck warm reset (setting buck voltages to default values).
+>>>
+>>>   Optional nodes:
+>>> -- clocks: s2mps11, s2mps13 and s5m8767 provide three(AP/CP/BT) buffered 32.768
+>>> +- clocks: s2mps11, s2mps13, s2mps15 and s5m8767 provide three(AP/CP/BT) buffered 32.768
+>>
+>> s5m8767 doesn't seem to be documented. Can you please fix or remove.
+>
+> What exactly do you have in mind?
+>
+> The s5m8767-clk is already documented as part of clk-s2mps11.c driver:
+> Documentation/devicetree/bindings/mfd/s2mps11.txt
+>
+> The main s5m8767 MFD driver is documented as part of regulator driver:
+> Documentation/devicetree/bindings/regulator/s5m8767-regulator.txt
+>
+> Yes, this may be confusing... They S2M and S5M family devices share:
+>   - main mfd driver,
+>   - rtc driver,
+>   - clk driver.
+>
+> but regulator drivers are separate.
+>
+Indeed things are documented but in very confusing manners, e.g. 
+compatible name "samsung,s5m8767-pmic" belongs to MFD not regulator.
+It should have being in */bindings/mfd/s2mps11.txt
+Not sure if it make sense to change it though.
 
-> 
-> cat /proc/driver/rtc
-> 
-> rtc_time        : 00:47:43
-> rtc_date        : 2015-11-11
-> alrm_time       : 03:27:58				//alrm_time --> alarm_time
-> alrm_date       : 2015-10-08				//alrm_date --> alarm_date
-> alarm_IRQ       : no
-> alrm_pending    : no					//alrm_pending --> alarm_pending
-> update IRQ enabled      : no
-> 
-> 
-
--- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+> Best regards,
+> Krzysztof
+>
+>
 
 -- 
 -- 
