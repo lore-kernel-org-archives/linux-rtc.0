@@ -1,20 +1,30 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBO6D2OZAKGQERHUSIQI@googlegroups.com>
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id w187si92196wmw.1.2015.11.24.14.16.27
-        for <rtc-linux@googlegroups.com>;
-        Tue, 24 Nov 2015 14:16:27 -0800 (PST)
-Date: Tue, 24 Nov 2015 23:16:26 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Joshua Clayton <stillcompiling@gmail.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH 3/9] rtc-pcf2123: clean up writes to the rtc chip
-Message-ID: <20151124221626.GE3950@piout.net>
-References: <cover.1446587705.git.stillcompiling@gmail.com>
- <813a6fe306c384c59418495605236927b9d00940.1446587705.git.stillcompiling@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <813a6fe306c384c59418495605236927b9d00940.1446587705.git.stillcompiling@gmail.com>
+Return-Path: <rtc-linux+bncBDKZNNNLXAHBBXP7QCZAKGQERNEY5TY@googlegroups.com>
+Received: from mailout3.w1.samsung.com (mailout3.w1.samsung.com. [210.118.77.13])
+        by gmr-mx.google.com with ESMTPS id sm2si1167715pab.0.2015.11.08.22.40.28
+        for <rtc-linux@googlegroups.com>
+        (version=TLSv1 cipher=RC4-SHA bits=128/128);
+        Sun, 08 Nov 2015 22:40:29 -0800 (PST)
+Received: from eucpsbgm1.samsung.com (unknown [203.254.199.244])
+ by mailout3.w1.samsung.com
+ (Oracle Communications Messaging Server 7.0.5.31.0 64bit (built May  5 2014))
+ with ESMTP id <0NXJ00E9FBVD1X10@mailout3.w1.samsung.com> for
+ rtc-linux@googlegroups.com; Mon, 09 Nov 2015 06:40:25 +0000 (GMT)
+Subject: Re: [rtc-linux] Re: [PATCH v5 1/4] dt-bindings: mfd: s2mps11: add
+ documentation for s2mps15 PMIC
+To: Alim Akhtar <alim.akhtar@samsung.com>, rtc-linux@googlegroups.com
+References: <1446186334-16510-1-git-send-email-alim.akhtar@samsung.com>
+ <1446186334-16510-2-git-send-email-alim.akhtar@samsung.com>
+ <20151106223339.GA22411@rob-hp-laptop> <563D6B72.9010004@samsung.com>
+ <56403525.7000808@samsung.com>
+Cc: k.kozlowski.k@gmail.com, lee.jones@linaro.org, broonie@kernel.org,
+ linux-samsung-soc@vger.kernel.org, linux-kernel@vger.kernel.org,
+ Thomas Abraham <thomas.ab@samsung.com>, devicetree@vger.kernel.org
+From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+Message-id: <56403FD3.8000501@samsung.com>
+Date: Mon, 09 Nov 2015 15:40:19 +0900
+MIME-version: 1.0
+In-reply-to: <56403525.7000808@samsung.com>
+Content-type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -25,169 +35,104 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On 04/11/2015 at 07:36:34 -0800, Joshua Clayton wrote :
-> +static int pcf2123_write(struct device *dev, u8 *txbuf, size_t size)
-> +{
-> +	struct spi_device *spi = to_spi_device(dev);
-> +	int ret;
-> +
-> +	if (txbuf[0] > PCF2123_REG_MAX)
-> +		return -EFAULT;
-> +
-
-Is that test really necessary? From what I understand the driver always
-controls which register is written.
-
-> +	txbuf[0] |= PCF2123_WRITE;
-> +	ret = spi_write(spi, txbuf, size);
-> +	pcf2123_delay_trec();
-> +
-> +	return ret;
-> +}
-> +
-> +static int pcf2123_write_reg(struct device *dev, u8 reg, u8 val)
-> +{
-> +	u8 txbuf[2];
-> +
-> +	txbuf[0] = reg;
-> +	txbuf[1] = val;
-> +	return pcf2123_write(dev, txbuf, sizeof(txbuf));
-> +}
-> +
->  static ssize_t pcf2123_show(struct device *dev, struct device_attribute *attr,
->  			    char *buffer)
->  {
-> @@ -142,9 +166,7 @@ static ssize_t pcf2123_show(struct device *dev, struct device_attribute *attr,
->  
->  static ssize_t pcf2123_store(struct device *dev, struct device_attribute *attr,
->  			     const char *buffer, size_t count) {
-> -	struct spi_device *spi = to_spi_device(dev);
->  	struct pcf2123_sysfs_reg *r;
-> -	u8 txbuf[2];
->  	unsigned long reg;
->  	unsigned long val;
->  
-> @@ -160,12 +182,9 @@ static ssize_t pcf2123_store(struct device *dev, struct device_attribute *attr,
->  	if (ret)
->  		return ret;
->  
-> -	txbuf[0] = PCF2123_WRITE | reg;
-> -	txbuf[1] = val;
-> -	ret = spi_write(spi, txbuf, sizeof(txbuf));
-> +	pcf2123_write_reg(dev, reg, val);
->  	if (ret < 0)
->  		return -EIO;
-> -	pcf2123_delay_trec();
->  	return count;
->  }
->  
-> @@ -205,7 +224,6 @@ static int pcf2123_rtc_read_time(struct device *dev, struct rtc_time *tm)
->  
->  static int pcf2123_rtc_set_time(struct device *dev, struct rtc_time *tm)
->  {
-> -	struct spi_device *spi = to_spi_device(dev);
->  	u8 txbuf[8];
->  	int ret;
->  
-> @@ -216,15 +234,12 @@ static int pcf2123_rtc_set_time(struct device *dev, struct rtc_time *tm)
->  			tm->tm_mday, tm->tm_mon, tm->tm_year, tm->tm_wday);
->  
->  	/* Stop the counter first */
-> -	txbuf[0] = PCF2123_WRITE | PCF2123_REG_CTRL1;
-> -	txbuf[1] = 0x20;
-> -	ret = spi_write(spi, txbuf, 2);
-> +	ret = pcf2123_write_reg(dev, PCF2123_REG_CTRL1, 0x20);
->  	if (ret < 0)
->  		return ret;
-> -	pcf2123_delay_trec();
->  
->  	/* Set the new time */
-> -	txbuf[0] = PCF2123_WRITE | PCF2123_REG_SC;
-> +	txbuf[0] = PCF2123_REG_SC;
->  	txbuf[1] = bin2bcd(tm->tm_sec & 0x7F);
->  	txbuf[2] = bin2bcd(tm->tm_min & 0x7F);
->  	txbuf[3] = bin2bcd(tm->tm_hour & 0x3F);
-> @@ -233,18 +248,14 @@ static int pcf2123_rtc_set_time(struct device *dev, struct rtc_time *tm)
->  	txbuf[6] = bin2bcd((tm->tm_mon + 1) & 0x1F); /* rtc mn 1-12 */
->  	txbuf[7] = bin2bcd(tm->tm_year < 100 ? tm->tm_year : tm->tm_year - 100);
->  
-> -	ret = spi_write(spi, txbuf, sizeof(txbuf));
-> +	ret = pcf2123_write(dev, txbuf, sizeof(txbuf));
->  	if (ret < 0)
->  		return ret;
-> -	pcf2123_delay_trec();
->  
->  	/* Start the counter */
-> -	txbuf[0] = PCF2123_WRITE | PCF2123_REG_CTRL1;
-> -	txbuf[1] = 0x00;
-> -	ret = spi_write(spi, txbuf, 2);
-> +	ret = pcf2123_write_reg(dev, PCF2123_REG_CTRL1, 0x00);
->  	if (ret < 0)
->  		return ret;
-> -	pcf2123_delay_trec();
->  
->  	return 0;
->  }
-> @@ -258,7 +269,7 @@ static int pcf2123_probe(struct spi_device *spi)
->  {
->  	struct rtc_device *rtc;
->  	struct pcf2123_plat_data *pdata;
-> -	u8 txbuf[2], rxbuf[2];
-> +	u8  rxbuf[2];
->  	int ret, i;
->  
->  	pdata = devm_kzalloc(&spi->dev, sizeof(struct pcf2123_plat_data),
-> @@ -268,24 +279,16 @@ static int pcf2123_probe(struct spi_device *spi)
->  	spi->dev.platform_data = pdata;
->  
->  	/* Send a software reset command */
-> -	txbuf[0] = PCF2123_WRITE | PCF2123_REG_CTRL1;
-> -	txbuf[1] = 0x58;
-> -	dev_dbg(&spi->dev, "resetting RTC (0x%02X 0x%02X)\n",
-> -			txbuf[0], txbuf[1]);
-> -	ret = spi_write(spi, txbuf, 2 * sizeof(u8));
-> +	dev_dbg(&spi->dev, "resetting RTC\n");
-> +	ret = pcf2123_write_reg(&spi->dev, PCF2123_REG_CTRL1, 0x58);
->  	if (ret < 0)
->  		goto kfree_exit;
-> -	pcf2123_delay_trec();
->  
->  	/* Stop the counter */
-> -	txbuf[0] = PCF2123_WRITE | PCF2123_REG_CTRL1;
-> -	txbuf[1] = 0x20;
-> -	dev_dbg(&spi->dev, "stopping RTC (0x%02X 0x%02X)\n",
-> -			txbuf[0], txbuf[1]);
-> -	ret = spi_write(spi, txbuf, 2 * sizeof(u8));
-> +	dev_dbg(&spi->dev, "stopping RTC\n");
-> +	ret = pcf2123_write_reg(&spi->dev, PCF2123_REG_CTRL1, 0x20);
->  	if (ret < 0)
->  		goto kfree_exit;
-> -	pcf2123_delay_trec();
->  
->  	/* See if the counter was actually stopped */
->  	dev_dbg(&spi->dev, "checking for presence of RTC\n");
-> @@ -306,12 +309,9 @@ static int pcf2123_probe(struct spi_device *spi)
->  			(spi->max_speed_hz + 500) / 1000);
->  
->  	/* Start the counter */
-> -	txbuf[0] = PCF2123_WRITE | PCF2123_REG_CTRL1;
-> -	txbuf[1] = 0x00;
-> -	ret = spi_write(spi, txbuf, sizeof(txbuf));
-> +	ret = pcf2123_write_reg(&spi->dev, PCF2123_REG_CTRL1, 0x00);
->  	if (ret < 0)
->  		goto kfree_exit;
-> -	pcf2123_delay_trec();
->  
->  	/* Finalize the initialization */
->  	rtc = devm_rtc_device_register(&spi->dev, pcf2123_driver.driver.name,
-> -- 
-> 2.5.0
+On 09.11.2015 14:54, Alim Akhtar wrote:
+> Hi Krzysztof,
 > 
+> On 11/07/2015 08:39 AM, Krzysztof Kozlowski wrote:
+>> W dniu 07.11.2015 o 07:33, Rob Herring pisze:
+>>> On Fri, Oct 30, 2015 at 11:55:31AM +0530, Alim Akhtar wrote:
+>>>> From: Thomas Abraham <thomas.ab@samsung.com>
+>>>>
+>>>> Add dt-binding documentation for s2mps15 PMIC device. The s2mps15
+>>>> device
+>>>> is similar to s2mps11/14 PMIC device and has 27 LDO and 10 buck
+>>>> regulators.
+>>>> This also supports RTC and three 32.768KHz clock outputs.
+>>>>
+>>>> Cc: devicetree@vger.kernel.org
+>>>> Signed-off-by: Thomas Abraham <thomas.ab@samsung.com>
+>>>> Signed-off-by: Alim Akhtar <alim.akhtar@samsung.com>
+>>>> ---
+>>>>   Documentation/devicetree/bindings/mfd/s2mps11.txt |   21
+>>>> ++++++++++++++-------
+>>>>   1 file changed, 14 insertions(+), 7 deletions(-)
+>>>>
+>>>> diff --git a/Documentation/devicetree/bindings/mfd/s2mps11.txt
+>>>> b/Documentation/devicetree/bindings/mfd/s2mps11.txt
+>>>> index 890f0b0e1643..4c0543ceec25 100644
+>>>> --- a/Documentation/devicetree/bindings/mfd/s2mps11.txt
+>>>> +++ b/Documentation/devicetree/bindings/mfd/s2mps11.txt
+>>>> @@ -1,5 +1,5 @@
+>>>>
+>>>> -* Samsung S2MPS11, S2MPS13, S2MPS14 and S2MPU02 Voltage and Current
+>>>> Regulator
+>>>> +* Samsung S2MPS11/13/14/15 and S2MPU02 Voltage and Current Regulator
+>>>>
+>>>>   The Samsung S2MPS11 is a multi-function device which includes
+>>>> voltage and
+>>>>   current regulators, RTC, charger controller and other sub-blocks.
+>>>> It is
+>>>> @@ -7,8 +7,12 @@ interfaced to the host controller using an I2C
+>>>> interface. Each sub-block is
+>>>>   addressed by the host system using different I2C slave addresses.
+>>>>
+>>>>   Required properties:
+>>>> -- compatible: Should be "samsung,s2mps11-pmic" or
+>>>> "samsung,s2mps13-pmic"
+>>>> -          or "samsung,s2mps14-pmic" or "samsung,s2mpu02-pmic".
+>>>> +- compatible: Should be one of the following
+>>>> +    - "samsung,s2mps11-pmic"
+>>>> +    - "samsung,s2mps13-pmic"
+>>>> +    - "samsung,s2mps14-pmic"
+>>>> +    - "samsung,s2mps15-pmic"
+>>>> +    - "samsung,s2mpu02-pmic".
+>>>>   - reg: Specifies the I2C slave address of the pmic block. It
+>>>> should be 0x66.
+>>>>
+>>>>   Optional properties:
+>>>> @@ -24,7 +28,7 @@ Optional properties:
+>>>>     unwanted buck warm reset (setting buck voltages to default values).
+>>>>
+>>>>   Optional nodes:
+>>>> -- clocks: s2mps11, s2mps13 and s5m8767 provide three(AP/CP/BT)
+>>>> buffered 32.768
+>>>> +- clocks: s2mps11, s2mps13, s2mps15 and s5m8767 provide
+>>>> three(AP/CP/BT) buffered 32.768
+>>>
+>>> s5m8767 doesn't seem to be documented. Can you please fix or remove.
+>>
+>> What exactly do you have in mind?
+>>
+>> The s5m8767-clk is already documented as part of clk-s2mps11.c driver:
+>> Documentation/devicetree/bindings/mfd/s2mps11.txt
+>>
+>> The main s5m8767 MFD driver is documented as part of regulator driver:
+>> Documentation/devicetree/bindings/regulator/s5m8767-regulator.txt
+>>
+>> Yes, this may be confusing... They S2M and S5M family devices share:
+>>   - main mfd driver,
+>>   - rtc driver,
+>>   - clk driver.
+>>
+>> but regulator drivers are separate.
+>>
+> Indeed things are documented but in very confusing manners, e.g.
+> compatible name "samsung,s5m8767-pmic" belongs to MFD not regulator.
 
--- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+The compatible itself belongs to MFD but in the same time the required
+properties for regulator driver (which expects to be child of that
+compatible) are stored next to it.
+
+> It should have being in */bindings/mfd/s2mps11.txt
+> Not sure if it make sense to change it though.
+
+Then the naming would be confusing. :)
+
+Actually I have it on my todo list to fix things up. Truth is that all
+of these devices are tightly coupled.
+
+Best regards,
+Krzysztof
 
 -- 
 -- 
