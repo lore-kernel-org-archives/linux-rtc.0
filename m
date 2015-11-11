@@ -1,27 +1,26 @@
-Return-Path: <rtc-linux+bncBDKZNNNLXAHBBPHY26YQKGQER4IBREQ@googlegroups.com>
-MIME-Version: 1.0
-Received: from mail-pa0-x230.google.com (mail-pa0-x230.google.com. [2607:f8b0:400e:c03::230])
-        by gmr-mx.google.com with ESMTPS id fa8si1473229pab.1.2015.11.01.03.49.16
+Return-Path: <rtc-linux+bncBC5M7T4HYEKRBHGRRWZAKGQEWXZQZLQ@googlegroups.com>
+Received: from arroyo.ext.ti.com (arroyo.ext.ti.com. [192.94.94.40])
+        by gmr-mx.google.com with ESMTPS id lo7si310571igb.3.2015.11.11.08.11.07
         for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sun, 01 Nov 2015 03:49:16 -0800 (PST)
-Received: by pacfv9 with SMTP id fv9so123752717pac.3
-        for <rtc-linux@googlegroups.com>; Sun, 01 Nov 2015 03:49:16 -0800 (PST)
-From: Krzysztof Kozlowski <k.kozlowski.k@gmail.com>
-To: Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org
-Cc: Krzysztof Kozlowski <k.kozlowski.k@gmail.com>,
-	Donggeun Kim <dg77.kim@samsung.com>,
-	MyungJoo Ham <myungjoo.kim@samsung.com>,
-	KyungMin Park <kyungmin.park@samsung.com>
-Subject: [rtc-linux] [PATCH v3] rtc: rtc-s3c: Set year, month, day value for
- setting alarm
-Date: Sun,  1 Nov 2015 20:49:04 +0900
-Message-Id: <1446378544-18020-1-git-send-email-k.kozlowski.k@gmail.com>
-Reply-To: rtc-linux@googlegroups.com
+        (version=TLSv1 cipher=RC4-SHA bits=128/128);
+        Wed, 11 Nov 2015 08:11:07 -0800 (PST)
+From: Felipe Balbi <balbi@ti.com>
+To: Alessandro Zummo <a.zummo@towertech.it>
+CC: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Linux OMAP Mailing List
+	<linux-omap@vger.kernel.org>,
+        Linux ARM Kernel Mailing List
+	<linux-arm-kernel@lists.infradead.org>,
+        Rob Herring <robh+dt@kernel.org>, <rtc-linux@googlegroups.com>,
+        Felipe Balbi <balbi@ti.com>, Tony Lindgren
+	<tony@atomide.com>,
+        Nishanth Menon <nm@ti.com>
+Subject: [rtc-linux] [PATCH] rtc: ds1307: fix kernel splat due to wakeup irq handling
+Date: Wed, 11 Nov 2015 10:11:01 -0600
+Message-ID: <1447258261-2102-1-git-send-email-balbi@ti.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -31,68 +30,126 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-This patch sets year, month, day value for set_alarm function.
-The current driver omits to set the values.
+Since commit 3fffd1283927 ("i2c: allow specifying
+separate wakeup interrupt in device tree") we have
+automatic wakeup irq support for i2c devices. That
+commit missed the fact that rtc-1307 had its own
+wakeup irq handling and ended up introducing a
+kernel splat for at least Beagle x15 boards.
 
-This fixes setting wake alarm for dates different than current day.
-Without the patch the alarm scheduled for tomorrow would fire today on
-chosen time.
+Fix that by reverting original commit _and_ passing
+correct interrupt names on DTS so i2c-core can
+choose correct IRQ as wakeup.
 
-Signed-off-by: Donggeun Kim <dg77.kim@samsung.com>
-Signed-off-by: MyungJoo Ham <myungjoo.kim@samsung.com>
-Signed-off-by: KyungMin Park <kyungmin.park@samsung.com>
-[k.kozlowski: Rebase and test the patch, update commit message]
-Signed-off-by: Krzysztof Kozlowski <k.kozlowski.k@gmail.com>
+Now that we have automatic wakeirq support, we can
+revert the original commit which did it manually.
 
+Fixes the following warning:
+
+[   10.346582] WARNING: CPU: 1 PID: 263 at linux/drivers/base/power/wakeirq.c:43 dev_pm_attach_wake_irq+0xbc/0xd4()
+[   10.359244] rtc-ds1307 2-006f: wake irq already initialized
+
+Cc: Tony Lindgren <tony@atomide.com>
+Cc: Nishanth Menon <nm@ti.com>
+Signed-off-by: Felipe Balbi <balbi@ti.com>
 ---
+ arch/arm/boot/dts/am57xx-beagle-x15.dts |  1 +
+ drivers/rtc/rtc-ds1307.c                | 36 +++------------------------------
+ 2 files changed, 4 insertions(+), 33 deletions(-)
 
-Changes since v2:
-1. Emails dg77.kim@samsung.com and myungjoo.kim@samsung.com are no
-   longer valid.
-2. Remove debug code added by mistake.
-
-Changes since v1:
-1. Rebase, test, update.
----
- drivers/rtc/rtc-s3c.c | 16 ++++++++++++++++
- 1 file changed, 16 insertions(+)
-
-diff --git a/drivers/rtc/rtc-s3c.c b/drivers/rtc/rtc-s3c.c
-index 7cc8f73a3fe8..ffb860d18701 100644
---- a/drivers/rtc/rtc-s3c.c
-+++ b/drivers/rtc/rtc-s3c.c
-@@ -302,6 +302,7 @@ static int s3c_rtc_setalarm(struct device *dev, struct rtc_wkalrm *alrm)
- 	struct s3c_rtc *info = dev_get_drvdata(dev);
- 	struct rtc_time *tm = &alrm->time;
- 	unsigned int alrm_en;
-+	int year = tm->tm_year - 100;
+diff --git a/arch/arm/boot/dts/am57xx-beagle-x15.dts b/arch/arm/boot/dts/am57xx-beagle-x15.dts
+index d9ba6b879fc1..00352e761b8c 100644
+--- a/arch/arm/boot/dts/am57xx-beagle-x15.dts
++++ b/arch/arm/boot/dts/am57xx-beagle-x15.dts
+@@ -604,6 +604,7 @@
+ 		reg = <0x6f>;
+ 		interrupts-extended = <&crossbar_mpu GIC_SPI 2 IRQ_TYPE_EDGE_RISING>,
+ 				      <&dra7_pmx_core 0x424>;
++		interrupt-names = "irq", "wakeup";
  
- 	dev_dbg(dev, "s3c_rtc_setalarm: %d, %04d.%02d.%02d %02d:%02d:%02d\n",
- 		 alrm->enabled,
-@@ -328,6 +329,21 @@ static int s3c_rtc_setalarm(struct device *dev, struct rtc_wkalrm *alrm)
- 		writeb(bin2bcd(tm->tm_hour), info->base + S3C2410_ALMHOUR);
+ 		pinctrl-names = "default";
+ 		pinctrl-0 = <&mcp79410_pins_default>;
+diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
+index 188006c55ce0..325836818826 100644
+--- a/drivers/rtc/rtc-ds1307.c
++++ b/drivers/rtc/rtc-ds1307.c
+@@ -15,9 +15,6 @@
+ #include <linux/i2c.h>
+ #include <linux/init.h>
+ #include <linux/module.h>
+-#include <linux/of_device.h>
+-#include <linux/of_irq.h>
+-#include <linux/pm_wakeirq.h>
+ #include <linux/rtc/ds1307.h>
+ #include <linux/rtc.h>
+ #include <linux/slab.h>
+@@ -117,7 +114,6 @@ struct ds1307 {
+ #define HAS_ALARM	1		/* bit 1 == irq claimed */
+ 	struct i2c_client	*client;
+ 	struct rtc_device	*rtc;
+-	int			wakeirq;
+ 	s32 (*read_block_data)(const struct i2c_client *client, u8 command,
+ 			       u8 length, u8 *values);
+ 	s32 (*write_block_data)(const struct i2c_client *client, u8 command,
+@@ -1146,8 +1142,6 @@ read_rtc:
  	}
  
-+	if (year < 100 && year >= 0) {
-+		alrm_en |= S3C2410_RTCALM_YEAREN;
-+		writeb(bin2bcd(year), info->base + S3C2410_ALMYEAR);
-+	}
-+
-+	if (tm->tm_mon < 12 && tm->tm_mon >= 0) {
-+		alrm_en |= S3C2410_RTCALM_MONEN;
-+		writeb(bin2bcd(tm->tm_mon + 1), info->base + S3C2410_ALMMON);
-+	}
-+
-+	if (tm->tm_mday <= 31 && tm->tm_mday >= 1) {
-+		alrm_en |= S3C2410_RTCALM_DAYEN;
-+		writeb(bin2bcd(tm->tm_mday), info->base + S3C2410_ALMDATE);
-+	}
-+
- 	dev_dbg(dev, "setting S3C2410_RTCALM to %08x\n", alrm_en);
+ 	if (want_irq) {
+-		struct device_node *node = client->dev.of_node;
+-
+ 		err = devm_request_threaded_irq(&client->dev,
+ 						client->irq, NULL, irq_handler,
+ 						IRQF_SHARED | IRQF_ONESHOT,
+@@ -1155,34 +1149,13 @@ read_rtc:
+ 		if (err) {
+ 			client->irq = 0;
+ 			dev_err(&client->dev, "unable to request IRQ!\n");
+-			goto no_irq;
+-		}
+-
+-		set_bit(HAS_ALARM, &ds1307->flags);
+-		dev_dbg(&client->dev, "got IRQ %d\n", client->irq);
+-
+-		/* Currently supported by OF code only! */
+-		if (!node)
+-			goto no_irq;
+-
+-		err = of_irq_get(node, 1);
+-		if (err <= 0) {
+-			if (err == -EPROBE_DEFER)
+-				goto exit;
+-			goto no_irq;
+-		}
+-		ds1307->wakeirq = err;
++		} else {
  
- 	writeb(alrm_en, info->base + S3C2410_RTCALM);
+-		err = dev_pm_set_dedicated_wake_irq(&client->dev,
+-						    ds1307->wakeirq);
+-		if (err) {
+-			dev_err(&client->dev, "unable to setup wakeIRQ %d!\n",
+-				err);
+-			goto exit;
++			set_bit(HAS_ALARM, &ds1307->flags);
++			dev_dbg(&client->dev, "got IRQ %d\n", client->irq);
+ 		}
+ 	}
+ 
+-no_irq:
+ 	if (chip->nvram_size) {
+ 
+ 		ds1307->nvram = devm_kzalloc(&client->dev,
+@@ -1226,9 +1199,6 @@ static int ds1307_remove(struct i2c_client *client)
+ {
+ 	struct ds1307 *ds1307 = i2c_get_clientdata(client);
+ 
+-	if (ds1307->wakeirq)
+-		dev_pm_clear_wake_irq(&client->dev);
+-
+ 	if (test_and_clear_bit(HAS_NVRAM, &ds1307->flags))
+ 		sysfs_remove_bin_file(&client->dev.kobj, ds1307->nvram);
+ 
 -- 
-2.1.4
+2.6.2
 
 -- 
 -- 
