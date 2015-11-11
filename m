@@ -1,20 +1,24 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBNXG2OZAKGQEADLKTOI@googlegroups.com>
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id i77si36349wmf.1.2015.11.24.15.31.01
+Return-Path: <rtc-linux+bncBCQPVKWLVAIRBEXCRWZAKGQEXXRI6KA@googlegroups.com>
+Received: from muru.com (muru.com. [72.249.23.125])
+        by gmr-mx.google.com with ESMTP id t8si322137igs.1.2015.11.11.08.47.14
         for <rtc-linux@googlegroups.com>;
-        Tue, 24 Nov 2015 15:31:01 -0800 (PST)
-Date: Wed, 25 Nov 2015 00:31:01 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Joshua Clayton <stillcompiling@gmail.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH 8/9] rtc-pcf2123: use sysfs groups
-Message-ID: <20151124233101.GH3950@piout.net>
-References: <cover.1446587705.git.stillcompiling@gmail.com>
- <63d5284dfb9d04f1f0a33c02cd937e2ddd72fb9b.1446587705.git.stillcompiling@gmail.com>
+        Wed, 11 Nov 2015 08:47:14 -0800 (PST)
+Date: Wed, 11 Nov 2015 08:47:10 -0800
+From: Tony Lindgren <tony@atomide.com>
+To: Felipe Balbi <balbi@ti.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Linux OMAP Mailing List <linux-omap@vger.kernel.org>,
+	Linux ARM Kernel Mailing List <linux-arm-kernel@lists.infradead.org>,
+	Rob Herring <robh+dt@kernel.org>, rtc-linux@googlegroups.com,
+	Nishanth Menon <nm@ti.com>
+Subject: [rtc-linux] Re: [PATCH] rtc: ds1307: fix kernel splat due to wakeup
+ irq handling
+Message-ID: <20151111164710.GE3218@atomide.com>
+References: <1447258261-2102-1-git-send-email-balbi@ti.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <63d5284dfb9d04f1f0a33c02cd937e2ddd72fb9b.1446587705.git.stillcompiling@gmail.com>
+In-Reply-To: <1447258261-2102-1-git-send-email-balbi@ti.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -25,217 +29,132 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Hi,
-
-This is okay but I'm not actually sure about the usefulness of that
-interface. The driver is exactly here to abstract access to the
-registers. Limit it to registers that are not used by the driver? Also,
-It would probably better live in debugfs rather than in sysfs.
-
-On 04/11/2015 at 07:36:39 -0800, Joshua Clayton wrote :
-> Switch from manually creating all the sysfs attributes to
-> defining them mostly in the canonical way.
-> We are adding them to an spi driver, so we must still add and remove
-> the group manually, but everythig else is done by The Book(tm) .
+* Felipe Balbi <balbi@ti.com> [151111 08:11]:
+> Since commit 3fffd1283927 ("i2c: allow specifying
+> separate wakeup interrupt in device tree") we have
+> automatic wakeup irq support for i2c devices. That
+> commit missed the fact that rtc-1307 had its own
+> wakeup irq handling and ended up introducing a
+> kernel splat for at least Beagle x15 boards.
 > 
-> Signed-off-by: Joshua Clayton <stillcompiling@gmail.com>
+> Fix that by reverting original commit _and_ passing
+> correct interrupt names on DTS so i2c-core can
+> choose correct IRQ as wakeup.
+> 
+> Now that we have automatic wakeirq support, we can
+> revert the original commit which did it manually.
+> 
+> Fixes the following warning:
+> 
+> [   10.346582] WARNING: CPU: 1 PID: 263 at linux/drivers/base/power/wakeirq.c:43 dev_pm_attach_wake_irq+0xbc/0xd4()
+> [   10.359244] rtc-ds1307 2-006f: wake irq already initialized
+
+Best to merge the dts change along with the driver fix in this case:
+
+Acked-by: Tony Lindgren <tony@atomide.com>
+
+
+> Cc: Nishanth Menon <nm@ti.com>
+> Signed-off-by: Felipe Balbi <balbi@ti.com>
 > ---
->  drivers/rtc/rtc-pcf2123.c | 118 +++++++++++++++++++++-------------------------
->  1 file changed, 55 insertions(+), 63 deletions(-)
+>  arch/arm/boot/dts/am57xx-beagle-x15.dts |  1 +
+>  drivers/rtc/rtc-ds1307.c                | 36 +++------------------------------
+>  2 files changed, 4 insertions(+), 33 deletions(-)
 > 
-> diff --git a/drivers/rtc/rtc-pcf2123.c b/drivers/rtc/rtc-pcf2123.c
-> index 6701e6d..d494638 100644
-> --- a/drivers/rtc/rtc-pcf2123.c
-> +++ b/drivers/rtc/rtc-pcf2123.c
-> @@ -84,16 +84,6 @@
+> diff --git a/arch/arm/boot/dts/am57xx-beagle-x15.dts b/arch/arm/boot/dts/am57xx-beagle-x15.dts
+> index d9ba6b879fc1..00352e761b8c 100644
+> --- a/arch/arm/boot/dts/am57xx-beagle-x15.dts
+> +++ b/arch/arm/boot/dts/am57xx-beagle-x15.dts
+> @@ -604,6 +604,7 @@
+>  		reg = <0x6f>;
+>  		interrupts-extended = <&crossbar_mpu GIC_SPI 2 IRQ_TYPE_EDGE_RISING>,
+>  				      <&dra7_pmx_core 0x424>;
+> +		interrupt-names = "irq", "wakeup";
 >  
->  static struct spi_driver pcf2123_driver;
->  
-> -struct pcf2123_sysfs_reg {
-> -	struct device_attribute attr;
-> -	char name[2];
-> -};
-> -
-> -struct pcf2123_plat_data {
-> -	struct rtc_device *rtc;
-> -	struct pcf2123_sysfs_reg regs[16];
-> -};
-> -
->  /*
->   * Causes a 30 nanosecond delay to ensure that the PCF2123 chip select
->   * is released properly after an SPI write.  This function should be
-> @@ -146,17 +136,11 @@ static int pcf2123_write_reg(struct device *dev, u8 reg, u8 val)
->  static ssize_t pcf2123_show(struct device *dev, struct device_attribute *attr,
->  			    char *buffer)
->  {
-> -	struct pcf2123_sysfs_reg *r;
->  	u8 rxbuf[1];
->  	unsigned long reg;
->  	int ret;
->  
-> -	r = container_of(attr, struct pcf2123_sysfs_reg, attr);
-> -
-> -	ret = kstrtoul(r->name, 16, &reg);
-> -	if (ret)
-> -		return ret;
-> -
-> +	reg = hex_to_bin(attr->attr.name[0]);
->  	ret = pcf2123_read(dev, reg, rxbuf, 1);
->  	if (ret < 0)
->  		return -EIO;
-> @@ -166,25 +150,19 @@ static ssize_t pcf2123_show(struct device *dev, struct device_attribute *attr,
->  
->  static ssize_t pcf2123_store(struct device *dev, struct device_attribute *attr,
->  			     const char *buffer, size_t count) {
-> -	struct pcf2123_sysfs_reg *r;
->  	unsigned long reg;
->  	unsigned long val;
-> -
->  	int ret;
->  
-> -	r = container_of(attr, struct pcf2123_sysfs_reg, attr);
-> -
-> -	ret = kstrtoul(r->name, 16, &reg);
-> -	if (ret)
-> -		return ret;
-> -
->  	ret = kstrtoul(buffer, 0, &val);
->  	if (ret)
->  		return ret;
->  
-> +	reg = hex_to_bin(attr->attr.name[0]);
->  	pcf2123_write_reg(dev, reg, val);
->  	if (ret < 0)
->  		return -EIO;
-> +
->  	return count;
->  }
->  
-> @@ -326,17 +304,56 @@ static const struct rtc_class_ops pcf2123_rtc_ops = {
->  	.set_time	= pcf2123_rtc_set_time,
->  };
->  
-> +static DEVICE_ATTR(0, S_IRUGO | S_IWUSR, pcf2123_show, pcf2123_store);
-> +static DEVICE_ATTR(1, S_IRUGO | S_IWUSR, pcf2123_show, pcf2123_store);
-> +static DEVICE_ATTR(2, S_IRUGO | S_IWUSR, pcf2123_show, pcf2123_store);
-> +static DEVICE_ATTR(3, S_IRUGO | S_IWUSR, pcf2123_show, pcf2123_store);
-> +static DEVICE_ATTR(4, S_IRUGO | S_IWUSR, pcf2123_show, pcf2123_store);
-> +static DEVICE_ATTR(5, S_IRUGO | S_IWUSR, pcf2123_show, pcf2123_store);
-> +static DEVICE_ATTR(6, S_IRUGO | S_IWUSR, pcf2123_show, pcf2123_store);
-> +static DEVICE_ATTR(7, S_IRUGO | S_IWUSR, pcf2123_show, pcf2123_store);
-> +static DEVICE_ATTR(8, S_IRUGO | S_IWUSR, pcf2123_show, pcf2123_store);
-> +static DEVICE_ATTR(9, S_IRUGO | S_IWUSR, pcf2123_show, pcf2123_store);
-> +static DEVICE_ATTR(a, S_IRUGO | S_IWUSR, pcf2123_show, pcf2123_store);
-> +static DEVICE_ATTR(b, S_IRUGO | S_IWUSR, pcf2123_show, pcf2123_store);
-> +static DEVICE_ATTR(c, S_IRUGO | S_IWUSR, pcf2123_show, pcf2123_store);
-> +static DEVICE_ATTR(d, S_IRUGO | S_IWUSR, pcf2123_show, pcf2123_store);
-> +static DEVICE_ATTR(e, S_IRUGO | S_IWUSR, pcf2123_show, pcf2123_store);
-> +static DEVICE_ATTR(f, S_IRUGO | S_IWUSR, pcf2123_show, pcf2123_store);
-> +
-> +static struct attribute *pcf2123_attrs[] = {
-> +	&dev_attr_0.attr,
-> +	&dev_attr_1.attr,
-> +	&dev_attr_2.attr,
-> +	&dev_attr_3.attr,
-> +	&dev_attr_4.attr,
-> +	&dev_attr_5.attr,
-> +	&dev_attr_6.attr,
-> +	&dev_attr_7.attr,
-> +	&dev_attr_8.attr,
-> +	&dev_attr_9.attr,
-> +	&dev_attr_a.attr,
-> +	&dev_attr_b.attr,
-> +	&dev_attr_c.attr,
-> +	&dev_attr_d.attr,
-> +	&dev_attr_e.attr,
-> +	&dev_attr_f.attr,
-> +	NULL
-> +};
-> +
-> +static const struct attribute_group pcf2123_group = {
-> +	.attrs = pcf2123_attrs,
-> +};
-> +
-> +static const struct attribute_group *pcf2123_groups[] = {
-> +	&pcf2123_group,
-> +	NULL
-> +};
-> +
->  static int pcf2123_probe(struct spi_device *spi)
->  {
->  	struct rtc_device *rtc;
-> -	struct pcf2123_plat_data *pdata;
-> -	int ret, i;
-> -
-> -	pdata = devm_kzalloc(&spi->dev, sizeof(struct pcf2123_plat_data),
-> -				GFP_KERNEL);
-> -	if (!pdata)
-> -		return -ENOMEM;
-> -	spi->dev.platform_data = pdata;
-> +	int ret;
->  
->  	if (!pcf2123_time_valid(&spi->dev)) {
->  		ret = pcf2123_reset(&spi->dev);
-> @@ -360,29 +377,13 @@ static int pcf2123_probe(struct spi_device *spi)
->  		goto kfree_exit;
+>  		pinctrl-names = "default";
+>  		pinctrl-0 = <&mcp79410_pins_default>;
+> diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
+> index 188006c55ce0..325836818826 100644
+> --- a/drivers/rtc/rtc-ds1307.c
+> +++ b/drivers/rtc/rtc-ds1307.c
+> @@ -15,9 +15,6 @@
+>  #include <linux/i2c.h>
+>  #include <linux/init.h>
+>  #include <linux/module.h>
+> -#include <linux/of_device.h>
+> -#include <linux/of_irq.h>
+> -#include <linux/pm_wakeirq.h>
+>  #include <linux/rtc/ds1307.h>
+>  #include <linux/rtc.h>
+>  #include <linux/slab.h>
+> @@ -117,7 +114,6 @@ struct ds1307 {
+>  #define HAS_ALARM	1		/* bit 1 == irq claimed */
+>  	struct i2c_client	*client;
+>  	struct rtc_device	*rtc;
+> -	int			wakeirq;
+>  	s32 (*read_block_data)(const struct i2c_client *client, u8 command,
+>  			       u8 length, u8 *values);
+>  	s32 (*write_block_data)(const struct i2c_client *client, u8 command,
+> @@ -1146,8 +1142,6 @@ read_rtc:
 >  	}
 >  
-> -	pdata->rtc = rtc;
+>  	if (want_irq) {
+> -		struct device_node *node = client->dev.of_node;
 > -
-> -	for (i = 0; i < 16; i++) {
-> -		sysfs_attr_init(&pdata->regs[i].attr.attr);
-> -		sprintf(pdata->regs[i].name, "%1x", i);
-> -		pdata->regs[i].attr.attr.mode = S_IRUGO | S_IWUSR;
-> -		pdata->regs[i].attr.attr.name = pdata->regs[i].name;
-> -		pdata->regs[i].attr.show = pcf2123_show;
-> -		pdata->regs[i].attr.store = pcf2123_store;
-> -		ret = device_create_file(&spi->dev, &pdata->regs[i].attr);
-> -		if (ret) {
-> -			dev_err(&spi->dev, "Unable to create sysfs %s\n",
-> -				pdata->regs[i].name);
-> -			goto sysfs_exit;
+>  		err = devm_request_threaded_irq(&client->dev,
+>  						client->irq, NULL, irq_handler,
+>  						IRQF_SHARED | IRQF_ONESHOT,
+> @@ -1155,34 +1149,13 @@ read_rtc:
+>  		if (err) {
+>  			client->irq = 0;
+>  			dev_err(&client->dev, "unable to request IRQ!\n");
+> -			goto no_irq;
 > -		}
-> -	}
-> +	ret = sysfs_create_groups(&spi->dev.kobj, pcf2123_groups);
-> +	if (ret)
-> +		goto sysfs_exit;
->  
->  	return 0;
 > -
->  sysfs_exit:
-> -	for (i--; i >= 0; i--)
-> -		device_remove_file(&spi->dev, &pdata->regs[i].attr);
+> -		set_bit(HAS_ALARM, &ds1307->flags);
+> -		dev_dbg(&client->dev, "got IRQ %d\n", client->irq);
 > -
-> +	sysfs_remove_groups(&spi->dev.kobj, pcf2123_groups);
->  kfree_exit:
->  	spi->dev.platform_data = NULL;
->  	return ret;
-> @@ -390,16 +391,7 @@ kfree_exit:
+> -		/* Currently supported by OF code only! */
+> -		if (!node)
+> -			goto no_irq;
+> -
+> -		err = of_irq_get(node, 1);
+> -		if (err <= 0) {
+> -			if (err == -EPROBE_DEFER)
+> -				goto exit;
+> -			goto no_irq;
+> -		}
+> -		ds1307->wakeirq = err;
+> +		} else {
 >  
->  static int pcf2123_remove(struct spi_device *spi)
+> -		err = dev_pm_set_dedicated_wake_irq(&client->dev,
+> -						    ds1307->wakeirq);
+> -		if (err) {
+> -			dev_err(&client->dev, "unable to setup wakeIRQ %d!\n",
+> -				err);
+> -			goto exit;
+> +			set_bit(HAS_ALARM, &ds1307->flags);
+> +			dev_dbg(&client->dev, "got IRQ %d\n", client->irq);
+>  		}
+>  	}
+>  
+> -no_irq:
+>  	if (chip->nvram_size) {
+>  
+>  		ds1307->nvram = devm_kzalloc(&client->dev,
+> @@ -1226,9 +1199,6 @@ static int ds1307_remove(struct i2c_client *client)
 >  {
-> -	struct pcf2123_plat_data *pdata = dev_get_platdata(&spi->dev);
-> -	int i;
+>  	struct ds1307 *ds1307 = i2c_get_clientdata(client);
+>  
+> -	if (ds1307->wakeirq)
+> -		dev_pm_clear_wake_irq(&client->dev);
 > -
-> -	if (pdata) {
-> -		for (i = 0; i < 16; i++)
-> -			if (pdata->regs[i].name[0])
-> -				device_remove_file(&spi->dev,
-> -						   &pdata->regs[i].attr);
-> -	}
-> -
-> +	sysfs_remove_groups(&spi->dev.kobj, pcf2123_groups);
->  	return 0;
->  }
+>  	if (test_and_clear_bit(HAS_NVRAM, &ds1307->flags))
+>  		sysfs_remove_bin_file(&client->dev.kobj, ds1307->nvram);
 >  
 > -- 
-> 2.5.0
+> 2.6.2
 > 
-
--- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
 
 -- 
 -- 
