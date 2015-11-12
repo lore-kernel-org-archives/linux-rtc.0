@@ -1,20 +1,29 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBWPD2OZAKGQE5DQNGNY@googlegroups.com>
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id e201si33316wma.3.2015.11.24.15.25.13
-        for <rtc-linux@googlegroups.com>;
-        Tue, 24 Nov 2015 15:25:13 -0800 (PST)
-Date: Wed, 25 Nov 2015 00:25:12 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Joshua Clayton <stillcompiling@gmail.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH 6/9] rtc-pcf2123: avoid resetting the clock if possible
-Message-ID: <20151124232512.GG3950@piout.net>
-References: <cover.1446587705.git.stillcompiling@gmail.com>
- <f801d4f26d4c4944b1a5353d5b5fde4e507b45b2.1446587705.git.stillcompiling@gmail.com>
+Return-Path: <rtc-linux+bncBDIK5VOGT4GRBDPIR6ZAKGQEXF7L6GQ@googlegroups.com>
+Received: from szxga01-in.huawei.com (szxga01-in.huawei.com. [58.251.152.64])
+        by gmr-mx.google.com with ESMTPS id xk4si1154580pbc.2.2015.11.11.18.06.02
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1 cipher=AES128-SHA bits=128/128);
+        Wed, 11 Nov 2015 18:06:05 -0800 (PST)
+Subject: [rtc-linux] Re: [PATCH 1/1] rtc: fix type information of rtc-proc
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+References: <1444297652-10328-1-git-send-email-thunder.leizhen@huawei.com>
+ <564294AB.1080500@huawei.com> <20151111105450.GC4519@piout.net>
+CC: Alessandro Zummo <a.zummo@towertech.it>,
+        rtc-linux
+	<rtc-linux@googlegroups.com>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        Arnd Bergmann <arnd@arndb.de>, Zefan Li <lizefan@huawei.com>,
+        Xinwei Hu
+	<huxinwei@huawei.com>,
+        Tianhong Ding <dingtianhong@huawei.com>,
+        Hanjun Guo
+	<guohanjun@huawei.com>
+From: "Leizhen (ThunderTown)" <thunder.leizhen@huawei.com>
+Message-ID: <5643F3FC.8000102@huawei.com>
+Date: Thu, 12 Nov 2015 10:05:48 +0800
 MIME-Version: 1.0
+In-Reply-To: <20151111105450.GC4519@piout.net>
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <f801d4f26d4c4944b1a5353d5b5fde4e507b45b2.1446587705.git.stillcompiling@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -25,24 +34,37 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On 04/11/2015 at 07:36:37 -0800, Joshua Clayton wrote :
-> +	ret = pcf2123_rtc_read_time(dev, &tm);
-> +	if (ret < 0)
-> +		return false;
-> +
-> +	if (rtc_valid_tm(&tm) < 0) {
-> +		dev_err(dev, "retrieved date/time is not valid.\n");
-> +		return false;
-> +	}
-> +
 
-I would remove that test as basically, the date/time will only be valid
-when OSC_HAS_STOPPED is not set.
 
--- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+On 2015/11/11 18:54, Alexandre Belloni wrote:
+> On 11/11/2015 at 09:06:51 +0800, Leizhen (ThunderTown) wrote :
+>> Hi, all
+>>
+>> I'm sorry. Maybe I didn't describe clearly enough before. These words are finally
+>> shown to the end user. The end user maybe not a programmer, abbreviation word is unsuitable.
+>>
+> 
+> Yes, that is exactly m point. What if an end user currently has a
+> program parsing the file and looking for alrm_time or alrm_date? After
+> updating his kernel, the program won't work anymore which is something
+> we don't want.
+
+OK. I see. Thanks.
+
+> 
+>>
+>> cat /proc/driver/rtc
+>>
+>> rtc_time        : 00:47:43
+>> rtc_date        : 2015-11-11
+>> alrm_time       : 03:27:58				//alrm_time --> alarm_time
+>> alrm_date       : 2015-10-08				//alrm_date --> alarm_date
+>> alarm_IRQ       : no
+>> alrm_pending    : no					//alrm_pending --> alarm_pending
+>> update IRQ enabled      : no
+>>
+>>
+> 
 
 -- 
 -- 
