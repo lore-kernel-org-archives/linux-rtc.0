@@ -1,16 +1,19 @@
-Return-Path: <rtc-linux+bncBDIZTUWNWICRB24V5CYQKGQEQJX3A6Y@googlegroups.com>
-Received: from userp1040.oracle.com (userp1040.oracle.com. [156.151.31.81])
-        by gmr-mx.google.com with ESMTPS id el2si136461pbb.0.2015.11.04.05.40.58
+Return-Path: <rtc-linux+bncBCNNJWF7RUMRB3FNWSZAKGQETZM6D6A@googlegroups.com>
+Received: from mail-pa0-x230.google.com (mail-pa0-x230.google.com. [2607:f8b0:400e:c03::230])
+        by gmr-mx.google.com with ESMTPS id fa8si628525pab.1.2015.11.18.16.25.16
         for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 04 Nov 2015 05:40:59 -0800 (PST)
-Date: Wed, 4 Nov 2015 16:40:45 +0300
-From: Dan Carpenter <dan.carpenter@oracle.com>
-To: Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: rtc-linux@googlegroups.com, kernel-janitors@vger.kernel.org
-Subject: [rtc-linux] [patch] rtc: rtc-rv8803: Fix a couple locking bugs
-Message-ID: <20151104134045.GJ20966@mwanda>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 18 Nov 2015 16:25:16 -0800 (PST)
+Received: by mail-pa0-x230.google.com with SMTP id dm15so60899286pac.3
+        for <rtc-linux@googlegroups.com>; Wed, 18 Nov 2015 16:25:16 -0800 (PST)
+From: Joshua Clayton <stillcompiling@gmail.com>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>, linux-kernel@vger.kernel.org
+Cc: Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com
+Subject: [rtc-linux] Re: [PATCH 0/9] rtc-2123: access the clock offset feature
+Date: Wed, 18 Nov 2015 16:25:14 -0800
+Message-ID: <2802614.ZvDTOLQF6p@jclayton-pc>
+In-Reply-To: <20151117162530.GC14677@piout.net>
+References: <cover.1446587705.git.stillcompiling@gmail.com> <2107368.j5bIbb5cBF@jclayton-pc> <20151117162530.GC14677@piout.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
@@ -23,39 +26,34 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-There was one missing unlock on error in rv8803_set_alarm() and one
-unlock in rv8803_ioctl() which was missing altogether.
+On Tuesday, November 17, 2015 05:25:30 PM Alexandre Belloni wrote:
+> On 17/11/2015 at 07:30:48 -0800, Joshua Clayton wrote :
+> > On Wednesday, November 04, 2015 07:36:31 AM Joshua Clayton wrote:
+> > Any comments on this series?
+> > I realize now that I submitted it during the merge window, so it may have been overlooked.
+> > 
+> 
+> I will have a few comments but I didn't review everything thoroughly
+> yet. As you mentioned, you submitted during the merge window so this was
+> not going to be in 4.4 anyway.
+> 
+> 
+Thanks!
+I can relax since I know it is on your radar.
+I have responded my self to a couple of fat fingers in the commit messages.
+I am also in the process of testing the actual effects of the feature.
 
-Fixes: 2f370c4a1a44 ('rtc: Add a driver for Micro Crystal RV8803')
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
----
-Presumably the IOCTL issue was a last minute change after the driver had
-been tested...
+One thing I'm not sure I have adequately described (and didn't really
+understand until I started testing) is that a positive value in the adjust
+register increases the average value of a second, so it makes the clock
+slower, while a negative adjustment makes it faster.
 
-diff --git a/drivers/rtc/rtc-rv8803.c b/drivers/rtc/rtc-rv8803.c
-index 63244eb..9508de4 100644
---- a/drivers/rtc/rtc-rv8803.c
-+++ b/drivers/rtc/rtc-rv8803.c
-@@ -240,8 +240,10 @@ static int rv8803_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
- 	spin_lock_irqsave(&rv8803->flags_lock, irqflags);
- 
- 	ret = i2c_smbus_read_i2c_block_data(client, RV8803_FLAG, 2, ctrl);
--	if (ret != 2)
-+	if (ret != 2) {
-+		spin_unlock_irqrestore(&rv8803->flags_lock, irqflags);
- 		return ret < 0 ? ret : -EIO;
-+	}
- 
- 	alarmvals[0] = bin2bcd(alrm->time.tm_min);
- 	alarmvals[1] = bin2bcd(alrm->time.tm_hour);
-@@ -338,6 +340,7 @@ static int rv8803_ioctl(struct device *dev, unsigned int cmd, unsigned long arg)
- 	case RTC_VL_READ:
- 		spin_lock_irqsave(&rv8803->flags_lock, irqflags);
- 		flags = i2c_smbus_read_byte_data(client, RV8803_FLAG);
-+		spin_unlock_irqrestore(&rv8803->flags_lock, irqflags);
- 		if (flags < 0)
- 			return flags;
- 
+This was counterintuitive to me.
+Not having deeply examined other rtc's with similar capabilities, I can't
+say whether this is the norm.
+
+-- 
+~Joshua Clayton
 
 -- 
 -- 
