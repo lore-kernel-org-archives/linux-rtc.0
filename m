@@ -1,25 +1,24 @@
-Return-Path: <rtc-linux+bncBCNNJWF7RUMRBKOM5CYQKGQEHARRLDA@googlegroups.com>
+Return-Path: <rtc-linux+bncBD7YLCN32UNBBO6TW2ZAKGQE5SF6VPI@googlegroups.com>
 MIME-Version: 1.0
-Received: from mail-pa0-x22d.google.com (mail-pa0-x22d.google.com. [2607:f8b0:400e:c03::22d])
-        by gmr-mx.google.com with ESMTPS id el2si190828pbb.0.2015.11.04.07.37.13
+Received: from mail-wm0-x234.google.com (mail-wm0-x234.google.com. [2a00:1450:400c:c09::234])
+        by gmr-mx.google.com with ESMTPS id e201si303642wma.3.2015.11.19.02.51.38
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 04 Nov 2015 07:37:13 -0800 (PST)
-Received: by mail-pa0-x22d.google.com with SMTP id z6so57706706pas.2
-        for <rtc-linux@googlegroups.com>; Wed, 04 Nov 2015 07:37:13 -0800 (PST)
-From: Joshua Clayton <stillcompiling@gmail.com>
-To: Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: rtc-linux@googlegroups.com,
+        Thu, 19 Nov 2015 02:51:38 -0800 (PST)
+Received: by mail-wm0-x234.google.com with SMTP id c201so15346002wme.0
+        for <rtc-linux@googlegroups.com>; Thu, 19 Nov 2015 02:51:38 -0800 (PST)
+From: LABBE Corentin <clabbe.montjoie@gmail.com>
+To: alexandre.belloni@free-electrons.com,
+	a.zummo@towertech.it,
+	linux-arm-kernel@lists.infradead.org,
+	maxime.ripard@free-electrons.com,
+	wens@csie.org
+Cc: LABBE Corentin <clabbe.montjoie@gmail.com>,
 	linux-kernel@vger.kernel.org,
-	Joshua Clayton <stillcompiling@gmail.com>
-Subject: [rtc-linux] [PATCH 7/9] rtc-pcf2123: allow sysfs to accept hexidecimal
-Date: Wed,  4 Nov 2015 07:36:38 -0800
-Message-Id: <986cb8f7ff0ed0584bab543b6cb90655ecd215c4.1446587705.git.stillcompiling@gmail.com>
-In-Reply-To: <cover.1446587705.git.stillcompiling@gmail.com>
-References: <cover.1446587705.git.stillcompiling@gmail.com>
-In-Reply-To: <cover.1446587705.git.stillcompiling@gmail.com>
-References: <cover.1446587705.git.stillcompiling@gmail.com>
+	rtc-linux@googlegroups.com
+Subject: [rtc-linux] [PATCH 1/3] rtc: sunxi: fix signedness issues
+Date: Thu, 19 Nov 2015 11:50:08 +0100
+Message-Id: <1447930210-27008-1-git-send-email-clabbe.montjoie@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -31,33 +30,56 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-pcf2123 registers store their values in bcd.
-sysfs sensibly displays them in hexidecimal.
-Up to now, the sysfs store functions only accept base 10, which
-makes no sense.
+The variable year must be set as unsigned since it is used with
+sunxi_rtc_data_year{.min|.max} and as parameter of is_leap_year() which
+wait for unsigned int.
+Only tm_year is not unsigned, but it is long.
+This patch fix also the format of printing of min/max. (must use %u since
+they are unsigned)
 
-Add support for hexidecimal without removing base10 support.
+The parameter to of sunxi_rtc_setaie() must be set to uint since callers
+give always uint data.
 
-Signed-off-by: Joshua Clayton <stillcompiling@gmail.com>
+Signed-off-by: LABBE Corentin <clabbe.montjoie@gmail.com>
 ---
- drivers/rtc/rtc-pcf2123.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/rtc/rtc-sunxi.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/rtc/rtc-pcf2123.c b/drivers/rtc/rtc-pcf2123.c
-index 4964d5c..6701e6d 100644
---- a/drivers/rtc/rtc-pcf2123.c
-+++ b/drivers/rtc/rtc-pcf2123.c
-@@ -178,7 +178,7 @@ static ssize_t pcf2123_store(struct device *dev, struct device_attribute *attr,
- 	if (ret)
- 		return ret;
+diff --git a/drivers/rtc/rtc-sunxi.c b/drivers/rtc/rtc-sunxi.c
+index 52543ae..b4f35ac 100644
+--- a/drivers/rtc/rtc-sunxi.c
++++ b/drivers/rtc/rtc-sunxi.c
+@@ -175,7 +175,7 @@ static irqreturn_t sunxi_rtc_alarmirq(int irq, void *id)
+ 	return IRQ_NONE;
+ }
  
--	ret = kstrtoul(buffer, 10, &val);
-+	ret = kstrtoul(buffer, 0, &val);
- 	if (ret)
- 		return ret;
+-static void sunxi_rtc_setaie(int to, struct sunxi_rtc_dev *chip)
++static void sunxi_rtc_setaie(unsigned int to, struct sunxi_rtc_dev *chip)
+ {
+ 	u32 alrm_val = 0;
+ 	u32 alrm_irq_val = 0;
+@@ -343,7 +343,7 @@ static int sunxi_rtc_settime(struct device *dev, struct rtc_time *rtc_tm)
+ 	struct sunxi_rtc_dev *chip = dev_get_drvdata(dev);
+ 	u32 date = 0;
+ 	u32 time = 0;
+-	int year;
++	unsigned int year;
+ 
+ 	/*
+ 	 * the input rtc_tm->tm_year is the offset relative to 1900. We use
+@@ -353,8 +353,8 @@ static int sunxi_rtc_settime(struct device *dev, struct rtc_time *rtc_tm)
+ 
+ 	year = rtc_tm->tm_year + 1900;
+ 	if (year < chip->data_year->min || year > chip->data_year->max) {
+-		dev_err(dev, "rtc only supports year in range %d - %d\n",
+-				chip->data_year->min, chip->data_year->max);
++		dev_err(dev, "rtc only supports year in range %u - %u\n",
++			chip->data_year->min, chip->data_year->max);
+ 		return -EINVAL;
+ 	}
  
 -- 
-2.5.0
+2.4.10
 
 -- 
 -- 
