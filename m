@@ -1,617 +1,315 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBRGQ36YQKGQEGCUF7XA@googlegroups.com>
-MIME-Version: 1.0
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id s134si539470wmb.3.2015.11.02.14.48.36
-        for <rtc-linux@googlegroups.com>;
-        Mon, 02 Nov 2015 14:48:36 -0800 (PST)
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Alessandro Zummo <a.zummo@towertech.it>
-Cc: rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Subject: [rtc-linux] [PATCHv2] rtc: Add a driver for Micro Crystal RV8803
-Date: Mon,  2 Nov 2015 23:48:32 +0100
-Message-Id: <1446504512-9079-1-git-send-email-alexandre.belloni@free-electrons.com>
-Reply-To: rtc-linux@googlegroups.com
-Content-Type: text/plain; charset=UTF-8
+Return-Path: <alim.akhtar@samsung.com>
+From: Alim Akhtar <alim.akhtar@samsung.com>
+To: lee.jones@linaro.org, broonie@kernel.org
+Cc: k.kozlowski@samsung.com, alexandre.belloni@free-electrons.com,
+ linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org,
+ rtc-linux@googlegroups.com, alim.akhtar@samsung.com,
+ Thomas Abraham <thomas.ab@samsung.com>
+Subject: [RESEND PATCH v5 1/3] mfd: sec: Add support for S2MPS15 PMIC
+Date: Fri, 20 Nov 2015 16:07:51 +0530
+Message-id: <1448015873-8743-2-git-send-email-alim.akhtar@samsung.com>
+In-reply-to: <1448015873-8743-1-git-send-email-alim.akhtar@samsung.com>
+References: <1448015873-8743-1-git-send-email-alim.akhtar@samsung.com>
 List-ID: <rtc-linux.googlegroups.com>
-List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
-List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
-List-Archive: <http://groups.google.com/group/rtc-linux
-Sender: rtc-linux@googlegroups.com
-List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
-List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
- <http://groups.google.com/group/rtc-linux/subscribe>
 
-This driver supports the following functions:
- - reading and settings time
- - alarms when connected to an IRQ
- - reading and clearing the voltage low flags
- - nvram
+From: Thomas Abraham <thomas.ab@samsung.com>
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Add support for S2MPS15 PMIC which is similar to S2MPS11 PMIC. The S2MPS15
+PMIC supports 27 LDO regulators, 10 buck regulators, RTC, three 32.768KHz
+clock outputs and battery charger. This patch adds initial support for
+LDO and buck regulators of S2MPS15 device.
+
+Signed-off-by: Thomas Abraham <thomas.ab@samsung.com>
+Signed-off-by: Alim Akhtar <alim.akhtar@samsung.com>
+[Alim: Added s2mps15_devs like rtc and clk and related changes]
+Reviewed-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+Acked-by: Lee Jones <lee.jones@linaro.org>
 ---
+ drivers/mfd/sec-core.c              |   31 +++++++
+ drivers/mfd/sec-irq.c               |    8 ++
+ include/linux/mfd/samsung/core.h    |    1 +
+ include/linux/mfd/samsung/s2mps15.h |  158 +++++++++++++++++++++++++++++++++++
+ 4 files changed, 198 insertions(+)
+ create mode 100644 include/linux/mfd/samsung/s2mps15.h
 
-Changes in v2:
- - Added locking around the flags modifications
- - return IRQ_NONE when no irq condition is met
- - register alarm callbacks only when irq registration succeed
-
- drivers/rtc/Kconfig      |   9 +
- drivers/rtc/Makefile     |   1 +
- drivers/rtc/rtc-rv8803.c | 521 +++++++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 531 insertions(+)
- create mode 100644 drivers/rtc/rtc-rv8803.c
-
-diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
-index 9d4290617cee..3ae131334a84 100644
---- a/drivers/rtc/Kconfig
-+++ b/drivers/rtc/Kconfig
-@@ -593,6 +593,15 @@ config RTC_DRV_RV3029C2
- 	  This driver can also be built as a module. If so, the module
- 	  will be called rtc-rv3029c2.
+diff --git a/drivers/mfd/sec-core.c b/drivers/mfd/sec-core.c
+index 989076d6cb83..7c4e7be17f1e 100644
+--- a/drivers/mfd/sec-core.c
++++ b/drivers/mfd/sec-core.c
+@@ -29,6 +29,7 @@
+ #include <linux/mfd/samsung/s2mps11.h>
+ #include <linux/mfd/samsung/s2mps13.h>
+ #include <linux/mfd/samsung/s2mps14.h>
++#include <linux/mfd/samsung/s2mps15.h>
+ #include <linux/mfd/samsung/s2mpu02.h>
+ #include <linux/mfd/samsung/s5m8763.h>
+ #include <linux/mfd/samsung/s5m8767.h>
+@@ -96,6 +97,17 @@ static const struct mfd_cell s2mps14_devs[] = {
+ 	}
+ };
  
-+config RTC_DRV_RV8803
-+	tristate "Micro Crystal RV8803"
-+	help
-+	  If you say yes here you get support for the Micro Crystal
-+	  RV8803 RTC chips.
++static const struct mfd_cell s2mps15_devs[] = {
++	{
++		.name = "s2mps15-regulator",
++	}, {
++		.name = "s2mps15-rtc",
++	}, {
++		.name = "s2mps13-clk",
++		.of_compatible = "samsung,s2mps13-clk",
++	},
++};
 +
-+	  This driver can also be built as a module. If so, the module
-+	  will be called rtc-rv8803.
+ static const struct mfd_cell s2mpa01_devs[] = {
+ 	{
+ 		.name = "s2mpa01-pmic",
+@@ -122,6 +134,9 @@ static const struct of_device_id sec_dt_match[] = {
+ 		.compatible = "samsung,s2mps14-pmic",
+ 		.data = (void *)S2MPS14X,
+ 	}, {
++		.compatible = "samsung,s2mps15-pmic",
++		.data = (void *)S2MPS15X,
++	}, {
+ 		.compatible = "samsung,s2mpa01-pmic",
+ 		.data = (void *)S2MPA01,
+ 	}, {
+@@ -223,6 +238,15 @@ static const struct regmap_config s2mps14_regmap_config = {
+ 	.cache_type = REGCACHE_FLAT,
+ };
+ 
++static const struct regmap_config s2mps15_regmap_config = {
++	.reg_bits = 8,
++	.val_bits = 8,
 +
- config RTC_DRV_S5M
- 	tristate "Samsung S2M/S5M series"
- 	depends on MFD_SEC_CORE
-diff --git a/drivers/rtc/Makefile b/drivers/rtc/Makefile
-index e491eb524434..231f76451615 100644
---- a/drivers/rtc/Makefile
-+++ b/drivers/rtc/Makefile
-@@ -126,6 +126,7 @@ obj-$(CONFIG_RTC_DRV_RS5C313)	+= rtc-rs5c313.o
- obj-$(CONFIG_RTC_DRV_RS5C348)	+= rtc-rs5c348.o
- obj-$(CONFIG_RTC_DRV_RS5C372)	+= rtc-rs5c372.o
- obj-$(CONFIG_RTC_DRV_RV3029C2)	+= rtc-rv3029c2.o
-+obj-$(CONFIG_RTC_DRV_RV8803)	+= rtc-rv8803.o
- obj-$(CONFIG_RTC_DRV_RX4581)	+= rtc-rx4581.o
- obj-$(CONFIG_RTC_DRV_RX8025)	+= rtc-rx8025.o
- obj-$(CONFIG_RTC_DRV_RX8581)	+= rtc-rx8581.o
-diff --git a/drivers/rtc/rtc-rv8803.c b/drivers/rtc/rtc-rv8803.c
++	.max_register = S2MPS15_REG_LDODSCH4,
++	.volatile_reg = s2mps11_volatile,
++	.cache_type = REGCACHE_FLAT,
++};
++
+ static const struct regmap_config s2mpu02_regmap_config = {
+ 	.reg_bits = 8,
+ 	.val_bits = 8,
+@@ -384,6 +408,9 @@ static int sec_pmic_probe(struct i2c_client *i2c,
+ 	case S2MPS14X:
+ 		regmap = &s2mps14_regmap_config;
+ 		break;
++	case S2MPS15X:
++		regmap = &s2mps15_regmap_config;
++		break;
+ 	case S5M8763X:
+ 		regmap = &s5m8763_regmap_config;
+ 		break;
+@@ -442,6 +469,10 @@ static int sec_pmic_probe(struct i2c_client *i2c,
+ 		sec_devs = s2mps14_devs;
+ 		num_sec_devs = ARRAY_SIZE(s2mps14_devs);
+ 		break;
++	case S2MPS15X:
++		sec_devs = s2mps15_devs;
++		num_sec_devs = ARRAY_SIZE(s2mps15_devs);
++		break;
+ 	case S2MPU02:
+ 		sec_devs = s2mpu02_devs;
+ 		num_sec_devs = ARRAY_SIZE(s2mpu02_devs);
+diff --git a/drivers/mfd/sec-irq.c b/drivers/mfd/sec-irq.c
+index 806fa8dbb22d..d77de431cc50 100644
+--- a/drivers/mfd/sec-irq.c
++++ b/drivers/mfd/sec-irq.c
+@@ -407,6 +407,11 @@ static const struct regmap_irq_chip s2mps14_irq_chip = {
+ 	S2MPS1X_IRQ_CHIP_COMMON_DATA,
+ };
+ 
++static const struct regmap_irq_chip s2mps15_irq_chip = {
++	.name = "s2mps15",
++	S2MPS1X_IRQ_CHIP_COMMON_DATA,
++};
++
+ static const struct regmap_irq_chip s2mpu02_irq_chip = {
+ 	.name = "s2mpu02",
+ 	.irqs = s2mpu02_irqs,
+@@ -466,6 +471,9 @@ int sec_irq_init(struct sec_pmic_dev *sec_pmic)
+ 	case S2MPS14X:
+ 		sec_irq_chip = &s2mps14_irq_chip;
+ 		break;
++	case S2MPS15X:
++		sec_irq_chip = &s2mps15_irq_chip;
++		break;
+ 	case S2MPU02:
+ 		sec_irq_chip = &s2mpu02_irq_chip;
+ 		break;
+diff --git a/include/linux/mfd/samsung/core.h b/include/linux/mfd/samsung/core.h
+index a06098639399..6bc4bcd488ac 100644
+--- a/include/linux/mfd/samsung/core.h
++++ b/include/linux/mfd/samsung/core.h
+@@ -44,6 +44,7 @@ enum sec_device_type {
+ 	S2MPS11X,
+ 	S2MPS13X,
+ 	S2MPS14X,
++	S2MPS15X,
+ 	S2MPU02,
+ };
+ 
+diff --git a/include/linux/mfd/samsung/s2mps15.h b/include/linux/mfd/samsung/s2mps15.h
 new file mode 100644
-index 000000000000..63244eb1123a
+index 000000000000..36d35287c3c0
 --- /dev/null
-+++ b/drivers/rtc/rtc-rv8803.c
-@@ -0,0 +1,521 @@
++++ b/include/linux/mfd/samsung/s2mps15.h
+@@ -0,0 +1,158 @@
 +/*
-+ * RTC driver for the Micro Crystal RV8803
++ * Copyright (c) 2015 Samsung Electronics Co., Ltd
++ *              http://www.samsung.com
 + *
-+ * Copyright (C) 2015 Micro Crystal SA
++ * This program is free software; you can redistribute  it and/or modify it
++ * under  the terms of  the GNU General  Public License as published by the
++ * Free Software Foundation;  either version 2 of the  License, or (at your
++ * option) any later version.
 + *
-+ * Alexandre Belloni <alexandre.belloni@free-electrons.com>
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
-+ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
 + */
 +
-+#include <linux/bcd.h>
-+#include <linux/bitops.h>
-+#include <linux/i2c.h>
-+#include <linux/interrupt.h>
-+#include <linux/kernel.h>
-+#include <linux/module.h>
-+#include <linux/rtc.h>
++#ifndef __LINUX_MFD_S2MPS15_H
++#define __LINUX_MFD_S2MPS15_H
 +
-+#define RV8803_SEC			0x00
-+#define RV8803_MIN			0x01
-+#define RV8803_HOUR			0x02
-+#define RV8803_WEEK			0x03
-+#define RV8803_DAY			0x04
-+#define RV8803_MONTH			0x05
-+#define RV8803_YEAR			0x06
-+#define RV8803_RAM			0x07
-+#define RV8803_ALARM_MIN		0x08
-+#define RV8803_ALARM_HOUR		0x09
-+#define RV8803_ALARM_WEEK_OR_DAY	0x0A
-+#define RV8803_EXT			0x0D
-+#define RV8803_FLAG			0x0E
-+#define RV8803_CTRL			0x0F
-+
-+#define RV8803_EXT_WADA			BIT(6)
-+
-+#define RV8803_FLAG_V1F			BIT(0)
-+#define RV8803_FLAG_V2F			BIT(1)
-+#define RV8803_FLAG_AF			BIT(3)
-+#define RV8803_FLAG_TF			BIT(4)
-+#define RV8803_FLAG_UF			BIT(5)
-+
-+#define RV8803_CTRL_RESET		BIT(0)
-+
-+#define RV8803_CTRL_EIE			BIT(2)
-+#define RV8803_CTRL_AIE			BIT(3)
-+#define RV8803_CTRL_TIE			BIT(4)
-+#define RV8803_CTRL_UIE			BIT(5)
-+
-+struct rv8803_data {
-+	struct i2c_client *client;
-+	struct rtc_device *rtc;
-+	spinlock_t flags_lock;
-+	u8 ctrl;
++/* S2MPS15 registers */
++enum s2mps15_reg {
++	S2MPS15_REG_ID,
++	S2MPS15_REG_INT1,
++	S2MPS15_REG_INT2,
++	S2MPS15_REG_INT3,
++	S2MPS15_REG_INT1M,
++	S2MPS15_REG_INT2M,
++	S2MPS15_REG_INT3M,
++	S2MPS15_REG_ST1,
++	S2MPS15_REG_ST2,
++	S2MPS15_REG_PWRONSRC,
++	S2MPS15_REG_OFFSRC,
++	S2MPS15_REG_BU_CHG,
++	S2MPS15_REG_RTC_BUF,
++	S2MPS15_REG_CTRL1,
++	S2MPS15_REG_CTRL2,
++	S2MPS15_REG_RSVD1,
++	S2MPS15_REG_RSVD2,
++	S2MPS15_REG_RSVD3,
++	S2MPS15_REG_RSVD4,
++	S2MPS15_REG_RSVD5,
++	S2MPS15_REG_RSVD6,
++	S2MPS15_REG_CTRL3,
++	S2MPS15_REG_RSVD7,
++	S2MPS15_REG_RSVD8,
++	S2MPS15_REG_RSVD9,
++	S2MPS15_REG_B1CTRL1,
++	S2MPS15_REG_B1CTRL2,
++	S2MPS15_REG_B2CTRL1,
++	S2MPS15_REG_B2CTRL2,
++	S2MPS15_REG_B3CTRL1,
++	S2MPS15_REG_B3CTRL2,
++	S2MPS15_REG_B4CTRL1,
++	S2MPS15_REG_B4CTRL2,
++	S2MPS15_REG_B5CTRL1,
++	S2MPS15_REG_B5CTRL2,
++	S2MPS15_REG_B6CTRL1,
++	S2MPS15_REG_B6CTRL2,
++	S2MPS15_REG_B7CTRL1,
++	S2MPS15_REG_B7CTRL2,
++	S2MPS15_REG_B8CTRL1,
++	S2MPS15_REG_B8CTRL2,
++	S2MPS15_REG_B9CTRL1,
++	S2MPS15_REG_B9CTRL2,
++	S2MPS15_REG_B10CTRL1,
++	S2MPS15_REG_B10CTRL2,
++	S2MPS15_REG_BBCTRL1,
++	S2MPS15_REG_BBCTRL2,
++	S2MPS15_REG_BRAMP,
++	S2MPS15_REG_LDODVS1,
++	S2MPS15_REG_LDODVS2,
++	S2MPS15_REG_LDODVS3,
++	S2MPS15_REG_LDODVS4,
++	S2MPS15_REG_L1CTRL,
++	S2MPS15_REG_L2CTRL,
++	S2MPS15_REG_L3CTRL,
++	S2MPS15_REG_L4CTRL,
++	S2MPS15_REG_L5CTRL,
++	S2MPS15_REG_L6CTRL,
++	S2MPS15_REG_L7CTRL,
++	S2MPS15_REG_L8CTRL,
++	S2MPS15_REG_L9CTRL,
++	S2MPS15_REG_L10CTRL,
++	S2MPS15_REG_L11CTRL,
++	S2MPS15_REG_L12CTRL,
++	S2MPS15_REG_L13CTRL,
++	S2MPS15_REG_L14CTRL,
++	S2MPS15_REG_L15CTRL,
++	S2MPS15_REG_L16CTRL,
++	S2MPS15_REG_L17CTRL,
++	S2MPS15_REG_L18CTRL,
++	S2MPS15_REG_L19CTRL,
++	S2MPS15_REG_L20CTRL,
++	S2MPS15_REG_L21CTRL,
++	S2MPS15_REG_L22CTRL,
++	S2MPS15_REG_L23CTRL,
++	S2MPS15_REG_L24CTRL,
++	S2MPS15_REG_L25CTRL,
++	S2MPS15_REG_L26CTRL,
++	S2MPS15_REG_L27CTRL,
++	S2MPS15_REG_LDODSCH1,
++	S2MPS15_REG_LDODSCH2,
++	S2MPS15_REG_LDODSCH3,
++	S2MPS15_REG_LDODSCH4,
 +};
 +
-+static irqreturn_t rv8803_handle_irq(int irq, void *dev_id)
-+{
-+	struct i2c_client *client = dev_id;
-+	struct rv8803_data *rv8803 = i2c_get_clientdata(client);
-+	unsigned long events = 0;
-+	u8 flags;
-+
-+	spin_lock(&rv8803->flags_lock);
-+
-+	flags = i2c_smbus_read_byte_data(client, RV8803_FLAG);
-+	if (flags <= 0) {
-+		spin_unlock(&rv8803->flags_lock);
-+		return IRQ_NONE;
-+	}
-+
-+	if (flags & RV8803_FLAG_V1F)
-+		dev_warn(&client->dev, "Voltage low, temperature compensation stopped.\n");
-+
-+	if (flags & RV8803_FLAG_V2F)
-+		dev_warn(&client->dev, "Voltage low, data loss detected.\n");
-+
-+	if (flags & RV8803_FLAG_TF) {
-+		flags &= ~RV8803_FLAG_TF;
-+		rv8803->ctrl &= ~RV8803_CTRL_TIE;
-+		events |= RTC_PF;
-+	}
-+
-+	if (flags & RV8803_FLAG_AF) {
-+		flags &= ~RV8803_FLAG_AF;
-+		rv8803->ctrl &= ~RV8803_CTRL_AIE;
-+		events |= RTC_AF;
-+	}
-+
-+	if (flags & RV8803_FLAG_UF) {
-+		flags &= ~RV8803_FLAG_UF;
-+		rv8803->ctrl &= ~RV8803_CTRL_UIE;
-+		events |= RTC_UF;
-+	}
-+
-+	if (events) {
-+		rtc_update_irq(rv8803->rtc, 1, events);
-+		i2c_smbus_write_byte_data(client, RV8803_FLAG, flags);
-+		i2c_smbus_write_byte_data(rv8803->client, RV8803_CTRL,
-+					  rv8803->ctrl);
-+	}
-+
-+	spin_unlock(&rv8803->flags_lock);
-+
-+	return IRQ_HANDLED;
-+}
-+
-+static int rv8803_get_time(struct device *dev, struct rtc_time *tm)
-+{
-+	struct rv8803_data *rv8803 = dev_get_drvdata(dev);
-+	u8 date1[7];
-+	u8 *date = date1;
-+	int ret, flags;
-+
-+	flags = i2c_smbus_read_byte_data(rv8803->client, RV8803_FLAG);
-+	if (flags < 0)
-+		return flags;
-+
-+	if (flags & RV8803_FLAG_V2F) {
-+		dev_warn(dev, "Voltage low, data is invalid.\n");
-+		return -EINVAL;
-+	}
-+
-+	ret = i2c_smbus_read_i2c_block_data(rv8803->client, RV8803_SEC,
-+					    7, date);
-+	if (ret != 7)
-+		return ret < 0 ? ret : -EIO;
-+
-+	if ((date1[RV8803_SEC] & 0x7f) == bin2bcd(59)) {
-+		u8 date2[7];
-+
-+		ret = i2c_smbus_read_i2c_block_data(rv8803->client, RV8803_SEC,
-+						    7, date2);
-+		if (ret != 7)
-+			return ret < 0 ? ret : -EIO;
-+
-+		if ((date2[RV8803_SEC] & 0x7f) != bin2bcd(59))
-+			date = date2;
-+	}
-+
-+	tm->tm_sec  = bcd2bin(date[RV8803_SEC] & 0x7f);
-+	tm->tm_min  = bcd2bin(date[RV8803_MIN] & 0x7f);
-+	tm->tm_hour = bcd2bin(date[RV8803_HOUR] & 0x3f);
-+	tm->tm_wday = ffs(date[RV8803_WEEK] & 0x7f);
-+	tm->tm_mday = bcd2bin(date[RV8803_DAY] & 0x3f);
-+	tm->tm_mon  = bcd2bin(date[RV8803_MONTH] & 0x1f) - 1;
-+	tm->tm_year = bcd2bin(date[RV8803_YEAR]) + 100;
-+
-+	return rtc_valid_tm(tm);
-+}
-+
-+static int rv8803_set_time(struct device *dev, struct rtc_time *tm)
-+{
-+	struct rv8803_data *rv8803 = dev_get_drvdata(dev);
-+	u8 date[7];
-+	int flags, ret;
-+	unsigned long irqflags;
-+
-+	if ((tm->tm_year < 100) || (tm->tm_year > 199))
-+		return -EINVAL;
-+
-+	date[RV8803_SEC]   = bin2bcd(tm->tm_sec);
-+	date[RV8803_MIN]   = bin2bcd(tm->tm_min);
-+	date[RV8803_HOUR]  = bin2bcd(tm->tm_hour);
-+	date[RV8803_WEEK]  = 1 << (tm->tm_wday);
-+	date[RV8803_DAY]   = bin2bcd(tm->tm_mday);
-+	date[RV8803_MONTH] = bin2bcd(tm->tm_mon + 1);
-+	date[RV8803_YEAR]  = bin2bcd(tm->tm_year - 100);
-+
-+	ret = i2c_smbus_write_i2c_block_data(rv8803->client, RV8803_SEC,
-+					     7, date);
-+	if (ret < 0)
-+		return ret;
-+
-+	spin_lock_irqsave(&rv8803->flags_lock, irqflags);
-+
-+	flags = i2c_smbus_read_byte_data(rv8803->client, RV8803_FLAG);
-+	if (flags < 0) {
-+		spin_unlock_irqrestore(&rv8803->flags_lock, irqflags);
-+		return flags;
-+	}
-+
-+	ret = i2c_smbus_write_byte_data(rv8803->client, RV8803_FLAG,
-+					flags & ~RV8803_FLAG_V2F);
-+
-+	spin_unlock_irqrestore(&rv8803->flags_lock, irqflags);
-+
-+	return ret;
-+}
-+
-+static int rv8803_get_alarm(struct device *dev, struct rtc_wkalrm *alrm)
-+{
-+	struct rv8803_data *rv8803 = dev_get_drvdata(dev);
-+	struct i2c_client *client = rv8803->client;
-+	u8 alarmvals[3];
-+	int flags, ret;
-+
-+	ret = i2c_smbus_read_i2c_block_data(client, RV8803_ALARM_MIN,
-+					    3, alarmvals);
-+	if (ret != 3)
-+		return ret < 0 ? ret : -EIO;
-+
-+	flags = i2c_smbus_read_byte_data(client, RV8803_FLAG);
-+	if (flags < 0)
-+		return flags;
-+
-+	alrm->time.tm_sec  = 0;
-+	alrm->time.tm_min  = bcd2bin(alarmvals[0] & 0x7f);
-+	alrm->time.tm_hour = bcd2bin(alarmvals[1] & 0x3f);
-+	alrm->time.tm_wday = -1;
-+	alrm->time.tm_mday = bcd2bin(alarmvals[2] & 0x3f);
-+	alrm->time.tm_mon  = -1;
-+	alrm->time.tm_year = -1;
-+
-+	alrm->enabled = !!(rv8803->ctrl & RV8803_CTRL_AIE);
-+	alrm->pending = (flags & RV8803_FLAG_AF) && alrm->enabled;
-+
-+	return 0;
-+}
-+
-+static int rv8803_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
-+{
-+	struct i2c_client *client = to_i2c_client(dev);
-+	struct rv8803_data *rv8803 = dev_get_drvdata(dev);
-+	u8 alarmvals[3];
-+	u8 ctrl[2];
-+	int ret, err;
-+	unsigned long irqflags;
-+
-+	/* The alarm has no seconds, round up to nearest minute */
-+	if (alrm->time.tm_sec) {
-+		time64_t alarm_time = rtc_tm_to_time64(&alrm->time);
-+
-+		alarm_time += 60 - alrm->time.tm_sec;
-+		rtc_time64_to_tm(alarm_time, &alrm->time);
-+	}
-+
-+	spin_lock_irqsave(&rv8803->flags_lock, irqflags);
-+
-+	ret = i2c_smbus_read_i2c_block_data(client, RV8803_FLAG, 2, ctrl);
-+	if (ret != 2)
-+		return ret < 0 ? ret : -EIO;
-+
-+	alarmvals[0] = bin2bcd(alrm->time.tm_min);
-+	alarmvals[1] = bin2bcd(alrm->time.tm_hour);
-+	alarmvals[2] = bin2bcd(alrm->time.tm_mday);
-+
-+	if (rv8803->ctrl & (RV8803_CTRL_AIE | RV8803_CTRL_UIE)) {
-+		rv8803->ctrl &= ~(RV8803_CTRL_AIE | RV8803_CTRL_UIE);
-+		err = i2c_smbus_write_byte_data(rv8803->client, RV8803_CTRL,
-+						rv8803->ctrl);
-+		if (err) {
-+			spin_unlock_irqrestore(&rv8803->flags_lock, irqflags);
-+			return err;
-+		}
-+	}
-+
-+	ctrl[1] &= ~RV8803_FLAG_AF;
-+	err = i2c_smbus_write_byte_data(rv8803->client, RV8803_FLAG, ctrl[1]);
-+	spin_unlock_irqrestore(&rv8803->flags_lock, irqflags);
-+	if (err)
-+		return err;
-+
-+	err = i2c_smbus_write_i2c_block_data(rv8803->client, RV8803_ALARM_MIN,
-+					     3, alarmvals);
-+	if (err)
-+		return err;
-+
-+	if (alrm->enabled) {
-+		if (rv8803->rtc->uie_rtctimer.enabled)
-+			rv8803->ctrl |= RV8803_CTRL_UIE;
-+		if (rv8803->rtc->aie_timer.enabled)
-+			rv8803->ctrl |= RV8803_CTRL_AIE;
-+
-+		err = i2c_smbus_write_byte_data(rv8803->client, RV8803_CTRL,
-+						rv8803->ctrl);
-+		if (err)
-+			return err;
-+	}
-+
-+	return 0;
-+}
-+
-+static int rv8803_alarm_irq_enable(struct device *dev, unsigned int enabled)
-+{
-+	struct i2c_client *client = to_i2c_client(dev);
-+	struct rv8803_data *rv8803 = dev_get_drvdata(dev);
-+	int ctrl, flags, err;
-+	unsigned long irqflags;
-+
-+	ctrl = rv8803->ctrl;
-+
-+	if (enabled) {
-+		if (rv8803->rtc->uie_rtctimer.enabled)
-+			ctrl |= RV8803_CTRL_UIE;
-+		if (rv8803->rtc->aie_timer.enabled)
-+			ctrl |= RV8803_CTRL_AIE;
-+	} else {
-+		if (!rv8803->rtc->uie_rtctimer.enabled)
-+			ctrl &= ~RV8803_CTRL_UIE;
-+		if (!rv8803->rtc->aie_timer.enabled)
-+			ctrl &= ~RV8803_CTRL_AIE;
-+	}
-+
-+	spin_lock_irqsave(&rv8803->flags_lock, irqflags);
-+	flags = i2c_smbus_read_byte_data(client, RV8803_FLAG);
-+	if (flags < 0) {
-+		spin_unlock_irqrestore(&rv8803->flags_lock, irqflags);
-+		return flags;
-+	}
-+	flags &= ~(RV8803_FLAG_AF | RV8803_FLAG_UF);
-+	err = i2c_smbus_write_byte_data(client, RV8803_FLAG, flags);
-+	spin_unlock_irqrestore(&rv8803->flags_lock, irqflags);
-+	if (err)
-+		return err;
-+
-+	if (ctrl != rv8803->ctrl) {
-+		rv8803->ctrl = ctrl;
-+		err = i2c_smbus_write_byte_data(client, RV8803_CTRL,
-+						rv8803->ctrl);
-+		if (err)
-+			return err;
-+	}
-+
-+	return 0;
-+}
-+
-+static int rv8803_ioctl(struct device *dev, unsigned int cmd, unsigned long arg)
-+{
-+	struct i2c_client *client = to_i2c_client(dev);
-+	struct rv8803_data *rv8803 = dev_get_drvdata(dev);
-+	int flags, ret = 0;
-+	unsigned long irqflags;
-+
-+	switch (cmd) {
-+	case RTC_VL_READ:
-+		spin_lock_irqsave(&rv8803->flags_lock, irqflags);
-+		flags = i2c_smbus_read_byte_data(client, RV8803_FLAG);
-+		if (flags < 0)
-+			return flags;
-+
-+		if (flags & RV8803_FLAG_V1F)
-+			dev_warn(&client->dev, "Voltage low, temperature compensation stopped.\n");
-+
-+		if (flags & RV8803_FLAG_V2F)
-+			dev_warn(&client->dev, "Voltage low, data loss detected.\n");
-+
-+		flags &= RV8803_FLAG_V1F | RV8803_FLAG_V2F;
-+
-+		if (copy_to_user((void __user *)arg, &flags, sizeof(int)))
-+			return -EFAULT;
-+
-+		return 0;
-+
-+	case RTC_VL_CLR:
-+		spin_lock_irqsave(&rv8803->flags_lock, irqflags);
-+		flags = i2c_smbus_read_byte_data(client, RV8803_FLAG);
-+		if (flags < 0) {
-+			spin_unlock_irqrestore(&rv8803->flags_lock, irqflags);
-+			return flags;
-+		}
-+
-+		flags &= ~(RV8803_FLAG_V1F | RV8803_FLAG_V2F);
-+		ret = i2c_smbus_write_byte_data(client, RV8803_FLAG, flags);
-+		spin_unlock_irqrestore(&rv8803->flags_lock, irqflags);
-+		if (ret < 0)
-+			return ret;
-+
-+		return 0;
-+
-+	default:
-+		return -ENOIOCTLCMD;
-+	}
-+}
-+
-+static ssize_t rv8803_nvram_write(struct file *filp, struct kobject *kobj,
-+				  struct bin_attribute *attr,
-+				  char *buf, loff_t off, size_t count)
-+{
-+	struct device *dev = kobj_to_dev(kobj);
-+	struct i2c_client *client = to_i2c_client(dev);
-+	int ret;
-+
-+	ret = i2c_smbus_write_byte_data(client, RV8803_RAM, buf[0]);
-+	if (ret < 0)
-+		return ret;
-+
-+	return 1;
-+}
-+
-+static ssize_t rv8803_nvram_read(struct file *filp, struct kobject *kobj,
-+				 struct bin_attribute *attr,
-+				 char *buf, loff_t off, size_t count)
-+{
-+	struct device *dev = kobj_to_dev(kobj);
-+	struct i2c_client *client = to_i2c_client(dev);
-+	int ret;
-+
-+	ret = i2c_smbus_read_byte_data(client, RV8803_RAM);
-+	if (ret < 0)
-+		return ret;
-+
-+	buf[0] = ret;
-+
-+	return 1;
-+}
-+
-+static struct bin_attribute rv8803_nvram_attr = {
-+	.attr = {
-+		.name = "nvram",
-+		.mode = S_IRUGO | S_IWUSR,
-+	},
-+	.size = 1,
-+	.read = rv8803_nvram_read,
-+	.write = rv8803_nvram_write,
++/* S2MPS15 regulator ids */
++enum s2mps15_regulators {
++	S2MPS15_LDO1,
++	S2MPS15_LDO2,
++	S2MPS15_LDO3,
++	S2MPS15_LDO4,
++	S2MPS15_LDO5,
++	S2MPS15_LDO6,
++	S2MPS15_LDO7,
++	S2MPS15_LDO8,
++	S2MPS15_LDO9,
++	S2MPS15_LDO10,
++	S2MPS15_LDO11,
++	S2MPS15_LDO12,
++	S2MPS15_LDO13,
++	S2MPS15_LDO14,
++	S2MPS15_LDO15,
++	S2MPS15_LDO16,
++	S2MPS15_LDO17,
++	S2MPS15_LDO18,
++	S2MPS15_LDO19,
++	S2MPS15_LDO20,
++	S2MPS15_LDO21,
++	S2MPS15_LDO22,
++	S2MPS15_LDO23,
++	S2MPS15_LDO24,
++	S2MPS15_LDO25,
++	S2MPS15_LDO26,
++	S2MPS15_LDO27,
++	S2MPS15_BUCK1,
++	S2MPS15_BUCK2,
++	S2MPS15_BUCK3,
++	S2MPS15_BUCK4,
++	S2MPS15_BUCK5,
++	S2MPS15_BUCK6,
++	S2MPS15_BUCK7,
++	S2MPS15_BUCK8,
++	S2MPS15_BUCK9,
++	S2MPS15_BUCK10,
++	S2MPS15_BUCK11,
++	S2MPS15_REGULATOR_MAX,
 +};
 +
-+static struct rtc_class_ops rv8803_rtc_ops = {
-+	.read_time = rv8803_get_time,
-+	.set_time = rv8803_set_time,
-+	.ioctl = rv8803_ioctl,
-+};
++#define S2MPS15_LDO_VSEL_MASK		(0x3F)
++#define S2MPS15_BUCK_VSEL_MASK		(0xFF)
 +
-+static int rv8803_probe(struct i2c_client *client,
-+			const struct i2c_device_id *id)
-+{
-+	struct i2c_adapter *adapter = to_i2c_adapter(client->dev.parent);
-+	struct rv8803_data *rv8803;
-+	int err, flags;
++#define S2MPS15_ENABLE_SHIFT		(0x06)
++#define S2MPS15_ENABLE_MASK		(0x03 << S2MPS15_ENABLE_SHIFT)
 +
-+	if (!i2c_check_functionality(adapter, I2C_FUNC_SMBUS_BYTE_DATA |
-+				     I2C_FUNC_SMBUS_I2C_BLOCK)) {
-+		dev_err(&adapter->dev, "doesn't support I2C_FUNC_SMBUS_BYTE_DATA | I2C_FUNC_SMBUS_I2C_BLOCK\n");
-+		return -EIO;
-+	}
++#define S2MPS15_LDO_N_VOLTAGES		(S2MPS15_LDO_VSEL_MASK + 1)
++#define S2MPS15_BUCK_N_VOLTAGES	(S2MPS15_BUCK_VSEL_MASK + 1)
 +
-+	rv8803 = devm_kzalloc(&client->dev, sizeof(struct rv8803_data),
-+			      GFP_KERNEL);
-+	if (!rv8803)
-+		return -ENOMEM;
-+
-+	rv8803->client = client;
-+	i2c_set_clientdata(client, rv8803);
-+
-+	flags = i2c_smbus_read_byte_data(client, RV8803_FLAG);
-+	if (flags < 0)
-+		return flags;
-+
-+	if (flags & RV8803_FLAG_V1F)
-+		dev_warn(&client->dev, "Voltage low, temperature compensation stopped.\n");
-+
-+	if (flags & RV8803_FLAG_V2F)
-+		dev_warn(&client->dev, "Voltage low, data loss detected.\n");
-+
-+	if (flags & RV8803_FLAG_AF)
-+		dev_warn(&client->dev, "An alarm maybe have been missed.\n");
-+
-+	if (client->irq > 0) {
-+		err = devm_request_threaded_irq(&client->dev, client->irq,
-+						NULL, rv8803_handle_irq,
-+						IRQF_TRIGGER_LOW | IRQF_ONESHOT,
-+						"rv8803", client);
-+		if (err) {
-+			dev_warn(&client->dev, "unable to request IRQ, alarms disabled\n");
-+			client->irq = 0;
-+		} else {
-+			rv8803_rtc_ops.read_alarm = rv8803_get_alarm;
-+			rv8803_rtc_ops.set_alarm = rv8803_set_alarm;
-+			rv8803_rtc_ops.alarm_irq_enable = rv8803_alarm_irq_enable;
-+		}
-+	}
-+
-+	rv8803->rtc = devm_rtc_device_register(&client->dev, client->name,
-+					       &rv8803_rtc_ops, THIS_MODULE);
-+	if (IS_ERR(rv8803->rtc)) {
-+		dev_err(&client->dev, "unable to register the class device\n");
-+		return PTR_ERR(rv8803->rtc);
-+	}
-+
-+	err = i2c_smbus_write_byte_data(rv8803->client, RV8803_EXT,
-+					RV8803_EXT_WADA);
-+	if (err)
-+		return err;
-+
-+	err = device_create_bin_file(&client->dev, &rv8803_nvram_attr);
-+	if (err)
-+		return err;
-+
-+	rv8803->rtc->max_user_freq = 1;
-+
-+	return 0;
-+}
-+
-+static int rv8803_remove(struct i2c_client *client)
-+{
-+	device_remove_bin_file(&client->dev, &rv8803_nvram_attr);
-+
-+	return 0;
-+}
-+
-+static const struct i2c_device_id rv8803_id[] = {
-+	{ "rv8803", 0 },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(i2c, rv8803_id);
-+
-+static struct i2c_driver rv8803_driver = {
-+	.driver = {
-+		.name = "rtc-rv8803",
-+	},
-+	.probe		= rv8803_probe,
-+	.remove		= rv8803_remove,
-+	.id_table	= rv8803_id,
-+};
-+module_i2c_driver(rv8803_driver);
-+
-+MODULE_AUTHOR("Alexandre Belloni <alexandre.belloni@free-electrons.com>");
-+MODULE_DESCRIPTION("Micro Crystal RV8803 RTC driver");
-+MODULE_LICENSE("GPL v2");
++#endif /* __LINUX_MFD_S2MPS15_H */
 -- 
-2.5.0
-
--- 
--- 
-You received this message because you are subscribed to "rtc-linux".
-Membership options at http://groups.google.com/group/rtc-linux .
-Please read http://groups.google.com/group/rtc-linux/web/checklist
-before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
-For more options, visit https://groups.google.com/d/optout.
+1.7.10.4
