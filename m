@@ -1,22 +1,26 @@
-Return-Path: <rtc-linux+bncBCNNJWF7RUMRBNMQVWZAKGQEYAESJRY@googlegroups.com>
-Received: from mail-pa0-x22b.google.com (mail-pa0-x22b.google.com. [2607:f8b0:400e:c03::22b])
-        by gmr-mx.google.com with ESMTPS id xk4si3827296pbc.2.2015.11.17.07.31.01
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 17 Nov 2015 07:31:01 -0800 (PST)
-Received: by mail-pa0-x22b.google.com with SMTP id ej9so11885552pac.2
-        for <rtc-linux@googlegroups.com>; Tue, 17 Nov 2015 07:31:01 -0800 (PST)
-From: Joshua Clayton <stillcompiling@gmail.com>
-To: Alessandro Zummo <a.zummo@towertech.it>, Alexandre Belloni <alexandre.belloni@free-electrons.com>, rtc-linux@googlegroups.com
-Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH 0/9] rtc-2123: access the clock offset feature
-Date: Tue, 17 Nov 2015 07:30:48 -0800
-Message-ID: <2107368.j5bIbb5cBF@jclayton-pc>
-In-Reply-To: <cover.1446587705.git.stillcompiling@gmail.com>
-References: <cover.1446587705.git.stillcompiling@gmail.com>
+Return-Path: <rtc-linux+bncBD747RFBYUPBBTPPXOZAKGQEUFXYQUA@googlegroups.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Received: from mailout1.samsung.com (mailout1.samsung.com. [203.254.224.24])
+        by gmr-mx.google.com with ESMTPS id 70si39781pfr.1.2015.11.20.02.37.00
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1 cipher=AES128-SHA bits=128/128);
+        Fri, 20 Nov 2015 02:37:01 -0800 (PST)
+Received: from epcpsbgr2.samsung.com
+ (u142.gpu120.samsung.co.kr [203.254.230.142])
+ by mailout1.samsung.com (Oracle Communications Messaging Server 7.0.5.31.0
+ 64bit (built May  5 2014))
+ with ESMTP id <0NY401OIO05MQGD0@mailout1.samsung.com> for
+ rtc-linux@googlegroups.com; Fri, 20 Nov 2015 19:36:58 +0900 (KST)
+From: Alim Akhtar <alim.akhtar@samsung.com>
+To: lee.jones@linaro.org, broonie@kernel.org
+Cc: k.kozlowski@samsung.com, alexandre.belloni@free-electrons.com,
+ linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org,
+ rtc-linux@googlegroups.com, alim.akhtar@samsung.com
+Subject: [rtc-linux] [RESEND PATCH v5 0/3] mfd: sec: add S2MPS15 PMIC support
+Date: Fri, 20 Nov 2015 16:07:50 +0530
+Message-id: <1448015873-8743-1-git-send-email-alim.akhtar@samsung.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -26,43 +30,36 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On Wednesday, November 04, 2015 07:36:31 AM Joshua Clayton wrote:
-> Greetings,
-> This series was prompted by a need to adjust the clock rate of the rtc
-> The existing code performs a soft reset during probe, which wipes out
-> several registers including the offset register, which performs adjustments
-> to the clock rate.
-> 
-> The first several patches are cleanup, with patch 5 and 6 avoiding the reset,
-> and patch 9 adding a nice sysfs interface to the clock offset.
-> 
-> I know that this is not the only rtc to provide a programmable clock offset
-> I wonder if this interface would make a good addition to the rtc api?
-> 
-> The rtc chips I have seen list their clock adjustments in parts per million.
-> I went with parts per billion, since the ppm listed was listed with a
-> fractional component.
-> 
-> Joshua Clayton (9):
->   rtc-pcf2123: Document all registers and useful bits
->   rtc-pcf2123: clean up reads from the chip
->   rtc-pcf2123: clean up writes to the rtc chip
->   rtc-pcf2123: replace magic numbers with defines
->   rtc-pcf2123: put the chip reset into a function
->   rtc-pcf2123: avoid resetting the clock if possible
->   rtc-pcf2123: allow sysfs to accept hexidecimal
->   rtc-pcf2123: use sysfs groups
->   rtc-pcf2123: adjust the clock rate via sysfs
-> 
->  drivers/rtc/rtc-pcf2123.c | 391 ++++++++++++++++++++++++++++++----------------
->  1 file changed, 257 insertions(+), 134 deletions(-)
-> 
-> 
-Any comments on this series?
-I realize now that I submitted it during the merge window, so it may have been overlooked.
+Hi Lee/Mark,
+
+This a resend of series [0] that adds s2mps15 pmic support.
+These patches have no changes, just collected some Reviewed-by and Acked-by tags.
+[0] -> https://lkml.org/lkml/2015/10/30/44
+
+Mark,
+Can I have you acked-by for patch# 2/3? so that these can go in via MFD tree.
+
+Alim Akhtar (1):
+  drivers/rtc/rtc-s5m.c: add support for S2MPS15 RTC
+
+Thomas Abraham (2):
+  mfd: sec: Add support for S2MPS15 PMIC
+  regulator: s2mps11: add support for S2MPS15 regulators
+
+ drivers/mfd/sec-core.c              |   31 +++++++
+ drivers/mfd/sec-irq.c               |    8 ++
+ drivers/regulator/Kconfig           |    4 +-
+ drivers/regulator/s2mps11.c         |  135 +++++++++++++++++++++++++++++-
+ drivers/rtc/rtc-s5m.c               |   37 +++++++-
+ include/linux/mfd/samsung/core.h    |    1 +
+ include/linux/mfd/samsung/rtc.h     |    2 +
+ include/linux/mfd/samsung/s2mps15.h |  158 +++++++++++++++++++++++++++++++++++
+ 8 files changed, 369 insertions(+), 7 deletions(-)
+ create mode 100644 include/linux/mfd/samsung/s2mps15.h
 
 -- 
-~Joshua Clayton
+1.7.10.4
+
 
 -- 
 -- 
