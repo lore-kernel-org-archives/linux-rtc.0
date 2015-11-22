@@ -1,26 +1,26 @@
-Return-Path: <rtc-linux+bncBD7YLCN32UNBBNWD5SYQKGQE5CGYXJA@googlegroups.com>
-MIME-Version: 1.0
-Received: from mail-wm0-x234.google.com (mail-wm0-x234.google.com. [2a00:1450:400c:c09::234])
-        by gmr-mx.google.com with ESMTPS id t2si269177wme.1.2015.11.05.01.30.30
+Return-Path: <rtc-linux+bncBDQ2L75W5QGBBOMEY6ZAKGQE2I6JPIA@googlegroups.com>
+Received: from mezzanine.sirena.org.uk (mezzanine.sirena.org.uk. [2400:8900::f03c:91ff:fedb:4f4])
+        by gmr-mx.google.com with ESMTPS id fg10si671238pad.0.2015.11.22.05.25.13
         for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 05 Nov 2015 01:30:30 -0800 (PST)
-Received: by mail-wm0-x234.google.com with SMTP id g8so7644241wme.1
-        for <rtc-linux@googlegroups.com>; Thu, 05 Nov 2015 01:30:30 -0800 (PST)
-From: LABBE Corentin <clabbe.montjoie@gmail.com>
-To: alexandre.belloni@free-electrons.com,
-	a.zummo@towertech.it,
-	linux-arm-kernel@lists.infradead.org,
-	maxime.ripard@free-electrons.com,
-	wens@csie.org
-Cc: LABBE Corentin <clabbe.montjoie@gmail.com>,
-	linux-kernel@vger.kernel.org,
-	rtc-linux@googlegroups.com
-Subject: [rtc-linux] [PATCH] rtc: sunxi: fix some misceanellous problems
-Date: Thu,  5 Nov 2015 10:29:49 +0100
-Message-Id: <1446715789-10460-1-git-send-email-clabbe.montjoie@gmail.com>
+        (version=TLS1_2 cipher=AES128-SHA bits=128/128);
+        Sun, 22 Nov 2015 05:25:13 -0800 (PST)
+Date: Sun, 22 Nov 2015 13:24:55 +0000
+From: Mark Brown <broonie@kernel.org>
+To: Alim Akhtar <alim.akhtar@samsung.com>
+Cc: lee.jones@linaro.org, k.kozlowski@samsung.com,
+	alexandre.belloni@free-electrons.com, linux-kernel@vger.kernel.org,
+	linux-samsung-soc@vger.kernel.org, rtc-linux@googlegroups.com,
+	Thomas Abraham <thomas.ab@samsung.com>
+Message-ID: <20151122132455.GP26072@sirena.org.uk>
+References: <1448015873-8743-1-git-send-email-alim.akhtar@samsung.com>
+ <1448015873-8743-3-git-send-email-alim.akhtar@samsung.com>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="e2bLSPRkEYxxSNev"
+In-Reply-To: <1448015873-8743-3-git-send-email-alim.akhtar@samsung.com>
+Subject: [rtc-linux] Re: [RESEND PATCH v5 2/3] regulator: s2mps11: add support
+ for S2MPS15 regulators
 Reply-To: rtc-linux@googlegroups.com
-Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -30,67 +30,19 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-year must be set as unsigned since it is use with
-sunxi_rtc_data_year{.min|.max} and as parameter of is_leap_year() which
-wait for unsigned int.
-Only tm_year is not unsigned, but it is long.
-This patch fix also the format of printing of min/max. (must %u since
-they are unsigned)
+--e2bLSPRkEYxxSNev
+Content-Type: text/plain; charset=UTF-8
+Content-Disposition: inline
 
-The parameter to of sunxi_rtc_setaie() must be set to uint since callers
-give always uint data.
+On Fri, Nov 20, 2015 at 04:07:52PM +0530, Alim Akhtar wrote:
+> From: Thomas Abraham <thomas.ab@samsung.com>
+> 
+> The S2MPS15 PMIC is similar in functionality to S2MPS11/14 PMIC. It contains
+> 27 LDO and 10 Buck regulators and allows programming these regulators via a
+> I2C interface. This patch adds initial support for LDO/Buck regulators of
+> S2MPS15 PMIC.
 
-The struct data_year_param is never modified, so it can be set const.
-
-Signed-off-by: LABBE Corentin <clabbe.montjoie@gmail.com>
----
- drivers/rtc/rtc-sunxi.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
-
-diff --git a/drivers/rtc/rtc-sunxi.c b/drivers/rtc/rtc-sunxi.c
-index 52543ae..9287afc 100644
---- a/drivers/rtc/rtc-sunxi.c
-+++ b/drivers/rtc/rtc-sunxi.c
-@@ -133,7 +133,7 @@ struct sunxi_rtc_data_year {
- 	unsigned char leap_shift;	/* bit shift to get the leap year */
- };
- 
--static struct sunxi_rtc_data_year data_year_param[] = {
-+static const struct sunxi_rtc_data_year data_year_param[] = {
- 	[0] = {
- 		.min		= 2010,
- 		.max		= 2073,
-@@ -175,7 +175,7 @@ static irqreturn_t sunxi_rtc_alarmirq(int irq, void *id)
- 	return IRQ_NONE;
- }
- 
--static void sunxi_rtc_setaie(int to, struct sunxi_rtc_dev *chip)
-+static void sunxi_rtc_setaie(unsigned int to, struct sunxi_rtc_dev *chip)
- {
- 	u32 alrm_val = 0;
- 	u32 alrm_irq_val = 0;
-@@ -343,7 +343,7 @@ static int sunxi_rtc_settime(struct device *dev, struct rtc_time *rtc_tm)
- 	struct sunxi_rtc_dev *chip = dev_get_drvdata(dev);
- 	u32 date = 0;
- 	u32 time = 0;
--	int year;
-+	unsigned int year;
- 
- 	/*
- 	 * the input rtc_tm->tm_year is the offset relative to 1900. We use
-@@ -353,8 +353,8 @@ static int sunxi_rtc_settime(struct device *dev, struct rtc_time *rtc_tm)
- 
- 	year = rtc_tm->tm_year + 1900;
- 	if (year < chip->data_year->min || year > chip->data_year->max) {
--		dev_err(dev, "rtc only supports year in range %d - %d\n",
--				chip->data_year->min, chip->data_year->max);
-+		dev_err(dev, "rtc only supports year in range %u - %u\n",
-+			chip->data_year->min, chip->data_year->max);
- 		return -EINVAL;
- 	}
- 
--- 
-2.4.10
+Acked-by: Mark Brown <broonie@kernel.org>
 
 -- 
 -- 
@@ -102,3 +54,20 @@ before submitting a driver.
 You received this message because you are subscribed to the Google Groups "rtc-linux" group.
 To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
+
+--e2bLSPRkEYxxSNev
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQEcBAEBCAAGBQJWUcImAAoJECTWi3JdVIfQRfsH/0z7aVPEZ/0UewsXS6a1T+ck
+ZY5lIkR3J2SVWgNHkrJaXT+5sZGsq/gdpWCUsT1MCEXmNii8E9PporqFPS4OVwKf
+maBUu9zWAupBmXdf8YoXCq1DYE/GWDxp0nU/ouMn5O9MwQpyefNdsU3Vz8z/K2kx
+e5TLMvmWH8bDCR1H07GpSMD6Sc3DF9m2PGWMQZ9seS3GazuWZe0Es/Ut2XJUB8GW
+I4MbCekgdq3i6ehct/lx4ou4iLfuQn0wigDwlbvSLTXb3hDNZZbUmRAS0WvVCISU
+gbAT0cV2ah1/W8vTIvrpaBGnwTli2w7VGK3QYBHClq5bEhieSkIvNPr0WgkvdRI=
+=U7YO
+-----END PGP SIGNATURE-----
+
+--e2bLSPRkEYxxSNev--
