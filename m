@@ -1,23 +1,27 @@
-Return-Path: <rtc-linux+bncBDNNFENL2IBRB2E4XCZAKGQEJFYLTGI@googlegroups.com>
-Received: from mail-io0-x22a.google.com (mail-io0-x22a.google.com. [2607:f8b0:4001:c06::22a])
-        by gmr-mx.google.com with ESMTPS id jc2si405056igb.3.2015.11.19.10.01.12
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 19 Nov 2015 10:01:12 -0800 (PST)
-Received: by mail-io0-x22a.google.com with SMTP id h3so97279801iof.3
-        for <rtc-linux@googlegroups.com>; Thu, 19 Nov 2015 10:01:12 -0800 (PST)
+Return-Path: <rtc-linux+bncBCMILY6JWQBBBRH3ZKZAKGQEAB6KV7Q@googlegroups.com>
+Received: from smtp.csie.ntu.edu.tw (smtp.csie.ntu.edu.tw. [140.112.30.61])
+        by gmr-mx.google.com with ESMTP id fg10si903968pad.0.2015.11.22.23.18.27
+        for <rtc-linux@googlegroups.com>;
+        Sun, 22 Nov 2015 23:18:27 -0800 (PST)
+Received: from mail-ig0-f171.google.com (mail-ig0-f171.google.com [209.85.213.171])
+	(Authenticated sender: b93043)
+	by smtp.csie.ntu.edu.tw (Postfix) with ESMTPSA id 6B7CF21469
+	for <rtc-linux@googlegroups.com>; Mon, 23 Nov 2015 15:18:26 +0800 (CST)
+Received: by igl9 with SMTP id 9so45826303igl.0
+        for <rtc-linux@googlegroups.com>; Sun, 22 Nov 2015 23:18:24 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <1446186334-16510-1-git-send-email-alim.akhtar@samsung.com>
-References: <1446186334-16510-1-git-send-email-alim.akhtar@samsung.com>
-From: Alim Akhtar <alim.akhtar@gmail.com>
-Date: Thu, 19 Nov 2015 23:30:32 +0530
-Message-ID: <CAGOxZ51aPo3rdB6R6x-Y4SUD4nsAcUo3X5XoEUSg0gfxuJpdyQ@mail.gmail.com>
-Subject: [rtc-linux] Re: [PATCH v5 0/4] mfd: sec: add S2MPS15 PMIC support
-To: Alim Akhtar <alim.akhtar@samsung.com>
-Cc: Lee Jones <lee.jones@linaro.org>, broonie@kernel.org,
-	=?UTF-8?Q?Krzysztof_Koz=C5=82owski?= <k.kozlowski@samsung.com>,
-	"linux-samsung-soc@vger.kernel.org" <linux-samsung-soc@vger.kernel.org>, rtc-linux@googlegroups.com,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <1447930210-27008-1-git-send-email-clabbe.montjoie@gmail.com>
+References: <1447930210-27008-1-git-send-email-clabbe.montjoie@gmail.com>
+From: Chen-Yu Tsai <wens@csie.org>
+Date: Mon, 23 Nov 2015 15:18:05 +0800
+Message-ID: <CAGb2v66odj__GMWy8sgc0b5df5FR1V3p-EhL2f-QMM8krA3Oqg@mail.gmail.com>
+Subject: [rtc-linux] Re: [PATCH 1/3] rtc: sunxi: fix signedness issues
+To: LABBE Corentin <clabbe.montjoie@gmail.com>
+Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
+	Maxime Ripard <maxime.ripard@free-electrons.com>, Chen-Yu Tsai <wens@csie.org>,
+	linux-kernel <linux-kernel@vger.kernel.org>, rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
@@ -29,86 +33,23 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Hi Lee,
-Do I need to resend this series? This series still apply cleanly on
-top of v4.4-rc1.
-I can see 1/4 is already applied.
+On Thu, Nov 19, 2015 at 6:50 PM, LABBE Corentin
+<clabbe.montjoie@gmail.com> wrote:
+> The variable year must be set as unsigned since it is used with
+> sunxi_rtc_data_year{.min|.max} and as parameter of is_leap_year() which
+> wait for unsigned int.
+> Only tm_year is not unsigned, but it is long.
+> This patch fix also the format of printing of min/max. (must use %u since
+> they are unsigned)
+>
+> The parameter to of sunxi_rtc_setaie() must be set to uint since callers
+> give always uint data.
+>
+> Signed-off-by: LABBE Corentin <clabbe.montjoie@gmail.com>
 
-Thanks & Regards,
-Alim
+Acked-by: Chen-Yu Tsai <wens@csie.org>
 
-On Fri, Oct 30, 2015 at 11:55 AM, Alim Akhtar <alim.akhtar@samsung.com> wrote:
-> Samsung's S2MPS15 PMIC is targetted to be used with Samsung's Exynos7 SoC.
-> The S2MPS15 PMIC is similar in functionality to S2MPS11/14 PMIC. It contains
-> 27 LDO and 10 Buck regulators, RTC, three 32.768 KHz clock outputs and allows
-> programming these blocks via a I2C interface. This patch series adds initial
-> support for LDO/Buck regulators of S2MPS15 PMIC.
->
-> Changes since v4:
-> * Dorpped Krzysztof reviewed-by and Lee Acked-by tags from patch 1/4,
->   because of the new changes to DT bindings. Seeking a fresh review/ack tags.
-> * Removed samsung,s2mps15-clk compatible as we can reuse exsisting compatible of s2mps13.
-> * Added acked-by on patch 2/4
-> * Modified rtc driver as s2mps15 differs from s2mps14/13 etc, addressed Krzysztof
->   concerns on rtc patch.
->   There are some other improvement suggestion from Krzystof for the rtc, I feel that can be done
->   as a sperate patch later.
->
-> Changes since v3:
-> * Changes regulator driver name from s2mps15-pmic -> s2mps15-regulator as disscussed here [2]
-> * Re-use the exsisting compatible/names for s2mps15 clock block.
->
-> Changes since v2:
-> * Addressed Lee Jones review comments.
->
-> Changes since v1:
-> * Added suggestion from Krzysztof [1].
-> * Added s2mps15's 32.768 clocks support.
-> * Added s2mps15's rtc support.
->
-> V1 of these patches (with a lesser features) were posted a year back,
-> since then there is not much progress on this, this is my attempt to
-> move things forward.
->
-> [1]-> https://lkml.org/lkml/2014/10/14/67
-> [2]-> https://lkml.org/lkml/2015/10/28/417
->
-> This series is based on linux-next-20151022.
-> This is tested on exynos7-espresso board.
->
-> Alim Akhtar (1):
->   drivers/rtc/rtc-s5m.c: add support for S2MPS15 RTC
->
-> Thomas Abraham (3):
->   dt-bindings: mfd: s2mps11: add documentation for s2mps15 PMIC
->   mfd: sec: Add support for S2MPS15 PMIC
->   regulator: s2mps11: add support for S2MPS15 regulators
->
->  Documentation/devicetree/bindings/mfd/s2mps11.txt |   21 ++-
->  drivers/mfd/sec-core.c                            |   31 ++++
->  drivers/mfd/sec-irq.c                             |    8 ++
->  drivers/regulator/Kconfig                         |    4 +-
->  drivers/regulator/s2mps11.c                       |  135 +++++++++++++++++-
->  drivers/rtc/rtc-s5m.c                             |   37 ++++-
->  include/linux/mfd/samsung/core.h                  |    1 +
->  include/linux/mfd/samsung/rtc.h                   |    2 +
->  include/linux/mfd/samsung/s2mps15.h               |  158 +++++++++++++++++++++
->  9 files changed, 383 insertions(+), 14 deletions(-)
->  create mode 100644 include/linux/mfd/samsung/s2mps15.h
->
-> --
-> 1.7.10.4
->
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-samsung-soc" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-
-
-
--- 
-Regards,
-Alim
+Would've preferred you not changing the whitespace on the dev_err line though.
 
 -- 
 -- 
