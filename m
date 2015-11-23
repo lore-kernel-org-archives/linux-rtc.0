@@ -1,28 +1,29 @@
-Return-Path: <rtc-linux+bncBD7YLCN32UNBBTGTW2ZAKGQENOGNLGI@googlegroups.com>
+Return-Path: <rtc-linux+bncBCMILY6JWQBBBWP3ZKZAKGQE2OQFPBI@googlegroups.com>
+Received: from smtp.csie.ntu.edu.tw (smtp.csie.ntu.edu.tw. [140.112.30.61])
+        by gmr-mx.google.com with ESMTP id pe1si790449pac.2.2015.11.22.23.18.49
+        for <rtc-linux@googlegroups.com>;
+        Sun, 22 Nov 2015 23:18:49 -0800 (PST)
+Received: from mail-ig0-f170.google.com (mail-ig0-f170.google.com [209.85.213.170])
+	(Authenticated sender: b93043)
+	by smtp.csie.ntu.edu.tw (Postfix) with ESMTPSA id 6A81C211F7
+	for <rtc-linux@googlegroups.com>; Mon, 23 Nov 2015 15:18:48 +0800 (CST)
+Received: by igcmv3 with SMTP id mv3so23370944igc.0
+        for <rtc-linux@googlegroups.com>; Sun, 22 Nov 2015 23:18:46 -0800 (PST)
 MIME-Version: 1.0
-Received: from mail-wm0-x236.google.com (mail-wm0-x236.google.com. [2a00:1450:400c:c09::236])
-        by gmr-mx.google.com with ESMTPS id r194si121585wmb.0.2015.11.19.02.51.56
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 19 Nov 2015 02:51:56 -0800 (PST)
-Received: by mail-wm0-x236.google.com with SMTP id v187so17524367wmv.1
-        for <rtc-linux@googlegroups.com>; Thu, 19 Nov 2015 02:51:56 -0800 (PST)
-From: LABBE Corentin <clabbe.montjoie@gmail.com>
-To: alexandre.belloni@free-electrons.com,
-	a.zummo@towertech.it,
-	linux-arm-kernel@lists.infradead.org,
-	maxime.ripard@free-electrons.com,
-	wens@csie.org
-Cc: LABBE Corentin <clabbe.montjoie@gmail.com>,
-	linux-kernel@vger.kernel.org,
-	rtc-linux@googlegroups.com
-Subject: [rtc-linux] [PATCH 2/3] rtc: sunxi: constify the data_year_param structure
-Date: Thu, 19 Nov 2015 11:50:09 +0100
-Message-Id: <1447930210-27008-2-git-send-email-clabbe.montjoie@gmail.com>
-In-Reply-To: <1447930210-27008-1-git-send-email-clabbe.montjoie@gmail.com>
-References: <1447930210-27008-1-git-send-email-clabbe.montjoie@gmail.com>
-Reply-To: rtc-linux@googlegroups.com
+In-Reply-To: <1447930210-27008-2-git-send-email-clabbe.montjoie@gmail.com>
+References: <1447930210-27008-1-git-send-email-clabbe.montjoie@gmail.com> <1447930210-27008-2-git-send-email-clabbe.montjoie@gmail.com>
+From: Chen-Yu Tsai <wens@csie.org>
+Date: Mon, 23 Nov 2015 15:18:27 +0800
+Message-ID: <CAGb2v65vNYg3zEmy+EesuDpfyLDuaCZ-rPPSjzTg4MaDGFGPnA@mail.gmail.com>
+Subject: [rtc-linux] Re: [PATCH 2/3] rtc: sunxi: constify the data_year_param structure
+To: LABBE Corentin <clabbe.montjoie@gmail.com>
+Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
+	Maxime Ripard <maxime.ripard@free-electrons.com>, Chen-Yu Tsai <wens@csie.org>,
+	linux-kernel <linux-kernel@vger.kernel.org>, rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -32,47 +33,14 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-The data_year_param struct is never modified, so lets constify it.
-This permit to remove cast since of_device_id is const also.
+On Thu, Nov 19, 2015 at 6:50 PM, LABBE Corentin
+<clabbe.montjoie@gmail.com> wrote:
+> The data_year_param struct is never modified, so lets constify it.
+> This permit to remove cast since of_device_id is const also.
+>
+> Signed-off-by: LABBE Corentin <clabbe.montjoie@gmail.com>
 
-Signed-off-by: LABBE Corentin <clabbe.montjoie@gmail.com>
----
- drivers/rtc/rtc-sunxi.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/rtc/rtc-sunxi.c b/drivers/rtc/rtc-sunxi.c
-index b4f35ac..0c08a5b 100644
---- a/drivers/rtc/rtc-sunxi.c
-+++ b/drivers/rtc/rtc-sunxi.c
-@@ -133,7 +133,7 @@ struct sunxi_rtc_data_year {
- 	unsigned char leap_shift;	/* bit shift to get the leap year */
- };
- 
--static struct sunxi_rtc_data_year data_year_param[] = {
-+static const struct sunxi_rtc_data_year data_year_param[] = {
- 	[0] = {
- 		.min		= 2010,
- 		.max		= 2073,
-@@ -151,7 +151,7 @@ static struct sunxi_rtc_data_year data_year_param[] = {
- struct sunxi_rtc_dev {
- 	struct rtc_device *rtc;
- 	struct device *dev;
--	struct sunxi_rtc_data_year *data_year;
-+	const struct sunxi_rtc_data_year *data_year;
- 	void __iomem *base;
- 	int irq;
- };
-@@ -468,7 +468,7 @@ static int sunxi_rtc_probe(struct platform_device *pdev)
- 		dev_err(&pdev->dev, "Unable to setup RTC data\n");
- 		return -ENODEV;
- 	}
--	chip->data_year = (struct sunxi_rtc_data_year *) of_id->data;
-+	chip->data_year = of_id->data;
- 
- 	/* clear the alarm count value */
- 	writel(0, chip->base + SUNXI_ALRM_DHMS);
--- 
-2.4.10
+Acked-by: Chen-Yu Tsai <wens@csie.org>
 
 -- 
 -- 
