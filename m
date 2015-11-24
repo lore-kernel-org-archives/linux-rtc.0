@@ -1,26 +1,28 @@
-Return-Path: <rtc-linux+bncBAABB7536GZAKGQEAFGZOXI@googlegroups.com>
-Received: from mail1.bemta14.messagelabs.com (mail1.bemta14.messagelabs.com. [193.109.254.114])
-        by gmr-mx.google.com with ESMTPS id k189si752442wmg.2.2015.11.30.06.32.30
+Return-Path: <rtc-linux+bncBDJIP47K7MERBHXR2OZAKGQEQZ3VIVI@googlegroups.com>
+Received: from mail-ob0-f169.google.com (mail-ob0-f169.google.com. [209.85.214.169])
+        by gmr-mx.google.com with ESMTPS id mv7si42896igb.0.2015.11.24.15.54.05
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 30 Nov 2015 06:32:30 -0800 (PST)
-From: "Opensource [Steve Twiss]" <stwiss.opensource@diasemi.com>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>, Enrico Scholz
-	<enrico.scholz@sigma-chemnitz.de>
-CC: "rtc-linux@googlegroups.com" <rtc-linux@googlegroups.com>, "Alessandro
- Zummo" <a.zummo@towertech.it>, Support Opensource
-	<Support.Opensource@diasemi.com>
-Subject: RE: [rtc-linux] Re: [PATCH] rtc-da9063: avoid writing undefined data
- to rtc
-Date: Mon, 30 Nov 2015 14:32:29 +0000
-Message-ID: <6ED8E3B22081A4459DAC7699F3695FB70173D2765B@SW-EX-MBX02.diasemi.com>
-References: <1448625775-15531-1-git-send-email-enrico.scholz@sigma-chemnitz.de>
- <20151127150158.GC4268@piout.net>
- <ly1tbbea3m.fsf@ensc-virt.intern.sigma-chemnitz.de>
- <20151127155729.GB22136@piout.net>
-In-Reply-To: <20151127155729.GB22136@piout.net>
-Content-Type: text/plain; charset=UTF-8
+        Tue, 24 Nov 2015 15:54:05 -0800 (PST)
+Received: by mail-ob0-f169.google.com with SMTP id bj7so26633286obb.1
+        for <rtc-linux@googlegroups.com>; Tue, 24 Nov 2015 15:54:05 -0800 (PST)
+Date: Tue, 24 Nov 2015 17:54:00 -0600
+From: Rob Herring <robh@kernel.org>
+To: Steffen Trumtrar <s.trumtrar@pengutronix.de>
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Pawel Moll <pawel.moll@arm.com>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Ian Campbell <ijc+devicetree@hellion.org.uk>,
+	Kumar Gala <galak@codeaurora.org>, devicetree@vger.kernel.org,
+	rtc-linux@googlegroups.com, kernel@pengutronix.de
+Subject: [rtc-linux] Re: [PATCH 1/2] Documentation: devicetree: add epson
+ rx6110 binding
+Message-ID: <20151124235337.GA18195@rob-hp-laptop>
+References: <1448361533-10728-1-git-send-email-s.trumtrar@pengutronix.de>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1448361533-10728-1-git-send-email-s.trumtrar@pengutronix.de>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -31,34 +33,61 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On Sent: 27 November 2015 15:57 Alexandre Belloni wrote:
-
-> Subject: Re: [rtc-linux] Re: [PATCH] rtc-da9063: avoid writing undefined data to rtc
-> On 27/11/2015 at 16:27:25 +0100, Enrico Scholz wrote :
-> >
-> > I think, it is always a bad idea to write random data from stack to a
-> > device.
+On Tue, Nov 24, 2015 at 11:38:52AM +0100, Steffen Trumtrar wrote:
+> Add the binding documentation for the Epson RX6110 RTC.
 > 
-> I agree.
-> 
+> Signed-off-by: Steffen Trumtrar <s.trumtrar@pengutronix.de>
+> ---
+> I'm not sure what the current policy for such simple SPI bindings is.
+> Are they necessary?
 
-Hi Alexandre and Enrico,
-
-I have double checked this morning and in these cases it is not important whether it is a 1 or a 0
-written to these specific reserved bits.
-
-But, I did intended to write a zero to the reserved bits.
-Enrico's patch will make the recommendation clear.
+Yes. We do have trivial-devices.txt for i2c. We could do one for spi. 
+Although, you need the mode configuration for each device, so spi is not 
+so trivial.
 
 > 
-> I'll take your patch anyway, unless Steve has another opinion on that.
+>  .../devicetree/bindings/rtc/epson,rtc-rx6110.txt   | 25 ++++++++++++++++++++++
+>  1 file changed, 25 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/rtc/epson,rtc-rx6110.txt
 > 
+> diff --git a/Documentation/devicetree/bindings/rtc/epson,rtc-rx6110.txt b/Documentation/devicetree/bindings/rtc/epson,rtc-rx6110.txt
+> new file mode 100644
+> index 000000000000..7ce7ae761657
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/rtc/epson,rtc-rx6110.txt
+> @@ -0,0 +1,25 @@
+> +Epson RX6110 Real Time Clock
+> +============================
+> +
+> +The Epson RX6110 can be used with SPI or I2C busses. The kind of
+> +bus depends on the SPISEL pin and can not be configured via software.
 
-Acked-by: Steve Twiss <stwiss.opensource@diasemi.com>
-Tested-by: Steve Twiss <stwiss.opensource@diasemi.com>
+Can you document I2C mode. It should just be the compatible and reg 
+properties.
 
-Regards,
-Steve
+> +
+> +SPI mode
+> +--------
+> +
+> +Required properties:
+> +- compatible: should be: "epson,rtc-rx6110"
+> +- reg: chip select number
+> +- spi-cs-high: RX6110 needs chipselect high
+> +- spi-cpha: RX6110 works with SPI shifted clock phase
+> +- spi-cpol: RX6110 works with SPI inverse clock polarity
+> +
+> +Example:
+> +
+> +	rtc: rtc@3 {
+> +		compatible = "epson,rtc-rx6110"
+> +		reg = <3>
+> +		spi-cs-high;
+> +		spi-cpba;
+> +		spi-cpol;
+> +	};
+> -- 
+> 2.6.2
+> 
 
 -- 
 -- 
