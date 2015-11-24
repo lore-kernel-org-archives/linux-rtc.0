@@ -1,20 +1,20 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBK536KZAKGQE2PMRIQI@googlegroups.com>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBWPD2OZAKGQE5DQNGNY@googlegroups.com>
 Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id y203si585171wmc.2.2015.11.30.11.04.11
+        by gmr-mx.google.com with ESMTP id e201si33316wma.3.2015.11.24.15.25.13
         for <rtc-linux@googlegroups.com>;
-        Mon, 30 Nov 2015 11:04:11 -0800 (PST)
-Date: Mon, 30 Nov 2015 20:04:10 +0100
+        Tue, 24 Nov 2015 15:25:13 -0800 (PST)
+Date: Wed, 25 Nov 2015 00:25:12 +0100
 From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Nizam Haider <nizamhaider786@gmail.com>
-Cc: ulli.kroll@googlemail.com, a.zummo@towertech.it,
-	linux-arm-kernel@lists.infradead.org, rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org, Nizam Haider <nijamh@cdac.in>
-Subject: [rtc-linux] Re: [PATCH] Rtc: rtc-gemini.c: Remove unnecessary platform_set_drvdata()
-Message-ID: <20151130190410.GJ22136@piout.net>
-References: <1447446089-2346-1-git-send-email-nizamhaider786@gmail.com>
+To: Joshua Clayton <stillcompiling@gmail.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org
+Subject: [rtc-linux] Re: [PATCH 6/9] rtc-pcf2123: avoid resetting the clock if possible
+Message-ID: <20151124232512.GG3950@piout.net>
+References: <cover.1446587705.git.stillcompiling@gmail.com>
+ <f801d4f26d4c4944b1a5353d5b5fde4e507b45b2.1446587705.git.stillcompiling@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1447446089-2346-1-git-send-email-nizamhaider786@gmail.com>
+In-Reply-To: <f801d4f26d4c4944b1a5353d5b5fde4e507b45b2.1446587705.git.stillcompiling@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -25,16 +25,19 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On 14/11/2015 at 01:51:29 +0530, Nizam Haider wrote :
-> The driver core clears the driver data to NULL after device_release
-> or on probe failure
-> 
-> Signed-off-by: Nizam Haider <nijamh@cdac.in>
-> ---
->  drivers/rtc/rtc-gemini.c | 1 -
->  1 file changed, 1 deletion(-)
-> 
-Applied, thanks.
+On 04/11/2015 at 07:36:37 -0800, Joshua Clayton wrote :
+> +	ret = pcf2123_rtc_read_time(dev, &tm);
+> +	if (ret < 0)
+> +		return false;
+> +
+> +	if (rtc_valid_tm(&tm) < 0) {
+> +		dev_err(dev, "retrieved date/time is not valid.\n");
+> +		return false;
+> +	}
+> +
+
+I would remove that test as basically, the date/time will only be valid
+when OSC_HAS_STOPPED is not set.
 
 -- 
 Alexandre Belloni, Free Electrons
