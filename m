@@ -1,21 +1,27 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBEPA2OZAKGQEK3LR2PY@googlegroups.com>
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id d185si27998wmf.0.2015.11.24.15.17.36
-        for <rtc-linux@googlegroups.com>;
-        Tue, 24 Nov 2015 15:17:36 -0800 (PST)
-Date: Wed, 25 Nov 2015 00:17:36 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Joshua Clayton <stillcompiling@gmail.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH 5/9] rtc-pcf2123: put the chip reset into a function
-Message-ID: <20151124231736.GF3950@piout.net>
-References: <cover.1446587705.git.stillcompiling@gmail.com>
- <dd040a11817f2caac1db13ec49c64f603013b982.1446587705.git.stillcompiling@gmail.com>
+Return-Path: <rtc-linux+bncBAABBUP42CZAKGQEAPUY2MI@googlegroups.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <dd040a11817f2caac1db13ec49c64f603013b982.1446587705.git.stillcompiling@gmail.com>
+Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de. [2001:67c:670:201:290:27ff:fe1d:cc33])
+        by gmr-mx.google.com with ESMTPS id 204si711835wmx.1.2015.11.24.02.39.13
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=AES128-SHA bits=128/128);
+        Tue, 24 Nov 2015 02:39:13 -0800 (PST)
+From: Steffen Trumtrar <s.trumtrar@pengutronix.de>
+To: Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: Rob Herring <robh+dt@kernel.org>,
+	Pawel Moll <pawel.moll@arm.com>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Ian Campbell <ijc+devicetree@hellion.org.uk>,
+	Kumar Gala <galak@codeaurora.org>,
+	devicetree@vger.kernel.org,
+	rtc-linux@googlegroups.com,
+	kernel@pengutronix.de,
+	Steffen Trumtrar <s.trumtrar@pengutronix.de>
+Subject: [rtc-linux] [PATCH 1/2] Documentation: devicetree: add epson rx6110 binding
+Date: Tue, 24 Nov 2015 11:38:52 +0100
+Message-Id: <1448361533-10728-1-git-send-email-s.trumtrar@pengutronix.de>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -25,54 +31,50 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On 04/11/2015 at 07:36:36 -0800, Joshua Clayton wrote :
+Add the binding documentation for the Epson RX6110 RTC.
 
-A commit message, even when simple is mandatory.
+Signed-off-by: Steffen Trumtrar <s.trumtrar@pengutronix.de>
+---
+I'm not sure what the current policy for such simple SPI bindings is.
+Are they necessary?
 
-> Signed-off-by: Joshua Clayton <stillcompiling@gmail.com>
-> ---
->  drivers/rtc/rtc-pcf2123.c | 64 ++++++++++++++++++++++++++---------------------
->  1 file changed, 36 insertions(+), 28 deletions(-)
-> 
-> diff --git a/drivers/rtc/rtc-pcf2123.c b/drivers/rtc/rtc-pcf2123.c
-> index 257ce7d..d3c1447 100644
-> --- a/drivers/rtc/rtc-pcf2123.c
-> +++ b/drivers/rtc/rtc-pcf2123.c
-> @@ -260,6 +260,40 @@ static int pcf2123_rtc_set_time(struct device *dev, struct rtc_time *tm)
->  	return 0;
->  }
->  
-> +static int pcf2123_reset(struct device *dev)
-> +{
-> +	int ret;
-> +	u8  rxbuf[2];
-> +
-> +	ret = pcf2123_write_reg(dev, PCF2123_REG_CTRL1, CTRL1_SW_RESET);
-> +	if (ret < 0)
-> +		return ret;
-> +
-> +	/* Stop the counter */
-> +	dev_dbg(dev, "stopping RTC\n");
-> +	ret = pcf2123_write_reg(dev, PCF2123_REG_CTRL1, CTRL1_STOP);
-> +	if (ret < 0)
-> +		return ret;
-> +
-> +	/* See if the counter was actually stopped */
-> +	dev_dbg(dev, "checking for presence of RTC\n");
-> +	ret = pcf2123_read(dev, PCF2123_REG_CTRL1, rxbuf, sizeof(rxbuf));
-> +	if (ret < 0)
-> +		return ret;
-> +
-> +	dev_dbg(dev, "received data from RTC (0x%02X 0x%02X)\n",
-> +			rxbuf[0], rxbuf[1]);
+ .../devicetree/bindings/rtc/epson,rtc-rx6110.txt   | 25 ++++++++++++++++++++++
+ 1 file changed, 25 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/rtc/epson,rtc-rx6110.txt
 
-This is not properly aligned (use checkpatch --strict)
-
-
+diff --git a/Documentation/devicetree/bindings/rtc/epson,rtc-rx6110.txt b/Documentation/devicetree/bindings/rtc/epson,rtc-rx6110.txt
+new file mode 100644
+index 000000000000..7ce7ae761657
+--- /dev/null
++++ b/Documentation/devicetree/bindings/rtc/epson,rtc-rx6110.txt
+@@ -0,0 +1,25 @@
++Epson RX6110 Real Time Clock
++============================
++
++The Epson RX6110 can be used with SPI or I2C busses. The kind of
++bus depends on the SPISEL pin and can not be configured via software.
++
++SPI mode
++--------
++
++Required properties:
++- compatible: should be: "epson,rtc-rx6110"
++- reg: chip select number
++- spi-cs-high: RX6110 needs chipselect high
++- spi-cpha: RX6110 works with SPI shifted clock phase
++- spi-cpol: RX6110 works with SPI inverse clock polarity
++
++Example:
++
++	rtc: rtc@3 {
++		compatible = "epson,rtc-rx6110"
++		reg = <3>
++		spi-cs-high;
++		spi-cpba;
++		spi-cpol;
++	};
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+2.6.2
 
 -- 
 -- 
