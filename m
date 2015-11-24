@@ -1,28 +1,20 @@
-Return-Path: <rtc-linux+bncBCMILY6JWQBBB6P3ZKZAKGQESQFFE5A@googlegroups.com>
-Received: from smtp.csie.ntu.edu.tw (smtp.csie.ntu.edu.tw. [140.112.30.61])
-        by gmr-mx.google.com with ESMTP id 1si582936pfc.0.2015.11.22.23.19.21
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBNXI2OZAKGQEI24B5VA@googlegroups.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id g21si29796wmd.3.2015.11.24.15.35.18
         for <rtc-linux@googlegroups.com>;
-        Sun, 22 Nov 2015 23:19:21 -0800 (PST)
-Received: from mail-io0-f179.google.com (mail-io0-f179.google.com [209.85.223.179])
-	(Authenticated sender: b93043)
-	by smtp.csie.ntu.edu.tw (Postfix) with ESMTPSA id DC894211F7
-	for <rtc-linux@googlegroups.com>; Mon, 23 Nov 2015 15:19:19 +0800 (CST)
-Received: by ioir85 with SMTP id r85so178753853ioi.1
-        for <rtc-linux@googlegroups.com>; Sun, 22 Nov 2015 23:19:18 -0800 (PST)
+        Tue, 24 Nov 2015 15:35:18 -0800 (PST)
+Date: Wed, 25 Nov 2015 00:35:17 +0100
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <u.kleine-koenig@pengutronix.de>
+Cc: Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
+	kernel@pengutronix.de
+Subject: [rtc-linux] Re: [PATCH] rtc: pcf8523: refuse to write dates later
+ than 2099
+Message-ID: <20151124233517.GI3950@piout.net>
+References: <1446827876-31613-1-git-send-email-u.kleine-koenig@pengutronix.de>
 MIME-Version: 1.0
-In-Reply-To: <1447930210-27008-3-git-send-email-clabbe.montjoie@gmail.com>
-References: <1447930210-27008-1-git-send-email-clabbe.montjoie@gmail.com> <1447930210-27008-3-git-send-email-clabbe.montjoie@gmail.com>
-From: Chen-Yu Tsai <wens@csie.org>
-Date: Mon, 23 Nov 2015 15:18:58 +0800
-Message-ID: <CAGb2v66RE6KvLGBWQOiJjx07d3dkKHFuQ_-Boi5u0BO_kWOdXg@mail.gmail.com>
-Subject: [rtc-linux] Re: [PATCH 3/3] rtc: sunxi: use of_device_get_match_data
-To: LABBE Corentin <clabbe.montjoie@gmail.com>
-Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
-	Maxime Ripard <maxime.ripard@free-electrons.com>, Chen-Yu Tsai <wens@csie.org>,
-	linux-kernel <linux-kernel@vger.kernel.org>, rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1446827876-31613-1-git-send-email-u.kleine-koenig@pengutronix.de>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -33,21 +25,46 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On Thu, Nov 19, 2015 at 6:50 PM, LABBE Corentin
-<clabbe.montjoie@gmail.com> wrote:
-> The usage of of_device_get_match_data reduce the code size a bit.
->
-> Signed-off-by: LABBE Corentin <clabbe.montjoie@gmail.com>
+Hi,
 
-Acked-by: Chen-Yu Tsai <wens@csie.org>
+On 06/11/2015 at 17:37:56 +0100, Uwe Kleine-K=C3=B6nig wrote :
+> When the chip increments the YEAR register and it already holds
+> bin2bcd(99) it reads as 0 afterwards. With this behaviour the last valid
+> day (without trickery) that has a representation is 2099-12-31 23:59:59.
+> So refuse to write later dates.
+>=20
+> Signed-off-by: Uwe Kleine-K=C3=B6nig <u.kleine-koenig@pengutronix.de>
+> ---
+> Hello,
+>=20
+> When setting the YEAR register to bin2bcd(100) =3D=3D 0xa0 it increments
+> just fine up to bin2bcd(159) =3D=3D 0xf9 but these values are forbidden i=
+n
+> the manual. But this doesn't help to expand (or shift) the range of
+> supported dates.
+>=20
+> An alternative to this patch would be to save tm_year % 100 because
+> that's what happens when waiting long enough anyhow. Would that be
+> better? Do we already care at all for year-2100-problems?
+>=20
 
--- 
--- 
+There is no way to tell whether the date is fine after February
+2100 so I will take the patch as is.
+
+--=20
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
+
+--=20
+--=20
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+---=20
+You received this message because you are subscribed to the Google Groups "=
+rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an e=
+mail to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
