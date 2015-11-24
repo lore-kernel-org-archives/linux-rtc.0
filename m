@@ -1,21 +1,20 @@
-Return-Path: <rtc-linux+bncBAABBCG25CYQKGQE35ZJVIQ@googlegroups.com>
-Received: from na01-bn1-obe.outbound.protection.outlook.com (mail-bn1bon0072.outbound.protection.outlook.com. [157.56.111.72])
-        by gmr-mx.google.com with ESMTPS id q68si126338ywf.0.2015.11.04.08.06.31
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
-        Wed, 04 Nov 2015 08:06:31 -0800 (PST)
-Date: Wed, 4 Nov 2015 08:06:28 -0800
-From: =?utf-8?B?U8O2cmVu?= Brinkmann <soren.brinkmann@xilinx.com>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-CC: Alessandro Zummo <a.zummo@towertech.it>, <rtc-linux@googlegroups.com>,
-	<linux-kernel@vger.kernel.org>
-Subject: [rtc-linux] Re: [PATCH] rtc: Group Kconfig entries by vendor
-Message-ID: <20151104160628.GH6436@xsjsorenbubuntu>
-References: <1446621226-28429-1-git-send-email-soren.brinkmann@xilinx.com>
- <20151104092529.GX22331@piout.net>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBEPA2OZAKGQEK3LR2PY@googlegroups.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id d185si27998wmf.0.2015.11.24.15.17.36
+        for <rtc-linux@googlegroups.com>;
+        Tue, 24 Nov 2015 15:17:36 -0800 (PST)
+Date: Wed, 25 Nov 2015 00:17:36 +0100
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Joshua Clayton <stillcompiling@gmail.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org
+Subject: [rtc-linux] Re: [PATCH 5/9] rtc-pcf2123: put the chip reset into a function
+Message-ID: <20151124231736.GF3950@piout.net>
+References: <cover.1446587705.git.stillcompiling@gmail.com>
+ <dd040a11817f2caac1db13ec49c64f603013b982.1446587705.git.stillcompiling@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <20151104092529.GX22331@piout.net>
+In-Reply-To: <dd040a11817f2caac1db13ec49c64f603013b982.1446587705.git.stillcompiling@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -26,42 +25,62 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Hi Alexandre,
+On 04/11/2015 at 07:36:36 -0800, Joshua Clayton wrote :
 
-On Wed, 2015-11-04 at 10:25AM +0100, Alexandre Belloni wrote:
-> On 03/11/2015 at 23:13:46 -0800, Soren Brinkmann wrote :
-> > The RTC entries are mostly grouped by vendor. Move the few outliers in
-> > place.
-> > Also, change the one occurrence of 'nxp' to 'NXP' to make all NXP
-> > entries consistent.
-> >=20
->=20
-> Yeah, I've been contemplating reordering the Kconfig, the main issue
-> being that Philips and NXP is the same entity. And also, we have RTCs
-> manufactured by different vendors that use the same chip
-> (Abracon/Epson/Philips/Microcrystal) so I'm not sure what is clearer for
-> the end user :)
+A commit message, even when simple is mandatory.
 
-Yeah, I wasn't sure if this is wanted or how far to go. It was mainly
-triggered by the NXP devices that weren't grouped and differed in
-capitalization. From there I took it a little further. Just let met know if
-you want this somewhat different or not at all. It's just a suggestion
-and I find it helpful if things are somewhat ordered (I was thinking go
-full alphabetical sorting but didn't want to go that far without another
-opinion). But I'm fine either way.
+> Signed-off-by: Joshua Clayton <stillcompiling@gmail.com>
+> ---
+>  drivers/rtc/rtc-pcf2123.c | 64 ++++++++++++++++++++++++++---------------------
+>  1 file changed, 36 insertions(+), 28 deletions(-)
+> 
+> diff --git a/drivers/rtc/rtc-pcf2123.c b/drivers/rtc/rtc-pcf2123.c
+> index 257ce7d..d3c1447 100644
+> --- a/drivers/rtc/rtc-pcf2123.c
+> +++ b/drivers/rtc/rtc-pcf2123.c
+> @@ -260,6 +260,40 @@ static int pcf2123_rtc_set_time(struct device *dev, struct rtc_time *tm)
+>  	return 0;
+>  }
+>  
+> +static int pcf2123_reset(struct device *dev)
+> +{
+> +	int ret;
+> +	u8  rxbuf[2];
+> +
+> +	ret = pcf2123_write_reg(dev, PCF2123_REG_CTRL1, CTRL1_SW_RESET);
+> +	if (ret < 0)
+> +		return ret;
+> +
+> +	/* Stop the counter */
+> +	dev_dbg(dev, "stopping RTC\n");
+> +	ret = pcf2123_write_reg(dev, PCF2123_REG_CTRL1, CTRL1_STOP);
+> +	if (ret < 0)
+> +		return ret;
+> +
+> +	/* See if the counter was actually stopped */
+> +	dev_dbg(dev, "checking for presence of RTC\n");
+> +	ret = pcf2123_read(dev, PCF2123_REG_CTRL1, rxbuf, sizeof(rxbuf));
+> +	if (ret < 0)
+> +		return ret;
+> +
+> +	dev_dbg(dev, "received data from RTC (0x%02X 0x%02X)\n",
+> +			rxbuf[0], rxbuf[1]);
 
-	Thanks,
-	S=C3=B6ren
+This is not properly aligned (use checkpatch --strict)
 
---=20
---=20
+
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
+
+-- 
+-- 
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
----=20
-You received this message because you are subscribed to the Google Groups "=
-rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an e=
-mail to rtc-linux+unsubscribe@googlegroups.com.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
