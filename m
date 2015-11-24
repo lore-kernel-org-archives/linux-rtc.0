@@ -1,51 +1,24 @@
-Return-Path: <rtc-linux+bncBDKLR6HU7IIBBN7P6GZAKGQEQ5MH5AA@googlegroups.com>
-Received: from mailapp01.imgtec.com (mailapp01.imgtec.com. [195.59.15.196])
-        by gmr-mx.google.com with ESMTP id d185si671926wmf.0.2015.11.30.08.22.14
-        for <rtc-linux@googlegroups.com>;
-        Mon, 30 Nov 2015 08:22:15 -0800 (PST)
-From: Paul Burton <paul.burton@imgtec.com>
-To: <linux-mips@linux-mips.org>
-CC: Paul Burton <paul.burton@imgtec.com>, Arnd Bergmann <arnd@arndb.de>,
-	Joshua Kinard <kumba@gentoo.org>, Alessandro Zummo <a.zummo@towertech.it>,
-	Jiri Slaby <jslaby@suse.com>, Bjorn Helgaas <bhelgaas@google.com>, "Zubair
- Lutfullah Kakakhel" <Zubair.Kakakhel@imgtec.com>, Linus Walleij
-	<linus.walleij@linaro.org>, Kumar Gala <galak@codeaurora.org>, Yijing Wang
-	<wangyijing@huawei.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, "Rob
- Herring" <robh+dt@kernel.org>, John Crispin <blogic@openwrt.org>,
-	"Jayachandran C" <jchandra@broadcom.com>, <linux-spi@vger.kernel.org>, Geert
- Uytterhoeven <geert+renesas@glider.be>, Ray Jui <rjui@broadcom.com>, Richard
- Cochran <richardcochran@gmail.com>, Tejun Heo <tj@kernel.org>, Michal Simek
-	<michal.simek@xilinx.com>, Andrew Bresticker <abrestic@chromium.org>,
-	"Russell Joyce" <russell.joyce@york.ac.uk>, Thomas Gleixner
-	<tglx@linutronix.de>, "Grant Likely" <grant.likely@linaro.org>, Alexandre
- Belloni <alexandre.belloni@free-electrons.com>,
-	<linux-arm-kernel@lists.infradead.org>, Pawel Moll <pawel.moll@arm.com>,
-	<linux-pci@vger.kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	Ralf Baechle <ralf@linux-mips.org>, Alexandre Courbot <gnurou@gmail.com>,
-	Zhou Wang <wangzhou1@hisilicon.com>, Andrew Morton
-	<akpm@linux-foundation.org>, Ley Foon Tan <lftan@altera.com>,
-	<devicetree@vger.kernel.org>, Jiang Liu <jiang.liu@linux.intel.com>,
-	<linux-serial@vger.kernel.org>, <rtc-linux@googlegroups.com>, Rob Herring
-	<robh@kernel.org>, Mauro Carvalho Chehab <mchehab@osg.samsung.com>, "Wolfram
- Sang" <wsa@the-dreams.de>, Duc Dang <dhdang@apm.com>, Frank Rowand
-	<frowand.list@gmail.com>, Vinod Koul <vinod.koul@intel.com>, Markos Chandras
-	<markos.chandras@imgtec.com>, Michal Simek <monstr@monstr.eu>, Marc Zyngier
-	<marc.zyngier@arm.com>, Dan Williams <dan.j.williams@intel.com>, "Miguel
- Ojeda Sandonis" <miguel.ojeda.sandonis@gmail.com>, Lorenzo Pieralisi
-	<lorenzo.pieralisi@arm.com>, <linux-gpio@vger.kernel.org>,
-	<netdev@vger.kernel.org>, Mark Brown <broonie@kernel.org>,
-	<linux-kernel@vger.kernel.org>, "David S. Miller" <davem@davemloft.net>,
-	"Joe Perches" <joe@perches.com>, Jingoo Han <jingoohan1@gmail.com>, Hauke
- Mehrtens <hauke@hauke-m.de>, =?UTF-8?q?S=C3=B6ren=20Brinkmann?=
-	<soren.brinkmann@xilinx.com>, <dmaengine@vger.kernel.org>, Mark Rutland
-	<mark.rutland@arm.com>, Minghuan Lian <Minghuan.Lian@freescale.com>,
-	<linux-i2c@vger.kernel.org>
-Subject: [rtc-linux] [PATCH 00/28] MIPS Boston board support
-Date: Mon, 30 Nov 2015 16:21:25 +0000
-Message-ID: <1448900513-20856-1-git-send-email-paul.burton@imgtec.com>
+Return-Path: <rtc-linux+bncBD7I3CGX5IPRBZWW2GZAKGQEAMJCUKI@googlegroups.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Received: from mail-lf0-x22a.google.com (mail-lf0-x22a.google.com. [2a00:1450:4010:c07::22a])
+        by gmr-mx.google.com with ESMTPS id r4si625534lbj.1.2015.11.24.05.51.34
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 24 Nov 2015 05:51:34 -0800 (PST)
+Received: by mail-lf0-x22a.google.com with SMTP id l133so20778318lfd.2
+        for <rtc-linux@googlegroups.com>; Tue, 24 Nov 2015 05:51:34 -0800 (PST)
+From: Rasmus Villemoes <linux@rasmusvillemoes.dk>
+To: Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Joshua Kinard <kumba@gentoo.org>
+Cc: Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+	rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org
+Subject: [rtc-linux] [PATCH 1/2] drivers/rtc: use %ph for short hex dumps
+Date: Tue, 24 Nov 2015 14:51:23 +0100
+Message-Id: <1448373085-6353-1-git-send-email-linux@rasmusvillemoes.dk>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -55,114 +28,129 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-This series introduces support for the Imagination Technologies MIPS
-Boston development board. Boston is an FPGA-based development board
-akin to the much older Malta board, built around a Xilinx FPGA running
-a MIPS CPU & other logic including a PCIe root port connected to an
-Intel EG20T Platform Controller Hub. This provides a base set of
-peripherals including SATA, USB, SD/MMC, ethernet, I2C & GPIOs. PCIe
-slots are also present for expansion.
+This makes the generated code slightly smaller.
 
-Paul Burton (28):
-  serial: earlycon: allow MEM32 I/O for DT earlycon
-  dt-bindings: ascii-lcd: Document a binding for simple ASCII LCDs
-  auxdisplay: driver for simple memory mapped ASCII LCD displays
-  MIPS: PCI: compatibility with ARM-like PCI host drivers
-  PCI: xilinx: keep references to both IRQ domains
-  PCI: xilinx: unify INTx & MSI interrupt FIFO decode
-  PCI: xilinx: always clear interrupt decode register
-  PCI: xilinx: fix INTX irq dispatch
-  PCI: xilinx: allow build on MIPS platforms
-  misc: pch_phub: allow build on MIPS platforms
-  dmaengine: pch_dma: allow build on MIPS platforms
-  gpio: pch: allow build on MIPS platforms
-  gpio: pch: allow use from device tree
-  i2c: eg20t: allow build on MIPS platforms
-  i2c: eg20t: set i2c_adapter->dev.of_node
-  rtc: m41t80: add devicetree probe support
-  spi: topcliff-pch: allow build for MIPS platforms
-  ptp: pch: allow build on MIPS platforms
-  net: pch_gbe: allow build on MIPS platforms
-  net: pch_gbe: clear interrupt FIFO during probe
-  net: pch_gbe: mark Minnow PHY reset GPIO active low
-  net: pch_gbe: pull PHY GPIO handling out of Minnow code
-  net: pch_gbe: always reset PHY along with MAC
-  net: pch_gbe: add device tree support
-  net: pch_gbe: allow longer for resets
-  MIPS: support for generating FIT (.itb) images
-  dt-bindings: mips: img,boston: Document img,boston binding
-  MIPS: Boston board support
+Signed-off-by: Rasmus Villemoes <linux@rasmusvillemoes.dk>
+---
+ drivers/rtc/rtc-ds1305.c |  8 ++------
+ drivers/rtc/rtc-ds1307.c | 17 ++++-------------
+ drivers/rtc/rtc-ds1685.c | 12 +++++-------
+ 3 files changed, 11 insertions(+), 26 deletions(-)
 
- Documentation/devicetree/bindings/ascii-lcd.txt    |  10 +
- .../devicetree/bindings/mips/img/boston.txt        |  15 ++
- MAINTAINERS                                        |  14 ++
- arch/mips/Kbuild.platforms                         |   1 +
- arch/mips/Kconfig                                  |  45 ++++
- arch/mips/Makefile                                 |   6 +-
- arch/mips/boot/Makefile                            |  61 ++++++
- arch/mips/boot/dts/Makefile                        |   1 +
- arch/mips/boot/dts/img/Makefile                    |   7 +
- arch/mips/boot/dts/img/boston.dts                  | 201 ++++++++++++++++++
- arch/mips/boot/skeleton.its                        |  24 +++
- arch/mips/boston/Makefile                          |  12 ++
- arch/mips/boston/Platform                          |   8 +
- arch/mips/boston/init.c                            |  75 +++++++
- arch/mips/boston/int.c                             |  33 +++
- arch/mips/boston/time.c                            |  89 ++++++++
- arch/mips/boston/vmlinux.its                       |  23 ++
- arch/mips/configs/boston_defconfig                 | 170 +++++++++++++++
- .../asm/mach-boston/cpu-feature-overrides.h        |  26 +++
- arch/mips/include/asm/mach-boston/irq.h            |  18 ++
- arch/mips/include/asm/mach-boston/spaces.h         |  20 ++
- arch/mips/include/asm/pci.h                        |  67 +++++-
- arch/mips/lib/iomap-pci.c                          |   2 +-
- arch/mips/pci/Makefile                             |   6 +
- arch/mips/pci/pci-generic.c                        | 138 ++++++++++++
- arch/mips/pci/pci-legacy.c                         | 232 +++++++++++++++++++++
- arch/mips/pci/pci.c                                | 226 +-------------------
- drivers/auxdisplay/Kconfig                         |   7 +
- drivers/auxdisplay/Makefile                        |   1 +
- drivers/auxdisplay/ascii-lcd.c                     | 230 ++++++++++++++++++++
- drivers/dma/Kconfig                                |   2 +-
- drivers/gpio/Kconfig                               |   2 +-
- drivers/gpio/gpio-pch.c                            |   1 +
- drivers/i2c/busses/Kconfig                         |   2 +-
- drivers/i2c/busses/i2c-eg20t.c                     |   1 +
- drivers/misc/Kconfig                               |   2 +-
- drivers/net/ethernet/oki-semi/pch_gbe/Kconfig      |   2 +-
- drivers/net/ethernet/oki-semi/pch_gbe/pch_gbe.h    |   4 +-
- .../net/ethernet/oki-semi/pch_gbe/pch_gbe_main.c   |  74 +++++--
- drivers/of/fdt.c                                   |   2 +-
- drivers/pci/host/Kconfig                           |   2 +-
- drivers/pci/host/pcie-xilinx.c                     | 123 +++++------
- drivers/ptp/Kconfig                                |   2 +-
- drivers/rtc/rtc-m41t80.c                           |  26 +++
- drivers/spi/Kconfig                                |   2 +-
- drivers/tty/serial/Makefile                        |   1 +
- drivers/tty/serial/earlycon.c                      |  15 +-
- include/linux/serial_core.h                        |   2 +-
- 48 files changed, 1720 insertions(+), 313 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/ascii-lcd.txt
- create mode 100644 Documentation/devicetree/bindings/mips/img/boston.txt
- create mode 100644 arch/mips/boot/dts/img/Makefile
- create mode 100644 arch/mips/boot/dts/img/boston.dts
- create mode 100644 arch/mips/boot/skeleton.its
- create mode 100644 arch/mips/boston/Makefile
- create mode 100644 arch/mips/boston/Platform
- create mode 100644 arch/mips/boston/init.c
- create mode 100644 arch/mips/boston/int.c
- create mode 100644 arch/mips/boston/time.c
- create mode 100644 arch/mips/boston/vmlinux.its
- create mode 100644 arch/mips/configs/boston_defconfig
- create mode 100644 arch/mips/include/asm/mach-boston/cpu-feature-overrides.h
- create mode 100644 arch/mips/include/asm/mach-boston/irq.h
- create mode 100644 arch/mips/include/asm/mach-boston/spaces.h
- create mode 100644 arch/mips/pci/pci-generic.c
- create mode 100644 arch/mips/pci/pci-legacy.c
- create mode 100644 drivers/auxdisplay/ascii-lcd.c
-
+diff --git a/drivers/rtc/rtc-ds1305.c b/drivers/rtc/rtc-ds1305.c
+index 85706a9f82c9..f39691eea736 100644
+--- a/drivers/rtc/rtc-ds1305.c
++++ b/drivers/rtc/rtc-ds1305.c
+@@ -186,9 +186,7 @@ static int ds1305_get_time(struct device *dev, struct rtc_time *time)
+ 	if (status < 0)
+ 		return status;
+ 
+-	dev_vdbg(dev, "%s: %02x %02x %02x, %02x %02x %02x %02x\n",
+-		"read", buf[0], buf[1], buf[2], buf[3],
+-		buf[4], buf[5], buf[6]);
++	dev_vdbg(dev, "%s: %3ph, %4ph\n", "read", &buf[0], &buf[3]);
+ 
+ 	/* Decode the registers */
+ 	time->tm_sec = bcd2bin(buf[DS1305_SEC]);
+@@ -232,9 +230,7 @@ static int ds1305_set_time(struct device *dev, struct rtc_time *time)
+ 	*bp++ = bin2bcd(time->tm_mon + 1);
+ 	*bp++ = bin2bcd(time->tm_year - 100);
+ 
+-	dev_dbg(dev, "%s: %02x %02x %02x, %02x %02x %02x %02x\n",
+-		"write", buf[1], buf[2], buf[3],
+-		buf[4], buf[5], buf[6], buf[7]);
++	dev_dbg(dev, "%s: %3ph, %4ph\n", "write", &buf[1], &buf[4]);
+ 
+ 	/* use write-then-read since dma from stack is nonportable */
+ 	return spi_write_then_read(ds1305->spi, buf, sizeof(buf),
+diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
+index 188006c55ce0..b72e782fbf44 100644
+--- a/drivers/rtc/rtc-ds1307.c
++++ b/drivers/rtc/rtc-ds1307.c
+@@ -464,13 +464,8 @@ static int ds1337_read_alarm(struct device *dev, struct rtc_wkalrm *t)
+ 		return -EIO;
+ 	}
+ 
+-	dev_dbg(dev, "%s: %02x %02x %02x %02x, %02x %02x %02x, %02x %02x\n",
+-			"alarm read",
+-			ds1307->regs[0], ds1307->regs[1],
+-			ds1307->regs[2], ds1307->regs[3],
+-			ds1307->regs[4], ds1307->regs[5],
+-			ds1307->regs[6], ds1307->regs[7],
+-			ds1307->regs[8]);
++	dev_dbg(dev, "%s: %4ph, %3ph, %2ph\n", "alarm read",
++		&ds1307->regs[0], &ds1307->regs[4], &ds1307->regs[7]);
+ 
+ 	/*
+ 	 * report alarm time (ALARM1); assume 24 hour and day-of-month modes,
+@@ -526,12 +521,8 @@ static int ds1337_set_alarm(struct device *dev, struct rtc_wkalrm *t)
+ 	control = ds1307->regs[7];
+ 	status = ds1307->regs[8];
+ 
+-	dev_dbg(dev, "%s: %02x %02x %02x %02x, %02x %02x %02x, %02x %02x\n",
+-			"alarm set (old status)",
+-			ds1307->regs[0], ds1307->regs[1],
+-			ds1307->regs[2], ds1307->regs[3],
+-			ds1307->regs[4], ds1307->regs[5],
+-			ds1307->regs[6], control, status);
++	dev_dbg(dev, "%s: %4ph, %3ph, %02x %02x\n", "alarm set (old status)",
++		&ds1307->regs[0], &ds1307->regs[4], control, status);
+ 
+ 	/* set ALARM1, using 24 hour and day-of-month modes */
+ 	buf[0] = bin2bcd(t->time.tm_sec);
+diff --git a/drivers/rtc/rtc-ds1685.c b/drivers/rtc/rtc-ds1685.c
+index 05a51ef52703..5038122aa8de 100644
+--- a/drivers/rtc/rtc-ds1685.c
++++ b/drivers/rtc/rtc-ds1685.c
+@@ -853,7 +853,7 @@ ds1685_rtc_proc(struct device *dev, struct seq_file *seq)
+ 	   "Periodic Rate\t: %s\n"
+ 	   "SQW Freq\t: %s\n"
+ #ifdef CONFIG_RTC_DS1685_PROC_REGS
+-	   "Serial #\t: %02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x\n"
++	   "Serial #\t: %8phC\n"
+ 	   "Register Status\t:\n"
+ 	   "   Ctrl A\t: UIP  DV2  DV1  DV0  RS3  RS2  RS1  RS0\n"
+ 	   "\t\t:  %s\n"
+@@ -872,7 +872,7 @@ ds1685_rtc_proc(struct device *dev, struct seq_file *seq)
+ 	   "   Ctrl 4B\t: ABE  E32k  CS  RCE  PRS  RIE  WIE  KSE\n"
+ 	   "\t\t:  %s\n",
+ #else
+-	   "Serial #\t: %02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x\n",
++	   "Serial #\t: %8phC\n",
+ #endif
+ 	   model,
+ 	   ((ctrla & RTC_CTRL_A_DV1) ? "enabled" : "disabled"),
+@@ -888,7 +888,7 @@ ds1685_rtc_proc(struct device *dev, struct seq_file *seq)
+ 	   (!((ctrl4b & RTC_CTRL_4B_E32K)) ?
+ 	    ds1685_rtc_sqw_freq[(ctrla & RTC_CTRL_A_RS_MASK)] : "32768Hz"),
+ #ifdef CONFIG_RTC_DS1685_PROC_REGS
+-	   ssn[0], ssn[1], ssn[2], ssn[3], ssn[4], ssn[5], ssn[6], ssn[7],
++	   ssn,
+ 	   ds1685_rtc_print_regs(ctrla, bits[0]),
+ 	   ds1685_rtc_print_regs(ctrlb, bits[1]),
+ 	   ds1685_rtc_print_regs(ctrlc, bits[2]),
+@@ -896,7 +896,7 @@ ds1685_rtc_proc(struct device *dev, struct seq_file *seq)
+ 	   ds1685_rtc_print_regs(ctrl4a, bits[4]),
+ 	   ds1685_rtc_print_regs(ctrl4b, bits[5]));
+ #else
+-	   ssn[0], ssn[1], ssn[2], ssn[3], ssn[4], ssn[5], ssn[6], ssn[7]);
++	   ssn);
+ #endif
+ 	return 0;
+ }
+@@ -1160,9 +1160,7 @@ ds1685_rtc_sysfs_serial_show(struct device *dev,
+ 	ds1685_rtc_get_ssn(rtc, ssn);
+ 	ds1685_rtc_switch_to_bank0(rtc);
+ 
+-	return snprintf(buf, 24, "%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x\n",
+-			ssn[0], ssn[1], ssn[2], ssn[3], ssn[4], ssn[5],
+-			ssn[6], ssn[7]);
++	return snprintf(buf, 24, "%8phC\n", ssn);
+ 
+ 	return 0;
+ }
 -- 
-2.6.2
+2.6.1
 
 -- 
 -- 
