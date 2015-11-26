@@ -1,17 +1,21 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBYMC5WZAKGQELXE6X2I@googlegroups.com>
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id d185si511988wmf.0.2015.11.29.10.18.09
-        for <rtc-linux@googlegroups.com>;
-        Sun, 29 Nov 2015 10:18:09 -0800 (PST)
-Date: Sun, 29 Nov 2015 19:18:08 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org
-Subject: [rtc-linux] [GIT PULL] RTC fixes for 4.4
-Message-ID: <20151129181808.GA20767@piout.net>
+Return-Path: <rtc-linux+bncBAABBUM63SZAKGQENOJZEMY@googlegroups.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Received: from vm1.sequanux.org (vm1.sequanux.org. [188.165.36.56])
+        by gmr-mx.google.com with ESMTP id y203si63907wmc.2.2015.11.26.05.55.28
+        for <rtc-linux@googlegroups.com>;
+        Thu, 26 Nov 2015 05:55:28 -0800 (PST)
+From: Simon Guinot <simon.guinot@sequanux.org>
+To: Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: rtc-linux@googlegroups.com,
+	Vincent Donnefort <vdonnefort@gmail.com>,
+	Yoann Sculo <yoann@printk.fr>,
+	Simon Guinot <simon.guinot@sequanux.org>
+Subject: [rtc-linux] [PATCH v2] rtc: ds1307: fix alarm reading at probe time
+Date: Thu, 26 Nov 2015 14:55:26 +0100
+Message-Id: <1448546126-22407-1-git-send-email-simon.guinot@sequanux.org>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -21,43 +25,48 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Hi Linus,
+With the actual code, read_alarm() always returns -EINVAL when called
+during the RTC device registration. This prevents from retrieving an
+already configured alarm in hardware.
 
-Here are two fixes for the ds1307 driver. I don't expect much more for
-this cycle.
+This patch fixes the issue by moving the HAS_ALARM bit configuration
+(if supported by the hardware) above the rtc_device_register() call.
 
-The following changes since commit 1ec218373b8ebda821aec00bb156a9c94fad9cd4:
+Signed-off-by: Simon Guinot <simon.guinot@sequanux.org>
+---
+ drivers/rtc/rtc-ds1307.c | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
-  Linux 4.4-rc2 (2015-11-22 16:45:59 -0800)
+Change for v2: rebase against the branch rtc-fixes
 
-are available in the git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/abelloni/linux.git tags/rtc-4.4-2
-
-for you to fetch changes up to 3abb1ada21a4fb5b2920457a2e5c8483abb09a45:
-
-  rtc: ds1307: fix alarm reading at probe time (2015-11-26 18:11:26 +0100)
-
-----------------------------------------------------------------
-RTC fixes for 4.4
-
-Two fixes for the ds1307 alarm and wakeup.
-
-----------------------------------------------------------------
-Felipe Balbi (1):
-      rtc: ds1307: fix kernel splat due to wakeup irq handling
-
-Simon Guinot (1):
-      rtc: ds1307: fix alarm reading at probe time
-
- arch/arm/boot/dts/am57xx-beagle-x15.dts |  1 +
- drivers/rtc/rtc-ds1307.c                | 44 ++++++---------------------------
- 2 files changed, 9 insertions(+), 36 deletions(-)
-
+diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
+index 325836818826..754c60dad224 100644
+--- a/drivers/rtc/rtc-ds1307.c
++++ b/drivers/rtc/rtc-ds1307.c
+@@ -1135,6 +1135,8 @@ read_rtc:
+ 	}
+ 
+ 	device_set_wakeup_capable(&client->dev, want_irq);
++	if (want_irq)
++		set_bit(HAS_ALARM, &ds1307->flags);
+ 	ds1307->rtc = devm_rtc_device_register(&client->dev, client->name,
+ 				rtc_ops, THIS_MODULE);
+ 	if (IS_ERR(ds1307->rtc)) {
+@@ -1149,11 +1151,8 @@ read_rtc:
+ 		if (err) {
+ 			client->irq = 0;
+ 			dev_err(&client->dev, "unable to request IRQ!\n");
+-		} else {
+-
+-			set_bit(HAS_ALARM, &ds1307->flags);
++		} else
+ 			dev_dbg(&client->dev, "got IRQ %d\n", client->irq);
+-		}
+ 	}
+ 
+ 	if (chip->nvram_size) {
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+2.1.4
 
 -- 
 -- 
