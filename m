@@ -1,21 +1,21 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBQF36KZAKGQE57F4GAQ@googlegroups.com>
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id e201si700324wma.3.2015.11.30.11.04.31
-        for <rtc-linux@googlegroups.com>;
-        Mon, 30 Nov 2015 11:04:31 -0800 (PST)
-Date: Mon, 30 Nov 2015 20:04:31 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: LABBE Corentin <clabbe.montjoie@gmail.com>
-Cc: a.zummo@towertech.it, linux-arm-kernel@lists.infradead.org,
-	maxime.ripard@free-electrons.com, wens@csie.org,
-	linux-kernel@vger.kernel.org, rtc-linux@googlegroups.com
-Subject: [rtc-linux] Re: [PATCH 1/3] rtc: sunxi: fix signedness issues
-Message-ID: <20151130190431.GK22136@piout.net>
-References: <1447930210-27008-1-git-send-email-clabbe.montjoie@gmail.com>
+Return-Path: <rtc-linux+bncBAABBHNS3SZAKGQERFYJMYA@googlegroups.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1447930210-27008-1-git-send-email-clabbe.montjoie@gmail.com>
+Received: from vm1.sequanux.org (vm1.sequanux.org. [188.165.36.56])
+        by gmr-mx.google.com with ESMTP id q80si137134wmg.0.2015.11.26.06.37.16
+        for <rtc-linux@googlegroups.com>;
+        Thu, 26 Nov 2015 06:37:16 -0800 (PST)
+From: Simon Guinot <simon.guinot@sequanux.org>
+To: Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: rtc-linux@googlegroups.com,
+	Vincent Donnefort <vdonnefort@gmail.com>,
+	Yoann Sculo <yoann@printk.fr>,
+	Simon Guinot <simon.guinot@sequanux.org>
+Subject: [rtc-linux] [PATCH v3] rtc: ds1307: fix alarm reading at probe time
+Date: Thu, 26 Nov 2015 15:37:13 +0100
+Message-Id: <1448548633-651-1-git-send-email-simon.guinot@sequanux.org>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -25,28 +25,59 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On 19/11/2015 at 11:50:08 +0100, LABBE Corentin wrote :
-> The variable year must be set as unsigned since it is used with
-> sunxi_rtc_data_year{.min|.max} and as parameter of is_leap_year() which
-> wait for unsigned int.
-> Only tm_year is not unsigned, but it is long.
-> This patch fix also the format of printing of min/max. (must use %u since
-> they are unsigned)
-> 
-> The parameter to of sunxi_rtc_setaie() must be set to uint since callers
-> give always uint data.
-> 
-> Signed-off-by: LABBE Corentin <clabbe.montjoie@gmail.com>
-> ---
->  drivers/rtc/rtc-sunxi.c | 8 ++++----
->  1 file changed, 4 insertions(+), 4 deletions(-)
-> 
-Applied, thanks.
+With the actual code, read_alarm() always returns -EINVAL when called
+during the RTC device registration. This prevents from retrieving an
+already configured alarm in hardware.
 
+This patch fixes the issue by moving the HAS_ALARM bit configuration
+(if supported by the hardware) above the rtc_device_register() call.
+
+Signed-off-by: Simon Guinot <simon.guinot@sequanux.org>
+---
+ drivers/rtc/rtc-ds1307.c | 12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
+
+Changes for v2:
+- Rebase against the branch rtc-fixes.
+
+Changes for v3:
+- Clear the device wake-up capability and the HAS_ALARM flag if the
+  IRQ request fails.
+
+diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
+index 325836818826..aa705bb4748c 100644
+--- a/drivers/rtc/rtc-ds1307.c
++++ b/drivers/rtc/rtc-ds1307.c
+@@ -1134,7 +1134,10 @@ read_rtc:
+ 				bin2bcd(tmp));
+ 	}
+ 
+-	device_set_wakeup_capable(&client->dev, want_irq);
++	if (want_irq) {
++		device_set_wakeup_capable(&client->dev, true);
++		set_bit(HAS_ALARM, &ds1307->flags);
++	}
+ 	ds1307->rtc = devm_rtc_device_register(&client->dev, client->name,
+ 				rtc_ops, THIS_MODULE);
+ 	if (IS_ERR(ds1307->rtc)) {
+@@ -1148,12 +1151,11 @@ read_rtc:
+ 						ds1307->rtc->name, client);
+ 		if (err) {
+ 			client->irq = 0;
++			device_set_wakeup_capable(&client->dev, false);
++			clear_bit(HAS_ALARM, &ds1307->flags);
+ 			dev_err(&client->dev, "unable to request IRQ!\n");
+-		} else {
+-
+-			set_bit(HAS_ALARM, &ds1307->flags);
++		} else
+ 			dev_dbg(&client->dev, "got IRQ %d\n", client->irq);
+-		}
+ 	}
+ 
+ 	if (chip->nvram_size) {
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+2.1.4
 
 -- 
 -- 
