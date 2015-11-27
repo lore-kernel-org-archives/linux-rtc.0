@@ -1,27 +1,24 @@
-Return-Path: <rtc-linux+bncBCNNJWF7RUMRBJ6M5CYQKGQEU5GEL3Q@googlegroups.com>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRB2X24GZAKGQEPBJXFSA@googlegroups.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id g21si298392wmd.3.2015.11.27.07.57.30
+        for <rtc-linux@googlegroups.com>;
+        Fri, 27 Nov 2015 07:57:30 -0800 (PST)
+Date: Fri, 27 Nov 2015 16:57:29 +0100
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Enrico Scholz <enrico.scholz@sigma-chemnitz.de>,
+	Steve Twiss <stwiss.opensource@diasemi.com>
+Cc: rtc-linux@googlegroups.com, Alessandro Zummo <a.zummo@towertech.it>,
+	Support Opensource <support.opensource@diasemi.com>
+Subject: Re: [rtc-linux] Re: [PATCH] rtc-da9063: avoid writing undefined data
+ to rtc
+Message-ID: <20151127155729.GB22136@piout.net>
+References: <1448625775-15531-1-git-send-email-enrico.scholz@sigma-chemnitz.de>
+ <20151127150158.GC4268@piout.net>
+ <ly1tbbea3m.fsf@ensc-virt.intern.sigma-chemnitz.de>
 MIME-Version: 1.0
-Received: from mail-pa0-x22f.google.com (mail-pa0-x22f.google.com. [2607:f8b0:400e:c03::22f])
-        by gmr-mx.google.com with ESMTPS id iz5si155846pbc.2.2015.11.04.07.37.11
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 04 Nov 2015 07:37:11 -0800 (PST)
-Received: by mail-pa0-x22f.google.com with SMTP id dm15so31850593pac.3
-        for <rtc-linux@googlegroups.com>; Wed, 04 Nov 2015 07:37:11 -0800 (PST)
-From: Joshua Clayton <stillcompiling@gmail.com>
-To: Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org,
-	Joshua Clayton <stillcompiling@gmail.com>
-Subject: [rtc-linux] [PATCH 5/9] rtc-pcf2123: put the chip reset into a function
-Date: Wed,  4 Nov 2015 07:36:36 -0800
-Message-Id: <dd040a11817f2caac1db13ec49c64f603013b982.1446587705.git.stillcompiling@gmail.com>
-In-Reply-To: <cover.1446587705.git.stillcompiling@gmail.com>
-References: <cover.1446587705.git.stillcompiling@gmail.com>
-In-Reply-To: <cover.1446587705.git.stillcompiling@gmail.com>
-References: <cover.1446587705.git.stillcompiling@gmail.com>
-Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <ly1tbbea3m.fsf@ensc-virt.intern.sigma-chemnitz.de>
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -31,110 +28,42 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Signed-off-by: Joshua Clayton <stillcompiling@gmail.com>
----
- drivers/rtc/rtc-pcf2123.c | 64 ++++++++++++++++++++++++++---------------------
- 1 file changed, 36 insertions(+), 28 deletions(-)
+On 27/11/2015 at 16:27:25 +0100, Enrico Scholz wrote :
+> > Unfortunately, the datasheets are behind a register wall and I can't
+> > check. Is there any meaningful bits mixed in the date/time registers?
+> 
+> We can set "RTC_EN and CRYSTAL writing disabled" (COUNT_Y[6]) randomly;
+> this bit has a different meaning for read ("RTC clock okay") and write
+> ("disable writing"; not clearable).
+> 
+> ALARM_MO[4] "Period of the Tick (0: every second, 1: every minute)" or
+> ALARM_Y[7+6] (enable tick/alarm) should not be set randomly either.
+> 
+> 
+> I think, it is always a bad idea to write random data from stack to a
+> device.
+> 
 
-diff --git a/drivers/rtc/rtc-pcf2123.c b/drivers/rtc/rtc-pcf2123.c
-index 257ce7d..d3c1447 100644
---- a/drivers/rtc/rtc-pcf2123.c
-+++ b/drivers/rtc/rtc-pcf2123.c
-@@ -260,6 +260,40 @@ static int pcf2123_rtc_set_time(struct device *dev, struct rtc_time *tm)
- 	return 0;
- }
- 
-+static int pcf2123_reset(struct device *dev)
-+{
-+	int ret;
-+	u8  rxbuf[2];
-+
-+	ret = pcf2123_write_reg(dev, PCF2123_REG_CTRL1, CTRL1_SW_RESET);
-+	if (ret < 0)
-+		return ret;
-+
-+	/* Stop the counter */
-+	dev_dbg(dev, "stopping RTC\n");
-+	ret = pcf2123_write_reg(dev, PCF2123_REG_CTRL1, CTRL1_STOP);
-+	if (ret < 0)
-+		return ret;
-+
-+	/* See if the counter was actually stopped */
-+	dev_dbg(dev, "checking for presence of RTC\n");
-+	ret = pcf2123_read(dev, PCF2123_REG_CTRL1, rxbuf, sizeof(rxbuf));
-+	if (ret < 0)
-+		return ret;
-+
-+	dev_dbg(dev, "received data from RTC (0x%02X 0x%02X)\n",
-+			rxbuf[0], rxbuf[1]);
-+	if (!(rxbuf[0] & CTRL1_STOP))
-+		return -ENODEV;
-+
-+	/* Start the counter */
-+	ret = pcf2123_write_reg(dev, PCF2123_REG_CTRL1, CTRL1_CLEAR);
-+	if (ret < 0)
-+		return ret;
-+
-+	return 0;
-+}
-+
- static const struct rtc_class_ops pcf2123_rtc_ops = {
- 	.read_time	= pcf2123_rtc_read_time,
- 	.set_time	= pcf2123_rtc_set_time,
-@@ -269,7 +303,6 @@ static int pcf2123_probe(struct spi_device *spi)
- {
- 	struct rtc_device *rtc;
- 	struct pcf2123_plat_data *pdata;
--	u8  rxbuf[2];
- 	int ret, i;
- 
- 	pdata = devm_kzalloc(&spi->dev, sizeof(struct pcf2123_plat_data),
-@@ -278,29 +311,9 @@ static int pcf2123_probe(struct spi_device *spi)
- 		return -ENOMEM;
- 	spi->dev.platform_data = pdata;
- 
--	/* Send a software reset command */
--	dev_dbg(&spi->dev, "resetting RTC\n");
--	ret = pcf2123_write_reg(&spi->dev, PCF2123_REG_CTRL1, CTRL1_SW_RESET);
--	if (ret < 0)
--		goto kfree_exit;
--
--	/* Stop the counter */
--	dev_dbg(&spi->dev, "stopping RTC\n");
--	ret = pcf2123_write_reg(&spi->dev, PCF2123_REG_CTRL1, CTRL1_STOP);
--	if (ret < 0)
--		goto kfree_exit;
--
--	/* See if the counter was actually stopped */
--	dev_dbg(&spi->dev, "checking for presence of RTC\n");
--	ret = pcf2123_read(&spi->dev, PCF2123_REG_CTRL1, rxbuf, sizeof(rxbuf));
--	dev_dbg(&spi->dev, "received data from RTC (0x%02X 0x%02X)\n",
--			rxbuf[0], rxbuf[1]);
--	if (ret < 0)
--		goto kfree_exit;
--
--	if (!(rxbuf[0] & CTRL1_STOP)) {
-+	ret = pcf2123_reset(&spi->dev);
-+	if (ret < 0) {
- 		dev_err(&spi->dev, "chip not found\n");
--		ret = -ENODEV;
- 		goto kfree_exit;
- 	}
- 
-@@ -308,11 +321,6 @@ static int pcf2123_probe(struct spi_device *spi)
- 	dev_info(&spi->dev, "spiclk %u KHz.\n",
- 			(spi->max_speed_hz + 500) / 1000);
- 
--	/* Start the counter */
--	ret = pcf2123_write_reg(&spi->dev, PCF2123_REG_CTRL1, CTRL1_CLEAR);
--	if (ret < 0)
--		goto kfree_exit;
--
- 	/* Finalize the initialization */
- 	rtc = devm_rtc_device_register(&spi->dev, pcf2123_driver.driver.name,
- 			&pcf2123_rtc_ops, THIS_MODULE);
+I agree.
+
+> 
+> > I think this was intended to keep those bits to their previous value but
+> > this is not yet implemented.
+> 
+> Datasheet does not say how to deal with "reserved" bits; but it would be
+> imo overkill to apply a regmap_update_bits() like access to the RTC
+> registers.
+> 
+
+It depends on how much you care about those bits across reboots.
+
+I'll take your patch anyway, unless Steve has another opinion on that.
+
+
 -- 
-2.5.0
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
 -- 
 -- 
