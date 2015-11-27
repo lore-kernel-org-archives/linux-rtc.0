@@ -1,26 +1,20 @@
-Return-Path: <rtc-linux+bncBD7YLCN32UNBBO6TW2ZAKGQE5SF6VPI@googlegroups.com>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRB2HA4GZAKGQE7M6PN5A@googlegroups.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id d185si238583wmf.0.2015.11.27.07.01.59
+        for <rtc-linux@googlegroups.com>;
+        Fri, 27 Nov 2015 07:01:59 -0800 (PST)
+Date: Fri, 27 Nov 2015 16:01:58 +0100
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Enrico Scholz <enrico.scholz@sigma-chemnitz.de>
+Cc: rtc-linux@googlegroups.com, Alessandro Zummo <a.zummo@towertech.it>,
+	Support Opensource <support.opensource@diasemi.com>
+Subject: [rtc-linux] Re: [PATCH] rtc-da9063: avoid writing undefined data to rtc
+Message-ID: <20151127150158.GC4268@piout.net>
+References: <1448625775-15531-1-git-send-email-enrico.scholz@sigma-chemnitz.de>
 MIME-Version: 1.0
-Received: from mail-wm0-x234.google.com (mail-wm0-x234.google.com. [2a00:1450:400c:c09::234])
-        by gmr-mx.google.com with ESMTPS id e201si303642wma.3.2015.11.19.02.51.38
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 19 Nov 2015 02:51:38 -0800 (PST)
-Received: by mail-wm0-x234.google.com with SMTP id c201so15346002wme.0
-        for <rtc-linux@googlegroups.com>; Thu, 19 Nov 2015 02:51:38 -0800 (PST)
-From: LABBE Corentin <clabbe.montjoie@gmail.com>
-To: alexandre.belloni@free-electrons.com,
-	a.zummo@towertech.it,
-	linux-arm-kernel@lists.infradead.org,
-	maxime.ripard@free-electrons.com,
-	wens@csie.org
-Cc: LABBE Corentin <clabbe.montjoie@gmail.com>,
-	linux-kernel@vger.kernel.org,
-	rtc-linux@googlegroups.com
-Subject: [rtc-linux] [PATCH 1/3] rtc: sunxi: fix signedness issues
-Date: Thu, 19 Nov 2015 11:50:08 +0100
-Message-Id: <1447930210-27008-1-git-send-email-clabbe.montjoie@gmail.com>
-Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1448625775-15531-1-git-send-email-enrico.scholz@sigma-chemnitz.de>
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -30,56 +24,45 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-The variable year must be set as unsigned since it is used with
-sunxi_rtc_data_year{.min|.max} and as parameter of is_leap_year() which
-wait for unsigned int.
-Only tm_year is not unsigned, but it is long.
-This patch fix also the format of printing of min/max. (must use %u since
-they are unsigned)
+Hi,
 
-The parameter to of sunxi_rtc_setaie() must be set to uint since callers
-give always uint data.
+On 27/11/2015 at 13:02:55 +0100, Enrico Scholz wrote :
+> driver did
+> 
+> | static void da9063_tm_to_data(struct rtc_time *tm, u8 *data,
+> | {
+> |  	const struct da9063_compatible_rtc_regmap *config = rtc->config;
+> |
+> | 	data[RTC_SEC] &= ~config->rtc_count_sec_mask;
+> | 	data[RTC_SEC] |= tm->tm_sec & config->rtc_count_sec_mask;
+> | ...
+> | }
+> | ...
+> | static int da9063_rtc_set_time(struct device *dev, struct rtc_time *tm)
+> | {
+> |       ...
+> |	u8 data[RTC_DATA_LEN];
+> |	int ret;
+> |
+> |	da9063_tm_to_data(tm, data, rtc);
+> 
+> which means that some bits of stack content (in 'data[]') was masked out
+> and written to the RTC.
+> 
+> Because da9063_tm_to_data() is used only by da9063_rtc_set_time() and
+> da9063_rtc_set_alarm(), we can write fields directly.
+> 
 
-Signed-off-by: LABBE Corentin <clabbe.montjoie@gmail.com>
----
- drivers/rtc/rtc-sunxi.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+Unfortunately, the datasheets are behind a register wall and I can't
+check. Is there any meaningful bits mixed in the date/time registers?
 
-diff --git a/drivers/rtc/rtc-sunxi.c b/drivers/rtc/rtc-sunxi.c
-index 52543ae..b4f35ac 100644
---- a/drivers/rtc/rtc-sunxi.c
-+++ b/drivers/rtc/rtc-sunxi.c
-@@ -175,7 +175,7 @@ static irqreturn_t sunxi_rtc_alarmirq(int irq, void *id)
- 	return IRQ_NONE;
- }
- 
--static void sunxi_rtc_setaie(int to, struct sunxi_rtc_dev *chip)
-+static void sunxi_rtc_setaie(unsigned int to, struct sunxi_rtc_dev *chip)
- {
- 	u32 alrm_val = 0;
- 	u32 alrm_irq_val = 0;
-@@ -343,7 +343,7 @@ static int sunxi_rtc_settime(struct device *dev, struct rtc_time *rtc_tm)
- 	struct sunxi_rtc_dev *chip = dev_get_drvdata(dev);
- 	u32 date = 0;
- 	u32 time = 0;
--	int year;
-+	unsigned int year;
- 
- 	/*
- 	 * the input rtc_tm->tm_year is the offset relative to 1900. We use
-@@ -353,8 +353,8 @@ static int sunxi_rtc_settime(struct device *dev, struct rtc_time *rtc_tm)
- 
- 	year = rtc_tm->tm_year + 1900;
- 	if (year < chip->data_year->min || year > chip->data_year->max) {
--		dev_err(dev, "rtc only supports year in range %d - %d\n",
--				chip->data_year->min, chip->data_year->max);
-+		dev_err(dev, "rtc only supports year in range %u - %u\n",
-+			chip->data_year->min, chip->data_year->max);
- 		return -EINVAL;
- 	}
- 
+I think this was intended to keep those bits to their previous value but
+this is not yet implemented.
+
 -- 
-2.4.10
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
 -- 
 -- 
