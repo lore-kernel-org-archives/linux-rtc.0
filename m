@@ -1,31 +1,30 @@
-Return-Path: <rtc-linux+bncBDA7X7F2WUEBB3MD3WYQKGQEK7FKTFA@googlegroups.com>
-Received: from mail-wm0-x22c.google.com (mail-wm0-x22c.google.com. [2a00:1450:400c:c09::22c])
-        by gmr-mx.google.com with ESMTPS id g18si489859wmd.1.2015.11.02.02.58.52
+Return-Path: <rtc-linux+bncBAABBYWI5OZAKGQEUMNNI5Y@googlegroups.com>
+Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de. [2001:67c:670:201:290:27ff:fe1d:cc33])
+        by gmr-mx.google.com with ESMTPS id y203si391274wmc.2.2015.11.29.03.41.22
         for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 02 Nov 2015 02:58:52 -0800 (PST)
-Received: by mail-wm0-x22c.google.com with SMTP id f134so55245772wmf.1
-        for <rtc-linux@googlegroups.com>; Mon, 02 Nov 2015 02:58:52 -0800 (PST)
-Date: Mon, 2 Nov 2015 10:58:49 +0000
-From: Lee Jones <lee.jones@linaro.org>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Krzysztof Kozlowski <k.kozlowski@samsung.com>,
-	Alim Akhtar <alim.akhtar@samsung.com>, broonie@kernel.org,
-	linux-samsung-soc@vger.kernel.org, rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH v5 4/4] drivers/rtc/rtc-s5m.c: add support for
- S2MPS15 RTC
-Message-ID: <20151102105849.GV4058@x1>
-References: <1446186334-16510-1-git-send-email-alim.akhtar@samsung.com>
- <1446186334-16510-5-git-send-email-alim.akhtar@samsung.com>
- <20151101174048.GD22331@piout.net>
- <5636A44D.4090908@samsung.com>
- <20151102004722.GI22331@piout.net>
- <20151102090359.GR4058@x1>
- <20151102101931.GK22331@piout.net>
+        (version=TLS1_2 cipher=AES128-SHA bits=128/128);
+        Sun, 29 Nov 2015 03:41:22 -0800 (PST)
+Date: Sun, 29 Nov 2015 12:41:11 +0100
+From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <u.kleine-koenig@pengutronix.de>
+To: Harald Geyer <harald@ccbib.org>
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	Guenter Roeck <linux@roeck-us.net>, linux-watchdog@vger.kernel.org,
+	rtc-linux@googlegroups.com, Wolfram Sang <wsa@the-dreams.de>,
+	kernel@pengutronix.de, Fabio Estevam <festevam@gmail.com>
+Subject: [rtc-linux] Re: [PATCH 2/2] watchdog: stmp3xxx: Implement GETBOOTSTATUS
+Message-ID: <20151129114111.GB10431@pengutronix.de>
+References: <1444220352-20548-1-git-send-email-harald@ccbib.org>
+ <1444220352-20548-2-git-send-email-harald@ccbib.org>
+ <20151126092526.GM19888@pengutronix.de>
+ <E1a1wm1-0000XO-S7@stardust.g4.wien.funkfeuer.at>
+ <20151127100254.GR19888@pengutronix.de>
+ <20151127104402.GT19888@pengutronix.de>
+ <b09608aa29195b41fc114a414d67af0f@ccbib.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <20151102101931.GK22331@piout.net>
+In-Reply-To: <b09608aa29195b41fc114a414d67af0f@ccbib.org>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -36,35 +35,62 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On Mon, 02 Nov 2015, Alexandre Belloni wrote:
+Hello Harald,
 
-> On 02/11/2015 at 09:03:59 +0000, Lee Jones wrote :
-> > > > I think you cannot apply it directly because it depends on headers =
-from
-> > > > patch 2/4. It won't build.
-> > > >=20
-> > >=20
-> > > Yeah, this depends on the mfd tree. I don't thin Lee applied patch 2/=
-4
-> > > yet so I'm taking that one for 4.5.
-> >=20
-> > I don't mind if you take it, but if you do so you need to take the
-> > Regulator patch as well AND provide Mark and I a pull-request from an
-> > immutable branch please.=20
-> >=20
+On Sun, Nov 29, 2015 at 11:41:22AM +0100, Harald Geyer wrote:
+> On 27.11.2015 11:44, Uwe Kleine-K=C3=B6nig wrote:
+> >Hello Harald,
+> >
+> >On Fri, Nov 27, 2015 at 11:02:54AM +0100, Uwe Kleine-K=C3=B6nig wrote:
+> >>On Thu, Nov 26, 2015 at 02:39:45PM +0100, Harald Geyer wrote:
+> >>> Uwe Kleine-K=C3=B6nig writes:
+> >>> > On Wed, Oct 07, 2015 at 12:19:12PM +0000, Harald Geyer wrote:
+> >>> > > This device doesn't provide any information about boot status.
+> >>> > > As workaround we use a persitent bit to track watchdog activity.
+> >>> >
+> >>> > Hmm, so you set a bit in a persistent register iff the watchdog is
+> >>> > running.  And if that bit is set during probe you assume the
+> >>watchdog
+> >>> > reset the machine. But this also happens, when the user presses the
+> >>> > reset button which makes the detection unreliable.
+> >>>
+> >>> Yes, kind of. I'm using this driver on an imx233-olinuxino, where the
+> >>> reset button causes the device to power cycle and thus clears the
+> >>> persitent bit. So I can't test your case, but surely there are some
+> >>paths
+> >>> into reset, that don't clear the bit and cause false positives.
+> >>
+> >>OK, I found a i.MX28 machine in our repository:
+> >>
+> >>	barebox# mw 0x80056080 0xbabecafe
+> >>	barebox# boot
+> >>	...
+> >>	linux# reboot
+> >>	barebox# md 0x80056080+4
+> >>	80056080: babecafe
+> >>
+> >>After a power cycle the value disappears (I didn't check the details, i=
+f
+> >>there is a battery it might be empty).
 >=20
-> Actually, I was thinking that you would take 2/4 through your tree and I
-> would either base myself on that or delay the patch for 4.5. You could
-> also take the rtc patch if you plan to apply 2/4, feel free to add my
-> acked-by.
+> Are there any concerns left on your side? Ie do you want me to do
+> any additional tests before sending v4 of this patch with the
+> whitespace changes and added URL to the freescale kernel?
 
-Perfect.  I will do the latter.
+I just notice that I failed to do the proper test. I.e. I reset the
+machine using "reboot" instead of a reset button. But I'd expect that
+doing the latter also keeps the value of the persistant register, which
+would make your patch wrong here. I will check that tomorrow when I can
+make someone do this test for me. (I'm 600 km from the machine above
+away.)
+=20
+Best regards
+Uwe
 
 --=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+Pengutronix e.K.                           | Uwe Kleine-K=C3=B6nig         =
+   |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
 
 --=20
 --=20
