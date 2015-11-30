@@ -1,21 +1,23 @@
-Return-Path: <rtc-linux+bncBAABBUM63SZAKGQENOJZEMY@googlegroups.com>
-MIME-Version: 1.0
-Received: from vm1.sequanux.org (vm1.sequanux.org. [188.165.36.56])
-        by gmr-mx.google.com with ESMTP id y203si63907wmc.2.2015.11.26.05.55.28
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBNF46KZAKGQEYRGRXXI@googlegroups.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id q80si915714wmg.0.2015.11.30.11.06.27
         for <rtc-linux@googlegroups.com>;
-        Thu, 26 Nov 2015 05:55:28 -0800 (PST)
-From: Simon Guinot <simon.guinot@sequanux.org>
-To: Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: rtc-linux@googlegroups.com,
-	Vincent Donnefort <vdonnefort@gmail.com>,
-	Yoann Sculo <yoann@printk.fr>,
-	Simon Guinot <simon.guinot@sequanux.org>
-Subject: [rtc-linux] [PATCH v2] rtc: ds1307: fix alarm reading at probe time
-Date: Thu, 26 Nov 2015 14:55:26 +0100
-Message-Id: <1448546126-22407-1-git-send-email-simon.guinot@sequanux.org>
-Reply-To: rtc-linux@googlegroups.com
+        Mon, 30 Nov 2015 11:06:27 -0800 (PST)
+Date: Mon, 30 Nov 2015 20:06:27 +0100
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Rasmus Villemoes <linux@rasmusvillemoes.dk>
+Cc: Joshua Kinard <kumba@gentoo.org>,
+	Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org
+Subject: [rtc-linux] Re: [PATCH 2/2] drivers/rtc/rtc-ds1685.c: don't try to
+ micromanage sysfs output size
+Message-ID: <20151130190627.GO22136@piout.net>
+References: <1448373085-6353-1-git-send-email-linux@rasmusvillemoes.dk>
+ <1448373085-6353-2-git-send-email-linux@rasmusvillemoes.dk>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1448373085-6353-2-git-send-email-linux@rasmusvillemoes.dk>
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -25,48 +27,35 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-With the actual code, read_alarm() always returns -EINVAL when called
-during the RTC device registration. This prevents from retrieving an
-already configured alarm in hardware.
+On 24/11/2015 at 14:51:24 +0100, Rasmus Villemoes wrote :
+> ...and don't do it wrong.
+> 
+> "not ok or N/A" has length 13. Add the trailing newline, and the
+> snprintf return value will be 14. However, we lied to snprintf and
+> told it that only 13 bytes were available. Hence snprintf has only
+> written "not ok or N/" and a trailing '\0' to the buffer. Next we
+> continue lying, this time to the upper sysfs layer, claiming that we
+> wrote 14 meaningful bytes to the buffer. That'll make the upper layer
+> copy "not ok or N/" plus two nul bytes to user space (one nul byte
+> from snprintf, the other since sysfs takes care to clear the buffer
+> before giving it to the ->show method).
+> 
+> In the other cases, the claimed buffer size is closer to sufficient,
+> but we'll still get a nul byte instead of a newline written to user
+> space.  There's absolutely no reason to try to predict the output
+> size, and there's plenty of room in the buffer, so just use sprintf.
+> 
+> Signed-off-by: Rasmus Villemoes <linux@rasmusvillemoes.dk>
+> ---
+>  drivers/rtc/rtc-ds1685.c | 12 +++++-------
+>  1 file changed, 5 insertions(+), 7 deletions(-)
+> 
+Applied, thanks.
 
-This patch fixes the issue by moving the HAS_ALARM bit configuration
-(if supported by the hardware) above the rtc_device_register() call.
-
-Signed-off-by: Simon Guinot <simon.guinot@sequanux.org>
----
- drivers/rtc/rtc-ds1307.c | 7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
-
-Change for v2: rebase against the branch rtc-fixes
-
-diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
-index 325836818826..754c60dad224 100644
---- a/drivers/rtc/rtc-ds1307.c
-+++ b/drivers/rtc/rtc-ds1307.c
-@@ -1135,6 +1135,8 @@ read_rtc:
- 	}
- 
- 	device_set_wakeup_capable(&client->dev, want_irq);
-+	if (want_irq)
-+		set_bit(HAS_ALARM, &ds1307->flags);
- 	ds1307->rtc = devm_rtc_device_register(&client->dev, client->name,
- 				rtc_ops, THIS_MODULE);
- 	if (IS_ERR(ds1307->rtc)) {
-@@ -1149,11 +1151,8 @@ read_rtc:
- 		if (err) {
- 			client->irq = 0;
- 			dev_err(&client->dev, "unable to request IRQ!\n");
--		} else {
--
--			set_bit(HAS_ALARM, &ds1307->flags);
-+		} else
- 			dev_dbg(&client->dev, "got IRQ %d\n", client->irq);
--		}
- 	}
- 
- 	if (chip->nvram_size) {
 -- 
-2.1.4
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
 -- 
 -- 
