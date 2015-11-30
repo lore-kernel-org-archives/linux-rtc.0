@@ -1,97 +1,45 @@
-Return-Path: <rtc-linux+bncBDSYZY5FQMCBBFMN4GZAKGQEPGWEOYA@googlegroups.com>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBF536KZAKGQE5PLCFNA@googlegroups.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id d185si703409wmf.0.2015.11.30.11.03.51
+        for <rtc-linux@googlegroups.com>;
+        Mon, 30 Nov 2015 11:03:51 -0800 (PST)
+Date: Mon, 30 Nov 2015 20:03:50 +0100
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Geliang Tang <geliangtang@163.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org
+Subject: [rtc-linux] Re: [PATCH 1/2] rtc: fix module reference count in rtc-proc
+Message-ID: <20151130190350.GI22136@piout.net>
+References: <9d57abe4fe1acdbc4a63496142ea4b78f152e621.1446868545.git.geliangtang@163.com>
 MIME-Version: 1.0
-Received: from mail.cvg.de (mail.cvg.de. [62.153.82.30])
-        by gmr-mx.google.com with ESMTPS id d185si219743wmf.0.2015.11.27.04.03.33
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 27 Nov 2015 04:03:33 -0800 (PST)
-From: Enrico Scholz <enrico.scholz@sigma-chemnitz.de>
-To: rtc-linux@googlegroups.com
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
-        Support Opensource <support.opensource@diasemi.com>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        Enrico Scholz <enrico.scholz@sigma-chemnitz.de>
-Subject: [rtc-linux] [PATCH] rtc-da9063: avoid writing undefined data to rtc
-Date: Fri, 27 Nov 2015 13:02:55 +0100
-Message-Id: <1448625775-15531-1-git-send-email-enrico.scholz@sigma-chemnitz.de>
-Sender: rtc-linux@googlegroups.com
-Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <9d57abe4fe1acdbc4a63496142ea4b78f152e621.1446868545.git.geliangtang@163.com>
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
 List-Archive: <http://groups.google.com/group/rtc-linux
+Sender: rtc-linux@googlegroups.com
 List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-driver did
+On 07/11/2015 at 12:00:21 +0800, Geliang Tang wrote :
+> rtc-proc.c is not built as a module. Thus, rather than dealing with
+> THIS_MODULE's reference count, we should deal with rtc->owner's
+> reference count.
+> 
+> Signed-off-by: Geliang Tang <geliangtang@163.com>
+> ---
+>  drivers/rtc/rtc-proc.c | 8 +++++---
+>  1 file changed, 5 insertions(+), 3 deletions(-)
+> 
+Both patches are applied, thanks.
 
-| static void da9063_tm_to_data(struct rtc_time *tm, u8 *data,
-| {
-|  	const struct da9063_compatible_rtc_regmap *config = rtc->config;
-|
-| 	data[RTC_SEC] &= ~config->rtc_count_sec_mask;
-| 	data[RTC_SEC] |= tm->tm_sec & config->rtc_count_sec_mask;
-| ...
-| }
-| ...
-| static int da9063_rtc_set_time(struct device *dev, struct rtc_time *tm)
-| {
-|       ...
-|	u8 data[RTC_DATA_LEN];
-|	int ret;
-|
-|	da9063_tm_to_data(tm, data, rtc);
-
-which means that some bits of stack content (in 'data[]') was masked out
-and written to the RTC.
-
-Because da9063_tm_to_data() is used only by da9063_rtc_set_time() and
-da9063_rtc_set_alarm(), we can write fields directly.
-
-Signed-off-by: Enrico Scholz <enrico.scholz@sigma-chemnitz.de>
----
- drivers/rtc/rtc-da9063.c | 23 ++++++-----------------
- 1 file changed, 6 insertions(+), 17 deletions(-)
-
-diff --git a/drivers/rtc/rtc-da9063.c b/drivers/rtc/rtc-da9063.c
-index 00a8f7f..8d5b9be 100644
---- a/drivers/rtc/rtc-da9063.c
-+++ b/drivers/rtc/rtc-da9063.c
-@@ -191,24 +191,13 @@ static void da9063_tm_to_data(struct rtc_time *tm, u8 *data,
- {
- 	const struct da9063_compatible_rtc_regmap *config = rtc->config;
- 
--	data[RTC_SEC] &= ~config->rtc_count_sec_mask;
--	data[RTC_SEC] |= tm->tm_sec & config->rtc_count_sec_mask;
--
--	data[RTC_MIN] &= ~config->rtc_count_min_mask;
--	data[RTC_MIN] |= tm->tm_min & config->rtc_count_min_mask;
--
--	data[RTC_HOUR] &= ~config->rtc_count_hour_mask;
--	data[RTC_HOUR] |= tm->tm_hour & config->rtc_count_hour_mask;
--
--	data[RTC_DAY] &= ~config->rtc_count_day_mask;
--	data[RTC_DAY] |= tm->tm_mday & config->rtc_count_day_mask;
--
--	data[RTC_MONTH] &= ~config->rtc_count_month_mask;
--	data[RTC_MONTH] |= MONTHS_TO_DA9063(tm->tm_mon) &
-+	data[RTC_SEC]   = tm->tm_sec & config->rtc_count_sec_mask;
-+	data[RTC_MIN]   = tm->tm_min & config->rtc_count_min_mask;
-+	data[RTC_HOUR]  = tm->tm_hour & config->rtc_count_hour_mask;
-+	data[RTC_DAY]   = tm->tm_mday & config->rtc_count_day_mask;
-+	data[RTC_MONTH] = MONTHS_TO_DA9063(tm->tm_mon) &
- 				config->rtc_count_month_mask;
--
--	data[RTC_YEAR] &= ~config->rtc_count_year_mask;
--	data[RTC_YEAR] |= YEARS_TO_DA9063(tm->tm_year) &
-+	data[RTC_YEAR]  = YEARS_TO_DA9063(tm->tm_year) &
- 				config->rtc_count_year_mask;
- }
- 
 -- 
-2.4.3
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
 -- 
 -- 
