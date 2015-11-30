@@ -1,27 +1,21 @@
-Return-Path: <rtc-linux+bncBCNNJWF7RUMRBKWM5CYQKGQECOBP7OA@googlegroups.com>
+Return-Path: <rtc-linux+bncBDKLR6HU7IIBBIXR6GZAKGQEDI7HZCA@googlegroups.com>
+Received: from mailapp01.imgtec.com (mailapp01.imgtec.com. [195.59.15.196])
+        by gmr-mx.google.com with ESMTP id b62si424610wmc.0.2015.11.30.08.26.09
+        for <rtc-linux@googlegroups.com>;
+        Mon, 30 Nov 2015 08:26:09 -0800 (PST)
+From: Paul Burton <paul.burton@imgtec.com>
+To: <linux-mips@linux-mips.org>
+CC: Paul Burton <paul.burton@imgtec.com>, Alexandre Belloni
+	<alexandre.belloni@free-electrons.com>, <rtc-linux@googlegroups.com>,
+	Alessandro Zummo <a.zummo@towertech.it>, <linux-kernel@vger.kernel.org>
+Subject: [rtc-linux] [PATCH 16/28] rtc: m41t80: add devicetree probe support
+Date: Mon, 30 Nov 2015 16:21:41 +0000
+Message-ID: <1448900513-20856-17-git-send-email-paul.burton@imgtec.com>
+In-Reply-To: <1448900513-20856-1-git-send-email-paul.burton@imgtec.com>
+References: <1448900513-20856-1-git-send-email-paul.burton@imgtec.com>
 MIME-Version: 1.0
-Received: from mail-pa0-x232.google.com (mail-pa0-x232.google.com. [2607:f8b0:400e:c03::232])
-        by gmr-mx.google.com with ESMTPS id fa8si182608pab.1.2015.11.04.07.37.14
-        for <rtc-linux@googlegroups.com>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 04 Nov 2015 07:37:14 -0800 (PST)
-Received: by mail-pa0-x232.google.com with SMTP id fh17so56007588pab.0
-        for <rtc-linux@googlegroups.com>; Wed, 04 Nov 2015 07:37:14 -0800 (PST)
-From: Joshua Clayton <stillcompiling@gmail.com>
-To: Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org,
-	Joshua Clayton <stillcompiling@gmail.com>
-Subject: [rtc-linux] [PATCH 8/9] rtc-pcf2123: use sysfs groups
-Date: Wed,  4 Nov 2015 07:36:39 -0800
-Message-Id: <63d5284dfb9d04f1f0a33c02cd937e2ddd72fb9b.1446587705.git.stillcompiling@gmail.com>
-In-Reply-To: <cover.1446587705.git.stillcompiling@gmail.com>
-References: <cover.1446587705.git.stillcompiling@gmail.com>
-In-Reply-To: <cover.1446587705.git.stillcompiling@gmail.com>
-References: <cover.1446587705.git.stillcompiling@gmail.com>
-Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -31,203 +25,74 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Switch from manually creating all the sysfs attributes to
-defining them mostly in the canonical way.
-We are adding them to an spi driver, so we must still add and remove
-the group manually, but everythig else is done by The Book(tm) .
+Allow the m41t80 RTC driver to be probed via devicetree.
 
-Signed-off-by: Joshua Clayton <stillcompiling@gmail.com>
+Signed-off-by: Paul Burton <paul.burton@imgtec.com>
 ---
- drivers/rtc/rtc-pcf2123.c | 118 +++++++++++++++++++++-------------------------
- 1 file changed, 55 insertions(+), 63 deletions(-)
 
-diff --git a/drivers/rtc/rtc-pcf2123.c b/drivers/rtc/rtc-pcf2123.c
-index 6701e6d..d494638 100644
---- a/drivers/rtc/rtc-pcf2123.c
-+++ b/drivers/rtc/rtc-pcf2123.c
-@@ -84,16 +84,6 @@
- 
- static struct spi_driver pcf2123_driver;
- 
--struct pcf2123_sysfs_reg {
--	struct device_attribute attr;
--	char name[2];
--};
--
--struct pcf2123_plat_data {
--	struct rtc_device *rtc;
--	struct pcf2123_sysfs_reg regs[16];
--};
--
- /*
-  * Causes a 30 nanosecond delay to ensure that the PCF2123 chip select
-  * is released properly after an SPI write.  This function should be
-@@ -146,17 +136,11 @@ static int pcf2123_write_reg(struct device *dev, u8 reg, u8 val)
- static ssize_t pcf2123_show(struct device *dev, struct device_attribute *attr,
- 			    char *buffer)
- {
--	struct pcf2123_sysfs_reg *r;
- 	u8 rxbuf[1];
- 	unsigned long reg;
- 	int ret;
- 
--	r = container_of(attr, struct pcf2123_sysfs_reg, attr);
--
--	ret = kstrtoul(r->name, 16, &reg);
--	if (ret)
--		return ret;
--
-+	reg = hex_to_bin(attr->attr.name[0]);
- 	ret = pcf2123_read(dev, reg, rxbuf, 1);
- 	if (ret < 0)
- 		return -EIO;
-@@ -166,25 +150,19 @@ static ssize_t pcf2123_show(struct device *dev, struct device_attribute *attr,
- 
- static ssize_t pcf2123_store(struct device *dev, struct device_attribute *attr,
- 			     const char *buffer, size_t count) {
--	struct pcf2123_sysfs_reg *r;
- 	unsigned long reg;
- 	unsigned long val;
--
- 	int ret;
- 
--	r = container_of(attr, struct pcf2123_sysfs_reg, attr);
--
--	ret = kstrtoul(r->name, 16, &reg);
--	if (ret)
--		return ret;
--
- 	ret = kstrtoul(buffer, 0, &val);
- 	if (ret)
- 		return ret;
- 
-+	reg = hex_to_bin(attr->attr.name[0]);
- 	pcf2123_write_reg(dev, reg, val);
- 	if (ret < 0)
- 		return -EIO;
-+
- 	return count;
- }
- 
-@@ -326,17 +304,56 @@ static const struct rtc_class_ops pcf2123_rtc_ops = {
- 	.set_time	= pcf2123_rtc_set_time,
+ drivers/rtc/rtc-m41t80.c | 26 ++++++++++++++++++++++++++
+ 1 file changed, 26 insertions(+)
+
+diff --git a/drivers/rtc/rtc-m41t80.c b/drivers/rtc/rtc-m41t80.c
+index a82937e..d3b29fc 100644
+--- a/drivers/rtc/rtc-m41t80.c
++++ b/drivers/rtc/rtc-m41t80.c
+@@ -20,6 +20,7 @@
+ #include <linux/init.h>
+ #include <linux/kernel.h>
+ #include <linux/module.h>
++#include <linux/of.h>
+ #include <linux/rtc.h>
+ #include <linux/slab.h>
+ #include <linux/mutex.h>
+@@ -85,6 +86,14 @@ static const struct i2c_device_id m41t80_id[] = {
  };
+ MODULE_DEVICE_TABLE(i2c, m41t80_id);
  
-+static DEVICE_ATTR(0, S_IRUGO | S_IWUSR, pcf2123_show, pcf2123_store);
-+static DEVICE_ATTR(1, S_IRUGO | S_IWUSR, pcf2123_show, pcf2123_store);
-+static DEVICE_ATTR(2, S_IRUGO | S_IWUSR, pcf2123_show, pcf2123_store);
-+static DEVICE_ATTR(3, S_IRUGO | S_IWUSR, pcf2123_show, pcf2123_store);
-+static DEVICE_ATTR(4, S_IRUGO | S_IWUSR, pcf2123_show, pcf2123_store);
-+static DEVICE_ATTR(5, S_IRUGO | S_IWUSR, pcf2123_show, pcf2123_store);
-+static DEVICE_ATTR(6, S_IRUGO | S_IWUSR, pcf2123_show, pcf2123_store);
-+static DEVICE_ATTR(7, S_IRUGO | S_IWUSR, pcf2123_show, pcf2123_store);
-+static DEVICE_ATTR(8, S_IRUGO | S_IWUSR, pcf2123_show, pcf2123_store);
-+static DEVICE_ATTR(9, S_IRUGO | S_IWUSR, pcf2123_show, pcf2123_store);
-+static DEVICE_ATTR(a, S_IRUGO | S_IWUSR, pcf2123_show, pcf2123_store);
-+static DEVICE_ATTR(b, S_IRUGO | S_IWUSR, pcf2123_show, pcf2123_store);
-+static DEVICE_ATTR(c, S_IRUGO | S_IWUSR, pcf2123_show, pcf2123_store);
-+static DEVICE_ATTR(d, S_IRUGO | S_IWUSR, pcf2123_show, pcf2123_store);
-+static DEVICE_ATTR(e, S_IRUGO | S_IWUSR, pcf2123_show, pcf2123_store);
-+static DEVICE_ATTR(f, S_IRUGO | S_IWUSR, pcf2123_show, pcf2123_store);
-+
-+static struct attribute *pcf2123_attrs[] = {
-+	&dev_attr_0.attr,
-+	&dev_attr_1.attr,
-+	&dev_attr_2.attr,
-+	&dev_attr_3.attr,
-+	&dev_attr_4.attr,
-+	&dev_attr_5.attr,
-+	&dev_attr_6.attr,
-+	&dev_attr_7.attr,
-+	&dev_attr_8.attr,
-+	&dev_attr_9.attr,
-+	&dev_attr_a.attr,
-+	&dev_attr_b.attr,
-+	&dev_attr_c.attr,
-+	&dev_attr_d.attr,
-+	&dev_attr_e.attr,
-+	&dev_attr_f.attr,
-+	NULL
++#ifdef CONFIG_OF
++static const struct of_device_id m41t80_of_match[] = {
++	{ .compatible = "st,m41t81s", .name = "m41t81s" },
++	{ }
 +};
++MODULE_DEVICE_TABLE(of, m41t80_of_match);
++#endif
 +
-+static const struct attribute_group pcf2123_group = {
-+	.attrs = pcf2123_attrs,
-+};
-+
-+static const struct attribute_group *pcf2123_groups[] = {
-+	&pcf2123_group,
-+	NULL
-+};
-+
- static int pcf2123_probe(struct spi_device *spi)
- {
+ struct m41t80_data {
+ 	u8 features;
  	struct rtc_device *rtc;
--	struct pcf2123_plat_data *pdata;
--	int ret, i;
--
--	pdata = devm_kzalloc(&spi->dev, sizeof(struct pcf2123_plat_data),
--				GFP_KERNEL);
--	if (!pdata)
--		return -ENOMEM;
--	spi->dev.platform_data = pdata;
-+	int ret;
+@@ -637,6 +646,22 @@ static int m41t80_probe(struct i2c_client *client,
+ 	struct rtc_device *rtc = NULL;
+ 	struct rtc_time tm;
+ 	struct m41t80_data *clientdata = NULL;
++	const struct of_device_id *of_id;
++
++	if (!id && client->dev.of_node) {
++		of_id = of_match_node(of_match_ptr(m41t80_of_match),
++				      client->dev.of_node);
++		for (id = m41t80_id; id->name[0]; id++) {
++			if (strcmp(of_id->name, id->name) == 0)
++				break;
++		}
++		if (!id->name[0])
++			id = NULL;
++	}
++	if (!id) {
++		dev_err(&client->dev, "No i2c_device_id found\n");
++		return -EINVAL;
++	}
  
- 	if (!pcf2123_time_valid(&spi->dev)) {
- 		ret = pcf2123_reset(&spi->dev);
-@@ -360,29 +377,13 @@ static int pcf2123_probe(struct spi_device *spi)
- 		goto kfree_exit;
- 	}
- 
--	pdata->rtc = rtc;
--
--	for (i = 0; i < 16; i++) {
--		sysfs_attr_init(&pdata->regs[i].attr.attr);
--		sprintf(pdata->regs[i].name, "%1x", i);
--		pdata->regs[i].attr.attr.mode = S_IRUGO | S_IWUSR;
--		pdata->regs[i].attr.attr.name = pdata->regs[i].name;
--		pdata->regs[i].attr.show = pcf2123_show;
--		pdata->regs[i].attr.store = pcf2123_store;
--		ret = device_create_file(&spi->dev, &pdata->regs[i].attr);
--		if (ret) {
--			dev_err(&spi->dev, "Unable to create sysfs %s\n",
--				pdata->regs[i].name);
--			goto sysfs_exit;
--		}
--	}
-+	ret = sysfs_create_groups(&spi->dev.kobj, pcf2123_groups);
-+	if (ret)
-+		goto sysfs_exit;
- 
- 	return 0;
--
- sysfs_exit:
--	for (i--; i >= 0; i--)
--		device_remove_file(&spi->dev, &pdata->regs[i].attr);
--
-+	sysfs_remove_groups(&spi->dev.kobj, pcf2123_groups);
- kfree_exit:
- 	spi->dev.platform_data = NULL;
- 	return ret;
-@@ -390,16 +391,7 @@ kfree_exit:
- 
- static int pcf2123_remove(struct spi_device *spi)
- {
--	struct pcf2123_plat_data *pdata = dev_get_platdata(&spi->dev);
--	int i;
--
--	if (pdata) {
--		for (i = 0; i < 16; i++)
--			if (pdata->regs[i].name[0])
--				device_remove_file(&spi->dev,
--						   &pdata->regs[i].attr);
--	}
--
-+	sysfs_remove_groups(&spi->dev.kobj, pcf2123_groups);
- 	return 0;
- }
- 
+ 	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C
+ 				     | I2C_FUNC_SMBUS_BYTE_DATA))
+@@ -728,6 +753,7 @@ static int m41t80_remove(struct i2c_client *client)
+ static struct i2c_driver m41t80_driver = {
+ 	.driver = {
+ 		.name = "rtc-m41t80",
++		.of_match_table = of_match_ptr(m41t80_of_match),
+ 	},
+ 	.probe = m41t80_probe,
+ 	.remove = m41t80_remove,
 -- 
-2.5.0
+2.6.2
 
 -- 
 -- 
