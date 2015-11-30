@@ -1,28 +1,21 @@
-Return-Path: <rtc-linux+bncBDA7X7F2WUEBB47MXOZAKGQESO67YAA@googlegroups.com>
-Received: from mail-wm0-x234.google.com (mail-wm0-x234.google.com. [2a00:1450:400c:c09::234])
-        by gmr-mx.google.com with ESMTPS id r130si84247wma.0.2015.11.20.02.31.15
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 20 Nov 2015 02:31:15 -0800 (PST)
-Received: by mail-wm0-x234.google.com with SMTP id w144so13422653wmw.1
-        for <rtc-linux@googlegroups.com>; Fri, 20 Nov 2015 02:31:15 -0800 (PST)
-Date: Fri, 20 Nov 2015 10:31:12 +0000
-From: Lee Jones <lee.jones@linaro.org>
-To: Alim Akhtar <alim.akhtar@samsung.com>
-Cc: Alim Akhtar <alim.akhtar@gmail.com>, broonie@kernel.org,
-	Krzysztof =?utf-8?Q?Koz=C5=82owski?= <k.kozlowski@samsung.com>,
-	"linux-samsung-soc@vger.kernel.org" <linux-samsung-soc@vger.kernel.org>,
-	rtc-linux@googlegroups.com,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: [rtc-linux] Re: [PATCH v5 0/4] mfd: sec: add S2MPS15 PMIC support
-Message-ID: <20151120103112.GE3098@x1>
-References: <1446186334-16510-1-git-send-email-alim.akhtar@samsung.com>
- <CAGOxZ51aPo3rdB6R6x-Y4SUD4nsAcUo3X5XoEUSg0gfxuJpdyQ@mail.gmail.com>
- <20151120090528.GC3098@x1>
- <564EE4C1.3020907@samsung.com>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBNX76GZAKGQESZZJTCI@googlegroups.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id q80si884772wmg.0.2015.11.30.08.56.21
+        for <rtc-linux@googlegroups.com>;
+        Mon, 30 Nov 2015 08:56:21 -0800 (PST)
+Date: Mon, 30 Nov 2015 17:56:21 +0100
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Paul Burton <paul.burton@imgtec.com>, Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-mips@linux-mips.org, rtc-linux@googlegroups.com,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	linux-kernel@vger.kernel.org
+Subject: [rtc-linux] Re: [PATCH 16/28] rtc: m41t80: add devicetree probe support
+Message-ID: <20151130165621.GG22136@piout.net>
+References: <1448900513-20856-1-git-send-email-paul.burton@imgtec.com>
+ <1448900513-20856-17-git-send-email-paul.burton@imgtec.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <564EE4C1.3020907@samsung.com>
+In-Reply-To: <1448900513-20856-17-git-send-email-paul.burton@imgtec.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -33,36 +26,31 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On Fri, 20 Nov 2015, Alim Akhtar wrote:
-> On 11/20/2015 02:35 PM, Lee Jones wrote:
-> >On Thu, 19 Nov 2015, Alim Akhtar wrote:
-> >
-> >>Hi Lee,
-> >>Do I need to resend this series? This series still apply cleanly on
-> >>top of v4.4-rc1.
-> >>I can see 1/4 is already applied.
-> >
-> >Yes, rebase and resend please.
-> >
-> Ok will resend, but I will drop patch #1/4 as this is already applied.
+Hi,
 
-Git should automatically do that when you rebase.
+On 30/11/2015 at 16:21:41 +0000, Paul Burton wrote :
+> Allow the m41t80 RTC driver to be probed via devicetree.
+> 
 
---=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+This patch is probably unnecessary as "m41t81s" is already part of
+m41t80_id[] and will be matched with "st,m41t81s" by the i2c core. See
+http://lxr.free-electrons.com/source/drivers/i2c/i2c-core.c#L700
 
---=20
---=20
+I actually don't know how to get people to stop submitting that kind of
+patches :)
+
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
+
+-- 
+-- 
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
----=20
-You received this message because you are subscribed to the Google Groups "=
-rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an e=
-mail to rtc-linux+unsubscribe@googlegroups.com.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
