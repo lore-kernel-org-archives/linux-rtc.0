@@ -1,28 +1,24 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBUMOU6ZQKGQEZTLIVDA@googlegroups.com>
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id 204si958wmx.1.2015.12.10.10.41.21
-        for <rtc-linux@googlegroups.com>;
-        Thu, 10 Dec 2015 10:41:21 -0800 (PST)
-Date: Thu, 10 Dec 2015 19:41:19 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Julius Werner <jwerner@chromium.org>
-Cc: Doug Anderson <dianders@chromium.org>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Sonny Rao <sonnyrao@chromium.org>, Chris Zhong <zyw@rock-chips.com>,
-	Heiko Stuebner <heiko@sntech.de>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-	rtc-linux@googlegroups.com
-Subject: [rtc-linux] Re: [PATCH v2] RTC: RK808: Work around hardware bug on
- November 31st
-Message-ID: <20151210184119.GL3515@piout.net>
-References: <CAODwPW-ZJ2HwrQohmfMYv2-jH2Ofq-O2H_HPfqYLXXnueVYYnA@mail.gmail.com>
- <1449552115-31256-1-git-send-email-jwerner@chromium.org>
- <CAD=FV=U+SYHVkgP1sAF4h3xmrQBhc7o=KpryAGAXjeYOYnNTcA@mail.gmail.com>
- <CAODwPW9M6gWXpUkT2A3k6jmj7sBzwjmScE+ZSAe209UDnAW6mg@mail.gmail.com>
+Return-Path: <rtc-linux+bncBCNNJWF7RUMRBXED7CZAKGQEFLITO6A@googlegroups.com>
+Received: from mail-pa0-x22e.google.com (mail-pa0-x22e.google.com. [2607:f8b0:400e:c03::22e])
+        by gmr-mx.google.com with ESMTPS id 1si5647727pfc.0.2015.12.01.12.23.55
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 01 Dec 2015 12:23:55 -0800 (PST)
+Received: by mail-pa0-x22e.google.com with SMTP id hx2so15637507pad.1
+        for <rtc-linux@googlegroups.com>; Tue, 01 Dec 2015 12:23:55 -0800 (PST)
+Date: Tue, 1 Dec 2015 12:23:51 -0800
+From: Joshua Clayton <stillcompiling@gmail.com>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
+ linux-kernel@vger.kernel.org
+Subject: [rtc-linux] Re: [PATCH 6/9] rtc-pcf2123: avoid resetting the clock if possible
+Message-ID: <20151201122351.27e3f542@jclayton-pc>
+In-Reply-To: <20151124232512.GG3950@piout.net>
+References: <cover.1446587705.git.stillcompiling@gmail.com>
+	<f801d4f26d4c4944b1a5353d5b5fde4e507b45b2.1446587705.git.stillcompiling@gmail.com>
+	<20151124232512.GG3950@piout.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <CAODwPW9M6gWXpUkT2A3k6jmj7sBzwjmScE+ZSAe209UDnAW6mg@mail.gmail.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -33,41 +29,33 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Hi Julius, Doug,
+On Wed, 25 Nov 2015 00:25:12 +0100
+Alexandre Belloni <alexandre.belloni@free-electrons.com> wrote:
 
-On 09/12/2015 at 13:32:52 -0800, Julius Werner wrote :
-> > Thinking about all this: these's actually a totally different
-> > alternative approach we could take if you wanted.  It would fix S5 and
-> > avoid all the anchor stuff, unless I'm crazy.
-> >
-> > Basically totally give up on the RTC time reflecting reality.  Add a
-> > "real time to rk808" and "rk808 time to real time" function.  Always
-> > use it when reading from rk808 and always use it when writing to
-> > rk808.  Choose 2015 as the "truth" year if you want (or pick another
-> > year).  In early 2016 the rk808 always contains 1 day back.  In 2017
-> > the rk808 always contains 2 days back.  Etc, etc, etc.
-> >
-> > The firmware would get confused, but ...
+> On 04/11/2015 at 07:36:37 -0800, Joshua Clayton wrote :
+> > +	ret = pcf2123_rtc_read_time(dev, &tm);
+> > +	if (ret < 0)
+> > +		return false;
+> > +
+> > +	if (rtc_valid_tm(&tm) < 0) {
+> > +		dev_err(dev, "retrieved date/time is not
+> > valid.\n");
+> > +		return false;
+> > +	}
+> > +
 > 
-> Well... other than that it's crazy and that I'd have to rewrite the
-> whole patch again, I can't come up with a good argument against this.
-> In Chromebook firmware the time is only needed for a debug log, so
-> we'd probably just be willing to accept it being wrong. If U-Boot ever
-> gets RK808 support, they'll probably just copy the Linux driver
-> wholesale anyway so they'll conform to the same system.
+> I would remove that test as basically, the date/time will only be
+> valid when OSC_HAS_STOPPED is not set.
 > 
-> So if nobody else raises fundamental objections to this approach, I
-> guess I'll get started on another patch version. (Further replies
-> below for reference, but most of that stuff would then become moot.)
-> 
+OSC_HAS_STOPPED really only protects us in case everything else
+looks good, but we've lost power.
+There are other reasons to check for a valid time.
+Specifically, if there is no communication with the device, the spi
+operation will succeed and return all zeros or all ones.
+Since either of these results in an invalid time, it is a nice way
+to probe whether we really have a pcf2123 compatible device.
 
-I'll try to review and evaluate both solution by the end of the week (no
-guarantee though).
-
--- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+I don't think I should remove this test, but I can add a comment
 
 -- 
 -- 
