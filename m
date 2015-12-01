@@ -1,25 +1,28 @@
-Return-Path: <rtc-linux+bncBCNNJWF7RUMRBX4F7CZAKGQEJ4S3BXA@googlegroups.com>
-Received: from mail-pa0-x234.google.com (mail-pa0-x234.google.com. [2607:f8b0:400e:c03::234])
-        by gmr-mx.google.com with ESMTPS id q62si5534013pfq.2.2015.12.01.12.28.15
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 01 Dec 2015 12:28:15 -0800 (PST)
-Received: by mail-pa0-x234.google.com with SMTP id hx2so15788625pad.1
-        for <rtc-linux@googlegroups.com>; Tue, 01 Dec 2015 12:28:15 -0800 (PST)
-Date: Tue, 1 Dec 2015 12:28:11 -0800
-From: Joshua Clayton <stillcompiling@gmail.com>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
- linux-kernel@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH 8/9] rtc-pcf2123: use sysfs groups
-Message-ID: <20151201122811.771db44e@jclayton-pc>
-In-Reply-To: <20151124233101.GH3950@piout.net>
-References: <cover.1446587705.git.stillcompiling@gmail.com>
-	<63d5284dfb9d04f1f0a33c02cd937e2ddd72fb9b.1446587705.git.stillcompiling@gmail.com>
-	<20151124233101.GH3950@piout.net>
+Return-Path: <rtc-linux+bncBAABBPGK62ZAKGQENJCWX6Q@googlegroups.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de. [2001:67c:670:201:290:27ff:fe1d:cc33])
+        by gmr-mx.google.com with ESMTPS id i77si766212wmf.1.2015.12.01.05.48.43
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=AES128-SHA bits=128/128);
+        Tue, 01 Dec 2015 05:48:43 -0800 (PST)
+From: Steffen Trumtrar <s.trumtrar@pengutronix.de>
+To: Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: Rob Herring <robh+dt@kernel.org>,
+	Pawel Moll <pawel.moll@arm.com>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Ian Campbell <ijc+devicetree@hellion.org.uk>,
+	Kumar Gala <galak@codeaurora.org>,
+	devicetree@vger.kernel.org,
+	rtc-linux@googlegroups.com,
+	kernel@pengutronix.de,
+	Steffen Trumtrar <s.trumtrar@pengutronix.de>
+Subject: [rtc-linux] [PATCH v2 1/2] Documentation: devicetree: add epson
+ rx6110 binding
+Date: Tue,  1 Dec 2015 14:48:19 +0100
+Message-Id: <1448977700-10924-1-git-send-email-s.trumtrar@pengutronix.de>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -29,232 +32,66 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-On Wed, 25 Nov 2015 00:31:01 +0100
-Alexandre Belloni <alexandre.belloni@free-electrons.com> wrote:
+Add the binding documentation for the Epson RX6110 RTC.
 
-> Hi,
-> 
-> This is okay but I'm not actually sure about the usefulness of that
-> interface. The driver is exactly here to abstract access to the
-> registers. Limit it to registers that are not used by the driver?
-> Also, It would probably better live in debugfs rather than in sysfs.
-> 
+Signed-off-by: Steffen Trumtrar <s.trumtrar@pengutronix.de>
+---
+Changes since v1:
+	- added i2c binding
+	- compatible: "epson,rtc-rx6110" -> "epson,rx6110"
+	- fixed typo
 
-I agree completely... can I do that? Can I just move them to debugfs or
-remove them?
-I ask because these sysfs register files are in mainline already, and
-I know removing user facing kernel features is usually frowned on.
+ .../devicetree/bindings/rtc/epson,rx6110.txt       | 39 ++++++++++++++++++++++
+ 1 file changed, 39 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/rtc/epson,rx6110.txt
 
-> On 04/11/2015 at 07:36:39 -0800, Joshua Clayton wrote :
-> > Switch from manually creating all the sysfs attributes to
-> > defining them mostly in the canonical way.
-> > We are adding them to an spi driver, so we must still add and remove
-> > the group manually, but everythig else is done by The Book(tm) .
-> > 
-> > Signed-off-by: Joshua Clayton <stillcompiling@gmail.com>
-> > ---
-> >  drivers/rtc/rtc-pcf2123.c | 118
-> > +++++++++++++++++++++------------------------- 1 file changed, 55
-> > insertions(+), 63 deletions(-)
-> > 
-> > diff --git a/drivers/rtc/rtc-pcf2123.c b/drivers/rtc/rtc-pcf2123.c
-> > index 6701e6d..d494638 100644
-> > --- a/drivers/rtc/rtc-pcf2123.c
-> > +++ b/drivers/rtc/rtc-pcf2123.c
-> > @@ -84,16 +84,6 @@
-> >  
-> >  static struct spi_driver pcf2123_driver;
-> >  
-> > -struct pcf2123_sysfs_reg {
-> > -	struct device_attribute attr;
-> > -	char name[2];
-> > -};
-> > -
-> > -struct pcf2123_plat_data {
-> > -	struct rtc_device *rtc;
-> > -	struct pcf2123_sysfs_reg regs[16];
-> > -};
-> > -
-> >  /*
-> >   * Causes a 30 nanosecond delay to ensure that the PCF2123 chip
-> > select
-> >   * is released properly after an SPI write.  This function should
-> > be @@ -146,17 +136,11 @@ static int pcf2123_write_reg(struct device
-> > *dev, u8 reg, u8 val) static ssize_t pcf2123_show(struct device
-> > *dev, struct device_attribute *attr, char *buffer)
-> >  {
-> > -	struct pcf2123_sysfs_reg *r;
-> >  	u8 rxbuf[1];
-> >  	unsigned long reg;
-> >  	int ret;
-> >  
-> > -	r = container_of(attr, struct pcf2123_sysfs_reg, attr);
-> > -
-> > -	ret = kstrtoul(r->name, 16, &reg);
-> > -	if (ret)
-> > -		return ret;
-> > -
-> > +	reg = hex_to_bin(attr->attr.name[0]);
-> >  	ret = pcf2123_read(dev, reg, rxbuf, 1);
-> >  	if (ret < 0)
-> >  		return -EIO;
-> > @@ -166,25 +150,19 @@ static ssize_t pcf2123_show(struct device
-> > *dev, struct device_attribute *attr, 
-> >  static ssize_t pcf2123_store(struct device *dev, struct
-> > device_attribute *attr, const char *buffer, size_t count) {
-> > -	struct pcf2123_sysfs_reg *r;
-> >  	unsigned long reg;
-> >  	unsigned long val;
-> > -
-> >  	int ret;
-> >  
-> > -	r = container_of(attr, struct pcf2123_sysfs_reg, attr);
-> > -
-> > -	ret = kstrtoul(r->name, 16, &reg);
-> > -	if (ret)
-> > -		return ret;
-> > -
-> >  	ret = kstrtoul(buffer, 0, &val);
-> >  	if (ret)
-> >  		return ret;
-> >  
-> > +	reg = hex_to_bin(attr->attr.name[0]);
-> >  	pcf2123_write_reg(dev, reg, val);
-> >  	if (ret < 0)
-> >  		return -EIO;
-> > +
-> >  	return count;
-> >  }
-> >  
-> > @@ -326,17 +304,56 @@ static const struct rtc_class_ops
-> > pcf2123_rtc_ops = { .set_time	= pcf2123_rtc_set_time,
-> >  };
-> >  
-> > +static DEVICE_ATTR(0, S_IRUGO | S_IWUSR, pcf2123_show,
-> > pcf2123_store); +static DEVICE_ATTR(1, S_IRUGO | S_IWUSR,
-> > pcf2123_show, pcf2123_store); +static DEVICE_ATTR(2, S_IRUGO |
-> > S_IWUSR, pcf2123_show, pcf2123_store); +static DEVICE_ATTR(3,
-> > S_IRUGO | S_IWUSR, pcf2123_show, pcf2123_store); +static
-> > DEVICE_ATTR(4, S_IRUGO | S_IWUSR, pcf2123_show, pcf2123_store);
-> > +static DEVICE_ATTR(5, S_IRUGO | S_IWUSR, pcf2123_show,
-> > pcf2123_store); +static DEVICE_ATTR(6, S_IRUGO | S_IWUSR,
-> > pcf2123_show, pcf2123_store); +static DEVICE_ATTR(7, S_IRUGO |
-> > S_IWUSR, pcf2123_show, pcf2123_store); +static DEVICE_ATTR(8,
-> > S_IRUGO | S_IWUSR, pcf2123_show, pcf2123_store); +static
-> > DEVICE_ATTR(9, S_IRUGO | S_IWUSR, pcf2123_show, pcf2123_store);
-> > +static DEVICE_ATTR(a, S_IRUGO | S_IWUSR, pcf2123_show,
-> > pcf2123_store); +static DEVICE_ATTR(b, S_IRUGO | S_IWUSR,
-> > pcf2123_show, pcf2123_store); +static DEVICE_ATTR(c, S_IRUGO |
-> > S_IWUSR, pcf2123_show, pcf2123_store); +static DEVICE_ATTR(d,
-> > S_IRUGO | S_IWUSR, pcf2123_show, pcf2123_store); +static
-> > DEVICE_ATTR(e, S_IRUGO | S_IWUSR, pcf2123_show, pcf2123_store);
-> > +static DEVICE_ATTR(f, S_IRUGO | S_IWUSR, pcf2123_show,
-> > pcf2123_store); + +static struct attribute *pcf2123_attrs[] = {
-> > +	&dev_attr_0.attr,
-> > +	&dev_attr_1.attr,
-> > +	&dev_attr_2.attr,
-> > +	&dev_attr_3.attr,
-> > +	&dev_attr_4.attr,
-> > +	&dev_attr_5.attr,
-> > +	&dev_attr_6.attr,
-> > +	&dev_attr_7.attr,
-> > +	&dev_attr_8.attr,
-> > +	&dev_attr_9.attr,
-> > +	&dev_attr_a.attr,
-> > +	&dev_attr_b.attr,
-> > +	&dev_attr_c.attr,
-> > +	&dev_attr_d.attr,
-> > +	&dev_attr_e.attr,
-> > +	&dev_attr_f.attr,
-> > +	NULL
-> > +};
-> > +
-> > +static const struct attribute_group pcf2123_group = {
-> > +	.attrs = pcf2123_attrs,
-> > +};
-> > +
-> > +static const struct attribute_group *pcf2123_groups[] = {
-> > +	&pcf2123_group,
-> > +	NULL
-> > +};
-> > +
-> >  static int pcf2123_probe(struct spi_device *spi)
-> >  {
-> >  	struct rtc_device *rtc;
-> > -	struct pcf2123_plat_data *pdata;
-> > -	int ret, i;
-> > -
-> > -	pdata = devm_kzalloc(&spi->dev, sizeof(struct
-> > pcf2123_plat_data),
-> > -				GFP_KERNEL);
-> > -	if (!pdata)
-> > -		return -ENOMEM;
-> > -	spi->dev.platform_data = pdata;
-> > +	int ret;
-> >  
-> >  	if (!pcf2123_time_valid(&spi->dev)) {
-> >  		ret = pcf2123_reset(&spi->dev);
-> > @@ -360,29 +377,13 @@ static int pcf2123_probe(struct spi_device
-> > *spi) goto kfree_exit;
-> >  	}
-> >  
-> > -	pdata->rtc = rtc;
-> > -
-> > -	for (i = 0; i < 16; i++) {
-> > -		sysfs_attr_init(&pdata->regs[i].attr.attr);
-> > -		sprintf(pdata->regs[i].name, "%1x", i);
-> > -		pdata->regs[i].attr.attr.mode = S_IRUGO | S_IWUSR;
-> > -		pdata->regs[i].attr.attr.name =
-> > pdata->regs[i].name;
-> > -		pdata->regs[i].attr.show = pcf2123_show;
-> > -		pdata->regs[i].attr.store = pcf2123_store;
-> > -		ret = device_create_file(&spi->dev,
-> > &pdata->regs[i].attr);
-> > -		if (ret) {
-> > -			dev_err(&spi->dev, "Unable to create sysfs
-> > %s\n",
-> > -				pdata->regs[i].name);
-> > -			goto sysfs_exit;
-> > -		}
-> > -	}
-> > +	ret = sysfs_create_groups(&spi->dev.kobj, pcf2123_groups);
-> > +	if (ret)
-> > +		goto sysfs_exit;
-> >  
-> >  	return 0;
-> > -
-> >  sysfs_exit:
-> > -	for (i--; i >= 0; i--)
-> > -		device_remove_file(&spi->dev,
-> > &pdata->regs[i].attr); -
-> > +	sysfs_remove_groups(&spi->dev.kobj, pcf2123_groups);
-> >  kfree_exit:
-> >  	spi->dev.platform_data = NULL;
-> >  	return ret;
-> > @@ -390,16 +391,7 @@ kfree_exit:
-> >  
-> >  static int pcf2123_remove(struct spi_device *spi)
-> >  {
-> > -	struct pcf2123_plat_data *pdata =
-> > dev_get_platdata(&spi->dev);
-> > -	int i;
-> > -
-> > -	if (pdata) {
-> > -		for (i = 0; i < 16; i++)
-> > -			if (pdata->regs[i].name[0])
-> > -				device_remove_file(&spi->dev,
-> > -
-> > &pdata->regs[i].attr);
-> > -	}
-> > -
-> > +	sysfs_remove_groups(&spi->dev.kobj, pcf2123_groups);
-> >  	return 0;
-> >  }
-> >  
-> > -- 
-> > 2.5.0
-> > 
-> 
+diff --git a/Documentation/devicetree/bindings/rtc/epson,rx6110.txt b/Documentation/devicetree/bindings/rtc/epson,rx6110.txt
+new file mode 100644
+index 000000000000..8c3d06f117e8
+--- /dev/null
++++ b/Documentation/devicetree/bindings/rtc/epson,rx6110.txt
+@@ -0,0 +1,39 @@
++Epson RX6110 Real Time Clock
++============================
++
++The Epson RX6110 can be used with SPI or I2C busses. The kind of
++bus depends on the SPISEL pin and can not be configured via software.
++
++I2C mode
++--------
++
++Required properties:
++  - compatible: should be: "epson,rx6110"
++  - reg : offset and length of the register set for the device
++
++Example:
++
++	rtc: rtc@32 {
++		compatible = "epson,rx6110"
++		reg = <0x32 0x32>;
++	};
++
++SPI mode
++--------
++
++Required properties:
++  - compatible: should be: "epson,rx6110"
++  - reg: chip select number
++  - spi-cs-high: RX6110 needs chipselect high
++  - spi-cpha: RX6110 works with SPI shifted clock phase
++  - spi-cpol: RX6110 works with SPI inverse clock polarity
++
++Example:
++
++	rtc: rtc@3 {
++		compatible = "epson,rx6110"
++		reg = <3>
++		spi-cs-high;
++		spi-cpha;
++		spi-cpol;
++	};
+-- 
+2.6.2
 
 -- 
 -- 
