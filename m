@@ -1,26 +1,24 @@
-Return-Path: <rtc-linux+bncBDUKXHHSSIJBBDXCTKZQKGQESCRHLGQ@googlegroups.com>
-Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de. [2001:67c:670:201:290:27ff:fe1d:cc33])
-        by gmr-mx.google.com with ESMTPS id e201si104228wma.3.2015.12.08.02.29.34
+Return-Path: <rtc-linux+bncBCM23VGPVUFRB75VQKZQKGQEQL5Y4NA@googlegroups.com>
+MIME-Version: 1.0
+Received: from mail-qk0-x229.google.com (mail-qk0-x229.google.com. [2607:f8b0:400d:c09::229])
+        by gmr-mx.google.com with ESMTPS id u69si899999ywf.5.2015.12.03.11.41.51
         for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=AES128-SHA bits=128/128);
-        Tue, 08 Dec 2015 02:29:34 -0800 (PST)
-Message-ID: <1449570566.3691.31.camel@pengutronix.de>
-Subject: [rtc-linux] Re: [PATCH v3 1/2] Documentation: devicetree: add epson
- rx6110 binding
-From: Philipp Zabel <p.zabel@pengutronix.de>
-To: Steffen Trumtrar <s.trumtrar@pengutronix.de>
-Cc: Alessandro Zummo <a.zummo@towertech.it>, Alexandre Belloni
- <alexandre.belloni@free-electrons.com>, Mark Rutland
- <mark.rutland@arm.com>,  devicetree@vger.kernel.org,
- rtc-linux@googlegroups.com, Pawel Moll <pawel.moll@arm.com>, Ian Campbell
- <ijc+devicetree@hellion.org.uk>, Rob Herring <robh+dt@kernel.org>,
- kernel@pengutronix.de, Kumar Gala <galak@codeaurora.org>
-Date: Tue, 08 Dec 2015 11:29:26 +0100
-In-Reply-To: <1449568461-26016-1-git-send-email-s.trumtrar@pengutronix.de>
-References: <1449568461-26016-1-git-send-email-s.trumtrar@pengutronix.de>
-Content-Type: text/plain; charset=UTF-8
-Mime-Version: 1.0
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 03 Dec 2015 11:41:51 -0800 (PST)
+Received: by mail-qk0-x229.google.com with SMTP id a6so34627569qkd.3
+        for <rtc-linux@googlegroups.com>; Thu, 03 Dec 2015 11:41:51 -0800 (PST)
+From: Akshay Bhat <akshay.bhat@timesys.com>
+To: alexandre.belloni@free-electrons.com
+Cc: rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org,
+	a.zummo@towertech.it,
+	justin.waters@timesys.com,
+	Akshay Bhat <akshay.bhat@timesys.com>
+Subject: [rtc-linux] [PATCH v2] rtc: Add Epson RX8010SJ RTC driver
+Date: Thu,  3 Dec 2015 14:41:21 -0500
+Message-Id: <1449171681-23701-1-git-send-email-akshay.bhat@timesys.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -30,48 +28,595 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Am Dienstag, den 08.12.2015, 10:54 +0100 schrieb Steffen Trumtrar:
-> Add the binding documentation for the Epson RX6110 RTC.
-> 
-> Acked-by: Rob Herring <robh@kernel.org>
-> Signed-off-by: Steffen Trumtrar <s.trumtrar@pengutronix.de>
+This driver supports the following functions:
+ - reading and setting time
+ - alarms when connected to an IRQ
+ - reading and clearing the voltage low flags
 
-Reviewed-by: Philipp Zabel <p.zabel@pengutronix.de>
+Datasheet:
+http://www.epsondevice.com/docs/qd/en/DownloadServlet?id=ID000956
+Signed-off-by: Akshay Bhat <akshay.bhat@timesys.com>
+---
+Changes in v2:
+- Address comments from Alexandre Belloni
+- Update copyright info
+- Use i2c_smbus_read_byte_data/i2c_smbus_read_i2c_block_data directly
+- Use ffs for wday instead of bcd2bin
+- Fixes from checkpatch --strict
+- Limit date range to 2000 to 2100
+- Fix incorrect write to RX8010_WDAY
+- Do not clear VLF flag on power up
 
-although I'd like a small change to be made below:
+ drivers/rtc/Kconfig      |  10 +
+ drivers/rtc/Makefile     |   1 +
+ drivers/rtc/rtc-rx8010.c | 523 +++++++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 534 insertions(+)
+ create mode 100644 drivers/rtc/rtc-rx8010.c
 
-> ---
-> Changes since v2:
-> 	- removed the size field in i2c binding
-> 
->  .../devicetree/bindings/rtc/epson,rx6110.txt       | 39 ++++++++++++++++++++++
->  1 file changed, 39 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/rtc/epson,rx6110.txt
-> 
-> diff --git a/Documentation/devicetree/bindings/rtc/epson,rx6110.txt b/Documentation/devicetree/bindings/rtc/epson,rx6110.txt
-> new file mode 100644
-> index 000000000000..71353542a59d
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/rtc/epson,rx6110.txt
-> @@ -0,0 +1,39 @@
-> +Epson RX6110 Real Time Clock
-> +============================
-> +
-> +The Epson RX6110 can be used with SPI or I2C busses. The kind of
-> +bus depends on the SPISEL pin and can not be configured via software.
-> +
-> +I2C mode
-> +--------
-> +
-> +Required properties:
-> +  - compatible: should be: "epson,rx6110"
-> +  - reg : offset of the register set of the device
-
-That should be the I2C address of the device, as in:
-	git grep "reg.*I2C address" Documentation/
-
-regards
-Philipp
+diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
+index 2a52424..376322f 100644
+--- a/drivers/rtc/Kconfig
++++ b/drivers/rtc/Kconfig
+@@ -558,6 +558,16 @@ config RTC_DRV_FM3130
+ 	  This driver can also be built as a module. If so the module
+ 	  will be called rtc-fm3130.
+ 
++config RTC_DRV_RX8010
++	tristate "Epson RX8010SJ"
++	depends on I2C
++	help
++	  If you say yes here you get support for the Epson RX8010SJ RTC
++	  chip.
++
++	  This driver can also be built as a module. If so, the module
++	  will be called rtc-rx8010.
++
+ config RTC_DRV_RX8581
+ 	tristate "Epson RX-8581"
+ 	help
+diff --git a/drivers/rtc/Makefile b/drivers/rtc/Makefile
+index 231f764..62d61b2 100644
+--- a/drivers/rtc/Makefile
++++ b/drivers/rtc/Makefile
+@@ -128,6 +128,7 @@ obj-$(CONFIG_RTC_DRV_RS5C372)	+= rtc-rs5c372.o
+ obj-$(CONFIG_RTC_DRV_RV3029C2)	+= rtc-rv3029c2.o
+ obj-$(CONFIG_RTC_DRV_RV8803)	+= rtc-rv8803.o
+ obj-$(CONFIG_RTC_DRV_RX4581)	+= rtc-rx4581.o
++obj-$(CONFIG_RTC_DRV_RX8010)	+= rtc-rx8010.o
+ obj-$(CONFIG_RTC_DRV_RX8025)	+= rtc-rx8025.o
+ obj-$(CONFIG_RTC_DRV_RX8581)	+= rtc-rx8581.o
+ obj-$(CONFIG_RTC_DRV_S35390A)	+= rtc-s35390a.o
+diff --git a/drivers/rtc/rtc-rx8010.c b/drivers/rtc/rtc-rx8010.c
+new file mode 100644
+index 0000000..772d221
+--- /dev/null
++++ b/drivers/rtc/rtc-rx8010.c
+@@ -0,0 +1,523 @@
++/*
++ * Driver for the Epson RTC module RX-8010 SJ
++ *
++ * Copyright(C) Timesys Corporation 2015
++ * Copyright(C) General Electric Company 2015
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ *
++ */
++
++#include <linux/bcd.h>
++#include <linux/bitops.h>
++#include <linux/i2c.h>
++#include <linux/kernel.h>
++#include <linux/module.h>
++#include <linux/rtc.h>
++
++#define RX8010_SEC     0x10
++#define RX8010_MIN     0x11
++#define RX8010_HOUR    0x12
++#define RX8010_WDAY    0x13
++#define RX8010_MDAY    0x14
++#define RX8010_MONTH   0x15
++#define RX8010_YEAR    0x16
++#define RX8010_YEAR    0x16
++#define RX8010_RESV17  0x17
++#define RX8010_ALMIN   0x18
++#define RX8010_ALHOUR  0x19
++#define RX8010_ALWDAY  0x1A
++#define RX8010_TCOUNT0 0x1B
++#define RX8010_TCOUNT1 0x1C
++#define RX8010_EXT     0x1D
++#define RX8010_FLAG    0x1E
++#define RX8010_CTRL    0x1F
++/* 0x20 to 0x2F are user registers */
++#define RX8010_RESV30  0x30
++#define RX8010_RESV31  0x32
++#define RX8010_IRQ     0x32
++
++#define RX8010_EXT_WADA  BIT(3)
++
++#define RX8010_FLAG_VLF  BIT(1)
++#define RX8010_FLAG_AF   BIT(3)
++#define RX8010_FLAG_TF   BIT(4)
++#define RX8010_FLAG_UF   BIT(5)
++
++#define RX8010_CTRL_AIE  BIT(3)
++#define RX8010_CTRL_UIE  BIT(5)
++#define RX8010_CTRL_STOP BIT(6)
++#define RX8010_CTRL_TEST BIT(7)
++
++#define RX8010_ALARM_AE  BIT(7)
++
++static const struct i2c_device_id rx8010_id[] = {
++	{ "rx8010", 0 },
++	{ }
++};
++MODULE_DEVICE_TABLE(i2c, rx8010_id);
++
++struct rx8010_data {
++	struct i2c_client *client;
++	struct rtc_device *rtc;
++	u8 ctrlreg;
++	spinlock_t flags_lock;
++};
++
++static irqreturn_t rx8010_irq_1_handler(int irq, void *dev_id)
++{
++	struct i2c_client *client = dev_id;
++	struct rx8010_data *rx8010 = i2c_get_clientdata(client);
++	int flagreg;
++
++	spin_lock(&rx8010->flags_lock);
++
++	flagreg = i2c_smbus_read_byte_data(client, RX8010_FLAG);
++
++	if (flagreg <= 0) {
++		spin_unlock(&rx8010->flags_lock);
++		return IRQ_NONE;
++	}
++
++	if (flagreg & RX8010_FLAG_VLF)
++		dev_warn(&client->dev, "Frequency stop detected\n");
++
++	if (flagreg & RX8010_FLAG_TF) {
++		flagreg &= ~RX8010_FLAG_TF;
++		rtc_update_irq(rx8010->rtc, 1, RTC_PF | RTC_IRQF);
++	}
++
++	if (flagreg & RX8010_FLAG_AF) {
++		flagreg &= ~RX8010_FLAG_AF;
++		rtc_update_irq(rx8010->rtc, 1, RTC_AF | RTC_IRQF);
++	}
++
++	if (flagreg & RX8010_FLAG_UF) {
++		flagreg &= ~RX8010_FLAG_UF;
++		rtc_update_irq(rx8010->rtc, 1, RTC_UF | RTC_IRQF);
++	}
++
++	i2c_smbus_write_byte_data(client, RX8010_FLAG, flagreg);
++
++	spin_unlock(&rx8010->flags_lock);
++	return IRQ_HANDLED;
++}
++
++static int rx8010_get_time(struct device *dev, struct rtc_time *dt)
++{
++	struct rx8010_data *rx8010 = dev_get_drvdata(dev);
++	u8 date[7];
++	int flagreg;
++	int err;
++
++	flagreg = i2c_smbus_read_byte_data(rx8010->client, RX8010_FLAG);
++	if (flagreg < 0)
++		return flagreg;
++
++	if (flagreg & RX8010_FLAG_VLF) {
++		dev_warn(dev, "Frequency stop detected\n");
++		return -EINVAL;
++	}
++
++	err = i2c_smbus_read_i2c_block_data(rx8010->client, RX8010_SEC,
++					    7, date);
++	if (err != 7)
++		return err < 0 ? err : -EIO;
++
++	dt->tm_sec = bcd2bin(date[RX8010_SEC - RX8010_SEC] & 0x7f);
++	dt->tm_min = bcd2bin(date[RX8010_MIN - RX8010_SEC] & 0x7f);
++	dt->tm_hour = bcd2bin(date[RX8010_HOUR - RX8010_SEC] & 0x3f);
++	dt->tm_mday = bcd2bin(date[RX8010_MDAY - RX8010_SEC] & 0x3f);
++	dt->tm_mon = bcd2bin(date[RX8010_MONTH - RX8010_SEC] & 0x1f) - 1;
++	dt->tm_year = bcd2bin(date[RX8010_YEAR - RX8010_SEC]) + 100;
++	dt->tm_wday = ffs(date[RX8010_WDAY - RX8010_SEC] & 0x7f);
++
++	return rtc_valid_tm(dt);
++}
++
++static int rx8010_set_time(struct device *dev, struct rtc_time *dt)
++{
++	struct rx8010_data *rx8010 = dev_get_drvdata(dev);
++	u8 date[7];
++	int ctrl, flagreg;
++	int ret;
++	unsigned long irqflags;
++
++	if ((dt->tm_year < 100) || (dt->tm_year > 199))
++		return -EINVAL;
++
++	/* set STOP bit before changing clock/calendar */
++	ctrl = i2c_smbus_read_byte_data(rx8010->client, RX8010_CTRL);
++	if (ctrl < 0)
++		return ctrl;
++	rx8010->ctrlreg = ctrl | RX8010_CTRL_STOP;
++	ret = i2c_smbus_write_byte_data(rx8010->client, RX8010_CTRL,
++					rx8010->ctrlreg);
++	if (ret < 0)
++		return ret;
++
++	date[RX8010_SEC - RX8010_SEC] = bin2bcd(dt->tm_sec);
++	date[RX8010_MIN - RX8010_SEC] = bin2bcd(dt->tm_min);
++	date[RX8010_HOUR - RX8010_SEC] = bin2bcd(dt->tm_hour);
++	date[RX8010_MDAY - RX8010_SEC] = bin2bcd(dt->tm_mday);
++	date[RX8010_MONTH - RX8010_SEC] = bin2bcd(dt->tm_mon + 1);
++	date[RX8010_YEAR - RX8010_SEC] = bin2bcd(dt->tm_year - 100);
++	date[RX8010_WDAY - RX8010_SEC] = bin2bcd(1 << dt->tm_wday);
++
++	ret = i2c_smbus_write_i2c_block_data(rx8010->client,
++					     RX8010_SEC, 7, date);
++	if (ret < 0)
++		return ret;
++
++	/* clear STOP bit after changing clock/calendar */
++	ctrl = i2c_smbus_read_byte_data(rx8010->client, RX8010_CTRL);
++	if (ctrl < 0)
++		return ctrl;
++	rx8010->ctrlreg = ctrl & ~RX8010_CTRL_STOP;
++	ret = i2c_smbus_write_byte_data(rx8010->client, RX8010_CTRL,
++					rx8010->ctrlreg);
++	if (ret < 0)
++		return ret;
++
++	spin_lock_irqsave(&rx8010->flags_lock, irqflags);
++
++	flagreg = i2c_smbus_read_byte_data(rx8010->client, RX8010_FLAG);
++	if (flagreg < 0) {
++		spin_unlock_irqrestore(&rx8010->flags_lock, irqflags);
++		return flagreg;
++	}
++
++	if (flagreg & RX8010_FLAG_VLF)
++		ret = i2c_smbus_write_byte_data(rx8010->client, RX8010_FLAG,
++						flagreg & ~RX8010_FLAG_VLF);
++
++	spin_unlock_irqrestore(&rx8010->flags_lock, irqflags);
++
++	return 0;
++}
++
++static int rx8010_init_client(struct i2c_client *client)
++{
++	struct rx8010_data *rx8010 = i2c_get_clientdata(client);
++	u8 ctrl[2];
++	int need_clear = 0, err = 0;
++
++	/* Initialize reserved registers as specified in datasheet */
++	err = i2c_smbus_write_byte_data(client, RX8010_RESV17, 0xD8);
++	if (err < 0)
++		return err;
++
++	err = i2c_smbus_write_byte_data(client, RX8010_RESV30, 0x00);
++	if (err < 0)
++		return err;
++
++	err = i2c_smbus_write_byte_data(client, RX8010_RESV31, 0x08);
++	if (err < 0)
++		return err;
++
++	err = i2c_smbus_write_byte_data(client, RX8010_IRQ, 0x00);
++	if (err < 0)
++		return err;
++
++	err = i2c_smbus_read_i2c_block_data(rx8010->client, RX8010_FLAG,
++					    2, ctrl);
++	if (err != 2)
++		return err < 0 ? err : -EIO;
++
++	if (ctrl[0] & RX8010_FLAG_VLF)
++		dev_warn(&client->dev, "Frequency stop was detected\n");
++
++	if (ctrl[0] & RX8010_FLAG_AF) {
++		dev_warn(&client->dev, "Alarm was detected\n");
++		need_clear = 1;
++	}
++
++	if (ctrl[0] & RX8010_FLAG_TF)
++		need_clear = 1;
++
++	if (ctrl[0] & RX8010_FLAG_UF)
++		need_clear = 1;
++
++	if (need_clear) {
++		ctrl[0] &= ~(RX8010_FLAG_AF | RX8010_FLAG_TF | RX8010_FLAG_UF);
++		err = i2c_smbus_write_byte_data(client, RX8010_FLAG, ctrl[0]);
++		if (err < 0)
++			return err;
++	}
++
++	rx8010->ctrlreg = (ctrl[1] & ~RX8010_CTRL_TEST);
++
++	return err;
++}
++
++static int rx8010_read_alarm(struct device *dev, struct rtc_wkalrm *t)
++{
++	struct rx8010_data *rx8010 = dev_get_drvdata(dev);
++	struct i2c_client *client = rx8010->client;
++	u8 alarmvals[3];
++	int flagreg;
++	int err;
++
++	err = i2c_smbus_read_i2c_block_data(client, RX8010_ALMIN, 3, alarmvals);
++	if (err != 3)
++		return err < 0 ? err : -EIO;
++
++	flagreg = i2c_smbus_read_byte_data(client, RX8010_FLAG);
++	if (flagreg < 0)
++		return flagreg;
++
++	t->time.tm_sec = 0;
++	t->time.tm_min = bcd2bin(alarmvals[0] & 0x7f);
++	t->time.tm_hour = bcd2bin(alarmvals[1] & 0x3f);
++
++	if (alarmvals[2] & RX8010_ALARM_AE)
++		t->time.tm_mday = -1;
++	else
++		t->time.tm_mday = bcd2bin(alarmvals[2] & 0x7f);
++
++	t->time.tm_wday = -1;
++	t->time.tm_mon = -1;
++	t->time.tm_year = -1;
++
++	t->enabled = !!(rx8010->ctrlreg & RX8010_CTRL_AIE);
++	t->pending = (flagreg & RX8010_FLAG_AF) && t->enabled;
++
++	return err;
++}
++
++static int rx8010_set_alarm(struct device *dev, struct rtc_wkalrm *t)
++{
++	struct i2c_client *client = to_i2c_client(dev);
++	struct rx8010_data *rx8010 = dev_get_drvdata(dev);
++	u8 alarmvals[3];
++	int extreg, flagreg;
++	int err;
++	unsigned long irqflags;
++
++	spin_lock_irqsave(&rx8010->flags_lock, irqflags);
++	flagreg = i2c_smbus_read_byte_data(client, RX8010_FLAG);
++	if (flagreg < 0) {
++		spin_unlock_irqrestore(&rx8010->flags_lock, irqflags);
++		return flagreg;
++	}
++
++	if (rx8010->ctrlreg & (RX8010_CTRL_AIE | RX8010_CTRL_UIE)) {
++		rx8010->ctrlreg &= ~(RX8010_CTRL_AIE | RX8010_CTRL_UIE);
++		err = i2c_smbus_write_byte_data(rx8010->client, RX8010_CTRL,
++						rx8010->ctrlreg);
++		if (err < 0) {
++			spin_unlock_irqrestore(&rx8010->flags_lock, irqflags);
++			return err;
++		}
++	}
++
++	flagreg &= ~RX8010_FLAG_AF;
++	err = i2c_smbus_write_byte_data(rx8010->client, RX8010_FLAG, flagreg);
++	spin_unlock_irqrestore(&rx8010->flags_lock, irqflags);
++	if (err < 0)
++		return err;
++
++	alarmvals[0] = bin2bcd(t->time.tm_min);
++	alarmvals[1] = bin2bcd(t->time.tm_hour);
++	alarmvals[2] = bin2bcd(t->time.tm_mday);
++
++	err = i2c_smbus_write_i2c_block_data(rx8010->client, RX8010_ALMIN,
++					     2, alarmvals);
++	if (err < 0)
++		return err;
++
++	extreg = i2c_smbus_read_byte_data(client, RX8010_EXT);
++	if (extreg < 0)
++		return extreg;
++
++	extreg |= RX8010_EXT_WADA;
++	err = i2c_smbus_write_byte_data(rx8010->client, RX8010_EXT, extreg);
++	if (err < 0)
++		return err;
++
++	if (alarmvals[2] == 0)
++		alarmvals[2] |= RX8010_ALARM_AE;
++
++	err = i2c_smbus_write_byte_data(rx8010->client, RX8010_ALWDAY,
++					alarmvals[2]);
++	if (err < 0)
++		return err;
++
++	if (t->enabled) {
++		if (rx8010->rtc->uie_rtctimer.enabled)
++			rx8010->ctrlreg |= RX8010_CTRL_UIE;
++		if (rx8010->rtc->aie_timer.enabled)
++			rx8010->ctrlreg |=
++				(RX8010_CTRL_AIE | RX8010_CTRL_UIE);
++
++		err = i2c_smbus_write_byte_data(rx8010->client, RX8010_CTRL,
++						rx8010->ctrlreg);
++		if (err < 0)
++			return err;
++	}
++
++	return 0;
++}
++
++static int rx8010_alarm_irq_enable(struct device *dev,
++				   unsigned int enabled)
++{
++	struct i2c_client *client = to_i2c_client(dev);
++	struct rx8010_data *rx8010 = dev_get_drvdata(dev);
++	int flagreg;
++	u8 ctrl;
++	int err;
++
++	ctrl = rx8010->ctrlreg;
++
++	if (enabled) {
++		if (rx8010->rtc->uie_rtctimer.enabled)
++			ctrl |= RX8010_CTRL_UIE;
++		if (rx8010->rtc->aie_timer.enabled)
++			ctrl |= (RX8010_CTRL_AIE | RX8010_CTRL_UIE);
++	} else {
++		if (!rx8010->rtc->uie_rtctimer.enabled)
++			ctrl &= ~RX8010_CTRL_UIE;
++		if (!rx8010->rtc->aie_timer.enabled)
++			ctrl &= ~RX8010_CTRL_AIE;
++	}
++
++	flagreg = i2c_smbus_read_byte_data(client, RX8010_FLAG);
++	if (flagreg < 0)
++		return flagreg;
++
++	flagreg &= ~RX8010_FLAG_AF;
++	err = i2c_smbus_write_byte_data(rx8010->client, RX8010_FLAG, flagreg);
++	if (err < 0)
++		return err;
++
++	if (ctrl != rx8010->ctrlreg) {
++		rx8010->ctrlreg = ctrl;
++		err = i2c_smbus_write_byte_data(rx8010->client, RX8010_CTRL,
++						rx8010->ctrlreg);
++		if (err < 0)
++			return err;
++	}
++
++	return 0;
++}
++
++static int rx8010_ioctl(struct device *dev, unsigned int cmd, unsigned long arg)
++{
++	struct i2c_client *client = to_i2c_client(dev);
++	struct rx8010_data *rx8010 = dev_get_drvdata(dev);
++	int ret, tmp;
++	int flagreg;
++	unsigned long irqflags;
++
++	switch (cmd) {
++	case RTC_VL_READ:
++		flagreg = i2c_smbus_read_byte_data(rx8010->client, RX8010_FLAG);
++		if (flagreg < 0)
++			return flagreg;
++
++		tmp = !!(flagreg & RX8010_FLAG_VLF);
++		if (copy_to_user((void __user *)arg, &tmp, sizeof(int)))
++			return -EFAULT;
++
++		return 0;
++
++	case RTC_VL_CLR:
++		spin_lock_irqsave(&rx8010->flags_lock, irqflags);
++		flagreg = i2c_smbus_read_byte_data(rx8010->client, RX8010_FLAG);
++		if (flagreg < 0) {
++			spin_unlock_irqrestore(&rx8010->flags_lock, irqflags);
++			return flagreg;
++		}
++
++		flagreg &= ~RX8010_FLAG_VLF;
++		ret = i2c_smbus_write_byte_data(client, RX8010_FLAG, flagreg);
++		spin_unlock_irqrestore(&rx8010->flags_lock, irqflags);
++		if (ret < 0)
++			return ret;
++
++		return 0;
++
++	default:
++		return -ENOIOCTLCMD;
++	}
++}
++
++static struct rtc_class_ops rx8010_rtc_ops = {
++	.read_time = rx8010_get_time,
++	.set_time = rx8010_set_time,
++	.ioctl = rx8010_ioctl,
++};
++
++static int rx8010_probe(struct i2c_client *client,
++			const struct i2c_device_id *id)
++{
++	struct i2c_adapter *adapter = to_i2c_adapter(client->dev.parent);
++	struct rx8010_data *rx8010;
++	int err = 0;
++
++	if (!i2c_check_functionality(adapter, I2C_FUNC_SMBUS_BYTE_DATA
++		| I2C_FUNC_SMBUS_I2C_BLOCK)) {
++		dev_err(&adapter->dev, "doesn't support required functionality\n");
++		return -EIO;
++	}
++
++	rx8010 = devm_kzalloc(&client->dev, sizeof(struct rx8010_data),
++			      GFP_KERNEL);
++	if (!rx8010)
++		return -ENOMEM;
++
++	rx8010->client = client;
++	i2c_set_clientdata(client, rx8010);
++
++	spin_lock_init(&rx8010->flags_lock);
++
++	err = rx8010_init_client(client);
++	if (err)
++		return err;
++
++	if (client->irq > 0) {
++		dev_info(&client->dev, "IRQ %d supplied\n", client->irq);
++		err = devm_request_threaded_irq(&client->dev, client->irq, NULL,
++						rx8010_irq_1_handler,
++						IRQF_TRIGGER_LOW | IRQF_ONESHOT,
++						"rx8010", client);
++
++		if (err) {
++			dev_err(&client->dev, "unable to request IRQ\n");
++			client->irq = 0;
++		} else {
++			rx8010_rtc_ops.read_alarm = rx8010_read_alarm;
++			rx8010_rtc_ops.set_alarm = rx8010_set_alarm;
++			rx8010_rtc_ops.alarm_irq_enable = rx8010_alarm_irq_enable;
++		}
++	}
++
++	rx8010->rtc = devm_rtc_device_register(&client->dev, client->name,
++		&rx8010_rtc_ops, THIS_MODULE);
++
++	if (IS_ERR(rx8010->rtc)) {
++		dev_err(&client->dev, "unable to register the class device\n");
++		return PTR_ERR(rx8010->rtc);
++	}
++
++	rx8010->rtc->max_user_freq = 1;
++
++	return err;
++}
++
++static struct i2c_driver rx8010_driver = {
++	.driver = {
++		.name = "rtc-rx8010",
++	},
++	.probe		= rx8010_probe,
++	.id_table	= rx8010_id,
++};
++
++module_i2c_driver(rx8010_driver);
++
++MODULE_AUTHOR("Akshay Bhat <akshay.bhat@timesys.com>");
++MODULE_DESCRIPTION("Epson RX8010SJ RTC driver");
++MODULE_LICENSE("GPL v2");
+-- 
+2.6.3
 
 -- 
 -- 
