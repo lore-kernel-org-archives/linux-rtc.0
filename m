@@ -1,56 +1,71 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBDN7Y6ZQKGQEBLZ6GWY@googlegroups.com>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBPFJQGZQKGQEMDIIHOQ@googlegroups.com>
 Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id b62si373952wmc.0.2015.12.16.14.02.52
+        by gmr-mx.google.com with ESMTP id i77si246251wmf.1.2015.12.03.06.42.04
         for <rtc-linux@googlegroups.com>;
-        Wed, 16 Dec 2015 14:02:52 -0800 (PST)
-Date: Wed, 16 Dec 2015 23:02:52 +0100
+        Thu, 03 Dec 2015 06:42:04 -0800 (PST)
+Date: Thu, 3 Dec 2015 15:42:03 +0100
 From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Akshay Bhat <akshay.bhat@timesys.com>
-Cc: rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org,
-	a.zummo@towertech.it, justin.waters@timesys.com
-Subject: [rtc-linux] Re: [PATCH v2] rtc: Add Epson RX8010SJ RTC driver
-Message-ID: <20151216220252.GJ8574@piout.net>
-References: <1449171681-23701-1-git-send-email-akshay.bhat@timesys.com>
+To: Julius Werner <jwerner@chromium.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Doug Anderson <dianders@chromium.org>,
+	Sonny Rao <sonnyrao@chromium.org>, Chris Zhong <zyw@rock-chips.com>,
+	Heiko Stuebner <heiko@sntech.de>, linux-kernel@vger.kernel.org,
+	rtc-linux@googlegroups.com
+Subject: Re: [rtc-linux] [PATCH] RTC: RK808: Work around hardware bug on
+ November 31st
+Message-ID: <20151203144203.GA3515@piout.net>
+References: <1449107584-3192-1-git-send-email-jwerner@chromium.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1449171681-23701-1-git-send-email-akshay.bhat@timesys.com>
+In-Reply-To: <1449107584-3192-1-git-send-email-jwerner@chromium.org>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
-List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
-List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
-List-Archive: <https://groups.google.com/group/rtc-linux
+List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
+List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
+List-Archive: <http://groups.google.com/group/rtc-linux
 Sender: rtc-linux@googlegroups.com
-List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
+List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
- <https://groups.google.com/group/rtc-linux/subscribe>
+ <http://groups.google.com/group/rtc-linux/subscribe>
 
-On 03/12/2015 at 14:41:21 -0500, Akshay Bhat wrote :
-> This driver supports the following functions:
->  - reading and setting time
->  - alarms when connected to an IRQ
->  - reading and clearing the voltage low flags
+Hi,
+
+I would have liked to be in copy of that mail. Maybe you used
+get_maintainers on an old tree?
+
+On 02/12/2015 at 17:53:04 -0800, Julius Werner wrote :
+> In Fuzhou, China, the month of November seems to be having 31 days.
+> That's nice and all (I'm sure you can get a lot more done in a year that
+> way), but back here in other parts of the world we are not so lucky.
+> Therefore, if we read that date from the RTC we should correct it to
+> December 1st.
 > 
-> Datasheet:
-> http://www.epsondevice.com/docs/qd/en/DownloadServlet?id=ID000956
-> Signed-off-by: Akshay Bhat <akshay.bhat@timesys.com>
+
+Wow, nice one...
+
+I hope reading the time properly fails thanks to the rtc_valid_tm(tm) in
+__rtc_read_time().
+
+> This is not a full workaround. Since the RTC actually ticks all the way
+> through that imaginary day, there's no easy way to detect and correct
+> this issue if the device was offline the whole time and allowed it to
+> tick through to December 1st on the Rockchip calendar (which would be
+> December 2nd on the Gregorian one). Those edge cases can only really be
+> solved by regularly syncing to an external time source (e.g. NTP).
+> 
+
+It will also happen if nobody reads the RTC time for that day (highly
+improbable in a default configuration). Do you need that patch for 4.4
+or can it wait 4.5?
+
+
+> Signed-off-by: Julius Werner <jwerner@chromium.org>
+> Reviewed-by: Chris Zhong <zyw@rock-chips.com>
 > ---
-> Changes in v2:
-> - Address comments from Alexandre Belloni
-> - Update copyright info
-> - Use i2c_smbus_read_byte_data/i2c_smbus_read_i2c_block_data directly
-> - Use ffs for wday instead of bcd2bin
-> - Fixes from checkpatch --strict
-> - Limit date range to 2000 to 2100
-> - Fix incorrect write to RX8010_WDAY
-> - Do not clear VLF flag on power up
+>  drivers/rtc/rtc-rk808.c | 93 ++++++++++++++++++++++++++-----------------------
+>  1 file changed, 50 insertions(+), 43 deletions(-)
 > 
->  drivers/rtc/Kconfig      |  10 +
->  drivers/rtc/Makefile     |   1 +
->  drivers/rtc/rtc-rx8010.c | 523 +++++++++++++++++++++++++++++++++++++++++++++++
->  3 files changed, 534 insertions(+)
->  create mode 100644 drivers/rtc/rtc-rx8010.c
-> 
-Applied, thanks.
 
 -- 
 Alexandre Belloni, Free Electrons
