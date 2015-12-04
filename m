@@ -1,74 +1,59 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRB57PY6ZQKGQESFIAVTA@googlegroups.com>
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id 204si968366wmx.1.2015.12.16.15.47.02
-        for <rtc-linux@googlegroups.com>;
-        Wed, 16 Dec 2015 15:47:03 -0800 (PST)
-Date: Thu, 17 Dec 2015 00:47:02 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Steve Twiss <stwiss.opensource@diasemi.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
-	LINUXKERNEL <linux-kernel@vger.kernel.org>,
-	RTC-LINUX <rtc-linux@googlegroups.com>,
-	David Dajun Chen <david.chen@diasemi.com>,
-	Support Opensource <support.opensource@diasemi.com>
-Subject: [rtc-linux] Re: [PATCH V1] rtc: da9063: access ordering error during
- RTC interrupt system power on
-Message-ID: <20151216234702.GK8574@piout.net>
-References: <20151208163406.B34683FB25@swsrvapps-01.diasemi.com>
+Return-Path: <rtc-linux+bncBAABBFNAQSZQKGQECTA24NI@googlegroups.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <20151208163406.B34683FB25@swsrvapps-01.diasemi.com>
+Received: from aserp1040.oracle.com (aserp1040.oracle.com. [141.146.126.69])
+        by gmr-mx.google.com with ESMTPS id o7si379292igv.0.2015.12.03.20.01.25
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 03 Dec 2015 20:01:25 -0800 (PST)
+From: Sasha Levin <sasha.levin@oracle.com>
+To: a.zummo@towertech.it, alexandre.belloni@free-electrons.com
+Cc: rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org,
+        Sasha Levin <sasha.levin@oracle.com>
+Subject: [rtc-linux] [PATCH v2] rtc: fix overflow and incorrect calculation in rtc_time64_to_tm
+Date: Thu,  3 Dec 2015 23:01:14 -0500
+Message-Id: <1449201674-24344-1-git-send-email-sasha.levin@oracle.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
-List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
-List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
-List-Archive: <https://groups.google.com/group/rtc-linux
+List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
+List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
+List-Archive: <http://groups.google.com/group/rtc-linux
 Sender: rtc-linux@googlegroups.com
-List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
+List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
- <https://groups.google.com/group/rtc-linux/subscribe>
+ <http://groups.google.com/group/rtc-linux/subscribe>
 
-Hi,
+At some point after humans go extinct and robots cotrol the world, dividing
+he time64_t by 86400 to extract the days will overflow a 32bit integer,
+leading to incorrect conversion into rtc_time in rtc_time64_to_tm().
 
-This seems mostly fine, however ...
+Signed-off-by: Sasha Levin <sasha.levin@oracle.com>
+---
+ drivers/rtc/rtc-lib.c |    7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
-On 08/12/2015 at 16:28:39 +0000, Steve Twiss wrote :
->  	irq_alarm = platform_get_irq_byname(pdev, "ALARM");
->  	ret = devm_request_threaded_irq(&pdev->dev, irq_alarm, NULL,
->  					da9063_alarm_event,
->  					IRQF_TRIGGER_LOW | IRQF_ONESHOT,
->  					"ALARM", rtc);
-> -	if (ret) {
-> +	if (ret)
->  		dev_err(&pdev->dev, "Failed to request ALARM IRQ %d: %d\n",
->  			irq_alarm, ret);
-> -		return ret;
-> -	}
-> -
-
-... now that requesting the interrupt is optional, you probably want to
-prevent userspace from thinking it will get an interrupt after setting
-the alarm by returning -EINVAL in da9063_rtc_read_alarm() and
-da9063_rtc_set_alarm() in that case.
-
-> -	rtc->rtc_dev = devm_rtc_device_register(&pdev->dev, DA9063_DRVNAME_RTC,
-> -					   &da9063_rtc_ops, THIS_MODULE);
-> -	if (IS_ERR(rtc->rtc_dev))
-> -		return PTR_ERR(rtc->rtc_dev);
->  
-> -	da9063_data_to_tm(data, &rtc->alarm_time, rtc);
-> -	rtc->rtc_sync = false;
->  	return ret;
->  }
->  
-> -- 
-> end-of-patch for PATCH V1
-> 
-
+diff --git a/drivers/rtc/rtc-lib.c b/drivers/rtc/rtc-lib.c
+index e6bfb9c..cafae93 100644
+--- a/drivers/rtc/rtc-lib.c
++++ b/drivers/rtc/rtc-lib.c
+@@ -53,12 +53,11 @@ EXPORT_SYMBOL(rtc_year_days);
+ void rtc_time64_to_tm(time64_t time, struct rtc_time *tm)
+ {
+ 	unsigned int month, year;
+-	unsigned long secs;
+-	int days;
++	int secs;
++	time64_t days;
+ 
+ 	/* time must be positive */
+-	days = div_s64(time, 86400);
+-	secs = time - (unsigned int) days * 86400;
++	days = div_s64_rem(time, 86400, &secs);
+ 
+ 	/* day of the week, 1970-01-01 was a Thursday */
+ 	tm->tm_wday = (days + 4) % 7;
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+1.7.10.4
 
 -- 
 -- 
