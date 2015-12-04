@@ -1,30 +1,21 @@
-Return-Path: <rtc-linux+bncBDDJNTW5VUMBB66RTGZQKGQEDJFGD3Y@googlegroups.com>
+Return-Path: <rtc-linux+bncBDJ4N37Q6EERBT5ZQOZQKGQEJIB4NNA@googlegroups.com>
+Received: from mga03.intel.com (mga03.intel.com. [134.134.136.65])
+        by gmr-mx.google.com with ESMTP id 1si1451168pfc.0.2015.12.03.16.22.39
+        for <rtc-linux@googlegroups.com>;
+        Thu, 03 Dec 2015 16:22:39 -0800 (PST)
+Date: Fri, 4 Dec 2015 08:21:51 +0800
+From: kbuild test robot <lkp@intel.com>
+To: Sasha Levin <sasha.levin@oracle.com>
+Cc: kbuild-all@01.org, a.zummo@towertech.it,
+	alexandre.belloni@free-electrons.com, rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org, Sasha Levin <sasha.levin@oracle.com>
+Subject: [rtc-linux] Re: [PATCH] rtc: fix overflow and incorrect calculation
+ in rtc_time64_to_tm
+Message-ID: <201512040856.6O1IrYtv%fengguang.wu@intel.com>
 MIME-Version: 1.0
-Received: from mail-pf0-x22a.google.com (mail-pf0-x22a.google.com. [2607:f8b0:400e:c00::22a])
-        by gmr-mx.google.com with ESMTPS id pe1si155509pac.2.2015.12.07.21.22.03
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 07 Dec 2015 21:22:03 -0800 (PST)
-Received: by mail-pf0-x22a.google.com with SMTP id d184so6060889pfd.3
-        for <rtc-linux@googlegroups.com>; Mon, 07 Dec 2015 21:22:03 -0800 (PST)
-From: Julius Werner <jwerner@chromium.org>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Doug Anderson <dianders@chromium.org>,
-	Sonny Rao <sonnyrao@chromium.org>,
-	Chris Zhong <zyw@rock-chips.com>,
-	Heiko Stuebner <heiko@sntech.de>,
-	linux-kernel@vger.kernel.org,
-	rtc-linux@googlegroups.com,
-	Julius Werner <jwerner@chromium.org>
-Subject: [rtc-linux] [PATCH v2] RTC: RK808: Work around hardware bug on
- November 31st
-Date: Mon,  7 Dec 2015 21:21:55 -0800
-Message-Id: <1449552115-31256-1-git-send-email-jwerner@chromium.org>
-In-Reply-To: <CAODwPW-ZJ2HwrQohmfMYv2-jH2Ofq-O2H_HPfqYLXXnueVYYnA@mail.gmail.com>
+Content-Type: multipart/mixed; boundary="HcAYCG3uE/tztfnV"
+In-Reply-To: <1449187944-11730-1-git-send-email-sasha.levin@oracle.com>
 Reply-To: rtc-linux@googlegroups.com
-Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -34,394 +25,33 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-In Fuzhou, China, the month of November seems to be having 31 days.
-That's nice and all (I'm sure you can get a lot more done in a year that
-way), but back here in other parts of the world we are not so lucky.
-Therefore, we need to compensate for these extra days existing only in
-the RTC's imagination when reading the time and dealing with alarms.
+--HcAYCG3uE/tztfnV
+Content-Type: text/plain; charset=UTF-8
+Content-Disposition: inline
 
-This patch is not a perfect workaround -- it only keeps the time stable
-as long as the system is running or suspended. If the system is fully
-shut down in November and only booted back up in December, the system
-time may be incorrect and alarms that had been set before the shutdown
-may fire on the wrong day. We're trying to catch and recover from this
-by reading the RTC's last "shadow timestamp" (which only gets resynced
-when transitioning the GET_TIME control bit) to figure out when the
-system was shut down, but this is only reliable if no other code (e.g.
-firmware) has read the RTC in-between.
+[if your patch is applied to the wrong git tree, please drop us a note to help improving the system]
+Hi Sasha,
 
-Basic idea for the workaround:
+[auto build test ERROR on abelloni/rtc-next]
+[also build test ERROR on v4.4-rc3 next-20151202]
 
-- Whenever we set the time, we assume that timestamp to be correct
-  (synced to the real world). We store a copy of it in memory as an
-  anchor point (where we know our calendar matched the real world).
-- Whenever we read the time, we can tell how many days of desync we have
-  by counting November/December transitions between the anchor timestamp
-  and the time read from the hardware. We adjust the hardware clock
-  accordingly to get back in sync (which also resets the anchor time).
-- Whenever we set an alarm, we adjust the alarm time backwards by the
-  amount of days that we know we will lag behind at that point (by
-  counting the November/December transitions between our anchor point
-  and the alarm). This way, we will wake up on the right real world date
-  even though we cannot make adjustments while suspended.
-- Whenever we read an alarm, we do the opposite (forward) adjustment for
-  the returned result to keep our outside interface free from this
-  madness (callers expect to be able to read back the alarm they wrote).
-- Whenever we set the system time (which adjusts the anchor point), we
-  read out the (adjusted) alarm time beforehand and write it (newly
-  adjusted) back afterwards. This way, system time and alarm time will
-  always stay on the same calendar (as long as we're able to keep track
-  of our anchor point, at least).
+url:    https://github.com/0day-ci/linux/commits/Sasha-Levin/rtc-fix-overflow-and-incorrect-calculation-in-rtc_time64_to_tm/20151204-081508
+base:   https://git.kernel.org/pub/scm/linux/kernel/git/abelloni/linux.git rtc-next
+config: i386-tinyconfig (attached as .config)
+reproduce:
+        # save the attached .config to linux build tree
+        make ARCH=i386 
 
-Signed-off-by: Julius Werner <jwerner@chromium.org>
+All errors (new ones prefixed by >>):
+
+   drivers/built-in.o: In function `rtc_time64_to_tm':
+>> (.text+0x6795): undefined reference to `__moddi3'
+   drivers/built-in.o: In function `rtc_time64_to_tm':
+>> (.text+0x67aa): undefined reference to `__divdi3'
+
 ---
- drivers/rtc/rtc-rk808.c | 282 ++++++++++++++++++++++++++++++++----------------
- 1 file changed, 190 insertions(+), 92 deletions(-)
-
-diff --git a/drivers/rtc/rtc-rk808.c b/drivers/rtc/rtc-rk808.c
-index 91ca0bc..2a6cd6f 100644
---- a/drivers/rtc/rtc-rk808.c
-+++ b/drivers/rtc/rtc-rk808.c
-@@ -54,103 +54,30 @@ struct rk808_rtc {
- 	struct rk808 *rk808;
- 	struct rtc_device *rtc;
- 	int irq;
-+	struct rtc_time anchor_time;	/* Last sync point with real world */
- };
- 
--/* Read current time and date in RTC */
--static int rk808_rtc_readtime(struct device *dev, struct rtc_time *tm)
-+/*
-+ * RK808 has a hardware bug causing it to count 31 days in November. This
-+ * function can calculate the amount of days that code needs to adjust for
-+ * between two timestamps to compensate for this.
-+ */
-+static int nov31st_transitions(struct rtc_time *from, struct rtc_time *to)
- {
--	struct rk808_rtc *rk808_rtc = dev_get_drvdata(dev);
--	struct rk808 *rk808 = rk808_rtc->rk808;
--	u8 rtc_data[NUM_TIME_REGS];
--	int ret;
--
--	/* Force an update of the shadowed registers right now */
--	ret = regmap_update_bits(rk808->regmap, RK808_RTC_CTRL_REG,
--				 BIT_RTC_CTRL_REG_RTC_GET_TIME,
--				 BIT_RTC_CTRL_REG_RTC_GET_TIME);
--	if (ret) {
--		dev_err(dev, "Failed to update bits rtc_ctrl: %d\n", ret);
--		return ret;
--	}
--
--	/*
--	 * After we set the GET_TIME bit, the rtc time can't be read
--	 * immediately. So we should wait up to 31.25 us, about one cycle of
--	 * 32khz. If we clear the GET_TIME bit here, the time of i2c transfer
--	 * certainly more than 31.25us: 16 * 2.5us at 400kHz bus frequency.
--	 */
--	ret = regmap_update_bits(rk808->regmap, RK808_RTC_CTRL_REG,
--				 BIT_RTC_CTRL_REG_RTC_GET_TIME,
--				 0);
--	if (ret) {
--		dev_err(dev, "Failed to update bits rtc_ctrl: %d\n", ret);
--		return ret;
--	}
-+	int extra_days = to->tm_year - from->tm_year;
- 
--	ret = regmap_bulk_read(rk808->regmap, RK808_SECONDS_REG,
--			       rtc_data, NUM_TIME_REGS);
--	if (ret) {
--		dev_err(dev, "Failed to bulk read rtc_data: %d\n", ret);
--		return ret;
--	}
-+	/* Avoid adjusting anything for uninitialized timestamps */
-+	if (from->tm_mday == 0 || to->tm_mday == 0)
-+		return 0;
- 
--	tm->tm_sec = bcd2bin(rtc_data[0] & SECONDS_REG_MSK);
--	tm->tm_min = bcd2bin(rtc_data[1] & MINUTES_REG_MAK);
--	tm->tm_hour = bcd2bin(rtc_data[2] & HOURS_REG_MSK);
--	tm->tm_mday = bcd2bin(rtc_data[3] & DAYS_REG_MSK);
--	tm->tm_mon = (bcd2bin(rtc_data[4] & MONTHS_REG_MSK)) - 1;
--	tm->tm_year = (bcd2bin(rtc_data[5] & YEARS_REG_MSK)) + 100;
--	tm->tm_wday = bcd2bin(rtc_data[6] & WEEKS_REG_MSK);
--	dev_dbg(dev, "RTC date/time %4d-%02d-%02d(%d) %02d:%02d:%02d\n",
--		1900 + tm->tm_year, tm->tm_mon + 1, tm->tm_mday,
--		tm->tm_wday, tm->tm_hour , tm->tm_min, tm->tm_sec);
-+	if (from->tm_mon > 10)
-+		extra_days--;
- 
--	return ret;
--}
-+	if (to->tm_mon > 10)
-+		extra_days++;
- 
--/* Set current time and date in RTC */
--static int rk808_rtc_set_time(struct device *dev, struct rtc_time *tm)
--{
--	struct rk808_rtc *rk808_rtc = dev_get_drvdata(dev);
--	struct rk808 *rk808 = rk808_rtc->rk808;
--	u8 rtc_data[NUM_TIME_REGS];
--	int ret;
--
--	rtc_data[0] = bin2bcd(tm->tm_sec);
--	rtc_data[1] = bin2bcd(tm->tm_min);
--	rtc_data[2] = bin2bcd(tm->tm_hour);
--	rtc_data[3] = bin2bcd(tm->tm_mday);
--	rtc_data[4] = bin2bcd(tm->tm_mon + 1);
--	rtc_data[5] = bin2bcd(tm->tm_year - 100);
--	rtc_data[6] = bin2bcd(tm->tm_wday);
--	dev_dbg(dev, "set RTC date/time %4d-%02d-%02d(%d) %02d:%02d:%02d\n",
--		1900 + tm->tm_year, tm->tm_mon + 1, tm->tm_mday,
--		tm->tm_wday, tm->tm_hour , tm->tm_min, tm->tm_sec);
--
--	/* Stop RTC while updating the RTC registers */
--	ret = regmap_update_bits(rk808->regmap, RK808_RTC_CTRL_REG,
--				 BIT_RTC_CTRL_REG_STOP_RTC_M,
--				 BIT_RTC_CTRL_REG_STOP_RTC_M);
--	if (ret) {
--		dev_err(dev, "Failed to update RTC control: %d\n", ret);
--		return ret;
--	}
--
--	ret = regmap_bulk_write(rk808->regmap, RK808_SECONDS_REG,
--				rtc_data, NUM_TIME_REGS);
--	if (ret) {
--		dev_err(dev, "Failed to bull write rtc_data: %d\n", ret);
--		return ret;
--	}
--	/* Start RTC again */
--	ret = regmap_update_bits(rk808->regmap, RK808_RTC_CTRL_REG,
--				 BIT_RTC_CTRL_REG_STOP_RTC_M, 0);
--	if (ret) {
--		dev_err(dev, "Failed to update RTC control: %d\n", ret);
--		return ret;
--	}
--	return 0;
--}
-+	return extra_days;
-+};
- 
- /* Read alarm time and date in RTC */
- static int rk808_rtc_readalarm(struct device *dev, struct rtc_wkalrm *alrm)
-@@ -159,7 +86,7 @@ static int rk808_rtc_readalarm(struct device *dev, struct rtc_wkalrm *alrm)
- 	struct rk808 *rk808 = rk808_rtc->rk808;
- 	u8 alrm_data[NUM_ALARM_REGS];
- 	uint32_t int_reg;
--	int ret;
-+	int ret, extra_days;
- 
- 	ret = regmap_bulk_read(rk808->regmap, RK808_ALARM_SECONDS_REG,
- 			       alrm_data, NUM_ALARM_REGS);
-@@ -171,6 +98,19 @@ static int rk808_rtc_readalarm(struct device *dev, struct rtc_wkalrm *alrm)
- 	alrm->time.tm_mon = (bcd2bin(alrm_data[4] & MONTHS_REG_MSK)) - 1;
- 	alrm->time.tm_year = (bcd2bin(alrm_data[5] & YEARS_REG_MSK)) + 100;
- 
-+	extra_days = nov31st_transitions(&rk808_rtc->anchor_time, &alrm->time);
-+	if (alrm->time.tm_mon == 10 && alrm->time.tm_mday == 31) {
-+		dev_warn(dev, "read HW alarm date as Nov 31, compensating\n");
-+		alrm->time.tm_mon = 11;
-+		alrm->time.tm_mday = 1 + extra_days;
-+	} else if (extra_days) {
-+		unsigned long time;
-+		dev_warn(dev, "compensating for %d Nov31 until HW alarm date\n",
-+			 extra_days);
-+		rtc_tm_to_time(&alrm->time, &time);
-+		rtc_time_to_tm(time + extra_days * 86400, &alrm->time);
-+	}
-+
- 	ret = regmap_read(rk808->regmap, RK808_RTC_INT_REG, &int_reg);
- 	if (ret) {
- 		dev_err(dev, "Failed to read RTC INT REG: %d\n", ret);
-@@ -215,7 +155,7 @@ static int rk808_rtc_setalarm(struct device *dev, struct rtc_wkalrm *alrm)
- 	struct rk808_rtc *rk808_rtc = dev_get_drvdata(dev);
- 	struct rk808 *rk808 = rk808_rtc->rk808;
- 	u8 alrm_data[NUM_ALARM_REGS];
--	int ret;
-+	int ret, extra_days;
- 
- 	ret = rk808_rtc_stop_alarm(rk808_rtc);
- 	if (ret) {
-@@ -227,6 +167,19 @@ static int rk808_rtc_setalarm(struct device *dev, struct rtc_wkalrm *alrm)
- 		alrm->time.tm_mday, alrm->time.tm_wday, alrm->time.tm_hour,
- 		alrm->time.tm_min, alrm->time.tm_sec);
- 
-+	extra_days = nov31st_transitions(&rk808_rtc->anchor_time, &alrm->time);
-+	if (extra_days) {
-+		unsigned long time;
-+		dev_warn(dev, "writing HW alarm date adjusted for %d Nov31\n",
-+			 extra_days);
-+		rtc_tm_to_time(&alrm->time, &time);
-+		rtc_time_to_tm(time - extra_days * 86400, &alrm->time);
-+		/* Compensate in case the subtraction went back over Nov 31st */
-+		if (alrm->time.tm_mon == 10 &&
-+		    alrm->time.tm_mday == 31 - extra_days)
-+			alrm->time.tm_mday++;	/* This can result in 31! */
-+	}
-+
- 	alrm_data[0] = bin2bcd(alrm->time.tm_sec);
- 	alrm_data[1] = bin2bcd(alrm->time.tm_min);
- 	alrm_data[2] = bin2bcd(alrm->time.tm_hour);
-@@ -250,6 +203,141 @@ static int rk808_rtc_setalarm(struct device *dev, struct rtc_wkalrm *alrm)
- 	return 0;
- }
- 
-+/* Set current time and date in RTC */
-+static int rk808_rtc_set_time(struct device *dev, struct rtc_time *tm)
-+{
-+	struct rk808_rtc *rk808_rtc = dev_get_drvdata(dev);
-+	struct rk808 *rk808 = rk808_rtc->rk808;
-+	struct rtc_wkalrm alrm;
-+	u8 rtc_data[NUM_TIME_REGS];
-+	int ret;
-+
-+	/* Read out wake alarm with old Nov 31st adjustment */
-+	rk808_rtc_readalarm(dev, &alrm);
-+
-+	rtc_data[0] = bin2bcd(tm->tm_sec);
-+	rtc_data[1] = bin2bcd(tm->tm_min);
-+	rtc_data[2] = bin2bcd(tm->tm_hour);
-+	rtc_data[3] = bin2bcd(tm->tm_mday);
-+	rtc_data[4] = bin2bcd(tm->tm_mon + 1);
-+	rtc_data[5] = bin2bcd(tm->tm_year - 100);
-+	rtc_data[6] = bin2bcd(tm->tm_wday);
-+	dev_dbg(dev, "set RTC date/time %4d-%02d-%02d(%d) %02d:%02d:%02d\n",
-+		1900 + tm->tm_year, tm->tm_mon + 1, tm->tm_mday,
-+		tm->tm_wday, tm->tm_hour , tm->tm_min, tm->tm_sec);
-+
-+	/* Stop RTC while updating the RTC registers */
-+	ret = regmap_update_bits(rk808->regmap, RK808_RTC_CTRL_REG,
-+				 BIT_RTC_CTRL_REG_STOP_RTC_M,
-+				 BIT_RTC_CTRL_REG_STOP_RTC_M);
-+	if (ret) {
-+		dev_err(dev, "Failed to update RTC control: %d\n", ret);
-+		return ret;
-+	}
-+
-+	ret = regmap_bulk_write(rk808->regmap, RK808_SECONDS_REG,
-+				rtc_data, NUM_TIME_REGS);
-+	if (ret) {
-+		dev_err(dev, "Failed to bull write rtc_data: %d\n", ret);
-+		return ret;
-+	}
-+	/* Start RTC again */
-+	ret = regmap_update_bits(rk808->regmap, RK808_RTC_CTRL_REG,
-+				 BIT_RTC_CTRL_REG_STOP_RTC_M, 0);
-+	if (ret) {
-+		dev_err(dev, "Failed to update RTC control: %d\n", ret);
-+		return ret;
-+	}
-+
-+	/* Assume a newly set time is always correct (regardless of source) */
-+	rk808_rtc->anchor_time = *tm;
-+
-+	/* Write back wake alarm with new Nov 31st adjustment */
-+	rk808_rtc_setalarm(dev, &alrm);
-+
-+	return 0;
-+}
-+
-+/* Read time from static shadow registers (without updating) */
-+static int rk808_rtc_raw_read(struct device *dev, struct rtc_time *tm)
-+{
-+	struct rk808_rtc *rk808_rtc = dev_get_drvdata(dev);
-+	struct rk808 *rk808 = rk808_rtc->rk808;
-+	u8 rtc_data[NUM_TIME_REGS];
-+	int ret;
-+
-+	ret = regmap_bulk_read(rk808->regmap, RK808_SECONDS_REG,
-+			       rtc_data, NUM_TIME_REGS);
-+	if (ret) {
-+		dev_err(dev, "Failed to bulk read rtc_data: %d\n", ret);
-+		return ret;
-+	}
-+
-+	tm->tm_sec = bcd2bin(rtc_data[0] & SECONDS_REG_MSK);
-+	tm->tm_min = bcd2bin(rtc_data[1] & MINUTES_REG_MAK);
-+	tm->tm_hour = bcd2bin(rtc_data[2] & HOURS_REG_MSK);
-+	tm->tm_mday = bcd2bin(rtc_data[3] & DAYS_REG_MSK);
-+	tm->tm_mon = (bcd2bin(rtc_data[4] & MONTHS_REG_MSK)) - 1;
-+	tm->tm_year = (bcd2bin(rtc_data[5] & YEARS_REG_MSK)) + 100;
-+	tm->tm_wday = bcd2bin(rtc_data[6] & WEEKS_REG_MSK);
-+	dev_dbg(dev, "RTC date/time %4d-%02d-%02d(%d) %02d:%02d:%02d\n",
-+		1900 + tm->tm_year, tm->tm_mon + 1, tm->tm_mday,
-+		tm->tm_wday, tm->tm_hour , tm->tm_min, tm->tm_sec);
-+
-+	return ret;
-+}
-+
-+/* Read current time and date in RTC */
-+static int rk808_rtc_readtime(struct device *dev, struct rtc_time *tm)
-+{
-+	struct rk808_rtc *rk808_rtc = dev_get_drvdata(dev);
-+	struct rk808 *rk808 = rk808_rtc->rk808;
-+	int ret, extra_days;
-+
-+	/* Force an update of the shadowed registers right now */
-+	ret = regmap_update_bits(rk808->regmap, RK808_RTC_CTRL_REG,
-+				 BIT_RTC_CTRL_REG_RTC_GET_TIME,
-+				 BIT_RTC_CTRL_REG_RTC_GET_TIME);
-+	if (ret) {
-+		dev_err(dev, "Failed to update bits rtc_ctrl: %d\n", ret);
-+		return ret;
-+	}
-+
-+	/*
-+	 * After we set the GET_TIME bit, the rtc time can't be read
-+	 * immediately. So we should wait up to 31.25 us, about one cycle of
-+	 * 32khz. If we clear the GET_TIME bit here, the time of i2c transfer
-+	 * certainly more than 31.25us: 16 * 2.5us at 400kHz bus frequency.
-+	 */
-+	ret = regmap_update_bits(rk808->regmap, RK808_RTC_CTRL_REG,
-+				 BIT_RTC_CTRL_REG_RTC_GET_TIME,
-+				 0);
-+	if (ret) {
-+		dev_err(dev, "Failed to update bits rtc_ctrl: %d\n", ret);
-+		return ret;
-+	}
-+
-+	ret = rk808_rtc_raw_read(dev, tm);
-+	if (ret)
-+		return ret;
-+
-+	extra_days = nov31st_transitions(&rk808_rtc->anchor_time, tm);
-+	if (tm->tm_mon == 10 && tm->tm_mday == 31) {
-+		dev_warn(dev, "read Nov 31, correcting to Dec 1 (HW bug)\n");
-+		tm->tm_mon = 11;
-+		tm->tm_mday = 1 + extra_days; /* don't S2R for over 30 years! */
-+		rk808_rtc_set_time(dev, tm);
-+	} else if (extra_days) {
-+		unsigned long time;
-+		dev_warn(dev, "compensating for %d skips over Nov 31\n",
-+			 extra_days);
-+		rtc_tm_to_time(tm, &time);
-+		rtc_time_to_tm(time + extra_days * 86400, tm);
-+		rk808_rtc_set_time(dev, tm);
-+	}
-+	return ret;
-+}
-+
- static int rk808_rtc_alarm_irq_enable(struct device *dev,
- 				      unsigned int enabled)
- {
-@@ -364,6 +452,16 @@ static int rk808_rtc_probe(struct platform_device *pdev)
- 			return ret;
- 	}
- 
-+	/*
-+	 * Try to initialize anchor point by reading "last read" shadow
-+	 * timestamp, to catch Nov 31st transitions that happened while shut
-+	 * down. This only works if no other code (e.g. firmware) has
-+	 * transitioned GET_TIME before this point.
-+	 */
-+	ret = rk808_rtc_raw_read(&pdev->dev, &rk808_rtc->anchor_time);
-+	if (ret || rtc_valid_tm(&rk808_rtc->anchor_time))
-+		rk808_rtc->anchor_time.tm_mday = 0;	/* invalidate */
-+
- 	/* set init time */
- 	ret = rk808_rtc_readtime(&pdev->dev, &tm);
- 	if (ret) {
--- 
-2.1.2
+0-DAY kernel test infrastructure                Open Source Technology Center
+https://lists.01.org/pipermail/kbuild-all                   Intel Corporation
 
 -- 
 -- 
@@ -433,3 +63,124 @@ before submitting a driver.
 You received this message because you are subscribed to the Google Groups "rtc-linux" group.
 To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
+
+--HcAYCG3uE/tztfnV
+Content-Type: application/octet-stream
+Content-Disposition: attachment; filename=".config.gz"
+Content-Transfer-Encoding: base64
+
+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
+
+--HcAYCG3uE/tztfnV--
