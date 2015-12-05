@@ -1,87 +1,78 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRB2XRZKZQKGQETLBTY2Q@googlegroups.com>
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id 204si83627wmx.1.2015.12.17.05.30.17
-        for <rtc-linux@googlegroups.com>;
-        Thu, 17 Dec 2015 05:30:18 -0800 (PST)
-Date: Thu, 17 Dec 2015 14:29:56 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: LABBE Corentin <clabbe.montjoie@gmail.com>
-Cc: a.zummo@towertech.it, linux-kernel@vger.kernel.org,
-	rtc-linux@googlegroups.com
-Subject: [rtc-linux] Re: [PATCH v2 1/1] rtc: Replace simple_strtoul by kstrtoul
-Message-ID: <20151217132956.GG13078@piout.net>
-References: <1450357864-7852-1-git-send-email-clabbe.montjoie@gmail.com>
- <1450357864-7852-2-git-send-email-clabbe.montjoie@gmail.com>
+Return-Path: <rtc-linux+bncBDDJNTW5VUMBBF66RCZQKGQERG743TA@googlegroups.com>
+Received: from mail-vk0-x22a.google.com (mail-vk0-x22a.google.com. [2607:f8b0:400c:c05::22a])
+        by gmr-mx.google.com with ESMTPS id 65si799804vkc.1.2015.12.04.16.25.59
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Fri, 04 Dec 2015 16:25:59 -0800 (PST)
+Received: by vkbs1 with SMTP id s1so75489167vkb.1
+        for <rtc-linux@googlegroups.com>; Fri, 04 Dec 2015 16:25:59 -0800 (PST)
 MIME-Version: 1.0
+Sender: rtc-linux@googlegroups.com
+In-Reply-To: <CAD=FV=VVU0ucrL9gsMGKBwMCg_d6aTZWXTpxwNmfNp0k0BzbdQ@mail.gmail.com>
+References: <1449107584-3192-1-git-send-email-jwerner@chromium.org>
+	<CAD=FV=VVU0ucrL9gsMGKBwMCg_d6aTZWXTpxwNmfNp0k0BzbdQ@mail.gmail.com>
+Date: Fri, 4 Dec 2015 16:25:58 -0800
+Message-ID: <CAODwPW_xoF8KYRPWvSrs89F-ZKxWMC4_Gp-vdEYENfzESin=ig@mail.gmail.com>
+Subject: [rtc-linux] Re: [PATCH] RTC: RK808: Work around hardware bug on
+ November 31st
+From: Julius Werner <jwerner@chromium.org>
+To: Doug Anderson <dianders@chromium.org>
+Cc: Julius Werner <jwerner@chromium.org>, Andrew Morton <akpm@linux-foundation.org>,
+	Alessandro Zummo <a.zummo@towertech.it>, Sonny Rao <sonnyrao@chromium.org>,
+	Chris Zhong <zyw@rock-chips.com>, Heiko Stuebner <heiko@sntech.de>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1450357864-7852-2-git-send-email-clabbe.montjoie@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
-List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
-List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
-List-Archive: <https://groups.google.com/group/rtc-linux
-Sender: rtc-linux@googlegroups.com
-List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
+List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
+List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
+List-Archive: <http://groups.google.com/group/rtc-linux
+List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
- <https://groups.google.com/group/rtc-linux/subscribe>
+ <http://groups.google.com/group/rtc-linux/subscribe>
 
-On 17/12/2015 at 14:11:04 +0100, LABBE Corentin wrote :
-> The simple_strtoul function is obsolete.
-> This patch replace it by kstrtoul.
-> 
-> Since kstrtoul is more strict, it permits to filter some invalid input that
-> simple_strtoul accept. For example:
-> echo '1022xxx' > /sys/devices/pnp0/00:03/rtc/rtc0/max_user_freq
-> cat /sys/devices/pnp0/00:03/rtc/rtc0/max_user_freq
-> 1022
-> 
+> If a device is in S3 for the whole day that the glitch occurs and then
+> we wake up then we'll end up thinking it's Dec 1st instead of Dec 2nd,
+> right?  That case _could_ be handled by knowing that the last time we
+> read the clock it was before 12/1 and that this time it is after
+> 11/30.  Then we add the extra day.  In order to do this, we'd have to
+> know that we're on hardware with the glitch, which I guess could
+> either be done with a device tree property or by spending 1 second
+> probing the device at bootup (that would be a bit of a pain...).
+>
+> Obviously the trick above wouldn't handle if the clock ticked when the
+> device was in S5, but I'd imagine that most systems treat the RTC as
+> slightly questionable on an initial bootup anyway (though I'd imagine
+> that they rely on it working across S3).
 
-Yeah, that is exactly the issue. Existing script that are doing that and
-are currently working will then fail which is usually not what we want.
-However, I think I'll still apply that patch.
+True, we could do that. I don't think it makes much sense to
+differentiate between S3 and S5 like that, though... the problem can
+happen just the same after both, and I don't think there's a practical
+difference in how systems treat that (if userspace has ways to
+double-check the system time, such as syncing to a network time
+source, it should really be doing that after both resume and reboot).
+Of course, building a work-around like that for S5 will become more
+complicated and requires persistent storage.
 
-> Signed-off-by: LABBE Corentin <clabbe.montjoie@gmail.com>
-> ---
->  drivers/rtc/rtc-sysfs.c | 11 +++++++++--
->  1 file changed, 9 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/rtc/rtc-sysfs.c b/drivers/rtc/rtc-sysfs.c
-> index 7273855..463e286 100644
-> --- a/drivers/rtc/rtc-sysfs.c
-> +++ b/drivers/rtc/rtc-sysfs.c
-> @@ -91,7 +91,12 @@ max_user_freq_store(struct device *dev, struct device_attribute *attr,
->  		const char *buf, size_t n)
->  {
->  	struct rtc_device *rtc = to_rtc_device(dev);
-> -	unsigned long val = simple_strtoul(buf, NULL, 0);
-> +	unsigned long val;
-> +	int err;
-> +
-> +	err = kstrtoul(buf, 0, &val);
-> +	if (err)
-> +		return err;
->  
->  	if (val >= 4096 || val == 0)
->  		return -EINVAL;
-> @@ -175,7 +180,9 @@ wakealarm_store(struct device *dev, struct device_attribute *attr,
->  		} else
->  			adjust = 1;
->  	}
-> -	alarm = simple_strtoul(buf_ptr, NULL, 0);
-> +	retval = kstrtoul(buf_ptr, 0, &alarm);
-> +	if (retval)
-> +		return retval;
->  	if (adjust) {
->  		alarm += now;
->  	}
-> -- 
-> 2.4.10
-> 
+For Chromium OS, we're already planning to improve tlsdated such that
+I don't think this will be an issue anymore (making it schedule a
+resync after resume, not just after reboot, which is a probably a good
+idea in general). For other systems that don't have any kind of
+network time sync, I think the best solution would be to handle this
+completely with a small userspace hook on boot and resume (because you
+probably need to access the file system to keep track of the last seen
+time anyway, you can do the device identification through
+/proc/device-tree just as well, and this avoids putting too much hacky
+workaround logic into the kernel).
 
--- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+The other thing that would worry me about this approach is that it
+requires perfect identification of the problem, and Rockchip will
+hopefully eventually be able to fix this either in RK808 or a
+successor chip that might use the same RTC interface (and thus
+driver). Detecting it at boot is probably a bad idea because a
+crash/brownout at the wrong moment will permanently leave you with a
+bad time. I really think fixing this as best as we easily can and
+leaving the hard edge-cases to userspace is the best approach here.
 
 -- 
 -- 
