@@ -1,99 +1,103 @@
-Return-Path: <rtc-linux+bncBAABBRPT66ZAKGQEEJ5TFGA@googlegroups.com>
-Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de. [2001:67c:670:201:290:27ff:fe1d:cc33])
-        by gmr-mx.google.com with ESMTPS id g21si1135073wmd.3.2015.12.01.11.49.25
+Return-Path: <rtc-linux+bncBCJP7WOE5UIBBZXISOZQKGQE4DND5NY@googlegroups.com>
+Received: from mail-yk0-x22c.google.com (mail-yk0-x22c.google.com. [2607:f8b0:4002:c07::22c])
+        by gmr-mx.google.com with ESMTPS id p4si1986965ywc.6.2015.12.06.18.52.22
         for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=AES128-SHA bits=128/128);
-        Tue, 01 Dec 2015 11:49:25 -0800 (PST)
-Date: Tue, 1 Dec 2015 20:49:19 +0100
-From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <u.kleine-koenig@pengutronix.de>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Steffen Trumtrar <s.trumtrar@pengutronix.de>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
-	Pawel Moll <pawel.moll@arm.com>,
-	Ian Campbell <ijc+devicetree@hellion.org.uk>,
-	devicetree@vger.kernel.org, Rob Herring <robh+dt@kernel.org>,
-	kernel@pengutronix.de, Kumar Gala <galak@codeaurora.org>,
-	Arnd Bergmann <arnd@arndb.de>
-Subject: [rtc-linux] Re: [PATCH v2 2/2] rtc: add driver for RX6110SA real time clock
-Message-ID: <20151201194919.GG5072@pengutronix.de>
-References: <1448977700-10924-1-git-send-email-s.trumtrar@pengutronix.de>
- <1448977700-10924-2-git-send-email-s.trumtrar@pengutronix.de>
- <20151201144218.GS22136@piout.net>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Sun, 06 Dec 2015 18:52:22 -0800 (PST)
+Received: by mail-yk0-x22c.google.com with SMTP id r82so180246576ykd.3
+        for <rtc-linux@googlegroups.com>; Sun, 06 Dec 2015 18:52:22 -0800 (PST)
 MIME-Version: 1.0
+Sender: rtc-linux@googlegroups.com
+In-Reply-To: <CAD=FV=V6x94vFCcCwRa=YH+NFCRKCGkNVyE8NTAnXVxX9Bac2Q@mail.gmail.com>
+References: <1449107584-3192-1-git-send-email-jwerner@chromium.org>
+	<CAD=FV=VVU0ucrL9gsMGKBwMCg_d6aTZWXTpxwNmfNp0k0BzbdQ@mail.gmail.com>
+	<CAODwPW_xoF8KYRPWvSrs89F-ZKxWMC4_Gp-vdEYENfzESin=ig@mail.gmail.com>
+	<CAD=FV=VLVmJQbY45De7qyg9AsW-VDqKfvj7MHMWXiGCrrx6WDA@mail.gmail.com>
+	<CAODwPW939ZrmGsspk42BU=U+hca4hyT4W0ceOZCVWtu057i58A@mail.gmail.com>
+	<CAD=FV=Ur0+qmQ1mnvV3Er1RjfMU8DY7yk9PPf04wAJ7Xrt+7vw@mail.gmail.com>
+	<CAD=FV=X_1yUONf53AXGBZps=3VFnGFDq5u2-57SoBGtvBFiWHg@mail.gmail.com>
+	<CAODwPW-UAVRHVwsA=ZBgL=ZRrW0+WJSmPDcF5jv=bwnePsTe5w@mail.gmail.com>
+	<CAD=FV=USMU1eQ8-kA0ysyciXzU-EW6Zy-xZnmtEHsC39xOYrZw@mail.gmail.com>
+	<5664E1CF.8030406@rock-chips.com>
+	<CAD=FV=V6x94vFCcCwRa=YH+NFCRKCGkNVyE8NTAnXVxX9Bac2Q@mail.gmail.com>
+Date: Sun, 6 Dec 2015 18:52:22 -0800
+Message-ID: <CAD=FV=VJKHK2Eu75UJPf+3i7Gaxa09g+Hwfy7nwWYrgMvocarg@mail.gmail.com>
+Subject: [rtc-linux] Re: [PATCH] RTC: RK808: Work around hardware bug on
+ November 31st
+From: Doug Anderson <dianders@chromium.org>
+To: Chris Zhong <zyw@rock-chips.com>
+Cc: Julius Werner <jwerner@chromium.org>, Andrew Morton <akpm@linux-foundation.org>,
+	Alessandro Zummo <a.zummo@towertech.it>, Sonny Rao <sonnyrao@chromium.org>,
+	Heiko Stuebner <heiko@sntech.de>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <20151201144218.GS22136@piout.net>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
 List-Archive: <http://groups.google.com/group/rtc-linux
-Sender: rtc-linux@googlegroups.com
 List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Hello Alexandre,
+Hi,
 
-Cc +=3D Arnd
+On Sun, Dec 6, 2015 at 6:50 PM, Doug Anderson <dianders@chromium.org> wrote:
+> Chris,
+>
+> On Sun, Dec 6, 2015 at 5:33 PM, Chris Zhong <zyw@rock-chips.com> wrote:
+>> Hi Doug
+>>
+>> RK808 has a shadowed register for saving a "frozen" RTC time.
+>> When we setting "GET_TIME" to 1, the time will save in this shadowed
+>> register. So if we do not set the "GET_TIME", we always get the last time.
+>>
+>> read the old time before "get_time", and then read the time again for new
+>> time. If the old time earlier than 12.1 && new time later than 12.1, we
+>> should
+>> +1 day for the correct rtc time.
+>>
+>> On the other hand, we should set the "GET_TIME" after rk808_rtc_set_time,
+>> for restore the time before suspend/shut_down.
+>
+> Ah, good idea using the shadow registers.  The whole point of the
+> shadow registers is to enable atomic read of time, right?  So if the
+> clock ticks as you are reading 23:59:59 you don't end up reading
+> 23:59:00 or 24:59:59 (you'll get either 23:59:59 or 24:00:00).  So
+> right, time read will now be:
+>
+> 1. Read GET_TIME.  Confirm it's 1.
+> 2. Read the time.
+> 3. Set GET_TIME to 0.
+> 4. Set GET_TIME to 1.
+> 5. Read the time.
+>
+> If time from #2 < 11/31 and time from #5 >= 11/31 then we do the
+> adjust.  If GET_TIME wasn't 1 in step #1 then we won't do any
+> adjusting unless the time is actually 11/31.
+>
+> Between steps #4 and #5 we'll need to add a small delay since old code
+> used to use the setting to 0 as a delay (as commented).
+>
+> We should presumably always leave GET_TIME as 1 unless we're actively
+> reading the time for the most reliability.  Also, if we've already
+> read the time this bootup, we can certainly optimize the above by
+> skipping #1 and #2.
 
-On Tue, Dec 01, 2015 at 03:42:18PM +0100, Alexandre Belloni wrote:
-> > +/**
-> > + * rx6110_set_time - set the current time in the rx6110 registers
-> > + *
-> > + * @dev: the rtc device in use
-> > + * @tm: holds date and time
-> > + *
-> > + * BUG: The HW assumes every year that is a multiple of 4 to be a leap
-> > + * year. Next time this is wrong is 2100, which will not be a leap yea=
-r
-> > + *
-> > + * Note: If STOP is not set/cleared, the clock will start when the sec=
-onds
-> > + *       register is written
-> > + *
-> > + */
-> > +static int rx6110_set_time(struct device *dev, struct rtc_time *tm)
-> > +{
-> > +	struct rx6110_data *rx6110 =3D dev_get_drvdata(dev);
-> > +	int ret;
-> > +
-> > +	if (tm->tm_year > 137)
-> > +		return -EINVAL;
-> > +
->=20
-> Seeing the comment comment above, this should probably be if
-> (tm->tm_year < 100 || tm->tm_year >=3D 200)
-> I don't think this particular part has any issue
-> handling 2038. However, on 32bit platform, your userspace is probably
-> not ready to handle those date. hwclock should return the correct date.
+Oh, but also we still need to know whether to adjust the alarm.  I
+think you said that all existing rk808 chips have this bug and that
+you'll set a bit (to be determined later) if/when this bug is fixed.
+So we still need to assume that all rk808 chips have this bug...
 
-userspace is not ready because it cannot. Before this can be addressed,
-quite some things need fixing first. If I understood correctly timerfd
-for example is broken which completely locks up systemd.
+-Doug
 
-Note this doesn't justify to not write a date later than 2037 in the rtc
-driver however. Still thinking about how to handle this for the machines
-we work on, we thought about letting the RTC_RD_TIME ioctl fail for
-dates later than 2038 to work around this issue.
-
-Best regards
-Uwe
-
---=20
-Pengutronix e.K.                           | Uwe Kleine-K=C3=B6nig         =
-   |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
-
---=20
---=20
+-- 
+-- 
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
----=20
-You received this message because you are subscribed to the Google Groups "=
-rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an e=
-mail to rtc-linux+unsubscribe@googlegroups.com.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
