@@ -1,64 +1,87 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBUPQWWZQKGQEYDOUWYQ@googlegroups.com>
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id 204si433274wmx.1.2015.12.13.05.53.21
-        for <rtc-linux@googlegroups.com>;
-        Sun, 13 Dec 2015 05:53:21 -0800 (PST)
-Date: Sun, 13 Dec 2015 14:53:08 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: LABBE Corentin <clabbe.montjoie@gmail.com>
-Cc: a.zummo@towertech.it, linux-kernel@vger.kernel.org,
-	rtc-linux@googlegroups.com
-Subject: [rtc-linux] Re: [PATCH] rtc: Replace simple_strtoul by kstrtoul
-Message-ID: <20151213135308.GD11209@piout.net>
-References: <1449238780-31110-1-git-send-email-clabbe.montjoie@gmail.com>
+Return-Path: <rtc-linux+bncBAABBZ7LSWZQKGQEIA5GWBY@googlegroups.com>
+Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de. [2001:67c:670:201:290:27ff:fe1d:cc33])
+        by gmr-mx.google.com with ESMTPS id e201si701808wma.3.2015.12.07.04.04.55
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=AES128-SHA bits=128/128);
+        Mon, 07 Dec 2015 04:04:55 -0800 (PST)
+Date: Mon, 7 Dec 2015 13:04:42 +0100
+From: Steffen Trumtrar <s.trumtrar@pengutronix.de>
+To: Rob Herring <robh@kernel.org>
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Pawel Moll <pawel.moll@arm.com>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Ian Campbell <ijc+devicetree@hellion.org.uk>,
+	Kumar Gala <galak@codeaurora.org>, devicetree@vger.kernel.org,
+	rtc-linux@googlegroups.com, kernel@pengutronix.de
+Subject: [rtc-linux] Re: [PATCH v2 1/2] Documentation: devicetree: add epson
+ rx6110 binding
+Message-ID: <20151207120442.GD32453@pengutronix.de>
+References: <1448977700-10924-1-git-send-email-s.trumtrar@pengutronix.de>
+ <20151203145552.GA3635@rob-hp-laptop>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1449238780-31110-1-git-send-email-clabbe.montjoie@gmail.com>
+In-Reply-To: <20151203145552.GA3635@rob-hp-laptop>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
-List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
-List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
-List-Archive: <https://groups.google.com/group/rtc-linux
+List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
+List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
+List-Archive: <http://groups.google.com/group/rtc-linux
 Sender: rtc-linux@googlegroups.com
-List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
+List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
- <https://groups.google.com/group/rtc-linux/subscribe>
+ <http://groups.google.com/group/rtc-linux/subscribe>
 
-Hi,
-
-On 04/12/2015 at 15:19:39 +0100, LABBE Corentin wrote :
-> The simple_strtoul function is obsolete.
-> This patch replace it by kstrtoul.
+On Thu, Dec 03, 2015 at 08:55:52AM -0600, Rob Herring wrote:
+> On Tue, Dec 01, 2015 at 02:48:19PM +0100, Steffen Trumtrar wrote:
+> > Add the binding documentation for the Epson RX6110 RTC.
+> > 
+> > Signed-off-by: Steffen Trumtrar <s.trumtrar@pengutronix.de>
+> > ---
+> > Changes since v1:
+> > 	- added i2c binding
+> > 	- compatible: "epson,rtc-rx6110" -> "epson,rx6110"
+> > 	- fixed typo
+> > 
+> >  .../devicetree/bindings/rtc/epson,rx6110.txt       | 39 ++++++++++++++++++++++
+> >  1 file changed, 39 insertions(+)
+> >  create mode 100644 Documentation/devicetree/bindings/rtc/epson,rx6110.txt
+> > 
+> > diff --git a/Documentation/devicetree/bindings/rtc/epson,rx6110.txt b/Documentation/devicetree/bindings/rtc/epson,rx6110.txt
+> > new file mode 100644
+> > index 000000000000..8c3d06f117e8
+> > --- /dev/null
+> > +++ b/Documentation/devicetree/bindings/rtc/epson,rx6110.txt
+> > @@ -0,0 +1,39 @@
+> > +Epson RX6110 Real Time Clock
+> > +============================
+> > +
+> > +The Epson RX6110 can be used with SPI or I2C busses. The kind of
+> > +bus depends on the SPISEL pin and can not be configured via software.
+> > +
+> > +I2C mode
+> > +--------
+> > +
+> > +Required properties:
+> > +  - compatible: should be: "epson,rx6110"
+> > +  - reg : offset and length of the register set for the device
 > 
-> Signed-off-by: LABBE Corentin <clabbe.montjoie@gmail.com>
-> ---
->  drivers/rtc/rtc-sysfs.c | 7 ++++++-
->  1 file changed, 6 insertions(+), 1 deletion(-)
+> For i2c, there is no size cell. Otherwise,
+
+Okay. I removed it from the binding documentation.
+
 > 
-> diff --git a/drivers/rtc/rtc-sysfs.c b/drivers/rtc/rtc-sysfs.c
-> index 7273855..a023f63 100644
-> --- a/drivers/rtc/rtc-sysfs.c
-> +++ b/drivers/rtc/rtc-sysfs.c
-> @@ -91,7 +91,12 @@ max_user_freq_store(struct device *dev, struct device_attribute *attr,
->  		const char *buf, size_t n)
->  {
->  	struct rtc_device *rtc = to_rtc_device(dev);
-> -	unsigned long val = simple_strtoul(buf, NULL, 0);
-> +	unsigned long val;
-> +	int err;
-> +
-> +	err = kstrtoul(buf, 0, &val);
-> +	if (err)
-> +		return err;
->  
+> Acked-by: Rob Herring <robh@kernel.org>
+> 
 
-There are other uses in the same file, you might as well change them.
-
+Thanks,
+Steffen Trumtrar
 
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+Pengutronix e.K.                           |                             |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+Peiner Str. 6-8, 31137 Hildesheim, Germany | Phone: +49-5121-206917-0    |
+Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |
 
 -- 
 -- 
