@@ -1,229 +1,537 @@
-Return-Path: <rtc-linux+bncBDUOXGMN6YKBBPNDYGZQKGQEITUJEKI@googlegroups.com>
+Return-Path: <rtc-linux+bncBAABBXORTKZQKGQE4GWKEFQ@googlegroups.com>
 MIME-Version: 1.0
-Received: from mail-lb0-x242.google.com (mail-lb0-x242.google.com. [2a00:1450:4010:c04::242])
-        by gmr-mx.google.com with ESMTPS id rw5si87101lbb.2.2015.12.15.09.45.33
+Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de. [2001:67c:670:201:290:27ff:fe1d:cc33])
+        by gmr-mx.google.com with ESMTPS id 204si944374wmx.1.2015.12.08.01.54.36
         for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 15 Dec 2015 09:45:33 -0800 (PST)
-Received: by mail-lb0-x242.google.com with SMTP id ul9so1073080lbb.2
-        for <rtc-linux@googlegroups.com>; Tue, 15 Dec 2015 09:45:33 -0800 (PST)
-From: Sergei Ianovich <ynvich@gmail.com>
-To: linux-kernel@vger.kernel.org
-Cc: Sergei Ianovich <ynvich@gmail.com>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Rob Herring <robh+dt@kernel.org>,
+        (version=TLS1_2 cipher=AES128-SHA bits=128/128);
+        Tue, 08 Dec 2015 01:54:36 -0800 (PST)
+From: Steffen Trumtrar <s.trumtrar@pengutronix.de>
+To: Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: Rob Herring <robh+dt@kernel.org>,
 	Pawel Moll <pawel.moll@arm.com>,
 	Mark Rutland <mark.rutland@arm.com>,
 	Ian Campbell <ijc+devicetree@hellion.org.uk>,
 	Kumar Gala <galak@codeaurora.org>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	devicetree@vger.kernel.org (open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS),
-	rtc-linux@googlegroups.com (open list:REAL TIME CLOCK (RTC) SUBSYSTEM)
-Subject: [rtc-linux] [PATCH v5] rtc: support DS1302 RTC on ICP DAS LP-8x4x
-Date: Tue, 15 Dec 2015 20:45:23 +0300
-Message-Id: <1450201525-9137-1-git-send-email-ynvich@gmail.com>
-In-Reply-To: <397668667-27328-3-git-send-email-ynvich@gmail.com>
-References: <397668667-27328-3-git-send-email-ynvich@gmail.com>
+	devicetree@vger.kernel.org,
+	rtc-linux@googlegroups.com,
+	kernel@pengutronix.de,
+	Steffen Trumtrar <s.trumtrar@pengutronix.de>
+Subject: [rtc-linux] [PATCH v3 2/2] rtc: add driver for RX6110SA real time clock
+Date: Tue,  8 Dec 2015 10:54:21 +0100
+Message-Id: <1449568461-26016-2-git-send-email-s.trumtrar@pengutronix.de>
+In-Reply-To: <1449568461-26016-1-git-send-email-s.trumtrar@pengutronix.de>
+References: <1449568461-26016-1-git-send-email-s.trumtrar@pengutronix.de>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
-List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
-List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
-List-Archive: <https://groups.google.com/group/rtc-linux
+List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
+List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
+List-Archive: <http://groups.google.com/group/rtc-linux
 Sender: rtc-linux@googlegroups.com
-List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
+List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
- <https://groups.google.com/group/rtc-linux/subscribe>
+ <http://groups.google.com/group/rtc-linux/subscribe>
 
-Signed-off-by: Sergei Ianovich <ynvich@gmail.com>
-CC: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+The RX6110 comes in two different variants: SPI and I2C.
+This driver only supports the SPI variant.
+
+If the need ever arises to also support the I2C variant, this driver
+could easily be refactored to support both cases.
+
+Signed-off-by: Steffen Trumtrar <s.trumtrar@pengutronix.de>
 ---
-   v4..v5
-   * drop THIS_MODULE from struct platform driver
-   * use "dallas" for vendor name per vendor-prefixes.txt
+Changes since v2:
+  - remove old copyright infos
+  - use the BIT() macro
+  - replace rx6110_get_week_day() with ffs()
+  - replace hardcoded offsets with enum
+  - fix copy-and-paste error in rx6110_init
+  - use regmap_bulk_write in set_time
+  - return -EINVAL instead of "fixing" time in the rtc
 
-   v3..v4
-   * move DTS bindings to a different patch
+ drivers/rtc/Kconfig      |   9 +
+ drivers/rtc/Makefile     |   1 +
+ drivers/rtc/rtc-rx6110.c | 438 +++++++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 448 insertions(+)
+ create mode 100644 drivers/rtc/rtc-rx6110.c
 
-   v2..v3
-   * use usleep_range instead of custom nsleep
-   * number change (07/16 -> 09/21)
-
-   v0..v2
-   * use device tree
-   * use devm helpers where possible
-
- .../devicetree/bindings/rtc/rtc-ds1302.txt         |  14 +++
- drivers/rtc/Kconfig                                |   2 +-
- drivers/rtc/rtc-ds1302.c                           | 100 ++++++++++++++++++++-
- 3 files changed, 113 insertions(+), 3 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/rtc/rtc-ds1302.txt
-
-diff --git a/Documentation/devicetree/bindings/rtc/rtc-ds1302.txt b/Documentation/devicetree/bindings/rtc/rtc-ds1302.txt
-new file mode 100644
-index 0000000..810613b
---- /dev/null
-+++ b/Documentation/devicetree/bindings/rtc/rtc-ds1302.txt
-@@ -0,0 +1,14 @@
-+* Dallas Semiconductor DS-1302 RTC
-+
-+Simple device which could be used to store date/time between reboots.
-+
-+Required properties:
-+- compatible : Should be "dallas,rtc-ds1302"
-+- reg : Should be address and size of IO memory region
-+
-+Examples:
-+
-+rtc@40900000 {
-+	compatible = "dallas,rtc-ds1302";
-+	reg = <0x1700901c 0x1>;
-+};
 diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
-index 2a52424..cf36483 100644
+index 2a524244afec..fbb26ccd512c 100644
 --- a/drivers/rtc/Kconfig
 +++ b/drivers/rtc/Kconfig
-@@ -803,7 +803,7 @@ config RTC_DRV_DS1286
+@@ -734,6 +734,15 @@ config RTC_DRV_RX4581
+ 	  This driver can also be built as a module. If so the module
+ 	  will be called rtc-rx4581.
  
- config RTC_DRV_DS1302
- 	tristate "Dallas DS1302"
--	depends on SH_SECUREEDGE5410
-+	depends on SH_SECUREEDGE5410 || (ARCH_PXA && HIGH_RES_TIMERS)
++config RTC_DRV_RX6110
++	tristate "Epson RX-6110"
++	select REGMAP_SPI
++	help
++	  If you say yes here you will get support for the Epson RX-6610.
++
++	  This driver can also be built as a module. If so the module
++	  will be called rtc-rx6110.
++
+ config RTC_DRV_MCP795
+ 	tristate "Microchip MCP795"
  	help
- 	  If you say yes here you get support for the Dallas DS1302 RTC chips.
- 
-diff --git a/drivers/rtc/rtc-ds1302.c b/drivers/rtc/rtc-ds1302.c
-index 6bef7a5..bd68214 100644
---- a/drivers/rtc/rtc-ds1302.c
-+++ b/drivers/rtc/rtc-ds1302.c
-@@ -50,7 +50,7 @@
- #define ds1302_set_tx()
- #define ds1302_set_rx()
- 
--static inline int ds1302_hw_init(void)
-+static inline int ds1302_hw_init(struct platform_device *pdev)
- {
- 	return 0;
- }
-@@ -86,6 +86,101 @@ static inline int ds1302_rxbit(void)
- 	return !!(get_dp() & RTC_IODATA);
- }
- 
-+#elif defined(CONFIG_ARCH_PXA) && defined(CONFIG_HIGH_RES_TIMERS)
+diff --git a/drivers/rtc/Makefile b/drivers/rtc/Makefile
+index 231f76451615..1e8dfc6bbe82 100644
+--- a/drivers/rtc/Makefile
++++ b/drivers/rtc/Makefile
+@@ -128,6 +128,7 @@ obj-$(CONFIG_RTC_DRV_RS5C372)	+= rtc-rs5c372.o
+ obj-$(CONFIG_RTC_DRV_RV3029C2)	+= rtc-rv3029c2.o
+ obj-$(CONFIG_RTC_DRV_RV8803)	+= rtc-rv8803.o
+ obj-$(CONFIG_RTC_DRV_RX4581)	+= rtc-rx4581.o
++obj-$(CONFIG_RTC_DRV_RX6110)	+= rtc-rx6110.o
+ obj-$(CONFIG_RTC_DRV_RX8025)	+= rtc-rx8025.o
+ obj-$(CONFIG_RTC_DRV_RX8581)	+= rtc-rx8581.o
+ obj-$(CONFIG_RTC_DRV_S35390A)	+= rtc-s35390a.o
+diff --git a/drivers/rtc/rtc-rx6110.c b/drivers/rtc/rtc-rx6110.c
+new file mode 100644
+index 000000000000..aa9d89d5d2de
+--- /dev/null
++++ b/drivers/rtc/rtc-rx6110.c
+@@ -0,0 +1,438 @@
++/*
++ * Driver for the Epson RTC module RX-6110 SA
++ *
++ * Copyright(C) 2015 Pengutronix, Steffen Trumtrar <kernel@pengutronix.de>
++ * Copyright(C) SEIKO EPSON CORPORATION 2013. All rights reserved.
++ *
++ * This driver software is distributed as is, without any warranty of any kind,
++ * either express or implied as further specified in the GNU Public License.
++ * This software may be used and distributed according to the terms of the GNU
++ * Public License, version 2 as published by the Free Software Foundation.
++ * See the file COPYING in the main directory of this archive for more details.
++ *
++ * You should have received a copy of the GNU General Public License along with
++ * this program. If not, see <http://www.gnu.org/licenses/>.
++ */
 +
-+#include <linux/delay.h>
++#include <linux/bcd.h>
++#include <linux/init.h>
++#include <linux/kernel.h>
++#include <linux/module.h>
 +#include <linux/of.h>
++#include <linux/of_device.h>
++#include <linux/of_gpio.h>
++#include <linux/regmap.h>
++#include <linux/rtc.h>
++#include <linux/spi/spi.h>
 +
-+#define	RTC_CE		0x01
-+#define	RTC_CLK		0x02
-+#define	RTC_nWE		0x04
-+#define	RTC_IODATA	0x08
++/* RX-6110 Register definitions */
++#define RX6110_REG_SEC		0x10
++#define RX6110_REG_MIN		0x11
++#define RX6110_REG_HOUR		0x12
++#define RX6110_REG_WDAY		0x13
++#define RX6110_REG_MDAY		0x14
++#define RX6110_REG_MONTH	0x15
++#define RX6110_REG_YEAR		0x16
++#define RX6110_REG_RES1		0x17
++#define RX6110_REG_ALMIN	0x18
++#define RX6110_REG_ALHOUR	0x19
++#define RX6110_REG_ALWDAY	0x1A
++#define RX6110_REG_TCOUNT0	0x1B
++#define RX6110_REG_TCOUNT1	0x1C
++#define RX6110_REG_EXT		0x1D
++#define RX6110_REG_FLAG		0x1E
++#define RX6110_REG_CTRL		0x1F
++#define RX6110_REG_USER0	0x20
++#define RX6110_REG_USER1	0x21
++#define RX6110_REG_USER2	0x22
++#define RX6110_REG_USER3	0x23
++#define RX6110_REG_USER4	0x24
++#define RX6110_REG_USER5	0x25
++#define RX6110_REG_USER6	0x26
++#define RX6110_REG_USER7	0x27
++#define RX6110_REG_USER8	0x28
++#define RX6110_REG_USER9	0x29
++#define RX6110_REG_USERA	0x2A
++#define RX6110_REG_USERB	0x2B
++#define RX6110_REG_USERC	0x2C
++#define RX6110_REG_USERD	0x2D
++#define RX6110_REG_USERE	0x2E
++#define RX6110_REG_USERF	0x2F
++#define RX6110_REG_RES2		0x30
++#define RX6110_REG_RES3		0x31
++#define RX6110_REG_IRQ		0x32
 +
-+static unsigned long ds1302_state;
++#define RX6110_BIT_ALARM_EN		BIT(7)
 +
-+static void *mem;
++/* Extension Register (1Dh) bit positions */
++#define RX6110_BIT_EXT_TSEL0		BIT(0)
++#define RX6110_BIT_EXT_TSEL1		BIT(1)
++#define RX6110_BIT_EXT_TSEL2		BIT(2)
++#define RX6110_BIT_EXT_WADA		BIT(3)
++#define RX6110_BIT_EXT_TE		BIT(4)
++#define RX6110_BIT_EXT_USEL		BIT(5)
++#define RX6110_BIT_EXT_FSEL0		BIT(6)
++#define RX6110_BIT_EXT_FSEL1		BIT(7)
 +
-+static inline int ds1302_hw_init(struct platform_device *pdev)
++/* Flag Register (1Eh) bit positions */
++#define RX6110_BIT_FLAG_VLF		BIT(1)
++#define RX6110_BIT_FLAG_AF		BIT(3)
++#define RX6110_BIT_FLAG_TF		BIT(4)
++#define RX6110_BIT_FLAG_UF		BIT(5)
++
++/* Control Register (1Fh) bit positions */
++#define RX6110_BIT_CTRL_TBKE		BIT(0)
++#define RX6110_BIT_CTRL_TBKON		BIT(1)
++#define RX6110_BIT_CTRL_TSTP		BIT(2)
++#define RX6110_BIT_CTRL_AIE		BIT(3)
++#define RX6110_BIT_CTRL_TIE		BIT(4)
++#define RX6110_BIT_CTRL_UIE		BIT(5)
++#define RX6110_BIT_CTRL_STOP		BIT(6)
++#define RX6110_BIT_CTRL_TEST		BIT(7)
++
++enum {
++	RTC_SEC = 0,
++	RTC_MIN,
++	RTC_HOUR,
++	RTC_WDAY,
++	RTC_MDAY,
++	RTC_MONTH,
++	RTC_YEAR,
++	RTC_NR_TIME
++};
++
++static struct spi_driver rx6110_driver;
++
++struct rx6110_data {
++	struct rtc_device *rtc;
++	struct regmap *regmap;
++};
++
++/**
++ * rx6110_rtc_tm_to_data - convert rtc_time to native time encoding
++ *
++ * @tm: holds date and time
++ * @data: holds the encoding in rx6110 native form
++ */
++static int rx6110_rtc_tm_to_data(struct rtc_time *tm, u8 *data)
 +{
-+	struct resource *r;
++	pr_debug("%s: date %ds %dm %dh %dmd %dm %dy\n", __func__,
++		 tm->tm_sec, tm->tm_min, tm->tm_hour,
++		 tm->tm_mday, tm->tm_mon, tm->tm_year);
 +
-+	r = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-+	if (!r)
-+		return -ENODEV;
++	/*
++	 * The year in the RTC is a value between 0 and 99.
++	 * Assume that this represents the current century
++	 * and disregard all other values.
++	 */
++	if (tm->tm_year < 100 || tm->tm_year >= 200)
++		return -EINVAL;
 +
-+	mem = devm_ioremap_resource(&pdev->dev, r);
-+	if (!mem)
-+		return -EFAULT;
++	data[RTC_SEC] = bin2bcd(tm->tm_sec);
++	data[RTC_MIN] = bin2bcd(tm->tm_min);
++	data[RTC_HOUR] = bin2bcd(tm->tm_hour);
++	data[RTC_WDAY] = 1 << bin2bcd(tm->tm_wday);
++	data[RTC_MDAY] = bin2bcd(tm->tm_mday);
++	data[RTC_MONTH] = bin2bcd(tm->tm_mon + 1);
++	data[RTC_YEAR] = bin2bcd(tm->tm_year % 100);
 +
 +	return 0;
 +}
 +
-+static inline void ds1302_reset(void)
++/**
++ * rx6110_data_to_rtc_tm - convert native time encoding to rtc_time
++ *
++ * @data: holds the encoding in rx6110 native form
++ * @tm: holds date and time
++ */
++static int rx6110_data_to_rtc_tm(u8 *data, struct rtc_time *tm)
 +{
-+	ds1302_state = 0;
-+	iowrite8(ds1302_state, mem);
-+	usleep_range(4, 5);
++	tm->tm_sec = bcd2bin(data[RTC_SEC] & 0x7f);
++	tm->tm_min = bcd2bin(data[RTC_MIN] & 0x7f);
++	/* only 24-hour clock */
++	tm->tm_hour = bcd2bin(data[RTC_HOUR] & 0x3f);
++	tm->tm_wday = ffs(data[RTC_WDAY] & 0x7f);
++	tm->tm_mday = bcd2bin(data[RTC_MDAY] & 0x3f);
++	tm->tm_mon = bcd2bin(data[RTC_MONTH] & 0x1f) - 1;
++	tm->tm_year = bcd2bin(data[RTC_YEAR]) + 100;
++
++	pr_debug("%s: date %ds %dm %dh %dmd %dm %dy\n", __func__,
++		 tm->tm_sec, tm->tm_min, tm->tm_hour,
++		 tm->tm_mday, tm->tm_mon, tm->tm_year);
++
++	/*
++	 * The year in the RTC is a value between 0 and 99.
++	 * Assume that this represents the current century
++	 * and disregard all other values.
++	 */
++	if (tm->tm_year < 100 || tm->tm_year >= 200)
++		return -EINVAL;
++
++	return 0;
 +}
 +
-+static inline void ds1302_clock(void)
++/**
++ * rx6110_set_time - set the current time in the rx6110 registers
++ *
++ * @dev: the rtc device in use
++ * @tm: holds date and time
++ *
++ * BUG: The HW assumes every year that is a multiple of 4 to be a leap
++ * year. Next time this is wrong is 2100, which will not be a leap year
++ *
++ * Note: If STOP is not set/cleared, the clock will start when the seconds
++ *       register is written
++ *
++ */
++static int rx6110_set_time(struct device *dev, struct rtc_time *tm)
 +{
-+	usleep_range(1, 2);
-+	ds1302_state |= RTC_CLK;
-+	iowrite8(ds1302_state, mem);
-+	usleep_range(1, 2);
-+	ds1302_state &= ~RTC_CLK;
-+	iowrite8(ds1302_state, mem);
++	struct rx6110_data *rx6110 = dev_get_drvdata(dev);
++	u8 data[RTC_NR_TIME];
++	int ret;
++
++	ret = rx6110_rtc_tm_to_data(tm, data);
++	if (ret < 0)
++		return ret;
++
++	/* set STOP bit before changing clock/calendar */
++	ret = regmap_update_bits(rx6110->regmap, RX6110_REG_CTRL,
++				 RX6110_BIT_CTRL_STOP, RX6110_BIT_CTRL_STOP);
++	if (ret)
++		return ret;
++
++	ret = regmap_bulk_write(rx6110->regmap, RX6110_REG_SEC, data,
++				RTC_NR_TIME);
++	if (ret)
++		return ret;
++
++	/* The time in the RTC is valid. Be sure to have VLF cleared. */
++	ret = regmap_update_bits(rx6110->regmap, RX6110_REG_FLAG,
++				 RX6110_BIT_FLAG_VLF, 0);
++	if (ret)
++		return ret;
++
++	/* clear STOP bit after changing clock/calendar */
++	ret = regmap_update_bits(rx6110->regmap, RX6110_REG_CTRL,
++				 RX6110_BIT_CTRL_STOP, 0);
++
++	return ret;
 +}
 +
-+static inline void ds1302_start(void)
++/**
++ * rx6110_get_time - get the current time from the rx6110 registers
++ * @dev: the rtc device in use
++ * @tm: holds date and time
++ */
++static int rx6110_get_time(struct device *dev, struct rtc_time *tm)
 +{
-+	ds1302_state &= ~RTC_CLK;
-+	ds1302_state |= RTC_CE;
-+	iowrite8(ds1302_state, mem);
-+	usleep_range(3, 4);
++	struct rx6110_data *rx6110 = dev_get_drvdata(dev);
++	u8 data[RTC_NR_TIME];
++	int flags;
++	int ret;
++
++	ret = regmap_read(rx6110->regmap, RX6110_REG_FLAG, &flags);
++	if (ret)
++		return -EINVAL;
++
++	/* check for VLF Flag (set at power-on) */
++	if ((flags & RX6110_BIT_FLAG_VLF)) {
++		dev_warn(dev, "Voltage low, data is invalid.\n");
++		return -EINVAL;
++	}
++
++	/* read registers to date */
++	ret = regmap_bulk_read(rx6110->regmap, RX6110_REG_SEC, data,
++			       RTC_NR_TIME);
++	if (ret)
++		return ret;
++
++	ret = rx6110_data_to_rtc_tm(data, tm);
++	if (ret)
++		return ret;
++
++	dev_dbg(dev, "%s: date %ds %dm %dh %dmd %dm %dy\n", __func__,
++		tm->tm_sec, tm->tm_min, tm->tm_hour,
++		tm->tm_mday, tm->tm_mon, tm->tm_year);
++
++	return rtc_valid_tm(tm);
 +}
 +
-+static inline void ds1302_stop(void)
++/**
++ * rx6110_init - initialize the rx6110 registers
++ *
++ * @rx6110: pointer to the rx6110 struct in use
++ *
++ */
++static int rx6110_init(struct rx6110_data *rx6110)
 +{
-+	ds1302_state &= ~RTC_CE;
-+	iowrite8(ds1302_state, mem);
++	struct rtc_device *rtc = rx6110->rtc;
++	int ext;
++	int flags;
++	int ctrl;
++	int ret;
++
++	/* set reserved register 0x17 with specified value of 0xB8 */
++	ret = regmap_write(rx6110->regmap, RX6110_REG_RES1, 0xB8);
++	if (ret)
++		return ret;
++
++	/* set reserved register 0x30 with specified value of 0x00 */
++	ret = regmap_write(rx6110->regmap, RX6110_REG_RES2, 0x00);
++	if (ret)
++		return ret;
++
++	/* set reserved register 0x31 with specified value of 0x10 */
++	ret = regmap_write(rx6110->regmap, RX6110_REG_RES3, 0x10);
++	if (ret)
++		return ret;
++
++	ret = regmap_write(rx6110->regmap, RX6110_REG_IRQ, 0x0);
++	if (ret)
++		return ret;
++
++	ret = regmap_update_bits(rx6110->regmap, RX6110_REG_EXT,
++				 RX6110_BIT_EXT_TE, 0);
++	if (ret)
++		return ret;
++
++	/* get current extension, flag, control register values */
++	ret = regmap_read(rx6110->regmap, RX6110_REG_EXT, &ext);
++	if (ret)
++		return ret;
++
++	ret = regmap_read(rx6110->regmap, RX6110_REG_FLAG, &flags);
++	if (ret)
++		return ret;
++
++	/* clear ctrl register */
++	ret = regmap_write(rx6110->regmap, RX6110_REG_CTRL, 0);
++	if (ret)
++		return ret;
++
++	ctrl = 0;
++
++	ret = regmap_write(rx6110->regmap, RX6110_REG_ALMIN, 0);
++	if (ret)
++		return ret;
++
++	ret = regmap_write(rx6110->regmap, RX6110_REG_ALHOUR, 0);
++	if (ret)
++		return ret;
++
++	ret = regmap_write(rx6110->regmap, RX6110_REG_ALWDAY, 0);
++	if (ret)
++		return ret;
++
++	dev_dbg(&rtc->dev, "ext: %x, flag: %x, ctrl: %x\n", ext, flags, ctrl);
++
++	/* check for VLF Flag (set at power-on) */
++	if ((flags & RX6110_BIT_FLAG_VLF))
++		dev_warn(&rtc->dev, "Voltage low, data loss detected.\n");
++
++	/* check for Alarm Flag */
++	if (flags & RX6110_BIT_FLAG_AF)
++		dev_warn(&rtc->dev, "An alarm may have been missed.\n");
++
++	/* check for Periodic Timer Flag */
++	if (flags & RX6110_BIT_FLAG_TF)
++		dev_warn(&rtc->dev, "Periodic timer was detected\n");
++
++	/* check for Update Timer Flag */
++	if (flags & RX6110_BIT_FLAG_UF)
++		dev_warn(&rtc->dev, "Update timer was detected\n");
++
++	/* clear all flags BUT VLF */
++	ret = regmap_update_bits(rx6110->regmap, RX6110_REG_FLAG,
++				 RX6110_BIT_FLAG_AF |
++				 RX6110_BIT_FLAG_UF |
++				 RX6110_BIT_FLAG_TF,
++				 0);
++	if (ret)
++		return ret;
++
++	return 0;
 +}
 +
-+static inline void ds1302_set_tx(void)
-+{
-+	ds1302_state &= ~RTC_nWE;
-+	iowrite8(ds1302_state, mem);
-+}
-+
-+static inline void ds1302_set_rx(void)
-+{
-+	ds1302_state |= RTC_nWE;
-+	iowrite8(ds1302_state, mem);
-+}
-+
-+static inline void ds1302_txbit(int bit)
-+{
-+	if (bit)
-+		ds1302_state |= RTC_IODATA;
-+	else
-+		ds1302_state &= ~RTC_IODATA;
-+	iowrite8(ds1302_state, mem);
-+}
-+
-+static inline int ds1302_rxbit(void)
-+{
-+	return ioread8(mem) & 0x1;
-+}
-+
-+#ifdef CONFIG_OF
-+static const struct of_device_id ds1302_dt_ids[] = {
-+	{ .compatible = "dallas,rtc-ds1302" },
-+	{ }
++static struct rtc_class_ops rx6110_rtc_ops = {
++	.read_time = rx6110_get_time,
++	.set_time = rx6110_set_time,
 +};
 +
-+MODULE_DEVICE_TABLE(of, ds1302_dt_ids);
-+#endif
++static struct regmap_config regmap_spi_config = {
++	.reg_bits = 8,
++	.val_bits = 8,
++	.max_register = RX6110_REG_IRQ,
++	.read_flag_mask = 0x80,
++};
 +
- #else
- #error "Add support for your platform"
- #endif
-@@ -216,7 +311,7 @@ static int __init ds1302_rtc_probe(struct platform_device *pdev)
- {
- 	struct rtc_device *rtc;
- 
--	if (ds1302_hw_init()) {
-+	if (ds1302_hw_init(pdev)) {
- 		dev_err(&pdev->dev, "Failed to init communication channel");
- 		return -EINVAL;
- 	}
-@@ -244,6 +339,7 @@ static int __init ds1302_rtc_probe(struct platform_device *pdev)
- static struct platform_driver ds1302_platform_driver = {
- 	.driver		= {
- 		.name	= DRV_NAME,
-+		.of_match_table = of_match_ptr(ds1302_dt_ids),
- 	},
- };
- 
++/**
++ * rx6110_probe - initialize rtc driver
++ * @spi: pointer to spi device
++ */
++static int rx6110_probe(struct spi_device *spi)
++{
++	struct rx6110_data *rx6110;
++	int err;
++
++	if ((spi->bits_per_word && spi->bits_per_word != 8)
++	    || (spi->max_speed_hz > 2000000)
++	    || (spi->mode != (SPI_CS_HIGH | SPI_CPOL | SPI_CPHA))) {
++		dev_warn(&spi->dev, "SPI settings: bits_per_word: %d, max_speed_hz: %d, mode: %xh\n",
++			spi->bits_per_word, spi->max_speed_hz, spi->mode);
++		dev_warn(&spi->dev, "driving device in an unsupported mode");
++	}
++
++	rx6110 = devm_kzalloc(&spi->dev, sizeof(*rx6110), GFP_KERNEL);
++	if (!rx6110)
++		return -ENOMEM;
++
++	rx6110->regmap = devm_regmap_init_spi(spi, &regmap_spi_config);
++	if (IS_ERR(rx6110->regmap)) {
++		dev_err(&spi->dev, "regmap init failed for rtc rx6110\n");
++		return PTR_ERR(rx6110->regmap);
++	}
++
++	spi_set_drvdata(spi, rx6110);
++
++	rx6110->rtc = devm_rtc_device_register(&spi->dev,
++					       rx6110_driver.driver.name,
++					       &rx6110_rtc_ops, THIS_MODULE);
++
++	if (IS_ERR(rx6110->rtc))
++		return PTR_ERR(rx6110->rtc);
++
++	err = rx6110_init(rx6110);
++	if (err)
++		return err;
++
++	rx6110->rtc->max_user_freq = 1;
++
++	return 0;
++}
++
++static int rx6110_remove(struct spi_device *spi)
++{
++	return 0;
++}
++
++static const struct spi_device_id rx6110_id[] = {
++	{ "rx6110", 0 },
++	{ }
++};
++MODULE_DEVICE_TABLE(spi, rx6110_id);
++
++static struct spi_driver rx6110_driver = {
++	.driver = {
++		.name = "rx6110-rtc",
++		.owner = THIS_MODULE,
++	},
++	.probe		= rx6110_probe,
++	.remove		= rx6110_remove,
++	.id_table	= rx6110_id,
++};
++
++module_spi_driver(rx6110_driver);
++
++MODULE_AUTHOR("Val Krutov <val.krutov@erd.epson.com>");
++MODULE_DESCRIPTION("RX-6110 SA RTC driver");
++MODULE_LICENSE("GPL");
 -- 
 2.6.2
 
