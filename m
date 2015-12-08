@@ -1,61 +1,113 @@
-Return-Path: <rtc-linux+bncBDA5BKNJ6MIBBUVX5OZQKGQEJARBKPY@googlegroups.com>
+Return-Path: <rtc-linux+bncBAABBAENTSZQKGQEQRMBETA@googlegroups.com>
+Received: from mail1.bemta3.messagelabs.com (mail1.bemta3.messagelabs.com. [195.245.230.176])
+        by gmr-mx.google.com with ESMTPS id e201si170791wma.3.2015.12.08.08.34.08
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 08 Dec 2015 08:34:08 -0800 (PST)
+From: Steve Twiss <stwiss.opensource@diasemi.com>
+Date: Tue, 8 Dec 2015 16:28:39 +0000
+Subject: [rtc-linux] [PATCH V1] rtc: da9063: access ordering error during RTC
+ interrupt system power on
+To: Alessandro Zummo <a.zummo@towertech.it>, Alexandre Belloni
+	<alexandre.belloni@free-electrons.com>, LINUXKERNEL
+	<linux-kernel@vger.kernel.org>, RTC-LINUX <rtc-linux@googlegroups.com>
+CC: David Dajun Chen <david.chen@diasemi.com>, Support Opensource
+	<support.opensource@diasemi.com>
+Message-ID: <20151208163406.B34683FB25@swsrvapps-01.diasemi.com>
 MIME-Version: 1.0
-Received: from mga04.intel.com (mga04.intel.com. [192.55.52.120])
-        by gmr-mx.google.com with ESMTP id p88si3955907pfi.0.2015.12.23.09.37.22
-        for <rtc-linux@googlegroups.com>;
-        Wed, 23 Dec 2015 09:37:22 -0800 (PST)
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	rtc-linux@googlegroups.com
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [rtc-linux] [PATCH v1 1/1] rtc: cmos: prevent kernel warning on IRQ
- flags mismatch
-Date: Wed, 23 Dec 2015 19:37:19 +0200
-Message-Id: <1450892239-74224-1-git-send-email-andriy.shevchenko@linux.intel.com>
-Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
-List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
-List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
-List-Archive: <https://groups.google.com/group/rtc-linux
+List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
+List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
+List-Archive: <http://groups.google.com/group/rtc-linux
 Sender: rtc-linux@googlegroups.com
-List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
+List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
- <https://groups.google.com/group/rtc-linux/subscribe>
+ <http://groups.google.com/group/rtc-linux/subscribe>
 
-The Microsoft Surface 3 tablet shares interrupt line between RTC and one of SPI
-controllers. However, the rtc_cmos driver doesn't allow shared interrupts and
-user sees the following warning
+From: Steve Twiss <stwiss.opensource@diasemi.com>
 
-genirq: Flags mismatch irq 8. 00000080 (8086228E:02) vs. 00000000 (rtc0)
-...
-[<ffffffffa004eb01>] pxa2xx_spi_probe+0x151/0x600 [spi_pxa2xx_platform]
+This fix alters the ordering of the IRQ and device registrations in the RTC
+driver probe function. This change will apply to the RTC driver that supports
+both DA9063 and DA9062 PMICs.
 
-Allow RTC driver to use shared interrupts.
+A problem could occur with the existing RTC driver if:
 
-Seems we are on the safe side to do just this simple change since
-cmos_interrupt() handler checks for the actual hardware status anyway.
+A system is started from a cold boot using the PMIC RTC IRQ to initiate a
+power on operation. For instance, if an RTC alarm is used to start a
+platform from power off.
+The existing driver IRQ is requested before the device has been properly
+registered.
+i.e.
+    ret = devm_request_threaded_irq() 
+comes before
+    rtc->rtc_dev = devm_rtc_device_register();
 
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+In this case, the interrupt can be called before the device has been
+registered and the handler can be called immediately. The IRQ handler
+da9063_alarm_event() contains the function call
+
+    rtc_update_irq(rtc->rtc_dev, 1, RTC_IRQF | RTC_AF);
+
+which in turn tries to access the unavailable rtc->rtc_dev.
+
+The fix is to reorder the functions inside the RTC probe. The IRQ is
+requested after the RTC device resource has been registered so that
+get_irq_byname is the last thing to happen.
+
+Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
+
 ---
- drivers/rtc/rtc-cmos.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+This patch applies against linux-next and v4.4-rc4
 
-diff --git a/drivers/rtc/rtc-cmos.c b/drivers/rtc/rtc-cmos.c
-index 8f7034b..84fb541 100644
---- a/drivers/rtc/rtc-cmos.c
-+++ b/drivers/rtc/rtc-cmos.c
-@@ -725,7 +725,7 @@ cmos_do_probe(struct device *dev, struct resource *ports, int rtc_irq)
- 			rtc_cmos_int_handler = cmos_interrupt;
+Regards,
+Steve
+
+
+ drivers/rtc/rtc-da9063.c | 19 +++++++++----------
+ 1 file changed, 9 insertions(+), 10 deletions(-)
+
+diff --git a/drivers/rtc/rtc-da9063.c b/drivers/rtc/rtc-da9063.c
+index 284b587..d6c853b 100644
+--- a/drivers/rtc/rtc-da9063.c
++++ b/drivers/rtc/rtc-da9063.c
+@@ -483,24 +483,23 @@ static int da9063_rtc_probe(struct platform_device *pdev)
  
- 		retval = request_irq(rtc_irq, rtc_cmos_int_handler,
--				0, dev_name(&cmos_rtc.rtc->dev),
-+				IRQF_SHARED, dev_name(&cmos_rtc.rtc->dev),
- 				cmos_rtc.rtc);
- 		if (retval < 0) {
- 			dev_dbg(dev, "IRQ %d is already in use\n", rtc_irq);
+ 	platform_set_drvdata(pdev, rtc);
+ 
++	rtc->rtc_dev = devm_rtc_device_register(&pdev->dev, DA9063_DRVNAME_RTC,
++					   &da9063_rtc_ops, THIS_MODULE);
++	if (IS_ERR(rtc->rtc_dev))
++		return PTR_ERR(rtc->rtc_dev);
++
++	da9063_data_to_tm(data, &rtc->alarm_time, rtc);
++	rtc->rtc_sync = false;
++
+ 	irq_alarm = platform_get_irq_byname(pdev, "ALARM");
+ 	ret = devm_request_threaded_irq(&pdev->dev, irq_alarm, NULL,
+ 					da9063_alarm_event,
+ 					IRQF_TRIGGER_LOW | IRQF_ONESHOT,
+ 					"ALARM", rtc);
+-	if (ret) {
++	if (ret)
+ 		dev_err(&pdev->dev, "Failed to request ALARM IRQ %d: %d\n",
+ 			irq_alarm, ret);
+-		return ret;
+-	}
+-
+-	rtc->rtc_dev = devm_rtc_device_register(&pdev->dev, DA9063_DRVNAME_RTC,
+-					   &da9063_rtc_ops, THIS_MODULE);
+-	if (IS_ERR(rtc->rtc_dev))
+-		return PTR_ERR(rtc->rtc_dev);
+ 
+-	da9063_data_to_tm(data, &rtc->alarm_time, rtc);
+-	rtc->rtc_sync = false;
+ 	return ret;
+ }
+ 
 -- 
-2.6.4
+end-of-patch for PATCH V1
 
 -- 
 -- 
