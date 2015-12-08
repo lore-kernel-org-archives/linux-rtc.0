@@ -1,23 +1,26 @@
-Return-Path: <rtc-linux+bncBCC6ZWOPXENRBZ44S2ZQKGQE466VE3Y@googlegroups.com>
-MIME-Version: 1.0
+Return-Path: <rtc-linux+bncBDUKXHHSSIJBBRXCTKZQKGQEUOOZPRI@googlegroups.com>
 Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de. [2001:67c:670:201:290:27ff:fe1d:cc33])
-        by gmr-mx.google.com with ESMTPS id y203si623813wmc.2.2015.12.07.05.49.26
+        by gmr-mx.google.com with ESMTPS id e201si104337wma.3.2015.12.08.02.30.29
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=AES128-SHA bits=128/128);
-        Mon, 07 Dec 2015 05:49:27 -0800 (PST)
-From: Juergen Borleis <jbe@pengutronix.de>
-To: rtc-linux@googlegroups.com
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	linux-kernel@vger.kernel.org,
-	kernel@pengutronix.de
-Subject: [rtc-linux] [PATCH 3/3] RTC/PCF85063: fix time/date setting
-Date: Mon,  7 Dec 2015 14:49:34 +0100
-Message-Id: <1449496174-7813-4-git-send-email-jbe@pengutronix.de>
-In-Reply-To: <1449496174-7813-1-git-send-email-jbe@pengutronix.de>
-References: <1449496174-7813-1-git-send-email-jbe@pengutronix.de>
-Reply-To: rtc-linux@googlegroups.com
+        Tue, 08 Dec 2015 02:30:29 -0800 (PST)
+Message-ID: <1449570621.18374.1.camel@pengutronix.de>
+Subject: [rtc-linux] Re: [PATCH v3 2/2] rtc: add driver for RX6110SA real time clock
+From: Philipp Zabel <p.zabel@pengutronix.de>
+To: Steffen Trumtrar <s.trumtrar@pengutronix.de>
+Cc: Alessandro Zummo <a.zummo@towertech.it>, Alexandre Belloni
+ <alexandre.belloni@free-electrons.com>, Mark Rutland
+ <mark.rutland@arm.com>,  devicetree@vger.kernel.org,
+ rtc-linux@googlegroups.com, Pawel Moll <pawel.moll@arm.com>, Ian Campbell
+ <ijc+devicetree@hellion.org.uk>, Rob Herring <robh+dt@kernel.org>,
+ kernel@pengutronix.de, Kumar Gala <galak@codeaurora.org>
+Date: Tue, 08 Dec 2015 11:30:21 +0100
+In-Reply-To: <1449568461-26016-2-git-send-email-s.trumtrar@pengutronix.de>
+References: <1449568461-26016-1-git-send-email-s.trumtrar@pengutronix.de>
+	 <1449568461-26016-2-git-send-email-s.trumtrar@pengutronix.de>
 Content-Type: text/plain; charset=UTF-8
+Mime-Version: 1.0
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -27,152 +30,234 @@ List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rt
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-When setting a new time/date the RTC's clock must be stopped first, in
-order to write the time/date registers in an atomic manner.
-So, this change stops the clock first and then writes the time/date
-registers and the clock control register (to re-enable the clock) in one
-turn.
+Am Dienstag, den 08.12.2015, 10:54 +0100 schrieb Steffen Trumtrar:
+> The RX6110 comes in two different variants: SPI and I2C.
+> This driver only supports the SPI variant.
+> 
+> If the need ever arises to also support the I2C variant, this driver
+> could easily be refactored to support both cases.
+> 
+> Signed-off-by: Steffen Trumtrar <s.trumtrar@pengutronix.de>
 
-Signed-off-by: Juergen Borleis <jbe@pengutronix.de>
----
- drivers/rtc/rtc-pcf85063.c | 96 +++++++++++++++++++++++++++++++++++-----------
- 1 file changed, 73 insertions(+), 23 deletions(-)
+Reviewed-by: Philipp Zabel <p.zabel@pengutronix.de>
 
-diff --git a/drivers/rtc/rtc-pcf85063.c b/drivers/rtc/rtc-pcf85063.c
-index abed934..0150e93 100644
---- a/drivers/rtc/rtc-pcf85063.c
-+++ b/drivers/rtc/rtc-pcf85063.c
-@@ -19,6 +19,7 @@
- #define DRV_VERSION "0.0.1"
- 
- #define PCF85063_REG_CTRL1		0x00 /* status */
-+#define PCF85063_REG_CTRL1_STOP		BIT(5)
- #define PCF85063_REG_CTRL2		0x01
- 
- #define PCF85063_REG_SC			0x04 /* datetime */
-@@ -72,6 +73,47 @@ static int pcf85063_read_time(struct i2c_client *client, u8 *buf, u16 size)
- 	return 0;
- }
- 
-+static int pcf85063_stop_clock(struct i2c_client *client, u8 *ctrl1)
-+{
-+	int rc;
-+	u8 clk_ctrl[2] = { PCF85063_REG_CTRL1, };
-+	struct i2c_msg msgs[] = {
-+		{
-+			.addr = client->addr,
-+			.len = 1,
-+			.buf = &clk_ctrl[0],
-+		}, {
-+			.addr = client->addr,
-+			.flags = I2C_M_RD,
-+			.len = 1,
-+			.buf = &clk_ctrl[1],
-+		}, {
-+			.addr = client->addr,
-+			.len = sizeof(clk_ctrl),
-+			.buf = &clk_ctrl[0],
-+		},
-+	};
-+
-+	rc = i2c_transfer(client->adapter, &msgs[0], 2);
-+	if (rc != 2) {
-+		dev_err(&client->dev, "Failing to stop the clock\n");
-+		return -EIO;
-+	}
-+
-+	/* stop the clock */
-+	clk_ctrl[1] |= PCF85063_REG_CTRL1_STOP;
-+
-+	rc = i2c_transfer(client->adapter, &msgs[2], 1);
-+	if (rc != 1) {
-+		dev_err(&client->dev, "Failing to stop the clock\n");
-+		return -EIO;
-+	}
-+
-+	*ctrl1 = clk_ctrl[1];
-+
-+	return 0;
-+}
-+
- /*
-  * In the routines that deal directly with the pcf85063 hardware, we use
-  * rtc_time -- month 0-11, hour 0-23, yr = calendar year-epoch.
-@@ -110,41 +152,49 @@ static int pcf85063_get_datetime(struct i2c_client *client, struct rtc_time *tm)
- 
- static int pcf85063_set_datetime(struct i2c_client *client, struct rtc_time *tm)
- {
--	int i = 0, err = 0;
--	unsigned char buf[11];
-+	int rc;
-+	u8 regs[9];
- 
--	/* Control & status */
--	buf[PCF85063_REG_CTRL1] = 0;
--	buf[PCF85063_REG_CTRL2] = 5;
-+	/*
-+	 * to accurately set the time, reset the divider chain and keep it in
-+	 * reset state until all time/date registers are written
-+	 */
-+	rc = pcf85063_stop_clock(client, &regs[8]);
-+	if (rc != 0)
-+		return rc;
- 
-+	/* write start register */
-+	regs[0] = PCF85063_REG_SC;
- 	/* hours, minutes and seconds */
--	buf[PCF85063_REG_SC] = bin2bcd(tm->tm_sec) & 0x7F;
-+	regs[1] = bin2bcd(tm->tm_sec) & 0x7F; /* clear OS flag */
- 
--	buf[PCF85063_REG_MN] = bin2bcd(tm->tm_min);
--	buf[PCF85063_REG_HR] = bin2bcd(tm->tm_hour);
-+	regs[2] = bin2bcd(tm->tm_min);
-+	regs[3] = bin2bcd(tm->tm_hour);
- 
- 	/* Day of month, 1 - 31 */
--	buf[PCF85063_REG_DM] = bin2bcd(tm->tm_mday);
-+	regs[4] = bin2bcd(tm->tm_mday);
- 
- 	/* Day, 0 - 6 */
--	buf[PCF85063_REG_DW] = tm->tm_wday & 0x07;
-+	regs[5] = tm->tm_wday & 0x07;
- 
- 	/* month, 1 - 12 */
--	buf[PCF85063_REG_MO] = bin2bcd(tm->tm_mon + 1);
-+	regs[6] = bin2bcd(tm->tm_mon + 1);
- 
- 	/* year and century */
--	buf[PCF85063_REG_YR] = bin2bcd(tm->tm_year % 100);
--
--	/* write register's data */
--	for (i = 0; i < sizeof(buf); i++) {
--		unsigned char data[2] = { i, buf[i] };
--
--		err = i2c_master_send(client, data, sizeof(data));
--		if (err != sizeof(data)) {
--			dev_err(&client->dev, "%s: err=%d addr=%02x, data=%02x\n",
--					__func__, err, data[0], data[1]);
--			return -EIO;
--		}
-+	regs[7] = bin2bcd(tm->tm_year % 100);
-+
-+	/*
-+	 * after all time/date registers are written, let the address auto
-+	 * increment wrap around and write register CTRL1 to re-enable the
-+	 * clock divider chain again
-+	 */
-+	regs[8] &= ~PCF85063_REG_CTRL1_STOP;
-+
-+	/* write all registers at once */
-+	rc = i2c_master_send(client, regs, sizeof(regs));
-+	if (rc != sizeof(regs)) {
-+		dev_err(&client->dev, "date/time register write error\n");
-+		return -EIO;
- 	}
- 
- 	return 0;
--- 
-2.6.2
+I have a few suggestions:
+
+[...]
+> diff --git a/drivers/rtc/rtc-rx6110.c b/drivers/rtc/rtc-rx6110.c
+> new file mode 100644
+> index 000000000000..aa9d89d5d2de
+> --- /dev/null
+> +++ b/drivers/rtc/rtc-rx6110.c
+> @@ -0,0 +1,438 @@
+> +/*
+> + * Driver for the Epson RTC module RX-6110 SA
+> + *
+> + * Copyright(C) 2015 Pengutronix, Steffen Trumtrar <kernel@pengutronix.de>
+> + * Copyright(C) SEIKO EPSON CORPORATION 2013. All rights reserved.
+> + *
+> + * This driver software is distributed as is, without any warranty of any kind,
+> + * either express or implied as further specified in the GNU Public License.
+> + * This software may be used and distributed according to the terms of the GNU
+> + * Public License, version 2 as published by the Free Software Foundation.
+> + * See the file COPYING in the main directory of this archive for more details.
+> + *
+> + * You should have received a copy of the GNU General Public License along with
+> + * this program. If not, see <http://www.gnu.org/licenses/>.
+> + */
+> +
+> +#include <linux/bcd.h>
+> +#include <linux/init.h>
+> +#include <linux/kernel.h>
+> +#include <linux/module.h>
+
+> +#include <linux/of.h>
+> +#include <linux/of_device.h>
+> +#include <linux/of_gpio.h>
+
+I think these three can be dropped.
+
+> +#include <linux/regmap.h>
+> +#include <linux/rtc.h>
+> +#include <linux/spi/spi.h>
+> +
+> +/* RX-6110 Register definitions */
+[...]
+> +
+> +static struct spi_driver rx6110_driver;
+
+Several drivers do this. Instead of the forward declaration and using
+rx6110_driver.driver.name in devm_rtc_device_register below, why not
+just have a #define RX6110_DRIVER_NAME "rx6110-rtc" and reuse that?
+Actually, I think the "-rtc" suffix is superfluous in the rtc name.
+I'd just use "rx6110" as a parameter to devm_rtc_device_register.
+
+> +struct rx6110_data {
+> +	struct rtc_device *rtc;
+> +	struct regmap *regmap;
+> +};
+[...]
+> +/**
+> + * rx6110_init - initialize the rx6110 registers
+> + *
+> + * @rx6110: pointer to the rx6110 struct in use
+> + *
+> + */
+> +static int rx6110_init(struct rx6110_data *rx6110)
+> +{
+> +	struct rtc_device *rtc = rx6110->rtc;
+> +	int ext;
+> +	int flags;
+> +	int ctrl;
+
+ctrl is unused, except in the dev_dbg to print 0 below.
+
+> +	int ret;
+> +
+> +	/* set reserved register 0x17 with specified value of 0xB8 */
+> +	ret = regmap_write(rx6110->regmap, RX6110_REG_RES1, 0xB8);
+> +	if (ret)
+> +		return ret;
+> +
+> +	/* set reserved register 0x30 with specified value of 0x00 */
+> +	ret = regmap_write(rx6110->regmap, RX6110_REG_RES2, 0x00);
+> +	if (ret)
+> +		return ret;
+> +
+> +	/* set reserved register 0x31 with specified value of 0x10 */
+> +	ret = regmap_write(rx6110->regmap, RX6110_REG_RES3, 0x10);
+> +	if (ret)
+> +		return ret;
+> +
+> +	ret = regmap_write(rx6110->regmap, RX6110_REG_IRQ, 0x0);
+> +	if (ret)
+> +		return ret;
+
+Maybe combine those using regmap_multi_reg_write? Not sure if the
+sequence can be reordered to also include the writes below.
+
+> +	ret = regmap_update_bits(rx6110->regmap, RX6110_REG_EXT,
+> +				 RX6110_BIT_EXT_TE, 0);
+> +	if (ret)
+> +		return ret;
+> +
+> +	/* get current extension, flag, control register values */
+> +	ret = regmap_read(rx6110->regmap, RX6110_REG_EXT, &ext);
+> +	if (ret)
+> +		return ret;
+> +
+> +	ret = regmap_read(rx6110->regmap, RX6110_REG_FLAG, &flags);
+> +	if (ret)
+> +		return ret;
+> +
+> +	/* clear ctrl register */
+> +	ret = regmap_write(rx6110->regmap, RX6110_REG_CTRL, 0);
+> +	if (ret)
+> +		return ret;
+> +
+> +	ctrl = 0;
+
+This is unused ...
+
+> +	ret = regmap_write(rx6110->regmap, RX6110_REG_ALMIN, 0);
+> +	if (ret)
+> +		return ret;
+> +
+> +	ret = regmap_write(rx6110->regmap, RX6110_REG_ALHOUR, 0);
+> +	if (ret)
+> +		return ret;
+> +
+> +	ret = regmap_write(rx6110->regmap, RX6110_REG_ALWDAY, 0);
+> +	if (ret)
+> +		return ret;
+> +
+> +	dev_dbg(&rtc->dev, "ext: %x, flag: %x, ctrl: %x\n", ext, flags, ctrl);
+
+... except here.
+
+> +
+> +	/* check for VLF Flag (set at power-on) */
+> +	if ((flags & RX6110_BIT_FLAG_VLF))
+> +		dev_warn(&rtc->dev, "Voltage low, data loss detected.\n");
+> +
+> +	/* check for Alarm Flag */
+> +	if (flags & RX6110_BIT_FLAG_AF)
+> +		dev_warn(&rtc->dev, "An alarm may have been missed.\n");
+> +
+> +	/* check for Periodic Timer Flag */
+> +	if (flags & RX6110_BIT_FLAG_TF)
+> +		dev_warn(&rtc->dev, "Periodic timer was detected\n");
+> +
+> +	/* check for Update Timer Flag */
+> +	if (flags & RX6110_BIT_FLAG_UF)
+> +		dev_warn(&rtc->dev, "Update timer was detected\n");
+> +
+> +	/* clear all flags BUT VLF */
+> +	ret = regmap_update_bits(rx6110->regmap, RX6110_REG_FLAG,
+> +				 RX6110_BIT_FLAG_AF |
+> +				 RX6110_BIT_FLAG_UF |
+> +				 RX6110_BIT_FLAG_TF,
+> +				 0);
+> +	if (ret)
+> +		return ret;
+> +
+> +	return 0;
+> +}
+[...]
+> +/**
+> + * rx6110_probe - initialize rtc driver
+> + * @spi: pointer to spi device
+> + */
+> +static int rx6110_probe(struct spi_device *spi)
+> +{
+> +	struct rx6110_data *rx6110;
+> +	int err;
+> +
+> +	if ((spi->bits_per_word && spi->bits_per_word != 8)
+> +	    || (spi->max_speed_hz > 2000000)
+> +	    || (spi->mode != (SPI_CS_HIGH | SPI_CPOL | SPI_CPHA))) {
+> +		dev_warn(&spi->dev, "SPI settings: bits_per_word: %d, max_speed_hz: %d, mode: %xh\n",
+> +			spi->bits_per_word, spi->max_speed_hz, spi->mode);
+> +		dev_warn(&spi->dev, "driving device in an unsupported mode");
+> +	}
+> +
+> +	rx6110 = devm_kzalloc(&spi->dev, sizeof(*rx6110), GFP_KERNEL);
+> +	if (!rx6110)
+> +		return -ENOMEM;
+> +
+> +	rx6110->regmap = devm_regmap_init_spi(spi, &regmap_spi_config);
+> +	if (IS_ERR(rx6110->regmap)) {
+> +		dev_err(&spi->dev, "regmap init failed for rtc rx6110\n");
+
+Maybe print the error code.
+
+> +		return PTR_ERR(rx6110->regmap);
+> +	}
+> +
+> +	spi_set_drvdata(spi, rx6110);
+> +
+> +	rx6110->rtc = devm_rtc_device_register(&spi->dev,
+> +					       rx6110_driver.driver.name,
+
+That could be just "rx6110" instead of "rx6110-rtc" in my opinion.
+
+> +					       &rx6110_rtc_ops, THIS_MODULE);
+> +
+> +	if (IS_ERR(rx6110->rtc))
+> +		return PTR_ERR(rx6110->rtc);
+> +
+> +	err = rx6110_init(rx6110);
+> +	if (err)
+> +		return err;
+> +
+> +	rx6110->rtc->max_user_freq = 1;
+> +
+> +	return 0;
+> +}
+
+regards
+Philipp
+
 
 -- 
 -- 
