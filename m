@@ -1,79 +1,63 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBDVKX6ZQKGQE54XSPGI@googlegroups.com>
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id w79si69956wme.2.2015.12.15.00.53.33
-        for <rtc-linux@googlegroups.com>;
-        Tue, 15 Dec 2015 00:53:33 -0800 (PST)
-Date: Tue, 15 Dec 2015 09:53:32 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Daniel Axtens <dja@axtens.net>
-Cc: linuxppc-dev@ozlabs.org, mpe@ellerman.id.au, akpm@linux-foundation.org,
-	Andrey Ryabinin <aryabinin@virtuozzo.com>,
-	Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com
-Subject: [rtc-linux] Re: [PATCH] powerpc: Remove broken GregorianDay()
-Message-ID: <20151215085332.GH11209@piout.net>
-References: <1450163354-16894-1-git-send-email-dja@axtens.net>
+Return-Path: <rtc-linux+bncBDYNJBOFRECBBZVNTOZQKGQEUUAZTYA@googlegroups.com>
+Received: from mail-io0-x22b.google.com (mail-io0-x22b.google.com. [2607:f8b0:4001:c06::22b])
+        by gmr-mx.google.com with ESMTPS id f7si1059218igc.0.2015.12.08.05.11.02
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 08 Dec 2015 05:11:02 -0800 (PST)
+Received: by mail-io0-x22b.google.com with SMTP id u10so23922357iou.0
+        for <rtc-linux@googlegroups.com>; Tue, 08 Dec 2015 05:11:02 -0800 (PST)
 MIME-Version: 1.0
+In-Reply-To: <20151208124854.GC2518@codeblueprint.co.uk>
+References: <1448967020-20190-1-git-send-email-ard.biesheuvel@linaro.org>
+	<1448967020-20190-7-git-send-email-ard.biesheuvel@linaro.org>
+	<20151208124854.GC2518@codeblueprint.co.uk>
+Date: Tue, 8 Dec 2015 14:11:02 +0100
+Message-ID: <CAKv+Gu8CA4WZUv96NjHEWwvmP=Kn35EBWtMunxiR_VaAj480Kw@mail.gmail.com>
+Subject: [rtc-linux] Re: [PATCH v2 6/7] efi: runtime-wrapper: get rid of the
+ rtc_lock spinlock
+From: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+To: Matt Fleming <matt@codeblueprint.co.uk>
+Cc: "linux-efi@vger.kernel.org" <linux-efi@vger.kernel.org>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Thomas Gleixner <tglx@linutronix.de>,
+	rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1450163354-16894-1-git-send-email-dja@axtens.net>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
-List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
-List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
-List-Archive: <https://groups.google.com/group/rtc-linux
+List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
+List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
+List-Archive: <http://groups.google.com/group/rtc-linux
 Sender: rtc-linux@googlegroups.com
-List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
+List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
- <https://groups.google.com/group/rtc-linux/subscribe>
+ <http://groups.google.com/group/rtc-linux/subscribe>
 
-On 15/12/2015 at 18:09:14 +1100, Daniel Axtens wrote :
-> GregorianDay() is supposed to calculate the day of the week
-> (tm->tm_wday) for a given day/month/year. In that calcuation it
-> indexed into an array called MonthOffset using tm->tm_mon-1. However
-> tm_mon is zero-based, not one-based, so this is off-by-one. It also
-> means that every January, GregoiranDay() will access element -1 of
-> the MonthOffset array.
-> 
-> It also doesn't appear to be a correct algorithm either: see in
-> contrast kernel/time/timeconv.c's time_to_tm function.
-> 
-> It's been broken forever, which suggests no-one in userland uses
-> this. It looks like no-one in the kernel uses tm->tm_wday either
-> (see e.g. drivers/rtc/rtc-ds1305.c:319).
-> 
-> tm->tm_wday is conventionally set to -1 when not available in
-> hardware so we can simply set it to -1 and drop the function.
-> (There are over a dozen other drivers in drivers/rtc that do
-> this.)
-> 
-> Found using UBSAN.
-> 
-> Cc: Andrey Ryabinin <aryabinin@virtuozzo.com>
-> Cc: Andrew Morton <akpm@linux-foundation.org> # as an example of what UBSan finds.
-> Cc: Alessandro Zummo <a.zummo@towertech.it>
-> Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-> Cc: rtc-linux@googlegroups.com
-> Signed-off-by: Daniel Axtens <dja@axtens.net>
-> 
-Acked-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+On 8 December 2015 at 13:48, Matt Fleming <matt@codeblueprint.co.uk> wrote:
+> On Tue, 01 Dec, at 11:50:19AM, Ard Biesheuvel wrote:
+>> The rtc_lock spinlock aims to serialize access to the CMOS RTC between
+>> the UEFI firmware and the kernel drivers that use it directly. However,
+>> x86 is the only arch that performs such direct accesses, and that never
+>> uses the time related UEFI runtime services. Since no other UEFI enlightened
+>> architectures have a legcay CMOS RTC anyway, we can remove the rtc_lock
+>> spinlock entirely.
+>>
+>> Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+>> ---
+>>  drivers/firmware/efi/runtime-wrappers.c | 32 +++++---------------
+>>  1 file changed, 8 insertions(+), 24 deletions(-)
+>
+> Is this really true? It's not possible, for instance, for 32-bit ARM
+> systems to use the rtc-cmos driver which would access the same
+> physical device that UEFI would with the GetTime() service?
+>
+> With the pending 32-bit ARM UEFI support coming, this needs to be
+> considered carefully.
 
-> ---
-> This is almost entirely a powerpc patch, but it also touches
-> the OPAL rtc driver. Alessandro, Alexandre, RTC folk, would
-> you be OK with mpe taking this through the powerpc tree?
-> 
-
-Sure.
-
-I have a plan to actually correct tm_wday before sending it to user
-space when it is -1.
-I may as well calculate it every time but I'm not sure the extra
-calculation is actually worth it because as you mention it, it is not
-used by anybody.
-
--- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+That seems highly unlikely. Even if 32-bit UEFI ARM systems existed
+with this particular RTC (which is highly doubtful), it should not be
+exposed to the OS in the first place, since we don't have the
+compatibility concern that the PC has in that regard (where it is a
+requirement)
 
 -- 
 -- 
