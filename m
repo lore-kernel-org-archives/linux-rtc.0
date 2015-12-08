@@ -1,73 +1,96 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRB7PL32ZQKGQE6EQPEWQ@googlegroups.com>
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id b62si566655wmc.0.2015.12.21.00.19.09
-        for <rtc-linux@googlegroups.com>;
-        Mon, 21 Dec 2015 00:19:09 -0800 (PST)
-Date: Mon, 21 Dec 2015 09:19:08 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Steve Twiss <stwiss.opensource@diasemi.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
-	LINUXKERNEL <linux-kernel@vger.kernel.org>,
-	RTC-LINUX <rtc-linux@googlegroups.com>,
-	David Dajun Chen <david.chen@diasemi.com>,
-	Support Opensource <support.opensource@diasemi.com>
-Subject: [rtc-linux] Re: [PATCH V1] rtc: da9063: access ordering error during
- RTC interrupt system power on
-Message-ID: <20151221081908.GG3541@piout.net>
-References: <20151208163406.B34683FB25@swsrvapps-01.diasemi.com>
+Return-Path: <rtc-linux+bncBAABBW6RTKZQKGQEPJXASYI@googlegroups.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <20151208163406.B34683FB25@swsrvapps-01.diasemi.com>
+Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de. [2001:67c:670:201:290:27ff:fe1d:cc33])
+        by gmr-mx.google.com with ESMTPS id q80si1185102wmg.0.2015.12.08.01.54.35
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=AES128-SHA bits=128/128);
+        Tue, 08 Dec 2015 01:54:35 -0800 (PST)
+From: Steffen Trumtrar <s.trumtrar@pengutronix.de>
+To: Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: Rob Herring <robh+dt@kernel.org>,
+	Pawel Moll <pawel.moll@arm.com>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Ian Campbell <ijc+devicetree@hellion.org.uk>,
+	Kumar Gala <galak@codeaurora.org>,
+	devicetree@vger.kernel.org,
+	rtc-linux@googlegroups.com,
+	kernel@pengutronix.de,
+	Steffen Trumtrar <s.trumtrar@pengutronix.de>
+Subject: [rtc-linux] [PATCH v3 1/2] Documentation: devicetree: add epson
+ rx6110 binding
+Date: Tue,  8 Dec 2015 10:54:20 +0100
+Message-Id: <1449568461-26016-1-git-send-email-s.trumtrar@pengutronix.de>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
-List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
-List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
-List-Archive: <https://groups.google.com/group/rtc-linux
+List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
+List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
+List-Archive: <http://groups.google.com/group/rtc-linux
 Sender: rtc-linux@googlegroups.com
-List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
+List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
- <https://groups.google.com/group/rtc-linux/subscribe>
+ <http://groups.google.com/group/rtc-linux/subscribe>
 
-On 08/12/2015 at 16:28:39 +0000, Steve Twiss wrote :
-> From: Steve Twiss <stwiss.opensource@diasemi.com>
-> 
-> This fix alters the ordering of the IRQ and device registrations in the RTC
-> driver probe function. This change will apply to the RTC driver that supports
-> both DA9063 and DA9062 PMICs.
-> 
-> A problem could occur with the existing RTC driver if:
-> 
-> A system is started from a cold boot using the PMIC RTC IRQ to initiate a
-> power on operation. For instance, if an RTC alarm is used to start a
-> platform from power off.
-> The existing driver IRQ is requested before the device has been properly
-> registered.
-> i.e.
->     ret = devm_request_threaded_irq() 
-> comes before
->     rtc->rtc_dev = devm_rtc_device_register();
-> 
-> In this case, the interrupt can be called before the device has been
-> registered and the handler can be called immediately. The IRQ handler
-> da9063_alarm_event() contains the function call
-> 
->     rtc_update_irq(rtc->rtc_dev, 1, RTC_IRQF | RTC_AF);
-> 
-> which in turn tries to access the unavailable rtc->rtc_dev.
-> 
-> The fix is to reorder the functions inside the RTC probe. The IRQ is
-> requested after the RTC device resource has been registered so that
-> get_irq_byname is the last thing to happen.
-> 
-> Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
+Add the binding documentation for the Epson RX6110 RTC.
 
-This patch has been applied and landed in v4.4-rc6
+Acked-by: Rob Herring <robh@kernel.org>
+Signed-off-by: Steffen Trumtrar <s.trumtrar@pengutronix.de>
+---
+Changes since v2:
+	- removed the size field in i2c binding
 
+ .../devicetree/bindings/rtc/epson,rx6110.txt       | 39 ++++++++++++++++++++++
+ 1 file changed, 39 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/rtc/epson,rx6110.txt
 
+diff --git a/Documentation/devicetree/bindings/rtc/epson,rx6110.txt b/Documentation/devicetree/bindings/rtc/epson,rx6110.txt
+new file mode 100644
+index 000000000000..71353542a59d
+--- /dev/null
++++ b/Documentation/devicetree/bindings/rtc/epson,rx6110.txt
+@@ -0,0 +1,39 @@
++Epson RX6110 Real Time Clock
++============================
++
++The Epson RX6110 can be used with SPI or I2C busses. The kind of
++bus depends on the SPISEL pin and can not be configured via software.
++
++I2C mode
++--------
++
++Required properties:
++  - compatible: should be: "epson,rx6110"
++  - reg : offset of the register set of the device
++
++Example:
++
++	rtc: rtc@32 {
++		compatible = "epson,rx6110"
++		reg = <0x32>;
++	};
++
++SPI mode
++--------
++
++Required properties:
++  - compatible: should be: "epson,rx6110"
++  - reg: chip select number
++  - spi-cs-high: RX6110 needs chipselect high
++  - spi-cpha: RX6110 works with SPI shifted clock phase
++  - spi-cpol: RX6110 works with SPI inverse clock polarity
++
++Example:
++
++	rtc: rtc@3 {
++		compatible = "epson,rx6110"
++		reg = <3>
++		spi-cs-high;
++		spi-cpha;
++		spi-cpol;
++	};
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+2.6.2
 
 -- 
 -- 
