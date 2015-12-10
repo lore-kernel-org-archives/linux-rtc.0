@@ -1,81 +1,86 @@
-Return-Path: <rtc-linux+bncBDDJNTW5VUMBBZMVTCZQKGQEX6QSMFQ@googlegroups.com>
-Received: from mail-wm0-x230.google.com (mail-wm0-x230.google.com. [2a00:1450:400c:c09::230])
-        by gmr-mx.google.com with ESMTPS id 204si853745wmx.1.2015.12.07.14.40.36
+Return-Path: <rtc-linux+bncBDE6RCFOWIARBOGPU2ZQKGQEMAK5KXI@googlegroups.com>
+Received: from mail-ob0-x22d.google.com (mail-ob0-x22d.google.com. [2607:f8b0:4003:c01::22d])
+        by gmr-mx.google.com with ESMTPS id kr4si259457igb.0.2015.12.10.08.26.31
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 07 Dec 2015 14:40:36 -0800 (PST)
-Received: by mail-wm0-x230.google.com with SMTP id w144so6810653wmw.0
-        for <rtc-linux@googlegroups.com>; Mon, 07 Dec 2015 14:40:36 -0800 (PST)
+        Thu, 10 Dec 2015 08:26:31 -0800 (PST)
+Received: by mail-ob0-x22d.google.com with SMTP id sd4so12906215obb.0
+        for <rtc-linux@googlegroups.com>; Thu, 10 Dec 2015 08:26:31 -0800 (PST)
 MIME-Version: 1.0
-Sender: rtc-linux@googlegroups.com
-In-Reply-To: <CAODwPW-zWHgmyHX8svgokEhVsaqyx6zZWwvm+-166aNYcj4z-A@mail.gmail.com>
-References: <1449107584-3192-1-git-send-email-jwerner@chromium.org>
-	<CAD=FV=VVU0ucrL9gsMGKBwMCg_d6aTZWXTpxwNmfNp0k0BzbdQ@mail.gmail.com>
-	<CAODwPW_xoF8KYRPWvSrs89F-ZKxWMC4_Gp-vdEYENfzESin=ig@mail.gmail.com>
-	<CAD=FV=VLVmJQbY45De7qyg9AsW-VDqKfvj7MHMWXiGCrrx6WDA@mail.gmail.com>
-	<CAODwPW939ZrmGsspk42BU=U+hca4hyT4W0ceOZCVWtu057i58A@mail.gmail.com>
-	<CAD=FV=Ur0+qmQ1mnvV3Er1RjfMU8DY7yk9PPf04wAJ7Xrt+7vw@mail.gmail.com>
-	<CAD=FV=X_1yUONf53AXGBZps=3VFnGFDq5u2-57SoBGtvBFiWHg@mail.gmail.com>
-	<CAODwPW-UAVRHVwsA=ZBgL=ZRrW0+WJSmPDcF5jv=bwnePsTe5w@mail.gmail.com>
-	<CAD=FV=USMU1eQ8-kA0ysyciXzU-EW6Zy-xZnmtEHsC39xOYrZw@mail.gmail.com>
-	<5664E1CF.8030406@rock-chips.com>
-	<CAD=FV=V6x94vFCcCwRa=YH+NFCRKCGkNVyE8NTAnXVxX9Bac2Q@mail.gmail.com>
-	<CAD=FV=VJKHK2Eu75UJPf+3i7Gaxa09g+Hwfy7nwWYrgMvocarg@mail.gmail.com>
-	<5664F837.607@rock-chips.com>
-	<CAODwPW-zWHgmyHX8svgokEhVsaqyx6zZWwvm+-166aNYcj4z-A@mail.gmail.com>
-Date: Mon, 7 Dec 2015 14:40:36 -0800
-Message-ID: <CAODwPW-gGnZUoNm4M1v5rEM3LCtPD23EZknRqOqw5cDeviWJ9w@mail.gmail.com>
-Subject: [rtc-linux] Re: [PATCH] RTC: RK808: Work around hardware bug on
- November 31st
-From: Julius Werner <jwerner@chromium.org>
-To: Julius Werner <jwerner@chromium.org>
-Cc: Chris Zhong <zyw@rock-chips.com>, Doug Anderson <dianders@chromium.org>,
+In-Reply-To: <20151130163413.GB1929@sirena.org.uk>
+References: <1448900513-20856-1-git-send-email-paul.burton@imgtec.com>
+	<20151130163413.GB1929@sirena.org.uk>
+Date: Thu, 10 Dec 2015 17:26:31 +0100
+Message-ID: <CACRpkdb2YhSbaYUXh4Dz7juObHxmWLc8Gj6UmkJ=Nv69UNfaPA@mail.gmail.com>
+Subject: [rtc-linux] Re: [PATCH 00/28] MIPS Boston board support
+From: Linus Walleij <linus.walleij@linaro.org>
+To: Mark Brown <broonie@kernel.org>
+Cc: Paul Burton <paul.burton@imgtec.com>, Linux MIPS <linux-mips@linux-mips.org>,
+	Arnd Bergmann <arnd@arndb.de>, Joshua Kinard <kumba@gentoo.org>,
+	Alessandro Zummo <a.zummo@towertech.it>, Jiri Slaby <jslaby@suse.com>,
+	Bjorn Helgaas <bhelgaas@google.com>,
+	Zubair Lutfullah Kakakhel <Zubair.Kakakhel@imgtec.com>, Kumar Gala <galak@codeaurora.org>,
+	Yijing Wang <wangyijing@huawei.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>,
+	Rob Herring <robh+dt@kernel.org>, John Crispin <blogic@openwrt.org>,
+	Jayachandran C <jchandra@broadcom.com>,
+	"linux-spi@vger.kernel.org" <linux-spi@vger.kernel.org>, Geert Uytterhoeven <geert+renesas@glider.be>,
+	Ray Jui <rjui@broadcom.com>, Richard Cochran <richardcochran@gmail.com>, Tejun Heo <tj@kernel.org>,
+	Michal Simek <michal.simek@xilinx.com>, Andrew Bresticker <abrestic@chromium.org>,
+	Russell Joyce <russell.joyce@york.ac.uk>, Thomas Gleixner <tglx@linutronix.de>,
+	Grant Likely <grant.likely@linaro.org>,
 	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Andrew Morton <akpm@linux-foundation.org>, Alessandro Zummo <a.zummo@towertech.it>,
-	Sonny Rao <sonnyrao@chromium.org>, Heiko Stuebner <heiko@sntech.de>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, rtc-linux@googlegroups.com
+	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Pawel Moll <pawel.moll@arm.com>,
+	linux-pci <linux-pci@vger.kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	Ralf Baechle <ralf@linux-mips.org>, Alexandre Courbot <gnurou@gmail.com>,
+	Zhou Wang <wangzhou1@hisilicon.com>, Andrew Morton <akpm@linux-foundation.org>,
+	Ley Foon Tan <lftan@altera.com>,
+	"devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, Jiang Liu <jiang.liu@linux.intel.com>,
+	"linux-serial@vger.kernel.org" <linux-serial@vger.kernel.org>,
+	"rtc-linux@googlegroups.com" <rtc-linux@googlegroups.com>, Rob Herring <robh@kernel.org>,
+	Mauro Carvalho Chehab <mchehab@osg.samsung.com>, Wolfram Sang <wsa@the-dreams.de>, Duc Dang <dhdang@apm.com>,
+	Frank Rowand <frowand.list@gmail.com>, Vinod Koul <vinod.koul@intel.com>,
+	Markos Chandras <markos.chandras@imgtec.com>, Michal Simek <monstr@monstr.eu>,
+	Marc Zyngier <marc.zyngier@arm.com>, Dan Williams <dan.j.williams@intel.com>,
+	Miguel Ojeda Sandonis <miguel.ojeda.sandonis@gmail.com>,
+	Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+	"linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>,
+	"netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "David S. Miller" <davem@davemloft.net>,
+	Joe Perches <joe@perches.com>, Jingoo Han <jingoohan1@gmail.com>,
+	Hauke Mehrtens <hauke@hauke-m.de>, =?UTF-8?Q?S=C3=B6ren_Brinkmann?= <soren.brinkmann@xilinx.com>,
+	dmaengine@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>,
+	Minghuan Lian <Minghuan.Lian@freescale.com>,
+	"linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
 List-Archive: <http://groups.google.com/group/rtc-linux
+Sender: rtc-linux@googlegroups.com
 List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-[+Alexandre... sorry, didn't notice that you somehow fell off the
-thread again, but I presume you get rtc-linux anyway]
+On Mon, Nov 30, 2015 at 5:34 PM, Mark Brown <broonie@kernel.org> wrote:
+> On Mon, Nov 30, 2015 at 04:21:25PM +0000, Paul Burton wrote:
+>> This series introduces support for the Imagination Technologies MIPS
+>> Boston development board. Boston is an FPGA-based development board
+>> akin to the much older Malta board, built around a Xilinx FPGA running
+>> a MIPS CPU & other logic including a PCIe root port connected to an
+>> Intel EG20T Platform Controller Hub. This provides a base set of
+>> peripherals including SATA, USB, SD/MMC, ethernet, I2C & GPIOs. PCIe
+>> slots are also present for expansion.
+>
+> This is an insanely big CC list :(
+>
+> What are the interdependencies here - does this really need to be one
+> patch series or can the individual driver changes go in separately?
 
-> Agreed, scheduling alarms in the future is also an important point. So
-> I guess I'll update the patch to fix alarm scheduling and S3 as well,
-> and we'll just ignore S5 as infeasible?
+I took the two GPIO patches and ran off with them at least.
 
-Found another edge case trying to implement this: if you set an alarm
-on Nov 25th for Dec 5th, the code will have to adjust it to Dec 4th to
-account for the extra day. But if you then power off (or brownout) to
-S5 and don't power it on again until December, you have no way of
-knowing whether the already set alarm timestamp is on the Rockchip or
-the Gregorian calendar. You may or may not sync your current time back
-through an external source, but you have no way of knowing what you
-should do with the alarm.
-
-Other than that my current idea is roughly:
-
-- if the current time gets written, always assume the new date is correct
-- store a "last known timestamp" in memory on boot and on every write
-- if the current time gets read, adjust it forward by the amount of
-Nov 31sts since the stored timestamp (this adjustment itself
-constitutes a write)
-- if an alarm is written, adjust the timestamp written to hardware
-backward by the amount of Nov 31sts between the stored timestamp and
-the alarm time
-- if an alarm is read, adjust the returned result forward by the
-amount of Nov 31sts between the stored timestamp and the alarm time
-- if the current time gets written, read the alarm time before the
-write and write it back afterwards (the last known timestamp will
-change as a result of writing the current time, meaning the newly
-written hardware alarm time may be different from the old one)
+Yours,
+Linus Walleij
 
 -- 
 -- 
