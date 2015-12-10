@@ -1,91 +1,61 @@
-Return-Path: <rtc-linux+bncBAABBAVVUWZQKGQET3HVYEQ@googlegroups.com>
-Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de. [2001:67c:670:201:290:27ff:fe1d:cc33])
-        by gmr-mx.google.com with ESMTPS id q80si171791wmg.0.2015.12.10.02.57.06
+Return-Path: <rtc-linux+bncBDDJNTW5VUMBBFMWU6ZQKGQESWUB2AY@googlegroups.com>
+Received: from mail-wm0-x231.google.com (mail-wm0-x231.google.com. [2a00:1450:400c:c09::231])
+        by gmr-mx.google.com with ESMTPS id b62si4297wmc.0.2015.12.10.10.57.24
         for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=AES128-SHA bits=128/128);
-        Thu, 10 Dec 2015 02:57:06 -0800 (PST)
-Date: Thu, 10 Dec 2015 11:56:59 +0100
-From: Steffen Trumtrar <s.trumtrar@pengutronix.de>
-To: Philipp Zabel <p.zabel@pengutronix.de>
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Mark Rutland <mark.rutland@arm.com>, devicetree@vger.kernel.org,
-	rtc-linux@googlegroups.com, Pawel Moll <pawel.moll@arm.com>,
-	Ian Campbell <ijc+devicetree@hellion.org.uk>,
-	Rob Herring <robh+dt@kernel.org>, kernel@pengutronix.de,
-	Kumar Gala <galak@codeaurora.org>
-Subject: [rtc-linux] Re: [PATCH v3 1/2] Documentation: devicetree: add epson
- rx6110 binding
-Message-ID: <20151210105659.GC20212@pengutronix.de>
-References: <1449568461-26016-1-git-send-email-s.trumtrar@pengutronix.de>
- <1449570566.3691.31.camel@pengutronix.de>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 10 Dec 2015 10:57:24 -0800 (PST)
+Received: by mail-wm0-x231.google.com with SMTP id w144so37306931wmw.0
+        for <rtc-linux@googlegroups.com>; Thu, 10 Dec 2015 10:57:24 -0800 (PST)
 MIME-Version: 1.0
+Sender: rtc-linux@googlegroups.com
+In-Reply-To: <20151210184119.GL3515@piout.net>
+References: <CAODwPW-ZJ2HwrQohmfMYv2-jH2Ofq-O2H_HPfqYLXXnueVYYnA@mail.gmail.com>
+	<1449552115-31256-1-git-send-email-jwerner@chromium.org>
+	<CAD=FV=U+SYHVkgP1sAF4h3xmrQBhc7o=KpryAGAXjeYOYnNTcA@mail.gmail.com>
+	<CAODwPW9M6gWXpUkT2A3k6jmj7sBzwjmScE+ZSAe209UDnAW6mg@mail.gmail.com>
+	<20151210184119.GL3515@piout.net>
+Date: Thu, 10 Dec 2015 10:57:24 -0800
+Message-ID: <CAODwPW_5WaLpqUeuJ0QhW=itgVq7iN_H3QH9_WzrVfsK+L-Rbg@mail.gmail.com>
+Subject: [rtc-linux] Re: [PATCH v2] RTC: RK808: Work around hardware bug on
+ November 31st
+From: Julius Werner <jwerner@chromium.org>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: Julius Werner <jwerner@chromium.org>, Doug Anderson <dianders@chromium.org>,
+	Andrew Morton <akpm@linux-foundation.org>, Alessandro Zummo <a.zummo@towertech.it>,
+	Sonny Rao <sonnyrao@chromium.org>, Chris Zhong <zyw@rock-chips.com>,
+	Heiko Stuebner <heiko@sntech.de>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1449570566.3691.31.camel@pengutronix.de>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
 List-Archive: <http://groups.google.com/group/rtc-linux
-Sender: rtc-linux@googlegroups.com
 List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <http://groups.google.com/group/rtc-linux/subscribe>
 
-Hi!
+> I'll try to review and evaluate both solution by the end of the week (no
+> guarantee though).
 
-On Tue, Dec 08, 2015 at 11:29:26AM +0100, Philipp Zabel wrote:
-> Am Dienstag, den 08.12.2015, 10:54 +0100 schrieb Steffen Trumtrar:
-> > Add the binding documentation for the Epson RX6110 RTC.
-> > 
-> > Acked-by: Rob Herring <robh@kernel.org>
-> > Signed-off-by: Steffen Trumtrar <s.trumtrar@pengutronix.de>
-> 
-> Reviewed-by: Philipp Zabel <p.zabel@pengutronix.de>
-> 
-> although I'd like a small change to be made below:
-> 
-> > ---
-> > Changes since v2:
-> > 	- removed the size field in i2c binding
-> > 
-> >  .../devicetree/bindings/rtc/epson,rx6110.txt       | 39 ++++++++++++++++++++++
-> >  1 file changed, 39 insertions(+)
-> >  create mode 100644 Documentation/devicetree/bindings/rtc/epson,rx6110.txt
-> > 
-> > diff --git a/Documentation/devicetree/bindings/rtc/epson,rx6110.txt b/Documentation/devicetree/bindings/rtc/epson,rx6110.txt
-> > new file mode 100644
-> > index 000000000000..71353542a59d
-> > --- /dev/null
-> > +++ b/Documentation/devicetree/bindings/rtc/epson,rx6110.txt
-> > @@ -0,0 +1,39 @@
-> > +Epson RX6110 Real Time Clock
-> > +============================
-> > +
-> > +The Epson RX6110 can be used with SPI or I2C busses. The kind of
-> > +bus depends on the SPISEL pin and can not be configured via software.
-> > +
-> > +I2C mode
-> > +--------
-> > +
-> > +Required properties:
-> > +  - compatible: should be: "epson,rx6110"
-> > +  - reg : offset of the register set of the device
-> 
-> That should be the I2C address of the device, as in:
-> 	git grep "reg.*I2C address" Documentation/
-> 
+To summarize, it's a pretty simple trade-off. Do you:
 
-Sounds reasonable. Changed.
+a) try to detect every time the RTC deviated from the real-world time
+and correct it instantly? This can be done most of the time but there
+are edge cases (when the system is completely powered off while the
+RTC ticks over Nov 31st) where you cannot detect it. Or,
 
-Thanks,
-Steffen Trumtrar
-
--- 
-Pengutronix e.K.                           |                             |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
-Peiner Str. 6-8, 31137 Hildesheim, Germany | Phone: +49-5121-206917-0    |
-Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |
+b) just completely let the RTC tick in its own world where every year
+has an extra day and convert that "calendar" to/from the real-world
+calendar on every access. This essentially relegates the RTC to a
+"dumb second counter" and the timestamp in its registers doesn't have
+any direct connection to the real world time anymore (unless you know
+the conversion algorithm). This has the nice advantage that it
+perfectly solves all use cases (time-keeping, accurate alarms, even
+when shut down or browning out at inopportune times)... the only real
+disadvantage is that other software (e.g. U-Boot) reading the same RTC
+must know about this and use the same conversion code to get the
+correct real-world time from it.
 
 -- 
 -- 
