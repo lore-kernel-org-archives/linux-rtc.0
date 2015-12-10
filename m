@@ -1,220 +1,196 @@
-Return-Path: <rtc-linux+bncBCPM5SUWUYIRBKPVY6ZQKGQEXXBVTNQ@googlegroups.com>
-MIME-Version: 1.0
-Received: from mail-pf0-x22d.google.com (mail-pf0-x22d.google.com. [2607:f8b0:400e:c00::22d])
-        by gmr-mx.google.com with ESMTPS id bb9si258240pac.2.2015.12.16.15.58.32
+Return-Path: <rtc-linux+bncBAABBA5XUWZQKGQECUINN7I@googlegroups.com>
+Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de. [2001:67c:670:201:290:27ff:fe1d:cc33])
+        by gmr-mx.google.com with ESMTPS id d185si970886wmf.0.2015.12.10.03.01.23
         for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 16 Dec 2015 15:58:32 -0800 (PST)
-Received: by mail-pf0-x22d.google.com with SMTP id o64so20130602pfb.3
-        for <rtc-linux@googlegroups.com>; Wed, 16 Dec 2015 15:58:32 -0800 (PST)
-From: Akinobu Mita <akinobu.mita@gmail.com>
-To: rtc-linux@googlegroups.com
-Cc: Akinobu Mita <akinobu.mita@gmail.com>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Subject: [rtc-linux] [PATCH] rtc: rtc-ds1307: add temperature sensor support
- for ds3231
-Date: Thu, 17 Dec 2015 08:58:16 +0900
-Message-Id: <1450310296-12153-1-git-send-email-akinobu.mita@gmail.com>
-Reply-To: rtc-linux@googlegroups.com
+        (version=TLS1_2 cipher=AES128-SHA bits=128/128);
+        Thu, 10 Dec 2015 03:01:23 -0800 (PST)
+Date: Thu, 10 Dec 2015 12:01:19 +0100
+From: Steffen Trumtrar <s.trumtrar@pengutronix.de>
+To: Philipp Zabel <p.zabel@pengutronix.de>
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Mark Rutland <mark.rutland@arm.com>, devicetree@vger.kernel.org,
+	rtc-linux@googlegroups.com, Pawel Moll <pawel.moll@arm.com>,
+	Ian Campbell <ijc+devicetree@hellion.org.uk>,
+	Rob Herring <robh+dt@kernel.org>, kernel@pengutronix.de,
+	Kumar Gala <galak@codeaurora.org>
+Subject: [rtc-linux] Re: [PATCH v3 2/2] rtc: add driver for RX6110SA real time clock
+Message-ID: <20151210110119.GD20212@pengutronix.de>
+References: <1449568461-26016-1-git-send-email-s.trumtrar@pengutronix.de>
+ <1449568461-26016-2-git-send-email-s.trumtrar@pengutronix.de>
+ <1449570621.18374.1.camel@pengutronix.de>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1449570621.18374.1.camel@pengutronix.de>
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
-List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
-List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
-List-Archive: <https://groups.google.com/group/rtc-linux
+List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
+List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
+List-Archive: <http://groups.google.com/group/rtc-linux
 Sender: rtc-linux@googlegroups.com
-List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
+List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
- <https://groups.google.com/group/rtc-linux/subscribe>
+ <http://groups.google.com/group/rtc-linux/subscribe>
 
-DS3231 has the temperature registers with a resolution of 0.25
-degree celsius.  This enables to get the value through sysfs file.
+Hi!
 
-	# cat /sys/class/i2c-adapter/i2c-9/9-0068/temperature
-	22.50
+On Tue, Dec 08, 2015 at 11:30:21AM +0100, Philipp Zabel wrote:
+> Am Dienstag, den 08.12.2015, 10:54 +0100 schrieb Steffen Trumtrar:
+> > The RX6110 comes in two different variants: SPI and I2C.
+> > This driver only supports the SPI variant.
+> > 
+> > If the need ever arises to also support the I2C variant, this driver
+> > could easily be refactored to support both cases.
+> > 
+> > Signed-off-by: Steffen Trumtrar <s.trumtrar@pengutronix.de>
+> 
+> Reviewed-by: Philipp Zabel <p.zabel@pengutronix.de>
+> 
+> I have a few suggestions:
+> 
+> [...]
+> > diff --git a/drivers/rtc/rtc-rx6110.c b/drivers/rtc/rtc-rx6110.c
+> > new file mode 100644
+> > index 000000000000..aa9d89d5d2de
+> > --- /dev/null
+> > +++ b/drivers/rtc/rtc-rx6110.c
+> > @@ -0,0 +1,438 @@
+> > +/*
+> > + * Driver for the Epson RTC module RX-6110 SA
+> > + *
+> > + * Copyright(C) 2015 Pengutronix, Steffen Trumtrar <kernel@pengutronix.de>
+> > + * Copyright(C) SEIKO EPSON CORPORATION 2013. All rights reserved.
+> > + *
+> > + * This driver software is distributed as is, without any warranty of any kind,
+> > + * either express or implied as further specified in the GNU Public License.
+> > + * This software may be used and distributed according to the terms of the GNU
+> > + * Public License, version 2 as published by the Free Software Foundation.
+> > + * See the file COPYING in the main directory of this archive for more details.
+> > + *
+> > + * You should have received a copy of the GNU General Public License along with
+> > + * this program. If not, see <http://www.gnu.org/licenses/>.
+> > + */
+> > +
+> > +#include <linux/bcd.h>
+> > +#include <linux/init.h>
+> > +#include <linux/kernel.h>
+> > +#include <linux/module.h>
+> 
+> > +#include <linux/of.h>
+> > +#include <linux/of_device.h>
+> > +#include <linux/of_gpio.h>
+> 
+> I think these three can be dropped.
+> 
 
-Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>
-Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: rtc-linux@googlegroups.com
----
- drivers/rtc/rtc-ds1307.c | 119 ++++++++++++++++++++++++++++++++++++++++++++++-
- 1 file changed, 117 insertions(+), 2 deletions(-)
+Okay.
 
-diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
-index aa705bb..c0cd447 100644
---- a/drivers/rtc/rtc-ds1307.c
-+++ b/drivers/rtc/rtc-ds1307.c
-@@ -19,6 +19,7 @@
- #include <linux/rtc.h>
- #include <linux/slab.h>
- #include <linux/string.h>
-+#include <linux/delay.h>
- 
- /*
-  * We can't determine type by probing, but if we expect pre-Linux code
-@@ -75,6 +76,7 @@ enum ds_type {
- #	define DS1337_BIT_nEOSC		0x80
- #	define DS1339_BIT_BBSQI		0x20
- #	define DS3231_BIT_BBSQW		0x40 /* same as BBSQI */
-+#	define DS3231_BIT_CONV		0x20
- #	define DS1337_BIT_RS2		0x10
- #	define DS1337_BIT_RS1		0x08
- #	define DS1337_BIT_INTCN		0x04
-@@ -89,6 +91,7 @@ enum ds_type {
- #	define DS1340_BIT_OSF		0x80
- #define DS1337_REG_STATUS	0x0f
- #	define DS1337_BIT_OSF		0x80
-+#	define DS3231_BIT_BSY		0x04
- #	define DS1337_BIT_A2I		0x02
- #	define DS1337_BIT_A1I		0x01
- #define DS1339_REG_ALARM1_SECS	0x07
-@@ -110,8 +113,10 @@ struct ds1307 {
- 	struct bin_attribute	*nvram;
- 	enum ds_type		type;
- 	unsigned long		flags;
--#define HAS_NVRAM	0		/* bit 0 == sysfs file active */
--#define HAS_ALARM	1		/* bit 1 == irq claimed */
-+#define HAS_NVRAM	0	/* bit 0 == nvram sysfs file active */
-+#define HAS_ALARM	1	/* bit 1 == irq claimed */
-+#define HAS_TEMP	2	/* bit 2 == temperature sysfs file active */
-+
- 	struct i2c_client	*client;
- 	struct rtc_device	*rtc;
- 	s32 (*read_block_data)(const struct i2c_client *client, u8 command,
-@@ -851,6 +856,112 @@ out:
- 	return;
- }
- 
-+/*----------------------------------------------------------------------*/
-+
-+/*
-+ * Temperature sensor support for ds3231 devices.
-+ */
-+
-+#define DS3231_REG_TEMPERATURE	0x11
-+
-+static ssize_t ds3231_sysfs_show_temperature(struct device *dev,
-+				struct device_attribute *attr, char *buf)
-+{
-+	struct ds1307	*ds1307 = dev_get_drvdata(dev);
-+	struct i2c_client *client = ds1307->client;
-+	u8 temp_buf[2];
-+	s16 temp;
-+	bool negative;
-+	int control;
-+	int status;
-+	s32 ret;
-+	unsigned long timeout;
-+
-+	status = i2c_smbus_read_byte_data(client, DS1337_REG_STATUS);
-+	if (status < 0)
-+		return status;
-+
-+	/*
-+	 * Start user-initiated temperature conversion
-+	 */
-+	if (!(status & DS3231_BIT_BSY)) {
-+		struct mutex	*lock = &ds1307->rtc->ops_lock;
-+
-+		mutex_lock(lock);
-+
-+		control = i2c_smbus_read_byte_data(client, DS1337_REG_CONTROL);
-+		if (control < 0) {
-+			mutex_unlock(lock);
-+			return control;
-+		}
-+		ret = i2c_smbus_write_byte_data(client, DS1337_REG_CONTROL,
-+						control | DS3231_BIT_CONV);
-+		if (ret)
-+			return ret;
-+
-+		mutex_unlock(lock);
-+
-+		/*
-+		 * A user-initiated temperature conversion does not affect
-+		 * the BSY bit for approximately 2ms.
-+		 */
-+		usleep_range(2000, 3000);
-+	}
-+
-+	/*
-+	 * Wait until the conversion is finished
-+	 */
-+	timeout = jiffies + HZ;
-+
-+	do {
-+		control = i2c_smbus_read_byte_data(client, DS1337_REG_CONTROL);
-+		if (control < 0)
-+			return control;
-+		if (!(control & DS3231_BIT_CONV))
-+			break;
-+		if (time_after(jiffies, timeout))
-+			return -EIO;
-+		usleep_range(2000, 3000);
-+	} while (1);
-+
-+	ret = ds1307->read_block_data(ds1307->client, DS3231_REG_TEMPERATURE,
-+					sizeof(temp_buf), temp_buf);
-+	if (ret < 0)
-+		return ret;
-+	if (ret != sizeof(temp_buf))
-+		return -EIO;
-+
-+	/*
-+	 * Temperature is represented as a 10-bit code with a resolution of
-+	 * 0.25 degree celsius and encoded in two's complement format.
-+	 */
-+	temp = (temp_buf[0] << 8) | temp_buf[1];
-+	temp >>= 6;
-+	negative = (temp < 0) ? true : false;
-+	temp = abs(temp);
-+
-+	return sprintf(buf, "%s%d.%d\n", negative ? "-" : "",
-+			temp >> 2, 25 * (temp & 0x3));
-+}
-+static DEVICE_ATTR(temperature, S_IRUGO, ds3231_sysfs_show_temperature, NULL);
-+
-+static int ds1307_temperature_register(struct ds1307 *ds1307)
-+{
-+	if (ds1307->type != ds_3231)
-+		return 0;
-+
-+	if (!device_create_file(&ds1307->client->dev, &dev_attr_temperature))
-+		set_bit(HAS_TEMP, &ds1307->flags);
-+
-+	return 0;
-+}
-+
-+static void ds1307_temperature_unregister(struct ds1307 *ds1307)
-+{
-+	if (test_and_clear_bit(HAS_TEMP, &ds1307->flags))
-+		device_remove_file(&ds1307->client->dev, &dev_attr_temperature);
-+}
-+
- static int ds1307_probe(struct i2c_client *client,
- 			const struct i2c_device_id *id)
- {
-@@ -1191,6 +1302,8 @@ read_rtc:
- 		}
- 	}
- 
-+	ds1307_temperature_register(ds1307);
-+
- 	return 0;
- 
- exit:
-@@ -1201,6 +1314,8 @@ static int ds1307_remove(struct i2c_client *client)
- {
- 	struct ds1307 *ds1307 = i2c_get_clientdata(client);
- 
-+	ds1307_temperature_unregister(ds1307);
-+
- 	if (test_and_clear_bit(HAS_NVRAM, &ds1307->flags))
- 		sysfs_remove_bin_file(&client->dev.kobj, ds1307->nvram);
- 
+> > +#include <linux/regmap.h>
+> > +#include <linux/rtc.h>
+> > +#include <linux/spi/spi.h>
+> > +
+> > +/* RX-6110 Register definitions */
+> [...]
+> > +
+> > +static struct spi_driver rx6110_driver;
+> 
+> Several drivers do this. Instead of the forward declaration and using
+> rx6110_driver.driver.name in devm_rtc_device_register below, why not
+> just have a #define RX6110_DRIVER_NAME "rx6110-rtc" and reuse that?
+> Actually, I think the "-rtc" suffix is superfluous in the rtc name.
+> I'd just use "rx6110" as a parameter to devm_rtc_device_register.
+>
+
+Yeah, why not. The define seems to be a cleaner solution than the
+forward declaration. Changed.
+
+> > +struct rx6110_data {
+> > +	struct rtc_device *rtc;
+> > +	struct regmap *regmap;
+> > +};
+> [...]
+> > +/**
+> > + * rx6110_init - initialize the rx6110 registers
+> > + *
+> > + * @rx6110: pointer to the rx6110 struct in use
+> > + *
+> > + */
+> > +static int rx6110_init(struct rx6110_data *rx6110)
+> > +{
+> > +	struct rtc_device *rtc = rx6110->rtc;
+> > +	int ext;
+> > +	int flags;
+> > +	int ctrl;
+> 
+> ctrl is unused, except in the dev_dbg to print 0 below.
+> 
+> > +	int ret;
+> > +
+> > +	/* set reserved register 0x17 with specified value of 0xB8 */
+> > +	ret = regmap_write(rx6110->regmap, RX6110_REG_RES1, 0xB8);
+> > +	if (ret)
+> > +		return ret;
+> > +
+> > +	/* set reserved register 0x30 with specified value of 0x00 */
+> > +	ret = regmap_write(rx6110->regmap, RX6110_REG_RES2, 0x00);
+> > +	if (ret)
+> > +		return ret;
+> > +
+> > +	/* set reserved register 0x31 with specified value of 0x10 */
+> > +	ret = regmap_write(rx6110->regmap, RX6110_REG_RES3, 0x10);
+> > +	if (ret)
+> > +		return ret;
+> > +
+> > +	ret = regmap_write(rx6110->regmap, RX6110_REG_IRQ, 0x0);
+> > +	if (ret)
+> > +		return ret;
+> 
+> Maybe combine those using regmap_multi_reg_write? Not sure if the
+> sequence can be reordered to also include the writes below.
+>
+
+Never heard of it, but it sounds like a good idea.
+
+(...)
+
+> > +/**
+> > + * rx6110_probe - initialize rtc driver
+> > + * @spi: pointer to spi device
+> > + */
+> > +static int rx6110_probe(struct spi_device *spi)
+> > +{
+> > +	struct rx6110_data *rx6110;
+> > +	int err;
+> > +
+> > +	if ((spi->bits_per_word && spi->bits_per_word != 8)
+> > +	    || (spi->max_speed_hz > 2000000)
+> > +	    || (spi->mode != (SPI_CS_HIGH | SPI_CPOL | SPI_CPHA))) {
+> > +		dev_warn(&spi->dev, "SPI settings: bits_per_word: %d, max_speed_hz: %d, mode: %xh\n",
+> > +			spi->bits_per_word, spi->max_speed_hz, spi->mode);
+> > +		dev_warn(&spi->dev, "driving device in an unsupported mode");
+> > +	}
+> > +
+> > +	rx6110 = devm_kzalloc(&spi->dev, sizeof(*rx6110), GFP_KERNEL);
+> > +	if (!rx6110)
+> > +		return -ENOMEM;
+> > +
+> > +	rx6110->regmap = devm_regmap_init_spi(spi, &regmap_spi_config);
+> > +	if (IS_ERR(rx6110->regmap)) {
+> > +		dev_err(&spi->dev, "regmap init failed for rtc rx6110\n");
+> 
+> Maybe print the error code.
+> 
+
+Done.
+
+Thanks,
+Steffen
+
 -- 
-1.9.1
+Pengutronix e.K.                           |                             |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+Peiner Str. 6-8, 31137 Hildesheim, Germany | Phone: +49-5121-206917-0    |
+Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |
 
 -- 
 -- 
