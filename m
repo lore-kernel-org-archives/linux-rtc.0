@@ -1,104 +1,156 @@
-Return-Path: <rtc-linux+bncBDJIP47K7MERBIFH42ZQKGQEZ24ELIQ@googlegroups.com>
-Received: from mail.kernel.org (mail.kernel.org. [198.145.29.136])
-        by gmr-mx.google.com with ESMTP id p88si3465347pfi.0.2015.12.22.10.17.03
-        for <rtc-linux@googlegroups.com>;
-        Tue, 22 Dec 2015 10:17:03 -0800 (PST)
-Received: from mail.kernel.org (localhost [127.0.0.1])
-	by mail.kernel.org (Postfix) with ESMTP id C02402057F
-	for <rtc-linux@googlegroups.com>; Tue, 22 Dec 2015 18:17:02 +0000 (UTC)
-Received: from mail-yk0-f169.google.com (mail-yk0-f169.google.com [209.85.160.169])
-	(using TLSv1.2 with cipher AES128-GCM-SHA256 (128/128 bits))
-	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPSA id 34DA42054A
-	for <rtc-linux@googlegroups.com>; Tue, 22 Dec 2015 18:17:01 +0000 (UTC)
-Received: by mail-yk0-f169.google.com with SMTP id v6so171830948ykc.2
-        for <rtc-linux@googlegroups.com>; Tue, 22 Dec 2015 10:17:01 -0800 (PST)
+Return-Path: <rtc-linux+bncBDDJNTW5VUMBBUN5YKZQKGQESFT4J6I@googlegroups.com>
+Received: from mail-wm0-x22d.google.com (mail-wm0-x22d.google.com. [2a00:1450:400c:c09::22d])
+        by gmr-mx.google.com with ESMTPS id w187si445198wmw.1.2015.12.15.15.14.25
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 15 Dec 2015 15:14:25 -0800 (PST)
+Received: by mail-wm0-x22d.google.com with SMTP id n186so117433858wmn.0
+        for <rtc-linux@googlegroups.com>; Tue, 15 Dec 2015 15:14:25 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <1450613656.15911.62.camel@gmail.com>
-References: <397668667-27328-3-git-send-email-ynvich@gmail.com>
- <1450201525-9137-1-git-send-email-ynvich@gmail.com> <20151220033815.GD9883@rob-hp-laptop>
- <1450613656.15911.62.camel@gmail.com>
-From: Rob Herring <robh@kernel.org>
-Date: Tue, 22 Dec 2015 12:16:41 -0600
-Message-ID: <CAL_JsqKxEkuvQ=7=zmb0pkNNyUe9aKzKics43QasUBDM2rmrwA@mail.gmail.com>
-Subject: [rtc-linux] Re: [PATCH v5] rtc: support DS1302 RTC on ICP DAS LP-8x4x
-To: Sergei Ianovich <ynvich@gmail.com>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>, Pawel Moll <pawel.moll@arm.com>,
-	Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>,
-	Kumar Gala <galak@codeaurora.org>, Alessandro Zummo <a.zummo@towertech.it>,
-	"open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" <devicetree@vger.kernel.org>,
-	"open list:REAL TIME CLOCK (RTC) SUBSYSTEM" <rtc-linux@googlegroups.com>
+Sender: rtc-linux@googlegroups.com
+In-Reply-To: <1450220569-10670-1-git-send-email-jwerner@chromium.org>
+References: <CAODwPW_5WaLpqUeuJ0QhW=itgVq7iN_H3QH9_WzrVfsK+L-Rbg@mail.gmail.com>
+	<1450220569-10670-1-git-send-email-jwerner@chromium.org>
+Date: Tue, 15 Dec 2015 15:14:25 -0800
+Message-ID: <CAODwPW8b9WnrPmtzBZEqCxevYEjYBBKR28PgkwVrwqfCw6-txA@mail.gmail.com>
+Subject: [rtc-linux] Re: [PATCHv3] RTC: RK808: Compensate for Rockchip
+ calendar deviation on November 31st
+From: Julius Werner <jwerner@chromium.org>
+To: Julius Werner <jwerner@chromium.org>
+Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Andrew Morton <akpm@linux-foundation.org>, Alessandro Zummo <a.zummo@towertech.it>,
+	Doug Anderson <dianders@chromium.org>, Sonny Rao <sonnyrao@chromium.org>,
+	Chris Zhong <zyw@rock-chips.com>, Heiko Stuebner <heiko@sntech.de>,
+	LKML <linux-kernel@vger.kernel.org>, rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
 List-Archive: <https://groups.google.com/group/rtc-linux
-Sender: rtc-linux@googlegroups.com
 List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Sun, Dec 20, 2015 at 6:14 AM, Sergei Ianovich <ynvich@gmail.com> wrote:
-> On Sat, 2015-12-19 at 21:38 -0600, Rob Herring wrote:
->> On Tue, Dec 15, 2015 at 08:45:23PM +0300, Sergei Ianovich wrote:
+Okay, wrote up and tested the anchor date version. I think once you
+get over the initial weirdness of the approach this one is really much
+cleaner and safer.
 
-[...]
+I tested this with the older rtc_tm_to_time() API and only ported it
+over to rtc_tm_to_time64() for submission, since my 3.14 kernel didn't
+have that yet... but it still compiles fine and the change was very
+trivial so I'm confident that it should work.
 
->> > diff --git a/Documentation/devicetree/bindings/rtc/rtc-ds1302.txt
->> > b/Documentation/devicetree/bindings/rtc/rtc-ds1302.txt
->> > new file mode 100644
->> > index 0000000..810613b
->> > --- /dev/null
->> > +++ b/Documentation/devicetree/bindings/rtc/rtc-ds1302.txt
->> > @@ -0,0 +1,14 @@
->> > +* Dallas Semiconductor DS-1302 RTC
->> > +
->> > +Simple device which could be used to store date/time between
->> > reboots.
->> > +
->> > +Required properties:
->> > +- compatible : Should be "dallas,rtc-ds1302"
->> > +- reg : Should be address and size of IO memory region
->>
->> This device is a SPI (or SPI like?) interface. So you have some sort
->> of
->> of FPGA logic in between the cpu and ds1302. The DT should have a node
->> for the controller and then the ds1302 as a child of it. A full blown
->> SPI driver may be overkill here, but that's a separate discussion from
->> the DT binding.
->
-> Below is the quote from the actual DT of LP-8x4x:
->>                 fpga@5 {
->>                         compatible = "simple-bus";
->>                         #address-cells = <1>;
->>                         #size-cells = <1>;
->>                         ranges = <0 5 0x3000000 0x10000>;
->>                         interrupt-parent = <&fpgairq>;
->>
->>                         rtc@901c {
->>                                 compatible = "dallas,rtc-ds1302";
+I also did a big manual test for my conversion functions where I just
+threw a whole bunch of dates at them, results below for reference:
 
-This node should have a LP-8x4x specific compatible and then have a
-child node for ds1302 that follows the SPI binding.
+[    1.431216] jwerner: Testing translation functions:
+[    1.431221] 2015-01-01 to_rockchip: 2015-01-02 to_gregorian: 2014-12-31
+[    1.431224] 2015-10-30 to_rockchip: 2015-10-31 to_gregorian: 2015-10-29
+[    1.431228] 2015-10-31 to_rockchip: 2015-11-01 to_gregorian: 2015-10-30
+[    1.431231] 2015-11-01 to_rockchip: 2015-11-02 to_gregorian: 2015-10-31
+[    1.431235] 2015-11-27 to_rockchip: 2015-11-28 to_gregorian: 2015-11-26
+[    1.431238] 2015-11-28 to_rockchip: 2015-11-29 to_gregorian: 2015-11-27
+[    1.431242] 2015-11-29 to_rockchip: 2015-11-30 to_gregorian: 2015-11-28
+[    1.431245] 2015-11-30 to_rockchip: 2015-12-01 to_gregorian: 2015-11-29
 
->>                                 reg = <0x901c 0x1>;
->>                                 status = "okay";
->>                         };
->
-> You are right about the topology. ds1302 is a half-duplex SPI device.
-> Does this mean I should rewrite the driver to handle the chip as a slave
-> SPI device, and then provide a master SPI functionality at the FPGA?
+This one is actually a bug... to_rockchip should be 2015-11-31 here.
+It happens because the "compensate if we went back over" part of
+gregorian_to_rockchip() only checks whether we went over *backwards*,
+which happens if the date is after the anchor date. If it was before
+we can go back over forwards and I didn't bother to handle that case.
+I think this is fine since all affected dates lie in the past and
+there's no real-world use case where you'd ever need them to work
+again.
 
-Well, the binding should reflect that, whether the driver needs to be
-re-written is somewhat a separate question. That should probably have
-been done for the DS1302 driver originally and it is not too fair for
-the 2nd person to fix it. You could just have a single driver bound to
-the controller node which is aware of the DS1302 being the slave
-device (ignoring that part of the DT for now).
-
-Rob
+[    1.431249] 2015-11-31 to_rockchip: 2015-12-02 to_gregorian: 2015-11-30
+[    1.431252] 2015-12-01 to_rockchip: 2015-12-01 to_gregorian: 2015-12-01
+[    1.431256] 2015-12-02 to_rockchip: 2015-12-02 to_gregorian: 2015-12-02
+[    1.431259] 2015-12-03 to_rockchip: 2015-12-03 to_gregorian: 2015-12-03
+[    1.431262] 2015-12-04 to_rockchip: 2015-12-04 to_gregorian: 2015-12-04
+[    1.431266] 2015-12-05 to_rockchip: 2015-12-05 to_gregorian: 2015-12-05
+[    1.431269] 2015-12-30 to_rockchip: 2015-12-30 to_gregorian: 2015-12-30
+[    1.431273] 2015-12-31 to_rockchip: 2015-12-31 to_gregorian: 2015-12-31
+[    1.431276] 2016-01-01 to_rockchip: 2016-01-01 to_gregorian: 2016-01-01
+[    1.431279] 2016-10-30 to_rockchip: 2016-10-30 to_gregorian: 2016-10-30
+[    1.431283] 2016-10-31 to_rockchip: 2016-10-31 to_gregorian: 2016-10-31
+[    1.431287] 2016-11-01 to_rockchip: 2016-11-01 to_gregorian: 2016-11-01
+[    1.431291] 2016-11-27 to_rockchip: 2016-11-27 to_gregorian: 2016-11-27
+[    1.431295] 2016-11-28 to_rockchip: 2016-11-28 to_gregorian: 2016-11-28
+[    1.431299] 2016-11-29 to_rockchip: 2016-11-29 to_gregorian: 2016-11-29
+[    1.431302] 2016-11-30 to_rockchip: 2016-11-30 to_gregorian: 2016-11-30
+[    1.431306] 2016-11-31 to_rockchip: 2016-12-01 to_gregorian: 2016-12-01
+[    1.431310] 2016-12-01 to_rockchip: 2016-11-31 to_gregorian: 2016-12-02
+[    1.431313] 2016-12-02 to_rockchip: 2016-12-01 to_gregorian: 2016-12-03
+[    1.431317] 2016-12-03 to_rockchip: 2016-12-02 to_gregorian: 2016-12-04
+[    1.431321] 2016-12-04 to_rockchip: 2016-12-03 to_gregorian: 2016-12-05
+[    1.431324] 2016-12-05 to_rockchip: 2016-12-04 to_gregorian: 2016-12-06
+[    1.431328] 2016-12-30 to_rockchip: 2016-12-29 to_gregorian: 2016-12-31
+[    1.431332] 2016-12-31 to_rockchip: 2016-12-30 to_gregorian: 2017-01-01
+[    1.431335] 2017-01-01 to_rockchip: 2016-12-31 to_gregorian: 2017-01-02
+[    1.431338] 2017-10-30 to_rockchip: 2017-10-29 to_gregorian: 2017-10-31
+[    1.431342] 2017-10-31 to_rockchip: 2017-10-30 to_gregorian: 2017-11-01
+[    1.431345] 2017-11-01 to_rockchip: 2017-10-31 to_gregorian: 2017-11-02
+[    1.431349] 2017-11-27 to_rockchip: 2017-11-26 to_gregorian: 2017-11-28
+[    1.431352] 2017-11-28 to_rockchip: 2017-11-27 to_gregorian: 2017-11-29
+[    1.431356] 2017-11-29 to_rockchip: 2017-11-28 to_gregorian: 2017-11-30
+[    1.431359] 2017-11-30 to_rockchip: 2017-11-29 to_gregorian: 2017-12-01
+[    1.431363] 2017-11-31 to_rockchip: 2017-11-30 to_gregorian: 2017-12-02
+[    1.431366] 2017-12-01 to_rockchip: 2017-11-30 to_gregorian: 2017-12-03
+[    1.431369] 2017-12-02 to_rockchip: 2017-11-31 to_gregorian: 2017-12-04
+[    1.431373] 2017-12-03 to_rockchip: 2017-12-01 to_gregorian: 2017-12-05
+[    1.431376] 2017-12-04 to_rockchip: 2017-12-02 to_gregorian: 2017-12-06
+[    1.431380] 2017-12-05 to_rockchip: 2017-12-03 to_gregorian: 2017-12-07
+[    1.431383] 2017-12-30 to_rockchip: 2017-12-28 to_gregorian: 2018-01-01
+[    1.431386] 2017-12-31 to_rockchip: 2017-12-29 to_gregorian: 2018-01-02
+[    1.431389] 2020-01-01 to_rockchip: 2019-12-28 to_gregorian: 2020-01-05
+[    1.431393] 2020-10-30 to_rockchip: 2020-10-26 to_gregorian: 2020-11-03
+[    1.431397] 2020-10-31 to_rockchip: 2020-10-27 to_gregorian: 2020-11-04
+[    1.431400] 2020-11-01 to_rockchip: 2020-10-28 to_gregorian: 2020-11-05
+[    1.431404] 2020-11-27 to_rockchip: 2020-11-23 to_gregorian: 2020-12-01
+[    1.431408] 2020-11-28 to_rockchip: 2020-11-24 to_gregorian: 2020-12-02
+[    1.431411] 2020-11-29 to_rockchip: 2020-11-25 to_gregorian: 2020-12-03
+[    1.431415] 2020-11-30 to_rockchip: 2020-11-26 to_gregorian: 2020-12-04
+[    1.431419] 2020-11-31 to_rockchip: 2020-11-27 to_gregorian: 2020-12-05
+[    1.431422] 2020-12-01 to_rockchip: 2020-11-27 to_gregorian: 2020-12-06
+[    1.431426] 2020-12-02 to_rockchip: 2020-11-28 to_gregorian: 2020-12-07
+[    1.431430] 2020-12-03 to_rockchip: 2020-11-29 to_gregorian: 2020-12-08
+[    1.431434] 2020-12-04 to_rockchip: 2020-11-30 to_gregorian: 2020-12-09
+[    1.431437] 2020-12-05 to_rockchip: 2020-11-31 to_gregorian: 2020-12-10
+[    1.431441] 2020-12-30 to_rockchip: 2020-12-25 to_gregorian: 2021-01-04
+[    1.431444] 2020-12-31 to_rockchip: 2020-12-26 to_gregorian: 2021-01-05
+[    1.431447] 2030-01-01 to_rockchip: 2029-12-18 to_gregorian: 2030-01-15
+[    1.431450] 2030-10-30 to_rockchip: 2030-10-16 to_gregorian: 2030-11-13
+[    1.431454] 2030-10-31 to_rockchip: 2030-10-17 to_gregorian: 2030-11-14
+[    1.431457] 2030-11-01 to_rockchip: 2030-10-18 to_gregorian: 2030-11-15
+[    1.431461] 2030-11-27 to_rockchip: 2030-11-13 to_gregorian: 2030-12-11
+[    1.431464] 2030-11-28 to_rockchip: 2030-11-14 to_gregorian: 2030-12-12
+[    1.431468] 2030-11-29 to_rockchip: 2030-11-15 to_gregorian: 2030-12-13
+[    1.431471] 2030-11-30 to_rockchip: 2030-11-16 to_gregorian: 2030-12-14
+[    1.431474] 2030-11-31 to_rockchip: 2030-11-17 to_gregorian: 2030-12-15
+[    1.431478] 2030-12-01 to_rockchip: 2030-11-17 to_gregorian: 2030-12-16
+[    1.431481] 2030-12-02 to_rockchip: 2030-11-18 to_gregorian: 2030-12-17
+[    1.431485] 2030-12-03 to_rockchip: 2030-11-19 to_gregorian: 2030-12-18
+[    1.431488] 2030-12-04 to_rockchip: 2030-11-20 to_gregorian: 2030-12-19
+[    1.431492] 2030-12-05 to_rockchip: 2030-11-21 to_gregorian: 2030-12-20
+[    1.431495] 2030-12-30 to_rockchip: 2030-12-15 to_gregorian: 2031-01-14
+[    1.431498] 2030-12-31 to_rockchip: 2030-12-16 to_gregorian: 2031-01-15
+[    1.431501] 2060-01-01 to_rockchip: 2059-11-19 to_gregorian: 2060-02-14
+[    1.431505] 2060-10-30 to_rockchip: 2060-09-16 to_gregorian: 2060-12-13
+[    1.431509] 2060-10-31 to_rockchip: 2060-09-17 to_gregorian: 2060-12-14
+[    1.431512] 2060-11-01 to_rockchip: 2060-09-18 to_gregorian: 2060-12-15
+[    1.431516] 2060-11-27 to_rockchip: 2060-10-14 to_gregorian: 2061-01-10
+[    1.431519] 2060-11-28 to_rockchip: 2060-10-15 to_gregorian: 2061-01-11
+[    1.431522] 2060-11-29 to_rockchip: 2060-10-16 to_gregorian: 2061-01-12
+[    1.431525] 2060-11-30 to_rockchip: 2060-10-17 to_gregorian: 2061-01-13
+[    1.431528] 2060-11-31 to_rockchip: 2060-10-18 to_gregorian: 2061-01-14
+[    1.431532] 2060-12-01 to_rockchip: 2060-10-18 to_gregorian: 2061-01-15
+[    1.431536] 2060-12-02 to_rockchip: 2060-10-19 to_gregorian: 2061-01-16
+[    1.431540] 2060-12-03 to_rockchip: 2060-10-20 to_gregorian: 2061-01-17
+[    1.431544] 2060-12-04 to_rockchip: 2060-10-21 to_gregorian: 2061-01-18
+[    1.431548] 2060-12-05 to_rockchip: 2060-10-22 to_gregorian: 2061-01-19
+[    1.431551] 2060-12-30 to_rockchip: 2060-11-16 to_gregorian: 2061-02-13
+[    1.431554] 2060-12-31 to_rockchip: 2060-11-17 to_gregorian: 2061-02-14
 
 -- 
 -- 
