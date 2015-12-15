@@ -1,110 +1,167 @@
-Return-Path: <rtc-linux+bncBDT2ZUWD7IKRBV7QSOZQKGQEEUREKSA@googlegroups.com>
-Received: from regular1.263xmail.com (regular1.263xmail.com. [211.150.99.137])
-        by gmr-mx.google.com with ESMTPS id pe1si2961797pac.2.2015.12.06.19.09.11
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1 cipher=AES128-SHA bits=128/128);
-        Sun, 06 Dec 2015 19:09:11 -0800 (PST)
-Subject: [rtc-linux] Re: [PATCH] RTC: RK808: Work around hardware bug on
- November 31st
-To: Doug Anderson <dianders@chromium.org>
-References: <1449107584-3192-1-git-send-email-jwerner@chromium.org>
- <CAD=FV=VVU0ucrL9gsMGKBwMCg_d6aTZWXTpxwNmfNp0k0BzbdQ@mail.gmail.com>
- <CAODwPW_xoF8KYRPWvSrs89F-ZKxWMC4_Gp-vdEYENfzESin=ig@mail.gmail.com>
- <CAD=FV=VLVmJQbY45De7qyg9AsW-VDqKfvj7MHMWXiGCrrx6WDA@mail.gmail.com>
- <CAODwPW939ZrmGsspk42BU=U+hca4hyT4W0ceOZCVWtu057i58A@mail.gmail.com>
- <CAD=FV=Ur0+qmQ1mnvV3Er1RjfMU8DY7yk9PPf04wAJ7Xrt+7vw@mail.gmail.com>
- <CAD=FV=X_1yUONf53AXGBZps=3VFnGFDq5u2-57SoBGtvBFiWHg@mail.gmail.com>
- <CAODwPW-UAVRHVwsA=ZBgL=ZRrW0+WJSmPDcF5jv=bwnePsTe5w@mail.gmail.com>
- <CAD=FV=USMU1eQ8-kA0ysyciXzU-EW6Zy-xZnmtEHsC39xOYrZw@mail.gmail.com>
- <5664E1CF.8030406@rock-chips.com>
- <CAD=FV=V6x94vFCcCwRa=YH+NFCRKCGkNVyE8NTAnXVxX9Bac2Q@mail.gmail.com>
- <CAD=FV=VJKHK2Eu75UJPf+3i7Gaxa09g+Hwfy7nwWYrgMvocarg@mail.gmail.com>
-Cc: Julius Werner <jwerner@chromium.org>,
- Andrew Morton <akpm@linux-foundation.org>,
- Alessandro Zummo <a.zummo@towertech.it>, Sonny Rao <sonnyrao@chromium.org>,
- Heiko Stuebner <heiko@sntech.de>,
- "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
- rtc-linux@googlegroups.com
-From: Chris Zhong <zyw@rock-chips.com>
-Message-ID: <5664F837.607@rock-chips.com>
-Date: Mon, 7 Dec 2015 11:08:39 +0800
+Return-Path: <rtc-linux+bncBDDJNTW5VUMBBKFYYKZQKGQERLVEEWA@googlegroups.com>
 MIME-Version: 1.0
-In-Reply-To: <CAD=FV=VJKHK2Eu75UJPf+3i7Gaxa09g+Hwfy7nwWYrgMvocarg@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Received: from mail-pf0-x229.google.com (mail-pf0-x229.google.com. [2607:f8b0:400e:c00::229])
+        by gmr-mx.google.com with ESMTPS id pe1si395384pac.2.2015.12.15.15.03.04
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 15 Dec 2015 15:03:04 -0800 (PST)
+Received: by mail-pf0-x229.google.com with SMTP id o64so1309141pfb.3
+        for <rtc-linux@googlegroups.com>; Tue, 15 Dec 2015 15:03:04 -0800 (PST)
+From: Julius Werner <jwerner@chromium.org>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Doug Anderson <dianders@chromium.org>,
+	Sonny Rao <sonnyrao@chromium.org>,
+	Chris Zhong <zyw@rock-chips.com>,
+	Heiko Stuebner <heiko@sntech.de>,
+	linux-kernel@vger.kernel.org,
+	rtc-linux@googlegroups.com,
+	Julius Werner <jwerner@chromium.org>
+Subject: [rtc-linux] [PATCHv3] RTC: RK808: Compensate for Rockchip calendar
+ deviation on November 31st
+Date: Tue, 15 Dec 2015 15:02:49 -0800
+Message-Id: <1450220569-10670-1-git-send-email-jwerner@chromium.org>
+In-Reply-To: <CAODwPW_5WaLpqUeuJ0QhW=itgVq7iN_H3QH9_WzrVfsK+L-Rbg@mail.gmail.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
-List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
-List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
-List-Archive: <http://groups.google.com/group/rtc-linux
+List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
+List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
+List-Archive: <https://groups.google.com/group/rtc-linux
 Sender: rtc-linux@googlegroups.com
-List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
+List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
- <http://groups.google.com/group/rtc-linux/subscribe>
+ <https://groups.google.com/group/rtc-linux/subscribe>
 
+In A.D. 1582 Pope Gregory XIII found that the existing Julian calendar
+insufficiently represented reality, and changed the rules about
+calculating leap years to account for this. Similarly, in A.D. 2013
+Rockchip hardware engineers found that the new Gregorian calendar still
+contained flaws, and that the month of November should be counted up to
+31 days instead. Unfortunately it takes a long time for calendar changes
+to gain widespread adoption, and just like more than 300 years went by
+before the last Protestant nation implemented Greg's proposal, we will
+have to wait a while until all religions and operating system kernels
+acknowledge the inherent advantages of the Rockchip system. Until then
+we need to translate dates read from (and written to) Rockchip hardware
+back to the Gregorian format.
 
+This patch works by defining Jan 1st, 2016 as the arbitrary anchor date
+on which Rockchip and Gregorian calendars are in sync. From that we can
+translate arbitrary later dates back and forth by counting the number
+of November/December transitons since the anchor date to determine the
+offset between the calendars. We choose this method (rather than trying
+to regularly "correct" the date stored in hardware) since it's the only
+way to ensure perfect time-keeping even if the system may be shut down
+for an unknown number of years. The drawback is that other software
+reading the same hardware (e.g. mainboard firmware) must use the same
+translation convention (including the same anchor date) to be able to
+read and write correct timestamps from/to the RTC.
 
-On 12/07/2015 10:52 AM, Doug Anderson wrote:
-> Hi,
->
-> On Sun, Dec 6, 2015 at 6:50 PM, Doug Anderson <dianders@chromium.org> wrote:
->> Chris,
->>
->> On Sun, Dec 6, 2015 at 5:33 PM, Chris Zhong <zyw@rock-chips.com> wrote:
->>> Hi Doug
->>>
->>> RK808 has a shadowed register for saving a "frozen" RTC time.
->>> When we setting "GET_TIME" to 1, the time will save in this shadowed
->>> register. So if we do not set the "GET_TIME", we always get the last time.
->>>
->>> read the old time before "get_time", and then read the time again for new
->>> time. If the old time earlier than 12.1 && new time later than 12.1, we
->>> should
->>> +1 day for the correct rtc time.
->>>
->>> On the other hand, we should set the "GET_TIME" after rk808_rtc_set_time,
->>> for restore the time before suspend/shut_down.
->> Ah, good idea using the shadow registers.  The whole point of the
->> shadow registers is to enable atomic read of time, right?  So if the
->> clock ticks as you are reading 23:59:59 you don't end up reading
->> 23:59:00 or 24:59:59 (you'll get either 23:59:59 or 24:00:00).  So
->> right, time read will now be:
->>
->> 1. Read GET_TIME.  Confirm it's 1.
->> 2. Read the time.
->> 3. Set GET_TIME to 0.
->> 4. Set GET_TIME to 1.
->> 5. Read the time.
->>
->> If time from #2 < 11/31 and time from #5 >= 11/31 then we do the
->> adjust.  If GET_TIME wasn't 1 in step #1 then we won't do any
->> adjusting unless the time is actually 11/31.
->>
->> Between steps #4 and #5 we'll need to add a small delay since old code
->> used to use the setting to 0 as a delay (as commented).
->>
->> We should presumably always leave GET_TIME as 1 unless we're actively
->> reading the time for the most reliability.  Also, if we've already
->> read the time this bootup, we can certainly optimize the above by
->> skipping #1 and #2.
-GET_TIME: Rising transition of this register transfers dynamic registers 
-into
-static shadowed registers.
-So only the rising of GET_TIME would update the "static shadowed registers".
-We only need ensure that the rising occurs on condition that we want to the
-really time.
-> Oh, but also we still need to know whether to adjust the alarm.  I
-> think you said that all existing rk808 chips have this bug and that
-> you'll set a bit (to be determined later) if/when this bug is fixed.
-> So we still need to assume that all rk808 chips have this bug...
-I think so, all rk808 chips have this bug. And we can read the version 
-register
-to differentiate the PMICs, once this bug is fixed.
->
-> -Doug
->
->
->
+Signed-off-by: Julius Werner <jwerner@chromium.org>
+---
+ drivers/rtc/rtc-rk808.c | 48 ++++++++++++++++++++++++++++++++++++++++++++----
+ 1 file changed, 44 insertions(+), 4 deletions(-)
 
+diff --git a/drivers/rtc/rtc-rk808.c b/drivers/rtc/rtc-rk808.c
+index 91ca0bc..35c9aad 100644
+--- a/drivers/rtc/rtc-rk808.c
++++ b/drivers/rtc/rtc-rk808.c
+@@ -56,6 +56,42 @@ struct rk808_rtc {
+ 	int irq;
+ };
+ 
++/*
++ * The Rockchip calendar used by the RK808 counts November with 31 days. We use
++ * these translation functions to convert its dates to/from the Gregorian
++ * calendar used by the rest of the world. We arbitrarily define Jan 1st, 2016
++ * as the day when both calendars were in sync, and treat all other dates
++ * relative to that.
++ * NOTE: Other system software (e.g. firmware) that reads the same hardware must
++ * implement this exact same conversion algorithm, with the same anchor date.
++ */
++static time64_t nov2dec_transitions(struct rtc_time *tm)
++{
++	return (tm->tm_year + 1900) - 2016 + (tm->tm_mon + 1 > 11 ? 1 : 0);
++}
++
++static void rockchip_to_gregorian(struct rtc_time *tm)
++{
++	/* If it's Nov 31st, rtc_tm_to_time64() will count that like Dec 1st */
++	time64_t time = rtc_tm_to_time64(tm);
++	rtc_time64_to_tm(time + nov2dec_transitions(tm) * 86400, tm);
++}
++
++static void gregorian_to_rockchip(struct rtc_time *tm)
++{
++	time64_t extra_days = nov2dec_transitions(tm);
++	time64_t time = rtc_tm_to_time64(tm);
++	rtc_time64_to_tm(time - extra_days * 86400, tm);
++
++	/* Compensate if we went back over Nov 31st (will work up to 2381) */
++	if (nov2dec_transitions(tm) < extra_days) {
++		if (tm->tm_mon + 1 == 11)
++			tm->tm_mday++;	/* This may result in 31! */
++		else
++			rtc_time64_to_tm(time - (extra_days - 1) * 86400, tm);
++	}
++}
++
+ /* Read current time and date in RTC */
+ static int rk808_rtc_readtime(struct device *dev, struct rtc_time *tm)
+ {
+@@ -101,9 +137,10 @@ static int rk808_rtc_readtime(struct device *dev, struct rtc_time *tm)
+ 	tm->tm_mon = (bcd2bin(rtc_data[4] & MONTHS_REG_MSK)) - 1;
+ 	tm->tm_year = (bcd2bin(rtc_data[5] & YEARS_REG_MSK)) + 100;
+ 	tm->tm_wday = bcd2bin(rtc_data[6] & WEEKS_REG_MSK);
++	rockchip_to_gregorian(tm);
+ 	dev_dbg(dev, "RTC date/time %4d-%02d-%02d(%d) %02d:%02d:%02d\n",
+ 		1900 + tm->tm_year, tm->tm_mon + 1, tm->tm_mday,
+-		tm->tm_wday, tm->tm_hour , tm->tm_min, tm->tm_sec);
++		tm->tm_wday, tm->tm_hour, tm->tm_min, tm->tm_sec);
+ 
+ 	return ret;
+ }
+@@ -116,6 +153,10 @@ static int rk808_rtc_set_time(struct device *dev, struct rtc_time *tm)
+ 	u8 rtc_data[NUM_TIME_REGS];
+ 	int ret;
+ 
++	dev_dbg(dev, "set RTC date/time %4d-%02d-%02d(%d) %02d:%02d:%02d\n",
++		1900 + tm->tm_year, tm->tm_mon + 1, tm->tm_mday,
++		tm->tm_wday, tm->tm_hour, tm->tm_min, tm->tm_sec);
++	gregorian_to_rockchip(tm);
+ 	rtc_data[0] = bin2bcd(tm->tm_sec);
+ 	rtc_data[1] = bin2bcd(tm->tm_min);
+ 	rtc_data[2] = bin2bcd(tm->tm_hour);
+@@ -123,9 +164,6 @@ static int rk808_rtc_set_time(struct device *dev, struct rtc_time *tm)
+ 	rtc_data[4] = bin2bcd(tm->tm_mon + 1);
+ 	rtc_data[5] = bin2bcd(tm->tm_year - 100);
+ 	rtc_data[6] = bin2bcd(tm->tm_wday);
+-	dev_dbg(dev, "set RTC date/time %4d-%02d-%02d(%d) %02d:%02d:%02d\n",
+-		1900 + tm->tm_year, tm->tm_mon + 1, tm->tm_mday,
+-		tm->tm_wday, tm->tm_hour , tm->tm_min, tm->tm_sec);
+ 
+ 	/* Stop RTC while updating the RTC registers */
+ 	ret = regmap_update_bits(rk808->regmap, RK808_RTC_CTRL_REG,
+@@ -170,6 +208,7 @@ static int rk808_rtc_readalarm(struct device *dev, struct rtc_wkalrm *alrm)
+ 	alrm->time.tm_mday = bcd2bin(alrm_data[3] & DAYS_REG_MSK);
+ 	alrm->time.tm_mon = (bcd2bin(alrm_data[4] & MONTHS_REG_MSK)) - 1;
+ 	alrm->time.tm_year = (bcd2bin(alrm_data[5] & YEARS_REG_MSK)) + 100;
++	rockchip_to_gregorian(&alrm->time);
+ 
+ 	ret = regmap_read(rk808->regmap, RK808_RTC_INT_REG, &int_reg);
+ 	if (ret) {
+@@ -227,6 +266,7 @@ static int rk808_rtc_setalarm(struct device *dev, struct rtc_wkalrm *alrm)
+ 		alrm->time.tm_mday, alrm->time.tm_wday, alrm->time.tm_hour,
+ 		alrm->time.tm_min, alrm->time.tm_sec);
+ 
++	gregorian_to_rockchip(&alrm->time);
+ 	alrm_data[0] = bin2bcd(alrm->time.tm_sec);
+ 	alrm_data[1] = bin2bcd(alrm->time.tm_min);
+ 	alrm_data[2] = bin2bcd(alrm->time.tm_hour);
+-- 
+2.1.2
 
 -- 
 -- 
