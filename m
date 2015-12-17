@@ -1,78 +1,63 @@
-Return-Path: <rtc-linux+bncBDUKXHHSSIJBBH7CTKZQKGQEP6K4I6Y@googlegroups.com>
-Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de. [2001:67c:670:201:290:27ff:fe1d:cc33])
-        by gmr-mx.google.com with ESMTPS id y203si810842wmc.2.2015.12.08.02.29.51
+Return-Path: <rtc-linux+bncBCR5PSMFZYORBMWGZKZQKGQEQOI54RQ@googlegroups.com>
+MIME-Version: 1.0
+Received: from ozlabs.org (ozlabs.org. [103.22.144.67])
+        by gmr-mx.google.com with ESMTPS id q142si1044543pfq.2.2015.12.17.03.57.38
         for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=AES128-SHA bits=128/128);
-        Tue, 08 Dec 2015 02:29:51 -0800 (PST)
-Message-ID: <1449570587.18374.0.camel@pengutronix.de>
-Subject: [rtc-linux] Re: [PATCH v3 1/2] Documentation: devicetree: add epson
- rx6110 binding
-From: Philipp Zabel <p.zabel@pengutronix.de>
-To: Steffen Trumtrar <s.trumtrar@pengutronix.de>
-Cc: Alessandro Zummo <a.zummo@towertech.it>, Alexandre Belloni
- <alexandre.belloni@free-electrons.com>, Mark Rutland
- <mark.rutland@arm.com>,  devicetree@vger.kernel.org,
- rtc-linux@googlegroups.com, Pawel Moll <pawel.moll@arm.com>, Ian Campbell
- <ijc+devicetree@hellion.org.uk>, Rob Herring <robh+dt@kernel.org>,
- kernel@pengutronix.de, Kumar Gala <galak@codeaurora.org>
-Date: Tue, 08 Dec 2015 11:29:47 +0100
-In-Reply-To: <1449568461-26016-1-git-send-email-s.trumtrar@pengutronix.de>
-References: <1449568461-26016-1-git-send-email-s.trumtrar@pengutronix.de>
-Content-Type: text/plain; charset=UTF-8
-Mime-Version: 1.0
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 17 Dec 2015 03:57:38 -0800 (PST)
+In-Reply-To: <1450163354-16894-1-git-send-email-dja@axtens.net>
+To: Daniel Axtens <dja@axtens.net>, linuxppc-dev@ozlabs.org
+From: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com, Alexandre Belloni <alexandre.belloni@free-electrons.com>, Andrey Ryabinin <aryabinin@virtuozzo.com>, akpm@linux-foundation.org,  Daniel Axtens <dja@axtens.net>
+Subject: [rtc-linux] Re: powerpc: Remove broken GregorianDay()
+Message-Id: <20151217115734.A5AAB14030D@ozlabs.org>
+Date: Thu, 17 Dec 2015 22:57:34 +1100 (AEDT)
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
-List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
-List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
-List-Archive: <http://groups.google.com/group/rtc-linux
+List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
+List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
+List-Archive: <https://groups.google.com/group/rtc-linux
 Sender: rtc-linux@googlegroups.com
-List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
+List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
- <http://groups.google.com/group/rtc-linux/subscribe>
+ <https://groups.google.com/group/rtc-linux/subscribe>
 
-Am Dienstag, den 08.12.2015, 10:54 +0100 schrieb Steffen Trumtrar:
-> Add the binding documentation for the Epson RX6110 RTC.
+On Tue, 2015-15-12 at 07:09:14 UTC, Daniel Axtens wrote:
+> GregorianDay() is supposed to calculate the day of the week
+> (tm->tm_wday) for a given day/month/year. In that calcuation it
+> indexed into an array called MonthOffset using tm->tm_mon-1. However
+> tm_mon is zero-based, not one-based, so this is off-by-one. It also
+> means that every January, GregoiranDay() will access element -1 of
+> the MonthOffset array.
 > 
-> Acked-by: Rob Herring <robh@kernel.org>
-> Signed-off-by: Steffen Trumtrar <s.trumtrar@pengutronix.de>
-
-Reviewed-by: Philipp Zabel <p.zabel@pengutronix.de>
-
-although I'd like a small change to be made below:
-
-> ---
-> Changes since v2:
-> 	- removed the size field in i2c binding
+> It also doesn't appear to be a correct algorithm either: see in
+> contrast kernel/time/timeconv.c's time_to_tm function.
 > 
->  .../devicetree/bindings/rtc/epson,rx6110.txt       | 39 ++++++++++++++++++++++
->  1 file changed, 39 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/rtc/epson,rx6110.txt
+> It's been broken forever, which suggests no-one in userland uses
+> this. It looks like no-one in the kernel uses tm->tm_wday either
+> (see e.g. drivers/rtc/rtc-ds1305.c:319).
 > 
-> diff --git a/Documentation/devicetree/bindings/rtc/epson,rx6110.txt b/Documentation/devicetree/bindings/rtc/epson,rx6110.txt
-> new file mode 100644
-> index 000000000000..71353542a59d
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/rtc/epson,rx6110.txt
-> @@ -0,0 +1,39 @@
-> +Epson RX6110 Real Time Clock
-> +============================
-> +
-> +The Epson RX6110 can be used with SPI or I2C busses. The kind of
-> +bus depends on the SPISEL pin and can not be configured via software.
-> +
-> +I2C mode
-> +--------
-> +
-> +Required properties:
-> +  - compatible: should be: "epson,rx6110"
-> +  - reg : offset of the register set of the device
+> tm->tm_wday is conventionally set to -1 when not available in
+> hardware so we can simply set it to -1 and drop the function.
+> (There are over a dozen other drivers in drivers/rtc that do
+> this.)
+> 
+> Found using UBSAN.
+> 
+> Cc: Andrey Ryabinin <aryabinin@virtuozzo.com>
+> Cc: Andrew Morton <akpm@linux-foundation.org> # as an example of what UBSan finds.
+> Cc: Alessandro Zummo <a.zummo@towertech.it>
+> Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+> Cc: rtc-linux@googlegroups.com
+> Signed-off-by: Daniel Axtens <dja@axtens.net>
+> Acked-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
 
-That should be the I2C address of the device:
-	git grep "reg.*I2C address" Documentation/
+Applied to powerpc next, thanks.
 
-regards
-Philipp
+https://git.kernel.org/powerpc/c/00b912b0c88e690b1662067497
 
+cheers
 
 -- 
 -- 
