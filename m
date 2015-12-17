@@ -1,23 +1,25 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBWFY42ZQKGQEKGVOKJA@googlegroups.com>
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id b62si781448wmc.0.2015.12.22.10.54.15
-        for <rtc-linux@googlegroups.com>;
-        Tue, 22 Dec 2015 10:54:15 -0800 (PST)
-Date: Tue, 22 Dec 2015 19:54:14 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Andrzej Hajda <a.hajda@samsung.com>
-Cc: "open list:REAL TIME CLOCK (RTC) SUBSYSTEM" <rtc-linux@googlegroups.com>,
-	Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
-	Marek Szyprowski <m.szyprowski@samsung.com>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	open list <linux-kernel@vger.kernel.org>
-Subject: [rtc-linux] Re: [PATCH] rtc: rv8803: fix handling return value of i2c_smbus_read_byte_data
-Message-ID: <20151222185414.GB8623@piout.net>
-References: <1449734133-29235-1-git-send-email-a.hajda@samsung.com>
+Return-Path: <rtc-linux+bncBD7YLCN32UNBB4HIZKZQKGQEQQQYUVA@googlegroups.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1449734133-29235-1-git-send-email-a.hajda@samsung.com>
+Received: from mail-wm0-x22c.google.com (mail-wm0-x22c.google.com. [2a00:1450:400c:c09::22c])
+        by gmr-mx.google.com with ESMTPS id d185si77977wmf.0.2015.12.17.05.11.12
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 17 Dec 2015 05:11:12 -0800 (PST)
+Received: by mail-wm0-x22c.google.com with SMTP id p187so20203087wmp.1
+        for <rtc-linux@googlegroups.com>; Thu, 17 Dec 2015 05:11:12 -0800 (PST)
+From: LABBE Corentin <clabbe.montjoie@gmail.com>
+To: alexandre.belloni@free-electrons.com,
+	a.zummo@towertech.it
+Cc: LABBE Corentin <clabbe.montjoie@gmail.com>,
+	linux-kernel@vger.kernel.org,
+	rtc-linux@googlegroups.com
+Subject: [rtc-linux] [PATCH v2 1/1] rtc: Replace simple_strtoul by kstrtoul
+Date: Thu, 17 Dec 2015 14:11:04 +0100
+Message-Id: <1450357864-7852-2-git-send-email-clabbe.montjoie@gmail.com>
+In-Reply-To: <1450357864-7852-1-git-send-email-clabbe.montjoie@gmail.com>
+References: <1450357864-7852-1-git-send-email-clabbe.montjoie@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -27,26 +29,51 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 10/12/2015 at 08:55:33 +0100, Andrzej Hajda wrote :
-> The function can return negative values, so its result should
-> be assigned to signed variable.
-> 
-> The problem has been detected using proposed semantic patch
-> scripts/coccinelle/tests/assign_signed_to_unsigned.cocci [1].
-> 
-> [1]: http://permalink.gmane.org/gmane.linux.kernel/2046107
-> 
-> Signed-off-by: Andrzej Hajda <a.hajda@samsung.com>
-> ---
->  drivers/rtc/rtc-rv8803.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-Applied, thanks.
+The simple_strtoul function is obsolete.
+This patch replace it by kstrtoul.
 
+Since kstrtoul is more strict, it permits to filter some invalid input that
+simple_strtoul accept. For example:
+echo '1022xxx' > /sys/devices/pnp0/00:03/rtc/rtc0/max_user_freq
+cat /sys/devices/pnp0/00:03/rtc/rtc0/max_user_freq
+1022
+
+Signed-off-by: LABBE Corentin <clabbe.montjoie@gmail.com>
+---
+ drivers/rtc/rtc-sysfs.c | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/rtc/rtc-sysfs.c b/drivers/rtc/rtc-sysfs.c
+index 7273855..463e286 100644
+--- a/drivers/rtc/rtc-sysfs.c
++++ b/drivers/rtc/rtc-sysfs.c
+@@ -91,7 +91,12 @@ max_user_freq_store(struct device *dev, struct device_attribute *attr,
+ 		const char *buf, size_t n)
+ {
+ 	struct rtc_device *rtc = to_rtc_device(dev);
+-	unsigned long val = simple_strtoul(buf, NULL, 0);
++	unsigned long val;
++	int err;
++
++	err = kstrtoul(buf, 0, &val);
++	if (err)
++		return err;
+ 
+ 	if (val >= 4096 || val == 0)
+ 		return -EINVAL;
+@@ -175,7 +180,9 @@ wakealarm_store(struct device *dev, struct device_attribute *attr,
+ 		} else
+ 			adjust = 1;
+ 	}
+-	alarm = simple_strtoul(buf_ptr, NULL, 0);
++	retval = kstrtoul(buf_ptr, 0, &alarm);
++	if (retval)
++		return retval;
+ 	if (adjust) {
+ 		alarm += now;
+ 	}
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+2.4.10
 
 -- 
 -- 
