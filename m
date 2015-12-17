@@ -1,25 +1,20 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRB4GAZKZQKGQEGIPIJFI@googlegroups.com>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRB2XRZKZQKGQETLBTY2Q@googlegroups.com>
 Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id 124si129472wml.0.2015.12.17.03.45.52
+        by gmr-mx.google.com with ESMTP id 204si83627wmx.1.2015.12.17.05.30.17
         for <rtc-linux@googlegroups.com>;
-        Thu, 17 Dec 2015 03:45:52 -0800 (PST)
-Date: Thu, 17 Dec 2015 12:44:39 +0100
+        Thu, 17 Dec 2015 05:30:18 -0800 (PST)
+Date: Thu, 17 Dec 2015 14:29:56 +0100
 From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: "Opensource [Steve Twiss]" <stwiss.opensource@diasemi.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
-	LINUXKERNEL <linux-kernel@vger.kernel.org>,
-	RTC-LINUX <rtc-linux@googlegroups.com>,
-	David Dajun Chen <david.chen@diasemi.com>,
-	Support Opensource <Support.Opensource@diasemi.com>
-Subject: [rtc-linux] Re: [PATCH V1] rtc: da9063: access ordering error during
- RTC interrupt system power on
-Message-ID: <20151217114439.GF13078@piout.net>
-References: <20151208163406.B34683FB25@swsrvapps-01.diasemi.com>
- <20151216234702.GK8574@piout.net>
- <6ED8E3B22081A4459DAC7699F3695FB70173D28DCB@SW-EX-MBX02.diasemi.com>
+To: LABBE Corentin <clabbe.montjoie@gmail.com>
+Cc: a.zummo@towertech.it, linux-kernel@vger.kernel.org,
+	rtc-linux@googlegroups.com
+Subject: [rtc-linux] Re: [PATCH v2 1/1] rtc: Replace simple_strtoul by kstrtoul
+Message-ID: <20151217132956.GG13078@piout.net>
+References: <1450357864-7852-1-git-send-email-clabbe.montjoie@gmail.com>
+ <1450357864-7852-2-git-send-email-clabbe.montjoie@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <6ED8E3B22081A4459DAC7699F3695FB70173D28DCB@SW-EX-MBX02.diasemi.com>
+In-Reply-To: <1450357864-7852-2-git-send-email-clabbe.montjoie@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -30,66 +25,58 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 17/12/2015 at 11:37:06 +0000, Opensource [Steve Twiss] wrote :
-> On 16 December 2015 23:47 Alexandre Belloni wrote:
-> > Subject: Re: [PATCH V1] rtc: da9063: access ordering error during RTC interrupt system power on
-> > 
-> > This seems mostly fine, however ...
+On 17/12/2015 at 14:11:04 +0100, LABBE Corentin wrote :
+> The simple_strtoul function is obsolete.
+> This patch replace it by kstrtoul.
 > 
-> Hi Alexandre,
-> Thanks for reviewing this.
-> 
-> > On 08/12/2015 at 16:28:39 +0000, Steve Twiss wrote :
-> > >  	irq_alarm = platform_get_irq_byname(pdev, "ALARM");
-> > >  	ret = devm_request_threaded_irq(&pdev->dev, irq_alarm, NULL,
-> > >  					da9063_alarm_event,
-> > >  					IRQF_TRIGGER_LOW |
-> > IRQF_ONESHOT,
-> > >  					"ALARM", rtc);
-> > > -	if (ret) {
-> > > +	if (ret)
-> > >  		dev_err(&pdev->dev, "Failed to request ALARM IRQ %d:
-> > %d\n",
-> > >  			irq_alarm, ret);
-> > > -		return ret;
-> > > -	}
-> > > -
-> > 
-> > ... now that requesting the interrupt is optional, you probably want to
-> > prevent userspace from thinking it will get an interrupt after setting
-> > the alarm by returning -EINVAL in da9063_rtc_read_alarm() and
-> > da9063_rtc_set_alarm() in that case.
-> > 
-> 
-> .. I'm not quite certain I understand.
-> Does the patch looks worse that it is?
-> This part,
-> 
-> +	if (ret)
-> 		dev_err(&pdev->dev, "Failed to request ALARM IRQ %d: %d\n",
-> 			irq_alarm, ret);
->  -		return ret;
-> 
-> looks like it has erased the return ret,
-> 
-> > 
-> > > -	rtc->rtc_dev = devm_rtc_device_register(&pdev->dev,
-> > DA9063_DRVNAME_RTC,
-> > > -					   &da9063_rtc_ops, THIS_MODULE);
-> > > -	if (IS_ERR(rtc->rtc_dev))
-> > > -		return PTR_ERR(rtc->rtc_dev);
-> > >
-> > > -	da9063_data_to_tm(data, &rtc->alarm_time, rtc);
-> > > -	rtc->rtc_sync = false;
-> > >  	return ret;
-> 
-> But it does exist at the end of the patch.
-> So there will still be an error sent if the IRQ is not requested properly.
-> Is this what you meant in your previous e-mail?
+> Since kstrtoul is more strict, it permits to filter some invalid input that
+> simple_strtoul accept. For example:
+> echo '1022xxx' > /sys/devices/pnp0/00:03/rtc/rtc0/max_user_freq
+> cat /sys/devices/pnp0/00:03/rtc/rtc0/max_user_freq
+> 1022
 > 
 
-Indeed, you are right, I'll apply that patch.
+Yeah, that is exactly the issue. Existing script that are doing that and
+are currently working will then fail which is usually not what we want.
+However, I think I'll still apply that patch.
 
+> Signed-off-by: LABBE Corentin <clabbe.montjoie@gmail.com>
+> ---
+>  drivers/rtc/rtc-sysfs.c | 11 +++++++++--
+>  1 file changed, 9 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/rtc/rtc-sysfs.c b/drivers/rtc/rtc-sysfs.c
+> index 7273855..463e286 100644
+> --- a/drivers/rtc/rtc-sysfs.c
+> +++ b/drivers/rtc/rtc-sysfs.c
+> @@ -91,7 +91,12 @@ max_user_freq_store(struct device *dev, struct device_attribute *attr,
+>  		const char *buf, size_t n)
+>  {
+>  	struct rtc_device *rtc = to_rtc_device(dev);
+> -	unsigned long val = simple_strtoul(buf, NULL, 0);
+> +	unsigned long val;
+> +	int err;
+> +
+> +	err = kstrtoul(buf, 0, &val);
+> +	if (err)
+> +		return err;
+>  
+>  	if (val >= 4096 || val == 0)
+>  		return -EINVAL;
+> @@ -175,7 +180,9 @@ wakealarm_store(struct device *dev, struct device_attribute *attr,
+>  		} else
+>  			adjust = 1;
+>  	}
+> -	alarm = simple_strtoul(buf_ptr, NULL, 0);
+> +	retval = kstrtoul(buf_ptr, 0, &alarm);
+> +	if (retval)
+> +		return retval;
+>  	if (adjust) {
+>  		alarm += now;
+>  	}
+> -- 
+> 2.4.10
+> 
 
 -- 
 Alexandre Belloni, Free Electrons
