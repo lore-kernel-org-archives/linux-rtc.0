@@ -1,32 +1,20 @@
-Return-Path: <rtc-linux+bncBDKZNNNLXAHBBIFDRW2AKGQEQPDLS4I@googlegroups.com>
-Received: from mailout3.w1.samsung.com (mailout3.w1.samsung.com. [210.118.77.13])
-        by gmr-mx.google.com with ESMTPS id ui7si1590862pab.0.2015.12.29.19.38.07
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1 cipher=AES128-SHA bits=128/128);
-        Tue, 29 Dec 2015 19:38:07 -0800 (PST)
-Received: from eucpsbgm2.samsung.com (unknown [203.254.199.245])
- by mailout3.w1.samsung.com
- (Oracle Communications Messaging Server 7.0.5.31.0 64bit (built May  5 2014))
- with ESMTP id <0O05004JRJFE1ZC0@mailout3.w1.samsung.com> for
- rtc-linux@googlegroups.com; Wed, 30 Dec 2015 03:38:02 +0000 (GMT)
-Subject: [rtc-linux] Re: [PATCH 3/3] rtc: s5m: Make register configuration per
- S2MPS device to remove exceptions
-To: Yadwinder Singh Brar <yadi.brar01@gmail.com>
-References: <1451440385-8654-1-git-send-email-k.kozlowski@samsung.com>
- <1451440385-8654-3-git-send-email-k.kozlowski@samsung.com>
- <CAKew6eVPXSjei9NoG+RdnyVBDQP3zSqoP5_o-ZZ=2rKJF6qFdA@mail.gmail.com>
-Cc: Sangbeom Kim <sbkim73@samsung.com>,
- Alessandro Zummo <a.zummo@towertech.it>,
- Alexandre Belloni <alexandre.belloni@free-electrons.com>,
- Lee Jones <lee.jones@linaro.org>, linux-kernel <linux-kernel@vger.kernel.org>,
- linux-samsung-soc <linux-samsung-soc@vger.kernel.org>,
- rtc-linux@googlegroups.com, Alim Akhtar <alim.akhtar@samsung.com>
-From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-Message-id: <56835199.50402@samsung.com>
-Date: Wed, 30 Dec 2015 12:38:01 +0900
-MIME-version: 1.0
-In-reply-to: <CAKew6eVPXSjei9NoG+RdnyVBDQP3zSqoP5_o-ZZ=2rKJF6qFdA@mail.gmail.com>
-Content-type: text/plain; charset=UTF-8
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBDNF3KZQKGQEKNNRS7A@googlegroups.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id b62si446123wmc.0.2015.12.20.03.35.41
+        for <rtc-linux@googlegroups.com>;
+        Sun, 20 Dec 2015 03:35:41 -0800 (PST)
+Date: Sun, 20 Dec 2015 12:35:40 +0100
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Juergen Borleis <jbe@pengutronix.de>
+Cc: rtc-linux@googlegroups.com, Alessandro Zummo <a.zummo@towertech.it>,
+	linux-kernel@vger.kernel.org, kernel@pengutronix.de
+Subject: [rtc-linux] Re: [PATCH 2/3] RTC/PCF85063: fix time/date reading (part II)
+Message-ID: <20151220113540.GD3541@piout.net>
+References: <1449496174-7813-1-git-send-email-jbe@pengutronix.de>
+ <1449496174-7813-3-git-send-email-jbe@pengutronix.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1449496174-7813-3-git-send-email-jbe@pengutronix.de>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -37,249 +25,81 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 30.12.2015 11:53, Yadwinder Singh Brar wrote:
-> Hi Krysztof,
-> 
-> On Tue, Dec 29, 2015 at 5:53 PM, Krzysztof Kozlowski
-> <k.kozlowski@samsung.com> wrote:
->> Before updating time and alarm the driver must set appropriate mask in
->> UDR register. For that purpose the driver uses common register
->> configuration and a lot of exceptions per device in the code. The
->> exceptions are not obvious, for example except the change in the logic
->> sometimes the fields are swapped (WUDR and AUDR between S2MPS14 and
->> S2MPS15). This leads to quite complicated code.
->>
->> Try to make it more obvious by:
->> 1. Documenting the UDR masks for devices and operations.
->> 2. Adding fields in register configuration structure for each operation
->>    (read time, write time and alarm).
->> 3. Splitting the configuration per S2MPS13, S2MPS14 and S2MPS15 thus
->>    removing exceptions for them.
->>
->> Signed-off-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
->>
->> ---
->>
->> Tested only on S2MPS11 (Odroid XU4).
->> ---
->>  drivers/rtc/rtc-s5m.c           | 110 +++++++++++++++++++++++++++-------------
->>  include/linux/mfd/samsung/rtc.h |   2 +
->>  2 files changed, 77 insertions(+), 35 deletions(-)
->>
->> diff --git a/drivers/rtc/rtc-s5m.c b/drivers/rtc/rtc-s5m.c
->> index 559db8f72117..7407d7394bb4 100644
->> --- a/drivers/rtc/rtc-s5m.c
->> +++ b/drivers/rtc/rtc-s5m.c
->> @@ -38,7 +38,22 @@
->>   */
->>  #define UDR_READ_RETRY_CNT     5
->>
->> -/* Registers used by the driver which are different between chipsets. */
->> +/*
->> + * Registers used by the driver which are different between chipsets.
->> + *
->> + * Operations like read time and write alarm/time require updating
->> + * specific fields in UDR register. These fields usually are auto-cleared
->> + * (with some exceptions).
->> + *
->> + * Table of operations per device:
->> + *
->> + * Device     | Write time | Read time | Write alarm
->> + * =================================================
->> + * S5M8767    | UDR + TIME |           | UDR
->> + * S2MPS11/14 | WUDR       | RUDR      | WUDR + RUDR
->> + * S2MPS13    | WUDR       | RUDR      | WUDR + AUDR
->> + * S2MPS15    | WUDR       | RUDR      | AUDR
->> + */
->>  struct s5m_rtc_reg_config {
->>         /* Number of registers used for setting time/alarm0/alarm1 */
->>         unsigned int regs_count;
->> @@ -58,8 +73,13 @@ struct s5m_rtc_reg_config {
->>         unsigned int udr_update;
->>         /* Auto-cleared mask in UDR field for writing time and alarm */
->>         unsigned int autoclear_udr_mask;
->> -       /* Mask for UDR field in 'udr_update' register */
->> -       unsigned int udr_mask;
->> +       /*
->> +        * Masks in UDR field for time and alarm operations.
->> +        * The read time mask can be 0. Rest should not.
->> +        */
->> +       unsigned int read_time_udr_mask;
->> +       unsigned int write_time_udr_mask;
->> +       unsigned int write_alarm_udr_mask;
->>  };
->>
->>  /* Register map for S5M8763 and S5M8767 */
->> @@ -71,14 +91,44 @@ static const struct s5m_rtc_reg_config s5m_rtc_regs = {
->>         .alarm1                 = S5M_ALARM1_SEC,
->>         .udr_update             = S5M_RTC_UDR_CON,
->>         .autoclear_udr_mask     = S5M_RTC_UDR_MASK,
->> -       .udr_mask               = S5M_RTC_UDR_MASK,
->> +       .read_time_udr_mask     = 0, /* Not needed */
->> +       .write_time_udr_mask    = S5M_RTC_UDR_MASK | S5M_RTC_TIME_EN_MASK,
->> +       .write_alarm_udr_mask   = S5M_RTC_UDR_MASK,
->> +};
->> +
->> +/* Register map for S2MPS13 */
->> +static const struct s5m_rtc_reg_config s2mps13_rtc_regs = {
->> +       .regs_count             = 7,
->> +       .time                   = S2MPS_RTC_SEC,
->> +       .ctrl                   = S2MPS_RTC_CTRL,
->> +       .alarm0                 = S2MPS_ALARM0_SEC,
->> +       .alarm1                 = S2MPS_ALARM1_SEC,
->> +       .udr_update             = S2MPS_RTC_UDR_CON,
->> +       .autoclear_udr_mask     = S2MPS_RTC_WUDR_MASK,
->> +       .read_time_udr_mask     = S2MPS_RTC_RUDR_MASK,
->> +       .write_time_udr_mask    = S2MPS_RTC_WUDR_MASK,
->> +       .write_alarm_udr_mask   = S2MPS_RTC_WUDR_MASK | S2MPS13_RTC_AUDR_MASK,
->> +};
->> +
->> +/* Register map for S2MPS11/14 */
->> +static const struct s5m_rtc_reg_config s2mps14_rtc_regs = {
->> +       .regs_count             = 7,
->> +       .time                   = S2MPS_RTC_SEC,
->> +       .ctrl                   = S2MPS_RTC_CTRL,
->> +       .alarm0                 = S2MPS_ALARM0_SEC,
->> +       .alarm1                 = S2MPS_ALARM1_SEC,
->> +       .udr_update             = S2MPS_RTC_UDR_CON,
->> +       .autoclear_udr_mask     = S2MPS_RTC_WUDR_MASK,
->> +       .read_time_udr_mask     = S2MPS_RTC_RUDR_MASK,
->> +       .write_time_udr_mask    = S2MPS_RTC_WUDR_MASK,
->> +       .write_alarm_udr_mask   = S2MPS_RTC_WUDR_MASK | S2MPS_RTC_RUDR_MASK,
->>  };
->>
->>  /*
->> - * Register map for S2MPS14.
->> - * It may be also suitable for S2MPS11 but this was not tested.
->> + * Register map for S2MPS15 - in comparison to S2MPS14 the WUDR and AUDR bits
->> + * are swapped.
->>   */
->> -static const struct s5m_rtc_reg_config s2mps_rtc_regs = {
->> +static const struct s5m_rtc_reg_config s2mps15_rtc_regs = {
->>         .regs_count             = 7,
->>         .time                   = S2MPS_RTC_SEC,
->>         .ctrl                   = S2MPS_RTC_CTRL,
->> @@ -86,7 +136,9 @@ static const struct s5m_rtc_reg_config s2mps_rtc_regs = {
->>         .alarm1                 = S2MPS_ALARM1_SEC,
->>         .udr_update             = S2MPS_RTC_UDR_CON,
->>         .autoclear_udr_mask     = S2MPS_RTC_WUDR_MASK,
->> -       .udr_mask               = S2MPS_RTC_WUDR_MASK,
->> +       .read_time_udr_mask     = S2MPS_RTC_RUDR_MASK,
->> +       .write_time_udr_mask    = S2MPS15_RTC_WUDR_MASK,
->> +       .write_alarm_udr_mask   = S2MPS15_RTC_AUDR_MASK,
->>  };
->>
->>  struct s5m_rtc_info {
->> @@ -223,21 +275,7 @@ static inline int s5m8767_rtc_set_time_reg(struct s5m_rtc_info *info)
->>                 return ret;
->>         }
->>
->> -       switch (info->device_type) {
->> -       case S5M8763X:
->> -       case S5M8767X:
->> -               data |= info->regs->udr_mask | S5M_RTC_TIME_EN_MASK;
->> -       case S2MPS15X:
->> -               /* As per UM, for write time register, set WUDR bit to high */
->> -               data |= S2MPS15_RTC_WUDR_MASK;
->> -               break;
->> -       case S2MPS14X:
->> -       case S2MPS13X:
->> -               data |= info->regs->udr_mask;
->> -               break;
->> -       default:
->> -               return -EINVAL;
->> -       }
->> +       data |= info->regs->write_time_udr_mask;
->>
->>         ret = regmap_write(info->regmap, info->regs->udr_update, data);
->>         if (ret < 0) {
->> @@ -262,22 +300,16 @@ static inline int s5m8767_rtc_set_alarm_reg(struct s5m_rtc_info *info)
->>                 return ret;
->>         }
->>
->> -       data |= info->regs->udr_mask;
->> +       data |= info->regs->write_alarm_udr_mask;
->>         switch (info->device_type) {
->>         case S5M8763X:
->>         case S5M8767X:
->>                 data &= ~S5M_RTC_TIME_EN_MASK;
->>                 break;
->>         case S2MPS15X:
->> -               /* As per UM, for write alarm, set A_UDR(bit[4]) to high
->> -                * udr_mask above sets bit[4]
->> -                */
->> -               break;
->>         case S2MPS14X:
->> -               data |= S2MPS_RTC_RUDR_MASK;
->> -               break;
->>         case S2MPS13X:
->> -               data |= S2MPS13_RTC_AUDR_MASK;
->> +               /* No exceptions needed */
->>                 break;
->>         default:
->>                 return -EINVAL;
->> @@ -338,11 +370,11 @@ static int s5m_rtc_read_time(struct device *dev, struct rtc_time *tm)
->>         u8 data[info->regs->regs_count];
->>         int ret;
->>
->> -       if (info->device_type == S2MPS15X || info->device_type == S2MPS14X ||
->> -                       info->device_type == S2MPS13X) {
->> +       if (info->regs->read_time_udr_mask) {
->>                 ret = regmap_update_bits(info->regmap,
->>                                 info->regs->udr_update,
->> -                               S2MPS_RTC_RUDR_MASK, S2MPS_RTC_RUDR_MASK);
->> +                               info->regs->read_time_udr_mask,
->> +                               info->regs->read_time_udr_mask);
->>                 if (ret) {
->>                         dev_err(dev,
->>                                 "Failed to prepare registers for time reading: %d\n",
->> @@ -709,10 +741,18 @@ static int s5m_rtc_probe(struct platform_device *pdev)
->>
->>         switch (platform_get_device_id(pdev)->driver_data) {
->>         case S2MPS15X:
->> +               regmap_cfg = &s2mps14_rtc_regmap_config;
->> +               info->regs = &s2mps15_rtc_regs;
->> +               alarm_irq = S2MPS14_IRQ_RTCA0;
->> +               break;
->>         case S2MPS14X:
->> +               regmap_cfg = &s2mps14_rtc_regmap_config;
->> +               info->regs = &s2mps14_rtc_regs;
->> +               alarm_irq = S2MPS14_IRQ_RTCA0;
->> +               break;
->>         case S2MPS13X:
->>                 regmap_cfg = &s2mps14_rtc_regmap_config;
->> -               info->regs = &s2mps_rtc_regs;
->> +               info->regs = &s2mps13_rtc_regs;
->>                 alarm_irq = S2MPS14_IRQ_RTCA0;
->>                 break;
->>         case S5M8763X:
->> diff --git a/include/linux/mfd/samsung/rtc.h b/include/linux/mfd/samsung/rtc.h
->> index a65e4655d470..af0df5f3f651 100644
->> --- a/include/linux/mfd/samsung/rtc.h
->> +++ b/include/linux/mfd/samsung/rtc.h
->> @@ -105,6 +105,8 @@ enum s2mps_rtc_reg {
->>  #define S5M_RTC_UDR_MASK       (1 << S5M_RTC_UDR_SHIFT)
->>  #define S2MPS_RTC_WUDR_SHIFT   4
->>  #define S2MPS_RTC_WUDR_MASK    (1 << S2MPS_RTC_WUDR_SHIFT)
->> +#define S2MPS15_RTC_AUDR_SHIFT 4
->> +#define S2MPS15_RTC_AUDR_MASK  (4 << S2MPS15_RTC_AUDR_SHIFT)
-> 
-> Shouldn't be ?
-> +#define S2MPS15_RTC_AUDR_MASK  (1 << S2MPS15_RTC_AUDR_SHIFT)
-> 
-> because "As per UM, for write alarm, set A_UDR(bit[4]) to high"
-> 
+Hi,
 
-Nope. :) You wrote set bit[4], not bit[1].
+On 07/12/2015 at 14:49:33 +0100, Juergen Borleis wrote :
+> Use the function to read the whole time/date register in one turn and now
+> check if the RTC signals an invalid time/date (due to a battery power loss
+> for example). In this case ignore the time/date until it is really set
+> again.
+> 
+> Signed-off-by: Juergen Borleis <jbe@pengutronix.de>
+> ---
+>  drivers/rtc/rtc-pcf85063.c | 45 +++++++++++++++++++--------------------------
+>  1 file changed, 19 insertions(+), 26 deletions(-)
+> 
+> diff --git a/drivers/rtc/rtc-pcf85063.c b/drivers/rtc/rtc-pcf85063.c
+> index 75f2866..abed934 100644
+> --- a/drivers/rtc/rtc-pcf85063.c
+> +++ b/drivers/rtc/rtc-pcf85063.c
+> @@ -22,6 +22,7 @@
+>  #define PCF85063_REG_CTRL2		0x01
+>  
+>  #define PCF85063_REG_SC			0x04 /* datetime */
+> +#define PCF85063_REG_SC_OS		0x80
+>  #define PCF85063_REG_MN			0x05
+>  #define PCF85063_REG_HR			0x06
+>  #define PCF85063_REG_DM			0x07
+> @@ -77,39 +78,31 @@ static int pcf85063_read_time(struct i2c_client *client, u8 *buf, u16 size)
+>   */
+>  static int pcf85063_get_datetime(struct i2c_client *client, struct rtc_time *tm)
+>  {
+> +	int rc;
+>  	struct pcf85063 *pcf85063 = i2c_get_clientdata(client);
+> -	unsigned char buf[13] = { PCF85063_REG_CTRL1 };
+> -	struct i2c_msg msgs[] = {
+> -		{/* setup read ptr */
+> -			.addr = client->addr,
+> -			.len = 1,
+> -			.buf = buf
+> -		},
+> -		{/* read status + date */
+> -			.addr = client->addr,
+> -			.flags = I2C_M_RD,
+> -			.len = 13,
+> -			.buf = buf
+> -		},
+> -	};
+> +	u8 regs[7];
+>  
+> -	/* read registers */
+> -	if ((i2c_transfer(client->adapter, msgs, 2)) != 2) {
+> -		dev_err(&client->dev, "%s: read error\n", __func__);
+> -		return -EIO;
 
-Actually that is the funny part for S2MPS15. The logic is similar to
-other devices: WUDR for time update and AUDR for for alarm update but...
-The bits are opposite between S2MPS11/13/14 and S2MPS15.
+Isn't that already reading the time and date register in one block? I'd
+say you are simply reading less registers. Also, maybe you could use
+i2c_smbus_read_block_data?
 
-Thanks for looking and reviewing!
 
-Best regards,
-Krzysztof
+> +	rc = pcf85063_read_time(client, regs, sizeof(regs));
+> +	if (rc < 0)
+> +		return rc;
+> +
+> +	/* if the clock has lost its power it makes no sense to use its time */
+> +	if (regs[0] & PCF85063_REG_SC_OS) {
+> +		dev_warn(&client->dev, "Power loss detected, invalid time\n");
+> +		return -EINVAL;
+>  	}
+
+That part is more useful and as I understand it is what you are trying
+to fix.
+
+
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
 -- 
 -- 
