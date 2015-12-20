@@ -1,69 +1,94 @@
-Return-Path: <rtc-linux+bncBDDJNTW5VUMBBVHKTCZQKGQE2NFXV6I@googlegroups.com>
-Received: from mail-wm0-x22b.google.com (mail-wm0-x22b.google.com. [2a00:1450:400c:c09::22b])
-        by gmr-mx.google.com with ESMTPS id g21si846872wmd.3.2015.12.07.17.41.40
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 07 Dec 2015 17:41:40 -0800 (PST)
-Received: by mail-wm0-x22b.google.com with SMTP id c201so10668529wme.1
-        for <rtc-linux@googlegroups.com>; Mon, 07 Dec 2015 17:41:40 -0800 (PST)
+Return-Path: <rtc-linux+bncBDJIP47K7MERBLGF3CZQKGQEITY5GWY@googlegroups.com>
+Received: from mail.kernel.org (mail.kernel.org. [198.145.29.136])
+        by gmr-mx.google.com with ESMTP id p88si2212937pfi.0.2015.12.19.19.38.20
+        for <rtc-linux@googlegroups.com>;
+        Sat, 19 Dec 2015 19:38:20 -0800 (PST)
+Date: Sat, 19 Dec 2015 21:38:15 -0600
+From: Rob Herring <robh@kernel.org>
+To: Sergei Ianovich <ynvich@gmail.com>
+Cc: linux-kernel@vger.kernel.org,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Pawel Moll <pawel.moll@arm.com>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Ian Campbell <ijc+devicetree@hellion.org.uk>,
+	Kumar Gala <galak@codeaurora.org>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	"open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" <devicetree@vger.kernel.org>,
+	"open list:REAL TIME CLOCK (RTC) SUBSYSTEM" <rtc-linux@googlegroups.com>
+Subject: [rtc-linux] Re: [PATCH v5] rtc: support DS1302 RTC on ICP DAS LP-8x4x
+Message-ID: <20151220033815.GD9883@rob-hp-laptop>
+References: <397668667-27328-3-git-send-email-ynvich@gmail.com>
+ <1450201525-9137-1-git-send-email-ynvich@gmail.com>
 MIME-Version: 1.0
-Sender: rtc-linux@googlegroups.com
-In-Reply-To: <CAD=FV=Wx2E+sVOyMuNyzBnkJrzYuG_yoC7b54EApLg7QTu2sxQ@mail.gmail.com>
-References: <1449107584-3192-1-git-send-email-jwerner@chromium.org>
-	<CAD=FV=VVU0ucrL9gsMGKBwMCg_d6aTZWXTpxwNmfNp0k0BzbdQ@mail.gmail.com>
-	<CAODwPW_xoF8KYRPWvSrs89F-ZKxWMC4_Gp-vdEYENfzESin=ig@mail.gmail.com>
-	<CAD=FV=VLVmJQbY45De7qyg9AsW-VDqKfvj7MHMWXiGCrrx6WDA@mail.gmail.com>
-	<CAODwPW939ZrmGsspk42BU=U+hca4hyT4W0ceOZCVWtu057i58A@mail.gmail.com>
-	<CAD=FV=Ur0+qmQ1mnvV3Er1RjfMU8DY7yk9PPf04wAJ7Xrt+7vw@mail.gmail.com>
-	<CAD=FV=X_1yUONf53AXGBZps=3VFnGFDq5u2-57SoBGtvBFiWHg@mail.gmail.com>
-	<CAODwPW-UAVRHVwsA=ZBgL=ZRrW0+WJSmPDcF5jv=bwnePsTe5w@mail.gmail.com>
-	<CAD=FV=USMU1eQ8-kA0ysyciXzU-EW6Zy-xZnmtEHsC39xOYrZw@mail.gmail.com>
-	<5664E1CF.8030406@rock-chips.com>
-	<CAD=FV=V6x94vFCcCwRa=YH+NFCRKCGkNVyE8NTAnXVxX9Bac2Q@mail.gmail.com>
-	<CAD=FV=VJKHK2Eu75UJPf+3i7Gaxa09g+Hwfy7nwWYrgMvocarg@mail.gmail.com>
-	<5664F837.607@rock-chips.com>
-	<CAODwPW-zWHgmyHX8svgokEhVsaqyx6zZWwvm+-166aNYcj4z-A@mail.gmail.com>
-	<CAD=FV=Wx2E+sVOyMuNyzBnkJrzYuG_yoC7b54EApLg7QTu2sxQ@mail.gmail.com>
-Date: Mon, 7 Dec 2015 17:41:39 -0800
-Message-ID: <CAODwPW8XmGkPNTw4y_UG7Qy4P1B6y4VH6MOHi1905S_VCrnTPg@mail.gmail.com>
-Subject: [rtc-linux] Re: [PATCH] RTC: RK808: Work around hardware bug on
- November 31st
-From: Julius Werner <jwerner@chromium.org>
-To: Doug Anderson <dianders@chromium.org>
-Cc: Julius Werner <jwerner@chromium.org>, Chris Zhong <zyw@rock-chips.com>,
-	Andrew Morton <akpm@linux-foundation.org>, Alessandro Zummo <a.zummo@towertech.it>,
-	Sonny Rao <sonnyrao@chromium.org>, Heiko Stuebner <heiko@sntech.de>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, rtc-linux@googlegroups.com,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1450201525-9137-1-git-send-email-ynvich@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
-List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
-List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
-List-Archive: <http://groups.google.com/group/rtc-linux
-List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
+List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
+List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
+List-Archive: <https://groups.google.com/group/rtc-linux
+Sender: rtc-linux@googlegroups.com
+List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
- <http://groups.google.com/group/rtc-linux/subscribe>
+ <https://groups.google.com/group/rtc-linux/subscribe>
 
-> Technically you could still implement this and if firmware happens to
-> read the RTC (and doesn't correct things) then we won't be able to
-> correct things.  ...but certainly if you read the old time and then
-> the new time and the old time was < 11/31 and the new time was >=
-> 11/31 you know you need to correct.
->
-> I'd say that there's a good chance that other firmware (UBoot) doesn't
-> actually read the RTC anyway.  Why would it?  We only do it for even
-> log, right?
+On Tue, Dec 15, 2015 at 08:45:23PM +0300, Sergei Ianovich wrote:
 
-Hah! Sounds like you assume U-Boot was doing the things it does with
-comprehensible reasoning. From my experience, that's a dangerous wager
-(not that I'm biased or anything... ;) ). FWIW, they seem to be having
-a huge (175kloc, of only the finest copied kernel code from 10+ years
-ago, I presume) repository of RTC drivers, a separate command line
-command to read/write to it, and an SNTP client.
+Nothing in this is specific to ICP, so the subject should be updated.
 
-Still, you're right that adding the GET_TIME check wouldn't hurt... at
-worst it just does nothing. I'll try it out.
+> Signed-off-by: Sergei Ianovich <ynvich@gmail.com>
+> CC: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+> ---
+>    v4..v5
+>    * drop THIS_MODULE from struct platform driver
+>    * use "dallas" for vendor name per vendor-prefixes.txt
+> 
+>    v3..v4
+>    * move DTS bindings to a different patch
+> 
+>    v2..v3
+>    * use usleep_range instead of custom nsleep
+>    * number change (07/16 -> 09/21)
+> 
+>    v0..v2
+>    * use device tree
+>    * use devm helpers where possible
+> 
+>  .../devicetree/bindings/rtc/rtc-ds1302.txt         |  14 +++
+>  drivers/rtc/Kconfig                                |   2 +-
+>  drivers/rtc/rtc-ds1302.c                           | 100 ++++++++++++++++++++-
+>  3 files changed, 113 insertions(+), 3 deletions(-)
+>  create mode 100644 Documentation/devicetree/bindings/rtc/rtc-ds1302.txt
+> 
+> diff --git a/Documentation/devicetree/bindings/rtc/rtc-ds1302.txt b/Documentation/devicetree/bindings/rtc/rtc-ds1302.txt
+> new file mode 100644
+> index 0000000..810613b
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/rtc/rtc-ds1302.txt
+> @@ -0,0 +1,14 @@
+> +* Dallas Semiconductor DS-1302 RTC
+> +
+> +Simple device which could be used to store date/time between reboots.
+> +
+> +Required properties:
+> +- compatible : Should be "dallas,rtc-ds1302"
+> +- reg : Should be address and size of IO memory region
+
+This device is a SPI (or SPI like?) interface. So you have some sort of 
+of FPGA logic in between the cpu and ds1302. The DT should have a node 
+for the controller and then the ds1302 as a child of it. A full blown 
+SPI driver may be overkill here, but that's a separate discussion from 
+the DT binding.
+
+Rob
+
+> +
+> +Examples:
+> +
+> +rtc@40900000 {
+> +	compatible = "dallas,rtc-ds1302";
+> +	reg = <0x1700901c 0x1>;
+> +};
 
 -- 
 -- 
