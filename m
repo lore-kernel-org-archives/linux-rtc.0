@@ -1,177 +1,102 @@
-Return-Path: <rtc-linux+bncBCJP7WOE5UIBBV6NRCZQKGQEDZPS34I@googlegroups.com>
-Received: from mail-yk0-x22e.google.com (mail-yk0-x22e.google.com. [2607:f8b0:4002:c07::22e])
-        by gmr-mx.google.com with ESMTPS id m7si1330789ywe.1.2015.12.04.15.50.47
+Return-Path: <rtc-linux+bncBDUOXGMN6YKBBGVX3KZQKGQEFJWLTGY@googlegroups.com>
+Received: from mail-lf0-x22e.google.com (mail-lf0-x22e.google.com. [2a00:1450:4010:c07::22e])
+        by gmr-mx.google.com with ESMTPS id rw5si923228lbb.2.2015.12.20.04.14.18
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 04 Dec 2015 15:50:47 -0800 (PST)
-Received: by ykfs79 with SMTP id s79so143577317ykf.1
-        for <rtc-linux@googlegroups.com>; Fri, 04 Dec 2015 15:50:47 -0800 (PST)
-MIME-Version: 1.0
-Sender: rtc-linux@googlegroups.com
-In-Reply-To: <1449107584-3192-1-git-send-email-jwerner@chromium.org>
-References: <1449107584-3192-1-git-send-email-jwerner@chromium.org>
-Date: Fri, 4 Dec 2015 15:50:47 -0800
-Message-ID: <CAD=FV=VVU0ucrL9gsMGKBwMCg_d6aTZWXTpxwNmfNp0k0BzbdQ@mail.gmail.com>
-Subject: [rtc-linux] Re: [PATCH] RTC: RK808: Work around hardware bug on
- November 31st
-From: Doug Anderson <dianders@chromium.org>
-To: Julius Werner <jwerner@chromium.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>, Alessandro Zummo <a.zummo@towertech.it>,
-	Sonny Rao <sonnyrao@chromium.org>, Chris Zhong <zyw@rock-chips.com>,
-	Heiko Stuebner <heiko@sntech.de>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, rtc-linux@googlegroups.com
+        Sun, 20 Dec 2015 04:14:18 -0800 (PST)
+Received: by mail-lf0-x22e.google.com with SMTP id z124so91821510lfa.3
+        for <rtc-linux@googlegroups.com>; Sun, 20 Dec 2015 04:14:18 -0800 (PST)
+Message-ID: <1450613656.15911.62.camel@gmail.com>
+Subject: [rtc-linux] Re: [PATCH v5] rtc: support DS1302 RTC on ICP DAS LP-8x4x
+From: Sergei Ianovich <ynvich@gmail.com>
+To: Rob Herring <robh@kernel.org>
+Cc: linux-kernel@vger.kernel.org, Alexandre Belloni
+ <alexandre.belloni@free-electrons.com>, Pawel Moll <pawel.moll@arm.com>,
+ Mark Rutland <mark.rutland@arm.com>, Ian Campbell
+ <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>,
+ Alessandro Zummo <a.zummo@towertech.it>, "open list:OPEN FIRMWARE AND
+ FLATTENED DEVICE TREE BINDINGS" <devicetree@vger.kernel.org>, "open
+ list:REAL TIME CLOCK (RTC) SUBSYSTEM" <rtc-linux@googlegroups.com>
+Date: Sun, 20 Dec 2015 15:14:16 +0300
+In-Reply-To: <20151220033815.GD9883@rob-hp-laptop>
+References: <397668667-27328-3-git-send-email-ynvich@gmail.com>
+	 <1450201525-9137-1-git-send-email-ynvich@gmail.com>
+	 <20151220033815.GD9883@rob-hp-laptop>
 Content-Type: text/plain; charset=UTF-8
+Mime-Version: 1.0
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
-List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
-List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
-List-Archive: <http://groups.google.com/group/rtc-linux
-List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
+List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
+List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
+List-Archive: <https://groups.google.com/group/rtc-linux
+Sender: rtc-linux@googlegroups.com
+List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
- <http://groups.google.com/group/rtc-linux/subscribe>
+ <https://groups.google.com/group/rtc-linux/subscribe>
 
-Julius,
-
-On Wed, Dec 2, 2015 at 5:53 PM, Julius Werner <jwerner@chromium.org> wrote:
-> In Fuzhou, China, the month of November seems to be having 31 days.
-> That's nice and all (I'm sure you can get a lot more done in a year that
-> way), but back here in other parts of the world we are not so lucky.
-> Therefore, if we read that date from the RTC we should correct it to
-> December 1st.
->
-> This is not a full workaround. Since the RTC actually ticks all the way
-> through that imaginary day, there's no easy way to detect and correct
-> this issue if the device was offline the whole time and allowed it to
-> tick through to December 1st on the Rockchip calendar (which would be
-> December 2nd on the Gregorian one). Those edge cases can only really be
-> solved by regularly syncing to an external time source (e.g. NTP).
->
-> Signed-off-by: Julius Werner <jwerner@chromium.org>
-> Reviewed-by: Chris Zhong <zyw@rock-chips.com>
-> ---
->  drivers/rtc/rtc-rk808.c | 93 ++++++++++++++++++++++++++-----------------------
->  1 file changed, 50 insertions(+), 43 deletions(-)
->
-> diff --git a/drivers/rtc/rtc-rk808.c b/drivers/rtc/rtc-rk808.c
-> index 91ca0bc..b605b35 100644
-> --- a/drivers/rtc/rtc-rk808.c
-> +++ b/drivers/rtc/rtc-rk808.c
-> @@ -56,6 +56,50 @@ struct rk808_rtc {
->         int irq;
->  };
->
-> +/* Set current time and date in RTC */
-> +static int rk808_rtc_set_time(struct device *dev, struct rtc_time *tm)
-> +{
-> +       struct rk808_rtc *rk808_rtc = dev_get_drvdata(dev);
-> +       struct rk808 *rk808 = rk808_rtc->rk808;
-> +       u8 rtc_data[NUM_TIME_REGS];
-> +       int ret;
-> +
-> +       rtc_data[0] = bin2bcd(tm->tm_sec);
-> +       rtc_data[1] = bin2bcd(tm->tm_min);
-> +       rtc_data[2] = bin2bcd(tm->tm_hour);
-> +       rtc_data[3] = bin2bcd(tm->tm_mday);
-> +       rtc_data[4] = bin2bcd(tm->tm_mon + 1);
-> +       rtc_data[5] = bin2bcd(tm->tm_year - 100);
-> +       rtc_data[6] = bin2bcd(tm->tm_wday);
-> +       dev_dbg(dev, "set RTC date/time %4d-%02d-%02d(%d) %02d:%02d:%02d\n",
-> +               1900 + tm->tm_year, tm->tm_mon + 1, tm->tm_mday,
-> +               tm->tm_wday, tm->tm_hour , tm->tm_min, tm->tm_sec);
-> +
-> +       /* Stop RTC while updating the RTC registers */
-> +       ret = regmap_update_bits(rk808->regmap, RK808_RTC_CTRL_REG,
-> +                                BIT_RTC_CTRL_REG_STOP_RTC_M,
-> +                                BIT_RTC_CTRL_REG_STOP_RTC_M);
-> +       if (ret) {
-> +               dev_err(dev, "Failed to update RTC control: %d\n", ret);
-> +               return ret;
-> +       }
-> +
-> +       ret = regmap_bulk_write(rk808->regmap, RK808_SECONDS_REG,
-> +                               rtc_data, NUM_TIME_REGS);
-> +       if (ret) {
-> +               dev_err(dev, "Failed to bull write rtc_data: %d\n", ret);
-> +               return ret;
-> +       }
-> +       /* Start RTC again */
-> +       ret = regmap_update_bits(rk808->regmap, RK808_RTC_CTRL_REG,
-> +                                BIT_RTC_CTRL_REG_STOP_RTC_M, 0);
-> +       if (ret) {
-> +               dev_err(dev, "Failed to update RTC control: %d\n", ret);
-> +               return ret;
-> +       }
-> +       return 0;
-> +}
-> +
->  /* Read current time and date in RTC */
->  static int rk808_rtc_readtime(struct device *dev, struct rtc_time *tm)
->  {
-> @@ -105,51 +149,14 @@ static int rk808_rtc_readtime(struct device *dev, struct rtc_time *tm)
->                 1900 + tm->tm_year, tm->tm_mon + 1, tm->tm_mday,
->                 tm->tm_wday, tm->tm_hour , tm->tm_min, tm->tm_sec);
->
-> -       return ret;
-> -}
-> -
-> -/* Set current time and date in RTC */
-> -static int rk808_rtc_set_time(struct device *dev, struct rtc_time *tm)
-> -{
-> -       struct rk808_rtc *rk808_rtc = dev_get_drvdata(dev);
-> -       struct rk808 *rk808 = rk808_rtc->rk808;
-> -       u8 rtc_data[NUM_TIME_REGS];
-> -       int ret;
-> -
-> -       rtc_data[0] = bin2bcd(tm->tm_sec);
-> -       rtc_data[1] = bin2bcd(tm->tm_min);
-> -       rtc_data[2] = bin2bcd(tm->tm_hour);
-> -       rtc_data[3] = bin2bcd(tm->tm_mday);
-> -       rtc_data[4] = bin2bcd(tm->tm_mon + 1);
-> -       rtc_data[5] = bin2bcd(tm->tm_year - 100);
-> -       rtc_data[6] = bin2bcd(tm->tm_wday);
-> -       dev_dbg(dev, "set RTC date/time %4d-%02d-%02d(%d) %02d:%02d:%02d\n",
-> -               1900 + tm->tm_year, tm->tm_mon + 1, tm->tm_mday,
-> -               tm->tm_wday, tm->tm_hour , tm->tm_min, tm->tm_sec);
-> -
-> -       /* Stop RTC while updating the RTC registers */
-> -       ret = regmap_update_bits(rk808->regmap, RK808_RTC_CTRL_REG,
-> -                                BIT_RTC_CTRL_REG_STOP_RTC_M,
-> -                                BIT_RTC_CTRL_REG_STOP_RTC_M);
-> -       if (ret) {
-> -               dev_err(dev, "Failed to update RTC control: %d\n", ret);
-> -               return ret;
-> +       if (tm->tm_mon == 10 && tm->tm_mday == 31) {
-> +               dev_warn(dev, "correcting Nov 31st to Dec 1st (HW bug)\n");
-> +               tm->tm_mon = 11;
-> +               tm->tm_mday = 1;
-> +               rk808_rtc_set_time(dev, tm);
-
-If a device is in S3 for the whole day that the glitch occurs and then
-we wake up then we'll end up thinking it's Dec 1st instead of Dec 2nd,
-right?  That case _could_ be handled by knowing that the last time we
-read the clock it was before 12/1 and that this time it is after
-11/30.  Then we add the extra day.  In order to do this, we'd have to
-know that we're on hardware with the glitch, which I guess could
-either be done with a device tree property or by spending 1 second
-probing the device at bootup (that would be a bit of a pain...).
-
-Obviously the trick above wouldn't handle if the clock ticked when the
-device was in S5, but I'd imagine that most systems treat the RTC as
-slightly questionable on an initial bootup anyway (though I'd imagine
-that they rely on it working across S3).
-
-What do you think?  Is that a worthwhile thing to handle too?  It's
-pretty common for me to not turn all my devices on every day.
-
--Doug
-
--- 
--- 
-You received this message because you are subscribed to "rtc-linux".
-Membership options at http://groups.google.com/group/rtc-linux .
-Please read http://groups.google.com/group/rtc-linux/web/checklist
-before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
-For more options, visit https://groups.google.com/d/optout.
+T24gU2F0LCAyMDE1LTEyLTE5IGF0IDIxOjM4IC0wNjAwLCBSb2IgSGVycmluZyB3cm90ZToNCj4g
+T24gVHVlLCBEZWMgMTUsIDIwMTUgYXQgMDg6NDU6MjNQTSArMDMwMCwgU2VyZ2VpIElhbm92aWNo
+IHdyb3RlOg0KPiANCj4gTm90aGluZyBpbiB0aGlzIGlzIHNwZWNpZmljIHRvIElDUCwgc28gdGhl
+IHN1YmplY3Qgc2hvdWxkIGJlIHVwZGF0ZWQuDQo+IA0KPiA+IFNpZ25lZC1vZmYtYnk6IFNlcmdl
+aSBJYW5vdmljaCA8eW52aWNoQGdtYWlsLmNvbT4NCj4gPiBDQzogQWxleGFuZHJlIEJlbGxvbmkg
+PGFsZXhhbmRyZS5iZWxsb25pQGZyZWUtZWxlY3Ryb25zLmNvbT4NCj4gPiAtLS0NCj4gPiDCoMKg
+wqB2NC4udjUNCj4gPiDCoMKgwqAqIGRyb3AgVEhJU19NT0RVTEUgZnJvbSBzdHJ1Y3QgcGxhdGZv
+cm0gZHJpdmVyDQo+ID4gwqDCoMKgKiB1c2UgImRhbGxhcyIgZm9yIHZlbmRvciBuYW1lIHBlciB2
+ZW5kb3ItcHJlZml4ZXMudHh0DQo+ID4gDQo+ID4gwqDCoMKgdjMuLnY0DQo+ID4gwqDCoMKgKiBt
+b3ZlIERUUyBiaW5kaW5ncyB0byBhIGRpZmZlcmVudCBwYXRjaA0KPiA+IA0KPiA+IMKgwqDCoHYy
+Li52Mw0KPiA+IMKgwqDCoCogdXNlIHVzbGVlcF9yYW5nZSBpbnN0ZWFkIG9mIGN1c3RvbSBuc2xl
+ZXANCj4gPiDCoMKgwqAqIG51bWJlciBjaGFuZ2UgKDA3LzE2IC0+IDA5LzIxKQ0KPiA+IA0KPiA+
+IMKgwqDCoHYwLi52Mg0KPiA+IMKgwqDCoCogdXNlIGRldmljZSB0cmVlDQo+ID4gwqDCoMKgKiB1
+c2UgZGV2bSBoZWxwZXJzIHdoZXJlIHBvc3NpYmxlDQo+ID4gDQo+ID4gwqAuLi4vZGV2aWNldHJl
+ZS9iaW5kaW5ncy9ydGMvcnRjLWRzMTMwMi50eHTCoMKgwqDCoMKgwqDCoMKgwqB8wqDCoDE0ICsr
+Kw0KPiA+IMKgZHJpdmVycy9ydGMvS2NvbmZpZ8KgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqB8wqDCoMKgMiArLQ0KPiA+IMKgZHJp
+dmVycy9ydGMvcnRjLWRzMTMwMi5jwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgfCAxMDANCj4gPiArKysrKysrKysrKysrKysrKysrKy0NCj4gPiDC
+oDMgZmlsZXMgY2hhbmdlZCwgMTEzIGluc2VydGlvbnMoKyksIDMgZGVsZXRpb25zKC0pDQo+ID4g
+wqBjcmVhdGUgbW9kZSAxMDA2NDQgRG9jdW1lbnRhdGlvbi9kZXZpY2V0cmVlL2JpbmRpbmdzL3J0
+Yy9ydGMtDQo+ID4gZHMxMzAyLnR4dA0KPiA+IA0KPiA+IGRpZmYgLS1naXQgYS9Eb2N1bWVudGF0
+aW9uL2RldmljZXRyZWUvYmluZGluZ3MvcnRjL3J0Yy1kczEzMDIudHh0DQo+ID4gYi9Eb2N1bWVu
+dGF0aW9uL2RldmljZXRyZWUvYmluZGluZ3MvcnRjL3J0Yy1kczEzMDIudHh0DQo+ID4gbmV3IGZp
+bGUgbW9kZSAxMDA2NDQNCj4gPiBpbmRleCAwMDAwMDAwLi44MTA2MTNiDQo+ID4gLS0tIC9kZXYv
+bnVsbA0KPiA+ICsrKyBiL0RvY3VtZW50YXRpb24vZGV2aWNldHJlZS9iaW5kaW5ncy9ydGMvcnRj
+LWRzMTMwMi50eHQNCj4gPiBAQCAtMCwwICsxLDE0IEBADQo+ID4gKyogRGFsbGFzIFNlbWljb25k
+dWN0b3IgRFMtMTMwMiBSVEMNCj4gPiArDQo+ID4gK1NpbXBsZSBkZXZpY2Ugd2hpY2ggY291bGQg
+YmUgdXNlZCB0byBzdG9yZSBkYXRlL3RpbWUgYmV0d2Vlbg0KPiA+IHJlYm9vdHMuDQo+ID4gKw0K
+PiA+ICtSZXF1aXJlZCBwcm9wZXJ0aWVzOg0KPiA+ICstIGNvbXBhdGlibGUgOiBTaG91bGQgYmUg
+ImRhbGxhcyxydGMtZHMxMzAyIg0KPiA+ICstIHJlZyA6IFNob3VsZCBiZSBhZGRyZXNzIGFuZCBz
+aXplIG9mIElPIG1lbW9yeSByZWdpb24NCj4gDQo+IFRoaXMgZGV2aWNlIGlzIGEgU1BJIChvciBT
+UEkgbGlrZT8pIGludGVyZmFjZS4gU28geW91IGhhdmUgc29tZSBzb3J0DQo+IG9mIA0KPiBvZiBG
+UEdBIGxvZ2ljIGluIGJldHdlZW4gdGhlIGNwdSBhbmQgZHMxMzAyLiBUaGUgRFQgc2hvdWxkIGhh
+dmUgYSBub2RlDQo+IGZvciB0aGUgY29udHJvbGxlciBhbmQgdGhlbiB0aGUgZHMxMzAyIGFzIGEg
+Y2hpbGQgb2YgaXQuIEEgZnVsbCBibG93biANCj4gU1BJIGRyaXZlciBtYXkgYmUgb3ZlcmtpbGwg
+aGVyZSwgYnV0IHRoYXQncyBhIHNlcGFyYXRlIGRpc2N1c3Npb24gZnJvbQ0KPiB0aGUgRFQgYmlu
+ZGluZy4NCg0KQmVsb3cgaXMgdGhlIHF1b3RlIGZyb20gdGhlIGFjdHVhbCBEVCBvZiBMUC04eDR4
+Og0KPiDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoGZwZ2FANSB7DQo+IMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoGNvbXBhdGlibGUgPSAic2lt
+cGxlLWJ1cyI7DQo+IMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoCNhZGRyZXNzLWNlbGxzID0gPDE+Ow0KPiDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqAjc2l6ZS1jZWxscyA9IDwxPjsNCj4gwqDCoMKgwqDCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgcmFuZ2VzID0gPDAgNSAweDMwMDAwMDAg
+MHgxMDAwMD47DQo+IMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoGludGVycnVwdC1wYXJlbnQgPSA8JmZwZ2FpcnE+Ow0KPiANCj4gwqDCoMKgwqDCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgcnRjQDkwMWMgew0KPiDCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgY29t
+cGF0aWJsZSA9ICJkYWxsYXMscnRjLWRzMTMwMiI7DQo+IMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqByZWcgPSA8MHg5MDFjIDB4
+MT47DQo+IMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqBzdGF0dXMgPSAib2theSI7DQo+IMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoH07DQoNCllvdSBhcmUgcmlnaHQgYWJvdXQgdGhlIHRv
+cG9sb2d5LiBkczEzMDIgaXMgYSBoYWxmLWR1cGxleCBTUEkgZGV2aWNlLg0KRG9lcyB0aGlzIG1l
+YW4gSSBzaG91bGQgcmV3cml0ZSB0aGUgZHJpdmVyIHRvIGhhbmRsZSB0aGUgY2hpcCBhcyBhIHNs
+YXZlDQpTUEkgZGV2aWNlLCBhbmQgdGhlbiBwcm92aWRlIGEgbWFzdGVyIFNQSSBmdW5jdGlvbmFs
+aXR5IGF0IHRoZSBGUEdBPw0KDQotLSAKLS0gDQpZb3UgcmVjZWl2ZWQgdGhpcyBtZXNzYWdlIGJl
+Y2F1c2UgeW91IGFyZSBzdWJzY3JpYmVkIHRvICJydGMtbGludXgiLg0KTWVtYmVyc2hpcCBvcHRp
+b25zIGF0IGh0dHA6Ly9ncm91cHMuZ29vZ2xlLmNvbS9ncm91cC9ydGMtbGludXggLg0KUGxlYXNl
+IHJlYWQgaHR0cDovL2dyb3Vwcy5nb29nbGUuY29tL2dyb3VwL3J0Yy1saW51eC93ZWIvY2hlY2ts
+aXN0DQpiZWZvcmUgc3VibWl0dGluZyBhIGRyaXZlci4KLS0tIApZb3UgcmVjZWl2ZWQgdGhpcyBt
+ZXNzYWdlIGJlY2F1c2UgeW91IGFyZSBzdWJzY3JpYmVkIHRvIHRoZSBHb29nbGUgR3JvdXBzICJy
+dGMtbGludXgiIGdyb3VwLgpUbyB1bnN1YnNjcmliZSBmcm9tIHRoaXMgZ3JvdXAgYW5kIHN0b3Ag
+cmVjZWl2aW5nIGVtYWlscyBmcm9tIGl0LCBzZW5kIGFuIGVtYWlsIHRvIHJ0Yy1saW51eCt1bnN1
+YnNjcmliZUBnb29nbGVncm91cHMuY29tLgpGb3IgbW9yZSBvcHRpb25zLCB2aXNpdCBodHRwczov
+L2dyb3Vwcy5nb29nbGUuY29tL2Qvb3B0b3V0Lgo=
