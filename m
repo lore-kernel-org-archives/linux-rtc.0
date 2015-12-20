@@ -1,196 +1,68 @@
-Return-Path: <rtc-linux+bncBAABBA5XUWZQKGQECUINN7I@googlegroups.com>
-Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de. [2001:67c:670:201:290:27ff:fe1d:cc33])
-        by gmr-mx.google.com with ESMTPS id d185si970886wmf.0.2015.12.10.03.01.23
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=AES128-SHA bits=128/128);
-        Thu, 10 Dec 2015 03:01:23 -0800 (PST)
-Date: Thu, 10 Dec 2015 12:01:19 +0100
-From: Steffen Trumtrar <s.trumtrar@pengutronix.de>
-To: Philipp Zabel <p.zabel@pengutronix.de>
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Mark Rutland <mark.rutland@arm.com>, devicetree@vger.kernel.org,
-	rtc-linux@googlegroups.com, Pawel Moll <pawel.moll@arm.com>,
-	Ian Campbell <ijc+devicetree@hellion.org.uk>,
-	Rob Herring <robh+dt@kernel.org>, kernel@pengutronix.de,
-	Kumar Gala <galak@codeaurora.org>
-Subject: [rtc-linux] Re: [PATCH v3 2/2] rtc: add driver for RX6110SA real time clock
-Message-ID: <20151210110119.GD20212@pengutronix.de>
-References: <1449568461-26016-1-git-send-email-s.trumtrar@pengutronix.de>
- <1449568461-26016-2-git-send-email-s.trumtrar@pengutronix.de>
- <1449570621.18374.1.camel@pengutronix.de>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBNGO3KZQKGQEUGQMQWA@googlegroups.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id 204si453589wmx.1.2015.12.20.05.03.48
+        for <rtc-linux@googlegroups.com>;
+        Sun, 20 Dec 2015 05:03:48 -0800 (PST)
+Date: Sun, 20 Dec 2015 14:03:37 +0100
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org
+Subject: [rtc-linux] [GIT PULL] RTC fixes for 4.4 #2
+Message-ID: <20151220130337.GA25770@piout.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1449570621.18374.1.camel@pengutronix.de>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="FCuugMFkClbJLl1L"
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
-List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
-List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
-List-Archive: <http://groups.google.com/group/rtc-linux
+List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
+List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
+List-Archive: <https://groups.google.com/group/rtc-linux
 Sender: rtc-linux@googlegroups.com
-List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
+List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
- <http://groups.google.com/group/rtc-linux/subscribe>
+ <https://groups.google.com/group/rtc-linux/subscribe>
 
-Hi!
+--FCuugMFkClbJLl1L
+Content-Type: text/plain; charset=UTF-8
+Content-Disposition: inline
 
-On Tue, Dec 08, 2015 at 11:30:21AM +0100, Philipp Zabel wrote:
-> Am Dienstag, den 08.12.2015, 10:54 +0100 schrieb Steffen Trumtrar:
-> > The RX6110 comes in two different variants: SPI and I2C.
-> > This driver only supports the SPI variant.
-> > 
-> > If the need ever arises to also support the I2C variant, this driver
-> > could easily be refactored to support both cases.
-> > 
-> > Signed-off-by: Steffen Trumtrar <s.trumtrar@pengutronix.de>
-> 
-> Reviewed-by: Philipp Zabel <p.zabel@pengutronix.de>
-> 
-> I have a few suggestions:
-> 
-> [...]
-> > diff --git a/drivers/rtc/rtc-rx6110.c b/drivers/rtc/rtc-rx6110.c
-> > new file mode 100644
-> > index 000000000000..aa9d89d5d2de
-> > --- /dev/null
-> > +++ b/drivers/rtc/rtc-rx6110.c
-> > @@ -0,0 +1,438 @@
-> > +/*
-> > + * Driver for the Epson RTC module RX-6110 SA
-> > + *
-> > + * Copyright(C) 2015 Pengutronix, Steffen Trumtrar <kernel@pengutronix.de>
-> > + * Copyright(C) SEIKO EPSON CORPORATION 2013. All rights reserved.
-> > + *
-> > + * This driver software is distributed as is, without any warranty of any kind,
-> > + * either express or implied as further specified in the GNU Public License.
-> > + * This software may be used and distributed according to the terms of the GNU
-> > + * Public License, version 2 as published by the Free Software Foundation.
-> > + * See the file COPYING in the main directory of this archive for more details.
-> > + *
-> > + * You should have received a copy of the GNU General Public License along with
-> > + * this program. If not, see <http://www.gnu.org/licenses/>.
-> > + */
-> > +
-> > +#include <linux/bcd.h>
-> > +#include <linux/init.h>
-> > +#include <linux/kernel.h>
-> > +#include <linux/module.h>
-> 
-> > +#include <linux/of.h>
-> > +#include <linux/of_device.h>
-> > +#include <linux/of_gpio.h>
-> 
-> I think these three can be dropped.
-> 
+Hi Linus,
 
-Okay.
+Please pull those late fixes for the RTC subsystem for 4.4.
 
-> > +#include <linux/regmap.h>
-> > +#include <linux/rtc.h>
-> > +#include <linux/spi/spi.h>
-> > +
-> > +/* RX-6110 Register definitions */
-> [...]
-> > +
-> > +static struct spi_driver rx6110_driver;
-> 
-> Several drivers do this. Instead of the forward declaration and using
-> rx6110_driver.driver.name in devm_rtc_device_register below, why not
-> just have a #define RX6110_DRIVER_NAME "rx6110-rtc" and reuse that?
-> Actually, I think the "-rtc" suffix is superfluous in the rtc name.
-> I'd just use "rx6110" as a parameter to devm_rtc_device_register.
->
+The following changes since commit 3abb1ada21a4fb5b2920457a2e5c8483abb09a45:
 
-Yeah, why not. The define seems to be a cleaner solution than the
-forward declaration. Changed.
+  rtc: ds1307: fix alarm reading at probe time (2015-11-26 18:11:26 +0100)
 
-> > +struct rx6110_data {
-> > +	struct rtc_device *rtc;
-> > +	struct regmap *regmap;
-> > +};
-> [...]
-> > +/**
-> > + * rx6110_init - initialize the rx6110 registers
-> > + *
-> > + * @rx6110: pointer to the rx6110 struct in use
-> > + *
-> > + */
-> > +static int rx6110_init(struct rx6110_data *rx6110)
-> > +{
-> > +	struct rtc_device *rtc = rx6110->rtc;
-> > +	int ext;
-> > +	int flags;
-> > +	int ctrl;
-> 
-> ctrl is unused, except in the dev_dbg to print 0 below.
-> 
-> > +	int ret;
-> > +
-> > +	/* set reserved register 0x17 with specified value of 0xB8 */
-> > +	ret = regmap_write(rx6110->regmap, RX6110_REG_RES1, 0xB8);
-> > +	if (ret)
-> > +		return ret;
-> > +
-> > +	/* set reserved register 0x30 with specified value of 0x00 */
-> > +	ret = regmap_write(rx6110->regmap, RX6110_REG_RES2, 0x00);
-> > +	if (ret)
-> > +		return ret;
-> > +
-> > +	/* set reserved register 0x31 with specified value of 0x10 */
-> > +	ret = regmap_write(rx6110->regmap, RX6110_REG_RES3, 0x10);
-> > +	if (ret)
-> > +		return ret;
-> > +
-> > +	ret = regmap_write(rx6110->regmap, RX6110_REG_IRQ, 0x0);
-> > +	if (ret)
-> > +		return ret;
-> 
-> Maybe combine those using regmap_multi_reg_write? Not sure if the
-> sequence can be reordered to also include the writes below.
->
+are available in the git repository at:
 
-Never heard of it, but it sounds like a good idea.
+  git://git.kernel.org/pub/scm/linux/kernel/git/abelloni/linux.git tags/rtc-4.4-3
 
-(...)
+for you to fetch changes up to 77535acedc26627f16a1a39c1471f942689fe11e:
 
-> > +/**
-> > + * rx6110_probe - initialize rtc driver
-> > + * @spi: pointer to spi device
-> > + */
-> > +static int rx6110_probe(struct spi_device *spi)
-> > +{
-> > +	struct rx6110_data *rx6110;
-> > +	int err;
-> > +
-> > +	if ((spi->bits_per_word && spi->bits_per_word != 8)
-> > +	    || (spi->max_speed_hz > 2000000)
-> > +	    || (spi->mode != (SPI_CS_HIGH | SPI_CPOL | SPI_CPHA))) {
-> > +		dev_warn(&spi->dev, "SPI settings: bits_per_word: %d, max_speed_hz: %d, mode: %xh\n",
-> > +			spi->bits_per_word, spi->max_speed_hz, spi->mode);
-> > +		dev_warn(&spi->dev, "driving device in an unsupported mode");
-> > +	}
-> > +
-> > +	rx6110 = devm_kzalloc(&spi->dev, sizeof(*rx6110), GFP_KERNEL);
-> > +	if (!rx6110)
-> > +		return -ENOMEM;
-> > +
-> > +	rx6110->regmap = devm_regmap_init_spi(spi, &regmap_spi_config);
-> > +	if (IS_ERR(rx6110->regmap)) {
-> > +		dev_err(&spi->dev, "regmap init failed for rtc rx6110\n");
-> 
-> Maybe print the error code.
-> 
+  rtc: da9063: fix access ordering error during RTC interrupt at system power on (2015-12-20 13:39:29 +0100)
 
-Done.
+----------------------------------------------------------------
+RTC fixes for 4.4 #2
 
-Thanks,
-Steffen
+A fix for a nasty hardware bug in rk808 and a initialization reordering in
+da9063 to fix a possible crash.
+
+----------------------------------------------------------------
+Julius Werner (1):
+      rtc: rk808: Compensate for Rockchip calendar deviation on November 31st
+
+Steve Twiss (1):
+      rtc: da9063: fix access ordering error during RTC interrupt at system power on
+
+ drivers/rtc/rtc-da9063.c | 19 +++++++++----------
+ drivers/rtc/rtc-rk808.c  | 48 ++++++++++++++++++++++++++++++++++++++++++++----
+ 2 files changed, 53 insertions(+), 14 deletions(-)
 
 -- 
-Pengutronix e.K.                           |                             |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
-Peiner Str. 6-8, 31137 Hildesheim, Germany | Phone: +49-5121-206917-0    |
-Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
 -- 
 -- 
@@ -202,3 +74,27 @@ before submitting a driver.
 You received this message because you are subscribed to the Google Groups "rtc-linux" group.
 To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
+
+--FCuugMFkClbJLl1L
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBCAAGBQJWdqcpAAoJEKbNnwlvZCyzdQ0QAL23ekxMjI5WRMNg1HAHenuw
+cU0AE8cVFLes4MaWVf0KDedvg/5068+30UmGZeB1Ogn1Oxm7qCD/mBNs2w3mOX/V
+3B6Xq/tHu9Sfjr2Y52YQzQseVG/csfIv0DZkYwJxu1XmOWOlXGR24FQ+nk/QcqR1
+cET87F9ByO+OjVNz6DuszloZPk9UnI73+VuFViljq2UD3mABlz63EvWdVsG0NTCV
++nh4/RLFrTKxCCKYCoqbjQXzZlimQF3aOY+uFcoSbZh5dtXmLFhaoZsoCYilykfz
+vMXabqTukKz3QkJlL4oEpLCueKd4qkFB7c3BP/RRxnf6clxPSDLxHnZqhZbRQ/GU
+FGZresckbrzpUjxtYAPkbZcav/j+dhIxk1QfPhmg+5rnFBDjtu7gxvMp7lYH41Lq
+RoPS4cLXlTq7MOMc4DczWGUZ2JNPqzr3FhrI9cJFhQ/7GpAP6rU6Bvtyq7dDBWYc
+/1eeI1EM99RxmPZpjBqbUQAs4C9JLt3wC9UjGmqncSCXDIA1+IDZ/E2gbgZUFRj/
+xBP9E3I7IvvsmFUFHaqsuuIixDjZ1DVaQ32iY87ojSCYZWa5TEah3GKjQmTaCXBv
+RaoilxbWcdlSml+6ipk+MthrAiTt3BxRYQGXFm9XPvMPrt66JUvs6BHUQqRv6qV2
+ZUXpF/lo1ImKs2giIXYZ
+=jDL+
+-----END PGP SIGNATURE-----
+
+--FCuugMFkClbJLl1L--
