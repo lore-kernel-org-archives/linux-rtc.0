@@ -1,21 +1,19 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBWV242ZQKGQE7KRNJXI@googlegroups.com>
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id f18si255208wme.1.2015.12.22.10.58.34
-        for <rtc-linux@googlegroups.com>;
-        Tue, 22 Dec 2015 10:58:34 -0800 (PST)
-Date: Tue, 22 Dec 2015 19:58:33 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Julia Lawall <Julia.Lawall@lip6.fr>
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
-	kernel-janitors@vger.kernel.org, rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH] rtc: v3020: constify v3020_chip_ops structures
-Message-ID: <20151222185833.GD8623@piout.net>
-References: <1449856250-24732-1-git-send-email-Julia.Lawall@lip6.fr>
+Return-Path: <rtc-linux+bncBDA5BKNJ6MIBBUVX5OZQKGQEJARBKPY@googlegroups.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1449856250-24732-1-git-send-email-Julia.Lawall@lip6.fr>
+Received: from mga04.intel.com (mga04.intel.com. [192.55.52.120])
+        by gmr-mx.google.com with ESMTP id p88si3955907pfi.0.2015.12.23.09.37.22
+        for <rtc-linux@googlegroups.com>;
+        Wed, 23 Dec 2015 09:37:22 -0800 (PST)
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	rtc-linux@googlegroups.com
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: [rtc-linux] [PATCH v1 1/1] rtc: cmos: prevent kernel warning on IRQ
+ flags mismatch
+Date: Wed, 23 Dec 2015 19:37:19 +0200
+Message-Id: <1450892239-74224-1-git-send-email-andriy.shevchenko@linux.intel.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -25,23 +23,39 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 11/12/2015 at 18:50:50 +0100, Julia Lawall wrote :
-> The v3020_chip_ops structures are never modified, so declare them as const.
-> 
-> Done with the help of Coccinelle.
-> 
-> Signed-off-by: Julia Lawall <Julia.Lawall@lip6.fr>
-> 
-> ---
->  drivers/rtc/rtc-v3020.c |    6 +++---
->  1 file changed, 3 insertions(+), 3 deletions(-)
-> 
-Applied, thanks.
+The Microsoft Surface 3 tablet shares interrupt line between RTC and one of SPI
+controllers. However, the rtc_cmos driver doesn't allow shared interrupts and
+user sees the following warning
 
+genirq: Flags mismatch irq 8. 00000080 (8086228E:02) vs. 00000000 (rtc0)
+...
+[<ffffffffa004eb01>] pxa2xx_spi_probe+0x151/0x600 [spi_pxa2xx_platform]
+
+Allow RTC driver to use shared interrupts.
+
+Seems we are on the safe side to do just this simple change since
+cmos_interrupt() handler checks for the actual hardware status anyway.
+
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+---
+ drivers/rtc/rtc-cmos.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/rtc/rtc-cmos.c b/drivers/rtc/rtc-cmos.c
+index 8f7034b..84fb541 100644
+--- a/drivers/rtc/rtc-cmos.c
++++ b/drivers/rtc/rtc-cmos.c
+@@ -725,7 +725,7 @@ cmos_do_probe(struct device *dev, struct resource *ports, int rtc_irq)
+ 			rtc_cmos_int_handler = cmos_interrupt;
+ 
+ 		retval = request_irq(rtc_irq, rtc_cmos_int_handler,
+-				0, dev_name(&cmos_rtc.rtc->dev),
++				IRQF_SHARED, dev_name(&cmos_rtc.rtc->dev),
+ 				cmos_rtc.rtc);
+ 		if (retval < 0) {
+ 			dev_dbg(dev, "IRQ %d is already in use\n", rtc_irq);
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+2.6.4
 
 -- 
 -- 
