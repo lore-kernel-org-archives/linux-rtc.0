@@ -1,87 +1,62 @@
-Return-Path: <rtc-linux+bncBAABBZ7LSWZQKGQEIA5GWBY@googlegroups.com>
-Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de. [2001:67c:670:201:290:27ff:fe1d:cc33])
-        by gmr-mx.google.com with ESMTPS id e201si701808wma.3.2015.12.07.04.04.55
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=AES128-SHA bits=128/128);
-        Mon, 07 Dec 2015 04:04:55 -0800 (PST)
-Date: Mon, 7 Dec 2015 13:04:42 +0100
-From: Steffen Trumtrar <s.trumtrar@pengutronix.de>
-To: Rob Herring <robh@kernel.org>
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Pawel Moll <pawel.moll@arm.com>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Ian Campbell <ijc+devicetree@hellion.org.uk>,
-	Kumar Gala <galak@codeaurora.org>, devicetree@vger.kernel.org,
-	rtc-linux@googlegroups.com, kernel@pengutronix.de
-Subject: [rtc-linux] Re: [PATCH v2 1/2] Documentation: devicetree: add epson
- rx6110 binding
-Message-ID: <20151207120442.GD32453@pengutronix.de>
-References: <1448977700-10924-1-git-send-email-s.trumtrar@pengutronix.de>
- <20151203145552.GA3635@rob-hp-laptop>
+Return-Path: <rtc-linux+bncBC4PNG5H2MBBBLFT5KZQKGQEXRDB6EI@googlegroups.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <20151203145552.GA3635@rob-hp-laptop>
+Received: from m50-133.163.com (m50-133.163.com. [123.125.50.133])
+        by gmr-mx.google.com with ESMTP id f7si1405576igc.0.2015.12.23.04.55.06
+        for <rtc-linux@googlegroups.com>;
+        Wed, 23 Dec 2015 04:55:07 -0800 (PST)
+From: Geliang Tang <geliangtang@163.com>
+To: Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: Geliang Tang <geliangtang@163.com>,
+	rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org
+Subject: [rtc-linux] [PATCH] rtc: ds1305: use to_spi_device and kobj_to_dev
+Date: Wed, 23 Dec 2015 20:54:33 +0800
+Message-Id: <69d9b6de4c0a2c10544f9982bce92d3132bf6d21.1450875144.git.geliangtang@163.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
-List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
-List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
-List-Archive: <http://groups.google.com/group/rtc-linux
+List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
+List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
+List-Archive: <https://groups.google.com/group/rtc-linux
 Sender: rtc-linux@googlegroups.com
-List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
+List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
- <http://groups.google.com/group/rtc-linux/subscribe>
+ <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Thu, Dec 03, 2015 at 08:55:52AM -0600, Rob Herring wrote:
-> On Tue, Dec 01, 2015 at 02:48:19PM +0100, Steffen Trumtrar wrote:
-> > Add the binding documentation for the Epson RX6110 RTC.
-> > 
-> > Signed-off-by: Steffen Trumtrar <s.trumtrar@pengutronix.de>
-> > ---
-> > Changes since v1:
-> > 	- added i2c binding
-> > 	- compatible: "epson,rtc-rx6110" -> "epson,rx6110"
-> > 	- fixed typo
-> > 
-> >  .../devicetree/bindings/rtc/epson,rx6110.txt       | 39 ++++++++++++++++++++++
-> >  1 file changed, 39 insertions(+)
-> >  create mode 100644 Documentation/devicetree/bindings/rtc/epson,rx6110.txt
-> > 
-> > diff --git a/Documentation/devicetree/bindings/rtc/epson,rx6110.txt b/Documentation/devicetree/bindings/rtc/epson,rx6110.txt
-> > new file mode 100644
-> > index 000000000000..8c3d06f117e8
-> > --- /dev/null
-> > +++ b/Documentation/devicetree/bindings/rtc/epson,rx6110.txt
-> > @@ -0,0 +1,39 @@
-> > +Epson RX6110 Real Time Clock
-> > +============================
-> > +
-> > +The Epson RX6110 can be used with SPI or I2C busses. The kind of
-> > +bus depends on the SPISEL pin and can not be configured via software.
-> > +
-> > +I2C mode
-> > +--------
-> > +
-> > +Required properties:
-> > +  - compatible: should be: "epson,rx6110"
-> > +  - reg : offset and length of the register set for the device
-> 
-> For i2c, there is no size cell. Otherwise,
+For better readability, use to_spi_device() and kobj_to_dev() instead
+of container_of().
 
-Okay. I removed it from the binding documentation.
+Signed-off-by: Geliang Tang <geliangtang@163.com>
+---
+ drivers/rtc/rtc-ds1305.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-> 
-> Acked-by: Rob Herring <robh@kernel.org>
-> 
-
-Thanks,
-Steffen Trumtrar
-
+diff --git a/drivers/rtc/rtc-ds1305.c b/drivers/rtc/rtc-ds1305.c
+index f39691e..8e41c46 100644
+--- a/drivers/rtc/rtc-ds1305.c
++++ b/drivers/rtc/rtc-ds1305.c
+@@ -532,7 +532,7 @@ ds1305_nvram_read(struct file *filp, struct kobject *kobj,
+ 	struct spi_transfer	x[2];
+ 	int			status;
+ 
+-	spi = container_of(kobj, struct spi_device, dev.kobj);
++	spi = to_spi_device(kobj_to_dev(kobj));
+ 
+ 	addr = DS1305_NVRAM + off;
+ 	msg_init(&m, x, &addr, count, NULL, buf);
+@@ -554,7 +554,7 @@ ds1305_nvram_write(struct file *filp, struct kobject *kobj,
+ 	struct spi_transfer	x[2];
+ 	int			status;
+ 
+-	spi = container_of(kobj, struct spi_device, dev.kobj);
++	spi = to_spi_device(kobj_to_dev(kobj));
+ 
+ 	addr = (DS1305_WRITE | DS1305_NVRAM) + off;
+ 	msg_init(&m, x, &addr, count, buf, NULL);
 -- 
-Pengutronix e.K.                           |                             |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
-Peiner Str. 6-8, 31137 Hildesheim, Germany | Phone: +49-5121-206917-0    |
-Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |
+2.5.0
+
 
 -- 
 -- 
