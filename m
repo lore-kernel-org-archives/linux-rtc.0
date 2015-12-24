@@ -1,29 +1,33 @@
-Return-Path: <rtc-linux+bncBDKZNNNLXAHBBE7SRS2AKGQERPPPRHA@googlegroups.com>
-MIME-Version: 1.0
-Received: from mailout2.w1.samsung.com (mailout2.w1.samsung.com. [210.118.77.12])
-        by gmr-mx.google.com with ESMTPS id ui7si1556932pab.0.2015.12.29.17.53.23
+Return-Path: <rtc-linux+bncBDUOXGMN6YKBBB5E56ZQKGQEICTQBSQ@googlegroups.com>
+Received: from mail-lb0-x22e.google.com (mail-lb0-x22e.google.com. [2a00:1450:4010:c04::22e])
+        by gmr-mx.google.com with ESMTPS id ea7si1113203lbc.0.2015.12.24.03.07.50
         for <rtc-linux@googlegroups.com>
-        (version=TLS1 cipher=AES128-SHA bits=128/128);
-        Tue, 29 Dec 2015 17:53:23 -0800 (PST)
-Received: from eucpsbgm2.samsung.com (unknown [203.254.199.245])
- by mailout2.w1.samsung.com
- (Oracle Communications Messaging Server 7.0.5.31.0 64bit (built May  5 2014))
- with ESMTP id <0O050011JEKVEPA0@mailout2.w1.samsung.com> for
- rtc-linux@googlegroups.com; Wed, 30 Dec 2015 01:53:19 +0000 (GMT)
-From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-To: Sangbeom Kim <sbkim73@samsung.com>,
- Krzysztof Kozlowski <k.kozlowski@samsung.com>,
- Alessandro Zummo <a.zummo@towertech.it>,
- Alexandre Belloni <alexandre.belloni@free-electrons.com>,
- Lee Jones <lee.jones@linaro.org>, linux-kernel@vger.kernel.org,
- linux-samsung-soc@vger.kernel.org, rtc-linux@googlegroups.com
-Cc: Alim Akhtar <alim.akhtar@samsung.com>
-Subject: [rtc-linux] [PATCH 1/3] rtc: s5m: Cleanup by removing useless 'rtc'
- prefix from fields
-Date: Wed, 30 Dec 2015 10:53:03 +0900
-Message-id: <1451440385-8654-1-git-send-email-k.kozlowski@samsung.com>
-Reply-To: rtc-linux@googlegroups.com
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 24 Dec 2015 03:07:50 -0800 (PST)
+Received: by mail-lb0-x22e.google.com with SMTP id sv6so52191527lbb.0
+        for <rtc-linux@googlegroups.com>; Thu, 24 Dec 2015 03:07:50 -0800 (PST)
+Message-ID: <1450955268.15911.85.camel@gmail.com>
+Subject: [rtc-linux] Re: [PATCH v5] rtc: support DS1302 RTC on ICP DAS LP-8x4x
+From: Sergei Ianovich <ynvich@gmail.com>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>, Rob Herring
+	 <robh@kernel.org>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Pawel
+ Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian
+ Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala
+ <galak@codeaurora.org>,  Alessandro Zummo <a.zummo@towertech.it>, "open
+ list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS"
+ <devicetree@vger.kernel.org>, "open list:REAL TIME CLOCK (RTC) SUBSYSTEM"
+ <rtc-linux@googlegroups.com>
+Date: Thu, 24 Dec 2015 14:07:48 +0300
+In-Reply-To: <20151224110453.GJ8623@piout.net>
+References: <397668667-27328-3-git-send-email-ynvich@gmail.com>
+	 <1450201525-9137-1-git-send-email-ynvich@gmail.com>
+	 <20151220033815.GD9883@rob-hp-laptop> <1450613656.15911.62.camel@gmail.com>
+	 <CAL_JsqKxEkuvQ=7=zmb0pkNNyUe9aKzKics43QasUBDM2rmrwA@mail.gmail.com>
+	 <20151224110453.GJ8623@piout.net>
 Content-Type: text/plain; charset=UTF-8
+Mime-Version: 1.0
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -33,155 +37,28 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Remove the 'rtc' prefix from some of the fields in struct
-s5m_rtc_reg_config because it is obvious - this is a RTC driver. No
-functional changes.
+On Thu, 2015-12-24 at 12:04 +0100, Alexandre Belloni wrote:
+> On 22/12/2015 at 12:16:41 -0600, Rob Herring wrote :
+> > Well, the binding should reflect that, whether the driver needs to
+> > be
+> > re-written is somewhat a separate question. That should probably
+> > have
+> > been done for the DS1302 driver originally and it is not too fair
+> > for
+> > the 2nd person to fix it. You could just have a single driver bound
+> > to
+> > the controller node which is aware of the DS1302 being the slave
+> > device (ignoring that part of the DT for now).
+> > 
+> 
+> I agree with Rob here. I won't require that you fix the driver but it
+> would be better to have a proper DT binding from the beginning so that
+> when the driver is fixed it will still work with the previous device
+> trees.
 
-Signed-off-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
----
- drivers/rtc/rtc-s5m.c | 40 +++++++++++++++++++---------------------
- 1 file changed, 19 insertions(+), 21 deletions(-)
+No problem. I'll fix the driver. That's how it should be done.
 
-diff --git a/drivers/rtc/rtc-s5m.c b/drivers/rtc/rtc-s5m.c
-index 0d68a85dd429..85649861a6b0 100644
---- a/drivers/rtc/rtc-s5m.c
-+++ b/drivers/rtc/rtc-s5m.c
-@@ -55,9 +55,9 @@ struct s5m_rtc_reg_config {
- 	 * will enable update of time or alarm register. Then it will be
- 	 * auto-cleared after successful update.
- 	 */
--	unsigned int rtc_udr_update;
--	/* Mask for UDR field in 'rtc_udr_update' register */
--	unsigned int rtc_udr_mask;
-+	unsigned int udr_update;
-+	/* Mask for UDR field in 'udr_update' register */
-+	unsigned int udr_mask;
- };
- 
- /* Register map for S5M8763 and S5M8767 */
-@@ -67,8 +67,8 @@ static const struct s5m_rtc_reg_config s5m_rtc_regs = {
- 	.ctrl			= S5M_ALARM1_CONF,
- 	.alarm0			= S5M_ALARM0_SEC,
- 	.alarm1			= S5M_ALARM1_SEC,
--	.rtc_udr_update		= S5M_RTC_UDR_CON,
--	.rtc_udr_mask		= S5M_RTC_UDR_MASK,
-+	.udr_update		= S5M_RTC_UDR_CON,
-+	.udr_mask		= S5M_RTC_UDR_MASK,
- };
- 
- /*
-@@ -81,8 +81,8 @@ static const struct s5m_rtc_reg_config s2mps_rtc_regs = {
- 	.ctrl			= S2MPS_RTC_CTRL,
- 	.alarm0			= S2MPS_ALARM0_SEC,
- 	.alarm1			= S2MPS_ALARM1_SEC,
--	.rtc_udr_update		= S2MPS_RTC_UDR_CON,
--	.rtc_udr_mask		= S2MPS_RTC_WUDR_MASK,
-+	.udr_update		= S2MPS_RTC_UDR_CON,
-+	.udr_mask		= S2MPS_RTC_WUDR_MASK,
- };
- 
- struct s5m_rtc_info {
-@@ -166,9 +166,8 @@ static inline int s5m8767_wait_for_udr_update(struct s5m_rtc_info *info)
- 	unsigned int data;
- 
- 	do {
--		ret = regmap_read(info->regmap, info->regs->rtc_udr_update,
--				&data);
--	} while (--retry && (data & info->regs->rtc_udr_mask) && !ret);
-+		ret = regmap_read(info->regmap, info->regs->udr_update, &data);
-+	} while (--retry && (data & info->regs->udr_mask) && !ret);
- 
- 	if (!retry)
- 		dev_err(info->dev, "waiting for UDR update, reached max number of retries\n");
-@@ -214,7 +213,7 @@ static inline int s5m8767_rtc_set_time_reg(struct s5m_rtc_info *info)
- 	int ret;
- 	unsigned int data;
- 
--	ret = regmap_read(info->regmap, info->regs->rtc_udr_update, &data);
-+	ret = regmap_read(info->regmap, info->regs->udr_update, &data);
- 	if (ret < 0) {
- 		dev_err(info->dev, "failed to read update reg(%d)\n", ret);
- 		return ret;
-@@ -223,21 +222,20 @@ static inline int s5m8767_rtc_set_time_reg(struct s5m_rtc_info *info)
- 	switch (info->device_type) {
- 	case S5M8763X:
- 	case S5M8767X:
--		data |= info->regs->rtc_udr_mask | S5M_RTC_TIME_EN_MASK;
-+		data |= info->regs->udr_mask | S5M_RTC_TIME_EN_MASK;
- 	case S2MPS15X:
- 		/* As per UM, for write time register, set WUDR bit to high */
- 		data |= S2MPS15_RTC_WUDR_MASK;
- 		break;
- 	case S2MPS14X:
- 	case S2MPS13X:
--		data |= info->regs->rtc_udr_mask;
-+		data |= info->regs->udr_mask;
- 		break;
- 	default:
- 		return -EINVAL;
- 	}
- 
--
--	ret = regmap_write(info->regmap, info->regs->rtc_udr_update, data);
-+	ret = regmap_write(info->regmap, info->regs->udr_update, data);
- 	if (ret < 0) {
- 		dev_err(info->dev, "failed to write update reg(%d)\n", ret);
- 		return ret;
-@@ -253,14 +251,14 @@ static inline int s5m8767_rtc_set_alarm_reg(struct s5m_rtc_info *info)
- 	int ret;
- 	unsigned int data;
- 
--	ret = regmap_read(info->regmap, info->regs->rtc_udr_update, &data);
-+	ret = regmap_read(info->regmap, info->regs->udr_update, &data);
- 	if (ret < 0) {
- 		dev_err(info->dev, "%s: fail to read update reg(%d)\n",
- 			__func__, ret);
- 		return ret;
- 	}
- 
--	data |= info->regs->rtc_udr_mask;
-+	data |= info->regs->udr_mask;
- 	switch (info->device_type) {
- 	case S5M8763X:
- 	case S5M8767X:
-@@ -268,7 +266,7 @@ static inline int s5m8767_rtc_set_alarm_reg(struct s5m_rtc_info *info)
- 		break;
- 	case S2MPS15X:
- 		/* As per UM, for write alarm, set A_UDR(bit[4]) to high
--		 * rtc_udr_mask above sets bit[4]
-+		 * udr_mask above sets bit[4]
- 		 */
- 		break;
- 	case S2MPS14X:
-@@ -281,7 +279,7 @@ static inline int s5m8767_rtc_set_alarm_reg(struct s5m_rtc_info *info)
- 		return -EINVAL;
- 	}
- 
--	ret = regmap_write(info->regmap, info->regs->rtc_udr_update, data);
-+	ret = regmap_write(info->regmap, info->regs->udr_update, data);
- 	if (ret < 0) {
- 		dev_err(info->dev, "%s: fail to write update reg(%d)\n",
- 			__func__, ret);
-@@ -292,7 +290,7 @@ static inline int s5m8767_rtc_set_alarm_reg(struct s5m_rtc_info *info)
- 
- 	/* On S2MPS13 the AUDR is not auto-cleared */
- 	if (info->device_type == S2MPS13X)
--		regmap_update_bits(info->regmap, info->regs->rtc_udr_update,
-+		regmap_update_bits(info->regmap, info->regs->udr_update,
- 				   S2MPS13_RTC_AUDR_MASK, 0);
- 
- 	return ret;
-@@ -339,7 +337,7 @@ static int s5m_rtc_read_time(struct device *dev, struct rtc_time *tm)
- 	if (info->device_type == S2MPS15X || info->device_type == S2MPS14X ||
- 			info->device_type == S2MPS13X) {
- 		ret = regmap_update_bits(info->regmap,
--				info->regs->rtc_udr_update,
-+				info->regs->udr_update,
- 				S2MPS_RTC_RUDR_MASK, S2MPS_RTC_RUDR_MASK);
- 		if (ret) {
- 			dev_err(dev,
--- 
-1.9.1
+What should be done with SECUREEDGE support?
 
 -- 
 -- 
