@@ -1,665 +1,272 @@
-Return-Path: <rtc-linux+bncBCM23VGPVUFRBEUI66ZAKGQEGZKJ7DI@googlegroups.com>
-Received: from mail-qg0-x234.google.com (mail-qg0-x234.google.com. [2607:f8b0:400d:c04::234])
-        by gmr-mx.google.com with ESMTPS id y11si157122ywd.3.2015.12.01.08.00.18
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 01 Dec 2015 08:00:18 -0800 (PST)
-Received: by mail-qg0-x234.google.com with SMTP id a14so8172500qge.0
-        for <rtc-linux@googlegroups.com>; Tue, 01 Dec 2015 08:00:18 -0800 (PST)
-Subject: [rtc-linux] Re: [PATCH] rtc: Add Epson RX8010SJ RTC driver
-To: a.zummo@towertech.it
-References: <1447281118-25275-1-git-send-email-akshay.bhat@timesys.com>
-Cc: rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org,
- alexandre.belloni@free-electrons.com, justin.waters@timesys.com
-From: Akshay Bhat <akshay.bhat@timesys.com>
-Message-ID: <565DC410.8040205@timesys.com>
-Date: Tue, 1 Dec 2015 11:00:16 -0500
+Return-Path: <rtc-linux+bncBDKZNNNLXAHBB5ODRW2AKGQEQG3GAZY@googlegroups.com>
 MIME-Version: 1.0
-In-Reply-To: <1447281118-25275-1-git-send-email-akshay.bhat@timesys.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Received: from mailout3.w1.samsung.com (mailout3.w1.samsung.com. [210.118.77.13])
+        by gmr-mx.google.com with ESMTPS id q192si4389697pfq.2.2015.12.29.20.47.48
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1 cipher=AES128-SHA bits=128/128);
+        Tue, 29 Dec 2015 20:47:48 -0800 (PST)
+Received: from eucpsbgm1.samsung.com (unknown [203.254.199.244])
+ by mailout3.w1.samsung.com
+ (Oracle Communications Messaging Server 7.0.5.31.0 64bit (built May  5 2014))
+ with ESMTP id <0O05008M5MNKJL00@mailout3.w1.samsung.com> for
+ rtc-linux@googlegroups.com; Wed, 30 Dec 2015 04:47:44 +0000 (GMT)
+From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+To: Sangbeom Kim <sbkim73@samsung.com>,
+ Krzysztof Kozlowski <k.kozlowski@samsung.com>,
+ Alessandro Zummo <a.zummo@towertech.it>,
+ Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+ Lee Jones <lee.jones@linaro.org>, linux-kernel@vger.kernel.org,
+ linux-samsung-soc@vger.kernel.org, rtc-linux@googlegroups.com
+Cc: Alim Akhtar <alim.akhtar@samsung.com>,
+ Yadwinder Singh Brar <yadi.brar01@gmail.com>
+Subject: [rtc-linux] [PATCH v2 3/3] rtc: s5m: Make register configuration per
+ S2MPS device to remove exceptions
+Date: Wed, 30 Dec 2015 13:47:27 +0900
+Message-id: <1451450847-928-3-git-send-email-k.kozlowski@samsung.com>
+In-reply-to: <1451450847-928-1-git-send-email-k.kozlowski@samsung.com>
+References: <1451450847-928-1-git-send-email-k.kozlowski@samsung.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
-List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
-List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
-List-Archive: <http://groups.google.com/group/rtc-linux
+List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
+List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
+List-Archive: <https://groups.google.com/group/rtc-linux
 Sender: rtc-linux@googlegroups.com
-List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
+List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
- <http://groups.google.com/group/rtc-linux/subscribe>
+ <https://groups.google.com/group/rtc-linux/subscribe>
 
-Hi,
+Before updating time and alarm the driver must set appropriate mask in
+UDR register. For that purpose the driver uses common register
+configuration and a lot of exceptions per device in the code. The
+exceptions are not obvious, for example except the change in the logic
+sometimes the fields are swapped (WUDR and AUDR between S2MPS14 and
+S2MPS15). This leads to quite complicated code.
 
-Wanted to check if there was any feedback on this patch?
+Try to make it more obvious by:
+1. Documenting the UDR masks for devices and operations.
+2. Adding fields in register configuration structure for each operation
+   (read time, write time and alarm).
+3. Splitting the configuration per S2MPS13, S2MPS14 and S2MPS15 thus
+   removing exceptions for them.
 
-Thanks,
-Akshay
+Signed-off-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
 
-On 11/11/2015 05:31 PM, Akshay Bhat wrote:
-> This driver supports the following functions:
->   - reading and setting time
->   - alarms when connected to an IRQ
->   - reading and clearing the voltage low flags
->
-> Datasheet:
-> http://www.epsondevice.com/docs/qd/en/DownloadServlet?id=ID000956
-> Signed-off-by: Akshay Bhat <akshay.bhat@timesys.com>
-> ---
->   drivers/rtc/Kconfig      |  10 +
->   drivers/rtc/Makefile     |   1 +
->   drivers/rtc/rtc-rx8010.c | 570 +++++++++++++++++++++++++++++++++++++++++++++++
->   3 files changed, 581 insertions(+)
->   create mode 100644 drivers/rtc/rtc-rx8010.c
->
-> diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
-> index 2a52424..376322f 100644
-> --- a/drivers/rtc/Kconfig
-> +++ b/drivers/rtc/Kconfig
-> @@ -558,6 +558,16 @@ config RTC_DRV_FM3130
->   	  This driver can also be built as a module. If so the module
->   	  will be called rtc-fm3130.
->
-> +config RTC_DRV_RX8010
-> +	tristate "Epson RX8010SJ"
-> +	depends on I2C
-> +	help
-> +	  If you say yes here you get support for the Epson RX8010SJ RTC
-> +	  chip.
-> +
-> +	  This driver can also be built as a module. If so, the module
-> +	  will be called rtc-rx8010.
-> +
->   config RTC_DRV_RX8581
->   	tristate "Epson RX-8581"
->   	help
-> diff --git a/drivers/rtc/Makefile b/drivers/rtc/Makefile
-> index 231f764..62d61b2 100644
-> --- a/drivers/rtc/Makefile
-> +++ b/drivers/rtc/Makefile
-> @@ -128,6 +128,7 @@ obj-$(CONFIG_RTC_DRV_RS5C372)	+= rtc-rs5c372.o
->   obj-$(CONFIG_RTC_DRV_RV3029C2)	+= rtc-rv3029c2.o
->   obj-$(CONFIG_RTC_DRV_RV8803)	+= rtc-rv8803.o
->   obj-$(CONFIG_RTC_DRV_RX4581)	+= rtc-rx4581.o
-> +obj-$(CONFIG_RTC_DRV_RX8010)	+= rtc-rx8010.o
->   obj-$(CONFIG_RTC_DRV_RX8025)	+= rtc-rx8025.o
->   obj-$(CONFIG_RTC_DRV_RX8581)	+= rtc-rx8581.o
->   obj-$(CONFIG_RTC_DRV_S35390A)	+= rtc-s35390a.o
-> diff --git a/drivers/rtc/rtc-rx8010.c b/drivers/rtc/rtc-rx8010.c
-> new file mode 100644
-> index 0000000..9b8bd76
-> --- /dev/null
-> +++ b/drivers/rtc/rtc-rx8010.c
-> @@ -0,0 +1,570 @@
-> +/*
-> + * Driver for the Epson RTC module RX-8010 SJ
-> + *
-> + * Copyright(C) Timesys Corporation 2015
-> + * Copyright(C) General Electric Company 2015
-> + * Copyright(C) SEIKO EPSON CORPORATION 2013. All rights reserved.
-> + *
-> + * Derived from RX-8025 driver:
-> + * Copyright (C) 2009 Wolfgang Grandegger <wg@grandegger.com>
-> + *
-> + * Copyright (C) 2005 by Digi International Inc.
-> + * All rights reserved.
-> + *
-> + * Modified by fengjh at rising.com.cn
-> + * <http://lists.lm-sensors.org/mailman/listinfo/lm-sensors>
-> + * 2006.11
-> + *
-> + * Code cleanup by Sergei Poselenov, <sposelenov@emcraft.com>
-> + * Converted to new style by Wolfgang Grandegger <wg@grandegger.com>
-> + * Alarm and periodic interrupt added by Dmitry Rakhchev <rda@emcraft.com>
-> + *
-> + * This driver software is distributed as is, without any warranty of any kind,
-> + * either express or implied as further specified in the GNU Public License.
-> + * This software may be used and distributed according to the terms of the GNU
-> + * Public License, version 2 as published by the Free Software Foundation.
-> + * See the file COPYING in the main directory of this archive for more details.
-> + *
-> + * You should have received a copy of the GNU General Public License along with
-> + * this program. If not, see <http://www.gnu.org/licenses/>.
-> + */
-> +
-> +#include <linux/bcd.h>
-> +#include <linux/bitops.h>
-> +#include <linux/i2c.h>
-> +#include <linux/kernel.h>
-> +#include <linux/module.h>
-> +#include <linux/rtc.h>
-> +
-> +#define RX8010_SEC     0x10
-> +#define RX8010_MIN     0x11
-> +#define RX8010_HOUR    0x12
-> +#define RX8010_WDAY    0x13
-> +#define RX8010_MDAY    0x14
-> +#define RX8010_MONTH   0x15
-> +#define RX8010_YEAR    0x16
-> +#define RX8010_YEAR    0x16
-> +#define RX8010_RESV17  0x17
-> +#define RX8010_ALMIN   0x18
-> +#define RX8010_ALHOUR  0x19
-> +#define RX8010_ALWDAY  0x1A
-> +#define RX8010_TCOUNT0 0x1B
-> +#define RX8010_TCOUNT1 0x1C
-> +#define RX8010_EXT     0x1D
-> +#define RX8010_FLAG    0x1E
-> +#define RX8010_CTRL    0x1F
-> +/* 0x20 to 0x2F are user registers */
-> +#define RX8010_RESV30  0x30
-> +#define RX8010_RESV31  0x32
-> +#define RX8010_IRQ     0x32
-> +
-> +#define RX8010_EXT_WADA  BIT(3)
-> +
-> +#define RX8010_FLAG_VLF  BIT(1)
-> +#define RX8010_FLAG_AF   BIT(3)
-> +#define RX8010_FLAG_TF   BIT(4)
-> +#define RX8010_FLAG_UF   BIT(5)
-> +
-> +#define RX8010_CTRL_AIE  BIT(3)
-> +#define RX8010_CTRL_UIE  BIT(5)
-> +#define RX8010_CTRL_STOP BIT(6)
-> +#define RX8010_CTRL_TEST BIT(7)
-> +
-> +#define RX8010_ALARM_AE  BIT(7)
-> +
-> +static const struct i2c_device_id rx8010_id[] = {
-> +	{ "rx8010", 0 },
-> +	{ }
-> +};
-> +MODULE_DEVICE_TABLE(i2c, rx8010_id);
-> +
-> +struct rx8010_data {
-> +	struct i2c_client *client;
-> +	struct rtc_device *rtc;
-> +	u8 ctrlreg;
-> +	spinlock_t flags_lock;
-> +};
-> +
-> +static int rx8010_read_reg(struct i2c_client *client, int number, u8 *value)
-> +{
-> +	int ret = i2c_smbus_read_byte_data(client, number);
-> +
-> +	if (ret < 0)
-> +		return ret;
-> +
-> +	*value = ret;
-> +	return 0;
-> +}
-> +
-> +static int rx8010_read_regs(struct i2c_client *client, int number, u8 length,
-> +			u8 *values)
-> +{
-> +	int ret = i2c_smbus_read_i2c_block_data(client, number, length, values);
-> +
-> +	if (ret != length)
-> +		return ret < 0 ? ret : -EIO;
-> +
-> +	return 0;
-> +}
-> +
-> +static irqreturn_t rx8010_irq_1_handler(int irq, void *dev_id)
-> +{
-> +	struct i2c_client *client = dev_id;
-> +	struct rx8010_data *rx8010 = i2c_get_clientdata(client);
-> +	u8 flagreg;
-> +
-> +	spin_lock(&rx8010->flags_lock);
-> +
-> +	if (rx8010_read_reg(client, RX8010_FLAG, &flagreg)) {
-> +		spin_unlock(&rx8010->flags_lock);
-> +		return IRQ_NONE;
-> +	}
-> +
-> +	if (flagreg & RX8010_FLAG_VLF)
-> +		dev_warn(&client->dev, "Frequency stop detected\n");
-> +
-> +	if (flagreg & RX8010_FLAG_TF) {
-> +		flagreg &= ~RX8010_FLAG_TF;
-> +		rtc_update_irq(rx8010->rtc, 1, RTC_PF | RTC_IRQF);
-> +	}
-> +
-> +	if (flagreg & RX8010_FLAG_AF) {
-> +		flagreg &= ~RX8010_FLAG_AF;
-> +		rtc_update_irq(rx8010->rtc, 1, RTC_AF | RTC_IRQF);
-> +	}
-> +
-> +	if (flagreg & RX8010_FLAG_UF) {
-> +		flagreg &= ~RX8010_FLAG_UF;
-> +		rtc_update_irq(rx8010->rtc, 1, RTC_UF | RTC_IRQF);
-> +	}
-> +
-> +	i2c_smbus_write_byte_data(client, RX8010_FLAG, flagreg);
-> +
-> +	spin_unlock(&rx8010->flags_lock);
-> +	return IRQ_HANDLED;
-> +}
-> +
-> +static int rx8010_get_time(struct device *dev, struct rtc_time *dt)
-> +{
-> +	struct rx8010_data *rx8010 = dev_get_drvdata(dev);
-> +	u8 date[7];
-> +	u8 flagreg;
-> +	int err;
-> +
-> +	err = rx8010_read_reg(rx8010->client, RX8010_FLAG, &flagreg);
-> +	if (err)
-> +		return err;
-> +
-> +	if (flagreg & RX8010_FLAG_VLF) {
-> +		dev_warn(dev, "Frequency stop detected\n");
-> +		return -EINVAL;
-> +	}
-> +
-> +	err = rx8010_read_regs(rx8010->client, RX8010_SEC, 7, date);
-> +	if (err)
-> +		return err;
-> +
-> +	dt->tm_sec = bcd2bin(date[RX8010_SEC-RX8010_SEC] & 0x7f);
-> +	dt->tm_min = bcd2bin(date[RX8010_MIN-RX8010_SEC] & 0x7f);
-> +	dt->tm_hour = bcd2bin(date[RX8010_HOUR-RX8010_SEC] & 0x3f);
-> +	dt->tm_mday = bcd2bin(date[RX8010_MDAY-RX8010_SEC] & 0x3f);
-> +	dt->tm_mon = bcd2bin(date[RX8010_MONTH-RX8010_SEC] & 0x1f) - 1;
-> +	dt->tm_year = bcd2bin(date[RX8010_YEAR-RX8010_SEC]);
-> +	dt->tm_wday = bcd2bin(date[RX8010_WDAY-RX8010_SEC] & 0x7f);
-> +
-> +	if (dt->tm_year < 70)
-> +		dt->tm_year += 100;
-> +
-> +	return rtc_valid_tm(dt);
-> +}
-> +
-> +static int rx8010_set_time(struct device *dev, struct rtc_time *dt)
-> +{
-> +	struct rx8010_data *rx8010 = dev_get_drvdata(dev);
-> +	u8 date[7];
-> +	u8 ctrl, flagreg;
-> +	int ret;
-> +	unsigned long irqflags;
-> +
-> +	/* BUG: The HW assumes every year that is a multiple of 4 to be a leap
-> +	 * year.  Next time this is wrong is 2100, which will not be a leap
-> +	 * year.
-> +	 */
-> +
-> +	/* set STOP bit before changing clock/calendar */
-> +	ret = rx8010_read_reg(rx8010->client, RX8010_CTRL, &ctrl);
-> +	if (ret)
-> +		return ret;
-> +	rx8010->ctrlreg = ctrl | RX8010_CTRL_STOP;
-> +	ret = i2c_smbus_write_byte_data(rx8010->client, RX8010_CTRL,
-> +		rx8010->ctrlreg);
-> +	if (ret < 0)
-> +		return ret;
-> +
-> +	date[RX8010_SEC-RX8010_SEC] = bin2bcd(dt->tm_sec);
-> +	date[RX8010_MIN-RX8010_SEC] = bin2bcd(dt->tm_min);
-> +	date[RX8010_HOUR-RX8010_SEC] = bin2bcd(dt->tm_hour);
-> +	date[RX8010_MDAY-RX8010_SEC] = bin2bcd(dt->tm_mday);
-> +	date[RX8010_MONTH-RX8010_SEC] = bin2bcd(dt->tm_mon + 1);
-> +	date[RX8010_YEAR-RX8010_SEC] = bin2bcd(dt->tm_year % 100);
-> +	date[RX8010_WDAY-RX8010_SEC] = bin2bcd(dt->tm_wday);
-> +
-> +	ret = i2c_smbus_write_i2c_block_data(rx8010->client,
-> +			RX8010_SEC, 7, date);
-> +	if (ret < 0)
-> +		return ret;
-> +
-> +	/* clear STOP bit after changing clock/calendar */
-> +	ret = rx8010_read_reg(rx8010->client, RX8010_CTRL, &ctrl);
-> +	if (ret)
-> +		return ret;
-> +	rx8010->ctrlreg = ctrl & ~RX8010_CTRL_STOP;
-> +	ret = i2c_smbus_write_byte_data(rx8010->client, RX8010_CTRL,
-> +		rx8010->ctrlreg);
-> +	if (ret < 0)
-> +		return ret;
-> +
-> +	spin_lock_irqsave(&rx8010->flags_lock, irqflags);
-> +
-> +	ret = rx8010_read_reg(rx8010->client, RX8010_FLAG, &flagreg);
-> +	if (ret) {
-> +		spin_unlock_irqrestore(&rx8010->flags_lock, irqflags);
-> +		return ret;
-> +	}
-> +
-> +	if (flagreg & RX8010_FLAG_VLF)
-> +		ret = i2c_smbus_write_byte_data(rx8010->client, RX8010_FLAG,
-> +					flagreg & ~RX8010_FLAG_VLF);
-> +
-> +	spin_unlock_irqrestore(&rx8010->flags_lock, irqflags);
-> +
-> +	return 0;
-> +}
-> +
-> +static int rx8010_init_client(struct i2c_client *client)
-> +{
-> +	struct rx8010_data *rx8010 = i2c_get_clientdata(client);
-> +	u8 ctrl[3];
-> +	int need_clear = 0, need_reset = 0, err = 0;
-> +
-> +	/* Initialize reserved registers as specified in datasheet */
-> +	err = i2c_smbus_write_byte_data(client, RX8010_RESV17, 0xD8);
-> +	if (err < 0)
-> +		return err;
-> +
-> +	err = i2c_smbus_write_byte_data(client, RX8010_RESV30, 0x00);
-> +	if (err < 0)
-> +		return err;
-> +
-> +	err = i2c_smbus_write_byte_data(client, RX8010_RESV31, 0x08);
-> +	if (err < 0)
-> +		return err;
-> +
-> +	err = i2c_smbus_write_byte_data(client, RX8010_IRQ, 0x00);
-> +	if (err < 0)
-> +		return err;
-> +
-> +	err = rx8010_read_regs(rx8010->client, RX8010_EXT, 3, ctrl);
-> +	if (err)
-> +		return err;
-> +
-> +	if ((ctrl[1] & RX8010_FLAG_VLF)) {
-> +		dev_warn(&client->dev, "Frequency stop was detected\n");
-> +		need_reset = 1;
-> +	}
-> +
-> +	if (ctrl[1] & RX8010_FLAG_AF) {
-> +		dev_warn(&client->dev, "Alarm was detected\n");
-> +		need_clear = 1;
-> +	}
-> +
-> +	if (ctrl[1] & RX8010_FLAG_TF)
-> +		need_clear = 1;
-> +
-> +	if (ctrl[1] & RX8010_FLAG_UF)
-> +		need_clear = 1;
-> +
-> +	if (need_reset) {
-> +		ctrl[0] = ctrl[1] = ctrl[2] = 0;
-> +		err = i2c_smbus_write_i2c_block_data(client, RX8010_EXT,
-> +				3, ctrl);
-> +		if (err < 0)
-> +			return err;
-> +	} else if (need_clear) {
-> +		err = i2c_smbus_write_byte_data(client, RX8010_FLAG, 0x00);
-> +		if (err < 0)
-> +			return err;
-> +	}
-> +
-> +	rx8010->ctrlreg = (ctrl[2] & ~RX8010_CTRL_TEST);
-> +
-> +	return err;
-> +}
-> +
-> +static int rx8010_read_alarm(struct device *dev, struct rtc_wkalrm *t)
-> +{
-> +	struct rx8010_data *rx8010 = dev_get_drvdata(dev);
-> +	struct i2c_client *client = rx8010->client;
-> +	u8 alarmvals[3];
-> +	u8 flagreg;
-> +	int err;
-> +
-> +	err = rx8010_read_regs(client, RX8010_ALMIN, 3, alarmvals);
-> +	if (err)
-> +		return err;
-> +
-> +	err = rx8010_read_reg(client, RX8010_FLAG, &flagreg);
-> +	if (err)
-> +		return err;
-> +
-> +	t->time.tm_sec = 0;
-> +	t->time.tm_min = bcd2bin(alarmvals[0] & 0x7f);
-> +	t->time.tm_hour = bcd2bin(alarmvals[1] & 0x3f);
-> +
-> +	if (alarmvals[2] & RX8010_ALARM_AE)
-> +		t->time.tm_mday = -1;
-> +	else
-> +		t->time.tm_mday = bcd2bin(alarmvals[2] & 0x7f);
-> +
-> +	t->time.tm_wday = -1;
-> +	t->time.tm_mon = -1;
-> +	t->time.tm_year = -1;
-> +
-> +	t->enabled = !!(rx8010->ctrlreg & RX8010_CTRL_AIE);
-> +	t->pending = (flagreg & RX8010_FLAG_AF) && t->enabled;
-> +
-> +	return err;
-> +}
-> +
-> +static int rx8010_set_alarm(struct device *dev, struct rtc_wkalrm *t)
-> +{
-> +	struct i2c_client *client = to_i2c_client(dev);
-> +	struct rx8010_data *rx8010 = dev_get_drvdata(dev);
-> +	u8 alarmvals[3];
-> +	u8 extreg, flagreg;
-> +	int err;
-> +	unsigned long irqflags;
-> +
-> +	spin_lock_irqsave(&rx8010->flags_lock, irqflags);
-> +	err = rx8010_read_reg(client, RX8010_FLAG, &flagreg);
-> +	if (err) {
-> +		spin_unlock_irqrestore(&rx8010->flags_lock, irqflags);
-> +		return err;
-> +	}
-> +
-> +	if (rx8010->ctrlreg & (RX8010_CTRL_AIE | RX8010_CTRL_UIE)) {
-> +		rx8010->ctrlreg &= ~(RX8010_CTRL_AIE | RX8010_CTRL_UIE);
-> +		err = i2c_smbus_write_byte_data(rx8010->client, RX8010_CTRL,
-> +			rx8010->ctrlreg);
-> +		if (err < 0) {
-> +			spin_unlock_irqrestore(&rx8010->flags_lock, irqflags);
-> +			return err;
-> +		}
-> +	}
-> +
-> +	flagreg &= ~RX8010_FLAG_AF;
-> +	err = i2c_smbus_write_byte_data(rx8010->client, RX8010_FLAG, flagreg);
-> +	spin_unlock_irqrestore(&rx8010->flags_lock, irqflags);
-> +	if (err < 0)
-> +		return err;
-> +
-> +	alarmvals[0] = bin2bcd(t->time.tm_min);
-> +	alarmvals[1] = bin2bcd(t->time.tm_hour);
-> +	alarmvals[2] = bin2bcd(t->time.tm_mday);
-> +
-> +	err = i2c_smbus_write_i2c_block_data(rx8010->client, RX8010_ALMIN,
-> +				2, alarmvals);
-> +	if (err < 0)
-> +		return err;
-> +
-> +	err = rx8010_read_reg(client, RX8010_EXT, &extreg);
-> +	if (err)
-> +		return err;
-> +
-> +	extreg |= RX8010_EXT_WADA;
-> +	err = i2c_smbus_write_byte_data(rx8010->client, RX8010_EXT, extreg);
-> +	if (err < 0)
-> +		return err;
-> +
-> +	if (alarmvals[2] == 0)
-> +		alarmvals[2] |= RX8010_ALARM_AE;
-> +
-> +	err = i2c_smbus_write_byte_data(rx8010->client, RX8010_ALWDAY,
-> +				alarmvals[2]);
-> +	if (err < 0)
-> +		return err;
-> +
-> +	if (t->enabled) {
-> +		if (rx8010->rtc->uie_rtctimer.enabled)
-> +			rx8010->ctrlreg |= RX8010_CTRL_UIE;
-> +		if (rx8010->rtc->aie_timer.enabled)
-> +			rx8010->ctrlreg |=
-> +				(RX8010_CTRL_AIE | RX8010_CTRL_UIE);
-> +
-> +		err = i2c_smbus_write_byte_data(rx8010->client, RX8010_CTRL,
-> +			rx8010->ctrlreg);
-> +		if (err < 0)
-> +			return err;
-> +	}
-> +
-> +	return 0;
-> +}
-> +
-> +static int rx8010_alarm_irq_enable(struct device *dev,
-> +	unsigned int enabled)
-> +{
-> +	struct i2c_client *client = to_i2c_client(dev);
-> +	struct rx8010_data *rx8010 = dev_get_drvdata(dev);
-> +	u8 flagreg;
-> +	u8 ctrl;
-> +	int err;
-> +
-> +	ctrl = rx8010->ctrlreg;
-> +
-> +	if (enabled) {
-> +		if (rx8010->rtc->uie_rtctimer.enabled)
-> +			ctrl |= RX8010_CTRL_UIE;
-> +		if (rx8010->rtc->aie_timer.enabled)
-> +			ctrl |= (RX8010_CTRL_AIE | RX8010_CTRL_UIE);
-> +	} else {
-> +		if (!rx8010->rtc->uie_rtctimer.enabled)
-> +			ctrl &= ~RX8010_CTRL_UIE;
-> +		if (!rx8010->rtc->aie_timer.enabled)
-> +			ctrl &= ~RX8010_CTRL_AIE;
-> +	}
-> +
-> +	err = rx8010_read_reg(client, RX8010_FLAG, &flagreg);
-> +	if (err)
-> +		return err;
-> +	flagreg &= ~RX8010_FLAG_AF;
-> +	err = i2c_smbus_write_byte_data(rx8010->client, RX8010_FLAG, flagreg);
-> +	if (err < 0)
-> +		return err;
-> +
-> +	if (ctrl != rx8010->ctrlreg) {
-> +		rx8010->ctrlreg = ctrl;
-> +		err = i2c_smbus_write_byte_data(rx8010->client, RX8010_CTRL,
-> +			rx8010->ctrlreg);
-> +		if (err < 0)
-> +			return err;
-> +	}
-> +
-> +	return 0;
-> +}
-> +
-> +static int rx8010_ioctl(struct device *dev, unsigned int cmd, unsigned long arg)
-> +{
-> +	struct i2c_client *client = to_i2c_client(dev);
-> +	struct rx8010_data *rx8010 = dev_get_drvdata(dev);
-> +	int ret, tmp;
-> +	u8 flagreg;
-> +	unsigned long irqflags;
-> +
-> +	switch (cmd) {
-> +	case RTC_VL_READ:
-> +		ret = rx8010_read_reg(rx8010->client, RX8010_FLAG, &flagreg);
-> +		if (ret)
-> +			return ret;
-> +
-> +		tmp = !!(flagreg & RX8010_FLAG_VLF);
-> +		if (copy_to_user((void __user *)arg, &tmp, sizeof(int)))
-> +			return -EFAULT;
-> +
-> +		return 0;
-> +
-> +	case RTC_VL_CLR:
-> +		spin_lock_irqsave(&rx8010->flags_lock, irqflags);
-> +		ret = rx8010_read_reg(rx8010->client, RX8010_FLAG, &flagreg);
-> +		if (ret < 0) {
-> +			spin_unlock_irqrestore(&rx8010->flags_lock, irqflags);
-> +			return ret;
-> +		}
-> +
-> +		flagreg &= ~RX8010_FLAG_VLF;
-> +		ret = i2c_smbus_write_byte_data(client, RX8010_FLAG, flagreg);
-> +		spin_unlock_irqrestore(&rx8010->flags_lock, irqflags);
-> +		if (ret < 0)
-> +			return ret;
-> +
-> +		return 0;
-> +
-> +	default:
-> +		return -ENOIOCTLCMD;
-> +	}
-> +}
-> +
-> +static struct rtc_class_ops rx8010_rtc_ops = {
-> +	.read_time = rx8010_get_time,
-> +	.set_time = rx8010_set_time,
-> +	.ioctl = rx8010_ioctl,
-> +};
-> +
-> +static int rx8010_probe(struct i2c_client *client,
-> +	const struct i2c_device_id *id)
-> +{
-> +	struct i2c_adapter *adapter = to_i2c_adapter(client->dev.parent);
-> +	struct rx8010_data *rx8010;
-> +	int err = 0;
-> +
-> +	if (!i2c_check_functionality(adapter, I2C_FUNC_SMBUS_BYTE_DATA
-> +		| I2C_FUNC_SMBUS_I2C_BLOCK)) {
-> +		dev_err(&adapter->dev, "doesn't support required functionality\n");
-> +		return -EIO;
-> +	}
-> +
-> +	rx8010 = devm_kzalloc(&client->dev, sizeof(struct rx8010_data),
-> +		GFP_KERNEL);
-> +	if (!rx8010)
-> +		return -ENOMEM;
-> +
-> +	rx8010->client = client;
-> +	i2c_set_clientdata(client, rx8010);
-> +
-> +	spin_lock_init(&rx8010->flags_lock);
-> +
-> +	err = rx8010_init_client(client);
-> +	if (err)
-> +		return err;
-> +
-> +	if (client->irq > 0) {
-> +		dev_info(&client->dev, "IRQ %d supplied\n", client->irq);
-> +		err = devm_request_threaded_irq(&client->dev, client->irq, NULL,
-> +			rx8010_irq_1_handler, IRQF_TRIGGER_LOW | IRQF_ONESHOT,
-> +			"rx8010", client);
-> +
-> +		if (err) {
-> +			dev_err(&client->dev, "unable to request IRQ\n");
-> +			client->irq = 0;
-> +		} else {
-> +			rx8010_rtc_ops.read_alarm = rx8010_read_alarm;
-> +			rx8010_rtc_ops.set_alarm = rx8010_set_alarm;
-> +			rx8010_rtc_ops.alarm_irq_enable = rx8010_alarm_irq_enable;
-> +		}
-> +	}
-> +
-> +	rx8010->rtc = devm_rtc_device_register(&client->dev, client->name,
-> +		&rx8010_rtc_ops, THIS_MODULE);
-> +
-> +	if (IS_ERR(rx8010->rtc)) {
-> +		dev_err(&client->dev, "unable to register the class device\n");
-> +		return PTR_ERR(rx8010->rtc);
-> +	}
-> +
-> +	rx8010->rtc->max_user_freq = 1;
-> +
-> +	return err;
-> +}
-> +
-> +static struct i2c_driver rx8010_driver = {
-> +	.driver = {
-> +		.name = "rtc-rx8010",
-> +	},
-> +	.probe		= rx8010_probe,
-> +	.id_table	= rx8010_id,
-> +};
-> +
-> +module_i2c_driver(rx8010_driver);
-> +
-> +MODULE_AUTHOR("Akshay Bhat <akshay.bhat@timesys.com>");
-> +MODULE_DESCRIPTION("Epson RX8010SJ RTC driver");
-> +MODULE_LICENSE("GPL");
->
+---
+
+Tested on S2MPS11 (Odroid XU4) and S2MPS13. Testing on S2MPS15 would be
+appreciated!
+
+Changes since v1:
+1. Fix value used in S2MPS15_RTC_AUDR_MASK, pointed by Yadwinder Singh
+   Brar.
+---
+ drivers/rtc/rtc-s5m.c           | 110 +++++++++++++++++++++++++++-------------
+ include/linux/mfd/samsung/rtc.h |   2 +
+ 2 files changed, 77 insertions(+), 35 deletions(-)
+
+diff --git a/drivers/rtc/rtc-s5m.c b/drivers/rtc/rtc-s5m.c
+index 559db8f72117..7407d7394bb4 100644
+--- a/drivers/rtc/rtc-s5m.c
++++ b/drivers/rtc/rtc-s5m.c
+@@ -38,7 +38,22 @@
+  */
+ #define UDR_READ_RETRY_CNT	5
+ 
+-/* Registers used by the driver which are different between chipsets. */
++/*
++ * Registers used by the driver which are different between chipsets.
++ *
++ * Operations like read time and write alarm/time require updating
++ * specific fields in UDR register. These fields usually are auto-cleared
++ * (with some exceptions).
++ *
++ * Table of operations per device:
++ *
++ * Device     | Write time | Read time | Write alarm
++ * =================================================
++ * S5M8767    | UDR + TIME |           | UDR
++ * S2MPS11/14 | WUDR       | RUDR      | WUDR + RUDR
++ * S2MPS13    | WUDR       | RUDR      | WUDR + AUDR
++ * S2MPS15    | WUDR       | RUDR      | AUDR
++ */
+ struct s5m_rtc_reg_config {
+ 	/* Number of registers used for setting time/alarm0/alarm1 */
+ 	unsigned int regs_count;
+@@ -58,8 +73,13 @@ struct s5m_rtc_reg_config {
+ 	unsigned int udr_update;
+ 	/* Auto-cleared mask in UDR field for writing time and alarm */
+ 	unsigned int autoclear_udr_mask;
+-	/* Mask for UDR field in 'udr_update' register */
+-	unsigned int udr_mask;
++	/*
++	 * Masks in UDR field for time and alarm operations.
++	 * The read time mask can be 0. Rest should not.
++	 */
++	unsigned int read_time_udr_mask;
++	unsigned int write_time_udr_mask;
++	unsigned int write_alarm_udr_mask;
+ };
+ 
+ /* Register map for S5M8763 and S5M8767 */
+@@ -71,14 +91,44 @@ static const struct s5m_rtc_reg_config s5m_rtc_regs = {
+ 	.alarm1			= S5M_ALARM1_SEC,
+ 	.udr_update		= S5M_RTC_UDR_CON,
+ 	.autoclear_udr_mask	= S5M_RTC_UDR_MASK,
+-	.udr_mask		= S5M_RTC_UDR_MASK,
++	.read_time_udr_mask	= 0, /* Not needed */
++	.write_time_udr_mask	= S5M_RTC_UDR_MASK | S5M_RTC_TIME_EN_MASK,
++	.write_alarm_udr_mask	= S5M_RTC_UDR_MASK,
++};
++
++/* Register map for S2MPS13 */
++static const struct s5m_rtc_reg_config s2mps13_rtc_regs = {
++	.regs_count		= 7,
++	.time			= S2MPS_RTC_SEC,
++	.ctrl			= S2MPS_RTC_CTRL,
++	.alarm0			= S2MPS_ALARM0_SEC,
++	.alarm1			= S2MPS_ALARM1_SEC,
++	.udr_update		= S2MPS_RTC_UDR_CON,
++	.autoclear_udr_mask	= S2MPS_RTC_WUDR_MASK,
++	.read_time_udr_mask	= S2MPS_RTC_RUDR_MASK,
++	.write_time_udr_mask	= S2MPS_RTC_WUDR_MASK,
++	.write_alarm_udr_mask	= S2MPS_RTC_WUDR_MASK | S2MPS13_RTC_AUDR_MASK,
++};
++
++/* Register map for S2MPS11/14 */
++static const struct s5m_rtc_reg_config s2mps14_rtc_regs = {
++	.regs_count		= 7,
++	.time			= S2MPS_RTC_SEC,
++	.ctrl			= S2MPS_RTC_CTRL,
++	.alarm0			= S2MPS_ALARM0_SEC,
++	.alarm1			= S2MPS_ALARM1_SEC,
++	.udr_update		= S2MPS_RTC_UDR_CON,
++	.autoclear_udr_mask	= S2MPS_RTC_WUDR_MASK,
++	.read_time_udr_mask	= S2MPS_RTC_RUDR_MASK,
++	.write_time_udr_mask	= S2MPS_RTC_WUDR_MASK,
++	.write_alarm_udr_mask	= S2MPS_RTC_WUDR_MASK | S2MPS_RTC_RUDR_MASK,
+ };
+ 
+ /*
+- * Register map for S2MPS14.
+- * It may be also suitable for S2MPS11 but this was not tested.
++ * Register map for S2MPS15 - in comparison to S2MPS14 the WUDR and AUDR bits
++ * are swapped.
+  */
+-static const struct s5m_rtc_reg_config s2mps_rtc_regs = {
++static const struct s5m_rtc_reg_config s2mps15_rtc_regs = {
+ 	.regs_count		= 7,
+ 	.time			= S2MPS_RTC_SEC,
+ 	.ctrl			= S2MPS_RTC_CTRL,
+@@ -86,7 +136,9 @@ static const struct s5m_rtc_reg_config s2mps_rtc_regs = {
+ 	.alarm1			= S2MPS_ALARM1_SEC,
+ 	.udr_update		= S2MPS_RTC_UDR_CON,
+ 	.autoclear_udr_mask	= S2MPS_RTC_WUDR_MASK,
+-	.udr_mask		= S2MPS_RTC_WUDR_MASK,
++	.read_time_udr_mask	= S2MPS_RTC_RUDR_MASK,
++	.write_time_udr_mask	= S2MPS15_RTC_WUDR_MASK,
++	.write_alarm_udr_mask	= S2MPS15_RTC_AUDR_MASK,
+ };
+ 
+ struct s5m_rtc_info {
+@@ -223,21 +275,7 @@ static inline int s5m8767_rtc_set_time_reg(struct s5m_rtc_info *info)
+ 		return ret;
+ 	}
+ 
+-	switch (info->device_type) {
+-	case S5M8763X:
+-	case S5M8767X:
+-		data |= info->regs->udr_mask | S5M_RTC_TIME_EN_MASK;
+-	case S2MPS15X:
+-		/* As per UM, for write time register, set WUDR bit to high */
+-		data |= S2MPS15_RTC_WUDR_MASK;
+-		break;
+-	case S2MPS14X:
+-	case S2MPS13X:
+-		data |= info->regs->udr_mask;
+-		break;
+-	default:
+-		return -EINVAL;
+-	}
++	data |= info->regs->write_time_udr_mask;
+ 
+ 	ret = regmap_write(info->regmap, info->regs->udr_update, data);
+ 	if (ret < 0) {
+@@ -262,22 +300,16 @@ static inline int s5m8767_rtc_set_alarm_reg(struct s5m_rtc_info *info)
+ 		return ret;
+ 	}
+ 
+-	data |= info->regs->udr_mask;
++	data |= info->regs->write_alarm_udr_mask;
+ 	switch (info->device_type) {
+ 	case S5M8763X:
+ 	case S5M8767X:
+ 		data &= ~S5M_RTC_TIME_EN_MASK;
+ 		break;
+ 	case S2MPS15X:
+-		/* As per UM, for write alarm, set A_UDR(bit[4]) to high
+-		 * udr_mask above sets bit[4]
+-		 */
+-		break;
+ 	case S2MPS14X:
+-		data |= S2MPS_RTC_RUDR_MASK;
+-		break;
+ 	case S2MPS13X:
+-		data |= S2MPS13_RTC_AUDR_MASK;
++		/* No exceptions needed */
+ 		break;
+ 	default:
+ 		return -EINVAL;
+@@ -338,11 +370,11 @@ static int s5m_rtc_read_time(struct device *dev, struct rtc_time *tm)
+ 	u8 data[info->regs->regs_count];
+ 	int ret;
+ 
+-	if (info->device_type == S2MPS15X || info->device_type == S2MPS14X ||
+-			info->device_type == S2MPS13X) {
++	if (info->regs->read_time_udr_mask) {
+ 		ret = regmap_update_bits(info->regmap,
+ 				info->regs->udr_update,
+-				S2MPS_RTC_RUDR_MASK, S2MPS_RTC_RUDR_MASK);
++				info->regs->read_time_udr_mask,
++				info->regs->read_time_udr_mask);
+ 		if (ret) {
+ 			dev_err(dev,
+ 				"Failed to prepare registers for time reading: %d\n",
+@@ -709,10 +741,18 @@ static int s5m_rtc_probe(struct platform_device *pdev)
+ 
+ 	switch (platform_get_device_id(pdev)->driver_data) {
+ 	case S2MPS15X:
++		regmap_cfg = &s2mps14_rtc_regmap_config;
++		info->regs = &s2mps15_rtc_regs;
++		alarm_irq = S2MPS14_IRQ_RTCA0;
++		break;
+ 	case S2MPS14X:
++		regmap_cfg = &s2mps14_rtc_regmap_config;
++		info->regs = &s2mps14_rtc_regs;
++		alarm_irq = S2MPS14_IRQ_RTCA0;
++		break;
+ 	case S2MPS13X:
+ 		regmap_cfg = &s2mps14_rtc_regmap_config;
+-		info->regs = &s2mps_rtc_regs;
++		info->regs = &s2mps13_rtc_regs;
+ 		alarm_irq = S2MPS14_IRQ_RTCA0;
+ 		break;
+ 	case S5M8763X:
+diff --git a/include/linux/mfd/samsung/rtc.h b/include/linux/mfd/samsung/rtc.h
+index a65e4655d470..48c3c5be7eb1 100644
+--- a/include/linux/mfd/samsung/rtc.h
++++ b/include/linux/mfd/samsung/rtc.h
+@@ -105,6 +105,8 @@ enum s2mps_rtc_reg {
+ #define S5M_RTC_UDR_MASK	(1 << S5M_RTC_UDR_SHIFT)
+ #define S2MPS_RTC_WUDR_SHIFT	4
+ #define S2MPS_RTC_WUDR_MASK	(1 << S2MPS_RTC_WUDR_SHIFT)
++#define S2MPS15_RTC_AUDR_SHIFT	4
++#define S2MPS15_RTC_AUDR_MASK	(1 << S2MPS15_RTC_AUDR_SHIFT)
+ #define S2MPS13_RTC_AUDR_SHIFT	1
+ #define S2MPS13_RTC_AUDR_MASK	(1 << S2MPS13_RTC_AUDR_SHIFT)
+ #define S2MPS15_RTC_WUDR_SHIFT	1
+-- 
+1.9.1
 
 -- 
 -- 
