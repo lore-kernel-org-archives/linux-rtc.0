@@ -1,61 +1,279 @@
-Return-Path: <rtc-linux+bncBDDJNTW5VUMBBFMWU6ZQKGQESWUB2AY@googlegroups.com>
-Received: from mail-wm0-x231.google.com (mail-wm0-x231.google.com. [2a00:1450:400c:c09::231])
-        by gmr-mx.google.com with ESMTPS id b62si4297wmc.0.2015.12.10.10.57.24
+Return-Path: <rtc-linux+bncBD747RFBYUPBB4W4R22AKGQEUHLDM3A@googlegroups.com>
+Received: from mailout4.samsung.com (mailout4.samsung.com. [203.254.224.34])
+        by gmr-mx.google.com with ESMTPS id q192si4486116pfq.2.2015.12.30.02.14.09
         for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 10 Dec 2015 10:57:24 -0800 (PST)
-Received: by mail-wm0-x231.google.com with SMTP id w144so37306931wmw.0
-        for <rtc-linux@googlegroups.com>; Thu, 10 Dec 2015 10:57:24 -0800 (PST)
-MIME-Version: 1.0
-Sender: rtc-linux@googlegroups.com
-In-Reply-To: <20151210184119.GL3515@piout.net>
-References: <CAODwPW-ZJ2HwrQohmfMYv2-jH2Ofq-O2H_HPfqYLXXnueVYYnA@mail.gmail.com>
-	<1449552115-31256-1-git-send-email-jwerner@chromium.org>
-	<CAD=FV=U+SYHVkgP1sAF4h3xmrQBhc7o=KpryAGAXjeYOYnNTcA@mail.gmail.com>
-	<CAODwPW9M6gWXpUkT2A3k6jmj7sBzwjmScE+ZSAe209UDnAW6mg@mail.gmail.com>
-	<20151210184119.GL3515@piout.net>
-Date: Thu, 10 Dec 2015 10:57:24 -0800
-Message-ID: <CAODwPW_5WaLpqUeuJ0QhW=itgVq7iN_H3QH9_WzrVfsK+L-Rbg@mail.gmail.com>
-Subject: [rtc-linux] Re: [PATCH v2] RTC: RK808: Work around hardware bug on
- November 31st
-From: Julius Werner <jwerner@chromium.org>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Julius Werner <jwerner@chromium.org>, Doug Anderson <dianders@chromium.org>,
-	Andrew Morton <akpm@linux-foundation.org>, Alessandro Zummo <a.zummo@towertech.it>,
-	Sonny Rao <sonnyrao@chromium.org>, Chris Zhong <zyw@rock-chips.com>,
-	Heiko Stuebner <heiko@sntech.de>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, rtc-linux@googlegroups.com
-Content-Type: text/plain; charset=UTF-8
+        (version=TLS1 cipher=AES128-SHA bits=128/128);
+        Wed, 30 Dec 2015 02:14:09 -0800 (PST)
+Received: from epcpsbgr1.samsung.com
+ (u141.gpu120.samsung.co.kr [203.254.230.141])
+ by mailout4.samsung.com (Oracle Communications Messaging Server 7.0.5.31.0
+ 64bit (built May  5 2014))
+ with ESMTP id <0O0601RPP1RK8UC0@mailout4.samsung.com> for
+ rtc-linux@googlegroups.com; Wed, 30 Dec 2015 19:14:08 +0900 (KST)
+Message-id: <5683AE8C.2050204@samsung.com>
+Date: Wed, 30 Dec 2015 15:44:36 +0530
+From: Alim Akhtar <alim.akhtar@samsung.com>
+MIME-version: 1.0
+To: Krzysztof Kozlowski <k.kozlowski@samsung.com>,
+ Sangbeom Kim <sbkim73@samsung.com>, Alessandro Zummo <a.zummo@towertech.it>,
+ Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+ Lee Jones <lee.jones@linaro.org>, linux-kernel@vger.kernel.org,
+ linux-samsung-soc@vger.kernel.org, rtc-linux@googlegroups.com
+Cc: Yadwinder Singh Brar <yadi.brar01@gmail.com>
+Subject: [rtc-linux] Re: [PATCH v2 3/3] rtc: s5m: Make register configuration
+ per S2MPS device to remove exceptions
+References: <1451450847-928-1-git-send-email-k.kozlowski@samsung.com>
+ <1451450847-928-3-git-send-email-k.kozlowski@samsung.com>
+In-reply-to: <1451450847-928-3-git-send-email-k.kozlowski@samsung.com>
+Content-type: text/plain; charset=UTF-8; format=flowed
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
-List-Post: <http://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
-List-Help: <http://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
-List-Archive: <http://groups.google.com/group/rtc-linux
-List-Subscribe: <http://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
+List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
+List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
+List-Archive: <https://groups.google.com/group/rtc-linux
+Sender: rtc-linux@googlegroups.com
+List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
- <http://groups.google.com/group/rtc-linux/subscribe>
+ <https://groups.google.com/group/rtc-linux/subscribe>
 
-> I'll try to review and evaluate both solution by the end of the week (no
-> guarantee though).
+Hi Krzysztof,
 
-To summarize, it's a pretty simple trade-off. Do you:
-
-a) try to detect every time the RTC deviated from the real-world time
-and correct it instantly? This can be done most of the time but there
-are edge cases (when the system is completely powered off while the
-RTC ticks over Nov 31st) where you cannot detect it. Or,
-
-b) just completely let the RTC tick in its own world where every year
-has an extra day and convert that "calendar" to/from the real-world
-calendar on every access. This essentially relegates the RTC to a
-"dumb second counter" and the timestamp in its registers doesn't have
-any direct connection to the real world time anymore (unless you know
-the conversion algorithm). This has the nice advantage that it
-perfectly solves all use cases (time-keeping, accurate alarms, even
-when shut down or browning out at inopportune times)... the only real
-disadvantage is that other software (e.g. U-Boot) reading the same RTC
-must know about this and use the same conversion code to get the
-correct real-world time from it.
+On 12/30/2015 10:17 AM, Krzysztof Kozlowski wrote:
+> Before updating time and alarm the driver must set appropriate mask in
+> UDR register. For that purpose the driver uses common register
+> configuration and a lot of exceptions per device in the code. The
+> exceptions are not obvious, for example except the change in the logic
+> sometimes the fields are swapped (WUDR and AUDR between S2MPS14 and
+> S2MPS15). This leads to quite complicated code.
+>
+> Try to make it more obvious by:
+> 1. Documenting the UDR masks for devices and operations.
+> 2. Adding fields in register configuration structure for each operation
+>     (read time, write time and alarm).
+> 3. Splitting the configuration per S2MPS13, S2MPS14 and S2MPS15 thus
+>     removing exceptions for them.
+>
+> Signed-off-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+>
+Tested for s2mps15 pmic on exynos7-espresso board. rtc and timer works 
+as expected.
+Fill free to add
+Reviewed-by: Alim Akhtar <alim.akhtar@samsung.com>
+Tested-by: Alim Akhtar <alim.akhtar@samsung.com>
+> ---
+>
+> Tested on S2MPS11 (Odroid XU4) and S2MPS13. Testing on S2MPS15 would be
+> appreciated!
+>
+> Changes since v1:
+> 1. Fix value used in S2MPS15_RTC_AUDR_MASK, pointed by Yadwinder Singh
+>     Brar.
+> ---
+>   drivers/rtc/rtc-s5m.c           | 110 +++++++++++++++++++++++++++-------------
+>   include/linux/mfd/samsung/rtc.h |   2 +
+>   2 files changed, 77 insertions(+), 35 deletions(-)
+>
+> diff --git a/drivers/rtc/rtc-s5m.c b/drivers/rtc/rtc-s5m.c
+> index 559db8f72117..7407d7394bb4 100644
+> --- a/drivers/rtc/rtc-s5m.c
+> +++ b/drivers/rtc/rtc-s5m.c
+> @@ -38,7 +38,22 @@
+>    */
+>   #define UDR_READ_RETRY_CNT	5
+>
+> -/* Registers used by the driver which are different between chipsets. */
+> +/*
+> + * Registers used by the driver which are different between chipsets.
+> + *
+> + * Operations like read time and write alarm/time require updating
+> + * specific fields in UDR register. These fields usually are auto-cleared
+> + * (with some exceptions).
+> + *
+> + * Table of operations per device:
+> + *
+> + * Device     | Write time | Read time | Write alarm
+> + * =================================================
+> + * S5M8767    | UDR + TIME |           | UDR
+> + * S2MPS11/14 | WUDR       | RUDR      | WUDR + RUDR
+> + * S2MPS13    | WUDR       | RUDR      | WUDR + AUDR
+> + * S2MPS15    | WUDR       | RUDR      | AUDR
+> + */
+>   struct s5m_rtc_reg_config {
+>   	/* Number of registers used for setting time/alarm0/alarm1 */
+>   	unsigned int regs_count;
+> @@ -58,8 +73,13 @@ struct s5m_rtc_reg_config {
+>   	unsigned int udr_update;
+>   	/* Auto-cleared mask in UDR field for writing time and alarm */
+>   	unsigned int autoclear_udr_mask;
+> -	/* Mask for UDR field in 'udr_update' register */
+> -	unsigned int udr_mask;
+> +	/*
+> +	 * Masks in UDR field for time and alarm operations.
+> +	 * The read time mask can be 0. Rest should not.
+> +	 */
+> +	unsigned int read_time_udr_mask;
+> +	unsigned int write_time_udr_mask;
+> +	unsigned int write_alarm_udr_mask;
+>   };
+>
+>   /* Register map for S5M8763 and S5M8767 */
+> @@ -71,14 +91,44 @@ static const struct s5m_rtc_reg_config s5m_rtc_regs = {
+>   	.alarm1			= S5M_ALARM1_SEC,
+>   	.udr_update		= S5M_RTC_UDR_CON,
+>   	.autoclear_udr_mask	= S5M_RTC_UDR_MASK,
+> -	.udr_mask		= S5M_RTC_UDR_MASK,
+> +	.read_time_udr_mask	= 0, /* Not needed */
+> +	.write_time_udr_mask	= S5M_RTC_UDR_MASK | S5M_RTC_TIME_EN_MASK,
+> +	.write_alarm_udr_mask	= S5M_RTC_UDR_MASK,
+> +};
+> +
+> +/* Register map for S2MPS13 */
+> +static const struct s5m_rtc_reg_config s2mps13_rtc_regs = {
+> +	.regs_count		= 7,
+> +	.time			= S2MPS_RTC_SEC,
+> +	.ctrl			= S2MPS_RTC_CTRL,
+> +	.alarm0			= S2MPS_ALARM0_SEC,
+> +	.alarm1			= S2MPS_ALARM1_SEC,
+> +	.udr_update		= S2MPS_RTC_UDR_CON,
+> +	.autoclear_udr_mask	= S2MPS_RTC_WUDR_MASK,
+> +	.read_time_udr_mask	= S2MPS_RTC_RUDR_MASK,
+> +	.write_time_udr_mask	= S2MPS_RTC_WUDR_MASK,
+> +	.write_alarm_udr_mask	= S2MPS_RTC_WUDR_MASK | S2MPS13_RTC_AUDR_MASK,
+> +};
+> +
+> +/* Register map for S2MPS11/14 */
+> +static const struct s5m_rtc_reg_config s2mps14_rtc_regs = {
+> +	.regs_count		= 7,
+> +	.time			= S2MPS_RTC_SEC,
+> +	.ctrl			= S2MPS_RTC_CTRL,
+> +	.alarm0			= S2MPS_ALARM0_SEC,
+> +	.alarm1			= S2MPS_ALARM1_SEC,
+> +	.udr_update		= S2MPS_RTC_UDR_CON,
+> +	.autoclear_udr_mask	= S2MPS_RTC_WUDR_MASK,
+> +	.read_time_udr_mask	= S2MPS_RTC_RUDR_MASK,
+> +	.write_time_udr_mask	= S2MPS_RTC_WUDR_MASK,
+> +	.write_alarm_udr_mask	= S2MPS_RTC_WUDR_MASK | S2MPS_RTC_RUDR_MASK,
+>   };
+>
+>   /*
+> - * Register map for S2MPS14.
+> - * It may be also suitable for S2MPS11 but this was not tested.
+> + * Register map for S2MPS15 - in comparison to S2MPS14 the WUDR and AUDR bits
+> + * are swapped.
+>    */
+> -static const struct s5m_rtc_reg_config s2mps_rtc_regs = {
+> +static const struct s5m_rtc_reg_config s2mps15_rtc_regs = {
+>   	.regs_count		= 7,
+>   	.time			= S2MPS_RTC_SEC,
+>   	.ctrl			= S2MPS_RTC_CTRL,
+> @@ -86,7 +136,9 @@ static const struct s5m_rtc_reg_config s2mps_rtc_regs = {
+>   	.alarm1			= S2MPS_ALARM1_SEC,
+>   	.udr_update		= S2MPS_RTC_UDR_CON,
+>   	.autoclear_udr_mask	= S2MPS_RTC_WUDR_MASK,
+> -	.udr_mask		= S2MPS_RTC_WUDR_MASK,
+> +	.read_time_udr_mask	= S2MPS_RTC_RUDR_MASK,
+> +	.write_time_udr_mask	= S2MPS15_RTC_WUDR_MASK,
+> +	.write_alarm_udr_mask	= S2MPS15_RTC_AUDR_MASK,
+>   };
+>
+>   struct s5m_rtc_info {
+> @@ -223,21 +275,7 @@ static inline int s5m8767_rtc_set_time_reg(struct s5m_rtc_info *info)
+>   		return ret;
+>   	}
+>
+> -	switch (info->device_type) {
+> -	case S5M8763X:
+> -	case S5M8767X:
+> -		data |= info->regs->udr_mask | S5M_RTC_TIME_EN_MASK;
+> -	case S2MPS15X:
+> -		/* As per UM, for write time register, set WUDR bit to high */
+> -		data |= S2MPS15_RTC_WUDR_MASK;
+> -		break;
+> -	case S2MPS14X:
+> -	case S2MPS13X:
+> -		data |= info->regs->udr_mask;
+> -		break;
+> -	default:
+> -		return -EINVAL;
+> -	}
+> +	data |= info->regs->write_time_udr_mask;
+>
+>   	ret = regmap_write(info->regmap, info->regs->udr_update, data);
+>   	if (ret < 0) {
+> @@ -262,22 +300,16 @@ static inline int s5m8767_rtc_set_alarm_reg(struct s5m_rtc_info *info)
+>   		return ret;
+>   	}
+>
+> -	data |= info->regs->udr_mask;
+> +	data |= info->regs->write_alarm_udr_mask;
+>   	switch (info->device_type) {
+>   	case S5M8763X:
+>   	case S5M8767X:
+>   		data &= ~S5M_RTC_TIME_EN_MASK;
+>   		break;
+>   	case S2MPS15X:
+> -		/* As per UM, for write alarm, set A_UDR(bit[4]) to high
+> -		 * udr_mask above sets bit[4]
+> -		 */
+> -		break;
+>   	case S2MPS14X:
+> -		data |= S2MPS_RTC_RUDR_MASK;
+> -		break;
+>   	case S2MPS13X:
+> -		data |= S2MPS13_RTC_AUDR_MASK;
+> +		/* No exceptions needed */
+>   		break;
+>   	default:
+>   		return -EINVAL;
+> @@ -338,11 +370,11 @@ static int s5m_rtc_read_time(struct device *dev, struct rtc_time *tm)
+>   	u8 data[info->regs->regs_count];
+>   	int ret;
+>
+> -	if (info->device_type == S2MPS15X || info->device_type == S2MPS14X ||
+> -			info->device_type == S2MPS13X) {
+> +	if (info->regs->read_time_udr_mask) {
+>   		ret = regmap_update_bits(info->regmap,
+>   				info->regs->udr_update,
+> -				S2MPS_RTC_RUDR_MASK, S2MPS_RTC_RUDR_MASK);
+> +				info->regs->read_time_udr_mask,
+> +				info->regs->read_time_udr_mask);
+>   		if (ret) {
+>   			dev_err(dev,
+>   				"Failed to prepare registers for time reading: %d\n",
+> @@ -709,10 +741,18 @@ static int s5m_rtc_probe(struct platform_device *pdev)
+>
+>   	switch (platform_get_device_id(pdev)->driver_data) {
+>   	case S2MPS15X:
+> +		regmap_cfg = &s2mps14_rtc_regmap_config;
+> +		info->regs = &s2mps15_rtc_regs;
+> +		alarm_irq = S2MPS14_IRQ_RTCA0;
+> +		break;
+>   	case S2MPS14X:
+> +		regmap_cfg = &s2mps14_rtc_regmap_config;
+> +		info->regs = &s2mps14_rtc_regs;
+> +		alarm_irq = S2MPS14_IRQ_RTCA0;
+> +		break;
+>   	case S2MPS13X:
+>   		regmap_cfg = &s2mps14_rtc_regmap_config;
+> -		info->regs = &s2mps_rtc_regs;
+> +		info->regs = &s2mps13_rtc_regs;
+>   		alarm_irq = S2MPS14_IRQ_RTCA0;
+>   		break;
+>   	case S5M8763X:
+> diff --git a/include/linux/mfd/samsung/rtc.h b/include/linux/mfd/samsung/rtc.h
+> index a65e4655d470..48c3c5be7eb1 100644
+> --- a/include/linux/mfd/samsung/rtc.h
+> +++ b/include/linux/mfd/samsung/rtc.h
+> @@ -105,6 +105,8 @@ enum s2mps_rtc_reg {
+>   #define S5M_RTC_UDR_MASK	(1 << S5M_RTC_UDR_SHIFT)
+>   #define S2MPS_RTC_WUDR_SHIFT	4
+>   #define S2MPS_RTC_WUDR_MASK	(1 << S2MPS_RTC_WUDR_SHIFT)
+> +#define S2MPS15_RTC_AUDR_SHIFT	4
+> +#define S2MPS15_RTC_AUDR_MASK	(1 << S2MPS15_RTC_AUDR_SHIFT)
+>   #define S2MPS13_RTC_AUDR_SHIFT	1
+>   #define S2MPS13_RTC_AUDR_MASK	(1 << S2MPS13_RTC_AUDR_SHIFT)
+>   #define S2MPS15_RTC_WUDR_SHIFT	1
+>
 
 -- 
 -- 
