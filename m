@@ -1,42 +1,22 @@
-Return-Path: <rtc-linux+bncBDT6DFON3EBBBDGA6O2AKGQECJLC3MQ@googlegroups.com>
-Received: from mail-yk0-x233.google.com (mail-yk0-x233.google.com. [2607:f8b0:4002:c07::233])
-        by gmr-mx.google.com with ESMTPS id w126si1726694ywe.6.2016.01.18.04.52.28
+Return-Path: <rtc-linux+bncBCOML4NU3EDRBRGDUO2AKGQEYUIWQLI@googlegroups.com>
+Received: from mout.web.de (mout.web.de. [212.227.17.11])
+        by gmr-mx.google.com with ESMTPS id 185si2299971wmn.0.2016.01.03.00.54.28
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 18 Jan 2016 04:52:28 -0800 (PST)
-Received: by mail-yk0-x233.google.com with SMTP id x67so613593405ykd.2
-        for <rtc-linux@googlegroups.com>; Mon, 18 Jan 2016 04:52:28 -0800 (PST)
+        Sun, 03 Jan 2016 00:54:28 -0800 (PST)
+Subject: [rtc-linux] [PATCH 5/8] rtc-ab-b5ze-s3: Replace a variable
+ initialisation by an assignment in _abb5zes3_rtc_read_alarm()
+To: rtc-linux@googlegroups.com, Alessandro Zummo <a.zummo@towertech.it>,
+ Alexandre Belloni <alexandre.belloni@free-electrons.com>
+References: <566ABCD9.1060404@users.sourceforge.net>
+ <5688DF2D.6090204@users.sourceforge.net>
+Cc: LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org,
+ Julia Lawall <julia.lawall@lip6.fr>
+From: SF Markus Elfring <elfring@users.sourceforge.net>
+Message-ID: <5688E1C1.3020401@users.sourceforge.net>
+Date: Sun, 3 Jan 2016 09:54:25 +0100
 MIME-Version: 1.0
-In-Reply-To: <569CD427.3090106@nvidia.com>
-References: <1452590273-16421-1-git-send-email-ldewangan@nvidia.com>
-	<1452590273-16421-6-git-send-email-ldewangan@nvidia.com>
-	<569594F0.4020007@samsung.com>
-	<5695CD73.5010709@nvidia.com>
-	<5695D268.3060705@samsung.com>
-	<5695D1AF.9000806@nvidia.com>
-	<5696665A.5030508@nvidia.com>
-	<5696F0C4.1060904@samsung.com>
-	<5696F7F8.108@samsung.com>
-	<56978BA1.9050409@nvidia.com>
-	<CABxcv=kqQc1DNmMJ1PAQkB7d=w9V4-85kJXtOXRPpwpXn7to8A@mail.gmail.com>
-	<569C699F.10407@samsung.com>
-	<569CD427.3090106@nvidia.com>
-Date: Mon, 18 Jan 2016 09:52:28 -0300
-Message-ID: <CABxcv=mOjtE6awpJ2He=5pcGh1z24cOhezO4JYxtc2TGC5upEw@mail.gmail.com>
-Subject: [rtc-linux] Re: [PATCH V2 5/6] rtc: max77xxx: add RTC driver for
- Maxim MAX77xxx series RTC IP
-From: Javier Martinez Canillas <javier@dowhile0.org>
-To: Laxman Dewangan <ldewangan@nvidia.com>
-Cc: Krzysztof Kozlowski <k.kozlowski@samsung.com>, Rob Herring <robh+dt@kernel.org>,
-	Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>,
-	Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>,
-	Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>,
-	Lee Jones <lee.jones@linaro.org>, Mark Brown <broonie@kernel.org>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>, Liam Girdwood <lgirdwood@gmail.com>,
-	"devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, Linux Kernel <linux-kernel@vger.kernel.org>,
-	Linux GPIO List <linux-gpio@vger.kernel.org>, rtc-linux@googlegroups.com,
-	Stephen Warren <swarren@nvidia.com>, Thierry Reding <treding@nvidia.com>
+In-Reply-To: <5688DF2D.6090204@users.sourceforge.net>
 Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
@@ -48,90 +28,40 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Hello Laxman and Krzysztof,
+From: Markus Elfring <elfring@users.sourceforge.net>
+Date: Sun, 3 Jan 2016 08:00:29 +0100
 
-On Mon, Jan 18, 2016 at 9:01 AM, Laxman Dewangan <ldewangan@nvidia.com> wrote:
->
-> On Monday 18 January 2016 09:57 AM, Krzysztof Kozlowski wrote:
->>
->> On 15.01.2016 10:50, Javier Martinez Canillas wrote:
->>>
->>> Hello,
->>>
->>> On Thu, Jan 14, 2016 at 8:50 AM, Laxman Dewangan <ldewangan@nvidia.com>
->>> wrote:
->>>>
->>>> On Thursday 14 January 2016 06:50 AM, Krzysztof Kozlowski wrote:
->>>>>
->>>>> On 14.01.2016 09:50, Krzysztof Kozlowski wrote:
->>>
->>> [snip]
->>>
->>>>>> The max77802 does exactly the same (BTW, these should be merged as
->>>>>> well... I'll add this to the TODO list) so I think this is necessary.
->>>>>
->>>>> How about merging max77802 to max77686 first? The only differences I
->>>>> found are:
->>>>> 1. It uses main MFD/PMIC regmap.
->>>>>      This can be solved as part of decoupling code. The driver will get
->>>>> MFD's regmap and set up its own (only on max77686). The max77802 will
->>>>> only use parent's regmap.
->>>>>
->>>>> 2. It has different register address.
->>>>>      We need a register-layout/configuration structure. The logic is
->>>>> the
->>>>> same except few differences (e.g. presence of MAX77802_RTC_AE1).
->>>>>
->>>>> It may be easier to merge them now, before adding support for max77620?
->>>
->>> Agreed.
->>>
->>> When I originally posted the max77802 support, I had separate MFD,
->>> RTC, regulator and clock drivers and the feedback (IIRC) was that the
->>> MFD and clock blocks were too similar to the max77686 so I extended
->>> those drivers instead of adding new ones. But that the RTC and
->>> regulator blocks were different so a separate driver was justified...
->>> but it's true that are not that different and rtc-max77686 could be
->>> extended and rtc-max77802 removed.
->>
->> Great!
->>
->>> In fact, the ChromiumOS vendor tree has a single RTC driver for both
->>> max77686 and max77802:
->>>
->>>
->>> https://chromium.googlesource.com/chromiumos/third_party/kernel/+/chromeos-3.8/drivers/rtc/rtc-max77xxx.c
->>>
->>>>> I could handle this probably next week or in the following week
->>>>> (assuming someone would test max77802 because I don't have the
->>>>> hardware).
->>>>>
->>> I could also work on this next week if you want. After all I feel
->>> guilty for the code duplication :-)
->>
->> So feel free to take that job from me. :) I will happily do the testing
->> and provide complains (I mean, comments).
->>
->
-> Hi Javier,
-> If you can provide the patch for moving MAX77802 to MAX77686 then I can
-> create the other change to move the regmap and i2c dummy client for rtc of
-> max77686 to rtc driver from core on top of your change. This will
-> completely decouple the rtc driver from core and so will be easy to use for
-> other chip MAX77620.
->
+Replace an explicit initialisation for one local variable at the beginning
+by an assignment.
 
-Ok, sounds like a plan. I'll just do the change to extend rtc-max77686
-to support the max77802 rtc then and let the other change to you.
+Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
+---
+ drivers/rtc/rtc-ab-b5ze-s3.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-I'll work on this today once I finish other task that I'm currently working on.
-
-> Thanks,
-> Laxman
->
-
-Best regards,
-Javier
+diff --git a/drivers/rtc/rtc-ab-b5ze-s3.c b/drivers/rtc/rtc-ab-b5ze-s3.c
+index 0986715..02e3443 100644
+--- a/drivers/rtc/rtc-ab-b5ze-s3.c
++++ b/drivers/rtc/rtc-ab-b5ze-s3.c
+@@ -382,7 +382,7 @@ static int _abb5zes3_rtc_read_alarm(struct device *dev,
+ 				    struct rtc_wkalrm *alarm)
+ {
+ 	struct abb5zes3_rtc_data *data = dev_get_drvdata(dev);
+-	struct rtc_time rtc_tm, *alarm_tm = &alarm->time;
++	struct rtc_time rtc_tm, *alarm_tm;
+ 	unsigned long rtc_secs, alarm_secs;
+ 	u8 regs[ABB5ZES3_ALRM_SEC_LEN];
+ 	unsigned int reg;
+@@ -396,6 +396,7 @@ static int _abb5zes3_rtc_read_alarm(struct device *dev,
+ 		goto err;
+ 	}
+ 
++	alarm_tm = &alarm->time;
+ 	alarm_tm->tm_sec  = 0;
+ 	alarm_tm->tm_min  = bcd2bin(regs[0] & 0x7f);
+ 	alarm_tm->tm_hour = bcd2bin(regs[1] & 0x3f);
+-- 
+2.6.3
 
 -- 
 -- 
