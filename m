@@ -1,26 +1,23 @@
-Return-Path: <rtc-linux+bncBDJIP47K7MERBMNHV22QKGQEZLEYQPY@googlegroups.com>
-Received: from mail.kernel.org (mail.kernel.org. [198.145.29.136])
-        by gmr-mx.google.com with ESMTP id tn7si2279824pac.1.2016.01.29.08.30.40
-        for <rtc-linux@googlegroups.com>;
-        Fri, 29 Jan 2016 08:30:40 -0800 (PST)
-Date: Fri, 29 Jan 2016 10:30:35 -0600
-From: Rob Herring <robh@kernel.org>
-To: Laxman Dewangan <ldewangan@nvidia.com>
-Cc: pawel.moll@arm.com, mark.rutland@arm.com, ijc+devicetree@hellion.org.uk,
-	galak@codeaurora.org, linus.walleij@linaro.org, gnurou@gmail.com,
-	lee.jones@linaro.org, broonie@kernel.org, a.zummo@towertech.it,
-	alexandre.belloni@free-electrons.com, lgirdwood@gmail.com,
-	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux-gpio@vger.kernel.org, rtc-linux@googlegroups.com,
-	swarren@nvidia.com, treding@nvidia.com, k.kozlowski@samsung.com,
-	Chaitanya Bandi <bandik@nvidia.com>
-Subject: [rtc-linux] Re: [PATCH V5 4/5] gpio: max77620: add gpio driver for MAX77620/MAX20024
-Message-ID: <20160129163035.GA15053@rob-hp-laptop>
-References: <1453903808-29788-1-git-send-email-ldewangan@nvidia.com>
- <1453903808-29788-5-git-send-email-ldewangan@nvidia.com>
+Return-Path: <rtc-linux+bncBCOML4NU3EDRBD6DUO2AKGQEKGUS4OY@googlegroups.com>
+Received: from mout.web.de (mout.web.de. [212.227.17.11])
+        by gmr-mx.google.com with ESMTPS id s132si994860wmd.1.2016.01.03.00.53.35
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Sun, 03 Jan 2016 00:53:35 -0800 (PST)
+Subject: [rtc-linux] [PATCH 4/8] rtc-ab-b5ze-s3: Replace a variable
+ initialisation by an assignment in _abb5zes3_rtc_set_alarm()
+To: rtc-linux@googlegroups.com, Alessandro Zummo <a.zummo@towertech.it>,
+ Alexandre Belloni <alexandre.belloni@free-electrons.com>
+References: <566ABCD9.1060404@users.sourceforge.net>
+ <5688DF2D.6090204@users.sourceforge.net>
+Cc: LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org,
+ Julia Lawall <julia.lawall@lip6.fr>
+From: SF Markus Elfring <elfring@users.sourceforge.net>
+Message-ID: <5688E18D.1000007@users.sourceforge.net>
+Date: Sun, 3 Jan 2016 09:53:33 +0100
 MIME-Version: 1.0
+In-Reply-To: <5688DF2D.6090204@users.sourceforge.net>
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1453903808-29788-5-git-send-email-ldewangan@nvidia.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -31,63 +28,40 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Wed, Jan 27, 2016 at 07:40:07PM +0530, Laxman Dewangan wrote:
-> MAXIM Semiconductor's PMIC, MAX77620/MAX20024 has 8 GPIO
-> pins. It also supports interrupts from these pins.
-> 
-> Add GPIO driver for these pins to control via GPIO APIs.
-> 
-> Signed-off-by: Laxman Dewangan <ldewangan@nvidia.com>
-> Signed-off-by: Chaitanya Bandi <bandik@nvidia.com>
-> ---
-> Changes from V1:
-> - Use the gpiochip_add_data and get the chip data from core APIs.
-> - Cleanups based on comment received on mfd/rtc.
-> - Avoid duplication on error message.
-> 
-> Changes form V2:
-> - Run coccicheck and checkpatch in strict mode for the alignment.
-> - update based on api changes from core.
-> 
-> Changes from V3: 
-> - Change all sys initcall to module driver.
-> - change the max77620_read argument to unisgned int from u8.
-> 
-> Changes from V4: 
-> - Added DT binding document as devicetree/bindings/gpio/gpio-max77620.txt
-> 
->  .../devicetree/bindings/gpio/gpio-max77620.txt     |  25 ++
->  drivers/gpio/Kconfig                               |   9 +
->  drivers/gpio/Makefile                              |   1 +
->  drivers/gpio/gpio-max77620.c                       | 292 +++++++++++++++++++++
->  4 files changed, 327 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/gpio/gpio-max77620.txt
->  create mode 100644 drivers/gpio/gpio-max77620.c
-> 
-> diff --git a/Documentation/devicetree/bindings/gpio/gpio-max77620.txt b/Documentation/devicetree/bindings/gpio/gpio-max77620.txt
-> new file mode 100644
-> index 0000000..410e716
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/gpio/gpio-max77620.txt
-> @@ -0,0 +1,25 @@
-> +GPIO driver for MAX77620 Power management IC from Maxim Semiconductor.
-> +
-> +Device has 8 GPIO pins which can be configured as GPIO as well as the
-> +special IO functions.
-> +
-> +Required properties:
-> +-------------------
-> +- gpio-controller : 	Marks the device node as a gpio controller.
-> +- #gpio-cells : 	Should be two.  The first cell is the pin number and
-> +			the second cell is used to specify the gpio polarity:
-> +				0 = active high
-> +				1 = active low
-> +For more details, please refer generic GPIO DT binding document
-> +<devicetree/bindings/gpio/gpio.txt>.
+From: Markus Elfring <elfring@users.sourceforge.net>
+Date: Sun, 3 Jan 2016 07:51:49 +0100
 
-I would just fold these 2 properties into the main max77620 document.
+Replace an explicit initialisation for one local variable at the beginning
+by an assignment.
 
-Rob
+Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
+---
+ drivers/rtc/rtc-ab-b5ze-s3.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/rtc/rtc-ab-b5ze-s3.c b/drivers/rtc/rtc-ab-b5ze-s3.c
+index 33a7cf1..0986715 100644
+--- a/drivers/rtc/rtc-ab-b5ze-s3.c
++++ b/drivers/rtc/rtc-ab-b5ze-s3.c
+@@ -476,7 +476,7 @@ static int abb5zes3_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alarm)
+ static int _abb5zes3_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alarm)
+ {
+ 	struct abb5zes3_rtc_data *data = dev_get_drvdata(dev);
+-	struct rtc_time *alarm_tm = &alarm->time;
++	struct rtc_time *alarm_tm;
+ 	unsigned long rtc_secs, alarm_secs;
+ 	u8 regs[ABB5ZES3_ALRM_SEC_LEN];
+ 	struct rtc_time rtc_tm;
+@@ -490,6 +490,7 @@ static int _abb5zes3_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alarm)
+ 	if (ret)
+ 		goto err;
+ 
++	alarm_tm = &alarm->time;
+ 	ret = rtc_tm_to_time(alarm_tm, &alarm_secs);
+ 	if (ret)
+ 		goto err;
+-- 
+2.6.3
 
 -- 
 -- 
