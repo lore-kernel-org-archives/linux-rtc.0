@@ -1,35 +1,27 @@
-Return-Path: <rtc-linux+bncBDE6RCFOWIARBG6PU62QKGQEJISP5VA@googlegroups.com>
-Received: from mail-ob0-x22d.google.com (mail-ob0-x22d.google.com. [2607:f8b0:4003:c01::22d])
-        by gmr-mx.google.com with ESMTPS id ht5si123061igb.1.2016.01.28.02.04.10
+Return-Path: <rtc-linux+bncBCNNJWF7RUMRBE7VVK2AKGQEWCSIGAA@googlegroups.com>
+MIME-Version: 1.0
+Received: from mail-pf0-x243.google.com (mail-pf0-x243.google.com. [2607:f8b0:400e:c00::243])
+        by gmr-mx.google.com with ESMTPS id t69si5807951pfi.1.2016.01.04.10.31.46
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 28 Jan 2016 02:04:10 -0800 (PST)
-Received: by mail-ob0-x22d.google.com with SMTP id ny8so9780128obc.2
-        for <rtc-linux@googlegroups.com>; Thu, 28 Jan 2016 02:04:10 -0800 (PST)
-MIME-Version: 1.0
-In-Reply-To: <1453198783-28383-4-git-send-email-ldewangan@nvidia.com>
-References: <1453198783-28383-1-git-send-email-ldewangan@nvidia.com>
-	<1453198783-28383-4-git-send-email-ldewangan@nvidia.com>
-Date: Thu, 28 Jan 2016 11:04:10 +0100
-Message-ID: <CACRpkdZEYw2aADQDNSi0kKns17nKZQZKY+harLhc0j3pA-5FuA@mail.gmail.com>
-Subject: [rtc-linux] Re: [PATCH V4 3/5] pinctrl: max77620: add pincontrol
- driver for MAX77620/MAX20024
-From: Linus Walleij <linus.walleij@linaro.org>
-To: Laxman Dewangan <ldewangan@nvidia.com>
-Cc: Rob Herring <robh+dt@kernel.org>, =?UTF-8?Q?Pawe=C5=82_Moll?= <pawel.moll@arm.com>,
-	Mark Rutland <mark.rutland@arm.com>,
-	"ijc+devicetree@hellion.org.uk" <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>,
-	Alexandre Courbot <gnurou@gmail.com>, Lee Jones <lee.jones@linaro.org>, Mark Brown <broonie@kernel.org>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>, Liam Girdwood <lgirdwood@gmail.com>,
-	"devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-	"linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>,
-	"rtc-linux@googlegroups.com" <rtc-linux@googlegroups.com>, Stephen Warren <swarren@nvidia.com>,
-	Thierry Reding <treding@nvidia.com>, =?UTF-8?Q?Krzysztof_Koz=C5=82owski?= <k.kozlowski@samsung.com>,
-	vreddytalla@nvidia.com, Chaitanya Bandi <bandik@nvidia.com>
-Content-Type: text/plain; charset=UTF-8
+        Mon, 04 Jan 2016 10:31:46 -0800 (PST)
+Received: by mail-pf0-x243.google.com with SMTP id e65so19496524pfe.2
+        for <rtc-linux@googlegroups.com>; Mon, 04 Jan 2016 10:31:46 -0800 (PST)
+From: Joshua Clayton <stillcompiling@gmail.com>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Alessandro Zummo <a.zummo@towertech.it>
+Cc: rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org,
+	Joshua Clayton <stillcompiling@gmail.com>
+Subject: [rtc-linux] [PATCH v2 8/8] rtc-pcf2123: implement read_offset and set_offset
+Date: Mon,  4 Jan 2016 10:31:26 -0800
+Message-Id: <1f7f643e25fff98c0cf6b9c694e1b8ba41f057cb.1451929910.git.stillcompiling@gmail.com>
+In-Reply-To: <cover.1451928661.git.stillcompiling@gmail.com>
+References: <cover.1451928661.git.stillcompiling@gmail.com>
+In-Reply-To: <0000-cover-letter.patch>
+References: <0000-cover-letter.patch>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -39,30 +31,101 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Tue, Jan 19, 2016 at 11:19 AM, Laxman Dewangan <ldewangan@nvidia.com> wrote:
+pcf2123 has an offset register, which can be used to make minor
+adjustments to the clock rate to compensate for temperature or
+a crystal that is not exactly right.
 
-> MAXIM Semiconductor's PMIC, MAX77620/MAX20024 has 8 GPIO pins
-> which also act as the special function in alternate mode. Also
-> there is configuration like push-pull, open drain, FPS timing
-> etc for these pins.
->
-> Add pincontrol driver to configure these parameters through
-> pincontrol APIs.
->
-> Signed-off-by: Laxman Dewangan <ldewangan@nvidia.com>
-> Signed-off-by: Chaitanya Bandi <bandik@nvidia.com>
+Expose the offset register to sysfs
 
-Nice. This driver looks like a lot of hard work, but I think
-it's worth it.
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Joshua Clayton <stillcompiling@gmail.com>
+---
+ drivers/rtc/rtc-pcf2123.c | 57 +++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 57 insertions(+)
 
-I guess Lee will be merging this into the MTD tree.
-
-(I still had those comments on the DT bindings but this driver
-part looks fine.)
-
-Yours,
-Linus Walleij
+diff --git a/drivers/rtc/rtc-pcf2123.c b/drivers/rtc/rtc-pcf2123.c
+index d9a44ad..da27738 100644
+--- a/drivers/rtc/rtc-pcf2123.c
++++ b/drivers/rtc/rtc-pcf2123.c
+@@ -100,6 +100,7 @@
+ /* PCF2123_REG_OFFSET BITS */
+ #define OFFSET_SIGN_BIT		BIT(6)	/* 2's complement sign bit */
+ #define OFFSET_COARSE		BIT(7)	/* Coarse mode offset */
++#define OFFSET_STEP		(2170)	/* Offset step in parts per billion */
+ 
+ /* READ/WRITE ADDRESS BITS */
+ #define PCF2123_WRITE		BIT(4)
+@@ -206,6 +207,59 @@ static ssize_t pcf2123_store(struct device *dev, struct device_attribute *attr,
+ 	return count;
+ }
+ 
++static int pcf2123_read_offset(struct device *dev, long *offset)
++{
++	int ret;
++	s8 reg;
++
++	ret = pcf2123_read(dev, PCF2123_REG_OFFSET, &reg, 1);
++	if (ret < 0)
++		return ret;
++
++	if (reg & OFFSET_COARSE)
++		reg <<= 1; /* multiply by 2 and sign extend */
++	else
++		reg |= (reg & OFFSET_SIGN_BIT) << 1; /* sign extend only */
++
++	*offset = ((long)reg) * OFFSET_STEP;
++
++	return 0;
++}
++
++/*
++ * The offset register is a 7 bit signed value with a coarse bit in bit 7.
++ * The main difference between the two is normal offset adjusts the first
++ * second of n minutes every other hour, with 61, 62 and 63 being shoved
++ * into the 60th minute.
++ * The coarse adjustment does the same, but every hour.
++ * the two overlap, with every even normal offset value corresponding
++ * to a coarse offset. Based on this algorithm, it seems that despite the
++ * name, coarse offset is a better fit for overlapping values.
++ */
++static int pcf2123_set_offset(struct device *dev, long offset)
++{
++	s8 reg;
++
++	if (offset > OFFSET_STEP * 127)
++		reg = 127;
++	else if (offset < OFFSET_STEP * -128)
++		reg = -128;
++	else
++		reg = (s8)((offset + (OFFSET_STEP >> 1)) / OFFSET_STEP);
++
++	/* choose fine offset only for odd values in the normal range */
++	if (reg & 1 && reg <= 63 && reg >= -64) {
++		/* Normal offset. Clear the coarse bit */
++		reg &= ~OFFSET_COARSE;
++	} else {
++		/* Coarse offset. Divide by 2 and set the coarse bit */
++		reg >>= 1;
++		reg |= OFFSET_COARSE;
++	}
++
++	return pcf2123_write_reg(dev, PCF2123_REG_OFFSET, reg);
++}
++
+ static int pcf2123_rtc_read_time(struct device *dev, struct rtc_time *tm)
+ {
+ 	u8 rxbuf[7];
+@@ -314,6 +368,9 @@ static int pcf2123_reset(struct device *dev)
+ static const struct rtc_class_ops pcf2123_rtc_ops = {
+ 	.read_time	= pcf2123_rtc_read_time,
+ 	.set_time	= pcf2123_rtc_set_time,
++	.read_offset	= pcf2123_read_offset,
++	.set_offset	= pcf2123_set_offset,
++
+ };
+ 
+ static int pcf2123_probe(struct spi_device *spi)
+-- 
+2.5.0
 
 -- 
 -- 
