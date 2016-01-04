@@ -1,31 +1,28 @@
-Return-Path: <rtc-linux+bncBDKZNNNLXAHBBH4RVS2AKGQE42S7ITQ@googlegroups.com>
-Received: from mailout1.w1.samsung.com (mailout1.w1.samsung.com. [210.118.77.11])
-        by gmr-mx.google.com with ESMTPS id dz2si2769610pab.1.2016.01.04.16.04.46
+Return-Path: <rtc-linux+bncBDGNBOVQQEOBBQGMVK2AKGQEWLIGI2A@googlegroups.com>
+MIME-Version: 1.0
+Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de. [2001:67c:670:201:290:27ff:fe1d:cc33])
+        by gmr-mx.google.com with ESMTPS id 5si1171306wmm.2.2016.01.04.09.05.04
         for <rtc-linux@googlegroups.com>
-        (version=TLS1 cipher=AES128-SHA bits=128/128);
-        Mon, 04 Jan 2016 16:04:46 -0800 (PST)
-Received: from eucpsbgm1.samsung.com (unknown [203.254.199.244])
- by mailout1.w1.samsung.com
- (Oracle Communications Messaging Server 7.0.5.31.0 64bit (built May  5 2014))
- with ESMTP id <0O0G00MODDJUZZ00@mailout1.w1.samsung.com> for
- rtc-linux@googlegroups.com; Tue, 05 Jan 2016 00:04:42 +0000 (GMT)
-Subject: [rtc-linux] Re: [PATCH v2 1/3] rtc: s5m: Cleanup by removing useless
- 'rtc' prefix from fields
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-References: <1451450847-928-1-git-send-email-k.kozlowski@samsung.com>
- <20160104170841.GD32724@piout.net> <568B0601.5020808@samsung.com>
-Cc: Sangbeom Kim <sbkim73@samsung.com>,
- Alessandro Zummo <a.zummo@towertech.it>, Lee Jones <lee.jones@linaro.org>,
- linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org,
- rtc-linux@googlegroups.com, Alim Akhtar <alim.akhtar@samsung.com>,
- Yadwinder Singh Brar <yadi.brar01@gmail.com>
-From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-Message-id: <568B0897.4020403@samsung.com>
-Date: Tue, 05 Jan 2016 09:04:39 +0900
-MIME-version: 1.0
-In-reply-to: <568B0601.5020808@samsung.com>
-Content-type: text/plain; charset=UTF-8
+        (version=TLS1_2 cipher=AES128-SHA bits=128/128);
+        Mon, 04 Jan 2016 09:05:04 -0800 (PST)
+From: Steffen Trumtrar <s.trumtrar@pengutronix.de>
+To: Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: Rob Herring <robh+dt@kernel.org>,
+	Pawel Moll <pawel.moll@arm.com>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Ian Campbell <ijc+devicetree@hellion.org.uk>,
+	Kumar Gala <galak@codeaurora.org>,
+	devicetree@vger.kernel.org,
+	rtc-linux@googlegroups.com,
+	kernel@pengutronix.de,
+	Steffen Trumtrar <s.trumtrar@pengutronix.de>
+Subject: [rtc-linux] [PATCH v4 1/2] Documentation: devicetree: add epson
+ rx6110 binding
+Date: Mon,  4 Jan 2016 18:04:34 +0100
+Message-Id: <1451927075-8656-1-git-send-email-s.trumtrar@pengutronix.de>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -35,36 +32,64 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 05.01.2016 08:53, Krzysztof Kozlowski wrote:
-> On 05.01.2016 02:08, Alexandre Belloni wrote:
->> Hi,
->>
->> On 30/12/2015 at 13:47:25 +0900, Krzysztof Kozlowski wrote :
->>> Remove the 'rtc' prefix from some of the fields in struct
->>> s5m_rtc_reg_config because it is obvious - this is a RTC driver. No
->>> functional changes.
->>>
->>> Signed-off-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
->>>
->>
->> I was going to apply those patches but they don't apply cleanly on
->> rtc-next. Did I miss something?
->>
-> 
-> Probably that's my fault because I rebased it on linux-next. I will
-> rebase the patches on rtc-next and resend.
+Add the binding documentation for the Epson RX6110 RTC.
 
-Ah, no need for rebasing. I forgot about dependency - the support for
-S2MPS15 was added recently through Lee Jones' tree. Fortunately Lee put
-S2MPS15 patches in a separate branch and tag: "ib-mfd-regulator-rtc-4.5"
+Acked-by: Rob Herring <robh@kernel.org>
+Reviewed-by: Philipp Zabel <p.zabel@pengutronix.de>
+Signed-off-by: Steffen Trumtrar <s.trumtrar@pengutronix.de>
+---
 
-This means that to apply the patches this is needed first:
-https://git.kernel.org/cgit/linux/kernel/git/lee/mfd.git/log/?h=ib-mfd-regulator-rtc-4.5
+ .../devicetree/bindings/rtc/epson,rx6110.txt       | 39 ++++++++++++++++++++++
+ 1 file changed, 39 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/rtc/epson,rx6110.txt
 
-Best regards,
-Krzysztof
-
-
+diff --git a/Documentation/devicetree/bindings/rtc/epson,rx6110.txt b/Documentation/devicetree/bindings/rtc/epson,rx6110.txt
+new file mode 100644
+index 000000000000..3dc313e01f77
+--- /dev/null
++++ b/Documentation/devicetree/bindings/rtc/epson,rx6110.txt
+@@ -0,0 +1,39 @@
++Epson RX6110 Real Time Clock
++============================
++
++The Epson RX6110 can be used with SPI or I2C busses. The kind of
++bus depends on the SPISEL pin and can not be configured via software.
++
++I2C mode
++--------
++
++Required properties:
++  - compatible: should be: "epson,rx6110"
++  - reg : the I2C address of the device for I2C
++
++Example:
++
++	rtc: rtc@32 {
++		compatible = "epson,rx6110"
++		reg = <0x32>;
++	};
++
++SPI mode
++--------
++
++Required properties:
++  - compatible: should be: "epson,rx6110"
++  - reg: chip select number
++  - spi-cs-high: RX6110 needs chipselect high
++  - spi-cpha: RX6110 works with SPI shifted clock phase
++  - spi-cpol: RX6110 works with SPI inverse clock polarity
++
++Example:
++
++	rtc: rtc@3 {
++		compatible = "epson,rx6110"
++		reg = <3>
++		spi-cs-high;
++		spi-cpha;
++		spi-cpol;
++	};
+-- 
+2.6.2
 
 -- 
 -- 
