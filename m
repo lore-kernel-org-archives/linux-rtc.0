@@ -1,29 +1,23 @@
-Return-Path: <rtc-linux+bncBDQ2L75W5QGBBLOIVK2QKGQE4KHQPNA@googlegroups.com>
-Received: from mezzanine.sirena.org.uk (mezzanine.sirena.org.uk. [2400:8900::f03c:91ff:fedb:4f4])
-        by gmr-mx.google.com with ESMTPS id r2si1799929pfr.0.2016.01.28.15.28.45
+Return-Path: <rtc-linux+bncBC2L7GMJYALRBQ6DVK2AKGQEZKGP76I@googlegroups.com>
+Received: from mail-pa0-x22f.google.com (mail-pa0-x22f.google.com. [2607:f8b0:400e:c03::22f])
+        by gmr-mx.google.com with ESMTPS id t69si5756652pfi.1.2016.01.04.08.45.55
         for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=AES128-SHA bits=128/128);
-        Thu, 28 Jan 2016 15:28:45 -0800 (PST)
-Date: Fri, 29 Jan 2016 00:28:17 +0100
-From: Mark Brown <broonie@kernel.org>
-To: Laxman Dewangan <ldewangan@nvidia.com>
-Cc: robh+dt@kernel.org, pawel.moll@arm.com, mark.rutland@arm.com,
-	ijc+devicetree@hellion.org.uk, galak@codeaurora.org,
-	linus.walleij@linaro.org, gnurou@gmail.com, lee.jones@linaro.org,
-	a.zummo@towertech.it, alexandre.belloni@free-electrons.com,
-	lgirdwood@gmail.com, devicetree@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org,
-	rtc-linux@googlegroups.com, swarren@nvidia.com, treding@nvidia.com,
-	k.kozlowski@samsung.com
-Message-ID: <20160128232817.GH4130@sirena.org.uk>
-References: <1453988274-28052-1-git-send-email-ldewangan@nvidia.com>
- <1453988274-28052-8-git-send-email-ldewangan@nvidia.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 04 Jan 2016 08:45:55 -0800 (PST)
+Received: by mail-pa0-x22f.google.com with SMTP id uo6so179910336pac.1
+        for <rtc-linux@googlegroups.com>; Mon, 04 Jan 2016 08:45:55 -0800 (PST)
+Subject: [rtc-linux] Re: rtc-palmas: correct for bcd year
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+References: <1451508726-31769-1-git-send-email-salyzyn@android.com>
+ <20160104161853.GC32724@piout.net>
+Cc: linux-kernel@vger.kernel.org, Alessandro Zummo <a.zummo@towertech.it>,
+ rtc-linux@googlegroups.com
+From: Mark Salyzyn <salyzyn@android.com>
+Message-ID: <568AA1C2.2070407@android.com>
+Date: Mon, 4 Jan 2016 08:45:54 -0800
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="2oox5VnwalALFvA7"
-In-Reply-To: <1453988274-28052-8-git-send-email-ldewangan@nvidia.com>
-Subject: [rtc-linux] Re: [PATCH V6 7/8] DT: regulator: add DT binding doc for
- regulator of PMIC max77620/max20024
+In-Reply-To: <20160104161853.GC32724@piout.net>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -34,31 +28,42 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
---2oox5VnwalALFvA7
-Content-Type: text/plain; charset=UTF-8
-Content-Disposition: inline
+On 01/04/2016 08:18 AM, Alexandre Belloni wrote:
+> Hi,
+>
+> On 30/12/2015 at 12:51:45 -0800, Mark Salyzyn wrote :
+>> Replace bcd2bin and bin2bcd with one that maps years 1970 to 2129
+>> in a pattern that works with the underlying hardware.
+>>
+>> The only transition that does not work correctly for this rtc clock
+>> is the transition from 2099 to 2100, it proceeds to 2000. The rtc
+>> clock retains and transitions the year correctly in all other
+>> circumstances.
+>>
+> If that transition doesn't work, it is not useful to try to support
+> dates after 2099. Also, I'm concerned about the leap year handling in
+> the other case. What is done right now is probably the best however, I
+> couldn't find the datasheet to confirm.
+>
 
-On Thu, Jan 28, 2016 at 07:07:53PM +0530, Laxman Dewangan wrote:
-> Maxim Semiconductor's PMIC MAX77620/MAX20024 has multiple
-> DCDCs and LDOs.
+As it stands today, if I set the date to 1970, it returns 2066, so this 
+is a leap(sic) forward for this one rtc clock.
 
-Please use subject lines matching the style for the subsystem.  I'm
-fairly sure I've mentioned this before and really if your subject lines
-don't visually resemble anything else in the directory that ought to be
-a warning sign.
+The advantages of supporting 2099+ for being able to set those years and 
+not return garbage like in the 1970 case. The failure to roll over from 
+2099-2100 is but a millisecond of failure for an additional 1/3 of 
+century of well being, and support code is minor, albeit flawed. Without 
+these additional four lines, if something sets the year to 2100, they 
+will get a garbage back in return, a small price to pay IMHO.
 
-> +- maxim,disable-active-discharge:    boolean, Disable active discharge.
+There are dozens and dozens of other bcd-based rtc clocks that could 
+gain from this example (and may not have this issue with 2099 rollover), 
+so maybe this year code should be in the library?
 
-That's something I've seen other regulators do, can we make it a
-standard property with an op?
+I will remove 2099+ support if you continue to consider this rollover 
+issue egregious given my rationalization.
 
-> +max77620@3c {
-> +	regulators {
-> +		in-ldo0-1-supply = <&max77620_sd2>;
-> +		in-ldo7-8-supply = <&max77620_sd2>;
-
-I'd expect any supplies for the device to be at the device level,
-including supplies used by regulators.
+Sincerely -- Mark Salyzyn
 
 -- 
 -- 
@@ -70,20 +75,3 @@ before submitting a driver.
 You received this message because you are subscribed to the Google Groups "rtc-linux" group.
 To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
-
---2oox5VnwalALFvA7
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
-
-iQEcBAEBCAAGBQJWqqQQAAoJECTWi3JdVIfQ7wQIAIYk6ZkTOPNOCsbPz8ruY17f
-hTnw2UWK1JXkW8rcR0d//LER/ATrYfF6bv+CjwUf8DYUVx2UD/o6WQKH67cItf/p
-rDJEpFOXedtBBO2sLVm+nzbjJwSuya1aM4lAJ0hmv8Nq0s0DwYDd95pp2vai807j
-XEUg9M4+uX4aTzN15bDPyPDKfu36zs5NF+MZ3bTwIuwwpDihpfYPt/F1P54J2m31
-OuxyRi3992+hMj9I2F3JMB7nG1fXO3vX02xcX4cUwYXffaJgJ8aAwk5OX25WDnBM
-u2KIo09vfKyRKWD6GyuIbWiAVbtNqQSy9xK3J9gM6YqWb4eDK+kmuziJtH+QToA=
-=S+ho
------END PGP SIGNATURE-----
-
---2oox5VnwalALFvA7--
