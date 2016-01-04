@@ -1,34 +1,27 @@
-Return-Path: <rtc-linux+bncBAABBDG2UC2QKGQEA7GQGEQ@googlegroups.com>
-Received: from mailout3.samsung.com (mailout3.samsung.com. [203.254.224.33])
-        by gmr-mx.google.com with ESMTPS id tn7si497569pac.1.2016.01.26.18.35.56
+Return-Path: <rtc-linux+bncBCNNJWF7RUMRBD7VVK2AKGQEQ55UIGA@googlegroups.com>
+MIME-Version: 1.0
+Received: from mail-pf0-x241.google.com (mail-pf0-x241.google.com. [2607:f8b0:400e:c00::241])
+        by gmr-mx.google.com with ESMTPS id p88si8636056pfi.0.2016.01.04.10.31.43
         for <rtc-linux@googlegroups.com>
-        (version=TLS1 cipher=AES128-SHA bits=128/128);
-        Tue, 26 Jan 2016 18:35:56 -0800 (PST)
-Received: from epcpsbgr4.samsung.com
- (u144.gpu120.samsung.co.kr [203.254.230.144])
- by mailout3.samsung.com (Oracle Communications Messaging Server 7.0.5.31.0
- 64bit (built May  5 2014))
- with ESMTP id <0O1L00T35B7UPPC0@mailout3.samsung.com> for
- rtc-linux@googlegroups.com; Wed, 27 Jan 2016 11:35:54 +0900 (KST)
-Date: Wed, 27 Jan 2016 11:35:54 +0900
-From: Andi Shyti <andi.shyti@samsung.com>
-To: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-Cc: Javier Martinez Canillas <javier@osg.samsung.com>,
- linux-kernel@vger.kernel.org, Kukjin Kim <kgene@kernel.org>,
- rtc-linux@googlegroups.com, Chanwoo Choi <cw00.choi@samsung.com>,
- Alexandre Belloni <alexandre.belloni@free-electrons.com>,
- Laxman Dewangan <ldewangan@nvidia.com>, linux-samsung-soc@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH v3 07/10] rtc: max77686: Use dev_warn()
- instead of pr_warn()
-Message-id: <20160127023554.GI14296@samsunx.samsung>
-References: <1453836020-29579-1-git-send-email-javier@osg.samsung.com>
- <1453836020-29579-8-git-send-email-javier@osg.samsung.com>
- <20160127012230.GE14296@samsunx.samsung> <56A82331.5050403@osg.samsung.com>
- <56A825F0.9000108@samsung.com>
-MIME-version: 1.0
-Content-type: text/plain; charset=UTF-8
-In-reply-to: <56A825F0.9000108@samsung.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 04 Jan 2016 10:31:43 -0800 (PST)
+Received: by mail-pf0-x241.google.com with SMTP id 78so20481790pfw.0
+        for <rtc-linux@googlegroups.com>; Mon, 04 Jan 2016 10:31:43 -0800 (PST)
+From: Joshua Clayton <stillcompiling@gmail.com>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Alessandro Zummo <a.zummo@towertech.it>
+Cc: rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org,
+	Joshua Clayton <stillcompiling@gmail.com>
+Subject: [rtc-linux] [PATCH v2 6/8] rtc: Add functions to set and read clock offset
+Date: Mon,  4 Jan 2016 10:31:24 -0800
+Message-Id: <db4d6befcd0e63cbfebf800fe6176c9ac1a6efdb.1451929910.git.stillcompiling@gmail.com>
+In-Reply-To: <cover.1451928661.git.stillcompiling@gmail.com>
+References: <cover.1451928661.git.stillcompiling@gmail.com>
+In-Reply-To: <0000-cover-letter.patch>
+References: <0000-cover-letter.patch>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -38,50 +31,114 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-> > On 01/26/2016 10:22 PM, Andi Shyti wrote:
-> >> Hi Javier,
-> >>
-> >>>           if (tm->tm_year < 100) {
-> >>> -            pr_warn("RTC can't handle year %d. Assume it's 2000.\n",
-> >>> -                1900 + tm->tm_year);
-> >>> +            dev_warn(info->dev,
-> >>> +                 "RTC can't handle year %d. Assume it's 2000\n",
-> >>> +                 1900 + tm->tm_year);
-> >>>               return -EINVAL;
-> >>
-> >> Because we are returning an error value, why not use dev_err()?
-> >>
-> > 
-> > You are absolutely right. Since the driver was using pr_warn(), I used
-> > dev_warn() but dev_err() would had been correct.
-> 
-> Wait. The message says that "2000 will be assumed" which is not an
-> error. The message indicates that driver will proceed, thus the warning.
-> 
-> However the driver won't proceed because the max77686_rtc_set_time()
-> will abort. This came from max8997 which has the same issue.
-> 
-> This means that either message should be changed (dev_err() without the
-> "assume" verb) or the function should not abort and set the year to
-> 2000+something (then dev_warn()... look at rtc-ds3234.c and rtc-mcp795.c).
-> 
-> The easiest would be to choose #1 - no changes in the logic.
+A number of rtc devices, such as the NXP pcf2123 include a facility
+to adjust the clock in order to compensate for temperature or a
+crystal, capacitor, etc, that results in the rtc clock not running
+at exactly 32.768 kHz.
 
-Nevertheless, the function fails, and those who call
-max77686_rtc_tm_to_data() fail as well, so, we are printing
-warning, but behaving as error.
+Data sheets I have seen refer to this as a clock offset, and measure it
+in parts per million (ppm), however they often reference ppm to 2 digits
+of precision, which makes integer ppm less than ideal.
 
-Either we print error and return error, or we print warning, we
-set:
+We use parts per billion, which more than covers the precision needed
+and works nicely within 32 bits
 
-tm->tm_year = 100; /* don't know if I got the logic right */
+Signed-off-by: Joshua Clayton <stillcompiling@gmail.com>
+---
+ drivers/rtc/interface.c | 57 +++++++++++++++++++++++++++++++++++++++++++++++++
+ include/linux/rtc.h     |  4 ++++
+ 2 files changed, 61 insertions(+)
 
-and return 0
-
-Right?
-
-Thanks,
-Andi
+diff --git a/drivers/rtc/interface.c b/drivers/rtc/interface.c
+index 5836751..57cd928 100644
+--- a/drivers/rtc/interface.c
++++ b/drivers/rtc/interface.c
+@@ -939,4 +939,61 @@ void rtc_timer_cancel(struct rtc_device *rtc, struct rtc_timer *timer)
+ 	mutex_unlock(&rtc->ops_lock);
+ }
+ 
++/**
++ * rtc_read_offset - Read the amount of rtc offset in parts per billion
++ * @ rtc: rtc device to be used
++ * @ offset: the offset in parts per billion
++ *
++ * see below for details.
++ *
++ * Kernel interface to read rtc clock offset
++ * Returns 0 on success, or a negative number on error.
++ * If the rtc offset is not setable (or not implemented), return 0 and put
++ * 0 in the offset value;
++ */
++int rtc_read_offset(struct rtc_device *rtc, long *offset)
++{
++	int ret = 0;
++
++	if (!rtc->ops)
++		return -ENODEV;
++
++	if (!rtc->ops->set_offset) {
++		offset = 0;
++		return 0;
++	}
++
++	mutex_lock(&rtc->ops_lock);
++	ret = rtc->ops->read_offset(rtc->dev.parent, offset);
++	mutex_unlock(&rtc->ops_lock);
++	return ret;
++}
+ 
++/**
++ * rtc_set_offset - Adjusts the duration of the average second
++ * @ rtc: rtc device to be used
++ * @ offset: the offset in parts per billion
++ *
++ * Some rtc's allow an adjustment to the average duration of a second
++ * to compensate for differences in the actual clock rate due to temperature,
++ * the crystal, capacitor, etc.
++ *
++ * Kernel interface to adjust an rtc clock offset.
++ * Return 0 on success, or a negative number on error.
++ * If the rtc offset is not setable (or not implemented), return -EINVAL
++ */
++int rtc_set_offset(struct rtc_device *rtc, long offset)
++{
++	int ret = 0;
++
++	if (!rtc->ops)
++		return -ENODEV;
++
++	if (!rtc->ops->set_offset)
++		return -EINVAL;
++
++	mutex_lock(&rtc->ops_lock);
++	ret = rtc->ops->set_offset(rtc->dev.parent, offset);
++	mutex_unlock(&rtc->ops_lock);
++	return ret;
++}
+diff --git a/include/linux/rtc.h b/include/linux/rtc.h
+index 3359f04..b693ada 100644
+--- a/include/linux/rtc.h
++++ b/include/linux/rtc.h
+@@ -89,6 +89,8 @@ struct rtc_class_ops {
+ 	int (*set_mmss)(struct device *, unsigned long secs);
+ 	int (*read_callback)(struct device *, int data);
+ 	int (*alarm_irq_enable)(struct device *, unsigned int enabled);
++	int (*read_offset)(struct device *, long *offset);
++	int (*set_offset)(struct device *, long offset);
+ };
+ 
+ #define RTC_DEVICE_NAME_SIZE 20
+@@ -208,6 +210,8 @@ void rtc_timer_init(struct rtc_timer *timer, void (*f)(void *p), void *data);
+ int rtc_timer_start(struct rtc_device *rtc, struct rtc_timer *timer,
+ 		    ktime_t expires, ktime_t period);
+ void rtc_timer_cancel(struct rtc_device *rtc, struct rtc_timer *timer);
++int rtc_read_offset(struct rtc_device *rtc, long *offset);
++int rtc_set_offset(struct rtc_device *rtc, long offset);
+ void rtc_timer_do_work(struct work_struct *work);
+ 
+ static inline bool is_leap_year(unsigned int year)
+-- 
+2.5.0
 
 -- 
 -- 
