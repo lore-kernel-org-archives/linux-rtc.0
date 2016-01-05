@@ -1,33 +1,25 @@
-Return-Path: <rtc-linux+bncBDT6DFON3EBBBF65UC2QKGQE6FXNPCA@googlegroups.com>
-Received: from mail-yk0-x241.google.com (mail-yk0-x241.google.com. [2607:f8b0:4002:c07::241])
-        by gmr-mx.google.com with ESMTPS id u74si429541ywf.0.2016.01.26.18.42.31
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 26 Jan 2016 18:42:31 -0800 (PST)
-Received: by mail-yk0-x241.google.com with SMTP id k129so16168958yke.3
-        for <rtc-linux@googlegroups.com>; Tue, 26 Jan 2016 18:42:31 -0800 (PST)
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBXUJV22AKGQE2DQIC3Y@googlegroups.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id w129si49300wme.1.2016.01.05.00.54.53
+        for <rtc-linux@googlegroups.com>;
+        Tue, 05 Jan 2016 00:54:53 -0800 (PST)
+Date: Tue, 5 Jan 2016 09:54:53 +0100
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: "Huang, Tao" <huangtao@rock-chips.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+	zhangqing <zhangqing@rock-chips.com>, heiko@sntech.de,
+	lee.jones@linaro.org, zyw@rock-chips.com,
+	linux-rockchip@lists.infradead.org, linux-kernel@vger.kernel.org,
+	rtc-linux@googlegroups.com
+Subject: [rtc-linux] Re: [RESEND PATCH] rtc: rk808: rename rtc-rk808.c to rtc-rk8xx.c
+Message-ID: <20160105085135.GG32724@piout.net>
+References: <1451571295-4193-1-git-send-email-zhangqing@rock-chips.com>
+ <20160104094546.GB32724@piout.net>
+ <20160104145938.6c053b5a@linux.lan.towertech.it>
+ <568B7F6A.3000607@rock-chips.com>
 MIME-Version: 1.0
-In-Reply-To: <20160127023554.GI14296@samsunx.samsung>
-References: <1453836020-29579-1-git-send-email-javier@osg.samsung.com>
-	<1453836020-29579-8-git-send-email-javier@osg.samsung.com>
-	<20160127012230.GE14296@samsunx.samsung>
-	<56A82331.5050403@osg.samsung.com>
-	<56A825F0.9000108@samsung.com>
-	<20160127023554.GI14296@samsunx.samsung>
-Date: Tue, 26 Jan 2016 23:42:31 -0300
-Message-ID: <CABxcv=mYo+rjwhpo_CxLbCxBJaewfTQi+=NmmtM4x5zcM-qaGA@mail.gmail.com>
-Subject: [rtc-linux] Re: [PATCH v3 07/10] rtc: max77686: Use dev_warn()
- instead of pr_warn()
-From: Javier Martinez Canillas <javier@dowhile0.org>
-To: Andi Shyti <andi.shyti@samsung.com>
-Cc: Krzysztof Kozlowski <k.kozlowski@samsung.com>,
-	Javier Martinez Canillas <javier@osg.samsung.com>, Linux Kernel <linux-kernel@vger.kernel.org>,
-	Kukjin Kim <kgene@kernel.org>, rtc-linux@googlegroups.com,
-	Chanwoo Choi <cw00.choi@samsung.com>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Laxman Dewangan <ldewangan@nvidia.com>,
-	"linux-samsung-soc@vger.kernel.org" <linux-samsung-soc@vger.kernel.org>
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <568B7F6A.3000607@rock-chips.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -38,61 +30,57 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Hello Andi,
+Hi,
 
-On Tue, Jan 26, 2016 at 11:35 PM, Andi Shyti <andi.shyti@samsung.com> wrote:
->> > On 01/26/2016 10:22 PM, Andi Shyti wrote:
->> >> Hi Javier,
->> >>
->> >>>           if (tm->tm_year < 100) {
->> >>> -            pr_warn("RTC can't handle year %d. Assume it's 2000.\n",
->> >>> -                1900 + tm->tm_year);
->> >>> +            dev_warn(info->dev,
->> >>> +                 "RTC can't handle year %d. Assume it's 2000\n",
->> >>> +                 1900 + tm->tm_year);
->> >>>               return -EINVAL;
->> >>
->> >> Because we are returning an error value, why not use dev_err()?
->> >>
->> >
->> > You are absolutely right. Since the driver was using pr_warn(), I used
->> > dev_warn() but dev_err() would had been correct.
->>
->> Wait. The message says that "2000 will be assumed" which is not an
->> error. The message indicates that driver will proceed, thus the warning.
->>
->> However the driver won't proceed because the max77686_rtc_set_time()
->> will abort. This came from max8997 which has the same issue.
->>
->> This means that either message should be changed (dev_err() without the
->> "assume" verb) or the function should not abort and set the year to
->> 2000+something (then dev_warn()... look at rtc-ds3234.c and rtc-mcp795.c).
->>
->> The easiest would be to choose #1 - no changes in the logic.
->
-> Nevertheless, the function fails, and those who call
-> max77686_rtc_tm_to_data() fail as well, so, we are printing
-> warning, but behaving as error.
->
-> Either we print error and return error, or we print warning, we
-> set:
->
-> tm->tm_year = 100; /* don't know if I got the logic right */
->
-> and return 0
->
-> Right?
->
+On 05/01/2016 at 16:31:38 +0800, Huang, Tao wrote :
+> You and Alexandre are right. The rename is just make the driver more
+> readable, i.e. let people know this driver suit for more PMIC no just
+> rk808. In fact, I don't care the name is rk808 or rk8xx.
+> 
 
-I was thinking in moving the check at the start of the function so a
-on error, the RTC sec/min/hour/etc registers are untouched.
+For this purpose, you can add the name of the supported PMICs in the
+Kconfig.
 
-> Thanks,
-> Andi
-> --
+> The key change of this patch is try to dis-coupling rk808 driver and RTC
+> driver. Because of register offset and function is vary between
+> different PMIC, we believe it is hard to write one PMIC driver to suit
+> all PMIC. So we hope RTC driver can share between all PMIC from rockchip.
+> 
+> Please review this code:
+> 
+> -static int rk808_rtc_probe(struct platform_device *pdev)
+> +static int rk8xx_rtc_probe(struct platform_device *pdev)
+>  {
+> -	struct rk808 *rk808 = dev_get_drvdata(pdev->dev.parent);
+> 	...
+> +	struct i2c_client *client = to_i2c_client(pdev->dev.parent);
+> 
+> 	...
+> 
+> -	rk808_rtc->rk808 = rk808;
+> +	rk8xx_rtc->regmap = devm_regmap_init_i2c(client,
+> +					     &rk8xx_rtc_regmap_config);
+> 	...
+> +	rk8xx_rtc->i2c = client;
+> 
+> Old driver have struct rk808 pointer, which defined on
+> include/linux/mfd/rk808.h
+> If we write new PMIC driver, for example rk818, define a new struct
+> rk818. How can we get this pointer from RTC driver?
+> 
+> So another way to solve this problem is introduce common struct share
+> between all PMIC driver. For example rk8xx.
+> 
 
-Best regards,
-Javier
+That is probably the best solution. If you want to reuse drivers between
+pmic, then have a common structure that you can pass to those drivers.
+
+I believe the regmap_init_i2c should stay in the MFD driver.
+
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
 -- 
 -- 
