@@ -1,25 +1,27 @@
-Return-Path: <rtc-linux+bncBCOML4NU3EDRBS5EUW2AKGQEHLUWGQA@googlegroups.com>
-Received: from mout.web.de (mout.web.de. [212.227.17.12])
-        by gmr-mx.google.com with ESMTPS id 202si2364774wmf.2.2016.01.03.08.54.35
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sun, 03 Jan 2016 08:54:35 -0800 (PST)
-Subject: [rtc-linux] Re: [PATCH 7/8] rtc-ab-b5ze-s3: Delete an unnecessary
- variable in _abb5zes3_rtc_interrupt()
-To: Julia Lawall <julia.lawall@lip6.fr>
-References: <566ABCD9.1060404@users.sourceforge.net>
- <5688DF2D.6090204@users.sourceforge.net>
- <5688E229.4010400@users.sourceforge.net>
- <alpine.DEB.2.02.1601031348040.2053@localhost6.localdomain6>
-Cc: rtc-linux@googlegroups.com, Alessandro Zummo <a.zummo@towertech.it>,
- Alexandre Belloni <alexandre.belloni@free-electrons.com>,
- LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org
-From: SF Markus Elfring <elfring@users.sourceforge.net>
-Message-ID: <56895246.3080302@users.sourceforge.net>
-Date: Sun, 3 Jan 2016 17:54:30 +0100
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBQUSVS2AKGQEYFKCUTY@googlegroups.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id w129si21412wme.1.2016.01.04.16.07.30
+        for <rtc-linux@googlegroups.com>;
+        Mon, 04 Jan 2016 16:07:30 -0800 (PST)
+Date: Tue, 5 Jan 2016 01:07:28 +0100
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+Cc: Sangbeom Kim <sbkim73@samsung.com>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Lee Jones <lee.jones@linaro.org>, linux-kernel@vger.kernel.org,
+	linux-samsung-soc@vger.kernel.org, rtc-linux@googlegroups.com,
+	Alim Akhtar <alim.akhtar@samsung.com>,
+	Yadwinder Singh Brar <yadi.brar01@gmail.com>
+Subject: [rtc-linux] Re: [PATCH v2 1/3] rtc: s5m: Cleanup by removing useless
+ 'rtc' prefix from fields
+Message-ID: <20160105000728.GF32724@piout.net>
+References: <1451450847-928-1-git-send-email-k.kozlowski@samsung.com>
+ <20160104170841.GD32724@piout.net>
+ <568B0601.5020808@samsung.com>
+ <568B0897.4020403@samsung.com>
 MIME-Version: 1.0
-In-Reply-To: <alpine.DEB.2.02.1601031348040.2053@localhost6.localdomain6>
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <568B0897.4020403@samsung.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -30,18 +32,26 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
->> Pass the address of the data structure element "time" directly in calls
->> of the function "rtc_update_irq" instead of an extra initialisation
->> for one local variable at the beginning.
+On 05/01/2016 at 09:04:39 +0900, Krzysztof Kozlowski wrote :
+> > 
+> > Probably that's my fault because I rebased it on linux-next. I will
+> > rebase the patches on rtc-next and resend.
 > 
-> Why is it better?
+> Ah, no need for rebasing. I forgot about dependency - the support for
+> S2MPS15 was added recently through Lee Jones' tree. Fortunately Lee put
+> S2MPS15 patches in a separate branch and tag: "ib-mfd-regulator-rtc-4.5"
+> 
+> This means that to apply the patches this is needed first:
+> https://git.kernel.org/cgit/linux/kernel/git/lee/mfd.git/log/?h=ib-mfd-regulator-rtc-4.5
+> 
 
-I suggest to refer to the data item "rtc_data->rtc" directly because
-the variable "rtc" was read only in two if branches.
-Does it make sense then to reduce the variable allocation?
+Ah, true, that's what I forgot, thanks.
 
-Regards,
-Markus
+
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
 -- 
 -- 
