@@ -1,27 +1,24 @@
-Return-Path: <rtc-linux+bncBAABBCUOT62QKGQEVX4HK3I@googlegroups.com>
+Return-Path: <rtc-linux+bncBCC6ZWOPXENRBTPTXC2AKGQENXRER5I@googlegroups.com>
+Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de. [2001:67c:670:201:290:27ff:fe1d:cc33])
+        by gmr-mx.google.com with ESMTPS id d185si328293wmf.0.2016.01.07.02.11.24
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=AES128-SHA bits=128/128);
+        Thu, 07 Jan 2016 02:11:24 -0800 (PST)
+From: Juergen Borleis <jbe@pengutronix.de>
+To: kernel@pengutronix.de
+Subject: [rtc-linux] Re: [PATCH 2/3] RTC/PCF85063: fix time/date reading (part II)
+Date: Thu, 7 Jan 2016 11:12:52 +0100
+Cc: rtc-linux@googlegroups.com,
+ Alessandro Zummo <a.zummo@towertech.it>,
+ Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+ linux-kernel@vger.kernel.org
+References: <1449496174-7813-1-git-send-email-jbe@pengutronix.de> <1449496174-7813-3-git-send-email-jbe@pengutronix.de>
+In-Reply-To: <1449496174-7813-3-git-send-email-jbe@pengutronix.de>
 MIME-Version: 1.0
-Received: from lists.s-osg.org (lists.s-osg.org. [54.187.51.154])
-        by gmr-mx.google.com with ESMTP id i25si338818pfj.2.2016.01.26.11.20.41
-        for <rtc-linux@googlegroups.com>;
-        Tue, 26 Jan 2016 11:20:41 -0800 (PST)
-From: Javier Martinez Canillas <javier@osg.samsung.com>
-To: linux-kernel@vger.kernel.org
-Cc: Kukjin Kim <kgene@kernel.org>,
-	rtc-linux@googlegroups.com,
-	Chanwoo Choi <cw00.choi@samsung.com>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Krzysztof Kozlowski <k.kozlowski@samsung.com>,
-	Laxman Dewangan <ldewangan@nvidia.com>,
-	linux-samsung-soc@vger.kernel.org,
-	Javier Martinez Canillas <javier@osg.samsung.com>
-Subject: [rtc-linux] [PATCH v3 02/10] rtc: max77686: Use ARRAY_SIZE() instead
- of current array length
-Date: Tue, 26 Jan 2016 16:20:12 -0300
-Message-Id: <1453836020-29579-3-git-send-email-javier@osg.samsung.com>
-In-Reply-To: <1453836020-29579-1-git-send-email-javier@osg.samsung.com>
-References: <1453836020-29579-1-git-send-email-javier@osg.samsung.com>
+Content-Type: Text/Plain;
+  charset="iso-8859-15"
+Message-Id: <201601071112.52284.jbe@pengutronix.de>
 Reply-To: rtc-linux@googlegroups.com
-Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -31,136 +28,30 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-It is better to use the ARRAY_SIZE() macro instead of the array length
-to avoid bugs if the array is later changed and the length not updated.
+Hi Alexandre,
 
-Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
-Reviewed-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-Tested-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+(please keep me on CC...)
 
----
+> [...]
+> > -	/* read registers */
+> > -	if ((i2c_transfer(client->adapter, msgs, 2)) !=3D 2) {
+> > -		dev_err(&client->dev, "%s: read error\n", __func__);
+> > -		return -EIO;
+>
+> Isn't that already reading the time and date register in one block? I'd
+> say you are simply reading less registers. Also, maybe you could use
+> i2c_smbus_read_block_data?
 
-Changes in v3:
-- Add Krzysztof Kozlowski's Tested-by tag to patch #2.
-- Add Laxman Dewangan's Acked-by tag to patch #2.
-- Use ARRAY_SIZE() in all places. Suggested by Laxman Dewangan.
+Its just a "try" to make the code more readable, by a named subfunction and=
+=20
+more comments why things must happen that way.
+Will check for the suggested smbus function.
 
-Changes in v2:
-- Add Krzysztof Kozlowski's Reviewed-by tag to patch #2.
+Regards,
+Juergen
 
- drivers/rtc/rtc-max77686.c | 23 ++++++++++++-----------
- 1 file changed, 12 insertions(+), 11 deletions(-)
-
-diff --git a/drivers/rtc/rtc-max77686.c b/drivers/rtc/rtc-max77686.c
-index 6653c3d11b66..d84a50c9f7f7 100644
---- a/drivers/rtc/rtc-max77686.c
-+++ b/drivers/rtc/rtc-max77686.c
-@@ -149,7 +149,7 @@ static int max77686_rtc_read_time(struct device *dev, struct rtc_time *tm)
- 		goto out;
- 
- 	ret = regmap_bulk_read(info->max77686->rtc_regmap,
--				MAX77686_RTC_SEC, data, RTC_NR_TIME);
-+				MAX77686_RTC_SEC, data, ARRAY_SIZE(data));
- 	if (ret < 0) {
- 		dev_err(info->dev, "%s: fail to read time reg(%d)\n", __func__,	ret);
- 		goto out;
-@@ -177,7 +177,7 @@ static int max77686_rtc_set_time(struct device *dev, struct rtc_time *tm)
- 	mutex_lock(&info->lock);
- 
- 	ret = regmap_bulk_write(info->max77686->rtc_regmap,
--				 MAX77686_RTC_SEC, data, RTC_NR_TIME);
-+				 MAX77686_RTC_SEC, data, ARRAY_SIZE(data));
- 	if (ret < 0) {
- 		dev_err(info->dev, "%s: fail to write time reg(%d)\n", __func__,
- 				ret);
-@@ -205,7 +205,7 @@ static int max77686_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
- 		goto out;
- 
- 	ret = regmap_bulk_read(info->max77686->rtc_regmap,
--				 MAX77686_ALARM1_SEC, data, RTC_NR_TIME);
-+				 MAX77686_ALARM1_SEC, data, ARRAY_SIZE(data));
- 	if (ret < 0) {
- 		dev_err(info->dev, "%s:%d fail to read alarm reg(%d)\n",
- 				__func__, __LINE__, ret);
-@@ -215,7 +215,7 @@ static int max77686_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
- 	max77686_rtc_data_to_tm(data, &alrm->time, info->rtc_24hr_mode);
- 
- 	alrm->enabled = 0;
--	for (i = 0; i < RTC_NR_TIME; i++) {
-+	for (i = 0; i < ARRAY_SIZE(data); i++) {
- 		if (data[i] & ALARM_ENABLE_MASK) {
- 			alrm->enabled = 1;
- 			break;
-@@ -252,7 +252,7 @@ static int max77686_rtc_stop_alarm(struct max77686_rtc_info *info)
- 		goto out;
- 
- 	ret = regmap_bulk_read(info->max77686->rtc_regmap,
--				 MAX77686_ALARM1_SEC, data, RTC_NR_TIME);
-+				 MAX77686_ALARM1_SEC, data, ARRAY_SIZE(data));
- 	if (ret < 0) {
- 		dev_err(info->dev, "%s: fail to read alarm reg(%d)\n",
- 				__func__, ret);
-@@ -261,11 +261,11 @@ static int max77686_rtc_stop_alarm(struct max77686_rtc_info *info)
- 
- 	max77686_rtc_data_to_tm(data, &tm, info->rtc_24hr_mode);
- 
--	for (i = 0; i < RTC_NR_TIME; i++)
-+	for (i = 0; i < ARRAY_SIZE(data); i++)
- 		data[i] &= ~ALARM_ENABLE_MASK;
- 
- 	ret = regmap_bulk_write(info->max77686->rtc_regmap,
--				 MAX77686_ALARM1_SEC, data, RTC_NR_TIME);
-+				 MAX77686_ALARM1_SEC, data, ARRAY_SIZE(data));
- 	if (ret < 0) {
- 		dev_err(info->dev, "%s: fail to write alarm reg(%d)\n",
- 				__func__, ret);
-@@ -291,7 +291,7 @@ static int max77686_rtc_start_alarm(struct max77686_rtc_info *info)
- 		goto out;
- 
- 	ret = regmap_bulk_read(info->max77686->rtc_regmap,
--				 MAX77686_ALARM1_SEC, data, RTC_NR_TIME);
-+				 MAX77686_ALARM1_SEC, data, ARRAY_SIZE(data));
- 	if (ret < 0) {
- 		dev_err(info->dev, "%s: fail to read alarm reg(%d)\n",
- 				__func__, ret);
-@@ -312,7 +312,7 @@ static int max77686_rtc_start_alarm(struct max77686_rtc_info *info)
- 		data[RTC_DATE] |= (1 << ALARM_ENABLE_SHIFT);
- 
- 	ret = regmap_bulk_write(info->max77686->rtc_regmap,
--				 MAX77686_ALARM1_SEC, data, RTC_NR_TIME);
-+				 MAX77686_ALARM1_SEC, data, ARRAY_SIZE(data));
- 	if (ret < 0) {
- 		dev_err(info->dev, "%s: fail to write alarm reg(%d)\n",
- 				__func__, ret);
-@@ -341,7 +341,7 @@ static int max77686_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
- 		goto out;
- 
- 	ret = regmap_bulk_write(info->max77686->rtc_regmap,
--				 MAX77686_ALARM1_SEC, data, RTC_NR_TIME);
-+				 MAX77686_ALARM1_SEC, data, ARRAY_SIZE(data));
- 
- 	if (ret < 0) {
- 		dev_err(info->dev, "%s: fail to write alarm reg(%d)\n",
-@@ -406,7 +406,8 @@ static int max77686_rtc_init_reg(struct max77686_rtc_info *info)
- 
- 	info->rtc_24hr_mode = 1;
- 
--	ret = regmap_bulk_write(info->max77686->rtc_regmap, MAX77686_RTC_CONTROLM, data, 2);
-+	ret = regmap_bulk_write(info->max77686->rtc_regmap,
-+				MAX77686_RTC_CONTROLM, data, ARRAY_SIZE(data));
- 	if (ret < 0) {
- 		dev_err(info->dev, "%s: fail to write controlm reg(%d)\n",
- 				__func__, ret);
--- 
-2.5.0
-
--- 
--- 
-You received this message because you are subscribed to "rtc-linux".
-Membership options at http://groups.google.com/group/rtc-linux .
-Please read http://groups.google.com/group/rtc-linux/web/checklist
-before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
-For more options, visit https://groups.google.com/d/optout.
+=2D-=20
+Pengutronix e.K. =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =
+=A0| Juergen Borleis =A0 =A0 =A0 =A0 =A0 =A0 |
+Industrial Linux Solutions =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0| http://=
+www.pengutronix.de/ =A0|
