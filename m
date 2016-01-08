@@ -1,31 +1,34 @@
-Return-Path: <rtc-linux+bncBDKZNNNLXAHBBF6PQC2QKGQEVO5GAQQ@googlegroups.com>
-Received: from mailout2.w1.samsung.com (mailout2.w1.samsung.com. [210.118.77.12])
-        by gmr-mx.google.com with ESMTPS id tn7si531134pac.1.2016.01.20.16.34.31
+Return-Path: <rtc-linux+bncBDQ2L75W5QGBBAHXX22AKGQE7LUBGHQ@googlegroups.com>
+Received: from mezzanine.sirena.org.uk (mezzanine.sirena.org.uk. [2400:8900::f03c:91ff:fedb:4f4])
+        by gmr-mx.google.com with ESMTPS id r7si63270pfr.1.2016.01.08.05.37.01
         for <rtc-linux@googlegroups.com>
-        (version=TLS1 cipher=AES128-SHA bits=128/128);
-        Wed, 20 Jan 2016 16:34:31 -0800 (PST)
-Received: from eucpsbgm2.samsung.com (unknown [203.254.199.245])
- by mailout2.w1.samsung.com
- (Oracle Communications Messaging Server 7.0.5.31.0 64bit (built May  5 2014))
- with ESMTP id <0O1A00KJB1LEVY70@mailout2.w1.samsung.com> for
- rtc-linux@googlegroups.com; Thu, 21 Jan 2016 00:34:26 +0000 (GMT)
-Subject: [rtc-linux] Re: [PATCH 0/8] rtc: max77686: Extend driver and add
- max77802 support
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
- Javier Martinez Canillas <javier@osg.samsung.com>
-References: <1453310088-29985-1-git-send-email-javier@osg.samsung.com>
- <20160121003047.GF3367@piout.net>
-Cc: linux-kernel@vger.kernel.org, Kukjin Kim <kgene@kernel.org>,
- rtc-linux@googlegroups.com, Chanwoo Choi <cw00.choi@samsung.com>,
- Laxman Dewangan <ldewangan@nvidia.com>, linux-samsung-soc@vger.kernel.org,
- Arnd Bergmann <arnd@arndb.de>, Olof Johansson <olof@lixom.net>,
- linux-arm-kernel@lists.infradead.org
-From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-Message-id: <56A02791.9010409@samsung.com>
-Date: Thu, 21 Jan 2016 09:34:25 +0900
-MIME-version: 1.0
-In-reply-to: <20160121003047.GF3367@piout.net>
-Content-type: text/plain; charset=UTF-8
+        (version=TLS1_2 cipher=AES128-SHA bits=128/128);
+        Fri, 08 Jan 2016 05:37:01 -0800 (PST)
+Date: Fri, 8 Jan 2016 13:36:48 +0000
+From: Mark Brown <broonie@kernel.org>
+To: Laxman Dewangan <ldewangan@nvidia.com>
+Cc: Krzysztof Kozlowski <k.kozlowski@samsung.com>,
+	rtc-linux@googlegroups.com, robh+dt@kernel.org, pawel.moll@arm.com,
+	mark.rutland@arm.com, ijc+devicetree@hellion.org.uk,
+	galak@codeaurora.org, linus.walleij@linaro.org, gnurou@gmail.com,
+	lee.jones@linaro.org, a.zummo@towertech.it,
+	alexandre.belloni@free-electrons.com, lgirdwood@gmail.com,
+	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+	linux-gpio@vger.kernel.org, swarren@nvidia.com, treding@nvidia.com,
+	Chaitanya Bandi <bandik@nvidia.com>
+Message-ID: <20160108133648.GQ6588@sirena.org.uk>
+References: <1452177524-23192-1-git-send-email-ldewangan@nvidia.com>
+ <1452177524-23192-6-git-send-email-ldewangan@nvidia.com>
+ <CAJKOXPd938soaa5M0GFo5HpVCYzAS1w8j8Hko3Ja9mx47NYkEQ@mail.gmail.com>
+ <568F8D7E.10500@nvidia.com>
+ <20160108125117.GM6588@sirena.org.uk>
+ <568FB3DD.4090503@nvidia.com>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="yhCE4sTDB5mqd9YJ"
+In-Reply-To: <568FB3DD.4090503@nvidia.com>
+Subject: Re: [rtc-linux] [PATCH 5/6] rtc: max77620: add support for
+ max77620/max20024 RTC driver
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -36,22 +39,21 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 21.01.2016 09:30, Alexandre Belloni wrote:
->> I believe all patches should go through the RTC tree with proper acks or
->> wait until the RTC patches land to pick the defconfig changes.
->>
-> 
-> I think Olof would prefer the last patches to go through arm-soc.
+--yhCE4sTDB5mqd9YJ
+Content-Type: text/plain; charset=UTF-8
+Content-Disposition: inline
 
-That would be preferred but merging them before the 5/8 would cause a
-loss of functionality on these defconfigs making it non-bisectable
-approach. I think it would be good to preserve bisectability in that
-matter so either:
-1. a tag from RTC on top of which these patches would be applied in arm-soc,
-2. take them to RTC tree with our acks.
+On Fri, Jan 08, 2016 at 06:34:29PM +0530, Laxman Dewangan wrote:
 
-Best regards,
-Krzysztof
+> If we get the parent device, regmap handle and interrupt number from mfd
+> core independent of the PMIC (MAX77620 or MAX77686), then same driver can be
+> used here.
+> Two way which I can think of here:
+
+Parent device is just dev->parent, you can use dev_get_regmap() to get a
+regmap given a struct device and you can use platform resources to pass
+the interrupts to the children from the MFD (there's some examples,
+wm831x is one).
 
 -- 
 -- 
@@ -63,3 +65,20 @@ before submitting a driver.
 You received this message because you are subscribed to the Google Groups "rtc-linux" group.
 To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
+
+--yhCE4sTDB5mqd9YJ
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQEcBAEBCAAGBQJWj7tvAAoJECTWi3JdVIfQFUYH/iWXnQyflBGLqEOSyhQUyPgp
+NOq8StSdQ/zEvoKZ7DfFPZ+aRlOXJPG9dQ6PDczj1PSl5xXlgkUAtcHVfPc8aFOp
+9c70hUDX74st468a80SlmDQc49LYDH99umpzeJs1akq8l8b9Z9s6gOFNGV79lHXW
+GJwpG/KtmMe3hApod10gF0SlfArie6DC30xxPa2sQQgBUqrmfA3eoxvSSLuiLcIn
+X5KVtNUO9/tRYJWN7Jo33S6aqXriMbsvuJxXlttuONFYVUKGMz/uPd493Pt8Za3O
+02Lgm6YtKWgKC3zi9lQ6MA13lIqFQT6y3anU3zAATZoSYiHiGjQPeKRdYctfNrQ=
+=R4fS
+-----END PGP SIGNATURE-----
+
+--yhCE4sTDB5mqd9YJ--
