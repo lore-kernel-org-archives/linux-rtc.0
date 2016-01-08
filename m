@@ -1,245 +1,121 @@
-Return-Path: <rtc-linux+bncBCKMZDW5VIHBBF7URG2QKGQELHPUAGI@googlegroups.com>
-Received: from bh-25.webhostbox.net (bh-25.webhostbox.net. [208.91.199.152])
-        by gmr-mx.google.com with ESMTPS id ht1si431186igb.1.2016.01.22.10.51.02
+Return-Path: <rtc-linux+bncBDKZNNNLXAHBBLXIX22AKGQE2IE5NLA@googlegroups.com>
+Received: from mail-pf0-x241.google.com (mail-pf0-x241.google.com. [2607:f8b0:400e:c00::241])
+        by gmr-mx.google.com with ESMTPS id k67si27157pfb.0.2016.01.08.05.05.50
         for <rtc-linux@googlegroups.com>
-        (version=TLS1 cipher=AES128-SHA bits=128/128);
-        Fri, 22 Jan 2016 10:51:02 -0800 (PST)
-Subject: [rtc-linux] Re: [PATCH v2] rtc: rtc-ds1307: add temperature sensor
- support for ds3231
-To: Akinobu Mita <akinobu.mita@gmail.com>, rtc-linux@googlegroups.com
-References: <1453485441-11667-1-git-send-email-akinobu.mita@gmail.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
- Alexandre Belloni <alexandre.belloni@free-electrons.com>,
- Jean Delvare <jdelvare@suse.com>, lm-sensors@lm-sensors.org
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <56A27A11.1010805@roeck-us.net>
-Date: Fri, 22 Jan 2016 10:50:57 -0800
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Fri, 08 Jan 2016 05:05:50 -0800 (PST)
+Received: by mail-pf0-x241.google.com with SMTP id n128so715148pfn.3
+        for <rtc-linux@googlegroups.com>; Fri, 08 Jan 2016 05:05:50 -0800 (PST)
+Sender: rtc-linux@googlegroups.com
+Subject: Re: [rtc-linux] [PATCH 5/6] rtc: max77620: add support for
+ max77620/max20024 RTC driver
+To: rtc-linux@googlegroups.com, ldewangan@nvidia.com
+References: <1452177524-23192-1-git-send-email-ldewangan@nvidia.com>
+ <1452177524-23192-6-git-send-email-ldewangan@nvidia.com>
+ <CAJKOXPd938soaa5M0GFo5HpVCYzAS1w8j8Hko3Ja9mx47NYkEQ@mail.gmail.com>
+ <568F8D7E.10500@nvidia.com>
+Cc: k.kozlowski.k@gmail.com, robh+dt@kernel.org, pawel.moll@arm.com,
+ mark.rutland@arm.com, ijc+devicetree@hellion.org.uk, galak@codeaurora.org,
+ linus.walleij@linaro.org, gnurou@gmail.com, lee.jones@linaro.org,
+ broonie@kernel.org, a.zummo@towertech.it,
+ alexandre.belloni@free-electrons.com, lgirdwood@gmail.com,
+ devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-gpio@vger.kernel.org, swarren@nvidia.com, treding@nvidia.com,
+ Chaitanya Bandi <bandik@nvidia.com>
+From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+Message-ID: <568FB423.7030108@samsung.com>
+Date: Fri, 8 Jan 2016 22:05:39 +0900
 MIME-Version: 1.0
-In-Reply-To: <1453485441-11667-1-git-send-email-akinobu.mita@gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+In-Reply-To: <568F8D7E.10500@nvidia.com>
+Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
 List-Archive: <https://groups.google.com/group/rtc-linux
-Sender: rtc-linux@googlegroups.com
 List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 01/22/2016 09:57 AM, Akinobu Mita wrote:
-> DS3231 has the temperature registers with a resolution of 0.25
-> degree celsius.  This enables to get the value through hwmon.
->
-> 	# cat /sys/class/i2c-adapter/i2c-2/2-0068/hwmon/hwmon0/temp1_input
-> 	21000
->
-> Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
-> Cc: Alessandro Zummo <a.zummo@towertech.it>
-> Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-> Cc: rtc-linux@googlegroups.com
-> Cc: Jean Delvare <jdelvare@suse.com>
-> Cc: Guenter Roeck <linux@roeck-us.net>
-> Cc: lm-sensors@lm-sensors.org
-> ---
-> * v2
-> - convert to use hwmon framework, suggested by Alexandre Belloni
->
->   drivers/rtc/rtc-ds1307.c | 122 +++++++++++++++++++++++++++++++++++++++++++++++
->   1 file changed, 122 insertions(+)
->
-> diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
-> index aa705bb..e0d4ce5 100644
-> --- a/drivers/rtc/rtc-ds1307.c
-> +++ b/drivers/rtc/rtc-ds1307.c
-> @@ -19,6 +19,9 @@
->   #include <linux/rtc.h>
->   #include <linux/slab.h>
->   #include <linux/string.h>
-> +#include <linux/delay.h>
-> +#include <linux/hwmon.h>
-> +#include <linux/hwmon-sysfs.h>
->
->   /*
->    * We can't determine type by probing, but if we expect pre-Linux code
-> @@ -75,6 +78,7 @@ enum ds_type {
->   #	define DS1337_BIT_nEOSC		0x80
->   #	define DS1339_BIT_BBSQI		0x20
->   #	define DS3231_BIT_BBSQW		0x40 /* same as BBSQI */
-> +#	define DS3231_BIT_CONV		0x20
->   #	define DS1337_BIT_RS2		0x10
->   #	define DS1337_BIT_RS1		0x08
->   #	define DS1337_BIT_INTCN		0x04
-> @@ -89,6 +93,7 @@ enum ds_type {
->   #	define DS1340_BIT_OSF		0x80
->   #define DS1337_REG_STATUS	0x0f
->   #	define DS1337_BIT_OSF		0x80
-> +#	define DS3231_BIT_BSY		0x04
->   #	define DS1337_BIT_A2I		0x02
->   #	define DS1337_BIT_A1I		0x01
->   #define DS1339_REG_ALARM1_SECS	0x07
-> @@ -851,6 +856,121 @@ out:
->   	return;
->   }
->
-> +/*----------------------------------------------------------------------*/
-> +
-> +#if IS_ENABLED(CONFIG_HWMON)
-> +
-> +/*
-> + * Temperature sensor support for ds3231 devices.
-> + */
-> +
-> +#define DS3231_REG_TEMPERATURE	0x11
-> +
-> +static ssize_t ds3231_hwmon_show_temp(struct device *dev,
-> +				struct device_attribute *attr, char *buf)
-> +{
-> +	struct ds1307	*ds1307 = dev_get_drvdata(dev);
+W dniu 08.01.2016 o 19:20, Laxman Dewangan pisze:
+> Hi Krzysztof,
+> Thanks for review.
+> 
+> Accepted most of review comment and will update in next patch.
+> 
+> Answer to query:
+> 
+> 
+> On Friday 08 January 2016 07:33 AM, Krzysztof Kozlowski wrote:
+>> 2016-01-07 23:38 GMT+09:00 Laxman Dewangan <ldewangan@nvidia.com>:
+>> ---
+>>   drivers/rtc/Kconfig        |   9 +
+>>   drivers/rtc/Makefile       |   1 +
+>>   drivers/rtc/rtc-max77620.c | 574
+>> +++++++++++++++++++++++++++++++++++++++++++++
+>> The driver (as most of Maxim's) looks quite similar to existing RTC
+>> driver, like max77802. It is difficult to spot the exact differences
+>> (I don't have 77620's datasheet) but I would suggest not duplicating
+>> the work. Maybe the biggest difference is the way you configure the
+>> regmap... but still sometimes the regmap config can be shared.
+> Yaah, that is the issue on IP based PMIC system and it happen with the
+> Maxim and TI.
+> The MFD and its sub module drivers are too much couped  and hence
+> dificult to use the IP driver across PMIC. For almost all Maxim PMIC, we
+> end up of same type of RTC driver.
+> 
+> Probably, we need to enhance the mfd sub system to allow sub module
+> driver to decoupe from its APIs.
 
-space instead of tab ?
+Actually the MFD and other subsystems are quite decoupled already and
+support sharing drivers for common IP block. The problem is that we
+develop drivers in a coupled way. This is not only issue of this
+particular set of drivers. Others were developed in a same way.
 
-> +	struct i2c_client *client = ds1307->client;
-> +	u8 temp_buf[2];
-> +	s16 temp;
-> +	int control;
-> +	int status;
-> +	s32 ret;
-> +	unsigned long timeout;
-> +
-> +	status = i2c_smbus_read_byte_data(client, DS1337_REG_STATUS);
-> +	if (status < 0)
-> +		return status;
-> +
-> +	/*
-> +	 * Start user-initiated temperature conversion
-> +	 */
-> +	if (!(status & DS3231_BIT_BSY)) {
-> +		struct mutex	*lock = &ds1307->rtc->ops_lock;
-> +
-> +		mutex_lock(lock);
-> +
-> +		control = i2c_smbus_read_byte_data(client, DS1337_REG_CONTROL);
-> +		if (control < 0) {
-> +			mutex_unlock(lock);
-> +			return control;
-> +		}
-> +		ret = i2c_smbus_write_byte_data(client, DS1337_REG_CONTROL,
-> +						control | DS3231_BIT_CONV);
-> +		if (ret)
-> +			return ret;
-> +
-Leaks the lock. It might be better to define error abort handling with a label.
+So instead I would be happy to see this driver developed in the
+decoupled way so existing RTC driver could be reused. If this requires
+changing existing MFD driver like max77686 then please go ahead. I may
+provide testing for that purpose. Something similar I made recently to
+the max77693 and max77843. Both devices have different parent MFD
+drivers but share some of the specific subsystem drivers: regulator and
+input/haptic.
 
-> +		mutex_unlock(lock);
+> 
+> 
+> +
+> +       rtc->irq = platform_get_irq(pdev, 0);
+> +       ret = devm_request_threaded_irq(&pdev->dev, rtc->irq, NULL,
+> +                       max77620_rtc_irq, IRQF_ONESHOT | IRQF_EARLY_RESUME,
+> 
+>> Why early resume?
+> 
+> When we go on suspend, the interrupts are masked by framework. For
+> regmap-irq, it is stored on local reg value but not written into the
+> PMIC register.
+> In Nvidia Tegra system, ARM GIC controller registered before the other
+> interrupt controller like GPIO, PMIC etc.
+> When wakeup happened through RTC alarm, we get the interrupt from PMIC
+> and on resume path, the PMIC isr handler get called after PMIC interrupt
+> to the GIC is unmasked. But at this time, PMIC RTC alarm is still in
+> masked state by regmap-irq which causes the interrupt to RTC ignore in
+> the PMIC ISR handler and so RTC Isr did not get called and not cleared
+> interrupt. This causes PMIC ISr handler to stuck on loop.
+> 
+> The need is to unmask the RTC alarm interrupt on PMIC interrupt driver
+> before PMIC interrupt served so that we can have proper interrupt status
+> in handler and rtc isr can get called.
+> 
+> For this, RTC alarm interrupt need to be EARLY_RESUME.
 
-Another conversion could be initiated at this point.
-It might be better to keep the lock until the sequence is complete.
+Okay, this is quite common issue and I think this can be solved by
+disabling the IRQ in suspend:
+http://lxr.free-electrons.com/source/drivers/mfd/max77843.c#L205
 
-> +
-> +		/*
-> +		 * A user-initiated temperature conversion does not affect
-> +		 * the BSY bit for approximately 2ms.
-> +		 */
-> +		usleep_range(2000, 3000);
-> +	}
-> +
-> +	/*
-> +	 * Wait until the conversion is finished
-> +	 */
-> +	timeout = jiffies + HZ;
+IMHO this would be preferred way because you won't be moving device
+suspend/resume callbacks to a syscore level.
 
-Can it really take that long ? Datashet gives a maximum of 200 ms.
-
-> +
-> +	do {
-> +		control = i2c_smbus_read_byte_data(client, DS1337_REG_CONTROL);
-> +		if (control < 0)
-> +			return control;
-> +		if (!(control & DS3231_BIT_CONV))
-> +			break;
-> +		if (time_after(jiffies, timeout))
-> +			return -EIO;
-> +		usleep_range(2000, 3000);
-> +	} while (1);
-> +
-> +	ret = ds1307->read_block_data(ds1307->client, DS3231_REG_TEMPERATURE,
-> +					sizeof(temp_buf), temp_buf);
-
-I am not sure if using read_block_data() is worth the complexity.
-Two individual calls to i2c_smbus_read_byte_data() seem to be
-much more straightforward.
-
-> +	if (ret < 0)
-> +		return ret;
-> +	if (ret != sizeof(temp_buf))
-> +		return -EIO;
-
-[ ... and would also avoid the odd -EIO here ]
-
-Please consider just relying on internal/automatic conversions. True,
-those only occur every 64 seconds, but given the accuracy of +- 3
-degrees C I don't think the gain of an immediate conversion outweighs
-the additional code complexity and the resulting delay.
-
-> +
-> +	/*
-> +	 * Temperature is represented as a 10-bit code with a resolution of
-> +	 * 0.25 degree celsius and encoded in two's complement format.
-> +	 */
-> +	temp = (temp_buf[0] << 8) | temp_buf[1];
-> +	temp >>= 6;
-> +
-> +	return sprintf(buf, "%d\n", temp * 250);
-> +}
-> +static SENSOR_DEVICE_ATTR(temp1_input, S_IRUGO, ds3231_hwmon_show_temp,
-> +			NULL, 0);
-> +
-> +static struct attribute *ds3231_hwmon_attrs[] = {
-> +	&sensor_dev_attr_temp1_input.dev_attr.attr,
-> +	NULL,
-> +};
-> +ATTRIBUTE_GROUPS(ds3231_hwmon);
-> +
-> +static int ds1307_hwmon_register(struct ds1307 *ds1307)
-> +{
-> +	if (ds1307->type != ds_3231)
-> +		return 0;
-> +
-> +	devm_hwmon_device_register_with_groups(&ds1307->client->dev,
-> +						ds1307->client->name,
-> +						ds1307, ds3231_hwmon_groups);
-> +
-No error check ?
-
-It might make sense to not fail registration if this call fails,
-but maybe a warning in the console log would make sense.
-
-> +	return 0;
-> +}
-> +
-> +#else
-> +
-> +static int ds1307_hwmon_register(struct ds1307 *ds1307)
-> +{
-> +	return 0;
-> +}
-> +
-> +#endif
-> +
->   static int ds1307_probe(struct i2c_client *client,
->   			const struct i2c_device_id *id)
->   {
-> @@ -1191,6 +1311,8 @@ read_rtc:
->   		}
->   	}
->
-> +	ds1307_hwmon_register(ds1307);
-> +
->   	return 0;
->
->   exit:
->
+Best regards,
+Krzysztof
 
 -- 
 -- 
