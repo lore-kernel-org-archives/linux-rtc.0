@@ -1,23 +1,28 @@
-Return-Path: <rtc-linux+bncBCOML4NU3EDRBUOCUO2AKGQE3W4TBMI@googlegroups.com>
-Received: from mout.web.de (mout.web.de. [212.227.17.12])
-        by gmr-mx.google.com with ESMTPS id 185si2299819wmn.0.2016.01.03.00.52.32
+Return-Path: <rtc-linux+bncBD2OLRXW4ABBBTH3X22AKGQEZOIDSSY@googlegroups.com>
+Received: from hqemgate14.nvidia.com (hqemgate14.nvidia.com. [216.228.121.143])
+        by gmr-mx.google.com with ESMTPS id r7si65525pfr.1.2016.01.08.05.46.52
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sun, 03 Jan 2016 00:52:32 -0800 (PST)
-Subject: [rtc-linux] [PATCH 3/8] rtc-ab-b5ze-s3: Delete an unnecessary
- variable initialisation in _abb5zes3_rtc_set_timer()
-To: rtc-linux@googlegroups.com, Alessandro Zummo <a.zummo@towertech.it>,
- Alexandre Belloni <alexandre.belloni@free-electrons.com>
-References: <566ABCD9.1060404@users.sourceforge.net>
- <5688DF2D.6090204@users.sourceforge.net>
-Cc: LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org,
- Julia Lawall <julia.lawall@lip6.fr>
-From: SF Markus Elfring <elfring@users.sourceforge.net>
-Message-ID: <5688E14E.2070606@users.sourceforge.net>
-Date: Sun, 3 Jan 2016 09:52:30 +0100
+        Fri, 08 Jan 2016 05:46:52 -0800 (PST)
+Message-ID: <568FBB6D.2020904@nvidia.com>
+Date: Fri, 8 Jan 2016 19:06:45 +0530
+From: Laxman Dewangan <ldewangan@nvidia.com>
 MIME-Version: 1.0
-In-Reply-To: <5688DF2D.6090204@users.sourceforge.net>
-Content-Type: text/plain; charset=UTF-8
+To: Mark Brown <broonie@kernel.org>
+CC: Krzysztof Kozlowski <k.kozlowski@samsung.com>,
+	<rtc-linux@googlegroups.com>, <robh+dt@kernel.org>, <pawel.moll@arm.com>,
+	<mark.rutland@arm.com>, <ijc+devicetree@hellion.org.uk>,
+	<galak@codeaurora.org>, <linus.walleij@linaro.org>, <gnurou@gmail.com>,
+	<lee.jones@linaro.org>, <a.zummo@towertech.it>,
+	<alexandre.belloni@free-electrons.com>, <lgirdwood@gmail.com>,
+	<devicetree@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+	<linux-gpio@vger.kernel.org>, <swarren@nvidia.com>, <treding@nvidia.com>,
+	Chaitanya Bandi <bandik@nvidia.com>
+Subject: Re: [rtc-linux] [PATCH 5/6] rtc: max77620: add support for
+ max77620/max20024 RTC driver
+References: <1452177524-23192-1-git-send-email-ldewangan@nvidia.com> <1452177524-23192-6-git-send-email-ldewangan@nvidia.com> <CAJKOXPd938soaa5M0GFo5HpVCYzAS1w8j8Hko3Ja9mx47NYkEQ@mail.gmail.com> <568F8D7E.10500@nvidia.com> <20160108125117.GM6588@sirena.org.uk> <568FB3DD.4090503@nvidia.com> <20160108133648.GQ6588@sirena.org.uk>
+In-Reply-To: <20160108133648.GQ6588@sirena.org.uk>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -28,32 +33,32 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-From: Markus Elfring <elfring@users.sourceforge.net>
-Date: Sun, 3 Jan 2016 07:42:18 +0100
 
-Omit explicit initialisation at the beginning for one local variable
-that is redefined before its first use.
+On Friday 08 January 2016 07:06 PM, Mark Brown wrote:
+> * PGP Signed by an unknown key
+>
+> On Fri, Jan 08, 2016 at 06:34:29PM +0530, Laxman Dewangan wrote:
+>
+>> If we get the parent device, regmap handle and interrupt number from mfd
+>> core independent of the PMIC (MAX77620 or MAX77686), then same driver can be
+>> used here.
+>> Two way which I can think of here:
+> Parent device is just dev->parent, you can use dev_get_regmap() to get a
+> regmap given a struct device and you can use platform resources to pass
+> the interrupts to the children from the MFD (there's some examples,
+> wm831x is one).
+>
+>
 
-Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
----
- drivers/rtc/rtc-ab-b5ze-s3.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+I think it should work with named regmap. mfd whould init regmap with 
+name and rtc driver should ask with same name.
 
-diff --git a/drivers/rtc/rtc-ab-b5ze-s3.c b/drivers/rtc/rtc-ab-b5ze-s3.c
-index ed9b873..33a7cf1 100644
---- a/drivers/rtc/rtc-ab-b5ze-s3.c
-+++ b/drivers/rtc/rtc-ab-b5ze-s3.c
-@@ -560,7 +560,7 @@ static int _abb5zes3_rtc_set_timer(struct device *dev, struct rtc_wkalrm *alarm,
- 	struct abb5zes3_rtc_data *data = dev_get_drvdata(dev);
- 	u8 regs[ABB5ZES3_TIMA_SEC_LEN];
- 	u8 mask = ABB5ZES3_REG_TIM_CLK_TAC0 | ABB5ZES3_REG_TIM_CLK_TAC1;
--	int ret = 0;
-+	int ret;
- 
- 	/* Program given number of seconds to Timer A registers */
- 	sec_to_timer_a(secs, &regs[0], &regs[1]);
--- 
-2.6.3
+I saw three drivers which looks same:
+rtc-max77620.c (new from me) and already available rtc-max77686.c, 
+rtc-max77802.c
+
+Seems I can develop IP based rtc driver as rtc-max77xxx.c
+
 
 -- 
 -- 
