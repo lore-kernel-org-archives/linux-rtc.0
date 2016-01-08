@@ -1,22 +1,41 @@
-Return-Path: <rtc-linux+bncBCKMZDW5VIHBB5U6RO2QKGQE6Q6PH2A@googlegroups.com>
-Received: from bh-25.webhostbox.net (bh-25.webhostbox.net. [208.91.199.152])
-        by gmr-mx.google.com with ESMTPS id ht5si292673igb.1.2016.01.22.16.55.17
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1 cipher=AES128-SHA bits=128/128);
-        Fri, 22 Jan 2016 16:55:17 -0800 (PST)
-Subject: [rtc-linux] Re: [PATCH v2] rtc: rtc-ds1307: add temperature sensor
- support for ds3231
-To: Akinobu Mita <akinobu.mita@gmail.com>, rtc-linux@googlegroups.com
-References: <1453485441-11667-1-git-send-email-akinobu.mita@gmail.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
- Alexandre Belloni <alexandre.belloni@free-electrons.com>,
- Jean Delvare <jdelvare@suse.com>, lm-sensors@lm-sensors.org
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <56A2CF6D.9040300@roeck-us.net>
-Date: Fri, 22 Jan 2016 16:55:09 -0800
+Return-Path: <rtc-linux+bncBDJIP47K7MERBEMLX62AKGQEI6FLNOY@googlegroups.com>
+Received: from mail.kernel.org (mail.kernel.org. [198.145.29.136])
+        by gmr-mx.google.com with ESMTP id a76si336152pfj.2.2016.01.08.06.20.01
+        for <rtc-linux@googlegroups.com>;
+        Fri, 08 Jan 2016 06:20:01 -0800 (PST)
+Received: from mail.kernel.org (localhost [127.0.0.1])
+	by mail.kernel.org (Postfix) with ESMTP id 78B1B2010E
+	for <rtc-linux@googlegroups.com>; Fri,  8 Jan 2016 14:20:00 +0000 (UTC)
+Received: from mail-yk0-f171.google.com (mail-yk0-f171.google.com [209.85.160.171])
+	(using TLSv1.2 with cipher AES128-GCM-SHA256 (128/128 bits))
+	(No client certificate requested)
+	by mail.kernel.org (Postfix) with ESMTPSA id 8F46B201EF
+	for <rtc-linux@googlegroups.com>; Fri,  8 Jan 2016 14:19:57 +0000 (UTC)
+Received: by mail-yk0-f171.google.com with SMTP id k129so340758966yke.0
+        for <rtc-linux@googlegroups.com>; Fri, 08 Jan 2016 06:19:57 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <1453485441-11667-1-git-send-email-akinobu.mita@gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+In-Reply-To: <568F51FF.7000102@nvidia.com>
+References: <1452177524-23192-1-git-send-email-ldewangan@nvidia.com>
+ <1452177524-23192-2-git-send-email-ldewangan@nvidia.com> <20160107231249.GA17514@rob-hp-laptop>
+ <568F51FF.7000102@nvidia.com>
+From: Rob Herring <robh@kernel.org>
+Date: Fri, 8 Jan 2016 08:19:37 -0600
+Message-ID: <CAL_JsqJ=bhFF2X-LHFtboWFP3Ch=W8VBr2gv1EFRTb4EgtM=2w@mail.gmail.com>
+Subject: [rtc-linux] Re: [PATCH 1/6] DT: mfd: add device-tree binding doc fro
+ PMIC max77620/max20024
+To: Laxman Dewangan <ldewangan@nvidia.com>
+Cc: Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>,
+	Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>,
+	Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>,
+	Lee Jones <lee.jones@linaro.org>, Mark Brown <broonie@kernel.org>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>, Liam Girdwood <lgirdwood@gmail.com>,
+	"devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+	"linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>,
+	"open list:REAL TIME CLOCK (RTC) SUBSYSTEM" <rtc-linux@googlegroups.com>, Stephen Warren <swarren@nvidia.com>,
+	Thierry Reding <treding@nvidia.com>
+Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -27,41 +46,36 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 01/22/2016 09:57 AM, Akinobu Mita wrote:
-> DS3231 has the temperature registers with a resolution of 0.25
-> degree celsius.  This enables to get the value through hwmon.
+On Fri, Jan 8, 2016 at 12:06 AM, Laxman Dewangan <ldewangan@nvidia.com> wrote:
+> Thanks Rob for review.
+> I have taken care of all comment except following which I have query.
 >
-> 	# cat /sys/class/i2c-adapter/i2c-2/2-0068/hwmon/hwmon0/temp1_input
-> 	21000
+> On Friday 08 January 2016 04:42 AM, Rob Herring wrote:
+>>
+>> +       - maxim,low-battery-reset-enable: Enable low battery reset.
+>> +       - maxim,low-battery-reset-disable: Disable low battery reset.
+>> Why not boolean? Not present means keep default value? I'd prefer
+>> boolean or tristate of not present, 0 to disable, or 1 to enable.
+>>
+>>
+> Here, the properties are boolean. I will add this on the description.
 >
-> Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
-> Cc: Alessandro Zummo <a.zummo@towertech.it>
-> Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-> Cc: rtc-linux@googlegroups.com
-> Cc: Jean Delvare <jdelvare@suse.com>
-> Cc: Guenter Roeck <linux@roeck-us.net>
-> Cc: lm-sensors@lm-sensors.org
-> ---
-> * v2
-> - convert to use hwmon framework, suggested by Alexandre Belloni
+> I like to enable or disable with the DT and properties are not there then
+> left to default.
+> So added two properties for enable and disable. If properties are there, do
+> the activity.
 >
->   drivers/rtc/rtc-ds1307.c | 122 +++++++++++++++++++++++++++++++++++++++++++++++
->   1 file changed, 122 insertions(+)
+> Here tristate is also possible:
+> maxim,low-battery-reset: tristate, low battery reset control. 0 for disable,
+> 1 for enable and
+>                                  absence of this will leave configuration on
+> default.
 >
-> diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
+> Does it look fine?
 
-Something else, on top of my previous comments.
+Yes.
 
-> +#if IS_ENABLED(CONFIG_HWMON)
-
-I don't think this will work as intended. It will fail if the ds1307 driver
-is built into the kernel but hwmon is built as module.
-
-Check configurations such as BE2NET_HWMON or NET_DSA_HWMON for ideas
-on how to handle this problem.
-
-Thanks,
-Guenter
+Rob
 
 -- 
 -- 
