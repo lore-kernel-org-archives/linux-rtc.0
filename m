@@ -1,19 +1,27 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBQW3TS2QKGQEBJZBBWA@googlegroups.com>
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id c140si235603wmh.0.2016.01.26.00.26.42
-        for <rtc-linux@googlegroups.com>;
-        Tue, 26 Jan 2016 00:26:42 -0800 (PST)
-Date: Tue, 26 Jan 2016 09:26:41 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Michael Lange <linuxstuff@milaw.biz>
-Cc: rtc-linux@googlegroups.com
-Subject: Re: [rtc-linux] [PATCH] rtc: ds1307.c: add support for the DT
- property 'wakeup-source'
-Message-ID: <20160126082641.GE11740@piout.net>
-References: <1453396216-8367-1-git-send-email-linuxstuff@milaw.biz>
+Return-Path: <rtc-linux+bncBD2OLRXW4ABBBXVIXW2AKGQEVWMELXI@googlegroups.com>
+Received: from hqemgate14.nvidia.com (hqemgate14.nvidia.com. [216.228.121.143])
+        by gmr-mx.google.com with ESMTPS id a76si164322pfj.2.2016.01.07.22.17.02
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 07 Jan 2016 22:17:02 -0800 (PST)
+Message-ID: <568F51FF.7000102@nvidia.com>
+Date: Fri, 8 Jan 2016 11:36:55 +0530
+From: Laxman Dewangan <ldewangan@nvidia.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1453396216-8367-1-git-send-email-linuxstuff@milaw.biz>
+To: Rob Herring <robh@kernel.org>
+CC: <pawel.moll@arm.com>, <mark.rutland@arm.com>,
+	<ijc+devicetree@hellion.org.uk>, <galak@codeaurora.org>,
+	<linus.walleij@linaro.org>, <gnurou@gmail.com>, <lee.jones@linaro.org>,
+	<broonie@kernel.org>, <a.zummo@towertech.it>,
+	<alexandre.belloni@free-electrons.com>, <lgirdwood@gmail.com>,
+	<devicetree@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+	<linux-gpio@vger.kernel.org>, <rtc-linux@googlegroups.com>,
+	<swarren@nvidia.com>, <treding@nvidia.com>
+Subject: [rtc-linux] Re: [PATCH 1/6] DT: mfd: add device-tree binding doc fro
+ PMIC max77620/max20024
+References: <1452177524-23192-1-git-send-email-ldewangan@nvidia.com> <1452177524-23192-2-git-send-email-ldewangan@nvidia.com> <20160107231249.GA17514@rob-hp-laptop>
+In-Reply-To: <20160107231249.GA17514@rob-hp-laptop>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -24,34 +32,30 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 21/01/2016 at 18:10:16 +0100, Michael Lange wrote :
-> For RTC chips with no IRQ directly connected to the SoC, the RTC chip
-> can be forced as a wakeup source by stating that explicitly in
-> the device's .dts file using the "wakeup-source" boolean property.
-> This will guarantee the 'wakealarm' sysfs entry is available on the
-> device, if supported by the RTC.
-> 
-> With these changes to the driver rtc-ds1307 and the necessary entries
-> in the .dts file, I get an working ds1337 RTC on the Witty Pi extension
-> board by UUGear for the Raspberry Pi.
-> 
-> An example for the entry in the .dts file:
-> 
-> 	rtc: ds1337@68 {
-> 		compatible = "dallas,ds1337";
-> 		reg = <0x68>;
-> 		wakeup-source;
-> 
-> If the "wakeup-source" property is set, do not request an IRQ.
-> Set also UIE mode to unsupported, to get a working 'hwclock' binary.
-> 
-> Signed-off-by: Michael Lange <linuxstuff@milaw.biz>
-Applied, thanks.
+Thanks Rob for review.
+I have taken care of all comment except following which I have query.
 
--- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+On Friday 08 January 2016 04:42 AM, Rob Herring wrote:
+> +	- maxim,low-battery-reset-enable: Enable low battery reset.
+> +	- maxim,low-battery-reset-disable: Disable low battery reset.
+> Why not boolean? Not present means keep default value? I'd prefer
+> boolean or tristate of not present, 0 to disable, or 1 to enable.
+>
+>
+Here, the properties are boolean. I will add this on the description.
+
+I like to enable or disable with the DT and properties are not there 
+then left to default.
+So added two properties for enable and disable. If properties are there, 
+do the activity.
+
+Here tristate is also possible:
+maxim,low-battery-reset: tristate, low battery reset control. 0 for 
+disable, 1 for enable and
+                                  absence of this will leave 
+configuration on default.
+
+Does it look fine?
 
 -- 
 -- 
