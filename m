@@ -1,25 +1,28 @@
-Return-Path: <rtc-linux+bncBD2OLRXW4ABBBSVA7C2AKGQETQVPOXA@googlegroups.com>
-Received: from hqemgate16.nvidia.com (hqemgate16.nvidia.com. [216.228.121.65])
-        by gmr-mx.google.com with ESMTPS id i25si2958400pfj.2.2016.01.19.02.30.34
+Return-Path: <rtc-linux+bncBD2OLRXW4ABBBVO3Z22AKGQEX6E7UNA@googlegroups.com>
+Received: from hqemgate15.nvidia.com (hqemgate15.nvidia.com. [216.228.121.64])
+        by gmr-mx.google.com with ESMTPS id r2si139750pfr.0.2016.01.11.05.27.49
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 19 Jan 2016 02:30:34 -0800 (PST)
+        Mon, 11 Jan 2016 05:27:49 -0800 (PST)
+Message-ID: <5693AB6E.4090700@nvidia.com>
+Date: Mon, 11 Jan 2016 18:47:34 +0530
 From: Laxman Dewangan <ldewangan@nvidia.com>
-To: <robh+dt@kernel.org>, <pawel.moll@arm.com>, <mark.rutland@arm.com>,
-	<ijc+devicetree@hellion.org.uk>, <galak@codeaurora.org>,
-	<linus.walleij@linaro.org>, <gnurou@gmail.com>, <lee.jones@linaro.org>,
-	<broonie@kernel.org>, <a.zummo@towertech.it>,
-	<alexandre.belloni@free-electrons.com>
-CC: <lgirdwood@gmail.com>, <devicetree@vger.kernel.org>,
-	<linux-kernel@vger.kernel.org>, <linux-gpio@vger.kernel.org>,
-	<rtc-linux@googlegroups.com>, <swarren@nvidia.com>, <treding@nvidia.com>,
-	<k.kozlowski@samsung.com>, <vreddytalla@nvidia.com>, Laxman Dewangan
-	<ldewangan@nvidia.com>
-Subject: [rtc-linux] [PATCH V4 0/5] Add support for MAXIM MAX77620/MAX20024 PMIC
-Date: Tue, 19 Jan 2016 15:49:38 +0530
-Message-ID: <1453198783-28383-1-git-send-email-ldewangan@nvidia.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+To: Mark Brown <broonie@kernel.org>
+CC: Krzysztof Kozlowski <k.kozlowski@samsung.com>,
+	<rtc-linux@googlegroups.com>, <robh+dt@kernel.org>, <pawel.moll@arm.com>,
+	<mark.rutland@arm.com>, <ijc+devicetree@hellion.org.uk>,
+	<galak@codeaurora.org>, <linus.walleij@linaro.org>, <gnurou@gmail.com>,
+	<lee.jones@linaro.org>, <a.zummo@towertech.it>,
+	<alexandre.belloni@free-electrons.com>, <lgirdwood@gmail.com>,
+	<devicetree@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+	<linux-gpio@vger.kernel.org>, <swarren@nvidia.com>, <treding@nvidia.com>,
+	Chaitanya Bandi <bandik@nvidia.com>
+Subject: Re: [rtc-linux] [PATCH 5/6] rtc: max77620: add support for
+ max77620/max20024 RTC driver
+References: <1452177524-23192-1-git-send-email-ldewangan@nvidia.com> <1452177524-23192-6-git-send-email-ldewangan@nvidia.com> <CAJKOXPd938soaa5M0GFo5HpVCYzAS1w8j8Hko3Ja9mx47NYkEQ@mail.gmail.com> <568F8D7E.10500@nvidia.com> <20160108125117.GM6588@sirena.org.uk> <568FB3DD.4090503@nvidia.com> <20160108133648.GQ6588@sirena.org.uk> <568FBB6D.2020904@nvidia.com>
+In-Reply-To: <568FBB6D.2020904@nvidia.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -30,87 +33,67 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Add SW support for MAXIM Semiconductor's Power Management
-IC (PMIC) MAX77620/MAX20024. This PMIC supports DC-DC/LDOS, GPIOs,
-RTC, watchdog, clocks etc.
 
-This series add respective driver for each of sub-modules.
+On Friday 08 January 2016 07:06 PM, Laxman Dewangan wrote:
+>
+> On Friday 08 January 2016 07:06 PM, Mark Brown wrote:
+>> * PGP Signed by an unknown key
+>>
+>> On Fri, Jan 08, 2016 at 06:34:29PM +0530, Laxman Dewangan wrote:
+>>
+>>> If we get the parent device, regmap handle and interrupt number from 
+>>> mfd
+>>> core independent of the PMIC (MAX77620 or MAX77686), then same 
+>>> driver can be
+>>> used here.
+>>> Two way which I can think of here:
+>> Parent device is just dev->parent, you can use dev_get_regmap() to get a
+>> regmap given a struct device and you can use platform resources to pass
+>> the interrupts to the children from the MFD (there's some examples,
+>> wm831x is one).
+>>
+>>
+>
+> I think it should work with named regmap. mfd whould init regmap with 
+> name and rtc driver should ask with same name.
+>
+> I saw three drivers which looks same:
+> rtc-max77620.c (new from me) and already available rtc-max77686.c, 
+> rtc-max77802.c
+>
+> Seems I can develop IP based rtc driver as rtc-max77xxx.c
 
---- 
-Changes from V1: 
-DT DOC:
-- Added units in some of properties.
-- Change the boolean property to tristate type and detail some of
-  properties.
+I came with one of issue when doing this.
 
-RTC:
-- Rename the file to rtc-max77xxx.c and make the generic implementation.
-- Direct regmap apis are used for the register access.
-- Decouped from max77620 driver.
-- Taken care of cleanup comments form V1 version.
+The RTC driver parent is not the same parent for which i2c slave address 
+get registered.
+There is two slave address from max77620, 0x3C (for general) and 0x68 
+for RTC.
 
-MFD:
-- Code cleanups per review from V1. 
-- Move register acccess APIs from header to c file.
-- Remove some of non required variable, remove duplication in error message
- and simplify some of function implementation.
+In max77620 mfd driver, we make dummy i2c client for 0x68 and initialize 
+regmap with this address.
 
-GPIO:
-- Use the gpiochip_add_data and get the chip data from core APIs.
-- Cleanups based on comment received on mfd/rtc.
-- Avoid duplication on error message.
+Now on mfd_add_devices, we pass the device for 0x3c and hence the RTC 
+driver treat the parent as the 0x3c device but actually it should be 
+0x68 to get the proper regmap.
 
-Pinctrl:
-- Cleanup code based on comment received on mfd/rtc.
-- Avoid duplication on error message.
 
-Regulators:
-- Cleanup code based on comment received on mfd/rtc.
-- Avoid duplication on error message.
-- Taken care of review comment from Mark.
+Two approach:
+1. If we add the option to pass parent_dev when adding cells form 
+mfd_add_devices and select the parent device based on this option then 
+it can be easily handle.
+     Add parent_dev structure in struct mfd_cell and then change the 
+parent in mfd_add_device() if cells has parent device.
 
-Changes from V2: 
-- Run coccicheck and checkpatch in strict mode for the alignment.
-- Drop RTC driver and its i2c client registartion.
-- Refactor Regulator  driver to use core API for DT parsing.
+2. Register the RTC driver with different mfd_add_devices with dummy i2c 
+client device.
+So two times mfd_add_devices.
 
-Changes from V3:
-- Change all sys initcall to module driver.
-- change the max77620_read argument to unisgned int from u8.
 
-Laxman Dewangan (5):
-  DT: mfd: add device-tree binding doc fro PMIC max77620/max20024
-  mfd: max77620: add core driver for MAX77620/MAX20024
-  pinctrl: max77620: add pincontrol driver for MAX77620/MAX20024
-  gpio: max77620: add gpio driver for MAX77620/MAX20024
-  regulator: max77620: add regulator driver for max77620/max20024
+IMO, approach 1 looks good to me.
 
- Documentation/devicetree/bindings/mfd/max77620.txt | 397 +++++++++
- drivers/gpio/Kconfig                               |   9 +
- drivers/gpio/Makefile                              |   1 +
- drivers/gpio/gpio-max77620.c                       | 292 +++++++
- drivers/mfd/Kconfig                                |  15 +
- drivers/mfd/Makefile                               |   1 +
- drivers/mfd/max77620.c                             | 871 ++++++++++++++++++++
- drivers/pinctrl/Kconfig                            |  10 +
- drivers/pinctrl/Makefile                           |   1 +
- drivers/pinctrl/pinctrl-max77620.c                 | 693 ++++++++++++++++
- drivers/regulator/Kconfig                          |   9 +
- drivers/regulator/Makefile                         |   1 +
- drivers/regulator/max77620-regulator.c             | 883 +++++++++++++++++++++
- include/dt-bindings/mfd/max77620.h                 |  38 +
- include/linux/mfd/max77620.h                       | 404 ++++++++++
- 15 files changed, 3625 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/mfd/max77620.txt
- create mode 100644 drivers/gpio/gpio-max77620.c
- create mode 100644 drivers/mfd/max77620.c
- create mode 100644 drivers/pinctrl/pinctrl-max77620.c
- create mode 100644 drivers/regulator/max77620-regulator.c
- create mode 100644 include/dt-bindings/mfd/max77620.h
- create mode 100644 include/linux/mfd/max77620.h
+Any opinion?
 
--- 
-2.1.4
 
 -- 
 -- 
