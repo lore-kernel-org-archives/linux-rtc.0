@@ -1,27 +1,27 @@
-Return-Path: <rtc-linux+bncBD2OLRXW4ABBB4NORC2QKGQE2D3KZ5Y@googlegroups.com>
-Received: from hqemgate15.nvidia.com (hqemgate15.nvidia.com. [216.228.121.64])
-        by gmr-mx.google.com with ESMTPS id jg4si631542pac.2.2016.01.22.03.50.09
+Return-Path: <rtc-linux+bncBD2OLRXW4ABBBNGHZ62AKGQELUEK37Y@googlegroups.com>
+Received: from hqemgate16.nvidia.com (hqemgate16.nvidia.com. [216.228.121.65])
+        by gmr-mx.google.com with ESMTPS id r2si244936pfr.0.2016.01.11.09.17.40
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 22 Jan 2016 03:50:09 -0800 (PST)
-Message-ID: <56A214EB.30905@nvidia.com>
-Date: Fri, 22 Jan 2016 17:09:23 +0530
+        Mon, 11 Jan 2016 09:17:40 -0800 (PST)
+Message-ID: <5693E14B.4050306@nvidia.com>
+Date: Mon, 11 Jan 2016 22:37:23 +0530
 From: Laxman Dewangan <ldewangan@nvidia.com>
 MIME-Version: 1.0
-To: Krzysztof Kozlowski <k.kozlowski@samsung.com>, <robh+dt@kernel.org>,
-	<pawel.moll@arm.com>, <mark.rutland@arm.com>,
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+CC: Mark Brown <broonie@kernel.org>, Krzysztof Kozlowski
+	<k.kozlowski@samsung.com>, <rtc-linux@googlegroups.com>,
+	<robh+dt@kernel.org>, <pawel.moll@arm.com>, <mark.rutland@arm.com>,
 	<ijc+devicetree@hellion.org.uk>, <galak@codeaurora.org>,
 	<linus.walleij@linaro.org>, <gnurou@gmail.com>, <lee.jones@linaro.org>,
-	<broonie@kernel.org>, <a.zummo@towertech.it>,
-	<alexandre.belloni@free-electrons.com>
-CC: <lgirdwood@gmail.com>, <devicetree@vger.kernel.org>,
+	<a.zummo@towertech.it>, <lgirdwood@gmail.com>, <devicetree@vger.kernel.org>,
 	<linux-kernel@vger.kernel.org>, <linux-gpio@vger.kernel.org>,
-	<rtc-linux@googlegroups.com>, <swarren@nvidia.com>, <treding@nvidia.com>,
-	<vreddytalla@nvidia.com>, Chaitanya Bandi <bandik@nvidia.com>, Mallikarjun
- Kasoju <mkasoju@nvidia.com>
-Subject: [rtc-linux] Re: [PATCH V4 2/5] mfd: max77620: add core driver for MAX77620/MAX20024
-References: <1453198783-28383-1-git-send-email-ldewangan@nvidia.com> <1453198783-28383-3-git-send-email-ldewangan@nvidia.com> <569F199D.9020207@samsung.com>
-In-Reply-To: <569F199D.9020207@samsung.com>
+	<swarren@nvidia.com>, <treding@nvidia.com>, Chaitanya Bandi
+	<bandik@nvidia.com>
+Subject: Re: [rtc-linux] [PATCH 5/6] rtc: max77620: add support for
+ max77620/max20024 RTC driver
+References: <1452177524-23192-1-git-send-email-ldewangan@nvidia.com> <1452177524-23192-6-git-send-email-ldewangan@nvidia.com> <CAJKOXPd938soaa5M0GFo5HpVCYzAS1w8j8Hko3Ja9mx47NYkEQ@mail.gmail.com> <568F8D7E.10500@nvidia.com> <20160108125117.GM6588@sirena.org.uk> <568FB3DD.4090503@nvidia.com> <20160108133648.GQ6588@sirena.org.uk> <568FBB6D.2020904@nvidia.com> <5693AB6E.4090700@nvidia.com> <20160111160419.GA3367@piout.net>
+In-Reply-To: <20160111160419.GA3367@piout.net>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
@@ -33,59 +33,78 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Thanks Krzysztof for review.
 
-Hi Lee,
-Are you taking the patches from your tree? Or will go in individual 
-subsystem?
-
-Thanks,
-Laxman
-
-
-On Wednesday 20 January 2016 10:52 AM, Krzysztof Kozlowski wrote:
-> On 19.01.2016 19:19, Laxman Dewangan wrote:
->> MAX77620/MAX20024 are Power Management IC from the MAXIM.
->> It supports RTC, multiple GPIOs, multiple DCDC and LDOs,
->> watchdog, clock etc.
+On Monday 11 January 2016 09:34 PM, Alexandre Belloni wrote:
+> On 11/01/2016 at 18:47:34 +0530, Laxman Dewangan wrote :
+>> On Friday 08 January 2016 07:06 PM, Laxman Dewangan wrote:
+>>> On Friday 08 January 2016 07:06 PM, Mark Brown wrote:
+>>>> * PGP Signed by an unknown key
+>>>>
+>>>> On Fri, Jan 08, 2016 at 06:34:29PM +0530, Laxman Dewangan wrote:
+>>>>
+>>>>> If we get the parent device, regmap handle and interrupt number from
+>>>>> mfd
+>>>>> core independent of the PMIC (MAX77620 or MAX77686), then same driver
+>>>>> can be
+>>>>> used here.
+>>>>> Two way which I can think of here:
+>>>> Parent device is just dev->parent, you can use dev_get_regmap() to get a
+>>>> regmap given a struct device and you can use platform resources to pass
+>>>> the interrupts to the children from the MFD (there's some examples,
+>>>> wm831x is one).
+>>>>
+>>>>
+>>> I think it should work with named regmap. mfd whould init regmap with name
+>>> and rtc driver should ask with same name.
+>>>
+>>> I saw three drivers which looks same:
+>>> rtc-max77620.c (new from me) and already available rtc-max77686.c,
+>>> rtc-max77802.c
+>>>
+>>> Seems I can develop IP based rtc driver as rtc-max77xxx.c
+>> I came with one of issue when doing this.
 >>
->> Add MFD drier to provides common support for accessing the
->> device; additional drivers is developed on respected subsystem
->> in order to use the functionality of the device.
+>> The RTC driver parent is not the same parent for which i2c slave address get
+>> registered.
+>> There is two slave address from max77620, 0x3C (for general) and 0x68 for
+>> RTC.
 >>
->> Signed-off-by: Laxman Dewangan <ldewangan@nvidia.com>
->> Signed-off-by: Chaitanya Bandi <bandik@nvidia.com>
->> Signed-off-by: Mallikarjun Kasoju <mkasoju@nvidia.com>
->> ---
->> Changes from V1:
->> - Code cleanups per review from V1.
->> - Move register acccess APIs from header to c file.
->> - Remove some of non required variable, remove duplication in error message
->>   and simplify some of function implementation.
->> - Register RTC driver such that it can get the regmap handle form parent device
+>> In max77620 mfd driver, we make dummy i2c client for 0x68 and initialize
+>> regmap with this address.
 >>
->> Changes from V2:
->> - Run coccicheck and checkpatch in strict mode for the alignment.
->> - Drop RTC driver and its i2c client registration.
+>> Now on mfd_add_devices, we pass the device for 0x3c and hence the RTC driver
+>> treat the parent as the 0x3c device but actually it should be 0x68 to get
+>> the proper regmap.
 >>
->> Changes from V3:
->> - Change all sys initcall to module driver.
->> - change the max77620_read argument to unisgned int from u8.
 >>
->>   drivers/mfd/Kconfig          |  15 +
->>   drivers/mfd/Makefile         |   1 +
->>   drivers/mfd/max77620.c       | 871 +++++++++++++++++++++++++++++++++++++++++++
->>   include/linux/mfd/max77620.h | 404 ++++++++++++++++++++
->>   4 files changed, 1291 insertions(+)
->>   create mode 100644 drivers/mfd/max77620.c
->>   create mode 100644 include/linux/mfd/max77620.h
+>> Two approach:
+>> 1. If we add the option to pass parent_dev when adding cells form
+>> mfd_add_devices and select the parent device based on this option then it
+>> can be easily handle.
+>>      Add parent_dev structure in struct mfd_cell and then change the parent
+>> in mfd_add_device() if cells has parent device.
 >>
+>> 2. Register the RTC driver with different mfd_add_devices with dummy i2c
+>> client device.
+>> So two times mfd_add_devices.
+>>
+>>
+>> IMO, approach 1 looks good to me.
+>>
+>> Any opinion?
+>>
+> If the RTC is not at the same address, I'd say this is not an mfd
+> anymore, can't you probe it directly from DT?
 >
-> Reviewed-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
 >
-> Best regards,
-> Krzysztof
->
+This approach is also possible but,
+
+although this is independent IP with separate i2c address but became it 
+is inside the PMIC and its interrupt depends on PMIC internals, I like 
+to register this rtc device from the mfd core.
+So that when mfd core is ready with their interrupts and initial 
+setting, it can register rtc device.
+
 
 -- 
 -- 
