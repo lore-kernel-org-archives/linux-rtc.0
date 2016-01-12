@@ -1,27 +1,38 @@
-Return-Path: <rtc-linux+bncBD2OLRXW4ABBBN4O2O2AKGQEIMWOLOQ@googlegroups.com>
-Received: from hqemgate15.nvidia.com (hqemgate15.nvidia.com. [216.228.121.64])
-        by gmr-mx.google.com with ESMTPS id jj4si12336350pac.2.2016.01.12.01.28.23
+Return-Path: <rtc-linux+bncBDKZNNNLXAHBBKUK2G2AKGQESPVFFWY@googlegroups.com>
+Received: from mailout3.w1.samsung.com (mailout3.w1.samsung.com. [210.118.77.13])
+        by gmr-mx.google.com with ESMTPS id 190si967886pfb.1.2016.01.11.16.13.30
         for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 12 Jan 2016 01:28:23 -0800 (PST)
-From: Laxman Dewangan <ldewangan@nvidia.com>
-To: <robh+dt@kernel.org>, <pawel.moll@arm.com>, <mark.rutland@arm.com>,
-	<ijc+devicetree@hellion.org.uk>, <galak@codeaurora.org>,
-	<linus.walleij@linaro.org>, <gnurou@gmail.com>, <lee.jones@linaro.org>,
-	<broonie@kernel.org>, <a.zummo@towertech.it>,
-	<alexandre.belloni@free-electrons.com>
-CC: <lgirdwood@gmail.com>, <devicetree@vger.kernel.org>,
-	<linux-kernel@vger.kernel.org>, <linux-gpio@vger.kernel.org>,
-	<rtc-linux@googlegroups.com>, <swarren@nvidia.com>, <treding@nvidia.com>,
-	<k.kozlowski@samsung.com>, Laxman Dewangan <ldewangan@nvidia.com>
-Subject: [rtc-linux] [PATCH V2 1/6] DT: mfd: add device-tree binding doc fro
- PMIC max77620/max20024
-Date: Tue, 12 Jan 2016 14:47:48 +0530
-Message-ID: <1452590273-16421-2-git-send-email-ldewangan@nvidia.com>
-In-Reply-To: <1452590273-16421-1-git-send-email-ldewangan@nvidia.com>
-References: <1452590273-16421-1-git-send-email-ldewangan@nvidia.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+        (version=TLS1 cipher=AES128-SHA bits=128/128);
+        Mon, 11 Jan 2016 16:13:30 -0800 (PST)
+Received: from eucpsbgm2.samsung.com (unknown [203.254.199.245])
+ by mailout3.w1.samsung.com
+ (Oracle Communications Messaging Server 7.0.5.31.0 64bit (built May  5 2014))
+ with ESMTP id <0O0T000HECMEUGB0@mailout3.w1.samsung.com> for
+ rtc-linux@googlegroups.com; Tue, 12 Jan 2016 00:13:26 +0000 (GMT)
+Subject: Re: [rtc-linux] [PATCH 5/6] rtc: max77620: add support for
+ max77620/max20024 RTC driver
+To: Laxman Dewangan <ldewangan@nvidia.com>,
+ Alexandre Belloni <alexandre.belloni@free-electrons.com>
+References: <1452177524-23192-1-git-send-email-ldewangan@nvidia.com>
+ <1452177524-23192-6-git-send-email-ldewangan@nvidia.com>
+ <CAJKOXPd938soaa5M0GFo5HpVCYzAS1w8j8Hko3Ja9mx47NYkEQ@mail.gmail.com>
+ <568F8D7E.10500@nvidia.com> <20160108125117.GM6588@sirena.org.uk>
+ <568FB3DD.4090503@nvidia.com> <20160108133648.GQ6588@sirena.org.uk>
+ <568FBB6D.2020904@nvidia.com> <5693AB6E.4090700@nvidia.com>
+ <20160111160419.GA3367@piout.net> <5693E14B.4050306@nvidia.com>
+Cc: Mark Brown <broonie@kernel.org>, rtc-linux@googlegroups.com,
+ robh+dt@kernel.org, pawel.moll@arm.com, mark.rutland@arm.com,
+ ijc+devicetree@hellion.org.uk, galak@codeaurora.org, linus.walleij@linaro.org,
+ gnurou@gmail.com, lee.jones@linaro.org, a.zummo@towertech.it,
+ lgirdwood@gmail.com, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-gpio@vger.kernel.org, swarren@nvidia.com, treding@nvidia.com,
+ Chaitanya Bandi <bandik@nvidia.com>
+From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+Message-id: <56944520.6090301@samsung.com>
+Date: Tue, 12 Jan 2016 09:13:20 +0900
+MIME-version: 1.0
+In-reply-to: <5693E14B.4050306@nvidia.com>
+Content-type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -32,475 +43,105 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-The MAXIM PMIC MAX77620 and MAX20024 are power management IC
-which supports RTC, GPIO, DCDC/LDO regulators, interrupt,
-watchdog etc.
+On 12.01.2016 02:07, Laxman Dewangan wrote:
+> 
+> On Monday 11 January 2016 09:34 PM, Alexandre Belloni wrote:
+>> On 11/01/2016 at 18:47:34 +0530, Laxman Dewangan wrote :
+>>> On Friday 08 January 2016 07:06 PM, Laxman Dewangan wrote:
+>>>> On Friday 08 January 2016 07:06 PM, Mark Brown wrote:
+>>>>> * PGP Signed by an unknown key
+>>>>>
+>>>>> On Fri, Jan 08, 2016 at 06:34:29PM +0530, Laxman Dewangan wrote:
+>>>>>
+>>>>>> If we get the parent device, regmap handle and interrupt number from
+>>>>>> mfd
+>>>>>> core independent of the PMIC (MAX77620 or MAX77686), then same driver
+>>>>>> can be
+>>>>>> used here.
+>>>>>> Two way which I can think of here:
+>>>>> Parent device is just dev->parent, you can use dev_get_regmap() to
+>>>>> get a
+>>>>> regmap given a struct device and you can use platform resources to
+>>>>> pass
+>>>>> the interrupts to the children from the MFD (there's some examples,
+>>>>> wm831x is one).
+>>>>>
+>>>>>
+>>>> I think it should work with named regmap. mfd whould init regmap
+>>>> with name
+>>>> and rtc driver should ask with same name.
+>>>>
+>>>> I saw three drivers which looks same:
+>>>> rtc-max77620.c (new from me) and already available rtc-max77686.c,
+>>>> rtc-max77802.c
+>>>>
+>>>> Seems I can develop IP based rtc driver as rtc-max77xxx.c
+>>> I came with one of issue when doing this.
+>>>
+>>> The RTC driver parent is not the same parent for which i2c slave
+>>> address get
+>>> registered.
+>>> There is two slave address from max77620, 0x3C (for general) and 0x68
+>>> for
+>>> RTC.
+>>>
+>>> In max77620 mfd driver, we make dummy i2c client for 0x68 and initialize
+>>> regmap with this address.
+>>>
+>>> Now on mfd_add_devices, we pass the device for 0x3c and hence the RTC
+>>> driver
+>>> treat the parent as the 0x3c device but actually it should be 0x68 to
+>>> get
+>>> the proper regmap.
+>>>
+>>>
+>>> Two approach:
+>>> 1. If we add the option to pass parent_dev when adding cells form
+>>> mfd_add_devices and select the parent device based on this option
+>>> then it
+>>> can be easily handle.
+>>>      Add parent_dev structure in struct mfd_cell and then change the
+>>> parent
+>>> in mfd_add_device() if cells has parent device.
+>>>
+>>> 2. Register the RTC driver with different mfd_add_devices with dummy i2c
+>>> client device.
+>>> So two times mfd_add_devices.
 
-Add DT binding document for the different functionality of
-this device.
+Lexman,
 
-Signed-off-by: Laxman Dewangan <ldewangan@nvidia.com>
----
-Changes from V1:
-- Added units in some of properties.
-- Change the boolean property to tristate type and detail some of
-  properties.
+I don't quite get the problem. This looks exactly the same as for
+max77686. What is the difference? I don't see any need to change the
+mfd_cell for current drivers...
 
- Documentation/devicetree/bindings/mfd/max77620.txt | 397 +++++++++++++++++++++
- include/dt-bindings/mfd/max77620.h                 |  38 ++
- 2 files changed, 435 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/mfd/max77620.txt
- create mode 100644 include/dt-bindings/mfd/max77620.h
 
-diff --git a/Documentation/devicetree/bindings/mfd/max77620.txt b/Documentation/devicetree/bindings/mfd/max77620.txt
-new file mode 100644
-index 0000000..76cda7f
---- /dev/null
-+++ b/Documentation/devicetree/bindings/mfd/max77620.txt
-@@ -0,0 +1,397 @@
-+* MAX77620 Power management IC from Maxim Semiconductor.
-+
-+Required properties:
-+-------------------
-+- compatible: Must be one of
-+		"maxim,max77620" or
-+		"maxim,max20024".
-+- reg: I2C device address.
-+- interrupt-controller: MAX77620 has internal interrupt controller which
-+  takes the interrupt request from internal sub-blocks like RTC,
-+  regulators, GPIOs as well as external input.
-+- #interrupt-cells: Should be set to 2 for IRQ number and flags.
-+  The first cell is the IRQ number. IRQ numbers for different interrupt
-+  source of MAX77620 are defined at dt-bindings/mfd/max77620.h
-+  The second cell is the flags, encoded as the trigger masks from binding
-+  document interrupts.txt, using dt-bindings/irq.
-+
-+Optional properties:
-+-------------------
-+This device also supports the power OFF of system.
-+Following properties are used for this purpose:
-+- system-power-controller: Boolean, This device will be use as
-+	system power controller and used for power OFF of system.
-+	Host issue necessary command to PMIC.
-+
-+
-+Optional submodule and their properties:
-+=======================================
-+
-+Flexible power sequence configuration
-+====================================
-+This sub-node configures the Flexible Power Sequnece(FPS) for power ON slot,
-+power OFF slot and slot period of the device. Device has 3 FPS as FPS0,
-+FPS1 and FPS2. The details of FPS configuration is provided through
-+subnode "fps". The details of FPS0, FPS1, FPS2 are provided through the
-+child node under this subnodes. The FPS number is provided via reg property.
-+
-+The property for fps child nodes as:
-+Required properties:
-+	-reg: FPS number like 0, 1, 2 for FPS0, FPS1 and FPS2 respectively.
-+Optinal properties:
-+	-maxim,active-fps-time-period: Active state FPS time period in
-+		microseconds.
-+	-maxim,suspend-fps-time-period: Suspend state FPS time period in
-+		microseconds.
-+	-maxim,fps-enable-input: FPS enable source like EN0, EN1 or SW. The
-+			macros are defined on dt-bindings/mfd/max77620.h for
-+			different enable source.
-+				FPS_EN_SRC_EN0 for EN0 enable source.
-+				FPS_EN_SRC_EN1 for En1 enable source.
-+				FPS_EN_SRC_SW for SW based control.
-+	-maxim,fps-sw-enable: Boolean, applicable if enable input is SW.
-+			If this property present then enable the FPS else
-+			disable FPS.
-+	-maxim,enable-sleep: Boolean, enable sleep when the external control
-+			goes from HIGH to LOW.
-+	-maxim,enable-global-lpm: Boolean, enable global LPM when the external
-+			control goes from HIGH to LOW.
-+
-+Here supported time periods by device in microseconds are as follows:
-+MAX77620 supports 40, 80, 160, 320, 640, 1280, 2560 and 5120 microseconds.
-+MAX20024 supports 20, 40, 80, 160, 320, 640, 1280 and 2540 microseconds.
-+
-+Pinmux and GPIO:
-+===============
-+Device has 8 GPIO pins which can be configured as GPIO as well as the
-+special IO functions.
-+
-+Please refer to pinctrl-bindings.txt for details of the common pinctrl
-+bindings used by client devices, including the meaning of the phrase
-+"pin configuration node".
-+
-+Following are properties which is needed if GPIO and pinmux functionality
-+is required:
-+    Required properties:
-+    -------------------
-+	- gpio-controller: Marks the device node as a GPIO controller.
-+	- #gpio-cells: Number of GPIO cells. Refer to binding document
-+			gpio/gpio.txt
-+
-+    Optional properties:
-+    --------------------
-+	Following properties are require if pin control setting is required
-+	at boot.
-+	- pinctrl-names: A pinctrl state named "default" be defined, using
-+		the bindings in pinctrl/pinctrl-binding.txt.
-+	- pinctrl[0...n]: Properties to contain the phandle that refer to
-+		different nodes of pin control settings. These nodes
-+		represents the pin control setting of state 0 to state n.
-+		Each of these nodes contains different subnodes to
-+		represents some desired configuration for a list of pins.
-+		This configuration can include the mux function to select
-+		on those pin(s), and various pin configuration parameters,
-+		such as pull-up, open drain.
-+
-+		Each subnode have following properties:
-+		Required properties:
-+		    - pins: List of pins. Valid values of pins properties
-+				are: gpio0, gpio1, gpio2, gpio3, gpio4,
-+				gpio5, gpio6, gpio7
-+
-+		Optional properties:
-+			function, drive-push-pull, drive-open-drain,
-+			bias-pull-up, bias-pull-down.
-+				Definitions are in the pinmux dt binding
-+			devicetree/bindings/pinctrl/pinctrl-bindings.txt
-+			Absence of properties will leave the configuration
-+			on default.
-+
-+			Valid values for function properties are:
-+				gpio, lpm-control-in, fps-out, 32k-out,
-+				sd0-dvs-in, sd1-dvs-in, reference-out
-+			Theres is also customised property for the GPIO1,
-+				GPIO2 and GPIO3.
-+			- maxim,active-fps-source: FPS source for the gpios in
-+				active state of the GPIO. Valid values are
-+				FPS_SRC_0, FPS_SRC_1, FPS_SRC_2 and
-+				FPS_SRC_NONE. Absence of this property will
-+				leave the pin on default.
-+			- maxim,active-fps-power-up-slot: Power up slot on
-+				given FPS for acive state.Valid values are 0
-+				to 7.
-+			- maxim,active-fps-power-down-slot: Power down slot
-+				on given FPS for active state. Valid values
-+				are 0 t  7.
-+			- maxim,suspend-fps-source: Suspend state FPS source.
-+			- maxim,suspend-fps-power-down-slot: Suspend state
-+				power down slot.
-+			- maxim,suspend-fps-power-up-slot: Suspend state power
-+				up slot.
-+
-+Regulators:
-+===========
-+Device has multiple DCDC(sd[0-3] and LDOs(ldo[0-8]). The node "regulators"
-+is require if regulator functionality is needed.
-+
-+Following are properties of regulator subnode.
-+
-+    Optional properties:
-+    -------------------
-+	The input supply of regulators are the optional properties on the
-+	regulator node. The input supply of these regulators are provided
-+	through following properties:
-+		in-sd0-supply: Input supply for SD0, INA-SD0 or INB-SD0 pins.
-+		in-sd1-supply: Input supply for SD1.
-+		in-sd2-supply: Input supply for SD2.
-+		in-sd3-supply: Input supply for SD3.
-+		in-ldo0-1-supply: Input supply for LDO0 and LDO1.
-+		in-ldo2-supply: Input supply for LDO2.
-+		in-ldo3-5-supply: Input supply for LDO3 and LDO5
-+		in-ldo4-6-supply: Input supply for LDO4 and LDO6.
-+		in-ldo7-8-supply: Input supply for LDO7 and LDO8.
-+
-+
-+    Optional sub nodes for regulators:
-+    ---------------------------------
-+	The subnodes name is the name of regulator and it must be one of:
-+	sd[0-3], ldo[0-8]
-+
-+	Each sub-node should contain the constraints and initialization
-+	information for that regulator. See regulator.txt for a description
-+	of standard properties for these sub-nodes.
-+	Additional optional custom properties  are listed below.
-+		maxim,active-fps-source: FPS source. The macros are defined at
-+			dt-bindings/mfd/max77620.h
-+		maxim,shutdown-fps-source: Same as maxim,fps-source, but it
-+			will apply during shutdown of system.
-+		maxim,active-fps-power-up-slot: Active state Power up slot for
-+			rail on given FPS.
-+		maxim,active-fps-power-down-slot: Active state Power down slot
-+			for rail on given FPS.
-+		maxim,suspend-fps-source: Suspend state FPS source of rail.
-+		maxim,suspend-fps-power-up-slot: Suspend state FPS power
-+			up slot.
-+		maxim,suspend-fps-power-down-slot: Suspend state FPS power
-+			down slot.
-+		maxim,enable-group-low-power: Enable Group low power mode.
-+		maxim,enable-sd0-en2-control: Enable EN2 pincontrol for SD0.
-+			This property is only applicable for SD0.
-+		maxim,disable-remote-sense-on-suspend: Boolean, disable
-+			remote sense on suspend and re-enable on resume.
-+			If this property is not there then no change on
-+			configuration.
-+
-+Backup Battery:
-+==============
-+This sub-node configure charging backup battery of the device. Device
-+has support of charging the backup battery. The subnode name is
-+"backup-battery".
-+
-+The property for backup-battery child nodes as:
-+Presense of this child node will enable the backup battery charging.
-+
-+Optinal properties:
-+	-maxim,bb-charging-current-microamp: Charging current
-+			setting.
-+			The device supports 50/100/200/400/600/800uA.
-+			If this property is unavailable then it will
-+			charge with 50uA.
-+	-maxim,bb-charging-voltage-microvolt: Charging Voltage Limit Setting.
-+			Device supports 2500000/3000000/3300000/350000uV.
-+			Default will be set to 2500mV. The voltage will be roundoff
-+			to nearest lower side if other than above is configured.
-+	-maxim,bb-output-resister-ohm: Output resistor on Ohm.
-+			Device supports 100/1000/3000/6000 Ohms.
-+
-+Low-Battery Monitor:
-+==================
-+This sub-node configure low battery monitor configuration registers.
-+Device has support for low-battery monitor configuration through
-+child DT node "low-battery-monitor".
-+
-+Optinal properties:
-+	- maxim,low-battery-dac: Tristate, enable/disable low battery DAC.
-+			0 for disable,
-+			1 for enable,
-+			absence will left configuration to default.
-+	- maxim,low-battery-shutdown: Tristate, enable/disable low battery
-+		shutdown.
-+			0 for disable,
-+			1 for enable,
-+			absence will left configuration to default.
-+	- maxim,low-battery-reset: Tristate, enable/disable low battery reset.
-+			0 for disable,
-+			1 for enable,
-+			absence will left configuration to default.
-+
-+Example:
-+--------
-+#include <dt-bindings/mfd/max77620.h>
-+...
-+max77620@3c {
-+	compatible = "maxim,max77620";
-+	reg = <0x3c>;
-+
-+	interrupt-parent = <&intc>;
-+	interrupts = <0 86 IRQ_TYPE_NONE>;
-+
-+
-+Example:
-+--------
-+#include <dt-bindings/mfd/max77620.h>
-+...
-+max77620@3c {
-+	compatible = "maxim,max77620";
-+	reg = <0x3c>;
-+
-+	interrupt-parent = <&intc>;
-+	interrupts = <0 86 IRQ_TYPE_NONE>;
-+
-+	interrupt-controller;
-+	#interrupt-cells = <2>;
-+
-+	gpio-controller;
-+	#gpio-cells = <2>;
-+
-+	backup-battery {
-+		maxim,bb-charging-current-microamp = <100>;
-+		maxim,bb-charging-voltage-microvolt = <3000000>;
-+		maxim,bb-output-resister-ohm = <100>;
-+	};
-+
-+	fps {
-+		#address-cells = <1>;
-+		#size-cells = <0>;
-+		fps@0 {
-+			reg = <0>;
-+			maxim,fps-time-period = <100>;
-+			maxim,fps-enable-input = <FPS_EN_SRC_EN0>;
-+		};
-+
-+		fps@1 {
-+			reg = <1>;
-+			maxim,fps-time-period = <100>;
-+			maxim,fps-enable-input = <FPS_EN_SRC_EN1>;
-+		};
-+
-+		fps@2 {
-+			reg = <2>;
-+			maxim,fps-time-period = <100>;
-+			maxim,fps-enable-input = <FPS_EN_SRC_SW>;
-+		};
-+	};
-+
-+	regulators {
-+		in-ldo0-1-supply = <&max77620_sd2>;
-+		in-ldo7-8-supply = <&max77620_sd2>;
-+
-+		max77620_sd0: sd0 {
-+			regulator-name = "vdd-core";
-+			regulator-min-microvolt = <600000>;
-+			regulator-max-microvolt = <1400000>;
-+			regulator-boot-on;
-+			regulator-always-on;
-+			maxim,fps-source = <FPS_SRC_1>;
-+			regulator-init-mode = <REGULATOR_MODE_NORMAL>;
-+		};
-+
-+		max77620_sd1: sd1 {
-+			regulator-name = "vddio-ddr";
-+			regulator-min-microvolt = <1200000>;
-+			regulator-max-microvolt = <1200000>;
-+			regulator-always-on;
-+			regulator-boot-on;
-+			regulator-init-mode = <REGULATOR_MODE_NORMAL>;
-+			maxim,fps-source = <FPS_SRC_0>;
-+		};
-+
-+		max77620_sd2: sd2 {
-+			regulator-name = "vdd-pre-reg";
-+			regulator-min-microvolt = <1350000>;
-+			regulator-max-microvolt = <1350000>;
-+			maxim,fps-source = <FPS_SRC_1>;
-+		};
-+
-+		max77620_sd3: sd3 {
-+			regulator-name = "vdd-1v8";
-+			regulator-min-microvolt = <1800000>;
-+			regulator-max-microvolt = <1800000>;
-+			regulator-always-on;
-+			regulator-boot-on;
-+			maxim,fps-source = <FPS_SRC_0>;
-+			regulator-init-mode = <REGULATOR_MODE_NORMAL>;
-+		};
-+
-+		max77620_ldo0: ldo0 {
-+			regulator-name = "avdd-sys";
-+			regulator-min-microvolt = <1200000>;
-+			regulator-max-microvolt = <1200000>;
-+			regulator-always-on;
-+			regulator-boot-on;
-+			maxim,fps-source = <FPS_SRC_NONE>;
-+		};
-+
-+		max77620_ldo1: ldo1 {
-+			regulator-name = "vdd-pex";
-+			regulator-min-microvolt = <1050000>;
-+			regulator-max-microvolt = <1050000>;
-+			maxim,fps-source = <FPS_SRC_NONE>;
-+		};
-+
-+		max77620_ldo2: ldo2 {
-+			regulator-name = "vddio-sdmmc3";
-+			regulator-min-microvolt = <1800000>;
-+			regulator-max-microvolt = <3300000>;
-+			maxim,fps-source = <FPS_SRC_NONE>;
-+		};
-+
-+		max77620_ldo3: ldo3 {
-+			regulator-name = "vdd-cam-hv";
-+			regulator-min-microvolt = <2800000>;
-+			regulator-max-microvolt = <2800000>;
-+			maxim,fps-source = <FPS_SRC_NONE>;
-+		};
-+
-+		max77620_ldo4: ldo4 {
-+			regulator-name = "vdd-rtc";
-+			regulator-min-microvolt = <1250000>;
-+			regulator-max-microvolt = <1250000>;
-+			regulator-always-on;
-+			regulator-boot-on;
-+			maxim,fps-source = <FPS_SRC_0>;
-+		};
-+
-+		max77620_ldo5: ldo5 {
-+			regulator-name = "avdd-ts-hv";
-+			regulator-min-microvolt = <3000000>;
-+			regulator-max-microvolt = <3000000>;
-+			maxim,fps-source = <FPS_SRC_NONE>;
-+		};
-+
-+		max77620_ldo6: ldo6 {
-+			regulator-name = "vdd-ts";
-+			regulator-min-microvolt = <1800000>;
-+			regulator-max-microvolt = <1800000>;
-+			regulator-always-on;
-+			regulator-boot-on;
-+			maxim,fps-source = <FPS_SRC_NONE>;
-+		};
-+
-+		max77620_ldo7: ldo7 {
-+			regulator-name = "vdd-gen-pll-edp";
-+			regulator-min-microvolt = <1050000>;
-+			regulator-max-microvolt = <1050000>;
-+			regulator-always-on;
-+			regulator-boot-on;
-+			maxim,fps-source = <FPS_SRC_1>;
-+		};
-+
-+		max77620_ldo8: ldo8 {
-+			regulator-name = "vdd-hdmi-dp";
-+			regulator-min-microvolt = <1050000>;
-+			regulator-max-microvolt = <1050000>;
-+			maxim,fps-source = <FPS_SRC_NONE>;
-+		};
-+	};
-+};
-diff --git a/include/dt-bindings/mfd/max77620.h b/include/dt-bindings/mfd/max77620.h
-new file mode 100644
-index 0000000..8423d1d
---- /dev/null
-+++ b/include/dt-bindings/mfd/max77620.h
-@@ -0,0 +1,38 @@
-+/*
-+ * This header provides macros for MAXIM MAX77620 device bindings.
-+ *
-+ * Copyright (c) 2016, NVIDIA Corporation.
-+ *
-+ * Author: Laxman Dewangan <ldewangan@nvidia.com>
-+ *
-+ */
-+
-+#ifndef _DT_BINDINGS_MFD_MAX77620_H
-+#define _DT_BINDINGS_MFD_MAX77620_H
-+
-+/* MAX77620 interrupts */
-+#define MAX77620_IRQ_TOP_GLBL		0 /* Low-Battery */
-+#define MAX77620_IRQ_TOP_SD		1 /* SD power fail */
-+#define MAX77620_IRQ_TOP_LDO		2 /* LDO power fail */
-+#define MAX77620_IRQ_TOP_GPIO		3 /* GPIO internal int to MAX77620 */
-+#define MAX77620_IRQ_TOP_RTC		4 /* RTC */
-+#define MAX77620_IRQ_TOP_32K		5 /* 32kHz oscillator */
-+#define MAX77620_IRQ_TOP_ONOFF		6 /* ON/OFF oscillator */
-+#define MAX77620_IRQ_LBT_MBATLOW	7 /* Thermal alarm status, > 120C */
-+#define MAX77620_IRQ_LBT_TJALRM1	8 /* Thermal alarm status, > 120C */
-+#define MAX77620_IRQ_LBT_TJALRM2	9 /* Thermal alarm status, > 140C */
-+
-+/* FPS enable -inputs */
-+#define FPS_EN_SRC_EN0	0
-+#define FPS_EN_SRC_EN1	1
-+#define FPS_EN_SRC_SW	2
-+#define FPS_EN_SRC_RSVD	3
-+
-+/* FPS source */
-+#define FPS_SRC_0	0
-+#define FPS_SRC_1	1
-+#define FPS_SRC_2	2
-+#define FPS_SRC_NONE	3
-+#define FPS_SRC_DEF	4
-+
-+#endif
--- 
-2.1.4
+>>>
+>>>
+>>> IMO, approach 1 looks good to me.
+>>>
+>>> Any opinion?
+>>>
+>> If the RTC is not at the same address, I'd say this is not an mfd
+>> anymore, can't you probe it directly from DT?
+>>
+>>
+> This approach is also possible but,
+> 
+> although this is independent IP with separate i2c address but became it
+> is inside the PMIC and its interrupt depends on PMIC internals, I like
+> to register this rtc device from the mfd core.
+> So that when mfd core is ready with their interrupts and initial
+> setting, it can register rtc device.
+
+Alexandre,
+
+All of these devices have some of the blocks under separate I2C address.
+It is still a MFD because for example interrupts are shared and governed
+by parent.
+
+Best regards,
+Krzysztof
+
 
 -- 
 -- 
