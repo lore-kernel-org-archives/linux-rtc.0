@@ -1,27 +1,25 @@
-Return-Path: <rtc-linux+bncBCNNJWF7RUMRBDXVVK2AKGQEY2JFU5I@googlegroups.com>
-MIME-Version: 1.0
-Received: from mail-pf0-x244.google.com (mail-pf0-x244.google.com. [2607:f8b0:400e:c00::244])
-        by gmr-mx.google.com with ESMTPS id ui7si3849854pab.0.2016.01.04.10.31.42
+Return-Path: <rtc-linux+bncBD2OLRXW4ABBBMMO2O2AKGQEXJHUZ3Y@googlegroups.com>
+Received: from hqemgate14.nvidia.com (hqemgate14.nvidia.com. [216.228.121.143])
+        by gmr-mx.google.com with ESMTPS id r2si583896pfr.0.2016.01.12.01.28.17
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 04 Jan 2016 10:31:42 -0800 (PST)
-Received: by mail-pf0-x244.google.com with SMTP id 65so16354733pff.1
-        for <rtc-linux@googlegroups.com>; Mon, 04 Jan 2016 10:31:42 -0800 (PST)
-From: Joshua Clayton <stillcompiling@gmail.com>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Alessandro Zummo <a.zummo@towertech.it>
-Cc: rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org,
-	Joshua Clayton <stillcompiling@gmail.com>
-Subject: [rtc-linux] [PATCH v2 5/8] rtc-pcf2123: avoid resetting the clock if possible
-Date: Mon,  4 Jan 2016 10:31:23 -0800
-Message-Id: <5cf4df19b95b0bdacd2472cf68eef3e9aa04804c.1451929910.git.stillcompiling@gmail.com>
-In-Reply-To: <cover.1451928661.git.stillcompiling@gmail.com>
-References: <cover.1451928661.git.stillcompiling@gmail.com>
-In-Reply-To: <0000-cover-letter.patch>
-References: <0000-cover-letter.patch>
-Reply-To: rtc-linux@googlegroups.com
+        Tue, 12 Jan 2016 01:28:17 -0800 (PST)
+From: Laxman Dewangan <ldewangan@nvidia.com>
+To: <robh+dt@kernel.org>, <pawel.moll@arm.com>, <mark.rutland@arm.com>,
+	<ijc+devicetree@hellion.org.uk>, <galak@codeaurora.org>,
+	<linus.walleij@linaro.org>, <gnurou@gmail.com>, <lee.jones@linaro.org>,
+	<broonie@kernel.org>, <a.zummo@towertech.it>,
+	<alexandre.belloni@free-electrons.com>
+CC: <lgirdwood@gmail.com>, <devicetree@vger.kernel.org>,
+	<linux-kernel@vger.kernel.org>, <linux-gpio@vger.kernel.org>,
+	<rtc-linux@googlegroups.com>, <swarren@nvidia.com>, <treding@nvidia.com>,
+	<k.kozlowski@samsung.com>, Laxman Dewangan <ldewangan@nvidia.com>
+Subject: [rtc-linux] [PATCH V2 0/6] Add support for MAXIM MAX77620/MAX20024 PMIC
+Date: Tue, 12 Jan 2016 14:47:47 +0530
+Message-ID: <1452590273-16421-1-git-send-email-ldewangan@nvidia.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -31,71 +29,83 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-pcf2123 data sheet recommends a software reset when the chip
-is first powered on. This change avoids resetting the chip
-every time the driver is loaded, which has some negative effects.
+Add SW support for MAXIM Semiconductor's Power Management
+IC (PMIC) MAX77620/MAX20024. This PMIC supports DC-DC/LDOS, GPIOs,
+RTC, watchdog, clocks etc.
 
-There are several registers including a clock rate adjustment that really
-should survive a reload of the driver (or reboot).
+This series add respective driver for each of sub-modules.
 
-In addition, stopping and restarting the clock to verify the chip is
-there is not a good thing once the time is set.
+--- 
+Changes from V1:
+DT DOC:
+- Added units in some of properties.
+- Change the boolean property to tristate type and detail some of
+  properties.
 
-According to the data sheet, the seconds register has a 1 in
-the high bit when the voltage has gotten low. We check for this
-condition, as well as whether the time retrieved from the chip is
-valid. We reset the rtc only if the time is not reliable and valid.
-This is sufficient for checking for the presence of the chip,
-as either all zeros or all 0xff will result in an invalid time/date
+RTC:
+- Rename the file to rtc-max77xxx.c and make the generic implementation.
+- Direct regmap apis are used for the register access.
+- Decouped from max77620 driver.
+- Taken care of cleanup comments form V1 version.
 
-Signed-off-by: Joshua Clayton <stillcompiling@gmail.com>
----
- drivers/rtc/rtc-pcf2123.c | 15 ++++++++++++---
- 1 file changed, 12 insertions(+), 3 deletions(-)
+MFD:
+- Code cleanups per review from V1. 
+- Move register acccess APIs from header to c file.
+- Remove some of non required variable, remove duplication in error message
+ and simplify some of function implementation.
 
-diff --git a/drivers/rtc/rtc-pcf2123.c b/drivers/rtc/rtc-pcf2123.c
-index 2d886d4..d9a44ad 100644
---- a/drivers/rtc/rtc-pcf2123.c
-+++ b/drivers/rtc/rtc-pcf2123.c
-@@ -215,6 +215,11 @@ static int pcf2123_rtc_read_time(struct device *dev, struct rtc_time *tm)
- 	if (ret < 0)
- 		return ret;
- 
-+	if (rxbuf[0] & OSC_HAS_STOPPED) {
-+		dev_info(dev, "clock was stopped. Time is not valid\n");
-+		return -EINVAL;
-+	}
-+
- 	tm->tm_sec = bcd2bin(rxbuf[0] & 0x7F);
- 	tm->tm_min = bcd2bin(rxbuf[1] & 0x7F);
- 	tm->tm_hour = bcd2bin(rxbuf[2] & 0x3F); /* rtc hr 0-23 */
-@@ -314,6 +319,7 @@ static const struct rtc_class_ops pcf2123_rtc_ops = {
- static int pcf2123_probe(struct spi_device *spi)
- {
- 	struct rtc_device *rtc;
-+	struct rtc_time tm;
- 	struct pcf2123_plat_data *pdata;
- 	int ret, i;
- 
-@@ -323,10 +329,13 @@ static int pcf2123_probe(struct spi_device *spi)
- 		return -ENOMEM;
- 	spi->dev.platform_data = pdata;
- 
--	ret = pcf2123_reset(&spi->dev);
-+	ret = pcf2123_rtc_read_time(&spi->dev, &tm);
- 	if (ret < 0) {
--		dev_err(&spi->dev, "chip not found\n");
--		goto kfree_exit;
-+		ret = pcf2123_reset(&spi->dev);
-+		if (ret < 0) {
-+			dev_err(&spi->dev, "chip not found\n");
-+			goto kfree_exit;
-+		}
- 	}
- 
- 	dev_info(&spi->dev, "chip found, driver version " DRV_VERSION "\n");
+GPIO:
+- Use the gpiochip_add_data and get the chip data from core APIs.
+- Cleanups based on comment received on mfd/rtc.
+- Avoid duplication on error message.
+
+Pinctrl:
+- Cleanup code based on comment received on mfd/rtc.
+- Avoid duplication on error message.
+
+Regulators:
+- Cleanup code based on comment received on mfd/rtc.
+- Avoid duplication on error message.
+- Taken care of review comment from Mark.
+
+Laxman Dewangan (6):
+  DT: mfd: add device-tree binding doc fro PMIC max77620/max20024
+  mfd: max77620: add core driver for MAX77620/MAX20024
+  pinctrl: max77620: add pincontrol driver for MAX77620/MAX20024
+  gpio: max77620: add gpio driver for MAX77620/MAX20024
+  rtc: max77xxx: add RTC driver for Maxim MAX77xxx series RTC IP
+  regulator: max77620: add regulator driver for max77620/max20024
+
+ Documentation/devicetree/bindings/mfd/max77620.txt | 397 ++++++++
+ drivers/gpio/Kconfig                               |   9 +
+ drivers/gpio/Makefile                              |   1 +
+ drivers/gpio/gpio-max77620.c                       | 306 +++++++
+ drivers/mfd/Kconfig                                |  15 +
+ drivers/mfd/Makefile                               |   1 +
+ drivers/mfd/max77620.c                             | 997 +++++++++++++++++++++
+ drivers/pinctrl/Kconfig                            |  10 +
+ drivers/pinctrl/Makefile                           |   1 +
+ drivers/pinctrl/pinctrl-max77620.c                 | 705 +++++++++++++++
+ drivers/regulator/Kconfig                          |   9 +
+ drivers/regulator/Makefile                         |   1 +
+ drivers/regulator/max77620-regulator.c             | 991 ++++++++++++++++++++
+ drivers/rtc/Kconfig                                |  10 +
+ drivers/rtc/Makefile                               |   1 +
+ drivers/rtc/rtc-max77xxx.c                         | 500 +++++++++++
+ include/dt-bindings/mfd/max77620.h                 |  38 +
+ include/linux/mfd/max77620.h                       | 407 +++++++++
+ 18 files changed, 4399 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/mfd/max77620.txt
+ create mode 100644 drivers/gpio/gpio-max77620.c
+ create mode 100644 drivers/mfd/max77620.c
+ create mode 100644 drivers/pinctrl/pinctrl-max77620.c
+ create mode 100644 drivers/regulator/max77620-regulator.c
+ create mode 100644 drivers/rtc/rtc-max77xxx.c
+ create mode 100644 include/dt-bindings/mfd/max77620.h
+ create mode 100644 include/linux/mfd/max77620.h
+
 -- 
-2.5.0
+2.1.4
 
 -- 
 -- 
