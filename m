@@ -1,31 +1,29 @@
-Return-Path: <rtc-linux+bncBAABBEHXUC2QKGQEE6SVW5A@googlegroups.com>
+Return-Path: <rtc-linux+bncBD2OLRXW4ABBBXE63G2AKGQEI5PWUBI@googlegroups.com>
+Received: from hqemgate15.nvidia.com (hqemgate15.nvidia.com. [216.228.121.64])
+        by gmr-mx.google.com with ESMTPS id 190si135163pfb.1.2016.01.13.05.21.32
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 13 Jan 2016 05:21:32 -0800 (PST)
+Message-ID: <56964CEF.3030900@nvidia.com>
+Date: Wed, 13 Jan 2016 18:41:11 +0530
+From: Laxman Dewangan <ldewangan@nvidia.com>
 MIME-Version: 1.0
-Received: from lists.s-osg.org (lists.s-osg.org. [54.187.51.154])
-        by gmr-mx.google.com with ESMTP id r2si509593pfr.0.2016.01.26.19.37.52
-        for <rtc-linux@googlegroups.com>;
-        Tue, 26 Jan 2016 19:37:52 -0800 (PST)
-From: Javier Martinez Canillas <javier@osg.samsung.com>
-To: linux-kernel@vger.kernel.org
-Cc: Kukjin Kim <kgene@kernel.org>,
-	rtc-linux@googlegroups.com,
-	Andi Shyti <andi.shyti@samsung.com>,
-	Chanwoo Choi <cw00.choi@samsung.com>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Krzysztof Kozlowski <k.kozlowski@samsung.com>,
-	Laxman Dewangan <ldewangan@nvidia.com>,
-	linux-samsung-soc@vger.kernel.org,
-	Javier Martinez Canillas <javier@osg.samsung.com>,
-	Arnd Bergmann <arnd@arndb.de>,
-	Olof Johansson <olof@lixom.net>,
-	linux-arm-kernel@lists.infradead.org
-Subject: [rtc-linux] [PATCH v4 10/10] ARM: multi_v7_defconfig: Remove MAX77802
- RTC Kconfig symbol
-Date: Wed, 27 Jan 2016 00:36:46 -0300
-Message-Id: <1453865806-4661-11-git-send-email-javier@osg.samsung.com>
-In-Reply-To: <1453865806-4661-1-git-send-email-javier@osg.samsung.com>
-References: <1453865806-4661-1-git-send-email-javier@osg.samsung.com>
+To: Mark Brown <broonie@kernel.org>
+CC: Krzysztof Kozlowski <k.kozlowski@samsung.com>, <robh+dt@kernel.org>,
+	<pawel.moll@arm.com>, <mark.rutland@arm.com>,
+	<ijc+devicetree@hellion.org.uk>, <galak@codeaurora.org>,
+	<linus.walleij@linaro.org>, <gnurou@gmail.com>, <lee.jones@linaro.org>,
+	<a.zummo@towertech.it>, <alexandre.belloni@free-electrons.com>,
+	<lgirdwood@gmail.com>, <devicetree@vger.kernel.org>,
+	<linux-kernel@vger.kernel.org>, <linux-gpio@vger.kernel.org>,
+	<rtc-linux@googlegroups.com>, <swarren@nvidia.com>, <treding@nvidia.com>,
+	Mallikarjun Kasoju <mkasoju@nvidia.com>
+Subject: [rtc-linux] Re: [PATCH V2 6/6] regulator: max77620: add regulator
+ driver for max77620/max20024
+References: <1452590273-16421-1-git-send-email-ldewangan@nvidia.com> <1452590273-16421-7-git-send-email-ldewangan@nvidia.com> <5695A854.60108@samsung.com> <5696378B.6070704@nvidia.com> <20160113115736.GJ6588@sirena.org.uk> <56963D8D.9060908@nvidia.com> <20160113123133.GK6588@sirena.org.uk> <5696451F.3000707@nvidia.com> <20160113130909.GL6588@sirena.org.uk>
+In-Reply-To: <20160113130909.GL6588@sirena.org.uk>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Reply-To: rtc-linux@googlegroups.com
-Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -35,36 +33,32 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-The driver has been removed so the Kconfig symbol is not valid anymore.
 
-Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
-Reviewed-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+On Wednesday 13 January 2016 06:39 PM, Mark Brown wrote:
+> * PGP Signed by an unknown key
+>
+> On Wed, Jan 13, 2016 at 06:07:51PM +0530, Laxman Dewangan wrote:
+>> On Wednesday 13 January 2016 06:01 PM, Mark Brown wrote:
+>>> What is FPS_SRC and why is it set from init_data?  A driver should never
+>>> be looking at init_data.
+>> When FPS_SRC is set to NONE (this is needed from platform data) then based
+>> on constraint like boot enable/always enable, it need to be on desired
+>> state. Otherwise we may endup with disabling the rail when setting to NONE
+>> and create issue.
+> What is "it" and why can't we check what the current configuration is
+> while setting FPS to NONE?
+I will have platform specific data in callback of enable/disable only.
+Which call back do I need to set this? enable/disable or post register?
+
+>> I need to set the FPS src properly for each rails before callback happen
+>> from regulator init so that enable/disable/is_enable can handle it properly.
+> Why not just reorder the callback so it happens before the constraints
+> are applied?
+>
+which callback I need to reorder for getting the context for configruation?
 
 
----
 
-Changes in v4: None
-Changes in v3: None
-Changes in v2:
-- Add Krzysztof Kozlowski's Reviewed-by tag to patch #10.
-
- arch/arm/configs/multi_v7_defconfig | 1 -
- 1 file changed, 1 deletion(-)
-
-diff --git a/arch/arm/configs/multi_v7_defconfig b/arch/arm/configs/multi_v7_defconfig
-index 314f6be2dca2..bdb42c09332c 100644
---- a/arch/arm/configs/multi_v7_defconfig
-+++ b/arch/arm/configs/multi_v7_defconfig
-@@ -664,7 +664,6 @@ CONFIG_RTC_DRV_MAX8907=y
- CONFIG_RTC_DRV_MAX8997=m
- CONFIG_RTC_DRV_MAX77686=y
- CONFIG_RTC_DRV_RK808=m
--CONFIG_RTC_DRV_MAX77802=m
- CONFIG_RTC_DRV_RS5C372=m
- CONFIG_RTC_DRV_PALMAS=y
- CONFIG_RTC_DRV_ST_LPC=y
--- 
-2.5.0
 
 -- 
 -- 
