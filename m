@@ -1,35 +1,30 @@
-Return-Path: <rtc-linux+bncBDKZNNNLXAHBBTHB3O2AKGQEU5ILPJQ@googlegroups.com>
-Received: from mailout1.w1.samsung.com (mailout1.w1.samsung.com. [210.118.77.11])
-        by gmr-mx.google.com with ESMTPS id dz2si506391pab.1.2016.01.13.16.50.19
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1 cipher=AES128-SHA bits=128/128);
-        Wed, 13 Jan 2016 16:50:20 -0800 (PST)
-Received: from eucpsbgm1.samsung.com (unknown [203.254.199.244])
- by mailout1.w1.samsung.com
- (Oracle Communications Messaging Server 7.0.5.31.0 64bit (built May  5 2014))
- with ESMTP id <0O0X00E5I3NR9U60@mailout1.w1.samsung.com> for
- rtc-linux@googlegroups.com; Thu, 14 Jan 2016 00:50:15 +0000 (GMT)
-Subject: [rtc-linux] Re: [PATCH V2 5/6] rtc: max77xxx: add RTC driver for
- Maxim MAX77xxx series RTC IP
-To: Laxman Dewangan <ldewangan@nvidia.com>, robh+dt@kernel.org,
- pawel.moll@arm.com, mark.rutland@arm.com, ijc+devicetree@hellion.org.uk,
- galak@codeaurora.org, linus.walleij@linaro.org, gnurou@gmail.com,
- lee.jones@linaro.org, broonie@kernel.org, a.zummo@towertech.it,
- alexandre.belloni@free-electrons.com
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBWGF3C2AKGQEJIELO4Y@googlegroups.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id v7si34078wmg.3.2016.01.13.02.11.36
+        for <rtc-linux@googlegroups.com>;
+        Wed, 13 Jan 2016 02:11:36 -0800 (PST)
+Date: Wed, 13 Jan 2016 11:11:35 +0100
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Laxman Dewangan <ldewangan@nvidia.com>
+Cc: Krzysztof Kozlowski <k.kozlowski@samsung.com>, robh+dt@kernel.org,
+	pawel.moll@arm.com, mark.rutland@arm.com,
+	ijc+devicetree@hellion.org.uk, galak@codeaurora.org,
+	linus.walleij@linaro.org, gnurou@gmail.com, lee.jones@linaro.org,
+	broonie@kernel.org, a.zummo@towertech.it, lgirdwood@gmail.com,
+	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+	linux-gpio@vger.kernel.org, rtc-linux@googlegroups.com,
+	swarren@nvidia.com, treding@nvidia.com,
+	Chaitanya Bandi <bandik@nvidia.com>,
+	Mallikarjun Kasoju <mkasoju@nvidia.com>
+Subject: [rtc-linux] Re: [PATCH V2 2/6] mfd: max77620: add core driver for MAX77620/MAX20024
+Message-ID: <20160113101135.GI3367@piout.net>
 References: <1452590273-16421-1-git-send-email-ldewangan@nvidia.com>
- <1452590273-16421-6-git-send-email-ldewangan@nvidia.com>
- <569594F0.4020007@samsung.com> <5695CD73.5010709@nvidia.com>
- <5695D268.3060705@samsung.com> <5695D1AF.9000806@nvidia.com>
- <5696665A.5030508@nvidia.com>
-Cc: lgirdwood@gmail.com, devicetree@vger.kernel.org,
- linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org,
- rtc-linux@googlegroups.com, swarren@nvidia.com, treding@nvidia.com
-From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-Message-id: <5696F0C4.1060904@samsung.com>
-Date: Thu, 14 Jan 2016 09:50:12 +0900
-MIME-version: 1.0
-In-reply-to: <5696665A.5030508@nvidia.com>
-Content-type: text/plain; charset=UTF-8
+ <1452590273-16421-3-git-send-email-ldewangan@nvidia.com>
+ <56959E9A.3060903@samsung.com>
+ <5696122A.6000509@nvidia.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <5696122A.6000509@nvidia.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -40,83 +35,28 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 13.01.2016 23:59, Laxman Dewangan wrote:
-> 
-> On Wednesday 13 January 2016 09:55 AM, Laxman Dewangan wrote:
->>
->> On Wednesday 13 January 2016 09:58 AM, Krzysztof Kozlowski wrote:
->>> On 13.01.2016 13:07, Laxman Dewangan wrote:
->>>> On Wednesday 13 January 2016 05:36 AM, Krzysztof Kozlowski wrote:
->>>
->>>> That is also fine to me but still I am not comfortable with the config
->>>> name and driver file name as this does not suggest the common.
->>> The name does not matter. Really. We have a lot of drivers with a
->>> specific device-like name and supporting different devices. To point
->>> that your argument is invalid - your initial name of driver
->>> "rtc-max77620.c" supported totally different "names": the max77620 and
->>> max20024. It also wasn't suggesting something "common"...
->> In all config string, I have mentioned the MAX20024.
->>
->>
->>> With my approach we are not developing common think neither. We just
->>> want to extend/re-use existing max77686 (or max77802) driver for new
->>> devices. Just like everywhere else.
->>
->> OK, fine to me if this is acceptable.
->> I will drop this rtc patch form this series and work in max77686
->> driver to modify first and once merged, use this config on my defconfig.
->>
-> 
-> Here, MAX686 RTC driver needs two regmap handle, one for the rtc_regmap
-> and other for STATUS2 register access.
-> 
->         ret = regmap_read(info->max77686->regmap, MAX77686_REG_STATUS2,
-> &val);
->         if (ret < 0) {
->                 dev_err(info->dev, "%s:%d fail to read status2 reg(%d)\n",
->                                 __func__, __LINE__, ret);
->                 goto out;
->         }
+On 13/01/2016 at 14:30:26 +0530, Laxman Dewangan wrote :
+> In my 3rd patch, I tried to align it little more where is possible. But I
+> feel that all these indenting is more over individual choice. Example, I
+> added one more indent in below example to look better.
 > 
 > 
-> We can not have two regmap handle on rtc driver as both regmap (pmic and
-> rtc) registered with different i2c device.
+>         ret = max77620_reg_update(chip->dev, MAX77620_PWR_SLAVE,
+> -               MAX77620_REG_ONOFFCNFG2, MAX77620_ONOFFCNFG2_WK_EN0,
+> -               MAX77620_ONOFFCNFG2_WK_EN0);
+> +                       MAX77620_REG_ONOFFCNFG2, MAX77620_ONOFFCNFG2_WK_EN0,
+> +                       MAX77620_ONOFFCNFG2_WK_EN0);
 > 
-> Also this register should not be accessed by RTC driver if we want to
-> decouple as this is very much MAX77686 register set.
-> Do we need this code?
-> static int max77686_rtc_read_alarm(struct device *dev, struct rtc_wkalrm
-> *alrm)
-> {
->         struct max77686_rtc_info *info = dev_get_drvdata(dev);
->         u8 data[RTC_NR_TIME];
->         unsigned int val;
->         int i, ret;
 > 
-> ::::::::
->        alrm->pending = 0;
->         ret = regmap_read(info->max77686->regmap, MAX77686_REG_STATUS2,
-> &val);
->         if (ret < 0) {
->                 dev_err(info->dev, "%s:%d fail to read status2 reg(%d)\n",
->                                 __func__, __LINE__, ret);
->                 goto out;
->         }
-> 
->         if (val & (1 << 4)) /* RTCA1 */
->                 alrm->pending = 1;
-> 
-> }
 
-Most of the drivers set the 'pending' field when reading alarm. Your
-original driver did not.
+You should probably use checkpatch.pl --strict, it requires that you
+align on the open parenthesis.
 
-The max77802 does exactly the same (BTW, these should be merged as
-well... I'll add this to the TODO list) so I think this is necessary.
 
-BR,
-Krzysztof
-
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
 -- 
 -- 
