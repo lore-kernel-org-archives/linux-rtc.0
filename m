@@ -1,36 +1,32 @@
-Return-Path: <rtc-linux+bncBDQ2L75W5QGBBEUZ3G2AKGQENFRCFZQ@googlegroups.com>
-Received: from mezzanine.sirena.org.uk (mezzanine.sirena.org.uk. [2400:8900::f03c:91ff:fedb:4f4])
-        by gmr-mx.google.com with ESMTPS id jj4si109062pac.2.2016.01.13.05.09.37
+Return-Path: <rtc-linux+bncBDKZNNNLXAHBB6FJ222AKGQEP7UD5II@googlegroups.com>
+Received: from mailout3.w1.samsung.com (mailout3.w1.samsung.com. [210.118.77.13])
+        by gmr-mx.google.com with ESMTPS id a76si2799631pfj.2.2016.01.12.16.06.16
         for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=AES128-SHA bits=128/128);
-        Wed, 13 Jan 2016 05:09:38 -0800 (PST)
-Date: Wed, 13 Jan 2016 13:09:09 +0000
-From: Mark Brown <broonie@kernel.org>
-To: Laxman Dewangan <ldewangan@nvidia.com>
-Cc: Krzysztof Kozlowski <k.kozlowski@samsung.com>, robh+dt@kernel.org,
-	pawel.moll@arm.com, mark.rutland@arm.com,
-	ijc+devicetree@hellion.org.uk, galak@codeaurora.org,
-	linus.walleij@linaro.org, gnurou@gmail.com, lee.jones@linaro.org,
-	a.zummo@towertech.it, alexandre.belloni@free-electrons.com,
-	lgirdwood@gmail.com, devicetree@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org,
-	rtc-linux@googlegroups.com, swarren@nvidia.com, treding@nvidia.com,
-	Mallikarjun Kasoju <mkasoju@nvidia.com>
-Message-ID: <20160113130909.GL6588@sirena.org.uk>
+        (version=TLS1 cipher=AES128-SHA bits=128/128);
+        Tue, 12 Jan 2016 16:06:16 -0800 (PST)
+Received: from eucpsbgm1.samsung.com (unknown [203.254.199.244])
+ by mailout3.w1.samsung.com
+ (Oracle Communications Messaging Server 7.0.5.31.0 64bit (built May  5 2014))
+ with ESMTP id <0O0V00L5G6YC8K90@mailout3.w1.samsung.com> for
+ rtc-linux@googlegroups.com; Wed, 13 Jan 2016 00:06:12 +0000 (GMT)
+Subject: [rtc-linux] Re: [PATCH V2 5/6] rtc: max77xxx: add RTC driver for
+ Maxim MAX77xxx series RTC IP
+To: Laxman Dewangan <ldewangan@nvidia.com>, robh+dt@kernel.org,
+ pawel.moll@arm.com, mark.rutland@arm.com, ijc+devicetree@hellion.org.uk,
+ galak@codeaurora.org, linus.walleij@linaro.org, gnurou@gmail.com,
+ lee.jones@linaro.org, broonie@kernel.org, a.zummo@towertech.it,
+ alexandre.belloni@free-electrons.com
 References: <1452590273-16421-1-git-send-email-ldewangan@nvidia.com>
- <1452590273-16421-7-git-send-email-ldewangan@nvidia.com>
- <5695A854.60108@samsung.com>
- <5696378B.6070704@nvidia.com>
- <20160113115736.GJ6588@sirena.org.uk>
- <56963D8D.9060908@nvidia.com>
- <20160113123133.GK6588@sirena.org.uk>
- <5696451F.3000707@nvidia.com>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="GWLvvOwKrQC9aCO6"
-In-Reply-To: <5696451F.3000707@nvidia.com>
-Subject: [rtc-linux] Re: [PATCH V2 6/6] regulator: max77620: add regulator
- driver for max77620/max20024
+ <1452590273-16421-6-git-send-email-ldewangan@nvidia.com>
+Cc: lgirdwood@gmail.com, devicetree@vger.kernel.org,
+ linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org,
+ rtc-linux@googlegroups.com, swarren@nvidia.com, treding@nvidia.com
+From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+Message-id: <569594F0.4020007@samsung.com>
+Date: Wed, 13 Jan 2016 09:06:08 +0900
+MIME-version: 1.0
+In-reply-to: <1452590273-16421-6-git-send-email-ldewangan@nvidia.com>
+Content-type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -41,29 +37,59 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
---GWLvvOwKrQC9aCO6
-Content-Type: text/plain; charset=UTF-8
-Content-Disposition: inline
+On 12.01.2016 18:17, Laxman Dewangan wrote:
+> Maxim Semiconductor's PMIC MAX77620, MAX77686, MAX20024 have
+> same RTC IP on these PMICs.
+> 
+> Add generic MAX77xxxx series RTC driver which can be used as
+> RTC driver for these PMIC and avoids duplication of RTC driver
+> for each PMICs. Their MFD driver can be different here.
+> 
+> Signed-off-by: Laxman Dewangan <ldewangan@nvidia.com>
+> ---
+> Changes from V1: 
+> - Rename the file to rtc-max77xxx.c and make the generic implementation.
+> - Direct regmap apis are used for the register access.
+> - Decouped from max77620 driver.
+> - Taken care of cleanup comments form V1 version.
+> 
+>  drivers/rtc/Kconfig        |  10 +
+>  drivers/rtc/Makefile       |   1 +
+>  drivers/rtc/rtc-max77xxx.c | 500 +++++++++++++++++++++++++++++++++++++++++++++
+>  3 files changed, 511 insertions(+)
+>  create mode 100644 drivers/rtc/rtc-max77xxx.c
+> 
+> diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
+> index 376322f..4972dd5 100644
+> --- a/drivers/rtc/Kconfig
+> +++ b/drivers/rtc/Kconfig
+> @@ -315,6 +315,16 @@ config RTC_DRV_MAX8997
+>  	  This driver can also be built as a module. If so, the module
+>  	  will be called rtc-max8997.
+>  
+> +config RTC_DRV_MAX77XXX
+> +	tristate "Maxim MAX77XXX series generic RTC driver"
+> +	help
+> +	  If you say yes here you will get support for the generic RTC driver
+> +	  for Maxim Semiconductor MAX77XXX series of PMIC like MAX77620.
+> +	  This also supports the RTC driver for Maxim PMIC MaX20024 which
+> +	  is almost same as MAX77620.
+> +	  This driver can also be built as a module. If so, the module
+> +	  will be called rtc-max77xxx.
+> +
 
-On Wed, Jan 13, 2016 at 06:07:51PM +0530, Laxman Dewangan wrote:
-> On Wednesday 13 January 2016 06:01 PM, Mark Brown wrote:
+That was not the consensus... You still added a new driver - but now
+with different name.
 
-> >What is FPS_SRC and why is it set from init_data?  A driver should never
-> >be looking at init_data.
+That is useless duplication
 
-> When FPS_SRC is set to NONE (this is needed from platform data) then based
-> on constraint like boot enable/always enable, it need to be on desired
-> state. Otherwise we may endup with disabling the rail when setting to NONE
-> and create issue.
+Please work with existing code. Use existing maxim RTC drivers: either
+max77686 or max77802.
 
-What is "it" and why can't we check what the current configuration is
-while setting FPS to NONE?
+There is no need for new one.
 
-> I need to set the FPS src properly for each rails before callback happen
-> from regulator init so that enable/disable/is_enable can handle it properly.
-
-Why not just reorder the callback so it happens before the constraints
-are applied?
+Best regards,
+Krzysztof
 
 -- 
 -- 
@@ -75,20 +101,3 @@ before submitting a driver.
 You received this message because you are subscribed to the Google Groups "rtc-linux" group.
 To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
-
---GWLvvOwKrQC9aCO6
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
-
-iQEcBAEBCAAGBQJWlkx0AAoJECTWi3JdVIfQH50H/2fuJLY76kSR7ePDsn6wPrIE
-5srOQ0u5g8LLfdwt21pyjUHao8j/npEfiXpgYr6chcezHqYYtP5CEC7UDud8rmUa
-CHmGucFHTytYS7W0d8XNdbONIcxUOtXN2Bui+SYvpONb2OUFe8elh8TW/hmz/NIo
-iiWkRrnFLUc+Uf7dZw9RMsu0NXBU2VXqeCY1BN1fY7Sif/eWBf+YP4mpEdFj5l9+
-ebmdPCrILWRDrzsEUrCuo0o2+saJaIWzGHv7gwOBu02Dh07zPVr+57fuAHdiBQmn
-worPox87muri8Rq5sSENdP9mMa4dOsBf9FuZTNsVFRWVH6BkyFDNWsBvz4f1Cwo=
-=MLnx
------END PGP SIGNATURE-----
-
---GWLvvOwKrQC9aCO6--
