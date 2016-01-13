@@ -1,27 +1,33 @@
-Return-Path: <rtc-linux+bncBAABB77WUC2QKGQE4L4NKCY@googlegroups.com>
+Return-Path: <rtc-linux+bncBDQ2L75W5QGBBUHX3C2AKGQEZZ4HJMI@googlegroups.com>
+Received: from mezzanine.sirena.org.uk (mezzanine.sirena.org.uk. [2400:8900::f03c:91ff:fedb:4f4])
+        by gmr-mx.google.com with ESMTPS id dz2si103160pab.1.2016.01.13.03.58.08
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=AES128-SHA bits=128/128);
+        Wed, 13 Jan 2016 03:58:08 -0800 (PST)
+Date: Wed, 13 Jan 2016 11:57:36 +0000
+From: Mark Brown <broonie@kernel.org>
+To: Laxman Dewangan <ldewangan@nvidia.com>
+Cc: Krzysztof Kozlowski <k.kozlowski@samsung.com>, robh+dt@kernel.org,
+	pawel.moll@arm.com, mark.rutland@arm.com,
+	ijc+devicetree@hellion.org.uk, galak@codeaurora.org,
+	linus.walleij@linaro.org, gnurou@gmail.com, lee.jones@linaro.org,
+	a.zummo@towertech.it, alexandre.belloni@free-electrons.com,
+	lgirdwood@gmail.com, devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org,
+	rtc-linux@googlegroups.com, swarren@nvidia.com, treding@nvidia.com,
+	Mallikarjun Kasoju <mkasoju@nvidia.com>
+Message-ID: <20160113115736.GJ6588@sirena.org.uk>
+References: <1452590273-16421-1-git-send-email-ldewangan@nvidia.com>
+ <1452590273-16421-7-git-send-email-ldewangan@nvidia.com>
+ <5695A854.60108@samsung.com>
+ <5696378B.6070704@nvidia.com>
 MIME-Version: 1.0
-Received: from lists.s-osg.org (lists.s-osg.org. [54.187.51.154])
-        by gmr-mx.google.com with ESMTP id tn7si519614pac.1.2016.01.26.19.37.35
-        for <rtc-linux@googlegroups.com>;
-        Tue, 26 Jan 2016 19:37:35 -0800 (PST)
-From: Javier Martinez Canillas <javier@osg.samsung.com>
-To: linux-kernel@vger.kernel.org
-Cc: Kukjin Kim <kgene@kernel.org>,
-	rtc-linux@googlegroups.com,
-	Andi Shyti <andi.shyti@samsung.com>,
-	Chanwoo Choi <cw00.choi@samsung.com>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Krzysztof Kozlowski <k.kozlowski@samsung.com>,
-	Laxman Dewangan <ldewangan@nvidia.com>,
-	linux-samsung-soc@vger.kernel.org,
-	Javier Martinez Canillas <javier@osg.samsung.com>
-Subject: [rtc-linux] [PATCH v4 07/10] rtc: max77686: Fix unsupported year message
-Date: Wed, 27 Jan 2016 00:36:43 -0300
-Message-Id: <1453865806-4661-8-git-send-email-javier@osg.samsung.com>
-In-Reply-To: <1453865806-4661-1-git-send-email-javier@osg.samsung.com>
-References: <1453865806-4661-1-git-send-email-javier@osg.samsung.com>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="y23ShSVTng6i3e6h"
+In-Reply-To: <5696378B.6070704@nvidia.com>
+Subject: [rtc-linux] Re: [PATCH V2 6/6] regulator: max77620: add regulator
+ driver for max77620/max20024
 Reply-To: rtc-linux@googlegroups.com
-Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -31,62 +37,29 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-The max77686 RTC only supports a range of 99 years so instead of using
-year 1900 as the base, the year 2000 is used. This means that 1900 to
-1999 are unsupported years.
+--y23ShSVTng6i3e6h
+Content-Type: text/plain; charset=UTF-8
+Content-Disposition: inline
 
-The driver was printing a warning for those values but was returning a
-error so for consistency, print an error message instead and don't say
-that a year 2000 is assumed, since the year is not set.
+On Wed, Jan 13, 2016 at 05:09:55PM +0530, Laxman Dewangan wrote:
 
-Also, it is better to use dev_* log functions instead of pr_* to print
-information about the device in the kernel log in a standardized way.
+> Yaah, this is something new and I think Mark also wanted to do this cleanup
+> on his comment. I did not understand it previously. Looks cool now.
 
-This also allows to remove the local pr_fmt() defined macro.
+I did, please don't just ignore review comments.
 
-Suggested-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
+> However, I have requirement to configure PMIC with some inital setting based
+> on init_data (parsed) before regulator registration happened. Once I move to
+> this new mecahinsm, the inti_data parsing and regulator init happen in the
+> same function. So I need to have one callback from regulator_register to
+> driver.
+> Something below. This will do the pre configuration before
+> regulator_register happena dn machine constraint sets.
 
----
+> I can not use the init_data->regulator_init() as I need to have the init
+> data passed to the driver.
 
-Changes in v4:
-- Use dev_err() instead of dev_warn() and change message.
-  Suggested by Krzysztof Kozlowski and Andi Shyti.
-- Change subject line and commit message of patch #7.
-- Removed Laxman Dewangan's Acked-by tag since the patch changed.
-
-Changes in v3:
-- Add Laxman Dewangan's Acked-by tag to patch #7.
-
-Changes in v2: None
-
- drivers/rtc/rtc-max77686.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
-
-diff --git a/drivers/rtc/rtc-max77686.c b/drivers/rtc/rtc-max77686.c
-index a9a4ee0f0f41..bbb06dd2ee35 100644
---- a/drivers/rtc/rtc-max77686.c
-+++ b/drivers/rtc/rtc-max77686.c
-@@ -12,8 +12,6 @@
-  *
-  */
- 
--#define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
--
- #include <linux/slab.h>
- #include <linux/rtc.h>
- #include <linux/delay.h>
-@@ -249,7 +247,7 @@ static int max77686_rtc_tm_to_data(struct rtc_time *tm, u8 *data,
- 	data[RTC_YEAR] = tm->tm_year > 100 ? (tm->tm_year - 100) : 0;
- 
- 	if (tm->tm_year < 100) {
--		pr_warn("RTC cannot handle the year %d.  Assume it's 2000.\n",
-+		dev_err(info->dev, "RTC cannot handle the year %d.\n",
- 			1900 + tm->tm_year);
- 		return -EINVAL;
- 	}
--- 
-2.5.0
+Why do you have this requirement?
 
 -- 
 -- 
@@ -98,3 +71,20 @@ before submitting a driver.
 You received this message because you are subscribed to the Google Groups "rtc-linux" group.
 To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
+
+--y23ShSVTng6i3e6h
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQEcBAEBCAAGBQJWljuvAAoJECTWi3JdVIfQ8wgH/1cr0ePAjPu5Hqbfs3MHF++o
+yPxHIje7M4w3vA1WPCTVBAYrzy9HAM63VdMNph3w4K82TLArajbY+zzz3VRs9+/+
+QUAqyPrMEZ5+r/mg66MPwLVLfyoYvBmv0w93AP64Ik/9a8NmLN4usmzJIdfJAGl1
+wcYNQG/V2lTvRcJ/ypUZX3mEVQo34Sb+b5BkBU+ViugQ7jO87aAsvc3dGT0Srpsd
+iYujuh74ZJZp//936UEKBFj/5m0sG6w0cLZ/o2MVO8Uk1kRQWYJEvomcJte/yEZM
+oC0V65tUXqBWdKwVEVvQ6jGHzbwQkgTe38GElzbqR/Gbj03RjRkZJWrYSKOEMxY=
+=nZQW
+-----END PGP SIGNATURE-----
+
+--y23ShSVTng6i3e6h--
