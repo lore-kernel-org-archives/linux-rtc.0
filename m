@@ -1,23 +1,27 @@
-Return-Path: <rtc-linux+bncBCC6ZWOPXENRBU7TXC2AKGQEENHQMWQ@googlegroups.com>
-Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de. [2001:67c:670:201:290:27ff:fe1d:cc33])
-        by gmr-mx.google.com with ESMTPS id w129si266751wme.1.2016.01.07.02.11.30
+Return-Path: <rtc-linux+bncBD2OLRXW4ABBBRWR3G2AKGQEJRQPM2I@googlegroups.com>
+Received: from hqemgate16.nvidia.com (hqemgate16.nvidia.com. [216.228.121.65])
+        by gmr-mx.google.com with ESMTPS id jj4si178444pac.2.2016.01.13.07.09.58
         for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=AES128-SHA bits=128/128);
-        Thu, 07 Jan 2016 02:11:30 -0800 (PST)
-From: Juergen Borleis <jbe@pengutronix.de>
-To: kernel@pengutronix.de
-Subject: [rtc-linux] Re: [PATCH 3/3] RTC/PCF85063: fix time/date setting
-Date: Thu, 7 Jan 2016 11:13:00 +0100
-Cc: rtc-linux@googlegroups.com,
- Alessandro Zummo <a.zummo@towertech.it>,
- Alexandre Belloni <alexandre.belloni@free-electrons.com>,
- linux-kernel@vger.kernel.org
-References: <1449496174-7813-1-git-send-email-jbe@pengutronix.de> <1449496174-7813-4-git-send-email-jbe@pengutronix.de>
-In-Reply-To: <1449496174-7813-4-git-send-email-jbe@pengutronix.de>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 13 Jan 2016 07:09:58 -0800 (PST)
+Message-ID: <5696665A.5030508@nvidia.com>
+Date: Wed, 13 Jan 2016 20:29:38 +0530
+From: Laxman Dewangan <ldewangan@nvidia.com>
 MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-15"
-Message-Id: <201601071113.00076.jbe@pengutronix.de>
+To: Krzysztof Kozlowski <k.kozlowski@samsung.com>, <robh+dt@kernel.org>,
+	<pawel.moll@arm.com>, <mark.rutland@arm.com>,
+	<ijc+devicetree@hellion.org.uk>, <galak@codeaurora.org>,
+	<linus.walleij@linaro.org>, <gnurou@gmail.com>, <lee.jones@linaro.org>,
+	<broonie@kernel.org>, <a.zummo@towertech.it>,
+	<alexandre.belloni@free-electrons.com>
+CC: <lgirdwood@gmail.com>, <devicetree@vger.kernel.org>,
+	<linux-kernel@vger.kernel.org>, <linux-gpio@vger.kernel.org>,
+	<rtc-linux@googlegroups.com>, <swarren@nvidia.com>, <treding@nvidia.com>
+Subject: [rtc-linux] Re: [PATCH V2 5/6] rtc: max77xxx: add RTC driver for
+ Maxim MAX77xxx series RTC IP
+References: <1452590273-16421-1-git-send-email-ldewangan@nvidia.com> <1452590273-16421-6-git-send-email-ldewangan@nvidia.com> <569594F0.4020007@samsung.com> <5695CD73.5010709@nvidia.com> <5695D268.3060705@samsung.com> <5695D1AF.9000806@nvidia.com>
+In-Reply-To: <5695D1AF.9000806@nvidia.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -28,30 +32,84 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Hi Alexandre,
 
-sorry, missed your comment. Please keep me on CC since I'm not subscribed t=
-o=20
-the list.
-
-> > When setting a new time/date the RTC's clock must be stopped first, in
-> > order to write the time/date registers in an atomic manner.
-> > So, this change stops the clock first and then writes the time/date
-> > registers and the clock control register (to re-enable the clock) in one
-> > turn.
+On Wednesday 13 January 2016 09:55 AM, Laxman Dewangan wrote:
 >
-> I'd have the same comment for that patch. Using
-> i2c_smbus_write_byte_data and i2c_smbus_write_block_data would make the
-> code clearer and also more robust because it takes care of
-> retransmissions for example.
+> On Wednesday 13 January 2016 09:58 AM, Krzysztof Kozlowski wrote:
+>> On 13.01.2016 13:07, Laxman Dewangan wrote:
+>>> On Wednesday 13 January 2016 05:36 AM, Krzysztof Kozlowski wrote:
+>>
+>>> That is also fine to me but still I am not comfortable with the config
+>>> name and driver file name as this does not suggest the common.
+>> The name does not matter. Really. We have a lot of drivers with a
+>> specific device-like name and supporting different devices. To point
+>> that your argument is invalid - your initial name of driver
+>> "rtc-max77620.c" supported totally different "names": the max77620 and
+>> max20024. It also wasn't suggesting something "common"...
+> In all config string, I have mentioned the MAX20024.
+>
+>
+>> With my approach we are not developing common think neither. We just
+>> want to extend/re-use existing max77686 (or max77802) driver for new
+>> devices. Just like everywhere else.
+>
+> OK, fine to me if this is acceptable.
+> I will drop this rtc patch form this series and work in max77686 
+> driver to modify first and once merged, use this config on my defconfig.
+>
 
-Okay. Will have a look.
+Here, MAX686 RTC driver needs two regmap handle, one for the rtc_regmap 
+and other for STATUS2 register access.
 
-Regards,
-Juergen
+         ret = regmap_read(info->max77686->regmap, MAX77686_REG_STATUS2, 
+&val);
+         if (ret < 0) {
+                 dev_err(info->dev, "%s:%d fail to read status2 reg(%d)\n",
+                                 __func__, __LINE__, ret);
+                 goto out;
+         }
 
-=2D-=20
-Pengutronix e.K. =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =
-=A0| Juergen Borleis =A0 =A0 =A0 =A0 =A0 =A0 |
-Industrial Linux Solutions =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0| http://=
-www.pengutronix.de/ =A0|
+
+We can not have two regmap handle on rtc driver as both regmap (pmic and 
+rtc) registered with different i2c device.
+
+Also this register should not be accessed by RTC driver if we want to 
+decouple as this is very much MAX77686 register set.
+Do we need this code?
+static int max77686_rtc_read_alarm(struct device *dev, struct rtc_wkalrm 
+*alrm)
+{
+         struct max77686_rtc_info *info = dev_get_drvdata(dev);
+         u8 data[RTC_NR_TIME];
+         unsigned int val;
+         int i, ret;
+
+::::::::
+        alrm->pending = 0;
+         ret = regmap_read(info->max77686->regmap, MAX77686_REG_STATUS2, 
+&val);
+         if (ret < 0) {
+                 dev_err(info->dev, "%s:%d fail to read status2 reg(%d)\n",
+                                 __func__, __LINE__, ret);
+                 goto out;
+         }
+
+         if (val & (1 << 4)) /* RTCA1 */
+                 alrm->pending = 1;
+
+}
+
+
+
+
+
+-- 
+-- 
+You received this message because you are subscribed to "rtc-linux".
+Membership options at http://groups.google.com/group/rtc-linux .
+Please read http://groups.google.com/group/rtc-linux/web/checklist
+before submitting a driver.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+For more options, visit https://groups.google.com/d/optout.
