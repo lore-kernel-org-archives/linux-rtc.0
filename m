@@ -1,9 +1,9 @@
-Return-Path: <rtc-linux+bncBD2OLRXW4ABBB25EUO2QKGQEVSEV25Y@googlegroups.com>
-Received: from hqemgate15.nvidia.com (hqemgate15.nvidia.com. [216.228.121.64])
-        by gmr-mx.google.com with ESMTPS id jg4si741212pac.2.2016.01.27.06.21.30
+Return-Path: <rtc-linux+bncBD2OLRXW4ABBBA4U322AKGQEZTOLQQA@googlegroups.com>
+Received: from hqemgate14.nvidia.com (hqemgate14.nvidia.com. [216.228.121.143])
+        by gmr-mx.google.com with ESMTPS id 190si666742pfb.1.2016.01.14.03.44.02
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 27 Jan 2016 06:21:30 -0800 (PST)
+        Thu, 14 Jan 2016 03:44:03 -0800 (PST)
 From: Laxman Dewangan <ldewangan@nvidia.com>
 To: <robh+dt@kernel.org>, <pawel.moll@arm.com>, <mark.rutland@arm.com>,
 	<ijc+devicetree@hellion.org.uk>, <galak@codeaurora.org>,
@@ -15,11 +15,11 @@ CC: <lgirdwood@gmail.com>, <devicetree@vger.kernel.org>,
 	<rtc-linux@googlegroups.com>, <swarren@nvidia.com>, <treding@nvidia.com>,
 	<k.kozlowski@samsung.com>, Laxman Dewangan <ldewangan@nvidia.com>, Chaitanya
  Bandi <bandik@nvidia.com>, Mallikarjun Kasoju <mkasoju@nvidia.com>
-Subject: [rtc-linux] [PATCH V5 2/5] mfd: max77620: add core driver for MAX77620/MAX20024
-Date: Wed, 27 Jan 2016 19:40:05 +0530
-Message-ID: <1453903808-29788-3-git-send-email-ldewangan@nvidia.com>
-In-Reply-To: <1453903808-29788-1-git-send-email-ldewangan@nvidia.com>
-References: <1453903808-29788-1-git-send-email-ldewangan@nvidia.com>
+Subject: [rtc-linux] [PATCH V3 2/5] mfd: max77620: add core driver for MAX77620/MAX20024
+Date: Thu, 14 Jan 2016 17:02:43 +0530
+Message-ID: <1452771166-13694-3-git-send-email-ldewangan@nvidia.com>
+In-Reply-To: <1452771166-13694-1-git-send-email-ldewangan@nvidia.com>
+References: <1452771166-13694-1-git-send-email-ldewangan@nvidia.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
@@ -43,7 +43,6 @@ in order to use the functionality of the device.
 Signed-off-by: Laxman Dewangan <ldewangan@nvidia.com>
 Signed-off-by: Chaitanya Bandi <bandik@nvidia.com>
 Signed-off-by: Mallikarjun Kasoju <mkasoju@nvidia.com>
-Reviewed-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
 ---
 Changes from V1:
 - Code cleanups per review from V1. 
@@ -51,31 +50,20 @@ Changes from V1:
 - Remove some of non required variable, remove duplication in error message
  and simplify some of function implementation.
 - Register RTC driver such that it can get the regmap handle form parent device
-
 Changes from V2:
 - Run coccicheck and checkpatch in strict mode for the alignment.
 - Drop RTC driver and its i2c client registration.
 
-Changes from V3: 
-- Change all sys initcall to module driver.         
-- change the max77620_read argument to unisgned int from u8.
-
-Changes from V4: 
-- Take care of fps nodes.
-- Drop the battery charger and low battery binding and related code as
-  it need to go on power driver.
-
-
  drivers/mfd/Kconfig          |  15 +
  drivers/mfd/Makefile         |   1 +
- drivers/mfd/max77620.c       | 727 +++++++++++++++++++++++++++++++++++++++++++
- include/linux/mfd/max77620.h | 406 ++++++++++++++++++++++++
- 4 files changed, 1149 insertions(+)
+ drivers/mfd/max77620.c       | 898 +++++++++++++++++++++++++++++++++++++++++++
+ include/linux/mfd/max77620.h | 402 +++++++++++++++++++
+ 4 files changed, 1316 insertions(+)
  create mode 100644 drivers/mfd/max77620.c
  create mode 100644 include/linux/mfd/max77620.h
 
 diff --git a/drivers/mfd/Kconfig b/drivers/mfd/Kconfig
-index 9ca66de..e5ad974 100644
+index 9581ebb..edeb85c 100644
 --- a/drivers/mfd/Kconfig
 +++ b/drivers/mfd/Kconfig
 @@ -492,6 +492,21 @@ config MFD_MAX14577
@@ -114,19 +102,19 @@ index 0f230a6..97910ed 100644
  obj-$(CONFIG_MFD_MAX77843)	+= max77843.o
 diff --git a/drivers/mfd/max77620.c b/drivers/mfd/max77620.c
 new file mode 100644
-index 0000000..49318c3
+index 0000000..e965261
 --- /dev/null
 +++ b/drivers/mfd/max77620.c
-@@ -0,0 +1,727 @@
+@@ -0,0 +1,898 @@
 +/*
 + * Maxim MAX77620 MFD Driver
 + *
 + * Copyright (C) 2016 NVIDIA CORPORATION. All rights reserved.
 + *
 + * Author:
-+ *	Laxman Dewangan <ldewangan@nvidia.com>
-+ *	Chaitanya Bandi <bandik@nvidia.com>
-+ *	Mallikarjun Kasoju <mkasoju@nvidia.com>
++ *		Laxman Dewangan <ldewangan@nvidia.com>
++ *		Chaitanya Bandi <bandik@nvidia.com>
++ *		Mallikarjun Kasoju <mkasoju@nvidia.com>
 + *
 + * This program is free software; you can redistribute it and/or modify it
 + * under the terms and conditions of the GNU General Public License,
@@ -148,32 +136,10 @@ index 0000000..49318c3
 +#include <linux/of_device.h>
 +#include <linux/mfd/max77620.h>
 +
-+static const char *of_max77620_fps_node_name[MAX77620_FPS_COUNT] = {
-+	"fps0",
-+	"fps1",
-+	"fps2"
-+};
-+
 +static struct resource gpio_resources[] = {
 +	{
 +		.start	= MAX77620_IRQ_TOP_GPIO,
 +		.end	= MAX77620_IRQ_TOP_GPIO,
-+		.flags  = IORESOURCE_IRQ,
-+	}
-+};
-+
-+static struct resource power_resources[] = {
-+	{
-+		.start	= MAX77620_IRQ_LBT_MBATLOW,
-+		.end	= MAX77620_IRQ_LBT_MBATLOW,
-+		.flags  = IORESOURCE_IRQ,
-+	}
-+};
-+
-+static struct resource rtc_resources[] = {
-+	{
-+		.start	= MAX77620_IRQ_TOP_RTC,
-+		.end	= MAX77620_IRQ_TOP_RTC,
 +		.flags  = IORESOURCE_IRQ,
 +	}
 +};
@@ -236,53 +202,74 @@ index 0000000..49318c3
 +
 +};
 +
++static const char * const max77620_nverc[] = {
++	"Shutdown-pin",
++	"System WatchDog Timer",
++	"Hard Reset",
++	"Junction Temp Overload",
++	"Main-Battery Low",
++	"Main-Battery overvoltage Lockout",
++	"Main-Battery undervoltage Lockout",
++	"Reset input",
++};
++
++enum max77660_ids {
++	MAX77620_PMIC_ID,
++	MAX77620_GPIO_ID,
++	MAX77620_PINCTRL_ID,
++	MAX77620_CLK_ID,
++	MAX77620_POWER_OFF_ID,
++	MAX77620_WDT_ID,
++	MAX77620_THERMAL_ID,
++	MAX77620_RTC_ID,
++};
++
 +#define MAX77620_SUB_MODULE_RES(_name, _id)			\
-+	[_id] = {						\
++	[MAX77620_##_id##_ID] = {				\
 +		.name = "max77620-"#_name,			\
 +		.num_resources	= ARRAY_SIZE(_name##_resources), \
 +		.resources	= &_name##_resources[0],	\
-+		.id = _id,					\
++		.id = MAX77620_##_id##_ID,			\
 +	}
 +
 +#define MAX20024_SUB_MODULE_RES(_name, _id)			\
-+	[_id] = {						\
++	[MAX77620_##_id##_ID] = {				\
 +		.name = "max20024-"#_name,			\
 +		.num_resources	= ARRAY_SIZE(_name##_resources), \
 +		.resources	= &_name##_resources[0],	\
-+		.id = _id,					\
++		.id = MAX77620_##_id##_ID,			\
 +	}
 +
 +#define MAX77620_SUB_MODULE_NO_RES(_name, _id)			\
-+	[_id] = {						\
++	[MAX77620_##_id##_ID] = {				\
 +		.name = "max77620-"#_name,			\
-+		.id = _id,					\
++		.id = MAX77620_##_id##_ID,			\
 +	}
 +
 +#define MAX20024_SUB_MODULE_NO_RES(_name, _id)			\
-+	[_id] = {						\
++	[MAX77620_##_id##_ID] = {				\
 +		.name = "max20024-"#_name,			\
-+		.id = _id,					\
++		.id = MAX77620_##_id##_ID,			\
 +	}
 +
 +static struct mfd_cell max77620_children[] = {
-+	MAX77620_SUB_MODULE_NO_RES(pinctrl, 0),
-+	MAX77620_SUB_MODULE_RES(gpio, 1),
-+	MAX77620_SUB_MODULE_NO_RES(pmic, 2),
-+	MAX77620_SUB_MODULE_RES(rtc, 3),
-+	MAX77620_SUB_MODULE_RES(power, 4),
-+	MAX77620_SUB_MODULE_NO_RES(wdt, 5),
-+	MAX77620_SUB_MODULE_NO_RES(clk, 6),
-+	MAX77620_SUB_MODULE_RES(thermal, 7),
++	MAX77620_SUB_MODULE_RES(gpio, GPIO),
++	MAX77620_SUB_MODULE_NO_RES(pmic, PMIC),
++	MAX77620_SUB_MODULE_NO_RES(pinctrl, PINCTRL),
++	MAX77620_SUB_MODULE_NO_RES(clk, CLK),
++	MAX77620_SUB_MODULE_NO_RES(power-off, POWER_OFF),
++	MAX77620_SUB_MODULE_NO_RES(wdt, WDT),
++	MAX77620_SUB_MODULE_RES(thermal, THERMAL),
 +};
 +
 +static struct mfd_cell max20024_children[] = {
-+	MAX20024_SUB_MODULE_NO_RES(pinctrl, 0),
-+	MAX20024_SUB_MODULE_RES(gpio, 1),
-+	MAX20024_SUB_MODULE_NO_RES(pmic, 2),
-+	MAX20024_SUB_MODULE_RES(rtc, 3),
-+	MAX77620_SUB_MODULE_RES(power, 4),
-+	MAX20024_SUB_MODULE_NO_RES(wdt, 5),
-+	MAX20024_SUB_MODULE_NO_RES(clk, 6),
++	MAX20024_SUB_MODULE_RES(gpio, GPIO),
++	MAX20024_SUB_MODULE_NO_RES(pmic, PMIC),
++	MAX20024_SUB_MODULE_NO_RES(pinctrl, PINCTRL),
++	MAX20024_SUB_MODULE_NO_RES(clk, CLK),
++	MAX20024_SUB_MODULE_NO_RES(power-off, POWER_OFF),
++	MAX20024_SUB_MODULE_NO_RES(wdt, WDT),
++	MAX20024_SUB_MODULE_RES(thermal, THERMAL),
 +};
 +
 +struct max77620_sub_modules {
@@ -380,7 +367,7 @@ index 0000000..49318c3
 +}
 +EXPORT_SYMBOL_GPL(max77620_irq_get_virq);
 +
-+int max77620_reg_write(struct device *dev, unsigned int reg, unsigned int val)
++int max77620_reg_write(struct device *dev, unsigned int reg, u8 val)
 +{
 +	struct max77620_chip *chip = dev_get_drvdata(dev);
 +
@@ -388,11 +375,18 @@ index 0000000..49318c3
 +}
 +EXPORT_SYMBOL_GPL(max77620_reg_write);
 +
-+int max77620_reg_read(struct device *dev, unsigned int reg, unsigned int *val)
++int max77620_reg_read(struct device *dev, unsigned int reg, u8 *val)
 +{
 +	struct max77620_chip *chip = dev_get_drvdata(dev);
++	unsigned int ival;
++	int ret;
 +
-+	return regmap_read(chip->rmap, reg, val);
++	ret = regmap_read(chip->rmap, reg, &ival);
++	if (ret < 0)
++		return ret;
++	*val = ival;
++
++	return 0;
 +}
 +EXPORT_SYMBOL_GPL(max77620_reg_read);
 +
@@ -425,47 +419,54 @@ index 0000000..49318c3
 +{
 +	struct device *dev = chip->dev;
 +	unsigned int mask = 0, config = 0;
++	int input_enable = 2;
 +	u32 pval;
 +	int tperiod, fps_id;
 +	int ret;
 +
-+	for (fps_id = 0; fps_id < MAX77620_FPS_COUNT; ++fps_id) {
-+		if (!strcmp(fps_np->name, of_max77620_fps_node_name[fps_id]))
-+			break;
++	ret = of_property_read_u32(fps_np, "reg", &pval);
++	if (ret < 0) {
++		dev_err(dev, "reg prop missing from node %s\n", fps_np->name);
++		return 0;
 +	}
-+
-+	if (fps_id == MAX77620_FPS_COUNT) {
-+		dev_err(dev, "FPS child name %s is not valid\n", fps_np->name);
-+		return -EINVAL;
++	if (pval > 2) {
++		dev_err(dev, "FPS%u is not supported\n", pval);
++		return 0;
 +	}
++	fps_id = pval;
 +
-+	ret = of_property_read_u32(fps_np, "maxim,shutdown-fps-time-period-us",
-+				   &pval);
++	ret = of_property_read_u32(fps_np,
++				   "maxim,active-fps-time-period-us", &pval);
 +	if (!ret) {
 +		mask |= MAX77620_FPS_TIME_PERIOD_MASK;
-+		chip->shutdown_fps_period[fps_id] = min(pval, 5120U);
++		chip->active_fps_period[fps_id] = min(pval, 5120U);
 +		tperiod = max77620_get_fps_period_reg_value(
-+				chip, chip->shutdown_fps_period[fps_id]);
++				chip, chip->active_fps_period[fps_id]);
 +		config |= tperiod << MAX77620_FPS_TIME_PERIOD_SHIFT;
 +	}
 +
-+	ret = of_property_read_u32(fps_np, "maxim,suspend-fps-time-period-us",
-+				   &pval);
++	ret = of_property_read_u32(fps_np,
++				   "maxim,suspend-fps-time-period-us", &pval);
 +	if (!ret)
 +		chip->suspend_fps_period[fps_id] = min(pval, 5120U);
 +
-+	ret = of_property_read_u32(fps_np, "maxim,fps-control", &pval);
++	ret = of_property_read_u32(fps_np, "maxim,fps-enable-input", &pval);
 +	if (!ret) {
 +		if (pval > 2) {
-+			dev_err(dev, "FPS %d fps-control invalid\n", fps_id);
++			dev_err(dev, "FPS %d enable-input invalid\n", fps_id);
 +		} else {
++			input_enable = pval;
 +			mask |= MAX77620_FPS_EN_SRC_MASK;
-+			config |= (pval & 0x3) << MAX77620_FPS_EN_SRC_SHIFT;
-+			if (pval == 2) {
-+				mask |= MAX77620_FPS_ENFPS_SW_MASK;
-+				config |= MAX77620_FPS_ENFPS_SW;
-+			}
 +		}
++	}
++	config |= (input_enable & 0x3) << MAX77620_FPS_EN_SRC_SHIFT;
++
++	if (input_enable == 2) {
++		bool enable_fps = of_property_read_bool(fps_np,
++					"maxim,fps-sw-enable");
++		mask |= MAX77620_FPS_ENFPS_MASK;
++		if (enable_fps)
++			config |= 1;
 +	}
 +
 +	if (!chip->sleep_enable)
@@ -478,7 +479,7 @@ index 0000000..49318c3
 +	ret = max77620_reg_update(dev, MAX77620_REG_FPS_CFG0 + fps_id,
 +				  mask, config);
 +	if (ret < 0) {
-+		dev_err(dev, "Reg 0x%02x update failed: %d\n",
++		dev_err(dev, "Reg 0x%02x write failed: %d\n",
 +			MAX77620_REG_FPS_CFG0 + fps_id, ret);
 +		return ret;
 +	}
@@ -495,7 +496,7 @@ index 0000000..49318c3
 +	int ret;
 +
 +	for (fps_id = 0; fps_id < 3; ++fps_id) {
-+		chip->shutdown_fps_period[fps_id] = -1;
++		chip->active_fps_period[fps_id] = -1;
 +		chip->suspend_fps_period[fps_id] = -1;
 +	}
 +
@@ -545,6 +546,126 @@ index 0000000..49318c3
 +	return 0;
 +}
 +
++static int max77620_init_backup_battery_charging(struct max77620_chip *chip,
++						 struct device *dev)
++{
++	struct device_node *bb_node;
++	u32 pval;
++	u8 config;
++	int ret;
++
++	bb_node = of_get_child_by_name(dev->of_node, "backup-battery");
++	if (!bb_node) {
++		dev_dbg(dev, "Backup battery charging support disabled\n");
++		max77620_reg_update(chip->dev, MAX77620_REG_CNFGBBC,
++				    MAX77620_CNFGBBC_ENABLE, 0);
++		return 0;
++	}
++
++	config = MAX77620_CNFGBBC_ENABLE;
++	ret = of_property_read_u32(bb_node,
++				   "maxim,bb-charging-current-microamp", &pval);
++	if (ret < 0)
++		pval = 50;
++	if (pval <= 50)
++		config |= 0 << MAX77620_CNFGBBC_CURRENT_SHIFT;
++	else if (pval <= 100)
++		config |= 3 << MAX77620_CNFGBBC_CURRENT_SHIFT;
++	else if (pval <= 200)
++		config |= 0 << MAX77620_CNFGBBC_CURRENT_SHIFT;
++	else if (pval <= 400)
++		config |= 3 << MAX77620_CNFGBBC_CURRENT_SHIFT;
++	else if (pval <= 600)
++		config |= 1 << MAX77620_CNFGBBC_CURRENT_SHIFT;
++	else
++		config |= 2 << MAX77620_CNFGBBC_CURRENT_SHIFT;
++
++	if (pval > 100)
++		config |= MAX77620_CNFGBBC_LOW_CURRENT_DISABLE;
++
++	ret = of_property_read_u32(bb_node,
++				   "maxim,bb-charging-voltage-microvolt",
++				   &pval);
++	if (ret < 0)
++		pval = 2500000;
++	pval /= 1000;
++	if (pval <= 2500)
++		config |= 0 << MAX77620_CNFGBBC_VOLTAGE_SHIFT;
++	else if (pval <= 3000)
++		config |= 1 << MAX77620_CNFGBBC_VOLTAGE_SHIFT;
++	else if (pval <= 3300)
++		config |= 2 << MAX77620_CNFGBBC_VOLTAGE_SHIFT;
++	else
++		config |= 3 << MAX77620_CNFGBBC_VOLTAGE_SHIFT;
++
++	ret = of_property_read_u32(bb_node,
++				   "maxim,bb-output-resister-ohm", &pval);
++	if (ret < 0)
++		pval = 1000;
++
++	if (pval <= 100)
++		config |= 0 << MAX77620_CNFGBBC_RESISTOR_SHIFT;
++	else if (pval <= 1000)
++		config |= 1 << MAX77620_CNFGBBC_RESISTOR_SHIFT;
++	else if (pval <= 3000)
++		config |= 2 << MAX77620_CNFGBBC_RESISTOR_SHIFT;
++	else if (pval <= 6000)
++		config |= 3 << MAX77620_CNFGBBC_RESISTOR_SHIFT;
++
++	ret = max77620_reg_write(dev, MAX77620_REG_CNFGBBC, config);
++	if (ret < 0) {
++		dev_err(dev, "Reg 0x%02x write failed: %d\n",
++			MAX77620_REG_CNFGBBC, ret);
++		return ret;
++	}
++
++	return 0;
++}
++
++static int max77620_init_low_battery_monitor(struct max77620_chip *chip,
++					     struct device *dev)
++{
++	struct device_node *np;
++	u8 mask = 0, val = 0;
++	u32 pval;
++	int ret;
++
++	np = of_get_child_by_name(dev->of_node, "low-battery-monitor");
++	if (!np)
++		return 0;
++
++	ret = of_property_read_u32(np, "maxim,low-battery-dac", &pval);
++	if (!ret) {
++		mask |= MAX77620_CNFGGLBL1_LBDAC_EN;
++		if (pval)
++			val |= MAX77620_CNFGGLBL1_LBDAC_EN;
++	}
++
++	ret = of_property_read_u32(np, "maxim,low-battery-shutdown", &pval);
++	if (!ret) {
++		mask |= MAX77620_CNFGGLBL1_MPPLD;
++		if (pval)
++			val |= MAX77620_CNFGGLBL1_MPPLD;
++	}
++
++	ret = of_property_read_u32(np, "maxim,low-battery-reset", &pval);
++	if (!ret) {
++		mask |= MAX77620_CNFGGLBL1_LBRSTEN;
++		if (pval)
++			val |= MAX77620_CNFGGLBL1_LBRSTEN;
++	}
++
++	if (mask) {
++		ret = max77620_reg_update(dev, MAX77620_REG_CNFGGLBL1,
++					  mask, val);
++		if (ret < 0)
++			dev_err(dev, "Reg CNFGGLBL1 update failed: %d\n", ret);
++		return ret;
++	}
++
++	return 0;
++}
++
 +static int max77620_initialise_chip(struct max77620_chip *chip,
 +				    struct device *dev)
 +{
@@ -585,8 +706,7 @@ index 0000000..49318c3
 +
 +static int max77620_read_es_version(struct max77620_chip *chip)
 +{
-+	unsigned int val;
-+	u8 cid_val[6];
++	u8 val, cid_val[6];
 +	int i;
 +	int ret;
 +
@@ -607,6 +727,15 @@ index 0000000..49318c3
 +		 cid_val[4], MAX77620_CID5_DIDM(cid_val[5]));
 +
 +	return ret;
++}
++
++static irqreturn_t max77620_mbattlow_irq(int irq, void *data)
++{
++	struct max77620_chip *max77620 = data;
++
++	dev_dbg(max77620->dev, "MBATTLOW interrupt occurred\n");
++
++	return IRQ_HANDLED;
 +}
 +
 +static int max77620_probe(struct i2c_client *client,
@@ -671,12 +800,32 @@ index 0000000..49318c3
 +	if (ret < 0)
 +		goto fail_free_irq;
 +
++	ret = max77620_init_backup_battery_charging(chip, &client->dev);
++	if (ret < 0)
++		goto fail_free_irq;
++
++	ret = max77620_init_low_battery_monitor(chip, &client->dev);
++	if (ret < 0)
++		goto fail_free_irq;
++
 +	ret =  mfd_add_devices(&client->dev, -1, children->cells,
 +			       children->ncells, NULL, 0,
 +			       regmap_irq_get_domain(chip->top_irq_data));
 +	if (ret < 0) {
 +		dev_err(&client->dev, "mfd add dev fail %d\n", ret);
 +		goto fail_free_irq;
++	}
++
++	chip->irq_mbattlow = max77620_irq_get_virq(chip->dev,
++					MAX77620_IRQ_LBT_MBATLOW);
++	if (chip->irq_mbattlow) {
++		ret = devm_request_threaded_irq(chip->dev, chip->irq_mbattlow,
++						NULL, max77620_mbattlow_irq,
++						IRQF_ONESHOT,
++						dev_name(chip->dev), chip);
++		if (ret < 0)
++			dev_err(&client->dev, "request irq %d failed: %d\n",
++				chip->irq_mbattlow, ret);
 +	}
 +
 +	return 0;
@@ -771,11 +920,11 @@ index 0000000..49318c3
 +	int fps;
 +
 +	for (fps = 0; fps < 2; ++fps) {
-+		if (chip->shutdown_fps_period[fps] < 0)
++		if (chip->active_fps_period[fps] < 0)
 +			continue;
 +
 +		ret = max77620_set_fps_period(chip, fps,
-+					      chip->shutdown_fps_period[fps]);
++					      chip->active_fps_period[fps]);
 +		if (ret < 0)
 +			dev_err(dev, "FPS%d config failed: %d\n", fps, ret);
 +	}
@@ -837,7 +986,17 @@ index 0000000..49318c3
 +	.id_table = max77620_id,
 +};
 +
-+module_i2c_driver(max77620_driver);
++static int __init max77620_init(void)
++{
++	return i2c_add_driver(&max77620_driver);
++}
++subsys_initcall(max77620_init);
++
++static void __exit max77620_exit(void)
++{
++	i2c_del_driver(&max77620_driver);
++}
++module_exit(max77620_exit);
 +
 +MODULE_DESCRIPTION("MAX77620/MAX20024 Multi Function Device Core Driver");
 +MODULE_AUTHOR("Laxman Dewangan <ldewangan@nvidia.com>");
@@ -847,10 +1006,10 @@ index 0000000..49318c3
 +MODULE_LICENSE("GPL v2");
 diff --git a/include/linux/mfd/max77620.h b/include/linux/mfd/max77620.h
 new file mode 100644
-index 0000000..5e014f1
+index 0000000..2bb4829
 --- /dev/null
 +++ b/include/linux/mfd/max77620.h
-@@ -0,0 +1,406 @@
+@@ -0,0 +1,402 @@
 +/*
 + * max77620.h: Defining registers address and its bit definitions
 + *	of MAX77620 and	MAX20024
@@ -935,9 +1094,9 @@ index 0000000..5e014f1
 +#define MAX77620_TRACK4_SHIFT			5
 +
 +/* Voltage */
-+#define MAX77620_SDX_VOLT_MASK			0xFF
-+#define MAX77620_SD0_VOLT_MASK			0x3F
-+#define MAX77620_SD1_VOLT_MASK			0x7F
++#define  MAX77620_SDX_VOLT_MASK			0xFF
++#define  MAX77620_SD0_VOLT_MASK			0x3F
++#define  MAX77620_SD1_VOLT_MASK			0x7F
 +#define MAX77620_LDO_VOLT_MASK			0x3F
 +
 +#define MAX77620_REG_GPIO0			0x36
@@ -984,8 +1143,7 @@ index 0000000..5e014f1
 +#define MAX77620_FPS_TIME_PERIOD_SHIFT		3
 +#define MAX77620_FPS_EN_SRC_MASK		0x06
 +#define MAX77620_FPS_EN_SRC_SHIFT		1
-+#define MAX77620_FPS_ENFPS_SW_MASK		0x01
-+#define MAX77620_FPS_ENFPS_SW			0x01
++#define MAX77620_FPS_ENFPS_MASK			0x01
 +
 +#define MAX77620_REG_FPS_GPIO1			0x54
 +#define MAX77620_REG_FPS_GPIO2			0x55
@@ -1100,7 +1258,7 @@ index 0000000..5e014f1
 +#define MAX77620_ONOFFCNFG2_WK_ALARM1		BIT(2)
 +#define MAX77620_ONOFFCNFG2_WK_EN0		BIT(0)
 +
-+#define MAX77620_GLBLM_MASK			BIT(0)
++#define	MAX77620_GLBLM_MASK			BIT(0)
 +
 +#define MAX77620_WDTC_MASK			0x3
 +#define MAX77620_WDTOFFC			BIT(4)
@@ -1128,8 +1286,6 @@ index 0000000..5e014f1
 +#define MAX77620_CNFGBBC_LOW_CURRENT_DISABLE	BIT(5)
 +#define MAX77620_CNFGBBC_RESISTOR_MASK		0xC0
 +#define MAX77620_CNFGBBC_RESISTOR_SHIFT		6
-+
-+#define MAX77620_FPS_COUNT			3
 +
 +/* I2c Slave Id */
 +enum {
@@ -1235,12 +1391,13 @@ index 0000000..5e014f1
 +
 +	int chip_irq;
 +	int irq_base;
++	int irq_mbattlow;
 +
 +	struct mutex mutex_config;
 +	bool sleep_enable;
 +	bool enable_global_lpm;
-+	int shutdown_fps_period[MAX77620_FPS_COUNT];
-+	int suspend_fps_period[MAX77620_FPS_COUNT];
++	int active_fps_period[3];
++	int suspend_fps_period[3];
 +
 +	struct regmap_irq_chip_data *top_irq_data;
 +	struct regmap_irq_chip_data *gpio_irq_data;
@@ -1250,10 +1407,8 @@ index 0000000..5e014f1
 +};
 +
 +extern int max77620_irq_get_virq(struct device *dev, int irq);
-+extern int max77620_reg_write(struct device *dev, unsigned int reg,
-+		unsigned int val);
-+extern int max77620_reg_read(struct device *dev, unsigned int reg,
-+		unsigned int *val);
++extern int max77620_reg_write(struct device *dev, unsigned int reg, u8 val);
++extern int max77620_reg_read(struct device *dev, unsigned int reg, u8 *val);
 +extern int max77620_reg_update(struct device *dev, unsigned int reg,
 +		unsigned int mask, unsigned int val);
 +#endif /* _LINUX_MFD_MAX77620_H_ */
