@@ -1,30 +1,23 @@
-Return-Path: <rtc-linux+bncBDT6DFON3EBBBA6TUC2QKGQEMFTFM6Q@googlegroups.com>
-Received: from mail-yk0-x243.google.com (mail-yk0-x243.google.com. [2607:f8b0:4002:c07::243])
-        by gmr-mx.google.com with ESMTPS id i204si395107ywc.3.2016.01.26.18.20.51
+Return-Path: <rtc-linux+bncBD2OLRXW4ABBBYMT322AKGQEZ4P7YDQ@googlegroups.com>
+Received: from hqemgate16.nvidia.com (hqemgate16.nvidia.com. [216.228.121.65])
+        by gmr-mx.google.com with ESMTPS id ui7si670299pab.0.2016.01.14.03.43.29
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 26 Jan 2016 18:20:51 -0800 (PST)
-Received: by mail-yk0-x243.google.com with SMTP id k129so16143862yke.3
-        for <rtc-linux@googlegroups.com>; Tue, 26 Jan 2016 18:20:51 -0800 (PST)
+        Thu, 14 Jan 2016 03:43:29 -0800 (PST)
+From: Laxman Dewangan <ldewangan@nvidia.com>
+To: <robh+dt@kernel.org>, <pawel.moll@arm.com>, <mark.rutland@arm.com>,
+	<ijc+devicetree@hellion.org.uk>, <galak@codeaurora.org>,
+	<linus.walleij@linaro.org>, <gnurou@gmail.com>, <lee.jones@linaro.org>,
+	<broonie@kernel.org>, <a.zummo@towertech.it>,
+	<alexandre.belloni@free-electrons.com>
+CC: <lgirdwood@gmail.com>, <devicetree@vger.kernel.org>,
+	<linux-kernel@vger.kernel.org>, <linux-gpio@vger.kernel.org>,
+	<rtc-linux@googlegroups.com>, <swarren@nvidia.com>, <treding@nvidia.com>,
+	<k.kozlowski@samsung.com>, Laxman Dewangan <ldewangan@nvidia.com>
+Subject: [rtc-linux] [PATCH V3 0/5] Add support for MAXIM MAX77620/MAX20024 PMIC
+Date: Thu, 14 Jan 2016 17:02:41 +0530
+Message-ID: <1452771166-13694-1-git-send-email-ldewangan@nvidia.com>
 MIME-Version: 1.0
-In-Reply-To: <56A825F0.9000108@samsung.com>
-References: <1453836020-29579-1-git-send-email-javier@osg.samsung.com>
-	<1453836020-29579-8-git-send-email-javier@osg.samsung.com>
-	<20160127012230.GE14296@samsunx.samsung>
-	<56A82331.5050403@osg.samsung.com>
-	<56A825F0.9000108@samsung.com>
-Date: Tue, 26 Jan 2016 23:20:51 -0300
-Message-ID: <CABxcv==9B=BcGCwhyaqSwBFZ7Eeb9q1Ddv9QePZj_k0U97Zipg@mail.gmail.com>
-Subject: [rtc-linux] Re: [PATCH v3 07/10] rtc: max77686: Use dev_warn()
- instead of pr_warn()
-From: Javier Martinez Canillas <javier@dowhile0.org>
-To: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-Cc: Javier Martinez Canillas <javier@osg.samsung.com>, Andi Shyti <andi.shyti@samsung.com>,
-	Linux Kernel <linux-kernel@vger.kernel.org>, Kukjin Kim <kgene@kernel.org>,
-	rtc-linux@googlegroups.com, Chanwoo Choi <cw00.choi@samsung.com>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Laxman Dewangan <ldewangan@nvidia.com>,
-	"linux-samsung-soc@vger.kernel.org" <linux-samsung-soc@vger.kernel.org>
 Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
@@ -36,58 +29,83 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Hello Krzysztof,
+Add SW support for MAXIM Semiconductor's Power Management
+IC (PMIC) MAX77620/MAX20024. This PMIC supports DC-DC/LDOS, GPIOs,
+RTC, watchdog, clocks etc.
 
-On Tue, Jan 26, 2016 at 11:05 PM, Krzysztof Kozlowski
-<k.kozlowski@samsung.com> wrote:
-> On 27.01.2016 10:53, Javier Martinez Canillas wrote:
->> Hello Andi,
->>
->> Thanks a lot for your feedback and review.
->>
->> On 01/26/2016 10:22 PM, Andi Shyti wrote:
->>> Hi Javier,
->>>
->>>>           if (tm->tm_year < 100) {
->>>> -            pr_warn("RTC can't handle year %d. Assume it's 2000.\n",
->>>> -                1900 + tm->tm_year);
->>>> +            dev_warn(info->dev,
->>>> +                 "RTC can't handle year %d. Assume it's 2000\n",
->>>> +                 1900 + tm->tm_year);
->>>>               return -EINVAL;
->>>
->>> Because we are returning an error value, why not use dev_err()?
->>>
->>
->> You are absolutely right. Since the driver was using pr_warn(), I used
->> dev_warn() but dev_err() would had been correct.
->
-> Wait. The message says that "2000 will be assumed" which is not an
-> error. The message indicates that driver will proceed, thus the warning.
->
-> However the driver won't proceed because the max77686_rtc_set_time()
-> will abort. This came from max8997 which has the same issue.
->
-> This means that either message should be changed (dev_err() without the
-> "assume" verb) or the function should not abort and set the year to
-> 2000+something (then dev_warn()... look at rtc-ds3234.c and rtc-mcp795.c).
->
-> The easiest would be to choose #1 - no changes in the logic.
->
+This series add respective driver for each of sub-modules.
 
-Yes, I also prefer option #1 since technically is an error to set a
-year that is not supported. Quite likely the user won't want to travel
-to the past :)
+--- 
+Changes from V1: 
+DT DOC:
+- Added units in some of properties.
+- Change the boolean property to tristate type and detail some of
+  properties.
 
-Since you asked me to do other changes, I'll fix it in this patch for v4.
+RTC:
+- Rename the file to rtc-max77xxx.c and make the generic implementation.
+- Direct regmap apis are used for the register access.
+- Decouped from max77620 driver.
+- Taken care of cleanup comments form V1 version.
 
-> BR,
-> Krzysztof
->
->
+MFD:
+- Code cleanups per review from V1. 
+- Move register acccess APIs from header to c file.
+- Remove some of non required variable, remove duplication in error message
+ and simplify some of function implementation.
 
-Best regards,
-Javier
+GPIO:
+- Use the gpiochip_add_data and get the chip data from core APIs.
+- Cleanups based on comment received on mfd/rtc.
+- Avoid duplication on error message.
+
+Pinctrl:
+- Cleanup code based on comment received on mfd/rtc.
+- Avoid duplication on error message.
+
+Regulators:
+- Cleanup code based on comment received on mfd/rtc.
+- Avoid duplication on error message.
+- Taken care of review comment from Mark.
+
+Changes from V2:
+- Run coccicheck and checkpatch in strict mode for the alignment.
+- Drop RTC driver and its i2c client registartion.
+- Refactor Regulator  driver to use core API for DT parsing.
+
+Laxman Dewangan (5):
+  DT: mfd: add device-tree binding doc fro PMIC max77620/max20024
+  mfd: max77620: add core driver for MAX77620/MAX20024
+  pinctrl: max77620: add pincontrol driver for MAX77620/MAX20024
+  gpio: max77620: add gpio driver for MAX77620/MAX20024
+  regulator: max77620: add regulator driver for max77620/max20024
+
+ Documentation/devicetree/bindings/mfd/max77620.txt | 397 +++++++++
+ drivers/gpio/Kconfig                               |   9 +
+ drivers/gpio/Makefile                              |   1 +
+ drivers/gpio/gpio-max77620.c                       | 302 +++++++
+ drivers/mfd/Kconfig                                |  15 +
+ drivers/mfd/Makefile                               |   1 +
+ drivers/mfd/max77620.c                             | 898 +++++++++++++++++++++
+ drivers/pinctrl/Kconfig                            |  10 +
+ drivers/pinctrl/Makefile                           |   1 +
+ drivers/pinctrl/pinctrl-max77620.c                 | 703 ++++++++++++++++
+ drivers/regulator/Kconfig                          |   9 +
+ drivers/regulator/Makefile                         |   1 +
+ drivers/regulator/max77620-regulator.c             | 892 ++++++++++++++++++++
+ include/dt-bindings/mfd/max77620.h                 |  38 +
+ include/linux/mfd/max77620.h                       | 402 +++++++++
+ 15 files changed, 3679 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/mfd/max77620.txt
+ create mode 100644 drivers/gpio/gpio-max77620.c
+ create mode 100644 drivers/mfd/max77620.c
+ create mode 100644 drivers/pinctrl/pinctrl-max77620.c
+ create mode 100644 drivers/regulator/max77620-regulator.c
+ create mode 100644 include/dt-bindings/mfd/max77620.h
+ create mode 100644 include/linux/mfd/max77620.h
+
+-- 
+2.1.4
 
 -- 
 -- 
