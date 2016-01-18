@@ -1,25 +1,31 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBX4YTG2QKGQEWM2CZZA@googlegroups.com>
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id b4si377993wme.3.2016.01.25.08.25.03
-        for <rtc-linux@googlegroups.com>;
-        Mon, 25 Jan 2016 08:25:03 -0800 (PST)
-Date: Mon, 25 Jan 2016 17:06:33 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Javier Martinez Canillas <javier@osg.samsung.com>
-Cc: linux-kernel@vger.kernel.org, Kukjin Kim <kgene@kernel.org>,
-	rtc-linux@googlegroups.com, Chanwoo Choi <cw00.choi@samsung.com>,
-	Krzysztof Kozlowski <k.kozlowski@samsung.com>,
-	Laxman Dewangan <ldewangan@nvidia.com>,
-	linux-samsung-soc@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-	Olof Johansson <olof@lixom.net>,
-	linux-arm-kernel@lists.infradead.org
-Subject: [rtc-linux] Re: [PATCH v2 00/10] rtc: max77686: Extend driver and add
- max77802 support
-Message-ID: <20160125160633.GB11740@piout.net>
-References: <1453407813-14646-1-git-send-email-javier@osg.samsung.com>
+Return-Path: <rtc-linux+bncBD2OLRXW4ABBBIVQ6O2AKGQEW25N2XA@googlegroups.com>
+Received: from hqemgate15.nvidia.com (hqemgate15.nvidia.com. [216.228.121.64])
+        by gmr-mx.google.com with ESMTPS id i25si2334140pfj.2.2016.01.18.04.18.42
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 18 Jan 2016 04:18:42 -0800 (PST)
+Message-ID: <569CD5A7.1090407@nvidia.com>
+Date: Mon, 18 Jan 2016 17:38:07 +0530
+From: Laxman Dewangan <ldewangan@nvidia.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1453407813-14646-1-git-send-email-javier@osg.samsung.com>
+To: Linus Walleij <linus.walleij@linaro.org>
+CC: Lee Jones <lee.jones@linaro.org>, Julia Lawall <julia.lawall@lip6.fr>, Rob
+ Herring <robh+dt@kernel.org>, =?UTF-8?B?UGF3ZcWCIE1vbGw=?=
+	<pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>,
+	"ijc+devicetree@hellion.org.uk" <ijc+devicetree@hellion.org.uk>, Kumar Gala
+	<galak@codeaurora.org>, Alexandre Courbot <gnurou@gmail.com>, Mark Brown
+	<broonie@kernel.org>, Alessandro Zummo <a.zummo@towertech.it>, Alexandre
+ Belloni <alexandre.belloni@free-electrons.com>, Liam Girdwood
+	<lgirdwood@gmail.com>, "devicetree@vger.kernel.org"
+	<devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org"
+	<linux-kernel@vger.kernel.org>, "linux-gpio@vger.kernel.org"
+	<linux-gpio@vger.kernel.org>, "rtc-linux@googlegroups.com"
+	<rtc-linux@googlegroups.com>, Stephen Warren <swarren@nvidia.com>, Thierry
+ Reding <treding@nvidia.com>, Chaitanya Bandi <bandik@nvidia.com>
+Subject: [rtc-linux] Re: [PATCH] gpio: max77620: fix of_table.cocci warnings
+References: <alpine.DEB.2.10.1601111146380.2512@hadrien>	<CACRpkdbUG_cR8AZt0HmiNApy+g3Xy58BkjFXST-1gNqXqYJvGw@mail.gmail.com>	<20160114094742.GC28745@x1>	<56976CE7.8070708@nvidia.com> <CACRpkdaV6e2SeAGE5C6_W6_0qbwMG6RaL+b+8o+JoyuJR-Y=Hg@mail.gmail.com>
+In-Reply-To: <CACRpkdaV6e2SeAGE5C6_W6_0qbwMG6RaL+b+8o+JoyuJR-Y=Hg@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -30,52 +36,19 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Hi,
 
-On 21/01/2016 at 17:23:23 -0300, Javier Martinez Canillas wrote :
-> On a recent disussion [0] with Krzysztof Kozlowski and Laxman Dewangan,
-> we came to the conclusion that the max77686 and max77802 RTC are almost
-> the same with only a few differences so there shouldn't be two separate
-> drivers and is better to extend max77686 driver and delete rtc-max77802.
-> 
-> By making the driver more generic, other RTC IP blocks from Maxim PMICs
-> could be supported as well like the max77620.
-> 
-> This is a v2 of a series that do this, that address issues pointed out
-> by Krzysztof Kozlowski. The v1 can be found at [1].
-> 
-> I've tested this patch-set on an Exynos5800 Peach Pi Chromebook that has
-> a max77802 PMIC and the RTC was working correctly but I don't have a
-> machine with max77686 so I will really appreaciate if someone can test
-> that no regressions were introduced.
-> 
-> On an IRC conversation, Alexandre suggested to use the field support in
-> the regmap API to avoid needing a translation table. I spent some time
-> to look at it and I'm not so sure if it fits that well in this case.
-> 
-> It's true that we could model each register as if it has a single field
-> and provide a different reg address but I'm not sure if that would make
-> things more clear or cause more confusion for future code archaeologists.
-> 
+On Friday 15 January 2016 06:45 PM, Linus Walleij wrote:
+> On Thu, Jan 14, 2016 at 10:39 AM, Laxman Dewangan <ldewangan@nvidia.com> wrote:
+>> I think still there is discussion going on the patches?
+> Sure let's work on this for the next cycle.
+>
+>
 
-Yeah, Mark suggested that regmap_field may be what we were looking for
-but I'm not convinced it really fits.
+I have fixed this in V3 version and sent for review.
+Please help to review it.
 
-> In any case, I think this series are a move in the right direction since
-> removes code duplication and a complete driver and also allows others to
-> reuse the driver for another RTC chip. We can later simplify and use the
-> regmap field API or extend the regmap core if that could make things even
-> simpler but I propose to do it as a follow up.
-> 
-
-I don't have any objection or other comment on that series. So
-basically, I'm waiting for v3 and I'll apply it.
-
-
--- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+Thanks,
+Laxman
 
 -- 
 -- 
