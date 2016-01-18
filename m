@@ -1,31 +1,43 @@
-Return-Path: <rtc-linux+bncBDKZNNNLXAHBB6WLUC2QKGQE2ZICZJQ@googlegroups.com>
-Received: from mailout3.w1.samsung.com (mailout3.w1.samsung.com. [210.118.77.13])
-        by gmr-mx.google.com with ESMTPS id 190si431874pfb.1.2016.01.26.18.05.45
+Return-Path: <rtc-linux+bncBDT6DFON3EBBBDGA6O2AKGQECJLC3MQ@googlegroups.com>
+Received: from mail-yk0-x233.google.com (mail-yk0-x233.google.com. [2607:f8b0:4002:c07::233])
+        by gmr-mx.google.com with ESMTPS id w126si1726694ywe.6.2016.01.18.04.52.28
         for <rtc-linux@googlegroups.com>
-        (version=TLS1 cipher=AES128-SHA bits=128/128);
-        Tue, 26 Jan 2016 18:05:45 -0800 (PST)
-Received: from eucpsbgm2.samsung.com (unknown [203.254.199.245])
- by mailout3.w1.samsung.com
- (Oracle Communications Messaging Server 7.0.5.31.0 64bit (built May  5 2014))
- with ESMTP id <0O1L004PF9TH1AA0@mailout3.w1.samsung.com> for
- rtc-linux@googlegroups.com; Wed, 27 Jan 2016 02:05:41 +0000 (GMT)
-Subject: [rtc-linux] Re: [PATCH v3 07/10] rtc: max77686: Use dev_warn()
- instead of pr_warn()
-To: Javier Martinez Canillas <javier@osg.samsung.com>,
- Andi Shyti <andi.shyti@samsung.com>
-References: <1453836020-29579-1-git-send-email-javier@osg.samsung.com>
- <1453836020-29579-8-git-send-email-javier@osg.samsung.com>
- <20160127012230.GE14296@samsunx.samsung> <56A82331.5050403@osg.samsung.com>
-Cc: linux-kernel@vger.kernel.org, Kukjin Kim <kgene@kernel.org>,
- rtc-linux@googlegroups.com, Chanwoo Choi <cw00.choi@samsung.com>,
- Alexandre Belloni <alexandre.belloni@free-electrons.com>,
- Laxman Dewangan <ldewangan@nvidia.com>, linux-samsung-soc@vger.kernel.org
-From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-Message-id: <56A825F0.9000108@samsung.com>
-Date: Wed, 27 Jan 2016 11:05:36 +0900
-MIME-version: 1.0
-In-reply-to: <56A82331.5050403@osg.samsung.com>
-Content-type: text/plain; charset=UTF-8
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 18 Jan 2016 04:52:28 -0800 (PST)
+Received: by mail-yk0-x233.google.com with SMTP id x67so613593405ykd.2
+        for <rtc-linux@googlegroups.com>; Mon, 18 Jan 2016 04:52:28 -0800 (PST)
+MIME-Version: 1.0
+In-Reply-To: <569CD427.3090106@nvidia.com>
+References: <1452590273-16421-1-git-send-email-ldewangan@nvidia.com>
+	<1452590273-16421-6-git-send-email-ldewangan@nvidia.com>
+	<569594F0.4020007@samsung.com>
+	<5695CD73.5010709@nvidia.com>
+	<5695D268.3060705@samsung.com>
+	<5695D1AF.9000806@nvidia.com>
+	<5696665A.5030508@nvidia.com>
+	<5696F0C4.1060904@samsung.com>
+	<5696F7F8.108@samsung.com>
+	<56978BA1.9050409@nvidia.com>
+	<CABxcv=kqQc1DNmMJ1PAQkB7d=w9V4-85kJXtOXRPpwpXn7to8A@mail.gmail.com>
+	<569C699F.10407@samsung.com>
+	<569CD427.3090106@nvidia.com>
+Date: Mon, 18 Jan 2016 09:52:28 -0300
+Message-ID: <CABxcv=mOjtE6awpJ2He=5pcGh1z24cOhezO4JYxtc2TGC5upEw@mail.gmail.com>
+Subject: [rtc-linux] Re: [PATCH V2 5/6] rtc: max77xxx: add RTC driver for
+ Maxim MAX77xxx series RTC IP
+From: Javier Martinez Canillas <javier@dowhile0.org>
+To: Laxman Dewangan <ldewangan@nvidia.com>
+Cc: Krzysztof Kozlowski <k.kozlowski@samsung.com>, Rob Herring <robh+dt@kernel.org>,
+	Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>,
+	Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>,
+	Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>,
+	Lee Jones <lee.jones@linaro.org>, Mark Brown <broonie@kernel.org>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>, Liam Girdwood <lgirdwood@gmail.com>,
+	"devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, Linux Kernel <linux-kernel@vger.kernel.org>,
+	Linux GPIO List <linux-gpio@vger.kernel.org>, rtc-linux@googlegroups.com,
+	Stephen Warren <swarren@nvidia.com>, Thierry Reding <treding@nvidia.com>
+Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -36,43 +48,90 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 27.01.2016 10:53, Javier Martinez Canillas wrote:
-> Hello Andi,
-> 
-> Thanks a lot for your feedback and review.
-> 
-> On 01/26/2016 10:22 PM, Andi Shyti wrote:
->> Hi Javier,
+Hello Laxman and Krzysztof,
+
+On Mon, Jan 18, 2016 at 9:01 AM, Laxman Dewangan <ldewangan@nvidia.com> wrote:
+>
+> On Monday 18 January 2016 09:57 AM, Krzysztof Kozlowski wrote:
 >>
->>>           if (tm->tm_year < 100) {
->>> -            pr_warn("RTC can't handle year %d. Assume it's 2000.\n",
->>> -                1900 + tm->tm_year);
->>> +            dev_warn(info->dev,
->>> +                 "RTC can't handle year %d. Assume it's 2000\n",
->>> +                 1900 + tm->tm_year);
->>>               return -EINVAL;
+>> On 15.01.2016 10:50, Javier Martinez Canillas wrote:
+>>>
+>>> Hello,
+>>>
+>>> On Thu, Jan 14, 2016 at 8:50 AM, Laxman Dewangan <ldewangan@nvidia.com>
+>>> wrote:
+>>>>
+>>>> On Thursday 14 January 2016 06:50 AM, Krzysztof Kozlowski wrote:
+>>>>>
+>>>>> On 14.01.2016 09:50, Krzysztof Kozlowski wrote:
+>>>
+>>> [snip]
+>>>
+>>>>>> The max77802 does exactly the same (BTW, these should be merged as
+>>>>>> well... I'll add this to the TODO list) so I think this is necessary.
+>>>>>
+>>>>> How about merging max77802 to max77686 first? The only differences I
+>>>>> found are:
+>>>>> 1. It uses main MFD/PMIC regmap.
+>>>>>      This can be solved as part of decoupling code. The driver will get
+>>>>> MFD's regmap and set up its own (only on max77686). The max77802 will
+>>>>> only use parent's regmap.
+>>>>>
+>>>>> 2. It has different register address.
+>>>>>      We need a register-layout/configuration structure. The logic is
+>>>>> the
+>>>>> same except few differences (e.g. presence of MAX77802_RTC_AE1).
+>>>>>
+>>>>> It may be easier to merge them now, before adding support for max77620?
+>>>
+>>> Agreed.
+>>>
+>>> When I originally posted the max77802 support, I had separate MFD,
+>>> RTC, regulator and clock drivers and the feedback (IIRC) was that the
+>>> MFD and clock blocks were too similar to the max77686 so I extended
+>>> those drivers instead of adding new ones. But that the RTC and
+>>> regulator blocks were different so a separate driver was justified...
+>>> but it's true that are not that different and rtc-max77686 could be
+>>> extended and rtc-max77802 removed.
 >>
->> Because we are returning an error value, why not use dev_err()?
+>> Great!
 >>
-> 
-> You are absolutely right. Since the driver was using pr_warn(), I used
-> dev_warn() but dev_err() would had been correct.
+>>> In fact, the ChromiumOS vendor tree has a single RTC driver for both
+>>> max77686 and max77802:
+>>>
+>>>
+>>> https://chromium.googlesource.com/chromiumos/third_party/kernel/+/chromeos-3.8/drivers/rtc/rtc-max77xxx.c
+>>>
+>>>>> I could handle this probably next week or in the following week
+>>>>> (assuming someone would test max77802 because I don't have the
+>>>>> hardware).
+>>>>>
+>>> I could also work on this next week if you want. After all I feel
+>>> guilty for the code duplication :-)
+>>
+>> So feel free to take that job from me. :) I will happily do the testing
+>> and provide complains (I mean, comments).
+>>
+>
+> Hi Javier,
+> If you can provide the patch for moving MAX77802 to MAX77686 then I can
+> create the other change to move the regmap and i2c dummy client for rtc of
+> max77686 to rtc driver from core on top of your change. This will
+> completely decouple the rtc driver from core and so will be easy to use for
+> other chip MAX77620.
+>
 
-Wait. The message says that "2000 will be assumed" which is not an
-error. The message indicates that driver will proceed, thus the warning.
+Ok, sounds like a plan. I'll just do the change to extend rtc-max77686
+to support the max77802 rtc then and let the other change to you.
 
-However the driver won't proceed because the max77686_rtc_set_time()
-will abort. This came from max8997 which has the same issue.
+I'll work on this today once I finish other task that I'm currently working on.
 
-This means that either message should be changed (dev_err() without the
-"assume" verb) or the function should not abort and set the year to
-2000+something (then dev_warn()... look at rtc-ds3234.c and rtc-mcp795.c).
+> Thanks,
+> Laxman
+>
 
-The easiest would be to choose #1 - no changes in the logic.
-
-BR,
-Krzysztof
-
+Best regards,
+Javier
 
 -- 
 -- 
