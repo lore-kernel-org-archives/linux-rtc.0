@@ -1,26 +1,25 @@
-Return-Path: <rtc-linux+bncBDGNBOVQQEOBB4FIXC2QKGQEBXFM57Q@googlegroups.com>
-Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de. [2001:67c:670:201:290:27ff:fe1d:cc33])
-        by gmr-mx.google.com with ESMTPS id c140si236362wmh.0.2016.01.31.06.04.32
+Return-Path: <rtc-linux+bncBD2OLRXW4ABBBSVA7C2AKGQETQVPOXA@googlegroups.com>
+Received: from hqemgate16.nvidia.com (hqemgate16.nvidia.com. [216.228.121.65])
+        by gmr-mx.google.com with ESMTPS id i25si2958400pfj.2.2016.01.19.02.30.34
         for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=AES128-SHA bits=128/128);
-        Sun, 31 Jan 2016 06:04:32 -0800 (PST)
-Date: Sun, 31 Jan 2016 15:04:18 +0100
-From: Steffen Trumtrar <s.trumtrar@pengutronix.de>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
-	Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Ian Campbell <ijc+devicetree@hellion.org.uk>,
-	Kumar Gala <galak@codeaurora.org>, devicetree@vger.kernel.org,
-	rtc-linux@googlegroups.com, kernel@pengutronix.de
-Subject: [rtc-linux] Re: [PATCH v4 2/2] rtc: add driver for RX6110SA real time clock
-Message-ID: <20160131140418.GD11885@pengutronix.de>
-References: <1451927075-8656-1-git-send-email-s.trumtrar@pengutronix.de>
- <1451927075-8656-2-git-send-email-s.trumtrar@pengutronix.de>
- <20160131115457.GL20165@piout.net>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 19 Jan 2016 02:30:34 -0800 (PST)
+From: Laxman Dewangan <ldewangan@nvidia.com>
+To: <robh+dt@kernel.org>, <pawel.moll@arm.com>, <mark.rutland@arm.com>,
+	<ijc+devicetree@hellion.org.uk>, <galak@codeaurora.org>,
+	<linus.walleij@linaro.org>, <gnurou@gmail.com>, <lee.jones@linaro.org>,
+	<broonie@kernel.org>, <a.zummo@towertech.it>,
+	<alexandre.belloni@free-electrons.com>
+CC: <lgirdwood@gmail.com>, <devicetree@vger.kernel.org>,
+	<linux-kernel@vger.kernel.org>, <linux-gpio@vger.kernel.org>,
+	<rtc-linux@googlegroups.com>, <swarren@nvidia.com>, <treding@nvidia.com>,
+	<k.kozlowski@samsung.com>, <vreddytalla@nvidia.com>, Laxman Dewangan
+	<ldewangan@nvidia.com>
+Subject: [rtc-linux] [PATCH V4 0/5] Add support for MAXIM MAX77620/MAX20024 PMIC
+Date: Tue, 19 Jan 2016 15:49:38 +0530
+Message-ID: <1453198783-28383-1-git-send-email-ldewangan@nvidia.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <20160131115457.GL20165@piout.net>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -31,46 +30,87 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Sun, Jan 31, 2016 at 12:54:57PM +0100, Alexandre Belloni wrote:
-> On 04/01/2016 at 18:04:35 +0100, Steffen Trumtrar wrote :
-> > The RX6110 comes in two different variants: SPI and I2C.
-> > This driver only supports the SPI variant.
-> > 
-> > If the need ever arises to also support the I2C variant, this driver
-> > could easily be refactored to support both cases.
-> > 
-> > Reviewed-by: Philipp Zabel <p.zabel@pengutronix.de>
-> > Signed-off-by: Steffen Trumtrar <s.trumtrar@pengutronix.de>
-> > ---
-> > 
-> > Changes since v3:
-> >     - remove old copyright infos
-> >     - use the BIT() macro
-> >     - replace rx6110_get_week_day() with ffs()
-> >     - replace hardcoded offsets with enum
-> >     - use regmap_bulk_write in set_time
-> >     - use regmap_register_patch in init function
-> >     - return -EINVAL instead of "fixing" time in the rtc
-> > 
-> >  drivers/rtc/Kconfig      |   9 ++
-> >  drivers/rtc/Makefile     |   1 +
-> >  drivers/rtc/rtc-rx6110.c | 402 +++++++++++++++++++++++++++++++++++++++++++++++
-> >  3 files changed, 412 insertions(+)
-> >  create mode 100644 drivers/rtc/rtc-rx6110.c
-> > 
-> Applied, after realigning some lines in rx6110_probe().
-> 
+Add SW support for MAXIM Semiconductor's Power Management
+IC (PMIC) MAX77620/MAX20024. This PMIC supports DC-DC/LDOS, GPIOs,
+RTC, watchdog, clocks etc.
 
-Thanks :-)
+This series add respective driver for each of sub-modules.
 
-Regards,
-Steffen
+--- 
+Changes from V1: 
+DT DOC:
+- Added units in some of properties.
+- Change the boolean property to tristate type and detail some of
+  properties.
+
+RTC:
+- Rename the file to rtc-max77xxx.c and make the generic implementation.
+- Direct regmap apis are used for the register access.
+- Decouped from max77620 driver.
+- Taken care of cleanup comments form V1 version.
+
+MFD:
+- Code cleanups per review from V1. 
+- Move register acccess APIs from header to c file.
+- Remove some of non required variable, remove duplication in error message
+ and simplify some of function implementation.
+
+GPIO:
+- Use the gpiochip_add_data and get the chip data from core APIs.
+- Cleanups based on comment received on mfd/rtc.
+- Avoid duplication on error message.
+
+Pinctrl:
+- Cleanup code based on comment received on mfd/rtc.
+- Avoid duplication on error message.
+
+Regulators:
+- Cleanup code based on comment received on mfd/rtc.
+- Avoid duplication on error message.
+- Taken care of review comment from Mark.
+
+Changes from V2: 
+- Run coccicheck and checkpatch in strict mode for the alignment.
+- Drop RTC driver and its i2c client registartion.
+- Refactor Regulator  driver to use core API for DT parsing.
+
+Changes from V3:
+- Change all sys initcall to module driver.
+- change the max77620_read argument to unisgned int from u8.
+
+Laxman Dewangan (5):
+  DT: mfd: add device-tree binding doc fro PMIC max77620/max20024
+  mfd: max77620: add core driver for MAX77620/MAX20024
+  pinctrl: max77620: add pincontrol driver for MAX77620/MAX20024
+  gpio: max77620: add gpio driver for MAX77620/MAX20024
+  regulator: max77620: add regulator driver for max77620/max20024
+
+ Documentation/devicetree/bindings/mfd/max77620.txt | 397 +++++++++
+ drivers/gpio/Kconfig                               |   9 +
+ drivers/gpio/Makefile                              |   1 +
+ drivers/gpio/gpio-max77620.c                       | 292 +++++++
+ drivers/mfd/Kconfig                                |  15 +
+ drivers/mfd/Makefile                               |   1 +
+ drivers/mfd/max77620.c                             | 871 ++++++++++++++++++++
+ drivers/pinctrl/Kconfig                            |  10 +
+ drivers/pinctrl/Makefile                           |   1 +
+ drivers/pinctrl/pinctrl-max77620.c                 | 693 ++++++++++++++++
+ drivers/regulator/Kconfig                          |   9 +
+ drivers/regulator/Makefile                         |   1 +
+ drivers/regulator/max77620-regulator.c             | 883 +++++++++++++++++++++
+ include/dt-bindings/mfd/max77620.h                 |  38 +
+ include/linux/mfd/max77620.h                       | 404 ++++++++++
+ 15 files changed, 3625 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/mfd/max77620.txt
+ create mode 100644 drivers/gpio/gpio-max77620.c
+ create mode 100644 drivers/mfd/max77620.c
+ create mode 100644 drivers/pinctrl/pinctrl-max77620.c
+ create mode 100644 drivers/regulator/max77620-regulator.c
+ create mode 100644 include/dt-bindings/mfd/max77620.h
+ create mode 100644 include/linux/mfd/max77620.h
 
 -- 
-Pengutronix e.K.                           |                             |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
-Peiner Str. 6-8, 31137 Hildesheim, Germany | Phone: +49-5121-206917-0    |
-Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |
+2.1.4
 
 -- 
 -- 
