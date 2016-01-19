@@ -1,9 +1,9 @@
-Return-Path: <rtc-linux+bncBD2OLRXW4ABBBUNA7C2AKGQEKPB7QFA@googlegroups.com>
-Received: from hqemgate15.nvidia.com (hqemgate15.nvidia.com. [216.228.121.64])
-        by gmr-mx.google.com with ESMTPS id i25si2958441pfj.2.2016.01.19.02.30.40
+Return-Path: <rtc-linux+bncBD2OLRXW4ABBBX5A7C2AKGQEVS2XTBI@googlegroups.com>
+Received: from hqemgate16.nvidia.com (hqemgate16.nvidia.com. [216.228.121.65])
+        by gmr-mx.google.com with ESMTPS id ho2si2187324pad.1.2016.01.19.02.30.55
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 19 Jan 2016 02:30:41 -0800 (PST)
+        Tue, 19 Jan 2016 02:30:55 -0800 (PST)
 From: Laxman Dewangan <ldewangan@nvidia.com>
 To: <robh+dt@kernel.org>, <pawel.moll@arm.com>, <mark.rutland@arm.com>,
 	<ijc+devicetree@hellion.org.uk>, <galak@codeaurora.org>,
@@ -14,11 +14,11 @@ CC: <lgirdwood@gmail.com>, <devicetree@vger.kernel.org>,
 	<linux-kernel@vger.kernel.org>, <linux-gpio@vger.kernel.org>,
 	<rtc-linux@googlegroups.com>, <swarren@nvidia.com>, <treding@nvidia.com>,
 	<k.kozlowski@samsung.com>, <vreddytalla@nvidia.com>, Laxman Dewangan
-	<ldewangan@nvidia.com>
-Subject: [rtc-linux] [PATCH V4 1/5] DT: mfd: add device-tree binding doc fro
- PMIC max77620/max20024
-Date: Tue, 19 Jan 2016 15:49:39 +0530
-Message-ID: <1453198783-28383-2-git-send-email-ldewangan@nvidia.com>
+	<ldewangan@nvidia.com>, Chaitanya Bandi <bandik@nvidia.com>
+Subject: [rtc-linux] [PATCH V4 3/5] pinctrl: max77620: add pincontrol driver
+ for MAX77620/MAX20024
+Date: Tue, 19 Jan 2016 15:49:41 +0530
+Message-ID: <1453198783-28383-4-git-send-email-ldewangan@nvidia.com>
 In-Reply-To: <1453198783-28383-1-git-send-email-ldewangan@nvidia.com>
 References: <1453198783-28383-1-git-send-email-ldewangan@nvidia.com>
 MIME-Version: 1.0
@@ -33,481 +33,767 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-The MAXIM PMIC MAX77620 and MAX20024 are power management IC
-which supports RTC, GPIO, DCDC/LDO regulators, interrupt,
-watchdog etc.
+MAXIM Semiconductor's PMIC, MAX77620/MAX20024 has 8 GPIO pins
+which also act as the special function in alternate mode. Also
+there is configuration like push-pull, open drain, FPS timing
+etc for these pins.
 
-Add DT binding document for the different functionality of
-this device.
+Add pincontrol driver to configure these parameters through
+pincontrol APIs.
 
 Signed-off-by: Laxman Dewangan <ldewangan@nvidia.com>
-Acked-by: Rob Herring <robh@kernel.org>
+Signed-off-by: Chaitanya Bandi <bandik@nvidia.com>
 ---
-Changes from V1: 
-- Added units in some of properties.
-- Change the boolean property to tristate type and detail some of
-  properties.
+Changes from V1:
+- Cleanup code based on comment received on mfd/rtc.
+- Avoid duplication on error message.
+ 
+Changes form V2:
+- Run coccicheck and checkpatch in strict mode for the alignment.
+- update based on api changes from core.
 
-Change from V2:
-- added unit in period related dt property.
+Changes from V3: 
+- Change all sys initcall to module driver.
+- change the max77620_read argument to unisgned int from u8.
 
-Change from V3: None
-Added Rob's ack.
+ drivers/pinctrl/Kconfig            |  10 +
+ drivers/pinctrl/Makefile           |   1 +
+ drivers/pinctrl/pinctrl-max77620.c | 693 +++++++++++++++++++++++++++++++++++++
+ 3 files changed, 704 insertions(+)
+ create mode 100644 drivers/pinctrl/pinctrl-max77620.c
 
-
- Documentation/devicetree/bindings/mfd/max77620.txt | 397 +++++++++++++++++++++
- include/dt-bindings/mfd/max77620.h                 |  38 ++
- 2 files changed, 435 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/mfd/max77620.txt
- create mode 100644 include/dt-bindings/mfd/max77620.h
-
-diff --git a/Documentation/devicetree/bindings/mfd/max77620.txt b/Documentation/devicetree/bindings/mfd/max77620.txt
+diff --git a/drivers/pinctrl/Kconfig b/drivers/pinctrl/Kconfig
+index 99a4c10..b6d2d23 100644
+--- a/drivers/pinctrl/Kconfig
++++ b/drivers/pinctrl/Kconfig
+@@ -227,6 +227,16 @@ config PINCTRL_COH901
+ 	  COH 901 335 and COH 901 571/3. They contain 3, 5 or 7
+ 	  ports of 8 GPIO pins each.
+ 
++config PINCTRL_MAX77620
++	bool "MAX77620/MAX20024 Pincontrol support"
++	depends on MFD_MAX77620
++	select GENERIC_PINCONF
++	help
++	  Say Yes here to enable Pin control support for Maxim PMIC MAX77620.
++	  This PMIC has 8 GPIO pins that work as GPIO as well as special
++	  function in alternate mode. This driver also configure push-pull,
++	  open drain, FPS slots etc.
++
+ config PINCTRL_PALMAS
+ 	bool "Pinctrl driver for the PALMAS Series MFD devices"
+ 	depends on OF && MFD_PALMAS
+diff --git a/drivers/pinctrl/Makefile b/drivers/pinctrl/Makefile
+index bf1b5ca..72833e3 100644
+--- a/drivers/pinctrl/Makefile
++++ b/drivers/pinctrl/Makefile
+@@ -17,6 +17,7 @@ obj-$(CONFIG_PINCTRL_AMD)	+= pinctrl-amd.o
+ obj-$(CONFIG_PINCTRL_DIGICOLOR)	+= pinctrl-digicolor.o
+ obj-$(CONFIG_PINCTRL_FALCON)	+= pinctrl-falcon.o
+ obj-$(CONFIG_PINCTRL_MESON)	+= meson/
++obj-$(CONFIG_PINCTRL_MAX77620)	+= pinctrl-max77620.o
+ obj-$(CONFIG_PINCTRL_PALMAS)	+= pinctrl-palmas.o
+ obj-$(CONFIG_PINCTRL_PISTACHIO)	+= pinctrl-pistachio.o
+ obj-$(CONFIG_PINCTRL_ROCKCHIP)	+= pinctrl-rockchip.o
+diff --git a/drivers/pinctrl/pinctrl-max77620.c b/drivers/pinctrl/pinctrl-max77620.c
 new file mode 100644
-index 0000000..46f6aac
+index 0000000..7711171
 --- /dev/null
-+++ b/Documentation/devicetree/bindings/mfd/max77620.txt
-@@ -0,0 +1,397 @@
-+* MAX77620 Power management IC from Maxim Semiconductor.
-+
-+Required properties:
-+-------------------
-+- compatible: Must be one of
-+		"maxim,max77620" or
-+		"maxim,max20024".
-+- reg: I2C device address.
-+- interrupt-controller: MAX77620 has internal interrupt controller which
-+  takes the interrupt request from internal sub-blocks like RTC,
-+  regulators, GPIOs as well as external input.
-+- #interrupt-cells: Should be set to 2 for IRQ number and flags.
-+  The first cell is the IRQ number. IRQ numbers for different interrupt
-+  source of MAX77620 are defined at dt-bindings/mfd/max77620.h
-+  The second cell is the flags, encoded as the trigger masks from binding
-+  document interrupts.txt, using dt-bindings/irq.
-+
-+Optional properties:
-+-------------------
-+This device also supports the power OFF of system.
-+Following properties are used for this purpose:
-+- system-power-controller: Boolean, This device will be use as
-+	system power controller and used for power OFF of system.
-+	Host issue necessary command to PMIC.
-+
-+
-+Optional submodule and their properties:
-+=======================================
-+
-+Flexible power sequence configuration
-+====================================
-+This sub-node configures the Flexible Power Sequnece(FPS) for power ON slot,
-+power OFF slot and slot period of the device. Device has 3 FPS as FPS0,
-+FPS1 and FPS2. The details of FPS configuration is provided through
-+subnode "fps". The details of FPS0, FPS1, FPS2 are provided through the
-+child node under this subnodes. The FPS number is provided via reg property.
-+
-+The property for fps child nodes as:
-+Required properties:
-+	-reg: FPS number like 0, 1, 2 for FPS0, FPS1 and FPS2 respectively.
-+Optinal properties:
-+	-maxim,active-fps-time-period-us: Active state FPS time period in
-+		microseconds.
-+	-maxim,suspend-fps-time-period-us: Suspend state FPS time period in
-+		microseconds.
-+	-maxim,fps-enable-input: FPS enable source like EN0, EN1 or SW. The
-+			macros are defined on dt-bindings/mfd/max77620.h for
-+			different enable source.
-+				FPS_EN_SRC_EN0 for EN0 enable source.
-+				FPS_EN_SRC_EN1 for En1 enable source.
-+				FPS_EN_SRC_SW for SW based control.
-+	-maxim,fps-sw-enable: Boolean, applicable if enable input is SW.
-+			If this property present then enable the FPS else
-+			disable FPS.
-+	-maxim,enable-sleep: Boolean, enable sleep when the external control
-+			goes from HIGH to LOW.
-+	-maxim,enable-global-lpm: Boolean, enable global LPM when the external
-+			control goes from HIGH to LOW.
-+
-+Here supported time periods by device in microseconds are as follows:
-+MAX77620 supports 40, 80, 160, 320, 640, 1280, 2560 and 5120 microseconds.
-+MAX20024 supports 20, 40, 80, 160, 320, 640, 1280 and 2540 microseconds.
-+
-+Pinmux and GPIO:
-+===============
-+Device has 8 GPIO pins which can be configured as GPIO as well as the
-+special IO functions.
-+
-+Please refer to pinctrl-bindings.txt for details of the common pinctrl
-+bindings used by client devices, including the meaning of the phrase
-+"pin configuration node".
-+
-+Following are properties which is needed if GPIO and pinmux functionality
-+is required:
-+    Required properties:
-+    -------------------
-+	- gpio-controller: Marks the device node as a GPIO controller.
-+	- #gpio-cells: Number of GPIO cells. Refer to binding document
-+			gpio/gpio.txt
-+
-+    Optional properties:
-+    --------------------
-+	Following properties are require if pin control setting is required
-+	at boot.
-+	- pinctrl-names: A pinctrl state named "default" be defined, using
-+		the bindings in pinctrl/pinctrl-binding.txt.
-+	- pinctrl[0...n]: Properties to contain the phandle that refer to
-+		different nodes of pin control settings. These nodes
-+		represents the pin control setting of state 0 to state n.
-+		Each of these nodes contains different subnodes to
-+		represents some desired configuration for a list of pins.
-+		This configuration can include the mux function to select
-+		on those pin(s), and various pin configuration parameters,
-+		such as pull-up, open drain.
-+
-+		Each subnode have following properties:
-+		Required properties:
-+		    - pins: List of pins. Valid values of pins properties
-+				are: gpio0, gpio1, gpio2, gpio3, gpio4,
-+				gpio5, gpio6, gpio7
-+
-+		Optional properties:
-+			function, drive-push-pull, drive-open-drain,
-+			bias-pull-up, bias-pull-down.
-+				Definitions are in the pinmux dt binding
-+			devicetree/bindings/pinctrl/pinctrl-bindings.txt
-+			Absence of properties will leave the configuration
-+			on default.
-+
-+			Valid values for function properties are:
-+				gpio, lpm-control-in, fps-out, 32k-out,
-+				sd0-dvs-in, sd1-dvs-in, reference-out
-+			Theres is also customised property for the GPIO1,
-+				GPIO2 and GPIO3.
-+			- maxim,active-fps-source: FPS source for the gpios in
-+				active state of the GPIO. Valid values are
-+				FPS_SRC_0, FPS_SRC_1, FPS_SRC_2 and
-+				FPS_SRC_NONE. Absence of this property will
-+				leave the pin on default.
-+			- maxim,active-fps-power-up-slot: Power up slot on
-+				given FPS for acive state.Valid values are 0
-+				to 7.
-+			- maxim,active-fps-power-down-slot: Power down slot
-+				on given FPS for active state. Valid values
-+				are 0 t  7.
-+			- maxim,suspend-fps-source: Suspend state FPS source.
-+			- maxim,suspend-fps-power-down-slot: Suspend state
-+				power down slot.
-+			- maxim,suspend-fps-power-up-slot: Suspend state power
-+				up slot.
-+
-+Regulators:
-+===========
-+Device has multiple DCDC(sd[0-3] and LDOs(ldo[0-8]). The node "regulators"
-+is require if regulator functionality is needed.
-+
-+Following are properties of regulator subnode.
-+
-+    Optional properties:
-+    -------------------
-+	The input supply of regulators are the optional properties on the
-+	regulator node. The input supply of these regulators are provided
-+	through following properties:
-+		in-sd0-supply: Input supply for SD0, INA-SD0 or INB-SD0 pins.
-+		in-sd1-supply: Input supply for SD1.
-+		in-sd2-supply: Input supply for SD2.
-+		in-sd3-supply: Input supply for SD3.
-+		in-ldo0-1-supply: Input supply for LDO0 and LDO1.
-+		in-ldo2-supply: Input supply for LDO2.
-+		in-ldo3-5-supply: Input supply for LDO3 and LDO5
-+		in-ldo4-6-supply: Input supply for LDO4 and LDO6.
-+		in-ldo7-8-supply: Input supply for LDO7 and LDO8.
-+
-+
-+    Optional sub nodes for regulators:
-+    ---------------------------------
-+	The subnodes name is the name of regulator and it must be one of:
-+	sd[0-3], ldo[0-8]
-+
-+	Each sub-node should contain the constraints and initialization
-+	information for that regulator. See regulator.txt for a description
-+	of standard properties for these sub-nodes.
-+	Additional optional custom properties  are listed below.
-+		maxim,active-fps-source: FPS source. The macros are defined at
-+			dt-bindings/mfd/max77620.h
-+		maxim,shutdown-fps-source: Same as maxim,fps-source, but it
-+			will apply during shutdown of system.
-+		maxim,active-fps-power-up-slot: Active state Power up slot for
-+			rail on given FPS.
-+		maxim,active-fps-power-down-slot: Active state Power down slot
-+			for rail on given FPS.
-+		maxim,suspend-fps-source: Suspend state FPS source of rail.
-+		maxim,suspend-fps-power-up-slot: Suspend state FPS power
-+			up slot.
-+		maxim,suspend-fps-power-down-slot: Suspend state FPS power
-+			down slot.
-+		maxim,enable-group-low-power: Enable Group low power mode.
-+		maxim,enable-sd0-en2-control: Enable EN2 pincontrol for SD0.
-+			This property is only applicable for SD0.
-+		maxim,disable-remote-sense-on-suspend: Boolean, disable
-+			remote sense on suspend and re-enable on resume.
-+			If this property is not there then no change on
-+			configuration.
-+
-+Backup Battery:
-+==============
-+This sub-node configure charging backup battery of the device. Device
-+has support of charging the backup battery. The subnode name is
-+"backup-battery".
-+
-+The property for backup-battery child nodes as:
-+Presense of this child node will enable the backup battery charging.
-+
-+Optinal properties:
-+	-maxim,bb-charging-current-microamp: Charging current
-+			setting.
-+			The device supports 50/100/200/400/600/800uA.
-+			If this property is unavailable then it will
-+			charge with 50uA.
-+	-maxim,bb-charging-voltage-microvolt: Charging Voltage Limit Setting.
-+			Device supports 2500000/3000000/3300000/350000uV.
-+			Default will be set to 2500mV. The voltage will be roundoff
-+			to nearest lower side if other than above is configured.
-+	-maxim,bb-output-resister-ohm: Output resistor on Ohm.
-+			Device supports 100/1000/3000/6000 Ohms.
-+
-+Low-Battery Monitor:
-+==================
-+This sub-node configure low battery monitor configuration registers.
-+Device has support for low-battery monitor configuration through
-+child DT node "low-battery-monitor".
-+
-+Optinal properties:
-+	- maxim,low-battery-dac: Tristate, enable/disable low battery DAC.
-+			0 for disable,
-+			1 for enable,
-+			absence will left configuration to default.
-+	- maxim,low-battery-shutdown: Tristate, enable/disable low battery
-+		shutdown.
-+			0 for disable,
-+			1 for enable,
-+			absence will left configuration to default.
-+	- maxim,low-battery-reset: Tristate, enable/disable low battery reset.
-+			0 for disable,
-+			1 for enable,
-+			absence will left configuration to default.
-+
-+Example:
-+--------
-+#include <dt-bindings/mfd/max77620.h>
-+...
-+max77620@3c {
-+	compatible = "maxim,max77620";
-+	reg = <0x3c>;
-+
-+	interrupt-parent = <&intc>;
-+	interrupts = <0 86 IRQ_TYPE_NONE>;
-+
-+
-+Example:
-+--------
-+#include <dt-bindings/mfd/max77620.h>
-+...
-+max77620@3c {
-+	compatible = "maxim,max77620";
-+	reg = <0x3c>;
-+
-+	interrupt-parent = <&intc>;
-+	interrupts = <0 86 IRQ_TYPE_NONE>;
-+
-+	interrupt-controller;
-+	#interrupt-cells = <2>;
-+
-+	gpio-controller;
-+	#gpio-cells = <2>;
-+
-+	backup-battery {
-+		maxim,bb-charging-current-microamp = <100>;
-+		maxim,bb-charging-voltage-microvolt = <3000000>;
-+		maxim,bb-output-resister-ohm = <100>;
-+	};
-+
-+	fps {
-+		#address-cells = <1>;
-+		#size-cells = <0>;
-+		fps@0 {
-+			reg = <0>;
-+			maxim,fps-time-period-us = <1280>;
-+			maxim,fps-enable-input = <FPS_EN_SRC_EN0>;
-+		};
-+
-+		fps@1 {
-+			reg = <1>;
-+			maxim,fps-time-period-us = <2560>;
-+			maxim,fps-enable-input = <FPS_EN_SRC_EN1>;
-+		};
-+
-+		fps@2 {
-+			reg = <2>;
-+			maxim,fps-time-period-us = <640>;
-+			maxim,fps-enable-input = <FPS_EN_SRC_SW>;
-+		};
-+	};
-+
-+	regulators {
-+		in-ldo0-1-supply = <&max77620_sd2>;
-+		in-ldo7-8-supply = <&max77620_sd2>;
-+
-+		max77620_sd0: sd0 {
-+			regulator-name = "vdd-core";
-+			regulator-min-microvolt = <600000>;
-+			regulator-max-microvolt = <1400000>;
-+			regulator-boot-on;
-+			regulator-always-on;
-+			maxim,fps-source = <FPS_SRC_1>;
-+			regulator-init-mode = <REGULATOR_MODE_NORMAL>;
-+		};
-+
-+		max77620_sd1: sd1 {
-+			regulator-name = "vddio-ddr";
-+			regulator-min-microvolt = <1200000>;
-+			regulator-max-microvolt = <1200000>;
-+			regulator-always-on;
-+			regulator-boot-on;
-+			regulator-init-mode = <REGULATOR_MODE_NORMAL>;
-+			maxim,fps-source = <FPS_SRC_0>;
-+		};
-+
-+		max77620_sd2: sd2 {
-+			regulator-name = "vdd-pre-reg";
-+			regulator-min-microvolt = <1350000>;
-+			regulator-max-microvolt = <1350000>;
-+			maxim,fps-source = <FPS_SRC_1>;
-+		};
-+
-+		max77620_sd3: sd3 {
-+			regulator-name = "vdd-1v8";
-+			regulator-min-microvolt = <1800000>;
-+			regulator-max-microvolt = <1800000>;
-+			regulator-always-on;
-+			regulator-boot-on;
-+			maxim,fps-source = <FPS_SRC_0>;
-+			regulator-init-mode = <REGULATOR_MODE_NORMAL>;
-+		};
-+
-+		max77620_ldo0: ldo0 {
-+			regulator-name = "avdd-sys";
-+			regulator-min-microvolt = <1200000>;
-+			regulator-max-microvolt = <1200000>;
-+			regulator-always-on;
-+			regulator-boot-on;
-+			maxim,fps-source = <FPS_SRC_NONE>;
-+		};
-+
-+		max77620_ldo1: ldo1 {
-+			regulator-name = "vdd-pex";
-+			regulator-min-microvolt = <1050000>;
-+			regulator-max-microvolt = <1050000>;
-+			maxim,fps-source = <FPS_SRC_NONE>;
-+		};
-+
-+		max77620_ldo2: ldo2 {
-+			regulator-name = "vddio-sdmmc3";
-+			regulator-min-microvolt = <1800000>;
-+			regulator-max-microvolt = <3300000>;
-+			maxim,fps-source = <FPS_SRC_NONE>;
-+		};
-+
-+		max77620_ldo3: ldo3 {
-+			regulator-name = "vdd-cam-hv";
-+			regulator-min-microvolt = <2800000>;
-+			regulator-max-microvolt = <2800000>;
-+			maxim,fps-source = <FPS_SRC_NONE>;
-+		};
-+
-+		max77620_ldo4: ldo4 {
-+			regulator-name = "vdd-rtc";
-+			regulator-min-microvolt = <1250000>;
-+			regulator-max-microvolt = <1250000>;
-+			regulator-always-on;
-+			regulator-boot-on;
-+			maxim,fps-source = <FPS_SRC_0>;
-+		};
-+
-+		max77620_ldo5: ldo5 {
-+			regulator-name = "avdd-ts-hv";
-+			regulator-min-microvolt = <3000000>;
-+			regulator-max-microvolt = <3000000>;
-+			maxim,fps-source = <FPS_SRC_NONE>;
-+		};
-+
-+		max77620_ldo6: ldo6 {
-+			regulator-name = "vdd-ts";
-+			regulator-min-microvolt = <1800000>;
-+			regulator-max-microvolt = <1800000>;
-+			regulator-always-on;
-+			regulator-boot-on;
-+			maxim,fps-source = <FPS_SRC_NONE>;
-+		};
-+
-+		max77620_ldo7: ldo7 {
-+			regulator-name = "vdd-gen-pll-edp";
-+			regulator-min-microvolt = <1050000>;
-+			regulator-max-microvolt = <1050000>;
-+			regulator-always-on;
-+			regulator-boot-on;
-+			maxim,fps-source = <FPS_SRC_1>;
-+		};
-+
-+		max77620_ldo8: ldo8 {
-+			regulator-name = "vdd-hdmi-dp";
-+			regulator-min-microvolt = <1050000>;
-+			regulator-max-microvolt = <1050000>;
-+			maxim,fps-source = <FPS_SRC_NONE>;
-+		};
-+	};
-+};
-diff --git a/include/dt-bindings/mfd/max77620.h b/include/dt-bindings/mfd/max77620.h
-new file mode 100644
-index 0000000..8423d1d
---- /dev/null
-+++ b/include/dt-bindings/mfd/max77620.h
-@@ -0,0 +1,38 @@
++++ b/drivers/pinctrl/pinctrl-max77620.c
+@@ -0,0 +1,693 @@
 +/*
-+ * This header provides macros for MAXIM MAX77620 device bindings.
++ * MAX77620 pin control driver.
 + *
-+ * Copyright (c) 2016, NVIDIA Corporation.
++ * Copyright (c) 2016, NVIDIA CORPORATION.  All rights reserved.
 + *
-+ * Author: Laxman Dewangan <ldewangan@nvidia.com>
++ * Author:
++ *	Chaitanya Bandi <bandik@nvidia.com>
++ *	Laxman Dewangan <ldewangan@nvidia.com>
 + *
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms and conditions of the GNU General Public License,
++ * version 2, as published by the Free Software Foundation.
++ *
++ * This program is distributed in the hope it will be useful, but WITHOUT
++ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
++ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
++ * more details.
 + */
 +
-+#ifndef _DT_BINDINGS_MFD_MAX77620_H
-+#define _DT_BINDINGS_MFD_MAX77620_H
++#include <linux/module.h>
++#include <linux/of.h>
++#include <linux/pinctrl/pinctrl.h>
++#include <linux/pinctrl/pinconf-generic.h>
++#include <linux/pinctrl/pinconf.h>
++#include <linux/pinctrl/pinmux.h>
++#include <linux/platform_device.h>
++#include <linux/mfd/max77620.h>
 +
-+/* MAX77620 interrupts */
-+#define MAX77620_IRQ_TOP_GLBL		0 /* Low-Battery */
-+#define MAX77620_IRQ_TOP_SD		1 /* SD power fail */
-+#define MAX77620_IRQ_TOP_LDO		2 /* LDO power fail */
-+#define MAX77620_IRQ_TOP_GPIO		3 /* GPIO internal int to MAX77620 */
-+#define MAX77620_IRQ_TOP_RTC		4 /* RTC */
-+#define MAX77620_IRQ_TOP_32K		5 /* 32kHz oscillator */
-+#define MAX77620_IRQ_TOP_ONOFF		6 /* ON/OFF oscillator */
-+#define MAX77620_IRQ_LBT_MBATLOW	7 /* Thermal alarm status, > 120C */
-+#define MAX77620_IRQ_LBT_TJALRM1	8 /* Thermal alarm status, > 120C */
-+#define MAX77620_IRQ_LBT_TJALRM2	9 /* Thermal alarm status, > 140C */
++#include "core.h"
++#include "pinconf.h"
++#include "pinctrl-utils.h"
 +
-+/* FPS enable -inputs */
-+#define FPS_EN_SRC_EN0	0
-+#define FPS_EN_SRC_EN1	1
-+#define FPS_EN_SRC_SW	2
-+#define FPS_EN_SRC_RSVD	3
++#define MAX77620_PIN_NUM 8
 +
-+/* FPS source */
-+#define FPS_SRC_0	0
-+#define FPS_SRC_1	1
-+#define FPS_SRC_2	2
-+#define FPS_SRC_NONE	3
-+#define FPS_SRC_DEF	4
++enum max77620_pin_ppdrv {
++	MAX77620_PIN_UNCONFIG_DRV,
++	MAX77620_PIN_OD_DRV,
++	MAX77620_PIN_PP_DRV,
++};
 +
++enum max77620_pinconf_param {
++	MAX77620_ACTIVE_FPS_SOURCE = PIN_CONFIG_END + 1,
++	MAX77620_ACTIVE_FPS_POWER_ON_SLOTS,
++	MAX77620_ACTIVE_FPS_POWER_DOWN_SLOTS,
++	MAX77620_SUSPEND_FPS_SOURCE,
++	MAX77620_SUSPEND_FPS_POWER_ON_SLOTS,
++	MAX77620_SUSPEND_FPS_POWER_DOWN_SLOTS,
++};
++
++struct max77620_pin_function {
++	const char *name;
++	const char * const *groups;
++	unsigned ngroups;
++	int mux_option;
++};
++
++struct max77620_cfg_param {
++	const char *property;
++	enum max77620_pinconf_param param;
++};
++
++static const struct pinconf_generic_params max77620_cfg_params[] = {
++	{
++		.property = "maxim,active-fps-source",
++		.param = MAX77620_ACTIVE_FPS_SOURCE,
++	}, {
++		.property = "maxim,active-fps-power-up-slot",
++		.param = MAX77620_ACTIVE_FPS_POWER_ON_SLOTS,
++	}, {
++		.property = "maxim,active-fps-power-down-slot",
++		.param = MAX77620_ACTIVE_FPS_POWER_DOWN_SLOTS,
++	}, {
++		.property = "maxim,suspend-fps-source",
++		.param = MAX77620_SUSPEND_FPS_SOURCE,
++	}, {
++		.property = "maxim,suspend-fps-power-up-slot",
++		.param = MAX77620_SUSPEND_FPS_POWER_ON_SLOTS,
++	}, {
++		.property = "maxim,suspend-fps-power-down-slot",
++		.param = MAX77620_SUSPEND_FPS_POWER_DOWN_SLOTS,
++	},
++};
++
++enum max77620_alternate_pinmux_option {
++	MAX77620_PINMUX_GPIO				= 0,
++	MAX77620_PINMUX_LOW_POWER_MODE_CONTROL_IN	= 1,
++	MAX77620_PINMUX_FLEXIBLE_POWER_SEQUENCER_OUT	= 2,
++	MAX77620_PINMUX_32K_OUT1			= 3,
++	MAX77620_PINMUX_SD0_DYNAMIC_VOLTAGE_SCALING_IN	= 4,
++	MAX77620_PINMUX_SD1_DYNAMIC_VOLTAGE_SCALING_IN	= 5,
++	MAX77620_PINMUX_REFERENCE_OUT			= 6,
++};
++
++struct max77620_pingroup {
++	const char *name;
++	const unsigned pins[1];
++	unsigned npins;
++	enum max77620_alternate_pinmux_option alt_option;
++};
++
++struct max77620_pin_info {
++	enum max77620_pin_ppdrv drv_type;
++	int pull_config;
++};
++
++struct max77620_fps_config {
++	int active_fps_src;
++	int active_power_up_slots;
++	int active_power_down_slots;
++	int suspend_fps_src;
++	int suspend_power_up_slots;
++	int suspend_power_down_slots;
++};
++
++struct max77620_pctrl_info {
++	struct device *dev;
++	struct pinctrl_dev *pctl;
++	struct max77620_chip *max77620;
++	int pins_current_opt[MAX77620_GPIO_NR];
++	const struct max77620_pin_function *functions;
++	unsigned num_functions;
++	const struct max77620_pingroup *pin_groups;
++	int num_pin_groups;
++	const struct pinctrl_pin_desc *pins;
++	unsigned num_pins;
++	struct max77620_pin_info pin_info[MAX77620_PIN_NUM];
++	struct max77620_fps_config fps_config[MAX77620_PIN_NUM];
++};
++
++static const struct pinctrl_pin_desc max77620_pins_desc[] = {
++	PINCTRL_PIN(MAX77620_GPIO0, "gpio0"),
++	PINCTRL_PIN(MAX77620_GPIO1, "gpio1"),
++	PINCTRL_PIN(MAX77620_GPIO2, "gpio2"),
++	PINCTRL_PIN(MAX77620_GPIO3, "gpio3"),
++	PINCTRL_PIN(MAX77620_GPIO4, "gpio4"),
++	PINCTRL_PIN(MAX77620_GPIO5, "gpio5"),
++	PINCTRL_PIN(MAX77620_GPIO6, "gpio6"),
++	PINCTRL_PIN(MAX77620_GPIO7, "gpio7"),
++};
++
++static const char * const gpio_groups[] = {
++	"gpio0",
++	"gpio1",
++	"gpio2",
++	"gpio3",
++	"gpio4",
++	"gpio5",
++	"gpio6",
++	"gpio7",
++};
++
++#define FUNCTION_GROUP(fname, mux)			\
++	{						\
++		.name = fname,				\
++		.groups = gpio_groups,			\
++		.ngroups = ARRAY_SIZE(gpio_groups),	\
++		.mux_option = MAX77620_PINMUX_##mux,	\
++	}
++
++static const struct max77620_pin_function max77620_pin_function[] = {
++	FUNCTION_GROUP("gpio", GPIO),
++	FUNCTION_GROUP("lpm-control-in", LOW_POWER_MODE_CONTROL_IN),
++	FUNCTION_GROUP("fps-out", FLEXIBLE_POWER_SEQUENCER_OUT),
++	FUNCTION_GROUP("32k-out1", 32K_OUT1),
++	FUNCTION_GROUP("sd0-dvs-in", SD0_DYNAMIC_VOLTAGE_SCALING_IN),
++	FUNCTION_GROUP("sd1-dvs-in", SD1_DYNAMIC_VOLTAGE_SCALING_IN),
++	FUNCTION_GROUP("reference-out", REFERENCE_OUT),
++};
++
++#define MAX77620_PINGROUP(pg_name, pin_id, option) \
++	{								\
++		.name = #pg_name,					\
++		.pins = {MAX77620_##pin_id},				\
++		.npins = 1,						\
++		.alt_option = MAX77620_PINMUX_##option,			\
++	}
++
++static const struct max77620_pingroup max77620_pingroups[] = {
++	MAX77620_PINGROUP(gpio0, GPIO0, LOW_POWER_MODE_CONTROL_IN),
++	MAX77620_PINGROUP(gpio1, GPIO1, FLEXIBLE_POWER_SEQUENCER_OUT),
++	MAX77620_PINGROUP(gpio2, GPIO2, FLEXIBLE_POWER_SEQUENCER_OUT),
++	MAX77620_PINGROUP(gpio3, GPIO3, FLEXIBLE_POWER_SEQUENCER_OUT),
++	MAX77620_PINGROUP(gpio4, GPIO4, 32K_OUT1),
++	MAX77620_PINGROUP(gpio5, GPIO5, SD0_DYNAMIC_VOLTAGE_SCALING_IN),
++	MAX77620_PINGROUP(gpio6, GPIO6, SD1_DYNAMIC_VOLTAGE_SCALING_IN),
++	MAX77620_PINGROUP(gpio7, GPIO7, REFERENCE_OUT),
++};
++
++static int max77620_pinctrl_get_groups_count(struct pinctrl_dev *pctldev)
++{
++	struct max77620_pctrl_info *mpci = pinctrl_dev_get_drvdata(pctldev);
++
++	return mpci->num_pin_groups;
++}
++
++static const char *max77620_pinctrl_get_group_name(
++		struct pinctrl_dev *pctldev, unsigned group)
++{
++	struct max77620_pctrl_info *mpci = pinctrl_dev_get_drvdata(pctldev);
++
++	return mpci->pin_groups[group].name;
++}
++
++static int max77620_pinctrl_get_group_pins(
++		struct pinctrl_dev *pctldev, unsigned group,
++		const unsigned **pins, unsigned *num_pins)
++{
++	struct max77620_pctrl_info *mpci = pinctrl_dev_get_drvdata(pctldev);
++
++	*pins = mpci->pin_groups[group].pins;
++	*num_pins = mpci->pin_groups[group].npins;
++
++	return 0;
++}
++
++static const struct pinctrl_ops max77620_pinctrl_ops = {
++	.get_groups_count = max77620_pinctrl_get_groups_count,
++	.get_group_name = max77620_pinctrl_get_group_name,
++	.get_group_pins = max77620_pinctrl_get_group_pins,
++	.dt_node_to_map = pinconf_generic_dt_node_to_map_pin,
++	.dt_free_map = pinctrl_utils_dt_free_map,
++};
++
++static int max77620_pinctrl_get_funcs_count(struct pinctrl_dev *pctldev)
++{
++	struct max77620_pctrl_info *mpci = pinctrl_dev_get_drvdata(pctldev);
++
++	return mpci->num_functions;
++}
++
++static const char *max77620_pinctrl_get_func_name(
++		struct pinctrl_dev *pctldev, unsigned function)
++{
++	struct max77620_pctrl_info *mpci = pinctrl_dev_get_drvdata(pctldev);
++
++	return mpci->functions[function].name;
++}
++
++static int max77620_pinctrl_get_func_groups(
++		struct pinctrl_dev *pctldev, unsigned function,
++		const char * const **groups, unsigned * const num_groups)
++{
++	struct max77620_pctrl_info *mpci = pinctrl_dev_get_drvdata(pctldev);
++
++	*groups = mpci->functions[function].groups;
++	*num_groups = mpci->functions[function].ngroups;
++
++	return 0;
++}
++
++static int max77620_pinctrl_enable(
++		struct pinctrl_dev *pctldev, unsigned function, unsigned group)
++{
++	struct max77620_pctrl_info *mpci = pinctrl_dev_get_drvdata(pctldev);
++	u8 val;
++	int ret;
++
++	if (function == MAX77620_PINMUX_GPIO) {
++		val = 0;
++	} else if (function == mpci->pin_groups[group].alt_option) {
++		val = 1 << group;
++	} else {
++		dev_err(mpci->dev, "GPIO %u doesn't have function %u\n",
++			group, function);
++		return -EINVAL;
++	}
++	ret = max77620_reg_update(mpci->max77620->dev, MAX77620_REG_AME_GPIO,
++				  1 << group, val);
++	if (ret < 0)
++		dev_err(mpci->dev, "REG AME GPIO update failed: %d\n", ret);
++
++	return ret;
++}
++
++static const struct pinmux_ops max77620_pinmux_ops = {
++	.get_functions_count	= max77620_pinctrl_get_funcs_count,
++	.get_function_name	= max77620_pinctrl_get_func_name,
++	.get_function_groups	= max77620_pinctrl_get_func_groups,
++	.set_mux		= max77620_pinctrl_enable,
++};
++
++static int max77620_pinconf_get(struct pinctrl_dev *pctldev,
++				unsigned pin, unsigned long *config)
++{
++	struct max77620_pctrl_info *mpci = pinctrl_dev_get_drvdata(pctldev);
++	struct device *dev = mpci->dev;
++	enum pin_config_param param = pinconf_to_config_param(*config);
++	unsigned int val;
++	int arg = 0;
++	int ret;
++
++	switch (param) {
++	case PIN_CONFIG_DRIVE_OPEN_DRAIN:
++		if (mpci->pin_info[pin].drv_type == MAX77620_PIN_OD_DRV)
++			arg = 1;
++		break;
++
++	case PIN_CONFIG_DRIVE_PUSH_PULL:
++		if (mpci->pin_info[pin].drv_type == MAX77620_PIN_PP_DRV)
++			arg = 1;
++		break;
++
++	case PIN_CONFIG_BIAS_PULL_UP:
++		ret = max77620_reg_read(mpci->max77620->dev,
++					MAX77620_REG_PUE_GPIO, &val);
++		if (ret < 0) {
++			dev_err(dev, "Reg PUE_GPIO read failed: %d\n", ret);
++			return ret;
++		}
++		if (val & BIT(pin))
++			arg = 1;
++		break;
++
++	case PIN_CONFIG_BIAS_PULL_DOWN:
++		ret = max77620_reg_read(mpci->max77620->dev,
++					MAX77620_REG_PDE_GPIO, &val);
++		if (ret < 0) {
++			dev_err(dev, "Reg PDE_GPIO read failed: %d\n", ret);
++			return ret;
++		}
++		if (val & BIT(pin))
++			arg = 1;
++		break;
++
++	default:
++		dev_err(dev, "Properties not supported\n");
++		return -ENOTSUPP;
++	}
++
++	*config = pinconf_to_config_packed(param, (u16)arg);
++
++	return 0;
++}
++
++static int max77620_get_default_fps(struct max77620_pctrl_info *mpci,
++				    int addr, int *fps)
++{
++	unsigned int val;
++	int ret;
++
++	ret = max77620_reg_read(mpci->max77620->dev, addr, &val);
++	if (ret < 0) {
++		dev_err(mpci->dev, "Reg PUE_GPIO read failed: %d\n", ret);
++		return ret;
++	}
++	*fps = (val & MAX77620_FPS_SRC_MASK) >> MAX77620_FPS_SRC_SHIFT;
++
++	return 0;
++}
++
++static int max77620_set_fps_param(struct max77620_pctrl_info *mpci,
++				  int pin, int param)
++{
++	struct max77620_fps_config *fps_config = &mpci->fps_config[pin];
++	int addr, ret;
++	int param_val;
++	int mask, shift;
++
++	if ((pin < MAX77620_GPIO1) || (pin > MAX77620_GPIO3))
++		return 0;
++
++	addr = MAX77620_REG_FPS_GPIO1 + pin - 1;
++	switch (param) {
++	case MAX77620_ACTIVE_FPS_SOURCE:
++	case MAX77620_SUSPEND_FPS_SOURCE:
++		mask = MAX77620_FPS_SRC_MASK;
++		shift = MAX77620_FPS_SRC_SHIFT;
++		param_val = fps_config->active_fps_src;
++		if (param == MAX77620_SUSPEND_FPS_SOURCE)
++			param_val = fps_config->suspend_fps_src;
++		break;
++
++	case MAX77620_ACTIVE_FPS_POWER_ON_SLOTS:
++	case MAX77620_SUSPEND_FPS_POWER_ON_SLOTS:
++		mask = MAX77620_FPS_PU_PERIOD_MASK;
++		shift = MAX77620_FPS_PU_PERIOD_SHIFT;
++		param_val = fps_config->active_power_up_slots;
++		if (param == MAX77620_SUSPEND_FPS_POWER_ON_SLOTS)
++			param_val = fps_config->suspend_power_up_slots;
++		break;
++
++	case MAX77620_ACTIVE_FPS_POWER_DOWN_SLOTS:
++	case MAX77620_SUSPEND_FPS_POWER_DOWN_SLOTS:
++		mask = MAX77620_FPS_PD_PERIOD_MASK;
++		shift = MAX77620_FPS_PD_PERIOD_SHIFT;
++		param_val = fps_config->active_power_down_slots;
++		if (param == MAX77620_SUSPEND_FPS_POWER_DOWN_SLOTS)
++			param_val = fps_config->suspend_power_down_slots;
++		break;
++
++	default:
++		dev_err(mpci->dev, "Invalid parameter %d for pin %d\n",
++			param, pin);
++		return -EINVAL;
++	}
++
++	if (param_val < 0)
++		return 0;
++
++	ret = max77620_reg_update(mpci->max77620->dev, addr, mask,
++				  param_val << shift);
++	if (ret < 0)
++		dev_err(mpci->dev, "Reg 0x%02x update failed %d\n", addr, ret);
++
++	return ret;
++}
++
++static int max77620_pinconf_set(struct pinctrl_dev *pctldev,
++				unsigned pin, unsigned long *configs,
++				unsigned num_configs)
++{
++	struct max77620_pctrl_info *mpci = pinctrl_dev_get_drvdata(pctldev);
++	struct device *dev = mpci->dev;
++	struct device *parent  = mpci->max77620->dev;
++	struct max77620_fps_config *fps_config;
++	int param;
++	u16 param_val;
++	unsigned int val;
++	unsigned int pu_val;
++	unsigned int pd_val;
++	int addr, ret;
++	int i;
++
++	for (i = 0; i < num_configs; i++) {
++		param = pinconf_to_config_param(configs[i]);
++		param_val = pinconf_to_config_argument(configs[i]);
++
++		switch (param) {
++		case PIN_CONFIG_DRIVE_OPEN_DRAIN:
++			val = param_val ? 0 : 1;
++			ret = max77620_reg_update(
++					parent, MAX77620_REG_GPIO0 + pin,
++					MAX77620_CNFG_GPIO_DRV_MASK, val);
++			if (ret < 0) {
++				dev_err(dev, "Reg 0x%02x update failed %d\n",
++					MAX77620_REG_GPIO0 + pin, ret);
++				return ret;
++			}
++			mpci->pin_info[pin].drv_type = val ?
++				MAX77620_PIN_PP_DRV : MAX77620_PIN_OD_DRV;
++			break;
++
++		case PIN_CONFIG_DRIVE_PUSH_PULL:
++			val = param_val ? 1 : 0;
++			ret = max77620_reg_update(
++					parent, MAX77620_REG_GPIO0 + pin,
++					MAX77620_CNFG_GPIO_DRV_MASK, val);
++			if (ret < 0) {
++				dev_err(dev, "Reg 0x%02x update failed %d\n",
++					MAX77620_REG_GPIO0 + pin, ret);
++				return ret;
++			}
++			mpci->pin_info[pin].drv_type = val ?
++				MAX77620_PIN_PP_DRV : MAX77620_PIN_OD_DRV;
++			break;
++
++		case MAX77620_ACTIVE_FPS_SOURCE:
++		case MAX77620_ACTIVE_FPS_POWER_ON_SLOTS:
++		case MAX77620_ACTIVE_FPS_POWER_DOWN_SLOTS:
++			if ((pin < MAX77620_GPIO1) || (pin > MAX77620_GPIO3))
++				return -EINVAL;
++
++			fps_config = &mpci->fps_config[pin];
++
++			if ((param == MAX77620_ACTIVE_FPS_SOURCE) &&
++			    (param_val == FPS_SRC_DEF)) {
++				addr = MAX77620_REG_FPS_GPIO1 + pin - 1;
++				ret = max77620_get_default_fps(
++						mpci, addr,
++						&fps_config->active_fps_src);
++				if (ret < 0)
++					return ret;
++				break;
++			}
++
++			if (param == MAX77620_ACTIVE_FPS_SOURCE)
++				fps_config->active_fps_src = param_val;
++			else if (param == MAX77620_ACTIVE_FPS_POWER_ON_SLOTS)
++				fps_config->active_power_up_slots = param_val;
++			else
++				fps_config->active_power_down_slots = param_val;
++
++			ret = max77620_set_fps_param(mpci, pin, param);
++			if (ret < 0)
++				return ret;
++			break;
++
++		case MAX77620_SUSPEND_FPS_SOURCE:
++		case MAX77620_SUSPEND_FPS_POWER_ON_SLOTS:
++		case MAX77620_SUSPEND_FPS_POWER_DOWN_SLOTS:
++			if ((pin < MAX77620_GPIO1) || (pin > MAX77620_GPIO3))
++				return -EINVAL;
++
++			fps_config = &mpci->fps_config[pin];
++
++			if ((param == MAX77620_SUSPEND_FPS_SOURCE) &&
++			    (param_val == FPS_SRC_DEF)) {
++				addr = MAX77620_REG_FPS_GPIO1 + pin - 1;
++				ret = max77620_get_default_fps(
++						mpci, addr,
++						&fps_config->suspend_fps_src);
++				if (ret < 0)
++					return ret;
++				break;
++			}
++
++			if (param == MAX77620_SUSPEND_FPS_SOURCE)
++				fps_config->suspend_fps_src = param_val;
++			else if (param == MAX77620_SUSPEND_FPS_POWER_ON_SLOTS)
++				fps_config->suspend_power_up_slots = param_val;
++			else
++				fps_config->suspend_power_down_slots =
++								param_val;
++			break;
++
++		case PIN_CONFIG_BIAS_PULL_UP:
++		case PIN_CONFIG_BIAS_PULL_DOWN:
++			pu_val = (param == PIN_CONFIG_BIAS_PULL_UP) ?
++							BIT(pin) : 0;
++			pd_val = (param == PIN_CONFIG_BIAS_PULL_DOWN) ?
++							BIT(pin) : 0;
++
++			ret = max77620_reg_update(mpci->max77620->dev,
++						  MAX77620_REG_PUE_GPIO,
++						  BIT(pin), pu_val);
++			if (ret < 0) {
++				dev_err(dev, "PUE_GPIO update failed: %d\n",
++					ret);
++				return ret;
++			}
++
++			ret = max77620_reg_update(mpci->max77620->dev,
++						  MAX77620_REG_PDE_GPIO,
++						  BIT(pin), pd_val);
++			if (ret < 0) {
++				dev_err(dev, "PDE_GPIO update failed: %d\n",
++					ret);
++				return ret;
++			}
++			break;
++
++		default:
++			dev_err(dev, "Properties not supported\n");
++			return -ENOTSUPP;
++		}
++	}
++
++	return 0;
++}
++
++static const struct pinconf_ops max77620_pinconf_ops = {
++	.pin_config_get = max77620_pinconf_get,
++	.pin_config_set = max77620_pinconf_set,
++};
++
++static struct pinctrl_desc max77620_pinctrl_desc = {
++	.pctlops = &max77620_pinctrl_ops,
++	.pmxops = &max77620_pinmux_ops,
++	.confops = &max77620_pinconf_ops,
++};
++
++static int max77620_pinctrl_probe(struct platform_device *pdev)
++{
++	struct max77620_pctrl_info *mpci;
++	struct max77620_chip *max77620 = dev_get_drvdata(pdev->dev.parent);
++	int i;
++
++	mpci = devm_kzalloc(&pdev->dev, sizeof(*mpci), GFP_KERNEL);
++	if (!mpci)
++		return -ENOMEM;
++
++	mpci->dev = &pdev->dev;
++	mpci->dev->of_node = pdev->dev.parent->of_node;
++	mpci->max77620 = max77620;
++
++	mpci->pins = max77620_pins_desc;
++	mpci->num_pins = ARRAY_SIZE(max77620_pins_desc);
++	mpci->functions = max77620_pin_function;
++	mpci->num_functions = ARRAY_SIZE(max77620_pin_function);
++	mpci->pin_groups = max77620_pingroups;
++	mpci->num_pin_groups = ARRAY_SIZE(max77620_pingroups);
++	platform_set_drvdata(pdev, mpci);
++
++	max77620_pinctrl_desc.name = dev_name(&pdev->dev);
++	max77620_pinctrl_desc.pins = max77620_pins_desc;
++	max77620_pinctrl_desc.npins = ARRAY_SIZE(max77620_pins_desc);
++	max77620_pinctrl_desc.num_custom_params =
++				ARRAY_SIZE(max77620_cfg_params);
++	max77620_pinctrl_desc.custom_params = max77620_cfg_params;
++
++	for (i = 0; i < MAX77620_PIN_NUM; ++i) {
++		mpci->fps_config[i].active_fps_src = -1;
++		mpci->fps_config[i].active_power_up_slots = -1;
++		mpci->fps_config[i].active_power_down_slots = -1;
++		mpci->fps_config[i].suspend_fps_src = -1;
++		mpci->fps_config[i].suspend_power_up_slots = -1;
++		mpci->fps_config[i].suspend_power_down_slots = -1;
++	}
++
++	mpci->pctl = pinctrl_register(&max77620_pinctrl_desc,
++					&pdev->dev, mpci);
++	if (IS_ERR(mpci->pctl)) {
++		dev_err(&pdev->dev, "Couldn't register pinctrl driver\n");
++		return PTR_ERR(mpci->pctl);
++	}
++
++	return 0;
++}
++
++static int max77620_pinctrl_remove(struct platform_device *pdev)
++{
++	struct max77620_pctrl_info *mpci = platform_get_drvdata(pdev);
++
++	pinctrl_unregister(mpci->pctl);
++
++	return 0;
++}
++
++#ifdef CONFIG_PM_SLEEP
++static int max77620_suspend_fps_param[] = {
++	MAX77620_SUSPEND_FPS_SOURCE,
++	MAX77620_SUSPEND_FPS_POWER_ON_SLOTS,
++	MAX77620_SUSPEND_FPS_POWER_DOWN_SLOTS,
++};
++
++static int max77620_active_fps_param[] = {
++	MAX77620_ACTIVE_FPS_SOURCE,
++	MAX77620_ACTIVE_FPS_POWER_ON_SLOTS,
++	MAX77620_ACTIVE_FPS_POWER_DOWN_SLOTS,
++};
++
++static int max77620_pinctrl_suspend(struct device *dev)
++{
++	struct max77620_pctrl_info *mpci = dev_get_drvdata(dev);
++	int pin, p;
++
++	for (pin = 0; pin < MAX77620_PIN_NUM; ++pin) {
++		if ((pin < MAX77620_GPIO1) || (pin > MAX77620_GPIO3))
++			continue;
++		for (p = 0; p < 3; ++p)
++			max77620_set_fps_param(
++				mpci, pin, max77620_suspend_fps_param[p]);
++	}
++
++	return 0;
++};
++
++static int max77620_pinctrl_resume(struct device *dev)
++{
++	struct max77620_pctrl_info *mpci = dev_get_drvdata(dev);
++	int pin, p;
++
++	for (pin = 0; pin < MAX77620_PIN_NUM; ++pin) {
++		if ((pin < MAX77620_GPIO1) || (pin > MAX77620_GPIO3))
++			continue;
++		for (p = 0; p < 3; ++p)
++			max77620_set_fps_param(
++				mpci, pin, max77620_active_fps_param[p]);
++	}
++
++	return 0;
++}
 +#endif
++
++static const struct dev_pm_ops max77620_pinctrl_pm_ops = {
++	SET_SYSTEM_SLEEP_PM_OPS(
++		max77620_pinctrl_suspend, max77620_pinctrl_resume)
++};
++
++static const struct platform_device_id max77620_pinctrl_devtype[] = {
++	{ .name = "max77620-pinctrl", },
++	{ .name = "max20024-pinctrl", },
++	{},
++};
++MODULE_DEVICE_TABLE(platform, max77620_pinctrl_devtype);
++
++static struct platform_driver max77620_pinctrl_driver = {
++	.driver = {
++		.name = "max77620-pinctrl",
++		.pm = &max77620_pinctrl_pm_ops,
++	},
++	.probe = max77620_pinctrl_probe,
++	.remove = max77620_pinctrl_remove,
++	.id_table = max77620_pinctrl_devtype,
++};
++
++module_platform_driver(max77620_pinctrl_driver);
++
++MODULE_DESCRIPTION("MAX77620/MAX20024 pin control driver");
++MODULE_AUTHOR("Chaitanya Bandi<bandik@nvidia.com>");
++MODULE_AUTHOR("Laxman Dewangan<ldewangan@nvidia.com>");
++MODULE_ALIAS("platform:max77620-pinctrl");
++MODULE_LICENSE("GPL v2");
 -- 
 2.1.4
 
