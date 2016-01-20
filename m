@@ -1,19 +1,19 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBDU7QC2QKGQE24FF6WI@googlegroups.com>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBIFMQC2QKGQEUVWHSCQ@googlegroups.com>
 Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id h123si3785wmd.0.2016.01.20.14.51.57
+        by gmr-mx.google.com with ESMTP id q64si838631wmg.0.2016.01.20.15.20.00
         for <rtc-linux@googlegroups.com>;
-        Wed, 20 Jan 2016 14:51:57 -0800 (PST)
-Date: Wed, 20 Jan 2016 23:51:56 +0100
+        Wed, 20 Jan 2016 15:20:00 -0800 (PST)
+Date: Thu, 21 Jan 2016 00:19:59 +0100
 From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Akinobu Mita <akinobu.mita@gmail.com>
-Cc: rtc-linux@googlegroups.com, Alessandro Zummo <a.zummo@towertech.it>
-Subject: [rtc-linux] Re: [PATCH] rtc: rtc-ds1307: add temperature sensor
- support for ds3231
-Message-ID: <20160120225156.GC3367@piout.net>
-References: <1450310296-12153-1-git-send-email-akinobu.mita@gmail.com>
+To: Geliang Tang <geliangtang@163.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org
+Subject: [rtc-linux] Re: [PATCH] rtc: ds1305: use to_spi_device and kobj_to_dev
+Message-ID: <20160120231959.GD3367@piout.net>
+References: <69d9b6de4c0a2c10544f9982bce92d3132bf6d21.1450875144.git.geliangtang@163.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1450310296-12153-1-git-send-email-akinobu.mita@gmail.com>
+In-Reply-To: <69d9b6de4c0a2c10544f9982bce92d3132bf6d21.1450875144.git.geliangtang@163.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -24,207 +24,16 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Hi,
-
-Sorry for the very late review.
-
-This seems very valuable. However, instead of creating a new sysfs
-interface, I think this should be using the hwmon framework. I've just
-check and it doesn't seem to be an issue to register an hwmon device
-from an other framework, some ethernet and graphic drivers are doing it.
-
-Can you try to do that?
-
-On 17/12/2015 at 08:58:16 +0900, Akinobu Mita wrote :
-> DS3231 has the temperature registers with a resolution of 0.25
-> degree celsius.  This enables to get the value through sysfs file.
+On 23/12/2015 at 20:54:33 +0800, Geliang Tang wrote :
+> For better readability, use to_spi_device() and kobj_to_dev() instead
+> of container_of().
 > 
-> 	# cat /sys/class/i2c-adapter/i2c-9/9-0068/temperature
-> 	22.50
-> 
-> Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
-> Cc: Alessandro Zummo <a.zummo@towertech.it>
-> Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-> Cc: rtc-linux@googlegroups.com
+> Signed-off-by: Geliang Tang <geliangtang@163.com>
 > ---
->  drivers/rtc/rtc-ds1307.c | 119 ++++++++++++++++++++++++++++++++++++++++++++++-
->  1 file changed, 117 insertions(+), 2 deletions(-)
+>  drivers/rtc/rtc-ds1305.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
 > 
-> diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
-> index aa705bb..c0cd447 100644
-> --- a/drivers/rtc/rtc-ds1307.c
-> +++ b/drivers/rtc/rtc-ds1307.c
-> @@ -19,6 +19,7 @@
->  #include <linux/rtc.h>
->  #include <linux/slab.h>
->  #include <linux/string.h>
-> +#include <linux/delay.h>
->  
->  /*
->   * We can't determine type by probing, but if we expect pre-Linux code
-> @@ -75,6 +76,7 @@ enum ds_type {
->  #	define DS1337_BIT_nEOSC		0x80
->  #	define DS1339_BIT_BBSQI		0x20
->  #	define DS3231_BIT_BBSQW		0x40 /* same as BBSQI */
-> +#	define DS3231_BIT_CONV		0x20
->  #	define DS1337_BIT_RS2		0x10
->  #	define DS1337_BIT_RS1		0x08
->  #	define DS1337_BIT_INTCN		0x04
-> @@ -89,6 +91,7 @@ enum ds_type {
->  #	define DS1340_BIT_OSF		0x80
->  #define DS1337_REG_STATUS	0x0f
->  #	define DS1337_BIT_OSF		0x80
-> +#	define DS3231_BIT_BSY		0x04
->  #	define DS1337_BIT_A2I		0x02
->  #	define DS1337_BIT_A1I		0x01
->  #define DS1339_REG_ALARM1_SECS	0x07
-> @@ -110,8 +113,10 @@ struct ds1307 {
->  	struct bin_attribute	*nvram;
->  	enum ds_type		type;
->  	unsigned long		flags;
-> -#define HAS_NVRAM	0		/* bit 0 == sysfs file active */
-> -#define HAS_ALARM	1		/* bit 1 == irq claimed */
-> +#define HAS_NVRAM	0	/* bit 0 == nvram sysfs file active */
-> +#define HAS_ALARM	1	/* bit 1 == irq claimed */
-> +#define HAS_TEMP	2	/* bit 2 == temperature sysfs file active */
-> +
->  	struct i2c_client	*client;
->  	struct rtc_device	*rtc;
->  	s32 (*read_block_data)(const struct i2c_client *client, u8 command,
-> @@ -851,6 +856,112 @@ out:
->  	return;
->  }
->  
-> +/*----------------------------------------------------------------------*/
-> +
-> +/*
-> + * Temperature sensor support for ds3231 devices.
-> + */
-> +
-> +#define DS3231_REG_TEMPERATURE	0x11
-> +
-> +static ssize_t ds3231_sysfs_show_temperature(struct device *dev,
-> +				struct device_attribute *attr, char *buf)
-> +{
-> +	struct ds1307	*ds1307 = dev_get_drvdata(dev);
-> +	struct i2c_client *client = ds1307->client;
-> +	u8 temp_buf[2];
-> +	s16 temp;
-> +	bool negative;
-> +	int control;
-> +	int status;
-> +	s32 ret;
-> +	unsigned long timeout;
-> +
-> +	status = i2c_smbus_read_byte_data(client, DS1337_REG_STATUS);
-> +	if (status < 0)
-> +		return status;
-> +
-> +	/*
-> +	 * Start user-initiated temperature conversion
-> +	 */
-> +	if (!(status & DS3231_BIT_BSY)) {
-> +		struct mutex	*lock = &ds1307->rtc->ops_lock;
-> +
-> +		mutex_lock(lock);
-> +
-> +		control = i2c_smbus_read_byte_data(client, DS1337_REG_CONTROL);
-> +		if (control < 0) {
-> +			mutex_unlock(lock);
-> +			return control;
-> +		}
-> +		ret = i2c_smbus_write_byte_data(client, DS1337_REG_CONTROL,
-> +						control | DS3231_BIT_CONV);
-> +		if (ret)
-> +			return ret;
-> +
-> +		mutex_unlock(lock);
-> +
-> +		/*
-> +		 * A user-initiated temperature conversion does not affect
-> +		 * the BSY bit for approximately 2ms.
-> +		 */
-> +		usleep_range(2000, 3000);
-> +	}
-> +
-> +	/*
-> +	 * Wait until the conversion is finished
-> +	 */
-> +	timeout = jiffies + HZ;
-> +
-> +	do {
-> +		control = i2c_smbus_read_byte_data(client, DS1337_REG_CONTROL);
-> +		if (control < 0)
-> +			return control;
-> +		if (!(control & DS3231_BIT_CONV))
-> +			break;
-> +		if (time_after(jiffies, timeout))
-> +			return -EIO;
-> +		usleep_range(2000, 3000);
-> +	} while (1);
-> +
-> +	ret = ds1307->read_block_data(ds1307->client, DS3231_REG_TEMPERATURE,
-> +					sizeof(temp_buf), temp_buf);
-> +	if (ret < 0)
-> +		return ret;
-> +	if (ret != sizeof(temp_buf))
-> +		return -EIO;
-> +
-> +	/*
-> +	 * Temperature is represented as a 10-bit code with a resolution of
-> +	 * 0.25 degree celsius and encoded in two's complement format.
-> +	 */
-> +	temp = (temp_buf[0] << 8) | temp_buf[1];
-> +	temp >>= 6;
-> +	negative = (temp < 0) ? true : false;
-> +	temp = abs(temp);
-> +
-> +	return sprintf(buf, "%s%d.%d\n", negative ? "-" : "",
-> +			temp >> 2, 25 * (temp & 0x3));
-> +}
-> +static DEVICE_ATTR(temperature, S_IRUGO, ds3231_sysfs_show_temperature, NULL);
-> +
-> +static int ds1307_temperature_register(struct ds1307 *ds1307)
-> +{
-> +	if (ds1307->type != ds_3231)
-> +		return 0;
-> +
-> +	if (!device_create_file(&ds1307->client->dev, &dev_attr_temperature))
-> +		set_bit(HAS_TEMP, &ds1307->flags);
-> +
-> +	return 0;
-> +}
-> +
-> +static void ds1307_temperature_unregister(struct ds1307 *ds1307)
-> +{
-> +	if (test_and_clear_bit(HAS_TEMP, &ds1307->flags))
-> +		device_remove_file(&ds1307->client->dev, &dev_attr_temperature);
-> +}
-> +
->  static int ds1307_probe(struct i2c_client *client,
->  			const struct i2c_device_id *id)
->  {
-> @@ -1191,6 +1302,8 @@ read_rtc:
->  		}
->  	}
->  
-> +	ds1307_temperature_register(ds1307);
-> +
->  	return 0;
->  
->  exit:
-> @@ -1201,6 +1314,8 @@ static int ds1307_remove(struct i2c_client *client)
->  {
->  	struct ds1307 *ds1307 = i2c_get_clientdata(client);
->  
-> +	ds1307_temperature_unregister(ds1307);
-> +
->  	if (test_and_clear_bit(HAS_NVRAM, &ds1307->flags))
->  		sysfs_remove_bin_file(&client->dev.kobj, ds1307->nvram);
->  
-> -- 
-> 1.9.1
-> 
+Applied, thanks.
 
 -- 
 Alexandre Belloni, Free Electrons
