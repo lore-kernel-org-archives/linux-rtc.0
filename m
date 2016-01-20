@@ -1,36 +1,30 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBBFFZ62AKGQEGZKAIOY@googlegroups.com>
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id w129si455960wme.1.2016.01.11.08.04.19
-        for <rtc-linux@googlegroups.com>;
-        Mon, 11 Jan 2016 08:04:19 -0800 (PST)
-Date: Mon, 11 Jan 2016 17:04:19 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Laxman Dewangan <ldewangan@nvidia.com>
-Cc: Mark Brown <broonie@kernel.org>,
-	Krzysztof Kozlowski <k.kozlowski@samsung.com>,
-	rtc-linux@googlegroups.com, robh+dt@kernel.org, pawel.moll@arm.com,
-	mark.rutland@arm.com, ijc+devicetree@hellion.org.uk,
-	galak@codeaurora.org, linus.walleij@linaro.org, gnurou@gmail.com,
-	lee.jones@linaro.org, a.zummo@towertech.it, lgirdwood@gmail.com,
-	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux-gpio@vger.kernel.org, swarren@nvidia.com, treding@nvidia.com,
-	Chaitanya Bandi <bandik@nvidia.com>
-Subject: Re: [rtc-linux] [PATCH 5/6] rtc: max77620: add support for
- max77620/max20024 RTC driver
-Message-ID: <20160111160419.GA3367@piout.net>
-References: <1452177524-23192-1-git-send-email-ldewangan@nvidia.com>
- <1452177524-23192-6-git-send-email-ldewangan@nvidia.com>
- <CAJKOXPd938soaa5M0GFo5HpVCYzAS1w8j8Hko3Ja9mx47NYkEQ@mail.gmail.com>
- <568F8D7E.10500@nvidia.com>
- <20160108125117.GM6588@sirena.org.uk>
- <568FB3DD.4090503@nvidia.com>
- <20160108133648.GQ6588@sirena.org.uk>
- <568FBB6D.2020904@nvidia.com>
- <5693AB6E.4090700@nvidia.com>
+Return-Path: <rtc-linux+bncBAABBV4B762AKGQER5IKWVY@googlegroups.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <5693AB6E.4090700@nvidia.com>
+Received: from lists.s-osg.org (lists.s-osg.org. [54.187.51.154])
+        by gmr-mx.google.com with ESMTP id jg4si680036pac.2.2016.01.20.09.16.06
+        for <rtc-linux@googlegroups.com>;
+        Wed, 20 Jan 2016 09:16:06 -0800 (PST)
+From: Javier Martinez Canillas <javier@osg.samsung.com>
+To: linux-kernel@vger.kernel.org
+Cc: Kukjin Kim <kgene@kernel.org>,
+	rtc-linux@googlegroups.com,
+	Chanwoo Choi <cw00.choi@samsung.com>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Krzysztof Kozlowski <k.kozlowski@samsung.com>,
+	Laxman Dewangan <ldewangan@nvidia.com>,
+	linux-samsung-soc@vger.kernel.org,
+	Javier Martinez Canillas <javier@osg.samsung.com>,
+	Arnd Bergmann <arnd@arndb.de>,
+	Olof Johansson <olof@lixom.net>,
+	linux-arm-kernel@lists.infradead.org
+Subject: [rtc-linux] [PATCH 8/8] ARM: multi_v7_defconfig: Remove MAX77802 RTC
+ Kconfig symbol
+Date: Wed, 20 Jan 2016 14:14:48 -0300
+Message-Id: <1453310088-29985-9-git-send-email-javier@osg.samsung.com>
+In-Reply-To: <1453310088-29985-1-git-send-email-javier@osg.samsung.com>
+References: <1453310088-29985-1-git-send-email-javier@osg.samsung.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -40,77 +34,30 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 11/01/2016 at 18:47:34 +0530, Laxman Dewangan wrote :
-> 
-> On Friday 08 January 2016 07:06 PM, Laxman Dewangan wrote:
-> >
-> >On Friday 08 January 2016 07:06 PM, Mark Brown wrote:
-> >>* PGP Signed by an unknown key
-> >>
-> >>On Fri, Jan 08, 2016 at 06:34:29PM +0530, Laxman Dewangan wrote:
-> >>
-> >>>If we get the parent device, regmap handle and interrupt number from
-> >>>mfd
-> >>>core independent of the PMIC (MAX77620 or MAX77686), then same driver
-> >>>can be
-> >>>used here.
-> >>>Two way which I can think of here:
-> >>Parent device is just dev->parent, you can use dev_get_regmap() to get a
-> >>regmap given a struct device and you can use platform resources to pass
-> >>the interrupts to the children from the MFD (there's some examples,
-> >>wm831x is one).
-> >>
-> >>
-> >
-> >I think it should work with named regmap. mfd whould init regmap with name
-> >and rtc driver should ask with same name.
-> >
-> >I saw three drivers which looks same:
-> >rtc-max77620.c (new from me) and already available rtc-max77686.c,
-> >rtc-max77802.c
-> >
-> >Seems I can develop IP based rtc driver as rtc-max77xxx.c
-> 
-> I came with one of issue when doing this.
-> 
-> The RTC driver parent is not the same parent for which i2c slave address get
-> registered.
-> There is two slave address from max77620, 0x3C (for general) and 0x68 for
-> RTC.
-> 
-> In max77620 mfd driver, we make dummy i2c client for 0x68 and initialize
-> regmap with this address.
-> 
-> Now on mfd_add_devices, we pass the device for 0x3c and hence the RTC driver
-> treat the parent as the 0x3c device but actually it should be 0x68 to get
-> the proper regmap.
-> 
-> 
-> Two approach:
-> 1. If we add the option to pass parent_dev when adding cells form
-> mfd_add_devices and select the parent device based on this option then it
-> can be easily handle.
->     Add parent_dev structure in struct mfd_cell and then change the parent
-> in mfd_add_device() if cells has parent device.
-> 
-> 2. Register the RTC driver with different mfd_add_devices with dummy i2c
-> client device.
-> So two times mfd_add_devices.
-> 
-> 
-> IMO, approach 1 looks good to me.
-> 
-> Any opinion?
-> 
+The driver has been removed so the Kconfig symbol is not valid anymore.
 
-If the RTC is not at the same address, I'd say this is not an mfd
-anymore, can't you probe it directly from DT?
+Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
 
 
+---
+
+ arch/arm/configs/multi_v7_defconfig | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/arch/arm/configs/multi_v7_defconfig b/arch/arm/configs/multi_v7_defconfig
+index 314f6be2dca2..bdb42c09332c 100644
+--- a/arch/arm/configs/multi_v7_defconfig
++++ b/arch/arm/configs/multi_v7_defconfig
+@@ -664,7 +664,6 @@ CONFIG_RTC_DRV_MAX8907=y
+ CONFIG_RTC_DRV_MAX8997=m
+ CONFIG_RTC_DRV_MAX77686=y
+ CONFIG_RTC_DRV_RK808=m
+-CONFIG_RTC_DRV_MAX77802=m
+ CONFIG_RTC_DRV_RS5C372=m
+ CONFIG_RTC_DRV_PALMAS=y
+ CONFIG_RTC_DRV_ST_LPC=y
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+2.5.0
 
 -- 
 -- 
