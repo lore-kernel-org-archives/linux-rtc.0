@@ -1,31 +1,27 @@
-Return-Path: <rtc-linux+bncBDKZNNNLXAHBBQOPQC2QKGQE6WF5TAA@googlegroups.com>
-Received: from mailout2.w1.samsung.com (mailout2.w1.samsung.com. [210.118.77.12])
-        by gmr-mx.google.com with ESMTPS id 190si3764474pfb.1.2016.01.20.16.35.13
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1 cipher=AES128-SHA bits=128/128);
-        Wed, 20 Jan 2016 16:35:13 -0800 (PST)
-Received: from eucpsbgm2.samsung.com (unknown [203.254.199.245])
- by mailout2.w1.samsung.com
- (Oracle Communications Messaging Server 7.0.5.31.0 64bit (built May  5 2014))
- with ESMTP id <0O1A00KJK1MLVY70@mailout2.w1.samsung.com> for
- rtc-linux@googlegroups.com; Thu, 21 Jan 2016 00:35:09 +0000 (GMT)
-Subject: [rtc-linux] Re: [PATCH 1/8] rtc: max77686: Use ARRAY_SIZE() instead
- of current array length
-To: Javier Martinez Canillas <javier@osg.samsung.com>,
- linux-kernel@vger.kernel.org
+Return-Path: <rtc-linux+bncBAABBUUB762AKGQE3G2G7BA@googlegroups.com>
+MIME-Version: 1.0
+Received: from lists.s-osg.org (lists.s-osg.org. [54.187.51.154])
+        by gmr-mx.google.com with ESMTP id jg4si680012pac.2.2016.01.20.09.16.02
+        for <rtc-linux@googlegroups.com>;
+        Wed, 20 Jan 2016 09:16:02 -0800 (PST)
+From: Javier Martinez Canillas <javier@osg.samsung.com>
+To: linux-kernel@vger.kernel.org
+Cc: Kukjin Kim <kgene@kernel.org>,
+	rtc-linux@googlegroups.com,
+	Chanwoo Choi <cw00.choi@samsung.com>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Krzysztof Kozlowski <k.kozlowski@samsung.com>,
+	Laxman Dewangan <ldewangan@nvidia.com>,
+	linux-samsung-soc@vger.kernel.org,
+	Javier Martinez Canillas <javier@osg.samsung.com>
+Subject: [rtc-linux] [PATCH 7/8] ARM: exynos_defconfig: Remove MAX77802 RTC
+ Kconfig symbol
+Date: Wed, 20 Jan 2016 14:14:47 -0300
+Message-Id: <1453310088-29985-8-git-send-email-javier@osg.samsung.com>
+In-Reply-To: <1453310088-29985-1-git-send-email-javier@osg.samsung.com>
 References: <1453310088-29985-1-git-send-email-javier@osg.samsung.com>
- <1453310088-29985-2-git-send-email-javier@osg.samsung.com>
-Cc: Kukjin Kim <kgene@kernel.org>, rtc-linux@googlegroups.com,
- Chanwoo Choi <cw00.choi@samsung.com>,
- Alexandre Belloni <alexandre.belloni@free-electrons.com>,
- Laxman Dewangan <ldewangan@nvidia.com>, linux-samsung-soc@vger.kernel.org
-From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-Message-id: <56A027BE.4080600@samsung.com>
-Date: Thu, 21 Jan 2016 09:35:10 +0900
-MIME-version: 1.0
-In-reply-to: <1453310088-29985-2-git-send-email-javier@osg.samsung.com>
-Content-type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -35,20 +31,28 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 21.01.2016 02:14, Javier Martinez Canillas wrote:
-> It is better to use the ARRAY_SIZE() macro instead of the array length
-> to avoid bugs if the array is later changed and the length not updated.
-> 
-> Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
-> ---
-> 
->  drivers/rtc/rtc-max77686.c | 3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
+The driver has been removed so the Kconfig symbol is not valid anymore.
 
-Reviewed-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
+---
 
-Best regards,
-Krzysztof
+ arch/arm/configs/exynos_defconfig | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/arch/arm/configs/exynos_defconfig b/arch/arm/configs/exynos_defconfig
+index 24dcd2bb1215..cdbe6dbc6e75 100644
+--- a/arch/arm/configs/exynos_defconfig
++++ b/arch/arm/configs/exynos_defconfig
+@@ -193,7 +193,6 @@ CONFIG_LEDS_TRIGGER_HEARTBEAT=y
+ CONFIG_RTC_CLASS=y
+ CONFIG_RTC_DRV_MAX8997=y
+ CONFIG_RTC_DRV_MAX77686=y
+-CONFIG_RTC_DRV_MAX77802=y
+ CONFIG_RTC_DRV_S5M=y
+ CONFIG_RTC_DRV_S3C=y
+ CONFIG_DMADEVICES=y
+-- 
+2.5.0
 
 -- 
 -- 
