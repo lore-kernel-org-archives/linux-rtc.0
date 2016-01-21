@@ -1,19 +1,32 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBIFMQC2QKGQEUVWHSCQ@googlegroups.com>
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id q64si838631wmg.0.2016.01.20.15.20.00
-        for <rtc-linux@googlegroups.com>;
-        Wed, 20 Jan 2016 15:20:00 -0800 (PST)
-Date: Thu, 21 Jan 2016 00:19:59 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Geliang Tang <geliangtang@163.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH] rtc: ds1305: use to_spi_device and kobj_to_dev
-Message-ID: <20160120231959.GD3367@piout.net>
-References: <69d9b6de4c0a2c10544f9982bce92d3132bf6d21.1450875144.git.geliangtang@163.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <69d9b6de4c0a2c10544f9982bce92d3132bf6d21.1450875144.git.geliangtang@163.com>
+Return-Path: <rtc-linux+bncBDKZNNNLXAHBBTHWQC2QKGQEW3QCXMA@googlegroups.com>
+Received: from mailout4.w1.samsung.com (mailout4.w1.samsung.com. [210.118.77.14])
+        by gmr-mx.google.com with ESMTPS id ui7si3975975pab.0.2016.01.20.17.58.36
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1 cipher=AES128-SHA bits=128/128);
+        Wed, 20 Jan 2016 17:58:36 -0800 (PST)
+Received: from eucpsbgm2.samsung.com (unknown [203.254.199.245])
+ by mailout4.w1.samsung.com
+ (Oracle Communications Messaging Server 7.0.5.31.0 64bit (built May  5 2014))
+ with ESMTP id <0O1A00E4P5HKFI80@mailout4.w1.samsung.com> for
+ rtc-linux@googlegroups.com; Thu, 21 Jan 2016 01:58:32 +0000 (GMT)
+Subject: [rtc-linux] Re: [PATCH 8/8] ARM: multi_v7_defconfig: Remove MAX77802
+ RTC Kconfig symbol
+To: Javier Martinez Canillas <javier@osg.samsung.com>,
+ linux-kernel@vger.kernel.org
+References: <1453310088-29985-1-git-send-email-javier@osg.samsung.com>
+ <1453310088-29985-9-git-send-email-javier@osg.samsung.com>
+Cc: Kukjin Kim <kgene@kernel.org>, rtc-linux@googlegroups.com,
+ Chanwoo Choi <cw00.choi@samsung.com>,
+ Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+ Laxman Dewangan <ldewangan@nvidia.com>, linux-samsung-soc@vger.kernel.org,
+ Arnd Bergmann <arnd@arndb.de>, Olof Johansson <olof@lixom.net>,
+ linux-arm-kernel@lists.infradead.org
+From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+Message-id: <56A03B48.7080507@samsung.com>
+Date: Thu, 21 Jan 2016 10:58:32 +0900
+MIME-version: 1.0
+In-reply-to: <1453310088-29985-9-git-send-email-javier@osg.samsung.com>
+Content-type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -24,21 +37,22 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 23/12/2015 at 20:54:33 +0800, Geliang Tang wrote :
-> For better readability, use to_spi_device() and kobj_to_dev() instead
-> of container_of().
+On 21.01.2016 02:14, Javier Martinez Canillas wrote:
+> The driver has been removed so the Kconfig symbol is not valid anymore.
 > 
-> Signed-off-by: Geliang Tang <geliangtang@163.com>
+> Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
+> 
+> 
 > ---
->  drivers/rtc/rtc-ds1305.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
 > 
-Applied, thanks.
+>  arch/arm/configs/multi_v7_defconfig | 1 -
+>  1 file changed, 1 deletion(-)
 
--- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+Reviewed-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+
+Best regards,
+Krzysztof
+
 
 -- 
 -- 
