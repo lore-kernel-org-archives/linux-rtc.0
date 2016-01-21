@@ -1,19 +1,25 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRB4E5QO2QKGQEQG7EXCI@googlegroups.com>
-MIME-Version: 1.0
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id q64si925555wmg.0.2016.01.21.04.28.31
+Return-Path: <rtc-linux+bncBAABB6HKQO2QKGQEAYT2OLA@googlegroups.com>
+Received: from lists.s-osg.org (lists.s-osg.org. [54.187.51.154])
+        by gmr-mx.google.com with ESMTP id jg4si183562pac.2.2016.01.21.07.12.55
         for <rtc-linux@googlegroups.com>;
-        Thu, 21 Jan 2016 04:28:31 -0800 (PST)
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Alessandro Zummo <a.zummo@towertech.it>
-Cc: rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Subject: [rtc-linux] [PATCH] rtc: rx8025: remove rv8803 id
-Date: Thu, 21 Jan 2016 13:28:02 +0100
-Message-Id: <1453379282-7670-1-git-send-email-alexandre.belloni@free-electrons.com>
+        Thu, 21 Jan 2016 07:12:55 -0800 (PST)
+Subject: [rtc-linux] Re: [PATCH 6/8] rtc: Remove Maxim 77802 driver
+To: Krzysztof Kozlowski <k.kozlowski@samsung.com>,
+ linux-kernel@vger.kernel.org
+References: <1453310088-29985-1-git-send-email-javier@osg.samsung.com>
+ <1453310088-29985-7-git-send-email-javier@osg.samsung.com>
+ <56A03AEC.1090008@samsung.com>
+Cc: Kukjin Kim <kgene@kernel.org>, rtc-linux@googlegroups.com,
+ Chanwoo Choi <cw00.choi@samsung.com>,
+ Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+ Laxman Dewangan <ldewangan@nvidia.com>, linux-samsung-soc@vger.kernel.org
+From: Javier Martinez Canillas <javier@osg.samsung.com>
+Message-ID: <56A0F573.2040403@osg.samsung.com>
+Date: Thu, 21 Jan 2016 12:12:51 -0300
+MIME-Version: 1.0
+In-Reply-To: <56A03AEC.1090008@samsung.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Reply-To: rtc-linux@googlegroups.com
-Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -23,29 +29,43 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-The rv8803 has its own driver that should be used. Remove its id from
-the rx8025 driver.
+Hello Krzysztof,
 
-Fixes: b1f9d790b59dc04f8813a49a92ddd8651770ffee
-Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
----
- drivers/rtc/rtc-rx8025.c | 1 -
- 1 file changed, 1 deletion(-)
+On 01/20/2016 10:57 PM, Krzysztof Kozlowski wrote:
+> On 21.01.2016 02:14, Javier Martinez Canillas wrote:
+>> The max77686 RTC driver now supports the max77802 RTC as
+>> well so there's no need to have a separate driver anymore.
+>>
+>> Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
+>> ---
+>>
+>>   drivers/rtc/Kconfig        |  10 -
+>>   drivers/rtc/Makefile       |   1 -
+>>   drivers/rtc/rtc-max77802.c | 502 ---------------------------------------------
+>>   3 files changed, 513 deletions(-)
+>>   delete mode 100644 drivers/rtc/rtc-max77802.c
+>>
+>
+> Oh yes, I like removals so much! :)
+>
 
-diff --git a/drivers/rtc/rtc-rx8025.c b/drivers/rtc/rtc-rx8025.c
-index bd911bafb809..17341feadad1 100644
---- a/drivers/rtc/rtc-rx8025.c
-+++ b/drivers/rtc/rtc-rx8025.c
-@@ -65,7 +65,6 @@
- 
- static const struct i2c_device_id rx8025_id[] = {
- 	{ "rx8025", 0 },
--	{ "rv8803", 1 },
- 	{ }
- };
- MODULE_DEVICE_TABLE(i2c, rx8025_id);
+I knew you would like it :)
+  
+> Reviewed-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+>
+
+Thanks.
+  
+> Best regards,
+> Krzysztof
+>
+>
+
+Best regards,
 -- 
-2.5.0
+Javier Martinez Canillas
+Open Source Group
+Samsung Research America
 
 -- 
 -- 
