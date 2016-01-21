@@ -1,23 +1,30 @@
-Return-Path: <rtc-linux+bncBCOML4NU3EDRBK6EUO2AKGQELP7ZATY@googlegroups.com>
-Received: from mout.web.de (mout.web.de. [212.227.17.12])
-        by gmr-mx.google.com with ESMTPS id b4si904554wme.3.2016.01.03.00.56.10
+Return-Path: <rtc-linux+bncBDKZNNNLXAHBBQOPQC2QKGQE6WF5TAA@googlegroups.com>
+Received: from mailout2.w1.samsung.com (mailout2.w1.samsung.com. [210.118.77.12])
+        by gmr-mx.google.com with ESMTPS id 190si3764474pfb.1.2016.01.20.16.35.13
         for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sun, 03 Jan 2016 00:56:10 -0800 (PST)
-Subject: [rtc-linux] [PATCH 7/8] rtc-ab-b5ze-s3: Delete an unnecessary
- variable in _abb5zes3_rtc_interrupt()
-To: rtc-linux@googlegroups.com, Alessandro Zummo <a.zummo@towertech.it>,
- Alexandre Belloni <alexandre.belloni@free-electrons.com>
-References: <566ABCD9.1060404@users.sourceforge.net>
- <5688DF2D.6090204@users.sourceforge.net>
-Cc: LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org,
- Julia Lawall <julia.lawall@lip6.fr>
-From: SF Markus Elfring <elfring@users.sourceforge.net>
-Message-ID: <5688E229.4010400@users.sourceforge.net>
-Date: Sun, 3 Jan 2016 09:56:09 +0100
-MIME-Version: 1.0
-In-Reply-To: <5688DF2D.6090204@users.sourceforge.net>
-Content-Type: text/plain; charset=UTF-8
+        (version=TLS1 cipher=AES128-SHA bits=128/128);
+        Wed, 20 Jan 2016 16:35:13 -0800 (PST)
+Received: from eucpsbgm2.samsung.com (unknown [203.254.199.245])
+ by mailout2.w1.samsung.com
+ (Oracle Communications Messaging Server 7.0.5.31.0 64bit (built May  5 2014))
+ with ESMTP id <0O1A00KJK1MLVY70@mailout2.w1.samsung.com> for
+ rtc-linux@googlegroups.com; Thu, 21 Jan 2016 00:35:09 +0000 (GMT)
+Subject: [rtc-linux] Re: [PATCH 1/8] rtc: max77686: Use ARRAY_SIZE() instead
+ of current array length
+To: Javier Martinez Canillas <javier@osg.samsung.com>,
+ linux-kernel@vger.kernel.org
+References: <1453310088-29985-1-git-send-email-javier@osg.samsung.com>
+ <1453310088-29985-2-git-send-email-javier@osg.samsung.com>
+Cc: Kukjin Kim <kgene@kernel.org>, rtc-linux@googlegroups.com,
+ Chanwoo Choi <cw00.choi@samsung.com>,
+ Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+ Laxman Dewangan <ldewangan@nvidia.com>, linux-samsung-soc@vger.kernel.org
+From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+Message-id: <56A027BE.4080600@samsung.com>
+Date: Thu, 21 Jan 2016 09:35:10 +0900
+MIME-version: 1.0
+In-reply-to: <1453310088-29985-2-git-send-email-javier@osg.samsung.com>
+Content-type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -28,52 +35,20 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-From: Markus Elfring <elfring@users.sourceforge.net>
-Date: Sun, 3 Jan 2016 09:00:30 +0100
+On 21.01.2016 02:14, Javier Martinez Canillas wrote:
+> It is better to use the ARRAY_SIZE() macro instead of the array length
+> to avoid bugs if the array is later changed and the length not updated.
+> 
+> Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
+> ---
+> 
+>  drivers/rtc/rtc-max77686.c | 3 ++-
+>  1 file changed, 2 insertions(+), 1 deletion(-)
 
-Pass the address of the data structure element "time" directly in calls
-of the function "rtc_update_irq" instead of an extra initialisation
-for one local variable at the beginning.
+Reviewed-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
 
-Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
----
- drivers/rtc/rtc-ab-b5ze-s3.c | 7 ++-----
- 1 file changed, 2 insertions(+), 5 deletions(-)
-
-diff --git a/drivers/rtc/rtc-ab-b5ze-s3.c b/drivers/rtc/rtc-ab-b5ze-s3.c
-index e3a015a..88f1d0b 100644
---- a/drivers/rtc/rtc-ab-b5ze-s3.c
-+++ b/drivers/rtc/rtc-ab-b5ze-s3.c
-@@ -816,7 +816,6 @@ static irqreturn_t _abb5zes3_rtc_interrupt(int irq, void *data)
- 	struct i2c_client *client = data;
- 	struct device *dev = &client->dev;
- 	struct abb5zes3_rtc_data *rtc_data = dev_get_drvdata(dev);
--	struct rtc_device *rtc = rtc_data->rtc;
- 	u8 regs[ABB5ZES3_CTRL_SEC_LEN];
- 	int ret, handled = IRQ_NONE;
- 
-@@ -844,8 +843,7 @@ static irqreturn_t _abb5zes3_rtc_interrupt(int irq, void *data)
- 	/* Check alarm flag */
- 	if (regs[ABB5ZES3_REG_CTRL2] & ABB5ZES3_REG_CTRL2_AF) {
- 		dev_dbg(dev, "RTC alarm!\n");
--
--		rtc_update_irq(rtc, 1, RTC_IRQF | RTC_AF);
-+		rtc_update_irq(rtc_data->rtc, 1, RTC_IRQF | RTC_AF);
- 
- 		/* Acknowledge and disable the alarm */
- 		_abb5zes3_rtc_clear_alarm(dev);
-@@ -857,8 +855,7 @@ static irqreturn_t _abb5zes3_rtc_interrupt(int irq, void *data)
- 	/* Check watchdog Timer A flag */
- 	if (regs[ABB5ZES3_REG_CTRL2] & ABB5ZES3_REG_CTRL2_WTAF) {
- 		dev_dbg(dev, "RTC timer!\n");
--
--		rtc_update_irq(rtc, 1, RTC_IRQF | RTC_AF);
-+		rtc_update_irq(rtc_data->rtc, 1, RTC_IRQF | RTC_AF);
- 
- 		/*
- 		 * Acknowledge and disable the alarm. Note: WTAF
--- 
-2.6.3
+Best regards,
+Krzysztof
 
 -- 
 -- 
