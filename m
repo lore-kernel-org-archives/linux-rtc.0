@@ -1,30 +1,25 @@
-Return-Path: <rtc-linux+bncBDKZNNNLXAHBB465QC2QKGQERY2FOKY@googlegroups.com>
-Received: from mailout3.w1.samsung.com (mailout3.w1.samsung.com. [210.118.77.13])
-        by gmr-mx.google.com with ESMTPS id r2si3469374pfr.0.2016.01.20.17.05.54
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1 cipher=AES128-SHA bits=128/128);
-        Wed, 20 Jan 2016 17:05:55 -0800 (PST)
-Received: from eucpsbgm2.samsung.com (unknown [203.254.199.245])
- by mailout3.w1.samsung.com
- (Oracle Communications Messaging Server 7.0.5.31.0 64bit (built May  5 2014))
- with ESMTP id <0O1A00I6J31Q7D80@mailout3.w1.samsung.com> for
- rtc-linux@googlegroups.com; Thu, 21 Jan 2016 01:05:50 +0000 (GMT)
-Subject: [rtc-linux] Re: [PATCH 4/8] rtc: max77686: Add an indirection level
- to access RTC registers
-To: Javier Martinez Canillas <javier@osg.samsung.com>,
- linux-kernel@vger.kernel.org
+Return-Path: <rtc-linux+bncBAABBYHAQO2QKGQEHTHS3WI@googlegroups.com>
+Received: from lists.s-osg.org (lists.s-osg.org. [54.187.51.154])
+        by gmr-mx.google.com with ESMTP id jg4si170114pac.2.2016.01.21.06.51.11
+        for <rtc-linux@googlegroups.com>;
+        Thu, 21 Jan 2016 06:51:11 -0800 (PST)
+Subject: [rtc-linux] Re: [PATCH 0/8] rtc: max77686: Extend driver and add
+ max77802 support
+To: Krzysztof Kozlowski <k.kozlowski@samsung.com>,
+ Alexandre Belloni <alexandre.belloni@free-electrons.com>
 References: <1453310088-29985-1-git-send-email-javier@osg.samsung.com>
- <1453310088-29985-5-git-send-email-javier@osg.samsung.com>
-Cc: Kukjin Kim <kgene@kernel.org>, rtc-linux@googlegroups.com,
- Chanwoo Choi <cw00.choi@samsung.com>,
- Alexandre Belloni <alexandre.belloni@free-electrons.com>,
- Laxman Dewangan <ldewangan@nvidia.com>, linux-samsung-soc@vger.kernel.org
-From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-Message-id: <56A02EEF.2060604@samsung.com>
-Date: Thu, 21 Jan 2016 10:05:51 +0900
-MIME-version: 1.0
-In-reply-to: <1453310088-29985-5-git-send-email-javier@osg.samsung.com>
-Content-type: text/plain; charset=UTF-8
+ <20160121003047.GF3367@piout.net> <56A02791.9010409@samsung.com>
+Cc: linux-kernel@vger.kernel.org, Kukjin Kim <kgene@kernel.org>,
+ rtc-linux@googlegroups.com, Chanwoo Choi <cw00.choi@samsung.com>,
+ Laxman Dewangan <ldewangan@nvidia.com>, linux-samsung-soc@vger.kernel.org,
+ Arnd Bergmann <arnd@arndb.de>, Olof Johansson <olof@lixom.net>,
+ linux-arm-kernel@lists.infradead.org
+From: Javier Martinez Canillas <javier@osg.samsung.com>
+Message-ID: <56A0F053.6070405@osg.samsung.com>
+Date: Thu, 21 Jan 2016 11:50:59 -0300
+MIME-Version: 1.0
+In-Reply-To: <56A02791.9010409@samsung.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -35,101 +30,45 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 21.01.2016 02:14, Javier Martinez Canillas wrote:
-> The max77686 driver is generic enough that can be used for other
-> Maxim RTC IP blocks but these might not have the same registers
-> layout so instead of accessing the registers directly, add a map
-> to translate offsets to the real registers addresses for each IP.
-> 
-> Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
-> ---
-> 
->  drivers/rtc/rtc-max77686.c | 75 +++++++++++++++++++++++++++++++++++++++-------
->  1 file changed, 65 insertions(+), 10 deletions(-)
-> 
-> diff --git a/drivers/rtc/rtc-max77686.c b/drivers/rtc/rtc-max77686.c
-> index 441d163dcbeb..7316e41820c7 100644
-> --- a/drivers/rtc/rtc-max77686.c
-> +++ b/drivers/rtc/rtc-max77686.c
-> @@ -41,6 +41,8 @@
->  #define ALARM_ENABLE_SHIFT		7
->  #define ALARM_ENABLE_MASK		(1 << ALARM_ENABLE_SHIFT)
->  
-> +#define REG_RTC_NONE			0xdeadbeef
-> +
->  enum {
->  	RTC_SEC = 0,
->  	RTC_MIN,
-> @@ -55,6 +57,7 @@ enum {
->  struct rtc_driver_data {
->  	unsigned long		delay;
->  	int			mask;
-> +	const unsigned int	*map;
->  };
->  
->  struct max77686_rtc_info {
-> @@ -77,9 +80,53 @@ enum MAX77686_RTC_OP {
->  	MAX77686_RTC_READ,
->  };
->  
-> +/* These are not registers but just offsets that are mapped to addresses */
-> +enum rtc_reg {
+Hello,
 
-enum max77686_rtc_reg_offset?
+On 01/20/2016 09:34 PM, Krzysztof Kozlowski wrote:
+> On 21.01.2016 09:30, Alexandre Belloni wrote:
+>>> I believe all patches should go through the RTC tree with proper acks or
+>>> wait until the RTC patches land to pick the defconfig changes.
+>>>
+>>
+>> I think Olof would prefer the last patches to go through arm-soc.
+>
+> That would be preferred but merging them before the 5/8 would cause a
+> loss of functionality on these defconfigs making it non-bisectable
 
-> +	REG_RTC_CONTROLM = 0,
-> +	REG_RTC_CONTROL,
-> +	REG_RTC_UPDATE0,
-> +	REG_RTC_UPDATE1,
-> +	REG_WTSR_SMPL_CNTL,
-> +	REG_RTC_SEC,
-> +	REG_RTC_MIN,
-> +	REG_RTC_HOUR,
-> +	REG_RTC_WEEKDAY,
-> +	REG_RTC_MONTH,
-> +	REG_RTC_YEAR,
-> +	REG_RTC_DATE,
-> +	REG_ALARM1_SEC,
-> +	REG_ALARM1_MIN,
-> +	REG_ALARM1_HOUR,
-> +	REG_ALARM1_WEEKDAY,
-> +	REG_ALARM1_MONTH,
-> +	REG_ALARM1_YEAR,
-> +	REG_ALARM1_DATE,
-> +	REG_ALARM2_SEC,
-> +	REG_ALARM2_MIN,
-> +	REG_ALARM2_HOUR,
-> +	REG_ALARM2_WEEKDAY,
-> +	REG_ALARM2_MONTH,
-> +	REG_ALARM2_YEAR,
-> +	REG_ALARM2_DATE,
-> +	REG_RTC_END,
-> +};
-> +
+Exactly, that's why I suggested merging all through RTC with proper acks.
 
-A short comment what is mapped into what would be appreciated.
+> approach. I think it would be good to preserve bisectability in that
+> matter so either:
+> 1. a tag from RTC on top of which these patches would be applied in arm-soc,
 
-> +static const unsigned int max77686_map[REG_RTC_END] = {
-> +	MAX77686_RTC_CONTROLM, MAX77686_RTC_CONTROL, MAX77686_RTC_UPDATE0,
-> +	REG_RTC_NONE, MAX77686_WTSR_SMPL_CNTL, MAX77686_RTC_SEC,
-> +	MAX77686_RTC_MIN, MAX77686_RTC_HOUR, MAX77686_RTC_WEEKDAY,
-> +	MAX77686_RTC_MONTH, MAX77686_RTC_YEAR, MAX77686_RTC_DATE,
-> +	MAX77686_ALARM1_SEC, MAX77686_ALARM1_MIN, MAX77686_ALARM1_HOUR,
-> +	MAX77686_ALARM1_WEEKDAY, MAX77686_ALARM1_MONTH, MAX77686_ALARM1_YEAR,
-> +	MAX77686_ALARM1_DATE, MAX77686_ALARM2_SEC, MAX77686_ALARM2_MIN,
-> +	MAX77686_ALARM2_HOUR, MAX77686_ALARM2_WEEKDAY, MAX77686_ALARM2_MONTH,
-> +	MAX77686_ALARM2_YEAR, MAX77686_ALARM2_DATE,
-> +};
+I didn't suggest that option because I thought it would be a lot of burden
+for such a trivial change.
 
-It is difficult to check for mistakes here. I would prefer direct mapping:
-	[REG_RTC_CONTROLM] = MAX77686_RTC_CONTROLM,
-	....
+> 2. take them to RTC tree with our acks.
+>
 
+Or another option is to not pick the defconfig changes and I can repost
+those again once the RTC changes land into mainline.
 
-Rest looks good but I did not check the correctness of mapping above.
+But of course if up to you to decide since I'm not a maintainer :)
+  
+> Best regards,
+> Krzysztof
+>
 
-BR,
-Krzysztof
+Best regards,
+-- 
+Javier Martinez Canillas
+Open Source Group
+Samsung Research America
 
 -- 
 -- 
