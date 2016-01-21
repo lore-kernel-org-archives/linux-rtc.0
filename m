@@ -1,32 +1,27 @@
-Return-Path: <rtc-linux+bncBDA7X7F2WUEBBNUEZW2AKGQECPD53YA@googlegroups.com>
-Received: from mail-wm0-x233.google.com (mail-wm0-x233.google.com. [2a00:1450:400c:c09::233])
-        by gmr-mx.google.com with ESMTPS id v7si204532wmg.3.2016.01.10.21.48.38
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sun, 10 Jan 2016 21:48:38 -0800 (PST)
-Received: by mail-wm0-x233.google.com with SMTP id f206so199072236wmf.0
-        for <rtc-linux@googlegroups.com>; Sun, 10 Jan 2016 21:48:38 -0800 (PST)
-Date: Mon, 11 Jan 2016 05:48:35 +0000
-From: Lee Jones <lee.jones@linaro.org>
-To: kbuild test robot <lkp@intel.com>
-Cc: Laxman Dewangan <ldewangan@nvidia.com>, kbuild-all@01.org,
-	robh+dt@kernel.org, pawel.moll@arm.com, mark.rutland@arm.com,
-	ijc+devicetree@hellion.org.uk, galak@codeaurora.org,
-	linus.walleij@linaro.org, gnurou@gmail.com, broonie@kernel.org,
-	a.zummo@towertech.it, alexandre.belloni@free-electrons.com,
-	lgirdwood@gmail.com, devicetree@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org,
-	rtc-linux@googlegroups.com, swarren@nvidia.com, treding@nvidia.com,
-	Chaitanya Bandi <bandik@nvidia.com>,
-	Mallikarjun Kasoju <mkasoju@nvidia.com>
-Subject: [rtc-linux] Re: [PATCH 2/6] mfd: max77620: add core driver for MAX77620/MAX20024
-Message-ID: <20160111054835.GC3331@x1>
-References: <1452177524-23192-3-git-send-email-ldewangan@nvidia.com>
- <201601072308.7XP0yi7D%fengguang.wu@intel.com>
+Return-Path: <rtc-linux+bncBAABB5H4QS2QKGQE5GHZJJI@googlegroups.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <201601072308.7XP0yi7D%fengguang.wu@intel.com>
+Received: from lists.s-osg.org (lists.s-osg.org. [54.187.51.154])
+        by gmr-mx.google.com with ESMTP id ui7si354095pab.0.2016.01.21.12.24.20
+        for <rtc-linux@googlegroups.com>;
+        Thu, 21 Jan 2016 12:24:20 -0800 (PST)
+From: Javier Martinez Canillas <javier@osg.samsung.com>
+To: linux-kernel@vger.kernel.org
+Cc: Kukjin Kim <kgene@kernel.org>,
+	rtc-linux@googlegroups.com,
+	Chanwoo Choi <cw00.choi@samsung.com>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Krzysztof Kozlowski <k.kozlowski@samsung.com>,
+	Laxman Dewangan <ldewangan@nvidia.com>,
+	linux-samsung-soc@vger.kernel.org,
+	Javier Martinez Canillas <javier@osg.samsung.com>
+Subject: [rtc-linux] [PATCH v2 09/10] ARM: exynos_defconfig: Remove MAX77802
+ RTC Kconfig symbol
+Date: Thu, 21 Jan 2016 17:23:32 -0300
+Message-Id: <1453407813-14646-10-git-send-email-javier@osg.samsung.com>
+In-Reply-To: <1453407813-14646-1-git-send-email-javier@osg.samsung.com>
+References: <1453407813-14646-1-git-send-email-javier@osg.samsung.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -36,51 +31,41 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Thu, 07 Jan 2016, kbuild test robot wrote:
+The driver has been removed so the Kconfig symbol is not valid anymore.
 
-> Hi Laxman,
->=20
-> [auto build test WARNING on pinctrl/for-next]
-> [also build test WARNING on v4.4-rc8 next-20160107]
-> [if your patch is applied to the wrong git tree, please drop us a note to=
- help improving the system]
->=20
-> url:    https://github.com/0day-ci/linux/commits/Laxman-Dewangan/Add-supp=
-ort-for-MAXIM-MAX77620-MAX20024-PMIC/20160107-225450
-> base:   https://git.kernel.org/pub/scm/linux/kernel/git/linusw/linux-pinc=
-trl.git for-next
->=20
->=20
-> coccinelle warnings: (new ones prefixed by >>)
->=20
-> >> drivers/mfd/max77620.c:900:3-8: No need to set .owner here. The core w=
-ill do it.
+Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
+Reviewed-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
 
-I can't accept this patch until this has been taken care of.
+---
 
-> Please review and possibly fold the followup patch.
->=20
-> ---
-> 0-DAY kernel test infrastructure                Open Source Technology Ce=
-nter
-> https://lists.01.org/pipermail/kbuild-all                   Intel Corpora=
-tion
+Changes in v2:
+- Add Krzysztof Kozlowski's Reviewed-by tag to patch #9.
 
---=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+ arch/arm/configs/exynos_defconfig | 1 -
+ 1 file changed, 1 deletion(-)
 
---=20
---=20
+diff --git a/arch/arm/configs/exynos_defconfig b/arch/arm/configs/exynos_defconfig
+index 24dcd2bb1215..cdbe6dbc6e75 100644
+--- a/arch/arm/configs/exynos_defconfig
++++ b/arch/arm/configs/exynos_defconfig
+@@ -193,7 +193,6 @@ CONFIG_LEDS_TRIGGER_HEARTBEAT=y
+ CONFIG_RTC_CLASS=y
+ CONFIG_RTC_DRV_MAX8997=y
+ CONFIG_RTC_DRV_MAX77686=y
+-CONFIG_RTC_DRV_MAX77802=y
+ CONFIG_RTC_DRV_S5M=y
+ CONFIG_RTC_DRV_S3C=y
+ CONFIG_DMADEVICES=y
+-- 
+2.5.0
+
+-- 
+-- 
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
----=20
-You received this message because you are subscribed to the Google Groups "=
-rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an e=
-mail to rtc-linux+unsubscribe@googlegroups.com.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
