@@ -1,25 +1,25 @@
-Return-Path: <rtc-linux+bncBCNNJWF7RUMRBE7VVK2AKGQEWCSIGAA@googlegroups.com>
+Return-Path: <rtc-linux+bncBAABBXP4QS2QKGQESNC73PQ@googlegroups.com>
 MIME-Version: 1.0
-Received: from mail-pf0-x243.google.com (mail-pf0-x243.google.com. [2607:f8b0:400e:c00::243])
-        by gmr-mx.google.com with ESMTPS id t69si5807951pfi.1.2016.01.04.10.31.46
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 04 Jan 2016 10:31:46 -0800 (PST)
-Received: by mail-pf0-x243.google.com with SMTP id e65so19496524pfe.2
-        for <rtc-linux@googlegroups.com>; Mon, 04 Jan 2016 10:31:46 -0800 (PST)
-From: Joshua Clayton <stillcompiling@gmail.com>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Alessandro Zummo <a.zummo@towertech.it>
-Cc: rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org,
-	Joshua Clayton <stillcompiling@gmail.com>
-Subject: [rtc-linux] [PATCH v2 8/8] rtc-pcf2123: implement read_offset and set_offset
-Date: Mon,  4 Jan 2016 10:31:26 -0800
-Message-Id: <1f7f643e25fff98c0cf6b9c694e1b8ba41f057cb.1451929910.git.stillcompiling@gmail.com>
-In-Reply-To: <cover.1451928661.git.stillcompiling@gmail.com>
-References: <cover.1451928661.git.stillcompiling@gmail.com>
-In-Reply-To: <0000-cover-letter.patch>
-References: <0000-cover-letter.patch>
+Received: from lists.s-osg.org (lists.s-osg.org. [54.187.51.154])
+        by gmr-mx.google.com with ESMTP id i25si340555pfj.2.2016.01.21.12.23.57
+        for <rtc-linux@googlegroups.com>;
+        Thu, 21 Jan 2016 12:23:57 -0800 (PST)
+From: Javier Martinez Canillas <javier@osg.samsung.com>
+To: linux-kernel@vger.kernel.org
+Cc: Kukjin Kim <kgene@kernel.org>,
+	rtc-linux@googlegroups.com,
+	Chanwoo Choi <cw00.choi@samsung.com>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Krzysztof Kozlowski <k.kozlowski@samsung.com>,
+	Laxman Dewangan <ldewangan@nvidia.com>,
+	linux-samsung-soc@vger.kernel.org,
+	Javier Martinez Canillas <javier@osg.samsung.com>
+Subject: [rtc-linux] [PATCH v2 02/10] rtc: max77686: Use ARRAY_SIZE() instead
+ of current array length
+Date: Thu, 21 Jan 2016 17:23:25 -0300
+Message-Id: <1453407813-14646-3-git-send-email-javier@osg.samsung.com>
+In-Reply-To: <1453407813-14646-1-git-send-email-javier@osg.samsung.com>
+References: <1453407813-14646-1-git-send-email-javier@osg.samsung.com>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -31,99 +31,34 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-pcf2123 has an offset register, which can be used to make minor
-adjustments to the clock rate to compensate for temperature or
-a crystal that is not exactly right.
+It is better to use the ARRAY_SIZE() macro instead of the array length
+to avoid bugs if the array is later changed and the length not updated.
 
-Expose the offset register to sysfs
+Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
+Reviewed-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
 
-Signed-off-by: Joshua Clayton <stillcompiling@gmail.com>
 ---
- drivers/rtc/rtc-pcf2123.c | 57 +++++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 57 insertions(+)
 
-diff --git a/drivers/rtc/rtc-pcf2123.c b/drivers/rtc/rtc-pcf2123.c
-index d9a44ad..da27738 100644
---- a/drivers/rtc/rtc-pcf2123.c
-+++ b/drivers/rtc/rtc-pcf2123.c
-@@ -100,6 +100,7 @@
- /* PCF2123_REG_OFFSET BITS */
- #define OFFSET_SIGN_BIT		BIT(6)	/* 2's complement sign bit */
- #define OFFSET_COARSE		BIT(7)	/* Coarse mode offset */
-+#define OFFSET_STEP		(2170)	/* Offset step in parts per billion */
+Changes in v2:
+- Add Krzysztof Kozlowski's Reviewed-by tag to patch #2.
+
+ drivers/rtc/rtc-max77686.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/rtc/rtc-max77686.c b/drivers/rtc/rtc-max77686.c
+index 6653c3d11b66..98fabdb308b9 100644
+--- a/drivers/rtc/rtc-max77686.c
++++ b/drivers/rtc/rtc-max77686.c
+@@ -406,7 +406,8 @@ static int max77686_rtc_init_reg(struct max77686_rtc_info *info)
  
- /* READ/WRITE ADDRESS BITS */
- #define PCF2123_WRITE		BIT(4)
-@@ -206,6 +207,59 @@ static ssize_t pcf2123_store(struct device *dev, struct device_attribute *attr,
- 	return count;
- }
+ 	info->rtc_24hr_mode = 1;
  
-+static int pcf2123_read_offset(struct device *dev, long *offset)
-+{
-+	int ret;
-+	s8 reg;
-+
-+	ret = pcf2123_read(dev, PCF2123_REG_OFFSET, &reg, 1);
-+	if (ret < 0)
-+		return ret;
-+
-+	if (reg & OFFSET_COARSE)
-+		reg <<= 1; /* multiply by 2 and sign extend */
-+	else
-+		reg |= (reg & OFFSET_SIGN_BIT) << 1; /* sign extend only */
-+
-+	*offset = ((long)reg) * OFFSET_STEP;
-+
-+	return 0;
-+}
-+
-+/*
-+ * The offset register is a 7 bit signed value with a coarse bit in bit 7.
-+ * The main difference between the two is normal offset adjusts the first
-+ * second of n minutes every other hour, with 61, 62 and 63 being shoved
-+ * into the 60th minute.
-+ * The coarse adjustment does the same, but every hour.
-+ * the two overlap, with every even normal offset value corresponding
-+ * to a coarse offset. Based on this algorithm, it seems that despite the
-+ * name, coarse offset is a better fit for overlapping values.
-+ */
-+static int pcf2123_set_offset(struct device *dev, long offset)
-+{
-+	s8 reg;
-+
-+	if (offset > OFFSET_STEP * 127)
-+		reg = 127;
-+	else if (offset < OFFSET_STEP * -128)
-+		reg = -128;
-+	else
-+		reg = (s8)((offset + (OFFSET_STEP >> 1)) / OFFSET_STEP);
-+
-+	/* choose fine offset only for odd values in the normal range */
-+	if (reg & 1 && reg <= 63 && reg >= -64) {
-+		/* Normal offset. Clear the coarse bit */
-+		reg &= ~OFFSET_COARSE;
-+	} else {
-+		/* Coarse offset. Divide by 2 and set the coarse bit */
-+		reg >>= 1;
-+		reg |= OFFSET_COARSE;
-+	}
-+
-+	return pcf2123_write_reg(dev, PCF2123_REG_OFFSET, reg);
-+}
-+
- static int pcf2123_rtc_read_time(struct device *dev, struct rtc_time *tm)
- {
- 	u8 rxbuf[7];
-@@ -314,6 +368,9 @@ static int pcf2123_reset(struct device *dev)
- static const struct rtc_class_ops pcf2123_rtc_ops = {
- 	.read_time	= pcf2123_rtc_read_time,
- 	.set_time	= pcf2123_rtc_set_time,
-+	.read_offset	= pcf2123_read_offset,
-+	.set_offset	= pcf2123_set_offset,
-+
- };
- 
- static int pcf2123_probe(struct spi_device *spi)
+-	ret = regmap_bulk_write(info->max77686->rtc_regmap, MAX77686_RTC_CONTROLM, data, 2);
++	ret = regmap_bulk_write(info->max77686->rtc_regmap,
++				MAX77686_RTC_CONTROLM, data, ARRAY_SIZE(data));
+ 	if (ret < 0) {
+ 		dev_err(info->dev, "%s: fail to write controlm reg(%d)\n",
+ 				__func__, ret);
 -- 
 2.5.0
 
