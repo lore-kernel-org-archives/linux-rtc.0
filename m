@@ -1,20 +1,25 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBKVQT22QKGQEE5TKK7Q@googlegroups.com>
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id c140si288955wmh.0.2016.01.26.08.00.42
+Return-Path: <rtc-linux+bncBAABBQ7DQO2QKGQENUIBPUI@googlegroups.com>
+Received: from lists.s-osg.org (lists.s-osg.org. [54.187.51.154])
+        by gmr-mx.google.com with ESMTP id jg4si173570pac.2.2016.01.21.06.57.07
         for <rtc-linux@googlegroups.com>;
-        Tue, 26 Jan 2016 08:00:42 -0800 (PST)
-Date: Tue, 26 Jan 2016 17:00:31 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Joshua Clayton <stillcompiling@gmail.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH v2 0/8] rtc: enable adjustment of clock offset
-Message-ID: <20160126160031.GA25597@piout.net>
-References: <cover.1451928661.git.stillcompiling@gmail.com>
- <3106681.dzRcYkv4oj@diplodocus>
+        Thu, 21 Jan 2016 06:57:07 -0800 (PST)
+Subject: [rtc-linux] Re: [PATCH 4/8] rtc: max77686: Add an indirection level
+ to access RTC registers
+To: Krzysztof Kozlowski <k.kozlowski@samsung.com>,
+ linux-kernel@vger.kernel.org
+References: <1453310088-29985-1-git-send-email-javier@osg.samsung.com>
+ <1453310088-29985-5-git-send-email-javier@osg.samsung.com>
+ <56A02EEF.2060604@samsung.com>
+Cc: Kukjin Kim <kgene@kernel.org>, rtc-linux@googlegroups.com,
+ Chanwoo Choi <cw00.choi@samsung.com>,
+ Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+ Laxman Dewangan <ldewangan@nvidia.com>, linux-samsung-soc@vger.kernel.org
+From: Javier Martinez Canillas <javier@osg.samsung.com>
+Message-ID: <56A0F1BD.3010203@osg.samsung.com>
+Date: Thu, 21 Jan 2016 11:57:01 -0300
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <3106681.dzRcYkv4oj@diplodocus>
+In-Reply-To: <56A02EEF.2060604@samsung.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -25,97 +30,125 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 26/01/2016 at 06:56:40 -0800, Joshua Clayton wrote :
-> Ping?
-> 
-> On Monday, January 04, 2016 10:31:18 AM Joshua Clayton wrote:
-> > Alexandre,
-> > this is the second version of apatch set to be able to adjust the
-> > clock on a pcf2123, but with a big addition. I am also proposing
-> > a couple of new rtc api functions and a new sysfs file.
-> > 
-> > Patches 1-5 are very much v2 patches that address All of the
-> > concerns you had with v1. It is my hope to get them merged without
-> > too much more trouble.
-> > 
-> The rtc _needs_ patches 1-5 in order to use the clock offset
-> adjustment at all (current upstream code resets it to zero during
-> device probe, so it doesn't survive a reboot)
-> Should I split out patches 1-5 to make them easier to review?
-> 
+Hello Krzysztof,
 
-The merge widows just closed so I've started to collect a few patches
-since monday. This is a big series and I didn't have time to review
-everything yet.
+Thanks a lot for your review.
 
-> > Patches 6-8 are attemping to add a new function to the rtc class
-> > to adjust the clock rate. I hope I am going about this the right way,
-> > But here goes.
-> > 
-> I am hoping to have some discussion about 6, 7 and 8.
-> Particularly whether parts per billion is the right unit (I think it is)
-> and whether "offset" is the best name for the attribute (not as sure).
-> 
+On 01/20/2016 10:05 PM, Krzysztof Kozlowski wrote:
+> On 21.01.2016 02:14, Javier Martinez Canillas wrote:
+>> The max77686 driver is generic enough that can be used for other
+>> Maxim RTC IP blocks but these might not have the same registers
+>> layout so instead of accessing the registers directly, add a map
+>> to translate offsets to the real registers addresses for each IP.
+>>
+>> Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
+>> ---
+>>
+>>   drivers/rtc/rtc-max77686.c | 75 +++++++++++++++++++++++++++++++++++++++-------
+>>   1 file changed, 65 insertions(+), 10 deletions(-)
+>>
+>> diff --git a/drivers/rtc/rtc-max77686.c b/drivers/rtc/rtc-max77686.c
+>> index 441d163dcbeb..7316e41820c7 100644
+>> --- a/drivers/rtc/rtc-max77686.c
+>> +++ b/drivers/rtc/rtc-max77686.c
+>> @@ -41,6 +41,8 @@
+>>   #define ALARM_ENABLE_SHIFT		7
+>>   #define ALARM_ENABLE_MASK		(1 << ALARM_ENABLE_SHIFT)
+>>
+>> +#define REG_RTC_NONE			0xdeadbeef
+>> +
+>>   enum {
+>>   	RTC_SEC = 0,
+>>   	RTC_MIN,
+>> @@ -55,6 +57,7 @@ enum {
+>>   struct rtc_driver_data {
+>>   	unsigned long		delay;
+>>   	int			mask;
+>> +	const unsigned int	*map;
+>>   };
+>>
+>>   struct max77686_rtc_info {
+>> @@ -77,9 +80,53 @@ enum MAX77686_RTC_OP {
+>>   	MAX77686_RTC_READ,
+>>   };
+>>
+>> +/* These are not registers but just offsets that are mapped to addresses */
+>> +enum rtc_reg {
+>
+> enum max77686_rtc_reg_offset?
+>
 
-Yeah, My plan was to take 1 to 5 and leave out 6-8 for discussion, I'm
-not yet sure what the correct api should look like.
+Agreed.
+  
+>> +	REG_RTC_CONTROLM = 0,
+>> +	REG_RTC_CONTROL,
+>> +	REG_RTC_UPDATE0,
+>> +	REG_RTC_UPDATE1,
+>> +	REG_WTSR_SMPL_CNTL,
+>> +	REG_RTC_SEC,
+>> +	REG_RTC_MIN,
+>> +	REG_RTC_HOUR,
+>> +	REG_RTC_WEEKDAY,
+>> +	REG_RTC_MONTH,
+>> +	REG_RTC_YEAR,
+>> +	REG_RTC_DATE,
+>> +	REG_ALARM1_SEC,
+>> +	REG_ALARM1_MIN,
+>> +	REG_ALARM1_HOUR,
+>> +	REG_ALARM1_WEEKDAY,
+>> +	REG_ALARM1_MONTH,
+>> +	REG_ALARM1_YEAR,
+>> +	REG_ALARM1_DATE,
+>> +	REG_ALARM2_SEC,
+>> +	REG_ALARM2_MIN,
+>> +	REG_ALARM2_HOUR,
+>> +	REG_ALARM2_WEEKDAY,
+>> +	REG_ALARM2_MONTH,
+>> +	REG_ALARM2_YEAR,
+>> +	REG_ALARM2_DATE,
+>> +	REG_RTC_END,
+>> +};
+>> +
+>
+> A short comment what is mapped into what would be appreciated.
+>
 
-> > A number of rtc devices, such as the NXP pcf2123 include a facility
-> > to adjust the clock in order to compensate for temperature or a
-> > crystal, capacitor, etc, that results in the rtc clock not running
-> > at exactly 32.768 kHz.
-> > 
-> > This patchset adds kernel and sysfs hooks to access that ability.
-> > 
-> > One datasheet suggests it might be adjusted based on input from 
-> > a temperature sensor. I could also potentially see it being set
-> > as part of ntp calibration.
-> > 
-> > Data sheets I have seen refer to this as a clock offset, and measure it
-> > in parts per million (ppm), however they often reference ppm to 2 digits
-> > of precision, which makes integer ppm less than ideal. I use parts per
-> > billion, which more than covers the precision needed and works nicely
-> > within 32 bits
-> > 
-> > The name "offset" came from the pcf-2123 datasheet and is used by at
-> > least some other data sheets. I would be happy to use a different term
-> > if someone else comes up with something more concise.
-> >     
-> > Changes since v1:
-> > - Use the BIT() macro for all register bits
-> > - Remove unneeded range checks from read/write functions
-> > - Merge patch 3 (replace magic numbers with defines) into patch 2
-> > - Add a proper commit message to patch 5, now patch 4
-> > - Fix a function alignment bug.
-> > - Move OSC_HAS_STOPPED check into pcf2123_rtc_read_time, and get rid of
-> >   pcf2123_time_valid()
-> > - Drop patches refactoring pcf2123 sysfs.
-> > - Add rtc interface and rtc sysfs file for clock offset
-> > 
-> > Joshua Clayton (8):
-> >   rtc-pcf2123: define registers and bit macros
-> >   rtc-pcf2123: clean up reads from the chip
-> >   rtc-pcf2123: clean up writes to the rtc chip
-> >   rtc-pcf2123: refactor chip reset into a function
-> >   rtc-pcf2123: avoid resetting the clock if possible
-> >   rtc: Add functions to set and read clock offset
-> >   rtc: implement a sysfs interface for clock offset
-> >   rtc-pcf2123: implement read_offset and set_offset
-> > 
-> >  drivers/rtc/interface.c   |  57 ++++++++++
-> >  drivers/rtc/rtc-pcf2123.c | 271 +++++++++++++++++++++++++++++++++-------------
-> >  drivers/rtc/rtc-sysfs.c   |  29 +++++
-> >  include/linux/rtc.h       |   4 +
-> >  4 files changed, 284 insertions(+), 77 deletions(-)
-> > 
-> > 
-> Thanks again,
-> Joshua Clayton
+Ok, added such comment for v2.
+  
+>> +static const unsigned int max77686_map[REG_RTC_END] = {
+>> +	MAX77686_RTC_CONTROLM, MAX77686_RTC_CONTROL, MAX77686_RTC_UPDATE0,
+>> +	REG_RTC_NONE, MAX77686_WTSR_SMPL_CNTL, MAX77686_RTC_SEC,
+>> +	MAX77686_RTC_MIN, MAX77686_RTC_HOUR, MAX77686_RTC_WEEKDAY,
+>> +	MAX77686_RTC_MONTH, MAX77686_RTC_YEAR, MAX77686_RTC_DATE,
+>> +	MAX77686_ALARM1_SEC, MAX77686_ALARM1_MIN, MAX77686_ALARM1_HOUR,
+>> +	MAX77686_ALARM1_WEEKDAY, MAX77686_ALARM1_MONTH, MAX77686_ALARM1_YEAR,
+>> +	MAX77686_ALARM1_DATE, MAX77686_ALARM2_SEC, MAX77686_ALARM2_MIN,
+>> +	MAX77686_ALARM2_HOUR, MAX77686_ALARM2_WEEKDAY, MAX77686_ALARM2_MONTH,
+>> +	MAX77686_ALARM2_YEAR, MAX77686_ALARM2_DATE,
+>> +};
+>
+> It is difficult to check for mistakes here. I would prefer direct mapping:
+> 	[REG_RTC_CONTROLM] = MAX77686_RTC_CONTROLM,
+> 	....
+>
 
+Right, that's a very good idea.
+  
+>
+> Rest looks good but I did not check the correctness of mapping above.
+>
+
+Great, thanks.
+  
+> BR,
+> Krzysztof
+>
+
+Best regards,
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+Javier Martinez Canillas
+Open Source Group
+Samsung Research America
 
 -- 
 -- 
