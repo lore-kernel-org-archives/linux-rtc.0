@@ -1,26 +1,24 @@
-Return-Path: <rtc-linux+bncBD2OLRXW4ABBBV4RVW2QKGQEA6DQKZY@googlegroups.com>
-Received: from hqemgate14.nvidia.com (hqemgate14.nvidia.com. [216.228.121.143])
-        by gmr-mx.google.com with ESMTPS id jg4si1966027pac.2.2016.01.29.03.11.18
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 29 Jan 2016 03:11:18 -0800 (PST)
-Message-ID: <56AB462A.8090307@nvidia.com>
-Date: Fri, 29 Jan 2016 16:29:54 +0530
-From: Laxman Dewangan <ldewangan@nvidia.com>
+Return-Path: <rtc-linux+bncBAABBTPLQO2QKGQEXUHEMFY@googlegroups.com>
+Received: from lists.s-osg.org (lists.s-osg.org. [54.187.51.154])
+        by gmr-mx.google.com with ESMTP id jg4si184376pac.2.2016.01.21.07.14.21
+        for <rtc-linux@googlegroups.com>;
+        Thu, 21 Jan 2016 07:14:21 -0800 (PST)
+Subject: [rtc-linux] Re: [PATCH 7/8] ARM: exynos_defconfig: Remove MAX77802
+ RTC Kconfig symbol
+To: Krzysztof Kozlowski <k.kozlowski@samsung.com>,
+ linux-kernel@vger.kernel.org
+References: <1453310088-29985-1-git-send-email-javier@osg.samsung.com>
+ <1453310088-29985-8-git-send-email-javier@osg.samsung.com>
+ <56A03B3A.40709@samsung.com>
+Cc: Kukjin Kim <kgene@kernel.org>, rtc-linux@googlegroups.com,
+ Chanwoo Choi <cw00.choi@samsung.com>,
+ Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+ Laxman Dewangan <ldewangan@nvidia.com>, linux-samsung-soc@vger.kernel.org
+From: Javier Martinez Canillas <javier@osg.samsung.com>
+Message-ID: <56A0F5C8.3050208@osg.samsung.com>
+Date: Thu, 21 Jan 2016 12:14:16 -0300
 MIME-Version: 1.0
-To: Lee Jones <lee.jones@linaro.org>
-CC: <robh+dt@kernel.org>, <pawel.moll@arm.com>, <mark.rutland@arm.com>,
-	<ijc+devicetree@hellion.org.uk>, <galak@codeaurora.org>,
-	<linus.walleij@linaro.org>, <gnurou@gmail.com>, <broonie@kernel.org>,
-	<a.zummo@towertech.it>, <alexandre.belloni@free-electrons.com>,
-	<lgirdwood@gmail.com>, <devicetree@vger.kernel.org>,
-	<linux-kernel@vger.kernel.org>, <linux-gpio@vger.kernel.org>,
-	<rtc-linux@googlegroups.com>, <swarren@nvidia.com>, <treding@nvidia.com>,
-	<k.kozlowski@samsung.com>, Chaitanya Bandi <bandik@nvidia.com>, Mallikarjun
- Kasoju <mkasoju@nvidia.com>
-Subject: [rtc-linux] Re: [PATCH V6 2/8] mfd: max77620: add core driver for MAX77620/MAX20024
-References: <1453988274-28052-1-git-send-email-ldewangan@nvidia.com> <1453988274-28052-3-git-send-email-ldewangan@nvidia.com> <20160129090632.GS3368@x1>
-In-Reply-To: <20160129090632.GS3368@x1>
+In-Reply-To: <56A03B3A.40709@samsung.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
@@ -32,80 +30,38 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Thanks Lee for review.
-I will take care of most of stuff on next version of patch.
+Hello Krzysztof,
 
-However, I have some query form your comment.
-On Friday 29 January 2016 02:36 PM, Lee Jones wrote:
-> On Thu, 28 Jan 2016, Laxman Dewangan wrote:
+On 01/20/2016 10:58 PM, Krzysztof Kozlowski wrote:
+> On 21.01.2016 02:14, Javier Martinez Canillas wrote:
+>> The driver has been removed so the Kconfig symbol is not valid anymore.
+>>
+>> Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
+>> ---
+>>
+>>   arch/arm/configs/exynos_defconfig | 1 -
+>>   1 file changed, 1 deletion(-)
 >
+> The patch should go after merging rtc-max77802 into rtc-max77686 to
+> preserve bisectability on defconfig.
 >
->> +	}
->> +
->> +#define MAX20024_SUB_MODULE_NO_RES(_name, _id)			\
->> +	[_id] = {						\
->> +		.name = "max20024-"#_name,			\
->> +		.id = _id,					\
->> +	}
-> I don't want people hand-rolling this stuff.  If it's useful to you,
-> it's useful to others, so great a generic implementation that lives in
-> the kernel headers directory.
 
-yaah, generic implementation possible. I can put the new defines in the 
-mfd/core.h.
-
-This will be similar to
-+/* Define mfd cells with name and resource */
-+#define DEFINE_MFD_CELL_NAME_RESOURCE(_name, _res)             \
-+       {                                                       \
-+               .name = (_name),                                \
-+               .num_resources = ARRAY_SIZE((res)),             \
-+               .resources = (_res),                            \
-+       }
-+
-+/* Define mfd cells with name */
-+#define DEFINE_MFD_CELL_NAME(_name)                            \
-+       {                                                       \
-+               .name = (_name),                                \
-+       }
-+
-
-This will be separate patch and should be applied before this series.
-Does it look fine?
-
-
+That's correct, same for 8/8.
+  
+> Reviewed-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
 >
->> +static const struct i2c_device_id max77620_id[] = {
->> +	{"max77620", MAX77620},
->> +	{"max20024", MAX20024},
->> +	{},
->> +};
->> +MODULE_DEVICE_TABLE(i2c, max77620_id);
->> +
->> +static const struct of_device_id max77620_of_match[] = {
->> +	{
->> +		.compatible = "maxim,max77620",
->> +		.data = &max77620_cells,
->> +	}, {
->> +		.compatible = "maxim,max20024",
->> +		.data = &max20024_cells,
->> +	}, {
->> +	},
->> +};
->> +MODULE_DEVICE_TABLE(of, max77620_of_match);
-> This is not acceptable.  EITHER use DT OR MFD methods of registering
-> devices, do not mix the two.
 
-You mean I need to either provide the i2c_device_id table or the 
-of_device_id table, not both?
-Do I need to protect it by CONFIG_OF?
+Thanks.
+  
+> Best regards,
+> Krzysztof
+>
 
-This only support the DT method of registration. So do I need to remove 
-i2c_device_id?
-
-
-
-
+Best regards,
+-- 
+Javier Martinez Canillas
+Open Source Group
+Samsung Research America
 
 -- 
 -- 
