@@ -1,26 +1,26 @@
-Return-Path: <rtc-linux+bncBAABBHUOT62QKGQENORP75Q@googlegroups.com>
-MIME-Version: 1.0
-Received: from lists.s-osg.org (lists.s-osg.org. [54.187.51.154])
-        by gmr-mx.google.com with ESMTP id jg4si277405pac.2.2016.01.26.11.21.01
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBOGNQC2QKGQEVXHX6NQ@googlegroups.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id 16si721859wmf.2.2016.01.20.16.30.47
         for <rtc-linux@googlegroups.com>;
-        Tue, 26 Jan 2016 11:21:01 -0800 (PST)
-From: Javier Martinez Canillas <javier@osg.samsung.com>
-To: linux-kernel@vger.kernel.org
-Cc: Kukjin Kim <kgene@kernel.org>,
-	rtc-linux@googlegroups.com,
-	Chanwoo Choi <cw00.choi@samsung.com>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        Wed, 20 Jan 2016 16:30:47 -0800 (PST)
+Date: Thu, 21 Jan 2016 01:30:47 +0100
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Javier Martinez Canillas <javier@osg.samsung.com>
+Cc: linux-kernel@vger.kernel.org, Kukjin Kim <kgene@kernel.org>,
+	rtc-linux@googlegroups.com, Chanwoo Choi <cw00.choi@samsung.com>,
 	Krzysztof Kozlowski <k.kozlowski@samsung.com>,
 	Laxman Dewangan <ldewangan@nvidia.com>,
-	linux-samsung-soc@vger.kernel.org,
-	Javier Martinez Canillas <javier@osg.samsung.com>
-Subject: [rtc-linux] [PATCH v3 07/10] rtc: max77686: Use dev_warn() instead of pr_warn()
-Date: Tue, 26 Jan 2016 16:20:17 -0300
-Message-Id: <1453836020-29579-8-git-send-email-javier@osg.samsung.com>
-In-Reply-To: <1453836020-29579-1-git-send-email-javier@osg.samsung.com>
-References: <1453836020-29579-1-git-send-email-javier@osg.samsung.com>
-Reply-To: rtc-linux@googlegroups.com
+	linux-samsung-soc@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+	Olof Johansson <olof@lixom.net>,
+	linux-arm-kernel@lists.infradead.org
+Subject: [rtc-linux] Re: [PATCH 0/8] rtc: max77686: Extend driver and add
+ max77802 support
+Message-ID: <20160121003047.GF3367@piout.net>
+References: <1453310088-29985-1-git-send-email-javier@osg.samsung.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1453310088-29985-1-git-send-email-javier@osg.samsung.com>
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -30,52 +30,28 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-It is better to use dev_*() log functions instead of pr_*() to print
-information about the device in the kernel log in a standardized way.
+Hi,
 
-This also allows to remove the local pr_fmt() defined macro.
+On 20/01/2016 at 14:14:40 -0300, Javier Martinez Canillas wrote :
+> One thing that I'm not sure is how to handle bisectability, in patch #5
+> there will be two drivers that matches "rtc-max77802". So I don't know
+> if I should use a different platform_device_id name and change in the
+> same patch that max77802 is removed or if this is not a big deal so the
+> patches could stay as is.
+> 
 
-Suggested-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
-Acked-by: Laxman Dewangan <ldewangan@nvidia.com>
+I'm fine with those patches as is.
 
----
+> I believe all patches should go through the RTC tree with proper acks or
+> wait until the RTC patches land to pick the defconfig changes.
+> 
 
-Changes in v3:
-- Add Laxman Dewangan's Acked-by tag to patch #7.
+I think Olof would prefer the last patches to go through arm-soc.
 
-Changes in v2: None
-
- drivers/rtc/rtc-max77686.c | 7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
-
-diff --git a/drivers/rtc/rtc-max77686.c b/drivers/rtc/rtc-max77686.c
-index 09fc73016d3a..da47b1d85793 100644
---- a/drivers/rtc/rtc-max77686.c
-+++ b/drivers/rtc/rtc-max77686.c
-@@ -12,8 +12,6 @@
-  *
-  */
- 
--#define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
--
- #include <linux/slab.h>
- #include <linux/rtc.h>
- #include <linux/delay.h>
-@@ -245,8 +243,9 @@ static int max77686_rtc_tm_to_data(struct rtc_time *tm, u8 *data,
- 		data[RTC_YEAR] = tm->tm_year > 100 ? (tm->tm_year - 100) : 0;
- 
- 		if (tm->tm_year < 100) {
--			pr_warn("RTC can't handle year %d. Assume it's 2000.\n",
--				1900 + tm->tm_year);
-+			dev_warn(info->dev,
-+				 "RTC can't handle year %d. Assume it's 2000\n",
-+				 1900 + tm->tm_year);
- 			return -EINVAL;
- 		}
- 	} else {
 -- 
-2.5.0
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
 -- 
 -- 
