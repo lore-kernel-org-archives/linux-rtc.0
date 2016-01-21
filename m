@@ -1,34 +1,18 @@
-Return-Path: <rtc-linux+bncBDA7X7F2WUEBBJEOTC2QKGQEV6UVPOI@googlegroups.com>
-Received: from mail-wm0-x22e.google.com (mail-wm0-x22e.google.com. [2a00:1450:400c:c09::22e])
-        by gmr-mx.google.com with ESMTPS id h123si405120wmd.0.2016.01.25.03.29.40
+Return-Path: <rtc-linux+bncBAABBDNCQS2QKGQEDFHOUDI@googlegroups.com>
+MIME-Version: 1.0
+Received: from mo6-p00-ob.smtp.rzone.de (mo6-p00-ob.smtp.rzone.de. [2a01:238:20a:202:5300::7])
+        by gmr-mx.google.com with ESMTPS id f18si104277wme.1.2016.01.21.09.10.37
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 25 Jan 2016 03:29:40 -0800 (PST)
-Received: by mail-wm0-x22e.google.com with SMTP id u188so61567532wmu.1
-        for <rtc-linux@googlegroups.com>; Mon, 25 Jan 2016 03:29:40 -0800 (PST)
-Date: Mon, 25 Jan 2016 11:29:36 +0000
-From: Lee Jones <lee.jones@linaro.org>
-To: Laxman Dewangan <ldewangan@nvidia.com>
-Cc: Krzysztof Kozlowski <k.kozlowski@samsung.com>, robh+dt@kernel.org,
-	pawel.moll@arm.com, mark.rutland@arm.com,
-	ijc+devicetree@hellion.org.uk, galak@codeaurora.org,
-	linus.walleij@linaro.org, gnurou@gmail.com, broonie@kernel.org,
-	a.zummo@towertech.it, alexandre.belloni@free-electrons.com,
-	lgirdwood@gmail.com, devicetree@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org,
-	rtc-linux@googlegroups.com, swarren@nvidia.com, treding@nvidia.com,
-	vreddytalla@nvidia.com, Chaitanya Bandi <bandik@nvidia.com>,
-	Mallikarjun Kasoju <mkasoju@nvidia.com>
-Subject: [rtc-linux] Re: [PATCH V4 2/5] mfd: max77620: add core driver for MAX77620/MAX20024
-Message-ID: <20160125112936.GB3368@x1>
-References: <1453198783-28383-1-git-send-email-ldewangan@nvidia.com>
- <1453198783-28383-3-git-send-email-ldewangan@nvidia.com>
- <569F199D.9020207@samsung.com>
- <56A214EB.30905@nvidia.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <56A214EB.30905@nvidia.com>
+        Thu, 21 Jan 2016 09:10:37 -0800 (PST)
+From: Michael Lange <linuxstuff@milaw.biz>
+To: rtc-linux@googlegroups.com
+Cc: Michael Lange <linuxstuff@milaw.biz>
+Subject: [rtc-linux] [PATCH] rtc: ds1307.c: add support for the DT property 'wakeup-source'
+Date: Thu, 21 Jan 2016 18:10:16 +0100
+Message-Id: <1453396216-8367-1-git-send-email-linuxstuff@milaw.biz>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -38,80 +22,105 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Fri, 22 Jan 2016, Laxman Dewangan wrote:
+For RTC chips with no IRQ directly connected to the SoC, the RTC chip
+can be forced as a wakeup source by stating that explicitly in
+the device's .dts file using the "wakeup-source" boolean property.
+This will guarantee the 'wakealarm' sysfs entry is available on the
+device, if supported by the RTC.
 
-> Thanks Krzysztof for review.
->=20
-> Hi Lee,
-> Are you taking the patches from your tree? Or will go in individual
-> subsystem?
+With these changes to the driver rtc-ds1307 and the necessary entries
+in the .dts file, I get an working ds1337 RTC on the Witty Pi extension
+board by UUGear for the Raspberry Pi.
 
-I can take the set if there are build dependencies.  If there aren't,
-then they should be routed via their respective subsystem trees.
+An example for the entry in the .dts file:
 
-> On Wednesday 20 January 2016 10:52 AM, Krzysztof Kozlowski wrote:
-> >On 19.01.2016 19:19, Laxman Dewangan wrote:
-> >>MAX77620/MAX20024 are Power Management IC from the MAXIM.
-> >>It supports RTC, multiple GPIOs, multiple DCDC and LDOs,
-> >>watchdog, clock etc.
-> >>
-> >>Add MFD drier to provides common support for accessing the
-> >>device; additional drivers is developed on respected subsystem
-> >>in order to use the functionality of the device.
-> >>
-> >>Signed-off-by: Laxman Dewangan <ldewangan@nvidia.com>
-> >>Signed-off-by: Chaitanya Bandi <bandik@nvidia.com>
-> >>Signed-off-by: Mallikarjun Kasoju <mkasoju@nvidia.com>
-> >>---
-> >>Changes from V1:
-> >>- Code cleanups per review from V1.
-> >>- Move register acccess APIs from header to c file.
-> >>- Remove some of non required variable, remove duplication in error mes=
-sage
-> >>  and simplify some of function implementation.
-> >>- Register RTC driver such that it can get the regmap handle form paren=
-t device
-> >>
-> >>Changes from V2:
-> >>- Run coccicheck and checkpatch in strict mode for the alignment.
-> >>- Drop RTC driver and its i2c client registration.
-> >>
-> >>Changes from V3:
-> >>- Change all sys initcall to module driver.
-> >>- change the max77620_read argument to unisgned int from u8.
-> >>
-> >>  drivers/mfd/Kconfig          |  15 +
-> >>  drivers/mfd/Makefile         |   1 +
-> >>  drivers/mfd/max77620.c       | 871 ++++++++++++++++++++++++++++++++++=
-+++++++++
-> >>  include/linux/mfd/max77620.h | 404 ++++++++++++++++++++
-> >>  4 files changed, 1291 insertions(+)
-> >>  create mode 100644 drivers/mfd/max77620.c
-> >>  create mode 100644 include/linux/mfd/max77620.h
-> >>
-> >
-> >Reviewed-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-> >
-> >Best regards,
-> >Krzysztof
-> >
->=20
+	rtc: ds1337@68 {
+		compatible = "dallas,ds1337";
+		reg = <0x68>;
+		wakeup-source;
 
---=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+If the "wakeup-source" property is set, do not request an IRQ.
+Set also UIE mode to unsupported, to get a working 'hwclock' binary.
 
---=20
---=20
+Signed-off-by: Michael Lange <linuxstuff@milaw.biz>
+---
+ drivers/rtc/rtc-ds1307.c | 29 +++++++++++++++++++++++++++--
+ 1 file changed, 27 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
+index aa705bb..7500b5c 100644
+--- a/drivers/rtc/rtc-ds1307.c
++++ b/drivers/rtc/rtc-ds1307.c
+@@ -860,6 +860,7 @@ static int ds1307_probe(struct i2c_client *client,
+ 	struct chip_desc	*chip = &chips[id->driver_data];
+ 	struct i2c_adapter	*adapter = to_i2c_adapter(client->dev.parent);
+ 	bool			want_irq = false;
++	bool			ds1307_can_wakeup_device = false;
+ 	unsigned char		*buf;
+ 	struct ds1307_platform_data *pdata = dev_get_platdata(&client->dev);
+ 	irq_handler_t	irq_handler = ds1307_irq;
+@@ -907,6 +908,20 @@ static int ds1307_probe(struct i2c_client *client,
+ 		ds1307->write_block_data = ds1307_write_block_data;
+ 	}
+ 
++#ifdef CONFIG_OF
++/*
++ * For devices with no IRQ directly connected to the SoC, the RTC chip
++ * can be forced as a wakeup source by stating that explicitly in
++ * the device's .dts file using the "wakeup-source" boolean property.
++ * If the "wakeup-source" property is set, don't request an IRQ.
++ * This will guarantee the 'wakealarm' sysfs entry is available on the device,
++ * if supported by the RTC.
++ */
++	if (of_property_read_bool(client->dev.of_node, "wakeup-source")) {
++		ds1307_can_wakeup_device = true;
++	}
++#endif
++
+ 	switch (ds1307->type) {
+ 	case ds_1337:
+ 	case ds_1339:
+@@ -925,11 +940,13 @@ static int ds1307_probe(struct i2c_client *client,
+ 			ds1307->regs[0] &= ~DS1337_BIT_nEOSC;
+ 
+ 		/*
+-		 * Using IRQ?  Disable the square wave and both alarms.
++		 * Using IRQ or defined as wakeup-source?
++		 * Disable the square wave and both alarms.
+ 		 * For some variants, be sure alarms can trigger when we're
+ 		 * running on Vbackup (BBSQI/BBSQW)
+ 		 */
+-		if (ds1307->client->irq > 0 && chip->alarm) {
++		if (chip->alarm && (ds1307->client->irq > 0 ||
++						ds1307_can_wakeup_device)) {
+ 			ds1307->regs[0] |= DS1337_BIT_INTCN
+ 					| bbsqi_bitpos[ds1307->type];
+ 			ds1307->regs[0] &= ~(DS1337_BIT_A2IE | DS1337_BIT_A1IE);
+@@ -1144,6 +1161,14 @@ read_rtc:
+ 		return PTR_ERR(ds1307->rtc);
+ 	}
+ 
++	if (ds1307_can_wakeup_device) {
++		/* Disable request for an IRQ */
++		want_irq = false;
++		dev_info(&client->dev, "'wakeup-source' is set, request for an IRQ is disabled!\n");
++		/* We cannot support UIE mode if we do not have an IRQ line */
++		ds1307->rtc->uie_unsupported = 1;
++	}
++
+ 	if (want_irq) {
+ 		err = devm_request_threaded_irq(&client->dev,
+ 						client->irq, NULL, irq_handler,
+-- 
+2.4.10
+
+-- 
+-- 
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
----=20
-You received this message because you are subscribed to the Google Groups "=
-rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an e=
-mail to rtc-linux+unsubscribe@googlegroups.com.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
