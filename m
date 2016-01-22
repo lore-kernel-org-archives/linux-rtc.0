@@ -1,27 +1,22 @@
-Return-Path: <rtc-linux+bncBAABBYP4QS2QKGQEWB7D5FI@googlegroups.com>
-MIME-Version: 1.0
-Received: from lists.s-osg.org (lists.s-osg.org. [54.187.51.154])
-        by gmr-mx.google.com with ESMTP id 190si393934pfb.1.2016.01.21.12.24.00
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBMFDRG2QKGQEAZWZJLQ@googlegroups.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id c140si204487wmh.0.2016.01.22.07.58.40
         for <rtc-linux@googlegroups.com>;
-        Thu, 21 Jan 2016 12:24:00 -0800 (PST)
-From: Javier Martinez Canillas <javier@osg.samsung.com>
-To: linux-kernel@vger.kernel.org
-Cc: Kukjin Kim <kgene@kernel.org>,
-	rtc-linux@googlegroups.com,
-	Chanwoo Choi <cw00.choi@samsung.com>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Krzysztof Kozlowski <k.kozlowski@samsung.com>,
-	Laxman Dewangan <ldewangan@nvidia.com>,
-	linux-samsung-soc@vger.kernel.org,
-	Javier Martinez Canillas <javier@osg.samsung.com>
-Subject: [rtc-linux] [PATCH v2 03/10] rtc: max77686: Use usleep_range()
- instead of msleep()
-Date: Thu, 21 Jan 2016 17:23:26 -0300
-Message-Id: <1453407813-14646-4-git-send-email-javier@osg.samsung.com>
-In-Reply-To: <1453407813-14646-1-git-send-email-javier@osg.samsung.com>
-References: <1453407813-14646-1-git-send-email-javier@osg.samsung.com>
-Reply-To: rtc-linux@googlegroups.com
+        Fri, 22 Jan 2016 07:58:40 -0800 (PST)
+Date: Fri, 22 Jan 2016 16:58:38 +0100
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Michael Lange <michaell@milaw.biz>
+Cc: rtc-linux@googlegroups.com
+Subject: Re: [rtc-linux] [PATCH] rtc: ds1307.c: add support for the DT
+ property 'wakeup-source'
+Message-ID: <20160122155838.GM3608@piout.net>
+References: <1453396216-8367-1-git-send-email-linuxstuff@milaw.biz>
+ <20160122000728.GE3608@piout.net>
+ <56A24C4B.2030001@milaw.biz>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <56A24C4B.2030001@milaw.biz>
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -31,52 +26,120 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Documentation/timers/timers-howto.txt suggest to use usleep_range()
-instead of msleep() for small msec (1ms - 20ms) since msleep() will
-often sleep for 20ms for any value in that range.
+Hi,
 
-This is fine in this case since 16ms is the _minimum_ delay required
-by max77686 for an RTC update but by using usleep_range() instead of
-msleep(), the driver can support other RTC IP blocks with a shorter
-minimum delay (i.e: in the range of usecs instead of msecs).
+On 22/01/2016 at 16:35:39 +0100, Michael Lange wrote :
+> >I don't think setting uie_unsupported is necessary because the alarm
+> >functions will fail anyway. What kind of issue did you have?
+> >
+> 
+> Tested today in the morning, before I had to go to work, the wakealarm
+> and the 'hwclock' binary with and without to set uie_unsupported in
+> rtc-ds1307.
+> 
+> 
+> With uie_unsupported = 1:
+> 
+> The wakealarm is working, as expected:
+>   root@rbpi2 michael # echo +60 > /sys/class/rtc/rtc0/wakealarm
+>   root@rbpi2 michael # shutdown -h now
+> ... wait, and the Raspberry comes up.
+> 
+> The hwclock binary is also working:
+> root@rbpi2 michael # LC_ALL=C hwclock -D -s
+> hwclock from util-linux 2.27.1
+> Using the /dev interface to the clock.
+> Last drift adjustment done at 1453438995 seconds after 1969
+> Last calibration done at 1453438995 seconds after 1969
+> Hardware clock is on UTC time
+> Assuming hardware clock is kept in UTC time.
+> Waiting for clock tick...
+> /dev/rtc does not have interrupt functions. Waiting in loop for time from
+> /dev/rtc to change
+> ...got clock tick
+> Time read from Hardware Clock: 2016/01/22 05:05:29
+> Hw clock time : 2016/01/22 05:05:29 = 1453439129 seconds since 1969
+> Time since last adjustment is 134 seconds
+> Calculated Hardware Clock drift is 0.000000 seconds
+> Calling settimeofday:
+>     tv.tv_sec = 1453439129, tv.tv_usec = 0
+>     tz.tz_minuteswest = -60
+> 
+> root@rbpi2 michael # LC_ALL=C hwclock -D -w
+> hwclock from util-linux 2.27.1
+> Using the /dev interface to the clock.
+> Last drift adjustment done at 1453438995 seconds after 1969
+> Last calibration done at 1453438995 seconds after 1969
+> Hardware clock is on UTC time
+> Assuming hardware clock is kept in UTC time.
+> Waiting for clock tick...
+> /dev/rtc does not have interrupt functions. Waiting in loop for time from
+> /dev/rtc to change
+> ...got clock tick
+> Time read from Hardware Clock: 2016/01/22 05:05:48
+> Hw clock time : 2016/01/22 05:05:48 = 1453439148 seconds since 1969
+> Time since last adjustment is 153 seconds
+> Calculated Hardware Clock drift is 0.000000 seconds
+> missed it - 1453439148.507319 is too far past 1453439148.500000 (0.007319 >
+> 0.001000)
+> 1453439149.500000 is close enough to 1453439149.500000 (0.000000 < 0.002000)
+> Set RTC to 1453439149 (1453439148 + 1; refsystime = 1453439148.000000)
+> Setting Hardware Clock to 05:05:49 = 1453439149 seconds since 1969
+> ioctl(RTC_SET_TIME) was successful.
+> Not adjusting drift factor because the --update-drift option was not used.
+> 
+> 
+> 
+> After that, the kernel was compiled without setting ui_unsupported in
+> rtc-ds1307.c, and I got the following:
+> 
+> root@rbpi2 michael # LC_ALL=C hwclock -D -s
+> hwclock from util-linux 2.27.1
+> Using the /dev interface to the clock.
+> Last drift adjustment done at 1453439148 seconds after 1969
+> Last calibration done at 1453439148 seconds after 1969
+> Hardware clock is on UTC time
+> Assuming hardware clock is kept in UTC time.
+> Waiting for clock tick...
+> select() to /dev/rtc to wait for clock tick timed out...synchronization
+> failed
+> 
+> The wakealarm is still working fine.
+> 
 
-Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
-Reviewed-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+Ok, thanks, I'll try to reproduce on one of my boards but this shouldn't
+happen. My current understanding is that uie_unsupported should only be
+set when the alarm function is supported but the resolution is higher
+than a second (usually a minute).
 
----
+> 
+> The ds1337 on the Witty Pi extension board is connected to the i2c pins on
+> the Raspberry and the alarm pin is probably connected to a mosfet (F7319)
+> on this board, that powers up the Raspberry through the 5V-Pin on the
+> 40pin-header.
+> 
+> But I'm not sure at all with the mosfet ... I'm not a electronics technician
+> ...
+> 
 
-Changes in v2:
-- Add Krzysztof Kozlowski's Reviewed-by tag to patch #3.
-- Fix typo error in changelog. Suggested by Krzysztof Kozlowski.
+I don't think it actually matter :)
 
- drivers/rtc/rtc-max77686.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+> 
+> 
+> An other example for a RTC and no IRQ to the CPU/Soc is in the rtc-isl12057
+> http://lxr.free-electrons.com/source/drivers/rtc/rtc-isl12057.c#L460
+> http://lxr.free-electrons.com/source/drivers/rtc/rtc-isl12057.c#L604
+> 
+> Without this patch the ds1337 got no wakealarm sysfs entry.
+> 
 
-diff --git a/drivers/rtc/rtc-max77686.c b/drivers/rtc/rtc-max77686.c
-index 98fabdb308b9..71ef2240b3fc 100644
---- a/drivers/rtc/rtc-max77686.c
-+++ b/drivers/rtc/rtc-max77686.c
-@@ -41,7 +41,7 @@
- #define ALARM_ENABLE_SHIFT		7
- #define ALARM_ENABLE_MASK		(1 << ALARM_ENABLE_SHIFT)
- 
--#define MAX77686_RTC_UPDATE_DELAY	16
-+#define MAX77686_RTC_UPDATE_DELAY	16000
- 
- enum {
- 	RTC_SEC = 0,
-@@ -130,7 +130,8 @@ static int max77686_rtc_update(struct max77686_rtc_info *info,
- 				__func__, ret, data);
- 	else {
- 		/* Minimum 16ms delay required before RTC update. */
--		msleep(MAX77686_RTC_UPDATE_DELAY);
-+		usleep_range(MAX77686_RTC_UPDATE_DELAY,
-+			     MAX77686_RTC_UPDATE_DELAY * 2);
- 	}
- 
- 	return ret;
+Sure, I understand the rationale behind the patch. I'll take it as is
+and I'll investigate the uie_unsupported oddity.
+
 -- 
-2.5.0
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
 -- 
 -- 
