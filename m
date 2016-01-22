@@ -1,22 +1,24 @@
-Return-Path: <rtc-linux+bncBDQJZJXU2UMBB5WKVS2QKGQECXMGCLY@googlegroups.com>
+Return-Path: <rtc-linux+bncBCPM5SUWUYIRBE63RG2QKGQEFOVF2RY@googlegroups.com>
 MIME-Version: 1.0
-Received: from mout.gmx.net (mout.gmx.net. [212.227.15.19])
-        by gmr-mx.google.com with ESMTPS id ui7si2090030pab.0.2016.01.29.00.40.21
+Received: from mail-pa0-x244.google.com (mail-pa0-x244.google.com. [2607:f8b0:400e:c03::244])
+        by gmr-mx.google.com with ESMTPS id i25si789381pfj.2.2016.01.22.09.57.38
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 29 Jan 2016 00:40:22 -0800 (PST)
-From: Oleksij Rempel <linux@rempel-privat.de>
-To: devicetree@vger.kernel.org,
-	robh+dt@kernel.org,
-	a.zummo@towertech.it,
-	alexandre.belloni@free-electrons.com,
-	rtc-linux@googlegroups.com
-Cc: Oleksij Rempel <linux@rempel-privat.de>
-Subject: [rtc-linux] [PATCH 1/2] rtc: add rtc-asm9260 driver
-Date: Fri, 29 Jan 2016 09:40:01 +0100
-Message-Id: <1454056802-23386-2-git-send-email-linux@rempel-privat.de>
-In-Reply-To: <1454056802-23386-1-git-send-email-linux@rempel-privat.de>
-References: <1454056802-23386-1-git-send-email-linux@rempel-privat.de>
+        Fri, 22 Jan 2016 09:57:38 -0800 (PST)
+Received: by mail-pa0-x244.google.com with SMTP id gi1so3528596pac.2
+        for <rtc-linux@googlegroups.com>; Fri, 22 Jan 2016 09:57:38 -0800 (PST)
+From: Akinobu Mita <akinobu.mita@gmail.com>
+To: rtc-linux@googlegroups.com
+Cc: Akinobu Mita <akinobu.mita@gmail.com>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Jean Delvare <jdelvare@suse.com>,
+	Guenter Roeck <linux@roeck-us.net>,
+	lm-sensors@lm-sensors.org
+Subject: [rtc-linux] [PATCH v2] rtc: rtc-ds1307: add temperature sensor
+ support for ds3231
+Date: Sat, 23 Jan 2016 02:57:21 +0900
+Message-Id: <1453485441-11667-1-git-send-email-akinobu.mita@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -28,447 +30,187 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Add support for RTC controller found on Alphascale asm9260
-SoC.
+DS3231 has the temperature registers with a resolution of 0.25
+degree celsius.  This enables to get the value through hwmon.
 
-Signed-off-by: Oleksij Rempel <linux@rempel-privat.de>
+	# cat /sys/class/i2c-adapter/i2c-2/2-0068/hwmon/hwmon0/temp1_input
+	21000
+
+Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>
+Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: rtc-linux@googlegroups.com
+Cc: Jean Delvare <jdelvare@suse.com>
+Cc: Guenter Roeck <linux@roeck-us.net>
+Cc: lm-sensors@lm-sensors.org
 ---
- drivers/rtc/Kconfig       |  10 ++
- drivers/rtc/Makefile      |   1 +
- drivers/rtc/rtc-asm9260.c | 391 ++++++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 402 insertions(+)
- create mode 100644 drivers/rtc/rtc-asm9260.c
+* v2
+- convert to use hwmon framework, suggested by Alexandre Belloni
 
-diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
-index 376322f..733b6aa 100644
---- a/drivers/rtc/Kconfig
-+++ b/drivers/rtc/Kconfig
-@@ -1144,6 +1144,16 @@ config RTC_DRV_ZYNQMP
+ drivers/rtc/rtc-ds1307.c | 122 +++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 122 insertions(+)
+
+diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
+index aa705bb..e0d4ce5 100644
+--- a/drivers/rtc/rtc-ds1307.c
++++ b/drivers/rtc/rtc-ds1307.c
+@@ -19,6 +19,9 @@
+ #include <linux/rtc.h>
+ #include <linux/slab.h>
+ #include <linux/string.h>
++#include <linux/delay.h>
++#include <linux/hwmon.h>
++#include <linux/hwmon-sysfs.h>
  
- comment "on-CPU RTC drivers"
+ /*
+  * We can't determine type by probing, but if we expect pre-Linux code
+@@ -75,6 +78,7 @@ enum ds_type {
+ #	define DS1337_BIT_nEOSC		0x80
+ #	define DS1339_BIT_BBSQI		0x20
+ #	define DS3231_BIT_BBSQW		0x40 /* same as BBSQI */
++#	define DS3231_BIT_CONV		0x20
+ #	define DS1337_BIT_RS2		0x10
+ #	define DS1337_BIT_RS1		0x08
+ #	define DS1337_BIT_INTCN		0x04
+@@ -89,6 +93,7 @@ enum ds_type {
+ #	define DS1340_BIT_OSF		0x80
+ #define DS1337_REG_STATUS	0x0f
+ #	define DS1337_BIT_OSF		0x80
++#	define DS3231_BIT_BSY		0x04
+ #	define DS1337_BIT_A2I		0x02
+ #	define DS1337_BIT_A1I		0x01
+ #define DS1339_REG_ALARM1_SECS	0x07
+@@ -851,6 +856,121 @@ out:
+ 	return;
+ }
  
-+config RTC_DRV_ASM9260
-+	tristate "Alphascale asm9260 RTC"
-+	depends on MACH_ASM9260
-+	help
-+	  If you say yes here you get support for the RTC on the
-+	  Alphascale asm9260 SoC.
++/*----------------------------------------------------------------------*/
 +
-+	  This driver can also be built as a module. If so, the module
-+	  will be called rtc-asm9260.
++#if IS_ENABLED(CONFIG_HWMON)
 +
- config RTC_DRV_DAVINCI
- 	tristate "TI DaVinci RTC"
- 	depends on ARCH_DAVINCI_DM365
-diff --git a/drivers/rtc/Makefile b/drivers/rtc/Makefile
-index 62d61b2..f4d841b 100644
---- a/drivers/rtc/Makefile
-+++ b/drivers/rtc/Makefile
-@@ -28,6 +28,7 @@ obj-$(CONFIG_RTC_DRV_ABB5ZES3)	+= rtc-ab-b5ze-s3.o
- obj-$(CONFIG_RTC_DRV_ABX80X)	+= rtc-abx80x.o
- obj-$(CONFIG_RTC_DRV_ARMADA38X)	+= rtc-armada38x.o
- obj-$(CONFIG_RTC_DRV_AS3722)	+= rtc-as3722.o
-+obj-$(CONFIG_RTC_DRV_ASM9260)	+= rtc-asm9260.o
- obj-$(CONFIG_RTC_DRV_AT32AP700X)+= rtc-at32ap700x.o
- obj-$(CONFIG_RTC_DRV_AT91RM9200)+= rtc-at91rm9200.o
- obj-$(CONFIG_RTC_DRV_AT91SAM9)	+= rtc-at91sam9.o
-diff --git a/drivers/rtc/rtc-asm9260.c b/drivers/rtc/rtc-asm9260.c
-new file mode 100644
-index 0000000..0287ae9
---- /dev/null
-+++ b/drivers/rtc/rtc-asm9260.c
-@@ -0,0 +1,391 @@
 +/*
-+ * Copyright (C) 2014 Oleksij Rempel <linux@rempel-privat.de>
-+ *
-+ * This software is licensed under the terms of the GNU General Public
-+ * License version 2, as published by the Free Software Foundation, and
-+ * may be copied, distributed, and modified under those terms.
++ * Temperature sensor support for ds3231 devices.
 + */
 +
-+#include <linux/clk.h>
-+#include <linux/interrupt.h>
-+#include <linux/io.h>
-+#include <linux/module.h>
-+#include <linux/of.h>
-+#include <linux/platform_device.h>
-+#include <linux/rtc.h>
++#define DS3231_REG_TEMPERATURE	0x11
 +
-+/* Miscellaneous registers */
-+/* Interrupt Location Register */
-+#define HW_ILR			0x00
-+#define BM_RTCALF		BIT(1)
-+#define BM_RTCCIF		BIT(0)
-+
-+/* Clock Control Register */
-+#define HW_CCR			0x08
-+/* Calibration counter disable */
-+#define BM_CCALOFF		BIT(4)
-+/* Reset internal oscillator divider */
-+#define BM_CTCRST		BIT(1)
-+/* Clock Enable */
-+#define BM_CLKEN		BIT(0)
-+
-+/* Counter Increment Interrupt Register */
-+#define HW_CIIR			0x0C
-+#define BM_CIIR_IMYEAR		BIT(7)
-+#define BM_CIIR_IMMON		BIT(6)
-+#define BM_CIIR_IMDOY		BIT(5)
-+#define BM_CIIR_IMDOW		BIT(4)
-+#define BM_CIIR_IMDOM		BIT(3)
-+#define BM_CIIR_IMHOUR		BIT(2)
-+#define BM_CIIR_IMMIN		BIT(1)
-+#define BM_CIIR_IMSEC		BIT(0)
-+
-+/* Alarm Mask Register */
-+#define HW_AMR			0x10
-+#define BM_AMR_IMYEAR		BIT(7)
-+#define BM_AMR_IMMON		BIT(6)
-+#define BM_AMR_IMDOY		BIT(5)
-+#define BM_AMR_IMDOW		BIT(4)
-+#define BM_AMR_IMDOM		BIT(3)
-+#define BM_AMR_IMHOUR		BIT(2)
-+#define BM_AMR_IMMIN		BIT(1)
-+#define BM_AMR_IMSEC		BIT(0)
-+#define BM_AMR_OFF		0xff
-+
-+/* Consolidated time registers */
-+#define HW_CTIME0		0x14
-+#define BM_CTIME0_DOW_S		24
-+#define BM_CTIME0_DOW_M		0x7
-+#define BM_CTIME0_HOUR_S	16
-+#define BM_CTIME0_HOUR_M	0x1f
-+#define BM_CTIME0_MIN_S		8
-+#define BM_CTIME0_MIN_M		0x3f
-+#define BM_CTIME0_SEC_S		0
-+#define BM_CTIME0_SEC_M		0x3f
-+
-+#define HW_CTIME1		0x18
-+#define BM_CTIME1_YEAR_S	16
-+#define BM_CTIME1_YEAR_M	0xfff
-+#define BM_CTIME1_MON_S		8
-+#define BM_CTIME1_MON_M		0xf
-+#define BM_CTIME1_DOM_S		0
-+#define BM_CTIME1_DOM_M		0x1f
-+
-+#define HW_CTIME2		0x1C
-+#define BM_CTIME2_DOY_S		0
-+#define BM_CTIME2_DOY_M		0xfff
-+
-+/* Time counter registers */
-+#define HW_SEC			0x20
-+#define HW_MIN			0x24
-+#define HW_HOUR			0x28
-+#define HW_DOM			0x2C
-+#define HW_DOW			0x30
-+#define HW_DOY			0x34
-+#define HW_MONTH		0x38
-+#define HW_YEAR			0x3C
-+
-+#define HW_CALIBRATION		0x40
-+#define BM_CALDIR_BACK		BIT(17)
-+#define BM_CALVAL_M		0x1ffff
-+
-+/* General purpose registers */
-+#define HW_GPREG0		0x44
-+#define HW_GPREG1		0x48
-+#define HW_GPREG2		0x4C
-+#define HW_GPREG3		0x50
-+#define HW_GPREG4		0x54
-+
-+/* RTC Auxiliary control register */
-+#define HW_RTC_AUX		0x5C
-+/*
-+ * RTC Oscillator Fail detect flag.
-+ * Read: this bit is set if the RTC oscillator stops, and when RTC power is
-+ * first turned on. An interrupt will occur when this bit is set, the
-+ * RTC_OSCFEN bit in RTC_AUXEN is a 1, and the RTC interrupt is enabled
-+ * in the NVIC.
-+ * Write: writing a 1 to this bit clears the flag.
-+ */
-+#define BM_RTC_OSCF		BIT(4)
-+/* RTC Auxiliary Enable register */
-+#define HW_RTC_AUXEN		0x58
-+/* Oscillator Fail Detect interrupt enable. */
-+#define BM_RTC_OSCFEN		BIT(4)
-+
-+/* Alarm register group */
-+#define HW_ALSEC		0x60
-+#define HW_ALMIN		0x64
-+#define HW_ALHOUR		0x68
-+#define HW_ALDOM		0x6C
-+#define HW_ALDOW		0x70
-+#define HW_ALDOY		0x74
-+#define HW_ALMON		0x78
-+#define HW_ALYEAR		0x7C
-+
-+struct asm9260_rtc_priv {
-+	struct device		*dev;
-+	void __iomem		*iobase;
-+	struct rtc_device	*rtc;
-+	struct clk		*clk;
-+	/* io lock */
-+	spinlock_t		lock;
-+};
-+
-+static irqreturn_t asm9260_rtc_irq(int irq, void *dev_id)
++static ssize_t ds3231_hwmon_show_temp(struct device *dev,
++				struct device_attribute *attr, char *buf)
 +{
-+	struct asm9260_rtc_priv *priv = dev_id;
-+	u32 isr;
-+	unsigned long events = 0;
++	struct ds1307	*ds1307 = dev_get_drvdata(dev);
++	struct i2c_client *client = ds1307->client;
++	u8 temp_buf[2];
++	s16 temp;
++	int control;
++	int status;
++	s32 ret;
++	unsigned long timeout;
 +
-+	isr = ioread32(priv->iobase + HW_CIIR);
-+	if (!isr)
-+		return IRQ_NONE;
++	status = i2c_smbus_read_byte_data(client, DS1337_REG_STATUS);
++	if (status < 0)
++		return status;
 +
-+	iowrite32(0, priv->iobase + HW_CIIR);
-+
-+	events |= RTC_AF | RTC_IRQF;
-+
-+	rtc_update_irq(priv->rtc, 1, events);
-+
-+	return IRQ_HANDLED;
-+}
-+
-+static int asm9260_rtc_read_time(struct device *dev, struct rtc_time *tm)
-+{
-+	struct asm9260_rtc_priv *priv = dev_get_drvdata(dev);
-+	u32 ctime0, ctime1, ctime2;
-+	unsigned long irq_flags;
-+
-+	spin_lock_irqsave(&priv->lock, irq_flags);
-+	ctime0 = ioread32(priv->iobase + HW_CTIME0);
-+	ctime1 = ioread32(priv->iobase + HW_CTIME1);
-+	ctime2 = ioread32(priv->iobase + HW_CTIME2);
-+
-+	if (ctime1 != ioread32(priv->iobase + HW_CTIME1)) {
-+		/*
-+		 * woops, counter flipped right now. Now we are safe
-+		 * to reread.
-+		 */
-+		ctime0 = ioread32(priv->iobase + HW_CTIME0);
-+		ctime1 = ioread32(priv->iobase + HW_CTIME1);
-+		ctime2 = ioread32(priv->iobase + HW_CTIME2);
-+	}
-+	spin_unlock_irqrestore(&priv->lock, irq_flags);
-+
-+	tm->tm_sec  = (ctime0 >> BM_CTIME0_SEC_S)  & BM_CTIME0_SEC_M;
-+	tm->tm_min  = (ctime0 >> BM_CTIME0_MIN_S)  & BM_CTIME0_MIN_M;
-+	tm->tm_hour = (ctime0 >> BM_CTIME0_HOUR_S) & BM_CTIME0_HOUR_M;
-+	tm->tm_wday = (ctime0 >> BM_CTIME0_DOW_S)  & BM_CTIME0_DOW_M;
-+
-+	tm->tm_mday = (ctime1 >> BM_CTIME1_DOM_S)  & BM_CTIME1_DOM_M;
-+	tm->tm_mon  = (ctime1 >> BM_CTIME1_MON_S)  & BM_CTIME1_MON_M;
-+	tm->tm_year = (ctime1 >> BM_CTIME1_YEAR_S) & BM_CTIME1_YEAR_M;
-+
-+	tm->tm_yday = (ctime2 >> BM_CTIME2_DOY_S)  & BM_CTIME2_DOY_M;
-+
-+	return 0;
-+}
-+
-+static int asm9260_rtc_set_time(struct device *dev, struct rtc_time *tm)
-+{
-+	struct asm9260_rtc_priv *priv = dev_get_drvdata(dev);
-+	unsigned long irq_flags;
-+
-+	spin_lock_irqsave(&priv->lock, irq_flags);
 +	/*
-+	 * make sure SEC counter will not flip other counter on write time,
-+	 * real value will be written at the enf of sequence.
++	 * Start user-initiated temperature conversion
 +	 */
-+	iowrite32(0, priv->iobase + HW_SEC);
++	if (!(status & DS3231_BIT_BSY)) {
++		struct mutex	*lock = &ds1307->rtc->ops_lock;
 +
-+	iowrite32(tm->tm_year, priv->iobase + HW_YEAR);
-+	iowrite32(tm->tm_mon,  priv->iobase + HW_MONTH);
-+	iowrite32(tm->tm_mday, priv->iobase + HW_DOM);
-+	iowrite32(tm->tm_wday, priv->iobase + HW_DOW);
-+	iowrite32(tm->tm_yday, priv->iobase + HW_DOY);
-+	iowrite32(tm->tm_hour, priv->iobase + HW_HOUR);
-+	iowrite32(tm->tm_min,  priv->iobase + HW_MIN);
-+	iowrite32(tm->tm_sec,  priv->iobase + HW_SEC);
-+	spin_unlock_irqrestore(&priv->lock, irq_flags);
++		mutex_lock(lock);
 +
-+	return 0;
-+}
-+
-+static int asm9260_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
-+{
-+	struct asm9260_rtc_priv *priv = dev_get_drvdata(dev);
-+	unsigned long irq_flags;
-+
-+	spin_lock_irqsave(&priv->lock, irq_flags);
-+	alrm->time.tm_year = ioread32(priv->iobase + HW_ALYEAR);
-+	alrm->time.tm_mon  = ioread32(priv->iobase + HW_ALMON);
-+	alrm->time.tm_mday = ioread32(priv->iobase + HW_ALDOM);
-+	alrm->time.tm_wday = ioread32(priv->iobase + HW_ALDOW);
-+	alrm->time.tm_yday = ioread32(priv->iobase + HW_ALDOY);
-+	alrm->time.tm_hour = ioread32(priv->iobase + HW_ALHOUR);
-+	alrm->time.tm_min  = ioread32(priv->iobase + HW_ALMIN);
-+	alrm->time.tm_sec  = ioread32(priv->iobase + HW_ALSEC);
-+
-+	alrm->enabled = ioread32(priv->iobase + HW_AMR) ? 1 : 0;
-+	alrm->pending = ioread32(priv->iobase + HW_CIIR) ? 1 : 0;
-+	spin_unlock_irqrestore(&priv->lock, irq_flags);
-+
-+	return rtc_valid_tm(&alrm->time);
-+}
-+
-+static int asm9260_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
-+{
-+	struct asm9260_rtc_priv *priv = dev_get_drvdata(dev);
-+	unsigned long irq_flags;
-+
-+	spin_lock_irqsave(&priv->lock, irq_flags);
-+	iowrite32(alrm->time.tm_year, priv->iobase + HW_ALYEAR);
-+	iowrite32(alrm->time.tm_mon,  priv->iobase + HW_ALMON);
-+	iowrite32(alrm->time.tm_mday, priv->iobase + HW_ALDOM);
-+	iowrite32(alrm->time.tm_wday, priv->iobase + HW_ALDOW);
-+	iowrite32(alrm->time.tm_yday, priv->iobase + HW_ALDOY);
-+	iowrite32(alrm->time.tm_hour, priv->iobase + HW_ALHOUR);
-+	iowrite32(alrm->time.tm_min,  priv->iobase + HW_ALMIN);
-+	iowrite32(alrm->time.tm_sec,  priv->iobase + HW_ALSEC);
-+
-+	iowrite32(alrm->enabled ? 0 : BM_AMR_OFF, priv->iobase + HW_AMR);
-+	spin_unlock_irqrestore(&priv->lock, irq_flags);
-+
-+	return 0;
-+}
-+
-+static int asm9260_alarm_irq_enable(struct device *dev, unsigned int enabled)
-+{
-+	struct asm9260_rtc_priv *priv = dev_get_drvdata(dev);
-+
-+	iowrite32(enabled ? 0 : BM_AMR_OFF, priv->iobase + HW_AMR);
-+	return 0;
-+}
-+
-+static const struct rtc_class_ops asm9260_rtc_ops = {
-+	.read_time		= asm9260_rtc_read_time,
-+	.set_time		= asm9260_rtc_set_time,
-+	.read_alarm		= asm9260_rtc_read_alarm,
-+	.set_alarm		= asm9260_rtc_set_alarm,
-+	.alarm_irq_enable	= asm9260_alarm_irq_enable,
-+};
-+
-+static int __init asm9260_rtc_probe(struct platform_device *pdev)
-+{
-+	struct asm9260_rtc_priv *priv;
-+	struct device *dev = &pdev->dev;
-+	struct resource	*res;
-+	int irq_alarm, ret;
-+	s32 calibvalue;
-+	u32 ccr, cal;
-+
-+	priv = devm_kzalloc(dev, sizeof(struct asm9260_rtc_priv), GFP_KERNEL);
-+	if (!priv)
-+		return -ENOMEM;
-+
-+	priv->dev = &pdev->dev;
-+	platform_set_drvdata(pdev, priv);
-+
-+	irq_alarm = platform_get_irq(pdev, 0);
-+	if (irq_alarm < 0) {
-+		dev_err(dev, "No alarm IRQ resource defined\n");
-+		return irq_alarm;
-+	}
-+
-+	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-+	priv->iobase = devm_ioremap_resource(dev, res);
-+	if (IS_ERR(priv->iobase))
-+		return PTR_ERR(priv->iobase);
-+
-+	priv->clk = devm_clk_get(dev, "ahb");
-+	ret = clk_prepare_enable(priv->clk);
-+	if (ret) {
-+		dev_err(dev, "Failed to enable clk!\n");
-+		return ret;
-+	}
-+
-+	ccr = ioread32(priv->iobase + HW_CCR);
-+	/* if dev is not enabled, reset it */
-+	if ((ccr & (BM_CLKEN | BM_CTCRST)) != BM_CLKEN) {
-+		iowrite32(BM_CTCRST, priv->iobase + HW_CCR);
-+		ccr = 0;
-+	}
-+
-+	ret = of_property_read_s32(pdev->dev.of_node, "calibration",
-+				   &calibvalue);
-+	if (ret) {
-+		ccr |= BM_CCALOFF;
-+		cal = 0;
-+	} else {
-+		ccr &= ~BM_CCALOFF;
-+
-+		cal = abs(calibvalue);
-+		if (cal > BM_CALVAL_M) {
-+			dev_err(dev, "calibration value is to big: %d\n",
-+				cal);
-+			goto err_return;
++		control = i2c_smbus_read_byte_data(client, DS1337_REG_CONTROL);
++		if (control < 0) {
++			mutex_unlock(lock);
++			return control;
 +		}
++		ret = i2c_smbus_write_byte_data(client, DS1337_REG_CONTROL,
++						control | DS3231_BIT_CONV);
++		if (ret)
++			return ret;
 +
-+		if (calibvalue < 0)
-+			cal |= BM_CALDIR_BACK;
++		mutex_unlock(lock);
++
++		/*
++		 * A user-initiated temperature conversion does not affect
++		 * the BSY bit for approximately 2ms.
++		 */
++		usleep_range(2000, 3000);
 +	}
 +
-+	iowrite32(BM_CLKEN | ccr, priv->iobase + HW_CCR);
-+	iowrite32(cal, priv->iobase + HW_CALIBRATION);
-+	iowrite32(0, priv->iobase + HW_CIIR);
-+	iowrite32(BM_AMR_OFF, priv->iobase + HW_AMR);
++	/*
++	 * Wait until the conversion is finished
++	 */
++	timeout = jiffies + HZ;
 +
-+	priv->rtc = devm_rtc_device_register(dev, dev_name(dev),
-+					     &asm9260_rtc_ops, THIS_MODULE);
-+	if (IS_ERR(priv->rtc)) {
-+		ret = PTR_ERR(priv->rtc);
-+		dev_err(dev, "Failed to register RTC device: %d\n", ret);
-+		goto err_return;
-+	}
++	do {
++		control = i2c_smbus_read_byte_data(client, DS1337_REG_CONTROL);
++		if (control < 0)
++			return control;
++		if (!(control & DS3231_BIT_CONV))
++			break;
++		if (time_after(jiffies, timeout))
++			return -EIO;
++		usleep_range(2000, 3000);
++	} while (1);
 +
-+	ret = devm_request_threaded_irq(dev, irq_alarm, NULL,
-+					asm9260_rtc_irq, IRQF_ONESHOT,
-+					dev_name(dev), priv);
-+	if (ret < 0) {
-+		dev_err(dev, "can't get irq %i, err %d\n",
-+			irq_alarm, ret);
-+		goto err_return;
-+	}
++	ret = ds1307->read_block_data(ds1307->client, DS3231_REG_TEMPERATURE,
++					sizeof(temp_buf), temp_buf);
++	if (ret < 0)
++		return ret;
++	if (ret != sizeof(temp_buf))
++		return -EIO;
 +
-+	return 0;
++	/*
++	 * Temperature is represented as a 10-bit code with a resolution of
++	 * 0.25 degree celsius and encoded in two's complement format.
++	 */
++	temp = (temp_buf[0] << 8) | temp_buf[1];
++	temp >>= 6;
 +
-+err_return:
-+	clk_disable_unprepare(priv->clk);
-+	return ret;
++	return sprintf(buf, "%d\n", temp * 250);
 +}
++static SENSOR_DEVICE_ATTR(temp1_input, S_IRUGO, ds3231_hwmon_show_temp,
++			NULL, 0);
 +
-+static int __exit asm9260_rtc_remove(struct platform_device *pdev)
++static struct attribute *ds3231_hwmon_attrs[] = {
++	&sensor_dev_attr_temp1_input.dev_attr.attr,
++	NULL,
++};
++ATTRIBUTE_GROUPS(ds3231_hwmon);
++
++static int ds1307_hwmon_register(struct ds1307 *ds1307)
 +{
-+	struct asm9260_rtc_priv *priv = platform_get_drvdata(pdev);
++	if (ds1307->type != ds_3231)
++		return 0;
 +
-+	/* Disable alarm matching */
-+	iowrite32(BM_AMR_OFF, priv->iobase + HW_AMR);
-+	clk_disable_unprepare(priv->clk);
++	devm_hwmon_device_register_with_groups(&ds1307->client->dev,
++						ds1307->client->name,
++						ds1307, ds3231_hwmon_groups);
++
 +	return 0;
 +}
 +
-+static const struct of_device_id asm9260_dt_ids[] = {
-+	{ .compatible = "alphascale,asm9260-rtc", },
-+	{}
-+};
++#else
 +
-+static struct platform_driver asm9260_rtc_driver = {
-+	.probe		= asm9260_rtc_probe,
-+	.remove		= asm9260_rtc_remove,
-+	.driver		= {
-+		.name	= "asm9260-rtc",
-+		.owner	= THIS_MODULE,
-+		.of_match_table = asm9260_dt_ids,
-+	},
-+};
++static int ds1307_hwmon_register(struct ds1307 *ds1307)
++{
++	return 0;
++}
 +
-+module_platform_driver(asm9260_rtc_driver);
++#endif
 +
-+MODULE_AUTHOR("Oleksij Rempel <linux@rempel-privat.de>");
-+MODULE_DESCRIPTION("Alphascale asm9260 SoC Realtime Clock Driver (RTC)");
-+MODULE_LICENSE("GPL");
+ static int ds1307_probe(struct i2c_client *client,
+ 			const struct i2c_device_id *id)
+ {
+@@ -1191,6 +1311,8 @@ read_rtc:
+ 		}
+ 	}
+ 
++	ds1307_hwmon_register(ds1307);
++
+ 	return 0;
+ 
+ exit:
 -- 
 2.5.0
 
