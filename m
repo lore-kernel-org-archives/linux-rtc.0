@@ -1,26 +1,25 @@
-Return-Path: <rtc-linux+bncBD2OLRXW4ABBBWUBX22AKGQEXC7X2OY@googlegroups.com>
-Received: from hqemgate16.nvidia.com (hqemgate16.nvidia.com. [216.228.121.65])
-        by gmr-mx.google.com with ESMTPS id h86si192364pfd.0.2016.01.08.01.26.49
+Return-Path: <rtc-linux+bncBD2OLRXW4ABBBK77Q62QKGQE7ZGOIRQ@googlegroups.com>
+Received: from hqemgate15.nvidia.com (hqemgate15.nvidia.com. [216.228.121.64])
+        by gmr-mx.google.com with ESMTPS id tn7si662230pac.1.2016.01.22.02.08.43
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 08 Jan 2016 01:26:49 -0800 (PST)
-Message-ID: <568F7E7B.1010501@nvidia.com>
-Date: Fri, 8 Jan 2016 14:46:43 +0530
+        Fri, 22 Jan 2016 02:08:43 -0800 (PST)
+Message-ID: <56A1FD25.7020008@nvidia.com>
+Date: Fri, 22 Jan 2016 15:27:57 +0530
 From: Laxman Dewangan <ldewangan@nvidia.com>
 MIME-Version: 1.0
-To: Krzysztof Kozlowski <k.kozlowski@samsung.com>,
-	<rtc-linux@googlegroups.com>
-CC: <robh+dt@kernel.org>, <pawel.moll@arm.com>, <mark.rutland@arm.com>,
-	<ijc+devicetree@hellion.org.uk>, <galak@codeaurora.org>,
-	<linus.walleij@linaro.org>, <gnurou@gmail.com>, <lee.jones@linaro.org>,
-	<broonie@kernel.org>, <a.zummo@towertech.it>,
-	<alexandre.belloni@free-electrons.com>, <lgirdwood@gmail.com>,
-	<devicetree@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-	<linux-gpio@vger.kernel.org>, <swarren@nvidia.com>, <treding@nvidia.com>,
-	Chaitanya Bandi <bandik@nvidia.com>, Mallikarjun Kasoju <mkasoju@nvidia.com>
-Subject: Re: [rtc-linux] [PATCH 2/6] mfd: max77620: add core driver for MAX77620/MAX20024
-References: <1452177524-23192-1-git-send-email-ldewangan@nvidia.com>	<1452177524-23192-3-git-send-email-ldewangan@nvidia.com> <CAJKOXPfa0jjRWE6LKvNmwCRcG9Es7=36_03kTqCx-aB1wENx0g@mail.gmail.com>
-In-Reply-To: <CAJKOXPfa0jjRWE6LKvNmwCRcG9Es7=36_03kTqCx-aB1wENx0g@mail.gmail.com>
+To: Javier Martinez Canillas <javier@osg.samsung.com>,
+	<linux-kernel@vger.kernel.org>
+CC: Kukjin Kim <kgene@kernel.org>, <rtc-linux@googlegroups.com>, Chanwoo Choi
+	<cw00.choi@samsung.com>, Alexandre Belloni
+	<alexandre.belloni@free-electrons.com>, Krzysztof Kozlowski
+	<k.kozlowski@samsung.com>, <linux-samsung-soc@vger.kernel.org>, Arnd Bergmann
+	<arnd@arndb.de>, Olof Johansson <olof@lixom.net>,
+	<linux-arm-kernel@lists.infradead.org>
+Subject: [rtc-linux] Re: [PATCH v2 10/10] ARM: multi_v7_defconfig: Remove
+ MAX77802 RTC Kconfig symbol
+References: <1453407813-14646-1-git-send-email-javier@osg.samsung.com> <1453407813-14646-11-git-send-email-javier@osg.samsung.com>
+In-Reply-To: <1453407813-14646-11-git-send-email-javier@osg.samsung.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
@@ -32,54 +31,35 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Hi Krzysztof,
-Thanks for review.
-I will fix most of your comment on my next patch.
 
-Answering to some of comment/query.
+On Friday 22 January 2016 01:53 AM, Javier Martinez Canillas wrote:
+> The driver has been removed so the Kconfig symbol is not valid anymore.
+>
+> Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
+> Reviewed-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+>
+>
+> ---
+>
+> Changes in v2:
+> - Add Krzysztof Kozlowski's Reviewed-by tag to patch #10.
+>
+>   arch/arm/configs/multi_v7_defconfig | 1 -
+>   1 file changed, 1 deletion(-)
+>
+> diff --git a/arch/arm/configs/multi_v7_defconfig b/arch/arm/configs/multi_v7_defconfig
+> index 314f6be2dca2..bdb42c09332c 100644
+> --- a/arch/arm/configs/multi_v7_defconfig
+> +++ b/arch/arm/configs/multi_v7_defconfig
+> @@ -664,7 +664,6 @@ CONFIG_RTC_DRV_MAX8907=y
+>   CONFIG_RTC_DRV_MAX8997=m
+>   CONFIG_RTC_DRV_MAX77686=y
+>   CONFIG_RTC_DRV_RK808=m
+> -CONFIG_RTC_DRV_MAX77802=m
 
-On Friday 08 January 2016 07:05 AM, Krzysztof Kozlowski wrote:
-> ()2016-01-07 23:38 GMT+09:00 Laxman Dewangan <ldewangan@nvidia.com>:
-> +                               dev_err(dev,
-> +                                   "FPS enable-input %u is not supported\n",
-> +                                       pval);
-> Indentation of arguments does not seem equal here or maybe this is
-> just my email client. Have you run this through checkpatch? And
-> sparse? And coccicheck (that one definitely not because kbuild is
-> complaining)?
-I ran checkpatch before I sent.
+Do you need to make
 
-> +               chip->rmap[i] = devm_regmap_init_i2c(chip->clients[i],
-> +               (const struct regmap_config *)&max77620_regmap_config[i]);
-> Indentation looks weird here (or again this is my email client...).
-> The cast is even weirder?!? Why casting?
-There is some parameter difference for MAX77620 and MAX20024. I have 
-only one structure for it and changing tun time so I have not define 
-this structure as constant.
-Now API needs const type structure and hence casting it.
-
-However, I have  define different structure for MAX77620 and MAX20024 
-which are const type and hence no need to explicitly casting here. This 
-will be in my next patch.
-
-+static inline int max77620_reg_update(struct device *dev, int sid,
-+               unsigned int reg, unsigned int mask, unsigned int val)
-+{
-+       struct max77620_chip *chip = dev_get_drvdata(dev);
-+
-+       return regmap_update_bits(chip->rmap[sid], reg, mask, val);
-+}
-
-> I think all these shouldn't be static inlines in header. Although some
-> of them are one-liners but rest are not. Let the compiler decide what
-> to do with these wrappers.
-
-If I dont make inline from header then this will complain as unused 
-static function on related C compilation if it is not used on C. This 
-header included from all sub module driver and they are not using all 
-these APIs.
-
-To avoid compilation warning,  I need to use inline here.
+CONFIG_RTC_DRV_MAX77686=m
 
 
 -- 
