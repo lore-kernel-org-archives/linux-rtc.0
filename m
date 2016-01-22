@@ -1,21 +1,23 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBW7FW62QKGQEHJTRX4Y@googlegroups.com>
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id e130si134857wme.2.2016.01.31.03.41.15
-        for <rtc-linux@googlegroups.com>;
-        Sun, 31 Jan 2016 03:41:15 -0800 (PST)
-Date: Sun, 31 Jan 2016 12:41:15 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Joshua Clayton <stillcompiling@gmail.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH v2 7/8] rtc: implement a sysfs interface for
- clock offset
-Message-ID: <20160131114115.GJ20165@piout.net>
-References: <0000-cover-letter.patch>
- <8361752a4e0c524e15cbed36d03eb3eb9b187815.1451929910.git.stillcompiling@gmail.com>
+Return-Path: <rtc-linux+bncBD2OLRXW4ABBBZ75Q62QKGQEH52EEJI@googlegroups.com>
+Received: from hqemgate14.nvidia.com (hqemgate14.nvidia.com. [216.228.121.143])
+        by gmr-mx.google.com with ESMTPS id 190si674206pfb.1.2016.01.22.02.05.26
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Fri, 22 Jan 2016 02:05:27 -0800 (PST)
+Message-ID: <56A1FC5D.5040506@nvidia.com>
+Date: Fri, 22 Jan 2016 15:24:37 +0530
+From: Laxman Dewangan <ldewangan@nvidia.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <8361752a4e0c524e15cbed36d03eb3eb9b187815.1451929910.git.stillcompiling@gmail.com>
+To: Javier Martinez Canillas <javier@osg.samsung.com>,
+	<linux-kernel@vger.kernel.org>
+CC: Kukjin Kim <kgene@kernel.org>, <rtc-linux@googlegroups.com>, Chanwoo Choi
+	<cw00.choi@samsung.com>, Alexandre Belloni
+	<alexandre.belloni@free-electrons.com>, Krzysztof Kozlowski
+	<k.kozlowski@samsung.com>, <linux-samsung-soc@vger.kernel.org>
+Subject: [rtc-linux] Re: [PATCH v2 06/10] rtc: max77686: Add max77802 support
+References: <1453407813-14646-1-git-send-email-javier@osg.samsung.com> <1453407813-14646-7-git-send-email-javier@osg.samsung.com>
+In-Reply-To: <1453407813-14646-7-git-send-email-javier@osg.samsung.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -26,93 +28,32 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Hi,
 
-On 04/01/2016 at 10:31:25 -0800, Joshua Clayton wrote :
-> The file is called "offset", and may be set and read in decimal.
-> For rtcs that do not have read_offset or set_offset implemented,
-> read always returns zero and write will return -EINVAL.
-> 
-Can you expand rtc_attr_is_visible() instead of having the offset file
-always present?
-
-Also, you need to expand Documentation/rtc.txt, section SYSFS INTERFACE.
-
-I'm fine with having parts per billion as the unit and I hope we won't
-ever need anything more precise :)
-
-> Signed-off-by: Joshua Clayton <stillcompiling@gmail.com>
-> ---
->  drivers/rtc/interface.c |  2 +-
->  drivers/rtc/rtc-sysfs.c | 29 +++++++++++++++++++++++++++++
->  2 files changed, 30 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/rtc/interface.c b/drivers/rtc/interface.c
-> index 57cd928..c064eb9 100644
-> --- a/drivers/rtc/interface.c
-> +++ b/drivers/rtc/interface.c
-> @@ -959,7 +959,7 @@ int rtc_read_offset(struct rtc_device *rtc, long *offset)
->  		return -ENODEV;
->  
->  	if (!rtc->ops->set_offset) {
-> -		offset = 0;
-> +		*offset = 0;
->  		return 0;
->  	}
-
->  
-> diff --git a/drivers/rtc/rtc-sysfs.c b/drivers/rtc/rtc-sysfs.c
-> index 7273855..622a0dc 100644
-> --- a/drivers/rtc/rtc-sysfs.c
-> +++ b/drivers/rtc/rtc-sysfs.c
-> @@ -211,6 +211,34 @@ wakealarm_store(struct device *dev, struct device_attribute *attr,
->  }
->  static DEVICE_ATTR_RW(wakealarm);
->  
-> +static ssize_t
-> +offset_show(struct device *dev, struct device_attribute *attr, char *buf)
-> +{
-> +	ssize_t retval;
-> +	long offset;
-> +
-> +	retval = rtc_read_offset(to_rtc_device(dev), &offset);
-> +	if (retval == 0)
-> +		retval = sprintf(buf, "%ld\n", offset);
-> +
-> +	return retval;
-> +}
-> +
-> +static ssize_t
-> +offset_store(struct device *dev, struct device_attribute *attr,
-> +		const char *buf, size_t n)
-> +{
-> +	ssize_t retval;
-> +	long offset;
-> +
-> +	retval = kstrtol(buf, 10, &offset);
-> +	if (retval == 0)
-> +		retval = rtc_set_offset(to_rtc_device(dev), offset);
-> +
-> +	return (retval < 0) ? retval : n;
-> +}
-> +static DEVICE_ATTR_RW(offset);
-> +
->  static struct attribute *rtc_attrs[] = {
->  	&dev_attr_name.attr,
->  	&dev_attr_date.attr,
-> @@ -219,6 +247,7 @@ static struct attribute *rtc_attrs[] = {
->  	&dev_attr_max_user_freq.attr,
->  	&dev_attr_hctosys.attr,
->  	&dev_attr_wakealarm.attr,
-> +	&dev_attr_offset.attr,
->  	NULL,
->  };
->  
-
--- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+On Friday 22 January 2016 01:53 AM, Javier Martinez Canillas wrote:
+> The MAX77686 and MAX77802 RTC IP blocks are very similar with only
+> these differences:
+>
+> 0) The RTC registers layout and addresses are different.
+>
+> 1) The MAX77686 use 1 bit of the sec/min/hour/etc registers as the
+>     alarm enable while MAX77802 has a separate register for that.
+>
+> 2) The MAX77686 RTCYEAR register valid values range is 0..99 while
+>     for MAX77802 is 0..199.
+>
+> 3) The MAX77686 has a separate I2C address for the RTC registers
+>     while the MAX77802 uses the same I2C address as the PMIC regs.
+>
+> 5) The minimum delay before a RTC update (16 msecs vs 200 usecs).
+>
+> There are separate drivers for MAX77686 and MAX77802 RTC IP blocks
+> but the differences are not that big so the driver can be extended
+> to support both instead of duplicating a lot of code in 2 drivers.
+>
+> Suggested-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+> Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
+>
+Acked-by: Laxman Dewangan <ldewangan@nvidia.com>
 
 -- 
 -- 
