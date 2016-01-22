@@ -1,25 +1,30 @@
-Return-Path: <rtc-linux+bncBD2OLRXW4ABBBQWTWO2QKGQE56PTFBI@googlegroups.com>
-Received: from hqemgate15.nvidia.com (hqemgate15.nvidia.com. [216.228.121.64])
-        by gmr-mx.google.com with ESMTPS id 190si2386764pfb.1.2016.01.30.08.50.10
+Return-Path: <rtc-linux+bncBDKZNNNLXAHBBIP2QW2QKGQE7PX64HA@googlegroups.com>
+Received: from mailout3.w1.samsung.com (mailout3.w1.samsung.com. [210.118.77.13])
+        by gmr-mx.google.com with ESMTPS id ui7si440726pab.0.2016.01.21.16.51.45
         for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sat, 30 Jan 2016 08:50:10 -0800 (PST)
-From: Laxman Dewangan <ldewangan@nvidia.com>
-To: <robh+dt@kernel.org>, <pawel.moll@arm.com>, <mark.rutland@arm.com>,
-	<ijc+devicetree@hellion.org.uk>, <galak@codeaurora.org>,
-	<linus.walleij@linaro.org>, <gnurou@gmail.com>, <lee.jones@linaro.org>,
-	<broonie@kernel.org>, <a.zummo@towertech.it>,
-	<alexandre.belloni@free-electrons.com>
-CC: <lgirdwood@gmail.com>, <devicetree@vger.kernel.org>,
-	<linux-kernel@vger.kernel.org>, <linux-gpio@vger.kernel.org>,
-	<rtc-linux@googlegroups.com>, <swarren@nvidia.com>, <treding@nvidia.com>,
-	<k.kozlowski@samsung.com>, <vreddytalla@nvidia.com>, Laxman Dewangan
-	<ldewangan@nvidia.com>
-Subject: [rtc-linux] [PATCH V7 0/8] Add support for MAXIM MAX77620/MAX20024 PMIC
-Date: Sat, 30 Jan 2016 22:08:43 +0530
-Message-ID: <1454171931-27752-1-git-send-email-ldewangan@nvidia.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+        (version=TLS1 cipher=AES128-SHA bits=128/128);
+        Thu, 21 Jan 2016 16:51:45 -0800 (PST)
+Received: from eucpsbgm2.samsung.com (unknown [203.254.199.245])
+ by mailout3.w1.samsung.com
+ (Oracle Communications Messaging Server 7.0.5.31.0 64bit (built May  5 2014))
+ with ESMTP id <0O1B00JXJX24A650@mailout3.w1.samsung.com> for
+ rtc-linux@googlegroups.com; Fri, 22 Jan 2016 00:51:40 +0000 (GMT)
+Subject: [rtc-linux] Re: [PATCH v2 01/10] rtc: max77686: Fix
+ max77686_rtc_read_alarm() return value
+To: Javier Martinez Canillas <javier@osg.samsung.com>,
+ linux-kernel@vger.kernel.org
+References: <1453407813-14646-1-git-send-email-javier@osg.samsung.com>
+ <1453407813-14646-2-git-send-email-javier@osg.samsung.com>
+Cc: Kukjin Kim <kgene@kernel.org>, rtc-linux@googlegroups.com,
+ Chanwoo Choi <cw00.choi@samsung.com>,
+ Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+ Laxman Dewangan <ldewangan@nvidia.com>, linux-samsung-soc@vger.kernel.org
+From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+Message-id: <56A17D1F.5030802@samsung.com>
+Date: Fri, 22 Jan 2016 09:51:43 +0900
+MIME-version: 1.0
+In-reply-to: <1453407813-14646-2-git-send-email-javier@osg.samsung.com>
+Content-type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -30,118 +35,40 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Add SW support for MAXIM Semiconductor's Power Management
-IC (PMIC) MAX77620/MAX20024. This PMIC supports DC-DC/LDOS, GPIOs,
-RTC, watchdog, clocks etc.
+On 22.01.2016 05:23, Javier Martinez Canillas wrote:
+> The function is always returning zero even in case of failures since
+> the ret value was not propagated to the callers. Fix the error path.
+> 
+> Reported-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+> Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
+> ---
+> 
+> Changes in v2: None
+> 
+>  drivers/rtc/rtc-max77686.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/rtc/rtc-max77686.c b/drivers/rtc/rtc-max77686.c
+> index 7184a0eda793..6653c3d11b66 100644
+> --- a/drivers/rtc/rtc-max77686.c
+> +++ b/drivers/rtc/rtc-max77686.c
+> @@ -235,7 +235,7 @@ static int max77686_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
+>  
+>  out:
+>  	mutex_unlock(&info->lock);
+> -	return 0;
+> +	return ret;
+>  }
+>  
+>  static int max77686_rtc_stop_alarm(struct max77686_rtc_info *info)
 
-This series add respective driver for each of sub-modules.
+Reviewed-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
 
-Changes from V1: 
-DT DOC:
-- Added units in some of properties.
-- Change the boolean property to tristate type and detail some of
-  properties.
+Tested on Trats2 board with max77686:
+Tested-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
 
-RTC:
-- Rename the file to rtc-max77xxx.c and make the generic implementation.
-- Direct regmap apis are used for the register access.
-- Decouped from max77620 driver.
-- Taken care of cleanup comments form V1 version.
-
-MFD:
-- Code cleanups per review from V1. 
-- Move register access APIs from header to c file.
-- Remove some of non required variable, remove duplication in error message
- and simplify some of function implementation.
-
-GPIO:
-- Use the gpiochip_add_data and get the chip data from core APIs.
-- Cleanups based on comment received on mfd/rtc.
-- Avoid duplication on error message.
-
-Pinctrl:
-- Cleanup code based on comment received on mfd/rtc.
-- Avoid duplication on error message.
-
-Regulators:
-- Cleanup code based on comment received on mfd/rtc.
-- Avoid duplication on error message.
-- Taken care of review comment from Mark.
-
-Changes from V2: 
-- Run coccicheck and checkpatch in strict mode for the alignment.
-- Drop RTC driver and its i2c client registartion.
-- Refactor Regulator  driver to use core API for DT parsing.
-
-Changes from V3: 
-- Change all sys initcall to module driver.
-- change the max77620_read argument to unisgned int from u8.
-
-
-Changes from V4:
-- Provide more details in the dt binding doc.
-- Take care of fps nodes.
-- Split the submodule's DT binding doc on respective folder.
-- Drop the battery charger and low battery binding and related code as
-  it need to go on power driver.
-
-Changes from V5:
-- None
-
-Changes from V6:
-- Taken care of Lee's comment like used defines for irqs, remove max77620
-  register accesss abstractions, remove DTof module and use ID table only,
-  reduce the copyright lines.
-- Drop configuration for hard power off time chnage as it will be in
-  power driver.
-- Taken care of Mark's comment about the active discharge. Currently
-  drop this configuration and follow up patches to move this to core
-  and add callback apis are planned.
-- Use direct regmap from all drivers instead of using abstractions.
-- move regulator supply to device node instead of regulators sub node.
-
-Laxman Dewangan (8):
-  mfd: add device-tree binding doc for PMIC max77620/max20024
-  mfd: max77620: add core driver for MAX77620/MAX20024
-  pinctrl: add DT binding doc for pincontrol of PMIC max77620/max20024
-  pinctrl: max77620: add pincontrol driver for MAX77620/MAX20024
-  gpio: add DT binding doc for gpio of PMIC max77620/max20024
-  gpio: max77620: add gpio driver for MAX77620/MAX20024
-  regulator: add DT binding doc for regulator of PMIC max77620/max20024
-  regulator: max77620: add regulator driver for max77620/max20024
-
- .../devicetree/bindings/gpio/gpio-max77620.txt     |  25 +
- Documentation/devicetree/bindings/mfd/max77620.txt | 118 +++
- .../bindings/pinctrl/pinctrl-max77620.txt          |  87 +++
- .../bindings/regulator/regulator-max77620.txt      | 163 ++++
- drivers/gpio/Kconfig                               |   9 +
- drivers/gpio/Makefile                              |   1 +
- drivers/gpio/gpio-max77620.c                       | 263 +++++++
- drivers/mfd/Kconfig                                |  15 +
- drivers/mfd/Makefile                               |   1 +
- drivers/mfd/max77620.c                             | 540 ++++++++++++++
- drivers/pinctrl/Kconfig                            |  10 +
- drivers/pinctrl/Makefile                           |   1 +
- drivers/pinctrl/pinctrl-max77620.c                 | 687 +++++++++++++++++
- drivers/regulator/Kconfig                          |   9 +
- drivers/regulator/Makefile                         |   1 +
- drivers/regulator/max77620-regulator.c             | 825 +++++++++++++++++++++
- include/dt-bindings/mfd/max77620.h                 |  35 +
- include/linux/mfd/max77620.h                       | 338 +++++++++
- 18 files changed, 3128 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/gpio/gpio-max77620.txt
- create mode 100644 Documentation/devicetree/bindings/mfd/max77620.txt
- create mode 100644 Documentation/devicetree/bindings/pinctrl/pinctrl-max77620.txt
- create mode 100644 Documentation/devicetree/bindings/regulator/regulator-max77620.txt
- create mode 100644 drivers/gpio/gpio-max77620.c
- create mode 100644 drivers/mfd/max77620.c
- create mode 100644 drivers/pinctrl/pinctrl-max77620.c
- create mode 100644 drivers/regulator/max77620-regulator.c
- create mode 100644 include/dt-bindings/mfd/max77620.h
- create mode 100644 include/linux/mfd/max77620.h
-
--- 
-2.1.4
+Best regards,
+Krzysztof
 
 -- 
 -- 
