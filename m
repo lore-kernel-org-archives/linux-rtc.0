@@ -1,28 +1,25 @@
-Return-Path: <rtc-linux+bncBDIZTUWNWICRBMVHV22AKGQELZUKQYI@googlegroups.com>
-Received: from userp1040.oracle.com (userp1040.oracle.com. [156.151.31.81])
-        by gmr-mx.google.com with ESMTPS id ui7si4212474pab.0.2016.01.05.01.58.09
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 05 Jan 2016 01:58:10 -0800 (PST)
-Received: from userv0022.oracle.com (userv0022.oracle.com [156.151.31.74])
-	by userp1040.oracle.com (Sentrion-MTA-4.3.2/Sentrion-MTA-4.3.2) with ESMTP id u059w5wr006350
-	(version=TLSv1 cipher=DHE-RSA-AES256-SHA bits=256 verify=FAIL)
-	for <rtc-linux@googlegroups.com>; Tue, 5 Jan 2016 09:58:06 GMT
-Received: from aserv0122.oracle.com (aserv0122.oracle.com [141.146.126.236])
-	by userv0022.oracle.com (8.13.8/8.13.8) with ESMTP id u059w5BX002705
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=FAIL)
-	for <rtc-linux@googlegroups.com>; Tue, 5 Jan 2016 09:58:05 GMT
-Received: from abhmp0019.oracle.com (abhmp0019.oracle.com [141.146.116.25])
-	by aserv0122.oracle.com (8.13.8/8.13.8) with ESMTP id u059w5MW002959
-	for <rtc-linux@googlegroups.com>; Tue, 5 Jan 2016 09:58:05 GMT
-Date: Tue, 5 Jan 2016 12:57:59 +0300
-From: Dan Carpenter <dan.carpenter@oracle.com>
-To: sasha.levin@oracle.com
-Cc: rtc-linux@googlegroups.com
-Subject: [rtc-linux] re: rtc: fix overflow and incorrect calculation in rtc_time64_to_tm
-Message-ID: <20160105095758.GG23619@mwanda>
+Return-Path: <rtc-linux+bncBAABBZFLRC2QKGQEJT3OHUI@googlegroups.com>
+Received: from lists.s-osg.org (lists.s-osg.org. [54.187.51.154])
+        by gmr-mx.google.com with ESMTP id r2si625868pfr.0.2016.01.22.03.43.32
+        for <rtc-linux@googlegroups.com>;
+        Fri, 22 Jan 2016 03:43:32 -0800 (PST)
+Subject: [rtc-linux] Re: [PATCH v2 02/10] rtc: max77686: Use ARRAY_SIZE()
+ instead of current array length
+To: Laxman Dewangan <ldewangan@nvidia.com>, linux-kernel@vger.kernel.org
+References: <1453407813-14646-1-git-send-email-javier@osg.samsung.com>
+ <1453407813-14646-3-git-send-email-javier@osg.samsung.com>
+ <56A1F8BB.9090803@nvidia.com>
+Cc: Kukjin Kim <kgene@kernel.org>, rtc-linux@googlegroups.com,
+ Chanwoo Choi <cw00.choi@samsung.com>,
+ Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+ Krzysztof Kozlowski <k.kozlowski@samsung.com>,
+ linux-samsung-soc@vger.kernel.org
+From: Javier Martinez Canillas <javier@osg.samsung.com>
+Message-ID: <56A215DD.5030904@osg.samsung.com>
+Date: Fri, 22 Jan 2016 08:43:25 -0300
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <56A1F8BB.9090803@nvidia.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -33,48 +30,43 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Hello Sasha Levin,
+Hello Laxman,
 
-The patch cab572b82c4b: "rtc: fix overflow and incorrect calculation
-in rtc_time64_to_tm" from Dec 3, 2015, leads to the following static
-checker warning:
+Thanks a lot for your feedback and acks.
 
-	drivers/rtc/rtc-lib.c:72 rtc_time64_to_tm()
-	warn: unsigned 'days' is never less than zero.
+On 01/22/2016 06:39 AM, Laxman Dewangan wrote:
+>
+> On Friday 22 January 2016 01:53 AM, Javier Martinez Canillas wrote:
+>> It is better to use the ARRAY_SIZE() macro instead of the array length
+>> to avoid bugs if the array is later changed and the length not updated.
+>>
+>> Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
+>> Reviewed-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+>>
+>>
+> Acked-by: Laxman Dewangan <ldewangan@nvidia.com>
+>
+>
+> Similar stuffs are there on multiple places:
+> u8 data[RTC_NR_TIME];
+>
+> :::
+> ret = regmap_bulk_read(info->max77686->rtc_regmap,
+>                                   MAX77686_ALARM1_SEC, data, RTC_NR_TIME);
+>
+>
+> Should we say:
+> ret = regmap_bulk_read(info->max77686->rtc_regmap,
+>                                   MAX77686_ALARM1_SEC, data, ARRAY_SIZE(data));
+>
 
-drivers/rtc/rtc-lib.c
-    49  /*
-    50   * rtc_time_to_tm64 - Converts time64_t to rtc_time.
-    51   * Convert seconds since 01-01-1970 00:00:00 to Gregorian date.
-    52   */
-    53  void rtc_time64_to_tm(time64_t time, struct rtc_time *tm)
-    54  {
-    55          unsigned int month, year;
-    56          int secs;
-    57          unsigned long days;
-                ^^^^^^^^^^^^^^^^^^^
-    58  
-    59          /*
-    60           * time must be positive
-    61           * This will fail for 32bit platforms on January 21st 11761191
-    62           */
-    63          days = div_s64_rem(time, 86400, &secs);
-    64  
-    65          /* day of the week, 1970-01-01 was a Thursday */
-    66          tm->tm_wday = (days + 4) % 7;
-    67  
-    68          year = 1970 + days / 365;
-    69          days -= (year - 1970) * 365
-    70                  + LEAPS_THRU_END_OF(year - 1)
-    71                  - LEAPS_THRU_END_OF(1970 - 1);
-    72          if (days < 0) {
-                   ^^^^^^^^^
-    73                  year -= 1;
-    74                  days += 365 + is_leap_year(year);
-    75          }
+Very good point, I'll change those on this patch as well for v3.
 
-regards,
-dan carpenter
+Best regards,
+-- 
+Javier Martinez Canillas
+Open Source Group
+Samsung Research America
 
 -- 
 -- 
