@@ -1,23 +1,22 @@
-Return-Path: <rtc-linux+bncBDZJXP7F6YLRB5VUUW2AKGQE2HI6QEQ@googlegroups.com>
-Received: from mail2-relais-roc.national.inria.fr (mail2-relais-roc.national.inria.fr. [192.134.164.83])
-        by gmr-mx.google.com with ESMTPS id f18si1512312wme.1.2016.01.03.09.29.25
+Return-Path: <rtc-linux+bncBCKMZDW5VIHBB5U6RO2QKGQE6Q6PH2A@googlegroups.com>
+Received: from bh-25.webhostbox.net (bh-25.webhostbox.net. [208.91.199.152])
+        by gmr-mx.google.com with ESMTPS id ht5si292673igb.1.2016.01.22.16.55.17
         for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sun, 03 Jan 2016 09:29:25 -0800 (PST)
-Date: Sun, 3 Jan 2016 18:29:24 +0100 (CET)
-From: Julia Lawall <julia.lawall@lip6.fr>
-To: SF Markus Elfring <elfring@users.sourceforge.net>
-cc: Julia Lawall <julia.lawall@lip6.fr>, rtc-linux@googlegroups.com,
-    Alessandro Zummo <a.zummo@towertech.it>,
-    Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-    LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH 8/8] rtc-ab-b5ze-s3: Delete an unnecessary
- variable in _abb5zes3_rtc_set_timer()
-In-Reply-To: <56895976.5040009@users.sourceforge.net>
-Message-ID: <alpine.DEB.2.02.1601031827340.2074@localhost6.localdomain6>
-References: <566ABCD9.1060404@users.sourceforge.net> <5688DF2D.6090204@users.sourceforge.net> <5688E268.9090600@users.sourceforge.net> <alpine.DEB.2.02.1601031345240.2053@localhost6.localdomain6> <56895976.5040009@users.sourceforge.net>
+        (version=TLS1 cipher=AES128-SHA bits=128/128);
+        Fri, 22 Jan 2016 16:55:17 -0800 (PST)
+Subject: [rtc-linux] Re: [PATCH v2] rtc: rtc-ds1307: add temperature sensor
+ support for ds3231
+To: Akinobu Mita <akinobu.mita@gmail.com>, rtc-linux@googlegroups.com
+References: <1453485441-11667-1-git-send-email-akinobu.mita@gmail.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+ Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+ Jean Delvare <jdelvare@suse.com>, lm-sensors@lm-sensors.org
+From: Guenter Roeck <linux@roeck-us.net>
+Message-ID: <56A2CF6D.9040300@roeck-us.net>
+Date: Fri, 22 Jan 2016 16:55:09 -0800
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="8323328-719743927-1451842165=:2074"
+In-Reply-To: <1453485441-11667-1-git-send-email-akinobu.mita@gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -28,50 +27,49 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+On 01/22/2016 09:57 AM, Akinobu Mita wrote:
+> DS3231 has the temperature registers with a resolution of 0.25
+> degree celsius.  This enables to get the value through hwmon.
+>
+> 	# cat /sys/class/i2c-adapter/i2c-2/2-0068/hwmon/hwmon0/temp1_input
+> 	21000
+>
+> Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
+> Cc: Alessandro Zummo <a.zummo@towertech.it>
+> Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+> Cc: rtc-linux@googlegroups.com
+> Cc: Jean Delvare <jdelvare@suse.com>
+> Cc: Guenter Roeck <linux@roeck-us.net>
+> Cc: lm-sensors@lm-sensors.org
+> ---
+> * v2
+> - convert to use hwmon framework, suggested by Alexandre Belloni
+>
+>   drivers/rtc/rtc-ds1307.c | 122 +++++++++++++++++++++++++++++++++++++++++++++++
+>   1 file changed, 122 insertions(+)
+>
+> diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
 
---8323328-719743927-1451842165=:2074
-Content-Type: TEXT/PLAIN; charset=windows-1252
-Content-Transfer-Encoding: 8BIT
+Something else, on top of my previous comments.
 
-On Sun, 3 Jan 2016, SF Markus Elfring wrote:
+> +#if IS_ENABLED(CONFIG_HWMON)
 
-> >>  	ret = regmap_update_bits(data->regmap, ABB5ZES3_REG_TIM_CLK,
-> >> -				 mask, ABB5ZES3_REG_TIM_CLK_TAC1);
-> >> +				 ABB5ZES3_REG_TIM_CLK_TAC0
-> >> +				 | ABB5ZES3_REG_TIM_CLK_TAC1,
-> >> +				 ABB5ZES3_REG_TIM_CLK_TAC1);
-> > 
-> > This doesn't seem like an improvement.
-> 
-> Interesting …
-> 
-> 
-> > The concept (mask) has disappeared,
-> 
-> I suggest to drop another local variable.
-> Can the operator "Bitwise OR" be sufficient to indicate the concept "mask"?
-> 
-> 
-> > the binary operation is strangely broken,
-> 
-> Do you prefer an other source code formatting within the usual line length range?
-> 
-> 
-> > and the function call has one more line of arguments,
-> 
-> How should several long preprocessor symbols be combined together with indentation
-> so that they will fit into the limit of 80 characters?
-> 
-> 
-> > which all look sort of the same and thus are hard to understand.
-> 
-> Is this an usual consequence from an ordinary name pattern?
+I don't think this will work as intended. It will fail if the ds1307 driver
+is built into the kernel but hwmon is built as module.
 
-The original code was better.  No 80 character problem, easy to 
-distinguish one argument from another, moderately meaningful variable 
-name, etc.
+Check configurations such as BE2NET_HWMON or NET_DSA_HWMON for ideas
+on how to handle this problem.
 
-julia
---8323328-719743927-1451842165=:2074--
+Thanks,
+Guenter
+
+-- 
+-- 
+You received this message because you are subscribed to "rtc-linux".
+Membership options at http://groups.google.com/group/rtc-linux .
+Please read http://groups.google.com/group/rtc-linux/web/checklist
+before submitting a driver.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+For more options, visit https://groups.google.com/d/optout.
