@@ -1,26 +1,28 @@
-Return-Path: <rtc-linux+bncBAABBIUOT62QKGQEZJMUB3A@googlegroups.com>
+Return-Path: <rtc-linux+bncBD2OLRXW4ABBBE72TC2QKGQECZZOUNI@googlegroups.com>
+Received: from hqemgate15.nvidia.com (hqemgate15.nvidia.com. [216.228.121.64])
+        by gmr-mx.google.com with ESMTPS id ui7si1995322pab.0.2016.01.25.07.19.47
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 25 Jan 2016 07:19:47 -0800 (PST)
+Message-ID: <56A63A85.6060609@nvidia.com>
+Date: Mon, 25 Jan 2016 20:38:53 +0530
+From: Laxman Dewangan <ldewangan@nvidia.com>
 MIME-Version: 1.0
-Received: from lists.s-osg.org (lists.s-osg.org. [54.187.51.154])
-        by gmr-mx.google.com with ESMTP id 190si273845pfb.1.2016.01.26.11.21.06
-        for <rtc-linux@googlegroups.com>;
-        Tue, 26 Jan 2016 11:21:06 -0800 (PST)
-From: Javier Martinez Canillas <javier@osg.samsung.com>
-To: linux-kernel@vger.kernel.org
-Cc: Kukjin Kim <kgene@kernel.org>,
-	rtc-linux@googlegroups.com,
-	Chanwoo Choi <cw00.choi@samsung.com>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Krzysztof Kozlowski <k.kozlowski@samsung.com>,
-	Laxman Dewangan <ldewangan@nvidia.com>,
-	linux-samsung-soc@vger.kernel.org,
-	Javier Martinez Canillas <javier@osg.samsung.com>
-Subject: [rtc-linux] [PATCH v3 08/10] rtc: Remove Maxim 77802 driver
-Date: Tue, 26 Jan 2016 16:20:18 -0300
-Message-Id: <1453836020-29579-9-git-send-email-javier@osg.samsung.com>
-In-Reply-To: <1453836020-29579-1-git-send-email-javier@osg.samsung.com>
-References: <1453836020-29579-1-git-send-email-javier@osg.samsung.com>
+To: Lee Jones <lee.jones@linaro.org>
+CC: <robh+dt@kernel.org>, <pawel.moll@arm.com>, <mark.rutland@arm.com>,
+	<ijc+devicetree@hellion.org.uk>, <galak@codeaurora.org>,
+	<linus.walleij@linaro.org>, <gnurou@gmail.com>, <broonie@kernel.org>,
+	<a.zummo@towertech.it>, <alexandre.belloni@free-electrons.com>,
+	<lgirdwood@gmail.com>, <devicetree@vger.kernel.org>,
+	<linux-kernel@vger.kernel.org>, <linux-gpio@vger.kernel.org>,
+	<rtc-linux@googlegroups.com>, <swarren@nvidia.com>, <treding@nvidia.com>,
+	<k.kozlowski@samsung.com>, <vreddytalla@nvidia.com>
+Subject: [rtc-linux] Re: [PATCH V4 1/5] DT: mfd: add device-tree binding doc
+ fro PMIC max77620/max20024
+References: <1453198783-28383-1-git-send-email-ldewangan@nvidia.com> <1453198783-28383-2-git-send-email-ldewangan@nvidia.com> <20160125115610.GC3368@x1>
+In-Reply-To: <20160125115610.GC3368@x1>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Reply-To: rtc-linux@googlegroups.com
-Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -30,578 +32,165 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-The max77686 RTC driver now supports the max77802 RTC as
-well so there's no need to have a separate driver anymore.
 
-Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
-Reviewed-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-Acked-by: Laxman Dewangan <ldewangan@nvidia.com>
+Thanks Lee for your review. I will take care of most of comment on my=20
+next patch.
 
----
+I have reply on some comment and seeking more details for few comments=20
+as follows.
 
-Changes in v3:
-- Add Laxman Dewangan's Acked-by tag to patch #8.
+On Monday 25 January 2016 05:26 PM, Lee Jones wrote:
+> On Tue, 19 Jan 2016, Laxman Dewangan wrote:
+>
+>> +- interrupt-controller: MAX77620 has internal interrupt controller whic=
+h
+>> +  takes the interrupt request from internal sub-blocks like RTC,
+>> +  regulators, GPIOs as well as external input.
+> This is how interrupt-controllers usually work.  I don't think there
+> is any need to explain this.  I'd just link to
+> ../interrupt-controller/interrupts.txt instead.
 
-Changes in v2:
-- Add Krzysztof Kozlowski's Reviewed-by tag to patch #8.
+Something similar to (just to confirm)
+- interrupt-controller: describes the 88pm860x as an interrupt=20
+controller (has its own domain)
 
- drivers/rtc/Kconfig        |  10 -
- drivers/rtc/Makefile       |   1 -
- drivers/rtc/rtc-max77802.c | 502 ---------------------------------------------
- 3 files changed, 513 deletions(-)
- delete mode 100644 drivers/rtc/rtc-max77802.c
+>
+>> +- #interrupt-cells: Should be set to 2 for IRQ number and flags.
+>> +  The first cell is the IRQ number. IRQ numbers for different interrupt
+>> +  source of MAX77620 are defined at dt-bindings/mfd/max77620.h
+>> +  The second cell is the flags, encoded as the trigger masks from bindi=
+ng
+>> +  document interrupts.txt, using dt-bindings/irq.
+> This is a very lengthy read for such little information.  Please make
+> it more succinct.  Take a look at other files for examples.
+I started with as3722.txt and it seems I am carrying forward the=20
+complexity here. Originally, as3722 is posted by me only. Any good file=20
+example which I can refer?
 
-diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
-index 376322f71fd5..ef456d3cf265 100644
---- a/drivers/rtc/Kconfig
-+++ b/drivers/rtc/Kconfig
-@@ -335,16 +335,6 @@ config RTC_DRV_RK808
- 	  This driver can also be built as a module. If so, the module
- 	  will be called rk808-rtc.
- 
--config RTC_DRV_MAX77802
--	tristate "Maxim 77802 RTC"
--	depends on MFD_MAX77686
--	help
--	  If you say yes here you will get support for the
--	  RTC of Maxim MAX77802 PMIC.
--
--	  This driver can also be built as a module. If so, the module
--	  will be called rtc-max77802.
--
- config RTC_DRV_RS5C372
- 	tristate "Ricoh R2025S/D, RS5C372A/B, RV5C386, RV5C387A"
- 	help
-diff --git a/drivers/rtc/Makefile b/drivers/rtc/Makefile
-index 62d61b26ca7e..ed4519efa3ca 100644
---- a/drivers/rtc/Makefile
-+++ b/drivers/rtc/Makefile
-@@ -86,7 +86,6 @@ obj-$(CONFIG_RTC_DRV_M48T86)	+= rtc-m48t86.o
- obj-$(CONFIG_RTC_DRV_MAX6900)	+= rtc-max6900.o
- obj-$(CONFIG_RTC_DRV_MAX6902)	+= rtc-max6902.o
- obj-$(CONFIG_RTC_DRV_MAX77686)	+= rtc-max77686.o
--obj-$(CONFIG_RTC_DRV_MAX77802)	+= rtc-max77802.o
- obj-$(CONFIG_RTC_DRV_MAX8907)	+= rtc-max8907.o
- obj-$(CONFIG_RTC_DRV_MAX8925)	+= rtc-max8925.o
- obj-$(CONFIG_RTC_DRV_MAX8997)	+= rtc-max8997.o
-diff --git a/drivers/rtc/rtc-max77802.c b/drivers/rtc/rtc-max77802.c
-deleted file mode 100644
-index 82ffcc5a5345..000000000000
---- a/drivers/rtc/rtc-max77802.c
-+++ /dev/null
-@@ -1,502 +0,0 @@
--/*
-- * RTC driver for Maxim MAX77802
-- *
-- * Copyright (C) 2013 Google, Inc
-- *
-- * Copyright (C) 2012 Samsung Electronics Co.Ltd
-- *
-- *  based on rtc-max8997.c
-- *
-- *  This program is free software; you can redistribute  it and/or modify it
-- *  under  the terms of  the GNU General  Public License as published by the
-- *  Free Software Foundation;  either version 2 of the  License, or (at your
-- *  option) any later version.
-- *
-- */
--
--#include <linux/slab.h>
--#include <linux/rtc.h>
--#include <linux/delay.h>
--#include <linux/mutex.h>
--#include <linux/module.h>
--#include <linux/platform_device.h>
--#include <linux/mfd/max77686-private.h>
--#include <linux/irqdomain.h>
--#include <linux/regmap.h>
--
--/* RTC Control Register */
--#define BCD_EN_SHIFT			0
--#define BCD_EN_MASK			(1 << BCD_EN_SHIFT)
--#define MODEL24_SHIFT			1
--#define MODEL24_MASK			(1 << MODEL24_SHIFT)
--/* RTC Update Register1 */
--#define RTC_UDR_SHIFT			0
--#define RTC_UDR_MASK			(1 << RTC_UDR_SHIFT)
--#define RTC_RBUDR_SHIFT			4
--#define RTC_RBUDR_MASK			(1 << RTC_RBUDR_SHIFT)
--/* RTC Hour register */
--#define HOUR_PM_SHIFT			6
--#define HOUR_PM_MASK			(1 << HOUR_PM_SHIFT)
--/* RTC Alarm Enable */
--#define ALARM_ENABLE_SHIFT		7
--#define ALARM_ENABLE_MASK		(1 << ALARM_ENABLE_SHIFT)
--
--/* For the RTCAE1 register, we write this value to enable the alarm */
--#define ALARM_ENABLE_VALUE		0x77
--
--#define MAX77802_RTC_UPDATE_DELAY_US	200
--
--enum {
--	RTC_SEC = 0,
--	RTC_MIN,
--	RTC_HOUR,
--	RTC_WEEKDAY,
--	RTC_MONTH,
--	RTC_YEAR,
--	RTC_DATE,
--	RTC_NR_TIME
--};
--
--struct max77802_rtc_info {
--	struct device		*dev;
--	struct max77686_dev	*max77802;
--	struct i2c_client	*rtc;
--	struct rtc_device	*rtc_dev;
--	struct mutex		lock;
--
--	struct regmap		*regmap;
--
--	int virq;
--	int rtc_24hr_mode;
--};
--
--enum MAX77802_RTC_OP {
--	MAX77802_RTC_WRITE,
--	MAX77802_RTC_READ,
--};
--
--static void max77802_rtc_data_to_tm(u8 *data, struct rtc_time *tm,
--				   int rtc_24hr_mode)
--{
--	tm->tm_sec = data[RTC_SEC] & 0xff;
--	tm->tm_min = data[RTC_MIN] & 0xff;
--	if (rtc_24hr_mode)
--		tm->tm_hour = data[RTC_HOUR] & 0x1f;
--	else {
--		tm->tm_hour = data[RTC_HOUR] & 0x0f;
--		if (data[RTC_HOUR] & HOUR_PM_MASK)
--			tm->tm_hour += 12;
--	}
--
--	/* Only a single bit is set in data[], so fls() would be equivalent */
--	tm->tm_wday = ffs(data[RTC_WEEKDAY] & 0xff) - 1;
--	tm->tm_mday = data[RTC_DATE] & 0x1f;
--	tm->tm_mon = (data[RTC_MONTH] & 0x0f) - 1;
--
--	tm->tm_year = data[RTC_YEAR] & 0xff;
--	tm->tm_yday = 0;
--	tm->tm_isdst = 0;
--}
--
--static int max77802_rtc_tm_to_data(struct rtc_time *tm, u8 *data)
--{
--	data[RTC_SEC] = tm->tm_sec;
--	data[RTC_MIN] = tm->tm_min;
--	data[RTC_HOUR] = tm->tm_hour;
--	data[RTC_WEEKDAY] = 1 << tm->tm_wday;
--	data[RTC_DATE] = tm->tm_mday;
--	data[RTC_MONTH] = tm->tm_mon + 1;
--	data[RTC_YEAR] = tm->tm_year;
--
--	return 0;
--}
--
--static int max77802_rtc_update(struct max77802_rtc_info *info,
--	enum MAX77802_RTC_OP op)
--{
--	int ret;
--	unsigned int data;
--
--	if (op == MAX77802_RTC_WRITE)
--		data = 1 << RTC_UDR_SHIFT;
--	else
--		data = 1 << RTC_RBUDR_SHIFT;
--
--	ret = regmap_update_bits(info->max77802->regmap,
--				 MAX77802_RTC_UPDATE0, data, data);
--	if (ret < 0)
--		dev_err(info->dev, "%s: fail to write update reg(ret=%d, data=0x%x)\n",
--				__func__, ret, data);
--	else {
--		/* Minimum delay required before RTC update. */
--		usleep_range(MAX77802_RTC_UPDATE_DELAY_US,
--			     MAX77802_RTC_UPDATE_DELAY_US * 2);
--	}
--
--	return ret;
--}
--
--static int max77802_rtc_read_time(struct device *dev, struct rtc_time *tm)
--{
--	struct max77802_rtc_info *info = dev_get_drvdata(dev);
--	u8 data[RTC_NR_TIME];
--	int ret;
--
--	mutex_lock(&info->lock);
--
--	ret = max77802_rtc_update(info, MAX77802_RTC_READ);
--	if (ret < 0)
--		goto out;
--
--	ret = regmap_bulk_read(info->max77802->regmap,
--				MAX77802_RTC_SEC, data, RTC_NR_TIME);
--	if (ret < 0) {
--		dev_err(info->dev, "%s: fail to read time reg(%d)\n", __func__,
--			ret);
--		goto out;
--	}
--
--	max77802_rtc_data_to_tm(data, tm, info->rtc_24hr_mode);
--
--	ret = rtc_valid_tm(tm);
--
--out:
--	mutex_unlock(&info->lock);
--	return ret;
--}
--
--static int max77802_rtc_set_time(struct device *dev, struct rtc_time *tm)
--{
--	struct max77802_rtc_info *info = dev_get_drvdata(dev);
--	u8 data[RTC_NR_TIME];
--	int ret;
--
--	ret = max77802_rtc_tm_to_data(tm, data);
--	if (ret < 0)
--		return ret;
--
--	mutex_lock(&info->lock);
--
--	ret = regmap_bulk_write(info->max77802->regmap,
--				 MAX77802_RTC_SEC, data, RTC_NR_TIME);
--	if (ret < 0) {
--		dev_err(info->dev, "%s: fail to write time reg(%d)\n", __func__,
--			ret);
--		goto out;
--	}
--
--	ret = max77802_rtc_update(info, MAX77802_RTC_WRITE);
--
--out:
--	mutex_unlock(&info->lock);
--	return ret;
--}
--
--static int max77802_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
--{
--	struct max77802_rtc_info *info = dev_get_drvdata(dev);
--	u8 data[RTC_NR_TIME];
--	unsigned int val;
--	int ret;
--
--	mutex_lock(&info->lock);
--
--	ret = max77802_rtc_update(info, MAX77802_RTC_READ);
--	if (ret < 0)
--		goto out;
--
--	ret = regmap_bulk_read(info->max77802->regmap,
--				 MAX77802_ALARM1_SEC, data, RTC_NR_TIME);
--	if (ret < 0) {
--		dev_err(info->dev, "%s:%d fail to read alarm reg(%d)\n",
--				__func__, __LINE__, ret);
--		goto out;
--	}
--
--	max77802_rtc_data_to_tm(data, &alrm->time, info->rtc_24hr_mode);
--
--	alrm->enabled = 0;
--	ret = regmap_read(info->max77802->regmap,
--			  MAX77802_RTC_AE1, &val);
--	if (ret < 0) {
--		dev_err(info->dev, "%s:%d fail to read alarm enable(%d)\n",
--			__func__, __LINE__, ret);
--		goto out;
--	}
--	if (val)
--		alrm->enabled = 1;
--
--	alrm->pending = 0;
--	ret = regmap_read(info->max77802->regmap, MAX77802_REG_STATUS2, &val);
--	if (ret < 0) {
--		dev_err(info->dev, "%s:%d fail to read status2 reg(%d)\n",
--				__func__, __LINE__, ret);
--		goto out;
--	}
--
--	if (val & (1 << 2)) /* RTCA1 */
--		alrm->pending = 1;
--
--out:
--	mutex_unlock(&info->lock);
--	return 0;
--}
--
--static int max77802_rtc_stop_alarm(struct max77802_rtc_info *info)
--{
--	int ret;
--
--	if (!mutex_is_locked(&info->lock))
--		dev_warn(info->dev, "%s: should have mutex locked\n", __func__);
--
--	ret = max77802_rtc_update(info, MAX77802_RTC_READ);
--	if (ret < 0)
--		goto out;
--
--	ret = regmap_write(info->max77802->regmap,
--			   MAX77802_RTC_AE1, 0);
--	if (ret < 0) {
--		dev_err(info->dev, "%s: fail to write alarm reg(%d)\n",
--			__func__, ret);
--		goto out;
--	}
--
--	ret = max77802_rtc_update(info, MAX77802_RTC_WRITE);
--out:
--	return ret;
--}
--
--static int max77802_rtc_start_alarm(struct max77802_rtc_info *info)
--{
--	int ret;
--
--	if (!mutex_is_locked(&info->lock))
--		dev_warn(info->dev, "%s: should have mutex locked\n",
--			 __func__);
--
--	ret = max77802_rtc_update(info, MAX77802_RTC_READ);
--	if (ret < 0)
--		goto out;
--
--	ret = regmap_write(info->max77802->regmap,
--				   MAX77802_RTC_AE1,
--				   ALARM_ENABLE_VALUE);
--
--	if (ret < 0) {
--		dev_err(info->dev, "%s: fail to read alarm reg(%d)\n",
--				__func__, ret);
--		goto out;
--	}
--
--	ret = max77802_rtc_update(info, MAX77802_RTC_WRITE);
--out:
--	return ret;
--}
--
--static int max77802_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
--{
--	struct max77802_rtc_info *info = dev_get_drvdata(dev);
--	u8 data[RTC_NR_TIME];
--	int ret;
--
--	ret = max77802_rtc_tm_to_data(&alrm->time, data);
--	if (ret < 0)
--		return ret;
--
--	mutex_lock(&info->lock);
--
--	ret = max77802_rtc_stop_alarm(info);
--	if (ret < 0)
--		goto out;
--
--	ret = regmap_bulk_write(info->max77802->regmap,
--				 MAX77802_ALARM1_SEC, data, RTC_NR_TIME);
--
--	if (ret < 0) {
--		dev_err(info->dev, "%s: fail to write alarm reg(%d)\n",
--				__func__, ret);
--		goto out;
--	}
--
--	ret = max77802_rtc_update(info, MAX77802_RTC_WRITE);
--	if (ret < 0)
--		goto out;
--
--	if (alrm->enabled)
--		ret = max77802_rtc_start_alarm(info);
--out:
--	mutex_unlock(&info->lock);
--	return ret;
--}
--
--static int max77802_rtc_alarm_irq_enable(struct device *dev,
--					 unsigned int enabled)
--{
--	struct max77802_rtc_info *info = dev_get_drvdata(dev);
--	int ret;
--
--	mutex_lock(&info->lock);
--	if (enabled)
--		ret = max77802_rtc_start_alarm(info);
--	else
--		ret = max77802_rtc_stop_alarm(info);
--	mutex_unlock(&info->lock);
--
--	return ret;
--}
--
--static irqreturn_t max77802_rtc_alarm_irq(int irq, void *data)
--{
--	struct max77802_rtc_info *info = data;
--
--	dev_dbg(info->dev, "%s:irq(%d)\n", __func__, irq);
--
--	rtc_update_irq(info->rtc_dev, 1, RTC_IRQF | RTC_AF);
--
--	return IRQ_HANDLED;
--}
--
--static const struct rtc_class_ops max77802_rtc_ops = {
--	.read_time = max77802_rtc_read_time,
--	.set_time = max77802_rtc_set_time,
--	.read_alarm = max77802_rtc_read_alarm,
--	.set_alarm = max77802_rtc_set_alarm,
--	.alarm_irq_enable = max77802_rtc_alarm_irq_enable,
--};
--
--static int max77802_rtc_init_reg(struct max77802_rtc_info *info)
--{
--	u8 data[2];
--	int ret;
--
--	max77802_rtc_update(info, MAX77802_RTC_READ);
--
--	/* Set RTC control register : Binary mode, 24hour mdoe */
--	data[0] = (1 << BCD_EN_SHIFT) | (1 << MODEL24_SHIFT);
--	data[1] = (0 << BCD_EN_SHIFT) | (1 << MODEL24_SHIFT);
--
--	info->rtc_24hr_mode = 1;
--
--	ret = regmap_bulk_write(info->max77802->regmap,
--				MAX77802_RTC_CONTROLM, data, ARRAY_SIZE(data));
--	if (ret < 0) {
--		dev_err(info->dev, "%s: fail to write controlm reg(%d)\n",
--				__func__, ret);
--		return ret;
--	}
--
--	ret = max77802_rtc_update(info, MAX77802_RTC_WRITE);
--	return ret;
--}
--
--static int max77802_rtc_probe(struct platform_device *pdev)
--{
--	struct max77686_dev *max77802 = dev_get_drvdata(pdev->dev.parent);
--	struct max77802_rtc_info *info;
--	int ret;
--
--	dev_dbg(&pdev->dev, "%s\n", __func__);
--
--	info = devm_kzalloc(&pdev->dev, sizeof(struct max77802_rtc_info),
--			    GFP_KERNEL);
--	if (!info)
--		return -ENOMEM;
--
--	mutex_init(&info->lock);
--	info->dev = &pdev->dev;
--	info->max77802 = max77802;
--	info->rtc = max77802->i2c;
--
--	platform_set_drvdata(pdev, info);
--
--	ret = max77802_rtc_init_reg(info);
--
--	if (ret < 0) {
--		dev_err(&pdev->dev, "Failed to initialize RTC reg:%d\n", ret);
--		return ret;
--	}
--
--	device_init_wakeup(&pdev->dev, 1);
--
--	info->rtc_dev = devm_rtc_device_register(&pdev->dev, "max77802-rtc",
--						 &max77802_rtc_ops, THIS_MODULE);
--
--	if (IS_ERR(info->rtc_dev)) {
--		ret = PTR_ERR(info->rtc_dev);
--		dev_err(&pdev->dev, "Failed to register RTC device: %d\n", ret);
--		if (ret == 0)
--			ret = -EINVAL;
--		return ret;
--	}
--
--	if (!max77802->rtc_irq_data) {
--		dev_err(&pdev->dev, "No RTC regmap IRQ chip\n");
--		return -EINVAL;
--	}
--
--	info->virq = regmap_irq_get_virq(max77802->rtc_irq_data,
--					 MAX77686_RTCIRQ_RTCA1);
--
--	if (info->virq <= 0) {
--		dev_err(&pdev->dev, "Failed to get virtual IRQ %d\n",
--			MAX77686_RTCIRQ_RTCA1);
--		return -EINVAL;
--	}
--
--	ret = devm_request_threaded_irq(&pdev->dev, info->virq, NULL,
--					max77802_rtc_alarm_irq, 0, "rtc-alarm1",
--					info);
--	if (ret < 0)
--		dev_err(&pdev->dev, "Failed to request alarm IRQ: %d: %d\n",
--			info->virq, ret);
--
--	return ret;
--}
--
--#ifdef CONFIG_PM_SLEEP
--static int max77802_rtc_suspend(struct device *dev)
--{
--	if (device_may_wakeup(dev)) {
--		struct max77802_rtc_info *info = dev_get_drvdata(dev);
--
--		return enable_irq_wake(info->virq);
--	}
--
--	return 0;
--}
--
--static int max77802_rtc_resume(struct device *dev)
--{
--	if (device_may_wakeup(dev)) {
--		struct max77802_rtc_info *info = dev_get_drvdata(dev);
--
--		return disable_irq_wake(info->virq);
--	}
--
--	return 0;
--}
--#endif
--
--static SIMPLE_DEV_PM_OPS(max77802_rtc_pm_ops,
--			 max77802_rtc_suspend, max77802_rtc_resume);
--
--static const struct platform_device_id rtc_id[] = {
--	{ "max77802-rtc", 0 },
--	{},
--};
--MODULE_DEVICE_TABLE(platform, rtc_id);
--
--static struct platform_driver max77802_rtc_driver = {
--	.driver		= {
--		.name	= "max77802-rtc",
--		.pm	= &max77802_rtc_pm_ops,
--	},
--	.probe		= max77802_rtc_probe,
--	.id_table	= rtc_id,
--};
--
--module_platform_driver(max77802_rtc_driver);
--
--MODULE_DESCRIPTION("Maxim MAX77802 RTC driver");
--MODULE_AUTHOR("Simon Glass <sjg@chromium.org>");
--MODULE_LICENSE("GPL");
--- 
-2.5.0
 
--- 
--- 
+>   Also,
+> tell use where interrupts.txt is
+> i.e. ../interrupt-controller/interrupts.txt.
+>
+> These are so much easier to read if you tab out from the property name
+> to the description.
+>
+> - reg:				I2C device address.
+> - interrupt-controller: 	MAX77620 has internal interrupt controller which
+>    				takes the interrupt request from internal
+> 				sub-blocks like RTC, regulators, GPIOs as well
+> 				as external input.
+> - #interrupt-cells:		Should be set to 2 for IRQ number and flags.
+> 				The first cell is the IRQ number. IRQ numbers
+> 				for different interrupt source of MAX77620 are
+> 				defined at dt-bindings/mfd/max77620.h
+>    				The second cell is the flags, encoded as the
+> 				trigger masks from binding document
+> 				interrupts.txt, using dt-bindings/irq.
+>
+> ... don't you think?
+
+Agree, I can make indenting. And will do whatever places it needs in=20
+this document.
+
+>
+>> +Optional properties:
+>> +-------------------
+>> +This device also supports the power OFF of system.
+> What is the "power OFF of system"?
+
+PMIC supplies the power. So once PMIC is in OFF state, it turns off all=20
+its rail and hence no SW execution on system. Still external supply will=20
+keep supply to PMIC.
+
+
+>
+>> +Following properties are used for this purpose:
+>> +- system-power-controller: Boolean, This device will be use as
+> You don't describe the type of each property, so why is this one
+> special?
+Hmm. I describe the boolean and tristate only. Do I need to define type=20
+for integer,string also?
+
+>> +power OFF slot and slot period of the device. Device has 3 FPS as FPS0,
+>> +FPS1 and FPS2. The details of FPS configuration is provided through
+>> +subnode "fps". The details of FPS0, FPS1, FPS2 are provided through the
+>> +child node under this subnodes. The FPS number is provided via reg prop=
+erty.
+>> +
+>> +The property for fps child nodes as:
+>> +Required properties:
+>> +	-reg: FPS number like 0, 1, 2 for FPS0, FPS1 and FPS2 respectively.
+> I'm surprised Rob Acked this.  We don't usually do device numbers in DT.
+What is best way to make the child node for FPS and differentiate FPS0,1, 2=
+?
+What is your suggestion here?
+
+
+>> +	-maxim,active-fps-time-period-us: Active state FPS time period in
+>> +		microseconds.
+>> +	-maxim,suspend-fps-time-period-us: Suspend state FPS time period in
+>> +		microseconds.
+>> +	-maxim,fps-enable-input: FPS enable source like EN0, EN1 or SW. The
+>> +			macros are defined on dt-bindings/mfd/max77620.h for
+>> +			different enable source.
+>> +				FPS_EN_SRC_EN0 for EN0 enable source.
+>> +				FPS_EN_SRC_EN1 for En1 enable source.
+>> +				FPS_EN_SRC_SW for SW based control.
+>> +	-maxim,fps-sw-enable: Boolean, applicable if enable input is SW.
+>> +			If this property present then enable the FPS else
+> "property is present"
+>
+> If this enables/disables FPS, why does it matter if it's SW or not?
+> Why can't you just cal it maxim,fps-enable?  Also, is there a case
+> where you would supply this sub-node, have FPS enabled and this
+> property not present?  If not, can't you just remove the entire node?
+> Or am I missing something?
+
+Here, my need is to connect different FPS source inputs EN0, EN1 or SW.=20
+They can connected to any inputs. That's why fps-enable-input select the=20
+related digital input for given FPS.
+However, I can reduce the need of "fps-sw-enable" and make this always=20
+enable if fps-enable-input=3D <SW>.
+
+Here is excerpt from datasheet:
+B3:B1: SRCFPSx[1:0]
+     Enable Source. Specifies the enable source for the sequencer.
+         0b00=3DEN0 hardware input
+         0b01=3DEN1 hardware input
+         0b10=3DENFPSx software bit
+         0b11=3Dreserved
+B0 ENFPSx
+     Software Enable
+     0=3DDisable FPSx
+     1=3DEnable FPSx
+     X=3DENFPSx is a don=E2=80=99t care if SRCFPSx[1:0] !=3D 0b10
+
+
+>
+>> +	-maxim,enable-global-lpm: Boolean, enable global LPM when the external
+> LPM?
+Low Power Mode (LPM). I will add details.
+
+> +Pinmux and GPIO:
+> +=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+> I think this whole section needs moving to ../pinctrl and needs to be
+> reviewed by Linus W.
+
+Is this mean I need to create DT binding doc for the each subsystem=20
+differently?
+Actually during AS3722, I had different understanding to have single file.
+
+
+--=20
+--=20
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+---=20
+You received this message because you are subscribed to the Google Groups "=
+rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an e=
+mail to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
