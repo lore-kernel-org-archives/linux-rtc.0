@@ -1,28 +1,25 @@
-Return-Path: <rtc-linux+bncBD2OLRXW4ABBBPHMX22AKGQEBQUHKVA@googlegroups.com>
-Received: from hqemgate15.nvidia.com (hqemgate15.nvidia.com. [216.228.121.64])
-        by gmr-mx.google.com with ESMTPS id a76si308348pfj.2.2016.01.08.05.14.36
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 08 Jan 2016 05:14:36 -0800 (PST)
-Message-ID: <568FB3DD.4090503@nvidia.com>
-Date: Fri, 8 Jan 2016 18:34:29 +0530
-From: Laxman Dewangan <ldewangan@nvidia.com>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBX4YTG2QKGQEWM2CZZA@googlegroups.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id b4si377993wme.3.2016.01.25.08.25.03
+        for <rtc-linux@googlegroups.com>;
+        Mon, 25 Jan 2016 08:25:03 -0800 (PST)
+Date: Mon, 25 Jan 2016 17:06:33 +0100
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Javier Martinez Canillas <javier@osg.samsung.com>
+Cc: linux-kernel@vger.kernel.org, Kukjin Kim <kgene@kernel.org>,
+	rtc-linux@googlegroups.com, Chanwoo Choi <cw00.choi@samsung.com>,
+	Krzysztof Kozlowski <k.kozlowski@samsung.com>,
+	Laxman Dewangan <ldewangan@nvidia.com>,
+	linux-samsung-soc@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+	Olof Johansson <olof@lixom.net>,
+	linux-arm-kernel@lists.infradead.org
+Subject: [rtc-linux] Re: [PATCH v2 00/10] rtc: max77686: Extend driver and add
+ max77802 support
+Message-ID: <20160125160633.GB11740@piout.net>
+References: <1453407813-14646-1-git-send-email-javier@osg.samsung.com>
 MIME-Version: 1.0
-To: Mark Brown <broonie@kernel.org>
-CC: Krzysztof Kozlowski <k.kozlowski@samsung.com>,
-	<rtc-linux@googlegroups.com>, <robh+dt@kernel.org>, <pawel.moll@arm.com>,
-	<mark.rutland@arm.com>, <ijc+devicetree@hellion.org.uk>,
-	<galak@codeaurora.org>, <linus.walleij@linaro.org>, <gnurou@gmail.com>,
-	<lee.jones@linaro.org>, <a.zummo@towertech.it>,
-	<alexandre.belloni@free-electrons.com>, <lgirdwood@gmail.com>,
-	<devicetree@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-	<linux-gpio@vger.kernel.org>, <swarren@nvidia.com>, <treding@nvidia.com>,
-	Chaitanya Bandi <bandik@nvidia.com>
-Subject: Re: [rtc-linux] [PATCH 5/6] rtc: max77620: add support for
- max77620/max20024 RTC driver
-References: <1452177524-23192-1-git-send-email-ldewangan@nvidia.com> <1452177524-23192-6-git-send-email-ldewangan@nvidia.com> <CAJKOXPd938soaa5M0GFo5HpVCYzAS1w8j8Hko3Ja9mx47NYkEQ@mail.gmail.com> <568F8D7E.10500@nvidia.com> <20160108125117.GM6588@sirena.org.uk>
-In-Reply-To: <20160108125117.GM6588@sirena.org.uk>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1453407813-14646-1-git-send-email-javier@osg.samsung.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -33,110 +30,52 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
+Hi,
 
-On Friday 08 January 2016 06:21 PM, Mark Brown wrote:
-> * PGP Signed by an unknown key
->
-> On Fri, Jan 08, 2016 at 03:50:46PM +0530, Laxman Dewangan wrote:
->
->> Yaah, that is the issue on IP based PMIC system and it happen with the Maxim
->> and TI.
->> The MFD and its sub module drivers are too much couped  and hence dificult
->> to use the IP driver across PMIC. For almost all Maxim PMIC, we end up of
->> same type of RTC driver.
->> Probably, we need to enhance the mfd sub system to allow sub module driver
->> to decoupe from its APIs.
-> Could you be more specific about the issues here please?  I can't think
-> of any barriers and you've not mentioned any barriers...
->
+On 21/01/2016 at 17:23:23 -0300, Javier Martinez Canillas wrote :
+> On a recent disussion [0] with Krzysztof Kozlowski and Laxman Dewangan,
+> we came to the conclusion that the max77686 and max77802 RTC are almost
+> the same with only a few differences so there shouldn't be two separate
+> drivers and is better to extend max77686 driver and delete rtc-max77802.
+> 
+> By making the driver more generic, other RTC IP blocks from Maxim PMICs
+> could be supported as well like the max77620.
+> 
+> This is a v2 of a series that do this, that address issues pointed out
+> by Krzysztof Kozlowski. The v1 can be found at [1].
+> 
+> I've tested this patch-set on an Exynos5800 Peach Pi Chromebook that has
+> a max77802 PMIC and the RTC was working correctly but I don't have a
+> machine with max77686 so I will really appreaciate if someone can test
+> that no regressions were introduced.
+> 
+> On an IRC conversation, Alexandre suggested to use the field support in
+> the regmap API to avoid needing a translation table. I spent some time
+> to look at it and I'm not so sure if it fits that well in this case.
+> 
+> It's true that we could model each register as if it has a single field
+> and provide a different reg address but I'm not sure if that would make
+> things more clear or cause more confusion for future code archaeologists.
+> 
 
-I took MAX77686 and MAX77620. They are almost same IP on both PMIC and I 
-think it can be used if we decouple it. Typical codes are same as 
-follows: (I posted here for quick reference, excuse me if it is long).
+Yeah, Mark suggested that regmap_field may be what we were looking for
+but I'm not convinced it really fits.
 
+> In any case, I think this series are a move in the right direction since
+> removes code duplication and a complete driver and also allows others to
+> reuse the driver for another RTC chip. We can later simplify and use the
+> regmap field API or extend the regmap core if that could make things even
+> simpler but I propose to do it as a follow up.
+> 
 
-If we get the parent device, regmap handle and interrupt number from mfd 
-core independent of the PMIC (MAX77620 or MAX77686), then same driver 
-can be used here.
-Two way which I can think of here:
-
-1: We need to make independent maxim RTC IP driver which may be platform 
-driver and get above information from the platform data.
-
-This way both mfd driver can pass the platform data with required 
-information and decoupled.
-
-2. Other way is that rtc driver will register as independent platform 
-driver and pass the mfd dt handle to this driver. Later maxim rtc driver 
-can query for getting the regmap, interrupt number etc.
-
-Any other approach are welcome.
-
-
-sample code:
-************************8
-Typical function from max77686:
-
-static int max77686_rtc_set_time(struct device *dev, struct rtc_time *tm)
-{
-         struct max77686_rtc_info *info = dev_get_drvdata(dev);
-         u8 data[RTC_NR_TIME];
-         int ret;
-
-         ret = max77686_rtc_tm_to_data(tm, data);
-         if (ret < 0)
-                 return ret;
-
-         mutex_lock(&info->lock);
-
-         ret = regmap_bulk_write(info->max77686->rtc_regmap,
-                                  MAX77686_RTC_SEC, data, RTC_NR_TIME);
-         if (ret < 0) {
-                 dev_err(info->dev, "%s: fail to write time reg(%d)\n", 
-__func__,
-                                 ret);
-                 goto out;
-         }
-
-         ret = max77686_rtc_update(info, MAX77686_RTC_WRITE);
-
-out:
-         mutex_unlock(&info->lock);
-         return ret;
-}
+I don't have any objection or other comment on that series. So
+basically, I'm waiting for v3 and I'll apply it.
 
 
-static int max77620_rtc_set_time(struct device *dev, struct rtc_time *tm)
-{
-         struct max77620_rtc *rtc = dev_get_drvdata(dev);
-         struct device *parent = max77620_to_parent(rtc);
-         u8 buf[RTC_NR];
-         int ret;
-
-         ret = max77620_rtc_tm_to_reg(rtc, buf, tm, 0);
-         if (ret < 0)
-                 return ret;
-
-         mutex_lock(&rtc->io_lock);
-
-         ret = max77620_reg_writes(parent, MAX77620_RTC_SLAVE, addr, 
-len, vals);
-         if (ret < 0) {
-                 dev_err(rtc->dev, "Reg 0x%02x write failed: %d\n", 
-addr, ret);
-                 goto out;
-         }
-
-         ret = max77620_rtc_update_buffer(rtc, 1);
-
-out:
-         mutex_unlock(&rtc->io_lock);
-
-         return ret;
-}
-
-
-
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
 -- 
 -- 
