@@ -1,23 +1,19 @@
-Return-Path: <rtc-linux+bncBCPM5SUWUYIRBZVGQS2QKGQE3XGCF2Y@googlegroups.com>
-Received: from mail-vk0-x232.google.com (mail-vk0-x232.google.com. [2607:f8b0:400c:c05::232])
-        by gmr-mx.google.com with ESMTPS id v71si124025vkd.3.2016.01.21.09.20.37
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 21 Jan 2016 09:20:37 -0800 (PST)
-Received: by mail-vk0-x232.google.com with SMTP id e185so26995188vkb.1
-        for <rtc-linux@googlegroups.com>; Thu, 21 Jan 2016 09:20:37 -0800 (PST)
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBQW3TS2QKGQEBJZBBWA@googlegroups.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id c140si235603wmh.0.2016.01.26.00.26.42
+        for <rtc-linux@googlegroups.com>;
+        Tue, 26 Jan 2016 00:26:42 -0800 (PST)
+Date: Tue, 26 Jan 2016 09:26:41 +0100
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Michael Lange <linuxstuff@milaw.biz>
+Cc: rtc-linux@googlegroups.com
+Subject: Re: [rtc-linux] [PATCH] rtc: ds1307.c: add support for the DT
+ property 'wakeup-source'
+Message-ID: <20160126082641.GE11740@piout.net>
+References: <1453396216-8367-1-git-send-email-linuxstuff@milaw.biz>
 MIME-Version: 1.0
-In-Reply-To: <20160120225156.GC3367@piout.net>
-References: <1450310296-12153-1-git-send-email-akinobu.mita@gmail.com>
-	<20160120225156.GC3367@piout.net>
-Date: Fri, 22 Jan 2016 02:20:37 +0900
-Message-ID: <CAC5umyiiQ84jSNiRzSyKLOGJSjpghMyJyLbkiPRapEXpz8BG0A@mail.gmail.com>
-Subject: [rtc-linux] Re: [PATCH] rtc: rtc-ds1307: add temperature sensor
- support for ds3231
-From: Akinobu Mita <akinobu.mita@gmail.com>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: rtc-linux@googlegroups.com, Alessandro Zummo <a.zummo@towertech.it>
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1453396216-8367-1-git-send-email-linuxstuff@milaw.biz>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -28,16 +24,34 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-2016-01-21 7:51 GMT+09:00 Alexandre Belloni
-<alexandre.belloni@free-electrons.com>:
-> This seems very valuable. However, instead of creating a new sysfs
-> interface, I think this should be using the hwmon framework. I've just
-> check and it doesn't seem to be an issue to register an hwmon device
-> from an other framework, some ethernet and graphic drivers are doing it.
->
-> Can you try to do that?
+On 21/01/2016 at 18:10:16 +0100, Michael Lange wrote :
+> For RTC chips with no IRQ directly connected to the SoC, the RTC chip
+> can be forced as a wakeup source by stating that explicitly in
+> the device's .dts file using the "wakeup-source" boolean property.
+> This will guarantee the 'wakealarm' sysfs entry is available on the
+> device, if supported by the RTC.
+> 
+> With these changes to the driver rtc-ds1307 and the necessary entries
+> in the .dts file, I get an working ds1337 RTC on the Witty Pi extension
+> board by UUGear for the Raspberry Pi.
+> 
+> An example for the entry in the .dts file:
+> 
+> 	rtc: ds1337@68 {
+> 		compatible = "dallas,ds1337";
+> 		reg = <0x68>;
+> 		wakeup-source;
+> 
+> If the "wakeup-source" property is set, do not request an IRQ.
+> Set also UIE mode to unsupported, to get a working 'hwclock' binary.
+> 
+> Signed-off-by: Michael Lange <linuxstuff@milaw.biz>
+Applied, thanks.
 
-Sounds good.  It can be done with small changes from this patch.
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
 -- 
 -- 
