@@ -1,28 +1,27 @@
-Return-Path: <rtc-linux+bncBD2OLRXW4ABBBXVIXW2AKGQEVWMELXI@googlegroups.com>
-Received: from hqemgate14.nvidia.com (hqemgate14.nvidia.com. [216.228.121.143])
-        by gmr-mx.google.com with ESMTPS id a76si164322pfj.2.2016.01.07.22.17.02
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 07 Jan 2016 22:17:02 -0800 (PST)
-Message-ID: <568F51FF.7000102@nvidia.com>
-Date: Fri, 8 Jan 2016 11:36:55 +0530
-From: Laxman Dewangan <ldewangan@nvidia.com>
+Return-Path: <rtc-linux+bncBAABBJUOT62QKGQEFT6YUUI@googlegroups.com>
 MIME-Version: 1.0
-To: Rob Herring <robh@kernel.org>
-CC: <pawel.moll@arm.com>, <mark.rutland@arm.com>,
-	<ijc+devicetree@hellion.org.uk>, <galak@codeaurora.org>,
-	<linus.walleij@linaro.org>, <gnurou@gmail.com>, <lee.jones@linaro.org>,
-	<broonie@kernel.org>, <a.zummo@towertech.it>,
-	<alexandre.belloni@free-electrons.com>, <lgirdwood@gmail.com>,
-	<devicetree@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-	<linux-gpio@vger.kernel.org>, <rtc-linux@googlegroups.com>,
-	<swarren@nvidia.com>, <treding@nvidia.com>
-Subject: [rtc-linux] Re: [PATCH 1/6] DT: mfd: add device-tree binding doc fro
- PMIC max77620/max20024
-References: <1452177524-23192-1-git-send-email-ldewangan@nvidia.com> <1452177524-23192-2-git-send-email-ldewangan@nvidia.com> <20160107231249.GA17514@rob-hp-laptop>
-In-Reply-To: <20160107231249.GA17514@rob-hp-laptop>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Received: from lists.s-osg.org (lists.s-osg.org. [54.187.51.154])
+        by gmr-mx.google.com with ESMTP id i25si339078pfj.2.2016.01.26.11.21.09
+        for <rtc-linux@googlegroups.com>;
+        Tue, 26 Jan 2016 11:21:09 -0800 (PST)
+From: Javier Martinez Canillas <javier@osg.samsung.com>
+To: linux-kernel@vger.kernel.org
+Cc: Kukjin Kim <kgene@kernel.org>,
+	rtc-linux@googlegroups.com,
+	Chanwoo Choi <cw00.choi@samsung.com>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Krzysztof Kozlowski <k.kozlowski@samsung.com>,
+	Laxman Dewangan <ldewangan@nvidia.com>,
+	linux-samsung-soc@vger.kernel.org,
+	Javier Martinez Canillas <javier@osg.samsung.com>
+Subject: [rtc-linux] [PATCH v3 09/10] ARM: exynos_defconfig: Remove MAX77802
+ RTC Kconfig symbol
+Date: Tue, 26 Jan 2016 16:20:19 -0300
+Message-Id: <1453836020-29579-10-git-send-email-javier@osg.samsung.com>
+In-Reply-To: <1453836020-29579-1-git-send-email-javier@osg.samsung.com>
+References: <1453836020-29579-1-git-send-email-javier@osg.samsung.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -32,30 +31,34 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Thanks Rob for review.
-I have taken care of all comment except following which I have query.
+The driver has been removed so the Kconfig symbol is not valid anymore.
 
-On Friday 08 January 2016 04:42 AM, Rob Herring wrote:
-> +	- maxim,low-battery-reset-enable: Enable low battery reset.
-> +	- maxim,low-battery-reset-disable: Disable low battery reset.
-> Why not boolean? Not present means keep default value? I'd prefer
-> boolean or tristate of not present, 0 to disable, or 1 to enable.
->
->
-Here, the properties are boolean. I will add this on the description.
+Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
+Reviewed-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
 
-I like to enable or disable with the DT and properties are not there 
-then left to default.
-So added two properties for enable and disable. If properties are there, 
-do the activity.
+---
 
-Here tristate is also possible:
-maxim,low-battery-reset: tristate, low battery reset control. 0 for 
-disable, 1 for enable and
-                                  absence of this will leave 
-configuration on default.
+Changes in v3: None
+Changes in v2:
+- Add Krzysztof Kozlowski's Reviewed-by tag to patch #9.
 
-Does it look fine?
+ arch/arm/configs/exynos_defconfig | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/arch/arm/configs/exynos_defconfig b/arch/arm/configs/exynos_defconfig
+index 24dcd2bb1215..cdbe6dbc6e75 100644
+--- a/arch/arm/configs/exynos_defconfig
++++ b/arch/arm/configs/exynos_defconfig
+@@ -193,7 +193,6 @@ CONFIG_LEDS_TRIGGER_HEARTBEAT=y
+ CONFIG_RTC_CLASS=y
+ CONFIG_RTC_DRV_MAX8997=y
+ CONFIG_RTC_DRV_MAX77686=y
+-CONFIG_RTC_DRV_MAX77802=y
+ CONFIG_RTC_DRV_S5M=y
+ CONFIG_RTC_DRV_S3C=y
+ CONFIG_DMADEVICES=y
+-- 
+2.5.0
 
 -- 
 -- 
