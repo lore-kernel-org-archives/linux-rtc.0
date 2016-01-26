@@ -1,27 +1,22 @@
-Return-Path: <rtc-linux+bncBDJ4N37Q6EERBAUWXK2AKGQEN33ZUOQ@googlegroups.com>
-Received: from mga09.intel.com (mga09.intel.com. [134.134.136.24])
-        by gmr-mx.google.com with ESMTP id ui7si5905123pab.0.2016.01.07.07.57.54
+Return-Path: <rtc-linux+bncBCGLJQVNREJBBFHYTO2QKGQE7PTSLLY@googlegroups.com>
+Received: from mailgw02.hq.mediatek.com ([210.61.82.184])
+        by gmr-mx.google.com with ESMTP id tn7si2496116pac.1.2016.01.25.20.54.43
         for <rtc-linux@googlegroups.com>;
-        Thu, 07 Jan 2016 07:57:54 -0800 (PST)
-Date: Thu, 7 Jan 2016 23:56:19 +0800
-From: kbuild test robot <lkp@intel.com>
-To: Laxman Dewangan <ldewangan@nvidia.com>
-Cc: kbuild-all@01.org, robh+dt@kernel.org, pawel.moll@arm.com,
-	mark.rutland@arm.com, ijc+devicetree@hellion.org.uk,
-	galak@codeaurora.org, linus.walleij@linaro.org, gnurou@gmail.com,
-	lee.jones@linaro.org, broonie@kernel.org, a.zummo@towertech.it,
-	alexandre.belloni@free-electrons.com, lgirdwood@gmail.com,
-	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux-gpio@vger.kernel.org, rtc-linux@googlegroups.com,
-	swarren@nvidia.com, treding@nvidia.com,
-	Laxman Dewangan <ldewangan@nvidia.com>,
-	Chaitanya Bandi <bandik@nvidia.com>,
-	Mallikarjun Kasoju <mkasoju@nvidia.com>
-Subject: [rtc-linux] Re: [PATCH 2/6] mfd: max77620: add core driver for MAX77620/MAX20024
-Message-ID: <201601072308.7XP0yi7D%fengguang.wu@intel.com>
-MIME-Version: 1.0
+        Mon, 25 Jan 2016 20:54:44 -0800 (PST)
+Message-ID: <1453784080.15263.2.camel@mtksdaap41>
+Subject: [rtc-linux] Re: [PATCH] rtc: mt6397: add IRQ domain dependency
+From: Eddie Huang <eddie.huang@mediatek.com>
+To: Arnd Bergmann <arnd@arndb.de>
+CC: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	<linux-arm-kernel@lists.infradead.org>, Wei-Ning Huang
+	<wnhuang@chromium.org>, Tianping Fang <tianping.fang@mediatek.com>, "Henry
+ Chen" <henryc.chen@mediatek.com>, Alessandro Zummo <a.zummo@towertech.it>,
+	<rtc-linux@googlegroups.com>, <linux-kernel@vger.kernel.org>
+Date: Tue, 26 Jan 2016 12:54:40 +0800
+In-Reply-To: <1453737892-1960479-1-git-send-email-arnd@arndb.de>
+References: <1453737892-1960479-1-git-send-email-arnd@arndb.de>
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1452177524-23192-3-git-send-email-ldewangan@nvidia.com>
+MIME-Version: 1.0
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -32,25 +27,44 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Hi Laxman,
+On Mon, 2016-01-25 at 17:04 +0100, Arnd Bergmann wrote:
+> The mt6397 RTC driver can be built either when the MFD_MT6397 driver
+> is enabled (which selects IRQ_DOMAIN), or when compile testing.
+> The latter however fails without IRQ domains:
+> 
+> drivers/rtc/rtc-mt6397.c: In function 'mtk_rtc_probe':
+> drivers/rtc/rtc-mt6397.c:326:13: error: implicit declaration of function 'irq_create_mapping' [-Werror=implicit-function-declaration]
+>   rtc->irq = irq_create_mapping(mt6397_chip->irq_domain, res->start);
+> 
+> This adds an explicit dependency for the COMPILE_TEST case.
+> 
+> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+> ---
+>  drivers/rtc/Kconfig | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
+> index 376322f71fd5..4395608bf7fc 100644
+> --- a/drivers/rtc/Kconfig
+> +++ b/drivers/rtc/Kconfig
+> @@ -1603,7 +1603,7 @@ config RTC_DRV_MOXART
+>  
+>  config RTC_DRV_MT6397
+>  	tristate "Mediatek Real Time Clock driver"
+> -	depends on MFD_MT6397 || COMPILE_TEST
+> +	depends on MFD_MT6397 || (COMPILE_TEST && IRQ_DOMAIN)
+>  	help
+>  	  This selects the Mediatek(R) RTC driver. RTC is part of Mediatek
+>  	  MT6397 PMIC. You should enable MT6397 PMIC MFD before select
 
-[auto build test WARNING on pinctrl/for-next]
-[also build test WARNING on v4.4-rc8 next-20160107]
-[if your patch is applied to the wrong git tree, please drop us a note to help improving the system]
+Hi Arnd,
 
-url:    https://github.com/0day-ci/linux/commits/Laxman-Dewangan/Add-support-for-MAXIM-MAX77620-MAX20024-PMIC/20160107-225450
-base:   https://git.kernel.org/pub/scm/linux/kernel/git/linusw/linux-pinctrl.git for-next
+Thanks your correction.
+Acked-by: Eddie Huang <eddie.huang@mediatek.com>
 
+Regards,
+Eddie
 
-coccinelle warnings: (new ones prefixed by >>)
-
->> drivers/mfd/max77620.c:900:3-8: No need to set .owner here. The core will do it.
-
-Please review and possibly fold the followup patch.
-
----
-0-DAY kernel test infrastructure                Open Source Technology Center
-https://lists.01.org/pipermail/kbuild-all                   Intel Corporation
 
 -- 
 -- 
