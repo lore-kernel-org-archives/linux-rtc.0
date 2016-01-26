@@ -1,31 +1,27 @@
-Return-Path: <rtc-linux+bncBDKZNNNLXAHBBSGQQC2QKGQEOXXIRIQ@googlegroups.com>
-Received: from mailout1.w1.samsung.com (mailout1.w1.samsung.com. [210.118.77.11])
-        by gmr-mx.google.com with ESMTPS id i25si4030944pfj.2.2016.01.20.16.37.28
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1 cipher=AES128-SHA bits=128/128);
-        Wed, 20 Jan 2016 16:37:28 -0800 (PST)
-Received: from eucpsbgm2.samsung.com (unknown [203.254.199.245])
- by mailout1.w1.samsung.com
- (Oracle Communications Messaging Server 7.0.5.31.0 64bit (built May  5 2014))
- with ESMTP id <0O1A008PE1QBQK70@mailout1.w1.samsung.com> for
- rtc-linux@googlegroups.com; Thu, 21 Jan 2016 00:37:24 +0000 (GMT)
-Subject: [rtc-linux] Re: [PATCH 2/8] rtc: max77686: Use usleep_range() instead
- of msleep()
-To: Javier Martinez Canillas <javier@osg.samsung.com>,
- linux-kernel@vger.kernel.org
-References: <1453310088-29985-1-git-send-email-javier@osg.samsung.com>
- <1453310088-29985-3-git-send-email-javier@osg.samsung.com>
-Cc: Kukjin Kim <kgene@kernel.org>, rtc-linux@googlegroups.com,
- Chanwoo Choi <cw00.choi@samsung.com>,
- Alexandre Belloni <alexandre.belloni@free-electrons.com>,
- Laxman Dewangan <ldewangan@nvidia.com>, linux-samsung-soc@vger.kernel.org
-From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-Message-id: <56A02845.3010008@samsung.com>
-Date: Thu, 21 Jan 2016 09:37:25 +0900
-MIME-version: 1.0
-In-reply-to: <1453310088-29985-3-git-send-email-javier@osg.samsung.com>
-Content-type: text/plain; charset=UTF-8
+Return-Path: <rtc-linux+bncBAABBCUOT62QKGQEVX4HK3I@googlegroups.com>
+MIME-Version: 1.0
+Received: from lists.s-osg.org (lists.s-osg.org. [54.187.51.154])
+        by gmr-mx.google.com with ESMTP id i25si338818pfj.2.2016.01.26.11.20.41
+        for <rtc-linux@googlegroups.com>;
+        Tue, 26 Jan 2016 11:20:41 -0800 (PST)
+From: Javier Martinez Canillas <javier@osg.samsung.com>
+To: linux-kernel@vger.kernel.org
+Cc: Kukjin Kim <kgene@kernel.org>,
+	rtc-linux@googlegroups.com,
+	Chanwoo Choi <cw00.choi@samsung.com>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Krzysztof Kozlowski <k.kozlowski@samsung.com>,
+	Laxman Dewangan <ldewangan@nvidia.com>,
+	linux-samsung-soc@vger.kernel.org,
+	Javier Martinez Canillas <javier@osg.samsung.com>
+Subject: [rtc-linux] [PATCH v3 02/10] rtc: max77686: Use ARRAY_SIZE() instead
+ of current array length
+Date: Tue, 26 Jan 2016 16:20:12 -0300
+Message-Id: <1453836020-29579-3-git-send-email-javier@osg.samsung.com>
+In-Reply-To: <1453836020-29579-1-git-send-email-javier@osg.samsung.com>
+References: <1453836020-29579-1-git-send-email-javier@osg.samsung.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -35,30 +31,128 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 21.01.2016 02:14, Javier Martinez Canillas wrote:
-> Documentation/timers/timers-howto.txt suggest to use usleep_range()
-> instead of msleep() for small msec (1ms - 20ms) since msleep() will
-> often sleep for 20ms for any value in that range.
-> 
-> This is fine in this case since 16ms is the _minimum_ delay required
-> by max77686 for an RTC update but by using usleep_range() instead of
-> msleep(), the driver can support other RTC IP blocks with a shorter
-> minium delay (i.e: in the range of usecs insted of msecs).
+It is better to use the ARRAY_SIZE() macro instead of the array length
+to avoid bugs if the array is later changed and the length not updated.
 
-s/minium/minimum/
-s/insted/instead/
-
-> 
-> Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
-> ---
-> 
->  drivers/rtc/rtc-max77686.c | 5 +++--
->  1 file changed, 3 insertions(+), 2 deletions(-)
-
+Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
 Reviewed-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+Tested-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
 
-Best regards,
-Krzysztof
+---
+
+Changes in v3:
+- Add Krzysztof Kozlowski's Tested-by tag to patch #2.
+- Add Laxman Dewangan's Acked-by tag to patch #2.
+- Use ARRAY_SIZE() in all places. Suggested by Laxman Dewangan.
+
+Changes in v2:
+- Add Krzysztof Kozlowski's Reviewed-by tag to patch #2.
+
+ drivers/rtc/rtc-max77686.c | 23 ++++++++++++-----------
+ 1 file changed, 12 insertions(+), 11 deletions(-)
+
+diff --git a/drivers/rtc/rtc-max77686.c b/drivers/rtc/rtc-max77686.c
+index 6653c3d11b66..d84a50c9f7f7 100644
+--- a/drivers/rtc/rtc-max77686.c
++++ b/drivers/rtc/rtc-max77686.c
+@@ -149,7 +149,7 @@ static int max77686_rtc_read_time(struct device *dev, struct rtc_time *tm)
+ 		goto out;
+ 
+ 	ret = regmap_bulk_read(info->max77686->rtc_regmap,
+-				MAX77686_RTC_SEC, data, RTC_NR_TIME);
++				MAX77686_RTC_SEC, data, ARRAY_SIZE(data));
+ 	if (ret < 0) {
+ 		dev_err(info->dev, "%s: fail to read time reg(%d)\n", __func__,	ret);
+ 		goto out;
+@@ -177,7 +177,7 @@ static int max77686_rtc_set_time(struct device *dev, struct rtc_time *tm)
+ 	mutex_lock(&info->lock);
+ 
+ 	ret = regmap_bulk_write(info->max77686->rtc_regmap,
+-				 MAX77686_RTC_SEC, data, RTC_NR_TIME);
++				 MAX77686_RTC_SEC, data, ARRAY_SIZE(data));
+ 	if (ret < 0) {
+ 		dev_err(info->dev, "%s: fail to write time reg(%d)\n", __func__,
+ 				ret);
+@@ -205,7 +205,7 @@ static int max77686_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
+ 		goto out;
+ 
+ 	ret = regmap_bulk_read(info->max77686->rtc_regmap,
+-				 MAX77686_ALARM1_SEC, data, RTC_NR_TIME);
++				 MAX77686_ALARM1_SEC, data, ARRAY_SIZE(data));
+ 	if (ret < 0) {
+ 		dev_err(info->dev, "%s:%d fail to read alarm reg(%d)\n",
+ 				__func__, __LINE__, ret);
+@@ -215,7 +215,7 @@ static int max77686_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
+ 	max77686_rtc_data_to_tm(data, &alrm->time, info->rtc_24hr_mode);
+ 
+ 	alrm->enabled = 0;
+-	for (i = 0; i < RTC_NR_TIME; i++) {
++	for (i = 0; i < ARRAY_SIZE(data); i++) {
+ 		if (data[i] & ALARM_ENABLE_MASK) {
+ 			alrm->enabled = 1;
+ 			break;
+@@ -252,7 +252,7 @@ static int max77686_rtc_stop_alarm(struct max77686_rtc_info *info)
+ 		goto out;
+ 
+ 	ret = regmap_bulk_read(info->max77686->rtc_regmap,
+-				 MAX77686_ALARM1_SEC, data, RTC_NR_TIME);
++				 MAX77686_ALARM1_SEC, data, ARRAY_SIZE(data));
+ 	if (ret < 0) {
+ 		dev_err(info->dev, "%s: fail to read alarm reg(%d)\n",
+ 				__func__, ret);
+@@ -261,11 +261,11 @@ static int max77686_rtc_stop_alarm(struct max77686_rtc_info *info)
+ 
+ 	max77686_rtc_data_to_tm(data, &tm, info->rtc_24hr_mode);
+ 
+-	for (i = 0; i < RTC_NR_TIME; i++)
++	for (i = 0; i < ARRAY_SIZE(data); i++)
+ 		data[i] &= ~ALARM_ENABLE_MASK;
+ 
+ 	ret = regmap_bulk_write(info->max77686->rtc_regmap,
+-				 MAX77686_ALARM1_SEC, data, RTC_NR_TIME);
++				 MAX77686_ALARM1_SEC, data, ARRAY_SIZE(data));
+ 	if (ret < 0) {
+ 		dev_err(info->dev, "%s: fail to write alarm reg(%d)\n",
+ 				__func__, ret);
+@@ -291,7 +291,7 @@ static int max77686_rtc_start_alarm(struct max77686_rtc_info *info)
+ 		goto out;
+ 
+ 	ret = regmap_bulk_read(info->max77686->rtc_regmap,
+-				 MAX77686_ALARM1_SEC, data, RTC_NR_TIME);
++				 MAX77686_ALARM1_SEC, data, ARRAY_SIZE(data));
+ 	if (ret < 0) {
+ 		dev_err(info->dev, "%s: fail to read alarm reg(%d)\n",
+ 				__func__, ret);
+@@ -312,7 +312,7 @@ static int max77686_rtc_start_alarm(struct max77686_rtc_info *info)
+ 		data[RTC_DATE] |= (1 << ALARM_ENABLE_SHIFT);
+ 
+ 	ret = regmap_bulk_write(info->max77686->rtc_regmap,
+-				 MAX77686_ALARM1_SEC, data, RTC_NR_TIME);
++				 MAX77686_ALARM1_SEC, data, ARRAY_SIZE(data));
+ 	if (ret < 0) {
+ 		dev_err(info->dev, "%s: fail to write alarm reg(%d)\n",
+ 				__func__, ret);
+@@ -341,7 +341,7 @@ static int max77686_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
+ 		goto out;
+ 
+ 	ret = regmap_bulk_write(info->max77686->rtc_regmap,
+-				 MAX77686_ALARM1_SEC, data, RTC_NR_TIME);
++				 MAX77686_ALARM1_SEC, data, ARRAY_SIZE(data));
+ 
+ 	if (ret < 0) {
+ 		dev_err(info->dev, "%s: fail to write alarm reg(%d)\n",
+@@ -406,7 +406,8 @@ static int max77686_rtc_init_reg(struct max77686_rtc_info *info)
+ 
+ 	info->rtc_24hr_mode = 1;
+ 
+-	ret = regmap_bulk_write(info->max77686->rtc_regmap, MAX77686_RTC_CONTROLM, data, 2);
++	ret = regmap_bulk_write(info->max77686->rtc_regmap,
++				MAX77686_RTC_CONTROLM, data, ARRAY_SIZE(data));
+ 	if (ret < 0) {
+ 		dev_err(info->dev, "%s: fail to write controlm reg(%d)\n",
+ 				__func__, ret);
+-- 
+2.5.0
 
 -- 
 -- 
