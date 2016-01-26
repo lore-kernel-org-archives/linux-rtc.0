@@ -1,9 +1,9 @@
-Return-Path: <rtc-linux+bncBAABBJUOT62QKGQEFT6YUUI@googlegroups.com>
+Return-Path: <rtc-linux+bncBAABBK4OT62QKGQEA3RY3RA@googlegroups.com>
 MIME-Version: 1.0
 Received: from lists.s-osg.org (lists.s-osg.org. [54.187.51.154])
-        by gmr-mx.google.com with ESMTP id i25si339078pfj.2.2016.01.26.11.21.09
+        by gmr-mx.google.com with ESMTP id 190si273918pfb.1.2016.01.26.11.21.15
         for <rtc-linux@googlegroups.com>;
-        Tue, 26 Jan 2016 11:21:09 -0800 (PST)
+        Tue, 26 Jan 2016 11:21:15 -0800 (PST)
 From: Javier Martinez Canillas <javier@osg.samsung.com>
 To: linux-kernel@vger.kernel.org
 Cc: Kukjin Kim <kgene@kernel.org>,
@@ -13,11 +13,14 @@ Cc: Kukjin Kim <kgene@kernel.org>,
 	Krzysztof Kozlowski <k.kozlowski@samsung.com>,
 	Laxman Dewangan <ldewangan@nvidia.com>,
 	linux-samsung-soc@vger.kernel.org,
-	Javier Martinez Canillas <javier@osg.samsung.com>
-Subject: [rtc-linux] [PATCH v3 09/10] ARM: exynos_defconfig: Remove MAX77802
+	Javier Martinez Canillas <javier@osg.samsung.com>,
+	Arnd Bergmann <arnd@arndb.de>,
+	Olof Johansson <olof@lixom.net>,
+	linux-arm-kernel@lists.infradead.org
+Subject: [rtc-linux] [PATCH v3 10/10] ARM: multi_v7_defconfig: Remove MAX77802
  RTC Kconfig symbol
-Date: Tue, 26 Jan 2016 16:20:19 -0300
-Message-Id: <1453836020-29579-10-git-send-email-javier@osg.samsung.com>
+Date: Tue, 26 Jan 2016 16:20:20 -0300
+Message-Id: <1453836020-29579-11-git-send-email-javier@osg.samsung.com>
 In-Reply-To: <1453836020-29579-1-git-send-email-javier@osg.samsung.com>
 References: <1453836020-29579-1-git-send-email-javier@osg.samsung.com>
 Reply-To: rtc-linux@googlegroups.com
@@ -36,27 +39,28 @@ The driver has been removed so the Kconfig symbol is not valid anymore.
 Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
 Reviewed-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
 
+
 ---
 
 Changes in v3: None
 Changes in v2:
-- Add Krzysztof Kozlowski's Reviewed-by tag to patch #9.
+- Add Krzysztof Kozlowski's Reviewed-by tag to patch #10.
 
- arch/arm/configs/exynos_defconfig | 1 -
+ arch/arm/configs/multi_v7_defconfig | 1 -
  1 file changed, 1 deletion(-)
 
-diff --git a/arch/arm/configs/exynos_defconfig b/arch/arm/configs/exynos_defconfig
-index 24dcd2bb1215..cdbe6dbc6e75 100644
---- a/arch/arm/configs/exynos_defconfig
-+++ b/arch/arm/configs/exynos_defconfig
-@@ -193,7 +193,6 @@ CONFIG_LEDS_TRIGGER_HEARTBEAT=y
- CONFIG_RTC_CLASS=y
- CONFIG_RTC_DRV_MAX8997=y
+diff --git a/arch/arm/configs/multi_v7_defconfig b/arch/arm/configs/multi_v7_defconfig
+index 314f6be2dca2..bdb42c09332c 100644
+--- a/arch/arm/configs/multi_v7_defconfig
++++ b/arch/arm/configs/multi_v7_defconfig
+@@ -664,7 +664,6 @@ CONFIG_RTC_DRV_MAX8907=y
+ CONFIG_RTC_DRV_MAX8997=m
  CONFIG_RTC_DRV_MAX77686=y
--CONFIG_RTC_DRV_MAX77802=y
- CONFIG_RTC_DRV_S5M=y
- CONFIG_RTC_DRV_S3C=y
- CONFIG_DMADEVICES=y
+ CONFIG_RTC_DRV_RK808=m
+-CONFIG_RTC_DRV_MAX77802=m
+ CONFIG_RTC_DRV_RS5C372=m
+ CONFIG_RTC_DRV_PALMAS=y
+ CONFIG_RTC_DRV_ST_LPC=y
 -- 
 2.5.0
 
