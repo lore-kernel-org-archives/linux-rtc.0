@@ -1,24 +1,28 @@
-Return-Path: <rtc-linux+bncBD2OLRXW4ABBBAP4Q62QKGQEHIJ5ZPQ@googlegroups.com>
-Received: from hqemgate15.nvidia.com (hqemgate15.nvidia.com. [216.228.121.64])
-        by gmr-mx.google.com with ESMTPS id tn7si659084pac.1.2016.01.22.02.01.36
+Return-Path: <rtc-linux+bncBDT6DFON3EBBBVGUUC2QKGQEXCYPARQ@googlegroups.com>
+Received: from mail-yk0-x242.google.com (mail-yk0-x242.google.com. [2607:f8b0:4002:c07::242])
+        by gmr-mx.google.com with ESMTPS id q187si420860ywf.4.2016.01.26.18.24.20
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 22 Jan 2016 02:01:37 -0800 (PST)
-Message-ID: <56A1FB7B.5060903@nvidia.com>
-Date: Fri, 22 Jan 2016 15:20:51 +0530
-From: Laxman Dewangan <ldewangan@nvidia.com>
+        Tue, 26 Jan 2016 18:24:20 -0800 (PST)
+Received: by mail-yk0-x242.google.com with SMTP id k129so16147595yke.3
+        for <rtc-linux@googlegroups.com>; Tue, 26 Jan 2016 18:24:20 -0800 (PST)
 MIME-Version: 1.0
-To: Javier Martinez Canillas <javier@osg.samsung.com>,
-	<linux-kernel@vger.kernel.org>
-CC: Kukjin Kim <kgene@kernel.org>, <rtc-linux@googlegroups.com>, Chanwoo Choi
-	<cw00.choi@samsung.com>, Alexandre Belloni
-	<alexandre.belloni@free-electrons.com>, Krzysztof Kozlowski
-	<k.kozlowski@samsung.com>, <linux-samsung-soc@vger.kernel.org>
-Subject: [rtc-linux] Re: [PATCH v2 04/10] rtc: max77686: Use a driver data
- struct instead hard-coded values
-References: <1453407813-14646-1-git-send-email-javier@osg.samsung.com> <1453407813-14646-5-git-send-email-javier@osg.samsung.com>
-In-Reply-To: <1453407813-14646-5-git-send-email-javier@osg.samsung.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+In-Reply-To: <56A82475.1040602@samsung.com>
+References: <1453836020-29579-1-git-send-email-javier@osg.samsung.com>
+	<1453836020-29579-7-git-send-email-javier@osg.samsung.com>
+	<56A82475.1040602@samsung.com>
+Date: Tue, 26 Jan 2016 23:24:20 -0300
+Message-ID: <CABxcv==M4X7gS7ojtF4qWoakss43wLPLxFM5_CVzGTpPN2BAuQ@mail.gmail.com>
+Subject: [rtc-linux] Re: [PATCH v3 06/10] rtc: max77686: Add max77802 support
+From: Javier Martinez Canillas <javier@dowhile0.org>
+To: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+Cc: Javier Martinez Canillas <javier@osg.samsung.com>, Linux Kernel <linux-kernel@vger.kernel.org>,
+	Kukjin Kim <kgene@kernel.org>, rtc-linux@googlegroups.com,
+	Chanwoo Choi <cw00.choi@samsung.com>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Laxman Dewangan <ldewangan@nvidia.com>,
+	"linux-samsung-soc@vger.kernel.org" <linux-samsung-soc@vger.kernel.org>
+Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -29,21 +33,49 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
+Hello Krzysztof,
 
-On Friday 22 January 2016 01:53 AM, Javier Martinez Canillas wrote:
-> The driver has some hard-coded values such as the minimum delay needed
-> before a RTC update or the mask used for the sec/min/hour/etc registers.
+On Tue, Jan 26, 2016 at 10:59 PM, Krzysztof Kozlowski
+<k.kozlowski@samsung.com> wrote:
+> On 27.01.2016 04:20, Javier Martinez Canillas wrote:
+
+[snip]
+
+>>       data[RTC_MONTH] = tm->tm_mon + 1;
+>> -     data[RTC_YEAR] = tm->tm_year > 100 ? (tm->tm_year - 100) : 0;
+>>
+>> -     if (tm->tm_year < 100) {
+>> -             pr_warn("RTC cannot handle the year %d.  Assume it's 2000.\n",
+>> -                     1900 + tm->tm_year);
+>> -             return -EINVAL;
+>> +     if (!info->drv_data->alarm_enable_reg) {
 >
-> Use a data structure that contains these values and pass as driver data
-> using the platform device ID table for each device.
+> I don't like all these inverted checks. They are error-prone. This is
+> why I propose different name. However since you want to stick to this
+> name of this property, then easier to read would be:
 >
-> This allows to make the driver's ops callbacks more generic so other RTC
-> that are similar but don't have the same values can also be supported.
->
-> Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
+> if (info->drv_data->alarm_enable_reg) {
+>         data[RTC_YEAR] = tm->tm_year;
+> } else {
+>         max77686-stuff...
+> }
+> Can you reverse it here and in other places?
 >
 
-Acked-by: Laxman Dewangan <ldewangan@nvidia.com>
+Fair enough, I'll reverse the logic so is more natural and also do an
+early return as Andi suggested.
+
+> The patch beside that is okay and works fine:
+>
+> Tested on Trats2 (max77686):
+> Tested-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+>
+> BR,
+> Krzysztof
+>
+
+Best regards,
+Javier
 
 -- 
 -- 
