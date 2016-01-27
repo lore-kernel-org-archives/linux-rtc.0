@@ -1,33 +1,34 @@
-Return-Path: <rtc-linux+bncBDKZNNNLXAHBB35E262AKGQECOIK6YY@googlegroups.com>
-Received: from mailout1.w1.samsung.com (mailout1.w1.samsung.com. [210.118.77.11])
-        by gmr-mx.google.com with ESMTPS id dz2si7653022pab.1.2016.01.12.20.28.31
+Return-Path: <rtc-linux+bncBDA7X7F2WUEBBMXBUG2QKGQERNIXKFA@googlegroups.com>
+Received: from mail-wm0-x234.google.com (mail-wm0-x234.google.com. [2a00:1450:400c:c09::234])
+        by gmr-mx.google.com with ESMTPS id c140si360090wmh.0.2016.01.26.23.24.34
         for <rtc-linux@googlegroups.com>
-        (version=TLS1 cipher=AES128-SHA bits=128/128);
-        Tue, 12 Jan 2016 20:28:31 -0800 (PST)
-Received: from eucpsbgm2.samsung.com (unknown [203.254.199.245])
- by mailout1.w1.samsung.com
- (Oracle Communications Messaging Server 7.0.5.31.0 64bit (built May  5 2014))
- with ESMTP id <0O0V001INJ3FS2A0@mailout1.w1.samsung.com> for
- rtc-linux@googlegroups.com; Wed, 13 Jan 2016 04:28:27 +0000 (GMT)
-Subject: [rtc-linux] Re: [PATCH V2 5/6] rtc: max77xxx: add RTC driver for
- Maxim MAX77xxx series RTC IP
-To: Laxman Dewangan <ldewangan@nvidia.com>, robh+dt@kernel.org,
- pawel.moll@arm.com, mark.rutland@arm.com, ijc+devicetree@hellion.org.uk,
- galak@codeaurora.org, linus.walleij@linaro.org, gnurou@gmail.com,
- lee.jones@linaro.org, broonie@kernel.org, a.zummo@towertech.it,
- alexandre.belloni@free-electrons.com
-References: <1452590273-16421-1-git-send-email-ldewangan@nvidia.com>
- <1452590273-16421-6-git-send-email-ldewangan@nvidia.com>
- <569594F0.4020007@samsung.com> <5695CD73.5010709@nvidia.com>
-Cc: lgirdwood@gmail.com, devicetree@vger.kernel.org,
- linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org,
- rtc-linux@googlegroups.com, swarren@nvidia.com, treding@nvidia.com
-From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-Message-id: <5695D268.3060705@samsung.com>
-Date: Wed, 13 Jan 2016 13:28:24 +0900
-MIME-version: 1.0
-In-reply-to: <5695CD73.5010709@nvidia.com>
-Content-type: text/plain; charset=UTF-8
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 26 Jan 2016 23:24:34 -0800 (PST)
+Received: by mail-wm0-x234.google.com with SMTP id l65so133249031wmf.1
+        for <rtc-linux@googlegroups.com>; Tue, 26 Jan 2016 23:24:34 -0800 (PST)
+Date: Wed, 27 Jan 2016 07:24:30 +0000
+From: Lee Jones <lee.jones@linaro.org>
+To: Laxman Dewangan <ldewangan@nvidia.com>
+Cc: robh+dt@kernel.org, pawel.moll@arm.com, mark.rutland@arm.com,
+	ijc+devicetree@hellion.org.uk, galak@codeaurora.org,
+	linus.walleij@linaro.org, gnurou@gmail.com, broonie@kernel.org,
+	a.zummo@towertech.it, alexandre.belloni@free-electrons.com,
+	lgirdwood@gmail.com, devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org,
+	rtc-linux@googlegroups.com, swarren@nvidia.com, treding@nvidia.com,
+	k.kozlowski@samsung.com, vreddytalla@nvidia.com
+Subject: [rtc-linux] Re: [PATCH V4 1/5] DT: mfd: add device-tree binding doc
+ fro PMIC max77620/max20024
+Message-ID: <20160127072430.GD3368@x1>
+References: <1453198783-28383-1-git-send-email-ldewangan@nvidia.com>
+ <1453198783-28383-2-git-send-email-ldewangan@nvidia.com>
+ <20160125115610.GC3368@x1>
+ <56A63A85.6060609@nvidia.com>
+ <20160126145854.GC3368@x1>
+ <56A79DB4.6090000@nvidia.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <56A79DB4.6090000@nvidia.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -38,124 +39,94 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 13.01.2016 13:07, Laxman Dewangan wrote:
-> 
-> On Wednesday 13 January 2016 05:36 AM, Krzysztof Kozlowski wrote:
->> On 12.01.2016 18:17, Laxman Dewangan wrote:
->>> Maxim Semiconductor's PMIC MAX77620, MAX77686, MAX20024 have
->>> same RTC IP on these PMICs.
->>>
->>> Add generic MAX77xxxx series RTC driver which can be used as
->>> RTC driver for these PMIC and avoids duplication of RTC driver
->>> for each PMICs. Their MFD driver can be different here.
->>>
->>> Signed-off-by: Laxman Dewangan <ldewangan@nvidia.com>
->>> ---
->>> Changes from V1:
->>> - Rename the file to rtc-max77xxx.c and make the generic implementation.
->>> - Direct regmap apis are used for the register access.
->>> - Decouped from max77620 driver.
->>> - Taken care of cleanup comments form V1 version.
->>>
->>>   drivers/rtc/Kconfig        |  10 +
->>>   drivers/rtc/Makefile       |   1 +
->>>   drivers/rtc/rtc-max77xxx.c | 500
->>> +++++++++++++++++++++++++++++++++++++++++++++
->>>   3 files changed, 511 insertions(+)
->>>   create mode 100644 drivers/rtc/rtc-max77xxx.c
->>>
->>> diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
->>> index 376322f..4972dd5 100644
->>> --- a/drivers/rtc/Kconfig
->>> +++ b/drivers/rtc/Kconfig
->>> @@ -315,6 +315,16 @@ config RTC_DRV_MAX8997
->>>         This driver can also be built as a module. If so, the module
->>>         will be called rtc-max8997.
->>>   +config RTC_DRV_MAX77XXX
->>> +    tristate "Maxim MAX77XXX series generic RTC driver"
->>> +    help
->>> +      If you say yes here you will get support for the generic RTC
->>> driver
->>> +      for Maxim Semiconductor MAX77XXX series of PMIC like MAX77620.
->>> +      This also supports the RTC driver for Maxim PMIC MaX20024 which
->>> +      is almost same as MAX77620.
->>> +      This driver can also be built as a module. If so, the module
->>> +      will be called rtc-max77xxx.
->>> +
->> That was not the consensus... You still added a new driver - but now
->> with different name.
->>
->> That is useless duplication
->>
->> Please work with existing code. Use existing maxim RTC drivers: either
->> max77686 or max77802.
->>
->> There is no need for new one.
-> 
-> If we modify the existing one then that work will be outside of this
-> series to make it independent.
+On Tue, 26 Jan 2016, Laxman Dewangan wrote:
 
-And that is the problem? The series evolve. The ultimate goal is to
-support max77686, max77802, max77620 and max20024.
+>=20
+> On Tuesday 26 January 2016 08:28 PM, Lee Jones wrote:
+> >On Mon, 25 Jan 2016, Laxman Dewangan wrote:
+> >
+> >>Hmm. I describe the boolean and tristate only. Do I need to define
+> >>type for integer,string also?
+> >I wouldn't describe any of them.  It's normally pretty obvious which
+> >properties are boolean by the lack of required cell description.
+> >
+>=20
+> Rob suggested to use the type also for Boolean and tristate. I think
+> it is good to have for all places that what type of values are
+> valid.
 
-> 
-> However, the file name does not suggest common in older file.
+It's fine, and some people do describe them.  I've just never seen the
+point, especially if you have a nice example of their use in the
+document.  But if you insist, please ensure you are consistent, so
+*all* bools need to be described.  That is not currently the case.
 
-This is not a sensible argument. The name does not matter. But if really
-needed we can rename it...
+> >>>>+The property for fps child nodes as:
+> >>>>+Required properties:
+> >>>>+	-reg: FPS number like 0, 1, 2 for FPS0, FPS1 and FPS2 respectively.
+> >>>I'm surprised Rob Acked this.  We don't usually do device numbers in D=
+T.
+> >>What is best way to make the child node for FPS and differentiate FPS0,=
+1, 2?
+> >>What is your suggestion here?
+> >There are lots of ways you can solve this and so many examples of
+> >others doing so.  I suggest you have a look at some DTS files and
+> >figure it out.  One possible solution is to use different compatible
+> >strings.
+> Here, I think I can go similar to regulators where child node name
+> identifies the regulators.
+>=20
+>     fps-config {
+>         fps0 {
+>             maxim,fps-time-period-us =3D <1280>;
+>             maxim,fps-enable-input =3D <FPS_EN_SRC_EN0>;
+>         };
+>=20
+>         fps1 {
+>             maxim,fps-time-period-us =3D <2560>;
+>             maxim,fps-enable-input =3D <FPS_EN_SRC_EN1>;
+>         };
+>=20
+>         fps2 {
+>             maxim,fps-time-period-us =3D <640>;
+>             maxim,fps-enable-input =3D <FPS_EN_SRC_SW>;
+>         };
+>     };
+>=20
+> So node name gives the FPS name.
 
-> Also this
-> will require mfd and rtc driver changes to decouple it.
+That is also an acceptable means to solve the issue.
 
-Yes, decouple everything! I like it! :) Make it robust, generic,
-readable, fix bugs etc. :)
+As I said, there are many ways to skin a cat.
 
-> 
-> Here is my approach:
-> - Let's have common driver in implementation and file name. This will be
-> independent of the mfd driver on all sense.
-> - Once it is merged, move the max77686 and max77802 to use this driver,
-> this will need the modification on the mfd driver, related defconfig
-> file and if specific stuff needed in the rtc then addition of that.
+> >>>+Pinmux and GPIO:
+> >>>+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+> >>>I think this whole section needs moving to ../pinctrl and needs to be
+> >>>reviewed by Linus W.
+> >>Is this mean I need to create DT binding doc for the each subsystem
+> >>differently?
+> >>Actually during AS3722, I had different understanding to have single fi=
+le.
+> >Yes, that way you have each of the the subsystem experts review your
+> >documentation.  You can then link to them from this document.
+> OK, I will add different dt binding doc in respective driver and
+> squash that with respected submodule drivers.
+>=20
 
-Nope, because *the second part won't happen*. Never. After merging you
-will be happy and another duplicated stuff ends in the kernel.
+--=20
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org =E2=94=82 Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog
 
-Fix things before merging. Not after.
-
-> 
-> Per your approach:
-> - Modify rtc max77686 and mfd driver max77686 to decouple and proper
-> registration.
-> - Add support of max77620 on the max77686 driver if any specific is
-> required.
-
-That is the way we usually extend the drivers for new devices.
-
-> 
-> That is also fine to me but still I am not comfortable with the config
-> name and driver file name as this does not suggest the common.
-
-The name does not matter. Really. We have a lot of drivers with a
-specific device-like name and supporting different devices. To point
-that your argument is invalid - your initial name of driver
-"rtc-max77620.c" supported totally different "names": the max77620 and
-max20024. It also wasn't suggesting something "common"...
-
-With my approach we are not developing common think neither. We just
-want to extend/re-use existing max77686 (or max77802) driver for new
-devices. Just like everywhere else.
-
-Best regards,
-Krzysztof
-
--- 
--- 
+--=20
+--=20
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+---=20
+You received this message because you are subscribed to the Google Groups "=
+rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an e=
+mail to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
