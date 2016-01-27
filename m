@@ -1,30 +1,32 @@
-Return-Path: <rtc-linux+bncBAABBKOXUW2QKGQEQFL2IIY@googlegroups.com>
-Received: from mailout2.samsung.com (mailout2.samsung.com. [203.254.224.25])
-        by gmr-mx.google.com with ESMTPS id tn7si1161856pac.1.2016.01.27.17.15.21
+Return-Path: <rtc-linux+bncBAABBB6PUC2QKGQEUL5EIZQ@googlegroups.com>
+Received: from mailout4.samsung.com (mailout4.samsung.com. [203.254.224.34])
+        by gmr-mx.google.com with ESMTPS id 190si434719pfb.1.2016.01.26.18.12.22
         for <rtc-linux@googlegroups.com>
         (version=TLS1 cipher=AES128-SHA bits=128/128);
-        Wed, 27 Jan 2016 17:15:21 -0800 (PST)
-Received: from epcpsbgr3.samsung.com
- (u143.gpu120.samsung.co.kr [203.254.230.143])
- by mailout2.samsung.com (Oracle Communications Messaging Server 7.0.5.31.0
+        Tue, 26 Jan 2016 18:12:22 -0800 (PST)
+Received: from epcpsbgr1.samsung.com
+ (u141.gpu120.samsung.co.kr [203.254.230.141])
+ by mailout4.samsung.com (Oracle Communications Messaging Server 7.0.5.31.0
  64bit (built May  5 2014))
- with ESMTP id <0O1N01JWQ25IWD20@mailout2.samsung.com> for
- rtc-linux@googlegroups.com; Thu, 28 Jan 2016 10:15:18 +0900 (KST)
-Date: Thu, 28 Jan 2016 10:15:18 +0900
+ with ESMTP id <0O1L00VXWA4LWMD0@mailout4.samsung.com> for
+ rtc-linux@googlegroups.com; Wed, 27 Jan 2016 11:12:21 +0900 (KST)
+Date: Wed, 27 Jan 2016 11:12:14 +0900
 From: Andi Shyti <andi.shyti@samsung.com>
-To: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-Cc: Chanwoo Choi <cw00.choi@samsung.com>,
- Alessandro Zummo <a.zummo@towertech.it>,
+To: Javier Martinez Canillas <javier@osg.samsung.com>
+Cc: linux-kernel@vger.kernel.org, Kukjin Kim <kgene@kernel.org>,
+ rtc-linux@googlegroups.com, Chanwoo Choi <cw00.choi@samsung.com>,
  Alexandre Belloni <alexandre.belloni@free-electrons.com>,
- linux-kernel@vger.kernel.org, rtc-linux@googlegroups.com,
- Javier Martinez Canillas <javier@osg.samsung.com>,
- Laxman Dewangan <ldewangan@nvidia.com>
-Subject: [rtc-linux] Re: [PATCH] rtc: max77686: Cleanup and reduce dmesg output
-Message-id: <20160128011518.GD20739@samsunx.samsung>
-References: <1453877171-30510-1-git-send-email-k.kozlowski@samsung.com>
+ Krzysztof Kozlowski <k.kozlowski@samsung.com>,
+ Laxman Dewangan <ldewangan@nvidia.com>, linux-samsung-soc@vger.kernel.org
+Subject: [rtc-linux] Re: [PATCH v3 07/10] rtc: max77686: Use dev_warn()
+ instead of pr_warn()
+Message-id: <20160127021214.GG14296@samsunx.samsung>
+References: <1453836020-29579-1-git-send-email-javier@osg.samsung.com>
+ <1453836020-29579-8-git-send-email-javier@osg.samsung.com>
+ <20160127012230.GE14296@samsunx.samsung> <56A82331.5050403@osg.samsung.com>
 MIME-version: 1.0
 Content-type: text/plain; charset=UTF-8
-In-reply-to: <1453877171-30510-1-git-send-email-k.kozlowski@samsung.com>
+In-reply-to: <56A82331.5050403@osg.samsung.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -35,175 +37,26 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Wed, Jan 27, 2016 at 03:46:11PM +0900, Krzysztof Kozlowski wrote:
-> Cleanup of entire driver of its dmesg output:
-> 1. Remove printing of the function name, because printing device name is
->    sufficient. This also makes the dev_err()-like functions more compact
->    and readable (not need of line break).
-> 2. Lower from info to debug printing of each RTC interrupt (no need to
->    make noise on each alarm).
-> 3. Remove dev_info() at beginning of probe because a message is already
->    always printed by either probe failure or from registering the RTC
->    device as /dev/rtcX.
+> >>  		if (tm->tm_year < 100) {
+> >>-			pr_warn("RTC can't handle year %d. Assume it's 2000.\n",
+> >>-				1900 + tm->tm_year);
+> >>+			dev_warn(info->dev,
+> >>+				 "RTC can't handle year %d. Assume it's 2000\n",
+> >>+				 1900 + tm->tm_year);
+> >>  			return -EINVAL;
+> >
+> >Because we are returning an error value, why not use dev_err()?
+> >
 > 
-> Signed-off-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+> You are absolutely right. Since the driver was using pr_warn(), I used
+> dev_warn() but dev_err() would had been correct.
+> 
+> If you don't mind I plan to do it as a follow up patch to avoid having
+> to resend the whole series only for this change.
 
-Looks good, Reviewed-by: Andi Shyti <andi.shyti@samsung.com>
+Fine for me!
 
-> ---
-> 
-> Patch rebased on top of Javier's v4:
-> [PATCH v4 00/10] rtc: max77686: Extend driver and add max77802 support
-> http://www.spinics.net/lists/arm-kernel/msg477194.html
-> 
-> Feel free to join with these series.
-> ---
->  drivers/rtc/rtc-max77686.c | 39 ++++++++++++++-------------------------
->  1 file changed, 14 insertions(+), 25 deletions(-)
-> 
-> diff --git a/drivers/rtc/rtc-max77686.c b/drivers/rtc/rtc-max77686.c
-> index da47b1d85793..5a03e1ecad83 100644
-> --- a/drivers/rtc/rtc-max77686.c
-> +++ b/drivers/rtc/rtc-max77686.c
-> @@ -271,8 +271,8 @@ static int max77686_rtc_update(struct max77686_rtc_info *info,
->  				 info->drv_data->map[REG_RTC_UPDATE0],
->  				 data, data);
->  	if (ret < 0)
-> -		dev_err(info->dev, "%s: fail to write update reg(ret=%d, data=0x%x)\n",
-> -				__func__, ret, data);
-> +		dev_err(info->dev, "Fail to write update reg(ret=%d, data=0x%x)\n",
-> +			ret, data);
->  	else {
->  		/* Minimum delay required before RTC update. */
->  		usleep_range(delay, delay * 2);
-> @@ -297,7 +297,7 @@ static int max77686_rtc_read_time(struct device *dev, struct rtc_time *tm)
->  			       info->drv_data->map[REG_RTC_SEC],
->  			       data, ARRAY_SIZE(data));
->  	if (ret < 0) {
-> -		dev_err(info->dev, "%s: fail to read time reg(%d)\n", __func__,	ret);
-> +		dev_err(info->dev, "Fail to read time reg(%d)\n", ret);
->  		goto out;
->  	}
->  
-> @@ -326,8 +326,7 @@ static int max77686_rtc_set_time(struct device *dev, struct rtc_time *tm)
->  				info->drv_data->map[REG_RTC_SEC],
->  				data, ARRAY_SIZE(data));
->  	if (ret < 0) {
-> -		dev_err(info->dev, "%s: fail to write time reg(%d)\n", __func__,
-> -				ret);
-> +		dev_err(info->dev, "Fail to write time reg(%d)\n", ret);
->  		goto out;
->  	}
->  
-> @@ -355,8 +354,7 @@ static int max77686_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
->  	ret = regmap_bulk_read(info->max77686->rtc_regmap,
->  			       map[REG_ALARM1_SEC], data, ARRAY_SIZE(data));
->  	if (ret < 0) {
-> -		dev_err(info->dev, "%s:%d fail to read alarm reg(%d)\n",
-> -				__func__, __LINE__, ret);
-> +		dev_err(info->dev, "Fail to read alarm reg(%d)\n", ret);
->  		goto out;
->  	}
->  
-> @@ -394,8 +392,7 @@ static int max77686_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
->  	alrm->pending = 0;
->  	ret = regmap_read(info->max77686->regmap, MAX77686_REG_STATUS2, &val);
->  	if (ret < 0) {
-> -		dev_err(info->dev, "%s:%d fail to read status2 reg(%d)\n",
-> -				__func__, __LINE__, ret);
-> +		dev_err(info->dev, "Fail to read status2 reg(%d)\n", ret);
->  		goto out;
->  	}
->  
-> @@ -426,8 +423,7 @@ static int max77686_rtc_stop_alarm(struct max77686_rtc_info *info)
->  				       map[REG_ALARM1_SEC], data,
->  				       ARRAY_SIZE(data));
->  		if (ret < 0) {
-> -			dev_err(info->dev, "%s: fail to read alarm reg(%d)\n",
-> -				__func__, ret);
-> +			dev_err(info->dev, "Fail to read alarm reg(%d)\n", ret);
->  			goto out;
->  		}
->  
-> @@ -452,8 +448,7 @@ static int max77686_rtc_stop_alarm(struct max77686_rtc_info *info)
->  	}
->  
->  	if (ret < 0) {
-> -		dev_err(info->dev, "%s: fail to write alarm reg(%d)\n",
-> -				__func__, ret);
-> +		dev_err(info->dev, "Fail to write alarm reg(%d)\n", ret);
->  		goto out;
->  	}
->  
-> @@ -481,8 +476,7 @@ static int max77686_rtc_start_alarm(struct max77686_rtc_info *info)
->  				       map[REG_ALARM1_SEC], data,
->  				       ARRAY_SIZE(data));
->  		if (ret < 0) {
-> -			dev_err(info->dev, "%s: fail to read alarm reg(%d)\n",
-> -				__func__, ret);
-> +			dev_err(info->dev, "Fail to read alarm reg(%d)\n", ret);
->  			goto out;
->  		}
->  
-> @@ -508,8 +502,7 @@ static int max77686_rtc_start_alarm(struct max77686_rtc_info *info)
->  	}
->  
->  	if (ret < 0) {
-> -		dev_err(info->dev, "%s: fail to write alarm reg(%d)\n",
-> -				__func__, ret);
-> +		dev_err(info->dev, "Fail to write alarm reg(%d)\n", ret);
->  		goto out;
->  	}
->  
-> @@ -539,8 +532,7 @@ static int max77686_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
->  				data, ARRAY_SIZE(data));
->  
->  	if (ret < 0) {
-> -		dev_err(info->dev, "%s: fail to write alarm reg(%d)\n",
-> -				__func__, ret);
-> +		dev_err(info->dev, "Fail to write alarm reg(%d)\n", ret);
->  		goto out;
->  	}
->  
-> @@ -575,7 +567,7 @@ static irqreturn_t max77686_rtc_alarm_irq(int irq, void *data)
->  {
->  	struct max77686_rtc_info *info = data;
->  
-> -	dev_info(info->dev, "%s:irq(%d)\n", __func__, irq);
-> +	dev_dbg(info->dev, "RTC alarm IRQ: %d\n", irq);
->  
->  	rtc_update_irq(info->rtc_dev, 1, RTC_IRQF | RTC_AF);
->  
-> @@ -605,8 +597,7 @@ static int max77686_rtc_init_reg(struct max77686_rtc_info *info)
->  				info->drv_data->map[REG_RTC_CONTROLM],
->  				data, ARRAY_SIZE(data));
->  	if (ret < 0) {
-> -		dev_err(info->dev, "%s: fail to write controlm reg(%d)\n",
-> -				__func__, ret);
-> +		dev_err(info->dev, "Fail to write controlm reg(%d)\n", ret);
->  		return ret;
->  	}
->  
-> @@ -621,8 +612,6 @@ static int max77686_rtc_probe(struct platform_device *pdev)
->  	const struct platform_device_id *id = platform_get_device_id(pdev);
->  	int ret;
->  
-> -	dev_info(&pdev->dev, "%s\n", __func__);
-> -
->  	info = devm_kzalloc(&pdev->dev, sizeof(struct max77686_rtc_info),
->  				GFP_KERNEL);
->  	if (!info)
-> @@ -662,7 +651,7 @@ static int max77686_rtc_probe(struct platform_device *pdev)
->  
->  	if (!max77686->rtc_irq_data) {
->  		ret = -EINVAL;
-> -		dev_err(&pdev->dev, "%s: no RTC regmap IRQ chip\n", __func__);
-> +		dev_err(&pdev->dev, "No RTC regmap IRQ chip\n");
->  		goto err_rtc;
->  	}
->  
-> -- 
-> 1.9.1
+Andi
 
 -- 
 -- 
