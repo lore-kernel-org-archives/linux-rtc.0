@@ -1,25 +1,29 @@
-Return-Path: <rtc-linux+bncBAABBLXBQO2QKGQEJBZFTAY@googlegroups.com>
-Received: from lists.s-osg.org (lists.s-osg.org. [54.187.51.154])
-        by gmr-mx.google.com with ESMTP id ui7si191458pab.0.2016.01.21.06.52.30
-        for <rtc-linux@googlegroups.com>;
-        Thu, 21 Jan 2016 06:52:30 -0800 (PST)
-Subject: [rtc-linux] Re: [PATCH 2/8] rtc: max77686: Use usleep_range() instead
- of msleep()
-To: Krzysztof Kozlowski <k.kozlowski@samsung.com>,
+Return-Path: <rtc-linux+bncBDKZNNNLXAHBB7EMUG2QKGQEI7VWQLA@googlegroups.com>
+Received: from mailout4.w1.samsung.com (mailout4.w1.samsung.com. [210.118.77.14])
+        by gmr-mx.google.com with ESMTPS id jg4si488873pac.2.2016.01.26.20.24.27
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1 cipher=AES128-SHA bits=128/128);
+        Tue, 26 Jan 2016 20:24:27 -0800 (PST)
+Received: from eucpsbgm1.samsung.com (unknown [203.254.199.244])
+ by mailout4.w1.samsung.com
+ (Oracle Communications Messaging Server 7.0.5.31.0 64bit (built May  5 2014))
+ with ESMTP id <0O1L00KCUG8NZA00@mailout4.w1.samsung.com> for
+ rtc-linux@googlegroups.com; Wed, 27 Jan 2016 04:24:23 +0000 (GMT)
+Subject: [rtc-linux] Re: [PATCH v4 07/10] rtc: max77686: Fix unsupported year message
+To: Javier Martinez Canillas <javier@osg.samsung.com>,
  linux-kernel@vger.kernel.org
-References: <1453310088-29985-1-git-send-email-javier@osg.samsung.com>
- <1453310088-29985-3-git-send-email-javier@osg.samsung.com>
- <56A02845.3010008@samsung.com>
+References: <1453865806-4661-1-git-send-email-javier@osg.samsung.com>
+ <1453865806-4661-8-git-send-email-javier@osg.samsung.com>
 Cc: Kukjin Kim <kgene@kernel.org>, rtc-linux@googlegroups.com,
- Chanwoo Choi <cw00.choi@samsung.com>,
+ Andi Shyti <andi.shyti@samsung.com>, Chanwoo Choi <cw00.choi@samsung.com>,
  Alexandre Belloni <alexandre.belloni@free-electrons.com>,
  Laxman Dewangan <ldewangan@nvidia.com>, linux-samsung-soc@vger.kernel.org
-From: Javier Martinez Canillas <javier@osg.samsung.com>
-Message-ID: <56A0F0AA.6080202@osg.samsung.com>
-Date: Thu, 21 Jan 2016 11:52:26 -0300
-MIME-Version: 1.0
-In-Reply-To: <56A02845.3010008@samsung.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+Message-id: <56A84673.5040806@samsung.com>
+Date: Wed, 27 Jan 2016 13:24:19 +0900
+MIME-version: 1.0
+In-reply-to: <1453865806-4661-8-git-send-email-javier@osg.samsung.com>
+Content-type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -30,46 +34,44 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Hello Krzysztof,
+On 27.01.2016 12:36, Javier Martinez Canillas wrote:
+> The max77686 RTC only supports a range of 99 years so instead of using
+> year 1900 as the base, the year 2000 is used. This means that 1900 to
+> 1999 are unsupported years.
+> 
+> The driver was printing a warning for those values but was returning a
+> error so for consistency, print an error message instead and don't say
+> that a year 2000 is assumed, since the year is not set.
+> 
+> Also, it is better to use dev_* log functions instead of pr_* to print
+> information about the device in the kernel log in a standardized way.
+> 
+> This also allows to remove the local pr_fmt() defined macro.
+> 
+> Suggested-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+> Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
+> 
+> ---
+> 
+> Changes in v4:
+> - Use dev_err() instead of dev_warn() and change message.
+>   Suggested by Krzysztof Kozlowski and Andi Shyti.
+> - Change subject line and commit message of patch #7.
+> - Removed Laxman Dewangan's Acked-by tag since the patch changed.
+> 
+> Changes in v3:
+> - Add Laxman Dewangan's Acked-by tag to patch #7.
+> 
+> Changes in v2: None
+> 
+>  drivers/rtc/rtc-max77686.c | 4 +---
+>  1 file changed, 1 insertion(+), 3 deletions(-)
 
-On 01/20/2016 09:37 PM, Krzysztof Kozlowski wrote:
-> On 21.01.2016 02:14, Javier Martinez Canillas wrote:
->> Documentation/timers/timers-howto.txt suggest to use usleep_range()
->> instead of msleep() for small msec (1ms - 20ms) since msleep() will
->> often sleep for 20ms for any value in that range.
->>
->> This is fine in this case since 16ms is the _minimum_ delay required
->> by max77686 for an RTC update but by using usleep_range() instead of
->> msleep(), the driver can support other RTC IP blocks with a shorter
->> minium delay (i.e: in the range of usecs insted of msecs).
->
-> s/minium/minimum/
-> s/insted/instead/
->
-
-Fixed.
-
->>
->> Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
->> ---
->>
->>   drivers/rtc/rtc-max77686.c | 5 +++--
->>   1 file changed, 3 insertions(+), 2 deletions(-)
->
-> Reviewed-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
->
-
-Thanks a lot for your review.
-  
-> Best regards,
-> Krzysztof
->
+Reviewed-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
 
 Best regards,
--- 
-Javier Martinez Canillas
-Open Source Group
-Samsung Research America
+Krzysztof
+
 
 -- 
 -- 
