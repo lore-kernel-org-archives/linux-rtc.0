@@ -1,29 +1,24 @@
-Return-Path: <rtc-linux+bncBDKZNNNLXAHBB7EMUG2QKGQEI7VWQLA@googlegroups.com>
-Received: from mailout4.w1.samsung.com (mailout4.w1.samsung.com. [210.118.77.14])
-        by gmr-mx.google.com with ESMTPS id jg4si488873pac.2.2016.01.26.20.24.27
+Return-Path: <rtc-linux+bncBD2OLRXW4ABBBUNYVC2QKGQER7BOLLY@googlegroups.com>
+Received: from hqemgate14.nvidia.com (hqemgate14.nvidia.com. [216.228.121.143])
+        by gmr-mx.google.com with ESMTPS id tn7si1489467pac.1.2016.01.28.05.49.05
         for <rtc-linux@googlegroups.com>
-        (version=TLS1 cipher=AES128-SHA bits=128/128);
-        Tue, 26 Jan 2016 20:24:27 -0800 (PST)
-Received: from eucpsbgm1.samsung.com (unknown [203.254.199.244])
- by mailout4.w1.samsung.com
- (Oracle Communications Messaging Server 7.0.5.31.0 64bit (built May  5 2014))
- with ESMTP id <0O1L00KCUG8NZA00@mailout4.w1.samsung.com> for
- rtc-linux@googlegroups.com; Wed, 27 Jan 2016 04:24:23 +0000 (GMT)
-Subject: [rtc-linux] Re: [PATCH v4 07/10] rtc: max77686: Fix unsupported year message
-To: Javier Martinez Canillas <javier@osg.samsung.com>,
- linux-kernel@vger.kernel.org
-References: <1453865806-4661-1-git-send-email-javier@osg.samsung.com>
- <1453865806-4661-8-git-send-email-javier@osg.samsung.com>
-Cc: Kukjin Kim <kgene@kernel.org>, rtc-linux@googlegroups.com,
- Andi Shyti <andi.shyti@samsung.com>, Chanwoo Choi <cw00.choi@samsung.com>,
- Alexandre Belloni <alexandre.belloni@free-electrons.com>,
- Laxman Dewangan <ldewangan@nvidia.com>, linux-samsung-soc@vger.kernel.org
-From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-Message-id: <56A84673.5040806@samsung.com>
-Date: Wed, 27 Jan 2016 13:24:19 +0900
-MIME-version: 1.0
-In-reply-to: <1453865806-4661-8-git-send-email-javier@osg.samsung.com>
-Content-type: text/plain; charset=UTF-8
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 28 Jan 2016 05:49:05 -0800 (PST)
+From: Laxman Dewangan <ldewangan@nvidia.com>
+To: <robh+dt@kernel.org>, <pawel.moll@arm.com>, <mark.rutland@arm.com>,
+	<ijc+devicetree@hellion.org.uk>, <galak@codeaurora.org>,
+	<linus.walleij@linaro.org>, <gnurou@gmail.com>, <lee.jones@linaro.org>,
+	<broonie@kernel.org>, <a.zummo@towertech.it>,
+	<alexandre.belloni@free-electrons.com>
+CC: <lgirdwood@gmail.com>, <devicetree@vger.kernel.org>,
+	<linux-kernel@vger.kernel.org>, <linux-gpio@vger.kernel.org>,
+	<rtc-linux@googlegroups.com>, <swarren@nvidia.com>, <treding@nvidia.com>,
+	<k.kozlowski@samsung.com>, Laxman Dewangan <ldewangan@nvidia.com>
+Subject: [rtc-linux] [PATCH V6 0/8] Add support for MAXIM MAX77620/MAX20024 PMIC
+Date: Thu, 28 Jan 2016 19:07:46 +0530
+Message-ID: <1453988274-28052-1-git-send-email-ldewangan@nvidia.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -34,44 +29,107 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 27.01.2016 12:36, Javier Martinez Canillas wrote:
-> The max77686 RTC only supports a range of 99 years so instead of using
-> year 1900 as the base, the year 2000 is used. This means that 1900 to
-> 1999 are unsupported years.
-> 
-> The driver was printing a warning for those values but was returning a
-> error so for consistency, print an error message instead and don't say
-> that a year 2000 is assumed, since the year is not set.
-> 
-> Also, it is better to use dev_* log functions instead of pr_* to print
-> information about the device in the kernel log in a standardized way.
-> 
-> This also allows to remove the local pr_fmt() defined macro.
-> 
-> Suggested-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-> Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
-> 
-> ---
-> 
-> Changes in v4:
-> - Use dev_err() instead of dev_warn() and change message.
->   Suggested by Krzysztof Kozlowski and Andi Shyti.
-> - Change subject line and commit message of patch #7.
-> - Removed Laxman Dewangan's Acked-by tag since the patch changed.
-> 
-> Changes in v3:
-> - Add Laxman Dewangan's Acked-by tag to patch #7.
-> 
-> Changes in v2: None
-> 
->  drivers/rtc/rtc-max77686.c | 4 +---
->  1 file changed, 1 insertion(+), 3 deletions(-)
+Add SW support for MAXIM Semiconductor's Power Management
+IC (PMIC) MAX77620/MAX20024. This PMIC supports DC-DC/LDOS, GPIOs,
+RTC, watchdog, clocks etc.
 
-Reviewed-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+This series add respective driver for each of sub-modules.
 
-Best regards,
-Krzysztof
+Changes from V1: 
+DT DOC:
+- Added units in some of properties.
+- Change the boolean property to tristate type and detail some of
+  properties.
 
+RTC:
+- Rename the file to rtc-max77xxx.c and make the generic implementation.
+- Direct regmap apis are used for the register access.
+- Decouped from max77620 driver.
+- Taken care of cleanup comments form V1 version.
+
+MFD:
+- Code cleanups per review from V1. 
+- Move register access APIs from header to c file.
+- Remove some of non required variable, remove duplication in error message
+ and simplify some of function implementation.
+
+GPIO:
+- Use the gpiochip_add_data and get the chip data from core APIs.
+- Cleanups based on comment received on mfd/rtc.
+- Avoid duplication on error message.
+
+Pinctrl:
+- Cleanup code based on comment received on mfd/rtc.
+- Avoid duplication on error message.
+
+Regulators:
+- Cleanup code based on comment received on mfd/rtc.
+- Avoid duplication on error message.
+- Taken care of review comment from Mark.
+
+Changes from V2: 
+- Run coccicheck and checkpatch in strict mode for the alignment.
+- Drop RTC driver and its i2c client registartion.
+- Refactor Regulator  driver to use core API for DT parsing.
+
+Changes from V3: 
+- Change all sys initcall to module driver.
+- change the max77620_read argument to unisgned int from u8.
+
+
+Changes from V4:
+- Provide more details in the dt binding doc.
+- Take care of fps nodes.
+- Split the submodule's DT binding doc on respective folder.
+- Drop the battery charger and low battery binding and related code as
+  it need to go on power driver.
+Changes from V5:
+- None
+
+Laxman Dewangan (8):
+  DT: mfd: add device-tree binding doc for PMIC max77620/max20024
+  mfd: max77620: add core driver for MAX77620/MAX20024
+  DT: pinctrl: add DT binding doc for pincontrol of PMIC
+    max77620/max20024
+  pinctrl: max77620: add pincontrol driver for MAX77620/MAX20024
+  DT: gpio: add DT binding doc for gpio of PMIC max77620/max20024
+  gpio: max77620: add gpio driver for MAX77620/MAX20024
+  DT: regulator: add DT binding doc for regulator of PMIC
+    max77620/max20024
+  regulator: max77620: add regulator driver for max77620/max20024
+
+ .../devicetree/bindings/gpio/gpio-max77620.txt     |  25 +
+ Documentation/devicetree/bindings/mfd/max77620.txt | 118 +++
+ .../bindings/pinctrl/pinctrl-max77620.txt          |  87 +++
+ .../bindings/regulator/regulator-max77620.txt      | 163 ++++
+ drivers/gpio/Kconfig                               |   9 +
+ drivers/gpio/Makefile                              |   1 +
+ drivers/gpio/gpio-max77620.c                       | 292 +++++++
+ drivers/mfd/Kconfig                                |  15 +
+ drivers/mfd/Makefile                               |   1 +
+ drivers/mfd/max77620.c                             | 727 ++++++++++++++++++
+ drivers/pinctrl/Kconfig                            |  10 +
+ drivers/pinctrl/Makefile                           |   1 +
+ drivers/pinctrl/pinctrl-max77620.c                 | 693 +++++++++++++++++
+ drivers/regulator/Kconfig                          |   9 +
+ drivers/regulator/Makefile                         |   1 +
+ drivers/regulator/max77620-regulator.c             | 844 +++++++++++++++++++++
+ include/dt-bindings/mfd/max77620.h                 |  35 +
+ include/linux/mfd/max77620.h                       | 406 ++++++++++
+ 18 files changed, 3437 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/gpio/gpio-max77620.txt
+ create mode 100644 Documentation/devicetree/bindings/mfd/max77620.txt
+ create mode 100644 Documentation/devicetree/bindings/pinctrl/pinctrl-max77620.txt
+ create mode 100644 Documentation/devicetree/bindings/regulator/regulator-max77620.txt
+ create mode 100644 drivers/gpio/gpio-max77620.c
+ create mode 100644 drivers/mfd/max77620.c
+ create mode 100644 drivers/pinctrl/pinctrl-max77620.c
+ create mode 100644 drivers/regulator/max77620-regulator.c
+ create mode 100644 include/dt-bindings/mfd/max77620.h
+ create mode 100644 include/linux/mfd/max77620.h
+
+-- 
+2.1.4
 
 -- 
 -- 
