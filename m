@@ -1,27 +1,30 @@
-Return-Path: <rtc-linux+bncBD2OLRXW4ABBBYVEUO2QKGQEYZDK5ZQ@googlegroups.com>
-Received: from hqemgate16.nvidia.com (hqemgate16.nvidia.com. [216.228.121.65])
-        by gmr-mx.google.com with ESMTPS id tn7si801212pac.1.2016.01.27.06.21.22
+Return-Path: <rtc-linux+bncBAABBKOXUW2QKGQEQFL2IIY@googlegroups.com>
+Received: from mailout2.samsung.com (mailout2.samsung.com. [203.254.224.25])
+        by gmr-mx.google.com with ESMTPS id tn7si1161856pac.1.2016.01.27.17.15.21
         for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 27 Jan 2016 06:21:22 -0800 (PST)
-From: Laxman Dewangan <ldewangan@nvidia.com>
-To: <robh+dt@kernel.org>, <pawel.moll@arm.com>, <mark.rutland@arm.com>,
-	<ijc+devicetree@hellion.org.uk>, <galak@codeaurora.org>,
-	<linus.walleij@linaro.org>, <gnurou@gmail.com>, <lee.jones@linaro.org>,
-	<broonie@kernel.org>, <a.zummo@towertech.it>,
-	<alexandre.belloni@free-electrons.com>
-CC: <lgirdwood@gmail.com>, <devicetree@vger.kernel.org>,
-	<linux-kernel@vger.kernel.org>, <linux-gpio@vger.kernel.org>,
-	<rtc-linux@googlegroups.com>, <swarren@nvidia.com>, <treding@nvidia.com>,
-	<k.kozlowski@samsung.com>, Laxman Dewangan <ldewangan@nvidia.com>
-Subject: [rtc-linux] [PATCH V5 1/5] DT: mfd: add device-tree binding doc fro
- PMIC max77620/max20024
-Date: Wed, 27 Jan 2016 19:40:04 +0530
-Message-ID: <1453903808-29788-2-git-send-email-ldewangan@nvidia.com>
-In-Reply-To: <1453903808-29788-1-git-send-email-ldewangan@nvidia.com>
-References: <1453903808-29788-1-git-send-email-ldewangan@nvidia.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+        (version=TLS1 cipher=AES128-SHA bits=128/128);
+        Wed, 27 Jan 2016 17:15:21 -0800 (PST)
+Received: from epcpsbgr3.samsung.com
+ (u143.gpu120.samsung.co.kr [203.254.230.143])
+ by mailout2.samsung.com (Oracle Communications Messaging Server 7.0.5.31.0
+ 64bit (built May  5 2014))
+ with ESMTP id <0O1N01JWQ25IWD20@mailout2.samsung.com> for
+ rtc-linux@googlegroups.com; Thu, 28 Jan 2016 10:15:18 +0900 (KST)
+Date: Thu, 28 Jan 2016 10:15:18 +0900
+From: Andi Shyti <andi.shyti@samsung.com>
+To: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+Cc: Chanwoo Choi <cw00.choi@samsung.com>,
+ Alessandro Zummo <a.zummo@towertech.it>,
+ Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+ linux-kernel@vger.kernel.org, rtc-linux@googlegroups.com,
+ Javier Martinez Canillas <javier@osg.samsung.com>,
+ Laxman Dewangan <ldewangan@nvidia.com>
+Subject: [rtc-linux] Re: [PATCH] rtc: max77686: Cleanup and reduce dmesg output
+Message-id: <20160128011518.GD20739@samsunx.samsung>
+References: <1453877171-30510-1-git-send-email-k.kozlowski@samsung.com>
+MIME-version: 1.0
+Content-type: text/plain; charset=UTF-8
+In-reply-to: <1453877171-30510-1-git-send-email-k.kozlowski@samsung.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -32,208 +35,175 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-The MAXIM PMIC MAX77620 and MAX20024 are power management IC
-which supports RTC, GPIO, DCDC/LDO regulators, interrupt,
-watchdog etc.
+On Wed, Jan 27, 2016 at 03:46:11PM +0900, Krzysztof Kozlowski wrote:
+> Cleanup of entire driver of its dmesg output:
+> 1. Remove printing of the function name, because printing device name is
+>    sufficient. This also makes the dev_err()-like functions more compact
+>    and readable (not need of line break).
+> 2. Lower from info to debug printing of each RTC interrupt (no need to
+>    make noise on each alarm).
+> 3. Remove dev_info() at beginning of probe because a message is already
+>    always printed by either probe failure or from registering the RTC
+>    device as /dev/rtcX.
+> 
+> Signed-off-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
 
-Add DT binding document for the different functionality of
-this device.
+Looks good, Reviewed-by: Andi Shyti <andi.shyti@samsung.com>
 
-Signed-off-by: Laxman Dewangan <ldewangan@nvidia.com>
-Acked-by: Rob Herring <robh@kernel.org>
----
-Changes from V1: 
-- Added units in some of properties.
-- Change the boolean property to tristate type and detail some of
-  properties.
-
-Change from V2:
-- added unit in period related dt property.
-
-Change from V3: None
-- Added Rob's ack.
-
-Changes from V4:
-- A- Provide more details in the dt binding doc.
-- Take care of fps nodes.
-- Split the submodule's DT binding doc on respective folder.
-- Drop the battery charger and low battery binding and related code as
-  it need to go on power driver.
-
-
- Documentation/devicetree/bindings/mfd/max77620.txt | 118 +++++++++++++++++++++
- include/dt-bindings/mfd/max77620.h                 |  35 ++++++
- 2 files changed, 153 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/mfd/max77620.txt
- create mode 100644 include/dt-bindings/mfd/max77620.h
-
-diff --git a/Documentation/devicetree/bindings/mfd/max77620.txt b/Documentation/devicetree/bindings/mfd/max77620.txt
-new file mode 100644
-index 0000000..f258ce4
---- /dev/null
-+++ b/Documentation/devicetree/bindings/mfd/max77620.txt
-@@ -0,0 +1,118 @@
-+MAX77620 Power management IC from Maxim Semiconductor.
-+
-+Required properties:
-+-------------------
-+- compatible: Must be one of
-+		"maxim,max77620"
-+		"maxim,max20024".
-+- reg: I2C device address.
-+
-+Optional properties:
-+-------------------
-+- interrupts:		the interrupt on the parent the controller is
-+			connected to
-+- interrupt-controller: Marks the device node as an interrupt controller.
-+- #interrupt-cells:	is <2> and their usage is compliant to the 2 cells
-+			variant of <../interrupt-controller/interrupts.txt>
-+			IRQ numbers for different interrupt source of MAX77620
-+			are defined at dt-bindings/mfd/max77620.h.
-+
-+Optional subnodes and their properties:
-+=======================================
-+
-+Flexible power sequence configurations:
-+--------------------------------------
-+The PMIC has multiple control mode:
-+	Normal mode also called as active mode on which all step-down
-+		regulators, all linear regulators, GPIOs, and the 32kHz
-+		oscillator are in normal active mode.
-+	sleep mode: Regulators/GPIOs/clock can go on OFF state based on
-+		their configurations.
-+	Global Low power mode (GLPM): In this mode, step-down regulators, linear
-+		regulators, and the 32kHz oscillator are in low-power modes.
-+
-+	Different modes of regulators/clock/GPIOs are controlled by the their
-+FPS configurations. There is different configuration registers for each of
-+these resources. Typical configurations per resource are:
-+	FPS source: 	Attach the resource to required FPS source. When
-+			resources are attached to one of FPS source then
-+			resournce can be enable/disable when related FPS
-+			source gets the control signal for ON and OFF.
-+	Power on slot: 	Slot number on which resource is ON once FPS source
-+			get ON signal.
-+	Power down slot Slot number on which resource is OFF once FPS source
-+			get OFF signal.
-+
-+There is three FPS source for resources called FPS0, FPS1 and FPS2. All
-+resources need to attached to one of these FPS. It can alsoi be set
-+FPS source to NONE, and on this case, it is completely controlled by
-+the register control rather than external input control to PMIC.
-+
-+The configuration parameters of FPS is provided through subnode "fps"
-+and their child for FPS specific.
-+The node name for FPS child are defined as "fps0", "fps1", and "fps2" for
-+the FPS0, FPS1 and FPS2 respectively.
-+
-+There is need for different FPS configuration parameters based on system
-+state like when system state changed from active to suspend or active to
-+power off (shutdown).
-+
-+Optinal properties:
-+-------------------
-+-maxim,fps-control:	u32, FPS control source like external control input
-+			to PMIC i.e. EN0, EN1 or software (SW). The macros
-+			are defined on dt-bindings/mfd/max77620.h for
-+			different control source.
-+				FPS_CONTROL_SRC_EN0 for PMIC external input EN0.
-+				FPS_CONTROL_SRC_EN1 for PMIC external input EN1.
-+				FPS_CONTROL_SRC_SW for software control.
-+
-+-maxim,shutdown-fps-time-period-us: u32, FPS time period in microseconds
-+				    when system enters to shutdown state.
-+-maxim,suspend-fps-time-period-us:  u32, FPS time period in microseconds
-+				    when system enters to suspend state.
-+
-+-maxim,enable-sleep: 		    Boolean, enable sleep state of PMIC
-+				    when the FPS control input become active.
-+-maxim,enable-global-lpm: 	    Boolean, enable Global Low Power Mode (GLPM)
-+				    of PMIC when the FPS control input become
-+				    active.
-+
-+Here supported time periods by device in microseconds are as follows:
-+MAX77620 supports 40, 80, 160, 320, 640, 1280, 2560 and 5120 microseconds.
-+MAX20024 supports 20, 40, 80, 160, 320, 640, 1280 and 2540 microseconds.
-+
-+For different sub modules like GPIO, pincontrol, regulator, power, please refer
-+respected device-tree binding document on respective directories.
-+
-+Example:
-+--------
-+#include <dt-bindings/mfd/max77620.h>
-+
-+max77620@3c {
-+	compatible = "maxim,max77620";
-+	reg = <0x3c>;
-+
-+	interrupt-parent = <&intc>;
-+	interrupts = <0 86 IRQ_TYPE_NONE>;
-+
-+	interrupt-controller;
-+	#interrupt-cells = <2>;
-+
-+	fps {
-+		fps0 {
-+			maxim,shutdown-fps-time-period-us = <1280>;
-+			maxim,fps-control = <FPS_CONTROL_SRC_EN1>;
-+		};
-+
-+		fps1 {
-+			maxim,shutdown-fps-time-period-us = <1280>;
-+			maxim,fps-control = <FPS_CONTROL_SRC_EN0>;
-+		};
-+
-+		fps2 {
-+			maxim,shutdown-fps-time-period-us = <1280>;
-+			maxim,fps-control = <FPS_CONTROL_SRC_SW>;
-+		};
-+	};
-+};
-diff --git a/include/dt-bindings/mfd/max77620.h b/include/dt-bindings/mfd/max77620.h
-new file mode 100644
-index 0000000..1b571d7
---- /dev/null
-+++ b/include/dt-bindings/mfd/max77620.h
-@@ -0,0 +1,35 @@
-+/*
-+ * This header provides macros for MAXIM MAX77620 device bindings.
-+ *
-+ * Copyright (c) 2016, NVIDIA Corporation.
-+ * Author: Laxman Dewangan <ldewangan@nvidia.com>
-+ */
-+
-+#ifndef _DT_BINDINGS_MFD_MAX77620_H
-+#define _DT_BINDINGS_MFD_MAX77620_H
-+
-+/* MAX77620 interrupts */
-+#define MAX77620_IRQ_TOP_GLBL		0 /* Low-Battery */
-+#define MAX77620_IRQ_TOP_SD		1 /* SD power fail */
-+#define MAX77620_IRQ_TOP_LDO		2 /* LDO power fail */
-+#define MAX77620_IRQ_TOP_GPIO		3 /* GPIO internal int to MAX77620 */
-+#define MAX77620_IRQ_TOP_RTC		4 /* RTC */
-+#define MAX77620_IRQ_TOP_32K		5 /* 32kHz oscillator */
-+#define MAX77620_IRQ_TOP_ONOFF		6 /* ON/OFF oscillator */
-+#define MAX77620_IRQ_LBT_MBATLOW	7 /* Thermal alarm status, > 120C */
-+#define MAX77620_IRQ_LBT_TJALRM1	8 /* Thermal alarm status, > 120C */
-+#define MAX77620_IRQ_LBT_TJALRM2	9 /* Thermal alarm status, > 140C */
-+
-+/* FPS control inputs */
-+#define FPS_CONTROL_SRC_EN0		0
-+#define FPS_CONTROL_SRC_EN1		1
-+#define FPS_CONTROL_SRC_SW		2
-+
-+/* FPS source */
-+#define FPS_SRC_0			0
-+#define FPS_SRC_1			1
-+#define FPS_SRC_2			2
-+#define FPS_SRC_NONE			3
-+#define FPS_SRC_DEF			4
-+
-+#endif
--- 
-2.1.4
+> ---
+> 
+> Patch rebased on top of Javier's v4:
+> [PATCH v4 00/10] rtc: max77686: Extend driver and add max77802 support
+> http://www.spinics.net/lists/arm-kernel/msg477194.html
+> 
+> Feel free to join with these series.
+> ---
+>  drivers/rtc/rtc-max77686.c | 39 ++++++++++++++-------------------------
+>  1 file changed, 14 insertions(+), 25 deletions(-)
+> 
+> diff --git a/drivers/rtc/rtc-max77686.c b/drivers/rtc/rtc-max77686.c
+> index da47b1d85793..5a03e1ecad83 100644
+> --- a/drivers/rtc/rtc-max77686.c
+> +++ b/drivers/rtc/rtc-max77686.c
+> @@ -271,8 +271,8 @@ static int max77686_rtc_update(struct max77686_rtc_info *info,
+>  				 info->drv_data->map[REG_RTC_UPDATE0],
+>  				 data, data);
+>  	if (ret < 0)
+> -		dev_err(info->dev, "%s: fail to write update reg(ret=%d, data=0x%x)\n",
+> -				__func__, ret, data);
+> +		dev_err(info->dev, "Fail to write update reg(ret=%d, data=0x%x)\n",
+> +			ret, data);
+>  	else {
+>  		/* Minimum delay required before RTC update. */
+>  		usleep_range(delay, delay * 2);
+> @@ -297,7 +297,7 @@ static int max77686_rtc_read_time(struct device *dev, struct rtc_time *tm)
+>  			       info->drv_data->map[REG_RTC_SEC],
+>  			       data, ARRAY_SIZE(data));
+>  	if (ret < 0) {
+> -		dev_err(info->dev, "%s: fail to read time reg(%d)\n", __func__,	ret);
+> +		dev_err(info->dev, "Fail to read time reg(%d)\n", ret);
+>  		goto out;
+>  	}
+>  
+> @@ -326,8 +326,7 @@ static int max77686_rtc_set_time(struct device *dev, struct rtc_time *tm)
+>  				info->drv_data->map[REG_RTC_SEC],
+>  				data, ARRAY_SIZE(data));
+>  	if (ret < 0) {
+> -		dev_err(info->dev, "%s: fail to write time reg(%d)\n", __func__,
+> -				ret);
+> +		dev_err(info->dev, "Fail to write time reg(%d)\n", ret);
+>  		goto out;
+>  	}
+>  
+> @@ -355,8 +354,7 @@ static int max77686_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
+>  	ret = regmap_bulk_read(info->max77686->rtc_regmap,
+>  			       map[REG_ALARM1_SEC], data, ARRAY_SIZE(data));
+>  	if (ret < 0) {
+> -		dev_err(info->dev, "%s:%d fail to read alarm reg(%d)\n",
+> -				__func__, __LINE__, ret);
+> +		dev_err(info->dev, "Fail to read alarm reg(%d)\n", ret);
+>  		goto out;
+>  	}
+>  
+> @@ -394,8 +392,7 @@ static int max77686_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
+>  	alrm->pending = 0;
+>  	ret = regmap_read(info->max77686->regmap, MAX77686_REG_STATUS2, &val);
+>  	if (ret < 0) {
+> -		dev_err(info->dev, "%s:%d fail to read status2 reg(%d)\n",
+> -				__func__, __LINE__, ret);
+> +		dev_err(info->dev, "Fail to read status2 reg(%d)\n", ret);
+>  		goto out;
+>  	}
+>  
+> @@ -426,8 +423,7 @@ static int max77686_rtc_stop_alarm(struct max77686_rtc_info *info)
+>  				       map[REG_ALARM1_SEC], data,
+>  				       ARRAY_SIZE(data));
+>  		if (ret < 0) {
+> -			dev_err(info->dev, "%s: fail to read alarm reg(%d)\n",
+> -				__func__, ret);
+> +			dev_err(info->dev, "Fail to read alarm reg(%d)\n", ret);
+>  			goto out;
+>  		}
+>  
+> @@ -452,8 +448,7 @@ static int max77686_rtc_stop_alarm(struct max77686_rtc_info *info)
+>  	}
+>  
+>  	if (ret < 0) {
+> -		dev_err(info->dev, "%s: fail to write alarm reg(%d)\n",
+> -				__func__, ret);
+> +		dev_err(info->dev, "Fail to write alarm reg(%d)\n", ret);
+>  		goto out;
+>  	}
+>  
+> @@ -481,8 +476,7 @@ static int max77686_rtc_start_alarm(struct max77686_rtc_info *info)
+>  				       map[REG_ALARM1_SEC], data,
+>  				       ARRAY_SIZE(data));
+>  		if (ret < 0) {
+> -			dev_err(info->dev, "%s: fail to read alarm reg(%d)\n",
+> -				__func__, ret);
+> +			dev_err(info->dev, "Fail to read alarm reg(%d)\n", ret);
+>  			goto out;
+>  		}
+>  
+> @@ -508,8 +502,7 @@ static int max77686_rtc_start_alarm(struct max77686_rtc_info *info)
+>  	}
+>  
+>  	if (ret < 0) {
+> -		dev_err(info->dev, "%s: fail to write alarm reg(%d)\n",
+> -				__func__, ret);
+> +		dev_err(info->dev, "Fail to write alarm reg(%d)\n", ret);
+>  		goto out;
+>  	}
+>  
+> @@ -539,8 +532,7 @@ static int max77686_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
+>  				data, ARRAY_SIZE(data));
+>  
+>  	if (ret < 0) {
+> -		dev_err(info->dev, "%s: fail to write alarm reg(%d)\n",
+> -				__func__, ret);
+> +		dev_err(info->dev, "Fail to write alarm reg(%d)\n", ret);
+>  		goto out;
+>  	}
+>  
+> @@ -575,7 +567,7 @@ static irqreturn_t max77686_rtc_alarm_irq(int irq, void *data)
+>  {
+>  	struct max77686_rtc_info *info = data;
+>  
+> -	dev_info(info->dev, "%s:irq(%d)\n", __func__, irq);
+> +	dev_dbg(info->dev, "RTC alarm IRQ: %d\n", irq);
+>  
+>  	rtc_update_irq(info->rtc_dev, 1, RTC_IRQF | RTC_AF);
+>  
+> @@ -605,8 +597,7 @@ static int max77686_rtc_init_reg(struct max77686_rtc_info *info)
+>  				info->drv_data->map[REG_RTC_CONTROLM],
+>  				data, ARRAY_SIZE(data));
+>  	if (ret < 0) {
+> -		dev_err(info->dev, "%s: fail to write controlm reg(%d)\n",
+> -				__func__, ret);
+> +		dev_err(info->dev, "Fail to write controlm reg(%d)\n", ret);
+>  		return ret;
+>  	}
+>  
+> @@ -621,8 +612,6 @@ static int max77686_rtc_probe(struct platform_device *pdev)
+>  	const struct platform_device_id *id = platform_get_device_id(pdev);
+>  	int ret;
+>  
+> -	dev_info(&pdev->dev, "%s\n", __func__);
+> -
+>  	info = devm_kzalloc(&pdev->dev, sizeof(struct max77686_rtc_info),
+>  				GFP_KERNEL);
+>  	if (!info)
+> @@ -662,7 +651,7 @@ static int max77686_rtc_probe(struct platform_device *pdev)
+>  
+>  	if (!max77686->rtc_irq_data) {
+>  		ret = -EINVAL;
+> -		dev_err(&pdev->dev, "%s: no RTC regmap IRQ chip\n", __func__);
+> +		dev_err(&pdev->dev, "No RTC regmap IRQ chip\n");
+>  		goto err_rtc;
+>  	}
+>  
+> -- 
+> 1.9.1
 
 -- 
 -- 
