@@ -1,28 +1,29 @@
-Return-Path: <rtc-linux+bncBAABBZ7WUC2QKGQEGH6XG2Y@googlegroups.com>
+Return-Path: <rtc-linux+bncBD2OLRXW4ABBBXHNU22QKGQEM7YVE3Q@googlegroups.com>
+Received: from hqemgate16.nvidia.com (hqemgate16.nvidia.com. [216.228.121.65])
+        by gmr-mx.google.com with ESMTPS id r2si1274089pfr.0.2016.01.27.22.36.12
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 27 Jan 2016 22:36:12 -0800 (PST)
+Message-ID: <56A9B41C.4070607@nvidia.com>
+Date: Thu, 28 Jan 2016 11:54:28 +0530
+From: Laxman Dewangan <ldewangan@nvidia.com>
 MIME-Version: 1.0
-Received: from lists.s-osg.org (lists.s-osg.org. [54.187.51.154])
-        by gmr-mx.google.com with ESMTP id 190si462289pfb.1.2016.01.26.19.37.11
-        for <rtc-linux@googlegroups.com>;
-        Tue, 26 Jan 2016 19:37:11 -0800 (PST)
-From: Javier Martinez Canillas <javier@osg.samsung.com>
-To: linux-kernel@vger.kernel.org
-Cc: Kukjin Kim <kgene@kernel.org>,
-	rtc-linux@googlegroups.com,
-	Andi Shyti <andi.shyti@samsung.com>,
-	Chanwoo Choi <cw00.choi@samsung.com>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Krzysztof Kozlowski <k.kozlowski@samsung.com>,
-	Laxman Dewangan <ldewangan@nvidia.com>,
-	linux-samsung-soc@vger.kernel.org,
-	Javier Martinez Canillas <javier@osg.samsung.com>
-Subject: [rtc-linux] [PATCH v4 02/10] rtc: max77686: Use ARRAY_SIZE() instead
- of current array length
-Date: Wed, 27 Jan 2016 00:36:38 -0300
-Message-Id: <1453865806-4661-3-git-send-email-javier@osg.samsung.com>
-In-Reply-To: <1453865806-4661-1-git-send-email-javier@osg.samsung.com>
-References: <1453865806-4661-1-git-send-email-javier@osg.samsung.com>
+To: Krzysztof Kozlowski <k.kozlowski@samsung.com>, <robh+dt@kernel.org>,
+	<pawel.moll@arm.com>, <mark.rutland@arm.com>,
+	<ijc+devicetree@hellion.org.uk>, <galak@codeaurora.org>,
+	<linus.walleij@linaro.org>, <gnurou@gmail.com>, <lee.jones@linaro.org>,
+	<broonie@kernel.org>, <a.zummo@towertech.it>,
+	<alexandre.belloni@free-electrons.com>
+CC: <lgirdwood@gmail.com>, <devicetree@vger.kernel.org>,
+	<linux-kernel@vger.kernel.org>, <linux-gpio@vger.kernel.org>,
+	<rtc-linux@googlegroups.com>, <swarren@nvidia.com>, <treding@nvidia.com>,
+	Mallikarjun Kasoju <mkasoju@nvidia.com>
+Subject: [rtc-linux] Re: [PATCH V5 5/5] regulator: max77620: add regulator
+ driver for max77620/max20024
+References: <1453903808-29788-1-git-send-email-ldewangan@nvidia.com> <1453903808-29788-6-git-send-email-ldewangan@nvidia.com> <56A99130.1070904@samsung.com>
+In-Reply-To: <56A99130.1070904@samsung.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Reply-To: rtc-linux@googlegroups.com
-Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -32,132 +33,55 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-It is better to use the ARRAY_SIZE() macro instead of the array length
-to avoid bugs if the array is later changed and the length not updated.
 
-Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
-Reviewed-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-Tested-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-Reviewed-by: Andi Shyti <andi.shyti@samsung.com>
+On Thursday 28 January 2016 09:25 AM, Krzysztof Kozlowski wrote:
+> On 27.01.2016 23:10, Laxman Dewangan wrote:
+>> MAXIM Semiconductor's PMIC, MAX77620 and MAX20024 have the
+>> multiple DCDC and LDOs. This supplies the power to different
+>> components of the system.
+>> Also these rails has configuration for ramp time, flexible
+>> power sequence, slew rate etc.
+>>
+>> Add regulator driver to access these rails via regulator APIs.
+>>
+>> Signed-off-by: Laxman Dewangan <ldewangan@nvidia.com>
+>> Signed-off-by: Mallikarjun Kasoju <mkasoju@nvidia.com>
+>> ---
+>> Changes from V1:
+>> - Cleanup code based on comment received on mfd/rtc.
+>> - Avoid duplication on error message.
+>>
+>> Changes form V2:
+>> - Run coccicheck and checkpatch in strict mode for the alignment.
+>> - Refactor Regulator driver to use core API for DT parsing.
+>> - Update based on API changes.
+>>
+>> Changes from V3:
+>> - Change all sys initcall to module driver.
+>> - change the max77620_read argument to unisgned int from u8.
+>>
+>> Changes from V4:
+>> - Added DT binding document as devicetree/bindings/regulator/regulator-max77620.txt
+>> - Detail out properties.
+> What does it mean "Detail out properties"? What have changed>
 
----
+Based on review comment from Linus W, I added more description on the 
+properties.
 
-Changes in v4:
-- Add Andi Shyti's Reviewed-by to patch #2.
+>
+>>   .../bindings/regulator/regulator-max77620.txt      | 163 ++++
+> Please put the bindings in separate patch. It might be easier for DT
+> guys to review them (they are acking the bindings, not the driver). Also
+OK, will push it.
 
-Changes in v3:
-- Add Krzysztof Kozlowski's Tested-by tag to patch #2.
-- Add Laxman Dewangan's Acked-by tag to patch #2.
-- Use ARRAY_SIZE() in all places. Suggested by Laxman Dewangan.
 
-Changes in v2:
-- Add Krzysztof Kozlowski's Reviewed-by tag to patch #2.
+> I already reviewed the patchset but because of adding bindings here, you
+> could not add my reviewed-by tag (which makes my effort not tracked...).
+Yaah, This patch include the dt binding and so wanted your review again. 
+This si only reason to not add reviewed-by.
 
- drivers/rtc/rtc-max77686.c | 23 ++++++++++++-----------
- 1 file changed, 12 insertions(+), 11 deletions(-)
-
-diff --git a/drivers/rtc/rtc-max77686.c b/drivers/rtc/rtc-max77686.c
-index 6653c3d11b66..d84a50c9f7f7 100644
---- a/drivers/rtc/rtc-max77686.c
-+++ b/drivers/rtc/rtc-max77686.c
-@@ -149,7 +149,7 @@ static int max77686_rtc_read_time(struct device *dev, struct rtc_time *tm)
- 		goto out;
- 
- 	ret = regmap_bulk_read(info->max77686->rtc_regmap,
--				MAX77686_RTC_SEC, data, RTC_NR_TIME);
-+				MAX77686_RTC_SEC, data, ARRAY_SIZE(data));
- 	if (ret < 0) {
- 		dev_err(info->dev, "%s: fail to read time reg(%d)\n", __func__,	ret);
- 		goto out;
-@@ -177,7 +177,7 @@ static int max77686_rtc_set_time(struct device *dev, struct rtc_time *tm)
- 	mutex_lock(&info->lock);
- 
- 	ret = regmap_bulk_write(info->max77686->rtc_regmap,
--				 MAX77686_RTC_SEC, data, RTC_NR_TIME);
-+				 MAX77686_RTC_SEC, data, ARRAY_SIZE(data));
- 	if (ret < 0) {
- 		dev_err(info->dev, "%s: fail to write time reg(%d)\n", __func__,
- 				ret);
-@@ -205,7 +205,7 @@ static int max77686_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
- 		goto out;
- 
- 	ret = regmap_bulk_read(info->max77686->rtc_regmap,
--				 MAX77686_ALARM1_SEC, data, RTC_NR_TIME);
-+				 MAX77686_ALARM1_SEC, data, ARRAY_SIZE(data));
- 	if (ret < 0) {
- 		dev_err(info->dev, "%s:%d fail to read alarm reg(%d)\n",
- 				__func__, __LINE__, ret);
-@@ -215,7 +215,7 @@ static int max77686_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
- 	max77686_rtc_data_to_tm(data, &alrm->time, info->rtc_24hr_mode);
- 
- 	alrm->enabled = 0;
--	for (i = 0; i < RTC_NR_TIME; i++) {
-+	for (i = 0; i < ARRAY_SIZE(data); i++) {
- 		if (data[i] & ALARM_ENABLE_MASK) {
- 			alrm->enabled = 1;
- 			break;
-@@ -252,7 +252,7 @@ static int max77686_rtc_stop_alarm(struct max77686_rtc_info *info)
- 		goto out;
- 
- 	ret = regmap_bulk_read(info->max77686->rtc_regmap,
--				 MAX77686_ALARM1_SEC, data, RTC_NR_TIME);
-+				 MAX77686_ALARM1_SEC, data, ARRAY_SIZE(data));
- 	if (ret < 0) {
- 		dev_err(info->dev, "%s: fail to read alarm reg(%d)\n",
- 				__func__, ret);
-@@ -261,11 +261,11 @@ static int max77686_rtc_stop_alarm(struct max77686_rtc_info *info)
- 
- 	max77686_rtc_data_to_tm(data, &tm, info->rtc_24hr_mode);
- 
--	for (i = 0; i < RTC_NR_TIME; i++)
-+	for (i = 0; i < ARRAY_SIZE(data); i++)
- 		data[i] &= ~ALARM_ENABLE_MASK;
- 
- 	ret = regmap_bulk_write(info->max77686->rtc_regmap,
--				 MAX77686_ALARM1_SEC, data, RTC_NR_TIME);
-+				 MAX77686_ALARM1_SEC, data, ARRAY_SIZE(data));
- 	if (ret < 0) {
- 		dev_err(info->dev, "%s: fail to write alarm reg(%d)\n",
- 				__func__, ret);
-@@ -291,7 +291,7 @@ static int max77686_rtc_start_alarm(struct max77686_rtc_info *info)
- 		goto out;
- 
- 	ret = regmap_bulk_read(info->max77686->rtc_regmap,
--				 MAX77686_ALARM1_SEC, data, RTC_NR_TIME);
-+				 MAX77686_ALARM1_SEC, data, ARRAY_SIZE(data));
- 	if (ret < 0) {
- 		dev_err(info->dev, "%s: fail to read alarm reg(%d)\n",
- 				__func__, ret);
-@@ -312,7 +312,7 @@ static int max77686_rtc_start_alarm(struct max77686_rtc_info *info)
- 		data[RTC_DATE] |= (1 << ALARM_ENABLE_SHIFT);
- 
- 	ret = regmap_bulk_write(info->max77686->rtc_regmap,
--				 MAX77686_ALARM1_SEC, data, RTC_NR_TIME);
-+				 MAX77686_ALARM1_SEC, data, ARRAY_SIZE(data));
- 	if (ret < 0) {
- 		dev_err(info->dev, "%s: fail to write alarm reg(%d)\n",
- 				__func__, ret);
-@@ -341,7 +341,7 @@ static int max77686_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
- 		goto out;
- 
- 	ret = regmap_bulk_write(info->max77686->rtc_regmap,
--				 MAX77686_ALARM1_SEC, data, RTC_NR_TIME);
-+				 MAX77686_ALARM1_SEC, data, ARRAY_SIZE(data));
- 
- 	if (ret < 0) {
- 		dev_err(info->dev, "%s: fail to write alarm reg(%d)\n",
-@@ -406,7 +406,8 @@ static int max77686_rtc_init_reg(struct max77686_rtc_info *info)
- 
- 	info->rtc_24hr_mode = 1;
- 
--	ret = regmap_bulk_write(info->max77686->rtc_regmap, MAX77686_RTC_CONTROLM, data, 2);
-+	ret = regmap_bulk_write(info->max77686->rtc_regmap,
-+				MAX77686_RTC_CONTROLM, data, ARRAY_SIZE(data));
- 	if (ret < 0) {
- 		dev_err(info->dev, "%s: fail to write controlm reg(%d)\n",
- 				__func__, ret);
--- 
-2.5.0
+Now I am going to separate out DT binding and driver,  I will add 
+reviewed-by tag for you in driver file.
 
 -- 
 -- 
