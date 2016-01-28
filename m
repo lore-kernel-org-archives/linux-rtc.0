@@ -1,34 +1,29 @@
-Return-Path: <rtc-linux+bncBDQ2L75W5QGBBAHXX22AKGQE7LUBGHQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBDQ2L75W5QGBBLOIVK2QKGQE4KHQPNA@googlegroups.com>
 Received: from mezzanine.sirena.org.uk (mezzanine.sirena.org.uk. [2400:8900::f03c:91ff:fedb:4f4])
-        by gmr-mx.google.com with ESMTPS id r7si63270pfr.1.2016.01.08.05.37.01
+        by gmr-mx.google.com with ESMTPS id r2si1799929pfr.0.2016.01.28.15.28.45
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=AES128-SHA bits=128/128);
-        Fri, 08 Jan 2016 05:37:01 -0800 (PST)
-Date: Fri, 8 Jan 2016 13:36:48 +0000
+        Thu, 28 Jan 2016 15:28:45 -0800 (PST)
+Date: Fri, 29 Jan 2016 00:28:17 +0100
 From: Mark Brown <broonie@kernel.org>
 To: Laxman Dewangan <ldewangan@nvidia.com>
-Cc: Krzysztof Kozlowski <k.kozlowski@samsung.com>,
-	rtc-linux@googlegroups.com, robh+dt@kernel.org, pawel.moll@arm.com,
-	mark.rutland@arm.com, ijc+devicetree@hellion.org.uk,
-	galak@codeaurora.org, linus.walleij@linaro.org, gnurou@gmail.com,
-	lee.jones@linaro.org, a.zummo@towertech.it,
-	alexandre.belloni@free-electrons.com, lgirdwood@gmail.com,
-	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux-gpio@vger.kernel.org, swarren@nvidia.com, treding@nvidia.com,
-	Chaitanya Bandi <bandik@nvidia.com>
-Message-ID: <20160108133648.GQ6588@sirena.org.uk>
-References: <1452177524-23192-1-git-send-email-ldewangan@nvidia.com>
- <1452177524-23192-6-git-send-email-ldewangan@nvidia.com>
- <CAJKOXPd938soaa5M0GFo5HpVCYzAS1w8j8Hko3Ja9mx47NYkEQ@mail.gmail.com>
- <568F8D7E.10500@nvidia.com>
- <20160108125117.GM6588@sirena.org.uk>
- <568FB3DD.4090503@nvidia.com>
+Cc: robh+dt@kernel.org, pawel.moll@arm.com, mark.rutland@arm.com,
+	ijc+devicetree@hellion.org.uk, galak@codeaurora.org,
+	linus.walleij@linaro.org, gnurou@gmail.com, lee.jones@linaro.org,
+	a.zummo@towertech.it, alexandre.belloni@free-electrons.com,
+	lgirdwood@gmail.com, devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org,
+	rtc-linux@googlegroups.com, swarren@nvidia.com, treding@nvidia.com,
+	k.kozlowski@samsung.com
+Message-ID: <20160128232817.GH4130@sirena.org.uk>
+References: <1453988274-28052-1-git-send-email-ldewangan@nvidia.com>
+ <1453988274-28052-8-git-send-email-ldewangan@nvidia.com>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="yhCE4sTDB5mqd9YJ"
-In-Reply-To: <568FB3DD.4090503@nvidia.com>
-Subject: Re: [rtc-linux] [PATCH 5/6] rtc: max77620: add support for
- max77620/max20024 RTC driver
+	protocol="application/pgp-signature"; boundary="2oox5VnwalALFvA7"
+In-Reply-To: <1453988274-28052-8-git-send-email-ldewangan@nvidia.com>
+Subject: [rtc-linux] Re: [PATCH V6 7/8] DT: regulator: add DT binding doc for
+ regulator of PMIC max77620/max20024
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -39,21 +34,31 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
---yhCE4sTDB5mqd9YJ
+--2oox5VnwalALFvA7
 Content-Type: text/plain; charset=UTF-8
 Content-Disposition: inline
 
-On Fri, Jan 08, 2016 at 06:34:29PM +0530, Laxman Dewangan wrote:
+On Thu, Jan 28, 2016 at 07:07:53PM +0530, Laxman Dewangan wrote:
+> Maxim Semiconductor's PMIC MAX77620/MAX20024 has multiple
+> DCDCs and LDOs.
 
-> If we get the parent device, regmap handle and interrupt number from mfd
-> core independent of the PMIC (MAX77620 or MAX77686), then same driver can be
-> used here.
-> Two way which I can think of here:
+Please use subject lines matching the style for the subsystem.  I'm
+fairly sure I've mentioned this before and really if your subject lines
+don't visually resemble anything else in the directory that ought to be
+a warning sign.
 
-Parent device is just dev->parent, you can use dev_get_regmap() to get a
-regmap given a struct device and you can use platform resources to pass
-the interrupts to the children from the MFD (there's some examples,
-wm831x is one).
+> +- maxim,disable-active-discharge:    boolean, Disable active discharge.
+
+That's something I've seen other regulators do, can we make it a
+standard property with an op?
+
+> +max77620@3c {
+> +	regulators {
+> +		in-ldo0-1-supply = <&max77620_sd2>;
+> +		in-ldo7-8-supply = <&max77620_sd2>;
+
+I'd expect any supplies for the device to be at the device level,
+including supplies used by regulators.
 
 -- 
 -- 
@@ -66,19 +71,19 @@ You received this message because you are subscribed to the Google Groups "rtc-l
 To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
 
---yhCE4sTDB5mqd9YJ
+--2oox5VnwalALFvA7
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2
 
-iQEcBAEBCAAGBQJWj7tvAAoJECTWi3JdVIfQFUYH/iWXnQyflBGLqEOSyhQUyPgp
-NOq8StSdQ/zEvoKZ7DfFPZ+aRlOXJPG9dQ6PDczj1PSl5xXlgkUAtcHVfPc8aFOp
-9c70hUDX74st468a80SlmDQc49LYDH99umpzeJs1akq8l8b9Z9s6gOFNGV79lHXW
-GJwpG/KtmMe3hApod10gF0SlfArie6DC30xxPa2sQQgBUqrmfA3eoxvSSLuiLcIn
-X5KVtNUO9/tRYJWN7Jo33S6aqXriMbsvuJxXlttuONFYVUKGMz/uPd493Pt8Za3O
-02Lgm6YtKWgKC3zi9lQ6MA13lIqFQT6y3anU3zAATZoSYiHiGjQPeKRdYctfNrQ=
-=R4fS
+iQEcBAEBCAAGBQJWqqQQAAoJECTWi3JdVIfQ7wQIAIYk6ZkTOPNOCsbPz8ruY17f
+hTnw2UWK1JXkW8rcR0d//LER/ATrYfF6bv+CjwUf8DYUVx2UD/o6WQKH67cItf/p
+rDJEpFOXedtBBO2sLVm+nzbjJwSuya1aM4lAJ0hmv8Nq0s0DwYDd95pp2vai807j
+XEUg9M4+uX4aTzN15bDPyPDKfu36zs5NF+MZ3bTwIuwwpDihpfYPt/F1P54J2m31
+OuxyRi3992+hMj9I2F3JMB7nG1fXO3vX02xcX4cUwYXffaJgJ8aAwk5OX25WDnBM
+u2KIo09vfKyRKWD6GyuIbWiAVbtNqQSy9xK3J9gM6YqWb4eDK+kmuziJtH+QToA=
+=S+ho
 -----END PGP SIGNATURE-----
 
---yhCE4sTDB5mqd9YJ--
+--2oox5VnwalALFvA7--
