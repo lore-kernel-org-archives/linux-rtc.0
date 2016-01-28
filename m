@@ -1,28 +1,27 @@
-Return-Path: <rtc-linux+bncBD2OLRXW4ABBBVO3Z22AKGQEX6E7UNA@googlegroups.com>
-Received: from hqemgate15.nvidia.com (hqemgate15.nvidia.com. [216.228.121.64])
-        by gmr-mx.google.com with ESMTPS id r2si139750pfr.0.2016.01.11.05.27.49
+Return-Path: <rtc-linux+bncBD2OLRXW4ABBB35YVC2QKGQERGH2OGI@googlegroups.com>
+Received: from hqemgate16.nvidia.com (hqemgate16.nvidia.com. [216.228.121.65])
+        by gmr-mx.google.com with ESMTPS id ui7si1523363pab.0.2016.01.28.05.49.34
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 11 Jan 2016 05:27:49 -0800 (PST)
-Message-ID: <5693AB6E.4090700@nvidia.com>
-Date: Mon, 11 Jan 2016 18:47:34 +0530
+        Thu, 28 Jan 2016 05:49:34 -0800 (PST)
 From: Laxman Dewangan <ldewangan@nvidia.com>
+To: <robh+dt@kernel.org>, <pawel.moll@arm.com>, <mark.rutland@arm.com>,
+	<ijc+devicetree@hellion.org.uk>, <galak@codeaurora.org>,
+	<linus.walleij@linaro.org>, <gnurou@gmail.com>, <lee.jones@linaro.org>,
+	<broonie@kernel.org>, <a.zummo@towertech.it>,
+	<alexandre.belloni@free-electrons.com>
+CC: <lgirdwood@gmail.com>, <devicetree@vger.kernel.org>,
+	<linux-kernel@vger.kernel.org>, <linux-gpio@vger.kernel.org>,
+	<rtc-linux@googlegroups.com>, <swarren@nvidia.com>, <treding@nvidia.com>,
+	<k.kozlowski@samsung.com>, Laxman Dewangan <ldewangan@nvidia.com>
+Subject: [rtc-linux] [PATCH V6 5/8] DT: gpio: add DT binding doc for gpio of
+ PMIC max77620/max20024
+Date: Thu, 28 Jan 2016 19:07:51 +0530
+Message-ID: <1453988274-28052-6-git-send-email-ldewangan@nvidia.com>
+In-Reply-To: <1453988274-28052-1-git-send-email-ldewangan@nvidia.com>
+References: <1453988274-28052-1-git-send-email-ldewangan@nvidia.com>
 MIME-Version: 1.0
-To: Mark Brown <broonie@kernel.org>
-CC: Krzysztof Kozlowski <k.kozlowski@samsung.com>,
-	<rtc-linux@googlegroups.com>, <robh+dt@kernel.org>, <pawel.moll@arm.com>,
-	<mark.rutland@arm.com>, <ijc+devicetree@hellion.org.uk>,
-	<galak@codeaurora.org>, <linus.walleij@linaro.org>, <gnurou@gmail.com>,
-	<lee.jones@linaro.org>, <a.zummo@towertech.it>,
-	<alexandre.belloni@free-electrons.com>, <lgirdwood@gmail.com>,
-	<devicetree@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-	<linux-gpio@vger.kernel.org>, <swarren@nvidia.com>, <treding@nvidia.com>,
-	Chaitanya Bandi <bandik@nvidia.com>
-Subject: Re: [rtc-linux] [PATCH 5/6] rtc: max77620: add support for
- max77620/max20024 RTC driver
-References: <1452177524-23192-1-git-send-email-ldewangan@nvidia.com> <1452177524-23192-6-git-send-email-ldewangan@nvidia.com> <CAJKOXPd938soaa5M0GFo5HpVCYzAS1w8j8Hko3Ja9mx47NYkEQ@mail.gmail.com> <568F8D7E.10500@nvidia.com> <20160108125117.GM6588@sirena.org.uk> <568FB3DD.4090503@nvidia.com> <20160108133648.GQ6588@sirena.org.uk> <568FBB6D.2020904@nvidia.com>
-In-Reply-To: <568FBB6D.2020904@nvidia.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -33,67 +32,55 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
+Maxim Semiconductor's PMIC MAX77620/MAX20024 has 8 GPIO pins
+which act as GPIO as well as special function mode.
 
-On Friday 08 January 2016 07:06 PM, Laxman Dewangan wrote:
->
-> On Friday 08 January 2016 07:06 PM, Mark Brown wrote:
->> * PGP Signed by an unknown key
->>
->> On Fri, Jan 08, 2016 at 06:34:29PM +0530, Laxman Dewangan wrote:
->>
->>> If we get the parent device, regmap handle and interrupt number from 
->>> mfd
->>> core independent of the PMIC (MAX77620 or MAX77686), then same 
->>> driver can be
->>> used here.
->>> Two way which I can think of here:
->> Parent device is just dev->parent, you can use dev_get_regmap() to get a
->> regmap given a struct device and you can use platform resources to pass
->> the interrupts to the children from the MFD (there's some examples,
->> wm831x is one).
->>
->>
->
-> I think it should work with named regmap. mfd whould init regmap with 
-> name and rtc driver should ask with same name.
->
-> I saw three drivers which looks same:
-> rtc-max77620.c (new from me) and already available rtc-max77686.c, 
-> rtc-max77802.c
->
-> Seems I can develop IP based rtc driver as rtc-max77xxx.c
+Add DT binding document to support these pins in GPIO
+mode via GPIO framework.
 
-I came with one of issue when doing this.
+Signed-off-by: Laxman Dewangan <ldewangan@nvidia.com>
+Acked-by: Rob Herring <robh@kernel.org>
+---
+Changes from V4:
+- Separate out from gpio driver 
 
-The RTC driver parent is not the same parent for which i2c slave address 
-get registered.
-There is two slave address from max77620, 0x3C (for general) and 0x68 
-for RTC.
+ .../devicetree/bindings/gpio/gpio-max77620.txt     | 25 ++++++++++++++++++++++
+ 1 file changed, 25 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/gpio/gpio-max77620.txt
 
-In max77620 mfd driver, we make dummy i2c client for 0x68 and initialize 
-regmap with this address.
-
-Now on mfd_add_devices, we pass the device for 0x3c and hence the RTC 
-driver treat the parent as the 0x3c device but actually it should be 
-0x68 to get the proper regmap.
-
-
-Two approach:
-1. If we add the option to pass parent_dev when adding cells form 
-mfd_add_devices and select the parent device based on this option then 
-it can be easily handle.
-     Add parent_dev structure in struct mfd_cell and then change the 
-parent in mfd_add_device() if cells has parent device.
-
-2. Register the RTC driver with different mfd_add_devices with dummy i2c 
-client device.
-So two times mfd_add_devices.
-
-
-IMO, approach 1 looks good to me.
-
-Any opinion?
-
+diff --git a/Documentation/devicetree/bindings/gpio/gpio-max77620.txt b/Documentation/devicetree/bindings/gpio/gpio-max77620.txt
+new file mode 100644
+index 0000000..410e716
+--- /dev/null
++++ b/Documentation/devicetree/bindings/gpio/gpio-max77620.txt
+@@ -0,0 +1,25 @@
++GPIO driver for MAX77620 Power management IC from Maxim Semiconductor.
++
++Device has 8 GPIO pins which can be configured as GPIO as well as the
++special IO functions.
++
++Required properties:
++-------------------
++- gpio-controller : 	Marks the device node as a gpio controller.
++- #gpio-cells : 	Should be two.  The first cell is the pin number and
++			the second cell is used to specify the gpio polarity:
++				0 = active high
++				1 = active low
++For more details, please refer generic GPIO DT binding document
++<devicetree/bindings/gpio/gpio.txt>.
++
++Example:
++--------
++#include <dt-bindings/mfd/max77620.h>
++...
++max77620@3c {
++	compatible = "maxim,max77620";
++
++	gpio-controller;
++	#gpio-cells = <2>;
++};
+-- 
+2.1.4
 
 -- 
 -- 
