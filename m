@@ -1,25 +1,33 @@
-Return-Path: <rtc-linux+bncBAABBYHAQO2QKGQEHTHS3WI@googlegroups.com>
-Received: from lists.s-osg.org (lists.s-osg.org. [54.187.51.154])
-        by gmr-mx.google.com with ESMTP id jg4si170114pac.2.2016.01.21.06.51.11
-        for <rtc-linux@googlegroups.com>;
-        Thu, 21 Jan 2016 06:51:11 -0800 (PST)
-Subject: [rtc-linux] Re: [PATCH 0/8] rtc: max77686: Extend driver and add
- max77802 support
-To: Krzysztof Kozlowski <k.kozlowski@samsung.com>,
- Alexandre Belloni <alexandre.belloni@free-electrons.com>
-References: <1453310088-29985-1-git-send-email-javier@osg.samsung.com>
- <20160121003047.GF3367@piout.net> <56A02791.9010409@samsung.com>
-Cc: linux-kernel@vger.kernel.org, Kukjin Kim <kgene@kernel.org>,
- rtc-linux@googlegroups.com, Chanwoo Choi <cw00.choi@samsung.com>,
- Laxman Dewangan <ldewangan@nvidia.com>, linux-samsung-soc@vger.kernel.org,
- Arnd Bergmann <arnd@arndb.de>, Olof Johansson <olof@lixom.net>,
- linux-arm-kernel@lists.infradead.org
-From: Javier Martinez Canillas <javier@osg.samsung.com>
-Message-ID: <56A0F053.6070405@osg.samsung.com>
-Date: Thu, 21 Jan 2016 11:50:59 -0300
+Return-Path: <rtc-linux+bncBDE6RCFOWIARBAWQU62QKGQEDDIXQ5Y@googlegroups.com>
+Received: from mail-oi0-x22b.google.com (mail-oi0-x22b.google.com. [2607:f8b0:4003:c06::22b])
+        by gmr-mx.google.com with ESMTPS id w9si134968igl.0.2016.01.28.02.05.54
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 28 Jan 2016 02:05:54 -0800 (PST)
+Received: by mail-oi0-x22b.google.com with SMTP id p187so23465535oia.2
+        for <rtc-linux@googlegroups.com>; Thu, 28 Jan 2016 02:05:54 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <56A02791.9010409@samsung.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+In-Reply-To: <1453198783-28383-5-git-send-email-ldewangan@nvidia.com>
+References: <1453198783-28383-1-git-send-email-ldewangan@nvidia.com>
+	<1453198783-28383-5-git-send-email-ldewangan@nvidia.com>
+Date: Thu, 28 Jan 2016 11:05:53 +0100
+Message-ID: <CACRpkdYSLW6_t8zauYJNd=3OMF=yo5htJHfAocBPQZtyA-Oj1Q@mail.gmail.com>
+Subject: [rtc-linux] Re: [PATCH V4 4/5] gpio: max77620: add gpio driver for MAX77620/MAX20024
+From: Linus Walleij <linus.walleij@linaro.org>
+To: Laxman Dewangan <ldewangan@nvidia.com>
+Cc: Rob Herring <robh+dt@kernel.org>, =?UTF-8?Q?Pawe=C5=82_Moll?= <pawel.moll@arm.com>,
+	Mark Rutland <mark.rutland@arm.com>,
+	"ijc+devicetree@hellion.org.uk" <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>,
+	Alexandre Courbot <gnurou@gmail.com>, Lee Jones <lee.jones@linaro.org>, Mark Brown <broonie@kernel.org>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>, Liam Girdwood <lgirdwood@gmail.com>,
+	"devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+	"linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>,
+	"rtc-linux@googlegroups.com" <rtc-linux@googlegroups.com>, Stephen Warren <swarren@nvidia.com>,
+	Thierry Reding <treding@nvidia.com>, =?UTF-8?Q?Krzysztof_Koz=C5=82owski?= <k.kozlowski@samsung.com>,
+	vreddytalla@nvidia.com, Chaitanya Bandi <bandik@nvidia.com>
+Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -30,45 +38,24 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Hello,
+On Tue, Jan 19, 2016 at 11:19 AM, Laxman Dewangan <ldewangan@nvidia.com> wrote:
 
-On 01/20/2016 09:34 PM, Krzysztof Kozlowski wrote:
-> On 21.01.2016 09:30, Alexandre Belloni wrote:
->>> I believe all patches should go through the RTC tree with proper acks or
->>> wait until the RTC patches land to pick the defconfig changes.
->>>
->>
->> I think Olof would prefer the last patches to go through arm-soc.
+> MAXIM Semiconductor's PMIC, MAX77620/MAX20024 has 8 GPIO
+> pins. It also supports interrupts from these pins.
 >
-> That would be preferred but merging them before the 5/8 would cause a
-> loss of functionality on these defconfigs making it non-bisectable
-
-Exactly, that's why I suggested merging all through RTC with proper acks.
-
-> approach. I think it would be good to preserve bisectability in that
-> matter so either:
-> 1. a tag from RTC on top of which these patches would be applied in arm-soc,
-
-I didn't suggest that option because I thought it would be a lot of burden
-for such a trivial change.
-
-> 2. take them to RTC tree with our acks.
+> Add GPIO driver for these pins to control via GPIO APIs.
 >
+> Signed-off-by: Laxman Dewangan <ldewangan@nvidia.com>
+> Signed-off-by: Chaitanya Bandi <bandik@nvidia.com>
 
-Or another option is to not pick the defconfig changes and I can repost
-those again once the RTC changes land into mainline.
+That's a fine driver, no doubt about that.
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
 
-But of course if up to you to decide since I'm not a maintainer :)
-  
-> Best regards,
-> Krzysztof
->
+Same comment on merging through MFD etc as on the
+pinctrl patch.
 
-Best regards,
--- 
-Javier Martinez Canillas
-Open Source Group
-Samsung Research America
+Yours,
+Linus Walleij
 
 -- 
 -- 
