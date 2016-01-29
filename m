@@ -1,28 +1,24 @@
-Return-Path: <rtc-linux+bncBD2OLRXW4ABBBZUGZ22AKGQEZF523VI@googlegroups.com>
-Received: from hqemgate15.nvidia.com (hqemgate15.nvidia.com. [216.228.121.64])
-        by gmr-mx.google.com with ESMTPS id 190si620366pfb.1.2016.01.11.02.26.46
+Return-Path: <rtc-linux+bncBDQJZJXU2UMBB5WKVS2QKGQECXMGCLY@googlegroups.com>
+MIME-Version: 1.0
+Received: from mout.gmx.net (mout.gmx.net. [212.227.15.19])
+        by gmr-mx.google.com with ESMTPS id tn7si2078516pac.1.2016.01.29.00.40.21
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 11 Jan 2016 02:26:46 -0800 (PST)
-Message-ID: <569380FE.6020609@nvidia.com>
-Date: Mon, 11 Jan 2016 15:46:30 +0530
-From: Laxman Dewangan <ldewangan@nvidia.com>
-MIME-Version: 1.0
-To: Mark Brown <broonie@kernel.org>
-CC: <robh+dt@kernel.org>, <pawel.moll@arm.com>, <mark.rutland@arm.com>,
-	<ijc+devicetree@hellion.org.uk>, <galak@codeaurora.org>,
-	<linus.walleij@linaro.org>, <gnurou@gmail.com>, <lee.jones@linaro.org>,
-	<a.zummo@towertech.it>, <alexandre.belloni@free-electrons.com>,
-	<lgirdwood@gmail.com>, <devicetree@vger.kernel.org>,
-	<linux-kernel@vger.kernel.org>, <linux-gpio@vger.kernel.org>,
-	<rtc-linux@googlegroups.com>, <swarren@nvidia.com>, <treding@nvidia.com>,
-	Mallikarjun Kasoju <mkasoju@nvidia.com>
-Subject: [rtc-linux] Re: [PATCH 6/6] regulator: max77620: add regulator driver
- for max77620/max20024
-References: <1452177524-23192-1-git-send-email-ldewangan@nvidia.com> <1452177524-23192-7-git-send-email-ldewangan@nvidia.com> <20160110124014.GZ6588@sirena.org.uk>
-In-Reply-To: <20160110124014.GZ6588@sirena.org.uk>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+        Fri, 29 Jan 2016 00:40:22 -0800 (PST)
+From: Oleksij Rempel <linux@rempel-privat.de>
+To: devicetree@vger.kernel.org,
+	robh+dt@kernel.org,
+	a.zummo@towertech.it,
+	alexandre.belloni@free-electrons.com,
+	rtc-linux@googlegroups.com
+Cc: Oleksij Rempel <linux@rempel-privat.de>
+Subject: [rtc-linux] [PATCH 2/2] doc: dt: add documentation for alphascale,asm9260-rtc
+Date: Fri, 29 Jan 2016 09:40:02 +0100
+Message-Id: <1454056802-23386-3-git-send-email-linux@rempel-privat.de>
+In-Reply-To: <1454056802-23386-1-git-send-email-linux@rempel-privat.de>
+References: <1454056802-23386-1-git-send-email-linux@rempel-privat.de>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -32,35 +28,47 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Thanks Mark for review.
+Document Alphascale asm9260 RTC bindings
 
-I have query in one of comment.
+Signed-off-by: Oleksij Rempel <linux@rempel-privat.de>
+---
+ .../bindings/rtc/alphascale,asm9260-rtc.txt        | 25 ++++++++++++++++++++++
+ 1 file changed, 25 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/rtc/alphascale,asm9260-rtc.txt
 
-On Sunday 10 January 2016 06:10 PM, Mark Brown wrote:
-> * PGP Signed by an unknown key
->
-> On Thu, Jan 07, 2016 at 08:08:44PM +0530, Laxman Dewangan wrote:
->
->
-> +	np = of_get_child_by_name(pdev->dev.parent->of_node, "regulators");
-> +	if (!np) {
-> +		dev_err(&pdev->dev, "Device is not having regulators node\n");
-> +		return -ENODEV;
-> +	}
-> +	pdev->dev.of_node = np;
-> +
-> +	ret = of_regulator_match(&pdev->dev, np, max77620_regulator_matches,
-> +			ARRAY_SIZE(max77620_regulator_matches));
-> +	if (ret < 0) {
-> +		dev_err(&pdev->dev, "Parsing of regulator node failed: %d\n",
-> +			ret);
-> +		return ret;
-> +	}
-> Don't open code this, use the core support via regulators and of_match.
->
-
-I did not get this point? Here I am using the of_regulator_match from 
-core? Can you please help to explain this?
+diff --git a/Documentation/devicetree/bindings/rtc/alphascale,asm9260-rtc.txt b/Documentation/devicetree/bindings/rtc/alphascale,asm9260-rtc.txt
+new file mode 100644
+index 0000000..2c0ff3c
+--- /dev/null
++++ b/Documentation/devicetree/bindings/rtc/alphascale,asm9260-rtc.txt
+@@ -0,0 +1,25 @@
++* Alphascale asm9260 SoC Real Time Clock
++
++Required properties:
++- compatible: Should be "alphascale,asm9260-rtc"
++- reg: Physical base address of the controller and length
++       of memory mapped region.
++- interrupts: IRQ line for the RTC.
++- clocks: Reference to the clock entry.
++- clock-names: should contain:
++  * "ahb" for the SoC RTC clock
++
++Optional:
++- calibration: calibration value for 1 sec period.
++		Max value for forward calibration is 0x1ffff (131071),
++		Min value for backward calibration is 0xfffe0001 (-131071).
++
++Example:
++rtc0: rtc@800a0000 {
++	compatible = "alphascale,asm9260-rtc";
++	reg = <0x800a0000 0x100>;
++	clocks = <&acc CLKID_AHB_RTC>;
++	clock-names = "ahb";
++	interrupts = <2>;
++	calibration = <0x129c>;
++};
+-- 
+2.5.0
 
 -- 
 -- 
