@@ -1,28 +1,27 @@
-Return-Path: <rtc-linux+bncBAABBIFMXG2AKGQELE6XEMA@googlegroups.com>
+Return-Path: <rtc-linux+bncBDJIP47K7MERBMNHV22QKGQEZLEYQPY@googlegroups.com>
+Received: from mail.kernel.org (mail.kernel.org. [198.145.29.136])
+        by gmr-mx.google.com with ESMTP id tn7si2279824pac.1.2016.01.29.08.30.40
+        for <rtc-linux@googlegroups.com>;
+        Fri, 29 Jan 2016 08:30:40 -0800 (PST)
+Date: Fri, 29 Jan 2016 10:30:35 -0600
+From: Rob Herring <robh@kernel.org>
+To: Laxman Dewangan <ldewangan@nvidia.com>
+Cc: pawel.moll@arm.com, mark.rutland@arm.com, ijc+devicetree@hellion.org.uk,
+	galak@codeaurora.org, linus.walleij@linaro.org, gnurou@gmail.com,
+	lee.jones@linaro.org, broonie@kernel.org, a.zummo@towertech.it,
+	alexandre.belloni@free-electrons.com, lgirdwood@gmail.com,
+	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+	linux-gpio@vger.kernel.org, rtc-linux@googlegroups.com,
+	swarren@nvidia.com, treding@nvidia.com, k.kozlowski@samsung.com,
+	Chaitanya Bandi <bandik@nvidia.com>
+Subject: [rtc-linux] Re: [PATCH V5 4/5] gpio: max77620: add gpio driver for MAX77620/MAX20024
+Message-ID: <20160129163035.GA15053@rob-hp-laptop>
+References: <1453903808-29788-1-git-send-email-ldewangan@nvidia.com>
+ <1453903808-29788-5-git-send-email-ldewangan@nvidia.com>
 MIME-Version: 1.0
-Received: from mailout1.w1.samsung.com (mailout1.w1.samsung.com. [210.118.77.11])
-        by gmr-mx.google.com with ESMTPS id ui7si5690980pab.0.2016.01.07.04.12.15
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1 cipher=AES128-SHA bits=128/128);
-        Thu, 07 Jan 2016 04:12:16 -0800 (PST)
-Received: from eucpsbgm1.samsung.com (unknown [203.254.199.244])
- by mailout1.w1.samsung.com
- (Oracle Communications Messaging Server 7.0.5.31.0 64bit (built May  5 2014))
- with ESMTP id <0O0L00KUU0KBG570@mailout1.w1.samsung.com> for
- rtc-linux@googlegroups.com; Thu, 07 Jan 2016 12:12:11 +0000 (GMT)
-From: Andrzej Hajda <a.hajda@samsung.com>
-To: Alessandro Zummo <a.zummo@towertech.it>,
- Alexandre Belloni <alexandre.belloni@free-electrons.com>,
- rtc-linux@googlegroups.com (open list:REAL TIME CLOCK (RTC) SUBSYSTEM)
-Cc: Andrzej Hajda <a.hajda@samsung.com>,
- Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
- Marek Szyprowski <m.szyprowski@samsung.com>,
- linux-kernel@vger.kernel.org (open list)
-Subject: [rtc-linux] [PATCH] rtc: fix rtc_time64_to_tm calculation
-Date: Thu, 07 Jan 2016 13:11:50 +0100
-Message-id: <1452168710-16317-1-git-send-email-a.hajda@samsung.com>
-Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1453903808-29788-5-git-send-email-ldewangan@nvidia.com>
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -32,57 +31,63 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Type of local variable days has been changed recently to unsigned,
-but it can take negative values. As a result it works incorrectly for some
-arguments. The patch fixes it.
+On Wed, Jan 27, 2016 at 07:40:07PM +0530, Laxman Dewangan wrote:
+> MAXIM Semiconductor's PMIC, MAX77620/MAX20024 has 8 GPIO
+> pins. It also supports interrupts from these pins.
+> 
+> Add GPIO driver for these pins to control via GPIO APIs.
+> 
+> Signed-off-by: Laxman Dewangan <ldewangan@nvidia.com>
+> Signed-off-by: Chaitanya Bandi <bandik@nvidia.com>
+> ---
+> Changes from V1:
+> - Use the gpiochip_add_data and get the chip data from core APIs.
+> - Cleanups based on comment received on mfd/rtc.
+> - Avoid duplication on error message.
+> 
+> Changes form V2:
+> - Run coccicheck and checkpatch in strict mode for the alignment.
+> - update based on api changes from core.
+> 
+> Changes from V3: 
+> - Change all sys initcall to module driver.
+> - change the max77620_read argument to unisgned int from u8.
+> 
+> Changes from V4: 
+> - Added DT binding document as devicetree/bindings/gpio/gpio-max77620.txt
+> 
+>  .../devicetree/bindings/gpio/gpio-max77620.txt     |  25 ++
+>  drivers/gpio/Kconfig                               |   9 +
+>  drivers/gpio/Makefile                              |   1 +
+>  drivers/gpio/gpio-max77620.c                       | 292 +++++++++++++++++++++
+>  4 files changed, 327 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/gpio/gpio-max77620.txt
+>  create mode 100644 drivers/gpio/gpio-max77620.c
+> 
+> diff --git a/Documentation/devicetree/bindings/gpio/gpio-max77620.txt b/Documentation/devicetree/bindings/gpio/gpio-max77620.txt
+> new file mode 100644
+> index 0000000..410e716
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/gpio/gpio-max77620.txt
+> @@ -0,0 +1,25 @@
+> +GPIO driver for MAX77620 Power management IC from Maxim Semiconductor.
+> +
+> +Device has 8 GPIO pins which can be configured as GPIO as well as the
+> +special IO functions.
+> +
+> +Required properties:
+> +-------------------
+> +- gpio-controller : 	Marks the device node as a gpio controller.
+> +- #gpio-cells : 	Should be two.  The first cell is the pin number and
+> +			the second cell is used to specify the gpio polarity:
+> +				0 = active high
+> +				1 = active low
+> +For more details, please refer generic GPIO DT binding document
+> +<devicetree/bindings/gpio/gpio.txt>.
 
-The problem has been detected using proposed semantic patch
-scripts/coccinelle/tests/unsigned_lesser_than_zero.cocci [1].
+I would just fold these 2 properties into the main max77620 document.
 
-[1]: http://permalink.gmane.org/gmane.linux.kernel/2120705
-
-Fixes: cab572b82c4b ('rtc: fix overflow and incorrect calculation in rtc_time64_to_tm')
-Signed-off-by: Andrzej Hajda <a.hajda@samsung.com>
----
- drivers/rtc/rtc-lib.c | 13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
-
-diff --git a/drivers/rtc/rtc-lib.c b/drivers/rtc/rtc-lib.c
-index cf2b23c..6323d13 100644
---- a/drivers/rtc/rtc-lib.c
-+++ b/drivers/rtc/rtc-lib.c
-@@ -54,7 +54,7 @@ void rtc_time64_to_tm(time64_t time, struct rtc_time *tm)
- {
- 	unsigned int month, year;
- 	int secs;
--	unsigned long days;
-+	unsigned long days, leaps;
- 
- 	/*
- 	 * time must be positive
-@@ -66,13 +66,16 @@ void rtc_time64_to_tm(time64_t time, struct rtc_time *tm)
- 	tm->tm_wday = (days + 4) % 7;
- 
- 	year = 1970 + days / 365;
--	days -= (year - 1970) * 365
--		+ LEAPS_THRU_END_OF(year - 1)
--		- LEAPS_THRU_END_OF(1970 - 1);
--	if (days < 0) {
-+	days -= (year - 1970) * 365;
-+	leaps = LEAPS_THRU_END_OF(year - 1) - LEAPS_THRU_END_OF(1970 - 1);
-+
-+	while (days < leaps) {
- 		year -= 1;
- 		days += 365 + is_leap_year(year);
- 	}
-+
-+	days -= leaps;
-+
- 	tm->tm_year = year - 1900;
- 	tm->tm_yday = days + 1;
- 
--- 
-1.9.1
+Rob
 
 -- 
 -- 
