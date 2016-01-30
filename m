@@ -1,19 +1,23 @@
-Return-Path: <rtc-linux+bncBCNNJWF7RUMRBLEST22QKGQEEMOVBYQ@googlegroups.com>
-Received: from mail-yk0-x244.google.com (mail-yk0-x244.google.com. [2607:f8b0:4002:c07::244])
-        by gmr-mx.google.com with ESMTPS id o63si136658ywd.1.2016.01.26.06.56.44
+Return-Path: <rtc-linux+bncBD2OLRXW4ABBBQWTWO2QKGQE56PTFBI@googlegroups.com>
+Received: from hqemgate15.nvidia.com (hqemgate15.nvidia.com. [216.228.121.64])
+        by gmr-mx.google.com with ESMTPS id 190si2386764pfb.1.2016.01.30.08.50.10
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 26 Jan 2016 06:56:44 -0800 (PST)
-Received: by mail-yk0-x244.google.com with SMTP id v14so14837294ykd.1
-        for <rtc-linux@googlegroups.com>; Tue, 26 Jan 2016 06:56:44 -0800 (PST)
-From: Joshua Clayton <stillcompiling@gmail.com>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH v2 0/8] rtc: enable adjustment of clock offset
-Date: Tue, 26 Jan 2016 06:56:40 -0800
-Message-ID: <3106681.dzRcYkv4oj@diplodocus>
-In-Reply-To: <cover.1451928661.git.stillcompiling@gmail.com>
-References: <cover.1451928661.git.stillcompiling@gmail.com>
+        Sat, 30 Jan 2016 08:50:10 -0800 (PST)
+From: Laxman Dewangan <ldewangan@nvidia.com>
+To: <robh+dt@kernel.org>, <pawel.moll@arm.com>, <mark.rutland@arm.com>,
+	<ijc+devicetree@hellion.org.uk>, <galak@codeaurora.org>,
+	<linus.walleij@linaro.org>, <gnurou@gmail.com>, <lee.jones@linaro.org>,
+	<broonie@kernel.org>, <a.zummo@towertech.it>,
+	<alexandre.belloni@free-electrons.com>
+CC: <lgirdwood@gmail.com>, <devicetree@vger.kernel.org>,
+	<linux-kernel@vger.kernel.org>, <linux-gpio@vger.kernel.org>,
+	<rtc-linux@googlegroups.com>, <swarren@nvidia.com>, <treding@nvidia.com>,
+	<k.kozlowski@samsung.com>, <vreddytalla@nvidia.com>, Laxman Dewangan
+	<ldewangan@nvidia.com>
+Subject: [rtc-linux] [PATCH V7 0/8] Add support for MAXIM MAX77620/MAX20024 PMIC
+Date: Sat, 30 Jan 2016 22:08:43 +0530
+Message-ID: <1454171931-27752-1-git-send-email-ldewangan@nvidia.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
@@ -26,82 +30,118 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Ping?
+Add SW support for MAXIM Semiconductor's Power Management
+IC (PMIC) MAX77620/MAX20024. This PMIC supports DC-DC/LDOS, GPIOs,
+RTC, watchdog, clocks etc.
 
-On Monday, January 04, 2016 10:31:18 AM Joshua Clayton wrote:
-> Alexandre,
-> this is the second version of apatch set to be able to adjust the
-> clock on a pcf2123, but with a big addition. I am also proposing
-> a couple of new rtc api functions and a new sysfs file.
-> 
-> Patches 1-5 are very much v2 patches that address All of the
-> concerns you had with v1. It is my hope to get them merged without
-> too much more trouble.
-> 
-The rtc _needs_ patches 1-5 in order to use the clock offset
-adjustment at all (current upstream code resets it to zero during
-device probe, so it doesn't survive a reboot)
-Should I split out patches 1-5 to make them easier to review?
+This series add respective driver for each of sub-modules.
 
-> Patches 6-8 are attemping to add a new function to the rtc class
-> to adjust the clock rate. I hope I am going about this the right way,
-> But here goes.
-> 
-I am hoping to have some discussion about 6, 7 and 8.
-Particularly whether parts per billion is the right unit (I think it is)
-and whether "offset" is the best name for the attribute (not as sure).
+Changes from V1: 
+DT DOC:
+- Added units in some of properties.
+- Change the boolean property to tristate type and detail some of
+  properties.
 
-> A number of rtc devices, such as the NXP pcf2123 include a facility
-> to adjust the clock in order to compensate for temperature or a
-> crystal, capacitor, etc, that results in the rtc clock not running
-> at exactly 32.768 kHz.
-> 
-> This patchset adds kernel and sysfs hooks to access that ability.
-> 
-> One datasheet suggests it might be adjusted based on input from 
-> a temperature sensor. I could also potentially see it being set
-> as part of ntp calibration.
-> 
-> Data sheets I have seen refer to this as a clock offset, and measure it
-> in parts per million (ppm), however they often reference ppm to 2 digits
-> of precision, which makes integer ppm less than ideal. I use parts per
-> billion, which more than covers the precision needed and works nicely
-> within 32 bits
-> 
-> The name "offset" came from the pcf-2123 datasheet and is used by at
-> least some other data sheets. I would be happy to use a different term
-> if someone else comes up with something more concise.
->     
-> Changes since v1:
-> - Use the BIT() macro for all register bits
-> - Remove unneeded range checks from read/write functions
-> - Merge patch 3 (replace magic numbers with defines) into patch 2
-> - Add a proper commit message to patch 5, now patch 4
-> - Fix a function alignment bug.
-> - Move OSC_HAS_STOPPED check into pcf2123_rtc_read_time, and get rid of
->   pcf2123_time_valid()
-> - Drop patches refactoring pcf2123 sysfs.
-> - Add rtc interface and rtc sysfs file for clock offset
-> 
-> Joshua Clayton (8):
->   rtc-pcf2123: define registers and bit macros
->   rtc-pcf2123: clean up reads from the chip
->   rtc-pcf2123: clean up writes to the rtc chip
->   rtc-pcf2123: refactor chip reset into a function
->   rtc-pcf2123: avoid resetting the clock if possible
->   rtc: Add functions to set and read clock offset
->   rtc: implement a sysfs interface for clock offset
->   rtc-pcf2123: implement read_offset and set_offset
-> 
->  drivers/rtc/interface.c   |  57 ++++++++++
->  drivers/rtc/rtc-pcf2123.c | 271 +++++++++++++++++++++++++++++++++-------------
->  drivers/rtc/rtc-sysfs.c   |  29 +++++
->  include/linux/rtc.h       |   4 +
->  4 files changed, 284 insertions(+), 77 deletions(-)
-> 
-> 
-Thanks again,
-Joshua Clayton
+RTC:
+- Rename the file to rtc-max77xxx.c and make the generic implementation.
+- Direct regmap apis are used for the register access.
+- Decouped from max77620 driver.
+- Taken care of cleanup comments form V1 version.
+
+MFD:
+- Code cleanups per review from V1. 
+- Move register access APIs from header to c file.
+- Remove some of non required variable, remove duplication in error message
+ and simplify some of function implementation.
+
+GPIO:
+- Use the gpiochip_add_data and get the chip data from core APIs.
+- Cleanups based on comment received on mfd/rtc.
+- Avoid duplication on error message.
+
+Pinctrl:
+- Cleanup code based on comment received on mfd/rtc.
+- Avoid duplication on error message.
+
+Regulators:
+- Cleanup code based on comment received on mfd/rtc.
+- Avoid duplication on error message.
+- Taken care of review comment from Mark.
+
+Changes from V2: 
+- Run coccicheck and checkpatch in strict mode for the alignment.
+- Drop RTC driver and its i2c client registartion.
+- Refactor Regulator  driver to use core API for DT parsing.
+
+Changes from V3: 
+- Change all sys initcall to module driver.
+- change the max77620_read argument to unisgned int from u8.
+
+
+Changes from V4:
+- Provide more details in the dt binding doc.
+- Take care of fps nodes.
+- Split the submodule's DT binding doc on respective folder.
+- Drop the battery charger and low battery binding and related code as
+  it need to go on power driver.
+
+Changes from V5:
+- None
+
+Changes from V6:
+- Taken care of Lee's comment like used defines for irqs, remove max77620
+  register accesss abstractions, remove DTof module and use ID table only,
+  reduce the copyright lines.
+- Drop configuration for hard power off time chnage as it will be in
+  power driver.
+- Taken care of Mark's comment about the active discharge. Currently
+  drop this configuration and follow up patches to move this to core
+  and add callback apis are planned.
+- Use direct regmap from all drivers instead of using abstractions.
+- move regulator supply to device node instead of regulators sub node.
+
+Laxman Dewangan (8):
+  mfd: add device-tree binding doc for PMIC max77620/max20024
+  mfd: max77620: add core driver for MAX77620/MAX20024
+  pinctrl: add DT binding doc for pincontrol of PMIC max77620/max20024
+  pinctrl: max77620: add pincontrol driver for MAX77620/MAX20024
+  gpio: add DT binding doc for gpio of PMIC max77620/max20024
+  gpio: max77620: add gpio driver for MAX77620/MAX20024
+  regulator: add DT binding doc for regulator of PMIC max77620/max20024
+  regulator: max77620: add regulator driver for max77620/max20024
+
+ .../devicetree/bindings/gpio/gpio-max77620.txt     |  25 +
+ Documentation/devicetree/bindings/mfd/max77620.txt | 118 +++
+ .../bindings/pinctrl/pinctrl-max77620.txt          |  87 +++
+ .../bindings/regulator/regulator-max77620.txt      | 163 ++++
+ drivers/gpio/Kconfig                               |   9 +
+ drivers/gpio/Makefile                              |   1 +
+ drivers/gpio/gpio-max77620.c                       | 263 +++++++
+ drivers/mfd/Kconfig                                |  15 +
+ drivers/mfd/Makefile                               |   1 +
+ drivers/mfd/max77620.c                             | 540 ++++++++++++++
+ drivers/pinctrl/Kconfig                            |  10 +
+ drivers/pinctrl/Makefile                           |   1 +
+ drivers/pinctrl/pinctrl-max77620.c                 | 687 +++++++++++++++++
+ drivers/regulator/Kconfig                          |   9 +
+ drivers/regulator/Makefile                         |   1 +
+ drivers/regulator/max77620-regulator.c             | 825 +++++++++++++++++++++
+ include/dt-bindings/mfd/max77620.h                 |  35 +
+ include/linux/mfd/max77620.h                       | 338 +++++++++
+ 18 files changed, 3128 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/gpio/gpio-max77620.txt
+ create mode 100644 Documentation/devicetree/bindings/mfd/max77620.txt
+ create mode 100644 Documentation/devicetree/bindings/pinctrl/pinctrl-max77620.txt
+ create mode 100644 Documentation/devicetree/bindings/regulator/regulator-max77620.txt
+ create mode 100644 drivers/gpio/gpio-max77620.c
+ create mode 100644 drivers/mfd/max77620.c
+ create mode 100644 drivers/pinctrl/pinctrl-max77620.c
+ create mode 100644 drivers/regulator/max77620-regulator.c
+ create mode 100644 include/dt-bindings/mfd/max77620.h
+ create mode 100644 include/linux/mfd/max77620.h
+
+-- 
+2.1.4
 
 -- 
 -- 
