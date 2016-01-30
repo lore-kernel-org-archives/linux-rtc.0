@@ -1,30 +1,27 @@
-Return-Path: <rtc-linux+bncBDKZNNNLXAHBBCMMVS2AKGQELNCRWEI@googlegroups.com>
-Received: from mailout4.w1.samsung.com (mailout4.w1.samsung.com. [210.118.77.14])
-        by gmr-mx.google.com with ESMTPS id q192si6633290pfq.2.2016.01.04.15.53.44
+Return-Path: <rtc-linux+bncBD2OLRXW4ABBBYWTWO2QKGQEC3PH37A@googlegroups.com>
+Received: from hqemgate15.nvidia.com (hqemgate15.nvidia.com. [216.228.121.64])
+        by gmr-mx.google.com with ESMTPS id ui7si2731524pab.0.2016.01.30.08.50.42
         for <rtc-linux@googlegroups.com>
-        (version=TLS1 cipher=AES128-SHA bits=128/128);
-        Mon, 04 Jan 2016 15:53:45 -0800 (PST)
-Received: from eucpsbgm1.samsung.com (unknown [203.254.199.244])
- by mailout4.w1.samsung.com
- (Oracle Communications Messaging Server 7.0.5.31.0 64bit (built May  5 2014))
- with ESMTP id <0O0G00JEXD1G6G00@mailout4.w1.samsung.com> for
- rtc-linux@googlegroups.com; Mon, 04 Jan 2016 23:53:40 +0000 (GMT)
-Subject: [rtc-linux] Re: [PATCH v2 1/3] rtc: s5m: Cleanup by removing useless
- 'rtc' prefix from fields
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-References: <1451450847-928-1-git-send-email-k.kozlowski@samsung.com>
- <20160104170841.GD32724@piout.net>
-Cc: Sangbeom Kim <sbkim73@samsung.com>,
- Alessandro Zummo <a.zummo@towertech.it>, Lee Jones <lee.jones@linaro.org>,
- linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org,
- rtc-linux@googlegroups.com, Alim Akhtar <alim.akhtar@samsung.com>,
- Yadwinder Singh Brar <yadi.brar01@gmail.com>
-From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-Message-id: <568B0601.5020808@samsung.com>
-Date: Tue, 05 Jan 2016 08:53:37 +0900
-MIME-version: 1.0
-In-reply-to: <20160104170841.GD32724@piout.net>
-Content-type: text/plain; charset=UTF-8
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Sat, 30 Jan 2016 08:50:42 -0800 (PST)
+From: Laxman Dewangan <ldewangan@nvidia.com>
+To: <robh+dt@kernel.org>, <pawel.moll@arm.com>, <mark.rutland@arm.com>,
+	<ijc+devicetree@hellion.org.uk>, <galak@codeaurora.org>,
+	<linus.walleij@linaro.org>, <gnurou@gmail.com>, <lee.jones@linaro.org>,
+	<broonie@kernel.org>, <a.zummo@towertech.it>,
+	<alexandre.belloni@free-electrons.com>
+CC: <lgirdwood@gmail.com>, <devicetree@vger.kernel.org>,
+	<linux-kernel@vger.kernel.org>, <linux-gpio@vger.kernel.org>,
+	<rtc-linux@googlegroups.com>, <swarren@nvidia.com>, <treding@nvidia.com>,
+	<k.kozlowski@samsung.com>, <vreddytalla@nvidia.com>, Laxman Dewangan
+	<ldewangan@nvidia.com>
+Subject: [rtc-linux] [PATCH V7 5/8] gpio: add DT binding doc for gpio of PMIC max77620/max20024
+Date: Sat, 30 Jan 2016 22:08:48 +0530
+Message-ID: <1454171931-27752-6-git-send-email-ldewangan@nvidia.com>
+In-Reply-To: <1454171931-27752-1-git-send-email-ldewangan@nvidia.com>
+References: <1454171931-27752-1-git-send-email-ldewangan@nvidia.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -35,26 +32,52 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 05.01.2016 02:08, Alexandre Belloni wrote:
-> Hi,
-> 
-> On 30/12/2015 at 13:47:25 +0900, Krzysztof Kozlowski wrote :
->> Remove the 'rtc' prefix from some of the fields in struct
->> s5m_rtc_reg_config because it is obvious - this is a RTC driver. No
->> functional changes.
->>
->> Signed-off-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
->>
-> 
-> I was going to apply those patches but they don't apply cleanly on
-> rtc-next. Did I miss something?
-> 
+Maxim Semiconductor's PMIC MAX77620/MAX20024 has 8 GPIO pins
+which act as GPIO as well as special function mode.
 
-Probably that's my fault because I rebased it on linux-next. I will
-rebase the patches on rtc-next and resend.
+Add DT binding document to support these pins in GPIO
+mode via GPIO framework.
 
-Best regards,
-Krzysztof
+Signed-off-by: Laxman Dewangan <ldewangan@nvidia.com>
+Acked-by: Rob Herring <robh@kernel.org>
+---
+ .../devicetree/bindings/gpio/gpio-max77620.txt     | 25 ++++++++++++++++++++++
+ 1 file changed, 25 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/gpio/gpio-max77620.txt
+
+diff --git a/Documentation/devicetree/bindings/gpio/gpio-max77620.txt b/Documentation/devicetree/bindings/gpio/gpio-max77620.txt
+new file mode 100644
+index 0000000..410e716
+--- /dev/null
++++ b/Documentation/devicetree/bindings/gpio/gpio-max77620.txt
+@@ -0,0 +1,25 @@
++GPIO driver for MAX77620 Power management IC from Maxim Semiconductor.
++
++Device has 8 GPIO pins which can be configured as GPIO as well as the
++special IO functions.
++
++Required properties:
++-------------------
++- gpio-controller : 	Marks the device node as a gpio controller.
++- #gpio-cells : 	Should be two.  The first cell is the pin number and
++			the second cell is used to specify the gpio polarity:
++				0 = active high
++				1 = active low
++For more details, please refer generic GPIO DT binding document
++<devicetree/bindings/gpio/gpio.txt>.
++
++Example:
++--------
++#include <dt-bindings/mfd/max77620.h>
++...
++max77620@3c {
++	compatible = "maxim,max77620";
++
++	gpio-controller;
++	#gpio-cells = <2>;
++};
+-- 
+2.1.4
 
 -- 
 -- 
