@@ -1,9 +1,9 @@
-Return-Path: <rtc-linux+bncBD2OLRXW4ABBBUNYVC2QKGQER7BOLLY@googlegroups.com>
-Received: from hqemgate14.nvidia.com (hqemgate14.nvidia.com. [216.228.121.143])
-        by gmr-mx.google.com with ESMTPS id tn7si1489467pac.1.2016.01.28.05.49.05
+Return-Path: <rtc-linux+bncBD2OLRXW4ABBB36TWO2QKGQEZRBAASI@googlegroups.com>
+Received: from hqemgate16.nvidia.com (hqemgate16.nvidia.com. [216.228.121.65])
+        by gmr-mx.google.com with ESMTPS id 190si2386969pfb.1.2016.01.30.08.50.54
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 28 Jan 2016 05:49:05 -0800 (PST)
+        Sat, 30 Jan 2016 08:50:54 -0800 (PST)
 From: Laxman Dewangan <ldewangan@nvidia.com>
 To: <robh+dt@kernel.org>, <pawel.moll@arm.com>, <mark.rutland@arm.com>,
 	<ijc+devicetree@hellion.org.uk>, <galak@codeaurora.org>,
@@ -13,10 +13,14 @@ To: <robh+dt@kernel.org>, <pawel.moll@arm.com>, <mark.rutland@arm.com>,
 CC: <lgirdwood@gmail.com>, <devicetree@vger.kernel.org>,
 	<linux-kernel@vger.kernel.org>, <linux-gpio@vger.kernel.org>,
 	<rtc-linux@googlegroups.com>, <swarren@nvidia.com>, <treding@nvidia.com>,
-	<k.kozlowski@samsung.com>, Laxman Dewangan <ldewangan@nvidia.com>
-Subject: [rtc-linux] [PATCH V6 0/8] Add support for MAXIM MAX77620/MAX20024 PMIC
-Date: Thu, 28 Jan 2016 19:07:46 +0530
-Message-ID: <1453988274-28052-1-git-send-email-ldewangan@nvidia.com>
+	<k.kozlowski@samsung.com>, <vreddytalla@nvidia.com>, Laxman Dewangan
+	<ldewangan@nvidia.com>
+Subject: [rtc-linux] [PATCH V7 7/8] regulator: add DT binding doc for
+ regulator of PMIC max77620/max20024
+Date: Sat, 30 Jan 2016 22:08:50 +0530
+Message-ID: <1454171931-27752-8-git-send-email-ldewangan@nvidia.com>
+In-Reply-To: <1454171931-27752-1-git-send-email-ldewangan@nvidia.com>
+References: <1454171931-27752-1-git-send-email-ldewangan@nvidia.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
@@ -29,105 +33,195 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Add SW support for MAXIM Semiconductor's Power Management
-IC (PMIC) MAX77620/MAX20024. This PMIC supports DC-DC/LDOS, GPIOs,
-RTC, watchdog, clocks etc.
+Maxim Semiconductor's PMIC MAX77620/MAX20024 has multiple
+DCDCs and LDOs.
 
-This series add respective driver for each of sub-modules.
+Add DT binding document to support these regulators via
+regulator framework.
 
-Changes from V1: 
-DT DOC:
-- Added units in some of properties.
-- Change the boolean property to tristate type and detail some of
-  properties.
-
-RTC:
-- Rename the file to rtc-max77xxx.c and make the generic implementation.
-- Direct regmap apis are used for the register access.
-- Decouped from max77620 driver.
-- Taken care of cleanup comments form V1 version.
-
-MFD:
-- Code cleanups per review from V1. 
-- Move register access APIs from header to c file.
-- Remove some of non required variable, remove duplication in error message
- and simplify some of function implementation.
-
-GPIO:
-- Use the gpiochip_add_data and get the chip data from core APIs.
-- Cleanups based on comment received on mfd/rtc.
-- Avoid duplication on error message.
-
-Pinctrl:
-- Cleanup code based on comment received on mfd/rtc.
-- Avoid duplication on error message.
-
-Regulators:
-- Cleanup code based on comment received on mfd/rtc.
-- Avoid duplication on error message.
-- Taken care of review comment from Mark.
-
-Changes from V2: 
-- Run coccicheck and checkpatch in strict mode for the alignment.
-- Drop RTC driver and its i2c client registartion.
-- Refactor Regulator  driver to use core API for DT parsing.
-
-Changes from V3: 
-- Change all sys initcall to module driver.
-- change the max77620_read argument to unisgned int from u8.
-
-
+Signed-off-by: Laxman Dewangan <ldewangan@nvidia.com>
+Acked-by: Rob Herring <robh@kernel.org>
+---
 Changes from V4:
-- Provide more details in the dt binding doc.
-- Take care of fps nodes.
-- Split the submodule's DT binding doc on respective folder.
-- Drop the battery charger and low battery binding and related code as
-  it need to go on power driver.
-Changes from V5:
-- None
+- Separate out from regulator driver 
 
-Laxman Dewangan (8):
-  DT: mfd: add device-tree binding doc for PMIC max77620/max20024
-  mfd: max77620: add core driver for MAX77620/MAX20024
-  DT: pinctrl: add DT binding doc for pincontrol of PMIC
-    max77620/max20024
-  pinctrl: max77620: add pincontrol driver for MAX77620/MAX20024
-  DT: gpio: add DT binding doc for gpio of PMIC max77620/max20024
-  gpio: max77620: add gpio driver for MAX77620/MAX20024
-  DT: regulator: add DT binding doc for regulator of PMIC
-    max77620/max20024
-  regulator: max77620: add regulator driver for max77620/max20024
+Changes from V6:
+- Starting patch tile with regulator instead of DT:regulator
+- Move all ldo supply to device node level from regulator sub node.
 
- .../devicetree/bindings/gpio/gpio-max77620.txt     |  25 +
- Documentation/devicetree/bindings/mfd/max77620.txt | 118 +++
- .../bindings/pinctrl/pinctrl-max77620.txt          |  87 +++
- .../bindings/regulator/regulator-max77620.txt      | 163 ++++
- drivers/gpio/Kconfig                               |   9 +
- drivers/gpio/Makefile                              |   1 +
- drivers/gpio/gpio-max77620.c                       | 292 +++++++
- drivers/mfd/Kconfig                                |  15 +
- drivers/mfd/Makefile                               |   1 +
- drivers/mfd/max77620.c                             | 727 ++++++++++++++++++
- drivers/pinctrl/Kconfig                            |  10 +
- drivers/pinctrl/Makefile                           |   1 +
- drivers/pinctrl/pinctrl-max77620.c                 | 693 +++++++++++++++++
- drivers/regulator/Kconfig                          |   9 +
- drivers/regulator/Makefile                         |   1 +
- drivers/regulator/max77620-regulator.c             | 844 +++++++++++++++++++++
- include/dt-bindings/mfd/max77620.h                 |  35 +
- include/linux/mfd/max77620.h                       | 406 ++++++++++
- 18 files changed, 3437 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/gpio/gpio-max77620.txt
- create mode 100644 Documentation/devicetree/bindings/mfd/max77620.txt
- create mode 100644 Documentation/devicetree/bindings/pinctrl/pinctrl-max77620.txt
+ .../bindings/regulator/regulator-max77620.txt      | 163 +++++++++++++++++++++
+ 1 file changed, 163 insertions(+)
  create mode 100644 Documentation/devicetree/bindings/regulator/regulator-max77620.txt
- create mode 100644 drivers/gpio/gpio-max77620.c
- create mode 100644 drivers/mfd/max77620.c
- create mode 100644 drivers/pinctrl/pinctrl-max77620.c
- create mode 100644 drivers/regulator/max77620-regulator.c
- create mode 100644 include/dt-bindings/mfd/max77620.h
- create mode 100644 include/linux/mfd/max77620.h
 
+diff --git a/Documentation/devicetree/bindings/regulator/regulator-max77620.txt b/Documentation/devicetree/bindings/regulator/regulator-max77620.txt
+new file mode 100644
+index 0000000..caa8255
+--- /dev/null
++++ b/Documentation/devicetree/bindings/regulator/regulator-max77620.txt
+@@ -0,0 +1,163 @@
++Regulator DT binding for MAX77620 Power management IC from Maxim Semiconductor.
++
++Device has multiple DCDC(sd[0-3] and LDOs(ldo[0-8]). The input supply
++of these regulators are defined under parent device node and details
++of regulator properties are defined under the sub node "regulators"
++of parent node.
++
++Please refer file <Documentation/devicetree/bindings/regulator/regulator.txt>
++for common regulator bindings used by client.
++
++Following are properties of parent node related to regulators.
++
++Optional properties:
++-------------------
++The input supply of regulators are the optional properties on the
++parent device node. The input supply of these regulators are provided
++through following properties:
++in-sd0-supply: Input supply for SD0, INA-SD0 or INB-SD0 pins.
++in-sd1-supply: Input supply for SD1.
++in-sd2-supply: Input supply for SD2.
++in-sd3-supply: Input supply for SD3.
++in-ldo0-1-supply: Input supply for LDO0 and LDO1.
++in-ldo2-supply: Input supply for LDO2.
++in-ldo3-5-supply: Input supply for LDO3 and LDO5
++in-ldo4-6-supply: Input supply for LDO4 and LDO6.
++in-ldo7-8-supply: Input supply for LDO7 and LDO8.
++
++
++Optional sub nodes for regulators under "regulators" subnode:
++------------------------------------------------------------
++The subnodes name is the name of regulator and it must be one of:
++	sd[0-3], ldo[0-8]
++
++Each sub-node should contain the constraints and initialization
++information for that regulator. The definition for each of these
++nodes is defined using the standard binding for regulators found at
++<Documentation/devicetree/bindings/regulator/regulator.txt>.
++
++Theres is also additional properties for SD/LDOs.
++The properties are required to configure SDs/LDOs FPS parameters
++when system is in "active" state or in "suspend" state.
++Here "active" state means system is UP and working normally.
++"suspend" state means system enters into the suspend state.
++
++- maxim,active-fps-source:	     FPS source for the gpios in active state
++				     of the GPIO. Valid values are FPS_SRC_0,
++				     FPS_SRC_1, FPS_SRC_2 and FPS_SRC_NONE.
++				     Absence of this property will leave the pin
++				     on default.
++- maxim,active-fps-power-up-slot:    Power up slot on given FPS for active state.
++				     Valid values are 0 to 7.
++- maxim,active-fps-power-down-slot:  Power down slot on given FPS for active
++				     state. Valid values are 0 to 7.
++- maxim,suspend-fps-source:	     Suspend state FPS source. Valid values are
++				     same as maxim,active-fps-source.
++- maxim,suspend-fps-power-down-slot: Suspend state power down slot. Valid
++				     values are 0 to 7.
++- maxim,suspend-fps-power-up-slot:   Suspend state power up slot. Valid values
++				     are 0 to 7.
++
++Example:
++--------
++#include <dt-bindings/mfd/max77620.h>
++...
++max77620@3c {
++	in-ldo0-1-supply = <&max77620_sd2>;
++	in-ldo7-8-supply = <&max77620_sd2>;
++	regulators {
++		sd0 {
++			regulator-name = "vdd-core";
++			regulator-min-microvolt = <600000>;
++			regulator-max-microvolt = <1400000>;
++			regulator-boot-on;
++			regulator-always-on;
++			maxim,active-fps-source = <FPS_SRC_1>;
++		};
++
++		sd1 {
++			regulator-name = "vddio-ddr";
++			regulator-min-microvolt = <1200000>;
++			regulator-max-microvolt = <1200000>;
++			regulator-always-on;
++			regulator-boot-on;
++			maxim,active-fps-source = <FPS_SRC_0>;
++		};
++
++		sd2 {
++			regulator-name = "vdd-pre-reg";
++			regulator-min-microvolt = <1350000>;
++			regulator-max-microvolt = <1350000>;
++		};
++
++		sd3 {
++			regulator-name = "vdd-1v8";
++			regulator-min-microvolt = <1800000>;
++			regulator-max-microvolt = <1800000>;
++			regulator-always-on;
++			regulator-boot-on;
++		};
++
++		ldo0 {
++			regulator-name = "avdd-sys";
++			regulator-min-microvolt = <1200000>;
++			regulator-max-microvolt = <1200000>;
++			regulator-always-on;
++			regulator-boot-on;
++		};
++
++		ldo1 {
++			regulator-name = "vdd-pex";
++			regulator-min-microvolt = <1050000>;
++			regulator-max-microvolt = <1050000>;
++		};
++
++		ldo2 {
++			regulator-name = "vddio-sdmmc3";
++			regulator-min-microvolt = <1800000>;
++			regulator-max-microvolt = <3300000>;
++		};
++
++		ldo3 {
++			regulator-name = "vdd-cam-hv";
++			regulator-min-microvolt = <2800000>;
++			regulator-max-microvolt = <2800000>;
++		};
++
++		ldo4 {
++			regulator-name = "vdd-rtc";
++			regulator-min-microvolt = <1250000>;
++			regulator-max-microvolt = <1250000>;
++			regulator-always-on;
++			regulator-boot-on;
++		};
++
++		ldo5 {
++			regulator-name = "avdd-ts-hv";
++			regulator-min-microvolt = <3000000>;
++			regulator-max-microvolt = <3000000>;
++		};
++
++		ldo6 {
++			regulator-name = "vdd-ts";
++			regulator-min-microvolt = <1800000>;
++			regulator-max-microvolt = <1800000>;
++			regulator-always-on;
++			regulator-boot-on;
++		};
++
++		ldo7 {
++			regulator-name = "vdd-gen-pll-edp";
++			regulator-min-microvolt = <1050000>;
++			regulator-max-microvolt = <1050000>;
++			regulator-always-on;
++			regulator-boot-on;
++		};
++
++		ldo8 {
++			regulator-name = "vdd-hdmi-dp";
++			regulator-min-microvolt = <1050000>;
++			regulator-max-microvolt = <1050000>;
++		};
++	};
++};
 -- 
 2.1.4
 
