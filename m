@@ -1,86 +1,78 @@
-Return-Path: <rtc-linux+bncBD2OLRXW4ABBB35YVC2QKGQERGH2OGI@googlegroups.com>
-Received: from hqemgate16.nvidia.com (hqemgate16.nvidia.com. [216.228.121.65])
-        by gmr-mx.google.com with ESMTPS id ui7si1523363pab.0.2016.01.28.05.49.34
+Return-Path: <rtc-linux+bncBDKZNNNLXAHBBW7TW62QKGQEGQMTRZA@googlegroups.com>
+Received: from mail-pf0-x22e.google.com (mail-pf0-x22e.google.com. [2607:f8b0:400e:c00::22e])
+        by gmr-mx.google.com with ESMTPS id jg4si2895430pac.2.2016.01.31.04.11.07
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 28 Jan 2016 05:49:34 -0800 (PST)
-From: Laxman Dewangan <ldewangan@nvidia.com>
-To: <robh+dt@kernel.org>, <pawel.moll@arm.com>, <mark.rutland@arm.com>,
-	<ijc+devicetree@hellion.org.uk>, <galak@codeaurora.org>,
-	<linus.walleij@linaro.org>, <gnurou@gmail.com>, <lee.jones@linaro.org>,
-	<broonie@kernel.org>, <a.zummo@towertech.it>,
-	<alexandre.belloni@free-electrons.com>
-CC: <lgirdwood@gmail.com>, <devicetree@vger.kernel.org>,
-	<linux-kernel@vger.kernel.org>, <linux-gpio@vger.kernel.org>,
-	<rtc-linux@googlegroups.com>, <swarren@nvidia.com>, <treding@nvidia.com>,
-	<k.kozlowski@samsung.com>, Laxman Dewangan <ldewangan@nvidia.com>
-Subject: [rtc-linux] [PATCH V6 5/8] DT: gpio: add DT binding doc for gpio of
- PMIC max77620/max20024
-Date: Thu, 28 Jan 2016 19:07:51 +0530
-Message-ID: <1453988274-28052-6-git-send-email-ldewangan@nvidia.com>
-In-Reply-To: <1453988274-28052-1-git-send-email-ldewangan@nvidia.com>
-References: <1453988274-28052-1-git-send-email-ldewangan@nvidia.com>
+        Sun, 31 Jan 2016 04:11:07 -0800 (PST)
+Received: by mail-pf0-x22e.google.com with SMTP id 65so67643813pfd.2
+        for <rtc-linux@googlegroups.com>; Sun, 31 Jan 2016 04:11:07 -0800 (PST)
+Sender: rtc-linux@googlegroups.com
+Subject: Re: [rtc-linux] Re: [PATCH v4 00/10] rtc: max77686: Extend driver and
+ add max77802 support
+To: rtc-linux@googlegroups.com,
+ Javier Martinez Canillas <javier@osg.samsung.com>,
+ Alexandre Belloni <alexandre.belloni@free-electrons.com>
+References: <1453865806-4661-1-git-send-email-javier@osg.samsung.com>
+ <20160131120525.GM20165@piout.net>
+Cc: k.kozlowski.k@gmail.com, linux-kernel@vger.kernel.org,
+ Kukjin Kim <kgene@kernel.org>, Andi Shyti <andi.shyti@samsung.com>,
+ Chanwoo Choi <cw00.choi@samsung.com>, Laxman Dewangan
+ <ldewangan@nvidia.com>, linux-samsung-soc@vger.kernel.org,
+ Arnd Bergmann <arnd@arndb.de>, Olof Johansson <olof@lixom.net>,
+ linux-arm-kernel@lists.infradead.org
+From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+Message-ID: <56ADF9D4.2050208@samsung.com>
+Date: Sun, 31 Jan 2016 21:11:00 +0900
 MIME-Version: 1.0
+In-Reply-To: <20160131120525.GM20165@piout.net>
 Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
 List-Archive: <https://groups.google.com/group/rtc-linux
-Sender: rtc-linux@googlegroups.com
 List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Maxim Semiconductor's PMIC MAX77620/MAX20024 has 8 GPIO pins
-which act as GPIO as well as special function mode.
+W dniu 31.01.2016 o 21:05, Alexandre Belloni pisze:
+> Hi,
+> 
+> On 27/01/2016 at 00:36:36 -0300, Javier Martinez Canillas wrote :
+>> Hello,
+>>
+>> On a recent disussion [0] with Krzysztof Kozlowski and Laxman Dewangan,
+>> we came to the conclusion that the max77686 and max77802 RTC are almost
+>> the same with only a few differences so there shouldn't be two separate
+>> drivers and is better to extend max77686 driver and delete rtc-max77802.
+>>
+>> By making the driver more generic, other RTC IP blocks from Maxim PMICs
+>> could be supported as well like the max77620.
+>>
+>> This is a v4 of a series that do this, that address issues pointed out
+>> in the latest version. The v1, v2 and v3 can be found at [1], [2], [3].
+>>
+>> I've tested this patch-set on an Exynos5800 Peach Pi Chromebook that has
+>> a max77802 PMIC and the RTC was working correctly. Krzysztof Kozlowski
+>> tested v3 on an max77686 but this version only has cosmetic changes so
+>> it should not cause any functionality changes.
+>>
+>> [0]: http://www.spinics.net/lists/devicetree/msg110348.html
+>> [1]: https://lwn.net/Articles/672568/
+>> [2]: https://lkml.org/lkml/2016/1/25/767
+>> [3]: https://lkml.org/lkml/2016/1/26/787
+>>
+> 
+> I've applied patches 1 to 8 and I'll discussed with Arnd and Olof about
+> what I should do with the defconfig changes.
 
-Add DT binding document to support these pins in GPIO
-mode via GPIO framework.
+To avoid conflicts they could go through samsung-soc tree. I could pick
+them if you provide me a tag with rest of patchset (dependencies).
 
-Signed-off-by: Laxman Dewangan <ldewangan@nvidia.com>
-Acked-by: Rob Herring <robh@kernel.org>
----
-Changes from V4:
-- Separate out from gpio driver 
+Would that be okay for you?
 
- .../devicetree/bindings/gpio/gpio-max77620.txt     | 25 ++++++++++++++++++++++
- 1 file changed, 25 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/gpio/gpio-max77620.txt
-
-diff --git a/Documentation/devicetree/bindings/gpio/gpio-max77620.txt b/Documentation/devicetree/bindings/gpio/gpio-max77620.txt
-new file mode 100644
-index 0000000..410e716
---- /dev/null
-+++ b/Documentation/devicetree/bindings/gpio/gpio-max77620.txt
-@@ -0,0 +1,25 @@
-+GPIO driver for MAX77620 Power management IC from Maxim Semiconductor.
-+
-+Device has 8 GPIO pins which can be configured as GPIO as well as the
-+special IO functions.
-+
-+Required properties:
-+-------------------
-+- gpio-controller : 	Marks the device node as a gpio controller.
-+- #gpio-cells : 	Should be two.  The first cell is the pin number and
-+			the second cell is used to specify the gpio polarity:
-+				0 = active high
-+				1 = active low
-+For more details, please refer generic GPIO DT binding document
-+<devicetree/bindings/gpio/gpio.txt>.
-+
-+Example:
-+--------
-+#include <dt-bindings/mfd/max77620.h>
-+...
-+max77620@3c {
-+	compatible = "maxim,max77620";
-+
-+	gpio-controller;
-+	#gpio-cells = <2>;
-+};
--- 
-2.1.4
+Best regards,
+Krzysztof
 
 -- 
 -- 
