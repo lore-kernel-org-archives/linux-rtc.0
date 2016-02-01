@@ -1,27 +1,20 @@
-Return-Path: <rtc-linux+bncBCYKZMUQ7QBBBNWOR23AKGQEZ2U2LGQ@googlegroups.com>
-Received: from mail-pf0-x231.google.com (mail-pf0-x231.google.com. [2607:f8b0:400e:c00::231])
-        by gmr-mx.google.com with ESMTPS id u66si3931404pfa.2.2016.02.16.14.48.22
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 16 Feb 2016 14:48:22 -0800 (PST)
-Received: by mail-pf0-x231.google.com with SMTP id e127so112785643pfe.3
-        for <rtc-linux@googlegroups.com>; Tue, 16 Feb 2016 14:48:22 -0800 (PST)
-Content-Type: text/plain; charset=UTF-8
+Return-Path: <rtc-linux+bncBDJIP47K7MERB6XSXW2QKGQERNPMA3Y@googlegroups.com>
+Received: from mail.kernel.org (mail.kernel.org. [198.145.29.136])
+        by gmr-mx.google.com with ESMTP id ui7si3503607pab.0.2016.02.01.07.27.54
+        for <rtc-linux@googlegroups.com>;
+        Mon, 01 Feb 2016 07:27:54 -0800 (PST)
+Date: Mon, 1 Feb 2016 09:27:50 -0600
+From: Rob Herring <robh@kernel.org>
+To: Oleksij Rempel <linux@rempel-privat.de>
+Cc: devicetree@vger.kernel.org, a.zummo@towertech.it,
+	alexandre.belloni@free-electrons.com, rtc-linux@googlegroups.com
+Subject: [rtc-linux] Re: [PATCH 2/2] doc: dt: add documentation for alphascale,asm9260-rtc
+Message-ID: <20160201152750.GA17595@rob-hp-laptop>
+References: <1454056802-23386-1-git-send-email-linux@rempel-privat.de>
+ <1454056802-23386-3-git-send-email-linux@rempel-privat.de>
 MIME-Version: 1.0
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
- "Akinobu Mita" <akinobu.mita@gmail.com>
-From: Michael Turquette <mturquette@baylibre.com>
-In-Reply-To: <20160216004221.GA3310@piout.net>
-Cc: rtc-linux@googlegroups.com, linux-clk@vger.kernel.org,
- "Heiko Stuebner" <heiko@sntech.de>,
- "Alessandro Zummo" <a.zummo@towertech.it>,
- "Stephen Boyd" <sboyd@codeaurora.org>
-References: <1454249410-21449-1-git-send-email-akinobu.mita@gmail.com>
- <20160216004221.GA3310@piout.net>
-Message-ID: <20160216223526.2278.66771@quark.deferred.io>
-Subject: [rtc-linux] Re: [PATCH] rtc: rtc-ds1307: add clock provider support
- for DS3231
-Date: Tue, 16 Feb 2016 14:35:26 -0800
+Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1454056802-23386-3-git-send-email-linux@rempel-privat.de>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -32,36 +25,42 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Quoting Alexandre Belloni (2016-02-15 16:42:21)
-> On 31/01/2016 at 23:10:10 +0900, Akinobu Mita wrote :
-> > DS3231 has programmable square-wave output signal.
-> > This enables to use this feature as a clock provider of
-> > common clock framework.
-> > 
-> > Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
-> > Cc: Heiko Stuebner <heiko@sntech.de>
-> > Cc: Alessandro Zummo <a.zummo@towertech.it>
-> > Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-> > Cc: Michael Turquette <mturquette@baylibre.com>
-> > Cc: Stephen Boyd <sboyd@codeaurora.org>
-> > ---
-> >  .../devicetree/bindings/rtc/maxim,ds3231.txt       |  37 +++
-> >  drivers/rtc/rtc-ds1307.c                           | 296 ++++++++++++++++++++-
-> >  2 files changed, 332 insertions(+), 1 deletion(-)
-> >  create mode 100644 Documentation/devicetree/bindings/rtc/maxim,ds3231.txt
-> > 
+On Fri, Jan 29, 2016 at 09:40:02AM +0100, Oleksij Rempel wrote:
+> Document Alphascale asm9260 RTC bindings
 > 
-> Applied, thanks.
-
-If it's not too late:
-
-Reviewed-by: Michael Turquette <mturquette@baylibre.com>
-
+> Signed-off-by: Oleksij Rempel <linux@rempel-privat.de>
+> ---
+>  .../bindings/rtc/alphascale,asm9260-rtc.txt        | 25 ++++++++++++++++++++++
+>  1 file changed, 25 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/rtc/alphascale,asm9260-rtc.txt
 > 
-> -- 
-> Alexandre Belloni, Free Electrons
-> Embedded Linux, Kernel and Android engineering
-> http://free-electrons.com
+> diff --git a/Documentation/devicetree/bindings/rtc/alphascale,asm9260-rtc.txt b/Documentation/devicetree/bindings/rtc/alphascale,asm9260-rtc.txt
+> new file mode 100644
+> index 0000000..2c0ff3c
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/rtc/alphascale,asm9260-rtc.txt
+> @@ -0,0 +1,25 @@
+> +* Alphascale asm9260 SoC Real Time Clock
+> +
+> +Required properties:
+> +- compatible: Should be "alphascale,asm9260-rtc"
+> +- reg: Physical base address of the controller and length
+> +       of memory mapped region.
+> +- interrupts: IRQ line for the RTC.
+> +- clocks: Reference to the clock entry.
+> +- clock-names: should contain:
+> +  * "ahb" for the SoC RTC clock
+> +
+> +Optional:
+> +- calibration: calibration value for 1 sec period.
+> +		Max value for forward calibration is 0x1ffff (131071),
+> +		Min value for backward calibration is 0xfffe0001 (-131071).
+
+This should be prefixed with 'alphascale,'
+
+How is this value determined?
+
+Rob
 
 -- 
 -- 
