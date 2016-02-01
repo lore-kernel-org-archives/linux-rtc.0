@@ -1,22 +1,23 @@
-Return-Path: <rtc-linux+bncBCH47WHJQUIRB4EDUO3AKGQE3BDNXVI@googlegroups.com>
-Received: from lxorguk.ukuu.org.uk (lxorguk.ukuu.org.uk. [81.2.110.251])
-        by gmr-mx.google.com with ESMTPS id w197si623984wmw.3.2016.02.20.11.43.44
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sat, 20 Feb 2016 11:43:44 -0800 (PST)
-Date: Sat, 20 Feb 2016 19:43:10 +0000
-From: One Thousand Gnomes <gnomes@lxorguk.ukuu.org.uk>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: rtc-linux@googlegroups.com, Alessandro Zummo <a.zummo@towertech.it>,
-        Arnd Bergmann <arnd@arndb.de>, Willy Tarreau <w@1wt.eu>,
-        linux-kernel@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH] rtc: Add an option to invalidate dates in 2038
-Message-ID: <20160220194310.02964d5f@lxorguk.ukuu.org.uk>
-In-Reply-To: <1455995444-14146-1-git-send-email-alexandre.belloni@free-electrons.com>
-References: <1455995444-14146-1-git-send-email-alexandre.belloni@free-electrons.com>
+Return-Path: <rtc-linux+bncBDNZNK75ZIKRB3FQX22QKGQE5HEUS7I@googlegroups.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+From: Andre Przywara <andre.przywara@arm.com>
+To: Maxime Ripard <maxime.ripard@free-electrons.com>,
+	Chen-Yu Tsai <wens@csie.org>,
+	linux-sunxi@googlegroups.com
+Cc: Arnd Bergmann <arnd@arndb.de>,
+	linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	rtc-linux@googlegroups.com
+Subject: [rtc-linux] [PATCH 03/11] drivers: rtc: allow compilation of sun6i
+ RTC for all sunxi SoCs
+Date: Mon,  1 Feb 2016 17:39:22 +0000
+Message-Id: <1454348370-3816-4-git-send-email-andre.przywara@arm.com>
+In-Reply-To: <1454348370-3816-1-git-send-email-andre.przywara@arm.com>
+References: <1454348370-3816-1-git-send-email-andre.przywara@arm.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -26,31 +27,37 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Sat, 20 Feb 2016 20:10:44 +0100
-Alexandre Belloni <alexandre.belloni@free-electrons.com> wrote:
+At the moment the "sun6i" RTC drivers depends on having two specific
+SoC families selected.
+The Allwinner A64 SoC has the same RTC, so extend the Kconfig option
+to allow inclusion of the driver for all Allwinner SoCs.
 
-> hctosys is setting the system time from the kernel. This means that 32bit
-> system can get their time set to a date after the 31bit time_t overflow.
-> 
-> This is currently an issue as userspace is not yet ready to handle those
-> dates and may break. For example systemd's usage of timerfd shows that the
-> timerfd will always fire immediately because it can't be set at a date
-> after the current date.
-> 
-> The new RTC_INVALID_2038 option will make sure that date after 03:09:07 on
-> Jan 19 2038 are invalid. This is 5 minutes before the 31bit overflow. This
-> leaves enough time for userspace to react and is short enough to make the
-> issue visible.
+Signed-off-by: Andre Przywara <andre.przywara@arm.com>
+---
+ drivers/rtc/Kconfig | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-This is kind of pointless. You replace loading the RTC and discovering
-the time isn't supported by your system with not loading he RTC and
-discovering your system clock is magically and almost un-debuggably
-wrong, and when something like NTP syncs it, breaks anyway.
-
-The only way to deal with 2038 is to fix your user space. People need to
-deal with reality, even if it's not all pink unicorns and rainbows.
-
-Alan
+diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
+index 376322f..526eaf4 100644
+--- a/drivers/rtc/Kconfig
++++ b/drivers/rtc/Kconfig
+@@ -1360,10 +1360,11 @@ config RTC_DRV_SUN4V
+ 
+ config RTC_DRV_SUN6I
+ 	tristate "Allwinner A31 RTC"
+-	depends on MACH_SUN6I || MACH_SUN8I
++	default MACH_SUN6I || MACH_SUN8I
++	depends on ARCH_SUNXI
+ 	help
+-	  If you say Y here you will get support for the RTC found on
+-	  Allwinner A31.
++	  If you say Y here you will get support for the RTC found in
++	  some Allwinner SoCs like the A31 or the A64.
+ 
+ config RTC_DRV_SUNXI
+ 	tristate "Allwinner sun4i/sun7i RTC"
+-- 
+2.6.4
 
 -- 
 -- 
