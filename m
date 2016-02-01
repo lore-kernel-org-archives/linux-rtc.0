@@ -1,26 +1,21 @@
-Return-Path: <rtc-linux+bncBAABBDEK222QKGQEPY7SIKI@googlegroups.com>
-Received: from lists.s-osg.org (lists.s-osg.org. [54.187.51.154])
-        by gmr-mx.google.com with ESMTP id jg4si2534930pac.2.2016.02.05.21.30.51
+Return-Path: <rtc-linux+bncBDS7HNEFSALRB4H7XW2QKGQE7U7JRVI@googlegroups.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id 5si352561wmm.2.2016.02.01.07.55.28
         for <rtc-linux@googlegroups.com>;
-        Fri, 05 Feb 2016 21:30:51 -0800 (PST)
-Subject: [rtc-linux] Re: [PATCH V3 5/5] rtc: max77686: move initialisation of
- rtc regmap, irq chip locally
-To: Laxman Dewangan <ldewangan@nvidia.com>,
- Krzysztof Kozlowski <k.kozlowski@samsung.com>, lee.jones@linaro.org,
- alexandre.belloni@free-electrons.com
-References: <1454507233-9959-1-git-send-email-ldewangan@nvidia.com>
- <1454507233-9959-6-git-send-email-ldewangan@nvidia.com>
- <56B296F6.3060002@samsung.com> <56B2B17A.1000509@nvidia.com>
- <56B2F6A2.5060103@samsung.com> <56B314F4.6010605@samsung.com>
- <56B4B38C.3030805@nvidia.com>
-From: Javier Martinez Canillas <javier@osg.samsung.com>
-Cc: cw00.choi@samsung.com, linux-kernel@vger.kernel.org,
- rtc-linux@googlegroups.com
-Message-ID: <56B58501.603@osg.samsung.com>
-Date: Sat, 6 Feb 2016 02:30:41 -0300
+        Mon, 01 Feb 2016 07:55:28 -0800 (PST)
+Date: Mon, 1 Feb 2016 16:55:27 +0100
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Rob Herring <robh@kernel.org>
+Cc: Oleksij Rempel <linux@rempel-privat.de>, devicetree@vger.kernel.org,
+	a.zummo@towertech.it, rtc-linux@googlegroups.com
+Subject: [rtc-linux] Re: [PATCH 2/2] doc: dt: add documentation for alphascale,asm9260-rtc
+Message-ID: <20160201155527.GR20165@piout.net>
+References: <1454056802-23386-1-git-send-email-linux@rempel-privat.de>
+ <1454056802-23386-3-git-send-email-linux@rempel-privat.de>
+ <20160201152750.GA17595@rob-hp-laptop>
 MIME-Version: 1.0
-In-Reply-To: <56B4B38C.3030805@nvidia.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <20160201152750.GA17595@rob-hp-laptop>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -31,75 +26,52 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Hello Laxman,
+On 01/02/2016 at 09:27:50 -0600, Rob Herring wrote :
+> On Fri, Jan 29, 2016 at 09:40:02AM +0100, Oleksij Rempel wrote:
+> > Document Alphascale asm9260 RTC bindings
+> > 
+> > Signed-off-by: Oleksij Rempel <linux@rempel-privat.de>
+> > ---
+> >  .../bindings/rtc/alphascale,asm9260-rtc.txt        | 25 ++++++++++++++++++++++
+> >  1 file changed, 25 insertions(+)
+> >  create mode 100644 Documentation/devicetree/bindings/rtc/alphascale,asm9260-rtc.txt
+> > 
+> > diff --git a/Documentation/devicetree/bindings/rtc/alphascale,asm9260-rtc.txt b/Documentation/devicetree/bindings/rtc/alphascale,asm9260-rtc.txt
+> > new file mode 100644
+> > index 0000000..2c0ff3c
+> > --- /dev/null
+> > +++ b/Documentation/devicetree/bindings/rtc/alphascale,asm9260-rtc.txt
+> > @@ -0,0 +1,25 @@
+> > +* Alphascale asm9260 SoC Real Time Clock
+> > +
+> > +Required properties:
+> > +- compatible: Should be "alphascale,asm9260-rtc"
+> > +- reg: Physical base address of the controller and length
+> > +       of memory mapped region.
+> > +- interrupts: IRQ line for the RTC.
+> > +- clocks: Reference to the clock entry.
+> > +- clock-names: should contain:
+> > +  * "ahb" for the SoC RTC clock
+> > +
+> > +Optional:
+> > +- calibration: calibration value for 1 sec period.
+> > +		Max value for forward calibration is 0x1ffff (131071),
+> > +		Min value for backward calibration is 0xfffe0001 (-131071).
+> 
+> This should be prefixed with 'alphascale,'
+> 
+> How is this value determined?
+> 
 
-Sorry for not doing this before but today was a busy one.
+I think this should stay in userspace, see that series:
+https://groups.google.com/forum/#!topic/rtc-linux/HGQqiHnMiuw
 
-On 02/05/2016 11:37 AM, Laxman Dewangan wrote:
-> Hi Krzysztof, Javier,
->
-> On Thursday 04 February 2016 02:38 PM, Krzysztof Kozlowski wrote:
->> On 04.02.2016 15:58, Krzysztof Kozlowski wrote:
->>>> 3. Can you try locally to not use devm_regmap_init_i2c() and just use
->>>> the regmap_init_i2c() and proper removal of this from error path and
->>>> remove callback?
->>> I'll try to find some time for that. Maybe tomorrow.
->> regmap_init_i2c does not help. However helps commenting out the:
->>     regmap_del_irq_chip(info->rtc_irq, info->rtc_irq_data);
->> from remove() callback.
->>
->>
->
-> I am trying to reproduce this in my system but I am ending up with different issue as it need to enable the suspend.
+It quite often depends on environmental things like temperature so it may be updated at runtime.
 
-Ok, no worries. I can of course help testing on my system.
-
-> can you please help on following experiment:
-> 1. In probe/init, do
->     regmap_add_irq_chip()
->    regmap_del_irq_chip() and then
->    regmap_add_irq_chip() and
-> then without unbind()/bind(), working or not?
->
->    This is to make sure that it is universal issue rather than calling from remove callback only.
->
-
-This works, the system can S2R successfully.
-  
-> 2. Do regmap_add_irq_chip() but dont do any interrupt registration i.e. comment regmap_irq_get_virq() and request_threaded_irq() and hence free_irq().
-> Then do unbind/bind and then suspend.
->    To make sure that this happen when only we have client registered interrupt.
->
-
-This works as well.
-  
-> 3. Extension of 2
-> Do regmap_add_irq_chip(), call  regmap_irq_get_virq() for creating irq mapping but dont do any interrupt registration i.e. comment request_threaded_irq() and hence free_irq().
-> Then do unbind/bind and then suspend.
->    To make sure that this happen when only we have client registered interrupt or with mapping also.
->
-
-This fails, so the problem seems to be with the mapping.
-
-So I tried another scenario:
-
-4. Call regmap_del_irq_chip() just after regmap_irq_get_virq() and try to S2R
-    without doing any unbind before.
-
-    To test if this is a general issue with regmap_del_irq_chip() after doing
-    the IRQ mapping and not something specific to the remove callback.
-
-The machine failed to boot. So now at least we have narrowed down the issue.
-
-I've looked at both regmap_irq_get_virq() and regmap_del_irq_chip() but I
-couldn't find any obvious cause for the issue we are seeing. But it's late
-Friday so probably I should just stop here and take a fresh look on Monday.
-
-Best regards,
 -- 
-Javier Martinez Canillas
-Open Source Group
-Samsung Research America
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
 -- 
 -- 
