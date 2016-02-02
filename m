@@ -1,31 +1,20 @@
-Return-Path: <rtc-linux+bncBDE6RCFOWIARBKFZRG3AKGQEO23DX2Y@googlegroups.com>
-Received: from mail-ob0-x233.google.com (mail-ob0-x233.google.com. [2607:f8b0:4003:c01::233])
-        by gmr-mx.google.com with ESMTPS id p10si1474720igg.1.2016.02.15.15.18.00
+Return-Path: <rtc-linux+bncBD2OLRXW4ABBB4W5YK2QKGQE4FJUCBA@googlegroups.com>
+Received: from hqemgate15.nvidia.com (hqemgate15.nvidia.com. [216.228.121.64])
+        by gmr-mx.google.com with ESMTPS id r2si177067pfr.0.2016.02.02.05.28.18
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 15 Feb 2016 15:18:00 -0800 (PST)
-Received: by mail-ob0-x233.google.com with SMTP id wb13so233122540obb.1
-        for <rtc-linux@googlegroups.com>; Mon, 15 Feb 2016 15:18:00 -0800 (PST)
+        Tue, 02 Feb 2016 05:28:18 -0800 (PST)
+From: Laxman Dewangan <ldewangan@nvidia.com>
+To: <lee.jones@linaro.org>, <alexandre.belloni@free-electrons.com>,
+	<k.kozlowski@samsung.com>, <javier@osg.samsung.com>
+CC: <cw00.choi@samsung.com>, <linux-kernel@vger.kernel.org>,
+	<rtc-linux@googlegroups.com>, Laxman Dewangan <ldewangan@nvidia.com>
+Subject: [rtc-linux] [PATCH 1/4] rtc: max77686: fix checkpatch error
+Date: Tue, 2 Feb 2016 18:46:49 +0530
+Message-ID: <1454419012-18050-2-git-send-email-ldewangan@nvidia.com>
+In-Reply-To: <1454419012-18050-1-git-send-email-ldewangan@nvidia.com>
+References: <1454419012-18050-1-git-send-email-ldewangan@nvidia.com>
 MIME-Version: 1.0
-In-Reply-To: <1455191794-6065-7-git-send-email-ldewangan@nvidia.com>
-References: <1455191794-6065-1-git-send-email-ldewangan@nvidia.com>
-	<1455191794-6065-7-git-send-email-ldewangan@nvidia.com>
-Date: Tue, 16 Feb 2016 00:18:00 +0100
-Message-ID: <CACRpkdbA+pHHpjT-HMr8FS8DehRZE=G2m5s6=MRoqR4n_RrHEQ@mail.gmail.com>
-Subject: [rtc-linux] Re: [PATCH V8 6/8] gpio: max77620: add gpio driver for MAX77620/MAX20024
-From: Linus Walleij <linus.walleij@linaro.org>
-To: Laxman Dewangan <ldewangan@nvidia.com>
-Cc: Rob Herring <robh+dt@kernel.org>, =?UTF-8?Q?Pawe=C5=82_Moll?= <pawel.moll@arm.com>,
-	Mark Rutland <mark.rutland@arm.com>,
-	"ijc+devicetree@hellion.org.uk" <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>,
-	Alexandre Courbot <gnurou@gmail.com>, Lee Jones <lee.jones@linaro.org>, Mark Brown <broonie@kernel.org>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>, Liam Girdwood <lgirdwood@gmail.com>,
-	"devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-	"linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>,
-	"rtc-linux@googlegroups.com" <rtc-linux@googlegroups.com>, Stephen Warren <swarren@nvidia.com>,
-	Thierry Reding <treding@nvidia.com>, =?UTF-8?Q?Krzysztof_Koz=C5=82owski?= <k.kozlowski@samsung.com>
 Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
@@ -37,27 +26,98 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Thu, Feb 11, 2016 at 12:56 PM, Laxman Dewangan <ldewangan@nvidia.com> wrote:
+Fix following check patch error in rtc-max77686 driver:
+- Alignment should match open parenthesis.
+- braces {} should be used on all arms of this statement.
+- Prefer using the BIT macro
 
-> MAXIM Semiconductor's PMIC, MAX77620/MAX20024 has 8 GPIO
-> pins. It also supports interrupts from these pins.
->
-> Add GPIO driver for these pins to control via GPIO APIs.
->
-> Signed-off-by: Laxman Dewangan <ldewangan@nvidia.com>
-> Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Laxman Dewangan <ldewangan@nvidia.com>
+---
+ drivers/rtc/rtc-max77686.c | 25 +++++++++++++------------
+ 1 file changed, 13 insertions(+), 12 deletions(-)
 
-(...)
-Nit and no big deal:
-
-> +#include <linux/gpio.h>
-
-<linux/gpio/driver.h>
-
-should be enough.
-
-Yours,
-Linus Walleij
+diff --git a/drivers/rtc/rtc-max77686.c b/drivers/rtc/rtc-max77686.c
+index 188593d..253cf12 100644
+--- a/drivers/rtc/rtc-max77686.c
++++ b/drivers/rtc/rtc-max77686.c
+@@ -24,20 +24,20 @@
+ 
+ /* RTC Control Register */
+ #define BCD_EN_SHIFT			0
+-#define BCD_EN_MASK			(1 << BCD_EN_SHIFT)
++#define BCD_EN_MASK			BIT(BCD_EN_SHIFT)
+ #define MODEL24_SHIFT			1
+-#define MODEL24_MASK			(1 << MODEL24_SHIFT)
++#define MODEL24_MASK			BIT(MODEL24_SHIFT)
+ /* RTC Update Register1 */
+ #define RTC_UDR_SHIFT			0
+-#define RTC_UDR_MASK			(1 << RTC_UDR_SHIFT)
++#define RTC_UDR_MASK			BIT(RTC_UDR_SHIFT)
+ #define RTC_RBUDR_SHIFT			4
+-#define RTC_RBUDR_MASK			(1 << RTC_RBUDR_SHIFT)
++#define RTC_RBUDR_MASK			BIT(RTC_RBUDR_SHIFT)
+ /* RTC Hour register */
+ #define HOUR_PM_SHIFT			6
+-#define HOUR_PM_MASK			(1 << HOUR_PM_SHIFT)
++#define HOUR_PM_MASK			BIT(HOUR_PM_SHIFT)
+ /* RTC Alarm Enable */
+ #define ALARM_ENABLE_SHIFT		7
+-#define ALARM_ENABLE_MASK		(1 << ALARM_ENABLE_SHIFT)
++#define ALARM_ENABLE_MASK		BIT(ALARM_ENABLE_SHIFT)
+ 
+ #define REG_RTC_NONE			0xdeadbeef
+ 
+@@ -205,9 +205,9 @@ static void max77686_rtc_data_to_tm(u8 *data, struct rtc_time *tm,
+ 
+ 	tm->tm_sec = data[RTC_SEC] & mask;
+ 	tm->tm_min = data[RTC_MIN] & mask;
+-	if (info->rtc_24hr_mode)
++	if (info->rtc_24hr_mode) {
+ 		tm->tm_hour = data[RTC_HOUR] & 0x1f;
+-	else {
++	} else {
+ 		tm->tm_hour = data[RTC_HOUR] & 0x0f;
+ 		if (data[RTC_HOUR] & HOUR_PM_MASK)
+ 			tm->tm_hour += 12;
+@@ -256,7 +256,7 @@ static int max77686_rtc_tm_to_data(struct rtc_time *tm, u8 *data,
+ }
+ 
+ static int max77686_rtc_update(struct max77686_rtc_info *info,
+-	enum MAX77686_RTC_OP op)
++			       enum MAX77686_RTC_OP op)
+ {
+ 	int ret;
+ 	unsigned int data;
+@@ -547,7 +547,7 @@ out:
+ }
+ 
+ static int max77686_rtc_alarm_irq_enable(struct device *dev,
+-					unsigned int enabled)
++					 unsigned int enabled)
+ {
+ 	struct max77686_rtc_info *info = dev_get_drvdata(dev);
+ 	int ret;
+@@ -612,7 +612,7 @@ static int max77686_rtc_probe(struct platform_device *pdev)
+ 	int ret;
+ 
+ 	info = devm_kzalloc(&pdev->dev, sizeof(struct max77686_rtc_info),
+-				GFP_KERNEL);
++			    GFP_KERNEL);
+ 	if (!info)
+ 		return -ENOMEM;
+ 
+@@ -662,7 +662,8 @@ static int max77686_rtc_probe(struct platform_device *pdev)
+ 	}
+ 
+ 	ret = devm_request_threaded_irq(&pdev->dev, info->virq, NULL,
+-				max77686_rtc_alarm_irq, 0, "rtc-alarm1", info);
++					max77686_rtc_alarm_irq, 0,
++					"rtc-alarm1", info);
+ 	if (ret < 0)
+ 		dev_err(&pdev->dev, "Failed to request alarm IRQ: %d: %d\n",
+ 			info->virq, ret);
+-- 
+2.1.4
 
 -- 
 -- 
