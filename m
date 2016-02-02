@@ -1,27 +1,18 @@
-Return-Path: <rtc-linux+bncBAABBEPFYG3AKGQESY22OSA@googlegroups.com>
-Received: from devils.ext.ti.com (devils.ext.ti.com. [198.47.26.153])
-        by gmr-mx.google.com with ESMTPS id i9si258471igg.1.2016.02.26.07.43.13
+Return-Path: <rtc-linux+bncBD2OLRXW4ABBB4G5YK2QKGQEH6S7Z4Y@googlegroups.com>
+Received: from hqemgate14.nvidia.com (hqemgate14.nvidia.com. [216.228.121.143])
+        by gmr-mx.google.com with ESMTPS id tn7si169085pac.1.2016.02.02.05.28.15
         for <rtc-linux@googlegroups.com>
-        (version=TLS1 cipher=AES128-SHA bits=128/128);
-        Fri, 26 Feb 2016 07:43:13 -0800 (PST)
-From: Grygorii Strashko <grygorii.strashko@ti.com>
-To: Lee Jones <lee.jones@linaro.org>, Alessandro Zummo <a.zummo@towertech.it>,
-        MyungJoo Ham <myungjoo.ham@samsung.com>,
-        Lars-Peter Clausen <lars@metafoo.de>
-CC: <rtc-linux@googlegroups.com>, <linux-iio@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>, <nsekhar@ti.com>,
-        <linux-omap@vger.kernel.org>,
-        Grygorii Strashko <grygorii.strashko@ti.com>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        Tony Lindgren
-	<tony@atomide.com>, Nishanth Menon <nm@ti.com>,
-        Laxman Dewangan
-	<ldewangan@nvidia.com>
-Subject: [rtc-linux] [PATCH 4/7] rtc: tps65910: Drop IRQF_EARLY_RESUME flag
-Date: Fri, 26 Feb 2016 17:42:54 +0200
-Message-ID: <1456501377-16871-5-git-send-email-grygorii.strashko@ti.com>
-In-Reply-To: <1456501377-16871-1-git-send-email-grygorii.strashko@ti.com>
-References: <1456501377-16871-1-git-send-email-grygorii.strashko@ti.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 02 Feb 2016 05:28:15 -0800 (PST)
+From: Laxman Dewangan <ldewangan@nvidia.com>
+To: <lee.jones@linaro.org>, <alexandre.belloni@free-electrons.com>,
+	<k.kozlowski@samsung.com>, <javier@osg.samsung.com>
+CC: <cw00.choi@samsung.com>, <linux-kernel@vger.kernel.org>,
+	<rtc-linux@googlegroups.com>, Laxman Dewangan <ldewangan@nvidia.com>,
+	Krzysztof Mazur <krzysiek@podlesie.net>
+Subject: [rtc-linux] [PATCH 0/4] rtc: max77686: make max77686 rtc driver as IP driver
+Date: Tue, 2 Feb 2016 18:46:48 +0530
+Message-ID: <1454419012-18050-1-git-send-email-ldewangan@nvidia.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
@@ -34,37 +25,33 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-tps65910 RTC IRQ is nested threaded and wired to the tps65910 inerrupt
-controller. So, this flag is not required for nested irqs anymore,
-since commit 3c646f2c6aa9 ("genirq: Don't suspend nested_thread irqs
-over system suspend") was merged.
+Based on discussion on patch series of MAX77620 when adding separate
+driver for max77620 RTC, it is discussed to reuse the max77686 driver
+for all CHips MAX77802, MAX77686 and MAX77620. For this, the rtc-max77686
+need to make as IP driver independent of their MFD parent driver.
 
-Cc: Alessandro Zummo <a.zummo@towertech.it>
-Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Lee Jones <lee.jones@linaro.org>
-Cc: Tony Lindgren <tony@atomide.com>
-Cc: Nishanth Menon <nm@ti.com>
-Cc: Laxman Dewangan <ldewangan@nvidia.com>
-Signed-off-by: Grygorii Strashko <grygorii.strashko@ti.com>
----
- drivers/rtc/rtc-tps65910.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+This series makes the rtc-max77686 as independent driver from its
+parent. Required information is passed through the device parent
+which is generic and does not depends on any max77686 specific
+header ifnromation.
 
-diff --git a/drivers/rtc/rtc-tps65910.c b/drivers/rtc/rtc-tps65910.c
-index f42aa2b..5a3d53c 100644
---- a/drivers/rtc/rtc-tps65910.c
-+++ b/drivers/rtc/rtc-tps65910.c
-@@ -268,7 +268,7 @@ static int tps65910_rtc_probe(struct platform_device *pdev)
- 	}
- 
- 	ret = devm_request_threaded_irq(&pdev->dev, irq, NULL,
--		tps65910_rtc_interrupt, IRQF_TRIGGER_LOW | IRQF_EARLY_RESUME,
-+		tps65910_rtc_interrupt, IRQF_TRIGGER_LOW,
- 		dev_name(&pdev->dev), &pdev->dev);
- 	if (ret < 0) {
- 		dev_err(&pdev->dev, "IRQ is not free.\n");
+CC: Krzysztof Mazur <krzysiek@podlesie.net>
+CC: Javier Martinez Canillas <javier@osg.samsung.com>
+
+Laxman Dewangan (4):
+  rtc: max77686: fix checkpatch error
+  rtc: max77686: use rtc regmap to access RTC registers
+  rtc: max77686: avoid reference of parent device info multiple palces
+  rtc: max77686: move initialisation of rtc regmap, irq chip locally
+
+ drivers/mfd/max77686.c               |  82 +---------
+ drivers/rtc/Kconfig                  |   7 +-
+ drivers/rtc/rtc-max77686.c           | 295 ++++++++++++++++++++++++++++-------
+ include/linux/mfd/max77686-private.h |  16 --
+ 4 files changed, 244 insertions(+), 156 deletions(-)
+
 -- 
-2.7.2
+2.1.4
 
 -- 
 -- 
