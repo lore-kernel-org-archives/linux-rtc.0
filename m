@@ -1,27 +1,25 @@
-Return-Path: <rtc-linux+bncBDJIP47K7MERB7WIXW2QKGQEPTZNPDQ@googlegroups.com>
-Received: from mail.kernel.org (mail.kernel.org. [198.145.29.136])
-        by gmr-mx.google.com with ESMTP id tn7si3552458pac.1.2016.02.01.05.58.22
-        for <rtc-linux@googlegroups.com>;
-        Mon, 01 Feb 2016 05:58:22 -0800 (PST)
-Date: Mon, 1 Feb 2016 07:58:17 -0600
-From: Rob Herring <robh@kernel.org>
-To: Laxman Dewangan <ldewangan@nvidia.com>
-Cc: pawel.moll@arm.com, mark.rutland@arm.com, ijc+devicetree@hellion.org.uk,
-	galak@codeaurora.org, linus.walleij@linaro.org, gnurou@gmail.com,
-	lee.jones@linaro.org, broonie@kernel.org, a.zummo@towertech.it,
-	alexandre.belloni@free-electrons.com, lgirdwood@gmail.com,
-	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux-gpio@vger.kernel.org, rtc-linux@googlegroups.com,
-	swarren@nvidia.com, treding@nvidia.com, k.kozlowski@samsung.com,
-	Chaitanya Bandi <bandik@nvidia.com>
-Subject: [rtc-linux] Re: [PATCH V5 3/5] pinctrl: max77620: add pincontrol
- driver for MAX77620/MAX20024
-Message-ID: <20160201135817.GA25324@rob-hp-laptop>
-References: <1453903808-29788-1-git-send-email-ldewangan@nvidia.com>
- <1453903808-29788-4-git-send-email-ldewangan@nvidia.com>
+Return-Path: <rtc-linux+bncBDQJZJXU2UMBBCO2YG2QKGQEHPIQV3Y@googlegroups.com>
+Received: from mout.gmx.net (mout.gmx.net. [212.227.15.18])
+        by gmr-mx.google.com with ESMTPS id s132si435917wmd.1.2016.02.02.00.47.05
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 02 Feb 2016 00:47:05 -0800 (PST)
+Subject: [rtc-linux] Re: [PATCH 2/2] doc: dt: add documentation for alphascale,asm9260-rtc
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+ Rob Herring <robh@kernel.org>
+References: <1454056802-23386-1-git-send-email-linux@rempel-privat.de>
+ <1454056802-23386-3-git-send-email-linux@rempel-privat.de>
+ <20160201152750.GA17595@rob-hp-laptop> <20160201155527.GR20165@piout.net>
+Cc: devicetree@vger.kernel.org, a.zummo@towertech.it,
+ rtc-linux@googlegroups.com
+From: Oleksij Rempel <linux@rempel-privat.de>
+Message-ID: <56B06CCA.4060208@rempel-privat.de>
+Date: Tue, 2 Feb 2016 09:46:02 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1453903808-29788-4-git-send-email-ldewangan@nvidia.com>
+In-Reply-To: <20160201155527.GR20165@piout.net>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="Xe087KlWbvSL1W982wrjADLqXjVn2aqou"
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -32,44 +30,60 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Wed, Jan 27, 2016 at 07:40:06PM +0530, Laxman Dewangan wrote:
-> MAXIM Semiconductor's PMIC, MAX77620/MAX20024 has 8 GPIO pins
-> which also act as the special function in alternate mode. Also
-> there is configuration like push-pull, open drain, FPS timing
-> etc for these pins.
-> 
-> Add pincontrol driver to configure these parameters through
-> pincontrol APIs.
-> 
-> Signed-off-by: Laxman Dewangan <ldewangan@nvidia.com>
-> Signed-off-by: Chaitanya Bandi <bandik@nvidia.com>
-> ---
-> Changes from V1:
-> - Cleanup code based on comment received on mfd/rtc.
-> - Avoid duplication on error message.
->  
-> Changes form V2:
-> - Run coccicheck and checkpatch in strict mode for the alignment.
-> - update based on api changes from core.
-> 
-> Changes from V3: 
-> - Change all sys initcall to module driver.
-> - change the max77620_read argument to unisgned int from u8.
-> 
-> Changes from V4: 
-> - Added DT binding document as devicetree/bindings/pinctrl/pinctrl-max77620.txt
-> - Detail out properties.
-> 
->  .../bindings/pinctrl/pinctrl-max77620.txt          |  87 +++
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--Xe087KlWbvSL1W982wrjADLqXjVn2aqou
+Content-Type: text/plain; charset=UTF-8
 
-Acked-by: Rob Herring <robh@kernel.org>
+Am 01.02.2016 um 16:55 schrieb Alexandre Belloni:
+> On 01/02/2016 at 09:27:50 -0600, Rob Herring wrote :
+>> On Fri, Jan 29, 2016 at 09:40:02AM +0100, Oleksij Rempel wrote:
+>>> Document Alphascale asm9260 RTC bindings
+>>>
+>>> Signed-off-by: Oleksij Rempel <linux@rempel-privat.de>
+>>> ---
+>>>  .../bindings/rtc/alphascale,asm9260-rtc.txt        | 25 ++++++++++++++++++++++
+>>>  1 file changed, 25 insertions(+)
+>>>  create mode 100644 Documentation/devicetree/bindings/rtc/alphascale,asm9260-rtc.txt
+>>>
+>>> diff --git a/Documentation/devicetree/bindings/rtc/alphascale,asm9260-rtc.txt b/Documentation/devicetree/bindings/rtc/alphascale,asm9260-rtc.txt
+>>> new file mode 100644
+>>> index 0000000..2c0ff3c
+>>> --- /dev/null
+>>> +++ b/Documentation/devicetree/bindings/rtc/alphascale,asm9260-rtc.txt
+>>> @@ -0,0 +1,25 @@
+>>> +* Alphascale asm9260 SoC Real Time Clock
+>>> +
+>>> +Required properties:
+>>> +- compatible: Should be "alphascale,asm9260-rtc"
+>>> +- reg: Physical base address of the controller and length
+>>> +       of memory mapped region.
+>>> +- interrupts: IRQ line for the RTC.
+>>> +- clocks: Reference to the clock entry.
+>>> +- clock-names: should contain:
+>>> +  * "ahb" for the SoC RTC clock
+>>> +
+>>> +Optional:
+>>> +- calibration: calibration value for 1 sec period.
+>>> +		Max value for forward calibration is 0x1ffff (131071),
+>>> +		Min value for backward calibration is 0xfffe0001 (-131071).
+>>
+>> This should be prefixed with 'alphascale,'
+>>
+>> How is this value determined?
+>>
+> 
+> I think this should stay in userspace, see that series:
+> https://groups.google.com/forum/#!topic/rtc-linux/HGQqiHnMiuw
+> 
+> It quite often depends on environmental things like temperature so it may be updated at runtime.
+> 
 
->  drivers/pinctrl/Kconfig                            |  10 +
->  drivers/pinctrl/Makefile                           |   1 +
->  drivers/pinctrl/pinctrl-max77620.c                 | 693 +++++++++++++++++++++
->  4 files changed, 791 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/pinctrl/pinctrl-max77620.txt
->  create mode 100644 drivers/pinctrl/pinctrl-max77620.c
+I partially agree. IMO default configuration should work properly by
+20C. My devkit provide terrible results without default offset.
+
+-- 
+Regards,
+Oleksij
 
 -- 
 -- 
@@ -81,3 +95,18 @@ before submitting a driver.
 You received this message because you are subscribed to the Google Groups "rtc-linux" group.
 To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
+
+--Xe087KlWbvSL1W982wrjADLqXjVn2aqou
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iF4EAREIAAYFAlawbMoACgkQHwImuRkmbWlwogD5ARDoAS4OCp+gEAe3sA49rdDF
+b0jwWtHomClXT8JNYxwA+wYK7L+A+05WKTPDuXJCUgcBreUyBzVvH3IVjLKCwC0H
+=yWng
+-----END PGP SIGNATURE-----
+
+--Xe087KlWbvSL1W982wrjADLqXjVn2aqou--
