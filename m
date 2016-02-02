@@ -1,22 +1,23 @@
-Return-Path: <rtc-linux+bncBAABBXXGRS3AKGQEH4LAHNI@googlegroups.com>
-Received: from lists.s-osg.org (lists.s-osg.org. [54.187.51.154])
-        by gmr-mx.google.com with ESMTP id yd9si720451pab.1.2016.02.16.06.34.06
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBN4JYK2QKGQE6N5362Q@googlegroups.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id c143si47528wmd.1.2016.02.02.02.28.07
         for <rtc-linux@googlegroups.com>;
-        Tue, 16 Feb 2016 06:34:06 -0800 (PST)
-Subject: [rtc-linux] Re: [PATCH] rtc: s5m: De-inline large functions to save space
-To: Krzysztof Kozlowski <k.kozlowski@samsung.com>,
- Sangbeom Kim <sbkim73@samsung.com>, Alessandro Zummo <a.zummo@towertech.it>,
- Alexandre Belloni <alexandre.belloni@free-electrons.com>,
- linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org,
- rtc-linux@googlegroups.com
-References: <1455588282-7251-1-git-send-email-k.kozlowski@samsung.com>
-Cc: Denys Vlasenko <vda.linux@googlemail.com>
-From: Javier Martinez Canillas <javier@osg.samsung.com>
-Message-ID: <56C33358.7040807@osg.samsung.com>
-Date: Tue, 16 Feb 2016 11:34:00 -0300
+        Tue, 02 Feb 2016 02:28:07 -0800 (PST)
+Date: Tue, 2 Feb 2016 11:28:04 +0100
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Oleksij Rempel <linux@rempel-privat.de>
+Cc: Rob Herring <robh@kernel.org>, devicetree@vger.kernel.org,
+	a.zummo@towertech.it, rtc-linux@googlegroups.com
+Subject: [rtc-linux] Re: [PATCH 2/2] doc: dt: add documentation for alphascale,asm9260-rtc
+Message-ID: <20160202102804.GT20165@piout.net>
+References: <1454056802-23386-1-git-send-email-linux@rempel-privat.de>
+ <1454056802-23386-3-git-send-email-linux@rempel-privat.de>
+ <20160201152750.GA17595@rob-hp-laptop>
+ <20160201155527.GR20165@piout.net>
+ <56B06CCA.4060208@rempel-privat.de>
 MIME-Version: 1.0
-In-Reply-To: <1455588282-7251-1-git-send-email-k.kozlowski@samsung.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <56B06CCA.4060208@rempel-privat.de>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -27,27 +28,66 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Hello Krzysztof,
+On 02/02/2016 at 09:46:02 +0100, Oleksij Rempel wrote :
+> Am 01.02.2016 um 16:55 schrieb Alexandre Belloni:
+> > On 01/02/2016 at 09:27:50 -0600, Rob Herring wrote :
+> >> On Fri, Jan 29, 2016 at 09:40:02AM +0100, Oleksij Rempel wrote:
+> >>> Document Alphascale asm9260 RTC bindings
+> >>>
+> >>> Signed-off-by: Oleksij Rempel <linux@rempel-privat.de>
+> >>> ---
+> >>>  .../bindings/rtc/alphascale,asm9260-rtc.txt        | 25 ++++++++++++++++++++++
+> >>>  1 file changed, 25 insertions(+)
+> >>>  create mode 100644 Documentation/devicetree/bindings/rtc/alphascale,asm9260-rtc.txt
+> >>>
+> >>> diff --git a/Documentation/devicetree/bindings/rtc/alphascale,asm9260-rtc.txt b/Documentation/devicetree/bindings/rtc/alphascale,asm9260-rtc.txt
+> >>> new file mode 100644
+> >>> index 0000000..2c0ff3c
+> >>> --- /dev/null
+> >>> +++ b/Documentation/devicetree/bindings/rtc/alphascale,asm9260-rtc.txt
+> >>> @@ -0,0 +1,25 @@
+> >>> +* Alphascale asm9260 SoC Real Time Clock
+> >>> +
+> >>> +Required properties:
+> >>> +- compatible: Should be "alphascale,asm9260-rtc"
+> >>> +- reg: Physical base address of the controller and length
+> >>> +       of memory mapped region.
+> >>> +- interrupts: IRQ line for the RTC.
+> >>> +- clocks: Reference to the clock entry.
+> >>> +- clock-names: should contain:
+> >>> +  * "ahb" for the SoC RTC clock
+> >>> +
+> >>> +Optional:
+> >>> +- calibration: calibration value for 1 sec period.
+> >>> +		Max value for forward calibration is 0x1ffff (131071),
+> >>> +		Min value for backward calibration is 0xfffe0001 (-131071).
+> >>
+> >> This should be prefixed with 'alphascale,'
+> >>
+> >> How is this value determined?
+> >>
+> > 
+> > I think this should stay in userspace, see that series:
+> > https://groups.google.com/forum/#!topic/rtc-linux/HGQqiHnMiuw
+> > 
+> > It quite often depends on environmental things like temperature so it may be updated at runtime.
+> > 
+> 
+> I partially agree. IMO default configuration should work properly by
+> 20C. My devkit provide terrible results without default offset.
+> 
 
-On 02/15/2016 11:04 PM, Krzysztof Kozlowski wrote:
-> Few functions were marked inline even though they were relatively large
-> and sometimes used in multiple places. De-inline them to let the
-> compiler decide whether optimization makes sense. This fixes inline_hunt
-> report:
-> drivers/rtc/rtc-s5m.c: Deinline s5m8767_rtc_set_alarm_reg, save 704 bytes
-> drivers/rtc/rtc-s5m.c: Deinline s5m8767_wait_for_udr_update, save 192 bytes
->
-> Reported-by: Denys Vlasenko <vda.linux@googlemail.com>
-> Cc: Denys Vlasenko <vda.linux@googlemail.com>
-> Signed-off-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+I'm not against having a sane default. What I would do is set a default
+hardcoded value from the driver at the time the RTC is reset (that is: it
+has never been set yet) then let the user adjust that calibration
+through sysfs.
 
-Reviewed-by: Javier Martinez Canillas <javier@osg.samsung.com>
 
-Best regards,
+
 -- 
-Javier Martinez Canillas
-Open Source Group
-Samsung Research America
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
 -- 
 -- 
