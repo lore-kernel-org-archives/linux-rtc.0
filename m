@@ -1,23 +1,28 @@
-Return-Path: <rtc-linux+bncBD2OLRXW4ABBBO54462QKGQECKYU7EY@googlegroups.com>
-Received: from hqemgate15.nvidia.com (hqemgate15.nvidia.com. [216.228.121.64])
-        by gmr-mx.google.com with ESMTPS id tn7si5069147pac.1.2016.02.09.04.40.26
+Return-Path: <rtc-linux+bncBDKZNNNLXAHBB54FYW2QKGQEOEJBNNA@googlegroups.com>
+Received: from mailout1.w1.samsung.com (mailout1.w1.samsung.com. [210.118.77.11])
+        by gmr-mx.google.com with ESMTPS id jg4si462945pac.2.2016.02.02.15.59.50
         for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 09 Feb 2016 04:40:26 -0800 (PST)
-From: Laxman Dewangan <ldewangan@nvidia.com>
-To: <lee.jones@linaro.org>, <alexandre.belloni@free-electrons.com>,
-	<k.kozlowski@samsung.com>, <javier@osg.samsung.com>, <broonie@kernel.org>,
-	<gregkh@linuxfoundation.org>, <a.zummo@towertech.it>
-CC: <cw00.choi@samsung.com>, <linux-kernel@vger.kernel.org>,
-	<rtc-linux@googlegroups.com>, Laxman Dewangan <ldewangan@nvidia.com>
-Subject: [rtc-linux] [PATCH V6 1/6] regmap: irq: dispose all virtual irq
- before removing domain
-Date: Tue, 9 Feb 2016 17:58:22 +0530
-Message-ID: <1455020907-4564-2-git-send-email-ldewangan@nvidia.com>
-In-Reply-To: <1455020907-4564-1-git-send-email-ldewangan@nvidia.com>
-References: <1455020907-4564-1-git-send-email-ldewangan@nvidia.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+        (version=TLS1 cipher=AES128-SHA bits=128/128);
+        Tue, 02 Feb 2016 15:59:50 -0800 (PST)
+Received: from eucpsbgm2.samsung.com (unknown [203.254.199.245])
+ by mailout1.w1.samsung.com
+ (Oracle Communications Messaging Server 7.0.5.31.0 64bit (built May  5 2014))
+ with ESMTP id <0O1Y003AA2NMJA80@mailout1.w1.samsung.com> for
+ rtc-linux@googlegroups.com; Tue, 02 Feb 2016 23:59:46 +0000 (GMT)
+Subject: [rtc-linux] Re: [PATCH 2/4] rtc: max77686: use rtc regmap to access
+ RTC registers
+To: Laxman Dewangan <ldewangan@nvidia.com>, lee.jones@linaro.org,
+ alexandre.belloni@free-electrons.com, javier@osg.samsung.com
+References: <1454419012-18050-1-git-send-email-ldewangan@nvidia.com>
+ <1454419012-18050-3-git-send-email-ldewangan@nvidia.com>
+Cc: cw00.choi@samsung.com, linux-kernel@vger.kernel.org,
+ rtc-linux@googlegroups.com
+From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+Message-id: <56B142F2.30206@samsung.com>
+Date: Wed, 03 Feb 2016 08:59:46 +0900
+MIME-version: 1.0
+In-reply-to: <1454419012-18050-3-git-send-email-ldewangan@nvidia.com>
+Content-type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -28,62 +33,30 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-It is require to dispose all virtual irq of hwirq on chip
-created on given irq domain before removing this irq domain.
-Hence dispose all mapped irqs before deleting the irq domains
-in regmap_del_irq_chip();
+On 02.02.2016 22:16, Laxman Dewangan wrote:
+> rtc_regmap should be used to access all RTC regsiters instead
+> of parent regmap regardless of what chip or property have it.
+> 
+> This makes the register access uniform and extendible for other
+> chips.
+> 
+> Signed-off-by: Laxman Dewangan <ldewangan@nvidia.com>
+> CC: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+> CC: Javier Martinez Canillas <javier@osg.samsung.com>
+> ---
+>  drivers/rtc/rtc-max77686.c | 7 ++++---
+>  1 file changed, 4 insertions(+), 3 deletions(-)
 
-Signed-off-by: Laxman Dewangan <ldewangan@nvidia.com>
 
----
-This is new in series. Earlier patch for adding APIs to dispose
-virq via regmap is abandon and this patch took place.
-The dispose of virw is added in regmap_del_irq_chip().
+Reviewed-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
 
- drivers/base/regmap/regmap-irq.c | 21 +++++++++++++++++++++
- 1 file changed, 21 insertions(+)
+Tested on Trats2/max77686:
+Tested-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
 
-diff --git a/drivers/base/regmap/regmap-irq.c b/drivers/base/regmap/regmap-irq.c
-index 9b0d202..7e1e9e8 100644
---- a/drivers/base/regmap/regmap-irq.c
-+++ b/drivers/base/regmap/regmap-irq.c
-@@ -655,13 +655,34 @@ EXPORT_SYMBOL_GPL(regmap_add_irq_chip);
-  *
-  * @irq: Primary IRQ for the device
-  * @d:   regmap_irq_chip_data allocated by regmap_add_irq_chip()
-+ *
-+ * This function also dispose all mapped irq on chip.
-  */
- void regmap_del_irq_chip(int irq, struct regmap_irq_chip_data *d)
- {
-+	unsigned int virq;
-+	int hwirq;
-+
- 	if (!d)
- 		return;
- 
- 	free_irq(irq, d);
-+
-+	/* Dispose all virtual irq from irq domain before removing it */
-+	for (hwirq = 0; hwirq < d->chip->num_irqs; hwirq++) {
-+		/* Ignore hwirq if holes in the IRQ list */
-+		if (!d->chip->irqs[hwirq].mask)
-+			continue;
-+
-+		/*
-+		 * Find the virtual irq of hwirq on chip and if it is
-+		 * there then dispose it
-+		 */
-+		virq = irq_find_mapping(d->domain, hwirq);
-+		if (virq)
-+			irq_dispose_mapping(virq);
-+	}
-+
- 	irq_domain_remove(d->domain);
- 	kfree(d->type_buf);
- 	kfree(d->type_buf_def);
--- 
-2.1.4
+
+Best regards,
+Krzysztof
+
 
 -- 
 -- 
