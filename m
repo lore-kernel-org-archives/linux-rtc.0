@@ -1,22 +1,27 @@
-Return-Path: <rtc-linux+bncBD2OLRXW4ABBBWONZS2QKGQE7PDCSVA@googlegroups.com>
-Received: from hqemgate15.nvidia.com (hqemgate15.nvidia.com. [216.228.121.64])
-        by gmr-mx.google.com with ESMTPS id ui7si1369219pab.0.2016.02.04.02.24.25
+Return-Path: <rtc-linux+bncBDKZNNNLXAHBBZEEYW2QKGQE5SP5QII@googlegroups.com>
+Received: from mailout4.w1.samsung.com (mailout4.w1.samsung.com. [210.118.77.14])
+        by gmr-mx.google.com with ESMTPS id ui7si528362pab.0.2016.02.02.15.57.23
         for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 04 Feb 2016 02:24:25 -0800 (PST)
-Message-ID: <56B3242E.1060504@nvidia.com>
-Date: Thu, 4 Feb 2016 15:43:02 +0530
-From: Laxman Dewangan <ldewangan@nvidia.com>
-MIME-Version: 1.0
-To: Krzysztof Kozlowski <k.kozlowski@samsung.com>, <lee.jones@linaro.org>,
-	<alexandre.belloni@free-electrons.com>, <javier@osg.samsung.com>
-CC: <cw00.choi@samsung.com>, <linux-kernel@vger.kernel.org>,
-	<rtc-linux@googlegroups.com>
-Subject: [rtc-linux] Re: [PATCH V3 5/5] rtc: max77686: move initialisation of
- rtc regmap, irq chip locally
-References: <1454507233-9959-1-git-send-email-ldewangan@nvidia.com> <1454507233-9959-6-git-send-email-ldewangan@nvidia.com> <56B296F6.3060002@samsung.com> <56B2B17A.1000509@nvidia.com> <56B2F6A2.5060103@samsung.com> <56B314F4.6010605@samsung.com>
-In-Reply-To: <56B314F4.6010605@samsung.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+        (version=TLS1 cipher=AES128-SHA bits=128/128);
+        Tue, 02 Feb 2016 15:57:24 -0800 (PST)
+Received: from eucpsbgm1.samsung.com (unknown [203.254.199.244])
+ by mailout4.w1.samsung.com
+ (Oracle Communications Messaging Server 7.0.5.31.0 64bit (built May  5 2014))
+ with ESMTP id <0O1Y00E772JJAA80@mailout4.w1.samsung.com> for
+ rtc-linux@googlegroups.com; Tue, 02 Feb 2016 23:57:19 +0000 (GMT)
+Subject: [rtc-linux] Re: [PATCH 1/4] rtc: max77686: fix checkpatch error
+To: Laxman Dewangan <ldewangan@nvidia.com>, lee.jones@linaro.org,
+ alexandre.belloni@free-electrons.com, javier@osg.samsung.com
+References: <1454419012-18050-1-git-send-email-ldewangan@nvidia.com>
+ <1454419012-18050-2-git-send-email-ldewangan@nvidia.com>
+Cc: cw00.choi@samsung.com, linux-kernel@vger.kernel.org,
+ rtc-linux@googlegroups.com
+From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+Message-id: <56B1425F.2080709@samsung.com>
+Date: Wed, 03 Feb 2016 08:57:19 +0900
+MIME-version: 1.0
+In-reply-to: <1454419012-18050-2-git-send-email-ldewangan@nvidia.com>
+Content-type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -27,27 +32,26 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
+On 02.02.2016 22:16, Laxman Dewangan wrote:
+> Fix following check patch error in rtc-max77686 driver:
+> - Alignment should match open parenthesis.
+> - braces {} should be used on all arms of this statement.
+> - Prefer using the BIT macro
+> 
+> Signed-off-by: Laxman Dewangan <ldewangan@nvidia.com>
+> ---
+>  drivers/rtc/rtc-max77686.c | 25 +++++++++++++------------
+>  1 file changed, 13 insertions(+), 12 deletions(-)
+> 
 
-On Thursday 04 February 2016 02:38 PM, Krzysztof Kozlowski wrote:
-> On 04.02.2016 15:58, Krzysztof Kozlowski wrote:
->> On 04.02.2016 11:03, Laxman Dewangan wrote:
->>> 3. Can you try locally to not use devm_regmap_init_i2c() and just use
->>> the regmap_init_i2c() and proper removal of this from error path and
->>> remove callback?
->> I'll try to find some time for that. Maybe tomorrow.
-> regmap_init_i2c does not help. However helps commenting out the:
-> 	regmap_del_irq_chip(info->rtc_irq, info->rtc_irq_data);
-> from remove() callback.
->
->
+Reviewed-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
 
-Thanks for debugging.  I do not see anything on regmap_del_irq_chip() 
-which can be suspected. Is this because of sharing interrupt between mfd 
-and rtc driver?
+Tested on Trats2/max77686:
+Tested-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
 
-What is your suggestion here?  Should we avoid this inside RTC driver 
-(creating this in mfd) and pass this information to the rtc driver using 
-customized platform driver?
+
+Best regards,
+Krzysztof
 
 -- 
 -- 
