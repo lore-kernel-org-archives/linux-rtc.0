@@ -1,20 +1,25 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRB3H7ZC3AKGQESQLAAFA@googlegroups.com>
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id h126si249537wme.0.2016.02.27.16.31.39
-        for <rtc-linux@googlegroups.com>;
-        Sat, 27 Feb 2016 16:31:39 -0800 (PST)
-Date: Sun, 28 Feb 2016 01:31:39 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Michael =?iso-8859-1?Q?B=FCsch?= <m@bues.ch>
-Cc: Gregory Hermant <gregory.hermant@calao-systems.com>,
-	rtc-linux@googlegroups.com
-Subject: Re: [rtc-linux] rv3029 EEPROM handling
-Message-ID: <20160228003139.GB2398@piout.net>
-References: <20160227153918.3c3d3853@wiggum>
+Return-Path: <rtc-linux+bncBDQJZJXU2UMBB2ETYS2QKGQESVBDKYY@googlegroups.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <20160227153918.3c3d3853@wiggum>
+Received: from mout.gmx.net (mout.gmx.net. [212.227.15.18])
+        by gmr-mx.google.com with ESMTPS id 5si143166wmm.2.2016.02.02.11.56.23
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 02 Feb 2016 11:56:23 -0800 (PST)
+From: Oleksij Rempel <linux@rempel-privat.de>
+To: devicetree@vger.kernel.org,
+	robh+dt@kernel.org,
+	a.zummo@towertech.it,
+	alexandre.belloni@free-electrons.com,
+	rtc-linux@googlegroups.com
+Cc: Oleksij Rempel <linux@rempel-privat.de>
+Subject: [rtc-linux] [PATCH v2 1/2] rtc: add rtc-asm9260 driver
+Date: Tue,  2 Feb 2016 20:56:10 +0100
+Message-Id: <1454442971-25225-2-git-send-email-linux@rempel-privat.de>
+In-Reply-To: <1454442971-25225-1-git-send-email-linux@rempel-privat.de>
+References: <20160202102804.GT20165@piout.net>
+ <1454442971-25225-1-git-send-email-linux@rempel-privat.de>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -24,46 +29,421 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Hi,
+Add support for RTC controller found on Alphascale asm9260
+SoC.
 
-On 27/02/2016 at 15:39:18 +0100, Michael B=C3=BCsch wrote :
-> I'm currently trying to use the Linux RV3029 RTC driver for one of my
-> applications. So far the basic functionality works fine.
-> However I need a way to (initially) program the EEPROM on the RTC chip
-> to enable such things as temperature compensation or the trickle
-> charger.
-> As of now the Linux driver does not support that though. So I'm
-> wondering how we should implement that. As an initial idea I think we
-> could have about some sysfs attributes for these settings. Is there a
-> better way (more standard API) to do this?
-> If not, I'll do an implementation of this based on sysfs attributes.
->=20
+Signed-off-by: Oleksij Rempel <linux@rempel-privat.de>
+---
+ drivers/rtc/Kconfig       |  10 ++
+ drivers/rtc/Makefile      |   1 +
+ drivers/rtc/rtc-asm9260.c | 355 ++++++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 366 insertions(+)
+ create mode 100644 drivers/rtc/rtc-asm9260.c
 
-trickle charging is usually enabled using device tree, however, I'd
-really like to see more standardization on the property names.
+diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
+index 376322f..733b6aa 100644
+--- a/drivers/rtc/Kconfig
++++ b/drivers/rtc/Kconfig
+@@ -1144,6 +1144,16 @@ config RTC_DRV_ZYNQMP
+ 
+ comment "on-CPU RTC drivers"
+ 
++config RTC_DRV_ASM9260
++	tristate "Alphascale asm9260 RTC"
++	depends on MACH_ASM9260
++	help
++	  If you say yes here you get support for the RTC on the
++	  Alphascale asm9260 SoC.
++
++	  This driver can also be built as a module. If so, the module
++	  will be called rtc-asm9260.
++
+ config RTC_DRV_DAVINCI
+ 	tristate "TI DaVinci RTC"
+ 	depends on ARCH_DAVINCI_DM365
+diff --git a/drivers/rtc/Makefile b/drivers/rtc/Makefile
+index 62d61b2..f4d841b 100644
+--- a/drivers/rtc/Makefile
++++ b/drivers/rtc/Makefile
+@@ -28,6 +28,7 @@ obj-$(CONFIG_RTC_DRV_ABB5ZES3)	+= rtc-ab-b5ze-s3.o
+ obj-$(CONFIG_RTC_DRV_ABX80X)	+= rtc-abx80x.o
+ obj-$(CONFIG_RTC_DRV_ARMADA38X)	+= rtc-armada38x.o
+ obj-$(CONFIG_RTC_DRV_AS3722)	+= rtc-as3722.o
++obj-$(CONFIG_RTC_DRV_ASM9260)	+= rtc-asm9260.o
+ obj-$(CONFIG_RTC_DRV_AT32AP700X)+= rtc-at32ap700x.o
+ obj-$(CONFIG_RTC_DRV_AT91RM9200)+= rtc-at91rm9200.o
+ obj-$(CONFIG_RTC_DRV_AT91SAM9)	+= rtc-at91sam9.o
+diff --git a/drivers/rtc/rtc-asm9260.c b/drivers/rtc/rtc-asm9260.c
+new file mode 100644
+index 0000000..14e08c4
+--- /dev/null
++++ b/drivers/rtc/rtc-asm9260.c
+@@ -0,0 +1,355 @@
++/*
++ * Copyright (C) 2016 Oleksij Rempel <linux@rempel-privat.de>
++ *
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License as published by the
++ * Free Software Foundation; either version 2 of the License,
++ * or (at your option) any later version.
++ */
++
++#include <linux/clk.h>
++#include <linux/interrupt.h>
++#include <linux/io.h>
++#include <linux/module.h>
++#include <linux/of.h>
++#include <linux/platform_device.h>
++#include <linux/rtc.h>
++
++/* Miscellaneous registers */
++/* Interrupt Location Register */
++#define HW_ILR			0x00
++#define BM_RTCALF		BIT(1)
++#define BM_RTCCIF		BIT(0)
++
++/* Clock Control Register */
++#define HW_CCR			0x08
++/* Calibration counter disable */
++#define BM_CCALOFF		BIT(4)
++/* Reset internal oscillator divider */
++#define BM_CTCRST		BIT(1)
++/* Clock Enable */
++#define BM_CLKEN		BIT(0)
++
++/* Counter Increment Interrupt Register */
++#define HW_CIIR			0x0C
++#define BM_CIIR_IMYEAR		BIT(7)
++#define BM_CIIR_IMMON		BIT(6)
++#define BM_CIIR_IMDOY		BIT(5)
++#define BM_CIIR_IMDOW		BIT(4)
++#define BM_CIIR_IMDOM		BIT(3)
++#define BM_CIIR_IMHOUR		BIT(2)
++#define BM_CIIR_IMMIN		BIT(1)
++#define BM_CIIR_IMSEC		BIT(0)
++
++/* Alarm Mask Register */
++#define HW_AMR			0x10
++#define BM_AMR_IMYEAR		BIT(7)
++#define BM_AMR_IMMON		BIT(6)
++#define BM_AMR_IMDOY		BIT(5)
++#define BM_AMR_IMDOW		BIT(4)
++#define BM_AMR_IMDOM		BIT(3)
++#define BM_AMR_IMHOUR		BIT(2)
++#define BM_AMR_IMMIN		BIT(1)
++#define BM_AMR_IMSEC		BIT(0)
++#define BM_AMR_OFF		0xff
++
++/* Consolidated time registers */
++#define HW_CTIME0		0x14
++#define BM_CTIME0_DOW_S		24
++#define BM_CTIME0_DOW_M		0x7
++#define BM_CTIME0_HOUR_S	16
++#define BM_CTIME0_HOUR_M	0x1f
++#define BM_CTIME0_MIN_S		8
++#define BM_CTIME0_MIN_M		0x3f
++#define BM_CTIME0_SEC_S		0
++#define BM_CTIME0_SEC_M		0x3f
++
++#define HW_CTIME1		0x18
++#define BM_CTIME1_YEAR_S	16
++#define BM_CTIME1_YEAR_M	0xfff
++#define BM_CTIME1_MON_S		8
++#define BM_CTIME1_MON_M		0xf
++#define BM_CTIME1_DOM_S		0
++#define BM_CTIME1_DOM_M		0x1f
++
++#define HW_CTIME2		0x1C
++#define BM_CTIME2_DOY_S		0
++#define BM_CTIME2_DOY_M		0xfff
++
++/* Time counter registers */
++#define HW_SEC			0x20
++#define HW_MIN			0x24
++#define HW_HOUR			0x28
++#define HW_DOM			0x2C
++#define HW_DOW			0x30
++#define HW_DOY			0x34
++#define HW_MONTH		0x38
++#define HW_YEAR			0x3C
++
++#define HW_CALIBRATION		0x40
++#define BM_CALDIR_BACK		BIT(17)
++#define BM_CALVAL_M		0x1ffff
++
++/* General purpose registers */
++#define HW_GPREG0		0x44
++#define HW_GPREG1		0x48
++#define HW_GPREG2		0x4C
++#define HW_GPREG3		0x50
++#define HW_GPREG4		0x54
++
++/* Alarm register group */
++#define HW_ALSEC		0x60
++#define HW_ALMIN		0x64
++#define HW_ALHOUR		0x68
++#define HW_ALDOM		0x6C
++#define HW_ALDOW		0x70
++#define HW_ALDOY		0x74
++#define HW_ALMON		0x78
++#define HW_ALYEAR		0x7C
++
++struct asm9260_rtc_priv {
++	struct device		*dev;
++	void __iomem		*iobase;
++	struct rtc_device	*rtc;
++	struct clk		*clk;
++	/* io lock */
++	spinlock_t		lock;
++};
++
++static irqreturn_t asm9260_rtc_irq(int irq, void *dev_id)
++{
++	struct asm9260_rtc_priv *priv = dev_id;
++	u32 isr;
++	unsigned long events = 0;
++
++	isr = ioread32(priv->iobase + HW_CIIR);
++	if (!isr)
++		return IRQ_NONE;
++
++	iowrite32(0, priv->iobase + HW_CIIR);
++
++	events |= RTC_AF | RTC_IRQF;
++
++	rtc_update_irq(priv->rtc, 1, events);
++
++	return IRQ_HANDLED;
++}
++
++static int asm9260_rtc_read_time(struct device *dev, struct rtc_time *tm)
++{
++	struct asm9260_rtc_priv *priv = dev_get_drvdata(dev);
++	u32 ctime0, ctime1, ctime2;
++	unsigned long irq_flags;
++
++	spin_lock_irqsave(&priv->lock, irq_flags);
++	ctime0 = ioread32(priv->iobase + HW_CTIME0);
++	ctime1 = ioread32(priv->iobase + HW_CTIME1);
++	ctime2 = ioread32(priv->iobase + HW_CTIME2);
++
++	if (ctime1 != ioread32(priv->iobase + HW_CTIME1)) {
++		/*
++		 * woops, counter flipped right now. Now we are safe
++		 * to reread.
++		 */
++		ctime0 = ioread32(priv->iobase + HW_CTIME0);
++		ctime1 = ioread32(priv->iobase + HW_CTIME1);
++		ctime2 = ioread32(priv->iobase + HW_CTIME2);
++	}
++	spin_unlock_irqrestore(&priv->lock, irq_flags);
++
++	tm->tm_sec  = (ctime0 >> BM_CTIME0_SEC_S)  & BM_CTIME0_SEC_M;
++	tm->tm_min  = (ctime0 >> BM_CTIME0_MIN_S)  & BM_CTIME0_MIN_M;
++	tm->tm_hour = (ctime0 >> BM_CTIME0_HOUR_S) & BM_CTIME0_HOUR_M;
++	tm->tm_wday = (ctime0 >> BM_CTIME0_DOW_S)  & BM_CTIME0_DOW_M;
++
++	tm->tm_mday = (ctime1 >> BM_CTIME1_DOM_S)  & BM_CTIME1_DOM_M;
++	tm->tm_mon  = (ctime1 >> BM_CTIME1_MON_S)  & BM_CTIME1_MON_M;
++	tm->tm_year = (ctime1 >> BM_CTIME1_YEAR_S) & BM_CTIME1_YEAR_M;
++
++	tm->tm_yday = (ctime2 >> BM_CTIME2_DOY_S)  & BM_CTIME2_DOY_M;
++
++	return 0;
++}
++
++static int asm9260_rtc_set_time(struct device *dev, struct rtc_time *tm)
++{
++	struct asm9260_rtc_priv *priv = dev_get_drvdata(dev);
++	unsigned long irq_flags;
++
++	spin_lock_irqsave(&priv->lock, irq_flags);
++	/*
++	 * make sure SEC counter will not flip other counter on write time,
++	 * real value will be written at the enf of sequence.
++	 */
++	iowrite32(0, priv->iobase + HW_SEC);
++
++	iowrite32(tm->tm_year, priv->iobase + HW_YEAR);
++	iowrite32(tm->tm_mon,  priv->iobase + HW_MONTH);
++	iowrite32(tm->tm_mday, priv->iobase + HW_DOM);
++	iowrite32(tm->tm_wday, priv->iobase + HW_DOW);
++	iowrite32(tm->tm_yday, priv->iobase + HW_DOY);
++	iowrite32(tm->tm_hour, priv->iobase + HW_HOUR);
++	iowrite32(tm->tm_min,  priv->iobase + HW_MIN);
++	iowrite32(tm->tm_sec,  priv->iobase + HW_SEC);
++	spin_unlock_irqrestore(&priv->lock, irq_flags);
++
++	return 0;
++}
++
++static int asm9260_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
++{
++	struct asm9260_rtc_priv *priv = dev_get_drvdata(dev);
++	unsigned long irq_flags;
++
++	spin_lock_irqsave(&priv->lock, irq_flags);
++	alrm->time.tm_year = ioread32(priv->iobase + HW_ALYEAR);
++	alrm->time.tm_mon  = ioread32(priv->iobase + HW_ALMON);
++	alrm->time.tm_mday = ioread32(priv->iobase + HW_ALDOM);
++	alrm->time.tm_wday = ioread32(priv->iobase + HW_ALDOW);
++	alrm->time.tm_yday = ioread32(priv->iobase + HW_ALDOY);
++	alrm->time.tm_hour = ioread32(priv->iobase + HW_ALHOUR);
++	alrm->time.tm_min  = ioread32(priv->iobase + HW_ALMIN);
++	alrm->time.tm_sec  = ioread32(priv->iobase + HW_ALSEC);
++
++	alrm->enabled = ioread32(priv->iobase + HW_AMR) ? 1 : 0;
++	alrm->pending = ioread32(priv->iobase + HW_CIIR) ? 1 : 0;
++	spin_unlock_irqrestore(&priv->lock, irq_flags);
++
++	return rtc_valid_tm(&alrm->time);
++}
++
++static int asm9260_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
++{
++	struct asm9260_rtc_priv *priv = dev_get_drvdata(dev);
++	unsigned long irq_flags;
++
++	spin_lock_irqsave(&priv->lock, irq_flags);
++	iowrite32(alrm->time.tm_year, priv->iobase + HW_ALYEAR);
++	iowrite32(alrm->time.tm_mon,  priv->iobase + HW_ALMON);
++	iowrite32(alrm->time.tm_mday, priv->iobase + HW_ALDOM);
++	iowrite32(alrm->time.tm_wday, priv->iobase + HW_ALDOW);
++	iowrite32(alrm->time.tm_yday, priv->iobase + HW_ALDOY);
++	iowrite32(alrm->time.tm_hour, priv->iobase + HW_ALHOUR);
++	iowrite32(alrm->time.tm_min,  priv->iobase + HW_ALMIN);
++	iowrite32(alrm->time.tm_sec,  priv->iobase + HW_ALSEC);
++
++	iowrite32(alrm->enabled ? 0 : BM_AMR_OFF, priv->iobase + HW_AMR);
++	spin_unlock_irqrestore(&priv->lock, irq_flags);
++
++	return 0;
++}
++
++static int asm9260_alarm_irq_enable(struct device *dev, unsigned int enabled)
++{
++	struct asm9260_rtc_priv *priv = dev_get_drvdata(dev);
++
++	iowrite32(enabled ? 0 : BM_AMR_OFF, priv->iobase + HW_AMR);
++	return 0;
++}
++
++static const struct rtc_class_ops asm9260_rtc_ops = {
++	.read_time		= asm9260_rtc_read_time,
++	.set_time		= asm9260_rtc_set_time,
++	.read_alarm		= asm9260_rtc_read_alarm,
++	.set_alarm		= asm9260_rtc_set_alarm,
++	.alarm_irq_enable	= asm9260_alarm_irq_enable,
++};
++
++static int __init asm9260_rtc_probe(struct platform_device *pdev)
++{
++	struct asm9260_rtc_priv *priv;
++	struct device *dev = &pdev->dev;
++	struct resource	*res;
++	int irq_alarm, ret;
++	u32 ccr;
++
++	priv = devm_kzalloc(dev, sizeof(struct asm9260_rtc_priv), GFP_KERNEL);
++	if (!priv)
++		return -ENOMEM;
++
++	priv->dev = &pdev->dev;
++	platform_set_drvdata(pdev, priv);
++
++	irq_alarm = platform_get_irq(pdev, 0);
++	if (irq_alarm < 0) {
++		dev_err(dev, "No alarm IRQ resource defined\n");
++		return irq_alarm;
++	}
++
++	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
++	priv->iobase = devm_ioremap_resource(dev, res);
++	if (IS_ERR(priv->iobase))
++		return PTR_ERR(priv->iobase);
++
++	priv->clk = devm_clk_get(dev, "ahb");
++	ret = clk_prepare_enable(priv->clk);
++	if (ret) {
++		dev_err(dev, "Failed to enable clk!\n");
++		return ret;
++	}
++
++	ccr = ioread32(priv->iobase + HW_CCR);
++	/* if dev is not enabled, reset it */
++	if ((ccr & (BM_CLKEN | BM_CTCRST)) != BM_CLKEN) {
++		iowrite32(BM_CTCRST, priv->iobase + HW_CCR);
++		ccr = 0;
++	}
++
++	iowrite32(BM_CLKEN | ccr, priv->iobase + HW_CCR);
++	iowrite32(0, priv->iobase + HW_CIIR);
++	iowrite32(BM_AMR_OFF, priv->iobase + HW_AMR);
++
++	priv->rtc = devm_rtc_device_register(dev, dev_name(dev),
++					     &asm9260_rtc_ops, THIS_MODULE);
++	if (IS_ERR(priv->rtc)) {
++		ret = PTR_ERR(priv->rtc);
++		dev_err(dev, "Failed to register RTC device: %d\n", ret);
++		goto err_return;
++	}
++
++	ret = devm_request_threaded_irq(dev, irq_alarm, NULL,
++					asm9260_rtc_irq, IRQF_ONESHOT,
++					dev_name(dev), priv);
++	if (ret < 0) {
++		dev_err(dev, "can't get irq %i, err %d\n",
++			irq_alarm, ret);
++		goto err_return;
++	}
++
++	return 0;
++
++err_return:
++	clk_disable_unprepare(priv->clk);
++	return ret;
++}
++
++static int __exit asm9260_rtc_remove(struct platform_device *pdev)
++{
++	struct asm9260_rtc_priv *priv = platform_get_drvdata(pdev);
++
++	/* Disable alarm matching */
++	iowrite32(BM_AMR_OFF, priv->iobase + HW_AMR);
++	clk_disable_unprepare(priv->clk);
++	return 0;
++}
++
++static const struct of_device_id asm9260_dt_ids[] = {
++	{ .compatible = "alphascale,asm9260-rtc", },
++	{}
++};
++
++static struct platform_driver asm9260_rtc_driver = {
++	.probe		= asm9260_rtc_probe,
++	.remove		= asm9260_rtc_remove,
++	.driver		= {
++		.name	= "asm9260-rtc",
++		.owner	= THIS_MODULE,
++		.of_match_table = asm9260_dt_ids,
++	},
++};
++
++module_platform_driver(asm9260_rtc_driver);
++
++MODULE_AUTHOR("Oleksij Rempel <linux@rempel-privat.de>");
++MODULE_DESCRIPTION("Alphascale asm9260 SoC Realtime Clock Driver (RTC)");
++MODULE_LICENSE("GPL");
+-- 
+2.5.0
 
-I'm not sure yet about the temperature compensation. I've just merged
-the crystal offset modification api with a sysfs interface in rtc-next:
-http://git.kernel.org/cgit/linux/kernel/git/abelloni/linux.git/commit/?h=3D=
-rtc-next&id=3D5f23807caab7801c3333c68417bb13c7e2439193
-
-But this doesn't seem enough for that particular RTC.
-
-
---=20
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
-
---=20
---=20
+-- 
+-- 
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
----=20
-You received this message because you are subscribed to the Google Groups "=
-rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an e=
-mail to rtc-linux+unsubscribe@googlegroups.com.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
