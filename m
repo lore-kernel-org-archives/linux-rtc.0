@@ -1,25 +1,23 @@
-Return-Path: <rtc-linux+bncBCPM5SUWUYIRBU6A2G3AKGQEVE3WN5A@googlegroups.com>
-MIME-Version: 1.0
-Received: from mail-pa0-x22c.google.com (mail-pa0-x22c.google.com. [2607:f8b0:400e:c03::22c])
-        by gmr-mx.google.com with ESMTPS id ui7si3698544pab.0.2016.02.29.07.14.27
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 29 Feb 2016 07:14:27 -0800 (PST)
-Received: by mail-pa0-x22c.google.com with SMTP id bj10so24176316pad.2
-        for <rtc-linux@googlegroups.com>; Mon, 29 Feb 2016 07:14:27 -0800 (PST)
-From: Akinobu Mita <akinobu.mita@gmail.com>
-To: rtc-linux@googlegroups.com
-Cc: Akinobu Mita <akinobu.mita@gmail.com>,
+Return-Path: <rtc-linux+bncBD2ZNBF5VYJRB2HUYG2QKGQE4NBNCYA@googlegroups.com>
+Date: Tue, 2 Feb 2016 10:44:07 +0100
+From: Maxime Ripard <maxime.ripard@free-electrons.com>
+To: Andre Przywara <andre.przywara@arm.com>
+Cc: Chen-Yu Tsai <wens@csie.org>, linux-sunxi@googlegroups.com,
+	Arnd Bergmann <arnd@arndb.de>, linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org,
 	Alessandro Zummo <a.zummo@towertech.it>,
 	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Dennis Aberilla <denzzzhome@yahoo.com>
-Subject: [rtc-linux] [PATCH v3 6/8] rtc: ds3232-core: remove unused UIE code
-Date: Tue,  1 Mar 2016 00:13:50 +0900
-Message-Id: <1456758832-10590-6-git-send-email-akinobu.mita@gmail.com>
-In-Reply-To: <1456758832-10590-1-git-send-email-akinobu.mita@gmail.com>
-References: <1456758832-10590-1-git-send-email-akinobu.mita@gmail.com>
+	rtc-linux@googlegroups.com
+Subject: [rtc-linux] Re: [PATCH 03/11] drivers: rtc: allow compilation of
+ sun6i RTC for all sunxi SoCs
+Message-ID: <20160202094407.GL4652@lukather>
+References: <1454348370-3816-1-git-send-email-andre.przywara@arm.com>
+ <1454348370-3816-4-git-send-email-andre.przywara@arm.com>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="RD6GsZsdEJvsf78O"
+In-Reply-To: <1454348370-3816-4-git-send-email-andre.przywara@arm.com>
 Reply-To: rtc-linux@googlegroups.com
-Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -29,59 +27,27 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-UIE mode irqs are handled by the generic rtc core now.  But there are
-remaining unused code fragments for it.
+--RD6GsZsdEJvsf78O
+Content-Type: text/plain; charset=UTF-8
+Content-Disposition: inline
 
-Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>
-Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Dennis Aberilla <denzzzhome@yahoo.com>
----
-* New patch from this version
+On Mon, Feb 01, 2016 at 05:39:22PM +0000, Andre Przywara wrote:
+> At the moment the "sun6i" RTC drivers depends on having two specific
+> SoC families selected.
+> The Allwinner A64 SoC has the same RTC, so extend the Kconfig option
+> to allow inclusion of the driver for all Allwinner SoCs.
+> 
+> Signed-off-by: Andre Przywara <andre.przywara@arm.com>
 
- drivers/rtc/rtc-ds3232-core.c | 20 +-------------------
- 1 file changed, 1 insertion(+), 19 deletions(-)
+Acked-by: Maxime Ripard <maxime.ripard@free-electrons.com>
 
-diff --git a/drivers/rtc/rtc-ds3232-core.c b/drivers/rtc/rtc-ds3232-core.c
-index bcce75b..be8dfe0 100644
---- a/drivers/rtc/rtc-ds3232-core.c
-+++ b/drivers/rtc/rtc-ds3232-core.c
-@@ -278,32 +278,14 @@ static int ds3232_update_alarm(struct device *dev, unsigned int enabled)
- 	struct ds3232 *ds3232 = dev_get_drvdata(dev);
- 	int control;
- 	int ret;
--	u8 buf[4];
- 
- 	mutex_lock(&ds3232->mutex);
- 
--	ret = regmap_bulk_read(ds3232->regmap, DS3232_REG_ALARM1, buf, 4);
--	if (ret)
--		goto unlock;
--
--	buf[0] = bcd2bin(buf[0]) < 0 || (ds3232->rtc->irq_data & RTC_UF) ?
--								0x80 : buf[0];
--	buf[1] = bcd2bin(buf[1]) < 0 || (ds3232->rtc->irq_data & RTC_UF) ?
--								0x80 : buf[1];
--	buf[2] = bcd2bin(buf[2]) < 0 || (ds3232->rtc->irq_data & RTC_UF) ?
--								0x80 : buf[2];
--	buf[3] = bcd2bin(buf[3]) < 0 || (ds3232->rtc->irq_data & RTC_UF) ?
--								0x80 : buf[3];
--
--	ret = regmap_bulk_write(ds3232->regmap, DS3232_REG_ALARM1, buf, 4);
--	if (ret)
--		goto unlock;
--
- 	ret = regmap_read(ds3232->regmap, DS3232_REG_CR, &control);
- 	if (ret)
- 		goto unlock;
- 
--	if (enabled || (ds3232->rtc->irq_data & RTC_UF))
-+	if (enabled)
- 		/* enable alarm1 interrupt */
- 		control |= DS3232_REG_CR_A1IE;
- 	else
+Thanks!
+Maxime
+
 -- 
-2.5.0
+Maxime Ripard, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
 -- 
 -- 
@@ -93,3 +59,27 @@ before submitting a driver.
 You received this message because you are subscribed to the Google Groups "rtc-linux" group.
 To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
+
+--RD6GsZsdEJvsf78O
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJWsHpnAAoJEBx+YmzsjxAgqFAP/3hUYWhyOuVC7i+MaQSuSTBg
+j2h7FNagMcSz1rLOCXDamCISGy8OX81QLgVXPKgzAk/5gRjStBRzUE2uzfRGX7As
+iyLPiECcBpjgWcJ7W1Ao4LNI4JDfwOCQeVjIXsDrk+XvWf22ov7sMApgP9JebYTj
+la2chLJ/hqG1XYjtIrghBele+OB9t8hlvBEhCDyFxFa3sPBXWnhGRqK4expWAdtp
+eyrr0/nv0ari6w7O8G4EftBb5eLG7BuD6Fit8eKx1e8U8gFpi92PPsYRvQbVjBNc
+b5slWaRj7TAfsTfoi8T9lNEKOLEZ403rywMgrwuWj7iDXZ7aY5xaeIGNdvIo3HPI
+ZAqk2CN3r5mLXUIRlqmb5AgSevObsHIuIdViZ8XaWc7W3frmwCfz7l5QoOk5JMU7
+nn7Z1uF89QqcPU8GdZRA4guIkLdXRFi/grrcBrGmcPu7WBk5/aiITlpWvXpIJWS8
+T7wJHVGMQ6tqlBhqPmg0itHXgACrY9jmTx9VYB+cP69XW1eadZjVIKaXSjYdd5/+
+H0RxV6FTkXyNtiBC8RLgVns0m+BP+HjsZLhmvYeX9w+FZseJUevhd+QL8/he1B4e
+xkXplXPjcKfiyXoWp8bIsNUbO3ILOX3Bi//ewrquWWSmRK26NBl48TigyWhwAkur
+Q9xNdq4dnNQHpBlNKDWK
+=DXFr
+-----END PGP SIGNATURE-----
+
+--RD6GsZsdEJvsf78O--
