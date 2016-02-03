@@ -1,24 +1,22 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRB55KQ63AKGQEL57FHMQ@googlegroups.com>
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id 141si692205wmy.2.2016.02.15.05.41.11
-        for <rtc-linux@googlegroups.com>;
-        Mon, 15 Feb 2016 05:41:11 -0800 (PST)
-Date: Mon, 15 Feb 2016 14:41:10 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Javier Martinez Canillas <javier@osg.samsung.com>
-Cc: Krzysztof Kozlowski <k.kozlowski@samsung.com>,
-	rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org,
-	k.kozlowski.k@gmail.com, devicetree@vger.kernel.org,
-	linux-samsung-soc@vger.kernel.org, Rob Herring <robh+dt@kernel.org>,
-	Alessandro Zummo <a.zummo@towertech.it>
-Subject: Re: [rtc-linux] [PATCH] rtc: s3c: Document required clocks in the DT binding
-Message-ID: <20160215134110.GA15219@piout.net>
-References: <1455038632-14545-1-git-send-email-javier@osg.samsung.com>
- <56C01FDD.9050204@samsung.com>
- <56C1C95E.7030002@osg.samsung.com>
+Return-Path: <rtc-linux+bncBD2OLRXW4ABBBG77Y62QKGQE7W2YZDA@googlegroups.com>
+Received: from hqemgate14.nvidia.com (hqemgate14.nvidia.com. [216.228.121.143])
+        by gmr-mx.google.com with ESMTPS id ui7si847426pab.0.2016.02.03.05.24.42
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 03 Feb 2016 05:24:42 -0800 (PST)
+Message-ID: <56B1FCF3.2040307@nvidia.com>
+Date: Wed, 3 Feb 2016 18:43:23 +0530
+From: Laxman Dewangan <ldewangan@nvidia.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <56C1C95E.7030002@osg.samsung.com>
+To: Krzysztof Kozlowski <k.kozlowski@samsung.com>, <lee.jones@linaro.org>,
+	<alexandre.belloni@free-electrons.com>, <javier@osg.samsung.com>
+CC: <cw00.choi@samsung.com>, <linux-kernel@vger.kernel.org>,
+	<rtc-linux@googlegroups.com>
+Subject: [rtc-linux] Re: [PATCH V2 5/5] rtc: max77686: move initialisation of
+ rtc regmap, irq chip locally
+References: <1454491848-26551-1-git-send-email-ldewangan@nvidia.com> <1454491848-26551-6-git-send-email-ldewangan@nvidia.com> <56B1DA31.7070109@samsung.com> <56B1E2F3.9010502@samsung.com>
+In-Reply-To: <56B1E2F3.9010502@samsung.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -29,25 +27,49 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 15/02/2016 at 09:49:34 -0300, Javier Martinez Canillas wrote :
-> >No, not entirely. The samsung,s3c6410-rtc needs rtc and rtc_src clocks
-> >but rest of compatible devices need only rtc clock.
-> >
-> 
-> Right, sorry for missing that. I noticed that this patch has already
-> been picked by Rob Herring (I thought it would be picked by Alexandre
-> though) so I will post a follow up patch explaining that rtc_src is
-> only for the s3c6410-rtc compatible.
-> 
 
-Yeah, I was going to take it, thanks for pointing out the Rob already
-has it in his tree.
+On Wednesday 03 February 2016 04:52 PM, Krzysztof Kozlowski wrote:
+> On 03.02.2016 19:45, Krzysztof Kozlowski wrote:
+>> On 03.02.2016 18:30, Laxman Dewangan wrote:
+>>>   
+>>>   err_rtc:
+>>> +	if (info->rtc)
+>>> +		i2c_unregister_device(info->rtc);
+>>> +	regmap_del_irq_chip(info->rtc_irq, info->rtc_irq_data);
+>>> +
+>> You should clean up in reverse order of allocation, so first
+>> regmap_del_irq_chip then i2c_unregister_device. This
+>> is a common pattern of cleaning up. Sometimes such order
+>> is even necessary because of dependencies between
+>> components... which is not a case here but still the
+>> natural way is reversing the allocation code.
+
+I made the change in other place (remove callback) but not this place. 
+It is just missed by me. my bad..
+Will do in next patch.
+
+>> [   88.296055] [<c00eaa6c>] (do_filp_open) from [<c00dc29c>] (do_sys_open+0x114/0x1c0)
+>> [   88.303699] [<c00dc29c>] (do_sys_open) from [<c000f8c0>] (ret_fast_syscall+0x0/0x3c)
+>> [   88.311419] Code: e7905003 e3550000 0a00001f e5943014 (e7950003)
+>> [   88.317573] ---[ end trace 9502799e3ea05a80 ]---
+> However removal of "remove" callback helps... which could be expected...
+> maybe it is not an error of the driver itself?
 
 
--- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+OK, looked it and found that we are registering the chip_irq as normal 
+and interrupt as devm_*.
+So when we remove, we delete the regmap_irq_chip first and then free 
+irq. That is creating issue.
+
+It seems I can not use the devm_requested_irq_thread() and need to use 
+requested_irq_thread()  for proper sequence of freeing it.
+
+Otherwise we need to add the devm_regmap_add_irq_chip() first and then 
+use it.
+
+I am spinning the series to use the requested_thread_irq() only to avoid 
+unbind issue.
+
 
 -- 
 -- 
