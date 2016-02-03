@@ -1,26 +1,18 @@
-Return-Path: <rtc-linux+bncBCPM5SUWUYIRBDNUS63AKGQE6GJRYXQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBC62JGFMSINRBDXTY62QKGQE5A24IYA@googlegroups.com>
+Date: Wed, 3 Feb 2016 04:58:53 -0800 (PST)
+From: dirk.behme@gmail.com
+To: rtc-linux <rtc-linux@googlegroups.com>
+Cc: dirk.behme@gmail.com, dirk.behme@de.bosch.com, linux@rempel-privat.de,
+	alexandre.belloni@free-electrons.com
+Message-Id: <15c6e090-33f5-4dd4-82bc-d8b7b1f62dcd@googlegroups.com>
+In-Reply-To: <20160203105717.GA20165@piout.net>
+References: <460eec38-0a09-4faa-b601-de64803ed5f3@googlegroups.com>
+ <20160203105717.GA20165@piout.net>
+Subject: [rtc-linux] Re: rtc: RV8803: BUG: scheduling while atomic
 MIME-Version: 1.0
-Received: from mail-pf0-x231.google.com (mail-pf0-x231.google.com. [2607:f8b0:400e:c00::231])
-        by gmr-mx.google.com with ESMTPS id 12si1010318pfb.1.2016.02.18.06.49.49
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 18 Feb 2016 06:49:49 -0800 (PST)
-Received: by mail-pf0-x231.google.com with SMTP id e127so32552773pfe.3
-        for <rtc-linux@googlegroups.com>; Thu, 18 Feb 2016 06:49:49 -0800 (PST)
-From: Akinobu Mita <akinobu.mita@gmail.com>
-To: rtc-linux@googlegroups.com
-Cc: Akinobu Mita <akinobu.mita@gmail.com>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Dennis Aberilla <denzzzhome@yahoo.com>
-Subject: [rtc-linux] [PATCH v2 2/4] rtc: ds3232: split into core module and
- i2c driver
-Date: Thu, 18 Feb 2016 23:49:30 +0900
-Message-Id: <1455806972-27284-2-git-send-email-akinobu.mita@gmail.com>
-In-Reply-To: <1455806972-27284-1-git-send-email-akinobu.mita@gmail.com>
-References: <1455806972-27284-1-git-send-email-akinobu.mita@gmail.com>
+Content-Type: multipart/mixed;
+	boundary="----=_Part_8969_1579457158.1454504333825"
 Reply-To: rtc-linux@googlegroups.com
-Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -30,679 +22,229 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-According to "Feature Comparison of the DS323x Real-Time Clocks"
-(http://pdfserv.maximintegrated.com/en/an/AN5143.pdf), DS3232 and
-DS3234 are very similar.
+------=_Part_8969_1579457158.1454504333825
+Content-Type: multipart/alternative;
+	boundary="----=_Part_8970_1986614853.1454504333825"
 
-In order to share common code between rtc-ds3232 and rtc-ds3234,
-this splits rtc-ds3232 driver into core module and i2c driver.
+------=_Part_8970_1986614853.1454504333825
+Content-Type: text/plain; charset=UTF-8
 
-Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>
-Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Dennis Aberilla <denzzzhome@yahoo.com>
----
-* v2
-- move RTC_DRV_DS3232_CORE out of I2C config dependency
-- pass correct module owner to devm_rtc_device_register()
 
- drivers/rtc/Kconfig           |   4 +
- drivers/rtc/Makefile          |   2 +-
- drivers/rtc/rtc-ds3232-core.c | 171 ++++++++++++++++++------------------------
- drivers/rtc/rtc-ds3232.c      | 105 ++++++++++++++++++++++++++
- drivers/rtc/rtc-ds3232.h      |  30 ++++++++
- 5 files changed, 212 insertions(+), 100 deletions(-)
- create mode 100644 drivers/rtc/rtc-ds3232.c
- create mode 100644 drivers/rtc/rtc-ds3232.h
+On Wednesday, February 3, 2016 at 12:07:47 PM UTC+1, Alexandre Belloni 
+wrote:
+>
+> Hi, 
+>
+> On 03/02/2016 at 01:31:21 -0800, dirk....@gmail.com <javascript:> wrote : 
+> > Testing the RV8803 driver [1] we are getting several "BUG: scheduling 
+> while 
+> > atomic" [2]. 
+> > 
+> > Having a quick look this might be from rv8803_set_time() holding a 
+> spinlock 
+> > during the call to i2c_smbus_read_byte_data()? 
+> > 
+> > Any ideas? 
+> > 
+>
+> Yes, that is probably the case. As this is already a threaded irq, it 
+> can probably be changed into a mutex this would solve the issue.
+>
 
-diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
-index a9a2185..a489d89 100644
---- a/drivers/rtc/Kconfig
-+++ b/drivers/rtc/Kconfig
-@@ -139,6 +139,9 @@ config RTC_DRV_TEST
- 	  This driver can also be built as a module. If so, the module
- 	  will be called rtc-test.
- 
-+config RTC_DRV_DS3232_CORE
-+	tristate
-+
- comment "I2C RTC drivers"
- 	depends on I2C
- 
-@@ -250,6 +253,7 @@ config RTC_DRV_DS1672
- 
- config RTC_DRV_DS3232
- 	tristate "Dallas/Maxim DS3232"
-+	select RTC_DRV_DS3232_CORE
- 	help
- 	  If you say yes here you get support for Dallas Semiconductor
- 	  DS3232 real-time clock chips. If an interrupt is associated
-diff --git a/drivers/rtc/Makefile b/drivers/rtc/Makefile
-index 0b8cb6c..f2d236f 100644
---- a/drivers/rtc/Makefile
-+++ b/drivers/rtc/Makefile
-@@ -58,8 +58,8 @@ obj-$(CONFIG_RTC_DRV_DS1672)	+= rtc-ds1672.o
- obj-$(CONFIG_RTC_DRV_DS1685_FAMILY)	+= rtc-ds1685.o
- obj-$(CONFIG_RTC_DRV_DS1742)	+= rtc-ds1742.o
- obj-$(CONFIG_RTC_DRV_DS2404)	+= rtc-ds2404.o
-+obj-$(CONFIG_RTC_DRV_DS3232_CORE)	+= rtc-ds3232-core.o
- obj-$(CONFIG_RTC_DRV_DS3232)	+= rtc-ds3232.o
--rtc-ds3232-objs			:= rtc-ds3232-core.o
- obj-$(CONFIG_RTC_DRV_DS3234)	+= rtc-ds3234.o
- obj-$(CONFIG_RTC_DRV_EFI)	+= rtc-efi.o
- obj-$(CONFIG_RTC_DRV_EM3027)	+= rtc-em3027.o
-diff --git a/drivers/rtc/rtc-ds3232-core.c b/drivers/rtc/rtc-ds3232-core.c
-index 4e99ace..600673a 100644
---- a/drivers/rtc/rtc-ds3232-core.c
-+++ b/drivers/rtc/rtc-ds3232-core.c
-@@ -1,5 +1,5 @@
- /*
-- * RTC client/driver for the Maxim/Dallas DS3232 Real-Time Clock over I2C
-+ * RTC client/driver for the Maxim/Dallas DS3232/DS3234 Real-Time Clock
-  *
-  * Copyright (C) 2009-2011 Freescale Semiconductor.
-  * Author: Jack Lan <jack.lan@freescale.com>
-@@ -9,23 +9,19 @@
-  * Free Software Foundation;  either version 2 of the  License, or (at your
-  * option) any later version.
-  */
--/*
-- * It would be more efficient to use i2c msgs/i2c_transfer directly but, as
-- * recommened in .../Documentation/i2c/writing-clients section
-- * "Sending and receiving", using SMBus level communication is preferred.
-- */
- 
- #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
- 
- #include <linux/kernel.h>
- #include <linux/module.h>
- #include <linux/interrupt.h>
--#include <linux/i2c.h>
- #include <linux/rtc.h>
- #include <linux/bcd.h>
- #include <linux/workqueue.h>
- #include <linux/slab.h>
- 
-+#include "rtc-ds3232.h"
-+
- #define DS3232_REG_SECONDS	0x00
- #define DS3232_REG_MINUTES	0x01
- #define DS3232_REG_HOURS	0x02
-@@ -50,7 +46,8 @@
- #       define DS3232_REG_SR_A1F   0x01
- 
- struct ds3232 {
--	struct i2c_client *client;
-+	struct device *dev;
-+	const struct ds3232_ops *ops;
- 	struct rtc_device *rtc;
- 	struct work_struct work;
- 
-@@ -63,25 +60,24 @@ struct ds3232 {
- 	int exiting;
+Anything like below [1]?
+
+If you like this, we'll test it.
+
+Many thanks
+
+Dirk
+
+[1]
+
+diff --git a/drivers/rtc/rtc-rv8803.c b/drivers/rtc/rtc-rv8803.c
+index 33c7e2a..38621ff 100644
+--- a/drivers/rtc/rtc-rv8803.c
++++ b/drivers/rtc/rtc-rv8803.c
+@@ -52,7 +52,7 @@
+ struct rv8803_data {
+     struct i2c_client *client;
+     struct rtc_device *rtc;
+-    spinlock_t flags_lock;
++    struct mutex flags_lock;
+     u8 ctrl;
  };
  
--static struct i2c_driver ds3232_driver;
--
--static int ds3232_check_rtc_status(struct i2c_client *client)
-+static int ds3232_check_rtc_status(struct device *dev)
- {
-+	struct ds3232 *ds3232 = dev_get_drvdata(dev);
- 	int ret = 0;
- 	int control, stat;
+@@ -63,11 +63,11 @@ static irqreturn_t rv8803_handle_irq(int irq, void 
+*dev_id)
+     unsigned long events = 0;
+     u8 flags;
  
--	stat = i2c_smbus_read_byte_data(client, DS3232_REG_SR);
-+	stat = ds3232->ops->read_byte(dev, DS3232_REG_SR);
- 	if (stat < 0)
- 		return stat;
+-    spin_lock(&rv8803->flags_lock);
++    mutex_lock(&rv8803->flags_lock);
  
- 	if (stat & DS3232_REG_SR_OSF)
--		dev_warn(&client->dev,
-+		dev_warn(dev,
- 				"oscillator discontinuity flagged, "
- 				"time unreliable\n");
+     flags = i2c_smbus_read_byte_data(client, RV8803_FLAG);
+     if (flags <= 0) {
+-        spin_unlock(&rv8803->flags_lock);
++        mutex_unlock(&rv8803->flags_lock);
+         return IRQ_NONE;
+     }
  
- 	stat &= ~(DS3232_REG_SR_OSF | DS3232_REG_SR_A1F | DS3232_REG_SR_A2F);
+@@ -102,7 +102,7 @@ static irqreturn_t rv8803_handle_irq(int irq, void 
+*dev_id)
+                       rv8803->ctrl);
+     }
  
--	ret = i2c_smbus_write_byte_data(client, DS3232_REG_SR, stat);
-+	ret = ds3232->ops->write_byte(dev, DS3232_REG_SR, stat);
- 	if (ret < 0)
- 		return ret;
+-    spin_unlock(&rv8803->flags_lock);
++    mutex_unlock(&rv8803->flags_lock);
  
-@@ -90,31 +86,28 @@ static int ds3232_check_rtc_status(struct i2c_client *client)
- 	 * before everything is initialized.
- 	 */
- 
--	control = i2c_smbus_read_byte_data(client, DS3232_REG_CR);
-+	control = ds3232->ops->read_byte(dev, DS3232_REG_CR);
- 	if (control < 0)
- 		return control;
- 
- 	control &= ~(DS3232_REG_CR_A1IE | DS3232_REG_CR_A2IE);
- 	control |= DS3232_REG_CR_INTCN;
- 
--	return i2c_smbus_write_byte_data(client, DS3232_REG_CR, control);
-+	return ds3232->ops->write_byte(dev, DS3232_REG_CR, control);
+     return IRQ_HANDLED;
  }
+@@ -155,7 +155,6 @@ static int rv8803_set_time(struct device *dev, struct 
+rtc_time *tm)
+     struct rv8803_data *rv8803 = dev_get_drvdata(dev);
+     u8 date[7];
+     int flags, ret;
+-    unsigned long irqflags;
  
- static int ds3232_read_time(struct device *dev, struct rtc_time *time)
- {
--	struct i2c_client *client = to_i2c_client(dev);
-+	struct ds3232 *ds3232 = dev_get_drvdata(dev);
- 	int ret;
- 	u8 buf[7];
- 	unsigned int year, month, day, hour, minute, second;
- 	unsigned int week, twelve_hr, am_pm;
- 	unsigned int century, add_century = 0;
+     if ((tm->tm_year < 100) || (tm->tm_year > 199))
+         return -EINVAL;
+@@ -173,18 +172,18 @@ static int rv8803_set_time(struct device *dev, struct 
+rtc_time *tm)
+     if (ret < 0)
+         return ret;
  
--	ret = i2c_smbus_read_i2c_block_data(client, DS3232_REG_SECONDS, 7, buf);
--
--	if (ret < 0)
-+	ret = ds3232->ops->read_block(dev, DS3232_REG_SECONDS, buf, 7);
-+	if (ret)
- 		return ret;
--	if (ret < 7)
--		return -EIO;
+-    spin_lock_irqsave(&rv8803->flags_lock, irqflags);
++    mutex_lock(&rv8803->flags_lock);
  
- 	second = buf[0];
- 	minute = buf[1];
-@@ -159,7 +152,7 @@ static int ds3232_read_time(struct device *dev, struct rtc_time *time)
+     flags = i2c_smbus_read_byte_data(rv8803->client, RV8803_FLAG);
+     if (flags < 0) {
+-        spin_unlock_irqrestore(&rv8803->flags_lock, irqflags);
++        mutex_unlock(&rv8803->flags_lock);
+         return flags;
+     }
  
- static int ds3232_set_time(struct device *dev, struct rtc_time *time)
- {
--	struct i2c_client *client = to_i2c_client(dev);
-+	struct ds3232 *ds3232 = dev_get_drvdata(dev);
- 	u8 buf[7];
+     ret = i2c_smbus_write_byte_data(rv8803->client, RV8803_FLAG,
+                     flags & ~RV8803_FLAG_V2F);
  
- 	/* Extract time from rtc_time and load into ds3232*/
-@@ -179,8 +172,7 @@ static int ds3232_set_time(struct device *dev, struct rtc_time *time)
- 		buf[6] = bin2bcd(time->tm_year);
- 	}
+-    spin_unlock_irqrestore(&rv8803->flags_lock, irqflags);
++    mutex_unlock(&rv8803->flags_lock);
  
--	return i2c_smbus_write_i2c_block_data(client,
--					      DS3232_REG_SECONDS, 7, buf);
-+	return ds3232->ops->write_block(dev, DS3232_REG_SECONDS, buf, 7);
+     return ret;
  }
+@@ -226,7 +225,7 @@ static int rv8803_set_alarm(struct device *dev, struct 
+rtc_wkalrm *alrm)
+     u8 alarmvals[3];
+     u8 ctrl[2];
+     int ret, err;
+-    unsigned long alarm_time, irqflags;
++    unsigned long alarm_time;
  
- /*
-@@ -190,23 +182,22 @@ static int ds3232_set_time(struct device *dev, struct rtc_time *time)
-  */
- static int ds3232_read_alarm(struct device *dev, struct rtc_wkalrm *alarm)
- {
--	struct i2c_client *client = to_i2c_client(dev);
--	struct ds3232 *ds3232 = i2c_get_clientdata(client);
-+	struct ds3232 *ds3232 = dev_get_drvdata(dev);
- 	int control, stat;
- 	int ret;
- 	u8 buf[4];
+     /* The alarm has no seconds, round up to nearest minute */
+     if (alrm->time.tm_sec) {
+@@ -236,11 +235,11 @@ static int rv8803_set_alarm(struct device *dev, 
+struct rtc_wkalrm *alrm)
+         rtc_time_to_tm(alarm_time, &alrm->time);
+     }
  
- 	mutex_lock(&ds3232->mutex);
+-    spin_lock_irqsave(&rv8803->flags_lock, irqflags);
++    mutex_lock(&rv8803->flags_lock);
  
--	ret = i2c_smbus_read_byte_data(client, DS3232_REG_SR);
-+	ret = ds3232->ops->read_byte(dev, DS3232_REG_SR);
- 	if (ret < 0)
- 		goto out;
- 	stat = ret;
--	ret = i2c_smbus_read_byte_data(client, DS3232_REG_CR);
-+	ret = ds3232->ops->read_byte(dev, DS3232_REG_CR);
- 	if (ret < 0)
- 		goto out;
- 	control = ret;
--	ret = i2c_smbus_read_i2c_block_data(client, DS3232_REG_ALARM1, 4, buf);
-+	ret = ds3232->ops->read_block(dev, DS3232_REG_ALARM1, buf, 4);
- 	if (ret < 0)
- 		goto out;
+     ret = i2c_smbus_read_i2c_block_data(client, RV8803_FLAG, 2, ctrl);
+     if (ret != 2) {
+-        spin_unlock_irqrestore(&rv8803->flags_lock, irqflags);
++        mutex_unlock(&rv8803->flags_lock);
+         return ret < 0 ? ret : -EIO;
+     }
  
-@@ -236,13 +227,12 @@ out:
-  */
- static int ds3232_set_alarm(struct device *dev, struct rtc_wkalrm *alarm)
- {
--	struct i2c_client *client = to_i2c_client(dev);
--	struct ds3232 *ds3232 = i2c_get_clientdata(client);
-+	struct ds3232 *ds3232 = dev_get_drvdata(dev);
- 	int control, stat;
- 	int ret;
- 	u8 buf[4];
+@@ -253,14 +252,14 @@ static int rv8803_set_alarm(struct device *dev, 
+struct rtc_wkalrm *alrm)
+         err = i2c_smbus_write_byte_data(rv8803->client, RV8803_CTRL,
+                         rv8803->ctrl);
+         if (err) {
+-            spin_unlock_irqrestore(&rv8803->flags_lock, irqflags);
++            mutex_unlock(&rv8803->flags_lock);
+             return err;
+         }
+     }
  
--	if (client->irq <= 0)
-+	if (ds3232->ops->irq(dev) <= 0)
- 		return -EINVAL;
+     ctrl[1] &= ~RV8803_FLAG_AF;
+     err = i2c_smbus_write_byte_data(rv8803->client, RV8803_FLAG, ctrl[1]);
+-    spin_unlock_irqrestore(&rv8803->flags_lock, irqflags);
++    mutex_unlock(&rv8803->flags_lock);
+     if (err)
+         return err;
  
- 	mutex_lock(&ds3232->mutex);
-@@ -253,46 +243,46 @@ static int ds3232_set_alarm(struct device *dev, struct rtc_wkalrm *alarm)
- 	buf[3] = bin2bcd(alarm->time.tm_mday);
+@@ -289,7 +288,6 @@ static int rv8803_alarm_irq_enable(struct device *dev, 
+unsigned int enabled)
+     struct i2c_client *client = to_i2c_client(dev);
+     struct rv8803_data *rv8803 = dev_get_drvdata(dev);
+     int ctrl, flags, err;
+-    unsigned long irqflags;
  
- 	/* clear alarm interrupt enable bit */
--	ret = i2c_smbus_read_byte_data(client, DS3232_REG_CR);
-+	ret = ds3232->ops->read_byte(dev, DS3232_REG_CR);
- 	if (ret < 0)
- 		goto out;
- 	control = ret;
- 	control &= ~(DS3232_REG_CR_A1IE | DS3232_REG_CR_A2IE);
--	ret = i2c_smbus_write_byte_data(client, DS3232_REG_CR, control);
-+	ret = ds3232->ops->write_byte(dev, DS3232_REG_CR, control);
- 	if (ret < 0)
- 		goto out;
+     ctrl = rv8803->ctrl;
  
- 	/* clear any pending alarm flag */
--	ret = i2c_smbus_read_byte_data(client, DS3232_REG_SR);
-+	ret = ds3232->ops->read_byte(dev, DS3232_REG_SR);
- 	if (ret < 0)
- 		goto out;
- 	stat = ret;
- 	stat &= ~(DS3232_REG_SR_A1F | DS3232_REG_SR_A2F);
--	ret = i2c_smbus_write_byte_data(client, DS3232_REG_SR, stat);
-+	ret = ds3232->ops->write_byte(dev, DS3232_REG_SR, stat);
- 	if (ret < 0)
- 		goto out;
+@@ -305,15 +303,15 @@ static int rv8803_alarm_irq_enable(struct device 
+*dev, unsigned int enabled)
+             ctrl &= ~RV8803_CTRL_AIE;
+     }
  
--	ret = i2c_smbus_write_i2c_block_data(client, DS3232_REG_ALARM1, 4, buf);
-+	ret = ds3232->ops->write_block(dev, DS3232_REG_ALARM1, buf, 4);
+-    spin_lock_irqsave(&rv8803->flags_lock, irqflags);
++    mutex_lock(&rv8803->flags_lock);
+     flags = i2c_smbus_read_byte_data(client, RV8803_FLAG);
+     if (flags < 0) {
+-        spin_unlock_irqrestore(&rv8803->flags_lock, irqflags);
++        mutex_unlock(&rv8803->flags_lock);
+         return flags;
+     }
+     flags &= ~(RV8803_FLAG_AF | RV8803_FLAG_UF);
+     err = i2c_smbus_write_byte_data(client, RV8803_FLAG, flags);
+-    spin_unlock_irqrestore(&rv8803->flags_lock, irqflags);
++    mutex_unlock(&rv8803->flags_lock);
+     if (err)
+         return err;
  
- 	if (alarm->enabled) {
- 		control |= DS3232_REG_CR_A1IE;
--		ret = i2c_smbus_write_byte_data(client, DS3232_REG_CR, control);
-+		ret = ds3232->ops->write_byte(dev, DS3232_REG_CR, control);
- 	}
- out:
- 	mutex_unlock(&ds3232->mutex);
- 	return ret;
- }
+@@ -333,7 +331,6 @@ static int rv8803_ioctl(struct device *dev, unsigned 
+int cmd, unsigned long arg)
+     struct i2c_client *client = to_i2c_client(dev);
+     struct rv8803_data *rv8803 = dev_get_drvdata(dev);
+     int flags, ret = 0;
+-    unsigned long irqflags;
  
--static void ds3232_update_alarm(struct i2c_client *client)
-+static void ds3232_update_alarm(struct device *dev)
- {
--	struct ds3232 *ds3232 = i2c_get_clientdata(client);
-+	struct ds3232 *ds3232 = dev_get_drvdata(dev);
- 	int control;
- 	int ret;
- 	u8 buf[4];
+     switch (cmd) {
+     case RTC_VL_READ:
+@@ -355,16 +352,16 @@ static int rv8803_ioctl(struct device *dev, unsigned 
+int cmd, unsigned long arg)
+         return 0;
  
- 	mutex_lock(&ds3232->mutex);
+     case RTC_VL_CLR:
+-        spin_lock_irqsave(&rv8803->flags_lock, irqflags);
++        mutex_lock(&rv8803->flags_lock);
+         flags = i2c_smbus_read_byte_data(client, RV8803_FLAG);
+         if (flags < 0) {
+-            spin_unlock_irqrestore(&rv8803->flags_lock, irqflags);
++            mutex_unlock(&rv8803->flags_lock);
+             return flags;
+         }
  
--	ret = i2c_smbus_read_i2c_block_data(client, DS3232_REG_ALARM1, 4, buf);
-+	ret = ds3232->ops->read_block(dev, DS3232_REG_ALARM1, buf, 4);
- 	if (ret < 0)
- 		goto unlock;
+         flags &= ~(RV8803_FLAG_V1F | RV8803_FLAG_V2F);
+         ret = i2c_smbus_write_byte_data(client, RV8803_FLAG, flags);
+-        spin_unlock_irqrestore(&rv8803->flags_lock, irqflags);
++        mutex_unlock(&rv8803->flags_lock);
+         if (ret < 0)
+             return ret;
  
-@@ -305,11 +295,11 @@ static void ds3232_update_alarm(struct i2c_client *client)
- 	buf[3] = bcd2bin(buf[3]) < 0 || (ds3232->rtc->irq_data & RTC_UF) ?
- 								0x80 : buf[3];
+@@ -441,6 +438,7 @@ static int rv8803_probe(struct i2c_client *client,
+     if (!rv8803)
+         return -ENOMEM;
  
--	ret = i2c_smbus_write_i2c_block_data(client, DS3232_REG_ALARM1, 4, buf);
-+	ret = ds3232->ops->write_block(dev, DS3232_REG_ALARM1, buf, 4);
- 	if (ret < 0)
- 		goto unlock;
++    mutex_init(&rv8803->flags_lock);
+     rv8803->client = client;
+     i2c_set_clientdata(client, rv8803);
  
--	control = i2c_smbus_read_byte_data(client, DS3232_REG_CR);
-+	control = ds3232->ops->read_byte(dev, DS3232_REG_CR);
- 	if (control < 0)
- 		goto unlock;
+
+
+
  
-@@ -319,7 +309,7 @@ static void ds3232_update_alarm(struct i2c_client *client)
- 	else
- 		/* disable alarm1 interrupt */
- 		control &= ~(DS3232_REG_CR_A1IE);
--	i2c_smbus_write_byte_data(client, DS3232_REG_CR, control);
-+	ds3232->ops->write_byte(dev, DS3232_REG_CR, control);
- 
- unlock:
- 	mutex_unlock(&ds3232->mutex);
-@@ -327,10 +317,9 @@ unlock:
- 
- static int ds3232_alarm_irq_enable(struct device *dev, unsigned int enabled)
- {
--	struct i2c_client *client = to_i2c_client(dev);
--	struct ds3232 *ds3232 = i2c_get_clientdata(client);
-+	struct ds3232 *ds3232 = dev_get_drvdata(dev);
- 
--	if (client->irq <= 0)
-+	if (ds3232->ops->irq(dev) <= 0)
- 		return -EINVAL;
- 
- 	if (enabled)
-@@ -338,14 +327,14 @@ static int ds3232_alarm_irq_enable(struct device *dev, unsigned int enabled)
- 	else
- 		ds3232->rtc->irq_data &= ~RTC_AF;
- 
--	ds3232_update_alarm(client);
-+	ds3232_update_alarm(dev);
- 	return 0;
- }
- 
- static irqreturn_t ds3232_irq(int irq, void *dev_id)
- {
--	struct i2c_client *client = dev_id;
--	struct ds3232 *ds3232 = i2c_get_clientdata(client);
-+	struct device *dev = dev_id;
-+	struct ds3232 *ds3232 = dev_get_drvdata(dev);
- 
- 	disable_irq_nosync(irq);
- 
-@@ -363,34 +352,33 @@ static irqreturn_t ds3232_irq(int irq, void *dev_id)
- static void ds3232_work(struct work_struct *work)
- {
- 	struct ds3232 *ds3232 = container_of(work, struct ds3232, work);
--	struct i2c_client *client = ds3232->client;
-+	struct device *dev = ds3232->dev;
- 	int stat, control;
- 
- 	mutex_lock(&ds3232->mutex);
- 
--	stat = i2c_smbus_read_byte_data(client, DS3232_REG_SR);
-+	stat = ds3232->ops->read_byte(dev, DS3232_REG_SR);
- 	if (stat < 0)
- 		goto unlock;
- 
- 	if (stat & DS3232_REG_SR_A1F) {
--		control = i2c_smbus_read_byte_data(client, DS3232_REG_CR);
-+		control = ds3232->ops->read_byte(dev, DS3232_REG_CR);
- 		if (control < 0) {
- 			pr_warn("Read Control Register error - Disable IRQ%d\n",
--				client->irq);
-+				ds3232->ops->irq(dev));
- 		} else {
- 			/* disable alarm1 interrupt */
- 			control &= ~(DS3232_REG_CR_A1IE);
--			i2c_smbus_write_byte_data(client, DS3232_REG_CR,
--						control);
-+			ds3232->ops->write_byte(dev, DS3232_REG_CR, control);
- 
- 			/* clear the alarm pend flag */
- 			stat &= ~DS3232_REG_SR_A1F;
--			i2c_smbus_write_byte_data(client, DS3232_REG_SR, stat);
-+			ds3232->ops->write_byte(dev, DS3232_REG_SR, stat);
- 
- 			rtc_update_irq(ds3232->rtc, 1, RTC_AF | RTC_IRQF);
- 
- 			if (!ds3232->exiting)
--				enable_irq(client->irq);
-+				enable_irq(ds3232->ops->irq(dev));
- 		}
- 	}
- 
-@@ -406,64 +394,67 @@ static const struct rtc_class_ops ds3232_rtc_ops = {
- 	.alarm_irq_enable = ds3232_alarm_irq_enable,
- };
- 
--static int ds3232_probe(struct i2c_client *client,
--			const struct i2c_device_id *id)
-+int __ds3232_probe(struct device *dev, const struct ds3232_ops *ops,
-+		const char *name, struct module *owner)
- {
- 	struct ds3232 *ds3232;
- 	int ret;
- 
--	ds3232 = devm_kzalloc(&client->dev, sizeof(struct ds3232), GFP_KERNEL);
-+	ds3232 = devm_kzalloc(dev, sizeof(*ds3232), GFP_KERNEL);
- 	if (!ds3232)
- 		return -ENOMEM;
- 
--	ds3232->client = client;
--	i2c_set_clientdata(client, ds3232);
-+	ds3232->ops = ops;
-+	ds3232->dev = dev;
-+	dev_set_drvdata(dev, ds3232);
- 
- 	INIT_WORK(&ds3232->work, ds3232_work);
- 	mutex_init(&ds3232->mutex);
- 
--	ret = ds3232_check_rtc_status(client);
-+	ret = ds3232_check_rtc_status(dev);
- 	if (ret)
- 		return ret;
- 
--	if (client->irq > 0) {
--		ret = devm_request_irq(&client->dev, client->irq, ds3232_irq,
--				       IRQF_SHARED, "ds3232", client);
-+	if (ds3232->ops->irq(dev) > 0) {
-+		ret = devm_request_irq(dev, ds3232->ops->irq(dev), ds3232_irq,
-+				       IRQF_SHARED, name, dev);
- 		if (ret) {
--			dev_err(&client->dev, "unable to request IRQ\n");
-+			dev_err(dev, "unable to request IRQ\n");
- 		}
--		device_init_wakeup(&client->dev, 1);
-+		device_init_wakeup(dev, 1);
- 	}
--	ds3232->rtc = devm_rtc_device_register(&client->dev, client->name,
--					  &ds3232_rtc_ops, THIS_MODULE);
-+	ds3232->rtc = devm_rtc_device_register(dev, name, &ds3232_rtc_ops,
-+						owner);
-+
- 	return PTR_ERR_OR_ZERO(ds3232->rtc);
- }
-+EXPORT_SYMBOL_GPL(__ds3232_probe);
- 
--static int ds3232_remove(struct i2c_client *client)
-+int ds3232_remove(struct device *dev)
- {
--	struct ds3232 *ds3232 = i2c_get_clientdata(client);
-+	struct ds3232 *ds3232 = dev_get_drvdata(dev);
- 
--	if (client->irq > 0) {
-+	if (ds3232->ops->irq(dev) > 0) {
- 		mutex_lock(&ds3232->mutex);
- 		ds3232->exiting = 1;
- 		mutex_unlock(&ds3232->mutex);
- 
--		devm_free_irq(&client->dev, client->irq, client);
-+		devm_free_irq(dev, ds3232->ops->irq(dev), dev);
- 		cancel_work_sync(&ds3232->work);
- 	}
- 
- 	return 0;
- }
-+EXPORT_SYMBOL_GPL(ds3232_remove);
- 
- #ifdef CONFIG_PM_SLEEP
- static int ds3232_suspend(struct device *dev)
- {
- 	struct ds3232 *ds3232 = dev_get_drvdata(dev);
--	struct i2c_client *client = to_i2c_client(dev);
- 
- 	if (device_can_wakeup(dev)) {
- 		ds3232->suspended = true;
--		if (irq_set_irq_wake(client->irq, 1)) {
-+		if (irq_set_irq_wake(ds3232->ops->irq(dev), 1)) {
- 			dev_warn_once(dev, "Cannot set wakeup source\n");
- 			ds3232->suspended = false;
- 		}
-@@ -475,7 +466,6 @@ static int ds3232_suspend(struct device *dev)
- static int ds3232_resume(struct device *dev)
- {
- 	struct ds3232 *ds3232 = dev_get_drvdata(dev);
--	struct i2c_client *client = to_i2c_client(dev);
- 
- 	if (ds3232->suspended) {
- 		ds3232->suspended = false;
-@@ -483,34 +473,17 @@ static int ds3232_resume(struct device *dev)
- 		/* Clear the hardware alarm pend flag */
- 		schedule_work(&ds3232->work);
- 
--		irq_set_irq_wake(client->irq, 0);
-+		irq_set_irq_wake(ds3232->ops->irq(dev), 0);
- 	}
- 
- 	return 0;
- }
- #endif
- 
--static const struct dev_pm_ops ds3232_pm_ops = {
-+const struct dev_pm_ops ds3232_pm_ops = {
- 	SET_SYSTEM_SLEEP_PM_OPS(ds3232_suspend, ds3232_resume)
- };
--
--static const struct i2c_device_id ds3232_id[] = {
--	{ "ds3232", 0 },
--	{ }
--};
--MODULE_DEVICE_TABLE(i2c, ds3232_id);
--
--static struct i2c_driver ds3232_driver = {
--	.driver = {
--		.name = "rtc-ds3232",
--		.pm	= &ds3232_pm_ops,
--	},
--	.probe = ds3232_probe,
--	.remove = ds3232_remove,
--	.id_table = ds3232_id,
--};
--
--module_i2c_driver(ds3232_driver);
-+EXPORT_SYMBOL_GPL(ds3232_pm_ops);
- 
- MODULE_AUTHOR("Srikanth Srinivasan <srikanth.srinivasan@freescale.com>");
- MODULE_DESCRIPTION("Maxim/Dallas DS3232 RTC Driver");
-diff --git a/drivers/rtc/rtc-ds3232.c b/drivers/rtc/rtc-ds3232.c
-new file mode 100644
-index 0000000..f85f45e
---- /dev/null
-+++ b/drivers/rtc/rtc-ds3232.c
-@@ -0,0 +1,105 @@
-+/*
-+ * RTC client/driver for the Maxim/Dallas DS3232 Real-Time Clock over I2C
-+ *
-+ * Copyright (C) 2009-2011 Freescale Semiconductor.
-+ * Author: Jack Lan <jack.lan@freescale.com>
-+ *
-+ * This program is free software; you can redistribute  it and/or modify it
-+ * under  the terms of  the GNU General  Public License as published by the
-+ * Free Software Foundation;  either version 2 of the  License, or (at your
-+ * option) any later version.
-+ */
-+/*
-+ * It would be more efficient to use i2c msgs/i2c_transfer directly but, as
-+ * recommened in .../Documentation/i2c/writing-clients section
-+ * "Sending and receiving", using SMBus level communication is preferred.
-+ */
-+
-+#include <linux/kernel.h>
-+#include <linux/module.h>
-+#include <linux/i2c.h>
-+
-+#include "rtc-ds3232.h"
-+
-+static int ds3232_i2c_read_byte(struct device *dev, u8 reg)
-+{
-+	struct i2c_client *client = to_i2c_client(dev);
-+
-+	return i2c_smbus_read_byte_data(client, reg);
-+}
-+
-+static int ds3232_i2c_write_byte(struct device *dev, u8 reg, u8 val)
-+{
-+	struct i2c_client *client = to_i2c_client(dev);
-+
-+	return i2c_smbus_write_byte_data(client, reg, val);
-+}
-+
-+static int ds3232_i2c_read_block(struct device *dev, u8 reg, void *buf, int len)
-+{
-+	struct i2c_client *client = to_i2c_client(dev);
-+	int ret;
-+
-+	ret = i2c_smbus_read_i2c_block_data(client, reg, len, buf);
-+	if (ret != len)
-+		ret = -EIO;
-+	if (ret < 0)
-+		return ret;
-+
-+	return 0;
-+}
-+
-+static int ds3232_i2c_write_block(struct device *dev, u8 reg, const void *buf,
-+				int len)
-+{
-+	struct i2c_client *client = to_i2c_client(dev);
-+
-+	return i2c_smbus_write_i2c_block_data(client, reg, len, buf);
-+}
-+
-+static int ds3232_i2c_irq(struct device *dev)
-+{
-+	struct i2c_client *client = to_i2c_client(dev);
-+
-+	return client->irq;
-+}
-+
-+static const struct ds3232_ops ds3232_i2c_ops = {
-+	.read_byte = ds3232_i2c_read_byte,
-+	.write_byte = ds3232_i2c_write_byte,
-+	.read_block = ds3232_i2c_read_block,
-+	.write_block = ds3232_i2c_write_block,
-+	.irq = ds3232_i2c_irq,
-+};
-+
-+static int ds3232_i2c_probe(struct i2c_client *client,
-+			const struct i2c_device_id *id)
-+{
-+	return ds3232_probe(&client->dev, &ds3232_i2c_ops, client->name);
-+}
-+
-+static int ds3232_i2c_remove(struct i2c_client *client)
-+{
-+	return ds3232_remove(&client->dev);
-+}
-+
-+static const struct i2c_device_id ds3232_id[] = {
-+	{ "ds3232", 0 },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(i2c, ds3232_id);
-+
-+static struct i2c_driver ds3232_driver = {
-+	.driver = {
-+		.name = "rtc-ds3232",
-+		.pm	= &ds3232_pm_ops,
-+	},
-+	.probe = ds3232_i2c_probe,
-+	.remove = ds3232_i2c_remove,
-+	.id_table = ds3232_id,
-+};
-+module_i2c_driver(ds3232_driver);
-+
-+MODULE_AUTHOR("Srikanth Srinivasan <srikanth.srinivasan@freescale.com>");
-+MODULE_DESCRIPTION("Maxim/Dallas DS3232 RTC Driver");
-+MODULE_LICENSE("GPL");
-diff --git a/drivers/rtc/rtc-ds3232.h b/drivers/rtc/rtc-ds3232.h
-new file mode 100644
-index 0000000..59b4765
---- /dev/null
-+++ b/drivers/rtc/rtc-ds3232.h
-@@ -0,0 +1,30 @@
-+/*
-+ * RTC client/driver for the Maxim/Dallas DS3232/DS3234 Real-Time Clock
-+ *
-+ * Copyright (C) 2009-2011 Freescale Semiconductor.
-+ * Author: Jack Lan <jack.lan@freescale.com>
-+ *
-+ * This program is free software; you can redistribute  it and/or modify it
-+ * under  the terms of  the GNU General  Public License as published by the
-+ * Free Software Foundation;  either version 2 of the  License, or (at your
-+ * option) any later version.
-+ */
-+#ifndef __RTC_DS3232_H__
-+#define __RTC_DS3232_H__
-+
-+struct ds3232_ops {
-+	int (*read_byte)(struct device *, u8);
-+	int (*write_byte)(struct device *, u8, u8);
-+	int (*read_block)(struct device *, u8, void *, int);
-+	int (*write_block)(struct device *, u8, const void *, int);
-+	int (*irq)(struct device *);
-+};
-+
-+int __ds3232_probe(struct device *dev, const struct ds3232_ops *ops,
-+		const char *name, struct module *owner);
-+#define ds3232_probe(dev, ops, name) __ds3232_probe(dev, ops, name, THIS_MODULE)
-+
-+int ds3232_remove(struct device *dev);
-+extern const struct dev_pm_ops ds3232_pm_ops;
-+
-+#endif
--- 
-2.5.0
 
 -- 
 -- 
@@ -714,3 +256,188 @@ before submitting a driver.
 You received this message because you are subscribed to the Google Groups "rtc-linux" group.
 To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
+
+------=_Part_8970_1986614853.1454504333825
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"ltr"><br>On Wednesday, February 3, 2016 at 12:07:47 PM UTC+1, A=
+lexandre Belloni wrote:<blockquote class=3D"gmail_quote" style=3D"margin: 0=
+;margin-left: 0.8ex;border-left: 1px #ccc solid;padding-left: 1ex;">Hi,
+<br>
+<br>On 03/02/2016 at 01:31:21 -0800, <a href=3D"javascript:" target=3D"_bla=
+nk" gdf-obfuscated-mailto=3D"S6vjvnvCFgAJ" rel=3D"nofollow" onmousedown=3D"=
+this.href=3D&#39;javascript:&#39;;return true;" onclick=3D"this.href=3D&#39=
+;javascript:&#39;;return true;">dirk....@gmail.com</a> wrote :
+<br>&gt; Testing the RV8803 driver [1] we are getting several &quot;BUG: sc=
+heduling while=20
+<br>&gt; atomic&quot; [2].
+<br>&gt;=20
+<br>&gt; Having a quick look this might be from rv8803_set_time() holding a=
+ spinlock=20
+<br>&gt; during the call to i2c_smbus_read_byte_data()?
+<br>&gt;=20
+<br>&gt; Any ideas?
+<br>&gt;=20
+<br>
+<br>Yes, that is probably the case. As this is already a threaded irq, it
+<br>can probably be changed into a mutex this would solve the issue.<br></b=
+lockquote><div><br>Anything like below [1]?<br><br>If you like this, we&#39=
+;ll test it.<br><br>Many thanks<br><br>Dirk<br><br>[1]<br><br>diff --git a/=
+drivers/rtc/rtc-rv8803.c b/drivers/rtc/rtc-rv8803.c<br>index 33c7e2a..38621=
+ff 100644<br>--- a/drivers/rtc/rtc-rv8803.c<br>+++ b/drivers/rtc/rtc-rv8803=
+.c<br>@@ -52,7 +52,7 @@<br>=C2=A0struct rv8803_data {<br>=C2=A0=C2=A0=C2=A0=
+=C2=A0 struct i2c_client *client;<br>=C2=A0=C2=A0=C2=A0=C2=A0 struct rtc_de=
+vice *rtc;<br>-=C2=A0=C2=A0=C2=A0 spinlock_t flags_lock;<br>+=C2=A0=C2=A0=
+=C2=A0 struct mutex flags_lock;<br>=C2=A0=C2=A0=C2=A0=C2=A0 u8 ctrl;<br>=C2=
+=A0};<br>=C2=A0<br>@@ -63,11 +63,11 @@ static irqreturn_t rv8803_handle_irq=
+(int irq, void *dev_id)<br>=C2=A0=C2=A0=C2=A0=C2=A0 unsigned long events =
+=3D 0;<br>=C2=A0=C2=A0=C2=A0=C2=A0 u8 flags;<br>=C2=A0<br>-=C2=A0=C2=A0=C2=
+=A0 spin_lock(&amp;rv8803-&gt;flags_lock);<br>+=C2=A0=C2=A0=C2=A0 mutex_loc=
+k(&amp;rv8803-&gt;flags_lock);<br>=C2=A0<br>=C2=A0=C2=A0=C2=A0=C2=A0 flags =
+=3D i2c_smbus_read_byte_data(client, RV8803_FLAG);<br>=C2=A0=C2=A0=C2=A0=C2=
+=A0 if (flags &lt;=3D 0) {<br>-=C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 spin_u=
+nlock(&amp;rv8803-&gt;flags_lock);<br>+=C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=
+=A0 mutex_unlock(&amp;rv8803-&gt;flags_lock);<br>=C2=A0=C2=A0=C2=A0=C2=A0 =
+=C2=A0=C2=A0=C2=A0 return IRQ_NONE;<br>=C2=A0=C2=A0=C2=A0=C2=A0 }<br>=C2=A0=
+<br>@@ -102,7 +102,7 @@ static irqreturn_t rv8803_handle_irq(int irq, void =
+*dev_id)<br>=C2=A0=C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 =
+=C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 =C2=A0 rv8803-&gt;ctrl);<br>=C2=A0=C2=
+=A0=C2=A0=C2=A0 }<br>=C2=A0<br>-=C2=A0=C2=A0=C2=A0 spin_unlock(&amp;rv8803-=
+&gt;flags_lock);<br>+=C2=A0=C2=A0=C2=A0 mutex_unlock(&amp;rv8803-&gt;flags_=
+lock);<br>=C2=A0<br>=C2=A0=C2=A0=C2=A0=C2=A0 return IRQ_HANDLED;<br>=C2=A0}=
+<br>@@ -155,7 +155,6 @@ static int rv8803_set_time(struct device *dev, stru=
+ct rtc_time *tm)<br>=C2=A0=C2=A0=C2=A0=C2=A0 struct rv8803_data *rv8803 =3D=
+ dev_get_drvdata(dev);<br>=C2=A0=C2=A0=C2=A0=C2=A0 u8 date[7];<br>=C2=A0=C2=
+=A0=C2=A0=C2=A0 int flags, ret;<br>-=C2=A0=C2=A0=C2=A0 unsigned long irqfla=
+gs;<br>=C2=A0<br>=C2=A0=C2=A0=C2=A0=C2=A0 if ((tm-&gt;tm_year &lt; 100) || =
+(tm-&gt;tm_year &gt; 199))<br>=C2=A0=C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 r=
+eturn -EINVAL;<br>@@ -173,18 +172,18 @@ static int rv8803_set_time(struct d=
+evice *dev, struct rtc_time *tm)<br>=C2=A0=C2=A0=C2=A0=C2=A0 if (ret &lt; 0=
+)<br>=C2=A0=C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 return ret;<br>=C2=A0<br>-=
+=C2=A0=C2=A0=C2=A0 spin_lock_irqsave(&amp;rv8803-&gt;flags_lock, irqflags);=
+<br>+=C2=A0=C2=A0=C2=A0 mutex_lock(&amp;rv8803-&gt;flags_lock);<br>=C2=A0<b=
+r>=C2=A0=C2=A0=C2=A0=C2=A0 flags =3D i2c_smbus_read_byte_data(rv8803-&gt;cl=
+ient, RV8803_FLAG);<br>=C2=A0=C2=A0=C2=A0=C2=A0 if (flags &lt; 0) {<br>-=C2=
+=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 spin_unlock_irqrestore(&amp;rv8803-&gt;f=
+lags_lock, irqflags);<br>+=C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 mutex_unloc=
+k(&amp;rv8803-&gt;flags_lock);<br>=C2=A0=C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=
+=A0 return flags;<br>=C2=A0=C2=A0=C2=A0=C2=A0 }<br>=C2=A0<br>=C2=A0=C2=A0=
+=C2=A0=C2=A0 ret =3D i2c_smbus_write_byte_data(rv8803-&gt;client, RV8803_FL=
+AG,<br>=C2=A0=C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 =C2=
+=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 flags &amp; ~RV8803_FLAG_V2F);<br>=C2=A0=
+<br>-=C2=A0=C2=A0=C2=A0 spin_unlock_irqrestore(&amp;rv8803-&gt;flags_lock, =
+irqflags);<br>+=C2=A0=C2=A0=C2=A0 mutex_unlock(&amp;rv8803-&gt;flags_lock);=
+<br>=C2=A0<br>=C2=A0=C2=A0=C2=A0=C2=A0 return ret;<br>=C2=A0}<br>@@ -226,7 =
++225,7 @@ static int rv8803_set_alarm(struct device *dev, struct rtc_wkalrm=
+ *alrm)<br>=C2=A0=C2=A0=C2=A0=C2=A0 u8 alarmvals[3];<br>=C2=A0=C2=A0=C2=A0=
+=C2=A0 u8 ctrl[2];<br>=C2=A0=C2=A0=C2=A0=C2=A0 int ret, err;<br>-=C2=A0=C2=
+=A0=C2=A0 unsigned long alarm_time, irqflags;<br>+=C2=A0=C2=A0=C2=A0 unsign=
+ed long alarm_time;<br>=C2=A0<br>=C2=A0=C2=A0=C2=A0=C2=A0 /* The alarm has =
+no seconds, round up to nearest minute */<br>=C2=A0=C2=A0=C2=A0=C2=A0 if (a=
+lrm-&gt;time.tm_sec) {<br>@@ -236,11 +235,11 @@ static int rv8803_set_alarm=
+(struct device *dev, struct rtc_wkalrm *alrm)<br>=C2=A0=C2=A0=C2=A0=C2=A0 =
+=C2=A0=C2=A0=C2=A0 rtc_time_to_tm(alarm_time, &amp;alrm-&gt;time);<br>=C2=
+=A0=C2=A0=C2=A0=C2=A0 }<br>=C2=A0<br>-=C2=A0=C2=A0=C2=A0 spin_lock_irqsave(=
+&amp;rv8803-&gt;flags_lock, irqflags);<br>+=C2=A0=C2=A0=C2=A0 mutex_lock(&a=
+mp;rv8803-&gt;flags_lock);<br>=C2=A0<br>=C2=A0=C2=A0=C2=A0=C2=A0 ret =3D i2=
+c_smbus_read_i2c_block_data(client, RV8803_FLAG, 2, ctrl);<br>=C2=A0=C2=A0=
+=C2=A0=C2=A0 if (ret !=3D 2) {<br>-=C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 sp=
+in_unlock_irqrestore(&amp;rv8803-&gt;flags_lock, irqflags);<br>+=C2=A0=C2=
+=A0=C2=A0 =C2=A0=C2=A0=C2=A0 mutex_unlock(&amp;rv8803-&gt;flags_lock);<br>=
+=C2=A0=C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 return ret &lt; 0 ? ret : -EIO;=
+<br>=C2=A0=C2=A0=C2=A0=C2=A0 }<br>=C2=A0<br>@@ -253,14 +252,14 @@ static in=
+t rv8803_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)<br>=C2=A0=
+=C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 err =3D i2c_smbus_write_byte_data(rv8=
+803-&gt;client, RV8803_CTRL,<br>=C2=A0=C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0=
+ =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=
+=A0 rv8803-&gt;ctrl);<br>=C2=A0=C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 if (er=
+r) {<br>-=C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 spin_unlo=
+ck_irqrestore(&amp;rv8803-&gt;flags_lock, irqflags);<br>+=C2=A0=C2=A0=C2=A0=
+ =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 mutex_unlock(&amp;rv8803-&gt;flags_l=
+ock);<br>=C2=A0=C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 ret=
+urn err;<br>=C2=A0=C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 }<br>=C2=A0=C2=A0=
+=C2=A0=C2=A0 }<br>=C2=A0<br>=C2=A0=C2=A0=C2=A0=C2=A0 ctrl[1] &amp;=3D ~RV88=
+03_FLAG_AF;<br>=C2=A0=C2=A0=C2=A0=C2=A0 err =3D i2c_smbus_write_byte_data(r=
+v8803-&gt;client, RV8803_FLAG, ctrl[1]);<br>-=C2=A0=C2=A0=C2=A0 spin_unlock=
+_irqrestore(&amp;rv8803-&gt;flags_lock, irqflags);<br>+=C2=A0=C2=A0=C2=A0 m=
+utex_unlock(&amp;rv8803-&gt;flags_lock);<br>=C2=A0=C2=A0=C2=A0=C2=A0 if (er=
+r)<br>=C2=A0=C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 return err;<br>=C2=A0<br>=
+@@ -289,7 +288,6 @@ static int rv8803_alarm_irq_enable(struct device *dev, =
+unsigned int enabled)<br>=C2=A0=C2=A0=C2=A0=C2=A0 struct i2c_client *client=
+ =3D to_i2c_client(dev);<br>=C2=A0=C2=A0=C2=A0=C2=A0 struct rv8803_data *rv=
+8803 =3D dev_get_drvdata(dev);<br>=C2=A0=C2=A0=C2=A0=C2=A0 int ctrl, flags,=
+ err;<br>-=C2=A0=C2=A0=C2=A0 unsigned long irqflags;<br>=C2=A0<br>=C2=A0=C2=
+=A0=C2=A0=C2=A0 ctrl =3D rv8803-&gt;ctrl;<br>=C2=A0<br>@@ -305,15 +303,15 @=
+@ static int rv8803_alarm_irq_enable(struct device *dev, unsigned int enabl=
+ed)<br>=C2=A0=C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 ctrl =
+&amp;=3D ~RV8803_CTRL_AIE;<br>=C2=A0=C2=A0=C2=A0=C2=A0 }<br>=C2=A0<br>-=C2=
+=A0=C2=A0=C2=A0 spin_lock_irqsave(&amp;rv8803-&gt;flags_lock, irqflags);<br=
+>+=C2=A0=C2=A0=C2=A0 mutex_lock(&amp;rv8803-&gt;flags_lock);<br>=C2=A0=C2=
+=A0=C2=A0=C2=A0 flags =3D i2c_smbus_read_byte_data(client, RV8803_FLAG);<br=
+>=C2=A0=C2=A0=C2=A0=C2=A0 if (flags &lt; 0) {<br>-=C2=A0=C2=A0=C2=A0 =C2=A0=
+=C2=A0=C2=A0 spin_unlock_irqrestore(&amp;rv8803-&gt;flags_lock, irqflags);<=
+br>+=C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 mutex_unlock(&amp;rv8803-&gt;flag=
+s_lock);<br>=C2=A0=C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 return flags;<br>=
+=C2=A0=C2=A0=C2=A0=C2=A0 }<br>=C2=A0=C2=A0=C2=A0=C2=A0 flags &amp;=3D ~(RV8=
+803_FLAG_AF | RV8803_FLAG_UF);<br>=C2=A0=C2=A0=C2=A0=C2=A0 err =3D i2c_smbu=
+s_write_byte_data(client, RV8803_FLAG, flags);<br>-=C2=A0=C2=A0=C2=A0 spin_=
+unlock_irqrestore(&amp;rv8803-&gt;flags_lock, irqflags);<br>+=C2=A0=C2=A0=
+=C2=A0 mutex_unlock(&amp;rv8803-&gt;flags_lock);<br>=C2=A0=C2=A0=C2=A0=C2=
+=A0 if (err)<br>=C2=A0=C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 return err;<br>=
+=C2=A0<br>@@ -333,7 +331,6 @@ static int rv8803_ioctl(struct device *dev, u=
+nsigned int cmd, unsigned long arg)<br>=C2=A0=C2=A0=C2=A0=C2=A0 struct i2c_=
+client *client =3D to_i2c_client(dev);<br>=C2=A0=C2=A0=C2=A0=C2=A0 struct r=
+v8803_data *rv8803 =3D dev_get_drvdata(dev);<br>=C2=A0=C2=A0=C2=A0=C2=A0 in=
+t flags, ret =3D 0;<br>-=C2=A0=C2=A0=C2=A0 unsigned long irqflags;<br>=C2=
+=A0<br>=C2=A0=C2=A0=C2=A0=C2=A0 switch (cmd) {<br>=C2=A0=C2=A0=C2=A0=C2=A0 =
+case RTC_VL_READ:<br>@@ -355,16 +352,16 @@ static int rv8803_ioctl(struct d=
+evice *dev, unsigned int cmd, unsigned long arg)<br>=C2=A0=C2=A0=C2=A0=C2=
+=A0 =C2=A0=C2=A0=C2=A0 return 0;<br>=C2=A0<br>=C2=A0=C2=A0=C2=A0=C2=A0 case=
+ RTC_VL_CLR:<br>-=C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 spin_lock_irqsave(&a=
+mp;rv8803-&gt;flags_lock, irqflags);<br>+=C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=
+=A0 mutex_lock(&amp;rv8803-&gt;flags_lock);<br>=C2=A0=C2=A0=C2=A0=C2=A0 =C2=
+=A0=C2=A0=C2=A0 flags =3D i2c_smbus_read_byte_data(client, RV8803_FLAG);<br=
+>=C2=A0=C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 if (flags &lt; 0) {<br>-=C2=A0=
+=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 spin_unlock_irqrestore(&=
+amp;rv8803-&gt;flags_lock, irqflags);<br>+=C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=
+=C2=A0 =C2=A0=C2=A0=C2=A0 mutex_unlock(&amp;rv8803-&gt;flags_lock);<br>=C2=
+=A0=C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 return flags;<b=
+r>=C2=A0=C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 }<br>=C2=A0<br>=C2=A0=C2=A0=
+=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 flags &amp;=3D ~(RV8803_FLAG_V1F | RV8803_F=
+LAG_V2F);<br>=C2=A0=C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 ret =3D i2c_smbus_=
+write_byte_data(client, RV8803_FLAG, flags);<br>-=C2=A0=C2=A0=C2=A0 =C2=A0=
+=C2=A0=C2=A0 spin_unlock_irqrestore(&amp;rv8803-&gt;flags_lock, irqflags);<=
+br>+=C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 mutex_unlock(&amp;rv8803-&gt;flag=
+s_lock);<br>=C2=A0=C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 if (ret &lt; 0)<br>=
+=C2=A0=C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 return ret;<=
+br>=C2=A0<br>@@ -441,6 +438,7 @@ static int rv8803_probe(struct i2c_client =
+*client,<br>=C2=A0=C2=A0=C2=A0=C2=A0 if (!rv8803)<br>=C2=A0=C2=A0=C2=A0=C2=
+=A0 =C2=A0=C2=A0=C2=A0 return -ENOMEM;<br>=C2=A0<br>+=C2=A0=C2=A0=C2=A0 mut=
+ex_init(&amp;rv8803-&gt;flags_lock);<br>=C2=A0=C2=A0=C2=A0=C2=A0 rv8803-&gt=
+;client =3D client;<br>=C2=A0=C2=A0=C2=A0=C2=A0 i2c_set_clientdata(client, =
+rv8803);<br>=C2=A0<br><br><br><br>=C2=A0</div></div>
+
+<p></p>
+
+-- <br />
+-- <br />
+You received this message because you are subscribed to &quot;rtc-linux&quo=
+t;.<br />
+Membership options at <a href=3D"http://groups.google.com/group/rtc-linux">=
+http://groups.google.com/group/rtc-linux</a> .<br />
+Please read <a href=3D"http://groups.google.com/group/rtc-linux/web/checkli=
+st">http://groups.google.com/group/rtc-linux/web/checklist</a><br />
+before submitting a driver.<br />
+--- <br />
+You received this message because you are subscribed to the Google Groups &=
+quot;rtc-linux&quot; group.<br />
+To unsubscribe from this group and stop receiving emails from it, send an e=
+mail to <a href=3D"mailto:rtc-linux+unsubscribe@googlegroups.com">rtc-linux=
++unsubscribe@googlegroups.com</a>.<br />
+For more options, visit <a href=3D"https://groups.google.com/d/optout">http=
+s://groups.google.com/d/optout</a>.<br />
+
+------=_Part_8970_1986614853.1454504333825--
+
+------=_Part_8969_1579457158.1454504333825--
