@@ -1,25 +1,23 @@
-Return-Path: <rtc-linux+bncBDQJZJXU2UMBB2ETYS2QKGQESVBDKYY@googlegroups.com>
+Return-Path: <rtc-linux+bncBAABBAPCYW2QKGQEHDXV6EY@googlegroups.com>
+Received: from lists.s-osg.org (lists.s-osg.org. [54.187.51.154])
+        by gmr-mx.google.com with ESMTP id tn7si616255pac.1.2016.02.02.19.16.16
+        for <rtc-linux@googlegroups.com>;
+        Tue, 02 Feb 2016 19:16:16 -0800 (PST)
+Subject: [rtc-linux] Re: [PATCH 3/4] rtc: max77686: avoid reference of parent
+ device info multiple palces
+To: Laxman Dewangan <ldewangan@nvidia.com>, lee.jones@linaro.org,
+ alexandre.belloni@free-electrons.com, k.kozlowski@samsung.com
+References: <1454419012-18050-1-git-send-email-ldewangan@nvidia.com>
+ <1454419012-18050-4-git-send-email-ldewangan@nvidia.com>
+Cc: cw00.choi@samsung.com, linux-kernel@vger.kernel.org,
+ rtc-linux@googlegroups.com
+From: Javier Martinez Canillas <javier@osg.samsung.com>
+Message-ID: <56B170F8.3040901@osg.samsung.com>
+Date: Wed, 3 Feb 2016 00:16:08 -0300
 MIME-Version: 1.0
-Received: from mout.gmx.net (mout.gmx.net. [212.227.15.15])
-        by gmr-mx.google.com with ESMTPS id e130si448255wme.2.2016.02.02.11.56.23
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 02 Feb 2016 11:56:23 -0800 (PST)
-From: Oleksij Rempel <linux@rempel-privat.de>
-To: devicetree@vger.kernel.org,
-	robh+dt@kernel.org,
-	a.zummo@towertech.it,
-	alexandre.belloni@free-electrons.com,
-	rtc-linux@googlegroups.com
-Cc: Oleksij Rempel <linux@rempel-privat.de>
-Subject: [rtc-linux] [PATCH v2 2/2] doc: dt: add documentation for alphascale,asm9260-rtc
-Date: Tue,  2 Feb 2016 20:56:11 +0100
-Message-Id: <1454442971-25225-3-git-send-email-linux@rempel-privat.de>
-In-Reply-To: <1454442971-25225-1-git-send-email-linux@rempel-privat.de>
-References: <20160202102804.GT20165@piout.net>
- <1454442971-25225-1-git-send-email-linux@rempel-privat.de>
+In-Reply-To: <1454419012-18050-4-git-send-email-ldewangan@nvidia.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Reply-To: rtc-linux@googlegroups.com
-Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -29,41 +27,24 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Document Alphascale asm9260 RTC bindings
+Hello Laxman,
 
-Signed-off-by: Oleksij Rempel <linux@rempel-privat.de>
----
- .../bindings/rtc/alphascale,asm9260-rtc.txt           | 19 +++++++++++++++++++
- 1 file changed, 19 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/rtc/alphascale,asm9260-rtc.txt
+On 02/02/2016 10:16 AM, Laxman Dewangan wrote:
+> Get rid of referring parent device info for register access
+> all the places by making regmap as part of max77686 rtc
+> device info. This will also remove the need of storing parent
+> device info in max77686 rtc device info as this is no more required.
+>
+> Signed-off-by: Laxman Dewangan <ldewangan@nvidia.com>
+> ---
 
-diff --git a/Documentation/devicetree/bindings/rtc/alphascale,asm9260-rtc.txt b/Documentation/devicetree/bindings/rtc/alphascale,asm9260-rtc.txt
-new file mode 100644
-index 0000000..76ebca5
---- /dev/null
-+++ b/Documentation/devicetree/bindings/rtc/alphascale,asm9260-rtc.txt
-@@ -0,0 +1,19 @@
-+* Alphascale asm9260 SoC Real Time Clock
-+
-+Required properties:
-+- compatible: Should be "alphascale,asm9260-rtc"
-+- reg: Physical base address of the controller and length
-+       of memory mapped region.
-+- interrupts: IRQ line for the RTC.
-+- clocks: Reference to the clock entry.
-+- clock-names: should contain:
-+  * "ahb" for the SoC RTC clock
-+
-+Example:
-+rtc0: rtc@800a0000 {
-+	compatible = "alphascale,asm9260-rtc";
-+	reg = <0x800a0000 0x100>;
-+	clocks = <&acc CLKID_AHB_RTC>;
-+	clock-names = "ahb";
-+	interrupts = <2>;
-+};
--- 
-2.5.0
+Reviewed-by: Javier Martinez Canillas <javier@osg.samsung.com>
+
+Best regards,
+--
+Javier Martinez Canillas
+Open Source Group
+Samsung Research America
 
 -- 
 -- 
