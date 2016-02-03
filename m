@@ -1,23 +1,20 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBN4JYK2QKGQE6N5362Q@googlegroups.com>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBA57Y62QKGQEFSQAZGI@googlegroups.com>
 Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id c143si47528wmd.1.2016.02.02.02.28.07
+        by gmr-mx.google.com with ESMTP id v7si153836wmg.3.2016.02.03.03.07.47
         for <rtc-linux@googlegroups.com>;
-        Tue, 02 Feb 2016 02:28:07 -0800 (PST)
-Date: Tue, 2 Feb 2016 11:28:04 +0100
+        Wed, 03 Feb 2016 03:07:47 -0800 (PST)
+Date: Wed, 3 Feb 2016 12:07:05 +0100
 From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Oleksij Rempel <linux@rempel-privat.de>
-Cc: Rob Herring <robh@kernel.org>, devicetree@vger.kernel.org,
-	a.zummo@towertech.it, rtc-linux@googlegroups.com
-Subject: [rtc-linux] Re: [PATCH 2/2] doc: dt: add documentation for alphascale,asm9260-rtc
-Message-ID: <20160202102804.GT20165@piout.net>
-References: <1454056802-23386-1-git-send-email-linux@rempel-privat.de>
- <1454056802-23386-3-git-send-email-linux@rempel-privat.de>
- <20160201152750.GA17595@rob-hp-laptop>
- <20160201155527.GR20165@piout.net>
- <56B06CCA.4060208@rempel-privat.de>
+To: dirk.behme@gmail.com
+Cc: rtc-linux <rtc-linux@googlegroups.com>,
+	Dirk Behme <dirk.behme@de.bosch.com>,
+	Oleksij Rempel <linux@rempel-privat.de>
+Subject: [rtc-linux] Re: rtc: RV8803: BUG: scheduling while atomic
+Message-ID: <20160203105717.GA20165@piout.net>
+References: <460eec38-0a09-4faa-b601-de64803ed5f3@googlegroups.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <56B06CCA.4060208@rempel-privat.de>
+In-Reply-To: <460eec38-0a09-4faa-b601-de64803ed5f3@googlegroups.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -28,60 +25,21 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 02/02/2016 at 09:46:02 +0100, Oleksij Rempel wrote :
-> Am 01.02.2016 um 16:55 schrieb Alexandre Belloni:
-> > On 01/02/2016 at 09:27:50 -0600, Rob Herring wrote :
-> >> On Fri, Jan 29, 2016 at 09:40:02AM +0100, Oleksij Rempel wrote:
-> >>> Document Alphascale asm9260 RTC bindings
-> >>>
-> >>> Signed-off-by: Oleksij Rempel <linux@rempel-privat.de>
-> >>> ---
-> >>>  .../bindings/rtc/alphascale,asm9260-rtc.txt        | 25 ++++++++++++++++++++++
-> >>>  1 file changed, 25 insertions(+)
-> >>>  create mode 100644 Documentation/devicetree/bindings/rtc/alphascale,asm9260-rtc.txt
-> >>>
-> >>> diff --git a/Documentation/devicetree/bindings/rtc/alphascale,asm9260-rtc.txt b/Documentation/devicetree/bindings/rtc/alphascale,asm9260-rtc.txt
-> >>> new file mode 100644
-> >>> index 0000000..2c0ff3c
-> >>> --- /dev/null
-> >>> +++ b/Documentation/devicetree/bindings/rtc/alphascale,asm9260-rtc.txt
-> >>> @@ -0,0 +1,25 @@
-> >>> +* Alphascale asm9260 SoC Real Time Clock
-> >>> +
-> >>> +Required properties:
-> >>> +- compatible: Should be "alphascale,asm9260-rtc"
-> >>> +- reg: Physical base address of the controller and length
-> >>> +       of memory mapped region.
-> >>> +- interrupts: IRQ line for the RTC.
-> >>> +- clocks: Reference to the clock entry.
-> >>> +- clock-names: should contain:
-> >>> +  * "ahb" for the SoC RTC clock
-> >>> +
-> >>> +Optional:
-> >>> +- calibration: calibration value for 1 sec period.
-> >>> +		Max value for forward calibration is 0x1ffff (131071),
-> >>> +		Min value for backward calibration is 0xfffe0001 (-131071).
-> >>
-> >> This should be prefixed with 'alphascale,'
-> >>
-> >> How is this value determined?
-> >>
-> > 
-> > I think this should stay in userspace, see that series:
-> > https://groups.google.com/forum/#!topic/rtc-linux/HGQqiHnMiuw
-> > 
-> > It quite often depends on environmental things like temperature so it may be updated at runtime.
-> > 
+Hi,
+
+On 03/02/2016 at 01:31:21 -0800, dirk.behme@gmail.com wrote :
+> Testing the RV8803 driver [1] we are getting several "BUG: scheduling while 
+> atomic" [2].
 > 
-> I partially agree. IMO default configuration should work properly by
-> 20C. My devkit provide terrible results without default offset.
+> Having a quick look this might be from rv8803_set_time() holding a spinlock 
+> during the call to i2c_smbus_read_byte_data()?
+> 
+> Any ideas?
 > 
 
-I'm not against having a sane default. What I would do is set a default
-hardcoded value from the driver at the time the RTC is reset (that is: it
-has never been set yet) then let the user adjust that calibration
-through sysfs.
-
+Yes, that is probably the case. As this is already a threaded irq, it
+can probably be changed into a mutex this would solve the issue. Can you
+try that? I don't have much time to do it myself right now.
 
 
 -- 
