@@ -1,24 +1,29 @@
-Return-Path: <rtc-linux+bncBAABBS6PW63AKGQESAEZ57Y@googlegroups.com>
-MIME-Version: 1.0
-Received: from lists.s-osg.org (lists.s-osg.org. [54.187.51.154])
-        by gmr-mx.google.com with ESMTP id ui7si561093pab.0.2016.02.24.09.26.34
-        for <rtc-linux@googlegroups.com>;
-        Wed, 24 Feb 2016 09:26:34 -0800 (PST)
-From: Javier Martinez Canillas <javier@osg.samsung.com>
-To: linux-kernel@vger.kernel.org
-Cc: Arnd Bergmann <arnd@arndb.de>,
-	Javier Martinez Canillas <javier@osg.samsung.com>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	rtc-linux@googlegroups.com,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	linux-mediatek@lists.infradead.org,
-	Eddie Huang <eddie.huang@mediatek.com>,
-	linux-arm-kernel@lists.infradead.org
-Subject: [rtc-linux] [PATCH] rtc: mt6397: Remove plaform module alias
-Date: Wed, 24 Feb 2016 14:26:20 -0300
-Message-Id: <1456334780-17380-1-git-send-email-javier@osg.samsung.com>
+Return-Path: <rtc-linux+bncBDKZNNNLXAHBBTMIYW2QKGQEHNGAS7A@googlegroups.com>
+Received: from mailout1.w1.samsung.com (mailout1.w1.samsung.com. [210.118.77.11])
+        by gmr-mx.google.com with ESMTPS id jg4si465628pac.2.2016.02.02.16.05.33
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1 cipher=AES128-SHA bits=128/128);
+        Tue, 02 Feb 2016 16:05:33 -0800 (PST)
+Received: from eucpsbgm2.samsung.com (unknown [203.254.199.245])
+ by mailout1.w1.samsung.com
+ (Oracle Communications Messaging Server 7.0.5.31.0 64bit (built May  5 2014))
+ with ESMTP id <0O1Y002GY2X43180@mailout1.w1.samsung.com> for
+ rtc-linux@googlegroups.com; Wed, 03 Feb 2016 00:05:28 +0000 (GMT)
+Subject: [rtc-linux] Re: [PATCH 3/4] rtc: max77686: avoid reference of parent
+ device info multiple palces
+To: Laxman Dewangan <ldewangan@nvidia.com>, lee.jones@linaro.org,
+ alexandre.belloni@free-electrons.com, javier@osg.samsung.com
+References: <1454419012-18050-1-git-send-email-ldewangan@nvidia.com>
+ <1454419012-18050-4-git-send-email-ldewangan@nvidia.com>
+Cc: cw00.choi@samsung.com, linux-kernel@vger.kernel.org,
+ rtc-linux@googlegroups.com
+From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+Message-id: <56B14447.6070702@samsung.com>
+Date: Wed, 03 Feb 2016 09:05:27 +0900
+MIME-version: 1.0
+In-reply-to: <1454419012-18050-4-git-send-email-ldewangan@nvidia.com>
+Content-type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
-Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -28,37 +33,25 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-The driver uses the MODULE_ALIAS() macro to export a platform module alias
-to allow the module to be autoloaded if the device is registered using the
-legacy platform registration mechanism but the driver is always used by OF
-only machines so the alias is not needed and should just be removed.
+On 02.02.2016 22:16, Laxman Dewangan wrote:
+> Get rid of referring parent device info for register access
+> all the places by making regmap as part of max77686 rtc
+> device info. This will also remove the need of storing parent
+> device info in max77686 rtc device info as this is no more required.
+> 
+> Signed-off-by: Laxman Dewangan <ldewangan@nvidia.com>
+> ---
+>  drivers/rtc/rtc-max77686.c | 52 ++++++++++++++++++++--------------------------
+>  1 file changed, 23 insertions(+), 29 deletions(-)
 
-Suggested-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
+Reviewed-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
 
----
-Hello,
+Tested on Trats2/max77686:
+Tested-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
 
-This patch supersedes "rtc: mt6397: Add platform device ID table":
-https://lkml.org/lkml/2016/2/9/192.
 
 Best regards,
-Javier
-
- drivers/rtc/rtc-mt6397.c | 1 -
- 1 file changed, 1 deletion(-)
-
-diff --git a/drivers/rtc/rtc-mt6397.c b/drivers/rtc/rtc-mt6397.c
-index 06a5c52b292f..44f622c3e048 100644
---- a/drivers/rtc/rtc-mt6397.c
-+++ b/drivers/rtc/rtc-mt6397.c
-@@ -419,4 +419,3 @@ module_platform_driver(mtk_rtc_driver);
- MODULE_LICENSE("GPL v2");
- MODULE_AUTHOR("Tianping Fang <tianping.fang@mediatek.com>");
- MODULE_DESCRIPTION("RTC Driver for MediaTek MT6397 PMIC");
--MODULE_ALIAS("platform:mt6397-rtc");
--- 
-2.5.0
+Krzysztof
 
 -- 
 -- 
