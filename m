@@ -1,17 +1,29 @@
-Return-Path: <rtc-linux+bncBC62JGFMSINRBDXTY62QKGQE5A24IYA@googlegroups.com>
-Date: Wed, 3 Feb 2016 04:58:53 -0800 (PST)
-From: dirk.behme@gmail.com
-To: rtc-linux <rtc-linux@googlegroups.com>
-Cc: dirk.behme@gmail.com, dirk.behme@de.bosch.com, linux@rempel-privat.de,
-	alexandre.belloni@free-electrons.com
-Message-Id: <15c6e090-33f5-4dd4-82bc-d8b7b1f62dcd@googlegroups.com>
-In-Reply-To: <20160203105717.GA20165@piout.net>
-References: <460eec38-0a09-4faa-b601-de64803ed5f3@googlegroups.com>
- <20160203105717.GA20165@piout.net>
-Subject: [rtc-linux] Re: rtc: RV8803: BUG: scheduling while atomic
-MIME-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----=_Part_8969_1579457158.1454504333825"
+Return-Path: <rtc-linux+bncBDKZNNNLXAHBB56FY62QKGQEHXCZX4Q@googlegroups.com>
+Received: from mailout1.w1.samsung.com (mailout1.w1.samsung.com. [210.118.77.11])
+        by gmr-mx.google.com with ESMTPS id r2si786994pfr.0.2016.02.03.03.22.30
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1 cipher=AES128-SHA bits=128/128);
+        Wed, 03 Feb 2016 03:22:31 -0800 (PST)
+Received: from eucpsbgm2.samsung.com (unknown [203.254.199.245])
+ by mailout1.w1.samsung.com
+ (Oracle Communications Messaging Server 7.0.5.31.0 64bit (built May  5 2014))
+ with ESMTP id <0O1Y00HHXY9EX470@mailout1.w1.samsung.com> for
+ rtc-linux@googlegroups.com; Wed, 03 Feb 2016 11:22:26 +0000 (GMT)
+Subject: [rtc-linux] Re: [PATCH V2 5/5] rtc: max77686: move initialisation of
+ rtc regmap, irq chip locally
+To: Laxman Dewangan <ldewangan@nvidia.com>, lee.jones@linaro.org,
+ alexandre.belloni@free-electrons.com, javier@osg.samsung.com
+References: <1454491848-26551-1-git-send-email-ldewangan@nvidia.com>
+ <1454491848-26551-6-git-send-email-ldewangan@nvidia.com>
+ <56B1DA31.7070109@samsung.com>
+Cc: cw00.choi@samsung.com, linux-kernel@vger.kernel.org,
+ rtc-linux@googlegroups.com
+From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+Message-id: <56B1E2F3.9010502@samsung.com>
+Date: Wed, 03 Feb 2016 20:22:27 +0900
+MIME-version: 1.0
+In-reply-to: <56B1DA31.7070109@samsung.com>
+Content-type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -22,229 +34,209 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-------=_Part_8969_1579457158.1454504333825
-Content-Type: multipart/alternative;
-	boundary="----=_Part_8970_1986614853.1454504333825"
+On 03.02.2016 19:45, Krzysztof Kozlowski wrote:
+> On 03.02.2016 18:30, Laxman Dewangan wrote:
+>> To make RTC block of MAX77686/MAX77802 as independent driver,
+>> move the registration of i2c device, regmap for register access
+>> and irq_chip for interrupt support inside the RTC driver.
+>> Removed the same initialisation from MFD driver.
+>>
+>> Having this change will allow to reuse this driver for different
+>> PMIC/devices from Maxim Semiconductor if they kept same RTC IP on
+>> different PMIC. Some of examples as PMIC MAX77620, MAX20024 where
+>> same RTC IP used and hence driver for these chips will use this
+>> driver only for RTC support.
+>>
+>> Suggested-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+>> Signed-off-by: Laxman Dewangan <ldewangan@nvidia.com>
+>> CC: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+>> CC: Javier Martinez Canillas <javier@osg.samsung.com>
+>>
+>> ---
+>> Changes from V1:
+>> - Remove changes from Kconfig.
+>> - Maintain all register definition in max77686 private header and remove
+>>   the movement to rtc driver.
+>> - Taken care of all comments on V1 from Krzysztof and Javier.
+> 
+> Almost everything is good. You skipped one my comment, at the end:
+> 
+> (...)
+> 
+>> @@ -659,14 +745,33 @@ static int max77686_rtc_probe(struct platform_device *pdev)
+>>  	ret = devm_request_threaded_irq(&pdev->dev, info->virq, NULL,
+>>  					max77686_rtc_alarm_irq, 0,
+>>  					"rtc-alarm1", info);
+>> -	if (ret < 0)
+>> +	if (ret < 0) {
+>>  		dev_err(&pdev->dev, "Failed to request alarm IRQ: %d: %d\n",
+>>  			info->virq, ret);
+>> +		goto err_rtc;
+>> +	}
+>> +
+>> +	return 0;
+>>  
+>>  err_rtc:
+>> +	if (info->rtc)
+>> +		i2c_unregister_device(info->rtc);
+>> +	regmap_del_irq_chip(info->rtc_irq, info->rtc_irq_data);
+>> +
+> 
+> You should clean up in reverse order of allocation, so first
+> regmap_del_irq_chip then i2c_unregister_device. This
+> is a common pattern of cleaning up. Sometimes such order
+> is even necessary because of dependencies between
+> components... which is not a case here but still the
+> natural way is reversing the allocation code.
+> 
+>>  	return ret;
+>>  }
+>>  
+>> +static int max77686_rtc_remove(struct platform_device *pdev)
+>> +{
+>> +	struct max77686_rtc_info *info = platform_get_drvdata(pdev);
+>> +
+>> +	regmap_del_irq_chip(info->rtc_irq, info->rtc_irq_data);
+>> +	if (info->rtc)
+>> +		i2c_unregister_device(info->rtc);
+> 
+> Here it is okay.
+> 
+> Anyway RTC works... but unbinding leads to oops:
+> echo max77686-rtc > /sys/bus/platform/drivers/max77686-rtc/unbind
+> [   80.505411] Unable to handle kernel paging request at virtual address ffffffff
+> [   80.511257] pgd = ec3a0000
+> [   80.513870] [ffffffff] *pgd=6fffd861, *pte=00000000, *ppte=00000000
+> [   80.520130] Internal error: Oops: 37 [#1] PREEMPT SMP ARM
+> [   80.525498] Modules linked in:
+> [   80.528551] CPU: 2 PID: 1325 Comm: sleep Tainted: G        W       4.5.0-rc2-next-20160202-00006-gb28bd1d36a08 #62
+> [   80.538867] Hardware name: SAMSUNG EXYNOS (Flattened Device Tree)
+> [   80.544947] task: eeb53440 ti: eeb12000 task.ti: eeb12000
+> [   80.550349] PC is at kmem_cache_alloc+0x7c/0x154
+> [   80.554933] LR is at kmem_cache_alloc+0x3c/0x154
+> [   80.559535] pc : [<c00d5818>]    lr : [<c00d57d8>]    psr: a00f0013
+> [   80.559535] sp : eeb13e18  ip : 00000001  fp : bee6c4f4
+> [   80.570986] r10: 024080c0  r9 : eeb13ed0  r8 : 00033d72
+> [   80.576195] r7 : c00deda8  r6 : c08585f4  r5 : ffffffff  r4 : ef001d80
+> [   80.582704] r3 : 00000000  r2 : 00033d72  r1 : c070e2ac  r0 : 2ef40000
+> [   80.589217] Flags: NzCv  IRQs on  FIQs on  Mode SVC_32  ISA ARM  Segment none
+> [   80.596332] Control: 10c5387d  Table: 6c3a004a  DAC: 00000051
+> [   80.602061] Process sleep (pid: 1325, stack limit = 0xeeb12210)
+> [   80.607963] Stack: (0xeeb13e18 to 0xeeb14000)
+> [   80.612306] 3e00:                                                       c0858280 ee4ada00
+> [   80.620475] 3e20: c0863e80 eeb13f74 c000fa84 eeb13ed0 00000000 c00deda8 b6f4f000 00000011
+> [   80.628632] 3e40: 00000003 eeb13f74 00000001 c00e8ebc 386de9c0 00000000 00000001 00000001
+> [   80.636792] 3e60: eeb53440 00000041 eee89514 0000014f 00000054 0000053c eeb6c190 ee4f653c
+> [   80.644934] 3e80: 00013000 ee4f6000 00000001 00000000 00000054 024200ca 00000010 b6f4e000
+> [   80.653093] 3ea0: ee58e7a8 b6f3e000 00000011 00000003 eeb13f74 00000001 00000005 c000fa84
+> [   80.661253] 3ec0: eeb12000 00000000 bee6c4f4 c00eaa6c 00000000 c0018570 eea49700 ee58e160
+> [   80.669412] 3ee0: 00000000 00000000 c001921c 00000017 c0018388 b6f4f0dd c085cf34 eeb13fb0
+> [   80.677571] 3f00: b6f96b40 7f62b751 00000000 eeb13f10 eeb13f24 ef001b80 00000001 00000001
+> [   80.685730] 3f20: 00000003 ee5aac00 ee5aac24 00000020 00080000 c05a0390 00000000 c00f72ec
+> [   80.693889] 3f40: eebac000 00000000 eebac000 ffffff9c ffffff9c c000fa84 00000003 eebac000
+> [   80.702048] 3f60: ffffff9c c00dc29c eeb53440 00000003 ee5aac00 00000000 eea40000 00000004
+> [   80.710208] 3f80: 00000100 00000001 eea49700 00000008 00000000 bee6c534 00000005 c000fa84
+> [   80.718367] 3fa0: 00000000 c000f8c0 00000008 00000000 b6f4f0ce 00080000 b6f96958 00000000
+> [   80.726526] 3fc0: 00000008 00000000 bee6c534 00000005 00000001 b6f4f0ce 00000000 bee6c4f4
+> [   80.734685] 3fe0: b6f95ce0 bee6c4ac b6f6ba14 b6f7f24c 600f0010 b6f4f0ce ffffffff ffffffff
+> [   80.742854] [<c00d5818>] (kmem_cache_alloc) from [<c00deda8>] (get_empty_filp+0x70/0x1d4)
+> [   80.751008] [<c00deda8>] (get_empty_filp) from [<c00e8ebc>] (path_openat+0x20/0xf1c)
+> [   80.758731] [<c00e8ebc>] (path_openat) from [<c00eaa6c>] (do_filp_open+0x60/0xb4)
+> [   80.766195] [<c00eaa6c>] (do_filp_open) from [<c00dc29c>] (do_sys_open+0x114/0x1c0)
+> [   80.773838] [<c00dc29c>] (do_sys_open) from [<c000f8c0>] (ret_fast_syscall+0x0/0x3c)
+> [   80.781559] Code: e7905003 e3550000 0a00001f e5943014 (e7950003)
+> [   80.787694] ---[ end trace 9502799e3ea05a7e ]---
+> [   80.792503] Unable to handle kernel paging request at virtual address ffffffff
+> [   80.799457] pgd = ec39c000
+> [   80.802140] [ffffffff] *pgd=6fffd861, *pte=00000000, *ppte=00000000
+> [   80.808377] Internal error: Oops: 37 [#2] PREEMPT SMP ARM
+> [   80.813756] Modules linked in:
+> [   80.816798] CPU: 2 PID: 628 Comm: sh Tainted: G      D W       4.5.0-rc2-next-20160202-00006-gb28bd1d36a08 #62
+> [   80.826776] Hardware name: SAMSUNG EXYNOS (Flattened Device Tree)
+> [   80.832853] task: ec3050c0 ti: ee66e000 task.ti: ee66e000
+> [   80.838240] PC is at kmem_cache_alloc+0x7c/0x154
+> [   80.842836] LR is at kmem_cache_alloc+0x3c/0x154
+> [   80.847437] pc : [<c00d5818>]    lr : [<c00d57d8>]    psr: a00f0013
+> [   80.847437] sp : ee66fe18  ip : 00000001  fp : beaba124
+> [   80.858893] r10: 024080c0  r9 : ee66fed0  r8 : 00033d72
+> [   80.864100] r7 : c00deda8  r6 : c08585f4  r5 : ffffffff  r4 : ef001d80
+> [   80.870610] r3 : 00000000  r2 : 00033d72  r1 : c070e2ac  r0 : 2ef40000
+> [   80.877120] Flags: NzCv  IRQs on  FIQs on  Mode SVC_32  ISA ARM  Segment none
+> [   80.884237] Control: 10c5387d  Table: 6c39c04a  DAC: 00000051
+> [   80.889966] Process sh (pid: 628, stack limit = 0xee66e210)
+> [   80.895522] Stack: (0xee66fe18 to 0xee670000)
+> [   80.899862] fe00:                                                       c0858280 ec264f80
+> [   80.908023] fe20: c0863e80 ee66ff74 c000fa84 ee66fed0 00000000 c00deda8 00000040 ee58e9a0
+> [   80.916182] fe40: 00000003 ee66ff74 00000001 c00e8ebc ec39efa8 eeb6cee0 69f907df ef00cc10
+> [   80.924341] fe60: c0850200 00000041 00000001 00000195 00000055 00000654 ec39edb8 ee464380
+> [   80.932500] fe80: ffffff05 c023bd4c 00000000 00000000 00000000 ee464380 ee58e9a0 c00c0904
+> [   80.940660] fea0: ee464380 ee58e9a0 ee464380 00000003 ee66ff74 00000001 00000005 c000fa84
+> [   80.948819] fec0: ee66e000 00000000 beaba124 c00eaa6c 00000800 c0018570 ec19fa08 00000000
+> [   80.956978] fee0: 00000000 00000000 00000000 00000817 c0018388 b6f95000 c085cf34 ee66ffb0
+> [   80.965137] ff00: 00000000 b6f974c0 00000000 ee66ff10 ee66ff24 ef001b80 00000001 00000001
+> [   80.973296] ff20: 00000003 ee59ba00 ee405e00 00000100 00080000 c05a0390 00000000 c00f72ec
+> [   80.981456] ff40: eebaf000 00000000 eebaf000 ffffff9c ffffff9c c000fa84 00000003 eebaf000
+> [   80.989615] ff60: ffffff9c c00dc29c beaba52c c00b0e8c 00000022 00000000 000b0000 00000004
+> [   80.997774] ff80: 00000100 00000001 ffffffff 000d6430 00000008 00000008 00000005 c000fa84
+> [   81.005933] ffa0: 00000000 c000f8c0 000d6430 00000008 beaba148 00080000 000001b6 000001b6
+> [   81.014092] ffc0: 000d6430 00000008 00000008 00000005 00000000 b6f0405c beaba408 beaba124
+> [   81.022252] ffe0: 00080000 beaba0c4 b6e3529c b6e8a9bc 200f0010 beaba148 6fffd861 6fffdc61
+> [   81.030416] [<c00d5818>] (kmem_cache_alloc) from [<c00deda8>] (get_empty_filp+0x70/0x1d4)
+> [   81.038572] [<c00deda8>] (get_empty_filp) from [<c00e8ebc>] (path_openat+0x20/0xf1c)
+> [   81.046296] [<c00e8ebc>] (path_openat) from [<c00eaa6c>] (do_filp_open+0x60/0xb4)
+> [   81.053761] [<c00eaa6c>] (do_filp_open) from [<c00dc29c>] (do_sys_open+0x114/0x1c0)
+> [   81.061401] [<c00dc29c>] (do_sys_open) from [<c000f8c0>] (ret_fast_syscall+0x0/0x3c)
+> [   81.069124] Code: e7905003 e3550000 0a00001f e5943014 (e7950003)
+> [   81.075245] ---[ end trace 9502799e3ea05a7f ]---
+> [   88.035087] Unable to handle kernel paging request at virtual address ffffffff
+> [   88.040971] pgd = ee604000
+> [   88.043617] [ffffffff] *pgd=6fffd861, *pte=00000000, *ppte=00000000
+> [   88.049822] Internal error: Oops: 37 [#3] PREEMPT SMP ARM
+> [   88.055186] Modules linked in:
+> [   88.058245] CPU: 2 PID: 396 Comm: deviced Tainted: G      D W       4.5.0-rc2-next-20160202-00006-gb28bd1d36a08 #62
+> [   88.068641] Hardware name: SAMSUNG EXYNOS (Flattened Device Tree)
+> [   88.074723] task: ec089c80 ti: ec180000 task.ti: ec180000
+> [   88.080132] PC is at kmem_cache_alloc+0x7c/0x154
+> [   88.084712] LR is at kmem_cache_alloc+0x3c/0x154
+> [   88.089313] pc : [<c00d5818>]    lr : [<c00d57d8>]    psr: a0000013
+> [   88.089313] sp : ec181e18  ip : 00000001  fp : be9821e4
+> [   88.100763] r10: 024080c0  r9 : ec181ed0  r8 : 00033d82
+> [   88.105971] r7 : c00deda8  r6 : c08585f4  r5 : ffffffff  r4 : ef001d80
+> [   88.112482] r3 : 00000000  r2 : 00033d82  r1 : c070e2ac  r0 : 2ef40000
+> [   88.118995] Flags: NzCv  IRQs on  FIQs on  Mode SVC_32  ISA ARM  Segment none
+> [   88.126095] Control: 10c5387d  Table: 6e60404a  DAC: 00000051
+> [   88.131824] Process deviced (pid: 396, stack limit = 0xec180210)
+> [   88.137812] Stack: (0xec181e18 to 0xec182000)
+> [   88.142153] 1e00:                                                       c0858280 ee7bb900
+> [   88.150317] 1e20: c0863e80 ec181f74 c000fa84 ec181ed0 00000000 c00deda8 ec181e50 ec181e54
+> [   88.158475] 1e40: 00000016 ec181f74 00000001 c00e8ebc 00000000 00000000 00000000 00000000
+> [   88.166635] 1e60: ec181eb8 00000041 ffede000 00000127 00000055 0000049c ee605fd8 00002000
+> [   88.174793] 1e80: 00000011 ec181f80 00000044 00000000 00000011 c012ca68 00000000 eb17e260
+> [   88.182953] 1ea0: 00000051 00000011 ec181f80 00000016 ec181f74 00000001 00000005 c000fa84
+> [   88.191112] 1ec0: ec180000 00000000 be9821e4 c00eaa6c 00000800 c0018570 be981c48 ee51cd24
+> [   88.199272] 1ee0: ec089c80 00000008 ee51ccc0 0000081f c0018388 7f727c20 c085cfb4 ec181fb0
+> [   88.207430] 1f00: c792168f ffffffff 00000000 ec181f10 ec181f24 ef001b80 00000001 00000001
+> [   88.215590] 1f20: 00000016 ee5b1000 ee74d7c0 00000100 00000000 c05a0390 00000000 c00f72ec
+> [   88.223749] 1f40: eeba9000 00000000 eeba9000 ffffff9c ffffff9c c000fa84 00000016 eeba9000
+> [   88.231908] 1f60: ffffff9c c00dc29c ec180000 be9828a8 00000051 00000000 c0000000 00000004
+> [   88.240067] 1f80: 00000100 00000001 00000000 7f721c00 00000008 00000008 00000005 c000fa84
+> [   88.248226] 1fa0: 00000000 c000f8c0 7f721c00 00000008 be9822cc 00000000 000001b6 000001b6
+> [   88.256386] 1fc0: 7f721c00 00000008 00000008 00000005 7f6de5c0 be9822cc be9822cc be9821e4
+> [   88.264544] 1fe0: 00000000 be982180 b6efb4c0 b669aa14 80000010 be9822cc 00000000 00000000
+> [   88.272716] [<c00d5818>] (kmem_cache_alloc) from [<c00deda8>] (get_empty_filp+0x70/0x1d4)
+> [   88.280868] [<c00deda8>] (get_empty_filp) from [<c00e8ebc>] (path_openat+0x20/0xf1c)
+> [   88.288591] [<c00e8ebc>] (path_openat) from [<c00eaa6c>] (do_filp_open+0x60/0xb4)
+> [   88.296055] [<c00eaa6c>] (do_filp_open) from [<c00dc29c>] (do_sys_open+0x114/0x1c0)
+> [   88.303699] [<c00dc29c>] (do_sys_open) from [<c000f8c0>] (ret_fast_syscall+0x0/0x3c)
+> [   88.311419] Code: e7905003 e3550000 0a00001f e5943014 (e7950003)
+> [   88.317573] ---[ end trace 9502799e3ea05a80 ]---
 
-------=_Part_8970_1986614853.1454504333825
-Content-Type: text/plain; charset=UTF-8
+However removal of "remove" callback helps... which could be expected...
+maybe it is not an error of the driver itself?
 
+Best regards,
+Krzysztof
 
-On Wednesday, February 3, 2016 at 12:07:47 PM UTC+1, Alexandre Belloni 
-wrote:
->
-> Hi, 
->
-> On 03/02/2016 at 01:31:21 -0800, dirk....@gmail.com <javascript:> wrote : 
-> > Testing the RV8803 driver [1] we are getting several "BUG: scheduling 
-> while 
-> > atomic" [2]. 
-> > 
-> > Having a quick look this might be from rv8803_set_time() holding a 
-> spinlock 
-> > during the call to i2c_smbus_read_byte_data()? 
-> > 
-> > Any ideas? 
-> > 
->
-> Yes, that is probably the case. As this is already a threaded irq, it 
-> can probably be changed into a mutex this would solve the issue.
->
-
-Anything like below [1]?
-
-If you like this, we'll test it.
-
-Many thanks
-
-Dirk
-
-[1]
-
-diff --git a/drivers/rtc/rtc-rv8803.c b/drivers/rtc/rtc-rv8803.c
-index 33c7e2a..38621ff 100644
---- a/drivers/rtc/rtc-rv8803.c
-+++ b/drivers/rtc/rtc-rv8803.c
-@@ -52,7 +52,7 @@
- struct rv8803_data {
-     struct i2c_client *client;
-     struct rtc_device *rtc;
--    spinlock_t flags_lock;
-+    struct mutex flags_lock;
-     u8 ctrl;
- };
- 
-@@ -63,11 +63,11 @@ static irqreturn_t rv8803_handle_irq(int irq, void 
-*dev_id)
-     unsigned long events = 0;
-     u8 flags;
- 
--    spin_lock(&rv8803->flags_lock);
-+    mutex_lock(&rv8803->flags_lock);
- 
-     flags = i2c_smbus_read_byte_data(client, RV8803_FLAG);
-     if (flags <= 0) {
--        spin_unlock(&rv8803->flags_lock);
-+        mutex_unlock(&rv8803->flags_lock);
-         return IRQ_NONE;
-     }
- 
-@@ -102,7 +102,7 @@ static irqreturn_t rv8803_handle_irq(int irq, void 
-*dev_id)
-                       rv8803->ctrl);
-     }
- 
--    spin_unlock(&rv8803->flags_lock);
-+    mutex_unlock(&rv8803->flags_lock);
- 
-     return IRQ_HANDLED;
- }
-@@ -155,7 +155,6 @@ static int rv8803_set_time(struct device *dev, struct 
-rtc_time *tm)
-     struct rv8803_data *rv8803 = dev_get_drvdata(dev);
-     u8 date[7];
-     int flags, ret;
--    unsigned long irqflags;
- 
-     if ((tm->tm_year < 100) || (tm->tm_year > 199))
-         return -EINVAL;
-@@ -173,18 +172,18 @@ static int rv8803_set_time(struct device *dev, struct 
-rtc_time *tm)
-     if (ret < 0)
-         return ret;
- 
--    spin_lock_irqsave(&rv8803->flags_lock, irqflags);
-+    mutex_lock(&rv8803->flags_lock);
- 
-     flags = i2c_smbus_read_byte_data(rv8803->client, RV8803_FLAG);
-     if (flags < 0) {
--        spin_unlock_irqrestore(&rv8803->flags_lock, irqflags);
-+        mutex_unlock(&rv8803->flags_lock);
-         return flags;
-     }
- 
-     ret = i2c_smbus_write_byte_data(rv8803->client, RV8803_FLAG,
-                     flags & ~RV8803_FLAG_V2F);
- 
--    spin_unlock_irqrestore(&rv8803->flags_lock, irqflags);
-+    mutex_unlock(&rv8803->flags_lock);
- 
-     return ret;
- }
-@@ -226,7 +225,7 @@ static int rv8803_set_alarm(struct device *dev, struct 
-rtc_wkalrm *alrm)
-     u8 alarmvals[3];
-     u8 ctrl[2];
-     int ret, err;
--    unsigned long alarm_time, irqflags;
-+    unsigned long alarm_time;
- 
-     /* The alarm has no seconds, round up to nearest minute */
-     if (alrm->time.tm_sec) {
-@@ -236,11 +235,11 @@ static int rv8803_set_alarm(struct device *dev, 
-struct rtc_wkalrm *alrm)
-         rtc_time_to_tm(alarm_time, &alrm->time);
-     }
- 
--    spin_lock_irqsave(&rv8803->flags_lock, irqflags);
-+    mutex_lock(&rv8803->flags_lock);
- 
-     ret = i2c_smbus_read_i2c_block_data(client, RV8803_FLAG, 2, ctrl);
-     if (ret != 2) {
--        spin_unlock_irqrestore(&rv8803->flags_lock, irqflags);
-+        mutex_unlock(&rv8803->flags_lock);
-         return ret < 0 ? ret : -EIO;
-     }
- 
-@@ -253,14 +252,14 @@ static int rv8803_set_alarm(struct device *dev, 
-struct rtc_wkalrm *alrm)
-         err = i2c_smbus_write_byte_data(rv8803->client, RV8803_CTRL,
-                         rv8803->ctrl);
-         if (err) {
--            spin_unlock_irqrestore(&rv8803->flags_lock, irqflags);
-+            mutex_unlock(&rv8803->flags_lock);
-             return err;
-         }
-     }
- 
-     ctrl[1] &= ~RV8803_FLAG_AF;
-     err = i2c_smbus_write_byte_data(rv8803->client, RV8803_FLAG, ctrl[1]);
--    spin_unlock_irqrestore(&rv8803->flags_lock, irqflags);
-+    mutex_unlock(&rv8803->flags_lock);
-     if (err)
-         return err;
- 
-@@ -289,7 +288,6 @@ static int rv8803_alarm_irq_enable(struct device *dev, 
-unsigned int enabled)
-     struct i2c_client *client = to_i2c_client(dev);
-     struct rv8803_data *rv8803 = dev_get_drvdata(dev);
-     int ctrl, flags, err;
--    unsigned long irqflags;
- 
-     ctrl = rv8803->ctrl;
- 
-@@ -305,15 +303,15 @@ static int rv8803_alarm_irq_enable(struct device 
-*dev, unsigned int enabled)
-             ctrl &= ~RV8803_CTRL_AIE;
-     }
- 
--    spin_lock_irqsave(&rv8803->flags_lock, irqflags);
-+    mutex_lock(&rv8803->flags_lock);
-     flags = i2c_smbus_read_byte_data(client, RV8803_FLAG);
-     if (flags < 0) {
--        spin_unlock_irqrestore(&rv8803->flags_lock, irqflags);
-+        mutex_unlock(&rv8803->flags_lock);
-         return flags;
-     }
-     flags &= ~(RV8803_FLAG_AF | RV8803_FLAG_UF);
-     err = i2c_smbus_write_byte_data(client, RV8803_FLAG, flags);
--    spin_unlock_irqrestore(&rv8803->flags_lock, irqflags);
-+    mutex_unlock(&rv8803->flags_lock);
-     if (err)
-         return err;
- 
-@@ -333,7 +331,6 @@ static int rv8803_ioctl(struct device *dev, unsigned 
-int cmd, unsigned long arg)
-     struct i2c_client *client = to_i2c_client(dev);
-     struct rv8803_data *rv8803 = dev_get_drvdata(dev);
-     int flags, ret = 0;
--    unsigned long irqflags;
- 
-     switch (cmd) {
-     case RTC_VL_READ:
-@@ -355,16 +352,16 @@ static int rv8803_ioctl(struct device *dev, unsigned 
-int cmd, unsigned long arg)
-         return 0;
- 
-     case RTC_VL_CLR:
--        spin_lock_irqsave(&rv8803->flags_lock, irqflags);
-+        mutex_lock(&rv8803->flags_lock);
-         flags = i2c_smbus_read_byte_data(client, RV8803_FLAG);
-         if (flags < 0) {
--            spin_unlock_irqrestore(&rv8803->flags_lock, irqflags);
-+            mutex_unlock(&rv8803->flags_lock);
-             return flags;
-         }
- 
-         flags &= ~(RV8803_FLAG_V1F | RV8803_FLAG_V2F);
-         ret = i2c_smbus_write_byte_data(client, RV8803_FLAG, flags);
--        spin_unlock_irqrestore(&rv8803->flags_lock, irqflags);
-+        mutex_unlock(&rv8803->flags_lock);
-         if (ret < 0)
-             return ret;
- 
-@@ -441,6 +438,7 @@ static int rv8803_probe(struct i2c_client *client,
-     if (!rv8803)
-         return -ENOMEM;
- 
-+    mutex_init(&rv8803->flags_lock);
-     rv8803->client = client;
-     i2c_set_clientdata(client, rv8803);
- 
-
-
-
- 
 
 -- 
 -- 
@@ -256,188 +248,3 @@ before submitting a driver.
 You received this message because you are subscribed to the Google Groups "rtc-linux" group.
 To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
-
-------=_Part_8970_1986614853.1454504333825
-Content-Type: text/html; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-
-<div dir=3D"ltr"><br>On Wednesday, February 3, 2016 at 12:07:47 PM UTC+1, A=
-lexandre Belloni wrote:<blockquote class=3D"gmail_quote" style=3D"margin: 0=
-;margin-left: 0.8ex;border-left: 1px #ccc solid;padding-left: 1ex;">Hi,
-<br>
-<br>On 03/02/2016 at 01:31:21 -0800, <a href=3D"javascript:" target=3D"_bla=
-nk" gdf-obfuscated-mailto=3D"S6vjvnvCFgAJ" rel=3D"nofollow" onmousedown=3D"=
-this.href=3D&#39;javascript:&#39;;return true;" onclick=3D"this.href=3D&#39=
-;javascript:&#39;;return true;">dirk....@gmail.com</a> wrote :
-<br>&gt; Testing the RV8803 driver [1] we are getting several &quot;BUG: sc=
-heduling while=20
-<br>&gt; atomic&quot; [2].
-<br>&gt;=20
-<br>&gt; Having a quick look this might be from rv8803_set_time() holding a=
- spinlock=20
-<br>&gt; during the call to i2c_smbus_read_byte_data()?
-<br>&gt;=20
-<br>&gt; Any ideas?
-<br>&gt;=20
-<br>
-<br>Yes, that is probably the case. As this is already a threaded irq, it
-<br>can probably be changed into a mutex this would solve the issue.<br></b=
-lockquote><div><br>Anything like below [1]?<br><br>If you like this, we&#39=
-;ll test it.<br><br>Many thanks<br><br>Dirk<br><br>[1]<br><br>diff --git a/=
-drivers/rtc/rtc-rv8803.c b/drivers/rtc/rtc-rv8803.c<br>index 33c7e2a..38621=
-ff 100644<br>--- a/drivers/rtc/rtc-rv8803.c<br>+++ b/drivers/rtc/rtc-rv8803=
-.c<br>@@ -52,7 +52,7 @@<br>=C2=A0struct rv8803_data {<br>=C2=A0=C2=A0=C2=A0=
-=C2=A0 struct i2c_client *client;<br>=C2=A0=C2=A0=C2=A0=C2=A0 struct rtc_de=
-vice *rtc;<br>-=C2=A0=C2=A0=C2=A0 spinlock_t flags_lock;<br>+=C2=A0=C2=A0=
-=C2=A0 struct mutex flags_lock;<br>=C2=A0=C2=A0=C2=A0=C2=A0 u8 ctrl;<br>=C2=
-=A0};<br>=C2=A0<br>@@ -63,11 +63,11 @@ static irqreturn_t rv8803_handle_irq=
-(int irq, void *dev_id)<br>=C2=A0=C2=A0=C2=A0=C2=A0 unsigned long events =
-=3D 0;<br>=C2=A0=C2=A0=C2=A0=C2=A0 u8 flags;<br>=C2=A0<br>-=C2=A0=C2=A0=C2=
-=A0 spin_lock(&amp;rv8803-&gt;flags_lock);<br>+=C2=A0=C2=A0=C2=A0 mutex_loc=
-k(&amp;rv8803-&gt;flags_lock);<br>=C2=A0<br>=C2=A0=C2=A0=C2=A0=C2=A0 flags =
-=3D i2c_smbus_read_byte_data(client, RV8803_FLAG);<br>=C2=A0=C2=A0=C2=A0=C2=
-=A0 if (flags &lt;=3D 0) {<br>-=C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 spin_u=
-nlock(&amp;rv8803-&gt;flags_lock);<br>+=C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=
-=A0 mutex_unlock(&amp;rv8803-&gt;flags_lock);<br>=C2=A0=C2=A0=C2=A0=C2=A0 =
-=C2=A0=C2=A0=C2=A0 return IRQ_NONE;<br>=C2=A0=C2=A0=C2=A0=C2=A0 }<br>=C2=A0=
-<br>@@ -102,7 +102,7 @@ static irqreturn_t rv8803_handle_irq(int irq, void =
-*dev_id)<br>=C2=A0=C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 =
-=C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 =C2=A0 rv8803-&gt;ctrl);<br>=C2=A0=C2=
-=A0=C2=A0=C2=A0 }<br>=C2=A0<br>-=C2=A0=C2=A0=C2=A0 spin_unlock(&amp;rv8803-=
-&gt;flags_lock);<br>+=C2=A0=C2=A0=C2=A0 mutex_unlock(&amp;rv8803-&gt;flags_=
-lock);<br>=C2=A0<br>=C2=A0=C2=A0=C2=A0=C2=A0 return IRQ_HANDLED;<br>=C2=A0}=
-<br>@@ -155,7 +155,6 @@ static int rv8803_set_time(struct device *dev, stru=
-ct rtc_time *tm)<br>=C2=A0=C2=A0=C2=A0=C2=A0 struct rv8803_data *rv8803 =3D=
- dev_get_drvdata(dev);<br>=C2=A0=C2=A0=C2=A0=C2=A0 u8 date[7];<br>=C2=A0=C2=
-=A0=C2=A0=C2=A0 int flags, ret;<br>-=C2=A0=C2=A0=C2=A0 unsigned long irqfla=
-gs;<br>=C2=A0<br>=C2=A0=C2=A0=C2=A0=C2=A0 if ((tm-&gt;tm_year &lt; 100) || =
-(tm-&gt;tm_year &gt; 199))<br>=C2=A0=C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 r=
-eturn -EINVAL;<br>@@ -173,18 +172,18 @@ static int rv8803_set_time(struct d=
-evice *dev, struct rtc_time *tm)<br>=C2=A0=C2=A0=C2=A0=C2=A0 if (ret &lt; 0=
-)<br>=C2=A0=C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 return ret;<br>=C2=A0<br>-=
-=C2=A0=C2=A0=C2=A0 spin_lock_irqsave(&amp;rv8803-&gt;flags_lock, irqflags);=
-<br>+=C2=A0=C2=A0=C2=A0 mutex_lock(&amp;rv8803-&gt;flags_lock);<br>=C2=A0<b=
-r>=C2=A0=C2=A0=C2=A0=C2=A0 flags =3D i2c_smbus_read_byte_data(rv8803-&gt;cl=
-ient, RV8803_FLAG);<br>=C2=A0=C2=A0=C2=A0=C2=A0 if (flags &lt; 0) {<br>-=C2=
-=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 spin_unlock_irqrestore(&amp;rv8803-&gt;f=
-lags_lock, irqflags);<br>+=C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 mutex_unloc=
-k(&amp;rv8803-&gt;flags_lock);<br>=C2=A0=C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=
-=A0 return flags;<br>=C2=A0=C2=A0=C2=A0=C2=A0 }<br>=C2=A0<br>=C2=A0=C2=A0=
-=C2=A0=C2=A0 ret =3D i2c_smbus_write_byte_data(rv8803-&gt;client, RV8803_FL=
-AG,<br>=C2=A0=C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 =C2=
-=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 flags &amp; ~RV8803_FLAG_V2F);<br>=C2=A0=
-<br>-=C2=A0=C2=A0=C2=A0 spin_unlock_irqrestore(&amp;rv8803-&gt;flags_lock, =
-irqflags);<br>+=C2=A0=C2=A0=C2=A0 mutex_unlock(&amp;rv8803-&gt;flags_lock);=
-<br>=C2=A0<br>=C2=A0=C2=A0=C2=A0=C2=A0 return ret;<br>=C2=A0}<br>@@ -226,7 =
-+225,7 @@ static int rv8803_set_alarm(struct device *dev, struct rtc_wkalrm=
- *alrm)<br>=C2=A0=C2=A0=C2=A0=C2=A0 u8 alarmvals[3];<br>=C2=A0=C2=A0=C2=A0=
-=C2=A0 u8 ctrl[2];<br>=C2=A0=C2=A0=C2=A0=C2=A0 int ret, err;<br>-=C2=A0=C2=
-=A0=C2=A0 unsigned long alarm_time, irqflags;<br>+=C2=A0=C2=A0=C2=A0 unsign=
-ed long alarm_time;<br>=C2=A0<br>=C2=A0=C2=A0=C2=A0=C2=A0 /* The alarm has =
-no seconds, round up to nearest minute */<br>=C2=A0=C2=A0=C2=A0=C2=A0 if (a=
-lrm-&gt;time.tm_sec) {<br>@@ -236,11 +235,11 @@ static int rv8803_set_alarm=
-(struct device *dev, struct rtc_wkalrm *alrm)<br>=C2=A0=C2=A0=C2=A0=C2=A0 =
-=C2=A0=C2=A0=C2=A0 rtc_time_to_tm(alarm_time, &amp;alrm-&gt;time);<br>=C2=
-=A0=C2=A0=C2=A0=C2=A0 }<br>=C2=A0<br>-=C2=A0=C2=A0=C2=A0 spin_lock_irqsave(=
-&amp;rv8803-&gt;flags_lock, irqflags);<br>+=C2=A0=C2=A0=C2=A0 mutex_lock(&a=
-mp;rv8803-&gt;flags_lock);<br>=C2=A0<br>=C2=A0=C2=A0=C2=A0=C2=A0 ret =3D i2=
-c_smbus_read_i2c_block_data(client, RV8803_FLAG, 2, ctrl);<br>=C2=A0=C2=A0=
-=C2=A0=C2=A0 if (ret !=3D 2) {<br>-=C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 sp=
-in_unlock_irqrestore(&amp;rv8803-&gt;flags_lock, irqflags);<br>+=C2=A0=C2=
-=A0=C2=A0 =C2=A0=C2=A0=C2=A0 mutex_unlock(&amp;rv8803-&gt;flags_lock);<br>=
-=C2=A0=C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 return ret &lt; 0 ? ret : -EIO;=
-<br>=C2=A0=C2=A0=C2=A0=C2=A0 }<br>=C2=A0<br>@@ -253,14 +252,14 @@ static in=
-t rv8803_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)<br>=C2=A0=
-=C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 err =3D i2c_smbus_write_byte_data(rv8=
-803-&gt;client, RV8803_CTRL,<br>=C2=A0=C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0=
- =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=
-=A0 rv8803-&gt;ctrl);<br>=C2=A0=C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 if (er=
-r) {<br>-=C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 spin_unlo=
-ck_irqrestore(&amp;rv8803-&gt;flags_lock, irqflags);<br>+=C2=A0=C2=A0=C2=A0=
- =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 mutex_unlock(&amp;rv8803-&gt;flags_l=
-ock);<br>=C2=A0=C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 ret=
-urn err;<br>=C2=A0=C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 }<br>=C2=A0=C2=A0=
-=C2=A0=C2=A0 }<br>=C2=A0<br>=C2=A0=C2=A0=C2=A0=C2=A0 ctrl[1] &amp;=3D ~RV88=
-03_FLAG_AF;<br>=C2=A0=C2=A0=C2=A0=C2=A0 err =3D i2c_smbus_write_byte_data(r=
-v8803-&gt;client, RV8803_FLAG, ctrl[1]);<br>-=C2=A0=C2=A0=C2=A0 spin_unlock=
-_irqrestore(&amp;rv8803-&gt;flags_lock, irqflags);<br>+=C2=A0=C2=A0=C2=A0 m=
-utex_unlock(&amp;rv8803-&gt;flags_lock);<br>=C2=A0=C2=A0=C2=A0=C2=A0 if (er=
-r)<br>=C2=A0=C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 return err;<br>=C2=A0<br>=
-@@ -289,7 +288,6 @@ static int rv8803_alarm_irq_enable(struct device *dev, =
-unsigned int enabled)<br>=C2=A0=C2=A0=C2=A0=C2=A0 struct i2c_client *client=
- =3D to_i2c_client(dev);<br>=C2=A0=C2=A0=C2=A0=C2=A0 struct rv8803_data *rv=
-8803 =3D dev_get_drvdata(dev);<br>=C2=A0=C2=A0=C2=A0=C2=A0 int ctrl, flags,=
- err;<br>-=C2=A0=C2=A0=C2=A0 unsigned long irqflags;<br>=C2=A0<br>=C2=A0=C2=
-=A0=C2=A0=C2=A0 ctrl =3D rv8803-&gt;ctrl;<br>=C2=A0<br>@@ -305,15 +303,15 @=
-@ static int rv8803_alarm_irq_enable(struct device *dev, unsigned int enabl=
-ed)<br>=C2=A0=C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 ctrl =
-&amp;=3D ~RV8803_CTRL_AIE;<br>=C2=A0=C2=A0=C2=A0=C2=A0 }<br>=C2=A0<br>-=C2=
-=A0=C2=A0=C2=A0 spin_lock_irqsave(&amp;rv8803-&gt;flags_lock, irqflags);<br=
->+=C2=A0=C2=A0=C2=A0 mutex_lock(&amp;rv8803-&gt;flags_lock);<br>=C2=A0=C2=
-=A0=C2=A0=C2=A0 flags =3D i2c_smbus_read_byte_data(client, RV8803_FLAG);<br=
->=C2=A0=C2=A0=C2=A0=C2=A0 if (flags &lt; 0) {<br>-=C2=A0=C2=A0=C2=A0 =C2=A0=
-=C2=A0=C2=A0 spin_unlock_irqrestore(&amp;rv8803-&gt;flags_lock, irqflags);<=
-br>+=C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 mutex_unlock(&amp;rv8803-&gt;flag=
-s_lock);<br>=C2=A0=C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 return flags;<br>=
-=C2=A0=C2=A0=C2=A0=C2=A0 }<br>=C2=A0=C2=A0=C2=A0=C2=A0 flags &amp;=3D ~(RV8=
-803_FLAG_AF | RV8803_FLAG_UF);<br>=C2=A0=C2=A0=C2=A0=C2=A0 err =3D i2c_smbu=
-s_write_byte_data(client, RV8803_FLAG, flags);<br>-=C2=A0=C2=A0=C2=A0 spin_=
-unlock_irqrestore(&amp;rv8803-&gt;flags_lock, irqflags);<br>+=C2=A0=C2=A0=
-=C2=A0 mutex_unlock(&amp;rv8803-&gt;flags_lock);<br>=C2=A0=C2=A0=C2=A0=C2=
-=A0 if (err)<br>=C2=A0=C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 return err;<br>=
-=C2=A0<br>@@ -333,7 +331,6 @@ static int rv8803_ioctl(struct device *dev, u=
-nsigned int cmd, unsigned long arg)<br>=C2=A0=C2=A0=C2=A0=C2=A0 struct i2c_=
-client *client =3D to_i2c_client(dev);<br>=C2=A0=C2=A0=C2=A0=C2=A0 struct r=
-v8803_data *rv8803 =3D dev_get_drvdata(dev);<br>=C2=A0=C2=A0=C2=A0=C2=A0 in=
-t flags, ret =3D 0;<br>-=C2=A0=C2=A0=C2=A0 unsigned long irqflags;<br>=C2=
-=A0<br>=C2=A0=C2=A0=C2=A0=C2=A0 switch (cmd) {<br>=C2=A0=C2=A0=C2=A0=C2=A0 =
-case RTC_VL_READ:<br>@@ -355,16 +352,16 @@ static int rv8803_ioctl(struct d=
-evice *dev, unsigned int cmd, unsigned long arg)<br>=C2=A0=C2=A0=C2=A0=C2=
-=A0 =C2=A0=C2=A0=C2=A0 return 0;<br>=C2=A0<br>=C2=A0=C2=A0=C2=A0=C2=A0 case=
- RTC_VL_CLR:<br>-=C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 spin_lock_irqsave(&a=
-mp;rv8803-&gt;flags_lock, irqflags);<br>+=C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=
-=A0 mutex_lock(&amp;rv8803-&gt;flags_lock);<br>=C2=A0=C2=A0=C2=A0=C2=A0 =C2=
-=A0=C2=A0=C2=A0 flags =3D i2c_smbus_read_byte_data(client, RV8803_FLAG);<br=
->=C2=A0=C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 if (flags &lt; 0) {<br>-=C2=A0=
-=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 spin_unlock_irqrestore(&=
-amp;rv8803-&gt;flags_lock, irqflags);<br>+=C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=
-=C2=A0 =C2=A0=C2=A0=C2=A0 mutex_unlock(&amp;rv8803-&gt;flags_lock);<br>=C2=
-=A0=C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 return flags;<b=
-r>=C2=A0=C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 }<br>=C2=A0<br>=C2=A0=C2=A0=
-=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 flags &amp;=3D ~(RV8803_FLAG_V1F | RV8803_F=
-LAG_V2F);<br>=C2=A0=C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 ret =3D i2c_smbus_=
-write_byte_data(client, RV8803_FLAG, flags);<br>-=C2=A0=C2=A0=C2=A0 =C2=A0=
-=C2=A0=C2=A0 spin_unlock_irqrestore(&amp;rv8803-&gt;flags_lock, irqflags);<=
-br>+=C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 mutex_unlock(&amp;rv8803-&gt;flag=
-s_lock);<br>=C2=A0=C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 if (ret &lt; 0)<br>=
-=C2=A0=C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 return ret;<=
-br>=C2=A0<br>@@ -441,6 +438,7 @@ static int rv8803_probe(struct i2c_client =
-*client,<br>=C2=A0=C2=A0=C2=A0=C2=A0 if (!rv8803)<br>=C2=A0=C2=A0=C2=A0=C2=
-=A0 =C2=A0=C2=A0=C2=A0 return -ENOMEM;<br>=C2=A0<br>+=C2=A0=C2=A0=C2=A0 mut=
-ex_init(&amp;rv8803-&gt;flags_lock);<br>=C2=A0=C2=A0=C2=A0=C2=A0 rv8803-&gt=
-;client =3D client;<br>=C2=A0=C2=A0=C2=A0=C2=A0 i2c_set_clientdata(client, =
-rv8803);<br>=C2=A0<br><br><br><br>=C2=A0</div></div>
-
-<p></p>
-
--- <br />
--- <br />
-You received this message because you are subscribed to &quot;rtc-linux&quo=
-t;.<br />
-Membership options at <a href=3D"http://groups.google.com/group/rtc-linux">=
-http://groups.google.com/group/rtc-linux</a> .<br />
-Please read <a href=3D"http://groups.google.com/group/rtc-linux/web/checkli=
-st">http://groups.google.com/group/rtc-linux/web/checklist</a><br />
-before submitting a driver.<br />
---- <br />
-You received this message because you are subscribed to the Google Groups &=
-quot;rtc-linux&quot; group.<br />
-To unsubscribe from this group and stop receiving emails from it, send an e=
-mail to <a href=3D"mailto:rtc-linux+unsubscribe@googlegroups.com">rtc-linux=
-+unsubscribe@googlegroups.com</a>.<br />
-For more options, visit <a href=3D"https://groups.google.com/d/optout">http=
-s://groups.google.com/d/optout</a>.<br />
-
-------=_Part_8970_1986614853.1454504333825--
-
-------=_Part_8969_1579457158.1454504333825--
