@@ -1,20 +1,20 @@
-Return-Path: <rtc-linux+bncBD2OLRXW4ABBBFUPZC2QKGQEBGT6TGI@googlegroups.com>
-Received: from hqemgate14.nvidia.com (hqemgate14.nvidia.com. [216.228.121.143])
-        by gmr-mx.google.com with ESMTPS id u66si858953pfa.2.2016.02.03.05.58.45
+Return-Path: <rtc-linux+bncBD2OLRXW4ABBB64WY62QKGQENUGUXIQ@googlegroups.com>
+Received: from hqemgate16.nvidia.com (hqemgate16.nvidia.com. [216.228.121.65])
+        by gmr-mx.google.com with ESMTPS id tn7si768336pac.1.2016.02.03.01.42.19
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 03 Feb 2016 05:58:45 -0800 (PST)
+        Wed, 03 Feb 2016 01:42:19 -0800 (PST)
 From: Laxman Dewangan <ldewangan@nvidia.com>
 To: <lee.jones@linaro.org>, <alexandre.belloni@free-electrons.com>,
 	<k.kozlowski@samsung.com>, <javier@osg.samsung.com>
 CC: <cw00.choi@samsung.com>, <linux-kernel@vger.kernel.org>,
 	<rtc-linux@googlegroups.com>, Laxman Dewangan <ldewangan@nvidia.com>
-Subject: [rtc-linux] [PATCH V3 2/5] rtc: max77686: use rtc regmap to access
- RTC registers
-Date: Wed, 3 Feb 2016 19:17:10 +0530
-Message-ID: <1454507233-9959-3-git-send-email-ldewangan@nvidia.com>
-In-Reply-To: <1454507233-9959-1-git-send-email-ldewangan@nvidia.com>
-References: <1454507233-9959-1-git-send-email-ldewangan@nvidia.com>
+Subject: [rtc-linux] [PATCH V2 4/5] mfd: max77686: do not set i2c client data
+ for rtc i2c client
+Date: Wed, 3 Feb 2016 15:00:47 +0530
+Message-ID: <1454491848-26551-5-git-send-email-ldewangan@nvidia.com>
+In-Reply-To: <1454491848-26551-1-git-send-email-ldewangan@nvidia.com>
+References: <1454491848-26551-1-git-send-email-ldewangan@nvidia.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
@@ -27,61 +27,36 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-rtc_regmap should be used to access all RTC registers instead
-of parent regmap regardless of what chip or property have it.
+There is different RTC I2C address for RTC block in MAX77686.
+Driver is creating dummy i2c client for this address to access
+the register of this IP block.
 
-This makes the register access uniform and extendible for other
-chips.
+As there is no need to get any data from this rtc i2c client,
+it is not required to set client data for this i2c client.
 
+Suggested-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
 Signed-off-by: Laxman Dewangan <ldewangan@nvidia.com>
 CC: Krzysztof Kozlowski <k.kozlowski@samsung.com>
 CC: Javier Martinez Canillas <javier@osg.samsung.com>
-Tested-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-Reviewed-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-Reviewed-by: Javier Martinez Canillas <javier@osg.samsung.com>
 
 ---
-Changes from V1:
-None, added reviewed/tested by.
+This is new in this series based on review comment from V1.
 
-Changes from V1:
-None
+ drivers/mfd/max77686.c | 1 -
+ 1 file changed, 1 deletion(-)
 
- drivers/rtc/rtc-max77686.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/rtc/rtc-max77686.c b/drivers/rtc/rtc-max77686.c
-index 253cf12..11f74ed 100644
---- a/drivers/rtc/rtc-max77686.c
-+++ b/drivers/rtc/rtc-max77686.c
-@@ -370,7 +370,7 @@ static int max77686_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
- 			goto out;
+diff --git a/drivers/mfd/max77686.c b/drivers/mfd/max77686.c
+index d959ebb..bda6fd7 100644
+--- a/drivers/mfd/max77686.c
++++ b/drivers/mfd/max77686.c
+@@ -277,7 +277,6 @@ static int max77686_i2c_probe(struct i2c_client *i2c,
+ 				"Failed to allocate I2C device for RTC\n");
+ 			return -ENODEV;
  		}
+-		i2c_set_clientdata(max77686->rtc, max77686);
  
--		ret = regmap_read(info->max77686->regmap,
-+		ret = regmap_read(info->max77686->rtc_regmap,
- 				  map[REG_RTC_AE1], &val);
- 		if (ret < 0) {
- 			dev_err(info->dev,
-@@ -426,7 +426,8 @@ static int max77686_rtc_stop_alarm(struct max77686_rtc_info *info)
- 			goto out;
- 		}
- 
--		ret = regmap_write(info->max77686->regmap, map[REG_RTC_AE1], 0);
-+		ret = regmap_write(info->max77686->rtc_regmap,
-+				   map[REG_RTC_AE1], 0);
- 	} else {
- 		ret = regmap_bulk_read(info->max77686->rtc_regmap,
- 				       map[REG_ALARM1_SEC], data,
-@@ -471,7 +472,7 @@ static int max77686_rtc_start_alarm(struct max77686_rtc_info *info)
- 		goto out;
- 
- 	if (info->drv_data->alarm_enable_reg) {
--		ret = regmap_write(info->max77686->regmap, map[REG_RTC_AE1],
-+		ret = regmap_write(info->max77686->rtc_regmap, map[REG_RTC_AE1],
- 				   MAX77802_ALARM_ENABLE_VALUE);
- 	} else {
- 		ret = regmap_bulk_read(info->max77686->rtc_regmap,
+ 		max77686->rtc_regmap =
+ 			devm_regmap_init_i2c(max77686->rtc,
 -- 
 2.1.4
 
