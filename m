@@ -1,24 +1,22 @@
-Return-Path: <rtc-linux+bncBCPM5SUWUYIRBD6VS63AKGQEOYWHMLI@googlegroups.com>
-Received: from mail-vk0-x231.google.com (mail-vk0-x231.google.com. [2607:f8b0:400c:c05::231])
-        by gmr-mx.google.com with ESMTPS id b196si248773vkf.1.2016.02.18.08.00.14
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 18 Feb 2016 08:00:14 -0800 (PST)
-Received: by mail-vk0-x231.google.com with SMTP id k196so48808470vka.0
-        for <rtc-linux@googlegroups.com>; Thu, 18 Feb 2016 08:00:14 -0800 (PST)
+Return-Path: <rtc-linux+bncBAABB3HMY62QKGQEBURHNZA@googlegroups.com>
+Received: from lists.s-osg.org (lists.s-osg.org. [54.187.51.154])
+        by gmr-mx.google.com with ESMTP id jg4si736544pac.2.2016.02.03.04.45.32
+        for <rtc-linux@googlegroups.com>;
+        Wed, 03 Feb 2016 04:45:32 -0800 (PST)
+Subject: [rtc-linux] Re: [PATCH V2 3/5] rtc: max77686: avoid reference of
+ parent device info multiple palces
+To: Laxman Dewangan <ldewangan@nvidia.com>, lee.jones@linaro.org,
+ alexandre.belloni@free-electrons.com, k.kozlowski@samsung.com
+References: <1454491848-26551-1-git-send-email-ldewangan@nvidia.com>
+ <1454491848-26551-4-git-send-email-ldewangan@nvidia.com>
+Cc: cw00.choi@samsung.com, linux-kernel@vger.kernel.org,
+ rtc-linux@googlegroups.com
+From: Javier Martinez Canillas <javier@osg.samsung.com>
+Message-ID: <56B1F662.5000404@osg.samsung.com>
+Date: Wed, 3 Feb 2016 09:45:22 -0300
 MIME-Version: 1.0
-In-Reply-To: <20160218150422.GT2189@piout.net>
-References: <1455806972-27284-1-git-send-email-akinobu.mita@gmail.com>
-	<20160218150422.GT2189@piout.net>
-Date: Fri, 19 Feb 2016 01:00:14 +0900
-Message-ID: <CAC5umygbXqWsTP3tWvBvfh0r_TDcVJMg+ZFB1QFr9R-26zFzyg@mail.gmail.com>
-Subject: [rtc-linux] Re: [PATCH v2 1/4] rtc: ds3232: rename rtc-ds3232.c to
- rtc-ds3232-core.c for preparation
-From: Akinobu Mita <akinobu.mita@gmail.com>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: rtc-linux@googlegroups.com, Alessandro Zummo <a.zummo@towertech.it>,
-	Dennis Aberilla <denzzzhome@yahoo.com>
-Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1454491848-26551-4-git-send-email-ldewangan@nvidia.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -29,14 +27,31 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-2016-02-19 0:04 GMT+09:00 Alexandre Belloni
-<alexandre.belloni@free-electrons.com>:
-> Hi,
->
-> I didn't have a close look at it yet but could the abstraction be done
-> using regmap? This would nicely abstract I2C/SPI accesses.
+Hello Laxman,
 
-OK.  I'll try and see if they'll fit into regmap usage.
+I noticed a typo in the subject line that missed before:
+
+s/palces/places
+
+On 02/03/2016 06:30 AM, Laxman Dewangan wrote:
+> Get rid of referring parent device info for register access
+> all the places by making regmap as part of max77686 rtc
+> device info. This will also remove the need of storing parent
+> device info in max77686 rtc device info as this is no more required.
+>
+> Signed-off-by: Laxman Dewangan <ldewangan@nvidia.com>
+> CC: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+> CC: Javier Martinez Canillas <javier@osg.samsung.com>
+> Tested-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+> Reviewed-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+> Reviewed-by: Javier Martinez Canillas <javier@osg.samsung.com>
+>
+
+Best regards,
+-- 
+Javier Martinez Canillas
+Open Source Group
+Samsung Research America
 
 -- 
 -- 
