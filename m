@@ -1,25 +1,21 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBLEBVW3AKGQE7IMQZVI@googlegroups.com>
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id h126si682355wme.0.2016.02.22.09.09.00
-        for <rtc-linux@googlegroups.com>;
-        Mon, 22 Feb 2016 09:09:00 -0800 (PST)
-Date: Mon, 22 Feb 2016 17:58:47 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: "Austin S. Hemmelgarn" <ahferroin7@gmail.com>
-Cc: Arnd Bergmann <arnd@arndb.de>,
-	One Thousand Gnomes <gnomes@lxorguk.ukuu.org.uk>,
-	rtc-linux@googlegroups.com, Alessandro Zummo <a.zummo@towertech.it>,
-	Willy Tarreau <w@1wt.eu>, linux-kernel@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH] rtc: Add an option to invalidate dates in 2038
-Message-ID: <20160222165847.GR2222@piout.net>
-References: <1455995444-14146-1-git-send-email-alexandre.belloni@free-electrons.com>
- <6269543.oe8MmZQUmX@wuerfel>
- <20160222155653.GP2222@piout.net>
- <2768647.1bFEcFDZRI@wuerfel>
- <56CB3A1D.6030604@gmail.com>
+Return-Path: <rtc-linux+bncBD2OLRXW4ABBB44WY62QKGQE6IFYE3I@googlegroups.com>
+Received: from hqemgate16.nvidia.com (hqemgate16.nvidia.com. [216.228.121.65])
+        by gmr-mx.google.com with ESMTPS id jg4si679650pac.2.2016.02.03.01.42.10
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 03 Feb 2016 01:42:11 -0800 (PST)
+From: Laxman Dewangan <ldewangan@nvidia.com>
+To: <lee.jones@linaro.org>, <alexandre.belloni@free-electrons.com>,
+	<k.kozlowski@samsung.com>, <javier@osg.samsung.com>
+CC: <cw00.choi@samsung.com>, <linux-kernel@vger.kernel.org>,
+	<rtc-linux@googlegroups.com>, Laxman Dewangan <ldewangan@nvidia.com>
+Subject: [rtc-linux] [PATCH V2 1/5] rtc: max77686: fix checkpatch error
+Date: Wed, 3 Feb 2016 15:00:44 +0530
+Message-ID: <1454491848-26551-2-git-send-email-ldewangan@nvidia.com>
+In-Reply-To: <1454491848-26551-1-git-send-email-ldewangan@nvidia.com>
+References: <1454491848-26551-1-git-send-email-ldewangan@nvidia.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <56CB3A1D.6030604@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -30,39 +26,107 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 22/02/2016 at 11:41:01 -0500, Austin S. Hemmelgarn wrote :
-> On 2016-02-22 11:18, Arnd Bergmann wrote:
-> >On Monday 22 February 2016 16:56:53 Alexandre Belloni wrote:
-> >>One other workaround is to asked distributions
-> >>using systemd to stop using HCTOSYS so userspace would be responsible to
-> >>set the system time and in that case we won't have the 32/64 discrepancy.
-> >
-> >I'm missing a bit of background here. This seems like a fairly useful
-> >piece of infrastructure for the majority of the use cases (working RTC)
-> >
-> >How would the time get set when this is disabled? Is systemd able
-> >to read the rtc and write it back to the kernel? That could in fact
-> >be a nicer workaround for the problem, if it just does this before
-> >setting up the timerfd.
-> Traditional init systems on Linux have the option of using hwclock from
-> util-linux to set the system time.  This is what Gentoo does by default, and
-> I think Arch does it too, and I'm relatively certain that Debian and Ubuntu
-> used to do it before they switched to systemd (I have no idea what they do
-> now).  Based on the manpage for hwclock, it looks like systemd mandates that
-> HCTOSYS is enabled in the kernel configuration, and then just calls hwclock
-> to set the system timezone and correct for UTC.
+Fix following check patch error in rtc-max77686 driver:
+- Alignment should match open parenthesis.
+- braces {} should be used on all arms of this statement.
+- Prefer using the BIT macro
 
-I'm not sure it mandates HCTOSYS. On debian there is a udev rule that
-needs the system time to already be set but from my point of view, it
-doesn't matter whether it is from hwclock or HCTOSYS. systemd already
-seems to read the RTC so it may as well set the system time if it needs
-it.
+Signed-off-by: Laxman Dewangan <ldewangan@nvidia.com>
+CC: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+CC: Javier Martinez Canillas <javier@osg.samsung.com>
+Tested-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+Reviewed-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+Reviewed-by: Javier Martinez Canillas <javier@osg.samsung.com>
 
+---
+Changes from V1:
+None, added reviewed/tested by.
 
+ drivers/rtc/rtc-max77686.c | 25 +++++++++++++------------
+ 1 file changed, 13 insertions(+), 12 deletions(-)
+
+diff --git a/drivers/rtc/rtc-max77686.c b/drivers/rtc/rtc-max77686.c
+index 188593d..253cf12 100644
+--- a/drivers/rtc/rtc-max77686.c
++++ b/drivers/rtc/rtc-max77686.c
+@@ -24,20 +24,20 @@
+ 
+ /* RTC Control Register */
+ #define BCD_EN_SHIFT			0
+-#define BCD_EN_MASK			(1 << BCD_EN_SHIFT)
++#define BCD_EN_MASK			BIT(BCD_EN_SHIFT)
+ #define MODEL24_SHIFT			1
+-#define MODEL24_MASK			(1 << MODEL24_SHIFT)
++#define MODEL24_MASK			BIT(MODEL24_SHIFT)
+ /* RTC Update Register1 */
+ #define RTC_UDR_SHIFT			0
+-#define RTC_UDR_MASK			(1 << RTC_UDR_SHIFT)
++#define RTC_UDR_MASK			BIT(RTC_UDR_SHIFT)
+ #define RTC_RBUDR_SHIFT			4
+-#define RTC_RBUDR_MASK			(1 << RTC_RBUDR_SHIFT)
++#define RTC_RBUDR_MASK			BIT(RTC_RBUDR_SHIFT)
+ /* RTC Hour register */
+ #define HOUR_PM_SHIFT			6
+-#define HOUR_PM_MASK			(1 << HOUR_PM_SHIFT)
++#define HOUR_PM_MASK			BIT(HOUR_PM_SHIFT)
+ /* RTC Alarm Enable */
+ #define ALARM_ENABLE_SHIFT		7
+-#define ALARM_ENABLE_MASK		(1 << ALARM_ENABLE_SHIFT)
++#define ALARM_ENABLE_MASK		BIT(ALARM_ENABLE_SHIFT)
+ 
+ #define REG_RTC_NONE			0xdeadbeef
+ 
+@@ -205,9 +205,9 @@ static void max77686_rtc_data_to_tm(u8 *data, struct rtc_time *tm,
+ 
+ 	tm->tm_sec = data[RTC_SEC] & mask;
+ 	tm->tm_min = data[RTC_MIN] & mask;
+-	if (info->rtc_24hr_mode)
++	if (info->rtc_24hr_mode) {
+ 		tm->tm_hour = data[RTC_HOUR] & 0x1f;
+-	else {
++	} else {
+ 		tm->tm_hour = data[RTC_HOUR] & 0x0f;
+ 		if (data[RTC_HOUR] & HOUR_PM_MASK)
+ 			tm->tm_hour += 12;
+@@ -256,7 +256,7 @@ static int max77686_rtc_tm_to_data(struct rtc_time *tm, u8 *data,
+ }
+ 
+ static int max77686_rtc_update(struct max77686_rtc_info *info,
+-	enum MAX77686_RTC_OP op)
++			       enum MAX77686_RTC_OP op)
+ {
+ 	int ret;
+ 	unsigned int data;
+@@ -547,7 +547,7 @@ out:
+ }
+ 
+ static int max77686_rtc_alarm_irq_enable(struct device *dev,
+-					unsigned int enabled)
++					 unsigned int enabled)
+ {
+ 	struct max77686_rtc_info *info = dev_get_drvdata(dev);
+ 	int ret;
+@@ -612,7 +612,7 @@ static int max77686_rtc_probe(struct platform_device *pdev)
+ 	int ret;
+ 
+ 	info = devm_kzalloc(&pdev->dev, sizeof(struct max77686_rtc_info),
+-				GFP_KERNEL);
++			    GFP_KERNEL);
+ 	if (!info)
+ 		return -ENOMEM;
+ 
+@@ -662,7 +662,8 @@ static int max77686_rtc_probe(struct platform_device *pdev)
+ 	}
+ 
+ 	ret = devm_request_threaded_irq(&pdev->dev, info->virq, NULL,
+-				max77686_rtc_alarm_irq, 0, "rtc-alarm1", info);
++					max77686_rtc_alarm_irq, 0,
++					"rtc-alarm1", info);
+ 	if (ret < 0)
+ 		dev_err(&pdev->dev, "Failed to request alarm IRQ: %d: %d\n",
+ 			info->virq, ret);
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+2.1.4
 
 -- 
 -- 
