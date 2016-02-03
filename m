@@ -1,24 +1,19 @@
-Return-Path: <rtc-linux+bncBD2OLRXW4ABBBX7T6G2QKGQEXY2NXWI@googlegroups.com>
-Received: from hqemgate16.nvidia.com (hqemgate16.nvidia.com. [216.228.121.65])
-        by gmr-mx.google.com with ESMTPS id 79si1066870pft.0.2016.02.11.04.09.03
+Return-Path: <rtc-linux+bncBD2OLRXW4ABBBE4PZC2QKGQES747ORI@googlegroups.com>
+Received: from hqemgate15.nvidia.com (hqemgate15.nvidia.com. [216.228.121.64])
+        by gmr-mx.google.com with ESMTPS id r2si858401pfr.0.2016.02.03.05.58.43
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 11 Feb 2016 04:09:03 -0800 (PST)
+        Wed, 03 Feb 2016 05:58:43 -0800 (PST)
 From: Laxman Dewangan <ldewangan@nvidia.com>
-To: <robh+dt@kernel.org>, <pawel.moll@arm.com>, <mark.rutland@arm.com>,
-	<ijc+devicetree@hellion.org.uk>, <galak@codeaurora.org>,
-	<linus.walleij@linaro.org>, <gnurou@gmail.com>, <lee.jones@linaro.org>,
-	<broonie@kernel.org>, <a.zummo@towertech.it>,
-	<alexandre.belloni@free-electrons.com>
-CC: <lgirdwood@gmail.com>, <devicetree@vger.kernel.org>,
-	<linux-kernel@vger.kernel.org>, <linux-gpio@vger.kernel.org>,
-	<rtc-linux@googlegroups.com>, <swarren@nvidia.com>, <treding@nvidia.com>,
-	<k.kozlowski@samsung.com>, Laxman Dewangan <ldewangan@nvidia.com>
-Subject: [rtc-linux] [PATCH V8 5/8] gpio: add DT binding doc for gpio of PMIC max77620/max20024
-Date: Thu, 11 Feb 2016 17:26:31 +0530
-Message-ID: <1455191794-6065-6-git-send-email-ldewangan@nvidia.com>
-In-Reply-To: <1455191794-6065-1-git-send-email-ldewangan@nvidia.com>
-References: <1455191794-6065-1-git-send-email-ldewangan@nvidia.com>
+To: <lee.jones@linaro.org>, <alexandre.belloni@free-electrons.com>,
+	<k.kozlowski@samsung.com>, <javier@osg.samsung.com>
+CC: <cw00.choi@samsung.com>, <linux-kernel@vger.kernel.org>,
+	<rtc-linux@googlegroups.com>, Laxman Dewangan <ldewangan@nvidia.com>
+Subject: [rtc-linux] [PATCH V3 1/5] rtc: max77686: fix checkpatch error
+Date: Wed, 3 Feb 2016 19:17:09 +0530
+Message-ID: <1454507233-9959-2-git-send-email-ldewangan@nvidia.com>
+In-Reply-To: <1454507233-9959-1-git-send-email-ldewangan@nvidia.com>
+References: <1454507233-9959-1-git-send-email-ldewangan@nvidia.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
@@ -31,57 +26,108 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Maxim Semiconductor's PMIC MAX77620/MAX20024 has 8 GPIO pins
-which act as GPIO as well as special function mode.
-
-Add DT binding document to support these pins in GPIO
-mode via GPIO framework.
+Fix following check patch error in rtc-max77686 driver:
+- Alignment should match open parenthesis.
+- braces {} should be used on all arms of this statement.
+- Prefer using the BIT macro
 
 Signed-off-by: Laxman Dewangan <ldewangan@nvidia.com>
-Acked-by: Rob Herring <robh@kernel.org>
+CC: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+CC: Javier Martinez Canillas <javier@osg.samsung.com>
+Tested-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+Reviewed-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+Reviewed-by: Javier Martinez Canillas <javier@osg.samsung.com>
 
 ---
-Changes from V4:
-- Separate out from gpio driver
+Changes from V1:
+- None, added reviewed/tested by.
 
-Changes from V5/V6/V7:
+Changes from V1:
 - None
 
- .../devicetree/bindings/gpio/gpio-max77620.txt     | 25 ++++++++++++++++++++++
- 1 file changed, 25 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/gpio/gpio-max77620.txt
+ drivers/rtc/rtc-max77686.c | 25 +++++++++++++------------
+ 1 file changed, 13 insertions(+), 12 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/gpio/gpio-max77620.txt b/Documentation/devicetree/bindings/gpio/gpio-max77620.txt
-new file mode 100644
-index 0000000..410e716
---- /dev/null
-+++ b/Documentation/devicetree/bindings/gpio/gpio-max77620.txt
-@@ -0,0 +1,25 @@
-+GPIO driver for MAX77620 Power management IC from Maxim Semiconductor.
-+
-+Device has 8 GPIO pins which can be configured as GPIO as well as the
-+special IO functions.
-+
-+Required properties:
-+-------------------
-+- gpio-controller : 	Marks the device node as a gpio controller.
-+- #gpio-cells : 	Should be two.  The first cell is the pin number and
-+			the second cell is used to specify the gpio polarity:
-+				0 = active high
-+				1 = active low
-+For more details, please refer generic GPIO DT binding document
-+<devicetree/bindings/gpio/gpio.txt>.
-+
-+Example:
-+--------
-+#include <dt-bindings/mfd/max77620.h>
-+...
-+max77620@3c {
-+	compatible = "maxim,max77620";
-+
-+	gpio-controller;
-+	#gpio-cells = <2>;
-+};
+diff --git a/drivers/rtc/rtc-max77686.c b/drivers/rtc/rtc-max77686.c
+index 188593d..253cf12 100644
+--- a/drivers/rtc/rtc-max77686.c
++++ b/drivers/rtc/rtc-max77686.c
+@@ -24,20 +24,20 @@
+ 
+ /* RTC Control Register */
+ #define BCD_EN_SHIFT			0
+-#define BCD_EN_MASK			(1 << BCD_EN_SHIFT)
++#define BCD_EN_MASK			BIT(BCD_EN_SHIFT)
+ #define MODEL24_SHIFT			1
+-#define MODEL24_MASK			(1 << MODEL24_SHIFT)
++#define MODEL24_MASK			BIT(MODEL24_SHIFT)
+ /* RTC Update Register1 */
+ #define RTC_UDR_SHIFT			0
+-#define RTC_UDR_MASK			(1 << RTC_UDR_SHIFT)
++#define RTC_UDR_MASK			BIT(RTC_UDR_SHIFT)
+ #define RTC_RBUDR_SHIFT			4
+-#define RTC_RBUDR_MASK			(1 << RTC_RBUDR_SHIFT)
++#define RTC_RBUDR_MASK			BIT(RTC_RBUDR_SHIFT)
+ /* RTC Hour register */
+ #define HOUR_PM_SHIFT			6
+-#define HOUR_PM_MASK			(1 << HOUR_PM_SHIFT)
++#define HOUR_PM_MASK			BIT(HOUR_PM_SHIFT)
+ /* RTC Alarm Enable */
+ #define ALARM_ENABLE_SHIFT		7
+-#define ALARM_ENABLE_MASK		(1 << ALARM_ENABLE_SHIFT)
++#define ALARM_ENABLE_MASK		BIT(ALARM_ENABLE_SHIFT)
+ 
+ #define REG_RTC_NONE			0xdeadbeef
+ 
+@@ -205,9 +205,9 @@ static void max77686_rtc_data_to_tm(u8 *data, struct rtc_time *tm,
+ 
+ 	tm->tm_sec = data[RTC_SEC] & mask;
+ 	tm->tm_min = data[RTC_MIN] & mask;
+-	if (info->rtc_24hr_mode)
++	if (info->rtc_24hr_mode) {
+ 		tm->tm_hour = data[RTC_HOUR] & 0x1f;
+-	else {
++	} else {
+ 		tm->tm_hour = data[RTC_HOUR] & 0x0f;
+ 		if (data[RTC_HOUR] & HOUR_PM_MASK)
+ 			tm->tm_hour += 12;
+@@ -256,7 +256,7 @@ static int max77686_rtc_tm_to_data(struct rtc_time *tm, u8 *data,
+ }
+ 
+ static int max77686_rtc_update(struct max77686_rtc_info *info,
+-	enum MAX77686_RTC_OP op)
++			       enum MAX77686_RTC_OP op)
+ {
+ 	int ret;
+ 	unsigned int data;
+@@ -547,7 +547,7 @@ out:
+ }
+ 
+ static int max77686_rtc_alarm_irq_enable(struct device *dev,
+-					unsigned int enabled)
++					 unsigned int enabled)
+ {
+ 	struct max77686_rtc_info *info = dev_get_drvdata(dev);
+ 	int ret;
+@@ -612,7 +612,7 @@ static int max77686_rtc_probe(struct platform_device *pdev)
+ 	int ret;
+ 
+ 	info = devm_kzalloc(&pdev->dev, sizeof(struct max77686_rtc_info),
+-				GFP_KERNEL);
++			    GFP_KERNEL);
+ 	if (!info)
+ 		return -ENOMEM;
+ 
+@@ -662,7 +662,8 @@ static int max77686_rtc_probe(struct platform_device *pdev)
+ 	}
+ 
+ 	ret = devm_request_threaded_irq(&pdev->dev, info->virq, NULL,
+-				max77686_rtc_alarm_irq, 0, "rtc-alarm1", info);
++					max77686_rtc_alarm_irq, 0,
++					"rtc-alarm1", info);
+ 	if (ret < 0)
+ 		dev_err(&pdev->dev, "Failed to request alarm IRQ: %d: %d\n",
+ 			info->virq, ret);
 -- 
 2.1.4
 
