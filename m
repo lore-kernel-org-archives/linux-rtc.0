@@ -1,24 +1,30 @@
-Return-Path: <rtc-linux+bncBDU7VC56WAFBBBWCZO3AKGQEFUXJITQ@googlegroups.com>
-Received: from bues.ch (bues.ch. [2a01:138:9005::1:4])
-        by gmr-mx.google.com with ESMTPS id w197si438402wmw.3.2016.02.28.03.59.02
+Return-Path: <rtc-linux+bncBDKZNNNLXAHBB7NJZS2QKGQEVBQWFJQ@googlegroups.com>
+Received: from mailout4.w1.samsung.com (mailout4.w1.samsung.com. [210.118.77.14])
+        by gmr-mx.google.com with ESMTPS id jg4si1273505pac.2.2016.02.04.01.08.12
         for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=AES128-SHA bits=128/128);
-        Sun, 28 Feb 2016 03:59:02 -0800 (PST)
-Date: Sun, 28 Feb 2016 12:58:52 +0100
-From: Michael =?UTF-8?B?QsO8c2No?= <m@bues.ch>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Gregory Hermant <gregory.hermant@calao-systems.com>,
+        (version=TLS1 cipher=AES128-SHA bits=128/128);
+        Thu, 04 Feb 2016 01:08:13 -0800 (PST)
+Received: from eucpsbgm1.samsung.com (unknown [203.254.199.244])
+ by mailout4.w1.samsung.com
+ (Oracle Communications Messaging Server 7.0.5.31.0 64bit (built May  5 2014))
+ with ESMTP id <0O2000L46MPKZL10@mailout4.w1.samsung.com> for
+ rtc-linux@googlegroups.com; Thu, 04 Feb 2016 09:08:08 +0000 (GMT)
+Subject: [rtc-linux] Re: [PATCH V3 5/5] rtc: max77686: move initialisation of
+ rtc regmap, irq chip locally
+To: Laxman Dewangan <ldewangan@nvidia.com>, lee.jones@linaro.org,
+ alexandre.belloni@free-electrons.com, javier@osg.samsung.com
+References: <1454507233-9959-1-git-send-email-ldewangan@nvidia.com>
+ <1454507233-9959-6-git-send-email-ldewangan@nvidia.com>
+ <56B296F6.3060002@samsung.com> <56B2B17A.1000509@nvidia.com>
+ <56B2F6A2.5060103@samsung.com>
+Cc: cw00.choi@samsung.com, linux-kernel@vger.kernel.org,
  rtc-linux@googlegroups.com
-Subject: Re: [rtc-linux] rv3029 EEPROM handling
-Message-ID: <20160228125852.1a0b271e@wiggum>
-In-Reply-To: <20160228104110.GC2398@piout.net>
-References: <20160227153918.3c3d3853@wiggum>
- <20160228003139.GB2398@piout.net>
- <20160228094452.132c1938@wiggum>
- <20160228104110.GC2398@piout.net>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
- boundary="Sig_/m+jD_MTX8L571=XV2iyktp."; protocol="application/pgp-signature"
+From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+Message-id: <56B314F4.6010605@samsung.com>
+Date: Thu, 04 Feb 2016 18:08:04 +0900
+MIME-version: 1.0
+In-reply-to: <56B2F6A2.5060103@samsung.com>
+Content-type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -29,40 +35,72 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
---Sig_/m+jD_MTX8L571=XV2iyktp.
-Content-Type: text/plain; charset=UTF-8
-
-On Sun, 28 Feb 2016 11:41:10 +0100
-Alexandre Belloni <alexandre.belloni@free-electrons.com> wrote:
-
-> ds1339, ds1390 and bq32k are using trickle-resistor-ohms and
-> trickle-diode-disable.
-
-
-The rv3029 datasheet doesn't say anything about a diode (I think it
-still has one though). It merely talks about resistors connected
-between vdd and the battery pin.
-So I'm not sure whether we should use the 'trickle-diode-disable'
-property here. One other possibility would be to use
-trickle-resistor-ohms=-1 or such to disable the charger.
-
-
-> > The rv3029 does the compensation internally. It just needs to be
-> > enabled via a bit in its EEPROM. We could probably always set that bit
-> > though. I'm not sure whether there is a case where one would not want
-> > that.
-> >   
+On 04.02.2016 15:58, Krzysztof Kozlowski wrote:
+> On 04.02.2016 11:03, Laxman Dewangan wrote:
+>>
+>> On Thursday 04 February 2016 05:40 AM, Krzysztof Kozlowski wrote:
+>>> On 03.02.2016 22:47, Laxman Dewangan wrote:
+>>>>
+>>>> Changes from V2:
+>>>> - Taken care of missed sequence for removing the resource.
+>>>> - Fix the crash when doing unbind by using requested_threaded_irq()
+>>>>    instead of demv_requested_threaded_irq().
+>>>>
+>>>>   drivers/mfd/max77686.c               |  85 +-------------------
+>>>>   drivers/rtc/rtc-max77686.c           | 148
+>>>> ++++++++++++++++++++++++++++++-----
+>>>>   include/linux/mfd/max77686-private.h |   3 -
+>>>>   3 files changed, 130 insertions(+), 106 deletions(-)
+>>>>
+>>> Looks good and works properly (RTC, unbind/rebind, wakealarm again)
+>>> but... after applying this patch the device cannot suspend to RAM after
+>>> unbind/rebind.
+>>>
+>>> Reproduce path, after booting:
+>>> $ echo max77686-rtc > /sys/bus/platform/drivers/max77686-rtc/unbind
+>>> $ echo max77686-rtc > /sys/bus/platform/drivers/max77686-rtc/bind
+>>> $ rtcwake -d rtc2 -m mem -s 5 -v
+>>> (or instead of rtcwake: echo mem > /sys/power/state)
+>>
+>>
+>> My device does not support suspend and hence I can nto test this part
+>> and need your help to debug it.
+>>
+>> Few question to narrow down:
+>> 1. Have you try to bind/unbind mfd driver to make sure that there is no
+>> inherent issue in the framework driver?
 > 
-> If you want to enable it without changing the values, just enable it
-> unconditionally.
+> That might be tricky... there are also regulator and clock drivers.  I
+> would have to disable them... It might take me some time to prepare an
+> environment for this.
+> 
+>>
+>> 2. Does suspend entry and wake alarm work if you dont do unbind and just
+>> bind it and enter into suspend?
+> If by "just bind" you mean bind during system boot, then answer is yes.
+> Without the unbind+bind, the system suspends correctly.
+> 
+> Without your patch, system suspends correctly always (no rebind, rebind
+> etc.).
+> 
+> Actually I don't have to re-bind the RTC. Just:
+> $ echo max77686-rtc > /sys/bus/platform/drivers/max77686-rtc/unbind
+> $ echo mem > /sys/power/state
+> triggers the issue.
+> 
+>>
+>> 3. Can you try locally to not use devm_regmap_init_i2c() and just use
+>> the regmap_init_i2c() and proper removal of this from error path and
+>> remove callback?
+> 
+> I'll try to find some time for that. Maybe tomorrow.
 
+regmap_init_i2c does not help. However helps commenting out the:
+	regmap_del_irq_chip(info->rtc_irq, info->rtc_irq_data);
+from remove() callback.
 
-I think the internal temperature compensation should be enabled by
-default and be disabled via DT property ('temp-compensation-disable'
-or such).
-
--- 
-Michael
+BR,
+Krzysztof
 
 -- 
 -- 
@@ -74,27 +112,3 @@ before submitting a driver.
 You received this message because you are subscribed to the Google Groups "rtc-linux" group.
 To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
-
---Sig_/m+jD_MTX8L571=XV2iyktp.
-Content-Type: application/pgp-signature
-Content-Description: OpenPGP digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
-
-iQIcBAEBCAAGBQJW0uD9AAoJEPUyvh2QjYsOIbAP/0Q8bJdFI09c8epAZn5gLFvt
-8HBPJFj5D/Wu17zYWRIW5E4R/QDRlwR5Ja2Csy/u0IwfElGjSm83Bz9rrMyVaeWP
-mPGItUsGl2pL3pZt1/5vAkMTh9WF8EVWRM7uC4ajHNMvcBhZlBxGXLXGmqOyuged
-kA7U6b/fwTfXW67PJsI6/B0x+u+M7kqN0LCXXucD5i29l4+XNNIeLGBJJHIaBMMY
-UV0NioCC2ioGIwaU1j1z5/R3bQ8bGw/SjXuyEgd4wNdVAbbgRwn040U95uUckXLp
-B3JRpGRvrw/RaTNu6qjjbm5PBX8MC2vlmJrbRE9V4hYxygsHHvQPESnDVo/6kcQy
-KSK4ht1xEjxG+9f6gi0B8QIN4nrnWo4Zd1sShbYarP1OvKKANC55Hzm4b2KVV+Z2
-v3GIPLCX99R4ikvisG5G3JQXg5Es9ERbr4gG0GoJfFbkWog7PBOa71wRGxFLm7gL
-MEsUDOWkim6W0AACVE12hh2/TbWrnG3kCUaDCjvXQxA0HQ4q0ABUFJzfEkfD5w5d
-CPh7vgk4r7AkKpTkfr7AjqugMqVkqQUdt5zmLI8qLnC5LDzq+aDFJlWxkVSGGTMa
-I3/sTDkypuH7PRdkvzr0BMesUsF96N7OPMF5PaOrV3ef1luehTQ0u1pkI4IONtIs
-CgzvQXbyfvbLF4Ips4pp
-=bxl3
------END PGP SIGNATURE-----
-
---Sig_/m+jD_MTX8L571=XV2iyktp.--
