@@ -1,30 +1,29 @@
-Return-Path: <rtc-linux+bncBDKZNNNLXAHBB7NJZS2QKGQEVBQWFJQ@googlegroups.com>
-Received: from mailout4.w1.samsung.com (mailout4.w1.samsung.com. [210.118.77.14])
-        by gmr-mx.google.com with ESMTPS id jg4si1273505pac.2.2016.02.04.01.08.12
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1 cipher=AES128-SHA bits=128/128);
-        Thu, 04 Feb 2016 01:08:13 -0800 (PST)
-Received: from eucpsbgm1.samsung.com (unknown [203.254.199.244])
- by mailout4.w1.samsung.com
- (Oracle Communications Messaging Server 7.0.5.31.0 64bit (built May  5 2014))
- with ESMTP id <0O2000L46MPKZL10@mailout4.w1.samsung.com> for
- rtc-linux@googlegroups.com; Thu, 04 Feb 2016 09:08:08 +0000 (GMT)
-Subject: [rtc-linux] Re: [PATCH V3 5/5] rtc: max77686: move initialisation of
- rtc regmap, irq chip locally
-To: Laxman Dewangan <ldewangan@nvidia.com>, lee.jones@linaro.org,
- alexandre.belloni@free-electrons.com, javier@osg.samsung.com
-References: <1454507233-9959-1-git-send-email-ldewangan@nvidia.com>
- <1454507233-9959-6-git-send-email-ldewangan@nvidia.com>
- <56B296F6.3060002@samsung.com> <56B2B17A.1000509@nvidia.com>
- <56B2F6A2.5060103@samsung.com>
-Cc: cw00.choi@samsung.com, linux-kernel@vger.kernel.org,
- rtc-linux@googlegroups.com
-From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-Message-id: <56B314F4.6010605@samsung.com>
-Date: Thu, 04 Feb 2016 18:08:04 +0900
-MIME-version: 1.0
-In-reply-to: <56B2F6A2.5060103@samsung.com>
-Content-type: text/plain; charset=UTF-8
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBQVOZ62QKGQEMLBWQFI@googlegroups.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id q64si839618wmg.0.2016.02.04.14.57.06
+        for <rtc-linux@googlegroups.com>;
+        Thu, 04 Feb 2016 14:57:06 -0800 (PST)
+Date: Thu, 4 Feb 2016 23:56:55 +0100
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+Cc: rtc-linux@googlegroups.com,
+	Javier Martinez Canillas <javier@osg.samsung.com>,
+	k.kozlowski.k@gmail.com, linux-kernel@vger.kernel.org,
+	Kukjin Kim <kgene@kernel.org>, Andi Shyti <andi.shyti@samsung.com>,
+	Chanwoo Choi <cw00.choi@samsung.com>,
+	Laxman Dewangan <ldewangan@nvidia.com>,
+	linux-samsung-soc@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+	Olof Johansson <olof@lixom.net>,
+	linux-arm-kernel@lists.infradead.org
+Subject: Re: [rtc-linux] Re: [PATCH v4 00/10] rtc: max77686: Extend driver and
+ add max77802 support
+Message-ID: <20160204225655.GE4782@piout.net>
+References: <1453865806-4661-1-git-send-email-javier@osg.samsung.com>
+ <20160131120525.GM20165@piout.net>
+ <56ADF9D4.2050208@samsung.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <56ADF9D4.2050208@samsung.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -35,72 +34,53 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 04.02.2016 15:58, Krzysztof Kozlowski wrote:
-> On 04.02.2016 11:03, Laxman Dewangan wrote:
->>
->> On Thursday 04 February 2016 05:40 AM, Krzysztof Kozlowski wrote:
->>> On 03.02.2016 22:47, Laxman Dewangan wrote:
->>>>
->>>> Changes from V2:
->>>> - Taken care of missed sequence for removing the resource.
->>>> - Fix the crash when doing unbind by using requested_threaded_irq()
->>>>    instead of demv_requested_threaded_irq().
->>>>
->>>>   drivers/mfd/max77686.c               |  85 +-------------------
->>>>   drivers/rtc/rtc-max77686.c           | 148
->>>> ++++++++++++++++++++++++++++++-----
->>>>   include/linux/mfd/max77686-private.h |   3 -
->>>>   3 files changed, 130 insertions(+), 106 deletions(-)
->>>>
->>> Looks good and works properly (RTC, unbind/rebind, wakealarm again)
->>> but... after applying this patch the device cannot suspend to RAM after
->>> unbind/rebind.
->>>
->>> Reproduce path, after booting:
->>> $ echo max77686-rtc > /sys/bus/platform/drivers/max77686-rtc/unbind
->>> $ echo max77686-rtc > /sys/bus/platform/drivers/max77686-rtc/bind
->>> $ rtcwake -d rtc2 -m mem -s 5 -v
->>> (or instead of rtcwake: echo mem > /sys/power/state)
->>
->>
->> My device does not support suspend and hence I can nto test this part
->> and need your help to debug it.
->>
->> Few question to narrow down:
->> 1. Have you try to bind/unbind mfd driver to make sure that there is no
->> inherent issue in the framework driver?
+On 31/01/2016 at 21:11:00 +0900, Krzysztof Kozlowski wrote :
+> W dniu 31.01.2016 o 21:05, Alexandre Belloni pisze:
+> > Hi,
+> > 
+> > On 27/01/2016 at 00:36:36 -0300, Javier Martinez Canillas wrote :
+> >> Hello,
+> >>
+> >> On a recent disussion [0] with Krzysztof Kozlowski and Laxman Dewangan,
+> >> we came to the conclusion that the max77686 and max77802 RTC are almost
+> >> the same with only a few differences so there shouldn't be two separate
+> >> drivers and is better to extend max77686 driver and delete rtc-max77802.
+> >>
+> >> By making the driver more generic, other RTC IP blocks from Maxim PMICs
+> >> could be supported as well like the max77620.
+> >>
+> >> This is a v4 of a series that do this, that address issues pointed out
+> >> in the latest version. The v1, v2 and v3 can be found at [1], [2], [3].
+> >>
+> >> I've tested this patch-set on an Exynos5800 Peach Pi Chromebook that has
+> >> a max77802 PMIC and the RTC was working correctly. Krzysztof Kozlowski
+> >> tested v3 on an max77686 but this version only has cosmetic changes so
+> >> it should not cause any functionality changes.
+> >>
+> >> [0]: http://www.spinics.net/lists/devicetree/msg110348.html
+> >> [1]: https://lwn.net/Articles/672568/
+> >> [2]: https://lkml.org/lkml/2016/1/25/767
+> >> [3]: https://lkml.org/lkml/2016/1/26/787
+> >>
+> > 
+> > I've applied patches 1 to 8 and I'll discussed with Arnd and Olof about
+> > what I should do with the defconfig changes.
 > 
-> That might be tricky... there are also regulator and clock drivers.  I
-> would have to disable them... It might take me some time to prepare an
-> environment for this.
+> To avoid conflicts they could go through samsung-soc tree. I could pick
+> them if you provide me a tag with rest of patchset (dependencies).
 > 
->>
->> 2. Does suspend entry and wake alarm work if you dont do unbind and just
->> bind it and enter into suspend?
-> If by "just bind" you mean bind during system boot, then answer is yes.
-> Without the unbind+bind, the system suspends correctly.
+> Would that be okay for you?
 > 
-> Without your patch, system suspends correctly always (no rebind, rebind
-> etc.).
-> 
-> Actually I don't have to re-bind the RTC. Just:
-> $ echo max77686-rtc > /sys/bus/platform/drivers/max77686-rtc/unbind
-> $ echo mem > /sys/power/state
-> triggers the issue.
-> 
->>
->> 3. Can you try locally to not use devm_regmap_init_i2c() and just use
->> the regmap_init_i2c() and proper removal of this from error path and
->> remove callback?
-> 
-> I'll try to find some time for that. Maybe tomorrow.
 
-regmap_init_i2c does not help. However helps commenting out the:
-	regmap_del_irq_chip(info->rtc_irq, info->rtc_irq_data);
-from remove() callback.
+Let's do that, I've prepared a tag, rtc-max77686-4.6 with all the
+max77686 material collected until now.  If I need to rebase rtc-next,
+I'll rebase on top of that.
 
-BR,
-Krzysztof
+
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
 -- 
 -- 
