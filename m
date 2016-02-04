@@ -1,20 +1,29 @@
-Return-Path: <rtc-linux+bncBDJIP47K7MERB6XSXW2QKGQERNPMA3Y@googlegroups.com>
-Received: from mail.kernel.org (mail.kernel.org. [198.145.29.136])
-        by gmr-mx.google.com with ESMTP id ui7si3503607pab.0.2016.02.01.07.27.54
-        for <rtc-linux@googlegroups.com>;
-        Mon, 01 Feb 2016 07:27:54 -0800 (PST)
-Date: Mon, 1 Feb 2016 09:27:50 -0600
-From: Rob Herring <robh@kernel.org>
-To: Oleksij Rempel <linux@rempel-privat.de>
-Cc: devicetree@vger.kernel.org, a.zummo@towertech.it,
-	alexandre.belloni@free-electrons.com, rtc-linux@googlegroups.com
-Subject: [rtc-linux] Re: [PATCH 2/2] doc: dt: add documentation for alphascale,asm9260-rtc
-Message-ID: <20160201152750.GA17595@rob-hp-laptop>
-References: <1454056802-23386-1-git-send-email-linux@rempel-privat.de>
- <1454056802-23386-3-git-send-email-linux@rempel-privat.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1454056802-23386-3-git-send-email-linux@rempel-privat.de>
+Return-Path: <rtc-linux+bncBDKZNNNLXAHBBJXNZO2QKGQELQKHYXQ@googlegroups.com>
+Received: from mailout4.w1.samsung.com (mailout4.w1.samsung.com. [210.118.77.14])
+        by gmr-mx.google.com with ESMTPS id jg4si1228114pac.2.2016.02.03.22.58.45
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1 cipher=AES128-SHA bits=128/128);
+        Wed, 03 Feb 2016 22:58:46 -0800 (PST)
+Received: from eucpsbgm2.samsung.com (unknown [203.254.199.245])
+ by mailout4.w1.samsung.com
+ (Oracle Communications Messaging Server 7.0.5.31.0 64bit (built May  5 2014))
+ with ESMTP id <0O2000JSHGPTVA80@mailout4.w1.samsung.com> for
+ rtc-linux@googlegroups.com; Thu, 04 Feb 2016 06:58:41 +0000 (GMT)
+Subject: [rtc-linux] Re: [PATCH V3 5/5] rtc: max77686: move initialisation of
+ rtc regmap, irq chip locally
+To: Laxman Dewangan <ldewangan@nvidia.com>, lee.jones@linaro.org,
+ alexandre.belloni@free-electrons.com, javier@osg.samsung.com
+References: <1454507233-9959-1-git-send-email-ldewangan@nvidia.com>
+ <1454507233-9959-6-git-send-email-ldewangan@nvidia.com>
+ <56B296F6.3060002@samsung.com> <56B2B17A.1000509@nvidia.com>
+Cc: cw00.choi@samsung.com, linux-kernel@vger.kernel.org,
+ rtc-linux@googlegroups.com
+From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+Message-id: <56B2F6A2.5060103@samsung.com>
+Date: Thu, 04 Feb 2016 15:58:42 +0900
+MIME-version: 1.0
+In-reply-to: <56B2B17A.1000509@nvidia.com>
+Content-type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -25,42 +34,76 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Fri, Jan 29, 2016 at 09:40:02AM +0100, Oleksij Rempel wrote:
-> Document Alphascale asm9260 RTC bindings
+On 04.02.2016 11:03, Laxman Dewangan wrote:
 > 
-> Signed-off-by: Oleksij Rempel <linux@rempel-privat.de>
-> ---
->  .../bindings/rtc/alphascale,asm9260-rtc.txt        | 25 ++++++++++++++++++++++
->  1 file changed, 25 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/rtc/alphascale,asm9260-rtc.txt
+> On Thursday 04 February 2016 05:40 AM, Krzysztof Kozlowski wrote:
+>> On 03.02.2016 22:47, Laxman Dewangan wrote:
+>>>
+>>> Changes from V2:
+>>> - Taken care of missed sequence for removing the resource.
+>>> - Fix the crash when doing unbind by using requested_threaded_irq()
+>>>    instead of demv_requested_threaded_irq().
+>>>
+>>>   drivers/mfd/max77686.c               |  85 +-------------------
+>>>   drivers/rtc/rtc-max77686.c           | 148
+>>> ++++++++++++++++++++++++++++++-----
+>>>   include/linux/mfd/max77686-private.h |   3 -
+>>>   3 files changed, 130 insertions(+), 106 deletions(-)
+>>>
+>> Looks good and works properly (RTC, unbind/rebind, wakealarm again)
+>> but... after applying this patch the device cannot suspend to RAM after
+>> unbind/rebind.
+>>
+>> Reproduce path, after booting:
+>> $ echo max77686-rtc > /sys/bus/platform/drivers/max77686-rtc/unbind
+>> $ echo max77686-rtc > /sys/bus/platform/drivers/max77686-rtc/bind
+>> $ rtcwake -d rtc2 -m mem -s 5 -v
+>> (or instead of rtcwake: echo mem > /sys/power/state)
 > 
-> diff --git a/Documentation/devicetree/bindings/rtc/alphascale,asm9260-rtc.txt b/Documentation/devicetree/bindings/rtc/alphascale,asm9260-rtc.txt
-> new file mode 100644
-> index 0000000..2c0ff3c
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/rtc/alphascale,asm9260-rtc.txt
-> @@ -0,0 +1,25 @@
-> +* Alphascale asm9260 SoC Real Time Clock
-> +
-> +Required properties:
-> +- compatible: Should be "alphascale,asm9260-rtc"
-> +- reg: Physical base address of the controller and length
-> +       of memory mapped region.
-> +- interrupts: IRQ line for the RTC.
-> +- clocks: Reference to the clock entry.
-> +- clock-names: should contain:
-> +  * "ahb" for the SoC RTC clock
-> +
-> +Optional:
-> +- calibration: calibration value for 1 sec period.
-> +		Max value for forward calibration is 0x1ffff (131071),
-> +		Min value for backward calibration is 0xfffe0001 (-131071).
+> 
+> My device does not support suspend and hence I can nto test this part
+> and need your help to debug it.
+> 
+> Few question to narrow down:
+> 1. Have you try to bind/unbind mfd driver to make sure that there is no
+> inherent issue in the framework driver?
 
-This should be prefixed with 'alphascale,'
+That might be tricky... there are also regulator and clock drivers.  I
+would have to disable them... It might take me some time to prepare an
+environment for this.
 
-How is this value determined?
+> 
+> 2. Does suspend entry and wake alarm work if you dont do unbind and just
+> bind it and enter into suspend?
+If by "just bind" you mean bind during system boot, then answer is yes.
+Without the unbind+bind, the system suspends correctly.
 
-Rob
+Without your patch, system suspends correctly always (no rebind, rebind
+etc.).
+
+Actually I don't have to re-bind the RTC. Just:
+$ echo max77686-rtc > /sys/bus/platform/drivers/max77686-rtc/unbind
+$ echo mem > /sys/power/state
+triggers the issue.
+
+> 
+> 3. Can you try locally to not use devm_regmap_init_i2c() and just use
+> the regmap_init_i2c() and proper removal of this from error path and
+> remove callback?
+
+I'll try to find some time for that. Maybe tomorrow.
+
+BR,
+Krzysztof
+
+> Three things we are doing new on this movement, i2c client creating,
+> regmap_init and adding irq chip.
+> And probably some issue on this calls?
+> Let's try with not using devm_ * for this calls?
+> 
+> 
+> 
+> 
 
 -- 
 -- 
