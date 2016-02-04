@@ -1,19 +1,25 @@
-Return-Path: <rtc-linux+bncBDEKVJM7XAHRBP7JVS3AKGQEUCJFL3A@googlegroups.com>
-Received: from mout.kundenserver.de (mout.kundenserver.de. [217.72.192.74])
-        by gmr-mx.google.com with ESMTPS id v197si859831wmv.1.2016.02.22.08.18.07
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 22 Feb 2016 08:18:07 -0800 (PST)
-From: Arnd Bergmann <arnd@arndb.de>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: One Thousand Gnomes <gnomes@lxorguk.ukuu.org.uk>, rtc-linux@googlegroups.com, Alessandro Zummo <a.zummo@towertech.it>, Willy Tarreau <w@1wt.eu>, linux-kernel@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH] rtc: Add an option to invalidate dates in 2038
-Date: Mon, 22 Feb 2016 17:18:03 +0100
-Message-ID: <2768647.1bFEcFDZRI@wuerfel>
-In-Reply-To: <20160222155653.GP2222@piout.net>
-References: <1455995444-14146-1-git-send-email-alexandre.belloni@free-electrons.com> <6269543.oe8MmZQUmX@wuerfel> <20160222155653.GP2222@piout.net>
+Return-Path: <rtc-linux+bncBAABBLH7ZK2QKGQEUCIVQLA@googlegroups.com>
+Received: from lists.s-osg.org (lists.s-osg.org. [54.187.51.154])
+        by gmr-mx.google.com with ESMTP id tn7si1242510pac.1.2016.02.03.19.04.11
+        for <rtc-linux@googlegroups.com>;
+        Wed, 03 Feb 2016 19:04:11 -0800 (PST)
+Subject: [rtc-linux] Re: [PATCH V3 5/5] rtc: max77686: move initialisation of
+ rtc regmap, irq chip locally
+To: Laxman Dewangan <ldewangan@nvidia.com>,
+ Krzysztof Kozlowski <k.kozlowski@samsung.com>, lee.jones@linaro.org,
+ alexandre.belloni@free-electrons.com
+References: <1454507233-9959-1-git-send-email-ldewangan@nvidia.com>
+ <1454507233-9959-6-git-send-email-ldewangan@nvidia.com>
+ <56B296F6.3060002@samsung.com> <56B2B17A.1000509@nvidia.com>
+ <56B2BC7B.4070807@nvidia.com>
+Cc: cw00.choi@samsung.com, linux-kernel@vger.kernel.org,
+ rtc-linux@googlegroups.com
+From: Javier Martinez Canillas <javier@osg.samsung.com>
+Message-ID: <56B2BFA3.90409@osg.samsung.com>
+Date: Thu, 4 Feb 2016 00:04:03 -0300
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <56B2BC7B.4070807@nvidia.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -24,60 +30,49 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Monday 22 February 2016 16:56:53 Alexandre Belloni wrote:
-> On 22/02/2016 at 16:44:32 +0100, Arnd Bergmann wrote :
-> > On Monday 22 February 2016 13:43:19 One Thousand Gnomes wrote:
-> > > On Mon, 22 Feb 2016 14:00:14 +0100
-> > > Alexandre Belloni <alexandre.belloni@free-electrons.com> wrote:
-> > > > I can also agree that systemd could be a bit more robust there but
-> > > > you'll have to convince Lennart...
-> > > 
-> > > That's a systemd problem. If their code isn't robust then the
-> > > distributiosn will just have to keep patching it.
-> > > 
-> > > The only problem that can actually be "fixed" is the case where it isn't
-> > > 2038 yet and the user has a scrambled RTC. In that case your init tools
-> > > need to be robust enough to handle the problem or use APIs that don't
-> > > break. The kernel can't actually "fix" this because it never knows
-> > > whether your userspace is sane or not.
-> > > 
-> > > I'd argue btw that any code using timerfd_create with TFD_TIMER_ABSTIME
-> > > and passing it a value that wraps the range permitted by that time
-> > > representation *is* buggy. It's the applications responsibility to use
-> > > values that are within the defined behavioural range of the function.
-> > 
-> > IIRC, the problem is that user space passes in TIME_T_MAX and the kernel
-> > is considering that to be in the past because the clock is set beyond 2038.
-> > 
-> > I find it hard to blame user space for that, but I don't have a good
-> > idea for solving this either.
-> > 
-> > In case of systemd, it is literally the first thing that runs on the kernel
-> > after booting, so we could fall back to setting the time to some known
-> > working state (1970 or 2016 or something), but that would be a rather
-> > bad default policy once the system has been running for a while.
-> > 
-> 
-> Also, how would you know that it is an invalid time, some RTC doesn't
-> provide that information. 
+Hello Laxman,
 
-What I meant was encountering a time past the 2038 date, which is invalid
-as seen from current 32-bit user space, but not necessarily from the
-kernel.
+On 02/03/2016 11:50 PM, Laxman Dewangan wrote:
+> Hi Javier,
+>
+> On Thursday 04 February 2016 07:33 AM, Laxman Dewangan wrote:
+>>
+>> On Thursday 04 February 2016 05:40 AM, Krzysztof Kozlowski wrote:
+>>> On 03.02.2016 22:47, Laxman Dewangan wrote:
+>>>>
+>>>> Changes from V2:
+>>>> - Taken care of missed sequence for removing the resource.
+>>>> - Fix the crash when doing unbind by using requested_threaded_irq()
+>>>>    instead of demv_requested_threaded_irq().
+>>>>
+>>>>   drivers/mfd/max77686.c               |  85 +-------------------
+>>>>   drivers/rtc/rtc-max77686.c           | 148 ++++++++++++++++++++++++++++++-----
+>>>>   include/linux/mfd/max77686-private.h |   3 -
+>>>>   3 files changed, 130 insertions(+), 106 deletions(-)
+>>>>
+>>> Looks good and works properly (RTC, unbind/rebind, wakealarm again)
+>>> but... after applying this patch the device cannot suspend to RAM after
+>>> unbind/rebind.
+>>>
+>>> Reproduce path, after booting:
+>>> $ echo max77686-rtc > /sys/bus/platform/drivers/max77686-rtc/unbind
+>>> $ echo max77686-rtc > /sys/bus/platform/drivers/max77686-rtc/bind
+>>> $ rtcwake -d rtc2 -m mem -s 5 -v
+>>> (or instead of rtcwake: echo mem > /sys/power/state)
+>>
+>
+> Can you please also try to test in your setup which have MAX77802?
+> On this, we do not create i2c client and do regmap_init_i2c. So may be it helps on narrow down the issue.
+>
 
-> One other workaround is to asked distributions
-> using systemd to stop using HCTOSYS so userspace would be responsible to
-> set the system time and in that case we won't have the 32/64 discrepancy.
-
-I'm missing a bit of background here. This seems like a fairly useful
-piece of infrastructure for the majority of the use cases (working RTC)
-
-How would the time get set when this is disabled? Is systemd able
-to read the rtc and write it back to the kernel? That could in fact
-be a nicer workaround for the problem, if it just does this before
-setting up the timerfd.
-
-	Arnd
+Of course, I planned to test it today but ran out of time and I don't have
+access to my Chromebook now. I'll test it at first time tomorrow morning.
+  
+Best regards,
+-- 
+Javier Martinez Canillas
+Open Source Group
+Samsung Research America
 
 -- 
 -- 
