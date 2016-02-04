@@ -1,19 +1,22 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBGOPWO3AKGQEMXBBMHY@googlegroups.com>
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id e130si1237666wme.2.2016.02.23.15.13.29
-        for <rtc-linux@googlegroups.com>;
-        Tue, 23 Feb 2016 15:13:29 -0800 (PST)
-Date: Wed, 24 Feb 2016 00:13:28 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Paul Gortmaker <paul.gortmaker@windriver.com>
-Cc: linux-kernel@vger.kernel.org, Alessandro Zummo <a.zummo@towertech.it>,
-	rtc-linux@googlegroups.com
-Subject: [rtc-linux] Re: [PATCH] drivers/rtc: make class.c explicitly non-modular
-Message-ID: <20160223231328.GD10681@piout.net>
-References: <1455480259-13433-1-git-send-email-paul.gortmaker@windriver.com>
+Return-Path: <rtc-linux+bncBD2OLRXW4ABBBJHIZK2QKGQEXPNEKBA@googlegroups.com>
+Received: from hqemgate16.nvidia.com (hqemgate16.nvidia.com. [216.228.121.65])
+        by gmr-mx.google.com with ESMTPS id r2si1227391pfr.0.2016.02.03.18.15.00
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 03 Feb 2016 18:15:00 -0800 (PST)
+Message-ID: <56B2B17A.1000509@nvidia.com>
+Date: Thu, 4 Feb 2016 07:33:38 +0530
+From: Laxman Dewangan <ldewangan@nvidia.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1455480259-13433-1-git-send-email-paul.gortmaker@windriver.com>
+To: Krzysztof Kozlowski <k.kozlowski@samsung.com>, <lee.jones@linaro.org>,
+	<alexandre.belloni@free-electrons.com>, <javier@osg.samsung.com>
+CC: <cw00.choi@samsung.com>, <linux-kernel@vger.kernel.org>,
+	<rtc-linux@googlegroups.com>
+Subject: [rtc-linux] Re: [PATCH V3 5/5] rtc: max77686: move initialisation of
+ rtc regmap, irq chip locally
+References: <1454507233-9959-1-git-send-email-ldewangan@nvidia.com> <1454507233-9959-6-git-send-email-ldewangan@nvidia.com> <56B296F6.3060002@samsung.com>
+In-Reply-To: <56B296F6.3060002@samsung.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -24,40 +27,52 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 14/02/2016 at 15:04:19 -0500, Paul Gortmaker wrote :
-> The Makefile/Kconfig currently controlling compilation of this code is:
-> 
-> obj-$(CONFIG_RTC_CLASS)         += rtc-core.o
-> rtc-core-y                      := class.o interface.o
-> 
-> drivers/rtc/Kconfig:menuconfig RTC_CLASS
-> drivers/rtc/Kconfig:    bool "Real Time Clock"
-> 
-> ...meaning that it currently is not being built as a module by anyone.
-> 
-> Lets remove the modular code that is essentially orphaned, so that
-> when reading the code there is no doubt it is builtin-only.
-> 
-> We don't replace module.h with init.h since the file does need
-> to know what a struct module is.
-> 
-> We also delete the MODULE_LICENSE tag etc. since all that information
-> is already contained at the top of the file in the comments.
-> 
-> Cc: Alessandro Zummo <a.zummo@towertech.it>
-> Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-> Cc: rtc-linux@googlegroups.com
-> Signed-off-by: Paul Gortmaker <paul.gortmaker@windriver.com>
-> ---
->  drivers/rtc/class.c | 13 -------------
->  1 file changed, 13 deletions(-)
-> 
-Applied, thanks.
 
--- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+On Thursday 04 February 2016 05:40 AM, Krzysztof Kozlowski wrote:
+> On 03.02.2016 22:47, Laxman Dewangan wrote:
+>>
+>> Changes from V2:
+>> - Taken care of missed sequence for removing the resource.
+>> - Fix the crash when doing unbind by using requested_threaded_irq()
+>>    instead of demv_requested_threaded_irq().
+>>
+>>   drivers/mfd/max77686.c               |  85 +-------------------
+>>   drivers/rtc/rtc-max77686.c           | 148 ++++++++++++++++++++++++++++++-----
+>>   include/linux/mfd/max77686-private.h |   3 -
+>>   3 files changed, 130 insertions(+), 106 deletions(-)
+>>
+> Looks good and works properly (RTC, unbind/rebind, wakealarm again)
+> but... after applying this patch the device cannot suspend to RAM after
+> unbind/rebind.
+>
+> Reproduce path, after booting:
+> $ echo max77686-rtc > /sys/bus/platform/drivers/max77686-rtc/unbind
+> $ echo max77686-rtc > /sys/bus/platform/drivers/max77686-rtc/bind
+> $ rtcwake -d rtc2 -m mem -s 5 -v
+> (or instead of rtcwake: echo mem > /sys/power/state)
+
+
+My device does not support suspend and hence I can nto test this part 
+and need your help to debug it.
+
+Few question to narrow down:
+1. Have you try to bind/unbind mfd driver to make sure that there is no 
+inherent issue in the framework driver?
+
+2. Does suspend entry and wake alarm work if you dont do unbind and just 
+bind it and enter into suspend?
+
+3. Can you try locally to not use devm_regmap_init_i2c() and just use 
+the regmap_init_i2c() and proper removal of this from error path and 
+remove callback?
+
+
+
+Three things we are doing new on this movement, i2c client creating, 
+regmap_init and adding irq chip.
+And probably some issue on this calls?
+Let's try with not using devm_ * for this calls?
+
 
 -- 
 -- 
