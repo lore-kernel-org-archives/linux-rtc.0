@@ -1,42 +1,28 @@
-Return-Path: <rtc-linux+bncBDA7X7F2WUEBBM7P462QKGQE2X57YRA@googlegroups.com>
-Received: from mail-wm0-x234.google.com (mail-wm0-x234.google.com. [2a00:1450:400c:c09::234])
-        by gmr-mx.google.com with ESMTPS id h73si411906wme.0.2016.02.09.06.29.07
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 09 Feb 2016 06:29:07 -0800 (PST)
-Received: by mail-wm0-x234.google.com with SMTP id p63so25430057wmp.1
-        for <rtc-linux@googlegroups.com>; Tue, 09 Feb 2016 06:29:07 -0800 (PST)
-Date: Tue, 9 Feb 2016 14:29:03 +0000
-From: Lee Jones <lee.jones@linaro.org>
-To: Linus Walleij <linus.walleij@linaro.org>
-Cc: "rtc-linux@googlegroups.com" <rtc-linux@googlegroups.com>,
-	Rob Herring <robh+dt@kernel.org>,
-	=?utf-8?B?UGF3ZcWC?= Moll <pawel.moll@arm.com>,
-	Mark Rutland <mark.rutland@arm.com>,
-	"ijc+devicetree@hellion.org.uk" <ijc+devicetree@hellion.org.uk>,
-	Kumar Gala <galak@codeaurora.org>,
-	Alexandre Courbot <gnurou@gmail.com>,
-	Mark Brown <broonie@kernel.org>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Liam Girdwood <lgirdwood@gmail.com>,
-	"devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-	"linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>,
-	Stephen Warren <swarren@nvidia.com>,
-	Thierry Reding <treding@nvidia.com>,
-	Krzysztof =?utf-8?Q?Koz=C5=82owski?= <k.kozlowski@samsung.com>,
-	vreddytalla@nvidia.com, Laxman Dewangan <ldewangan@nvidia.com>
-Subject: Re: [rtc-linux] [PATCH V7 5/8] gpio: add DT binding doc for gpio of
- PMIC max77620/max20024
-Message-ID: <20160209142903.GE24522@x1>
-References: <1454171931-27752-1-git-send-email-ldewangan@nvidia.com>
- <1454171931-27752-6-git-send-email-ldewangan@nvidia.com>
- <CACRpkdYNBHvefR_qdjZ7hWr=cFzhv1gEgb5jBCrqHdWzNWgV6w@mail.gmail.com>
+Return-Path: <rtc-linux+bncBDKZNNNLXAHBBSFVZK2QKGQECMPMI7I@googlegroups.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <CACRpkdYNBHvefR_qdjZ7hWr=cFzhv1gEgb5jBCrqHdWzNWgV6w@mail.gmail.com>
+Received: from mailout4.w1.samsung.com (mailout4.w1.samsung.com. [210.118.77.14])
+        by gmr-mx.google.com with ESMTPS id 12si1072637pfb.1.2016.02.03.16.26.48
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1 cipher=AES128-SHA bits=128/128);
+        Wed, 03 Feb 2016 16:26:48 -0800 (PST)
+Received: from eucpsbgm2.samsung.com (unknown [203.254.199.245])
+ by mailout4.w1.samsung.com
+ (Oracle Communications Messaging Server 7.0.5.31.0 64bit (built May  5 2014))
+ with ESMTP id <0O1Z00LL7YKJBX50@mailout4.w1.samsung.com> for
+ rtc-linux@googlegroups.com; Thu, 04 Feb 2016 00:26:43 +0000 (GMT)
+From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+To: Chanwoo Choi <cw00.choi@samsung.com>,
+ Krzysztof Kozlowski <k.kozlowski@samsung.com>,
+ Alessandro Zummo <a.zummo@towertech.it>,
+ Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+ linux-kernel@vger.kernel.org, rtc-linux@googlegroups.com
+Cc: ldewangan@nvidia.com, javier@osg.samsung.com
+Subject: [rtc-linux] [PATCH] rtc: max77686: Properly handle
+ regmap_irq_get_virq() error code
+Date: Thu, 04 Feb 2016 09:26:35 +0900
+Message-id: <1454545595-31725-1-git-send-email-k.kozlowski@samsung.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -46,44 +32,52 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Fri, 05 Feb 2016, Linus Walleij wrote:
+The regmap_irq_get_virq() can return 0 or -EINVAL in error conditions
+but driver checked only for value of 0.
 
-> On Sat, Jan 30, 2016 at 5:38 PM, Laxman Dewangan <ldewangan@nvidia.com> w=
-rote:
->=20
-> > Maxim Semiconductor's PMIC MAX77620/MAX20024 has 8 GPIO pins
-> > which act as GPIO as well as special function mode.
-> >
-> > Add DT binding document to support these pins in GPIO
-> > mode via GPIO framework.
-> >
-> > Signed-off-by: Laxman Dewangan <ldewangan@nvidia.com>
-> > Acked-by: Rob Herring <robh@kernel.org>
->=20
-> Acked-by: Linus Walleij <linus.walleij@linaro.org>
->=20
-> Lee can merge this too.
+This could lead to a cast of -EINVAL to an unsigned int used as a
+interrupt number for devm_request_threaded_irq(). Although this is not
+yet fatal (devm_request_threaded_irq() will just fail with -EINVAL) but
+might be a misleading when diagnosing errors.
 
-Ths set needs a re-work anyway.
+Signed-off-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+Fixes: 6f1c1e71d933 ("mfd: max77686: Convert to use regmap_irq")
 
-Laxman, just apply your collected Acks and re-submit when you're
-ready.
+---
 
---=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+Patch rebased on current mainline, not RTC tree, because IMHO it is
+a candidate for current RC-cycle.
 
---=20
---=20
+Not marking cc-stable because behavior is not fatal - unless there is
+an interrupt with number 4294967274 (then it would be successfully
+requested for RTC driver).
+---
+ drivers/rtc/rtc-max77686.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/rtc/rtc-max77686.c b/drivers/rtc/rtc-max77686.c
+index 7184a0eda793..725dccae24e7 100644
+--- a/drivers/rtc/rtc-max77686.c
++++ b/drivers/rtc/rtc-max77686.c
+@@ -465,7 +465,7 @@ static int max77686_rtc_probe(struct platform_device *pdev)
+ 
+ 	info->virq = regmap_irq_get_virq(max77686->rtc_irq_data,
+ 					 MAX77686_RTCIRQ_RTCA1);
+-	if (!info->virq) {
++	if (info->virq <= 0) {
+ 		ret = -ENXIO;
+ 		goto err_rtc;
+ 	}
+-- 
+1.9.1
+
+-- 
+-- 
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
----=20
-You received this message because you are subscribed to the Google Groups "=
-rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an e=
-mail to rtc-linux+unsubscribe@googlegroups.com.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
