@@ -1,23 +1,23 @@
-Return-Path: <rtc-linux+bncBCC6ZWOPXENRBHEM462QKGQEDUABYWI@googlegroups.com>
-MIME-Version: 1.0
-Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de. [2001:67c:670:201:290:27ff:fe1d:cc33])
-        by gmr-mx.google.com with ESMTPS id w128si525336wmd.0.2016.02.09.02.57.31
+Return-Path: <rtc-linux+bncBD2OLRXW4ABBBWONZS2QKGQE7PDCSVA@googlegroups.com>
+Received: from hqemgate15.nvidia.com (hqemgate15.nvidia.com. [216.228.121.64])
+        by gmr-mx.google.com with ESMTPS id ui7si1369219pab.0.2016.02.04.02.24.25
         for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=AES128-SHA bits=128/128);
-        Tue, 09 Feb 2016 02:57:31 -0800 (PST)
-From: Juergen Borleis <jbe@pengutronix.de>
-To: rtc-linux@googlegroups.com
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	linux-kernel@vger.kernel.org,
-	kernel@pengutronix.de
-Subject: [rtc-linux] [PATCH v2 2/3] RTC/PCF85063: fix time/date reading
-Date: Tue,  9 Feb 2016 11:57:26 +0100
-Message-Id: <1455015447-13886-3-git-send-email-jbe@pengutronix.de>
-In-Reply-To: <1455015447-13886-1-git-send-email-jbe@pengutronix.de>
-References: <1455015447-13886-1-git-send-email-jbe@pengutronix.de>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 04 Feb 2016 02:24:25 -0800 (PST)
+Message-ID: <56B3242E.1060504@nvidia.com>
+Date: Thu, 4 Feb 2016 15:43:02 +0530
+From: Laxman Dewangan <ldewangan@nvidia.com>
+MIME-Version: 1.0
+To: Krzysztof Kozlowski <k.kozlowski@samsung.com>, <lee.jones@linaro.org>,
+	<alexandre.belloni@free-electrons.com>, <javier@osg.samsung.com>
+CC: <cw00.choi@samsung.com>, <linux-kernel@vger.kernel.org>,
+	<rtc-linux@googlegroups.com>
+Subject: [rtc-linux] Re: [PATCH V3 5/5] rtc: max77686: move initialisation of
+ rtc regmap, irq chip locally
+References: <1454507233-9959-1-git-send-email-ldewangan@nvidia.com> <1454507233-9959-6-git-send-email-ldewangan@nvidia.com> <56B296F6.3060002@samsung.com> <56B2B17A.1000509@nvidia.com> <56B2F6A2.5060103@samsung.com> <56B314F4.6010605@samsung.com>
+In-Reply-To: <56B314F4.6010605@samsung.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Reply-To: rtc-linux@googlegroups.com
-Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -27,41 +27,27 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Check if the RTC signals an invalid time/date (due to a battery power loss
-for example). In this case ignore the time/date until it is really set again.
 
-Signed-off-by: Juergen Borleis <jbe@pengutronix.de>
----
- drivers/rtc/rtc-pcf85063.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+On Thursday 04 February 2016 02:38 PM, Krzysztof Kozlowski wrote:
+> On 04.02.2016 15:58, Krzysztof Kozlowski wrote:
+>> On 04.02.2016 11:03, Laxman Dewangan wrote:
+>>> 3. Can you try locally to not use devm_regmap_init_i2c() and just use
+>>> the regmap_init_i2c() and proper removal of this from error path and
+>>> remove callback?
+>> I'll try to find some time for that. Maybe tomorrow.
+> regmap_init_i2c does not help. However helps commenting out the:
+> 	regmap_del_irq_chip(info->rtc_irq, info->rtc_irq_data);
+> from remove() callback.
+>
+>
 
-diff --git a/drivers/rtc/rtc-pcf85063.c b/drivers/rtc/rtc-pcf85063.c
-index 7f9caee..e0343e6 100644
---- a/drivers/rtc/rtc-pcf85063.c
-+++ b/drivers/rtc/rtc-pcf85063.c
-@@ -22,6 +22,7 @@
- #define PCF85063_REG_CTRL2		0x01
- 
- #define PCF85063_REG_SC			0x04 /* datetime */
-+#define PCF85063_REG_SC_OS		0x80
- #define PCF85063_REG_MN			0x05
- #define PCF85063_REG_HR			0x06
- #define PCF85063_REG_DM			0x07
-@@ -62,6 +63,12 @@ static int pcf85063_get_datetime(struct i2c_client *client, struct rtc_time *tm)
- 		return -EIO;
- 	}
- 
-+	/* if the clock has lost its power it makes no sense to use its time */
-+	if (regs[0] & PCF85063_REG_SC_OS) {
-+		dev_warn(&client->dev, "Power loss detected, invalid time\n");
-+		return -EINVAL;
-+	}
-+
- 	tm->tm_sec = bcd2bin(regs[0] & 0x7F);
- 	tm->tm_min = bcd2bin(regs[1] & 0x7F);
- 	tm->tm_hour = bcd2bin(regs[2] & 0x3F); /* rtc hr 0-23 */
--- 
-2.7.0.rc3
+Thanks for debugging.  I do not see anything on regmap_del_irq_chip() 
+which can be suspected. Is this because of sharing interrupt between mfd 
+and rtc driver?
+
+What is your suggestion here?  Should we avoid this inside RTC driver 
+(creating this in mfd) and pass this information to the rtc driver using 
+customized platform driver?
 
 -- 
 -- 
