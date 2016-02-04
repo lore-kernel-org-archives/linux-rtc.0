@@ -1,23 +1,21 @@
-Return-Path: <rtc-linux+bncBD2OLRXW4ABBB3UP3C2QKGQEU4QGIEQ@googlegroups.com>
-Received: from hqemgate15.nvidia.com (hqemgate15.nvidia.com. [216.228.121.64])
-        by gmr-mx.google.com with ESMTPS id r2si2894338pfr.0.2016.02.06.06.49.17
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sat, 06 Feb 2016 06:49:17 -0800 (PST)
-From: Laxman Dewangan <ldewangan@nvidia.com>
-To: <lee.jones@linaro.org>, <alexandre.belloni@free-electrons.com>,
-	<k.kozlowski@samsung.com>, <javier@osg.samsung.com>, <broonie@kernel.org>,
-	<gregkh@linuxfoundation.org>, <a.zummo@towertech.it>
-CC: <cw00.choi@samsung.com>, <linux-kernel@vger.kernel.org>,
-	<rtc-linux@googlegroups.com>, Laxman Dewangan <ldewangan@nvidia.com>
-Subject: [rtc-linux] [PATCH V4 3/6] rtc: max77686: use rtc regmap to access
- RTC registers
-Date: Sat, 6 Feb 2016 20:07:24 +0530
-Message-ID: <1454769447-785-4-git-send-email-ldewangan@nvidia.com>
-In-Reply-To: <1454769447-785-1-git-send-email-ldewangan@nvidia.com>
-References: <1454769447-785-1-git-send-email-ldewangan@nvidia.com>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBUMZZ62QKGQE3DR4SUQ@googlegroups.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id s132si911530wmd.1.2016.02.04.14.12.33
+        for <rtc-linux@googlegroups.com>;
+        Thu, 04 Feb 2016 14:12:33 -0800 (PST)
+Date: Thu, 4 Feb 2016 23:12:22 +0100
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Joshua Clayton <stillcompiling@gmail.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org
+Subject: [rtc-linux] Re: [PATCH v3 2/3] rtc: implement a sysfs interface for
+ clock offset
+Message-ID: <20160204221222.GC4782@piout.net>
+References: <20160202104111.GU20165@piout.net>
+ <1454519804-13770-2-git-send-email-stillcompiling@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1454519804-13770-2-git-send-email-stillcompiling@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -28,67 +26,110 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-rtc_regmap should be used to access all RTC registers instead
-of parent regmap regardless of what chip or property have it.
 
-This makes the register access uniform and extendible for other
-chips.
+A really small nitpick below
 
-Signed-off-by: Laxman Dewangan <ldewangan@nvidia.com>
-CC: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-CC: Javier Martinez Canillas <javier@osg.samsung.com>
-Tested-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-Reviewed-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-Tested-by: Javier Martinez Canillas <javier@osg.samsung.com>
-Reviewed-by: Javier Martinez Canillas <javier@osg.samsung.com>
+On 03/02/2016 at 09:16:43 -0800, Joshua Clayton wrote :
+> clock offset may be set and read in decimal parts per billion
+> attribute is /sys/class/rtc/rtcN/offset
+> The attribute is only visible for rtcs that have set_offset implemented.
+> 
+> Signed-off-by: Joshua Clayton <stillcompiling@gmail.com>
+> ---
+>  Documentation/rtc.txt   |  6 ++++++
+>  drivers/rtc/rtc-sysfs.c | 35 ++++++++++++++++++++++++++++++++++-
+>  2 files changed, 40 insertions(+), 1 deletion(-)
+> 
+> diff --git a/Documentation/rtc.txt b/Documentation/rtc.txt
+> index 8446f1e..ddc3660 100644
+> --- a/Documentation/rtc.txt
+> +++ b/Documentation/rtc.txt
+> @@ -157,6 +157,12 @@ wakealarm:	 The time at which the clock will generate a system wakeup
+>  		 the epoch by default, or if there's a leading +, seconds in the
+>  		 future, or if there is a leading +=, seconds ahead of the current
+>  		 alarm.
+> +offset:		 The amount which the rtc clock has been adjusted in firmware.
+> +		 Visible only if the driver supports clock offset adjustment.
+> +		 The unit is parts per billion, i.e. The number of clock ticks
+> +		 which are added to or removed from the rtc's base clock per
+> +		 billion ticks. A positive value makes a day pass more slowly,
+> +		 longer, and a negative value makes a day pass more quickly.
+>  
+>  IOCTL INTERFACE
+>  ---------------
+> diff --git a/drivers/rtc/rtc-sysfs.c b/drivers/rtc/rtc-sysfs.c
+> index 463e286..f8d7f8d 100644
+> --- a/drivers/rtc/rtc-sysfs.c
+> +++ b/drivers/rtc/rtc-sysfs.c
+> @@ -218,6 +218,34 @@ wakealarm_store(struct device *dev, struct device_attribute *attr,
+>  }
+>  static DEVICE_ATTR_RW(wakealarm);
+>  
+> +static ssize_t
+> +offset_show(struct device *dev, struct device_attribute *attr, char *buf)
+> +{
+> +	ssize_t retval;
+> +	long offset;
+> +
+> +	retval = rtc_read_offset(to_rtc_device(dev), &offset);
+> +	if (retval == 0)
+> +		retval = sprintf(buf, "%ld\n", offset);
+> +
+> +	return retval;
+> +}
+> +
+> +static ssize_t
+> +offset_store(struct device *dev, struct device_attribute *attr,
+> +		const char *buf, size_t n)
 
----
-Changes from V1:
-None, added reviewed/tested by.
+This is not properly aligned.
 
-Changes from V1:
-None
+> +{
+> +	ssize_t retval;
+> +	long offset;
+> +
+> +	retval = kstrtol(buf, 10, &offset);
+> +	if (retval == 0)
+> +		retval = rtc_set_offset(to_rtc_device(dev), offset);
+> +
+> +	return (retval < 0) ? retval : n;
+> +}
+> +static DEVICE_ATTR_RW(offset);
+> +
+>  static struct attribute *rtc_attrs[] = {
+>  	&dev_attr_name.attr,
+>  	&dev_attr_date.attr,
+> @@ -226,6 +254,7 @@ static struct attribute *rtc_attrs[] = {
+>  	&dev_attr_max_user_freq.attr,
+>  	&dev_attr_hctosys.attr,
+>  	&dev_attr_wakealarm.attr,
+> +	&dev_attr_offset.attr,
+>  	NULL,
+>  };
+>  
+> @@ -249,9 +278,13 @@ static umode_t rtc_attr_is_visible(struct kobject *kobj,
+>  	struct rtc_device *rtc = to_rtc_device(dev);
+>  	umode_t mode = attr->mode;
+>  
+> -	if (attr == &dev_attr_wakealarm.attr)
+> +	if (attr == &dev_attr_wakealarm.attr) {
+>  		if (!rtc_does_wakealarm(rtc))
+>  			mode = 0;
+> +	} else if (attr == &dev_attr_offset.attr) {
+> +		if (!rtc->ops->set_offset)
+> +			mode = 0;
+> +	}
+>  
+>  	return mode;
+>  }
+> -- 
+> 2.5.0
+> 
 
-Changes from V1:
-None, become 3rd on series.
-
- drivers/rtc/rtc-max77686.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/rtc/rtc-max77686.c b/drivers/rtc/rtc-max77686.c
-index 253cf12..11f74ed 100644
---- a/drivers/rtc/rtc-max77686.c
-+++ b/drivers/rtc/rtc-max77686.c
-@@ -370,7 +370,7 @@ static int max77686_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
- 			goto out;
- 		}
- 
--		ret = regmap_read(info->max77686->regmap,
-+		ret = regmap_read(info->max77686->rtc_regmap,
- 				  map[REG_RTC_AE1], &val);
- 		if (ret < 0) {
- 			dev_err(info->dev,
-@@ -426,7 +426,8 @@ static int max77686_rtc_stop_alarm(struct max77686_rtc_info *info)
- 			goto out;
- 		}
- 
--		ret = regmap_write(info->max77686->regmap, map[REG_RTC_AE1], 0);
-+		ret = regmap_write(info->max77686->rtc_regmap,
-+				   map[REG_RTC_AE1], 0);
- 	} else {
- 		ret = regmap_bulk_read(info->max77686->rtc_regmap,
- 				       map[REG_ALARM1_SEC], data,
-@@ -471,7 +472,7 @@ static int max77686_rtc_start_alarm(struct max77686_rtc_info *info)
- 		goto out;
- 
- 	if (info->drv_data->alarm_enable_reg) {
--		ret = regmap_write(info->max77686->regmap, map[REG_RTC_AE1],
-+		ret = regmap_write(info->max77686->rtc_regmap, map[REG_RTC_AE1],
- 				   MAX77802_ALARM_ENABLE_VALUE);
- 	} else {
- 		ret = regmap_bulk_read(info->max77686->rtc_regmap,
 -- 
-2.1.4
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
 -- 
 -- 
