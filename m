@@ -1,20 +1,22 @@
-Return-Path: <rtc-linux+bncBAABBMN5X62QKGQEVSJEIXQ@googlegroups.com>
-Received: from email.microchip.com (exsmtp03.microchip.com. [198.175.253.49])
-        by gmr-mx.google.com with ESMTPS id u66si3668175pfa.2.2016.02.01.14.39.45
+Return-Path: <rtc-linux+bncBCNNJWF7RUMRBIV7Z62QKGQEBVYUTAQ@googlegroups.com>
+Received: from mail-pf0-x242.google.com (mail-pf0-x242.google.com. [2607:f8b0:400e:c00::242])
+        by gmr-mx.google.com with ESMTPS id tn7si1712815pac.1.2016.02.04.15.32.50
         for <rtc-linux@googlegroups.com>
-        (version=TLS1 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
-        Mon, 01 Feb 2016 14:39:45 -0800 (PST)
-From: Joshua Henderson <joshua.henderson@microchip.com>
-To: <linux-kernel@vger.kernel.org>
-CC: <linux-mips@linux-mips.org>, Joshua Henderson
-	<joshua.henderson@microchip.com>, Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	<rtc-linux@googlegroups.com>
-Subject: [rtc-linux] [PATCH 2/2] rtc: rtc-pic32: Add PIC32 real time clock driver
-Date: Mon, 1 Feb 2016 15:43:22 -0700
-Message-ID: <1454366606-10779-2-git-send-email-joshua.henderson@microchip.com>
-In-Reply-To: <1454366606-10779-1-git-send-email-joshua.henderson@microchip.com>
-References: <1454366606-10779-1-git-send-email-joshua.henderson@microchip.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 04 Feb 2016 15:32:50 -0800 (PST)
+Received: by mail-pf0-x242.google.com with SMTP id 66so4430125pfe.2
+        for <rtc-linux@googlegroups.com>; Thu, 04 Feb 2016 15:32:50 -0800 (PST)
+Date: Thu, 4 Feb 2016 15:32:42 -0800
+From: Joshua Clayton <stillcompiling@gmail.com>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
+ linux-kernel@vger.kernel.org
+Subject: [rtc-linux] Re: [PATCH v3 1/3] rtc: Add functions to set and read rtc offset
+Message-ID: <20160204153242.566a5a1f@jclayton-pc>
+In-Reply-To: <20160204220754.GB4782@piout.net>
+References: <20160202104111.GU20165@piout.net>
+	<1454519804-13770-1-git-send-email-stillcompiling@gmail.com>
+	<20160204220754.GB4782@piout.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
@@ -27,507 +29,120 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-This drivers adds support for the PIC32 real time clock and calendar
-peripheral:
-     - reading and setting time
-     - alarms when connected to an IRQ
+On Thu, 4 Feb 2016 23:07:54 +0100
+Alexandre Belloni <alexandre.belloni@free-electrons.com> wrote:
 
-Signed-off-by: Joshua Henderson <joshua.henderson@microchip.com>
----
- drivers/rtc/Kconfig     |   10 ++
- drivers/rtc/Makefile    |    1 +
- drivers/rtc/rtc-pic32.c |  450 +++++++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 461 insertions(+)
- create mode 100644 drivers/rtc/rtc-pic32.c
+> Hi,
+> 
+> On 03/02/2016 at 09:16:42 -0800, Joshua Clayton wrote :
+> > diff --git a/drivers/rtc/interface.c b/drivers/rtc/interface.c
+> > index 5836751..c064eb9 100644
+> > --- a/drivers/rtc/interface.c
+> > +++ b/drivers/rtc/interface.c
+> > @@ -939,4 +939,61 @@ void rtc_timer_cancel(struct rtc_device *rtc,
+> > struct rtc_timer *timer) mutex_unlock(&rtc->ops_lock);
+> >  }
+> >  
+> > +/**
+> > + * rtc_read_offset - Read the amount of rtc offset in parts per
+> > billion
+> > + * @ rtc: rtc device to be used
+> > + * @ offset: the offset in parts per billion
+> > + *
+> > + * see below for details.
+> > + *
+> > + * Kernel interface to read rtc clock offset
+> > + * Returns 0 on success, or a negative number on error.
+> > + * If the rtc offset is not setable (or not implemented), return 0
+> > and put
+> > + * 0 in the offset value;
+> > + */
+> > +int rtc_read_offset(struct rtc_device *rtc, long *offset)
+> > +{
+> > +	int ret = 0;
+> > +
+> > +	if (!rtc->ops)
+> > +		return -ENODEV;
+> > +
+> > +	if (!rtc->ops->set_offset) {
+> > +		*offset = 0;
+> > +		return 0;
+> > +	}
+> > +
+> 
+> I should have been clearer but this is not necessary anymore since the
+> sysfs interface will not always be present but you
+> should probably test rtc->ops->read_offset instead.
+>
+I left it because the kernel API is still there even if the sysfs
+file is not...
+but yeah, you are right. I'll fix the check, and the formatting
+in the other patch.
 
-diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
-index 376322f..c8fc40e 100644
---- a/drivers/rtc/Kconfig
-+++ b/drivers/rtc/Kconfig
-@@ -1622,6 +1622,16 @@ config RTC_DRV_XGENE
- 	  This driver can also be built as a module, if so, the module
- 	  will be called "rtc-xgene".
- 
-+config RTC_DRV_PIC32
-+	tristate "Microchip PIC32 RTC"
-+	depends on MACH_PIC32
-+	default y
-+	help
-+	   If you say yes here you get support for the PIC32 RTC module.
-+
-+	   This driver can also be built as a module. If so, the module
-+	   will be called rtc-pic32
-+
- comment "HID Sensor RTC drivers"
- 
- config RTC_DRV_HID_SENSOR_TIME
-diff --git a/drivers/rtc/Makefile b/drivers/rtc/Makefile
-index 62d61b2..20c9be5 100644
---- a/drivers/rtc/Makefile
-+++ b/drivers/rtc/Makefile
-@@ -162,3 +162,4 @@ obj-$(CONFIG_RTC_DRV_WM8350)	+= rtc-wm8350.o
- obj-$(CONFIG_RTC_DRV_X1205)	+= rtc-x1205.o
- obj-$(CONFIG_RTC_DRV_XGENE)	+= rtc-xgene.o
- obj-$(CONFIG_RTC_DRV_ZYNQMP)	+= rtc-zynqmp.o
-+obj-$(CONFIG_RTC_DRV_PIC32)	+= rtc-pic32.o
-diff --git a/drivers/rtc/rtc-pic32.c b/drivers/rtc/rtc-pic32.c
-new file mode 100644
-index 0000000..7c46ccb
---- /dev/null
-+++ b/drivers/rtc/rtc-pic32.c
-@@ -0,0 +1,450 @@
-+/*
-+ * PIC32 RTC driver
-+ *
-+ * Joshua Henderson <joshua.henderson@microchip.com>
-+ * Copyright (C) 2016 Microchip Technology Inc.  All rights reserved.
-+ *
-+ * This program is free software; you can distribute it and/or modify it
-+ * under the terms of the GNU General Public License (Version 2) as
-+ * published by the Free Software Foundation.
-+ *
-+ * This program is distributed in the hope it will be useful, but WITHOUT
-+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
-+ * for more details.
-+ */
-+#include <linux/init.h>
-+#include <linux/module.h>
-+#include <linux/of.h>
-+#include <linux/platform_device.h>
-+#include <linux/io.h>
-+#include <linux/slab.h>
-+#include <linux/clk.h>
-+#include <linux/rtc.h>
-+#include <linux/bcd.h>
-+
-+#include <asm/mach-pic32/pic32.h>
-+
-+#define DRIVER_NAME "pic32-rtc"
-+
-+#define PIC32_RTCCON		(0x00)
-+#define PIC32_RTCCON_ON		BIT(15)
-+#define PIC32_RTCCON_SIDL	BIT(13)
-+#define PIC32_RTCCON_RTCCLKSEL	(3 << 9)
-+#define PIC32_RTCCON_RTCCLKON	BIT(6)
-+#define PIC32_RTCCON_RTCWREN	BIT(3)
-+#define PIC32_RTCCON_RTCSYNC	BIT(2)
-+#define PIC32_RTCCON_HALFSEC	BIT(1)
-+#define PIC32_RTCCON_RTCOE	BIT(0)
-+
-+#define PIC32_RTCALRM		(0x10)
-+#define PIC32_RTCALRM_ALRMEN	BIT(15)
-+#define PIC32_RTCALRM_CHIME	BIT(14)
-+#define PIC32_RTCALRM_PIV	BIT(13)
-+#define PIC32_RTCALRM_ALARMSYNC	BIT(12)
-+#define PIC32_RTCALRM_AMASK	(0x0F << 8)
-+#define PIC32_RTCALRM_ARPT	(0xFF << 0)
-+
-+#define PIC32_RTCHOUR		0x23
-+#define PIC32_RTCMIN		0x22
-+#define PIC32_RTCSEC		0x21
-+#define PIC32_RTCYEAR		0x33
-+#define PIC32_RTCMON		0x32
-+#define PIC32_RTCDAY		0x31
-+
-+#define PIC32_ALRMTIME		0x40
-+#define PIC32_ALRMDATE		0x50
-+
-+#define PIC32_ALRMHOUR		0x43
-+#define PIC32_ALRMMIN		0x42
-+#define PIC32_ALRMSEC		0x41
-+#define PIC32_ALRMYEAR		0x53
-+#define PIC32_ALRMMON		0x52
-+#define PIC32_ALRMDAY		0x51
-+
-+struct pic32_rtc_dev {
-+	struct rtc_device	*rtc;
-+	void __iomem		*reg_base;
-+	struct clk		*clk;
-+	spinlock_t		flags_lock;
-+	spinlock_t		alarm_lock;
-+	int			alarm_irq;
-+	bool			alarm_clk_enabled;
-+};
-+
-+static void pic32_rtc_alarm_clk_enable(struct pic32_rtc_dev *pdata,
-+				bool enable)
-+{
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&pdata->alarm_lock, flags);
-+	if (enable) {
-+		if (!pdata->alarm_clk_enabled) {
-+			clk_enable(pdata->clk);
-+			pdata->alarm_clk_enabled = true;
-+		}
-+	} else {
-+		if (pdata->alarm_clk_enabled) {
-+			clk_disable(pdata->clk);
-+			pdata->alarm_clk_enabled = false;
-+		}
-+	}
-+	spin_unlock_irqrestore(&pdata->alarm_lock, flags);
-+}
-+
-+static irqreturn_t pic32_rtc_alarmirq(int irq, void *id)
-+{
-+	struct pic32_rtc_dev *pdata = (struct pic32_rtc_dev *)id;
-+
-+	clk_enable(pdata->clk);
-+	rtc_update_irq(pdata->rtc, 1, RTC_AF | RTC_IRQF);
-+	clk_disable(pdata->clk);
-+
-+	pic32_rtc_alarm_clk_enable(pdata, false);
-+
-+	return IRQ_HANDLED;
-+}
-+
-+static int pic32_rtc_setaie(struct device *dev, unsigned int enabled)
-+{
-+	struct pic32_rtc_dev *pdata = dev_get_drvdata(dev);
-+	void __iomem *base = pdata->reg_base;
-+
-+	clk_enable(pdata->clk);
-+
-+	writel(PIC32_RTCALRM_ALRMEN,
-+		base + (enabled ? PIC32_SET(PIC32_RTCALRM) :
-+			PIC32_CLR(PIC32_RTCALRM)));
-+
-+	clk_disable(pdata->clk);
-+
-+	pic32_rtc_alarm_clk_enable(pdata, enabled);
-+
-+	return 0;
-+}
-+
-+static int pic32_rtc_setfreq(struct device *dev, int freq)
-+{
-+	struct pic32_rtc_dev *pdata = dev_get_drvdata(dev);
-+	void __iomem *base = pdata->reg_base;
-+	unsigned long flags;
-+
-+	clk_enable(pdata->clk);
-+	spin_lock_irqsave(&pdata->flags_lock, flags);
-+
-+	writel(PIC32_RTCALRM_AMASK, base + PIC32_CLR(PIC32_RTCALRM));
-+	writel(freq << 8, base + PIC32_SET(PIC32_RTCALRM));
-+	writel(PIC32_RTCALRM_CHIME, base + PIC32_SET(PIC32_RTCALRM));
-+
-+	spin_unlock_irqrestore(&pdata->flags_lock, flags);
-+	clk_disable(pdata->clk);
-+
-+	return 0;
-+}
-+
-+static int pic32_rtc_gettime(struct device *dev, struct rtc_time *rtc_tm)
-+{
-+	struct pic32_rtc_dev *pdata = dev_get_drvdata(dev);
-+	void __iomem *base = pdata->reg_base;
-+	unsigned int have_retried = 0;
-+
-+	clk_enable(pdata->clk);
-+retry_get_time:
-+	rtc_tm->tm_hour = readb(base + PIC32_RTCHOUR);
-+	rtc_tm->tm_min = readb(base + PIC32_RTCMIN);
-+	rtc_tm->tm_mon  = readb(base + PIC32_RTCMON);
-+	rtc_tm->tm_mday = readb(base + PIC32_RTCDAY);
-+	rtc_tm->tm_year = readb(base + PIC32_RTCYEAR);
-+	rtc_tm->tm_sec  = readb(base + PIC32_RTCSEC);
-+
-+	/*
-+	 * The only way to work out whether the system was mid-update
-+	 * when we read it is to check the second counter, and if it
-+	 * is zero, then we re-try the entire read.
-+	 */
-+
-+	if (rtc_tm->tm_sec == 0 && !have_retried) {
-+		have_retried = 1;
-+		goto retry_get_time;
-+	}
-+
-+	rtc_tm->tm_sec = bcd2bin(rtc_tm->tm_sec);
-+	rtc_tm->tm_min = bcd2bin(rtc_tm->tm_min);
-+	rtc_tm->tm_hour = bcd2bin(rtc_tm->tm_hour);
-+	rtc_tm->tm_mday = bcd2bin(rtc_tm->tm_mday);
-+	rtc_tm->tm_mon = bcd2bin(rtc_tm->tm_mon);
-+	rtc_tm->tm_year = bcd2bin(rtc_tm->tm_year);
-+
-+	rtc_tm->tm_year += 100;
-+
-+	dev_dbg(dev, "read time %04d.%02d.%02d %02d:%02d:%02d\n",
-+		1900 + rtc_tm->tm_year, rtc_tm->tm_mon, rtc_tm->tm_mday,
-+		rtc_tm->tm_hour, rtc_tm->tm_min, rtc_tm->tm_sec);
-+
-+	rtc_tm->tm_mon -= 1;
-+
-+	clk_disable(pdata->clk);
-+	return rtc_valid_tm(rtc_tm);
-+}
-+
-+static int pic32_rtc_settime(struct device *dev, struct rtc_time *tm)
-+{
-+	struct pic32_rtc_dev *pdata = dev_get_drvdata(dev);
-+	void __iomem *base = pdata->reg_base;
-+	int year = tm->tm_year - 100;
-+
-+	dev_dbg(dev, "set time %04d.%02d.%02d %02d:%02d:%02d\n",
-+		1900 + tm->tm_year, tm->tm_mon, tm->tm_mday,
-+		tm->tm_hour, tm->tm_min, tm->tm_sec);
-+
-+	if (year < 0 || year >= 100) {
-+		dev_err(dev, "rtc only supports 100 years\n");
-+		return -EINVAL;
-+	}
-+
-+	clk_enable(pdata->clk);
-+	writeb(bin2bcd(tm->tm_sec),  base + PIC32_RTCSEC);
-+	writeb(bin2bcd(tm->tm_min),  base + PIC32_RTCMIN);
-+	writeb(bin2bcd(tm->tm_hour), base + PIC32_RTCHOUR);
-+	writeb(bin2bcd(tm->tm_mday), base + PIC32_RTCDAY);
-+	writeb(bin2bcd(tm->tm_mon + 1), base + PIC32_RTCMON);
-+	writeb(bin2bcd(year), base + PIC32_RTCYEAR);
-+	clk_disable(pdata->clk);
-+
-+	return 0;
-+}
-+
-+static int pic32_rtc_getalarm(struct device *dev, struct rtc_wkalrm *alrm)
-+{
-+	struct pic32_rtc_dev *pdata = dev_get_drvdata(dev);
-+	struct rtc_time *alm_tm = &alrm->time;
-+	void __iomem *base = pdata->reg_base;
-+	unsigned int alm_en;
-+
-+	clk_enable(pdata->clk);
-+	alm_tm->tm_sec  = readb(base + PIC32_ALRMSEC);
-+	alm_tm->tm_min  = readb(base + PIC32_ALRMMIN);
-+	alm_tm->tm_hour = readb(base + PIC32_ALRMHOUR);
-+	alm_tm->tm_mon  = readb(base + PIC32_ALRMMON);
-+	alm_tm->tm_mday = readb(base + PIC32_ALRMDAY);
-+	alm_tm->tm_year = readb(base + PIC32_ALRMYEAR);
-+
-+	alm_en = readb(base + PIC32_RTCALRM);
-+
-+	alrm->enabled = (alm_en & PIC32_RTCALRM_ALRMEN) ? 1 : 0;
-+
-+	dev_dbg(dev, "getalarm: %d, %04d.%02d.%02d %02d:%02d:%02d\n",
-+		alm_en,
-+		1900 + alm_tm->tm_year, alm_tm->tm_mon, alm_tm->tm_mday,
-+		alm_tm->tm_hour, alm_tm->tm_min, alm_tm->tm_sec);
-+
-+	alm_tm->tm_sec = bcd2bin(alm_tm->tm_sec);
-+	alm_tm->tm_min = bcd2bin(alm_tm->tm_min);
-+	alm_tm->tm_hour = bcd2bin(alm_tm->tm_hour);
-+	alm_tm->tm_mday = bcd2bin(alm_tm->tm_mday);
-+	alm_tm->tm_mon = bcd2bin(alm_tm->tm_mon);
-+	alm_tm->tm_mon -= 1;
-+	alm_tm->tm_year = bcd2bin(alm_tm->tm_year);
-+
-+	clk_disable(pdata->clk);
-+	return 0;
-+}
-+
-+static int pic32_rtc_setalarm(struct device *dev, struct rtc_wkalrm *alrm)
-+{
-+	struct pic32_rtc_dev *pdata = dev_get_drvdata(dev);
-+	struct rtc_time *tm = &alrm->time;
-+	void __iomem *base = pdata->reg_base;
-+
-+	clk_enable(pdata->clk);
-+	dev_dbg(dev, "setalarm: %d, %04d.%02d.%02d %02d:%02d:%02d\n",
-+		alrm->enabled,
-+		1900 + tm->tm_year, tm->tm_mon + 1, tm->tm_mday,
-+		tm->tm_hour, tm->tm_min, tm->tm_sec);
-+
-+	writel(0x00, base + PIC32_ALRMTIME);
-+	writel(0x00, base + PIC32_ALRMDATE);
-+
-+	if (tm->tm_sec < 60 && tm->tm_sec >= 0)
-+		writeb(bin2bcd(tm->tm_sec), base + PIC32_ALRMSEC);
-+
-+	if (tm->tm_min < 60 && tm->tm_min >= 0)
-+		writeb(bin2bcd(tm->tm_min), base + PIC32_ALRMMIN);
-+
-+	if (tm->tm_hour < 24 && tm->tm_hour >= 0)
-+		writeb(bin2bcd(tm->tm_hour), base + PIC32_ALRMHOUR);
-+
-+	pic32_rtc_setaie(dev, alrm->enabled);
-+
-+	clk_disable(pdata->clk);
-+	return 0;
-+}
-+
-+static int pic32_rtc_proc(struct device *dev, struct seq_file *seq)
-+{
-+	struct pic32_rtc_dev *pdata = dev_get_drvdata(dev);
-+	void __iomem *base = pdata->reg_base;
-+	unsigned int repeat;
-+
-+	clk_enable(pdata->clk);
-+
-+	repeat = readw(base + PIC32_RTCALRM);
-+	repeat &= PIC32_RTCALRM_ARPT;
-+	seq_printf(seq, "periodic_IRQ\t: %s\n", repeat  ? "yes" : "no");
-+
-+	clk_disable(pdata->clk);
-+	return 0;
-+}
-+
-+static const struct rtc_class_ops pic32_rtcops = {
-+	.read_time	  = pic32_rtc_gettime,
-+	.set_time	  = pic32_rtc_settime,
-+	.read_alarm	  = pic32_rtc_getalarm,
-+	.set_alarm	  = pic32_rtc_setalarm,
-+	.proc		  = pic32_rtc_proc,
-+	.alarm_irq_enable = pic32_rtc_setaie,
-+};
-+
-+static void pic32_rtc_enable(struct pic32_rtc_dev *pdata, int en)
-+{
-+	void __iomem *base = pdata->reg_base;
-+
-+	if (base == NULL)
-+		return;
-+
-+	clk_enable(pdata->clk);
-+	if (!en) {
-+		writel(PIC32_RTCCON_ON, base + PIC32_CLR(PIC32_RTCCON));
-+	} else {
-+
-+		pic32_syskey_unlock();
-+
-+		writel(PIC32_RTCCON_RTCWREN, base + PIC32_SET(PIC32_RTCCON));
-+		writel(3 << 9, base + PIC32_CLR(PIC32_RTCCON));
-+
-+		if (!(readl(base + PIC32_RTCCON) & PIC32_RTCCON_ON))
-+			writel(PIC32_RTCCON_ON, base + PIC32_SET(PIC32_RTCCON));
-+	}
-+	clk_disable(pdata->clk);
-+}
-+
-+static int pic32_rtc_remove(struct platform_device *pdev)
-+{
-+	struct pic32_rtc_dev *pdata = platform_get_drvdata(pdev);
-+
-+	pic32_rtc_setaie(&pdev->dev, 0);
-+	clk_unprepare(pdata->clk);
-+	pdata->clk = NULL;
-+
-+	return 0;
-+}
-+
-+static int pic32_rtc_probe(struct platform_device *pdev)
-+{
-+	struct pic32_rtc_dev *pdata;
-+	struct rtc_time rtc_tm;
-+	struct resource *res;
-+	int ret;
-+
-+	pdata = devm_kzalloc(&pdev->dev, sizeof(*pdata), GFP_KERNEL);
-+	if (!pdata)
-+		return -ENOMEM;
-+
-+	platform_set_drvdata(pdev, pdata);
-+
-+	pdata->alarm_irq = platform_get_irq(pdev, 0);
-+	if (pdata->alarm_irq < 0) {
-+		dev_err(&pdev->dev, "no irq for alarm\n");
-+		return pdata->alarm_irq;
-+	}
-+
-+	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-+	pdata->reg_base = devm_ioremap_resource(&pdev->dev, res);
-+	if (IS_ERR(pdata->reg_base))
-+		return PTR_ERR(pdata->reg_base);
-+
-+	pdata->clk = devm_clk_get(&pdev->dev, NULL);
-+	if (IS_ERR(pdata->clk)) {
-+		dev_err(&pdev->dev, "failed to find rtc clock source\n");
-+		ret = PTR_ERR(pdata->clk);
-+		pdata->clk = NULL;
-+		return ret;
-+	}
-+
-+	spin_lock_init(&pdata->flags_lock);
-+	spin_lock_init(&pdata->alarm_lock);
-+
-+	clk_prepare_enable(pdata->clk);
-+
-+	pic32_rtc_enable(pdata, 1);
-+
-+	device_init_wakeup(&pdev->dev, 1);
-+
-+	pdata->rtc = devm_rtc_device_register(&pdev->dev, pdev->name,
-+						 &pic32_rtcops,
-+						 THIS_MODULE);
-+	if (IS_ERR(pdata->rtc)) {
-+		ret = PTR_ERR(pdata->rtc);
-+		goto err_nortc;
-+	}
-+
-+	pic32_rtc_gettime(&pdev->dev, &rtc_tm);
-+
-+	if (rtc_valid_tm(&rtc_tm)) {
-+		rtc_tm.tm_year	= 100;
-+		rtc_tm.tm_mon	= 0;
-+		rtc_tm.tm_mday	= 1;
-+		rtc_tm.tm_hour	= 0;
-+		rtc_tm.tm_min	= 0;
-+		rtc_tm.tm_sec	= 0;
-+
-+		pic32_rtc_settime(NULL, &rtc_tm);
-+
-+		dev_warn(&pdev->dev,
-+			"warning: invalid RTC value so initializing it\n");
-+	}
-+
-+	pdata->rtc->max_user_freq = 128;
-+
-+	pic32_rtc_setfreq(&pdev->dev, 1);
-+	ret = devm_request_irq(&pdev->dev, pdata->alarm_irq,
-+			pic32_rtc_alarmirq, 0,
-+			dev_name(&pdev->dev), pdata);
-+	if (ret) {
-+		dev_err(&pdev->dev,
-+			"IRQ %d error %d\n", pdata->alarm_irq, ret);
-+		goto err_nortc;
-+	}
-+
-+	clk_disable(pdata->clk);
-+
-+	return 0;
-+
-+err_nortc:
-+	pic32_rtc_enable(pdata, 0);
-+	clk_disable_unprepare(pdata->clk);
-+
-+	return ret;
-+}
-+
-+static const struct of_device_id pic32_rtc_dt_ids[] = {
-+	{ .compatible = "microchip,pic32mzda-rtc" },
-+	{ /* sentinel */ }
-+};
-+MODULE_DEVICE_TABLE(of, pic32_rtc_dt_ids);
-+
-+static struct platform_driver pic32_rtc_driver = {
-+	.probe		= pic32_rtc_probe,
-+	.remove		= pic32_rtc_remove,
-+	.driver		= {
-+		.name	= DRIVER_NAME,
-+		.owner	= THIS_MODULE,
-+		.of_match_table	= of_match_ptr(pic32_rtc_dt_ids),
-+	},
-+};
-+module_platform_driver(pic32_rtc_driver);
-+
-+MODULE_DESCRIPTION("Microchip PIC32 RTC Driver");
-+MODULE_AUTHOR("Joshua Henderson <joshua.henderson@microchip.com>");
-+MODULE_LICENSE("GPL");
-+MODULE_ALIAS("platform:" DRIVER_NAME);
--- 
-1.7.9.5
+> > +	mutex_lock(&rtc->ops_lock);
+> > +	ret = rtc->ops->read_offset(rtc->dev.parent, offset);
+> > +	mutex_unlock(&rtc->ops_lock);
+> > +	return ret;
+> > +}
+> >  
+> > +/**
+> > + * rtc_set_offset - Adjusts the duration of the average second
+> > + * @ rtc: rtc device to be used
+> > + * @ offset: the offset in parts per billion
+> > + *
+> > + * Some rtc's allow an adjustment to the average duration of a
+> > second
+> > + * to compensate for differences in the actual clock rate due to
+> > temperature,
+> > + * the crystal, capacitor, etc.
+> > + *
+> > + * Kernel interface to adjust an rtc clock offset.
+> > + * Return 0 on success, or a negative number on error.
+> > + * If the rtc offset is not setable (or not implemented), return
+> > -EINVAL
+> > + */
+> > +int rtc_set_offset(struct rtc_device *rtc, long offset)
+> > +{
+> > +	int ret = 0;
+> > +
+> > +	if (!rtc->ops)
+> > +		return -ENODEV;
+> > +
+> > +	if (!rtc->ops->set_offset)
+> > +		return -EINVAL;
+> > +
+> > +	mutex_lock(&rtc->ops_lock);
+> > +	ret = rtc->ops->set_offset(rtc->dev.parent, offset);
+> > +	mutex_unlock(&rtc->ops_lock);
+> > +	return ret;
+> > +}
+> > diff --git a/include/linux/rtc.h b/include/linux/rtc.h
+> > index 3359f04..b693ada 100644
+> > --- a/include/linux/rtc.h
+> > +++ b/include/linux/rtc.h
+> > @@ -89,6 +89,8 @@ struct rtc_class_ops {
+> >  	int (*set_mmss)(struct device *, unsigned long secs);
+> >  	int (*read_callback)(struct device *, int data);
+> >  	int (*alarm_irq_enable)(struct device *, unsigned int
+> > enabled);
+> > +	int (*read_offset)(struct device *, long *offset);
+> > +	int (*set_offset)(struct device *, long offset);
+> >  };
+> >  
+> >  #define RTC_DEVICE_NAME_SIZE 20
+> > @@ -208,6 +210,8 @@ void rtc_timer_init(struct rtc_timer *timer,
+> > void (*f)(void *p), void *data); int rtc_timer_start(struct
+> > rtc_device *rtc, struct rtc_timer *timer, ktime_t expires, ktime_t
+> > period); void rtc_timer_cancel(struct rtc_device *rtc, struct
+> > rtc_timer *timer); +int rtc_read_offset(struct rtc_device *rtc,
+> > long *offset); +int rtc_set_offset(struct rtc_device *rtc, long
+> > offset); void rtc_timer_do_work(struct work_struct *work);
+> >  
+> >  static inline bool is_leap_year(unsigned int year)
+> > -- 
+> > 2.5.0
+> > 
+> 
 
 -- 
 -- 
