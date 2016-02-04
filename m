@@ -1,25 +1,22 @@
-Return-Path: <rtc-linux+bncBCNNJWF7RUMRBF4NX62QKGQE4XIBXBQ@googlegroups.com>
-Received: from mail-pf0-x243.google.com (mail-pf0-x243.google.com. [2607:f8b0:400e:c00::243])
-        by gmr-mx.google.com with ESMTPS id jg4si3561805pac.2.2016.02.01.12.56.55
+Return-Path: <rtc-linux+bncBD2OLRXW4ABBBJP6ZK2QKGQEXF6THCY@googlegroups.com>
+Received: from hqemgate14.nvidia.com (hqemgate14.nvidia.com. [216.228.121.143])
+        by gmr-mx.google.com with ESMTPS id tn7si1241601pac.1.2016.02.03.19.01.57
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 01 Feb 2016 12:56:55 -0800 (PST)
-Received: by mail-pf0-x243.google.com with SMTP id 65so7974890pfd.1
-        for <rtc-linux@googlegroups.com>; Mon, 01 Feb 2016 12:56:55 -0800 (PST)
-Date: Mon, 1 Feb 2016 12:56:48 -0800
-From: Joshua Clayton <stillcompiling@gmail.com>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
- linux-kernel@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH v2 7/8] rtc: implement a sysfs interface for
- clock offset
-Message-ID: <20160201125648.37475997@jclayton-pc>
-In-Reply-To: <20160131114115.GJ20165@piout.net>
-References: <0000-cover-letter.patch>
-	<8361752a4e0c524e15cbed36d03eb3eb9b187815.1451929910.git.stillcompiling@gmail.com>
-	<20160131114115.GJ20165@piout.net>
+        Wed, 03 Feb 2016 19:01:57 -0800 (PST)
+Message-ID: <56B2BC7B.4070807@nvidia.com>
+Date: Thu, 4 Feb 2016 08:20:35 +0530
+From: Laxman Dewangan <ldewangan@nvidia.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+To: Krzysztof Kozlowski <k.kozlowski@samsung.com>, <lee.jones@linaro.org>,
+	<alexandre.belloni@free-electrons.com>, <javier@osg.samsung.com>
+CC: <cw00.choi@samsung.com>, <linux-kernel@vger.kernel.org>,
+	<rtc-linux@googlegroups.com>
+Subject: [rtc-linux] Re: [PATCH V3 5/5] rtc: max77686: move initialisation of
+ rtc regmap, irq chip locally
+References: <1454507233-9959-1-git-send-email-ldewangan@nvidia.com> <1454507233-9959-6-git-send-email-ldewangan@nvidia.com> <56B296F6.3060002@samsung.com> <56B2B17A.1000509@nvidia.com>
+In-Reply-To: <56B2B17A.1000509@nvidia.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -30,34 +27,62 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Sun, 31 Jan 2016 12:41:15 +0100
-Alexandre Belloni <alexandre.belloni@free-electrons.com> wrote:
+Hi Javier,
 
-> Hi,
-> 
-> On 04/01/2016 at 10:31:25 -0800, Joshua Clayton wrote :
-> > The file is called "offset", and may be set and read in decimal.
-> > For rtcs that do not have read_offset or set_offset implemented,
-> > read always returns zero and write will return -EINVAL.
-> > 
-> Can you expand rtc_attr_is_visible() instead of having the offset file
-> always present?
+On Thursday 04 February 2016 07:33 AM, Laxman Dewangan wrote:
+>
+> On Thursday 04 February 2016 05:40 AM, Krzysztof Kozlowski wrote:
+>> On 03.02.2016 22:47, Laxman Dewangan wrote:
+>>>
+>>> Changes from V2:
+>>> - Taken care of missed sequence for removing the resource.
+>>> - Fix the crash when doing unbind by using requested_threaded_irq()
+>>>    instead of demv_requested_threaded_irq().
+>>>
+>>>   drivers/mfd/max77686.c               |  85 +-------------------
+>>>   drivers/rtc/rtc-max77686.c           | 148 
+>>> ++++++++++++++++++++++++++++++-----
+>>>   include/linux/mfd/max77686-private.h |   3 -
+>>>   3 files changed, 130 insertions(+), 106 deletions(-)
+>>>
+>> Looks good and works properly (RTC, unbind/rebind, wakealarm again)
+>> but... after applying this patch the device cannot suspend to RAM after
+>> unbind/rebind.
+>>
+>> Reproduce path, after booting:
+>> $ echo max77686-rtc > /sys/bus/platform/drivers/max77686-rtc/unbind
+>> $ echo max77686-rtc > /sys/bus/platform/drivers/max77686-rtc/bind
+>> $ rtcwake -d rtc2 -m mem -s 5 -v
+>> (or instead of rtcwake: echo mem > /sys/power/state)
+>
 
-Yes, Absolutely.
-I wanted to do something like this, but didn't know is_visible
-existed... and no wonder. Its in attribute_group
+Can you please also try to test in your setup which have MAX77802?
+On this, we do not create i2c client and do regmap_init_i2c. So may be 
+it helps on narrow down the issue.
 
-> 
-> Also, you need to expand Documentation/rtc.txt, section SYSFS
-> INTERFACE.
-> 
-OK. Will do.
-
-> I'm fine with having parts per billion as the unit and I hope we won't
-> ever need anything more precise :)
-> 
-It is orders of magnitude more than needed at present
-...and no will ever need more than 640k of memory... right?
+>
+> My device does not support suspend and hence I can nto test this part 
+> and need your help to debug it.
+>
+> Few question to narrow down:
+> 1. Have you try to bind/unbind mfd driver to make sure that there is 
+> no inherent issue in the framework driver?
+>
+> 2. Does suspend entry and wake alarm work if you dont do unbind and 
+> just bind it and enter into suspend?
+>
+> 3. Can you try locally to not use devm_regmap_init_i2c() and just use 
+> the regmap_init_i2c() and proper removal of this from error path and 
+> remove callback?
+>
+>
+>
+> Three things we are doing new on this movement, i2c client creating, 
+> regmap_init and adding irq chip.
+> And probably some issue on this calls?
+> Let's try with not using devm_ * for this calls?
+>
+>
 
 -- 
 -- 
