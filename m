@@ -1,28 +1,23 @@
-Return-Path: <rtc-linux+bncBCNNJWF7RUMRBBMS2S2QKGQEDRV33KY@googlegroups.com>
-MIME-Version: 1.0
-Received: from mail-pf0-x243.google.com (mail-pf0-x243.google.com. [2607:f8b0:400e:c00::243])
-        by gmr-mx.google.com with ESMTPS id r2si2462936pfr.0.2016.02.05.12.41.41
+Return-Path: <rtc-linux+bncBD2OLRXW4ABBBOXM2K2QKGQENA6TBOQ@googlegroups.com>
+Received: from hqemgate14.nvidia.com (hqemgate14.nvidia.com. [216.228.121.143])
+        by gmr-mx.google.com with ESMTPS id tn7si2140962pac.1.2016.02.05.06.48.26
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 05 Feb 2016 12:41:41 -0800 (PST)
-Received: by mail-pf0-x243.google.com with SMTP id 71so614720pfv.1
-        for <rtc-linux@googlegroups.com>; Fri, 05 Feb 2016 12:41:41 -0800 (PST)
-From: Joshua Clayton <stillcompiling@gmail.com>
-To: Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Jonathan Corbet <corbet@lwn.net>,
-	rtc-linux@googlegroups.com,
-	linux-doc@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Joshua Clayton <stillcompiling@gmail.com>
-Subject: [rtc-linux] [PATCH v4 3/3] rtc-pcf2123: implement read_offset and set_offset
-Date: Fri,  5 Feb 2016 12:41:13 -0800
-Message-Id: <1454704873-31066-3-git-send-email-stillcompiling@gmail.com>
-In-Reply-To: <1454704873-31066-1-git-send-email-stillcompiling@gmail.com>
-References: <20160205143908.GJ4782@piout.net>
- <1454704873-31066-1-git-send-email-stillcompiling@gmail.com>
+        Fri, 05 Feb 2016 06:48:26 -0800 (PST)
+Message-ID: <56B4B38C.3030805@nvidia.com>
+Date: Fri, 5 Feb 2016 20:07:00 +0530
+From: Laxman Dewangan <ldewangan@nvidia.com>
+MIME-Version: 1.0
+To: Krzysztof Kozlowski <k.kozlowski@samsung.com>, <lee.jones@linaro.org>,
+	<alexandre.belloni@free-electrons.com>, <javier@osg.samsung.com>
+CC: <cw00.choi@samsung.com>, <linux-kernel@vger.kernel.org>,
+	<rtc-linux@googlegroups.com>
+Subject: [rtc-linux] Re: [PATCH V3 5/5] rtc: max77686: move initialisation of
+ rtc regmap, irq chip locally
+References: <1454507233-9959-1-git-send-email-ldewangan@nvidia.com> <1454507233-9959-6-git-send-email-ldewangan@nvidia.com> <56B296F6.3060002@samsung.com> <56B2B17A.1000509@nvidia.com> <56B2F6A2.5060103@samsung.com> <56B314F4.6010605@samsung.com>
+In-Reply-To: <56B314F4.6010605@samsung.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Reply-To: rtc-linux@googlegroups.com
-Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -32,99 +27,49 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-pcf2123 has an offset register, which can be used to make minor
-adjustments to the clock rate to compensate for temperature or
-a crystal that is not exactly right.
+Hi Krzysztof, Javier,
 
-Signed-off-by: Joshua Clayton <stillcompiling@gmail.com>
----
- drivers/rtc/rtc-pcf2123.c | 57 +++++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 57 insertions(+)
+On Thursday 04 February 2016 02:38 PM, Krzysztof Kozlowski wrote:
+> On 04.02.2016 15:58, Krzysztof Kozlowski wrote:
+>>> 3. Can you try locally to not use devm_regmap_init_i2c() and just use
+>>> the regmap_init_i2c() and proper removal of this from error path and
+>>> remove callback?
+>> I'll try to find some time for that. Maybe tomorrow.
+> regmap_init_i2c does not help. However helps commenting out the:
+> 	regmap_del_irq_chip(info->rtc_irq, info->rtc_irq_data);
+> from remove() callback.
+>
+>
 
-diff --git a/drivers/rtc/rtc-pcf2123.c b/drivers/rtc/rtc-pcf2123.c
-index d9a44ad..da27738 100644
---- a/drivers/rtc/rtc-pcf2123.c
-+++ b/drivers/rtc/rtc-pcf2123.c
-@@ -100,6 +100,7 @@
- /* PCF2123_REG_OFFSET BITS */
- #define OFFSET_SIGN_BIT		BIT(6)	/* 2's complement sign bit */
- #define OFFSET_COARSE		BIT(7)	/* Coarse mode offset */
-+#define OFFSET_STEP		(2170)	/* Offset step in parts per billion */
- 
- /* READ/WRITE ADDRESS BITS */
- #define PCF2123_WRITE		BIT(4)
-@@ -206,6 +207,59 @@ static ssize_t pcf2123_store(struct device *dev, struct device_attribute *attr,
- 	return count;
- }
- 
-+static int pcf2123_read_offset(struct device *dev, long *offset)
-+{
-+	int ret;
-+	s8 reg;
-+
-+	ret = pcf2123_read(dev, PCF2123_REG_OFFSET, &reg, 1);
-+	if (ret < 0)
-+		return ret;
-+
-+	if (reg & OFFSET_COARSE)
-+		reg <<= 1; /* multiply by 2 and sign extend */
-+	else
-+		reg |= (reg & OFFSET_SIGN_BIT) << 1; /* sign extend only */
-+
-+	*offset = ((long)reg) * OFFSET_STEP;
-+
-+	return 0;
-+}
-+
-+/*
-+ * The offset register is a 7 bit signed value with a coarse bit in bit 7.
-+ * The main difference between the two is normal offset adjusts the first
-+ * second of n minutes every other hour, with 61, 62 and 63 being shoved
-+ * into the 60th minute.
-+ * The coarse adjustment does the same, but every hour.
-+ * the two overlap, with every even normal offset value corresponding
-+ * to a coarse offset. Based on this algorithm, it seems that despite the
-+ * name, coarse offset is a better fit for overlapping values.
-+ */
-+static int pcf2123_set_offset(struct device *dev, long offset)
-+{
-+	s8 reg;
-+
-+	if (offset > OFFSET_STEP * 127)
-+		reg = 127;
-+	else if (offset < OFFSET_STEP * -128)
-+		reg = -128;
-+	else
-+		reg = (s8)((offset + (OFFSET_STEP >> 1)) / OFFSET_STEP);
-+
-+	/* choose fine offset only for odd values in the normal range */
-+	if (reg & 1 && reg <= 63 && reg >= -64) {
-+		/* Normal offset. Clear the coarse bit */
-+		reg &= ~OFFSET_COARSE;
-+	} else {
-+		/* Coarse offset. Divide by 2 and set the coarse bit */
-+		reg >>= 1;
-+		reg |= OFFSET_COARSE;
-+	}
-+
-+	return pcf2123_write_reg(dev, PCF2123_REG_OFFSET, reg);
-+}
-+
- static int pcf2123_rtc_read_time(struct device *dev, struct rtc_time *tm)
- {
- 	u8 rxbuf[7];
-@@ -314,6 +368,9 @@ static int pcf2123_reset(struct device *dev)
- static const struct rtc_class_ops pcf2123_rtc_ops = {
- 	.read_time	= pcf2123_rtc_read_time,
- 	.set_time	= pcf2123_rtc_set_time,
-+	.read_offset	= pcf2123_read_offset,
-+	.set_offset	= pcf2123_set_offset,
-+
- };
- 
- static int pcf2123_probe(struct spi_device *spi)
--- 
-2.5.0
+I am trying to reproduce this in my system but I am ending up with 
+different issue as it need to enable the suspend.
+can you please help on following experiment:
+1. In probe/init, do
+    regmap_add_irq_chip()
+   regmap_del_irq_chip() and then
+   regmap_add_irq_chip() and
+then without unbind()/bind(), working or not?
+
+   This is to make sure that it is universal issue rather than calling 
+from remove callback only.
+
+2. Do regmap_add_irq_chip() but dont do any interrupt registration i.e. 
+comment regmap_irq_get_virq() and request_threaded_irq() and hence 
+free_irq().
+Then do unbind/bind and then suspend.
+   To make sure that this happen when only we have client registered 
+interrupt.
+
+3. Extension of 2
+Do regmap_add_irq_chip(), call  regmap_irq_get_virq() for creating irq 
+mapping but dont do any interrupt registration i.e. comment 
+request_threaded_irq() and hence free_irq().
+Then do unbind/bind and then suspend.
+   To make sure that this happen when only we have client registered 
+interrupt or with mapping also.
+
+
+Thanks for help in advance.
 
 -- 
 -- 
