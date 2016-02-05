@@ -1,26 +1,35 @@
-Return-Path: <rtc-linux+bncBCPM5SUWUYIRBE5US63AKGQENT2SHNY@googlegroups.com>
-MIME-Version: 1.0
-Received: from mail-pa0-x22d.google.com (mail-pa0-x22d.google.com. [2607:f8b0:400e:c03::22d])
-        by gmr-mx.google.com with ESMTPS id 79si1002499pft.0.2016.02.18.06.49.55
+Return-Path: <rtc-linux+bncBDE6RCFOWIARBJXM2K2QKGQELO2VN6A@googlegroups.com>
+Received: from mail-ob0-x22f.google.com (mail-ob0-x22f.google.com. [2607:f8b0:4003:c01::22f])
+        by gmr-mx.google.com with ESMTPS id kr4si145437igb.0.2016.02.05.06.48.06
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 18 Feb 2016 06:49:55 -0800 (PST)
-Received: by mail-pa0-x22d.google.com with SMTP id fy10so31981277pac.1
-        for <rtc-linux@googlegroups.com>; Thu, 18 Feb 2016 06:49:55 -0800 (PST)
-From: Akinobu Mita <akinobu.mita@gmail.com>
-To: rtc-linux@googlegroups.com
-Cc: Akinobu Mita <akinobu.mita@gmail.com>,
+        Fri, 05 Feb 2016 06:48:06 -0800 (PST)
+Received: by mail-ob0-x22f.google.com with SMTP id xk3so90155858obc.2
+        for <rtc-linux@googlegroups.com>; Fri, 05 Feb 2016 06:48:06 -0800 (PST)
+MIME-Version: 1.0
+In-Reply-To: <1454171931-27752-4-git-send-email-ldewangan@nvidia.com>
+References: <1454171931-27752-1-git-send-email-ldewangan@nvidia.com>
+	<1454171931-27752-4-git-send-email-ldewangan@nvidia.com>
+Date: Fri, 5 Feb 2016 15:48:05 +0100
+Message-ID: <CACRpkda+z19COrBBhwZks_69w-BEyOjQMHnadjdRVic+3uN_7g@mail.gmail.com>
+Subject: [rtc-linux] Re: [PATCH V7 3/8] pinctrl: add DT binding doc for
+ pincontrol of PMIC max77620/max20024
+From: Linus Walleij <linus.walleij@linaro.org>
+To: Laxman Dewangan <ldewangan@nvidia.com>
+Cc: Rob Herring <robh+dt@kernel.org>, =?UTF-8?Q?Pawe=C5=82_Moll?= <pawel.moll@arm.com>,
+	Mark Rutland <mark.rutland@arm.com>,
+	"ijc+devicetree@hellion.org.uk" <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>,
+	Alexandre Courbot <gnurou@gmail.com>, Lee Jones <lee.jones@linaro.org>, Mark Brown <broonie@kernel.org>,
 	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Dennis Aberilla <denzzzhome@yahoo.com>
-Subject: [rtc-linux] [PATCH v2 4/4] rtc: ds3232-core: fix read on /dev/rtc
- after RTC_AIE_ON
-Date: Thu, 18 Feb 2016 23:49:32 +0900
-Message-Id: <1455806972-27284-4-git-send-email-akinobu.mita@gmail.com>
-In-Reply-To: <1455806972-27284-1-git-send-email-akinobu.mita@gmail.com>
-References: <1455806972-27284-1-git-send-email-akinobu.mita@gmail.com>
-Reply-To: rtc-linux@googlegroups.com
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>, Liam Girdwood <lgirdwood@gmail.com>,
+	"devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+	"linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>,
+	"rtc-linux@googlegroups.com" <rtc-linux@googlegroups.com>, Stephen Warren <swarren@nvidia.com>,
+	Thierry Reding <treding@nvidia.com>, =?UTF-8?Q?Krzysztof_Koz=C5=82owski?= <k.kozlowski@samsung.com>,
+	vreddytalla@nvidia.com
 Content-Type: text/plain; charset=UTF-8
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -30,64 +39,26 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-The rtctest (tools/testing/selftests/timers/rtctest.c) found that
-reading ds3232 rtc device immediately return the value 0x20 (RTC_AF)
-without waiting alarm interrupt.
+On Sat, Jan 30, 2016 at 5:38 PM, Laxman Dewangan <ldewangan@nvidia.com> wrote:
 
-This is because alarm_irq_enable() of ds3232 driver changes RTC_AF
-flag in rtc->irq_data.  So calling ioctl with RTC_AIE_ON generates
-invalid value in rtc device.
+> Maxim Semiconductor's PMIC MAX77620/MAX20024 has 8 GPIO pins
+> which act as GPIO as well as special function mode.
+>
+> Add DT binding document to configure pins in function mode as
+> well as pin configuration parameters.
+>
+> Signed-off-by: Laxman Dewangan <ldewangan@nvidia.com>
+> Acked-by: Rob Herring <robh@kernel.org>
+> ---
+> Changes from V4:
+> - Separate out from pincontrol driver
 
-The lower-level driver should not touch rtc->irq_data directly.
+Acked-by: Linus Walleij <linus.walleij@linaro.org>
 
-Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>
-Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Dennis Aberilla <denzzzhome@yahoo.com>
----
-* no changes since v1
+Lee can merge this with the rest of the patches.
 
- drivers/rtc/rtc-ds3232-core.c | 10 +++-------
- 1 file changed, 3 insertions(+), 7 deletions(-)
-
-diff --git a/drivers/rtc/rtc-ds3232-core.c b/drivers/rtc/rtc-ds3232-core.c
-index 600673a..ca29277 100644
---- a/drivers/rtc/rtc-ds3232-core.c
-+++ b/drivers/rtc/rtc-ds3232-core.c
-@@ -273,7 +273,7 @@ out:
- 	return ret;
- }
- 
--static void ds3232_update_alarm(struct device *dev)
-+static void ds3232_update_alarm(struct device *dev, unsigned int enabled)
- {
- 	struct ds3232 *ds3232 = dev_get_drvdata(dev);
- 	int control;
-@@ -303,7 +303,7 @@ static void ds3232_update_alarm(struct device *dev)
- 	if (control < 0)
- 		goto unlock;
- 
--	if (ds3232->rtc->irq_data & (RTC_AF | RTC_UF))
-+	if (enabled || (ds3232->rtc->irq_data & RTC_UF))
- 		/* enable alarm1 interrupt */
- 		control |= DS3232_REG_CR_A1IE;
- 	else
-@@ -322,12 +322,8 @@ static int ds3232_alarm_irq_enable(struct device *dev, unsigned int enabled)
- 	if (ds3232->ops->irq(dev) <= 0)
- 		return -EINVAL;
- 
--	if (enabled)
--		ds3232->rtc->irq_data |= RTC_AF;
--	else
--		ds3232->rtc->irq_data &= ~RTC_AF;
-+	ds3232_update_alarm(dev, enabled);
- 
--	ds3232_update_alarm(dev);
- 	return 0;
- }
- 
--- 
-2.5.0
+Yours,
+Linus Walleij
 
 -- 
 -- 
