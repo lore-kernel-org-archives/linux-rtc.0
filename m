@@ -1,24 +1,34 @@
-Return-Path: <rtc-linux+bncBDQJZJXU2UMBB2ETYS2QKGQESVBDKYY@googlegroups.com>
-MIME-Version: 1.0
-Received: from mout.gmx.net (mout.gmx.net. [212.227.15.18])
-        by gmr-mx.google.com with ESMTPS id w10si16516wmw.3.2016.02.02.11.56.23
+Return-Path: <rtc-linux+bncBDKZNNNLXAHBBV6UZ62QKGQEKFDA7MI@googlegroups.com>
+Received: from mailout2.w1.samsung.com (mailout2.w1.samsung.com. [210.118.77.12])
+        by gmr-mx.google.com with ESMTPS id u66si1758560pfa.2.2016.02.04.16.18.30
         for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 02 Feb 2016 11:56:24 -0800 (PST)
-From: Oleksij Rempel <linux@rempel-privat.de>
-To: devicetree@vger.kernel.org,
-	robh+dt@kernel.org,
-	a.zummo@towertech.it,
-	alexandre.belloni@free-electrons.com,
-	rtc-linux@googlegroups.com
-Cc: Oleksij Rempel <linux@rempel-privat.de>
-Subject: [rtc-linux] [PATCH v2 0/2] add Alphascale asm9260 RTC driver
-Date: Tue,  2 Feb 2016 20:56:09 +0100
-Message-Id: <1454442971-25225-1-git-send-email-linux@rempel-privat.de>
-In-Reply-To: <20160202102804.GT20165@piout.net>
-References: <20160202102804.GT20165@piout.net>
+        (version=TLS1 cipher=AES128-SHA bits=128/128);
+        Thu, 04 Feb 2016 16:18:30 -0800 (PST)
+Received: from eucpsbgm2.samsung.com (unknown [203.254.199.245])
+ by mailout2.w1.samsung.com
+ (Oracle Communications Messaging Server 7.0.5.31.0 64bit (built May  5 2014))
+ with ESMTP id <0O2100MA9SUQGG30@mailout2.w1.samsung.com> for
+ rtc-linux@googlegroups.com; Fri, 05 Feb 2016 00:18:26 +0000 (GMT)
+Subject: Re: [rtc-linux] Re: [PATCH v4 00/10] rtc: max77686: Extend driver and
+ add max77802 support
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+References: <1453865806-4661-1-git-send-email-javier@osg.samsung.com>
+ <20160131120525.GM20165@piout.net> <56ADF9D4.2050208@samsung.com>
+ <20160204225655.GE4782@piout.net>
+Cc: rtc-linux@googlegroups.com,
+ Javier Martinez Canillas <javier@osg.samsung.com>, k.kozlowski.k@gmail.com,
+ linux-kernel@vger.kernel.org, Kukjin Kim <kgene@kernel.org>,
+ Andi Shyti <andi.shyti@samsung.com>, Chanwoo Choi <cw00.choi@samsung.com>,
+ Laxman Dewangan <ldewangan@nvidia.com>, linux-samsung-soc@vger.kernel.org,
+ Arnd Bergmann <arnd@arndb.de>, Olof Johansson <olof@lixom.net>,
+ linux-arm-kernel@lists.infradead.org
+From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+Message-id: <56B3EA4D.4010801@samsung.com>
+Date: Fri, 05 Feb 2016 09:18:21 +0900
+MIME-version: 1.0
+In-reply-to: <20160204225655.GE4782@piout.net>
+Content-type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
-Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -28,30 +38,54 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-This patch set provide support for RTC controller found on Alphascale
-ASM9260 SoC.
+On 05.02.2016 07:56, Alexandre Belloni wrote:
+> On 31/01/2016 at 21:11:00 +0900, Krzysztof Kozlowski wrote :
+>> W dniu 31.01.2016 o 21:05, Alexandre Belloni pisze:
+>>> Hi,
+>>>
+>>> On 27/01/2016 at 00:36:36 -0300, Javier Martinez Canillas wrote :
+>>>> Hello,
+>>>>
+>>>> On a recent disussion [0] with Krzysztof Kozlowski and Laxman Dewangan,
+>>>> we came to the conclusion that the max77686 and max77802 RTC are almost
+>>>> the same with only a few differences so there shouldn't be two separate
+>>>> drivers and is better to extend max77686 driver and delete rtc-max77802.
+>>>>
+>>>> By making the driver more generic, other RTC IP blocks from Maxim PMICs
+>>>> could be supported as well like the max77620.
+>>>>
+>>>> This is a v4 of a series that do this, that address issues pointed out
+>>>> in the latest version. The v1, v2 and v3 can be found at [1], [2], [3].
+>>>>
+>>>> I've tested this patch-set on an Exynos5800 Peach Pi Chromebook that has
+>>>> a max77802 PMIC and the RTC was working correctly. Krzysztof Kozlowski
+>>>> tested v3 on an max77686 but this version only has cosmetic changes so
+>>>> it should not cause any functionality changes.
+>>>>
+>>>> [0]: http://www.spinics.net/lists/devicetree/msg110348.html
+>>>> [1]: https://lwn.net/Articles/672568/
+>>>> [2]: https://lkml.org/lkml/2016/1/25/767
+>>>> [3]: https://lkml.org/lkml/2016/1/26/787
+>>>>
+>>>
+>>> I've applied patches 1 to 8 and I'll discussed with Arnd and Olof about
+>>> what I should do with the defconfig changes.
+>>
+>> To avoid conflicts they could go through samsung-soc tree. I could pick
+>> them if you provide me a tag with rest of patchset (dependencies).
+>>
+>> Would that be okay for you?
+>>
+> 
+> Let's do that, I've prepared a tag, rtc-max77686-4.6 with all the
+> max77686 material collected until now.  If I need to rebase rtc-next,
+> I'll rebase on top of that.
 
-v2:
-- change license to GPLv2 and later
-- remove HW_RTC_AUX and HW_RTC_AUXEN. Thay was taken from reference driver.
-  Documentation do not provide any info about it. According to my tests
-  this regs are not available on asm9260.
-- remove calibration from DT. It will be beter to set it over sysfs.
+Thanks, I pulled the tag, applied patches #9 and #10 and pushed out to
+the for-next.
 
-Oleksij Rempel (2):
-  rtc: add rtc-asm9260 driver
-  doc: dt: add documentation for alphascale,asm9260-rtc
-
- .../bindings/rtc/alphascale,asm9260-rtc.txt        |  19 ++
- drivers/rtc/Kconfig                                |  10 +
- drivers/rtc/Makefile                               |   1 +
- drivers/rtc/rtc-asm9260.c                          | 355 +++++++++++++++++++++
- 4 files changed, 385 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/rtc/alphascale,asm9260-rtc.txt
- create mode 100644 drivers/rtc/rtc-asm9260.c
-
--- 
-2.5.0
+Best regards,
+Krzysztof
 
 -- 
 -- 
