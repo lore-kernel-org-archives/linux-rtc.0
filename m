@@ -1,20 +1,28 @@
-Return-Path: <rtc-linux+bncBDEKVJM7XAHRBJMURS3AKGQEH4AKKQA@googlegroups.com>
-Received: from mout.kundenserver.de (mout.kundenserver.de. [217.72.192.75])
-        by gmr-mx.google.com with ESMTPS id w197si770867wmw.3.2016.02.16.03.38.13
+Return-Path: <rtc-linux+bncBCNNJWF7RUMRBA4S2S2QKGQEVQQLJFA@googlegroups.com>
+MIME-Version: 1.0
+Received: from mail-pf0-x243.google.com (mail-pf0-x243.google.com. [2607:f8b0:400e:c00::243])
+        by gmr-mx.google.com with ESMTPS id r2si2462936pfr.0.2016.02.05.12.41.39
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 16 Feb 2016 03:38:13 -0800 (PST)
-From: Arnd Bergmann <arnd@arndb.de>
-To: linux-arm-kernel@lists.infradead.org
-Cc: Javier Martinez Canillas <javier@osg.samsung.com>, Eddie Huang <eddie.huang@mediatek.com>, Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org, linux-mediatek@lists.infradead.org, Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Subject: [rtc-linux] Re: [PATCH] rtc: mt6397: Add platform device ID table
-Date: Tue, 16 Feb 2016 12:37:57 +0100
-Message-ID: <2416670.q30ahHlzPm@wuerfel>
-In-Reply-To: <56C1E5C8.6040007@osg.samsung.com>
-References: <1455016095-13724-1-git-send-email-javier@osg.samsung.com> <1455501497.7263.4.camel@mtksdaap41> <56C1E5C8.6040007@osg.samsung.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+        Fri, 05 Feb 2016 12:41:39 -0800 (PST)
+Received: by mail-pf0-x243.google.com with SMTP id 71so614720pfv.1
+        for <rtc-linux@googlegroups.com>; Fri, 05 Feb 2016 12:41:39 -0800 (PST)
+From: Joshua Clayton <stillcompiling@gmail.com>
+To: Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: Jonathan Corbet <corbet@lwn.net>,
+	rtc-linux@googlegroups.com,
+	linux-doc@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Joshua Clayton <stillcompiling@gmail.com>
+Subject: [rtc-linux] [PATCH v4 2/3] rtc: implement a sysfs interface for clock offset
+Date: Fri,  5 Feb 2016 12:41:12 -0800
+Message-Id: <1454704873-31066-2-git-send-email-stillcompiling@gmail.com>
+In-Reply-To: <1454704873-31066-1-git-send-email-stillcompiling@gmail.com>
+References: <20160205143908.GJ4782@piout.net>
+ <1454704873-31066-1-git-send-email-stillcompiling@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -24,45 +32,97 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Monday 15 February 2016 11:50:48 Javier Martinez Canillas wrote:
-> 
-> On 02/14/2016 10:58 PM, Eddie Huang wrote:
-> 
-> [snip]
-> 
-> >> @@ -412,6 +418,7 @@ static struct platform_driver mtk_rtc_driver = {
-> >>      },
-> >>      .probe  = mtk_rtc_probe,
-> >>      .remove = mtk_rtc_remove,
-> >> +    .id_table = mt6397_rtc_id,
-> >>   };
-> >>
-> >>   module_platform_driver(mtk_rtc_driver);
-> >> @@ -419,4 +426,3 @@ module_platform_driver(mtk_rtc_driver);
-> >>   MODULE_LICENSE("GPL v2");
-> >>   MODULE_AUTHOR("Tianping Fang <tianping.fang@mediatek.com>");
-> >>   MODULE_DESCRIPTION("RTC Driver for MediaTek MT6397 PMIC");
-> >> -MODULE_ALIAS("platform:mt6397-rtc");
-> >
-> > This patch looks good to me, but I am wondering, since we tend to use
-> > device tree method to match driver, do we still need support platform
-> > device ID ?
-> >
-> 
-> I'm not familiar with neither this IP block nor the SoC so it is up to
-> you. I just noticed this issue when reviewing a regulator driver for a
-> similar PMIC posted by someone from mediatek.
-> 
-> I thought platform device was needed since the driver has a MODULE_ALIAS()
-> but please let me know what you prefer and I can re-spin the patch and
-> just remove the MODULE_ALIAS() if that makes more sense for this platform.
->   
-> 
+clock offset may be set and read in decimal parts per billion
+attribute is /sys/class/rtc/rtcN/offset
+The attribute is only visible for rtcs that have set_offset implemented.
 
-I agree. We can alway add a MODULE_DEVICE_TABLE() if we get multiple
-users of this driver on architectures that don't use devicetree yet.
+Signed-off-by: Joshua Clayton <stillcompiling@gmail.com>
+---
+ Documentation/rtc.txt   |  6 ++++++
+ drivers/rtc/rtc-sysfs.c | 35 ++++++++++++++++++++++++++++++++++-
+ 2 files changed, 40 insertions(+), 1 deletion(-)
 
-	Arnd
+diff --git a/Documentation/rtc.txt b/Documentation/rtc.txt
+index 8446f1e..ddc3660 100644
+--- a/Documentation/rtc.txt
++++ b/Documentation/rtc.txt
+@@ -157,6 +157,12 @@ wakealarm:	 The time at which the clock will generate a system wakeup
+ 		 the epoch by default, or if there's a leading +, seconds in the
+ 		 future, or if there is a leading +=, seconds ahead of the current
+ 		 alarm.
++offset:		 The amount which the rtc clock has been adjusted in firmware.
++		 Visible only if the driver supports clock offset adjustment.
++		 The unit is parts per billion, i.e. The number of clock ticks
++		 which are added to or removed from the rtc's base clock per
++		 billion ticks. A positive value makes a day pass more slowly,
++		 longer, and a negative value makes a day pass more quickly.
+ 
+ IOCTL INTERFACE
+ ---------------
+diff --git a/drivers/rtc/rtc-sysfs.c b/drivers/rtc/rtc-sysfs.c
+index 463e286..63b9fb1 100644
+--- a/drivers/rtc/rtc-sysfs.c
++++ b/drivers/rtc/rtc-sysfs.c
+@@ -218,6 +218,34 @@ wakealarm_store(struct device *dev, struct device_attribute *attr,
+ }
+ static DEVICE_ATTR_RW(wakealarm);
+ 
++static ssize_t
++offset_show(struct device *dev, struct device_attribute *attr, char *buf)
++{
++	ssize_t retval;
++	long offset;
++
++	retval = rtc_read_offset(to_rtc_device(dev), &offset);
++	if (retval == 0)
++		retval = sprintf(buf, "%ld\n", offset);
++
++	return retval;
++}
++
++static ssize_t
++offset_store(struct device *dev, struct device_attribute *attr,
++	     const char *buf, size_t n)
++{
++	ssize_t retval;
++	long offset;
++
++	retval = kstrtol(buf, 10, &offset);
++	if (retval == 0)
++		retval = rtc_set_offset(to_rtc_device(dev), offset);
++
++	return (retval < 0) ? retval : n;
++}
++static DEVICE_ATTR_RW(offset);
++
+ static struct attribute *rtc_attrs[] = {
+ 	&dev_attr_name.attr,
+ 	&dev_attr_date.attr,
+@@ -226,6 +254,7 @@ static struct attribute *rtc_attrs[] = {
+ 	&dev_attr_max_user_freq.attr,
+ 	&dev_attr_hctosys.attr,
+ 	&dev_attr_wakealarm.attr,
++	&dev_attr_offset.attr,
+ 	NULL,
+ };
+ 
+@@ -249,9 +278,13 @@ static umode_t rtc_attr_is_visible(struct kobject *kobj,
+ 	struct rtc_device *rtc = to_rtc_device(dev);
+ 	umode_t mode = attr->mode;
+ 
+-	if (attr == &dev_attr_wakealarm.attr)
++	if (attr == &dev_attr_wakealarm.attr) {
+ 		if (!rtc_does_wakealarm(rtc))
+ 			mode = 0;
++	} else if (attr == &dev_attr_offset.attr) {
++		if (!rtc->ops->set_offset)
++			mode = 0;
++	}
+ 
+ 	return mode;
+ }
+-- 
+2.5.0
 
 -- 
 -- 
