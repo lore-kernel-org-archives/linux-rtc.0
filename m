@@ -1,23 +1,26 @@
-Return-Path: <rtc-linux+bncBCNNJWF7RUMRBOGSWK3AKGQEBUF3JZI@googlegroups.com>
-Received: from mail-pf0-x22e.google.com (mail-pf0-x22e.google.com. [2607:f8b0:400e:c00::22e])
-        by gmr-mx.google.com with ESMTPS id 79si3966066pft.0.2016.02.23.10.47.20
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 23 Feb 2016 10:47:20 -0800 (PST)
-Received: by mail-pf0-x22e.google.com with SMTP id e127so116870598pfe.3
-        for <rtc-linux@googlegroups.com>; Tue, 23 Feb 2016 10:47:20 -0800 (PST)
-Date: Tue, 23 Feb 2016 10:47:13 -0800
-From: Joshua Clayton <stillcompiling@gmail.com>
-To: Alessandro Zummo <a.zummo@towertech.it>, Alexandre Belloni
- <alexandre.belloni@free-electrons.com>
-Cc: rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH v4 1/3] rtc: Add functions to set and read rtc offset
-Message-ID: <20160223104713.01508e11@jclayton-pc>
-In-Reply-To: <1454704873-31066-1-git-send-email-stillcompiling@gmail.com>
-References: <20160205143908.GJ4782@piout.net>
-	<1454704873-31066-1-git-send-email-stillcompiling@gmail.com>
+Return-Path: <rtc-linux+bncBAABBDEK222QKGQEPY7SIKI@googlegroups.com>
+Received: from lists.s-osg.org (lists.s-osg.org. [54.187.51.154])
+        by gmr-mx.google.com with ESMTP id jg4si2534930pac.2.2016.02.05.21.30.51
+        for <rtc-linux@googlegroups.com>;
+        Fri, 05 Feb 2016 21:30:51 -0800 (PST)
+Subject: [rtc-linux] Re: [PATCH V3 5/5] rtc: max77686: move initialisation of
+ rtc regmap, irq chip locally
+To: Laxman Dewangan <ldewangan@nvidia.com>,
+ Krzysztof Kozlowski <k.kozlowski@samsung.com>, lee.jones@linaro.org,
+ alexandre.belloni@free-electrons.com
+References: <1454507233-9959-1-git-send-email-ldewangan@nvidia.com>
+ <1454507233-9959-6-git-send-email-ldewangan@nvidia.com>
+ <56B296F6.3060002@samsung.com> <56B2B17A.1000509@nvidia.com>
+ <56B2F6A2.5060103@samsung.com> <56B314F4.6010605@samsung.com>
+ <56B4B38C.3030805@nvidia.com>
+From: Javier Martinez Canillas <javier@osg.samsung.com>
+Cc: cw00.choi@samsung.com, linux-kernel@vger.kernel.org,
+ rtc-linux@googlegroups.com
+Message-ID: <56B58501.603@osg.samsung.com>
+Date: Sat, 6 Feb 2016 02:30:41 -0300
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <56B4B38C.3030805@nvidia.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -28,126 +31,75 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Fri,  5 Feb 2016 12:41:11 -0800
-Joshua Clayton <stillcompiling@gmail.com> wrote:
+Hello Laxman,
 
-Alexandre,
-in case you didn't see, I made the change you requested.
-The rtc_read_offset function checks for a read_offset function
-and returns -EINVAL if not there, instead of an offset of 0.
-I just didn't put together a cover letter this time around.
- 
-> A number of rtc devices, such as the NXP pcf2123 include a facility
-> to adjust the clock in order to compensate for temperature or a
-> crystal, capacitor, etc, that results in the rtc clock not running
-> at exactly 32.768 kHz.
-> 
-> Data sheets I have seen refer to this as a clock offset, and measure
-> it in parts per million, however they often reference ppm to 2 digits
-> of precision, which makes integer ppm less than ideal.
-> 
-> We use parts per billion, which more than covers the precision needed
-> and works nicely within 32 bits
-> 
-> Signed-off-by: Joshua Clayton <stillcompiling@gmail.com>
-> ---
->  drivers/rtc/interface.c | 54
-> +++++++++++++++++++++++++++++++++++++++++++++++++
-> include/linux/rtc.h     |  4 ++++ 2 files changed, 58 insertions(+)
-> 
-> diff --git a/drivers/rtc/interface.c b/drivers/rtc/interface.c
-> index 5836751..9ef5f6f 100644
-> --- a/drivers/rtc/interface.c
-> +++ b/drivers/rtc/interface.c
-> @@ -939,4 +939,58 @@ void
-> rtc_t4e40602412d61b7ef4162621a1a15be32126baeeimer_cancel(struct
-> rtc_device *rtc, struct rtc_timer *timer)
-> mutex_unlock(&rtc->ops_lock); } 
-> +/**
-> + * rtc_read_offset - Read the amount of rtc offset in parts per
-> billion
-> + * @ rtc: rtc device to be used
-> + * @ offset: the offset in parts per billion
-> + *
-> + * see below for details.
-> + *
-> + * Kernel interface to read rtc clock offset
-> + * Returns 0 on success, or a negative number on error.
-> + * If read_offset() is not implemented for the rtc, return -EINVAL
-> + */
-> +int rtc_read_offset(struct rtc_device *rtc, long *offset)
-> +{
-> +	int ret;
-> +
-> +	if (!rtc->ops)
-> +		return -ENODEV;
-> +
-> +	if (!rtc->ops->read_offset)
-> +		return -EINVAL;
-> +
-> +	mutex_lock(&rtc->ops_lock);
-> +	ret = rtc->ops->read_offset(rtc->dev.parent, offset);
-> +	mutex_unlock(&rtc->ops_lock);
-> +	return ret;
-> +}
->  
-> +/**
-> + * rtc_set_offset - Adjusts the duration of the average second
-> + * @ rtc: rtc device to be used
-> + * @ offset: the offset in parts per billion
-> + *
-> + * Some rtc's allow an adjustment to the average duration of a second
-> + * to compensate for differences in the actual clock rate due to
-> temperature,
-> + * the crystal, capacitor, etc.
-> + *
-> + * Kernel interface to adjust an rtc clock offset.
-> + * Return 0 on success, or a negative number on error.
-> + * If the rtc offset is not setable (or not implemented), return
-> -EINVAL
-> + */
-> +int rtc_set_offset(struct rtc_device *rtc, long offset)
-> +{
-> +	int ret;
-> +
-> +	if (!rtc->ops)
-> +		return -ENODEV;
-> +
-> +	if (!rtc->ops->set_offset)
-> +		return -EINVAL;
-> +
-> +	mutex_lock(&rtc->ops_lock);
-> +	ret = rtc->ops->set_offset(rtc->dev.parent, offset);
-> +	mutex_unlock(&rtc->ops_lock);
-> +	return ret;
-> +}
-> diff --git a/include/linux/rtc.h b/include/linux/rtc.h
-> index 3359f04..b693ada 100644
-> --- a/include/linux/rtc.h
-> +++ b/include/linux/rtc.h
-> @@ -89,6 +89,8 @@ struct rtc_class_ops {
->  	int (*set_mmss)(struct device *, unsigned long secs);
->  	int (*read_callback)(struct device *, int data);
->  	int (*alarm_irq_enable)(struct device *, unsigned int
-> enabled);
-> +	int (*read_offset)(struct device *, long *offset);
-> +	int (*set_offset)(struct device *, long offset);
->  };
->  
->  #define RTC_DEVICE_NAME_SIZE 20
-> @@ -208,6 +210,8 @@ void rtc_timer_init(struct rtc_timer *timer, void
-> (*f)(void *p), void *data); int rtc_timer_start(struct rtc_device
-> *rtc, struct rtc_timer *timer, ktime_t expires, ktime_t period);
->  void rtc_timer_cancel(struct rtc_device *rtc, struct rtc_timer
-> *timer); +int rtc_read_offset(struct rtc_device *rtc, long *offset);
-> +int rtc_set_offset(struct rtc_device *rtc, long offset);
->  void rtc_timer_do_work(struct work_struct *work);
->  
->  static inline bool is_leap_year(unsigned int year)
+Sorry for not doing this before but today was a busy one.
 
-Thanks,
+On 02/05/2016 11:37 AM, Laxman Dewangan wrote:
+> Hi Krzysztof, Javier,
+>
+> On Thursday 04 February 2016 02:38 PM, Krzysztof Kozlowski wrote:
+>> On 04.02.2016 15:58, Krzysztof Kozlowski wrote:
+>>>> 3. Can you try locally to not use devm_regmap_init_i2c() and just use
+>>>> the regmap_init_i2c() and proper removal of this from error path and
+>>>> remove callback?
+>>> I'll try to find some time for that. Maybe tomorrow.
+>> regmap_init_i2c does not help. However helps commenting out the:
+>>     regmap_del_irq_chip(info->rtc_irq, info->rtc_irq_data);
+>> from remove() callback.
+>>
+>>
+>
+> I am trying to reproduce this in my system but I am ending up with different issue as it need to enable the suspend.
 
-Joshua
+Ok, no worries. I can of course help testing on my system.
+
+> can you please help on following experiment:
+> 1. In probe/init, do
+>     regmap_add_irq_chip()
+>    regmap_del_irq_chip() and then
+>    regmap_add_irq_chip() and
+> then without unbind()/bind(), working or not?
+>
+>    This is to make sure that it is universal issue rather than calling from remove callback only.
+>
+
+This works, the system can S2R successfully.
+  
+> 2. Do regmap_add_irq_chip() but dont do any interrupt registration i.e. comment regmap_irq_get_virq() and request_threaded_irq() and hence free_irq().
+> Then do unbind/bind and then suspend.
+>    To make sure that this happen when only we have client registered interrupt.
+>
+
+This works as well.
+  
+> 3. Extension of 2
+> Do regmap_add_irq_chip(), call  regmap_irq_get_virq() for creating irq mapping but dont do any interrupt registration i.e. comment request_threaded_irq() and hence free_irq().
+> Then do unbind/bind and then suspend.
+>    To make sure that this happen when only we have client registered interrupt or with mapping also.
+>
+
+This fails, so the problem seems to be with the mapping.
+
+So I tried another scenario:
+
+4. Call regmap_del_irq_chip() just after regmap_irq_get_virq() and try to S2R
+    without doing any unbind before.
+
+    To test if this is a general issue with regmap_del_irq_chip() after doing
+    the IRQ mapping and not something specific to the remove callback.
+
+The machine failed to boot. So now at least we have narrowed down the issue.
+
+I've looked at both regmap_irq_get_virq() and regmap_del_irq_chip() but I
+couldn't find any obvious cause for the issue we are seeing. But it's late
+Friday so probably I should just stop here and take a fresh look on Monday.
+
+Best regards,
+-- 
+Javier Martinez Canillas
+Open Source Group
+Samsung Research America
 
 -- 
 -- 
