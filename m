@@ -1,27 +1,27 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBROD2K3AKGQERNFF6TQ@googlegroups.com>
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id h126si444777wme.0.2016.02.29.11.53.40
+Return-Path: <rtc-linux+bncBAABBOW5262QKGQEWDGEDMI@googlegroups.com>
+Received: from lists.s-osg.org (lists.s-osg.org. [54.187.51.154])
+        by gmr-mx.google.com with ESMTP id r2si2842826pfr.0.2016.02.06.05.01.45
         for <rtc-linux@googlegroups.com>;
-        Mon, 29 Feb 2016 11:53:40 -0800 (PST)
-Date: Mon, 29 Feb 2016 20:52:58 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Michael =?iso-8859-1?Q?B=FCsch?= <m@bues.ch>
-Cc: Gregory Hermant <gregory.hermant@calao-systems.com>,
-	rtc-linux@googlegroups.com
-Subject: Re: [rtc-linux] rv3029 EEPROM handling
-Message-ID: <20160229195258.GB2627@piout.net>
-References: <20160227153918.3c3d3853@wiggum>
- <20160228003139.GB2398@piout.net>
- <20160228094452.132c1938@wiggum>
- <20160228104110.GC2398@piout.net>
- <20160228125852.1a0b271e@wiggum>
- <20160228123618.GD2398@piout.net>
- <20160228181450.3ba14f7f@wiggum>
- <20160228213920.GA2260@piout.net>
- <20160229180749.42f75ec8@wiggum>
+        Sat, 06 Feb 2016 05:01:45 -0800 (PST)
+Subject: [rtc-linux] Re: [PATCH V3 5/5] rtc: max77686: move initialisation of
+ rtc regmap, irq chip locally
+To: Laxman Dewangan <ldewangan@nvidia.com>,
+ Krzysztof Kozlowski <k.kozlowski@samsung.com>, lee.jones@linaro.org,
+ alexandre.belloni@free-electrons.com
+References: <1454507233-9959-1-git-send-email-ldewangan@nvidia.com>
+ <1454507233-9959-6-git-send-email-ldewangan@nvidia.com>
+ <56B296F6.3060002@samsung.com> <56B2B17A.1000509@nvidia.com>
+ <56B2F6A2.5060103@samsung.com> <56B314F4.6010605@samsung.com>
+ <56B4B38C.3030805@nvidia.com> <56B58501.603@osg.samsung.com>
+ <56B592C5.3040208@nvidia.com>
+From: Javier Martinez Canillas <javier@osg.samsung.com>
+Cc: cw00.choi@samsung.com, linux-kernel@vger.kernel.org,
+ rtc-linux@googlegroups.com
+Message-ID: <56B5EEB0.3040505@osg.samsung.com>
+Date: Sat, 6 Feb 2016 10:01:36 -0300
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <20160229180749.42f75ec8@wiggum>
+In-Reply-To: <56B592C5.3040208@nvidia.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -32,50 +32,101 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 29/02/2016 at 18:07:49 +0100, Michael B=C3=BCsch wrote :
-> > Also, to export the temperature, use hwmon, see:
-> > http://git.kernel.org/cgit/linux/kernel/git/abelloni/linux.git/commit/?=
-h=3Drtc-next&id=3D445c02076f1e60d2ee51503bf1288ef9f3bc8809
->=20
-> That is a rather weird API.
-> Is there a special naming scheme required for the attribute?
-> What does the 'input' mean in 'temp1_input'? And why is it temp1
-> instead of temp0?
+Hello Laxman,
 
-It means that you can read the value as opposed to output it for example
-on a 3d printing nozzle.
+On 02/06/2016 03:29 AM, Laxman Dewangan wrote:
+> Hi Javier,
+> '
+> On Saturday 06 February 2016 11:00 AM, Javier Martinez Canillas wrote:
+>> Hello Laxman,
+>>
+>> Sorry for not doing this before but today was a busy one.
+>>
+>
+> Thanks for testing.
+>
+>
+>> On 02/05/2016 11:37 AM, Laxman Dewangan wrote:
+>>> Hi Krzysztof, Javier,
+>>>
+>>
+>>> 3. Extension of 2
+>>> Do regmap_add_irq_chip(), call  regmap_irq_get_virq() for creating irq mapping but dont do any interrupt registration i.e. comment request_threaded_irq() and hence free_irq().
+>>> Then do unbind/bind and then suspend.
+>>>    To make sure that this happen when only we have client registered interrupt or with mapping also.
+>>>
+>>
+>> This fails, so the problem seems to be with the mapping.
+>>
+>> So I tried another scenario:
+>>
+>> 4. Call regmap_del_irq_chip() just after regmap_irq_get_virq() and try to S2R
+>>    without doing any unbind before.
+>>
+>>    To test if this is a general issue with regmap_del_irq_chip() after doing
+>>    the IRQ mapping and not something specific to the remove callback.
+>>
+>> The machine failed to boot. So now at least we have narrowed down the issue.
+>>
+>> I've looked at both regmap_irq_get_virq() and regmap_del_irq_chip() but I
+>> couldn't find any obvious cause for the issue we are seeing. But it's late
+>> Friday so probably I should just stop here and take a fresh look on Monday.
+>>
+>
+> So the issue is that when we create mapping, we can not delete the irq_chip.
+>
+> I saw one function from irq framework irq_dispose_mapping(unsigned int virq).
+>
+> So we need to dispose the mapping before deleting irq chip.
+>
+>
+> Becasue it is reproduced in normal boot also if we do create mapping and delete the irq chip data, I will also be able to validate if I get some time on weekend.
+>
 
-I'm not sure why it is indexed starting with 1 but probably because
-usually that's how user documentation is written. You'd have to ask the
-hwmon maintainers ;)
+Thanks, that was it! I was searching yesterday for the regmap_irq_get_virq()
+counterpart and did not find it, but I was looking at include/linux/regmap.h
+and didn't think about looking at include/linux/irqdomain.h.
 
->=20
-> > You may want to use regmap instead of defining your own update_bits
-> > (rv3029c2_i2c_maskset_reg) but that is a more invasie change that you
-> > may leave out for now.
->=20
-> Ok, I will do this last.
-> Don't hold your breath. :)
->=20
+Maybe we should add a regmap_irq_put_virq() that's just a wrapper around
+irq_dispose_mapping() to make the API consistent and avoid this confusion?
+I see that most drivers don't dispose the mapping on their error/remove path.
 
-I'm not even sure this is a good idea but I'd need to have a look at the
-code to know ;)
+Anyways, with this patch on top of yours 5/5 my system is able to suspend
+after an unbind again:
 
+diff --git a/drivers/rtc/rtc-max77686.c b/drivers/rtc/rtc-max77686.c
+index 45d639674c0b..8ea6d601482a 100644
+--- a/drivers/rtc/rtc-max77686.c
++++ b/drivers/rtc/rtc-max77686.c
+@@ -765,6 +765,7 @@ static int max77686_rtc_remove(struct platform_device *pdev)
+  	struct max77686_rtc_info *info = platform_get_drvdata(pdev);
+  
+  	free_irq(info->virq, info);
++	irq_dispose_mapping(info->virq);
+  	regmap_del_irq_chip(info->rtc_irq, info->rtc_irq_data);
+  	if (info->rtc)
+  		i2c_unregister_device(info->rtc);
 
---=20
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+This is a bug in the current MFD driver though so I would include it as
+a separate patch prior to your patch that moves the regmap and i2c init
+to the RTC driver.
 
---=20
---=20
+When posting your new revsion feel free to add my {Reviewed,Tested}-by
+tags for $SUBJECT and the new bugfix patch.
+
+Best regards,
+-- 
+Javier Martinez Canillas
+Open Source Group
+Samsung Research America
+
+-- 
+-- 
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
----=20
-You received this message because you are subscribed to the Google Groups "=
-rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an e=
-mail to rtc-linux+unsubscribe@googlegroups.com.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
