@@ -1,24 +1,25 @@
-Return-Path: <rtc-linux+bncBAABB4M7Q63AKGQEWD24RKY@googlegroups.com>
+Return-Path: <rtc-linux+bncBD2OLRXW4ABBB24W4O2QKGQEQPTIT5Q@googlegroups.com>
+Received: from hqemgate16.nvidia.com (hqemgate16.nvidia.com. [216.228.121.65])
+        by gmr-mx.google.com with ESMTPS id tn7si4527131pac.1.2016.02.08.09.07.54
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 08 Feb 2016 09:07:54 -0800 (PST)
+Message-ID: <56B8C8B4.4050207@nvidia.com>
+Date: Mon, 8 Feb 2016 22:26:20 +0530
+From: Laxman Dewangan <ldewangan@nvidia.com>
 MIME-Version: 1.0
-Received: from lists.s-osg.org (lists.s-osg.org. [54.187.51.154])
-        by gmr-mx.google.com with ESMTP id 79si3384718pft.0.2016.02.15.05.17.37
-        for <rtc-linux@googlegroups.com>;
-        Mon, 15 Feb 2016 05:17:37 -0800 (PST)
-From: Javier Martinez Canillas <javier@osg.samsung.com>
-To: linux-kernel@vger.kernel.org,
-	Rob Herring <robh+dt@kernel.org>
-Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	linux-samsung-soc@vger.kernel.org,
-	Krzysztof Kozlowski <k.kozlowski@samsung.com>,
-	rtc-linux@googlegroups.com,
-	devicetree@vger.kernel.org,
-	Javier Martinez Canillas <javier@osg.samsung.com>
-Subject: [rtc-linux] [PATCH] rtc: s3c: Document in binding that only s3c6410
- needs a src clk
-Date: Mon, 15 Feb 2016 10:16:42 -0300
-Message-Id: <1455542202-13977-1-git-send-email-javier@osg.samsung.com>
+To: Mark Brown <broonie@kernel.org>, Thomas Gleixner <tglx@linutronix.de>
+CC: <lee.jones@linaro.org>, <alexandre.belloni@free-electrons.com>,
+	<k.kozlowski@samsung.com>, <javier@osg.samsung.com>,
+	<gregkh@linuxfoundation.org>, <a.zummo@towertech.it>,
+	<cw00.choi@samsung.com>, <linux-kernel@vger.kernel.org>,
+	<rtc-linux@googlegroups.com>
+Subject: [rtc-linux] Re: [PATCH V4 1/6] regmap: irq: add apis to unmap the
+ mapped irq
+References: <1454769447-785-1-git-send-email-ldewangan@nvidia.com> <1454769447-785-2-git-send-email-ldewangan@nvidia.com> <20160208145550.GE7265@sirena.org.uk> <56B8C484.7000309@nvidia.com> <20160208165912.GK7265@sirena.org.uk>
+In-Reply-To: <20160208165912.GK7265@sirena.org.uk>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Reply-To: rtc-linux@googlegroups.com
-Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -28,50 +29,44 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Commit 43f3408261a2 ("rtc: s3c: Document required clocks in the DT
-binding") added to the S3C binding doc the required clocks needed
-by the Real Time Clock but the S3C driver supports different HW IP
-and only the s3c6410 needs a source clock.
+Adding Thomas in the discussion.
 
-Fix the DT binding explaning that the second clock is only needed
-by this IP block and not for the others.
+On Monday 08 February 2016 10:29 PM, Mark Brown wrote:
+> * PGP Signed by an unknown key
+>
+> On Mon, Feb 08, 2016 at 10:08:28PM +0530, Laxman Dewangan wrote:
+>> On Monday 08 February 2016 08:25 PM, Mark Brown wrote:
+>>> On Sat, Feb 06, 2016 at 08:07:22PM +0530, Laxman Dewangan wrote:
+>>>> Before removing irq domains, it is require to unmap all
+>>>> mapped interrupt from that domain. Currently there is API
+>>>> to map the interrupt on chip as regmap_irq_get_virq() for
+>>>> creating mapping. Add equivalent API to dispose the mapped
+>>>> irq in irq domains.
+>>> This makes no sense to me.  Why would you ever want to unmap the
+>>> interrupts separately to destroying the domain
+>> This is the requirement from irq_domain_remove(). This is what we have in
+>> irq_domain_remove():
+>> kernel/irq/irqdomain.c
+>> I am adding the API equivalent to regmap_irq_get_virq() to unmap virtual irq
+>> here.
+> This does not explain why anyone would ever want to use this interface
+> (which was my question), why would anyone ever want to do this as a
+> separate step?
 
-Reported-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-Fixes: 43f3408261a2 ("rtc: s3c: Document required clocks in the DT binding")
-Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
+OK, so you want to say that irq_domain_remove() should take care of 
+doing unmap also?
 
----
-Hello,
+>
+>>> and why would you ever
+>>> want to destroy the domain without unmapping the interrupts?
+>> That's exactlly we are trying to do, unmap interrupt in client level before
+>> destroying domain.
+> Again, why would any client ever want to skip this step?
 
-The mentioned commit was picked by Rob Herring so this one has to go
-through his tree again and not through the RTC tree to avoid conflicts.
+If above is yes then we will not need for unmap virtual irq.
+So fix need to go in the irq_domain_remove() to unamp before actually 
+destroying the irq domain?
 
-Best regards,
-Javier
-
- Documentation/devicetree/bindings/rtc/s3c-rtc.txt | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
-
-diff --git a/Documentation/devicetree/bindings/rtc/s3c-rtc.txt b/Documentation/devicetree/bindings/rtc/s3c-rtc.txt
-index 1068ffce9f91..fdde63a5419c 100644
---- a/Documentation/devicetree/bindings/rtc/s3c-rtc.txt
-+++ b/Documentation/devicetree/bindings/rtc/s3c-rtc.txt
-@@ -15,9 +15,10 @@ Required properties:
-   is the rtc tick interrupt. The number of cells representing a interrupt
-   depends on the parent interrupt controller.
- - clocks: Must contain a list of phandle and clock specifier for the rtc
--          and source clocks.
--- clock-names: Must contain "rtc" and "rtc_src" entries sorted in the
--               same order as the clocks property.
-+          clock and in the case of a s3c6410 compatible controller, also
-+          a source clock.
-+- clock-names: Must contain "rtc" and for a s3c6410 compatible controller,
-+               a "rtc_src" sorted in the same order as the clocks property.
- 
- Example:
- 
--- 
-2.5.0
 
 -- 
 -- 
