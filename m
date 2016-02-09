@@ -1,33 +1,28 @@
-Return-Path: <rtc-linux+bncBDA7X7F2WUEBBM56XS2QKGQEJVH4JWQ@googlegroups.com>
-Received: from mail-wm0-x22b.google.com (mail-wm0-x22b.google.com. [2a00:1450:400c:c09::22b])
-        by gmr-mx.google.com with ESMTPS id w129si223755wme.1.2016.02.01.01.02.42
+Return-Path: <rtc-linux+bncBD2OLRXW4ABBBOME5C2QKGQEUSQZY4Y@googlegroups.com>
+Received: from hqemgate16.nvidia.com (hqemgate16.nvidia.com. [216.228.121.65])
+        by gmr-mx.google.com with ESMTPS id 12si4695977pfb.1.2016.02.09.07.14.01
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 01 Feb 2016 01:02:42 -0800 (PST)
-Received: by mail-wm0-x22b.google.com with SMTP id l66so58944007wml.0
-        for <rtc-linux@googlegroups.com>; Mon, 01 Feb 2016 01:02:42 -0800 (PST)
-Date: Mon, 1 Feb 2016 09:02:39 +0000
-From: Lee Jones <lee.jones@linaro.org>
-To: Laxman Dewangan <ldewangan@nvidia.com>
-Cc: kbuild test robot <lkp@intel.com>, kbuild-all@01.org,
-	robh+dt@kernel.org, pawel.moll@arm.com, mark.rutland@arm.com,
-	ijc+devicetree@hellion.org.uk, galak@codeaurora.org,
-	linus.walleij@linaro.org, gnurou@gmail.com, broonie@kernel.org,
-	a.zummo@towertech.it, alexandre.belloni@free-electrons.com,
-	lgirdwood@gmail.com, devicetree@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org,
-	rtc-linux@googlegroups.com, swarren@nvidia.com, treding@nvidia.com,
-	k.kozlowski@samsung.com, vreddytalla@nvidia.com,
-	Mallikarjun Kasoju <mkasoju@nvidia.com>
-Subject: [rtc-linux] Re: [PATCH V7 2/8] mfd: max77620: add core driver for MAX77620/MAX20024
-Message-ID: <20160201090239.GB3368@x1>
-References: <201601310157.sKXyINX7%fengguang.wu@intel.com>
- <56ACEEE1.1050800@nvidia.com>
- <20160201082553.GW3368@x1>
- <56AF17D6.2090106@nvidia.com>
+        Tue, 09 Feb 2016 07:14:01 -0800 (PST)
+Message-ID: <56B9FF80.7010107@nvidia.com>
+Date: Tue, 9 Feb 2016 20:32:24 +0530
+From: Laxman Dewangan <ldewangan@nvidia.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <56AF17D6.2090106@nvidia.com>
+To: <robh+dt@kernel.org>, <pawel.moll@arm.com>, <mark.rutland@arm.com>,
+	<ijc+devicetree@hellion.org.uk>, <galak@codeaurora.org>,
+	<linus.walleij@linaro.org>, <gnurou@gmail.com>, <lee.jones@linaro.org>,
+	<broonie@kernel.org>, <a.zummo@towertech.it>,
+	<alexandre.belloni@free-electrons.com>
+CC: <lgirdwood@gmail.com>, <devicetree@vger.kernel.org>,
+	<linux-kernel@vger.kernel.org>, <linux-gpio@vger.kernel.org>,
+	<rtc-linux@googlegroups.com>, <swarren@nvidia.com>, <treding@nvidia.com>,
+	<k.kozlowski@samsung.com>, <vreddytalla@nvidia.com>, Mallikarjun Kasoju
+	<mkasoju@nvidia.com>
+Subject: [rtc-linux] Re: [PATCH V7 8/8] regulator: max77620: add regulator
+ driver for max77620/max20024
+References: <1454171931-27752-1-git-send-email-ldewangan@nvidia.com> <1454171931-27752-9-git-send-email-ldewangan@nvidia.com>
+In-Reply-To: <1454171931-27752-9-git-send-email-ldewangan@nvidia.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -38,45 +33,65 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Mon, 01 Feb 2016, Laxman Dewangan wrote:
+Hi Mark,
 
->=20
-> On Monday 01 February 2016 01:55 PM, Lee Jones wrote:
-> >On Sat, 30 Jan 2016, Laxman Dewangan wrote:
-> >
-> >>This depends on patch
-> >>[PATCH V2] mfd: core: add macro for adding mfd cells
-> >>
-> >>and due to absence of this patch, it reports the error.
-> >If you have dependencies, why aren't they in this set?
-> >
->=20
-> This change is not related to the series as such and so independent.
-> I just thought that mentioning on commit log will be fine here. May
-> be I missed some points here.
+I have taken care of all your previous comment on this patch.
 
-If you have patches which use/depend on it, then it's not so
-independent, right?
+Can you please review?
 
-> Let me know if I need to add this to back on series.
-=20
-In order to avoid any mishaps, that would be preferable, yes.
+I got the macro from Lee's and spinning the V8 of this series so if 
+there is any thing, I can take care on my next version.
 
---=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+Thanks,
+Laxman
 
---=20
---=20
+
+On Saturday 30 January 2016 10:08 PM, Laxman Dewangan wrote:
+> MAXIM Semiconductor's PMIC, MAX77620 and MAX20024 have the
+> multiple DCDC and LDOs. This supplies the power to different
+> components of the system.
+> Also these rails has configuration for ramp time, flexible
+> power sequence, slew rate etc.
+>
+> Add regulator driver to access these rails via regulator APIs.
+>
+> Signed-off-by: Laxman Dewangan <ldewangan@nvidia.com>
+> Signed-off-by: Mallikarjun Kasoju <mkasoju@nvidia.com>
+> Reviewed-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+> ---
+>
+> - Cleanup code based on comment received on mfd/rtc.
+> - Avoid duplication on error message.
+>
+> Changes form V2:
+> - Run coccicheck and checkpatch in strict mode for the alignment.
+> - Refactor Regulator driver to use core API for DT parsing.
+> - Update based on API changes.
+>
+> Changes from V3:
+> - Change all sys initcall to module driver.
+> - change the max77620_read argument to unisgned int from u8.
+>   
+> Changes from V4:
+> - Added DT binding document as devicetree/bindings/regulator/regulator-max77620.txt
+> - Detail out properties.
+>
+> Changes from V5:
+> - Separate out DT binding doc for regulator.
+>
+> Changes from V6:
+> - Use direct regmap APIs.
+> - Drop active-discharge configuration as it wil be move to core and through
+>    callback. Follow on patches are palnned for this.
+>
+
+-- 
+-- 
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
----=20
-You received this message because you are subscribed to the Google Groups "=
-rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an e=
-mail to rtc-linux+unsubscribe@googlegroups.com.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
