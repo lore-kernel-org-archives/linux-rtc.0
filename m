@@ -1,28 +1,24 @@
-Return-Path: <rtc-linux+bncBCNNJWF7RUMRBA4S2S2QKGQEVQQLJFA@googlegroups.com>
-MIME-Version: 1.0
-Received: from mail-pf0-x243.google.com (mail-pf0-x243.google.com. [2607:f8b0:400e:c00::243])
-        by gmr-mx.google.com with ESMTPS id r2si2462936pfr.0.2016.02.05.12.41.39
+Return-Path: <rtc-linux+bncBD2OLRXW4ABBBO54462QKGQECKYU7EY@googlegroups.com>
+Received: from hqemgate15.nvidia.com (hqemgate15.nvidia.com. [216.228.121.64])
+        by gmr-mx.google.com with ESMTPS id tn7si5069147pac.1.2016.02.09.04.40.26
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 05 Feb 2016 12:41:39 -0800 (PST)
-Received: by mail-pf0-x243.google.com with SMTP id 71so614720pfv.1
-        for <rtc-linux@googlegroups.com>; Fri, 05 Feb 2016 12:41:39 -0800 (PST)
-From: Joshua Clayton <stillcompiling@gmail.com>
-To: Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Jonathan Corbet <corbet@lwn.net>,
-	rtc-linux@googlegroups.com,
-	linux-doc@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Joshua Clayton <stillcompiling@gmail.com>
-Subject: [rtc-linux] [PATCH v4 2/3] rtc: implement a sysfs interface for clock offset
-Date: Fri,  5 Feb 2016 12:41:12 -0800
-Message-Id: <1454704873-31066-2-git-send-email-stillcompiling@gmail.com>
-In-Reply-To: <1454704873-31066-1-git-send-email-stillcompiling@gmail.com>
-References: <20160205143908.GJ4782@piout.net>
- <1454704873-31066-1-git-send-email-stillcompiling@gmail.com>
-Reply-To: rtc-linux@googlegroups.com
+        Tue, 09 Feb 2016 04:40:26 -0800 (PST)
+From: Laxman Dewangan <ldewangan@nvidia.com>
+To: <lee.jones@linaro.org>, <alexandre.belloni@free-electrons.com>,
+	<k.kozlowski@samsung.com>, <javier@osg.samsung.com>, <broonie@kernel.org>,
+	<gregkh@linuxfoundation.org>, <a.zummo@towertech.it>
+CC: <cw00.choi@samsung.com>, <linux-kernel@vger.kernel.org>,
+	<rtc-linux@googlegroups.com>, Laxman Dewangan <ldewangan@nvidia.com>
+Subject: [rtc-linux] [PATCH V6 1/6] regmap: irq: dispose all virtual irq
+ before removing domain
+Date: Tue, 9 Feb 2016 17:58:22 +0530
+Message-ID: <1455020907-4564-2-git-send-email-ldewangan@nvidia.com>
+In-Reply-To: <1455020907-4564-1-git-send-email-ldewangan@nvidia.com>
+References: <1455020907-4564-1-git-send-email-ldewangan@nvidia.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -32,97 +28,62 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-clock offset may be set and read in decimal parts per billion
-attribute is /sys/class/rtc/rtcN/offset
-The attribute is only visible for rtcs that have set_offset implemented.
+It is require to dispose all virtual irq of hwirq on chip
+created on given irq domain before removing this irq domain.
+Hence dispose all mapped irqs before deleting the irq domains
+in regmap_del_irq_chip();
 
-Signed-off-by: Joshua Clayton <stillcompiling@gmail.com>
+Signed-off-by: Laxman Dewangan <ldewangan@nvidia.com>
+
 ---
- Documentation/rtc.txt   |  6 ++++++
- drivers/rtc/rtc-sysfs.c | 35 ++++++++++++++++++++++++++++++++++-
- 2 files changed, 40 insertions(+), 1 deletion(-)
+This is new in series. Earlier patch for adding APIs to dispose
+virq via regmap is abandon and this patch took place.
+The dispose of virw is added in regmap_del_irq_chip().
 
-diff --git a/Documentation/rtc.txt b/Documentation/rtc.txt
-index 8446f1e..ddc3660 100644
---- a/Documentation/rtc.txt
-+++ b/Documentation/rtc.txt
-@@ -157,6 +157,12 @@ wakealarm:	 The time at which the clock will generate a system wakeup
- 		 the epoch by default, or if there's a leading +, seconds in the
- 		 future, or if there is a leading +=, seconds ahead of the current
- 		 alarm.
-+offset:		 The amount which the rtc clock has been adjusted in firmware.
-+		 Visible only if the driver supports clock offset adjustment.
-+		 The unit is parts per billion, i.e. The number of clock ticks
-+		 which are added to or removed from the rtc's base clock per
-+		 billion ticks. A positive value makes a day pass more slowly,
-+		 longer, and a negative value makes a day pass more quickly.
+ drivers/base/regmap/regmap-irq.c | 21 +++++++++++++++++++++
+ 1 file changed, 21 insertions(+)
+
+diff --git a/drivers/base/regmap/regmap-irq.c b/drivers/base/regmap/regmap-irq.c
+index 9b0d202..7e1e9e8 100644
+--- a/drivers/base/regmap/regmap-irq.c
++++ b/drivers/base/regmap/regmap-irq.c
+@@ -655,13 +655,34 @@ EXPORT_SYMBOL_GPL(regmap_add_irq_chip);
+  *
+  * @irq: Primary IRQ for the device
+  * @d:   regmap_irq_chip_data allocated by regmap_add_irq_chip()
++ *
++ * This function also dispose all mapped irq on chip.
+  */
+ void regmap_del_irq_chip(int irq, struct regmap_irq_chip_data *d)
+ {
++	unsigned int virq;
++	int hwirq;
++
+ 	if (!d)
+ 		return;
  
- IOCTL INTERFACE
- ---------------
-diff --git a/drivers/rtc/rtc-sysfs.c b/drivers/rtc/rtc-sysfs.c
-index 463e286..63b9fb1 100644
---- a/drivers/rtc/rtc-sysfs.c
-+++ b/drivers/rtc/rtc-sysfs.c
-@@ -218,6 +218,34 @@ wakealarm_store(struct device *dev, struct device_attribute *attr,
- }
- static DEVICE_ATTR_RW(wakealarm);
- 
-+static ssize_t
-+offset_show(struct device *dev, struct device_attribute *attr, char *buf)
-+{
-+	ssize_t retval;
-+	long offset;
+ 	free_irq(irq, d);
 +
-+	retval = rtc_read_offset(to_rtc_device(dev), &offset);
-+	if (retval == 0)
-+		retval = sprintf(buf, "%ld\n", offset);
++	/* Dispose all virtual irq from irq domain before removing it */
++	for (hwirq = 0; hwirq < d->chip->num_irqs; hwirq++) {
++		/* Ignore hwirq if holes in the IRQ list */
++		if (!d->chip->irqs[hwirq].mask)
++			continue;
 +
-+	return retval;
-+}
-+
-+static ssize_t
-+offset_store(struct device *dev, struct device_attribute *attr,
-+	     const char *buf, size_t n)
-+{
-+	ssize_t retval;
-+	long offset;
-+
-+	retval = kstrtol(buf, 10, &offset);
-+	if (retval == 0)
-+		retval = rtc_set_offset(to_rtc_device(dev), offset);
-+
-+	return (retval < 0) ? retval : n;
-+}
-+static DEVICE_ATTR_RW(offset);
-+
- static struct attribute *rtc_attrs[] = {
- 	&dev_attr_name.attr,
- 	&dev_attr_date.attr,
-@@ -226,6 +254,7 @@ static struct attribute *rtc_attrs[] = {
- 	&dev_attr_max_user_freq.attr,
- 	&dev_attr_hctosys.attr,
- 	&dev_attr_wakealarm.attr,
-+	&dev_attr_offset.attr,
- 	NULL,
- };
- 
-@@ -249,9 +278,13 @@ static umode_t rtc_attr_is_visible(struct kobject *kobj,
- 	struct rtc_device *rtc = to_rtc_device(dev);
- 	umode_t mode = attr->mode;
- 
--	if (attr == &dev_attr_wakealarm.attr)
-+	if (attr == &dev_attr_wakealarm.attr) {
- 		if (!rtc_does_wakealarm(rtc))
- 			mode = 0;
-+	} else if (attr == &dev_attr_offset.attr) {
-+		if (!rtc->ops->set_offset)
-+			mode = 0;
++		/*
++		 * Find the virtual irq of hwirq on chip and if it is
++		 * there then dispose it
++		 */
++		virq = irq_find_mapping(d->domain, hwirq);
++		if (virq)
++			irq_dispose_mapping(virq);
 +	}
- 
- 	return mode;
- }
++
+ 	irq_domain_remove(d->domain);
+ 	kfree(d->type_buf);
+ 	kfree(d->type_buf_def);
 -- 
-2.5.0
+2.1.4
 
 -- 
 -- 
