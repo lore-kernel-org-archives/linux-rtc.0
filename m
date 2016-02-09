@@ -1,23 +1,23 @@
-Return-Path: <rtc-linux+bncBD2OLRXW4ABBB24W4O2QKGQEQPTIT5Q@googlegroups.com>
-Received: from hqemgate16.nvidia.com (hqemgate16.nvidia.com. [216.228.121.65])
-        by gmr-mx.google.com with ESMTPS id tn7si4527131pac.1.2016.02.08.09.07.54
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 08 Feb 2016 09:07:54 -0800 (PST)
-Message-ID: <56B8C8B4.4050207@nvidia.com>
-Date: Mon, 8 Feb 2016 22:26:20 +0530
-From: Laxman Dewangan <ldewangan@nvidia.com>
+Return-Path: <rtc-linux+bncBAABBHPN462QKGQEHVJWCWA@googlegroups.com>
+Received: from lists.s-osg.org (lists.s-osg.org. [54.187.51.154])
+        by gmr-mx.google.com with ESMTP id u66si5290289pfa.2.2016.02.09.06.24.28
+        for <rtc-linux@googlegroups.com>;
+        Tue, 09 Feb 2016 06:24:29 -0800 (PST)
+Subject: [rtc-linux] Re: [PATCH V6 1/6] regmap: irq: dispose all virtual irq
+ before removing domain
+To: Laxman Dewangan <ldewangan@nvidia.com>, lee.jones@linaro.org,
+ alexandre.belloni@free-electrons.com, k.kozlowski@samsung.com,
+ broonie@kernel.org, gregkh@linuxfoundation.org, a.zummo@towertech.it
+References: <1455020907-4564-1-git-send-email-ldewangan@nvidia.com>
+ <1455020907-4564-2-git-send-email-ldewangan@nvidia.com>
+ <56B9E93A.2040903@osg.samsung.com> <56B9F078.1030006@nvidia.com>
+From: Javier Martinez Canillas <javier@osg.samsung.com>
+Cc: cw00.choi@samsung.com, linux-kernel@vger.kernel.org,
+ rtc-linux@googlegroups.com
+Message-ID: <56B9F695.4060501@osg.samsung.com>
+Date: Tue, 9 Feb 2016 11:24:21 -0300
 MIME-Version: 1.0
-To: Mark Brown <broonie@kernel.org>, Thomas Gleixner <tglx@linutronix.de>
-CC: <lee.jones@linaro.org>, <alexandre.belloni@free-electrons.com>,
-	<k.kozlowski@samsung.com>, <javier@osg.samsung.com>,
-	<gregkh@linuxfoundation.org>, <a.zummo@towertech.it>,
-	<cw00.choi@samsung.com>, <linux-kernel@vger.kernel.org>,
-	<rtc-linux@googlegroups.com>
-Subject: [rtc-linux] Re: [PATCH V4 1/6] regmap: irq: add apis to unmap the
- mapped irq
-References: <1454769447-785-1-git-send-email-ldewangan@nvidia.com> <1454769447-785-2-git-send-email-ldewangan@nvidia.com> <20160208145550.GE7265@sirena.org.uk> <56B8C484.7000309@nvidia.com> <20160208165912.GK7265@sirena.org.uk>
-In-Reply-To: <20160208165912.GK7265@sirena.org.uk>
+In-Reply-To: <56B9F078.1030006@nvidia.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
@@ -29,44 +29,61 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Adding Thomas in the discussion.
+Hello Laxman,
 
-On Monday 08 February 2016 10:29 PM, Mark Brown wrote:
-> * PGP Signed by an unknown key
+On 02/09/2016 10:58 AM, Laxman Dewangan wrote:
 >
-> On Mon, Feb 08, 2016 at 10:08:28PM +0530, Laxman Dewangan wrote:
->> On Monday 08 February 2016 08:25 PM, Mark Brown wrote:
->>> On Sat, Feb 06, 2016 at 08:07:22PM +0530, Laxman Dewangan wrote:
->>>> Before removing irq domains, it is require to unmap all
->>>> mapped interrupt from that domain. Currently there is API
->>>> to map the interrupt on chip as regmap_irq_get_virq() for
->>>> creating mapping. Add equivalent API to dispose the mapped
->>>> irq in irq domains.
->>> This makes no sense to me.  Why would you ever want to unmap the
->>> interrupts separately to destroying the domain
->> This is the requirement from irq_domain_remove(). This is what we have in
->> irq_domain_remove():
->> kernel/irq/irqdomain.c
->> I am adding the API equivalent to regmap_irq_get_virq() to unmap virtual irq
->> here.
-> This does not explain why anyone would ever want to use this interface
-> (which was my question), why would anyone ever want to do this as a
-> separate step?
-
-OK, so you want to say that irq_domain_remove() should take care of 
-doing unmap also?
-
+> On Tuesday 09 February 2016 06:57 PM, Javier Martinez Canillas wrote:
+>> Hello Laxman,
+>>
+>> On 02/09/2016 09:28 AM, Laxman Dewangan wrote:
+>>> It is require to dispose all virtual irq of hwirq on chip
+>>> created on given irq domain before removing this irq domain.
+>>> Hence dispose all mapped irqs before deleting the irq domains
+>>> in regmap_del_irq_chip();
+>>>
+>>> Signed-off-by: Laxman Dewangan <ldewangan@nvidia.com>
+>>>
+>>
+>> I believe this patch could be picked separately and not made part of
+>> this series since is fixing a bug that happens on most drivers using
+>> the regmap-irq API. This will avoid cross-subsystem churn for people.
+>>
+>> Your patch 6/6 does not introduce a regression since the bug already
+>> exists in the MFD driver, it just makes it more noticeable since it
+>> is easier to unbind the max77686 RTC driver than the MFD one.
 >
->>> and why would you ever
->>> want to destroy the domain without unmapping the interrupts?
->> That's exactlly we are trying to do, unmap interrupt in client level before
->> destroying domain.
-> Again, why would any client ever want to skip this step?
+>
+> If we dont have fix then rtc unbind/bind creates issue on S2R. Although it was issue on tot but the issue visible with my patch only.
+>
+> So if you test my 2 to 6 without 1, you will see issue.
+>
 
-If above is yes then we will not need for unmap virtual irq.
-So fix need to go in the irq_domain_remove() to unamp before actually 
-destroying the irq domain?
+Yes I know that but my point is that this will also happen in mainline if
+the MFD device is unbind. Is just that it's harder to do so since at least
+in the Chromebooks the regulators are used for the panel and backlight so
+you will need a serial console.
+  
+> So to avoid bisect issue in functionality wise, this should go on sequence. This is my view.
+>
 
+The problem with patch series touching different subsystems is that the
+maintainers have to agree on how to handle the possible conflicts so it
+is easier for them if you split the patches and post them separately if
+the are really no dependencies.
+
+My view is that this fixes a regmap-irq core bug that is present in all
+the drivers using regmap-irq that remove the IRQ chip after mapping IRQs
+so it's really not related to your RTC series.
+
+But of course I'm not a subsystem maintainer so is up to Alexandre and
+Mark to decide that. I was just giving my opinion.
+
+Best regards,
+-- 
+Javier Martinez Canillas
+Open Source Group
+Samsung Research America
 
 -- 
 -- 
