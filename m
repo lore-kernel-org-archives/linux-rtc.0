@@ -1,33 +1,22 @@
-Return-Path: <rtc-linux+bncBDE6RCFOWIARBJXM2K2QKGQELO2VN6A@googlegroups.com>
-Received: from mail-ob0-x22f.google.com (mail-ob0-x22f.google.com. [2607:f8b0:4003:c01::22f])
-        by gmr-mx.google.com with ESMTPS id kr4si145437igb.0.2016.02.05.06.48.06
+Return-Path: <rtc-linux+bncBD2OLRXW4ABBBSN4462QKGQEGMDEP7Y@googlegroups.com>
+Received: from hqemgate15.nvidia.com (hqemgate15.nvidia.com. [216.228.121.64])
+        by gmr-mx.google.com with ESMTPS id ff2si2297446pad.2.2016.02.09.04.40.41
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 05 Feb 2016 06:48:06 -0800 (PST)
-Received: by mail-ob0-x22f.google.com with SMTP id xk3so90155858obc.2
-        for <rtc-linux@googlegroups.com>; Fri, 05 Feb 2016 06:48:06 -0800 (PST)
+        Tue, 09 Feb 2016 04:40:41 -0800 (PST)
+From: Laxman Dewangan <ldewangan@nvidia.com>
+To: <lee.jones@linaro.org>, <alexandre.belloni@free-electrons.com>,
+	<k.kozlowski@samsung.com>, <javier@osg.samsung.com>, <broonie@kernel.org>,
+	<gregkh@linuxfoundation.org>, <a.zummo@towertech.it>
+CC: <cw00.choi@samsung.com>, <linux-kernel@vger.kernel.org>,
+	<rtc-linux@googlegroups.com>, Laxman Dewangan <ldewangan@nvidia.com>
+Subject: [rtc-linux] [PATCH V6 5/6] mfd: max77686: do not set i2c client data
+ for rtc i2c client
+Date: Tue, 9 Feb 2016 17:58:26 +0530
+Message-ID: <1455020907-4564-6-git-send-email-ldewangan@nvidia.com>
+In-Reply-To: <1455020907-4564-1-git-send-email-ldewangan@nvidia.com>
+References: <1455020907-4564-1-git-send-email-ldewangan@nvidia.com>
 MIME-Version: 1.0
-In-Reply-To: <1454171931-27752-4-git-send-email-ldewangan@nvidia.com>
-References: <1454171931-27752-1-git-send-email-ldewangan@nvidia.com>
-	<1454171931-27752-4-git-send-email-ldewangan@nvidia.com>
-Date: Fri, 5 Feb 2016 15:48:05 +0100
-Message-ID: <CACRpkda+z19COrBBhwZks_69w-BEyOjQMHnadjdRVic+3uN_7g@mail.gmail.com>
-Subject: [rtc-linux] Re: [PATCH V7 3/8] pinctrl: add DT binding doc for
- pincontrol of PMIC max77620/max20024
-From: Linus Walleij <linus.walleij@linaro.org>
-To: Laxman Dewangan <ldewangan@nvidia.com>
-Cc: Rob Herring <robh+dt@kernel.org>, =?UTF-8?Q?Pawe=C5=82_Moll?= <pawel.moll@arm.com>,
-	Mark Rutland <mark.rutland@arm.com>,
-	"ijc+devicetree@hellion.org.uk" <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>,
-	Alexandre Courbot <gnurou@gmail.com>, Lee Jones <lee.jones@linaro.org>, Mark Brown <broonie@kernel.org>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>, Liam Girdwood <lgirdwood@gmail.com>,
-	"devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-	"linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>,
-	"rtc-linux@googlegroups.com" <rtc-linux@googlegroups.com>, Stephen Warren <swarren@nvidia.com>,
-	Thierry Reding <treding@nvidia.com>, =?UTF-8?Q?Krzysztof_Koz=C5=82owski?= <k.kozlowski@samsung.com>,
-	vreddytalla@nvidia.com
 Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
@@ -39,26 +28,55 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Sat, Jan 30, 2016 at 5:38 PM, Laxman Dewangan <ldewangan@nvidia.com> wrote:
+There is different RTC I2C address for RTC block in MAX77686.
+Driver is creating dummy i2c client for this address to access
+the register of this IP block.
 
-> Maxim Semiconductor's PMIC MAX77620/MAX20024 has 8 GPIO pins
-> which act as GPIO as well as special function mode.
->
-> Add DT binding document to configure pins in function mode as
-> well as pin configuration parameters.
->
-> Signed-off-by: Laxman Dewangan <ldewangan@nvidia.com>
-> Acked-by: Rob Herring <robh@kernel.org>
-> ---
-> Changes from V4:
-> - Separate out from pincontrol driver
+As there is no call to i2c_get_clientdata() for rtc_i2c client,
+there is no need to store pointer and hence removing the call
+to set client data for rtc i2c client.
 
-Acked-by: Linus Walleij <linus.walleij@linaro.org>
+Suggested-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+Signed-off-by: Laxman Dewangan <ldewangan@nvidia.com>
+CC: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+CC: Javier Martinez Canillas <javier@osg.samsung.com>
+Reviewed-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+Tested-by: Javier Martinez Canillas <javier@osg.samsung.com>
+Reviewed-by: Javier Martinez Canillas <javier@osg.samsung.com>
 
-Lee can merge this with the rest of the patches.
+---
+This is new in this series based on review comment from V1.
 
-Yours,
-Linus Walleij
+Changes from V2:
+- Rephrase description.
+- Added reviewed by.
+
+Changes from V3:
+- None, become 5th on series.
+
+Changes from V4:
+None
+
+Changes from V5:
+None
+
+ drivers/mfd/max77686.c | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/drivers/mfd/max77686.c b/drivers/mfd/max77686.c
+index d959ebb..bda6fd7 100644
+--- a/drivers/mfd/max77686.c
++++ b/drivers/mfd/max77686.c
+@@ -277,7 +277,6 @@ static int max77686_i2c_probe(struct i2c_client *i2c,
+ 				"Failed to allocate I2C device for RTC\n");
+ 			return -ENODEV;
+ 		}
+-		i2c_set_clientdata(max77686->rtc, max77686);
+ 
+ 		max77686->rtc_regmap =
+ 			devm_regmap_init_i2c(max77686->rtc,
+-- 
+2.1.4
 
 -- 
 -- 
