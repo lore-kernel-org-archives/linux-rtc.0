@@ -1,24 +1,24 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBRW7VS3AKGQEEMTSH5Q@googlegroups.com>
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id s141si1222270wmd.1.2016.02.22.07.56.54
-        for <rtc-linux@googlegroups.com>;
-        Mon, 22 Feb 2016 07:56:54 -0800 (PST)
-Date: Mon, 22 Feb 2016 16:56:53 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: One Thousand Gnomes <gnomes@lxorguk.ukuu.org.uk>,
-	rtc-linux@googlegroups.com, Alessandro Zummo <a.zummo@towertech.it>,
-	Willy Tarreau <w@1wt.eu>, linux-kernel@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH] rtc: Add an option to invalidate dates in 2038
-Message-ID: <20160222155653.GP2222@piout.net>
-References: <1455995444-14146-1-git-send-email-alexandre.belloni@free-electrons.com>
- <20160222130014.GN2222@piout.net>
- <20160222134319.31e77b71@lxorguk.ukuu.org.uk>
- <6269543.oe8MmZQUmX@wuerfel>
+Return-Path: <rtc-linux+bncBCC6ZWOPXENRBHEM462QKGQEDUABYWI@googlegroups.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <6269543.oe8MmZQUmX@wuerfel>
+Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de. [2001:67c:670:201:290:27ff:fe1d:cc33])
+        by gmr-mx.google.com with ESMTPS id w128si525334wmd.0.2016.02.09.02.57.31
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=AES128-SHA bits=128/128);
+        Tue, 09 Feb 2016 02:57:31 -0800 (PST)
+From: Juergen Borleis <jbe@pengutronix.de>
+To: rtc-linux@googlegroups.com
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	linux-kernel@vger.kernel.org,
+	kernel@pengutronix.de
+Subject: [rtc-linux] [PATCH v2 1/3] RTC/PCF85063: simplify code to read the
+ current time
+Date: Tue,  9 Feb 2016 11:57:25 +0100
+Message-Id: <1455015447-13886-2-git-send-email-jbe@pengutronix.de>
+In-Reply-To: <1455015447-13886-1-git-send-email-jbe@pengutronix.de>
+References: <1455015447-13886-1-git-send-email-jbe@pengutronix.de>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -28,48 +28,85 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 22/02/2016 at 16:44:32 +0100, Arnd Bergmann wrote :
-> On Monday 22 February 2016 13:43:19 One Thousand Gnomes wrote:
-> > On Mon, 22 Feb 2016 14:00:14 +0100
-> > Alexandre Belloni <alexandre.belloni@free-electrons.com> wrote:
-> > > I can also agree that systemd could be a bit more robust there but
-> > > you'll have to convince Lennart...
-> > 
-> > That's a systemd problem. If their code isn't robust then the
-> > distributiosn will just have to keep patching it.
-> > 
-> > The only problem that can actually be "fixed" is the case where it isn't
-> > 2038 yet and the user has a scrambled RTC. In that case your init tools
-> > need to be robust enough to handle the problem or use APIs that don't
-> > break. The kernel can't actually "fix" this because it never knows
-> > whether your userspace is sane or not.
-> > 
-> > I'd argue btw that any code using timerfd_create with TFD_TIMER_ABSTIME
-> > and passing it a value that wraps the range permitted by that time
-> > representation *is* buggy. It's the applications responsibility to use
-> > values that are within the defined behavioural range of the function.
-> 
-> IIRC, the problem is that user space passes in TIME_T_MAX and the kernel
-> is considering that to be in the past because the clock is set beyond 2038.
-> 
-> I find it hard to blame user space for that, but I don't have a good
-> idea for solving this either.
-> 
-> In case of systemd, it is literally the first thing that runs on the kernel
-> after booting, so we could fall back to setting the time to some known
-> working state (1970 or 2016 or something), but that would be a rather
-> bad default policy once the system has been running for a while.
-> 
+By using i2c_smbus_read_i2c_block_data() the code is now much simpler.
 
-Also, how would you know that it is an invalid time, some RTC doesn't
-provide that information. One other workaround is to asked distributions
-using systemd to stop using HCTOSYS so userspace would be responsible to
-set the system time and in that case we won't have the 32/64 discrepancy.
+While at it: when reading the RTC's seconds register, all time/date registers
+are frozen until the RTC's year register is read. So it is important to read
+all time/date registers in one turn to not lose a second event. Make it more
+clear why the read must happen in this way.
 
+Signed-off-by: Juergen Borleis <jbe@pengutronix.de>
+---
+ drivers/rtc/rtc-pcf85063.c | 47 +++++++++++++++++++++-------------------------
+ 1 file changed, 21 insertions(+), 26 deletions(-)
+
+diff --git a/drivers/rtc/rtc-pcf85063.c b/drivers/rtc/rtc-pcf85063.c
+index 63334cb..7f9caee 100644
+--- a/drivers/rtc/rtc-pcf85063.c
++++ b/drivers/rtc/rtc-pcf85063.c
+@@ -45,39 +45,34 @@ struct pcf85063 {
+  */
+ static int pcf85063_get_datetime(struct i2c_client *client, struct rtc_time *tm)
+ {
++	int rc;
+ 	struct pcf85063 *pcf85063 = i2c_get_clientdata(client);
+-	unsigned char buf[13] = { PCF85063_REG_CTRL1 };
+-	struct i2c_msg msgs[] = {
+-		{/* setup read ptr */
+-			.addr = client->addr,
+-			.len = 1,
+-			.buf = buf
+-		},
+-		{/* read status + date */
+-			.addr = client->addr,
+-			.flags = I2C_M_RD,
+-			.len = 13,
+-			.buf = buf
+-		},
+-	};
+-
+-	/* read registers */
+-	if ((i2c_transfer(client->adapter, msgs, 2)) != 2) {
+-		dev_err(&client->dev, "%s: read error\n", __func__);
++	u8 regs[7];
++
++	/*
++	 * while reading, the time/date registers are blocked and not updated
++	 * anymore until the access is finished. To not lose a second
++	 * event, the access must be finished within one second. So, read all
++	 * time/date registers in one turn.
++	 */
++	rc = i2c_smbus_read_i2c_block_data(client, PCF85063_REG_SC,
++					   sizeof(regs), regs);
++	if (rc != sizeof(regs)) {
++		dev_err(&client->dev, "date/time register read error\n");
+ 		return -EIO;
+ 	}
+ 
+-	tm->tm_sec = bcd2bin(buf[PCF85063_REG_SC] & 0x7F);
+-	tm->tm_min = bcd2bin(buf[PCF85063_REG_MN] & 0x7F);
+-	tm->tm_hour = bcd2bin(buf[PCF85063_REG_HR] & 0x3F); /* rtc hr 0-23 */
+-	tm->tm_mday = bcd2bin(buf[PCF85063_REG_DM] & 0x3F);
+-	tm->tm_wday = buf[PCF85063_REG_DW] & 0x07;
+-	tm->tm_mon = bcd2bin(buf[PCF85063_REG_MO] & 0x1F) - 1; /* rtc mn 1-12 */
+-	tm->tm_year = bcd2bin(buf[PCF85063_REG_YR]);
++	tm->tm_sec = bcd2bin(regs[0] & 0x7F);
++	tm->tm_min = bcd2bin(regs[1] & 0x7F);
++	tm->tm_hour = bcd2bin(regs[2] & 0x3F); /* rtc hr 0-23 */
++	tm->tm_mday = bcd2bin(regs[3] & 0x3F);
++	tm->tm_wday = regs[4] & 0x07;
++	tm->tm_mon = bcd2bin(regs[5] & 0x1F) - 1; /* rtc mn 1-12 */
++	tm->tm_year = bcd2bin(regs[6]);
+ 	if (tm->tm_year < 70)
+ 		tm->tm_year += 100;	/* assume we are in 1970...2069 */
+ 	/* detect the polarity heuristically. see note above. */
+-	pcf85063->c_polarity = (buf[PCF85063_REG_MO] & PCF85063_MO_C) ?
++	pcf85063->c_polarity = (regs[5] & PCF85063_MO_C) ?
+ 		(tm->tm_year >= 100) : (tm->tm_year < 100);
+ 
+ 	return rtc_valid_tm(tm);
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+2.7.0.rc3
 
 -- 
 -- 
