@@ -1,25 +1,21 @@
-Return-Path: <rtc-linux+bncBCNNJWF7RUMRBEPMZC2QKGQEL5LQZCA@googlegroups.com>
+Return-Path: <rtc-linux+bncBCC6ZWOPXENRBHEM462QKGQEDUABYWI@googlegroups.com>
 MIME-Version: 1.0
-Received: from mail-pa0-x244.google.com (mail-pa0-x244.google.com. [2607:f8b0:400e:c03::244])
-        by gmr-mx.google.com with ESMTPS id r2si965202pfr.0.2016.02.03.09.17.05
+Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de. [2001:67c:670:201:290:27ff:fe1d:cc33])
+        by gmr-mx.google.com with ESMTPS id w128si525336wmd.0.2016.02.09.02.57.31
         for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 03 Feb 2016 09:17:05 -0800 (PST)
-Received: by mail-pa0-x244.google.com with SMTP id gc2so135004pab.3
-        for <rtc-linux@googlegroups.com>; Wed, 03 Feb 2016 09:17:05 -0800 (PST)
-From: Joshua Clayton <stillcompiling@gmail.com>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Alessandro Zummo <a.zummo@towertech.it>
-Cc: rtc-linux@googlegroups.com,
+        (version=TLS1_2 cipher=AES128-SHA bits=128/128);
+        Tue, 09 Feb 2016 02:57:31 -0800 (PST)
+From: Juergen Borleis <jbe@pengutronix.de>
+To: rtc-linux@googlegroups.com
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
 	linux-kernel@vger.kernel.org,
-	Joshua Clayton <stillcompiling@gmail.com>
-Subject: [rtc-linux] [PATCH v3 2/3] rtc: implement a sysfs interface for clock offset
-Date: Wed,  3 Feb 2016 09:16:43 -0800
-Message-Id: <1454519804-13770-2-git-send-email-stillcompiling@gmail.com>
-In-Reply-To: <1454519804-13770-1-git-send-email-stillcompiling@gmail.com>
-References: <1454519804-13770-1-git-send-email-stillcompiling@gmail.com>
-References: <20160202104111.GU20165@piout.net>
-In-Reply-To: <20160202104111.GU20165@piout.net>
+	kernel@pengutronix.de
+Subject: [rtc-linux] [PATCH v2 2/3] RTC/PCF85063: fix time/date reading
+Date: Tue,  9 Feb 2016 11:57:26 +0100
+Message-Id: <1455015447-13886-3-git-send-email-jbe@pengutronix.de>
+In-Reply-To: <1455015447-13886-1-git-send-email-jbe@pengutronix.de>
+References: <1455015447-13886-1-git-send-email-jbe@pengutronix.de>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -31,97 +27,41 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-clock offset may be set and read in decimal parts per billion
-attribute is /sys/class/rtc/rtcN/offset
-The attribute is only visible for rtcs that have set_offset implemented.
+Check if the RTC signals an invalid time/date (due to a battery power loss
+for example). In this case ignore the time/date until it is really set again.
 
-Signed-off-by: Joshua Clayton <stillcompiling@gmail.com>
+Signed-off-by: Juergen Borleis <jbe@pengutronix.de>
 ---
- Documentation/rtc.txt   |  6 ++++++
- drivers/rtc/rtc-sysfs.c | 35 ++++++++++++++++++++++++++++++++++-
- 2 files changed, 40 insertions(+), 1 deletion(-)
+ drivers/rtc/rtc-pcf85063.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/Documentation/rtc.txt b/Documentation/rtc.txt
-index 8446f1e..ddc3660 100644
---- a/Documentation/rtc.txt
-+++ b/Documentation/rtc.txt
-@@ -157,6 +157,12 @@ wakealarm:	 The time at which the clock will generate a system wakeup
- 		 the epoch by default, or if there's a leading +, seconds in the
- 		 future, or if there is a leading +=, seconds ahead of the current
- 		 alarm.
-+offset:		 The amount which the rtc clock has been adjusted in firmware.
-+		 Visible only if the driver supports clock offset adjustment.
-+		 The unit is parts per billion, i.e. The number of clock ticks
-+		 which are added to or removed from the rtc's base clock per
-+		 billion ticks. A positive value makes a day pass more slowly,
-+		 longer, and a negative value makes a day pass more quickly.
+diff --git a/drivers/rtc/rtc-pcf85063.c b/drivers/rtc/rtc-pcf85063.c
+index 7f9caee..e0343e6 100644
+--- a/drivers/rtc/rtc-pcf85063.c
++++ b/drivers/rtc/rtc-pcf85063.c
+@@ -22,6 +22,7 @@
+ #define PCF85063_REG_CTRL2		0x01
  
- IOCTL INTERFACE
- ---------------
-diff --git a/drivers/rtc/rtc-sysfs.c b/drivers/rtc/rtc-sysfs.c
-index 463e286..f8d7f8d 100644
---- a/drivers/rtc/rtc-sysfs.c
-+++ b/drivers/rtc/rtc-sysfs.c
-@@ -218,6 +218,34 @@ wakealarm_store(struct device *dev, struct device_attribute *attr,
- }
- static DEVICE_ATTR_RW(wakealarm);
+ #define PCF85063_REG_SC			0x04 /* datetime */
++#define PCF85063_REG_SC_OS		0x80
+ #define PCF85063_REG_MN			0x05
+ #define PCF85063_REG_HR			0x06
+ #define PCF85063_REG_DM			0x07
+@@ -62,6 +63,12 @@ static int pcf85063_get_datetime(struct i2c_client *client, struct rtc_time *tm)
+ 		return -EIO;
+ 	}
  
-+static ssize_t
-+offset_show(struct device *dev, struct device_attribute *attr, char *buf)
-+{
-+	ssize_t retval;
-+	long offset;
-+
-+	retval = rtc_read_offset(to_rtc_device(dev), &offset);
-+	if (retval == 0)
-+		retval = sprintf(buf, "%ld\n", offset);
-+
-+	return retval;
-+}
-+
-+static ssize_t
-+offset_store(struct device *dev, struct device_attribute *attr,
-+		const char *buf, size_t n)
-+{
-+	ssize_t retval;
-+	long offset;
-+
-+	retval = kstrtol(buf, 10, &offset);
-+	if (retval == 0)
-+		retval = rtc_set_offset(to_rtc_device(dev), offset);
-+
-+	return (retval < 0) ? retval : n;
-+}
-+static DEVICE_ATTR_RW(offset);
-+
- static struct attribute *rtc_attrs[] = {
- 	&dev_attr_name.attr,
- 	&dev_attr_date.attr,
-@@ -226,6 +254,7 @@ static struct attribute *rtc_attrs[] = {
- 	&dev_attr_max_user_freq.attr,
- 	&dev_attr_hctosys.attr,
- 	&dev_attr_wakealarm.attr,
-+	&dev_attr_offset.attr,
- 	NULL,
- };
- 
-@@ -249,9 +278,13 @@ static umode_t rtc_attr_is_visible(struct kobject *kobj,
- 	struct rtc_device *rtc = to_rtc_device(dev);
- 	umode_t mode = attr->mode;
- 
--	if (attr == &dev_attr_wakealarm.attr)
-+	if (attr == &dev_attr_wakealarm.attr) {
- 		if (!rtc_does_wakealarm(rtc))
- 			mode = 0;
-+	} else if (attr == &dev_attr_offset.attr) {
-+		if (!rtc->ops->set_offset)
-+			mode = 0;
++	/* if the clock has lost its power it makes no sense to use its time */
++	if (regs[0] & PCF85063_REG_SC_OS) {
++		dev_warn(&client->dev, "Power loss detected, invalid time\n");
++		return -EINVAL;
 +	}
- 
- 	return mode;
- }
++
+ 	tm->tm_sec = bcd2bin(regs[0] & 0x7F);
+ 	tm->tm_min = bcd2bin(regs[1] & 0x7F);
+ 	tm->tm_hour = bcd2bin(regs[2] & 0x3F); /* rtc hr 0-23 */
 -- 
-2.5.0
+2.7.0.rc3
 
 -- 
 -- 
