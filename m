@@ -1,22 +1,23 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBANNQ63AKGQEMVOUXFY@googlegroups.com>
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id h126si455257wme.0.2016.02.15.05.45.36
+Return-Path: <rtc-linux+bncBAABBQWS462QKGQEAKWVTRI@googlegroups.com>
+Received: from lists.s-osg.org (lists.s-osg.org. [54.187.51.154])
+        by gmr-mx.google.com with ESMTP id 12si4648411pfb.1.2016.02.09.05.27.29
         for <rtc-linux@googlegroups.com>;
-        Mon, 15 Feb 2016 05:45:36 -0800 (PST)
-Date: Mon, 15 Feb 2016 14:45:35 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Javier Martinez Canillas <javier@osg.samsung.com>
-Cc: linux-kernel@vger.kernel.org, Rob Herring <robh+dt@kernel.org>,
-	linux-samsung-soc@vger.kernel.org,
-	Krzysztof Kozlowski <k.kozlowski@samsung.com>,
-	rtc-linux@googlegroups.com, devicetree@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH] rtc: s3c: Document in binding that only
- s3c6410 needs a src clk
-Message-ID: <20160215134535.GB15219@piout.net>
-References: <1455542202-13977-1-git-send-email-javier@osg.samsung.com>
+        Tue, 09 Feb 2016 05:27:29 -0800 (PST)
+Subject: [rtc-linux] Re: [PATCH V6 1/6] regmap: irq: dispose all virtual irq
+ before removing domain
+To: Laxman Dewangan <ldewangan@nvidia.com>, lee.jones@linaro.org,
+ alexandre.belloni@free-electrons.com, k.kozlowski@samsung.com,
+ broonie@kernel.org, gregkh@linuxfoundation.org, a.zummo@towertech.it
+References: <1455020907-4564-1-git-send-email-ldewangan@nvidia.com>
+ <1455020907-4564-2-git-send-email-ldewangan@nvidia.com>
+From: Javier Martinez Canillas <javier@osg.samsung.com>
+Cc: cw00.choi@samsung.com, linux-kernel@vger.kernel.org,
+ rtc-linux@googlegroups.com
+Message-ID: <56B9E93A.2040903@osg.samsung.com>
+Date: Tue, 9 Feb 2016 10:27:22 -0300
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1455542202-13977-1-git-send-email-javier@osg.samsung.com>
+In-Reply-To: <1455020907-4564-2-git-send-email-ldewangan@nvidia.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -27,64 +28,30 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 15/02/2016 at 10:16:42 -0300, Javier Martinez Canillas wrote :
-> Commit 43f3408261a2 ("rtc: s3c: Document required clocks in the DT
+Hello Laxman,
 
-I'm pretty sure you shouldn't refer to a commit that is in linux-next.
+On 02/09/2016 09:28 AM, Laxman Dewangan wrote:
+> It is require to dispose all virtual irq of hwirq on chip
+> created on given irq domain before removing this irq domain.
+> Hence dispose all mapped irqs before deleting the irq domains
+> in regmap_del_irq_chip();
+>
+> Signed-off-by: Laxman Dewangan <ldewangan@nvidia.com>
+>
 
-> binding") added to the S3C binding doc the required clocks needed
-> by the Real Time Clock but the S3C driver supports different HW IP
-> and only the s3c6410 needs a source clock.
-> 
-> Fix the DT binding explaning that the second clock is only needed
-          explaining ^
-> by this IP block and not for the others.
-> 
-> Reported-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-> Fixes: 43f3408261a2 ("rtc: s3c: Document required clocks in the DT binding")
-> Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
-> 
+I believe this patch could be picked separately and not made part of
+this series since is fixing a bug that happens on most drivers using
+the regmap-irq API. This will avoid cross-subsystem churn for people.
 
-Anyway, I'm fine with it, feel free to add my ack.
+Your patch 6/6 does not introduce a regression since the bug already
+exists in the MFD driver, it just makes it more noticeable since it
+is easier to unbind the max77686 RTC driver than the MFD one.
 
-> ---
-> Hello,
-> 
-> The mentioned commit was picked by Rob Herring so this one has to go
-> through his tree again and not through the RTC tree to avoid conflicts.
-> 
-> Best regards,
-> Javier
-> 
->  Documentation/devicetree/bindings/rtc/s3c-rtc.txt | 7 ++++---
->  1 file changed, 4 insertions(+), 3 deletions(-)
-> 
-> diff --git a/Documentation/devicetree/bindings/rtc/s3c-rtc.txt b/Documentation/devicetree/bindings/rtc/s3c-rtc.txt
-> index 1068ffce9f91..fdde63a5419c 100644
-> --- a/Documentation/devicetree/bindings/rtc/s3c-rtc.txt
-> +++ b/Documentation/devicetree/bindings/rtc/s3c-rtc.txt
-> @@ -15,9 +15,10 @@ Required properties:
->    is the rtc tick interrupt. The number of cells representing a interrupt
->    depends on the parent interrupt controller.
->  - clocks: Must contain a list of phandle and clock specifier for the rtc
-> -          and source clocks.
-> -- clock-names: Must contain "rtc" and "rtc_src" entries sorted in the
-> -               same order as the clocks property.
-> +          clock and in the case of a s3c6410 compatible controller, also
-> +          a source clock.
-> +- clock-names: Must contain "rtc" and for a s3c6410 compatible controller,
-> +               a "rtc_src" sorted in the same order as the clocks property.
->  
->  Example:
->  
-> -- 
-> 2.5.0
-> 
-
+Best regards,
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+Javier Martinez Canillas
+Open Source Group
+Samsung Research America
 
 -- 
 -- 
