@@ -1,23 +1,21 @@
-Return-Path: <rtc-linux+bncBAABBPHXZK2QKGQELZ7RK6Y@googlegroups.com>
-Received: from lists.s-osg.org (lists.s-osg.org. [54.187.51.154])
-        by gmr-mx.google.com with ESMTP id 12si1117598pfb.1.2016.02.03.18.47.24
-        for <rtc-linux@googlegroups.com>;
-        Wed, 03 Feb 2016 18:47:24 -0800 (PST)
-Subject: [rtc-linux] Re: [PATCH] rtc: max77686: Properly handle
- regmap_irq_get_virq() error code
-To: Krzysztof Kozlowski <k.kozlowski@samsung.com>,
- Chanwoo Choi <cw00.choi@samsung.com>, Alessandro Zummo
- <a.zummo@towertech.it>,
- Alexandre Belloni <alexandre.belloni@free-electrons.com>,
- linux-kernel@vger.kernel.org, rtc-linux@googlegroups.com
-References: <1454545595-31725-1-git-send-email-k.kozlowski@samsung.com>
-Cc: ldewangan@nvidia.com
-From: Javier Martinez Canillas <javier@osg.samsung.com>
-Message-ID: <56B2BBB4.8090607@osg.samsung.com>
-Date: Wed, 3 Feb 2016 23:47:16 -0300
+Return-Path: <rtc-linux+bncBD2OLRXW4ABBBCWI5C2QKGQEHDEUE5Y@googlegroups.com>
+Received: from hqemgate14.nvidia.com (hqemgate14.nvidia.com. [216.228.121.143])
+        by gmr-mx.google.com with ESMTPS id ff2si2448891pad.2.2016.02.09.09.38.18
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 09 Feb 2016 09:38:18 -0800 (PST)
+From: Laxman Dewangan <ldewangan@nvidia.com>
+To: <lee.jones@linaro.org>, <alexandre.belloni@free-electrons.com>,
+	<k.kozlowski@samsung.com>, <javier@osg.samsung.com>, <broonie@kernel.org>,
+	<gregkh@linuxfoundation.org>, <a.zummo@towertech.it>
+CC: <cw00.choi@samsung.com>, <linux-kernel@vger.kernel.org>,
+	<rtc-linux@googlegroups.com>, Laxman Dewangan <ldewangan@nvidia.com>
+Subject: [rtc-linux] [PATCH V7 0/5] rtc: max77686: make max77686 rtc driver as
+ IP driver
+Date: Tue, 9 Feb 2016 22:56:29 +0530
+Message-ID: <1455038794-9921-1-git-send-email-ldewangan@nvidia.com>
 MIME-Version: 1.0
-In-Reply-To: <1454545595-31725-1-git-send-email-k.kozlowski@samsung.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -28,32 +26,54 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Hello Krzysztof,
+Based on discussion on patch series of MAX77620 when adding separate
+driver for max77620 RTC, it is discussed to reuse the max77686 driver
+for all CHips MAX77802, MAX77686 and MAX77620. For this, the rtc-max77686
+need to make as IP driver independent of their MFD parent driver.
 
-On 02/03/2016 09:26 PM, Krzysztof Kozlowski wrote:
-> The regmap_irq_get_virq() can return 0 or -EINVAL in error conditions
-> but driver checked only for value of 0.
->
-> This could lead to a cast of -EINVAL to an unsigned int used as a
-> interrupt number for devm_request_threaded_irq(). Although this is not
-> yet fatal (devm_request_threaded_irq() will just fail with -EINVAL) but
-> might be a misleading when diagnosing errors.
->
-> Signed-off-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-> Fixes: 6f1c1e71d933 ("mfd: max77686: Convert to use regmap_irq")
->
-> ---
->
+This series makes the rtc-max77686 as independent driver from its 
+parent. Required information is passed through the device parent
+which is generic and does not depends on any max77686 specific
+header ifnromation.
 
-Good catch.
+CC: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+CC: Javier Martinez Canillas <javier@osg.samsung.com>
 
-Reviewed-by: Javier Martinez Canillas <javier@osg.samsung.com>
+Changes from V1: 
+- Added reviewed/tested by tag which we got from V1.
+- Remove changes from Kconfig.
+- Maintain all register definition in max77686 private header and remove
+  the movement to rtc driver.
+- Taken care of all comments on V1 from Krzysztof and Javier.
 
-Best regards,
+Changes from V2: 
+- Fix the issue of crash in unbind.
+
+Changes from V3: 
+- Fix suspend-resume after unbind/bind by unmapping virq in remove callback.
+
+Changes from V5: 
+- Abandon the addition of new API in regmap-irq and add dispose of virq
+  in regmap_del_irq_chip().
+
+Changes from V6: 
+- make regmap change as independent of this series and rebase it on linux-next
+  20160209
+
+Laxman Dewangan (5):
+  rtc: max77686: fix checkpatch error
+  rtc: max77686: use rtc regmap to access RTC registers
+  rtc: max77686: avoid reference of parent device info multiple places
+  mfd: max77686: do not set i2c client data for rtc i2c client
+  rtc: max77686: move initialisation of rtc regmap, irq chip locally
+
+ drivers/mfd/max77686.c               |  86 +-------------
+ drivers/rtc/rtc-max77686.c           | 214 ++++++++++++++++++++++++++---------
+ include/linux/mfd/max77686-private.h |   3 -
+ 3 files changed, 161 insertions(+), 142 deletions(-)
+
 -- 
-Javier Martinez Canillas
-Open Source Group
-Samsung Research America
+2.1.4
 
 -- 
 -- 
