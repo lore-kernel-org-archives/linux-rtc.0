@@ -1,22 +1,27 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBDPI2K2QKGQEUKVZMFY@googlegroups.com>
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id s132si1030747wmd.1.2016.02.05.06.39.09
-        for <rtc-linux@googlegroups.com>;
-        Fri, 05 Feb 2016 06:39:09 -0800 (PST)
-Date: Fri, 5 Feb 2016 15:39:08 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Joshua Clayton <stillcompiling@gmail.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH v3 1/3] rtc: Add functions to set and read rtc offset
-Message-ID: <20160205143908.GJ4782@piout.net>
-References: <20160202104111.GU20165@piout.net>
- <1454519804-13770-1-git-send-email-stillcompiling@gmail.com>
- <20160204220754.GB4782@piout.net>
- <20160204153242.566a5a1f@jclayton-pc>
+Return-Path: <rtc-linux+bncBD2OLRXW4ABBBEWW5C2QKGQEYRQZGNY@googlegroups.com>
+Received: from hqemgate15.nvidia.com (hqemgate15.nvidia.com. [216.228.121.64])
+        by gmr-mx.google.com with ESMTPS id tn7si5241069pac.1.2016.02.09.10.08.18
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 09 Feb 2016 10:08:18 -0800 (PST)
+Message-ID: <56BA2859.2040605@nvidia.com>
+Date: Tue, 9 Feb 2016 23:26:41 +0530
+From: Laxman Dewangan <ldewangan@nvidia.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <20160204153242.566a5a1f@jclayton-pc>
+To: Lee Jones <lee.jones@linaro.org>
+CC: <robh+dt@kernel.org>, <pawel.moll@arm.com>, <mark.rutland@arm.com>,
+	<ijc+devicetree@hellion.org.uk>, <galak@codeaurora.org>,
+	<linus.walleij@linaro.org>, <gnurou@gmail.com>, <broonie@kernel.org>,
+	<a.zummo@towertech.it>, <alexandre.belloni@free-electrons.com>,
+	<lgirdwood@gmail.com>, <devicetree@vger.kernel.org>,
+	<linux-kernel@vger.kernel.org>, <linux-gpio@vger.kernel.org>,
+	<rtc-linux@googlegroups.com>, <swarren@nvidia.com>, <treding@nvidia.com>,
+	<k.kozlowski@samsung.com>, <vreddytalla@nvidia.com>
+Subject: [rtc-linux] Re: [PATCH V7 1/8] mfd: add device-tree binding doc for
+ PMIC max77620/max20024
+References: <1454171931-27752-1-git-send-email-ldewangan@nvidia.com> <1454171931-27752-2-git-send-email-ldewangan@nvidia.com> <20160209154215.GF24522@x1>
+In-Reply-To: <20160209154215.GF24522@x1>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -27,38 +32,49 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 04/02/2016 at 15:32:42 -0800, Joshua Clayton wrote :
-> > > +int rtc_read_offset(struct rtc_device *rtc, long *offset)
-> > > +{
-> > > +	int ret = 0;
-> > > +
-> > > +	if (!rtc->ops)
-> > > +		return -ENODEV;
-> > > +
-> > > +	if (!rtc->ops->set_offset) {
-> > > +		*offset = 0;
-> > > +		return 0;
-> > > +	}
-> > > +
-> > 
-> > I should have been clearer but this is not necessary anymore since the
-> > sysfs interface will not always be present but you
-> > should probably test rtc->ops->read_offset instead.
-> >
-> I left it because the kernel API is still there even if the sysfs
-> file is not...
-> but yeah, you are right. I'll fix the check, and the formatting
-> in the other patch.
-> 
 
-Yeah but from inside the kernel, I feel that it is more useful to know
-that the value doesn't exist instead of having 0.
+On Tuesday 09 February 2016 09:12 PM, Lee Jones wrote:
+> On Sat, 30 Jan 2016, Laxman Dewangan wrote:
+>
+> +	Normal mode also called as active mode on which all step-down
+> +		regulators, all linear regulators, GPIOs, and the 32kHz
+> +		oscillator are in normal active mode.
+> +	sleep mode: Regulators/GPIOs/clock can go on OFF state based on
+> "can go on OFF state"?
+
+Regulator/GPIO has two states, enable and disable. If sleep mode is 
+configured for these resource and external signal triggers to sleep then 
+this get disabled.
+>> +	Different modes of regulators/clock/GPIOs are controlled by the their
+>> +FPS configurations. There is different configuration registers for each of
+>> +these resources. Typical configurations per resource are:
+>> +	FPS source: 	Attach the resource to required FPS source. When
+>> +			resources are attached to one of FPS source then
+>> +			resournce can be enable/disable when related FPS
+> Have you used spell check?  I suggest you do.
+
+My bad, I did but mixed with technical ignorance. Will try best.
+
+>
+>> +			source gets the control signal for ON and OFF.
+>> +	Power on slot: 	Slot number on which resource is ON once FPS source
+>> +			get ON signal.
+> Can you find another way of explaining this please?
+
+Hmm..
+Does it look fine:
+There is 8 slots for each FPS on which resource can get enabled. This 
+property provides the slot number on which resource gets enabled after 
+FPS sequence started.
 
 
--- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+>
+>
+> +
+> +-maxim,enable-sleep: 		    Boolean, enable sleep state of PMIC
+> We already have bindings for sleeping.  Please use a generic one.
+
+Which property? Saw sleep property with vendor prefix.
 
 -- 
 -- 
