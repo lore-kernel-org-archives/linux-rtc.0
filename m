@@ -1,29 +1,23 @@
-Return-Path: <rtc-linux+bncBDKZNNNLXAHBB6VNZK2QKGQE2SY4F3Y@googlegroups.com>
-Received: from mailout2.w1.samsung.com (mailout2.w1.samsung.com. [210.118.77.12])
-        by gmr-mx.google.com with ESMTPS id ui7si1169871pab.0.2016.02.03.16.10.34
+Return-Path: <rtc-linux+bncBCC6ZWOPXENRBHEM462QKGQEDUABYWI@googlegroups.com>
+MIME-Version: 1.0
+Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de. [2001:67c:670:201:290:27ff:fe1d:cc33])
+        by gmr-mx.google.com with ESMTPS id w128si525337wmd.0.2016.02.09.02.57.31
         for <rtc-linux@googlegroups.com>
-        (version=TLS1 cipher=AES128-SHA bits=128/128);
-        Wed, 03 Feb 2016 16:10:34 -0800 (PST)
-Received: from eucpsbgm2.samsung.com (unknown [203.254.199.245])
- by mailout2.w1.samsung.com
- (Oracle Communications Messaging Server 7.0.5.31.0 64bit (built May  5 2014))
- with ESMTP id <0O1Z008G0XTHNO50@mailout2.w1.samsung.com> for
- rtc-linux@googlegroups.com; Thu, 04 Feb 2016 00:10:29 +0000 (GMT)
-Subject: [rtc-linux] Re: [PATCH V3 5/5] rtc: max77686: move initialisation of
- rtc regmap, irq chip locally
-To: Laxman Dewangan <ldewangan@nvidia.com>, lee.jones@linaro.org,
- alexandre.belloni@free-electrons.com, javier@osg.samsung.com
-References: <1454507233-9959-1-git-send-email-ldewangan@nvidia.com>
- <1454507233-9959-6-git-send-email-ldewangan@nvidia.com>
-Cc: cw00.choi@samsung.com, linux-kernel@vger.kernel.org,
- rtc-linux@googlegroups.com
-From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-Message-id: <56B296F6.3060002@samsung.com>
-Date: Thu, 04 Feb 2016 09:10:30 +0900
-MIME-version: 1.0
-In-reply-to: <1454507233-9959-6-git-send-email-ldewangan@nvidia.com>
-Content-type: text/plain; charset=UTF-8
+        (version=TLS1_2 cipher=AES128-SHA bits=128/128);
+        Tue, 09 Feb 2016 02:57:31 -0800 (PST)
+From: Juergen Borleis <jbe@pengutronix.de>
+To: rtc-linux@googlegroups.com
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	linux-kernel@vger.kernel.org,
+	kernel@pengutronix.de
+Subject: [rtc-linux] [PATCH v2 3/3] RTC/PCF85063: fix time/date setting
+Date: Tue,  9 Feb 2016 11:57:27 +0100
+Message-Id: <1455015447-13886-4-git-send-email-jbe@pengutronix.de>
+In-Reply-To: <1455015447-13886-1-git-send-email-jbe@pengutronix.de>
+References: <1455015447-13886-1-git-send-email-jbe@pengutronix.de>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -33,113 +27,134 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 03.02.2016 22:47, Laxman Dewangan wrote:
-> To make RTC block of MAX77686/MAX77802 as independent driver,
-> move the registration of i2c device, regmap for register access
-> and irq_chip for interrupt support inside the RTC driver.
-> Removed the same initialisation from MFD driver.
-> 
-> Having this change will allow to reuse this driver for different
-> PMIC/devices from Maxim Semiconductor if they kept same RTC IP on
-> different PMIC. Some of examples as PMIC MAX77620, MAX20024 where
-> same RTC IP used and hence driver for these chips will use this
-> driver only for RTC support.
-> 
-> Suggested-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-> Signed-off-by: Laxman Dewangan <ldewangan@nvidia.com>
-> CC: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-> CC: Javier Martinez Canillas <javier@osg.samsung.com>
-> Reviewed-by: Javier Martinez Canillas <javier@osg.samsung.com>
-> 
-> ---
-> Changes from V1:
-> - Remove changes from Kconfig.
-> - Maintain all register definition in max77686 private header and remove
->   the movement to rtc driver.
-> - Taken care of all comments on V1 from Krzysztof and Javier.
-> 
-> Changes from V2:
-> - Taken care of missed sequence for removing the resource.
-> - Fix the crash when doing unbind by using requested_threaded_irq()
->   instead of demv_requested_threaded_irq().
-> 
->  drivers/mfd/max77686.c               |  85 +-------------------
->  drivers/rtc/rtc-max77686.c           | 148 ++++++++++++++++++++++++++++++-----
->  include/linux/mfd/max77686-private.h |   3 -
->  3 files changed, 130 insertions(+), 106 deletions(-)
-> 
+When setting a new time/date the RTC's clock must be stopped first, in
+order to write the time/date registers in an atomic manner.
+So, this change stops the clock first and then writes the time/date
+registers and the clock control register (to re-enable the clock) in one
+turn.
 
-Looks good and works properly (RTC, unbind/rebind, wakealarm again)
-but... after applying this patch the device cannot suspend to RAM after
-unbind/rebind.
+Signed-off-by: Juergen Borleis <jbe@pengutronix.de>
+---
+ drivers/rtc/rtc-pcf85063.c | 78 ++++++++++++++++++++++++++++++++--------------
+ 1 file changed, 55 insertions(+), 23 deletions(-)
 
-Reproduce path, after booting:
-$ echo max77686-rtc > /sys/bus/platform/drivers/max77686-rtc/unbind
-$ echo max77686-rtc > /sys/bus/platform/drivers/max77686-rtc/bind
-$ rtcwake -d rtc2 -m mem -s 5 -v
-(or instead of rtcwake: echo mem > /sys/power/state)
-
-Proper behaviour:
-##############################
-[   28.549244] PM: late suspend of devices complete after 2.239 msecs
-[   28.556051] PM: noirq suspend of devices complete after 2.078 msecs
-[   28.560952] Disabling non-boot CPUs ...
-[   28.588392] CPU1: shutdown
-[   28.623283] CPU2: shutdown
-[   28.653242] CPU3: shutdown
-
-Power usage drops. Device wakes up (either from RTC or from manual, e.g.
-key press)
-##############################
-
-
-Behaviour with patch 5/5:
-[   67.068586] PM: Syncing filesystems ... done.
-[   67.121673] Freezing user space processes ... (elapsed 0.004 seconds)
-done.
-[   67.123457] Freezing remaining freezable tasks ... (elapsed 0.001
-seconds) done.
-[   67.182024] wake enabled for irq 125
-[   67.184315] wake enabled for irq 127
-[   67.187829] wake enabled for irq 147
-[   67.191238] wake enabled for irq 148
-[   67.195178] dwc2 12480000.hsotg: suspending usb gadget g_ether
-[   67.200647] dwc2 12480000.hsotg: new device is full-speed
-[   67.206036] dwc2 12480000.hsotg: dwc2_hsotg_ep_disable: called for ep0
-[   67.212523] dwc2 12480000.hsotg: dwc2_hsotg_ep_disable: called for ep0
-[   67.221742] PM: suspend of devices complete after 93.132 msecs
-[   67.226113] VALIVE_1.0V_AP: No configuration
-[   67.230399] VCC_1.8V_AP: No configuration
-[   67.234385] VCC_2.8V_AP: No configuration
-[   67.238373] VCC_1.8V_IO: No configuration
-[   67.243130] CAM_ISP_MIPI_1.2V: No configuration
-[   67.249142] NFC_AVDD_1.8V: No configuration
-[   67.252661] CAM_SENSOR_CORE_1.2V: No configuration
-[   67.256648] CAM_ISP_SEN_IO_1.8V: No configuration
-[   67.261311] VT_CAM_1.8V: No configuration
-[   67.265323] VDDQ_PRE_1.8V: No configuration
-[   67.269488] VTF_2.8V: No configuration
-[   67.273219] VMEM_VDD_2.8V: No configuration
-[   67.277386] TSP_AVDD_3.3V: No configuration
-[   67.281553] TSP_VDD_1.8V: No configuration
-[   67.285615] LCD_VCC_3.3V: No configuration
-[   67.289712] MOTOR_VCC_3.0V: No configuration
-[   67.296266] VMEM_1.2V_AP: No configuration
-[   67.298902] VCC_SUB_1.35V: No configuration
-[   67.303064] VCC_SUB_2.0V: No configuration
-[   67.307142] VMEM_VDDF_3.0V: No configuration
-[   67.311377] CAM_ISP_CORE_1.2V: No configuration
-[   67.318181] PM: late suspend of devices complete after 2.267 msecs
-[   67.325046] PM: noirq suspend of devices complete after 2.137 msecs
-[   67.329857] Disabling non-boot CPUs ...
-
-No CPU shutdown messages. Power usage not decreased, device does not
-wake up.
-
-I don't know yet what is the cause... At first glance it looks okay...
-
-Best regards,
-Krzysztof
+diff --git a/drivers/rtc/rtc-pcf85063.c b/drivers/rtc/rtc-pcf85063.c
+index e0343e6..c5db231 100644
+--- a/drivers/rtc/rtc-pcf85063.c
++++ b/drivers/rtc/rtc-pcf85063.c
+@@ -19,6 +19,7 @@
+ #define DRV_VERSION "0.0.1"
+ 
+ #define PCF85063_REG_CTRL1		0x00 /* status */
++#define PCF85063_REG_CTRL1_STOP		BIT(5)
+ #define PCF85063_REG_CTRL2		0x01
+ 
+ #define PCF85063_REG_SC			0x04 /* datetime */
+@@ -40,6 +41,30 @@ struct pcf85063 {
+ 	int voltage_low; /* indicates if a low_voltage was detected */
+ };
+ 
++static int pcf85063_stop_clock(struct i2c_client *client, u8 *ctrl1)
++{
++	s32 ret;
++
++	ret = i2c_smbus_read_byte_data(client, PCF85063_REG_CTRL1);
++	if (ret < 0) {
++		dev_err(&client->dev, "Failing to stop the clock\n");
++		return -EIO;
++	}
++
++	/* stop the clock */
++	ret |= PCF85063_REG_CTRL1_STOP;
++
++	ret = i2c_smbus_write_byte_data(client, PCF85063_REG_CTRL1, ret);
++	if (ret < 0) {
++		dev_err(&client->dev, "Failing to stop the clock\n");
++		return -EIO;
++	}
++
++	*ctrl1 = ret;
++
++	return 0;
++}
++
+ /*
+  * In the routines that deal directly with the pcf85063 hardware, we use
+  * rtc_time -- month 0-11, hour 0-23, yr = calendar year-epoch.
+@@ -87,41 +112,48 @@ static int pcf85063_get_datetime(struct i2c_client *client, struct rtc_time *tm)
+ 
+ static int pcf85063_set_datetime(struct i2c_client *client, struct rtc_time *tm)
+ {
+-	int i = 0, err = 0;
+-	unsigned char buf[11];
++	int rc;
++	u8 regs[8];
+ 
+-	/* Control & status */
+-	buf[PCF85063_REG_CTRL1] = 0;
+-	buf[PCF85063_REG_CTRL2] = 5;
++	/*
++	 * to accurately set the time, reset the divider chain and keep it in
++	 * reset state until all time/date registers are written
++	 */
++	rc = pcf85063_stop_clock(client, &regs[7]);
++	if (rc != 0)
++		return rc;
+ 
+ 	/* hours, minutes and seconds */
+-	buf[PCF85063_REG_SC] = bin2bcd(tm->tm_sec) & 0x7F;
++	regs[0] = bin2bcd(tm->tm_sec) & 0x7F; /* clear OS flag */
+ 
+-	buf[PCF85063_REG_MN] = bin2bcd(tm->tm_min);
+-	buf[PCF85063_REG_HR] = bin2bcd(tm->tm_hour);
++	regs[1] = bin2bcd(tm->tm_min);
++	regs[2] = bin2bcd(tm->tm_hour);
+ 
+ 	/* Day of month, 1 - 31 */
+-	buf[PCF85063_REG_DM] = bin2bcd(tm->tm_mday);
++	regs[3] = bin2bcd(tm->tm_mday);
+ 
+ 	/* Day, 0 - 6 */
+-	buf[PCF85063_REG_DW] = tm->tm_wday & 0x07;
++	regs[4] = tm->tm_wday & 0x07;
+ 
+ 	/* month, 1 - 12 */
+-	buf[PCF85063_REG_MO] = bin2bcd(tm->tm_mon + 1);
++	regs[5] = bin2bcd(tm->tm_mon + 1);
+ 
+ 	/* year and century */
+-	buf[PCF85063_REG_YR] = bin2bcd(tm->tm_year % 100);
+-
+-	/* write register's data */
+-	for (i = 0; i < sizeof(buf); i++) {
+-		unsigned char data[2] = { i, buf[i] };
+-
+-		err = i2c_master_send(client, data, sizeof(data));
+-		if (err != sizeof(data)) {
+-			dev_err(&client->dev, "%s: err=%d addr=%02x, data=%02x\n",
+-					__func__, err, data[0], data[1]);
+-			return -EIO;
+-		}
++	regs[6] = bin2bcd(tm->tm_year % 100);
++
++	/*
++	 * after all time/date registers are written, let the 'address auto
++	 * increment' feature wrap around and write register CTRL1 to re-enable
++	 * the clock divider chain again
++	 */
++	regs[7] &= ~PCF85063_REG_CTRL1_STOP;
++
++	/* write all registers at once */
++	rc = i2c_smbus_write_i2c_block_data(client, PCF85063_REG_SC,
++					    sizeof(regs), regs);
++	if (rc < 0) {
++		dev_err(&client->dev, "date/time register write error\n");
++		return rc;
+ 	}
+ 
+ 	return 0;
+-- 
+2.7.0.rc3
 
 -- 
 -- 
