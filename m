@@ -1,19 +1,20 @@
-Return-Path: <rtc-linux+bncBD2OLRXW4ABBB44WY62QKGQE6IFYE3I@googlegroups.com>
-Received: from hqemgate16.nvidia.com (hqemgate16.nvidia.com. [216.228.121.65])
-        by gmr-mx.google.com with ESMTPS id jg4si679650pac.2.2016.02.03.01.42.10
+Return-Path: <rtc-linux+bncBD2OLRXW4ABBBPV4462QKGQEWVAJZOA@googlegroups.com>
+Received: from hqemgate14.nvidia.com (hqemgate14.nvidia.com. [216.228.121.143])
+        by gmr-mx.google.com with ESMTPS id 79si1915234pft.0.2016.02.09.04.40.30
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 03 Feb 2016 01:42:11 -0800 (PST)
+        Tue, 09 Feb 2016 04:40:30 -0800 (PST)
 From: Laxman Dewangan <ldewangan@nvidia.com>
 To: <lee.jones@linaro.org>, <alexandre.belloni@free-electrons.com>,
-	<k.kozlowski@samsung.com>, <javier@osg.samsung.com>
+	<k.kozlowski@samsung.com>, <javier@osg.samsung.com>, <broonie@kernel.org>,
+	<gregkh@linuxfoundation.org>, <a.zummo@towertech.it>
 CC: <cw00.choi@samsung.com>, <linux-kernel@vger.kernel.org>,
 	<rtc-linux@googlegroups.com>, Laxman Dewangan <ldewangan@nvidia.com>
-Subject: [rtc-linux] [PATCH V2 1/5] rtc: max77686: fix checkpatch error
-Date: Wed, 3 Feb 2016 15:00:44 +0530
-Message-ID: <1454491848-26551-2-git-send-email-ldewangan@nvidia.com>
-In-Reply-To: <1454491848-26551-1-git-send-email-ldewangan@nvidia.com>
-References: <1454491848-26551-1-git-send-email-ldewangan@nvidia.com>
+Subject: [rtc-linux] [PATCH V6 2/6] rtc: max77686: fix checkpatch error
+Date: Tue, 9 Feb 2016 17:58:23 +0530
+Message-ID: <1455020907-4564-3-git-send-email-ldewangan@nvidia.com>
+In-Reply-To: <1455020907-4564-1-git-send-email-ldewangan@nvidia.com>
+References: <1455020907-4564-1-git-send-email-ldewangan@nvidia.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
@@ -36,11 +37,21 @@ CC: Krzysztof Kozlowski <k.kozlowski@samsung.com>
 CC: Javier Martinez Canillas <javier@osg.samsung.com>
 Tested-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
 Reviewed-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+Tested-by: Javier Martinez Canillas <javier@osg.samsung.com>
 Reviewed-by: Javier Martinez Canillas <javier@osg.samsung.com>
 
 ---
 Changes from V1:
 None, added reviewed/tested by.
+
+Changes from V1:
+None
+
+Changes from V1:
+None, become 2nd on series.
+
+Changes from V5:
+None
 
  drivers/rtc/rtc-max77686.c | 25 +++++++++++++------------
  1 file changed, 13 insertions(+), 12 deletions(-)
