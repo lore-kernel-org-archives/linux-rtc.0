@@ -1,23 +1,25 @@
-Return-Path: <rtc-linux+bncBDNZNK75ZIKRB3FQX22QKGQE5HEUS7I@googlegroups.com>
+Return-Path: <rtc-linux+bncBD2OLRXW4ABBB2PR4W2QKGQEBCCPTDQ@googlegroups.com>
+Received: from hqemgate15.nvidia.com (hqemgate15.nvidia.com. [216.228.121.64])
+        by gmr-mx.google.com with ESMTPS id ff2si2134225pad.2.2016.02.08.21.28.09
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 08 Feb 2016 21:28:09 -0800 (PST)
+Message-ID: <56B97632.1000208@nvidia.com>
+Date: Tue, 9 Feb 2016 10:46:34 +0530
+From: Laxman Dewangan <ldewangan@nvidia.com>
 MIME-Version: 1.0
-From: Andre Przywara <andre.przywara@arm.com>
-To: Maxime Ripard <maxime.ripard@free-electrons.com>,
-	Chen-Yu Tsai <wens@csie.org>,
-	linux-sunxi@googlegroups.com
-Cc: Arnd Bergmann <arnd@arndb.de>,
-	linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	rtc-linux@googlegroups.com
-Subject: [rtc-linux] [PATCH 03/11] drivers: rtc: allow compilation of sun6i
- RTC for all sunxi SoCs
-Date: Mon,  1 Feb 2016 17:39:22 +0000
-Message-Id: <1454348370-3816-4-git-send-email-andre.przywara@arm.com>
-In-Reply-To: <1454348370-3816-1-git-send-email-andre.przywara@arm.com>
-References: <1454348370-3816-1-git-send-email-andre.przywara@arm.com>
+To: Mark Brown <broonie@kernel.org>
+CC: Thomas Gleixner <tglx@linutronix.de>, <lee.jones@linaro.org>,
+	<alexandre.belloni@free-electrons.com>, <k.kozlowski@samsung.com>,
+	<javier@osg.samsung.com>, <gregkh@linuxfoundation.org>,
+	<a.zummo@towertech.it>, <cw00.choi@samsung.com>,
+	<linux-kernel@vger.kernel.org>, <rtc-linux@googlegroups.com>
+Subject: [rtc-linux] Re: [PATCH V4 1/6] regmap: irq: add apis to unmap the
+ mapped irq
+References: <1454769447-785-1-git-send-email-ldewangan@nvidia.com> <1454769447-785-2-git-send-email-ldewangan@nvidia.com> <20160208145550.GE7265@sirena.org.uk> <56B8C484.7000309@nvidia.com> <20160208165912.GK7265@sirena.org.uk> <56B8C8B4.4050207@nvidia.com> <20160208181908.GM7265@sirena.org.uk>
+In-Reply-To: <20160208181908.GM7265@sirena.org.uk>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Reply-To: rtc-linux@googlegroups.com
-Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -27,37 +29,21 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-At the moment the "sun6i" RTC drivers depends on having two specific
-SoC families selected.
-The Allwinner A64 SoC has the same RTC, so extend the Kconfig option
-to allow inclusion of the driver for all Allwinner SoCs.
 
-Signed-off-by: Andre Przywara <andre.przywara@arm.com>
----
- drivers/rtc/Kconfig | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+On Monday 08 February 2016 11:49 PM, Mark Brown wrote:
+> * PGP Signed by an unknown key
+>
+> On Mon, Feb 08, 2016 at 10:26:20PM +0530, Laxman Dewangan wrote:
+>
+>> So fix need to go in the irq_domain_remove() to unamp before actually
+>> destroying the irq domain?
+> That's one option, but you could also do this at the regmap-irq level.
+>
 
-diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
-index 376322f..526eaf4 100644
---- a/drivers/rtc/Kconfig
-+++ b/drivers/rtc/Kconfig
-@@ -1360,10 +1360,11 @@ config RTC_DRV_SUN4V
- 
- config RTC_DRV_SUN6I
- 	tristate "Allwinner A31 RTC"
--	depends on MACH_SUN6I || MACH_SUN8I
-+	default MACH_SUN6I || MACH_SUN8I
-+	depends on ARCH_SUNXI
- 	help
--	  If you say Y here you will get support for the RTC found on
--	  Allwinner A31.
-+	  If you say Y here you will get support for the RTC found in
-+	  some Allwinner SoCs like the A31 or the A64.
- 
- config RTC_DRV_SUNXI
- 	tristate "Allwinner sun4i/sun7i RTC"
--- 
-2.6.4
+Do we need to dispose all virtual irq in regmap_del_irq_chip() before 
+actually removing domain?
+This means we need to store the created virq  in regmap_irq_chip_data 
+for disposing it when removing the irq domain.
 
 -- 
 -- 
