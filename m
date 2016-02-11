@@ -1,25 +1,24 @@
-Return-Path: <rtc-linux+bncBAABBE7FYG3AKGQEP6X3OQQ@googlegroups.com>
-Received: from devils.ext.ti.com (devils.ext.ti.com. [198.47.26.153])
-        by gmr-mx.google.com with ESMTPS id xh11si242936igb.0.2016.02.26.07.43.15
+Return-Path: <rtc-linux+bncBD2OLRXW4ABBBX7T6G2QKGQEXY2NXWI@googlegroups.com>
+Received: from hqemgate16.nvidia.com (hqemgate16.nvidia.com. [216.228.121.65])
+        by gmr-mx.google.com with ESMTPS id 79si1066870pft.0.2016.02.11.04.09.03
         for <rtc-linux@googlegroups.com>
-        (version=TLS1 cipher=AES128-SHA bits=128/128);
-        Fri, 26 Feb 2016 07:43:15 -0800 (PST)
-From: Grygorii Strashko <grygorii.strashko@ti.com>
-To: Lee Jones <lee.jones@linaro.org>, Alessandro Zummo <a.zummo@towertech.it>,
-        MyungJoo Ham <myungjoo.ham@samsung.com>,
-        Lars-Peter Clausen <lars@metafoo.de>
-CC: <rtc-linux@googlegroups.com>, <linux-iio@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>, <nsekhar@ti.com>,
-        <linux-omap@vger.kernel.org>,
-        Grygorii Strashko <grygorii.strashko@ti.com>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        Nishanth Menon
-	<nm@ti.com>, Laxman Dewangan <ldewangan@nvidia.com>
-Subject: [rtc-linux] [PATCH 6/7] rtc: as3722: Drop IRQF_EARLY_RESUME flag
-Date: Fri, 26 Feb 2016 17:42:56 +0200
-Message-ID: <1456501377-16871-7-git-send-email-grygorii.strashko@ti.com>
-In-Reply-To: <1456501377-16871-1-git-send-email-grygorii.strashko@ti.com>
-References: <1456501377-16871-1-git-send-email-grygorii.strashko@ti.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 11 Feb 2016 04:09:03 -0800 (PST)
+From: Laxman Dewangan <ldewangan@nvidia.com>
+To: <robh+dt@kernel.org>, <pawel.moll@arm.com>, <mark.rutland@arm.com>,
+	<ijc+devicetree@hellion.org.uk>, <galak@codeaurora.org>,
+	<linus.walleij@linaro.org>, <gnurou@gmail.com>, <lee.jones@linaro.org>,
+	<broonie@kernel.org>, <a.zummo@towertech.it>,
+	<alexandre.belloni@free-electrons.com>
+CC: <lgirdwood@gmail.com>, <devicetree@vger.kernel.org>,
+	<linux-kernel@vger.kernel.org>, <linux-gpio@vger.kernel.org>,
+	<rtc-linux@googlegroups.com>, <swarren@nvidia.com>, <treding@nvidia.com>,
+	<k.kozlowski@samsung.com>, Laxman Dewangan <ldewangan@nvidia.com>
+Subject: [rtc-linux] [PATCH V8 5/8] gpio: add DT binding doc for gpio of PMIC max77620/max20024
+Date: Thu, 11 Feb 2016 17:26:31 +0530
+Message-ID: <1455191794-6065-6-git-send-email-ldewangan@nvidia.com>
+In-Reply-To: <1455191794-6065-1-git-send-email-ldewangan@nvidia.com>
+References: <1455191794-6065-1-git-send-email-ldewangan@nvidia.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
@@ -32,36 +31,59 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-as3722 RTC IRQ is nested threaded and wired to the as3722 inerrupt
-controller. So, this flag is not required for nested irqs anymore,
-since commit 3c646f2c6aa9 ("genirq: Don't suspend nested_thread irqs
-over system suspend") was merged.
+Maxim Semiconductor's PMIC MAX77620/MAX20024 has 8 GPIO pins
+which act as GPIO as well as special function mode.
 
-Cc: Alessandro Zummo <a.zummo@towertech.it>
-Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Lee Jones <lee.jones@linaro.org>
-Cc: Nishanth Menon <nm@ti.com>
-Cc: Laxman Dewangan <ldewangan@nvidia.com>
-Signed-off-by: Grygorii Strashko <grygorii.strashko@ti.com>
+Add DT binding document to support these pins in GPIO
+mode via GPIO framework.
+
+Signed-off-by: Laxman Dewangan <ldewangan@nvidia.com>
+Acked-by: Rob Herring <robh@kernel.org>
+
 ---
- drivers/rtc/rtc-as3722.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Changes from V4:
+- Separate out from gpio driver
 
-diff --git a/drivers/rtc/rtc-as3722.c b/drivers/rtc/rtc-as3722.c
-index 56cc582..6ef0c88 100644
---- a/drivers/rtc/rtc-as3722.c
-+++ b/drivers/rtc/rtc-as3722.c
-@@ -210,7 +210,7 @@ static int as3722_rtc_probe(struct platform_device *pdev)
- 	dev_info(&pdev->dev, "RTC interrupt %d\n", as3722_rtc->alarm_irq);
- 
- 	ret = devm_request_threaded_irq(&pdev->dev, as3722_rtc->alarm_irq, NULL,
--			as3722_alarm_irq, IRQF_ONESHOT | IRQF_EARLY_RESUME,
-+			as3722_alarm_irq, IRQF_ONESHOT,
- 			"rtc-alarm", as3722_rtc);
- 	if (ret < 0) {
- 		dev_err(&pdev->dev, "Failed to request alarm IRQ %d: %d\n",
+Changes from V5/V6/V7:
+- None
+
+ .../devicetree/bindings/gpio/gpio-max77620.txt     | 25 ++++++++++++++++++++++
+ 1 file changed, 25 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/gpio/gpio-max77620.txt
+
+diff --git a/Documentation/devicetree/bindings/gpio/gpio-max77620.txt b/Documentation/devicetree/bindings/gpio/gpio-max77620.txt
+new file mode 100644
+index 0000000..410e716
+--- /dev/null
++++ b/Documentation/devicetree/bindings/gpio/gpio-max77620.txt
+@@ -0,0 +1,25 @@
++GPIO driver for MAX77620 Power management IC from Maxim Semiconductor.
++
++Device has 8 GPIO pins which can be configured as GPIO as well as the
++special IO functions.
++
++Required properties:
++-------------------
++- gpio-controller : 	Marks the device node as a gpio controller.
++- #gpio-cells : 	Should be two.  The first cell is the pin number and
++			the second cell is used to specify the gpio polarity:
++				0 = active high
++				1 = active low
++For more details, please refer generic GPIO DT binding document
++<devicetree/bindings/gpio/gpio.txt>.
++
++Example:
++--------
++#include <dt-bindings/mfd/max77620.h>
++...
++max77620@3c {
++	compatible = "maxim,max77620";
++
++	gpio-controller;
++	#gpio-cells = <2>;
++};
 -- 
-2.7.2
+2.1.4
 
 -- 
 -- 
