@@ -1,22 +1,26 @@
-Return-Path: <rtc-linux+bncBAABBQWS462QKGQEAKWVTRI@googlegroups.com>
-Received: from lists.s-osg.org (lists.s-osg.org. [54.187.51.154])
-        by gmr-mx.google.com with ESMTP id 12si4648411pfb.1.2016.02.09.05.27.29
-        for <rtc-linux@googlegroups.com>;
-        Tue, 09 Feb 2016 05:27:29 -0800 (PST)
-Subject: [rtc-linux] Re: [PATCH V6 1/6] regmap: irq: dispose all virtual irq
- before removing domain
-To: Laxman Dewangan <ldewangan@nvidia.com>, lee.jones@linaro.org,
- alexandre.belloni@free-electrons.com, k.kozlowski@samsung.com,
- broonie@kernel.org, gregkh@linuxfoundation.org, a.zummo@towertech.it
-References: <1455020907-4564-1-git-send-email-ldewangan@nvidia.com>
- <1455020907-4564-2-git-send-email-ldewangan@nvidia.com>
-From: Javier Martinez Canillas <javier@osg.samsung.com>
-Cc: cw00.choi@samsung.com, linux-kernel@vger.kernel.org,
- rtc-linux@googlegroups.com
-Message-ID: <56B9E93A.2040903@osg.samsung.com>
-Date: Tue, 9 Feb 2016 10:27:22 -0300
+Return-Path: <rtc-linux+bncBD2OLRXW4ABBBB6G6G2QKGQESBKNYOQ@googlegroups.com>
+Received: from hqemgate15.nvidia.com (hqemgate15.nvidia.com. [216.228.121.64])
+        by gmr-mx.google.com with ESMTPS id ui7si1037716pab.0.2016.02.11.02.31.35
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 11 Feb 2016 02:31:35 -0800 (PST)
+Message-ID: <56BC6048.7080500@nvidia.com>
+Date: Thu, 11 Feb 2016 15:49:52 +0530
+From: Laxman Dewangan <ldewangan@nvidia.com>
 MIME-Version: 1.0
-In-Reply-To: <1455020907-4564-2-git-send-email-ldewangan@nvidia.com>
+To: Lee Jones <lee.jones@linaro.org>
+CC: <robh+dt@kernel.org>, <pawel.moll@arm.com>, <mark.rutland@arm.com>,
+	<ijc+devicetree@hellion.org.uk>, <galak@codeaurora.org>,
+	<linus.walleij@linaro.org>, <gnurou@gmail.com>, <broonie@kernel.org>,
+	<a.zummo@towertech.it>, <alexandre.belloni@free-electrons.com>,
+	<lgirdwood@gmail.com>, <devicetree@vger.kernel.org>,
+	<linux-kernel@vger.kernel.org>, <linux-gpio@vger.kernel.org>,
+	<rtc-linux@googlegroups.com>, <swarren@nvidia.com>, <treding@nvidia.com>,
+	<k.kozlowski@samsung.com>, <vreddytalla@nvidia.com>
+Subject: [rtc-linux] Re: [PATCH V7 1/8] mfd: add device-tree binding doc for
+ PMIC max77620/max20024
+References: <1454171931-27752-1-git-send-email-ldewangan@nvidia.com> <1454171931-27752-2-git-send-email-ldewangan@nvidia.com> <20160209154215.GF24522@x1> <56BA2859.2040605@nvidia.com> <20160210132333.GG24522@x1> <56BB3FB9.7050102@nvidia.com> <20160211092604.GG3782@x1>
+In-Reply-To: <20160211092604.GG3782@x1>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
@@ -28,30 +32,61 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Hello Laxman,
 
-On 02/09/2016 09:28 AM, Laxman Dewangan wrote:
-> It is require to dispose all virtual irq of hwirq on chip
-> created on given irq domain before removing this irq domain.
-> Hence dispose all mapped irqs before deleting the irq domains
-> in regmap_del_irq_chip();
+On Thursday 11 February 2016 02:56 PM, Lee Jones wrote:
+> On Wed, 10 Feb 2016, Laxman Dewangan wrote:
 >
-> Signed-off-by: Laxman Dewangan <ldewangan@nvidia.com>
+>>
+>> sleep: <0/1>
+>>              0: sleep mode disable,
+>>              1: sleep mode enable.
+> Ideally yes.  This is obviously going to be used again.
+>
+> However;
+>   - My fear is that it will get confused with the 'sleep' property in
+>     Documentation/devicetree/booting-without-of.txt.
+>   - Secondly, you would need to get Rob to Ack it.
 >
 
-I believe this patch could be picked separately and not made part of
-this series since is fixing a bug that happens on most drivers using
-the regmap-irq API. This will avoid cross-subsystem churn for people.
+Another thought, becasue this is just for enable/disable, why not we add 
+property as "enable-sleep" of boolean type instead of u32 value type?
 
-Your patch 6/6 does not introduce a regression since the bug already
-exists in the MFD driver, it just makes it more noticeable since it
-is easier to unbind the max77686 RTC driver than the MFD one.
+It is easy to describe the behavior with enable-sleep and 
+enable-low-power-mode.
 
-Best regards,
--- 
-Javier Martinez Canillas
-Open Source Group
-Samsung Research America
+-enable-sleep:                  Boolean, when FPS event cleared
+                                         (set to LOW), resources get 
+disabled
+                                         at the sequencing event 
+corresponding
+                                         to its FPS configuration register.
+
+-enable-low-power-mode: Boolean, when FPS event cleared
+                                         (set to LOW), resources sets into
+                                         low power mode at the 
+sequencing event
+                                         corresponding to its FPS 
+configuration
+                                         register.
+
+Both property can not be together.
+
+
+Other approach is to club together
+maxim,device-state-on-disabled-event : u32, describe the PMIC state
+                                                             when FPS 
+event cleared (set to LOW)
+                                                             whether it 
+should go to sleep state or
+low-power state.
+                                                                 1 = 
+Device state is set to sleep
+                                                                 2 = 
+Device state is set to low power mode.
+Absence of this property or other value will not change device state 
+when FPS event
+         cleared.
+
 
 -- 
 -- 
