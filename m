@@ -1,21 +1,27 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBUMZZ62QKGQE3DR4SUQ@googlegroups.com>
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id s132si911530wmd.1.2016.02.04.14.12.33
-        for <rtc-linux@googlegroups.com>;
-        Thu, 04 Feb 2016 14:12:33 -0800 (PST)
-Date: Thu, 4 Feb 2016 23:12:22 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Joshua Clayton <stillcompiling@gmail.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH v3 2/3] rtc: implement a sysfs interface for
- clock offset
-Message-ID: <20160204221222.GC4782@piout.net>
-References: <20160202104111.GU20165@piout.net>
- <1454519804-13770-2-git-send-email-stillcompiling@gmail.com>
+Return-Path: <rtc-linux+bncBD2OLRXW4ABBBU7T6G2QKGQEAHJIBDA@googlegroups.com>
+Received: from hqemgate16.nvidia.com (hqemgate16.nvidia.com. [216.228.121.65])
+        by gmr-mx.google.com with ESMTPS id ui7si1080810pab.0.2016.02.11.04.08.50
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 11 Feb 2016 04:08:50 -0800 (PST)
+From: Laxman Dewangan <ldewangan@nvidia.com>
+To: <robh+dt@kernel.org>, <pawel.moll@arm.com>, <mark.rutland@arm.com>,
+	<ijc+devicetree@hellion.org.uk>, <galak@codeaurora.org>,
+	<linus.walleij@linaro.org>, <gnurou@gmail.com>, <lee.jones@linaro.org>,
+	<broonie@kernel.org>, <a.zummo@towertech.it>,
+	<alexandre.belloni@free-electrons.com>
+CC: <lgirdwood@gmail.com>, <devicetree@vger.kernel.org>,
+	<linux-kernel@vger.kernel.org>, <linux-gpio@vger.kernel.org>,
+	<rtc-linux@googlegroups.com>, <swarren@nvidia.com>, <treding@nvidia.com>,
+	<k.kozlowski@samsung.com>, Laxman Dewangan <ldewangan@nvidia.com>
+Subject: [rtc-linux] [PATCH V8 3/8] pinctrl: add DT binding doc for pincontrol
+ of PMIC max77620/max20024
+Date: Thu, 11 Feb 2016 17:26:29 +0530
+Message-ID: <1455191794-6065-4-git-send-email-ldewangan@nvidia.com>
+In-Reply-To: <1455191794-6065-1-git-send-email-ldewangan@nvidia.com>
+References: <1455191794-6065-1-git-send-email-ldewangan@nvidia.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1454519804-13770-2-git-send-email-stillcompiling@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -26,110 +32,164 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
+Maxim Semiconductor's PMIC MAX77620/MAX20024 has 8 GPIO pins
+which act as GPIO as well as special function mode.
 
-A really small nitpick below
+Add DT binding document to configure pins in function mode as
+well as pin configuration parameters.
 
-On 03/02/2016 at 09:16:43 -0800, Joshua Clayton wrote :
-> clock offset may be set and read in decimal parts per billion
-> attribute is /sys/class/rtc/rtcN/offset
-> The attribute is only visible for rtcs that have set_offset implemented.
-> 
-> Signed-off-by: Joshua Clayton <stillcompiling@gmail.com>
-> ---
->  Documentation/rtc.txt   |  6 ++++++
->  drivers/rtc/rtc-sysfs.c | 35 ++++++++++++++++++++++++++++++++++-
->  2 files changed, 40 insertions(+), 1 deletion(-)
-> 
-> diff --git a/Documentation/rtc.txt b/Documentation/rtc.txt
-> index 8446f1e..ddc3660 100644
-> --- a/Documentation/rtc.txt
-> +++ b/Documentation/rtc.txt
-> @@ -157,6 +157,12 @@ wakealarm:	 The time at which the clock will generate a system wakeup
->  		 the epoch by default, or if there's a leading +, seconds in the
->  		 future, or if there is a leading +=, seconds ahead of the current
->  		 alarm.
-> +offset:		 The amount which the rtc clock has been adjusted in firmware.
-> +		 Visible only if the driver supports clock offset adjustment.
-> +		 The unit is parts per billion, i.e. The number of clock ticks
-> +		 which are added to or removed from the rtc's base clock per
-> +		 billion ticks. A positive value makes a day pass more slowly,
-> +		 longer, and a negative value makes a day pass more quickly.
->  
->  IOCTL INTERFACE
->  ---------------
-> diff --git a/drivers/rtc/rtc-sysfs.c b/drivers/rtc/rtc-sysfs.c
-> index 463e286..f8d7f8d 100644
-> --- a/drivers/rtc/rtc-sysfs.c
-> +++ b/drivers/rtc/rtc-sysfs.c
-> @@ -218,6 +218,34 @@ wakealarm_store(struct device *dev, struct device_attribute *attr,
->  }
->  static DEVICE_ATTR_RW(wakealarm);
->  
-> +static ssize_t
-> +offset_show(struct device *dev, struct device_attribute *attr, char *buf)
-> +{
-> +	ssize_t retval;
-> +	long offset;
-> +
-> +	retval = rtc_read_offset(to_rtc_device(dev), &offset);
-> +	if (retval == 0)
-> +		retval = sprintf(buf, "%ld\n", offset);
-> +
-> +	return retval;
-> +}
-> +
-> +static ssize_t
-> +offset_store(struct device *dev, struct device_attribute *attr,
-> +		const char *buf, size_t n)
+Signed-off-by: Laxman Dewangan <ldewangan@nvidia.com>
+Acked-by: Rob Herring <robh@kernel.org>
 
-This is not properly aligned.
+---
+Changes from V4:
+- Separate out from pincontrol driver
 
-> +{
-> +	ssize_t retval;
-> +	long offset;
-> +
-> +	retval = kstrtol(buf, 10, &offset);
-> +	if (retval == 0)
-> +		retval = rtc_set_offset(to_rtc_device(dev), offset);
-> +
-> +	return (retval < 0) ? retval : n;
-> +}
-> +static DEVICE_ATTR_RW(offset);
-> +
->  static struct attribute *rtc_attrs[] = {
->  	&dev_attr_name.attr,
->  	&dev_attr_date.attr,
-> @@ -226,6 +254,7 @@ static struct attribute *rtc_attrs[] = {
->  	&dev_attr_max_user_freq.attr,
->  	&dev_attr_hctosys.attr,
->  	&dev_attr_wakealarm.attr,
-> +	&dev_attr_offset.attr,
->  	NULL,
->  };
->  
-> @@ -249,9 +278,13 @@ static umode_t rtc_attr_is_visible(struct kobject *kobj,
->  	struct rtc_device *rtc = to_rtc_device(dev);
->  	umode_t mode = attr->mode;
->  
-> -	if (attr == &dev_attr_wakealarm.attr)
-> +	if (attr == &dev_attr_wakealarm.attr) {
->  		if (!rtc_does_wakealarm(rtc))
->  			mode = 0;
-> +	} else if (attr == &dev_attr_offset.attr) {
-> +		if (!rtc->ops->set_offset)
-> +			mode = 0;
-> +	}
->  
->  	return mode;
->  }
-> -- 
-> 2.5.0
-> 
+Changes from V5:
+- Starting patch title with pinctrl instead of DT:pinctrl
 
+Changes from V6/V7:
+- None
+
+ .../bindings/pinctrl/pinctrl-max77620.txt          | 127 +++++++++++++++++++++
+ 1 file changed, 127 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/pinctrl/pinctrl-max77620.txt
+
+diff --git a/Documentation/devicetree/bindings/pinctrl/pinctrl-max77620.txt b/Documentation/devicetree/bindings/pinctrl/pinctrl-max77620.txt
+new file mode 100644
+index 0000000..ad4fce3
+--- /dev/null
++++ b/Documentation/devicetree/bindings/pinctrl/pinctrl-max77620.txt
+@@ -0,0 +1,127 @@
++Pincontrol driver for MAX77620 Power management IC from Maxim Semiconductor.
++
++Device has 8 GPIO pins which can be configured as GPIO as well as the
++special IO functions.
++
++Please refer file <devicetree/bindings/pinctrl/pinctrl-bindings.txt>
++for details of the common pinctrl bindings used by client devices,
++including the meaning of the phrase "pin configuration node".
++
++Optional Pinmux properties:
++--------------------------
++Following properties are required if default setting of pins are required
++at boot.
++- pinctrl-names: A pinctrl state named per <pinctrl-binding.txt>.
++- pinctrl[0...n]: Properties to contain the phandle for pinctrl states per
++		<pinctrl-binding.txt>.
++
++The pin configurations are defined as child of the pinctrl states node. Each
++sub-node have following properties:
++
++Required properties:
++------------------
++- pins: List of pins. Valid values of pins properties are:
++		      gpio0, gpio1, gpio2, gpio3, gpio4, gpio5, gpio6, gpio7.
++
++Optional properties:
++-------------------
++Following are optional properties defined as pinmux DT binding document
++<pinctrl-bindings.txt>. Absence of properties will leave the configuration
++on default.
++	function,
++	drive-push-pull,
++	drive-open-drain,
++	bias-pull-up,
++	bias-pull-down.
++
++Valid values for function properties are:
++	gpio, lpm-control-in, fps-out, 32k-out, sd0-dvs-in, sd1-dvs-in,
++	reference-out
++
++Theres is also customised properties for the GPIO1, GPIO2 and GPIO3. These
++customised properties are required to configure FPS configuration parameters
++of these GPIOs. Please refer <devicetree/bindings/mfd/max77620.txt> for more
++detail of Flexible Power Sequence (FPS).
++
++- maxim,active-fps-source:		FPS source for the GPIOs to get
++					enabled/disabled when system is in
++					active state.  Valid values are:
++					- MAX77620_FPS_SRC_0,
++						FPS source is FPS0.
++					- MAX77620_FPS_SRC_1,
++						FPS source is FPS1
++					- MAX77620_FPS_SRC_2 and
++						FPS source is FPS2
++					- MAX77620_FPS_SRC_NONE.
++						GPIO is not controlled
++						by FPS events and it gets
++						enabled/disabled by register
++						access.
++					Absence of this property will leave
++					the FPS configuration register for that
++					GPIO to default configuration.
++
++- maxim,active-fps-power-up-slot:	Sequencing event slot number on which
++					the GPIO get enabled when
++					master FPS input event set to HIGH.
++					Valid values are 0 to 7.
++					This is applicable if FPS source is
++					selected as FPS0, FPS1 or FPS2.
++
++- maxim,active-fps-power-down-slot:	Sequencing event slot number on which
++					the GPIO get disabled when master
++					FPS input event set to LOW.
++					Valid values are 0 to 7.
++					This is applicable if FPS source is
++					selected as FPS0, FPS1 or FPS2.
++
++- maxim,suspend-fps-source:		This is same as property
++					"maxim,active-fps-source" but value
++					get configured when system enters in
++					to suspend state.
++
++- maxim,suspend-fps-power-up-slot:	This is same as property
++					"maxim,active-fps-power-up-slot" but
++					this value get configured into FPS
++					configuration register when system
++					enters into suspend.
++					This is applicable if suspend state
++					FPS source is selected as FPS0, FPS1 or
++
++- maxim,suspend-fps-power-down-slot:	This is same as property
++					"maxim,active-fps-power-down-slot" but
++					this value get configured into FPS
++					configuration register when system
++					enters into suspend.
++					This is applicable if suspend state
++					FPS source is selected as FPS0, FPS1 or
++					FPS2.
++
++Example:
++--------
++#include <dt-bindings/mfd/max77620.h>
++...
++max77620@3c {
++
++	pinctrl-names = "default";
++	pinctrl-0 = <&spmic_default>;
++
++	spmic_default: pinmux@0 {
++		pin_gpio0 {
++			pins = "gpio0";
++			function = "gpio";
++		};
++
++		pin_gpio1 {
++			pins = "gpio1";
++			function = "fps-out";
++			maxim,active-fps-source = <MAX77620_FPS_SRC_0>;
++		};
++
++		pin_gpio2 {
++			pins = "gpio2";
++			function = "fps-out";
++			maxim,active-fps-source = <MAX77620_FPS_SRC_1>;
++		};
++	};
++};
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+2.1.4
 
 -- 
 -- 
