@@ -1,22 +1,29 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRB3NKZ62QKGQE47465GA@googlegroups.com>
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id q64si839013wmg.0.2016.02.04.14.49.17
-        for <rtc-linux@googlegroups.com>;
-        Thu, 04 Feb 2016 14:49:17 -0800 (PST)
-Date: Thu, 4 Feb 2016 23:49:06 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-Cc: Chanwoo Choi <cw00.choi@samsung.com>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	linux-kernel@vger.kernel.org, rtc-linux@googlegroups.com,
-	ldewangan@nvidia.com, javier@osg.samsung.com
-Subject: [rtc-linux] Re: [PATCH] rtc: max77686: Properly handle
- regmap_irq_get_virq() error code
-Message-ID: <20160204224906.GD4782@piout.net>
-References: <1454545595-31725-1-git-send-email-k.kozlowski@samsung.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1454545595-31725-1-git-send-email-k.kozlowski@samsung.com>
+Return-Path: <rtc-linux+bncBDKZNNNLXAHBB2NDQS3AKGQE4DFL7CI@googlegroups.com>
+Received: from mailout1.w1.samsung.com (mailout1.w1.samsung.com. [210.118.77.11])
+        by gmr-mx.google.com with ESMTPS id ui7si3021197pab.0.2016.02.14.15.46.48
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1 cipher=AES128-SHA bits=128/128);
+        Sun, 14 Feb 2016 15:46:49 -0800 (PST)
+Received: from eucpsbgm1.samsung.com (unknown [203.254.199.244])
+ by mailout1.w1.samsung.com
+ (Oracle Communications Messaging Server 7.0.5.31.0 64bit (built May  5 2014))
+ with ESMTP id <0O2K00C7VA1WCB00@mailout1.w1.samsung.com> for
+ rtc-linux@googlegroups.com; Sun, 14 Feb 2016 23:46:44 +0000 (GMT)
+Subject: [rtc-linux] Re: [PATCH V7 4/5] mfd: max77686: do not set i2c client
+ data for rtc i2c client
+To: Laxman Dewangan <ldewangan@nvidia.com>, lee.jones@linaro.org,
+ alexandre.belloni@free-electrons.com, javier@osg.samsung.com,
+ broonie@kernel.org, gregkh@linuxfoundation.org, a.zummo@towertech.it
+References: <1455038794-9921-1-git-send-email-ldewangan@nvidia.com>
+ <1455038794-9921-5-git-send-email-ldewangan@nvidia.com>
+Cc: cw00.choi@samsung.com, linux-kernel@vger.kernel.org,
+ rtc-linux@googlegroups.com
+From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+Message-id: <56C111DF.2020005@samsung.com>
+Date: Mon, 15 Feb 2016 08:46:39 +0900
+MIME-version: 1.0
+In-reply-to: <1455038794-9921-5-git-send-email-ldewangan@nvidia.com>
+Content-type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -27,36 +34,29 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 04/02/2016 at 09:26:35 +0900, Krzysztof Kozlowski wrote :
-> The regmap_irq_get_virq() can return 0 or -EINVAL in error conditions
-> but driver checked only for value of 0.
+On 10.02.2016 02:26, Laxman Dewangan wrote:
+> There is different RTC I2C address for RTC block in MAX77686.
+> Driver is creating dummy i2c client for this address to access
+> the register of this IP block.
 > 
-> This could lead to a cast of -EINVAL to an unsigned int used as a
-> interrupt number for devm_request_threaded_irq(). Although this is not
-> yet fatal (devm_request_threaded_irq() will just fail with -EINVAL) but
-> might be a misleading when diagnosing errors.
+> As there is no call to i2c_get_clientdata() for rtc_i2c client,
+> there is no need to store pointer and hence removing the call
+> to set client data for rtc i2c client.
 > 
-> Signed-off-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-> Fixes: 6f1c1e71d933 ("mfd: max77686: Convert to use regmap_irq")
+> Suggested-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+> Signed-off-by: Laxman Dewangan <ldewangan@nvidia.com>
+> CC: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+> CC: Javier Martinez Canillas <javier@osg.samsung.com>
+> Reviewed-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+> Tested-by: Javier Martinez Canillas <javier@osg.samsung.com>
+> Reviewed-by: Javier Martinez Canillas <javier@osg.samsung.com>
 > 
-> ---
-> 
-> Patch rebased on current mainline, not RTC tree, because IMHO it is
-> a candidate for current RC-cycle.
-> 
-> Not marking cc-stable because behavior is not fatal - unless there is
-> an interrupt with number 4294967274 (then it would be successfully
-> requested for RTC driver).
-> ---
->  drivers/rtc/rtc-max77686.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-Applied, thanks.
 
--- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+FWIW, on max77686:
+Tested-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+
+Best regards,
+Krzysztof
 
 -- 
 -- 
