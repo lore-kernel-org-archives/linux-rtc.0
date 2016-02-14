@@ -1,23 +1,22 @@
-Return-Path: <rtc-linux+bncBAABBTXZ462QKGQEMMZWZ6Q@googlegroups.com>
-Received: from lists.s-osg.org (lists.s-osg.org. [54.187.51.154])
-        by gmr-mx.google.com with ESMTP id u66si5303566pfa.2.2016.02.09.06.50.54
-        for <rtc-linux@googlegroups.com>;
-        Tue, 09 Feb 2016 06:50:54 -0800 (PST)
-Subject: [rtc-linux] Re: [PATCH V6 1/6] regmap: irq: dispose all virtual irq
- before removing domain
-To: Laxman Dewangan <ldewangan@nvidia.com>, lee.jones@linaro.org,
- alexandre.belloni@free-electrons.com, k.kozlowski@samsung.com,
- broonie@kernel.org, gregkh@linuxfoundation.org, a.zummo@towertech.it
-References: <1455020907-4564-1-git-send-email-ldewangan@nvidia.com>
- <1455020907-4564-2-git-send-email-ldewangan@nvidia.com>
-Cc: cw00.choi@samsung.com, linux-kernel@vger.kernel.org,
- rtc-linux@googlegroups.com
-From: Javier Martinez Canillas <javier@osg.samsung.com>
-Message-ID: <56B9FCC7.1000303@osg.samsung.com>
-Date: Tue, 9 Feb 2016 11:50:47 -0300
+Return-Path: <rtc-linux+bncBCGP7DNSRUMRBU53QO3AKGQE326LYLI@googlegroups.com>
+Received: from mail.windriver.com (mail.windriver.com. [147.11.1.11])
+        by gmr-mx.google.com with ESMTPS id u66si2664002pfa.2.2016.02.14.12.04.35
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_1 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
+        Sun, 14 Feb 2016 12:04:35 -0800 (PST)
+From: Paul Gortmaker <paul.gortmaker@windriver.com>
+To: <linux-kernel@vger.kernel.org>
+CC: Paul Gortmaker <paul.gortmaker@windriver.com>,
+        Alessandro Zummo
+	<a.zummo@towertech.it>,
+        Alexandre Belloni
+	<alexandre.belloni@free-electrons.com>,
+        <rtc-linux@googlegroups.com>
+Subject: [rtc-linux] [PATCH] drivers/rtc: make class.c explicitly non-modular
+Date: Sun, 14 Feb 2016 15:04:19 -0500
+Message-ID: <1455480259-13433-1-git-send-email-paul.gortmaker@windriver.com>
 MIME-Version: 1.0
-In-Reply-To: <1455020907-4564-2-git-send-email-ldewangan@nvidia.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -28,29 +27,57 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Hello Laxman,
+The Makefile/Kconfig currently controlling compilation of this code is:
 
-On 02/09/2016 09:28 AM, Laxman Dewangan wrote:
-> It is require to dispose all virtual irq of hwirq on chip
-> created on given irq domain before removing this irq domain.
-> Hence dispose all mapped irqs before deleting the irq domains
-> in regmap_del_irq_chip();
->
-> Signed-off-by: Laxman Dewangan <ldewangan@nvidia.com>
->
+obj-$(CONFIG_RTC_CLASS)         += rtc-core.o
+rtc-core-y                      := class.o interface.o
 
-The patch looks good to me and I've also tested on an Exynos5800
-Peach Pi Chromebook that S2R works correctly after the RTC dev
-was unbind so the bug is gone with this version of your series.
+drivers/rtc/Kconfig:menuconfig RTC_CLASS
+drivers/rtc/Kconfig:    bool "Real Time Clock"
 
-Reviewed-by: Javier Martinez Canillas <javier@osg.samsung.com>
-Tested-by: Javier Martinez Canillas <javier@osg.samsung.com>
+...meaning that it currently is not being built as a module by anyone.
 
-Best regards,
+Lets remove the modular code that is essentially orphaned, so that
+when reading the code there is no doubt it is builtin-only.
+
+We don't replace module.h with init.h since the file does need
+to know what a struct module is.
+
+We also delete the MODULE_LICENSE tag etc. since all that information
+is already contained at the top of the file in the comments.
+
+Cc: Alessandro Zummo <a.zummo@towertech.it>
+Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: rtc-linux@googlegroups.com
+Signed-off-by: Paul Gortmaker <paul.gortmaker@windriver.com>
+---
+ drivers/rtc/class.c | 13 -------------
+ 1 file changed, 13 deletions(-)
+
+diff --git a/drivers/rtc/class.c b/drivers/rtc/class.c
+index de86578bcd6d..74fd9746aeca 100644
+--- a/drivers/rtc/class.c
++++ b/drivers/rtc/class.c
+@@ -361,17 +361,4 @@ static int __init rtc_init(void)
+ 	rtc_dev_init();
+ 	return 0;
+ }
+-
+-static void __exit rtc_exit(void)
+-{
+-	rtc_dev_exit();
+-	class_destroy(rtc_class);
+-	ida_destroy(&rtc_ida);
+-}
+-
+ subsys_initcall(rtc_init);
+-module_exit(rtc_exit);
+-
+-MODULE_AUTHOR("Alessandro Zummo <a.zummo@towertech.it>");
+-MODULE_DESCRIPTION("RTC class support");
+-MODULE_LICENSE("GPL");
 -- 
-Javier Martinez Canillas
-Open Source Group
-Samsung Research America
+2.5.0
 
 -- 
 -- 
