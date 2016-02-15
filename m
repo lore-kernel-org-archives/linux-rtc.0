@@ -1,25 +1,33 @@
-Return-Path: <rtc-linux+bncBAABBLH7ZK2QKGQEUCIVQLA@googlegroups.com>
-Received: from lists.s-osg.org (lists.s-osg.org. [54.187.51.154])
-        by gmr-mx.google.com with ESMTP id tn7si1242510pac.1.2016.02.03.19.04.11
-        for <rtc-linux@googlegroups.com>;
-        Wed, 03 Feb 2016 19:04:11 -0800 (PST)
-Subject: [rtc-linux] Re: [PATCH V3 5/5] rtc: max77686: move initialisation of
- rtc regmap, irq chip locally
-To: Laxman Dewangan <ldewangan@nvidia.com>,
- Krzysztof Kozlowski <k.kozlowski@samsung.com>, lee.jones@linaro.org,
- alexandre.belloni@free-electrons.com
-References: <1454507233-9959-1-git-send-email-ldewangan@nvidia.com>
- <1454507233-9959-6-git-send-email-ldewangan@nvidia.com>
- <56B296F6.3060002@samsung.com> <56B2B17A.1000509@nvidia.com>
- <56B2BC7B.4070807@nvidia.com>
-Cc: cw00.choi@samsung.com, linux-kernel@vger.kernel.org,
- rtc-linux@googlegroups.com
-From: Javier Martinez Canillas <javier@osg.samsung.com>
-Message-ID: <56B2BFA3.90409@osg.samsung.com>
-Date: Thu, 4 Feb 2016 00:04:03 -0300
+Return-Path: <rtc-linux+bncBDE6RCFOWIARBIVYRG3AKGQEVLTXM5Q@googlegroups.com>
+Received: from mail-ob0-x233.google.com (mail-ob0-x233.google.com. [2607:f8b0:4003:c01::233])
+        by gmr-mx.google.com with ESMTPS id p10si1474720igg.1.2016.02.15.15.15.46
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 15 Feb 2016 15:15:46 -0800 (PST)
+Received: by mail-ob0-x233.google.com with SMTP id wb13so233122540obb.1
+        for <rtc-linux@googlegroups.com>; Mon, 15 Feb 2016 15:15:46 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <56B2BC7B.4070807@nvidia.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+In-Reply-To: <1455191794-6065-6-git-send-email-ldewangan@nvidia.com>
+References: <1455191794-6065-1-git-send-email-ldewangan@nvidia.com>
+	<1455191794-6065-6-git-send-email-ldewangan@nvidia.com>
+Date: Tue, 16 Feb 2016 00:15:45 +0100
+Message-ID: <CACRpkdYkYU+W=5RF5g9Lrvfjpt3zWw6c9ZTzRT=_gj0PvT53HQ@mail.gmail.com>
+Subject: [rtc-linux] Re: [PATCH V8 5/8] gpio: add DT binding doc for gpio of
+ PMIC max77620/max20024
+From: Linus Walleij <linus.walleij@linaro.org>
+To: Laxman Dewangan <ldewangan@nvidia.com>
+Cc: Rob Herring <robh+dt@kernel.org>, =?UTF-8?Q?Pawe=C5=82_Moll?= <pawel.moll@arm.com>,
+	Mark Rutland <mark.rutland@arm.com>,
+	"ijc+devicetree@hellion.org.uk" <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>,
+	Alexandre Courbot <gnurou@gmail.com>, Lee Jones <lee.jones@linaro.org>, Mark Brown <broonie@kernel.org>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>, Liam Girdwood <lgirdwood@gmail.com>,
+	"devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+	"linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>,
+	"rtc-linux@googlegroups.com" <rtc-linux@googlegroups.com>, Stephen Warren <swarren@nvidia.com>,
+	Thierry Reding <treding@nvidia.com>, =?UTF-8?Q?Krzysztof_Koz=C5=82owski?= <k.kozlowski@samsung.com>
+Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -30,49 +38,21 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Hello Laxman,
+On Thu, Feb 11, 2016 at 12:56 PM, Laxman Dewangan <ldewangan@nvidia.com> wrote:
 
-On 02/03/2016 11:50 PM, Laxman Dewangan wrote:
-> Hi Javier,
+> Maxim Semiconductor's PMIC MAX77620/MAX20024 has 8 GPIO pins
+> which act as GPIO as well as special function mode.
 >
-> On Thursday 04 February 2016 07:33 AM, Laxman Dewangan wrote:
->>
->> On Thursday 04 February 2016 05:40 AM, Krzysztof Kozlowski wrote:
->>> On 03.02.2016 22:47, Laxman Dewangan wrote:
->>>>
->>>> Changes from V2:
->>>> - Taken care of missed sequence for removing the resource.
->>>> - Fix the crash when doing unbind by using requested_threaded_irq()
->>>>    instead of demv_requested_threaded_irq().
->>>>
->>>>   drivers/mfd/max77686.c               |  85 +-------------------
->>>>   drivers/rtc/rtc-max77686.c           | 148 ++++++++++++++++++++++++++++++-----
->>>>   include/linux/mfd/max77686-private.h |   3 -
->>>>   3 files changed, 130 insertions(+), 106 deletions(-)
->>>>
->>> Looks good and works properly (RTC, unbind/rebind, wakealarm again)
->>> but... after applying this patch the device cannot suspend to RAM after
->>> unbind/rebind.
->>>
->>> Reproduce path, after booting:
->>> $ echo max77686-rtc > /sys/bus/platform/drivers/max77686-rtc/unbind
->>> $ echo max77686-rtc > /sys/bus/platform/drivers/max77686-rtc/bind
->>> $ rtcwake -d rtc2 -m mem -s 5 -v
->>> (or instead of rtcwake: echo mem > /sys/power/state)
->>
+> Add DT binding document to support these pins in GPIO
+> mode via GPIO framework.
 >
-> Can you please also try to test in your setup which have MAX77802?
-> On this, we do not create i2c client and do regmap_init_i2c. So may be it helps on narrow down the issue.
->
+> Signed-off-by: Laxman Dewangan <ldewangan@nvidia.com>
+> Acked-by: Rob Herring <robh@kernel.org>
 
-Of course, I planned to test it today but ran out of time and I don't have
-access to my Chromebook now. I'll test it at first time tomorrow morning.
-  
-Best regards,
--- 
-Javier Martinez Canillas
-Open Source Group
-Samsung Research America
+Acked-by: Linus Walleij <linus.walleij@linaro.org>
+
+Yours,
+Linus Walleij
 
 -- 
 -- 
