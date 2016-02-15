@@ -1,24 +1,25 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBFXUVS3AKGQETGL6LLQ@googlegroups.com>
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id s141si1229168wmd.1.2016.02.22.08.40.54
-        for <rtc-linux@googlegroups.com>;
-        Mon, 22 Feb 2016 08:40:54 -0800 (PST)
-Date: Mon, 22 Feb 2016 17:40:53 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: One Thousand Gnomes <gnomes@lxorguk.ukuu.org.uk>,
-	rtc-linux@googlegroups.com, Alessandro Zummo <a.zummo@towertech.it>,
-	Willy Tarreau <w@1wt.eu>, linux-kernel@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH] rtc: Add an option to invalidate dates in 2038
-Message-ID: <20160222164053.GQ2222@piout.net>
-References: <1455995444-14146-1-git-send-email-alexandre.belloni@free-electrons.com>
- <6269543.oe8MmZQUmX@wuerfel>
- <20160222155653.GP2222@piout.net>
- <2768647.1bFEcFDZRI@wuerfel>
+Return-Path: <rtc-linux+bncBCPM5SUWUYIRB6OKQ63AKGQE6P5BHQA@googlegroups.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <2768647.1bFEcFDZRI@wuerfel>
+Received: from mail-pa0-x242.google.com (mail-pa0-x242.google.com. [2607:f8b0:400e:c03::242])
+        by gmr-mx.google.com with ESMTPS id ff2si2930966pad.2.2016.02.15.06.49.28
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 15 Feb 2016 06:49:28 -0800 (PST)
+Received: by mail-pa0-x242.google.com with SMTP id fl4so7266975pad.2
+        for <rtc-linux@googlegroups.com>; Mon, 15 Feb 2016 06:49:28 -0800 (PST)
+From: Akinobu Mita <akinobu.mita@gmail.com>
+To: rtc-linux@googlegroups.com
+Cc: Akinobu Mita <akinobu.mita@gmail.com>,
+	Wolfgang Grandegger <wg@grandegger.com>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Subject: [rtc-linux] [PATCH 4/4] rtc-rx8025: unsupport UIE mode
+Date: Mon, 15 Feb 2016 23:49:09 +0900
+Message-Id: <1455547749-5229-4-git-send-email-akinobu.mita@gmail.com>
+In-Reply-To: <1455547749-5229-1-git-send-email-akinobu.mita@gmail.com>
+References: <1455547749-5229-1-git-send-email-akinobu.mita@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -28,51 +29,34 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 22/02/2016 at 17:18:03 +0100, Arnd Bergmann wrote :
-> > > IIRC, the problem is that user space passes in TIME_T_MAX and the kernel
-> > > is considering that to be in the past because the clock is set beyond 2038.
-> > > 
-> > > I find it hard to blame user space for that, but I don't have a good
-> > > idea for solving this either.
-> > > 
-> > > In case of systemd, it is literally the first thing that runs on the kernel
-> > > after booting, so we could fall back to setting the time to some known
-> > > working state (1970 or 2016 or something), but that would be a rather
-> > > bad default policy once the system has been running for a while.
-> > > 
-> > 
-> > Also, how would you know that it is an invalid time, some RTC doesn't
-> > provide that information. 
-> 
-> What I meant was encountering a time past the 2038 date, which is invalid
-> as seen from current 32-bit user space, but not necessarily from the
-> kernel.
-> 
+The alarm for rx8025 only has a minute accuracy, so unsupport UIE mode.
 
-I'm not completely sure how this would be different from my current patch...
+pcf8563 and hym8563 also have a minute accuracy and unsupport it.
 
-> > One other workaround is to asked distributions
-> > using systemd to stop using HCTOSYS so userspace would be responsible to
-> > set the system time and in that case we won't have the 32/64 discrepancy.
-> 
-> I'm missing a bit of background here. This seems like a fairly useful
-> piece of infrastructure for the majority of the use cases (working RTC)
-> 
-> How would the time get set when this is disabled? Is systemd able
-> to read the rtc and write it back to the kernel? That could in fact
-> be a nicer workaround for the problem, if it just does this before
-> setting up the timerfd.
-> 
+Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
+Cc: Wolfgang Grandegger <wg@grandegger.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>
+Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+---
+ drivers/rtc/rtc-rx8025.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-I didn't check other distribution but debian and poky have
-/etc/init.d/hwclock.sh that reads the rtc and sets the system time at
-startup. It also saves the time to the RTC on shutdown.
-
-
+diff --git a/drivers/rtc/rtc-rx8025.c b/drivers/rtc/rtc-rx8025.c
+index 23fe242..4199556 100644
+--- a/drivers/rtc/rtc-rx8025.c
++++ b/drivers/rtc/rtc-rx8025.c
+@@ -564,6 +564,9 @@ static int rx8025_probe(struct i2c_client *client,
+ 
+ 	rx8025->rtc->max_user_freq = 1;
+ 
++	/* the rx8025 alarm only supports a minute accuracy */
++	rx8025->rtc->uie_unsupported = 1;
++
+ 	err = rx8025_sysfs_register(&client->dev);
+ 	return err;
+ }
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+2.5.0
 
 -- 
 -- 
