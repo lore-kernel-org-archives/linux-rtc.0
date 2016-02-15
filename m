@@ -1,23 +1,24 @@
-Return-Path: <rtc-linux+bncBDU7VC56WAFBBHPHZK3AKGQE7ONUWUA@googlegroups.com>
-Received: from bues.ch (bues.ch. [2a01:138:9005::1:4])
-        by gmr-mx.google.com with ESMTPS id c143si392898wmd.1.2016.02.28.00.45.17
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=AES128-SHA bits=128/128);
-        Sun, 28 Feb 2016 00:45:17 -0800 (PST)
-Date: Sun, 28 Feb 2016 09:44:52 +0100
-From: Michael =?UTF-8?B?QsO8c2No?= <m@bues.ch>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Gregory Hermant <gregory.hermant@calao-systems.com>,
- rtc-linux@googlegroups.com
-Subject: Re: [rtc-linux] rv3029 EEPROM handling
-Message-ID: <20160228094452.132c1938@wiggum>
-In-Reply-To: <20160228003139.GB2398@piout.net>
-References: <20160227153918.3c3d3853@wiggum>
- <20160228003139.GB2398@piout.net>
+Return-Path: <rtc-linux+bncBAABB4M7Q63AKGQEWD24RKY@googlegroups.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
- boundary="Sig_/SEvEVDD79CQCr=eKIxzwMgh"; protocol="application/pgp-signature"
+Received: from lists.s-osg.org (lists.s-osg.org. [54.187.51.154])
+        by gmr-mx.google.com with ESMTP id 79si3384718pft.0.2016.02.15.05.17.37
+        for <rtc-linux@googlegroups.com>;
+        Mon, 15 Feb 2016 05:17:37 -0800 (PST)
+From: Javier Martinez Canillas <javier@osg.samsung.com>
+To: linux-kernel@vger.kernel.org,
+	Rob Herring <robh+dt@kernel.org>
+Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	linux-samsung-soc@vger.kernel.org,
+	Krzysztof Kozlowski <k.kozlowski@samsung.com>,
+	rtc-linux@googlegroups.com,
+	devicetree@vger.kernel.org,
+	Javier Martinez Canillas <javier@osg.samsung.com>
+Subject: [rtc-linux] [PATCH] rtc: s3c: Document in binding that only s3c6410
+ needs a src clk
+Date: Mon, 15 Feb 2016 10:16:42 -0300
+Message-Id: <1455542202-13977-1-git-send-email-javier@osg.samsung.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -27,32 +28,50 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
---Sig_/SEvEVDD79CQCr=eKIxzwMgh
-Content-Type: text/plain; charset=UTF-8
+Commit 43f3408261a2 ("rtc: s3c: Document required clocks in the DT
+binding") added to the S3C binding doc the required clocks needed
+by the Real Time Clock but the S3C driver supports different HW IP
+and only the s3c6410 needs a source clock.
 
-On Sun, 28 Feb 2016 01:31:39 +0100
-Alexandre Belloni <alexandre.belloni@free-electrons.com> wrote:
+Fix the DT binding explaning that the second clock is only needed
+by this IP block and not for the others.
 
-> trickle charging is usually enabled using device tree, however, I'd
-> really like to see more standardization on the property names.
+Reported-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+Fixes: 43f3408261a2 ("rtc: s3c: Document required clocks in the DT binding")
+Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
 
-Is there an example of an rtc driver implementing this?
-For the rv3029 it's more than just enabling it. It also has a bunch of
-charging resistors to choose from.
+---
+Hello,
 
-> I'm not sure yet about the temperature compensation. I've just merged
-> the crystal offset modification api with a sysfs interface in rtc-next:
-> http://git.kernel.org/cgit/linux/kernel/git/abelloni/linux.git/commit/?h=rtc-next&id=5f23807caab7801c3333c68417bb13c7e2439193
-> 
-> But this doesn't seem enough for that particular RTC.
+The mentioned commit was picked by Rob Herring so this one has to go
+through his tree again and not through the RTC tree to avoid conflicts.
 
-The rv3029 does the compensation internally. It just needs to be
-enabled via a bit in its EEPROM. We could probably always set that bit
-though. I'm not sure whether there is a case where one would not want
-that.
+Best regards,
+Javier
 
+ Documentation/devicetree/bindings/rtc/s3c-rtc.txt | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
+
+diff --git a/Documentation/devicetree/bindings/rtc/s3c-rtc.txt b/Documentation/devicetree/bindings/rtc/s3c-rtc.txt
+index 1068ffce9f91..fdde63a5419c 100644
+--- a/Documentation/devicetree/bindings/rtc/s3c-rtc.txt
++++ b/Documentation/devicetree/bindings/rtc/s3c-rtc.txt
+@@ -15,9 +15,10 @@ Required properties:
+   is the rtc tick interrupt. The number of cells representing a interrupt
+   depends on the parent interrupt controller.
+ - clocks: Must contain a list of phandle and clock specifier for the rtc
+-          and source clocks.
+-- clock-names: Must contain "rtc" and "rtc_src" entries sorted in the
+-               same order as the clocks property.
++          clock and in the case of a s3c6410 compatible controller, also
++          a source clock.
++- clock-names: Must contain "rtc" and for a s3c6410 compatible controller,
++               a "rtc_src" sorted in the same order as the clocks property.
+ 
+ Example:
+ 
 -- 
-Michael
+2.5.0
 
 -- 
 -- 
@@ -64,27 +83,3 @@ before submitting a driver.
 You received this message because you are subscribed to the Google Groups "rtc-linux" group.
 To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
-
---Sig_/SEvEVDD79CQCr=eKIxzwMgh
-Content-Type: application/pgp-signature
-Content-Description: OpenPGP digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
-
-iQIcBAEBCAAGBQJW0rOEAAoJEPUyvh2QjYsOuUoP/38ka/SgFhtvLICl8gvxpOZ4
-5VB+xxzsFUPsJ387Q2nVVM91TH/cQ/smS1GcrdvgEmCtRT+MTsv4qc5+8j0s/l4S
-mvUh8Z20Dc8f8yJ+U7zqdfBw7G14EHkEr4MrrYNKr/bkXiJ0GFcjAzzcu8vwrcfk
-92bbgOm+vBhvIzjaSFDjZGn7hif3Zwcs8/p00UyTfrquWDELj/ppu51+YOdD+Ok4
-X/6s2YYWrw91u0xJ3KLh/CmdyXFZwB9waDu/RY+8XuB56JOsqmP+IpZNR0d0q0RS
-eAisQ3Kq7GF6wMCN+ca46pcJkt0dCb9NNq2kZExP4spdP4t2ulfp3t//UsZ+4+/I
-u+SQiuZwBTKgsgnBS+Plhl6w7RVVMCwKdd6WDzbBVV2fTnzhNyT9w1k/e5CjpZJP
-+9AkUp/XCcEXlrqkbULxA9lXcK4c4Vi56XHtxyr5lUUPMOevnA2+RDygfneaQ9rH
-k3Ac8Iktb9fjagiWHkVTa3g0obAeRW5nj8MnmFGiBRg7mQ6ZyztRQUKcpHIWWWdF
-a6GGnyFwzIGQQIL617BtmYvw29ZajxC29+IWZyunwpVvlzKUyzItjskkj0jMBCbG
-xM8ThV0MRzozmtYl1O7e6FhNEeW0tX4/gPeg6X256X9DeNn1NAIwwdEoYxL78Rl7
-QRaWlap6LM6zliifxRg/
-=JhMy
------END PGP SIGNATURE-----
-
---Sig_/SEvEVDD79CQCr=eKIxzwMgh--
