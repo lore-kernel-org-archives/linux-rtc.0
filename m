@@ -1,31 +1,23 @@
-Return-Path: <rtc-linux+bncBDQ2L75W5QGBBNVY4O2QKGQESV7QIYA@googlegroups.com>
-Received: from mezzanine.sirena.org.uk (mezzanine.sirena.org.uk. [2400:8900::f03c:91ff:fedb:4f4])
-        by gmr-mx.google.com with ESMTPS id ff2si1782828pad.2.2016.02.08.10.19.33
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=AES128-SHA bits=128/128);
-        Mon, 08 Feb 2016 10:19:33 -0800 (PST)
-Date: Mon, 8 Feb 2016 18:19:08 +0000
-From: Mark Brown <broonie@kernel.org>
-To: Laxman Dewangan <ldewangan@nvidia.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>, lee.jones@linaro.org,
-	alexandre.belloni@free-electrons.com, k.kozlowski@samsung.com,
-	javier@osg.samsung.com, gregkh@linuxfoundation.org,
-	a.zummo@towertech.it, cw00.choi@samsung.com,
-	linux-kernel@vger.kernel.org, rtc-linux@googlegroups.com
-Message-ID: <20160208181908.GM7265@sirena.org.uk>
-References: <1454769447-785-1-git-send-email-ldewangan@nvidia.com>
- <1454769447-785-2-git-send-email-ldewangan@nvidia.com>
- <20160208145550.GE7265@sirena.org.uk>
- <56B8C484.7000309@nvidia.com>
- <20160208165912.GK7265@sirena.org.uk>
- <56B8C8B4.4050207@nvidia.com>
+Return-Path: <rtc-linux+bncBCPM5SUWUYIRB4OKQ63AKGQERZQT7VA@googlegroups.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="F7w+4yMapWozG0Ib"
-In-Reply-To: <56B8C8B4.4050207@nvidia.com>
-Subject: [rtc-linux] Re: [PATCH V4 1/6] regmap: irq: add apis to unmap the
- mapped irq
+Received: from mail-pa0-x244.google.com (mail-pa0-x244.google.com. [2607:f8b0:400e:c03::244])
+        by gmr-mx.google.com with ESMTPS id ff2si2930908pad.2.2016.02.15.06.49.21
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 15 Feb 2016 06:49:21 -0800 (PST)
+Received: by mail-pa0-x244.google.com with SMTP id y7so782099paa.3
+        for <rtc-linux@googlegroups.com>; Mon, 15 Feb 2016 06:49:21 -0800 (PST)
+From: Akinobu Mita <akinobu.mita@gmail.com>
+To: rtc-linux@googlegroups.com
+Cc: Akinobu Mita <akinobu.mita@gmail.com>,
+	Wolfgang Grandegger <wg@grandegger.com>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Subject: [rtc-linux] [PATCH 1/4] rtc-rx8025: fix irq handler registration
+Date: Mon, 15 Feb 2016 23:49:06 +0900
+Message-Id: <1455547749-5229-1-git-send-email-akinobu.mita@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -35,31 +27,37 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
---F7w+4yMapWozG0Ib
-Content-Type: text/plain; charset=UTF-8
-Content-Disposition: inline
+When IRQ line for this chips is connected, devm_request_threaded_irq()
+refuses to register irq handler with the following message.
 
-On Mon, Feb 08, 2016 at 10:26:20PM +0530, Laxman Dewangan wrote:
-> Adding Thomas in the discussion.
+genirq: Threaded irq requested with handler=NULL and !ONESHOT for irq
 
-> >This does not explain why anyone would ever want to use this interface
-> >(which was my question), why would anyone ever want to do this as a
-> >separate step?
+Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
+Cc: Wolfgang Grandegger <wg@grandegger.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>
+Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+---
+ drivers/rtc/rtc-rx8025.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-> OK, so you want to say that irq_domain_remove() should take care of doing
-> unmap also?
-
-My main focus is on the regmap-irq interface you are trying to add - why
-would a user of this interface want to do this as a separate step (which
-would require changing all the existing users...)?  We're providing an
-interface to get the virq mapped to a particular interrupt in the
-device, it's not obvious that that is an allocation and it certainly
-wasn't the intention (this code predates us using domains).
-
-> So fix need to go in the irq_domain_remove() to unamp before actually
-> destroying the irq domain?
-
-That's one option, but you could also do this at the regmap-irq level.
+diff --git a/drivers/rtc/rtc-rx8025.c b/drivers/rtc/rtc-rx8025.c
+index bd911ba..561248a 100644
+--- a/drivers/rtc/rtc-rx8025.c
++++ b/drivers/rtc/rtc-rx8025.c
+@@ -539,8 +539,9 @@ static int rx8025_probe(struct i2c_client *client,
+ 	if (client->irq > 0) {
+ 		dev_info(&client->dev, "IRQ %d supplied\n", client->irq);
+ 		err = devm_request_threaded_irq(&client->dev, client->irq, NULL,
+-						rx8025_handle_irq, 0, "rx8025",
+-						client);
++						rx8025_handle_irq,
++						IRQF_ONESHOT,
++						"rx8025", client);
+ 		if (err) {
+ 			dev_err(&client->dev, "unable to request IRQ, alarms disabled\n");
+ 			client->irq = 0;
+-- 
+2.5.0
 
 -- 
 -- 
@@ -71,20 +69,3 @@ before submitting a driver.
 You received this message because you are subscribed to the Google Groups "rtc-linux" group.
 To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
-
---F7w+4yMapWozG0Ib
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
-
-iQEcBAEBCAAGBQJWuNwbAAoJECTWi3JdVIfQO18H/3hiMKQ+QTM4waCBdJpIUpGm
-B0qZ5belH10BZbpD8mKfKDbvwqudDCsK+5UJcBrhchkp7cT+IITBuyhJ8JAGWVpG
-bm850l2vQYaKCvARp0BmplppMe3FZTwYj1ASWYGBR/xMxBT1f0AyqlHYQKBQj8HG
-tKPlSMORwCI6kT/jqZ6FHIWjYk7/wxrYnnaiyqRfgIa6xNcLuer5wD8L2WCpPdLt
-svqcLULXDiJ7RRPcRybg1FT+Av2KLK0u28mUNvaOBvlBJLU+FriAYhc+Pd6YYBks
-MBb7GTJNbT3CvPI0RWWvh3/bi4nOp/7sbqjRcf05MVjNCEXxEicVSrMIdhzuJoQ=
-=gC49
------END PGP SIGNATURE-----
-
---F7w+4yMapWozG0Ib--
