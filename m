@@ -1,21 +1,22 @@
-Return-Path: <rtc-linux+bncBD2OLRXW4ABBBJHIZK2QKGQEXPNEKBA@googlegroups.com>
-Received: from hqemgate16.nvidia.com (hqemgate16.nvidia.com. [216.228.121.65])
-        by gmr-mx.google.com with ESMTPS id r2si1227391pfr.0.2016.02.03.18.15.00
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 03 Feb 2016 18:15:00 -0800 (PST)
-Message-ID: <56B2B17A.1000509@nvidia.com>
-Date: Thu, 4 Feb 2016 07:33:38 +0530
-From: Laxman Dewangan <ldewangan@nvidia.com>
+Return-Path: <rtc-linux+bncBAABBZUSQ63AKGQER4HSJRI@googlegroups.com>
+Received: from lists.s-osg.org (lists.s-osg.org. [54.187.51.154])
+        by gmr-mx.google.com with ESMTP id ui7si3311827pab.0.2016.02.15.04.49.42
+        for <rtc-linux@googlegroups.com>;
+        Mon, 15 Feb 2016 04:49:42 -0800 (PST)
+Subject: Re: [rtc-linux] [PATCH] rtc: s3c: Document required clocks in the DT binding
+To: Krzysztof Kozlowski <k.kozlowski@samsung.com>,
+ rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org
+References: <1455038632-14545-1-git-send-email-javier@osg.samsung.com>
+ <56C01FDD.9050204@samsung.com>
+From: Javier Martinez Canillas <javier@osg.samsung.com>
+Cc: k.kozlowski.k@gmail.com, devicetree@vger.kernel.org,
+ linux-samsung-soc@vger.kernel.org,
+ Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+ Rob Herring <robh+dt@kernel.org>, Alessandro Zummo <a.zummo@towertech.it>
+Message-ID: <56C1C95E.7030002@osg.samsung.com>
+Date: Mon, 15 Feb 2016 09:49:34 -0300
 MIME-Version: 1.0
-To: Krzysztof Kozlowski <k.kozlowski@samsung.com>, <lee.jones@linaro.org>,
-	<alexandre.belloni@free-electrons.com>, <javier@osg.samsung.com>
-CC: <cw00.choi@samsung.com>, <linux-kernel@vger.kernel.org>,
-	<rtc-linux@googlegroups.com>
-Subject: [rtc-linux] Re: [PATCH V3 5/5] rtc: max77686: move initialisation of
- rtc regmap, irq chip locally
-References: <1454507233-9959-1-git-send-email-ldewangan@nvidia.com> <1454507233-9959-6-git-send-email-ldewangan@nvidia.com> <56B296F6.3060002@samsung.com>
-In-Reply-To: <56B296F6.3060002@samsung.com>
+In-Reply-To: <56C01FDD.9050204@samsung.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
@@ -27,52 +28,41 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
+Hello Krzysztof,
 
-On Thursday 04 February 2016 05:40 AM, Krzysztof Kozlowski wrote:
-> On 03.02.2016 22:47, Laxman Dewangan wrote:
->>
->> Changes from V2:
->> - Taken care of missed sequence for removing the resource.
->> - Fix the crash when doing unbind by using requested_threaded_irq()
->>    instead of demv_requested_threaded_irq().
->>
->>   drivers/mfd/max77686.c               |  85 +-------------------
->>   drivers/rtc/rtc-max77686.c           | 148 ++++++++++++++++++++++++++++++-----
->>   include/linux/mfd/max77686-private.h |   3 -
->>   3 files changed, 130 insertions(+), 106 deletions(-)
->>
-> Looks good and works properly (RTC, unbind/rebind, wakealarm again)
-> but... after applying this patch the device cannot suspend to RAM after
-> unbind/rebind.
+Thanks a lot for your feedback.
+
+On 02/14/2016 03:34 AM, Krzysztof Kozlowski wrote:
+> W dniu 10.02.2016 o 02:23, Javier Martinez Canillas pisze:
+>> The S3C Real Time Clock driver requires the clock and source clock to
+>> be defined in the device node but that requirement is not documented.
 >
-> Reproduce path, after booting:
-> $ echo max77686-rtc > /sys/bus/platform/drivers/max77686-rtc/unbind
-> $ echo max77686-rtc > /sys/bus/platform/drivers/max77686-rtc/bind
-> $ rtcwake -d rtc2 -m mem -s 5 -v
-> (or instead of rtcwake: echo mem > /sys/power/state)
+> +Cc: Alessandro Zummo
+>
 
+I didn't add Alessandro to cc deliberately since Alexandre is the one
+maintaining the RTC subsystem lately and before that, the RTC patches
+were picked by Andrew Morton since Alessandro didn't even answer the
+emails.
+  
+> No, not entirely. The samsung,s3c6410-rtc needs rtc and rtc_src clocks
+> but rest of compatible devices need only rtc clock.
+>
 
-My device does not support suspend and hence I can nto test this part 
-and need your help to debug it.
+Right, sorry for missing that. I noticed that this patch has already
+been picked by Rob Herring (I thought it would be picked by Alexandre
+though) so I will post a follow up patch explaining that rtc_src is
+only for the s3c6410-rtc compatible.
 
-Few question to narrow down:
-1. Have you try to bind/unbind mfd driver to make sure that there is no 
-inherent issue in the framework driver?
+> Best regards,
+> Krzysztof
+>
 
-2. Does suspend entry and wake alarm work if you dont do unbind and just 
-bind it and enter into suspend?
-
-3. Can you try locally to not use devm_regmap_init_i2c() and just use 
-the regmap_init_i2c() and proper removal of this from error path and 
-remove callback?
-
-
-
-Three things we are doing new on this movement, i2c client creating, 
-regmap_init and adding irq chip.
-And probably some issue on this calls?
-Let's try with not using devm_ * for this calls?
-
+Best regards,
+-- 
+Javier Martinez Canillas
+Open Source Group
+Samsung Research America
 
 -- 
 -- 
