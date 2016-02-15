@@ -1,28 +1,33 @@
-Return-Path: <rtc-linux+bncBDKZNNNLXAHBBTMHRK3AKGQERW2NYIA@googlegroups.com>
-MIME-Version: 1.0
-Received: from mailout4.w1.samsung.com (mailout4.w1.samsung.com. [210.118.77.14])
-        by gmr-mx.google.com with ESMTPS id yd9si439805pab.1.2016.02.15.18.05.01
+Return-Path: <rtc-linux+bncBDE6RCFOWIARBKFZRG3AKGQEO23DX2Y@googlegroups.com>
+Received: from mail-ob0-x233.google.com (mail-ob0-x233.google.com. [2607:f8b0:4003:c01::233])
+        by gmr-mx.google.com with ESMTPS id p10si1474720igg.1.2016.02.15.15.18.00
         for <rtc-linux@googlegroups.com>
-        (version=TLS1 cipher=AES128-SHA bits=128/128);
-        Mon, 15 Feb 2016 18:05:01 -0800 (PST)
-Received: from eucpsbgm2.samsung.com (unknown [203.254.199.245])
- by mailout4.w1.samsung.com
- (Oracle Communications Messaging Server 7.0.5.31.0 64bit (built May  5 2014))
- with ESMTP id <0O2M0006DB49SU00@mailout4.w1.samsung.com> for
- rtc-linux@googlegroups.com; Tue, 16 Feb 2016 02:04:57 +0000 (GMT)
-From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-To: Sangbeom Kim <sbkim73@samsung.com>,
- Krzysztof Kozlowski <k.kozlowski@samsung.com>,
- Alessandro Zummo <a.zummo@towertech.it>,
- Alexandre Belloni <alexandre.belloni@free-electrons.com>,
- linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org,
- rtc-linux@googlegroups.com
-Cc: Denys Vlasenko <vda.linux@googlemail.com>
-Subject: [rtc-linux] [PATCH] rtc: s5m: De-inline large functions to save space
-Date: Tue, 16 Feb 2016 11:04:42 +0900
-Message-id: <1455588282-7251-1-git-send-email-k.kozlowski@samsung.com>
-Reply-To: rtc-linux@googlegroups.com
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 15 Feb 2016 15:18:00 -0800 (PST)
+Received: by mail-ob0-x233.google.com with SMTP id wb13so233122540obb.1
+        for <rtc-linux@googlegroups.com>; Mon, 15 Feb 2016 15:18:00 -0800 (PST)
+MIME-Version: 1.0
+In-Reply-To: <1455191794-6065-7-git-send-email-ldewangan@nvidia.com>
+References: <1455191794-6065-1-git-send-email-ldewangan@nvidia.com>
+	<1455191794-6065-7-git-send-email-ldewangan@nvidia.com>
+Date: Tue, 16 Feb 2016 00:18:00 +0100
+Message-ID: <CACRpkdbA+pHHpjT-HMr8FS8DehRZE=G2m5s6=MRoqR4n_RrHEQ@mail.gmail.com>
+Subject: [rtc-linux] Re: [PATCH V8 6/8] gpio: max77620: add gpio driver for MAX77620/MAX20024
+From: Linus Walleij <linus.walleij@linaro.org>
+To: Laxman Dewangan <ldewangan@nvidia.com>
+Cc: Rob Herring <robh+dt@kernel.org>, =?UTF-8?Q?Pawe=C5=82_Moll?= <pawel.moll@arm.com>,
+	Mark Rutland <mark.rutland@arm.com>,
+	"ijc+devicetree@hellion.org.uk" <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>,
+	Alexandre Courbot <gnurou@gmail.com>, Lee Jones <lee.jones@linaro.org>, Mark Brown <broonie@kernel.org>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>, Liam Girdwood <lgirdwood@gmail.com>,
+	"devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+	"linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>,
+	"rtc-linux@googlegroups.com" <rtc-linux@googlegroups.com>, Stephen Warren <swarren@nvidia.com>,
+	Thierry Reding <treding@nvidia.com>, =?UTF-8?Q?Krzysztof_Koz=C5=82owski?= <k.kozlowski@samsung.com>
 Content-Type: text/plain; charset=UTF-8
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -32,62 +37,27 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Few functions were marked inline even though they were relatively large
-and sometimes used in multiple places. De-inline them to let the
-compiler decide whether optimization makes sense. This fixes inline_hunt
-report:
-drivers/rtc/rtc-s5m.c: Deinline s5m8767_rtc_set_alarm_reg, save 704 bytes
-drivers/rtc/rtc-s5m.c: Deinline s5m8767_wait_for_udr_update, save 192 bytes
+On Thu, Feb 11, 2016 at 12:56 PM, Laxman Dewangan <ldewangan@nvidia.com> wrote:
 
-Reported-by: Denys Vlasenko <vda.linux@googlemail.com>
-Cc: Denys Vlasenko <vda.linux@googlemail.com>
-Signed-off-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
----
- drivers/rtc/rtc-s5m.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+> MAXIM Semiconductor's PMIC, MAX77620/MAX20024 has 8 GPIO
+> pins. It also supports interrupts from these pins.
+>
+> Add GPIO driver for these pins to control via GPIO APIs.
+>
+> Signed-off-by: Laxman Dewangan <ldewangan@nvidia.com>
+> Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
 
-diff --git a/drivers/rtc/rtc-s5m.c b/drivers/rtc/rtc-s5m.c
-index 7407d7394bb4..0477678d968f 100644
---- a/drivers/rtc/rtc-s5m.c
-+++ b/drivers/rtc/rtc-s5m.c
-@@ -216,7 +216,7 @@ static int s5m8767_tm_to_data(struct rtc_time *tm, u8 *data)
-  * Read RTC_UDR_CON register and wait till UDR field is cleared.
-  * This indicates that time/alarm update ended.
-  */
--static inline int s5m8767_wait_for_udr_update(struct s5m_rtc_info *info)
-+static int s5m8767_wait_for_udr_update(struct s5m_rtc_info *info)
- {
- 	int ret, retry = UDR_READ_RETRY_CNT;
- 	unsigned int data;
-@@ -231,7 +231,7 @@ static inline int s5m8767_wait_for_udr_update(struct s5m_rtc_info *info)
- 	return ret;
- }
- 
--static inline int s5m_check_peding_alarm_interrupt(struct s5m_rtc_info *info,
-+static int s5m_check_peding_alarm_interrupt(struct s5m_rtc_info *info,
- 		struct rtc_wkalrm *alarm)
- {
- 	int ret;
-@@ -264,7 +264,7 @@ static inline int s5m_check_peding_alarm_interrupt(struct s5m_rtc_info *info,
- 	return 0;
- }
- 
--static inline int s5m8767_rtc_set_time_reg(struct s5m_rtc_info *info)
-+static int s5m8767_rtc_set_time_reg(struct s5m_rtc_info *info)
- {
- 	int ret;
- 	unsigned int data;
-@@ -288,7 +288,7 @@ static inline int s5m8767_rtc_set_time_reg(struct s5m_rtc_info *info)
- 	return ret;
- }
- 
--static inline int s5m8767_rtc_set_alarm_reg(struct s5m_rtc_info *info)
-+static int s5m8767_rtc_set_alarm_reg(struct s5m_rtc_info *info)
- {
- 	int ret;
- 	unsigned int data;
--- 
-2.5.0
+(...)
+Nit and no big deal:
+
+> +#include <linux/gpio.h>
+
+<linux/gpio/driver.h>
+
+should be enough.
+
+Yours,
+Linus Walleij
 
 -- 
 -- 
