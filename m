@@ -1,26 +1,22 @@
-Return-Path: <rtc-linux+bncBAABBEPFYG3AKGQESY22OSA@googlegroups.com>
-Received: from comal.ext.ti.com (comal.ext.ti.com. [198.47.26.152])
-        by gmr-mx.google.com with ESMTPS id xh11si242911igb.0.2016.02.26.07.43.13
+Return-Path: <rtc-linux+bncBCPM5SUWUYIRBC7KRS3AKGQE2YY42AY@googlegroups.com>
+Received: from mail-vk0-x22e.google.com (mail-vk0-x22e.google.com. [2607:f8b0:400c:c05::22e])
+        by gmr-mx.google.com with ESMTPS id c66si1113028vkf.0.2016.02.16.06.41.15
         for <rtc-linux@googlegroups.com>
-        (version=TLS1 cipher=AES128-SHA bits=128/128);
-        Fri, 26 Feb 2016 07:43:13 -0800 (PST)
-From: Grygorii Strashko <grygorii.strashko@ti.com>
-To: Lee Jones <lee.jones@linaro.org>, Alessandro Zummo <a.zummo@towertech.it>,
-        MyungJoo Ham <myungjoo.ham@samsung.com>,
-        Lars-Peter Clausen <lars@metafoo.de>
-CC: <rtc-linux@googlegroups.com>, <linux-iio@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>, <nsekhar@ti.com>,
-        <linux-omap@vger.kernel.org>,
-        Grygorii Strashko <grygorii.strashko@ti.com>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        Nishanth Menon
-	<nm@ti.com>
-Subject: [rtc-linux] [PATCH 5/7] rtc: tps80031: Drop IRQF_EARLY_RESUME flag
-Date: Fri, 26 Feb 2016 17:42:55 +0200
-Message-ID: <1456501377-16871-6-git-send-email-grygorii.strashko@ti.com>
-In-Reply-To: <1456501377-16871-1-git-send-email-grygorii.strashko@ti.com>
-References: <1456501377-16871-1-git-send-email-grygorii.strashko@ti.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 16 Feb 2016 06:41:15 -0800 (PST)
+Received: by mail-vk0-x22e.google.com with SMTP id e6so134553140vkh.2
+        for <rtc-linux@googlegroups.com>; Tue, 16 Feb 2016 06:41:15 -0800 (PST)
 MIME-Version: 1.0
+In-Reply-To: <20160216012518.GC3310@piout.net>
+References: <1455547749-5229-1-git-send-email-akinobu.mita@gmail.com>
+	<20160216012518.GC3310@piout.net>
+Date: Tue, 16 Feb 2016 23:41:15 +0900
+Message-ID: <CAC5umyg2Xt0p-GZzpr-T_ni1=jUQj6up2w=8vux+a7xNZRxh3Q@mail.gmail.com>
+Subject: [rtc-linux] Re: [PATCH 1/4] rtc-rx8025: fix irq handler registration
+From: Akinobu Mita <akinobu.mita@gmail.com>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: rtc-linux@googlegroups.com, Wolfgang Grandegger <wg@grandegger.com>,
+	Alessandro Zummo <a.zummo@towertech.it>
 Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
@@ -32,35 +28,24 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-tps80031 RTC IRQ is nested threaded and wired to the tps80031
-inerrupt controller. So, this flag is not required for nested irqs
-anymore, since commit 3c646f2c6aa9 ("genirq: Don't suspend
-nested_thread irqs over system suspend") was merged.
+2016-02-16 10:25 GMT+09:00 Alexandre Belloni
+<alexandre.belloni@free-electrons.com>:
+> Hi,
+>
+> Not completely related to that patch series but I was wondering if you
+> had access to that particular RTC.
+>
+> The rtc-d1307 driver claims to also support rx8025 but my guess is that
+> is is not necessary anymore. Could you check which one we should keep?
 
-Cc: Alessandro Zummo <a.zummo@towertech.it>
-Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Lee Jones <lee.jones@linaro.org>
-Cc: Nishanth Menon <nm@ti.com>
-Signed-off-by: Grygorii Strashko <grygorii.strashko@ti.com>
----
- drivers/rtc/rtc-tps80031.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+rx8025 in rtc-ds1307 driver doesn't support alarm, so we should keep
+rtc-rx8025.  But rtc-rx8025 driver currently requires both
+I2C_FUNC_SMBUS_BYTE_DATA and I2C_FUNC_SMBUS_I2C_BLOCK for i2c adapter
+while rx8025 in rtc-ds1307 driver requires one of them.  So we can't
+simply remove rx8025 support from rtc-ds1307 now.
 
-diff --git a/drivers/rtc/rtc-tps80031.c b/drivers/rtc/rtc-tps80031.c
-index 27e254c..737f26e 100644
---- a/drivers/rtc/rtc-tps80031.c
-+++ b/drivers/rtc/rtc-tps80031.c
-@@ -287,7 +287,7 @@ static int tps80031_rtc_probe(struct platform_device *pdev)
- 
- 	ret = devm_request_threaded_irq(&pdev->dev, rtc->irq, NULL,
- 			tps80031_rtc_irq,
--			IRQF_ONESHOT | IRQF_EARLY_RESUME,
-+			IRQF_ONESHOT,
- 			dev_name(&pdev->dev), rtc);
- 	if (ret < 0) {
- 		dev_err(&pdev->dev, "request IRQ:%d failed, err = %d\n",
--- 
-2.7.2
+Maybe we can introduce emulated read/write_i2c_block_data functions
+for this.
 
 -- 
 -- 
