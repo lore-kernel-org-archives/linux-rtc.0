@@ -1,26 +1,22 @@
-Return-Path: <rtc-linux+bncBAABBZMXZ22QKGQEY7X6GPI@googlegroups.com>
-Received: from lists.s-osg.org (lists.s-osg.org. [54.187.51.154])
-        by gmr-mx.google.com with ESMTP id tn7si1554982pac.1.2016.02.04.09.35.33
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBZPNRG3AKGQE7KQISAY@googlegroups.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id w197si701588wmw.3.2016.02.15.17.09.56
         for <rtc-linux@googlegroups.com>;
-        Thu, 04 Feb 2016 09:35:33 -0800 (PST)
-Subject: [rtc-linux] Re: [PATCH V3 5/5] rtc: max77686: move initialisation of
- rtc regmap, irq chip locally
-To: Laxman Dewangan <ldewangan@nvidia.com>,
- Krzysztof Kozlowski <k.kozlowski@samsung.com>, lee.jones@linaro.org,
- alexandre.belloni@free-electrons.com
-References: <1454507233-9959-1-git-send-email-ldewangan@nvidia.com>
- <1454507233-9959-6-git-send-email-ldewangan@nvidia.com>
- <56B296F6.3060002@samsung.com> <56B2B17A.1000509@nvidia.com>
- <56B2F6A2.5060103@samsung.com> <56B314F4.6010605@samsung.com>
- <56B3242E.1060504@nvidia.com>
-From: Javier Martinez Canillas <javier@osg.samsung.com>
-Cc: cw00.choi@samsung.com, linux-kernel@vger.kernel.org,
- rtc-linux@googlegroups.com
-Message-ID: <56B38BDC.8070706@osg.samsung.com>
-Date: Thu, 4 Feb 2016 14:35:24 -0300
+        Mon, 15 Feb 2016 17:09:56 -0800 (PST)
+Date: Tue, 16 Feb 2016 02:09:56 +0100
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Laxman Dewangan <ldewangan@nvidia.com>
+Cc: lee.jones@linaro.org, k.kozlowski@samsung.com, javier@osg.samsung.com,
+	broonie@kernel.org, gregkh@linuxfoundation.org,
+	a.zummo@towertech.it, cw00.choi@samsung.com,
+	linux-kernel@vger.kernel.org, rtc-linux@googlegroups.com
+Subject: [rtc-linux] Re: [PATCH V7 0/5] rtc: max77686: make max77686 rtc
+ driver as IP driver
+Message-ID: <20160216010956.GB3310@piout.net>
+References: <1455038794-9921-1-git-send-email-ldewangan@nvidia.com>
 MIME-Version: 1.0
-In-Reply-To: <56B3242E.1060504@nvidia.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1455038794-9921-1-git-send-email-ldewangan@nvidia.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -31,50 +27,55 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Hello Laxman,
+On 09/02/2016 at 22:56:29 +0530, Laxman Dewangan wrote :
+> Based on discussion on patch series of MAX77620 when adding separate
+> driver for max77620 RTC, it is discussed to reuse the max77686 driver
+> for all CHips MAX77802, MAX77686 and MAX77620. For this, the rtc-max77686
+> need to make as IP driver independent of their MFD parent driver.
+> 
+> This series makes the rtc-max77686 as independent driver from its 
+> parent. Required information is passed through the device parent
+> which is generic and does not depends on any max77686 specific
+> header ifnromation.
+> 
+> CC: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+> CC: Javier Martinez Canillas <javier@osg.samsung.com>
+> 
+> Changes from V1: 
+> - Added reviewed/tested by tag which we got from V1.
+> - Remove changes from Kconfig.
+> - Maintain all register definition in max77686 private header and remove
+>   the movement to rtc driver.
+> - Taken care of all comments on V1 from Krzysztof and Javier.
+> 
+> Changes from V2: 
+> - Fix the issue of crash in unbind.
+> 
+> Changes from V3: 
+> - Fix suspend-resume after unbind/bind by unmapping virq in remove callback.
+> 
+> Changes from V5: 
+> - Abandon the addition of new API in regmap-irq and add dispose of virq
+>   in regmap_del_irq_chip().
+> 
+> Changes from V6: 
+> - make regmap change as independent of this series and rebase it on linux-next
+>   20160209
+> 
+> Laxman Dewangan (5):
+>   rtc: max77686: fix checkpatch error
+>   rtc: max77686: use rtc regmap to access RTC registers
+>   rtc: max77686: avoid reference of parent device info multiple places
+>   mfd: max77686: do not set i2c client data for rtc i2c client
+>   rtc: max77686: move initialisation of rtc regmap, irq chip locally
+> 
 
-On 02/04/2016 07:13 AM, Laxman Dewangan wrote:
->
-> On Thursday 04 February 2016 02:38 PM, Krzysztof Kozlowski wrote:
->> On 04.02.2016 15:58, Krzysztof Kozlowski wrote:
->>> On 04.02.2016 11:03, Laxman Dewangan wrote:
->>>> 3. Can you try locally to not use devm_regmap_init_i2c() and just use
->>>> the regmap_init_i2c() and proper removal of this from error path and
->>>> remove callback?
->>> I'll try to find some time for that. Maybe tomorrow.
->> regmap_init_i2c does not help. However helps commenting out the:
->>     regmap_del_irq_chip(info->rtc_irq, info->rtc_irq_data);
->> from remove() callback.
->>
->>
->
-> Thanks for debugging.  I do not see anything on regmap_del_irq_chip() which can be suspected. Is this because of sharing interrupt between mfd and rtc driver?
+All applied, thanks.
 
-I don't think so, as long as all the callers pass the IRQF_SHARED flag,
-there shouldn't be issues if different drivers call request / free irq.
-
-AFAIK the only thing to take into account is that all callers should
-pass a non-NULL cookie (the void * parameter in request and free irq)
-so the kernel has a way to differentiate at request / free time.
-
-And this is the case for regmap irq since the regmap_irq_chip_data *
-that is passed to regmap_{add,del}_irq_chip() is used as the cookie.
-
->
-> What is your suggestion here?  Should we avoid this inside RTC driver (creating this in mfd) and pass this information to the rtc driver using customized platform driver?
->
-
-That wouldn't be the right approach IMHO, that would just mask the real
-issue by making the call to regmap_del_irq_chip() to never happen since
-the MFD device is not usually unbound due regulators being too critical.
-
-I think we should find the real cause why this is happening and fix it.
-
-Best regards,
 -- 
-Javier Martinez Canillas
-Open Source Group
-Samsung Research America
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
 -- 
 -- 
