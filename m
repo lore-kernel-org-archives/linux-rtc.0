@@ -1,22 +1,20 @@
-Return-Path: <rtc-linux+bncBD2ZNBF5VYJRB2HUYG2QKGQE4NBNCYA@googlegroups.com>
-Date: Tue, 2 Feb 2016 10:44:07 +0100
-From: Maxime Ripard <maxime.ripard@free-electrons.com>
-To: Andre Przywara <andre.przywara@arm.com>
-Cc: Chen-Yu Tsai <wens@csie.org>, linux-sunxi@googlegroups.com,
-	Arnd Bergmann <arnd@arndb.de>, linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	rtc-linux@googlegroups.com
-Subject: [rtc-linux] Re: [PATCH 03/11] drivers: rtc: allow compilation of
- sun6i RTC for all sunxi SoCs
-Message-ID: <20160202094407.GL4652@lukather>
-References: <1454348370-3816-1-git-send-email-andre.przywara@arm.com>
- <1454348370-3816-4-git-send-email-andre.przywara@arm.com>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBEWVR23AKGQE7VSEG6Q@googlegroups.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id 141si5126wmy.2.2016.02.16.15.02.41
+        for <rtc-linux@googlegroups.com>;
+        Tue, 16 Feb 2016 15:02:41 -0800 (PST)
+Date: Wed, 17 Feb 2016 00:02:41 +0100
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Joshua Henderson <joshua.henderson@microchip.com>
+Cc: linux-kernel@vger.kernel.org, linux-mips@linux-mips.org,
+	Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com
+Subject: [rtc-linux] Re: [PATCH 2/2] rtc: rtc-pic32: Add PIC32 real time clock driver
+Message-ID: <20160216230241.GC2189@piout.net>
+References: <1454366606-10779-1-git-send-email-joshua.henderson@microchip.com>
+ <1454366606-10779-2-git-send-email-joshua.henderson@microchip.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="RD6GsZsdEJvsf78O"
-In-Reply-To: <1454348370-3816-4-git-send-email-andre.przywara@arm.com>
+Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1454366606-10779-2-git-send-email-joshua.henderson@microchip.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -27,25 +25,298 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
---RD6GsZsdEJvsf78O
-Content-Type: text/plain; charset=UTF-8
-Content-Disposition: inline
+Hi,
 
-On Mon, Feb 01, 2016 at 05:39:22PM +0000, Andre Przywara wrote:
-> At the moment the "sun6i" RTC drivers depends on having two specific
-> SoC families selected.
-> The Allwinner A64 SoC has the same RTC, so extend the Kconfig option
-> to allow inclusion of the driver for all Allwinner SoCs.
+On 01/02/2016 at 15:43:22 -0700, Joshua Henderson wrote :
+> This drivers adds support for the PIC32 real time clock and calendar
+> peripheral:
+>      - reading and setting time
+>      - alarms when connected to an IRQ
 > 
-> Signed-off-by: Andre Przywara <andre.przywara@arm.com>
+> Signed-off-by: Joshua Henderson <joshua.henderson@microchip.com>
+> ---
+>  drivers/rtc/Kconfig     |   10 ++
+>  drivers/rtc/Makefile    |    1 +
+>  drivers/rtc/rtc-pic32.c |  450 +++++++++++++++++++++++++++++++++++++++++++++++
 
-Acked-by: Maxime Ripard <maxime.ripard@free-electrons.com>
+Nitpick: there are multiple alignment and blank lines issues that you
+can spot using checkpatch --strict.
 
-Thanks!
-Maxime
+> diff --git a/drivers/rtc/Makefile b/drivers/rtc/Makefile
+> index 62d61b2..20c9be5 100644
+> --- a/drivers/rtc/Makefile
+> +++ b/drivers/rtc/Makefile
+> @@ -162,3 +162,4 @@ obj-$(CONFIG_RTC_DRV_WM8350)	+= rtc-wm8350.o
+>  obj-$(CONFIG_RTC_DRV_X1205)	+= rtc-x1205.o
+>  obj-$(CONFIG_RTC_DRV_XGENE)	+= rtc-xgene.o
+>  obj-$(CONFIG_RTC_DRV_ZYNQMP)	+= rtc-zynqmp.o
+> +obj-$(CONFIG_RTC_DRV_PIC32)	+= rtc-pic32.o
+
+This list has to be ordered alphabetically.
+
+> diff --git a/drivers/rtc/rtc-pic32.c b/drivers/rtc/rtc-pic32.c
+> new file mode 100644
+> index 0000000..7c46ccb
+> --- /dev/null
+> +++ b/drivers/rtc/rtc-pic32.c
+> @@ -0,0 +1,450 @@
+> +/*
+> + * PIC32 RTC driver
+> + *
+> + * Joshua Henderson <joshua.henderson@microchip.com>
+> + * Copyright (C) 2016 Microchip Technology Inc.  All rights reserved.
+> + *
+> + * This program is free software; you can distribute it and/or modify it
+> + * under the terms of the GNU General Public License (Version 2) as
+> + * published by the Free Software Foundation.
+> + *
+
+This specify GPL v2 but you use MODULE_LICENSE("GPL")
+
+> + * This program is distributed in the hope it will be useful, but WITHOUT
+> + * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+> + * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+> + * for more details.
+> + */
+> +#include <linux/init.h>
+> +#include <linux/module.h>
+> +#include <linux/of.h>
+> +#include <linux/platform_device.h>
+> +#include <linux/io.h>
+> +#include <linux/slab.h>
+> +#include <linux/clk.h>
+> +#include <linux/rtc.h>
+> +#include <linux/bcd.h>
+> +
+> +#include <asm/mach-pic32/pic32.h>
+> +
+> +#define DRIVER_NAME "pic32-rtc"
+> +
+> +#define PIC32_RTCCON		(0x00)
+
+You probably don't need those parenthesis.
+
+> +#define PIC32_RTCCON_ON		BIT(15)
+> +#define PIC32_RTCCON_SIDL	BIT(13)
+> +#define PIC32_RTCCON_RTCCLKSEL	(3 << 9)
+> +#define PIC32_RTCCON_RTCCLKON	BIT(6)
+> +#define PIC32_RTCCON_RTCWREN	BIT(3)
+> +#define PIC32_RTCCON_RTCSYNC	BIT(2)
+> +#define PIC32_RTCCON_HALFSEC	BIT(1)
+> +#define PIC32_RTCCON_RTCOE	BIT(0)
+> +
+> +#define PIC32_RTCALRM		(0x10)
+
+ditto
+
+> +#define PIC32_RTCALRM_ALRMEN	BIT(15)
+> +#define PIC32_RTCALRM_CHIME	BIT(14)
+> +#define PIC32_RTCALRM_PIV	BIT(13)
+> +#define PIC32_RTCALRM_ALARMSYNC	BIT(12)
+> +#define PIC32_RTCALRM_AMASK	(0x0F << 8)
+> +#define PIC32_RTCALRM_ARPT	(0xFF << 0)
+
+Nit: For those masks, you can use genmask() or directly 0x0F00 and 0xFF
+
+> +struct pic32_rtc_dev {
+> +	struct rtc_device	*rtc;
+> +	void __iomem		*reg_base;
+> +	struct clk		*clk;
+> +	spinlock_t		flags_lock;
+
+flags_lock is unnecessary, it is used only in one function that is
+called only at probe time
+
+> +	spinlock_t		alarm_lock;
+> +	int			alarm_irq;
+> +	bool			alarm_clk_enabled;
+> +};
+> +
+
+[...]
+
+> +static int pic32_rtc_gettime(struct device *dev, struct rtc_time *rtc_tm)
+> +{
+> +	struct pic32_rtc_dev *pdata = dev_get_drvdata(dev);
+> +	void __iomem *base = pdata->reg_base;
+> +	unsigned int have_retried = 0;
+> +
+> +	clk_enable(pdata->clk);
+> +retry_get_time:
+> +	rtc_tm->tm_hour = readb(base + PIC32_RTCHOUR);
+> +	rtc_tm->tm_min = readb(base + PIC32_RTCMIN);
+> +	rtc_tm->tm_mon  = readb(base + PIC32_RTCMON);
+> +	rtc_tm->tm_mday = readb(base + PIC32_RTCDAY);
+> +	rtc_tm->tm_year = readb(base + PIC32_RTCYEAR);
+> +	rtc_tm->tm_sec  = readb(base + PIC32_RTCSEC);
+> +
+> +	/*
+> +	 * The only way to work out whether the system was mid-update
+> +	 * when we read it is to check the second counter, and if it
+> +	 * is zero, then we re-try the entire read.
+> +	 */
+> +
+> +	if (rtc_tm->tm_sec == 0 && !have_retried) {
+> +		have_retried = 1;
+> +		goto retry_get_time;
+> +	}
+
+Please change that goto in a do while loop.
+
+> +
+> +	rtc_tm->tm_sec = bcd2bin(rtc_tm->tm_sec);
+> +	rtc_tm->tm_min = bcd2bin(rtc_tm->tm_min);
+> +	rtc_tm->tm_hour = bcd2bin(rtc_tm->tm_hour);
+> +	rtc_tm->tm_mday = bcd2bin(rtc_tm->tm_mday);
+> +	rtc_tm->tm_mon = bcd2bin(rtc_tm->tm_mon);
+> +	rtc_tm->tm_year = bcd2bin(rtc_tm->tm_year);
+> +
+> +	rtc_tm->tm_year += 100;
+> +
+> +	dev_dbg(dev, "read time %04d.%02d.%02d %02d:%02d:%02d\n",
+> +		1900 + rtc_tm->tm_year, rtc_tm->tm_mon, rtc_tm->tm_mday,
+> +		rtc_tm->tm_hour, rtc_tm->tm_min, rtc_tm->tm_sec);
+> +
+> +	rtc_tm->tm_mon -= 1;
+
+Maybe you should do that substraction with the assignment the only
+drawback is that it changes the debug output.
+
+> +
+> +	clk_disable(pdata->clk);
+> +	return rtc_valid_tm(rtc_tm);
+> +}
+> +
+
+[...]
+
+> +static int pic32_rtc_getalarm(struct device *dev, struct rtc_wkalrm *alrm)
+> +{
+> +	struct pic32_rtc_dev *pdata = dev_get_drvdata(dev);
+> +	struct rtc_time *alm_tm = &alrm->time;
+> +	void __iomem *base = pdata->reg_base;
+> +	unsigned int alm_en;
+> +
+> +	clk_enable(pdata->clk);
+> +	alm_tm->tm_sec  = readb(base + PIC32_ALRMSEC);
+> +	alm_tm->tm_min  = readb(base + PIC32_ALRMMIN);
+> +	alm_tm->tm_hour = readb(base + PIC32_ALRMHOUR);
+> +	alm_tm->tm_mon  = readb(base + PIC32_ALRMMON);
+> +	alm_tm->tm_mday = readb(base + PIC32_ALRMDAY);
+> +	alm_tm->tm_year = readb(base + PIC32_ALRMYEAR);
+> +
+> +	alm_en = readb(base + PIC32_RTCALRM);
+> +
+> +	alrm->enabled = (alm_en & PIC32_RTCALRM_ALRMEN) ? 1 : 0;
+> +
+> +	dev_dbg(dev, "getalarm: %d, %04d.%02d.%02d %02d:%02d:%02d\n",
+> +		alm_en,
+> +		1900 + alm_tm->tm_year, alm_tm->tm_mon, alm_tm->tm_mday,
+> +		alm_tm->tm_hour, alm_tm->tm_min, alm_tm->tm_sec);
+> +
+> +	alm_tm->tm_sec = bcd2bin(alm_tm->tm_sec);
+> +	alm_tm->tm_min = bcd2bin(alm_tm->tm_min);
+> +	alm_tm->tm_hour = bcd2bin(alm_tm->tm_hour);
+> +	alm_tm->tm_mday = bcd2bin(alm_tm->tm_mday);
+> +	alm_tm->tm_mon = bcd2bin(alm_tm->tm_mon);
+> +	alm_tm->tm_mon -= 1;
+You could merge both lines.
+
+> +	alm_tm->tm_year = bcd2bin(alm_tm->tm_year);
+> +
+> +	clk_disable(pdata->clk);
+> +	return 0;
+> +}
+> +
+> +static int pic32_rtc_setalarm(struct device *dev, struct rtc_wkalrm *alrm)
+> +{
+> +	struct pic32_rtc_dev *pdata = dev_get_drvdata(dev);
+> +	struct rtc_time *tm = &alrm->time;
+> +	void __iomem *base = pdata->reg_base;
+> +
+> +	clk_enable(pdata->clk);
+> +	dev_dbg(dev, "setalarm: %d, %04d.%02d.%02d %02d:%02d:%02d\n",
+> +		alrm->enabled,
+> +		1900 + tm->tm_year, tm->tm_mon + 1, tm->tm_mday,
+> +		tm->tm_hour, tm->tm_min, tm->tm_sec);
+> +
+> +	writel(0x00, base + PIC32_ALRMTIME);
+> +	writel(0x00, base + PIC32_ALRMDATE);
+> +
+> +	if (tm->tm_sec < 60 && tm->tm_sec >= 0)
+> +		writeb(bin2bcd(tm->tm_sec), base + PIC32_ALRMSEC);
+> +
+> +	if (tm->tm_min < 60 && tm->tm_min >= 0)
+> +		writeb(bin2bcd(tm->tm_min), base + PIC32_ALRMMIN);
+> +
+> +	if (tm->tm_hour < 24 && tm->tm_hour >= 0)
+> +		writeb(bin2bcd(tm->tm_hour), base + PIC32_ALRMHOUR);
+> +
+
+Those three tests are unnecessary because rtc_valid_tm() is called
+before ops->set_alarm.
+
+> +	pic32_rtc_setaie(dev, alrm->enabled);
+> +
+> +	clk_disable(pdata->clk);
+> +	return 0;
+> +}
+> +
+
+[...]
+
+
+> +	pic32_rtc_gettime(&pdev->dev, &rtc_tm);
+> +
+> +	if (rtc_valid_tm(&rtc_tm)) {
+> +		rtc_tm.tm_year	= 100;
+> +		rtc_tm.tm_mon	= 0;
+> +		rtc_tm.tm_mday	= 1;
+> +		rtc_tm.tm_hour	= 0;
+> +		rtc_tm.tm_min	= 0;
+> +		rtc_tm.tm_sec	= 0;
+> +
+> +		pic32_rtc_settime(NULL, &rtc_tm);
+> +
+> +		dev_warn(&pdev->dev,
+> +			"warning: invalid RTC value so initializing it\n");
+
+This is a bad idea. If you do that, userspace has no way of knowing
+whether the date is valid or not.
+
+[...]
+
+> +static const struct of_device_id pic32_rtc_dt_ids[] = {
+> +	{ .compatible = "microchip,pic32mzda-rtc" },
+> +	{ /* sentinel */ }
+> +};
+> +MODULE_DEVICE_TABLE(of, pic32_rtc_dt_ids);
+
+This compatible string needs to be documented. Was that patch 1/2?
+
+> +
+> +static struct platform_driver pic32_rtc_driver = {
+> +	.probe		= pic32_rtc_probe,
+> +	.remove		= pic32_rtc_remove,
+> +	.driver		= {
+> +		.name	= DRIVER_NAME,
+> +		.owner	= THIS_MODULE,
+> +		.of_match_table	= of_match_ptr(pic32_rtc_dt_ids),
+> +	},
+> +};
+> +module_platform_driver(pic32_rtc_driver);
+> +
+> +MODULE_DESCRIPTION("Microchip PIC32 RTC Driver");
+> +MODULE_AUTHOR("Joshua Henderson <joshua.henderson@microchip.com>");
+> +MODULE_LICENSE("GPL");
+> +MODULE_ALIAS("platform:" DRIVER_NAME);
+
+I think this driver is DT only, you can get rid of MODULE_ALIAS and
+DRIVER_NAME
+
 
 -- 
-Maxime Ripard, Free Electrons
+Alexandre Belloni, Free Electrons
 Embedded Linux, Kernel and Android engineering
 http://free-electrons.com
 
@@ -59,27 +330,3 @@ before submitting a driver.
 You received this message because you are subscribed to the Google Groups "rtc-linux" group.
 To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
-
---RD6GsZsdEJvsf78O
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJWsHpnAAoJEBx+YmzsjxAgqFAP/3hUYWhyOuVC7i+MaQSuSTBg
-j2h7FNagMcSz1rLOCXDamCISGy8OX81QLgVXPKgzAk/5gRjStBRzUE2uzfRGX7As
-iyLPiECcBpjgWcJ7W1Ao4LNI4JDfwOCQeVjIXsDrk+XvWf22ov7sMApgP9JebYTj
-la2chLJ/hqG1XYjtIrghBele+OB9t8hlvBEhCDyFxFa3sPBXWnhGRqK4expWAdtp
-eyrr0/nv0ari6w7O8G4EftBb5eLG7BuD6Fit8eKx1e8U8gFpi92PPsYRvQbVjBNc
-b5slWaRj7TAfsTfoi8T9lNEKOLEZ403rywMgrwuWj7iDXZ7aY5xaeIGNdvIo3HPI
-ZAqk2CN3r5mLXUIRlqmb5AgSevObsHIuIdViZ8XaWc7W3frmwCfz7l5QoOk5JMU7
-nn7Z1uF89QqcPU8GdZRA4guIkLdXRFi/grrcBrGmcPu7WBk5/aiITlpWvXpIJWS8
-T7wJHVGMQ6tqlBhqPmg0itHXgACrY9jmTx9VYB+cP69XW1eadZjVIKaXSjYdd5/+
-H0RxV6FTkXyNtiBC8RLgVns0m+BP+HjsZLhmvYeX9w+FZseJUevhd+QL8/he1B4e
-xkXplXPjcKfiyXoWp8bIsNUbO3ILOX3Bi//ewrquWWSmRK26NBl48TigyWhwAkur
-Q9xNdq4dnNQHpBlNKDWK
-=DXFr
------END PGP SIGNATURE-----
-
---RD6GsZsdEJvsf78O--
