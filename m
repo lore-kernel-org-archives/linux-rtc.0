@@ -1,27 +1,27 @@
-Return-Path: <rtc-linux+bncBAABBEXFYG3AKGQEKKPY6QQ@googlegroups.com>
-Received: from comal.ext.ti.com (comal.ext.ti.com. [198.47.26.152])
-        by gmr-mx.google.com with ESMTPS id i9si258490igg.1.2016.02.26.07.43.14
+Return-Path: <rtc-linux+bncBCYKZMUQ7QBBBNWOR23AKGQEZ2U2LGQ@googlegroups.com>
+Received: from mail-pf0-x231.google.com (mail-pf0-x231.google.com. [2607:f8b0:400e:c00::231])
+        by gmr-mx.google.com with ESMTPS id u66si3931404pfa.2.2016.02.16.14.48.22
         for <rtc-linux@googlegroups.com>
-        (version=TLS1 cipher=AES128-SHA bits=128/128);
-        Fri, 26 Feb 2016 07:43:14 -0800 (PST)
-From: Grygorii Strashko <grygorii.strashko@ti.com>
-To: Lee Jones <lee.jones@linaro.org>, Alessandro Zummo <a.zummo@towertech.it>,
-        MyungJoo Ham <myungjoo.ham@samsung.com>,
-        Lars-Peter Clausen <lars@metafoo.de>
-CC: <rtc-linux@googlegroups.com>, <linux-iio@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>, <nsekhar@ti.com>,
-        <linux-omap@vger.kernel.org>,
-        Grygorii Strashko <grygorii.strashko@ti.com>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        Tony Lindgren
-	<tony@atomide.com>, Nishanth Menon <nm@ti.com>
-Subject: [rtc-linux] [PATCH 2/7] rtc: palmas: Drop IRQF_EARLY_RESUME flag
-Date: Fri, 26 Feb 2016 17:42:52 +0200
-Message-ID: <1456501377-16871-3-git-send-email-grygorii.strashko@ti.com>
-In-Reply-To: <1456501377-16871-1-git-send-email-grygorii.strashko@ti.com>
-References: <1456501377-16871-1-git-send-email-grygorii.strashko@ti.com>
-MIME-Version: 1.0
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 16 Feb 2016 14:48:22 -0800 (PST)
+Received: by mail-pf0-x231.google.com with SMTP id e127so112785643pfe.3
+        for <rtc-linux@googlegroups.com>; Tue, 16 Feb 2016 14:48:22 -0800 (PST)
 Content-Type: text/plain; charset=UTF-8
+MIME-Version: 1.0
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+ "Akinobu Mita" <akinobu.mita@gmail.com>
+From: Michael Turquette <mturquette@baylibre.com>
+In-Reply-To: <20160216004221.GA3310@piout.net>
+Cc: rtc-linux@googlegroups.com, linux-clk@vger.kernel.org,
+ "Heiko Stuebner" <heiko@sntech.de>,
+ "Alessandro Zummo" <a.zummo@towertech.it>,
+ "Stephen Boyd" <sboyd@codeaurora.org>
+References: <1454249410-21449-1-git-send-email-akinobu.mita@gmail.com>
+ <20160216004221.GA3310@piout.net>
+Message-ID: <20160216223526.2278.66771@quark.deferred.io>
+Subject: [rtc-linux] Re: [PATCH] rtc: rtc-ds1307: add clock provider support
+ for DS3231
+Date: Tue, 16 Feb 2016 14:35:26 -0800
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -32,37 +32,36 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Palams RTC IRQ is nested threaded and wired to the Palmas inerrupt
-controller. So, this flag is not required for nested irqs anymore,
-since commit 3c646f2c6aa9 ("genirq: Don't suspend nested_thread irqs
-over system suspend") was merged.
+Quoting Alexandre Belloni (2016-02-15 16:42:21)
+> On 31/01/2016 at 23:10:10 +0900, Akinobu Mita wrote :
+> > DS3231 has programmable square-wave output signal.
+> > This enables to use this feature as a clock provider of
+> > common clock framework.
+> > 
+> > Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
+> > Cc: Heiko Stuebner <heiko@sntech.de>
+> > Cc: Alessandro Zummo <a.zummo@towertech.it>
+> > Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+> > Cc: Michael Turquette <mturquette@baylibre.com>
+> > Cc: Stephen Boyd <sboyd@codeaurora.org>
+> > ---
+> >  .../devicetree/bindings/rtc/maxim,ds3231.txt       |  37 +++
+> >  drivers/rtc/rtc-ds1307.c                           | 296 ++++++++++++++++++++-
+> >  2 files changed, 332 insertions(+), 1 deletion(-)
+> >  create mode 100644 Documentation/devicetree/bindings/rtc/maxim,ds3231.txt
+> > 
+> 
+> Applied, thanks.
 
-Cc: Alessandro Zummo <a.zummo@towertech.it>
-Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Tony Lindgren <tony@atomide.com>
-Cc: Lee Jones <lee.jones@linaro.org>
-Cc: Nishanth Menon <nm@ti.com>
-Signed-off-by: Grygorii Strashko <grygorii.strashko@ti.com>
----
- drivers/rtc/rtc-palmas.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+If it's not too late:
 
-diff --git a/drivers/rtc/rtc-palmas.c b/drivers/rtc/rtc-palmas.c
-index 7ea2c47..6080e0e 100644
---- a/drivers/rtc/rtc-palmas.c
-+++ b/drivers/rtc/rtc-palmas.c
-@@ -311,8 +311,7 @@ static int palmas_rtc_probe(struct platform_device *pdev)
- 
- 	ret = devm_request_threaded_irq(&pdev->dev, palmas_rtc->irq, NULL,
- 			palmas_rtc_interrupt,
--			IRQF_TRIGGER_LOW | IRQF_ONESHOT |
--			IRQF_EARLY_RESUME,
-+			IRQF_TRIGGER_LOW | IRQF_ONESHOT,
- 			dev_name(&pdev->dev), palmas_rtc);
- 	if (ret < 0) {
- 		dev_err(&pdev->dev, "IRQ request failed, err = %d\n", ret);
--- 
-2.7.2
+Reviewed-by: Michael Turquette <mturquette@baylibre.com>
+
+> 
+> -- 
+> Alexandre Belloni, Free Electrons
+> Embedded Linux, Kernel and Android engineering
+> http://free-electrons.com
 
 -- 
 -- 
