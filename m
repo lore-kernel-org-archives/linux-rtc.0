@@ -1,551 +1,573 @@
-Return-Path: <ynvich@gmail.com>
-From: Sergei Ianovich <ynvich@gmail.com>
-To: linux-kernel@vger.kernel.org
-Cc: Sergei Ianovich <ynvich@gmail.com>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Rob Herring <robh@kernel.org>,
-	Rob Herring <robh+dt@kernel.org>,
-	Pawel Moll <pawel.moll@arm.com>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Ian Campbell <ijc+devicetree@hellion.org.uk>,
-	Kumar Gala <galak@codeaurora.org>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	devicetree@vger.kernel.org (open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS),
-	rtc-linux@googlegroups.com (open list:REAL TIME CLOCK RTC SUBSYSTEM)
-Subject: [PATCH v7] rtc: rewrite DS1302 using SPI
-Date: Tue, 23 Feb 2016 13:54:57 +0300
-Message-Id: <1456224900-4877-1-git-send-email-ynvich@gmail.com>
-In-Reply-To: <1456105286-28598-1-git-send-email-ynvich@gmail.com>
-References: <1456105286-28598-1-git-send-email-ynvich@gmail.com>
+Return-Path: <dirk.behme@gmail.com>
+Date: Wed, 17 Feb 2016 08:55:50 -0800 (PST)
+From: dirk.behme@gmail.com
+To: rtc-linux <rtc-linux@googlegroups.com>
+Cc: alexandre.belloni@free-electrons.com,
+	fixed-term.Oleksij.Rempel@de.bosch.com, dirk.behme@de.bosch.com
+Message-Id: <4b26b8ab-7472-4299-afee-c5dcb0da7ed7@googlegroups.com>
+In-Reply-To: <1454589920-32738-1-git-send-email-dirk.behme@de.bosch.com>
+References: <1454589920-32738-1-git-send-email-dirk.behme@de.bosch.com>
+Subject: Re: [PATCH] rtc: rv8803: convert spin_lock to mutex_lock
+MIME-Version: 1.0
+Content-Type: multipart/mixed;
+	boundary="----=_Part_804_872376058.1455728150743"
 List-ID: <rtc-linux.googlegroups.com>
 
-DS1302 is half-duplex SPI device. The driver respects this fact now.
+------=_Part_804_872376058.1455728150743
+Content-Type: multipart/alternative;
+	boundary="----=_Part_805_301930943.1455728150744"
 
-Pin configurations should be implemented using SPI subsystem.
+------=_Part_805_301930943.1455728150744
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-Signed-off-by: Sergei Ianovich <ynvich@gmail.com>
-CC: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-CC: Rob Herring <robh@kernel.org>
 
-   v6..v7
-   * change binding and doc file names
 
-   v5..v6
-   * rewrite the driver as an SPI slave device
-   * use "maxim" for vendor name per Kconfig
-   * stop changing device RAM in device presence test
-   * only return time from device if valid
-   * use burst mode for reading/writing time
-   * dropped charging control. I cannot test it, and it looks broken
+On Thursday, February 4, 2016 at 1:45:24 PM UTC+1, Dirk Behme wrote:
+>
+> From: Oleksij Rempel <fixed-term.O...@de.bosch.com <javascript:>> 
+>
+> Fix a scheduling while atomic issue caused by rv8803_set_time() 
+> holding a spinlock during the call to i2c_smbus_read_byte_data(). 
+>
+> Signed-off-by: Oleksij Rempel <fixed-term.O...@de.bosch.com <javascript:>> 
+>
+>
 
-   v4..v5
-   * drop THIS_MODULE from struct platform driver
-   * use "dallas" for vendor name per vendor-prefixes.txt
 
-   v3..v4
-   * move DTS bindings to a different patch
+Any further comments on this? Or could the be applied?
 
-   v2..v3
-   * use usleep_range instead of custom nsleep
-   * number change (07/16 -> 09/21)
+Best regards
 
-   v0..v2
-   * use device tree
-   * use devm helpers where possible
----
- .../devicetree/bindings/rtc/maxim-ds1302.txt       |  46 +++
- drivers/rtc/Kconfig                                |  15 +-
- drivers/rtc/rtc-ds1302.c                           | 348 ++++++++++-----------
- 3 files changed, 212 insertions(+), 197 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/rtc/maxim-ds1302.txt
+Dirk
 
-diff --git a/Documentation/devicetree/bindings/rtc/maxim-ds1302.txt b/Documentation/devicetree/bindings/rtc/maxim-ds1302.txt
-new file mode 100644
-index 0000000..ba470c5
---- /dev/null
-+++ b/Documentation/devicetree/bindings/rtc/maxim-ds1302.txt
-@@ -0,0 +1,46 @@
-+* Maxim/Dallas Semiconductor DS-1302 RTC
-+
-+Simple device which could be used to store date/time between reboots.
-+
-+The device uses the standard MicroWire half-duplex transfer timing.
-+Master output is set on low clock and sensed by the RTC on the rising
-+edge. Master input is set by the RTC on the trailing edge and is sensed
-+by the master on low clock.
-+
-+Required properties:
-+
-+- compatible : Should be "maxim,ds1302"
-+
-+Required SPI properties:
-+
-+- reg : Should be address of the device chip select within
-+  the controller.
-+
-+- spi-max-frequency : DS-1302 has 500 kHz if powered at 2.2V,
-+  and 2MHz if powered at 5V.
-+
-+- spi-3wire : The device has a shared signal IN/OUT line.
-+
-+- spi-lsb-first : DS-1302 requires least significant bit first
-+  transfers.
-+
-+- spi-cs-high: DS-1302 has active high chip select line. This is
-+  required unless inverted in hardware.
-+
-+Example:
-+
-+spi@901c {
-+	#address-cells = <1>;
-+	#size-cells = <0>;
-+	compatible = "icpdas,lp8841-spi-rtc";
-+	reg = <0x901c 0x1>;
-+
-+	rtc@0 {
-+		compatible = "maxim,ds1302";
-+		reg = <0>;
-+		spi-max-frequency = <500000>;
-+		spi-3wire;
-+		spi-lsb-first;
-+		spi-cs-high;
-+	};
-+};
-diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
-index 376322f..e20e804 100644
---- a/drivers/rtc/Kconfig
-+++ b/drivers/rtc/Kconfig
-@@ -646,6 +646,15 @@ config RTC_DRV_M41T94
- 	  This driver can also be built as a module. If so, the module
- 	  will be called rtc-m41t94.
  
-+config RTC_DRV_DS1302
-+	tristate "Dallas/Maxim DS1302"
-+	depends on SPI
-+	help
-+	  If you say yes here you get support for the Dallas DS1302 RTC chips.
-+
-+	  This driver can also be built as a module. If so, the module
-+	  will be called rtc-ds1302.
-+
- config RTC_DRV_DS1305
- 	tristate "Dallas/Maxim DS1305/DS1306"
- 	help
-@@ -811,12 +820,6 @@ config RTC_DRV_DS1286
- 	help
- 	  If you say yes here you get support for the Dallas DS1286 RTC chips.
- 
--config RTC_DRV_DS1302
--	tristate "Dallas DS1302"
--	depends on SH_SECUREEDGE5410
--	help
--	  If you say yes here you get support for the Dallas DS1302 RTC chips.
--
- config RTC_DRV_DS1511
- 	tristate "Dallas DS1511"
- 	depends on HAS_IOMEM
-diff --git a/drivers/rtc/rtc-ds1302.c b/drivers/rtc/rtc-ds1302.c
-index 6bef7a5..5cdc0f2 100644
---- a/drivers/rtc/rtc-ds1302.c
-+++ b/drivers/rtc/rtc-ds1302.c
-@@ -9,16 +9,17 @@
-  * this archive for more details.
-  */
- 
-+#include <linux/bcd.h>
- #include <linux/init.h>
--#include <linux/module.h>
-+#include <linux/io.h>
- #include <linux/kernel.h>
--#include <linux/platform_device.h>
-+#include <linux/module.h>
-+#include <linux/of.h>
- #include <linux/rtc.h>
--#include <linux/io.h>
--#include <linux/bcd.h>
-+#include <linux/spi/spi.h>
- 
- #define DRV_NAME	"rtc-ds1302"
--#define DRV_VERSION	"0.1.1"
-+#define DRV_VERSION	"1.0.0"
- 
- #define	RTC_CMD_READ	0x81		/* Read command */
- #define	RTC_CMD_WRITE	0x80		/* Write command */
-@@ -28,6 +29,8 @@
- 
- #define RTC_ADDR_RAM0	0x20		/* Address of RAM0 */
- #define RTC_ADDR_TCR	0x08		/* Address of trickle charge register */
-+#define RTC_CLCK_BURST	0x1F		/* Address of clock burst */
-+#define	RTC_CLCK_LEN	0x08		/* Size of clock burst */
- #define	RTC_ADDR_CTRL	0x07		/* Address of control register */
- #define	RTC_ADDR_YEAR	0x06		/* Address of year register */
- #define	RTC_ADDR_DAY	0x05		/* Address of day of week register */
-@@ -37,217 +40,180 @@
- #define	RTC_ADDR_MIN	0x01		/* Address of minute register */
- #define	RTC_ADDR_SEC	0x00		/* Address of second register */
- 
--#ifdef CONFIG_SH_SECUREEDGE5410
--#include <asm/rtc.h>
--#include <mach/secureedge5410.h>
--
--#define	RTC_RESET	0x1000
--#define	RTC_IODATA	0x0800
--#define	RTC_SCLK	0x0400
--
--#define set_dp(x)	SECUREEDGE_WRITE_IOPORT(x, 0x1c00)
--#define get_dp()	SECUREEDGE_READ_IOPORT()
--#define ds1302_set_tx()
--#define ds1302_set_rx()
--
--static inline int ds1302_hw_init(void)
-+static int ds1302_rtc_set_time(struct device *dev, struct rtc_time *time)
+
+> --- 
+>  drivers/rtc/rtc-rv8803.c | 40 +++++++++++++++++++--------------------- 
+>  1 file changed, 19 insertions(+), 21 deletions(-) 
+>
+> diff --git a/drivers/rtc/rtc-rv8803.c b/drivers/rtc/rtc-rv8803.c 
+> index 33c7e2a..38621ff 100644 
+> --- a/drivers/rtc/rtc-rv8803.c 
+> +++ b/drivers/rtc/rtc-rv8803.c 
+> @@ -52,7 +52,7 @@ 
+>  struct rv8803_data { 
+>          struct i2c_client *client; 
+>          struct rtc_device *rtc; 
+> -        spinlock_t flags_lock; 
+> +        struct mutex flags_lock; 
+>          u8 ctrl; 
+>  }; 
+>   
+> @@ -63,11 +63,11 @@ static irqreturn_t rv8803_handle_irq(int irq, void 
+> *dev_id) 
+>          unsigned long events = 0; 
+>          u8 flags; 
+>   
+> -        spin_lock(&rv8803->flags_lock); 
+> +        mutex_lock(&rv8803->flags_lock); 
+>   
+>          flags = i2c_smbus_read_byte_data(client, RV8803_FLAG); 
+>          if (flags <= 0) { 
+> -                spin_unlock(&rv8803->flags_lock); 
+> +                mutex_unlock(&rv8803->flags_lock); 
+>                  return IRQ_NONE; 
+>          } 
+>   
+> @@ -102,7 +102,7 @@ static irqreturn_t rv8803_handle_irq(int irq, void 
+> *dev_id) 
+>                                            rv8803->ctrl); 
+>          } 
+>   
+> -        spin_unlock(&rv8803->flags_lock); 
+> +        mutex_unlock(&rv8803->flags_lock); 
+>   
+>          return IRQ_HANDLED; 
+>  } 
+> @@ -155,7 +155,6 @@ static int rv8803_set_time(struct device *dev, struct 
+> rtc_time *tm) 
+>          struct rv8803_data *rv8803 = dev_get_drvdata(dev); 
+>          u8 date[7]; 
+>          int flags, ret; 
+> -        unsigned long irqflags; 
+>   
+>          if ((tm->tm_year < 100) || (tm->tm_year > 199)) 
+>                  return -EINVAL; 
+> @@ -173,18 +172,18 @@ static int rv8803_set_time(struct device *dev, 
+> struct rtc_time *tm) 
+>          if (ret < 0) 
+>                  return ret; 
+>   
+> -        spin_lock_irqsave(&rv8803->flags_lock, irqflags); 
+> +        mutex_lock(&rv8803->flags_lock); 
+>   
+>          flags = i2c_smbus_read_byte_data(rv8803->client, RV8803_FLAG); 
+>          if (flags < 0) { 
+> -                spin_unlock_irqrestore(&rv8803->flags_lock, irqflags); 
+> +                mutex_unlock(&rv8803->flags_lock); 
+>                  return flags; 
+>          } 
+>   
+>          ret = i2c_smbus_write_byte_data(rv8803->client, RV8803_FLAG, 
+>                                          flags & ~RV8803_FLAG_V2F); 
+>   
+> -        spin_unlock_irqrestore(&rv8803->flags_lock, irqflags); 
+> +        mutex_unlock(&rv8803->flags_lock); 
+>   
+>          return ret; 
+>  } 
+> @@ -226,7 +225,7 @@ static int rv8803_set_alarm(struct device *dev, struct 
+> rtc_wkalrm *alrm) 
+>          u8 alarmvals[3]; 
+>          u8 ctrl[2]; 
+>          int ret, err; 
+> -        unsigned long alarm_time, irqflags; 
+> +        unsigned long alarm_time; 
+>   
+>          /* The alarm has no seconds, round up to nearest minute */ 
+>          if (alrm->time.tm_sec) { 
+> @@ -236,11 +235,11 @@ static int rv8803_set_alarm(struct device *dev, 
+> struct rtc_wkalrm *alrm) 
+>                  rtc_time_to_tm(alarm_time, &alrm->time); 
+>          } 
+>   
+> -        spin_lock_irqsave(&rv8803->flags_lock, irqflags); 
+> +        mutex_lock(&rv8803->flags_lock); 
+>   
+>          ret = i2c_smbus_read_i2c_block_data(client, RV8803_FLAG, 2, 
+> ctrl); 
+>          if (ret != 2) { 
+> -                spin_unlock_irqrestore(&rv8803->flags_lock, irqflags); 
+> +                mutex_unlock(&rv8803->flags_lock); 
+>                  return ret < 0 ? ret : -EIO; 
+>          } 
+>   
+> @@ -253,14 +252,14 @@ static int rv8803_set_alarm(struct device *dev, 
+> struct rtc_wkalrm *alrm) 
+>                  err = i2c_smbus_write_byte_data(rv8803->client, 
+> RV8803_CTRL, 
+>                                                  rv8803->ctrl); 
+>                  if (err) { 
+> -                        spin_unlock_irqrestore(&rv8803->flags_lock, 
+> irqflags); 
+> +                        mutex_unlock(&rv8803->flags_lock); 
+>                          return err; 
+>                  } 
+>          } 
+>   
+>          ctrl[1] &= ~RV8803_FLAG_AF; 
+>          err = i2c_smbus_write_byte_data(rv8803->client, RV8803_FLAG, 
+> ctrl[1]); 
+> -        spin_unlock_irqrestore(&rv8803->flags_lock, irqflags); 
+> +        mutex_unlock(&rv8803->flags_lock); 
+>          if (err) 
+>                  return err; 
+>   
+> @@ -289,7 +288,6 @@ static int rv8803_alarm_irq_enable(struct device *dev, 
+> unsigned int enabled) 
+>          struct i2c_client *client = to_i2c_client(dev); 
+>          struct rv8803_data *rv8803 = dev_get_drvdata(dev); 
+>          int ctrl, flags, err; 
+> -        unsigned long irqflags; 
+>   
+>          ctrl = rv8803->ctrl; 
+>   
+> @@ -305,15 +303,15 @@ static int rv8803_alarm_irq_enable(struct device 
+> *dev, unsigned int enabled) 
+>                          ctrl &= ~RV8803_CTRL_AIE; 
+>          } 
+>   
+> -        spin_lock_irqsave(&rv8803->flags_lock, irqflags); 
+> +        mutex_lock(&rv8803->flags_lock); 
+>          flags = i2c_smbus_read_byte_data(client, RV8803_FLAG); 
+>          if (flags < 0) { 
+> -                spin_unlock_irqrestore(&rv8803->flags_lock, irqflags); 
+> +                mutex_unlock(&rv8803->flags_lock); 
+>                  return flags; 
+>          } 
+>          flags &= ~(RV8803_FLAG_AF | RV8803_FLAG_UF); 
+>          err = i2c_smbus_write_byte_data(client, RV8803_FLAG, flags); 
+> -        spin_unlock_irqrestore(&rv8803->flags_lock, irqflags); 
+> +        mutex_unlock(&rv8803->flags_lock); 
+>          if (err) 
+>                  return err; 
+>   
+> @@ -333,7 +331,6 @@ static int rv8803_ioctl(struct device *dev, unsigned 
+> int cmd, unsigned long arg) 
+>          struct i2c_client *client = to_i2c_client(dev); 
+>          struct rv8803_data *rv8803 = dev_get_drvdata(dev); 
+>          int flags, ret = 0; 
+> -        unsigned long irqflags; 
+>   
+>          switch (cmd) { 
+>          case RTC_VL_READ: 
+> @@ -355,16 +352,16 @@ static int rv8803_ioctl(struct device *dev, unsigned 
+> int cmd, unsigned long arg) 
+>                  return 0; 
+>   
+>          case RTC_VL_CLR: 
+> -                spin_lock_irqsave(&rv8803->flags_lock, irqflags); 
+> +                mutex_lock(&rv8803->flags_lock); 
+>                  flags = i2c_smbus_read_byte_data(client, RV8803_FLAG); 
+>                  if (flags < 0) { 
+> -                        spin_unlock_irqrestore(&rv8803->flags_lock, 
+> irqflags); 
+> +                        mutex_unlock(&rv8803->flags_lock); 
+>                          return flags; 
+>                  } 
+>   
+>                  flags &= ~(RV8803_FLAG_V1F | RV8803_FLAG_V2F); 
+>                  ret = i2c_smbus_write_byte_data(client, RV8803_FLAG, 
+> flags); 
+> -                spin_unlock_irqrestore(&rv8803->flags_lock, irqflags); 
+> +                mutex_unlock(&rv8803->flags_lock); 
+>                  if (ret < 0) 
+>                          return ret; 
+>   
+> @@ -441,6 +438,7 @@ static int rv8803_probe(struct i2c_client *client, 
+>          if (!rv8803) 
+>                  return -ENOMEM; 
+>   
+> +        mutex_init(&rv8803->flags_lock); 
+>          rv8803->client = client; 
+>          i2c_set_clientdata(client, rv8803); 
+>   
+> -- 
+> 2.5.0 
+>
+>
+------=_Part_805_301930943.1455728150744
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"ltr"><br><br>On Thursday, February 4, 2016 at 1:45:24 PM UTC+1,=
+ Dirk Behme wrote:<blockquote class=3D"gmail_quote" style=3D"margin: 0;marg=
+in-left: 0.8ex;border-left: 1px #ccc solid;padding-left: 1ex;">From: Oleksi=
+j Rempel &lt;<a href=3D"javascript:" target=3D"_blank" gdf-obfuscated-mailt=
+o=3D"PN-Y3GMWFwAJ" rel=3D"nofollow" onmousedown=3D"this.href=3D&#39;javascr=
+ipt:&#39;;return true;" onclick=3D"this.href=3D&#39;javascript:&#39;;return=
+ true;">fixed-term.O...@de.<wbr>bosch.com</a>&gt;
+<br>
+<br>Fix a scheduling while atomic issue caused by rv8803_set_time()
+<br>holding a spinlock during the call to i2c_smbus_read_byte_data().
+<br>
+<br>Signed-off-by: Oleksij Rempel &lt;<a href=3D"javascript:" target=3D"_bl=
+ank" gdf-obfuscated-mailto=3D"PN-Y3GMWFwAJ" rel=3D"nofollow" onmousedown=3D=
+"this.href=3D&#39;javascript:&#39;;return true;" onclick=3D"this.href=3D&#3=
+9;javascript:&#39;;return true;">fixed-term.O...@de.<wbr>bosch.com</a>&gt;
+<br></blockquote><div><br><br>Any further comments on this? Or could the be=
+ applied?<br><br>Best regards<br><br>Dirk<br><br>=C2=A0</div><blockquote cl=
+ass=3D"gmail_quote" style=3D"margin: 0;margin-left: 0.8ex;border-left: 1px =
+#ccc solid;padding-left: 1ex;">---
+<br>=C2=A0drivers/rtc/rtc-rv8803.c | 40 +++++++++++++++++++-----------<wbr>=
+----------
+<br>=C2=A01 file changed, 19 insertions(+), 21 deletions(-)
+<br>
+<br>diff --git a/drivers/rtc/rtc-rv8803.c b/drivers/rtc/rtc-rv8803.c
+<br>index 33c7e2a..38621ff 100644
+<br>--- a/drivers/rtc/rtc-rv8803.c
+<br>+++ b/drivers/rtc/rtc-rv8803.c
+<br>@@ -52,7 +52,7 @@
+<br>=C2=A0struct rv8803_data {
+<br>=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0struct i2c_client=
+ *client;
+<br>=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0struct rtc_device=
+ *rtc;
+<br>-=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0spinlock_t flags_lock;
+<br>+=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0struct mutex flags_loc=
+k;
+<br>=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0u8 ctrl;
+<br>=C2=A0};
+<br>=C2=A0
+<br>@@ -63,11 +63,11 @@ static irqreturn_t rv8803_handle_irq(int irq, void =
+*dev_id)
+<br>=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0unsigned long eve=
+nts =3D 0;
+<br>=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0u8 flags;
+<br>=C2=A0
+<br>-=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0spin_lock(&amp;rv8803-=
+&gt;<wbr>flags_lock);
+<br>+=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0mutex_lock(&amp;rv8803=
+-&gt;<wbr>flags_lock);
+<br>=C2=A0
+<br>=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0flags =3D i2c_smb=
+us_read_byte_data(<wbr>client, RV8803_FLAG);
+<br>=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0if (flags &lt;=3D=
+ 0) {
+<br>-=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0spin_unlock(&amp;<wbr>rv8803-&gt;flags_lock);
+<br>+=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0mutex_unlock(<wbr>&amp;rv8803-&gt;flags_lock);
+<br>=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0return IRQ_NONE;
+<br>=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0}
+<br>=C2=A0
+<br>@@ -102,7 +102,7 @@ static irqreturn_t rv8803_handle_irq(int irq, void =
+*dev_id)
+<br>=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0<wbr>=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 =C2=A0rv8803-&gt;ctrl);
+<br>=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0}
+<br>=C2=A0
+<br>-=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0spin_unlock(&amp;rv880=
+3-&gt;<wbr>flags_lock);
+<br>+=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0mutex_unlock(&amp;rv88=
+03-<wbr>&gt;flags_lock);
+<br>=C2=A0
+<br>=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0return IRQ_HANDLE=
+D;
+<br>=C2=A0}
+<br>@@ -155,7 +155,6 @@ static int rv8803_set_time(struct device *dev, stru=
+ct rtc_time *tm)
+<br>=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0struct rv8803_dat=
+a *rv8803 =3D dev_get_drvdata(dev);
+<br>=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0u8 date[7];
+<br>=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0int flags, ret;
+<br>-=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0unsigned long irqflags=
+;
+<br>=C2=A0
+<br>=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0if ((tm-&gt;tm_ye=
+ar &lt; 100) || (tm-&gt;tm_year &gt; 199))
+<br>=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0return -EINVAL;
+<br>@@ -173,18 +172,18 @@ static int rv8803_set_time(struct device *dev, st=
+ruct rtc_time *tm)
+<br>=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0if (ret &lt; 0)
+<br>=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0return ret;
+<br>=C2=A0
+<br>-=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0spin_lock_irqsave(&amp=
+;<wbr>rv8803-&gt;flags_lock, irqflags);
+<br>+=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0mutex_lock(&amp;rv8803=
+-&gt;<wbr>flags_lock);
+<br>=C2=A0
+<br>=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0flags =3D i2c_smb=
+us_read_byte_data(<wbr>rv8803-&gt;client, RV8803_FLAG);
+<br>=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0if (flags &lt; 0)=
  {
--	return 0;
-+	struct spi_device	*spi = dev_get_drvdata(dev);
-+	u8		buf[1 + RTC_CLCK_LEN];
-+	u8		*bp = buf;
-+	int		status;
-+
-+	/* Enable writing */
-+	bp = buf;
-+	*bp++ = RTC_ADDR_CTRL << 1 | RTC_CMD_WRITE;
-+	*bp++ = RTC_CMD_WRITE_ENABLE;
-+
-+	status = spi_write_then_read(spi, buf, 2,
-+			NULL, 0);
-+	if (!status)
-+		return status;
-+
-+	/* Write registers starting at the first time/date address. */
-+	bp = buf;
-+	*bp++ = RTC_CLCK_BURST << 1 | RTC_CMD_WRITE;
-+
-+	*bp++ = bin2bcd(time->tm_sec);
-+	*bp++ = bin2bcd(time->tm_min);
-+	*bp++ = bin2bcd(time->tm_hour);
-+	*bp++ = bin2bcd(time->tm_mday);
-+	*bp++ = bin2bcd(time->tm_mon + 1);
-+	*bp++ = time->tm_wday;
-+	*bp++ = bin2bcd(time->tm_year % 100);
-+	*bp++ = RTC_CMD_WRITE_DISABLE;
-+
-+	/* use write-then-read since dma from stack is nonportable */
-+	return spi_write_then_read(spi, buf, sizeof(buf),
-+			NULL, 0);
- }
- 
--static inline void ds1302_reset(void)
-+static int ds1302_rtc_get_time(struct device *dev, struct rtc_time *time)
+<br>-=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0spin_unlock_<wbr>irqrestore(&amp;rv8803-&gt;flag=
+s_<wbr>lock, irqflags);
+<br>+=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0mutex_unlock(<wbr>&amp;rv8803-&gt;flags_lock);
+<br>=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0return flags;
+<br>=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0}
+<br>=C2=A0
+<br>=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0ret =3D i2c_smbus=
+_write_byte_data(<wbr>rv8803-&gt;client, RV8803_FLAG,
+<br>=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0<wbr>=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0flags &amp; ~RV8803_FLAG_V2F);
+<br>=C2=A0
+<br>-=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0spin_unlock_<wbr>irqre=
+store(&amp;rv8803-&gt;flags_<wbr>lock, irqflags);
+<br>+=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0mutex_unlock(&amp;rv88=
+03-<wbr>&gt;flags_lock);
+<br>=C2=A0
+<br>=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0return ret;
+<br>=C2=A0}
+<br>@@ -226,7 +225,7 @@ static int rv8803_set_alarm(struct device *dev, str=
+uct rtc_wkalrm *alrm)
+<br>=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0u8 alarmvals[3];
+<br>=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0u8 ctrl[2];
+<br>=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0int ret, err;
+<br>-=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0unsigned long alarm_ti=
+me, irqflags;
+<br>+=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0unsigned long alarm_ti=
+me;
+<br>=C2=A0
+<br>=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0/* The alarm has =
+no seconds, round up to nearest minute */
+<br>=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0if (alrm-&gt;time=
+.tm_sec) {
+<br>@@ -236,11 +235,11 @@ static int rv8803_set_alarm(struct device *dev, s=
+truct rtc_wkalrm *alrm)
+<br>=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0rtc_time_to_<wbr>tm(alarm_time, &amp;alrm-=
+&gt;time);
+<br>=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0}
+<br>=C2=A0
+<br>-=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0spin_lock_irqsave(&amp=
+;<wbr>rv8803-&gt;flags_lock, irqflags);
+<br>+=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0mutex_lock(&amp;rv8803=
+-&gt;<wbr>flags_lock);
+<br>=C2=A0
+<br>=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0ret =3D i2c_smbus=
+_read_i2c_block_data(<wbr>client, RV8803_FLAG, 2, ctrl);
+<br>=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0if (ret !=3D 2) {
+<br>-=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0spin_unlock_<wbr>irqrestore(&amp;rv8803-&gt;flag=
+s_<wbr>lock, irqflags);
+<br>+=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0mutex_unlock(<wbr>&amp;rv8803-&gt;flags_lock);
+<br>=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0return ret &lt; 0 ? ret : -EIO;
+<br>=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0}
+<br>=C2=A0
+<br>@@ -253,14 +252,14 @@ static int rv8803_set_alarm(struct device *dev, s=
+truct rtc_wkalrm *alrm)
+<br>=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0err =3D i2c_smbus_write_byte_data(<wbr>rv8=
+803-&gt;client, RV8803_CTRL,
+<br>=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0<wbr>=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0rv8803-&gt;<wbr>ctrl);
+<br>=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0if (err) {
+<br>-=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+spin_<wbr>unlock_irqrestore(&amp;rv8803-&gt;<wbr>flags_lock, irqflags);
+<br>+=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+<wbr>mutex_unlock(&amp;rv8803-&gt;flags_<wbr>lock);
+<br>=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0<wbr>return err;
+<br>=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0}
+<br>=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0}
+<br>=C2=A0
+<br>=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0ctrl[1] &amp;=3D =
+~RV8803_FLAG_AF;
+<br>=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0err =3D i2c_smbus=
+_write_byte_data(<wbr>rv8803-&gt;client, RV8803_FLAG, ctrl[1]);
+<br>-=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0spin_unlock_<wbr>irqre=
+store(&amp;rv8803-&gt;flags_<wbr>lock, irqflags);
+<br>+=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0mutex_unlock(&amp;rv88=
+03-<wbr>&gt;flags_lock);
+<br>=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0if (err)
+<br>=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0return err;
+<br>=C2=A0
+<br>@@ -289,7 +288,6 @@ static int rv8803_alarm_irq_enable(struct device *d=
+ev, unsigned int enabled)
+<br>=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0struct i2c_client=
+ *client =3D to_i2c_client(dev);
+<br>=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0struct rv8803_dat=
+a *rv8803 =3D dev_get_drvdata(dev);
+<br>=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0int ctrl, flags, =
+err;
+<br>-=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0unsigned long irqflags=
+;
+<br>=C2=A0
+<br>=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0ctrl =3D rv8803-&=
+gt;ctrl;
+<br>=C2=A0
+<br>@@ -305,15 +303,15 @@ static int rv8803_alarm_irq_enable(struct device =
+*dev, unsigned int enabled)
+<br>=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0ctrl &amp;=3D ~RV8803_CTRL_AIE;
+<br>=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0}
+<br>=C2=A0
+<br>-=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0spin_lock_irqsave(&amp=
+;<wbr>rv8803-&gt;flags_lock, irqflags);
+<br>+=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0mutex_lock(&amp;rv8803=
+-&gt;<wbr>flags_lock);
+<br>=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0flags =3D i2c_smb=
+us_read_byte_data(<wbr>client, RV8803_FLAG);
+<br>=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0if (flags &lt; 0)=
  {
--	set_dp(get_dp() & ~(RTC_RESET | RTC_IODATA | RTC_SCLK));
-+	struct spi_device	*spi = dev_get_drvdata(dev);
-+	u8		addr = RTC_CLCK_BURST << 1 | RTC_CMD_READ;
-+	u8		buf[RTC_CLCK_LEN - 1];
-+	int		status;
-+
-+	/* Use write-then-read to get all the date/time registers
-+	 * since dma from stack is nonportable
-+	 */
-+	status = spi_write_then_read(spi, &addr, sizeof(addr),
-+			buf, sizeof(buf));
-+	if (status < 0)
-+		return status;
-+
-+	/* Decode the registers */
-+	time->tm_sec = bcd2bin(buf[RTC_ADDR_SEC]);
-+	time->tm_min = bcd2bin(buf[RTC_ADDR_MIN]);
-+	time->tm_hour = bcd2bin(buf[RTC_ADDR_HOUR]);
-+	time->tm_wday = buf[RTC_ADDR_DAY] - 1;
-+	time->tm_mday = bcd2bin(buf[RTC_ADDR_DATE]);
-+	time->tm_mon = bcd2bin(buf[RTC_ADDR_MON]) - 1;
-+	time->tm_year = bcd2bin(buf[RTC_ADDR_YEAR]) + 100;
-+
-+	/* Time may not be set */
-+	return rtc_valid_tm(time);
- }
- 
--static inline void ds1302_clock(void)
--{
--	set_dp(get_dp() | RTC_SCLK);	/* clock high */
--	set_dp(get_dp() & ~RTC_SCLK);	/* clock low */
--}
--
--static inline void ds1302_start(void)
--{
--	set_dp(get_dp() | RTC_RESET);
--}
--
--static inline void ds1302_stop(void)
--{
--	set_dp(get_dp() & ~RTC_RESET);
--}
--
--static inline void ds1302_txbit(int bit)
--{
--	set_dp((get_dp() & ~RTC_IODATA) | (bit ? RTC_IODATA : 0));
--}
--
--static inline int ds1302_rxbit(void)
--{
--	return !!(get_dp() & RTC_IODATA);
--}
--
--#else
--#error "Add support for your platform"
--#endif
-+static struct rtc_class_ops ds1302_rtc_ops = {
-+	.read_time	= ds1302_rtc_get_time,
-+	.set_time	= ds1302_rtc_set_time,
-+};
- 
--static void ds1302_sendbits(unsigned int val)
-+static int ds1302_probe(struct spi_device *spi)
- {
--	int i;
--
--	ds1302_set_tx();
--
--	for (i = 8; (i); i--, val >>= 1) {
--		ds1302_txbit(val & 0x1);
--		ds1302_clock();
-+	struct rtc_device	*rtc;
-+	u8		addr;
-+	u8		buf[4];
-+	u8		*bp = buf;
-+	int		status;
-+
-+	/* Sanity check board setup data.  This may be hooked up
-+	 * in 3wire mode, but we don't care.  Note that unless
-+	 * there's an inverter in place, this needs SPI_CS_HIGH!
-+	 */
-+	if (spi->bits_per_word && (spi->bits_per_word != 8)) {
-+		dev_err(&spi->dev, "bad word length\n");
-+		return -EINVAL;
-+	} else if (spi->max_speed_hz > 2000000) {
-+		dev_err(&spi->dev, "speed is too high\n");
-+		return -EINVAL;
-+	} else if (spi->mode & SPI_CPHA) {
-+		dev_err(&spi->dev, "bad mode\n");
-+		return -EINVAL;
- 	}
--}
--
--static unsigned int ds1302_recvbits(void)
--{
--	unsigned int val;
--	int i;
--
--	ds1302_set_rx();
- 
--	for (i = 0, val = 0; (i < 8); i++) {
--		val |= (ds1302_rxbit() << i);
--		ds1302_clock();
-+	addr = RTC_ADDR_CTRL << 1 | RTC_CMD_READ;
-+	status = spi_write_then_read(spi, &addr, sizeof(addr), buf, 1);
-+	if (status < 0) {
-+		dev_err(&spi->dev, "control register read error %d\n",
-+				status);
-+		return status;
- 	}
- 
--	return val;
--}
--
--static unsigned int ds1302_readbyte(unsigned int addr)
--{
--	unsigned int val;
--
--	ds1302_reset();
--
--	ds1302_start();
--	ds1302_sendbits(((addr & 0x3f) << 1) | RTC_CMD_READ);
--	val = ds1302_recvbits();
--	ds1302_stop();
--
--	return val;
--}
--
--static void ds1302_writebyte(unsigned int addr, unsigned int val)
--{
--	ds1302_reset();
--
--	ds1302_start();
--	ds1302_sendbits(((addr & 0x3f) << 1) | RTC_CMD_WRITE);
--	ds1302_sendbits(val);
--	ds1302_stop();
--}
--
--static int ds1302_rtc_read_time(struct device *dev, struct rtc_time *tm)
--{
--	tm->tm_sec	= bcd2bin(ds1302_readbyte(RTC_ADDR_SEC));
--	tm->tm_min	= bcd2bin(ds1302_readbyte(RTC_ADDR_MIN));
--	tm->tm_hour	= bcd2bin(ds1302_readbyte(RTC_ADDR_HOUR));
--	tm->tm_wday	= bcd2bin(ds1302_readbyte(RTC_ADDR_DAY));
--	tm->tm_mday	= bcd2bin(ds1302_readbyte(RTC_ADDR_DATE));
--	tm->tm_mon	= bcd2bin(ds1302_readbyte(RTC_ADDR_MON)) - 1;
--	tm->tm_year	= bcd2bin(ds1302_readbyte(RTC_ADDR_YEAR));
--
--	if (tm->tm_year < 70)
--		tm->tm_year += 100;
--
--	dev_dbg(dev, "%s: tm is secs=%d, mins=%d, hours=%d, "
--		"mday=%d, mon=%d, year=%d, wday=%d\n",
--		__func__,
--		tm->tm_sec, tm->tm_min, tm->tm_hour,
--		tm->tm_mday, tm->tm_mon + 1, tm->tm_year, tm->tm_wday);
--
--	return rtc_valid_tm(tm);
--}
--
--static int ds1302_rtc_set_time(struct device *dev, struct rtc_time *tm)
--{
--	ds1302_writebyte(RTC_ADDR_CTRL, RTC_CMD_WRITE_ENABLE);
--	/* Stop RTC */
--	ds1302_writebyte(RTC_ADDR_SEC, ds1302_readbyte(RTC_ADDR_SEC) | 0x80);
--
--	ds1302_writebyte(RTC_ADDR_SEC, bin2bcd(tm->tm_sec));
--	ds1302_writebyte(RTC_ADDR_MIN, bin2bcd(tm->tm_min));
--	ds1302_writebyte(RTC_ADDR_HOUR, bin2bcd(tm->tm_hour));
--	ds1302_writebyte(RTC_ADDR_DAY, bin2bcd(tm->tm_wday));
--	ds1302_writebyte(RTC_ADDR_DATE, bin2bcd(tm->tm_mday));
--	ds1302_writebyte(RTC_ADDR_MON, bin2bcd(tm->tm_mon + 1));
--	ds1302_writebyte(RTC_ADDR_YEAR, bin2bcd(tm->tm_year % 100));
-+	if ((buf[0] & ~RTC_CMD_WRITE_DISABLE) != 0) {
-+		status = spi_write_then_read(spi, &addr, sizeof(addr), buf, 1);
-+		if (status < 0) {
-+			dev_err(&spi->dev, "control register read error %d\n",
-+					status);
-+			return status;
-+		}
-+
-+		if ((buf[0] & ~RTC_CMD_WRITE_DISABLE) != 0) {
-+			dev_err(&spi->dev, "junk in control register\n");
-+			return -ENODEV;
-+		}
-+	}
-+	if (buf[0] == 0) {
-+		bp = buf;
-+		*bp++ = RTC_ADDR_CTRL << 1 | RTC_CMD_WRITE;
-+		*bp++ = RTC_CMD_WRITE_DISABLE;
-+
-+		status = spi_write_then_read(spi, buf, 2, NULL, 0);
-+		if (status < 0) {
-+			dev_err(&spi->dev, "control register write error %d\n",
-+					status);
-+			return status;
-+		}
-+
-+		addr = RTC_ADDR_CTRL << 1 | RTC_CMD_READ;
-+		status = spi_write_then_read(spi, &addr, sizeof(addr), buf, 1);
-+		if (status < 0) {
-+			dev_err(&spi->dev,
-+					"error %d reading control register\n",
-+					status);
-+			return status;
-+		}
-+
-+		if (buf[0] != RTC_CMD_WRITE_DISABLE) {
-+			dev_err(&spi->dev, "failed to detect chip\n");
-+			return -ENODEV;
-+		}
-+	}
- 
--	/* Start RTC */
--	ds1302_writebyte(RTC_ADDR_SEC, ds1302_readbyte(RTC_ADDR_SEC) & ~0x80);
-+	spi_set_drvdata(spi, spi);
- 
--	ds1302_writebyte(RTC_ADDR_CTRL, RTC_CMD_WRITE_DISABLE);
-+	rtc = devm_rtc_device_register(&spi->dev, "ds1302",
-+			&ds1302_rtc_ops, THIS_MODULE);
-+	if (IS_ERR(rtc)) {
-+		status = PTR_ERR(rtc);
-+		dev_err(&spi->dev, "error %d registering rtc\n", status);
-+		return status;
-+	}
- 
- 	return 0;
- }
- 
--static int ds1302_rtc_ioctl(struct device *dev, unsigned int cmd,
--			    unsigned long arg)
-+static int ds1302_remove(struct spi_device *spi)
- {
--	switch (cmd) {
--#ifdef RTC_SET_CHARGE
--	case RTC_SET_CHARGE:
--	{
--		int tcs_val;
--
--		if (copy_from_user(&tcs_val, (int __user *)arg, sizeof(int)))
--			return -EFAULT;
--
--		ds1302_writebyte(RTC_ADDR_TCR, (0xa0 | tcs_val * 0xf));
--		return 0;
--	}
--#endif
--	}
--
--	return -ENOIOCTLCMD;
-+	spi_set_drvdata(spi, NULL);
-+	return 0;
- }
- 
--static struct rtc_class_ops ds1302_rtc_ops = {
--	.read_time	= ds1302_rtc_read_time,
--	.set_time	= ds1302_rtc_set_time,
--	.ioctl		= ds1302_rtc_ioctl,
-+#ifdef CONFIG_OF
-+static const struct of_device_id ds1302_dt_ids[] = {
-+	{ .compatible = "maxim,ds1302", },
-+	{ /* sentinel */ }
- };
-+MODULE_DEVICE_TABLE(of, ds1302_dt_ids);
-+#endif
- 
--static int __init ds1302_rtc_probe(struct platform_device *pdev)
--{
--	struct rtc_device *rtc;
--
--	if (ds1302_hw_init()) {
--		dev_err(&pdev->dev, "Failed to init communication channel");
--		return -EINVAL;
--	}
--
--	/* Reset */
--	ds1302_reset();
--
--	/* Write a magic value to the DS1302 RAM, and see if it sticks. */
--	ds1302_writebyte(RTC_ADDR_RAM0, 0x42);
--	if (ds1302_readbyte(RTC_ADDR_RAM0) != 0x42) {
--		dev_err(&pdev->dev, "Failed to probe");
--		return -ENODEV;
--	}
--
--	rtc = devm_rtc_device_register(&pdev->dev, "ds1302",
--					   &ds1302_rtc_ops, THIS_MODULE);
--	if (IS_ERR(rtc))
--		return PTR_ERR(rtc);
--
--	platform_set_drvdata(pdev, rtc);
--
--	return 0;
--}
--
--static struct platform_driver ds1302_platform_driver = {
--	.driver		= {
--		.name	= DRV_NAME,
--	},
-+static struct spi_driver ds1302_driver = {
-+	.driver.name	= "rtc-ds1302",
-+	.driver.of_match_table = of_match_ptr(ds1302_dt_ids),
-+	.probe		= ds1302_probe,
-+	.remove		= ds1302_remove,
- };
- 
--module_platform_driver_probe(ds1302_platform_driver, ds1302_rtc_probe);
-+module_spi_driver(ds1302_driver);
- 
- MODULE_DESCRIPTION("Dallas DS1302 RTC driver");
- MODULE_VERSION(DRV_VERSION);
--- 
-2.7.0
+<br>-=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0spin_unlock_<wbr>irqrestore(&amp;rv8803-&gt;flag=
+s_<wbr>lock, irqflags);
+<br>+=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0mutex_unlock(<wbr>&amp;rv8803-&gt;flags_lock);
+<br>=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0return flags;
+<br>=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0}
+<br>=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0flags &amp;=3D ~(=
+RV8803_FLAG_AF | RV8803_FLAG_UF);
+<br>=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0err =3D i2c_smbus=
+_write_byte_data(<wbr>client, RV8803_FLAG, flags);
+<br>-=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0spin_unlock_<wbr>irqre=
+store(&amp;rv8803-&gt;flags_<wbr>lock, irqflags);
+<br>+=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0mutex_unlock(&amp;rv88=
+03-<wbr>&gt;flags_lock);
+<br>=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0if (err)
+<br>=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0return err;
+<br>=C2=A0
+<br>@@ -333,7 +331,6 @@ static int rv8803_ioctl(struct device *dev, unsigne=
+d int cmd, unsigned long arg)
+<br>=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0struct i2c_client=
+ *client =3D to_i2c_client(dev);
+<br>=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0struct rv8803_dat=
+a *rv8803 =3D dev_get_drvdata(dev);
+<br>=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0int flags, ret =
+=3D 0;
+<br>-=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0unsigned long irqflags=
+;
+<br>=C2=A0
+<br>=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0switch (cmd) {
+<br>=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0case RTC_VL_READ:
+<br>@@ -355,16 +352,16 @@ static int rv8803_ioctl(struct device *dev, unsig=
+ned int cmd, unsigned long arg)
+<br>=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0return 0;
+<br>=C2=A0
+<br>=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0case RTC_VL_CLR:
+<br>-=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0spin_lock_<wbr>irqsave(&amp;rv8803-&gt;flags_loc=
+k, irqflags);
+<br>+=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0mutex_lock(&amp;<wbr>rv8803-&gt;flags_lock);
+<br>=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0flags =3D i2c_smbus_read_byte_data(<wbr>cl=
+ient, RV8803_FLAG);
+<br>=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0if (flags &lt; 0) {
+<br>-=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+spin_<wbr>unlock_irqrestore(&amp;rv8803-&gt;<wbr>flags_lock, irqflags);
+<br>+=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+<wbr>mutex_unlock(&amp;rv8803-&gt;flags_<wbr>lock);
+<br>=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0<wbr>return flags;
+<br>=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0}
+<br>=C2=A0
+<br>=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0flags &amp;=3D ~(RV8803_FLAG_V1F | RV8803_=
+FLAG_V2F);
+<br>=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0ret =3D i2c_smbus_write_byte_data(<wbr>cli=
+ent, RV8803_FLAG, flags);
+<br>-=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0spin_unlock_<wbr>irqrestore(&amp;rv8803-&gt;flag=
+s_<wbr>lock, irqflags);
+<br>+=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0mutex_unlock(<wbr>&amp;rv8803-&gt;flags_lock);
+<br>=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0if (ret &lt; 0)
+<br>=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0<wbr>return ret;
+<br>=C2=A0
+<br>@@ -441,6 +438,7 @@ static int rv8803_probe(struct i2c_client *client,
+<br>=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0if (!rv8803)
+<br>=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0return -ENOMEM;
+<br>=C2=A0
+<br>+=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0mutex_init(&amp;rv8803=
+-&gt;<wbr>flags_lock);
+<br>=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0rv8803-&gt;client=
+ =3D client;
+<br>=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0i2c_set_clientdat=
+a(<wbr>client, rv8803);
+<br>=C2=A0
+<br>--=20
+<br>2.5.0
+<br>
+<br></blockquote></div>
+------=_Part_805_301930943.1455728150744--
+
+------=_Part_804_872376058.1455728150743--
