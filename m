@@ -1,28 +1,26 @@
-Return-Path: <rtc-linux+bncBDQ2L75W5QGBBZEE5C2QKGQEM4NRNXY@googlegroups.com>
-Received: from mezzanine.sirena.org.uk (mezzanine.sirena.org.uk. [2400:8900::f03c:91ff:fedb:4f4])
-        by gmr-mx.google.com with ESMTPS id 12si4696343pfb.1.2016.02.09.07.14.44
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=AES128-SHA bits=128/128);
-        Tue, 09 Feb 2016 07:14:44 -0800 (PST)
-Date: Tue, 9 Feb 2016 15:14:21 +0000
-From: Mark Brown <broonie@kernel.org>
-To: Javier Martinez Canillas <javier@osg.samsung.com>
-Cc: Laxman Dewangan <ldewangan@nvidia.com>, lee.jones@linaro.org,
-	alexandre.belloni@free-electrons.com, k.kozlowski@samsung.com,
-	gregkh@linuxfoundation.org, a.zummo@towertech.it,
-	cw00.choi@samsung.com, linux-kernel@vger.kernel.org,
-	rtc-linux@googlegroups.com
-Message-ID: <20160209151421.GF13270@sirena.org.uk>
-References: <1455020907-4564-1-git-send-email-ldewangan@nvidia.com>
- <1455020907-4564-2-git-send-email-ldewangan@nvidia.com>
- <56B9E93A.2040903@osg.samsung.com>
+Return-Path: <rtc-linux+bncBCPM5SUWUYIRBE5US63AKGQENT2SHNY@googlegroups.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="eDB11BtaWSyaBkpc"
-In-Reply-To: <56B9E93A.2040903@osg.samsung.com>
-Subject: [rtc-linux] Re: [PATCH V6 1/6] regmap: irq: dispose all virtual irq
- before removing domain
+Received: from mail-pa0-x22d.google.com (mail-pa0-x22d.google.com. [2607:f8b0:400e:c03::22d])
+        by gmr-mx.google.com with ESMTPS id 79si1002499pft.0.2016.02.18.06.49.55
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 18 Feb 2016 06:49:55 -0800 (PST)
+Received: by mail-pa0-x22d.google.com with SMTP id fy10so31981277pac.1
+        for <rtc-linux@googlegroups.com>; Thu, 18 Feb 2016 06:49:55 -0800 (PST)
+From: Akinobu Mita <akinobu.mita@gmail.com>
+To: rtc-linux@googlegroups.com
+Cc: Akinobu Mita <akinobu.mita@gmail.com>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Dennis Aberilla <denzzzhome@yahoo.com>
+Subject: [rtc-linux] [PATCH v2 4/4] rtc: ds3232-core: fix read on /dev/rtc
+ after RTC_AIE_ON
+Date: Thu, 18 Feb 2016 23:49:32 +0900
+Message-Id: <1455806972-27284-4-git-send-email-akinobu.mita@gmail.com>
+In-Reply-To: <1455806972-27284-1-git-send-email-akinobu.mita@gmail.com>
+References: <1455806972-27284-1-git-send-email-akinobu.mita@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -32,17 +30,64 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
---eDB11BtaWSyaBkpc
-Content-Type: text/plain; charset=UTF-8
-Content-Disposition: inline
+The rtctest (tools/testing/selftests/timers/rtctest.c) found that
+reading ds3232 rtc device immediately return the value 0x20 (RTC_AF)
+without waiting alarm interrupt.
 
-On Tue, Feb 09, 2016 at 10:27:22AM -0300, Javier Martinez Canillas wrote:
+This is because alarm_irq_enable() of ds3232 driver changes RTC_AF
+flag in rtc->irq_data.  So calling ioctl with RTC_AIE_ON generates
+invalid value in rtc device.
 
-> I believe this patch could be picked separately and not made part of
-> this series since is fixing a bug that happens on most drivers using
-> the regmap-irq API. This will avoid cross-subsystem churn for people.
+The lower-level driver should not touch rtc->irq_data directly.
 
-Yes, please don't mix things in when there are no dependencies.
+Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>
+Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: Dennis Aberilla <denzzzhome@yahoo.com>
+---
+* no changes since v1
+
+ drivers/rtc/rtc-ds3232-core.c | 10 +++-------
+ 1 file changed, 3 insertions(+), 7 deletions(-)
+
+diff --git a/drivers/rtc/rtc-ds3232-core.c b/drivers/rtc/rtc-ds3232-core.c
+index 600673a..ca29277 100644
+--- a/drivers/rtc/rtc-ds3232-core.c
++++ b/drivers/rtc/rtc-ds3232-core.c
+@@ -273,7 +273,7 @@ out:
+ 	return ret;
+ }
+ 
+-static void ds3232_update_alarm(struct device *dev)
++static void ds3232_update_alarm(struct device *dev, unsigned int enabled)
+ {
+ 	struct ds3232 *ds3232 = dev_get_drvdata(dev);
+ 	int control;
+@@ -303,7 +303,7 @@ static void ds3232_update_alarm(struct device *dev)
+ 	if (control < 0)
+ 		goto unlock;
+ 
+-	if (ds3232->rtc->irq_data & (RTC_AF | RTC_UF))
++	if (enabled || (ds3232->rtc->irq_data & RTC_UF))
+ 		/* enable alarm1 interrupt */
+ 		control |= DS3232_REG_CR_A1IE;
+ 	else
+@@ -322,12 +322,8 @@ static int ds3232_alarm_irq_enable(struct device *dev, unsigned int enabled)
+ 	if (ds3232->ops->irq(dev) <= 0)
+ 		return -EINVAL;
+ 
+-	if (enabled)
+-		ds3232->rtc->irq_data |= RTC_AF;
+-	else
+-		ds3232->rtc->irq_data &= ~RTC_AF;
++	ds3232_update_alarm(dev, enabled);
+ 
+-	ds3232_update_alarm(dev);
+ 	return 0;
+ }
+ 
+-- 
+2.5.0
 
 -- 
 -- 
@@ -54,20 +99,3 @@ before submitting a driver.
 You received this message because you are subscribed to the Google Groups "rtc-linux" group.
 To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
-
---eDB11BtaWSyaBkpc
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
-
-iQEcBAEBCAAGBQJWugJMAAoJECTWi3JdVIfQQ8oH/RxY01MdOIZADvg0XQC1wORv
-j2eFtpWC04ERc48ZOtnd6OLzwSZUtFkaq/zxUtIRVm43agyN0dyGkR34cdBCsnwV
-Yl9ZkHxl/Btb8fMf5qLtbhs4ZIojLl/NfJjioRyK+aISLMEeGGrg/idsjeSYmhWx
-FAkIMjQCE6zjPHl6+g6kluWmCs/XKjI+OUQuwfcX6ETGlT/jFIEcvKxB6+vWlk1j
-XT9BWOqXE+RzZWtguplVXwlpKgEnH1An1Cw8Ne5oSdK8IysbENjRdE+vJmVMo8Z+
-oCFnadKasUbkr4FWRG6LgauZ288pz+K6P2zYU6qUWodesxCtpuovX0r8I+eME7I=
-=N3Vn
------END PGP SIGNATURE-----
-
---eDB11BtaWSyaBkpc--
