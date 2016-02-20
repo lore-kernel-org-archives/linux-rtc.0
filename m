@@ -1,25 +1,24 @@
-Return-Path: <rtc-linux+bncBAABB3WUXS3AKGQEAEN42UA@googlegroups.com>
-Received: from email.microchip.com (exsmtp01.microchip.com. [198.175.253.37])
-        by gmr-mx.google.com with ESMTPS id yd9si1292668pab.1.2016.02.25.08.23.10
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
-        Thu, 25 Feb 2016 08:23:10 -0800 (PST)
-Subject: [rtc-linux] Re: [PATCH v2 2/2] rtc: rtc-pic32: Add PIC32 real time
- clock driver
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-References: <1455905390-3491-2-git-send-email-joshua.henderson@microchip.com>
- <20160224222555.GA12073@piout.net>
-CC: <devicetree@vger.kernel.org>, <linux-kernel@vger.kernel.org>, Rob Herring
-	<robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland
-	<mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar
- Gala <galak@codeaurora.org>, Alessandro Zummo <a.zummo@towertech.it>,
-	<rtc-linux@googlegroups.com>
-From: Joshua Henderson <joshua.henderson@microchip.com>
-Message-ID: <56CF2A9B.5080005@microchip.com>
-Date: Thu, 25 Feb 2016 09:23:55 -0700
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBLPUUO3AKGQEGRGNJPY@googlegroups.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id w10si621085wmw.3.2016.02.20.15.43.41
+        for <rtc-linux@googlegroups.com>;
+        Sat, 20 Feb 2016 15:43:41 -0800 (PST)
+Date: Sun, 21 Feb 2016 00:42:51 +0100
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: One Thousand Gnomes <gnomes@lxorguk.ukuu.org.uk>,
+	rtc-linux@googlegroups.com, Alessandro Zummo <a.zummo@towertech.it>,
+	Willy Tarreau <w@1wt.eu>, linux-kernel@vger.kernel.org
+Subject: [rtc-linux] Re: [PATCH] rtc: Add an option to invalidate dates in 2038
+Message-ID: <20160220234251.GL2222@piout.net>
+References: <1455995444-14146-1-git-send-email-alexandre.belloni@free-electrons.com>
+ <20160220194310.02964d5f@lxorguk.ukuu.org.uk>
+ <20160220204715.GJ2222@piout.net>
+ <9634631.sIvUQESgNh@wuerfel>
+ <20160220231702.GK2222@piout.net>
 MIME-Version: 1.0
-In-Reply-To: <20160224222555.GA12073@piout.net>
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <20160220231702.GK2222@piout.net>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -30,52 +29,30 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 02/24/2016 03:25 PM, Alexandre Belloni wrote:
-> Hi,
+On 21/02/2016 at 00:17:02 +0100, Alexandre Belloni wrote :
+> All the failures seem quite random to me but the reports I get are not
+> that precise.
 > 
-> On 19/02/2016 at 11:09:45 -0700, Joshua Henderson wrote :
->> +static int pic32_rtc_gettime(struct device *dev, struct rtc_time *rtc_tm)
->> +{
->> +	struct pic32_rtc_dev *pdata = dev_get_drvdata(dev);
->> +	void __iomem *base = pdata->reg_base;
->> +	unsigned int tries = 0;
->> +
->> +	clk_enable(pdata->clk);
->> +
->> +	do {
->> +		rtc_tm->tm_hour = readb(base + PIC32_RTCHOUR);
->> +		rtc_tm->tm_min = readb(base + PIC32_RTCMIN);
->> +		rtc_tm->tm_mon  = readb(base + PIC32_RTCMON);
->> +		rtc_tm->tm_mday = readb(base + PIC32_RTCDAY);
->> +		rtc_tm->tm_year = readb(base + PIC32_RTCYEAR);
->> +		rtc_tm->tm_sec  = readb(base + PIC32_RTCSEC);
->> +
->> +		/*
->> +		 * The only way to work out whether the system was mid-update
->> +		 * when we read it is to check the second counter, and if it
->> +		 * is zero, then we re-try the entire read.
->> +		 */
->> +		tries = 1;
->> +	} while (rtc_tm->tm_sec == 0 && tries < 2);
->> +
+> I know it happens with PCF8523 and that can be true because the
+> datasheet says the date is undefined at reset. The handling of the OS
+> bit (that bit indicates the date is probably wrong) has to be fixed and
+> I will take care of that.
 > 
-> This doesn't seem right. It will wait up to a second as tries will
-> always be less than 2, this is probably not what you want.
+> If that is the only RTC with that particular issue, we clearly don't
+> need my workaround. But As I say, I can ask but I don't have a clear
+> list of the affected system and their RTC.
+> 
 
-Dang good catch.  When fixed, it will work as expected:
+I add that it also seem to affect the Allwinner A20 RTC. I'm not sure
+how much we can trust the datasheet but it claims the reset value is 0
+and I don't think there is a way to know whether the date is correct or
+not.
 
-# hwclock
-tries 1
-Sun Oct 17 19:23:59 2010  0.000000 seconds
-# hwclock
-tries 1
-tries 2
-Sun Oct 17 19:24:00 2010  0.000000 seconds
-# hwclock
-tries 1
-Sun Oct 17 19:24:01 2010  0.000000 seconds
 
-Josh
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
 -- 
 -- 
