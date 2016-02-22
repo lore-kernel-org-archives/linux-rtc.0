@@ -1,26 +1,25 @@
-Return-Path: <rtc-linux+bncBAABBFXFYG3AKGQEGTKZRVI@googlegroups.com>
-Received: from bear.ext.ti.com (bear.ext.ti.com. [192.94.94.41])
-        by gmr-mx.google.com with ESMTPS id nt4si235988igb.2.2016.02.26.07.43.18
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1 cipher=AES128-SHA bits=128/128);
-        Fri, 26 Feb 2016 07:43:18 -0800 (PST)
-From: Grygorii Strashko <grygorii.strashko@ti.com>
-To: Lee Jones <lee.jones@linaro.org>, Alessandro Zummo <a.zummo@towertech.it>,
-        MyungJoo Ham <myungjoo.ham@samsung.com>,
-        Lars-Peter Clausen <lars@metafoo.de>
-CC: <rtc-linux@googlegroups.com>, <linux-iio@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>, <nsekhar@ti.com>,
-        <linux-omap@vger.kernel.org>,
-        Grygorii Strashko <grygorii.strashko@ti.com>,
-        Hartmut Knaack <knaack.h@gmx.de>, Peter Meerwald <pmeerw@pmeerw.net>,
-        Nishanth Menon <nm@ti.com>
-Subject: [rtc-linux] [PATCH 7/7] iio: adc: palmas: Drop IRQF_EARLY_RESUME flag
-Date: Fri, 26 Feb 2016 17:42:57 +0200
-Message-ID: <1456501377-16871-8-git-send-email-grygorii.strashko@ti.com>
-In-Reply-To: <1456501377-16871-1-git-send-email-grygorii.strashko@ti.com>
-References: <1456501377-16871-1-git-send-email-grygorii.strashko@ti.com>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBX4MVS3AKGQE4GIIHAY@googlegroups.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id 141si1102793wmy.2.2016.02.22.05.00.14
+        for <rtc-linux@googlegroups.com>;
+        Mon, 22 Feb 2016 05:00:14 -0800 (PST)
+Date: Mon, 22 Feb 2016 14:00:14 +0100
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: One Thousand Gnomes <gnomes@lxorguk.ukuu.org.uk>
+Cc: Arnd Bergmann <arnd@arndb.de>, rtc-linux@googlegroups.com,
+	Alessandro Zummo <a.zummo@towertech.it>, Willy Tarreau <w@1wt.eu>,
+	linux-kernel@vger.kernel.org
+Subject: [rtc-linux] Re: [PATCH] rtc: Add an option to invalidate dates in 2038
+Message-ID: <20160222130014.GN2222@piout.net>
+References: <1455995444-14146-1-git-send-email-alexandre.belloni@free-electrons.com>
+ <20160220194310.02964d5f@lxorguk.ukuu.org.uk>
+ <20160220204715.GJ2222@piout.net>
+ <9634631.sIvUQESgNh@wuerfel>
+ <20160220231702.GK2222@piout.net>
+ <20160221124020.49f39207@lxorguk.ukuu.org.uk>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <20160221124020.49f39207@lxorguk.ukuu.org.uk>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -31,53 +30,66 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Palmas gpadc IRQs are nested threaded and this flag is not required for nested
-irqs anymore, since commit 3c646f2c6aa9 ("genirq: Don't suspend nested_thread
-irqs over system suspend") was merged.
+On 21/02/2016 at 12:40:20 +0000, One Thousand Gnomes wrote :
+> > It doesn't change anything for 64-bit systems, I've excluded them by
+> > using "depends on !64BIT". Right now, it doesn't change anything for
+> > 32-bit systems because either way, they will fail in 2038.
+> 
+> Which realistically won't actually matter because in 22 years time nobody
+> will be able to find a 32bit system in common use. If you look at x86
+> platforms today a Pentium Pro is already a collectors item. All of todays
+> locked down half-maintained embedded and phone devices will be at best
+> the digital equivalent of toxic waste if connected to anything.
+> 
 
-Cc: Hartmut Knaack <knaack.h@gmx.de>
-Cc: Lars-Peter Clausen <lars@metafoo.de>
-Cc: Peter Meerwald <pmeerw@pmeerw.net>
-Cc: Lee Jones <lee.jones@linaro.org>
-Cc: Nishanth Menon <nm@ti.com>
-Signed-off-by: Grygorii Strashko <grygorii.strashko@ti.com>
----
- drivers/iio/adc/palmas_gpadc.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+The current 32 bit systems are not only phones. I'm not concerned by
+those, they have an average 18 month live and the manufacturers are
+already switching to 64 bit.
+But there are long lived products like cars, parking ticket machines,
+insulin pumps, automated external defibrillators, home automation
+controllers, point of sales, etc... Some of those may still be in use in
+22 years.
 
-diff --git a/drivers/iio/adc/palmas_gpadc.c b/drivers/iio/adc/palmas_gpadc.c
-index f42eb8a..2bbf0c5 100644
---- a/drivers/iio/adc/palmas_gpadc.c
-+++ b/drivers/iio/adc/palmas_gpadc.c
-@@ -534,7 +534,7 @@ static int palmas_gpadc_probe(struct platform_device *pdev)
- 	}
- 	ret = request_threaded_irq(adc->irq, NULL,
- 		palmas_gpadc_irq,
--		IRQF_ONESHOT | IRQF_EARLY_RESUME, dev_name(adc->dev),
-+		IRQF_ONESHOT, dev_name(adc->dev),
- 		adc);
- 	if (ret < 0) {
- 		dev_err(adc->dev,
-@@ -549,7 +549,7 @@ static int palmas_gpadc_probe(struct platform_device *pdev)
- 		adc->irq_auto_0 =  platform_get_irq(pdev, 1);
- 		ret = request_threaded_irq(adc->irq_auto_0, NULL,
- 				palmas_gpadc_irq_auto,
--				IRQF_ONESHOT | IRQF_EARLY_RESUME,
-+				IRQF_ONESHOT,
- 				"palmas-adc-auto-0", adc);
- 		if (ret < 0) {
- 			dev_err(adc->dev, "request auto0 irq %d failed: %d\n",
-@@ -565,7 +565,7 @@ static int palmas_gpadc_probe(struct platform_device *pdev)
- 		adc->irq_auto_1 =  platform_get_irq(pdev, 2);
- 		ret = request_threaded_irq(adc->irq_auto_1, NULL,
- 				palmas_gpadc_irq_auto,
--				IRQF_ONESHOT | IRQF_EARLY_RESUME,
-+				IRQF_ONESHOT,
- 				"palmas-adc-auto-1", adc);
- 		if (ret < 0) {
- 			dev_err(adc->dev, "request auto1 irq %d failed: %d\n",
+Or maybe we want to ensure that there is a Y2038 bug, that can be a good
+retirement plan for the whole IT industry ;)
+
+> > Won't we have to recompile every application to support 64-bit time on
+> > 32-bit system anyway? That will be a good time to remove that option.
+> 
+> How will you know when everyone has ? There's no "autodetect which
+> distribution I am running" feature.
+> 
+
+I have the hope that the distribution maintainers know how to configure
+a kernel and will ship a kernel with that option unset once they
+switched to a 64 bit time userspace.
+
+> > If the distribution don't recompile to support a 64-bit time, then the
+> > 32-bit systems will break in 2038 anyway and they will absolutely
+> > require my patch or something along those lines to still boot using
+> > systemd.
+> 
+> I disagree. Systemd has a serious robustness bug. Patch systemd to handle
+> timerd going off early and to take appropriate recovery action.
+> 
+> If you fix the systemd bug you'll also deal with a load of other weird
+> cornercases like 32bit guests on a 64bit host that accidentally ended up
+> post 2038, and every other freaky rtc failure.
+> 
+
+Actually, I agree with Lennart that this is definitively a kernel bug
+that has to be fixed. systemd is not the only affected application, any
+user of timerfd is failing (actually, the first report I got was not
+related to systemd at all).
+
+I can also agree that systemd could be a bit more robust there but
+you'll have to convince Lennart...
+
+
 -- 
-2.7.2
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
 -- 
 -- 
