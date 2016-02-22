@@ -1,25 +1,27 @@
-Return-Path: <rtc-linux+bncBCPM5SUWUYIRBWWA2G3AKGQEREUXJNY@googlegroups.com>
-MIME-Version: 1.0
-Received: from mail-pf0-x233.google.com (mail-pf0-x233.google.com. [2607:f8b0:400e:c00::233])
-        by gmr-mx.google.com with ESMTPS id r75si2050255pfr.0.2016.02.29.07.14.33
+Return-Path: <rtc-linux+bncBDXZP74YUQEBB57UVS3AKGQE4EMRXKA@googlegroups.com>
+Received: from mail-qk0-x234.google.com (mail-qk0-x234.google.com. [2607:f8b0:400d:c09::234])
+        by gmr-mx.google.com with ESMTPS id t198si1343529ywe.3.2016.02.22.08.42.30
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 29 Feb 2016 07:14:33 -0800 (PST)
-Received: by mail-pf0-x233.google.com with SMTP id t66so27872419pfb.3
-        for <rtc-linux@googlegroups.com>; Mon, 29 Feb 2016 07:14:33 -0800 (PST)
-From: Akinobu Mita <akinobu.mita@gmail.com>
-To: rtc-linux@googlegroups.com
-Cc: Akinobu Mita <akinobu.mita@gmail.com>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Dennis Aberilla <denzzzhome@yahoo.com>
-Subject: [rtc-linux] [PATCH v3 8/8] rtc: use rtc->ops_lock to protect alarm operations
-Date: Tue,  1 Mar 2016 00:13:52 +0900
-Message-Id: <1456758832-10590-8-git-send-email-akinobu.mita@gmail.com>
-In-Reply-To: <1456758832-10590-1-git-send-email-akinobu.mita@gmail.com>
-References: <1456758832-10590-1-git-send-email-akinobu.mita@gmail.com>
+        Mon, 22 Feb 2016 08:42:30 -0800 (PST)
+Received: by mail-qk0-x234.google.com with SMTP id s68so57556439qkh.3
+        for <rtc-linux@googlegroups.com>; Mon, 22 Feb 2016 08:42:30 -0800 (PST)
+Subject: [rtc-linux] Re: [PATCH] rtc: Add an option to invalidate dates in 2038
+To: Arnd Bergmann <arnd@arndb.de>,
+ Alexandre Belloni <alexandre.belloni@free-electrons.com>
+References: <1455995444-14146-1-git-send-email-alexandre.belloni@free-electrons.com>
+ <6269543.oe8MmZQUmX@wuerfel> <20160222155653.GP2222@piout.net>
+ <2768647.1bFEcFDZRI@wuerfel>
+Cc: One Thousand Gnomes <gnomes@lxorguk.ukuu.org.uk>,
+ rtc-linux@googlegroups.com, Alessandro Zummo <a.zummo@towertech.it>,
+ Willy Tarreau <w@1wt.eu>, linux-kernel@vger.kernel.org
+From: "Austin S. Hemmelgarn" <ahferroin7@gmail.com>
+Message-ID: <56CB3A1D.6030604@gmail.com>
+Date: Mon, 22 Feb 2016 11:41:01 -0500
+MIME-Version: 1.0
+In-Reply-To: <2768647.1bFEcFDZRI@wuerfel>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Reply-To: rtc-linux@googlegroups.com
-Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -29,129 +31,26 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-ds3232->mutex is used to protect for alarm operations which
-need to access status and control registers.
-
-But we can use rtc->ops_lock instead.  rtc->ops_lock is held when most
-of rtc_class_ops methods are called, so we only need to explicitly
-acquire it from irq handler in order to protect form concurrent
-accesses.
-
-Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>
-Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Dennis Aberilla <denzzzhome@yahoo.com>
----
-* New patch from this version
-
- drivers/rtc/rtc-ds3232-core.c | 24 ++++--------------------
- 1 file changed, 4 insertions(+), 20 deletions(-)
-
-diff --git a/drivers/rtc/rtc-ds3232-core.c b/drivers/rtc/rtc-ds3232-core.c
-index 6489380..fbb1b9a 100644
---- a/drivers/rtc/rtc-ds3232-core.c
-+++ b/drivers/rtc/rtc-ds3232-core.c
-@@ -53,11 +53,6 @@ struct ds3232 {
- 	struct rtc_device *rtc;
- 	struct work_struct work;
- 
--	/* The mutex protects alarm operations, and prevents a race
--	 * between the enable_irq() in the workqueue and the free_irq()
--	 * in the remove function.
--	 */
--	struct mutex mutex;
- 	bool suspended;
- };
- 
-@@ -188,8 +183,6 @@ static int ds3232_read_alarm(struct device *dev, struct rtc_wkalrm *alarm)
- 	int ret;
- 	u8 buf[4];
- 
--	mutex_lock(&ds3232->mutex);
--
- 	ret = regmap_read(ds3232->regmap, DS3232_REG_SR, &stat);
- 	if (ret)
- 		goto out;
-@@ -216,7 +209,6 @@ static int ds3232_read_alarm(struct device *dev, struct rtc_wkalrm *alarm)
- 
- 	ret = 0;
- out:
--	mutex_unlock(&ds3232->mutex);
- 	return ret;
- }
- 
-@@ -234,8 +226,6 @@ static int ds3232_set_alarm(struct device *dev, struct rtc_wkalrm *alarm)
- 	if (ds3232->irq <= 0)
- 		return -EINVAL;
- 
--	mutex_lock(&ds3232->mutex);
--
- 	buf[0] = bin2bcd(alarm->time.tm_sec);
- 	buf[1] = bin2bcd(alarm->time.tm_min);
- 	buf[2] = bin2bcd(alarm->time.tm_hour);
-@@ -268,7 +258,6 @@ static int ds3232_set_alarm(struct device *dev, struct rtc_wkalrm *alarm)
- 		ret = regmap_write(ds3232->regmap, DS3232_REG_CR, control);
- 	}
- out:
--	mutex_unlock(&ds3232->mutex);
- 	return ret;
- }
- 
-@@ -278,11 +267,9 @@ static int ds3232_update_alarm(struct device *dev, unsigned int enabled)
- 	int control;
- 	int ret;
- 
--	mutex_lock(&ds3232->mutex);
--
- 	ret = regmap_read(ds3232->regmap, DS3232_REG_CR, &control);
- 	if (ret)
--		goto unlock;
-+		return ret;
- 
- 	if (enabled)
- 		/* enable alarm1 interrupt */
-@@ -292,9 +279,6 @@ static int ds3232_update_alarm(struct device *dev, unsigned int enabled)
- 		control &= ~(DS3232_REG_CR_A1IE);
- 	ret = regmap_write(ds3232->regmap, DS3232_REG_CR, control);
- 
--unlock:
--	mutex_unlock(&ds3232->mutex);
--
- 	return ret;
- }
- 
-@@ -327,10 +311,11 @@ static irqreturn_t ds3232_irq(int irq, void *dev_id)
- static void ds3232_work(struct work_struct *work)
- {
- 	struct ds3232 *ds3232 = container_of(work, struct ds3232, work);
-+	struct mutex *lock = &ds3232->rtc->ops_lock;
- 	int ret;
- 	int stat, control;
- 
--	mutex_lock(&ds3232->mutex);
-+	mutex_lock(lock);
- 
- 	ret = regmap_read(ds3232->regmap, DS3232_REG_SR, &stat);
- 	if (ret)
-@@ -368,7 +353,7 @@ static void ds3232_work(struct work_struct *work)
- 	}
- 
- unlock:
--	mutex_unlock(&ds3232->mutex);
-+	mutex_unlock(lock);
- }
- 
- static const struct rtc_class_ops ds3232_rtc_ops = {
-@@ -395,7 +380,6 @@ int __ds3232_probe(struct device *dev, struct regmap *regmap, int irq,
- 	dev_set_drvdata(dev, ds3232);
- 
- 	INIT_WORK(&ds3232->work, ds3232_work);
--	mutex_init(&ds3232->mutex);
- 
- 	ret = ds3232_check_rtc_status(dev);
- 	if (ret)
--- 
-2.5.0
+On 2016-02-22 11:18, Arnd Bergmann wrote:
+> On Monday 22 February 2016 16:56:53 Alexandre Belloni wrote:
+>> One other workaround is to asked distributions
+>> using systemd to stop using HCTOSYS so userspace would be responsible to
+>> set the system time and in that case we won't have the 32/64 discrepancy.
+>
+> I'm missing a bit of background here. This seems like a fairly useful
+> piece of infrastructure for the majority of the use cases (working RTC)
+>
+> How would the time get set when this is disabled? Is systemd able
+> to read the rtc and write it back to the kernel? That could in fact
+> be a nicer workaround for the problem, if it just does this before
+> setting up the timerfd.
+Traditional init systems on Linux have the option of using hwclock from 
+util-linux to set the system time.  This is what Gentoo does by default, 
+and I think Arch does it too, and I'm relatively certain that Debian and 
+Ubuntu used to do it before they switched to systemd (I have no idea 
+what they do now).  Based on the manpage for hwclock, it looks like 
+systemd mandates that HCTOSYS is enabled in the kernel configuration, 
+and then just calls hwclock to set the system timezone and correct for UTC.
 
 -- 
 -- 
