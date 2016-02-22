@@ -1,21 +1,26 @@
-Return-Path: <rtc-linux+bncBAABBTNUTW3AKGQETOFX5HI@googlegroups.com>
-Received: from email.microchip.com (exsmtp01.microchip.com. [198.175.253.37])
-        by gmr-mx.google.com with ESMTPS id 79si1779707pft.0.2016.02.19.10.09.17
+Return-Path: <rtc-linux+bncBCH47WHJQUIRBF5BVS3AKGQEDB5HJ7A@googlegroups.com>
+Received: from lxorguk.ukuu.org.uk (lxorguk.ukuu.org.uk. [81.2.110.251])
+        by gmr-mx.google.com with ESMTPS id s141si1201216wmd.1.2016.02.22.05.43.51
         for <rtc-linux@googlegroups.com>
-        (version=TLS1 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
-        Fri, 19 Feb 2016 10:09:17 -0800 (PST)
-From: Joshua Henderson <joshua.henderson@microchip.com>
-To: <devicetree@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-CC: Joshua Henderson <joshua.henderson@microchip.com>, Rob Herring
-	<robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland
-	<mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar
- Gala <galak@codeaurora.org>, Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	<rtc-linux@googlegroups.com>
-Subject: [rtc-linux] [PATCH v2 1/2] dt/bindings: Add bindings for the PIC32
- real time clock
-Date: Fri, 19 Feb 2016 11:09:44 -0700
-Message-ID: <1455905390-3491-1-git-send-email-joshua.henderson@microchip.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 22 Feb 2016 05:43:51 -0800 (PST)
+Date: Mon, 22 Feb 2016 13:43:19 +0000
+From: One Thousand Gnomes <gnomes@lxorguk.ukuu.org.uk>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: Arnd Bergmann <arnd@arndb.de>, rtc-linux@googlegroups.com,
+        Alessandro
+ Zummo <a.zummo@towertech.it>, Willy Tarreau <w@1wt.eu>,
+        linux-kernel@vger.kernel.org
+Subject: [rtc-linux] Re: [PATCH] rtc: Add an option to invalidate dates in 2038
+Message-ID: <20160222134319.31e77b71@lxorguk.ukuu.org.uk>
+In-Reply-To: <20160222130014.GN2222@piout.net>
+References: <1455995444-14146-1-git-send-email-alexandre.belloni@free-electrons.com>
+	<20160220194310.02964d5f@lxorguk.ukuu.org.uk>
+	<20160220204715.GJ2222@piout.net>
+	<9634631.sIvUQESgNh@wuerfel>
+	<20160220231702.GK2222@piout.net>
+	<20160221124020.49f39207@lxorguk.ukuu.org.uk>
+	<20160222130014.GN2222@piout.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
@@ -28,47 +33,41 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Document the devicetree bindings for the real time clock found
-on Microchip PIC32 class devices.
+On Mon, 22 Feb 2016 14:00:14 +0100
+Alexandre Belloni <alexandre.belloni@free-electrons.com> wrote:
+.
+> But there are long lived products like cars, parking ticket machines,
+> insulin pumps, automated external defibrillators, home automation
+> controllers, point of sales, etc... Some of those may still be in use in
+> 22 years.
 
-Signed-off-by: Joshua Henderson <joshua.henderson@microchip.com>
-Acked-by: Rob Herring <robh@kernel.org>
---
-Changes since v1: None
----
- .../bindings/rtc/microchip,pic32-rtc.txt           |   21 ++++++++++++++++++++
- 1 file changed, 21 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/rtc/microchip,pic32-rtc.txt
+And if so their vendors will have provided updates. Your "fix" doesn't
+help anything, it just means the user sees it fail in a different way.
 
-diff --git a/Documentation/devicetree/bindings/rtc/microchip,pic32-rtc.txt b/Documentation/devicetree/bindings/rtc/microchip,pic32-rtc.txt
-new file mode 100644
-index 0000000..180b714
---- /dev/null
-+++ b/Documentation/devicetree/bindings/rtc/microchip,pic32-rtc.txt
-@@ -0,0 +1,21 @@
-+* Microchip PIC32 Real Time Clock and Calendar
-+
-+The RTCC keeps time in hours, minutes, and seconds, and one half second. It
-+provides a calendar in weekday, date, month, and year. It also provides a
-+configurable alarm.
-+
-+Required properties:
-+- compatible: should be: "microchip,pic32mzda-rtc"
-+- reg: physical base address of the controller and length of memory mapped
-+    region.
-+- interrupts: RTC alarm/event interrupt
-+- clocks: clock phandle
-+
-+Example:
-+
-+	rtc: rtc@1f8c0000 {
-+		compatible = "microchip,pic32mzda-rtc";
-+		reg = <0x1f8c0000 0x60>;
-+		interrupts = <166 IRQ_TYPE_EDGE_RISING>;
-+		clocks = <&PBCLK6>;
-+	};
--- 
-1.7.9.5
+> I can also agree that systemd could be a bit more robust there but
+> you'll have to convince Lennart...
+
+That's a systemd problem. If their code isn't robust then the
+distributiosn will just have to keep patching it.
+
+The only problem that can actually be "fixed" is the case where it isn't
+2038 yet and the user has a scrambled RTC. In that case your init tools
+need to be robust enough to handle the problem or use APIs that don't
+break. The kernel can't actually "fix" this because it never knows
+whether your userspace is sane or not.
+
+I'd argue btw that any code using timerfd_create with TFD_TIMER_ABSTIME
+and passing it a value that wraps the range permitted by that time
+representation *is* buggy. It's the applications responsibility to use
+values that are within the defined behavioural range of the function.
+
+Far more constructive would I think be to add a TFD_TIME64 flag to
+timerfd_create that allows the use of 64bit time in timerfd_*. Systemd
+can then adopt that safely even on 32bit legacy systems, while on 64bit
+TFD_TIME64 would presumably be 0 and the 64/32bit time structs would
+match.
+
+Alan
 
 -- 
 -- 
