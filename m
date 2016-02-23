@@ -1,22 +1,21 @@
-Return-Path: <rtc-linux+bncBD2OLRXW4ABBBZUP3C2QKGQE62ELJEA@googlegroups.com>
-Received: from hqemgate16.nvidia.com (hqemgate16.nvidia.com. [216.228.121.65])
-        by gmr-mx.google.com with ESMTPS id tn7si2806138pac.1.2016.02.06.06.49.10
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sat, 06 Feb 2016 06:49:10 -0800 (PST)
-From: Laxman Dewangan <ldewangan@nvidia.com>
-To: <lee.jones@linaro.org>, <alexandre.belloni@free-electrons.com>,
-	<k.kozlowski@samsung.com>, <javier@osg.samsung.com>, <broonie@kernel.org>,
-	<gregkh@linuxfoundation.org>, <a.zummo@towertech.it>
-CC: <cw00.choi@samsung.com>, <linux-kernel@vger.kernel.org>,
-	<rtc-linux@googlegroups.com>, Laxman Dewangan <ldewangan@nvidia.com>
-Subject: [rtc-linux] [PATCH V4 1/6] regmap: irq: add apis to unmap the mapped irq
-Date: Sat, 6 Feb 2016 20:07:22 +0530
-Message-ID: <1454769447-785-2-git-send-email-ldewangan@nvidia.com>
-In-Reply-To: <1454769447-785-1-git-send-email-ldewangan@nvidia.com>
-References: <1454769447-785-1-git-send-email-ldewangan@nvidia.com>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBK5FWO3AKGQEYKWE2XY@googlegroups.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id h73si10672wme.0.2016.02.23.13.44.11
+        for <rtc-linux@googlegroups.com>;
+        Tue, 23 Feb 2016 13:44:11 -0800 (PST)
+Date: Tue, 23 Feb 2016 22:44:09 +0100
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Joshua Clayton <stillcompiling@gmail.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org
+Subject: [rtc-linux] Re: [PATCH v4 1/3] rtc: Add functions to set and read rtc offset
+Message-ID: <20160223214409.GB10681@piout.net>
+References: <20160205143908.GJ4782@piout.net>
+ <1454704873-31066-1-git-send-email-stillcompiling@gmail.com>
+ <20160223104713.01508e11@jclayton-pc>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <20160223104713.01508e11@jclayton-pc>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -27,64 +26,27 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Before removing irq domains, it is require to unmap all
-mapped interrupt from that domain. Currently there is API
-to map the interrupt on chip as regmap_irq_get_virq() for
-creating mapping. Add equivalent API to dispose the mapped
-irq in irq domains.
+Hi,
 
-Signed-off-by: Laxman Dewangan <ldewangan@nvidia.com>
-CC: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-CC: Javier Martinez Canillas <javier@osg.samsung.com>
+On 23/02/2016 at 10:47:13 -0800, Joshua Clayton wrote :
+> On Fri,  5 Feb 2016 12:41:11 -0800
+> Joshua Clayton <stillcompiling@gmail.com> wrote:
+> 
+> Alexandre,
+> in case you didn't see, I made the change you requested.
+> The rtc_read_offset function checks for a read_offset function
+> and returns -EINVAL if not there, instead of an offset of 0.
+> I just didn't put together a cover letter this time around.
+>  
 
----
-This is new in the series which was identified when testing V3
-series that it is require to unmap virq before deleting irq chip
-domain. Adding this APIs in regmap irq framework.
+Sure, I was planning to review them tonight anyway.
 
- drivers/base/regmap/regmap-irq.c | 14 ++++++++++++++
- include/linux/regmap.h           |  1 +
- 2 files changed, 15 insertions(+)
+All applied, thanks!
 
-diff --git a/drivers/base/regmap/regmap-irq.c b/drivers/base/regmap/regmap-irq.c
-index 9b0d202..9b36fc8 100644
---- a/drivers/base/regmap/regmap-irq.c
-+++ b/drivers/base/regmap/regmap-irq.c
-@@ -707,6 +707,20 @@ int regmap_irq_get_virq(struct regmap_irq_chip_data *data, int irq)
- EXPORT_SYMBOL_GPL(regmap_irq_get_virq);
- 
- /**
-+ * regmap_irq_put_virq(): Unmap mapped interrupt of a chip in irq-domain.
-+ *
-+ * This routine is used to dispose the created mapping from irq domain
-+ * which must be call before removing irq domain.
-+ *
-+ * @irq: virtual irq number which was mapped with irq domains.
-+ */
-+void regmap_irq_put_virq(int virq)
-+{
-+	irq_dispose_mapping(virq);
-+}
-+EXPORT_SYMBOL_GPL(regmap_irq_put_virq);
-+
-+/**
-  * regmap_irq_get_domain(): Retrieve the irq_domain for the chip
-  *
-  * Useful for drivers to request their own IRQs and for integration
-diff --git a/include/linux/regmap.h b/include/linux/regmap.h
-index 27aaac9..546eab5 100644
---- a/include/linux/regmap.h
-+++ b/include/linux/regmap.h
-@@ -870,6 +870,7 @@ int regmap_add_irq_chip(struct regmap *map, int irq, int irq_flags,
- void regmap_del_irq_chip(int irq, struct regmap_irq_chip_data *data);
- int regmap_irq_chip_get_base(struct regmap_irq_chip_data *data);
- int regmap_irq_get_virq(struct regmap_irq_chip_data *data, int irq);
-+void regmap_irq_put_virq(int virq);
- struct irq_domain *regmap_irq_get_domain(struct regmap_irq_chip_data *data);
- 
- #else
 -- 
-2.1.4
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
 -- 
 -- 
