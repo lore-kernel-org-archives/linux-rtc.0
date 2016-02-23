@@ -1,26 +1,25 @@
-Return-Path: <rtc-linux+bncBDXZP74YUQEBB57UVS3AKGQE4EMRXKA@googlegroups.com>
-Received: from mail-qk0-x234.google.com (mail-qk0-x234.google.com. [2607:f8b0:400d:c09::234])
-        by gmr-mx.google.com with ESMTPS id t198si1343529ywe.3.2016.02.22.08.42.30
+Return-Path: <rtc-linux+bncBAABB2VQWK3AKGQE4DVBSIA@googlegroups.com>
+Received: from email.microchip.com (exsmtp03.microchip.com. [198.175.253.49])
+        by gmr-mx.google.com with ESMTPS id 12si3949317pfb.1.2016.02.23.09.35.38
         for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 22 Feb 2016 08:42:30 -0800 (PST)
-Received: by mail-qk0-x234.google.com with SMTP id s68so57556439qkh.3
-        for <rtc-linux@googlegroups.com>; Mon, 22 Feb 2016 08:42:30 -0800 (PST)
-Subject: [rtc-linux] Re: [PATCH] rtc: Add an option to invalidate dates in 2038
-To: Arnd Bergmann <arnd@arndb.de>,
- Alexandre Belloni <alexandre.belloni@free-electrons.com>
-References: <1455995444-14146-1-git-send-email-alexandre.belloni@free-electrons.com>
- <6269543.oe8MmZQUmX@wuerfel> <20160222155653.GP2222@piout.net>
- <2768647.1bFEcFDZRI@wuerfel>
-Cc: One Thousand Gnomes <gnomes@lxorguk.ukuu.org.uk>,
- rtc-linux@googlegroups.com, Alessandro Zummo <a.zummo@towertech.it>,
- Willy Tarreau <w@1wt.eu>, linux-kernel@vger.kernel.org
-From: "Austin S. Hemmelgarn" <ahferroin7@gmail.com>
-Message-ID: <56CB3A1D.6030604@gmail.com>
-Date: Mon, 22 Feb 2016 11:41:01 -0500
+        (version=TLS1 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
+        Tue, 23 Feb 2016 09:35:38 -0800 (PST)
+Subject: [rtc-linux] Re: [PATCH v2 2/2] rtc: rtc-pic32: Add PIC32 real time
+ clock driver
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+References: <1455905390-3491-2-git-send-email-joshua.henderson@microchip.com>
+ <20160219181712.GD2222@piout.net>
+CC: <devicetree@vger.kernel.org>, <linux-kernel@vger.kernel.org>, Rob Herring
+	<robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland
+	<mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar
+ Gala <galak@codeaurora.org>, Alessandro Zummo <a.zummo@towertech.it>,
+	<rtc-linux@googlegroups.com>
+From: Joshua Henderson <joshua.henderson@microchip.com>
+Message-ID: <56CC9894.7000307@microchip.com>
+Date: Tue, 23 Feb 2016 10:36:20 -0700
 MIME-Version: 1.0
-In-Reply-To: <2768647.1bFEcFDZRI@wuerfel>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+In-Reply-To: <20160219181712.GD2222@piout.net>
+Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -31,26 +30,41 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 2016-02-22 11:18, Arnd Bergmann wrote:
-> On Monday 22 February 2016 16:56:53 Alexandre Belloni wrote:
->> One other workaround is to asked distributions
->> using systemd to stop using HCTOSYS so userspace would be responsible to
->> set the system time and in that case we won't have the 32/64 discrepancy.
->
-> I'm missing a bit of background here. This seems like a fairly useful
-> piece of infrastructure for the majority of the use cases (working RTC)
->
-> How would the time get set when this is disabled? Is systemd able
-> to read the rtc and write it back to the kernel? That could in fact
-> be a nicer workaround for the problem, if it just does this before
-> setting up the timerfd.
-Traditional init systems on Linux have the option of using hwclock from 
-util-linux to set the system time.  This is what Gentoo does by default, 
-and I think Arch does it too, and I'm relatively certain that Debian and 
-Ubuntu used to do it before they switched to systemd (I have no idea 
-what they do now).  Based on the manpage for hwclock, it looks like 
-systemd mandates that HCTOSYS is enabled in the kernel configuration, 
-and then just calls hwclock to set the system timezone and correct for UTC.
+Alexandre,
+
+On 02/19/2016 11:17 AM, Alexandre Belloni wrote:
+> Hi,
+> 
+> On 19/02/2016 at 11:09:45 -0700, Joshua Henderson wrote :
+>> This driver adds support for the PIC32 real time clock and calendar
+>> peripheral:
+>> 	- reading and setting time
+>> 	- alarms when connected to an IRQ
+> 
+> Just for confirmation, your probe() fails hard when there are no IRQ
+> specified or the IRQ request fails.
+> 
+> I'll review later but if that the only thing, I can fix it up when
+> applying, no need to resend.
+> 
+
+probe() does indeed fail when no interrupt is specified:
+
+  ...
+  pic32-rtc 1f8c0000.rtc: no irq for alarm
+  ...
+  hctosys: unable to open rtc device (rtc0)
+  ...
+
+If I'm following, I think there right answer here is to just change the wording
+in the commit message to be clear that the interrupt is not conditional.  It's
+required via binding.  This peripheral has a dedicated interrupt and I can't
+imagine a case where it makes sense not to specify it.
+
+I'm fine with something like "- alarms provided by dedicated interrupt" as a
+replacement.
+
+Josh
 
 -- 
 -- 
