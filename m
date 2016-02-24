@@ -1,27 +1,24 @@
-Return-Path: <rtc-linux+bncBCNNJWF7RUMRBE7MZC2QKGQEOMGWY6Q@googlegroups.com>
+Return-Path: <rtc-linux+bncBAABBGOEW63AKGQE2IZIVKI@googlegroups.com>
+Received: from lists.s-osg.org (lists.s-osg.org. [54.187.51.154])
+        by gmr-mx.google.com with ESMTP id ff2si552432pad.2.2016.02.24.09.02.17
+        for <rtc-linux@googlegroups.com>;
+        Wed, 24 Feb 2016 09:02:17 -0800 (PST)
+Subject: [rtc-linux] Re: [PATCH] rtc: mt6397: Add platform device ID table
+To: Arnd Bergmann <arnd@arndb.de>, linux-arm-kernel@lists.infradead.org
+References: <1455016095-13724-1-git-send-email-javier@osg.samsung.com>
+ <2416670.q30ahHlzPm@wuerfel> <1455628747.2981.4.camel@mtksdaap41>
+ <3216713.qF8RyQVuPO@wuerfel>
+Cc: Eddie Huang <eddie.huang@mediatek.com>,
+ Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
+ linux-kernel@vger.kernel.org, linux-mediatek@lists.infradead.org,
+ Alexandre Belloni <alexandre.belloni@free-electrons.com>
+From: Javier Martinez Canillas <javier@osg.samsung.com>
+Message-ID: <56CDE211.1000802@osg.samsung.com>
+Date: Wed, 24 Feb 2016 14:02:09 -0300
 MIME-Version: 1.0
-Received: from mail-pa0-x243.google.com (mail-pa0-x243.google.com. [2607:f8b0:400e:c03::243])
-        by gmr-mx.google.com with ESMTPS id ui7si968552pab.0.2016.02.03.09.17.07
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 03 Feb 2016 09:17:07 -0800 (PST)
-Received: by mail-pa0-x243.google.com with SMTP id yy13so1198652pab.1
-        for <rtc-linux@googlegroups.com>; Wed, 03 Feb 2016 09:17:07 -0800 (PST)
-From: Joshua Clayton <stillcompiling@gmail.com>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Alessandro Zummo <a.zummo@towertech.it>
-Cc: rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org,
-	Joshua Clayton <stillcompiling@gmail.com>
-Subject: [rtc-linux] [PATCH v3 3/3] rtc-pcf2123: implement read_offset and set_offset
-Date: Wed,  3 Feb 2016 09:16:44 -0800
-Message-Id: <1454519804-13770-3-git-send-email-stillcompiling@gmail.com>
-In-Reply-To: <1454519804-13770-1-git-send-email-stillcompiling@gmail.com>
-References: <1454519804-13770-1-git-send-email-stillcompiling@gmail.com>
-References: <20160202104111.GU20165@piout.net>
-In-Reply-To: <20160202104111.GU20165@piout.net>
+In-Reply-To: <3216713.qF8RyQVuPO@wuerfel>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Reply-To: rtc-linux@googlegroups.com
-Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -31,99 +28,69 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-pcf2123 has an offset register, which can be used to make minor
-adjustments to the clock rate to compensate for temperature or
-a crystal that is not exactly right.
+Hello Arnd,
 
-Signed-off-by: Joshua Clayton <stillcompiling@gmail.com>
----
- drivers/rtc/rtc-pcf2123.c | 57 +++++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 57 insertions(+)
+On 02/24/2016 01:56 PM, Arnd Bergmann wrote:
+> On Tuesday 16 February 2016 21:19:07 Eddie Huang wrote:
+>> On Tue, 2016-02-16 at 12:37 +0100, Arnd Bergmann wrote:
+>>> On Monday 15 February 2016 11:50:48 Javier Martinez Canillas wrote:
+>>>>
+>>>> On 02/14/2016 10:58 PM, Eddie Huang wrote:
+>>>>
+>>>> [snip]
+>>>>
+>>>>>> @@ -412,6 +418,7 @@ static struct platform_driver mtk_rtc_driver = {
+>>>>>>       },
+>>>>>>       .probe  = mtk_rtc_probe,
+>>>>>>       .remove = mtk_rtc_remove,
+>>>>>> +    .id_table = mt6397_rtc_id,
+>>>>>>    };
+>>>>>>
+>>>>>>    module_platform_driver(mtk_rtc_driver);
+>>>>>> @@ -419,4 +426,3 @@ module_platform_driver(mtk_rtc_driver);
+>>>>>>    MODULE_LICENSE("GPL v2");
+>>>>>>    MODULE_AUTHOR("Tianping Fang <tianping.fang@mediatek.com>");
+>>>>>>    MODULE_DESCRIPTION("RTC Driver for MediaTek MT6397 PMIC");
+>>>>>> -MODULE_ALIAS("platform:mt6397-rtc");
+>>>>>
+>>>>> This patch looks good to me, but I am wondering, since we tend to use
+>>>>> device tree method to match driver, do we still need support platform
+>>>>> device ID ?
+>>>>>
+>>>>
+>>>> I'm not familiar with neither this IP block nor the SoC so it is up to
+>>>> you. I just noticed this issue when reviewing a regulator driver for a
+>>>> similar PMIC posted by someone from mediatek.
+>>>>
+>>>> I thought platform device was needed since the driver has a MODULE_ALIAS()
+>>>> but please let me know what you prefer and I can re-spin the patch and
+>>>> just remove the MODULE_ALIAS() if that makes more sense for this platform.
+>>>>
+>>>>
+>>>
+>>> I agree. We can alway add a MODULE_DEVICE_TABLE() if we get multiple
+>>> users of this driver on architectures that don't use devicetree yet.
+>>>
+>>
+>> Sure. Thanks the patch to add expandability to this driver.
+>>
+>> Acked-by: Eddie Huang <eddie.huang@mediatek.com>
+>
+> I think we misunderstood one another. I think we can drop both the MODULE_DEVICE_TABLE and the MODULE_ALIAS: there is no need for another
+> driver ID when it is always probed using DT.
+>
 
-diff --git a/drivers/rtc/rtc-pcf2123.c b/drivers/rtc/rtc-pcf2123.c
-index d9a44ad..da27738 100644
---- a/drivers/rtc/rtc-pcf2123.c
-+++ b/drivers/rtc/rtc-pcf2123.c
-@@ -100,6 +100,7 @@
- /* PCF2123_REG_OFFSET BITS */
- #define OFFSET_SIGN_BIT		BIT(6)	/* 2's complement sign bit */
- #define OFFSET_COARSE		BIT(7)	/* Coarse mode offset */
-+#define OFFSET_STEP		(2170)	/* Offset step in parts per billion */
- 
- /* READ/WRITE ADDRESS BITS */
- #define PCF2123_WRITE		BIT(4)
-@@ -206,6 +207,59 @@ static ssize_t pcf2123_store(struct device *dev, struct device_attribute *attr,
- 	return count;
- }
- 
-+static int pcf2123_read_offset(struct device *dev, long *offset)
-+{
-+	int ret;
-+	s8 reg;
-+
-+	ret = pcf2123_read(dev, PCF2123_REG_OFFSET, &reg, 1);
-+	if (ret < 0)
-+		return ret;
-+
-+	if (reg & OFFSET_COARSE)
-+		reg <<= 1; /* multiply by 2 and sign extend */
-+	else
-+		reg |= (reg & OFFSET_SIGN_BIT) << 1; /* sign extend only */
-+
-+	*offset = ((long)reg) * OFFSET_STEP;
-+
-+	return 0;
-+}
-+
-+/*
-+ * The offset register is a 7 bit signed value with a coarse bit in bit 7.
-+ * The main difference between the two is normal offset adjusts the first
-+ * second of n minutes every other hour, with 61, 62 and 63 being shoved
-+ * into the 60th minute.
-+ * The coarse adjustment does the same, but every hour.
-+ * the two overlap, with every even normal offset value corresponding
-+ * to a coarse offset. Based on this algorithm, it seems that despite the
-+ * name, coarse offset is a better fit for overlapping values.
-+ */
-+static int pcf2123_set_offset(struct device *dev, long offset)
-+{
-+	s8 reg;
-+
-+	if (offset > OFFSET_STEP * 127)
-+		reg = 127;
-+	else if (offset < OFFSET_STEP * -128)
-+		reg = -128;
-+	else
-+		reg = (s8)((offset + (OFFSET_STEP >> 1)) / OFFSET_STEP);
-+
-+	/* choose fine offset only for odd values in the normal range */
-+	if (reg & 1 && reg <= 63 && reg >= -64) {
-+		/* Normal offset. Clear the coarse bit */
-+		reg &= ~OFFSET_COARSE;
-+	} else {
-+		/* Coarse offset. Divide by 2 and set the coarse bit */
-+		reg >>= 1;
-+		reg |= OFFSET_COARSE;
-+	}
-+
-+	return pcf2123_write_reg(dev, PCF2123_REG_OFFSET, reg);
-+}
-+
- static int pcf2123_rtc_read_time(struct device *dev, struct rtc_time *tm)
- {
- 	u8 rxbuf[7];
-@@ -314,6 +368,9 @@ static int pcf2123_reset(struct device *dev)
- static const struct rtc_class_ops pcf2123_rtc_ops = {
- 	.read_time	= pcf2123_rtc_read_time,
- 	.set_time	= pcf2123_rtc_set_time,
-+	.read_offset	= pcf2123_read_offset,
-+	.set_offset	= pcf2123_set_offset,
-+
- };
- 
- static int pcf2123_probe(struct spi_device *spi)
+That's how I understood but then Eddie said the opposite so I got confused
+and was waiting for your clarification. I'll re-spin and remove the alias.
+
+> 	Arnd
+>
+
+Best regards,
 -- 
-2.5.0
+Javier Martinez Canillas
+Open Source Group
+Samsung Research America
 
 -- 
 -- 
