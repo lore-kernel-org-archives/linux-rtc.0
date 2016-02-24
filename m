@@ -1,20 +1,17 @@
-Return-Path: <rtc-linux+bncBD2OLRXW4ABBBHEPZC2QKGQEIWBMI7A@googlegroups.com>
-Received: from hqemgate15.nvidia.com (hqemgate15.nvidia.com. [216.228.121.64])
-        by gmr-mx.google.com with ESMTPS id ui7si865508pab.0.2016.02.03.05.58.51
+Return-Path: <rtc-linux+bncBDEKVJM7XAHRBZWBW63AKGQEWI2RNUQ@googlegroups.com>
+Received: from mout.kundenserver.de (mout.kundenserver.de. [212.227.126.133])
+        by gmr-mx.google.com with ESMTPS id e130si1389957wme.2.2016.02.24.08.57.09
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 03 Feb 2016 05:58:52 -0800 (PST)
-From: Laxman Dewangan <ldewangan@nvidia.com>
-To: <lee.jones@linaro.org>, <alexandre.belloni@free-electrons.com>,
-	<k.kozlowski@samsung.com>, <javier@osg.samsung.com>
-CC: <cw00.choi@samsung.com>, <linux-kernel@vger.kernel.org>,
-	<rtc-linux@googlegroups.com>, Laxman Dewangan <ldewangan@nvidia.com>
-Subject: [rtc-linux] [PATCH V3 4/5] mfd: max77686: do not set i2c client data
- for rtc i2c client
-Date: Wed, 3 Feb 2016 19:17:12 +0530
-Message-ID: <1454507233-9959-5-git-send-email-ldewangan@nvidia.com>
-In-Reply-To: <1454507233-9959-1-git-send-email-ldewangan@nvidia.com>
-References: <1454507233-9959-1-git-send-email-ldewangan@nvidia.com>
+        Wed, 24 Feb 2016 08:57:09 -0800 (PST)
+From: Arnd Bergmann <arnd@arndb.de>
+To: linux-arm-kernel@lists.infradead.org
+Cc: Eddie Huang <eddie.huang@mediatek.com>, Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org, Javier Martinez Canillas <javier@osg.samsung.com>, linux-mediatek@lists.infradead.org, Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Subject: [rtc-linux] Re: [PATCH] rtc: mt6397: Add platform device ID table
+Date: Wed, 24 Feb 2016 17:56:57 +0100
+Message-ID: <3216713.qF8RyQVuPO@wuerfel>
+In-Reply-To: <1455628747.2981.4.camel@mtksdaap41>
+References: <1455016095-13724-1-git-send-email-javier@osg.samsung.com> <2416670.q30ahHlzPm@wuerfel> <1455628747.2981.4.camel@mtksdaap41>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
@@ -27,45 +24,55 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-There is different RTC I2C address for RTC block in MAX77686.
-Driver is creating dummy i2c client for this address to access
-the register of this IP block.
+On Tuesday 16 February 2016 21:19:07 Eddie Huang wrote:
+> On Tue, 2016-02-16 at 12:37 +0100, Arnd Bergmann wrote:
+> > On Monday 15 February 2016 11:50:48 Javier Martinez Canillas wrote:
+> > > 
+> > > On 02/14/2016 10:58 PM, Eddie Huang wrote:
+> > > 
+> > > [snip]
+> > > 
+> > > >> @@ -412,6 +418,7 @@ static struct platform_driver mtk_rtc_driver = {
+> > > >>      },
+> > > >>      .probe  = mtk_rtc_probe,
+> > > >>      .remove = mtk_rtc_remove,
+> > > >> +    .id_table = mt6397_rtc_id,
+> > > >>   };
+> > > >>
+> > > >>   module_platform_driver(mtk_rtc_driver);
+> > > >> @@ -419,4 +426,3 @@ module_platform_driver(mtk_rtc_driver);
+> > > >>   MODULE_LICENSE("GPL v2");
+> > > >>   MODULE_AUTHOR("Tianping Fang <tianping.fang@mediatek.com>");
+> > > >>   MODULE_DESCRIPTION("RTC Driver for MediaTek MT6397 PMIC");
+> > > >> -MODULE_ALIAS("platform:mt6397-rtc");
+> > > >
+> > > > This patch looks good to me, but I am wondering, since we tend to use
+> > > > device tree method to match driver, do we still need support platform
+> > > > device ID ?
+> > > >
+> > > 
+> > > I'm not familiar with neither this IP block nor the SoC so it is up to
+> > > you. I just noticed this issue when reviewing a regulator driver for a
+> > > similar PMIC posted by someone from mediatek.
+> > > 
+> > > I thought platform device was needed since the driver has a MODULE_ALIAS()
+> > > but please let me know what you prefer and I can re-spin the patch and
+> > > just remove the MODULE_ALIAS() if that makes more sense for this platform.
+> > >   
+> > > 
+> > 
+> > I agree. We can alway add a MODULE_DEVICE_TABLE() if we get multiple
+> > users of this driver on architectures that don't use devicetree yet.
+> > 
+> 
+> Sure. Thanks the patch to add expandability to this driver.
+> 
+> Acked-by: Eddie Huang <eddie.huang@mediatek.com>
 
-As there is no call to i2c_get_clientdata() for rtc_i2c client,
-there is no need to store pointer and hence removing the call
-to set client data for rtc i2c client.
+I think we misunderstood one another. I think we can drop both the MODULE_DEVICE_TABLE and the MODULE_ALIAS: there is no need for another
+driver ID when it is always probed using DT.
 
-Suggested-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-Signed-off-by: Laxman Dewangan <ldewangan@nvidia.com>
-CC: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-CC: Javier Martinez Canillas <javier@osg.samsung.com>
-Reviewed-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-Reviewed-by: Javier Martinez Canillas <javier@osg.samsung.com>
-
----
-This is new in this series based on review comment from V1.
-
-Changes from V2:
-- Rephrase description.
-- Added reviewed by.
-
- drivers/mfd/max77686.c | 1 -
- 1 file changed, 1 deletion(-)
-
-diff --git a/drivers/mfd/max77686.c b/drivers/mfd/max77686.c
-index d959ebb..bda6fd7 100644
---- a/drivers/mfd/max77686.c
-+++ b/drivers/mfd/max77686.c
-@@ -277,7 +277,6 @@ static int max77686_i2c_probe(struct i2c_client *i2c,
- 				"Failed to allocate I2C device for RTC\n");
- 			return -ENODEV;
- 		}
--		i2c_set_clientdata(max77686->rtc, max77686);
- 
- 		max77686->rtc_regmap =
- 			devm_regmap_init_i2c(max77686->rtc,
--- 
-2.1.4
+	Arnd
 
 -- 
 -- 
