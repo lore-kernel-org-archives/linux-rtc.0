@@ -1,25 +1,24 @@
-Return-Path: <rtc-linux+bncBDQJZJXU2UMBBJGYYG2QKGQE2RE4I7A@googlegroups.com>
-Received: from mout.gmx.net (mout.gmx.net. [212.227.17.21])
-        by gmr-mx.google.com with ESMTPS id q64si409506wmg.0.2016.02.02.00.43.16
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 02 Feb 2016 00:43:16 -0800 (PST)
-Subject: [rtc-linux] Re: [PATCH 2/2] doc: dt: add documentation for alphascale,asm9260-rtc
-To: Rob Herring <robh@kernel.org>
-References: <1454056802-23386-1-git-send-email-linux@rempel-privat.de>
- <1454056802-23386-3-git-send-email-linux@rempel-privat.de>
- <20160201152750.GA17595@rob-hp-laptop>
-Cc: devicetree@vger.kernel.org, a.zummo@towertech.it,
- alexandre.belloni@free-electrons.com, rtc-linux@googlegroups.com
-From: Oleksij Rempel <linux@rempel-privat.de>
-Message-ID: <56B06BE1.3030100@rempel-privat.de>
-Date: Tue, 2 Feb 2016 09:42:09 +0100
+Return-Path: <rtc-linux+bncBAABBS6PW63AKGQESAEZ57Y@googlegroups.com>
 MIME-Version: 1.0
-In-Reply-To: <20160201152750.GA17595@rob-hp-laptop>
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="hxt77e8X61KOILwMShKObndQr7P7d0mRb"
+Received: from lists.s-osg.org (lists.s-osg.org. [54.187.51.154])
+        by gmr-mx.google.com with ESMTP id ui7si561093pab.0.2016.02.24.09.26.34
+        for <rtc-linux@googlegroups.com>;
+        Wed, 24 Feb 2016 09:26:34 -0800 (PST)
+From: Javier Martinez Canillas <javier@osg.samsung.com>
+To: linux-kernel@vger.kernel.org
+Cc: Arnd Bergmann <arnd@arndb.de>,
+	Javier Martinez Canillas <javier@osg.samsung.com>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	rtc-linux@googlegroups.com,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	linux-mediatek@lists.infradead.org,
+	Eddie Huang <eddie.huang@mediatek.com>,
+	linux-arm-kernel@lists.infradead.org
+Subject: [rtc-linux] [PATCH] rtc: mt6397: Remove plaform module alias
+Date: Wed, 24 Feb 2016 14:26:20 -0300
+Message-Id: <1456334780-17380-1-git-send-email-javier@osg.samsung.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -29,57 +28,37 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---hxt77e8X61KOILwMShKObndQr7P7d0mRb
-Content-Type: text/plain; charset=UTF-8
+The driver uses the MODULE_ALIAS() macro to export a platform module alias
+to allow the module to be autoloaded if the device is registered using the
+legacy platform registration mechanism but the driver is always used by OF
+only machines so the alias is not needed and should just be removed.
 
-Am 01.02.2016 um 16:27 schrieb Rob Herring:
-> On Fri, Jan 29, 2016 at 09:40:02AM +0100, Oleksij Rempel wrote:
->> Document Alphascale asm9260 RTC bindings
->>
->> Signed-off-by: Oleksij Rempel <linux@rempel-privat.de>
->> ---
->>  .../bindings/rtc/alphascale,asm9260-rtc.txt        | 25 ++++++++++++++++++++++
->>  1 file changed, 25 insertions(+)
->>  create mode 100644 Documentation/devicetree/bindings/rtc/alphascale,asm9260-rtc.txt
->>
->> diff --git a/Documentation/devicetree/bindings/rtc/alphascale,asm9260-rtc.txt b/Documentation/devicetree/bindings/rtc/alphascale,asm9260-rtc.txt
->> new file mode 100644
->> index 0000000..2c0ff3c
->> --- /dev/null
->> +++ b/Documentation/devicetree/bindings/rtc/alphascale,asm9260-rtc.txt
->> @@ -0,0 +1,25 @@
->> +* Alphascale asm9260 SoC Real Time Clock
->> +
->> +Required properties:
->> +- compatible: Should be "alphascale,asm9260-rtc"
->> +- reg: Physical base address of the controller and length
->> +       of memory mapped region.
->> +- interrupts: IRQ line for the RTC.
->> +- clocks: Reference to the clock entry.
->> +- clock-names: should contain:
->> +  * "ahb" for the SoC RTC clock
->> +
->> +Optional:
->> +- calibration: calibration value for 1 sec period.
->> +		Max value for forward calibration is 0x1ffff (131071),
->> +		Min value for backward calibration is 0xfffe0001 (-131071).
-> 
-> This should be prefixed with 'alphascale,'
+Suggested-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
 
-ok,
+---
+Hello,
 
-> How is this value determined?
+This patch supersedes "rtc: mt6397: Add platform device ID table":
+https://lkml.org/lkml/2016/2/9/192.
 
-To each second the counter value will be increased to decreased by
-calibration value - if google translated it correctly from chinese :)
+Best regards,
+Javier
 
-It is RAW value which will be written to register. Since DT compiler do
-not support signed values i converted it to HEX.
+ drivers/rtc/rtc-mt6397.c | 1 -
+ 1 file changed, 1 deletion(-)
 
+diff --git a/drivers/rtc/rtc-mt6397.c b/drivers/rtc/rtc-mt6397.c
+index 06a5c52b292f..44f622c3e048 100644
+--- a/drivers/rtc/rtc-mt6397.c
++++ b/drivers/rtc/rtc-mt6397.c
+@@ -419,4 +419,3 @@ module_platform_driver(mtk_rtc_driver);
+ MODULE_LICENSE("GPL v2");
+ MODULE_AUTHOR("Tianping Fang <tianping.fang@mediatek.com>");
+ MODULE_DESCRIPTION("RTC Driver for MediaTek MT6397 PMIC");
+-MODULE_ALIAS("platform:mt6397-rtc");
 -- 
-Regards,
-Oleksij
+2.5.0
 
 -- 
 -- 
@@ -91,18 +70,3 @@ before submitting a driver.
 You received this message because you are subscribed to the Google Groups "rtc-linux" group.
 To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
-
---hxt77e8X61KOILwMShKObndQr7P7d0mRb
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
-
-iF4EAREIAAYFAlawa+cACgkQHwImuRkmbWkFqwD/e3wVBFQ/EEfcym8gNWf45iwp
-6vvNV+kp1rEqmeuATDkA/2tUIOMoslHu9LN6X3NHUOteeMuxuxJiNhBEUeS58JP+
-=foKL
------END PGP SIGNATURE-----
-
---hxt77e8X61KOILwMShKObndQr7P7d0mRb--
