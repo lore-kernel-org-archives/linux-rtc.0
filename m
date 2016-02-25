@@ -1,24 +1,26 @@
-Return-Path: <rtc-linux+bncBDJIP47K7MERBANPS63AKGQEAW42EII@googlegroups.com>
-Received: from mail.kernel.org (mail.kernel.org. [198.145.29.136])
-        by gmr-mx.google.com with ESMTPS id 79si999090pft.0.2016.02.18.06.38.57
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 18 Feb 2016 06:38:57 -0800 (PST)
-Date: Thu, 18 Feb 2016 08:38:53 -0600
-From: Rob Herring <robh@kernel.org>
-To: Javier Martinez Canillas <javier@osg.samsung.com>
-Cc: linux-kernel@vger.kernel.org,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	linux-samsung-soc@vger.kernel.org,
-	Krzysztof Kozlowski <k.kozlowski@samsung.com>,
-	rtc-linux@googlegroups.com, devicetree@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH v2] rtc: s3c: Document in binding that only
- s3c6410 needs a src clk
-Message-ID: <20160218143853.GF9654@rob-hp-laptop>
-References: <1455545466-25709-1-git-send-email-javier@osg.samsung.com>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBIPEXS3AKGQEXL3WR4I@googlegroups.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id w197si141446wmw.3.2016.02.25.08.56.01
+        for <rtc-linux@googlegroups.com>;
+        Thu, 25 Feb 2016 08:56:01 -0800 (PST)
+Date: Thu, 25 Feb 2016 17:54:49 +0100
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Joshua Henderson <joshua.henderson@microchip.com>
+Cc: devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+	Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Ian Campbell <ijc+devicetree@hellion.org.uk>,
+	Kumar Gala <galak@codeaurora.org>,
+	Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com
+Subject: [rtc-linux] Re: [PATCH v2 2/2] rtc: rtc-pic32: Add PIC32 real time
+ clock driver
+Message-ID: <20160225165449.GH12073@piout.net>
+References: <1455905390-3491-2-git-send-email-joshua.henderson@microchip.com>
+ <20160224222555.GA12073@piout.net>
+ <56CF2A9B.5080005@microchip.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1455545466-25709-1-git-send-email-javier@osg.samsung.com>
+In-Reply-To: <56CF2A9B.5080005@microchip.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -29,31 +31,60 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Mon, Feb 15, 2016 at 11:11:06AM -0300, Javier Martinez Canillas wrote:
-> The S3C binding doc says that the RTC and RTC source clocks are required
-> but the S3C driver supports different HW IP and only the s3c6410 needs a
-> source clock.
+On 25/02/2016 at 09:23:55 -0700, Joshua Henderson wrote :
+> On 02/24/2016 03:25 PM, Alexandre Belloni wrote:
+> > Hi,
+> > 
+> > On 19/02/2016 at 11:09:45 -0700, Joshua Henderson wrote :
+> >> +static int pic32_rtc_gettime(struct device *dev, struct rtc_time *rtc_tm)
+> >> +{
+> >> +	struct pic32_rtc_dev *pdata = dev_get_drvdata(dev);
+> >> +	void __iomem *base = pdata->reg_base;
+> >> +	unsigned int tries = 0;
+> >> +
+> >> +	clk_enable(pdata->clk);
+> >> +
+> >> +	do {
+> >> +		rtc_tm->tm_hour = readb(base + PIC32_RTCHOUR);
+> >> +		rtc_tm->tm_min = readb(base + PIC32_RTCMIN);
+> >> +		rtc_tm->tm_mon  = readb(base + PIC32_RTCMON);
+> >> +		rtc_tm->tm_mday = readb(base + PIC32_RTCDAY);
+> >> +		rtc_tm->tm_year = readb(base + PIC32_RTCYEAR);
+> >> +		rtc_tm->tm_sec  = readb(base + PIC32_RTCSEC);
+> >> +
+> >> +		/*
+> >> +		 * The only way to work out whether the system was mid-update
+> >> +		 * when we read it is to check the second counter, and if it
+> >> +		 * is zero, then we re-try the entire read.
+> >> +		 */
+> >> +		tries = 1;
+> >> +	} while (rtc_tm->tm_sec == 0 && tries < 2);
+> >> +
+> > 
+> > This doesn't seem right. It will wait up to a second as tries will
+> > always be less than 2, this is probably not what you want.
 > 
-> Fix the binding explaining that the source clock is only needed for the
-> s3c6410-rtc compatible controller.
+> Dang good catch.  When fixed, it will work as expected:
 > 
-> Reported-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-> Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
-> Acked-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+> # hwclock
+> tries 1
+> Sun Oct 17 19:23:59 2010  0.000000 seconds
+> # hwclock
+> tries 1
+> tries 2
+> Sun Oct 17 19:24:00 2010  0.000000 seconds
+> # hwclock
+> tries 1
+> Sun Oct 17 19:24:01 2010  0.000000 seconds
 > 
-> ---
-> Hello,
-> 
-> This patch depends on a previous one that was picked by Rob Herring so
-> this one has to go through his tree again and not through the RTC tree
-> to avoid conflicts.
 
-Ugg, sent pull request today. It should be in Linus' tree now.
+Sure, just send v3, I'll apply it right away ;)
 
-This can go thru rtc tree if you prefer. Otherwise, I'll queue it up for 
-4.6.
 
-> 
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
 -- 
 -- 
