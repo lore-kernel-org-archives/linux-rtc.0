@@ -1,27 +1,25 @@
-Return-Path: <rtc-linux+bncBDA7X7F2WUEBBLGB5W2QKGQEBQYBN7Q@googlegroups.com>
-Received: from mail-wm0-x236.google.com (mail-wm0-x236.google.com. [2a00:1450:400c:c09::236])
-        by gmr-mx.google.com with ESMTPS id w197si146047wmw.3.2016.02.10.08.09.16
+Return-Path: <rtc-linux+bncBAABB3WUXS3AKGQEAEN42UA@googlegroups.com>
+Received: from email.microchip.com (exsmtp01.microchip.com. [198.175.253.37])
+        by gmr-mx.google.com with ESMTPS id yd9si1292668pab.1.2016.02.25.08.23.10
         for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 10 Feb 2016 08:09:16 -0800 (PST)
-Received: by mail-wm0-x236.google.com with SMTP id c200so34857069wme.0
-        for <rtc-linux@googlegroups.com>; Wed, 10 Feb 2016 08:09:16 -0800 (PST)
-Date: Wed, 10 Feb 2016 16:09:12 +0000
-From: Lee Jones <lee.jones@linaro.org>
-To: Laxman Dewangan <ldewangan@nvidia.com>
-Cc: alexandre.belloni@free-electrons.com, k.kozlowski@samsung.com,
-	javier@osg.samsung.com, broonie@kernel.org,
-	gregkh@linuxfoundation.org, a.zummo@towertech.it,
-	cw00.choi@samsung.com, linux-kernel@vger.kernel.org,
-	rtc-linux@googlegroups.com
-Subject: [rtc-linux] Re: [PATCH V7 4/5] mfd: max77686: do not set i2c client
- data for rtc i2c client
-Message-ID: <20160210160912.GF26950@x1>
-References: <1455038794-9921-1-git-send-email-ldewangan@nvidia.com>
- <1455038794-9921-5-git-send-email-ldewangan@nvidia.com>
+        (version=TLS1 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
+        Thu, 25 Feb 2016 08:23:10 -0800 (PST)
+Subject: [rtc-linux] Re: [PATCH v2 2/2] rtc: rtc-pic32: Add PIC32 real time
+ clock driver
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+References: <1455905390-3491-2-git-send-email-joshua.henderson@microchip.com>
+ <20160224222555.GA12073@piout.net>
+CC: <devicetree@vger.kernel.org>, <linux-kernel@vger.kernel.org>, Rob Herring
+	<robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland
+	<mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar
+ Gala <galak@codeaurora.org>, Alessandro Zummo <a.zummo@towertech.it>,
+	<rtc-linux@googlegroups.com>
+From: Joshua Henderson <joshua.henderson@microchip.com>
+Message-ID: <56CF2A9B.5080005@microchip.com>
+Date: Thu, 25 Feb 2016 09:23:55 -0700
 MIME-Version: 1.0
+In-Reply-To: <20160224222555.GA12073@piout.net>
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1455038794-9921-5-git-send-email-ldewangan@nvidia.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -32,67 +30,60 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Tue, 09 Feb 2016, Laxman Dewangan wrote:
+On 02/24/2016 03:25 PM, Alexandre Belloni wrote:
+> Hi,
+> 
+> On 19/02/2016 at 11:09:45 -0700, Joshua Henderson wrote :
+>> +static int pic32_rtc_gettime(struct device *dev, struct rtc_time *rtc_tm)
+>> +{
+>> +	struct pic32_rtc_dev *pdata = dev_get_drvdata(dev);
+>> +	void __iomem *base = pdata->reg_base;
+>> +	unsigned int tries = 0;
+>> +
+>> +	clk_enable(pdata->clk);
+>> +
+>> +	do {
+>> +		rtc_tm->tm_hour = readb(base + PIC32_RTCHOUR);
+>> +		rtc_tm->tm_min = readb(base + PIC32_RTCMIN);
+>> +		rtc_tm->tm_mon  = readb(base + PIC32_RTCMON);
+>> +		rtc_tm->tm_mday = readb(base + PIC32_RTCDAY);
+>> +		rtc_tm->tm_year = readb(base + PIC32_RTCYEAR);
+>> +		rtc_tm->tm_sec  = readb(base + PIC32_RTCSEC);
+>> +
+>> +		/*
+>> +		 * The only way to work out whether the system was mid-update
+>> +		 * when we read it is to check the second counter, and if it
+>> +		 * is zero, then we re-try the entire read.
+>> +		 */
+>> +		tries = 1;
+>> +	} while (rtc_tm->tm_sec == 0 && tries < 2);
+>> +
+> 
+> This doesn't seem right. It will wait up to a second as tries will
+> always be less than 2, this is probably not what you want.
 
-> There is different RTC I2C address for RTC block in MAX77686.
-> Driver is creating dummy i2c client for this address to access
-> the register of this IP block.
->=20
-> As there is no call to i2c_get_clientdata() for rtc_i2c client,
-> there is no need to store pointer and hence removing the call
-> to set client data for rtc i2c client.
->=20
-> Suggested-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-> Signed-off-by: Laxman Dewangan <ldewangan@nvidia.com>
-> CC: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-> CC: Javier Martinez Canillas <javier@osg.samsung.com>
-> Reviewed-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-> Tested-by: Javier Martinez Canillas <javier@osg.samsung.com>
-> Reviewed-by: Javier Martinez Canillas <javier@osg.samsung.com>
->=20
-> ---
-> This is new in this series based on review comment from V1.
->=20
-> Changes from V2:
-> - Rephrase description.
-> - Added reviewed by.
->=20
-> Changes from V3:
-> - None, become 5th on series.
->=20
-> Changes from V4:
-> None
->=20
-> Changes from V5:
-> None
->=20
-> Changes from V6:
-> Make this as 4th of series as regmap change applied independently.
->=20
->  drivers/mfd/max77686.c | 1 -
->  1 file changed, 1 deletion(-)
+Dang good catch.  When fixed, it will work as expected:
 
-Appart from the subject line being wrong:
+# hwclock
+tries 1
+Sun Oct 17 19:23:59 2010  0.000000 seconds
+# hwclock
+tries 1
+tries 2
+Sun Oct 17 19:24:00 2010  0.000000 seconds
+# hwclock
+tries 1
+Sun Oct 17 19:24:01 2010  0.000000 seconds
 
-Acked-by: Lee Jones <lee.jones@linaro.org>
+Josh
 
-[...]
-
---=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
-
---=20
---=20
+-- 
+-- 
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
----=20
-You received this message because you are subscribed to the Google Groups "=
-rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an e=
-mail to rtc-linux+unsubscribe@googlegroups.com.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
