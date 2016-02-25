@@ -1,25 +1,24 @@
-Return-Path: <rtc-linux+bncBAABBHMCZ22QKGQEZGOCDCA@googlegroups.com>
-Received: from lists.s-osg.org (lists.s-osg.org. [54.187.51.154])
-        by gmr-mx.google.com with ESMTP id 12si1383805pfb.1.2016.02.04.08.49.33
+Return-Path: <rtc-linux+bncBDS7HNEFSALRB54LXW3AKGQE6T3LSSY@googlegroups.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id w10si169134wmw.3.2016.02.25.10.20.39
         for <rtc-linux@googlegroups.com>;
-        Thu, 04 Feb 2016 08:49:33 -0800 (PST)
-Subject: [rtc-linux] Re: [PATCH V3 5/5] rtc: max77686: move initialisation of
- rtc regmap, irq chip locally
-To: Laxman Dewangan <ldewangan@nvidia.com>,
- Krzysztof Kozlowski <k.kozlowski@samsung.com>, lee.jones@linaro.org,
- alexandre.belloni@free-electrons.com
-References: <1454507233-9959-1-git-send-email-ldewangan@nvidia.com>
- <1454507233-9959-6-git-send-email-ldewangan@nvidia.com>
- <56B296F6.3060002@samsung.com> <56B2B17A.1000509@nvidia.com>
- <56B2BC7B.4070807@nvidia.com>
-Cc: cw00.choi@samsung.com, linux-kernel@vger.kernel.org,
- rtc-linux@googlegroups.com
-From: Javier Martinez Canillas <javier@osg.samsung.com>
-Message-ID: <56B38116.2010302@osg.samsung.com>
-Date: Thu, 4 Feb 2016 13:49:26 -0300
+        Thu, 25 Feb 2016 10:20:39 -0800 (PST)
+Date: Thu, 25 Feb 2016 19:20:38 +0100
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Joshua Henderson <joshua.henderson@microchip.com>
+Cc: devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+	Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Ian Campbell <ijc+devicetree@hellion.org.uk>,
+	Kumar Gala <galak@codeaurora.org>,
+	Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com
+Subject: [rtc-linux] Re: [PATCH v3 2/2] rtc: rtc-pic32: Add PIC32 real time
+ clock driver
+Message-ID: <20160225182038.GJ12073@piout.net>
+References: <1456421449-18225-2-git-send-email-joshua.henderson@microchip.com>
 MIME-Version: 1.0
-In-Reply-To: <56B2BC7B.4070807@nvidia.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1456421449-18225-2-git-send-email-joshua.henderson@microchip.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -30,40 +29,39 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Hello Laxman,
+On 25/02/2016 at 10:30:44 -0700, Joshua Henderson wrote :
+> This driver adds support for the PIC32 real time clock and calendar
+> peripheral:
+> 	- reading and setting time
+> 	- alarms provided by dedicated IRQ
+> 
+> Signed-off-by: Joshua Henderson <joshua.henderson@microchip.com>
+> ---
+> Changes since v2:
+> 	- Fix rework bug causing unecessary retries for gettime.
+> 	- Word commit message to be more precise.
+> Changes since v1:
+> 	- Fix checkpatch.pl --strict issues.
+> 	- Fix alpabetical makefile ordering.
+> 	- Specify consistent license.
+> 	- General formatting cleanup.
+> 	- Drop unecessary flags_lock.
+> 	- Replace ugly gogo with do while.
+> 	- Remove unecessary checks on time when setting alarm.
+> 	- Don't initialize the RTC in probe.
+> ---
+>  drivers/rtc/Kconfig     |   10 ++
+>  drivers/rtc/Makefile    |    1 +
+>  drivers/rtc/rtc-pic32.c |  411 +++++++++++++++++++++++++++++++++++++++++++++++
+>  3 files changed, 422 insertions(+)
+>  create mode 100644 drivers/rtc/rtc-pic32.c
+> 
+Applied, thanks.
 
-On 02/03/2016 11:50 PM, Laxman Dewangan wrote:
-
-[snip]
-
->>>>
->>> Looks good and works properly (RTC, unbind/rebind, wakealarm again)
->>> but... after applying this patch the device cannot suspend to RAM after
->>> unbind/rebind.
->>>
->>> Reproduce path, after booting:
->>> $ echo max77686-rtc > /sys/bus/platform/drivers/max77686-rtc/unbind
->>> $ echo max77686-rtc > /sys/bus/platform/drivers/max77686-rtc/bind
->>> $ rtcwake -d rtc2 -m mem -s 5 -v
->>> (or instead of rtcwake: echo mem > /sys/power/state)
->>
->
-> Can you please also try to test in your setup which have MAX77802?
-> On this, we do not create i2c client and do regmap_init_i2c. So may be it helps on narrow down the issue.
->
-
-Sorry for the delay but I was busy with others tasks. I've tested it
-on an Exynos5800 Peach Pi (which has a max77802) and I've the same
-issue. The system doesn't suspend after the max77802-rc unbind.
-
-As Krzysztof narrowed down, commenting the regmap_del_irq_chip() call
-in the .remove callback makes it to not fail again.
-
-Best regards,
 -- 
-Javier Martinez Canillas
-Open Source Group
-Samsung Research America
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
 -- 
 -- 
