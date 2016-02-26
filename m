@@ -1,22 +1,26 @@
-Return-Path: <rtc-linux+bncBD2OLRXW4ABBBJP6ZK2QKGQEXF6THCY@googlegroups.com>
-Received: from hqemgate14.nvidia.com (hqemgate14.nvidia.com. [216.228.121.143])
-        by gmr-mx.google.com with ESMTPS id tn7si1241601pac.1.2016.02.03.19.01.57
+Return-Path: <rtc-linux+bncBAABBFXFYG3AKGQEGTKZRVI@googlegroups.com>
+Received: from bear.ext.ti.com (bear.ext.ti.com. [192.94.94.41])
+        by gmr-mx.google.com with ESMTPS id nt4si235988igb.2.2016.02.26.07.43.18
         for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 03 Feb 2016 19:01:57 -0800 (PST)
-Message-ID: <56B2BC7B.4070807@nvidia.com>
-Date: Thu, 4 Feb 2016 08:20:35 +0530
-From: Laxman Dewangan <ldewangan@nvidia.com>
+        (version=TLS1 cipher=AES128-SHA bits=128/128);
+        Fri, 26 Feb 2016 07:43:18 -0800 (PST)
+From: Grygorii Strashko <grygorii.strashko@ti.com>
+To: Lee Jones <lee.jones@linaro.org>, Alessandro Zummo <a.zummo@towertech.it>,
+        MyungJoo Ham <myungjoo.ham@samsung.com>,
+        Lars-Peter Clausen <lars@metafoo.de>
+CC: <rtc-linux@googlegroups.com>, <linux-iio@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>, <nsekhar@ti.com>,
+        <linux-omap@vger.kernel.org>,
+        Grygorii Strashko <grygorii.strashko@ti.com>,
+        Hartmut Knaack <knaack.h@gmx.de>, Peter Meerwald <pmeerw@pmeerw.net>,
+        Nishanth Menon <nm@ti.com>
+Subject: [rtc-linux] [PATCH 7/7] iio: adc: palmas: Drop IRQF_EARLY_RESUME flag
+Date: Fri, 26 Feb 2016 17:42:57 +0200
+Message-ID: <1456501377-16871-8-git-send-email-grygorii.strashko@ti.com>
+In-Reply-To: <1456501377-16871-1-git-send-email-grygorii.strashko@ti.com>
+References: <1456501377-16871-1-git-send-email-grygorii.strashko@ti.com>
 MIME-Version: 1.0
-To: Krzysztof Kozlowski <k.kozlowski@samsung.com>, <lee.jones@linaro.org>,
-	<alexandre.belloni@free-electrons.com>, <javier@osg.samsung.com>
-CC: <cw00.choi@samsung.com>, <linux-kernel@vger.kernel.org>,
-	<rtc-linux@googlegroups.com>
-Subject: [rtc-linux] Re: [PATCH V3 5/5] rtc: max77686: move initialisation of
- rtc regmap, irq chip locally
-References: <1454507233-9959-1-git-send-email-ldewangan@nvidia.com> <1454507233-9959-6-git-send-email-ldewangan@nvidia.com> <56B296F6.3060002@samsung.com> <56B2B17A.1000509@nvidia.com>
-In-Reply-To: <56B2B17A.1000509@nvidia.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -27,62 +31,53 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Hi Javier,
+Palmas gpadc IRQs are nested threaded and this flag is not required for nested
+irqs anymore, since commit 3c646f2c6aa9 ("genirq: Don't suspend nested_thread
+irqs over system suspend") was merged.
 
-On Thursday 04 February 2016 07:33 AM, Laxman Dewangan wrote:
->
-> On Thursday 04 February 2016 05:40 AM, Krzysztof Kozlowski wrote:
->> On 03.02.2016 22:47, Laxman Dewangan wrote:
->>>
->>> Changes from V2:
->>> - Taken care of missed sequence for removing the resource.
->>> - Fix the crash when doing unbind by using requested_threaded_irq()
->>>    instead of demv_requested_threaded_irq().
->>>
->>>   drivers/mfd/max77686.c               |  85 +-------------------
->>>   drivers/rtc/rtc-max77686.c           | 148 
->>> ++++++++++++++++++++++++++++++-----
->>>   include/linux/mfd/max77686-private.h |   3 -
->>>   3 files changed, 130 insertions(+), 106 deletions(-)
->>>
->> Looks good and works properly (RTC, unbind/rebind, wakealarm again)
->> but... after applying this patch the device cannot suspend to RAM after
->> unbind/rebind.
->>
->> Reproduce path, after booting:
->> $ echo max77686-rtc > /sys/bus/platform/drivers/max77686-rtc/unbind
->> $ echo max77686-rtc > /sys/bus/platform/drivers/max77686-rtc/bind
->> $ rtcwake -d rtc2 -m mem -s 5 -v
->> (or instead of rtcwake: echo mem > /sys/power/state)
->
+Cc: Hartmut Knaack <knaack.h@gmx.de>
+Cc: Lars-Peter Clausen <lars@metafoo.de>
+Cc: Peter Meerwald <pmeerw@pmeerw.net>
+Cc: Lee Jones <lee.jones@linaro.org>
+Cc: Nishanth Menon <nm@ti.com>
+Signed-off-by: Grygorii Strashko <grygorii.strashko@ti.com>
+---
+ drivers/iio/adc/palmas_gpadc.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-Can you please also try to test in your setup which have MAX77802?
-On this, we do not create i2c client and do regmap_init_i2c. So may be 
-it helps on narrow down the issue.
-
->
-> My device does not support suspend and hence I can nto test this part 
-> and need your help to debug it.
->
-> Few question to narrow down:
-> 1. Have you try to bind/unbind mfd driver to make sure that there is 
-> no inherent issue in the framework driver?
->
-> 2. Does suspend entry and wake alarm work if you dont do unbind and 
-> just bind it and enter into suspend?
->
-> 3. Can you try locally to not use devm_regmap_init_i2c() and just use 
-> the regmap_init_i2c() and proper removal of this from error path and 
-> remove callback?
->
->
->
-> Three things we are doing new on this movement, i2c client creating, 
-> regmap_init and adding irq chip.
-> And probably some issue on this calls?
-> Let's try with not using devm_ * for this calls?
->
->
+diff --git a/drivers/iio/adc/palmas_gpadc.c b/drivers/iio/adc/palmas_gpadc.c
+index f42eb8a..2bbf0c5 100644
+--- a/drivers/iio/adc/palmas_gpadc.c
++++ b/drivers/iio/adc/palmas_gpadc.c
+@@ -534,7 +534,7 @@ static int palmas_gpadc_probe(struct platform_device *pdev)
+ 	}
+ 	ret = request_threaded_irq(adc->irq, NULL,
+ 		palmas_gpadc_irq,
+-		IRQF_ONESHOT | IRQF_EARLY_RESUME, dev_name(adc->dev),
++		IRQF_ONESHOT, dev_name(adc->dev),
+ 		adc);
+ 	if (ret < 0) {
+ 		dev_err(adc->dev,
+@@ -549,7 +549,7 @@ static int palmas_gpadc_probe(struct platform_device *pdev)
+ 		adc->irq_auto_0 =  platform_get_irq(pdev, 1);
+ 		ret = request_threaded_irq(adc->irq_auto_0, NULL,
+ 				palmas_gpadc_irq_auto,
+-				IRQF_ONESHOT | IRQF_EARLY_RESUME,
++				IRQF_ONESHOT,
+ 				"palmas-adc-auto-0", adc);
+ 		if (ret < 0) {
+ 			dev_err(adc->dev, "request auto0 irq %d failed: %d\n",
+@@ -565,7 +565,7 @@ static int palmas_gpadc_probe(struct platform_device *pdev)
+ 		adc->irq_auto_1 =  platform_get_irq(pdev, 2);
+ 		ret = request_threaded_irq(adc->irq_auto_1, NULL,
+ 				palmas_gpadc_irq_auto,
+-				IRQF_ONESHOT | IRQF_EARLY_RESUME,
++				IRQF_ONESHOT,
+ 				"palmas-adc-auto-1", adc);
+ 		if (ret < 0) {
+ 			dev_err(adc->dev, "request auto1 irq %d failed: %d\n",
+-- 
+2.7.2
 
 -- 
 -- 
