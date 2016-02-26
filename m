@@ -1,19 +1,25 @@
-Return-Path: <rtc-linux+bncBD2OLRXW4ABBBCWI5C2QKGQEHDEUE5Y@googlegroups.com>
-Received: from hqemgate14.nvidia.com (hqemgate14.nvidia.com. [216.228.121.143])
-        by gmr-mx.google.com with ESMTPS id ff2si2448891pad.2.2016.02.09.09.38.18
+Return-Path: <rtc-linux+bncBAABBD7FYG3AKGQENZZ5RSQ@googlegroups.com>
+Received: from arroyo.ext.ti.com (arroyo.ext.ti.com. [192.94.94.40])
+        by gmr-mx.google.com with ESMTPS id xh11si242902igb.0.2016.02.26.07.43.11
         for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 09 Feb 2016 09:38:18 -0800 (PST)
-From: Laxman Dewangan <ldewangan@nvidia.com>
-To: <lee.jones@linaro.org>, <alexandre.belloni@free-electrons.com>,
-	<k.kozlowski@samsung.com>, <javier@osg.samsung.com>, <broonie@kernel.org>,
-	<gregkh@linuxfoundation.org>, <a.zummo@towertech.it>
-CC: <cw00.choi@samsung.com>, <linux-kernel@vger.kernel.org>,
-	<rtc-linux@googlegroups.com>, Laxman Dewangan <ldewangan@nvidia.com>
-Subject: [rtc-linux] [PATCH V7 0/5] rtc: max77686: make max77686 rtc driver as
- IP driver
-Date: Tue, 9 Feb 2016 22:56:29 +0530
-Message-ID: <1455038794-9921-1-git-send-email-ldewangan@nvidia.com>
+        (version=TLS1 cipher=AES128-SHA bits=128/128);
+        Fri, 26 Feb 2016 07:43:11 -0800 (PST)
+From: Grygorii Strashko <grygorii.strashko@ti.com>
+To: Lee Jones <lee.jones@linaro.org>, Alessandro Zummo <a.zummo@towertech.it>,
+        MyungJoo Ham <myungjoo.ham@samsung.com>,
+        Lars-Peter Clausen <lars@metafoo.de>
+CC: <rtc-linux@googlegroups.com>, <linux-iio@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>, <nsekhar@ti.com>,
+        <linux-omap@vger.kernel.org>,
+        Grygorii Strashko <grygorii.strashko@ti.com>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        Nishanth Menon
+	<nm@ti.com>, Laxman Dewangan <ldewangan@nvidia.com>
+Subject: [rtc-linux] [PATCH 3/7] rtc: tps6586x: Drop IRQF_EARLY_RESUME flag
+Date: Fri, 26 Feb 2016 17:42:53 +0200
+Message-ID: <1456501377-16871-4-git-send-email-grygorii.strashko@ti.com>
+In-Reply-To: <1456501377-16871-1-git-send-email-grygorii.strashko@ti.com>
+References: <1456501377-16871-1-git-send-email-grygorii.strashko@ti.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
@@ -26,54 +32,36 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Based on discussion on patch series of MAX77620 when adding separate
-driver for max77620 RTC, it is discussed to reuse the max77686 driver
-for all CHips MAX77802, MAX77686 and MAX77620. For this, the rtc-max77686
-need to make as IP driver independent of their MFD parent driver.
+tps6586x RTC IRQ is nested threaded and wired to the tps6586x inerrupt
+controller. So, this flag is not required for nested irqs anymore,
+since commit 3c646f2c6aa9 ("genirq: Don't suspend nested_thread irqs
+over system suspend") was merged.
 
-This series makes the rtc-max77686 as independent driver from its 
-parent. Required information is passed through the device parent
-which is generic and does not depends on any max77686 specific
-header ifnromation.
+Cc: Alessandro Zummo <a.zummo@towertech.it>
+Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: Lee Jones <lee.jones@linaro.org>
+Cc: Nishanth Menon <nm@ti.com>
+Cc: Laxman Dewangan <ldewangan@nvidia.com>
+Signed-off-by: Grygorii Strashko <grygorii.strashko@ti.com>
+---
+ drivers/rtc/rtc-tps6586x.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-CC: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-CC: Javier Martinez Canillas <javier@osg.samsung.com>
-
-Changes from V1: 
-- Added reviewed/tested by tag which we got from V1.
-- Remove changes from Kconfig.
-- Maintain all register definition in max77686 private header and remove
-  the movement to rtc driver.
-- Taken care of all comments on V1 from Krzysztof and Javier.
-
-Changes from V2: 
-- Fix the issue of crash in unbind.
-
-Changes from V3: 
-- Fix suspend-resume after unbind/bind by unmapping virq in remove callback.
-
-Changes from V5: 
-- Abandon the addition of new API in regmap-irq and add dispose of virq
-  in regmap_del_irq_chip().
-
-Changes from V6: 
-- make regmap change as independent of this series and rebase it on linux-next
-  20160209
-
-Laxman Dewangan (5):
-  rtc: max77686: fix checkpatch error
-  rtc: max77686: use rtc regmap to access RTC registers
-  rtc: max77686: avoid reference of parent device info multiple places
-  mfd: max77686: do not set i2c client data for rtc i2c client
-  rtc: max77686: move initialisation of rtc regmap, irq chip locally
-
- drivers/mfd/max77686.c               |  86 +-------------
- drivers/rtc/rtc-max77686.c           | 214 ++++++++++++++++++++++++++---------
- include/linux/mfd/max77686-private.h |   3 -
- 3 files changed, 161 insertions(+), 142 deletions(-)
-
+diff --git a/drivers/rtc/rtc-tps6586x.c b/drivers/rtc/rtc-tps6586x.c
+index 3b6ce80..e404faa 100644
+--- a/drivers/rtc/rtc-tps6586x.c
++++ b/drivers/rtc/rtc-tps6586x.c
+@@ -286,7 +286,7 @@ static int tps6586x_rtc_probe(struct platform_device *pdev)
+ 
+ 	ret = devm_request_threaded_irq(&pdev->dev, rtc->irq, NULL,
+ 				tps6586x_rtc_irq,
+-				IRQF_ONESHOT | IRQF_EARLY_RESUME,
++				IRQF_ONESHOT,
+ 				dev_name(&pdev->dev), rtc);
+ 	if (ret < 0) {
+ 		dev_err(&pdev->dev, "request IRQ(%d) failed with ret %d\n",
 -- 
-2.1.4
+2.7.2
 
 -- 
 -- 
