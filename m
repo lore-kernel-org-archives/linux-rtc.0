@@ -1,28 +1,30 @@
-Return-Path: <rtc-linux+bncBDJIP47K7MERBQFOVW3AKGQELR3Q5GY@googlegroups.com>
-Received: from mail.kernel.org (mail.kernel.org. [198.145.29.136])
-        by gmr-mx.google.com with ESMTPS id ui7si3318104pab.0.2016.02.22.10.45.19
+Return-Path: <rtc-linux+bncBAABBEPFYG3AKGQESY22OSA@googlegroups.com>
+Received: from devils.ext.ti.com (devils.ext.ti.com. [198.47.26.153])
+        by gmr-mx.google.com with ESMTPS id ug8si220954igb.3.2016.02.26.07.43.13
         for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 22 Feb 2016 10:45:19 -0800 (PST)
-Date: Mon, 22 Feb 2016 12:45:14 -0600
-From: Rob Herring <robh@kernel.org>
-To: Sergei Ianovich <ynvich@gmail.com>
-Cc: linux-kernel@vger.kernel.org,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Pawel Moll <pawel.moll@arm.com>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Ian Campbell <ijc+devicetree@hellion.org.uk>,
-	Kumar Gala <galak@codeaurora.org>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	"open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" <devicetree@vger.kernel.org>,
-	"open list:REAL TIME CLOCK SUBSYSTEM" <rtc-linux@googlegroups.com>
-Subject: [rtc-linux] Re: [PATCH v6] rtc: rewrite DS1302 using SPI
-Message-ID: <20160222184514.GA26099@rob-hp-laptop>
-References: <397668667-27328-3-git-send-email-ynvich@gmail.com>
- <1456105286-28598-1-git-send-email-ynvich@gmail.com>
+        (version=TLS1 cipher=AES128-SHA bits=128/128);
+        Fri, 26 Feb 2016 07:43:13 -0800 (PST)
+From: Grygorii Strashko <grygorii.strashko@ti.com>
+To: Lee Jones <lee.jones@linaro.org>, Alessandro Zummo <a.zummo@towertech.it>,
+        MyungJoo Ham <myungjoo.ham@samsung.com>,
+        Lars-Peter Clausen <lars@metafoo.de>
+CC: <rtc-linux@googlegroups.com>, <linux-iio@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>, <nsekhar@ti.com>,
+        <linux-omap@vger.kernel.org>,
+        Grygorii Strashko <grygorii.strashko@ti.com>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        Chanwoo Choi
+	<cw00.choi@samsung.com>,
+        Hartmut Knaack <knaack.h@gmx.de>, Peter Meerwald
+	<pmeerw@pmeerw.net>,
+        Tony Lindgren <tony@atomide.com>, Nishanth Menon
+	<nm@ti.com>,
+        Laxman Dewangan <ldewangan@nvidia.com>
+Subject: [rtc-linux] [PATCH 0/7] mfd: Drop IRQF_EARLY_RESUME flag
+Date: Fri, 26 Feb 2016 17:42:50 +0200
+Message-ID: <1456501377-16871-1-git-send-email-grygorii.strashko@ti.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1456105286-28598-1-git-send-email-ynvich@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -33,106 +35,44 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Mon, Feb 22, 2016 at 04:41:22AM +0300, Sergei Ianovich wrote:
-> DS1302 is half-duplex SPI device. The driver respects this fact now.
-> 
-> Pin configurations should be implemented using SPI subsystem.
-> 
-> Signed-off-by: Sergei Ianovich <ynvich@gmail.com>
-> CC: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-> CC: Rob Herring <robh@kernel.org>
-> ---
->    v5..v6
->    * rewrite the driver as an SPI slave device
->    * use "maxim" for vendor name per Kconfig
->    * stop touching device RAM in device presence test
->    * only return time from device if valid
->    * use burst mode for reading/writing time
->    * droppped charging control. I cannot test it, and it looks broken
-> 
->    v4..v5
->    * drop THIS_MODULE from struct platform driver
->    * use "dallas" for vendor name per vendor-prefixes.txt
-> 
->    v3..v4
->    * move DTS bindings to a different patch
-> 
->    v2..v3
->    * use usleep_range instead of custom nsleep
->    * number change (07/16 -> 09/21)
-> 
->    v0..v2
->    * use device tree
->    * use devm helpers where possible
-> 
->  .../devicetree/bindings/rtc/rtc-ds1302.txt         |  46 +++
->  drivers/rtc/Kconfig                                |  15 +-
->  drivers/rtc/rtc-ds1302.c                           | 348 ++++++++++-----------
->  3 files changed, 212 insertions(+), 197 deletions(-)
->  create mode 100644 Documentation/devicetree/bindings/rtc/rtc-ds1302.txt
-> 
-> diff --git a/Documentation/devicetree/bindings/rtc/rtc-ds1302.txt b/Documentation/devicetree/bindings/rtc/rtc-ds1302.txt
-> new file mode 100644
-> index 0000000..b6c0973
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/rtc/rtc-ds1302.txt
-> @@ -0,0 +1,46 @@
-> +* Maxim/Dallas Semiconductor DS-1302 RTC
-> +
-> +Simple device which could be used to store date/time between reboots.
-> +
-> +The device uses the standard MicroWire half-duplex transfer timing.
-> +Master output is set on low clock and sensed by the RTC on the rising
-> +edge. Master input is set by the RTC on the trailing edge and is sensed
-> +by the master on low clock.
-> +
-> +Required properties:
-> +
-> +- compatible : Should be "maxim,rtc-ds1302"
+The IRQF_EARLY_RESUME flag is not required for nested irqs anymore,
+since commit 3c646f2c6aa9 ("genirq: Don't suspend nested_thread irqs
+over system suspend") was merged.
+Hence, this flag can be dropped for MFD cell's devices where MFD interrupt
+controller defines nested IRQs as nested threaded IRQs.
 
-Just maxim,ds1032. RTC is implied by the part number and inline with 
-existing dallas,ds1307.
+Cc: Lee Jones <lee.jones@linaro.org>
+Cc: Alessandro Zummo <a.zummo@towertech.it>
+Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: MyungJoo Ham <myungjoo.ham@samsung.com>
+Cc: Chanwoo Choi <cw00.choi@samsung.com>
+Cc: Hartmut Knaack <knaack.h@gmx.de>
+Cc: Lars-Peter Clausen <lars@metafoo.de>
+Cc: Peter Meerwald <pmeerw@pmeerw.net>
+Cc: Tony Lindgren <tony@atomide.com>
+Cc: Nishanth Menon <nm@ti.com>
+Cc: Laxman Dewangan <ldewangan@nvidia.com>
 
-> +
-> +Required SPI properties:
-> +
-> +- reg : Should be address of the device chip select within
-> +  the controller.
-> +
-> +- spi-max-frequency : DS-1302 has 500 kHz if powered at 2.2V,
-> +  and 2MHz if powered at 5V.
-> +
-> +- spi-3wire : The device has a shared signal IN/OUT line.
-> +
-> +- spi-lsb-first : DS-1302 requires least significant bit first
-> +  transfers.
-> +
-> +- spi-cs-high: DS-1302 has active high chip select line. This is
-> +  required unless inverted in hardware.
-> +
-> +Example:
-> +
-> +spi0@901c {
+Grygorii Strashko (7):
+  extcon: palmas: Drop IRQF_EARLY_RESUME flag
+  rtc: palmas: Drop IRQF_EARLY_RESUME flag
+  rtc: tps6586x: Drop IRQF_EARLY_RESUME flag
+  rtc: tps65910: Drop IRQF_EARLY_RESUME flag
+  rtc: tps80031: Drop IRQF_EARLY_RESUME flag
+  rtc: as3722: Drop IRQF_EARLY_RESUME flag
+  iio: adc: palmas: Drop IRQF_EARLY_RESUME flag
 
-spi@...
+ drivers/extcon/extcon-palmas.c | 4 ++--
+ drivers/iio/adc/palmas_gpadc.c | 6 +++---
+ drivers/rtc/rtc-as3722.c       | 2 +-
+ drivers/rtc/rtc-palmas.c       | 3 +--
+ drivers/rtc/rtc-tps6586x.c     | 2 +-
+ drivers/rtc/rtc-tps65910.c     | 2 +-
+ drivers/rtc/rtc-tps80031.c     | 2 +-
+ 7 files changed, 10 insertions(+), 11 deletions(-)
 
-> +	#address-cells = <1>;
-> +	#size-cells = <0>;
-> +	compatible = "icpdas,spi-lp8841-rtc";
-
-And this will need updating...
-
-> +	reg = <0x901c 0x1>;
-> +
-> +	rtc@0 {
-> +		compatible = "maxim,rtc-ds1302";
-> +		reg = <0>;
-> +		spi-max-frequency = <500000>;
-> +		spi-3wire;
-> +		spi-lsb-first;
-> +		spi-cs-high;
-> +	};
-> +};
+-- 
+2.7.2
 
 -- 
 -- 
