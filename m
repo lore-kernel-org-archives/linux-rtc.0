@@ -1,19 +1,25 @@
-Return-Path: <rtc-linux+bncBD2OLRXW4ABBBN54462QKGQE2A4C5MA@googlegroups.com>
-Received: from hqemgate14.nvidia.com (hqemgate14.nvidia.com. [216.228.121.143])
-        by gmr-mx.google.com with ESMTPS id ff2si2297323pad.2.2016.02.09.04.40.23
+Return-Path: <rtc-linux+bncBAABBD7FYG3AKGQENZZ5RSQ@googlegroups.com>
+Received: from bear.ext.ti.com (bear.ext.ti.com. [192.94.94.41])
+        by gmr-mx.google.com with ESMTPS id c15si242563igm.1.2016.02.26.07.43.11
         for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 09 Feb 2016 04:40:23 -0800 (PST)
-From: Laxman Dewangan <ldewangan@nvidia.com>
-To: <lee.jones@linaro.org>, <alexandre.belloni@free-electrons.com>,
-	<k.kozlowski@samsung.com>, <javier@osg.samsung.com>, <broonie@kernel.org>,
-	<gregkh@linuxfoundation.org>, <a.zummo@towertech.it>
-CC: <cw00.choi@samsung.com>, <linux-kernel@vger.kernel.org>,
-	<rtc-linux@googlegroups.com>, Laxman Dewangan <ldewangan@nvidia.com>
-Subject: [rtc-linux] [PATCH V6 0/6] rtc: max77686: make max77686 rtc driver as
- IP driver
-Date: Tue, 9 Feb 2016 17:58:21 +0530
-Message-ID: <1455020907-4564-1-git-send-email-ldewangan@nvidia.com>
+        (version=TLS1 cipher=AES128-SHA bits=128/128);
+        Fri, 26 Feb 2016 07:43:11 -0800 (PST)
+From: Grygorii Strashko <grygorii.strashko@ti.com>
+To: Lee Jones <lee.jones@linaro.org>, Alessandro Zummo <a.zummo@towertech.it>,
+        MyungJoo Ham <myungjoo.ham@samsung.com>,
+        Lars-Peter Clausen <lars@metafoo.de>
+CC: <rtc-linux@googlegroups.com>, <linux-iio@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>, <nsekhar@ti.com>,
+        <linux-omap@vger.kernel.org>,
+        Grygorii Strashko <grygorii.strashko@ti.com>,
+        Chanwoo Choi <cw00.choi@samsung.com>, Tony Lindgren <tony@atomide.com>,
+        Roger
+ Quadros <rogerq@ti.com>, Nishanth Menon <nm@ti.com>
+Subject: [rtc-linux] [PATCH 1/7] extcon: palmas: Drop IRQF_EARLY_RESUME flag
+Date: Fri, 26 Feb 2016 17:42:51 +0200
+Message-ID: <1456501377-16871-2-git-send-email-grygorii.strashko@ti.com>
+In-Reply-To: <1456501377-16871-1-git-send-email-grygorii.strashko@ti.com>
+References: <1456501377-16871-1-git-send-email-grygorii.strashko@ti.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
@@ -26,52 +32,46 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Based on discussion on patch series of MAX77620 when adding separate
-driver for max77620 RTC, it is discussed to reuse the max77686 driver
-for all CHips MAX77802, MAX77686 and MAX77620. For this, the rtc-max77686
-need to make as IP driver independent of their MFD parent driver.
+Palams extcon IRQs are nested threaded and wired to the Palmas
+inerrupt controller. So, this flag is not required for nested irqs
+anymore, since commit 3c646f2c6aa9 ("genirq: Don't suspend
+nested_thread irqs over system suspend") was merged.
 
-This series makes the rtc-max77686 as independent driver from its 
-parent. Required information is passed through the device parent
-which is generic and does not depends on any max77686 specific
-header ifnromation.
+Cc: MyungJoo Ham <myungjoo.ham@samsung.com>
+Cc: Chanwoo Choi <cw00.choi@samsung.com>
+Cc: Tony Lindgren <tony@atomide.com>
+Cc: Lee Jones <lee.jones@linaro.org>
+Cc: Roger Quadros <rogerq@ti.com>
+Cc: Nishanth Menon <nm@ti.com>
+Signed-off-by: Grygorii Strashko <grygorii.strashko@ti.com>
+---
+ drivers/extcon/extcon-palmas.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-CC: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-CC: Javier Martinez Canillas <javier@osg.samsung.com>
-
-Changes from V1: 
-- Added reviewed/tested by tag which we got from V1.
-- Remove changes from Kconfig.
-- Maintain all register definition in max77686 private header and remove
-  the movement to rtc driver.
-- Taken care of all comments on V1 from Krzysztof and Javier.
-
-Changes from V2: 
-- Fix the issue of crash in unbind.
-
-Changes from V3: 
-- Fix suspend-resume after unbind/bind by unmapping virq in remove callback.
-
-Changes from V5: 
-- Abandon the addition of new API in regmap-irq and add dispose of virq
-  in regmap_del_irq_chip().
-
-Laxman Dewangan (6):
-  regmap: irq: dispose all virtual irq before removing domain
-  rtc: max77686: fix checkpatch error
-  rtc: max77686: use rtc regmap to access RTC registers
-  rtc: max77686: avoid reference of parent device info multiple places
-  mfd: max77686: do not set i2c client data for rtc i2c client
-  rtc: max77686: move initialisation of rtc regmap, irq chip locally
-
- drivers/base/regmap/regmap-irq.c     |  21 ++++
- drivers/mfd/max77686.c               |  86 +-------------
- drivers/rtc/rtc-max77686.c           | 214 ++++++++++++++++++++++++++---------
- include/linux/mfd/max77686-private.h |   3 -
- 4 files changed, 182 insertions(+), 142 deletions(-)
-
+diff --git a/drivers/extcon/extcon-palmas.c b/drivers/extcon/extcon-palmas.c
+index 93c30a8..0a861b3 100644
+--- a/drivers/extcon/extcon-palmas.c
++++ b/drivers/extcon/extcon-palmas.c
+@@ -266,7 +266,7 @@ static int palmas_usb_probe(struct platform_device *pdev)
+ 				palmas_usb->id_irq,
+ 				NULL, palmas_id_irq_handler,
+ 				IRQF_TRIGGER_FALLING | IRQF_TRIGGER_RISING |
+-				IRQF_ONESHOT | IRQF_EARLY_RESUME,
++				IRQF_ONESHOT,
+ 				"palmas_usb_id", palmas_usb);
+ 		if (status < 0) {
+ 			dev_err(&pdev->dev, "can't get IRQ %d, err %d\n",
+@@ -304,7 +304,7 @@ static int palmas_usb_probe(struct platform_device *pdev)
+ 				palmas_usb->vbus_irq, NULL,
+ 				palmas_vbus_irq_handler,
+ 				IRQF_TRIGGER_FALLING | IRQF_TRIGGER_RISING |
+-				IRQF_ONESHOT | IRQF_EARLY_RESUME,
++				IRQF_ONESHOT,
+ 				"palmas_usb_vbus", palmas_usb);
+ 		if (status < 0) {
+ 			dev_err(&pdev->dev, "can't get IRQ %d, err %d\n",
 -- 
-2.1.4
+2.7.2
 
 -- 
 -- 
