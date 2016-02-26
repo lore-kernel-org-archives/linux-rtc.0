@@ -1,24 +1,22 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBQGXR23AKGQE6YX375A@googlegroups.com>
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id v197si754063wmv.1.2016.02.16.15.07.44
-        for <rtc-linux@googlegroups.com>;
-        Tue, 16 Feb 2016 15:07:44 -0800 (PST)
-Date: Wed, 17 Feb 2016 00:07:43 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Michael Turquette <mturquette@baylibre.com>
-Cc: Akinobu Mita <akinobu.mita@gmail.com>, rtc-linux@googlegroups.com,
-	linux-clk@vger.kernel.org, Heiko Stuebner <heiko@sntech.de>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Stephen Boyd <sboyd@codeaurora.org>
-Subject: [rtc-linux] Re: [PATCH] rtc: rtc-ds1307: add clock provider support
- for DS3231
-Message-ID: <20160216230743.GD2189@piout.net>
-References: <1454249410-21449-1-git-send-email-akinobu.mita@gmail.com>
- <20160216004221.GA3310@piout.net>
- <20160216223526.2278.66771@quark.deferred.io>
+Return-Path: <rtc-linux+bncBCC6ZWOPXENRB7HCYC3AKGQEFNX6EFY@googlegroups.com>
+Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de. [2001:67c:670:201:290:27ff:fe1d:cc33])
+        by gmr-mx.google.com with ESMTPS id s141si138175wmd.1.2016.02.26.03.05.31
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=AES128-SHA bits=128/128);
+        Fri, 26 Feb 2016 03:05:31 -0800 (PST)
+From: Juergen Borleis <jbe@pengutronix.de>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Subject: [rtc-linux] Re: [PATCH] rtc: pcf85063: remove useless century handling
+Date: Fri, 26 Feb 2016 12:07:31 +0100
+Cc: rtc-linux@googlegroups.com,
+ Alessandro Zummo <a.zummo@towertech.it>,
+ linux-kernel@vger.kernel.org
+References: <1456268728-343-1-git-send-email-alexandre.belloni@free-electrons.com>
+In-Reply-To: <1456268728-343-1-git-send-email-alexandre.belloni@free-electrons.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <20160216223526.2278.66771@quark.deferred.io>
+Content-Type: Text/Plain;
+  charset="iso-8859-15"
+Message-Id: <201602261207.31126.jbe@pengutronix.de>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -29,27 +27,25 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 16/02/2016 at 14:35:26 -0800, Michael Turquette wrote :
-> If it's not too late:
-> 
-> Reviewed-by: Michael Turquette <mturquette@baylibre.com>
-> 
+Hi Alexandre,
 
-Added, thanks.
+On Wednesday 24 February 2016 00:05:28 Alexandre Belloni wrote:
+> pcf85063_get_datetime() tries to handle a century bit but that bit is not
+> documented and the final value is never used anywhere else in the kernel.
+> [...]
+> However, I found two interesting things in that driver. I'll send a
+> patch shortly, removing the useless century handling.
+> Also, I'm quite unsure about the year range handling. I have a patch but
+> I'm not sure about the RTC behaviour when the year goes from 99 to 00.
+> Can you check that works properly?
 
+Just returned from the embedded world exhibition... Will test it.
 
--- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+Regards,
+Juergen
 
--- 
--- 
-You received this message because you are subscribed to "rtc-linux".
-Membership options at http://groups.google.com/group/rtc-linux .
-Please read http://groups.google.com/group/rtc-linux/web/checklist
-before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
-For more options, visit https://groups.google.com/d/optout.
+=2D-=20
+Pengutronix e.K. =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =
+=A0| Juergen Borleis =A0 =A0 =A0 =A0 =A0 =A0 |
+Industrial Linux Solutions =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0| http://=
+www.pengutronix.de/ =A0|
