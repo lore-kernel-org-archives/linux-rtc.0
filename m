@@ -1,21 +1,28 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBMXVUK3AKGQEUUXLIMI@googlegroups.com>
+Return-Path: <rtc-linux+bncBAABBEPFYG3AKGQESY22OSA@googlegroups.com>
+Received: from comal.ext.ti.com (comal.ext.ti.com. [198.47.26.152])
+        by gmr-mx.google.com with ESMTPS id xh11si242911igb.0.2016.02.26.07.43.13
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1 cipher=AES128-SHA bits=128/128);
+        Fri, 26 Feb 2016 07:43:13 -0800 (PST)
+From: Grygorii Strashko <grygorii.strashko@ti.com>
+To: Lee Jones <lee.jones@linaro.org>, Alessandro Zummo <a.zummo@towertech.it>,
+        MyungJoo Ham <myungjoo.ham@samsung.com>,
+        Lars-Peter Clausen <lars@metafoo.de>
+CC: <rtc-linux@googlegroups.com>, <linux-iio@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>, <nsekhar@ti.com>,
+        <linux-omap@vger.kernel.org>,
+        Grygorii Strashko <grygorii.strashko@ti.com>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        Nishanth Menon
+	<nm@ti.com>
+Subject: [rtc-linux] [PATCH 5/7] rtc: tps80031: Drop IRQF_EARLY_RESUME flag
+Date: Fri, 26 Feb 2016 17:42:55 +0200
+Message-ID: <1456501377-16871-6-git-send-email-grygorii.strashko@ti.com>
+In-Reply-To: <1456501377-16871-1-git-send-email-grygorii.strashko@ti.com>
+References: <1456501377-16871-1-git-send-email-grygorii.strashko@ti.com>
 MIME-Version: 1.0
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id c143si679674wmd.1.2016.02.20.11.12.50
-        for <rtc-linux@googlegroups.com>;
-        Sat, 20 Feb 2016 11:12:50 -0800 (PST)
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: rtc-linux@googlegroups.com
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
-	Arnd Bergmann <arnd@arndb.de>,
-	Willy Tarreau <w@1wt.eu>,
-	linux-kernel@vger.kernel.org,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Subject: [rtc-linux] [PATCH] rtc: Add an option to invalidate dates in 2038
-Date: Sat, 20 Feb 2016 20:10:44 +0100
-Message-Id: <1455995444-14146-1-git-send-email-alexandre.belloni@free-electrons.com>
-Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -25,64 +32,35 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-hctosys is setting the system time from the kernel. This means that 32bit
-system can get their time set to a date after the 31bit time_t overflow.
+tps80031 RTC IRQ is nested threaded and wired to the tps80031
+inerrupt controller. So, this flag is not required for nested irqs
+anymore, since commit 3c646f2c6aa9 ("genirq: Don't suspend
+nested_thread irqs over system suspend") was merged.
 
-This is currently an issue as userspace is not yet ready to handle those
-dates and may break. For example systemd's usage of timerfd shows that the
-timerfd will always fire immediately because it can't be set at a date
-after the current date.
-
-The new RTC_INVALID_2038 option will make sure that date after 03:09:07 on
-Jan 19 2038 are invalid. This is 5 minutes before the 31bit overflow. This
-leaves enough time for userspace to react and is short enough to make the
-issue visible.
-
-Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>
+Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: Lee Jones <lee.jones@linaro.org>
+Cc: Nishanth Menon <nm@ti.com>
+Signed-off-by: Grygorii Strashko <grygorii.strashko@ti.com>
 ---
- drivers/rtc/Kconfig   | 10 ++++++++++
- drivers/rtc/rtc-lib.c |  5 ++++-
- 2 files changed, 14 insertions(+), 1 deletion(-)
+ drivers/rtc/rtc-tps80031.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
-index 376322f71fd5..fc087855e6a9 100644
---- a/drivers/rtc/Kconfig
-+++ b/drivers/rtc/Kconfig
-@@ -73,6 +73,16 @@ config RTC_DEBUG
- 	  Say yes here to enable debugging support in the RTC framework
- 	  and individual RTC drivers.
+diff --git a/drivers/rtc/rtc-tps80031.c b/drivers/rtc/rtc-tps80031.c
+index 27e254c..737f26e 100644
+--- a/drivers/rtc/rtc-tps80031.c
++++ b/drivers/rtc/rtc-tps80031.c
+@@ -287,7 +287,7 @@ static int tps80031_rtc_probe(struct platform_device *pdev)
  
-+config RTC_INVALID_2038
-+	bool "Invalidate dates after 2038"
-+	depends on !64BIT
-+	default y
-+	help
-+	  Saying yes here will make any date after 03:09:07 on Jan 19 2038
-+	  invalid (this is 5 minutes before the 31 bits overflow of a time_t).
-+	  This is useful if your userspace is not yet ready to handle 64 bits
-+	  times.
-+
- comment "RTC interfaces"
- 
- config RTC_INTF_SYSFS
-diff --git a/drivers/rtc/rtc-lib.c b/drivers/rtc/rtc-lib.c
-index e6bfb9c42a10..1ba148256afc 100644
---- a/drivers/rtc/rtc-lib.c
-+++ b/drivers/rtc/rtc-lib.c
-@@ -107,7 +107,10 @@ int rtc_valid_tm(struct rtc_time *tm)
- 		|| ((unsigned)tm->tm_min) >= 60
- 		|| ((unsigned)tm->tm_sec) >= 60)
- 		return -EINVAL;
--
-+#ifdef CONFIG_RTC_INVALID_2038
-+	if (rtc_tm_to_time64(tm) > 0x7FFFFED4) /* 5 minutes before overflow */
-+		return -EINVAL;
-+#endif
- 	return 0;
- }
- EXPORT_SYMBOL(rtc_valid_tm);
+ 	ret = devm_request_threaded_irq(&pdev->dev, rtc->irq, NULL,
+ 			tps80031_rtc_irq,
+-			IRQF_ONESHOT | IRQF_EARLY_RESUME,
++			IRQF_ONESHOT,
+ 			dev_name(&pdev->dev), rtc);
+ 	if (ret < 0) {
+ 		dev_err(&pdev->dev, "request IRQ:%d failed, err = %d\n",
 -- 
-2.7.0
+2.7.2
 
 -- 
 -- 
