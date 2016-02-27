@@ -1,21 +1,18 @@
-Return-Path: <rtc-linux+bncBD2OLRXW4ABBBE4PZC2QKGQES747ORI@googlegroups.com>
-Received: from hqemgate15.nvidia.com (hqemgate15.nvidia.com. [216.228.121.64])
-        by gmr-mx.google.com with ESMTPS id r2si858401pfr.0.2016.02.03.05.58.43
+Return-Path: <rtc-linux+bncBDU7VC56WAFBBQPKY23AKGQEI6UYYMQ@googlegroups.com>
+Received: from bues.ch (bues.ch. [2a01:138:9005::1:4])
+        by gmr-mx.google.com with ESMTPS id c140si11187wmh.1.2016.02.27.06.40.00
         for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 03 Feb 2016 05:58:43 -0800 (PST)
-From: Laxman Dewangan <ldewangan@nvidia.com>
-To: <lee.jones@linaro.org>, <alexandre.belloni@free-electrons.com>,
-	<k.kozlowski@samsung.com>, <javier@osg.samsung.com>
-CC: <cw00.choi@samsung.com>, <linux-kernel@vger.kernel.org>,
-	<rtc-linux@googlegroups.com>, Laxman Dewangan <ldewangan@nvidia.com>
-Subject: [rtc-linux] [PATCH V3 1/5] rtc: max77686: fix checkpatch error
-Date: Wed, 3 Feb 2016 19:17:09 +0530
-Message-ID: <1454507233-9959-2-git-send-email-ldewangan@nvidia.com>
-In-Reply-To: <1454507233-9959-1-git-send-email-ldewangan@nvidia.com>
-References: <1454507233-9959-1-git-send-email-ldewangan@nvidia.com>
+        (version=TLS1_2 cipher=AES128-SHA bits=128/128);
+        Sat, 27 Feb 2016 06:40:01 -0800 (PST)
+Date: Sat, 27 Feb 2016 15:39:18 +0100
+From: Michael =?UTF-8?B?QsO8c2No?= <m@bues.ch>
+To: Gregory Hermant <gregory.hermant@calao-systems.com>
+Cc: rtc-linux@googlegroups.com
+Subject: [rtc-linux] rv3029 EEPROM handling
+Message-ID: <20160227153918.3c3d3853@wiggum>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ boundary="Sig_/4C/N2hoVcqv4Sz_4X50ecqc"; protocol="application/pgp-signature"
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -26,110 +23,24 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Fix following check patch error in rtc-max77686 driver:
-- Alignment should match open parenthesis.
-- braces {} should be used on all arms of this statement.
-- Prefer using the BIT macro
+--Sig_/4C/N2hoVcqv4Sz_4X50ecqc
+Content-Type: text/plain; charset=UTF-8
 
-Signed-off-by: Laxman Dewangan <ldewangan@nvidia.com>
-CC: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-CC: Javier Martinez Canillas <javier@osg.samsung.com>
-Tested-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-Reviewed-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-Reviewed-by: Javier Martinez Canillas <javier@osg.samsung.com>
+Hi,
 
----
-Changes from V1:
-- None, added reviewed/tested by.
+I'm currently trying to use the Linux RV3029 RTC driver for one of my
+applications. So far the basic functionality works fine.
+However I need a way to (initially) program the EEPROM on the RTC chip
+to enable such things as temperature compensation or the trickle
+charger.
+As of now the Linux driver does not support that though. So I'm
+wondering how we should implement that. As an initial idea I think we
+could have about some sysfs attributes for these settings. Is there a
+better way (more standard API) to do this?
+If not, I'll do an implementation of this based on sysfs attributes.
 
-Changes from V1:
-- None
-
- drivers/rtc/rtc-max77686.c | 25 +++++++++++++------------
- 1 file changed, 13 insertions(+), 12 deletions(-)
-
-diff --git a/drivers/rtc/rtc-max77686.c b/drivers/rtc/rtc-max77686.c
-index 188593d..253cf12 100644
---- a/drivers/rtc/rtc-max77686.c
-+++ b/drivers/rtc/rtc-max77686.c
-@@ -24,20 +24,20 @@
- 
- /* RTC Control Register */
- #define BCD_EN_SHIFT			0
--#define BCD_EN_MASK			(1 << BCD_EN_SHIFT)
-+#define BCD_EN_MASK			BIT(BCD_EN_SHIFT)
- #define MODEL24_SHIFT			1
--#define MODEL24_MASK			(1 << MODEL24_SHIFT)
-+#define MODEL24_MASK			BIT(MODEL24_SHIFT)
- /* RTC Update Register1 */
- #define RTC_UDR_SHIFT			0
--#define RTC_UDR_MASK			(1 << RTC_UDR_SHIFT)
-+#define RTC_UDR_MASK			BIT(RTC_UDR_SHIFT)
- #define RTC_RBUDR_SHIFT			4
--#define RTC_RBUDR_MASK			(1 << RTC_RBUDR_SHIFT)
-+#define RTC_RBUDR_MASK			BIT(RTC_RBUDR_SHIFT)
- /* RTC Hour register */
- #define HOUR_PM_SHIFT			6
--#define HOUR_PM_MASK			(1 << HOUR_PM_SHIFT)
-+#define HOUR_PM_MASK			BIT(HOUR_PM_SHIFT)
- /* RTC Alarm Enable */
- #define ALARM_ENABLE_SHIFT		7
--#define ALARM_ENABLE_MASK		(1 << ALARM_ENABLE_SHIFT)
-+#define ALARM_ENABLE_MASK		BIT(ALARM_ENABLE_SHIFT)
- 
- #define REG_RTC_NONE			0xdeadbeef
- 
-@@ -205,9 +205,9 @@ static void max77686_rtc_data_to_tm(u8 *data, struct rtc_time *tm,
- 
- 	tm->tm_sec = data[RTC_SEC] & mask;
- 	tm->tm_min = data[RTC_MIN] & mask;
--	if (info->rtc_24hr_mode)
-+	if (info->rtc_24hr_mode) {
- 		tm->tm_hour = data[RTC_HOUR] & 0x1f;
--	else {
-+	} else {
- 		tm->tm_hour = data[RTC_HOUR] & 0x0f;
- 		if (data[RTC_HOUR] & HOUR_PM_MASK)
- 			tm->tm_hour += 12;
-@@ -256,7 +256,7 @@ static int max77686_rtc_tm_to_data(struct rtc_time *tm, u8 *data,
- }
- 
- static int max77686_rtc_update(struct max77686_rtc_info *info,
--	enum MAX77686_RTC_OP op)
-+			       enum MAX77686_RTC_OP op)
- {
- 	int ret;
- 	unsigned int data;
-@@ -547,7 +547,7 @@ out:
- }
- 
- static int max77686_rtc_alarm_irq_enable(struct device *dev,
--					unsigned int enabled)
-+					 unsigned int enabled)
- {
- 	struct max77686_rtc_info *info = dev_get_drvdata(dev);
- 	int ret;
-@@ -612,7 +612,7 @@ static int max77686_rtc_probe(struct platform_device *pdev)
- 	int ret;
- 
- 	info = devm_kzalloc(&pdev->dev, sizeof(struct max77686_rtc_info),
--				GFP_KERNEL);
-+			    GFP_KERNEL);
- 	if (!info)
- 		return -ENOMEM;
- 
-@@ -662,7 +662,8 @@ static int max77686_rtc_probe(struct platform_device *pdev)
- 	}
- 
- 	ret = devm_request_threaded_irq(&pdev->dev, info->virq, NULL,
--				max77686_rtc_alarm_irq, 0, "rtc-alarm1", info);
-+					max77686_rtc_alarm_irq, 0,
-+					"rtc-alarm1", info);
- 	if (ret < 0)
- 		dev_err(&pdev->dev, "Failed to request alarm IRQ: %d: %d\n",
- 			info->virq, ret);
 -- 
-2.1.4
+Michael
 
 -- 
 -- 
@@ -141,3 +52,27 @@ before submitting a driver.
 You received this message because you are subscribed to the Google Groups "rtc-linux" group.
 To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
+
+--Sig_/4C/N2hoVcqv4Sz_4X50ecqc
+Content-Type: application/pgp-signature
+Content-Description: OpenPGP digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQIcBAEBCAAGBQJW0bUXAAoJEPUyvh2QjYsOk3cQAJ4raKV1QhrX/DGkKOEE69df
+6MPnExV4q13BTnvDLGb3GobnOsUK/sllU562NI6xTgDoXtPubljZAhpstSmuWqDw
+TxfEM7BgWAmNBx0u+wqtfpRaDTDL+qF93qkRgBde20EaOhqWrRXbhkHcM5xs8QOp
+FXEaT9F26T7xz2bberc/BSstnF/6BrZl9BAxhNkdn/sxFoxUMOgFIbnhhfM/if2U
+QGlUD1GxzAyWcQN42WU41sctcmxxOx3WsI7m8yq07iQypY5X0R7a6C7pcJDetT0s
+gjbScMCdyklSgM/hqb3aT+Cx1zqiIEW2qiV32tame/aifhX8Q7qx7T2sdiN2Pbz7
+jiaPCHpDRPUNIhvSMn4ftzzKsp7T3UD0vEll19q1sO1CmnSlkT39geJSRHsVY1Xu
+npP5j65vKf3jj27rC0e/XXcUqZz3VhJ1hOnKDogMJ1Pgx3GErxFT3KhwdrTPdTzz
+rfrNlQioEsolnQUViKmhpF4cTmkDPRHl3KRjl6KnxdxcohVRCP5g38SptQmSyxqq
+fL1YlzKBhMRVxAbUhoeTypzZIP9AOx9dWbeKlYo8M2152hgQfMMwefJS244sNbW1
+oqk8ZCdP4ZDkOcYHHyAlQTdBIzUQvO4I0rRNN4h1S/Mchl97eUkaNekXgDknQUNs
+3IAEYpkNTdmHouwtZGZg
+=QVdL
+-----END PGP SIGNATURE-----
+
+--Sig_/4C/N2hoVcqv4Sz_4X50ecqc--
