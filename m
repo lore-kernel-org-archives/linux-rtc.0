@@ -1,24 +1,25 @@
-Return-Path: <rtc-linux+bncBD2OLRXW4ABBBRO6422QKGQEUWTLAIY@googlegroups.com>
-Received: from hqemgate15.nvidia.com (hqemgate15.nvidia.com. [216.228.121.64])
-        by gmr-mx.google.com with ESMTPS id tn7si4992904pac.1.2016.02.09.01.20.05
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 09 Feb 2016 01:20:05 -0800 (PST)
-Message-ID: <56B9AC8C.2020209@nvidia.com>
-Date: Tue, 9 Feb 2016 14:38:28 +0530
-From: Laxman Dewangan <ldewangan@nvidia.com>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBE6SZW3AKGQEC4RE24A@googlegroups.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id h73si371810wme.0.2016.02.28.13.39.30
+        for <rtc-linux@googlegroups.com>;
+        Sun, 28 Feb 2016 13:39:30 -0800 (PST)
+Date: Sun, 28 Feb 2016 22:39:20 +0100
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Michael =?iso-8859-1?Q?B=FCsch?= <m@bues.ch>
+Cc: Gregory Hermant <gregory.hermant@calao-systems.com>,
+	rtc-linux@googlegroups.com
+Subject: Re: [rtc-linux] rv3029 EEPROM handling
+Message-ID: <20160228213920.GA2260@piout.net>
+References: <20160227153918.3c3d3853@wiggum>
+ <20160228003139.GB2398@piout.net>
+ <20160228094452.132c1938@wiggum>
+ <20160228104110.GC2398@piout.net>
+ <20160228125852.1a0b271e@wiggum>
+ <20160228123618.GD2398@piout.net>
+ <20160228181450.3ba14f7f@wiggum>
 MIME-Version: 1.0
-To: Mark Brown <broonie@kernel.org>
-CC: Thomas Gleixner <tglx@linutronix.de>, <lee.jones@linaro.org>,
-	<alexandre.belloni@free-electrons.com>, <k.kozlowski@samsung.com>,
-	<javier@osg.samsung.com>, <gregkh@linuxfoundation.org>,
-	<a.zummo@towertech.it>, <cw00.choi@samsung.com>,
-	<linux-kernel@vger.kernel.org>, <rtc-linux@googlegroups.com>
-Subject: [rtc-linux] Re: [PATCH V4 1/6] regmap: irq: add apis to unmap the
- mapped irq
-References: <1454769447-785-1-git-send-email-ldewangan@nvidia.com> <1454769447-785-2-git-send-email-ldewangan@nvidia.com> <20160208145550.GE7265@sirena.org.uk> <56B8C484.7000309@nvidia.com> <20160208165912.GK7265@sirena.org.uk> <56B8C8B4.4050207@nvidia.com> <20160208181908.GM7265@sirena.org.uk> <56B97632.1000208@nvidia.com>
-In-Reply-To: <56B97632.1000208@nvidia.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <20160228181450.3ba14f7f@wiggum>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -29,57 +30,60 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
+On 28/02/2016 at 18:14:50 +0100, Michael B=C3=BCsch wrote :
+> On Sun, 28 Feb 2016 13:36:18 +0100
+> Alexandre Belloni <alexandre.belloni@free-electrons.com> wrote:
+>=20
+> > More simply, don't enable the trickle charger if the
+> > trickle-resistor-ohms property is missing.
+> >=20
+> > Leave out the trickle-diode-disable property
+>=20
+> D'oh indeed. :)
+>=20
+> The rv3029 has a clkout pin that can be configured to various
+> frequencies. So I added a 'clkout-hz' property for this.
+>=20
 
-On Tuesday 09 February 2016 10:46 AM, Laxman Dewangan wrote:
->
-> On Monday 08 February 2016 11:49 PM, Mark Brown wrote:
->> * PGP Signed by an unknown key
->>
->> On Mon, Feb 08, 2016 at 10:26:20PM +0530, Laxman Dewangan wrote:
->>
->>> So fix need to go in the irq_domain_remove() to unamp before actually
->>> destroying the irq domain?
->> That's one option, but you could also do this at the regmap-irq level.
->>
->
-> Do we need to dispose all virtual irq in regmap_del_irq_chip() before 
-> actually removing domain?
-> This means we need to store the created virq  in regmap_irq_chip_data 
-> for disposing it when removing the irq domain.
+No, you have to use the CCF for that. For a recent example, see:
+http://git.kernel.org/cgit/linux/kernel/git/abelloni/linux.git/commit/?h=3D=
+rtc-next&id=3D578bb1d82bdd7fb86d5988fb775c871521a2761f
 
-It is easy for me to communicate through code to avoid any confusion. So 
-do you want to say as follows? In this case, there is no need of any new 
-API.
+> > That part is not HW related, it should not be in the device tree. I'd
+> > really just enable the temperature compensation else, this has to be
+> > done in sysfs
+>=20
+> Ok.
+>=20
+> Just for the record:
+> I started an initial implementation of this here in the rv3029 branch:
+> git://git.bues.ch/linux.git
+> http://bues.ch/gitweb?p=3Dlinux.git;a=3Dshortlog;h=3Drefs/heads/rv3029
 
-  void regmap_del_irq_chip(int irq, struct regmap_irq_chip_data *d)
-  {
-+       unsigned int virq;
-+       int hwirq;
-+
-         if (!d)
-                 return;
+I had a really quick look, I'll review when you post patches. Please
+separate each functionality when submitting and use checkpatch.pl --strict
 
-         free_irq(irq, d);
-+
-+       /* Unmap all virtual irq from this domain */
-+       for (hwirq = 0; hwirq < d->chip->num_irqs; hwirq++) {
-+               if (!d->chip->irqs[irq].mask)
-+                       continue;
-+
-+               /* Get virtual irq of hwirq on chip if already mapped */
-+               virq = irq_find_mapping(d->domain, hwirq);
-+               if (virq)
-+                       irq_dispose_mapping(virq);
-+       }
-+
+Also, to export the temperature, use hwmon, see:
+http://git.kernel.org/cgit/linux/kernel/git/abelloni/linux.git/commit/?h=3D=
+rtc-next&id=3D445c02076f1e60d2ee51503bf1288ef9f3bc8809
 
--- 
--- 
+You may want to use regmap instead of defining your own update_bits
+(rv3029c2_i2c_maskset_reg) but that is a more invasie change that you
+may leave out for now.
+--=20
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
+
+--=20
+--=20
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+---=20
+You received this message because you are subscribed to the Google Groups "=
+rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an e=
+mail to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
