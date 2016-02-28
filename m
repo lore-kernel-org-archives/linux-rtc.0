@@ -1,22 +1,24 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBZPNRG3AKGQE7KQISAY@googlegroups.com>
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id w197si701588wmw.3.2016.02.15.17.09.56
-        for <rtc-linux@googlegroups.com>;
-        Mon, 15 Feb 2016 17:09:56 -0800 (PST)
-Date: Tue, 16 Feb 2016 02:09:56 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Laxman Dewangan <ldewangan@nvidia.com>
-Cc: lee.jones@linaro.org, k.kozlowski@samsung.com, javier@osg.samsung.com,
-	broonie@kernel.org, gregkh@linuxfoundation.org,
-	a.zummo@towertech.it, cw00.choi@samsung.com,
-	linux-kernel@vger.kernel.org, rtc-linux@googlegroups.com
-Subject: [rtc-linux] Re: [PATCH V7 0/5] rtc: max77686: make max77686 rtc
- driver as IP driver
-Message-ID: <20160216010956.GB3310@piout.net>
-References: <1455038794-9921-1-git-send-email-ldewangan@nvidia.com>
+Return-Path: <rtc-linux+bncBDU7VC56WAFBBBWCZO3AKGQEFUXJITQ@googlegroups.com>
+Received: from bues.ch (bues.ch. [2a01:138:9005::1:4])
+        by gmr-mx.google.com with ESMTPS id w197si438402wmw.3.2016.02.28.03.59.02
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=AES128-SHA bits=128/128);
+        Sun, 28 Feb 2016 03:59:02 -0800 (PST)
+Date: Sun, 28 Feb 2016 12:58:52 +0100
+From: Michael =?UTF-8?B?QsO8c2No?= <m@bues.ch>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: Gregory Hermant <gregory.hermant@calao-systems.com>,
+ rtc-linux@googlegroups.com
+Subject: Re: [rtc-linux] rv3029 EEPROM handling
+Message-ID: <20160228125852.1a0b271e@wiggum>
+In-Reply-To: <20160228104110.GC2398@piout.net>
+References: <20160227153918.3c3d3853@wiggum>
+ <20160228003139.GB2398@piout.net>
+ <20160228094452.132c1938@wiggum>
+ <20160228104110.GC2398@piout.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1455038794-9921-1-git-send-email-ldewangan@nvidia.com>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ boundary="Sig_/m+jD_MTX8L571=XV2iyktp."; protocol="application/pgp-signature"
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -27,55 +29,40 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 09/02/2016 at 22:56:29 +0530, Laxman Dewangan wrote :
-> Based on discussion on patch series of MAX77620 when adding separate
-> driver for max77620 RTC, it is discussed to reuse the max77686 driver
-> for all CHips MAX77802, MAX77686 and MAX77620. For this, the rtc-max77686
-> need to make as IP driver independent of their MFD parent driver.
-> 
-> This series makes the rtc-max77686 as independent driver from its 
-> parent. Required information is passed through the device parent
-> which is generic and does not depends on any max77686 specific
-> header ifnromation.
-> 
-> CC: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-> CC: Javier Martinez Canillas <javier@osg.samsung.com>
-> 
-> Changes from V1: 
-> - Added reviewed/tested by tag which we got from V1.
-> - Remove changes from Kconfig.
-> - Maintain all register definition in max77686 private header and remove
->   the movement to rtc driver.
-> - Taken care of all comments on V1 from Krzysztof and Javier.
-> 
-> Changes from V2: 
-> - Fix the issue of crash in unbind.
-> 
-> Changes from V3: 
-> - Fix suspend-resume after unbind/bind by unmapping virq in remove callback.
-> 
-> Changes from V5: 
-> - Abandon the addition of new API in regmap-irq and add dispose of virq
->   in regmap_del_irq_chip().
-> 
-> Changes from V6: 
-> - make regmap change as independent of this series and rebase it on linux-next
->   20160209
-> 
-> Laxman Dewangan (5):
->   rtc: max77686: fix checkpatch error
->   rtc: max77686: use rtc regmap to access RTC registers
->   rtc: max77686: avoid reference of parent device info multiple places
->   mfd: max77686: do not set i2c client data for rtc i2c client
->   rtc: max77686: move initialisation of rtc regmap, irq chip locally
-> 
+--Sig_/m+jD_MTX8L571=XV2iyktp.
+Content-Type: text/plain; charset=UTF-8
 
-All applied, thanks.
+On Sun, 28 Feb 2016 11:41:10 +0100
+Alexandre Belloni <alexandre.belloni@free-electrons.com> wrote:
+
+> ds1339, ds1390 and bq32k are using trickle-resistor-ohms and
+> trickle-diode-disable.
+
+
+The rv3029 datasheet doesn't say anything about a diode (I think it
+still has one though). It merely talks about resistors connected
+between vdd and the battery pin.
+So I'm not sure whether we should use the 'trickle-diode-disable'
+property here. One other possibility would be to use
+trickle-resistor-ohms=-1 or such to disable the charger.
+
+
+> > The rv3029 does the compensation internally. It just needs to be
+> > enabled via a bit in its EEPROM. We could probably always set that bit
+> > though. I'm not sure whether there is a case where one would not want
+> > that.
+> >   
+> 
+> If you want to enable it without changing the values, just enable it
+> unconditionally.
+
+
+I think the internal temperature compensation should be enabled by
+default and be disabled via DT property ('temp-compensation-disable'
+or such).
 
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+Michael
 
 -- 
 -- 
@@ -87,3 +74,27 @@ before submitting a driver.
 You received this message because you are subscribed to the Google Groups "rtc-linux" group.
 To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
+
+--Sig_/m+jD_MTX8L571=XV2iyktp.
+Content-Type: application/pgp-signature
+Content-Description: OpenPGP digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQIcBAEBCAAGBQJW0uD9AAoJEPUyvh2QjYsOIbAP/0Q8bJdFI09c8epAZn5gLFvt
+8HBPJFj5D/Wu17zYWRIW5E4R/QDRlwR5Ja2Csy/u0IwfElGjSm83Bz9rrMyVaeWP
+mPGItUsGl2pL3pZt1/5vAkMTh9WF8EVWRM7uC4ajHNMvcBhZlBxGXLXGmqOyuged
+kA7U6b/fwTfXW67PJsI6/B0x+u+M7kqN0LCXXucD5i29l4+XNNIeLGBJJHIaBMMY
+UV0NioCC2ioGIwaU1j1z5/R3bQ8bGw/SjXuyEgd4wNdVAbbgRwn040U95uUckXLp
+B3JRpGRvrw/RaTNu6qjjbm5PBX8MC2vlmJrbRE9V4hYxygsHHvQPESnDVo/6kcQy
+KSK4ht1xEjxG+9f6gi0B8QIN4nrnWo4Zd1sShbYarP1OvKKANC55Hzm4b2KVV+Z2
+v3GIPLCX99R4ikvisG5G3JQXg5Es9ERbr4gG0GoJfFbkWog7PBOa71wRGxFLm7gL
+MEsUDOWkim6W0AACVE12hh2/TbWrnG3kCUaDCjvXQxA0HQ4q0ABUFJzfEkfD5w5d
+CPh7vgk4r7AkKpTkfr7AjqugMqVkqQUdt5zmLI8qLnC5LDzq+aDFJlWxkVSGGTMa
+I3/sTDkypuH7PRdkvzr0BMesUsF96N7OPMF5PaOrV3ef1luehTQ0u1pkI4IONtIs
+CgzvQXbyfvbLF4Ips4pp
+=bxl3
+-----END PGP SIGNATURE-----
+
+--Sig_/m+jD_MTX8L571=XV2iyktp.--
