@@ -1,27 +1,22 @@
-Return-Path: <rtc-linux+bncBD2OLRXW4ABBBB6G6G2QKGQESBKNYOQ@googlegroups.com>
-Received: from hqemgate15.nvidia.com (hqemgate15.nvidia.com. [216.228.121.64])
-        by gmr-mx.google.com with ESMTPS id ui7si1037716pab.0.2016.02.11.02.31.35
+Return-Path: <rtc-linux+bncBDU7VC56WAFBBHPHZK3AKGQE7ONUWUA@googlegroups.com>
+Received: from bues.ch (bues.ch. [2a01:138:9005::1:4])
+        by gmr-mx.google.com with ESMTPS id c143si392898wmd.1.2016.02.28.00.45.17
         for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 11 Feb 2016 02:31:35 -0800 (PST)
-Message-ID: <56BC6048.7080500@nvidia.com>
-Date: Thu, 11 Feb 2016 15:49:52 +0530
-From: Laxman Dewangan <ldewangan@nvidia.com>
+        (version=TLS1_2 cipher=AES128-SHA bits=128/128);
+        Sun, 28 Feb 2016 00:45:17 -0800 (PST)
+Date: Sun, 28 Feb 2016 09:44:52 +0100
+From: Michael =?UTF-8?B?QsO8c2No?= <m@bues.ch>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: Gregory Hermant <gregory.hermant@calao-systems.com>,
+ rtc-linux@googlegroups.com
+Subject: Re: [rtc-linux] rv3029 EEPROM handling
+Message-ID: <20160228094452.132c1938@wiggum>
+In-Reply-To: <20160228003139.GB2398@piout.net>
+References: <20160227153918.3c3d3853@wiggum>
+ <20160228003139.GB2398@piout.net>
 MIME-Version: 1.0
-To: Lee Jones <lee.jones@linaro.org>
-CC: <robh+dt@kernel.org>, <pawel.moll@arm.com>, <mark.rutland@arm.com>,
-	<ijc+devicetree@hellion.org.uk>, <galak@codeaurora.org>,
-	<linus.walleij@linaro.org>, <gnurou@gmail.com>, <broonie@kernel.org>,
-	<a.zummo@towertech.it>, <alexandre.belloni@free-electrons.com>,
-	<lgirdwood@gmail.com>, <devicetree@vger.kernel.org>,
-	<linux-kernel@vger.kernel.org>, <linux-gpio@vger.kernel.org>,
-	<rtc-linux@googlegroups.com>, <swarren@nvidia.com>, <treding@nvidia.com>,
-	<k.kozlowski@samsung.com>, <vreddytalla@nvidia.com>
-Subject: [rtc-linux] Re: [PATCH V7 1/8] mfd: add device-tree binding doc for
- PMIC max77620/max20024
-References: <1454171931-27752-1-git-send-email-ldewangan@nvidia.com> <1454171931-27752-2-git-send-email-ldewangan@nvidia.com> <20160209154215.GF24522@x1> <56BA2859.2040605@nvidia.com> <20160210132333.GG24522@x1> <56BB3FB9.7050102@nvidia.com> <20160211092604.GG3782@x1>
-In-Reply-To: <20160211092604.GG3782@x1>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ boundary="Sig_/SEvEVDD79CQCr=eKIxzwMgh"; protocol="application/pgp-signature"
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -32,61 +27,32 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
+--Sig_/SEvEVDD79CQCr=eKIxzwMgh
+Content-Type: text/plain; charset=UTF-8
 
-On Thursday 11 February 2016 02:56 PM, Lee Jones wrote:
-> On Wed, 10 Feb 2016, Laxman Dewangan wrote:
->
->>
->> sleep: <0/1>
->>              0: sleep mode disable,
->>              1: sleep mode enable.
-> Ideally yes.  This is obviously going to be used again.
->
-> However;
->   - My fear is that it will get confused with the 'sleep' property in
->     Documentation/devicetree/booting-without-of.txt.
->   - Secondly, you would need to get Rob to Ack it.
->
+On Sun, 28 Feb 2016 01:31:39 +0100
+Alexandre Belloni <alexandre.belloni@free-electrons.com> wrote:
 
-Another thought, becasue this is just for enable/disable, why not we add 
-property as "enable-sleep" of boolean type instead of u32 value type?
+> trickle charging is usually enabled using device tree, however, I'd
+> really like to see more standardization on the property names.
 
-It is easy to describe the behavior with enable-sleep and 
-enable-low-power-mode.
+Is there an example of an rtc driver implementing this?
+For the rv3029 it's more than just enabling it. It also has a bunch of
+charging resistors to choose from.
 
--enable-sleep:                  Boolean, when FPS event cleared
-                                         (set to LOW), resources get 
-disabled
-                                         at the sequencing event 
-corresponding
-                                         to its FPS configuration register.
+> I'm not sure yet about the temperature compensation. I've just merged
+> the crystal offset modification api with a sysfs interface in rtc-next:
+> http://git.kernel.org/cgit/linux/kernel/git/abelloni/linux.git/commit/?h=rtc-next&id=5f23807caab7801c3333c68417bb13c7e2439193
+> 
+> But this doesn't seem enough for that particular RTC.
 
--enable-low-power-mode: Boolean, when FPS event cleared
-                                         (set to LOW), resources sets into
-                                         low power mode at the 
-sequencing event
-                                         corresponding to its FPS 
-configuration
-                                         register.
+The rv3029 does the compensation internally. It just needs to be
+enabled via a bit in its EEPROM. We could probably always set that bit
+though. I'm not sure whether there is a case where one would not want
+that.
 
-Both property can not be together.
-
-
-Other approach is to club together
-maxim,device-state-on-disabled-event : u32, describe the PMIC state
-                                                             when FPS 
-event cleared (set to LOW)
-                                                             whether it 
-should go to sleep state or
-low-power state.
-                                                                 1 = 
-Device state is set to sleep
-                                                                 2 = 
-Device state is set to low power mode.
-Absence of this property or other value will not change device state 
-when FPS event
-         cleared.
-
+-- 
+Michael
 
 -- 
 -- 
@@ -98,3 +64,27 @@ before submitting a driver.
 You received this message because you are subscribed to the Google Groups "rtc-linux" group.
 To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
+
+--Sig_/SEvEVDD79CQCr=eKIxzwMgh
+Content-Type: application/pgp-signature
+Content-Description: OpenPGP digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQIcBAEBCAAGBQJW0rOEAAoJEPUyvh2QjYsOuUoP/38ka/SgFhtvLICl8gvxpOZ4
+5VB+xxzsFUPsJ387Q2nVVM91TH/cQ/smS1GcrdvgEmCtRT+MTsv4qc5+8j0s/l4S
+mvUh8Z20Dc8f8yJ+U7zqdfBw7G14EHkEr4MrrYNKr/bkXiJ0GFcjAzzcu8vwrcfk
+92bbgOm+vBhvIzjaSFDjZGn7hif3Zwcs8/p00UyTfrquWDELj/ppu51+YOdD+Ok4
+X/6s2YYWrw91u0xJ3KLh/CmdyXFZwB9waDu/RY+8XuB56JOsqmP+IpZNR0d0q0RS
+eAisQ3Kq7GF6wMCN+ca46pcJkt0dCb9NNq2kZExP4spdP4t2ulfp3t//UsZ+4+/I
+u+SQiuZwBTKgsgnBS+Plhl6w7RVVMCwKdd6WDzbBVV2fTnzhNyT9w1k/e5CjpZJP
++9AkUp/XCcEXlrqkbULxA9lXcK4c4Vi56XHtxyr5lUUPMOevnA2+RDygfneaQ9rH
+k3Ac8Iktb9fjagiWHkVTa3g0obAeRW5nj8MnmFGiBRg7mQ6ZyztRQUKcpHIWWWdF
+a6GGnyFwzIGQQIL617BtmYvw29ZajxC29+IWZyunwpVvlzKUyzItjskkj0jMBCbG
+xM8ThV0MRzozmtYl1O7e6FhNEeW0tX4/gPeg6X256X9DeNn1NAIwwdEoYxL78Rl7
+QRaWlap6LM6zliifxRg/
+=JhMy
+-----END PGP SIGNATURE-----
+
+--Sig_/SEvEVDD79CQCr=eKIxzwMgh--
