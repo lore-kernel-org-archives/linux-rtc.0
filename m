@@ -1,27 +1,28 @@
-Return-Path: <rtc-linux+bncBD2OLRXW4ABBBAN7XS2QKGQE2RCMXFI@googlegroups.com>
-Received: from hqemgate15.nvidia.com (hqemgate15.nvidia.com. [216.228.121.64])
-        by gmr-mx.google.com with ESMTPS id u66si3279214pfa.2.2016.02.01.01.04.01
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 01 Feb 2016 01:04:01 -0800 (PST)
-Message-ID: <56AF1CDE.7090703@nvidia.com>
-Date: Mon, 1 Feb 2016 14:22:46 +0530
-From: Laxman Dewangan <ldewangan@nvidia.com>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBGENZ23AKGQEMWKTCXI@googlegroups.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id c140si228571wmh.1.2016.02.28.15.45.28
+        for <rtc-linux@googlegroups.com>;
+        Sun, 28 Feb 2016 15:45:28 -0800 (PST)
+Date: Mon, 29 Feb 2016 00:45:17 +0100
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Grygorii Strashko <grygorii.strashko@ti.com>
+Cc: Lee Jones <lee.jones@linaro.org>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	MyungJoo Ham <myungjoo.ham@samsung.com>,
+	Lars-Peter Clausen <lars@metafoo.de>, rtc-linux@googlegroups.com,
+	linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org,
+	nsekhar@ti.com, linux-omap@vger.kernel.org,
+	Chanwoo Choi <cw00.choi@samsung.com>,
+	Hartmut Knaack <knaack.h@gmx.de>,
+	Peter Meerwald <pmeerw@pmeerw.net>,
+	Tony Lindgren <tony@atomide.com>, Nishanth Menon <nm@ti.com>,
+	Laxman Dewangan <ldewangan@nvidia.com>
+Subject: [rtc-linux] Re: [PATCH 0/7] mfd: Drop IRQF_EARLY_RESUME flag
+Message-ID: <20160228234517.GB3190@piout.net>
+References: <1456501377-16871-1-git-send-email-grygorii.strashko@ti.com>
 MIME-Version: 1.0
-To: Lee Jones <lee.jones@linaro.org>
-CC: <robh+dt@kernel.org>, <pawel.moll@arm.com>, <mark.rutland@arm.com>,
-	<ijc+devicetree@hellion.org.uk>, <galak@codeaurora.org>,
-	<linus.walleij@linaro.org>, <gnurou@gmail.com>, <broonie@kernel.org>,
-	<a.zummo@towertech.it>, <alexandre.belloni@free-electrons.com>,
-	<lgirdwood@gmail.com>, <devicetree@vger.kernel.org>,
-	<linux-kernel@vger.kernel.org>, <linux-gpio@vger.kernel.org>,
-	<rtc-linux@googlegroups.com>, <swarren@nvidia.com>, <treding@nvidia.com>,
-	<k.kozlowski@samsung.com>, Chaitanya Bandi <bandik@nvidia.com>, "Mallikarjun
- Kasoju" <mkasoju@nvidia.com>
-Subject: [rtc-linux] Re: [PATCH V6 2/8] mfd: max77620: add core driver for MAX77620/MAX20024
-References: <1453988274-28052-1-git-send-email-ldewangan@nvidia.com> <1453988274-28052-3-git-send-email-ldewangan@nvidia.com> <20160129090632.GS3368@x1> <56AB462A.8090307@nvidia.com> <20160201085950.GA3368@x1>
-In-Reply-To: <20160201085950.GA3368@x1>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1456501377-16871-1-git-send-email-grygorii.strashko@ti.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -32,91 +33,52 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
+Hi,
 
-On Monday 01 February 2016 02:29 PM, Lee Jones wrote:
-> On Fri, 29 Jan 2016, Laxman Dewangan wrote:
->
->> Thanks Lee for review.
->> I will take care of most of stuff on next version of patch.
->>
->> However, I have some query form your comment.
->> On Friday 29 January 2016 02:36 PM, Lee Jones wrote:
->>> On Thu, 28 Jan 2016, Laxman Dewangan wrote:
->>>
->>>
->>>> +	}
->>>> +
->>>> +#define MAX20024_SUB_MODULE_NO_RES(_name, _id)			\
->>>> +	[_id] = {						\
->>>> +		.name = "max20024-"#_name,			\
->>>> +		.id = _id,					\
->>>> +	}
->>> I don't want people hand-rolling this stuff.  If it's useful to you,
->>> it's useful to others, so great a generic implementation that lives in
->>> the kernel headers directory.
->> yaah, generic implementation possible. I can put the new defines in
->> the mfd/core.h.
->>
->> This will be similar to
->> +/* Define mfd cells with name and resource */
->> +#define DEFINE_MFD_CELL_NAME_RESOURCE(_name, _res)             \
->> +       {                                                       \
->> +               .name = (_name),                                \
->> +               .num_resources = ARRAY_SIZE((res)),             \
->> +               .resources = (_res),                            \
->> +       }
->> +
->> +/* Define mfd cells with name */
->> +#define DEFINE_MFD_CELL_NAME(_name)                            \
->> +       {                                                       \
->> +               .name = (_name),                                \
->> +       }
->> +
->>
->> This will be separate patch and should be applied before this series.
->> Does it look fine?
-> Hmm... Actually, I have my own ideas of how this should look.  How do
-> you feel about me submitting my own patch.  I'll keep you on Cc, so
-> you can review and make use of it in your set.
+On 26/02/2016 at 17:42:50 +0200, Grygorii Strashko wrote :
+> The IRQF_EARLY_RESUME flag is not required for nested irqs anymore,
+> since commit 3c646f2c6aa9 ("genirq: Don't suspend nested_thread irqs
+> over system suspend") was merged.
+> Hence, this flag can be dropped for MFD cell's devices where MFD interrupt
+> controller defines nested IRQs as nested threaded IRQs.
+> 
+> Cc: Lee Jones <lee.jones@linaro.org>
+> Cc: Alessandro Zummo <a.zummo@towertech.it>
+> Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+> Cc: MyungJoo Ham <myungjoo.ham@samsung.com>
+> Cc: Chanwoo Choi <cw00.choi@samsung.com>
+> Cc: Hartmut Knaack <knaack.h@gmx.de>
+> Cc: Lars-Peter Clausen <lars@metafoo.de>
+> Cc: Peter Meerwald <pmeerw@pmeerw.net>
+> Cc: Tony Lindgren <tony@atomide.com>
+> Cc: Nishanth Menon <nm@ti.com>
+> Cc: Laxman Dewangan <ldewangan@nvidia.com>
+> 
+> Grygorii Strashko (7):
+>   extcon: palmas: Drop IRQF_EARLY_RESUME flag
+>   rtc: palmas: Drop IRQF_EARLY_RESUME flag
+>   rtc: tps6586x: Drop IRQF_EARLY_RESUME flag
+>   rtc: tps65910: Drop IRQF_EARLY_RESUME flag
+>   rtc: tps80031: Drop IRQF_EARLY_RESUME flag
+>   rtc: as3722: Drop IRQF_EARLY_RESUME flag
+>   iio: adc: palmas: Drop IRQF_EARLY_RESUME flag
+> 
+>  drivers/extcon/extcon-palmas.c | 4 ++--
+>  drivers/iio/adc/palmas_gpadc.c | 6 +++---
+>  drivers/rtc/rtc-as3722.c       | 2 +-
+>  drivers/rtc/rtc-palmas.c       | 3 +--
+>  drivers/rtc/rtc-tps6586x.c     | 2 +-
+>  drivers/rtc/rtc-tps65910.c     | 2 +-
+>  drivers/rtc/rtc-tps80031.c     | 2 +-
+>  7 files changed, 10 insertions(+), 11 deletions(-)
+> 
 
-Sure, I am fine with this. Please send the patch and CC me so that I can 
-make my patch on top of it and void my mfd/core.h patch.
-Thanks for taking care.
+I applied all the rtc related patches, thanks!
 
-
->>>> +static const struct i2c_device_id max77620_id[] = {
->>>> +	{"max77620", MAX77620},
->>>> +	{"max20024", MAX20024},
->>>> +	{},
->>>> +};
->>>> +MODULE_DEVICE_TABLE(i2c, max77620_id);
->>>> +
->>>> +static const struct of_device_id max77620_of_match[] = {
->>>> +	{
->>>> +		.compatible = "maxim,max77620",
->>>> +		.data = &max77620_cells,
->>>> +	}, {
->>>> +		.compatible = "maxim,max20024",
->>>> +		.data = &max20024_cells,
->>>> +	}, {
->>>> +	},
->>>> +};
->>>> +MODULE_DEVICE_TABLE(of, max77620_of_match);
->>> This is not acceptable.  EITHER use DT OR MFD methods of registering
->>> devices, do not mix the two.
->> You mean I need to either provide the i2c_device_id table or the
->> of_device_id table, not both?
->> Do I need to protect it by CONFIG_OF?
->>
->> This only support the DT method of registration. So do I need to
->> remove i2c_device_id?
-> No, I mean I don't want you providing platform data via an MFD cell
-> and passing it through the OF .data attribute.
-
-This is not platform data, this is chip specific data.
-However, In patch V7, I removed this and use the id_table for the chip 
-data to optimized the chip ID.
-This is not required.
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
 -- 
 -- 
