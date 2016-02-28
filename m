@@ -1,24 +1,19 @@
-Return-Path: <rtc-linux+bncBD2OLRXW4ABBBSN4462QKGQEGMDEP7Y@googlegroups.com>
-Received: from hqemgate15.nvidia.com (hqemgate15.nvidia.com. [216.228.121.64])
-        by gmr-mx.google.com with ESMTPS id ff2si2297446pad.2.2016.02.09.04.40.41
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 09 Feb 2016 04:40:41 -0800 (PST)
-From: Laxman Dewangan <ldewangan@nvidia.com>
-To: <lee.jones@linaro.org>, <alexandre.belloni@free-electrons.com>,
-	<k.kozlowski@samsung.com>, <javier@osg.samsung.com>, <broonie@kernel.org>,
-	<gregkh@linuxfoundation.org>, <a.zummo@towertech.it>
-CC: <cw00.choi@samsung.com>, <linux-kernel@vger.kernel.org>,
-	<rtc-linux@googlegroups.com>, Laxman Dewangan <ldewangan@nvidia.com>
-Subject: [rtc-linux] [PATCH V6 5/6] mfd: max77686: do not set i2c client data
- for rtc i2c client
-Date: Tue, 9 Feb 2016 17:58:26 +0530
-Message-ID: <1455020907-4564-6-git-send-email-ldewangan@nvidia.com>
-In-Reply-To: <1455020907-4564-1-git-send-email-ldewangan@nvidia.com>
-References: <1455020907-4564-1-git-send-email-ldewangan@nvidia.com>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBWMPZ23AKGQEVXHOK4Q@googlegroups.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id 141si565540wmy.2.2016.02.28.15.50.48
+        for <rtc-linux@googlegroups.com>;
+        Sun, 28 Feb 2016 15:50:48 -0800 (PST)
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: rtc-linux@googlegroups.com
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+	linux-kernel@vger.kernel.org,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Subject: [rtc-linux] [PATCH] rtc: rv3029: reword Kconfig option
+Date: Mon, 29 Feb 2016 00:50:32 +0100
+Message-Id: <1456703432-5766-1-git-send-email-alexandre.belloni@free-electrons.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -28,55 +23,33 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-There is different RTC I2C address for RTC block in MAX77686.
-Driver is creating dummy i2c client for this address to access
-the register of this IP block.
+The Kconfig option for rv3029 is not mentioning any part number, explicitly
+show rv3029.
 
-As there is no call to i2c_get_clientdata() for rtc_i2c client,
-there is no need to store pointer and hence removing the call
-to set client data for rtc i2c client.
-
-Suggested-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-Signed-off-by: Laxman Dewangan <ldewangan@nvidia.com>
-CC: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-CC: Javier Martinez Canillas <javier@osg.samsung.com>
-Reviewed-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-Tested-by: Javier Martinez Canillas <javier@osg.samsung.com>
-Reviewed-by: Javier Martinez Canillas <javier@osg.samsung.com>
-
+Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
 ---
-This is new in this series based on review comment from V1.
+ drivers/rtc/Kconfig | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-Changes from V2:
-- Rephrase description.
-- Added reviewed by.
-
-Changes from V3:
-- None, become 5th on series.
-
-Changes from V4:
-None
-
-Changes from V5:
-None
-
- drivers/mfd/max77686.c | 1 -
- 1 file changed, 1 deletion(-)
-
-diff --git a/drivers/mfd/max77686.c b/drivers/mfd/max77686.c
-index d959ebb..bda6fd7 100644
---- a/drivers/mfd/max77686.c
-+++ b/drivers/mfd/max77686.c
-@@ -277,7 +277,6 @@ static int max77686_i2c_probe(struct i2c_client *i2c,
- 				"Failed to allocate I2C device for RTC\n");
- 			return -ENODEV;
- 		}
--		i2c_set_clientdata(max77686->rtc, max77686);
+diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
+index 583c1e6412e5..08df14be7c15 100644
+--- a/drivers/rtc/Kconfig
++++ b/drivers/rtc/Kconfig
+@@ -594,10 +594,10 @@ config RTC_DRV_EM3027
+ 	  will be called rtc-em3027.
  
- 		max77686->rtc_regmap =
- 			devm_regmap_init_i2c(max77686->rtc,
+ config RTC_DRV_RV3029C2
+-	tristate "Micro Crystal RTC"
++	tristate "Micro Crystal RV3029"
+ 	help
+ 	  If you say yes here you get support for the Micro Crystal
+-	  RV3029-C2 RTC chips.
++	  RV3029 RTC chips.
+ 
+ 	  This driver can also be built as a module. If so, the module
+ 	  will be called rtc-rv3029c2.
 -- 
-2.1.4
+2.7.0
 
 -- 
 -- 
