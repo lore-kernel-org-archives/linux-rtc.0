@@ -1,25 +1,26 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRB54LXW3AKGQE6T3LSSY@googlegroups.com>
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id w10si169134wmw.3.2016.02.25.10.20.39
-        for <rtc-linux@googlegroups.com>;
-        Thu, 25 Feb 2016 10:20:39 -0800 (PST)
-Date: Thu, 25 Feb 2016 19:20:38 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Joshua Henderson <joshua.henderson@microchip.com>
-Cc: devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-	Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Ian Campbell <ijc+devicetree@hellion.org.uk>,
-	Kumar Gala <galak@codeaurora.org>,
-	Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com
-Subject: [rtc-linux] Re: [PATCH v3 2/2] rtc: rtc-pic32: Add PIC32 real time
- clock driver
-Message-ID: <20160225182038.GJ12073@piout.net>
-References: <1456421449-18225-2-git-send-email-joshua.henderson@microchip.com>
+Return-Path: <rtc-linux+bncBCPM5SUWUYIRBV6A2G3AKGQE4EMMHRY@googlegroups.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1456421449-18225-2-git-send-email-joshua.henderson@microchip.com>
+Received: from mail-pa0-x236.google.com (mail-pa0-x236.google.com. [2607:f8b0:400e:c03::236])
+        by gmr-mx.google.com with ESMTPS id r75si2050666pfr.0.2016.02.29.07.14.30
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 29 Feb 2016 07:14:30 -0800 (PST)
+Received: by mail-pa0-x236.google.com with SMTP id yy13so93445657pab.3
+        for <rtc-linux@googlegroups.com>; Mon, 29 Feb 2016 07:14:30 -0800 (PST)
+From: Akinobu Mita <akinobu.mita@gmail.com>
+To: rtc-linux@googlegroups.com
+Cc: Akinobu Mita <akinobu.mita@gmail.com>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Dennis Aberilla <denzzzhome@yahoo.com>
+Subject: [rtc-linux] [PATCH v3 7/8] rtc: ds3232-core: fix issue when irq is
+ shared several devices
+Date: Tue,  1 Mar 2016 00:13:51 +0900
+Message-Id: <1456758832-10590-7-git-send-email-akinobu.mita@gmail.com>
+In-Reply-To: <1456758832-10590-1-git-send-email-akinobu.mita@gmail.com>
+References: <1456758832-10590-1-git-send-email-akinobu.mita@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -29,39 +30,77 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 25/02/2016 at 10:30:44 -0700, Joshua Henderson wrote :
-> This driver adds support for the PIC32 real time clock and calendar
-> peripheral:
-> 	- reading and setting time
-> 	- alarms provided by dedicated IRQ
-> 
-> Signed-off-by: Joshua Henderson <joshua.henderson@microchip.com>
-> ---
-> Changes since v2:
-> 	- Fix rework bug causing unecessary retries for gettime.
-> 	- Word commit message to be more precise.
-> Changes since v1:
-> 	- Fix checkpatch.pl --strict issues.
-> 	- Fix alpabetical makefile ordering.
-> 	- Specify consistent license.
-> 	- General formatting cleanup.
-> 	- Drop unecessary flags_lock.
-> 	- Replace ugly gogo with do while.
-> 	- Remove unecessary checks on time when setting alarm.
-> 	- Don't initialize the RTC in probe.
-> ---
->  drivers/rtc/Kconfig     |   10 ++
->  drivers/rtc/Makefile    |    1 +
->  drivers/rtc/rtc-pic32.c |  411 +++++++++++++++++++++++++++++++++++++++++++++++
->  3 files changed, 422 insertions(+)
->  create mode 100644 drivers/rtc/rtc-pic32.c
-> 
-Applied, thanks.
+ds3232-core requests irq with IRQF_SHARED, so irq can be shared by
+several devices.  But the irq handler for ds3232 unconditionally
+disables the irq at first and the irq is re-enabled only when the
+interrupt source was the ds3232's alarm.  This behaviour breaks the
+devices sharing the same irq in the various scenarios.
 
+Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>
+Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: Dennis Aberilla <denzzzhome@yahoo.com>
+---
+* New patch from this version
+
+ drivers/rtc/rtc-ds3232-core.c | 14 ++------------
+ 1 file changed, 2 insertions(+), 12 deletions(-)
+
+diff --git a/drivers/rtc/rtc-ds3232-core.c b/drivers/rtc/rtc-ds3232-core.c
+index be8dfe0..6489380 100644
+--- a/drivers/rtc/rtc-ds3232-core.c
++++ b/drivers/rtc/rtc-ds3232-core.c
+@@ -59,7 +59,6 @@ struct ds3232 {
+ 	 */
+ 	struct mutex mutex;
+ 	bool suspended;
+-	int exiting;
+ };
+ 
+ static int ds3232_check_rtc_status(struct device *dev)
+@@ -314,8 +313,6 @@ static irqreturn_t ds3232_irq(int irq, void *dev_id)
+ 	struct device *dev = dev_id;
+ 	struct ds3232 *ds3232 = dev_get_drvdata(dev);
+ 
+-	disable_irq_nosync(irq);
+-
+ 	/*
+ 	 * If rtc as a wakeup source, can't schedule the work
+ 	 * at system resume flow, because at this time the i2c bus
+@@ -342,8 +339,8 @@ static void ds3232_work(struct work_struct *work)
+ 	if (stat & DS3232_REG_SR_A1F) {
+ 		ret = regmap_read(ds3232->regmap, DS3232_REG_CR, &control);
+ 		if (ret) {
+-			pr_warn("Read Control Register error - Disable IRQ%d\n",
+-				ds3232->irq);
++			dev_warn(ds3232->dev,
++				"Read Control Register error %d\n", ret);
+ 		} else {
+ 			/* disable alarm1 interrupt */
+ 			control &= ~(DS3232_REG_CR_A1IE);
+@@ -367,9 +364,6 @@ static void ds3232_work(struct work_struct *work)
+ 			}
+ 
+ 			rtc_update_irq(ds3232->rtc, 1, RTC_AF | RTC_IRQF);
+-
+-			if (!ds3232->exiting)
+-				enable_irq(ds3232->irq);
+ 		}
+ 	}
+ 
+@@ -428,10 +422,6 @@ int ds3232_remove(struct device *dev)
+ 	struct ds3232 *ds3232 = dev_get_drvdata(dev);
+ 
+ 	if (ds3232->irq > 0) {
+-		mutex_lock(&ds3232->mutex);
+-		ds3232->exiting = 1;
+-		mutex_unlock(&ds3232->mutex);
+-
+ 		devm_free_irq(dev, ds3232->irq, dev);
+ 		cancel_work_sync(&ds3232->work);
+ 	}
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+2.5.0
 
 -- 
 -- 
