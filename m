@@ -1,21 +1,25 @@
-Return-Path: <rtc-linux+bncBD2OLRXW4ABBB4G5YK2QKGQEH6S7Z4Y@googlegroups.com>
-Received: from hqemgate14.nvidia.com (hqemgate14.nvidia.com. [216.228.121.143])
-        by gmr-mx.google.com with ESMTPS id tn7si169085pac.1.2016.02.02.05.28.15
+Return-Path: <rtc-linux+bncBCPM5SUWUYIRBU6A2G3AKGQEVE3WN5A@googlegroups.com>
+MIME-Version: 1.0
+Received: from mail-pa0-x22c.google.com (mail-pa0-x22c.google.com. [2607:f8b0:400e:c03::22c])
+        by gmr-mx.google.com with ESMTPS id ui7si3698544pab.0.2016.02.29.07.14.27
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 02 Feb 2016 05:28:15 -0800 (PST)
-From: Laxman Dewangan <ldewangan@nvidia.com>
-To: <lee.jones@linaro.org>, <alexandre.belloni@free-electrons.com>,
-	<k.kozlowski@samsung.com>, <javier@osg.samsung.com>
-CC: <cw00.choi@samsung.com>, <linux-kernel@vger.kernel.org>,
-	<rtc-linux@googlegroups.com>, Laxman Dewangan <ldewangan@nvidia.com>,
-	Krzysztof Mazur <krzysiek@podlesie.net>
-Subject: [rtc-linux] [PATCH 0/4] rtc: max77686: make max77686 rtc driver as IP driver
-Date: Tue, 2 Feb 2016 18:46:48 +0530
-Message-ID: <1454419012-18050-1-git-send-email-ldewangan@nvidia.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+        Mon, 29 Feb 2016 07:14:27 -0800 (PST)
+Received: by mail-pa0-x22c.google.com with SMTP id bj10so24176316pad.2
+        for <rtc-linux@googlegroups.com>; Mon, 29 Feb 2016 07:14:27 -0800 (PST)
+From: Akinobu Mita <akinobu.mita@gmail.com>
+To: rtc-linux@googlegroups.com
+Cc: Akinobu Mita <akinobu.mita@gmail.com>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Dennis Aberilla <denzzzhome@yahoo.com>
+Subject: [rtc-linux] [PATCH v3 6/8] rtc: ds3232-core: remove unused UIE code
+Date: Tue,  1 Mar 2016 00:13:50 +0900
+Message-Id: <1456758832-10590-6-git-send-email-akinobu.mita@gmail.com>
+In-Reply-To: <1456758832-10590-1-git-send-email-akinobu.mita@gmail.com>
+References: <1456758832-10590-1-git-send-email-akinobu.mita@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -25,33 +29,59 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Based on discussion on patch series of MAX77620 when adding separate
-driver for max77620 RTC, it is discussed to reuse the max77686 driver
-for all CHips MAX77802, MAX77686 and MAX77620. For this, the rtc-max77686
-need to make as IP driver independent of their MFD parent driver.
+UIE mode irqs are handled by the generic rtc core now.  But there are
+remaining unused code fragments for it.
 
-This series makes the rtc-max77686 as independent driver from its
-parent. Required information is passed through the device parent
-which is generic and does not depends on any max77686 specific
-header ifnromation.
+Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>
+Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: Dennis Aberilla <denzzzhome@yahoo.com>
+---
+* New patch from this version
 
-CC: Krzysztof Mazur <krzysiek@podlesie.net>
-CC: Javier Martinez Canillas <javier@osg.samsung.com>
+ drivers/rtc/rtc-ds3232-core.c | 20 +-------------------
+ 1 file changed, 1 insertion(+), 19 deletions(-)
 
-Laxman Dewangan (4):
-  rtc: max77686: fix checkpatch error
-  rtc: max77686: use rtc regmap to access RTC registers
-  rtc: max77686: avoid reference of parent device info multiple palces
-  rtc: max77686: move initialisation of rtc regmap, irq chip locally
-
- drivers/mfd/max77686.c               |  82 +---------
- drivers/rtc/Kconfig                  |   7 +-
- drivers/rtc/rtc-max77686.c           | 295 ++++++++++++++++++++++++++++-------
- include/linux/mfd/max77686-private.h |  16 --
- 4 files changed, 244 insertions(+), 156 deletions(-)
-
+diff --git a/drivers/rtc/rtc-ds3232-core.c b/drivers/rtc/rtc-ds3232-core.c
+index bcce75b..be8dfe0 100644
+--- a/drivers/rtc/rtc-ds3232-core.c
++++ b/drivers/rtc/rtc-ds3232-core.c
+@@ -278,32 +278,14 @@ static int ds3232_update_alarm(struct device *dev, unsigned int enabled)
+ 	struct ds3232 *ds3232 = dev_get_drvdata(dev);
+ 	int control;
+ 	int ret;
+-	u8 buf[4];
+ 
+ 	mutex_lock(&ds3232->mutex);
+ 
+-	ret = regmap_bulk_read(ds3232->regmap, DS3232_REG_ALARM1, buf, 4);
+-	if (ret)
+-		goto unlock;
+-
+-	buf[0] = bcd2bin(buf[0]) < 0 || (ds3232->rtc->irq_data & RTC_UF) ?
+-								0x80 : buf[0];
+-	buf[1] = bcd2bin(buf[1]) < 0 || (ds3232->rtc->irq_data & RTC_UF) ?
+-								0x80 : buf[1];
+-	buf[2] = bcd2bin(buf[2]) < 0 || (ds3232->rtc->irq_data & RTC_UF) ?
+-								0x80 : buf[2];
+-	buf[3] = bcd2bin(buf[3]) < 0 || (ds3232->rtc->irq_data & RTC_UF) ?
+-								0x80 : buf[3];
+-
+-	ret = regmap_bulk_write(ds3232->regmap, DS3232_REG_ALARM1, buf, 4);
+-	if (ret)
+-		goto unlock;
+-
+ 	ret = regmap_read(ds3232->regmap, DS3232_REG_CR, &control);
+ 	if (ret)
+ 		goto unlock;
+ 
+-	if (enabled || (ds3232->rtc->irq_data & RTC_UF))
++	if (enabled)
+ 		/* enable alarm1 interrupt */
+ 		control |= DS3232_REG_CR_A1IE;
+ 	else
 -- 
-2.1.4
+2.5.0
 
 -- 
 -- 
