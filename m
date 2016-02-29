@@ -1,24 +1,27 @@
-Return-Path: <rtc-linux+bncBD2OLRXW4ABBBOUO4O2QKGQEXC4L6OY@googlegroups.com>
-Received: from hqemgate15.nvidia.com (hqemgate15.nvidia.com. [216.228.121.64])
-        by gmr-mx.google.com with ESMTPS id ff2si1726234pad.2.2016.02.08.08.50.02
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 08 Feb 2016 08:50:02 -0800 (PST)
-Message-ID: <56B8C484.7000309@nvidia.com>
-Date: Mon, 8 Feb 2016 22:08:28 +0530
-From: Laxman Dewangan <ldewangan@nvidia.com>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBROD2K3AKGQERNFF6TQ@googlegroups.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id h126si444777wme.0.2016.02.29.11.53.40
+        for <rtc-linux@googlegroups.com>;
+        Mon, 29 Feb 2016 11:53:40 -0800 (PST)
+Date: Mon, 29 Feb 2016 20:52:58 +0100
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Michael =?iso-8859-1?Q?B=FCsch?= <m@bues.ch>
+Cc: Gregory Hermant <gregory.hermant@calao-systems.com>,
+	rtc-linux@googlegroups.com
+Subject: Re: [rtc-linux] rv3029 EEPROM handling
+Message-ID: <20160229195258.GB2627@piout.net>
+References: <20160227153918.3c3d3853@wiggum>
+ <20160228003139.GB2398@piout.net>
+ <20160228094452.132c1938@wiggum>
+ <20160228104110.GC2398@piout.net>
+ <20160228125852.1a0b271e@wiggum>
+ <20160228123618.GD2398@piout.net>
+ <20160228181450.3ba14f7f@wiggum>
+ <20160228213920.GA2260@piout.net>
+ <20160229180749.42f75ec8@wiggum>
 MIME-Version: 1.0
-To: Mark Brown <broonie@kernel.org>
-CC: <lee.jones@linaro.org>, <alexandre.belloni@free-electrons.com>,
-	<k.kozlowski@samsung.com>, <javier@osg.samsung.com>,
-	<gregkh@linuxfoundation.org>, <a.zummo@towertech.it>,
-	<cw00.choi@samsung.com>, <linux-kernel@vger.kernel.org>,
-	<rtc-linux@googlegroups.com>
-Subject: [rtc-linux] Re: [PATCH V4 1/6] regmap: irq: add apis to unmap the
- mapped irq
-References: <1454769447-785-1-git-send-email-ldewangan@nvidia.com> <1454769447-785-2-git-send-email-ldewangan@nvidia.com> <20160208145550.GE7265@sirena.org.uk>
-In-Reply-To: <20160208145550.GE7265@sirena.org.uk>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <20160229180749.42f75ec8@wiggum>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -29,54 +32,50 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
+On 29/02/2016 at 18:07:49 +0100, Michael B=C3=BCsch wrote :
+> > Also, to export the temperature, use hwmon, see:
+> > http://git.kernel.org/cgit/linux/kernel/git/abelloni/linux.git/commit/?=
+h=3Drtc-next&id=3D445c02076f1e60d2ee51503bf1288ef9f3bc8809
+>=20
+> That is a rather weird API.
+> Is there a special naming scheme required for the attribute?
+> What does the 'input' mean in 'temp1_input'? And why is it temp1
+> instead of temp0?
 
-On Monday 08 February 2016 08:25 PM, Mark Brown wrote:
-> * PGP Signed by an unknown key
->
-> On Sat, Feb 06, 2016 at 08:07:22PM +0530, Laxman Dewangan wrote:
->
->> Before removing irq domains, it is require to unmap all
->> mapped interrupt from that domain. Currently there is API
->> to map the interrupt on chip as regmap_irq_get_virq() for
->> creating mapping. Add equivalent API to dispose the mapped
->> irq in irq domains.
-> This makes no sense to me.  Why would you ever want to unmap the
-> interrupts separately to destroying the domain
+It means that you can read the value as opposed to output it for example
+on a 3d printing nozzle.
 
-This is the requirement from irq_domain_remove(). This is what we have 
-in irq_domain_remove():
-kernel/irq/irqdomain.c
+I'm not sure why it is indexed starting with 1 but probably because
+usually that's how user documentation is written. You'd have to ask the
+hwmon maintainers ;)
 
-/*
-  * This routine is used to remove an irq domain. The caller must ensure
-  * that all mappings within the domain have been disposed of prior to
-  * use, depending on the revmap type.
-  */
-void irq_domain_remove(struct irq_domain *domain)
+>=20
+> > You may want to use regmap instead of defining your own update_bits
+> > (rv3029c2_i2c_maskset_reg) but that is a more invasie change that you
+> > may leave out for now.
+>=20
+> Ok, I will do this last.
+> Don't hold your breath. :)
+>=20
 
-
-I am adding the API equivalent to regmap_irq_get_virq() to unmap virtual 
-irq here.
-
-
-
-> and why would you ever
-> want to destroy the domain without unmapping the interrupts?
->
-That's exactlly we are trying to do, unmap interrupt in client level 
-before destroying domain.
+I'm not even sure this is a good idea but I'd need to have a look at the
+code to know ;)
 
 
+--=20
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
-
-
--- 
--- 
+--=20
+--=20
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+---=20
+You received this message because you are subscribed to the Google Groups "=
+rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an e=
+mail to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
