@@ -1,25 +1,23 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBE6SZW3AKGQEC4RE24A@googlegroups.com>
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id h73si371810wme.0.2016.02.28.13.39.30
-        for <rtc-linux@googlegroups.com>;
-        Sun, 28 Feb 2016 13:39:30 -0800 (PST)
-Date: Sun, 28 Feb 2016 22:39:20 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Michael =?iso-8859-1?Q?B=FCsch?= <m@bues.ch>
-Cc: Gregory Hermant <gregory.hermant@calao-systems.com>,
-	rtc-linux@googlegroups.com
-Subject: Re: [rtc-linux] rv3029 EEPROM handling
-Message-ID: <20160228213920.GA2260@piout.net>
-References: <20160227153918.3c3d3853@wiggum>
- <20160228003139.GB2398@piout.net>
- <20160228094452.132c1938@wiggum>
- <20160228104110.GC2398@piout.net>
- <20160228125852.1a0b271e@wiggum>
- <20160228123618.GD2398@piout.net>
- <20160228181450.3ba14f7f@wiggum>
+Return-Path: <rtc-linux+bncBD2OLRXW4ABBB4MG2G3AKGQEI4TQVOI@googlegroups.com>
+Received: from hqemgate15.nvidia.com (hqemgate15.nvidia.com. [216.228.121.64])
+        by gmr-mx.google.com with ESMTPS id ff2si3912363pad.2.2016.02.29.05.11.13
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 29 Feb 2016 05:11:13 -0800 (PST)
+From: Laxman Dewangan <ldewangan@nvidia.com>
+To: <k.kozlowski@samsung.com>, <alexandre.belloni@free-electrons.com>,
+	<a.zummo@towertech.it>
+CC: <cw00.choi@samsung.com>, <rtc-linux@googlegroups.com>,
+	<linux-kernel@vger.kernel.org>, <javier@osg.samsung.com>,
+	<rklein@nvidia.com>, Laxman Dewangan <ldewangan@nvidia.com>
+Subject: [rtc-linux] [PATCH 2/2] rtc: max77686: Use REGMAP_IRQ_REG for
+ regmap-rtc-irqs initialisation
+Date: Mon, 29 Feb 2016 18:28:25 +0530
+Message-ID: <1456750705-13579-2-git-send-email-ldewangan@nvidia.com>
+In-Reply-To: <1456750705-13579-1-git-send-email-ldewangan@nvidia.com>
+References: <1456750705-13579-1-git-send-email-ldewangan@nvidia.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <20160228181450.3ba14f7f@wiggum>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -30,60 +28,47 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 28/02/2016 at 18:14:50 +0100, Michael B=C3=BCsch wrote :
-> On Sun, 28 Feb 2016 13:36:18 +0100
-> Alexandre Belloni <alexandre.belloni@free-electrons.com> wrote:
->=20
-> > More simply, don't enable the trickle charger if the
-> > trickle-resistor-ohms property is missing.
-> >=20
-> > Leave out the trickle-diode-disable property
->=20
-> D'oh indeed. :)
->=20
-> The rv3029 has a clkout pin that can be configured to various
-> frequencies. So I added a 'clkout-hz' property for this.
->=20
+use macro REGMAP_IRQ_REG from regmap.h to initialise the
+regmap irq table for max77686.
 
-No, you have to use the CCF for that. For a recent example, see:
-http://git.kernel.org/cgit/linux/kernel/git/abelloni/linux.git/commit/?h=3D=
-rtc-next&id=3D578bb1d82bdd7fb86d5988fb775c871521a2761f
+Signed-off-by: Laxman Dewangan <ldewangan@nvidia.com>
+---
+ drivers/rtc/rtc-max77686.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-> > That part is not HW related, it should not be in the device tree. I'd
-> > really just enable the temperature compensation else, this has to be
-> > done in sysfs
->=20
-> Ok.
->=20
-> Just for the record:
-> I started an initial implementation of this here in the rv3029 branch:
-> git://git.bues.ch/linux.git
-> http://bues.ch/gitweb?p=3Dlinux.git;a=3Dshortlog;h=3Drefs/heads/rv3029
+diff --git a/drivers/rtc/rtc-max77686.c b/drivers/rtc/rtc-max77686.c
+index 39d529a..0cb422b 100644
+--- a/drivers/rtc/rtc-max77686.c
++++ b/drivers/rtc/rtc-max77686.c
+@@ -174,12 +174,12 @@ static const unsigned int max77686_map[REG_RTC_END] = {
+ 
+ static const struct regmap_irq max77686_rtc_irqs[] = {
+ 	/* RTC interrupts */
+-	{ .reg_offset = 0, .mask = MAX77686_RTCINT_RTC60S_MSK, },
+-	{ .reg_offset = 0, .mask = MAX77686_RTCINT_RTCA1_MSK, },
+-	{ .reg_offset = 0, .mask = MAX77686_RTCINT_RTCA2_MSK, },
+-	{ .reg_offset = 0, .mask = MAX77686_RTCINT_SMPL_MSK, },
+-	{ .reg_offset = 0, .mask = MAX77686_RTCINT_RTC1S_MSK, },
+-	{ .reg_offset = 0, .mask = MAX77686_RTCINT_WTSR_MSK, },
++	REGMAP_IRQ_REG(0, 0, MAX77686_RTCINT_RTC60S_MSK),
++	REGMAP_IRQ_REG(1, 0, MAX77686_RTCINT_RTCA1_MSK),
++	REGMAP_IRQ_REG(2, 0, MAX77686_RTCINT_RTCA2_MSK),
++	REGMAP_IRQ_REG(3, 0, MAX77686_RTCINT_SMPL_MSK),
++	REGMAP_IRQ_REG(4, 0, MAX77686_RTCINT_RTC1S_MSK),
++	REGMAP_IRQ_REG(5, 0, MAX77686_RTCINT_WTSR_MSK),
+ };
+ 
+ static const struct regmap_irq_chip max77686_rtc_irq_chip = {
+-- 
+2.1.4
 
-I had a really quick look, I'll review when you post patches. Please
-separate each functionality when submitting and use checkpatch.pl --strict
-
-Also, to export the temperature, use hwmon, see:
-http://git.kernel.org/cgit/linux/kernel/git/abelloni/linux.git/commit/?h=3D=
-rtc-next&id=3D445c02076f1e60d2ee51503bf1288ef9f3bc8809
-
-You may want to use regmap instead of defining your own update_bits
-(rv3029c2_i2c_maskset_reg) but that is a more invasie change that you
-may leave out for now.
---=20
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
-
---=20
---=20
+-- 
+-- 
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
----=20
-You received this message because you are subscribed to the Google Groups "=
-rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an e=
-mail to rtc-linux+unsubscribe@googlegroups.com.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
