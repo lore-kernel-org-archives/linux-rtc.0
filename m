@@ -1,22 +1,21 @@
-Return-Path: <rtc-linux+bncBD2OLRXW4ABBBIWV3G3AKGQETKED4DA@googlegroups.com>
-Received: from hqemgate16.nvidia.com (hqemgate16.nvidia.com. [216.228.121.65])
-        by gmr-mx.google.com with ESMTPS id y20si2932600pfa.2.2016.03.01.20.22.57
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 01 Mar 2016 20:22:57 -0800 (PST)
-Message-ID: <56D667AC.5030400@nvidia.com>
-Date: Wed, 2 Mar 2016 09:40:20 +0530
-From: Laxman Dewangan <ldewangan@nvidia.com>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRB6522W3AKGQENW3SW4Q@googlegroups.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id w197si742717wmw.3.2016.03.01.01.14.35
+        for <rtc-linux@googlegroups.com>;
+        Tue, 01 Mar 2016 01:14:35 -0800 (PST)
+Date: Tue, 1 Mar 2016 10:14:34 +0100
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: RTCLINUX <rtc-linux@googlegroups.com>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: [rtc-linux] Re: [PATCH] rtc: enable COMPILE_TEST
+Message-ID: <20160301091434.GE2627@piout.net>
+References: <1456788518-31420-1-git-send-email-alexandre.belloni@free-electrons.com>
+ <CAMuHMdW52X2y3t+oHt3Uvax_ihBxr2F7j9xCzWSqfn0RRC+Yfw@mail.gmail.com>
 MIME-Version: 1.0
-To: Krzysztof Kozlowski <k.kozlowski@samsung.com>,
-	<alexandre.belloni@free-electrons.com>, <a.zummo@towertech.it>
-CC: <cw00.choi@samsung.com>, <rtc-linux@googlegroups.com>,
-	<linux-kernel@vger.kernel.org>, <javier@osg.samsung.com>, <rklein@nvidia.com>
-Subject: [rtc-linux] Re: [PATCH 1/2] rtc: max77686: Add support for
- MAX20024/MAX77620 RTC IP
-References: <1456750705-13579-1-git-send-email-ldewangan@nvidia.com> <56D63A9C.20506@samsung.com> <56D64CAC.5030704@nvidia.com> <56D6636F.6090403@samsung.com>
-In-Reply-To: <56D6636F.6090403@samsung.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <CAMuHMdW52X2y3t+oHt3Uvax_ihBxr2F7j9xCzWSqfn0RRC+Yfw@mail.gmail.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -27,66 +26,32 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
+Hi,
 
-On Wednesday 02 March 2016 09:22 AM, Krzysztof Kozlowski wrote:
-> On 02.03.2016 11:15, Laxman Dewangan wrote:
->
->>>> (kernel_ulong_t)&max77802_drv_data, },
->>>> +    { "max77620-rtc", .driver_data =
->>>> (kernel_ulong_t)&max77620_drv_data, },
->>>> +    { "max20024-rtc", .driver_data =
->>>> (kernel_ulong_t)&max77620_drv_data, },
->>> There shouldn't be "max20024-rtc". This is exactly the same as
->>> "max77620-rtc" so re-use existing id. No point of duplicating device
->>> names for 100% compatible devices.
->>>
->>>
->> I am thinking that having compatible for each device which it supports
->> is better.
->>
->> In MFD, I have made all sub module of max20024 as max20024-<module>.
->> I have not mixed the sub module name for max20024 with max77620 module.
-> The point of compatible is to be... compatible so you don't create
-> compatibles for the same meaning!
->
-> However this is actually not a compatible but a matching name... which
-> should follow the same idea. You did not give any argument why this is
-> better.
+On 01/03/2016 at 10:01:12 +0100, Geert Uytterhoeven wrote :
+> On Tue, Mar 1, 2016 at 12:28 AM, Alexandre Belloni
+> <alexandre.belloni@free-electrons.com> wrote:
+> > There are several arch-specific RTC drivers that can be successfully
+> > compiled on other platforms. Add a COMPILE_TEST dependency for those.
+> >
+> > Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+> 
+> Acked-by: Geert Uytterhoeven <geert@linux-m68k.org>
+> 
+> BTW, no additional dependencies needed on sun3-allmodconfig.
+> One new warning seen, patch sent.
+> 
 
-My point is that if any driver supporting the any devices then it should 
-be there in their compatibility although other everything is same.
+This is only a tentative patch to see what issues that has. currently,
+this fails on ia64 and mn10300 so I will probably not sent it as is to
+Linus.
 
-This way, it is easy to find that the driver is available for the device 
-or not. Also easy way to tell that someone has invested time to find out 
-the driver corresponding to device and he confirmed that this driver is 
-compatible with that device.
-Otherwise, it is difficult to quickly find out the driver whether this 
-is available/support or not for given device.
+Thanks for looking into it!
 
-Datasheet never says that this device is same as some other device and 
-hence this is the only place to tell for SW guys.
-
-
-
-> For me, code like this:
-> { "max77802-rtc", .driver_data = (kernel_ulong_t)&max77802_drv_data, },
-> { "max77620-rtc", .driver_data = (kernel_ulong_t)&max77620_drv_data, },
-> { "max77621-rtc", .driver_data = (kernel_ulong_t)&max77620_drv_data, },
-> { "max77622-rtc", .driver_data = (kernel_ulong_t)&max77620_drv_data, },
-> { "max77623-rtc", .driver_data = (kernel_ulong_t)&max77620_drv_data, },
-> { "max776xx-some-other-rtc", .driver_data =
-> (kernel_ulong_t)&max77620_drv_data, },
-> { "max77624-rtc", .driver_data = (kernel_ulong_t)&max77620_drv_data, },
->
-> is useless, ridiculous and obfuscated. It is duplication of code just
-> "because". The child driver is selected by matching mfd-cell or
-> compatible. We are reusing child drivers so reuse under the same name.
->
-> Best regards,
-> Krzysztof
->
->
->
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
 -- 
 -- 
