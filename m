@@ -1,20 +1,27 @@
-Return-Path: <rtc-linux+bncBDEKVJM7XAHRBEFT4C3AKGQEBJFHQEY@googlegroups.com>
-Received: from mout.kundenserver.de (mout.kundenserver.de. [212.227.17.10])
-        by gmr-mx.google.com with ESMTPS id v68si359096wmd.1.2016.03.03.03.01.35
+Return-Path: <rtc-linux+bncBD2OLRXW4ABBBLMC223AKGQESVZSAYQ@googlegroups.com>
+Received: from hqemgate15.nvidia.com (hqemgate15.nvidia.com. [216.228.121.64])
+        by gmr-mx.google.com with ESMTPS id ui7si4290434pab.0.2016.03.01.03.46.53
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 03 Mar 2016 03:01:35 -0800 (PST)
-From: Arnd Bergmann <arnd@arndb.de>
-To: linux-arm-kernel@lists.infradead.org
-Cc: Krzysztof Kozlowski <k.kozlowski@samsung.com>, Daniel Lezcano <daniel.lezcano@linaro.org>, Thomas Gleixner <tglx@linutronix.de>, Dan Williams <dan.j.williams@intel.com>, Vinod Koul <vinod.koul@intel.com>, Jason Cooper <jason@lakedaemon.net>, Marc Zyngier <marc.zyngier@arm.com>, Mauro Carvalho Chehab <mchehab@osg.samsung.com>, Lee Jones <lee.jones@linaro.org>, Giuseppe Cavallaro <peppe.cavallaro@st.com>, Kishon Vijay Abraham I <kishon@ti.com>, Linus Walleij <linus.walleij@linaro.org>, Sebastian Reichel <sre@kernel.org>, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, David Woodhouse <dwmw2@infradead.org>, Alessandro Zummo <a.zummo@towertech.it>, Alexandre Belloni <alexandre.belloni@free-electrons.com>, Andy Gross <andy.gross@linaro.org>, David Brown <david.brown@linaro.org>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-kernel@vger.kernel.org, dmaengine@vger.kernel.org, linux-media@vger.kernel.org, linux-samsung-soc@vger.kernel.org, netdev@vger.kernel.org, linux-gpio@vger.kernel.org, linux-pm@vger.kernel.org, rtc-linux@googlegroups.com, linux-arm-msm@vger.kernel.org, linux-soc@vger.kernel.org, devel@driverdev.osuosl.org, linux-usb@vger.kernel.org
-Subject: [rtc-linux] Re: [RFC 14/15] usb: xhci: mtk: Add missing MFD_SYSCON
- dependency on HAS_IOMEM
-Date: Thu, 03 Mar 2016 12:01:21 +0100
-Message-ID: <2531852.vizHtxotvy@wuerfel>
-In-Reply-To: <1456992221-26712-15-git-send-email-k.kozlowski@samsung.com>
-References: <1456992221-26712-1-git-send-email-k.kozlowski@samsung.com> <1456992221-26712-15-git-send-email-k.kozlowski@samsung.com>
+        Tue, 01 Mar 2016 03:46:53 -0800 (PST)
+Message-ID: <56D57E38.2060804@nvidia.com>
+Date: Tue, 1 Mar 2016 17:04:16 +0530
+From: Laxman Dewangan <ldewangan@nvidia.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+To: Thierry Reding <treding@nvidia.com>
+CC: <robh+dt@kernel.org>, <pawel.moll@arm.com>, <mark.rutland@arm.com>,
+	<ijc+devicetree@hellion.org.uk>, <galak@codeaurora.org>,
+	<linus.walleij@linaro.org>, <gnurou@gmail.com>, <lee.jones@linaro.org>,
+	<broonie@kernel.org>, <a.zummo@towertech.it>,
+	<alexandre.belloni@free-electrons.com>, <lgirdwood@gmail.com>,
+	<devicetree@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+	<linux-gpio@vger.kernel.org>, <rtc-linux@googlegroups.com>,
+	<swarren@nvidia.com>, <k.kozlowski@samsung.com>
+Subject: [rtc-linux] Re: [PATCH V8 0/8] Add support for MAXIM
+ MAX77620/MAX20024 PMIC
+References: <1455191794-6065-1-git-send-email-ldewangan@nvidia.com> <20160216160029.GC11400@ulmo.nvidia.com> <56C7EE58.8000905@nvidia.com> <20160225161510.GB1903@ulmo.nvidia.com>
+In-Reply-To: <20160225161510.GB1903@ulmo.nvidia.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -25,24 +32,48 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Thursday 03 March 2016 17:03:40 Krzysztof Kozlowski wrote:
-> index 8c20ebbc049c..f759a778d606 100644
-> --- a/drivers/usb/host/Kconfig
-> +++ b/drivers/usb/host/Kconfig
-> @@ -45,6 +45,7 @@ config USB_XHCI_PLATFORM
->  
->  config USB_XHCI_MTK
->         tristate "xHCI support for Mediatek MT65xx"
-> +       depends on HAS_IOMEM    # For MFD_SYSCON
->         select MFD_SYSCON
->         depends on ARCH_MEDIATEK || COMPILE_TEST
->         ---help---
-> 
 
-This already has the dependency, as it depends on XHCD_PLATFORM
-which depends on HAS_IOMEM.
+On Thursday 25 February 2016 09:45 PM, Thierry Reding wrote:
+> On Sat, Feb 20, 2016 at 10:10:56AM +0530, Laxman Dewangan wrote:
+>> On Tuesday 16 February 2016 09:30 PM, Thierry Reding wrote:
+>>> On Thu, Feb 11, 2016 at 05:26:26PM +0530, Laxman Dewangan wrote:
+>>>> Add SW support for MAXIM Semiconductor's Power Management
+>>>> IC (PMIC) MAX77620/MAX20024. This PMIC supports DC-DC/LDOS, GPIOs,
+>>>> RTC, watchdog, clocks etc.
+>>> Hi Laxman,
+>>>
+>>> This series is starting to look pretty good. Do you have patches in the
+>>> works to add the corresponding DT content for the various boards that we
+>>> support? I think the Jetson TX1 patch would be most interesting since
+>>> that's what people can get their hands on.
+>>>
+>> Yes, I am just waiting for this series to be concluded and applied. Once it
+>> is done, I will immediately post the patches to enable this driver in config
+>> and dt entry for the Jetson-TX1.
+> Why hold back on the patches? I'm currently having trouble testing
+> your stash here on Jetson TX1 and I suspect that I'm using the wrong
+> device tree content (it was derived from downstream many moons ago).
+> There's nothing wrong with posting patches that depend on patches on
+> the list. Typically you'd note the dependency in the cover letter to
+> make it easier for people to find what belongs together.
+>
 
-	Arnd
+OK, posted patches as:
+
+[PATCH 2/2] arm64: tegra: Jetson-TX1: Add DT entry for system PMIC MAX77620
+[PATCH 1/2] arm64: tegra: Add DT entry for keys used in Jetson-TX1
+[PATCH 1/1] arm64: defconfig: Enable Maxim PMIC max77620 config
+
+Currently, the execution is crashing with this series + above patches as 
+MFD_CELLS are not correctly defined.
+Discussion is going on with patch from Rhyland Klein
+[PATCH] mfd: Fix MACRO for commonly declared MFD cell attributes
+
+Once MFD_CELL defines get fixed, either series need to be revisit or 
+automatically fix the issue.
+
+
+
 
 -- 
 -- 
