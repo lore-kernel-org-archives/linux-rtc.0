@@ -1,28 +1,21 @@
-Return-Path: <rtc-linux+bncBDKZNNNLXAHBBMXW3C3AKGQE5BUQI7I@googlegroups.com>
-Received: from mailout1.w1.samsung.com (mailout1.w1.samsung.com. [210.118.77.11])
-        by gmr-mx.google.com with ESMTPS id ui7si4801784pab.0.2016.03.01.17.00.33
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1 cipher=AES128-SHA bits=128/128);
-        Tue, 01 Mar 2016 17:00:33 -0800 (PST)
-Received: from eucpsbgm1.samsung.com (unknown [203.254.199.244])
- by mailout1.w1.samsung.com
- (Oracle Communications Messaging Server 7.0.5.31.0 64bit (built May  5 2014))
- with ESMTP id <0O3E00F8404TU260@mailout1.w1.samsung.com> for
- rtc-linux@googlegroups.com; Wed, 02 Mar 2016 01:00:29 +0000 (GMT)
-Subject: [rtc-linux] Re: [PATCH 2/2] rtc: max77686: Use REGMAP_IRQ_REG for
- regmap-rtc-irqs initialisation
-To: Laxman Dewangan <ldewangan@nvidia.com>,
- alexandre.belloni@free-electrons.com, a.zummo@towertech.it
-References: <1456750705-13579-1-git-send-email-ldewangan@nvidia.com>
- <1456750705-13579-2-git-send-email-ldewangan@nvidia.com>
-Cc: cw00.choi@samsung.com, rtc-linux@googlegroups.com,
- linux-kernel@vger.kernel.org, javier@osg.samsung.com, rklein@nvidia.com
-From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-Message-id: <56D63B28.9030502@samsung.com>
-Date: Wed, 02 Mar 2016 10:00:24 +0900
-MIME-version: 1.0
-In-reply-to: <1456750705-13579-2-git-send-email-ldewangan@nvidia.com>
-Content-type: text/plain; charset=UTF-8
+Return-Path: <rtc-linux+bncBDS7HNEFSALRB6NI223AKGQE24BX5WY@googlegroups.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id w10si786832wmw.3.2016.03.01.05.09.13
+        for <rtc-linux@googlegroups.com>;
+        Tue, 01 Mar 2016 05:09:13 -0800 (PST)
+Date: Tue, 1 Mar 2016 14:09:12 +0100
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+	Yoichi Yuasa <yuasa@linux-mips.org>,
+	John Stultz <john.stultz@linaro.org>, rtc-linux@googlegroups.com,
+	linux-mips@linux-mips.org
+Subject: [rtc-linux] Re: [PATCH/RFT] rtc: rtc-vr41xx: Wire up alarm_irq_enable
+Message-ID: <20160301130912.GH2627@piout.net>
+References: <1456822201-12408-1-git-send-email-geert@linux-m68k.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1456822201-12408-1-git-send-email-geert@linux-m68k.org>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -33,53 +26,32 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 29.02.2016 21:58, Laxman Dewangan wrote:
-> use macro REGMAP_IRQ_REG from regmap.h to initialise the
-> regmap irq table for max77686.
+On 01/03/2016 at 09:50:01 +0100, Geert Uytterhoeven wrote :
+> drivers/rtc/rtc-vr41xx.c:229: warning: =E2=80=98vr41xx_rtc_alarm_irq_enab=
+le=E2=80=99 defined but not used
+>=20
+> Apparently the conversion to alarm_irq_enable forgot to wire up the
+> callback.
+>=20
+> Fixes: 16380c153a69c378 ("RTC: Convert rtc drivers to use the alarm_irq_e=
+nable method")
+> Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Applied, thanks.
 
-Why? Any benefits?
+--=20
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
-Best regards,
-Krzysztof
-
-> 
-> Signed-off-by: Laxman Dewangan <ldewangan@nvidia.com>
-> ---
->  drivers/rtc/rtc-max77686.c | 12 ++++++------
->  1 file changed, 6 insertions(+), 6 deletions(-)
-> 
-> diff --git a/drivers/rtc/rtc-max77686.c b/drivers/rtc/rtc-max77686.c
-> index 39d529a..0cb422b 100644
-> --- a/drivers/rtc/rtc-max77686.c
-> +++ b/drivers/rtc/rtc-max77686.c
-> @@ -174,12 +174,12 @@ static const unsigned int max77686_map[REG_RTC_END] = {
->  
->  static const struct regmap_irq max77686_rtc_irqs[] = {
->  	/* RTC interrupts */
-> -	{ .reg_offset = 0, .mask = MAX77686_RTCINT_RTC60S_MSK, },
-> -	{ .reg_offset = 0, .mask = MAX77686_RTCINT_RTCA1_MSK, },
-> -	{ .reg_offset = 0, .mask = MAX77686_RTCINT_RTCA2_MSK, },
-> -	{ .reg_offset = 0, .mask = MAX77686_RTCINT_SMPL_MSK, },
-> -	{ .reg_offset = 0, .mask = MAX77686_RTCINT_RTC1S_MSK, },
-> -	{ .reg_offset = 0, .mask = MAX77686_RTCINT_WTSR_MSK, },
-> +	REGMAP_IRQ_REG(0, 0, MAX77686_RTCINT_RTC60S_MSK),
-> +	REGMAP_IRQ_REG(1, 0, MAX77686_RTCINT_RTCA1_MSK),
-> +	REGMAP_IRQ_REG(2, 0, MAX77686_RTCINT_RTCA2_MSK),
-> +	REGMAP_IRQ_REG(3, 0, MAX77686_RTCINT_SMPL_MSK),
-> +	REGMAP_IRQ_REG(4, 0, MAX77686_RTCINT_RTC1S_MSK),
-> +	REGMAP_IRQ_REG(5, 0, MAX77686_RTCINT_WTSR_MSK),
->  };
->  
->  static const struct regmap_irq_chip max77686_rtc_irq_chip = {
-> 
-
--- 
--- 
+--=20
+--=20
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+---=20
+You received this message because you are subscribed to the Google Groups "=
+rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an e=
+mail to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
