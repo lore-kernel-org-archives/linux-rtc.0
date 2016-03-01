@@ -1,21 +1,25 @@
-Return-Path: <rtc-linux+bncBDEKVJM7XAHRBAG44C3AKGQEQRDHSNQ@googlegroups.com>
-Received: from mout.kundenserver.de (mout.kundenserver.de. [212.227.126.135])
-        by gmr-mx.google.com with ESMTPS id s141si111215wmd.1.2016.03.03.04.28.47
+Return-Path: <rtc-linux+bncBDEKVJM7XAHRBIUV263AKGQEEVHA4OA@googlegroups.com>
+MIME-Version: 1.0
+Received: from mout.kundenserver.de (mout.kundenserver.de. [212.227.17.24])
+        by gmr-mx.google.com with ESMTPS id c140si5469wmh.1.2016.03.01.09.00.18
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 03 Mar 2016 04:28:47 -0800 (PST)
+        Tue, 01 Mar 2016 09:00:18 -0800 (PST)
 From: Arnd Bergmann <arnd@arndb.de>
-To: linux-arm-kernel@lists.infradead.org
-Cc: Krzysztof Kozlowski <k.kozlowski@samsung.com>, rtc-linux@googlegroups.com, Linus Walleij <linus.walleij@linaro.org>, Sebastian Reichel <sre@kernel.org>, David Brown <david.brown@linaro.org>, Alexandre Belloni <alexandre.belloni@free-electrons.com>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Krzysztof Kozlowski <k.kozlowski.k@gmail.com>, Lee Jones <lee.jones@linaro.org>, Dan Williams <dan.j.williams@intel.com>, devel@driverdev.osuosl.org, linux-samsung-soc@vger.kernel.org, Vinod Koul <vinod.koul@intel.com>, Daniel Lezcano <daniel.lezcano@linaro.org>, Kishon Vijay Abraham I <kishon@ti.com>, Andy Gross <andy.gross@linaro.org>, linux-media@vger.kernel.org, Jason Cooper <jason@lakedaemon.net>, Mauro Carvalho Chehab <mchehab@osg.samsung.com>, Marc Zyngier <marc.zyngier@arm.com>, linux-arm-msm@vger.kernel.org, linux-gpio@vger.kernel.org, Giuseppe Cavallaro <peppe.cavallaro@st.com>, Thomas Gleixner <tglx@linutronix.de>, linux-soc@vger.kernel.org, Alessandro Zummo <a.zummo@towertech.it>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-pm@vger.kernel.org, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, netdev@vger.kernel.org, dmaengine@vger.kernel.org, David Woodhouse <dwmw2@infradead.org>
-Subject: Re: [rtc-linux] Re: [RFC 04/15] irqchip: st: Add missing MFD_SYSCON
- dependency on HAS_IOMEM
-Date: Thu, 03 Mar 2016 13:28:29 +0100
-Message-ID: <2188157.YL7RR6FeEK@wuerfel>
-In-Reply-To: <CAJKOXPcZuyicNAaH6CpOe+bTrLtM1k0tVisS_xJXGDrxyZ_i5A@mail.gmail.com>
-References: <1456992221-26712-1-git-send-email-k.kozlowski@samsung.com> <2506651.J2Z42d81nD@wuerfel> <CAJKOXPcZuyicNAaH6CpOe+bTrLtM1k0tVisS_xJXGDrxyZ_i5A@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: linux-arm-kernel@lists.infradead.org,
+	Kyle McMartin <kyle@mcmartin.ca>,
+	rtc-linux@googlegroups.com,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	linuxppc-dev@lists.ozlabs.org,
+	linux-sh@vger.kernel.org,
+	linux-parisc@vger.kernel.org,
+	linux-m68k@lists.linux-m68k.org
+Subject: [rtc-linux] [PATCH 0/6] rtc: generic: follow up for COMPILE_TEST
+Date: Tue,  1 Mar 2016 17:59:56 +0100
+Message-Id: <1456851608-3374907-1-git-send-email-arnd@arndb.de>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -25,30 +29,21 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Thursday 03 March 2016 21:00:57 Krzysztof Kozlowski wrote:
-> >
-> > Not user visible.
-> 
-> Hmmm... you are right (here and in other patches) but why am I getting
-> all these errors:
-> warning: (ST_IRQCHIP && HIP04_ETH && STMMAC_PLATFORM && DWMAC_IPQ806X
-> && DWMAC_LPC18XX && DWMAC_ROCKCHIP && DWMAC_SOCFPGA && DWMAC_STI &&
-> TI_CPSW && PINCTRL_ROCKCHIP && PINCTRL_DOVE && POWER_RESET_KEYSTONE &&
-> S3C2410_WATCHDOG && VIDEO_OMAP3 && VIDEO_S5P_FIMC && USB_XHCI_MTK &&
-> RTC_DRV_AT91SAM9 && LPC18XX_DMAMUX && VIDEO_OMAP4 && HWSPINLOCK_QCOM
-> && ATMEL_ST && QCOM_GSBI && PHY_HI6220_USB) selects MFD_SYSCON which
-> has unmet direct dependencies (HAS_IOMEM)
-> ?
-> (ARCH=um, allyesconfig)
+Today's linux-next kernel allowed building the rtc-generic
+driver (and most other rtc drivers) on all architectures,
+but this caused some errors on architectures without asm/rtc.h.
 
-The problem is that Kconfig will just print any option that
-selects the one that has a missing dependency, but doesn't
-show which of those are actually enabled.
+This series reworks that driver to avoid the dependency,
+and simplifies all four implementations. My first approach
+was to split the driver into four separate drivers, but
+that didn't feel right when three of them have their own
+multiplexors.
 
-> Adding depends here (and in other places) really helps... but it
-> should not have any impact...
-
-I think patch 5 by itself would have been sufficient.
+The first five patches can be applied independent of one other,
+while patch 6 is optional and can be applied when all others
+are merged. Alternatively, they can all go in through the
+rtc tree. I compile-tested only the powerpc and sh targets for
+which I happened to have cross-compilers installed.
 
 	Arnd
 
