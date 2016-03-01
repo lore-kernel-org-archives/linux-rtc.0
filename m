@@ -1,293 +1,108 @@
-Return-Path: <rtc-linux+bncBAABBGUK5G3QKGQEPFNCVIA@googlegroups.com>
-Sender: rtc-linux@googlegroups.com
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id g81si693454wmi.3.2016.03.29.02.04.26
-        for <rtc-linux@googlegroups.com>;
-        Tue, 29 Mar 2016 02:04:26 -0700 (PDT)
-From: =?UTF-8?q?Myl=C3=A8ne=20Josserand?= <mylene.josserand@free-electrons.com>
-To: alexandre.belloni@free-electrons.com,
-	rtc-linux@googlegroups.com
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
-	linux-kernel@vger.kernel.org,
-	mylene.josserand@free-electrons.com
-Subject: [rtc-linux] [PATCH v2 6/8] rtc: m41t80: add alarm functionality
-Date: Tue, 29 Mar 2016 11:04:13 +0200
-Message-Id: <1459242253-25871-1-git-send-email-mylene.josserand@free-electrons.com>
-In-Reply-To: <1932c2b8c5f0c5d89c0578c300c9e18a283e8df0>
-References: <1932c2b8c5f0c5d89c0578c300c9e18a283e8df0>
+Return-Path: <rtc-linux+bncBDEKVJM7XAHRBFUW263AKGQERACJ5KY@googlegroups.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Received: from mout.kundenserver.de (mout.kundenserver.de. [212.227.17.13])
+        by gmr-mx.google.com with ESMTPS id e130si4329wme.2.2016.03.01.09.02.14
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 01 Mar 2016 09:02:14 -0800 (PST)
+From: Arnd Bergmann <arnd@arndb.de>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: linux-arm-kernel@lists.infradead.org,
+	Kyle McMartin <kyle@mcmartin.ca>,
+	rtc-linux@googlegroups.com,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	linuxppc-dev@lists.ozlabs.org,
+	linux-sh@vger.kernel.org,
+	linux-parisc@vger.kernel.org,
+	linux-m68k@lists.linux-m68k.org,
+	Arnd Bergmann <arnd@arndb.de>,
+	linux-kernel@vger.kernel.org
+Subject: [rtc-linux] [PATCH 6/6] rtc: generic: remove get_rtc_time/set_rtc_time
+ wrappers
+Date: Tue,  1 Mar 2016 18:00:02 +0100
+Message-Id: <1456851608-3374907-7-git-send-email-arnd@arndb.de>
+In-Reply-To: <1456851608-3374907-1-git-send-email-arnd@arndb.de>
+References: <1456851608-3374907-1-git-send-email-arnd@arndb.de>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
 List-Archive: <https://groups.google.com/group/rtc-linux
+Sender: rtc-linux@googlegroups.com
 List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Previous 'commit c3b79770e51a ("Expire alarms after the time is set")'
-and 'commit 48e9766726eb ("remove disabled alarm functionality")' removed
-the alarm support because the alarm irq was not functional.
+All architectures using this driver are now converted to
+provide their own operations, so this one can be turned
+into a trivial stub driver relying on its platform data.
 
-Add the alarm IRQ functionality with newer functions than previous
-code. Tested with 'rtctest' and the alarm is functional.
-
-Signed-off-by: Myl=C3=A8ne Josserand <mylene.josserand@free-electrons.com>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 ---
-v2: Unlock mutex in case of errors.
+ drivers/rtc/rtc-generic.c | 36 +-----------------------------------
+ 1 file changed, 1 insertion(+), 35 deletions(-)
 
- drivers/rtc/rtc-m41t80.c | 180 +++++++++++++++++++++++++++++++++++++++++++=
-----
- 1 file changed, 167 insertions(+), 13 deletions(-)
-
-diff --git a/drivers/rtc/rtc-m41t80.c b/drivers/rtc/rtc-m41t80.c
-index 1575b08..c724738 100644
---- a/drivers/rtc/rtc-m41t80.c
-+++ b/drivers/rtc/rtc-m41t80.c
-@@ -90,6 +90,46 @@ struct m41t80_data {
- 	struct rtc_device *rtc;
- };
-=20
-+static irqreturn_t m41t80_handle_irq(int irq, void *dev_id)
-+{
-+	struct i2c_client *client =3D dev_id;
-+	struct m41t80_data *m41t80 =3D i2c_get_clientdata(client);
-+	struct mutex *lock =3D &m41t80->rtc->ops_lock;
-+	unsigned long events =3D 0;
-+	int flags, flags_afe;
-+
-+	mutex_lock(lock);
-+
-+	flags_afe =3D i2c_smbus_read_byte_data(client, M41T80_REG_ALARM_MON);
-+	if (flags_afe < 0) {
-+		mutex_unlock(lock);
-+		return IRQ_NONE;
-+	}
-+
-+	flags =3D i2c_smbus_read_byte_data(client, M41T80_REG_FLAGS);
-+	if (flags <=3D 0) {
-+		mutex_unlock(lock);
-+		return IRQ_NONE;
-+	}
-+
-+	if (flags & M41T80_FLAGS_AF) {
-+		flags &=3D ~M41T80_FLAGS_AF;
-+		flags_afe &=3D ~M41T80_ALMON_AFE;
-+		events |=3D RTC_AF;
-+	}
-+
-+	if (events) {
-+		rtc_update_irq(m41t80->rtc, 1, events);
-+		i2c_smbus_write_byte_data(client, M41T80_REG_FLAGS, flags);
-+		i2c_smbus_write_byte_data(client, M41T80_REG_ALARM_MON,
-+					  flags_afe);
-+	}
-+
-+	mutex_unlock(lock);
-+
-+	return IRQ_HANDLED;
-+}
-+
- static int m41t80_get_datetime(struct i2c_client *client,
- 			       struct rtc_time *tm)
+diff --git a/drivers/rtc/rtc-generic.c b/drivers/rtc/rtc-generic.c
+index d726c6aa96a8..1bf5d2347928 100644
+--- a/drivers/rtc/rtc-generic.c
++++ b/drivers/rtc/rtc-generic.c
+@@ -9,44 +9,10 @@
+ #include <linux/platform_device.h>
+ #include <linux/rtc.h>
+ 
+-#if defined(CONFIG_M68K) || defined(CONFIG_PARISC) || \
+-    defined(CONFIG_PPC) || defined(CONFIG_SUPERH32)
+-#include <asm/rtc.h>
+-
+-static int generic_get_time(struct device *dev, struct rtc_time *tm)
+-{
+-	unsigned int ret = get_rtc_time(tm);
+-
+-	if (ret & RTC_BATT_BAD)
+-		return -EOPNOTSUPP;
+-
+-	return rtc_valid_tm(tm);
+-}
+-
+-static int generic_set_time(struct device *dev, struct rtc_time *tm)
+-{
+-	if (set_rtc_time(tm) < 0)
+-		return -EOPNOTSUPP;
+-
+-	return 0;
+-}
+-
+-static const struct rtc_class_ops generic_rtc_ops = {
+-	.read_time = generic_get_time,
+-	.set_time = generic_set_time,
+-};
+-#else
+-#define generic_rtc_ops *(struct rtc_class_ops*)NULL
+-#endif
+-
+ static int __init generic_rtc_probe(struct platform_device *dev)
  {
-@@ -167,10 +207,109 @@ static int m41t80_rtc_set_time(struct device *dev, s=
-truct rtc_time *tm)
- 	return m41t80_set_datetime(to_i2c_client(dev), tm);
- }
-=20
--/*
-- * XXX - m41t80 alarm functionality is reported broken.
-- * until it is fixed, don't register alarm functions.
-- */
-+static int m41t80_alarm_irq_enable(struct device *dev, unsigned int enable=
-d)
-+{
-+	struct i2c_client *client =3D to_i2c_client(dev);
-+	int flags, retval;
-+
-+	flags =3D i2c_smbus_read_byte_data(client, M41T80_REG_ALARM_MON);
-+	if (flags < 0)
-+		return flags;
-+
-+	if (enabled)
-+		flags |=3D M41T80_ALMON_AFE;
-+	else
-+		flags &=3D ~M41T80_ALMON_AFE;
-+
-+	retval =3D i2c_smbus_write_byte_data(client, M41T80_REG_ALARM_MON, flags)=
-;
-+	if (retval < 0) {
-+		dev_info(dev, "Unable to enable alarm IRQ %d\n", retval);
-+		return retval;
-+	}
-+	return 0;
-+}
-+
-+static int m41t80_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
-+{
-+	struct i2c_client *client =3D to_i2c_client(dev);
-+	u8 alarmvals[5];
-+	int ret, err;
-+
-+	alarmvals[0] =3D bin2bcd(alrm->time.tm_mon + 1);
-+	alarmvals[1] =3D bin2bcd(alrm->time.tm_mday);
-+	alarmvals[2] =3D bin2bcd(alrm->time.tm_hour);
-+	alarmvals[3] =3D bin2bcd(alrm->time.tm_min);
-+	alarmvals[4] =3D bin2bcd(alrm->time.tm_sec);
-+
-+	/* Clear AF and AFE flags */
-+	ret =3D i2c_smbus_read_byte_data(client, M41T80_REG_ALARM_MON);
-+	if (ret < 0)
-+		return ret;
-+	err =3D i2c_smbus_write_byte_data(client, M41T80_REG_ALARM_MON,
-+					ret & ~(M41T80_ALMON_AFE));
-+	if (err < 0) {
-+		dev_err(dev, "Unable to clear AFE bit\n");
-+		return err;
-+	}
-+
-+	ret =3D i2c_smbus_read_byte_data(client, M41T80_REG_FLAGS);
-+	if (ret < 0)
-+		return ret;
-+
-+	err =3D i2c_smbus_write_byte_data(client, M41T80_REG_FLAGS,
-+					ret & ~(M41T80_FLAGS_AF));
-+	if (err < 0) {
-+		dev_err(dev, "Unable to clear AF bit\n");
-+		return err;
-+	}
-+
-+	/* Write the alarm */
-+	err =3D i2c_smbus_write_i2c_block_data(client, M41T80_REG_ALARM_MON,
-+					     5, alarmvals);
-+	if (err)
-+		return err;
-+
-+	/* Enable the alarm interrupt */
-+	if (alrm->enabled) {
-+		alarmvals[0] |=3D M41T80_ALMON_AFE;
-+		err =3D i2c_smbus_write_byte_data(client, M41T80_REG_ALARM_MON,
-+						alarmvals[0]);
-+		if (err)
-+			return err;
-+	}
-+
-+	return 0;
-+}
-+
-+static int m41t80_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
-+{
-+	struct i2c_client *client =3D to_i2c_client(dev);
-+	u8 alarmvals[5];
-+	int flags, ret;
-+
-+	ret =3D i2c_smbus_read_i2c_block_data(client, M41T80_REG_ALARM_MON,
-+					    5, alarmvals);
-+	if (ret !=3D 5)
-+		return ret < 0 ? ret : -EIO;
-+
-+	flags =3D i2c_smbus_read_byte_data(client, M41T80_REG_FLAGS);
-+	if (flags < 0)
-+		return flags;
-+
-+	alrm->time.tm_sec  =3D bcd2bin(alarmvals[4] & 0x7f);
-+	alrm->time.tm_min  =3D bcd2bin(alarmvals[3] & 0x7f);
-+	alrm->time.tm_hour =3D bcd2bin(alarmvals[2] & 0x3f);
-+	alrm->time.tm_wday =3D -1;
-+	alrm->time.tm_mday =3D bcd2bin(alarmvals[1] & 0x3f);
-+	alrm->time.tm_mon  =3D bcd2bin(alarmvals[0] & 0x3f);
-+	alrm->time.tm_year =3D -1;
-+
-+	alrm->enabled =3D !!(alarmvals[0] & M41T80_ALMON_AFE);
-+	alrm->pending =3D (flags & M41T80_FLAGS_AF) && alrm->enabled;
-+
-+	return 0;
-+}
-+
- static struct rtc_class_ops m41t80_rtc_ops =3D {
- 	.read_time =3D m41t80_rtc_read_time,
- 	.set_time =3D m41t80_rtc_set_time,
-@@ -591,7 +730,7 @@ static int m41t80_probe(struct i2c_client *client,
- 	int rc =3D 0;
- 	struct rtc_device *rtc =3D NULL;
- 	struct rtc_time tm;
--	struct m41t80_data *clientdata =3D NULL;
-+	struct m41t80_data *m41t80_data =3D NULL;
-=20
- 	if (!i2c_check_functionality(client->adapter, I2C_FUNC_SMBUS_I2C_BLOCK |
- 				     I2C_FUNC_SMBUS_BYTE_DATA)) {
-@@ -599,26 +738,41 @@ static int m41t80_probe(struct i2c_client *client,
- 		return -ENODEV;
- 	}
-=20
--	clientdata =3D devm_kzalloc(&client->dev, sizeof(*clientdata),
--				  GFP_KERNEL);
--	if (!clientdata)
-+	m41t80_data =3D devm_kzalloc(&client->dev, sizeof(*m41t80_data),
-+				   GFP_KERNEL);
-+	if (!m41t80_data)
- 		return -ENOMEM;
-=20
--	clientdata->features =3D id->driver_data;
--	i2c_set_clientdata(client, clientdata);
-+	m41t80_data->features =3D id->driver_data;
-+	i2c_set_clientdata(client, m41t80_data);
-+
-+	if (client->irq > 0) {
-+		rc =3D devm_request_threaded_irq(&client->dev, client->irq,
-+					       NULL, m41t80_handle_irq,
-+					       IRQF_TRIGGER_LOW | IRQF_ONESHOT,
-+					       "m41t80", client);
-+		if (rc) {
-+			dev_warn(&client->dev, "unable to request IRQ, alarms disabled\n");
-+			client->irq =3D 0;
-+		} else {
-+			m41t80_rtc_ops.read_alarm =3D m41t80_read_alarm;
-+			m41t80_rtc_ops.set_alarm =3D m41t80_set_alarm;
-+			m41t80_rtc_ops.alarm_irq_enable =3D m41t80_alarm_irq_enable;
-+		}
-+	}
-=20
- 	rtc =3D devm_rtc_device_register(&client->dev, client->name,
- 				       &m41t80_rtc_ops, THIS_MODULE);
- 	if (IS_ERR(rtc))
- 		return PTR_ERR(rtc);
-=20
--	clientdata->rtc =3D rtc;
-+	m41t80_data->rtc =3D rtc;
-=20
- 	/* Make sure HT (Halt Update) bit is cleared */
- 	rc =3D i2c_smbus_read_byte_data(client, M41T80_REG_ALARM_HOUR);
-=20
- 	if (rc >=3D 0 && rc & M41T80_ALHOUR_HT) {
--		if (clientdata->features & M41T80_FEATURE_HT) {
-+		if (m41t80_data->features & M41T80_FEATURE_HT) {
- 			m41t80_get_datetime(client, &tm);
- 			dev_info(&client->dev, "HT bit was set!\n");
- 			dev_info(&client->dev,
-@@ -664,7 +818,7 @@ static int m41t80_probe(struct i2c_client *client,
- 	}
-=20
- #ifdef CONFIG_RTC_DRV_M41T80_WDT
--	if (clientdata->features & M41T80_FEATURE_HT) {
-+	if (m41t80_data->features & M41T80_FEATURE_HT) {
- 		save_client =3D client;
- 		rc =3D misc_register(&wdt_dev);
- 		if (rc)
---=20
-2.8.0.rc3
+ 	struct rtc_device *rtc;
+-	const struct rtc_class_ops *ops;
+-
+-	ops = dev_get_platdata(&dev->dev);
+-	if (!ops)
+-		ops = &generic_rtc_ops;
++	const struct rtc_class_ops *ops = dev_get_platdata(&dev->dev);
+ 
+ 	rtc = devm_rtc_device_register(&dev->dev, "rtc-generic",
+ 					ops, THIS_MODULE);
+-- 
+2.7.0
 
---=20
---=20
+-- 
+-- 
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
----=20
-You received this message because you are subscribed to the Google Groups "=
-rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an e=
-mail to rtc-linux+unsubscribe@googlegroups.com.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
