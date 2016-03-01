@@ -1,105 +1,102 @@
-Return-Path: <rtc-linux+bncBAABBM6O5C3QKGQE3VGU77I@googlegroups.com>
-Sender: rtc-linux@googlegroups.com
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBVOB3C3AKGQEFETUHEQ@googlegroups.com>
 Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id v68si739419wmd.1.2016.03.28.23.56.51
+        by gmr-mx.google.com with ESMTP id s141si100958wmd.1.2016.03.01.15.08.05
         for <rtc-linux@googlegroups.com>;
-        Mon, 28 Mar 2016 23:56:51 -0700 (PDT)
-From: =?UTF-8?q?Myl=C3=A8ne=20Josserand?= <mylene.josserand@free-electrons.com>
-To: alexandre.belloni@free-electrons.com,
+        Tue, 01 Mar 2016 15:08:05 -0800 (PST)
+Date: Wed, 2 Mar 2016 00:07:45 +0100
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Michael =?iso-8859-1?Q?B=FCsch?= <m@bues.ch>
+Cc: Gregory Hermant <gregory.hermant@calao-systems.com>,
 	rtc-linux@googlegroups.com
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
-	linux-kernel@vger.kernel.org,
-	mylene.josserand@free-electrons.com
-Subject: [rtc-linux] [PATCH 8/8] rtc: m41t80: handle oscillator failure bit
-Date: Tue, 29 Mar 2016 08:56:05 +0200
-Message-Id: <bc780d98b8b242f4f3f0eb5d7ff1e9ebf36d9f0e.1459233897.git.mylene.josserand@free-electrons.com>
-In-Reply-To: <cover.1459188215.git.mylene.josserand@free-electrons.com>
-References: <cover.1459188215.git.mylene.josserand@free-electrons.com>
-In-Reply-To: <cover.1459233897.git.mylene.josserand@free-electrons.com>
-References: <cover.1459233897.git.mylene.josserand@free-electrons.com>
+Subject: [rtc-linux] Re: [PATCH] rtc-rv3029c2: Add trickle charger
+Message-ID: <20160301230745.GJ23985@piout.net>
+References: <20160301213322.661fe771@wiggum>
+ <20160301213655.GG23985@piout.net>
+ <20160301225401.3f0aeabb@wiggum>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <20160301225401.3f0aeabb@wiggum>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
 List-Archive: <https://groups.google.com/group/rtc-linux
+Sender: rtc-linux@googlegroups.com
 List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Handle the Oscillator Failure (OF) bit on each read of date-time.
-If the OF is set, an error is returned (-EINVAL) instead of the date-time.
-The OF bit is cleared each time the date is set.
+On 01/03/2016 at 22:54:01 +0100, Michael B=C3=BCsch wrote :
+>=20
+> > > +	/* Check whether we are in the allowed voltage range. */
+> > > +	for (i =3D 100; i > 0; i--) {
+> > > +		ret =3D rv3029c2_i2c_get_sr(client, &sr);
+> > > +		if (ret < 0)
+> > > +			return ret;
+> > > +		if (!(sr & (RV3029C2_STATUS_VLOW1 | RV3029C2_STATUS_VLOW2)))
+> > > +			break;
+> > > +
+> > > +		sr &=3D ~RV3029C2_STATUS_VLOW1;
+> > > +		sr &=3D ~RV3029C2_STATUS_VLOW2;
+> > > +		ret =3D rv3029c2_i2c_set_sr(client, sr);
+> > > +		if (ret < 0)
+> > > +			return ret; =20
+> >=20
+> > I wouldn't reset the VLOW1 and VLOW2 flags here. Just bail out if the
+> > voltage is not sufficient. I don't think that condition will actually
+> > get better simply by waiting.
+>=20
+>=20
+> I do actually think so that we should clear them at least once (that is
+> retry once). According to the data sheet these bits will not reset
+> automatically and might be left over from machine start (brown out).
+>=20
 
-Signed-off-by: Myl=C3=A8ne Josserand <mylene.josserand@free-electrons.com>
----
- drivers/rtc/rtc-m41t80.c | 25 +++++++++++++++++++++++--
- 1 file changed, 23 insertions(+), 2 deletions(-)
+No, this should be handled differently. I have some pending patches to
+handle those bits. The main issue is that if you reset those bits there,
+there is now way to know whether the date has been set or is invalid.
 
-diff --git a/drivers/rtc/rtc-m41t80.c b/drivers/rtc/rtc-m41t80.c
-index 660a734..64d66a9 100644
---- a/drivers/rtc/rtc-m41t80.c
-+++ b/drivers/rtc/rtc-m41t80.c
-@@ -56,6 +56,7 @@
- #define M41T80_ALMON_AFE	BIT(7)	/* AFE: AF Enable Bit */
- #define M41T80_ALMON_SQWE	BIT(6)	/* SQWE: SQW Enable Bit */
- #define M41T80_ALHOUR_HT	BIT(6)	/* HT: Halt Update Bit */
-+#define M41T80_FLAGS_OF		BIT(2)	/* OF: Oscillator Failure Bit */
- #define M41T80_FLAGS_AF		BIT(6)	/* AF: Alarm Flag Bit */
- #define M41T80_FLAGS_BATT_LOW	BIT(4)	/* BL: Battery Low Bit */
- #define M41T80_WATCHDOG_RB2	BIT(7)	/* RB: Watchdog resolution */
-@@ -130,7 +131,16 @@ static int m41t80_get_datetime(struct i2c_client *clie=
-nt,
- 			       struct rtc_time *tm)
- {
- 	unsigned char buf[8];
--	int err;
-+	int err, flags;
-+
-+	flags =3D i2c_smbus_read_byte_data(client, M41T80_REG_FLAGS);
-+	if (flags < 0)
-+		return flags;
-+
-+	if (flags & M41T80_FLAGS_OF) {
-+		dev_err(&client->dev, "Oscillator failure, data is invalid.\n");
-+		return -EINVAL;
-+	}
-=20
- 	err =3D i2c_smbus_read_i2c_block_data(client, M41T80_REG_SSEC,
- 					    sizeof(buf), buf);
-@@ -155,7 +165,7 @@ static int m41t80_get_datetime(struct i2c_client *clien=
-t,
- static int m41t80_set_datetime(struct i2c_client *client, struct rtc_time =
-*tm)
- {
- 	unsigned char buf[8];
--	int err;
-+	int err, flags;
-=20
- 	if (tm->tm_year < 100 || tm->tm_year > 199)
- 		return -EINVAL;
-@@ -176,6 +186,17 @@ static int m41t80_set_datetime(struct i2c_client *clie=
-nt, struct rtc_time *tm)
- 		return err;
- 	}
-=20
-+	/* Clear the OF bit of Flags Register */
-+	flags =3D i2c_smbus_read_byte_data(client, M41T80_REG_FLAGS);
-+	if (flags < 0)
-+		return flags;
-+
-+	if (i2c_smbus_write_byte_data(client, M41T80_REG_FLAGS,
-+				      flags & ~M41T80_FLAGS_OF)) {
-+		dev_err(&client->dev, "Unable to write flags register\n");
-+		return -EIO;
-+	}
-+
- 	return err;
- }
-=20
+I think the best way to handle this case is to call the function again
+when the date/time are set and we have to reset VLOW1/2.
+
+> > > +	err =3D of_property_read_u32(of_node, "trickle-resistor-ohms", &ohm=
+s);
+> > > +	if (err) {
+> > > +		/* Disable trickle charger. */
+> > > +		eectrl &=3D ~RV3029C2_TRICKLE_MASK; =20
+> >=20
+> > I wouldn't touch it at all, some people may set it in the bootloader an=
+d
+> > don't expect linux to change the value.
+>=20
+> But that would mean there is no way to disable it once it got enabled.
+> So I'd rather keep it like this or use special values (like a huge
+> value) like we already discussed.
+>=20
+
+Agreed, keep it that way.
+
+> > > +	rc =3D rv3029c2_of_init(client);
+> > > +	if (rc < 0) {
+> > > +		dev_err(&client->dev, "OF init failed.\n");
+> > > +		return rc; =20
+> >=20
+> > I don't think this should be a hard failure, the RTC can function
+> > without that particular configuration, the previous error message is
+> > enough (no need for two messages).
+>=20
+> Only 50% agree here. :)
+> And RTC without a working backup battery is not really that useful.
+> But I can remove the error checking of course.
+>=20
+
+As proposed, I think we can retry to set trickle charging when
+necessary, when setting the date.
+
 --=20
-2.8.0.rc3
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
 --=20
 --=20
