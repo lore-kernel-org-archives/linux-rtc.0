@@ -1,46 +1,24 @@
-Return-Path: <rtc-linux+bncBDKZNNNLXAHBB2PA363AKGQED25SQ4A@googlegroups.com>
-MIME-Version: 1.0
-Received: from mailout4.w1.samsung.com (mailout4.w1.samsung.com. [210.118.77.14])
-        by gmr-mx.google.com with ESMTPS id y20si3907161pfa.2.2016.03.03.00.06.01
+Return-Path: <rtc-linux+bncBCC6ZWOPXENRBZNE2W3AKGQEOOPNNGI@googlegroups.com>
+Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de. [2001:67c:670:201:290:27ff:fe1d:cc33])
+        by gmr-mx.google.com with ESMTPS id h73si549545wme.0.2016.03.01.00.27.16
         for <rtc-linux@googlegroups.com>
-        (version=TLS1 cipher=AES128-SHA bits=128/128);
-        Thu, 03 Mar 2016 00:06:01 -0800 (PST)
-Received: from eucpsbgm1.samsung.com (unknown [203.254.199.244])
- by mailout4.w1.samsung.com
- (Oracle Communications Messaging Server 7.0.5.31.0 64bit (built May  5 2014))
- with ESMTP id <0O3G00EHBEHXIZ90@mailout4.w1.samsung.com> for
- rtc-linux@googlegroups.com; Thu, 03 Mar 2016 08:05:58 +0000 (GMT)
-From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-To: Daniel Lezcano <daniel.lezcano@linaro.org>,
- Thomas Gleixner <tglx@linutronix.de>, Dan Williams <dan.j.williams@intel.com>,
- Vinod Koul <vinod.koul@intel.com>, Jason Cooper <jason@lakedaemon.net>,
- Marc Zyngier <marc.zyngier@arm.com>,
- Mauro Carvalho Chehab <mchehab@osg.samsung.com>,
- Lee Jones <lee.jones@linaro.org>, Giuseppe Cavallaro <peppe.cavallaro@st.com>,
- Kishon Vijay Abraham I <kishon@ti.com>,
- Linus Walleij <linus.walleij@linaro.org>, Sebastian Reichel <sre@kernel.org>,
- Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>,
- David Woodhouse <dwmw2@infradead.org>,
+        (version=TLS1_2 cipher=AES128-SHA bits=128/128);
+        Tue, 01 Mar 2016 00:27:16 -0800 (PST)
+From: Juergen Borleis <jbe@pengutronix.de>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Subject: [rtc-linux] Re: [PATCH] rtc: pcf85063: remove useless century handling
+Date: Tue, 1 Mar 2016 09:29:19 +0100
+Cc: rtc-linux@googlegroups.com,
  Alessandro Zummo <a.zummo@towertech.it>,
- Alexandre Belloni <alexandre.belloni@free-electrons.com>,
- Andy Gross <andy.gross@linaro.org>, David Brown <david.brown@linaro.org>,
- Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
- Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-kernel@vger.kernel.org,
- dmaengine@vger.kernel.org, linux-media@vger.kernel.org,
- linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org,
- netdev@vger.kernel.org, linux-gpio@vger.kernel.org, linux-pm@vger.kernel.org,
- rtc-linux@googlegroups.com, linux-arm-msm@vger.kernel.org,
- linux-soc@vger.kernel.org, devel@driverdev.osuosl.org,
- linux-usb@vger.kernel.org
-Cc: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-Subject: [rtc-linux] [RFC 13/15] staging: media: omap4iss: Add missing
- MFD_SYSCON dependency on HAS_IOMEM
-Date: Thu, 03 Mar 2016 17:03:39 +0900
-Message-id: <1456992221-26712-14-git-send-email-k.kozlowski@samsung.com>
-In-reply-to: <1456992221-26712-1-git-send-email-k.kozlowski@samsung.com>
-References: <1456992221-26712-1-git-send-email-k.kozlowski@samsung.com>
+ linux-kernel@vger.kernel.org,
+ Ulrich =?iso-8859-15?q?=D6lmann?= <u.oelmann@pengutronix.de>
+References: <1456268728-343-1-git-send-email-alexandre.belloni@free-electrons.com>
+In-Reply-To: <1456268728-343-1-git-send-email-alexandre.belloni@free-electrons.com>
+MIME-Version: 1.0
+Content-Type: Text/Plain;
+  charset="iso-8859-15"
+Message-Id: <201603010929.19210.jbe@pengutronix.de>
 Reply-To: rtc-linux@googlegroups.com
-Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -50,36 +28,47 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-The MFD_SYSCON depends on HAS_IOMEM so when selecting it avoid unmet
-direct dependencies.
+On Wednesday 24 February 2016 00:05:28 Alexandre Belloni wrote:
+> pcf85063_get_datetime() tries to handle a century bit but that bit is not
+> documented and the final value is never used anywhere else in the kernel.
+>
+> Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+> ---
+>  drivers/rtc/rtc-pcf85063.c | 6 ------
+>  1 file changed, 6 deletions(-)
+>
+> diff --git a/drivers/rtc/rtc-pcf85063.c b/drivers/rtc/rtc-pcf85063.c
+> index c5db231f14de..2b3b99b094b5 100644
+> --- a/drivers/rtc/rtc-pcf85063.c
+> +++ b/drivers/rtc/rtc-pcf85063.c
+> @@ -31,13 +31,10 @@
+>  #define PCF85063_REG_MO			0x09
+>  #define PCF85063_REG_YR			0x0A
+>
+> -#define PCF85063_MO_C			0x80 /* century */
+> -
+>  static struct i2c_driver pcf85063_driver;
+>
+>  struct pcf85063 {
+>  	struct rtc_device *rtc;
+> -	int c_polarity;	/* 0: MO_C=3D1 means 19xx, otherwise MO_C=3D1 means 20x=
+x */
+>  	int voltage_low; /* indicates if a low_voltage was detected */
+>  };
+>
+> @@ -103,9 +100,6 @@ static int pcf85063_get_datetime(struct i2c_client
+> *client, struct rtc_time *tm) tm->tm_year =3D bcd2bin(regs[6]);
+>  	if (tm->tm_year < 70)
+>  		tm->tm_year +=3D 100;	/* assume we are in 1970...2069 */
+> -	/* detect the polarity heuristically. see note above. */
+> -	pcf85063->c_polarity =3D (regs[5] & PCF85063_MO_C) ?
+> -		(tm->tm_year >=3D 100) : (tm->tm_year < 100);
+>
+>  	return rtc_valid_tm(tm);
+>  }
 
-Signed-off-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
----
- drivers/staging/media/omap4iss/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+Reviewed-by: Juergen Borleis <jbe@pengutronix.de>
+Tested-by: Ulrich =D6lmann <u.oelmann@pengutronix.de>
 
-diff --git a/drivers/staging/media/omap4iss/Kconfig b/drivers/staging/media/omap4iss/Kconfig
-index 46183464ee79..7dea072172aa 100644
---- a/drivers/staging/media/omap4iss/Kconfig
-+++ b/drivers/staging/media/omap4iss/Kconfig
-@@ -2,6 +2,7 @@ config VIDEO_OMAP4
- 	tristate "OMAP 4 Camera support"
- 	depends on VIDEO_V4L2 && VIDEO_V4L2_SUBDEV_API && I2C && ARCH_OMAP4
- 	depends on HAS_DMA
-+	depends on HAS_IOMEM	# For MFD_SYSCON
- 	select MFD_SYSCON
- 	select VIDEOBUF2_DMA_CONTIG
- 	---help---
--- 
-2.5.0
-
--- 
--- 
-You received this message because you are subscribed to "rtc-linux".
-Membership options at http://groups.google.com/group/rtc-linux .
-Please read http://groups.google.com/group/rtc-linux/web/checklist
-before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
-For more options, visit https://groups.google.com/d/optout.
+Regards,
+Juergen
