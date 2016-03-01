@@ -1,25 +1,22 @@
-Return-Path: <rtc-linux+bncBCPM5SUWUYIRBEUZ6G3AKGQEDUWS5KQ@googlegroups.com>
-MIME-Version: 1.0
-Received: from mail-pf0-x243.google.com (mail-pf0-x243.google.com. [2607:f8b0:400e:c00::243])
-        by gmr-mx.google.com with ESMTPS id yd9si2325312pab.1.2016.03.06.07.28.18
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sun, 06 Mar 2016 07:28:18 -0800 (PST)
-Received: by mail-pf0-x243.google.com with SMTP id 184so6455798pff.1
-        for <rtc-linux@googlegroups.com>; Sun, 06 Mar 2016 07:28:18 -0800 (PST)
-From: Akinobu Mita <akinobu.mita@gmail.com>
-To: rtc-linux@googlegroups.com
-Cc: Akinobu Mita <akinobu.mita@gmail.com>,
-	Alessandro Zummo <a.zummo@towertech.it>,
+Return-Path: <rtc-linux+bncBCQJP74GSUDRBPNP2W3AKGQE5BB7EDI@googlegroups.com>
+Received: from michel.telenet-ops.be (michel.telenet-ops.be. [2a02:1800:110:4::f00:18])
+        by gmr-mx.google.com with ESMTP id w10si742476wmw.3.2016.03.01.00.50.04
+        for <rtc-linux@googlegroups.com>;
+        Tue, 01 Mar 2016 00:50:04 -0800 (PST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Alessandro Zummo <a.zummo@towertech.it>,
 	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Dennis Aberilla <denzzzhome@yahoo.com>
-Subject: [rtc-linux] [PATCH v4 3/7] rtc: ds3232: fix read on /dev/rtc after RTC_AIE_ON
-Date: Mon,  7 Mar 2016 00:27:49 +0900
-Message-Id: <1457278073-11627-3-git-send-email-akinobu.mita@gmail.com>
-In-Reply-To: <1457278073-11627-1-git-send-email-akinobu.mita@gmail.com>
-References: <1457278073-11627-1-git-send-email-akinobu.mita@gmail.com>
-Reply-To: rtc-linux@googlegroups.com
+	Yoichi Yuasa <yuasa@linux-mips.org>
+Cc: John Stultz <john.stultz@linaro.org>,
+	rtc-linux@googlegroups.com,
+	linux-mips@linux-mips.org,
+	Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: [rtc-linux] [PATCH/RFT] rtc: rtc-vr41xx: Wire up alarm_irq_enable
+Date: Tue,  1 Mar 2016 09:50:01 +0100
+Message-Id: <1456822201-12408-1-git-send-email-geert@linux-m68k.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -29,72 +26,58 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-The rtctest (tools/testing/selftests/timers/rtctest.c) found that
-reading ds3232 rtc device immediately return the value 0x20 (RTC_AF)
-without waiting alarm interrupt.
+drivers/rtc/rtc-vr41xx.c:229: warning: =E2=80=98vr41xx_rtc_alarm_irq_enable=
+=E2=80=99 defined but not used
 
-This is because alarm_irq_enable() of ds3232 driver changes RTC_AF
-flag in rtc->irq_data.  So calling ioctl with RTC_AIE_ON generates
-invalid value in rtc device.
+Apparently the conversion to alarm_irq_enable forgot to wire up the
+callback.
 
-The lower-level driver should not touch rtc->irq_data directly.
-
-Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>
-Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Dennis Aberilla <denzzzhome@yahoo.com>
+Fixes: 16380c153a69c378 ("RTC: Convert rtc drivers to use the alarm_irq_ena=
+ble method")
+Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 ---
-* No changes from the previous version
+Untested due to lack of hardware
+---
+ drivers/rtc/rtc-vr41xx.c | 13 +++++++------
+ 1 file changed, 7 insertions(+), 6 deletions(-)
 
- drivers/rtc/rtc-ds3232.c | 10 +++-------
- 1 file changed, 3 insertions(+), 7 deletions(-)
-
-diff --git a/drivers/rtc/rtc-ds3232.c b/drivers/rtc/rtc-ds3232.c
-index 81aa104..b27acea 100644
---- a/drivers/rtc/rtc-ds3232.c
-+++ b/drivers/rtc/rtc-ds3232.c
-@@ -272,7 +272,7 @@ out:
- 	return ret;
+diff --git a/drivers/rtc/rtc-vr41xx.c b/drivers/rtc/rtc-vr41xx.c
+index f64c282275b3988a..e1b86bb0106233f1 100644
+--- a/drivers/rtc/rtc-vr41xx.c
++++ b/drivers/rtc/rtc-vr41xx.c
+@@ -272,12 +272,13 @@ static irqreturn_t rtclong1_interrupt(int irq, void *=
+dev_id)
  }
- 
--static void ds3232_update_alarm(struct device *dev)
-+static void ds3232_update_alarm(struct device *dev, unsigned int enabled)
- {
- 	struct ds3232 *ds3232 = dev_get_drvdata(dev);
- 	int control;
-@@ -302,7 +302,7 @@ static void ds3232_update_alarm(struct device *dev)
- 	if (ret)
- 		goto unlock;
- 
--	if (ds3232->rtc->irq_data & (RTC_AF | RTC_UF))
-+	if (enabled || (ds3232->rtc->irq_data & RTC_UF))
- 		/* enable alarm1 interrupt */
- 		control |= DS3232_REG_CR_A1IE;
- 	else
-@@ -321,12 +321,8 @@ static int ds3232_alarm_irq_enable(struct device *dev, unsigned int enabled)
- 	if (ds3232->irq <= 0)
- 		return -EINVAL;
- 
--	if (enabled)
--		ds3232->rtc->irq_data |= RTC_AF;
--	else
--		ds3232->rtc->irq_data &= ~RTC_AF;
-+	ds3232_update_alarm(dev, enabled);
- 
--	ds3232_update_alarm(dev);
- 	return 0;
- }
- 
--- 
-2.5.0
+=20
+ static const struct rtc_class_ops vr41xx_rtc_ops =3D {
+-	.release	=3D vr41xx_rtc_release,
+-	.ioctl		=3D vr41xx_rtc_ioctl,
+-	.read_time	=3D vr41xx_rtc_read_time,
+-	.set_time	=3D vr41xx_rtc_set_time,
+-	.read_alarm	=3D vr41xx_rtc_read_alarm,
+-	.set_alarm	=3D vr41xx_rtc_set_alarm,
++	.release		=3D vr41xx_rtc_release,
++	.ioctl			=3D vr41xx_rtc_ioctl,
++	.read_time		=3D vr41xx_rtc_read_time,
++	.set_time		=3D vr41xx_rtc_set_time,
++	.read_alarm		=3D vr41xx_rtc_read_alarm,
++	.set_alarm		=3D vr41xx_rtc_set_alarm,
++	.alarm_irq_enable	=3D vr41xx_rtc_alarm_irq_enable,
+ };
+=20
+ static int rtc_probe(struct platform_device *pdev)
+--=20
+1.9.1
 
--- 
--- 
+--=20
+--=20
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+---=20
+You received this message because you are subscribed to the Google Groups "=
+rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an e=
+mail to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
