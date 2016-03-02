@@ -1,24 +1,22 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBENS423AKGQEY2ECSWI@googlegroups.com>
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id z75si145524wmz.2.2016.03.04.06.17.53
-        for <rtc-linux@googlegroups.com>;
-        Fri, 04 Mar 2016 06:17:53 -0800 (PST)
-Date: Fri, 4 Mar 2016 15:16:51 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Akinobu Mita <akinobu.mita@gmail.com>
-Cc: rtc-linux@googlegroups.com, Alessandro Zummo <a.zummo@towertech.it>,
-	Dennis Aberilla <denzzzhome@yahoo.com>
-Subject: [rtc-linux] Re: [PATCH v3 7/8] rtc: ds3232-core: fix issue when irq
- is shared several devices
-Message-ID: <20160304141651.GB27662@piout.net>
-References: <1456758832-10590-1-git-send-email-akinobu.mita@gmail.com>
- <1456758832-10590-7-git-send-email-akinobu.mita@gmail.com>
- <CAC5umygNbz=nnPU6oTDsmrwWRKLFJE3Hq2ei1mPQ425CvfVE9Q@mail.gmail.com>
- <20160303225756.GA2587@piout.net>
- <CAC5umyiOPbXVOOjd-4oLnovPz19M57EL7RhL115rXVx7xd0MNQ@mail.gmail.com>
+Return-Path: <rtc-linux+bncBD2OLRXW4ABBBIWV3G3AKGQETKED4DA@googlegroups.com>
+Received: from hqemgate16.nvidia.com (hqemgate16.nvidia.com. [216.228.121.65])
+        by gmr-mx.google.com with ESMTPS id y20si2932600pfa.2.2016.03.01.20.22.57
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 01 Mar 2016 20:22:57 -0800 (PST)
+Message-ID: <56D667AC.5030400@nvidia.com>
+Date: Wed, 2 Mar 2016 09:40:20 +0530
+From: Laxman Dewangan <ldewangan@nvidia.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <CAC5umyiOPbXVOOjd-4oLnovPz19M57EL7RhL115rXVx7xd0MNQ@mail.gmail.com>
+To: Krzysztof Kozlowski <k.kozlowski@samsung.com>,
+	<alexandre.belloni@free-electrons.com>, <a.zummo@towertech.it>
+CC: <cw00.choi@samsung.com>, <rtc-linux@googlegroups.com>,
+	<linux-kernel@vger.kernel.org>, <javier@osg.samsung.com>, <rklein@nvidia.com>
+Subject: [rtc-linux] Re: [PATCH 1/2] rtc: max77686: Add support for
+ MAX20024/MAX77620 RTC IP
+References: <1456750705-13579-1-git-send-email-ldewangan@nvidia.com> <56D63A9C.20506@samsung.com> <56D64CAC.5030704@nvidia.com> <56D6636F.6090403@samsung.com>
+In-Reply-To: <56D6636F.6090403@samsung.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -29,79 +27,66 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 04/03/2016 at 22:56:01 +0900, Akinobu Mita wrote :
-> 2016-03-04 7:57 GMT+09:00 Alexandre Belloni
-> <alexandre.belloni@free-electrons.com>:
-> > On 03/03/2016 at 23:10:35 +0900, Akinobu Mita wrote :
-> >> 2016-03-01 0:13 GMT+09:00 Akinobu Mita <akinobu.mita@gmail.com>:
-> >> > ds3232-core requests irq with IRQF_SHARED, so irq can be shared by
-> >> > several devices.  But the irq handler for ds3232 unconditionally
-> >> > disables the irq at first and the irq is re-enabled only when the
-> >> > interrupt source was the ds3232's alarm.  This behaviour breaks the
-> >> > devices sharing the same irq in the various scenarios.
-> >> >
-> >> > Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
-> >> > Cc: Alessandro Zummo <a.zummo@towertech.it>
-> >> > Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-> >> > Cc: Dennis Aberilla <denzzzhome@yahoo.com>
-> >> > ---
-> >> > * New patch from this version
-> >> >
-> >> >  drivers/rtc/rtc-ds3232-core.c | 14 ++------------
-> >> >  1 file changed, 2 insertions(+), 12 deletions(-)
-> >> >
-> >> > diff --git a/drivers/rtc/rtc-ds3232-core.c b/drivers/rtc/rtc-ds3232-core.c
-> >> > index be8dfe0..6489380 100644
-> >> > --- a/drivers/rtc/rtc-ds3232-core.c
-> >> > +++ b/drivers/rtc/rtc-ds3232-core.c
-> >> > @@ -59,7 +59,6 @@ struct ds3232 {
-> >> >          */
-> >> >         struct mutex mutex;
-> >> >         bool suspended;
-> >> > -       int exiting;
-> >> >  };
-> >> >
-> >> >  static int ds3232_check_rtc_status(struct device *dev)
-> >> > @@ -314,8 +313,6 @@ static irqreturn_t ds3232_irq(int irq, void *dev_id)
-> >> >         struct device *dev = dev_id;
-> >> >         struct ds3232 *ds3232 = dev_get_drvdata(dev);
-> >> >
-> >> > -       disable_irq_nosync(irq);
-> >> > -
-> >> >         /*
-> >> >          * If rtc as a wakeup source, can't schedule the work
-> >> >          * at system resume flow, because at this time the i2c bus
-> >>
-> >> I found that this patch is not correct because interrupt is re-enabled
-> >> after this hardirq handler finished without clearing Alarm Flag or
-> >> Alarm Interrupt Enable in RTC register.
-> >>
-> >> Maybe we should drop IRQF_SHARED flag.
-> >
-> > I think the best is to completely reworke the irq handling. It dates
-> > from many many year ago and can be replace by a simple threaded irq.
-> > This will solve your issue.
-> 
-> I tried converting to threaded irq.  But it needs to deal with suspend
-> resume paths. (i.e. the following comment in ds3232_irq)
-> 
->         /*
->          * If rtc as a wakeup source, can't schedule the work
->          * at system resume flow, because at this time the i2c bus
->          * has not been resumed.
->          */
-> 
-> Unfortunately, I don't have the computer that can use RTC on i2c-bus
-> as wake up source.  So I think dropping IRQF_SHARED is safe for now.
 
-That comment is bogus, you can drop it as well. It may have been the
-case a few years ago but that is not true anymore (else a lot of other
-RTC would fail).
+On Wednesday 02 March 2016 09:22 AM, Krzysztof Kozlowski wrote:
+> On 02.03.2016 11:15, Laxman Dewangan wrote:
+>
+>>>> (kernel_ulong_t)&max77802_drv_data, },
+>>>> +    { "max77620-rtc", .driver_data =
+>>>> (kernel_ulong_t)&max77620_drv_data, },
+>>>> +    { "max20024-rtc", .driver_data =
+>>>> (kernel_ulong_t)&max77620_drv_data, },
+>>> There shouldn't be "max20024-rtc". This is exactly the same as
+>>> "max77620-rtc" so re-use existing id. No point of duplicating device
+>>> names for 100% compatible devices.
+>>>
+>>>
+>> I am thinking that having compatible for each device which it supports
+>> is better.
+>>
+>> In MFD, I have made all sub module of max20024 as max20024-<module>.
+>> I have not mixed the sub module name for max20024 with max77620 module.
+> The point of compatible is to be... compatible so you don't create
+> compatibles for the same meaning!
+>
+> However this is actually not a compatible but a matching name... which
+> should follow the same idea. You did not give any argument why this is
+> better.
 
--- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+My point is that if any driver supporting the any devices then it should 
+be there in their compatibility although other everything is same.
+
+This way, it is easy to find that the driver is available for the device 
+or not. Also easy way to tell that someone has invested time to find out 
+the driver corresponding to device and he confirmed that this driver is 
+compatible with that device.
+Otherwise, it is difficult to quickly find out the driver whether this 
+is available/support or not for given device.
+
+Datasheet never says that this device is same as some other device and 
+hence this is the only place to tell for SW guys.
+
+
+
+> For me, code like this:
+> { "max77802-rtc", .driver_data = (kernel_ulong_t)&max77802_drv_data, },
+> { "max77620-rtc", .driver_data = (kernel_ulong_t)&max77620_drv_data, },
+> { "max77621-rtc", .driver_data = (kernel_ulong_t)&max77620_drv_data, },
+> { "max77622-rtc", .driver_data = (kernel_ulong_t)&max77620_drv_data, },
+> { "max77623-rtc", .driver_data = (kernel_ulong_t)&max77620_drv_data, },
+> { "max776xx-some-other-rtc", .driver_data =
+> (kernel_ulong_t)&max77620_drv_data, },
+> { "max77624-rtc", .driver_data = (kernel_ulong_t)&max77620_drv_data, },
+>
+> is useless, ridiculous and obfuscated. It is duplication of code just
+> "because". The child driver is selected by matching mfd-cell or
+> compatible. We are reusing child drivers so reuse under the same name.
+>
+> Best regards,
+> Krzysztof
+>
+>
+>
 
 -- 
 -- 
