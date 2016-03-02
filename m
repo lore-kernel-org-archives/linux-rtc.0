@@ -1,75 +1,77 @@
-Return-Path: <rtc-linux+bncBDG6R4VLYILBBEXEVK3QKGQEQQOYQVQ@googlegroups.com>
-Sender: rtc-linux@googlegroups.com
-Received: from mailapp01.imgtec.com (mailapp01.imgtec.com. [195.59.15.196])
-        by gmr-mx.google.com with ESMTP id c7si279319wmf.2.2016.03.17.06.33.06
-        for <rtc-linux@googlegroups.com>;
-        Thu, 17 Mar 2016 06:33:06 -0700 (PDT)
-Subject: [rtc-linux] Re: [PATCH 3/5] rtc: rtc-jz4740: Add support for devicetree
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>, Paul Cercueil
-	<paul@crapouillou.net>
-References: <1457217531-26064-1-git-send-email-paul@crapouillou.net>
- <1457217531-26064-3-git-send-email-paul@crapouillou.net>
- <20160317120804.GD3362@piout.net>
-CC: Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark
- Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>,
-	Kumar Gala <galak@codeaurora.org>, Ralf Baechle <ralf@linux-mips.org>,
-	Alessandro Zummo <a.zummo@towertech.it>, Paul Burton
-	<paul.burton@imgtec.com>, <devicetree@vger.kernel.org>,
-	<linux-kernel@vger.kernel.org>, <linux-mips@linux-mips.org>,
-	<rtc-linux@googlegroups.com>
-From: Harvey Hunt <harvey.hunt@imgtec.com>
-Message-ID: <56EAB210.70900@imgtec.com>
-Date: Thu, 17 Mar 2016 13:33:04 +0000
-MIME-Version: 1.0
-In-Reply-To: <20160317120804.GD3362@piout.net>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Return-Path: <rtc-linux+bncBDKZNNNLXAHBBMXW3C3AKGQE5BUQI7I@googlegroups.com>
+Received: from mailout1.w1.samsung.com (mailout1.w1.samsung.com. [210.118.77.11])
+        by gmr-mx.google.com with ESMTPS id ui7si4801784pab.0.2016.03.01.17.00.33
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1 cipher=AES128-SHA bits=128/128);
+        Tue, 01 Mar 2016 17:00:33 -0800 (PST)
+Received: from eucpsbgm1.samsung.com (unknown [203.254.199.244])
+ by mailout1.w1.samsung.com
+ (Oracle Communications Messaging Server 7.0.5.31.0 64bit (built May  5 2014))
+ with ESMTP id <0O3E00F8404TU260@mailout1.w1.samsung.com> for
+ rtc-linux@googlegroups.com; Wed, 02 Mar 2016 01:00:29 +0000 (GMT)
+Subject: [rtc-linux] Re: [PATCH 2/2] rtc: max77686: Use REGMAP_IRQ_REG for
+ regmap-rtc-irqs initialisation
+To: Laxman Dewangan <ldewangan@nvidia.com>,
+ alexandre.belloni@free-electrons.com, a.zummo@towertech.it
+References: <1456750705-13579-1-git-send-email-ldewangan@nvidia.com>
+ <1456750705-13579-2-git-send-email-ldewangan@nvidia.com>
+Cc: cw00.choi@samsung.com, rtc-linux@googlegroups.com,
+ linux-kernel@vger.kernel.org, javier@osg.samsung.com, rklein@nvidia.com
+From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+Message-id: <56D63B28.9030502@samsung.com>
+Date: Wed, 02 Mar 2016 10:00:24 +0900
+MIME-version: 1.0
+In-reply-to: <1456750705-13579-2-git-send-email-ldewangan@nvidia.com>
+Content-type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
 List-Archive: <https://groups.google.com/group/rtc-linux
+Sender: rtc-linux@googlegroups.com
 List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Hi Alexandre,
+On 29.02.2016 21:58, Laxman Dewangan wrote:
+> use macro REGMAP_IRQ_REG from regmap.h to initialise the
+> regmap irq table for max77686.
 
-On 17/03/16 12:08, Alexandre Belloni wrote:
-> On 05/03/2016 at 23:38:49 +0100, Paul Cercueil wrote :
->> Signed-off-by: Paul Cercueil <paul@crapouillou.net>
->> ---
->>   drivers/rtc/rtc-jz4740.c | 16 +++++++++++++++-
->>   1 file changed, 15 insertions(+), 1 deletion(-)
->>
->> diff --git a/drivers/rtc/rtc-jz4740.c b/drivers/rtc/rtc-jz4740.c
->> index 47617bd..3914b1c 100644
->> --- a/drivers/rtc/rtc-jz4740.c
->> +++ b/drivers/rtc/rtc-jz4740.c
->> @@ -17,6 +17,7 @@
->>   #include <linux/io.h>
->>   #include <linux/kernel.h>
->>   #include <linux/module.h>
->> +#include <linux/of_device.h>
->>   #include <linux/platform_device.h>
->>   #include <linux/rtc.h>
->>   #include <linux/slab.h>
->> @@ -245,6 +246,13 @@ void jz4740_rtc_poweroff(struct device *dev)
->>   }
->>   EXPORT_SYMBOL_GPL(jz4740_rtc_poweroff);
->>
->> +static const struct of_device_id jz4740_rtc_of_match[] = {
->> +	{ .compatible = "ingenic,jz4740-rtc", .data = (void *) ID_JZ4740 },
->> +	{ .compatible = "ingenic,jz4780-rtc", .data = (void *) ID_JZ4780 },
->
-> ingenic is not in Documentation/devicetree/bindings/vendor-prefixes.txt,
-> you have to add it there before using it.
+Why? Any benefits?
 
-Ingenic is in vendor-prefixes.txt - it was added by Commit f289cc7 
-("devicetree/bindings: add Ingenic Semiconductor vendor prefix").
+Best regards,
+Krzysztof
 
-Thanks,
-
-Harvey
+> 
+> Signed-off-by: Laxman Dewangan <ldewangan@nvidia.com>
+> ---
+>  drivers/rtc/rtc-max77686.c | 12 ++++++------
+>  1 file changed, 6 insertions(+), 6 deletions(-)
+> 
+> diff --git a/drivers/rtc/rtc-max77686.c b/drivers/rtc/rtc-max77686.c
+> index 39d529a..0cb422b 100644
+> --- a/drivers/rtc/rtc-max77686.c
+> +++ b/drivers/rtc/rtc-max77686.c
+> @@ -174,12 +174,12 @@ static const unsigned int max77686_map[REG_RTC_END] = {
+>  
+>  static const struct regmap_irq max77686_rtc_irqs[] = {
+>  	/* RTC interrupts */
+> -	{ .reg_offset = 0, .mask = MAX77686_RTCINT_RTC60S_MSK, },
+> -	{ .reg_offset = 0, .mask = MAX77686_RTCINT_RTCA1_MSK, },
+> -	{ .reg_offset = 0, .mask = MAX77686_RTCINT_RTCA2_MSK, },
+> -	{ .reg_offset = 0, .mask = MAX77686_RTCINT_SMPL_MSK, },
+> -	{ .reg_offset = 0, .mask = MAX77686_RTCINT_RTC1S_MSK, },
+> -	{ .reg_offset = 0, .mask = MAX77686_RTCINT_WTSR_MSK, },
+> +	REGMAP_IRQ_REG(0, 0, MAX77686_RTCINT_RTC60S_MSK),
+> +	REGMAP_IRQ_REG(1, 0, MAX77686_RTCINT_RTCA1_MSK),
+> +	REGMAP_IRQ_REG(2, 0, MAX77686_RTCINT_RTCA2_MSK),
+> +	REGMAP_IRQ_REG(3, 0, MAX77686_RTCINT_SMPL_MSK),
+> +	REGMAP_IRQ_REG(4, 0, MAX77686_RTCINT_RTC1S_MSK),
+> +	REGMAP_IRQ_REG(5, 0, MAX77686_RTCINT_WTSR_MSK),
+>  };
+>  
+>  static const struct regmap_irq_chip max77686_rtc_irq_chip = {
+> 
 
 -- 
 -- 
