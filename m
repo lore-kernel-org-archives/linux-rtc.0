@@ -1,94 +1,76 @@
-Return-Path: <rtc-linux+bncBCQJP74GSUDRBT634C3AKGQEA4ZZZ5I@googlegroups.com>
-Received: from mail-ig0-x243.google.com (mail-ig0-x243.google.com. [2607:f8b0:4001:c05::243])
-        by gmr-mx.google.com with ESMTPS id iq8si707732igb.0.2016.03.03.04.27.59
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 03 Mar 2016 04:27:59 -0800 (PST)
-Received: by mail-ig0-x243.google.com with SMTP id ww10so1967995igb.2
-        for <rtc-linux@googlegroups.com>; Thu, 03 Mar 2016 04:27:59 -0800 (PST)
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBLH73K3AKGQEWZQCSCI@googlegroups.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id w128si122375wmd.0.2016.03.02.02.25.48
+        for <rtc-linux@googlegroups.com>;
+        Wed, 02 Mar 2016 02:25:48 -0800 (PST)
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: rtc-linux@googlegroups.com
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+	Juergen Borleis <jbe@pengutronix.de>,
+	linux-kernel@vger.kernel.org,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Subject: [rtc-linux] [PATCH 1/2] rtc: pcf85063: remove useless DRV_VERSION
+Date: Wed,  2 Mar 2016 11:25:42 +0100
+Message-Id: <1456914343-4611-1-git-send-email-alexandre.belloni@free-electrons.com>
 MIME-Version: 1.0
-Sender: rtc-linux@googlegroups.com
-In-Reply-To: <2233190.1BxevBAvDE@wuerfel>
-References: <1456992221-26712-1-git-send-email-k.kozlowski@samsung.com>
-	<1456992221-26712-9-git-send-email-k.kozlowski@samsung.com>
-	<2233190.1BxevBAvDE@wuerfel>
-Date: Thu, 3 Mar 2016 13:27:59 +0100
-Message-ID: <CAMuHMdXUdz0=n2+Aa74f1LtwiwfV9=gkPBiJKC_DMyr1_jBe7Q@mail.gmail.com>
-Subject: [rtc-linux] Re: [RFC 08/15] rtc: at91sam9: Add missing MFD_SYSCON
- dependency on HAS_IOMEM
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>,
-	Krzysztof Kozlowski <k.kozlowski@samsung.com>, Linus Walleij <linus.walleij@linaro.org>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, David Brown <david.brown@linaro.org>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Lee Jones <lee.jones@linaro.org>,
-	Thomas Gleixner <tglx@linutronix.de>, driverdevel <devel@driverdev.osuosl.org>,
-	"linux-samsung-soc@vger.kernel.org" <linux-samsung-soc@vger.kernel.org>, Vinod Koul <vinod.koul@intel.com>,
-	Daniel Lezcano <daniel.lezcano@linaro.org>, Kishon Vijay Abraham I <kishon@ti.com>,
-	Andy Gross <andy.gross@linaro.org>,
-	Linux Media Mailing List <linux-media@vger.kernel.org>, Jason Cooper <jason@lakedaemon.net>,
-	RTCLINUX <rtc-linux@googlegroups.com>,
-	Mauro Carvalho Chehab <mchehab@osg.samsung.com>, Marc Zyngier <marc.zyngier@arm.com>,
-	"linux-arm-msm@vger.kernel.org" <linux-arm-msm@vger.kernel.org>,
-	"linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, Giuseppe Cavallaro <peppe.cavallaro@st.com>,
-	Dan Williams <dan.j.williams@intel.com>, linux-soc@vger.kernel.org,
-	Alessandro Zummo <a.zummo@towertech.it>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	Linux PM list <linux-pm@vger.kernel.org>, USB list <linux-usb@vger.kernel.org>,
-	Sebastian Reichel <sre@kernel.org>, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>,
-	"netdev@vger.kernel.org" <netdev@vger.kernel.org>, dmaengine@vger.kernel.org,
-	David Woodhouse <dwmw2@infradead.org>
 Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
 List-Archive: <https://groups.google.com/group/rtc-linux
+Sender: rtc-linux@googlegroups.com
 List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Thu, Mar 3, 2016 at 11:55 AM, Arnd Bergmann <arnd@arndb.de> wrote:
-> On Thursday 03 March 2016 17:03:34 Krzysztof Kozlowski wrote:
->> index 0da40e2e4280..5c530b6b125d 100644
->> --- a/drivers/rtc/Kconfig
->> +++ b/drivers/rtc/Kconfig
->> @@ -1302,6 +1302,7 @@ config RTC_DRV_AT91RM9200
->>  config RTC_DRV_AT91SAM9
->>         tristate "AT91SAM9 RTT as RTC"
->>         depends on ARCH_AT91 || COMPILE_TEST
->> +       depends on HAS_IOMEM    # For MFD_SYSCON
->>         select MFD_SYSCON
->>         help
->>           Some AT91SAM9 SoCs provide an RTT (Real Time Timer) block which
->>
->
-> This is technically correct, but the entire RTC menu is hidden
-> inside of 'depends on !UML && !S390', so we won't ever get there
-> on any configuration that does not use HAS_IOMEM.
->
-> If we did, all other RTC drivers would also fail.
+Since the driver is mainlined there is no use for a separate version
+number.
 
-So UML has no RTC. Should/can it use RTC_DRV_GENERIC?
+Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+---
+ drivers/rtc/rtc-pcf85063.c | 5 -----
+ 1 file changed, 5 deletions(-)
 
-Gr{oetje,eeting}s,
+diff --git a/drivers/rtc/rtc-pcf85063.c b/drivers/rtc/rtc-pcf85063.c
+index 4e940cc3d782..550f67518c5a 100644
+--- a/drivers/rtc/rtc-pcf85063.c
++++ b/drivers/rtc/rtc-pcf85063.c
+@@ -16,8 +16,6 @@
+ #include <linux/rtc.h>
+ #include <linux/module.h>
+=20
+-#define DRV_VERSION "0.0.1"
+-
+ #define PCF85063_REG_CTRL1		0x00 /* status */
+ #define PCF85063_REG_CTRL1_STOP		BIT(5)
+ #define PCF85063_REG_CTRL2		0x01
+@@ -182,8 +180,6 @@ static int pcf85063_probe(struct i2c_client *client,
+ 	if (!pcf85063)
+ 		return -ENOMEM;
+=20
+-	dev_info(&client->dev, "chip found, driver version " DRV_VERSION "\n");
+-
+ 	i2c_set_clientdata(client, pcf85063);
+=20
+ 	pcf85063->rtc =3D devm_rtc_device_register(&client->dev,
+@@ -221,4 +217,3 @@ module_i2c_driver(pcf85063_driver);
+ MODULE_AUTHOR("S=C3=B8ren Andersen <san@rosetechnology.dk>");
+ MODULE_DESCRIPTION("PCF85063 RTC driver");
+ MODULE_LICENSE("GPL");
+-MODULE_VERSION(DRV_VERSION);
+--=20
+2.7.0
 
-                        Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
-
--- 
--- 
+--=20
+--=20
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+---=20
+You received this message because you are subscribed to the Google Groups "=
+rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an e=
+mail to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
