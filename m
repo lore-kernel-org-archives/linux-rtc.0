@@ -1,29 +1,28 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRB6OR463AKGQE2GSOIHA@googlegroups.com>
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id s141si107435wmd.1.2016.03.04.11.58.49
-        for <rtc-linux@googlegroups.com>;
-        Fri, 04 Mar 2016 11:58:49 -0800 (PST)
-Date: Fri, 4 Mar 2016 20:58:48 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Michael =?iso-8859-1?Q?B=FCsch?= <m@bues.ch>
-Cc: Gregory Hermant <gregory.hermant@calao-systems.com>,
-	rtc-linux@googlegroups.com
-Subject: [rtc-linux] Re: [PATCH 6/6] rtc-rv3029: Add device tree property for
- trickle charger
-Message-ID: <20160304195848.GD2970@piout.net>
-References: <20160301213322.661fe771@wiggum>
- <20160301213655.GG23985@piout.net>
- <20160301225401.3f0aeabb@wiggum>
- <20160301230745.GJ23985@piout.net>
- <20160302072627.14e53e94@wiggum>
- <20160302120045.GO23985@piout.net>
- <20160304195337.51439645@wiggum>
- <20160304195654.578b8f6c@wiggum>
- <20160304194336.GC2970@piout.net>
- <20160304204954.29a47f88@wiggum>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <20160304204954.29a47f88@wiggum>
+Return-Path: <rtc-linux+bncBDKZNNNLXAHBB6OG3G3AKGQEZVDUWIY@googlegroups.com>
+Received: from mailout1.w1.samsung.com (mailout1.w1.samsung.com. [210.118.77.11])
+        by gmr-mx.google.com with ESMTPS id r75si3240113pfr.0.2016.03.01.19.52.24
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1 cipher=AES128-SHA bits=128/128);
+        Tue, 01 Mar 2016 19:52:24 -0800 (PST)
+Received: from eucpsbgm2.samsung.com (unknown [203.254.199.245])
+ by mailout1.w1.samsung.com
+ (Oracle Communications Messaging Server 7.0.5.31.0 64bit (built May  5 2014))
+ with ESMTP id <0O3E00G4O838L870@mailout1.w1.samsung.com> for
+ rtc-linux@googlegroups.com; Wed, 02 Mar 2016 03:52:20 +0000 (GMT)
+Subject: [rtc-linux] Re: [PATCH 1/2] rtc: max77686: Add support for
+ MAX20024/MAX77620 RTC IP
+To: Laxman Dewangan <ldewangan@nvidia.com>,
+ alexandre.belloni@free-electrons.com, a.zummo@towertech.it
+References: <1456750705-13579-1-git-send-email-ldewangan@nvidia.com>
+ <56D63A9C.20506@samsung.com> <56D64CAC.5030704@nvidia.com>
+Cc: cw00.choi@samsung.com, rtc-linux@googlegroups.com,
+ linux-kernel@vger.kernel.org, javier@osg.samsung.com, rklein@nvidia.com
+From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+Message-id: <56D6636F.6090403@samsung.com>
+Date: Wed, 02 Mar 2016 12:52:15 +0900
+MIME-version: 1.0
+In-reply-to: <56D64CAC.5030704@nvidia.com>
+Content-type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -34,61 +33,101 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 04/03/2016 at 20:49:54 +0100, Michael B=C3=BCsch wrote :
-> On Fri, 4 Mar 2016 20:43:37 +0100
-> Alexandre Belloni <alexandre.belloni@free-electrons.com> wrote:
->=20
-> > On 04/03/2016 at 19:56:54 +0100, Michael B=C3=BCsch wrote :
-> > > +	err =3D of_property_read_u32(of_node, "trickle-resistor-ohms", &ohm=
-s);
-> > > +	if (err) {
-> > > +		/* Disable trickle charger. */
-> > > +		eectrl &=3D ~RV3029_TRICKLE_MASK;
-> > > +	} else {
-> > > +		/* Enable trickle charger. */
-> > > +		for (i =3D 0; i < ARRAY_SIZE(rv3029_trickle_tab); i++) {
-> > > +			elem =3D &rv3029_trickle_tab[i];
-> > > +			if (elem->r >=3D ohms)
-> > > +				break;
-> > > +		}
-> > > +		eectrl &=3D ~RV3029_TRICKLE_MASK;
-> > > +		eectrl |=3D elem->conf;
-> > > +		dev_info(&client->dev,
-> > > +			 "Trickle charger enabled at %d ohms resistance.\n",
-> > > +			 elem->r);
-> > > +	} =20
-> >=20
-> > Now the you have an update_bits functions, you probably want to use it
-> > here. This simplifies the function.
->=20
->=20
-> No. This operates on the eeprom. The update_bits function operates on
-> bare registers.
-> If we have more mask/set operations on the eeprom later, we can add an
-> update_bits function for the eeprom, too.
->=20
+On 02.03.2016 11:15, Laxman Dewangan wrote:
+> 
+> On Wednesday 02 March 2016 06:28 AM, Krzysztof Kozlowski wrote:
+>> On 29.02.2016 21:58, Laxman Dewangan wrote:
+>> +    .alarm_pending_status_reg = MAX77620_RTC_ALARM_PENDING_STATUS_REG,
+>> Just skip the alarm_pending_status_reg (so it will be 0x0) and check for
+>> non-zero value later?
+>>
+>> It might be a little bit non consistent approach to how we map RTC
+>> registers (REG_RTC_NONE)... so I don't have strong feelings about this.
+> 
+> I choose -1 because 0 is also valid.
+> So I can have macro for INVALID register which is -1 and use here, other
+> places direct register as STATUS2.
 
-Indeed, I read too fast
+There is only one value used here so 0 not valid. But I don't mind that
+approach.
 
-> --=20
-> Michael
+> 
+> 
+>>
+>>> +    if (info->drv_data->rtc_irq_from_platform) {
+>>> +        struct platform_device *pdev = to_platform_device(info->dev);
+>>> +
+>>> +        info->rtc_irq = platform_get_irq(pdev, 0);
+>> It may return -ERRNO. What happens then?
+> 
+> MFD is initializing the irq and so it will not fail on this particular
+> case.
+> Even if error, the regmap_add_irq should fail.
+> 
+> Let me handle error at this point only to avoid any assumption and
+> further processing with error, by returning error.
+> 
+> 
+>>
+>>> +    } else {
+>>> +        info->rtc_irq =  parent_i2c->irq;
+>>> +    }
+>>>         info->regmap = dev_get_regmap(parent, NULL);
+>>>       if (!info->regmap) {
+>>> @@ -802,6 +840,8 @@ static SIMPLE_DEV_PM_OPS(max77686_rtc_pm_ops,
+>>>   static const struct platform_device_id rtc_id[] = {
+>>>       { "max77686-rtc", .driver_data =
+>>> (kernel_ulong_t)&max77686_drv_data, },
+>>>       { "max77802-rtc", .driver_data =
+>>> (kernel_ulong_t)&max77802_drv_data, },
+>>> +    { "max77620-rtc", .driver_data =
+>>> (kernel_ulong_t)&max77620_drv_data, },
+>>> +    { "max20024-rtc", .driver_data =
+>>> (kernel_ulong_t)&max77620_drv_data, },
+>> There shouldn't be "max20024-rtc". This is exactly the same as
+>> "max77620-rtc" so re-use existing id. No point of duplicating device
+>> names for 100% compatible devices.
+>>
+>>
+> I am thinking that having compatible for each device which it supports
+> is better.
+> 
+> In MFD, I have made all sub module of max20024 as max20024-<module>.
+> I have not mixed the sub module name for max20024 with max77620 module.
+
+The point of compatible is to be... compatible so you don't create
+compatibles for the same meaning!
+
+However this is actually not a compatible but a matching name... which
+should follow the same idea. You did not give any argument why this is
+better.
+
+For me, code like this:
+{ "max77802-rtc", .driver_data = (kernel_ulong_t)&max77802_drv_data, },
+{ "max77620-rtc", .driver_data = (kernel_ulong_t)&max77620_drv_data, },
+{ "max77621-rtc", .driver_data = (kernel_ulong_t)&max77620_drv_data, },
+{ "max77622-rtc", .driver_data = (kernel_ulong_t)&max77620_drv_data, },
+{ "max77623-rtc", .driver_data = (kernel_ulong_t)&max77620_drv_data, },
+{ "max776xx-some-other-rtc", .driver_data =
+(kernel_ulong_t)&max77620_drv_data, },
+{ "max77624-rtc", .driver_data = (kernel_ulong_t)&max77620_drv_data, },
+
+is useless, ridiculous and obfuscated. It is duplication of code just
+"because". The child driver is selected by matching mfd-cell or
+compatible. We are reusing child drivers so reuse under the same name.
+
+Best regards,
+Krzysztof
 
 
 
---=20
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
-
---=20
---=20
+-- 
+-- 
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
----=20
-You received this message because you are subscribed to the Google Groups "=
-rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an e=
-mail to rtc-linux+unsubscribe@googlegroups.com.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
