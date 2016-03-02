@@ -1,25 +1,29 @@
-Return-Path: <rtc-linux+bncBCPM5SUWUYIRBXEL4G3AKGQEQHUMZLY@googlegroups.com>
-Received: from mail-vk0-x243.google.com (mail-vk0-x243.google.com. [2607:f8b0:400c:c05::243])
-        by gmr-mx.google.com with ESMTPS id c66si1534436vkf.0.2016.03.03.06.10.36
+Return-Path: <rtc-linux+bncBDKZNNNLXAHBBAGY3G3AKGQE2RAOZ7Q@googlegroups.com>
+Received: from mailout2.w1.samsung.com (mailout2.w1.samsung.com. [210.118.77.12])
+        by gmr-mx.google.com with ESMTPS id yd9si4874353pab.1.2016.03.01.20.28.47
         for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 03 Mar 2016 06:10:36 -0800 (PST)
-Received: by mail-vk0-x243.google.com with SMTP id e185so1530622vkb.2
-        for <rtc-linux@googlegroups.com>; Thu, 03 Mar 2016 06:10:36 -0800 (PST)
-MIME-Version: 1.0
-In-Reply-To: <1456758832-10590-7-git-send-email-akinobu.mita@gmail.com>
-References: <1456758832-10590-1-git-send-email-akinobu.mita@gmail.com>
-	<1456758832-10590-7-git-send-email-akinobu.mita@gmail.com>
-Date: Thu, 3 Mar 2016 23:10:35 +0900
-Message-ID: <CAC5umygNbz=nnPU6oTDsmrwWRKLFJE3Hq2ei1mPQ425CvfVE9Q@mail.gmail.com>
-Subject: [rtc-linux] Re: [PATCH v3 7/8] rtc: ds3232-core: fix issue when irq
- is shared several devices
-From: Akinobu Mita <akinobu.mita@gmail.com>
-To: rtc-linux@googlegroups.com
-Cc: Akinobu Mita <akinobu.mita@gmail.com>, Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Dennis Aberilla <denzzzhome@yahoo.com>
-Content-Type: text/plain; charset=UTF-8
+        (version=TLS1 cipher=AES128-SHA bits=128/128);
+        Tue, 01 Mar 2016 20:28:48 -0800 (PST)
+Received: from eucpsbgm2.samsung.com (unknown [203.254.199.245])
+ by mailout2.w1.samsung.com
+ (Oracle Communications Messaging Server 7.0.5.31.0 64bit (built May  5 2014))
+ with ESMTP id <0O3E003YR9RVY180@mailout2.w1.samsung.com> for
+ rtc-linux@googlegroups.com; Wed, 02 Mar 2016 04:28:43 +0000 (GMT)
+Subject: [rtc-linux] Re: [PATCH 1/2] rtc: max77686: Add support for
+ MAX20024/MAX77620 RTC IP
+To: Laxman Dewangan <ldewangan@nvidia.com>,
+ alexandre.belloni@free-electrons.com, a.zummo@towertech.it
+References: <1456750705-13579-1-git-send-email-ldewangan@nvidia.com>
+ <56D63A9C.20506@samsung.com> <56D64CAC.5030704@nvidia.com>
+ <56D6636F.6090403@samsung.com> <56D667AC.5030400@nvidia.com>
+Cc: cw00.choi@samsung.com, rtc-linux@googlegroups.com,
+ linux-kernel@vger.kernel.org, javier@osg.samsung.com, rklein@nvidia.com
+From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+Message-id: <56D66BF6.60403@samsung.com>
+Date: Wed, 02 Mar 2016 13:28:38 +0900
+MIME-version: 1.0
+In-reply-to: <56D667AC.5030400@nvidia.com>
+Content-type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -30,50 +34,59 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-2016-03-01 0:13 GMT+09:00 Akinobu Mita <akinobu.mita@gmail.com>:
-> ds3232-core requests irq with IRQF_SHARED, so irq can be shared by
-> several devices.  But the irq handler for ds3232 unconditionally
-> disables the irq at first and the irq is re-enabled only when the
-> interrupt source was the ds3232's alarm.  This behaviour breaks the
-> devices sharing the same irq in the various scenarios.
->
-> Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
-> Cc: Alessandro Zummo <a.zummo@towertech.it>
-> Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-> Cc: Dennis Aberilla <denzzzhome@yahoo.com>
-> ---
-> * New patch from this version
->
->  drivers/rtc/rtc-ds3232-core.c | 14 ++------------
->  1 file changed, 2 insertions(+), 12 deletions(-)
->
-> diff --git a/drivers/rtc/rtc-ds3232-core.c b/drivers/rtc/rtc-ds3232-core.c
-> index be8dfe0..6489380 100644
-> --- a/drivers/rtc/rtc-ds3232-core.c
-> +++ b/drivers/rtc/rtc-ds3232-core.c
-> @@ -59,7 +59,6 @@ struct ds3232 {
->          */
->         struct mutex mutex;
->         bool suspended;
-> -       int exiting;
->  };
->
->  static int ds3232_check_rtc_status(struct device *dev)
-> @@ -314,8 +313,6 @@ static irqreturn_t ds3232_irq(int irq, void *dev_id)
->         struct device *dev = dev_id;
->         struct ds3232 *ds3232 = dev_get_drvdata(dev);
->
-> -       disable_irq_nosync(irq);
-> -
->         /*
->          * If rtc as a wakeup source, can't schedule the work
->          * at system resume flow, because at this time the i2c bus
+On 02.03.2016 13:10, Laxman Dewangan wrote:
+> 
+> On Wednesday 02 March 2016 09:22 AM, Krzysztof Kozlowski wrote:
+>> On 02.03.2016 11:15, Laxman Dewangan wrote:
+>>
+>>>>> (kernel_ulong_t)&max77802_drv_data, },
+>>>>> +    { "max77620-rtc", .driver_data =
+>>>>> (kernel_ulong_t)&max77620_drv_data, },
+>>>>> +    { "max20024-rtc", .driver_data =
+>>>>> (kernel_ulong_t)&max77620_drv_data, },
+>>>> There shouldn't be "max20024-rtc". This is exactly the same as
+>>>> "max77620-rtc" so re-use existing id. No point of duplicating device
+>>>> names for 100% compatible devices.
+>>>>
+>>>>
+>>> I am thinking that having compatible for each device which it supports
+>>> is better.
+>>>
+>>> In MFD, I have made all sub module of max20024 as max20024-<module>.
+>>> I have not mixed the sub module name for max20024 with max77620 module.
+>> The point of compatible is to be... compatible so you don't create
+>> compatibles for the same meaning!
+>>
+>> However this is actually not a compatible but a matching name... which
+>> should follow the same idea. You did not give any argument why this is
+>> better.
+> 
+> My point is that if any driver supporting the any devices then it should
+> be there in their compatibility although other everything is same.
 
-I found that this patch is not correct because interrupt is re-enabled
-after this hardirq handler finished without clearing Alarm Flag or
-Alarm Interrupt Enable in RTC register.
+Nope. The driver can describe supported devices in comment, Kconfig,
+module description, DT binding description but the compatible is one.
+One compatible for all compatible devices.
 
-Maybe we should drop IRQF_SHARED flag.
+> This way, it is easy to find that the driver is available for the device
+> or not. Also easy way to tell that someone has invested time to find out
+> the driver corresponding to device and he confirmed that this driver is
+> compatible with that device.
+> Otherwise, it is difficult to quickly find out the driver whether this
+> is available/support or not for given device.
+
+This is so specific, imaginated use case... Regular users don't write
+DTS. This is strictly for developers and the engineer who develops
+code/platforms using maxim devices has this problem? No way...
+
+You want to create many artificial device ids for the same compatible
+device just to make grepping easier for someone (I cannot even find out
+for whom...)? Nooo, that is just wrong. These are the same
+blocks/subdevices. They use the same driver. They should use the same
+compatible or the same name of driver.
+
+Best regards,
+Krzysztof
 
 -- 
 -- 
