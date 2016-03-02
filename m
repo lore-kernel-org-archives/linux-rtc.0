@@ -1,22 +1,22 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBQ7G223AKGQE5GG6YFI@googlegroups.com>
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id h126si21666wme.0.2016.03.01.07.20.34
-        for <rtc-linux@googlegroups.com>;
-        Tue, 01 Mar 2016 07:20:34 -0800 (PST)
-Date: Tue, 1 Mar 2016 16:20:34 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Thierry Reding <thierry.reding@gmail.com>
-Cc: Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	linux-kernel@vger.kernel.org, rtc-linux@googlegroups.com
-Subject: [rtc-linux] Re: [PATCH] rtc: rtc-vr41xx: remove unused function
-Message-ID: <20160301152034.GA23985@piout.net>
-References: <1456836981-30999-1-git-send-email-sudipm.mukherjee@gmail.com>
- <20160301145558.GC26201@ulmo>
+Return-Path: <rtc-linux+bncBDEKVJM7XAHRBFPO3K3AKGQE6DIQLSI@googlegroups.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <20160301145558.GC26201@ulmo>
+Received: from mout.kundenserver.de (mout.kundenserver.de. [212.227.126.135])
+        by gmr-mx.google.com with ESMTPS id c66si1302651vkf.0.2016.03.02.01.49.08
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 02 Mar 2016 01:49:09 -0800 (PST)
+From: Arnd Bergmann <arnd@arndb.de>
+To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: linux-arm-kernel@lists.infradead.org,
+	rtc-linux@googlegroups.com,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Arnd Bergmann <arnd@arndb.de>,
+	linux-kernel@vger.kernel.org
+Subject: [rtc-linux] [PATCH 1/2] char: PC rtc: replace blacklist with whitelist
+Date: Wed,  2 Mar 2016 10:48:50 +0100
+Message-Id: <1456912137-1578635-1-git-send-email-arnd@arndb.de>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -26,76 +26,44 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 01/03/2016 at 15:55:58 +0100, Thierry Reding wrote :
-> On Tue, Mar 01, 2016 at 06:26:21PM +0530, Sudip Mukherjee wrote:
-> > We were getting build warning about:
-> > drivers/rtc/rtc-vr41xx.c:228:12: warning: =E2=80=98vr41xx_rtc_alarm_irq=
-_enable=E2=80=99
-> > defined but not used
-> >=20
-> > The function vr41xx_rtc_alarm_irq_enable() was not used anywhere.
-> >=20
-> > Signed-off-by: Sudip Mukherjee <sudip.mukherjee@codethink.co.uk>
-> > ---
-> >=20
-> > build log is at:
-> > https://travis-ci.org/sudipm-mukherjee/parport/jobs/112780206
-> >=20
-> >  drivers/rtc/rtc-vr41xx.c | 18 ------------------
-> >  1 file changed, 18 deletions(-)
-> >=20
-> > diff --git a/drivers/rtc/rtc-vr41xx.c b/drivers/rtc/rtc-vr41xx.c
-> > index f64c282..68cb63e 100644
-> > --- a/drivers/rtc/rtc-vr41xx.c
-> > +++ b/drivers/rtc/rtc-vr41xx.c
-> > @@ -225,24 +225,6 @@ static int vr41xx_rtc_ioctl(struct device *dev, un=
-signed int cmd, unsigned long
-> >  	return 0;
-> >  }
-> > =20
-> > -static int vr41xx_rtc_alarm_irq_enable(struct device *dev, unsigned in=
-t enabled)
-> > -{
-> > -	spin_lock_irq(&rtc_lock);
-> > -	if (enabled) {
-> > -		if (!alarm_enabled) {
-> > -			enable_irq(aie_irq);
-> > -			alarm_enabled =3D 1;
-> > -		}
-> > -	} else {
-> > -		if (alarm_enabled) {
-> > -			disable_irq(aie_irq);
-> > -			alarm_enabled =3D 0;
-> > -		}
-> > -	}
-> > -	spin_unlock_irq(&rtc_lock);
-> > -	return 0;
-> > -}
-> > -
->=20
-> I don't think it's supposed to be unused, rather back at the time it
-> simply wasn't hooked up to the rtc_class_ops.
->=20
-> Here's what I used.
->=20
+Every new architecture has to add itself to the growing list of those
+that do not support the legacy PC RTC driver.
 
-I've already applied the patch from Geert which does the same.
+This replaces the long list of architectures that don't support it
+with a shorter list of those that do.
 
+The list is taken from those architectures that have a non-empty
+asm/mc146818rtc.h header file and were not explicitly blacklisted.
 
---=20
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+---
+ drivers/char/Kconfig | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---=20
---=20
+diff --git a/drivers/char/Kconfig b/drivers/char/Kconfig
+index a043107da2af..9716bc36495a 100644
+--- a/drivers/char/Kconfig
++++ b/drivers/char/Kconfig
+@@ -279,8 +279,7 @@ if RTC_LIB=n
+ 
+ config RTC
+ 	tristate "Enhanced Real Time Clock Support (legacy PC RTC driver)"
+-	depends on !PPC && !PARISC && !IA64 && !M68K && !SPARC && !FRV \
+-			&& !ARM && !SUPERH && !S390 && !AVR32 && !BLACKFIN && !UML
++	depends on ALPHA || M32R || M68K || MIPS || MN10300 || PPC || X86
+ 	---help---
+ 	  If you say Y here and create a character special file /dev/rtc with
+ 	  major number 10 and minor number 135 using mknod ("man mknod"), you
+-- 
+2.7.0
+
+-- 
+-- 
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
----=20
-You received this message because you are subscribed to the Google Groups "=
-rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an e=
-mail to rtc-linux+unsubscribe@googlegroups.com.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
