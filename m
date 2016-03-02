@@ -1,81 +1,69 @@
-Return-Path: <rtc-linux+bncBDKZNNNLXAHBB6OO4C3AKGQE5HZG6VI@googlegroups.com>
-Received: from mail-oi0-x243.google.com (mail-oi0-x243.google.com. [2607:f8b0:4003:c06::243])
-        by gmr-mx.google.com with ESMTPS id iq8si700626igb.0.2016.03.03.04.00.57
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 03 Mar 2016 04:00:57 -0800 (PST)
-Received: by mail-oi0-x243.google.com with SMTP id r187so1037339oih.2
-        for <rtc-linux@googlegroups.com>; Thu, 03 Mar 2016 04:00:57 -0800 (PST)
-MIME-Version: 1.0
-Sender: rtc-linux@googlegroups.com
-In-Reply-To: <2506651.J2Z42d81nD@wuerfel>
-References: <1456992221-26712-1-git-send-email-k.kozlowski@samsung.com>
-	<1456992221-26712-5-git-send-email-k.kozlowski@samsung.com>
-	<2506651.J2Z42d81nD@wuerfel>
-Date: Thu, 3 Mar 2016 21:00:57 +0900
-Message-ID: <CAJKOXPcZuyicNAaH6CpOe+bTrLtM1k0tVisS_xJXGDrxyZ_i5A@mail.gmail.com>
-Subject: Re: [rtc-linux] Re: [RFC 04/15] irqchip: st: Add missing MFD_SYSCON
- dependency on HAS_IOMEM
-From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-To: rtc-linux@googlegroups.com
-Cc: linux-arm-kernel@lists.infradead.org,
-	Daniel Lezcano <daniel.lezcano@linaro.org>, Thomas Gleixner <tglx@linutronix.de>,
-	Dan Williams <dan.j.williams@intel.com>, Vinod Koul <vinod.koul@intel.com>,
-	Jason Cooper <jason@lakedaemon.net>, Marc Zyngier <marc.zyngier@arm.com>,
-	Mauro Carvalho Chehab <mchehab@osg.samsung.com>, Lee Jones <lee.jones@linaro.org>,
-	Giuseppe Cavallaro <peppe.cavallaro@st.com>, Kishon Vijay Abraham I <kishon@ti.com>,
-	Linus Walleij <linus.walleij@linaro.org>, Sebastian Reichel <sre@kernel.org>,
-	Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, David Woodhouse <dwmw2@infradead.org>,
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBW773K3AKGQEGLQOICI@googlegroups.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id e130si139659wme.2.2016.03.02.02.26.34
+        for <rtc-linux@googlegroups.com>;
+        Wed, 02 Mar 2016 02:26:34 -0800 (PST)
+Date: Wed, 2 Mar 2016 11:26:34 +0100
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Juergen Borleis <jbe@pengutronix.de>
+Cc: kbuild test robot <fengguang.wu@intel.com>, rtc-linux@googlegroups.com,
 	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>, Andy Gross <andy.gross@linaro.org>,
-	David Brown <david.brown@linaro.org>,
-	Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-kernel@vger.kernel.org,
-	dmaengine@vger.kernel.org, linux-media@vger.kernel.org,
-	linux-samsung-soc@vger.kernel.org, netdev@vger.kernel.org,
-	linux-gpio@vger.kernel.org, linux-pm@vger.kernel.org,
-	linux-arm-msm@vger.kernel.org, linux-soc@vger.kernel.org,
-	devel@driverdev.osuosl.org, linux-usb@vger.kernel.org,
-	Krzysztof Kozlowski <k.kozlowski.k@gmail.com>
+	linux-kernel@vger.kernel.org
+Subject: [rtc-linux] Re: [abelloni:rtc-testing 55/55] drivers/rtc/rtc-pcf85063.c:72:19:
+ warning: unused variable 'pcf85063'
+Message-ID: <20160302102634.GN23985@piout.net>
+References: <201603020626.sgWd959D%fengguang.wu@intel.com>
+ <201603021044.29444.jbe@pengutronix.de>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <201603021044.29444.jbe@pengutronix.de>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
 List-Archive: <https://groups.google.com/group/rtc-linux
+Sender: rtc-linux@googlegroups.com
 List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-2016-03-03 19:53 GMT+09:00 Arnd Bergmann <arnd@arndb.de>:
-> On Thursday 03 March 2016 17:03:30 Krzysztof Kozlowski wrote:
->>  config ST_IRQCHIP
->>         bool
->>         select REGMAP
->> +       depends on HAS_IOMEM    # For MFD_SYSCON
->>         select MFD_SYSCON
->>         help
->>           Enables SysCfg Controlled IRQs on STi based platforms.
->>
->
-> Not user visible.
+Hi,
 
-Hmmm... you are right (here and in other patches) but why am I getting
-all these errors:
-warning: (ST_IRQCHIP && HIP04_ETH && STMMAC_PLATFORM && DWMAC_IPQ806X
-&& DWMAC_LPC18XX && DWMAC_ROCKCHIP && DWMAC_SOCFPGA && DWMAC_STI &&
-TI_CPSW && PINCTRL_ROCKCHIP && PINCTRL_DOVE && POWER_RESET_KEYSTONE &&
-S3C2410_WATCHDOG && VIDEO_OMAP3 && VIDEO_S5P_FIMC && USB_XHCI_MTK &&
-RTC_DRV_AT91SAM9 && LPC18XX_DMAMUX && VIDEO_OMAP4 && HWSPINLOCK_QCOM
-&& ATMEL_ST && QCOM_GSBI && PHY_HI6220_USB) selects MFD_SYSCON which
-has unmet direct dependencies (HAS_IOMEM)
-?
-(ARCH=um, allyesconfig)
-Adding depends here (and in other places) really helps... but it
-should not have any impact...
+On 02/03/2016 at 10:44:29 +0100, Juergen Borleis wrote :
+> Hi Alexandre,
+> 
+> On Tuesday 01 March 2016 23:17:45 kbuild test robot wrote:
+> > tree:   https://git.kernel.org/pub/scm/linux/kernel/git/abelloni/linux.git
+> > rtc-testing head:   58992ebde059d7faeab4c18bc17713c3b4c31208
+> > commit: 58992ebde059d7faeab4c18bc17713c3b4c31208 [55/55] rtc: pcf85063:
+> > remove useless century handling config: x86_64-randconfig-x012-201609
+> > (attached as .config)
+> > reproduce:
+> >         git checkout 58992ebde059d7faeab4c18bc17713c3b4c31208
+> >         # save the attached .config to linux build tree
+> >         make ARCH=x86_64
+> >
+> > All warnings (new ones prefixed by >>):
+> >
+> >    drivers/rtc/rtc-pcf85063.c: In function 'pcf85063_get_datetime':
+> > >> drivers/rtc/rtc-pcf85063.c:72:19: warning: unused variable 'pcf85063'
+> > >> [-Wunused-variable]
+> >
+> >      struct pcf85063 *pcf85063 = i2c_get_clientdata(client);
+> >                       ^
+> 
+> Due to your removement of the useless century handling the last user of 'struct 
+> pcf85063' is gone. Seems we can remove this struct entirely. What do you 
+> think?
+> 
 
-Thanks for comments,
-Krzysztof
+Sure, that was also my reasoning when fixing that warning. I've sent
+follow up patches.
+
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
 -- 
 -- 
