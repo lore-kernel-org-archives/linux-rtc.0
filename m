@@ -1,20 +1,22 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBVPU3K3AKGQECBA4K7Q@googlegroups.com>
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id w197si138358wmw.3.2016.03.02.02.03.00
-        for <rtc-linux@googlegroups.com>;
-        Wed, 02 Mar 2016 02:03:00 -0800 (PST)
-Date: Wed, 2 Mar 2016 11:03:00 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	linux-arm-kernel@lists.infradead.org, rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH 1/2] char: PC rtc: replace blacklist with whitelist
-Message-ID: <20160302100300.GL23985@piout.net>
-References: <1456912137-1578635-1-git-send-email-arnd@arndb.de>
+Return-Path: <rtc-linux+bncBD2OLRXW4ABBBLEJ3K3AKGQEQVXRM2Q@googlegroups.com>
+Received: from hqemgate15.nvidia.com (hqemgate15.nvidia.com. [216.228.121.64])
+        by gmr-mx.google.com with ESMTPS id ff2si5356583pad.2.2016.03.01.22.14.04
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 01 Mar 2016 22:14:04 -0800 (PST)
+Message-ID: <56D681B4.40509@nvidia.com>
+Date: Wed, 2 Mar 2016 11:31:24 +0530
+From: Laxman Dewangan <ldewangan@nvidia.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1456912137-1578635-1-git-send-email-arnd@arndb.de>
+To: Krzysztof Kozlowski <k.kozlowski@samsung.com>,
+	<alexandre.belloni@free-electrons.com>, <a.zummo@towertech.it>
+CC: <cw00.choi@samsung.com>, <rtc-linux@googlegroups.com>,
+	<linux-kernel@vger.kernel.org>, <javier@osg.samsung.com>, <rklein@nvidia.com>
+Subject: [rtc-linux] Re: [PATCH 1/2] rtc: max77686: Add support for
+ MAX20024/MAX77620 RTC IP
+References: <1456750705-13579-1-git-send-email-ldewangan@nvidia.com> <56D63A9C.20506@samsung.com> <56D64CAC.5030704@nvidia.com> <56D6636F.6090403@samsung.com> <56D667AC.5030400@nvidia.com> <56D66BF6.60403@samsung.com>
+In-Reply-To: <56D66BF6.60403@samsung.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -25,45 +27,57 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 02/03/2016 at 10:48:50 +0100, Arnd Bergmann wrote :
-> Every new architecture has to add itself to the growing list of those
-> that do not support the legacy PC RTC driver.
-> 
-> This replaces the long list of architectures that don't support it
-> with a shorter list of those that do.
-> 
-> The list is taken from those architectures that have a non-empty
-> asm/mc146818rtc.h header file and were not explicitly blacklisted.
-> 
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Acked-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
 
-> ---
->  drivers/char/Kconfig | 3 +--
->  1 file changed, 1 insertion(+), 2 deletions(-)
-> 
-> diff --git a/drivers/char/Kconfig b/drivers/char/Kconfig
-> index a043107da2af..9716bc36495a 100644
-> --- a/drivers/char/Kconfig
-> +++ b/drivers/char/Kconfig
-> @@ -279,8 +279,7 @@ if RTC_LIB=n
->  
->  config RTC
->  	tristate "Enhanced Real Time Clock Support (legacy PC RTC driver)"
-> -	depends on !PPC && !PARISC && !IA64 && !M68K && !SPARC && !FRV \
-> -			&& !ARM && !SUPERH && !S390 && !AVR32 && !BLACKFIN && !UML
-> +	depends on ALPHA || M32R || M68K || MIPS || MN10300 || PPC || X86
->  	---help---
->  	  If you say Y here and create a character special file /dev/rtc with
->  	  major number 10 and minor number 135 using mknod ("man mknod"), you
-> -- 
-> 2.7.0
-> 
+On Wednesday 02 March 2016 09:58 AM, Krzysztof Kozlowski wrote:
+> On 02.03.2016 13:10, Laxman Dewangan wrote:
+>> On Wednesday 02 March 2016 09:22 AM, Krzysztof Kozlowski wrote:
+>>> On 02.03.2016 11:15, Laxman Dewangan wrote:
+>>>
+>>>>>> (kernel_ulong_t)&max77802_drv_data, },
+>>>>>> +    { "max77620-rtc", .driver_data =
+>>>>>> (kernel_ulong_t)&max77620_drv_data, },
+>>>>>> +    { "max20024-rtc", .driver_data =
+>>>>>> (kernel_ulong_t)&max77620_drv_data, },
+>>>>> There shouldn't be "max20024-rtc". This is exactly the same as
+>>>>> "max77620-rtc" so re-use existing id. No point of duplicating device
+>>>>> names for 100% compatible devices.
+>>>>>
+>>>>>
+>>>> I am thinking that having compatible for each device which it supports
+>>>> is better.
+>>>>
+>>>> In MFD, I have made all sub module of max20024 as max20024-<module>.
+>>>> I have not mixed the sub module name for max20024 with max77620 module.
+>>> The point of compatible is to be... compatible so you don't create
+>>> compatibles for the same meaning!
+>>>
+>>> However this is actually not a compatible but a matching name... which
+>>> should follow the same idea. You did not give any argument why this is
+>>> better.
+>> My point is that if any driver supporting the any devices then it should
+>> be there in their compatibility although other everything is same.
+> Nope. The driver can describe supported devices in comment, Kconfig,
+> module description, DT binding description but the compatible is one.
+> One compatible for all compatible devices.
 
--- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+OK, got it.
+
+>
+>> This way, it is easy to find that the driver is available for the device
+>> or not. Also easy way to tell that someone has invested time to find out
+>> the driver corresponding to device and he confirmed that this driver is
+>> compatible with that device.
+>> Otherwise, it is difficult to quickly find out the driver whether this
+>> is available/support or not for given device.
+> This is so specific, imaginated use case... Regular users don't write
+> DTS. This is strictly for developers and the engineer who develops
+> code/platforms using maxim devices has this problem? No way...
+
+It is generic and not very specific to Maxim.
+As you suggested above, we can mention the same information in other places.
+
+
+Will respin the patch to remove this extra compatibility.
 
 -- 
 -- 
