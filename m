@@ -1,21 +1,24 @@
-Return-Path: <rtc-linux+bncBAABBI5DTS3QKGQEQFYD3OA@googlegroups.com>
-Received: from lists.s-osg.org (lists.s-osg.org. [54.187.51.154])
-        by gmr-mx.google.com with ESMTP id ui7si3555440pab.0.2016.03.14.12.31.47
-        for <rtc-linux@googlegroups.com>;
-        Mon, 14 Mar 2016 12:31:47 -0700 (PDT)
-Subject: [rtc-linux] Re: [PATCH] rtc: s3c: Don't print an error on probe deferral
-To: Joe Perches <joe@perches.com>, linux-kernel@vger.kernel.org
-References: <1457982308-29848-1-git-send-email-javier@osg.samsung.com>
- <1457982675.11972.119.camel@perches.com>
-From: Javier Martinez Canillas <javier@osg.samsung.com>
-Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
- linux-samsung-soc@vger.kernel.org,
- Krzysztof Kozlowski <k.kozlowski@samsung.com>, rtc-linux@googlegroups.com
-Message-ID: <56E7119B.9060900@osg.samsung.com>
-Date: Mon, 14 Mar 2016 16:31:39 -0300
+Return-Path: <rtc-linux+bncBDU7VC56WAFBBGMP3K3AKGQEGFIATHA@googlegroups.com>
+Received: from bues.ch (bues.ch. [2a01:138:9005::1:4])
+        by gmr-mx.google.com with ESMTPS id h126si133549wme.0.2016.03.01.22.26.33
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=AES128-SHA bits=128/128);
+        Tue, 01 Mar 2016 22:26:33 -0800 (PST)
+Date: Wed, 2 Mar 2016 07:26:27 +0100
+From: Michael =?UTF-8?B?QsO8c2No?= <m@bues.ch>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: Gregory Hermant <gregory.hermant@calao-systems.com>,
+ rtc-linux@googlegroups.com
+Subject: [rtc-linux] Re: [PATCH] rtc-rv3029c2: Add trickle charger
+Message-ID: <20160302072627.14e53e94@wiggum>
+In-Reply-To: <20160301230745.GJ23985@piout.net>
+References: <20160301213322.661fe771@wiggum>
+ <20160301213655.GG23985@piout.net>
+ <20160301225401.3f0aeabb@wiggum>
+ <20160301230745.GJ23985@piout.net>
 MIME-Version: 1.0
-In-Reply-To: <1457982675.11972.119.camel@perches.com>
-Content-Type: text/plain; charset=UTF-8
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ boundary="Sig_/mrlj/lIY/5NhI4z1vtY0trR"; protocol="application/pgp-signature"
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -26,73 +29,43 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Hello Joe,
+--Sig_/mrlj/lIY/5NhI4z1vtY0trR
+Content-Type: text/plain; charset=UTF-8
 
-Thanks a lot for your feedback.
+On Wed, 2 Mar 2016 00:07:45 +0100
+Alexandre Belloni <alexandre.belloni@free-electrons.com> wrote:
 
-On 03/14/2016 04:11 PM, Joe Perches wrote:
-> On Mon, 2016-03-14 at 16:05 -0300, Javier Martinez Canillas wrote:
->> The clock and source clock looked up by the driver may not be available
->> just because the clock controller driver was not probed yet so printing
->> an error in this case is not correct and only adds confusion to users.
->>
->> However, knowing that a driver's probe was deferred may be useful so it
->> can be printed as debug information.
-> []
->> diff --git a/drivers/rtc/rtc-s3c.c b/drivers/rtc/rtc-s3c.c
-> []
->> @@ -501,18 +501,27 @@ static int s3c_rtc_probe(struct platform_device *pdev)
->>  
->>  	info->rtc_clk = devm_clk_get(&pdev->dev, "rtc");
->>  	if (IS_ERR(info->rtc_clk)) {
->> -		dev_err(&pdev->dev, "failed to find rtc clock\n");
->> -		return PTR_ERR(info->rtc_clk);
->> +		ret = PTR_ERR(info->rtc_clk);
->> +		if (ret != -EPROBE_DEFER)
->> +			dev_err(&pdev->dev, "failed to find rtc clock\n");
->> +		else
->> +			dev_dbg(&pdev->dev, "probe deferred due rtc clock\n");
->> +		return ret;
->>  	}
->>  	clk_prepare_enable(info->rtc_clk);
->>  
->>  	if (info->data->needs_src_clk) {
->>  		info->rtc_src_clk = devm_clk_get(&pdev->dev, "rtc_src");
->>  		if (IS_ERR(info->rtc_src_clk)) {
->> -			dev_err(&pdev->dev,
->> -				"failed to find rtc source clock\n");
->> +			ret = PTR_ERR(info->rtc_src_clk);
->> +			if (ret != -EPROBE_DEFER)
->> +				dev_err(&pdev->dev,
->> +					"failed to find rtc source clock\n");
->> +			else
->> +				dev_dbg(&pdev->dev,
->> +					"probe deferred due rtc source clock\n");
->>  			clk_disable_unprepare(info->rtc_clk);
->> -			return PTR_ERR(info->rtc_src_clk);
->> +			return ret;
->>  		}
->>  		clk_prepare_enable(info->rtc_src_clk);
->>  	}
+> > > I wouldn't reset the VLOW1 and VLOW2 flags here. Just bail out if the
+> > > voltage is not sufficient. I don't think that condition will actually
+> > > get better simply by waiting.  
+> > 
+> > 
+> > I do actually think so that we should clear them at least once (that is
+> > retry once). According to the data sheet these bits will not reset
+> > automatically and might be left over from machine start (brown out).
+> >   
 > 
-> Maybe the debug logging messages could be object->action like:
+> No, this should be handled differently. I have some pending patches to
+> handle those bits. The main issue is that if you reset those bits there,
+> there is now way to know whether the date has been set or is invalid.
 > 
-> 	rtc clock probe deferred
-> 	rtc source clock probe deferred
-> 
+> I think the best way to handle this case is to call the function again
+> when the date/time are set and we have to reset VLOW1/2.
 
-I found your suggested messages harder to read and more confusing. The
-action that happens is a probe function deferral and that is caused by
-a missing resource needed by the driver (clocks in this case).
+Yes, right. But as of now we do not have VLOW handling. So I don't see
+an issue with clearing the bits here.
+The clearing can be removed, if VLOW handling is added eventually.
 
-But your messages seems to imply that the probe deferred action happens
-to a clock, it sounds like "rtc clock disabled" and that's not correct.
+The issue currently is: We need to check VLOW before accessing the
+eeprom, because otherwise it would mean data corruption. This is
+especially true for writing. And if we read VLOW, we need a way to
+reset the bits from the probable initial brown out. Otherwise we can
+never access the eeprom as this check would hit often.
 
-Best regards,
+So when are your VLOW patches going to be available?
+
 -- 
-Javier Martinez Canillas
-Open Source Group
-Samsung Research America
+Michael
 
 -- 
 -- 
@@ -104,3 +77,27 @@ before submitting a driver.
 You received this message because you are subscribed to the Google Groups "rtc-linux" group.
 To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
+
+--Sig_/mrlj/lIY/5NhI4z1vtY0trR
+Content-Type: application/pgp-signature
+Content-Description: OpenPGP digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQIcBAEBCAAGBQJW1oeTAAoJEPUyvh2QjYsOrlsP/A65qa6+1mtu9CsR0o7UHQIf
++k+LH7/V9nBhBHgUGYep8WUSrCEA6p41RE4J7MVwAVit5xVxu4Wxq1mdxwCj3/xh
+WKZJy8oznRfcVIO+Kp+EKVxz+davqyeCw9vJBOU8oKXloax3cIfrBczoJzIyd/co
+WPrkEQAuMmORIEDRsDR1ka1StKyhTFBdAbXWE63LdT7s10VrCYQmx6IixLa67mKn
+2QFg06EdwIDQpikiLUqC2PB369+z7LaC+TvSzaoLhtcY5Wa9NUqG00BrcdFcWk50
+eMlUA03+0ysIsRd1+2nIxoH/4wqUA6YeDCdHyRq4K0AYqkA85DEQVlyP1gviD4Jl
+2X9bs14D0W9aLGccve72PTFhHrpm0hOgMtfHi0f7cvSf7085/neC9isJnqu+C0Cb
+hDy7S8t8/xG+jDxaFWFHBG8PEogbn1eY1FFxE3N1PWh/IR7ZXkLQdUbYj/9e9qtL
+VzX+ZHM9495PpVqX1mCwISwn9wh3lKK4Hkc/Aez8YjWPr1LHW8YGsBrI/nGhpX5K
+lrEhYRsZ0A5BSaXehqvMn83Zhxdpl6UnJAPZ3Mxdb8ERSVHGf+0P6CKKLJg+P1XZ
+3TbU7iTqvHwXI3Vg8Rph6wISN21NB4IaR85Ukb8JsTm12AZ4S5qCzPqiqlUJEULs
+nbPDl0V0+aMJ6aBMdX3S
+=DfvZ
+-----END PGP SIGNATURE-----
+
+--Sig_/mrlj/lIY/5NhI4z1vtY0trR--
