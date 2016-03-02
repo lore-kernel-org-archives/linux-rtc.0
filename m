@@ -1,26 +1,28 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBZ7P4C3AKGQETP2XXYA@googlegroups.com>
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id w128si291315wmd.0.2016.03.03.05.11.02
-        for <rtc-linux@googlegroups.com>;
-        Thu, 03 Mar 2016 05:11:02 -0800 (PST)
-Date: Thu, 3 Mar 2016 13:57:38 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: cvs268@gmail.com
-Cc: rtc-linux <rtc-linux@googlegroups.com>, a.zummo@towertech.it,
-	robh+dt@kernel.org, pawel.moll@arm.com, mark.rutland@arm.com,
-	ijc+devicetree@hellion.org.uk, galak@codeaurora.org,
-	devicetree@vger.kernel.org, kernel@pengutronix.de,
-	s.trumtrar@pengutronix.de
-Subject: [rtc-linux] Re: [PATCH v4 2/2] rtc: add driver for RX6110SA real time clock
-Message-ID: <20160303125738.GD2567@piout.net>
-References: <1451927075-8656-1-git-send-email-s.trumtrar@pengutronix.de>
- <1451927075-8656-2-git-send-email-s.trumtrar@pengutronix.de>
- <20160131115457.GL20165@piout.net>
- <20160131140418.GD11885@pengutronix.de>
- <6c5c65d7-2cee-4e3f-a91c-c9fbd4c006c7@googlegroups.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <6c5c65d7-2cee-4e3f-a91c-c9fbd4c006c7@googlegroups.com>
+Return-Path: <rtc-linux+bncBDKZNNNLXAHBB4OU3K3AKGQEOOEBTSA@googlegroups.com>
+Received: from mailout3.w1.samsung.com (mailout3.w1.samsung.com. [210.118.77.13])
+        by gmr-mx.google.com with ESMTPS id yd9si4989146pab.1.2016.03.02.00.55.12
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1 cipher=AES128-SHA bits=128/128);
+        Wed, 02 Mar 2016 00:55:12 -0800 (PST)
+Received: from eucpsbgm1.samsung.com (unknown [203.254.199.244])
+ by mailout3.w1.samsung.com
+ (Oracle Communications Messaging Server 7.0.5.31.0 64bit (built May  5 2014))
+ with ESMTP id <0O3E00DULM3WUT20@mailout3.w1.samsung.com> for
+ rtc-linux@googlegroups.com; Wed, 02 Mar 2016 08:55:09 +0000 (GMT)
+Subject: [rtc-linux] Re: [PATCH V2 2/2] rtc: max77686: Use REGMAP_IRQ_REG for
+ regmap-rtc-irqs initialisation
+To: Laxman Dewangan <ldewangan@nvidia.com>,
+ alexandre.belloni@free-electrons.com, a.zummo@towertech.it
+References: <1456907785-11942-1-git-send-email-ldewangan@nvidia.com>
+ <1456907785-11942-2-git-send-email-ldewangan@nvidia.com>
+Cc: cw00.choi@samsung.com, rtc-linux@googlegroups.com,
+ linux-kernel@vger.kernel.org, javier@osg.samsung.com, rklein@nvidia.com
+From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+Message-id: <56D6AA68.7090200@samsung.com>
+Date: Wed, 02 Mar 2016 17:55:04 +0900
+MIME-version: 1.0
+In-reply-to: <1456907785-11942-2-git-send-email-ldewangan@nvidia.com>
+Content-type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -31,39 +33,25 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Hi,
-
-On 03/03/2016 at 03:58:45 -0800, cvs268@gmail.com wrote :
->  
+On 02.03.2016 17:36, Laxman Dewangan wrote:
+> Use macro REGMAP_IRQ_REG from regmap.h to initialise the
+> regmap irq table for max77686 to have better coding style
+> and improve readability.
 > 
-> > > > If the need ever arises to also support the I2C variant, this driver 
-> > > > could easily be refactored to support both cases. 
-> >
-> I will soon be getting an embedded board with this RX6110 RTC on it 
-> connected via I2C.
-> So i would like to take-up the task of adding I2C support in a few weeks.
+> Signed-off-by: Laxman Dewangan <ldewangan@nvidia.com>
+> ---
+> Changes from V1:
+> - Added information in commit message for answering why it is done.
 > 
-> A quick search shows drivers/rtc/rtc-rx4581.c was similarly written based 
-> on drivers/rtc/rtc-rx8581.c
-> 
-> Q. Should i proceed to create drivers/rtc/rtc-rx6110-i2c.c or whats the 
-> recommended approach?
-> I did not find any RTC driver that supports both i2c and spi (eg. depending 
-> upon some config option)
+>  drivers/rtc/rtc-max77686.c | 12 ++++++------
+>  1 file changed, 6 insertions(+), 6 deletions(-)
 > 
 
-You can have a look at sound/soc/codecs/wm8750.c which register one
-driver for both i2c and spi. It is simple enough and you should be able
-to do the same.
+Reviewed-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
 
-Obviously, a new category will be needed in the Kconfig to handle RTC
-that are both spi and i2c with the same part number.
+Best regards,
+Krzysztof
 
-
--- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
 
 -- 
 -- 
