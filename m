@@ -1,75 +1,70 @@
-Return-Path: <rtc-linux+bncBCQJP74GSUDRBRHJ3K3AKGQETCFPGKI@googlegroups.com>
-Received: from mail-io0-x243.google.com (mail-io0-x243.google.com. [2607:f8b0:4001:c06::243])
-        by gmr-mx.google.com with ESMTPS id p10si310155igg.1.2016.03.02.01.39.15
+Return-Path: <rtc-linux+bncBD2OLRXW4ABBBG6S3K3AKGQEKC6T2OI@googlegroups.com>
+Received: from hqemgate14.nvidia.com (hqemgate14.nvidia.com. [216.228.121.143])
+        by gmr-mx.google.com with ESMTPS id y20si3057893pfa.2.2016.03.02.00.49.31
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 02 Mar 2016 01:39:15 -0800 (PST)
-Received: by mail-io0-x243.google.com with SMTP id m184so924991iof.3
-        for <rtc-linux@googlegroups.com>; Wed, 02 Mar 2016 01:39:15 -0800 (PST)
+        Wed, 02 Mar 2016 00:49:31 -0800 (PST)
+From: Laxman Dewangan <ldewangan@nvidia.com>
+To: <k.kozlowski@samsung.com>, <alexandre.belloni@free-electrons.com>,
+	<a.zummo@towertech.it>
+CC: <cw00.choi@samsung.com>, <rtc-linux@googlegroups.com>,
+	<linux-kernel@vger.kernel.org>, <javier@osg.samsung.com>,
+	<rklein@nvidia.com>, Laxman Dewangan <ldewangan@nvidia.com>
+Subject: [rtc-linux] [PATCH V2 2/2] rtc: max77686: Use REGMAP_IRQ_REG for
+ regmap-rtc-irqs initialisation
+Date: Wed, 2 Mar 2016 14:06:25 +0530
+Message-ID: <1456907785-11942-2-git-send-email-ldewangan@nvidia.com>
+In-Reply-To: <1456907785-11942-1-git-send-email-ldewangan@nvidia.com>
+References: <1456907785-11942-1-git-send-email-ldewangan@nvidia.com>
 MIME-Version: 1.0
-Sender: rtc-linux@googlegroups.com
-In-Reply-To: <mvmwpplns8n.fsf@hawking.suse.de>
-References: <1456851608-3374907-1-git-send-email-arnd@arndb.de>
-	<1456851608-3374907-2-git-send-email-arnd@arndb.de>
-	<CAMuHMdW5+jZ1n9WnCwBrGSGjUa8ziNTTqf-H15EFTQC_iwnw+Q@mail.gmail.com>
-	<mvmwpplns8n.fsf@hawking.suse.de>
-Date: Wed, 2 Mar 2016 10:39:15 +0100
-Message-ID: <CAMuHMdX2Jc4dT5omKmiie7GK+xDYDgJwm34hwANx3HzHt7LzxA@mail.gmail.com>
-Subject: [rtc-linux] Re: [PATCH 1/6] rtc: generic: allow building on all architectures
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Andreas Schwab <schwab@linux-m68k.org>
-Cc: Arnd Bergmann <arnd@arndb.de>, Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Kyle McMartin <kyle@mcmartin.ca>,
-	RTCLINUX <rtc-linux@googlegroups.com>, Alessandro Zummo <a.zummo@towertech.it>,
-	"linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>, Linux-sh list <linux-sh@vger.kernel.org>,
-	Parisc List <linux-parisc@vger.kernel.org>, linux-m68k <linux-m68k@lists.linux-m68k.org>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
 List-Archive: <https://groups.google.com/group/rtc-linux
+Sender: rtc-linux@googlegroups.com
 List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Wed, Mar 2, 2016 at 10:28 AM, Andreas Schwab <schwab@linux-m68k.org> wrote:
-> Geert Uytterhoeven <geert@linux-m68k.org> writes:
->
->>> +#else
->>> +#define generic_rtc_ops *(struct rtc_class_ops*)NULL
->>> +#endif
->>>
->>>  static int __init generic_rtc_probe(struct platform_device *dev)
->>>  {
->>>         struct rtc_device *rtc;
->>> +       const struct rtc_class_ops *ops;
->>> +
->>> +       ops = dev_get_platdata(&dev->dev);
->>> +       if (!ops)
->>> +               ops = &generic_rtc_ops;
->>
->> I hope no compiler version treats "&*(struct rtc_class_ops*)NULL" as
->> undefined behavior?
->
-> Yes, that is guaranteed, the operations cancel each other (6.5.3.2#3: If
-> the operand is the result of a unary * operator, neither that operator
-> nor the & operator is evaluated and the result is as if both were
-> omitted).
+Use macro REGMAP_IRQ_REG from regmap.h to initialise the
+regmap irq table for max77686 to have better coding style
+and improve readability.
 
-Thanks for confirming.
+Signed-off-by: Laxman Dewangan <ldewangan@nvidia.com>
+---
+Changes from V1:
+- Added information in commit message for answering why it is done.
 
-Gr{oetje,eeting}s,
+ drivers/rtc/rtc-max77686.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-                        Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+diff --git a/drivers/rtc/rtc-max77686.c b/drivers/rtc/rtc-max77686.c
+index 9cd4c4f..182fdd0 100644
+--- a/drivers/rtc/rtc-max77686.c
++++ b/drivers/rtc/rtc-max77686.c
+@@ -171,12 +171,12 @@ static const unsigned int max77686_map[REG_RTC_END] = {
+ 
+ static const struct regmap_irq max77686_rtc_irqs[] = {
+ 	/* RTC interrupts */
+-	{ .reg_offset = 0, .mask = MAX77686_RTCINT_RTC60S_MSK, },
+-	{ .reg_offset = 0, .mask = MAX77686_RTCINT_RTCA1_MSK, },
+-	{ .reg_offset = 0, .mask = MAX77686_RTCINT_RTCA2_MSK, },
+-	{ .reg_offset = 0, .mask = MAX77686_RTCINT_SMPL_MSK, },
+-	{ .reg_offset = 0, .mask = MAX77686_RTCINT_RTC1S_MSK, },
+-	{ .reg_offset = 0, .mask = MAX77686_RTCINT_WTSR_MSK, },
++	REGMAP_IRQ_REG(0, 0, MAX77686_RTCINT_RTC60S_MSK),
++	REGMAP_IRQ_REG(1, 0, MAX77686_RTCINT_RTCA1_MSK),
++	REGMAP_IRQ_REG(2, 0, MAX77686_RTCINT_RTCA2_MSK),
++	REGMAP_IRQ_REG(3, 0, MAX77686_RTCINT_SMPL_MSK),
++	REGMAP_IRQ_REG(4, 0, MAX77686_RTCINT_RTC1S_MSK),
++	REGMAP_IRQ_REG(5, 0, MAX77686_RTCINT_WTSR_MSK),
+ };
+ 
+ static const struct regmap_irq_chip max77686_rtc_irq_chip = {
+-- 
+2.1.4
 
 -- 
 -- 
