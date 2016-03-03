@@ -1,21 +1,19 @@
-Return-Path: <rtc-linux+bncBDEKVJM7XAHRBYNP4C3AKGQETHXHFPI@googlegroups.com>
-Received: from mout.kundenserver.de (mout.kundenserver.de. [212.227.126.133])
-        by gmr-mx.google.com with ESMTPS id 71si101557wmp.0.2016.03.03.02.54.24
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 03 Mar 2016 02:54:24 -0800 (PST)
-From: Arnd Bergmann <arnd@arndb.de>
-To: linux-arm-kernel@lists.infradead.org
-Cc: Krzysztof Kozlowski <k.kozlowski@samsung.com>, Daniel Lezcano <daniel.lezcano@linaro.org>, Thomas Gleixner <tglx@linutronix.de>, Dan Williams <dan.j.williams@intel.com>, Vinod Koul <vinod.koul@intel.com>, Jason Cooper <jason@lakedaemon.net>, Marc Zyngier <marc.zyngier@arm.com>, Mauro Carvalho Chehab <mchehab@osg.samsung.com>, Lee Jones <lee.jones@linaro.org>, Giuseppe Cavallaro <peppe.cavallaro@st.com>, Kishon Vijay Abraham I <kishon@ti.com>, Linus Walleij <linus.walleij@linaro.org>, Sebastian Reichel <sre@kernel.org>, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, David Woodhouse <dwmw2@infradead.org>, Alessandro Zummo <a.zummo@towertech.it>, Alexandre Belloni <alexandre.belloni@free-electrons.com>, Andy Gross <andy.gross@linaro.org>, David Brown <david.brown@linaro.org>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-kernel@vger.kernel.org, dmaengine@vger.kernel.org, linux-media@vger.kernel.org, linux-samsung-soc@vger.kernel.org, netdev@vger.kernel.org, linux-gpio@vger.kernel.org, linux-pm@vger.kernel.org, rtc-linux@googlegroups.com, linux-arm-msm@vger.kernel.org, linux-soc@vger.kernel.org, devel@driverdev.osuosl.org, linux-usb@vger.kernel.org
-Subject: [rtc-linux] Re: [RFC 05/15] phy: hi6220: Add missing MFD_SYSCON
- dependency on HAS_IOMEM
-Date: Thu, 03 Mar 2016 11:54:17 +0100
-Message-ID: <1777963.D97F7d0Oik@wuerfel>
-In-Reply-To: <1456992221-26712-6-git-send-email-k.kozlowski@samsung.com>
-References: <1456992221-26712-1-git-send-email-k.kozlowski@samsung.com> <1456992221-26712-6-git-send-email-k.kozlowski@samsung.com>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBZHX363AKGQEA63MT2Y@googlegroups.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id v68si340343wmd.1.2016.03.03.00.55.00
+        for <rtc-linux@googlegroups.com>;
+        Thu, 03 Mar 2016 00:55:00 -0800 (PST)
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: rtc-linux@googlegroups.com
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+	linux-kernel@vger.kernel.org,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Subject: [rtc-linux] [PATCH] rtc: always show I2C
+Date: Thu,  3 Mar 2016 09:54:28 +0100
+Message-Id: <1456995268-995-1-git-send-email-alexandre.belloni@free-electrons.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -25,25 +23,27 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Thursday 03 March 2016 17:03:31 Krzysztof Kozlowski wrote:
-> --- a/drivers/phy/Kconfig
-> +++ b/drivers/phy/Kconfig
-> @@ -225,6 +225,7 @@ config PHY_MT65XX_USB3
->  config PHY_HI6220_USB
->         tristate "hi6220 USB PHY support"
->         depends on (ARCH_HISI && ARM64) || COMPILE_TEST
-> +       depends on HAS_IOMEM    # For MFD_SYSCON
->         select GENERIC_PHY
->         select MFD_SYSCON
->         help
-> -- 
-> 2.5.0
-> 
+Always show there is an I2C section, like the other sections.
 
-This is indeed required, and seems to be what caused the problem
-you saw in the first place.
+Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+---
+ drivers/rtc/Kconfig | 1 -
+ 1 file changed, 1 deletion(-)
 
-	Arnd
+diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
+index 0da40e2e4280..e593c55b9376 100644
+--- a/drivers/rtc/Kconfig
++++ b/drivers/rtc/Kconfig
+@@ -140,7 +140,6 @@ config RTC_DRV_TEST
+ 	  will be called rtc-test.
+ 
+ comment "I2C RTC drivers"
+-	depends on I2C
+ 
+ if I2C
+ 
+-- 
+2.7.0
 
 -- 
 -- 
