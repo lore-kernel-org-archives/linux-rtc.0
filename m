@@ -1,22 +1,25 @@
-Return-Path: <rtc-linux+bncBD2OLRXW4ABBBGM23G3AKGQEXORJTVQ@googlegroups.com>
-Received: from hqemgate14.nvidia.com (hqemgate14.nvidia.com. [216.228.121.143])
-        by gmr-mx.google.com with ESMTPS id ui7si4840218pab.0.2016.03.01.18.16.57
+Return-Path: <rtc-linux+bncBCPM5SUWUYIRBXEL4G3AKGQEQHUMZLY@googlegroups.com>
+Received: from mail-vk0-x243.google.com (mail-vk0-x243.google.com. [2607:f8b0:400c:c05::243])
+        by gmr-mx.google.com with ESMTPS id c66si1534436vkf.0.2016.03.03.06.10.36
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 01 Mar 2016 18:16:57 -0800 (PST)
-Message-ID: <56D64A25.5050700@nvidia.com>
-Date: Wed, 2 Mar 2016 07:34:21 +0530
-From: Laxman Dewangan <ldewangan@nvidia.com>
+        Thu, 03 Mar 2016 06:10:36 -0800 (PST)
+Received: by mail-vk0-x243.google.com with SMTP id e185so1530622vkb.2
+        for <rtc-linux@googlegroups.com>; Thu, 03 Mar 2016 06:10:36 -0800 (PST)
 MIME-Version: 1.0
-To: Krzysztof Kozlowski <k.kozlowski@samsung.com>,
-	<alexandre.belloni@free-electrons.com>, <a.zummo@towertech.it>
-CC: <cw00.choi@samsung.com>, <rtc-linux@googlegroups.com>,
-	<linux-kernel@vger.kernel.org>, <javier@osg.samsung.com>, <rklein@nvidia.com>
-Subject: [rtc-linux] Re: [PATCH 2/2] rtc: max77686: Use REGMAP_IRQ_REG for
- regmap-rtc-irqs initialisation
-References: <1456750705-13579-1-git-send-email-ldewangan@nvidia.com> <1456750705-13579-2-git-send-email-ldewangan@nvidia.com> <56D63B28.9030502@samsung.com>
-In-Reply-To: <56D63B28.9030502@samsung.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+In-Reply-To: <1456758832-10590-7-git-send-email-akinobu.mita@gmail.com>
+References: <1456758832-10590-1-git-send-email-akinobu.mita@gmail.com>
+	<1456758832-10590-7-git-send-email-akinobu.mita@gmail.com>
+Date: Thu, 3 Mar 2016 23:10:35 +0900
+Message-ID: <CAC5umygNbz=nnPU6oTDsmrwWRKLFJE3Hq2ei1mPQ425CvfVE9Q@mail.gmail.com>
+Subject: [rtc-linux] Re: [PATCH v3 7/8] rtc: ds3232-core: fix issue when irq
+ is shared several devices
+From: Akinobu Mita <akinobu.mita@gmail.com>
+To: rtc-linux@googlegroups.com
+Cc: Akinobu Mita <akinobu.mita@gmail.com>, Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Dennis Aberilla <denzzzhome@yahoo.com>
+Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -27,21 +30,50 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-
-On Wednesday 02 March 2016 06:30 AM, Krzysztof Kozlowski wrote:
-> On 29.02.2016 21:58, Laxman Dewangan wrote:
->> use macro REGMAP_IRQ_REG from regmap.h to initialise the
->> regmap irq table for max77686.
-> Why? Any benefits?
+2016-03-01 0:13 GMT+09:00 Akinobu Mita <akinobu.mita@gmail.com>:
+> ds3232-core requests irq with IRQF_SHARED, so irq can be shared by
+> several devices.  But the irq handler for ds3232 unconditionally
+> disables the irq at first and the irq is re-enabled only when the
+> interrupt source was the ds3232's alarm.  This behaviour breaks the
+> devices sharing the same irq in the various scenarios.
 >
+> Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
+> Cc: Alessandro Zummo <a.zummo@towertech.it>
+> Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+> Cc: Dennis Aberilla <denzzzhome@yahoo.com>
+> ---
+> * New patch from this version
 >
-I think it is better coding to use macro for member initializations 
-instead of doing it locally and it improves readability.
+>  drivers/rtc/rtc-ds3232-core.c | 14 ++------------
+>  1 file changed, 2 insertions(+), 12 deletions(-)
+>
+> diff --git a/drivers/rtc/rtc-ds3232-core.c b/drivers/rtc/rtc-ds3232-core.c
+> index be8dfe0..6489380 100644
+> --- a/drivers/rtc/rtc-ds3232-core.c
+> +++ b/drivers/rtc/rtc-ds3232-core.c
+> @@ -59,7 +59,6 @@ struct ds3232 {
+>          */
+>         struct mutex mutex;
+>         bool suspended;
+> -       int exiting;
+>  };
+>
+>  static int ds3232_check_rtc_status(struct device *dev)
+> @@ -314,8 +313,6 @@ static irqreturn_t ds3232_irq(int irq, void *dev_id)
+>         struct device *dev = dev_id;
+>         struct ds3232 *ds3232 = dev_get_drvdata(dev);
+>
+> -       disable_irq_nosync(irq);
+> -
+>         /*
+>          * If rtc as a wakeup source, can't schedule the work
+>          * at system resume flow, because at this time the i2c bus
 
-I got the similar comment from Lee's in my MFD patches to use macro for 
-such initialization and I agreed with him.
+I found that this patch is not correct because interrupt is re-enabled
+after this hardirq handler finished without clearing Alarm Flag or
+Alarm Interrupt Enable in RTC register.
 
-As I was here on this driver, thought to use macro.
+Maybe we should drop IRQF_SHARED flag.
 
 -- 
 -- 
