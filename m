@@ -1,23 +1,46 @@
-Return-Path: <rtc-linux+bncBD2OLRXW4ABBBIM73G3AKGQEJTPPRDI@googlegroups.com>
-Received: from hqemgate16.nvidia.com (hqemgate16.nvidia.com. [216.228.121.65])
-        by gmr-mx.google.com with ESMTPS id r75si3196890pfr.0.2016.03.01.18.27.45
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 01 Mar 2016 18:27:45 -0800 (PST)
-Message-ID: <56D64CAC.5030704@nvidia.com>
-Date: Wed, 2 Mar 2016 07:45:08 +0530
-From: Laxman Dewangan <ldewangan@nvidia.com>
+Return-Path: <rtc-linux+bncBDKZNNNLXAHBBLHA363AKGQEVCGBRJY@googlegroups.com>
 MIME-Version: 1.0
-To: Krzysztof Kozlowski <k.kozlowski@samsung.com>,
-	<alexandre.belloni@free-electrons.com>, <a.zummo@towertech.it>
-CC: <cw00.choi@samsung.com>, <rtc-linux@googlegroups.com>,
-	<linux-kernel@vger.kernel.org>, <javier@osg.samsung.com>, <rklein@nvidia.com>
-Subject: [rtc-linux] Re: [PATCH 1/2] rtc: max77686: Add support for
- MAX20024/MAX77620 RTC IP
-References: <1456750705-13579-1-git-send-email-ldewangan@nvidia.com> <56D63A9C.20506@samsung.com>
-In-Reply-To: <56D63A9C.20506@samsung.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Received: from mailout1.w1.samsung.com (mailout1.w1.samsung.com. [210.118.77.11])
+        by gmr-mx.google.com with ESMTPS id ui7si5853242pab.0.2016.03.03.00.04.59
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1 cipher=AES128-SHA bits=128/128);
+        Thu, 03 Mar 2016 00:04:59 -0800 (PST)
+Received: from eucpsbgm1.samsung.com (unknown [203.254.199.244])
+ by mailout1.w1.samsung.com
+ (Oracle Communications Messaging Server 7.0.5.31.0 64bit (built May  5 2014))
+ with ESMTP id <0O3G0066IEG83X80@mailout1.w1.samsung.com> for
+ rtc-linux@googlegroups.com; Thu, 03 Mar 2016 08:04:56 +0000 (GMT)
+From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+To: Daniel Lezcano <daniel.lezcano@linaro.org>,
+ Thomas Gleixner <tglx@linutronix.de>, Dan Williams <dan.j.williams@intel.com>,
+ Vinod Koul <vinod.koul@intel.com>, Jason Cooper <jason@lakedaemon.net>,
+ Marc Zyngier <marc.zyngier@arm.com>,
+ Mauro Carvalho Chehab <mchehab@osg.samsung.com>,
+ Lee Jones <lee.jones@linaro.org>, Giuseppe Cavallaro <peppe.cavallaro@st.com>,
+ Kishon Vijay Abraham I <kishon@ti.com>,
+ Linus Walleij <linus.walleij@linaro.org>, Sebastian Reichel <sre@kernel.org>,
+ Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>,
+ David Woodhouse <dwmw2@infradead.org>,
+ Alessandro Zummo <a.zummo@towertech.it>,
+ Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+ Andy Gross <andy.gross@linaro.org>, David Brown <david.brown@linaro.org>,
+ Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-kernel@vger.kernel.org,
+ dmaengine@vger.kernel.org, linux-media@vger.kernel.org,
+ linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org,
+ netdev@vger.kernel.org, linux-gpio@vger.kernel.org, linux-pm@vger.kernel.org,
+ rtc-linux@googlegroups.com, linux-arm-msm@vger.kernel.org,
+ linux-soc@vger.kernel.org, devel@driverdev.osuosl.org,
+ linux-usb@vger.kernel.org
+Cc: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+Subject: [rtc-linux] [RFC 06/15] pinctrl: rockchip: Add missing MFD_SYSCON
+ dependency on HAS_IOMEM
+Date: Thu, 03 Mar 2016 17:03:32 +0900
+Message-id: <1456992221-26712-7-git-send-email-k.kozlowski@samsung.com>
+In-reply-to: <1456992221-26712-1-git-send-email-k.kozlowski@samsung.com>
+References: <1456992221-26712-1-git-send-email-k.kozlowski@samsung.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -27,59 +50,28 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
+The MFD_SYSCON depends on HAS_IOMEM so when selecting it avoid unmet
+direct dependencies.
 
-On Wednesday 02 March 2016 06:28 AM, Krzysztof Kozlowski wrote:
-> On 29.02.2016 21:58, Laxman Dewangan wrote:
-> +	.alarm_pending_status_reg = MAX77620_RTC_ALARM_PENDING_STATUS_REG,
-> Just skip the alarm_pending_status_reg (so it will be 0x0) and check for
-> non-zero value later?
->
-> It might be a little bit non consistent approach to how we map RTC
-> registers (REG_RTC_NONE)... so I don't have strong feelings about this.
+Signed-off-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+---
+ drivers/pinctrl/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-I choose -1 because 0 is also valid.
-So I can have macro for INVALID register which is -1 and use here, other 
-places direct register as STATUS2.
-
-
->
->> +	if (info->drv_data->rtc_irq_from_platform) {
->> +		struct platform_device *pdev = to_platform_device(info->dev);
->> +
->> +		info->rtc_irq = platform_get_irq(pdev, 0);
-> It may return -ERRNO. What happens then?
-
-MFD is initializing the irq and so it will not fail on this particular case.
-Even if error, the regmap_add_irq should fail.
-
-Let me handle error at this point only to avoid any assumption and 
-further processing with error, by returning error.
-
-
->
->> +	} else {
->> +		info->rtc_irq =  parent_i2c->irq;
->> +	}
->>   
->>   	info->regmap = dev_get_regmap(parent, NULL);
->>   	if (!info->regmap) {
->> @@ -802,6 +840,8 @@ static SIMPLE_DEV_PM_OPS(max77686_rtc_pm_ops,
->>   static const struct platform_device_id rtc_id[] = {
->>   	{ "max77686-rtc", .driver_data = (kernel_ulong_t)&max77686_drv_data, },
->>   	{ "max77802-rtc", .driver_data = (kernel_ulong_t)&max77802_drv_data, },
->> +	{ "max77620-rtc", .driver_data = (kernel_ulong_t)&max77620_drv_data, },
->> +	{ "max20024-rtc", .driver_data = (kernel_ulong_t)&max77620_drv_data, },
-> There shouldn't be "max20024-rtc". This is exactly the same as
-> "max77620-rtc" so re-use existing id. No point of duplicating device
-> names for 100% compatible devices.
->
->
-I am thinking that having compatible for each device which it supports 
-is better.
-
-In MFD, I have made all sub module of max20024 as max20024-<module>.
-I have not mixed the sub module name for max20024 with max77620 module.
-
+diff --git a/drivers/pinctrl/Kconfig b/drivers/pinctrl/Kconfig
+index fb8200b8e8ec..dc7ab58d4d74 100644
+--- a/drivers/pinctrl/Kconfig
++++ b/drivers/pinctrl/Kconfig
+@@ -131,6 +131,7 @@ config PINCTRL_MESON
+ 
+ config PINCTRL_ROCKCHIP
+ 	bool
++	depends on HAS_IOMEM	# For MFD_SYSCON
+ 	select PINMUX
+ 	select GENERIC_PINCONF
+ 	select GENERIC_IRQ_CHIP
+-- 
+2.5.0
 
 -- 
 -- 
