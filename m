@@ -1,27 +1,44 @@
-Return-Path: <rtc-linux+bncBDEKVJM7XAHRBMMV263AKGQE7CWZYDA@googlegroups.com>
+Return-Path: <rtc-linux+bncBDKZNNNLXAHBBYHA363AKGQEEFJTLQQ@googlegroups.com>
 MIME-Version: 1.0
-Received: from mout.kundenserver.de (mout.kundenserver.de. [217.72.192.75])
-        by gmr-mx.google.com with ESMTPS id c7si5790wmf.2.2016.03.01.09.00.33
+Received: from mailout1.w1.samsung.com (mailout1.w1.samsung.com. [210.118.77.11])
+        by gmr-mx.google.com with ESMTPS id ff2si6296527pad.2.2016.03.03.00.05.52
         for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 01 Mar 2016 09:00:33 -0800 (PST)
-From: Arnd Bergmann <arnd@arndb.de>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: linux-arm-kernel@lists.infradead.org,
-	Kyle McMartin <kyle@mcmartin.ca>,
-	rtc-linux@googlegroups.com,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	linuxppc-dev@lists.ozlabs.org,
-	linux-sh@vger.kernel.org,
-	linux-parisc@vger.kernel.org,
-	linux-m68k@lists.linux-m68k.org,
-	Arnd Bergmann <arnd@arndb.de>,
-	linux-kernel@vger.kernel.org
-Subject: [rtc-linux] [PATCH 1/6] rtc: generic: allow building on all architectures
-Date: Tue,  1 Mar 2016 17:59:57 +0100
-Message-Id: <1456851608-3374907-2-git-send-email-arnd@arndb.de>
-In-Reply-To: <1456851608-3374907-1-git-send-email-arnd@arndb.de>
-References: <1456851608-3374907-1-git-send-email-arnd@arndb.de>
+        (version=TLS1 cipher=AES128-SHA bits=128/128);
+        Thu, 03 Mar 2016 00:05:52 -0800 (PST)
+Received: from eucpsbgm1.samsung.com (unknown [203.254.199.244])
+ by mailout1.w1.samsung.com
+ (Oracle Communications Messaging Server 7.0.5.31.0 64bit (built May  5 2014))
+ with ESMTP id <0O3G0064JEHPUU80@mailout1.w1.samsung.com> for
+ rtc-linux@googlegroups.com; Thu, 03 Mar 2016 08:05:49 +0000 (GMT)
+From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+To: Daniel Lezcano <daniel.lezcano@linaro.org>,
+ Thomas Gleixner <tglx@linutronix.de>, Dan Williams <dan.j.williams@intel.com>,
+ Vinod Koul <vinod.koul@intel.com>, Jason Cooper <jason@lakedaemon.net>,
+ Marc Zyngier <marc.zyngier@arm.com>,
+ Mauro Carvalho Chehab <mchehab@osg.samsung.com>,
+ Lee Jones <lee.jones@linaro.org>, Giuseppe Cavallaro <peppe.cavallaro@st.com>,
+ Kishon Vijay Abraham I <kishon@ti.com>,
+ Linus Walleij <linus.walleij@linaro.org>, Sebastian Reichel <sre@kernel.org>,
+ Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>,
+ David Woodhouse <dwmw2@infradead.org>,
+ Alessandro Zummo <a.zummo@towertech.it>,
+ Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+ Andy Gross <andy.gross@linaro.org>, David Brown <david.brown@linaro.org>,
+ Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-kernel@vger.kernel.org,
+ dmaengine@vger.kernel.org, linux-media@vger.kernel.org,
+ linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org,
+ netdev@vger.kernel.org, linux-gpio@vger.kernel.org, linux-pm@vger.kernel.org,
+ rtc-linux@googlegroups.com, linux-arm-msm@vger.kernel.org,
+ linux-soc@vger.kernel.org, devel@driverdev.osuosl.org,
+ linux-usb@vger.kernel.org
+Cc: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+Subject: [rtc-linux] [RFC 12/15] soc: qcom: Add missing MFD_SYSCON dependency
+ on HAS_IOMEM
+Date: Thu, 03 Mar 2016 17:03:38 +0900
+Message-id: <1456992221-26712-13-git-send-email-k.kozlowski@samsung.com>
+In-reply-to: <1456992221-26712-1-git-send-email-k.kozlowski@samsung.com>
+References: <1456992221-26712-1-git-send-email-k.kozlowski@samsung.com>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -33,60 +50,28 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-There are four architectures using this driver, but since we can
-build it with COMPILE_TEST, we should try dealing with the absence
-of the asm/rtc.h header file, to avoid getting a build error:
+The MFD_SYSCON depends on HAS_IOMEM so when selecting it avoid unmet
+direct dependencies.
 
-drivers/rtc/rtc-generic.c:12:21: fatal error: asm/rtc.h: No such file or directory
-
-This creates an alternative use of the driver, allowing architectures
-to pass a set of rtc_class_ops in platform data. We can convert the
-four architectures to use this and then remove the original
-code.
-
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
 ---
- drivers/rtc/rtc-generic.c | 12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
+ drivers/soc/qcom/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/rtc/rtc-generic.c b/drivers/rtc/rtc-generic.c
-index e782ebd719b2..d726c6aa96a8 100644
---- a/drivers/rtc/rtc-generic.c
-+++ b/drivers/rtc/rtc-generic.c
-@@ -9,6 +9,8 @@
- #include <linux/platform_device.h>
- #include <linux/rtc.h>
- 
-+#if defined(CONFIG_M68K) || defined(CONFIG_PARISC) || \
-+    defined(CONFIG_PPC) || defined(CONFIG_SUPERH32)
- #include <asm/rtc.h>
- 
- static int generic_get_time(struct device *dev, struct rtc_time *tm)
-@@ -33,13 +35,21 @@ static const struct rtc_class_ops generic_rtc_ops = {
- 	.read_time = generic_get_time,
- 	.set_time = generic_set_time,
- };
-+#else
-+#define generic_rtc_ops *(struct rtc_class_ops*)NULL
-+#endif
- 
- static int __init generic_rtc_probe(struct platform_device *dev)
- {
- 	struct rtc_device *rtc;
-+	const struct rtc_class_ops *ops;
-+
-+	ops = dev_get_platdata(&dev->dev);
-+	if (!ops)
-+		ops = &generic_rtc_ops;
- 
- 	rtc = devm_rtc_device_register(&dev->dev, "rtc-generic",
--					&generic_rtc_ops, THIS_MODULE);
-+					ops, THIS_MODULE);
- 	if (IS_ERR(rtc))
- 		return PTR_ERR(rtc);
- 
+diff --git a/drivers/soc/qcom/Kconfig b/drivers/soc/qcom/Kconfig
+index 461b387d03cc..24de48134c15 100644
+--- a/drivers/soc/qcom/Kconfig
++++ b/drivers/soc/qcom/Kconfig
+@@ -4,6 +4,7 @@
+ config QCOM_GSBI
+         tristate "QCOM General Serial Bus Interface"
+         depends on ARCH_QCOM
++        depends on HAS_IOMEM	# For MFD_SYSCON
+         select MFD_SYSCON
+         help
+           Say y here to enable GSBI support.  The GSBI provides control
 -- 
-2.7.0
+2.5.0
 
 -- 
 -- 
