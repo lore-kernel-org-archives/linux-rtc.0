@@ -1,30 +1,17 @@
-Return-Path: <rtc-linux+bncBDEKVJM7XAHRB6EV263AKGQEWIEMDBA@googlegroups.com>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBJ7Y363AKGQEK4ZBUXA@googlegroups.com>
 MIME-Version: 1.0
-Received: from mout.kundenserver.de (mout.kundenserver.de. [212.227.17.13])
-        by gmr-mx.google.com with ESMTPS id w128si5718wmd.0.2016.03.01.09.01.44
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 01 Mar 2016 09:01:44 -0800 (PST)
-From: Arnd Bergmann <arnd@arndb.de>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-	Paul Mackerras <paulus@samba.org>,
-	Michael Ellerman <mpe@ellerman.id.au>
-Cc: linux-arm-kernel@lists.infradead.org,
-	Kyle McMartin <kyle@mcmartin.ca>,
-	rtc-linux@googlegroups.com,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	linuxppc-dev@lists.ozlabs.org,
-	linux-sh@vger.kernel.org,
-	linux-parisc@vger.kernel.org,
-	linux-m68k@lists.linux-m68k.org,
-	Arnd Bergmann <arnd@arndb.de>,
-	linux-kernel@vger.kernel.org
-Subject: [rtc-linux] [PATCH 3/6] powerpc: rtc: provide rtc_class_ops directly
-Date: Tue,  1 Mar 2016 17:59:59 +0100
-Message-Id: <1456851608-3374907-4-git-send-email-arnd@arndb.de>
-In-Reply-To: <1456851608-3374907-1-git-send-email-arnd@arndb.de>
-References: <1456851608-3374907-1-git-send-email-arnd@arndb.de>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id w10si249491wmw.3.2016.03.03.00.56.07
+        for <rtc-linux@googlegroups.com>;
+        Thu, 03 Mar 2016 00:56:07 -0800 (PST)
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: rtc-linux@googlegroups.com
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+	linux-kernel@vger.kernel.org,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Subject: [rtc-linux] [PATCH] rtc: pcf8523: properly handle oscillator stop bit
+Date: Thu,  3 Mar 2016 09:55:47 +0100
+Message-Id: <1456995347-1318-1-git-send-email-alexandre.belloni@free-electrons.com>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -36,64 +23,62 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-The rtc-generic driver provides an architecture specific
-wrapper on top of the generic rtc_class_ops abstraction,
-and powerpc has another abstraction on top, which is a bit
-silly.
+The time and date register of the pcf8223 are undefined after a power
+reset. Properly handle the OS bit and return -EINVAL when that bit is set.
 
-This changes the powerpc rtc-generic device to provide its
-rtc_class_ops directly, to reduce the number of layers
-by one.
+It is properly removed when setting the time.
 
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+This solves an issue where the time and date may be valid for
+rtc_valid_tm() but is not the current time.
+
+Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
 ---
- arch/powerpc/kernel/time.c | 26 +++++++++++++++++++++++++-
- 1 file changed, 25 insertions(+), 1 deletion(-)
+ drivers/rtc/rtc-pcf8523.c | 25 +++----------------------
+ 1 file changed, 3 insertions(+), 22 deletions(-)
 
-diff --git a/arch/powerpc/kernel/time.c b/arch/powerpc/kernel/time.c
-index 81b0900a39ee..84a1228be617 100644
---- a/arch/powerpc/kernel/time.c
-+++ b/arch/powerpc/kernel/time.c
-@@ -1080,6 +1080,28 @@ void calibrate_delay(void)
- 	loops_per_jiffy = tb_ticks_per_jiffy;
- }
+diff --git a/drivers/rtc/rtc-pcf8523.c b/drivers/rtc/rtc-pcf8523.c
+index 988566caaaa6..28c48b3c1946 100644
+--- a/drivers/rtc/rtc-pcf8523.c
++++ b/drivers/rtc/rtc-pcf8523.c
+@@ -178,28 +178,8 @@ static int pcf8523_rtc_read_time(struct device *dev, struct rtc_time *tm)
+ 	if (err < 0)
+ 		return err;
  
-+static int rtc_generic_get_time(struct device *dev, struct rtc_time *tm)
-+{
-+	ppc_md.get_rtc_time(tm);
-+	return rtc_valid_tm(tm);
-+}
-+
-+static int rtc_generic_set_time(struct device *dev, struct rtc_time *tm)
-+{
-+	if (!ppc_md.set_rtc_time)
-+		return -EOPNOTSUPP;
-+
-+	if (ppc_md.set_rtc_time(tm) < 0)
-+		return -EOPNOTSUPP;
-+
-+	return 0;
-+}
-+
-+static const struct rtc_class_ops rtc_generic_ops = {
-+	.read_time = rtc_generic_get_time,
-+	.set_time = rtc_generic_set_time,
-+};
-+
- static int __init rtc_init(void)
- {
- 	struct platform_device *pdev;
-@@ -1087,7 +1109,9 @@ static int __init rtc_init(void)
- 	if (!ppc_md.get_rtc_time)
- 		return -ENODEV;
+-	if (regs[0] & REG_SECONDS_OS) {
+-		/*
+-		 * If the oscillator was stopped, try to clear the flag. Upon
+-		 * power-up the flag is always set, but if we cannot clear it
+-		 * the oscillator isn't running properly for some reason. The
+-		 * sensible thing therefore is to return an error, signalling
+-		 * that the clock cannot be assumed to be correct.
+-		 */
+-
+-		regs[0] &= ~REG_SECONDS_OS;
+-
+-		err = pcf8523_write(client, REG_SECONDS, regs[0]);
+-		if (err < 0)
+-			return err;
+-
+-		err = pcf8523_read(client, REG_SECONDS, &regs[0]);
+-		if (err < 0)
+-			return err;
+-
+-		if (regs[0] & REG_SECONDS_OS)
+-			return -EAGAIN;
+-	}
++	if (regs[0] & REG_SECONDS_OS)
++		return -EINVAL;
  
--	pdev = platform_device_register_simple("rtc-generic", -1, NULL, 0);
-+	pdev = platform_device_register_data(NULL, "rtc-generic", -1,
-+					     &rtc_generic_ops,
-+					     sizeof(rtc_generic_ops));
+ 	tm->tm_sec = bcd2bin(regs[0] & 0x7f);
+ 	tm->tm_min = bcd2bin(regs[1] & 0x7f);
+@@ -235,6 +215,7 @@ static int pcf8523_rtc_set_time(struct device *dev, struct rtc_time *tm)
+ 		return err;
  
- 	return PTR_ERR_OR_ZERO(pdev);
- }
+ 	regs[0] = REG_SECONDS;
++	/* This will purposely overwrite REG_SECONDS_OS */
+ 	regs[1] = bin2bcd(tm->tm_sec);
+ 	regs[2] = bin2bcd(tm->tm_min);
+ 	regs[3] = bin2bcd(tm->tm_hour);
 -- 
 2.7.0
 
