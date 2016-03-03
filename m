@@ -1,22 +1,46 @@
-Return-Path: <rtc-linux+bncBD2OLRXW4ABBBFGS3K3AKGQEAYIMQFY@googlegroups.com>
-Received: from hqemgate14.nvidia.com (hqemgate14.nvidia.com. [216.228.121.143])
-        by gmr-mx.google.com with ESMTPS id yd9si4986214pab.1.2016.03.02.00.49.24
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 02 Mar 2016 00:49:24 -0800 (PST)
-From: Laxman Dewangan <ldewangan@nvidia.com>
-To: <k.kozlowski@samsung.com>, <alexandre.belloni@free-electrons.com>,
-	<a.zummo@towertech.it>
-CC: <cw00.choi@samsung.com>, <rtc-linux@googlegroups.com>,
-	<linux-kernel@vger.kernel.org>, <javier@osg.samsung.com>,
-	<rklein@nvidia.com>, Laxman Dewangan <ldewangan@nvidia.com>
-Subject: [rtc-linux] [PATCH V2 1/2] rtc: max77686: Add support for
- MAX20024/MAX77620 RTC IP
-Date: Wed, 2 Mar 2016 14:06:24 +0530
-Message-ID: <1456907785-11942-1-git-send-email-ldewangan@nvidia.com>
+Return-Path: <rtc-linux+bncBDKZNNNLXAHBBNPA363AKGQEWKCE7NY@googlegroups.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Received: from mailout3.w1.samsung.com (mailout3.w1.samsung.com. [210.118.77.13])
+        by gmr-mx.google.com with ESMTPS id yd9si5789535pab.1.2016.03.03.00.05.09
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1 cipher=AES128-SHA bits=128/128);
+        Thu, 03 Mar 2016 00:05:09 -0800 (PST)
+Received: from eucpsbgm2.samsung.com (unknown [203.254.199.245])
+ by mailout3.w1.samsung.com
+ (Oracle Communications Messaging Server 7.0.5.31.0 64bit (built May  5 2014))
+ with ESMTP id <0O3G007GKEGHR890@mailout3.w1.samsung.com> for
+ rtc-linux@googlegroups.com; Thu, 03 Mar 2016 08:05:05 +0000 (GMT)
+From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+To: Daniel Lezcano <daniel.lezcano@linaro.org>,
+ Thomas Gleixner <tglx@linutronix.de>, Dan Williams <dan.j.williams@intel.com>,
+ Vinod Koul <vinod.koul@intel.com>, Jason Cooper <jason@lakedaemon.net>,
+ Marc Zyngier <marc.zyngier@arm.com>,
+ Mauro Carvalho Chehab <mchehab@osg.samsung.com>,
+ Lee Jones <lee.jones@linaro.org>, Giuseppe Cavallaro <peppe.cavallaro@st.com>,
+ Kishon Vijay Abraham I <kishon@ti.com>,
+ Linus Walleij <linus.walleij@linaro.org>, Sebastian Reichel <sre@kernel.org>,
+ Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>,
+ David Woodhouse <dwmw2@infradead.org>,
+ Alessandro Zummo <a.zummo@towertech.it>,
+ Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+ Andy Gross <andy.gross@linaro.org>, David Brown <david.brown@linaro.org>,
+ Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-kernel@vger.kernel.org,
+ dmaengine@vger.kernel.org, linux-media@vger.kernel.org,
+ linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org,
+ netdev@vger.kernel.org, linux-gpio@vger.kernel.org, linux-pm@vger.kernel.org,
+ rtc-linux@googlegroups.com, linux-arm-msm@vger.kernel.org,
+ linux-soc@vger.kernel.org, devel@driverdev.osuosl.org,
+ linux-usb@vger.kernel.org
+Cc: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+Subject: [rtc-linux] [RFC 07/15] pinctrl: mvebu: Add missing MFD_SYSCON
+ dependency on HAS_IOMEM
+Date: Thu, 03 Mar 2016 17:03:33 +0900
+Message-id: <1456992221-26712-8-git-send-email-k.kozlowski@samsung.com>
+In-reply-to: <1456992221-26712-1-git-send-email-k.kozlowski@samsung.com>
+References: <1456992221-26712-1-git-send-email-k.kozlowski@samsung.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -26,152 +50,28 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Maxim Semiconductor's PMIC MAX77686 has RTC IP which is
-reused in the MAX77620/MAX20024 PMICs.
+The MFD_SYSCON depends on HAS_IOMEM so when selecting it avoid unmet
+direct dependencies.
 
-Add support for these devices in MAX77686 RTC driver. This
-device does not have RTC alarm pending status outside of
-RTC IP. The RTC IP is having separate I2C address for its
-register access.
-
-Signed-off-by: Laxman Dewangan <ldewangan@nvidia.com>
+Signed-off-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
 ---
-Changes from V1:
-- Remove macro and use value directly.
-- Handle error returned from platform_get_irq()
-- Remove compatible for max77620.
-- Cleanup like  indenting.
+ drivers/pinctrl/mvebu/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
- drivers/rtc/Kconfig        |  4 ++--
- drivers/rtc/rtc-max77686.c | 47 +++++++++++++++++++++++++++++++++++++++++++---
- 2 files changed, 46 insertions(+), 5 deletions(-)
-
-diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
-index 08df14b..1c8dadc 100644
---- a/drivers/rtc/Kconfig
-+++ b/drivers/rtc/Kconfig
-@@ -326,10 +326,10 @@ config RTC_DRV_MAX8997
+diff --git a/drivers/pinctrl/mvebu/Kconfig b/drivers/pinctrl/mvebu/Kconfig
+index 170602407c0d..13685923729c 100644
+--- a/drivers/pinctrl/mvebu/Kconfig
++++ b/drivers/pinctrl/mvebu/Kconfig
+@@ -7,6 +7,7 @@ config PINCTRL_MVEBU
  
- config RTC_DRV_MAX77686
- 	tristate "Maxim MAX77686"
--	depends on MFD_MAX77686
-+	depends on MFD_MAX77686 || MFD_MAX77620
- 	help
- 	  If you say yes here you will get support for the
--	  RTC of Maxim MAX77686 PMIC.
-+	  RTC of Maxim MAX77686/MAX77620/MAX77802 PMIC.
+ config PINCTRL_DOVE
+ 	bool
++	depends on HAS_IOMEM	# For MFD_SYSCON
+ 	select PINCTRL_MVEBU
+ 	select MFD_SYSCON
  
- 	  This driver can also be built as a module. If so, the module
- 	  will be called rtc-max77686.
-diff --git a/drivers/rtc/rtc-max77686.c b/drivers/rtc/rtc-max77686.c
-index 5e924f3..9cd4c4f 100644
---- a/drivers/rtc/rtc-max77686.c
-+++ b/drivers/rtc/rtc-max77686.c
-@@ -24,8 +24,12 @@
- #include <linux/regmap.h>
- 
- #define MAX77686_I2C_ADDR_RTC		(0x0C >> 1)
-+#define MAX77620_I2C_ADDR_RTC		0x68
- #define MAX77686_INVALID_I2C_ADDR	(-1)
- 
-+/* Define non existing register */
-+#define MAX77686_INVALID_REG		(-1)
-+
- /* RTC Control Register */
- #define BCD_EN_SHIFT			0
- #define BCD_EN_MASK			BIT(BCD_EN_SHIFT)
-@@ -74,6 +78,10 @@ struct max77686_rtc_driver_data {
- 	bool			alarm_enable_reg;
- 	/* I2C address for RTC block */
- 	int			rtc_i2c_addr;
-+	/* RTC interrupt via platform resource */
-+	bool			rtc_irq_from_platform;
-+	/* Pending alarm status register */
-+	int			alarm_pending_status_reg;
- 	/* RTC IRQ CHIP for regmap */
- 	const struct regmap_irq_chip *rtc_irq_chip;
- };
-@@ -185,10 +193,23 @@ static const struct max77686_rtc_driver_data max77686_drv_data = {
- 	.mask  = 0x7f,
- 	.map   = max77686_map,
- 	.alarm_enable_reg  = false,
-+	.rtc_irq_from_platform = false,
-+	.alarm_pending_status_reg = MAX77686_REG_STATUS2,
- 	.rtc_i2c_addr = MAX77686_I2C_ADDR_RTC,
- 	.rtc_irq_chip = &max77686_rtc_irq_chip,
- };
- 
-+static const struct max77686_rtc_driver_data max77620_drv_data = {
-+	.delay = 16000,
-+	.mask  = 0x7f,
-+	.map   = max77686_map,
-+	.alarm_enable_reg  = false,
-+	.rtc_irq_from_platform = true,
-+	.alarm_pending_status_reg = MAX77686_INVALID_REG,
-+	.rtc_i2c_addr = MAX77620_I2C_ADDR_RTC,
-+	.rtc_irq_chip = &max77686_rtc_irq_chip,
-+};
-+
- static const unsigned int max77802_map[REG_RTC_END] = {
- 	[REG_RTC_CONTROLM]   = MAX77802_RTC_CONTROLM,
- 	[REG_RTC_CONTROL]    = MAX77802_RTC_CONTROL,
-@@ -232,6 +253,8 @@ static const struct max77686_rtc_driver_data max77802_drv_data = {
- 	.mask  = 0xff,
- 	.map   = max77802_map,
- 	.alarm_enable_reg  = true,
-+	.rtc_irq_from_platform = false,
-+	.alarm_pending_status_reg = MAX77686_REG_STATUS2,
- 	.rtc_i2c_addr = MAX77686_INVALID_I2C_ADDR,
- 	.rtc_irq_chip = &max77802_rtc_irq_chip,
- };
-@@ -427,9 +450,15 @@ static int max77686_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
- 	}
- 
- 	alrm->pending = 0;
--	ret = regmap_read(info->regmap, MAX77686_REG_STATUS2, &val);
-+
-+	if (info->drv_data->alarm_pending_status_reg == MAX77686_INVALID_REG)
-+		goto out;
-+
-+	ret = regmap_read(info->regmap,
-+			  info->drv_data->alarm_pending_status_reg, &val);
- 	if (ret < 0) {
--		dev_err(info->dev, "Fail to read status2 reg(%d)\n", ret);
-+		dev_err(info->dev,
-+			"Fail to read alarm pending status reg(%d)\n", ret);
- 		goto out;
- 	}
- 
-@@ -648,7 +677,18 @@ static int max77686_init_rtc_regmap(struct max77686_rtc_info *info)
- 	struct i2c_client *parent_i2c = to_i2c_client(parent);
- 	int ret;
- 
--	info->rtc_irq = parent_i2c->irq;
-+	if (info->drv_data->rtc_irq_from_platform) {
-+		struct platform_device *pdev = to_platform_device(info->dev);
-+
-+		info->rtc_irq = platform_get_irq(pdev, 0);
-+		if (info->rtc_irq < 0) {
-+			dev_err(info->dev, "Failed to get rtc interrupts: %d\n",
-+				info->rtc_irq);
-+			return info->rtc_irq;
-+		}
-+	} else {
-+		info->rtc_irq =  parent_i2c->irq;
-+	}
- 
- 	info->regmap = dev_get_regmap(parent, NULL);
- 	if (!info->regmap) {
-@@ -802,6 +842,7 @@ static SIMPLE_DEV_PM_OPS(max77686_rtc_pm_ops,
- static const struct platform_device_id rtc_id[] = {
- 	{ "max77686-rtc", .driver_data = (kernel_ulong_t)&max77686_drv_data, },
- 	{ "max77802-rtc", .driver_data = (kernel_ulong_t)&max77802_drv_data, },
-+	{ "max77620-rtc", .driver_data = (kernel_ulong_t)&max77620_drv_data, },
- 	{},
- };
- MODULE_DEVICE_TABLE(platform, rtc_id);
 -- 
-2.1.4
+2.5.0
 
 -- 
 -- 
