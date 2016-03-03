@@ -1,70 +1,75 @@
-Return-Path: <rtc-linux+bncBD2OLRXW4ABBBG6S3K3AKGQEKC6T2OI@googlegroups.com>
-Received: from hqemgate14.nvidia.com (hqemgate14.nvidia.com. [216.228.121.143])
-        by gmr-mx.google.com with ESMTPS id y20si3057893pfa.2.2016.03.02.00.49.31
+Return-Path: <rtc-linux+bncBDKZNNNLXAHBBDHD4C3AKGQENM6M2PY@googlegroups.com>
+Received: from mail-oi0-x243.google.com (mail-oi0-x243.google.com. [2607:f8b0:4003:c06::243])
+        by gmr-mx.google.com with ESMTPS id ph8si252939igb.0.2016.03.03.04.43.55
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 02 Mar 2016 00:49:31 -0800 (PST)
-From: Laxman Dewangan <ldewangan@nvidia.com>
-To: <k.kozlowski@samsung.com>, <alexandre.belloni@free-electrons.com>,
-	<a.zummo@towertech.it>
-CC: <cw00.choi@samsung.com>, <rtc-linux@googlegroups.com>,
-	<linux-kernel@vger.kernel.org>, <javier@osg.samsung.com>,
-	<rklein@nvidia.com>, Laxman Dewangan <ldewangan@nvidia.com>
-Subject: [rtc-linux] [PATCH V2 2/2] rtc: max77686: Use REGMAP_IRQ_REG for
- regmap-rtc-irqs initialisation
-Date: Wed, 2 Mar 2016 14:06:25 +0530
-Message-ID: <1456907785-11942-2-git-send-email-ldewangan@nvidia.com>
-In-Reply-To: <1456907785-11942-1-git-send-email-ldewangan@nvidia.com>
-References: <1456907785-11942-1-git-send-email-ldewangan@nvidia.com>
+        Thu, 03 Mar 2016 04:43:55 -0800 (PST)
+Received: by mail-oi0-x243.google.com with SMTP id c129so1093637oif.3
+        for <rtc-linux@googlegroups.com>; Thu, 03 Mar 2016 04:43:55 -0800 (PST)
 MIME-Version: 1.0
+Sender: rtc-linux@googlegroups.com
+In-Reply-To: <1456992221-26712-8-git-send-email-k.kozlowski@samsung.com>
+References: <1456992221-26712-1-git-send-email-k.kozlowski@samsung.com>
+	<1456992221-26712-8-git-send-email-k.kozlowski@samsung.com>
+Date: Thu, 3 Mar 2016 21:43:55 +0900
+Message-ID: <CAJKOXPeVNrzCJ0TTeBG=H0w2+qHzAcXfTck9gBBmZFvVPpPx0A@mail.gmail.com>
+Subject: Re: [rtc-linux] [RFC 07/15] pinctrl: mvebu: Add missing MFD_SYSCON
+ dependency on HAS_IOMEM
+From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+To: rtc-linux@googlegroups.com
+Cc: Daniel Lezcano <daniel.lezcano@linaro.org>, Thomas Gleixner <tglx@linutronix.de>,
+	Dan Williams <dan.j.williams@intel.com>, Vinod Koul <vinod.koul@intel.com>,
+	Jason Cooper <jason@lakedaemon.net>, Marc Zyngier <marc.zyngier@arm.com>,
+	Mauro Carvalho Chehab <mchehab@osg.samsung.com>, Lee Jones <lee.jones@linaro.org>,
+	Giuseppe Cavallaro <peppe.cavallaro@st.com>, Kishon Vijay Abraham I <kishon@ti.com>,
+	Linus Walleij <linus.walleij@linaro.org>, Sebastian Reichel <sre@kernel.org>,
+	Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, David Woodhouse <dwmw2@infradead.org>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>, Andy Gross <andy.gross@linaro.org>,
+	David Brown <david.brown@linaro.org>,
+	Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-kernel@vger.kernel.org,
+	dmaengine@vger.kernel.org, linux-media@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org,
+	netdev@vger.kernel.org, linux-gpio@vger.kernel.org, linux-pm@vger.kernel.org,
+	linux-arm-msm@vger.kernel.org, linux-soc@vger.kernel.org,
+	devel@driverdev.osuosl.org, linux-usb@vger.kernel.org,
+	Krzysztof Kozlowski <k.kozlowski.k@gmail.com>
 Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
 List-Archive: <https://groups.google.com/group/rtc-linux
-Sender: rtc-linux@googlegroups.com
 List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Use macro REGMAP_IRQ_REG from regmap.h to initialise the
-regmap irq table for max77686 to have better coding style
-and improve readability.
+2016-03-03 17:03 GMT+09:00 Krzysztof Kozlowski <k.kozlowski@samsung.com>:
+> The MFD_SYSCON depends on HAS_IOMEM so when selecting it avoid unmet
+> direct dependencies.
+>
+> Signed-off-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+> ---
+>  drivers/pinctrl/mvebu/Kconfig | 1 +
+>  1 file changed, 1 insertion(+)
+>
+> diff --git a/drivers/pinctrl/mvebu/Kconfig b/drivers/pinctrl/mvebu/Kconfig
+> index 170602407c0d..13685923729c 100644
+> --- a/drivers/pinctrl/mvebu/Kconfig
+> +++ b/drivers/pinctrl/mvebu/Kconfig
+> @@ -7,6 +7,7 @@ config PINCTRL_MVEBU
+>
+>  config PINCTRL_DOVE
+>         bool
+> +       depends on HAS_IOMEM    # For MFD_SYSCON
+>         select PINCTRL_MVEBU
+>         select MFD_SYSCON
 
-Signed-off-by: Laxman Dewangan <ldewangan@nvidia.com>
----
-Changes from V1:
-- Added information in commit message for answering why it is done.
+False alarm, no need for the patch (non-selectable symbol)
 
- drivers/rtc/rtc-max77686.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
-
-diff --git a/drivers/rtc/rtc-max77686.c b/drivers/rtc/rtc-max77686.c
-index 9cd4c4f..182fdd0 100644
---- a/drivers/rtc/rtc-max77686.c
-+++ b/drivers/rtc/rtc-max77686.c
-@@ -171,12 +171,12 @@ static const unsigned int max77686_map[REG_RTC_END] = {
- 
- static const struct regmap_irq max77686_rtc_irqs[] = {
- 	/* RTC interrupts */
--	{ .reg_offset = 0, .mask = MAX77686_RTCINT_RTC60S_MSK, },
--	{ .reg_offset = 0, .mask = MAX77686_RTCINT_RTCA1_MSK, },
--	{ .reg_offset = 0, .mask = MAX77686_RTCINT_RTCA2_MSK, },
--	{ .reg_offset = 0, .mask = MAX77686_RTCINT_SMPL_MSK, },
--	{ .reg_offset = 0, .mask = MAX77686_RTCINT_RTC1S_MSK, },
--	{ .reg_offset = 0, .mask = MAX77686_RTCINT_WTSR_MSK, },
-+	REGMAP_IRQ_REG(0, 0, MAX77686_RTCINT_RTC60S_MSK),
-+	REGMAP_IRQ_REG(1, 0, MAX77686_RTCINT_RTCA1_MSK),
-+	REGMAP_IRQ_REG(2, 0, MAX77686_RTCINT_RTCA2_MSK),
-+	REGMAP_IRQ_REG(3, 0, MAX77686_RTCINT_SMPL_MSK),
-+	REGMAP_IRQ_REG(4, 0, MAX77686_RTCINT_RTC1S_MSK),
-+	REGMAP_IRQ_REG(5, 0, MAX77686_RTCINT_WTSR_MSK),
- };
- 
- static const struct regmap_irq_chip max77686_rtc_irq_chip = {
--- 
-2.1.4
+Best regards,
+Krzysztof
 
 -- 
 -- 
