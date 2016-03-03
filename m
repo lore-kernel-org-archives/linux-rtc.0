@@ -1,26 +1,20 @@
-Return-Path: <rtc-linux+bncBCSJ7B6JQALRBQ4I7C3AKGQEI444WDI@googlegroups.com>
-Received: from mx1.redhat.com (mx1.redhat.com. [209.132.183.28])
-        by gmr-mx.google.com with ESMTPS id y131si1179992ywc.0.2016.03.07.14.44.19
+Return-Path: <rtc-linux+bncBDEKVJM7XAHRBD7K4C3AKGQETLLJRQQ@googlegroups.com>
+Received: from mout.kundenserver.de (mout.kundenserver.de. [212.227.126.130])
+        by gmr-mx.google.com with ESMTPS id m72si18350wma.3.2016.03.03.04.58.55
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 07 Mar 2016 14:44:19 -0800 (PST)
-Date: Mon, 7 Mar 2016 16:44:15 -0600
-From: Josh Poimboeuf <jpoimboe@redhat.com>
-To: Joshua Kinard <kumba@gentoo.org>
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org,
-        kbuild test robot <fengguang.wu@intel.com>,
-        Ingo Molnar <mingo@kernel.org>, Linux/MIPS <linux-mips@linux-mips.org>
-Subject: [rtc-linux] Re: [PATCH] rtc: ds1685: actually spin forever in
- poweroff error path
-Message-ID: <20160307224415.GA8500@treble.redhat.com>
-References: <201603060005.PHCyifJr%fengguang.wu@intel.com>
- <25c2e99dc116c666a05e641082a2690c05c09a23.1457362965.git.jpoimboe@redhat.com>
- <56DDF30A.70505@gentoo.org>
+        Thu, 03 Mar 2016 04:58:55 -0800 (PST)
+From: Arnd Bergmann <arnd@arndb.de>
+To: linux-arm-kernel@lists.infradead.org
+Cc: Geert Uytterhoeven <geert@linux-m68k.org>, Krzysztof Kozlowski <k.kozlowski@samsung.com>, Linus Walleij <linus.walleij@linaro.org>, Sebastian Reichel <sre@kernel.org>, David Brown <david.brown@linaro.org>, Alexandre Belloni <alexandre.belloni@free-electrons.com>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Lee Jones <lee.jones@linaro.org>, Dan Williams <dan.j.williams@intel.com>, driverdevel <devel@driverdev.osuosl.org>, "linux-samsung-soc@vger.kernel.org" <linux-samsung-soc@vger.kernel.org>, Vinod Koul <vinod.koul@intel.com>, Daniel Lezcano <daniel.lezcano@linaro.org>, Kishon Vijay Abraham I <kishon@ti.com>, Andy Gross <andy.gross@linaro.org>, Linux Media Mailing List <linux-media@vger.kernel.org>, Jason Cooper <jason@lakedaemon.net>, RTCLINUX <rtc-linux@googlegroups.com>, Mauro Carvalho Chehab <mchehab@osg.samsung.com>, Marc Zyngier <marc.zyngier@arm.com>, "linux-arm-msm@vger.kernel.org" <linux-arm-msm@vger.kernel.org>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, Giuseppe Cavallaro <peppe.cavallaro@st.com>, Thomas Gleixner <tglx@linutronix.de>, linux-soc@vger.kernel.org, Alessandro Zummo <a.zummo@towertech.it>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Linux PM list <linux-pm@vger.kernel.org>, USB list <linux-usb@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, dmaengine@vger.kernel.org, David Woodhouse <dwmw2@infradead.org>
+Subject: [rtc-linux] Re: [RFC 08/15] rtc: at91sam9: Add missing MFD_SYSCON
+ dependency on HAS_IOMEM
+Date: Thu, 03 Mar 2016 13:58:33 +0100
+Message-ID: <4070388.ZbRf8kMntA@wuerfel>
+In-Reply-To: <CAMuHMdXUdz0=n2+Aa74f1LtwiwfV9=gkPBiJKC_DMyr1_jBe7Q@mail.gmail.com>
+References: <1456992221-26712-1-git-send-email-k.kozlowski@samsung.com> <2233190.1BxevBAvDE@wuerfel> <CAMuHMdXUdz0=n2+Aa74f1LtwiwfV9=gkPBiJKC_DMyr1_jBe7Q@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <56DDF30A.70505@gentoo.org>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -31,66 +25,41 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Mon, Mar 07, 2016 at 04:30:50PM -0500, Joshua Kinard wrote:
-> On 03/07/2016 10:03, Josh Poimboeuf wrote:
-> > objtool reports the following warnings:
-> > 
-> >   drivers/rtc/rtc-ds1685.o: warning: objtool: ds1685_rtc_work_queue()+0x0: duplicate frame pointer save
-> >   drivers/rtc/rtc-ds1685.o: warning: objtool: ds1685_rtc_work_queue()+0x3: duplicate frame pointer setup
-> >   drivers/rtc/rtc-ds1685.o: warning: objtool: ds1685_rtc_work_queue()+0x0: frame pointer state mismatch
-> > 
-> > The warning message needs to be improved, but what it really means in
-> > this case is that ds1685_rtc_poweroff() has a possible code path where
-> > it can actually fall through to the next function in the object code,
-> > ds1685_rtc_work_queue().
-> > 
-> > The bug is caused by the use of the unreachable() macro in a place which
-> > is actually reachable.  That causes gcc to assume that the printk()
-> > immediately before the unreachable() macro never returns, when in fact
-> > it does.  So gcc places the printk() at the very end of the function's
-> > object code.  When the printk() returns, the next function starts
-> > executing.
-> > 
-> > The surrounding comment and printk message state that the code should
-> > spin forever, which explains the unreachable() statement.  However the
-> > actual spin code is missing.
+On Thursday 03 March 2016 13:27:59 Geert Uytterhoeven wrote:
+> On Thu, Mar 3, 2016 at 11:55 AM, Arnd Bergmann <arnd@arndb.de> wrote:
+> > On Thursday 03 March 2016 17:03:34 Krzysztof Kozlowski wrote:
+> >> index 0da40e2e4280..5c530b6b125d 100644
+> >> --- a/drivers/rtc/Kconfig
+> >> +++ b/drivers/rtc/Kconfig
+> >> @@ -1302,6 +1302,7 @@ config RTC_DRV_AT91RM9200
+> >>  config RTC_DRV_AT91SAM9
+> >>         tristate "AT91SAM9 RTT as RTC"
+> >>         depends on ARCH_AT91 || COMPILE_TEST
+> >> +       depends on HAS_IOMEM    # For MFD_SYSCON
+> >>         select MFD_SYSCON
+> >>         help
+> >>           Some AT91SAM9 SoCs provide an RTT (Real Time Timer) block which
+> >>
+> >
+> > This is technically correct, but the entire RTC menu is hidden
+> > inside of 'depends on !UML && !S390', so we won't ever get there
+> > on any configuration that does not use HAS_IOMEM.
+> >
+> > If we did, all other RTC drivers would also fail.
 > 
-> So this power down trick is used by both SGI O2 (IP32) and SGI Octane (IP30)
-> systems via this RTC chip, and I've noticed lately that the Octane has stopped
-> powering off via this function (it just sits and spins forever).  The O2 powers
-> off as expected.  When I initially wrote this driver from the original version
-> I found on LKML in '09, I hadn't gotten the Octane code back into a working
-> shape, and once that happened, I only tested the non-SMP case (fixed Octane SMP
-> in 4.1).  I suspect on the Octane, the use of SMP may be what is interfering
-> somehow, and this bug may partially explain it.  This patch doesn't fix
-> poweroff for me, but it's something to start from when I can get some time to
-> chase it down.
-> 
-> That said, I initially left the 'while (1);' clause out because at one point
-> during development, gcc yelled at me for using that at the end of the function,
-> so I looked at some other drivers and saw the use of 'unreachable();' and used
-> it instead.  Wasn't aware both of them are needed together in this instance.  I
-> thought 'unreachable()' evaluated out to a 'while (1)' at the end.  Seems to
-> actually be some kind of internal gcc trick.
-> 
-> How exactly did the kbuild bot trigger the above warnings?  I've only built and
-> tested this driver on a MIPS platform and haven't seen that particular warning
-> before.
+> So UML has no RTC. Should/can it use RTC_DRV_GENERIC?
 
-Hi Joshua,
+I think nothing should use that, even if it could ;-)
 
-The warning was emitted by a brand new tool named objtool which does
-some static object code analysis. It's currently only in linux-next, not
-yet in Linus's tree.  To get the warning, you'd need to build the
-linux-next tree for x86_64 with CONFIG_STACK_VALIDATION enabled.
+Funny enough, RTC_DRV_GENERIC would probably actually work if you
+run UML as root and set iopl() to allow port access, but we don't
+really want it to mess with the host RTC.
 
-Here's the kbuild bot warning:
+I don't know where UML gets it real time, but it doesn't actually
+need much other than calling clock_gettime(CLOCK_REALTIME, ...)
+to get the host time. Presumably it uses some variation of that.
 
-  https://lkml.kernel.org/r/201603060005.PHCyifJr%fengguang.wu@intel.com
-
-
--- 
-Josh
+	Arnd
 
 -- 
 -- 
