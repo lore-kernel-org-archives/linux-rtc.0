@@ -1,22 +1,46 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBVOB3C3AKGQEFETUHEQ@googlegroups.com>
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id s141si100958wmd.1.2016.03.01.15.08.05
-        for <rtc-linux@googlegroups.com>;
-        Tue, 01 Mar 2016 15:08:05 -0800 (PST)
-Date: Wed, 2 Mar 2016 00:07:45 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Michael =?iso-8859-1?Q?B=FCsch?= <m@bues.ch>
-Cc: Gregory Hermant <gregory.hermant@calao-systems.com>,
-	rtc-linux@googlegroups.com
-Subject: [rtc-linux] Re: [PATCH] rtc-rv3029c2: Add trickle charger
-Message-ID: <20160301230745.GJ23985@piout.net>
-References: <20160301213322.661fe771@wiggum>
- <20160301213655.GG23985@piout.net>
- <20160301225401.3f0aeabb@wiggum>
+Return-Path: <rtc-linux+bncBDKZNNNLXAHBB2PA363AKGQED25SQ4A@googlegroups.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <20160301225401.3f0aeabb@wiggum>
+Received: from mailout4.w1.samsung.com (mailout4.w1.samsung.com. [210.118.77.14])
+        by gmr-mx.google.com with ESMTPS id y20si3907161pfa.2.2016.03.03.00.06.01
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1 cipher=AES128-SHA bits=128/128);
+        Thu, 03 Mar 2016 00:06:01 -0800 (PST)
+Received: from eucpsbgm1.samsung.com (unknown [203.254.199.244])
+ by mailout4.w1.samsung.com
+ (Oracle Communications Messaging Server 7.0.5.31.0 64bit (built May  5 2014))
+ with ESMTP id <0O3G00EHBEHXIZ90@mailout4.w1.samsung.com> for
+ rtc-linux@googlegroups.com; Thu, 03 Mar 2016 08:05:58 +0000 (GMT)
+From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+To: Daniel Lezcano <daniel.lezcano@linaro.org>,
+ Thomas Gleixner <tglx@linutronix.de>, Dan Williams <dan.j.williams@intel.com>,
+ Vinod Koul <vinod.koul@intel.com>, Jason Cooper <jason@lakedaemon.net>,
+ Marc Zyngier <marc.zyngier@arm.com>,
+ Mauro Carvalho Chehab <mchehab@osg.samsung.com>,
+ Lee Jones <lee.jones@linaro.org>, Giuseppe Cavallaro <peppe.cavallaro@st.com>,
+ Kishon Vijay Abraham I <kishon@ti.com>,
+ Linus Walleij <linus.walleij@linaro.org>, Sebastian Reichel <sre@kernel.org>,
+ Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>,
+ David Woodhouse <dwmw2@infradead.org>,
+ Alessandro Zummo <a.zummo@towertech.it>,
+ Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+ Andy Gross <andy.gross@linaro.org>, David Brown <david.brown@linaro.org>,
+ Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-kernel@vger.kernel.org,
+ dmaengine@vger.kernel.org, linux-media@vger.kernel.org,
+ linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org,
+ netdev@vger.kernel.org, linux-gpio@vger.kernel.org, linux-pm@vger.kernel.org,
+ rtc-linux@googlegroups.com, linux-arm-msm@vger.kernel.org,
+ linux-soc@vger.kernel.org, devel@driverdev.osuosl.org,
+ linux-usb@vger.kernel.org
+Cc: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+Subject: [rtc-linux] [RFC 13/15] staging: media: omap4iss: Add missing
+ MFD_SYSCON dependency on HAS_IOMEM
+Date: Thu, 03 Mar 2016 17:03:39 +0900
+Message-id: <1456992221-26712-14-git-send-email-k.kozlowski@samsung.com>
+In-reply-to: <1456992221-26712-1-git-send-email-k.kozlowski@samsung.com>
+References: <1456992221-26712-1-git-send-email-k.kozlowski@samsung.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -26,87 +50,36 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 01/03/2016 at 22:54:01 +0100, Michael B=C3=BCsch wrote :
->=20
-> > > +	/* Check whether we are in the allowed voltage range. */
-> > > +	for (i =3D 100; i > 0; i--) {
-> > > +		ret =3D rv3029c2_i2c_get_sr(client, &sr);
-> > > +		if (ret < 0)
-> > > +			return ret;
-> > > +		if (!(sr & (RV3029C2_STATUS_VLOW1 | RV3029C2_STATUS_VLOW2)))
-> > > +			break;
-> > > +
-> > > +		sr &=3D ~RV3029C2_STATUS_VLOW1;
-> > > +		sr &=3D ~RV3029C2_STATUS_VLOW2;
-> > > +		ret =3D rv3029c2_i2c_set_sr(client, sr);
-> > > +		if (ret < 0)
-> > > +			return ret; =20
-> >=20
-> > I wouldn't reset the VLOW1 and VLOW2 flags here. Just bail out if the
-> > voltage is not sufficient. I don't think that condition will actually
-> > get better simply by waiting.
->=20
->=20
-> I do actually think so that we should clear them at least once (that is
-> retry once). According to the data sheet these bits will not reset
-> automatically and might be left over from machine start (brown out).
->=20
+The MFD_SYSCON depends on HAS_IOMEM so when selecting it avoid unmet
+direct dependencies.
 
-No, this should be handled differently. I have some pending patches to
-handle those bits. The main issue is that if you reset those bits there,
-there is now way to know whether the date has been set or is invalid.
+Signed-off-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+---
+ drivers/staging/media/omap4iss/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-I think the best way to handle this case is to call the function again
-when the date/time are set and we have to reset VLOW1/2.
+diff --git a/drivers/staging/media/omap4iss/Kconfig b/drivers/staging/media/omap4iss/Kconfig
+index 46183464ee79..7dea072172aa 100644
+--- a/drivers/staging/media/omap4iss/Kconfig
++++ b/drivers/staging/media/omap4iss/Kconfig
+@@ -2,6 +2,7 @@ config VIDEO_OMAP4
+ 	tristate "OMAP 4 Camera support"
+ 	depends on VIDEO_V4L2 && VIDEO_V4L2_SUBDEV_API && I2C && ARCH_OMAP4
+ 	depends on HAS_DMA
++	depends on HAS_IOMEM	# For MFD_SYSCON
+ 	select MFD_SYSCON
+ 	select VIDEOBUF2_DMA_CONTIG
+ 	---help---
+-- 
+2.5.0
 
-> > > +	err =3D of_property_read_u32(of_node, "trickle-resistor-ohms", &ohm=
-s);
-> > > +	if (err) {
-> > > +		/* Disable trickle charger. */
-> > > +		eectrl &=3D ~RV3029C2_TRICKLE_MASK; =20
-> >=20
-> > I wouldn't touch it at all, some people may set it in the bootloader an=
-d
-> > don't expect linux to change the value.
->=20
-> But that would mean there is no way to disable it once it got enabled.
-> So I'd rather keep it like this or use special values (like a huge
-> value) like we already discussed.
->=20
-
-Agreed, keep it that way.
-
-> > > +	rc =3D rv3029c2_of_init(client);
-> > > +	if (rc < 0) {
-> > > +		dev_err(&client->dev, "OF init failed.\n");
-> > > +		return rc; =20
-> >=20
-> > I don't think this should be a hard failure, the RTC can function
-> > without that particular configuration, the previous error message is
-> > enough (no need for two messages).
->=20
-> Only 50% agree here. :)
-> And RTC without a working backup battery is not really that useful.
-> But I can remove the error checking of course.
->=20
-
-As proposed, I think we can retry to set trickle charging when
-necessary, when setting the date.
-
---=20
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
-
---=20
---=20
+-- 
+-- 
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
----=20
-You received this message because you are subscribed to the Google Groups "=
-rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an e=
-mail to rtc-linux+unsubscribe@googlegroups.com.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
