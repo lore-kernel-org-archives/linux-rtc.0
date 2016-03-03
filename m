@@ -1,46 +1,21 @@
-Return-Path: <rtc-linux+bncBDKZNNNLXAHBBWHA363AKGQELKRSBBQ@googlegroups.com>
-MIME-Version: 1.0
-Received: from mailout2.w1.samsung.com (mailout2.w1.samsung.com. [210.118.77.12])
-        by gmr-mx.google.com with ESMTPS id y20si3906946pfa.2.2016.03.03.00.05.43
+Return-Path: <rtc-linux+bncBDEKVJM7XAHRBTFS4C3AKGQEVKTMJ7A@googlegroups.com>
+Received: from mout.kundenserver.de (mout.kundenserver.de. [212.227.126.187])
+        by gmr-mx.google.com with ESMTPS id w10si263831wmw.3.2016.03.03.03.00.28
         for <rtc-linux@googlegroups.com>
-        (version=TLS1 cipher=AES128-SHA bits=128/128);
-        Thu, 03 Mar 2016 00:05:43 -0800 (PST)
-Received: from eucpsbgm2.samsung.com (unknown [203.254.199.245])
- by mailout2.w1.samsung.com
- (Oracle Communications Messaging Server 7.0.5.31.0 64bit (built May  5 2014))
- with ESMTP id <0O3G005I9EHGL090@mailout2.w1.samsung.com> for
- rtc-linux@googlegroups.com; Thu, 03 Mar 2016 08:05:40 +0000 (GMT)
-From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-To: Daniel Lezcano <daniel.lezcano@linaro.org>,
- Thomas Gleixner <tglx@linutronix.de>, Dan Williams <dan.j.williams@intel.com>,
- Vinod Koul <vinod.koul@intel.com>, Jason Cooper <jason@lakedaemon.net>,
- Marc Zyngier <marc.zyngier@arm.com>,
- Mauro Carvalho Chehab <mchehab@osg.samsung.com>,
- Lee Jones <lee.jones@linaro.org>, Giuseppe Cavallaro <peppe.cavallaro@st.com>,
- Kishon Vijay Abraham I <kishon@ti.com>,
- Linus Walleij <linus.walleij@linaro.org>, Sebastian Reichel <sre@kernel.org>,
- Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>,
- David Woodhouse <dwmw2@infradead.org>,
- Alessandro Zummo <a.zummo@towertech.it>,
- Alexandre Belloni <alexandre.belloni@free-electrons.com>,
- Andy Gross <andy.gross@linaro.org>, David Brown <david.brown@linaro.org>,
- Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
- Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-kernel@vger.kernel.org,
- dmaengine@vger.kernel.org, linux-media@vger.kernel.org,
- linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org,
- netdev@vger.kernel.org, linux-gpio@vger.kernel.org, linux-pm@vger.kernel.org,
- rtc-linux@googlegroups.com, linux-arm-msm@vger.kernel.org,
- linux-soc@vger.kernel.org, devel@driverdev.osuosl.org,
- linux-usb@vger.kernel.org
-Cc: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-Subject: [rtc-linux] [RFC 11/15] power: reset: keystone: Add missing
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 03 Mar 2016 03:00:28 -0800 (PST)
+From: Arnd Bergmann <arnd@arndb.de>
+To: linux-arm-kernel@lists.infradead.org
+Cc: Krzysztof Kozlowski <k.kozlowski@samsung.com>, Daniel Lezcano <daniel.lezcano@linaro.org>, Thomas Gleixner <tglx@linutronix.de>, Dan Williams <dan.j.williams@intel.com>, Vinod Koul <vinod.koul@intel.com>, Jason Cooper <jason@lakedaemon.net>, Marc Zyngier <marc.zyngier@arm.com>, Mauro Carvalho Chehab <mchehab@osg.samsung.com>, Lee Jones <lee.jones@linaro.org>, Giuseppe Cavallaro <peppe.cavallaro@st.com>, Kishon Vijay Abraham I <kishon@ti.com>, Linus Walleij <linus.walleij@linaro.org>, Sebastian Reichel <sre@kernel.org>, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, David Woodhouse <dwmw2@infradead.org>, Alessandro Zummo <a.zummo@towertech.it>, Alexandre Belloni <alexandre.belloni@free-electrons.com>, Andy Gross <andy.gross@linaro.org>, David Brown <david.brown@linaro.org>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-kernel@vger.kernel.org, dmaengine@vger.kernel.org, linux-media@vger.kernel.org, linux-samsung-soc@vger.kernel.org, netdev@vger.kernel.org, linux-gpio@vger.kernel.org, linux-pm@vger.kernel.org, rtc-linux@googlegroups.com, linux-arm-msm@vger.kernel.org, linux-soc@vger.kernel.org, devel@driverdev.osuosl.org, linux-usb@vger.kernel.org
+Subject: [rtc-linux] Re: [RFC 11/15] power: reset: keystone: Add missing
  MFD_SYSCON dependency on HAS_IOMEM
-Date: Thu, 03 Mar 2016 17:03:37 +0900
-Message-id: <1456992221-26712-12-git-send-email-k.kozlowski@samsung.com>
-In-reply-to: <1456992221-26712-1-git-send-email-k.kozlowski@samsung.com>
-References: <1456992221-26712-1-git-send-email-k.kozlowski@samsung.com>
-Reply-To: rtc-linux@googlegroups.com
+Date: Thu, 03 Mar 2016 12:00:14 +0100
+Message-ID: <5230562.E0gg2SNP0m@wuerfel>
+In-Reply-To: <1456992221-26712-12-git-send-email-k.kozlowski@samsung.com>
+References: <1456992221-26712-1-git-send-email-k.kozlowski@samsung.com> <1456992221-26712-12-git-send-email-k.kozlowski@samsung.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -50,28 +25,25 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-The MFD_SYSCON depends on HAS_IOMEM so when selecting it avoid unmet
-direct dependencies.
+On Thursday 03 March 2016 17:03:37 Krzysztof Kozlowski wrote:
+> diff --git a/drivers/power/reset/Kconfig b/drivers/power/reset/Kconfig
+> index 0a6408a39c66..0f34846ae80d 100644
+> --- a/drivers/power/reset/Kconfig
+> +++ b/drivers/power/reset/Kconfig
+> @@ -141,6 +141,7 @@ config POWER_RESET_XGENE
+>  config POWER_RESET_KEYSTONE
+>         bool "Keystone reset driver"
+>         depends on ARCH_KEYSTONE
+> +       depends on HAS_IOMEM    # For MFD_SYSCON
+>         select MFD_SYSCON
+>         help
+>           Reboot support for the KEYSTONE SoCs.
+> 
 
-Signed-off-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
----
- drivers/power/reset/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+This is platform specific, but we should probably add || COMPILE_TEST
+along with the HAS_IOMEM dependency.
 
-diff --git a/drivers/power/reset/Kconfig b/drivers/power/reset/Kconfig
-index 0a6408a39c66..0f34846ae80d 100644
---- a/drivers/power/reset/Kconfig
-+++ b/drivers/power/reset/Kconfig
-@@ -141,6 +141,7 @@ config POWER_RESET_XGENE
- config POWER_RESET_KEYSTONE
- 	bool "Keystone reset driver"
- 	depends on ARCH_KEYSTONE
-+	depends on HAS_IOMEM	# For MFD_SYSCON
- 	select MFD_SYSCON
- 	help
- 	  Reboot support for the KEYSTONE SoCs.
--- 
-2.5.0
+	Arnd
 
 -- 
 -- 
