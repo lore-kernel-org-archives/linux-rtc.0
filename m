@@ -1,69 +1,49 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBFFXZO3QKGQE2OJ266A@googlegroups.com>
-Sender: rtc-linux@googlegroups.com
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id 185si290025wml.0.2016.03.23.11.08.20
-        for <rtc-linux@googlegroups.com>;
-        Wed, 23 Mar 2016 11:08:20 -0700 (PDT)
-Date: Wed, 23 Mar 2016 19:08:09 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: "Opensource [Steve Twiss]" <stwiss.opensource@diasemi.com>
-Cc: 'LKML' <linux-kernel@vger.kernel.org>,
-	'Alessandro Zummo' <a.zummo@towertech.it>,
-	'Guenter Roeck' <linux@roeck-us.net>,
-	'Jonathan Cameron' <jic23@cam.ac.uk>,
-	'Lars-Peter Clausen' <lars@metafoo.de>,
-	"'linux-iio@vger.kernel.org'" <linux-iio@vger.kernel.org>,
-	"'linux-input@vger.kernel.org'" <linux-input@vger.kernel.org>,
-	'Randy Dunlap' <rdunlap@xenotime.net>,
-	"'rtc-linux@googlegroups.com'" <rtc-linux@googlegroups.com>
-Subject: [rtc-linux] Re: [NEW DRIVER V6 0/7] DA9058 PMIC - please comment on
- this new driver
-Message-ID: <20160323180704.GF2570@piout.net>
-References: <201304191703.r3JH3du0017574@latitude>
- <20160323013139.GD2365@piout.net>
- <6ED8E3B22081A4459DAC7699F3695FB70173D800D3@SW-EX-MBX02.diasemi.com>
+Return-Path: <rtc-linux+bncBDEKVJM7XAHRBLVP4C3AKGQEKQUNJWI@googlegroups.com>
+Received: from mout.kundenserver.de (mout.kundenserver.de. [212.227.17.10])
+        by gmr-mx.google.com with ESMTPS id 71si101478wmp.0.2016.03.03.02.53.34
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 03 Mar 2016 02:53:34 -0800 (PST)
+From: Arnd Bergmann <arnd@arndb.de>
+To: linux-arm-kernel@lists.infradead.org
+Cc: Krzysztof Kozlowski <k.kozlowski@samsung.com>, Daniel Lezcano <daniel.lezcano@linaro.org>, Thomas Gleixner <tglx@linutronix.de>, Dan Williams <dan.j.williams@intel.com>, Vinod Koul <vinod.koul@intel.com>, Jason Cooper <jason@lakedaemon.net>, Marc Zyngier <marc.zyngier@arm.com>, Mauro Carvalho Chehab <mchehab@osg.samsung.com>, Lee Jones <lee.jones@linaro.org>, Giuseppe Cavallaro <peppe.cavallaro@st.com>, Kishon Vijay Abraham I <kishon@ti.com>, Linus Walleij <linus.walleij@linaro.org>, Sebastian Reichel <sre@kernel.org>, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, David Woodhouse <dwmw2@infradead.org>, Alessandro Zummo <a.zummo@towertech.it>, Alexandre Belloni <alexandre.belloni@free-electrons.com>, Andy Gross <andy.gross@linaro.org>, David Brown <david.brown@linaro.org>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-kernel@vger.kernel.org, dmaengine@vger.kernel.org, linux-media@vger.kernel.org, linux-samsung-soc@vger.kernel.org, netdev@vger.kernel.org, linux-gpio@vger.kernel.org, linux-pm@vger.kernel.org, rtc-linux@googlegroups.com, linux-arm-msm@vger.kernel.org, linux-soc@vger.kernel.org, devel@driverdev.osuosl.org, linux-usb@vger.kernel.org
+Subject: [rtc-linux] Re: [RFC 03/15] hwspinlock: qcom: Add missing MFD_SYSCON
+ dependency on HAS_IOMEM
+Date: Thu, 03 Mar 2016 11:53:23 +0100
+Message-ID: <1850954.4r0iTkATb8@wuerfel>
+In-Reply-To: <1456992221-26712-4-git-send-email-k.kozlowski@samsung.com>
+References: <1456992221-26712-1-git-send-email-k.kozlowski@samsung.com> <1456992221-26712-4-git-send-email-k.kozlowski@samsung.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <6ED8E3B22081A4459DAC7699F3695FB70173D800D3@SW-EX-MBX02.diasemi.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
 List-Archive: <https://groups.google.com/group/rtc-linux
+Sender: rtc-linux@googlegroups.com
 List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Hi,
-
-On 23/03/2016 at 17:47:38 +0000, Opensource [Steve Twiss] wrote :
-> > On 23 March 2016, Alexandre Belloni wrote:
-> > > Subject: Re: [NEW DRIVER V6 0/7] DA9058 PMIC - please comment on this new driver
-> > >
-> > > Hi Anthony, Steve,
-> > >
-> > > This driver has been submitted a while ago and reached v6 but still had
-> > > a few comments. Do you still have some interest in seeing it being
-> > > accepted?
-> 
-> Hi Alexandre,
-> 
-> The answer has come back.
-> As the device has been obsoleted at the moment there is no real benefit in seeing this driver accepted into the kernel.
+On Thursday 03 March 2016 17:03:29 Krzysztof Kozlowski wrote:
+> diff --git a/drivers/hwspinlock/Kconfig b/drivers/hwspinlock/Kconfig
+> index 73a401662853..5ab2d51dc147 100644
+> --- a/drivers/hwspinlock/Kconfig
+> +++ b/drivers/hwspinlock/Kconfig
+> @@ -21,6 +21,7 @@ config HWSPINLOCK_OMAP
+>  config HWSPINLOCK_QCOM
+>         tristate "Qualcomm Hardware Spinlock device"
+>         depends on ARCH_QCOM
+> +       depends on HAS_IOMEM    # For MFD_SYSCON
+>         select HWSPINLOCK
+>         select MFD_SYSCON
+>         help
 > 
 
-Well, I don't think this is a proper justification because people may
-want to run a recent kernel on old devices :)
+This is only needed if we add "|| COMPILE_TEST", right now the driver
+is limited to ARCH_QCOM.
 
-Anyway, I'll remove the patches from my queue.
-
-Thanks for the prompt answer!
-
-
--- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+	Arnd
 
 -- 
 -- 
