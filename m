@@ -1,234 +1,76 @@
-Return-Path: <rtc-linux+bncBCPM5SUWUYIRBDU5TO3QKGQEHVSUWFI@googlegroups.com>
-MIME-Version: 1.0
-Received: from mail-pf0-x243.google.com (mail-pf0-x243.google.com. [2607:f8b0:400e:c00::243])
-        by gmr-mx.google.com with ESMTPS id sf5si3328105pac.1.2016.03.14.07.45.34
+Return-Path: <rtc-linux+bncBDKZNNNLXAHBBLHC4C3AKGQEYJJENPA@googlegroups.com>
+Received: from mail-ob0-x244.google.com (mail-ob0-x244.google.com. [2607:f8b0:4003:c01::244])
+        by gmr-mx.google.com with ESMTPS id uw3si640928igb.1.2016.03.03.04.42.19
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 14 Mar 2016 07:45:34 -0700 (PDT)
-Received: by mail-pf0-x243.google.com with SMTP id n5so7998572pfn.1
-        for <rtc-linux@googlegroups.com>; Mon, 14 Mar 2016 07:45:34 -0700 (PDT)
-From: Akinobu Mita <akinobu.mita@gmail.com>
+        Thu, 03 Mar 2016 04:42:19 -0800 (PST)
+Received: by mail-ob0-x244.google.com with SMTP id hc1so1393440obb.0
+        for <rtc-linux@googlegroups.com>; Thu, 03 Mar 2016 04:42:19 -0800 (PST)
+MIME-Version: 1.0
+Sender: rtc-linux@googlegroups.com
+In-Reply-To: <1456992221-26712-14-git-send-email-k.kozlowski@samsung.com>
+References: <1456992221-26712-1-git-send-email-k.kozlowski@samsung.com>
+	<1456992221-26712-14-git-send-email-k.kozlowski@samsung.com>
+Date: Thu, 3 Mar 2016 21:42:19 +0900
+Message-ID: <CAJKOXPc_16KuX2Wqygdn9u+B7P2TvLEtx07QdXPgiwatXJF8nA@mail.gmail.com>
+Subject: Re: [rtc-linux] [RFC 13/15] staging: media: omap4iss: Add missing
+ MFD_SYSCON dependency on HAS_IOMEM
+From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
 To: rtc-linux@googlegroups.com
-Cc: Akinobu Mita <akinobu.mita@gmail.com>,
+Cc: Daniel Lezcano <daniel.lezcano@linaro.org>, Thomas Gleixner <tglx@linutronix.de>,
+	Dan Williams <dan.j.williams@intel.com>, Vinod Koul <vinod.koul@intel.com>,
+	Jason Cooper <jason@lakedaemon.net>, Marc Zyngier <marc.zyngier@arm.com>,
+	Mauro Carvalho Chehab <mchehab@osg.samsung.com>, Lee Jones <lee.jones@linaro.org>,
+	Giuseppe Cavallaro <peppe.cavallaro@st.com>, Kishon Vijay Abraham I <kishon@ti.com>,
+	Linus Walleij <linus.walleij@linaro.org>, Sebastian Reichel <sre@kernel.org>,
+	Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, David Woodhouse <dwmw2@infradead.org>,
 	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Subject: [rtc-linux] [PATCH v2 2/3] rtc: pcf2127: add support for spi interface
-Date: Mon, 14 Mar 2016 23:45:00 +0900
-Message-Id: <1457966701-6532-2-git-send-email-akinobu.mita@gmail.com>
-In-Reply-To: <1457966701-6532-1-git-send-email-akinobu.mita@gmail.com>
-References: <1457966701-6532-1-git-send-email-akinobu.mita@gmail.com>
-Reply-To: rtc-linux@googlegroups.com
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>, Andy Gross <andy.gross@linaro.org>,
+	David Brown <david.brown@linaro.org>,
+	Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-kernel@vger.kernel.org,
+	dmaengine@vger.kernel.org, linux-media@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org,
+	netdev@vger.kernel.org, linux-gpio@vger.kernel.org, linux-pm@vger.kernel.org,
+	linux-arm-msm@vger.kernel.org, linux-soc@vger.kernel.org,
+	devel@driverdev.osuosl.org, linux-usb@vger.kernel.org,
+	Krzysztof Kozlowski <k.kozlowski.k@gmail.com>
 Content-Type: text/plain; charset=UTF-8
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
 List-Archive: <https://groups.google.com/group/rtc-linux
-Sender: rtc-linux@googlegroups.com
 List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-pcf2127 has selectable I2C-bus and SPI-bus interface support.
+2016-03-03 17:03 GMT+09:00 Krzysztof Kozlowski <k.kozlowski@samsung.com>:
+> The MFD_SYSCON depends on HAS_IOMEM so when selecting it avoid unmet
+> direct dependencies.
+>
+> Signed-off-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+> ---
+>  drivers/staging/media/omap4iss/Kconfig | 1 +
+>  1 file changed, 1 insertion(+)
+>
+> diff --git a/drivers/staging/media/omap4iss/Kconfig b/drivers/staging/media/omap4iss/Kconfig
+> index 46183464ee79..7dea072172aa 100644
+> --- a/drivers/staging/media/omap4iss/Kconfig
+> +++ b/drivers/staging/media/omap4iss/Kconfig
+> @@ -2,6 +2,7 @@ config VIDEO_OMAP4
+>         tristate "OMAP 4 Camera support"
+>         depends on VIDEO_V4L2 && VIDEO_V4L2_SUBDEV_API && I2C && ARCH_OMAP4
+>         depends on HAS_DMA
+> +       depends on HAS_IOMEM    # For MFD_SYSCON
+>         select MFD_SYSCON
+>         select VIDEOBUF2_DMA_CONTIG
+>         ---help---
 
-This adds support for SPI interface.
+False alarm, no need for the patch (this depends on ARCH_OMAP4).
 
-Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>
-Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
----
-* No changes from v1
-
- drivers/rtc/Kconfig       |  19 ++++----
- drivers/rtc/rtc-pcf2127.c | 118 +++++++++++++++++++++++++++++++++++++++++++++-
- 2 files changed, 126 insertions(+), 11 deletions(-)
-
-diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
-index 777fa2d..9d0f4da 100644
---- a/drivers/rtc/Kconfig
-+++ b/drivers/rtc/Kconfig
-@@ -400,15 +400,6 @@ config RTC_DRV_PALMAS
- 	  This driver can also be built as a module. If so, the module
- 	  will be called rtc-palma.
- 
--config RTC_DRV_PCF2127
--	tristate "NXP PCF2127"
--	help
--	  If you say yes here you get support for the NXP PCF2127/29 RTC
--	  chips.
--
--	  This driver can also be built as a module. If so, the module
--	  will be called rtc-pcf2127.
--
- config RTC_DRV_PCF8523
- 	tristate "NXP PCF8523"
- 	help
-@@ -767,6 +758,16 @@ config RTC_DRV_DS3232
- 	  This driver can also be built as a module.  If so, the module
- 	  will be called rtc-ds3232.
- 
-+config RTC_DRV_PCF2127
-+	tristate "NXP PCF2127"
-+	depends on RTC_I2C_AND_SPI
-+	help
-+	  If you say yes here you get support for the NXP PCF2127/29 RTC
-+	  chips.
-+
-+	  This driver can also be built as a module. If so, the module
-+	  will be called rtc-pcf2127.
-+
- comment "Platform RTC drivers"
- 
- # this 'CMOS' RTC driver is arch dependent because <asm-generic/rtc.h>
-diff --git a/drivers/rtc/rtc-pcf2127.c b/drivers/rtc/rtc-pcf2127.c
-index fa492cd..194c440 100644
---- a/drivers/rtc/rtc-pcf2127.c
-+++ b/drivers/rtc/rtc-pcf2127.c
-@@ -1,5 +1,5 @@
- /*
-- * An I2C driver for the NXP PCF2127 RTC
-+ * An I2C and SPI driver for the NXP PCF2127 RTC
-  * Copyright 2013 Til-Technologies
-  *
-  * Author: Renaud Cerrato <r.cerrato@til-technologies.fr>
-@@ -14,6 +14,7 @@
-  */
- 
- #include <linux/i2c.h>
-+#include <linux/spi/spi.h>
- #include <linux/bcd.h>
- #include <linux/rtc.h>
- #include <linux/slab.h>
-@@ -200,6 +201,8 @@ static const struct of_device_id pcf2127_of_match[] = {
- MODULE_DEVICE_TABLE(of, pcf2127_of_match);
- #endif
- 
-+#if IS_ENABLED(CONFIG_I2C)
-+
- static int pcf2127_i2c_write(void *context, const void *data, size_t count)
- {
- 	struct device *dev = context;
-@@ -311,7 +314,118 @@ static struct i2c_driver pcf2127_i2c_driver = {
- 	.probe		= pcf2127_i2c_probe,
- 	.id_table	= pcf2127_i2c_id,
- };
--module_i2c_driver(pcf2127_i2c_driver);
-+
-+static int pcf2127_i2c_register_driver(void)
-+{
-+	return i2c_add_driver(&pcf2127_i2c_driver);
-+}
-+
-+static void pcf2127_i2c_unregister_driver(void)
-+{
-+	i2c_del_driver(&pcf2127_i2c_driver);
-+}
-+
-+#else
-+
-+static int pcf2127_i2c_register_driver(void)
-+{
-+	return 0;
-+}
-+
-+static void pcf2127_i2c_unregister_driver(void)
-+{
-+}
-+
-+#endif
-+
-+#if IS_ENABLED(CONFIG_SPI_MASTER)
-+
-+static struct spi_driver pcf2127_spi_driver;
-+
-+static int pcf2127_spi_probe(struct spi_device *spi)
-+{
-+	static const struct regmap_config config = {
-+		.reg_bits = 8,
-+		.val_bits = 8,
-+		.read_flag_mask = 0xa0,
-+		.write_flag_mask = 0x20,
-+	};
-+	struct regmap *regmap;
-+
-+	regmap = devm_regmap_init_spi(spi, &config);
-+	if (IS_ERR(regmap)) {
-+		dev_err(&spi->dev, "%s: regmap allocation failed: %ld\n",
-+			__func__, PTR_ERR(regmap));
-+		return PTR_ERR(regmap);
-+	}
-+
-+	return pcf2127_probe(&spi->dev, regmap, pcf2127_spi_driver.driver.name);
-+}
-+
-+static const struct spi_device_id pcf2127_spi_id[] = {
-+	{ "pcf2127", 0 },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(spi, pcf2127_spi_id);
-+
-+static struct spi_driver pcf2127_spi_driver = {
-+	.driver		= {
-+		.name	= "rtc-pcf2127-spi",
-+		.of_match_table = of_match_ptr(pcf2127_of_match),
-+	},
-+	.probe		= pcf2127_spi_probe,
-+	.id_table	= pcf2127_spi_id,
-+};
-+
-+static int pcf2127_spi_register_driver(void)
-+{
-+	return spi_register_driver(&pcf2127_spi_driver);
-+}
-+
-+static void pcf2127_spi_unregister_driver(void)
-+{
-+	spi_unregister_driver(&pcf2127_spi_driver);
-+}
-+
-+#else
-+
-+static int pcf2127_spi_register_driver(void)
-+{
-+	return 0;
-+}
-+
-+static void pcf2127_spi_unregister_driver(void)
-+{
-+}
-+
-+#endif
-+
-+static int __init pcf2127_init(void)
-+{
-+	int ret;
-+
-+	ret = pcf2127_i2c_register_driver();
-+	if (ret) {
-+		pr_err("Failed to register pcf2127 i2c driver: %d\n", ret);
-+		return ret;
-+	}
-+
-+	ret = pcf2127_spi_register_driver();
-+	if (ret) {
-+		pr_err("Failed to register pcf2127 spi driver: %d\n", ret);
-+		pcf2127_i2c_unregister_driver();
-+	}
-+
-+	return ret;
-+}
-+module_init(pcf2127_init)
-+
-+static void __exit pcf2127_exit(void)
-+{
-+	pcf2127_spi_unregister_driver();
-+	pcf2127_i2c_unregister_driver();
-+}
-+module_exit(pcf2127_exit)
- 
- MODULE_AUTHOR("Renaud Cerrato <r.cerrato@til-technologies.fr>");
- MODULE_DESCRIPTION("NXP PCF2127 RTC driver");
--- 
-2.5.0
+Best regards,
+Krzysztof
 
 -- 
 -- 
