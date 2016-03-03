@@ -1,24 +1,44 @@
-Return-Path: <rtc-linux+bncBCPM5SUWUYIRBHMZ6G3AKGQEP7IZV6I@googlegroups.com>
+Return-Path: <rtc-linux+bncBDKZNNNLXAHBBI7A363AKGQEVE5PSMI@googlegroups.com>
 MIME-Version: 1.0
-Received: from mail-pf0-x241.google.com (mail-pf0-x241.google.com. [2607:f8b0:400e:c00::241])
-        by gmr-mx.google.com with ESMTPS id yd9si2325216pab.1.2016.03.06.07.28.29
+Received: from mailout4.w1.samsung.com (mailout4.w1.samsung.com. [210.118.77.14])
+        by gmr-mx.google.com with ESMTPS id r75si4199974pfr.0.2016.03.03.00.04.51
         for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sun, 06 Mar 2016 07:28:29 -0800 (PST)
-Received: by mail-pf0-x241.google.com with SMTP id q129so6438124pfb.3
-        for <rtc-linux@googlegroups.com>; Sun, 06 Mar 2016 07:28:29 -0800 (PST)
-From: Akinobu Mita <akinobu.mita@gmail.com>
-To: rtc-linux@googlegroups.com
-Cc: Akinobu Mita <akinobu.mita@gmail.com>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Dennis Aberilla <denzzzhome@yahoo.com>
-Subject: [rtc-linux] [PATCH v4 7/7] rtc: ds3232: use rtc->ops_lock to protect
- alarm operations
-Date: Mon,  7 Mar 2016 00:27:53 +0900
-Message-Id: <1457278073-11627-7-git-send-email-akinobu.mita@gmail.com>
-In-Reply-To: <1457278073-11627-1-git-send-email-akinobu.mita@gmail.com>
-References: <1457278073-11627-1-git-send-email-akinobu.mita@gmail.com>
+        (version=TLS1 cipher=AES128-SHA bits=128/128);
+        Thu, 03 Mar 2016 00:04:51 -0800 (PST)
+Received: from eucpsbgm2.samsung.com (unknown [203.254.199.245])
+ by mailout4.w1.samsung.com
+ (Oracle Communications Messaging Server 7.0.5.31.0 64bit (built May  5 2014))
+ with ESMTP id <0O3G00EG3EFZQS90@mailout4.w1.samsung.com> for
+ rtc-linux@googlegroups.com; Thu, 03 Mar 2016 08:04:47 +0000 (GMT)
+From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+To: Daniel Lezcano <daniel.lezcano@linaro.org>,
+ Thomas Gleixner <tglx@linutronix.de>, Dan Williams <dan.j.williams@intel.com>,
+ Vinod Koul <vinod.koul@intel.com>, Jason Cooper <jason@lakedaemon.net>,
+ Marc Zyngier <marc.zyngier@arm.com>,
+ Mauro Carvalho Chehab <mchehab@osg.samsung.com>,
+ Lee Jones <lee.jones@linaro.org>, Giuseppe Cavallaro <peppe.cavallaro@st.com>,
+ Kishon Vijay Abraham I <kishon@ti.com>,
+ Linus Walleij <linus.walleij@linaro.org>, Sebastian Reichel <sre@kernel.org>,
+ Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>,
+ David Woodhouse <dwmw2@infradead.org>,
+ Alessandro Zummo <a.zummo@towertech.it>,
+ Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+ Andy Gross <andy.gross@linaro.org>, David Brown <david.brown@linaro.org>,
+ Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-kernel@vger.kernel.org,
+ dmaengine@vger.kernel.org, linux-media@vger.kernel.org,
+ linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org,
+ netdev@vger.kernel.org, linux-gpio@vger.kernel.org, linux-pm@vger.kernel.org,
+ rtc-linux@googlegroups.com, linux-arm-msm@vger.kernel.org,
+ linux-soc@vger.kernel.org, devel@driverdev.osuosl.org,
+ linux-usb@vger.kernel.org
+Cc: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+Subject: [rtc-linux] [RFC 05/15] phy: hi6220: Add missing MFD_SYSCON
+ dependency on HAS_IOMEM
+Date: Thu, 03 Mar 2016 17:03:31 +0900
+Message-id: <1456992221-26712-6-git-send-email-k.kozlowski@samsung.com>
+In-reply-to: <1456992221-26712-1-git-send-email-k.kozlowski@samsung.com>
+References: <1456992221-26712-1-git-send-email-k.kozlowski@samsung.com>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -30,128 +50,26 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-ds3232->mutex is used to protect for alarm operations which
-need to access status and control registers.
+The MFD_SYSCON depends on HAS_IOMEM so when selecting it avoid unmet
+direct dependencies.
 
-But we can use rtc->ops_lock instead.  rtc->ops_lock is held when most
-of rtc_class_ops methods are called, so we only need to explicitly
-acquire it from irq handler in order to protect form concurrent
-accesses.
-
-Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>
-Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Dennis Aberilla <denzzzhome@yahoo.com>
+Signed-off-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
 ---
-* No changes from the previous version
+ drivers/phy/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
- drivers/rtc/rtc-ds3232.c | 25 ++++---------------------
- 1 file changed, 4 insertions(+), 21 deletions(-)
-
-diff --git a/drivers/rtc/rtc-ds3232.c b/drivers/rtc/rtc-ds3232.c
-index dacced5..b99cbe4 100644
---- a/drivers/rtc/rtc-ds3232.c
-+++ b/drivers/rtc/rtc-ds3232.c
-@@ -52,11 +52,6 @@ struct ds3232 {
- 	int irq;
- 	struct rtc_device *rtc;
- 
--	/* The mutex protects alarm operations, and prevents a race
--	 * between the enable_irq() in the workqueue and the free_irq()
--	 * in the remove function.
--	 */
--	struct mutex mutex;
- 	bool suspended;
- };
- 
-@@ -187,8 +182,6 @@ static int ds3232_read_alarm(struct device *dev, struct rtc_wkalrm *alarm)
- 	int ret;
- 	u8 buf[4];
- 
--	mutex_lock(&ds3232->mutex);
--
- 	ret = regmap_read(ds3232->regmap, DS3232_REG_SR, &stat);
- 	if (ret)
- 		goto out;
-@@ -215,7 +208,6 @@ static int ds3232_read_alarm(struct device *dev, struct rtc_wkalrm *alarm)
- 
- 	ret = 0;
- out:
--	mutex_unlock(&ds3232->mutex);
- 	return ret;
- }
- 
-@@ -233,8 +225,6 @@ static int ds3232_set_alarm(struct device *dev, struct rtc_wkalrm *alarm)
- 	if (ds3232->irq <= 0)
- 		return -EINVAL;
- 
--	mutex_lock(&ds3232->mutex);
--
- 	buf[0] = bin2bcd(alarm->time.tm_sec);
- 	buf[1] = bin2bcd(alarm->time.tm_min);
- 	buf[2] = bin2bcd(alarm->time.tm_hour);
-@@ -267,7 +257,6 @@ static int ds3232_set_alarm(struct device *dev, struct rtc_wkalrm *alarm)
- 		ret = regmap_write(ds3232->regmap, DS3232_REG_CR, control);
- 	}
- out:
--	mutex_unlock(&ds3232->mutex);
- 	return ret;
- }
- 
-@@ -277,11 +266,9 @@ static int ds3232_update_alarm(struct device *dev, unsigned int enabled)
- 	int control;
- 	int ret;
- 
--	mutex_lock(&ds3232->mutex);
--
- 	ret = regmap_read(ds3232->regmap, DS3232_REG_CR, &control);
- 	if (ret)
--		goto unlock;
-+		return ret;
- 
- 	if (enabled)
- 		/* enable alarm1 interrupt */
-@@ -291,9 +278,6 @@ static int ds3232_update_alarm(struct device *dev, unsigned int enabled)
- 		control &= ~(DS3232_REG_CR_A1IE);
- 	ret = regmap_write(ds3232->regmap, DS3232_REG_CR, control);
- 
--unlock:
--	mutex_unlock(&ds3232->mutex);
--
- 	return ret;
- }
- 
-@@ -311,10 +295,11 @@ static irqreturn_t ds3232_irq(int irq, void *dev_id)
- {
- 	struct device *dev = dev_id;
- 	struct ds3232 *ds3232 = dev_get_drvdata(dev);
-+	struct mutex *lock = &ds3232->rtc->ops_lock;
- 	int ret;
- 	int stat, control;
- 
--	mutex_lock(&ds3232->mutex);
-+	mutex_lock(lock);
- 
- 	ret = regmap_read(ds3232->regmap, DS3232_REG_SR, &stat);
- 	if (ret)
-@@ -352,7 +337,7 @@ static irqreturn_t ds3232_irq(int irq, void *dev_id)
- 	}
- 
- unlock:
--	mutex_unlock(&ds3232->mutex);
-+	mutex_unlock(lock);
- 
- 	return IRQ_HANDLED;
- }
-@@ -380,8 +365,6 @@ static int ds3232_probe(struct device *dev, struct regmap *regmap, int irq,
- 	ds3232->dev = dev;
- 	dev_set_drvdata(dev, ds3232);
- 
--	mutex_init(&ds3232->mutex);
--
- 	ret = ds3232_check_rtc_status(dev);
- 	if (ret)
- 		return ret;
+diff --git a/drivers/phy/Kconfig b/drivers/phy/Kconfig
+index 0124d17bd9fe..cfdb3551a675 100644
+--- a/drivers/phy/Kconfig
++++ b/drivers/phy/Kconfig
+@@ -225,6 +225,7 @@ config PHY_MT65XX_USB3
+ config PHY_HI6220_USB
+ 	tristate "hi6220 USB PHY support"
+ 	depends on (ARCH_HISI && ARM64) || COMPILE_TEST
++	depends on HAS_IOMEM	# For MFD_SYSCON
+ 	select GENERIC_PHY
+ 	select MFD_SYSCON
+ 	help
 -- 
 2.5.0
 
