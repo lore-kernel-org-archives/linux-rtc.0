@@ -1,86 +1,137 @@
-Return-Path: <rtc-linux+bncBDKZNNNLXAHBBGHFV63QKGQE4ZVYKHQ@googlegroups.com>
-Received: from mail-oi0-x244.google.com (mail-oi0-x244.google.com. [2607:f8b0:4003:c06::244])
-        by gmr-mx.google.com with ESMTPS id p5si3096354igg.1.2016.03.18.05.20.40
+Return-Path: <rtc-linux+bncBDKZNNNLXAHBB6G7363AKGQE7DMQX3Q@googlegroups.com>
+Received: from mailout3.w1.samsung.com (mailout3.w1.samsung.com. [210.118.77.13])
+        by gmr-mx.google.com with ESMTPS id ff2si6295586pad.2.2016.03.03.00.04.07
         for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 18 Mar 2016 05:20:40 -0700 (PDT)
-Received: by mail-oi0-x244.google.com with SMTP id r187so6640860oih.2
-        for <rtc-linux@googlegroups.com>; Fri, 18 Mar 2016 05:20:40 -0700 (PDT)
-MIME-Version: 1.0
-Sender: k.kozlowski.k@gmail.com
-In-Reply-To: <20160318120717.GD2531@piout.net>
-References: <1458005918-7893-1-git-send-email-javier@osg.samsung.com>
-	<56E76A57.7070104@samsung.com>
-	<56E76C6F.5020803@osg.samsung.com>
-	<56E772F2.2030507@samsung.com>
-	<56E77A6A.2090604@osg.samsung.com>
-	<56EBED45.6070000@osg.samsung.com>
-	<20160318120717.GD2531@piout.net>
-Date: Fri, 18 Mar 2016 21:20:39 +0900
-Message-ID: <CAJKOXPeam-rpnijB0OgGxbY2rdtVwqwdEyHb_LOyzZnXuY82vg@mail.gmail.com>
-Subject: Re: [rtc-linux] Re: [PATCH v3] rtc: s3c: Don't print an error on
- probe deferral
+        (version=TLS1 cipher=AES128-SHA bits=128/128);
+        Thu, 03 Mar 2016 00:04:08 -0800 (PST)
+MIME-version: 1.0
+Content-type: text/plain; charset=UTF-8
+Received: from eucpsbgm1.samsung.com (unknown [203.254.199.244])
+ by mailout3.w1.samsung.com
+ (Oracle Communications Messaging Server 7.0.5.31.0 64bit (built May  5 2014))
+ with ESMTP id <0O3G007FIEESR890@mailout3.w1.samsung.com> for
+ rtc-linux@googlegroups.com; Thu, 03 Mar 2016 08:04:04 +0000 (GMT)
 From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-To: rtc-linux@googlegroups.com
-Cc: Javier Martinez Canillas <javier@osg.samsung.com>, linux-kernel@vger.kernel.org,
-	Joe Perches <joe@perches.com>, linux-samsung-soc@vger.kernel.org,
-	Krzysztof Kozlowski <krzk@kernel.org>
-Content-Type: text/plain; charset=UTF-8
+To: Daniel Lezcano <daniel.lezcano@linaro.org>,
+ Thomas Gleixner <tglx@linutronix.de>, Dan Williams <dan.j.williams@intel.com>,
+ Vinod Koul <vinod.koul@intel.com>, Jason Cooper <jason@lakedaemon.net>,
+ Marc Zyngier <marc.zyngier@arm.com>,
+ Mauro Carvalho Chehab <mchehab@osg.samsung.com>,
+ Lee Jones <lee.jones@linaro.org>, Giuseppe Cavallaro <peppe.cavallaro@st.com>,
+ Kishon Vijay Abraham I <kishon@ti.com>,
+ Linus Walleij <linus.walleij@linaro.org>, Sebastian Reichel <sre@kernel.org>,
+ Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>,
+ David Woodhouse <dwmw2@infradead.org>,
+ Alessandro Zummo <a.zummo@towertech.it>,
+ Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+ Andy Gross <andy.gross@linaro.org>, David Brown <david.brown@linaro.org>,
+ Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-kernel@vger.kernel.org,
+ dmaengine@vger.kernel.org, linux-media@vger.kernel.org,
+ linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org,
+ netdev@vger.kernel.org, linux-gpio@vger.kernel.org, linux-pm@vger.kernel.org,
+ rtc-linux@googlegroups.com, linux-arm-msm@vger.kernel.org,
+ linux-soc@vger.kernel.org, devel@driverdev.osuosl.org,
+ linux-usb@vger.kernel.org
+Cc: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+Subject: [rtc-linux] [RFC 00/15] tree-wide: mfd: syscon: Fix unmet ioremap dependency
+Date: Thu, 03 Mar 2016 17:03:26 +0900
+Message-id: <1456992221-26712-1-git-send-email-k.kozlowski@samsung.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
 List-Archive: <https://groups.google.com/group/rtc-linux
+Sender: rtc-linux@googlegroups.com
 List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Fri, Mar 18, 2016 at 9:07 PM, Alexandre Belloni
-<alexandre.belloni@free-electrons.com> wrote:
-> On 18/03/2016 at 08:57:57 -0300, Javier Martinez Canillas wrote :
->> >>> But yes, we can at least get rid of the else statement. I don't have a
->> >>> strong opinion about the debug information, I left it to avoid someone
->> >>> to tell me that I was removing a useful log.
->> >>
->> >> Although dev_dbg doesn't harm... but isn't driver core printing debug
->> >> message already?
->> >>
->> >
->> > I don't think it does or at least I didn't find it when looking
->> > at the devm_clk_get() call chain.
->> >
->> >> BR,
->> >> Krzysztof
->> >>
->>
->> Just to make sure that I understood correctly, there's no action I
->> should take in order for this patch to be picked right? IOW, the
->> current version is OK?
->>
->
-> I was kind of waiting an answer on the question whether the core already
-> prints a message when probe dereferral happens because in that case,
-> there is no need for a debug message and we can indeed simplify the
-> whole block.
+Hi,
 
-Although I did not test it, I think the core will print generic defer
-message. See really_probe() around line 400:
-http://lxr.free-electrons.com/source/drivers/base/dd.c?v=4.4#L347
+Building allyesconfig on ARCH=3Dum fails with:
+   drivers/mfd/syscon.c: In function =E2=80=98of_syscon_register=E2=80=99:
+   drivers/mfd/syscon.c:67:9: error: implicit declaration of function =E2=
+=80=98ioremap=E2=80=99 [-Werror=3Dimplicit-function-declaration]
+      base =3D ioremap(res.start, resource_size(&res));
 
-However the cause of deferring will not be printed... so I find some
-use of debug message in driver... On the other hand, not many drivers
-are doing this. Ehh, I guess I am just really picky. :)
+Since commit c89c0114955a ("mfd: syscon: Set regmap max_register in
+of_syscon_register") the syscon depends on HAS_IOMEM because
+it uses the ioremap().
 
-BR,
+However syscon is often directly selected... so first the dependency on
+HAS_IOMEM has to be added to all selecting symbols.
+
+Comments are welcomed whether this is appropriate approach.
+
+
+The last patch "mfd: syscon: Fix build of missing ioremap on UM" should
+enter all other to avoid kbuild complains like:
+
+warning: (ST_IRQCHIP && HIP04_ETH && STMMAC_PLATFORM && DWMAC_IPQ806X &&
+DWMAC_LPC18XX && DWMAC_ROCKCHIP && DWMAC_SOCFPGA && DWMAC_STI && TI_CPSW
+&& PINCTRL_ROCKCHIP && PINCTRL_DOVE && POWER_RESET_KEYSTONE &&
+S3C2410_WATCHDOG && VIDEO_OMAP3 && VIDEO_S5P_FIMC && USB_XHCI_MTK &&
+RTC_DRV_AT91SAM9 && LPC18XX_DMAMUX && VIDEO_OMAP4 && HWSPINLOCK_QCOM && ATM=
+EL_ST
+&& QCOM_GSBI && PHY_HI6220_USB)
+selects MFD_SYSCON which has unmet direct dependencies (HAS_IOMEM)
+
+
+Best regards,
 Krzysztof
 
--- 
--- 
+
+Krzysztof Kozlowski (15):
+  clocksource: atmel: Add missing MFD_SYSCON dependency on HAS_IOMEM
+  dmaengine: nxp: Add missing MFD_SYSCON dependency on HAS_IOMEM
+  hwspinlock: qcom: Add missing MFD_SYSCON dependency on HAS_IOMEM
+  irqchip: st: Add missing MFD_SYSCON dependency on HAS_IOMEM
+  phy: hi6220: Add missing MFD_SYSCON dependency on HAS_IOMEM
+  pinctrl: rockchip: Add missing MFD_SYSCON dependency on HAS_IOMEM
+  pinctrl: mvebu: Add missing MFD_SYSCON dependency on HAS_IOMEM
+  rtc: at91sam9: Add missing MFD_SYSCON dependency on HAS_IOMEM
+  media: platform: Add missing MFD_SYSCON dependency on HAS_IOMEM
+  net: ethernet: Add missing MFD_SYSCON dependency on HAS_IOMEM
+  power: reset: keystone: Add missing MFD_SYSCON dependency on HAS_IOMEM
+  soc: qcom: Add missing MFD_SYSCON dependency on HAS_IOMEM
+  staging: media: omap4iss: Add missing MFD_SYSCON dependency on
+    HAS_IOMEM
+  usb: xhci: mtk: Add missing MFD_SYSCON dependency on HAS_IOMEM
+  mfd: syscon: Fix build of missing ioremap on UM
+
+ drivers/clocksource/Kconfig                 | 1 +
+ drivers/dma/Kconfig                         | 1 +
+ drivers/hwspinlock/Kconfig                  | 1 +
+ drivers/irqchip/Kconfig                     | 1 +
+ drivers/media/platform/Kconfig              | 1 +
+ drivers/media/platform/exynos4-is/Kconfig   | 1 +
+ drivers/mfd/Kconfig                         | 1 +
+ drivers/net/ethernet/hisilicon/Kconfig      | 1 +
+ drivers/net/ethernet/stmicro/stmmac/Kconfig | 6 ++++++
+ drivers/net/ethernet/ti/Kconfig             | 1 +
+ drivers/phy/Kconfig                         | 1 +
+ drivers/pinctrl/Kconfig                     | 1 +
+ drivers/pinctrl/mvebu/Kconfig               | 1 +
+ drivers/power/reset/Kconfig                 | 1 +
+ drivers/rtc/Kconfig                         | 1 +
+ drivers/soc/qcom/Kconfig                    | 1 +
+ drivers/staging/media/omap4iss/Kconfig      | 1 +
+ drivers/usb/host/Kconfig                    | 1 +
+ 18 files changed, 23 insertions(+)
+
+--=20
+2.5.0
+
+--=20
+--=20
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+---=20
+You received this message because you are subscribed to the Google Groups "=
+rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an e=
+mail to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
