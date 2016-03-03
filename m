@@ -1,169 +1,62 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBBXEY63QKGQEPIJA35A@googlegroups.com>
-Sender: rtc-linux@googlegroups.com
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id f75si712342wme.3.2016.03.22.18.31.50
-        for <rtc-linux@googlegroups.com>;
-        Tue, 22 Mar 2016 18:31:50 -0700 (PDT)
-Date: Wed, 23 Mar 2016 02:31:39 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Anthony Olech <anthony.olech.opensource@diasemi.com>,
-	stwiss.opensource@diasemi.com
-Cc: LKML <linux-kernel@vger.kernel.org>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Guenter Roeck <linux@roeck-us.net>,
-	Jonathan Cameron <jic23@cam.ac.uk>,
-	Lars-Peter Clausen <lars@metafoo.de>, linux-iio@vger.kernel.org,
-	linux-input@vger.kernel.org, Randy Dunlap <rdunlap@xenotime.net>,
-	rtc-linux@googlegroups.com
-Subject: [rtc-linux] Re: [NEW DRIVER V6 0/7] DA9058 PMIC - please comment on
- this new driver
-Message-ID: <20160323013139.GD2365@piout.net>
-References: <201304191703.r3JH3du0017574@latitude>
+Return-Path: <rtc-linux+bncBDEKVJM7XAHRBNHN4C3AKGQECJWU3KY@googlegroups.com>
+Received: from mout.kundenserver.de (mout.kundenserver.de. [217.72.192.74])
+        by gmr-mx.google.com with ESMTPS id 71si118076wmp.0.2016.03.03.05.05.56
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 03 Mar 2016 05:05:56 -0800 (PST)
+From: Arnd Bergmann <arnd@arndb.de>
+To: linux-arm-kernel@lists.infradead.org
+Cc: Krzysztof Kozlowski <k.kozlowski@samsung.com>, rtc-linux@googlegroups.com, Linus Walleij <linus.walleij@linaro.org>, Sebastian Reichel <sre@kernel.org>, David Brown <david.brown@linaro.org>, Alexandre Belloni <alexandre.belloni@free-electrons.com>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Krzysztof Kozlowski <k.kozlowski.k@gmail.com>, Lee Jones <lee.jones@linaro.org>, Dan Williams <dan.j.williams@intel.com>, devel@driverdev.osuosl.org, linux-samsung-soc@vger.kernel.org, Vinod Koul <vinod.koul@intel.com>, Daniel Lezcano <daniel.lezcano@linaro.org>, Kishon Vijay Abraham I <kishon@ti.com>, Andy Gross <andy.gross@linaro.org>, linux-media@vger.kernel.org, Jason Cooper <jason@lakedaemon.net>, Mauro Carvalho Chehab <mchehab@osg.samsung.com>, Marc Zyngier <marc.zyngier@arm.com>, linux-arm-msm@vger.kernel.org, linux-gpio@vger.kernel.org, Giuseppe Cavallaro <peppe.cavallaro@st.com>, Thomas Gleixner <tglx@linutronix.de>, linux-soc@vger.kernel.org, Alessandro Zummo <a.zummo@towertech.it>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-pm@vger.kernel.org, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, netdev@vger.kernel.org, dmaengine@vger.kernel.org, David Woodhouse <dwmw2@infradead.org>
+Subject: Re: [rtc-linux] Re: [RFC 09/15] media: platform: Add missing
+ MFD_SYSCON dependency on HAS_IOMEM
+Date: Thu, 03 Mar 2016 14:05:33 +0100
+Message-ID: <13054519.5feSCc5dgv@wuerfel>
+In-Reply-To: <CAJKOXPe50ira_Qqy7qJ5H_PHa8B_xOinCK6JkncXFYn_eaQFfg@mail.gmail.com>
+References: <1456992221-26712-1-git-send-email-k.kozlowski@samsung.com> <2181866.k24LVvUjTs@wuerfel> <CAJKOXPe50ira_Qqy7qJ5H_PHa8B_xOinCK6JkncXFYn_eaQFfg@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <201304191703.r3JH3du0017574@latitude>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
 List-Archive: <https://groups.google.com/group/rtc-linux
+Sender: rtc-linux@googlegroups.com
 List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Hi Anthony, Steve,
-
-This driver has been submitted a while ago and reached v6 but still had
-a few comments. Do you still have some interest in seeing it being
-accepted?
-
-On 19/04/2013 at 17:56:29 +0100, Anthony Olech wrote :
-> This is submission attempt number 6 to have this driver included in
-> the linux kernel source tree. This is the driver for the Dialog DA9058.
+On Thursday 03 March 2016 21:40:23 Krzysztof Kozlowski wrote:
+> >>         select MFD_SYSCON
+> >> diff --git a/drivers/media/platform/exynos4-is/Kconfig b/drivers/media/platform/exynos4-is/Kconfig
+> >> index 57d42c6172c5..c4317b99d257 100644
+> >> --- a/drivers/media/platform/exynos4-is/Kconfig
+> >> +++ b/drivers/media/platform/exynos4-is/Kconfig
+> >> @@ -17,6 +17,7 @@ config VIDEO_S5P_FIMC
+> >>         tristate "S5P/EXYNOS4 FIMC/CAMIF camera interface driver"
+> >>         depends on I2C
+> >>         depends on HAS_DMA
+> >> +       depends on HAS_IOMEM    # For MFD_SYSCON
+> >>         select VIDEOBUF2_DMA_CONTIG
+> >>         select V4L2_MEM2MEM_DEV
+> >
+> > This  is guarded by HAS_DMA, which implies HAS_IOMEM afaik.
 > 
-> The DA9058 is a low power Power Management Integrated Circuit with extra
-> functionality. It is a Multi Function Device controlled only from an I2C
-> bus whose components can raise an interrupt request on a single IRQ line.
-> 
-> The driver for the DA9058 consists of a core (i2c) device driver that
-> instantiates the individual component device drivers for:
-> 
-> adc - 5 ADC channels
-> gpio - 2 available pins
-> onkey - 1 device
-> regulator - 4 BUCKS, 19 LDO and 3 fixed
-> rtc - low power clock
-> hwmon - 5 monitored voltages/temperatures
-> 
-> All the above six component device drivers depend on the 'core'
-> component driver, which is number one in the patch series.
-> 
-> Each component driver for the Dialog DA9058 will follow as an e-mail
-> patch relative to 
-> 
-> This driver has been tested on a Samsung SMDK6410 connected to a Dialog
-> DA9058 Evaluation Board via one GPIO and a 3-wire I2C connection.
-> 
-> All the components can be builtin to the kernel or compiled as modules.
-> As far as I can tell, all the latest APIs both for the core driver and
-> all the component drivers have been adhered to, but if I have missed
-> something please let me know.
-> 
-> In a clean check out of next-20130419 in linux-next, each patch has been
-> applied individually and the final result has been built successfully.
-> 
-> Many thanks,
-> Anthony Olech, Dialog Semiconductor Ltd.
-> 
-> Tony Olech (at Home) (7):
->   drivers/mfd: DA9058 MFD core driver
->   drivers/iio/adc: DA9058 ADC driver
->   drivers/input/misc: DA9058 ONKEY driver
->   drivers/rtc: DA9058 RTC driver
->   drivers/gpio: DA9058 GPIO driver
->   drivers/hwmon: DA9058 HWMON driver
->   drivers/regulator: DA9058 REGULATOR driver
-> 
->  Documentation/hwmon/da9058           |   38 ++
->  drivers/gpio/Kconfig                 |   12 +
->  drivers/gpio/Makefile                |    1 +
->  drivers/gpio/gpio-da9058.c           |  376 ++++++++++++++
->  drivers/hwmon/Kconfig                |   10 +
->  drivers/hwmon/Makefile               |    3 +-
->  drivers/hwmon/da9058-hwmon.c         |  330 ++++++++++++
->  drivers/iio/adc/Kconfig              |   12 +
->  drivers/iio/adc/Makefile             |    1 +
->  drivers/iio/adc/da9058-adc.c         |  396 ++++++++++++++
->  drivers/input/misc/Kconfig           |   10 +
->  drivers/input/misc/Makefile          |    1 +
->  drivers/input/misc/da9058_onkey.c    |  173 +++++++
->  drivers/mfd/Kconfig                  |   17 +
->  drivers/mfd/Makefile                 |    3 +
->  drivers/mfd/da9058-core.c            |   73 +++
->  drivers/mfd/da9058-i2c.c             |   96 ++++
->  drivers/mfd/da9058-info.c            |  939 ++++++++++++++++++++++++++++++++++
->  drivers/mfd/da9058-irq.c             |   56 ++
->  drivers/regulator/Kconfig            |   11 +
->  drivers/regulator/Makefile           |    1 +
->  drivers/regulator/da9058-regulator.c |  199 +++++++
->  drivers/rtc/Kconfig                  |   10 +
->  drivers/rtc/Makefile                 |    1 +
->  drivers/rtc/rtc-da9058.c             |  448 ++++++++++++++++
->  include/linux/mfd/da9058/adc.h       |   18 +
->  include/linux/mfd/da9058/bat.h       |   33 ++
->  include/linux/mfd/da9058/codec.h     |   22 +
->  include/linux/mfd/da9058/conf.h      |   22 +
->  include/linux/mfd/da9058/core.h      |   66 +++
->  include/linux/mfd/da9058/gpio.h      |   19 +
->  include/linux/mfd/da9058/hwmon.h     |   32 ++
->  include/linux/mfd/da9058/i2c.h       |   22 +
->  include/linux/mfd/da9058/irq.h       |   50 ++
->  include/linux/mfd/da9058/onkey.h     |   17 +
->  include/linux/mfd/da9058/pdata.h     |   30 ++
->  include/linux/mfd/da9058/registers.h |  480 +++++++++++++++++
->  include/linux/mfd/da9058/regulator.h |   26 +
->  include/linux/mfd/da9058/rtc.h       |   17 +
->  39 files changed, 4070 insertions(+), 1 deletion(-)
->  create mode 100644 Documentation/hwmon/da9058
->  create mode 100644 drivers/gpio/gpio-da9058.c
->  create mode 100644 drivers/hwmon/da9058-hwmon.c
->  create mode 100644 drivers/iio/adc/da9058-adc.c
->  create mode 100644 drivers/input/misc/da9058_onkey.c
->  create mode 100644 drivers/mfd/da9058-core.c
->  create mode 100644 drivers/mfd/da9058-i2c.c
->  create mode 100644 drivers/mfd/da9058-info.c
->  create mode 100644 drivers/mfd/da9058-irq.c
->  create mode 100644 drivers/regulator/da9058-regulator.c
->  create mode 100644 drivers/rtc/rtc-da9058.c
->  create mode 100644 include/linux/mfd/da9058/adc.h
->  create mode 100644 include/linux/mfd/da9058/bat.h
->  create mode 100644 include/linux/mfd/da9058/codec.h
->  create mode 100644 include/linux/mfd/da9058/conf.h
->  create mode 100644 include/linux/mfd/da9058/core.h
->  create mode 100644 include/linux/mfd/da9058/gpio.h
->  create mode 100644 include/linux/mfd/da9058/hwmon.h
->  create mode 100644 include/linux/mfd/da9058/i2c.h
->  create mode 100644 include/linux/mfd/da9058/irq.h
->  create mode 100644 include/linux/mfd/da9058/onkey.h
->  create mode 100644 include/linux/mfd/da9058/pdata.h
->  create mode 100644 include/linux/mfd/da9058/registers.h
->  create mode 100644 include/linux/mfd/da9058/regulator.h
->  create mode 100644 include/linux/mfd/da9058/rtc.h
-> 
-> -- 
-> end-of-patch for NEW DRIVER V6
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Looking at Kconfigs - no, it is not implied (or am I missing
+> something)... and sometimes dependency on HAS_IOMEM is next to
+> HAS_DMA.
 > 
 > 
 
--- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+Ah, you are right: UML has no DMA and no IOMEM, but s390 can
+have IOMEM (if PCI is enabled) and always sets HAS_DMA.
+
+In practice, I think the HAS_DMA symbol is not as well-defined
+as it should be, it basically refers to the presence of the dma-mapping.h
+API, and that only really makes sense when you also have IOMEM,
+so there might be an implied dependency between the two, but it's
+not enforced or actually true.
+
+	Arnd
 
 -- 
 -- 
