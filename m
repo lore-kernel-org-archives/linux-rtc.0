@@ -1,58 +1,77 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBZEUWK3QKGQEGAWWSWI@googlegroups.com>
-Sender: rtc-linux@googlegroups.com
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id c7si44527wmf.2.2016.03.18.16.08.20
-        for <rtc-linux@googlegroups.com>;
-        Fri, 18 Mar 2016 16:08:20 -0700 (PDT)
-Date: Sat, 19 Mar 2016 00:08:19 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Javier Martinez Canillas <javier@osg.samsung.com>
-Cc: linux-kernel@vger.kernel.org, Joe Perches <joe@perches.com>,
-	linux-samsung-soc@vger.kernel.org,
-	Krzysztof Kozlowski <k.kozlowski@samsung.com>,
-	rtc-linux@googlegroups.com
-Subject: [rtc-linux] Re: [PATCH v3] rtc: s3c: Don't print an error on probe deferral
-Message-ID: <20160318230819.GF2828@piout.net>
-References: <1458005918-7893-1-git-send-email-javier@osg.samsung.com>
+Return-Path: <rtc-linux+bncBDKZNNNLXAHBBWHA363AKGQELKRSBBQ@googlegroups.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1458005918-7893-1-git-send-email-javier@osg.samsung.com>
+Received: from mailout2.w1.samsung.com (mailout2.w1.samsung.com. [210.118.77.12])
+        by gmr-mx.google.com with ESMTPS id y20si3906946pfa.2.2016.03.03.00.05.43
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1 cipher=AES128-SHA bits=128/128);
+        Thu, 03 Mar 2016 00:05:43 -0800 (PST)
+Received: from eucpsbgm2.samsung.com (unknown [203.254.199.245])
+ by mailout2.w1.samsung.com
+ (Oracle Communications Messaging Server 7.0.5.31.0 64bit (built May  5 2014))
+ with ESMTP id <0O3G005I9EHGL090@mailout2.w1.samsung.com> for
+ rtc-linux@googlegroups.com; Thu, 03 Mar 2016 08:05:40 +0000 (GMT)
+From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+To: Daniel Lezcano <daniel.lezcano@linaro.org>,
+ Thomas Gleixner <tglx@linutronix.de>, Dan Williams <dan.j.williams@intel.com>,
+ Vinod Koul <vinod.koul@intel.com>, Jason Cooper <jason@lakedaemon.net>,
+ Marc Zyngier <marc.zyngier@arm.com>,
+ Mauro Carvalho Chehab <mchehab@osg.samsung.com>,
+ Lee Jones <lee.jones@linaro.org>, Giuseppe Cavallaro <peppe.cavallaro@st.com>,
+ Kishon Vijay Abraham I <kishon@ti.com>,
+ Linus Walleij <linus.walleij@linaro.org>, Sebastian Reichel <sre@kernel.org>,
+ Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>,
+ David Woodhouse <dwmw2@infradead.org>,
+ Alessandro Zummo <a.zummo@towertech.it>,
+ Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+ Andy Gross <andy.gross@linaro.org>, David Brown <david.brown@linaro.org>,
+ Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-kernel@vger.kernel.org,
+ dmaengine@vger.kernel.org, linux-media@vger.kernel.org,
+ linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org,
+ netdev@vger.kernel.org, linux-gpio@vger.kernel.org, linux-pm@vger.kernel.org,
+ rtc-linux@googlegroups.com, linux-arm-msm@vger.kernel.org,
+ linux-soc@vger.kernel.org, devel@driverdev.osuosl.org,
+ linux-usb@vger.kernel.org
+Cc: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+Subject: [rtc-linux] [RFC 11/15] power: reset: keystone: Add missing
+ MFD_SYSCON dependency on HAS_IOMEM
+Date: Thu, 03 Mar 2016 17:03:37 +0900
+Message-id: <1456992221-26712-12-git-send-email-k.kozlowski@samsung.com>
+In-reply-to: <1456992221-26712-1-git-send-email-k.kozlowski@samsung.com>
+References: <1456992221-26712-1-git-send-email-k.kozlowski@samsung.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
 List-Archive: <https://groups.google.com/group/rtc-linux
+Sender: rtc-linux@googlegroups.com
 List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 14/03/2016 at 22:38:38 -0300, Javier Martinez Canillas wrote :
-> The clock and source clock looked up by the driver may not be available
-> just because the clock controller driver was not probed yet so printing
-> an error in this case is not correct and only adds confusion to users.
-> 
-> However, knowing that a driver's probe was deferred may be useful so it
-> can be printed as a debug information.
-> 
-> Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
-> 
-> ---
-> 
-> Changes in v3:
-> - Change debug messages again as suggested by Joe Perches.
-> 
-> Changes in v2:
-> - Improve debug messages as suggested by Joe Perches.
-> 
->  drivers/rtc/rtc-s3c.c | 19 ++++++++++++++-----
->  1 file changed, 14 insertions(+), 5 deletions(-)
-> 
-Applied, thanks.
+The MFD_SYSCON depends on HAS_IOMEM so when selecting it avoid unmet
+direct dependencies.
 
+Signed-off-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+---
+ drivers/power/reset/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/drivers/power/reset/Kconfig b/drivers/power/reset/Kconfig
+index 0a6408a39c66..0f34846ae80d 100644
+--- a/drivers/power/reset/Kconfig
++++ b/drivers/power/reset/Kconfig
+@@ -141,6 +141,7 @@ config POWER_RESET_XGENE
+ config POWER_RESET_KEYSTONE
+ 	bool "Keystone reset driver"
+ 	depends on ARCH_KEYSTONE
++	depends on HAS_IOMEM	# For MFD_SYSCON
+ 	select MFD_SYSCON
+ 	help
+ 	  Reboot support for the KEYSTONE SoCs.
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+2.5.0
 
 -- 
 -- 
