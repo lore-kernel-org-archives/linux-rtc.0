@@ -1,40 +1,25 @@
-Return-Path: <rtc-linux+bncBDKZNNNLXAHBBFW64C3AKGQEIRYAHAI@googlegroups.com>
-Received: from mail-oi0-x242.google.com (mail-oi0-x242.google.com. [2607:f8b0:4003:c06::242])
-        by gmr-mx.google.com with ESMTPS id i9si699294igg.1.2016.03.03.04.33.26
+Return-Path: <rtc-linux+bncBCPM5SUWUYIRB4VH423AKGQELC2ENKY@googlegroups.com>
+Received: from mail-vk0-x242.google.com (mail-vk0-x242.google.com. [2607:f8b0:400c:c05::242])
+        by gmr-mx.google.com with ESMTPS id b196si89485vkf.1.2016.03.04.05.56.01
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 03 Mar 2016 04:33:26 -0800 (PST)
-Received: by mail-oi0-x242.google.com with SMTP id c203so1084233oia.0
-        for <rtc-linux@googlegroups.com>; Thu, 03 Mar 2016 04:33:26 -0800 (PST)
+        Fri, 04 Mar 2016 05:56:01 -0800 (PST)
+Received: by mail-vk0-x242.google.com with SMTP id e185so3914340vkb.2
+        for <rtc-linux@googlegroups.com>; Fri, 04 Mar 2016 05:56:01 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <2188157.YL7RR6FeEK@wuerfel>
-References: <1456992221-26712-1-git-send-email-k.kozlowski@samsung.com>
-	<2506651.J2Z42d81nD@wuerfel>
-	<CAJKOXPcZuyicNAaH6CpOe+bTrLtM1k0tVisS_xJXGDrxyZ_i5A@mail.gmail.com>
-	<2188157.YL7RR6FeEK@wuerfel>
-Date: Thu, 3 Mar 2016 21:33:25 +0900
-Message-ID: <CAJKOXPeQ2=qqJn0HY2Vx+9J+LOQj-K2ETa2yHqk=Ut5rBPxqPg@mail.gmail.com>
-Subject: Re: [rtc-linux] Re: [RFC 04/15] irqchip: st: Add missing MFD_SYSCON
- dependency on HAS_IOMEM
-From: =?UTF-8?Q?Krzysztof_Koz=C5=82owski?= <k.kozlowski.k@gmail.com>
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: linux-arm-kernel@lists.infradead.org, rtc-linux@googlegroups.com,
-	Linus Walleij <linus.walleij@linaro.org>, Sebastian Reichel <sre@kernel.org>,
-	David Brown <david.brown@linaro.org>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Lee Jones <lee.jones@linaro.org>,
-	Dan Williams <dan.j.williams@intel.com>, devel@driverdev.osuosl.org,
-	linux-samsung-soc@vger.kernel.org, Vinod Koul <vinod.koul@intel.com>,
-	Daniel Lezcano <daniel.lezcano@linaro.org>, Kishon Vijay Abraham I <kishon@ti.com>,
-	Andy Gross <andy.gross@linaro.org>, linux-media@vger.kernel.org,
-	Jason Cooper <jason@lakedaemon.net>, Mauro Carvalho Chehab <mchehab@osg.samsung.com>,
-	Marc Zyngier <marc.zyngier@arm.com>, linux-arm-msm@vger.kernel.org,
-	linux-gpio@vger.kernel.org, Giuseppe Cavallaro <peppe.cavallaro@st.com>,
-	Thomas Gleixner <tglx@linutronix.de>, linux-soc@vger.kernel.org,
-	Alessandro Zummo <a.zummo@towertech.it>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	linux-pm@vger.kernel.org, linux-usb@vger.kernel.org,
-	linux-kernel@vger.kernel.org, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, netdev@vger.kernel.org,
-	dmaengine@vger.kernel.org, David Woodhouse <dwmw2@infradead.org>
+In-Reply-To: <20160303225756.GA2587@piout.net>
+References: <1456758832-10590-1-git-send-email-akinobu.mita@gmail.com>
+	<1456758832-10590-7-git-send-email-akinobu.mita@gmail.com>
+	<CAC5umygNbz=nnPU6oTDsmrwWRKLFJE3Hq2ei1mPQ425CvfVE9Q@mail.gmail.com>
+	<20160303225756.GA2587@piout.net>
+Date: Fri, 4 Mar 2016 22:56:01 +0900
+Message-ID: <CAC5umyiOPbXVOOjd-4oLnovPz19M57EL7RhL115rXVx7xd0MNQ@mail.gmail.com>
+Subject: [rtc-linux] Re: [PATCH v3 7/8] rtc: ds3232-core: fix issue when irq
+ is shared several devices
+From: Akinobu Mita <akinobu.mita@gmail.com>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: rtc-linux@googlegroups.com, Alessandro Zummo <a.zummo@towertech.it>,
+	Dennis Aberilla <denzzzhome@yahoo.com>
 Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
@@ -46,41 +31,69 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-2016-03-03 21:28 GMT+09:00 Arnd Bergmann <arnd@arndb.de>:
-> On Thursday 03 March 2016 21:00:57 Krzysztof Kozlowski wrote:
+2016-03-04 7:57 GMT+09:00 Alexandre Belloni
+<alexandre.belloni@free-electrons.com>:
+> On 03/03/2016 at 23:10:35 +0900, Akinobu Mita wrote :
+>> 2016-03-01 0:13 GMT+09:00 Akinobu Mita <akinobu.mita@gmail.com>:
+>> > ds3232-core requests irq with IRQF_SHARED, so irq can be shared by
+>> > several devices.  But the irq handler for ds3232 unconditionally
+>> > disables the irq at first and the irq is re-enabled only when the
+>> > interrupt source was the ds3232's alarm.  This behaviour breaks the
+>> > devices sharing the same irq in the various scenarios.
 >> >
->> > Not user visible.
+>> > Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
+>> > Cc: Alessandro Zummo <a.zummo@towertech.it>
+>> > Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+>> > Cc: Dennis Aberilla <denzzzhome@yahoo.com>
+>> > ---
+>> > * New patch from this version
+>> >
+>> >  drivers/rtc/rtc-ds3232-core.c | 14 ++------------
+>> >  1 file changed, 2 insertions(+), 12 deletions(-)
+>> >
+>> > diff --git a/drivers/rtc/rtc-ds3232-core.c b/drivers/rtc/rtc-ds3232-core.c
+>> > index be8dfe0..6489380 100644
+>> > --- a/drivers/rtc/rtc-ds3232-core.c
+>> > +++ b/drivers/rtc/rtc-ds3232-core.c
+>> > @@ -59,7 +59,6 @@ struct ds3232 {
+>> >          */
+>> >         struct mutex mutex;
+>> >         bool suspended;
+>> > -       int exiting;
+>> >  };
+>> >
+>> >  static int ds3232_check_rtc_status(struct device *dev)
+>> > @@ -314,8 +313,6 @@ static irqreturn_t ds3232_irq(int irq, void *dev_id)
+>> >         struct device *dev = dev_id;
+>> >         struct ds3232 *ds3232 = dev_get_drvdata(dev);
+>> >
+>> > -       disable_irq_nosync(irq);
+>> > -
+>> >         /*
+>> >          * If rtc as a wakeup source, can't schedule the work
+>> >          * at system resume flow, because at this time the i2c bus
 >>
->> Hmmm... you are right (here and in other patches) but why am I getting
->> all these errors:
->> warning: (ST_IRQCHIP && HIP04_ETH && STMMAC_PLATFORM && DWMAC_IPQ806X
->> && DWMAC_LPC18XX && DWMAC_ROCKCHIP && DWMAC_SOCFPGA && DWMAC_STI &&
->> TI_CPSW && PINCTRL_ROCKCHIP && PINCTRL_DOVE && POWER_RESET_KEYSTONE &&
->> S3C2410_WATCHDOG && VIDEO_OMAP3 && VIDEO_S5P_FIMC && USB_XHCI_MTK &&
->> RTC_DRV_AT91SAM9 && LPC18XX_DMAMUX && VIDEO_OMAP4 && HWSPINLOCK_QCOM
->> && ATMEL_ST && QCOM_GSBI && PHY_HI6220_USB) selects MFD_SYSCON which
->> has unmet direct dependencies (HAS_IOMEM)
->> ?
->> (ARCH=um, allyesconfig)
+>> I found that this patch is not correct because interrupt is re-enabled
+>> after this hardirq handler finished without clearing Alarm Flag or
+>> Alarm Interrupt Enable in RTC register.
+>>
+>> Maybe we should drop IRQF_SHARED flag.
 >
-> The problem is that Kconfig will just print any option that
-> selects the one that has a missing dependency, but doesn't
-> show which of those are actually enabled.
+> I think the best is to completely reworke the irq handling. It dates
+> from many many year ago and can be replace by a simple threaded irq.
+> This will solve your issue.
 
-Indeed... but apparently putting direct HAS_IOMEM dependency on these
-symbols silences the Kconfig warning.
+I tried converting to threaded irq.  But it needs to deal with suspend
+resume paths. (i.e. the following comment in ds3232_irq)
 
->> Adding depends here (and in other places) really helps... but it
->> should not have any impact...
->
-> I think patch 5 by itself would have been sufficient.
+        /*
+         * If rtc as a wakeup source, can't schedule the work
+         * at system resume flow, because at this time the i2c bus
+         * has not been resumed.
+         */
 
-Thanks for analysis. Since all patches are independent (and IMHO the
-last one is not needed really) so I won't resend the patchset. Instead
-let maintainer pick what is meaningful.
-
-Best regards,
-Krzysztof
+Unfortunately, I don't have the computer that can use RTC on i2c-bus
+as wake up source.  So I think dropping IRQF_SHARED is safe for now.
 
 -- 
 -- 
