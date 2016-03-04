@@ -1,25 +1,30 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBDF2TS3QKGQECWAXJ6Q@googlegroups.com>
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id h187si572464wme.0.2016.03.14.13.20.28
-        for <rtc-linux@googlegroups.com>;
-        Mon, 14 Mar 2016 13:20:28 -0700 (PDT)
-Date: Mon, 14 Mar 2016 21:19:58 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Javier Martinez Canillas <javier@osg.samsung.com>
-Cc: Joe Perches <joe@perches.com>, linux-kernel@vger.kernel.org,
-	linux-samsung-soc@vger.kernel.org,
-	Krzysztof Kozlowski <k.kozlowski@samsung.com>,
-	rtc-linux@googlegroups.com
-Subject: [rtc-linux] Re: [PATCH] rtc: s3c: Don't print an error on probe deferral
-Message-ID: <20160314201958.GB28277@piout.net>
-References: <1457982308-29848-1-git-send-email-javier@osg.samsung.com>
- <1457982675.11972.119.camel@perches.com>
- <56E7119B.9060900@osg.samsung.com>
- <1457984317.11972.123.camel@perches.com>
- <56E71825.5070104@osg.samsung.com>
+Return-Path: <rtc-linux+bncBDU7VC56WAFBB5WN463AKGQEX7Y4OJA@googlegroups.com>
+Received: from bues.ch (bues.ch. [2a01:138:9005::1:4])
+        by gmr-mx.google.com with ESMTPS id v68si18741wmd.1.2016.03.04.11.50.14
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=AES128-SHA bits=128/128);
+        Fri, 04 Mar 2016 11:50:14 -0800 (PST)
+Date: Fri, 4 Mar 2016 20:49:54 +0100
+From: Michael =?UTF-8?B?QsO8c2No?= <m@bues.ch>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: Gregory Hermant <gregory.hermant@calao-systems.com>,
+ rtc-linux@googlegroups.com
+Subject: [rtc-linux] Re: [PATCH 6/6] rtc-rv3029: Add device tree property for
+ trickle charger
+Message-ID: <20160304204954.29a47f88@wiggum>
+In-Reply-To: <20160304194336.GC2970@piout.net>
+References: <20160301213322.661fe771@wiggum>
+ <20160301213655.GG23985@piout.net>
+ <20160301225401.3f0aeabb@wiggum>
+ <20160301230745.GJ23985@piout.net>
+ <20160302072627.14e53e94@wiggum>
+ <20160302120045.GO23985@piout.net>
+ <20160304195337.51439645@wiggum>
+ <20160304195654.578b8f6c@wiggum>
+ <20160304194336.GC2970@piout.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <56E71825.5070104@osg.samsung.com>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ boundary="Sig_/1/9_U0xrWjOu7PS2_+RoXAG"; protocol="application/pgp-signature"
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -30,97 +35,78 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 14/03/2016 at 16:59:33 -0300, Javier Martinez Canillas wrote :
-> Hello Joe,
-> 
-> On 03/14/2016 04:38 PM, Joe Perches wrote:
-> > On Mon, 2016-03-14 at 16:31 -0300, Javier Martinez Canillas wrote:
-> >> On 03/14/2016 04:11 PM, Joe Perches wrote:> > On Mon, 2016-03-14 at 16:05 -0300, Javier Martinez Canillas wrote:
-> >>>>
-> >>>> The clock and source clock looked up by the driver may not be available
-> >>>> just because the clock controller driver was not probed yet so printing
-> >>>> an error in this case is not correct and only adds confusion to users.
-> >>>>
-> >>>> However, knowing that a driver's probe was deferred may be useful so it
-> >>>> can be printed as debug information.
-> >>> []
-> >>>>
-> >>>> diff --git a/drivers/rtc/rtc-s3c.c b/drivers/rtc/rtc-s3c.c
-> >>> []
-> >>>>
-> >>>> @@ -501,18 +501,27 @@ static int s3c_rtc_probe(struct platform_device *pdev)
-> >>>>  
-> >>>>  	info->rtc_clk = devm_clk_get(&pdev->dev, "rtc");
-> >>>>  	if (IS_ERR(info->rtc_clk)) {
-> >>>> -		dev_err(&pdev->dev, "failed to find rtc clock\n");
-> >>>> -		return PTR_ERR(info->rtc_clk);
-> >>>> +		ret = PTR_ERR(info->rtc_clk);
-> >>>> +		if (ret != -EPROBE_DEFER)
-> >>>> +			dev_err(&pdev->dev, "failed to find rtc clock\n");
-> >>>> +		else
-> >>>> +			dev_dbg(&pdev->dev, "probe deferred due rtc clock\n");
-> >>>> +		return ret;
-> >>>>  	}
-> >>>>  	clk_prepare_enable(info->rtc_clk);
-> >>>>  
-> >>>>  	if (info->data->needs_src_clk) {
-> >>>>  		info->rtc_src_clk = devm_clk_get(&pdev->dev, "rtc_src");
-> >>>>  		if (IS_ERR(info->rtc_src_clk)) {
-> >>>> -			dev_err(&pdev->dev,
-> >>>> -				"failed to find rtc source clock\n");
-> >>>> +			ret = PTR_ERR(info->rtc_src_clk);
-> >>>> +			if (ret != -EPROBE_DEFER)
-> >>>> +				dev_err(&pdev->dev,
-> >>>> +					"failed to find rtc source clock\n");
-> >>>> +			else
-> >>>> +				dev_dbg(&pdev->dev,
-> >>>> +					"probe deferred due rtc source clock\n");
-> >>>>  			clk_disable_unprepare(info->rtc_clk);
-> >>>> -			return PTR_ERR(info->rtc_src_clk);
-> >>>> +			return ret;
-> >>>>  		}
-> >>>>  		clk_prepare_enable(info->rtc_src_clk);
-> >>>>  	}
-> >>> Maybe the debug logging messages could be object->action like:
-> >>>
-> >>> 	rtc clock probe deferred
-> >>> 	rtc source clock probe deferred
-> >>>
-> >> I found your suggested messages harder to read and more confusing. The
-> >> action that happens is a probe function deferral and that is caused by
-> >> a missing resource needed by the driver (clocks in this case).
-> >>
-> >> But your messages seems to imply that the probe deferred action happens
-> >> to a clock, it sounds like "rtc clock disabled" and that's not correct.
-> > 
-> > OK, then please change "due" to "due to" or "for" in your messages
-> > because they make little sense now.
-> >
-> 
-> I don't think they make little sense now since even a non-native english
-> speaker like me can understand it :)
-> 
-> But yes, it's cryptic at the very least. That's the problem with long text
-> and the 80 char limit to make checkpatch.pl happy. I guess I can just move
-> the message a little bit even if that will make to not be properly aligned.
-> 
+--Sig_/1/9_U0xrWjOu7PS2_+RoXAG
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 
-checkpatch will not complain for messages but it will definitively
-complain if they are not properly aligned:)
+On Fri, 4 Mar 2016 20:43:37 +0100
+Alexandre Belloni <alexandre.belloni@free-electrons.com> wrote:
+
+> On 04/03/2016 at 19:56:54 +0100, Michael B=C3=BCsch wrote :
+> > +	err =3D of_property_read_u32(of_node, "trickle-resistor-ohms", &ohms)=
+;
+> > +	if (err) {
+> > +		/* Disable trickle charger. */
+> > +		eectrl &=3D ~RV3029_TRICKLE_MASK;
+> > +	} else {
+> > +		/* Enable trickle charger. */
+> > +		for (i =3D 0; i < ARRAY_SIZE(rv3029_trickle_tab); i++) {
+> > +			elem =3D &rv3029_trickle_tab[i];
+> > +			if (elem->r >=3D ohms)
+> > +				break;
+> > +		}
+> > +		eectrl &=3D ~RV3029_TRICKLE_MASK;
+> > +		eectrl |=3D elem->conf;
+> > +		dev_info(&client->dev,
+> > +			 "Trickle charger enabled at %d ohms resistance.\n",
+> > +			 elem->r);
+> > +	} =20
+>=20
+> Now the you have an update_bits functions, you probably want to use it
+> here. This simplifies the function.
 
 
--- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+No. This operates on the eeprom. The update_bits function operates on
+bare registers.
+If we have more mask/set operations on the eeprom later, we can add an
+update_bits function for the eeprom, too.
 
--- 
--- 
+--=20
+Michael
+
+--=20
+--=20
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+---=20
+You received this message because you are subscribed to the Google Groups "=
+rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an e=
+mail to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
+
+--Sig_/1/9_U0xrWjOu7PS2_+RoXAG
+Content-Type: application/pgp-signature
+Content-Description: OpenPGP digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQIcBAEBCAAGBQJW2ebiAAoJEPUyvh2QjYsOuOgP/0IAVbYnCPHOq+j4huO8urpm
+9tk6N5L4DvXkd5NOrxXr3Vbd9+yqe3mkbi9TRrtsHvsVu45CAoWuMjdB82bckn8a
+ADEnRuLoWlyLp93kkqWzkNGYfSEpPxEvrTf4CLaxo/eW6HGTASnx0Qa5lEG+cTov
+/EWkhYavcZWdbCiwPwCa6bE8o3tWTlxb5swO0BrnAIJpNhEPH24ugXIozWujgokE
+aseRGR32SbUPIzsZKvJ1WWMe5jG2G+VAx1k0Tr4lPDpEabnEkWfN0CkFGTWwAOPj
+uE/uk2iM2RcnQhh6q2WiJ6sOY05Fl/5tWf3u058CDlaaazh/6IhGHjVLGP/eeRrJ
+jW7KO3CPlt/4o5m3gxeEesr5V5g/Se2VgCLE5OBZG2yI3Px4EDyTbWQEgMy1GuFi
+nt6LMvJpZWkD/rOUiKQI91uMJYIjpnWDMELMv5uzLczjIRi75+pDsepgAS5uNbut
+HPFjt9/0O2jbMAMJ/PLnm8SGBSvglPP/ff+ulsEbztsaCoLrvInYP/QAl3qTdYzr
+1ECuTOtYptwsN1NIerhO/JohWI3BRm6S5IsNvenCzticYI5ZasdrqXhsOMCZ2VTC
+4L/4atwleOVf7bSdCb8ejnn11dTzTnB1kEDgqJuYiwl6ruqSmoR6/llXyXafn8F9
+HmWq0AN9dS2dvmrSxi3N
+=srlH
+-----END PGP SIGNATURE-----
+
+--Sig_/1/9_U0xrWjOu7PS2_+RoXAG--
