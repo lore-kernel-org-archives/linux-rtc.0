@@ -1,29 +1,28 @@
-Return-Path: <rtc-linux+bncBDU7VC56WAFBBP6M463AKGQE42FDOTQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBDU7VC56WAFBBP4D5C3AKGQEXIG4EAI@googlegroups.com>
 Received: from bues.ch (bues.ch. [2a01:138:9005::1:4])
-        by gmr-mx.google.com with ESMTPS id w128si18694wmd.0.2016.03.04.11.47.11
+        by gmr-mx.google.com with ESMTPS id c140si39566wmh.1.2016.03.04.13.44.31
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=AES128-SHA bits=128/128);
-        Fri, 04 Mar 2016 11:47:11 -0800 (PST)
-Date: Fri, 4 Mar 2016 20:46:59 +0100
+        Fri, 04 Mar 2016 13:44:31 -0800 (PST)
+Date: Fri, 4 Mar 2016 22:39:17 +0100
 From: Michael =?UTF-8?B?QsO8c2No?= <m@bues.ch>
 To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
 Cc: Gregory Hermant <gregory.hermant@calao-systems.com>,
  rtc-linux@googlegroups.com
-Subject: [rtc-linux] Re: [PATCH 4/6] rtc-rv3029: Add i2c register update-bits helper
-Message-ID: <20160304204659.0a39f42b@wiggum>
-In-Reply-To: <20160304194223.GB2970@piout.net>
+Subject: [rtc-linux] [PATCH v3 2/6] rtc-rv3029: Add "rv3029" I2C device id
+Message-ID: <20160304223917.2448f2fe@wiggum>
+In-Reply-To: <20160304195511.6f67ef09@wiggum>
 References: <20160301213322.661fe771@wiggum>
- <20160301213655.GG23985@piout.net>
- <20160301225401.3f0aeabb@wiggum>
- <20160301230745.GJ23985@piout.net>
- <20160302072627.14e53e94@wiggum>
- <20160302120045.GO23985@piout.net>
- <20160304195337.51439645@wiggum>
- <20160304195611.48d5177b@wiggum>
- <20160304194223.GB2970@piout.net>
+	<20160301213655.GG23985@piout.net>
+	<20160301225401.3f0aeabb@wiggum>
+	<20160301230745.GJ23985@piout.net>
+	<20160302072627.14e53e94@wiggum>
+	<20160302120045.GO23985@piout.net>
+	<20160304195337.51439645@wiggum>
+	<20160304195511.6f67ef09@wiggum>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
- boundary="Sig_/CflmfS+.csZZZdxl_BPGCCQ"; protocol="application/pgp-signature"
+ boundary="Sig_/1UJy8G_iSB8g07LxBhlLAah"; protocol="application/pgp-signature"
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -34,32 +33,31 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
---Sig_/CflmfS+.csZZZdxl_BPGCCQ
+--Sig_/1UJy8G_iSB8g07LxBhlLAah
 Content-Type: text/plain; charset=UTF-8
 
-On Fri, 4 Mar 2016 20:42:23 +0100
-Alexandre Belloni <alexandre.belloni@free-electrons.com> wrote:
+The C2 suffix does not appear in the latest datasheet, so add
+a device ID without it.
 
-> > +	buf &= mask;
-> > +	buf |= set;  
-> 
-> Well, this is not exactly what is expected from an update_bits function,
-> it should be:
-> 
-> 	buf &= ~mask;
-> 	buf |= set & mask;
-> 
-> What you pass to the function is the mask of bits you want to set.
+Signed-off-by: Michael Buesch <m@bues.ch>
+---
+ drivers/rtc/rtc-rv3029c2.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-Meh, ok. Everybody does seem to feel differently on that issue.
-I did it exactly like this with ~mask in the b43 driver and received a
-lot of bashing for it. :)
-
-But well, to me either way is fine. So I'll change this to do it with
-~mask too.
-
+diff --git a/drivers/rtc/rtc-rv3029c2.c b/drivers/rtc/rtc-rv3029c2.c
+index 3083ace..fc0dbc4 100644
+--- a/drivers/rtc/rtc-rv3029c2.c
++++ b/drivers/rtc/rtc-rv3029c2.c
+@@ -381,6 +381,7 @@ static const struct rtc_class_ops rv3029_rtc_ops = {
+ };
+ 
+ static struct i2c_device_id rv3029_id[] = {
++	{ "rv3029", 0 },
+ 	{ "rv3029c2", 0 },
+ 	{ }
+ };
 -- 
-Michael
+2.7.0
 
 -- 
 -- 
@@ -72,26 +70,26 @@ You received this message because you are subscribed to the Google Groups "rtc-l
 To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
 
---Sig_/CflmfS+.csZZZdxl_BPGCCQ
+--Sig_/1UJy8G_iSB8g07LxBhlLAah
 Content-Type: application/pgp-signature
 Content-Description: OpenPGP digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2
 
-iQIcBAEBCAAGBQJW2eYzAAoJEPUyvh2QjYsO8hkQAKpYZQFw0sFobbCdWtOsYWD0
-Pv3/zvidmaiN0qJq7LEb0+l/Ci5sE5xw2EJ/yEZA7+0wpZqFDCM+/FC42R3m89Zb
-Rzt0fZAz3ZwC5WYKjvJw7zOZ3ecWKeDofH1CCh5+RyitVyPHZQG4E7Y4Xzf2Blj9
-zBJPS2BXZHNS6C8gAtMwRQYirU5hBykdwBQA4AzbKglN3bJ6Cpk3axYvjVHIsucb
-WMUf61QJYGZGjDpqwPyidj4K4YQ0MlgUog1sdlbFiJgiHDN9sbgs620kq3lYawFr
-R2k+433owfbz86OPOY1pWVR5Wp811/3USIEvOCCxBYcTO2/eaPQRpMpoAa/LKffD
-HeVJextGn24EPVk2X5r5feN0g0xn7U0BEvyQnab0EtIjV1nGvrEZetz6oVUZrkhx
-MtJLnJEhciVu9sgMNjQXAu+vLiq/pIE3rPGppcq2Y9xt2t4Qkhp2Gqn+0QxkGuuC
-MGgx2WA2J+o2FYXAeslWWlxpRQRPo9XZGCsGNk7BV/FIUT3ylsCpG7vcFHZTlfeG
-k9DzNJWIUonNtfcmsj1XPvnfD3rILTWlHDefwZallV3heEHd26Ls0fplN0zozIme
-1U8Nqn9PMzv3pA4+ZZ0H/4TOQNnLOHjJ4PTwwtOIZt3kD7asWHM7V1cD1zqVQDl1
-eVSTZ587pVdpKVIgcMOE
-=wNn0
+iQIcBAEBCAAGBQJW2gCFAAoJEPUyvh2QjYsOiLMP/20L0Bz6LOKxOSpy/v+n/pSf
+FVBevH18i5pzQ6t7Ofhe4f8R7HtnjDD4xILWkBvgAZfpYAUAyTzMjEAklAyxFbYb
+au6zfwtFs7dgn79ipozEMHjZ0NpkW2lD/lAQYFSi/4gT0RYsD7fnremPoqPYbhxA
++Vv9i/xNvlbGVkRQbyBPu9cNncL/wTdURs9Dlo5a0r7jCfiEqqmLC5o2TWNhIkAo
+4LvabLW7NfOqvkHISJOgMNUipdGImzYj71EZl0CEaF1GM89xKC+tFOCU/iyLsHT0
+xtEM7+OF4URVKhogFaK/cEuc3wGkjVMejtNtRJzk+DkZ/6UX/9E5P+f/1BT1Dwkm
+kK1KoozDgCiVN1GEL0xJhZXUQ/eCBBrgFxbfyZz0fR7QX/keXd3Bqs2qjOOVUpAf
+jYMv0UgUYvf7/BxiLMMAUCPx7tvpNA1mwk6WOb/XMm+T6SWbcVWF4vkfMtiWZKQu
+8Gag2dkG/8fnrb4b6OuPQGuUZ7pa76mnJHOb8sjAadaqFCCXA/qX+rATaOwvsEqU
+IQuBrrMgr4YinPa96L0shmxc2PktYKGZ8PBMD3FiqP9l5hIxknbjElOv10AW3+HT
+dyYKhQdP/gUIg8cxSaAi1OWze75cIrJksP03erxRqz+Yc9QVr1YgjvxxMeiRLWgC
+QO0QlK0efDC8H1QnEmTk
+=LicN
 -----END PGP SIGNATURE-----
 
---Sig_/CflmfS+.csZZZdxl_BPGCCQ--
+--Sig_/1UJy8G_iSB8g07LxBhlLAah--
