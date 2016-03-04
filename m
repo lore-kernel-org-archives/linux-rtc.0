@@ -1,29 +1,25 @@
-Return-Path: <rtc-linux+bncBDKZNNNLXAHBB6WD3G3AKGQEGUQPXDA@googlegroups.com>
-Received: from mailout2.w1.samsung.com (mailout2.w1.samsung.com. [210.118.77.12])
-        by gmr-mx.google.com with ESMTPS id y20si2909786pfa.2.2016.03.01.19.46.01
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1 cipher=AES128-SHA bits=128/128);
-        Tue, 01 Mar 2016 19:46:02 -0800 (PST)
-Received: from eucpsbgm1.samsung.com (unknown [203.254.199.244])
- by mailout2.w1.samsung.com
- (Oracle Communications Messaging Server 7.0.5.31.0 64bit (built May  5 2014))
- with ESMTP id <0O3E003LY7SLYE80@mailout2.w1.samsung.com> for
- rtc-linux@googlegroups.com; Wed, 02 Mar 2016 03:45:57 +0000 (GMT)
-Subject: [rtc-linux] Re: [PATCH 2/2] rtc: max77686: Use REGMAP_IRQ_REG for
- regmap-rtc-irqs initialisation
-To: Laxman Dewangan <ldewangan@nvidia.com>,
- alexandre.belloni@free-electrons.com, a.zummo@towertech.it
-References: <1456750705-13579-1-git-send-email-ldewangan@nvidia.com>
- <1456750705-13579-2-git-send-email-ldewangan@nvidia.com>
- <56D63B28.9030502@samsung.com> <56D64A25.5050700@nvidia.com>
-Cc: cw00.choi@samsung.com, rtc-linux@googlegroups.com,
- linux-kernel@vger.kernel.org, javier@osg.samsung.com, rklein@nvidia.com
-From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-Message-id: <56D661F0.9080805@samsung.com>
-Date: Wed, 02 Mar 2016 12:45:52 +0900
-MIME-version: 1.0
-In-reply-to: <56D64A25.5050700@nvidia.com>
-Content-type: text/plain; charset=UTF-8
+Return-Path: <rtc-linux+bncBDS7HNEFSALRB6OI463AKGQEN3WGK5I@googlegroups.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id 71si152843wmp.0.2016.03.04.11.39.37
+        for <rtc-linux@googlegroups.com>;
+        Fri, 04 Mar 2016 11:39:37 -0800 (PST)
+Date: Fri, 4 Mar 2016 20:39:36 +0100
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Michael =?iso-8859-1?Q?B=FCsch?= <m@bues.ch>
+Cc: Gregory Hermant <gregory.hermant@calao-systems.com>,
+	rtc-linux@googlegroups.com
+Subject: [rtc-linux] Re: [PATCH 0/6] rtc-rv3029: Add trickle charger
+Message-ID: <20160304193936.GA2970@piout.net>
+References: <20160301213322.661fe771@wiggum>
+ <20160301213655.GG23985@piout.net>
+ <20160301225401.3f0aeabb@wiggum>
+ <20160301230745.GJ23985@piout.net>
+ <20160302072627.14e53e94@wiggum>
+ <20160302120045.GO23985@piout.net>
+ <20160304200256.2d56c790@wiggum>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <20160304200256.2d56c790@wiggum>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -34,35 +30,34 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 02.03.2016 11:04, Laxman Dewangan wrote:
-> 
-> On Wednesday 02 March 2016 06:30 AM, Krzysztof Kozlowski wrote:
->> On 29.02.2016 21:58, Laxman Dewangan wrote:
->>> use macro REGMAP_IRQ_REG from regmap.h to initialise the
->>> regmap irq table for max77686.
->> Why? Any benefits?
->>
->>
-> I think it is better coding to use macro for member initializations
-> instead of doing it locally and it improves readability.
-> 
-> I got the similar comment from Lee's in my MFD patches to use macro for
-> such initialization and I agreed with him.
-> 
-> As I was here on this driver, thought to use macro.
+On 04/03/2016 at 20:02:56 +0100, Michael B=C3=BCsch wrote :
+> This series eventually adds support for the trickle charger mechanism
+> to the MicroCrystal rv3029 RTC driver.
+>=20
+> This series includes the changes from the first review round.
+> The tricke charger functionality was verified on a rv3029 connected to
+> a RaspberryPi. The resistance between VCC and the battery pin was
+> measured for some 'trickle-resistor-ohms' settings.
+>=20
+> The series is also available in this git repository:
+>=20
 
-Sounds good, so this should be written in commit message.
+This is mostly good. I still have two small comments.
 
-BR,
-Krzysztof
+--=20
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
--- 
--- 
+--=20
+--=20
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+---=20
+You received this message because you are subscribed to the Google Groups "=
+rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an e=
+mail to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
