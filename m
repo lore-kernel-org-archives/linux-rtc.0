@@ -1,44 +1,30 @@
-Return-Path: <rtc-linux+bncBDKZNNNLXAHBB4XA363AKGQEHENMV6Y@googlegroups.com>
+Return-Path: <rtc-linux+bncBC433LF43MBBBJ6A5W3AKGQEFMRDU7Q@googlegroups.com>
 MIME-Version: 1.0
-Received: from mailout2.w1.samsung.com (mailout2.w1.samsung.com. [210.118.77.12])
-        by gmr-mx.google.com with ESMTPS id ff2si6296754pad.2.2016.03.03.00.06.10
+Received: from outils.crapouillou.net (rev33.vpn.fdn.fr. [80.67.179.33])
+        by gmr-mx.google.com with ESMTPS id v68si146852wmd.1.2016.03.05.14.39.35
         for <rtc-linux@googlegroups.com>
-        (version=TLS1 cipher=AES128-SHA bits=128/128);
-        Thu, 03 Mar 2016 00:06:10 -0800 (PST)
-Received: from eucpsbgm1.samsung.com (unknown [203.254.199.244])
- by mailout2.w1.samsung.com
- (Oracle Communications Messaging Server 7.0.5.31.0 64bit (built May  5 2014))
- with ESMTP id <0O3G005K0EI73T90@mailout2.w1.samsung.com> for
- rtc-linux@googlegroups.com; Thu, 03 Mar 2016 08:06:07 +0000 (GMT)
-From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-To: Daniel Lezcano <daniel.lezcano@linaro.org>,
- Thomas Gleixner <tglx@linutronix.de>, Dan Williams <dan.j.williams@intel.com>,
- Vinod Koul <vinod.koul@intel.com>, Jason Cooper <jason@lakedaemon.net>,
- Marc Zyngier <marc.zyngier@arm.com>,
- Mauro Carvalho Chehab <mchehab@osg.samsung.com>,
- Lee Jones <lee.jones@linaro.org>, Giuseppe Cavallaro <peppe.cavallaro@st.com>,
- Kishon Vijay Abraham I <kishon@ti.com>,
- Linus Walleij <linus.walleij@linaro.org>, Sebastian Reichel <sre@kernel.org>,
- Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>,
- David Woodhouse <dwmw2@infradead.org>,
- Alessandro Zummo <a.zummo@towertech.it>,
- Alexandre Belloni <alexandre.belloni@free-electrons.com>,
- Andy Gross <andy.gross@linaro.org>, David Brown <david.brown@linaro.org>,
- Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
- Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-kernel@vger.kernel.org,
- dmaengine@vger.kernel.org, linux-media@vger.kernel.org,
- linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org,
- netdev@vger.kernel.org, linux-gpio@vger.kernel.org, linux-pm@vger.kernel.org,
- rtc-linux@googlegroups.com, linux-arm-msm@vger.kernel.org,
- linux-soc@vger.kernel.org, devel@driverdev.osuosl.org,
- linux-usb@vger.kernel.org
-Cc: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-Subject: [rtc-linux] [RFC 14/15] usb: xhci: mtk: Add missing MFD_SYSCON
- dependency on HAS_IOMEM
-Date: Thu, 03 Mar 2016 17:03:40 +0900
-Message-id: <1456992221-26712-15-git-send-email-k.kozlowski@samsung.com>
-In-reply-to: <1456992221-26712-1-git-send-email-k.kozlowski@samsung.com>
-References: <1456992221-26712-1-git-send-email-k.kozlowski@samsung.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Sat, 05 Mar 2016 14:39:35 -0800 (PST)
+From: Paul Cercueil <paul@crapouillou.net>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: Rob Herring <robh+dt@kernel.org>,
+	Pawel Moll <pawel.moll@arm.com>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Ian Campbell <ijc+devicetree@hellion.org.uk>,
+	Kumar Gala <galak@codeaurora.org>,
+	Ralf Baechle <ralf@linux-mips.org>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Paul Cercueil <paul@crapouillou.net>,
+	Paul Burton <paul.burton@imgtec.com>,
+	devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	linux-mips@linux-mips.org,
+	rtc-linux@googlegroups.com
+Subject: [rtc-linux] [PATCH 3/5] rtc: rtc-jz4740: Add support for devicetree
+Date: Sat,  5 Mar 2016 23:38:49 +0100
+Message-Id: <1457217531-26064-3-git-send-email-paul@crapouillou.net>
+In-Reply-To: <1457217531-26064-1-git-send-email-paul@crapouillou.net>
+References: <1457217531-26064-1-git-send-email-paul@crapouillou.net>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -50,28 +36,66 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-The MFD_SYSCON depends on HAS_IOMEM so when selecting it avoid unmet
-direct dependencies.
-
-Signed-off-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+Signed-off-by: Paul Cercueil <paul@crapouillou.net>
 ---
- drivers/usb/host/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/rtc/rtc-jz4740.c | 16 +++++++++++++++-
+ 1 file changed, 15 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/usb/host/Kconfig b/drivers/usb/host/Kconfig
-index 8c20ebbc049c..f759a778d606 100644
---- a/drivers/usb/host/Kconfig
-+++ b/drivers/usb/host/Kconfig
-@@ -45,6 +45,7 @@ config USB_XHCI_PLATFORM
+diff --git a/drivers/rtc/rtc-jz4740.c b/drivers/rtc/rtc-jz4740.c
+index 47617bd..3914b1c 100644
+--- a/drivers/rtc/rtc-jz4740.c
++++ b/drivers/rtc/rtc-jz4740.c
+@@ -17,6 +17,7 @@
+ #include <linux/io.h>
+ #include <linux/kernel.h>
+ #include <linux/module.h>
++#include <linux/of_device.h>
+ #include <linux/platform_device.h>
+ #include <linux/rtc.h>
+ #include <linux/slab.h>
+@@ -245,6 +246,13 @@ void jz4740_rtc_poweroff(struct device *dev)
+ }
+ EXPORT_SYMBOL_GPL(jz4740_rtc_poweroff);
  
- config USB_XHCI_MTK
- 	tristate "xHCI support for Mediatek MT65xx"
-+	depends on HAS_IOMEM	# For MFD_SYSCON
- 	select MFD_SYSCON
- 	depends on ARCH_MEDIATEK || COMPILE_TEST
- 	---help---
++static const struct of_device_id jz4740_rtc_of_match[] = {
++	{ .compatible = "ingenic,jz4740-rtc", .data = (void *) ID_JZ4740 },
++	{ .compatible = "ingenic,jz4780-rtc", .data = (void *) ID_JZ4780 },
++	{},
++};
++MODULE_DEVICE_TABLE(of, jz4740_rtc_of_match);
++
+ static int jz4740_rtc_probe(struct platform_device *pdev)
+ {
+ 	int ret;
+@@ -252,12 +260,17 @@ static int jz4740_rtc_probe(struct platform_device *pdev)
+ 	uint32_t scratchpad;
+ 	struct resource *mem;
+ 	const struct platform_device_id *id = platform_get_device_id(pdev);
++	const struct of_device_id *of_id = of_match_device(
++			jz4740_rtc_of_match, &pdev->dev);
+ 
+ 	rtc = devm_kzalloc(&pdev->dev, sizeof(*rtc), GFP_KERNEL);
+ 	if (!rtc)
+ 		return -ENOMEM;
+ 
+-	rtc->type = id->driver_data;
++	if (of_id)
++		rtc->type = (enum jz4740_rtc_type) of_id->data;
++	else
++		rtc->type = id->driver_data;
+ 
+ 	rtc->irq = platform_get_irq(pdev, 0);
+ 	if (rtc->irq < 0) {
+@@ -345,6 +358,7 @@ static struct platform_driver jz4740_rtc_driver = {
+ 	.driver	 = {
+ 		.name  = "jz4740-rtc",
+ 		.pm    = JZ4740_RTC_PM_OPS,
++		.of_match_table = of_match_ptr(jz4740_rtc_of_match),
+ 	},
+ 	.id_table = jz4740_rtc_ids,
+ };
 -- 
-2.5.0
+2.7.0
 
 -- 
 -- 
