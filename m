@@ -1,20 +1,31 @@
-Return-Path: <rtc-linux+bncBCQ6FHMJVICRBWU4TW3QKGQELEPASCI@googlegroups.com>
-Received: from ozlabs.org (ozlabs.org. [2401:3900:2:1::2])
-        by gmr-mx.google.com with ESMTPS id sf5si3680425pac.1.2016.03.14.16.50.49
+Return-Path: <rtc-linux+bncBC6MFNV32EFRBB566C3AKGQEJ76J5AI@googlegroups.com>
+Received: from mail-lb0-x230.google.com (mail-lb0-x230.google.com. [2a00:1450:4010:c04::230])
+        by gmr-mx.google.com with ESMTPS id rx10si341720lbb.0.2016.03.06.04.13.58
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 14 Mar 2016 16:50:49 -0700 (PDT)
-Date: Tue, 15 Mar 2016 10:50:45 +1100
-From: Stephen Rothwell <sfr@canb.auug.org.au>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>,
- rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org
-Subject: [rtc-linux] Re: [GIT PULL] RTC for 4.6
-Message-ID: <20160315105045.3c71952a@canb.auug.org.au>
-In-Reply-To: <20160314164549.GA20174@piout.net>
-References: <20160314164549.GA20174@piout.net>
+        Sun, 06 Mar 2016 04:13:58 -0800 (PST)
+Received: by mail-lb0-x230.google.com with SMTP id x1so103761377lbj.3
+        for <rtc-linux@googlegroups.com>; Sun, 06 Mar 2016 04:13:58 -0800 (PST)
+Subject: [rtc-linux] Re: [PATCH 2/5] Documentation: dt: Add binding info for
+ jz4740-rtc driver
+To: Paul Cercueil <paul@crapouillou.net>,
+ Alexandre Belloni <alexandre.belloni@free-electrons.com>
+References: <1457217531-26064-1-git-send-email-paul@crapouillou.net>
+ <1457217531-26064-2-git-send-email-paul@crapouillou.net>
+Cc: Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>,
+ Mark Rutland <mark.rutland@arm.com>,
+ Ian Campbell <ijc+devicetree@hellion.org.uk>,
+ Kumar Gala <galak@codeaurora.org>, Ralf Baechle <ralf@linux-mips.org>,
+ Alessandro Zummo <a.zummo@towertech.it>, Paul Burton
+ <paul.burton@imgtec.com>, devicetree@vger.kernel.org,
+ linux-kernel@vger.kernel.org, linux-mips@linux-mips.org,
+ rtc-linux@googlegroups.com
+From: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Message-ID: <56DC1F04.7050907@cogentembedded.com>
+Date: Sun, 6 Mar 2016 15:13:56 +0300
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1457217531-26064-2-git-send-email-paul@crapouillou.net>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -25,31 +36,38 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Hi Alexandre,
+Hello.
 
-On Mon, 14 Mar 2016 17:45:49 +0100 Alexandre Belloni <alexandre.belloni@free-electrons.com> wrote:
+On 3/6/2016 1:38 AM, Paul Cercueil wrote:
+
+> Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+> ---
+>   .../devicetree/bindings/rtc/ingenic,jz4740-rtc.txt | 38 ++++++++++++++++++++++
+>   1 file changed, 38 insertions(+)
+>   create mode 100644 Documentation/devicetree/bindings/rtc/ingenic,jz4740-rtc.txt
 >
-> Here is the pull-request for the RTC susbsystem for 4.6. It is based on
-> v4.5-rc1 as arm-soc, through samsung-soc, depends on an immutable tag:
-> rtc-max77686-4.6
-> 
-> The following changes since commit 92e963f50fc74041b5e9e744c330dca48e04f08d:
-> 
->   Linux 4.5-rc1 (2016-01-24 13:06:47 -0800)
-> 
-> are available in the git repository at:
-> 
->   git://git.kernel.org/pub/scm/linux/kernel/git/abelloni/linux.git tags/rtc-4.6
-> 
-> for you to fetch changes up to cee2cc21550648679d222cbe2637fcc6d0f730ef:
-> 
->   rtc: pcf2127: add pcf2129 device id (2016-03-14 17:08:41 +0100)
+> diff --git a/Documentation/devicetree/bindings/rtc/ingenic,jz4740-rtc.txt b/Documentation/devicetree/bindings/rtc/ingenic,jz4740-rtc.txt
+> new file mode 100644
+> index 0000000..71e4ad0
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/rtc/ingenic,jz4740-rtc.txt
+> @@ -0,0 +1,38 @@
+> +JZ4740 and similar SoCs real-time clock driver
+> +
+> +Required properties:
+> +
+> +- compatible: One of:
+> +  - "ingenic,jz4740-rtc" - for use with the JZ4740 SoC
+> +  - "ingenic,jz4780-rtc" - for use with the JZ4780 SoC
+> +- reg: Address range of rtc register set
+> +- interrupts: IRQ number for the alarm interrupt
+> +- interrupt-parent: phandle of the interrupt controller
 
-Partly rebased since yesterday - presumably to fix up some of the commit messages.
+    This is never a required property, it can be inherited from the parent node.
 
--- 
-Cheers,
-Stephen Rothwell
+[...]
+
+MBR, Sergei
 
 -- 
 -- 
