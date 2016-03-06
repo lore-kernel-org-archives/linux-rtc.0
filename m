@@ -1,28 +1,26 @@
-Return-Path: <rtc-linux+bncBDU7VC56WAFBBCVY463AKGQEES4YGQY@googlegroups.com>
-Received: from bues.ch (bues.ch. [2a01:138:9005::1:4])
-        by gmr-mx.google.com with ESMTPS id c140si17777wmh.1.2016.03.04.11.03.38
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=AES128-SHA bits=128/128);
-        Fri, 04 Mar 2016 11:03:38 -0800 (PST)
-Date: Fri, 4 Mar 2016 19:55:11 +0100
-From: Michael =?UTF-8?B?QsO8c2No?= <m@bues.ch>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Gregory Hermant <gregory.hermant@calao-systems.com>,
- rtc-linux@googlegroups.com
-Subject: [rtc-linux] [PATCH 2/6] rtc-rv3029: Add "rv3029" I2C device id
-Message-ID: <20160304195511.6f67ef09@wiggum>
-In-Reply-To: <20160304195337.51439645@wiggum>
-References: <20160301213322.661fe771@wiggum>
-	<20160301213655.GG23985@piout.net>
-	<20160301225401.3f0aeabb@wiggum>
-	<20160301230745.GJ23985@piout.net>
-	<20160302072627.14e53e94@wiggum>
-	<20160302120045.GO23985@piout.net>
-	<20160304195337.51439645@wiggum>
+Return-Path: <rtc-linux+bncBCPM5SUWUYIRBHMZ6G3AKGQEP7IZV6I@googlegroups.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
- boundary="Sig_/6GkMuN6nV_zlj8XYXkWji8="; protocol="application/pgp-signature"
+Received: from mail-pf0-x241.google.com (mail-pf0-x241.google.com. [2607:f8b0:400e:c00::241])
+        by gmr-mx.google.com with ESMTPS id yd9si2325216pab.1.2016.03.06.07.28.29
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Sun, 06 Mar 2016 07:28:29 -0800 (PST)
+Received: by mail-pf0-x241.google.com with SMTP id q129so6438124pfb.3
+        for <rtc-linux@googlegroups.com>; Sun, 06 Mar 2016 07:28:29 -0800 (PST)
+From: Akinobu Mita <akinobu.mita@gmail.com>
+To: rtc-linux@googlegroups.com
+Cc: Akinobu Mita <akinobu.mita@gmail.com>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Dennis Aberilla <denzzzhome@yahoo.com>
+Subject: [rtc-linux] [PATCH v4 7/7] rtc: ds3232: use rtc->ops_lock to protect
+ alarm operations
+Date: Mon,  7 Mar 2016 00:27:53 +0900
+Message-Id: <1457278073-11627-7-git-send-email-akinobu.mita@gmail.com>
+In-Reply-To: <1457278073-11627-1-git-send-email-akinobu.mita@gmail.com>
+References: <1457278073-11627-1-git-send-email-akinobu.mita@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -32,31 +30,130 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
---Sig_/6GkMuN6nV_zlj8XYXkWji8=
-Content-Type: text/plain; charset=UTF-8
+ds3232->mutex is used to protect for alarm operations which
+need to access status and control registers.
 
-The C2 suffix does not appear in the latest datasheet, so add
-a device ID without it.
+But we can use rtc->ops_lock instead.  rtc->ops_lock is held when most
+of rtc_class_ops methods are called, so we only need to explicitly
+acquire it from irq handler in order to protect form concurrent
+accesses.
 
-Signed-off-by: Michael Buesch <m@bues.ch>
+Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>
+Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: Dennis Aberilla <denzzzhome@yahoo.com>
 ---
- drivers/rtc/rtc-rv3029c2.c | 1 +
- 1 file changed, 1 insertion(+)
+* No changes from the previous version
 
-diff --git a/drivers/rtc/rtc-rv3029c2.c b/drivers/rtc/rtc-rv3029c2.c
-index 3083ace..fc0dbc4 100644
---- a/drivers/rtc/rtc-rv3029c2.c
-+++ b/drivers/rtc/rtc-rv3029c2.c
-@@ -381,6 +381,7 @@ static const struct rtc_class_ops rv3029_rtc_ops = {
+ drivers/rtc/rtc-ds3232.c | 25 ++++---------------------
+ 1 file changed, 4 insertions(+), 21 deletions(-)
+
+diff --git a/drivers/rtc/rtc-ds3232.c b/drivers/rtc/rtc-ds3232.c
+index dacced5..b99cbe4 100644
+--- a/drivers/rtc/rtc-ds3232.c
++++ b/drivers/rtc/rtc-ds3232.c
+@@ -52,11 +52,6 @@ struct ds3232 {
+ 	int irq;
+ 	struct rtc_device *rtc;
+ 
+-	/* The mutex protects alarm operations, and prevents a race
+-	 * between the enable_irq() in the workqueue and the free_irq()
+-	 * in the remove function.
+-	 */
+-	struct mutex mutex;
+ 	bool suspended;
  };
  
- static struct i2c_device_id rv3029_id[] = {
-+	{ "rv3029", 0 },
- 	{ "rv3029c2", 0 },
- 	{ }
- };
+@@ -187,8 +182,6 @@ static int ds3232_read_alarm(struct device *dev, struct rtc_wkalrm *alarm)
+ 	int ret;
+ 	u8 buf[4];
+ 
+-	mutex_lock(&ds3232->mutex);
+-
+ 	ret = regmap_read(ds3232->regmap, DS3232_REG_SR, &stat);
+ 	if (ret)
+ 		goto out;
+@@ -215,7 +208,6 @@ static int ds3232_read_alarm(struct device *dev, struct rtc_wkalrm *alarm)
+ 
+ 	ret = 0;
+ out:
+-	mutex_unlock(&ds3232->mutex);
+ 	return ret;
+ }
+ 
+@@ -233,8 +225,6 @@ static int ds3232_set_alarm(struct device *dev, struct rtc_wkalrm *alarm)
+ 	if (ds3232->irq <= 0)
+ 		return -EINVAL;
+ 
+-	mutex_lock(&ds3232->mutex);
+-
+ 	buf[0] = bin2bcd(alarm->time.tm_sec);
+ 	buf[1] = bin2bcd(alarm->time.tm_min);
+ 	buf[2] = bin2bcd(alarm->time.tm_hour);
+@@ -267,7 +257,6 @@ static int ds3232_set_alarm(struct device *dev, struct rtc_wkalrm *alarm)
+ 		ret = regmap_write(ds3232->regmap, DS3232_REG_CR, control);
+ 	}
+ out:
+-	mutex_unlock(&ds3232->mutex);
+ 	return ret;
+ }
+ 
+@@ -277,11 +266,9 @@ static int ds3232_update_alarm(struct device *dev, unsigned int enabled)
+ 	int control;
+ 	int ret;
+ 
+-	mutex_lock(&ds3232->mutex);
+-
+ 	ret = regmap_read(ds3232->regmap, DS3232_REG_CR, &control);
+ 	if (ret)
+-		goto unlock;
++		return ret;
+ 
+ 	if (enabled)
+ 		/* enable alarm1 interrupt */
+@@ -291,9 +278,6 @@ static int ds3232_update_alarm(struct device *dev, unsigned int enabled)
+ 		control &= ~(DS3232_REG_CR_A1IE);
+ 	ret = regmap_write(ds3232->regmap, DS3232_REG_CR, control);
+ 
+-unlock:
+-	mutex_unlock(&ds3232->mutex);
+-
+ 	return ret;
+ }
+ 
+@@ -311,10 +295,11 @@ static irqreturn_t ds3232_irq(int irq, void *dev_id)
+ {
+ 	struct device *dev = dev_id;
+ 	struct ds3232 *ds3232 = dev_get_drvdata(dev);
++	struct mutex *lock = &ds3232->rtc->ops_lock;
+ 	int ret;
+ 	int stat, control;
+ 
+-	mutex_lock(&ds3232->mutex);
++	mutex_lock(lock);
+ 
+ 	ret = regmap_read(ds3232->regmap, DS3232_REG_SR, &stat);
+ 	if (ret)
+@@ -352,7 +337,7 @@ static irqreturn_t ds3232_irq(int irq, void *dev_id)
+ 	}
+ 
+ unlock:
+-	mutex_unlock(&ds3232->mutex);
++	mutex_unlock(lock);
+ 
+ 	return IRQ_HANDLED;
+ }
+@@ -380,8 +365,6 @@ static int ds3232_probe(struct device *dev, struct regmap *regmap, int irq,
+ 	ds3232->dev = dev;
+ 	dev_set_drvdata(dev, ds3232);
+ 
+-	mutex_init(&ds3232->mutex);
+-
+ 	ret = ds3232_check_rtc_status(dev);
+ 	if (ret)
+ 		return ret;
 -- 
-2.7.0
+2.5.0
 
 -- 
 -- 
@@ -68,27 +165,3 @@ before submitting a driver.
 You received this message because you are subscribed to the Google Groups "rtc-linux" group.
 To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
-
---Sig_/6GkMuN6nV_zlj8XYXkWji8=
-Content-Type: application/pgp-signature
-Content-Description: OpenPGP digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
-
-iQIcBAEBCAAGBQJW2doPAAoJEPUyvh2QjYsO7MUP/2OVMpEQ5S/pnFdCGtPo2vtd
-IGcqlV2KP1onm+trEKM9+FPsY99iBYAcR1oQyIbGA+m+Om+1k0Bb5s36UdPZuSiH
-0CKfAI3yNrpbPlJVFYkBm6WJn1u5Jk6ac4owTgZe/eJwuK3lSA0lPNlcAGQXbObF
-ykKKGxLj+fFAJKQ08MQXmPA8HWoaefUyJtXBRzvhzzL9SHJdwkA0u1HwXgrHr9U/
-oAi1IYPCltPcKl4EvQ0CeMyS+NQ2lHp4ZwGgwwzLvrkYYd85wOFng/2hiLqMUr5E
-IYWyCHfk2pzxEf7Qc5gDV9v3jJuT370mOzmMCU+3/xY2Rc6R7AkXMAOkwn8vL6B1
-eY4TN41g+tBJ3pgx6DvA/mpuhEgVTlWbf25vdTC1Bqg0YBSL3LK1SBE5G9CMEgyF
-bmjhQa9TJpMhUDxaBcaugM9yhvljullw8eEFCf4bUDrBeyMXOmmhG1OqROPz6CAU
-9cEeD9ZM49IlGHt6QNKoG5g8HWIefUIcCh9i/7S6z195aLuJrwB5BUUT0Wks9EPZ
-QQLF/E61PRT2J8fQBIX9gYeZFvDDX1p9QXGleToJm8B6/IywbFrtjd3YgCtX1NLo
-TcjNNFlKcgcS4vfEsMdCm5Jcgvm9oLk0/HrT8XMlhsU5iQwxBkmnGPnuY7TKBogO
-hFX1u/bOwCEaR+2sT4AJ
-=y+g2
------END PGP SIGNATURE-----
-
---Sig_/6GkMuN6nV_zlj8XYXkWji8=--
