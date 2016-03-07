@@ -1,28 +1,22 @@
-Return-Path: <rtc-linux+bncBDEKVJM7XAHRBFUW263AKGQERACJ5KY@googlegroups.com>
+Return-Path: <rtc-linux+bncBCSJ7B6JQALRBR5Q623AKGQEJGU3AWQ@googlegroups.com>
 MIME-Version: 1.0
-Received: from mout.kundenserver.de (mout.kundenserver.de. [212.227.17.13])
-        by gmr-mx.google.com with ESMTPS id e130si4329wme.2.2016.03.01.09.02.14
+Received: from mx1.redhat.com (mx1.redhat.com. [209.132.183.28])
+        by gmr-mx.google.com with ESMTPS id i133si999195ywe.7.2016.03.07.07.03.35
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 01 Mar 2016 09:02:14 -0800 (PST)
-From: Arnd Bergmann <arnd@arndb.de>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: linux-arm-kernel@lists.infradead.org,
-	Kyle McMartin <kyle@mcmartin.ca>,
-	rtc-linux@googlegroups.com,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	linuxppc-dev@lists.ozlabs.org,
-	linux-sh@vger.kernel.org,
-	linux-parisc@vger.kernel.org,
-	linux-m68k@lists.linux-m68k.org,
-	Arnd Bergmann <arnd@arndb.de>,
-	linux-kernel@vger.kernel.org
-Subject: [rtc-linux] [PATCH 6/6] rtc: generic: remove get_rtc_time/set_rtc_time
- wrappers
-Date: Tue,  1 Mar 2016 18:00:02 +0100
-Message-Id: <1456851608-3374907-7-git-send-email-arnd@arndb.de>
-In-Reply-To: <1456851608-3374907-1-git-send-email-arnd@arndb.de>
-References: <1456851608-3374907-1-git-send-email-arnd@arndb.de>
+        Mon, 07 Mar 2016 07:03:35 -0800 (PST)
+From: Josh Poimboeuf <jpoimboe@redhat.com>
+To: Joshua Kinard <kumba@gentoo.org>, Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org,
+        kbuild test robot <fengguang.wu@intel.com>,
+        Ingo Molnar <mingo@kernel.org>
+Subject: [rtc-linux] [PATCH] rtc: ds1685: actually spin forever in poweroff
+ error path
+Date: Mon,  7 Mar 2016 09:03:02 -0600
+Message-Id: <25c2e99dc116c666a05e641082a2690c05c09a23.1457362965.git.jpoimboe@redhat.com>
+In-Reply-To: <201603060005.PHCyifJr%fengguang.wu@intel.com>
+References: <201603060005.PHCyifJr%fengguang.wu@intel.com>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -34,67 +28,48 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-All architectures using this driver are now converted to
-provide their own operations, so this one can be turned
-into a trivial stub driver relying on its platform data.
+objtool reports the following warnings:
 
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+  drivers/rtc/rtc-ds1685.o: warning: objtool: ds1685_rtc_work_queue()+0x0: duplicate frame pointer save
+  drivers/rtc/rtc-ds1685.o: warning: objtool: ds1685_rtc_work_queue()+0x3: duplicate frame pointer setup
+  drivers/rtc/rtc-ds1685.o: warning: objtool: ds1685_rtc_work_queue()+0x0: frame pointer state mismatch
+
+The warning message needs to be improved, but what it really means in
+this case is that ds1685_rtc_poweroff() has a possible code path where
+it can actually fall through to the next function in the object code,
+ds1685_rtc_work_queue().
+
+The bug is caused by the use of the unreachable() macro in a place which
+is actually reachable.  That causes gcc to assume that the printk()
+immediately before the unreachable() macro never returns, when in fact
+it does.  So gcc places the printk() at the very end of the function's
+object code.  When the printk() returns, the next function starts
+executing.
+
+The surrounding comment and printk message state that the code should
+spin forever, which explains the unreachable() statement.  However the
+actual spin code is missing.
+
+Reported-by: kbuild test robot <fengguang.wu@intel.com>
+Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
 ---
- drivers/rtc/rtc-generic.c | 36 +-----------------------------------
- 1 file changed, 1 insertion(+), 35 deletions(-)
+ drivers/rtc/rtc-ds1685.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/rtc/rtc-generic.c b/drivers/rtc/rtc-generic.c
-index d726c6aa96a8..1bf5d2347928 100644
---- a/drivers/rtc/rtc-generic.c
-+++ b/drivers/rtc/rtc-generic.c
-@@ -9,44 +9,10 @@
- #include <linux/platform_device.h>
- #include <linux/rtc.h>
- 
--#if defined(CONFIG_M68K) || defined(CONFIG_PARISC) || \
--    defined(CONFIG_PPC) || defined(CONFIG_SUPERH32)
--#include <asm/rtc.h>
--
--static int generic_get_time(struct device *dev, struct rtc_time *tm)
--{
--	unsigned int ret = get_rtc_time(tm);
--
--	if (ret & RTC_BATT_BAD)
--		return -EOPNOTSUPP;
--
--	return rtc_valid_tm(tm);
--}
--
--static int generic_set_time(struct device *dev, struct rtc_time *tm)
--{
--	if (set_rtc_time(tm) < 0)
--		return -EOPNOTSUPP;
--
--	return 0;
--}
--
--static const struct rtc_class_ops generic_rtc_ops = {
--	.read_time = generic_get_time,
--	.set_time = generic_set_time,
--};
--#else
--#define generic_rtc_ops *(struct rtc_class_ops*)NULL
--#endif
--
- static int __init generic_rtc_probe(struct platform_device *dev)
- {
- 	struct rtc_device *rtc;
--	const struct rtc_class_ops *ops;
--
--	ops = dev_get_platdata(&dev->dev);
--	if (!ops)
--		ops = &generic_rtc_ops;
-+	const struct rtc_class_ops *ops = dev_get_platdata(&dev->dev);
- 
- 	rtc = devm_rtc_device_register(&dev->dev, "rtc-generic",
- 					ops, THIS_MODULE);
+diff --git a/drivers/rtc/rtc-ds1685.c b/drivers/rtc/rtc-ds1685.c
+index 08e0ff8..1e6cfc8 100644
+--- a/drivers/rtc/rtc-ds1685.c
++++ b/drivers/rtc/rtc-ds1685.c
+@@ -2161,6 +2161,7 @@ ds1685_rtc_poweroff(struct platform_device *pdev)
+ 	/* Check for valid RTC data, else, spin forever. */
+ 	if (unlikely(!pdev)) {
+ 		pr_emerg("platform device data not available, spinning forever ...\n");
++		while(1);
+ 		unreachable();
+ 	} else {
+ 		/* Get the rtc data. */
 -- 
-2.7.0
+2.4.3
 
 -- 
 -- 
