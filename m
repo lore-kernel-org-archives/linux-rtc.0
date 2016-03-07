@@ -1,19 +1,26 @@
-Return-Path: <rtc-linux+bncBDU7VC56WAFBBXHBQ23QKGQEHXP6PWY@googlegroups.com>
-Received: from bues.ch (bues.ch. [2a01:138:9005::1:4])
-        by gmr-mx.google.com with ESMTPS id s141si124725wmd.1.2016.03.10.09.37.32
+Return-Path: <rtc-linux+bncBCSJ7B6JQALRBQ4I7C3AKGQEI444WDI@googlegroups.com>
+Received: from mx1.redhat.com (mx1.redhat.com. [209.132.183.28])
+        by gmr-mx.google.com with ESMTPS id y131si1179992ywc.0.2016.03.07.14.44.19
         for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=AES128-SHA bits=128/128);
-        Thu, 10 Mar 2016 09:37:32 -0800 (PST)
-Date: Thu, 10 Mar 2016 18:35:09 +0100
-From: Michael =?UTF-8?B?QsO8c2No?= <m@bues.ch>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Gregory Hermant <gregory.hermant@calao-systems.com>,
- rtc-linux@googlegroups.com
-Subject: [rtc-linux] [PATCH 0/2] rtc: rv3029: Add thermometer support
-Message-ID: <20160310183509.7962281b@wiggum>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 07 Mar 2016 14:44:19 -0800 (PST)
+Date: Mon, 7 Mar 2016 16:44:15 -0600
+From: Josh Poimboeuf <jpoimboe@redhat.com>
+To: Joshua Kinard <kumba@gentoo.org>
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org,
+        kbuild test robot <fengguang.wu@intel.com>,
+        Ingo Molnar <mingo@kernel.org>, Linux/MIPS <linux-mips@linux-mips.org>
+Subject: [rtc-linux] Re: [PATCH] rtc: ds1685: actually spin forever in
+ poweroff error path
+Message-ID: <20160307224415.GA8500@treble.redhat.com>
+References: <201603060005.PHCyifJr%fengguang.wu@intel.com>
+ <25c2e99dc116c666a05e641082a2690c05c09a23.1457362965.git.jpoimboe@redhat.com>
+ <56DDF30A.70505@gentoo.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
- boundary="Sig_/JK=qIhRMtdoUWbMPe.0qZmi"; protocol="application/pgp-signature"
+Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <56DDF30A.70505@gentoo.org>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -24,17 +31,66 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
---Sig_/JK=qIhRMtdoUWbMPe.0qZmi
-Content-Type: text/plain; charset=UTF-8
+On Mon, Mar 07, 2016 at 04:30:50PM -0500, Joshua Kinard wrote:
+> On 03/07/2016 10:03, Josh Poimboeuf wrote:
+> > objtool reports the following warnings:
+> > 
+> >   drivers/rtc/rtc-ds1685.o: warning: objtool: ds1685_rtc_work_queue()+0x0: duplicate frame pointer save
+> >   drivers/rtc/rtc-ds1685.o: warning: objtool: ds1685_rtc_work_queue()+0x3: duplicate frame pointer setup
+> >   drivers/rtc/rtc-ds1685.o: warning: objtool: ds1685_rtc_work_queue()+0x0: frame pointer state mismatch
+> > 
+> > The warning message needs to be improved, but what it really means in
+> > this case is that ds1685_rtc_poweroff() has a possible code path where
+> > it can actually fall through to the next function in the object code,
+> > ds1685_rtc_work_queue().
+> > 
+> > The bug is caused by the use of the unreachable() macro in a place which
+> > is actually reachable.  That causes gcc to assume that the printk()
+> > immediately before the unreachable() macro never returns, when in fact
+> > it does.  So gcc places the printk() at the very end of the function's
+> > object code.  When the printk() returns, the next function starts
+> > executing.
+> > 
+> > The surrounding comment and printk message state that the code should
+> > spin forever, which explains the unreachable() statement.  However the
+> > actual spin code is missing.
+> 
+> So this power down trick is used by both SGI O2 (IP32) and SGI Octane (IP30)
+> systems via this RTC chip, and I've noticed lately that the Octane has stopped
+> powering off via this function (it just sits and spins forever).  The O2 powers
+> off as expected.  When I initially wrote this driver from the original version
+> I found on LKML in '09, I hadn't gotten the Octane code back into a working
+> shape, and once that happened, I only tested the non-SMP case (fixed Octane SMP
+> in 4.1).  I suspect on the Octane, the use of SMP may be what is interfering
+> somehow, and this bug may partially explain it.  This patch doesn't fix
+> poweroff for me, but it's something to start from when I can get some time to
+> chase it down.
+> 
+> That said, I initially left the 'while (1);' clause out because at one point
+> during development, gcc yelled at me for using that at the end of the function,
+> so I looked at some other drivers and saw the use of 'unreachable();' and used
+> it instead.  Wasn't aware both of them are needed together in this instance.  I
+> thought 'unreachable()' evaluated out to a 'while (1)' at the end.  Seems to
+> actually be some kind of internal gcc trick.
+> 
+> How exactly did the kbuild bot trigger the above warnings?  I've only built and
+> tested this driver on a MIPS platform and haven't seen that particular warning
+> before.
 
-This patch series adds support for configuring and reading the rv3029
-RTC thermometer through the standard hwmon interface.
+Hi Joshua,
 
-The functionality of the thermometer and the update interval was
-checked using a professional heat supplier (hairdryer).
+The warning was emitted by a brand new tool named objtool which does
+some static object code analysis. It's currently only in linux-next, not
+yet in Linus's tree.  To get the warning, you'd need to build the
+linux-next tree for x86_64 with CONFIG_STACK_VALIDATION enabled.
+
+Here's the kbuild bot warning:
+
+  https://lkml.kernel.org/r/201603060005.PHCyifJr%fengguang.wu@intel.com
+
 
 -- 
-Michael
+Josh
 
 -- 
 -- 
@@ -46,27 +102,3 @@ before submitting a driver.
 You received this message because you are subscribed to the Google Groups "rtc-linux" group.
 To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
-
---Sig_/JK=qIhRMtdoUWbMPe.0qZmi
-Content-Type: application/pgp-signature
-Content-Description: OpenPGP digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
-
-iQIcBAEBCAAGBQJW4bBNAAoJEPUyvh2QjYsOW78QAM5g6BeceNlgYHY8r0rwPNqa
-rOcnRfDquYt3Mw6WMornK0fzlYwLeJQ2UqVD6cinhSuKiPSVQjgBrA1A1669ZttK
-R6SvcjkG+Wj0VBv4xR7ZwblgbBRk/f/LThbvyIDaTzYCsUut7vEFCIpxad/REluC
-hemobOtNDKUJzsp8bVsaNub09/9+Bc5rUR5dme/7FKfJs2L7UYVz9useaa8lUbLt
-rFXYwRHQvnEA6m9PFSlpBzSk1TUeXXNn/CKuu3ZA2+tNQWfcsGikopcdywfvC/gF
-7LJSJglSyLLvSYqmACJyGtHE/IX2Z6pm9EuPApdx/aGbsAfooJKOLmE4GN0jPCPy
-aOpH9wGWbjlZ3fQ5i1U2SAXpoIYPkfk89FWGySlYS68IXoHPZPh0bBLhNonI+KuE
-7FF56sriP7wHvrOR4vHDhS7UG0w/2guRfx2f0mpjUK1g5q5DWkZqT07xQgzB89UF
-G4L5ENnu3CiRGhUzFR5fIJX894MzTcaGG+CcTNEntN+UjuqfCflCT0peJZNA35Ed
-h//dDGgPnG+lr/csdHzq+zPwLX3jRExifWQrhEdD7yzTZhyKMsssXZrfRDt7dcm4
-MVRqYeUDifVx9UmtJMS/bVUOdyZBC6NERQDMBHsxVjX8kJWJOGbvcASxdguRwBC/
-xLesVEcrjeQ27J5OTjo0
-=GxNh
------END PGP SIGNATURE-----
-
---Sig_/JK=qIhRMtdoUWbMPe.0qZmi--
