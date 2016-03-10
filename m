@@ -1,20 +1,24 @@
-Return-Path: <rtc-linux+bncBDEKVJM7XAHRBLVP4C3AKGQEKQUNJWI@googlegroups.com>
-Received: from mout.kundenserver.de (mout.kundenserver.de. [212.227.17.10])
-        by gmr-mx.google.com with ESMTPS id 71si101478wmp.0.2016.03.03.02.53.34
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 03 Mar 2016 02:53:34 -0800 (PST)
-From: Arnd Bergmann <arnd@arndb.de>
-To: linux-arm-kernel@lists.infradead.org
-Cc: Krzysztof Kozlowski <k.kozlowski@samsung.com>, Daniel Lezcano <daniel.lezcano@linaro.org>, Thomas Gleixner <tglx@linutronix.de>, Dan Williams <dan.j.williams@intel.com>, Vinod Koul <vinod.koul@intel.com>, Jason Cooper <jason@lakedaemon.net>, Marc Zyngier <marc.zyngier@arm.com>, Mauro Carvalho Chehab <mchehab@osg.samsung.com>, Lee Jones <lee.jones@linaro.org>, Giuseppe Cavallaro <peppe.cavallaro@st.com>, Kishon Vijay Abraham I <kishon@ti.com>, Linus Walleij <linus.walleij@linaro.org>, Sebastian Reichel <sre@kernel.org>, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, David Woodhouse <dwmw2@infradead.org>, Alessandro Zummo <a.zummo@towertech.it>, Alexandre Belloni <alexandre.belloni@free-electrons.com>, Andy Gross <andy.gross@linaro.org>, David Brown <david.brown@linaro.org>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-kernel@vger.kernel.org, dmaengine@vger.kernel.org, linux-media@vger.kernel.org, linux-samsung-soc@vger.kernel.org, netdev@vger.kernel.org, linux-gpio@vger.kernel.org, linux-pm@vger.kernel.org, rtc-linux@googlegroups.com, linux-arm-msm@vger.kernel.org, linux-soc@vger.kernel.org, devel@driverdev.osuosl.org, linux-usb@vger.kernel.org
-Subject: [rtc-linux] Re: [RFC 03/15] hwspinlock: qcom: Add missing MFD_SYSCON
- dependency on HAS_IOMEM
-Date: Thu, 03 Mar 2016 11:53:23 +0100
-Message-ID: <1850954.4r0iTkATb8@wuerfel>
-In-Reply-To: <1456992221-26712-4-git-send-email-k.kozlowski@samsung.com>
-References: <1456992221-26712-1-git-send-email-k.kozlowski@samsung.com> <1456992221-26712-4-git-send-email-k.kozlowski@samsung.com>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBUPSQO3QKGQEGKIJGRA@googlegroups.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id c7si56575wmf.2.2016.03.09.20.34.25
+        for <rtc-linux@googlegroups.com>;
+        Wed, 09 Mar 2016 20:34:25 -0800 (PST)
+Date: Thu, 10 Mar 2016 05:34:12 +0100
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: linux-arm-kernel@lists.infradead.org, Kyle McMartin <kyle@mcmartin.ca>,
+	rtc-linux@googlegroups.com, Alessandro Zummo <a.zummo@towertech.it>,
+	linuxppc-dev@lists.ozlabs.org, linux-sh@vger.kernel.org,
+	linux-parisc@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
+	"James E.J. Bottomley" <jejb@parisc-linux.org>,
+	Helge Deller <deller@gmx.de>, linux-kernel@vger.kernel.org
+Subject: [rtc-linux] Re: [PATCH 4/6] parisc: rtc: provide rtc_class_ops directly
+Message-ID: <20160310043412.GC9868@piout.net>
+References: <1456851608-3374907-1-git-send-email-arnd@arndb.de>
+ <1456851608-3374907-5-git-send-email-arnd@arndb.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1456851608-3374907-5-git-send-email-arnd@arndb.de>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -25,25 +29,27 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Thursday 03 March 2016 17:03:29 Krzysztof Kozlowski wrote:
-> diff --git a/drivers/hwspinlock/Kconfig b/drivers/hwspinlock/Kconfig
-> index 73a401662853..5ab2d51dc147 100644
-> --- a/drivers/hwspinlock/Kconfig
-> +++ b/drivers/hwspinlock/Kconfig
-> @@ -21,6 +21,7 @@ config HWSPINLOCK_OMAP
->  config HWSPINLOCK_QCOM
->         tristate "Qualcomm Hardware Spinlock device"
->         depends on ARCH_QCOM
-> +       depends on HAS_IOMEM    # For MFD_SYSCON
->         select HWSPINLOCK
->         select MFD_SYSCON
->         help
+On 01/03/2016 at 18:00:00 +0100, Arnd Bergmann wrote :
+> -	pdev = platform_device_register_simple("rtc-generic", -1, NULL, 0);
+> +	pdev = platform_device_register_data(NULL, "rtc-generic", -1,
+> +					     &rtc_generic_ops,
+> +					     sizeof(rtc_generic_ops));
+> +
+> +
+
+spurious blank line
+
+>  	return PTR_ERR_OR_ZERO(pdev);
+>  }
+>  device_initcall(rtc_init);
+> -- 
+> 2.7.0
 > 
 
-This is only needed if we add "|| COMPILE_TEST", right now the driver
-is limited to ARCH_QCOM.
-
-	Arnd
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
 -- 
 -- 
