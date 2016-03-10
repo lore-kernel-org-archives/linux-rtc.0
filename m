@@ -1,33 +1,20 @@
-Return-Path: <rtc-linux+bncBC433LF43MBBBLOA5W3AKGQEUAITV7A@googlegroups.com>
-MIME-Version: 1.0
-Received: from outils.crapouillou.net (rev33.vpn.fdn.fr. [80.67.179.33])
-        by gmr-mx.google.com with ESMTPS id w128si146468wmd.0.2016.03.05.14.39.41
+Return-Path: <rtc-linux+bncBDU7VC56WAFBBXHBQ23QKGQEHXP6PWY@googlegroups.com>
+Received: from bues.ch (bues.ch. [2a01:138:9005::1:4])
+        by gmr-mx.google.com with ESMTPS id s141si124725wmd.1.2016.03.10.09.37.32
         for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sat, 05 Mar 2016 14:39:41 -0800 (PST)
-From: Paul Cercueil <paul@crapouillou.net>
+        (version=TLS1_2 cipher=AES128-SHA bits=128/128);
+        Thu, 10 Mar 2016 09:37:32 -0800 (PST)
+Date: Thu, 10 Mar 2016 18:35:09 +0100
+From: Michael =?UTF-8?B?QsO8c2No?= <m@bues.ch>
 To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Rob Herring <robh+dt@kernel.org>,
-	Pawel Moll <pawel.moll@arm.com>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Ian Campbell <ijc+devicetree@hellion.org.uk>,
-	Kumar Gala <galak@codeaurora.org>,
-	Ralf Baechle <ralf@linux-mips.org>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Paul Cercueil <paul@crapouillou.net>,
-	Paul Burton <paul.burton@imgtec.com>,
-	devicetree@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	linux-mips@linux-mips.org,
-	rtc-linux@googlegroups.com
-Subject: [rtc-linux] [PATCH 5/5] MIPS: jz4740: Use the jz4740-rtc driver as
- the power controller
-Date: Sat,  5 Mar 2016 23:38:51 +0100
-Message-Id: <1457217531-26064-5-git-send-email-paul@crapouillou.net>
-In-Reply-To: <1457217531-26064-1-git-send-email-paul@crapouillou.net>
-References: <1457217531-26064-1-git-send-email-paul@crapouillou.net>
+Cc: Gregory Hermant <gregory.hermant@calao-systems.com>,
+ rtc-linux@googlegroups.com
+Subject: [rtc-linux] [PATCH 0/2] rtc: rv3029: Add thermometer support
+Message-ID: <20160310183509.7962281b@wiggum>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ boundary="Sig_/JK=qIhRMtdoUWbMPe.0qZmi"; protocol="application/pgp-signature"
 Reply-To: rtc-linux@googlegroups.com
-Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -37,111 +24,17 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Signed-off-by: Paul Cercueil <paul@crapouillou.net>
----
- arch/mips/boot/dts/ingenic/jz4740.dtsi |  2 ++
- arch/mips/jz4740/reset.c               | 64 ----------------------------------
- 2 files changed, 2 insertions(+), 64 deletions(-)
+--Sig_/JK=qIhRMtdoUWbMPe.0qZmi
+Content-Type: text/plain; charset=UTF-8
 
-diff --git a/arch/mips/boot/dts/ingenic/jz4740.dtsi b/arch/mips/boot/dts/ingenic/jz4740.dtsi
-index 8b2437c..f2ddacb 100644
---- a/arch/mips/boot/dts/ingenic/jz4740.dtsi
-+++ b/arch/mips/boot/dts/ingenic/jz4740.dtsi
-@@ -32,6 +32,8 @@
- 		compatible = "fixed-clock";
- 		#clock-cells = <0>;
- 		clock-frequency = <32768>;
-+
-+		system-power-controller;
- 	};
- 
- 	cgu: jz4740-cgu@10000000 {
-diff --git a/arch/mips/jz4740/reset.c b/arch/mips/jz4740/reset.c
-index 954e669..0a88b17 100644
---- a/arch/mips/jz4740/reset.c
-+++ b/arch/mips/jz4740/reset.c
-@@ -12,7 +12,6 @@
-  *
-  */
- 
--#include <linux/clk.h>
- #include <linux/io.h>
- #include <linux/kernel.h>
- #include <linux/pm.h>
-@@ -57,71 +56,8 @@ static void jz4740_restart(char *command)
- 	jz4740_halt();
- }
- 
--#define JZ_REG_RTC_CTRL			0x00
--#define JZ_REG_RTC_HIBERNATE		0x20
--#define JZ_REG_RTC_WAKEUP_FILTER	0x24
--#define JZ_REG_RTC_RESET_COUNTER	0x28
--
--#define JZ_RTC_CTRL_WRDY		BIT(7)
--#define JZ_RTC_WAKEUP_FILTER_MASK	0x0000FFE0
--#define JZ_RTC_RESET_COUNTER_MASK	0x00000FE0
--
--static inline void jz4740_rtc_wait_ready(void __iomem *rtc_base)
--{
--	uint32_t ctrl;
--
--	do {
--		ctrl = readl(rtc_base + JZ_REG_RTC_CTRL);
--	} while (!(ctrl & JZ_RTC_CTRL_WRDY));
--}
--
--static void jz4740_power_off(void)
--{
--	void __iomem *rtc_base = ioremap(JZ4740_RTC_BASE_ADDR, 0x38);
--	unsigned long wakeup_filter_ticks;
--	unsigned long reset_counter_ticks;
--	struct clk *rtc_clk;
--	unsigned long rtc_rate;
--
--	rtc_clk = clk_get(NULL, "rtc");
--	if (IS_ERR(rtc_clk))
--		panic("unable to get RTC clock");
--	rtc_rate = clk_get_rate(rtc_clk);
--	clk_put(rtc_clk);
--
--	/*
--	 * Set minimum wakeup pin assertion time: 100 ms.
--	 * Range is 0 to 2 sec if RTC is clocked at 32 kHz.
--	 */
--	wakeup_filter_ticks = (100 * rtc_rate) / 1000;
--	if (wakeup_filter_ticks < JZ_RTC_WAKEUP_FILTER_MASK)
--		wakeup_filter_ticks &= JZ_RTC_WAKEUP_FILTER_MASK;
--	else
--		wakeup_filter_ticks = JZ_RTC_WAKEUP_FILTER_MASK;
--	jz4740_rtc_wait_ready(rtc_base);
--	writel(wakeup_filter_ticks, rtc_base + JZ_REG_RTC_WAKEUP_FILTER);
--
--	/*
--	 * Set reset pin low-level assertion time after wakeup: 60 ms.
--	 * Range is 0 to 125 ms if RTC is clocked at 32 kHz.
--	 */
--	reset_counter_ticks = (60 * rtc_rate) / 1000;
--	if (reset_counter_ticks < JZ_RTC_RESET_COUNTER_MASK)
--		reset_counter_ticks &= JZ_RTC_RESET_COUNTER_MASK;
--	else
--		reset_counter_ticks = JZ_RTC_RESET_COUNTER_MASK;
--	jz4740_rtc_wait_ready(rtc_base);
--	writel(reset_counter_ticks, rtc_base + JZ_REG_RTC_RESET_COUNTER);
--
--	jz4740_rtc_wait_ready(rtc_base);
--	writel(1, rtc_base + JZ_REG_RTC_HIBERNATE);
--
--	jz4740_halt();
--}
--
- void jz4740_reset_init(void)
- {
- 	_machine_restart = jz4740_restart;
- 	_machine_halt = jz4740_halt;
--	pm_power_off = jz4740_power_off;
- }
+This patch series adds support for configuring and reading the rv3029
+RTC thermometer through the standard hwmon interface.
+
+The functionality of the thermometer and the update interval was
+checked using a professional heat supplier (hairdryer).
+
 -- 
-2.7.0
+Michael
 
 -- 
 -- 
@@ -153,3 +46,27 @@ before submitting a driver.
 You received this message because you are subscribed to the Google Groups "rtc-linux" group.
 To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
+
+--Sig_/JK=qIhRMtdoUWbMPe.0qZmi
+Content-Type: application/pgp-signature
+Content-Description: OpenPGP digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQIcBAEBCAAGBQJW4bBNAAoJEPUyvh2QjYsOW78QAM5g6BeceNlgYHY8r0rwPNqa
+rOcnRfDquYt3Mw6WMornK0fzlYwLeJQ2UqVD6cinhSuKiPSVQjgBrA1A1669ZttK
+R6SvcjkG+Wj0VBv4xR7ZwblgbBRk/f/LThbvyIDaTzYCsUut7vEFCIpxad/REluC
+hemobOtNDKUJzsp8bVsaNub09/9+Bc5rUR5dme/7FKfJs2L7UYVz9useaa8lUbLt
+rFXYwRHQvnEA6m9PFSlpBzSk1TUeXXNn/CKuu3ZA2+tNQWfcsGikopcdywfvC/gF
+7LJSJglSyLLvSYqmACJyGtHE/IX2Z6pm9EuPApdx/aGbsAfooJKOLmE4GN0jPCPy
+aOpH9wGWbjlZ3fQ5i1U2SAXpoIYPkfk89FWGySlYS68IXoHPZPh0bBLhNonI+KuE
+7FF56sriP7wHvrOR4vHDhS7UG0w/2guRfx2f0mpjUK1g5q5DWkZqT07xQgzB89UF
+G4L5ENnu3CiRGhUzFR5fIJX894MzTcaGG+CcTNEntN+UjuqfCflCT0peJZNA35Ed
+h//dDGgPnG+lr/csdHzq+zPwLX3jRExifWQrhEdD7yzTZhyKMsssXZrfRDt7dcm4
+MVRqYeUDifVx9UmtJMS/bVUOdyZBC6NERQDMBHsxVjX8kJWJOGbvcASxdguRwBC/
+xLesVEcrjeQ27J5OTjo0
+=GxNh
+-----END PGP SIGNATURE-----
+
+--Sig_/JK=qIhRMtdoUWbMPe.0qZmi--
