@@ -1,38 +1,40 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRB2XR3W3AKGQEL3FTZJA@googlegroups.com>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBTXQQ63QKGQEU7OVVZY@googlegroups.com>
+Sender: rtc-linux@googlegroups.com
 Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id w128si226763wmd.0.2016.03.02.15.36.09
+        by gmr-mx.google.com with ESMTP id 71si13355wmp.0.2016.03.10.14.42.22
         for <rtc-linux@googlegroups.com>;
-        Wed, 02 Mar 2016 15:36:09 -0800 (PST)
-Date: Thu, 3 Mar 2016 00:36:09 +0100
+        Thu, 10 Mar 2016 14:42:22 -0800 (PST)
+Date: Thu, 10 Mar 2016 23:42:19 +0100
 From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: Joshua Kinard <kumba@gentoo.org>,
-	Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org, kernel-janitors@vger.kernel.org
-Subject: [rtc-linux] Re: [patch] rtc: ds1685: passing bogus values to irq_restore
-Message-ID: <20160302233609.GC2567@piout.net>
-References: <20160302100745.GB5533@mwanda>
+To: Alexander Kochetkov <al.kochet@gmail.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org
+Subject: [rtc-linux] Re: [PATCH] rtc: hym8563: fix invalid year calculation
+Message-ID: <20160310224219.GO9868@piout.net>
+References: <1457257437-18975-1-git-send-email-al.kochet@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <20160302100745.GB5533@mwanda>
+In-Reply-To: <1457257437-18975-1-git-send-email-al.kochet@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
 List-Archive: <https://groups.google.com/group/rtc-linux
-Sender: rtc-linux@googlegroups.com
 List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 02/03/2016 at 13:07:45 +0300, Dan Carpenter wrote :
-> We call spin_lock_irqrestore with "flags" set to zero instead of to the
-> value from spin_lock_irqsave().
+On 06/03/2016 at 12:43:57 +0300, Alexander Kochetkov wrote :
+> Year field must be in BCD format, according to
+> hym8563 datasheet.
 > 
-> Fixes: aaaf5fbf56f1 ('rtc: add driver for DS1685 family of real time clocks')
-> Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+> Due to the bug year 2016 became 2010.
 > 
-> diff --git a/drivers/rtc/rtc-ds1685.c b/drivers/rtc/rtc-ds1685.c
+> Signed-off-by: Alexander Kochetkov <al.kochet@gmail.com>
+> ---
+>  drivers/rtc/rtc-hym8563.c |    2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
 Applied, thanks.
 
 -- 
