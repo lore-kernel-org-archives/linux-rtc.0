@@ -1,22 +1,21 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRB5UC4O3AKGQEBKFGZRQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBZXVQO3QKGQEZ4I3OYY@googlegroups.com>
 Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id h73si26485wme.0.2016.03.03.14.57.57
+        by gmr-mx.google.com with ESMTP id z75si66941wmz.2.2016.03.09.20.41.10
         for <rtc-linux@googlegroups.com>;
-        Thu, 03 Mar 2016 14:57:57 -0800 (PST)
-Date: Thu, 3 Mar 2016 23:57:56 +0100
+        Wed, 09 Mar 2016 20:41:10 -0800 (PST)
+Date: Thu, 10 Mar 2016 05:41:07 +0100
 From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Akinobu Mita <akinobu.mita@gmail.com>
-Cc: rtc-linux@googlegroups.com, Alessandro Zummo <a.zummo@towertech.it>,
-	Dennis Aberilla <denzzzhome@yahoo.com>
-Subject: [rtc-linux] Re: [PATCH v3 7/8] rtc: ds3232-core: fix issue when irq
- is shared several devices
-Message-ID: <20160303225756.GA2587@piout.net>
-References: <1456758832-10590-1-git-send-email-akinobu.mita@gmail.com>
- <1456758832-10590-7-git-send-email-akinobu.mita@gmail.com>
- <CAC5umygNbz=nnPU6oTDsmrwWRKLFJE3Hq2ei1mPQ425CvfVE9Q@mail.gmail.com>
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: linux-arm-kernel@lists.infradead.org, Kyle McMartin <kyle@mcmartin.ca>,
+	rtc-linux@googlegroups.com, Alessandro Zummo <a.zummo@towertech.it>,
+	linuxppc-dev@lists.ozlabs.org, linux-sh@vger.kernel.org,
+	linux-parisc@vger.kernel.org, linux-m68k@lists.linux-m68k.org
+Subject: [rtc-linux] Re: [PATCH 0/6] rtc: generic: follow up for COMPILE_TEST
+Message-ID: <20160310044107.GD9868@piout.net>
+References: <1456851608-3374907-1-git-send-email-arnd@arndb.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <CAC5umygNbz=nnPU6oTDsmrwWRKLFJE3Hq2ei1mPQ425CvfVE9Q@mail.gmail.com>
+In-Reply-To: <1456851608-3374907-1-git-send-email-arnd@arndb.de>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -27,56 +26,32 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 03/03/2016 at 23:10:35 +0900, Akinobu Mita wrote :
-> 2016-03-01 0:13 GMT+09:00 Akinobu Mita <akinobu.mita@gmail.com>:
-> > ds3232-core requests irq with IRQF_SHARED, so irq can be shared by
-> > several devices.  But the irq handler for ds3232 unconditionally
-> > disables the irq at first and the irq is re-enabled only when the
-> > interrupt source was the ds3232's alarm.  This behaviour breaks the
-> > devices sharing the same irq in the various scenarios.
-> >
-> > Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
-> > Cc: Alessandro Zummo <a.zummo@towertech.it>
-> > Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-> > Cc: Dennis Aberilla <denzzzhome@yahoo.com>
-> > ---
-> > * New patch from this version
-> >
-> >  drivers/rtc/rtc-ds3232-core.c | 14 ++------------
-> >  1 file changed, 2 insertions(+), 12 deletions(-)
-> >
-> > diff --git a/drivers/rtc/rtc-ds3232-core.c b/drivers/rtc/rtc-ds3232-core.c
-> > index be8dfe0..6489380 100644
-> > --- a/drivers/rtc/rtc-ds3232-core.c
-> > +++ b/drivers/rtc/rtc-ds3232-core.c
-> > @@ -59,7 +59,6 @@ struct ds3232 {
-> >          */
-> >         struct mutex mutex;
-> >         bool suspended;
-> > -       int exiting;
-> >  };
-> >
-> >  static int ds3232_check_rtc_status(struct device *dev)
-> > @@ -314,8 +313,6 @@ static irqreturn_t ds3232_irq(int irq, void *dev_id)
-> >         struct device *dev = dev_id;
-> >         struct ds3232 *ds3232 = dev_get_drvdata(dev);
-> >
-> > -       disable_irq_nosync(irq);
-> > -
-> >         /*
-> >          * If rtc as a wakeup source, can't schedule the work
-> >          * at system resume flow, because at this time the i2c bus
-> 
-> I found that this patch is not correct because interrupt is re-enabled
-> after this hardirq handler finished without clearing Alarm Flag or
-> Alarm Interrupt Enable in RTC register.
-> 
-> Maybe we should drop IRQF_SHARED flag.
+Hi,
 
-I think the best is to completely reworke the irq handling. It dates
-from many many year ago and can be replace by a simple threaded irq.
-This will solve your issue.
+On 01/03/2016 at 17:59:56 +0100, Arnd Bergmann wrote :
+> Today's linux-next kernel allowed building the rtc-generic
+> driver (and most other rtc drivers) on all architectures,
+> but this caused some errors on architectures without asm/rtc.h.
+> 
+> This series reworks that driver to avoid the dependency,
+> and simplifies all four implementations. My first approach
+> was to split the driver into four separate drivers, but
+> that didn't feel right when three of them have their own
+> multiplexors.
+> 
+> The first five patches can be applied independent of one other,
+> while patch 6 is optional and can be applied when all others
+> are merged. Alternatively, they can all go in through the
+> rtc tree. I compile-tested only the powerpc and sh targets for
+> which I happened to have cross-compilers installed.
+> 
 
+I like this approach. Maybe you can also remove the now unnecessary
+definitions from the various asm/rtc.h.
+
+I have a small nitpick on the parisc patch.
+
+I'll take the first patch, no need to resend that one.
 
 -- 
 Alexandre Belloni, Free Electrons
