@@ -1,44 +1,23 @@
-Return-Path: <rtc-linux+bncBDKZNNNLXAHBBT7A363AKGQE76CUS6Y@googlegroups.com>
+Return-Path: <rtc-linux+bncBCPM5SUWUYIRBSPBRO3QKGQEN35JZLY@googlegroups.com>
 MIME-Version: 1.0
-Received: from mailout2.w1.samsung.com (mailout2.w1.samsung.com. [210.118.77.12])
-        by gmr-mx.google.com with ESMTPS id ui7si5853615pab.0.2016.03.03.00.05.35
+Received: from mail-pa0-x22c.google.com (mail-pa0-x22c.google.com. [2607:f8b0:400e:c03::22c])
+        by gmr-mx.google.com with ESMTPS id ui7si1463890pab.0.2016.03.11.08.22.32
         for <rtc-linux@googlegroups.com>
-        (version=TLS1 cipher=AES128-SHA bits=128/128);
-        Thu, 03 Mar 2016 00:05:35 -0800 (PST)
-Received: from eucpsbgm1.samsung.com (unknown [203.254.199.244])
- by mailout2.w1.samsung.com
- (Oracle Communications Messaging Server 7.0.5.31.0 64bit (built May  5 2014))
- with ESMTP id <0O3G005I1EH7L090@mailout2.w1.samsung.com> for
- rtc-linux@googlegroups.com; Thu, 03 Mar 2016 08:05:31 +0000 (GMT)
-From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-To: Daniel Lezcano <daniel.lezcano@linaro.org>,
- Thomas Gleixner <tglx@linutronix.de>, Dan Williams <dan.j.williams@intel.com>,
- Vinod Koul <vinod.koul@intel.com>, Jason Cooper <jason@lakedaemon.net>,
- Marc Zyngier <marc.zyngier@arm.com>,
- Mauro Carvalho Chehab <mchehab@osg.samsung.com>,
- Lee Jones <lee.jones@linaro.org>, Giuseppe Cavallaro <peppe.cavallaro@st.com>,
- Kishon Vijay Abraham I <kishon@ti.com>,
- Linus Walleij <linus.walleij@linaro.org>, Sebastian Reichel <sre@kernel.org>,
- Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>,
- David Woodhouse <dwmw2@infradead.org>,
- Alessandro Zummo <a.zummo@towertech.it>,
- Alexandre Belloni <alexandre.belloni@free-electrons.com>,
- Andy Gross <andy.gross@linaro.org>, David Brown <david.brown@linaro.org>,
- Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
- Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-kernel@vger.kernel.org,
- dmaengine@vger.kernel.org, linux-media@vger.kernel.org,
- linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org,
- netdev@vger.kernel.org, linux-gpio@vger.kernel.org, linux-pm@vger.kernel.org,
- rtc-linux@googlegroups.com, linux-arm-msm@vger.kernel.org,
- linux-soc@vger.kernel.org, devel@driverdev.osuosl.org,
- linux-usb@vger.kernel.org
-Cc: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-Subject: [rtc-linux] [RFC 10/15] net: ethernet: Add missing MFD_SYSCON
- dependency on HAS_IOMEM
-Date: Thu, 03 Mar 2016 17:03:36 +0900
-Message-id: <1456992221-26712-11-git-send-email-k.kozlowski@samsung.com>
-In-reply-to: <1456992221-26712-1-git-send-email-k.kozlowski@samsung.com>
-References: <1456992221-26712-1-git-send-email-k.kozlowski@samsung.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Fri, 11 Mar 2016 08:22:32 -0800 (PST)
+Received: by mail-pa0-x22c.google.com with SMTP id tt10so102462448pab.3
+        for <rtc-linux@googlegroups.com>; Fri, 11 Mar 2016 08:22:32 -0800 (PST)
+From: Akinobu Mita <akinobu.mita@gmail.com>
+To: rtc-linux@googlegroups.com
+Cc: Akinobu Mita <akinobu.mita@gmail.com>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Renaud Cerrato <r.cerrato@til-technologies.fr>
+Subject: [rtc-linux] [PATCH 2/3] rtc: pcf2127: add support for spi interface
+Date: Sat, 12 Mar 2016 01:22:15 +0900
+Message-Id: <1457713336-24262-2-git-send-email-akinobu.mita@gmail.com>
+In-Reply-To: <1457713336-24262-1-git-send-email-akinobu.mita@gmail.com>
+References: <1457713336-24262-1-git-send-email-akinobu.mita@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -50,92 +29,204 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-The MFD_SYSCON depends on HAS_IOMEM so when selecting it avoid unmet
-direct dependencies.
+pcf2127 has selectable I2C-bus and SPI-bus interface support.
 
-Signed-off-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+This adds support for SPI interface.
+
+Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>
+Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: Renaud Cerrato <r.cerrato@til-technologies.fr>
 ---
- drivers/net/ethernet/hisilicon/Kconfig      | 1 +
- drivers/net/ethernet/stmicro/stmmac/Kconfig | 6 ++++++
- drivers/net/ethernet/ti/Kconfig             | 1 +
- 3 files changed, 8 insertions(+)
+ drivers/rtc/Kconfig       |  19 ++++----
+ drivers/rtc/rtc-pcf2127.c | 118 +++++++++++++++++++++++++++++++++++++++++++++-
+ 2 files changed, 126 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/net/ethernet/hisilicon/Kconfig b/drivers/net/ethernet/hisilicon/Kconfig
-index 74beb1867230..6a9c91781bf9 100644
---- a/drivers/net/ethernet/hisilicon/Kconfig
-+++ b/drivers/net/ethernet/hisilicon/Kconfig
-@@ -26,6 +26,7 @@ config HIX5HD2_GMAC
- config HIP04_ETH
- 	tristate "HISILICON P04 Ethernet support"
- 	select MARVELL_PHY
-+	depends on HAS_IOMEM	# For MFD_SYSCON
- 	select MFD_SYSCON
- 	select HNS_MDIO
- 	---help---
-diff --git a/drivers/net/ethernet/stmicro/stmmac/Kconfig b/drivers/net/ethernet/stmicro/stmmac/Kconfig
-index cec147d1d34f..d6902bf6e90f 100644
---- a/drivers/net/ethernet/stmicro/stmmac/Kconfig
-+++ b/drivers/net/ethernet/stmicro/stmmac/Kconfig
-@@ -16,6 +16,7 @@ if STMMAC_ETH
- config STMMAC_PLATFORM
- 	tristate "STMMAC Platform bus support"
- 	depends on STMMAC_ETH
-+	depends on HAS_IOMEM	# For MFD_SYSCON
- 	select MFD_SYSCON
- 	default y
- 	---help---
-@@ -41,6 +42,7 @@ config DWMAC_IPQ806X
- 	tristate "QCA IPQ806x DWMAC support"
- 	default ARCH_QCOM
- 	depends on OF
-+	depends on HAS_IOMEM	# For MFD_SYSCON
- 	select MFD_SYSCON
+diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
+index 777fa2d..9d0f4da 100644
+--- a/drivers/rtc/Kconfig
++++ b/drivers/rtc/Kconfig
+@@ -400,15 +400,6 @@ config RTC_DRV_PALMAS
+ 	  This driver can also be built as a module. If so, the module
+ 	  will be called rtc-palma.
+ 
+-config RTC_DRV_PCF2127
+-	tristate "NXP PCF2127"
+-	help
+-	  If you say yes here you get support for the NXP PCF2127/29 RTC
+-	  chips.
+-
+-	  This driver can also be built as a module. If so, the module
+-	  will be called rtc-pcf2127.
+-
+ config RTC_DRV_PCF8523
+ 	tristate "NXP PCF8523"
  	help
- 	  Support for QCA IPQ806X DWMAC Ethernet.
-@@ -54,6 +56,7 @@ config DWMAC_LPC18XX
- 	tristate "NXP LPC18xx/43xx DWMAC support"
- 	default ARCH_LPC18XX
- 	depends on OF
-+	depends on HAS_IOMEM	# For MFD_SYSCON
- 	select MFD_SYSCON
- 	---help---
- 	  Support for NXP LPC18xx/43xx DWMAC Ethernet.
-@@ -73,6 +76,7 @@ config DWMAC_ROCKCHIP
- 	tristate "Rockchip dwmac support"
- 	default ARCH_ROCKCHIP
- 	depends on OF
-+	depends on HAS_IOMEM	# For MFD_SYSCON
- 	select MFD_SYSCON
- 	help
- 	  Support for Ethernet controller on Rockchip RK3288 SoC.
-@@ -84,6 +88,7 @@ config DWMAC_SOCFPGA
- 	tristate "SOCFPGA dwmac support"
- 	default ARCH_SOCFPGA
- 	depends on OF
-+	depends on HAS_IOMEM	# For MFD_SYSCON
- 	select MFD_SYSCON
- 	help
- 	  Support for ethernet controller on Altera SOCFPGA
-@@ -96,6 +101,7 @@ config DWMAC_STI
- 	tristate "STi GMAC support"
- 	default ARCH_STI
- 	depends on OF
-+	depends on HAS_IOMEM	# For MFD_SYSCON
- 	select MFD_SYSCON
- 	---help---
- 	  Support for ethernet controller on STi SOCs.
-diff --git a/drivers/net/ethernet/ti/Kconfig b/drivers/net/ethernet/ti/Kconfig
-index e7f0b7d95b65..ec56cebe929d 100644
---- a/drivers/net/ethernet/ti/Kconfig
-+++ b/drivers/net/ethernet/ti/Kconfig
-@@ -62,6 +62,7 @@ config TI_CPSW_ALE
- config TI_CPSW
- 	tristate "TI CPSW Switch Support"
- 	depends on ARCH_DAVINCI || ARCH_OMAP2PLUS
-+	depends on HAS_IOMEM	# For MFD_SYSCON
- 	select TI_DAVINCI_CPDMA
- 	select TI_DAVINCI_MDIO
- 	select TI_CPSW_PHY_SEL
+@@ -767,6 +758,16 @@ config RTC_DRV_DS3232
+ 	  This driver can also be built as a module.  If so, the module
+ 	  will be called rtc-ds3232.
+ 
++config RTC_DRV_PCF2127
++	tristate "NXP PCF2127"
++	depends on RTC_I2C_AND_SPI
++	help
++	  If you say yes here you get support for the NXP PCF2127/29 RTC
++	  chips.
++
++	  This driver can also be built as a module. If so, the module
++	  will be called rtc-pcf2127.
++
+ comment "Platform RTC drivers"
+ 
+ # this 'CMOS' RTC driver is arch dependent because <asm-generic/rtc.h>
+diff --git a/drivers/rtc/rtc-pcf2127.c b/drivers/rtc/rtc-pcf2127.c
+index 8f269e3..5729ee9 100644
+--- a/drivers/rtc/rtc-pcf2127.c
++++ b/drivers/rtc/rtc-pcf2127.c
+@@ -1,5 +1,5 @@
+ /*
+- * An I2C driver for the NXP PCF2127 RTC
++ * An I2C and SPI driver for the NXP PCF2127 RTC
+  * Copyright 2013 Til-Technologies
+  *
+  * Author: Renaud Cerrato <r.cerrato@til-technologies.fr>
+@@ -14,6 +14,7 @@
+  */
+ 
+ #include <linux/i2c.h>
++#include <linux/spi/spi.h>
+ #include <linux/bcd.h>
+ #include <linux/rtc.h>
+ #include <linux/slab.h>
+@@ -200,6 +201,8 @@ static const struct of_device_id pcf2127_of_match[] = {
+ MODULE_DEVICE_TABLE(of, pcf2127_of_match);
+ #endif
+ 
++#if IS_ENABLED(CONFIG_I2C)
++
+ static int pcf2127_i2c_write(void *context, const void *data, size_t count)
+ {
+ 	struct device *dev = context;
+@@ -306,7 +309,118 @@ static struct i2c_driver pcf2127_i2c_driver = {
+ 	.probe		= pcf2127_i2c_probe,
+ 	.id_table	= pcf2127_i2c_id,
+ };
+-module_i2c_driver(pcf2127_i2c_driver);
++
++static int pcf2127_i2c_register_driver(void)
++{
++	return i2c_add_driver(&pcf2127_i2c_driver);
++}
++
++static void pcf2127_i2c_unregister_driver(void)
++{
++	i2c_del_driver(&pcf2127_i2c_driver);
++}
++
++#else
++
++static int pcf2127_i2c_register_driver(void)
++{
++	return 0;
++}
++
++static void pcf2127_i2c_unregister_driver(void)
++{
++}
++
++#endif
++
++#if IS_ENABLED(CONFIG_SPI_MASTER)
++
++static struct spi_driver pcf2127_spi_driver;
++
++static int pcf2127_spi_probe(struct spi_device *spi)
++{
++	static const struct regmap_config config = {
++		.reg_bits = 8,
++		.val_bits = 8,
++		.read_flag_mask = 0xa0,
++		.write_flag_mask = 0x20,
++	};
++	struct regmap *regmap;
++
++	regmap = devm_regmap_init_spi(spi, &config);
++	if (IS_ERR(regmap)) {
++		dev_err(&spi->dev, "%s: regmap allocation failed: %ld\n",
++			__func__, PTR_ERR(regmap));
++		return PTR_ERR(regmap);
++	}
++
++	return pcf2127_probe(&spi->dev, regmap, pcf2127_spi_driver.driver.name);
++}
++
++static const struct spi_device_id pcf2127_spi_id[] = {
++	{ "pcf2127", 0 },
++	{ }
++};
++MODULE_DEVICE_TABLE(spi, pcf2127_spi_id);
++
++static struct spi_driver pcf2127_spi_driver = {
++	.driver		= {
++		.name	= "rtc-pcf2127-spi",
++		.of_match_table = of_match_ptr(pcf2127_of_match),
++	},
++	.probe		= pcf2127_spi_probe,
++	.id_table	= pcf2127_spi_id,
++};
++
++static int pcf2127_spi_register_driver(void)
++{
++	return spi_register_driver(&pcf2127_spi_driver);
++}
++
++static void pcf2127_spi_unregister_driver(void)
++{
++	spi_unregister_driver(&pcf2127_spi_driver);
++}
++
++#else
++
++static int pcf2127_spi_register_driver(void)
++{
++	return 0;
++}
++
++static void pcf2127_spi_unregister_driver(void)
++{
++}
++
++#endif
++
++static int __init pcf2127_init(void)
++{
++	int ret;
++
++	ret = pcf2127_i2c_register_driver();
++	if (ret) {
++		pr_err("Failed to register pcf2127 i2c driver: %d\n", ret);
++		return ret;
++	}
++
++	ret = pcf2127_spi_register_driver();
++	if (ret) {
++		pr_err("Failed to register pcf2127 spi driver: %d\n", ret);
++		pcf2127_i2c_unregister_driver();
++	}
++
++	return ret;
++}
++module_init(pcf2127_init)
++
++static void __exit pcf2127_exit(void)
++{
++	pcf2127_spi_unregister_driver();
++	pcf2127_i2c_unregister_driver();
++}
++module_exit(pcf2127_exit)
+ 
+ MODULE_AUTHOR("Renaud Cerrato <r.cerrato@til-technologies.fr>");
+ MODULE_DESCRIPTION("NXP PCF2127 RTC driver");
 -- 
 2.5.0
 
