@@ -1,22 +1,27 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRB2443C3AKGQEUWUHWZY@googlegroups.com>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBPOITS3QKGQEYRZ2AJI@googlegroups.com>
 Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id w197si55291wmw.3.2016.03.01.13.49.31
+        by gmr-mx.google.com with ESMTP id s141si665188wmd.1.2016.03.14.13.51.08
         for <rtc-linux@googlegroups.com>;
-        Tue, 01 Mar 2016 13:49:31 -0800 (PST)
-Date: Tue, 1 Mar 2016 22:49:20 +0100
+        Mon, 14 Mar 2016 13:51:08 -0700 (PDT)
+Date: Mon, 14 Mar 2016 21:51:01 +0100
 From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Javier Martinez Canillas <javier@osg.samsung.com>
-Cc: linux-kernel@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-	Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
-	linux-mediatek@lists.infradead.org,
-	Eddie Huang <eddie.huang@mediatek.com>,
-	linux-arm-kernel@lists.infradead.org
-Subject: [rtc-linux] Re: [PATCH] rtc: mt6397: Remove plaform module alias
-Message-ID: <20160301214920.GI23985@piout.net>
-References: <1456334780-17380-1-git-send-email-javier@osg.samsung.com>
+To: Joe Perches <joe@perches.com>
+Cc: Javier Martinez Canillas <javier@osg.samsung.com>,
+	linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org,
+	Krzysztof Kozlowski <k.kozlowski@samsung.com>,
+	rtc-linux@googlegroups.com
+Subject: [rtc-linux] Re: [PATCH] rtc: s3c: Don't print an error on probe deferral
+Message-ID: <20160314205101.GD28277@piout.net>
+References: <1457982308-29848-1-git-send-email-javier@osg.samsung.com>
+ <1457982675.11972.119.camel@perches.com>
+ <56E7119B.9060900@osg.samsung.com>
+ <1457984317.11972.123.camel@perches.com>
+ <56E71825.5070104@osg.samsung.com>
+ <20160314201958.GB28277@piout.net>
+ <1457987588.11972.135.camel@perches.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1456334780-17380-1-git-send-email-javier@osg.samsung.com>
+In-Reply-To: <1457987588.11972.135.camel@perches.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -27,27 +32,16 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 24/02/2016 at 14:26:20 -0300, Javier Martinez Canillas wrote :
-> The driver uses the MODULE_ALIAS() macro to export a platform module alias
-> to allow the module to be autoloaded if the device is registered using the
-> legacy platform registration mechanism but the driver is always used by OF
-> only machines so the alias is not needed and should just be removed.
+On 14/03/2016 at 13:33:08 -0700, Joe Perches wrote :
+> On Mon, 2016-03-14 at 21:19 +0100, Alexandre Belloni wrote:
+> > checkpatch will not complain for messages but it will definitively
+> > complain if they are not properly aligned:)
 > 
-> Suggested-by: Arnd Bergmann <arnd@arndb.de>
-> Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
+> checkpatch wouldn't actually complain unless the --strict option
+> was used or these files were in drivers/net or drivers/staging.
 > 
-> ---
-> Hello,
-> 
-> This patch supersedes "rtc: mt6397: Add platform device ID table":
-> https://lkml.org/lkml/2016/2/9/192.
-> 
-> Best regards,
-> Javier
-> 
->  drivers/rtc/rtc-mt6397.c | 1 -
->  1 file changed, 1 deletion(-)
-Applied, thanks.
+
+yeah, I'm using --strict on all the patches I receive.
 
 -- 
 Alexandre Belloni, Free Electrons
