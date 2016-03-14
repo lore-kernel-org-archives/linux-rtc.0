@@ -1,20 +1,22 @@
-Return-Path: <rtc-linux+bncBDEKVJM7XAHRBV6Z3K3AKGQEJNUCB7I@googlegroups.com>
-Received: from mout.kundenserver.de (mout.kundenserver.de. [217.72.192.73])
-        by gmr-mx.google.com with ESMTPS id w128si112740wmd.0.2016.03.02.01.05.26
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 02 Mar 2016 01:05:26 -0800 (PST)
-From: Arnd Bergmann <arnd@arndb.de>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Kyle McMartin <kyle@mcmartin.ca>, RTCLINUX <rtc-linux@googlegroups.com>, Alessandro Zummo <a.zummo@towertech.it>, "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>, Linux-sh list <linux-sh@vger.kernel.org>, Parisc List <linux-parisc@vger.kernel.org>, linux-m68k <linux-m68k@lists.linux-m68k.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: [rtc-linux] Re: [PATCH 1/6] rtc: generic: allow building on all architectures
-Date: Wed, 02 Mar 2016 10:05:18 +0100
-Message-ID: <1620536.OtjnSSLgCT@wuerfel>
-In-Reply-To: <CAMuHMdW5+jZ1n9WnCwBrGSGjUa8ziNTTqf-H15EFTQC_iwnw+Q@mail.gmail.com>
-References: <1456851608-3374907-1-git-send-email-arnd@arndb.de> <1456851608-3374907-2-git-send-email-arnd@arndb.de> <CAMuHMdW5+jZ1n9WnCwBrGSGjUa8ziNTTqf-H15EFTQC_iwnw+Q@mail.gmail.com>
+Return-Path: <rtc-linux+bncBAABB2V4TS3QKGQE7FRX2RY@googlegroups.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Received: from lists.s-osg.org (lists.s-osg.org. [54.187.51.154])
+        by gmr-mx.google.com with ESMTP id sf5si3576062pac.1.2016.03.14.13.26.18
+        for <rtc-linux@googlegroups.com>;
+        Mon, 14 Mar 2016 13:26:18 -0700 (PDT)
+From: Javier Martinez Canillas <javier@osg.samsung.com>
+To: linux-kernel@vger.kernel.org
+Cc: Joe Perches <joe@perches.com>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	linux-samsung-soc@vger.kernel.org,
+	Krzysztof Kozlowski <k.kozlowski@samsung.com>,
+	rtc-linux@googlegroups.com,
+	Javier Martinez Canillas <javier@osg.samsung.com>
+Subject: [rtc-linux] [PATCH v2] rtc: s3c: Don't print an error on probe deferral
+Date: Mon, 14 Mar 2016 17:25:57 -0300
+Message-Id: <1457987157-1177-1-git-send-email-javier@osg.samsung.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -24,35 +26,62 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Wednesday 02 March 2016 09:57:27 Geert Uytterhoeven wrote:
-> > @@ -33,13 +35,21 @@ static const struct rtc_class_ops generic_rtc_ops = {
-> >         .read_time = generic_get_time,
-> >         .set_time = generic_set_time,
-> >  };
-> > +#else
-> > +#define generic_rtc_ops *(struct rtc_class_ops*)NULL
-> > +#endif
-> >
-> >  static int __init generic_rtc_probe(struct platform_device *dev)
-> >  {
-> >         struct rtc_device *rtc;
-> > +       const struct rtc_class_ops *ops;
-> > +
-> > +       ops = dev_get_platdata(&dev->dev);
-> > +       if (!ops)
-> > +               ops = &generic_rtc_ops;
-> 
-> I hope no compiler version treats "&*(struct rtc_class_ops*)NULL" as
-> undefined behavior?
+The clock and source clock looked up by the driver may not be available
+just because the clock controller driver was not probed yet so printing
+an error in this case is not correct and only adds confusion to users.
 
-It's a bit odd, but I think it's syntactically correct C, and not
-much too different from 
+However, knowing that a driver's probe was deferred may be useful so it
+can be printed as debug information.
 
-#define offsetof(TYPE, MEMBER)  ((size_t)&((TYPE *)0)->MEMBER)
+Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
 
-is it? My last patch gets rid of it again.
+---
 
-	Arnd
+Changes in v2:
+- Improve debug messages as suggested by Joe Perches.
+
+ drivers/rtc/rtc-s3c.c | 19 ++++++++++++++-----
+ 1 file changed, 14 insertions(+), 5 deletions(-)
+
+diff --git a/drivers/rtc/rtc-s3c.c b/drivers/rtc/rtc-s3c.c
+index ffb860d18701..4a3a8eb35234 100644
+--- a/drivers/rtc/rtc-s3c.c
++++ b/drivers/rtc/rtc-s3c.c
+@@ -501,18 +501,27 @@ static int s3c_rtc_probe(struct platform_device *pdev)
+ 
+ 	info->rtc_clk = devm_clk_get(&pdev->dev, "rtc");
+ 	if (IS_ERR(info->rtc_clk)) {
+-		dev_err(&pdev->dev, "failed to find rtc clock\n");
+-		return PTR_ERR(info->rtc_clk);
++		ret = PTR_ERR(info->rtc_clk);
++		if (ret != -EPROBE_DEFER)
++			dev_err(&pdev->dev, "failed to find rtc clock\n");
++		else
++			dev_dbg(&pdev->dev, "probe deferred due missing rtc clk\n");
++		return ret;
+ 	}
+ 	clk_prepare_enable(info->rtc_clk);
+ 
+ 	if (info->data->needs_src_clk) {
+ 		info->rtc_src_clk = devm_clk_get(&pdev->dev, "rtc_src");
+ 		if (IS_ERR(info->rtc_src_clk)) {
+-			dev_err(&pdev->dev,
+-				"failed to find rtc source clock\n");
++			ret = PTR_ERR(info->rtc_src_clk);
++			if (ret != -EPROBE_DEFER)
++				dev_err(&pdev->dev,
++					"failed to find rtc source clock\n");
++			else
++				dev_dbg(&pdev->dev,
++					"probe deferred due missing rtc src clk\n");
+ 			clk_disable_unprepare(info->rtc_clk);
+-			return PTR_ERR(info->rtc_src_clk);
++			return ret;
+ 		}
+ 		clk_prepare_enable(info->rtc_src_clk);
+ 	}
+-- 
+2.5.0
 
 -- 
 -- 
