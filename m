@@ -1,31 +1,26 @@
-Return-Path: <rtc-linux+bncBC433LF43MBBBIOA5W3AKGQEYDD7HNQ@googlegroups.com>
-MIME-Version: 1.0
-Received: from outils.crapouillou.net ([2001:910:1321:33:0:c0ff:fea8:213b])
-        by gmr-mx.google.com with ESMTPS id w10si145254wmw.3.2016.03.05.14.39.28
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sat, 05 Mar 2016 14:39:28 -0800 (PST)
-From: Paul Cercueil <paul@crapouillou.net>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Rob Herring <robh+dt@kernel.org>,
-	Pawel Moll <pawel.moll@arm.com>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Ian Campbell <ijc+devicetree@hellion.org.uk>,
-	Kumar Gala <galak@codeaurora.org>,
-	Ralf Baechle <ralf@linux-mips.org>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Paul Cercueil <paul@crapouillou.net>,
-	Paul Burton <paul.burton@imgtec.com>,
-	devicetree@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	linux-mips@linux-mips.org,
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBDF2TS3QKGQECWAXJ6Q@googlegroups.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id h187si572464wme.0.2016.03.14.13.20.28
+        for <rtc-linux@googlegroups.com>;
+        Mon, 14 Mar 2016 13:20:28 -0700 (PDT)
+Date: Mon, 14 Mar 2016 21:19:58 +0100
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Javier Martinez Canillas <javier@osg.samsung.com>
+Cc: Joe Perches <joe@perches.com>, linux-kernel@vger.kernel.org,
+	linux-samsung-soc@vger.kernel.org,
+	Krzysztof Kozlowski <k.kozlowski@samsung.com>,
 	rtc-linux@googlegroups.com
-Subject: [rtc-linux] [PATCH 1/5] rtc: rtc-jz4740: Add support for the RTC in
- the jz4780 SoC
-Date: Sat,  5 Mar 2016 23:38:47 +0100
-Message-Id: <1457217531-26064-1-git-send-email-paul@crapouillou.net>
-Reply-To: rtc-linux@googlegroups.com
+Subject: [rtc-linux] Re: [PATCH] rtc: s3c: Don't print an error on probe deferral
+Message-ID: <20160314201958.GB28277@piout.net>
+References: <1457982308-29848-1-git-send-email-javier@osg.samsung.com>
+ <1457982675.11972.119.camel@perches.com>
+ <56E7119B.9060900@osg.samsung.com>
+ <1457984317.11972.123.camel@perches.com>
+ <56E71825.5070104@osg.samsung.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <56E71825.5070104@osg.samsung.com>
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -35,137 +30,89 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Signed-off-by: Paul Cercueil <paul@crapouillou.net>
----
- drivers/rtc/Kconfig      |  6 +++---
- drivers/rtc/rtc-jz4740.c | 50 ++++++++++++++++++++++++++++++++++++++++++++++--
- 2 files changed, 51 insertions(+), 5 deletions(-)
+On 14/03/2016 at 16:59:33 -0300, Javier Martinez Canillas wrote :
+> Hello Joe,
+> 
+> On 03/14/2016 04:38 PM, Joe Perches wrote:
+> > On Mon, 2016-03-14 at 16:31 -0300, Javier Martinez Canillas wrote:
+> >> On 03/14/2016 04:11 PM, Joe Perches wrote:> > On Mon, 2016-03-14 at 16:05 -0300, Javier Martinez Canillas wrote:
+> >>>>
+> >>>> The clock and source clock looked up by the driver may not be available
+> >>>> just because the clock controller driver was not probed yet so printing
+> >>>> an error in this case is not correct and only adds confusion to users.
+> >>>>
+> >>>> However, knowing that a driver's probe was deferred may be useful so it
+> >>>> can be printed as debug information.
+> >>> []
+> >>>>
+> >>>> diff --git a/drivers/rtc/rtc-s3c.c b/drivers/rtc/rtc-s3c.c
+> >>> []
+> >>>>
+> >>>> @@ -501,18 +501,27 @@ static int s3c_rtc_probe(struct platform_device *pdev)
+> >>>>  
+> >>>>  	info->rtc_clk = devm_clk_get(&pdev->dev, "rtc");
+> >>>>  	if (IS_ERR(info->rtc_clk)) {
+> >>>> -		dev_err(&pdev->dev, "failed to find rtc clock\n");
+> >>>> -		return PTR_ERR(info->rtc_clk);
+> >>>> +		ret = PTR_ERR(info->rtc_clk);
+> >>>> +		if (ret != -EPROBE_DEFER)
+> >>>> +			dev_err(&pdev->dev, "failed to find rtc clock\n");
+> >>>> +		else
+> >>>> +			dev_dbg(&pdev->dev, "probe deferred due rtc clock\n");
+> >>>> +		return ret;
+> >>>>  	}
+> >>>>  	clk_prepare_enable(info->rtc_clk);
+> >>>>  
+> >>>>  	if (info->data->needs_src_clk) {
+> >>>>  		info->rtc_src_clk = devm_clk_get(&pdev->dev, "rtc_src");
+> >>>>  		if (IS_ERR(info->rtc_src_clk)) {
+> >>>> -			dev_err(&pdev->dev,
+> >>>> -				"failed to find rtc source clock\n");
+> >>>> +			ret = PTR_ERR(info->rtc_src_clk);
+> >>>> +			if (ret != -EPROBE_DEFER)
+> >>>> +				dev_err(&pdev->dev,
+> >>>> +					"failed to find rtc source clock\n");
+> >>>> +			else
+> >>>> +				dev_dbg(&pdev->dev,
+> >>>> +					"probe deferred due rtc source clock\n");
+> >>>>  			clk_disable_unprepare(info->rtc_clk);
+> >>>> -			return PTR_ERR(info->rtc_src_clk);
+> >>>> +			return ret;
+> >>>>  		}
+> >>>>  		clk_prepare_enable(info->rtc_src_clk);
+> >>>>  	}
+> >>> Maybe the debug logging messages could be object->action like:
+> >>>
+> >>> 	rtc clock probe deferred
+> >>> 	rtc source clock probe deferred
+> >>>
+> >> I found your suggested messages harder to read and more confusing. The
+> >> action that happens is a probe function deferral and that is caused by
+> >> a missing resource needed by the driver (clocks in this case).
+> >>
+> >> But your messages seems to imply that the probe deferred action happens
+> >> to a clock, it sounds like "rtc clock disabled" and that's not correct.
+> > 
+> > OK, then please change "due" to "due to" or "for" in your messages
+> > because they make little sense now.
+> >
+> 
+> I don't think they make little sense now since even a non-native english
+> speaker like me can understand it :)
+> 
+> But yes, it's cryptic at the very least. That's the problem with long text
+> and the 80 char limit to make checkpatch.pl happy. I guess I can just move
+> the message a little bit even if that will make to not be properly aligned.
+> 
 
-diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
-index e593c55..b322f08 100644
---- a/drivers/rtc/Kconfig
-+++ b/drivers/rtc/Kconfig
-@@ -1494,10 +1494,10 @@ config RTC_DRV_MPC5121
- 
- config RTC_DRV_JZ4740
- 	tristate "Ingenic JZ4740 SoC"
--	depends on MACH_JZ4740 || COMPILE_TEST
-+	depends on MACH_INGENIC || COMPILE_TEST
- 	help
--	  If you say yes here you get support for the Ingenic JZ4740 SoC RTC
--	  controller.
-+	  If you say yes here you get support for the Ingenic JZ47xx SoCs RTC
-+	  controllers.
- 
- 	  This driver can also be buillt as a module. If so, the module
- 	  will be called rtc-jz4740.
-diff --git a/drivers/rtc/rtc-jz4740.c b/drivers/rtc/rtc-jz4740.c
-index b2bcfc0..47617bd 100644
---- a/drivers/rtc/rtc-jz4740.c
-+++ b/drivers/rtc/rtc-jz4740.c
-@@ -29,6 +29,10 @@
- #define JZ_REG_RTC_HIBERNATE	0x20
- #define JZ_REG_RTC_SCRATCHPAD	0x34
- 
-+/* The following are present on the jz4780 */
-+#define JZ_REG_RTC_WENR	0x3C
-+#define JZ_RTC_WENR_WEN	BIT(31)
-+
- #define JZ_RTC_CTRL_WRDY	BIT(7)
- #define JZ_RTC_CTRL_1HZ		BIT(6)
- #define JZ_RTC_CTRL_1HZ_IRQ	BIT(5)
-@@ -37,8 +41,17 @@
- #define JZ_RTC_CTRL_AE		BIT(2)
- #define JZ_RTC_CTRL_ENABLE	BIT(0)
- 
-+/* Magic value to enable writes on jz4780 */
-+#define JZ_RTC_WENR_MAGIC	0xA55A
-+
-+enum jz4740_rtc_type {
-+	ID_JZ4740,
-+	ID_JZ4780,
-+};
-+
- struct jz4740_rtc {
- 	void __iomem *base;
-+	enum jz4740_rtc_type type;
- 
- 	struct rtc_device *rtc;
- 
-@@ -64,11 +77,33 @@ static int jz4740_rtc_wait_write_ready(struct jz4740_rtc *rtc)
- 	return timeout ? 0 : -EIO;
- }
- 
-+static inline int jz4780_rtc_enable_write(struct jz4740_rtc *rtc)
-+{
-+	uint32_t ctrl;
-+	int ret, timeout = 1000;
-+
-+	ret = jz4740_rtc_wait_write_ready(rtc);
-+	if (ret != 0)
-+		return ret;
-+
-+	writel(JZ_RTC_WENR_MAGIC, rtc->base + JZ_REG_RTC_WENR);
-+
-+	do {
-+		ctrl = readl(rtc->base + JZ_REG_RTC_WENR);
-+	} while (!(ctrl & JZ_RTC_WENR_WEN) && --timeout);
-+
-+	return timeout ? 0 : -EIO;
-+}
-+
- static inline int jz4740_rtc_reg_write(struct jz4740_rtc *rtc, size_t reg,
- 	uint32_t val)
- {
--	int ret;
--	ret = jz4740_rtc_wait_write_ready(rtc);
-+	int ret = 0;
-+
-+	if (rtc->type >= ID_JZ4780)
-+		ret = jz4780_rtc_enable_write(rtc);
-+	if (ret == 0)
-+		ret = jz4740_rtc_wait_write_ready(rtc);
- 	if (ret == 0)
- 		writel(val, rtc->base + reg);
- 
-@@ -216,11 +251,14 @@ static int jz4740_rtc_probe(struct platform_device *pdev)
- 	struct jz4740_rtc *rtc;
- 	uint32_t scratchpad;
- 	struct resource *mem;
-+	const struct platform_device_id *id = platform_get_device_id(pdev);
- 
- 	rtc = devm_kzalloc(&pdev->dev, sizeof(*rtc), GFP_KERNEL);
- 	if (!rtc)
- 		return -ENOMEM;
- 
-+	rtc->type = id->driver_data;
-+
- 	rtc->irq = platform_get_irq(pdev, 0);
- 	if (rtc->irq < 0) {
- 		dev_err(&pdev->dev, "Failed to get platform irq\n");
-@@ -295,12 +333,20 @@ static const struct dev_pm_ops jz4740_pm_ops = {
- #define JZ4740_RTC_PM_OPS NULL
- #endif  /* CONFIG_PM */
- 
-+static const struct platform_device_id jz4740_rtc_ids[] = {
-+	{"jz4740-rtc", ID_JZ4740},
-+	{"jz4780-rtc", ID_JZ4780},
-+	{}
-+};
-+MODULE_DEVICE_TABLE(platform, jz4740_rtc_ids);
-+
- static struct platform_driver jz4740_rtc_driver = {
- 	.probe	 = jz4740_rtc_probe,
- 	.driver	 = {
- 		.name  = "jz4740-rtc",
- 		.pm    = JZ4740_RTC_PM_OPS,
- 	},
-+	.id_table = jz4740_rtc_ids,
- };
- 
- module_platform_driver(jz4740_rtc_driver);
+checkpatch will not complain for messages but it will definitively
+complain if they are not properly aligned:)
+
+
 -- 
-2.7.0
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
 -- 
 -- 
