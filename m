@@ -1,29 +1,24 @@
-Return-Path: <rtc-linux+bncBDKZNNNLXAHBB6OG3G3AKGQEZVDUWIY@googlegroups.com>
-Received: from mailout1.w1.samsung.com (mailout1.w1.samsung.com. [210.118.77.11])
-        by gmr-mx.google.com with ESMTPS id r75si3240113pfr.0.2016.03.01.19.52.24
+Return-Path: <rtc-linux+bncBCPM5SUWUYIRBDU5TO3QKGQEHVSUWFI@googlegroups.com>
+MIME-Version: 1.0
+Received: from mail-pf0-x243.google.com (mail-pf0-x243.google.com. [2607:f8b0:400e:c00::243])
+        by gmr-mx.google.com with ESMTPS id sf5si3328105pac.1.2016.03.14.07.45.34
         for <rtc-linux@googlegroups.com>
-        (version=TLS1 cipher=AES128-SHA bits=128/128);
-        Tue, 01 Mar 2016 19:52:24 -0800 (PST)
-Received: from eucpsbgm2.samsung.com (unknown [203.254.199.245])
- by mailout1.w1.samsung.com
- (Oracle Communications Messaging Server 7.0.5.31.0 64bit (built May  5 2014))
- with ESMTP id <0O3E00G4O838L870@mailout1.w1.samsung.com> for
- rtc-linux@googlegroups.com; Wed, 02 Mar 2016 03:52:20 +0000 (GMT)
-Subject: [rtc-linux] Re: [PATCH 1/2] rtc: max77686: Add support for
- MAX20024/MAX77620 RTC IP
-To: Laxman Dewangan <ldewangan@nvidia.com>,
- alexandre.belloni@free-electrons.com, a.zummo@towertech.it
-References: <1456750705-13579-1-git-send-email-ldewangan@nvidia.com>
- <56D63A9C.20506@samsung.com> <56D64CAC.5030704@nvidia.com>
-Cc: cw00.choi@samsung.com, rtc-linux@googlegroups.com,
- linux-kernel@vger.kernel.org, javier@osg.samsung.com, rklein@nvidia.com
-From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-Message-id: <56D6636F.6090403@samsung.com>
-Date: Wed, 02 Mar 2016 12:52:15 +0900
-MIME-version: 1.0
-In-reply-to: <56D64CAC.5030704@nvidia.com>
-Content-type: text/plain; charset=UTF-8
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 14 Mar 2016 07:45:34 -0700 (PDT)
+Received: by mail-pf0-x243.google.com with SMTP id n5so7998572pfn.1
+        for <rtc-linux@googlegroups.com>; Mon, 14 Mar 2016 07:45:34 -0700 (PDT)
+From: Akinobu Mita <akinobu.mita@gmail.com>
+To: rtc-linux@googlegroups.com
+Cc: Akinobu Mita <akinobu.mita@gmail.com>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Subject: [rtc-linux] [PATCH v2 2/3] rtc: pcf2127: add support for spi interface
+Date: Mon, 14 Mar 2016 23:45:00 +0900
+Message-Id: <1457966701-6532-2-git-send-email-akinobu.mita@gmail.com>
+In-Reply-To: <1457966701-6532-1-git-send-email-akinobu.mita@gmail.com>
+References: <1457966701-6532-1-git-send-email-akinobu.mita@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -33,93 +28,207 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 02.03.2016 11:15, Laxman Dewangan wrote:
-> 
-> On Wednesday 02 March 2016 06:28 AM, Krzysztof Kozlowski wrote:
->> On 29.02.2016 21:58, Laxman Dewangan wrote:
->> +    .alarm_pending_status_reg = MAX77620_RTC_ALARM_PENDING_STATUS_REG,
->> Just skip the alarm_pending_status_reg (so it will be 0x0) and check for
->> non-zero value later?
->>
->> It might be a little bit non consistent approach to how we map RTC
->> registers (REG_RTC_NONE)... so I don't have strong feelings about this.
-> 
-> I choose -1 because 0 is also valid.
-> So I can have macro for INVALID register which is -1 and use here, other
-> places direct register as STATUS2.
+pcf2127 has selectable I2C-bus and SPI-bus interface support.
 
-There is only one value used here so 0 not valid. But I don't mind that
-approach.
+This adds support for SPI interface.
 
-> 
-> 
->>
->>> +    if (info->drv_data->rtc_irq_from_platform) {
->>> +        struct platform_device *pdev = to_platform_device(info->dev);
->>> +
->>> +        info->rtc_irq = platform_get_irq(pdev, 0);
->> It may return -ERRNO. What happens then?
-> 
-> MFD is initializing the irq and so it will not fail on this particular
-> case.
-> Even if error, the regmap_add_irq should fail.
-> 
-> Let me handle error at this point only to avoid any assumption and
-> further processing with error, by returning error.
-> 
-> 
->>
->>> +    } else {
->>> +        info->rtc_irq =  parent_i2c->irq;
->>> +    }
->>>         info->regmap = dev_get_regmap(parent, NULL);
->>>       if (!info->regmap) {
->>> @@ -802,6 +840,8 @@ static SIMPLE_DEV_PM_OPS(max77686_rtc_pm_ops,
->>>   static const struct platform_device_id rtc_id[] = {
->>>       { "max77686-rtc", .driver_data =
->>> (kernel_ulong_t)&max77686_drv_data, },
->>>       { "max77802-rtc", .driver_data =
->>> (kernel_ulong_t)&max77802_drv_data, },
->>> +    { "max77620-rtc", .driver_data =
->>> (kernel_ulong_t)&max77620_drv_data, },
->>> +    { "max20024-rtc", .driver_data =
->>> (kernel_ulong_t)&max77620_drv_data, },
->> There shouldn't be "max20024-rtc". This is exactly the same as
->> "max77620-rtc" so re-use existing id. No point of duplicating device
->> names for 100% compatible devices.
->>
->>
-> I am thinking that having compatible for each device which it supports
-> is better.
-> 
-> In MFD, I have made all sub module of max20024 as max20024-<module>.
-> I have not mixed the sub module name for max20024 with max77620 module.
+Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>
+Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+---
+* No changes from v1
 
-The point of compatible is to be... compatible so you don't create
-compatibles for the same meaning!
+ drivers/rtc/Kconfig       |  19 ++++----
+ drivers/rtc/rtc-pcf2127.c | 118 +++++++++++++++++++++++++++++++++++++++++++++-
+ 2 files changed, 126 insertions(+), 11 deletions(-)
 
-However this is actually not a compatible but a matching name... which
-should follow the same idea. You did not give any argument why this is
-better.
-
-For me, code like this:
-{ "max77802-rtc", .driver_data = (kernel_ulong_t)&max77802_drv_data, },
-{ "max77620-rtc", .driver_data = (kernel_ulong_t)&max77620_drv_data, },
-{ "max77621-rtc", .driver_data = (kernel_ulong_t)&max77620_drv_data, },
-{ "max77622-rtc", .driver_data = (kernel_ulong_t)&max77620_drv_data, },
-{ "max77623-rtc", .driver_data = (kernel_ulong_t)&max77620_drv_data, },
-{ "max776xx-some-other-rtc", .driver_data =
-(kernel_ulong_t)&max77620_drv_data, },
-{ "max77624-rtc", .driver_data = (kernel_ulong_t)&max77620_drv_data, },
-
-is useless, ridiculous and obfuscated. It is duplication of code just
-"because". The child driver is selected by matching mfd-cell or
-compatible. We are reusing child drivers so reuse under the same name.
-
-Best regards,
-Krzysztof
-
-
+diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
+index 777fa2d..9d0f4da 100644
+--- a/drivers/rtc/Kconfig
++++ b/drivers/rtc/Kconfig
+@@ -400,15 +400,6 @@ config RTC_DRV_PALMAS
+ 	  This driver can also be built as a module. If so, the module
+ 	  will be called rtc-palma.
+ 
+-config RTC_DRV_PCF2127
+-	tristate "NXP PCF2127"
+-	help
+-	  If you say yes here you get support for the NXP PCF2127/29 RTC
+-	  chips.
+-
+-	  This driver can also be built as a module. If so, the module
+-	  will be called rtc-pcf2127.
+-
+ config RTC_DRV_PCF8523
+ 	tristate "NXP PCF8523"
+ 	help
+@@ -767,6 +758,16 @@ config RTC_DRV_DS3232
+ 	  This driver can also be built as a module.  If so, the module
+ 	  will be called rtc-ds3232.
+ 
++config RTC_DRV_PCF2127
++	tristate "NXP PCF2127"
++	depends on RTC_I2C_AND_SPI
++	help
++	  If you say yes here you get support for the NXP PCF2127/29 RTC
++	  chips.
++
++	  This driver can also be built as a module. If so, the module
++	  will be called rtc-pcf2127.
++
+ comment "Platform RTC drivers"
+ 
+ # this 'CMOS' RTC driver is arch dependent because <asm-generic/rtc.h>
+diff --git a/drivers/rtc/rtc-pcf2127.c b/drivers/rtc/rtc-pcf2127.c
+index fa492cd..194c440 100644
+--- a/drivers/rtc/rtc-pcf2127.c
++++ b/drivers/rtc/rtc-pcf2127.c
+@@ -1,5 +1,5 @@
+ /*
+- * An I2C driver for the NXP PCF2127 RTC
++ * An I2C and SPI driver for the NXP PCF2127 RTC
+  * Copyright 2013 Til-Technologies
+  *
+  * Author: Renaud Cerrato <r.cerrato@til-technologies.fr>
+@@ -14,6 +14,7 @@
+  */
+ 
+ #include <linux/i2c.h>
++#include <linux/spi/spi.h>
+ #include <linux/bcd.h>
+ #include <linux/rtc.h>
+ #include <linux/slab.h>
+@@ -200,6 +201,8 @@ static const struct of_device_id pcf2127_of_match[] = {
+ MODULE_DEVICE_TABLE(of, pcf2127_of_match);
+ #endif
+ 
++#if IS_ENABLED(CONFIG_I2C)
++
+ static int pcf2127_i2c_write(void *context, const void *data, size_t count)
+ {
+ 	struct device *dev = context;
+@@ -311,7 +314,118 @@ static struct i2c_driver pcf2127_i2c_driver = {
+ 	.probe		= pcf2127_i2c_probe,
+ 	.id_table	= pcf2127_i2c_id,
+ };
+-module_i2c_driver(pcf2127_i2c_driver);
++
++static int pcf2127_i2c_register_driver(void)
++{
++	return i2c_add_driver(&pcf2127_i2c_driver);
++}
++
++static void pcf2127_i2c_unregister_driver(void)
++{
++	i2c_del_driver(&pcf2127_i2c_driver);
++}
++
++#else
++
++static int pcf2127_i2c_register_driver(void)
++{
++	return 0;
++}
++
++static void pcf2127_i2c_unregister_driver(void)
++{
++}
++
++#endif
++
++#if IS_ENABLED(CONFIG_SPI_MASTER)
++
++static struct spi_driver pcf2127_spi_driver;
++
++static int pcf2127_spi_probe(struct spi_device *spi)
++{
++	static const struct regmap_config config = {
++		.reg_bits = 8,
++		.val_bits = 8,
++		.read_flag_mask = 0xa0,
++		.write_flag_mask = 0x20,
++	};
++	struct regmap *regmap;
++
++	regmap = devm_regmap_init_spi(spi, &config);
++	if (IS_ERR(regmap)) {
++		dev_err(&spi->dev, "%s: regmap allocation failed: %ld\n",
++			__func__, PTR_ERR(regmap));
++		return PTR_ERR(regmap);
++	}
++
++	return pcf2127_probe(&spi->dev, regmap, pcf2127_spi_driver.driver.name);
++}
++
++static const struct spi_device_id pcf2127_spi_id[] = {
++	{ "pcf2127", 0 },
++	{ }
++};
++MODULE_DEVICE_TABLE(spi, pcf2127_spi_id);
++
++static struct spi_driver pcf2127_spi_driver = {
++	.driver		= {
++		.name	= "rtc-pcf2127-spi",
++		.of_match_table = of_match_ptr(pcf2127_of_match),
++	},
++	.probe		= pcf2127_spi_probe,
++	.id_table	= pcf2127_spi_id,
++};
++
++static int pcf2127_spi_register_driver(void)
++{
++	return spi_register_driver(&pcf2127_spi_driver);
++}
++
++static void pcf2127_spi_unregister_driver(void)
++{
++	spi_unregister_driver(&pcf2127_spi_driver);
++}
++
++#else
++
++static int pcf2127_spi_register_driver(void)
++{
++	return 0;
++}
++
++static void pcf2127_spi_unregister_driver(void)
++{
++}
++
++#endif
++
++static int __init pcf2127_init(void)
++{
++	int ret;
++
++	ret = pcf2127_i2c_register_driver();
++	if (ret) {
++		pr_err("Failed to register pcf2127 i2c driver: %d\n", ret);
++		return ret;
++	}
++
++	ret = pcf2127_spi_register_driver();
++	if (ret) {
++		pr_err("Failed to register pcf2127 spi driver: %d\n", ret);
++		pcf2127_i2c_unregister_driver();
++	}
++
++	return ret;
++}
++module_init(pcf2127_init)
++
++static void __exit pcf2127_exit(void)
++{
++	pcf2127_spi_unregister_driver();
++	pcf2127_i2c_unregister_driver();
++}
++module_exit(pcf2127_exit)
+ 
+ MODULE_AUTHOR("Renaud Cerrato <r.cerrato@til-technologies.fr>");
+ MODULE_DESCRIPTION("NXP PCF2127 RTC driver");
+-- 
+2.5.0
 
 -- 
 -- 
