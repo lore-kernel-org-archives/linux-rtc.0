@@ -1,23 +1,21 @@
-Return-Path: <rtc-linux+bncBCC6ZWOPXENRBRNI4G3AKGQEOOL4IFQ@googlegroups.com>
-Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de. [2001:67c:670:201:290:27ff:fe1d:cc33])
-        by gmr-mx.google.com with ESMTPS id w10si290942wmw.3.2016.03.03.07.12.05
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=AES128-SHA bits=128/128);
-        Thu, 03 Mar 2016 07:12:05 -0800 (PST)
-From: Juergen Borleis <jbe@pengutronix.de>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Subject: [rtc-linux] Re: [PATCH 2/2] rtc: pcf85063: remove struct pcf85063
-Date: Thu, 3 Mar 2016 16:14:08 +0100
-Cc: rtc-linux@googlegroups.com,
- Alessandro Zummo <a.zummo@towertech.it>,
- linux-kernel@vger.kernel.org
-References: <1456914343-4611-1-git-send-email-alexandre.belloni@free-electrons.com> <1456914343-4611-2-git-send-email-alexandre.belloni@free-electrons.com>
-In-Reply-To: <1456914343-4611-2-git-send-email-alexandre.belloni@free-electrons.com>
+Return-Path: <rtc-linux+bncBAABB6UWTS3QKGQEIPYGF4A@googlegroups.com>
 MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-15"
-Message-Id: <201603031614.08309.jbe@pengutronix.de>
+Received: from lists.s-osg.org (lists.s-osg.org. [54.187.51.154])
+        by gmr-mx.google.com with ESMTP id y20si3331579pfa.2.2016.03.14.12.05.29
+        for <rtc-linux@googlegroups.com>;
+        Mon, 14 Mar 2016 12:05:29 -0700 (PDT)
+From: Javier Martinez Canillas <javier@osg.samsung.com>
+To: linux-kernel@vger.kernel.org
+Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	linux-samsung-soc@vger.kernel.org,
+	Krzysztof Kozlowski <k.kozlowski@samsung.com>,
+	rtc-linux@googlegroups.com,
+	Javier Martinez Canillas <javier@osg.samsung.com>
+Subject: [rtc-linux] [PATCH] rtc: s3c: Don't print an error on probe deferral
+Date: Mon, 14 Mar 2016 16:05:08 -0300
+Message-Id: <1457982308-29848-1-git-send-email-javier@osg.samsung.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -27,62 +25,67 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Wednesday 02 March 2016 11:25:43 Alexandre Belloni wrote:
-> No members of struct pcf85063 are used anymore, remove the whole structure.
->
-> Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-> ---
->  drivers/rtc/rtc-pcf85063.c | 22 +++++-----------------
->  1 file changed, 5 insertions(+), 17 deletions(-)
->
-> diff --git a/drivers/rtc/rtc-pcf85063.c b/drivers/rtc/rtc-pcf85063.c
-> index 550f67518c5a..e8ddbb359d11 100644
-> --- a/drivers/rtc/rtc-pcf85063.c
-> +++ b/drivers/rtc/rtc-pcf85063.c
-> @@ -31,11 +31,6 @@
->
->  static struct i2c_driver pcf85063_driver;
->
-> -struct pcf85063 {
-> -	struct rtc_device *rtc;
-> -	int voltage_low; /* indicates if a low_voltage was detected */
-> -};
-> -
->  static int pcf85063_stop_clock(struct i2c_client *client, u8 *ctrl1)
->  {
->  	s32 ret;
-> @@ -168,25 +163,18 @@ static const struct rtc_class_ops pcf85063_rtc_ops = {
->  static int pcf85063_probe(struct i2c_client *client, 
->  				const struct i2c_device_id *id)
->  {
-> -	struct pcf85063 *pcf85063;
-> +	struct rtc_device *rtc;
->
->  	dev_dbg(&client->dev, "%s\n", __func__);
->
->  	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C))
->  		return -ENODEV;
->
-> -	pcf85063 = devm_kzalloc(&client->dev, sizeof(struct pcf85063),
-> -				GFP_KERNEL);
-> -	if (!pcf85063)
-> -		return -ENOMEM;
-> -
-> -	i2c_set_clientdata(client, pcf85063);
-> -
-> -	pcf85063->rtc = devm_rtc_device_register(&client->dev,
-> -				pcf85063_driver.driver.name,
-> -				&pcf85063_rtc_ops, THIS_MODULE);
-> +	rtc = devm_rtc_device_register(&client->dev,
-> +				       pcf85063_driver.driver.name,
-> +				       &pcf85063_rtc_ops, THIS_MODULE);
->
-> -	return PTR_ERR_OR_ZERO(pcf85063->rtc);
-> +	return PTR_ERR_OR_ZERO(rtc);
->  }
->
->  static const struct i2c_device_id pcf85063_id[] = {
+The clock and source clock looked up by the driver may not be available
+just because the clock controller driver was not probed yet so printing
+an error in this case is not correct and only adds confusion to users.
 
-Reviewed-by: Juergen Borleis <jbe@pengutronix.de>
+However, knowing that a driver's probe was deferred may be useful so it
+can be printed as debug information.
 
-jb
+Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
+
+---
+
+ drivers/rtc/rtc-s3c.c | 19 ++++++++++++++-----
+ 1 file changed, 14 insertions(+), 5 deletions(-)
+
+diff --git a/drivers/rtc/rtc-s3c.c b/drivers/rtc/rtc-s3c.c
+index ffb860d18701..789ac8715038 100644
+--- a/drivers/rtc/rtc-s3c.c
++++ b/drivers/rtc/rtc-s3c.c
+@@ -501,18 +501,27 @@ static int s3c_rtc_probe(struct platform_device *pdev)
+ 
+ 	info->rtc_clk = devm_clk_get(&pdev->dev, "rtc");
+ 	if (IS_ERR(info->rtc_clk)) {
+-		dev_err(&pdev->dev, "failed to find rtc clock\n");
+-		return PTR_ERR(info->rtc_clk);
++		ret = PTR_ERR(info->rtc_clk);
++		if (ret != -EPROBE_DEFER)
++			dev_err(&pdev->dev, "failed to find rtc clock\n");
++		else
++			dev_dbg(&pdev->dev, "probe deferred due rtc clock\n");
++		return ret;
+ 	}
+ 	clk_prepare_enable(info->rtc_clk);
+ 
+ 	if (info->data->needs_src_clk) {
+ 		info->rtc_src_clk = devm_clk_get(&pdev->dev, "rtc_src");
+ 		if (IS_ERR(info->rtc_src_clk)) {
+-			dev_err(&pdev->dev,
+-				"failed to find rtc source clock\n");
++			ret = PTR_ERR(info->rtc_src_clk);
++			if (ret != -EPROBE_DEFER)
++				dev_err(&pdev->dev,
++					"failed to find rtc source clock\n");
++			else
++				dev_dbg(&pdev->dev,
++					"probe deferred due rtc source clock\n");
+ 			clk_disable_unprepare(info->rtc_clk);
+-			return PTR_ERR(info->rtc_src_clk);
++			return ret;
+ 		}
+ 		clk_prepare_enable(info->rtc_src_clk);
+ 	}
+-- 
+2.5.0
+
+-- 
+-- 
+You received this message because you are subscribed to "rtc-linux".
+Membership options at http://groups.google.com/group/rtc-linux .
+Please read http://groups.google.com/group/rtc-linux/web/checklist
+before submitting a driver.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+For more options, visit https://groups.google.com/d/optout.
