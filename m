@@ -1,24 +1,22 @@
-Return-Path: <rtc-linux+bncBCPM5SUWUYIRBEM5TO3QKGQE3I7YBJQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBAABBH6QTS3QKGQEX3YYLAI@googlegroups.com>
+Received: from lists.s-osg.org (lists.s-osg.org. [54.187.51.154])
+        by gmr-mx.google.com with ESMTP id ui7si3614020pab.0.2016.03.14.14.07.43
+        for <rtc-linux@googlegroups.com>;
+        Mon, 14 Mar 2016 14:07:43 -0700 (PDT)
+Subject: [rtc-linux] Re: [PATCH v2] rtc: s3c: Don't print an error on probe deferral
+To: Joe Perches <joe@perches.com>, linux-kernel@vger.kernel.org
+References: <1457987157-1177-1-git-send-email-javier@osg.samsung.com>
+ <1457987453.11972.133.camel@perches.com>
+Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+ linux-samsung-soc@vger.kernel.org,
+ Krzysztof Kozlowski <k.kozlowski@samsung.com>, rtc-linux@googlegroups.com
+From: Javier Martinez Canillas <javier@osg.samsung.com>
+Message-ID: <56E72818.8050407@osg.samsung.com>
+Date: Mon, 14 Mar 2016 18:07:36 -0300
 MIME-Version: 1.0
-Received: from mail-pf0-x243.google.com (mail-pf0-x243.google.com. [2607:f8b0:400e:c00::243])
-        by gmr-mx.google.com with ESMTPS id sf5si3328105pac.1.2016.03.14.07.45.36
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 14 Mar 2016 07:45:37 -0700 (PDT)
-Received: by mail-pf0-x243.google.com with SMTP id n5so7998572pfn.1
-        for <rtc-linux@googlegroups.com>; Mon, 14 Mar 2016 07:45:36 -0700 (PDT)
-From: Akinobu Mita <akinobu.mita@gmail.com>
-To: rtc-linux@googlegroups.com
-Cc: Akinobu Mita <akinobu.mita@gmail.com>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Subject: [rtc-linux] [PATCH v2 3/3] rtc: pcf2127: add pcf2129 device id
-Date: Mon, 14 Mar 2016 23:45:01 +0900
-Message-Id: <1457966701-6532-3-git-send-email-akinobu.mita@gmail.com>
-In-Reply-To: <1457966701-6532-1-git-send-email-akinobu.mita@gmail.com>
-References: <1457966701-6532-1-git-send-email-akinobu.mita@gmail.com>
-Reply-To: rtc-linux@googlegroups.com
+In-Reply-To: <1457987453.11972.133.camel@perches.com>
 Content-Type: text/plain; charset=UTF-8
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -28,74 +26,33 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-There are only a few differences between PCF2127 and PCF2129 (PCF2127
-has 512 bytes of general purpose SRAM and count-down timer).
+Hello Joe,
 
-The rtc-pcf2127 driver currently doesn't use the PCF2127 specific
-functionality and Kconfig help text already says this driver supports
-PCF2127/29, so we can simply add pcf2129 to device id list.
+On 03/14/2016 05:30 PM, Joe Perches wrote:
+> On Mon, 2016-03-14 at 17:25 -0300, Javier Martinez Canillas wrote:
+>> The clock and source clock looked up by the driver may not be available
+>> just because the clock controller driver was not probed yet so printing
+>> an error in this case is not correct and only adds confusion to users.
+>>
+>> However, knowing that a driver's probe was deferred may be useful so it
+>> can be printed as debug information.
+> 
+> Hello again Javier:
+>> +			dev_dbg(&pdev->dev, "probe deferred due missing rtc clk\n");
+> 
+> Again, intelligible English would not use "due"
+> but would use "due to" or "because of".
+> 
 
-Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>
-Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
----
-* No changes from v1
+Ok, I'll post another version then. I hope the third time's the charm...
 
- drivers/rtc/rtc-pcf2127.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+Alexandre, do you have any other comments before I re-spin this patch?
 
-diff --git a/drivers/rtc/rtc-pcf2127.c b/drivers/rtc/rtc-pcf2127.c
-index 194c440..2bfdf63 100644
---- a/drivers/rtc/rtc-pcf2127.c
-+++ b/drivers/rtc/rtc-pcf2127.c
-@@ -1,12 +1,12 @@
- /*
-- * An I2C and SPI driver for the NXP PCF2127 RTC
-+ * An I2C and SPI driver for the NXP PCF2127/29 RTC
-  * Copyright 2013 Til-Technologies
-  *
-  * Author: Renaud Cerrato <r.cerrato@til-technologies.fr>
-  *
-  * based on the other drivers in this same directory.
-  *
-- * http://www.nxp.com/documents/data_sheet/PCF2127AT.pdf
-+ * Datasheet: http://cache.nxp.com/documents/data_sheet/PCF2127.pdf
-  *
-  * This program is free software; you can redistribute it and/or modify
-  * it under the terms of the GNU General Public License version 2 as
-@@ -196,6 +196,7 @@ static int pcf2127_probe(struct device *dev, struct regmap *regmap,
- #ifdef CONFIG_OF
- static const struct of_device_id pcf2127_of_match[] = {
- 	{ .compatible = "nxp,pcf2127" },
-+	{ .compatible = "nxp,pcf2129" },
- 	{}
- };
- MODULE_DEVICE_TABLE(of, pcf2127_of_match);
-@@ -302,6 +303,7 @@ static int pcf2127_i2c_probe(struct i2c_client *client,
- 
- static const struct i2c_device_id pcf2127_i2c_id[] = {
- 	{ "pcf2127", 0 },
-+	{ "pcf2129", 0 },
- 	{ }
- };
- MODULE_DEVICE_TABLE(i2c, pcf2127_i2c_id);
-@@ -364,6 +366,7 @@ static int pcf2127_spi_probe(struct spi_device *spi)
- 
- static const struct spi_device_id pcf2127_spi_id[] = {
- 	{ "pcf2127", 0 },
-+	{ "pcf2129", 0 },
- 	{ }
- };
- MODULE_DEVICE_TABLE(spi, pcf2127_spi_id);
-@@ -428,5 +431,5 @@ static void __exit pcf2127_exit(void)
- module_exit(pcf2127_exit)
- 
- MODULE_AUTHOR("Renaud Cerrato <r.cerrato@til-technologies.fr>");
--MODULE_DESCRIPTION("NXP PCF2127 RTC driver");
-+MODULE_DESCRIPTION("NXP PCF2127/29 RTC driver");
- MODULE_LICENSE("GPL v2");
+Best regards,
 -- 
-2.5.0
+Javier Martinez Canillas
+Open Source Group
+Samsung Research America
 
 -- 
 -- 
