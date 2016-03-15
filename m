@@ -1,98 +1,97 @@
-Return-Path: <rtc-linux+bncBDJIP47K7MERB75UVK3QKGQE45MSXAY@googlegroups.com>
-Sender: rtc-linux@googlegroups.com
-Received: from mail.kernel.org (mail.kernel.org. [198.145.29.136])
-        by gmr-mx.google.com with ESMTPS id sf5si1265932pac.1.2016.03.17.04.52.30
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 17 Mar 2016 04:52:30 -0700 (PDT)
-Date: Thu, 17 Mar 2016 06:52:25 -0500
-From: Rob Herring <robh@kernel.org>
-To: Paul Cercueil <paul@crapouillou.net>
-Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Pawel Moll <pawel.moll@arm.com>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Ian Campbell <ijc+devicetree@hellion.org.uk>,
-	Kumar Gala <galak@codeaurora.org>,
-	Ralf Baechle <ralf@linux-mips.org>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Paul Burton <paul.burton@imgtec.com>, devicetree@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-mips@linux-mips.org,
-	rtc-linux@googlegroups.com
-Subject: [rtc-linux] Re: [PATCH 2/5] Documentation: dt: Add binding info for
- jz4740-rtc driver
-Message-ID: <20160317115225.GA18144@rob-hp-laptop>
-References: <1457217531-26064-1-git-send-email-paul@crapouillou.net>
- <1457217531-26064-2-git-send-email-paul@crapouillou.net>
+Return-Path: <rtc-linux+bncBAABB4PUTW3QKGQEJ5CA4XI@googlegroups.com>
+Received: from lists.s-osg.org (lists.s-osg.org. [54.187.51.154])
+        by gmr-mx.google.com with ESMTP id ui7si3798152pab.0.2016.03.14.19.58.56
+        for <rtc-linux@googlegroups.com>;
+        Mon, 14 Mar 2016 19:58:57 -0700 (PDT)
+Subject: [rtc-linux] Re: [PATCH v3] rtc: s3c: Don't print an error on probe deferral
+To: Krzysztof Kozlowski <k.kozlowski@samsung.com>,
+ linux-kernel@vger.kernel.org
+References: <1458005918-7893-1-git-send-email-javier@osg.samsung.com>
+ <56E76A57.7070104@samsung.com> <56E76C6F.5020803@osg.samsung.com>
+ <56E772F2.2030507@samsung.com>
+Cc: Joe Perches <joe@perches.com>,
+ Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+ linux-samsung-soc@vger.kernel.org, rtc-linux@googlegroups.com
+From: Javier Martinez Canillas <javier@osg.samsung.com>
+Message-ID: <56E77A6A.2090604@osg.samsung.com>
+Date: Mon, 14 Mar 2016 23:58:50 -0300
 MIME-Version: 1.0
+In-Reply-To: <56E772F2.2030507@samsung.com>
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1457217531-26064-2-git-send-email-paul@crapouillou.net>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
 List-Archive: <https://groups.google.com/group/rtc-linux
+Sender: rtc-linux@googlegroups.com
 List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Sat, Mar 05, 2016 at 11:38:48PM +0100, Paul Cercueil wrote:
-> Signed-off-by: Paul Cercueil <paul@crapouillou.net>
-> ---
->  .../devicetree/bindings/rtc/ingenic,jz4740-rtc.txt | 38 ++++++++++++++++++++++
->  1 file changed, 38 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/rtc/ingenic,jz4740-rtc.txt
+Hello Krzysztof,
+
+On 03/14/2016 11:26 PM, Krzysztof Kozlowski wrote:
+> On 15.03.2016 10:59, Javier Martinez Canillas wrote:
+>>>>  
+>>>>  	if (info->data->needs_src_clk) {
+>>>>  		info->rtc_src_clk = devm_clk_get(&pdev->dev, "rtc_src");
+>>>>  		if (IS_ERR(info->rtc_src_clk)) {
+>>>> -			dev_err(&pdev->dev,
+>>>> -				"failed to find rtc source clock\n");
+>>>> +			ret = PTR_ERR(info->rtc_src_clk);
+>>>> +			if (ret != -EPROBE_DEFER)
+>>>> +				dev_err(&pdev->dev,
+>>>> +					"failed to find rtc source clock\n");
+>>>> +			else
+>>>> +				dev_dbg(&pdev->dev,
+>>>> +					"probe deferred due to missing rtc src clk\n");
+>>>>  			clk_disable_unprepare(info->rtc_clk);
+>>>> -			return PTR_ERR(info->rtc_src_clk);
+>>>> +			return ret;
+>>>>  		}
+>>>>  		clk_prepare_enable(info->rtc_src_clk);
+>>>>  	}
+>>>>
+>>>
+>>> The error path starts looking complicated. This has now 4 indentation
+>>> levels...
+>>>
+>>
+>> Yeah, I don't think we can get rid of the 4 indentation levels since
+>> the function already has 3 and a check for the errno code is needed.
 > 
-> diff --git a/Documentation/devicetree/bindings/rtc/ingenic,jz4740-rtc.txt b/Documentation/devicetree/bindings/rtc/ingenic,jz4740-rtc.txt
-> new file mode 100644
-> index 0000000..71e4ad0
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/rtc/ingenic,jz4740-rtc.txt
-> @@ -0,0 +1,38 @@
-> +JZ4740 and similar SoCs real-time clock driver
-> +
-> +Required properties:
-> +
-> +- compatible: One of:
-> +  - "ingenic,jz4740-rtc" - for use with the JZ4740 SoC
-> +  - "ingenic,jz4780-rtc" - for use with the JZ4780 SoC
-> +- reg: Address range of rtc register set
-> +- interrupts: IRQ number for the alarm interrupt
-> +- interrupt-parent: phandle of the interrupt controller
-> +- clocks: phandle to the "rtc" clock
-> +- clock-names: must be "rtc"
-> +
-> +Optional properties:
-> +- system-power-controller: To use this component as the
-> +  system power controller
+> Probably handling of the clocks in the driver could be simplified a
+> little bit (the if(needs_src_clk) appears in few places)... but this is
+> out of scope for this patch.
+>
 
-> +- reset-pin-assert-time: Reset pin low-level assertion time
-> +  after wakeup (default 60ms; range 0-125ms if RTC clock at 
-> +  32 kHz)
-> +- min-wakeup-pin-assert-time: Minimum wakeup pin assertion time
-> +  (default 100ms; range 0-2s if RTC clock at 32 kHz)
-
-Please append units on these (-msec).
-
-> +
-> +Example:
-> +
-> +rtc@10003000 {
-> +	compatible = "ingenic,jz4740-rtc";
-> +	reg = <0x10003000 0x3F>;
-> +
-> +	interrupt-parent = <&intc>;
-> +	interrupts = <32>;
-> +
-> +	clocks = <&rtc_clock>;
-> +	clock-names = "rtc";
-> +
-> +	system-power-controller;
-> +	reset-pin-assert-time = <60>;
-> +	min-wakeup-pin-assert-time = <100>;
-> +};
-> -- 
-> 2.7.0
+Agreed, I meant without introducing an unrelated change.
+ 
+>>
+>>> I agree for removal of error in case of probe deferral because it might
+>>> be misleading but I don't see much benefit of a debug message.
+>>>
+>>
+>> But yes, we can at least get rid of the else statement. I don't have a
+>> strong opinion about the debug information, I left it to avoid someone
+>> to tell me that I was removing a useful log.
 > 
+> Although dev_dbg doesn't harm... but isn't driver core printing debug
+> message already?
+>
+
+I don't think it does or at least I didn't find it when looking
+at the devm_clk_get() call chain.
+ 
+> BR,
+> Krzysztof
+> 
+
+Best regards,
+-- 
+Javier Martinez Canillas
+Open Source Group
+Samsung Research America
 
 -- 
 -- 
