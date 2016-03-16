@@ -1,594 +1,111 @@
-Return-Path: <rtc-linux+bncBDU7VC56WAFBBPUD5C3AKGQET4TK3DI@googlegroups.com>
-Received: from bues.ch (bues.ch. [2a01:138:9005::1:4])
-        by gmr-mx.google.com with ESMTPS id c140si39565wmh.1.2016.03.04.13.44.30
+Return-Path: <rtc-linux+bncBDQJZJXU2UMBBXWQUS3QKGQEN6B2BSQ@googlegroups.com>
+Sender: rtc-linux@googlegroups.com
+Received: from mout.gmx.net (mout.gmx.net. [212.227.17.20])
+        by gmr-mx.google.com with ESMTPS id c7si76490wmf.2.2016.03.16.02.33.18
         for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=AES128-SHA bits=128/128);
-        Fri, 04 Mar 2016 13:44:30 -0800 (PST)
-Date: Fri, 4 Mar 2016 22:38:45 +0100
-From: Michael =?UTF-8?B?QsO8c2No?= <m@bues.ch>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Gregory Hermant <gregory.hermant@calao-systems.com>,
- rtc-linux@googlegroups.com
-Subject: [rtc-linux] [PATCH v3 1/6] rtc-rv3029: Remove all 'C2' suffixes from identifiers
-Message-ID: <20160304223845.5627c57e@wiggum>
-In-Reply-To: <20160304195435.0732ba43@wiggum>
-References: <20160301213322.661fe771@wiggum>
-	<20160301213655.GG23985@piout.net>
-	<20160301225401.3f0aeabb@wiggum>
-	<20160301230745.GJ23985@piout.net>
-	<20160302072627.14e53e94@wiggum>
-	<20160302120045.GO23985@piout.net>
-	<20160304195337.51439645@wiggum>
-	<20160304195435.0732ba43@wiggum>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 16 Mar 2016 02:33:18 -0700 (PDT)
+Subject: [rtc-linux] Re: [PATCH] rtc: asm9260: remove incorrect __init/__exit annotations
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+ Arnd Bergmann <arnd@arndb.de>
+References: <1458078287-586232-1-git-send-email-arnd@arndb.de>
+ <20160316093008.GB20227@piout.net>
+Cc: Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
+ linux-kernel@vger.kernel.org
+From: Oleksij Rempel <linux@rempel-privat.de>
+Message-ID: <56E92854.6060705@rempel-privat.de>
+Date: Wed, 16 Mar 2016 10:33:08 +0100
 MIME-Version: 1.0
+In-Reply-To: <20160316093008.GB20227@piout.net>
 Content-Type: multipart/signed; micalg=pgp-sha256;
- boundary="Sig_/B/jAtnr=g/A+DuvZprhga3_"; protocol="application/pgp-signature"
+ protocol="application/pgp-signature";
+ boundary="vuJDFXtqKoTnh3HxbkX1Ak6OnEfWGJxx2"
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
 List-Archive: <https://groups.google.com/group/rtc-linux
-Sender: rtc-linux@googlegroups.com
 List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
---Sig_/B/jAtnr=g/A+DuvZprhga3_
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--vuJDFXtqKoTnh3HxbkX1Ak6OnEfWGJxx2
+Content-Type: multipart/mixed; boundary="q9BmlxwIi3sJSaUGuAeoa8HwG4Q2Agalg"
+From: Oleksij Rempel <linux@rempel-privat.de>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+ Arnd Bergmann <arnd@arndb.de>
+Cc: Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
+ linux-kernel@vger.kernel.org
+Message-ID: <56E92854.6060705@rempel-privat.de>
+Subject: Re: [PATCH] rtc: asm9260: remove incorrect __init/__exit annotations
+References: <1458078287-586232-1-git-send-email-arnd@arndb.de>
+ <20160316093008.GB20227@piout.net>
+In-Reply-To: <20160316093008.GB20227@piout.net>
+
+--q9BmlxwIi3sJSaUGuAeoa8HwG4Q2Agalg
 Content-Type: text/plain; charset=UTF-8
 
-The C2 suffix does not appear anymore in the latest device and
-data sheet versions.
+Am 16.03.2016 um 10:30 schrieb Alexandre Belloni:
+> Hi,
+> 
+> On 15/03/2016 at 22:44:31 +0100, Arnd Bergmann wrote :
+>> The probe and remove callbacks of the platform driver are marked __init
+>> and __exit, respectively. However, this is not a correct way to annotate
+>> them, as it will result in those sections to be discarded at link time
+>> or after boot, while we can actually call them again based on manual
+>> unbinding, or deferred probing.
+>>
+>> Kbuild warns about the problem:
+>>
+>> WARNING: drivers/rtc/rtc-asm9260.o(.data+0x0): Section mismatch in reference from the variable asm9260_rtc_driver to the function .init.text:asm9260_rtc_probe()
+>>
+> 
+> I'm not sure why this was not caught before. I'm not building all the
+> platform but that one should have been easy to find...
 
-Signed-off-by: Michael Buesch <m@bues.ch>
----
- drivers/rtc/rtc-rv3029c2.c | 295 +++++++++++++++++++++++----------------------
- 1 file changed, 148 insertions(+), 147 deletions(-)
+Sorry, i'm working on monolit kernel. Haven't seen this warning before :(
 
-diff --git a/drivers/rtc/rtc-rv3029c2.c b/drivers/rtc/rtc-rv3029c2.c
-index e9ac5a4..3083ace 100644
---- a/drivers/rtc/rtc-rv3029c2.c
-+++ b/drivers/rtc/rtc-rv3029c2.c
-@@ -1,5 +1,5 @@
- /*
-- * Micro Crystal RV-3029C2 rtc class driver
-+ * Micro Crystal RV-3029 rtc class driver
-  *
-  * Author: Gregory Hermant <gregory.hermant@calao-systems.com>
-  *
-@@ -21,77 +21,77 @@
- 
- /* Register map */
- /* control section */
--#define RV3029C2_ONOFF_CTRL		0x00
--#define RV3029C2_IRQ_CTRL		0x01
--#define RV3029C2_IRQ_CTRL_AIE		(1 << 0)
--#define RV3029C2_IRQ_FLAGS		0x02
--#define RV3029C2_IRQ_FLAGS_AF		(1 << 0)
--#define RV3029C2_STATUS			0x03
--#define RV3029C2_STATUS_VLOW1		(1 << 2)
--#define RV3029C2_STATUS_VLOW2		(1 << 3)
--#define RV3029C2_STATUS_SR		(1 << 4)
--#define RV3029C2_STATUS_PON		(1 << 5)
--#define RV3029C2_STATUS_EEBUSY		(1 << 7)
--#define RV3029C2_RST_CTRL		0x04
--#define RV3029C2_CONTROL_SECTION_LEN	0x05
-+#define RV3029_ONOFF_CTRL		0x00
-+#define RV3029_IRQ_CTRL			0x01
-+#define RV3029_IRQ_CTRL_AIE		(1 << 0)
-+#define RV3029_IRQ_FLAGS		0x02
-+#define RV3029_IRQ_FLAGS_AF		(1 << 0)
-+#define RV3029_STATUS			0x03
-+#define RV3029_STATUS_VLOW1		(1 << 2)
-+#define RV3029_STATUS_VLOW2		(1 << 3)
-+#define RV3029_STATUS_SR		(1 << 4)
-+#define RV3029_STATUS_PON		(1 << 5)
-+#define RV3029_STATUS_EEBUSY		(1 << 7)
-+#define RV3029_RST_CTRL			0x04
-+#define RV3029_CONTROL_SECTION_LEN	0x05
- 
- /* watch section */
--#define RV3029C2_W_SEC			0x08
--#define RV3029C2_W_MINUTES		0x09
--#define RV3029C2_W_HOURS		0x0A
--#define RV3029C2_REG_HR_12_24		(1<<6)  /* 24h/12h mode */
--#define RV3029C2_REG_HR_PM		(1<<5)  /* PM/AM bit in 12h mode */
--#define RV3029C2_W_DATE			0x0B
--#define RV3029C2_W_DAYS			0x0C
--#define RV3029C2_W_MONTHS		0x0D
--#define RV3029C2_W_YEARS		0x0E
--#define RV3029C2_WATCH_SECTION_LEN	0x07
-+#define RV3029_W_SEC			0x08
-+#define RV3029_W_MINUTES		0x09
-+#define RV3029_W_HOURS			0x0A
-+#define RV3029_REG_HR_12_24		(1<<6)  /* 24h/12h mode */
-+#define RV3029_REG_HR_PM		(1<<5)  /* PM/AM bit in 12h mode */
-+#define RV3029_W_DATE			0x0B
-+#define RV3029_W_DAYS			0x0C
-+#define RV3029_W_MONTHS			0x0D
-+#define RV3029_W_YEARS			0x0E
-+#define RV3029_WATCH_SECTION_LEN	0x07
- 
- /* alarm section */
--#define RV3029C2_A_SC			0x10
--#define RV3029C2_A_MN			0x11
--#define RV3029C2_A_HR			0x12
--#define RV3029C2_A_DT			0x13
--#define RV3029C2_A_DW			0x14
--#define RV3029C2_A_MO			0x15
--#define RV3029C2_A_YR			0x16
--#define RV3029C2_ALARM_SECTION_LEN	0x07
-+#define RV3029_A_SC			0x10
-+#define RV3029_A_MN			0x11
-+#define RV3029_A_HR			0x12
-+#define RV3029_A_DT			0x13
-+#define RV3029_A_DW			0x14
-+#define RV3029_A_MO			0x15
-+#define RV3029_A_YR			0x16
-+#define RV3029_ALARM_SECTION_LEN	0x07
- 
- /* timer section */
--#define RV3029C2_TIMER_LOW		0x18
--#define RV3029C2_TIMER_HIGH		0x19
-+#define RV3029_TIMER_LOW		0x18
-+#define RV3029_TIMER_HIGH		0x19
- 
- /* temperature section */
--#define RV3029C2_TEMP_PAGE		0x20
-+#define RV3029_TEMP_PAGE		0x20
- 
- /* eeprom data section */
--#define RV3029C2_E2P_EEDATA1		0x28
--#define RV3029C2_E2P_EEDATA2		0x29
-+#define RV3029_E2P_EEDATA1		0x28
-+#define RV3029_E2P_EEDATA2		0x29
- 
- /* eeprom control section */
--#define RV3029C2_CONTROL_E2P_EECTRL	0x30
--#define RV3029C2_TRICKLE_1K		(1<<0)  /*  1K resistance */
--#define RV3029C2_TRICKLE_5K		(1<<1)  /*  5K resistance */
--#define RV3029C2_TRICKLE_20K		(1<<2)  /* 20K resistance */
--#define RV3029C2_TRICKLE_80K		(1<<3)  /* 80K resistance */
--#define RV3029C2_CONTROL_E2P_XTALOFFSET	0x31
--#define RV3029C2_CONTROL_E2P_QCOEF	0x32
--#define RV3029C2_CONTROL_E2P_TURNOVER	0x33
-+#define RV3029_CONTROL_E2P_EECTRL	0x30
-+#define RV3029_TRICKLE_1K		(1<<0)  /*  1K resistance */
-+#define RV3029_TRICKLE_5K		(1<<1)  /*  5K resistance */
-+#define RV3029_TRICKLE_20K		(1<<2)  /* 20K resistance */
-+#define RV3029_TRICKLE_80K		(1<<3)  /* 80K resistance */
-+#define RV3029_CONTROL_E2P_XTALOFFSET	0x31
-+#define RV3029_CONTROL_E2P_QCOEF	0x32
-+#define RV3029_CONTROL_E2P_TURNOVER	0x33
- 
- /* user ram section */
--#define RV3029C2_USR1_RAM_PAGE		0x38
--#define RV3029C2_USR1_SECTION_LEN	0x04
--#define RV3029C2_USR2_RAM_PAGE		0x3C
--#define RV3029C2_USR2_SECTION_LEN	0x04
-+#define RV3029_USR1_RAM_PAGE		0x38
-+#define RV3029_USR1_SECTION_LEN		0x04
-+#define RV3029_USR2_RAM_PAGE		0x3C
-+#define RV3029_USR2_SECTION_LEN		0x04
- 
- static int
--rv3029c2_i2c_read_regs(struct i2c_client *client, u8 reg, u8 *buf,
--	unsigned len)
-+rv3029_i2c_read_regs(struct i2c_client *client, u8 reg, u8 *buf,
-+		     unsigned len)
- {
- 	int ret;
- 
--	if ((reg > RV3029C2_USR1_RAM_PAGE + 7) ||
--		(reg + len > RV3029C2_USR1_RAM_PAGE + 8))
-+	if ((reg > RV3029_USR1_RAM_PAGE + 7) ||
-+		(reg + len > RV3029_USR1_RAM_PAGE + 8))
- 		return -EINVAL;
- 
- 	ret = i2c_smbus_read_i2c_block_data(client, reg, len, buf);
-@@ -103,20 +103,20 @@ rv3029c2_i2c_read_regs(struct i2c_client *client, u8 reg, u8 *buf,
- }
- 
- static int
--rv3029c2_i2c_write_regs(struct i2c_client *client, u8 reg, u8 const buf[],
--			unsigned len)
-+rv3029_i2c_write_regs(struct i2c_client *client, u8 reg, u8 const buf[],
-+		      unsigned len)
- {
--	if ((reg > RV3029C2_USR1_RAM_PAGE + 7) ||
--		(reg + len > RV3029C2_USR1_RAM_PAGE + 8))
-+	if ((reg > RV3029_USR1_RAM_PAGE + 7) ||
-+		(reg + len > RV3029_USR1_RAM_PAGE + 8))
- 		return -EINVAL;
- 
- 	return i2c_smbus_write_i2c_block_data(client, reg, len, buf);
- }
- 
- static int
--rv3029c2_i2c_get_sr(struct i2c_client *client, u8 *buf)
-+rv3029_i2c_get_sr(struct i2c_client *client, u8 *buf)
- {
--	int ret = rv3029c2_i2c_read_regs(client, RV3029C2_STATUS, buf, 1);
-+	int ret = rv3029_i2c_read_regs(client, RV3029_STATUS, buf, 1);
- 
- 	if (ret < 0)
- 		return -EIO;
-@@ -125,13 +125,13 @@ rv3029c2_i2c_get_sr(struct i2c_client *client, u8 *buf)
- }
- 
- static int
--rv3029c2_i2c_set_sr(struct i2c_client *client, u8 val)
-+rv3029_i2c_set_sr(struct i2c_client *client, u8 val)
- {
- 	u8 buf[1];
- 	int sr;
- 
- 	buf[0] = val;
--	sr = rv3029c2_i2c_write_regs(client, RV3029C2_STATUS, buf, 1);
-+	sr = rv3029_i2c_write_regs(client, RV3029_STATUS, buf, 1);
- 	dev_dbg(&client->dev, "status = 0x%.2x (%d)\n", buf[0], buf[0]);
- 	if (sr < 0)
- 		return -EIO;
-@@ -139,69 +139,70 @@ rv3029c2_i2c_set_sr(struct i2c_client *client, u8 val)
- }
- 
- static int
--rv3029c2_i2c_read_time(struct i2c_client *client, struct rtc_time *tm)
-+rv3029_i2c_read_time(struct i2c_client *client, struct rtc_time *tm)
- {
- 	u8 buf[1];
- 	int ret;
--	u8 regs[RV3029C2_WATCH_SECTION_LEN] = { 0, };
-+	u8 regs[RV3029_WATCH_SECTION_LEN] = { 0, };
- 
--	ret = rv3029c2_i2c_get_sr(client, buf);
-+	ret = rv3029_i2c_get_sr(client, buf);
- 	if (ret < 0) {
- 		dev_err(&client->dev, "%s: reading SR failed\n", __func__);
- 		return -EIO;
- 	}
- 
--	ret = rv3029c2_i2c_read_regs(client, RV3029C2_W_SEC , regs,
--					RV3029C2_WATCH_SECTION_LEN);
-+	ret = rv3029_i2c_read_regs(client, RV3029_W_SEC, regs,
-+				   RV3029_WATCH_SECTION_LEN);
- 	if (ret < 0) {
- 		dev_err(&client->dev, "%s: reading RTC section failed\n",
- 			__func__);
- 		return ret;
- 	}
- 
--	tm->tm_sec = bcd2bin(regs[RV3029C2_W_SEC-RV3029C2_W_SEC]);
--	tm->tm_min = bcd2bin(regs[RV3029C2_W_MINUTES-RV3029C2_W_SEC]);
-+	tm->tm_sec = bcd2bin(regs[RV3029_W_SEC-RV3029_W_SEC]);
-+	tm->tm_min = bcd2bin(regs[RV3029_W_MINUTES-RV3029_W_SEC]);
- 
- 	/* HR field has a more complex interpretation */
- 	{
--		const u8 _hr = regs[RV3029C2_W_HOURS-RV3029C2_W_SEC];
--		if (_hr & RV3029C2_REG_HR_12_24) {
-+		const u8 _hr = regs[RV3029_W_HOURS-RV3029_W_SEC];
-+
-+		if (_hr & RV3029_REG_HR_12_24) {
- 			/* 12h format */
- 			tm->tm_hour = bcd2bin(_hr & 0x1f);
--			if (_hr & RV3029C2_REG_HR_PM)	/* PM flag set */
-+			if (_hr & RV3029_REG_HR_PM)	/* PM flag set */
- 				tm->tm_hour += 12;
- 		} else /* 24h format */
- 			tm->tm_hour = bcd2bin(_hr & 0x3f);
- 	}
- 
--	tm->tm_mday = bcd2bin(regs[RV3029C2_W_DATE-RV3029C2_W_SEC]);
--	tm->tm_mon = bcd2bin(regs[RV3029C2_W_MONTHS-RV3029C2_W_SEC]) - 1;
--	tm->tm_year = bcd2bin(regs[RV3029C2_W_YEARS-RV3029C2_W_SEC]) + 100;
--	tm->tm_wday = bcd2bin(regs[RV3029C2_W_DAYS-RV3029C2_W_SEC]) - 1;
-+	tm->tm_mday = bcd2bin(regs[RV3029_W_DATE-RV3029_W_SEC]);
-+	tm->tm_mon = bcd2bin(regs[RV3029_W_MONTHS-RV3029_W_SEC]) - 1;
-+	tm->tm_year = bcd2bin(regs[RV3029_W_YEARS-RV3029_W_SEC]) + 100;
-+	tm->tm_wday = bcd2bin(regs[RV3029_W_DAYS-RV3029_W_SEC]) - 1;
- 
- 	return 0;
- }
- 
--static int rv3029c2_rtc_read_time(struct device *dev, struct rtc_time *tm)
-+static int rv3029_rtc_read_time(struct device *dev, struct rtc_time *tm)
- {
--	return rv3029c2_i2c_read_time(to_i2c_client(dev), tm);
-+	return rv3029_i2c_read_time(to_i2c_client(dev), tm);
- }
- 
- static int
--rv3029c2_i2c_read_alarm(struct i2c_client *client, struct rtc_wkalrm *alarm)
-+rv3029_i2c_read_alarm(struct i2c_client *client, struct rtc_wkalrm *alarm)
- {
- 	struct rtc_time *const tm = &alarm->time;
- 	int ret;
- 	u8 regs[8];
- 
--	ret = rv3029c2_i2c_get_sr(client, regs);
-+	ret = rv3029_i2c_get_sr(client, regs);
- 	if (ret < 0) {
- 		dev_err(&client->dev, "%s: reading SR failed\n", __func__);
- 		return -EIO;
- 	}
- 
--	ret = rv3029c2_i2c_read_regs(client, RV3029C2_A_SC, regs,
--					RV3029C2_ALARM_SECTION_LEN);
-+	ret = rv3029_i2c_read_regs(client, RV3029_A_SC, regs,
-+				   RV3029_ALARM_SECTION_LEN);
- 
- 	if (ret < 0) {
- 		dev_err(&client->dev, "%s: reading alarm section failed\n",
-@@ -209,41 +210,41 @@ rv3029c2_i2c_read_alarm(struct i2c_client *client, struct rtc_wkalrm *alarm)
- 		return ret;
- 	}
- 
--	tm->tm_sec = bcd2bin(regs[RV3029C2_A_SC-RV3029C2_A_SC] & 0x7f);
--	tm->tm_min = bcd2bin(regs[RV3029C2_A_MN-RV3029C2_A_SC] & 0x7f);
--	tm->tm_hour = bcd2bin(regs[RV3029C2_A_HR-RV3029C2_A_SC] & 0x3f);
--	tm->tm_mday = bcd2bin(regs[RV3029C2_A_DT-RV3029C2_A_SC] & 0x3f);
--	tm->tm_mon = bcd2bin(regs[RV3029C2_A_MO-RV3029C2_A_SC] & 0x1f) - 1;
--	tm->tm_year = bcd2bin(regs[RV3029C2_A_YR-RV3029C2_A_SC] & 0x7f) + 100;
--	tm->tm_wday = bcd2bin(regs[RV3029C2_A_DW-RV3029C2_A_SC] & 0x07) - 1;
-+	tm->tm_sec = bcd2bin(regs[RV3029_A_SC-RV3029_A_SC] & 0x7f);
-+	tm->tm_min = bcd2bin(regs[RV3029_A_MN-RV3029_A_SC] & 0x7f);
-+	tm->tm_hour = bcd2bin(regs[RV3029_A_HR-RV3029_A_SC] & 0x3f);
-+	tm->tm_mday = bcd2bin(regs[RV3029_A_DT-RV3029_A_SC] & 0x3f);
-+	tm->tm_mon = bcd2bin(regs[RV3029_A_MO-RV3029_A_SC] & 0x1f) - 1;
-+	tm->tm_year = bcd2bin(regs[RV3029_A_YR-RV3029_A_SC] & 0x7f) + 100;
-+	tm->tm_wday = bcd2bin(regs[RV3029_A_DW-RV3029_A_SC] & 0x07) - 1;
- 
- 	return 0;
- }
- 
- static int
--rv3029c2_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alarm)
-+rv3029_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alarm)
- {
--	return rv3029c2_i2c_read_alarm(to_i2c_client(dev), alarm);
-+	return rv3029_i2c_read_alarm(to_i2c_client(dev), alarm);
- }
- 
--static int rv3029c2_rtc_i2c_alarm_set_irq(struct i2c_client *client,
-+static int rv3029_rtc_i2c_alarm_set_irq(struct i2c_client *client,
- 					int enable)
- {
- 	int ret;
- 	u8 buf[1];
- 
- 	/* enable AIE irq */
--	ret = rv3029c2_i2c_read_regs(client, RV3029C2_IRQ_CTRL,	buf, 1);
-+	ret = rv3029_i2c_read_regs(client, RV3029_IRQ_CTRL, buf, 1);
- 	if (ret < 0) {
- 		dev_err(&client->dev, "can't read INT reg\n");
- 		return ret;
- 	}
- 	if (enable)
--		buf[0] |= RV3029C2_IRQ_CTRL_AIE;
-+		buf[0] |= RV3029_IRQ_CTRL_AIE;
- 	else
--		buf[0] &= ~RV3029C2_IRQ_CTRL_AIE;
-+		buf[0] &= ~RV3029_IRQ_CTRL_AIE;
- 
--	ret = rv3029c2_i2c_write_regs(client, RV3029C2_IRQ_CTRL, buf, 1);
-+	ret = rv3029_i2c_write_regs(client, RV3029_IRQ_CTRL, buf, 1);
- 	if (ret < 0) {
- 		dev_err(&client->dev, "can't set INT reg\n");
- 		return ret;
-@@ -252,8 +253,8 @@ static int rv3029c2_rtc_i2c_alarm_set_irq(struct i2c_client *client,
- 	return 0;
- }
- 
--static int rv3029c2_rtc_i2c_set_alarm(struct i2c_client *client,
--					struct rtc_wkalrm *alarm)
-+static int rv3029_rtc_i2c_set_alarm(struct i2c_client *client,
-+				    struct rtc_wkalrm *alarm)
- {
- 	struct rtc_time *const tm = &alarm->time;
- 	int ret;
-@@ -267,21 +268,21 @@ static int rv3029c2_rtc_i2c_set_alarm(struct i2c_client *client,
- 	if (tm->tm_year < 100)
- 		return -EINVAL;
- 
--	ret = rv3029c2_i2c_get_sr(client, regs);
-+	ret = rv3029_i2c_get_sr(client, regs);
- 	if (ret < 0) {
- 		dev_err(&client->dev, "%s: reading SR failed\n", __func__);
- 		return -EIO;
- 	}
--	regs[RV3029C2_A_SC-RV3029C2_A_SC] = bin2bcd(tm->tm_sec & 0x7f);
--	regs[RV3029C2_A_MN-RV3029C2_A_SC] = bin2bcd(tm->tm_min & 0x7f);
--	regs[RV3029C2_A_HR-RV3029C2_A_SC] = bin2bcd(tm->tm_hour & 0x3f);
--	regs[RV3029C2_A_DT-RV3029C2_A_SC] = bin2bcd(tm->tm_mday & 0x3f);
--	regs[RV3029C2_A_MO-RV3029C2_A_SC] = bin2bcd((tm->tm_mon & 0x1f) - 1);
--	regs[RV3029C2_A_DW-RV3029C2_A_SC] = bin2bcd((tm->tm_wday & 7) - 1);
--	regs[RV3029C2_A_YR-RV3029C2_A_SC] = bin2bcd((tm->tm_year & 0x7f) - 100);
--
--	ret = rv3029c2_i2c_write_regs(client, RV3029C2_A_SC, regs,
--					RV3029C2_ALARM_SECTION_LEN);
-+	regs[RV3029_A_SC-RV3029_A_SC] = bin2bcd(tm->tm_sec & 0x7f);
-+	regs[RV3029_A_MN-RV3029_A_SC] = bin2bcd(tm->tm_min & 0x7f);
-+	regs[RV3029_A_HR-RV3029_A_SC] = bin2bcd(tm->tm_hour & 0x3f);
-+	regs[RV3029_A_DT-RV3029_A_SC] = bin2bcd(tm->tm_mday & 0x3f);
-+	regs[RV3029_A_MO-RV3029_A_SC] = bin2bcd((tm->tm_mon & 0x1f) - 1);
-+	regs[RV3029_A_DW-RV3029_A_SC] = bin2bcd((tm->tm_wday & 7) - 1);
-+	regs[RV3029_A_YR-RV3029_A_SC] = bin2bcd((tm->tm_year & 0x7f) - 100);
-+
-+	ret = rv3029_i2c_write_regs(client, RV3029_A_SC, regs,
-+				    RV3029_ALARM_SECTION_LEN);
- 	if (ret < 0)
- 		return ret;
- 
-@@ -289,28 +290,28 @@ static int rv3029c2_rtc_i2c_set_alarm(struct i2c_client *client,
- 		u8 buf[1];
- 
- 		/* clear AF flag */
--		ret = rv3029c2_i2c_read_regs(client, RV3029C2_IRQ_FLAGS,
--						buf, 1);
-+		ret = rv3029_i2c_read_regs(client, RV3029_IRQ_FLAGS,
-+					   buf, 1);
- 		if (ret < 0) {
- 			dev_err(&client->dev, "can't read alarm flag\n");
- 			return ret;
- 		}
--		buf[0] &= ~RV3029C2_IRQ_FLAGS_AF;
--		ret = rv3029c2_i2c_write_regs(client, RV3029C2_IRQ_FLAGS,
--						buf, 1);
-+		buf[0] &= ~RV3029_IRQ_FLAGS_AF;
-+		ret = rv3029_i2c_write_regs(client, RV3029_IRQ_FLAGS,
-+					    buf, 1);
- 		if (ret < 0) {
- 			dev_err(&client->dev, "can't set alarm flag\n");
- 			return ret;
- 		}
- 		/* enable AIE irq */
--		ret = rv3029c2_rtc_i2c_alarm_set_irq(client, 1);
-+		ret = rv3029_rtc_i2c_alarm_set_irq(client, 1);
- 		if (ret)
- 			return ret;
- 
- 		dev_dbg(&client->dev, "alarm IRQ armed\n");
- 	} else {
- 		/* disable AIE irq */
--		ret = rv3029c2_rtc_i2c_alarm_set_irq(client, 0);
-+		ret = rv3029_rtc_i2c_alarm_set_irq(client, 0);
- 		if (ret)
- 			return ret;
- 
-@@ -320,13 +321,13 @@ static int rv3029c2_rtc_i2c_set_alarm(struct i2c_client *client,
- 	return 0;
- }
- 
--static int rv3029c2_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alarm)
-+static int rv3029_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alarm)
- {
--	return rv3029c2_rtc_i2c_set_alarm(to_i2c_client(dev), alarm);
-+	return rv3029_rtc_i2c_set_alarm(to_i2c_client(dev), alarm);
- }
- 
- static int
--rv3029c2_i2c_set_time(struct i2c_client *client, struct rtc_time const *tm)
-+rv3029_i2c_set_time(struct i2c_client *client, struct rtc_time const *tm)
- {
- 	u8 regs[8];
- 	int ret;
-@@ -339,26 +340,26 @@ rv3029c2_i2c_set_time(struct i2c_client *client, struct rtc_time const *tm)
- 	if (tm->tm_year < 100)
- 		return -EINVAL;
- 
--	regs[RV3029C2_W_SEC-RV3029C2_W_SEC] = bin2bcd(tm->tm_sec);
--	regs[RV3029C2_W_MINUTES-RV3029C2_W_SEC] = bin2bcd(tm->tm_min);
--	regs[RV3029C2_W_HOURS-RV3029C2_W_SEC] = bin2bcd(tm->tm_hour);
--	regs[RV3029C2_W_DATE-RV3029C2_W_SEC] = bin2bcd(tm->tm_mday);
--	regs[RV3029C2_W_MONTHS-RV3029C2_W_SEC] = bin2bcd(tm->tm_mon+1);
--	regs[RV3029C2_W_DAYS-RV3029C2_W_SEC] = bin2bcd((tm->tm_wday & 7)+1);
--	regs[RV3029C2_W_YEARS-RV3029C2_W_SEC] = bin2bcd(tm->tm_year - 100);
-+	regs[RV3029_W_SEC-RV3029_W_SEC] = bin2bcd(tm->tm_sec);
-+	regs[RV3029_W_MINUTES-RV3029_W_SEC] = bin2bcd(tm->tm_min);
-+	regs[RV3029_W_HOURS-RV3029_W_SEC] = bin2bcd(tm->tm_hour);
-+	regs[RV3029_W_DATE-RV3029_W_SEC] = bin2bcd(tm->tm_mday);
-+	regs[RV3029_W_MONTHS-RV3029_W_SEC] = bin2bcd(tm->tm_mon+1);
-+	regs[RV3029_W_DAYS-RV3029_W_SEC] = bin2bcd((tm->tm_wday & 7)+1);
-+	regs[RV3029_W_YEARS-RV3029_W_SEC] = bin2bcd(tm->tm_year - 100);
- 
--	ret = rv3029c2_i2c_write_regs(client, RV3029C2_W_SEC, regs,
--					RV3029C2_WATCH_SECTION_LEN);
-+	ret = rv3029_i2c_write_regs(client, RV3029_W_SEC, regs,
-+				    RV3029_WATCH_SECTION_LEN);
- 	if (ret < 0)
- 		return ret;
- 
--	ret = rv3029c2_i2c_get_sr(client, regs);
-+	ret = rv3029_i2c_get_sr(client, regs);
- 	if (ret < 0) {
- 		dev_err(&client->dev, "%s: reading SR failed\n", __func__);
- 		return ret;
- 	}
- 	/* clear PON bit */
--	ret = rv3029c2_i2c_set_sr(client, (regs[0] & ~RV3029C2_STATUS_PON));
-+	ret = rv3029_i2c_set_sr(client, (regs[0] & ~RV3029_STATUS_PON));
- 	if (ret < 0) {
- 		dev_err(&client->dev, "%s: reading SR failed\n", __func__);
- 		return ret;
-@@ -367,26 +368,26 @@ rv3029c2_i2c_set_time(struct i2c_client *client, struct rtc_time const *tm)
- 	return 0;
- }
- 
--static int rv3029c2_rtc_set_time(struct device *dev, struct rtc_time *tm)
-+static int rv3029_rtc_set_time(struct device *dev, struct rtc_time *tm)
- {
--	return rv3029c2_i2c_set_time(to_i2c_client(dev), tm);
-+	return rv3029_i2c_set_time(to_i2c_client(dev), tm);
- }
- 
--static const struct rtc_class_ops rv3029c2_rtc_ops = {
--	.read_time	= rv3029c2_rtc_read_time,
--	.set_time	= rv3029c2_rtc_set_time,
--	.read_alarm	= rv3029c2_rtc_read_alarm,
--	.set_alarm	= rv3029c2_rtc_set_alarm,
-+static const struct rtc_class_ops rv3029_rtc_ops = {
-+	.read_time	= rv3029_rtc_read_time,
-+	.set_time	= rv3029_rtc_set_time,
-+	.read_alarm	= rv3029_rtc_read_alarm,
-+	.set_alarm	= rv3029_rtc_set_alarm,
- };
- 
--static struct i2c_device_id rv3029c2_id[] = {
-+static struct i2c_device_id rv3029_id[] = {
- 	{ "rv3029c2", 0 },
- 	{ }
- };
--MODULE_DEVICE_TABLE(i2c, rv3029c2_id);
-+MODULE_DEVICE_TABLE(i2c, rv3029_id);
- 
--static int rv3029c2_probe(struct i2c_client *client,
--			  const struct i2c_device_id *id)
-+static int rv3029_probe(struct i2c_client *client,
-+			const struct i2c_device_id *id)
- {
- 	struct rtc_device *rtc;
- 	int rc = 0;
-@@ -395,14 +396,14 @@ static int rv3029c2_probe(struct i2c_client *client,
- 	if (!i2c_check_functionality(client->adapter, I2C_FUNC_SMBUS_EMUL))
- 		return -ENODEV;
- 
--	rc = rv3029c2_i2c_get_sr(client, buf);
-+	rc = rv3029_i2c_get_sr(client, buf);
- 	if (rc < 0) {
- 		dev_err(&client->dev, "reading status failed\n");
- 		return rc;
- 	}
- 
- 	rtc = devm_rtc_device_register(&client->dev, client->name,
--					&rv3029c2_rtc_ops, THIS_MODULE);
-+				       &rv3029_rtc_ops, THIS_MODULE);
- 
- 	if (IS_ERR(rtc))
- 		return PTR_ERR(rtc);
-@@ -412,16 +413,16 @@ static int rv3029c2_probe(struct i2c_client *client,
- 	return 0;
- }
- 
--static struct i2c_driver rv3029c2_driver = {
-+static struct i2c_driver rv3029_driver = {
- 	.driver = {
- 		.name = "rtc-rv3029c2",
- 	},
--	.probe = rv3029c2_probe,
--	.id_table = rv3029c2_id,
-+	.probe		= rv3029_probe,
-+	.id_table	= rv3029_id,
- };
- 
--module_i2c_driver(rv3029c2_driver);
-+module_i2c_driver(rv3029_driver);
- 
- MODULE_AUTHOR("Gregory Hermant <gregory.hermant@calao-systems.com>");
--MODULE_DESCRIPTION("Micro Crystal RV3029C2 RTC driver");
-+MODULE_DESCRIPTION("Micro Crystal RV3029 RTC driver");
- MODULE_LICENSE("GPL");
+>> This removes the annotations, so we no longer branch into missing
+>> code and avoid the warning.
+>>
+>> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+>> Fixes: 125e550fd257 ("rtc: add Alphascale asm9260 driver")
+>> ---
+>>  drivers/rtc/rtc-asm9260.c | 4 ++--
+>>  1 file changed, 2 insertions(+), 2 deletions(-)
+>>
+>> diff --git a/drivers/rtc/rtc-asm9260.c b/drivers/rtc/rtc-asm9260.c
+>> index 14e08c4c1a01..355fdb97a006 100644
+>> --- a/drivers/rtc/rtc-asm9260.c
+>> +++ b/drivers/rtc/rtc-asm9260.c
+>> @@ -255,7 +255,7 @@ static const struct rtc_class_ops asm9260_rtc_ops = {
+>>  	.alarm_irq_enable	= asm9260_alarm_irq_enable,
+>>  };
+>>  
+>> -static int __init asm9260_rtc_probe(struct platform_device *pdev)
+>> +static int asm9260_rtc_probe(struct platform_device *pdev)
+>>  {
+>>  	struct asm9260_rtc_priv *priv;
+>>  	struct device *dev = &pdev->dev;
+>> @@ -323,7 +323,7 @@ err_return:
+>>  	return ret;
+>>  }
+>>  
+>> -static int __exit asm9260_rtc_remove(struct platform_device *pdev)
+>> +static int asm9260_rtc_remove(struct platform_device *pdev)
+>>  {
+>>  	struct asm9260_rtc_priv *priv = platform_get_drvdata(pdev);
+>>  
+>> -- 
+>> 2.7.0
+>>
+> 
+
+
 -- 
-2.7.0
+Regards,
+Oleksij
 
 -- 
 -- 
@@ -601,26 +118,19 @@ You received this message because you are subscribed to the Google Groups "rtc-l
 To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
 
---Sig_/B/jAtnr=g/A+DuvZprhga3_
-Content-Type: application/pgp-signature
+--q9BmlxwIi3sJSaUGuAeoa8HwG4Q2Agalg--
+
+--vuJDFXtqKoTnh3HxbkX1Ak6OnEfWGJxx2
+Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2
 
-iQIcBAEBCAAGBQJW2gBlAAoJEPUyvh2QjYsONiMQAJkQjJijcC/V+el+UdLdYn7/
-KuuH4inSAA6lL9tVplbp6NhNZwgegLDUlU3HARLqgMvOppyMQFuyUusyiGpX/c9W
-hV8CiMhjHRkYD5bjgMAsDi5G+Lm5FguEu190AwBy3VV3eoP5kYaVoMIC5bLBefOe
-hD74FhVtmnyteHgx7NZggNAXxkZoJ3gO3YxSBJ6/ZH1JdOQsA8q8ZRqbf0iiI0xC
-vMj+F9mN+yAfjA//6AiExuwI0f1hhrWbWOHyQipd1jNHZpDZPwFeFuIw7u3eooDB
-3LAACJyzjZq5p6o0X2/cFluKZY6KIntSC5HXu51I1ygA69nPusYRCa0Ftok9r4oE
-y8VG2pK5YcGOj6lUEuk4NQRa6zEqhwTjA+dENcD/niBHfynEFHCNuM4JuDtcarlM
-gMIBY0WyAvPrDNebj3vnROkN3JZQMU58m/tPnjg7RklmIEe+JssRo7CC6Vf5nmex
-BXztk5DSM+XF940TgHuQDHFXnsRvhaPRnN2rn34sDyiHQ0rUyXvVh7fmR+7k5HsQ
-whZC5JAZznX8ptZ2wt7alL2c9ZFn7MDQuYR2Ly/pE7OioDPebSz9jV13ZuwiF3Xh
-l6EmlTCV+8fxBATBC/HTu59kKW4aMAvztlyyKgCfM/YMu5vtu15bQvYMZ7D63J/b
-Mfx/ygHgmNyPuIaNOlWn
-=iyWN
+iF4EAREIAAYFAlbpKFkACgkQHwImuRkmbWlinQD/ZkxW/8Bu1Y/OSnl/WxOJ8J/N
+kbvk0TB+Qsismu9PAdcBAI1XYEgpDyy2VkqgMrNU9qJ3hAncTjbzQO/4uzP50GH4
+=HD5V
 -----END PGP SIGNATURE-----
 
---Sig_/B/jAtnr=g/A+DuvZprhga3_--
+--vuJDFXtqKoTnh3HxbkX1Ak6OnEfWGJxx2--
