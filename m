@@ -1,59 +1,98 @@
-Return-Path: <rtc-linux+bncBAABBAX47K3AKGQEJJAWVLY@googlegroups.com>
+Return-Path: <rtc-linux+bncBDJIP47K7MERB75UVK3QKGQE45MSXAY@googlegroups.com>
+Sender: rtc-linux@googlegroups.com
+Received: from mail.kernel.org (mail.kernel.org. [198.145.29.136])
+        by gmr-mx.google.com with ESMTPS id sf5si1265932pac.1.2016.03.17.04.52.30
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 17 Mar 2016 04:52:30 -0700 (PDT)
+Date: Thu, 17 Mar 2016 06:52:25 -0500
+From: Rob Herring <robh@kernel.org>
+To: Paul Cercueil <paul@crapouillou.net>
+Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Pawel Moll <pawel.moll@arm.com>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Ian Campbell <ijc+devicetree@hellion.org.uk>,
+	Kumar Gala <galak@codeaurora.org>,
+	Ralf Baechle <ralf@linux-mips.org>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Paul Burton <paul.burton@imgtec.com>, devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-mips@linux-mips.org,
+	rtc-linux@googlegroups.com
+Subject: [rtc-linux] Re: [PATCH 2/5] Documentation: dt: Add binding info for
+ jz4740-rtc driver
+Message-ID: <20160317115225.GA18144@rob-hp-laptop>
+References: <1457217531-26064-1-git-send-email-paul@crapouillou.net>
+ <1457217531-26064-2-git-send-email-paul@crapouillou.net>
 MIME-Version: 1.0
-Received: from root.phytec.de (mail.x-arc.de. [217.6.246.34])
-        by gmr-mx.google.com with ESMTP id g81si127246wmi.3.2016.03.08.03.56.50
-        for <rtc-linux@googlegroups.com>;
-        Tue, 08 Mar 2016 03:56:50 -0800 (PST)
-From: Stefan Christ <s.christ@phytec.de>
-To: rtc-linux@googlegroups.com
-Cc: alexandre.belloni@free-electrons.com, a.zummo@towertech.it
-Subject: [rtc-linux] [PATCH] drivers/rtc/rtc-m41t80.c: avoid out of range year values
-Date: Tue, 8 Mar 2016 12:56:50 +0100
-Message-Id: <1457438210-5394-1-git-send-email-s.christ@phytec.de>
-Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1457217531-26064-2-git-send-email-paul@crapouillou.net>
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
 List-Archive: <https://groups.google.com/group/rtc-linux
-Sender: rtc-linux@googlegroups.com
 List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Avoid saving an out of range year value to the RTC. Reading that value
-from the RTC again returns a totally wrong time value. For Example
+On Sat, Mar 05, 2016 at 11:38:48PM +0100, Paul Cercueil wrote:
+> Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+> ---
+>  .../devicetree/bindings/rtc/ingenic,jz4740-rtc.txt | 38 ++++++++++++++++++++++
+>  1 file changed, 38 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/rtc/ingenic,jz4740-rtc.txt
+> 
+> diff --git a/Documentation/devicetree/bindings/rtc/ingenic,jz4740-rtc.txt b/Documentation/devicetree/bindings/rtc/ingenic,jz4740-rtc.txt
+> new file mode 100644
+> index 0000000..71e4ad0
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/rtc/ingenic,jz4740-rtc.txt
+> @@ -0,0 +1,38 @@
+> +JZ4740 and similar SoCs real-time clock driver
+> +
+> +Required properties:
+> +
+> +- compatible: One of:
+> +  - "ingenic,jz4740-rtc" - for use with the JZ4740 SoC
+> +  - "ingenic,jz4780-rtc" - for use with the JZ4780 SoC
+> +- reg: Address range of rtc register set
+> +- interrupts: IRQ number for the alarm interrupt
+> +- interrupt-parent: phandle of the interrupt controller
+> +- clocks: phandle to the "rtc" clock
+> +- clock-names: must be "rtc"
+> +
+> +Optional properties:
+> +- system-power-controller: To use this component as the
+> +  system power controller
 
-    $ timedatectl set-ntp no
-    $ timedatectl set-time "1990-01-01 12:12:00"
-    # Reboot
-    rtc-m41t80 0-0068: setting system clock to 2090-01-01 12:12:35 UTC (3786955955)
+> +- reset-pin-assert-time: Reset pin low-level assertion time
+> +  after wakeup (default 60ms; range 0-125ms if RTC clock at 
+> +  32 kHz)
+> +- min-wakeup-pin-assert-time: Minimum wakeup pin assertion time
+> +  (default 100ms; range 0-2s if RTC clock at 32 kHz)
 
-Signed-off-by: Stefan Christ <s.christ@phytec.de>
----
- drivers/rtc/rtc-m41t80.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+Please append units on these (-msec).
 
-diff --git a/drivers/rtc/rtc-m41t80.c b/drivers/rtc/rtc-m41t80.c
-index a82937e..ae8bfae 100644
---- a/drivers/rtc/rtc-m41t80.c
-+++ b/drivers/rtc/rtc-m41t80.c
-@@ -176,7 +176,13 @@ static int m41t80_set_datetime(struct i2c_client *client, struct rtc_time *tm)
- 		bin2bcd(tm->tm_mday) | (buf[M41T80_REG_DAY] & ~0x3f);
- 	buf[M41T80_REG_MON] =
- 		bin2bcd(tm->tm_mon + 1) | (buf[M41T80_REG_MON] & ~0x1f);
-+
- 	/* assume 20YY not 19YY */
-+	if (!(100 <= tm->tm_year && tm->tm_year <= 199)) {
-+		dev_err(&client->dev, "Year must be between 2000 and 2099. It's %d.\n",
-+					tm->tm_year + 1900);
-+		return -EINVAL;
-+	}
- 	buf[M41T80_REG_YEAR] = bin2bcd(tm->tm_year % 100);
- 
- 	if (i2c_transfer(client->adapter, msgs, 1) != 1) {
--- 
-1.9.1
+> +
+> +Example:
+> +
+> +rtc@10003000 {
+> +	compatible = "ingenic,jz4740-rtc";
+> +	reg = <0x10003000 0x3F>;
+> +
+> +	interrupt-parent = <&intc>;
+> +	interrupts = <32>;
+> +
+> +	clocks = <&rtc_clock>;
+> +	clock-names = "rtc";
+> +
+> +	system-power-controller;
+> +	reset-pin-assert-time = <60>;
+> +	min-wakeup-pin-assert-time = <100>;
+> +};
+> -- 
+> 2.7.0
+> 
 
 -- 
 -- 
