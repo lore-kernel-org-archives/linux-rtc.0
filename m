@@ -1,77 +1,77 @@
-Return-Path: <rtc-linux+bncBDKZNNNLXAHBBYHA363AKGQEEFJTLQQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBAABBNMMWC3QKGQETKJYOIA@googlegroups.com>
+Sender: rtc-linux@googlegroups.com
+Received: from lists.s-osg.org (lists.s-osg.org. [54.187.51.154])
+        by gmr-mx.google.com with ESMTP id sf5si2098986pac.1.2016.03.18.06.44.20
+        for <rtc-linux@googlegroups.com>;
+        Fri, 18 Mar 2016 06:44:20 -0700 (PDT)
+Subject: [rtc-linux] Re: [PATCH v3] rtc: s3c: Don't print an error on probe deferral
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+References: <1458005918-7893-1-git-send-email-javier@osg.samsung.com>
+ <56E76A57.7070104@samsung.com> <56E76C6F.5020803@osg.samsung.com>
+ <56E772F2.2030507@samsung.com> <56E77A6A.2090604@osg.samsung.com>
+ <56EBED45.6070000@osg.samsung.com> <20160318120717.GD2531@piout.net>
+ <20160318130312.GE2531@piout.net>
+Cc: Krzysztof Kozlowski <k.kozlowski@samsung.com>,
+ linux-kernel@vger.kernel.org, Joe Perches <joe@perches.com>,
+ linux-samsung-soc@vger.kernel.org, rtc-linux@googlegroups.com
+From: Javier Martinez Canillas <javier@osg.samsung.com>
+Message-ID: <56EC062C.8060702@osg.samsung.com>
+Date: Fri, 18 Mar 2016 10:44:12 -0300
 MIME-Version: 1.0
-Received: from mailout1.w1.samsung.com (mailout1.w1.samsung.com. [210.118.77.11])
-        by gmr-mx.google.com with ESMTPS id ff2si6296527pad.2.2016.03.03.00.05.52
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1 cipher=AES128-SHA bits=128/128);
-        Thu, 03 Mar 2016 00:05:52 -0800 (PST)
-Received: from eucpsbgm1.samsung.com (unknown [203.254.199.244])
- by mailout1.w1.samsung.com
- (Oracle Communications Messaging Server 7.0.5.31.0 64bit (built May  5 2014))
- with ESMTP id <0O3G0064JEHPUU80@mailout1.w1.samsung.com> for
- rtc-linux@googlegroups.com; Thu, 03 Mar 2016 08:05:49 +0000 (GMT)
-From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-To: Daniel Lezcano <daniel.lezcano@linaro.org>,
- Thomas Gleixner <tglx@linutronix.de>, Dan Williams <dan.j.williams@intel.com>,
- Vinod Koul <vinod.koul@intel.com>, Jason Cooper <jason@lakedaemon.net>,
- Marc Zyngier <marc.zyngier@arm.com>,
- Mauro Carvalho Chehab <mchehab@osg.samsung.com>,
- Lee Jones <lee.jones@linaro.org>, Giuseppe Cavallaro <peppe.cavallaro@st.com>,
- Kishon Vijay Abraham I <kishon@ti.com>,
- Linus Walleij <linus.walleij@linaro.org>, Sebastian Reichel <sre@kernel.org>,
- Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>,
- David Woodhouse <dwmw2@infradead.org>,
- Alessandro Zummo <a.zummo@towertech.it>,
- Alexandre Belloni <alexandre.belloni@free-electrons.com>,
- Andy Gross <andy.gross@linaro.org>, David Brown <david.brown@linaro.org>,
- Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
- Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-kernel@vger.kernel.org,
- dmaengine@vger.kernel.org, linux-media@vger.kernel.org,
- linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org,
- netdev@vger.kernel.org, linux-gpio@vger.kernel.org, linux-pm@vger.kernel.org,
- rtc-linux@googlegroups.com, linux-arm-msm@vger.kernel.org,
- linux-soc@vger.kernel.org, devel@driverdev.osuosl.org,
- linux-usb@vger.kernel.org
-Cc: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-Subject: [rtc-linux] [RFC 12/15] soc: qcom: Add missing MFD_SYSCON dependency
- on HAS_IOMEM
-Date: Thu, 03 Mar 2016 17:03:38 +0900
-Message-id: <1456992221-26712-13-git-send-email-k.kozlowski@samsung.com>
-In-reply-to: <1456992221-26712-1-git-send-email-k.kozlowski@samsung.com>
-References: <1456992221-26712-1-git-send-email-k.kozlowski@samsung.com>
-Reply-To: rtc-linux@googlegroups.com
+In-Reply-To: <20160318130312.GE2531@piout.net>
 Content-Type: text/plain; charset=UTF-8
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
 List-Archive: <https://groups.google.com/group/rtc-linux
-Sender: rtc-linux@googlegroups.com
 List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-The MFD_SYSCON depends on HAS_IOMEM so when selecting it avoid unmet
-direct dependencies.
+Hello Alexandre,
 
-Signed-off-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
----
- drivers/soc/qcom/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+On 03/18/2016 10:03 AM, Alexandre Belloni wrote:
+> On 18/03/2016 at 13:07:17 +0100, Alexandre Belloni wrote :
+>> On 18/03/2016 at 08:57:57 -0300, Javier Martinez Canillas wrote :
+>>>>>> But yes, we can at least get rid of the else statement. I don't have a
+>>>>>> strong opinion about the debug information, I left it to avoid someone
+>>>>>> to tell me that I was removing a useful log.
+>>>>>
+>>>>> Although dev_dbg doesn't harm... but isn't driver core printing debug
+>>>>> message already?
+>>>>>
+>>>>
+>>>> I don't think it does or at least I didn't find it when looking
+>>>> at the devm_clk_get() call chain.
+>>>>  
+>>>>> BR,
+>>>>> Krzysztof
+>>>>>
+>>>
+>>> Just to make sure that I understood correctly, there's no action I
+>>> should take in order for this patch to be picked right? IOW, the
+>>> current version is OK?
+>>>
+>>
+>> I was kind of waiting an answer on the question whether the core already
+>> prints a message when probe dereferral happens because in that case,
+>> there is no need for a debug message and we can indeed simplify the
+>> whole block.
+> 
+> Ok, I've found the recent commit 13fcffbbdec4e4863a9a9c7792b821cd6d363a8f
+> 
+> I'll take the patch as is.
+> 
+> 
 
-diff --git a/drivers/soc/qcom/Kconfig b/drivers/soc/qcom/Kconfig
-index 461b387d03cc..24de48134c15 100644
---- a/drivers/soc/qcom/Kconfig
-+++ b/drivers/soc/qcom/Kconfig
-@@ -4,6 +4,7 @@
- config QCOM_GSBI
-         tristate "QCOM General Serial Bus Interface"
-         depends on ARCH_QCOM
-+        depends on HAS_IOMEM	# For MFD_SYSCON
-         select MFD_SYSCON
-         help
-           Say y here to enable GSBI support.  The GSBI provides control
+Great, thanks!
+
+Best regards,
 -- 
-2.5.0
+Javier Martinez Canillas
+Open Source Group
+Samsung Research America
 
 -- 
 -- 
