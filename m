@@ -1,534 +1,104 @@
-Return-Path: <rtc-linux+bncBCPM5SUWUYIRBDMZ6G3AKGQEB2IWYLA@googlegroups.com>
+Return-Path: <rtc-linux+bncBAABBTG2V63QKGQEHH4OQ5Y@googlegroups.com>
+Sender: rtc-linux@googlegroups.com
+Received: from lists.s-osg.org (lists.s-osg.org. [54.187.51.154])
+        by gmr-mx.google.com with ESMTP id sf5si2027615pac.1.2016.03.18.04.58.04
+        for <rtc-linux@googlegroups.com>;
+        Fri, 18 Mar 2016 04:58:04 -0700 (PDT)
+Subject: [rtc-linux] Re: [PATCH v3] rtc: s3c: Don't print an error on probe deferral
+To: Krzysztof Kozlowski <k.kozlowski@samsung.com>,
+ linux-kernel@vger.kernel.org
+References: <1458005918-7893-1-git-send-email-javier@osg.samsung.com>
+ <56E76A57.7070104@samsung.com> <56E76C6F.5020803@osg.samsung.com>
+ <56E772F2.2030507@samsung.com> <56E77A6A.2090604@osg.samsung.com>
+Cc: Joe Perches <joe@perches.com>,
+ Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+ linux-samsung-soc@vger.kernel.org, rtc-linux@googlegroups.com
+From: Javier Martinez Canillas <javier@osg.samsung.com>
+Message-ID: <56EBED45.6070000@osg.samsung.com>
+Date: Fri, 18 Mar 2016 08:57:57 -0300
 MIME-Version: 1.0
-Received: from mail-pa0-x242.google.com (mail-pa0-x242.google.com. [2607:f8b0:400e:c03::242])
-        by gmr-mx.google.com with ESMTPS id y20si2521355pfa.2.2016.03.06.07.28.13
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sun, 06 Mar 2016 07:28:13 -0800 (PST)
-Received: by mail-pa0-x242.google.com with SMTP id fl4so6164186pad.2
-        for <rtc-linux@googlegroups.com>; Sun, 06 Mar 2016 07:28:13 -0800 (PST)
-From: Akinobu Mita <akinobu.mita@gmail.com>
-To: rtc-linux@googlegroups.com
-Cc: Akinobu Mita <akinobu.mita@gmail.com>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Dennis Aberilla <denzzzhome@yahoo.com>
-Subject: [rtc-linux] [PATCH v4 1/7] rtc: ds3232: convert to use regmap
-Date: Mon,  7 Mar 2016 00:27:47 +0900
-Message-Id: <1457278073-11627-1-git-send-email-akinobu.mita@gmail.com>
-Reply-To: rtc-linux@googlegroups.com
+In-Reply-To: <56E77A6A.2090604@osg.samsung.com>
 Content-Type: text/plain; charset=UTF-8
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
 List-Archive: <https://groups.google.com/group/rtc-linux
-Sender: rtc-linux@googlegroups.com
 List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-This is preparation for merging rtc-ds3232 i2c driver and rtc-ds3234
-spi driver.
+Hello Krzysztof and Alexandre,
 
-Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>
-Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Dennis Aberilla <denzzzhome@yahoo.com>
----
-* v4
-- stop splitting core and i2c modules
+On 03/14/2016 11:58 PM, Javier Martinez Canillas wrote:
+> Hello Krzysztof,
+> 
+> On 03/14/2016 11:26 PM, Krzysztof Kozlowski wrote:
+>> On 15.03.2016 10:59, Javier Martinez Canillas wrote:
+>>>>>  
+>>>>>  	if (info->data->needs_src_clk) {
+>>>>>  		info->rtc_src_clk = devm_clk_get(&pdev->dev, "rtc_src");
+>>>>>  		if (IS_ERR(info->rtc_src_clk)) {
+>>>>> -			dev_err(&pdev->dev,
+>>>>> -				"failed to find rtc source clock\n");
+>>>>> +			ret = PTR_ERR(info->rtc_src_clk);
+>>>>> +			if (ret != -EPROBE_DEFER)
+>>>>> +				dev_err(&pdev->dev,
+>>>>> +					"failed to find rtc source clock\n");
+>>>>> +			else
+>>>>> +				dev_dbg(&pdev->dev,
+>>>>> +					"probe deferred due to missing rtc src clk\n");
+>>>>>  			clk_disable_unprepare(info->rtc_clk);
+>>>>> -			return PTR_ERR(info->rtc_src_clk);
+>>>>> +			return ret;
+>>>>>  		}
+>>>>>  		clk_prepare_enable(info->rtc_src_clk);
+>>>>>  	}
+>>>>>
+>>>>
+>>>> The error path starts looking complicated. This has now 4 indentation
+>>>> levels...
+>>>>
+>>>
+>>> Yeah, I don't think we can get rid of the 4 indentation levels since
+>>> the function already has 3 and a check for the errno code is needed.
+>>
+>> Probably handling of the clocks in the driver could be simplified a
+>> little bit (the if(needs_src_clk) appears in few places)... but this is
+>> out of scope for this patch.
+>>
+> 
+> Agreed, I meant without introducing an unrelated change.
+>  
+>>>
+>>>> I agree for removal of error in case of probe deferral because it might
+>>>> be misleading but I don't see much benefit of a debug message.
+>>>>
+>>>
+>>> But yes, we can at least get rid of the else statement. I don't have a
+>>> strong opinion about the debug information, I left it to avoid someone
+>>> to tell me that I was removing a useful log.
+>>
+>> Although dev_dbg doesn't harm... but isn't driver core printing debug
+>> message already?
+>>
+> 
+> I don't think it does or at least I didn't find it when looking
+> at the devm_clk_get() call chain.
+>  
+>> BR,
+>> Krzysztof
+>>
 
- drivers/rtc/rtc-ds3232.c | 216 +++++++++++++++++++++++++----------------------
- 1 file changed, 113 insertions(+), 103 deletions(-)
+Just to make sure that I understood correctly, there's no action I
+should take in order for this patch to be picked right? IOW, the
+current version is OK?
 
-diff --git a/drivers/rtc/rtc-ds3232.c b/drivers/rtc/rtc-ds3232.c
-index 4e99ace..3044440 100644
---- a/drivers/rtc/rtc-ds3232.c
-+++ b/drivers/rtc/rtc-ds3232.c
-@@ -9,11 +9,6 @@
-  * Free Software Foundation;  either version 2 of the  License, or (at your
-  * option) any later version.
-  */
--/*
-- * It would be more efficient to use i2c msgs/i2c_transfer directly but, as
-- * recommened in .../Documentation/i2c/writing-clients section
-- * "Sending and receiving", using SMBus level communication is preferred.
-- */
- 
- #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
- 
-@@ -25,6 +20,7 @@
- #include <linux/bcd.h>
- #include <linux/workqueue.h>
- #include <linux/slab.h>
-+#include <linux/regmap.h>
- 
- #define DS3232_REG_SECONDS	0x00
- #define DS3232_REG_MINUTES	0x01
-@@ -50,7 +46,9 @@
- #       define DS3232_REG_SR_A1F   0x01
- 
- struct ds3232 {
--	struct i2c_client *client;
-+	struct device *dev;
-+	struct regmap *regmap;
-+	int irq;
- 	struct rtc_device *rtc;
- 	struct work_struct work;
- 
-@@ -63,26 +61,25 @@ struct ds3232 {
- 	int exiting;
- };
- 
--static struct i2c_driver ds3232_driver;
--
--static int ds3232_check_rtc_status(struct i2c_client *client)
-+static int ds3232_check_rtc_status(struct device *dev)
- {
-+	struct ds3232 *ds3232 = dev_get_drvdata(dev);
- 	int ret = 0;
- 	int control, stat;
- 
--	stat = i2c_smbus_read_byte_data(client, DS3232_REG_SR);
--	if (stat < 0)
--		return stat;
-+	ret = regmap_read(ds3232->regmap, DS3232_REG_SR, &stat);
-+	if (ret)
-+		return ret;
- 
- 	if (stat & DS3232_REG_SR_OSF)
--		dev_warn(&client->dev,
-+		dev_warn(dev,
- 				"oscillator discontinuity flagged, "
- 				"time unreliable\n");
- 
- 	stat &= ~(DS3232_REG_SR_OSF | DS3232_REG_SR_A1F | DS3232_REG_SR_A2F);
- 
--	ret = i2c_smbus_write_byte_data(client, DS3232_REG_SR, stat);
--	if (ret < 0)
-+	ret = regmap_write(ds3232->regmap, DS3232_REG_SR, stat);
-+	if (ret)
- 		return ret;
- 
- 	/* If the alarm is pending, clear it before requesting
-@@ -90,31 +87,28 @@ static int ds3232_check_rtc_status(struct i2c_client *client)
- 	 * before everything is initialized.
- 	 */
- 
--	control = i2c_smbus_read_byte_data(client, DS3232_REG_CR);
--	if (control < 0)
--		return control;
-+	ret = regmap_read(ds3232->regmap, DS3232_REG_CR, &control);
-+	if (ret)
-+		return ret;
- 
- 	control &= ~(DS3232_REG_CR_A1IE | DS3232_REG_CR_A2IE);
- 	control |= DS3232_REG_CR_INTCN;
- 
--	return i2c_smbus_write_byte_data(client, DS3232_REG_CR, control);
-+	return regmap_write(ds3232->regmap, DS3232_REG_CR, control);
- }
- 
- static int ds3232_read_time(struct device *dev, struct rtc_time *time)
- {
--	struct i2c_client *client = to_i2c_client(dev);
-+	struct ds3232 *ds3232 = dev_get_drvdata(dev);
- 	int ret;
- 	u8 buf[7];
- 	unsigned int year, month, day, hour, minute, second;
- 	unsigned int week, twelve_hr, am_pm;
- 	unsigned int century, add_century = 0;
- 
--	ret = i2c_smbus_read_i2c_block_data(client, DS3232_REG_SECONDS, 7, buf);
--
--	if (ret < 0)
-+	ret = regmap_bulk_read(ds3232->regmap, DS3232_REG_SECONDS, buf, 7);
-+	if (ret)
- 		return ret;
--	if (ret < 7)
--		return -EIO;
- 
- 	second = buf[0];
- 	minute = buf[1];
-@@ -159,7 +153,7 @@ static int ds3232_read_time(struct device *dev, struct rtc_time *time)
- 
- static int ds3232_set_time(struct device *dev, struct rtc_time *time)
- {
--	struct i2c_client *client = to_i2c_client(dev);
-+	struct ds3232 *ds3232 = dev_get_drvdata(dev);
- 	u8 buf[7];
- 
- 	/* Extract time from rtc_time and load into ds3232*/
-@@ -179,8 +173,7 @@ static int ds3232_set_time(struct device *dev, struct rtc_time *time)
- 		buf[6] = bin2bcd(time->tm_year);
- 	}
- 
--	return i2c_smbus_write_i2c_block_data(client,
--					      DS3232_REG_SECONDS, 7, buf);
-+	return regmap_bulk_write(ds3232->regmap, DS3232_REG_SECONDS, buf, 7);
- }
- 
- /*
-@@ -190,24 +183,21 @@ static int ds3232_set_time(struct device *dev, struct rtc_time *time)
-  */
- static int ds3232_read_alarm(struct device *dev, struct rtc_wkalrm *alarm)
- {
--	struct i2c_client *client = to_i2c_client(dev);
--	struct ds3232 *ds3232 = i2c_get_clientdata(client);
-+	struct ds3232 *ds3232 = dev_get_drvdata(dev);
- 	int control, stat;
- 	int ret;
- 	u8 buf[4];
- 
- 	mutex_lock(&ds3232->mutex);
- 
--	ret = i2c_smbus_read_byte_data(client, DS3232_REG_SR);
--	if (ret < 0)
-+	ret = regmap_read(ds3232->regmap, DS3232_REG_SR, &stat);
-+	if (ret)
- 		goto out;
--	stat = ret;
--	ret = i2c_smbus_read_byte_data(client, DS3232_REG_CR);
--	if (ret < 0)
-+	ret = regmap_read(ds3232->regmap, DS3232_REG_CR, &control);
-+	if (ret)
- 		goto out;
--	control = ret;
--	ret = i2c_smbus_read_i2c_block_data(client, DS3232_REG_ALARM1, 4, buf);
--	if (ret < 0)
-+	ret = regmap_bulk_read(ds3232->regmap, DS3232_REG_ALARM1, buf, 4);
-+	if (ret)
- 		goto out;
- 
- 	alarm->time.tm_sec = bcd2bin(buf[0] & 0x7F);
-@@ -236,13 +226,12 @@ out:
-  */
- static int ds3232_set_alarm(struct device *dev, struct rtc_wkalrm *alarm)
- {
--	struct i2c_client *client = to_i2c_client(dev);
--	struct ds3232 *ds3232 = i2c_get_clientdata(client);
-+	struct ds3232 *ds3232 = dev_get_drvdata(dev);
- 	int control, stat;
- 	int ret;
- 	u8 buf[4];
- 
--	if (client->irq <= 0)
-+	if (ds3232->irq <= 0)
- 		return -EINVAL;
- 
- 	mutex_lock(&ds3232->mutex);
-@@ -253,47 +242,45 @@ static int ds3232_set_alarm(struct device *dev, struct rtc_wkalrm *alarm)
- 	buf[3] = bin2bcd(alarm->time.tm_mday);
- 
- 	/* clear alarm interrupt enable bit */
--	ret = i2c_smbus_read_byte_data(client, DS3232_REG_CR);
--	if (ret < 0)
-+	ret = regmap_read(ds3232->regmap, DS3232_REG_CR, &control);
-+	if (ret)
- 		goto out;
--	control = ret;
- 	control &= ~(DS3232_REG_CR_A1IE | DS3232_REG_CR_A2IE);
--	ret = i2c_smbus_write_byte_data(client, DS3232_REG_CR, control);
--	if (ret < 0)
-+	ret = regmap_write(ds3232->regmap, DS3232_REG_CR, control);
-+	if (ret)
- 		goto out;
- 
- 	/* clear any pending alarm flag */
--	ret = i2c_smbus_read_byte_data(client, DS3232_REG_SR);
--	if (ret < 0)
-+	ret = regmap_read(ds3232->regmap, DS3232_REG_SR, &stat);
-+	if (ret)
- 		goto out;
--	stat = ret;
- 	stat &= ~(DS3232_REG_SR_A1F | DS3232_REG_SR_A2F);
--	ret = i2c_smbus_write_byte_data(client, DS3232_REG_SR, stat);
--	if (ret < 0)
-+	ret = regmap_write(ds3232->regmap, DS3232_REG_SR, stat);
-+	if (ret)
- 		goto out;
- 
--	ret = i2c_smbus_write_i2c_block_data(client, DS3232_REG_ALARM1, 4, buf);
-+	ret = regmap_bulk_write(ds3232->regmap, DS3232_REG_ALARM1, buf, 4);
- 
- 	if (alarm->enabled) {
- 		control |= DS3232_REG_CR_A1IE;
--		ret = i2c_smbus_write_byte_data(client, DS3232_REG_CR, control);
-+		ret = regmap_write(ds3232->regmap, DS3232_REG_CR, control);
- 	}
- out:
- 	mutex_unlock(&ds3232->mutex);
- 	return ret;
- }
- 
--static void ds3232_update_alarm(struct i2c_client *client)
-+static void ds3232_update_alarm(struct device *dev)
- {
--	struct ds3232 *ds3232 = i2c_get_clientdata(client);
-+	struct ds3232 *ds3232 = dev_get_drvdata(dev);
- 	int control;
- 	int ret;
- 	u8 buf[4];
- 
- 	mutex_lock(&ds3232->mutex);
- 
--	ret = i2c_smbus_read_i2c_block_data(client, DS3232_REG_ALARM1, 4, buf);
--	if (ret < 0)
-+	ret = regmap_bulk_read(ds3232->regmap, DS3232_REG_ALARM1, buf, 4);
-+	if (ret)
- 		goto unlock;
- 
- 	buf[0] = bcd2bin(buf[0]) < 0 || (ds3232->rtc->irq_data & RTC_UF) ?
-@@ -305,12 +292,12 @@ static void ds3232_update_alarm(struct i2c_client *client)
- 	buf[3] = bcd2bin(buf[3]) < 0 || (ds3232->rtc->irq_data & RTC_UF) ?
- 								0x80 : buf[3];
- 
--	ret = i2c_smbus_write_i2c_block_data(client, DS3232_REG_ALARM1, 4, buf);
--	if (ret < 0)
-+	ret = regmap_bulk_write(ds3232->regmap, DS3232_REG_ALARM1, buf, 4);
-+	if (ret)
- 		goto unlock;
- 
--	control = i2c_smbus_read_byte_data(client, DS3232_REG_CR);
--	if (control < 0)
-+	ret = regmap_read(ds3232->regmap, DS3232_REG_CR, &control);
-+	if (ret)
- 		goto unlock;
- 
- 	if (ds3232->rtc->irq_data & (RTC_AF | RTC_UF))
-@@ -319,7 +306,7 @@ static void ds3232_update_alarm(struct i2c_client *client)
- 	else
- 		/* disable alarm1 interrupt */
- 		control &= ~(DS3232_REG_CR_A1IE);
--	i2c_smbus_write_byte_data(client, DS3232_REG_CR, control);
-+	regmap_write(ds3232->regmap, DS3232_REG_CR, control);
- 
- unlock:
- 	mutex_unlock(&ds3232->mutex);
-@@ -327,10 +314,9 @@ unlock:
- 
- static int ds3232_alarm_irq_enable(struct device *dev, unsigned int enabled)
- {
--	struct i2c_client *client = to_i2c_client(dev);
--	struct ds3232 *ds3232 = i2c_get_clientdata(client);
-+	struct ds3232 *ds3232 = dev_get_drvdata(dev);
- 
--	if (client->irq <= 0)
-+	if (ds3232->irq <= 0)
- 		return -EINVAL;
- 
- 	if (enabled)
-@@ -338,14 +324,14 @@ static int ds3232_alarm_irq_enable(struct device *dev, unsigned int enabled)
- 	else
- 		ds3232->rtc->irq_data &= ~RTC_AF;
- 
--	ds3232_update_alarm(client);
-+	ds3232_update_alarm(dev);
- 	return 0;
- }
- 
- static irqreturn_t ds3232_irq(int irq, void *dev_id)
- {
--	struct i2c_client *client = dev_id;
--	struct ds3232 *ds3232 = i2c_get_clientdata(client);
-+	struct device *dev = dev_id;
-+	struct ds3232 *ds3232 = dev_get_drvdata(dev);
- 
- 	disable_irq_nosync(irq);
- 
-@@ -363,34 +349,33 @@ static irqreturn_t ds3232_irq(int irq, void *dev_id)
- static void ds3232_work(struct work_struct *work)
- {
- 	struct ds3232 *ds3232 = container_of(work, struct ds3232, work);
--	struct i2c_client *client = ds3232->client;
-+	int ret;
- 	int stat, control;
- 
- 	mutex_lock(&ds3232->mutex);
- 
--	stat = i2c_smbus_read_byte_data(client, DS3232_REG_SR);
--	if (stat < 0)
-+	ret = regmap_read(ds3232->regmap, DS3232_REG_SR, &stat);
-+	if (ret)
- 		goto unlock;
- 
- 	if (stat & DS3232_REG_SR_A1F) {
--		control = i2c_smbus_read_byte_data(client, DS3232_REG_CR);
--		if (control < 0) {
-+		ret = regmap_read(ds3232->regmap, DS3232_REG_CR, &control);
-+		if (ret) {
- 			pr_warn("Read Control Register error - Disable IRQ%d\n",
--				client->irq);
-+				ds3232->irq);
- 		} else {
- 			/* disable alarm1 interrupt */
- 			control &= ~(DS3232_REG_CR_A1IE);
--			i2c_smbus_write_byte_data(client, DS3232_REG_CR,
--						control);
-+			regmap_write(ds3232->regmap, DS3232_REG_CR, control);
- 
- 			/* clear the alarm pend flag */
- 			stat &= ~DS3232_REG_SR_A1F;
--			i2c_smbus_write_byte_data(client, DS3232_REG_SR, stat);
-+			regmap_write(ds3232->regmap, DS3232_REG_SR, stat);
- 
- 			rtc_update_irq(ds3232->rtc, 1, RTC_AF | RTC_IRQF);
- 
- 			if (!ds3232->exiting)
--				enable_irq(client->irq);
-+				enable_irq(ds3232->irq);
- 		}
- 	}
- 
-@@ -406,49 +391,53 @@ static const struct rtc_class_ops ds3232_rtc_ops = {
- 	.alarm_irq_enable = ds3232_alarm_irq_enable,
- };
- 
--static int ds3232_probe(struct i2c_client *client,
--			const struct i2c_device_id *id)
-+static int ds3232_probe(struct device *dev, struct regmap *regmap, int irq,
-+			const char *name)
- {
- 	struct ds3232 *ds3232;
- 	int ret;
- 
--	ds3232 = devm_kzalloc(&client->dev, sizeof(struct ds3232), GFP_KERNEL);
-+	ds3232 = devm_kzalloc(dev, sizeof(*ds3232), GFP_KERNEL);
- 	if (!ds3232)
- 		return -ENOMEM;
- 
--	ds3232->client = client;
--	i2c_set_clientdata(client, ds3232);
-+	ds3232->regmap = regmap;
-+	ds3232->irq = irq;
-+	ds3232->dev = dev;
-+	dev_set_drvdata(dev, ds3232);
- 
- 	INIT_WORK(&ds3232->work, ds3232_work);
- 	mutex_init(&ds3232->mutex);
- 
--	ret = ds3232_check_rtc_status(client);
-+	ret = ds3232_check_rtc_status(dev);
- 	if (ret)
- 		return ret;
- 
--	if (client->irq > 0) {
--		ret = devm_request_irq(&client->dev, client->irq, ds3232_irq,
--				       IRQF_SHARED, "ds3232", client);
-+	if (ds3232->irq > 0) {
-+		ret = devm_request_irq(dev, ds3232->irq, ds3232_irq,
-+				       IRQF_SHARED, name, dev);
- 		if (ret) {
--			dev_err(&client->dev, "unable to request IRQ\n");
--		}
--		device_init_wakeup(&client->dev, 1);
-+			ds3232->irq = 0;
-+			dev_err(dev, "unable to request IRQ\n");
-+		} else
-+			device_init_wakeup(dev, 1);
- 	}
--	ds3232->rtc = devm_rtc_device_register(&client->dev, client->name,
--					  &ds3232_rtc_ops, THIS_MODULE);
-+	ds3232->rtc = devm_rtc_device_register(dev, name, &ds3232_rtc_ops,
-+						THIS_MODULE);
-+
- 	return PTR_ERR_OR_ZERO(ds3232->rtc);
- }
- 
--static int ds3232_remove(struct i2c_client *client)
-+static int ds3232_remove(struct device *dev)
- {
--	struct ds3232 *ds3232 = i2c_get_clientdata(client);
-+	struct ds3232 *ds3232 = dev_get_drvdata(dev);
- 
--	if (client->irq > 0) {
-+	if (ds3232->irq > 0) {
- 		mutex_lock(&ds3232->mutex);
- 		ds3232->exiting = 1;
- 		mutex_unlock(&ds3232->mutex);
- 
--		devm_free_irq(&client->dev, client->irq, client);
-+		devm_free_irq(dev, ds3232->irq, dev);
- 		cancel_work_sync(&ds3232->work);
- 	}
- 
-@@ -459,11 +448,10 @@ static int ds3232_remove(struct i2c_client *client)
- static int ds3232_suspend(struct device *dev)
- {
- 	struct ds3232 *ds3232 = dev_get_drvdata(dev);
--	struct i2c_client *client = to_i2c_client(dev);
- 
- 	if (device_can_wakeup(dev)) {
- 		ds3232->suspended = true;
--		if (irq_set_irq_wake(client->irq, 1)) {
-+		if (irq_set_irq_wake(ds3232->irq, 1)) {
- 			dev_warn_once(dev, "Cannot set wakeup source\n");
- 			ds3232->suspended = false;
- 		}
-@@ -475,7 +463,6 @@ static int ds3232_suspend(struct device *dev)
- static int ds3232_resume(struct device *dev)
- {
- 	struct ds3232 *ds3232 = dev_get_drvdata(dev);
--	struct i2c_client *client = to_i2c_client(dev);
- 
- 	if (ds3232->suspended) {
- 		ds3232->suspended = false;
-@@ -483,7 +470,7 @@ static int ds3232_resume(struct device *dev)
- 		/* Clear the hardware alarm pend flag */
- 		schedule_work(&ds3232->work);
- 
--		irq_set_irq_wake(client->irq, 0);
-+		irq_set_irq_wake(ds3232->irq, 0);
- 	}
- 
- 	return 0;
-@@ -494,6 +481,30 @@ static const struct dev_pm_ops ds3232_pm_ops = {
- 	SET_SYSTEM_SLEEP_PM_OPS(ds3232_suspend, ds3232_resume)
- };
- 
-+static int ds3232_i2c_probe(struct i2c_client *client,
-+			const struct i2c_device_id *id)
-+{
-+	struct regmap *regmap;
-+	static const struct regmap_config config = {
-+		.reg_bits = 8,
-+		.val_bits = 8,
-+	};
-+
-+	regmap = devm_regmap_init_i2c(client, &config);
-+	if (IS_ERR(regmap)) {
-+		dev_err(&client->dev, "%s: regmap allocation failed: %ld\n",
-+			__func__, PTR_ERR(regmap));
-+		return PTR_ERR(regmap);
-+	}
-+
-+	return ds3232_probe(&client->dev, regmap, client->irq, client->name);
-+}
-+
-+static int ds3232_i2c_remove(struct i2c_client *client)
-+{
-+	return ds3232_remove(&client->dev);
-+}
-+
- static const struct i2c_device_id ds3232_id[] = {
- 	{ "ds3232", 0 },
- 	{ }
-@@ -505,11 +516,10 @@ static struct i2c_driver ds3232_driver = {
- 		.name = "rtc-ds3232",
- 		.pm	= &ds3232_pm_ops,
- 	},
--	.probe = ds3232_probe,
--	.remove = ds3232_remove,
-+	.probe = ds3232_i2c_probe,
-+	.remove = ds3232_i2c_remove,
- 	.id_table = ds3232_id,
- };
--
- module_i2c_driver(ds3232_driver);
- 
- MODULE_AUTHOR("Srikanth Srinivasan <srikanth.srinivasan@freescale.com>");
+Best regards,
 -- 
-2.5.0
+Javier Martinez Canillas
+Open Source Group
+Samsung Research America
 
 -- 
 -- 
