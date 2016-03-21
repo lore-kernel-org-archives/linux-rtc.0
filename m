@@ -1,36 +1,49 @@
-Return-Path: <ynvich@gmail.com>
-Message-ID: <1458297495.3499.29.camel@gmail.com>
-Subject: Re: [PATCH v7] rtc: rewrite DS1302 using SPI
-From: Sergei Ianovich <ynvich@gmail.com>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>, Yoshinori Sato
-	 <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>
-Cc: linux-kernel@vger.kernel.org, Rob Herring <robh@kernel.org>, Rob Herring
- <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland
- <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar
- Gala <galak@codeaurora.org>, Alessandro Zummo <a.zummo@towertech.it>, "open
- list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS"
- <devicetree@vger.kernel.org>, "open list:REAL TIME CLOCK RTC SUBSYSTEM"
- <rtc-linux@googlegroups.com>, linux-sh@vger.kernel.org
-Date: Fri, 18 Mar 2016 13:38:15 +0300
-In-Reply-To: <20160315001844.GJ28277@piout.net>
-References: <1456105286-28598-1-git-send-email-ynvich@gmail.com>
-	 <1456224900-4877-1-git-send-email-ynvich@gmail.com>
-	 <20160315001844.GJ28277@piout.net>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
+Return-Path: <rtc-linux+bncBDJIP47K7MERB6HHX63QKGQEQM3KHSQ@googlegroups.com>
+Sender: rtc-linux@googlegroups.com
+Received: from mail.kernel.org (mail.kernel.org. [198.145.29.136])
+        by gmr-mx.google.com with ESMTPS id sf5si3881007pac.1.2016.03.21.06.15.36
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 21 Mar 2016 06:15:36 -0700 (PDT)
+Date: Mon, 21 Mar 2016 08:15:32 -0500
+From: Rob Herring <robh@kernel.org>
+To: Emil Bartczak <emilbart@gmail.com>
+Cc: a.zummo@towertech.it, devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org, rtc-linux@googlegroups.com
+Subject: [rtc-linux] Re: [PATCH] drivers/rtc/rtc-mcp795.c: add devicetree support
+Message-ID: <20160321131532.GA31244@rob-hp-laptop>
+References: <20160321000610.GA21979@emba-laptop>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <20160321000610.GA21979@emba-laptop>
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
+List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
+List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
+List-Archive: <https://groups.google.com/group/rtc-linux
+List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
+List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
+ <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Tue, 2016-03-15 at 01:18 +0100, Alexandre Belloni wrote:
-> I would like to have a solution for secureedge5410 even if it is
-> untested. Else, we are breaking an existing platform without any
-> solution.
+On Mon, Mar 21, 2016 at 01:06:10AM +0100, Emil Bartczak wrote:
+> Add device tree support to the rtc-mcp795 driver.
 > 
-> I've put the sh maintainers in copy, maybe they have an opinion. Else
-> I'll let your patch sit in linux-next for the next cycle.
+> Signed-off-by: Emil Bartczak <emilbart@gmail.com>
+> ---
+>  Documentation/devicetree/bindings/rtc/maxim,mcp795.txt | 11 +++++++++++
+>  drivers/rtc/rtc-mcp795.c                               | 10 ++++++++++
+>  2 files changed, 21 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/rtc/maxim,mcp795.txt
 
-secureedge5410 will need an SPI host driver. The driver will be similar
-to the one I did for lp8841. I can make a clone for secureedge5410, but
-I cannot test it.
+Acked-by: Rob Herring <robh@kernel.org>
 
-The only reason, I didn't file the patch for secureedge5410, is I
-thought SPI people won't accept an untested patch.
+-- 
+-- 
+You received this message because you are subscribed to "rtc-linux".
+Membership options at http://groups.google.com/group/rtc-linux .
+Please read http://groups.google.com/group/rtc-linux/web/checklist
+before submitting a driver.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+For more options, visit https://groups.google.com/d/optout.
