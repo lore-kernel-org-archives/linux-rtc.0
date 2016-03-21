@@ -1,107 +1,30 @@
-Return-Path: <rtc-linux+bncBCPM5SUWUYIRB4VH423AKGQELC2ENKY@googlegroups.com>
-Received: from mail-vk0-x242.google.com (mail-vk0-x242.google.com. [2607:f8b0:400c:c05::242])
-        by gmr-mx.google.com with ESMTPS id b196si89485vkf.1.2016.03.04.05.56.01
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 04 Mar 2016 05:56:01 -0800 (PST)
-Received: by mail-vk0-x242.google.com with SMTP id e185so3914340vkb.2
-        for <rtc-linux@googlegroups.com>; Fri, 04 Mar 2016 05:56:01 -0800 (PST)
+Date: Mon, 21 Mar 2016 22:57:45 +0100
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Emil Bartczak <emilbart@gmail.com>
+Cc: a.zummo@towertech.it, devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org, rtc-linux@googlegroups.com,
+	robh+dt@kernel.org
+Subject: Re: [rtc-linux] [PATCH] drivers/rtc/rtc-mcp795.c: add devicetree
+ support
+Message-ID: <20160321215745.GF2540@piout.net>
+References: <20160321000610.GA21979@emba-laptop>
 MIME-Version: 1.0
-In-Reply-To: <20160303225756.GA2587@piout.net>
-References: <1456758832-10590-1-git-send-email-akinobu.mita@gmail.com>
-	<1456758832-10590-7-git-send-email-akinobu.mita@gmail.com>
-	<CAC5umygNbz=nnPU6oTDsmrwWRKLFJE3Hq2ei1mPQ425CvfVE9Q@mail.gmail.com>
-	<20160303225756.GA2587@piout.net>
-Date: Fri, 4 Mar 2016 22:56:01 +0900
-Message-ID: <CAC5umyiOPbXVOOjd-4oLnovPz19M57EL7RhL115rXVx7xd0MNQ@mail.gmail.com>
-Subject: [rtc-linux] Re: [PATCH v3 7/8] rtc: ds3232-core: fix issue when irq
- is shared several devices
-From: Akinobu Mita <akinobu.mita@gmail.com>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: rtc-linux@googlegroups.com, Alessandro Zummo <a.zummo@towertech.it>,
-	Dennis Aberilla <denzzzhome@yahoo.com>
-Content-Type: text/plain; charset=UTF-8
-Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20160321000610.GA21979@emba-laptop>
 List-ID: <rtc-linux.googlegroups.com>
-List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
-List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
-List-Archive: <https://groups.google.com/group/rtc-linux
-Sender: rtc-linux@googlegroups.com
-List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
-List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
- <https://groups.google.com/group/rtc-linux/subscribe>
 
-2016-03-04 7:57 GMT+09:00 Alexandre Belloni
-<alexandre.belloni@free-electrons.com>:
-> On 03/03/2016 at 23:10:35 +0900, Akinobu Mita wrote :
->> 2016-03-01 0:13 GMT+09:00 Akinobu Mita <akinobu.mita@gmail.com>:
->> > ds3232-core requests irq with IRQF_SHARED, so irq can be shared by
->> > several devices.  But the irq handler for ds3232 unconditionally
->> > disables the irq at first and the irq is re-enabled only when the
->> > interrupt source was the ds3232's alarm.  This behaviour breaks the
->> > devices sharing the same irq in the various scenarios.
->> >
->> > Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
->> > Cc: Alessandro Zummo <a.zummo@towertech.it>
->> > Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
->> > Cc: Dennis Aberilla <denzzzhome@yahoo.com>
->> > ---
->> > * New patch from this version
->> >
->> >  drivers/rtc/rtc-ds3232-core.c | 14 ++------------
->> >  1 file changed, 2 insertions(+), 12 deletions(-)
->> >
->> > diff --git a/drivers/rtc/rtc-ds3232-core.c b/drivers/rtc/rtc-ds3232-core.c
->> > index be8dfe0..6489380 100644
->> > --- a/drivers/rtc/rtc-ds3232-core.c
->> > +++ b/drivers/rtc/rtc-ds3232-core.c
->> > @@ -59,7 +59,6 @@ struct ds3232 {
->> >          */
->> >         struct mutex mutex;
->> >         bool suspended;
->> > -       int exiting;
->> >  };
->> >
->> >  static int ds3232_check_rtc_status(struct device *dev)
->> > @@ -314,8 +313,6 @@ static irqreturn_t ds3232_irq(int irq, void *dev_id)
->> >         struct device *dev = dev_id;
->> >         struct ds3232 *ds3232 = dev_get_drvdata(dev);
->> >
->> > -       disable_irq_nosync(irq);
->> > -
->> >         /*
->> >          * If rtc as a wakeup source, can't schedule the work
->> >          * at system resume flow, because at this time the i2c bus
->>
->> I found that this patch is not correct because interrupt is re-enabled
->> after this hardirq handler finished without clearing Alarm Flag or
->> Alarm Interrupt Enable in RTC register.
->>
->> Maybe we should drop IRQF_SHARED flag.
->
-> I think the best is to completely reworke the irq handling. It dates
-> from many many year ago and can be replace by a simple threaded irq.
-> This will solve your issue.
-
-I tried converting to threaded irq.  But it needs to deal with suspend
-resume paths. (i.e. the following comment in ds3232_irq)
-
-        /*
-         * If rtc as a wakeup source, can't schedule the work
-         * at system resume flow, because at this time the i2c bus
-         * has not been resumed.
-         */
-
-Unfortunately, I don't have the computer that can use RTC on i2c-bus
-as wake up source.  So I think dropping IRQF_SHARED is safe for now.
+On 21/03/2016 at 01:06:10 +0100, Emil Bartczak wrote :
+> Add device tree support to the rtc-mcp795 driver.
+> 
+> Signed-off-by: Emil Bartczak <emilbart@gmail.com>
+> ---
+>  Documentation/devicetree/bindings/rtc/maxim,mcp795.txt | 11 +++++++++++
+>  drivers/rtc/rtc-mcp795.c                               | 10 ++++++++++
+>  2 files changed, 21 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/rtc/maxim,mcp795.txt
+Applied, thanks.
 
 -- 
--- 
-You received this message because you are subscribed to "rtc-linux".
-Membership options at http://groups.google.com/group/rtc-linux .
-Please read http://groups.google.com/group/rtc-linux/web/checklist
-before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
-For more options, visit https://groups.google.com/d/optout.
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
