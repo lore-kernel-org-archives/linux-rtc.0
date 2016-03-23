@@ -1,112 +1,169 @@
-Return-Path: <rtc-linux+bncBAABBLNQTS3QKGQECJY7RJY@googlegroups.com>
-Received: from lists.s-osg.org (lists.s-osg.org. [54.187.51.154])
-        by gmr-mx.google.com with ESMTP id 12si3404943pfb.1.2016.03.14.12.59.40
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBBXEY63QKGQEPIJA35A@googlegroups.com>
+Sender: rtc-linux@googlegroups.com
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id f75si712342wme.3.2016.03.22.18.31.50
         for <rtc-linux@googlegroups.com>;
-        Mon, 14 Mar 2016 12:59:40 -0700 (PDT)
-Subject: [rtc-linux] Re: [PATCH] rtc: s3c: Don't print an error on probe deferral
-To: Joe Perches <joe@perches.com>, linux-kernel@vger.kernel.org
-References: <1457982308-29848-1-git-send-email-javier@osg.samsung.com>
- <1457982675.11972.119.camel@perches.com> <56E7119B.9060900@osg.samsung.com>
- <1457984317.11972.123.camel@perches.com>
-From: Javier Martinez Canillas <javier@osg.samsung.com>
-Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
- linux-samsung-soc@vger.kernel.org,
- Krzysztof Kozlowski <k.kozlowski@samsung.com>, rtc-linux@googlegroups.com
-Message-ID: <56E71825.5070104@osg.samsung.com>
-Date: Mon, 14 Mar 2016 16:59:33 -0300
+        Tue, 22 Mar 2016 18:31:50 -0700 (PDT)
+Date: Wed, 23 Mar 2016 02:31:39 +0100
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Anthony Olech <anthony.olech.opensource@diasemi.com>,
+	stwiss.opensource@diasemi.com
+Cc: LKML <linux-kernel@vger.kernel.org>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Guenter Roeck <linux@roeck-us.net>,
+	Jonathan Cameron <jic23@cam.ac.uk>,
+	Lars-Peter Clausen <lars@metafoo.de>, linux-iio@vger.kernel.org,
+	linux-input@vger.kernel.org, Randy Dunlap <rdunlap@xenotime.net>,
+	rtc-linux@googlegroups.com
+Subject: [rtc-linux] Re: [NEW DRIVER V6 0/7] DA9058 PMIC - please comment on
+ this new driver
+Message-ID: <20160323013139.GD2365@piout.net>
+References: <201304191703.r3JH3du0017574@latitude>
 MIME-Version: 1.0
-In-Reply-To: <1457984317.11972.123.camel@perches.com>
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <201304191703.r3JH3du0017574@latitude>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
 List-Archive: <https://groups.google.com/group/rtc-linux
-Sender: rtc-linux@googlegroups.com
 List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Hello Joe,
+Hi Anthony, Steve,
 
-On 03/14/2016 04:38 PM, Joe Perches wrote:
-> On Mon, 2016-03-14 at 16:31 -0300, Javier Martinez Canillas wrote:
->> On 03/14/2016 04:11 PM, Joe Perches wrote:> > On Mon, 2016-03-14 at 16:05 -0300, Javier Martinez Canillas wrote:
->>>>
->>>> The clock and source clock looked up by the driver may not be available
->>>> just because the clock controller driver was not probed yet so printing
->>>> an error in this case is not correct and only adds confusion to users.
->>>>
->>>> However, knowing that a driver's probe was deferred may be useful so it
->>>> can be printed as debug information.
->>> []
->>>>
->>>> diff --git a/drivers/rtc/rtc-s3c.c b/drivers/rtc/rtc-s3c.c
->>> []
->>>>
->>>> @@ -501,18 +501,27 @@ static int s3c_rtc_probe(struct platform_device *pdev)
->>>>  
->>>>  	info->rtc_clk = devm_clk_get(&pdev->dev, "rtc");
->>>>  	if (IS_ERR(info->rtc_clk)) {
->>>> -		dev_err(&pdev->dev, "failed to find rtc clock\n");
->>>> -		return PTR_ERR(info->rtc_clk);
->>>> +		ret = PTR_ERR(info->rtc_clk);
->>>> +		if (ret != -EPROBE_DEFER)
->>>> +			dev_err(&pdev->dev, "failed to find rtc clock\n");
->>>> +		else
->>>> +			dev_dbg(&pdev->dev, "probe deferred due rtc clock\n");
->>>> +		return ret;
->>>>  	}
->>>>  	clk_prepare_enable(info->rtc_clk);
->>>>  
->>>>  	if (info->data->needs_src_clk) {
->>>>  		info->rtc_src_clk = devm_clk_get(&pdev->dev, "rtc_src");
->>>>  		if (IS_ERR(info->rtc_src_clk)) {
->>>> -			dev_err(&pdev->dev,
->>>> -				"failed to find rtc source clock\n");
->>>> +			ret = PTR_ERR(info->rtc_src_clk);
->>>> +			if (ret != -EPROBE_DEFER)
->>>> +				dev_err(&pdev->dev,
->>>> +					"failed to find rtc source clock\n");
->>>> +			else
->>>> +				dev_dbg(&pdev->dev,
->>>> +					"probe deferred due rtc source clock\n");
->>>>  			clk_disable_unprepare(info->rtc_clk);
->>>> -			return PTR_ERR(info->rtc_src_clk);
->>>> +			return ret;
->>>>  		}
->>>>  		clk_prepare_enable(info->rtc_src_clk);
->>>>  	}
->>> Maybe the debug logging messages could be object->action like:
->>>
->>> 	rtc clock probe deferred
->>> 	rtc source clock probe deferred
->>>
->> I found your suggested messages harder to read and more confusing. The
->> action that happens is a probe function deferral and that is caused by
->> a missing resource needed by the driver (clocks in this case).
->>
->> But your messages seems to imply that the probe deferred action happens
->> to a clock, it sounds like "rtc clock disabled" and that's not correct.
+This driver has been submitted a while ago and reached v6 but still had
+a few comments. Do you still have some interest in seeing it being
+accepted?
+
+On 19/04/2013 at 17:56:29 +0100, Anthony Olech wrote :
+> This is submission attempt number 6 to have this driver included in
+> the linux kernel source tree. This is the driver for the Dialog DA9058.
 > 
-> OK, then please change "due" to "due to" or "for" in your messages
-> because they make little sense now.
->
+> The DA9058 is a low power Power Management Integrated Circuit with extra
+> functionality. It is a Multi Function Device controlled only from an I2C
+> bus whose components can raise an interrupt request on a single IRQ line.
+> 
+> The driver for the DA9058 consists of a core (i2c) device driver that
+> instantiates the individual component device drivers for:
+> 
+> adc - 5 ADC channels
+> gpio - 2 available pins
+> onkey - 1 device
+> regulator - 4 BUCKS, 19 LDO and 3 fixed
+> rtc - low power clock
+> hwmon - 5 monitored voltages/temperatures
+> 
+> All the above six component device drivers depend on the 'core'
+> component driver, which is number one in the patch series.
+> 
+> Each component driver for the Dialog DA9058 will follow as an e-mail
+> patch relative to 
+> 
+> This driver has been tested on a Samsung SMDK6410 connected to a Dialog
+> DA9058 Evaluation Board via one GPIO and a 3-wire I2C connection.
+> 
+> All the components can be builtin to the kernel or compiled as modules.
+> As far as I can tell, all the latest APIs both for the core driver and
+> all the component drivers have been adhered to, but if I have missed
+> something please let me know.
+> 
+> In a clean check out of next-20130419 in linux-next, each patch has been
+> applied individually and the final result has been built successfully.
+> 
+> Many thanks,
+> Anthony Olech, Dialog Semiconductor Ltd.
+> 
+> Tony Olech (at Home) (7):
+>   drivers/mfd: DA9058 MFD core driver
+>   drivers/iio/adc: DA9058 ADC driver
+>   drivers/input/misc: DA9058 ONKEY driver
+>   drivers/rtc: DA9058 RTC driver
+>   drivers/gpio: DA9058 GPIO driver
+>   drivers/hwmon: DA9058 HWMON driver
+>   drivers/regulator: DA9058 REGULATOR driver
+> 
+>  Documentation/hwmon/da9058           |   38 ++
+>  drivers/gpio/Kconfig                 |   12 +
+>  drivers/gpio/Makefile                |    1 +
+>  drivers/gpio/gpio-da9058.c           |  376 ++++++++++++++
+>  drivers/hwmon/Kconfig                |   10 +
+>  drivers/hwmon/Makefile               |    3 +-
+>  drivers/hwmon/da9058-hwmon.c         |  330 ++++++++++++
+>  drivers/iio/adc/Kconfig              |   12 +
+>  drivers/iio/adc/Makefile             |    1 +
+>  drivers/iio/adc/da9058-adc.c         |  396 ++++++++++++++
+>  drivers/input/misc/Kconfig           |   10 +
+>  drivers/input/misc/Makefile          |    1 +
+>  drivers/input/misc/da9058_onkey.c    |  173 +++++++
+>  drivers/mfd/Kconfig                  |   17 +
+>  drivers/mfd/Makefile                 |    3 +
+>  drivers/mfd/da9058-core.c            |   73 +++
+>  drivers/mfd/da9058-i2c.c             |   96 ++++
+>  drivers/mfd/da9058-info.c            |  939 ++++++++++++++++++++++++++++++++++
+>  drivers/mfd/da9058-irq.c             |   56 ++
+>  drivers/regulator/Kconfig            |   11 +
+>  drivers/regulator/Makefile           |    1 +
+>  drivers/regulator/da9058-regulator.c |  199 +++++++
+>  drivers/rtc/Kconfig                  |   10 +
+>  drivers/rtc/Makefile                 |    1 +
+>  drivers/rtc/rtc-da9058.c             |  448 ++++++++++++++++
+>  include/linux/mfd/da9058/adc.h       |   18 +
+>  include/linux/mfd/da9058/bat.h       |   33 ++
+>  include/linux/mfd/da9058/codec.h     |   22 +
+>  include/linux/mfd/da9058/conf.h      |   22 +
+>  include/linux/mfd/da9058/core.h      |   66 +++
+>  include/linux/mfd/da9058/gpio.h      |   19 +
+>  include/linux/mfd/da9058/hwmon.h     |   32 ++
+>  include/linux/mfd/da9058/i2c.h       |   22 +
+>  include/linux/mfd/da9058/irq.h       |   50 ++
+>  include/linux/mfd/da9058/onkey.h     |   17 +
+>  include/linux/mfd/da9058/pdata.h     |   30 ++
+>  include/linux/mfd/da9058/registers.h |  480 +++++++++++++++++
+>  include/linux/mfd/da9058/regulator.h |   26 +
+>  include/linux/mfd/da9058/rtc.h       |   17 +
+>  39 files changed, 4070 insertions(+), 1 deletion(-)
+>  create mode 100644 Documentation/hwmon/da9058
+>  create mode 100644 drivers/gpio/gpio-da9058.c
+>  create mode 100644 drivers/hwmon/da9058-hwmon.c
+>  create mode 100644 drivers/iio/adc/da9058-adc.c
+>  create mode 100644 drivers/input/misc/da9058_onkey.c
+>  create mode 100644 drivers/mfd/da9058-core.c
+>  create mode 100644 drivers/mfd/da9058-i2c.c
+>  create mode 100644 drivers/mfd/da9058-info.c
+>  create mode 100644 drivers/mfd/da9058-irq.c
+>  create mode 100644 drivers/regulator/da9058-regulator.c
+>  create mode 100644 drivers/rtc/rtc-da9058.c
+>  create mode 100644 include/linux/mfd/da9058/adc.h
+>  create mode 100644 include/linux/mfd/da9058/bat.h
+>  create mode 100644 include/linux/mfd/da9058/codec.h
+>  create mode 100644 include/linux/mfd/da9058/conf.h
+>  create mode 100644 include/linux/mfd/da9058/core.h
+>  create mode 100644 include/linux/mfd/da9058/gpio.h
+>  create mode 100644 include/linux/mfd/da9058/hwmon.h
+>  create mode 100644 include/linux/mfd/da9058/i2c.h
+>  create mode 100644 include/linux/mfd/da9058/irq.h
+>  create mode 100644 include/linux/mfd/da9058/onkey.h
+>  create mode 100644 include/linux/mfd/da9058/pdata.h
+>  create mode 100644 include/linux/mfd/da9058/registers.h
+>  create mode 100644 include/linux/mfd/da9058/regulator.h
+>  create mode 100644 include/linux/mfd/da9058/rtc.h
+> 
+> -- 
+> end-of-patch for NEW DRIVER V6
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 
+> 
 
-I don't think they make little sense now since even a non-native english
-speaker like me can understand it :)
-
-But yes, it's cryptic at the very least. That's the problem with long text
-and the 80 char limit to make checkpatch.pl happy. I guess I can just move
-the message a little bit even if that will make to not be properly aligned.
-
-I'll wait a couple of days to see if there's any other feedback and repost.
-
-Best regards,
 -- 
-Javier Martinez Canillas
-Open Source Group
-Samsung Research America
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
 -- 
 -- 
