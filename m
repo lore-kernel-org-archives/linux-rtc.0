@@ -1,21 +1,17 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBIOPUS3QKGQE7DVM7LY@googlegroups.com>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBO5R2K3QKGQERYAGYJY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id 185si101761wml.0.2016.03.16.02.30.09
+        by gmr-mx.google.com with ESMTP id v68si53178wmd.1.2016.03.24.18.47.39
         for <rtc-linux@googlegroups.com>;
-        Wed, 16 Mar 2016 02:30:09 -0700 (PDT)
-Date: Wed, 16 Mar 2016 10:30:08 +0100
+        Thu, 24 Mar 2016 18:47:39 -0700 (PDT)
+Date: Fri, 25 Mar 2016 02:47:28 +0100
 From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
-	Oleksij Rempel <linux@rempel-privat.de>, rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH] rtc: asm9260: remove incorrect __init/__exit annotations
-Message-ID: <20160316093008.GB20227@piout.net>
-References: <1458078287-586232-1-git-send-email-arnd@arndb.de>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org
+Subject: [rtc-linux] [GIT PULL] RTC for 4.6 #2
+Message-ID: <20160325014728.GA10837@piout.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1458078287-586232-1-git-send-email-arnd@arndb.de>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -25,70 +21,82 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Hi,
+Hi Linus,
 
-On 15/03/2016 at 22:44:31 +0100, Arnd Bergmann wrote :
-> The probe and remove callbacks of the platform driver are marked __init
-> and __exit, respectively. However, this is not a correct way to annotate
-> them, as it will result in those sections to be discarded at link time
-> or after boot, while we can actually call them again based on manual
-> unbinding, or deferred probing.
-> 
-> Kbuild warns about the problem:
-> 
-> WARNING: drivers/rtc/rtc-asm9260.o(.data+0x0): Section mismatch in reference from the variable asm9260_rtc_driver to the function .init.text:asm9260_rtc_probe()
-> 
+A second pull request for v4.6 with a few fixesi before -rc1. The new
+features for abx80x actually make the RTC behave correctly.
 
-I'm not sure why this was not caught before. I'm not building all the
-platform but that one should have been easy to find...
+The following changes since commit cee2cc21550648679d222cbe2637fcc6d0f730ef=
+:
 
-> This removes the annotations, so we no longer branch into missing
-> code and avoid the warning.
-> 
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-> Fixes: 125e550fd257 ("rtc: add Alphascale asm9260 driver")
-> ---
->  drivers/rtc/rtc-asm9260.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/rtc/rtc-asm9260.c b/drivers/rtc/rtc-asm9260.c
-> index 14e08c4c1a01..355fdb97a006 100644
-> --- a/drivers/rtc/rtc-asm9260.c
-> +++ b/drivers/rtc/rtc-asm9260.c
-> @@ -255,7 +255,7 @@ static const struct rtc_class_ops asm9260_rtc_ops = {
->  	.alarm_irq_enable	= asm9260_alarm_irq_enable,
->  };
->  
-> -static int __init asm9260_rtc_probe(struct platform_device *pdev)
-> +static int asm9260_rtc_probe(struct platform_device *pdev)
->  {
->  	struct asm9260_rtc_priv *priv;
->  	struct device *dev = &pdev->dev;
-> @@ -323,7 +323,7 @@ err_return:
->  	return ret;
->  }
->  
-> -static int __exit asm9260_rtc_remove(struct platform_device *pdev)
-> +static int asm9260_rtc_remove(struct platform_device *pdev)
->  {
->  	struct asm9260_rtc_priv *priv = platform_get_drvdata(pdev);
->  
-> -- 
-> 2.7.0
-> 
+  rtc: pcf2127: add pcf2129 device id (2016-03-14 17:08:41 +0100)
 
--- 
+are available in the git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/abelloni/linux.git tags/rtc=
+-4.6-2
+
+for you to fetch changes up to ee087744247c421c83abea7f01217bfd39b8f5a9:
+
+  rtc: abx80x: handle the oscillator failure bit (2016-03-25 02:41:13 +0100=
+)
+
+----------------------------------------------------------------
+RTC for 4.6 #2
+
+Drivers:
+ - abx80x: handle both XT and RC oscillators, XT failure bit and autocalibr=
+ation
+ - m41t80: avoid out of range year values
+ - rv8803: workaround an i2c HW issue
+
+----------------------------------------------------------------
+Alexandre Belloni (2):
+      rtc: rv3029: stop mentioning rv3029c2
+      rtc: rv8803: workaround i2c HW issue
+
+Arnd Bergmann (1):
+      rtc: asm9260: remove incorrect __init/__exit annotations
+
+Emil Bartczak (1):
+      rtc: mcp795: add devicetree support
+
+Javier Martinez Canillas (1):
+      rtc: s3c: Don't print an error on probe deferral
+
+Myl=C4=8Dne Josserand (2):
+      rtc: abx80x: handle autocalibration
+      rtc: abx80x: handle the oscillator failure bit
+
+Stefan Christ (1):
+      rtc: m41t80: avoid out of range year values
+
+ .../devicetree/bindings/rtc/maxim,mcp795.txt       |  11 +
+ drivers/rtc/Kconfig                                |   2 +-
+ drivers/rtc/rtc-abx80x.c                           | 252 +++++++++++++++++=
++++-
+ drivers/rtc/rtc-asm9260.c                          |   4 +-
+ drivers/rtc/rtc-m41t80.c                           |   6 +
+ drivers/rtc/rtc-mcp795.c                           |  10 +
+ drivers/rtc/rtc-rv8803.c                           |  28 ++-
+ drivers/rtc/rtc-s3c.c                              |  19 +-
+ 8 files changed, 316 insertions(+), 16 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/rtc/maxim,mcp795.txt
+
+--=20
 Alexandre Belloni, Free Electrons
 Embedded Linux, Kernel and Android engineering
 http://free-electrons.com
 
--- 
--- 
+--=20
+--=20
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+---=20
+You received this message because you are subscribed to the Google Groups "=
+rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an e=
+mail to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
