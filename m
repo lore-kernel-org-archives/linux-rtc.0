@@ -1,43 +1,46 @@
-Return-Path: <rtc-linux+bncBDEKVJM7XAHRBPVP4C3AKGQEK2X4BDI@googlegroups.com>
-Received: from mout.kundenserver.de (mout.kundenserver.de. [217.72.192.75])
-        by gmr-mx.google.com with ESMTPS id c140si384193wmh.1.2016.03.03.02.53.49
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 03 Mar 2016 02:53:49 -0800 (PST)
-From: Arnd Bergmann <arnd@arndb.de>
-To: linux-arm-kernel@lists.infradead.org
-Cc: Krzysztof Kozlowski <k.kozlowski@samsung.com>, Daniel Lezcano <daniel.lezcano@linaro.org>, Thomas Gleixner <tglx@linutronix.de>, Dan Williams <dan.j.williams@intel.com>, Vinod Koul <vinod.koul@intel.com>, Jason Cooper <jason@lakedaemon.net>, Marc Zyngier <marc.zyngier@arm.com>, Mauro Carvalho Chehab <mchehab@osg.samsung.com>, Lee Jones <lee.jones@linaro.org>, Giuseppe Cavallaro <peppe.cavallaro@st.com>, Kishon Vijay Abraham I <kishon@ti.com>, Linus Walleij <linus.walleij@linaro.org>, Sebastian Reichel <sre@kernel.org>, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, David Woodhouse <dwmw2@infradead.org>, Alessandro Zummo <a.zummo@towertech.it>, Alexandre Belloni <alexandre.belloni@free-electrons.com>, Andy Gross <andy.gross@linaro.org>, David Brown <david.brown@linaro.org>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-kernel@vger.kernel.org, dmaengine@vger.kernel.org, linux-media@vger.kernel.org, linux-samsung-soc@vger.kernel.org, netdev@vger.kernel.org, linux-gpio@vger.kernel.org, linux-pm@vger.kernel.org, rtc-linux@googlegroups.com, linux-arm-msm@vger.kernel.org, linux-soc@vger.kernel.org, devel@driverdev.osuosl.org, linux-usb@vger.kernel.org
-Subject: [rtc-linux] Re: [RFC 04/15] irqchip: st: Add missing MFD_SYSCON
- dependency on HAS_IOMEM
-Date: Thu, 03 Mar 2016 11:53:38 +0100
-Message-ID: <2506651.J2Z42d81nD@wuerfel>
-In-Reply-To: <1456992221-26712-5-git-send-email-k.kozlowski@samsung.com>
-References: <1456992221-26712-1-git-send-email-k.kozlowski@samsung.com> <1456992221-26712-5-git-send-email-k.kozlowski@samsung.com>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBBGY423QKGQE2BFBSLI@googlegroups.com>
+Sender: rtc-linux@googlegroups.com
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id v68si667938wmd.1.2016.03.28.15.11.16
+        for <rtc-linux@googlegroups.com>;
+        Mon, 28 Mar 2016 15:11:16 -0700 (PDT)
+Date: Tue, 29 Mar 2016 00:11:16 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Colin King <colin.king@canonical.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org
+Subject: [rtc-linux] Re: [PATCH] rtc: at91sam9: remove duplicate assignment of
+ variable mr
+Message-ID: <20160328221116.GB2346@piout.net>
+References: <1459164240-6731-1-git-send-email-colin.king@canonical.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1459164240-6731-1-git-send-email-colin.king@canonical.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
 List-Archive: <https://groups.google.com/group/rtc-linux
-Sender: rtc-linux@googlegroups.com
 List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Thursday 03 March 2016 17:03:30 Krzysztof Kozlowski wrote:
->  config ST_IRQCHIP
->         bool
->         select REGMAP
-> +       depends on HAS_IOMEM    # For MFD_SYSCON
->         select MFD_SYSCON
->         help
->           Enables SysCfg Controlled IRQs on STi based platforms.
+On 28/03/2016 at 12:24:00 +0100, Colin King wrote :
+> From: Colin Ian King <colin.king@canonical.com>
 > 
+> mr is written twice with the same value, remove one of the
+> redundant assignments to mr.
+> 
+> Signed-off-by: Colin Ian King <colin.king@canonical.com>
+> ---
+>  drivers/rtc/rtc-at91sam9.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+Applied, thanks.
 
-Not user visible.
-
-	Arnd
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
 -- 
 -- 
