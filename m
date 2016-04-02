@@ -1,20 +1,21 @@
-Return-Path: <rtc-linux+bncBAABBMPX4G4AKGQE3GSWOFQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBDQNTZVC44FBBZMGQG4AKGQEQCFY2NI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from na01-bn1-obe.outbound.protection.outlook.com (mail-bn1bon0092.outbound.protection.outlook.com. [157.56.111.92])
-        by gmr-mx.google.com with ESMTPS id d22si218027pfd.0.2016.04.21.00.05.21
+Received: from mailhost.home (mailhost.ilcode.fr. [2a01:240:fe87:2::2])
+        by gmr-mx.google.com with ESMTPS id c7si103992wmf.2.2016.04.02.15.10.44
         for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
-        Thu, 21 Apr 2016 00:05:21 -0700 (PDT)
-From: Gong Qianyu <Qianyu.Gong@nxp.com>
-To: <rtc-linux@googlegroups.com>, <akinobu.mita@gmail.com>,
-	<alexandre.belloni@free-electrons.com>
-CC: <mingkai.hu@nxp.com>, Gong Qianyu <Qianyu.Gong@nxp.com>
-Subject: [rtc-linux] [Patch v3] rtc: ds3232: fix call trace when rtc->ops_lock
- is used as NULL
-Date: Thu, 21 Apr 2016 14:55:40 +0800
-Message-ID: <1461221740-10739-1-git-send-email-Qianyu.Gong@nxp.com>
+        (version=TLS1_2 cipher=AES128-SHA bits=128/128);
+        Sat, 02 Apr 2016 15:10:45 -0700 (PDT)
+Date: Sun, 3 Apr 2016 00:10:37 +0200
+From: Nicolas Boullis <nboullis@debian.org>
+To: Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	rtc-linux@googlegroups.com
+Subject: [rtc-linux] [PATCH 1/2] rtc: ds1307: fix ds1307_native_smbus_read_block_data
+ function
+Message-ID: <20160402221037.GA3600@haddock.home>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="oyUTqETQ0mS9luUI"
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -24,52 +25,51 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-The rtc->ops_lock would be accessed in ds3232_irq() without being
-initialized as rtc_device_register() is called too late.
+--oyUTqETQ0mS9luUI
+Content-Type: text/plain; charset=UTF-8
+Content-Disposition: inline
 
-So move devm_rtc_device_register() just before registering irq handler
-to initialize rtc->ops_lock earlier.
+The i2c_smbus_read_i2c_block_data function returns 0 on success, not the 
+number of bytes written.
 
-Signed-off-by: Gong Qianyu <Qianyu.Gong@nxp.com>
+Hence, when there are 32 bytes or less to send, the 
+ds1307_native_smbus_write_block_data function returns 0 on success, 
+while it returns the number of bytes when there are more than 32.
+
+The ds1307_write_block_data always returns the number of bytes on 
+success.
+
+Signed-off-by: Nicolas Boullis <nboullis@debian.org>
+
 ---
-V3:
- - revise the commit message.
-V2:
- - fix the order of error check.
 
- drivers/rtc/rtc-ds3232.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+Should the behavior of the i2c_smbus_write_i2c_block_data function be 
+changed to be consistant with that of the i2c_smbus_read_i2c_block_data 
+function?
 
-diff --git a/drivers/rtc/rtc-ds3232.c b/drivers/rtc/rtc-ds3232.c
-index 7edc889..04fbd7f 100644
---- a/drivers/rtc/rtc-ds3232.c
-+++ b/drivers/rtc/rtc-ds3232.c
-@@ -369,6 +369,11 @@ static int ds3232_probe(struct device *dev, struct regmap *regmap, int irq,
- 	if (ret)
- 		return ret;
+It might be more consistent, but the impact is certainly much larger, 
+and that's far beyond the scope of the RTC subsystem.
+
+diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
+index b2156ee..19e7353 100644
+--- a/drivers/rtc/rtc-ds1307.c
++++ b/drivers/rtc/rtc-ds1307.c
+@@ -275,9 +275,13 @@ static s32 ds1307_native_smbus_write_block_data(const struct i2c_client *client,
+ {
+ 	u8 suboffset = 0;
  
-+	ds3232->rtc = devm_rtc_device_register(dev, name, &ds3232_rtc_ops,
-+						THIS_MODULE);
-+	if (IS_ERR(ds3232->rtc))
-+		return PTR_ERR(ds3232->rtc);
-+
- 	if (ds3232->irq > 0) {
- 		ret = devm_request_threaded_irq(dev, ds3232->irq, NULL,
- 						ds3232_irq,
-@@ -380,10 +385,8 @@ static int ds3232_probe(struct device *dev, struct regmap *regmap, int irq,
- 		} else
- 			device_init_wakeup(dev, 1);
- 	}
--	ds3232->rtc = devm_rtc_device_register(dev, name, &ds3232_rtc_ops,
--						THIS_MODULE);
+-	if (length <= I2C_SMBUS_BLOCK_MAX)
+-		return i2c_smbus_write_i2c_block_data(client,
++	if (length <= I2C_SMBUS_BLOCK_MAX) {
++		s32 retval = i2c_smbus_write_i2c_block_data(client,
+ 					command, length, values);
++		if (retval < 0)
++			return retval;
++		return length;
++	}
  
--	return PTR_ERR_OR_ZERO(ds3232->rtc);
-+	return 0;
- }
- 
- #ifdef CONFIG_PM_SLEEP
--- 
-2.1.0.27.g96db324
+ 	while (suboffset < length) {
+ 		s32 retval = i2c_smbus_write_i2c_block_data(client,
 
 -- 
 -- 
@@ -81,3 +81,27 @@ before submitting a driver.
 You received this message because you are subscribed to the Google Groups "rtc-linux" group.
 To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
+
+--oyUTqETQ0mS9luUI
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+
+iQIcBAEBCAAGBQJXAENYAAoJEHnxj5DMK4Q12W8QALmUsbyosjnqoq/qRphx412s
+3IVuSdiL3ujvRusFU96F4cXW0RoTyWTUt/Fhcwk5HqmKTj5FrpKkuV7wOjfIrg3O
+OML2IH08J2HjYHmo12xHv1QeZ5IfOHlQkLMs/gnkaOZpyynOP0Odzd+kh3qQmd2T
+YLLc21FFRinOZBVuavbTGjDAJ/lX0eepeQ4RsdgJi2nP4/Gmry975oH0fpcPcnrm
+hUhZ9uXInujTtZkdRH6Dsy9481/pUqCSA463fyHgOE1WCQkWHK66O1Jijd87hUZI
+k9vmhj/bvgXHFTLyoyHizBX5UE3c7Lm7foQtP3PxKQrPYjc5w1O3A4IUsitpQHa2
+OlIH0oQ8ZX+93GRT8qAnnvOp3CqBWbE9cumSYofhbr/KH8yYwCQPSje1XTjpM/GR
+VfohhT9hgamFHRv9zzHe1NSjEhH1zIC9E19u1iJ5GdWMcxNVRI28vZo4iBtZ3AqD
+QwG6cZxrubH3BKwMpo6yfps659p2x55l/aaCRdUZxvYr+sVRDVoEbEIIWzBeW1pw
+2vSLLenLQMK9JtAuwek3VIj0qyD2sgRn3MFxw5k1n6dqlwurwPYGJd+CMqGZI0yo
+Ft2zEZ4g7DhZF7d/3SH2yE6dt405NpyZxmUDNy/8mnRKjyxWbr/gIzsIJlWOXYMK
+aeKvOXAvkpTk85UB+AWS
+=zcKr
+-----END PGP SIGNATURE-----
+
+--oyUTqETQ0mS9luUI--
