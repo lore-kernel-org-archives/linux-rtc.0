@@ -1,25 +1,26 @@
-Return-Path: <rtc-linux+bncBCPM5SUWUYIRBCNX2O4AKGQEM3YIR7A@googlegroups.com>
+Return-Path: <rtc-linux+bncBCQPVKWLVAIRBL46S24AKGQEADXRBCI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail-vk0-x244.google.com (mail-vk0-x244.google.com. [2607:f8b0:400c:c05::244])
-        by gmr-mx.google.com with ESMTPS id f135si2307780vke.1.2016.04.18.06.05.13
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 18 Apr 2016 06:05:13 -0700 (PDT)
-Received: by mail-vk0-x244.google.com with SMTP id v68so22748908vka.0
-        for <rtc-linux@googlegroups.com>; Mon, 18 Apr 2016 06:05:13 -0700 (PDT)
+Received: from muru.com (muru.com. [72.249.23.125])
+        by gmr-mx.google.com with ESMTP id uh9si1599709igb.1.2016.04.06.15.35.26
+        for <rtc-linux@googlegroups.com>;
+        Wed, 06 Apr 2016 15:35:27 -0700 (PDT)
+Date: Wed, 6 Apr 2016 15:35:24 -0700
+From: Tony Lindgren <tony@atomide.com>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: Marcin Niestroj <m.niestroj@grinn-global.com>,
+	rtc-linux@googlegroups.com, devicetree@vger.kernel.org,
+	Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>,
+	Alessandro Zummo <a.zummo@towertech.it>, Keerthy <j-keerthy@ti.com>,
+	linux-omap@vger.kernel.org
+Subject: [rtc-linux] Re: [PATCH v2] rtc: omap: Support ext_wakeup configuration
+Message-ID: <20160406223524.GG16484@atomide.com>
+References: <1459960367-29399-1-git-send-email-m.niestroj@grinn-global.com>
+ <1459960367-29399-2-git-send-email-m.niestroj@grinn-global.com>
+ <20160406191103.GE27411@atomide.com>
+ <20160406220909.GG7190@piout.net>
 MIME-Version: 1.0
-In-Reply-To: <CABrG=ZzVx3XcViRvuB6wqdJpaBF11wke2otHzbd8_M9S2T1rPQ@mail.gmail.com>
-References: <1460938902-3120-1-git-send-email-akinobu.mita@gmail.com>
-	<CABrG=ZzVx3XcViRvuB6wqdJpaBF11wke2otHzbd8_M9S2T1rPQ@mail.gmail.com>
-Date: Mon, 18 Apr 2016 22:05:13 +0900
-Message-ID: <CAC5umygCGYEeA_yQEBz8q-bUyxT2wo7PbCMDfUfFiG0NTE17yA@mail.gmail.com>
-Subject: [rtc-linux] Re: [PATCH] rtc: ds1307: ds3231 temperature s16 overflow
-From: Akinobu Mita <akinobu.mita@gmail.com>
-To: Michael Tatarinov <kukabu@gmail.com>
-Cc: rtc-linux@googlegroups.com, Zhuang Yuyao <mlistz@gmail.com>,
-	Zhuang Yuyao <zhuangyy@syan.com.cn>, Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <20160406220909.GG7190@piout.net>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -29,17 +30,28 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-2016-04-18 19:24 GMT+09:00 Michael Tatarinov <kukabu@gmail.com>:
-> Thanks.
->
-> I'm testing the patch, it workins as expected.
->
-> $ cat /sys/devices/platform/soc/20804000.i2c/i2c-1/1-0068/hwmon/hwmon1/temp1_input
-> 33000
+* Alexandre Belloni <alexandre.belloni@free-electrons.com> [160406 15:10]:
+> On 06/04/2016 at 12:11:03 -0700, Tony Lindgren wrote :
+> > * Marcin Niestroj <m.niestroj@grinn-global.com> [160406 09:34]:
+> > > Support configuration of ext_wakeup sources. This patch makes it
+> > > possible to enable ext_wakeup (and set it's polarity), depending on
+> > > board configuration. AM335x's dedicated PMIC (tps65217) uses ext_wakeup
+> > > in SLEEP mode (RTC-only) to notify about power-button presses. Handling
+> > > power-button presses enables to recover from RTC-only power states
+> > > correctly.
+> > > 
+> > > Implementation uses gpiochip to utilize standard bindings. However,
+> > > configuration is possible only using device-tree (no runtime changes).
+> > 
+> > Hey looks good to me, adding linux-omap list to Cc.
+> > 
+> 
+> Seems good to me too. Tony, is that an ack?
 
-Thanks for testing!
+Yup looks good to me:
 
-Can I put your Tested-by tag in this patch?
+Acked-by: Tony Lindgren <tony@atomide.com>
+
 
 -- 
 -- 
