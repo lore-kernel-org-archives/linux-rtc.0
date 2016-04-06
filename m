@@ -1,35 +1,26 @@
-Return-Path: <rtc-linux+bncBCQJP74GSUDRBT5EQK4QKGQER3E7KSI@googlegroups.com>
-Received: from mail-ig0-x244.google.com (mail-ig0-x244.google.com. [2607:f8b0:4001:c05::244])
-        by gmr-mx.google.com with ESMTPS id cs5si1483676igb.0.2016.04.27.03.19.59
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 27 Apr 2016 03:19:59 -0700 (PDT)
-Received: by mail-ig0-x244.google.com with SMTP id fn8so5945257igb.2
-        for <rtc-linux@googlegroups.com>; Wed, 27 Apr 2016 03:19:59 -0700 (PDT)
+Return-Path: <rtc-linux+bncBCQPVKWLVAIRBYE6S24AKGQEELIK2PI@googlegroups.com>
+Sender: rtc-linux@googlegroups.com
+Received: from muru.com (muru.com. [72.249.23.125])
+        by gmr-mx.google.com with ESMTP id uh9si1599837igb.1.2016.04.06.15.36.15
+        for <rtc-linux@googlegroups.com>;
+        Wed, 06 Apr 2016 15:36:16 -0700 (PDT)
+Date: Wed, 6 Apr 2016 15:36:13 -0700
+From: Tony Lindgren <tony@atomide.com>
+To: Marcin Niestroj <m.niestroj@grinn-global.com>
+Cc: rtc-linux@googlegroups.com, devicetree@vger.kernel.org,
+	Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Keerthy <j-keerthy@ti.com>, linux-omap@vger.kernel.org
+Subject: [rtc-linux] Re: [PATCH v2] rtc: omap: Support ext_wakeup configuration
+Message-ID: <20160406223612.GH16484@atomide.com>
+References: <1459960367-29399-1-git-send-email-m.niestroj@grinn-global.com>
+ <1459960367-29399-2-git-send-email-m.niestroj@grinn-global.com>
+ <20160406191103.GE27411@atomide.com>
+ <57056352.1060801@grinn-global.com>
 MIME-Version: 1.0
-Sender: geert.uytterhoeven@gmail.com
-In-Reply-To: <4937900.aITlOE9vLo@wuerfel>
-References: <1461707052-1337718-1-git-send-email-arnd@arndb.de>
-	<20160427094410.GJ3264@piout.net>
-	<4937900.aITlOE9vLo@wuerfel>
-Date: Wed, 27 Apr 2016 12:19:59 +0200
-Message-ID: <CAMuHMdW6AODmVwB59uTvMydbTNiDDxQWB3p-Dp9Dka+GVyP_iw@mail.gmail.com>
-Subject: [rtc-linux] Re: char: legacy RTC cleanups
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Tony Luck <tony.luck@intel.com>,
-	"James E.J. Bottomley" <jejb@parisc-linux.org>, Helge Deller <deller@gmx.de>,
-	Benjamin Herrenschmidt <benh@kernel.crashing.org>, Michael Ellerman <mpe@ellerman.id.au>,
-	Rich Felker <dalias@libc.org>, David Howells <dhowells@redhat.com>,
-	Koichi Yasutake <yasutake.koichi@jp.panasonic.com>, Richard Henderson <rth@twiddle.net>,
-	Ivan Kokshaysky <ink@jurassic.park.msu.ru>, alpha <linux-alpha@vger.kernel.org>,
-	"the arch/x86 maintainers" <x86@kernel.org>, Alessandro Zummo <a.zummo@towertech.it>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-	"linux-ia64@vger.kernel.org" <linux-ia64@vger.kernel.org>, Parisc List <linux-parisc@vger.kernel.org>,
-	"linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>, Linux-sh list <linux-sh@vger.kernel.org>,
-	RTCLINUX <rtc-linux@googlegroups.com>, Linux-Arch <linux-arch@vger.kernel.org>
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <57056352.1060801@grinn-global.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -39,53 +30,32 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Hi Arnd,
+* Marcin Niestroj <m.niestroj@grinn-global.com> [160406 12:29]:
+> Hi,
+> 
+> On 06.04.2016 21:11, Tony Lindgren wrote:
+> >* Marcin Niestroj <m.niestroj@grinn-global.com> [160406 09:34]:
+> >>Support configuration of ext_wakeup sources. This patch makes it
+> >>possible to enable ext_wakeup (and set it's polarity), depending on
+> >>board configuration. AM335x's dedicated PMIC (tps65217) uses ext_wakeup
+> >>in SLEEP mode (RTC-only) to notify about power-button presses. Handling
+> >>power-button presses enables to recover from RTC-only power states
+> >>correctly.
+> >>
+> >>Implementation uses gpiochip to utilize standard bindings. However,
+> >>configuration is possible only using device-tree (no runtime changes).
+> >
+> >Hey looks good to me, adding linux-omap list to Cc.
+> >
+> >Can you please check that the "depends on GPIOLIB" does not disable
+> >the RTC driver for omap1?
+> 
+> Looks ok for omap1. ARCH_OMAP1 selects ARCH_REQUIRE_GPIOLIB, which
+> selects GPIOLIB.
 
-On Wed, Apr 27, 2016 at 12:07 PM, Arnd Bergmann <arnd@arndb.de> wrote:
-> On Wednesday 27 April 2016 11:44:10 Alexandre Belloni wrote:
->> On 26/04/2016 at 23:44:04 +0200, Arnd Bergmann wrote :
->> > I've had these patches in my tree for a while, after the first one
->> > had a few issues that are fixed in this new version. The old-style
->> > PC RTC driver is now also disabled on m68k (as pointed out by
->> > Geert), ppc (it was also blacklisted), and m32r (I showed that
->> > it did not build).
->> >
->> > For the genrtc driver, rearranging the headers makes it simpler
->> > to use and reduces duplication. In case of alpha and mn10300,
->> > I've shown that the genrtc and rtc drivers are doing the same
->> > thing, so we don't need them both. The remaining three
->> > architectures (m68k, parisc, powerpc) actually all support
->> > the newer rtc-generic driver, so we could remove genrtc completely
->> > if we want to.
->> >
->>
->> Personally, I'd go for the kill and remove genrtc instead of cleaning it up.
->
-> Right, so we could skip patches 5 and 6, and instead remove the two
-> headers as we remove the driver. Let's see what the architecture
-> maintainers think about it, at least powerpc actually enables gen_rtc
-> in its defconfig, so it might take a while to move it over.
+OK thanks for checking.
 
-FWIW, all PPC defconfigs (except tqm8xx.dts, which is a more recent platform)
-enabling it did that long before my old commit to enable rtc-generic support
-on PPC:
-
-commit bcd68a70cb0eee556d86d93133aa150319bd9f53
-Author: Geert Uytterhoeven <Geert.Uytterhoeven@sonycom.com>
-Date:   Thu Feb 19 16:50:46 2009 +0100
-
-    powerpc: Hook up rtc-generic, and kill rtc-ppc
-
-Gr{oetje,eeting}s,
-
-                        Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+Tony
 
 -- 
 -- 
