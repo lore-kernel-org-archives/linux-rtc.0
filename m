@@ -1,36 +1,28 @@
-Return-Path: <rtc-linux+bncBDEKVJM7XAHRBEP5QS4QKGQE3B33DCI@googlegroups.com>
+Return-Path: <rtc-linux+bncBCQPVKWLVAIRBR4VT64AKGQE373JRIA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
+Received: from muru.com (muru.com. [72.249.23.125])
+        by gmr-mx.google.com with ESMTP id y20si161836pfa.2.2016.04.08.08.14.14
+        for <rtc-linux@googlegroups.com>;
+        Fri, 08 Apr 2016 08:14:15 -0700 (PDT)
+Date: Fri, 8 Apr 2016 08:14:09 -0700
+From: Tony Lindgren <tony@atomide.com>
+To: Grygorii Strashko <grygorii.strashko@ti.com>
+Cc: Marcin Niestroj <m.niestroj@grinn-global.com>,
+	rtc-linux@googlegroups.com, devicetree@vger.kernel.org,
+	Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Keerthy <j-keerthy@ti.com>, linux-omap@vger.kernel.org,
+	Dave Gerlach <d-gerlach@ti.com>, "Menon, Nishanth" <nm@ti.com>
+Subject: [rtc-linux] Re: [PATCH] rtc: omap: Support ext_wakeup configuration
+Message-ID: <20160408151408.GS16484@atomide.com>
+References: <1459785403-1725-1-git-send-email-m.niestroj@grinn-global.com>
+ <20160404224046.GA17042@atomide.com>
+ <57078A89.3080809@ti.com>
 MIME-Version: 1.0
-Received: from mout.kundenserver.de (mout.kundenserver.de. [217.72.192.75])
-        by gmr-mx.google.com with ESMTPS id a65si121533wma.0.2016.04.27.15.34.57
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 27 Apr 2016 15:34:57 -0700 (PDT)
-From: Arnd Bergmann <arnd@arndb.de>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Arnd Bergmann <arnd@arndb.de>,
-	geert@linux-m68k.org,
-	deller@gmx.de,
-	benh@kernel.crashing.org,
-	mpe@ellerman.id.au,
-	dalias@libc.org,
-	dhowells@redhat.com,
-	linux-alpha@vger.kernel.org,
-	a.zummo@towertech.it,
-	linux-kernel@vger.kernel.org,
-	linux-parisc@vger.kernel.org,
-	linuxppc-dev@lists.ozlabs.org,
-	linux-sh@vger.kernel.org,
-	linux-m68k@lists.linux-m68k.org,
-	rtc-linux@googlegroups.com,
-	linux-arch@vger.kernel.org
-Subject: [rtc-linux] [PATCH v3 07/16] rtc: parisc: provide rtc_class_ops directly
-Date: Thu, 28 Apr 2016 00:34:21 +0200
-Message-Id: <1461796470-1291527-8-git-send-email-arnd@arndb.de>
-In-Reply-To: <1461796470-1291527-1-git-send-email-arnd@arndb.de>
-References: <1461796470-1291527-1-git-send-email-arnd@arndb.de>
-Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <57078A89.3080809@ti.com>
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -39,99 +31,48 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-The rtc-generic driver provides an architecture specific
-wrapper on top of the generic rtc_class_ops abstraction,
-and on pa-risc, that is implemented using an open-coded
-version of rtc_time_to_tm/rtc_tm_to_time.
+* Grygorii Strashko <grygorii.strashko@ti.com> [160408 03:41]:
+> Hi Tony,
+> 
+> On 04/05/2016 01:40 AM, Tony Lindgren wrote:
+> > Hi,
+> > 
+> > * Marcin Niestroj <m.niestroj@grinn-global.com> [160404 08:57]:
+> >> Support configuration of ext_wakeup sources. This patch makes it
+> >> possible to enable ext_wakeup and set it's polarity, depending on board
+> >> configuration. AM335x's dedicated PMIC (tps65217) uses ext_wakeup to
+> >> notify about power-button presses. Handling power-button presses enables
+> >> to recover from RTC-only power states correctly.
+> > 
+> > I suggest you just set this pin up as a minimal gpiochip. That way
+> > we can use the standard binding :) And if we get lucky, this pin can
+> > also trigger during runtime.
+> > 
+> 
+> Following my comments on v2 of this patch I propose to rollback to
+> this version of the patch.
+> 
+> It seems doesn't fit in gpiochip, it's more likely irqchip, but since
+> rtc can't generate IRQ there are nor reasons for these genetic
+> experiments and RTC's specific bindings looks more suitable, at least for me.
 
-This changes the parisc rtc-generic device to provide its
-rtc_class_ops directly, using the normal helper functions,
-which makes this y2038 safe (on 32-bit) and simplifies
-the implementation.
+Hmm well gpiochips typically are irqchip too. IMO the generic binding
+here sounds like "gpio-wakeup" as it's an input with polarity and with
+an optional interrupt.
 
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
----
- arch/parisc/kernel/time.c | 36 +++++++++++++++++++++++++++++++++++-
- drivers/rtc/rtc-generic.c |  3 +--
- 2 files changed, 36 insertions(+), 3 deletions(-)
+Plain irqchip would work too in this case if there are no other GPIO
+specific features. Some other RTCs may have more GPIO like features.
 
-diff --git a/arch/parisc/kernel/time.c b/arch/parisc/kernel/time.c
-index 58dd6801f5be..744878789752 100644
---- a/arch/parisc/kernel/time.c
-+++ b/arch/parisc/kernel/time.c
-@@ -12,6 +12,7 @@
-  */
- #include <linux/errno.h>
- #include <linux/module.h>
-+#include <linux/rtc.h>
- #include <linux/sched.h>
- #include <linux/kernel.h>
- #include <linux/param.h>
-@@ -248,14 +249,47 @@ void __init start_cpu_itimer(void)
- 	per_cpu(cpu_data, cpu).it_value = next_tick;
- }
- 
-+#if IS_ENABLED(CONFIG_RTC_DRV_GENERIC)
-+static int rtc_generic_get_time(struct device *dev, struct rtc_time *tm)
-+{
-+	struct pdc_tod tod_data;
-+
-+	memset(tm, 0, sizeof(*tm));
-+	if (pdc_tod_read(&tod_data) < 0)
-+		return -EOPNOTSUPP;
-+
-+	/* we treat tod_sec as unsigned, so this can work until year 2106 */
-+	rtc_time64_to_tm(tod_data.tod_sec, tm);
-+	return rtc_valid_tm(tm);
-+}
-+
-+static int rtc_generic_set_time(struct device *dev, struct rtc_time *tm)
-+{
-+	time64_t secs = rtc_tm_to_time64(tm);
-+
-+	if (pdc_tod_set(secs, 0) < 0)
-+		return -EOPNOTSUPP;
-+
-+	return 0;
-+}
-+
-+static const struct rtc_class_ops rtc_generic_ops = {
-+	.read_time = rtc_generic_get_time,
-+	.set_time = rtc_generic_set_time,
-+};
-+
- static int __init rtc_init(void)
- {
- 	struct platform_device *pdev;
- 
--	pdev = platform_device_register_simple("rtc-generic", -1, NULL, 0);
-+	pdev = platform_device_register_data(NULL, "rtc-generic", -1,
-+					     &rtc_generic_ops,
-+					     sizeof(rtc_generic_ops));
-+
- 	return PTR_ERR_OR_ZERO(pdev);
- }
- device_initcall(rtc_init);
-+#endif
- 
- void read_persistent_clock(struct timespec *ts)
- {
-diff --git a/drivers/rtc/rtc-generic.c b/drivers/rtc/rtc-generic.c
-index 3958e87a05fa..92b5e02a3750 100644
---- a/drivers/rtc/rtc-generic.c
-+++ b/drivers/rtc/rtc-generic.c
-@@ -9,8 +9,7 @@
- #include <linux/platform_device.h>
- #include <linux/rtc.h>
- 
--#if defined(CONFIG_M68K) || defined(CONFIG_PARISC) || \
--    defined(CONFIG_PPC)
-+#if defined(CONFIG_M68K) || defined(CONFIG_PPC)
- #include <asm/rtc.h>
- 
- static int generic_get_time(struct device *dev, struct rtc_time *tm)
--- 
-2.7.0
+In any case, setting the ext_wakeup up as an irqchip means that the
+RTC controller can be used as a dedicated wakeirq with Linux :)
+
+Are you guys sure there's no wake pin events during runtime? AFAIK
+the RTCs just typically produce an interrupt when programmed to
+do so, they don't know the state of the SoC.
+
+Regards,
+
+Tony
 
 -- 
 -- 
