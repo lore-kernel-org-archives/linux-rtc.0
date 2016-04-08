@@ -1,20 +1,33 @@
-Return-Path: <rtc-linux+bncBAABBQUE724AKGQENEK7PMI@googlegroups.com>
+Return-Path: <rtc-linux+bncBAABBGEVT24AKGQE6STUKNY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
+Received: from comal.ext.ti.com (comal.ext.ti.com. [198.47.26.152])
+        by gmr-mx.google.com with ESMTPS id xg10si133055igb.0.2016.04.08.03.40.24
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1 cipher=AES128-SHA bits=128/128);
+        Fri, 08 Apr 2016 03:40:24 -0700 (PDT)
+Subject: [rtc-linux] Re: [PATCH] rtc: omap: Support ext_wakeup configuration
+To: Tony Lindgren <tony@atomide.com>,
+        Marcin Niestroj
+	<m.niestroj@grinn-global.com>
+References: <1459785403-1725-1-git-send-email-m.niestroj@grinn-global.com>
+ <20160404224046.GA17042@atomide.com>
+CC: <rtc-linux@googlegroups.com>, <devicetree@vger.kernel.org>,
+        Rob Herring
+	<robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>,
+        Alessandro Zummo
+	<a.zummo@towertech.it>,
+        Alexandre Belloni
+	<alexandre.belloni@free-electrons.com>,
+        Keerthy <j-keerthy@ti.com>, <linux-omap@vger.kernel.org>,
+        Dave Gerlach <d-gerlach@ti.com>, "Menon,
+ Nishanth" <nm@ti.com>
+From: Grygorii Strashko <grygorii.strashko@ti.com>
+Message-ID: <57078A89.3080809@ti.com>
+Date: Fri, 8 Apr 2016 13:40:09 +0300
 MIME-Version: 1.0
-Received: from root.phytec.de (mail.phycore.de. [217.6.246.34])
-        by gmr-mx.google.com with ESMTP id v130si323779wmv.1.2016.04.26.07.59.14
-        for <rtc-linux@googlegroups.com>;
-        Tue, 26 Apr 2016 07:59:14 -0700 (PDT)
-From: Wadim Egorov <w.egorov@phytec.de>
-To: linux-kernel@vger.kernel.org, linux-clk@vger.kernel.org, rtc-linux@googlegroups.com, devicetree@vger.kernel.org, linux-rockchip@lists.infradead.org, lee.jones@linaro.org
-Cc: robh+dt@kernel.org, pawel.moll@arm.com, mark.rutland@arm.com, ijc+devicetree@hellion.org.uk, galak@codeaurora.org, mturquette@baylibre.com, sboyd@codeaurora.org, lgirdwood@gmail.com, broonie@kernel.org, a.zummo@towertech.it, alexandre.belloni@free-electrons.com, dianders@chromium.org, zyw@rock-chips.com
-Subject: [rtc-linux] [PATCH v4 6/7] clk: Kconfig: Name RK818 in Kconfig for COMMON_CLK_RK808
-Date: Tue, 26 Apr 2016 16:54:09 +0200
-Message-Id: <1461682450-22173-7-git-send-email-w.egorov@phytec.de>
-In-Reply-To: <1461682450-22173-1-git-send-email-w.egorov@phytec.de>
-References: <1461682450-22173-1-git-send-email-w.egorov@phytec.de>
-Reply-To: rtc-linux@googlegroups.com
+In-Reply-To: <20160404224046.GA17042@atomide.com>
 Content-Type: text/plain; charset=UTF-8
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -23,35 +36,34 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-The RK808 and RK818 PMICs are using a similar register map.
-We can reuse the clk driver for the RK818 PMIC. So let's add
-the RK818 in the Kconfig description.
+Hi Tony,
 
-Signed-off-by: Wadim Egorov <w.egorov@phytec.de>
-Acked-by: Stephen Boyd <sboyd@codeaurora.org>
----
- drivers/clk/Kconfig | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+On 04/05/2016 01:40 AM, Tony Lindgren wrote:
+> Hi,
+> 
+> * Marcin Niestroj <m.niestroj@grinn-global.com> [160404 08:57]:
+>> Support configuration of ext_wakeup sources. This patch makes it
+>> possible to enable ext_wakeup and set it's polarity, depending on board
+>> configuration. AM335x's dedicated PMIC (tps65217) uses ext_wakeup to
+>> notify about power-button presses. Handling power-button presses enables
+>> to recover from RTC-only power states correctly.
+> 
+> I suggest you just set this pin up as a minimal gpiochip. That way
+> we can use the standard binding :) And if we get lucky, this pin can
+> also trigger during runtime.
+> 
 
-diff --git a/drivers/clk/Kconfig b/drivers/clk/Kconfig
-index 16f7d33..64b4daa 100644
---- a/drivers/clk/Kconfig
-+++ b/drivers/clk/Kconfig
-@@ -49,10 +49,10 @@ config COMMON_CLK_MAX77802
- 	  This driver supports Maxim 77802 crystal oscillator clock.
- 
- config COMMON_CLK_RK808
--	tristate "Clock driver for RK808"
-+	tristate "Clock driver for RK808/RK818"
- 	depends on MFD_RK808
- 	---help---
--	  This driver supports RK808 crystal oscillator clock. These
-+	  This driver supports RK808 and RK818 crystal oscillator clock. These
- 	  multi-function devices have two fixed-rate oscillators,
- 	  clocked at 32KHz each. Clkout1 is always on, Clkout2 can off
- 	  by control register.
+Following my comments on v2 of this patch I propose to rollback to
+this version of the patch.
+
+It seems doesn't fit in gpiochip, it's more likely irqchip, but since
+rtc can't generate IRQ there are nor reasons for these genetic
+experiments and RTC's specific bindings looks more suitable, at least for me.
+
+
 -- 
-1.9.1
+regards,
+-grygorii
 
 -- 
 -- 
