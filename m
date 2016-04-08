@@ -1,22 +1,34 @@
-Return-Path: <rtc-linux+bncBAABBD6S764AKGQEF5UFPYI@googlegroups.com>
+Return-Path: <rtc-linux+bncBCQPVKWLVAIRBR4NT64AKGQESUE6JKY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-MIME-Version: 1.0
-Received: from lists.s-osg.org (lists.s-osg.org. [54.187.51.154])
-        by gmr-mx.google.com with ESMTP id d141si105956pfd.1.2016.04.26.15.17.51
+Received: from muru.com (muru.com. [72.249.23.125])
+        by gmr-mx.google.com with ESMTP id r4si123779pfr.1.2016.04.08.07.57.10
         for <rtc-linux@googlegroups.com>;
-        Tue, 26 Apr 2016 15:17:51 -0700 (PDT)
-From: Javier Martinez Canillas <javier@osg.samsung.com>
-To: linux-kernel@vger.kernel.org
-Cc: Javier Martinez Canillas <javier@osg.samsung.com>,
+        Fri, 08 Apr 2016 07:57:10 -0700 (PDT)
+Date: Fri, 8 Apr 2016 07:57:03 -0700
+From: Tony Lindgren <tony@atomide.com>
+To: Grygorii Strashko <grygorii.strashko@ti.com>
+Cc: Marcin Niestroj <m.niestroj@grinn-global.com>,
+	rtc-linux@googlegroups.com, devicetree@vger.kernel.org,
+	Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>,
+	Alessandro Zummo <a.zummo@towertech.it>,
 	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	rtc-linux@googlegroups.com,
-	Alessandro Zummo <a.zummo@towertech.it>
-Subject: [rtc-linux] [PATCH] rtc: Use IS_ENABLED() instead of checking for
- built-in or module
-Date: Tue, 26 Apr 2016 18:17:35 -0400
-Message-Id: <1461709055-28312-1-git-send-email-javier@osg.samsung.com>
-Reply-To: rtc-linux@googlegroups.com
+	Keerthy <j-keerthy@ti.com>, linux-omap@vger.kernel.org,
+	"linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>
+Subject: [rtc-linux] Re: [PATCH v2] rtc: omap: Support ext_wakeup configuration
+Message-ID: <20160408145703.GR16484@atomide.com>
+References: <1459960367-29399-1-git-send-email-m.niestroj@grinn-global.com>
+ <1459960367-29399-2-git-send-email-m.niestroj@grinn-global.com>
+ <20160406191103.GE27411@atomide.com>
+ <57056352.1060801@grinn-global.com>
+ <57063B1A.7080700@ti.com>
+ <570694B0.4040500@grinn-global.com>
+ <57077769.1050101@ti.com>
+ <57078313.70803@grinn-global.com>
+ <57078B16.2020402@ti.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <57078B16.2020402@ti.com>
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -25,82 +37,50 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-The IS_ENABLED() macro checks if a Kconfig symbol has been enabled either
-built-in or as a module, use that macro instead of open coding the same.
+* Grygorii Strashko <grygorii.strashko@ti.com> [160408 03:43]:
+> On 04/08/2016 01:08 PM, Marcin Niestroj wrote:
+> >>>>>>> @@ -18,8 +18,12 @@ Optional properties:
+> >>>>>>>      through pmic_power_en
+> >>>>>>>    - clocks: Any internal or external clocks feeding in to rtc
+> >>>>>>>    - clock-names: Corresponding names of the clocks
+> >>>>>>> +- gpio-controller: Mark as gpio controller when using ext_wakeup
+> >>>>>>> +- #gpio-cells: Should be set to 2
+> >>>>>>> +- ngpios: Number of ext_wakeup sources supported by processor 
+> >>>>>>> (board)
+> >>>>>>> +- ext-wakeup-gpios: List of ext_wakeup sources to configure
 
-Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
+I think the naming standard here should be gpio-*, so in this
+case gpio-wakeup.
 
----
+> >>> We don't have power-button connected right to the processor. It is
+> >>> connected to PMIC. During runtime we receive IRQs about power-button
+> >>> from PMIC using i2c bus. The only purpose of this patch is to
+> >>> configure processor's ext_wakeup line, which is triggered during
+> >>> RTC-only mode (for example when power-button is pressed), causing
+> >>> device wakeup. On the other hand, it is not possible to use ext_wakeup
+> >>> during runtime, as we are only able to read it's status, but it
+> >>> cannot trigger any interrupts.
+> >>
+> >> Sry, but I don't like this approach - it could make sense if RTC
+> >> EXT_WAKEUP will be at least partially mapped on gpiolib interface.
+> >> But your gpiochip is fake, you do not/can't use GPIO hogging mechanism
+> >> and you're even parsing DT on your own (in V3).
+> > 
+> > With gpio hogging we can't pass polarity to the driver. It is hidden
+> > in gpiolib.
+> 
+> kirkwood-openrd.dtsi-			p2 {
+> kirkwood-openrd.dtsi:				gpio-hog;
+> kirkwood-openrd.dtsi-				gpios = <2 GPIO_ACTIVE_HIGH>;
+> 						[input;]
+> 
+> Sry, if you can't do smth like above - it's just prove that this approach is not right.
 
- drivers/rtc/rtc-cmos.c    | 2 +-
- drivers/rtc/rtc-mrst.c    | 2 +-
- drivers/rtc/rtc-rs5c372.c | 8 ++++----
- 3 files changed, 6 insertions(+), 6 deletions(-)
+Yes let's stick to the standards. It should be using gpiolib interface.
 
-diff --git a/drivers/rtc/rtc-cmos.c b/drivers/rtc/rtc-cmos.c
-index 84fb541038be..fbe9c72438e1 100644
---- a/drivers/rtc/rtc-cmos.c
-+++ b/drivers/rtc/rtc-cmos.c
-@@ -401,7 +401,7 @@ static int cmos_alarm_irq_enable(struct device *dev, unsigned int enabled)
- 	return 0;
- }
- 
--#if defined(CONFIG_RTC_INTF_PROC) || defined(CONFIG_RTC_INTF_PROC_MODULE)
-+#if IS_ENABLED(CONFIG_RTC_INTF_PROC)
- 
- static int cmos_procfs(struct device *dev, struct seq_file *seq)
- {
-diff --git a/drivers/rtc/rtc-mrst.c b/drivers/rtc/rtc-mrst.c
-index 548ea6f6f384..0094d9bdd1e6 100644
---- a/drivers/rtc/rtc-mrst.c
-+++ b/drivers/rtc/rtc-mrst.c
-@@ -266,7 +266,7 @@ static int mrst_rtc_alarm_irq_enable(struct device *dev, unsigned int enabled)
- }
- 
- 
--#if defined(CONFIG_RTC_INTF_PROC) || defined(CONFIG_RTC_INTF_PROC_MODULE)
-+#if IS_ENABLED(CONFIG_RTC_INTF_PROC)
- 
- static int mrst_procfs(struct device *dev, struct seq_file *seq)
- {
-diff --git a/drivers/rtc/rtc-rs5c372.c b/drivers/rtc/rtc-rs5c372.c
-index 12270c789088..aaebe10876e8 100644
---- a/drivers/rtc/rtc-rs5c372.c
-+++ b/drivers/rtc/rtc-rs5c372.c
-@@ -237,11 +237,11 @@ static int rs5c372_set_datetime(struct i2c_client *client, struct rtc_time *tm)
- 	return 0;
- }
- 
--#if defined(CONFIG_RTC_INTF_PROC) || defined(CONFIG_RTC_INTF_PROC_MODULE)
-+#if IS_ENABLED(CONFIG_RTC_INTF_PROC)
- #define	NEED_TRIM
- #endif
- 
--#if defined(CONFIG_RTC_INTF_SYSFS) || defined(CONFIG_RTC_INTF_SYSFS_MODULE)
-+#if IS_ENABLED(CONFIG_RTC_INTF_SYSFS)
- #define	NEED_TRIM
- #endif
- 
-@@ -409,7 +409,7 @@ static int rs5c_set_alarm(struct device *dev, struct rtc_wkalrm *t)
- 	return 0;
- }
- 
--#if defined(CONFIG_RTC_INTF_PROC) || defined(CONFIG_RTC_INTF_PROC_MODULE)
-+#if IS_ENABLED(CONFIG_RTC_INTF_PROC)
- 
- static int rs5c372_rtc_proc(struct device *dev, struct seq_file *seq)
- {
-@@ -438,7 +438,7 @@ static const struct rtc_class_ops rs5c372_rtc_ops = {
- 	.alarm_irq_enable = rs5c_rtc_alarm_irq_enable,
- };
- 
--#if defined(CONFIG_RTC_INTF_SYSFS) || defined(CONFIG_RTC_INTF_SYSFS_MODULE)
-+#if IS_ENABLED(CONFIG_RTC_INTF_SYSFS)
- 
- static ssize_t rs5c372_sysfs_show_trim(struct device *dev,
- 				struct device_attribute *attr, char *buf)
--- 
-2.5.5
+Regards,
+
+Tony
 
 -- 
 -- 
