@@ -1,20 +1,24 @@
-Return-Path: <rtc-linux+bncBAABBZV3QG4QKGQERFCNPZI@googlegroups.com>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBOPJVG4AKGQEH7EDS6I@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from root.phytec.de (mail.visioncatalog.com. [217.6.246.34])
-        by gmr-mx.google.com with ESMTP id v130si365792wmv.1.2016.04.26.23.36.21
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id a136si6138wma.0.2016.04.10.08.43.52
         for <rtc-linux@googlegroups.com>;
-        Tue, 26 Apr 2016 23:36:21 -0700 (PDT)
-Subject: [rtc-linux] Re: Applied "regulator: rk808: remove linear range
- definitions with a single range" to the regulator tree
-To: =?UTF-8?Q?Heiko_St=c3=bcbner?= <heiko@sntech.de>, linux-rockchip@lists.infradead.org, Mark Brown <broonie@kernel.org>
-References: <E1aukkg-0007km-6s@debutante> <2754883.PYP7KbpM33@diego>
-Cc: mark.rutland@arm.com, devicetree@vger.kernel.org, a.zummo@towertech.it, pawel.moll@arm.com, rtc-linux@googlegroups.com, ijc+devicetree@hellion.org.uk, mturquette@baylibre.com, sboyd@codeaurora.org, linux-kernel@vger.kernel.org, robh+dt@kernel.org, lgirdwood@gmail.com, alexandre.belloni@free-electrons.com, dianders@chromium.org, galak@codeaurora.org, zyw@rock-chips.com, lee.jones@linaro.org, linux-clk@vger.kernel.org
-From: Wadim Egorov <w.egorov@phytec.de>
-Message-ID: <57205DC2.7070506@phytec.de>
-Date: Wed, 27 Apr 2016 08:35:46 +0200
+        Sun, 10 Apr 2016 08:43:52 -0700 (PDT)
+Date: Sun, 10 Apr 2016 17:43:52 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Arnd Bergmann <arnd@arndb.de>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>,
+	RTCLINUX <rtc-linux@googlegroups.com>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: [rtc-linux] Re: [PATCH 1/2] char: PC rtc: replace blacklist with whitelist
+Message-ID: <20160410154352.GH5377@piout.net>
+References: <1456912137-1578635-1-git-send-email-arnd@arndb.de>
+ <CAMuHMdU26GkyUYxs3DJOFRB5LTdYCOaGTMUwFMd9YXYhkS1W3g@mail.gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <2754883.PYP7KbpM33@diego>
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <CAMuHMdU26GkyUYxs3DJOFRB5LTdYCOaGTMUwFMd9YXYhkS1W3g@mail.gmail.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -24,32 +28,55 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
+Arnd,
 
+On 02/03/2016 at 11:22:04 +0100, Geert Uytterhoeven wrote :
+> On Wed, Mar 2, 2016 at 10:48 AM, Arnd Bergmann <arnd@arndb.de> wrote:
+> > Every new architecture has to add itself to the growing list of those
+> > that do not support the legacy PC RTC driver.
+> >
+> > This replaces the long list of architectures that don't support it
+> > with a shorter list of those that do.
+> >
+> > The list is taken from those architectures that have a non-empty
+> > asm/mc146818rtc.h header file and were not explicitly blacklisted.
+> 
+> M68K was blacklisted...
+> 
+> > Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+> > ---
+> >  drivers/char/Kconfig | 3 +--
+> >  1 file changed, 1 insertion(+), 2 deletions(-)
+> >
+> > diff --git a/drivers/char/Kconfig b/drivers/char/Kconfig
+> > index a043107da2af..9716bc36495a 100644
+> > --- a/drivers/char/Kconfig
+> > +++ b/drivers/char/Kconfig
+> > @@ -279,8 +279,7 @@ if RTC_LIB=n
+> >
+> >  config RTC
+> >         tristate "Enhanced Real Time Clock Support (legacy PC RTC driver)"
+> > -       depends on !PPC && !PARISC && !IA64 && !M68K && !SPARC && !FRV \
+> > -                       && !ARM && !SUPERH && !S390 && !AVR32 && !BLACKFIN && !UML
+> > +       depends on ALPHA || M32R || M68K || MIPS || MN10300 || PPC || X86
+> 
+> ... so please drop it here.
+> 
 
-On 26.04.2016 21:33, Heiko St=C3=BCbner wrote:
-> Am Montag, 25. April 2016, 18:56:54 schrieb Mark Brown:
->> The patch
->>
->>    regulator: rk808: remove linear range definitions with a single range
->>
->> has been applied to the regulator tree at
->>
->>    git://git.kernel.org/pub/scm/linux/kernel/git/broonie/regulator.git
-> with this patch applied, 4.6.0-rc5-next-20160426 fails to boot on=20
-> rk3288-veyron devices with the bug below. Reverting this one patch
-> results in the system booting again:
->
-This is because I missed to add the correct ops for LDO_REG3 in this patch.
+Do you plan to resend that one?
 
---=20
---=20
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
+
+-- 
+-- 
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
----=20
-You received this message because you are subscribed to the Google Groups "=
-rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an e=
-mail to rtc-linux+unsubscribe@googlegroups.com.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
