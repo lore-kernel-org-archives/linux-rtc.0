@@ -1,29 +1,22 @@
-Return-Path: <rtc-linux+bncBDJIP47K7MERBVER5K4AKGQENAPRNJY@googlegroups.com>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBDW5VG4AKGQEISRJ4UY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail.kernel.org (mail.kernel.org. [198.145.29.136])
-        by gmr-mx.google.com with ESMTPS id 17si294034pfw.0.2016.04.22.13.25.56
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 22 Apr 2016 13:25:56 -0700 (PDT)
-Date: Fri, 22 Apr 2016 15:25:50 -0500
-From: Rob Herring <robh@kernel.org>
-To: Wadim Egorov <w.egorov@phytec.de>
-Cc: linux-kernel@vger.kernel.org, linux-clk@vger.kernel.org,
-	rtc-linux@googlegroups.com, devicetree@vger.kernel.org,
-	linux-rockchip@lists.infradead.org, pawel.moll@arm.com,
-	mark.rutland@arm.com, ijc+devicetree@hellion.org.uk,
-	galak@codeaurora.org, mturquette@baylibre.com, sboyd@codeaurora.org,
-	lee.jones@linaro.org, lgirdwood@gmail.com, broonie@kernel.org,
-	a.zummo@towertech.it, alexandre.belloni@free-electrons.com,
-	dianders@chromium.org, zyw@rock-chips.com
-Subject: [rtc-linux] Re: [PATCH v2 5/7] mfd: dt-bindings: Add RK818 device
- tree bindings document
-Message-ID: <20160422202550.GA10437@rob-hp-laptop>
-References: <1461244361-45686-1-git-send-email-w.egorov@phytec.de>
- <1461244361-45686-6-git-send-email-w.egorov@phytec.de>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id a136si3954wma.0.2016.04.10.08.17.34
+        for <rtc-linux@googlegroups.com>;
+        Sun, 10 Apr 2016 08:17:34 -0700 (PDT)
+Date: Sun, 10 Apr 2016 17:17:33 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Akinobu Mita <akinobu.mita@gmail.com>
+Cc: rtc-linux@googlegroups.com, devicetree@vger.kernel.org,
+	Sergey Yanovich <ynvich@gmail.com>,
+	Alessandro Zummo <a.zummo@towertech.it>
+Subject: [rtc-linux] Re: [PATCH 1/4] rtc: ds1302: fix error check in set_time
+Message-ID: <20160410151733.GE5377@piout.net>
+References: <1460300366-25248-1-git-send-email-akinobu.mita@gmail.com>
+ <1460300366-25248-2-git-send-email-akinobu.mita@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1461244361-45686-6-git-send-email-w.egorov@phytec.de>
+In-Reply-To: <1460300366-25248-2-git-send-email-akinobu.mita@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -33,15 +26,25 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Thu, Apr 21, 2016 at 03:12:39PM +0200, Wadim Egorov wrote:
-> Add device tree bindings documentation for Rockchip's RK818 PMIC.
+On 10/04/2016 at 23:59:23 +0900, Akinobu Mita wrote :
+> The set_time callback for rtc-ds1302 doesn't write clock registers
+> because the error check for the return value from spi_write_then_read()
+> is not correct.  spi_write_then_read() which returns zero on success.
 > 
-> Signed-off-by: Wadim Egorov <w.egorov@phytec.de>
+> Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
+> Cc: Sergey Yanovich <ynvich@gmail.com>
+> Cc: Alessandro Zummo <a.zummo@towertech.it>
+> Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
 > ---
->  Documentation/devicetree/bindings/mfd/rk808.txt | 37 +++++++++++++++++++++++--
->  1 file changed, 34 insertions(+), 3 deletions(-)
+>  drivers/rtc/rtc-ds1302.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+Applied, thanks.
 
-Acked-by: Rob Herring <robh@kernel.org>
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
 -- 
 -- 
