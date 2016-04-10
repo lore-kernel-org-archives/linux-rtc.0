@@ -1,34 +1,27 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBJ5LYS4AKGQEDRN7T4A@googlegroups.com>
+Return-Path: <rtc-linux+bncBCPM5SUWUYIRB2WUVG4AKGQECR4IKQI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id i196si1092869wmf.0.2016.04.15.09.24.07
-        for <rtc-linux@googlegroups.com>;
-        Fri, 15 Apr 2016 09:24:07 -0700 (PDT)
-Date: Fri, 15 Apr 2016 18:24:06 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Mark Brown <broonie@kernel.org>
-Cc: Wadim Egorov <w.egorov@phytec.de>, linux-kernel@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org, linux-clk@vger.kernel.org,
-	rtc-linux@googlegroups.com, linux-rockchip@lists.infradead.org,
-	robh+dt@kernel.org, pawel.moll@arm.com, mark.rutland@arm.com,
-	ijc+devicetree@hellion.org.uk, galak@codeaurora.org,
-	linux@arm.linux.org.uk, mturquette@baylibre.com,
-	sboyd@codeaurora.org, lee.jones@linaro.org, lgirdwood@gmail.com,
-	a.zummo@towertech.it, dianders@chromium.org, zyw@rock-chips.com,
-	arnd@arndb.de, k.kozlowski@samsung.com, javier@osg.samsung.com,
-	kgene@kernel.org, olof@lixom.net, geert+renesas@glider.be,
-	sjoerd.simons@collabora.co.uk, treding@nvidia.com,
-	public_timo.s@silentcreek.de
-Subject: [rtc-linux] Re: [PATCH 3/6] regulator: rk808: Make rk808 generic,
- rename rk808-regulator.c
-Message-ID: <20160415162406.GD25196@piout.net>
-References: <1460711790-22646-1-git-send-email-w.egorov@phytec.de>
- <1460711790-22646-4-git-send-email-w.egorov@phytec.de>
- <20160415102602.GE3217@sirena.org.uk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <20160415102602.GE3217@sirena.org.uk>
+Received: from mail-pf0-x241.google.com (mail-pf0-x241.google.com. [2607:f8b0:400e:c00::241])
+        by gmr-mx.google.com with ESMTPS id h69si1022020pfj.0.2016.04.10.07.59.53
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Sun, 10 Apr 2016 07:59:53 -0700 (PDT)
+Received: by mail-pf0-x241.google.com with SMTP id r187so13165182pfr.2
+        for <rtc-linux@googlegroups.com>; Sun, 10 Apr 2016 07:59:53 -0700 (PDT)
+From: Akinobu Mita <akinobu.mita@gmail.com>
+To: rtc-linux@googlegroups.com,
+	devicetree@vger.kernel.org
+Cc: Akinobu Mita <akinobu.mita@gmail.com>,
+	Sergey Yanovich <ynvich@gmail.com>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Subject: [rtc-linux] [PATCH 4/4] rtc: ds1302: support control with using GPIO lines
+Date: Sun, 10 Apr 2016 23:59:26 +0900
+Message-Id: <1460300366-25248-5-git-send-email-akinobu.mita@gmail.com>
+In-Reply-To: <1460300366-25248-1-git-send-email-akinobu.mita@gmail.com>
+References: <1460300366-25248-1-git-send-email-akinobu.mita@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -37,28 +30,454 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 15/04/2016 at 11:26:02 +0100, Mark Brown wrote :
-> On Fri, Apr 15, 2016 at 11:16:27AM +0200, Wadim Egorov wrote:
-> 
-> > This patch just renames the rk808 driver so we can reuse this driver
-> > to add more regulator devices from the RK8XX PMIC family later.
-> 
-> We normally manage to cope fine without renaming things - it's quite
-> common to have drivers that were initially named after one part
-> supporting multiple parts, avoiding the rename makes things like
-> backports easier and avoids needing git log --follow and so on.
+This adds support control with GPIO lines connected to the DS1302
+which can communicate with three wires.
 
-I agree with that and I will also add that probably at some point in
-time a new part may appear with a name matching rk8xx but may not be
-compatible with the rk8xx driver and that is when the real mess starts.
+Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
+Cc: Sergey Yanovich <ynvich@gmail.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>
+Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+---
+ .../devicetree/bindings/rtc/maxim-ds1302.txt       |  13 +
+ drivers/rtc/Kconfig                                |  17 +-
+ drivers/rtc/rtc-ds1302.c                           | 340 ++++++++++++++++++++-
+ 3 files changed, 351 insertions(+), 19 deletions(-)
 
-Finally, renaming the config options and the modules is not nice for the
-user.
-
+diff --git a/Documentation/devicetree/bindings/rtc/maxim-ds1302.txt b/Documentation/devicetree/bindings/rtc/maxim-ds1302.txt
+index ba470c5..d489753 100644
+--- a/Documentation/devicetree/bindings/rtc/maxim-ds1302.txt
++++ b/Documentation/devicetree/bindings/rtc/maxim-ds1302.txt
+@@ -27,6 +27,12 @@ Required SPI properties:
+ - spi-cs-high: DS-1302 has active high chip select line. This is
+   required unless inverted in hardware.
+ 
++Required properties when using GPIO lines:
++
++- gpio-ce: GPIO connected to CE pin
++- gpio-io: GPIO connected to I/O pin
++- gpio-reset: GPIO connected to SCLK pin
++
+ Example:
+ 
+ spi@901c {
+@@ -44,3 +50,10 @@ spi@901c {
+ 		spi-cs-high;
+ 	};
+ };
++
++	rtc: ds1302 {
++		compatible = "maxim,ds1302";
++		gpio-ce = <&gpio2 6 GPIO_ACTIVE_HIGH>;
++		gpio-io = <&gpio2 7 GPIO_ACTIVE_HIGH>;
++		gpio-sclk = <&gpio2 8 GPIO_ACTIVE_HIGH>;
++	};
+diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
+index a86a562..734dc1b 100644
+--- a/drivers/rtc/Kconfig
++++ b/drivers/rtc/Kconfig
+@@ -636,15 +636,6 @@ config RTC_DRV_M41T94
+ 	  This driver can also be built as a module. If so, the module
+ 	  will be called rtc-m41t94.
+ 
+-config RTC_DRV_DS1302
+-	tristate "Dallas/Maxim DS1302"
+-	depends on SPI
+-	help
+-	  If you say yes here you get support for the Dallas DS1302 RTC chips.
+-
+-	  This driver can also be built as a module. If so, the module
+-	  will be called rtc-ds1302.
+-
+ config RTC_DRV_DS1305
+ 	tristate "Dallas/Maxim DS1305/DS1306"
+ 	help
+@@ -1639,6 +1630,14 @@ config RTC_DRV_XGENE
+ 	  This driver can also be built as a module, if so, the module
+ 	  will be called "rtc-xgene".
+ 
++config RTC_DRV_DS1302
++	tristate "Dallas/Maxim DS1302"
++	help
++	  If you say yes here you get support for the Dallas DS1302 RTC chips.
++
++	  This driver can also be built as a module. If so, the module
++	  will be called rtc-ds1302.
++
+ comment "HID Sensor RTC drivers"
+ 
+ config RTC_DRV_HID_SENSOR_TIME
+diff --git a/drivers/rtc/rtc-ds1302.c b/drivers/rtc/rtc-ds1302.c
+index 1647848..778f39a 100644
+--- a/drivers/rtc/rtc-ds1302.c
++++ b/drivers/rtc/rtc-ds1302.c
+@@ -19,6 +19,10 @@
+ #include <linux/of.h>
+ #include <linux/rtc.h>
+ #include <linux/spi/spi.h>
++#include <linux/delay.h>
++#include <linux/platform_device.h>
++#include <linux/of_gpio.h>
++#include <linux/gpio/consumer.h>
+ 
+ #define DRV_NAME	"rtc-ds1302"
+ #define DRV_VERSION	"1.0.0"
+@@ -195,6 +199,16 @@ static int ds1302_probe(struct ds1302 *ds1302)
+ 	return 0;
+ }
+ 
++#ifdef CONFIG_OF
++static const struct of_device_id ds1302_dt_ids[] = {
++	{ .compatible = "maxim,ds1302", },
++	{ /* sentinel */ }
++};
++MODULE_DEVICE_TABLE(of, ds1302_dt_ids);
++#endif
++
++#if IS_ENABLED(CONFIG_SPI_MASTER)
++
+ static int ds1302_spi_readbyte(struct ds1302 *ds1302, u8 addr)
+ {
+ 	struct spi_device *spi = to_spi_device(ds1302->dev);
+@@ -285,21 +299,327 @@ static int ds1302_spi_probe(struct spi_device *spi)
+ 	return ds1302_probe(ds1302);
+ }
+ 
+-#ifdef CONFIG_OF
+-static const struct of_device_id ds1302_dt_ids[] = {
+-	{ .compatible = "maxim,ds1302", },
+-	{ /* sentinel */ }
+-};
+-MODULE_DEVICE_TABLE(of, ds1302_dt_ids);
+-#endif
+-
+-static struct spi_driver ds1302_driver = {
++static struct spi_driver ds1302_spi_driver = {
+ 	.driver.name	= "rtc-ds1302",
+ 	.driver.of_match_table = of_match_ptr(ds1302_dt_ids),
+ 	.probe		= ds1302_spi_probe,
+ };
+ 
+-module_spi_driver(ds1302_driver);
++static int ds1302_spi_register_driver(void)
++{
++	return spi_register_driver(&ds1302_spi_driver);
++}
++
++static void ds1302_spi_unregister_driver(void)
++{
++	spi_unregister_driver(&ds1302_spi_driver);
++}
++
++#else
++
++static int ds1302_spi_register_driver(void)
++{
++	return 0;
++}
++
++static void ds1302_spi_unregister_driver(void)
++{
++}
++
++#endif
++
++/*
++ * ds1302 driver using three GPIO lines
++ *
++ * The information to implement this is gleaned from
++ * http://playground.arduino.cc/Main/DS1302
++ */
++struct ds1302_gpio {
++	struct gpio_desc *gpiod_ce;
++	struct gpio_desc *gpiod_io;
++	struct gpio_desc *gpiod_sclk;
++
++	struct ds1302 ds1302;
++};
++
++static struct ds1302_gpio *to_ds1302_gpio(struct ds1302 *ds1302)
++{
++	return container_of(ds1302, struct ds1302_gpio, ds1302);
++}
++
++static int ds1302_gpio_reset(struct ds1302 *ds1302)
++{
++	struct ds1302_gpio *gpio = to_ds1302_gpio(ds1302);
++	int ret;
++
++	ret = gpiod_direction_output(gpio->gpiod_ce, 0);
++	if (ret)
++		return ret;
++
++	ret = gpiod_direction_output(gpio->gpiod_io, 0);
++	if (ret)
++		return ret;
++
++	return gpiod_direction_output(gpio->gpiod_sclk, 0);
++}
++
++static void ds1302_gpio_chip_enable(struct ds1302 *ds1302, int enable)
++{
++	struct ds1302_gpio *gpio = to_ds1302_gpio(ds1302);
++
++	gpiod_set_value(gpio->gpiod_ce, enable);
++	if (enable) {
++		/*
++		 * tCC (CE to CLK Setup): 4us
++		 */
++		udelay(4);
++	} else {
++		/*
++		 * tCWH (CE Inactive Time): 4us
++		 */
++		udelay(4);
++	}
++}
++
++static int ds1302_gpio_sendbits(struct ds1302 *ds1302, u8 val)
++{
++	struct ds1302_gpio *gpio = to_ds1302_gpio(ds1302);
++	int i;
++
++	for (i = 0; i < 8; i++, val >>= 1) {
++		gpiod_set_value(gpio->gpiod_sclk, 0);
++		/* tCL (CLK Low Time): 1000ns */
++		udelay(1);
++
++		gpiod_set_value(gpio->gpiod_io, val & 0x1);
++		/* tDC (Data to CLK Setup): 200ns */
++		udelay(1);
++
++		gpiod_set_value(gpio->gpiod_sclk, 1);
++		/*
++		 * tCH (CLK High Time): 1000ns
++		 * tCDH (CLK to Data Hold): 800ns
++		 */
++		udelay(1);
++	}
++
++	return 0;
++}
++
++static unsigned int ds1302_gpio_recvbits(struct ds1302 *ds1302)
++{
++	unsigned int val;
++	int i;
++	struct ds1302_gpio *gpio = to_ds1302_gpio(ds1302);
++
++	for (i = 0, val = 0; i < 8; i++) {
++		int bit;
++
++		gpiod_set_value(gpio->gpiod_sclk, 0);
++		/*
++		 * tCL (CLK Low Time): 1000ns
++		 * tCDD (CLK to Data Delay): 800ns
++		 */
++		udelay(1);
++
++		bit = gpiod_get_value(gpio->gpiod_io);
++		if (bit < 0)
++			return bit;
++		val |= bit << i;
++
++		gpiod_set_value(gpio->gpiod_sclk, 1);
++		/* tCH (CLK High Time): 1000ns */
++		udelay(1);
++	}
++
++	return val;
++}
++
++static int ds1302_gpio_readburst(struct ds1302 *ds1302, u8 addr, u8 *buf,
++				 int size)
++{
++	int i;
++	int ret;
++	struct ds1302_gpio *gpio = to_ds1302_gpio(ds1302);
++
++	ret = ds1302_gpio_reset(ds1302);
++	if (ret)
++		return ret;
++
++	ds1302_gpio_chip_enable(ds1302, true);
++
++	ds1302_gpio_sendbits(ds1302, ((addr & 0x3f) << 1) | RTC_CMD_READ);
++
++	ret = gpiod_direction_input(gpio->gpiod_io);
++	if (ret)
++		return ret;
++
++	for (i = 0; i < size; i++) {
++		ret = ds1302_gpio_recvbits(ds1302);
++		if (ret < 0)
++			break;
++		 buf[i] = ret;
++	}
++
++	ds1302_gpio_chip_enable(ds1302, false);
++
++	return ret < 0 ? ret : 0;
++}
++
++static int ds1302_gpio_readbyte(struct ds1302 *ds1302, u8 addr)
++{
++	u8 val;
++	int err;
++
++	err = ds1302_gpio_readburst(ds1302, addr, &val, 1);
++	if (err)
++		return err;
++
++	return val;
++}
++
++static int ds1302_gpio_writeburst(struct ds1302 *ds1302, u8 addr, const u8 *buf,
++				  int size)
++{
++	int err;
++	int i;
++
++	err = ds1302_gpio_reset(ds1302);
++	if (err)
++		return err;
++
++	ds1302_gpio_chip_enable(ds1302, true);
++
++	ds1302_gpio_sendbits(ds1302, ((addr & 0x3f) << 1) | RTC_CMD_WRITE);
++
++	for (i = 0; i < size; i++) {
++		err = ds1302_gpio_sendbits(ds1302, buf[i]);
++		if (err)
++			break;
++	}
++
++	ds1302_gpio_chip_enable(ds1302, false);
++
++	return err;
++}
++
++static int ds1302_gpio_writebyte(struct ds1302 *ds1302, u8 addr, u8 val)
++{
++	return ds1302_gpio_writeburst(ds1302, addr, &val, 1);
++}
++
++static const struct ds1302_ops ds1302_gpio_ops = {
++	.readbyte = ds1302_gpio_readbyte,
++	.writebyte = ds1302_gpio_writebyte,
++	.readburst = ds1302_gpio_readburst,
++	.writeburst = ds1302_gpio_writeburst,
++};
++
++static struct gpio_desc *ds1302_gpiod_request(struct device *dev,
++						const char *name)
++{
++	int gpio;
++	int ret;
++
++	if (!dev->of_node)
++		return ERR_PTR(-ENODEV);
++
++	gpio = of_get_named_gpio(dev->of_node, name, 0);
++	if (!gpio_is_valid(gpio))
++		return ERR_PTR(gpio);
++
++	ret = devm_gpio_request_one(dev, gpio, 0, name);
++	if (ret)
++		return ERR_PTR(ret);
++
++	return gpio_to_desc(gpio);
++}
++
++static struct ds1302 *ds1302_gpio_init(struct device *dev)
++{
++	struct ds1302_gpio *ds1302_gpio;
++	struct gpio_desc *gpiod;
++
++	ds1302_gpio = devm_kzalloc(dev, sizeof(*ds1302_gpio), GFP_KERNEL);
++	if (!ds1302_gpio)
++		return ERR_PTR(-ENOMEM);
++
++	ds1302_gpio->ds1302.ops = &ds1302_gpio_ops;
++	ds1302_gpio->ds1302.dev = dev;
++
++	gpiod = ds1302_gpiod_request(dev, "gpio-ce");
++	if (IS_ERR(gpiod))
++		return ERR_CAST(gpiod);
++	ds1302_gpio->gpiod_ce = gpiod;
++
++	gpiod = ds1302_gpiod_request(dev, "gpio-io");
++	if (IS_ERR(gpiod))
++		return ERR_CAST(gpiod);
++	ds1302_gpio->gpiod_io = gpiod;
++
++	gpiod = ds1302_gpiod_request(dev, "gpio-sclk");
++	if (IS_ERR(gpiod))
++		return ERR_CAST(gpiod);
++	ds1302_gpio->gpiod_sclk = gpiod;
++
++	return &ds1302_gpio->ds1302;
++}
++
++static int ds1302_gpio_probe(struct platform_device *pdev)
++ {
++	struct ds1302 *ds1302;
++
++	ds1302 = ds1302_gpio_init(&pdev->dev);
++	if (IS_ERR(ds1302))
++		return PTR_ERR(ds1302);;
++
++	return ds1302_probe(ds1302);
++}
++
++static struct platform_driver ds1302_gpio_driver = {
++	.probe = ds1302_gpio_probe,
++	.driver		= {
++		.name	= "rtc-ds1302",
++		.of_match_table = of_match_ptr(ds1302_dt_ids),
++	},
++};
++
++static int ds1302_gpio_register_driver(void)
++{
++	return platform_driver_register(&ds1302_gpio_driver);
++}
++
++static void ds1302_gpio_unregister_driver(void)
++{
++	return platform_driver_unregister(&ds1302_gpio_driver);
++}
++
++static int __init ds1302_init(void)
++{
++	int ret;
++
++	ret = ds1302_spi_register_driver();
++	if (ret) {
++		pr_err("Failed to register ds1302 spi driver: %d\n", ret);
++		return ret;
++	}
++
++	ret = ds1302_gpio_register_driver();
++        if (ret) {
++		pr_err("Failed to register ds1302 gpio driver: %d\n", ret);
++		ds1302_spi_unregister_driver();
++	}
++
++	return ret;
++}
++module_init(ds1302_init)
++
++static void __exit ds1302_exit(void)
++{
++	ds1302_spi_unregister_driver();
++	ds1302_gpio_unregister_driver();
++}
++module_exit(ds1302_exit)
+ 
+ MODULE_DESCRIPTION("Dallas DS1302 RTC driver");
+ MODULE_VERSION(DRV_VERSION);
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+2.5.0
 
 -- 
 -- 
