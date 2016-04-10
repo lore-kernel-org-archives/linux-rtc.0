@@ -1,22 +1,27 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBJXO3S4AKGQES6W3QMI@googlegroups.com>
+Return-Path: <rtc-linux+bncBCPM5SUWUYIRBYOUVG4AKGQE3CFWNXA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id a80si387251wma.0.2016.04.20.01.00.37
-        for <rtc-linux@googlegroups.com>;
-        Wed, 20 Apr 2016 01:00:37 -0700 (PDT)
-Date: Wed, 20 Apr 2016 10:00:37 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Stephen Boyd <sboyd@codeaurora.org>
-Cc: Alessandro Zummo <a.zummo@towertech.it>, linux-kernel@vger.kernel.org,
-	rtc-linux@googlegroups.com, Akinobu Mita <akinobu.mita@gmail.com>,
-	Michael Tatarinov <kukabu@gmail.com>
-Subject: [rtc-linux] Re: [PATCH] rtc: ds1307: Remove CLK_IS_ROOT
-Message-ID: <20160420080037.GN29844@piout.net>
-References: <1461114948-17987-1-git-send-email-sboyd@codeaurora.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1461114948-17987-1-git-send-email-sboyd@codeaurora.org>
+Received: from mail-pf0-x241.google.com (mail-pf0-x241.google.com. [2607:f8b0:400e:c00::241])
+        by gmr-mx.google.com with ESMTPS id ph3si966875pac.1.2016.04.10.07.59.45
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Sun, 10 Apr 2016 07:59:45 -0700 (PDT)
+Received: by mail-pf0-x241.google.com with SMTP id d184so13072397pfc.1
+        for <rtc-linux@googlegroups.com>; Sun, 10 Apr 2016 07:59:45 -0700 (PDT)
+From: Akinobu Mita <akinobu.mita@gmail.com>
+To: rtc-linux@googlegroups.com,
+	devicetree@vger.kernel.org
+Cc: Akinobu Mita <akinobu.mita@gmail.com>,
+	Sergey Yanovich <ynvich@gmail.com>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Subject: [rtc-linux] [PATCH 1/4] rtc: ds1302: fix error check in set_time
+Date: Sun, 10 Apr 2016 23:59:23 +0900
+Message-Id: <1460300366-25248-2-git-send-email-akinobu.mita@gmail.com>
+In-Reply-To: <1460300366-25248-1-git-send-email-akinobu.mita@gmail.com>
+References: <1460300366-25248-1-git-send-email-akinobu.mita@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -25,23 +30,33 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 19/04/2016 at 18:15:48 -0700, Stephen Boyd wrote :
-> This flag is a no-op now (see commit 47b0eeb3dc8a "clk: Deprecate
-> CLK_IS_ROOT", 2016-02-02) so remove it.
-> 
-> Cc: Akinobu Mita <akinobu.mita@gmail.com>
-> Cc: Michael Tatarinov <kukabu@gmail.com>
-> Signed-off-by: Stephen Boyd <sboyd@codeaurora.org>
-> ---
->  drivers/rtc/rtc-ds1307.c | 2 --
->  1 file changed, 2 deletions(-)
-> 
-Applied, thanks.
+The set_time callback for rtc-ds1302 doesn't write clock registers
+because the error check for the return value from spi_write_then_read()
+is not correct.  spi_write_then_read() which returns zero on success.
 
+Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
+Cc: Sergey Yanovich <ynvich@gmail.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>
+Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+---
+ drivers/rtc/rtc-ds1302.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/rtc/rtc-ds1302.c b/drivers/rtc/rtc-ds1302.c
+index 5cdc0f2..5e05653 100644
+--- a/drivers/rtc/rtc-ds1302.c
++++ b/drivers/rtc/rtc-ds1302.c
+@@ -54,7 +54,7 @@ static int ds1302_rtc_set_time(struct device *dev, struct rtc_time *time)
+ 
+ 	status = spi_write_then_read(spi, buf, 2,
+ 			NULL, 0);
+-	if (!status)
++	if (status)
+ 		return status;
+ 
+ 	/* Write registers starting at the first time/date address. */
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+2.5.0
 
 -- 
 -- 
