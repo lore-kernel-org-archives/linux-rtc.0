@@ -1,23 +1,25 @@
-Return-Path: <rtc-linux+bncBAABBJ6W7S4AKGQEGNJUVXY@googlegroups.com>
+Return-Path: <rtc-linux+bncBCPM5SUWUYIRBXWUVG4AKGQE6KHJCSI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from root.phytec.de (mail.phycard.de. [217.6.246.34])
-        by gmr-mx.google.com with ESMTP id v130si304210wmv.1.2016.04.26.01.47.35
-        for <rtc-linux@googlegroups.com>;
-        Tue, 26 Apr 2016 01:47:35 -0700 (PDT)
-Subject: [rtc-linux] Re: [PATCH v3 4/8] regulator: rk808: Migrate to regulator
- core's simplified DT parsing code
-To: =?UTF-8?Q?Heiko_St=c3=bcbner?= <heiko@sntech.de>
-References: <1461590448-47685-1-git-send-email-w.egorov@phytec.de>
- <20160425173911.GQ3217@sirena.org.uk> <571F1CB4.10200@phytec.de>
- <2669414.IKg01zC8vG@diego>
-Cc: Mark Brown <broonie@kernel.org>, linux-kernel@vger.kernel.org, linux-clk@vger.kernel.org, rtc-linux@googlegroups.com, devicetree@vger.kernel.org, linux-rockchip@lists.infradead.org, robh+dt@kernel.org, pawel.moll@arm.com, mark.rutland@arm.com, ijc+devicetree@hellion.org.uk, galak@codeaurora.org, mturquette@baylibre.com, sboyd@codeaurora.org, lee.jones@linaro.org, lgirdwood@gmail.com, a.zummo@towertech.it, alexandre.belloni@free-electrons.com, dianders@chromium.org, zyw@rock-chips.com
-From: Wadim Egorov <w.egorov@phytec.de>
-Message-ID: <571F2AFE.2020006@phytec.de>
-Date: Tue, 26 Apr 2016 10:46:54 +0200
 MIME-Version: 1.0
-In-Reply-To: <2669414.IKg01zC8vG@diego>
-Content-Type: text/plain; charset=UTF-8
+Received: from mail-pa0-x242.google.com (mail-pa0-x242.google.com. [2607:f8b0:400e:c03::242])
+        by gmr-mx.google.com with ESMTPS id y20si1149388pfa.2.2016.04.10.07.59.42
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Sun, 10 Apr 2016 07:59:42 -0700 (PDT)
+Received: by mail-pa0-x242.google.com with SMTP id hb4so12537267pac.1
+        for <rtc-linux@googlegroups.com>; Sun, 10 Apr 2016 07:59:42 -0700 (PDT)
+From: Akinobu Mita <akinobu.mita@gmail.com>
+To: rtc-linux@googlegroups.com,
+	devicetree@vger.kernel.org
+Cc: Akinobu Mita <akinobu.mita@gmail.com>,
+	Sergey Yanovich <ynvich@gmail.com>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Subject: [rtc-linux] [PATCH 0/4] support control with using GPIO lines
+Date: Sun, 10 Apr 2016 23:59:22 +0900
+Message-Id: <1460300366-25248-1-git-send-email-akinobu.mita@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -26,49 +28,40 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
+This series adds support access to DS1302 with GPIO lines.
 
+Recently rtc-ds1302 is rewritten using SPI 3wire mode.  This adds
+another platform driver using GPIO while supporting both modes.
 
-On 26.04.2016 10:17, Heiko St=C3=BCbner wrote:
-> Am Dienstag, 26. April 2016, 09:45:56 schrieb Wadim Egorov:
->> On 25.04.2016 19:39, Mark Brown wrote:
->>> On Mon, Apr 25, 2016 at 03:20:44PM +0200, Wadim Egorov wrote:
->>>> A common simplified DT parsing code for regulators was introduced in
->>>> commit a0c7b164ad11 ("regulator: of: Provide simplified DT parsing
->>>> method")
->>> This doesn't apply against current code, please check and resend.
->> Hm, for me all patches apply to the current code.
->> This patch depends on the first rename patch. Maybe this is the problem?
-> which is the reason why renaming stuff makes everything just more complic=
-ated=20
-> without providing additional value ;-)=20
->
-> The first patch would go through the mfd-tree (if accepted by Lee and Ack=
-ed by=20
-> the other involved subsystem maintainers) which would then need a stable=
-=20
-> branch merged into the regulator tree - or after the first patch goes in =
-you=20
-> simply wait for a kernel release.
->
-> Normally I would expect the reasonable kernel developer to be able to sim=
-ply=20
-> read code, kconfig, docs stating the drivers being for rk808 and rk818 wi=
-thout=20
-> getting "confused" by some structs mentioning the rk808.
->
->
-> Heiko
-I will drop the first patch and send a v4 later
+Thie series first fixes two problems I found while tesing, secondly
+introduces the abstraction layer for the register access which enables
+to share the most code between spi and platform driver, and adds
+the platform driver using GPIO.
 
---=20
---=20
+Akinobu Mita (4):
+  rtc: ds1302: fix error check in set_time
+  rtc: ds1302: fix write value for day of week register
+  rtc: ds1302: add register access abstraction layer
+  rtc: ds1302: support control with using GPIO lines
+
+ .../devicetree/bindings/rtc/maxim-ds1302.txt       |  13 +
+ drivers/rtc/Kconfig                                |  17 +-
+ drivers/rtc/rtc-ds1302.c                           | 558 ++++++++++++++++++---
+ 3 files changed, 503 insertions(+), 85 deletions(-)
+
+Cc: Sergey Yanovich <ynvich@gmail.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>
+Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+-- 
+2.5.0
+
+-- 
+-- 
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
----=20
-You received this message because you are subscribed to the Google Groups "=
-rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an e=
-mail to rtc-linux+unsubscribe@googlegroups.com.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
