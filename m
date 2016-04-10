@@ -1,20 +1,25 @@
-Return-Path: <rtc-linux+bncBAABBWVV4S4AKGQEIC5YKYQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBDUOXGMN6YKBBWG7VG4AKGQE5DNSPBY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id c7si110848wmf.2.2016.04.21.11.24.26
-        for <rtc-linux@googlegroups.com>;
-        Thu, 21 Apr 2016 11:24:26 -0700 (PDT)
-From: =?UTF-8?q?Myl=C3=A8ne=20Josserand?= <mylene.josserand@free-electrons.com>
-To: alexandre.belloni@free-electrons.com,
-	rtc-linux@googlegroups.com
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
-	linux-kernel@vger.kernel.org,
-	mylene.josserand@free-electrons.com
-Subject: [rtc-linux] [PATCH 0/6] add support for Microcrystal RV-3049
-Date: Thu, 21 Apr 2016 20:24:13 +0200
-Message-Id: <cover.1461250479.git.mylene.josserand@free-electrons.com>
-MIME-Version: 1.0
+Received: from mail-lf0-x243.google.com (mail-lf0-x243.google.com. [2a00:1450:4010:c07::243])
+        by gmr-mx.google.com with ESMTPS id f7si583712lbf.0.2016.04.10.08.23.04
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Sun, 10 Apr 2016 08:23:04 -0700 (PDT)
+Received: by mail-lf0-x243.google.com with SMTP id p64so5301894lfg.0
+        for <rtc-linux@googlegroups.com>; Sun, 10 Apr 2016 08:23:04 -0700 (PDT)
+Message-ID: <1460301781.17404.171.camel@gmail.com>
+Subject: [rtc-linux] Re: [PATCH 0/4] support control with using GPIO lines
+From: Sergei Ianovich <ynvich@gmail.com>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>, Akinobu Mita
+	 <akinobu.mita@gmail.com>
+Cc: rtc-linux@googlegroups.com, devicetree@vger.kernel.org, Alessandro Zummo
+	 <a.zummo@towertech.it>
+Date: Sun, 10 Apr 2016 18:23:01 +0300
+In-Reply-To: <20160410151237.GD5377@piout.net>
+References: <1460300366-25248-1-git-send-email-akinobu.mita@gmail.com>
+	 <20160410151237.GD5377@piout.net>
 Content-Type: text/plain; charset=UTF-8
+Mime-Version: 1.0
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -24,27 +29,31 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-The current patchset adds the support of the microcrystal RV-3049 (spi).
-This RTC will use the same driver than RV-3029 by updating it to use regmap=
-.
-It also adds the alarm IRQ functionality.
+On Sun, 2016-04-10 at 17:12 +0200, Alexandre Belloni wrote:
+> Hi,
+>=20
+> On 10/04/2016 at 23:59:22 +0900, Akinobu Mita wrote :
+> >=20
+> > This series adds support access to DS1302 with GPIO lines.
+> >=20
+> > Recently rtc-ds1302 is rewritten using SPI 3wire mode.=C2=A0=C2=A0This =
+adds
+> > another platform driver using GPIO while supporting both modes.
+> >=20
+> > Thie series first fixes two problems I found while tesing, secondly
+> > introduces the abstraction layer for the register access which
+> > enables
+> > to share the most code between spi and platform driver, and adds
+> > the platform driver using GPIO.
+> >=20
+> Well, isn't spi-gpio fitting for that use case? I'd like to avoid
+> open
+> coding gpio bitbanging in the driver.
 
-
-Myl=C3=A8ne Josserand (6):
-  rtc: rv3029: remove 'i2c' in functions names
-  rtc: rv3029: convert to use regmap
-  rtc: rv3029: Add support of RV3049
-  rtc: rv3049: Removes some checks and warnings
-  rtc: rv3029: enable AE_x bits on set_alarm
-  rtc: rv3029: add alarm IRQ
-
- drivers/rtc/Kconfig        |  37 +--
- drivers/rtc/rtc-rv3029c2.c | 582 +++++++++++++++++++++++++++++------------=
-----
- 2 files changed, 397 insertions(+), 222 deletions(-)
-
---=20
-2.8.0.rc3
+No, unfortunately. I've investigated this possibility for my platform.
+spi-gpio doesn't support LSB-first and 3-wire options. Adding support
+there is a very big change. The best way to add GPIO support is to
+create spi-gpio-3wire with LSB-first support.
 
 --=20
 --=20
