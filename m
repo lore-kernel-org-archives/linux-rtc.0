@@ -1,24 +1,25 @@
-Return-Path: <rtc-linux+bncBAABBNEX4O4AKGQEDMIC5TA@googlegroups.com>
+Return-Path: <rtc-linux+bncBDJIP47K7MERBZW2V24AKGQEQGOU4XY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from lists.s-osg.org (lists.s-osg.org. [54.187.51.154])
-        by gmr-mx.google.com with ESMTP id y20si56827pfa.2.2016.04.21.05.46.44
-        for <rtc-linux@googlegroups.com>;
-        Thu, 21 Apr 2016 05:46:44 -0700 (PDT)
-Subject: Re: [rtc-linux] [PATCH v2] rtc: s3c: Document in binding that only
- s3c6410 needs a src clk
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-References: <1455545466-25709-1-git-send-email-javier@osg.samsung.com>
- <20160328221915.GC2346@piout.net>
-Cc: linux-kernel@vger.kernel.org, Rob Herring <robh+dt@kernel.org>,
- linux-samsung-soc@vger.kernel.org,
- Krzysztof Kozlowski <k.kozlowski@samsung.com>, rtc-linux@googlegroups.com,
- devicetree@vger.kernel.org
-From: Javier Martinez Canillas <javier@osg.samsung.com>
-Message-ID: <5718CBA9.30801@osg.samsung.com>
-Date: Thu, 21 Apr 2016 08:46:33 -0400
+Received: from mail.kernel.org (mail.kernel.org. [198.145.29.136])
+        by gmr-mx.google.com with ESMTPS id ph3si1403624pac.1.2016.04.11.06.57.58
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 11 Apr 2016 06:57:58 -0700 (PDT)
+Date: Mon, 11 Apr 2016 08:57:53 -0500
+From: Rob Herring <robh@kernel.org>
+To: Marcin Niestroj <m.niestroj@grinn-global.com>
+Cc: rtc-linux@googlegroups.com, devicetree@vger.kernel.org,
+	Pawel Moll <pawel.moll@arm.com>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Keerthy <j-keerthy@ti.com>, Tony Lindgren <tony@atomide.com>
+Subject: [rtc-linux] Re: [PATCH v2] rtc: omap: Support ext_wakeup configuration
+Message-ID: <20160411135753.GA29858@rob-hp-laptop>
+References: <1459960367-29399-1-git-send-email-m.niestroj@grinn-global.com>
+ <1459960367-29399-2-git-send-email-m.niestroj@grinn-global.com>
 MIME-Version: 1.0
-In-Reply-To: <20160328221915.GC2346@piout.net>
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1459960367-29399-2-git-send-email-m.niestroj@grinn-global.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -28,40 +29,48 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Hello Alexandre,
-
-On 03/28/2016 06:19 PM, Alexandre Belloni wrote:
-> On 15/02/2016 at 11:11:06 -0300, Javier Martinez Canillas wrote :
->> The S3C binding doc says that the RTC and RTC source clocks are required
->> but the S3C driver supports different HW IP and only the s3c6410 needs a
->> source clock.
->>
->> Fix the binding explaining that the source clock is only needed for the
->> s3c6410-rtc compatible controller.
->>
->> Reported-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
->> Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
->> Acked-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
->>
->> ---
->> Hello,
->>
->> This patch depends on a previous one that was picked by Rob Herring so
->> this one has to go through his tree again and not through the RTC tree
->> to avoid conflicts.
->>
+On Wed, Apr 06, 2016 at 06:32:47PM +0200, Marcin Niestroj wrote:
+> Support configuration of ext_wakeup sources. This patch makes it
+> possible to enable ext_wakeup (and set it's polarity), depending on
+> board configuration. AM335x's dedicated PMIC (tps65217) uses ext_wakeup
+> in SLEEP mode (RTC-only) to notify about power-button presses. Handling
+> power-button presses enables to recover from RTC-only power states
+> correctly.
 > 
-> Well, I'm queuing that one in rtc-fixes for 4.6
+> Implementation uses gpiochip to utilize standard bindings. However,
+> configuration is possible only using device-tree (no runtime changes).
 > 
+> Signed-off-by: Marcin Niestroj <m.niestroj@grinn-global.com>
+> ---
 
-Are you still planning to push this fix for v4.6? I don't see the patch in
-neither v4.6-rc4 nor linux-next.
+Why are you doing a cover letter for a single patch. Put any commentary 
+and version history here instead.
 
-Best regards,
--- 
-Javier Martinez Canillas
-Open Source Group
-Samsung Research America
+>  Documentation/devicetree/bindings/rtc/rtc-omap.txt |  18 ++-
+>  drivers/rtc/Kconfig                                |   2 +-
+>  drivers/rtc/rtc-omap.c                             | 137 ++++++++++++++++++++-
+>  3 files changed, 154 insertions(+), 3 deletions(-)
+> 
+> diff --git a/Documentation/devicetree/bindings/rtc/rtc-omap.txt b/Documentation/devicetree/bindings/rtc/rtc-omap.txt
+> index bf7d11a..4a7738e 100644
+> --- a/Documentation/devicetree/bindings/rtc/rtc-omap.txt
+> +++ b/Documentation/devicetree/bindings/rtc/rtc-omap.txt
+> @@ -18,8 +18,12 @@ Optional properties:
+>    through pmic_power_en
+>  - clocks: Any internal or external clocks feeding in to rtc
+>  - clock-names: Corresponding names of the clocks
+> +- gpio-controller: Mark as gpio controller when using ext_wakeup
+> +- #gpio-cells: Should be set to 2
+> +- ngpios: Number of ext_wakeup sources supported by processor (board)
+
+This is not how this property is intended to be used.
+
+> +- ext-wakeup-gpios: List of ext_wakeup sources to configure
+
+This doesn't belong here. It should be in the PMIC node if that is where 
+it is attached.
+
+Rob
 
 -- 
 -- 
