@@ -1,24 +1,20 @@
-Return-Path: <rtc-linux+bncBAABBC6OWO4AKGQEHD4CBVY@googlegroups.com>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRB3MZXO4AKGQECVQUPVA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from NAM02-SN1-obe.outbound.protection.outlook.com (mail-sn1nam02on0077.outbound.protection.outlook.com. [104.47.36.77])
-        by gmr-mx.google.com with ESMTPS id im4si1035634igb.2.2016.04.12.05.16.11
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
-        Tue, 12 Apr 2016 05:16:11 -0700 (PDT)
-From: Anurag Kumar Vulisha <anurag.kumar.vulisha@xilinx.com>
-To: Alessandro Zummo <a.zummo@towertech.it>, Alexandre Belloni
-	<alexandre.belloni@free-electrons.com>, <soren.brinkmann@xilinx.com>
-CC: Michal Simek <michal.simek@xilinx.com>, <rtc-linux@googlegroups.com>,
-	<linux-arm-kernel@lists.infradead.org>, <linux-kernel@vger.kernel.org>,
-	Punnaiah Choudary Kalluri <punnaia@xilinx.com>, Anirudha Sarangi
-	<anirudh@xilinx.com>, Srikanth Vemula <svemula@xilinx.com>, "Anurag Kumar
- Vulisha" <anuragku@xilinx.com>
-Subject: [rtc-linux] [PATCH 1/3] RTC: Enable RTC switching to battery power
- when VCC_PSAUX is N/A
-Date: Tue, 12 Apr 2016 17:45:44 +0530
-Message-ID: <1460463346-24923-1-git-send-email-anuragku@xilinx.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id y80si881469wmd.3.2016.04.13.15.49.17
+        for <rtc-linux@googlegroups.com>;
+        Wed, 13 Apr 2016 15:49:17 -0700 (PDT)
+Date: Thu, 14 Apr 2016 00:49:16 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Tomas Krcka <tomas.krcka@nkgroup.cz>
+Cc: rtc-linux@googlegroups.com, a.zummo@towertech.it,
+	linux-kernel@vger.kernel.org
+Subject: [rtc-linux] Re: [PATCH] rtc: support for rv4162c7
+Message-ID: <20160413224916.GH7765@piout.net>
+References: <570EAE8B.7010706@nkgroup.cz>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <570EAE8B.7010706@nkgroup.cz>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -28,48 +24,42 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-In order to conserve battery energy, during the PS operation,
-it is expected that the supply for the battery-powered domain
-to be switched from the battery (VCC_PSBATT) to (VCC_PSAUX) and
-automatically be switched back to battery when VCC_PSAUX voltage
-drops below a limit, doing so prevents the logic within
-the battery-powered domain from functioning incorrectly.
+Hi,
 
-This patch enables that feature.
+On 13/04/2016 at 22:39:39 +0200, Tomas Krcka wrote :
+> This patch is for support of rv4162c7 RTC chip.
+> The device has same parameters as rv4162, but with different identification.
+> Tested with PhyTec module AM335x. 
+> 
 
-Signed-off-by: Anurag Kumar Vulisha <anuragku@xilinx.com>
----
- drivers/rtc/rtc-zynqmp.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+Well, technically, it is an rv4162. rv4162-c7 is the only available one.
+So this patch is not necessary.
 
-diff --git a/drivers/rtc/rtc-zynqmp.c b/drivers/rtc/rtc-zynqmp.c
-index 8b28762..6adb603 100644
---- a/drivers/rtc/rtc-zynqmp.c
-+++ b/drivers/rtc/rtc-zynqmp.c
-@@ -45,6 +45,7 @@
- #define RTC_INT_SEC		BIT(0)
- #define RTC_INT_ALRM		BIT(1)
- #define RTC_OSC_EN		BIT(24)
-+#define RTC_BATT_EN		BIT(31)
- 
- #define RTC_CALIB_DEF		0x198233
- #define RTC_CALIB_MASK		0x1FFFFF
-@@ -122,6 +123,13 @@ static int xlnx_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
- 
- static void xlnx_init_rtc(struct xlnx_rtc_dev *xrtcdev, u32 calibval)
- {
-+	u32 rtc_ctrl;
-+
-+	/* Enable RTC switch to battery when VCC_PSAUX is not available */
-+	rtc_ctrl = readl(xrtcdev->reg_base + RTC_CTRL);
-+	rtc_ctrl |= RTC_BATT_EN;
-+	writel(rtc_ctrl, xrtcdev->reg_base + RTC_CTRL);
-+
- 	/*
- 	 * Based on crystal freq of 33.330 KHz
- 	 * set the seconds counter and enable, set fractions counter
+> Signed-off-by: Tomas Krcka <tomas.krcka@nkgroup.cz> 
+> 
+> ---
+>  drivers/rtc/rtc-m41t80.c | 1 +
+>  1 file changed, 1 insertion(+)
+> 
+> diff --git a/drivers/rtc/rtc-m41t80.c b/drivers/rtc/rtc-m41t80.c
+> index d107a8e..1aa57d8 100644
+> --- a/drivers/rtc/rtc-m41t80.c
+> +++ b/drivers/rtc/rtc-m41t80.c
+> @@ -81,6 +81,7 @@ static const struct i2c_device_id m41t80_id[] = {
+>      { "m41st85", M41T80_FEATURE_HT | M41T80_FEATURE_BL | M41T80_FEATURE_SQ },
+>      { "m41st87", M41T80_FEATURE_HT | M41T80_FEATURE_BL | M41T80_FEATURE_SQ },
+>      { "rv4162", M41T80_FEATURE_SQ | M41T80_FEATURE_WD | M41T80_FEATURE_SQ_ALT },
+> +    { "rv4162c7", M41T80_FEATURE_SQ | M41T80_FEATURE_WD | M41T80_FEATURE_SQ_ALT },
+>      { }
+>  };
+>  MODULE_DEVICE_TABLE(i2c, m41t80_id);
+> -- 1.9.1
+> 
+
 -- 
-2.1.2
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
 -- 
 -- 
