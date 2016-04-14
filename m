@@ -1,18 +1,22 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBWVI4W4AKGQEV7FMKUQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBCPM5SUWUYIRBRUDX24AKGQEUR22HMA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id e78si4209wmc.3.2016.04.21.15.29.46
-        for <rtc-linux@googlegroups.com>;
-        Thu, 21 Apr 2016 15:29:46 -0700 (PDT)
-Date: Fri, 22 Apr 2016 00:29:45 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org
-Subject: [rtc-linux] [GIT PULL] RTC fixes for 4.6
-Message-ID: <20160421222945.GA26931@piout.net>
+Received: from mail-vk0-x22b.google.com (mail-vk0-x22b.google.com. [2607:f8b0:400c:c05::22b])
+        by gmr-mx.google.com with ESMTPS id g191si1546063vkg.0.2016.04.14.04.40.54
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 14 Apr 2016 04:40:54 -0700 (PDT)
+Received: by mail-vk0-x22b.google.com with SMTP id e185so105458139vkb.1
+        for <rtc-linux@googlegroups.com>; Thu, 14 Apr 2016 04:40:54 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="/04w6evG8XlLl3ft"
+In-Reply-To: <CABrG=Zw1g7a6YQnMEt6tJ5SeERM8OYcQ1=qvCegJy1G+n=WOcQ@mail.gmail.com>
+References: <CABrG=Zw1g7a6YQnMEt6tJ5SeERM8OYcQ1=qvCegJy1G+n=WOcQ@mail.gmail.com>
+Date: Thu, 14 Apr 2016 20:40:54 +0900
+Message-ID: <CAC5umygV1U-g=WOoTaZuSmjPNJ5gC5b+zk47MAxVJxz3vF=6pA@mail.gmail.com>
+Subject: [rtc-linux] Re: RTC DS3231 returns wrong temperature value.
+From: Akinobu Mita <akinobu.mita@gmail.com>
+To: Michael Tatarinov <kukabu@gmail.com>, Zhuang Yuyao <mlistz@gmail.com>
+Cc: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -22,53 +26,33 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
---/04w6evG8XlLl3ft
-Content-Type: text/plain; charset=UTF-8
-Content-Disposition: inline
+Hi Michael,
 
-Hi Linus,
+Thanks for testing.
 
-A few fixes for the RTC subsystem. The documentation fix already missed
-4.5 so I think it is worth taking it now.
+2016-04-14 16:23 GMT+09:00 Michael Tatarinov <kukabu@gmail.com>:
+> Hello
+>
+> I tried get temperature from RTC DS3231 (patch
+> https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/drivers/rtc/rtc-ds1307.c?id=445c02076f1e60d2ee51503bf1288ef9f3bc8809)
+> but returned value wrong. Looks like the patch have a bug in type
+> conversion.
+> Sometime ago I wrote small program to gets temperature and it works
+> fine. I attaches the source code a modified version with a
+> demonstration of a bug.
+>
+> $ cat /sys/devices/platform/soc/20804000.i2c/i2c-1/1-0068/hwmon/hwmon1/temp1_input
+> -29036
+> $ ./ds3231 -d /dev/i2c-1 -a 0x68 -m t -f
+> int     36500
+> int->int16_t    -29036
 
-Note that I'm now using a signing subkey so you may need to refresh my
-GPG key.
+Zhuang Yuyao has created a patch for a bug in retrieving temperature.
+(ds3231_hwmon_read_temp() takes s16 *, but it is too small for a
+multiplication with 250.)  Zhuang's patch should fixes the same problem you got.
 
-The following changes since commit f55532a0c0b8bb6148f4e07853b876ef73bc69ca:
-
-  Linux 4.6-rc1 (2016-03-26 16:03:24 -0700)
-
-are available in the git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/abelloni/linux.git tags/rtc-4.6-3
-
-for you to fetch changes up to 38a7a73e8ed0fa9e8cd99bb62463afbdcd23429b:
-
-  rtc: ds1307: Use irq when available for wakeup-source device (2016-04-21 23:21:00 +0200)
-
-----------------------------------------------------------------
-RTC fixes for 4.6
-
-A documentation fix for s3c and two fixes for the ds1307.
-
-----------------------------------------------------------------
-Javier Martinez Canillas (1):
-      rtc: s3c: Document in binding that only s3c6410 needs a src clk
-
-Nishanth Menon (1):
-      rtc: ds1307: Use irq when available for wakeup-source device
-
-Zhuang Yuyao (1):
-      rtc: ds1307: ds3231 temperature s16 overflow
-
- Documentation/devicetree/bindings/rtc/s3c-rtc.txt | 7 ++++---
- drivers/rtc/rtc-ds1307.c                          | 6 +++---
- 2 files changed, 7 insertions(+), 6 deletions(-)
-
--- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+Zhuang, do you plan to submit the patch to rtc-linux@googlegroups.com ?
+Or should I send it on behalf of you?
 
 -- 
 -- 
@@ -80,25 +64,3 @@ before submitting a driver.
 You received this message because you are subscribed to the Google Groups "rtc-linux" group.
 To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
-
---/04w6evG8XlLl3ft
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIcBAEBCgAGBQJXGVRQAAoJENiigzvaE+LC3fQQAI7/YNmNAgWxXk9nET1G4pA2
-grA7QykF6l0vA1sd38s1c214ttirgiR8HPLtQw0vOgeNLNhsS18tLKmukzqI2QYq
-a8a+IsLL5LEjpsZaqKeXaphH2mKg/27rdtM4RGk+zAS0RevVoQ4UsXJvEykkcvCC
-RsD9m8cEA6oYDXWHxtncyzKbtgVtXB1wkKO7ApfXeBPgviXSdEtkd5fDxFnJj/ZK
-xKfofGt7NoUi3DLwnw4keI3kNf33yiRyN2u+7fCnE6qnVndnb5pTBKi59wEoLO/C
-Hxp4yoY+37WZ/Y9UWhXmEiCeJWDDSpy4FOxqAclzST6YgoHdMmiShmFBZs4UIXHq
-MVM9t8zuWMH7IWwCrhgC6G+Hwts+mxrrC4TMFguM8WGOyn+9opahKE2HIfOM9T3p
-HZk2T+ue3DMNtSWEofD75rHtKHip7scaUk2LY9IzbYFaqnTkKsDm6HsU9N2I55KI
-7+jgucZxWuHV5h8CQCY6EhKubkCR2JOGu81LudY405ZOE9YNHFHLMXgxRkDi/r4l
-aTRBLdRZstBdcGcE69zLwsgS7CHyYKZMFPu8a9pJR8YAwnDHx8rV152x1QezyPrl
-6kMQ+nJxN3sh2WfVBzoopXJiVoTlWNC6zURdXnKJmDBBfhSz7mLDaMBqE9c0ifvY
-ZvbzpPOA7JhefCDB5lAZ
-=fvFN
------END PGP SIGNATURE-----
-
---/04w6evG8XlLl3ft--
