@@ -1,27 +1,19 @@
-Return-Path: <rtc-linux+bncBCPM5SUWUYIRBLUO764AKGQEDXHQKLI@googlegroups.com>
+Return-Path: <rtc-linux+bncBAABBGHVXW4AKGQEOE7DEIA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail-qg0-x232.google.com (mail-qg0-x232.google.com. [2607:f8b0:400d:c04::232])
-        by gmr-mx.google.com with ESMTPS id x84si9600ywd.6.2016.04.26.12.53.18
+Received: from mail1.bemta14.messagelabs.com (mail1.bemta14.messagelabs.com. [193.109.254.111])
+        by gmr-mx.google.com with ESMTPS id s141si924214wmd.1.2016.04.14.04.10.16
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 26 Apr 2016 12:53:18 -0700 (PDT)
-Received: by mail-qg0-x232.google.com with SMTP id d90so9387249qgd.3
-        for <rtc-linux@googlegroups.com>; Tue, 26 Apr 2016 12:53:18 -0700 (PDT)
+        Thu, 14 Apr 2016 04:10:16 -0700 (PDT)
+From: Steve Twiss <stwiss.opensource@diasemi.com>
+Date: Thu, 14 Apr 2016 12:04:54 +0100
+Subject: [rtc-linux] [PATCH V1] rtc: da9053: fix access ordering error during
+ RTC interrupt at system power on
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>, LINUXKERNEL
+	<linux-kernel@vger.kernel.org>, RTC-LINUX <rtc-linux@googlegroups.com>
+CC: Support Opensource <support.opensource@diasemi.com>
+Message-ID: <20160414111014.BB8B73FB1D@swsrvapps-01.diasemi.com>
 MIME-Version: 1.0
-In-Reply-To: <20160412012518.GQ3351@sirena.org.uk>
-References: <1460300366-25248-1-git-send-email-akinobu.mita@gmail.com>
-	<20160410151237.GD5377@piout.net>
-	<1460301781.17404.171.camel@gmail.com>
-	<20160410153855.GG5377@piout.net>
-	<20160412012518.GQ3351@sirena.org.uk>
-Date: Wed, 27 Apr 2016 04:53:18 +0900
-Message-ID: <CAC5umyguFq7vBenkJYM8AWCNJ3oGBKzKAMHHMsO=+OFHtE4b0A@mail.gmail.com>
-Subject: [rtc-linux] Re: [PATCH 0/4] support control with using GPIO lines
-From: Akinobu Mita <akinobu.mita@gmail.com>
-To: Mark Brown <broonie@kernel.org>
-Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Sergei Ianovich <ynvich@gmail.com>, rtc-linux@googlegroups.com,
-	"open list:OPEN FIRMWARE AND..." <devicetree@vger.kernel.org>, Alessandro Zummo <a.zummo@towertech.it>
 Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
@@ -32,42 +24,91 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Sorry for the late reply.
+From: Steve Twiss <stwiss.opensource@diasemi.com>
 
-2016-04-12 10:25 GMT+09:00 Mark Brown <broonie@kernel.org>:
-> On Sun, Apr 10, 2016 at 05:38:55PM +0200, Alexandre Belloni wrote:
->> On 10/04/2016 at 18:23:01 +0300, Sergei Ianovich wrote :
->
->> > No, unfortunately. I've investigated this possibility for my platform.
->> > spi-gpio doesn't support LSB-first and 3-wire options. Adding support
->> > there is a very big change. The best way to add GPIO support is to
->> > create spi-gpio-3wire with LSB-first support.
->
->> Mark, do you have nay opinion on that?
->
-> Three wire doesn't seem like it should be invasive, LSB is going to be a
-> lot more invasive though it seems reasonable to just do the reversal in
-> the driver for whatever device this is and let the SPI controller run
-> normally.  Or we could do that in the core with a pass over the data.
+This fix alters the ordering of the IRQ and device registrations in the RTC
+driver probe function. This change will apply to the RTC driver that supports
+both DA9052 and DA9053 PMICs.
 
-I've added 3wire support to spi-gpio and added the bit reversal logic
-to ds1302 driver if the spi mode is not LSB first.  But the register
-read command doesn't work.  I think there is no suitable SPI mode that
-can communicate with DS1302.  The reason is as follows.
+A problem could occur with the existing RTC driver if:
 
-For the read data transfer, the address/command byte is sent on the
-rising edge of the first eight SCLK cycles and the read data byte is
-transmitted on the falling edge of the next eight SCL cycles.
+A system is started from a cold boot using the PMIC RTC IRQ to initiate a
+power on operation. For instance, if an RTC alarm is used to start a
+platform from power off.
+The existing driver IRQ is requested before the device has been properly
+registered.
 
-But in the latter read data byte data phase, I/O pin is tri-stated
-upon each rising edge of SCLK.
-(Please see DATA OUTPUT section and Figure 6. Timing Diagram: Read Data
-Transfer in https://datasheets.maximintegrated.com/en/ds/DS1302.pdf)
+i.e.
+ret = da9052_request_irq()
+comes before
+rtc->rtc = devm_rtc_device_register();
 
-So if the SPI mode 0 (CPOL=0 CPHA=0) is selected, the address/command
-byte phase is ok but the read data byte is unavailable because each
-bit is retrieved while SCLK is high.  Similarly there is no suitable
-SPI mode for DS1302.
+In this case, an interrupt exists before the device has been registered and
+the IRQ handler can be called immediately: this can happen be before the
+memory for rtc->rtc has been allocated. The IRQ handler da9052_rtc_irq()
+contains the function call:
+
+rtc_update_irq(rtc->rtc, 1, RTC_IRQF | RTC_AF);
+
+which in turn tries to access the unavailable rtc->rtc.
+
+The fix is to reorder the functions inside the RTC probe. The IRQ is
+requested after the RTC device resource has been registered so that
+da9052_request_irq() is the last thing to happen.
+
+Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
+
+---
+This patch applies against linux-next and v4.6-rc3
+
+This wake-up IRQ fault is similar to the one previously fixed in the
+DA9063 and DA9062 driver code.
+
+See reference:
+commit 77535acedc26627f16a1a39c1471f942689fe11e
+Author: Steve Twiss <stwiss.opensource@diasemi.com>
+Date:   Tue Dec 8 16:28:39 2015 +0000
+
+Regards,
+Steve
+
+
+ drivers/rtc/rtc-da9052.c | 13 ++++++++-----
+ 1 file changed, 8 insertions(+), 5 deletions(-)
+
+diff --git a/drivers/rtc/rtc-da9052.c b/drivers/rtc/rtc-da9052.c
+index 1ba4371..a20bcf0 100644
+--- a/drivers/rtc/rtc-da9052.c
++++ b/drivers/rtc/rtc-da9052.c
+@@ -302,6 +302,13 @@ static int da9052_rtc_probe(struct platform_device *pdev)
+ 	if (ret != 0)
+ 		rtc_err(rtc, "Failed to disable TICKS: %d\n", ret);
+ 
++	device_init_wakeup(&pdev->dev, true);
++	rtc->rtc = devm_rtc_device_register(&pdev->dev, pdev->name,
++				       &da9052_rtc_ops, THIS_MODULE);
++
++	if (IS_ERR(rtc->rtc))
++		return PTR_ERR(rtc->rtc);
++
+ 	ret = da9052_request_irq(rtc->da9052, DA9052_IRQ_ALARM, "ALM",
+ 				da9052_rtc_irq, rtc);
+ 	if (ret != 0) {
+@@ -309,11 +316,7 @@ static int da9052_rtc_probe(struct platform_device *pdev)
+ 		return ret;
+ 	}
+ 
+-	device_init_wakeup(&pdev->dev, true);
+-
+-	rtc->rtc = devm_rtc_device_register(&pdev->dev, pdev->name,
+-				       &da9052_rtc_ops, THIS_MODULE);
+-	return PTR_ERR_OR_ZERO(rtc->rtc);
++	return 0;
+ }
+ 
+ static struct platform_driver da9052_rtc_driver = {
+-- 
+end-of-patch for PATCH V1
 
 -- 
 -- 
