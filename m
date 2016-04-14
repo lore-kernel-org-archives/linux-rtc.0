@@ -1,30 +1,22 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBP7XQG4QKGQEK5SHGYY@googlegroups.com>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRB24IXW4AKGQEMO6RCQY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id c69si313030wme.2.2016.04.27.01.43.43
+        by gmr-mx.google.com with ESMTP id a80si1414934wma.0.2016.04.14.00.19.07
         for <rtc-linux@googlegroups.com>;
-        Wed, 27 Apr 2016 01:43:43 -0700 (PDT)
-Date: Wed, 27 Apr 2016 10:35:59 +0200
+        Thu, 14 Apr 2016 00:19:07 -0700 (PDT)
+Date: Thu, 14 Apr 2016 09:19:02 +0200
 From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, tony.luck@intel.com,
-	geert@linux-m68k.org, jejb@parisc-linux.org, deller@gmx.de,
-	benh@kernel.crashing.org, mpe@ellerman.id.au, dalias@libc.org,
-	dhowells@redhat.com, yasutake.koichi@jp.panasonic.com,
-	rth@twiddle.net, ink@jurassic.park.msu.ru,
-	linux-alpha@vger.kernel.org, x86@kernel.org, a.zummo@towertech.it,
-	linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org,
-	linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-	linux-sh@vger.kernel.org, rtc-linux@googlegroups.com,
-	linux-arch@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH 2/8] char/rtc: legacy RTC is no longer
- supported on x86
-Message-ID: <20160427083559.GG3264@piout.net>
-References: <1461707052-1337718-1-git-send-email-arnd@arndb.de>
- <1461707052-1337718-3-git-send-email-arnd@arndb.de>
+To: Tomas Krcka <tomas.krcka@nkgroup.cz>
+Cc: rtc-linux@googlegroups.com, Alessandro Zummo <a.zummo@towertech.it>,
+	linux-kernel@vger.kernel.org
+Subject: [rtc-linux] Re: [PATCH] rtc: support for rv4162c7
+Message-ID: <20160414071902.GK7765@piout.net>
+References: <570EAE8B.7010706@nkgroup.cz>
+ <20160413224916.GH7765@piout.net>
+ <CAAJk-V1p5+sirH9wF1ucvjuCbpFVVR2iJ+cW7A7eBhRx_=91yQ@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1461707052-1337718-3-git-send-email-arnd@arndb.de>
+In-Reply-To: <CAAJk-V1p5+sirH9wF1ucvjuCbpFVVR2iJ+cW7A7eBhRx_=91yQ@mail.gmail.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -34,50 +26,65 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 26/04/2016 at 23:44:06 +0200, Arnd Bergmann wrote :
-> Commit 3195ef59cb42 ("x86: Do full rtc synchronization with ntp") had
-> the side-effect of unconditionally enabling the RTC_LIB symbol on x86,
-> which in turn disables the selection of the CONFIG_RTC and
-> CONFIG_GEN_RTC drivers that contain a two older implementations of
-> the CONFIG_RTC_DRV_CMOS driver.
-> 
-> This removes x86 from the list.
-> 
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Acked-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Hi,
 
-Two down, still four drivers for the x86 RTCs...
+On 14/04/2016 at 08:29:47 +0200, Tomas Krcka wrote :
+> Hi,
+>   that's correct, but idetification of this chip is rv4162c7 so
+> i2c_match_id() returns NULL.
+> If it's there any workaround, how the chip can be detected
+> automatically then OK, but without this patch it doesn't work for me.
+> 
+
+Just use rv4162 as your compatible string. That is what the mainline dtsi
+is doing for the phycore som:
+
+$ grep -C 2 rv4162 arch/arm/boot/dts/am335x-phycore-som.dtsi
+
+	i2c_rtc: rtc@68 {
+		compatible = "rv4162";
+		reg = <0x68>;
+		status = "disabled";
 
 
-> ---
->  drivers/char/Kconfig | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/char/Kconfig b/drivers/char/Kconfig
-> index 66b5d48f409a..9bdb629fbaae 100644
-> --- a/drivers/char/Kconfig
-> +++ b/drivers/char/Kconfig
-> @@ -279,7 +279,7 @@ if RTC_LIB=n
->  
->  config RTC
->  	tristate "Enhanced Real Time Clock Support (legacy PC RTC driver)"
-> -	depends on ALPHA || (MIPS && MACH_LOONGSON64) || MN10300 || X86
-> +	depends on ALPHA || (MIPS && MACH_LOONGSON64) || MN10300
->  	---help---
->  	  If you say Y here and create a character special file /dev/rtc with
->  	  major number 10 and minor number 135 using mknod ("man mknod"), you
-> @@ -328,7 +328,7 @@ config JS_RTC
->  config GEN_RTC
->  	tristate "Generic /dev/rtc emulation"
->  	depends on RTC!=y
-> -	depends on ALPHA || M68K || MN10300 || PARISC || PPC || X86
-> +	depends on ALPHA || M68K || MN10300 || PARISC || PPC
->  	---help---
->  	  If you say Y here and create a character special file /dev/rtc with
->  	  major number 10 and minor number 135 using mknod ("man mknod"), you
-> -- 
-> 2.7.0
-> 
+> 2016-04-14 0:49 GMT+02:00 Alexandre Belloni
+> <alexandre.belloni@free-electrons.com>:
+> > Hi,
+> >
+> > On 13/04/2016 at 22:39:39 +0200, Tomas Krcka wrote :
+> >> This patch is for support of rv4162c7 RTC chip.
+> >> The device has same parameters as rv4162, but with different identification.
+> >> Tested with PhyTec module AM335x.
+> >>
+> >
+> > Well, technically, it is an rv4162. rv4162-c7 is the only available one.
+> > So this patch is not necessary.
+> >
+> >> Signed-off-by: Tomas Krcka <tomas.krcka@nkgroup.cz>
+> >>
+> >> ---
+> >>  drivers/rtc/rtc-m41t80.c | 1 +
+> >>  1 file changed, 1 insertion(+)
+> >>
+> >> diff --git a/drivers/rtc/rtc-m41t80.c b/drivers/rtc/rtc-m41t80.c
+> >> index d107a8e..1aa57d8 100644
+> >> --- a/drivers/rtc/rtc-m41t80.c
+> >> +++ b/drivers/rtc/rtc-m41t80.c
+> >> @@ -81,6 +81,7 @@ static const struct i2c_device_id m41t80_id[] = {
+> >>      { "m41st85", M41T80_FEATURE_HT | M41T80_FEATURE_BL | M41T80_FEATURE_SQ },
+> >>      { "m41st87", M41T80_FEATURE_HT | M41T80_FEATURE_BL | M41T80_FEATURE_SQ },
+> >>      { "rv4162", M41T80_FEATURE_SQ | M41T80_FEATURE_WD | M41T80_FEATURE_SQ_ALT },
+> >> +    { "rv4162c7", M41T80_FEATURE_SQ | M41T80_FEATURE_WD | M41T80_FEATURE_SQ_ALT },
+> >>      { }
+> >>  };
+> >>  MODULE_DEVICE_TABLE(i2c, m41t80_id);
+> >> -- 1.9.1
+> >>
+> >
+> > --
+> > Alexandre Belloni, Free Electrons
+> > Embedded Linux, Kernel and Android engineering
+> > http://free-electrons.com
 
 -- 
 Alexandre Belloni, Free Electrons
