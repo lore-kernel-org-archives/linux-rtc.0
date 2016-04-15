@@ -1,21 +1,20 @@
-Return-Path: <rtc-linux+bncBAABBTHB3O4AKGQE5FLZKXQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBAABB2PEYK4AKGQEIIZ26JQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from na01-bl2-obe.outbound.protection.outlook.com (mail-bl2on0091.outbound.protection.outlook.com. [65.55.169.91])
-        by gmr-mx.google.com with ESMTPS id y6si4698133ywd.1.2016.04.19.20.00.28
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
-        Tue, 19 Apr 2016 20:00:28 -0700 (PDT)
-From: Gong Qianyu <Qianyu.Gong@nxp.com>
-To: <rtc-linux@googlegroups.com>, <akinobu.mita@gmail.com>,
-	<alexandre.belloni@free-electrons.com>
-CC: <mingkai.hu@nxp.com>, Gong Qianyu <Qianyu.Gong@nxp.com>
-Subject: [rtc-linux] [Patch v2] rtc: ds3232: fix call trace when rtc->ops_lock
- is used as NULL
-Date: Wed, 20 Apr 2016 10:50:50 +0800
-Message-ID: <1461120650-4861-1-git-send-email-Qianyu.Gong@nxp.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Received: from root.phytec.de (mail.rapiddevelopmentkit.de. [217.6.246.34])
+        by gmr-mx.google.com with ESMTP id c7si1002948wmf.2.2016.04.15.02.20.41
+        for <rtc-linux@googlegroups.com>;
+        Fri, 15 Apr 2016 02:20:41 -0700 (PDT)
+From: Wadim Egorov <w.egorov@phytec.de>
+To: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-clk@vger.kernel.org, rtc-linux@googlegroups.com, linux-rockchip@lists.infradead.org
+Cc: robh+dt@kernel.org, pawel.moll@arm.com, mark.rutland@arm.com, ijc+devicetree@hellion.org.uk, galak@codeaurora.org, linux@arm.linux.org.uk, mturquette@baylibre.com, sboyd@codeaurora.org, lee.jones@linaro.org, lgirdwood@gmail.com, broonie@kernel.org, a.zummo@towertech.it, alexandre.belloni@free-electrons.com, dianders@chromium.org, zyw@rock-chips.com, arnd@arndb.de, k.kozlowski@samsung.com, javier@osg.samsung.com, kgene@kernel.org, olof@lixom.net, geert+renesas@glider.be, sjoerd.simons@collabora.co.uk, treding@nvidia.com, public_timo.s@silentcreek.de
+Subject: [rtc-linux] [PATCH 3/6] regulator: rk808: Make rk808 generic, rename rk808-regulator.c
+Date: Fri, 15 Apr 2016 11:16:27 +0200
+Message-Id: <1460711790-22646-4-git-send-email-w.egorov@phytec.de>
+In-Reply-To: <1460711790-22646-1-git-send-email-w.egorov@phytec.de>
+References: <1460711790-22646-1-git-send-email-w.egorov@phytec.de>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -24,47 +23,180 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Move devm_rtc_device_register() just before registering irq handler
-to initialize rtc->ops_lock earlier.
+This patch just renames the rk808 driver so we can reuse this driver
+to add more regulator devices from the RK8XX PMIC family later.
 
-Signed-off-by: Gong Qianyu <Qianyu.Gong@nxp.com>
+Signed-off-by: Wadim Egorov <w.egorov@phytec.de>
 ---
-V2:
- - Fix the order of error check.
+ arch/arm/configs/multi_v7_defconfig                |  2 +-
+ drivers/mfd/rk8xx.c                                |  4 +--
+ drivers/regulator/Kconfig                          |  4 +--
+ drivers/regulator/Makefile                         |  2 +-
+ .../{rk808-regulator.c => rk8xx-regulator.c}       | 36 +++++++++++-----------
+ 5 files changed, 24 insertions(+), 24 deletions(-)
+ rename drivers/regulator/{rk808-regulator.c => rk8xx-regulator.c} (95%)
 
- drivers/rtc/rtc-ds3232.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/rtc/rtc-ds3232.c b/drivers/rtc/rtc-ds3232.c
-index 7edc889..04fbd7f 100644
---- a/drivers/rtc/rtc-ds3232.c
-+++ b/drivers/rtc/rtc-ds3232.c
-@@ -369,6 +369,11 @@ static int ds3232_probe(struct device *dev, struct regmap *regmap, int irq,
- 	if (ret)
- 		return ret;
+diff --git a/arch/arm/configs/multi_v7_defconfig b/arch/arm/configs/multi_v7_defconfig
+index ca995e9..d774ba0 100644
+--- a/arch/arm/configs/multi_v7_defconfig
++++ b/arch/arm/configs/multi_v7_defconfig
+@@ -474,7 +474,7 @@ CONFIG_REGULATOR_AXP20X=m
+ CONFIG_REGULATOR_BCM590XX=y
+ CONFIG_REGULATOR_DA9210=y
+ CONFIG_REGULATOR_FAN53555=y
+-CONFIG_REGULATOR_RK808=y
++CONFIG_REGULATOR_RK8XX=y
+ CONFIG_REGULATOR_GPIO=y
+ CONFIG_MFD_SYSCON=y
+ CONFIG_POWER_RESET_SYSCON=y
+diff --git a/drivers/mfd/rk8xx.c b/drivers/mfd/rk8xx.c
+index 57fee1e..c7990fb 100644
+--- a/drivers/mfd/rk8xx.c
++++ b/drivers/mfd/rk8xx.c
+@@ -82,7 +82,7 @@ static struct resource rtc_resources[] = {
  
-+	ds3232->rtc = devm_rtc_device_register(dev, name, &ds3232_rtc_ops,
-+						THIS_MODULE);
-+	if (IS_ERR(ds3232->rtc))
-+		return PTR_ERR(ds3232->rtc);
-+
- 	if (ds3232->irq > 0) {
- 		ret = devm_request_threaded_irq(dev, ds3232->irq, NULL,
- 						ds3232_irq,
-@@ -380,10 +385,8 @@ static int ds3232_probe(struct device *dev, struct regmap *regmap, int irq,
- 		} else
- 			device_init_wakeup(dev, 1);
- 	}
--	ds3232->rtc = devm_rtc_device_register(dev, name, &ds3232_rtc_ops,
--						THIS_MODULE);
+ static const struct mfd_cell rk808s[] = {
+ 	{ .name = "rk808-clkout", },
+-	{ .name = "rk808-regulator", },
++	{ .name = "rk8xx-regulator", },
+ 	{
+ 		.name = "rk808-rtc",
+ 		.num_resources = ARRAY_SIZE(rtc_resources),
+@@ -92,7 +92,7 @@ static const struct mfd_cell rk808s[] = {
  
--	return PTR_ERR_OR_ZERO(ds3232->rtc);
-+	return 0;
+ static const struct mfd_cell rk818s[] = {
+ 	{ .name = "rk808-clkout", },
+-	{ .name = "rk808-regulator", },
++	{ .name = "rk8xx-regulator", },
+ 	{
+ 		.name = "rk808-rtc",
+ 		.num_resources = ARRAY_SIZE(rtc_resources),
+diff --git a/drivers/regulator/Kconfig b/drivers/regulator/Kconfig
+index f834079..c5b525b 100644
+--- a/drivers/regulator/Kconfig
++++ b/drivers/regulator/Kconfig
+@@ -608,8 +608,8 @@ config REGULATOR_RC5T583
+ 	  through regulator interface. The device supports multiple DCDC/LDO
+ 	  outputs which can be controlled by i2c communication.
+ 
+-config REGULATOR_RK808
+-	tristate "Rockchip RK808 Power regulators"
++config REGULATOR_RK8XX
++	tristate "Rockchip RK8XX Power regulators"
+ 	depends on MFD_RK8XX
+ 	help
+ 	  Select this option to enable the power regulator of ROCKCHIP
+diff --git a/drivers/regulator/Makefile b/drivers/regulator/Makefile
+index 61bfbb9..5d6ffed 100644
+--- a/drivers/regulator/Makefile
++++ b/drivers/regulator/Makefile
+@@ -78,7 +78,7 @@ obj-$(CONFIG_REGULATOR_PBIAS) += pbias-regulator.o
+ obj-$(CONFIG_REGULATOR_PCAP) += pcap-regulator.o
+ obj-$(CONFIG_REGULATOR_PCF50633) += pcf50633-regulator.o
+ obj-$(CONFIG_REGULATOR_RC5T583)  += rc5t583-regulator.o
+-obj-$(CONFIG_REGULATOR_RK808)   += rk808-regulator.o
++obj-$(CONFIG_REGULATOR_RK8XX)   += rk8xx-regulator.o
+ obj-$(CONFIG_REGULATOR_RN5T618) += rn5t618-regulator.o
+ obj-$(CONFIG_REGULATOR_RT5033)	+= rt5033-regulator.o
+ obj-$(CONFIG_REGULATOR_S2MPA01) += s2mpa01.o
+diff --git a/drivers/regulator/rk808-regulator.c b/drivers/regulator/rk8xx-regulator.c
+similarity index 95%
+rename from drivers/regulator/rk808-regulator.c
+rename to drivers/regulator/rk8xx-regulator.c
+index d86a3dc..fc75957 100644
+--- a/drivers/regulator/rk808-regulator.c
++++ b/drivers/regulator/rk8xx-regulator.c
+@@ -1,5 +1,5 @@
+ /*
+- * Regulator driver for Rockchip RK808
++ * Regulator driver for Rockchip's RK8XX PMIC family
+  *
+  * Copyright (c) 2014, Fuzhou Rockchip Electronics Co., Ltd
+  *
+@@ -523,7 +523,7 @@ static struct of_regulator_match rk808_reg_matches[] = {
+ 	[RK808_ID_SWITCH2]	= { .name = "SWITCH_REG2" },
+ };
+ 
+-static int rk808_regulator_dt_parse_pdata(struct device *dev,
++static int rk8xx_regulator_dt_parse_pdata(struct device *dev,
+ 				   struct device *client_dev,
+ 				   struct regmap *map,
+ 				   struct rk808_regulator_data *pdata)
+@@ -566,12 +566,12 @@ dt_parse_end:
+ 	return ret;
  }
  
- #ifdef CONFIG_PM_SLEEP
+-static int rk808_regulator_probe(struct platform_device *pdev)
++static int rk8xx_regulator_probe(struct platform_device *pdev)
+ {
+-	struct rk808 *rk808 = dev_get_drvdata(pdev->dev.parent);
+-	struct i2c_client *client = rk808->i2c;
++	struct rk808 *rk8xx = dev_get_drvdata(pdev->dev.parent);
++	struct i2c_client *client = rk8xx->i2c;
+ 	struct regulator_config config = {};
+-	struct regulator_dev *rk808_rdev;
++	struct regulator_dev *rk8xx_rdev;
+ 	struct rk808_regulator_data *pdata;
+ 	int ret, i;
+ 
+@@ -579,8 +579,8 @@ static int rk808_regulator_probe(struct platform_device *pdev)
+ 	if (!pdata)
+ 		return -ENOMEM;
+ 
+-	ret = rk808_regulator_dt_parse_pdata(&pdev->dev, &client->dev,
+-					     rk808->regmap, pdata);
++	ret = rk8xx_regulator_dt_parse_pdata(&pdev->dev, &client->dev,
++					     rk8xx->regmap, pdata);
+ 	if (ret < 0)
+ 		return ret;
+ 
+@@ -594,34 +594,34 @@ static int rk808_regulator_probe(struct platform_device *pdev)
+ 
+ 		config.dev = &client->dev;
+ 		config.driver_data = pdata;
+-		config.regmap = rk808->regmap;
++		config.regmap = rk8xx->regmap;
+ 		config.of_node = rk808_reg_matches[i].of_node;
+ 		config.init_data = rk808_reg_matches[i].init_data;
+ 
+-		rk808_rdev = devm_regulator_register(&pdev->dev,
++		rk8xx_rdev = devm_regulator_register(&pdev->dev,
+ 						     &rk808_reg[i], &config);
+-		if (IS_ERR(rk808_rdev)) {
++		if (IS_ERR(rk8xx_rdev)) {
+ 			dev_err(&client->dev,
+ 				"failed to register %d regulator\n", i);
+-			return PTR_ERR(rk808_rdev);
++			return PTR_ERR(rk8xx_rdev);
+ 		}
+ 	}
+ 
+ 	return 0;
+ }
+ 
+-static struct platform_driver rk808_regulator_driver = {
+-	.probe = rk808_regulator_probe,
++static struct platform_driver rk8xx_regulator_driver = {
++	.probe = rk8xx_regulator_probe,
+ 	.driver = {
+-		.name = "rk808-regulator",
++		.name = "rk8xx-regulator",
+ 		.owner = THIS_MODULE,
+ 	},
+ };
+ 
+-module_platform_driver(rk808_regulator_driver);
++module_platform_driver(rk8xx_regulator_driver);
+ 
+-MODULE_DESCRIPTION("regulator driver for the rk808 series PMICs");
++MODULE_DESCRIPTION("regulator driver for the rk8xx series PMICs");
+ MODULE_AUTHOR("Chris Zhong<zyw@rock-chips.com>");
+ MODULE_AUTHOR("Zhang Qing<zhangqing@rock-chips.com>");
+ MODULE_LICENSE("GPL");
+-MODULE_ALIAS("platform:rk808-regulator");
++MODULE_ALIAS("platform:rk8xx-regulator");
 -- 
-2.1.0.27.g96db324
+1.9.1
 
 -- 
 -- 
