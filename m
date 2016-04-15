@@ -1,31 +1,34 @@
-Return-Path: <rtc-linux+bncBDJ4N37Q6EERBA4JYO4AKGQEE53IEFA@googlegroups.com>
+Return-Path: <rtc-linux+bncBCO3XAUMTIFRBYVYYS4AKGQEU7HWQ6Q@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mga11.intel.com (mga11.intel.com. [192.55.52.93])
-        by gmr-mx.google.com with ESMTP id r4si4400401pfr.1.2016.04.15.03.37.55
-        for <rtc-linux@googlegroups.com>;
-        Fri, 15 Apr 2016 03:37:55 -0700 (PDT)
-Date: Fri, 15 Apr 2016 18:36:11 +0800
-From: kbuild test robot <lkp@intel.com>
-To: Wadim Egorov <w.egorov@phytec.de>
-Cc: kbuild-all@01.org, linux-kernel@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org, linux-clk@vger.kernel.org,
-	rtc-linux@googlegroups.com, linux-rockchip@lists.infradead.org,
-	robh+dt@kernel.org, pawel.moll@arm.com, mark.rutland@arm.com,
-	ijc+devicetree@hellion.org.uk, galak@codeaurora.org,
-	linux@arm.linux.org.uk, mturquette@baylibre.com,
-	sboyd@codeaurora.org, lee.jones@linaro.org, lgirdwood@gmail.com,
-	broonie@kernel.org, a.zummo@towertech.it,
-	alexandre.belloni@free-electrons.com, dianders@chromium.org,
-	zyw@rock-chips.com, arnd@arndb.de, k.kozlowski@samsung.com,
-	javier@osg.samsung.com, kgene@kernel.org, olof@lixom.net,
-	geert+renesas@glider.be, sjoerd.simons@collabora.co.uk,
-	treding@nvidia.com, public_timo.s@silentcreek.de
-Subject: [rtc-linux] Re: [PATCH 3/6] regulator: rk808: Make rk808 generic,
- rename rk808-regulator.c
-Message-ID: <201604151850.X92LLQkG%fengguang.wu@intel.com>
+Received: from comal.ext.ti.com (comal.ext.ti.com. [198.47.26.152])
+        by gmr-mx.google.com with ESMTPS id bc4si2157164igb.3.2016.04.15.09.52.50
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1 cipher=AES128-SHA bits=128/128);
+        Fri, 15 Apr 2016 09:52:50 -0700 (PDT)
+Subject: [rtc-linux] Re: [PATCH] rtc: omap: Support ext_wakeup configuration
+To: Grygorii Strashko <grygorii.strashko@ti.com>,
+        Marcin Niestroj
+	<m.niestroj@grinn-global.com>,
+        Tony Lindgren <tony@atomide.com>
+References: <1459785403-1725-1-git-send-email-m.niestroj@grinn-global.com>
+ <20160404224046.GA17042@atomide.com> <57078A89.3080809@ti.com>
+ <20160408151408.GS16484@atomide.com> <5707E764.7050204@ti.com>
+ <570D2F79.9040202@grinn-global.com> <57111AF4.6070505@ti.com>
+CC: <rtc-linux@googlegroups.com>, <devicetree@vger.kernel.org>,
+        Rob Herring
+	<robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>,
+        Alessandro Zummo
+	<a.zummo@towertech.it>,
+        Alexandre Belloni
+	<alexandre.belloni@free-electrons.com>,
+        Keerthy <j-keerthy@ti.com>, <linux-omap@vger.kernel.org>,
+        Dave Gerlach <d-gerlach@ti.com>
+From: Nishanth Menon <nm@ti.com>
+Message-ID: <57111C5A.7070606@ti.com>
+Date: Fri, 15 Apr 2016 11:52:42 -0500
 MIME-Version: 1.0
+In-Reply-To: <57111AF4.6070505@ti.com>
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1460711790-22646-4-git-send-email-w.egorov@phytec.de>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -35,25 +38,19 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Hi Wadim,
+On 04/15/2016 11:46 AM, Grygorii Strashko wrote:
+[...]
+> diff --git a/arch/arm/boot/dts/dra7.dtsi b/arch/arm/boot/dts/dra7.dtsi
+> index 13ac882..9580c82 100644
+> --- a/arch/arm/boot/dts/dra7.dtsi
 
-[auto build test WARNING on regulator/for-next]
-[also build test WARNING on v4.6-rc3 next-20160414]
-[if your patch is applied to the wrong git tree, please drop us a note to help improving the system]
-
-url:    https://github.com/0day-ci/linux/commits/Wadim-Egorov/Add-RK818-PMIC-support/20160415-172610
-base:   https://git.kernel.org/pub/scm/linux/kernel/git/broonie/regulator.git for-next
+I see this is an example of what could be done on am335x - but lets
+not do this on dra7/am57xx please?
 
 
-coccinelle warnings: (new ones prefixed by >>)
-
->> drivers/regulator/rk8xx-regulator.c:617:3-8: No need to set .owner here. The core will do it.
-
-Please review and possibly fold the followup patch.
-
----
-0-DAY kernel test infrastructure                Open Source Technology Center
-https://lists.01.org/pipermail/kbuild-all                   Intel Corporation
+-- 
+Regards,
+Nishanth Menon
 
 -- 
 -- 
