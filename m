@@ -1,31 +1,34 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRB5XM3S4AKGQE7SKJD2Y@googlegroups.com>
+Return-Path: <rtc-linux+bncBAABBAVWYS4AKGQE2C2PNPA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id d92si322085wma.2.2016.04.20.00.57.42
-        for <rtc-linux@googlegroups.com>;
-        Wed, 20 Apr 2016 00:57:42 -0700 (PDT)
-Date: Wed, 20 Apr 2016 09:57:41 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Anurag Kumar Vulisha <anurag.kumar.vulisha@xilinx.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
-	Soren Brinkmann <sorenb@xilinx.com>,
-	Michal Simek <michals@xilinx.com>,
-	"rtc-linux@googlegroups.com" <rtc-linux@googlegroups.com>,
-	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-	Punnaiah Choudary Kalluri <punnaia@xilinx.com>,
-	Anirudha Sarangi <anirudh@xilinx.com>,
-	Srikanth Vemula <svemula@xilinx.com>,
-	Srinivas Goud <sgoud@xilinx.com>
-Subject: [rtc-linux] Re: [PATCH 3/3] RTC: Update seconds time programming logic
-Message-ID: <20160420075741.GK29844@piout.net>
-References: <1460463346-24923-1-git-send-email-anuragku@xilinx.com>
- <1460463346-24923-3-git-send-email-anuragku@xilinx.com>
- <20160419223109.GF29844@piout.net>
- <3802E9A6666DF54886E2B9CBF743BA9825E0B42B@XAP-PVEXMBX01.xlnx.xilinx.com>
+Received: from comal.ext.ti.com (comal.ext.ti.com. [198.47.26.152])
+        by gmr-mx.google.com with ESMTPS id uo2si922037igb.2.2016.04.15.09.46.57
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1 cipher=AES128-SHA bits=128/128);
+        Fri, 15 Apr 2016 09:46:57 -0700 (PDT)
+Subject: [rtc-linux] Re: [PATCH] rtc: omap: Support ext_wakeup configuration
+To: Marcin Niestroj <m.niestroj@grinn-global.com>,
+        Tony Lindgren
+	<tony@atomide.com>
+References: <1459785403-1725-1-git-send-email-m.niestroj@grinn-global.com>
+ <20160404224046.GA17042@atomide.com> <57078A89.3080809@ti.com>
+ <20160408151408.GS16484@atomide.com> <5707E764.7050204@ti.com>
+ <570D2F79.9040202@grinn-global.com>
+CC: <rtc-linux@googlegroups.com>, <devicetree@vger.kernel.org>,
+        Rob Herring
+	<robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>,
+        Alessandro Zummo
+	<a.zummo@towertech.it>,
+        Alexandre Belloni
+	<alexandre.belloni@free-electrons.com>,
+        Keerthy <j-keerthy@ti.com>, <linux-omap@vger.kernel.org>,
+        Dave Gerlach <d-gerlach@ti.com>, "Menon,
+ Nishanth" <nm@ti.com>
+From: Grygorii Strashko <grygorii.strashko@ti.com>
+Message-ID: <57111AF4.6070505@ti.com>
+Date: Fri, 15 Apr 2016 19:46:44 +0300
 MIME-Version: 1.0
+In-Reply-To: <570D2F79.9040202@grinn-global.com>
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <3802E9A6666DF54886E2B9CBF743BA9825E0B42B@XAP-PVEXMBX01.xlnx.xilinx.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -35,110 +38,155 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 20/04/2016 at 07:10:22 +0000, Anurag Kumar Vulisha wrote :
-> The reason for me keeping this logic is, our RTC controller updates the read register after 1 sec
-> delay, so when read , it gives 1 sec delay(correct time - 1 sec). So to avoid that we are programming
-> load time + 1sec into the write register. So when read we would be getting the correct time without
-> any delay. If any request comes from user to read time before RTC updating the read register, we
-> need to give the previous loaded time instead of giving the time from the read register. 
-> For doing the above said, we are relaying on seconds interrupt in  RTC_INT_STS register. We
-> Clear the RTC_INT_STS register while programming the time into the write register . If we get a
-> request from user to read time within the 1 sec period i.e before the RTC_INT_SEC interrupt bit
-> is set in RTC_INT_STS, we need to give the previous loaded time.
-> This should be done if time is requested from user space within  1 sec period after writing time, after
-> the 1 sec  delay if user requested the time , we can  give the give time from read register . This is because
-> the correct time is being updated in the read register after 1 sec delay. For this logic to happen we are
-> depending on  xrtcdev->time_updated  variable to get updated after the very fist RTC_INT_SEC interrupt
-> occurance in the interrupt handler.
-> Since we are relaying on  xrtcdev->time_updated  to get updated from interrupt handler, I think reading
-> the RTC_INT_STS in xlnx_rtc_read_time() is not helpful.
+On 04/12/2016 08:25 PM, Marcin Niestroj wrote:
+> Hi,
+> 
+> On 08.04.2016 19:16, Grygorii Strashko wrote:
+>> On 04/08/2016 06:14 PM, Tony Lindgren wrote:
+>>> * Grygorii Strashko <grygorii.strashko@ti.com> [160408 03:41]:
+>>>> Hi Tony,
+>>>>
+>>>> On 04/05/2016 01:40 AM, Tony Lindgren wrote:
+>>>>> Hi,
+>>>>>
+>>>>> * Marcin Niestroj <m.niestroj@grinn-global.com> [160404 08:57]:
+>>>>>> Support configuration of ext_wakeup sources. This patch makes it
+>>>>>> possible to enable ext_wakeup and set it's polarity, depending on 
+>>>>>> board
+>>>>>> configuration. AM335x's dedicated PMIC (tps65217) uses ext_wakeup to
+>>>>>> notify about power-button presses. Handling power-button presses 
+>>>>>> enables
+>>>>>> to recover from RTC-only power states correctly.
+>>>>>
+>>>>> I suggest you just set this pin up as a minimal gpiochip. That way
+>>>>> we can use the standard binding :) And if we get lucky, this pin can
+>>>>> also trigger during runtime.
+>>>>>
+>>>>
+>>>> Following my comments on v2 of this patch I propose to rollback to
+>>>> this version of the patch.
+>>>>
+>>>> It seems doesn't fit in gpiochip, it's more likely irqchip, but since
+>>>> rtc can't generate IRQ there are nor reasons for these genetic
+>>>> experiments and RTC's specific bindings looks more suitable, at 
+>>>> least for me.
+>>>
+>>> Hmm well gpiochips typically are irqchip too. IMO the generic binding
+>>> here sounds like "gpio-wakeup" as it's an input with polarity and with
+>>> an optional interrupt.
+>>>
+>>> Plain irqchip would work too in this case if there are no other GPIO
+>>> specific features. Some other RTCs may have more GPIO like features.
+>>>
+>>> In any case, setting the ext_wakeup up as an irqchip means that the
+>>> RTC controller can be used as a dedicated wakeirq with Linux :)
+>>
+>> It can't :( It can't generate IRQ when state of ext_wakeup line has
+>> been changed.
+>>
+>>>
+>>> Are you guys sure there's no wake pin events during runtime? AFAIK
+>>> the RTCs just typically produce an interrupt when programmed to
+>>> do so, they don't know the state of the SoC.
+>>>
+>>
+>> I do not think that It can be fit in gpiochip or irqchip -
+>> in my opinion right way is to proceed with bindings proposed by
+>> Marcin in this patch v1.
+>>
+>> But, probably, it could fit in pinctrl:
+>> - this is pin's configuration
+>> - this is one-time configuration
+>> - or - configuration which can be applied before suspend
+>>    and resorted after suspend.
+>>
+>> if you still wanna try some generic framework.
+>>
+> 
+> pinctrl bindings looks ok for our use case (enable/disable input,
+> configure debounce), except I don't see any way to pass polarity
+> (active low/high) to the driver.
 > 
 
-Yeas, I understood that. But my question was whether the interrupt
-handling was necessary at all.
-Instead of waiting for an interrupt to set time_updated, can't you
-simply read RTC_INT_STS and check for the RTC_INT_SEC bit in
-xlnx_rtc_read_time() ?
+Below code is just a POC that pinctrl can be used here.
+It does one time configuration at boot, but more sates can be added
+- sleep, poweroff:
 
-Something like:
-
-status = readl(xrtcdev->reg_base + RTC_INT_STS)
-if (status & RTC_INT_SEC)
-	rtc_time64_to_tm(readl(xrtcdev->reg_base + RTC_CUR_TM), tm);
-else
-	rtc_time64_to_tm(readl(xrtcdev->reg_base + RTC_SET_TM_RD) - 1, tm);
-
-It all depends on whether the RTC_INT_SEC bit in RTC_INT_STS is being
-updated even when it is not enabled as an interrupt.
-
-> Thanks,
-> Anurag Kumar V
->   
-> > > +	xrtcdev->time_updated = 0;
-> > > +
-> > >  	return 0;
-> > >  }
-> > >
-> > > @@ -85,7 +103,17 @@ static int xlnx_rtc_read_time(struct device *dev,
-> > > struct rtc_time *tm)  {
-> > >  	struct xlnx_rtc_dev *xrtcdev = dev_get_drvdata(dev);
-> > >
-> > > -	rtc_time64_to_tm(readl(xrtcdev->reg_base + RTC_CUR_TM), tm);
-> > > +	if (xrtcdev->time_updated == 0) {
-> > > +		/*
-> > > +		 * Time written in SET_TIME_WRITE has not yet updated into
-> > > +		 * the seconds read register, so read the time from the
-> > > +		 * SET_TIME_WRITE instead of CURRENT_TIME register.
-> > > +		 */
-> > > +		rtc_time64_to_tm(readl(xrtcdev->reg_base +
-> > RTC_SET_TM_RD), tm);
-> > > +		tm->tm_sec -= 1;
-> > > +	} else {
-> > > +		rtc_time64_to_tm(readl(xrtcdev->reg_base +
-> > RTC_CUR_TM), tm);
-> > > +	}
-> > >
-> > >  	return rtc_valid_tm(tm);
-> > >  }
-> > > @@ -133,6 +161,9 @@ static void xlnx_init_rtc(struct xlnx_rtc_dev
-> > > *xrtcdev)  {
-> > >  	u32 rtc_ctrl;
-> > >
-> > > +	/* Enable RTC SEC interrupts */
-> > > +	writel(RTC_INT_SEC, xrtcdev->reg_base + RTC_INT_EN);
-> > > +
-> > >  	/* Enable RTC switch to battery when VCC_PSAUX is not available */
-> > >  	rtc_ctrl = readl(xrtcdev->reg_base + RTC_CTRL);
-> > >  	rtc_ctrl |= RTC_BATT_EN;
-> > > @@ -169,8 +200,13 @@ static irqreturn_t xlnx_rtc_interrupt(int irq, void
-> > *id)
-> > >  	/* Clear interrupt */
-> > >  	writel(status, xrtcdev->reg_base + RTC_INT_STS);
-> > >
-> > > -	if (status & RTC_INT_SEC)
-> > > +	if (status & RTC_INT_SEC) {
-> > > +		if (xrtcdev->time_updated == 0) {
-> > > +			/* RTC updated the seconds read register */
-> > > +			xrtcdev->time_updated = 1;
-> > > +		}
-> > >  		rtc_update_irq(xrtcdev->rtc, 1, RTC_IRQF | RTC_UF);
-> > > +	}
-> > >  	if (status & RTC_INT_ALRM)
-> > >  		rtc_update_irq(xrtcdev->rtc, 1, RTC_IRQF | RTC_AF);
-> > >
-> > > --
-> > > 2.1.2
-> > >
-> > 
-> > --
-> > Alexandre Belloni, Free Electrons
-> > Embedded Linux, Kernel and Android engineering
-> > http://free-electrons.com
+diff --git a/arch/arm/boot/dts/dra7.dtsi b/arch/arm/boot/dts/dra7.dtsi
+index 13ac882..9580c82 100644
+--- a/arch/arm/boot/dts/dra7.dtsi
++++ b/arch/arm/boot/dts/dra7.dtsi
+@@ -1248,11 +1248,40 @@
+ 
+                rtc: rtc@48838000 {
+                        compatible = "ti,am3352-rtc";
+-                       reg = <0x48838000 0x100>;
++                       reg = <0x48838000 0x98>;
+                        interrupts = <GIC_SPI 217 IRQ_TYPE_LEVEL_HIGH>,
+                                     <GIC_SPI 217 IRQ_TYPE_LEVEL_HIGH>;
+                        ti,hwmods = "rtcss";
+                        clocks = <&sys_32k_ck>;
++                       #address-cells = <1>;
++                       #size-cells = <1>;
++                       ranges;
++                       
++                       rtc_pmx: pinmux@48838098 {
++                               compatible = "pinctrl-single";
++                               reg = <0x48838098 0x8>;
++                               #address-cells = <1>;
++                               #size-cells = <0>;
++                               pinctrl-single,register-width = <32>;
++                               pinctrl-single,function-mask = <0x007fffff>;
++
++                               pinctrl-names = "default"/*, "sleep"*/;
++                               pinctrl-0 = <&rtc_default>;
++/*                             pinctrl-1 = <&rtc_sleep>;*/
++
++                               rtc_default: rtc_default {
++                                       pinctrl-single,pins = <
++                                               0x0 0x000B0111
++                                               0x4 0x00000004
++                                       >;
++                               };
++/*                             rtc_sleep: rtc_sleep {
++                                       pinctrl-single,pins = <
++                                               0x0 0x00000000
++                                               0x4 0x00000000
++                                       >;
++                               };*/
++                       };
+                };
+ 
+                /* OCP2SCP1 */
+diff --git a/drivers/rtc/rtc-omap.c b/drivers/rtc/rtc-omap.c
+index ec2e9c5..28c67a4 100644
+--- a/drivers/rtc/rtc-omap.c
++++ b/drivers/rtc/rtc-omap.c
+@@ -428,8 +428,10 @@ static void omap_rtc_power_off(void)
+ 
+        rtc->type->unlock(rtc);
+        /* enable pmic_power_en control */
++/*
+        val = rtc_readl(rtc, OMAP_RTC_PMIC_REG);
+        rtc_writel(rtc, OMAP_RTC_PMIC_REG, val | OMAP_RTC_PMIC_POWER_EN_EN);
++*/
+ 
+        /* set alarm two seconds from now */
+        omap_rtc_read_time_raw(rtc, &tm);
+@@ -650,6 +652,8 @@ static int omap_rtc_probe(struct platform_device *pdev)
+                          reg | OMAP_RTC_OSC_SEL_32KCLK_SRC);
+        }
+ 
++       of_platform_populate(pdev->dev.of_node, NULL, NULL, &pdev->dev);
++
+        rtc->type->lock(rtc);
+ 
+        device_init_wakeup(&pdev->dev, true);
+ 
 
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+regards,
+-grygorii
 
 -- 
 -- 
