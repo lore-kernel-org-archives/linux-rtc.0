@@ -1,32 +1,21 @@
-Return-Path: <rtc-linux+bncBDQ2L75W5QGBBU5M7G4AKGQERVF6LGA@googlegroups.com>
+Return-Path: <rtc-linux+bncBAABB2PEYK4AKGQEIIZ26JQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mezzanine.sirena.org.uk (mezzanine.sirena.org.uk. [2400:8900::f03c:91ff:fedb:4f4])
-        by gmr-mx.google.com with ESMTPS id vo1si229578pab.2.2016.04.25.10.39.31
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=AES128-SHA bits=128/128);
-        Mon, 25 Apr 2016 10:39:31 -0700 (PDT)
-Date: Mon, 25 Apr 2016 18:39:11 +0100
-From: Mark Brown <broonie@kernel.org>
-To: Wadim Egorov <w.egorov@phytec.de>
-Cc: linux-kernel@vger.kernel.org, linux-clk@vger.kernel.org,
-	rtc-linux@googlegroups.com, devicetree@vger.kernel.org,
-	linux-rockchip@lists.infradead.org, robh+dt@kernel.org,
-	pawel.moll@arm.com, mark.rutland@arm.com,
-	ijc+devicetree@hellion.org.uk, galak@codeaurora.org,
-	mturquette@baylibre.com, sboyd@codeaurora.org, lee.jones@linaro.org,
-	lgirdwood@gmail.com, a.zummo@towertech.it,
-	alexandre.belloni@free-electrons.com, dianders@chromium.org,
-	zyw@rock-chips.com
-Message-ID: <20160425173911.GQ3217@sirena.org.uk>
-References: <1461590448-47685-1-git-send-email-w.egorov@phytec.de>
- <1461590448-47685-5-git-send-email-w.egorov@phytec.de>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="XJ4udkfvZE/9uKZk"
-In-Reply-To: <1461590448-47685-5-git-send-email-w.egorov@phytec.de>
-Subject: [rtc-linux] Re: [PATCH v3 4/8] regulator: rk808: Migrate to regulator
- core's simplified DT parsing code
+Received: from root.phytec.de (mail.rapiddevelopmentkit.de. [217.6.246.34])
+        by gmr-mx.google.com with ESMTP id c7si1002948wmf.2.2016.04.15.02.20.41
+        for <rtc-linux@googlegroups.com>;
+        Fri, 15 Apr 2016 02:20:41 -0700 (PDT)
+From: Wadim Egorov <w.egorov@phytec.de>
+To: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-clk@vger.kernel.org, rtc-linux@googlegroups.com, linux-rockchip@lists.infradead.org
+Cc: robh+dt@kernel.org, pawel.moll@arm.com, mark.rutland@arm.com, ijc+devicetree@hellion.org.uk, galak@codeaurora.org, linux@arm.linux.org.uk, mturquette@baylibre.com, sboyd@codeaurora.org, lee.jones@linaro.org, lgirdwood@gmail.com, broonie@kernel.org, a.zummo@towertech.it, alexandre.belloni@free-electrons.com, dianders@chromium.org, zyw@rock-chips.com, arnd@arndb.de, k.kozlowski@samsung.com, javier@osg.samsung.com, kgene@kernel.org, olof@lixom.net, geert+renesas@glider.be, sjoerd.simons@collabora.co.uk, treding@nvidia.com, public_timo.s@silentcreek.de
+Subject: [rtc-linux] [PATCH 6/6] mfd: dt-bindings: Add RK818 device tree
+ bindings document
+Date: Fri, 15 Apr 2016 11:16:30 +0200
+Message-Id: <1460711790-22646-7-git-send-email-w.egorov@phytec.de>
+In-Reply-To: <1460711790-22646-1-git-send-email-w.egorov@phytec.de>
+References: <1460711790-22646-1-git-send-email-w.egorov@phytec.de>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -35,16 +24,86 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
---XJ4udkfvZE/9uKZk
-Content-Type: text/plain; charset=UTF-8
-Content-Disposition: inline
+Add device tree bindings documentation for Rockchip's RK818 PMIC.
 
-On Mon, Apr 25, 2016 at 03:20:44PM +0200, Wadim Egorov wrote:
-> A common simplified DT parsing code for regulators was introduced in
-> commit a0c7b164ad11 ("regulator: of: Provide simplified DT parsing
-> method")
+Signed-off-by: Wadim Egorov <w.egorov@phytec.de>
+---
+Changes since RFC:
+* fixed names and wildcards
+---
+ Documentation/devicetree/bindings/mfd/rk808.txt | 37 +++++++++++++++++++++++--
+ 1 file changed, 34 insertions(+), 3 deletions(-)
 
-This doesn't apply against current code, please check and resend.
+diff --git a/Documentation/devicetree/bindings/mfd/rk808.txt b/Documentation/devicetree/bindings/mfd/rk808.txt
+index 4ca6aab..5a01d51 100644
+--- a/Documentation/devicetree/bindings/mfd/rk808.txt
++++ b/Documentation/devicetree/bindings/mfd/rk808.txt
+@@ -1,7 +1,11 @@
+-RK808 Power Management Integrated Circuit
++RK8XX Power Management Integrated Circuit
++
++The rk8xx family current members:
++rk808
++rk818
+ 
+ Required properties:
+-- compatible: "rockchip,rk808"
++- compatible: "rockchip,rk808", "rockchip,rk818"
+ - reg: I2C slave address
+ - interrupt-parent: The parent interrupt controller.
+ - interrupts: the interrupt outputs of the controller.
+@@ -13,6 +17,8 @@ Optional properties:
+   default output clock name
+ - rockchip,system-power-controller: Telling whether or not this pmic is controlling
+   the system power.
++
++Optional RK808 properties:
+ - vcc1-supply:  The input supply for DCDC_REG1
+ - vcc2-supply:  The input supply for DCDC_REG2
+ - vcc3-supply:  The input supply for DCDC_REG3
+@@ -29,7 +35,20 @@ Optional properties:
+   the gpio controller. If DVS GPIOs aren't present, voltage changes will happen
+   very quickly with no slow ramp time.
+ 
+-Regulators: All the regulators of RK808 to be instantiated shall be
++Optional RK818 properties:
++- vcc1-supply:  The input supply for DCDC_REG1
++- vcc2-supply:  The input supply for DCDC_REG2
++- vcc3-supply:  The input supply for DCDC_REG3
++- vcc4-supply:  The input supply for DCDC_REG4
++- boost-supply: The input supply for DCDC_BOOST
++- vcc6-supply:  The input supply for LDO_REG1 and LDO_REG2
++- vcc7-supply:  The input supply for LDO_REG3, LDO_REG5 and LDO_REG7
++- vcc8-supply:  The input supply for LDO_REG4, LDO_REG6 and LDO_REG8
++- vcc9-supply:  The input supply for LDO_REG9 and SWITCH_REG
++- h_5v-supply:  The input supply for HDMI_SWITCH
++- usb-supply:   The input supply for OTG_SWITCH
++
++Regulators: All the regulators of RK8xx to be instantiated shall be
+ listed in a child node named 'regulators'. Each regulator is represented
+ by a child node of the 'regulators' node.
+ 
+@@ -48,6 +67,18 @@ number as described in RK808 datasheet.
+ 	- SWITCH_REGn
+ 		- valid values for n are 1 to 2
+ 
++Following regulators of the RK818 PMIC block are supported. Note that
++the 'n' in regulator name, as in DCDC_REGn or LDOn, represents the DCDC or LDO
++number as described in RK818 datasheet.
++
++	- DCDC_REGn
++		- valid values for n are 1 to 4.
++	- LDO_REGn
++		- valid values for n are 1 to 9.
++	- SWITCH_REG
++	- HDMI_SWITCH
++	- OTG_SWITCH
++
+ Standard regulator bindings are used inside regulator subnodes. Check
+   Documentation/devicetree/bindings/regulator/regulator.txt
+ for more details
+-- 
+1.9.1
 
 -- 
 -- 
@@ -56,20 +115,3 @@ before submitting a driver.
 You received this message because you are subscribed to the Google Groups "rtc-linux" group.
 To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
-
---XJ4udkfvZE/9uKZk
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
-
-iQEcBAEBCAAGBQJXHlY9AAoJECTWi3JdVIfQtIIIAIcIQZNiiFuP2HZh1cEP+78I
-qkiWJVI68xyQNROExsH6e7Bk/N99mteR/aIAHcntuVnMGopJu+tz7tydZdRsHSVr
-ivvvZosoGnQVK+97qu7o75CIR2eC5nv4Bb9B1eZaYymR3mR77PnPjfCMnZsoCxKR
-9Qo+m0lGxWv+9Lcf7o63SqDvree93Rht9re8ziqUcGy6dfm+W019J25wn9E2LUdZ
-tlnUwBhSkW0QQKE8J98crWboqRvK12THKOtzCdxQM5Po78fwBOR9+4aWzGPShokH
-gDcDodCElbZILaoMGnoT7LRZdZ2DNZSfxgl+ZnMOynW+cLeWdnsAa8J1BeUlHag=
-=uieL
------END PGP SIGNATURE-----
-
---XJ4udkfvZE/9uKZk--
