@@ -1,23 +1,21 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRB4WC2W4AKGQE7F6OA6Q@googlegroups.com>
+Return-Path: <rtc-linux+bncBCSJ7B6JQALRB3HRYO4AKGQEAYDQDNY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id a80si50269wma.0.2016.04.18.15.36.34
-        for <rtc-linux@googlegroups.com>;
-        Mon, 18 Apr 2016 15:36:34 -0700 (PDT)
-Date: Tue, 19 Apr 2016 00:36:23 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Akinobu Mita <akinobu.mita@gmail.com>
-Cc: rtc-linux@googlegroups.com, Zhuang Yuyao <mlistz@gmail.com>,
-	Zhuang Yuyao <zhuangyy@syan.com.cn>,
-	Michael Tatarinov <kukabu@gmail.com>,
-	Alessandro Zummo <a.zummo@towertech.it>
-Subject: [rtc-linux] Re: [PATCH] rtc: ds1307: ds3231 temperature s16 overflow
-Message-ID: <20160418223623.GD25196@piout.net>
-References: <1460938902-3120-1-git-send-email-akinobu.mita@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1460938902-3120-1-git-send-email-akinobu.mita@gmail.com>
+Received: from mx1.redhat.com (mx1.redhat.com. [209.132.183.28])
+        by gmr-mx.google.com with ESMTPS id w74si3007353ywd.0.2016.04.15.07.21.32
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Fri, 15 Apr 2016 07:21:32 -0700 (PDT)
+From: Josh Poimboeuf <jpoimboe@redhat.com>
+To: Joshua Kinard <kumba@gentoo.org>, Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org
+Subject: [rtc-linux] [PATCH] rtc: ds1685: actually spin forever in poweroff
+ path, part 2
+Date: Fri, 15 Apr 2016 09:21:10 -0500
+Message-Id: <97e46f7b50b413d01be4189159c0611515ef7502.1460729962.git.jpoimboe@redhat.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -26,30 +24,37 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 18/04/2016 at 09:21:42 +0900, Akinobu Mita wrote :
-> From: Zhuang Yuyao <mlistz@gmail.com>
-> 
-> while retrieving temperature from ds3231, the result may be overflow
-> since s16 is too small for a multiplication with 250.
-> 
-> ie. if temp_buf[0] == 0x2d, the result (s16 temp) will be negative.
-> 
-> Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
-> Cc: Zhuang Yuyao <mlistz@gmail.com>
-> Cc: Zhuang Yuyao <zhuangyy@syan.com.cn>
-> Cc: Michael Tatarinov <kukabu@gmail.com>
-> Cc: Alessandro Zummo <a.zummo@towertech.it>
-> Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-> ---
->  drivers/rtc/rtc-ds1307.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
-> 
-Applied, thanks.
+objtool reports the following warning:
 
+  drivers/rtc/rtc-ds1685.o: warning: objtool: ds1685_rtc_poweroff() falls through to next function ds1685_rtc_work_queue()
+
+Similar to commit 361c6ed6b153 ("rtc: ds1685: actually spin forever in
+poweroff error path"), there's another unreachable() annotation which is
+actually reachable, which we missed the first time.
+
+Actually spin forever to be consistent with the comment and to make the
+unreachable() annotation guaranteed to be unreachable.
+
+Reported-by: kbuild test robot <fengguang.wu@intel.com>
+Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
+---
+ drivers/rtc/rtc-ds1685.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/drivers/rtc/rtc-ds1685.c b/drivers/rtc/rtc-ds1685.c
+index 1e6cfc8..0255808 100644
+--- a/drivers/rtc/rtc-ds1685.c
++++ b/drivers/rtc/rtc-ds1685.c
+@@ -2213,6 +2213,7 @@ ds1685_rtc_poweroff(struct platform_device *pdev)
+ 			   (ctrl4a | RTC_CTRL_4A_PAB));
+ 
+ 		/* Spin ... we do not switch back to bank0. */
++		while(1);
+ 		unreachable();
+ 	}
+ }
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+2.4.11
 
 -- 
 -- 
