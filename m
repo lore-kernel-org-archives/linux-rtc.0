@@ -1,34 +1,33 @@
-Return-Path: <rtc-linux+bncBAABB5XOTW4AKGQELPTXVYA@googlegroups.com>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBJ5LYS4AKGQEDRN7T4A@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from comal.ext.ti.com (comal.ext.ti.com. [198.47.26.152])
-        by gmr-mx.google.com with ESMTPS id im4si106694igb.2.2016.04.08.02.18.46
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1 cipher=AES128-SHA bits=128/128);
-        Fri, 08 Apr 2016 02:18:46 -0700 (PDT)
-Subject: [rtc-linux] Re: [PATCH v2] rtc: omap: Support ext_wakeup configuration
-To: Marcin Niestroj <m.niestroj@grinn-global.com>,
-        Tony Lindgren
-	<tony@atomide.com>
-References: <1459960367-29399-1-git-send-email-m.niestroj@grinn-global.com>
- <1459960367-29399-2-git-send-email-m.niestroj@grinn-global.com>
- <20160406191103.GE27411@atomide.com> <57056352.1060801@grinn-global.com>
- <57063B1A.7080700@ti.com> <570694B0.4040500@grinn-global.com>
-CC: <rtc-linux@googlegroups.com>, <devicetree@vger.kernel.org>,
-        Rob Herring
-	<robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>,
-        Alessandro Zummo
-	<a.zummo@towertech.it>,
-        Alexandre Belloni
-	<alexandre.belloni@free-electrons.com>,
-        Keerthy <j-keerthy@ti.com>, <linux-omap@vger.kernel.org>,
-        "linux-gpio@vger.kernel.org"
-	<linux-gpio@vger.kernel.org>
-From: Grygorii Strashko <grygorii.strashko@ti.com>
-Message-ID: <57077769.1050101@ti.com>
-Date: Fri, 8 Apr 2016 12:18:33 +0300
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id i196si1092869wmf.0.2016.04.15.09.24.07
+        for <rtc-linux@googlegroups.com>;
+        Fri, 15 Apr 2016 09:24:07 -0700 (PDT)
+Date: Fri, 15 Apr 2016 18:24:06 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Mark Brown <broonie@kernel.org>
+Cc: Wadim Egorov <w.egorov@phytec.de>, linux-kernel@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org, linux-clk@vger.kernel.org,
+	rtc-linux@googlegroups.com, linux-rockchip@lists.infradead.org,
+	robh+dt@kernel.org, pawel.moll@arm.com, mark.rutland@arm.com,
+	ijc+devicetree@hellion.org.uk, galak@codeaurora.org,
+	linux@arm.linux.org.uk, mturquette@baylibre.com,
+	sboyd@codeaurora.org, lee.jones@linaro.org, lgirdwood@gmail.com,
+	a.zummo@towertech.it, dianders@chromium.org, zyw@rock-chips.com,
+	arnd@arndb.de, k.kozlowski@samsung.com, javier@osg.samsung.com,
+	kgene@kernel.org, olof@lixom.net, geert+renesas@glider.be,
+	sjoerd.simons@collabora.co.uk, treding@nvidia.com,
+	public_timo.s@silentcreek.de
+Subject: [rtc-linux] Re: [PATCH 3/6] regulator: rk808: Make rk808 generic,
+ rename rk808-regulator.c
+Message-ID: <20160415162406.GD25196@piout.net>
+References: <1460711790-22646-1-git-send-email-w.egorov@phytec.de>
+ <1460711790-22646-4-git-send-email-w.egorov@phytec.de>
+ <20160415102602.GE3217@sirena.org.uk>
 MIME-Version: 1.0
-In-Reply-To: <570694B0.4040500@grinn-global.com>
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <20160415102602.GE3217@sirena.org.uk>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -38,140 +37,28 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 04/07/2016 08:11 PM, Marcin Niestroj wrote:
+On 15/04/2016 at 11:26:02 +0100, Mark Brown wrote :
+> On Fri, Apr 15, 2016 at 11:16:27AM +0200, Wadim Egorov wrote:
 > 
-> On 07.04.2016 12:48, Grygorii Strashko wrote:
->> On 04/06/2016 10:28 PM, Marcin Niestroj wrote:
->>> Hi,
->>>
->>> On 06.04.2016 21:11, Tony Lindgren wrote:
->>>> * Marcin Niestroj <m.niestroj@grinn-global.com> [160406 09:34]:
->>>>> Support configuration of ext_wakeup sources. This patch makes it
->>>>> possible to enable ext_wakeup (and set it's polarity), depending on
->>>>> board configuration. AM335x's dedicated PMIC (tps65217) uses 
->>>>> ext_wakeup
->>>>> in SLEEP mode (RTC-only) to notify about power-button presses. 
->>>>> Handling
->>>>> power-button presses enables to recover from RTC-only power states
->>>>> correctly.
->>>>>
->>>>> Implementation uses gpiochip to utilize standard bindings. However,
->>>>> configuration is possible only using device-tree (no runtime changes).
->>>>
->>>> Hey looks good to me, adding linux-omap list to Cc.
->>>>
->>>> Can you please check that the "depends on GPIOLIB" does not disable
->>>> the RTC driver for omap1?
->>>
->>> Looks ok for omap1. ARCH_OMAP1 selects ARCH_REQUIRE_GPIOLIB, which
->>> selects GPIOLIB.
->>>
->>> Best regards,
->>> Marcin
->>>
->>>>
->>>> Regards,
->>>>
->>>> Tony
->>>>
->>>>> Signed-off-by: Marcin Niestroj <m.niestroj@grinn-global.com>
->>>>> ---
->>>>>   Documentation/devicetree/bindings/rtc/rtc-omap.txt |  18 ++-
->>>>>   drivers/rtc/Kconfig                                |   2 +-
->>>>>   drivers/rtc/rtc-omap.c                             | 137
->>>>> ++++++++++++++++++++-
->>>>>   3 files changed, 154 insertions(+), 3 deletions(-)
->>>>>
->>>>> diff --git a/Documentation/devicetree/bindings/rtc/rtc-omap.txt
->>>>> b/Documentation/devicetree/bindings/rtc/rtc-omap.txt
->>>>> index bf7d11a..4a7738e 100644
->>>>> --- a/Documentation/devicetree/bindings/rtc/rtc-omap.txt
->>>>> +++ b/Documentation/devicetree/bindings/rtc/rtc-omap.txt
->>>>> @@ -18,8 +18,12 @@ Optional properties:
->>>>>     through pmic_power_en
->>>>>   - clocks: Any internal or external clocks feeding in to rtc
->>>>>   - clock-names: Corresponding names of the clocks
->>>>> +- gpio-controller: Mark as gpio controller when using ext_wakeup
->>>>> +- #gpio-cells: Should be set to 2
->>>>> +- ngpios: Number of ext_wakeup sources supported by processor (board)
->>>>> +- ext-wakeup-gpios: List of ext_wakeup sources to configure
->>>>>
->>>>> -Example:
->>>>> +Examples:
->>>>>
->>>>>   rtc@1c23000 {
->>>>>       compatible = "ti,da830-rtc";
->>>>> @@ -31,3 +35,15 @@ rtc@1c23000 {
->>>>>       clocks = <&clk_32k_rtc>, <&clk_32768_ck>;
->>>>>       clock-names = "ext-clk", "int-clk";
->>>>>   };
->>>>> +
->>>>> +rtc: rtc@44e3e000 {
->>>>> +    compatible = "ti,am3352-rtc", "ti,da830-rtc";
->>>>> +    reg = <0x44e3e000 0x1000>;
->>>>> +    interrupts = <75
->>>>> +              76>;
->>>>> +    system-power-controller;
->>>>> +    gpio-controller;
->>>>> +    #gpio-cells = <2>;
->>>>> +    ngpios = <1>;
->>>>> +    ext-wakeup-gpios = <&rtc 0 GPIO_ACTIVE_LOW>;
->>>>> +};
->>
->> I'm not sure that rtc can request gpios by itself in this
->> way (if i rememberer this can break modules isnmod/rmmod).
->>
->> cc: linux-gpio
->>
->> The gpio-hog is more correct way follow if I'm not mistaken)
->> - see gpiochip_request_own_desc().
+> > This patch just renames the rk808 driver so we can reuse this driver
+> > to add more regulator devices from the RK8XX PMIC family later.
 > 
-> You are right. It is not possible to rmmod module, as it is "in use"
-> all the time. I'll try with gpio_requst_own_desc().
-> 
->>
->> Another question, in commit message you refer to  power-button,
->> but i do not see anything related in binding description.
-> 
-> We don't have power-button connected right to the processor. It is
-> connected to PMIC. During runtime we receive IRQs about power-button
-> from PMIC using i2c bus. The only purpose of this patch is to
-> configure processor's ext_wakeup line, which is triggered during
-> RTC-only mode (for example when power-button is pressed), causing
-> device wakeup. On the other hand, it is not possible to use ext_wakeup
-> during runtime, as we are only able to read it's status, but it
-> cannot trigger any interrupts.
+> We normally manage to cope fine without renaming things - it's quite
+> common to have drivers that were initially named after one part
+> supporting multiple parts, avoiding the rename makes things like
+> backports easier and avoids needing git log --follow and so on.
 
-Sry, but I don't like this approach - it could make sense if RTC
-EXT_WAKEUP will be at least partially mapped on gpiolib interface.
-But your gpiochip is fake, you do not/can't use GPIO hogging mechanism
-and you're even parsing DT on your own (in V3).
+I agree with that and I will also add that probably at some point in
+time a new part may appear with a name matching rk8xx but may not be
+compatible with the rk8xx driver and that is when the real mess starts.
 
-In general it's more like irqchip than gpiochip, but RTC can
-trigger IRQ on ext_wakeup :(
-
-As per above, your first version of the patch looks more sensible to me.
-
-Additional note. Shouldn't EXT_WAKEUP_STATUS be cleared after wake up?
-This is requested by am57x trm at least: "SW must clear the events before
-PMIC_PWR_ENABLE can go from 1 - 0. "
-
-> 
->>
->> Shouldn't some gpio-key node be here, which will consume rtc-gpio?
->>
->>
->>>>> diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
->>>>> index 3e84315..f013346 100644
->>>>> --- a/drivers/rtc/Kconfig
->>>>> +++ b/drivers/rtc/Kconfig
-
-[...]
-
+Finally, renaming the config options and the modules is not nice for the
+user.
 
 -- 
-regards,
--grygorii
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
 -- 
 -- 
