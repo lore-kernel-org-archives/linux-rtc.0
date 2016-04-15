@@ -1,23 +1,18 @@
-Return-Path: <rtc-linux+bncBDQNTZVC44FBBIHPVC4AKGQEN6GWMHY@googlegroups.com>
+Return-Path: <rtc-linux+bncBAABB2PEYK4AKGQEIIZ26JQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mailhost.home (mailhost.ilcode.fr. [2a01:240:fe87:2::2])
-        by gmr-mx.google.com with ESMTPS id u137si327186wmd.1.2016.04.10.04.23.11
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=AES128-SHA bits=128/128);
-        Sun, 10 Apr 2016 04:23:12 -0700 (PDT)
-Date: Sun, 10 Apr 2016 13:23:05 +0200
-From: Nicolas Boullis <nboullis@debian.org>
-To: Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	rtc-linux@googlegroups.com
-Subject: [rtc-linux] [PATCH] rtc: ds1307: ensure that any pending alarm is
- cleared before a new alarm is enabled
-Message-ID: <20160410112305.GB3603@haddock.home>
-References: <20160402221047.GB3600@haddock.home>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <20160402221047.GB3600@haddock.home>
+Received: from root.phytec.de (mail.rapiddevelopmentkit.de. [217.6.246.34])
+        by gmr-mx.google.com with ESMTP id s141si1048518wmd.1.2016.04.15.02.20.41
+        for <rtc-linux@googlegroups.com>;
+        Fri, 15 Apr 2016 02:20:41 -0700 (PDT)
+From: Wadim Egorov <w.egorov@phytec.de>
+To: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-clk@vger.kernel.org, rtc-linux@googlegroups.com, linux-rockchip@lists.infradead.org
+Cc: robh+dt@kernel.org, pawel.moll@arm.com, mark.rutland@arm.com, ijc+devicetree@hellion.org.uk, galak@codeaurora.org, linux@arm.linux.org.uk, mturquette@baylibre.com, sboyd@codeaurora.org, lee.jones@linaro.org, lgirdwood@gmail.com, broonie@kernel.org, a.zummo@towertech.it, alexandre.belloni@free-electrons.com, dianders@chromium.org, zyw@rock-chips.com, arnd@arndb.de, k.kozlowski@samsung.com, javier@osg.samsung.com, kgene@kernel.org, olof@lixom.net, geert+renesas@glider.be, sjoerd.simons@collabora.co.uk, treding@nvidia.com, public_timo.s@silentcreek.de
+Subject: [rtc-linux] [PATCH 0/6] Add RK818 PMIC support
+Date: Fri, 15 Apr 2016 11:16:24 +0200
+Message-Id: <1460711790-22646-1-git-send-email-w.egorov@phytec.de>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -26,74 +21,59 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-If a previously-set alarm was disabled and then triggered, it may still=20
-be pending when a new alarm is configured.
+Hi,
 
-Then, if the alarm is enabled before the pending alarm is cleared, then=20
-an interrupt is immediately raised.
+I just renamed now the RK808 mfd and regulator drivers.
 
-Unfortunately, when the alarm is cleared and enabled during the same I=C2=
-=B2C=20
-block write, the chip (at least the DS1339 I have) considers that the=20
-alarm is enabled before it is cleared, and raises an interrupt.
+Patch 4 is a cosmetic patch for the regulator driver.
 
-This patch ensures that the pending alarm is cleared before the alarm is=20
-enabled.
+Unfortunately I have no hardware with a RK808 PMIC, so I can not test this part.
 
-Signed-off-by: Nicolas Boullis <nboullis@debian.org>
+Regards,
+Wadim
 
----
 
-This solves the same problem my =E2=80=9Crtc: ds1307: clear the interrupts =
-on=20
-probe=E2=80=9D patch was meant to solve, but I think in a better way since =
-the=20
-alarm may be triggered after power-on.
+Changes since RFC:
+* split up in more patches: renaming + adding new driver
+* renamed rk808.c driver -> rk8xx.c
+* renamed rk808-regulator.c driver -> rk8xx-regulator.c
 
-diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
-index b2156ee..cceac0f 100644
---- a/drivers/rtc/rtc-ds1307.c
-+++ b/drivers/rtc/rtc-ds1307.c
-@@ -538,12 +542,8 @@ static int ds1337_set_alarm(struct device *dev, struct=
- rtc_wkalrm *t)
- 	buf[5] =3D 0;
- 	buf[6] =3D 0;
-=20
--	/* optionally enable ALARM1 */
-+	/* disable alarms */
- 	buf[7] =3D control & ~(DS1337_BIT_A1IE | DS1337_BIT_A2IE);
--	if (t->enabled) {
--		dev_dbg(dev, "alarm IRQ armed\n");
--		buf[7] |=3D DS1337_BIT_A1IE;	/* only ALARM1 is used */
--	}
- 	buf[8] =3D status & ~(DS1337_BIT_A1I | DS1337_BIT_A2I);
-=20
- 	ret =3D ds1307->write_block_data(client,
-@@ -553,6 +553,13 @@ static int ds1337_set_alarm(struct device *dev, struct=
- rtc_wkalrm *t)
- 		return ret;
- 	}
-=20
-+	/* optionally enable ALARM1 */
-+	if (t->enabled) {
-+		dev_dbg(dev, "alarm IRQ armed\n");
-+		buf[7] |=3D DS1337_BIT_A1IE;	/* only ALARM1 is used */
-+		i2c_smbus_write_byte_data(client, DS1337_REG_CONTROL, buf[7]);
-+	}
-+
- 	return 0;
- }
-=20
+Wadim Egorov (6):
+  mfd: RK808: Make RK808 generic, rename rk808.c to rk8xx.c
+  mfd: RK808: Add RK818 support
+  regulator: rk808: Make rk808 generic, rename rk808-regulator.c
+  regulator: rk8xx: Migrate to regulator core's simplified DT parsing
+    code
+  regulator: rk8xx: Add regulator driver for RK818
+  mfd: dt-bindings: Add RK818 device tree bindings document
 
---=20
---=20
+ Documentation/devicetree/bindings/mfd/rk808.txt    |  37 +-
+ arch/arm/configs/multi_v7_defconfig                |   4 +-
+ drivers/clk/Kconfig                                |   2 +-
+ drivers/mfd/Kconfig                                |   6 +-
+ drivers/mfd/Makefile                               |   2 +-
+ drivers/mfd/rk808.c                                | 276 -------------
+ drivers/mfd/rk8xx.c                                | 436 ++++++++++++++++++++
+ drivers/regulator/Kconfig                          |   6 +-
+ drivers/regulator/Makefile                         |   2 +-
+ .../{rk808-regulator.c => rk8xx-regulator.c}       | 451 ++++++++++++---------
+ drivers/rtc/Kconfig                                |   2 +-
+ include/linux/mfd/rk808.h                          | 183 ++++++++-
+ 12 files changed, 906 insertions(+), 501 deletions(-)
+ delete mode 100644 drivers/mfd/rk808.c
+ create mode 100644 drivers/mfd/rk8xx.c
+ rename drivers/regulator/{rk808-regulator.c => rk8xx-regulator.c} (57%)
+
+-- 
+1.9.1
+
+-- 
+-- 
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
----=20
-You received this message because you are subscribed to the Google Groups "=
-rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an e=
-mail to rtc-linux+unsubscribe@googlegroups.com.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
