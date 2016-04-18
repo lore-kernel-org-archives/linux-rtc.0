@@ -1,44 +1,25 @@
-Return-Path: <rtc-linux+bncBDEKVJM7XAHRBY6C764AKGQE7MSEKJY@googlegroups.com>
+Return-Path: <rtc-linux+bncBDVNH3HM2UDBBT7L2K4AKGQEVTB3XSA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-MIME-Version: 1.0
-Received: from mout.kundenserver.de (mout.kundenserver.de. [212.227.126.131])
-        by gmr-mx.google.com with ESMTPS id v130si343007wmv.1.2016.04.26.14.45.06
+Received: from mail-ob0-x22a.google.com (mail-ob0-x22a.google.com. [2607:f8b0:4003:c01::22a])
+        by gmr-mx.google.com with ESMTPS id r5si258171igp.0.2016.04.18.03.24.15
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 26 Apr 2016 14:45:06 -0700 (PDT)
-From: Arnd Bergmann <arnd@arndb.de>
-To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Arnd Bergmann <arnd@arndb.de>,
-	tony.luck@intel.com,
-	geert@linux-m68k.org,
-	jejb@parisc-linux.org,
-	deller@gmx.de,
-	benh@kernel.crashing.org,
-	mpe@ellerman.id.au,
-	dalias@libc.org,
-	dhowells@redhat.com,
-	yasutake.koichi@jp.panasonic.com,
-	rth@twiddle.net,
-	ink@jurassic.park.msu.ru,
-	linux-alpha@vger.kernel.org,
-	x86@kernel.org,
-	a.zummo@towertech.it,
-	alexandre.belloni@free-electrons.com,
-	linux-kernel@vger.kernel.org,
-	linux-ia64@vger.kernel.org,
-	linux-parisc@vger.kernel.org,
-	linuxppc-dev@lists.ozlabs.org,
-	linux-sh@vger.kernel.org,
-	rtc-linux@googlegroups.com,
-	linux-arch@vger.kernel.org
-Subject: [rtc-linux] [PATCH 2/8] char/rtc: legacy RTC is no longer supported
- on x86
-Date: Tue, 26 Apr 2016 23:44:06 +0200
-Message-Id: <1461707052-1337718-3-git-send-email-arnd@arndb.de>
-In-Reply-To: <1461707052-1337718-1-git-send-email-arnd@arndb.de>
-References: <1461707052-1337718-1-git-send-email-arnd@arndb.de>
-Reply-To: rtc-linux@googlegroups.com
+        Mon, 18 Apr 2016 03:24:15 -0700 (PDT)
+Received: by mail-ob0-x22a.google.com with SMTP id j9so94187306obd.3
+        for <rtc-linux@googlegroups.com>; Mon, 18 Apr 2016 03:24:15 -0700 (PDT)
+MIME-Version: 1.0
+In-Reply-To: <1460938902-3120-1-git-send-email-akinobu.mita@gmail.com>
+References: <1460938902-3120-1-git-send-email-akinobu.mita@gmail.com>
+Date: Mon, 18 Apr 2016 14:24:15 +0400
+Message-ID: <CABrG=ZzVx3XcViRvuB6wqdJpaBF11wke2otHzbd8_M9S2T1rPQ@mail.gmail.com>
+Subject: [rtc-linux] Re: [PATCH] rtc: ds1307: ds3231 temperature s16 overflow
+From: Michael Tatarinov <kukabu@gmail.com>
+To: Akinobu Mita <akinobu.mita@gmail.com>
+Cc: rtc-linux@googlegroups.com, Zhuang Yuyao <mlistz@gmail.com>,
+	Zhuang Yuyao <zhuangyy@syan.com.cn>, Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>
 Content-Type: text/plain; charset=UTF-8
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -47,43 +28,20 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Commit 3195ef59cb42 ("x86: Do full rtc synchronization with ntp") had
-the side-effect of unconditionally enabling the RTC_LIB symbol on x86,
-which in turn disables the selection of the CONFIG_RTC and
-CONFIG_GEN_RTC drivers that contain a two older implementations of
-the CONFIG_RTC_DRV_CMOS driver.
+Thanks.
 
-This removes x86 from the list.
+I'm testing the patch, it workins as expected.
 
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
----
- drivers/char/Kconfig | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+$ cat /sys/devices/platform/soc/20804000.i2c/i2c-1/1-0068/hwmon/hwmon1/temp1_input
+33000
 
-diff --git a/drivers/char/Kconfig b/drivers/char/Kconfig
-index 66b5d48f409a..9bdb629fbaae 100644
---- a/drivers/char/Kconfig
-+++ b/drivers/char/Kconfig
-@@ -279,7 +279,7 @@ if RTC_LIB=n
- 
- config RTC
- 	tristate "Enhanced Real Time Clock Support (legacy PC RTC driver)"
--	depends on ALPHA || (MIPS && MACH_LOONGSON64) || MN10300 || X86
-+	depends on ALPHA || (MIPS && MACH_LOONGSON64) || MN10300
- 	---help---
- 	  If you say Y here and create a character special file /dev/rtc with
- 	  major number 10 and minor number 135 using mknod ("man mknod"), you
-@@ -328,7 +328,7 @@ config JS_RTC
- config GEN_RTC
- 	tristate "Generic /dev/rtc emulation"
- 	depends on RTC!=y
--	depends on ALPHA || M68K || MN10300 || PARISC || PPC || X86
-+	depends on ALPHA || M68K || MN10300 || PARISC || PPC
- 	---help---
- 	  If you say Y here and create a character special file /dev/rtc with
- 	  major number 10 and minor number 135 using mknod ("man mknod"), you
--- 
-2.7.0
+2016-04-18 4:21 GMT+04:00, Akinobu Mita <akinobu.mita@gmail.com>:
+> From: Zhuang Yuyao <mlistz@gmail.com>
+>
+> while retrieving temperature from ds3231, the result may be overflow
+> since s16 is too small for a multiplication with 250.
+>
+> ie. if temp_buf[0] == 0x2d, the result (s16 temp) will be negative.
 
 -- 
 -- 
