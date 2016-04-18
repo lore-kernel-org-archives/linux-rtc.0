@@ -1,21 +1,25 @@
-Return-Path: <rtc-linux+bncBDEKVJM7XAHRBZEP2O4AKGQEDDCAOYA@googlegroups.com>
+Return-Path: <rtc-linux+bncBDSJRCVEXEPBBXPI2K4AKGQEVYGZ7XY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mout.kundenserver.de (mout.kundenserver.de. [212.227.17.13])
-        by gmr-mx.google.com with ESMTPS id 69si297092wmn.1.2016.04.18.04.41.24
+MIME-Version: 1.0
+Received: from mout01.posteo.de (mout01.posteo.de. [185.67.36.65])
+        by gmr-mx.google.com with ESMTPS id i196si1417944wmf.0.2016.04.18.03.18.05
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 18 Apr 2016 04:41:24 -0700 (PDT)
-From: Arnd Bergmann <arnd@arndb.de>
-To: linux-arm-kernel@lists.infradead.org
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>, RTCLINUX <rtc-linux@googlegroups.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-m68k <linux-m68k@lists.linux-m68k.org>, Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Subject: [rtc-linux] Re: [PATCH 1/2] char: PC rtc: replace blacklist with whitelist
-Date: Mon, 18 Apr 2016 13:41:20 +0200
-Message-ID: <5528499.2P7TrvXfau@wuerfel>
-In-Reply-To: <CAMuHMdWQiqNq7-fgn5NONovLQxhOoGD5s-TAYVYZOVRfEs52Zg@mail.gmail.com>
-References: <1456912137-1578635-1-git-send-email-arnd@arndb.de> <4192558.Mh1hb3LCLb@wuerfel> <CAMuHMdWQiqNq7-fgn5NONovLQxhOoGD5s-TAYVYZOVRfEs52Zg@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+        Mon, 18 Apr 2016 03:18:05 -0700 (PDT)
+Received: from dovecot03.posteo.de (dovecot03.posteo.de [172.16.0.13])
+	by mout01.posteo.de (Postfix) with ESMTPS id CA5C620A3F
+	for <rtc-linux@googlegroups.com>; Mon, 18 Apr 2016 12:18:04 +0200 (CEST)
+From: Martin Kepplinger <martink@posteo.de>
+To: a.zummo@towertech.it,
+	alexandre.belloni@free-electrons.com
+Cc: rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org,
+	Martin Kepplinger <martink@posteo.de>
+Subject: [rtc-linux] [PATCH] rtc-pcf2123: use sign_extend32() for sign extension
+Date: Mon, 18 Apr 2016 12:17:44 +0200
+Message-Id: <1460974664-7525-1-git-send-email-martink@posteo.de>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -24,57 +28,35 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Monday 18 April 2016 09:09:55 Geert Uytterhoeven wrote:
-> Hi Arnd,
-> 
-> cc linux-m68k
-> 
-> On Sun, Apr 17, 2016 at 11:37 PM, Arnd Bergmann <arnd@arndb.de> wrote:
-> > On Wednesday 02 March 2016 11:22:04 Geert Uytterhoeven wrote:
-> >> On Wed, Mar 2, 2016 at 10:48 AM, Arnd Bergmann <arnd@arndb.de> wrote:
-> >> > Every new architecture has to add itself to the growing list of those
-> >> > that do not support the legacy PC RTC driver.
-> >> >
-> >> > This replaces the long list of architectures that don't support it
-> >> > with a shorter list of those that do.
-> >> >
-> >> > The list is taken from those architectures that have a non-empty
-> >> > asm/mc146818rtc.h header file and were not explicitly blacklisted.
-> >>
-> >> M68K was blacklisted...
-> >
-> > I never got back to you on this topic, sorry about that. I've fixed
-> > up the patch to leave out m68k now.
-> >
-> > On a semi-related note, I see that m68k is one of the few architectures
-> > still using the (other) genrtc driver. It would be nice to reduce that
-> > list and change m68k to use its own rtc driver (ideally one per
-> 
-> We do have hp_sdc_rtc (HP9000/300; why is that under drivers/input/misc/?),
-> and rtc-msm6242 and rtc-rp5c01 (both for Amiga).
+Signed-off-by: Martin Kepplinger <martink@posteo.de>
+---
+ drivers/rtc/rtc-pcf2123.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-fwiw, the hp_sdc_rtc driver does not actually implement the RTC ioctls
-(they are there, but commented out).
-
-The other ones are good, you just have two incompatible ways of doing
-it because the drivers/rtc subsystem is can not be built into the
-kernel at the same time as the old gen_rtc driver for the q40.
-
-> > platform), but the q40 platform is the only one providing
-> > get_rtc_pll()/set_rtc_pll() for the RTC_PLL_GET/RTC_PLL_SET ioctl
-> > commands.
-> 
-> Do you mean this is a problem?
-
-Not a big one, assuming that either nobody actually needs these ioctls
-(very likely), or they don't care about having a single kernel for
-q40 and the other platforms.
-
-The main issue I see is migrating architectures over from gen_rtc to
-rtc-generic over time, but this effort has been going on for at least
-a decade and there is no rush, but it would still be nice.
-
-	Arnd
+diff --git a/drivers/rtc/rtc-pcf2123.c b/drivers/rtc/rtc-pcf2123.c
+index f22e060..b4478cc 100644
+--- a/drivers/rtc/rtc-pcf2123.c
++++ b/drivers/rtc/rtc-pcf2123.c
+@@ -96,7 +96,7 @@
+ #define CD_TMR_TE		BIT(3)	/* Countdown timer enable */
+ 
+ /* PCF2123_REG_OFFSET BITS */
+-#define OFFSET_SIGN_BIT		BIT(6)	/* 2's complement sign bit */
++#define OFFSET_SIGN_BIT		6	/* 2's complement sign bit */
+ #define OFFSET_COARSE		BIT(7)	/* Coarse mode offset */
+ #define OFFSET_STEP		(2170)	/* Offset step in parts per billion */
+ 
+@@ -217,7 +217,7 @@ static int pcf2123_read_offset(struct device *dev, long *offset)
+ 	if (reg & OFFSET_COARSE)
+ 		reg <<= 1; /* multiply by 2 and sign extend */
+ 	else
+-		reg |= (reg & OFFSET_SIGN_BIT) << 1; /* sign extend only */
++		reg = sign_extend32(reg, OFFSET_SIGN_BIT);
+ 
+ 	*offset = ((long)reg) * OFFSET_STEP;
+ 
+-- 
+2.1.4
 
 -- 
 -- 
