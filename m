@@ -1,23 +1,24 @@
-Return-Path: <rtc-linux+bncBCQPVKWLVAIRB5G2RO4AKGQEZ2Q6HYQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBDVNH3HM2UDBBN6H2G4AKGQEFUNGTRI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from muru.com (muru.com. [72.249.23.125])
-        by gmr-mx.google.com with ESMTP id r4si4428589pfr.1.2016.04.04.15.40.51
-        for <rtc-linux@googlegroups.com>;
-        Mon, 04 Apr 2016 15:40:51 -0700 (PDT)
-Date: Mon, 4 Apr 2016 15:40:47 -0700
-From: Tony Lindgren <tony@atomide.com>
-To: Marcin Niestroj <m.niestroj@grinn-global.com>
-Cc: rtc-linux@googlegroups.com, devicetree@vger.kernel.org,
-	Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Keerthy <j-keerthy@ti.com>, linux-omap@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH] rtc: omap: Support ext_wakeup configuration
-Message-ID: <20160404224046.GA17042@atomide.com>
-References: <1459785403-1725-1-git-send-email-m.niestroj@grinn-global.com>
+Received: from mail-oi0-x236.google.com (mail-oi0-x236.google.com. [2607:f8b0:4003:c06::236])
+        by gmr-mx.google.com with ESMTPS id bc4si2633096igb.3.2016.04.17.21.33.58
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Sun, 17 Apr 2016 21:33:58 -0700 (PDT)
+Received: by mail-oi0-x236.google.com with SMTP id x201so14343839oif.3
+        for <rtc-linux@googlegroups.com>; Sun, 17 Apr 2016 21:33:58 -0700 (PDT)
 MIME-Version: 1.0
+In-Reply-To: <1460938902-3120-1-git-send-email-akinobu.mita@gmail.com>
+References: <1460938902-3120-1-git-send-email-akinobu.mita@gmail.com>
+Date: Mon, 18 Apr 2016 08:33:58 +0400
+Message-ID: <CABrG=Zz=OK3tbYFyT6VmCfebz-TnnDjC3x0aG-Mdau+TZdFqUw@mail.gmail.com>
+Subject: [rtc-linux] Re: [PATCH] rtc: ds1307: ds3231 temperature s16 overflow
+From: Michael Tatarinov <kukabu@gmail.com>
+To: Akinobu Mita <akinobu.mita@gmail.com>
+Cc: rtc-linux@googlegroups.com, Zhuang Yuyao <mlistz@gmail.com>,
+	Zhuang Yuyao <zhuangyy@syan.com.cn>, Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1459785403-1725-1-git-send-email-m.niestroj@grinn-global.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -27,22 +28,59 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Hi,
+Hello
 
-* Marcin Niestroj <m.niestroj@grinn-global.com> [160404 08:57]:
-> Support configuration of ext_wakeup sources. This patch makes it
-> possible to enable ext_wakeup and set it's polarity, depending on board
-> configuration. AM335x's dedicated PMIC (tps65217) uses ext_wakeup to
-> notify about power-button presses. Handling power-button presses enables
-> to recover from RTC-only power states correctly.
+Thanks!
+I haven't tested the patch yet but I already have a question. What
+about s16 in ds3231_hwmon_show_temp()?
 
-I suggest you just set this pin up as a minimal gpiochip. That way
-we can use the standard binding :) And if we get lucky, this pin can
-also trigger during runtime.
 
-Regards,
-
-Tony
+2016-04-18 4:21 GMT+04:00, Akinobu Mita <akinobu.mita@gmail.com>:
+> From: Zhuang Yuyao <mlistz@gmail.com>
+>
+> while retrieving temperature from ds3231, the result may be overflow
+> since s16 is too small for a multiplication with 250.
+>
+> ie. if temp_buf[0] == 0x2d, the result (s16 temp) will be negative.
+>
+> Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
+> Cc: Zhuang Yuyao <mlistz@gmail.com>
+> Cc: Zhuang Yuyao <zhuangyy@syan.com.cn>
+> Cc: Michael Tatarinov <kukabu@gmail.com>
+> Cc: Alessandro Zummo <a.zummo@towertech.it>
+> Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+> ---
+>  drivers/rtc/rtc-ds1307.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+>
+> diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
+> index cb0ffa8..90d1e5a 100644
+> --- a/drivers/rtc/rtc-ds1307.c
+> +++ b/drivers/rtc/rtc-ds1307.c
+> @@ -863,7 +863,7 @@ out:
+>   * A user-initiated temperature conversion is not started by this
+> function,
+>   * so the temperature is updated once every 64 seconds.
+>   */
+> -static int ds3231_hwmon_read_temp(struct device *dev, s16 *mC)
+> +static int ds3231_hwmon_read_temp(struct device *dev, s32 *mC)
+>  {
+>  	struct ds1307 *ds1307 = dev_get_drvdata(dev);
+>  	u8 temp_buf[2];
+> @@ -892,7 +892,7 @@ static ssize_t ds3231_hwmon_show_temp(struct device
+> *dev,
+>  				struct device_attribute *attr, char *buf)
+>  {
+>  	int ret;
+> -	s16 temp;
+> +	s32 temp;
+>
+>  	ret = ds3231_hwmon_read_temp(dev, &temp);
+>  	if (ret)
+> --
+> 2.5.0
+>
+>
 
 -- 
 -- 
