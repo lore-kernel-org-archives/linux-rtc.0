@@ -1,20 +1,22 @@
-Return-Path: <rtc-linux+bncBAABB3NF4O4AKGQEB252DUI@googlegroups.com>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRB7V62W4AKGQEG3DJDXI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-MIME-Version: 1.0
-Received: from root.phytec.de (mail.visioncatalog.com. [217.6.246.34])
-        by gmr-mx.google.com with ESMTP id 69si87535wmn.1.2016.04.21.06.17.33
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id k143si34278wmg.1.2016.04.18.15.28.14
         for <rtc-linux@googlegroups.com>;
-        Thu, 21 Apr 2016 06:17:33 -0700 (PDT)
-From: Wadim Egorov <w.egorov@phytec.de>
-To: linux-kernel@vger.kernel.org, linux-clk@vger.kernel.org, rtc-linux@googlegroups.com, devicetree@vger.kernel.org, linux-rockchip@lists.infradead.org
-Cc: robh+dt@kernel.org, pawel.moll@arm.com, mark.rutland@arm.com, ijc+devicetree@hellion.org.uk, galak@codeaurora.org, mturquette@baylibre.com, sboyd@codeaurora.org, lee.jones@linaro.org, lgirdwood@gmail.com, broonie@kernel.org, a.zummo@towertech.it, alexandre.belloni@free-electrons.com, dianders@chromium.org, zyw@rock-chips.com
-Subject: [rtc-linux] [PATCH v2 7/7] rtc: Kconfig: Name RK818 in Kconfig for RTC_DRV_RK808
-Date: Thu, 21 Apr 2016 15:12:41 +0200
-Message-Id: <1461244361-45686-8-git-send-email-w.egorov@phytec.de>
-In-Reply-To: <1461244361-45686-1-git-send-email-w.egorov@phytec.de>
-References: <1461244361-45686-1-git-send-email-w.egorov@phytec.de>
-Reply-To: rtc-linux@googlegroups.com
+        Mon, 18 Apr 2016 15:28:14 -0700 (PDT)
+Date: Tue, 19 Apr 2016 00:28:03 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Nicolas Boullis <nboullis@debian.org>
+Cc: Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com
+Subject: [rtc-linux] Re: [PATCH] rtc: ds1307: ensure that any pending alarm is
+ cleared before a new alarm is enabled
+Message-ID: <20160418222803.GA25196@piout.net>
+References: <20160402221047.GB3600@haddock.home>
+ <20160410112305.GB3603@haddock.home>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <20160410112305.GB3603@haddock.home>
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -23,43 +25,42 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-The RK808 and RK818 PMICs are using a similar register map.
-We can reuse the rtc driver for the RK818 PMIC. So let's add
-the RK818 in the Kconfig description.
+On 10/04/2016 at 13:23:05 +0200, Nicolas Boullis wrote :
+> If a previously-set alarm was disabled and then triggered, it may still=
+=20
+> be pending when a new alarm is configured.
+>=20
+> Then, if the alarm is enabled before the pending alarm is cleared, then=
+=20
+> an interrupt is immediately raised.
+>=20
+> Unfortunately, when the alarm is cleared and enabled during the same I=E6=
+=B6=8E=20
+> block write, the chip (at least the DS1339 I have) considers that the=20
+> alarm is enabled before it is cleared, and raises an interrupt.
+>=20
+> This patch ensures that the pending alarm is cleared before the alarm is=
+=20
+> enabled.
+>=20
+> Signed-off-by: Nicolas Boullis <nboullis@debian.org>
+>=20
+Applied, thanks.
 
-Signed-off-by: Wadim Egorov <w.egorov@phytec.de>
----
- drivers/rtc/Kconfig | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+--=20
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
-diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
-index 3e84315..acc2651 100644
---- a/drivers/rtc/Kconfig
-+++ b/drivers/rtc/Kconfig
-@@ -324,11 +324,11 @@ config RTC_DRV_MAX77686
- 	  will be called rtc-max77686.
- 
- config RTC_DRV_RK808
--	tristate "Rockchip RK808 RTC"
-+	tristate "Rockchip RK808/RK818 RTC"
- 	depends on MFD_RK808
- 	help
- 	  If you say yes here you will get support for the
--	  RTC of RK808 PMIC.
-+	  RTC of RK808 and RK818 PMIC.
- 
- 	  This driver can also be built as a module. If so, the module
- 	  will be called rk808-rtc.
--- 
-1.9.1
-
--- 
--- 
+--=20
+--=20
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+---=20
+You received this message because you are subscribed to the Google Groups "=
+rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an e=
+mail to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
