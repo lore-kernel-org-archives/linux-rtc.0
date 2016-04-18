@@ -1,36 +1,23 @@
-Return-Path: <rtc-linux+bncBDEKVJM7XAHRBEP5QS4QKGQE3B33DCI@googlegroups.com>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRB4WC2W4AKGQE7F6OA6Q@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id a80si50269wma.0.2016.04.18.15.36.34
+        for <rtc-linux@googlegroups.com>;
+        Mon, 18 Apr 2016 15:36:34 -0700 (PDT)
+Date: Tue, 19 Apr 2016 00:36:23 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Akinobu Mita <akinobu.mita@gmail.com>
+Cc: rtc-linux@googlegroups.com, Zhuang Yuyao <mlistz@gmail.com>,
+	Zhuang Yuyao <zhuangyy@syan.com.cn>,
+	Michael Tatarinov <kukabu@gmail.com>,
+	Alessandro Zummo <a.zummo@towertech.it>
+Subject: [rtc-linux] Re: [PATCH] rtc: ds1307: ds3231 temperature s16 overflow
+Message-ID: <20160418223623.GD25196@piout.net>
+References: <1460938902-3120-1-git-send-email-akinobu.mita@gmail.com>
 MIME-Version: 1.0
-Received: from mout.kundenserver.de (mout.kundenserver.de. [217.72.192.75])
-        by gmr-mx.google.com with ESMTPS id e78si284809wmc.3.2016.04.27.15.34.57
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 27 Apr 2016 15:34:57 -0700 (PDT)
-From: Arnd Bergmann <arnd@arndb.de>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Arnd Bergmann <arnd@arndb.de>,
-	geert@linux-m68k.org,
-	deller@gmx.de,
-	benh@kernel.crashing.org,
-	mpe@ellerman.id.au,
-	dalias@libc.org,
-	dhowells@redhat.com,
-	linux-alpha@vger.kernel.org,
-	a.zummo@towertech.it,
-	linux-kernel@vger.kernel.org,
-	linux-parisc@vger.kernel.org,
-	linuxppc-dev@lists.ozlabs.org,
-	linux-sh@vger.kernel.org,
-	linux-m68k@lists.linux-m68k.org,
-	rtc-linux@googlegroups.com,
-	linux-arch@vger.kernel.org
-Subject: [rtc-linux] [PATCH v3 05/16] char/genrtc: remove alpha support
-Date: Thu, 28 Apr 2016 00:34:19 +0200
-Message-Id: <1461796470-1291527-6-git-send-email-arnd@arndb.de>
-In-Reply-To: <1461796470-1291527-1-git-send-email-arnd@arndb.de>
-References: <1461796470-1291527-1-git-send-email-arnd@arndb.de>
-Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1460938902-3120-1-git-send-email-akinobu.mita@gmail.com>
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -39,58 +26,30 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-The genrtc driver serves no purpose on Alpha because it drives the
-same hardware as the original rtc.c driver, and the newer rtc-generic.c
-or rtc-cmos.c drivers on architectures that use the asm-generic/rtc.h
-header.
+On 18/04/2016 at 09:21:42 +0900, Akinobu Mita wrote :
+> From: Zhuang Yuyao <mlistz@gmail.com>
+> 
+> while retrieving temperature from ds3231, the result may be overflow
+> since s16 is too small for a multiplication with 250.
+> 
+> ie. if temp_buf[0] == 0x2d, the result (s16 temp) will be negative.
+> 
+> Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
+> Cc: Zhuang Yuyao <mlistz@gmail.com>
+> Cc: Zhuang Yuyao <zhuangyy@syan.com.cn>
+> Cc: Michael Tatarinov <kukabu@gmail.com>
+> Cc: Alessandro Zummo <a.zummo@towertech.it>
+> Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+> ---
+>  drivers/rtc/rtc-ds1307.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+> 
+Applied, thanks.
 
-The defconfig uses CONFIG_RTC=y, so this driver is not used by default.
-At one point it was used to abstract a quirk for the "Marvel" platform,
-but it does not do this any more after the code was moved into yet
-another driver in arch/alpha/kernel/rtc.c.
-
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
----
- arch/alpha/include/asm/rtc.h    | 1 -
- arch/alpha/kernel/core_marvel.c | 1 -
- drivers/char/Kconfig            | 2 +-
- 3 files changed, 1 insertion(+), 3 deletions(-)
- delete mode 100644 arch/alpha/include/asm/rtc.h
-
-diff --git a/arch/alpha/include/asm/rtc.h b/arch/alpha/include/asm/rtc.h
-deleted file mode 100644
-index f71c3b0ed360..000000000000
---- a/arch/alpha/include/asm/rtc.h
-+++ /dev/null
-@@ -1 +0,0 @@
--#include <asm-generic/rtc.h>
-diff --git a/arch/alpha/kernel/core_marvel.c b/arch/alpha/kernel/core_marvel.c
-index 53dd2f1a53aa..d5f0580746a5 100644
---- a/arch/alpha/kernel/core_marvel.c
-+++ b/arch/alpha/kernel/core_marvel.c
-@@ -24,7 +24,6 @@
- #include <asm/gct.h>
- #include <asm/pgalloc.h>
- #include <asm/tlbflush.h>
--#include <asm/rtc.h>
- #include <asm/vga.h>
- 
- #include "proto.h"
-diff --git a/drivers/char/Kconfig b/drivers/char/Kconfig
-index 9bdb629fbaae..697510325b1d 100644
---- a/drivers/char/Kconfig
-+++ b/drivers/char/Kconfig
-@@ -328,7 +328,7 @@ config JS_RTC
- config GEN_RTC
- 	tristate "Generic /dev/rtc emulation"
- 	depends on RTC!=y
--	depends on ALPHA || M68K || MN10300 || PARISC || PPC
-+	depends on M68K || MN10300 || PARISC || PPC
- 	---help---
- 	  If you say Y here and create a character special file /dev/rtc with
- 	  major number 10 and minor number 135 using mknod ("man mknod"), you
 -- 
-2.7.0
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
 -- 
 -- 
