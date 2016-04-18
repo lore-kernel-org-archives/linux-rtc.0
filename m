@@ -1,27 +1,25 @@
-Return-Path: <rtc-linux+bncBCI4NDXKXQHBBPMTQW4QKGQEPPSPQUI@googlegroups.com>
-Received: from brightrain.aerifal.cx (216-12-86-13.cv.mvl.ntelos.net. [216.12.86.13])
-        by gmr-mx.google.com with ESMTP id w138si446945ywa.2.2016.04.27.16.22.36
-        for <rtc-linux@googlegroups.com>;
-        Wed, 27 Apr 2016 16:22:37 -0700 (PDT)
-Date: Wed, 27 Apr 2016 19:21:22 -0400
-From: Rich Felker <dalias@libc.org>
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	geert@linux-m68k.org, deller@gmx.de, benh@kernel.crashing.org,
-	mpe@ellerman.id.au, dhowells@redhat.com,
-	linux-alpha@vger.kernel.org, a.zummo@towertech.it,
-	linux-kernel@vger.kernel.org, linux-parisc@vger.kernel.org,
-	linuxppc-dev@lists.ozlabs.org, linux-sh@vger.kernel.org,
-	linux-m68k@lists.linux-m68k.org, rtc-linux@googlegroups.com,
-	linux-arch@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH v3 04/16] rtc: sh: provide rtc_class_ops directly
-Message-ID: <20160427232122.GW21636@brightrain.aerifal.cx>
-References: <1461796470-1291527-1-git-send-email-arnd@arndb.de>
- <1461796470-1291527-5-git-send-email-arnd@arndb.de>
+Return-Path: <rtc-linux+bncBCPM5SUWUYIRBCNX2O4AKGQEM3YIR7A@googlegroups.com>
+Sender: rtc-linux@googlegroups.com
+Received: from mail-vk0-x244.google.com (mail-vk0-x244.google.com. [2607:f8b0:400c:c05::244])
+        by gmr-mx.google.com with ESMTPS id f135si2307780vke.1.2016.04.18.06.05.13
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 18 Apr 2016 06:05:13 -0700 (PDT)
+Received: by mail-vk0-x244.google.com with SMTP id v68so22748908vka.0
+        for <rtc-linux@googlegroups.com>; Mon, 18 Apr 2016 06:05:13 -0700 (PDT)
 MIME-Version: 1.0
+In-Reply-To: <CABrG=ZzVx3XcViRvuB6wqdJpaBF11wke2otHzbd8_M9S2T1rPQ@mail.gmail.com>
+References: <1460938902-3120-1-git-send-email-akinobu.mita@gmail.com>
+	<CABrG=ZzVx3XcViRvuB6wqdJpaBF11wke2otHzbd8_M9S2T1rPQ@mail.gmail.com>
+Date: Mon, 18 Apr 2016 22:05:13 +0900
+Message-ID: <CAC5umygCGYEeA_yQEBz8q-bUyxT2wo7PbCMDfUfFiG0NTE17yA@mail.gmail.com>
+Subject: [rtc-linux] Re: [PATCH] rtc: ds1307: ds3231 temperature s16 overflow
+From: Akinobu Mita <akinobu.mita@gmail.com>
+To: Michael Tatarinov <kukabu@gmail.com>
+Cc: rtc-linux@googlegroups.com, Zhuang Yuyao <mlistz@gmail.com>,
+	Zhuang Yuyao <zhuangyy@syan.com.cn>, Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1461796470-1291527-5-git-send-email-arnd@arndb.de>
-Sender: Rich Felker <dalias@aerifal.cx>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -31,129 +29,17 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Thu, Apr 28, 2016 at 12:34:18AM +0200, Arnd Bergmann wrote:
-> The rtc-generic driver provides an architecture specific
-> wrapper on top of the generic rtc_class_ops abstraction,
-> and on sh, that goes through another indirection using
-> the rtc_sh_get_time/rtc_sh_set_time functions.
-> 
-> This changes the sh rtc-generic device to provide its
-> rtc_class_ops directly, skipping one of the abstraction
-> levels.
-> 
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+2016-04-18 19:24 GMT+09:00 Michael Tatarinov <kukabu@gmail.com>:
+> Thanks.
+>
+> I'm testing the patch, it workins as expected.
+>
+> $ cat /sys/devices/platform/soc/20804000.i2c/i2c-1/1-0068/hwmon/hwmon1/temp1_input
+> 33000
 
-Looks ok in principle. Have you tested that it builds? Some questions
-inline:
+Thanks for testing!
 
-> ---
->  arch/sh/include/asm/rtc.h | 11 -----------
->  arch/sh/kernel/time.c     | 32 +++++++++++++++++++-------------
->  drivers/rtc/rtc-generic.c |  2 +-
->  3 files changed, 20 insertions(+), 25 deletions(-)
-> 
-> diff --git a/arch/sh/include/asm/rtc.h b/arch/sh/include/asm/rtc.h
-> index 52b0c2dba979..f7b010d48af7 100644
-> --- a/arch/sh/include/asm/rtc.h
-> +++ b/arch/sh/include/asm/rtc.h
-> @@ -6,17 +6,6 @@ extern void (*board_time_init)(void);
->  extern void (*rtc_sh_get_time)(struct timespec *);
->  extern int (*rtc_sh_set_time)(const time_t);
->  
-> -/* some dummy definitions */
-> -#define RTC_BATT_BAD 0x100	/* battery bad */
-> -#define RTC_SQWE 0x08		/* enable square-wave output */
-> -#define RTC_DM_BINARY 0x04	/* all time/date values are BCD if clear */
-> -#define RTC_24H 0x02		/* 24 hour mode - else hours bit 7 means pm */
-> -#define RTC_DST_EN 0x01	        /* auto switch DST - works f. USA only */
-> -
-> -struct rtc_time;
-> -unsigned int get_rtc_time(struct rtc_time *);
-> -int set_rtc_time(struct rtc_time *);
-> -
->  #define RTC_CAP_4_DIGIT_YEAR	(1 << 0)
->  
->  struct sh_rtc_platform_info {
-> diff --git a/arch/sh/kernel/time.c b/arch/sh/kernel/time.c
-> index d6d0a986c6e9..92cd676970d9 100644
-> --- a/arch/sh/kernel/time.c
-> +++ b/arch/sh/kernel/time.c
-> @@ -50,27 +50,30 @@ int update_persistent_clock(struct timespec now)
->  }
->  #endif
->  
-> -unsigned int get_rtc_time(struct rtc_time *tm)
-> +static int rtc_generic_get_time(struct device *dev, struct rtc_time *tm)
->  {
-> -	if (rtc_sh_get_time != null_rtc_get_time) {
-
-This seems like a functional change -- whereas previously the
-null_rtc_get_time case left *tm unchanged, now the function gets
-called and junk gets filled in. Is that desired?
-
-> -		struct timespec tv;
-> +	struct timespec tv;
->  
-> -		rtc_sh_get_time(&tv);
-> -		rtc_time_to_tm(tv.tv_sec, tm);
-> -	}
-> -
-> -	return RTC_24H;
-> +	rtc_sh_get_time(&tv);
-> +	rtc_time_to_tm(tv.tv_sec, tm);
-> +	return 0;
-
-Also the return value is changed. Is this correct?
-
->  }
-> -EXPORT_SYMBOL(get_rtc_time);
->  
-> -int set_rtc_time(struct rtc_time *tm)
-> +static int rtc_generic_set_time(struct device *dev, struct rtc_time *tm)
->  {
->  	unsigned long secs;
->  
->  	rtc_tm_to_time(tm, &secs);
-> -	return rtc_sh_set_time(secs);
-> +	if (!rtc_sh_set_time || rtc_sh_set_time(secs) < 0)
-> +		return -EOPNOTSUPP;
-> +
-> +	return 0;
->  }
-> -EXPORT_SYMBOL(set_rtc_time);
-
-Why checking rtc_sh_set_time for a null pointer? null_rtc_set_time is
-not a null pointer but a dummy function that's always safe to call, I
-think.
-
-> +
-> +static const struct rtc_class_ops rtc_generic_ops = {
-> +	.read_time = rtc_generic_get_time,
-> +	.set_time = rtc_generic_set_time,
-> +};
->  
->  static int __init rtc_generic_init(void)
->  {
-> @@ -79,7 +82,10 @@ static int __init rtc_generic_init(void)
->  	if (rtc_sh_get_time == null_rtc_get_time)
->  		return -ENODEV;
->  
-> -	pdev = platform_device_register_simple("rtc-generic", -1, NULL, 0);
-> +	pdev = platform_device_register_data(NULL, "rtc-generic", -1,
-> +					     &rtc_generic_ops,
-> +					     sizeof(rtc_generic_ops));
-> +
-
-Not a complaint about your patch, but I'd like to get rid of this
-platform device and abstraction layer completely since it doesn't seem
-like something that can be modeled correctly in device tree. When
-you're done cleaning this up, will it be possible to just have rtc
-drivers that use whatever generic framework is left, where the right
-driver is automatically attached to compatible DT nodes? I'm trying to
-move all of arch/sh over to device tree and remove hard-coded platform
-devices.
-
-Rich
+Can I put your Tested-by tag in this patch?
 
 -- 
 -- 
