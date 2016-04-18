@@ -1,37 +1,22 @@
-Return-Path: <rtc-linux+bncBCQJP74GSUDRBQGRQK4QKGQESYSZOBI@googlegroups.com>
-Received: from mail-ig0-x242.google.com (mail-ig0-x242.google.com. [2607:f8b0:4001:c05::242])
-        by gmr-mx.google.com with ESMTPS id gg5si470899igb.0.2016.04.27.04.55.43
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 27 Apr 2016 04:55:43 -0700 (PDT)
-Received: by mail-ig0-x242.google.com with SMTP id fn8so6406082igb.2
-        for <rtc-linux@googlegroups.com>; Wed, 27 Apr 2016 04:55:43 -0700 (PDT)
+Return-Path: <rtc-linux+bncBDS7HNEFSALRB4OB2W4AKGQEKK7MYFI@googlegroups.com>
+Sender: rtc-linux@googlegroups.com
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id k143si34816wmg.1.2016.04.18.15.34.24
+        for <rtc-linux@googlegroups.com>;
+        Mon, 18 Apr 2016 15:34:24 -0700 (PDT)
+Date: Tue, 19 Apr 2016 00:34:14 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Steve Twiss <stwiss.opensource@diasemi.com>
+Cc: LINUXKERNEL <linux-kernel@vger.kernel.org>,
+	RTC-LINUX <rtc-linux@googlegroups.com>,
+	Support Opensource <support.opensource@diasemi.com>
+Subject: [rtc-linux] Re: [PATCH V1] rtc: da9053: fix access ordering error
+ during RTC interrupt at system power on
+Message-ID: <20160418223414.GB25196@piout.net>
+References: <20160414111014.BB8B73FB1D@swsrvapps-01.diasemi.com>
 MIME-Version: 1.0
-Sender: geert.uytterhoeven@gmail.com
-In-Reply-To: <4599222.az1Zyv5Lrl@wuerfel>
-References: <1461707052-1337718-1-git-send-email-arnd@arndb.de>
-	<3034953.EvqV1iv2Ef@caliban.sf-tec.de>
-	<18012781.hPTzXnRcSP@wuerfel>
-	<4599222.az1Zyv5Lrl@wuerfel>
-Date: Wed, 27 Apr 2016 13:55:43 +0200
-Message-ID: <CAMuHMdV0DwdMkJURBH05ntrJWz0eY_wT__vHG32sx-sjSp0m_w@mail.gmail.com>
-Subject: [rtc-linux] Re: [PATCH 6/8] char/genrtc: parisc: use asm-generic/rtc.h
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Rolf Eike Beer <eike-kernel@sf-tec.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	Tony Luck <tony.luck@intel.com>, "James E.J. Bottomley" <jejb@parisc-linux.org>,
-	Helge Deller <deller@gmx.de>, Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-	Michael Ellerman <mpe@ellerman.id.au>, Rich Felker <dalias@libc.org>,
-	David Howells <dhowells@redhat.com>, Koichi Yasutake <yasutake.koichi@jp.panasonic.com>,
-	Richard Henderson <rth@twiddle.net>, Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-	alpha <linux-alpha@vger.kernel.org>, "the arch/x86 maintainers" <x86@kernel.org>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-	"linux-ia64@vger.kernel.org" <linux-ia64@vger.kernel.org>, Parisc List <linux-parisc@vger.kernel.org>,
-	"linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>, Linux-sh list <linux-sh@vger.kernel.org>,
-	RTCLINUX <rtc-linux@googlegroups.com>, Linux-Arch <linux-arch@vger.kernel.org>
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <20160414111014.BB8B73FB1D@swsrvapps-01.diasemi.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -41,41 +26,47 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Wed, Apr 27, 2016 at 1:35 PM, Arnd Bergmann <arnd@arndb.de> wrote:
-> On Wednesday 27 April 2016 13:21:16 Arnd Bergmann wrote:
->> On Wednesday 27 April 2016 00:07:47 Rolf Eike Beer wrote:
->> > Arnd Bergmann wrote:
->> > > The asm-generic/rtc.h header can now be included by
->> > > architectures that provide their own set_rtc_time/get_rtc_time
->> > > macros, letting us remove most of the common contents in
->> > > the powerpc implementation.
->> >
->> > parisc in this case.
->> >
->>
->> Fixed, thanks!
->
-> Actually, after the comment about just removing the gen_rtc driver
-> in the long run, I checked again and found that PARISC unconditionally
-> selects RTC_CLASS, so this driver can't even be built here.
-> We should just remove the header and drop PARISC from the list.
->
-> If we also drop m68k, that just leaves powerpc.
+On 14/04/2016 at 12:04:54 +0100, Steve Twiss wrote :
+> From: Steve Twiss <stwiss.opensource@diasemi.com>
+> 
+> This fix alters the ordering of the IRQ and device registrations in the RTC
+> driver probe function. This change will apply to the RTC driver that supports
+> both DA9052 and DA9053 PMICs.
+> 
+> A problem could occur with the existing RTC driver if:
+> 
+> A system is started from a cold boot using the PMIC RTC IRQ to initiate a
+> power on operation. For instance, if an RTC alarm is used to start a
+> platform from power off.
+> The existing driver IRQ is requested before the device has been properly
+> registered.
+> 
+> i.e.
+> ret = da9052_request_irq()
+> comes before
+> rtc->rtc = devm_rtc_device_register();
+> 
+> In this case, an interrupt exists before the device has been registered and
+> the IRQ handler can be called immediately: this can happen be before the
+> memory for rtc->rtc has been allocated. The IRQ handler da9052_rtc_irq()
+> contains the function call:
+> 
+> rtc_update_irq(rtc->rtc, 1, RTC_IRQF | RTC_AF);
+> 
+> which in turn tries to access the unavailable rtc->rtc.
+> 
+> The fix is to reorder the functions inside the RTC probe. The IRQ is
+> requested after the RTC device resource has been registered so that
+> da9052_request_irq() is the last thing to happen.
+> 
+> Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
+> 
+Applied, thanks.
 
-I've just checked Debian's unofficial linux-image-4.5.0-1-m68k_4.5.1-1_m68k,
-and it also enables RTC_CLASS and CONFIG_RTC_DRV_GENERIC, so gen_rtc
-can be dropped on m68k for sure.
-
-Gr{oetje,eeting}s,
-
-                        Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
 -- 
 -- 
