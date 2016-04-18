@@ -1,43 +1,23 @@
-Return-Path: <rtc-linux+bncBDEKVJM7XAHRBXGC764AKGQEP2TIBQY@googlegroups.com>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBAWC2W4AKGQE44JO72Q@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id d92si25924wma.2.2016.04.18.15.34.41
+        for <rtc-linux@googlegroups.com>;
+        Mon, 18 Apr 2016 15:34:41 -0700 (PDT)
+Date: Tue, 19 Apr 2016 00:34:31 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Josh Poimboeuf <jpoimboe@redhat.com>
+Cc: Joshua Kinard <kumba@gentoo.org>,
+	Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org
+Subject: [rtc-linux] Re: [PATCH] rtc: ds1685: actually spin forever in
+ poweroff path, part 2
+Message-ID: <20160418223431.GC25196@piout.net>
+References: <97e46f7b50b413d01be4189159c0611515ef7502.1460729962.git.jpoimboe@redhat.com>
 MIME-Version: 1.0
-Received: from mout.kundenserver.de (mout.kundenserver.de. [212.227.126.133])
-        by gmr-mx.google.com with ESMTPS id c69si241830wme.2.2016.04.26.14.45.00
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 26 Apr 2016 14:45:00 -0700 (PDT)
-From: Arnd Bergmann <arnd@arndb.de>
-To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Arnd Bergmann <arnd@arndb.de>,
-	tony.luck@intel.com,
-	geert@linux-m68k.org,
-	jejb@parisc-linux.org,
-	deller@gmx.de,
-	benh@kernel.crashing.org,
-	mpe@ellerman.id.au,
-	dalias@libc.org,
-	dhowells@redhat.com,
-	yasutake.koichi@jp.panasonic.com,
-	rth@twiddle.net,
-	ink@jurassic.park.msu.ru,
-	linux-alpha@vger.kernel.org,
-	x86@kernel.org,
-	a.zummo@towertech.it,
-	alexandre.belloni@free-electrons.com,
-	linux-kernel@vger.kernel.org,
-	linux-ia64@vger.kernel.org,
-	linux-parisc@vger.kernel.org,
-	linuxppc-dev@lists.ozlabs.org,
-	linux-sh@vger.kernel.org,
-	rtc-linux@googlegroups.com,
-	linux-arch@vger.kernel.org
-Subject: [rtc-linux] [PATCH 3/8] char/rtc: remove empty asm/mc146818rtc.h files
-Date: Tue, 26 Apr 2016 23:44:07 +0200
-Message-Id: <1461707052-1337718-4-git-send-email-arnd@arndb.de>
-In-Reply-To: <1461707052-1337718-1-git-send-email-arnd@arndb.de>
-References: <1461707052-1337718-1-git-send-email-arnd@arndb.de>
-Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <97e46f7b50b413d01be4189159c0611515ef7502.1460729962.git.jpoimboe@redhat.com>
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -46,109 +26,26 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Nothing on these architectures ever includes the asm/mc146818rtc.h
-file, the drivers that used to do this have been fixed long ago,
-and the remaining users are all PC-specific.
+On 15/04/2016 at 09:21:10 -0500, Josh Poimboeuf wrote :
+> objtool reports the following warning:
+> 
+>   drivers/rtc/rtc-ds1685.o: warning: objtool: ds1685_rtc_poweroff() falls through to next function ds1685_rtc_work_queue()
+> 
+> Similar to commit 361c6ed6b153 ("rtc: ds1685: actually spin forever in
+> poweroff error path"), there's another unreachable() annotation which is
+> actually reachable, which we missed the first time.
+> 
+> Actually spin forever to be consistent with the comment and to make the
+> unreachable() annotation guaranteed to be unreachable.
+> 
+> Reported-by: kbuild test robot <fengguang.wu@intel.com>
+> Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
+Applied, thanks.
 
-This removes the files for good.
-
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
----
- arch/frv/include/asm/mc146818rtc.h    | 16 ----------------
- arch/h8300/include/asm/mc146818rtc.h  |  9 ---------
- arch/ia64/include/asm/mc146818rtc.h   | 10 ----------
- arch/parisc/include/asm/mc146818rtc.h |  9 ---------
- arch/sh/include/asm/mc146818rtc.h     |  7 -------
- 5 files changed, 51 deletions(-)
- delete mode 100644 arch/frv/include/asm/mc146818rtc.h
- delete mode 100644 arch/h8300/include/asm/mc146818rtc.h
- delete mode 100644 arch/ia64/include/asm/mc146818rtc.h
- delete mode 100644 arch/parisc/include/asm/mc146818rtc.h
- delete mode 100644 arch/sh/include/asm/mc146818rtc.h
-
-diff --git a/arch/frv/include/asm/mc146818rtc.h b/arch/frv/include/asm/mc146818rtc.h
-deleted file mode 100644
-index 90dfb7a633d1..000000000000
---- a/arch/frv/include/asm/mc146818rtc.h
-+++ /dev/null
-@@ -1,16 +0,0 @@
--/* mc146818rtc.h: RTC defs
-- *
-- * Copyright (C) 2005 Red Hat, Inc. All Rights Reserved.
-- * Written by David Howells (dhowells@redhat.com)
-- *
-- * This program is free software; you can redistribute it and/or
-- * modify it under the terms of the GNU General Public License
-- * as published by the Free Software Foundation; either version
-- * 2 of the License, or (at your option) any later version.
-- */
--
--#ifndef _ASM_MC146818RTC_H
--#define _ASM_MC146818RTC_H
--
--
--#endif /* _ASM_MC146818RTC_H */
-diff --git a/arch/h8300/include/asm/mc146818rtc.h b/arch/h8300/include/asm/mc146818rtc.h
-deleted file mode 100644
-index ab9d9646d241..000000000000
---- a/arch/h8300/include/asm/mc146818rtc.h
-+++ /dev/null
-@@ -1,9 +0,0 @@
--/*
-- * Machine dependent access functions for RTC registers.
-- */
--#ifndef _H8300_MC146818RTC_H
--#define _H8300_MC146818RTC_H
--
--/* empty include file to satisfy the include in genrtc.c/ide-geometry.c */
--
--#endif /* _H8300_MC146818RTC_H */
-diff --git a/arch/ia64/include/asm/mc146818rtc.h b/arch/ia64/include/asm/mc146818rtc.h
-deleted file mode 100644
-index 407787a237ba..000000000000
---- a/arch/ia64/include/asm/mc146818rtc.h
-+++ /dev/null
-@@ -1,10 +0,0 @@
--#ifndef _ASM_IA64_MC146818RTC_H
--#define _ASM_IA64_MC146818RTC_H
--
--/*
-- * Machine dependent access functions for RTC registers.
-- */
--
--/* empty include file to satisfy the include in genrtc.c */
--
--#endif /* _ASM_IA64_MC146818RTC_H */
-diff --git a/arch/parisc/include/asm/mc146818rtc.h b/arch/parisc/include/asm/mc146818rtc.h
-deleted file mode 100644
-index adf41631449f..000000000000
---- a/arch/parisc/include/asm/mc146818rtc.h
-+++ /dev/null
-@@ -1,9 +0,0 @@
--/*
-- * Machine dependent access functions for RTC registers.
-- */
--#ifndef _ASM_MC146818RTC_H
--#define _ASM_MC146818RTC_H
--
--/* empty include file to satisfy the include in genrtc.c */
--
--#endif /* _ASM_MC146818RTC_H */
-diff --git a/arch/sh/include/asm/mc146818rtc.h b/arch/sh/include/asm/mc146818rtc.h
-deleted file mode 100644
-index 0aee96a97330..000000000000
---- a/arch/sh/include/asm/mc146818rtc.h
-+++ /dev/null
-@@ -1,7 +0,0 @@
--/*
-- * Machine dependent access functions for RTC registers.
-- */
--#ifndef _ASM_MC146818RTC_H
--#define _ASM_MC146818RTC_H
--
--#endif /* _ASM_MC146818RTC_H */
 -- 
-2.7.0
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
 -- 
 -- 
