@@ -1,21 +1,22 @@
-Return-Path: <rtc-linux+bncBAABBV5Z7S4AKGQESIKKG3Q@googlegroups.com>
+Return-Path: <rtc-linux+bncBCO3XAUMTIFRBJFX3G4AKGQEMILY3IY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from root.phytec.de (mail.phycard.de. [217.6.246.34])
-        by gmr-mx.google.com with ESMTP id k143si51279wmg.1.2016.04.26.00.46.31
-        for <rtc-linux@googlegroups.com>;
-        Tue, 26 Apr 2016 00:46:31 -0700 (PDT)
-Subject: [rtc-linux] Re: [PATCH v3 4/8] regulator: rk808: Migrate to regulator
- core's simplified DT parsing code
-To: Mark Brown <broonie@kernel.org>
-References: <1461590448-47685-1-git-send-email-w.egorov@phytec.de>
- <1461590448-47685-5-git-send-email-w.egorov@phytec.de>
- <20160425173911.GQ3217@sirena.org.uk>
-Cc: linux-kernel@vger.kernel.org, linux-clk@vger.kernel.org, rtc-linux@googlegroups.com, devicetree@vger.kernel.org, linux-rockchip@lists.infradead.org, robh+dt@kernel.org, pawel.moll@arm.com, mark.rutland@arm.com, ijc+devicetree@hellion.org.uk, galak@codeaurora.org, mturquette@baylibre.com, sboyd@codeaurora.org, lee.jones@linaro.org, lgirdwood@gmail.com, a.zummo@towertech.it, alexandre.belloni@free-electrons.com, dianders@chromium.org, zyw@rock-chips.com
-From: Wadim Egorov <w.egorov@phytec.de>
-Message-ID: <571F1CB4.10200@phytec.de>
-Date: Tue, 26 Apr 2016 09:45:56 +0200
+Received: from bear.ext.ti.com (bear.ext.ti.com. [192.94.94.41])
+        by gmr-mx.google.com with ESMTPS id au10si205527igc.3.2016.04.19.09.24.03
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1 cipher=AES128-SHA bits=128/128);
+        Tue, 19 Apr 2016 09:24:03 -0700 (PDT)
+From: Nishanth Menon <nm@ti.com>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        Alessandro Zummo
+	<a.zummo@towertech.it>
+CC: <linux-kernel@vger.kernel.org>, <rtc-linux@googlegroups.com>,
+        <linux-omap@vger.kernel.org>, <linux-arm-kernel@lists.infradead.org>,
+        Nishanth Menon <nm@ti.com>, Michael Lange <linuxstuff@milaw.biz>
+Subject: [rtc-linux] [PATCH] rtc: ds1307: Use irq when available for
+ wakeup-source device
+Date: Tue, 19 Apr 2016 11:23:54 -0500
+Message-ID: <1461083034-9227-1-git-send-email-nm@ti.com>
 MIME-Version: 1.0
-In-Reply-To: <20160425173911.GQ3217@sirena.org.uk>
 Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
@@ -26,17 +27,38 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
+With commit 8bc2a40730ec ("rtc: ds1307: add support for the
+DT property 'wakeup-source'") we lost the ability for rtc irq
+functionality for devices that are actually hooked on a real IRQ
+line and have capability to wakeup as well. This is not an expected
+behavior. So, instead of just not requesting IRQ, skip the IRQ
+requirement only if interrupts are not defined for the device.
 
+Fixes: 8bc2a40730ec ("rtc: ds1307: add support for the DT property 'wakeup-source'")
+Reported-by: Tony Lindgren <tony@atomide.com>
+Cc: Michael Lange <linuxstuff@milaw.biz>
+Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Signed-off-by: Nishanth Menon <nm@ti.com>
+---
 
-On 25.04.2016 19:39, Mark Brown wrote:
-> On Mon, Apr 25, 2016 at 03:20:44PM +0200, Wadim Egorov wrote:
->> A common simplified DT parsing code for regulators was introduced in
->> commit a0c7b164ad11 ("regulator: of: Provide simplified DT parsing
->> method")
-> This doesn't apply against current code, please check and resend.
+ drivers/rtc/rtc-ds1307.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Hm, for me all patches apply to the current code.
-This patch depends on the first rename patch. Maybe this is the problem?
+diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
+index b2156ee5bae1..74cd5cd544ee 100644
+--- a/drivers/rtc/rtc-ds1307.c
++++ b/drivers/rtc/rtc-ds1307.c
+@@ -1531,7 +1531,7 @@ read_rtc:
+ 		return PTR_ERR(ds1307->rtc);
+ 	}
+ 
+-	if (ds1307_can_wakeup_device) {
++	if (ds1307_can_wakeup_device && ds1307->client->irq <= 0) {
+ 		/* Disable request for an IRQ */
+ 		want_irq = false;
+ 		dev_info(&client->dev, "'wakeup-source' is set, request for an IRQ is disabled!\n");
+-- 
+2.8.0
 
 -- 
 -- 
