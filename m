@@ -1,23 +1,26 @@
-Return-Path: <rtc-linux+bncBDP47C6LHEINZLW6XACRUBD5TNA54@googlegroups.com>
+Return-Path: <rtc-linux+bncBCPM5SUWUYIRBTGZ224AKGQE3AVCRTA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from pokefinder.org (sauhun.de. [89.238.76.85])
-        by gmr-mx.google.com with ESMTPS id a136si730485wma.0.2016.04.20.07.51.07
+Received: from mail-vk0-x242.google.com (mail-vk0-x242.google.com. [2607:f8b0:400c:c05::242])
+        by gmr-mx.google.com with ESMTPS id m62si920746vkg.3.2016.04.18.20.58.04
         for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=AES128-SHA bits=128/128);
-        Wed, 20 Apr 2016 07:51:07 -0700 (PDT)
-Date: Wed, 20 Apr 2016 16:51:04 +0200
-From: Wolfram Sang <wsa@the-dreams.de>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org,
-	johnstul@us.ibm.com
-Subject: [rtc-linux] Re: [1/3] rtc: mc13xxx: remove UIE signaling
-Message-ID: <20160420145104.GB1551@katana>
-References: <1304523088-17039-2-git-send-email-w.sang@pengutronix.de>
- <20160420143751.GT29844@piout.net>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 18 Apr 2016 20:58:04 -0700 (PDT)
+Received: by mail-vk0-x242.google.com with SMTP id e185so590722vkb.2
+        for <rtc-linux@googlegroups.com>; Mon, 18 Apr 2016 20:58:04 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="i9LlY+UWpKt15+FH"
-In-Reply-To: <20160420143751.GT29844@piout.net>
+In-Reply-To: <AM2PR04MB0964532D38F8EF2C4F279034E76C0@AM2PR04MB0964.eurprd04.prod.outlook.com>
+References: <AM2PR04MB09643A16272FB78B0D9FA103E76B0@AM2PR04MB0964.eurprd04.prod.outlook.com>
+	<CAC5umyjh9fWigbS-xzcwpSyUgA9KkSWkMiSYur3iYWt1_2-vcA@mail.gmail.com>
+	<AM2PR04MB0964532D38F8EF2C4F279034E76C0@AM2PR04MB0964.eurprd04.prod.outlook.com>
+Date: Tue, 19 Apr 2016 12:58:03 +0900
+Message-ID: <CAC5umyhUdHtOahu6Mw00VF4qNKfLG1citQc+FpPdhsoF4r-Qqw@mail.gmail.com>
+Subject: [rtc-linux] Re: rtc ds3232 call trace in kernel
+From: Akinobu Mita <akinobu.mita@gmail.com>
+To: Qianyu Gong <qianyu.gong@nxp.com>
+Cc: "alexandre.belloni@free-electrons.com" <alexandre.belloni@free-electrons.com>, Mingkai Hu <mingkai.hu@nxp.com>,
+	"rtc-linux@googlegroups.com" <rtc-linux@googlegroups.com>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -27,58 +30,94 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
---i9LlY+UWpKt15+FH
-Content-Type: text/plain; charset=UTF-8
-Content-Disposition: inline
+2016-04-19 11:36 GMT+09:00 Qianyu Gong <qianyu.gong@nxp.com>:
+>
+>> -----Original Message-----
+>> From: Akinobu Mita [mailto:akinobu.mita@gmail.com]
+>> Sent: Monday, April 18, 2016 9:02 PM
+>> To: Qianyu Gong <qianyu.gong@nxp.com>
+>> Cc: alexandre.belloni@free-electrons.com; Mingkai Hu <mingkai.hu@nxp.com=
+>;
+>> rtc-linux@googlegroups.com; linux-kernel@vger.kernel.org
+>> Subject: Re: rtc ds3232 call trace in kernel
+>>
+>> 2016-04-18 15:15 GMT+09:00 Qianyu Gong <qianyu.gong@nxp.com>:
+>> > Hi Akinobu,
+>> >
+>> >
+>> >
+>> > I got an rtc call trace when booting 4.6 kernel on our board and I
+>> > found it
+>> >
+>> > was caused by this patch:
+>> >
+>> >
+>> >
+>> > commit fc1dcb0b39dbb10d3290f2fcd6e154670f699166
+>> >
+>> > Author: Akinobu Mita <akinobu.mita@gmail.com>
+>> >
+>> > Date:   Mon Mar 7 00:27:53 2016 +0900
+>> >
+>> >
+>> >
+>> >     rtc: ds3232: use rtc->ops_lock to protect alarm operations
+>> >
+>> >
+>> >
+>> >     ds3232->mutex is used to protect for alarm operations which
+>> >
+>> >     need to access status and control registers.
+>> >
+>> >
+>> >
+>> >     But we can use rtc->ops_lock instead.  rtc->ops_lock is held when
+>> > most
+>> >
+>> >     of rtc_class_ops methods are called, so we only need to explicitly
+>> >
+>> >     acquire it from irq handler in order to protect form concurrent
+>> >
+>> >     accesses.
+>> >
+>> >
+>> >
+>> >     Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
+>> >
+>> > Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com
+>> >
+>> >
+>> >
+>> > The problem is that rtc->ops_lock would be accessed in ds3232_irq()
+>> >
+>> > without being initialized as rtc_device_register() is called too late.
+>>
+>> You have already identified the root cause of this issue.
+>>
+>> > As I=E2=80=99m not familiar with rtc things, could I just revert the p=
+atch or
+>> > you already
+>> >
+>> > have a solution to this problem? Thanks in advance.
+>>
+>> Could you check if the problem is resolved by moving the call of
+>> devm_rtc_device_register() from the end of ds3232_probe() to just before
+>> registering irq handler?
+>
+> Yes. It works(no call trace now).
 
-On Wed, Apr 20, 2016 at 04:37:51PM +0200, Alexandre Belloni wrote:
-> On 04/05/2011 at 17:31:26 +0200, Wolfram Sang wrote :
-> > The RTC core handles it since 6610e08 (RTC: Rework RTC code to use
-> > timerqueue for events). So far, only the callbacks to the RTC core have
-> > been removed, but not the handlers. Do this now.
-> > 
-> > Signed-off-by: Wolfram Sang <w.sang@pengutronix.de>
-> > ---
-> >  drivers/rtc/rtc-mc13xxx.c |   23 -----------------------
-> >  1 files changed, 0 insertions(+), 23 deletions(-)
-> > 
-> 
-> Almost five years ago, you sent that patch...
+Thanks for testing.  Do you mind submitting your patch to
+rtc-linux@googlegroups.com ?
 
-Wow, I almost forgot about it ;)))
-
-Thanks for picking it up.
-
--- 
--- 
+--=20
+--=20
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+---=20
+You received this message because you are subscribed to the Google Groups "=
+rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an e=
+mail to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
-
---i9LlY+UWpKt15+FH
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJXF5dYAAoJEBQN5MwUoCm2PGAQALZok5nFRlelQeC4yr+h4VGu
-Ixt4qsFTykctOmTCFsX6McOfiDyX6wMIxpa5xPUr5HmKGX2vkJsvWcHZPiorr7pw
-HU0FVnOMSm++3bBbMifJrZA7Zif7kHQ2idNOhvVlaS36kw/y+vLGrmby1vMYbavX
-yzwNrLCkbAaP2OjrVlHXPjFHh13OE2+10GRKJ50U3B1r5K40EhuQ/0JP3ZTMZVxT
-mHcvheem37f9lW4nLo86W6WoWwku0yJIQIJ1pTZjrnNlYFnMGEGqZRkqTBC2XVRw
-vwsJAZqMmQjBs6d68Y6mh0e3ocvCit9HHF4FFzz48PcM2fnrXVqY7UJuiXKvXeLp
-rE5iAgf0IiOVueXeHi4ZTgpOh7URmfWXwTHIWaaL8X/XV3D88FtwydaXBFlKTK+1
-QsdMhuRxwajoItDsCXHnQBUlCHmnWY/bzU8qzHf1c/zWGDeorvaRgUA4Hi4yplIf
-XkIeOWMfROjBKIAUiiE9hKKa5nCu4qvxr5cP8Fif7FsIWR3I+Z6iAQvVabsRSbsp
-BUrDofeOtC8C5rgSp85Z4D5bbocs2LkJVzt5Y57MCV96Ye6GrXFZWT/0FOXS5A+i
-U/dXzwuT1NlUuLG5JagAxi7IBarL3rtuPCHOY9LIgb0OQVp/K9dgcfYR9XGFiTbv
-YfIovGAB/Uq/y3tSiG4f
-=lqbF
------END PGP SIGNATURE-----
-
---i9LlY+UWpKt15+FH--
