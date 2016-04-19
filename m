@@ -1,24 +1,24 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBOPJVG4AKGQEH7EDS6I@googlegroups.com>
+Return-Path: <rtc-linux+bncBCPM5SUWUYIRBAVK3C4AKGQE4D6EZNY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id a136si6138wma.0.2016.04.10.08.43.52
-        for <rtc-linux@googlegroups.com>;
-        Sun, 10 Apr 2016 08:43:52 -0700 (PDT)
-Date: Sun, 10 Apr 2016 17:43:52 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Arnd Bergmann <arnd@arndb.de>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>,
-	RTCLINUX <rtc-linux@googlegroups.com>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: [rtc-linux] Re: [PATCH 1/2] char: PC rtc: replace blacklist with whitelist
-Message-ID: <20160410154352.GH5377@piout.net>
-References: <1456912137-1578635-1-git-send-email-arnd@arndb.de>
- <CAMuHMdU26GkyUYxs3DJOFRB5LTdYCOaGTMUwFMd9YXYhkS1W3g@mail.gmail.com>
+Received: from mail-vk0-x244.google.com (mail-vk0-x244.google.com. [2607:f8b0:400c:c05::244])
+        by gmr-mx.google.com with ESMTPS id m62si984355vkg.3.2016.04.19.04.22.42
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 19 Apr 2016 04:22:42 -0700 (PDT)
+Received: by mail-vk0-x244.google.com with SMTP id x190so1751769vka.3
+        for <rtc-linux@googlegroups.com>; Tue, 19 Apr 2016 04:22:42 -0700 (PDT)
 MIME-Version: 1.0
+In-Reply-To: <1461039983-32434-1-git-send-email-Qianyu.Gong@nxp.com>
+References: <1461039983-32434-1-git-send-email-Qianyu.Gong@nxp.com>
+Date: Tue, 19 Apr 2016 20:22:41 +0900
+Message-ID: <CAC5umygybxXtdG6bbc6WOVJznoJNTi6ShJT7Lh1R=HA0eA-19g@mail.gmail.com>
+Subject: [rtc-linux] Re: [PATCH] rtc: ds3232: fix call trace when
+ rtc->ops_lock is used as NULL
+From: Akinobu Mita <akinobu.mita@gmail.com>
+To: Gong Qianyu <Qianyu.Gong@nxp.com>
+Cc: rtc-linux@googlegroups.com,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>, Mingkai Hu <mingkai.hu@nxp.com>
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <CAMuHMdU26GkyUYxs3DJOFRB5LTdYCOaGTMUwFMd9YXYhkS1W3g@mail.gmail.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -28,47 +28,45 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Arnd,
+Hi Gong,
 
-On 02/03/2016 at 11:22:04 +0100, Geert Uytterhoeven wrote :
-> On Wed, Mar 2, 2016 at 10:48 AM, Arnd Bergmann <arnd@arndb.de> wrote:
-> > Every new architecture has to add itself to the growing list of those
-> > that do not support the legacy PC RTC driver.
-> >
-> > This replaces the long list of architectures that don't support it
-> > with a shorter list of those that do.
-> >
-> > The list is taken from those architectures that have a non-empty
-> > asm/mc146818rtc.h header file and were not explicitly blacklisted.
-> 
-> M68K was blacklisted...
-> 
-> > Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-> > ---
-> >  drivers/char/Kconfig | 3 +--
-> >  1 file changed, 1 insertion(+), 2 deletions(-)
-> >
-> > diff --git a/drivers/char/Kconfig b/drivers/char/Kconfig
-> > index a043107da2af..9716bc36495a 100644
-> > --- a/drivers/char/Kconfig
-> > +++ b/drivers/char/Kconfig
-> > @@ -279,8 +279,7 @@ if RTC_LIB=n
-> >
-> >  config RTC
-> >         tristate "Enhanced Real Time Clock Support (legacy PC RTC driver)"
-> > -       depends on !PPC && !PARISC && !IA64 && !M68K && !SPARC && !FRV \
-> > -                       && !ARM && !SUPERH && !S390 && !AVR32 && !BLACKFIN && !UML
-> > +       depends on ALPHA || M32R || M68K || MIPS || MN10300 || PPC || X86
-> 
-> ... so please drop it here.
-> 
+2016-04-19 13:26 GMT+09:00 Gong Qianyu <Qianyu.Gong@nxp.com>:
+> Move devm_rtc_device_register() just before registering irq handler
+> to initialize rtc->ops_lock earlier.
 
-Do you plan to resend that one?
+It is better to explain why you need this change in the commit log.
+You already described it in your first report:
+> The problem is that rtc->ops_lock would be accessed in ds3232_irq()
+> without being initialized as rtc_device_register() is called too late.
 
--- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+> Signed-off-by: Gong Qianyu <Qianyu.Gong@nxp.com>
+> ---
+>  drivers/rtc/rtc-ds3232.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+>
+> diff --git a/drivers/rtc/rtc-ds3232.c b/drivers/rtc/rtc-ds3232.c
+> index 7edc889..9d44b2f 100644
+> --- a/drivers/rtc/rtc-ds3232.c
+> +++ b/drivers/rtc/rtc-ds3232.c
+> @@ -369,6 +369,8 @@ static int ds3232_probe(struct device *dev, struct regmap *regmap, int irq,
+>         if (ret)
+>                 return ret;
+>
+> +       ds3232->rtc = devm_rtc_device_register(dev, name, &ds3232_rtc_ops,
+> +                                               THIS_MODULE);
+>         if (ds3232->irq > 0) {
+>                 ret = devm_request_threaded_irq(dev, ds3232->irq, NULL,
+>                                                 ds3232_irq,
+> @@ -380,8 +382,6 @@ static int ds3232_probe(struct device *dev, struct regmap *regmap, int irq,
+>                 } else
+>                         device_init_wakeup(dev, 1);
+>         }
+> -       ds3232->rtc = devm_rtc_device_register(dev, name, &ds3232_rtc_ops,
+> -                                               THIS_MODULE);
+>
+>         return PTR_ERR_OR_ZERO(ds3232->rtc);
+
+This error check for devm_rtc_device_register() needs to be moved together.
 
 -- 
 -- 
