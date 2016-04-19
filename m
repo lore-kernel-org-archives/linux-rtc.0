@@ -1,36 +1,25 @@
-Return-Path: <rtc-linux+bncBDEKVJM7XAHRBNGG764AKGQE5NS5LTQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBAABBGFT224AKGQEQVST3OQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-MIME-Version: 1.0
-Received: from mout.kundenserver.de (mout.kundenserver.de. [212.227.17.10])
-        by gmr-mx.google.com with ESMTPS id e64si600669wmi.3.2016.04.26.14.52.51
+Received: from EUR01-DB5-obe.outbound.protection.outlook.com (mail-db5eur01on0087.outbound.protection.outlook.com. [104.47.2.87])
+        by gmr-mx.google.com with ESMTPS id yr8si6553820pac.0.2016.04.18.19.36.08
         for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 26 Apr 2016 14:52:51 -0700 (PDT)
-From: Arnd Bergmann <arnd@arndb.de>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Arnd Bergmann <arnd@arndb.de>,
-	geert@linux-m68k.org,
-	deller@gmx.de,
-	benh@kernel.crashing.org,
-	mpe@ellerman.id.au,
-	dalias@libc.org,
-	dhowells@redhat.com,
-	linux-alpha@vger.kernel.org,
-	a.zummo@towertech.it,
-	linux-kernel@vger.kernel.org,
-	linux-parisc@vger.kernel.org,
-	linuxppc-dev@lists.ozlabs.org,
-	linux-sh@vger.kernel.org,
-	linux-m68k@lists.linux-m68k.org,
-	rtc-linux@googlegroups.com,
-	linux-arch@vger.kernel.org
-Subject: [rtc-linux] [PATCH v2 4/6] rtc: parisc: provide rtc_class_ops directly
-Date: Tue, 26 Apr 2016 23:52:29 +0200
-Message-Id: <1461707551-1337971-5-git-send-email-arnd@arndb.de>
-In-Reply-To: <1461707551-1337971-1-git-send-email-arnd@arndb.de>
-References: <1461707551-1337971-1-git-send-email-arnd@arndb.de>
-Reply-To: rtc-linux@googlegroups.com
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
+        Mon, 18 Apr 2016 19:36:08 -0700 (PDT)
+From: Qianyu Gong <qianyu.gong@nxp.com>
+To: Akinobu Mita <akinobu.mita@gmail.com>
+CC: "alexandre.belloni@free-electrons.com"
+	<alexandre.belloni@free-electrons.com>, Mingkai Hu <mingkai.hu@nxp.com>,
+	"rtc-linux@googlegroups.com" <rtc-linux@googlegroups.com>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: [rtc-linux] RE: rtc ds3232 call trace in kernel
+Date: Tue, 19 Apr 2016 02:36:05 +0000
+Message-ID: <AM2PR04MB0964532D38F8EF2C4F279034E76C0@AM2PR04MB0964.eurprd04.prod.outlook.com>
+References: <AM2PR04MB09643A16272FB78B0D9FA103E76B0@AM2PR04MB0964.eurprd04.prod.outlook.com>
+ <CAC5umyjh9fWigbS-xzcwpSyUgA9KkSWkMiSYur3iYWt1_2-vcA@mail.gmail.com>
+In-Reply-To: <CAC5umyjh9fWigbS-xzcwpSyUgA9KkSWkMiSYur3iYWt1_2-vcA@mail.gmail.com>
 Content-Type: text/plain; charset=UTF-8
+MIME-Version: 1.0
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -39,92 +28,93 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-The rtc-generic driver provides an architecture specific
-wrapper on top of the generic rtc_class_ops abstraction,
-and on pa-risc, that is implemented using an open-coded
-version of rtc_time_to_tm/rtc_tm_to_time.
 
-This changes the parisc rtc-generic device to provide its
-rtc_class_ops directly, using the normal helper functions,
-which makes this y2038 safe (on 32-bit) and simplifies
-the implementation.
+> -----Original Message-----
+> From: Akinobu Mita [mailto:akinobu.mita@gmail.com]
+> Sent: Monday, April 18, 2016 9:02 PM
+> To: Qianyu Gong <qianyu.gong@nxp.com>
+> Cc: alexandre.belloni@free-electrons.com; Mingkai Hu <mingkai.hu@nxp.com>=
+;
+> rtc-linux@googlegroups.com; linux-kernel@vger.kernel.org
+> Subject: Re: rtc ds3232 call trace in kernel
+>=20
+> 2016-04-18 15:15 GMT+09:00 Qianyu Gong <qianyu.gong@nxp.com>:
+> > Hi Akinobu,
+> >
+> >
+> >
+> > I got an rtc call trace when booting 4.6 kernel on our board and I
+> > found it
+> >
+> > was caused by this patch:
+> >
+> >
+> >
+> > commit fc1dcb0b39dbb10d3290f2fcd6e154670f699166
+> >
+> > Author: Akinobu Mita <akinobu.mita@gmail.com>
+> >
+> > Date:   Mon Mar 7 00:27:53 2016 +0900
+> >
+> >
+> >
+> >     rtc: ds3232: use rtc->ops_lock to protect alarm operations
+> >
+> >
+> >
+> >     ds3232->mutex is used to protect for alarm operations which
+> >
+> >     need to access status and control registers.
+> >
+> >
+> >
+> >     But we can use rtc->ops_lock instead.  rtc->ops_lock is held when
+> > most
+> >
+> >     of rtc_class_ops methods are called, so we only need to explicitly
+> >
+> >     acquire it from irq handler in order to protect form concurrent
+> >
+> >     accesses.
+> >
+> >
+> >
+> >     Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
+> >
+> > Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com
+> >
+> >
+> >
+> > The problem is that rtc->ops_lock would be accessed in ds3232_irq()
+> >
+> > without being initialized as rtc_device_register() is called too late.
+>=20
+> You have already identified the root cause of this issue.
+>=20
+> > As I=E2=80=99m not familiar with rtc things, could I just revert the pa=
+tch or
+> > you already
+> >
+> > have a solution to this problem? Thanks in advance.
+>=20
+> Could you check if the problem is resolved by moving the call of
+> devm_rtc_device_register() from the end of ds3232_probe() to just before
+> registering irq handler?
 
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
----
- arch/parisc/kernel/time.c | 36 +++++++++++++++++++++++++++++++++++-
- 1 file changed, 35 insertions(+), 1 deletion(-)
+Yes. It works(no call trace now).=20
 
-diff --git a/arch/parisc/kernel/time.c b/arch/parisc/kernel/time.c
-index 58dd6801f5be..1338d92fc87b 100644
---- a/arch/parisc/kernel/time.c
-+++ b/arch/parisc/kernel/time.c
-@@ -12,6 +12,7 @@
-  */
- #include <linux/errno.h>
- #include <linux/module.h>
-+#include <linux/rtc.h>
- #include <linux/sched.h>
- #include <linux/kernel.h>
- #include <linux/param.h>
-@@ -248,14 +249,47 @@ void __init start_cpu_itimer(void)
- 	per_cpu(cpu_data, cpu).it_value = next_tick;
- }
- 
-+#ifdef CONFIG_RTC_DRV_GENERIC
-+static int rtc_generic_get_time(struct device *dev, struct rtc_time *tm)
-+{
-+	struct pdc_tod tod_data;
-+
-+	memset(tm, 0, sizeof(*tm));
-+	if (pdc_tod_read(&tod_data) < 0)
-+		return -EOPNOTSUPP;
-+
-+	/* we treat tod_sec as unsigned, so this can work until year 2106 */
-+	rtc_time64_to_tm(tod_data.tod_sec, &tm);
-+	return rtc_valid_tm(tm);
-+}
-+
-+static int rtc_generic_set_time(struct device *dev, struct rtc_time *tm)
-+{
-+	time64_t secs = rtc_tm_to_time64(tm);
-+
-+	if (pdc_tod_set(secs, 0) < 0)
-+		return -EOPNOTSUPP;
-+
-+	return 0;
-+}
-+
-+static const struct rtc_class_ops rtc_generic_ops = {
-+	.read_time = rtc_generic_get_time,
-+	.set_time = rtc_generic_set_time,
-+};
-+
- static int __init rtc_init(void)
- {
- 	struct platform_device *pdev;
- 
--	pdev = platform_device_register_simple("rtc-generic", -1, NULL, 0);
-+	pdev = platform_device_register_data(NULL, "rtc-generic", -1,
-+					     &rtc_generic_ops,
-+					     sizeof(rtc_generic_ops));
-+
- 	return PTR_ERR_OR_ZERO(pdev);
- }
- device_initcall(rtc_init);
-+#endif
- 
- void read_persistent_clock(struct timespec *ts)
- {
--- 
-2.7.0
+Regards,
+Qianyu
 
--- 
--- 
+--=20
+--=20
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+---=20
+You received this message because you are subscribed to the Google Groups "=
+rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an e=
+mail to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
