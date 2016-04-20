@@ -1,21 +1,23 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBQV62W4AKGQEBUDUK7I@googlegroups.com>
+Return-Path: <rtc-linux+bncBDHZXHXDRAMBBRVQ3O4AKGQEGWBWL4Q@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id u137si18685wmd.1.2016.04.18.15.27.13
-        for <rtc-linux@googlegroups.com>;
-        Mon, 18 Apr 2016 15:27:13 -0700 (PDT)
-Date: Tue, 19 Apr 2016 00:27:03 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Nicolas Boullis <nboullis@debian.org>
-Cc: Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com
-Subject: [rtc-linux] Re: [PATCH 1/2] rtc: ds1307: fix ds1307_native_smbus_read_block_data
- function
-Message-ID: <20160418222703.GZ25196@piout.net>
-References: <20160402221037.GA3600@haddock.home>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <20160402221037.GA3600@haddock.home>
+Received: from smtp.codeaurora.org (smtp.codeaurora.org. [198.145.29.96])
+        by gmr-mx.google.com with ESMTPS id d22si3880147pfd.0.2016.04.19.18.15.50
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 19 Apr 2016 18:15:50 -0700 (PDT)
+From: Stephen Boyd <sboyd@codeaurora.org>
+To: Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: linux-kernel@vger.kernel.org,
+	rtc-linux@googlegroups.com,
+	Akinobu Mita <akinobu.mita@gmail.com>,
+	Michael Tatarinov <kukabu@gmail.com>
+Subject: [rtc-linux] [PATCH] rtc: ds1307: Remove CLK_IS_ROOT
+Date: Tue, 19 Apr 2016 18:15:48 -0700
+Message-Id: <1461114948-17987-1-git-send-email-sboyd@codeaurora.org>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -24,25 +26,36 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 03/04/2016 at 00:10:37 +0200, Nicolas Boullis wrote :
-> The i2c_smbus_read_i2c_block_data function returns 0 on success, not the 
-> number of bytes written.
-> 
-> Hence, when there are 32 bytes or less to send, the 
-> ds1307_native_smbus_write_block_data function returns 0 on success, 
-> while it returns the number of bytes when there are more than 32.
-> 
-> The ds1307_write_block_data always returns the number of bytes on 
-> success.
-> 
-> Signed-off-by: Nicolas Boullis <nboullis@debian.org>
-> 
-Applied, thanks.
+This flag is a no-op now (see commit 47b0eeb3dc8a "clk: Deprecate
+CLK_IS_ROOT", 2016-02-02) so remove it.
 
+Cc: Akinobu Mita <akinobu.mita@gmail.com>
+Cc: Michael Tatarinov <kukabu@gmail.com>
+Signed-off-by: Stephen Boyd <sboyd@codeaurora.org>
+---
+ drivers/rtc/rtc-ds1307.c | 2 --
+ 1 file changed, 2 deletions(-)
+
+diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
+index 043c307d85da..e99fd749e35e 100644
+--- a/drivers/rtc/rtc-ds1307.c
++++ b/drivers/rtc/rtc-ds1307.c
+@@ -1151,12 +1151,10 @@ static struct clk_init_data ds3231_clks_init[] = {
+ 	[DS3231_CLK_SQW] = {
+ 		.name = "ds3231_clk_sqw",
+ 		.ops = &ds3231_clk_sqw_ops,
+-		.flags = CLK_IS_ROOT,
+ 	},
+ 	[DS3231_CLK_32KHZ] = {
+ 		.name = "ds3231_clk_32khz",
+ 		.ops = &ds3231_clk_32khz_ops,
+-		.flags = CLK_IS_ROOT,
+ 	},
+ };
+ 
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum,
+a Linux Foundation Collaborative Project
 
 -- 
 -- 
