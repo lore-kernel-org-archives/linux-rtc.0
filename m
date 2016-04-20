@@ -1,26 +1,21 @@
-Return-Path: <rtc-linux+bncBCQPVKWLVAIRBL46S24AKGQEADXRBCI@googlegroups.com>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBJXO3S4AKGQES6W3QMI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from muru.com (muru.com. [72.249.23.125])
-        by gmr-mx.google.com with ESMTP id uh9si1599709igb.1.2016.04.06.15.35.26
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id a80si387251wma.0.2016.04.20.01.00.37
         for <rtc-linux@googlegroups.com>;
-        Wed, 06 Apr 2016 15:35:27 -0700 (PDT)
-Date: Wed, 6 Apr 2016 15:35:24 -0700
-From: Tony Lindgren <tony@atomide.com>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Marcin Niestroj <m.niestroj@grinn-global.com>,
-	rtc-linux@googlegroups.com, devicetree@vger.kernel.org,
-	Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>,
-	Alessandro Zummo <a.zummo@towertech.it>, Keerthy <j-keerthy@ti.com>,
-	linux-omap@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH v2] rtc: omap: Support ext_wakeup configuration
-Message-ID: <20160406223524.GG16484@atomide.com>
-References: <1459960367-29399-1-git-send-email-m.niestroj@grinn-global.com>
- <1459960367-29399-2-git-send-email-m.niestroj@grinn-global.com>
- <20160406191103.GE27411@atomide.com>
- <20160406220909.GG7190@piout.net>
+        Wed, 20 Apr 2016 01:00:37 -0700 (PDT)
+Date: Wed, 20 Apr 2016 10:00:37 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Stephen Boyd <sboyd@codeaurora.org>
+Cc: Alessandro Zummo <a.zummo@towertech.it>, linux-kernel@vger.kernel.org,
+	rtc-linux@googlegroups.com, Akinobu Mita <akinobu.mita@gmail.com>,
+	Michael Tatarinov <kukabu@gmail.com>
+Subject: [rtc-linux] Re: [PATCH] rtc: ds1307: Remove CLK_IS_ROOT
+Message-ID: <20160420080037.GN29844@piout.net>
+References: <1461114948-17987-1-git-send-email-sboyd@codeaurora.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <20160406220909.GG7190@piout.net>
+In-Reply-To: <1461114948-17987-1-git-send-email-sboyd@codeaurora.org>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -30,28 +25,23 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-* Alexandre Belloni <alexandre.belloni@free-electrons.com> [160406 15:10]:
-> On 06/04/2016 at 12:11:03 -0700, Tony Lindgren wrote :
-> > * Marcin Niestroj <m.niestroj@grinn-global.com> [160406 09:34]:
-> > > Support configuration of ext_wakeup sources. This patch makes it
-> > > possible to enable ext_wakeup (and set it's polarity), depending on
-> > > board configuration. AM335x's dedicated PMIC (tps65217) uses ext_wakeup
-> > > in SLEEP mode (RTC-only) to notify about power-button presses. Handling
-> > > power-button presses enables to recover from RTC-only power states
-> > > correctly.
-> > > 
-> > > Implementation uses gpiochip to utilize standard bindings. However,
-> > > configuration is possible only using device-tree (no runtime changes).
-> > 
-> > Hey looks good to me, adding linux-omap list to Cc.
-> > 
+On 19/04/2016 at 18:15:48 -0700, Stephen Boyd wrote :
+> This flag is a no-op now (see commit 47b0eeb3dc8a "clk: Deprecate
+> CLK_IS_ROOT", 2016-02-02) so remove it.
 > 
-> Seems good to me too. Tony, is that an ack?
+> Cc: Akinobu Mita <akinobu.mita@gmail.com>
+> Cc: Michael Tatarinov <kukabu@gmail.com>
+> Signed-off-by: Stephen Boyd <sboyd@codeaurora.org>
+> ---
+>  drivers/rtc/rtc-ds1307.c | 2 --
+>  1 file changed, 2 deletions(-)
+> 
+Applied, thanks.
 
-Yup looks good to me:
-
-Acked-by: Tony Lindgren <tony@atomide.com>
-
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
 -- 
 -- 
