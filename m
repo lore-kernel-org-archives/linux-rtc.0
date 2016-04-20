@@ -1,37 +1,23 @@
-Return-Path: <rtc-linux+bncBDEKVJM7XAHRBDX5QS4QKGQEC7RNDXY@googlegroups.com>
+Return-Path: <rtc-linux+bncBAABBTWH3W4AKGQEBSIHMZY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-MIME-Version: 1.0
-Received: from mout.kundenserver.de (mout.kundenserver.de. [212.227.17.24])
-        by gmr-mx.google.com with ESMTPS id t18si797691wmt.0.2016.04.27.15.34.54
+Received: from emea01-am1-obe.outbound.protection.outlook.com (mail-am1on0116.outbound.protection.outlook.com. [157.56.112.116])
+        by gmr-mx.google.com with ESMTPS id d22si4214501pfd.0.2016.04.20.04.11.08
         for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 27 Apr 2016 15:34:54 -0700 (PDT)
-From: Arnd Bergmann <arnd@arndb.de>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Arnd Bergmann <arnd@arndb.de>,
-	geert@linux-m68k.org,
-	deller@gmx.de,
-	benh@kernel.crashing.org,
-	mpe@ellerman.id.au,
-	dalias@libc.org,
-	dhowells@redhat.com,
-	linux-alpha@vger.kernel.org,
-	a.zummo@towertech.it,
-	linux-kernel@vger.kernel.org,
-	linux-parisc@vger.kernel.org,
-	linuxppc-dev@lists.ozlabs.org,
-	linux-sh@vger.kernel.org,
-	linux-m68k@lists.linux-m68k.org,
-	rtc-linux@googlegroups.com,
-	linux-arch@vger.kernel.org
-Subject: [rtc-linux] [PATCH v3 01/16] rtc: cmos: remove empty
- asm/mc146818rtc.h files
-Date: Thu, 28 Apr 2016 00:34:15 +0200
-Message-Id: <1461796470-1291527-2-git-send-email-arnd@arndb.de>
-In-Reply-To: <1461796470-1291527-1-git-send-email-arnd@arndb.de>
-References: <1461796470-1291527-1-git-send-email-arnd@arndb.de>
-Reply-To: rtc-linux@googlegroups.com
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
+        Wed, 20 Apr 2016 04:11:09 -0700 (PDT)
+From: Jeppe Ledet-Pedersen <jlp@gomspace.com>
+To: <lee.jones@linaro.org>, <arnd@arndb.de>, <gregkh@linuxfoundation.org>,
+	<alexandre.belloni@free-electrons.com>, <a.zummo@towertech.it>,
+	<robh+dt@kernel.org>, <pawel.moll@arm.com>, <mark.rutland@arm.com>,
+	<ijc+devicetree@hellion.org.uk>, <galak@codeaurora.org>
+CC: <rtc-linux@googlegroups.com>, <devicetree@vger.kernel.org>,
+	<linux-kernel@vger.kernel.org>
+Subject: [rtc-linux] [PATCH 0/3] Cypress FM33256B processor companion support
+Date: Wed, 20 Apr 2016 13:07:48 +0200
+Message-ID: <1461150471-23163-1-git-send-email-jlp@gomspace.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -40,110 +26,20 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Nothing on these architectures ever includes the asm/mc146818rtc.h
-file, the drivers that used to do this have been fixed long ago,
-and the remaining users are all PC-specific.
+Hi,
 
-This removes the files for good.
+This series adds support for the Cypress Semiconductor FM33256B processor
+companion. The device contains a 256 kbit FRAM, an RTC, a supply voltage
+monitor, and a watchdog timer. Only the FRAM and RTC are supported by these
+patches.
 
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Acked-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
----
- arch/frv/include/asm/mc146818rtc.h    | 16 ----------------
- arch/h8300/include/asm/mc146818rtc.h  |  9 ---------
- arch/ia64/include/asm/mc146818rtc.h   | 10 ----------
- arch/parisc/include/asm/mc146818rtc.h |  9 ---------
- arch/sh/include/asm/mc146818rtc.h     |  7 -------
- 5 files changed, 51 deletions(-)
- delete mode 100644 arch/frv/include/asm/mc146818rtc.h
- delete mode 100644 arch/h8300/include/asm/mc146818rtc.h
- delete mode 100644 arch/ia64/include/asm/mc146818rtc.h
- delete mode 100644 arch/parisc/include/asm/mc146818rtc.h
- delete mode 100644 arch/sh/include/asm/mc146818rtc.h
+The device is implemented as an MFD device. The FRAM interface is currently
+implemented as an SPI regmap, wrapped by a binary sysfs file. If another
+interface would be a better choice, please let me know.
 
-diff --git a/arch/frv/include/asm/mc146818rtc.h b/arch/frv/include/asm/mc146818rtc.h
-deleted file mode 100644
-index 90dfb7a633d1..000000000000
---- a/arch/frv/include/asm/mc146818rtc.h
-+++ /dev/null
-@@ -1,16 +0,0 @@
--/* mc146818rtc.h: RTC defs
-- *
-- * Copyright (C) 2005 Red Hat, Inc. All Rights Reserved.
-- * Written by David Howells (dhowells@redhat.com)
-- *
-- * This program is free software; you can redistribute it and/or
-- * modify it under the terms of the GNU General Public License
-- * as published by the Free Software Foundation; either version
-- * 2 of the License, or (at your option) any later version.
-- */
--
--#ifndef _ASM_MC146818RTC_H
--#define _ASM_MC146818RTC_H
--
--
--#endif /* _ASM_MC146818RTC_H */
-diff --git a/arch/h8300/include/asm/mc146818rtc.h b/arch/h8300/include/asm/mc146818rtc.h
-deleted file mode 100644
-index ab9d9646d241..000000000000
---- a/arch/h8300/include/asm/mc146818rtc.h
-+++ /dev/null
-@@ -1,9 +0,0 @@
--/*
-- * Machine dependent access functions for RTC registers.
-- */
--#ifndef _H8300_MC146818RTC_H
--#define _H8300_MC146818RTC_H
--
--/* empty include file to satisfy the include in genrtc.c/ide-geometry.c */
--
--#endif /* _H8300_MC146818RTC_H */
-diff --git a/arch/ia64/include/asm/mc146818rtc.h b/arch/ia64/include/asm/mc146818rtc.h
-deleted file mode 100644
-index 407787a237ba..000000000000
---- a/arch/ia64/include/asm/mc146818rtc.h
-+++ /dev/null
-@@ -1,10 +0,0 @@
--#ifndef _ASM_IA64_MC146818RTC_H
--#define _ASM_IA64_MC146818RTC_H
--
--/*
-- * Machine dependent access functions for RTC registers.
-- */
--
--/* empty include file to satisfy the include in genrtc.c */
--
--#endif /* _ASM_IA64_MC146818RTC_H */
-diff --git a/arch/parisc/include/asm/mc146818rtc.h b/arch/parisc/include/asm/mc146818rtc.h
-deleted file mode 100644
-index adf41631449f..000000000000
---- a/arch/parisc/include/asm/mc146818rtc.h
-+++ /dev/null
-@@ -1,9 +0,0 @@
--/*
-- * Machine dependent access functions for RTC registers.
-- */
--#ifndef _ASM_MC146818RTC_H
--#define _ASM_MC146818RTC_H
--
--/* empty include file to satisfy the include in genrtc.c */
--
--#endif /* _ASM_MC146818RTC_H */
-diff --git a/arch/sh/include/asm/mc146818rtc.h b/arch/sh/include/asm/mc146818rtc.h
-deleted file mode 100644
-index 0aee96a97330..000000000000
---- a/arch/sh/include/asm/mc146818rtc.h
-+++ /dev/null
-@@ -1,7 +0,0 @@
--/*
-- * Machine dependent access functions for RTC registers.
-- */
--#ifndef _ASM_MC146818RTC_H
--#define _ASM_MC146818RTC_H
--
--#endif /* _ASM_MC146818RTC_H */
--- 
-2.7.0
+Thanks,
+
+-Jeppe
 
 -- 
 -- 
