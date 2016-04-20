@@ -1,21 +1,24 @@
-Return-Path: <rtc-linux+bncBDQ2L75W5QGBBTWUQO4QKGQEJD24PCY@googlegroups.com>
+Return-Path: <rtc-linux+bncBAABBJWJ324AKGQEUQFN37Q@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-MIME-Version: 1.0
-Received: from mezzanine.sirena.org.uk (mezzanine.sirena.org.uk. [2400:8900::f03c:91ff:fedb:4f4])
-        by gmr-mx.google.com with ESMTPS id y20si761838pfa.2.2016.04.27.09.35.25
+Received: from NAM02-SN1-obe.outbound.protection.outlook.com (mail-sn1nam02on0077.outbound.protection.outlook.com. [104.47.36.77])
+        by gmr-mx.google.com with ESMTPS id cs5si502337igb.0.2016.04.20.08.47.50
         for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=AES128-SHA bits=128/128);
-        Wed, 27 Apr 2016 09:35:25 -0700 (PDT)
-From: Mark Brown <broonie@kernel.org>
-To: Wadim Egorov <w.egorov@phytec.de>
-Cc: Mark Brown <broonie@kernel.org>, linux-kernel@vger.kernel.org, linux-clk@vger.kernel.org, rtc-linux@googlegroups.com, devicetree@vger.kernel.org, linux-rockchip@lists.infradead.org, lee.jones@linaro.org, robh+dt@kernel.org, pawel.moll@arm.com, mark.rutland@arm.com, ijc+devicetree@hellion.org.uk, galak@codeaurora.org, mturquette@baylibre.com, sboyd@codeaurora.org, lgirdwood@gmail.com, broonie@kernel.org, a.zummo@towertech.it, alexandre.belloni@free-electrons.com, dianders@chromium.org, zyw@rock-chips.com
-In-Reply-To: <1461682450-22173-2-git-send-email-w.egorov@phytec.de>
-Message-Id: <E1avSQi-0004XP-Kn@debutante>
-Date: Wed, 27 Apr 2016 17:35:12 +0100
-Subject: [rtc-linux] Applied "regulator: rk808: Add rk808_reg_ops_ranges for
- LDO3" to the regulator tree
-Reply-To: rtc-linux@googlegroups.com
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
+        Wed, 20 Apr 2016 08:47:50 -0700 (PDT)
+From: Anurag Kumar Vulisha <anurag.kumar.vulisha@xilinx.com>
+To: Alessandro Zummo <a.zummo@towertech.it>, Alexandre Belloni
+	<alexandre.belloni@free-electrons.com>, <soren.brinkmann@xilinx.com>
+CC: Michal Simek <michal.simek@xilinx.com>, <rtc-linux@googlegroups.com>,
+	<linux-arm-kernel@lists.infradead.org>, <linux-kernel@vger.kernel.org>,
+	Punnaiah Choudary Kalluri <punnaia@xilinx.com>, Anirudha Sarangi
+	<anirudh@xilinx.com>, Srikanth Vemula <svemula@xilinx.com>, Srinivas Goud
+	<sgoud@xilinx.com>, Anurag Kumar Vulisha <anuragku@xilinx.com>
+Subject: [rtc-linux] [PATCH V4] rtc: zynqmp: Update seconds time programming logic
+Date: Wed, 20 Apr 2016 21:17:35 +0530
+Message-ID: <1461167255-33945-1-git-send-email-anuragku@xilinx.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -24,104 +27,116 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-The patch
+We programe RTC time using SET_TIME_WRITE register and read the RTC
+current time using CURRENT_TIME register. When we set the time by
+writing into SET_TIME_WRITE Register and immediately try to read the
+rtc time from CURRENT_TIME register, the previous old value is
+returned instead of the new loaded time. This is because RTC takes
+nearly 1 sec to update the  new loaded value into the CURRENT_TIME
+register. This behaviour is expected in our RTC IP.
 
-   regulator: rk808: Add rk808_reg_ops_ranges for LDO3
+This patch updates the driver to read the current time from SET_TIME_WRITE
+register instead of CURRENT_TIME when rtc time is requested within an 1sec
+period after setting the RTC time. Doing so will ensure the correct time
+is given to the user.
 
-has been applied to the regulator tree at
+Since there is an delay of 1sec in updating the CURRENT_TIME we are loading
+set time +1sec while programming the SET_TIME_WRITE register, doing this
+will give correct time without any delay when read from CURRENT_TIME.
 
-   git://git.kernel.org/pub/scm/linux/kernel/git/broonie/regulator.git 
+This patch updates the above said.
 
-All being well this means that it will be integrated into the linux-next
-tree (usually sometime in the next 24 hours) and sent to Linus during
-the next merge window (or sooner if it is a bug fix), however if
-problems are discovered then the patch may be dropped or reverted.  
-
-You may get further e-mails resulting from automated or manual testing
-and review of the tree, please engage with people reporting problems and
-send followup patches addressing any issues that are reported if needed.
-
-If any updates are required or you are submitting further changes they
-should be sent as incremental updates against current git, existing
-patches will not be replaced.
-
-Please add any relevant lists and maintainers to the CCs when replying
-to this mail.
-
-Thanks,
-Mark
-
->From 129d7cf98f5c739014ae5aa0311e48f6a64b0758 Mon Sep 17 00:00:00 2001
-From: Wadim Egorov <w.egorov@phytec.de>
-Date: Tue, 26 Apr 2016 16:54:04 +0200
-Subject: [PATCH] regulator: rk808: Add rk808_reg_ops_ranges for LDO3
-
-LDO_REG3 descriptor is using linear_ranges.
-Add and use proper ops for LDO_REG3.
-
-Signed-off-by: Wadim Egorov <w.egorov@phytec.de>
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Anurag Kumar Vulisha <anuragku@xilinx.com>
 ---
- drivers/regulator/rk808-regulator.c | 30 +++++++++++++++++++++++++++++-
- 1 file changed, 29 insertions(+), 1 deletion(-)
+ Changes in v4:
+   1. Corrected the read time logic
+ Changes in v2:
+   1. Updated the Time programming logic as suggested by Alexandre Belloni
+   2. Changed the commit message
+---
+ drivers/rtc/rtc-zynqmp.c | 45 +++++++++++++++++++++++++++++++++++++++------
+ 1 file changed, 39 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/regulator/rk808-regulator.c b/drivers/regulator/rk808-regulator.c
-index 67f72feed815..6601ab5fcc2d 100644
---- a/drivers/regulator/rk808-regulator.c
-+++ b/drivers/regulator/rk808-regulator.c
-@@ -238,6 +238,21 @@ static int rk808_set_suspend_voltage(struct regulator_dev *rdev, int uv)
- 				  sel);
+diff --git a/drivers/rtc/rtc-zynqmp.c b/drivers/rtc/rtc-zynqmp.c
+index f87f971..da18a8a 100644
+--- a/drivers/rtc/rtc-zynqmp.c
++++ b/drivers/rtc/rtc-zynqmp.c
+@@ -64,7 +64,12 @@ static int xlnx_rtc_set_time(struct device *dev, struct rtc_time *tm)
+ 	struct xlnx_rtc_dev *xrtcdev = dev_get_drvdata(dev);
+ 	unsigned long new_time;
+ 
+-	new_time = rtc_tm_to_time64(tm);
++	/*
++	 * The value written will be updated after 1 sec into the
++	 * seconds read register, so we need to program time +1 sec
++	 * to get the correct time on read.
++	 */
++	new_time = rtc_tm_to_time64(tm) + 1;
+ 
+ 	if (new_time > RTC_SEC_MAX_VAL)
+ 		return -EINVAL;
+@@ -78,14 +83,44 @@ static int xlnx_rtc_set_time(struct device *dev, struct rtc_time *tm)
+ 
+ 	writel(new_time, xrtcdev->reg_base + RTC_SET_TM_WR);
+ 
++	/*
++	 * Clear the rtc interrupt status register after setting the
++	 * time. During a read_time function, the code should read the
++	 * RTC_INT_STATUS register and if bit 0 is still 0, it means
++	 * that one second has not elapsed yet since RTC was set and
++	 * the current time should be read from SET_TIME_READ register;
++	 * otherwise, CURRENT_TIME register is read to report the time
++	 */
++	writel(RTC_INT_SEC, xrtcdev->reg_base + RTC_INT_STS);
++
+ 	return 0;
  }
  
-+static int rk808_set_suspend_voltage_range(struct regulator_dev *rdev, int uv)
-+{
-+	unsigned int reg;
-+	int sel = regulator_map_voltage_linear_range(rdev, uv, uv);
-+
-+	if (sel < 0)
-+		return -EINVAL;
-+
-+	reg = rdev->desc->vsel_reg + RK808_SLP_REG_OFFSET;
-+
-+	return regmap_update_bits(rdev->regmap, reg,
-+				  rdev->desc->vsel_mask,
-+				  sel);
-+}
-+
- static int rk808_set_suspend_enable(struct regulator_dev *rdev)
+ static int xlnx_rtc_read_time(struct device *dev, struct rtc_time *tm)
  {
- 	unsigned int reg;
-@@ -288,6 +303,19 @@ static struct regulator_ops rk808_reg_ops = {
- 	.set_suspend_disable	= rk808_set_suspend_disable,
- };
++	u32 status;
++	unsigned long read_time;
+ 	struct xlnx_rtc_dev *xrtcdev = dev_get_drvdata(dev);
  
-+static struct regulator_ops rk808_reg_ops_ranges = {
-+	.list_voltage		= regulator_list_voltage_linear_range,
-+	.map_voltage		= regulator_map_voltage_linear_range,
-+	.get_voltage_sel	= regulator_get_voltage_sel_regmap,
-+	.set_voltage_sel	= regulator_set_voltage_sel_regmap,
-+	.enable			= regulator_enable_regmap,
-+	.disable		= regulator_disable_regmap,
-+	.is_enabled		= regulator_is_enabled_regmap,
-+	.set_suspend_voltage	= rk808_set_suspend_voltage_range,
-+	.set_suspend_enable	= rk808_set_suspend_enable,
-+	.set_suspend_disable	= rk808_set_suspend_disable,
-+};
+-	rtc_time64_to_tm(readl(xrtcdev->reg_base + RTC_CUR_TM), tm);
++	status = readl(xrtcdev->reg_base + RTC_INT_STS);
 +
- static struct regulator_ops rk808_switch_ops = {
- 	.enable			= regulator_enable_regmap,
- 	.disable		= regulator_disable_regmap,
-@@ -383,7 +411,7 @@ static const struct regulator_desc rk808_reg[] = {
- 		.name = "LDO_REG3",
- 		.supply_name = "vcc7",
- 		.id = RK808_ID_LDO3,
--		.ops = &rk808_reg_ops,
-+		.ops = &rk808_reg_ops_ranges,
- 		.type = REGULATOR_VOLTAGE,
- 		.n_voltages = 16,
- 		.linear_ranges = rk808_ldo3_voltage_ranges,
++	if (status & RTC_INT_SEC) {
++		/*
++		 * RTC has updated the CURRENT_TIME with the time written into
++		 * SET_TIME_WRITE register.
++		 */
++		rtc_time64_to_tm(readl(xrtcdev->reg_base + RTC_CUR_TM), tm);
++	} else {
++		/*
++		 * Time written in SET_TIME_WRITE has not yet updated into
++		 * the seconds read register, so read the time from the
++		 * SET_TIME_WRITE instead of CURRENT_TIME register.
++		 * Since we add +1 sec while writing, we need to -1 sec while
++		 * reading.
++		 */
++		read_time = readl(xrtcdev->reg_base + RTC_SET_TM_RD) - 1;
++		rtc_time64_to_tm(read_time, tm);
++	}
+ 
+ 	return rtc_valid_tm(tm);
+ }
+@@ -166,11 +201,9 @@ static irqreturn_t xlnx_rtc_interrupt(int irq, void *id)
+ 	if (!(status & (RTC_INT_SEC | RTC_INT_ALRM)))
+ 		return IRQ_NONE;
+ 
+-	/* Clear interrupt */
+-	writel(status, xrtcdev->reg_base + RTC_INT_STS);
++	/* Clear RTC_INT_ALRM interrupt only */
++	writel(RTC_INT_ALRM, xrtcdev->reg_base + RTC_INT_STS);
+ 
+-	if (status & RTC_INT_SEC)
+-		rtc_update_irq(xrtcdev->rtc, 1, RTC_IRQF | RTC_UF);
+ 	if (status & RTC_INT_ALRM)
+ 		rtc_update_irq(xrtcdev->rtc, 1, RTC_IRQF | RTC_AF);
+ 
 -- 
-2.8.0.rc3
+2.1.2
 
 -- 
 -- 
