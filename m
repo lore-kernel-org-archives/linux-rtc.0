@@ -1,23 +1,23 @@
-Return-Path: <rtc-linux+bncBAABBJWJ324AKGQEUQFN37Q@googlegroups.com>
+Return-Path: <rtc-linux+bncBDP47C6LHEINZLW6XACRUBD5TNA54@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from NAM02-SN1-obe.outbound.protection.outlook.com (mail-sn1nam02on0077.outbound.protection.outlook.com. [104.47.36.77])
-        by gmr-mx.google.com with ESMTPS id cs5si502337igb.0.2016.04.20.08.47.50
+Received: from pokefinder.org (sauhun.de. [89.238.76.85])
+        by gmr-mx.google.com with ESMTPS id a136si730485wma.0.2016.04.20.07.51.07
         for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
-        Wed, 20 Apr 2016 08:47:50 -0700 (PDT)
-From: Anurag Kumar Vulisha <anurag.kumar.vulisha@xilinx.com>
-To: Alessandro Zummo <a.zummo@towertech.it>, Alexandre Belloni
-	<alexandre.belloni@free-electrons.com>, <soren.brinkmann@xilinx.com>
-CC: Michal Simek <michal.simek@xilinx.com>, <rtc-linux@googlegroups.com>,
-	<linux-arm-kernel@lists.infradead.org>, <linux-kernel@vger.kernel.org>,
-	Punnaiah Choudary Kalluri <punnaia@xilinx.com>, Anirudha Sarangi
-	<anirudh@xilinx.com>, Srikanth Vemula <svemula@xilinx.com>, Srinivas Goud
-	<sgoud@xilinx.com>, Anurag Kumar Vulisha <anuragku@xilinx.com>
-Subject: [rtc-linux] [PATCH V4] rtc: zynqmp: Update seconds time programming logic
-Date: Wed, 20 Apr 2016 21:17:35 +0530
-Message-ID: <1461167255-33945-1-git-send-email-anuragku@xilinx.com>
+        (version=TLS1_2 cipher=AES128-SHA bits=128/128);
+        Wed, 20 Apr 2016 07:51:07 -0700 (PDT)
+Date: Wed, 20 Apr 2016 16:51:04 +0200
+From: Wolfram Sang <wsa@the-dreams.de>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org,
+	johnstul@us.ibm.com
+Subject: [rtc-linux] Re: [1/3] rtc: mc13xxx: remove UIE signaling
+Message-ID: <20160420145104.GB1551@katana>
+References: <1304523088-17039-2-git-send-email-w.sang@pengutronix.de>
+ <20160420143751.GT29844@piout.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="i9LlY+UWpKt15+FH"
+In-Reply-To: <20160420143751.GT29844@piout.net>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -27,116 +27,27 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-We programe RTC time using SET_TIME_WRITE register and read the RTC
-current time using CURRENT_TIME register. When we set the time by
-writing into SET_TIME_WRITE Register and immediately try to read the
-rtc time from CURRENT_TIME register, the previous old value is
-returned instead of the new loaded time. This is because RTC takes
-nearly 1 sec to update the  new loaded value into the CURRENT_TIME
-register. This behaviour is expected in our RTC IP.
+--i9LlY+UWpKt15+FH
+Content-Type: text/plain; charset=UTF-8
+Content-Disposition: inline
 
-This patch updates the driver to read the current time from SET_TIME_WRITE
-register instead of CURRENT_TIME when rtc time is requested within an 1sec
-period after setting the RTC time. Doing so will ensure the correct time
-is given to the user.
+On Wed, Apr 20, 2016 at 04:37:51PM +0200, Alexandre Belloni wrote:
+> On 04/05/2011 at 17:31:26 +0200, Wolfram Sang wrote :
+> > The RTC core handles it since 6610e08 (RTC: Rework RTC code to use
+> > timerqueue for events). So far, only the callbacks to the RTC core have
+> > been removed, but not the handlers. Do this now.
+> > 
+> > Signed-off-by: Wolfram Sang <w.sang@pengutronix.de>
+> > ---
+> >  drivers/rtc/rtc-mc13xxx.c |   23 -----------------------
+> >  1 files changed, 0 insertions(+), 23 deletions(-)
+> > 
+> 
+> Almost five years ago, you sent that patch...
 
-Since there is an delay of 1sec in updating the CURRENT_TIME we are loading
-set time +1sec while programming the SET_TIME_WRITE register, doing this
-will give correct time without any delay when read from CURRENT_TIME.
+Wow, I almost forgot about it ;)))
 
-This patch updates the above said.
-
-Signed-off-by: Anurag Kumar Vulisha <anuragku@xilinx.com>
----
- Changes in v4:
-   1. Corrected the read time logic
- Changes in v2:
-   1. Updated the Time programming logic as suggested by Alexandre Belloni
-   2. Changed the commit message
----
- drivers/rtc/rtc-zynqmp.c | 45 +++++++++++++++++++++++++++++++++++++++------
- 1 file changed, 39 insertions(+), 6 deletions(-)
-
-diff --git a/drivers/rtc/rtc-zynqmp.c b/drivers/rtc/rtc-zynqmp.c
-index f87f971..da18a8a 100644
---- a/drivers/rtc/rtc-zynqmp.c
-+++ b/drivers/rtc/rtc-zynqmp.c
-@@ -64,7 +64,12 @@ static int xlnx_rtc_set_time(struct device *dev, struct rtc_time *tm)
- 	struct xlnx_rtc_dev *xrtcdev = dev_get_drvdata(dev);
- 	unsigned long new_time;
- 
--	new_time = rtc_tm_to_time64(tm);
-+	/*
-+	 * The value written will be updated after 1 sec into the
-+	 * seconds read register, so we need to program time +1 sec
-+	 * to get the correct time on read.
-+	 */
-+	new_time = rtc_tm_to_time64(tm) + 1;
- 
- 	if (new_time > RTC_SEC_MAX_VAL)
- 		return -EINVAL;
-@@ -78,14 +83,44 @@ static int xlnx_rtc_set_time(struct device *dev, struct rtc_time *tm)
- 
- 	writel(new_time, xrtcdev->reg_base + RTC_SET_TM_WR);
- 
-+	/*
-+	 * Clear the rtc interrupt status register after setting the
-+	 * time. During a read_time function, the code should read the
-+	 * RTC_INT_STATUS register and if bit 0 is still 0, it means
-+	 * that one second has not elapsed yet since RTC was set and
-+	 * the current time should be read from SET_TIME_READ register;
-+	 * otherwise, CURRENT_TIME register is read to report the time
-+	 */
-+	writel(RTC_INT_SEC, xrtcdev->reg_base + RTC_INT_STS);
-+
- 	return 0;
- }
- 
- static int xlnx_rtc_read_time(struct device *dev, struct rtc_time *tm)
- {
-+	u32 status;
-+	unsigned long read_time;
- 	struct xlnx_rtc_dev *xrtcdev = dev_get_drvdata(dev);
- 
--	rtc_time64_to_tm(readl(xrtcdev->reg_base + RTC_CUR_TM), tm);
-+	status = readl(xrtcdev->reg_base + RTC_INT_STS);
-+
-+	if (status & RTC_INT_SEC) {
-+		/*
-+		 * RTC has updated the CURRENT_TIME with the time written into
-+		 * SET_TIME_WRITE register.
-+		 */
-+		rtc_time64_to_tm(readl(xrtcdev->reg_base + RTC_CUR_TM), tm);
-+	} else {
-+		/*
-+		 * Time written in SET_TIME_WRITE has not yet updated into
-+		 * the seconds read register, so read the time from the
-+		 * SET_TIME_WRITE instead of CURRENT_TIME register.
-+		 * Since we add +1 sec while writing, we need to -1 sec while
-+		 * reading.
-+		 */
-+		read_time = readl(xrtcdev->reg_base + RTC_SET_TM_RD) - 1;
-+		rtc_time64_to_tm(read_time, tm);
-+	}
- 
- 	return rtc_valid_tm(tm);
- }
-@@ -166,11 +201,9 @@ static irqreturn_t xlnx_rtc_interrupt(int irq, void *id)
- 	if (!(status & (RTC_INT_SEC | RTC_INT_ALRM)))
- 		return IRQ_NONE;
- 
--	/* Clear interrupt */
--	writel(status, xrtcdev->reg_base + RTC_INT_STS);
-+	/* Clear RTC_INT_ALRM interrupt only */
-+	writel(RTC_INT_ALRM, xrtcdev->reg_base + RTC_INT_STS);
- 
--	if (status & RTC_INT_SEC)
--		rtc_update_irq(xrtcdev->rtc, 1, RTC_IRQF | RTC_UF);
- 	if (status & RTC_INT_ALRM)
- 		rtc_update_irq(xrtcdev->rtc, 1, RTC_IRQF | RTC_AF);
- 
--- 
-2.1.2
+Thanks for picking it up.
 
 -- 
 -- 
@@ -148,3 +59,26 @@ before submitting a driver.
 You received this message because you are subscribed to the Google Groups "rtc-linux" group.
 To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
+
+--i9LlY+UWpKt15+FH
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJXF5dYAAoJEBQN5MwUoCm2PGAQALZok5nFRlelQeC4yr+h4VGu
+Ixt4qsFTykctOmTCFsX6McOfiDyX6wMIxpa5xPUr5HmKGX2vkJsvWcHZPiorr7pw
+HU0FVnOMSm++3bBbMifJrZA7Zif7kHQ2idNOhvVlaS36kw/y+vLGrmby1vMYbavX
+yzwNrLCkbAaP2OjrVlHXPjFHh13OE2+10GRKJ50U3B1r5K40EhuQ/0JP3ZTMZVxT
+mHcvheem37f9lW4nLo86W6WoWwku0yJIQIJ1pTZjrnNlYFnMGEGqZRkqTBC2XVRw
+vwsJAZqMmQjBs6d68Y6mh0e3ocvCit9HHF4FFzz48PcM2fnrXVqY7UJuiXKvXeLp
+rE5iAgf0IiOVueXeHi4ZTgpOh7URmfWXwTHIWaaL8X/XV3D88FtwydaXBFlKTK+1
+QsdMhuRxwajoItDsCXHnQBUlCHmnWY/bzU8qzHf1c/zWGDeorvaRgUA4Hi4yplIf
+XkIeOWMfROjBKIAUiiE9hKKa5nCu4qvxr5cP8Fif7FsIWR3I+Z6iAQvVabsRSbsp
+BUrDofeOtC8C5rgSp85Z4D5bbocs2LkJVzt5Y57MCV96Ye6GrXFZWT/0FOXS5A+i
+U/dXzwuT1NlUuLG5JagAxi7IBarL3rtuPCHOY9LIgb0OQVp/K9dgcfYR9XGFiTbv
+YfIovGAB/Uq/y3tSiG4f
+=lqbF
+-----END PGP SIGNATURE-----
+
+--i9LlY+UWpKt15+FH--
