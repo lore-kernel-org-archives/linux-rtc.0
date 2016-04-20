@@ -1,33 +1,22 @@
-Return-Path: <rtc-linux+bncBCO3XAUMTIFRBYVYYS4AKGQEU7HWQ6Q@googlegroups.com>
+Return-Path: <rtc-linux+bncBAABBMVS324AKGQEUVP3CJY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from comal.ext.ti.com (comal.ext.ti.com. [198.47.26.152])
-        by gmr-mx.google.com with ESMTPS id bc4si2157164igb.3.2016.04.15.09.52.50
+Received: from NAM02-BL2-obe.outbound.protection.outlook.com (mail-bl2nam02on0089.outbound.protection.outlook.com. [104.47.38.89])
+        by gmr-mx.google.com with ESMTPS id r4si7472851pfr.1.2016.04.20.07.58.58
         for <rtc-linux@googlegroups.com>
-        (version=TLS1 cipher=AES128-SHA bits=128/128);
-        Fri, 15 Apr 2016 09:52:50 -0700 (PDT)
-Subject: [rtc-linux] Re: [PATCH] rtc: omap: Support ext_wakeup configuration
-To: Grygorii Strashko <grygorii.strashko@ti.com>,
-        Marcin Niestroj
-	<m.niestroj@grinn-global.com>,
-        Tony Lindgren <tony@atomide.com>
-References: <1459785403-1725-1-git-send-email-m.niestroj@grinn-global.com>
- <20160404224046.GA17042@atomide.com> <57078A89.3080809@ti.com>
- <20160408151408.GS16484@atomide.com> <5707E764.7050204@ti.com>
- <570D2F79.9040202@grinn-global.com> <57111AF4.6070505@ti.com>
-CC: <rtc-linux@googlegroups.com>, <devicetree@vger.kernel.org>,
-        Rob Herring
-	<robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>,
-        Alessandro Zummo
-	<a.zummo@towertech.it>,
-        Alexandre Belloni
-	<alexandre.belloni@free-electrons.com>,
-        Keerthy <j-keerthy@ti.com>, <linux-omap@vger.kernel.org>,
-        Dave Gerlach <d-gerlach@ti.com>
-From: Nishanth Menon <nm@ti.com>
-Message-ID: <57111C5A.7070606@ti.com>
-Date: Fri, 15 Apr 2016 11:52:42 -0500
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
+        Wed, 20 Apr 2016 07:58:58 -0700 (PDT)
+From: Anurag Kumar Vulisha <anurag.kumar.vulisha@xilinx.com>
+To: Alessandro Zummo <a.zummo@towertech.it>, Alexandre Belloni
+	<alexandre.belloni@free-electrons.com>, <soren.brinkmann@xilinx.com>
+CC: Michal Simek <michal.simek@xilinx.com>, <rtc-linux@googlegroups.com>,
+	<linux-arm-kernel@lists.infradead.org>, <linux-kernel@vger.kernel.org>,
+	Punnaiah Choudary Kalluri <punnaia@xilinx.com>, Anirudha Sarangi
+	<anirudh@xilinx.com>, Srikanth Vemula <svemula@xilinx.com>, Srinivas Goud
+	<sgoud@xilinx.com>, Anurag Kumar Vulisha <anuragku@xilinx.com>
+Subject: [rtc-linux] [PATCH V3] rtc: zynqmp: Update seconds time programming logic
+Date: Wed, 20 Apr 2016 20:28:51 +0530
+Message-ID: <1461164331-13732-1-git-send-email-anuragku@xilinx.com>
 MIME-Version: 1.0
-In-Reply-To: <57111AF4.6070505@ti.com>
 Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
@@ -38,19 +27,115 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 04/15/2016 11:46 AM, Grygorii Strashko wrote:
-[...]
-> diff --git a/arch/arm/boot/dts/dra7.dtsi b/arch/arm/boot/dts/dra7.dtsi
-> index 13ac882..9580c82 100644
-> --- a/arch/arm/boot/dts/dra7.dtsi
+We programe RTC time using SET_TIME_WRITE register and read the RTC
+current time using CURRENT_TIME register. When we set the time by
+writing into SET_TIME_WRITE Register and immediately try to read the
+rtc time from CURRENT_TIME register, the previous old value is
+returned instead of the new loaded time. This is because RTC takes
+nearly 1 sec to update the  new loaded value into the CURRENT_TIME
+register. This behaviour is expected in our RTC IP.
 
-I see this is an example of what could be done on am335x - but lets
-not do this on dra7/am57xx please?
+This patch updates the driver to read the current time from SET_TIME_WRITE
+register instead of CURRENT_TIME when rtc time is requested within an 1sec
+period after setting the RTC time. Doing so will ensure the correct time
+is given to the user.
 
+Since there is an delay of 1sec in updating the CURRENT_TIME we are loading
+set time +1sec while programming the SET_TIME_WRITE register, doing this
+will give correct time without any delay when read from CURRENT_TIME.
 
+This patch updates the above said.
+
+Signed-off-by: Anurag Kumar Vulisha <anuragku@xilinx.com>
+---
+ Changes in v3:
+   1. Corrected the read time logic
+ Changes in v2:
+   1. Updated the Time programming logic as suggested by Alexandre Belloni
+   2. Changed the commit message	
+---
+ drivers/rtc/rtc-zynqmp.c | 44 ++++++++++++++++++++++++++++++++++++++------
+ 1 file changed, 38 insertions(+), 6 deletions(-)
+
+diff --git a/drivers/rtc/rtc-zynqmp.c b/drivers/rtc/rtc-zynqmp.c
+index f87f971..c2f4495 100644
+--- a/drivers/rtc/rtc-zynqmp.c
++++ b/drivers/rtc/rtc-zynqmp.c
+@@ -64,7 +64,12 @@ static int xlnx_rtc_set_time(struct device *dev, struct rtc_time *tm)
+ 	struct xlnx_rtc_dev *xrtcdev = dev_get_drvdata(dev);
+ 	unsigned long new_time;
+ 
+-	new_time = rtc_tm_to_time64(tm);
++	/*
++	 * The value written will be updated after 1 sec into the
++	 * seconds read register, so we need to program time +1 sec
++	 * to get the correct time on read.
++	 */
++	new_time = rtc_tm_to_time64(tm) + 1;
+ 
+ 	if (new_time > RTC_SEC_MAX_VAL)
+ 		return -EINVAL;
+@@ -78,14 +83,43 @@ static int xlnx_rtc_set_time(struct device *dev, struct rtc_time *tm)
+ 
+ 	writel(new_time, xrtcdev->reg_base + RTC_SET_TM_WR);
+ 
++	/*
++	 * Clear the rtc interrupt status register after setting the
++	 * time. During a read_time function, the code should read the
++	 * RTC_INT_STATUS register and if bit 0 is still 0, it means
++	 * that one second has not elapsed yet since RTC was set and
++	 * the current time should be read from SET_TIME_READ register;
++	 * otherwise, CURRENT_TIME register is read to report the time
++	 */
++	writel(RTC_INT_SEC, xrtcdev->reg_base + RTC_INT_STS);
++
+ 	return 0;
+ }
+ 
+ static int xlnx_rtc_read_time(struct device *dev, struct rtc_time *tm)
+ {
++	u32 status, read_time;
+ 	struct xlnx_rtc_dev *xrtcdev = dev_get_drvdata(dev);
+ 
+-	rtc_time64_to_tm(readl(xrtcdev->reg_base + RTC_CUR_TM), tm);
++	status = readl(xrtcdev->reg_base + RTC_INT_STS);
++
++	if (status & RTC_INT_SEC) {
++		/*
++		 * RTC has updated the CURRENT_TIME with the time written into
++		 * SET_TIME_WRITE register.
++		 */
++		rtc_time64_to_tm(readl(xrtcdev->reg_base + RTC_CUR_TM), tm);
++	} else {
++		/*
++		 * Time written in SET_TIME_WRITE has not yet updated into
++		 * the seconds read register, so read the time from the
++		 * SET_TIME_WRITE instead of CURRENT_TIME register.
++		 * Since we add +1 sec while writing, we need to -1 sec while
++		 * reading.
++		 */
++		read_time = readl(xrtcdev->reg_base + RTC_SET_TM_RD) - 1;
++		rtc_time64_to_tm(read_time, tm);
++	}
+ 
+ 	return rtc_valid_tm(tm);
+ }
+@@ -166,11 +200,9 @@ static irqreturn_t xlnx_rtc_interrupt(int irq, void *id)
+ 	if (!(status & (RTC_INT_SEC | RTC_INT_ALRM)))
+ 		return IRQ_NONE;
+ 
+-	/* Clear interrupt */
+-	writel(status, xrtcdev->reg_base + RTC_INT_STS);
++	/* Clear RTC_INT_ALRM interrupt only */
++	writel(RTC_INT_ALRM, xrtcdev->reg_base + RTC_INT_STS);
+ 
+-	if (status & RTC_INT_SEC)
+-		rtc_update_irq(xrtcdev->rtc, 1, RTC_IRQF | RTC_UF);
+ 	if (status & RTC_INT_ALRM)
+ 		rtc_update_irq(xrtcdev->rtc, 1, RTC_IRQF | RTC_AF);
+ 
 -- 
-Regards,
-Nishanth Menon
+2.1.2
 
 -- 
 -- 
