@@ -1,29 +1,24 @@
-Return-Path: <rtc-linux+bncBAABBZGW3S4AKGQE3KX7EBA@googlegroups.com>
+Return-Path: <rtc-linux+bncBAABB26H3W4AKGQEHP66MKA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from NAM02-CY1-obe.outbound.protection.outlook.com (mail-cys01nam02on0088.outbound.protection.outlook.com. [104.47.37.88])
-        by gmr-mx.google.com with ESMTPS id xg7si271574igb.1.2016.04.20.00.10.27
+Received: from emea01-am1-obe.outbound.protection.outlook.com (mail-am1on0104.outbound.protection.outlook.com. [157.56.112.104])
+        by gmr-mx.google.com with ESMTPS id d22si4214730pfd.0.2016.04.20.04.11.38
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
-        Wed, 20 Apr 2016 00:10:27 -0700 (PDT)
-From: Anurag Kumar Vulisha <anurag.kumar.vulisha@xilinx.com>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-CC: Alessandro Zummo <a.zummo@towertech.it>, Soren Brinkmann
-	<sorenb@xilinx.com>, Michal Simek <michals@xilinx.com>,
-	"rtc-linux@googlegroups.com" <rtc-linux@googlegroups.com>,
-	"linux-arm-kernel@lists.infradead.org"
-	<linux-arm-kernel@lists.infradead.org>, "linux-kernel@vger.kernel.org"
-	<linux-kernel@vger.kernel.org>, Punnaiah Choudary Kalluri
-	<punnaia@xilinx.com>, Anirudha Sarangi <anirudh@xilinx.com>, Srikanth Vemula
-	<svemula@xilinx.com>, Srinivas Goud <sgoud@xilinx.com>
-Subject: [rtc-linux] RE: [PATCH 3/3] RTC: Update seconds time programming logic
-Date: Wed, 20 Apr 2016 07:10:22 +0000
-Message-ID: <3802E9A6666DF54886E2B9CBF743BA9825E0B42B@XAP-PVEXMBX01.xlnx.xilinx.com>
-References: <1460463346-24923-1-git-send-email-anuragku@xilinx.com>
- <1460463346-24923-3-git-send-email-anuragku@xilinx.com>
- <20160419223109.GF29844@piout.net>
-In-Reply-To: <20160419223109.GF29844@piout.net>
-Content-Type: text/plain; charset=UTF-8
+        Wed, 20 Apr 2016 04:11:38 -0700 (PDT)
+From: Jeppe Ledet-Pedersen <jlp@gomspace.com>
+To: <lee.jones@linaro.org>, <arnd@arndb.de>, <gregkh@linuxfoundation.org>,
+	<alexandre.belloni@free-electrons.com>, <a.zummo@towertech.it>,
+	<robh+dt@kernel.org>, <pawel.moll@arm.com>, <mark.rutland@arm.com>,
+	<ijc+devicetree@hellion.org.uk>, <galak@codeaurora.org>
+CC: <rtc-linux@googlegroups.com>, <devicetree@vger.kernel.org>,
+	<linux-kernel@vger.kernel.org>, Jeppe Ledet-Pedersen <jlp@gomspace.com>
+Subject: [rtc-linux] [PATCH 3/3] rtc: add Cypress FM33256B RTC driver
+Date: Wed, 20 Apr 2016 13:07:51 +0200
+Message-ID: <1461150471-23163-4-git-send-email-jlp@gomspace.com>
+In-Reply-To: <1461150471-23163-1-git-send-email-jlp@gomspace.com>
+References: <1461150471-23163-1-git-send-email-jlp@gomspace.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -33,135 +28,234 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Hi Alexandre,
+Signed-off-by: Jeppe Ledet-Pedersen <jlp@gomspace.com>
+---
+ MAINTAINERS                |   1 +
+ drivers/rtc/Kconfig        |  10 +++
+ drivers/rtc/Makefile       |   1 +
+ drivers/rtc/rtc-fm33256b.c | 166 +++++++++++++++++++++++++++++++++++++++++++++
+ 4 files changed, 178 insertions(+)
+ create mode 100644 drivers/rtc/rtc-fm33256b.c
 
-> -----Original Message-----
-> From: Alexandre Belloni [mailto:alexandre.belloni@free-electrons.com]
-> Sent: Wednesday, April 20, 2016 4:01 AM
-> To: Anurag Kumar Vulisha <anuragku@xilinx.com>
-> Cc: Alessandro Zummo <a.zummo@towertech.it>; Soren Brinkmann
-> <sorenb@xilinx.com>; Michal Simek <michals@xilinx.com>; rtc-
-> linux@googlegroups.com; linux-arm-kernel@lists.infradead.org; linux-
-> kernel@vger.kernel.org; Punnaiah Choudary Kalluri <punnaia@xilinx.com>;
-> Anirudha Sarangi <anirudh@xilinx.com>; Srikanth Vemula
-> <svemula@xilinx.com>; Anurag Kumar Vulisha <anuragku@xilinx.com>
-> Subject: Re: [PATCH 3/3] RTC: Update seconds time programming logic
-> 
-> 
-> Hi,
-> 
-> Please use rtc: zynqmp in your subject line.
-> 
-> On 12/04/2016 at 17:45:46 +0530, Anurag Kumar Vulisha wrote :
-> > @@ -78,6 +85,17 @@ static int xlnx_rtc_set_time(struct device *dev,
-> > struct rtc_time *tm)
-> >
-> >  	writel(new_time, xrtcdev->reg_base + RTC_SET_TM_WR);
-> >
-> > +	/*
-> > +	 * Clear the rtc interrupt status register after setting the
-> > +	 * time. During a read_time function, the code should read the
-> > +	 * RTC_INT_STATUS register and if bit 0 is still 0, it means
-> > +	 * that one second has not elapsed yet since RTC was set and
-> > +	 * the current time should be read from SET_TIME_READ register;
-> > +	 * otherwise, CURRENT_TIME register is read to report the time
-> > +	 */
-> > +	writel(RTC_INT_SEC | RTC_INT_ALRM, xrtcdev->reg_base +
-> RTC_INT_STS);
-> 
-> You probably shouldn't clear RTC_INT_ALRM here but it should be done in
-> the init and when enabling/disabling alarm. Or maybe easier would be to
-> ignore RTC_INT_ALRM in xlnx_rtc_interrupt when it is not set in
-> RTC_INT_MASK.
->
-
-Thanks for reviewing the patch. I will remove this clearing  RTC_INT_ALRM interrupt logic
-and send the next version of the patch.
+diff --git a/MAINTAINERS b/MAINTAINERS
+index a8b71d8..9ccc285 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -3388,6 +3388,7 @@ S:	Maintained
+ F:	include/linux/mfd/fm33256b.h
+ F:	drivers/mfd/fm33256b.c
+ F:	drivers/misc/eeprom/fm33256b-fram.c
++F:	drivers/rtc/rtc-fm33256b.c
  
-> Or, instead of using interrupts, can't you simply read RTC_INT_STS in
-> xlnx_rtc_read_time()? Is it updated even when the interrupt is not enabled?
-> 
-
-The reason for me keeping this logic is, our RTC controller updates the read register after 1 sec
-delay, so when read , it gives 1 sec delay(correct time - 1 sec). So to avoid that we are programming
-load time + 1sec into the write register. So when read we would be getting the correct time without
-any delay. If any request comes from user to read time before RTC updating the read register, we
-need to give the previous loaded time instead of giving the time from the read register. 
-For doing the above said, we are relaying on seconds interrupt in  RTC_INT_STS register. We
-Clear the RTC_INT_STS register while programming the time into the write register . If we get a
-request from user to read time within the 1 sec period i.e before the RTC_INT_SEC interrupt bit
-is set in RTC_INT_STS, we need to give the previous loaded time.
-This should be done if time is requested from user space within  1 sec period after writing time, after
-the 1 sec  delay if user requested the time , we can  give the give time from read register . This is because
-the correct time is being updated in the read register after 1 sec delay. For this logic to happen we are
-depending on  xrtcdev->time_updated  variable to get updated after the very fist RTC_INT_SEC interrupt
-occurance in the interrupt handler.
-Since we are relaying on  xrtcdev->time_updated  to get updated from interrupt handler, I think reading
-the RTC_INT_STS in xlnx_rtc_read_time() is not helpful.
-
-Thanks,
-Anurag Kumar V
-  
-> > +	xrtcdev->time_updated = 0;
-> > +
-> >  	return 0;
-> >  }
-> >
-> > @@ -85,7 +103,17 @@ static int xlnx_rtc_read_time(struct device *dev,
-> > struct rtc_time *tm)  {
-> >  	struct xlnx_rtc_dev *xrtcdev = dev_get_drvdata(dev);
-> >
-> > -	rtc_time64_to_tm(readl(xrtcdev->reg_base + RTC_CUR_TM), tm);
-> > +	if (xrtcdev->time_updated == 0) {
-> > +		/*
-> > +		 * Time written in SET_TIME_WRITE has not yet updated into
-> > +		 * the seconds read register, so read the time from the
-> > +		 * SET_TIME_WRITE instead of CURRENT_TIME register.
-> > +		 */
-> > +		rtc_time64_to_tm(readl(xrtcdev->reg_base +
-> RTC_SET_TM_RD), tm);
-> > +		tm->tm_sec -= 1;
-> > +	} else {
-> > +		rtc_time64_to_tm(readl(xrtcdev->reg_base +
-> RTC_CUR_TM), tm);
-> > +	}
-> >
-> >  	return rtc_valid_tm(tm);
-> >  }
-> > @@ -133,6 +161,9 @@ static void xlnx_init_rtc(struct xlnx_rtc_dev
-> > *xrtcdev)  {
-> >  	u32 rtc_ctrl;
-> >
-> > +	/* Enable RTC SEC interrupts */
-> > +	writel(RTC_INT_SEC, xrtcdev->reg_base + RTC_INT_EN);
-> > +
-> >  	/* Enable RTC switch to battery when VCC_PSAUX is not available */
-> >  	rtc_ctrl = readl(xrtcdev->reg_base + RTC_CTRL);
-> >  	rtc_ctrl |= RTC_BATT_EN;
-> > @@ -169,8 +200,13 @@ static irqreturn_t xlnx_rtc_interrupt(int irq, void
-> *id)
-> >  	/* Clear interrupt */
-> >  	writel(status, xrtcdev->reg_base + RTC_INT_STS);
-> >
-> > -	if (status & RTC_INT_SEC)
-> > +	if (status & RTC_INT_SEC) {
-> > +		if (xrtcdev->time_updated == 0) {
-> > +			/* RTC updated the seconds read register */
-> > +			xrtcdev->time_updated = 1;
-> > +		}
-> >  		rtc_update_irq(xrtcdev->rtc, 1, RTC_IRQF | RTC_UF);
-> > +	}
-> >  	if (status & RTC_INT_ALRM)
-> >  		rtc_update_irq(xrtcdev->rtc, 1, RTC_IRQF | RTC_AF);
-> >
-> > --
-> > 2.1.2
-> >
-> 
-> --
-> Alexandre Belloni, Free Electrons
-> Embedded Linux, Kernel and Android engineering
-> http://free-electrons.com
+ CYTTSP TOUCHSCREEN DRIVER
+ M:	Ferruh Yigit <fery@cypress.com>
+diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
+index 3e84315..7856f0b 100644
+--- a/drivers/rtc/Kconfig
++++ b/drivers/rtc/Kconfig
+@@ -740,6 +740,16 @@ config RTC_DRV_MCP795
+ 	  This driver can also be built as a module. If so the module
+ 	  will be called rtc-mcp795.
+ 
++config RTC_DRV_FM33256B
++	tristate "Cypress FM33256B RTC support"
++	depends on MFD_FM33256B
++	help
++	  If you say Y here you will get support for the RTC found in the
++	  Cypress FM33256B Processor Companion.
++
++	  This driver can also be built as a module. If so the module
++	  will be called rtc-fm33256b.
++
+ endif # SPI_MASTER
+ 
+ #
+diff --git a/drivers/rtc/Makefile b/drivers/rtc/Makefile
+index ea28337..1478fb6 100644
+--- a/drivers/rtc/Makefile
++++ b/drivers/rtc/Makefile
+@@ -64,6 +64,7 @@ obj-$(CONFIG_RTC_DRV_EFI)	+= rtc-efi.o
+ obj-$(CONFIG_RTC_DRV_EM3027)	+= rtc-em3027.o
+ obj-$(CONFIG_RTC_DRV_EP93XX)	+= rtc-ep93xx.o
+ obj-$(CONFIG_RTC_DRV_FM3130)	+= rtc-fm3130.o
++obj-$(CONFIG_RTC_DRV_FM33256B)	+= rtc-fm33256b.o
+ obj-$(CONFIG_RTC_DRV_GEMINI)	+= rtc-gemini.o
+ obj-$(CONFIG_RTC_DRV_GENERIC)	+= rtc-generic.o
+ obj-$(CONFIG_RTC_DRV_HID_SENSOR_TIME) += rtc-hid-sensor-time.o
+diff --git a/drivers/rtc/rtc-fm33256b.c b/drivers/rtc/rtc-fm33256b.c
+new file mode 100644
+index 0000000..a9650d4
+--- /dev/null
++++ b/drivers/rtc/rtc-fm33256b.c
+@@ -0,0 +1,166 @@
++/*
++ * Cypress FM33256B Processor Companion RTC Driver
++ *
++ * Copyright (C) 2016 GomSpace ApS
++ *
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License version 2 as published by
++ * the Free Software Foundation.
++ *
++ * This program is distributed in the hope that it will be useful, but WITHOUT
++ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
++ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
++ * more details.
++ *
++ * You should have received a copy of the GNU General Public License along with
++ * this program.  If not, see <http://www.gnu.org/licenses/>.
++ */
++
++#include <linux/mfd/fm33256b.h>
++#include <linux/module.h>
++#include <linux/platform_device.h>
++#include <linux/regmap.h>
++#include <linux/rtc.h>
++#include <linux/bcd.h>
++
++struct fm33256b_rtc {
++	struct fm33256b *fm33256b;
++	struct rtc_device *rtcdev;
++};
++
++static int fm33256b_rtc_readtime(struct device *dev, struct rtc_time *tm)
++{
++	int ret;
++	struct fm33256b_rtc *rtc = dev_get_drvdata(dev);
++	uint8_t time[7];
++
++	/* Lock time update */
++	ret = regmap_update_bits(rtc->fm33256b->regmap_pc,
++				 FM33256B_RTC_ALARM_CONTROL_REG,
++				 FM33256B_R, FM33256B_R);
++	if (ret < 0)
++		return ret;
++
++	ret = regmap_bulk_read(rtc->fm33256b->regmap_pc,
++			       FM33256B_SECONDS_REG, time, sizeof(time));
++	if (ret < 0)
++		return ret;
++
++	/* Unlock time update */
++	ret = regmap_update_bits(rtc->fm33256b->regmap_pc,
++				 FM33256B_RTC_ALARM_CONTROL_REG,
++				 FM33256B_R, 0);
++	if (ret < 0)
++		return ret;
++
++	tm->tm_sec	= bcd2bin(time[0]);
++	tm->tm_min	= bcd2bin(time[1]);
++	tm->tm_hour	= bcd2bin(time[2]);
++	tm->tm_wday	= bcd2bin(time[3]) - 1;
++	tm->tm_mday	= bcd2bin(time[4]);
++	tm->tm_mon	= bcd2bin(time[5]) - 1;
++	tm->tm_year	= bcd2bin(time[6]);
++
++	if (tm->tm_year < 70)
++		tm->tm_year += 100;
++
++	return rtc_valid_tm(tm);
++}
++
++static int fm33256b_rtc_settime(struct device *dev, struct rtc_time *tm)
++{
++	int ret;
++	struct fm33256b_rtc *rtc = dev_get_drvdata(dev);
++	uint8_t time[7];
++
++	time[0] = bin2bcd(tm->tm_sec);
++	time[1] = bin2bcd(tm->tm_min);
++	time[2] = bin2bcd(tm->tm_hour);
++	time[3] = bin2bcd(tm->tm_wday + 1);
++	time[4] = bin2bcd(tm->tm_mday);
++	time[5] = bin2bcd(tm->tm_mon + 1);
++	time[6] = bin2bcd(tm->tm_year % 100);
++
++	/* Unlock time update */
++	ret = regmap_update_bits(rtc->fm33256b->regmap_pc,
++				 FM33256B_RTC_ALARM_CONTROL_REG,
++				 FM33256B_W, FM33256B_W);
++	if (ret < 0)
++		return ret;
++
++	ret = regmap_bulk_write(rtc->fm33256b->regmap_pc,
++				FM33256B_SECONDS_REG, time, sizeof(time));
++	if (ret < 0)
++		return ret;
++
++	/* Lock time update */
++	ret = regmap_update_bits(rtc->fm33256b->regmap_pc,
++				 FM33256B_RTC_ALARM_CONTROL_REG,
++				 FM33256B_W, 0);
++	if (ret < 0)
++		return ret;
++
++	return 0;
++}
++
++static const struct rtc_class_ops fm33256b_rtc_ops = {
++	.read_time	= fm33256b_rtc_readtime,
++	.set_time	= fm33256b_rtc_settime,
++};
++
++static int fm33256b_rtc_probe(struct platform_device *pdev)
++{
++	struct device *dev = &pdev->dev;
++	struct fm33256b *fm33256b;
++	struct fm33256b_rtc *rtc;
++
++	fm33256b = dev_get_drvdata(dev->parent);
++
++	rtc = devm_kzalloc(dev, sizeof(*rtc), GFP_KERNEL);
++	if (!rtc)
++		return -ENOMEM;
++
++	platform_set_drvdata(pdev, rtc);
++
++	rtc->fm33256b = fm33256b;
++	rtc->rtcdev = devm_rtc_device_register(&pdev->dev, KBUILD_MODNAME,
++					       &fm33256b_rtc_ops, THIS_MODULE);
++	if (IS_ERR(rtc->rtcdev))
++		return PTR_ERR(rtc->rtcdev);
++
++	return 0;
++}
++
++static int fm33256b_rtc_remove(struct platform_device *pdev)
++{
++	struct device *dev = &pdev->dev;
++	struct fm33256b *fm33256b;
++	struct fm33256b_rtc *rtc = platform_get_drvdata(pdev);
++
++	fm33256b = dev_get_drvdata(dev->parent);
++
++	devm_rtc_device_unregister(&pdev->dev, rtc->rtcdev);
++
++	return 0;
++}
++
++static const struct of_device_id fm33256b_rtc_dt_ids[] = {
++	{ .compatible = "cypress,fm33256b-rtc" },
++	{ /* sentinel */ },
++};
++MODULE_DEVICE_TABLE(of, fm33256b_rtc_dt_ids);
++
++static struct platform_driver fm33256b_rtc_driver = {
++	.driver = {
++		.name = "fm33256b-rtc",
++		.of_match_table = fm33256b_rtc_dt_ids,
++	},
++	.probe = fm33256b_rtc_probe,
++	.remove = fm33256b_rtc_remove,
++};
++module_platform_driver(fm33256b_rtc_driver);
++
++MODULE_ALIAS("platform:fm33256b-rtc");
++MODULE_AUTHOR("Jeppe Ledet-Pedersen <jlp@gomspace.com>");
++MODULE_DESCRIPTION("Cypress FM33256B Processor Companion RTC Driver");
++MODULE_LICENSE("GPL v2");
+-- 
+2.1.4
 
 -- 
 -- 
