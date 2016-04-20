@@ -1,26 +1,20 @@
-Return-Path: <rtc-linux+bncBAABB5G7224AKGQERY75LOA@googlegroups.com>
+Return-Path: <rtc-linux+bncBAABBTHB3O4AKGQE5FLZKXQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from emea01-am1-obe.outbound.protection.outlook.com (mail-am1on0648.outbound.protection.outlook.com. [2a01:111:f400:fe00::648])
-        by gmr-mx.google.com with ESMTPS id tu5si6690701pab.2.2016.04.18.21.11.32
+Received: from na01-bl2-obe.outbound.protection.outlook.com (mail-bl2on0091.outbound.protection.outlook.com. [65.55.169.91])
+        by gmr-mx.google.com with ESMTPS id y6si4698133ywd.1.2016.04.19.20.00.28
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
-        Mon, 18 Apr 2016 21:11:32 -0700 (PDT)
-From: Qianyu Gong <qianyu.gong@nxp.com>
-To: Akinobu Mita <akinobu.mita@gmail.com>
-CC: "alexandre.belloni@free-electrons.com"
-	<alexandre.belloni@free-electrons.com>, Mingkai Hu <mingkai.hu@nxp.com>,
-	"rtc-linux@googlegroups.com" <rtc-linux@googlegroups.com>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: [rtc-linux] RE: rtc ds3232 call trace in kernel
-Date: Tue, 19 Apr 2016 04:11:30 +0000
-Message-ID: <AM2PR04MB09644D9C51FF8AD4821234CFE76C0@AM2PR04MB0964.eurprd04.prod.outlook.com>
-References: <AM2PR04MB09643A16272FB78B0D9FA103E76B0@AM2PR04MB0964.eurprd04.prod.outlook.com>
-	<CAC5umyjh9fWigbS-xzcwpSyUgA9KkSWkMiSYur3iYWt1_2-vcA@mail.gmail.com>
-	<AM2PR04MB0964532D38F8EF2C4F279034E76C0@AM2PR04MB0964.eurprd04.prod.outlook.com>
- <CAC5umyhUdHtOahu6Mw00VF4qNKfLG1citQc+FpPdhsoF4r-Qqw@mail.gmail.com>
-In-Reply-To: <CAC5umyhUdHtOahu6Mw00VF4qNKfLG1citQc+FpPdhsoF4r-Qqw@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8
+        Tue, 19 Apr 2016 20:00:28 -0700 (PDT)
+From: Gong Qianyu <Qianyu.Gong@nxp.com>
+To: <rtc-linux@googlegroups.com>, <akinobu.mita@gmail.com>,
+	<alexandre.belloni@free-electrons.com>
+CC: <mingkai.hu@nxp.com>, Gong Qianyu <Qianyu.Gong@nxp.com>
+Subject: [rtc-linux] [Patch v2] rtc: ds3232: fix call trace when rtc->ops_lock
+ is used as NULL
+Date: Wed, 20 Apr 2016 10:50:50 +0800
+Message-ID: <1461120650-4861-1-git-send-email-Qianyu.Gong@nxp.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -30,111 +24,55 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-> -----Original Message-----
-> From: Akinobu Mita [mailto:akinobu.mita@gmail.com]
-> Sent: Tuesday, April 19, 2016 11:58 AM
-> To: Qianyu Gong <qianyu.gong@nxp.com>
-> Cc: alexandre.belloni@free-electrons.com; Mingkai Hu <mingkai.hu@nxp.com>=
-;
-> rtc-linux@googlegroups.com; linux-kernel@vger.kernel.org
-> Subject: Re: rtc ds3232 call trace in kernel
->=20
-> 2016-04-19 11:36 GMT+09:00 Qianyu Gong <qianyu.gong@nxp.com>:
-> >
-> >> -----Original Message-----
-> >> From: Akinobu Mita [mailto:akinobu.mita@gmail.com]
-> >> Sent: Monday, April 18, 2016 9:02 PM
-> >> To: Qianyu Gong <qianyu.gong@nxp.com>
-> >> Cc: alexandre.belloni@free-electrons.com; Mingkai Hu
-> >> <mingkai.hu@nxp.com>; rtc-linux@googlegroups.com;
-> >> linux-kernel@vger.kernel.org
-> >> Subject: Re: rtc ds3232 call trace in kernel
-> >>
-> >> 2016-04-18 15:15 GMT+09:00 Qianyu Gong <qianyu.gong@nxp.com>:
-> >> > Hi Akinobu,
-> >> >
-> >> >
-> >> >
-> >> > I got an rtc call trace when booting 4.6 kernel on our board and I
-> >> > found it
-> >> >
-> >> > was caused by this patch:
-> >> >
-> >> >
-> >> >
-> >> > commit fc1dcb0b39dbb10d3290f2fcd6e154670f699166
-> >> >
-> >> > Author: Akinobu Mita <akinobu.mita@gmail.com>
-> >> >
-> >> > Date:   Mon Mar 7 00:27:53 2016 +0900
-> >> >
-> >> >
-> >> >
-> >> >     rtc: ds3232: use rtc->ops_lock to protect alarm operations
-> >> >
-> >> >
-> >> >
-> >> >     ds3232->mutex is used to protect for alarm operations which
-> >> >
-> >> >     need to access status and control registers.
-> >> >
-> >> >
-> >> >
-> >> >     But we can use rtc->ops_lock instead.  rtc->ops_lock is held
-> >> > when most
-> >> >
-> >> >     of rtc_class_ops methods are called, so we only need to
-> >> > explicitly
-> >> >
-> >> >     acquire it from irq handler in order to protect form concurrent
-> >> >
-> >> >     accesses.
-> >> >
-> >> >
-> >> >
-> >> >     Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
-> >> >
-> >> > Signed-off-by: Alexandre Belloni
-> >> > <alexandre.belloni@free-electrons.com
-> >> >
-> >> >
-> >> >
-> >> > The problem is that rtc->ops_lock would be accessed in ds3232_irq()
-> >> >
-> >> > without being initialized as rtc_device_register() is called too lat=
-e.
-> >>
-> >> You have already identified the root cause of this issue.
-> >>
-> >> > As I=E2=80=99m not familiar with rtc things, could I just revert the=
- patch
-> >> > or you already
-> >> >
-> >> > have a solution to this problem? Thanks in advance.
-> >>
-> >> Could you check if the problem is resolved by moving the call of
-> >> devm_rtc_device_register() from the end of ds3232_probe() to just
-> >> before registering irq handler?
-> >
-> > Yes. It works(no call trace now).
->=20
-> Thanks for testing.  Do you mind submitting your patch to rtc-
-> linux@googlegroups.com ?
+Move devm_rtc_device_register() just before registering irq handler
+to initialize rtc->ops_lock earlier.
 
-No problem.:)
+Signed-off-by: Gong Qianyu <Qianyu.Gong@nxp.com>
+---
+V2:
+ - Fix the order of error check.
 
-Regards,
-Qianyu
+ drivers/rtc/rtc-ds3232.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
---=20
---=20
+diff --git a/drivers/rtc/rtc-ds3232.c b/drivers/rtc/rtc-ds3232.c
+index 7edc889..04fbd7f 100644
+--- a/drivers/rtc/rtc-ds3232.c
++++ b/drivers/rtc/rtc-ds3232.c
+@@ -369,6 +369,11 @@ static int ds3232_probe(struct device *dev, struct regmap *regmap, int irq,
+ 	if (ret)
+ 		return ret;
+ 
++	ds3232->rtc = devm_rtc_device_register(dev, name, &ds3232_rtc_ops,
++						THIS_MODULE);
++	if (IS_ERR(ds3232->rtc))
++		return PTR_ERR(ds3232->rtc);
++
+ 	if (ds3232->irq > 0) {
+ 		ret = devm_request_threaded_irq(dev, ds3232->irq, NULL,
+ 						ds3232_irq,
+@@ -380,10 +385,8 @@ static int ds3232_probe(struct device *dev, struct regmap *regmap, int irq,
+ 		} else
+ 			device_init_wakeup(dev, 1);
+ 	}
+-	ds3232->rtc = devm_rtc_device_register(dev, name, &ds3232_rtc_ops,
+-						THIS_MODULE);
+ 
+-	return PTR_ERR_OR_ZERO(ds3232->rtc);
++	return 0;
+ }
+ 
+ #ifdef CONFIG_PM_SLEEP
+-- 
+2.1.0.27.g96db324
+
+-- 
+-- 
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
----=20
-You received this message because you are subscribed to the Google Groups "=
-rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an e=
-mail to rtc-linux+unsubscribe@googlegroups.com.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
