@@ -1,20 +1,29 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBCXO3S4AKGQEKOVSJUY@googlegroups.com>
+Return-Path: <rtc-linux+bncBAABBHNA324AKGQE3XM5GRA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id a136si663130wma.0.2016.04.20.01.00.10
-        for <rtc-linux@googlegroups.com>;
-        Wed, 20 Apr 2016 01:00:10 -0700 (PDT)
-Date: Wed, 20 Apr 2016 10:00:09 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Stephen Boyd <sboyd@codeaurora.org>
-Cc: Alessandro Zummo <a.zummo@towertech.it>, linux-kernel@vger.kernel.org,
-	rtc-linux@googlegroups.com, Heiko Schocher <hs@denx.de>
-Subject: [rtc-linux] Re: [PATCH] rtc: pcf8563: Remove CLK_IS_ROOT
-Message-ID: <20160420080009.GL29844@piout.net>
-References: <1461114739-17105-1-git-send-email-sboyd@codeaurora.org>
-MIME-Version: 1.0
+Received: from NAM02-SN1-obe.outbound.protection.outlook.com (mail-sn1nam02on0065.outbound.protection.outlook.com. [104.47.36.65])
+        by gmr-mx.google.com with ESMTPS id d22si4330456pfd.0.2016.04.20.07.20.13
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
+        Wed, 20 Apr 2016 07:20:13 -0700 (PDT)
+From: Anurag Kumar Vulisha <anurag.kumar.vulisha@xilinx.com>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+CC: Alessandro Zummo <a.zummo@towertech.it>, Soren Brinkmann
+	<sorenb@xilinx.com>, Michal Simek <michals@xilinx.com>,
+	"rtc-linux@googlegroups.com" <rtc-linux@googlegroups.com>,
+	"linux-arm-kernel@lists.infradead.org"
+	<linux-arm-kernel@lists.infradead.org>, "linux-kernel@vger.kernel.org"
+	<linux-kernel@vger.kernel.org>, Punnaiah Choudary Kalluri
+	<punnaia@xilinx.com>, Anirudha Sarangi <anirudh@xilinx.com>, Srikanth Vemula
+	<svemula@xilinx.com>, Srinivas Goud <sgoud@xilinx.com>
+Subject: [rtc-linux] RE: [PATCH V2] rtc: zynqmp: Update seconds time
+ programming logic
+Date: Wed, 20 Apr 2016 14:20:06 +0000
+Message-ID: <3802E9A6666DF54886E2B9CBF743BA9825E0B53D@XAP-PVEXMBX01.xlnx.xilinx.com>
+References: <1461160279-40600-1-git-send-email-anuragku@xilinx.com>
+ <20160420140310.GS29844@piout.net>
+In-Reply-To: <20160420140310.GS29844@piout.net>
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1461114739-17105-1-git-send-email-sboyd@codeaurora.org>
+MIME-Version: 1.0
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -24,30 +33,174 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 19/04/2016 at 18:12:19 -0700, Stephen Boyd wrote :
-> This flag is a no-op now (see commit 47b0eeb3dc8a "clk: Deprecate
-> CLK_IS_ROOT", 2016-02-02) so remove it.
-> 
-> Cc: Heiko Schocher <hs@denx.de>
-> Signed-off-by: Stephen Boyd <sboyd@codeaurora.org>
-> ---
->  drivers/rtc/rtc-pcf8563.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-Applied, thanks.
+Hi Alexandre,
 
--- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+> -----Original Message-----
+> From: Alexandre Belloni [mailto:alexandre.belloni@free-electrons.com]
+> Sent: Wednesday, April 20, 2016 7:33 PM
+> To: Anurag Kumar Vulisha <anuragku@xilinx.com>
+> Cc: Alessandro Zummo <a.zummo@towertech.it>; Soren Brinkmann
+> <sorenb@xilinx.com>; Michal Simek <michals@xilinx.com>; rtc-
+> linux@googlegroups.com; linux-arm-kernel@lists.infradead.org; linux-
+> kernel@vger.kernel.org; Punnaiah Choudary Kalluri <punnaia@xilinx.com>;
+> Anirudha Sarangi <anirudh@xilinx.com>; Srikanth Vemula
+> <svemula@xilinx.com>; Srinivas Goud <sgoud@xilinx.com>; Anurag Kumar
+> Vulisha <anuragku@xilinx.com>
+> Subject: Re: [PATCH V2] rtc: zynqmp: Update seconds time programming
+> logic
+>
+> On 20/04/2016 at 19:21:19 +0530, Anurag Kumar Vulisha wrote :
+> > We programe RTC time using SET_TIME_WRITE register and read the RTC
+> > current time using CURRENT_TIME register. When we set the time by
+> > writing into SET_TIME_WRITE Register and immediately try to read the
+> > rtc time from CURRENT_TIME register, the previous old value is
+> > returned instead of the new loaded time. This is because RTC takes
+> > nearly 1 sec to update the  new loaded value into the CURRENT_TIME
+> > register. This behaviour is expected in our RTC IP.
+> >
+> > This patch updates the driver to read the current time from
+> > SET_TIME_WRITE register instead of CURRENT_TIME when rtc time is
+> > requested within an 1sec period after setting the RTC time. Doing so
+> > will ensure the correct time is given to the user.
+> >
+> > Since there is an delay of 1sec in updating the CURRENT_TIME we are
+> > loading set time +1sec while programming the SET_TIME_WRITE register,
+> > doing this will give correct time without any delay when read from
+> CURRENT_TIME.
+> >
+> > This patch updates the above said.
+> >
+> > Signed-off-by: Anurag Kumar Vulisha <anuragku@xilinx.com>
+> > ---
+> >  Changes in v2:
+> >     1. Updated the Time programming logic as suggested by Alexandre
+> Belloni
+> >     2. Changed the commit message
+> > ---
+> >  drivers/rtc/rtc-zynqmp.c | 41
+> > ++++++++++++++++++++++++++++++++++++-----
+> >  1 file changed, 36 insertions(+), 5 deletions(-)
+> >
+> > diff --git a/drivers/rtc/rtc-zynqmp.c b/drivers/rtc/rtc-zynqmp.c index
+> > f87f971..ba4203a 100644
+> > --- a/drivers/rtc/rtc-zynqmp.c
+> > +++ b/drivers/rtc/rtc-zynqmp.c
+> > @@ -64,6 +64,12 @@ static int xlnx_rtc_set_time(struct device *dev, str=
+uct
+> rtc_time *tm)
+> >     struct xlnx_rtc_dev *xrtcdev =3D dev_get_drvdata(dev);
+> >     unsigned long new_time;
+> >
+> > +   /*
+> > +    * The value written will be updated after 1 sec into the
+> > +    * seconds read register, so we need to program time +1 sec
+> > +    * to get the correct time on read.
+> > +    */
+> > +   tm->tm_sec +=3D 1;
+> >     new_time =3D rtc_tm_to_time64(tm);
+> >
+> >     if (new_time > RTC_SEC_MAX_VAL)
+> > @@ -78,14 +84,41 @@ static int xlnx_rtc_set_time(struct device *dev,
+> > struct rtc_time *tm)
+> >
+> >     writel(new_time, xrtcdev->reg_base + RTC_SET_TM_WR);
+> >
+> > +   /*
+> > +    * Clear the rtc interrupt status register after setting the
+> > +    * time. During a read_time function, the code should read the
+> > +    * RTC_INT_STATUS register and if bit 0 is still 0, it means
+> > +    * that one second has not elapsed yet since RTC was set and
+> > +    * the current time should be read from SET_TIME_READ register;
+> > +    * otherwise, CURRENT_TIME register is read to report the time
+> > +    */
+> > +   writel(RTC_INT_SEC, xrtcdev->reg_base + RTC_INT_STS);
+> > +
+> >     return 0;
+> >  }
+> >
+> >  static int xlnx_rtc_read_time(struct device *dev, struct rtc_time
+> > *tm)  {
+> > +   int status;
+> >     struct xlnx_rtc_dev *xrtcdev =3D dev_get_drvdata(dev);
+> >
+> > -   rtc_time64_to_tm(readl(xrtcdev->reg_base + RTC_CUR_TM), tm);
+> > +   status =3D readl(xrtcdev->reg_base + RTC_INT_STS);
+> > +
+> > +   if (status & RTC_INT_SEC) {
+> > +           /*
+> > +            * RTC has updated the CURRENT_TIME with the time written
+> into
+> > +            * SET_TIME_WRITE register.
+> > +            */
+> > +           rtc_time64_to_tm(readl(xrtcdev->reg_base +
+> RTC_CUR_TM), tm);
+> > +   } else {
+> > +           /*
+> > +            * Time written in SET_TIME_WRITE has not yet updated into
+> > +            * the seconds read register, so read the time from the
+> > +            * SET_TIME_WRITE instead of CURRENT_TIME register.
+> > +            */
+> > +           rtc_time64_to_tm(readl(xrtcdev->reg_base +
+> RTC_SET_TM_RD), tm);
+> > +           tm->tm_sec -=3D 1;
+>
+> Well, I didn't point it out directly earlier but this doesn't work while =
+my
+> example is working:
+> rtc_time64_to_tm(readl(xrtcdev->reg_base + RTC_SET_TM_RD) - 1, tm);
+> Think about what is happening when tm->tm_sec =3D=3D 0 ...
+>
 
--- 
--- 
+Thanks  for pointing it out, will change this part
+
+Regards,
+Anurag Kumar V
+
+> > +   }
+> >
+> >     return rtc_valid_tm(tm);
+> >  }
+> > @@ -166,11 +199,9 @@ static irqreturn_t xlnx_rtc_interrupt(int irq, voi=
+d
+> *id)
+> >     if (!(status & (RTC_INT_SEC | RTC_INT_ALRM)))
+> >             return IRQ_NONE;
+> >
+> > -   /* Clear interrupt */
+> > -   writel(status, xrtcdev->reg_base + RTC_INT_STS);
+> > +   /* Clear RTC_INT_ALRM interrupt only */
+> > +   writel(RTC_INT_ALRM, xrtcdev->reg_base + RTC_INT_STS);
+> >
+> > -   if (status & RTC_INT_SEC)
+> > -           rtc_update_irq(xrtcdev->rtc, 1, RTC_IRQF | RTC_UF);
+> >     if (status & RTC_INT_ALRM)
+> >             rtc_update_irq(xrtcdev->rtc, 1, RTC_IRQF | RTC_AF);
+> >
+> > --
+> > 2.1.2
+> >
+>
+> --
+> Alexandre Belloni, Free Electrons
+> Embedded Linux, Kernel and Android engineering
+> http://free-electrons.com
+
+
+This email and any attachments are intended for the sole use of the named r=
+ecipient(s) and contain(s) confidential information that may be proprietary=
+, privileged or copyrighted under applicable law. If you are not the intend=
+ed recipient, do not read, copy, or forward this email message or any attac=
+hments. Delete this email message and any attachments immediately.
+
+--=20
+--=20
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+---=20
+You received this message because you are subscribed to the Google Groups "=
+rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an e=
+mail to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
