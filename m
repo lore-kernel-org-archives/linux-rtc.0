@@ -1,24 +1,33 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBNWQ4W4AKGQEULWBJQA@googlegroups.com>
+Return-Path: <rtc-linux+bncBAABBKEM324AKGQEQEA7QYI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id u137si9295wmd.1.2016.04.21.16.54.30
-        for <rtc-linux@googlegroups.com>;
-        Thu, 21 Apr 2016 16:54:30 -0700 (PDT)
-Date: Fri, 22 Apr 2016 01:54:29 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Jeppe Ledet-Pedersen <jlp@gomspace.com>
-Cc: lee.jones@linaro.org, arnd@arndb.de, gregkh@linuxfoundation.org,
-	a.zummo@towertech.it, robh+dt@kernel.org, pawel.moll@arm.com,
-	mark.rutland@arm.com, ijc+devicetree@hellion.org.uk,
-	galak@codeaurora.org, rtc-linux@googlegroups.com,
-	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH 2/3] misc: eeprom: add Cypress FM33256B FRAM driver
-Message-ID: <20160421235429.GA6086@piout.net>
-References: <1461150471-23163-1-git-send-email-jlp@gomspace.com>
- <1461150471-23163-3-git-send-email-jlp@gomspace.com>
-MIME-Version: 1.0
+Received: from NAM02-SN1-obe.outbound.protection.outlook.com (mail-sn1nam02on0072.outbound.protection.outlook.com. [104.47.36.72])
+        by gmr-mx.google.com with ESMTPS id gg5si478277igb.0.2016.04.20.06.37.44
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
+        Wed, 20 Apr 2016 06:37:44 -0700 (PDT)
+From: Anurag Kumar Vulisha <anurag.kumar.vulisha@xilinx.com>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+CC: Alessandro Zummo <a.zummo@towertech.it>, Soren Brinkmann
+	<sorenb@xilinx.com>, Michal Simek <michals@xilinx.com>,
+	"rtc-linux@googlegroups.com" <rtc-linux@googlegroups.com>,
+	"linux-arm-kernel@lists.infradead.org"
+	<linux-arm-kernel@lists.infradead.org>, "linux-kernel@vger.kernel.org"
+	<linux-kernel@vger.kernel.org>, Punnaiah Choudary Kalluri
+	<punnaia@xilinx.com>, Anirudha Sarangi <anirudh@xilinx.com>, Srikanth Vemula
+	<svemula@xilinx.com>, Srinivas Goud <sgoud@xilinx.com>
+Subject: [rtc-linux] RE: [PATCH 3/3] RTC: Update seconds time programming logic
+Date: Wed, 20 Apr 2016 13:37:30 +0000
+Message-ID: <3802E9A6666DF54886E2B9CBF743BA9825E0B50C@XAP-PVEXMBX01.xlnx.xilinx.com>
+References: <1460463346-24923-1-git-send-email-anuragku@xilinx.com>
+ <1460463346-24923-3-git-send-email-anuragku@xilinx.com>
+ <20160419223109.GF29844@piout.net>
+ <3802E9A6666DF54886E2B9CBF743BA9825E0B42B@XAP-PVEXMBX01.xlnx.xilinx.com>
+ <20160420075741.GK29844@piout.net>
+ <3802E9A6666DF54886E2B9CBF743BA9825E0B4BE@XAP-PVEXMBX01.xlnx.xilinx.com>
+ <20160420120221.GR29844@piout.net>
+In-Reply-To: <20160420120221.GR29844@piout.net>
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1461150471-23163-3-git-send-email-jlp@gomspace.com>
+MIME-Version: 1.0
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -28,26 +37,72 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Hi,
+Hi Alexandre,
 
-On 20/04/2016 at 13:07:50 +0200, Jeppe Ledet-Pedersen wrote :
-> Signed-off-by: Jeppe Ledet-Pedersen <jlp@gomspace.com>
-> ---
->  MAINTAINERS                         |   1 +
->  drivers/misc/eeprom/Kconfig         |  12 ++++
->  drivers/misc/eeprom/Makefile        |   1 +
->  drivers/misc/eeprom/fm33256b-fram.c | 110 ++++++++++++++++++++++++++++++++++++
->  4 files changed, 124 insertions(+)
->  create mode 100644 drivers/misc/eeprom/fm33256b-fram.c
+Thanks for reviewing the patch, I will sent v2 with the changes updated.
+
+Thanks,
+Anurag Kumar V
+
+> -----Original Message-----
+> From: Alexandre Belloni [mailto:alexandre.belloni@free-electrons.com]
+> Sent: Wednesday, April 20, 2016 5:32 PM
+> To: Anurag Kumar Vulisha <anuragku@xilinx.com>
+> Cc: Alessandro Zummo <a.zummo@towertech.it>; Soren Brinkmann
+> <sorenb@xilinx.com>; Michal Simek <michals@xilinx.com>; rtc-
+> linux@googlegroups.com; linux-arm-kernel@lists.infradead.org; linux-
+> kernel@vger.kernel.org; Punnaiah Choudary Kalluri <punnaia@xilinx.com>;
+> Anirudha Sarangi <anirudh@xilinx.com>; Srikanth Vemula
+> <svemula@xilinx.com>; Srinivas Goud <sgoud@xilinx.com>
+> Subject: Re: [PATCH 3/3] RTC: Update seconds time programming logic
 > 
-
-There is now an nvmem framework that will allow you to easily have both
-an in-kernel and a userspace interface.
-
--- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+> On 20/04/2016 at 10:31:06 +0000, Anurag Kumar Vulisha wrote :
+> > > Yeas, I understood that. But my question was whether the interrupt
+> > > handling was necessary at all.
+> > > Instead of waiting for an interrupt to set time_updated, can't you
+> > > simply read RTC_INT_STS and check for the RTC_INT_SEC bit in
+> > > xlnx_rtc_read_time() ?
+> > >
+> > > Something like:
+> > >
+> > > status = readl(xrtcdev->reg_base + RTC_INT_STS) if (status &
+> RTC_INT_SEC)
+> > >       rtc_time64_to_tm(readl(xrtcdev->reg_base + RTC_CUR_TM), tm);
+> > > else
+> > >       rtc_time64_to_tm(readl(xrtcdev->reg_base + RTC_SET_TM_RD) - 1,
+> > > tm);
+> > >
+> > > It all depends on whether the RTC_INT_SEC bit in RTC_INT_STS is
+> > > being updated even when it is not enabled as an interrupt.
+> > >
+> >
+> > The above said logic will work if we doesn't clear the RTC_INT_STS
+> > register after the RTC_INT_SEC bit is set, this happens only if
+> > interrupts are not enabled. If interrupts are enabled we will be clearing the
+> RTC_INT_STS every time in the interrupt handler.
+> > And moreover we need to return time from RTC_SET_TM_RD only if time is
+> > requested within 1 sec span after programming the time only , so this is
+> required only for one time.
+> > Since we are clearing the RTC_INT_STS in our interrupt handler, we
+> > might end up in giving the wrong time to the user when requested.So I
+> think this logic might not work.
+> > Please correct me if am wrong.
+> >
+> 
+> Simply stop clearing RTC_INT_SEC from RTC_INT_STS in the interrupt
+> handler.
+> 
+> You can also remove
+> 	if (status & RTC_INT_SEC)
+> 		rtc_update_irq(xrtcdev->rtc, 1, RTC_IRQF | RTC_UF);
+> 
+> as it will not be used. Update interrupts are handled by the core using timers
+> anyway. And as you can see, there was no code enabling RTC_INT_SEC in
+> RTC_INT_EN before your patch.
+> 
+> --
+> Alexandre Belloni, Free Electrons
+> Embedded Linux, Kernel and Android engineering http://free-electrons.com
 
 -- 
 -- 
