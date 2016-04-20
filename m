@@ -1,20 +1,28 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRB6WD4W4AKGQEKXKN7UA@googlegroups.com>
+Return-Path: <rtc-linux+bncBAABBEVW324AKGQEFBGF56I@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id a124si22596wme.0.2016.04.21.16.27.54
-        for <rtc-linux@googlegroups.com>;
-        Thu, 21 Apr 2016 16:27:54 -0700 (PDT)
-Date: Fri, 22 Apr 2016 01:27:53 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Gong Qianyu <Qianyu.Gong@nxp.com>
-Cc: rtc-linux@googlegroups.com, akinobu.mita@gmail.com, mingkai.hu@nxp.com
-Subject: [rtc-linux] Re: [Patch v3] rtc: ds3232: fix call trace when
- rtc->ops_lock is used as NULL
-Message-ID: <20160421232753.GF29844@piout.net>
-References: <1461221740-10739-1-git-send-email-Qianyu.Gong@nxp.com>
-MIME-Version: 1.0
+Received: from NAM02-CY1-obe.outbound.protection.outlook.com (mail-cys01nam02on0081.outbound.protection.outlook.com. [104.47.37.81])
+        by gmr-mx.google.com with ESMTPS id tu5si7771848pab.2.2016.04.20.08.06.57
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
+        Wed, 20 Apr 2016 08:06:57 -0700 (PDT)
+From: Anurag Kumar Vulisha <anurag.kumar.vulisha@xilinx.com>
+To: Anurag Kumar Vulisha <anuragku@xilinx.com>, Alessandro Zummo
+	<a.zummo@towertech.it>, Alexandre Belloni
+	<alexandre.belloni@free-electrons.com>, Soren Brinkmann <sorenb@xilinx.com>
+CC: Michal Simek <michals@xilinx.com>, "rtc-linux@googlegroups.com"
+	<rtc-linux@googlegroups.com>, "linux-arm-kernel@lists.infradead.org"
+	<linux-arm-kernel@lists.infradead.org>, "linux-kernel@vger.kernel.org"
+	<linux-kernel@vger.kernel.org>, Punnaiah Choudary Kalluri
+	<punnaia@xilinx.com>, Anirudha Sarangi <anirudh@xilinx.com>, Srikanth Vemula
+	<svemula@xilinx.com>, Srinivas Goud <sgoud@xilinx.com>
+Subject: [rtc-linux] RE: [PATCH V3] rtc: zynqmp: Update seconds time
+ programming logic
+Date: Wed, 20 Apr 2016 15:06:51 +0000
+Message-ID: <3802E9A6666DF54886E2B9CBF743BA9825E0B56D@XAP-PVEXMBX01.xlnx.xilinx.com>
+References: <1461164331-13732-1-git-send-email-anuragku@xilinx.com>
+In-Reply-To: <1461164331-13732-1-git-send-email-anuragku@xilinx.com>
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1461221740-10739-1-git-send-email-Qianyu.Gong@nxp.com>
+MIME-Version: 1.0
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -24,29 +32,141 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 21/04/2016 at 14:55:40 +0800, Gong Qianyu wrote :
-> The rtc->ops_lock would be accessed in ds3232_irq() without being
-> initialized as rtc_device_register() is called too late.
-> 
-> So move devm_rtc_device_register() just before registering irq handler
-> to initialize rtc->ops_lock earlier.
-> 
-> Signed-off-by: Gong Qianyu <Qianyu.Gong@nxp.com>
-> ---
-> V3:
->  - revise the commit message.
-> V2:
->  - fix the order of error check.
-> 
->  drivers/rtc/rtc-ds3232.c | 9 ++++++---
->  1 file changed, 6 insertions(+), 3 deletions(-)
-> 
-Applied, thanks.
+Hi all,
 
--- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+Made a small typo mistake , Please  ignore this patch. Sorry for the inconvenience caused. 
+
+Thanks,
+Anurag Kumar V 
+
+
+> -----Original Message-----
+> From: Anurag Kumar Vulisha [mailto:anurag.kumar.vulisha@xilinx.com]
+> Sent: Wednesday, April 20, 2016 8:29 PM
+> To: Alessandro Zummo <a.zummo@towertech.it>; Alexandre Belloni
+> <alexandre.belloni@free-electrons.com>; Soren Brinkmann
+> <sorenb@xilinx.com>
+> Cc: Michal Simek <michals@xilinx.com>; rtc-linux@googlegroups.com; linux-
+> arm-kernel@lists.infradead.org; linux-kernel@vger.kernel.org; Punnaiah
+> Choudary Kalluri <punnaia@xilinx.com>; Anirudha Sarangi
+> <anirudh@xilinx.com>; Srikanth Vemula <svemula@xilinx.com>; Srinivas
+> Goud <sgoud@xilinx.com>; Anurag Kumar Vulisha <anuragku@xilinx.com>
+> Subject: [PATCH V3] rtc: zynqmp: Update seconds time programming logic
+> 
+> We programe RTC time using SET_TIME_WRITE register and read the RTC
+> current time using CURRENT_TIME register. When we set the time by writing
+> into SET_TIME_WRITE Register and immediately try to read the rtc time from
+> CURRENT_TIME register, the previous old value is returned instead of the
+> new loaded time. This is because RTC takes nearly 1 sec to update the  new
+> loaded value into the CURRENT_TIME register. This behaviour is expected in
+> our RTC IP.
+> 
+> This patch updates the driver to read the current time from SET_TIME_WRITE
+> register instead of CURRENT_TIME when rtc time is requested within an 1sec
+> period after setting the RTC time. Doing so will ensure the correct time is
+> given to the user.
+> 
+> Since there is an delay of 1sec in updating the CURRENT_TIME we are loading
+> set time +1sec while programming the SET_TIME_WRITE register, doing this
+> will give correct time without any delay when read from CURRENT_TIME.
+> 
+> This patch updates the above said.
+> 
+> Signed-off-by: Anurag Kumar Vulisha <anuragku@xilinx.com>
+> ---
+>  Changes in v3:
+>    1. Corrected the read time logic
+>  Changes in v2:
+>    1. Updated the Time programming logic as suggested by Alexandre Belloni
+>    2. Changed the commit message
+> ---
+>  drivers/rtc/rtc-zynqmp.c | 44
+> ++++++++++++++++++++++++++++++++++++++------
+>  1 file changed, 38 insertions(+), 6 deletions(-)
+> 
+> diff --git a/drivers/rtc/rtc-zynqmp.c b/drivers/rtc/rtc-zynqmp.c index
+> f87f971..c2f4495 100644
+> --- a/drivers/rtc/rtc-zynqmp.c
+> +++ b/drivers/rtc/rtc-zynqmp.c
+> @@ -64,7 +64,12 @@ static int xlnx_rtc_set_time(struct device *dev, struct
+> rtc_time *tm)
+>  	struct xlnx_rtc_dev *xrtcdev = dev_get_drvdata(dev);
+>  	unsigned long new_time;
+> 
+> -	new_time = rtc_tm_to_time64(tm);
+> +	/*
+> +	 * The value written will be updated after 1 sec into the
+> +	 * seconds read register, so we need to program time +1 sec
+> +	 * to get the correct time on read.
+> +	 */
+> +	new_time = rtc_tm_to_time64(tm) + 1;
+> 
+>  	if (new_time > RTC_SEC_MAX_VAL)
+>  		return -EINVAL;
+> @@ -78,14 +83,43 @@ static int xlnx_rtc_set_time(struct device *dev, struct
+> rtc_time *tm)
+> 
+>  	writel(new_time, xrtcdev->reg_base + RTC_SET_TM_WR);
+> 
+> +	/*
+> +	 * Clear the rtc interrupt status register after setting the
+> +	 * time. During a read_time function, the code should read the
+> +	 * RTC_INT_STATUS register and if bit 0 is still 0, it means
+> +	 * that one second has not elapsed yet since RTC was set and
+> +	 * the current time should be read from SET_TIME_READ register;
+> +	 * otherwise, CURRENT_TIME register is read to report the time
+> +	 */
+> +	writel(RTC_INT_SEC, xrtcdev->reg_base + RTC_INT_STS);
+> +
+>  	return 0;
+>  }
+> 
+>  static int xlnx_rtc_read_time(struct device *dev, struct rtc_time *tm)  {
+> +	u32 status, read_time;
+>  	struct xlnx_rtc_dev *xrtcdev = dev_get_drvdata(dev);
+> 
+> -	rtc_time64_to_tm(readl(xrtcdev->reg_base + RTC_CUR_TM), tm);
+> +	status = readl(xrtcdev->reg_base + RTC_INT_STS);
+> +
+> +	if (status & RTC_INT_SEC) {
+> +		/*
+> +		 * RTC has updated the CURRENT_TIME with the time written
+> into
+> +		 * SET_TIME_WRITE register.
+> +		 */
+> +		rtc_time64_to_tm(readl(xrtcdev->reg_base +
+> RTC_CUR_TM), tm);
+> +	} else {
+> +		/*
+> +		 * Time written in SET_TIME_WRITE has not yet updated into
+> +		 * the seconds read register, so read the time from the
+> +		 * SET_TIME_WRITE instead of CURRENT_TIME register.
+> +		 * Since we add +1 sec while writing, we need to -1 sec while
+> +		 * reading.
+> +		 */
+> +		read_time = readl(xrtcdev->reg_base + RTC_SET_TM_RD) -
+> 1;
+> +		rtc_time64_to_tm(read_time, tm);
+> +	}
+> 
+>  	return rtc_valid_tm(tm);
+>  }
+> @@ -166,11 +200,9 @@ static irqreturn_t xlnx_rtc_interrupt(int irq, void *id)
+>  	if (!(status & (RTC_INT_SEC | RTC_INT_ALRM)))
+>  		return IRQ_NONE;
+> 
+> -	/* Clear interrupt */
+> -	writel(status, xrtcdev->reg_base + RTC_INT_STS);
+> +	/* Clear RTC_INT_ALRM interrupt only */
+> +	writel(RTC_INT_ALRM, xrtcdev->reg_base + RTC_INT_STS);
+> 
+> -	if (status & RTC_INT_SEC)
+> -		rtc_update_irq(xrtcdev->rtc, 1, RTC_IRQF | RTC_UF);
+>  	if (status & RTC_INT_ALRM)
+>  		rtc_update_irq(xrtcdev->rtc, 1, RTC_IRQF | RTC_AF);
+> 
+> --
+> 2.1.2
 
 -- 
 -- 
