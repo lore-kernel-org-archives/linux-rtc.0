@@ -1,24 +1,24 @@
-Return-Path: <rtc-linux+bncBCO3XAUMTIFRBJFX3G4AKGQEMILY3IY@googlegroups.com>
+Return-Path: <rtc-linux+bncBDHZXHXDRAMBBWNP3O4AKGQE7W2VD5I@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from bear.ext.ti.com (bear.ext.ti.com. [192.94.94.41])
-        by gmr-mx.google.com with ESMTPS id au10si205527igc.3.2016.04.19.09.24.03
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1 cipher=AES128-SHA bits=128/128);
-        Tue, 19 Apr 2016 09:24:03 -0700 (PDT)
-From: Nishanth Menon <nm@ti.com>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        Alessandro Zummo
-	<a.zummo@towertech.it>
-CC: <linux-kernel@vger.kernel.org>, <rtc-linux@googlegroups.com>,
-        <linux-omap@vger.kernel.org>, <linux-arm-kernel@lists.infradead.org>,
-        Nishanth Menon <nm@ti.com>, Michael Lange <linuxstuff@milaw.biz>
-Subject: [rtc-linux] [PATCH] rtc: ds1307: Use irq when available for
- wakeup-source device
-Date: Tue, 19 Apr 2016 11:23:54 -0500
-Message-ID: <1461083034-9227-1-git-send-email-nm@ti.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Received: from smtp.codeaurora.org (smtp.codeaurora.org. [198.145.29.96])
+        by gmr-mx.google.com with ESMTPS id d22si3879216pfd.0.2016.04.19.18.14.01
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 19 Apr 2016 18:14:01 -0700 (PDT)
+From: Stephen Boyd <sboyd@codeaurora.org>
+To: Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: linux-kernel@vger.kernel.org,
+	linux-arm-msm@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	rtc-linux@googlegroups.com,
+	Heiko Stuebner <heiko@sntech.de>
+Subject: [rtc-linux] [PATCH] rtc: hym8563: Remove CLK_IS_ROOT
+Date: Tue, 19 Apr 2016 18:13:58 -0700
+Message-Id: <1461114838-17604-1-git-send-email-sboyd@codeaurora.org>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -27,38 +27,31 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-With commit 8bc2a40730ec ("rtc: ds1307: add support for the
-DT property 'wakeup-source'") we lost the ability for rtc irq
-functionality for devices that are actually hooked on a real IRQ
-line and have capability to wakeup as well. This is not an expected
-behavior. So, instead of just not requesting IRQ, skip the IRQ
-requirement only if interrupts are not defined for the device.
+This flag is a no-op now (see commit 47b0eeb3dc8a "clk: Deprecate
+CLK_IS_ROOT", 2016-02-02) so remove it.
 
-Fixes: 8bc2a40730ec ("rtc: ds1307: add support for the DT property 'wakeup-source'")
-Reported-by: Tony Lindgren <tony@atomide.com>
-Cc: Michael Lange <linuxstuff@milaw.biz>
-Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Signed-off-by: Nishanth Menon <nm@ti.com>
+Cc: Heiko Stuebner <heiko@sntech.de>
+Signed-off-by: Stephen Boyd <sboyd@codeaurora.org>
 ---
-
- drivers/rtc/rtc-ds1307.c | 2 +-
+ drivers/rtc/rtc-hym8563.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
-index b2156ee5bae1..74cd5cd544ee 100644
---- a/drivers/rtc/rtc-ds1307.c
-+++ b/drivers/rtc/rtc-ds1307.c
-@@ -1531,7 +1531,7 @@ read_rtc:
- 		return PTR_ERR(ds1307->rtc);
- 	}
+diff --git a/drivers/rtc/rtc-hym8563.c b/drivers/rtc/rtc-hym8563.c
+index b1b4746a0eab..207270376b55 100644
+--- a/drivers/rtc/rtc-hym8563.c
++++ b/drivers/rtc/rtc-hym8563.c
+@@ -413,7 +413,7 @@ static struct clk *hym8563_clkout_register_clk(struct hym8563 *hym8563)
  
--	if (ds1307_can_wakeup_device) {
-+	if (ds1307_can_wakeup_device && ds1307->client->irq <= 0) {
- 		/* Disable request for an IRQ */
- 		want_irq = false;
- 		dev_info(&client->dev, "'wakeup-source' is set, request for an IRQ is disabled!\n");
+ 	init.name = "hym8563-clkout";
+ 	init.ops = &hym8563_clkout_ops;
+-	init.flags = CLK_IS_ROOT;
++	init.flags = 0;
+ 	init.parent_names = NULL;
+ 	init.num_parents = 0;
+ 	hym8563->clkout_hw.init = &init;
 -- 
-2.8.0
+The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum,
+a Linux Foundation Collaborative Project
 
 -- 
 -- 
