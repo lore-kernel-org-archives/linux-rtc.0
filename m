@@ -1,26 +1,20 @@
-Return-Path: <rtc-linux+bncBDQ2L75W5QGBBCE5WG4AKGQEK43DQOY@googlegroups.com>
+Return-Path: <rtc-linux+bncBAABBWVV4S4AKGQEIC5YKYQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mezzanine.sirena.org.uk (mezzanine.sirena.org.uk. [2400:8900::f03c:91ff:fedb:4f4])
-        by gmr-mx.google.com with ESMTPS id ph3si1767536pac.1.2016.04.11.18.25.28
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=AES128-SHA bits=128/128);
-        Mon, 11 Apr 2016 18:25:28 -0700 (PDT)
-Date: Tue, 12 Apr 2016 02:25:18 +0100
-From: Mark Brown <broonie@kernel.org>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Sergei Ianovich <ynvich@gmail.com>,
-	Akinobu Mita <akinobu.mita@gmail.com>, rtc-linux@googlegroups.com,
-	devicetree@vger.kernel.org, Alessandro Zummo <a.zummo@towertech.it>
-Message-ID: <20160412012518.GQ3351@sirena.org.uk>
-References: <1460300366-25248-1-git-send-email-akinobu.mita@gmail.com>
- <20160410151237.GD5377@piout.net>
- <1460301781.17404.171.camel@gmail.com>
- <20160410153855.GG5377@piout.net>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id c7si110848wmf.2.2016.04.21.11.24.26
+        for <rtc-linux@googlegroups.com>;
+        Thu, 21 Apr 2016 11:24:26 -0700 (PDT)
+From: =?UTF-8?q?Myl=C3=A8ne=20Josserand?= <mylene.josserand@free-electrons.com>
+To: alexandre.belloni@free-electrons.com,
+	rtc-linux@googlegroups.com
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+	linux-kernel@vger.kernel.org,
+	mylene.josserand@free-electrons.com
+Subject: [rtc-linux] [PATCH 0/6] add support for Microcrystal RV-3049
+Date: Thu, 21 Apr 2016 20:24:13 +0200
+Message-Id: <cover.1461250479.git.mylene.josserand@free-electrons.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="FcSpk3Icpd/Pbul4"
-In-Reply-To: <20160410153855.GG5377@piout.net>
-Subject: [rtc-linux] Re: [PATCH 0/4] support control with using GPIO lines
+Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -30,49 +24,37 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
---FcSpk3Icpd/Pbul4
-Content-Type: text/plain; charset=UTF-8
-Content-Disposition: inline
+The current patchset adds the support of the microcrystal RV-3049 (spi).
+This RTC will use the same driver than RV-3029 by updating it to use regmap=
+.
+It also adds the alarm IRQ functionality.
 
-On Sun, Apr 10, 2016 at 05:38:55PM +0200, Alexandre Belloni wrote:
-> On 10/04/2016 at 18:23:01 +0300, Sergei Ianovich wrote :
 
-> > No, unfortunately. I've investigated this possibility for my platform.
-> > spi-gpio doesn't support LSB-first and 3-wire options. Adding support
-> > there is a very big change. The best way to add GPIO support is to
-> > create spi-gpio-3wire with LSB-first support.
+Myl=C3=A8ne Josserand (6):
+  rtc: rv3029: remove 'i2c' in functions names
+  rtc: rv3029: convert to use regmap
+  rtc: rv3029: Add support of RV3049
+  rtc: rv3049: Removes some checks and warnings
+  rtc: rv3029: enable AE_x bits on set_alarm
+  rtc: rv3029: add alarm IRQ
 
-> Mark, do you have nay opinion on that?
+ drivers/rtc/Kconfig        |  37 +--
+ drivers/rtc/rtc-rv3029c2.c | 582 +++++++++++++++++++++++++++++------------=
+----
+ 2 files changed, 397 insertions(+), 222 deletions(-)
 
-Three wire doesn't seem like it should be invasive, LSB is going to be a
-lot more invasive though it seems reasonable to just do the reversal in
-the driver for whatever device this is and let the SPI controller run
-normally.  Or we could do that in the core with a pass over the data.
+--=20
+2.8.0.rc3
 
--- 
--- 
+--=20
+--=20
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+---=20
+You received this message because you are subscribed to the Google Groups "=
+rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an e=
+mail to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
-
---FcSpk3Icpd/Pbul4
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
-
-iQEcBAEBCAAGBQJXDE59AAoJECTWi3JdVIfQiT4H/jOMfyK1geaFwemu0XwrIyNx
-mU081BmWCFGVjCRTCRbFBLfdWSEjznChfYE3UJhf81ZbTW/eSCSQPWF8u6sxS4+W
-WcLT4EPrpXFX60I6BYLA4FcLpA9VbxVqKKD4nezykYhEwAQuYKMw04viWcjWukpe
-rcC1toWWFAynKCZvsoOJvtYAluL5q9monZH5wkAmaqeeo8QzRJlhndoFAK/q68oA
-5QMBAaZPASJqft7X5CBnoSsvqsuT5Q9jU+J7yPGYTdSOd7VeuPtoqxLzLMW2yW0R
-HStlcj9N9WrwTDMJzCq56Pqakx4wJ8c9ryqe9L0neBHrCbzPenyGRJNx1yxvlg8=
-=xrSK
------END PGP SIGNATURE-----
-
---FcSpk3Icpd/Pbul4--
