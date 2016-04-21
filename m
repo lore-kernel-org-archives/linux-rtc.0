@@ -1,19 +1,23 @@
-Return-Path: <rtc-linux+bncBDEKVJM7XAHRBI5AQK4QKGQEM2D3W7A@googlegroups.com>
+Return-Path: <rtc-linux+bncBAABBNEX4O4AKGQEDMIC5TA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mout.kundenserver.de (mout.kundenserver.de. [212.227.126.134])
-        by gmr-mx.google.com with ESMTPS id vo1si408620pab.2.2016.04.27.03.10.42
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 27 Apr 2016 03:10:43 -0700 (PDT)
-From: Arnd Bergmann <arnd@arndb.de>
-To: linuxppc-dev@lists.ozlabs.org
-Cc: kbuild test robot <lkp@intel.com>, linux-arch@vger.kernel.org, a.zummo@towertech.it, dalias@libc.org, linux-parisc@vger.kernel.org, linux-sh@vger.kernel.org, deller@gmx.de, linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org, dhowells@redhat.com, linux-m68k@lists.linux-m68k.org, geert@linux-m68k.org, kbuild-all@01.org, rtc-linux@googlegroups.com, Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Subject: [rtc-linux] Re: [PATCH v2 4/6] rtc: parisc: provide rtc_class_ops directly
-Date: Wed, 27 Apr 2016 12:10:28 +0200
-Message-ID: <4761768.yGo2yiDr2v@wuerfel>
-In-Reply-To: <201604270817.uNDAZuA5%fengguang.wu@intel.com>
-References: <201604270817.uNDAZuA5%fengguang.wu@intel.com>
+Received: from lists.s-osg.org (lists.s-osg.org. [54.187.51.154])
+        by gmr-mx.google.com with ESMTP id y20si56827pfa.2.2016.04.21.05.46.44
+        for <rtc-linux@googlegroups.com>;
+        Thu, 21 Apr 2016 05:46:44 -0700 (PDT)
+Subject: Re: [rtc-linux] [PATCH v2] rtc: s3c: Document in binding that only
+ s3c6410 needs a src clk
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+References: <1455545466-25709-1-git-send-email-javier@osg.samsung.com>
+ <20160328221915.GC2346@piout.net>
+Cc: linux-kernel@vger.kernel.org, Rob Herring <robh+dt@kernel.org>,
+ linux-samsung-soc@vger.kernel.org,
+ Krzysztof Kozlowski <k.kozlowski@samsung.com>, rtc-linux@googlegroups.com,
+ devicetree@vger.kernel.org
+From: Javier Martinez Canillas <javier@osg.samsung.com>
+Message-ID: <5718CBA9.30801@osg.samsung.com>
+Date: Thu, 21 Apr 2016 08:46:33 -0400
 MIME-Version: 1.0
+In-Reply-To: <20160328221915.GC2346@piout.net>
 Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
@@ -24,22 +28,40 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Wednesday 27 April 2016 08:22:24 kbuild test robot wrote:
+Hello Alexandre,
+
+On 03/28/2016 06:19 PM, Alexandre Belloni wrote:
+> On 15/02/2016 at 11:11:06 -0300, Javier Martinez Canillas wrote :
+>> The S3C binding doc says that the RTC and RTC source clocks are required
+>> but the S3C driver supports different HW IP and only the s3c6410 needs a
+>> source clock.
+>>
+>> Fix the binding explaining that the source clock is only needed for the
+>> s3c6410-rtc compatible controller.
+>>
+>> Reported-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+>> Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
+>> Acked-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+>>
+>> ---
+>> Hello,
+>>
+>> This patch depends on a previous one that was picked by Rob Herring so
+>> this one has to go through his tree again and not through the RTC tree
+>> to avoid conflicts.
+>>
 > 
->    256  
->    257          memset(tm, 0, sizeof(*tm));
->    258          if (pdc_tod_read(&tod_data) < 0)
->    259                  return -EOPNOTSUPP;
->    260  
->    261          /* we treat tod_sec as unsigned, so this can work until year 2106 */
->  > 262          rtc_time64_to_tm(tod_data.tod_sec, &tm);
->    263          return rtc_valid_tm(tm);
->    264  }
+> Well, I'm queuing that one in rtc-fixes for 4.6
 > 
 
-Fixed, thanks!
+Are you still planning to push this fix for v4.6? I don't see the patch in
+neither v4.6-rc4 nor linux-next.
 
-	Arnd
+Best regards,
+-- 
+Javier Martinez Canillas
+Open Source Group
+Samsung Research America
 
 -- 
 -- 
