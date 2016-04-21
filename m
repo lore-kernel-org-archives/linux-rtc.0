@@ -1,36 +1,25 @@
-Return-Path: <rtc-linux+bncBDEKVJM7XAHRBEH5QS4QKGQEVWFDIIA@googlegroups.com>
+Return-Path: <rtc-linux+bncBAABBZVV4S4AKGQE2TRMVLQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-MIME-Version: 1.0
-Received: from mout.kundenserver.de (mout.kundenserver.de. [212.227.17.13])
-        by gmr-mx.google.com with ESMTPS id c69si528233wme.2.2016.04.27.15.34.56
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 27 Apr 2016 15:34:56 -0700 (PDT)
-From: Arnd Bergmann <arnd@arndb.de>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Arnd Bergmann <arnd@arndb.de>,
-	geert@linux-m68k.org,
-	deller@gmx.de,
-	benh@kernel.crashing.org,
-	mpe@ellerman.id.au,
-	dalias@libc.org,
-	dhowells@redhat.com,
-	linux-alpha@vger.kernel.org,
-	a.zummo@towertech.it,
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id t18si435053wmt.0.2016.04.21.11.24.38
+        for <rtc-linux@googlegroups.com>;
+        Thu, 21 Apr 2016 11:24:38 -0700 (PDT)
+From: =?UTF-8?q?Myl=C3=A8ne=20Josserand?= <mylene.josserand@free-electrons.com>
+To: alexandre.belloni@free-electrons.com,
+	rtc-linux@googlegroups.com
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
 	linux-kernel@vger.kernel.org,
-	linux-parisc@vger.kernel.org,
-	linuxppc-dev@lists.ozlabs.org,
-	linux-sh@vger.kernel.org,
-	linux-m68k@lists.linux-m68k.org,
-	rtc-linux@googlegroups.com,
-	linux-arch@vger.kernel.org
-Subject: [rtc-linux] [PATCH v3 08/16] char/genrtc: remove parisc support
-Date: Thu, 28 Apr 2016 00:34:22 +0200
-Message-Id: <1461796470-1291527-9-git-send-email-arnd@arndb.de>
-In-Reply-To: <1461796470-1291527-1-git-send-email-arnd@arndb.de>
-References: <1461796470-1291527-1-git-send-email-arnd@arndb.de>
-Reply-To: rtc-linux@googlegroups.com
+	mylene.josserand@free-electrons.com
+Subject: [rtc-linux] [PATCH 5/6] rtc: rv3029: enable AE_x bits on set_alarm
+Date: Thu, 21 Apr 2016 20:24:18 +0200
+Message-Id: <ca637cf527c3b7e9fbd0cab08ca35c1dfb97ca67.1461250479.git.mylene.josserand@free-electrons.com>
+In-Reply-To: <cover.1461250479.git.mylene.josserand@free-electrons.com>
+References: <cover.1461250479.git.mylene.josserand@free-electrons.com>
+In-Reply-To: <cover.1461250479.git.mylene.josserand@free-electrons.com>
+References: <cover.1461250479.git.mylene.josserand@free-electrons.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -39,179 +28,77 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-This architecture selects RTC_CLASS unconditionally, so the GEN_RTC
-has not worked here for a long time.
+The RTC RV3029 handles different types of alarms : seconds, minutes, ...
+These alarms can be enabled or disabled individually using an AE_x bit
+which is the last bit (BIT(7)) on each alarm registers.
 
-Now we can remove both the asm/rtc.h header and the Kconfig dependency
-for CONFIG_GEN_RTC.
+To prepare the alarm IRQ support, the current code enables all the alarm
+types by setting each AE_x to 1.
+It also fixes month and weekday errors : it was performing -1 instead
+of +1.
 
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Myl=C3=A8ne Josserand <mylene.josserand@free-electrons.com>
 ---
- arch/parisc/include/asm/rtc.h | 131 ------------------------------------------
- drivers/char/Kconfig          |   2 +-
- 2 files changed, 1 insertion(+), 132 deletions(-)
- delete mode 100644 arch/parisc/include/asm/rtc.h
+ drivers/rtc/rtc-rv3029c2.c | 23 ++++++++++++++++-------
+ 1 file changed, 16 insertions(+), 7 deletions(-)
 
-diff --git a/arch/parisc/include/asm/rtc.h b/arch/parisc/include/asm/rtc.h
-deleted file mode 100644
-index 099d641a42c2..000000000000
---- a/arch/parisc/include/asm/rtc.h
-+++ /dev/null
-@@ -1,131 +0,0 @@
--/* 
-- * include/asm-parisc/rtc.h
-- *
-- * Copyright 2002 Randolph CHung <tausq@debian.org>
-- *
-- * Based on: include/asm-ppc/rtc.h and the genrtc driver in the
-- * 2.4 parisc linux tree
-- */
--
--#ifndef __ASM_RTC_H__
--#define __ASM_RTC_H__
--
--#ifdef __KERNEL__
--
--#include <linux/rtc.h>
--
--#include <asm/pdc.h>
--
--#define SECS_PER_HOUR   (60 * 60)
--#define SECS_PER_DAY    (SECS_PER_HOUR * 24)
--
--
--#define RTC_PIE 0x40		/* periodic interrupt enable */
--#define RTC_AIE 0x20		/* alarm interrupt enable */
--#define RTC_UIE 0x10		/* update-finished interrupt enable */
--
--#define RTC_BATT_BAD 0x100	/* battery bad */
--
--/* some dummy definitions */
--#define RTC_SQWE 0x08		/* enable square-wave output */
--#define RTC_DM_BINARY 0x04	/* all time/date values are BCD if clear */
--#define RTC_24H 0x02		/* 24 hour mode - else hours bit 7 means pm */
--#define RTC_DST_EN 0x01	        /* auto switch DST - works f. USA only */
--
--# define __isleap(year) \
--  ((year) % 4 == 0 && ((year) % 100 != 0 || (year) % 400 == 0))
--
--/* How many days come before each month (0-12).  */
--static const unsigned short int __mon_yday[2][13] =
--{
--	/* Normal years.  */
--	{ 0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365 },
--	/* Leap years.  */
--	{ 0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335, 366 }
--};
--
--static inline unsigned int get_rtc_time(struct rtc_time *wtime)
--{
--	struct pdc_tod tod_data;
--	long int days, rem, y;
--	const unsigned short int *ip;
--
--	memset(wtime, 0, sizeof(*wtime));
--	if (pdc_tod_read(&tod_data) < 0)
--		return RTC_24H | RTC_BATT_BAD;
--
--	// most of the remainder of this function is:
--//	Copyright (C) 1991, 1993, 1997, 1998 Free Software Foundation, Inc.
--//	This was originally a part of the GNU C Library.
--//      It is distributed under the GPL, and was swiped from offtime.c
--
--
--	days = tod_data.tod_sec / SECS_PER_DAY;
--	rem = tod_data.tod_sec % SECS_PER_DAY;
--
--	wtime->tm_hour = rem / SECS_PER_HOUR;
--	rem %= SECS_PER_HOUR;
--	wtime->tm_min = rem / 60;
--	wtime->tm_sec = rem % 60;
--
--	y = 1970;
--
--#define DIV(a, b) ((a) / (b) - ((a) % (b) < 0))
--#define LEAPS_THRU_END_OF(y) (DIV (y, 4) - DIV (y, 100) + DIV (y, 400))
--
--	while (days < 0 || days >= (__isleap (y) ? 366 : 365))
--	{
--		/* Guess a corrected year, assuming 365 days per year.  */
--		long int yg = y + days / 365 - (days % 365 < 0);
--
--		/* Adjust DAYS and Y to match the guessed year.  */
--		days -= ((yg - y) * 365
--			 + LEAPS_THRU_END_OF (yg - 1)
--			 - LEAPS_THRU_END_OF (y - 1));
--		y = yg;
--	}
--	wtime->tm_year = y - 1900;
--
--	ip = __mon_yday[__isleap(y)];
--	for (y = 11; days < (long int) ip[y]; --y)
--		continue;
--	days -= ip[y];
--	wtime->tm_mon = y;
--	wtime->tm_mday = days + 1;
--
--	return RTC_24H;
--}
--
--static int set_rtc_time(struct rtc_time *wtime)
--{
--	u_int32_t secs;
--
--	secs = mktime(wtime->tm_year + 1900, wtime->tm_mon + 1, wtime->tm_mday, 
--		      wtime->tm_hour, wtime->tm_min, wtime->tm_sec);
--
--	if(pdc_tod_set(secs, 0) < 0)
--		return -1;
--	else
--		return 0;
--
--}
--
--static inline unsigned int get_rtc_ss(void)
--{
--	struct rtc_time h;
--
--	get_rtc_time(&h);
--	return h.tm_sec;
--}
--
--static inline int get_rtc_pll(struct rtc_pll_info *pll)
--{
--	return -EINVAL;
--}
--static inline int set_rtc_pll(struct rtc_pll_info *pll)
--{
--	return -EINVAL;
--}
--
--#endif /* __KERNEL__ */
--#endif /* __ASM_RTC_H__ */
-diff --git a/drivers/char/Kconfig b/drivers/char/Kconfig
-index d17ed90ebc82..abab6e565c60 100644
---- a/drivers/char/Kconfig
-+++ b/drivers/char/Kconfig
-@@ -328,7 +328,7 @@ config JS_RTC
- config GEN_RTC
- 	tristate "Generic /dev/rtc emulation"
- 	depends on RTC!=y
--	depends on M68K || PARISC || PPC
-+	depends on M68K || PPC
- 	---help---
- 	  If you say Y here and create a character special file /dev/rtc with
- 	  major number 10 and minor number 135 using mknod ("man mknod"), you
--- 
-2.7.0
+diff --git a/drivers/rtc/rtc-rv3029c2.c b/drivers/rtc/rtc-rv3029c2.c
+index a849005..42de1a3 100644
+--- a/drivers/rtc/rtc-rv3029c2.c
++++ b/drivers/rtc/rtc-rv3029c2.c
+@@ -76,6 +76,7 @@
+ #define RV3029_A_DW			0x14
+ #define RV3029_A_MO			0x15
+ #define RV3029_A_YR			0x16
++#define RV3029_A_AE_X			BIT(7)
+ #define RV3029_ALARM_SECTION_LEN	0x07
+=20
+ /* timer section */
+@@ -436,14 +437,22 @@ static int rv3029_set_alarm(struct device *dev, struc=
+t rtc_wkalrm *alarm)
+ 		dev_err(dev, "%s: reading SR failed\n", __func__);
+ 		return -EIO;
+ 	}
+-	regs[RV3029_A_SC - RV3029_A_SC] =3D bin2bcd(tm->tm_sec & 0x7f);
+-	regs[RV3029_A_MN - RV3029_A_SC] =3D bin2bcd(tm->tm_min & 0x7f);
+-	regs[RV3029_A_HR - RV3029_A_SC] =3D bin2bcd(tm->tm_hour & 0x3f);
+-	regs[RV3029_A_DT - RV3029_A_SC] =3D bin2bcd(tm->tm_mday & 0x3f);
+-	regs[RV3029_A_MO - RV3029_A_SC] =3D bin2bcd((tm->tm_mon & 0x1f) - 1);
+-	regs[RV3029_A_DW - RV3029_A_SC] =3D bin2bcd((tm->tm_wday & 7) - 1);
+-	regs[RV3029_A_YR - RV3029_A_SC] =3D bin2bcd((tm->tm_year & 0x7f) - 100);
+=20
++	/* Activate all the alarms with AE_x bit */
++	regs[RV3029_A_SC - RV3029_A_SC] =3D (bin2bcd(tm->tm_sec)) | RV3029_A_AE_X=
+;
++	regs[RV3029_A_MN - RV3029_A_SC] =3D (bin2bcd(tm->tm_min)) | RV3029_A_AE_X=
+;
++	regs[RV3029_A_HR - RV3029_A_SC] =3D (bin2bcd(tm->tm_hour & 0x3f))
++		| RV3029_A_AE_X;
++	regs[RV3029_A_DT - RV3029_A_SC] =3D (bin2bcd(tm->tm_mday & 0x3f))
++		| RV3029_A_AE_X;
++	regs[RV3029_A_MO - RV3029_A_SC] =3D (bin2bcd((tm->tm_mon & 0x1f) + 1))
++		| RV3029_A_AE_X;
++	regs[RV3029_A_DW - RV3029_A_SC] =3D (bin2bcd((tm->tm_wday & 7) + 1))
++		| RV3029_A_AE_X;
++	regs[RV3029_A_YR - RV3029_A_SC] =3D (bin2bcd((tm->tm_year) - 100))
++		| RV3029_A_AE_X;
++
++	/* Write the alarm */
+ 	ret =3D rv3029_write_regs(dev, RV3029_A_SC, regs,
+ 				RV3029_ALARM_SECTION_LEN);
+ 	if (ret < 0)
+--=20
+2.8.0.rc3
 
--- 
--- 
+--=20
+--=20
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+---=20
+You received this message because you are subscribed to the Google Groups "=
+rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an e=
+mail to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
