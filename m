@@ -1,28 +1,21 @@
-Return-Path: <rtc-linux+bncBAABBNH57W4AKGQEM5WXFYI@googlegroups.com>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBJ6B4W4AKGQE34MJKMA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from EUR01-HE1-obe.outbound.protection.outlook.com (mail-he1eur01on0120.outbound.protection.outlook.com. [104.47.0.120])
-        by gmr-mx.google.com with ESMTPS id cs5si1238640igb.0.2016.04.26.07.44.03
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
-        Tue, 26 Apr 2016 07:44:04 -0700 (PDT)
-Subject: [rtc-linux] Re: [PATCH 1/3] mfd: add Cypress FM33256B Processor
- Companion driver
-To: Rob Herring <robh@kernel.org>
-References: <1461150471-23163-1-git-send-email-jlp@gomspace.com>
- <1461150471-23163-2-git-send-email-jlp@gomspace.com>
- <20160422193232.GA9737@rob-hp-laptop>
-CC: <lee.jones@linaro.org>, <arnd@arndb.de>, <gregkh@linuxfoundation.org>,
-	<alexandre.belloni@free-electrons.com>, <a.zummo@towertech.it>,
-	<pawel.moll@arm.com>, <mark.rutland@arm.com>,
-	<ijc+devicetree@hellion.org.uk>, <galak@codeaurora.org>,
-	<rtc-linux@googlegroups.com>, <devicetree@vger.kernel.org>,
-	<linux-kernel@vger.kernel.org>
-From: Jeppe Ledet-Pedersen <jlp@gomspace.com>
-Message-ID: <571F7E60.9040106@gomspace.com>
-Date: Tue, 26 Apr 2016 16:42:40 +0200
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id a124si21940wme.0.2016.04.21.16.22.14
+        for <rtc-linux@googlegroups.com>;
+        Thu, 21 Apr 2016 16:22:14 -0700 (PDT)
+Date: Fri, 22 Apr 2016 01:22:14 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Stefan Agner <stefan@agner.ch>
+Cc: a.zummo@towertech.it, rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org
+Subject: [rtc-linux] Re: [PATCH] rtc: snvs: return error in case
+ enable_irq_wake fails
+Message-ID: <20160421232214.GE29844@piout.net>
+References: <1461193797-18015-1-git-send-email-stefan@agner.ch>
 MIME-Version: 1.0
-In-Reply-To: <20160422193232.GA9737@rob-hp-laptop>
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1461193797-18015-1-git-send-email-stefan@agner.ch>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -32,41 +25,23 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 22/04/16 21:32, Rob Herring wrote:
-> On Wed, Apr 20, 2016 at 01:07:49PM +0200, Jeppe Ledet-Pedersen wrote:
-[snip]
->> +
->> +The MFD exposes two subdevices:
->> +- The FRAM: "cypress,fm33256b-fram"
->> +- The RTC: "cypress,fm33256b-rtc"
->> +
->> +Example:
->> +
->> +spi1: spi@f800800 {
->> +	status = "okay";
->> +	cs-gpios = <&pioC 25 0>;
->> +
->> +	fm33256b@0 {
->> +		compatible = "cypress,fm33256b";
->> +		spi-max-frequency = <10000000>;
->> +		cypress,charge-enabled;
->> +		cypress,charge-fast;
->> +		reg = <0>;
->> +	};
+On 20/04/2016 at 16:09:57 -0700, Stefan Agner wrote :
+> If enable_irq_wake fails, we should return that error code so that
+> entering suspend fails. Otherwise we will get a WARNING along with
+> the hint of a unbalanced wake disable:
+> Unbalanced IRQ 37 wake disable
 > 
-> Where's the 2nd sub device?
+> Signed-off-by: Stefan Agner <stefan@agner.ch>
+> ---
+>  drivers/rtc/rtc-snvs.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+Applied, thanks.
 
-Hi Rob,
-
-Right now I just add the two sub-devices using mfd_add_devices in the
-fm33256b_probe function in my MFD driver. Would it be better to check
-for compatible child nodes before adding each sub-device, like it's done
-in drivers/mfd/tc3589x.c?
-
-Thanks,
-
--Jeppe
-
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
 -- 
 -- 
