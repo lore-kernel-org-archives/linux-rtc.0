@@ -1,22 +1,24 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBEHHVG4AKGQES5KMYAQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBNWQ4W4AKGQEULWBJQA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id d92si270075wma.2.2016.04.10.08.38.56
+        by gmr-mx.google.com with ESMTP id u137si9295wmd.1.2016.04.21.16.54.30
         for <rtc-linux@googlegroups.com>;
-        Sun, 10 Apr 2016 08:38:56 -0700 (PDT)
-Date: Sun, 10 Apr 2016 17:38:55 +0200
+        Thu, 21 Apr 2016 16:54:30 -0700 (PDT)
+Date: Fri, 22 Apr 2016 01:54:29 +0200
 From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Sergei Ianovich <ynvich@gmail.com>, Mark Brown <broonie@kernel.org>
-Cc: Akinobu Mita <akinobu.mita@gmail.com>, rtc-linux@googlegroups.com,
-	devicetree@vger.kernel.org, Alessandro Zummo <a.zummo@towertech.it>
-Subject: [rtc-linux] Re: [PATCH 0/4] support control with using GPIO lines
-Message-ID: <20160410153855.GG5377@piout.net>
-References: <1460300366-25248-1-git-send-email-akinobu.mita@gmail.com>
- <20160410151237.GD5377@piout.net>
- <1460301781.17404.171.camel@gmail.com>
+To: Jeppe Ledet-Pedersen <jlp@gomspace.com>
+Cc: lee.jones@linaro.org, arnd@arndb.de, gregkh@linuxfoundation.org,
+	a.zummo@towertech.it, robh+dt@kernel.org, pawel.moll@arm.com,
+	mark.rutland@arm.com, ijc+devicetree@hellion.org.uk,
+	galak@codeaurora.org, rtc-linux@googlegroups.com,
+	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [rtc-linux] Re: [PATCH 2/3] misc: eeprom: add Cypress FM33256B FRAM driver
+Message-ID: <20160421235429.GA6086@piout.net>
+References: <1461150471-23163-1-git-send-email-jlp@gomspace.com>
+ <1461150471-23163-3-git-send-email-jlp@gomspace.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1460301781.17404.171.camel@gmail.com>
+In-Reply-To: <1461150471-23163-3-git-send-email-jlp@gomspace.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -26,52 +28,34 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-[Adding Mark]
+Hi,
 
-On 10/04/2016 at 18:23:01 +0300, Sergei Ianovich wrote :
-> On Sun, 2016-04-10 at 17:12 +0200, Alexandre Belloni wrote:
-> > Hi,
-> >=20
-> > On 10/04/2016 at 23:59:22 +0900, Akinobu Mita wrote :
-> > >=20
-> > > This series adds support access to DS1302 with GPIO lines.
-> > >=20
-> > > Recently rtc-ds1302 is rewritten using SPI 3wire mode.=C2=A0=C2=A0Thi=
-s adds
-> > > another platform driver using GPIO while supporting both modes.
-> > >=20
-> > > Thie series first fixes two problems I found while tesing, secondly
-> > > introduces the abstraction layer for the register access which
-> > > enables
-> > > to share the most code between spi and platform driver, and adds
-> > > the platform driver using GPIO.
-> > >=20
-> > Well, isn't spi-gpio fitting for that use case? I'd like to avoid
-> > open
-> > coding gpio bitbanging in the driver.
->=20
-> No, unfortunately. I've investigated this possibility for my platform.
-> spi-gpio doesn't support LSB-first and 3-wire options. Adding support
-> there is a very big change. The best way to add GPIO support is to
-> create spi-gpio-3wire with LSB-first support.
+On 20/04/2016 at 13:07:50 +0200, Jeppe Ledet-Pedersen wrote :
+> Signed-off-by: Jeppe Ledet-Pedersen <jlp@gomspace.com>
+> ---
+>  MAINTAINERS                         |   1 +
+>  drivers/misc/eeprom/Kconfig         |  12 ++++
+>  drivers/misc/eeprom/Makefile        |   1 +
+>  drivers/misc/eeprom/fm33256b-fram.c | 110 ++++++++++++++++++++++++++++++++++++
+>  4 files changed, 124 insertions(+)
+>  create mode 100644 drivers/misc/eeprom/fm33256b-fram.c
+> 
 
-Mark, do you have nay opinion on that?
+There is now an nvmem framework that will allow you to easily have both
+an in-kernel and a userspace interface.
 
-
---=20
+-- 
 Alexandre Belloni, Free Electrons
 Embedded Linux, Kernel and Android engineering
 http://free-electrons.com
 
---=20
---=20
+-- 
+-- 
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
----=20
-You received this message because you are subscribed to the Google Groups "=
-rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an e=
-mail to rtc-linux+unsubscribe@googlegroups.com.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
