@@ -1,20 +1,21 @@
-Return-Path: <rtc-linux+bncBAABBQUE724AKGQENEK7PMI@googlegroups.com>
+Return-Path: <rtc-linux+bncBAABBMPX4G4AKGQE3GSWOFQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
+Received: from na01-bn1-obe.outbound.protection.outlook.com (mail-bn1bon0092.outbound.protection.outlook.com. [157.56.111.92])
+        by gmr-mx.google.com with ESMTPS id d22si218027pfd.0.2016.04.21.00.05.21
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
+        Thu, 21 Apr 2016 00:05:21 -0700 (PDT)
+From: Gong Qianyu <Qianyu.Gong@nxp.com>
+To: <rtc-linux@googlegroups.com>, <akinobu.mita@gmail.com>,
+	<alexandre.belloni@free-electrons.com>
+CC: <mingkai.hu@nxp.com>, Gong Qianyu <Qianyu.Gong@nxp.com>
+Subject: [rtc-linux] [Patch v3] rtc: ds3232: fix call trace when rtc->ops_lock
+ is used as NULL
+Date: Thu, 21 Apr 2016 14:55:40 +0800
+Message-ID: <1461221740-10739-1-git-send-email-Qianyu.Gong@nxp.com>
 MIME-Version: 1.0
-Received: from root.phytec.de (mail.phycore.de. [217.6.246.34])
-        by gmr-mx.google.com with ESMTP id c7si76580wmf.2.2016.04.26.07.59.14
-        for <rtc-linux@googlegroups.com>;
-        Tue, 26 Apr 2016 07:59:14 -0700 (PDT)
-From: Wadim Egorov <w.egorov@phytec.de>
-To: linux-kernel@vger.kernel.org, linux-clk@vger.kernel.org, rtc-linux@googlegroups.com, devicetree@vger.kernel.org, linux-rockchip@lists.infradead.org, lee.jones@linaro.org
-Cc: robh+dt@kernel.org, pawel.moll@arm.com, mark.rutland@arm.com, ijc+devicetree@hellion.org.uk, galak@codeaurora.org, mturquette@baylibre.com, sboyd@codeaurora.org, lgirdwood@gmail.com, broonie@kernel.org, a.zummo@towertech.it, alexandre.belloni@free-electrons.com, dianders@chromium.org, zyw@rock-chips.com
-Subject: [rtc-linux] [PATCH v4 7/7] rtc: Kconfig: Name RK818 in Kconfig for RTC_DRV_RK808
-Date: Tue, 26 Apr 2016 16:54:10 +0200
-Message-Id: <1461682450-22173-8-git-send-email-w.egorov@phytec.de>
-In-Reply-To: <1461682450-22173-1-git-send-email-w.egorov@phytec.de>
-References: <1461682450-22173-1-git-send-email-w.egorov@phytec.de>
-Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -23,36 +24,52 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-The RK808 and RK818 PMICs are using a similar register map.
-We can reuse the rtc driver for the RK818 PMIC. So let's add
-the RK818 in the Kconfig description.
+The rtc->ops_lock would be accessed in ds3232_irq() without being
+initialized as rtc_device_register() is called too late.
 
-Signed-off-by: Wadim Egorov <w.egorov@phytec.de>
-Acked-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+So move devm_rtc_device_register() just before registering irq handler
+to initialize rtc->ops_lock earlier.
+
+Signed-off-by: Gong Qianyu <Qianyu.Gong@nxp.com>
 ---
- drivers/rtc/Kconfig | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+V3:
+ - revise the commit message.
+V2:
+ - fix the order of error check.
 
-diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
-index 3e84315..acc2651 100644
---- a/drivers/rtc/Kconfig
-+++ b/drivers/rtc/Kconfig
-@@ -324,11 +324,11 @@ config RTC_DRV_MAX77686
- 	  will be called rtc-max77686.
+ drivers/rtc/rtc-ds3232.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/rtc/rtc-ds3232.c b/drivers/rtc/rtc-ds3232.c
+index 7edc889..04fbd7f 100644
+--- a/drivers/rtc/rtc-ds3232.c
++++ b/drivers/rtc/rtc-ds3232.c
+@@ -369,6 +369,11 @@ static int ds3232_probe(struct device *dev, struct regmap *regmap, int irq,
+ 	if (ret)
+ 		return ret;
  
- config RTC_DRV_RK808
--	tristate "Rockchip RK808 RTC"
-+	tristate "Rockchip RK808/RK818 RTC"
- 	depends on MFD_RK808
- 	help
- 	  If you say yes here you will get support for the
--	  RTC of RK808 PMIC.
-+	  RTC of RK808 and RK818 PMIC.
++	ds3232->rtc = devm_rtc_device_register(dev, name, &ds3232_rtc_ops,
++						THIS_MODULE);
++	if (IS_ERR(ds3232->rtc))
++		return PTR_ERR(ds3232->rtc);
++
+ 	if (ds3232->irq > 0) {
+ 		ret = devm_request_threaded_irq(dev, ds3232->irq, NULL,
+ 						ds3232_irq,
+@@ -380,10 +385,8 @@ static int ds3232_probe(struct device *dev, struct regmap *regmap, int irq,
+ 		} else
+ 			device_init_wakeup(dev, 1);
+ 	}
+-	ds3232->rtc = devm_rtc_device_register(dev, name, &ds3232_rtc_ops,
+-						THIS_MODULE);
  
- 	  This driver can also be built as a module. If so, the module
- 	  will be called rk808-rtc.
+-	return PTR_ERR_OR_ZERO(ds3232->rtc);
++	return 0;
+ }
+ 
+ #ifdef CONFIG_PM_SLEEP
 -- 
-1.9.1
+2.1.0.27.g96db324
 
 -- 
 -- 
