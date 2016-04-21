@@ -1,29 +1,21 @@
-Return-Path: <rtc-linux+bncBD7N3SEV2QCRBK5W7S4AKGQER2OFAOA@googlegroups.com>
+Return-Path: <rtc-linux+bncBAABB3NF4O4AKGQEB252DUI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from vk1046.megiteam.com.pl (2780.rev.megiteam.pl. [91.227.39.128])
-        by gmr-mx.google.com with ESMTP id c69si108719wme.2.2016.04.26.00.39.22
-        for <rtc-linux@googlegroups.com>;
-        Tue, 26 Apr 2016 00:39:22 -0700 (PDT)
-Subject: [rtc-linux] Re: [PATCH] rtc: omap: Support ext_wakeup configuration
-To: Grygorii Strashko <grygorii.strashko@ti.com>,
- Tony Lindgren <tony@atomide.com>
-References: <1459785403-1725-1-git-send-email-m.niestroj@grinn-global.com>
- <20160404224046.GA17042@atomide.com> <57078A89.3080809@ti.com>
- <20160408151408.GS16484@atomide.com> <5707E764.7050204@ti.com>
- <570D2F79.9040202@grinn-global.com> <57111AF4.6070505@ti.com>
-Cc: rtc-linux@googlegroups.com, devicetree@vger.kernel.org,
- Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>,
- Alessandro Zummo <a.zummo@towertech.it>,
- Alexandre Belloni <alexandre.belloni@free-electrons.com>,
- Keerthy <j-keerthy@ti.com>, linux-omap@vger.kernel.org,
- Dave Gerlach <d-gerlach@ti.com>, "Menon, Nishanth" <nm@ti.com>
-From: Marcin Niestroj <m.niestroj@grinn-global.com>
-Message-ID: <fe6ab23a-5f0d-a317-14d9-f538c3ad4052@grinn-global.com>
-Date: Tue, 26 Apr 2016 09:39:20 +0200
 MIME-Version: 1.0
-In-Reply-To: <57111AF4.6070505@ti.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Received: from root.phytec.de (mail.visioncatalog.com. [217.6.246.34])
+        by gmr-mx.google.com with ESMTP id 69si87528wmn.1.2016.04.21.06.17.33
+        for <rtc-linux@googlegroups.com>;
+        Thu, 21 Apr 2016 06:17:33 -0700 (PDT)
+From: Wadim Egorov <w.egorov@phytec.de>
+To: linux-kernel@vger.kernel.org, linux-clk@vger.kernel.org, rtc-linux@googlegroups.com, devicetree@vger.kernel.org, linux-rockchip@lists.infradead.org
+Cc: robh+dt@kernel.org, pawel.moll@arm.com, mark.rutland@arm.com, ijc+devicetree@hellion.org.uk, galak@codeaurora.org, mturquette@baylibre.com, sboyd@codeaurora.org, lee.jones@linaro.org, lgirdwood@gmail.com, broonie@kernel.org, a.zummo@towertech.it, alexandre.belloni@free-electrons.com, dianders@chromium.org, zyw@rock-chips.com
+Subject: [rtc-linux] [PATCH v2 3/7] regulator: rk808: Migrate to regulator
+ core's simplified DT parsing code
+Date: Thu, 21 Apr 2016 15:12:37 +0200
+Message-Id: <1461244361-45686-4-git-send-email-w.egorov@phytec.de>
+In-Reply-To: <1461244361-45686-1-git-send-email-w.egorov@phytec.de>
+References: <1461244361-45686-1-git-send-email-w.egorov@phytec.de>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -32,280 +24,448 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Hi,
+A common simplified DT parsing code for regulators was introduced in
+commit a0c7b164ad11 ("regulator: of: Provide simplified DT parsing
+method")
 
-On 15.04.2016 18:46, Grygorii Strashko wrote:
-> On 04/12/2016 08:25 PM, Marcin Niestroj wrote:
->> Hi,
->>
->> On 08.04.2016 19:16, Grygorii Strashko wrote:
->>> On 04/08/2016 06:14 PM, Tony Lindgren wrote:
->>>> * Grygorii Strashko <grygorii.strashko@ti.com> [160408 03:41]:
->>>>> Hi Tony,
->>>>>
->>>>> On 04/05/2016 01:40 AM, Tony Lindgren wrote:
->>>>>> Hi,
->>>>>>
->>>>>> * Marcin Niestroj <m.niestroj@grinn-global.com> [160404 08:57]:
->>>>>>> Support configuration of ext_wakeup sources. This patch makes it
->>>>>>> possible to enable ext_wakeup and set it's polarity, depending on
->>>>>>> board
->>>>>>> configuration. AM335x's dedicated PMIC (tps65217) uses ext_wakeup to
->>>>>>> notify about power-button presses. Handling power-button presses
->>>>>>> enables
->>>>>>> to recover from RTC-only power states correctly.
->>>>>>
->>>>>> I suggest you just set this pin up as a minimal gpiochip. That way
->>>>>> we can use the standard binding :) And if we get lucky, this pin can
->>>>>> also trigger during runtime.
->>>>>>
->>>>>
->>>>> Following my comments on v2 of this patch I propose to rollback to
->>>>> this version of the patch.
->>>>>
->>>>> It seems doesn't fit in gpiochip, it's more likely irqchip, but since
->>>>> rtc can't generate IRQ there are nor reasons for these genetic
->>>>> experiments and RTC's specific bindings looks more suitable, at
->>>>> least for me.
->>>>
->>>> Hmm well gpiochips typically are irqchip too. IMO the generic binding
->>>> here sounds like "gpio-wakeup" as it's an input with polarity and with
->>>> an optional interrupt.
->>>>
->>>> Plain irqchip would work too in this case if there are no other GPIO
->>>> specific features. Some other RTCs may have more GPIO like features.
->>>>
->>>> In any case, setting the ext_wakeup up as an irqchip means that the
->>>> RTC controller can be used as a dedicated wakeirq with Linux :)
->>>
->>> It can't :( It can't generate IRQ when state of ext_wakeup line has
->>> been changed.
->>>
->>>>
->>>> Are you guys sure there's no wake pin events during runtime? AFAIK
->>>> the RTCs just typically produce an interrupt when programmed to
->>>> do so, they don't know the state of the SoC.
->>>>
->>>
->>> I do not think that It can be fit in gpiochip or irqchip -
->>> in my opinion right way is to proceed with bindings proposed by
->>> Marcin in this patch v1.
->>>
->>> But, probably, it could fit in pinctrl:
->>> - this is pin's configuration
->>> - this is one-time configuration
->>> - or - configuration which can be applied before suspend
->>>    and resorted after suspend.
->>>
->>> if you still wanna try some generic framework.
->>>
->>
->> pinctrl bindings looks ok for our use case (enable/disable input,
->> configure debounce), except I don't see any way to pass polarity
->> (active low/high) to the driver.
->>
->
-> Below code is just a POC that pinctrl can be used here.
-> It does one time configuration at boot, but more sates can be added
-> - sleep, poweroff:
->
-> diff --git a/arch/arm/boot/dts/dra7.dtsi b/arch/arm/boot/dts/dra7.dtsi
-> index 13ac882..9580c82 100644
-> --- a/arch/arm/boot/dts/dra7.dtsi
-> +++ b/arch/arm/boot/dts/dra7.dtsi
-> @@ -1248,11 +1248,40 @@
->
->                 rtc: rtc@48838000 {
->                         compatible = "ti,am3352-rtc";
-> -                       reg = <0x48838000 0x100>;
-> +                       reg = <0x48838000 0x98>;
->                         interrupts = <GIC_SPI 217 IRQ_TYPE_LEVEL_HIGH>,
->                                      <GIC_SPI 217 IRQ_TYPE_LEVEL_HIGH>;
->                         ti,hwmods = "rtcss";
->                         clocks = <&sys_32k_ck>;
-> +                       #address-cells = <1>;
-> +                       #size-cells = <1>;
-> +                       ranges;
-> +
-> +                       rtc_pmx: pinmux@48838098 {
-> +                               compatible = "pinctrl-single";
-> +                               reg = <0x48838098 0x8>;
-> +                               #address-cells = <1>;
-> +                               #size-cells = <0>;
-> +                               pinctrl-single,register-width = <32>;
-> +                               pinctrl-single,function-mask = <0x007fffff>;
-> +
-> +                               pinctrl-names = "default"/*, "sleep"*/;
-> +                               pinctrl-0 = <&rtc_default>;
-> +/*                             pinctrl-1 = <&rtc_sleep>;*/
-> +
-> +                               rtc_default: rtc_default {
-> +                                       pinctrl-single,pins = <
-> +                                               0x0 0x000B0111
-> +                                               0x4 0x00000004
-> +                                       >;
-> +                               };
-> +/*                             rtc_sleep: rtc_sleep {
-> +                                       pinctrl-single,pins = <
-> +                                               0x0 0x00000000
-> +                                               0x4 0x00000000
-> +                                       >;
-> +                               };*/
-> +                       };
->                 };
->
->                 /* OCP2SCP1 */
-> diff --git a/drivers/rtc/rtc-omap.c b/drivers/rtc/rtc-omap.c
-> index ec2e9c5..28c67a4 100644
-> --- a/drivers/rtc/rtc-omap.c
-> +++ b/drivers/rtc/rtc-omap.c
-> @@ -428,8 +428,10 @@ static void omap_rtc_power_off(void)
->
->         rtc->type->unlock(rtc);
->         /* enable pmic_power_en control */
-> +/*
->         val = rtc_readl(rtc, OMAP_RTC_PMIC_REG);
->         rtc_writel(rtc, OMAP_RTC_PMIC_REG, val | OMAP_RTC_PMIC_POWER_EN_EN);
-> +*/
->
->         /* set alarm two seconds from now */
->         omap_rtc_read_time_raw(rtc, &tm);
-> @@ -650,6 +652,8 @@ static int omap_rtc_probe(struct platform_device *pdev)
->                           reg | OMAP_RTC_OSC_SEL_32KCLK_SRC);
->         }
->
-> +       of_platform_populate(pdev->dev.of_node, NULL, NULL, &pdev->dev);
-> +
->         rtc->type->lock(rtc);
->
->         device_init_wakeup(&pdev->dev, true);
->
->
+While at it also added RK8XX_DESC and RK8XX_DESC_SWITCH macros for the
+regulator_desc struct initialization. This just makes the driver more compact.
+Remove also linear ranges definitions with only one range.
 
-I made few changes to the POC you provided.
+Signed-off-by: Wadim Egorov <w.egorov@phytec.de>
+---
+ drivers/regulator/rk808-regulator.c | 308 +++++++++++++-----------------------
+ 1 file changed, 114 insertions(+), 194 deletions(-)
 
-In below code we check reg resource size in order to know if we
-should update RTC_PMIC or it is pinctrl responsibility. It's a little
-hack, but we make sure, that every device with not modified device-tree
-will work as previously. If we want to add support for ext_wakeup, we
-just change reg resouce size in device-tree in order to not overlap
-requested memory regions in rtc-omap and pinctrl.
-
-I used am335x-chilisom instead of dra7 and updated
-pinctrl-single,funcion-mask so the EXT_WAKEUP_STATUS is always cleared
-after boot.
-
-So the question now is: is this acceptable? Do we want to continue with
-this approach?
-
-diff --git a/arch/arm/boot/dts/am335x-chilisom.dtsi 
-b/arch/arm/boot/dts/am335x-chilisom.dtsi
-index bc0880d..525ed4f 100644
---- a/arch/arm/boot/dts/am335x-chilisom.dtsi
-+++ b/arch/arm/boot/dts/am335x-chilisom.dtsi
-@@ -124,6 +124,31 @@
-
-  &rtc {
-         system-power-controller;
-+
-+       reg = <0x44e3e000 0x98>;
-+       #address-cells = <1>;
-+       #size-cells = <1>; 
-
-+       ranges; 
-
-+ 
-
-+       rtc_pinmux: pinmux@0x44e3e098 { 
-
-+               compatible = "pinctrl-single"; 
-
-+               reg = <0x44e3e098 0x8>; 
-
-+               #address-cells = <1>; 
-
-+               #size-cells = <1>; 
-
-+ 
-
-+               pinctrl-single,register-width = <32>; 
-
-+               pinctrl-single,function-mask = <0x10fff>; 
-
-+ 
-
-+               pinctrl-names = "default"; 
-
-+               pinctrl-0 = <&rtc_pins_default>; 
-
-+ 
-
-+               rtc_pins_default: rtc_pins_default { 
-
-+                       pinctrl-single,pins = < 
-
-+                               0x0 0x00010011 
-
-+                               0x4 0x00000000 
-
-+                       >; 
-
-+               }; 
-
-+       }; 
-
-  }; 
-
+diff --git a/drivers/regulator/rk808-regulator.c b/drivers/regulator/rk808-regulator.c
+index 37aaba9..2c529fa 100644
+--- a/drivers/regulator/rk808-regulator.c
++++ b/drivers/regulator/rk808-regulator.c
+@@ -55,6 +55,42 @@
+ /* max steps for increase voltage of Buck1/2, equal 100mv*/
+ #define MAX_STEPS_ONE_TIME 8
  
-
-  /* NAND Flash */
-diff --git a/drivers/rtc/rtc-omap.c b/drivers/rtc/rtc-omap.c
-index ec2e9c5..db2512c 100644
---- a/drivers/rtc/rtc-omap.c
-+++ b/drivers/rtc/rtc-omap.c
-@@ -134,6 +134,7 @@ struct omap_rtc_device_type {
-  struct omap_rtc {
-         struct rtc_device *rtc;
-         void __iomem *base;
-+       resource_size_t res_size;
-         struct clk *clk;
-         int irq_alarm;
-         int irq_timer;
-@@ -428,8 +429,11 @@ static void omap_rtc_power_off(void)
-
-         rtc->type->unlock(rtc);
-         /* enable pmic_power_en control */
--       val = rtc_readl(rtc, OMAP_RTC_PMIC_REG);
--       rtc_writel(rtc, OMAP_RTC_PMIC_REG, val | OMAP_RTC_PMIC_POWER_EN_EN);
-+       if (rtc->res_size > OMAP_RTC_PMIC_REG) {
-+               val = rtc_readl(rtc, OMAP_RTC_PMIC_REG);
-+               rtc_writel(rtc, OMAP_RTC_PMIC_REG,
-+                       val | OMAP_RTC_PMIC_POWER_EN_EN);
-+       }
-
-         /* set alarm two seconds from now */
-         omap_rtc_read_time_raw(rtc, &tm);
-@@ -567,6 +571,7 @@ static int omap_rtc_probe(struct platform_device *pdev)
-                 clk_prepare_enable(rtc->clk);
-
-         res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-+       rtc->res_size = resource_size(res);
-         rtc->base = devm_ioremap_resource(&pdev->dev, res);
-         if (IS_ERR(rtc->base))
-                 return PTR_ERR(rtc->base);
-@@ -681,6 +686,9 @@ static int omap_rtc_probe(struct platform_device *pdev)
-                 }
-         }
-
-+       /* handle pinmux nodes which configure ext_wakeup inputs */
-+       of_platform_populate(pdev->dev.of_node, NULL, NULL, &pdev->dev);
++#define RK8XX_DESC(_id, _match, _supply, _min, _max, _step, _vreg,	\
++	_vmask, _ereg, _emask, _etime)					\
++	[_id] = {							\
++		.name		= (_match),				\
++		.supply_name	= (_supply),				\
++		.of_match	= of_match_ptr(_match),			\
++		.regulators_node = of_match_ptr("regulators"),		\
++		.type		= REGULATOR_VOLTAGE,			\
++		.id		= (_id),				\
++		.n_voltages	= (((_max) - (_min)) / (_step) + 1),	\
++		.owner		= THIS_MODULE,				\
++		.min_uV		= (_min) * 1000,			\
++		.uV_step	= (_step) * 1000,			\
++		.vsel_reg	= (_vreg),				\
++		.vsel_mask	= (_vmask),				\
++		.enable_reg	= (_ereg),				\
++		.enable_mask	= (_emask),				\
++		.enable_time	= (_etime),				\
++		.ops		= &rk808_reg_ops,			\
++	}
 +
-         return 0;
-
-  err:
-
++#define RK8XX_DESC_SWITCH(_id, _match, _supply, _ereg, _emask)		\
++	[_id] = {							\
++		.name		= (_match),				\
++		.supply_name	= (_supply),				\
++		.of_match	= of_match_ptr(_match),			\
++		.regulators_node = of_match_ptr("regulators"),		\
++		.type		= REGULATOR_VOLTAGE,			\
++		.id		= (_id),				\
++		.enable_reg	= (_ereg),				\
++		.enable_mask	= (_emask),				\
++		.owner		= THIS_MODULE,				\
++		.ops		= &rk808_switch_ops			\
++	}
++
++
+ struct rk808_regulator_data {
+ 	struct gpio_desc *dvs_gpio[2];
+ };
+@@ -66,27 +102,11 @@ static const int rk808_buck_config_regs[] = {
+ 	RK808_BUCK4_CONFIG_REG,
+ };
+ 
+-static const struct regulator_linear_range rk808_buck_voltage_ranges[] = {
+-	REGULATOR_LINEAR_RANGE(712500, 0, 63, 12500),
+-};
+-
+-static const struct regulator_linear_range rk808_buck4_voltage_ranges[] = {
+-	REGULATOR_LINEAR_RANGE(1800000, 0, 15, 100000),
+-};
+-
+-static const struct regulator_linear_range rk808_ldo_voltage_ranges[] = {
+-	REGULATOR_LINEAR_RANGE(1800000, 0, 16, 100000),
+-};
+-
+ static const struct regulator_linear_range rk808_ldo3_voltage_ranges[] = {
+ 	REGULATOR_LINEAR_RANGE(800000, 0, 13, 100000),
+ 	REGULATOR_LINEAR_RANGE(2500000, 15, 15, 0),
+ };
+ 
+-static const struct regulator_linear_range rk808_ldo6_voltage_ranges[] = {
+-	REGULATOR_LINEAR_RANGE(800000, 0, 17, 100000),
+-};
+-
+ static int rk808_buck1_2_get_voltage_sel_regmap(struct regulator_dev *rdev)
+ {
+ 	struct rk808_regulator_data *pdata = rdev_get_drvdata(rdev);
+@@ -239,7 +259,7 @@ static int rk808_set_ramp_delay(struct regulator_dev *rdev, int ramp_delay)
+ 				  RK808_RAMP_RATE_MASK, ramp_value);
+ }
+ 
+-static int rk808_set_suspend_voltage(struct regulator_dev *rdev, int uv)
++static int rk808_set_suspend_voltage_range(struct regulator_dev *rdev, int uv)
+ {
+ 	unsigned int reg;
+ 	int sel = regulator_map_voltage_linear_range(rdev, uv, uv);
+@@ -254,6 +274,21 @@ static int rk808_set_suspend_voltage(struct regulator_dev *rdev, int uv)
+ 				  sel);
+ }
+ 
++static int rk808_set_suspend_voltage(struct regulator_dev *rdev, int uv)
++{
++	unsigned int reg;
++	int sel = regulator_map_voltage_linear(rdev, uv, uv);
++
++	if (sel < 0)
++		return -EINVAL;
++
++	reg = rdev->desc->vsel_reg + RK808_SLP_REG_OFFSET;
++
++	return regmap_update_bits(rdev->regmap, reg,
++				  rdev->desc->vsel_mask,
++				  sel);
++}
++
+ static int rk808_set_suspend_enable(struct regulator_dev *rdev)
+ {
+ 	unsigned int reg;
+@@ -291,7 +326,7 @@ static struct regulator_ops rk808_buck1_2_ops = {
+ 	.set_suspend_disable	= rk808_set_suspend_disable,
+ };
+ 
+-static struct regulator_ops rk808_reg_ops = {
++static struct regulator_ops rk808_reg_ops_ranges = {
+ 	.list_voltage		= regulator_list_voltage_linear_range,
+ 	.map_voltage		= regulator_map_voltage_linear_range,
+ 	.get_voltage_sel	= regulator_get_voltage_sel_regmap,
+@@ -299,6 +334,19 @@ static struct regulator_ops rk808_reg_ops = {
+ 	.enable			= regulator_enable_regmap,
+ 	.disable		= regulator_disable_regmap,
+ 	.is_enabled		= regulator_is_enabled_regmap,
++	.set_suspend_voltage	= rk808_set_suspend_voltage_range,
++	.set_suspend_enable	= rk808_set_suspend_enable,
++	.set_suspend_disable	= rk808_set_suspend_disable,
++};
++
++static struct regulator_ops rk808_reg_ops = {
++	.list_voltage		= regulator_list_voltage_linear,
++	.map_voltage		= regulator_map_voltage_linear,
++	.get_voltage_sel	= regulator_get_voltage_sel_regmap,
++	.set_voltage_sel	= regulator_set_voltage_sel_regmap,
++	.enable			= regulator_enable_regmap,
++	.disable		= regulator_disable_regmap,
++	.is_enabled		= regulator_is_enabled_regmap,
+ 	.set_suspend_voltage	= rk808_set_suspend_voltage,
+ 	.set_suspend_enable	= rk808_set_suspend_enable,
+ 	.set_suspend_disable	= rk808_set_suspend_disable,
+@@ -316,12 +364,14 @@ static const struct regulator_desc rk808_reg[] = {
+ 	{
+ 		.name = "DCDC_REG1",
+ 		.supply_name = "vcc1",
++		.of_match = of_match_ptr("DCDC_REG1"),
++		.regulators_node = of_match_ptr("regulators"),
+ 		.id = RK808_ID_DCDC1,
+ 		.ops = &rk808_buck1_2_ops,
+ 		.type = REGULATOR_VOLTAGE,
++		.min_uV = 712500,
++		.uV_step = 12500,
+ 		.n_voltages = 64,
+-		.linear_ranges = rk808_buck_voltage_ranges,
+-		.n_linear_ranges = ARRAY_SIZE(rk808_buck_voltage_ranges),
+ 		.vsel_reg = RK808_BUCK1_ON_VSEL_REG,
+ 		.vsel_mask = RK808_BUCK_VSEL_MASK,
+ 		.enable_reg = RK808_DCDC_EN_REG,
+@@ -330,12 +380,14 @@ static const struct regulator_desc rk808_reg[] = {
+ 	}, {
+ 		.name = "DCDC_REG2",
+ 		.supply_name = "vcc2",
++		.of_match = of_match_ptr("DCDC_REG2"),
++		.regulators_node = of_match_ptr("regulators"),
+ 		.id = RK808_ID_DCDC2,
+ 		.ops = &rk808_buck1_2_ops,
+ 		.type = REGULATOR_VOLTAGE,
++		.min_uV = 712500,
++		.uV_step = 12500,
+ 		.n_voltages = 64,
+-		.linear_ranges = rk808_buck_voltage_ranges,
+-		.n_linear_ranges = ARRAY_SIZE(rk808_buck_voltage_ranges),
+ 		.vsel_reg = RK808_BUCK2_ON_VSEL_REG,
+ 		.vsel_mask = RK808_BUCK_VSEL_MASK,
+ 		.enable_reg = RK808_DCDC_EN_REG,
+@@ -344,6 +396,8 @@ static const struct regulator_desc rk808_reg[] = {
+ 	}, {
+ 		.name = "DCDC_REG3",
+ 		.supply_name = "vcc3",
++		.of_match = of_match_ptr("DCDC_REG3"),
++		.regulators_node = of_match_ptr("regulators"),
+ 		.id = RK808_ID_DCDC3,
+ 		.ops = &rk808_switch_ops,
+ 		.type = REGULATOR_VOLTAGE,
+@@ -351,55 +405,23 @@ static const struct regulator_desc rk808_reg[] = {
+ 		.enable_reg = RK808_DCDC_EN_REG,
+ 		.enable_mask = BIT(2),
+ 		.owner = THIS_MODULE,
+-	}, {
+-		.name = "DCDC_REG4",
+-		.supply_name = "vcc4",
+-		.id = RK808_ID_DCDC4,
+-		.ops = &rk808_reg_ops,
+-		.type = REGULATOR_VOLTAGE,
+-		.n_voltages = 16,
+-		.linear_ranges = rk808_buck4_voltage_ranges,
+-		.n_linear_ranges = ARRAY_SIZE(rk808_buck4_voltage_ranges),
+-		.vsel_reg = RK808_BUCK4_ON_VSEL_REG,
+-		.vsel_mask = RK808_BUCK4_VSEL_MASK,
+-		.enable_reg = RK808_DCDC_EN_REG,
+-		.enable_mask = BIT(3),
+-		.owner = THIS_MODULE,
+-	}, {
+-		.name = "LDO_REG1",
+-		.supply_name = "vcc6",
+-		.id = RK808_ID_LDO1,
+-		.ops = &rk808_reg_ops,
+-		.type = REGULATOR_VOLTAGE,
+-		.n_voltages = 17,
+-		.linear_ranges = rk808_ldo_voltage_ranges,
+-		.n_linear_ranges = ARRAY_SIZE(rk808_ldo_voltage_ranges),
+-		.vsel_reg = RK808_LDO1_ON_VSEL_REG,
+-		.vsel_mask = RK808_LDO_VSEL_MASK,
+-		.enable_reg = RK808_LDO_EN_REG,
+-		.enable_mask = BIT(0),
+-		.enable_time = 400,
+-		.owner = THIS_MODULE,
+-	}, {
+-		.name = "LDO_REG2",
+-		.supply_name = "vcc6",
+-		.id = RK808_ID_LDO2,
+-		.ops = &rk808_reg_ops,
+-		.type = REGULATOR_VOLTAGE,
+-		.n_voltages = 17,
+-		.linear_ranges = rk808_ldo_voltage_ranges,
+-		.n_linear_ranges = ARRAY_SIZE(rk808_ldo_voltage_ranges),
+-		.vsel_reg = RK808_LDO2_ON_VSEL_REG,
+-		.vsel_mask = RK808_LDO_VSEL_MASK,
+-		.enable_reg = RK808_LDO_EN_REG,
+-		.enable_mask = BIT(1),
+-		.enable_time = 400,
+-		.owner = THIS_MODULE,
+-	}, {
++	},
++	RK8XX_DESC(RK808_ID_DCDC4, "DCDC_REG4", "vcc4", 1800, 3300, 100,
++		RK808_BUCK4_ON_VSEL_REG, RK808_BUCK4_VSEL_MASK,
++		RK808_DCDC_EN_REG, BIT(3), 0),
++	RK8XX_DESC(RK808_ID_LDO1, "LDO_REG1", "vcc6", 1800, 3400, 100,
++		RK808_LDO1_ON_VSEL_REG, RK808_LDO_VSEL_MASK, RK808_LDO_EN_REG,
++		BIT(0), 400),
++	RK8XX_DESC(RK808_ID_LDO2, "LDO_REG2", "vcc6", 1800, 3400, 100,
++		RK808_LDO2_ON_VSEL_REG, RK808_LDO_VSEL_MASK, RK808_LDO_EN_REG,
++		BIT(1), 400),
++	{
+ 		.name = "LDO_REG3",
+ 		.supply_name = "vcc7",
++		.of_match = of_match_ptr("LDO_REG3"),
++		.regulators_node = of_match_ptr("regulators"),
+ 		.id = RK808_ID_LDO3,
+-		.ops = &rk808_reg_ops,
++		.ops = &rk808_reg_ops_ranges,
+ 		.type = REGULATOR_VOLTAGE,
+ 		.n_voltages = 16,
+ 		.linear_ranges = rk808_ldo3_voltage_ranges,
+@@ -410,117 +432,26 @@ static const struct regulator_desc rk808_reg[] = {
+ 		.enable_mask = BIT(2),
+ 		.enable_time = 400,
+ 		.owner = THIS_MODULE,
+-	}, {
+-		.name = "LDO_REG4",
+-		.supply_name = "vcc9",
+-		.id = RK808_ID_LDO4,
+-		.ops = &rk808_reg_ops,
+-		.type = REGULATOR_VOLTAGE,
+-		.n_voltages = 17,
+-		.linear_ranges = rk808_ldo_voltage_ranges,
+-		.n_linear_ranges = ARRAY_SIZE(rk808_ldo_voltage_ranges),
+-		.vsel_reg = RK808_LDO4_ON_VSEL_REG,
+-		.vsel_mask = RK808_LDO_VSEL_MASK,
+-		.enable_reg = RK808_LDO_EN_REG,
+-		.enable_mask = BIT(3),
+-		.enable_time = 400,
+-		.owner = THIS_MODULE,
+-	}, {
+-		.name = "LDO_REG5",
+-		.supply_name = "vcc9",
+-		.id = RK808_ID_LDO5,
+-		.ops = &rk808_reg_ops,
+-		.type = REGULATOR_VOLTAGE,
+-		.n_voltages = 17,
+-		.linear_ranges = rk808_ldo_voltage_ranges,
+-		.n_linear_ranges = ARRAY_SIZE(rk808_ldo_voltage_ranges),
+-		.vsel_reg = RK808_LDO5_ON_VSEL_REG,
+-		.vsel_mask = RK808_LDO_VSEL_MASK,
+-		.enable_reg = RK808_LDO_EN_REG,
+-		.enable_mask = BIT(4),
+-		.enable_time = 400,
+-		.owner = THIS_MODULE,
+-	}, {
+-		.name = "LDO_REG6",
+-		.supply_name = "vcc10",
+-		.id = RK808_ID_LDO6,
+-		.ops = &rk808_reg_ops,
+-		.type = REGULATOR_VOLTAGE,
+-		.n_voltages = 18,
+-		.linear_ranges = rk808_ldo6_voltage_ranges,
+-		.n_linear_ranges = ARRAY_SIZE(rk808_ldo6_voltage_ranges),
+-		.vsel_reg = RK808_LDO6_ON_VSEL_REG,
+-		.vsel_mask = RK808_LDO_VSEL_MASK,
+-		.enable_reg = RK808_LDO_EN_REG,
+-		.enable_mask = BIT(5),
+-		.enable_time = 400,
+-		.owner = THIS_MODULE,
+-	}, {
+-		.name = "LDO_REG7",
+-		.supply_name = "vcc7",
+-		.id = RK808_ID_LDO7,
+-		.ops = &rk808_reg_ops,
+-		.type = REGULATOR_VOLTAGE,
+-		.n_voltages = 18,
+-		.linear_ranges = rk808_ldo6_voltage_ranges,
+-		.n_linear_ranges = ARRAY_SIZE(rk808_ldo6_voltage_ranges),
+-		.vsel_reg = RK808_LDO7_ON_VSEL_REG,
+-		.vsel_mask = RK808_LDO_VSEL_MASK,
+-		.enable_reg = RK808_LDO_EN_REG,
+-		.enable_mask = BIT(6),
+-		.enable_time = 400,
+-		.owner = THIS_MODULE,
+-	}, {
+-		.name = "LDO_REG8",
+-		.supply_name = "vcc11",
+-		.id = RK808_ID_LDO8,
+-		.ops = &rk808_reg_ops,
+-		.type = REGULATOR_VOLTAGE,
+-		.n_voltages = 17,
+-		.linear_ranges = rk808_ldo_voltage_ranges,
+-		.n_linear_ranges = ARRAY_SIZE(rk808_ldo_voltage_ranges),
+-		.vsel_reg = RK808_LDO8_ON_VSEL_REG,
+-		.vsel_mask = RK808_LDO_VSEL_MASK,
+-		.enable_reg = RK808_LDO_EN_REG,
+-		.enable_mask = BIT(7),
+-		.enable_time = 400,
+-		.owner = THIS_MODULE,
+-	}, {
+-		.name = "SWITCH_REG1",
+-		.supply_name = "vcc8",
+-		.id = RK808_ID_SWITCH1,
+-		.ops = &rk808_switch_ops,
+-		.type = REGULATOR_VOLTAGE,
+-		.enable_reg = RK808_DCDC_EN_REG,
+-		.enable_mask = BIT(5),
+-		.owner = THIS_MODULE,
+-	}, {
+-		.name = "SWITCH_REG2",
+-		.supply_name = "vcc12",
+-		.id = RK808_ID_SWITCH2,
+-		.ops = &rk808_switch_ops,
+-		.type = REGULATOR_VOLTAGE,
+-		.enable_reg = RK808_DCDC_EN_REG,
+-		.enable_mask = BIT(6),
+-		.owner = THIS_MODULE,
+ 	},
+-};
+-
+-static struct of_regulator_match rk808_reg_matches[] = {
+-	[RK808_ID_DCDC1]	= { .name = "DCDC_REG1" },
+-	[RK808_ID_DCDC2]	= { .name = "DCDC_REG2" },
+-	[RK808_ID_DCDC3]	= { .name = "DCDC_REG3" },
+-	[RK808_ID_DCDC4]	= { .name = "DCDC_REG4" },
+-	[RK808_ID_LDO1]		= { .name = "LDO_REG1" },
+-	[RK808_ID_LDO2]		= { .name = "LDO_REG2" },
+-	[RK808_ID_LDO3]		= { .name = "LDO_REG3" },
+-	[RK808_ID_LDO4]		= { .name = "LDO_REG4" },
+-	[RK808_ID_LDO5]		= { .name = "LDO_REG5" },
+-	[RK808_ID_LDO6]		= { .name = "LDO_REG6" },
+-	[RK808_ID_LDO7]		= { .name = "LDO_REG7" },
+-	[RK808_ID_LDO8]		= { .name = "LDO_REG8" },
+-	[RK808_ID_SWITCH1]	= { .name = "SWITCH_REG1" },
+-	[RK808_ID_SWITCH2]	= { .name = "SWITCH_REG2" },
++	RK8XX_DESC(RK808_ID_LDO4, "LDO_REG4", "vcc9", 1800, 3400, 100,
++		RK808_LDO4_ON_VSEL_REG, RK808_LDO_VSEL_MASK, RK808_LDO_EN_REG,
++		BIT(3), 400),
++	RK8XX_DESC(RK808_ID_LDO5, "LDO_REG5", "vcc9", 1800, 3400, 100,
++		RK808_LDO5_ON_VSEL_REG, RK808_LDO_VSEL_MASK, RK808_LDO_EN_REG,
++		BIT(4), 400),
++	RK8XX_DESC(RK808_ID_LDO6, "LDO_REG6", "vcc10", 800, 2500, 100,
++		RK808_LDO6_ON_VSEL_REG, RK808_LDO_VSEL_MASK, RK808_LDO_EN_REG,
++		BIT(5), 400),
++	RK8XX_DESC(RK808_ID_LDO7, "LDO_REG7", "vcc7", 800, 2500, 100,
++		RK808_LDO7_ON_VSEL_REG, RK808_LDO_VSEL_MASK, RK808_LDO_EN_REG,
++		BIT(6), 400),
++	RK8XX_DESC(RK808_ID_LDO8, "LDO_REG8", "vcc11", 1800, 3400, 100,
++		RK808_LDO8_ON_VSEL_REG, RK808_LDO_VSEL_MASK, RK808_LDO_EN_REG,
++		BIT(7), 400),
++	RK8XX_DESC_SWITCH(RK808_ID_SWITCH1, "SWITCH_REG1", "vcc8",
++		RK808_DCDC_EN_REG, BIT(5)),
++	RK8XX_DESC_SWITCH(RK808_ID_SWITCH2, "SWITCH_REG2", "vcc12",
++		RK808_DCDC_EN_REG, BIT(6)),
+ };
+ 
+ static int rk808_regulator_dt_parse_pdata(struct device *dev,
+@@ -529,17 +460,12 @@ static int rk808_regulator_dt_parse_pdata(struct device *dev,
+ 				   struct rk808_regulator_data *pdata)
+ {
+ 	struct device_node *np;
+-	int tmp, ret, i;
++	int tmp, ret = 0, i;
+ 
+ 	np = of_get_child_by_name(client_dev->of_node, "regulators");
+ 	if (!np)
+ 		return -ENXIO;
+ 
+-	ret = of_regulator_match(dev, np, rk808_reg_matches,
+-				 RK808_NUM_REGULATORS);
+-	if (ret < 0)
+-		goto dt_parse_end;
+-
+ 	for (i = 0; i < ARRAY_SIZE(pdata->dvs_gpio); i++) {
+ 		pdata->dvs_gpio[i] =
+ 			devm_gpiod_get_index_optional(client_dev, "dvs", i,
+@@ -586,18 +512,12 @@ static int rk808_regulator_probe(struct platform_device *pdev)
+ 
+ 	platform_set_drvdata(pdev, pdata);
+ 
++	config.dev = &client->dev;
++	config.driver_data = pdata;
++	config.regmap = rk8xx->regmap;
++
+ 	/* Instantiate the regulators */
+ 	for (i = 0; i < RK808_NUM_REGULATORS; i++) {
+-		if (!rk808_reg_matches[i].init_data ||
+-		    !rk808_reg_matches[i].of_node)
+-			continue;
+-
+-		config.dev = &client->dev;
+-		config.driver_data = pdata;
+-		config.regmap = rk8xx->regmap;
+-		config.of_node = rk808_reg_matches[i].of_node;
+-		config.init_data = rk808_reg_matches[i].init_data;
+-
+ 		rk808_rdev = devm_regulator_register(&pdev->dev,
+ 						     &rk808_reg[i], &config);
+ 		if (IS_ERR(rk808_rdev)) {
 -- 
-Marcin Niestroj
+1.9.1
 
 -- 
 -- 
