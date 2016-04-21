@@ -1,20 +1,18 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBBFQYW4AKGQEXAGL5PQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBWVI4W4AKGQEV7FMKUQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id k143si1400994wmg.1.2016.04.15.14.07.16
+        by gmr-mx.google.com with ESMTP id e78si4209wmc.3.2016.04.21.15.29.46
         for <rtc-linux@googlegroups.com>;
-        Fri, 15 Apr 2016 14:07:16 -0700 (PDT)
-Date: Fri, 15 Apr 2016 23:07:15 +0200
+        Thu, 21 Apr 2016 15:29:46 -0700 (PDT)
+Date: Fri, 22 Apr 2016 00:29:45 +0200
 From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>, linux-kernel@vger.kernel.org,
-	rtc-linux@googlegroups.com
-Subject: [rtc-linux] Re: [PATCH] rtc: stmp3xxx: check for failure
-Message-ID: <20160415210715.GF25196@piout.net>
-References: <1460392435-23803-1-git-send-email-sudipm.mukherjee@gmail.com>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org
+Subject: [rtc-linux] [GIT PULL] RTC fixes for 4.6
+Message-ID: <20160421222945.GA26931@piout.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1460392435-23803-1-git-send-email-sudipm.mukherjee@gmail.com>
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="/04w6evG8XlLl3ft"
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -24,74 +22,48 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Hi,
+--/04w6evG8XlLl3ft
+Content-Type: text/plain; charset=UTF-8
+Content-Disposition: inline
 
-On 11/04/2016 at 22:03:55 +0530, Sudip Mukherjee wrote :
-> stmp3xxx_wdt_register() can fail as platform_device_alloc() or
-> platform_device_add() can fail. Lets check for the return value from
-> both platform_device_alloc() and platform_device_add() and return the
-> error value accordingly which is now propagated from probe.
-> 
+Hi Linus,
 
-Well, this may have been intentional. The RTC doesn't need the watchdog
-driver to be present to work correctly. However, I agree that failing
-silently is not nice.
+A few fixes for the RTC subsystem. The documentation fix already missed
+4.5 so I think it is worth taking it now.
 
-Did you have any particular issue? Maybe simply adding a dev_err() or
-two would be fine.
+Note that I'm now using a signing subkey so you may need to refresh my
+GPG key.
 
-> Signed-off-by: Sudip Mukherjee <sudip.mukherjee@codethink.co.uk>
-> ---
->  drivers/rtc/rtc-stmp3xxx.c | 19 ++++++++++---------
->  1 file changed, 10 insertions(+), 9 deletions(-)
-> 
-> diff --git a/drivers/rtc/rtc-stmp3xxx.c b/drivers/rtc/rtc-stmp3xxx.c
-> index ca54d03..e02e827 100644
-> --- a/drivers/rtc/rtc-stmp3xxx.c
-> +++ b/drivers/rtc/rtc-stmp3xxx.c
-> @@ -105,20 +105,22 @@ static struct stmp3xxx_wdt_pdata wdt_pdata = {
->  	.wdt_set_timeout = stmp3xxx_wdt_set_timeout,
->  };
->  
-> -static void stmp3xxx_wdt_register(struct platform_device *rtc_pdev)
-> +static int stmp3xxx_wdt_register(struct platform_device *rtc_pdev)
->  {
->  	struct platform_device *wdt_pdev =
->  		platform_device_alloc("stmp3xxx_rtc_wdt", rtc_pdev->id);
->  
-> -	if (wdt_pdev) {
-> -		wdt_pdev->dev.parent = &rtc_pdev->dev;
-> -		wdt_pdev->dev.platform_data = &wdt_pdata;
-> -		platform_device_add(wdt_pdev);
-> -	}
-> +	if (!wdt_pdev)
-> +		return -ENOMEM;
-> +
-> +	wdt_pdev->dev.parent = &rtc_pdev->dev;
-> +	wdt_pdev->dev.platform_data = &wdt_pdata;
-> +	return platform_device_add(wdt_pdev);
->  }
->  #else
-> -static void stmp3xxx_wdt_register(struct platform_device *rtc_pdev)
-> +static int stmp3xxx_wdt_register(struct platform_device *rtc_pdev)
->  {
-> +	return 0;
->  }
->  #endif /* CONFIG_STMP3XXX_RTC_WATCHDOG */
->  
-> @@ -357,8 +359,7 @@ static int stmp3xxx_rtc_probe(struct platform_device *pdev)
->  		return err;
->  	}
->  
-> -	stmp3xxx_wdt_register(pdev);
-> -	return 0;
-> +	return stmp3xxx_wdt_register(pdev);
->  }
->  
->  #ifdef CONFIG_PM_SLEEP
-> -- 
-> 1.9.1
-> 
+The following changes since commit f55532a0c0b8bb6148f4e07853b876ef73bc69ca:
+
+  Linux 4.6-rc1 (2016-03-26 16:03:24 -0700)
+
+are available in the git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/abelloni/linux.git tags/rtc-4.6-3
+
+for you to fetch changes up to 38a7a73e8ed0fa9e8cd99bb62463afbdcd23429b:
+
+  rtc: ds1307: Use irq when available for wakeup-source device (2016-04-21 23:21:00 +0200)
+
+----------------------------------------------------------------
+RTC fixes for 4.6
+
+A documentation fix for s3c and two fixes for the ds1307.
+
+----------------------------------------------------------------
+Javier Martinez Canillas (1):
+      rtc: s3c: Document in binding that only s3c6410 needs a src clk
+
+Nishanth Menon (1):
+      rtc: ds1307: Use irq when available for wakeup-source device
+
+Zhuang Yuyao (1):
+      rtc: ds1307: ds3231 temperature s16 overflow
+
+ Documentation/devicetree/bindings/rtc/s3c-rtc.txt | 7 ++++---
+ drivers/rtc/rtc-ds1307.c                          | 6 +++---
+ 2 files changed, 7 insertions(+), 6 deletions(-)
 
 -- 
 Alexandre Belloni, Free Electrons
@@ -108,3 +80,25 @@ before submitting a driver.
 You received this message because you are subscribed to the Google Groups "rtc-linux" group.
 To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
+
+--/04w6evG8XlLl3ft
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIcBAEBCgAGBQJXGVRQAAoJENiigzvaE+LC3fQQAI7/YNmNAgWxXk9nET1G4pA2
+grA7QykF6l0vA1sd38s1c214ttirgiR8HPLtQw0vOgeNLNhsS18tLKmukzqI2QYq
+a8a+IsLL5LEjpsZaqKeXaphH2mKg/27rdtM4RGk+zAS0RevVoQ4UsXJvEykkcvCC
+RsD9m8cEA6oYDXWHxtncyzKbtgVtXB1wkKO7ApfXeBPgviXSdEtkd5fDxFnJj/ZK
+xKfofGt7NoUi3DLwnw4keI3kNf33yiRyN2u+7fCnE6qnVndnb5pTBKi59wEoLO/C
+Hxp4yoY+37WZ/Y9UWhXmEiCeJWDDSpy4FOxqAclzST6YgoHdMmiShmFBZs4UIXHq
+MVM9t8zuWMH7IWwCrhgC6G+Hwts+mxrrC4TMFguM8WGOyn+9opahKE2HIfOM9T3p
+HZk2T+ue3DMNtSWEofD75rHtKHip7scaUk2LY9IzbYFaqnTkKsDm6HsU9N2I55KI
+7+jgucZxWuHV5h8CQCY6EhKubkCR2JOGu81LudY405ZOE9YNHFHLMXgxRkDi/r4l
+aTRBLdRZstBdcGcE69zLwsgS7CHyYKZMFPu8a9pJR8YAwnDHx8rV152x1QezyPrl
+6kMQ+nJxN3sh2WfVBzoopXJiVoTlWNC6zURdXnKJmDBBfhSz7mLDaMBqE9c0ifvY
+ZvbzpPOA7JhefCDB5lAZ
+=fvFN
+-----END PGP SIGNATURE-----
+
+--/04w6evG8XlLl3ft--
