@@ -1,33 +1,31 @@
-Return-Path: <rtc-linux+bncBAABBKEM324AKGQEQEA7QYI@googlegroups.com>
+Return-Path: <rtc-linux+bncBDQ2L75W5QGBBZPS4O4AKGQEWN3ANJQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from NAM02-SN1-obe.outbound.protection.outlook.com (mail-sn1nam02on0072.outbound.protection.outlook.com. [104.47.36.72])
-        by gmr-mx.google.com with ESMTPS id gg5si478277igb.0.2016.04.20.06.37.44
+Received: from mezzanine.sirena.org.uk (mezzanine.sirena.org.uk. [2400:8900::f03c:91ff:fedb:4f4])
+        by gmr-mx.google.com with ESMTPS id gg5si193669igb.0.2016.04.21.09.01.40
         for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
-        Wed, 20 Apr 2016 06:37:44 -0700 (PDT)
-From: Anurag Kumar Vulisha <anurag.kumar.vulisha@xilinx.com>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-CC: Alessandro Zummo <a.zummo@towertech.it>, Soren Brinkmann
-	<sorenb@xilinx.com>, Michal Simek <michals@xilinx.com>,
-	"rtc-linux@googlegroups.com" <rtc-linux@googlegroups.com>,
-	"linux-arm-kernel@lists.infradead.org"
-	<linux-arm-kernel@lists.infradead.org>, "linux-kernel@vger.kernel.org"
-	<linux-kernel@vger.kernel.org>, Punnaiah Choudary Kalluri
-	<punnaia@xilinx.com>, Anirudha Sarangi <anirudh@xilinx.com>, Srikanth Vemula
-	<svemula@xilinx.com>, Srinivas Goud <sgoud@xilinx.com>
-Subject: [rtc-linux] RE: [PATCH 3/3] RTC: Update seconds time programming logic
-Date: Wed, 20 Apr 2016 13:37:30 +0000
-Message-ID: <3802E9A6666DF54886E2B9CBF743BA9825E0B50C@XAP-PVEXMBX01.xlnx.xilinx.com>
-References: <1460463346-24923-1-git-send-email-anuragku@xilinx.com>
- <1460463346-24923-3-git-send-email-anuragku@xilinx.com>
- <20160419223109.GF29844@piout.net>
- <3802E9A6666DF54886E2B9CBF743BA9825E0B42B@XAP-PVEXMBX01.xlnx.xilinx.com>
- <20160420075741.GK29844@piout.net>
- <3802E9A6666DF54886E2B9CBF743BA9825E0B4BE@XAP-PVEXMBX01.xlnx.xilinx.com>
- <20160420120221.GR29844@piout.net>
-In-Reply-To: <20160420120221.GR29844@piout.net>
-Content-Type: text/plain; charset=UTF-8
+        (version=TLS1_2 cipher=AES128-SHA bits=128/128);
+        Thu, 21 Apr 2016 09:01:40 -0700 (PDT)
+Date: Thu, 21 Apr 2016 17:01:20 +0100
+From: Mark Brown <broonie@kernel.org>
+To: Wadim Egorov <w.egorov@phytec.de>
+Cc: linux-kernel@vger.kernel.org, linux-clk@vger.kernel.org,
+	rtc-linux@googlegroups.com, devicetree@vger.kernel.org,
+	linux-rockchip@lists.infradead.org, robh+dt@kernel.org,
+	pawel.moll@arm.com, mark.rutland@arm.com,
+	ijc+devicetree@hellion.org.uk, galak@codeaurora.org,
+	mturquette@baylibre.com, sboyd@codeaurora.org, lee.jones@linaro.org,
+	lgirdwood@gmail.com, a.zummo@towertech.it,
+	alexandre.belloni@free-electrons.com, dianders@chromium.org,
+	zyw@rock-chips.com
+Message-ID: <20160421160120.GT3217@sirena.org.uk>
+References: <1461244361-45686-1-git-send-email-w.egorov@phytec.de>
+ <1461244361-45686-4-git-send-email-w.egorov@phytec.de>
 MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="x735uyZ2C9eR7U1j"
+In-Reply-To: <1461244361-45686-4-git-send-email-w.egorov@phytec.de>
+Subject: [rtc-linux] Re: [PATCH v2 3/7] regulator: rk808: Migrate to regulator
+ core's simplified DT parsing code
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -37,72 +35,29 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Hi Alexandre,
+--x735uyZ2C9eR7U1j
+Content-Type: text/plain; charset=UTF-8
+Content-Disposition: inline
 
-Thanks for reviewing the patch, I will sent v2 with the changes updated.
+On Thu, Apr 21, 2016 at 03:12:37PM +0200, Wadim Egorov wrote:
 
-Thanks,
-Anurag Kumar V
+> +static int rk808_set_suspend_voltage(struct regulator_dev *rdev, int uv)
+> +{
+> +	unsigned int reg;
+> +	int sel = regulator_map_voltage_linear(rdev, uv, uv);
+> +
+> +	if (sel < 0)
+> +		return -EINVAL;
+> +
+> +	reg = rdev->desc->vsel_reg + RK808_SLP_REG_OFFSET;
+> +
+> +	return regmap_update_bits(rdev->regmap, reg,
+> +				  rdev->desc->vsel_mask,
+> +				  sel);
+> +}
 
-> -----Original Message-----
-> From: Alexandre Belloni [mailto:alexandre.belloni@free-electrons.com]
-> Sent: Wednesday, April 20, 2016 5:32 PM
-> To: Anurag Kumar Vulisha <anuragku@xilinx.com>
-> Cc: Alessandro Zummo <a.zummo@towertech.it>; Soren Brinkmann
-> <sorenb@xilinx.com>; Michal Simek <michals@xilinx.com>; rtc-
-> linux@googlegroups.com; linux-arm-kernel@lists.infradead.org; linux-
-> kernel@vger.kernel.org; Punnaiah Choudary Kalluri <punnaia@xilinx.com>;
-> Anirudha Sarangi <anirudh@xilinx.com>; Srikanth Vemula
-> <svemula@xilinx.com>; Srinivas Goud <sgoud@xilinx.com>
-> Subject: Re: [PATCH 3/3] RTC: Update seconds time programming logic
-> 
-> On 20/04/2016 at 10:31:06 +0000, Anurag Kumar Vulisha wrote :
-> > > Yeas, I understood that. But my question was whether the interrupt
-> > > handling was necessary at all.
-> > > Instead of waiting for an interrupt to set time_updated, can't you
-> > > simply read RTC_INT_STS and check for the RTC_INT_SEC bit in
-> > > xlnx_rtc_read_time() ?
-> > >
-> > > Something like:
-> > >
-> > > status = readl(xrtcdev->reg_base + RTC_INT_STS) if (status &
-> RTC_INT_SEC)
-> > >       rtc_time64_to_tm(readl(xrtcdev->reg_base + RTC_CUR_TM), tm);
-> > > else
-> > >       rtc_time64_to_tm(readl(xrtcdev->reg_base + RTC_SET_TM_RD) - 1,
-> > > tm);
-> > >
-> > > It all depends on whether the RTC_INT_SEC bit in RTC_INT_STS is
-> > > being updated even when it is not enabled as an interrupt.
-> > >
-> >
-> > The above said logic will work if we doesn't clear the RTC_INT_STS
-> > register after the RTC_INT_SEC bit is set, this happens only if
-> > interrupts are not enabled. If interrupts are enabled we will be clearing the
-> RTC_INT_STS every time in the interrupt handler.
-> > And moreover we need to return time from RTC_SET_TM_RD only if time is
-> > requested within 1 sec span after programming the time only , so this is
-> required only for one time.
-> > Since we are clearing the RTC_INT_STS in our interrupt handler, we
-> > might end up in giving the wrong time to the user when requested.So I
-> think this logic might not work.
-> > Please correct me if am wrong.
-> >
-> 
-> Simply stop clearing RTC_INT_SEC from RTC_INT_STS in the interrupt
-> handler.
-> 
-> You can also remove
-> 	if (status & RTC_INT_SEC)
-> 		rtc_update_irq(xrtcdev->rtc, 1, RTC_IRQF | RTC_UF);
-> 
-> as it will not be used. Update interrupts are handled by the core using timers
-> anyway. And as you can see, there was no code enabling RTC_INT_SEC in
-> RTC_INT_EN before your patch.
-> 
-> --
-> Alexandre Belloni, Free Electrons
-> Embedded Linux, Kernel and Android engineering http://free-electrons.com
+This is fine but is adding a new feature and not part of the refactoring
+that the changelog talked about so should be in a separate commit.
 
 -- 
 -- 
@@ -114,3 +69,20 @@ before submitting a driver.
 You received this message because you are subscribed to the Google Groups "rtc-linux" group.
 To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
+
+--x735uyZ2C9eR7U1j
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQEcBAEBCAAGBQJXGPlKAAoJECTWi3JdVIfQqxcH/3zHYCsco7Um+vuiC3Tx+h+S
+6zDWfQtNVsxmf75m9fTYsY91t1ub/SNY8DGvEeCPRffvVHxLQBaaKyW0HcaBvdS3
+h2LOaXlJlTE5o3SnA/RVC7qM5OEGLU94oxa5x+j03MUbqMtm4ngDCe0LzFdGsq4a
+2kaUCx35X9Kdy6N2pHPGxF3A0v+gqSnQ35L/JfUqAy0KhjdN/y0G2pZpfuxhM6+U
+jniv0nasEatBpB6KZPSDqwjOMsNB9kPpBixRtTHksfPjZgCC8NqNT1eGEyJq8eOZ
+QWZr6Is7zpwT388PaDDfwdpd9K758Jv15EnXDb+IF0Zxz0Mp4Ds3hPEUKJBNbFE=
+=tDQJ
+-----END PGP SIGNATURE-----
+
+--x735uyZ2C9eR7U1j--
