@@ -1,29 +1,23 @@
-Return-Path: <rtc-linux+bncBCQJP74GSUDRBZPVQ24QKGQELKGKWPI@googlegroups.com>
-Received: from mail-ig0-x242.google.com (mail-ig0-x242.google.com. [2607:f8b0:4001:c05::242])
-        by gmr-mx.google.com with ESMTPS id gm17si229678igb.1.2016.04.28.00.25.25
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 28 Apr 2016 00:25:25 -0700 (PDT)
-Received: by mail-ig0-x242.google.com with SMTP id c3so9893091igl.3
-        for <rtc-linux@googlegroups.com>; Thu, 28 Apr 2016 00:25:25 -0700 (PDT)
+Return-Path: <rtc-linux+bncBAABBY5V4S4AKGQESYWHNYQ@googlegroups.com>
+Sender: rtc-linux@googlegroups.com
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id d92si670581wma.2.2016.04.21.11.24.34
+        for <rtc-linux@googlegroups.com>;
+        Thu, 21 Apr 2016 11:24:34 -0700 (PDT)
+From: =?UTF-8?q?Myl=C3=A8ne=20Josserand?= <mylene.josserand@free-electrons.com>
+To: alexandre.belloni@free-electrons.com,
+	rtc-linux@googlegroups.com
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+	linux-kernel@vger.kernel.org,
+	mylene.josserand@free-electrons.com
+Subject: [rtc-linux] [PATCH 3/6] rtc: rv3029: Add support of RV3049
+Date: Thu, 21 Apr 2016 20:24:16 +0200
+Message-Id: <74271423784bda552ef2a0789c8a6958ee072d7d.1461250479.git.mylene.josserand@free-electrons.com>
+In-Reply-To: <cover.1461250479.git.mylene.josserand@free-electrons.com>
+References: <cover.1461250479.git.mylene.josserand@free-electrons.com>
+In-Reply-To: <cover.1461250479.git.mylene.josserand@free-electrons.com>
+References: <cover.1461250479.git.mylene.josserand@free-electrons.com>
 MIME-Version: 1.0
-Sender: geert.uytterhoeven@gmail.com
-In-Reply-To: <1461796470-1291527-14-git-send-email-arnd@arndb.de>
-References: <1461796470-1291527-1-git-send-email-arnd@arndb.de>
-	<1461796470-1291527-14-git-send-email-arnd@arndb.de>
-Date: Thu, 28 Apr 2016 09:25:25 +0200
-Message-ID: <CAMuHMdUhydMDeQ=ciVFgjBcjnCD_q2qU0F0gUP28U9=EcH2ZRQ@mail.gmail.com>
-Subject: [rtc-linux] Re: [PATCH v3 13/16] char/genrtc: remove powerpc support
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>, Helge Deller <deller@gmx.de>,
-	Benjamin Herrenschmidt <benh@kernel.crashing.org>, Michael Ellerman <mpe@ellerman.id.au>,
-	Rich Felker <dalias@libc.org>, David Howells <dhowells@redhat.com>,
-	alpha <linux-alpha@vger.kernel.org>, Alessandro Zummo <a.zummo@towertech.it>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Parisc List <linux-parisc@vger.kernel.org>,
-	"linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>, Linux-sh list <linux-sh@vger.kernel.org>,
-	linux-m68k <linux-m68k@lists.linux-m68k.org>, RTCLINUX <rtc-linux@googlegroups.com>,
-	Linux-Arch <linux-arch@vger.kernel.org>
 Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
@@ -34,45 +28,225 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Thu, Apr 28, 2016 at 12:34 AM, Arnd Bergmann <arnd@arndb.de> wrote:
-> --- a/arch/powerpc/platforms/Kconfig
-> +++ b/arch/powerpc/platforms/Kconfig
-> @@ -321,6 +321,17 @@ config OF_RTC
->           Uses information from the OF or flattened device tree to instantiate
->           platform devices for direct mapped RTC chips like the DS1742 or DS1743.
->
-> +config GEN_RTC
-> +       bool "Use the platform RTC operations from user space"
-> +       select RTC_CLASS
-> +       select RTC_DRV_GENERIC
-> +       help
-> +         This option provides backwards compatibility with the old gen_rtc.ko
-> +         module that was traditionally used for old PowerPC machines.
-> +         Platforms should migrate to enabling the RTC_DRV_GENERIC by hand
-> +         replacing changing their get_rtc_time/set_rtc_time callbacks with
+Add support of Microcrystal RV3049 RTC (SPI) using regmap on the
+RV3029 (I2C) driver.
 
-Drop "changing".
+Signed-off-by: Myl=C3=A8ne Josserand <mylene.josserand@free-electrons.com>
+---
+ drivers/rtc/Kconfig        |  37 +++++++--------
+ drivers/rtc/rtc-rv3029c2.c | 110 +++++++++++++++++++++++++++++++++++++++++=
+++--
+ 2 files changed, 126 insertions(+), 21 deletions(-)
 
-> +         a proper RTC device driver.
+diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
+index f1e1f50..18639e0 100644
+--- a/drivers/rtc/Kconfig
++++ b/drivers/rtc/Kconfig
+@@ -573,24 +573,6 @@ config RTC_DRV_EM3027
+ 	  This driver can also be built as a module. If so, the module
+ 	  will be called rtc-em3027.
+=20
+-config RTC_DRV_RV3029C2
+-	tristate "Micro Crystal RV3029"
+-	help
+-	  If you say yes here you get support for the Micro Crystal
+-	  RV3029 RTC chips.
+-
+-	  This driver can also be built as a module. If so, the module
+-	  will be called rtc-rv3029c2.
+-
+-config RTC_DRV_RV3029_HWMON
+-	bool "HWMON support for RV3029"
+-	depends on RTC_DRV_RV3029C2 && HWMON
+-	depends on !(RTC_DRV_RV3029C2=3Dy && HWMON=3Dm)
+-	default y
+-	help
+-	  Say Y here if you want to expose temperature sensor data on
+-	  rtc-rv3029.
+-
+ config RTC_DRV_RV8803
+ 	tristate "Micro Crystal RV8803"
+ 	help
+@@ -786,6 +768,25 @@ config RTC_DRV_PCF2127
+ 	  This driver can also be built as a module. If so, the module
+ 	  will be called rtc-pcf2127.
+=20
++config RTC_DRV_RV3029C2
++	tristate "Micro Crystal RV3029/3049"
++	depends on RTC_I2C_AND_SPI
++	help
++	  If you say yes here you get support for the Micro Crystal
++	  RV3029 and RV3049 RTC chips.
++
++	  This driver can also be built as a module. If so, the module
++	  will be called rtc-rv3029c2.
++
++config RTC_DRV_RV3029_HWMON
++	bool "HWMON support for RV3029/3049"
++	depends on RTC_DRV_RV3029C2 && HWMON
++	depends on !(RTC_DRV_RV3029C2=3Dy && HWMON=3Dm)
++	default y
++	help
++	  Say Y here if you want to expose temperature sensor data on
++	  rtc-rv3029.
++
+ comment "Platform RTC drivers"
+=20
+ # this 'CMOS' RTC driver is arch dependent because <asm-generic/rtc.h>
+diff --git a/drivers/rtc/rtc-rv3029c2.c b/drivers/rtc/rtc-rv3029c2.c
+index 96dd166..470cc1e 100644
+--- a/drivers/rtc/rtc-rv3029c2.c
++++ b/drivers/rtc/rtc-rv3029c2.c
+@@ -1,5 +1,5 @@
+ /*
+- * Micro Crystal RV-3029 rtc class driver
++ * Micro Crystal RV-3029 / RV-3049 rtc class driver
+  *
+  * Author: Gregory Hermant <gregory.hermant@calao-systems.com>
+  *         Michael Buesch <m@bues.ch>
+@@ -14,6 +14,7 @@
+=20
+ #include <linux/module.h>
+ #include <linux/i2c.h>
++#include <linux/spi/spi.h>
+ #include <linux/bcd.h>
+ #include <linux/rtc.h>
+ #include <linux/delay.h>
+@@ -766,6 +767,8 @@ static int rv3029_probe(struct device *dev, struct regm=
+ap *regmap, int irq,
+ 	return PTR_ERR_OR_ZERO(rv3029->rtc);
+ }
+=20
++#if IS_ENABLED(CONFIG_I2C)
++
+ static int rv3029_i2c_probe(struct i2c_client *client,
+ 			    const struct i2c_device_id *id)
+ {
+@@ -799,9 +802,110 @@ static struct i2c_driver rv3029_driver =3D {
+ 	.id_table	=3D rv3029_id,
+ };
+=20
+-module_i2c_driver(rv3029_driver);
++static int rv3029_register_driver(void)
++{
++	return i2c_add_driver(&rv3029_driver);
++}
++
++static void rv3029_unregister_driver(void)
++{
++	i2c_del_driver(&rv3029_driver);
++}
++
++#else
++
++static int rv3029_register_driver(void)
++{
++	return 0;
++}
++
++static void rv3029_unregister_driver(void)
++{
++}
++
++#endif
++
++#if IS_ENABLED(CONFIG_SPI_MASTER)
++
++static int rv3049_probe(struct spi_device *spi)
++{
++	int res;
++	unsigned int tmp;
++	static const struct regmap_config config =3D {
++		.reg_bits =3D 8,
++		.val_bits =3D 8,
++	};
++	struct regmap *regmap;
++
++	regmap =3D devm_regmap_init_spi(spi, &config);
++	if (IS_ERR(regmap)) {
++		dev_err(&spi->dev, "%s: regmap allocation failed: %ld\n",
++			__func__, PTR_ERR(regmap));
++		return PTR_ERR(regmap);
++	}
++
++	return rv3029_probe(&spi->dev, regmap, spi->irq, "rv3049");
++}
++
++static struct spi_driver rv3049_driver =3D {
++	.driver =3D {
++		.name    =3D "rv3049",
++	},
++	.probe   =3D rv3049_probe,
++};
++
++static int rv3049_register_driver(void)
++{
++	return spi_register_driver(&rv3049_driver);
++}
++
++static void rv3049_unregister_driver(void)
++{
++	spi_unregister_driver(&rv3049_driver);
++}
++
++#else
++
++static int rv3049_register_driver(void)
++{
++	return 0;
++}
++
++static void rv3049_unregister_driver(void)
++{
++}
++
++#endif
++
++static int __init rv30x9_init(void)
++{
++	int ret;
++
++	ret =3D rv3029_register_driver();
++	if (ret) {
++		pr_err("Failed to register rv3029 driver: %d\n", ret);
++		return ret;
++	}
++
++	ret =3D rv3049_register_driver();
++	if (ret) {
++		pr_err("Failed to register rv3049 driver: %d\n", ret);
++		rv3029_unregister_driver();
++	}
++
++	return ret;
++}
++module_init(rv30x9_init)
++
++static void __exit rv30x9_exit(void)
++{
++	rv3049_unregister_driver();
++	rv3029_unregister_driver();
++}
++module_exit(rv30x9_exit)
+=20
+ MODULE_AUTHOR("Gregory Hermant <gregory.hermant@calao-systems.com>");
+ MODULE_AUTHOR("Michael Buesch <m@bues.ch>");
+-MODULE_DESCRIPTION("Micro Crystal RV3029 RTC driver");
++MODULE_DESCRIPTION("Micro Crystal RV3029/RV3049 RTC driver");
+ MODULE_LICENSE("GPL");
++MODULE_ALIAS("spi:rv3049");
+--=20
+2.8.0.rc3
 
-Gr{oetje,eeting}s,
-
-                        Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
-
--- 
--- 
+--=20
+--=20
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+---=20
+You received this message because you are subscribed to the Google Groups "=
+rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an e=
+mail to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
