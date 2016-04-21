@@ -1,33 +1,23 @@
-Return-Path: <rtc-linux+bncBCQJP74GSUDRBQXAQG4QKGQEA2PEICY@googlegroups.com>
-Received: from mail-ig0-x243.google.com (mail-ig0-x243.google.com. [2607:f8b0:4001:c05::243])
-        by gmr-mx.google.com with ESMTPS id gm17si1802053igb.1.2016.04.27.00.54.42
+Return-Path: <rtc-linux+bncBDQNTZVC44FBB5MH4W4AKGQEACSLL5Q@googlegroups.com>
+Sender: rtc-linux@googlegroups.com
+Received: from mailhost.home (mailhost.ilcode.fr. [2a01:240:fe87:2::2])
+        by gmr-mx.google.com with ESMTPS id d92si697034wma.2.2016.04.21.14.19.48
         for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 27 Apr 2016 00:54:42 -0700 (PDT)
-Received: by mail-ig0-x243.google.com with SMTP id g8so5518864igr.0
-        for <rtc-linux@googlegroups.com>; Wed, 27 Apr 2016 00:54:42 -0700 (PDT)
+        (version=TLS1_2 cipher=AES128-SHA bits=128/128);
+        Thu, 21 Apr 2016 14:19:48 -0700 (PDT)
+Date: Thu, 21 Apr 2016 23:19:40 +0200
+From: Nicolas Boullis <nboullis@debian.org>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com
+Subject: [rtc-linux] Re: [PATCH] rtc: ds1307: ensure that any pending alarm is
+ cleared before a new alarm is enabled
+Message-ID: <20160421211940.GA5622@coco.home>
+References: <20160402221047.GB3600@haddock.home>
+ <20160410112305.GB3603@haddock.home>
+ <20160418222803.GA25196@piout.net>
 MIME-Version: 1.0
-Sender: geert.uytterhoeven@gmail.com
-In-Reply-To: <1461707052-1337718-1-git-send-email-arnd@arndb.de>
-References: <1461707052-1337718-1-git-send-email-arnd@arndb.de>
-Date: Wed, 27 Apr 2016 09:54:41 +0200
-Message-ID: <CAMuHMdV=R3ad33vPdMZNvZZ8A_DF+F2C8nyAmXOmFiiP50D_UQ@mail.gmail.com>
-Subject: [rtc-linux] Re: char: legacy RTC cleanups
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Tony Luck <tony.luck@intel.com>,
-	"James E.J. Bottomley" <jejb@parisc-linux.org>, Helge Deller <deller@gmx.de>,
-	Benjamin Herrenschmidt <benh@kernel.crashing.org>, Michael Ellerman <mpe@ellerman.id.au>,
-	Rich Felker <dalias@libc.org>, David Howells <dhowells@redhat.com>,
-	Koichi Yasutake <yasutake.koichi@jp.panasonic.com>, Richard Henderson <rth@twiddle.net>,
-	Ivan Kokshaysky <ink@jurassic.park.msu.ru>, alpha <linux-alpha@vger.kernel.org>,
-	"the arch/x86 maintainers" <x86@kernel.org>, Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-	"linux-ia64@vger.kernel.org" <linux-ia64@vger.kernel.org>, Parisc List <linux-parisc@vger.kernel.org>,
-	"linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>, Linux-sh list <linux-sh@vger.kernel.org>,
-	RTCLINUX <rtc-linux@googlegroups.com>, Linux-Arch <linux-arch@vger.kernel.org>
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <20160418222803.GA25196@piout.net>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -37,40 +27,25 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Hi Arnd,
+On Tue, Apr 19, 2016 at 12:28:03AM +0200, Alexandre Belloni wrote:
+> Applied, thanks.
 
-On Tue, Apr 26, 2016 at 11:44 PM, Arnd Bergmann <arnd@arndb.de> wrote:
-> For the genrtc driver, rearranging the headers makes it simpler
-> to use and reduces duplication. In case of alpha and mn10300,
-> I've shown that the genrtc and rtc drivers are doing the same
-> thing, so we don't need them both. The remaining three
-> architectures (m68k, parisc, powerpc) actually all support
-> the newer rtc-generic driver, so we could remove genrtc completely
-> if we want to.
+Well, you=E2=80=99re doing the hard work of maintaining the RTC subsystem, =
+while=20
+I am only scratching my itch, so thank YOU for your work.
 
-CONFIG_GEN_RTC is not enabled in any of the m68k defconfigs, so I think genrtc
-has been unused for a while.
-All defconfigs either use CONFIG_RTC_DRV_GENERIC, or enable a more specific
-RTC driver.
+--=20
+Nicolas Boullis
 
-Gr{oetje,eeting}s,
-
-                        Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
-
--- 
--- 
+--=20
+--=20
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+---=20
+You received this message because you are subscribed to the Google Groups "=
+rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an e=
+mail to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
