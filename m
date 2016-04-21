@@ -1,25 +1,18 @@
-Return-Path: <rtc-linux+bncBCPM5SUWUYIRBU5V2O4AKGQE7KRBPRQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBAABB3NF4O4AKGQEB252DUI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail-vk0-x243.google.com (mail-vk0-x243.google.com. [2607:f8b0:400c:c05::243])
-        by gmr-mx.google.com with ESMTPS id g191si2190963vkg.0.2016.04.18.06.02.11
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 18 Apr 2016 06:02:11 -0700 (PDT)
-Received: by mail-vk0-x243.google.com with SMTP id x190so22665064vka.3
-        for <rtc-linux@googlegroups.com>; Mon, 18 Apr 2016 06:02:11 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <AM2PR04MB09643A16272FB78B0D9FA103E76B0@AM2PR04MB0964.eurprd04.prod.outlook.com>
-References: <AM2PR04MB09643A16272FB78B0D9FA103E76B0@AM2PR04MB0964.eurprd04.prod.outlook.com>
-Date: Mon, 18 Apr 2016 22:02:10 +0900
-Message-ID: <CAC5umyjh9fWigbS-xzcwpSyUgA9KkSWkMiSYur3iYWt1_2-vcA@mail.gmail.com>
-Subject: [rtc-linux] Re: rtc ds3232 call trace in kernel
-From: Akinobu Mita <akinobu.mita@gmail.com>
-To: Qianyu Gong <qianyu.gong@nxp.com>
-Cc: "alexandre.belloni@free-electrons.com" <alexandre.belloni@free-electrons.com>, Mingkai Hu <mingkai.hu@nxp.com>,
-	"rtc-linux@googlegroups.com" <rtc-linux@googlegroups.com>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset=UTF-8
+Received: from root.phytec.de (mail.visioncatalog.com. [217.6.246.34])
+        by gmr-mx.google.com with ESMTP id 69si87530wmn.1.2016.04.21.06.17.33
+        for <rtc-linux@googlegroups.com>;
+        Thu, 21 Apr 2016 06:17:33 -0700 (PDT)
+From: Wadim Egorov <w.egorov@phytec.de>
+To: linux-kernel@vger.kernel.org, linux-clk@vger.kernel.org, rtc-linux@googlegroups.com, devicetree@vger.kernel.org, linux-rockchip@lists.infradead.org
+Cc: robh+dt@kernel.org, pawel.moll@arm.com, mark.rutland@arm.com, ijc+devicetree@hellion.org.uk, galak@codeaurora.org, mturquette@baylibre.com, sboyd@codeaurora.org, lee.jones@linaro.org, lgirdwood@gmail.com, broonie@kernel.org, a.zummo@towertech.it, alexandre.belloni@free-electrons.com, dianders@chromium.org, zyw@rock-chips.com
+Subject: [rtc-linux] [PATCH v2 0/5] Add support for rk818
+Date: Thu, 21 Apr 2016 15:12:34 +0200
+Message-Id: <1461244361-45686-1-git-send-email-w.egorov@phytec.de>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -28,78 +21,46 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-2016-04-18 15:15 GMT+09:00 Qianyu Gong <qianyu.gong@nxp.com>:
-> Hi Akinobu,
->
->
->
-> I got an rtc call trace when booting 4.6 kernel on our board and I found =
-it
->
-> was caused by this patch:
->
->
->
-> commit fc1dcb0b39dbb10d3290f2fcd6e154670f699166
->
-> Author: Akinobu Mita <akinobu.mita@gmail.com>
->
-> Date:   Mon Mar 7 00:27:53 2016 +0900
->
->
->
->     rtc: ds3232: use rtc->ops_lock to protect alarm operations
->
->
->
->     ds3232->mutex is used to protect for alarm operations which
->
->     need to access status and control registers.
->
->
->
->     But we can use rtc->ops_lock instead.  rtc->ops_lock is held when mos=
-t
->
->     of rtc_class_ops methods are called, so we only need to explicitly
->
->     acquire it from irq handler in order to protect form concurrent
->
->     accesses.
->
->
->
->     Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
->
-> Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com
->
->
->
-> The problem is that rtc->ops_lock would be accessed in ds3232_irq()
->
-> without being initialized as rtc_device_register() is called too late.
+Hopefully, this is the right approach now.
 
-You have already identified the root cause of this issue.
+Changes since v1:
+- dropped the renaming of the drivers
+- renamed the rk808 struct in mfd/rk808.h
 
-> As I=E2=80=99m not familiar with rtc things, could I just revert the patc=
-h or you
-> already
->
-> have a solution to this problem? Thanks in advance.
+Patch 3 is a cosmetic patch for the regulator driver.
 
-Could you check if the problem is resolved by moving the call of
-devm_rtc_device_register() from the end of ds3232_probe() to just
-before registering irq handler?
+Wadim Egorov (7):
+  drivers: mfd: rk808: rename rk808 struct to rk8xx
+  mfd: RK808: Add RK818 support
+  regulator: rk808: Migrate to regulator core's simplified DT parsing
+    code
+  regulator: rk808: Add regulator driver for RK818
+  mfd: dt-bindings: Add RK818 device tree bindings document
+  clk: Kconfig: Name RK818 in Kconfig for COMMON_CLK_RK808
+  rtc: Kconfig: Name RK818 in Kconfig for RTC_DRV_RK808
 
---=20
---=20
+ Documentation/devicetree/bindings/mfd/rk808.txt |  37 ++-
+ drivers/clk/Kconfig                             |   4 +-
+ drivers/clk/clk-rk808.c                         |  20 +-
+ drivers/mfd/Kconfig                             |   4 +-
+ drivers/mfd/rk808.c                             | 253 +++++++++++---
+ drivers/regulator/Kconfig                       |   4 +-
+ drivers/regulator/rk808-regulator.c             | 425 +++++++++++++-----------
+ drivers/rtc/Kconfig                             |   4 +-
+ drivers/rtc/rtc-rk808.c                         |  50 +--
+ include/linux/mfd/rk808.h                       | 164 ++++++++-
+ 10 files changed, 674 insertions(+), 291 deletions(-)
+
+-- 
+1.9.1
+
+-- 
+-- 
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
----=20
-You received this message because you are subscribed to the Google Groups "=
-rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an e=
-mail to rtc-linux+unsubscribe@googlegroups.com.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
