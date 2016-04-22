@@ -1,31 +1,22 @@
-Return-Path: <rtc-linux+bncBCQJP74GSUDRBYXTQ24QKGQEOZ4C5XI@googlegroups.com>
-Received: from mail-io0-x244.google.com (mail-io0-x244.google.com. [2607:f8b0:4001:c06::244])
-        by gmr-mx.google.com with ESMTPS id d2si772772igx.2.2016.04.28.00.21.06
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 28 Apr 2016 00:21:06 -0700 (PDT)
-Received: by mail-io0-x244.google.com with SMTP id u185so11481745iod.2
-        for <rtc-linux@googlegroups.com>; Thu, 28 Apr 2016 00:21:06 -0700 (PDT)
+Return-Path: <rtc-linux+bncBDS7HNEFSALRB3HI5K4AKGQENAZLYNQ@googlegroups.com>
+Sender: rtc-linux@googlegroups.com
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id k143si186610wmg.1.2016.04.22.16.31.55
+        for <rtc-linux@googlegroups.com>;
+        Fri, 22 Apr 2016 16:31:55 -0700 (PDT)
+Date: Sat, 23 Apr 2016 01:31:44 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: =?iso-8859-1?Q?Myl=E8ne?= Josserand <mylene.josserand@free-electrons.com>
+Cc: rtc-linux@googlegroups.com, Alessandro Zummo <a.zummo@towertech.it>,
+	linux-kernel@vger.kernel.org
+Subject: [rtc-linux] Re: [PATCH 4/6] rtc: rv3029: Removes some checks and warnings
+Message-ID: <20160422233144.GG17051@piout.net>
+References: <cover.1461250479.git.mylene.josserand@free-electrons.com>
+ <f4a0b6a1f25057a2d8685dadb0eef5bb0968cf6a.1461250479.git.mylene.josserand@free-electrons.com>
+ <20160422232946.GF17051@piout.net>
 MIME-Version: 1.0
-Sender: geert.uytterhoeven@gmail.com
-In-Reply-To: <20160427232122.GW21636@brightrain.aerifal.cx>
-References: <1461796470-1291527-1-git-send-email-arnd@arndb.de>
-	<1461796470-1291527-5-git-send-email-arnd@arndb.de>
-	<20160427232122.GW21636@brightrain.aerifal.cx>
-Date: Thu, 28 Apr 2016 09:21:05 +0200
-Message-ID: <CAMuHMdVP3QWvyY11sw-Y440MFpxtjcZRQ+pAP76p35qFvcye6g@mail.gmail.com>
-Subject: [rtc-linux] Re: [PATCH v3 04/16] rtc: sh: provide rtc_class_ops directly
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Rich Felker <dalias@libc.org>
-Cc: Arnd Bergmann <arnd@arndb.de>, Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Helge Deller <deller@gmx.de>, Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-	Michael Ellerman <mpe@ellerman.id.au>, David Howells <dhowells@redhat.com>,
-	alpha <linux-alpha@vger.kernel.org>, Alessandro Zummo <a.zummo@towertech.it>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Parisc List <linux-parisc@vger.kernel.org>,
-	"linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>, Linux-sh list <linux-sh@vger.kernel.org>,
-	linux-m68k <linux-m68k@lists.linux-m68k.org>, RTCLINUX <rtc-linux@googlegroups.com>,
-	Linux-Arch <linux-arch@vger.kernel.org>
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <20160422232946.GF17051@piout.net>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -35,39 +26,46 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Hi Rich,
+On 23/04/2016 at 01:29:46 +0200, Alexandre Belloni wrote :
+> Hi,
+>=20
+> On 21/04/2016 at 20:24:17 +0200, Myl=C4=8Dne Josserand wrote :
+> > @@ -829,8 +829,6 @@ static void rv3029_unregister_driver(void)
+> > =20
+> >  static int rv3049_probe(struct spi_device *spi)
+> >  {
+> > -	int res;
+> > -	unsigned int tmp;
+>=20
+> Well, you just introduced those variables in the previous patch.
+>=20
 
-On Thu, Apr 28, 2016 at 1:21 AM, Rich Felker <dalias@libc.org> wrote:
-> Not a complaint about your patch, but I'd like to get rid of this
-> platform device and abstraction layer completely since it doesn't seem
-> like something that can be modeled correctly in device tree. When
-> you're done cleaning this up, will it be possible to just have rtc
-> drivers that use whatever generic framework is left, where the right
-> driver is automatically attached to compatible DT nodes? I'm trying to
-> move all of arch/sh over to device tree and remove hard-coded platform
-> devices.
+And I forgot to add that you still have a few checkpatch warnings to
+remove while at it:
 
-If you describe the RTC in DT, it can bound to a hardware-specific driver
-in drivers/rtc/rtc-*.c.
+WARNING: Prefer 'unsigned int' to bare use of 'unsigned'
+#129: FILE: drivers/rtc/rtc-rv3029c2.c:129:
++			    unsigned len)
 
-Gr{oetje,eeting}s,
+WARNING: Prefer 'unsigned int' to bare use of 'unsigned'
+#141: FILE: drivers/rtc/rtc-rv3029c2.c:141:
++			     unsigned len)
 
-                        Geert
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+--=20
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
-
--- 
--- 
+--=20
+--=20
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+---=20
+You received this message because you are subscribed to the Google Groups "=
+rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an e=
+mail to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
