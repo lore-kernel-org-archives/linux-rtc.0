@@ -1,25 +1,21 @@
-Return-Path: <rtc-linux+bncBDVNH3HM2UDBBDWR2G4AKGQEJZD25FQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRB4PQ5K4AKGQEOWXLCRY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail-oi0-x230.google.com (mail-oi0-x230.google.com. [2607:f8b0:4003:c06::230])
-        by gmr-mx.google.com with ESMTPS id au10si2267766igc.3.2016.04.17.21.54.37
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sun, 17 Apr 2016 21:54:37 -0700 (PDT)
-Received: by mail-oi0-x230.google.com with SMTP id r78so38859382oie.0
-        for <rtc-linux@googlegroups.com>; Sun, 17 Apr 2016 21:54:37 -0700 (PDT)
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id u137si122494wmd.1.2016.04.22.16.49.04
+        for <rtc-linux@googlegroups.com>;
+        Fri, 22 Apr 2016 16:49:04 -0700 (PDT)
+Date: Sat, 23 Apr 2016 01:48:54 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: =?iso-8859-1?Q?Myl=E8ne?= Josserand <mylene.josserand@free-electrons.com>
+Cc: rtc-linux@googlegroups.com, Alessandro Zummo <a.zummo@towertech.it>,
+	linux-kernel@vger.kernel.org
+Subject: [rtc-linux] Re: [PATCH 6/6] rtc: rv3029: add alarm IRQ
+Message-ID: <20160422234854.GI17051@piout.net>
+References: <cover.1461250479.git.mylene.josserand@free-electrons.com>
+ <a3a20f7842d11e73e5dd41201a77bca3108e6b75.1461250479.git.mylene.josserand@free-electrons.com>
 MIME-Version: 1.0
-In-Reply-To: <CABrG=Zz=OK3tbYFyT6VmCfebz-TnnDjC3x0aG-Mdau+TZdFqUw@mail.gmail.com>
-References: <1460938902-3120-1-git-send-email-akinobu.mita@gmail.com>
-	<CABrG=Zz=OK3tbYFyT6VmCfebz-TnnDjC3x0aG-Mdau+TZdFqUw@mail.gmail.com>
-Date: Mon, 18 Apr 2016 08:54:37 +0400
-Message-ID: <CABrG=Zzgo9CtD=WyvNyOmeb7_C4ZxoHiXVcA8tKMcz32K8BTXA@mail.gmail.com>
-Subject: [rtc-linux] Re: [PATCH] rtc: ds1307: ds3231 temperature s16 overflow
-From: Michael Tatarinov <kukabu@gmail.com>
-To: Akinobu Mita <akinobu.mita@gmail.com>
-Cc: rtc-linux@googlegroups.com, Zhuang Yuyao <mlistz@gmail.com>,
-	Zhuang Yuyao <zhuangyy@syan.com.cn>, Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <a3a20f7842d11e73e5dd41201a77bca3108e6b75.1461250479.git.mylene.josserand@free-electrons.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -29,71 +25,67 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-sorry, I realized my mistake
+On 21/04/2016 at 20:24:19 +0200, Myl=C4=8Dne Josserand wrote :
+> @@ -731,11 +786,9 @@ static void rv3029_hwmon_register(struct device *dev=
+, const char *name)
+> =20
+>  #endif /* CONFIG_RTC_DRV_RV3029_HWMON */
+> =20
+> -static const struct rtc_class_ops rv3029_rtc_ops =3D {
+> +static struct rtc_class_ops rv3029_rtc_ops =3D {
+>  	.read_time	=3D rv3029_read_time,
+>  	.set_time	=3D rv3029_set_time,
+> -	.read_alarm	=3D rv3029_read_alarm,
+> -	.set_alarm	=3D rv3029_set_alarm,
+>  };
+> =20
+>  static struct i2c_device_id rv3029_id[] =3D {
+> @@ -772,8 +825,27 @@ static int rv3029_probe(struct device *dev, struct r=
+egmap *regmap, int irq,
+> =20
+>  	rv3029->rtc =3D devm_rtc_device_register(dev, name, &rv3029_rtc_ops,
+>  					       THIS_MODULE);
+> +	if (IS_ERR(rv3029->rtc)) {
+> +		dev_err(dev, "unable to register the class device\n");
+> +		return PTR_ERR(rv3029->rtc);
+> +	}
+> =20
+> -	return PTR_ERR_OR_ZERO(rv3029->rtc);
+> +	if (rv3029->irq > 0) {
+> +		rc =3D devm_request_threaded_irq(dev, rv3029->irq,
+> +					       NULL, rv3029_handle_irq,
+> +					       IRQF_TRIGGER_LOW | IRQF_ONESHOT,
+> +					       "rv3029", dev);
+> +		if (rc) {
+> +			dev_warn(dev, "unable to request IRQ, alarms disabled\n");
+> +			rv3029->irq =3D 0;
+> +		} else {
+> +			rv3029_rtc_ops.read_alarm =3D rv3029_read_alarm;
+> +			rv3029_rtc_ops.set_alarm =3D rv3029_set_alarm;
+> +			rv3029_rtc_ops.alarm_irq_enable =3D rv3029_alarm_irq_enable;
+> +		}
+> +	}
+> +
 
-2016-04-18 8:33 GMT+04:00, Michael Tatarinov <kukabu@gmail.com>:
-> Hello
->
-> Thanks!
-> I haven't tested the patch yet but I already have a question. What
-> about s16 in ds3231_hwmon_show_temp()?
->
->
-> 2016-04-18 4:21 GMT+04:00, Akinobu Mita <akinobu.mita@gmail.com>:
->> From: Zhuang Yuyao <mlistz@gmail.com>
->>
->> while retrieving temperature from ds3231, the result may be overflow
->> since s16 is too small for a multiplication with 250.
->>
->> ie. if temp_buf[0] == 0x2d, the result (s16 temp) will be negative.
->>
->> Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
->> Cc: Zhuang Yuyao <mlistz@gmail.com>
->> Cc: Zhuang Yuyao <zhuangyy@syan.com.cn>
->> Cc: Michael Tatarinov <kukabu@gmail.com>
->> Cc: Alessandro Zummo <a.zummo@towertech.it>
->> Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
->> ---
->>  drivers/rtc/rtc-ds1307.c | 4 ++--
->>  1 file changed, 2 insertions(+), 2 deletions(-)
->>
->> diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
->> index cb0ffa8..90d1e5a 100644
->> --- a/drivers/rtc/rtc-ds1307.c
->> +++ b/drivers/rtc/rtc-ds1307.c
->> @@ -863,7 +863,7 @@ out:
->>   * A user-initiated temperature conversion is not started by this
->> function,
->>   * so the temperature is updated once every 64 seconds.
->>   */
->> -static int ds3231_hwmon_read_temp(struct device *dev, s16 *mC)
->> +static int ds3231_hwmon_read_temp(struct device *dev, s32 *mC)
->>  {
->>  	struct ds1307 *ds1307 = dev_get_drvdata(dev);
->>  	u8 temp_buf[2];
->> @@ -892,7 +892,7 @@ static ssize_t ds3231_hwmon_show_temp(struct device
->> *dev,
->>  				struct device_attribute *attr, char *buf)
->>  {
->>  	int ret;
->> -	s16 temp;
->> +	s32 temp;
->>
->>  	ret = ds3231_hwmon_read_temp(dev, &temp);
->>  	if (ret)
->> --
->> 2.5.0
->>
->>
->
+While this work, devm_rtc_device_register() needs to know whether the
+alarms are enabled and will try to call .read_alarm(). That is not
+completely an issue right now and as we discussed, I'm planning to send
+a rework of the rtc core to overcome that issue.
 
--- 
--- 
+--=20
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
+
+--=20
+--=20
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+---=20
+You received this message because you are subscribed to the Google Groups "=
+rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an e=
+mail to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
