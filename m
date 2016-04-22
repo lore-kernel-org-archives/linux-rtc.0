@@ -1,24 +1,27 @@
-Return-Path: <rtc-linux+bncBAABBZGH3W4AKGQEBMOSSQI@googlegroups.com>
+Return-Path: <rtc-linux+bncBDJIP47K7MERBWHY5G4AKGQE3XOV62Y@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from emea01-db3-obe.outbound.protection.outlook.com (mail-db3on0138.outbound.protection.outlook.com. [157.55.234.138])
-        by gmr-mx.google.com with ESMTPS id t10si1039917ywe.4.2016.04.20.04.11.31
+Received: from mail.kernel.org (mail.kernel.org. [198.145.29.136])
+        by gmr-mx.google.com with ESMTPS id y20si775966pfa.2.2016.04.22.12.32.38
         for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
-        Wed, 20 Apr 2016 04:11:31 -0700 (PDT)
-From: Jeppe Ledet-Pedersen <jlp@gomspace.com>
-To: <lee.jones@linaro.org>, <arnd@arndb.de>, <gregkh@linuxfoundation.org>,
-	<alexandre.belloni@free-electrons.com>, <a.zummo@towertech.it>,
-	<robh+dt@kernel.org>, <pawel.moll@arm.com>, <mark.rutland@arm.com>,
-	<ijc+devicetree@hellion.org.uk>, <galak@codeaurora.org>
-CC: <rtc-linux@googlegroups.com>, <devicetree@vger.kernel.org>,
-	<linux-kernel@vger.kernel.org>, Jeppe Ledet-Pedersen <jlp@gomspace.com>
-Subject: [rtc-linux] [PATCH 2/3] misc: eeprom: add Cypress FM33256B FRAM driver
-Date: Wed, 20 Apr 2016 13:07:50 +0200
-Message-ID: <1461150471-23163-3-git-send-email-jlp@gomspace.com>
-In-Reply-To: <1461150471-23163-1-git-send-email-jlp@gomspace.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Fri, 22 Apr 2016 12:32:38 -0700 (PDT)
+Date: Fri, 22 Apr 2016 14:32:32 -0500
+From: Rob Herring <robh@kernel.org>
+To: Jeppe Ledet-Pedersen <jlp@gomspace.com>
+Cc: lee.jones@linaro.org, arnd@arndb.de, gregkh@linuxfoundation.org,
+	alexandre.belloni@free-electrons.com, a.zummo@towertech.it,
+	pawel.moll@arm.com, mark.rutland@arm.com,
+	ijc+devicetree@hellion.org.uk, galak@codeaurora.org,
+	rtc-linux@googlegroups.com, devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [rtc-linux] Re: [PATCH 1/3] mfd: add Cypress FM33256B Processor
+ Companion driver
+Message-ID: <20160422193232.GA9737@rob-hp-laptop>
 References: <1461150471-23163-1-git-send-email-jlp@gomspace.com>
+ <1461150471-23163-2-git-send-email-jlp@gomspace.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1461150471-23163-2-git-send-email-jlp@gomspace.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -28,175 +31,75 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Signed-off-by: Jeppe Ledet-Pedersen <jlp@gomspace.com>
----
- MAINTAINERS                         |   1 +
- drivers/misc/eeprom/Kconfig         |  12 ++++
- drivers/misc/eeprom/Makefile        |   1 +
- drivers/misc/eeprom/fm33256b-fram.c | 110 ++++++++++++++++++++++++++++++++++++
- 4 files changed, 124 insertions(+)
- create mode 100644 drivers/misc/eeprom/fm33256b-fram.c
+On Wed, Apr 20, 2016 at 01:07:49PM +0200, Jeppe Ledet-Pedersen wrote:
+> This patch adds support for the Cypress Semiconductor FM33256B processor
+> companion. The device contains a 256 kbit FRAM, an RTC, a supply voltage
+> monitor, and a watchdog timer.
+> 
+> Signed-off-by: Jeppe Ledet-Pedersen <jlp@gomspace.com>
+> ---
+>  Documentation/devicetree/bindings/mfd/fm33256b.txt |  30 ++
+>  MAINTAINERS                                        |   6 +
+>  drivers/mfd/Kconfig                                |  16 +
+>  drivers/mfd/Makefile                               |   1 +
+>  drivers/mfd/fm33256b.c                             | 488 +++++++++++++++++++++
+>  include/linux/mfd/fm33256b.h                       |  76 ++++
+>  6 files changed, 617 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/mfd/fm33256b.txt
+>  create mode 100644 drivers/mfd/fm33256b.c
+>  create mode 100644 include/linux/mfd/fm33256b.h
+> 
+> diff --git a/Documentation/devicetree/bindings/mfd/fm33256b.txt b/Documentation/devicetree/bindings/mfd/fm33256b.txt
+> new file mode 100644
+> index 0000000..6591c94
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/mfd/fm33256b.txt
+> @@ -0,0 +1,30 @@
+> +Device-tree bindings for Cypress Semiconductor FM33256B Processor Companion
+> +---------------------------------------------------------------------------
+> +
+> +Required properties:
+> +- compatible: must be "cypress,fm33256b".
+> +- reg: SPI chip select
+> +- spi-max-frequency: Max SPI frequency to use (< 16000000)
+> +
+> +Optional properties:
+> +- cypress,charge-enabled: enable trickle charger
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 87b5023..a8b71d8 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -3387,6 +3387,7 @@ M:	Jeppe Ledet-Pedersen <jlp@gomspace.com>
- S:	Maintained
- F:	include/linux/mfd/fm33256b.h
- F:	drivers/mfd/fm33256b.c
-+F:	drivers/misc/eeprom/fm33256b-fram.c
+What does the driver do if charging is disabled? Would using 'status = 
+"disabled"' be any different?
  
- CYTTSP TOUCHSCREEN DRIVER
- M:	Ferruh Yigit <fery@cypress.com>
-diff --git a/drivers/misc/eeprom/Kconfig b/drivers/misc/eeprom/Kconfig
-index cfc493c..2c0c26a3 100644
---- a/drivers/misc/eeprom/Kconfig
-+++ b/drivers/misc/eeprom/Kconfig
-@@ -102,4 +102,16 @@ config EEPROM_DIGSY_MTC_CFG
- 
- 	  If unsure, say N.
- 
-+config EEPROM_FM33256B
-+	tristate "Cypress FM33256B FRAM support"
-+	depends on MFD_FM33256B
-+	help
-+	  This is a driver for the FRAM found in the Cypress FM33256B Processor
-+	  Companion.
-+
-+	  The FRAM is exported as a binary sysfs file.
-+
-+	  This driver can also be built as a module. If so, the module
-+	  will be called fm33256b-fram.
-+
- endmenu
-diff --git a/drivers/misc/eeprom/Makefile b/drivers/misc/eeprom/Makefile
-index fc1e81d..f991f0f 100644
---- a/drivers/misc/eeprom/Makefile
-+++ b/drivers/misc/eeprom/Makefile
-@@ -5,3 +5,4 @@ obj-$(CONFIG_EEPROM_MAX6875)	+= max6875.o
- obj-$(CONFIG_EEPROM_93CX6)	+= eeprom_93cx6.o
- obj-$(CONFIG_EEPROM_93XX46)	+= eeprom_93xx46.o
- obj-$(CONFIG_EEPROM_DIGSY_MTC_CFG) += digsy_mtc_eeprom.o
-+obj-$(CONFIG_EEPROM_FM33256B)	+= fm33256b-fram.o
-diff --git a/drivers/misc/eeprom/fm33256b-fram.c b/drivers/misc/eeprom/fm33256b-fram.c
-new file mode 100644
-index 0000000..fd3c2c9
---- /dev/null
-+++ b/drivers/misc/eeprom/fm33256b-fram.c
-@@ -0,0 +1,110 @@
-+/*
-+ * Cypress FM33256B Processor Companion FRAM Driver
-+ *
-+ * Copyright (C) 2016 GomSpace ApS
-+ *
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms of the GNU General Public License version 2 as published by
-+ * the Free Software Foundation.
-+ *
-+ * This program is distributed in the hope that it will be useful, but WITHOUT
-+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
-+ * more details.
-+ *
-+ * You should have received a copy of the GNU General Public License along with
-+ * this program.  If not, see <http://www.gnu.org/licenses/>.
-+ */
-+
-+#include <linux/mfd/fm33256b.h>
-+#include <linux/module.h>
-+#include <linux/platform_device.h>
-+#include <linux/regmap.h>
-+
-+static ssize_t fm33256b_fram_read(struct file *filp, struct kobject *kobj,
-+				  struct bin_attribute *bin_attr,
-+				  char *buf, loff_t off, size_t count)
-+{
-+	int ret;
-+	struct device *dev = container_of(kobj, struct device, kobj);
-+	struct fm33256b *fm33256b = dev_get_drvdata(dev->parent);
-+
-+	ret = regmap_bulk_read(fm33256b->regmap_fram, off, buf, count);
-+	if (ret < 0)
-+		return ret;
-+
-+	return count;
-+}
-+
-+static ssize_t fm33256b_fram_write(struct file *filp, struct kobject *kobj,
-+				   struct bin_attribute *bin_attr,
-+				   char *buf, loff_t off, size_t count)
-+{
-+	int ret;
-+	struct device *dev = container_of(kobj, struct device, kobj);
-+	struct fm33256b *fm33256b = dev_get_drvdata(dev->parent);
-+
-+	ret = regmap_bulk_write(fm33256b->regmap_fram, off, buf, count);
-+	if (ret < 0)
-+		return ret;
-+
-+	return count;
-+}
-+
-+static struct bin_attribute fm33256b_fram_attr = {
-+	.attr = {
-+		.name = "fram",
-+		.mode = S_IWUSR | S_IRUGO,
-+	},
-+	.size = FM33256B_MAX_FRAM,
-+	.read = fm33256b_fram_read,
-+	.write = fm33256b_fram_write,
-+};
-+
-+static int fm33256b_fram_probe(struct platform_device *pdev)
-+{
-+	int ret;
-+	struct device *dev = &pdev->dev;
-+	struct fm33256b *fm33256b;
-+
-+	fm33256b = dev_get_drvdata(dev->parent);
-+
-+	ret = sysfs_create_bin_file(&(dev->kobj), &fm33256b_fram_attr);
-+	if (ret < 0)
-+		return ret;
-+
-+	return 0;
-+}
-+
-+static int fm33256b_fram_remove(struct platform_device *pdev)
-+{
-+	struct device *dev = &pdev->dev;
-+	struct fm33256b *fm33256b;
-+
-+	fm33256b = dev_get_drvdata(dev->parent);
-+
-+	sysfs_remove_bin_file(&(dev->kobj), &fm33256b_fram_attr);
-+
-+	return 0;
-+}
-+
-+static const struct of_device_id fm33256b_fram_dt_ids[] = {
-+	{ .compatible = "cypress,fm33256b-fram" },
-+	{ /* sentinel */ },
-+};
-+MODULE_DEVICE_TABLE(of, fm33256b_fram_dt_ids);
-+
-+static struct platform_driver fm33256b_fram_driver = {
-+	.driver = {
-+		.name = "fm33256b-fram",
-+		.of_match_table = fm33256b_fram_dt_ids,
-+	},
-+	.probe = fm33256b_fram_probe,
-+	.remove = fm33256b_fram_remove,
-+};
-+module_platform_driver(fm33256b_fram_driver);
-+
-+MODULE_ALIAS("platform:fm33256b-fram");
-+MODULE_AUTHOR("Jeppe Ledet-Pedersen <jlp@gomspace.com>");
-+MODULE_DESCRIPTION("Cypress FM33256B Processor Companion FRAM Driver");
-+MODULE_LICENSE("GPL v2");
--- 
-2.1.4
+> +- cypress,charge-fast: enable fast (1 mA) charging
+
+What does fast mean?
+
+I think it is time for a common binding here. There's all sorts of 
+variations on setting the charge current in bindings. Add something like 
+"charge-current-microamp" in power_supply.txt and use it here. Then 
+1000uA implies "fast charge".
+
+> +
+> +The MFD exposes two subdevices:
+> +- The FRAM: "cypress,fm33256b-fram"
+> +- The RTC: "cypress,fm33256b-rtc"
+> +
+> +Example:
+> +
+> +spi1: spi@f800800 {
+> +	status = "okay";
+> +	cs-gpios = <&pioC 25 0>;
+> +
+> +	fm33256b@0 {
+> +		compatible = "cypress,fm33256b";
+> +		spi-max-frequency = <10000000>;
+> +		cypress,charge-enabled;
+> +		cypress,charge-fast;
+> +		reg = <0>;
+> +	};
+
+Where's the 2nd sub device?
+
+> +};
 
 -- 
 -- 
