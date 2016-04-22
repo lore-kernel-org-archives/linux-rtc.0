@@ -1,27 +1,21 @@
-Return-Path: <rtc-linux+bncBD7N3SEV2QCRB666WS4AKGQEG7VCXBI@googlegroups.com>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRB7PH5K4AKGQE2G2MKCA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from vk1046.megiteam.com.pl (2780.rev.megiteam.pl. [91.227.39.128])
-        by gmr-mx.google.com with ESMTP id k143si806469wmg.1.2016.04.12.10.25.15
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id u137si121127wmd.1.2016.04.22.16.30.05
         for <rtc-linux@googlegroups.com>;
-        Tue, 12 Apr 2016 10:25:15 -0700 (PDT)
-Subject: [rtc-linux] Re: [PATCH] rtc: omap: Support ext_wakeup configuration
-To: Grygorii Strashko <grygorii.strashko@ti.com>,
- Tony Lindgren <tony@atomide.com>
-References: <1459785403-1725-1-git-send-email-m.niestroj@grinn-global.com>
- <20160404224046.GA17042@atomide.com> <57078A89.3080809@ti.com>
- <20160408151408.GS16484@atomide.com> <5707E764.7050204@ti.com>
-Cc: rtc-linux@googlegroups.com, devicetree@vger.kernel.org,
- Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>,
- Alessandro Zummo <a.zummo@towertech.it>,
- Alexandre Belloni <alexandre.belloni@free-electrons.com>,
- Keerthy <j-keerthy@ti.com>, linux-omap@vger.kernel.org,
- Dave Gerlach <d-gerlach@ti.com>, "Menon, Nishanth" <nm@ti.com>
-From: Marcin Niestroj <m.niestroj@grinn-global.com>
-Message-ID: <570D2F79.9040202@grinn-global.com>
-Date: Tue, 12 Apr 2016 19:25:13 +0200
+        Fri, 22 Apr 2016 16:30:05 -0700 (PDT)
+Date: Sat, 23 Apr 2016 01:29:46 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: =?iso-8859-1?Q?Myl=E8ne?= Josserand <mylene.josserand@free-electrons.com>
+Cc: rtc-linux@googlegroups.com, Alessandro Zummo <a.zummo@towertech.it>,
+	linux-kernel@vger.kernel.org
+Subject: [rtc-linux] Re: [PATCH 4/6] rtc: rv3029: Removes some checks and warnings
+Message-ID: <20160422232946.GF17051@piout.net>
+References: <cover.1461250479.git.mylene.josserand@free-electrons.com>
+ <f4a0b6a1f25057a2d8685dadb0eef5bb0968cf6a.1461250479.git.mylene.josserand@free-electrons.com>
 MIME-Version: 1.0
-In-Reply-To: <5707E764.7050204@ti.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <f4a0b6a1f25057a2d8685dadb0eef5bb0968cf6a.1461250479.git.mylene.josserand@free-electrons.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -33,79 +27,37 @@ List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegro
 
 Hi,
 
-On 08.04.2016 19:16, Grygorii Strashko wrote:
-> On 04/08/2016 06:14 PM, Tony Lindgren wrote:
->> * Grygorii Strashko <grygorii.strashko@ti.com> [160408 03:41]:
->>> Hi Tony,
->>>
->>> On 04/05/2016 01:40 AM, Tony Lindgren wrote:
->>>> Hi,
->>>>
->>>> * Marcin Niestroj <m.niestroj@grinn-global.com> [160404 08:57]:
->>>>> Support configuration of ext_wakeup sources. This patch makes it
->>>>> possible to enable ext_wakeup and set it's polarity, depending on board
->>>>> configuration. AM335x's dedicated PMIC (tps65217) uses ext_wakeup to
->>>>> notify about power-button presses. Handling power-button presses enables
->>>>> to recover from RTC-only power states correctly.
->>>>
->>>> I suggest you just set this pin up as a minimal gpiochip. That way
->>>> we can use the standard binding :) And if we get lucky, this pin can
->>>> also trigger during runtime.
->>>>
->>>
->>> Following my comments on v2 of this patch I propose to rollback to
->>> this version of the patch.
->>>
->>> It seems doesn't fit in gpiochip, it's more likely irqchip, but since
->>> rtc can't generate IRQ there are nor reasons for these genetic
->>> experiments and RTC's specific bindings looks more suitable, at least for me.
->>
->> Hmm well gpiochips typically are irqchip too. IMO the generic binding
->> here sounds like "gpio-wakeup" as it's an input with polarity and with
->> an optional interrupt.
->>
->> Plain irqchip would work too in this case if there are no other GPIO
->> specific features. Some other RTCs may have more GPIO like features.
->>
->> In any case, setting the ext_wakeup up as an irqchip means that the
->> RTC controller can be used as a dedicated wakeirq with Linux :)
->
-> It can't :( It can't generate IRQ when state of ext_wakeup line has
-> been changed.
->
->>
->> Are you guys sure there's no wake pin events during runtime? AFAIK
->> the RTCs just typically produce an interrupt when programmed to
->> do so, they don't know the state of the SoC.
->>
->
-> I do not think that It can be fit in gpiochip or irqchip -
-> in my opinion right way is to proceed with bindings proposed by
-> Marcin in this patch v1.
->
-> But, probably, it could fit in pinctrl:
-> - this is pin's configuration
-> - this is one-time configuration
-> - or - configuration which can be applied before suspend
->    and resorted after suspend.
->
-> if you still wanna try some generic framework.
->
+On 21/04/2016 at 20:24:17 +0200, Myl=C4=8Dne Josserand wrote :
+> @@ -829,8 +829,6 @@ static void rv3029_unregister_driver(void)
+> =20
+>  static int rv3049_probe(struct spi_device *spi)
+>  {
+> -	int res;
+> -	unsigned int tmp;
 
-pinctrl bindings looks ok for our use case (enable/disable input,
-configure debounce), except I don't see any way to pass polarity
-(active low/high) to the driver.
+Well, you just introduced those variables in the previous patch.
 
--- 
-Marcin Niestroj
+>  	static const struct regmap_config config =3D {
+>  		.reg_bits =3D 8,
+>  		.val_bits =3D 8,
+> --=20
+> 2.8.0.rc3
+>=20
 
--- 
--- 
+--=20
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
+
+--=20
+--=20
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+---=20
+You received this message because you are subscribed to the Google Groups "=
+rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an e=
+mail to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
