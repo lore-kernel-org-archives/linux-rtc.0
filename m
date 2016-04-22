@@ -1,27 +1,22 @@
-Return-Path: <rtc-linux+bncBD7N3SEV2QCRBHGKTW4AKGQETCOX67A@googlegroups.com>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBN7L5K4AKGQESWY7Q5Y@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-MIME-Version: 1.0
-Received: from vk1046.megiteam.com.pl (2780.rev.megiteam.pl. [91.227.39.128])
-        by gmr-mx.google.com with ESMTP id 71si80901wmp.0.2016.04.08.01.00.28
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id d92si222642wma.2.2016.04.22.16.37.26
         for <rtc-linux@googlegroups.com>;
-        Fri, 08 Apr 2016 01:00:28 -0700 (PDT)
-From: Marcin Niestroj <m.niestroj@grinn-global.com>
-To: rtc-linux@googlegroups.com,
-	devicetree@vger.kernel.org
-Cc: Rob Herring <robh+dt@kernel.org>,
-	Pawel Moll <pawel.moll@arm.com>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Tony Lindgren <tony@atomide.com>,
-	Keerthy <j-keerthy@ti.com>,
-	linux-omap@vger.kernel.org,
-	linux-gpio@vger.kernel.org,
-	Marcin Niestroj <m.niestroj@grinn-global.com>
-Subject: [rtc-linux] [PATCH v3] rtc: omap: Support ext_wakeup configuration
-Date: Fri,  8 Apr 2016 09:58:15 +0200
-Message-Id: <1460102296-23304-1-git-send-email-m.niestroj@grinn-global.com>
-Reply-To: rtc-linux@googlegroups.com
+        Fri, 22 Apr 2016 16:37:26 -0700 (PDT)
+Date: Sat, 23 Apr 2016 01:37:16 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: =?iso-8859-1?Q?Myl=E8ne?= Josserand <mylene.josserand@free-electrons.com>
+Cc: rtc-linux@googlegroups.com, Alessandro Zummo <a.zummo@towertech.it>,
+	linux-kernel@vger.kernel.org
+Subject: [rtc-linux] Re: [PATCH 5/6] rtc: rv3029: enable AE_x bits on set_alarm
+Message-ID: <20160422233716.GH17051@piout.net>
+References: <cover.1461250479.git.mylene.josserand@free-electrons.com>
+ <ca637cf527c3b7e9fbd0cab08ca35c1dfb97ca67.1461250479.git.mylene.josserand@free-electrons.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <ca637cf527c3b7e9fbd0cab08ca35c1dfb97ca67.1461250479.git.mylene.josserand@free-electrons.com>
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -30,42 +25,97 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Hi,
+On 21/04/2016 at 20:24:18 +0200, Myl=C4=8Dne Josserand wrote :
+> The RTC RV3029 handles different types of alarms : seconds, minutes, ...
+> These alarms can be enabled or disabled individually using an AE_x bit
+> which is the last bit (BIT(7)) on each alarm registers.
+>=20
+> To prepare the alarm IRQ support, the current code enables all the alarm
+> types by setting each AE_x to 1.
+> It also fixes month and weekday errors : it was performing -1 instead
+> of +1.
+>=20
+> Signed-off-by: Myl=C4=8Dne Josserand <mylene.josserand@free-electrons.com=
+>
+> ---
+>  drivers/rtc/rtc-rv3029c2.c | 23 ++++++++++++++++-------
+>  1 file changed, 16 insertions(+), 7 deletions(-)
+>=20
+> diff --git a/drivers/rtc/rtc-rv3029c2.c b/drivers/rtc/rtc-rv3029c2.c
+> index a849005..42de1a3 100644
+> --- a/drivers/rtc/rtc-rv3029c2.c
+> +++ b/drivers/rtc/rtc-rv3029c2.c
+> @@ -76,6 +76,7 @@
+>  #define RV3029_A_DW			0x14
+>  #define RV3029_A_MO			0x15
+>  #define RV3029_A_YR			0x16
+> +#define RV3029_A_AE_X			BIT(7)
+>  #define RV3029_ALARM_SECTION_LEN	0x07
+> =20
+>  /* timer section */
+> @@ -436,14 +437,22 @@ static int rv3029_set_alarm(struct device *dev, str=
+uct rtc_wkalrm *alarm)
+>  		dev_err(dev, "%s: reading SR failed\n", __func__);
+>  		return -EIO;
+>  	}
+> -	regs[RV3029_A_SC - RV3029_A_SC] =3D bin2bcd(tm->tm_sec & 0x7f);
+> -	regs[RV3029_A_MN - RV3029_A_SC] =3D bin2bcd(tm->tm_min & 0x7f);
+> -	regs[RV3029_A_HR - RV3029_A_SC] =3D bin2bcd(tm->tm_hour & 0x3f);
+> -	regs[RV3029_A_DT - RV3029_A_SC] =3D bin2bcd(tm->tm_mday & 0x3f);
+> -	regs[RV3029_A_MO - RV3029_A_SC] =3D bin2bcd((tm->tm_mon & 0x1f) - 1);
+> -	regs[RV3029_A_DW - RV3029_A_SC] =3D bin2bcd((tm->tm_wday & 7) - 1);
+> -	regs[RV3029_A_YR - RV3029_A_SC] =3D bin2bcd((tm->tm_year & 0x7f) - 100)=
+;
+> =20
+> +	/* Activate all the alarms with AE_x bit */
+> +	regs[RV3029_A_SC - RV3029_A_SC] =3D (bin2bcd(tm->tm_sec)) | RV3029_A_AE=
+_X;
+> +	regs[RV3029_A_MN - RV3029_A_SC] =3D (bin2bcd(tm->tm_min)) | RV3029_A_AE=
+_X;
+> +	regs[RV3029_A_HR - RV3029_A_SC] =3D (bin2bcd(tm->tm_hour & 0x3f))
+> +		| RV3029_A_AE_X;
+> +	regs[RV3029_A_DT - RV3029_A_SC] =3D (bin2bcd(tm->tm_mday & 0x3f))
+> +		| RV3029_A_AE_X;
+> +	regs[RV3029_A_MO - RV3029_A_SC] =3D (bin2bcd((tm->tm_mon & 0x1f) + 1))
+> +		| RV3029_A_AE_X;
+> +	regs[RV3029_A_DW - RV3029_A_SC] =3D (bin2bcd((tm->tm_wday & 7) + 1))
+> +		| RV3029_A_AE_X;
+> +	regs[RV3029_A_YR - RV3029_A_SC] =3D (bin2bcd((tm->tm_year) - 100))
+> +		| RV3029_A_AE_X;
+> +
 
-This is third approach for adding support of ext_wakeup configuration
-in OMAP RTC.
-Developed and tested on ChiliBoard (am335x) using v4.6-rc2.
+Alarms probably never worked anyway because this still suffers form
+another bug:
+(bin2bcd(tm->tm_hour & 0x3f)) should be (bin2bcd(tm->tm_hour) & 0x3f),
+and the same for the other members.
 
-Changes v2 -> v3:
- * Use gpiochip_request_own_desc() instead of gpiod_get_array() to make
-   it possible to rmmod and insmod module (as suggested by Grygorii
-   Strashko)
- * Go a little lower level, so the gpio number and active_low flag
-   (present in device-tree bindings) are not hidden by gpiolib
-   implementation
+note that (bin2bcd((tm->tm_mon & 0x1f) + 1)) must be
+(bin2bcd(tm->tm_mon + 1) & 0x1f)
 
-Changes v1 -> v2:
- * Use gpiochip implementation to utilize existing device-tree bindings
-   (as suggested by Tony Lindgren)
+etc...
 
-Marcin Niestroj (1):
-  rtc: omap: Support ext_wakeup configuration
+> +	/* Write the alarm */
+>  	ret =3D rv3029_write_regs(dev, RV3029_A_SC, regs,
+>  				RV3029_ALARM_SECTION_LEN);
+>  	if (ret < 0)
+> --=20
+> 2.8.0.rc3
+>=20
 
- Documentation/devicetree/bindings/rtc/rtc-omap.txt |  18 +-
- drivers/rtc/Kconfig                                |   2 +-
- drivers/rtc/rtc-omap.c                             | 187 ++++++++++++++++++++-
- 3 files changed, 204 insertions(+), 3 deletions(-)
+--=20
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
--- 
-2.8.0
-
--- 
--- 
+--=20
+--=20
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+---=20
+You received this message because you are subscribed to the Google Groups "=
+rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an e=
+mail to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
