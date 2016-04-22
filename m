@@ -1,20 +1,29 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBSVI324AKGQEBLZWYAI@googlegroups.com>
+Return-Path: <rtc-linux+bncBDJIP47K7MERBVER5K4AKGQENAPRNJY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id e78si231182wmc.3.2016.04.20.07.38.02
-        for <rtc-linux@googlegroups.com>;
-        Wed, 20 Apr 2016 07:38:02 -0700 (PDT)
-Date: Wed, 20 Apr 2016 16:37:51 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org,
-	johnstul@us.ibm.com
-Subject: [rtc-linux] Re: [1/3] rtc: mc13xxx: remove UIE signaling
-Message-ID: <20160420143751.GT29844@piout.net>
-References: <1304523088-17039-2-git-send-email-w.sang@pengutronix.de>
+Received: from mail.kernel.org (mail.kernel.org. [198.145.29.136])
+        by gmr-mx.google.com with ESMTPS id 17si294034pfw.0.2016.04.22.13.25.56
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Fri, 22 Apr 2016 13:25:56 -0700 (PDT)
+Date: Fri, 22 Apr 2016 15:25:50 -0500
+From: Rob Herring <robh@kernel.org>
+To: Wadim Egorov <w.egorov@phytec.de>
+Cc: linux-kernel@vger.kernel.org, linux-clk@vger.kernel.org,
+	rtc-linux@googlegroups.com, devicetree@vger.kernel.org,
+	linux-rockchip@lists.infradead.org, pawel.moll@arm.com,
+	mark.rutland@arm.com, ijc+devicetree@hellion.org.uk,
+	galak@codeaurora.org, mturquette@baylibre.com, sboyd@codeaurora.org,
+	lee.jones@linaro.org, lgirdwood@gmail.com, broonie@kernel.org,
+	a.zummo@towertech.it, alexandre.belloni@free-electrons.com,
+	dianders@chromium.org, zyw@rock-chips.com
+Subject: [rtc-linux] Re: [PATCH v2 5/7] mfd: dt-bindings: Add RK818 device
+ tree bindings document
+Message-ID: <20160422202550.GA10437@rob-hp-laptop>
+References: <1461244361-45686-1-git-send-email-w.egorov@phytec.de>
+ <1461244361-45686-6-git-send-email-w.egorov@phytec.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1304523088-17039-2-git-send-email-w.sang@pengutronix.de>
+In-Reply-To: <1461244361-45686-6-git-send-email-w.egorov@phytec.de>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -24,25 +33,15 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 04/05/2011 at 17:31:26 +0200, Wolfram Sang wrote :
-> The RTC core handles it since 6610e08 (RTC: Rework RTC code to use
-> timerqueue for events). So far, only the callbacks to the RTC core have
-> been removed, but not the handlers. Do this now.
+On Thu, Apr 21, 2016 at 03:12:39PM +0200, Wadim Egorov wrote:
+> Add device tree bindings documentation for Rockchip's RK818 PMIC.
 > 
-> Signed-off-by: Wolfram Sang <w.sang@pengutronix.de>
+> Signed-off-by: Wadim Egorov <w.egorov@phytec.de>
 > ---
->  drivers/rtc/rtc-mc13xxx.c |   23 -----------------------
->  1 files changed, 0 insertions(+), 23 deletions(-)
-> 
+>  Documentation/devicetree/bindings/mfd/rk808.txt | 37 +++++++++++++++++++++++--
+>  1 file changed, 34 insertions(+), 3 deletions(-)
 
-Almost five years ago, you sent that patch...
-
-Applied, thanks.
-
--- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+Acked-by: Rob Herring <robh@kernel.org>
 
 -- 
 -- 
