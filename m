@@ -1,26 +1,21 @@
-Return-Path: <rtc-linux+bncBAABB7WNWO4AKGQEIZEH7HY@googlegroups.com>
+Return-Path: <rtc-linux+bncBAABBZ5V7C4AKGQEA3M3BBA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from NAM02-CY1-obe.outbound.protection.outlook.com (mail-cys01nam02on0628.outbound.protection.outlook.com. [2a01:111:f400:fe45::628])
-        by gmr-mx.google.com with ESMTPS id y20si2376808pfa.2.2016.04.12.05.15.58
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
-        Tue, 12 Apr 2016 05:15:58 -0700 (PDT)
-From: Anurag Kumar Vulisha <anurag.kumar.vulisha@xilinx.com>
-To: Alessandro Zummo <a.zummo@towertech.it>, Alexandre Belloni
-	<alexandre.belloni@free-electrons.com>, <soren.brinkmann@xilinx.com>
-CC: Michal Simek <michal.simek@xilinx.com>, <rtc-linux@googlegroups.com>,
-	<linux-arm-kernel@lists.infradead.org>, <linux-kernel@vger.kernel.org>,
-	Punnaiah Choudary Kalluri <punnaia@xilinx.com>, Anirudha Sarangi
-	<anirudh@xilinx.com>, Srikanth Vemula <svemula@xilinx.com>, "Anurag Kumar
- Vulisha" <anuragku@xilinx.com>
-Subject: [rtc-linux] [PATCH 3/3] RTC: Update seconds time programming logic
-Date: Tue, 12 Apr 2016 17:45:46 +0530
-Message-ID: <1460463346-24923-3-git-send-email-anuragku@xilinx.com>
-In-Reply-To: <1460463346-24923-1-git-send-email-anuragku@xilinx.com>
-References: <1460463346-24923-1-git-send-email-anuragku@xilinx.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Received: from root.phytec.de (mail.microcatalog.org.uk. [217.6.246.34])
+        by gmr-mx.google.com with ESMTP id a65si450783wma.0.2016.04.25.06.25.59
+        for <rtc-linux@googlegroups.com>;
+        Mon, 25 Apr 2016 06:25:59 -0700 (PDT)
+From: Wadim Egorov <w.egorov@phytec.de>
+To: linux-kernel@vger.kernel.org, linux-clk@vger.kernel.org, rtc-linux@googlegroups.com, devicetree@vger.kernel.org, linux-rockchip@lists.infradead.org
+Cc: robh+dt@kernel.org, pawel.moll@arm.com, mark.rutland@arm.com, ijc+devicetree@hellion.org.uk, galak@codeaurora.org, mturquette@baylibre.com, sboyd@codeaurora.org, lee.jones@linaro.org, lgirdwood@gmail.com, broonie@kernel.org, a.zummo@towertech.it, alexandre.belloni@free-electrons.com, dianders@chromium.org, zyw@rock-chips.com
+Subject: [rtc-linux] [PATCH v3 6/8] mfd: dt-bindings: Add RK818 device tree
+ bindings document
+Date: Mon, 25 Apr 2016 15:20:46 +0200
+Message-Id: <1461590448-47685-7-git-send-email-w.egorov@phytec.de>
+In-Reply-To: <1461590448-47685-1-git-send-email-w.egorov@phytec.de>
+References: <1461590448-47685-1-git-send-email-w.egorov@phytec.de>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -29,119 +24,87 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-We programe RTC time using SET_TIME_WRITE register and read the RTC
-current time using CURRENT_TIME register. When we set the time by
-writing into SET_TIME_WRITE Register and immediately try to read the
-rtc time from CURRENT_TIME register, the previous old value is
-returned instead of the new loaded time. This is because RTC takes
-nearly 1 sec to update the  new loaded value into the CURRENT_TIME
-register. This behaviour is expected in our RTC IP.
+Add device tree bindings documentation for Rockchip's RK818 PMIC.
 
-This patch updates the driver to read the current time from SET_TIME_WRITE
-register instead of CURRENT_TIME when rtc time is requested within an 1sec
-period after setting the RTC time. Doing so will ensure the correct time
-is given to the user.
-
-Since there is an delay of 1sec in updating the CURRENT_TIME we are loading
-set time +1sec while programming the SET_TIME_WRITE register, doing this
-will give correct time without any delay when read from CURRENT_TIME.
-
-This patch updates the above said.
-
-Signed-off-by: Anurag Kumar Vulisha <anuragku@xilinx.com>
+Signed-off-by: Wadim Egorov <w.egorov@phytec.de>
+Acked-by: Rob Herring <robh@kernel.org>
 ---
- drivers/rtc/rtc-zynqmp.c | 40 ++++++++++++++++++++++++++++++++++++++--
- 1 file changed, 38 insertions(+), 2 deletions(-)
+Changes since v2:
+- Added Acked-by
+---
+ Documentation/devicetree/bindings/mfd/rk808.txt | 37 +++++++++++++++++++++++--
+ 1 file changed, 34 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/rtc/rtc-zynqmp.c b/drivers/rtc/rtc-zynqmp.c
-index f87f971..b98cebe 100644
---- a/drivers/rtc/rtc-zynqmp.c
-+++ b/drivers/rtc/rtc-zynqmp.c
-@@ -57,6 +57,7 @@ struct xlnx_rtc_dev {
- 	int			alarm_irq;
- 	int			sec_irq;
- 	int			calibval;
-+	int			time_updated;
- };
- 
- static int xlnx_rtc_set_time(struct device *dev, struct rtc_time *tm)
-@@ -64,6 +65,12 @@ static int xlnx_rtc_set_time(struct device *dev, struct rtc_time *tm)
- 	struct xlnx_rtc_dev *xrtcdev = dev_get_drvdata(dev);
- 	unsigned long new_time;
- 
-+	/*
-+	 * The value written will be updated after 1 sec into the
-+	 * seconds read register, so we need to program time +1 sec
-+	 * to get the correct time on read.
-+	 */
-+	tm->tm_sec += 1;
- 	new_time = rtc_tm_to_time64(tm);
- 
- 	if (new_time > RTC_SEC_MAX_VAL)
-@@ -78,6 +85,17 @@ static int xlnx_rtc_set_time(struct device *dev, struct rtc_time *tm)
- 
- 	writel(new_time, xrtcdev->reg_base + RTC_SET_TM_WR);
- 
-+	/*
-+	 * Clear the rtc interrupt status register after setting the
-+	 * time. During a read_time function, the code should read the
-+	 * RTC_INT_STATUS register and if bit 0 is still 0, it means
-+	 * that one second has not elapsed yet since RTC was set and
-+	 * the current time should be read from SET_TIME_READ register;
-+	 * otherwise, CURRENT_TIME register is read to report the time
-+	 */
-+	writel(RTC_INT_SEC | RTC_INT_ALRM, xrtcdev->reg_base + RTC_INT_STS);
-+	xrtcdev->time_updated = 0;
+diff --git a/Documentation/devicetree/bindings/mfd/rk808.txt b/Documentation/devicetree/bindings/mfd/rk808.txt
+index 4ca6aab..9636ae8 100644
+--- a/Documentation/devicetree/bindings/mfd/rk808.txt
++++ b/Documentation/devicetree/bindings/mfd/rk808.txt
+@@ -1,7 +1,11 @@
+-RK808 Power Management Integrated Circuit
++RK8XX Power Management Integrated Circuit
 +
- 	return 0;
- }
++The rk8xx family current members:
++rk808
++rk818
  
-@@ -85,7 +103,17 @@ static int xlnx_rtc_read_time(struct device *dev, struct rtc_time *tm)
- {
- 	struct xlnx_rtc_dev *xrtcdev = dev_get_drvdata(dev);
- 
--	rtc_time64_to_tm(readl(xrtcdev->reg_base + RTC_CUR_TM), tm);
-+	if (xrtcdev->time_updated == 0) {
-+		/*
-+		 * Time written in SET_TIME_WRITE has not yet updated into
-+		 * the seconds read register, so read the time from the
-+		 * SET_TIME_WRITE instead of CURRENT_TIME register.
-+		 */
-+		rtc_time64_to_tm(readl(xrtcdev->reg_base + RTC_SET_TM_RD), tm);
-+		tm->tm_sec -= 1;
-+	} else {
-+		rtc_time64_to_tm(readl(xrtcdev->reg_base + RTC_CUR_TM), tm);
-+	}
- 
- 	return rtc_valid_tm(tm);
- }
-@@ -133,6 +161,9 @@ static void xlnx_init_rtc(struct xlnx_rtc_dev *xrtcdev)
- {
- 	u32 rtc_ctrl;
- 
-+	/* Enable RTC SEC interrupts */
-+	writel(RTC_INT_SEC, xrtcdev->reg_base + RTC_INT_EN);
+ Required properties:
+-- compatible: "rockchip,rk808"
++- compatible: "rockchip,rk808", "rockchip,rk818"
+ - reg: I2C slave address
+ - interrupt-parent: The parent interrupt controller.
+ - interrupts: the interrupt outputs of the controller.
+@@ -13,6 +17,8 @@ Optional properties:
+   default output clock name
+ - rockchip,system-power-controller: Telling whether or not this pmic is controlling
+   the system power.
 +
- 	/* Enable RTC switch to battery when VCC_PSAUX is not available */
- 	rtc_ctrl = readl(xrtcdev->reg_base + RTC_CTRL);
- 	rtc_ctrl |= RTC_BATT_EN;
-@@ -169,8 +200,13 @@ static irqreturn_t xlnx_rtc_interrupt(int irq, void *id)
- 	/* Clear interrupt */
- 	writel(status, xrtcdev->reg_base + RTC_INT_STS);
++Optional RK808 properties:
+ - vcc1-supply:  The input supply for DCDC_REG1
+ - vcc2-supply:  The input supply for DCDC_REG2
+ - vcc3-supply:  The input supply for DCDC_REG3
+@@ -29,7 +35,20 @@ Optional properties:
+   the gpio controller. If DVS GPIOs aren't present, voltage changes will happen
+   very quickly with no slow ramp time.
  
--	if (status & RTC_INT_SEC)
-+	if (status & RTC_INT_SEC) {
-+		if (xrtcdev->time_updated == 0) {
-+			/* RTC updated the seconds read register */
-+			xrtcdev->time_updated = 1;
-+		}
- 		rtc_update_irq(xrtcdev->rtc, 1, RTC_IRQF | RTC_UF);
-+	}
- 	if (status & RTC_INT_ALRM)
- 		rtc_update_irq(xrtcdev->rtc, 1, RTC_IRQF | RTC_AF);
+-Regulators: All the regulators of RK808 to be instantiated shall be
++Optional RK818 properties:
++- vcc1-supply:  The input supply for DCDC_REG1
++- vcc2-supply:  The input supply for DCDC_REG2
++- vcc3-supply:  The input supply for DCDC_REG3
++- vcc4-supply:  The input supply for DCDC_REG4
++- boost-supply: The input supply for DCDC_BOOST
++- vcc6-supply:  The input supply for LDO_REG1 and LDO_REG2
++- vcc7-supply:  The input supply for LDO_REG3, LDO_REG5 and LDO_REG7
++- vcc8-supply:  The input supply for LDO_REG4, LDO_REG6 and LDO_REG8
++- vcc9-supply:  The input supply for LDO_REG9 and SWITCH_REG
++- h_5v-supply:  The input supply for HDMI_SWITCH
++- usb-supply:   The input supply for OTG_SWITCH
++
++Regulators: All the regulators of RK8XX to be instantiated shall be
+ listed in a child node named 'regulators'. Each regulator is represented
+ by a child node of the 'regulators' node.
  
+@@ -48,6 +67,18 @@ number as described in RK808 datasheet.
+ 	- SWITCH_REGn
+ 		- valid values for n are 1 to 2
+ 
++Following regulators of the RK818 PMIC block are supported. Note that
++the 'n' in regulator name, as in DCDC_REGn or LDOn, represents the DCDC or LDO
++number as described in RK818 datasheet.
++
++	- DCDC_REGn
++		- valid values for n are 1 to 4.
++	- LDO_REGn
++		- valid values for n are 1 to 9.
++	- SWITCH_REG
++	- HDMI_SWITCH
++	- OTG_SWITCH
++
+ Standard regulator bindings are used inside regulator subnodes. Check
+   Documentation/devicetree/bindings/regulator/regulator.txt
+ for more details
 -- 
-2.1.2
+1.9.1
 
 -- 
 -- 
