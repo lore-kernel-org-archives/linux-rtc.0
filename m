@@ -1,25 +1,19 @@
-Return-Path: <rtc-linux+bncBCPM5SUWUYIRB2WUVG4AKGQECR4IKQI@googlegroups.com>
+Return-Path: <rtc-linux+bncBAABBZ5V7C4AKGQEA3M3BBA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 MIME-Version: 1.0
-Received: from mail-pf0-x241.google.com (mail-pf0-x241.google.com. [2607:f8b0:400e:c00::241])
-        by gmr-mx.google.com with ESMTPS id h69si1022020pfj.0.2016.04.10.07.59.53
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sun, 10 Apr 2016 07:59:53 -0700 (PDT)
-Received: by mail-pf0-x241.google.com with SMTP id r187so13165182pfr.2
-        for <rtc-linux@googlegroups.com>; Sun, 10 Apr 2016 07:59:53 -0700 (PDT)
-From: Akinobu Mita <akinobu.mita@gmail.com>
-To: rtc-linux@googlegroups.com,
-	devicetree@vger.kernel.org
-Cc: Akinobu Mita <akinobu.mita@gmail.com>,
-	Sergey Yanovich <ynvich@gmail.com>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Subject: [rtc-linux] [PATCH 4/4] rtc: ds1302: support control with using GPIO lines
-Date: Sun, 10 Apr 2016 23:59:26 +0900
-Message-Id: <1460300366-25248-5-git-send-email-akinobu.mita@gmail.com>
-In-Reply-To: <1460300366-25248-1-git-send-email-akinobu.mita@gmail.com>
-References: <1460300366-25248-1-git-send-email-akinobu.mita@gmail.com>
+Received: from root.phytec.de (mail.microcatalog.org.uk. [217.6.246.34])
+        by gmr-mx.google.com with ESMTP id c7si452510wmf.2.2016.04.25.06.25.58
+        for <rtc-linux@googlegroups.com>;
+        Mon, 25 Apr 2016 06:25:58 -0700 (PDT)
+From: Wadim Egorov <w.egorov@phytec.de>
+To: linux-kernel@vger.kernel.org, linux-clk@vger.kernel.org, rtc-linux@googlegroups.com, devicetree@vger.kernel.org, linux-rockchip@lists.infradead.org
+Cc: robh+dt@kernel.org, pawel.moll@arm.com, mark.rutland@arm.com, ijc+devicetree@hellion.org.uk, galak@codeaurora.org, mturquette@baylibre.com, sboyd@codeaurora.org, lee.jones@linaro.org, lgirdwood@gmail.com, broonie@kernel.org, a.zummo@towertech.it, alexandre.belloni@free-electrons.com, dianders@chromium.org, zyw@rock-chips.com
+Subject: [rtc-linux] [PATCH v3 1/8] drivers: mfd: rk808: rename rk808 struct
+ to rk8xx
+Date: Mon, 25 Apr 2016 15:20:41 +0200
+Message-Id: <1461590448-47685-2-git-send-email-w.egorov@phytec.de>
+In-Reply-To: <1461590448-47685-1-git-send-email-w.egorov@phytec.de>
+References: <1461590448-47685-1-git-send-email-w.egorov@phytec.de>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -30,454 +24,432 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-This adds support control with GPIO lines connected to the DS1302
-which can communicate with three wires.
+This patch renames the rk808 struct. So it is more clear that this
+struct can be shared between all RK8XX related PMIC drivers.
 
-Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
-Cc: Sergey Yanovich <ynvich@gmail.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>
-Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Signed-off-by: Wadim Egorov <w.egorov@phytec.de>
 ---
- .../devicetree/bindings/rtc/maxim-ds1302.txt       |  13 +
- drivers/rtc/Kconfig                                |  17 +-
- drivers/rtc/rtc-ds1302.c                           | 340 ++++++++++++++++++++-
- 3 files changed, 351 insertions(+), 19 deletions(-)
+ drivers/clk/clk-rk808.c             | 20 +++++++--------
+ drivers/mfd/rk808.c                 | 36 +++++++++++++-------------
+ drivers/regulator/rk808-regulator.c |  8 +++---
+ drivers/rtc/rtc-rk808.c             | 50 ++++++++++++++++++-------------------
+ include/linux/mfd/rk808.h           |  2 +-
+ 5 files changed, 58 insertions(+), 58 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/rtc/maxim-ds1302.txt b/Documentation/devicetree/bindings/rtc/maxim-ds1302.txt
-index ba470c5..d489753 100644
---- a/Documentation/devicetree/bindings/rtc/maxim-ds1302.txt
-+++ b/Documentation/devicetree/bindings/rtc/maxim-ds1302.txt
-@@ -27,6 +27,12 @@ Required SPI properties:
- - spi-cs-high: DS-1302 has active high chip select line. This is
-   required unless inverted in hardware.
+diff --git a/drivers/clk/clk-rk808.c b/drivers/clk/clk-rk808.c
+index 0fee2f4..6df2e72 100644
+--- a/drivers/clk/clk-rk808.c
++++ b/drivers/clk/clk-rk808.c
+@@ -25,7 +25,7 @@
+ #define RK808_NR_OUTPUT 2
  
-+Required properties when using GPIO lines:
-+
-+- gpio-ce: GPIO connected to CE pin
-+- gpio-io: GPIO connected to I/O pin
-+- gpio-reset: GPIO connected to SCLK pin
-+
- Example:
+ struct rk808_clkout {
+-	struct rk808 *rk808;
++	struct rk8xx *rk8xx;
+ 	struct clk_onecell_data clk_data;
+ 	struct clk_hw		clkout1_hw;
+ 	struct clk_hw		clkout2_hw;
+@@ -42,9 +42,9 @@ static int rk808_clkout2_enable(struct clk_hw *hw, bool enable)
+ 	struct rk808_clkout *rk808_clkout = container_of(hw,
+ 							 struct rk808_clkout,
+ 							 clkout2_hw);
+-	struct rk808 *rk808 = rk808_clkout->rk808;
++	struct rk8xx *rk8xx = rk808_clkout->rk8xx;
  
- spi@901c {
-@@ -44,3 +50,10 @@ spi@901c {
- 		spi-cs-high;
- 	};
- };
-+
-+	rtc: ds1302 {
-+		compatible = "maxim,ds1302";
-+		gpio-ce = <&gpio2 6 GPIO_ACTIVE_HIGH>;
-+		gpio-io = <&gpio2 7 GPIO_ACTIVE_HIGH>;
-+		gpio-sclk = <&gpio2 8 GPIO_ACTIVE_HIGH>;
-+	};
-diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
-index a86a562..734dc1b 100644
---- a/drivers/rtc/Kconfig
-+++ b/drivers/rtc/Kconfig
-@@ -636,15 +636,6 @@ config RTC_DRV_M41T94
- 	  This driver can also be built as a module. If so, the module
- 	  will be called rtc-m41t94.
- 
--config RTC_DRV_DS1302
--	tristate "Dallas/Maxim DS1302"
--	depends on SPI
--	help
--	  If you say yes here you get support for the Dallas DS1302 RTC chips.
--
--	  This driver can also be built as a module. If so, the module
--	  will be called rtc-ds1302.
--
- config RTC_DRV_DS1305
- 	tristate "Dallas/Maxim DS1305/DS1306"
- 	help
-@@ -1639,6 +1630,14 @@ config RTC_DRV_XGENE
- 	  This driver can also be built as a module, if so, the module
- 	  will be called "rtc-xgene".
- 
-+config RTC_DRV_DS1302
-+	tristate "Dallas/Maxim DS1302"
-+	help
-+	  If you say yes here you get support for the Dallas DS1302 RTC chips.
-+
-+	  This driver can also be built as a module. If so, the module
-+	  will be called rtc-ds1302.
-+
- comment "HID Sensor RTC drivers"
- 
- config RTC_DRV_HID_SENSOR_TIME
-diff --git a/drivers/rtc/rtc-ds1302.c b/drivers/rtc/rtc-ds1302.c
-index 1647848..778f39a 100644
---- a/drivers/rtc/rtc-ds1302.c
-+++ b/drivers/rtc/rtc-ds1302.c
-@@ -19,6 +19,10 @@
- #include <linux/of.h>
- #include <linux/rtc.h>
- #include <linux/spi/spi.h>
-+#include <linux/delay.h>
-+#include <linux/platform_device.h>
-+#include <linux/of_gpio.h>
-+#include <linux/gpio/consumer.h>
- 
- #define DRV_NAME	"rtc-ds1302"
- #define DRV_VERSION	"1.0.0"
-@@ -195,6 +199,16 @@ static int ds1302_probe(struct ds1302 *ds1302)
- 	return 0;
+-	return regmap_update_bits(rk808->regmap, RK808_CLK32OUT_REG,
++	return regmap_update_bits(rk8xx->regmap, RK808_CLK32OUT_REG,
+ 				  CLK32KOUT2_EN, enable ? CLK32KOUT2_EN : 0);
  }
  
-+#ifdef CONFIG_OF
-+static const struct of_device_id ds1302_dt_ids[] = {
-+	{ .compatible = "maxim,ds1302", },
-+	{ /* sentinel */ }
-+};
-+MODULE_DEVICE_TABLE(of, ds1302_dt_ids);
-+#endif
-+
-+#if IS_ENABLED(CONFIG_SPI_MASTER)
-+
- static int ds1302_spi_readbyte(struct ds1302 *ds1302, u8 addr)
+@@ -63,10 +63,10 @@ static int rk808_clkout2_is_prepared(struct clk_hw *hw)
+ 	struct rk808_clkout *rk808_clkout = container_of(hw,
+ 							 struct rk808_clkout,
+ 							 clkout2_hw);
+-	struct rk808 *rk808 = rk808_clkout->rk808;
++	struct rk8xx *rk8xx = rk808_clkout->rk8xx;
+ 	uint32_t val;
+ 
+-	int ret = regmap_read(rk808->regmap, RK808_CLK32OUT_REG, &val);
++	int ret = regmap_read(rk8xx->regmap, RK808_CLK32OUT_REG, &val);
+ 
+ 	if (ret < 0)
+ 		return ret;
+@@ -87,8 +87,8 @@ static const struct clk_ops rk808_clkout2_ops = {
+ 
+ static int rk808_clkout_probe(struct platform_device *pdev)
  {
- 	struct spi_device *spi = to_spi_device(ds1302->dev);
-@@ -285,21 +299,327 @@ static int ds1302_spi_probe(struct spi_device *spi)
- 	return ds1302_probe(ds1302);
+-	struct rk808 *rk808 = dev_get_drvdata(pdev->dev.parent);
+-	struct i2c_client *client = rk808->i2c;
++	struct rk8xx *rk8xx = dev_get_drvdata(pdev->dev.parent);
++	struct i2c_client *client = rk8xx->i2c;
+ 	struct device_node *node = client->dev.of_node;
+ 	struct clk_init_data init = {};
+ 	struct clk **clk_table;
+@@ -99,7 +99,7 @@ static int rk808_clkout_probe(struct platform_device *pdev)
+ 	if (!rk808_clkout)
+ 		return -ENOMEM;
+ 
+-	rk808_clkout->rk808 = rk808;
++	rk808_clkout->rk8xx = rk8xx;
+ 
+ 	clk_table = devm_kcalloc(&client->dev, RK808_NR_OUTPUT,
+ 				 sizeof(struct clk *), GFP_KERNEL);
+@@ -144,8 +144,8 @@ static int rk808_clkout_probe(struct platform_device *pdev)
+ 
+ static int rk808_clkout_remove(struct platform_device *pdev)
+ {
+-	struct rk808 *rk808 = dev_get_drvdata(pdev->dev.parent);
+-	struct i2c_client *client = rk808->i2c;
++	struct rk8xx *rk8xx = dev_get_drvdata(pdev->dev.parent);
++	struct i2c_client *client = rk8xx->i2c;
+ 	struct device_node *node = client->dev.of_node;
+ 
+ 	of_clk_del_provider(node);
+diff --git a/drivers/mfd/rk808.c b/drivers/mfd/rk808.c
+index 4b1e439..0386251 100644
+--- a/drivers/mfd/rk808.c
++++ b/drivers/mfd/rk808.c
+@@ -152,15 +152,15 @@ static struct i2c_client *rk808_i2c_client;
+ static void rk808_device_shutdown(void)
+ {
+ 	int ret;
+-	struct rk808 *rk808 = i2c_get_clientdata(rk808_i2c_client);
++	struct rk8xx *rk8xx = i2c_get_clientdata(rk808_i2c_client);
+ 
+-	if (!rk808) {
++	if (!rk8xx) {
+ 		dev_warn(&rk808_i2c_client->dev,
+ 			 "have no rk808, so do nothing here\n");
+ 		return;
+ 	}
+ 
+-	ret = regmap_update_bits(rk808->regmap,
++	ret = regmap_update_bits(rk8xx->regmap,
+ 				 RK808_DEVCTRL_REG,
+ 				 DEV_OFF_RST, DEV_OFF_RST);
+ 	if (ret)
+@@ -171,7 +171,7 @@ static int rk808_probe(struct i2c_client *client,
+ 		       const struct i2c_device_id *id)
+ {
+ 	struct device_node *np = client->dev.of_node;
+-	struct rk808 *rk808;
++	struct rk8xx *rk8xx;
+ 	int pm_off = 0;
+ 	int ret;
+ 	int i;
+@@ -181,18 +181,18 @@ static int rk808_probe(struct i2c_client *client,
+ 		return -EINVAL;
+ 	}
+ 
+-	rk808 = devm_kzalloc(&client->dev, sizeof(*rk808), GFP_KERNEL);
+-	if (!rk808)
++	rk8xx = devm_kzalloc(&client->dev, sizeof(*rk8xx), GFP_KERNEL);
++	if (!rk8xx)
+ 		return -ENOMEM;
+ 
+-	rk808->regmap = devm_regmap_init_i2c(client, &rk808_regmap_config);
+-	if (IS_ERR(rk808->regmap)) {
++	rk8xx->regmap = devm_regmap_init_i2c(client, &rk808_regmap_config);
++	if (IS_ERR(rk8xx->regmap)) {
+ 		dev_err(&client->dev, "regmap initialization failed\n");
+-		return PTR_ERR(rk808->regmap);
++		return PTR_ERR(rk8xx->regmap);
+ 	}
+ 
+ 	for (i = 0; i < ARRAY_SIZE(pre_init_reg); i++) {
+-		ret = regmap_update_bits(rk808->regmap, pre_init_reg[i].addr,
++		ret = regmap_update_bits(rk8xx->regmap, pre_init_reg[i].addr,
+ 					 pre_init_reg[i].mask,
+ 					 pre_init_reg[i].value);
+ 		if (ret) {
+@@ -202,20 +202,20 @@ static int rk808_probe(struct i2c_client *client,
+ 		}
+ 	}
+ 
+-	ret = regmap_add_irq_chip(rk808->regmap, client->irq,
++	ret = regmap_add_irq_chip(rk8xx->regmap, client->irq,
+ 				  IRQF_ONESHOT, -1,
+-				  &rk808_irq_chip, &rk808->irq_data);
++				  &rk808_irq_chip, &rk8xx->irq_data);
+ 	if (ret) {
+ 		dev_err(&client->dev, "Failed to add irq_chip %d\n", ret);
+ 		return ret;
+ 	}
+ 
+-	rk808->i2c = client;
+-	i2c_set_clientdata(client, rk808);
++	rk8xx->i2c = client;
++	i2c_set_clientdata(client, rk8xx);
+ 
+ 	ret = mfd_add_devices(&client->dev, -1,
+ 			      rk808s, ARRAY_SIZE(rk808s),
+-			      NULL, 0, regmap_irq_get_domain(rk808->irq_data));
++			      NULL, 0, regmap_irq_get_domain(rk8xx->irq_data));
+ 	if (ret) {
+ 		dev_err(&client->dev, "failed to add MFD devices %d\n", ret);
+ 		goto err_irq;
+@@ -231,15 +231,15 @@ static int rk808_probe(struct i2c_client *client,
+ 	return 0;
+ 
+ err_irq:
+-	regmap_del_irq_chip(client->irq, rk808->irq_data);
++	regmap_del_irq_chip(client->irq, rk8xx->irq_data);
+ 	return ret;
  }
  
--#ifdef CONFIG_OF
--static const struct of_device_id ds1302_dt_ids[] = {
--	{ .compatible = "maxim,ds1302", },
--	{ /* sentinel */ }
--};
--MODULE_DEVICE_TABLE(of, ds1302_dt_ids);
--#endif
--
--static struct spi_driver ds1302_driver = {
-+static struct spi_driver ds1302_spi_driver = {
- 	.driver.name	= "rtc-ds1302",
- 	.driver.of_match_table = of_match_ptr(ds1302_dt_ids),
- 	.probe		= ds1302_spi_probe,
+ static int rk808_remove(struct i2c_client *client)
+ {
+-	struct rk808 *rk808 = i2c_get_clientdata(client);
++	struct rk8xx *rk8xx = i2c_get_clientdata(client);
+ 
+-	regmap_del_irq_chip(client->irq, rk808->irq_data);
++	regmap_del_irq_chip(client->irq, rk8xx->irq_data);
+ 	mfd_remove_devices(&client->dev);
+ 	pm_power_off = NULL;
+ 
+diff --git a/drivers/regulator/rk808-regulator.c b/drivers/regulator/rk808-regulator.c
+index d86a3dc..37aaba9 100644
+--- a/drivers/regulator/rk808-regulator.c
++++ b/drivers/regulator/rk808-regulator.c
+@@ -568,8 +568,8 @@ dt_parse_end:
+ 
+ static int rk808_regulator_probe(struct platform_device *pdev)
+ {
+-	struct rk808 *rk808 = dev_get_drvdata(pdev->dev.parent);
+-	struct i2c_client *client = rk808->i2c;
++	struct rk8xx *rk8xx = dev_get_drvdata(pdev->dev.parent);
++	struct i2c_client *client = rk8xx->i2c;
+ 	struct regulator_config config = {};
+ 	struct regulator_dev *rk808_rdev;
+ 	struct rk808_regulator_data *pdata;
+@@ -580,7 +580,7 @@ static int rk808_regulator_probe(struct platform_device *pdev)
+ 		return -ENOMEM;
+ 
+ 	ret = rk808_regulator_dt_parse_pdata(&pdev->dev, &client->dev,
+-					     rk808->regmap, pdata);
++					     rk8xx->regmap, pdata);
+ 	if (ret < 0)
+ 		return ret;
+ 
+@@ -594,7 +594,7 @@ static int rk808_regulator_probe(struct platform_device *pdev)
+ 
+ 		config.dev = &client->dev;
+ 		config.driver_data = pdata;
+-		config.regmap = rk808->regmap;
++		config.regmap = rk8xx->regmap;
+ 		config.of_node = rk808_reg_matches[i].of_node;
+ 		config.init_data = rk808_reg_matches[i].init_data;
+ 
+diff --git a/drivers/rtc/rtc-rk808.c b/drivers/rtc/rtc-rk808.c
+index 35c9aad..b3fe5a8 100644
+--- a/drivers/rtc/rtc-rk808.c
++++ b/drivers/rtc/rtc-rk808.c
+@@ -51,7 +51,7 @@
+ #define NUM_ALARM_REGS	(RK808_ALARM_YEARS_REG - RK808_ALARM_SECONDS_REG + 1)
+ 
+ struct rk808_rtc {
+-	struct rk808 *rk808;
++	struct rk8xx *rk8xx;
+ 	struct rtc_device *rtc;
+ 	int irq;
+ };
+@@ -96,12 +96,12 @@ static void gregorian_to_rockchip(struct rtc_time *tm)
+ static int rk808_rtc_readtime(struct device *dev, struct rtc_time *tm)
+ {
+ 	struct rk808_rtc *rk808_rtc = dev_get_drvdata(dev);
+-	struct rk808 *rk808 = rk808_rtc->rk808;
++	struct rk8xx *rk8xx = rk808_rtc->rk8xx;
+ 	u8 rtc_data[NUM_TIME_REGS];
+ 	int ret;
+ 
+ 	/* Force an update of the shadowed registers right now */
+-	ret = regmap_update_bits(rk808->regmap, RK808_RTC_CTRL_REG,
++	ret = regmap_update_bits(rk8xx->regmap, RK808_RTC_CTRL_REG,
+ 				 BIT_RTC_CTRL_REG_RTC_GET_TIME,
+ 				 BIT_RTC_CTRL_REG_RTC_GET_TIME);
+ 	if (ret) {
+@@ -115,7 +115,7 @@ static int rk808_rtc_readtime(struct device *dev, struct rtc_time *tm)
+ 	 * 32khz. If we clear the GET_TIME bit here, the time of i2c transfer
+ 	 * certainly more than 31.25us: 16 * 2.5us at 400kHz bus frequency.
+ 	 */
+-	ret = regmap_update_bits(rk808->regmap, RK808_RTC_CTRL_REG,
++	ret = regmap_update_bits(rk8xx->regmap, RK808_RTC_CTRL_REG,
+ 				 BIT_RTC_CTRL_REG_RTC_GET_TIME,
+ 				 0);
+ 	if (ret) {
+@@ -123,7 +123,7 @@ static int rk808_rtc_readtime(struct device *dev, struct rtc_time *tm)
+ 		return ret;
+ 	}
+ 
+-	ret = regmap_bulk_read(rk808->regmap, RK808_SECONDS_REG,
++	ret = regmap_bulk_read(rk8xx->regmap, RK808_SECONDS_REG,
+ 			       rtc_data, NUM_TIME_REGS);
+ 	if (ret) {
+ 		dev_err(dev, "Failed to bulk read rtc_data: %d\n", ret);
+@@ -149,7 +149,7 @@ static int rk808_rtc_readtime(struct device *dev, struct rtc_time *tm)
+ static int rk808_rtc_set_time(struct device *dev, struct rtc_time *tm)
+ {
+ 	struct rk808_rtc *rk808_rtc = dev_get_drvdata(dev);
+-	struct rk808 *rk808 = rk808_rtc->rk808;
++	struct rk8xx *rk8xx = rk808_rtc->rk8xx;
+ 	u8 rtc_data[NUM_TIME_REGS];
+ 	int ret;
+ 
+@@ -166,7 +166,7 @@ static int rk808_rtc_set_time(struct device *dev, struct rtc_time *tm)
+ 	rtc_data[6] = bin2bcd(tm->tm_wday);
+ 
+ 	/* Stop RTC while updating the RTC registers */
+-	ret = regmap_update_bits(rk808->regmap, RK808_RTC_CTRL_REG,
++	ret = regmap_update_bits(rk8xx->regmap, RK808_RTC_CTRL_REG,
+ 				 BIT_RTC_CTRL_REG_STOP_RTC_M,
+ 				 BIT_RTC_CTRL_REG_STOP_RTC_M);
+ 	if (ret) {
+@@ -174,14 +174,14 @@ static int rk808_rtc_set_time(struct device *dev, struct rtc_time *tm)
+ 		return ret;
+ 	}
+ 
+-	ret = regmap_bulk_write(rk808->regmap, RK808_SECONDS_REG,
++	ret = regmap_bulk_write(rk8xx->regmap, RK808_SECONDS_REG,
+ 				rtc_data, NUM_TIME_REGS);
+ 	if (ret) {
+ 		dev_err(dev, "Failed to bull write rtc_data: %d\n", ret);
+ 		return ret;
+ 	}
+ 	/* Start RTC again */
+-	ret = regmap_update_bits(rk808->regmap, RK808_RTC_CTRL_REG,
++	ret = regmap_update_bits(rk8xx->regmap, RK808_RTC_CTRL_REG,
+ 				 BIT_RTC_CTRL_REG_STOP_RTC_M, 0);
+ 	if (ret) {
+ 		dev_err(dev, "Failed to update RTC control: %d\n", ret);
+@@ -194,12 +194,12 @@ static int rk808_rtc_set_time(struct device *dev, struct rtc_time *tm)
+ static int rk808_rtc_readalarm(struct device *dev, struct rtc_wkalrm *alrm)
+ {
+ 	struct rk808_rtc *rk808_rtc = dev_get_drvdata(dev);
+-	struct rk808 *rk808 = rk808_rtc->rk808;
++	struct rk8xx *rk8xx = rk808_rtc->rk8xx;
+ 	u8 alrm_data[NUM_ALARM_REGS];
+ 	uint32_t int_reg;
+ 	int ret;
+ 
+-	ret = regmap_bulk_read(rk808->regmap, RK808_ALARM_SECONDS_REG,
++	ret = regmap_bulk_read(rk8xx->regmap, RK808_ALARM_SECONDS_REG,
+ 			       alrm_data, NUM_ALARM_REGS);
+ 
+ 	alrm->time.tm_sec = bcd2bin(alrm_data[0] & SECONDS_REG_MSK);
+@@ -210,7 +210,7 @@ static int rk808_rtc_readalarm(struct device *dev, struct rtc_wkalrm *alrm)
+ 	alrm->time.tm_year = (bcd2bin(alrm_data[5] & YEARS_REG_MSK)) + 100;
+ 	rockchip_to_gregorian(&alrm->time);
+ 
+-	ret = regmap_read(rk808->regmap, RK808_RTC_INT_REG, &int_reg);
++	ret = regmap_read(rk8xx->regmap, RK808_RTC_INT_REG, &int_reg);
+ 	if (ret) {
+ 		dev_err(dev, "Failed to read RTC INT REG: %d\n", ret);
+ 		return ret;
+@@ -228,10 +228,10 @@ static int rk808_rtc_readalarm(struct device *dev, struct rtc_wkalrm *alrm)
+ 
+ static int rk808_rtc_stop_alarm(struct rk808_rtc *rk808_rtc)
+ {
+-	struct rk808 *rk808 = rk808_rtc->rk808;
++	struct rk8xx *rk8xx = rk808_rtc->rk8xx;
+ 	int ret;
+ 
+-	ret = regmap_update_bits(rk808->regmap, RK808_RTC_INT_REG,
++	ret = regmap_update_bits(rk8xx->regmap, RK808_RTC_INT_REG,
+ 				 BIT_RTC_INTERRUPTS_REG_IT_ALARM_M, 0);
+ 
+ 	return ret;
+@@ -239,10 +239,10 @@ static int rk808_rtc_stop_alarm(struct rk808_rtc *rk808_rtc)
+ 
+ static int rk808_rtc_start_alarm(struct rk808_rtc *rk808_rtc)
+ {
+-	struct rk808 *rk808 = rk808_rtc->rk808;
++	struct rk8xx *rk8xx = rk808_rtc->rk8xx;
+ 	int ret;
+ 
+-	ret = regmap_update_bits(rk808->regmap, RK808_RTC_INT_REG,
++	ret = regmap_update_bits(rk8xx->regmap, RK808_RTC_INT_REG,
+ 				 BIT_RTC_INTERRUPTS_REG_IT_ALARM_M,
+ 				 BIT_RTC_INTERRUPTS_REG_IT_ALARM_M);
+ 
+@@ -252,7 +252,7 @@ static int rk808_rtc_start_alarm(struct rk808_rtc *rk808_rtc)
+ static int rk808_rtc_setalarm(struct device *dev, struct rtc_wkalrm *alrm)
+ {
+ 	struct rk808_rtc *rk808_rtc = dev_get_drvdata(dev);
+-	struct rk808 *rk808 = rk808_rtc->rk808;
++	struct rk8xx *rk8xx = rk808_rtc->rk8xx;
+ 	u8 alrm_data[NUM_ALARM_REGS];
+ 	int ret;
+ 
+@@ -274,7 +274,7 @@ static int rk808_rtc_setalarm(struct device *dev, struct rtc_wkalrm *alrm)
+ 	alrm_data[4] = bin2bcd(alrm->time.tm_mon + 1);
+ 	alrm_data[5] = bin2bcd(alrm->time.tm_year - 100);
+ 
+-	ret = regmap_bulk_write(rk808->regmap, RK808_ALARM_SECONDS_REG,
++	ret = regmap_bulk_write(rk8xx->regmap, RK808_ALARM_SECONDS_REG,
+ 				alrm_data, NUM_ALARM_REGS);
+ 	if (ret) {
+ 		dev_err(dev, "Failed to bulk write: %d\n", ret);
+@@ -314,11 +314,11 @@ static int rk808_rtc_alarm_irq_enable(struct device *dev,
+ static irqreturn_t rk808_alarm_irq(int irq, void *data)
+ {
+ 	struct rk808_rtc *rk808_rtc = data;
+-	struct rk808 *rk808 = rk808_rtc->rk808;
+-	struct i2c_client *client = rk808->i2c;
++	struct rk8xx *rk8xx = rk808_rtc->rk8xx;
++	struct i2c_client *client = rk8xx->i2c;
+ 	int ret;
+ 
+-	ret = regmap_write(rk808->regmap, RK808_RTC_STATUS_REG,
++	ret = regmap_write(rk8xx->regmap, RK808_RTC_STATUS_REG,
+ 			   RTC_STATUS_MASK);
+ 	if (ret) {
+ 		dev_err(&client->dev,
+@@ -373,7 +373,7 @@ static SIMPLE_DEV_PM_OPS(rk808_rtc_pm_ops,
+ 
+ static int rk808_rtc_probe(struct platform_device *pdev)
+ {
+-	struct rk808 *rk808 = dev_get_drvdata(pdev->dev.parent);
++	struct rk8xx *rk8xx = dev_get_drvdata(pdev->dev.parent);
+ 	struct rk808_rtc *rk808_rtc;
+ 	struct rtc_time tm;
+ 	int ret;
+@@ -383,10 +383,10 @@ static int rk808_rtc_probe(struct platform_device *pdev)
+ 		return -ENOMEM;
+ 
+ 	platform_set_drvdata(pdev, rk808_rtc);
+-	rk808_rtc->rk808 = rk808;
++	rk808_rtc->rk8xx = rk8xx;
+ 
+ 	/* start rtc running by default, and use shadowed timer. */
+-	ret = regmap_update_bits(rk808->regmap, RK808_RTC_CTRL_REG,
++	ret = regmap_update_bits(rk8xx->regmap, RK808_RTC_CTRL_REG,
+ 				 BIT_RTC_CTRL_REG_STOP_RTC_M |
+ 				 BIT_RTC_CTRL_REG_RTC_READSEL_M,
+ 				 BIT_RTC_CTRL_REG_RTC_READSEL_M);
+@@ -396,7 +396,7 @@ static int rk808_rtc_probe(struct platform_device *pdev)
+ 		return ret;
+ 	}
+ 
+-	ret = regmap_write(rk808->regmap, RK808_RTC_STATUS_REG,
++	ret = regmap_write(rk8xx->regmap, RK808_RTC_STATUS_REG,
+ 			   RTC_STATUS_MASK);
+ 	if (ret) {
+ 		dev_err(&pdev->dev,
+diff --git a/include/linux/mfd/rk808.h b/include/linux/mfd/rk808.h
+index 441b6ee..117d79f 100644
+--- a/include/linux/mfd/rk808.h
++++ b/include/linux/mfd/rk808.h
+@@ -191,7 +191,7 @@ enum {
+ 	BOOST_ILMIN_250MA,
  };
  
--module_spi_driver(ds1302_driver);
-+static int ds1302_spi_register_driver(void)
-+{
-+	return spi_register_driver(&ds1302_spi_driver);
-+}
-+
-+static void ds1302_spi_unregister_driver(void)
-+{
-+	spi_unregister_driver(&ds1302_spi_driver);
-+}
-+
-+#else
-+
-+static int ds1302_spi_register_driver(void)
-+{
-+	return 0;
-+}
-+
-+static void ds1302_spi_unregister_driver(void)
-+{
-+}
-+
-+#endif
-+
-+/*
-+ * ds1302 driver using three GPIO lines
-+ *
-+ * The information to implement this is gleaned from
-+ * http://playground.arduino.cc/Main/DS1302
-+ */
-+struct ds1302_gpio {
-+	struct gpio_desc *gpiod_ce;
-+	struct gpio_desc *gpiod_io;
-+	struct gpio_desc *gpiod_sclk;
-+
-+	struct ds1302 ds1302;
-+};
-+
-+static struct ds1302_gpio *to_ds1302_gpio(struct ds1302 *ds1302)
-+{
-+	return container_of(ds1302, struct ds1302_gpio, ds1302);
-+}
-+
-+static int ds1302_gpio_reset(struct ds1302 *ds1302)
-+{
-+	struct ds1302_gpio *gpio = to_ds1302_gpio(ds1302);
-+	int ret;
-+
-+	ret = gpiod_direction_output(gpio->gpiod_ce, 0);
-+	if (ret)
-+		return ret;
-+
-+	ret = gpiod_direction_output(gpio->gpiod_io, 0);
-+	if (ret)
-+		return ret;
-+
-+	return gpiod_direction_output(gpio->gpiod_sclk, 0);
-+}
-+
-+static void ds1302_gpio_chip_enable(struct ds1302 *ds1302, int enable)
-+{
-+	struct ds1302_gpio *gpio = to_ds1302_gpio(ds1302);
-+
-+	gpiod_set_value(gpio->gpiod_ce, enable);
-+	if (enable) {
-+		/*
-+		 * tCC (CE to CLK Setup): 4us
-+		 */
-+		udelay(4);
-+	} else {
-+		/*
-+		 * tCWH (CE Inactive Time): 4us
-+		 */
-+		udelay(4);
-+	}
-+}
-+
-+static int ds1302_gpio_sendbits(struct ds1302 *ds1302, u8 val)
-+{
-+	struct ds1302_gpio *gpio = to_ds1302_gpio(ds1302);
-+	int i;
-+
-+	for (i = 0; i < 8; i++, val >>= 1) {
-+		gpiod_set_value(gpio->gpiod_sclk, 0);
-+		/* tCL (CLK Low Time): 1000ns */
-+		udelay(1);
-+
-+		gpiod_set_value(gpio->gpiod_io, val & 0x1);
-+		/* tDC (Data to CLK Setup): 200ns */
-+		udelay(1);
-+
-+		gpiod_set_value(gpio->gpiod_sclk, 1);
-+		/*
-+		 * tCH (CLK High Time): 1000ns
-+		 * tCDH (CLK to Data Hold): 800ns
-+		 */
-+		udelay(1);
-+	}
-+
-+	return 0;
-+}
-+
-+static unsigned int ds1302_gpio_recvbits(struct ds1302 *ds1302)
-+{
-+	unsigned int val;
-+	int i;
-+	struct ds1302_gpio *gpio = to_ds1302_gpio(ds1302);
-+
-+	for (i = 0, val = 0; i < 8; i++) {
-+		int bit;
-+
-+		gpiod_set_value(gpio->gpiod_sclk, 0);
-+		/*
-+		 * tCL (CLK Low Time): 1000ns
-+		 * tCDD (CLK to Data Delay): 800ns
-+		 */
-+		udelay(1);
-+
-+		bit = gpiod_get_value(gpio->gpiod_io);
-+		if (bit < 0)
-+			return bit;
-+		val |= bit << i;
-+
-+		gpiod_set_value(gpio->gpiod_sclk, 1);
-+		/* tCH (CLK High Time): 1000ns */
-+		udelay(1);
-+	}
-+
-+	return val;
-+}
-+
-+static int ds1302_gpio_readburst(struct ds1302 *ds1302, u8 addr, u8 *buf,
-+				 int size)
-+{
-+	int i;
-+	int ret;
-+	struct ds1302_gpio *gpio = to_ds1302_gpio(ds1302);
-+
-+	ret = ds1302_gpio_reset(ds1302);
-+	if (ret)
-+		return ret;
-+
-+	ds1302_gpio_chip_enable(ds1302, true);
-+
-+	ds1302_gpio_sendbits(ds1302, ((addr & 0x3f) << 1) | RTC_CMD_READ);
-+
-+	ret = gpiod_direction_input(gpio->gpiod_io);
-+	if (ret)
-+		return ret;
-+
-+	for (i = 0; i < size; i++) {
-+		ret = ds1302_gpio_recvbits(ds1302);
-+		if (ret < 0)
-+			break;
-+		 buf[i] = ret;
-+	}
-+
-+	ds1302_gpio_chip_enable(ds1302, false);
-+
-+	return ret < 0 ? ret : 0;
-+}
-+
-+static int ds1302_gpio_readbyte(struct ds1302 *ds1302, u8 addr)
-+{
-+	u8 val;
-+	int err;
-+
-+	err = ds1302_gpio_readburst(ds1302, addr, &val, 1);
-+	if (err)
-+		return err;
-+
-+	return val;
-+}
-+
-+static int ds1302_gpio_writeburst(struct ds1302 *ds1302, u8 addr, const u8 *buf,
-+				  int size)
-+{
-+	int err;
-+	int i;
-+
-+	err = ds1302_gpio_reset(ds1302);
-+	if (err)
-+		return err;
-+
-+	ds1302_gpio_chip_enable(ds1302, true);
-+
-+	ds1302_gpio_sendbits(ds1302, ((addr & 0x3f) << 1) | RTC_CMD_WRITE);
-+
-+	for (i = 0; i < size; i++) {
-+		err = ds1302_gpio_sendbits(ds1302, buf[i]);
-+		if (err)
-+			break;
-+	}
-+
-+	ds1302_gpio_chip_enable(ds1302, false);
-+
-+	return err;
-+}
-+
-+static int ds1302_gpio_writebyte(struct ds1302 *ds1302, u8 addr, u8 val)
-+{
-+	return ds1302_gpio_writeburst(ds1302, addr, &val, 1);
-+}
-+
-+static const struct ds1302_ops ds1302_gpio_ops = {
-+	.readbyte = ds1302_gpio_readbyte,
-+	.writebyte = ds1302_gpio_writebyte,
-+	.readburst = ds1302_gpio_readburst,
-+	.writeburst = ds1302_gpio_writeburst,
-+};
-+
-+static struct gpio_desc *ds1302_gpiod_request(struct device *dev,
-+						const char *name)
-+{
-+	int gpio;
-+	int ret;
-+
-+	if (!dev->of_node)
-+		return ERR_PTR(-ENODEV);
-+
-+	gpio = of_get_named_gpio(dev->of_node, name, 0);
-+	if (!gpio_is_valid(gpio))
-+		return ERR_PTR(gpio);
-+
-+	ret = devm_gpio_request_one(dev, gpio, 0, name);
-+	if (ret)
-+		return ERR_PTR(ret);
-+
-+	return gpio_to_desc(gpio);
-+}
-+
-+static struct ds1302 *ds1302_gpio_init(struct device *dev)
-+{
-+	struct ds1302_gpio *ds1302_gpio;
-+	struct gpio_desc *gpiod;
-+
-+	ds1302_gpio = devm_kzalloc(dev, sizeof(*ds1302_gpio), GFP_KERNEL);
-+	if (!ds1302_gpio)
-+		return ERR_PTR(-ENOMEM);
-+
-+	ds1302_gpio->ds1302.ops = &ds1302_gpio_ops;
-+	ds1302_gpio->ds1302.dev = dev;
-+
-+	gpiod = ds1302_gpiod_request(dev, "gpio-ce");
-+	if (IS_ERR(gpiod))
-+		return ERR_CAST(gpiod);
-+	ds1302_gpio->gpiod_ce = gpiod;
-+
-+	gpiod = ds1302_gpiod_request(dev, "gpio-io");
-+	if (IS_ERR(gpiod))
-+		return ERR_CAST(gpiod);
-+	ds1302_gpio->gpiod_io = gpiod;
-+
-+	gpiod = ds1302_gpiod_request(dev, "gpio-sclk");
-+	if (IS_ERR(gpiod))
-+		return ERR_CAST(gpiod);
-+	ds1302_gpio->gpiod_sclk = gpiod;
-+
-+	return &ds1302_gpio->ds1302;
-+}
-+
-+static int ds1302_gpio_probe(struct platform_device *pdev)
-+ {
-+	struct ds1302 *ds1302;
-+
-+	ds1302 = ds1302_gpio_init(&pdev->dev);
-+	if (IS_ERR(ds1302))
-+		return PTR_ERR(ds1302);;
-+
-+	return ds1302_probe(ds1302);
-+}
-+
-+static struct platform_driver ds1302_gpio_driver = {
-+	.probe = ds1302_gpio_probe,
-+	.driver		= {
-+		.name	= "rtc-ds1302",
-+		.of_match_table = of_match_ptr(ds1302_dt_ids),
-+	},
-+};
-+
-+static int ds1302_gpio_register_driver(void)
-+{
-+	return platform_driver_register(&ds1302_gpio_driver);
-+}
-+
-+static void ds1302_gpio_unregister_driver(void)
-+{
-+	return platform_driver_unregister(&ds1302_gpio_driver);
-+}
-+
-+static int __init ds1302_init(void)
-+{
-+	int ret;
-+
-+	ret = ds1302_spi_register_driver();
-+	if (ret) {
-+		pr_err("Failed to register ds1302 spi driver: %d\n", ret);
-+		return ret;
-+	}
-+
-+	ret = ds1302_gpio_register_driver();
-+        if (ret) {
-+		pr_err("Failed to register ds1302 gpio driver: %d\n", ret);
-+		ds1302_spi_unregister_driver();
-+	}
-+
-+	return ret;
-+}
-+module_init(ds1302_init)
-+
-+static void __exit ds1302_exit(void)
-+{
-+	ds1302_spi_unregister_driver();
-+	ds1302_gpio_unregister_driver();
-+}
-+module_exit(ds1302_exit)
- 
- MODULE_DESCRIPTION("Dallas DS1302 RTC driver");
- MODULE_VERSION(DRV_VERSION);
+-struct rk808 {
++struct rk8xx {
+ 	struct i2c_client *i2c;
+ 	struct regmap_irq_chip_data *irq_data;
+ 	struct regmap *regmap;
 -- 
-2.5.0
+1.9.1
 
 -- 
 -- 
