@@ -1,21 +1,18 @@
-Return-Path: <rtc-linux+bncBDEKVJM7XAHRBX6BQK4QKGQEWLZ4E5I@googlegroups.com>
+Return-Path: <rtc-linux+bncBAABBZ5V7C4AKGQEA3M3BBA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mout.kundenserver.de (mout.kundenserver.de. [217.72.192.75])
-        by gmr-mx.google.com with ESMTPS id k143si266295wmg.1.2016.04.27.04.22.07
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 27 Apr 2016 04:22:07 -0700 (PDT)
-From: Arnd Bergmann <arnd@arndb.de>
-To: Rolf Eike Beer <eike-kernel@sf-tec.de>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, tony.luck@intel.com, geert@linux-m68k.org, jejb@parisc-linux.org, deller@gmx.de, benh@kernel.crashing.org, mpe@ellerman.id.au, dalias@libc.org, dhowells@redhat.com, yasutake.koichi@jp.panasonic.com, rth@twiddle.net, ink@jurassic.park.msu.ru, linux-alpha@vger.kernel.org, x86@kernel.org, a.zummo@towertech.it, alexandre.belloni@free-electrons.com, linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-sh@vger.kernel.org, rtc-linux@googlegroups.com, linux-arch@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH 6/8] char/genrtc: parisc: use asm-generic/rtc.h
-Date: Wed, 27 Apr 2016 13:21:16 +0200
-Message-ID: <18012781.hPTzXnRcSP@wuerfel>
-In-Reply-To: <3034953.EvqV1iv2Ef@caliban.sf-tec.de>
-References: <1461707052-1337718-1-git-send-email-arnd@arndb.de> <1461707052-1337718-7-git-send-email-arnd@arndb.de> <3034953.EvqV1iv2Ef@caliban.sf-tec.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Received: from root.phytec.de (mail.microcatalog.org.uk. [217.6.246.34])
+        by gmr-mx.google.com with ESMTP id k143si603608wmg.1.2016.04.25.06.25.58
+        for <rtc-linux@googlegroups.com>;
+        Mon, 25 Apr 2016 06:25:58 -0700 (PDT)
+From: Wadim Egorov <w.egorov@phytec.de>
+To: linux-kernel@vger.kernel.org, linux-clk@vger.kernel.org, rtc-linux@googlegroups.com, devicetree@vger.kernel.org, linux-rockchip@lists.infradead.org
+Cc: robh+dt@kernel.org, pawel.moll@arm.com, mark.rutland@arm.com, ijc+devicetree@hellion.org.uk, galak@codeaurora.org, mturquette@baylibre.com, sboyd@codeaurora.org, lee.jones@linaro.org, lgirdwood@gmail.com, broonie@kernel.org, a.zummo@towertech.it, alexandre.belloni@free-electrons.com, dianders@chromium.org, zyw@rock-chips.com
+Subject: [rtc-linux] [PATCH v3 0/8] Add support for rk818
+Date: Mon, 25 Apr 2016 15:20:40 +0200
+Message-Id: <1461590448-47685-1-git-send-email-w.egorov@phytec.de>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -24,19 +21,38 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Wednesday 27 April 2016 00:07:47 Rolf Eike Beer wrote:
-> Arnd Bergmann wrote:
-> > The asm-generic/rtc.h header can now be included by
-> > architectures that provide their own set_rtc_time/get_rtc_time
-> > macros, letting us remove most of the common contents in
-> > the powerpc implementation.
-> 
-> parisc in this case.
-> 
+Changes since v2:
+- Split refactoring patch into 2 patches so this can be more easily reviewed
+- Added Acked-by from Mark Brown in patch 5
+- Added Acked-by from Rob Herring in patch 6
+- Added Acked-by from Stephen Boyd in patch 7
+- Added Acked-by from Alexandre Belloni in patch 8
 
-Fixed, thanks!
+Wadim Egorov (8):
+  drivers: mfd: rk808: rename rk808 struct to rk8xx
+  mfd: RK808: Add RK818 support
+  regulator: rk808: remove linear range definitions with a single range
+  regulator: rk808: Migrate to regulator core's simplified DT parsing
+    code
+  regulator: rk808: Add regulator driver for RK818
+  mfd: dt-bindings: Add RK818 device tree bindings document
+  clk: Kconfig: Name RK818 in Kconfig for COMMON_CLK_RK808
+  rtc: Kconfig: Name RK818 in Kconfig for RTC_DRV_RK808
 
-	Arnd
+ Documentation/devicetree/bindings/mfd/rk808.txt |  37 +-
+ drivers/clk/Kconfig                             |   4 +-
+ drivers/clk/clk-rk808.c                         |  20 +-
+ drivers/mfd/Kconfig                             |   4 +-
+ drivers/mfd/rk808.c                             | 253 +++++++++++---
+ drivers/regulator/Kconfig                       |   4 +-
+ drivers/regulator/rk808-regulator.c             | 427 +++++++++++++-----------
+ drivers/rtc/Kconfig                             |   4 +-
+ drivers/rtc/rtc-rk808.c                         |  50 +--
+ include/linux/mfd/rk808.h                       | 164 ++++++++-
+ 10 files changed, 675 insertions(+), 292 deletions(-)
+
+-- 
+1.9.1
 
 -- 
 -- 
