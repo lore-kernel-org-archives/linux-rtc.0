@@ -1,29 +1,21 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBJGK4O4AKGQE5S5CPYI@googlegroups.com>
+Return-Path: <rtc-linux+bncBAABBZ5V7C4AKGQEA3M3BBA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id d92si628260wma.2.2016.04.21.07.35.16
-        for <rtc-linux@googlegroups.com>;
-        Thu, 21 Apr 2016 07:35:16 -0700 (PDT)
-Date: Thu, 21 Apr 2016 16:35:06 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Wadim Egorov <w.egorov@phytec.de>
-Cc: linux-kernel@vger.kernel.org, linux-clk@vger.kernel.org,
-	rtc-linux@googlegroups.com, devicetree@vger.kernel.org,
-	linux-rockchip@lists.infradead.org, robh+dt@kernel.org,
-	pawel.moll@arm.com, mark.rutland@arm.com,
-	ijc+devicetree@hellion.org.uk, galak@codeaurora.org,
-	mturquette@baylibre.com, sboyd@codeaurora.org, lee.jones@linaro.org,
-	lgirdwood@gmail.com, broonie@kernel.org, a.zummo@towertech.it,
-	dianders@chromium.org, zyw@rock-chips.com
-Subject: [rtc-linux] Re: [PATCH v2 7/7] rtc: Kconfig: Name RK818 in Kconfig
- for RTC_DRV_RK808
-Message-ID: <20160421143506.GB29844@piout.net>
-References: <1461244361-45686-1-git-send-email-w.egorov@phytec.de>
- <1461244361-45686-8-git-send-email-w.egorov@phytec.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1461244361-45686-8-git-send-email-w.egorov@phytec.de>
+Received: from root.phytec.de (mail.microcatalog.org.uk. [217.6.246.34])
+        by gmr-mx.google.com with ESMTP id t18si448000wmt.0.2016.04.25.06.25.58
+        for <rtc-linux@googlegroups.com>;
+        Mon, 25 Apr 2016 06:25:58 -0700 (PDT)
+From: Wadim Egorov <w.egorov@phytec.de>
+To: linux-kernel@vger.kernel.org, linux-clk@vger.kernel.org, rtc-linux@googlegroups.com, devicetree@vger.kernel.org, linux-rockchip@lists.infradead.org
+Cc: robh+dt@kernel.org, pawel.moll@arm.com, mark.rutland@arm.com, ijc+devicetree@hellion.org.uk, galak@codeaurora.org, mturquette@baylibre.com, sboyd@codeaurora.org, lee.jones@linaro.org, lgirdwood@gmail.com, broonie@kernel.org, a.zummo@towertech.it, alexandre.belloni@free-electrons.com, dianders@chromium.org, zyw@rock-chips.com
+Subject: [rtc-linux] [PATCH v3 4/8] regulator: rk808: Migrate to regulator
+ core's simplified DT parsing code
+Date: Mon, 25 Apr 2016 15:20:44 +0200
+Message-Id: <1461590448-47685-5-git-send-email-w.egorov@phytec.de>
+In-Reply-To: <1461590448-47685-1-git-send-email-w.egorov@phytec.de>
+References: <1461590448-47685-1-git-send-email-w.egorov@phytec.de>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -32,44 +24,343 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 21/04/2016 at 15:12:41 +0200, Wadim Egorov wrote :
-> The RK808 and RK818 PMICs are using a similar register map.
-> We can reuse the rtc driver for the RK818 PMIC. So let's add
-> the RK818 in the Kconfig description.
-> 
-> Signed-off-by: Wadim Egorov <w.egorov@phytec.de>
-Acked-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+A common simplified DT parsing code for regulators was introduced in
+commit a0c7b164ad11 ("regulator: of: Provide simplified DT parsing
+method")
 
-> ---
->  drivers/rtc/Kconfig | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
-> index 3e84315..acc2651 100644
-> --- a/drivers/rtc/Kconfig
-> +++ b/drivers/rtc/Kconfig
-> @@ -324,11 +324,11 @@ config RTC_DRV_MAX77686
->  	  will be called rtc-max77686.
->  
->  config RTC_DRV_RK808
-> -	tristate "Rockchip RK808 RTC"
-> +	tristate "Rockchip RK808/RK818 RTC"
->  	depends on MFD_RK808
->  	help
->  	  If you say yes here you will get support for the
-> -	  RTC of RK808 PMIC.
-> +	  RTC of RK808 and RK818 PMIC.
->  
->  	  This driver can also be built as a module. If so, the module
->  	  will be called rk808-rtc.
-> -- 
-> 1.9.1
-> 
+While at it also added RK8XX_DESC and RK8XX_DESC_SWITCH macros for the
+regulator_desc struct initialization. This just makes the driver more compact.
 
+Signed-off-by: Wadim Egorov <w.egorov@phytec.de>
+---
+ drivers/regulator/rk808-regulator.c | 252 ++++++++++++------------------------
+ 1 file changed, 80 insertions(+), 172 deletions(-)
+
+diff --git a/drivers/regulator/rk808-regulator.c b/drivers/regulator/rk808-regulator.c
+index 32cf1b5..b30c906 100644
+--- a/drivers/regulator/rk808-regulator.c
++++ b/drivers/regulator/rk808-regulator.c
+@@ -55,6 +55,42 @@
+ /* max steps for increase voltage of Buck1/2, equal 100mv*/
+ #define MAX_STEPS_ONE_TIME 8
+ 
++#define RK8XX_DESC(_id, _match, _supply, _min, _max, _step, _vreg,	\
++	_vmask, _ereg, _emask, _etime)					\
++	[_id] = {							\
++		.name		= (_match),				\
++		.supply_name	= (_supply),				\
++		.of_match	= of_match_ptr(_match),			\
++		.regulators_node = of_match_ptr("regulators"),		\
++		.type		= REGULATOR_VOLTAGE,			\
++		.id		= (_id),				\
++		.n_voltages	= (((_max) - (_min)) / (_step) + 1),	\
++		.owner		= THIS_MODULE,				\
++		.min_uV		= (_min) * 1000,			\
++		.uV_step	= (_step) * 1000,			\
++		.vsel_reg	= (_vreg),				\
++		.vsel_mask	= (_vmask),				\
++		.enable_reg	= (_ereg),				\
++		.enable_mask	= (_emask),				\
++		.enable_time	= (_etime),				\
++		.ops		= &rk808_reg_ops,			\
++	}
++
++#define RK8XX_DESC_SWITCH(_id, _match, _supply, _ereg, _emask)		\
++	[_id] = {							\
++		.name		= (_match),				\
++		.supply_name	= (_supply),				\
++		.of_match	= of_match_ptr(_match),			\
++		.regulators_node = of_match_ptr("regulators"),		\
++		.type		= REGULATOR_VOLTAGE,			\
++		.id		= (_id),				\
++		.enable_reg	= (_ereg),				\
++		.enable_mask	= (_emask),				\
++		.owner		= THIS_MODULE,				\
++		.ops		= &rk808_switch_ops			\
++	}
++
++
+ struct rk808_regulator_data {
+ 	struct gpio_desc *dvs_gpio[2];
+ };
+@@ -328,6 +364,8 @@ static const struct regulator_desc rk808_reg[] = {
+ 	{
+ 		.name = "DCDC_REG1",
+ 		.supply_name = "vcc1",
++		.of_match = of_match_ptr("DCDC_REG1"),
++		.regulators_node = of_match_ptr("regulators"),
+ 		.id = RK808_ID_DCDC1,
+ 		.ops = &rk808_buck1_2_ops,
+ 		.type = REGULATOR_VOLTAGE,
+@@ -342,6 +380,8 @@ static const struct regulator_desc rk808_reg[] = {
+ 	}, {
+ 		.name = "DCDC_REG2",
+ 		.supply_name = "vcc2",
++		.of_match = of_match_ptr("DCDC_REG2"),
++		.regulators_node = of_match_ptr("regulators"),
+ 		.id = RK808_ID_DCDC2,
+ 		.ops = &rk808_buck1_2_ops,
+ 		.type = REGULATOR_VOLTAGE,
+@@ -356,6 +396,8 @@ static const struct regulator_desc rk808_reg[] = {
+ 	}, {
+ 		.name = "DCDC_REG3",
+ 		.supply_name = "vcc3",
++		.of_match = of_match_ptr("DCDC_REG3"),
++		.regulators_node = of_match_ptr("regulators"),
+ 		.id = RK808_ID_DCDC3,
+ 		.ops = &rk808_switch_ops,
+ 		.type = REGULATOR_VOLTAGE,
+@@ -363,55 +405,23 @@ static const struct regulator_desc rk808_reg[] = {
+ 		.enable_reg = RK808_DCDC_EN_REG,
+ 		.enable_mask = BIT(2),
+ 		.owner = THIS_MODULE,
+-	}, {
+-		.name = "DCDC_REG4",
+-		.supply_name = "vcc4",
+-		.id = RK808_ID_DCDC4,
+-		.ops = &rk808_reg_ops,
+-		.type = REGULATOR_VOLTAGE,
+-		.min_uV = 1800000,
+-		.uV_step = 100000,
+-		.n_voltages = 16,
+-		.vsel_reg = RK808_BUCK4_ON_VSEL_REG,
+-		.vsel_mask = RK808_BUCK4_VSEL_MASK,
+-		.enable_reg = RK808_DCDC_EN_REG,
+-		.enable_mask = BIT(3),
+-		.owner = THIS_MODULE,
+-	}, {
+-		.name = "LDO_REG1",
+-		.supply_name = "vcc6",
+-		.id = RK808_ID_LDO1,
+-		.ops = &rk808_reg_ops,
+-		.type = REGULATOR_VOLTAGE,
+-		.min_uV = 1800000,
+-		.uV_step = 100000,
+-		.n_voltages = 17,
+-		.vsel_reg = RK808_LDO1_ON_VSEL_REG,
+-		.vsel_mask = RK808_LDO_VSEL_MASK,
+-		.enable_reg = RK808_LDO_EN_REG,
+-		.enable_mask = BIT(0),
+-		.enable_time = 400,
+-		.owner = THIS_MODULE,
+-	}, {
+-		.name = "LDO_REG2",
+-		.supply_name = "vcc6",
+-		.id = RK808_ID_LDO2,
+-		.ops = &rk808_reg_ops,
+-		.type = REGULATOR_VOLTAGE,
+-		.min_uV = 1800000,
+-		.uV_step = 100000,
+-		.n_voltages = 17,
+-		.vsel_reg = RK808_LDO2_ON_VSEL_REG,
+-		.vsel_mask = RK808_LDO_VSEL_MASK,
+-		.enable_reg = RK808_LDO_EN_REG,
+-		.enable_mask = BIT(1),
+-		.enable_time = 400,
+-		.owner = THIS_MODULE,
+-	}, {
++	},
++	RK8XX_DESC(RK808_ID_DCDC4, "DCDC_REG4", "vcc4", 1800, 3300, 100,
++		RK808_BUCK4_ON_VSEL_REG, RK808_BUCK4_VSEL_MASK,
++		RK808_DCDC_EN_REG, BIT(3), 0),
++	RK8XX_DESC(RK808_ID_LDO1, "LDO_REG1", "vcc6", 1800, 3400, 100,
++		RK808_LDO1_ON_VSEL_REG, RK808_LDO_VSEL_MASK, RK808_LDO_EN_REG,
++		BIT(0), 400),
++	RK8XX_DESC(RK808_ID_LDO2, "LDO_REG2", "vcc6", 1800, 3400, 100,
++		RK808_LDO2_ON_VSEL_REG, RK808_LDO_VSEL_MASK, RK808_LDO_EN_REG,
++		BIT(1), 400),
++	{
+ 		.name = "LDO_REG3",
+ 		.supply_name = "vcc7",
++		.of_match = of_match_ptr("LDO_REG3"),
++		.regulators_node = of_match_ptr("regulators"),
+ 		.id = RK808_ID_LDO3,
+-		.ops = &rk808_reg_ops,
++		.ops = &rk808_reg_ops_ranges,
+ 		.type = REGULATOR_VOLTAGE,
+ 		.n_voltages = 16,
+ 		.linear_ranges = rk808_ldo3_voltage_ranges,
+@@ -422,117 +432,26 @@ static const struct regulator_desc rk808_reg[] = {
+ 		.enable_mask = BIT(2),
+ 		.enable_time = 400,
+ 		.owner = THIS_MODULE,
+-	}, {
+-		.name = "LDO_REG4",
+-		.supply_name = "vcc9",
+-		.id = RK808_ID_LDO4,
+-		.ops = &rk808_reg_ops,
+-		.type = REGULATOR_VOLTAGE,
+-		.min_uV = 1800000,
+-		.uV_step = 100000,
+-		.n_voltages = 17,
+-		.vsel_reg = RK808_LDO4_ON_VSEL_REG,
+-		.vsel_mask = RK808_LDO_VSEL_MASK,
+-		.enable_reg = RK808_LDO_EN_REG,
+-		.enable_mask = BIT(3),
+-		.enable_time = 400,
+-		.owner = THIS_MODULE,
+-	}, {
+-		.name = "LDO_REG5",
+-		.supply_name = "vcc9",
+-		.id = RK808_ID_LDO5,
+-		.ops = &rk808_reg_ops,
+-		.type = REGULATOR_VOLTAGE,
+-		.min_uV = 1800000,
+-		.uV_step = 100000,
+-		.n_voltages = 17,
+-		.vsel_reg = RK808_LDO5_ON_VSEL_REG,
+-		.vsel_mask = RK808_LDO_VSEL_MASK,
+-		.enable_reg = RK808_LDO_EN_REG,
+-		.enable_mask = BIT(4),
+-		.enable_time = 400,
+-		.owner = THIS_MODULE,
+-	}, {
+-		.name = "LDO_REG6",
+-		.supply_name = "vcc10",
+-		.id = RK808_ID_LDO6,
+-		.ops = &rk808_reg_ops,
+-		.type = REGULATOR_VOLTAGE,
+-		.min_uV = 800000,
+-		.uV_step = 100000,
+-		.n_voltages = 18,
+-		.vsel_reg = RK808_LDO6_ON_VSEL_REG,
+-		.vsel_mask = RK808_LDO_VSEL_MASK,
+-		.enable_reg = RK808_LDO_EN_REG,
+-		.enable_mask = BIT(5),
+-		.enable_time = 400,
+-		.owner = THIS_MODULE,
+-	}, {
+-		.name = "LDO_REG7",
+-		.supply_name = "vcc7",
+-		.id = RK808_ID_LDO7,
+-		.ops = &rk808_reg_ops,
+-		.type = REGULATOR_VOLTAGE,
+-		.min_uV = 800000,
+-		.uV_step = 100000,
+-		.n_voltages = 18,
+-		.vsel_reg = RK808_LDO7_ON_VSEL_REG,
+-		.vsel_mask = RK808_LDO_VSEL_MASK,
+-		.enable_reg = RK808_LDO_EN_REG,
+-		.enable_mask = BIT(6),
+-		.enable_time = 400,
+-		.owner = THIS_MODULE,
+-	}, {
+-		.name = "LDO_REG8",
+-		.supply_name = "vcc11",
+-		.id = RK808_ID_LDO8,
+-		.ops = &rk808_reg_ops,
+-		.type = REGULATOR_VOLTAGE,
+-		.min_uV = 1800000,
+-		.uV_step = 100000,
+-		.n_voltages = 17,
+-		.vsel_reg = RK808_LDO8_ON_VSEL_REG,
+-		.vsel_mask = RK808_LDO_VSEL_MASK,
+-		.enable_reg = RK808_LDO_EN_REG,
+-		.enable_mask = BIT(7),
+-		.enable_time = 400,
+-		.owner = THIS_MODULE,
+-	}, {
+-		.name = "SWITCH_REG1",
+-		.supply_name = "vcc8",
+-		.id = RK808_ID_SWITCH1,
+-		.ops = &rk808_switch_ops,
+-		.type = REGULATOR_VOLTAGE,
+-		.enable_reg = RK808_DCDC_EN_REG,
+-		.enable_mask = BIT(5),
+-		.owner = THIS_MODULE,
+-	}, {
+-		.name = "SWITCH_REG2",
+-		.supply_name = "vcc12",
+-		.id = RK808_ID_SWITCH2,
+-		.ops = &rk808_switch_ops,
+-		.type = REGULATOR_VOLTAGE,
+-		.enable_reg = RK808_DCDC_EN_REG,
+-		.enable_mask = BIT(6),
+-		.owner = THIS_MODULE,
+ 	},
+-};
+-
+-static struct of_regulator_match rk808_reg_matches[] = {
+-	[RK808_ID_DCDC1]	= { .name = "DCDC_REG1" },
+-	[RK808_ID_DCDC2]	= { .name = "DCDC_REG2" },
+-	[RK808_ID_DCDC3]	= { .name = "DCDC_REG3" },
+-	[RK808_ID_DCDC4]	= { .name = "DCDC_REG4" },
+-	[RK808_ID_LDO1]		= { .name = "LDO_REG1" },
+-	[RK808_ID_LDO2]		= { .name = "LDO_REG2" },
+-	[RK808_ID_LDO3]		= { .name = "LDO_REG3" },
+-	[RK808_ID_LDO4]		= { .name = "LDO_REG4" },
+-	[RK808_ID_LDO5]		= { .name = "LDO_REG5" },
+-	[RK808_ID_LDO6]		= { .name = "LDO_REG6" },
+-	[RK808_ID_LDO7]		= { .name = "LDO_REG7" },
+-	[RK808_ID_LDO8]		= { .name = "LDO_REG8" },
+-	[RK808_ID_SWITCH1]	= { .name = "SWITCH_REG1" },
+-	[RK808_ID_SWITCH2]	= { .name = "SWITCH_REG2" },
++	RK8XX_DESC(RK808_ID_LDO4, "LDO_REG4", "vcc9", 1800, 3400, 100,
++		RK808_LDO4_ON_VSEL_REG, RK808_LDO_VSEL_MASK, RK808_LDO_EN_REG,
++		BIT(3), 400),
++	RK8XX_DESC(RK808_ID_LDO5, "LDO_REG5", "vcc9", 1800, 3400, 100,
++		RK808_LDO5_ON_VSEL_REG, RK808_LDO_VSEL_MASK, RK808_LDO_EN_REG,
++		BIT(4), 400),
++	RK8XX_DESC(RK808_ID_LDO6, "LDO_REG6", "vcc10", 800, 2500, 100,
++		RK808_LDO6_ON_VSEL_REG, RK808_LDO_VSEL_MASK, RK808_LDO_EN_REG,
++		BIT(5), 400),
++	RK8XX_DESC(RK808_ID_LDO7, "LDO_REG7", "vcc7", 800, 2500, 100,
++		RK808_LDO7_ON_VSEL_REG, RK808_LDO_VSEL_MASK, RK808_LDO_EN_REG,
++		BIT(6), 400),
++	RK8XX_DESC(RK808_ID_LDO8, "LDO_REG8", "vcc11", 1800, 3400, 100,
++		RK808_LDO8_ON_VSEL_REG, RK808_LDO_VSEL_MASK, RK808_LDO_EN_REG,
++		BIT(7), 400),
++	RK8XX_DESC_SWITCH(RK808_ID_SWITCH1, "SWITCH_REG1", "vcc8",
++		RK808_DCDC_EN_REG, BIT(5)),
++	RK8XX_DESC_SWITCH(RK808_ID_SWITCH2, "SWITCH_REG2", "vcc12",
++		RK808_DCDC_EN_REG, BIT(6)),
+ };
+ 
+ static int rk808_regulator_dt_parse_pdata(struct device *dev,
+@@ -541,17 +460,12 @@ static int rk808_regulator_dt_parse_pdata(struct device *dev,
+ 				   struct rk808_regulator_data *pdata)
+ {
+ 	struct device_node *np;
+-	int tmp, ret, i;
++	int tmp, ret = 0, i;
+ 
+ 	np = of_get_child_by_name(client_dev->of_node, "regulators");
+ 	if (!np)
+ 		return -ENXIO;
+ 
+-	ret = of_regulator_match(dev, np, rk808_reg_matches,
+-				 RK808_NUM_REGULATORS);
+-	if (ret < 0)
+-		goto dt_parse_end;
+-
+ 	for (i = 0; i < ARRAY_SIZE(pdata->dvs_gpio); i++) {
+ 		pdata->dvs_gpio[i] =
+ 			devm_gpiod_get_index_optional(client_dev, "dvs", i,
+@@ -598,18 +512,12 @@ static int rk808_regulator_probe(struct platform_device *pdev)
+ 
+ 	platform_set_drvdata(pdev, pdata);
+ 
++	config.dev = &client->dev;
++	config.driver_data = pdata;
++	config.regmap = rk8xx->regmap;
++
+ 	/* Instantiate the regulators */
+ 	for (i = 0; i < RK808_NUM_REGULATORS; i++) {
+-		if (!rk808_reg_matches[i].init_data ||
+-		    !rk808_reg_matches[i].of_node)
+-			continue;
+-
+-		config.dev = &client->dev;
+-		config.driver_data = pdata;
+-		config.regmap = rk8xx->regmap;
+-		config.of_node = rk808_reg_matches[i].of_node;
+-		config.init_data = rk808_reg_matches[i].init_data;
+-
+ 		rk808_rdev = devm_regulator_register(&pdev->dev,
+ 						     &rk808_reg[i], &config);
+ 		if (IS_ERR(rk808_rdev)) {
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+1.9.1
 
 -- 
 -- 
