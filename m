@@ -1,32 +1,20 @@
-Return-Path: <rtc-linux+bncBDQ2L75W5QGBBJHT4O4AKGQEQT2P5QA@googlegroups.com>
+Return-Path: <rtc-linux+bncBAABBZ5V7C4AKGQEA3M3BBA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mezzanine.sirena.org.uk (mezzanine.sirena.org.uk. [2400:8900::f03c:91ff:fedb:4f4])
-        by gmr-mx.google.com with ESMTPS id d22si231124pfd.0.2016.04.21.09.02.42
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=AES128-SHA bits=128/128);
-        Thu, 21 Apr 2016 09:02:43 -0700 (PDT)
-Date: Thu, 21 Apr 2016 17:02:32 +0100
-From: Mark Brown <broonie@kernel.org>
-To: Wadim Egorov <w.egorov@phytec.de>
-Cc: linux-kernel@vger.kernel.org, linux-clk@vger.kernel.org,
-	rtc-linux@googlegroups.com, devicetree@vger.kernel.org,
-	linux-rockchip@lists.infradead.org, robh+dt@kernel.org,
-	pawel.moll@arm.com, mark.rutland@arm.com,
-	ijc+devicetree@hellion.org.uk, galak@codeaurora.org,
-	mturquette@baylibre.com, sboyd@codeaurora.org, lee.jones@linaro.org,
-	lgirdwood@gmail.com, a.zummo@towertech.it,
-	alexandre.belloni@free-electrons.com, dianders@chromium.org,
-	zyw@rock-chips.com
-Message-ID: <20160421160232.GU3217@sirena.org.uk>
-References: <1461244361-45686-1-git-send-email-w.egorov@phytec.de>
- <1461244361-45686-5-git-send-email-w.egorov@phytec.de>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="fkX35UkdEibezs2J"
-In-Reply-To: <1461244361-45686-5-git-send-email-w.egorov@phytec.de>
-Subject: [rtc-linux] Re: [PATCH v2 4/7] regulator: rk808: Add regulator driver
- for RK818
+Received: from root.phytec.de (mail.microcatalog.org.uk. [217.6.246.34])
+        by gmr-mx.google.com with ESMTP id u137si377733wmd.1.2016.04.25.06.25.59
+        for <rtc-linux@googlegroups.com>;
+        Mon, 25 Apr 2016 06:25:59 -0700 (PDT)
+From: Wadim Egorov <w.egorov@phytec.de>
+To: linux-kernel@vger.kernel.org, linux-clk@vger.kernel.org, rtc-linux@googlegroups.com, devicetree@vger.kernel.org, linux-rockchip@lists.infradead.org
+Cc: robh+dt@kernel.org, pawel.moll@arm.com, mark.rutland@arm.com, ijc+devicetree@hellion.org.uk, galak@codeaurora.org, mturquette@baylibre.com, sboyd@codeaurora.org, lee.jones@linaro.org, lgirdwood@gmail.com, broonie@kernel.org, a.zummo@towertech.it, alexandre.belloni@free-electrons.com, dianders@chromium.org, zyw@rock-chips.com
+Subject: [rtc-linux] [PATCH v3 8/8] rtc: Kconfig: Name RK818 in Kconfig for RTC_DRV_RK808
+Date: Mon, 25 Apr 2016 15:20:48 +0200
+Message-Id: <1461590448-47685-9-git-send-email-w.egorov@phytec.de>
+In-Reply-To: <1461590448-47685-1-git-send-email-w.egorov@phytec.de>
+References: <1461590448-47685-1-git-send-email-w.egorov@phytec.de>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -35,16 +23,39 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
---fkX35UkdEibezs2J
-Content-Type: text/plain; charset=UTF-8
-Content-Disposition: inline
+The RK808 and RK818 PMICs are using a similar register map.
+We can reuse the rtc driver for the RK818 PMIC. So let's add
+the RK818 in the Kconfig description.
 
-On Thu, Apr 21, 2016 at 03:12:38PM +0200, Wadim Egorov wrote:
-> Add support for the rk818 regulator. The regulator module consists
-> of 4 DCDCs, 9 LDOs, 1 switch and 1 BOOST converter which is used to
-> power OTG and HDMI5V.
+Signed-off-by: Wadim Egorov <w.egorov@phytec.de>
+Acked-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+---
+Changes since v2:
+- Added Acked-by
+---
+ drivers/rtc/Kconfig | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-Acked-by: Mark Brown <broonie@kernel.org>
+diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
+index 3e84315..acc2651 100644
+--- a/drivers/rtc/Kconfig
++++ b/drivers/rtc/Kconfig
+@@ -324,11 +324,11 @@ config RTC_DRV_MAX77686
+ 	  will be called rtc-max77686.
+ 
+ config RTC_DRV_RK808
+-	tristate "Rockchip RK808 RTC"
++	tristate "Rockchip RK808/RK818 RTC"
+ 	depends on MFD_RK808
+ 	help
+ 	  If you say yes here you will get support for the
+-	  RTC of RK808 PMIC.
++	  RTC of RK808 and RK818 PMIC.
+ 
+ 	  This driver can also be built as a module. If so, the module
+ 	  will be called rk808-rtc.
+-- 
+1.9.1
 
 -- 
 -- 
@@ -56,20 +67,3 @@ before submitting a driver.
 You received this message because you are subscribed to the Google Groups "rtc-linux" group.
 To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
-
---fkX35UkdEibezs2J
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
-
-iQEcBAEBCAAGBQJXGPmXAAoJECTWi3JdVIfQ3w0H/A+ZTcyGxM8WpZfJGaJkczkE
-5tO4SaQOojezvfRrd9Y5q8PRYljPpjMTCzqoxD94FC2pplzKBVqsLWeaPeUNqr/K
-37FeCFl/8u2RjmkjD/Xav51ML44K1CzvYCndZJE3JfzmPhJy0mt6LO1imPKkhsf5
-nVIErqORwxkzYF/baLLlI8Rmiqk4BWMgsyMuL1l0xIvNb8yLfKo9olDQGI3PsU0s
-i7iXSiNgSbXTQ+BbCpADzT0i+VzCdpy5ELzgpejtQE5A2reUksuIprr8gsTuLiGS
-axev5G24loRMkgdVb36SAfn2ndDQ+gFMJjiw7oxkcBMmFwaDro3ju80fJznJzNY=
-=nc2X
------END PGP SIGNATURE-----
-
---fkX35UkdEibezs2J--
