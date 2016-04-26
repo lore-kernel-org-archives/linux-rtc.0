@@ -1,25 +1,18 @@
-Return-Path: <rtc-linux+bncBCPM5SUWUYIRBAVK3C4AKGQE4D6EZNY@googlegroups.com>
+Return-Path: <rtc-linux+bncBAABBQUE724AKGQENEK7PMI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail-vk0-x244.google.com (mail-vk0-x244.google.com. [2607:f8b0:400c:c05::244])
-        by gmr-mx.google.com with ESMTPS id m62si984355vkg.3.2016.04.19.04.22.42
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 19 Apr 2016 04:22:42 -0700 (PDT)
-Received: by mail-vk0-x244.google.com with SMTP id x190so1751769vka.3
-        for <rtc-linux@googlegroups.com>; Tue, 19 Apr 2016 04:22:42 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <1461039983-32434-1-git-send-email-Qianyu.Gong@nxp.com>
-References: <1461039983-32434-1-git-send-email-Qianyu.Gong@nxp.com>
-Date: Tue, 19 Apr 2016 20:22:41 +0900
-Message-ID: <CAC5umygybxXtdG6bbc6WOVJznoJNTi6ShJT7Lh1R=HA0eA-19g@mail.gmail.com>
-Subject: [rtc-linux] Re: [PATCH] rtc: ds3232: fix call trace when
- rtc->ops_lock is used as NULL
-From: Akinobu Mita <akinobu.mita@gmail.com>
-To: Gong Qianyu <Qianyu.Gong@nxp.com>
-Cc: rtc-linux@googlegroups.com,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>, Mingkai Hu <mingkai.hu@nxp.com>
-Content-Type: text/plain; charset=UTF-8
+Received: from root.phytec.de (mail.phycore.de. [217.6.246.34])
+        by gmr-mx.google.com with ESMTP id c7si76579wmf.2.2016.04.26.07.59.13
+        for <rtc-linux@googlegroups.com>;
+        Tue, 26 Apr 2016 07:59:13 -0700 (PDT)
+From: Wadim Egorov <w.egorov@phytec.de>
+To: linux-kernel@vger.kernel.org, linux-clk@vger.kernel.org, rtc-linux@googlegroups.com, devicetree@vger.kernel.org, linux-rockchip@lists.infradead.org, lee.jones@linaro.org
+Cc: robh+dt@kernel.org, pawel.moll@arm.com, mark.rutland@arm.com, ijc+devicetree@hellion.org.uk, galak@codeaurora.org, mturquette@baylibre.com, sboyd@codeaurora.org, lgirdwood@gmail.com, broonie@kernel.org, a.zummo@towertech.it, alexandre.belloni@free-electrons.com, dianders@chromium.org, zyw@rock-chips.com
+Subject: [rtc-linux] [PATCH v4 0/7] Add support for rk818
+Date: Tue, 26 Apr 2016 16:54:03 +0200
+Message-Id: <1461682450-22173-1-git-send-email-w.egorov@phytec.de>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -28,45 +21,42 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Hi Gong,
+Hello,
 
-2016-04-19 13:26 GMT+09:00 Gong Qianyu <Qianyu.Gong@nxp.com>:
-> Move devm_rtc_device_register() just before registering irq handler
-> to initialize rtc->ops_lock earlier.
+I dropped the patch which renamed the rk808 struct.
 
-It is better to explain why you need this change in the commit log.
-You already described it in your first report:
-> The problem is that rtc->ops_lock would be accessed in ds3232_irq()
-> without being initialized as rtc_device_register() is called too late.
+The regulator patches are based on top of
+commit 4a5ed8c1adc3 ("regulator: rk808: remove unused rk808_reg_ops_ranges")
 
-> Signed-off-by: Gong Qianyu <Qianyu.Gong@nxp.com>
-> ---
->  drivers/rtc/rtc-ds3232.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
->
-> diff --git a/drivers/rtc/rtc-ds3232.c b/drivers/rtc/rtc-ds3232.c
-> index 7edc889..9d44b2f 100644
-> --- a/drivers/rtc/rtc-ds3232.c
-> +++ b/drivers/rtc/rtc-ds3232.c
-> @@ -369,6 +369,8 @@ static int ds3232_probe(struct device *dev, struct regmap *regmap, int irq,
->         if (ret)
->                 return ret;
->
-> +       ds3232->rtc = devm_rtc_device_register(dev, name, &ds3232_rtc_ops,
-> +                                               THIS_MODULE);
->         if (ds3232->irq > 0) {
->                 ret = devm_request_threaded_irq(dev, ds3232->irq, NULL,
->                                                 ds3232_irq,
-> @@ -380,8 +382,6 @@ static int ds3232_probe(struct device *dev, struct regmap *regmap, int irq,
->                 } else
->                         device_init_wakeup(dev, 1);
->         }
-> -       ds3232->rtc = devm_rtc_device_register(dev, name, &ds3232_rtc_ops,
-> -                                               THIS_MODULE);
->
->         return PTR_ERR_OR_ZERO(ds3232->rtc);
+Changes since v3:
+- dropped rename patch
+- rebased patch 4: renamed rk8xx struct back to rk808
+- File comment description shows now RK808/RK818
+- Module descriptions show now RK808/RK818
 
-This error check for devm_rtc_device_register() needs to be moved together.
+
+Wadim Egorov (7):
+  regulator: rk808: Add rk808_reg_ops_ranges for LDO3
+  regulator: rk808: Migrate to regulator core's simplified DT parsing
+    code
+  mfd: RK808: Add RK818 support
+  regulator: rk808: Add regulator driver for RK818
+  mfd: dt-bindings: Add RK818 device tree bindings document
+  clk: Kconfig: Name RK818 in Kconfig for COMMON_CLK_RK808
+  rtc: Kconfig: Name RK818 in Kconfig for RTC_DRV_RK808
+
+ Documentation/devicetree/bindings/mfd/rk808.txt |  37 ++-
+ drivers/clk/Kconfig                             |   4 +-
+ drivers/mfd/Kconfig                             |   4 +-
+ drivers/mfd/rk808.c                             | 229 +++++++++++---
+ drivers/regulator/Kconfig                       |   4 +-
+ drivers/regulator/rk808-regulator.c             | 393 ++++++++++++++----------
+ drivers/rtc/Kconfig                             |   4 +-
+ include/linux/mfd/rk808.h                       | 162 +++++++++-
+ 8 files changed, 618 insertions(+), 219 deletions(-)
+
+-- 
+1.9.1
 
 -- 
 -- 
