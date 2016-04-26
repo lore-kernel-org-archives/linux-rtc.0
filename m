@@ -1,20 +1,28 @@
-Return-Path: <rtc-linux+bncBDEKVJM7XAHRB7NUQ64QKGQEZQH5Y5I@googlegroups.com>
+Return-Path: <rtc-linux+bncBD7N3SEV2QCRBK5W7S4AKGQER2OFAOA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mout.kundenserver.de (mout.kundenserver.de. [217.72.192.75])
-        by gmr-mx.google.com with ESMTPS id k143si539936wmg.1.2016.04.28.02.40.13
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 28 Apr 2016 02:40:13 -0700 (PDT)
-From: Arnd Bergmann <arnd@arndb.de>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>, Helge Deller <deller@gmx.de>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Michael Ellerman <mpe@ellerman.id.au>, Rich Felker <dalias@libc.org>, David Howells <dhowells@redhat.com>, alpha <linux-alpha@vger.kernel.org>, Alessandro Zummo <a.zummo@towertech.it>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Parisc List <linux-parisc@vger.kernel.org>, "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>, Linux-sh list <linux-sh@vger.kernel.org>, linux-m68k <linux-m68k@lists.linux-m68k.org>, RTCLINUX <rtc-linux@googlegroups.com>, Linux-Arch <linux-arch@vger.kernel.org>
-Subject: [rtc-linux] Re: [PATCH v3 13/16] char/genrtc: remove powerpc support
-Date: Thu, 28 Apr 2016 11:39:56 +0200
-Message-ID: <2182936.7ADRRgWoa5@wuerfel>
-In-Reply-To: <CAMuHMdUhydMDeQ=ciVFgjBcjnCD_q2qU0F0gUP28U9=EcH2ZRQ@mail.gmail.com>
-References: <1461796470-1291527-1-git-send-email-arnd@arndb.de> <1461796470-1291527-14-git-send-email-arnd@arndb.de> <CAMuHMdUhydMDeQ=ciVFgjBcjnCD_q2qU0F0gUP28U9=EcH2ZRQ@mail.gmail.com>
+Received: from vk1046.megiteam.com.pl (2780.rev.megiteam.pl. [91.227.39.128])
+        by gmr-mx.google.com with ESMTP id c69si108719wme.2.2016.04.26.00.39.22
+        for <rtc-linux@googlegroups.com>;
+        Tue, 26 Apr 2016 00:39:22 -0700 (PDT)
+Subject: [rtc-linux] Re: [PATCH] rtc: omap: Support ext_wakeup configuration
+To: Grygorii Strashko <grygorii.strashko@ti.com>,
+ Tony Lindgren <tony@atomide.com>
+References: <1459785403-1725-1-git-send-email-m.niestroj@grinn-global.com>
+ <20160404224046.GA17042@atomide.com> <57078A89.3080809@ti.com>
+ <20160408151408.GS16484@atomide.com> <5707E764.7050204@ti.com>
+ <570D2F79.9040202@grinn-global.com> <57111AF4.6070505@ti.com>
+Cc: rtc-linux@googlegroups.com, devicetree@vger.kernel.org,
+ Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>,
+ Alessandro Zummo <a.zummo@towertech.it>,
+ Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+ Keerthy <j-keerthy@ti.com>, linux-omap@vger.kernel.org,
+ Dave Gerlach <d-gerlach@ti.com>, "Menon, Nishanth" <nm@ti.com>
+From: Marcin Niestroj <m.niestroj@grinn-global.com>
+Message-ID: <fe6ab23a-5f0d-a317-14d9-f538c3ad4052@grinn-global.com>
+Date: Tue, 26 Apr 2016 09:39:20 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <57111AF4.6070505@ti.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -24,31 +32,280 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Thursday 28 April 2016 09:25:25 Geert Uytterhoeven wrote:
-> On Thu, Apr 28, 2016 at 12:34 AM, Arnd Bergmann <arnd@arndb.de> wrote:
-> > --- a/arch/powerpc/platforms/Kconfig
-> > +++ b/arch/powerpc/platforms/Kconfig
-> > @@ -321,6 +321,17 @@ config OF_RTC
-> >           Uses information from the OF or flattened device tree to instantiate
-> >           platform devices for direct mapped RTC chips like the DS1742 or DS1743.
-> >
-> > +config GEN_RTC
-> > +       bool "Use the platform RTC operations from user space"
-> > +       select RTC_CLASS
-> > +       select RTC_DRV_GENERIC
-> > +       help
-> > +         This option provides backwards compatibility with the old gen_rtc.ko
-> > +         module that was traditionally used for old PowerPC machines.
-> > +         Platforms should migrate to enabling the RTC_DRV_GENERIC by hand
-> > +         replacing changing their get_rtc_time/set_rtc_time callbacks with
-> 
-> Drop "changing".
-> 
-> 
+Hi,
 
-done, thanks!
+On 15.04.2016 18:46, Grygorii Strashko wrote:
+> On 04/12/2016 08:25 PM, Marcin Niestroj wrote:
+>> Hi,
+>>
+>> On 08.04.2016 19:16, Grygorii Strashko wrote:
+>>> On 04/08/2016 06:14 PM, Tony Lindgren wrote:
+>>>> * Grygorii Strashko <grygorii.strashko@ti.com> [160408 03:41]:
+>>>>> Hi Tony,
+>>>>>
+>>>>> On 04/05/2016 01:40 AM, Tony Lindgren wrote:
+>>>>>> Hi,
+>>>>>>
+>>>>>> * Marcin Niestroj <m.niestroj@grinn-global.com> [160404 08:57]:
+>>>>>>> Support configuration of ext_wakeup sources. This patch makes it
+>>>>>>> possible to enable ext_wakeup and set it's polarity, depending on
+>>>>>>> board
+>>>>>>> configuration. AM335x's dedicated PMIC (tps65217) uses ext_wakeup to
+>>>>>>> notify about power-button presses. Handling power-button presses
+>>>>>>> enables
+>>>>>>> to recover from RTC-only power states correctly.
+>>>>>>
+>>>>>> I suggest you just set this pin up as a minimal gpiochip. That way
+>>>>>> we can use the standard binding :) And if we get lucky, this pin can
+>>>>>> also trigger during runtime.
+>>>>>>
+>>>>>
+>>>>> Following my comments on v2 of this patch I propose to rollback to
+>>>>> this version of the patch.
+>>>>>
+>>>>> It seems doesn't fit in gpiochip, it's more likely irqchip, but since
+>>>>> rtc can't generate IRQ there are nor reasons for these genetic
+>>>>> experiments and RTC's specific bindings looks more suitable, at
+>>>>> least for me.
+>>>>
+>>>> Hmm well gpiochips typically are irqchip too. IMO the generic binding
+>>>> here sounds like "gpio-wakeup" as it's an input with polarity and with
+>>>> an optional interrupt.
+>>>>
+>>>> Plain irqchip would work too in this case if there are no other GPIO
+>>>> specific features. Some other RTCs may have more GPIO like features.
+>>>>
+>>>> In any case, setting the ext_wakeup up as an irqchip means that the
+>>>> RTC controller can be used as a dedicated wakeirq with Linux :)
+>>>
+>>> It can't :( It can't generate IRQ when state of ext_wakeup line has
+>>> been changed.
+>>>
+>>>>
+>>>> Are you guys sure there's no wake pin events during runtime? AFAIK
+>>>> the RTCs just typically produce an interrupt when programmed to
+>>>> do so, they don't know the state of the SoC.
+>>>>
+>>>
+>>> I do not think that It can be fit in gpiochip or irqchip -
+>>> in my opinion right way is to proceed with bindings proposed by
+>>> Marcin in this patch v1.
+>>>
+>>> But, probably, it could fit in pinctrl:
+>>> - this is pin's configuration
+>>> - this is one-time configuration
+>>> - or - configuration which can be applied before suspend
+>>>    and resorted after suspend.
+>>>
+>>> if you still wanna try some generic framework.
+>>>
+>>
+>> pinctrl bindings looks ok for our use case (enable/disable input,
+>> configure debounce), except I don't see any way to pass polarity
+>> (active low/high) to the driver.
+>>
+>
+> Below code is just a POC that pinctrl can be used here.
+> It does one time configuration at boot, but more sates can be added
+> - sleep, poweroff:
+>
+> diff --git a/arch/arm/boot/dts/dra7.dtsi b/arch/arm/boot/dts/dra7.dtsi
+> index 13ac882..9580c82 100644
+> --- a/arch/arm/boot/dts/dra7.dtsi
+> +++ b/arch/arm/boot/dts/dra7.dtsi
+> @@ -1248,11 +1248,40 @@
+>
+>                 rtc: rtc@48838000 {
+>                         compatible = "ti,am3352-rtc";
+> -                       reg = <0x48838000 0x100>;
+> +                       reg = <0x48838000 0x98>;
+>                         interrupts = <GIC_SPI 217 IRQ_TYPE_LEVEL_HIGH>,
+>                                      <GIC_SPI 217 IRQ_TYPE_LEVEL_HIGH>;
+>                         ti,hwmods = "rtcss";
+>                         clocks = <&sys_32k_ck>;
+> +                       #address-cells = <1>;
+> +                       #size-cells = <1>;
+> +                       ranges;
+> +
+> +                       rtc_pmx: pinmux@48838098 {
+> +                               compatible = "pinctrl-single";
+> +                               reg = <0x48838098 0x8>;
+> +                               #address-cells = <1>;
+> +                               #size-cells = <0>;
+> +                               pinctrl-single,register-width = <32>;
+> +                               pinctrl-single,function-mask = <0x007fffff>;
+> +
+> +                               pinctrl-names = "default"/*, "sleep"*/;
+> +                               pinctrl-0 = <&rtc_default>;
+> +/*                             pinctrl-1 = <&rtc_sleep>;*/
+> +
+> +                               rtc_default: rtc_default {
+> +                                       pinctrl-single,pins = <
+> +                                               0x0 0x000B0111
+> +                                               0x4 0x00000004
+> +                                       >;
+> +                               };
+> +/*                             rtc_sleep: rtc_sleep {
+> +                                       pinctrl-single,pins = <
+> +                                               0x0 0x00000000
+> +                                               0x4 0x00000000
+> +                                       >;
+> +                               };*/
+> +                       };
+>                 };
+>
+>                 /* OCP2SCP1 */
+> diff --git a/drivers/rtc/rtc-omap.c b/drivers/rtc/rtc-omap.c
+> index ec2e9c5..28c67a4 100644
+> --- a/drivers/rtc/rtc-omap.c
+> +++ b/drivers/rtc/rtc-omap.c
+> @@ -428,8 +428,10 @@ static void omap_rtc_power_off(void)
+>
+>         rtc->type->unlock(rtc);
+>         /* enable pmic_power_en control */
+> +/*
+>         val = rtc_readl(rtc, OMAP_RTC_PMIC_REG);
+>         rtc_writel(rtc, OMAP_RTC_PMIC_REG, val | OMAP_RTC_PMIC_POWER_EN_EN);
+> +*/
+>
+>         /* set alarm two seconds from now */
+>         omap_rtc_read_time_raw(rtc, &tm);
+> @@ -650,6 +652,8 @@ static int omap_rtc_probe(struct platform_device *pdev)
+>                           reg | OMAP_RTC_OSC_SEL_32KCLK_SRC);
+>         }
+>
+> +       of_platform_populate(pdev->dev.of_node, NULL, NULL, &pdev->dev);
+> +
+>         rtc->type->lock(rtc);
+>
+>         device_init_wakeup(&pdev->dev, true);
+>
+>
 
-	Arnd
+I made few changes to the POC you provided.
+
+In below code we check reg resource size in order to know if we
+should update RTC_PMIC or it is pinctrl responsibility. It's a little
+hack, but we make sure, that every device with not modified device-tree
+will work as previously. If we want to add support for ext_wakeup, we
+just change reg resouce size in device-tree in order to not overlap
+requested memory regions in rtc-omap and pinctrl.
+
+I used am335x-chilisom instead of dra7 and updated
+pinctrl-single,funcion-mask so the EXT_WAKEUP_STATUS is always cleared
+after boot.
+
+So the question now is: is this acceptable? Do we want to continue with
+this approach?
+
+diff --git a/arch/arm/boot/dts/am335x-chilisom.dtsi 
+b/arch/arm/boot/dts/am335x-chilisom.dtsi
+index bc0880d..525ed4f 100644
+--- a/arch/arm/boot/dts/am335x-chilisom.dtsi
++++ b/arch/arm/boot/dts/am335x-chilisom.dtsi
+@@ -124,6 +124,31 @@
+
+  &rtc {
+         system-power-controller;
++
++       reg = <0x44e3e000 0x98>;
++       #address-cells = <1>;
++       #size-cells = <1>; 
+
++       ranges; 
+
++ 
+
++       rtc_pinmux: pinmux@0x44e3e098 { 
+
++               compatible = "pinctrl-single"; 
+
++               reg = <0x44e3e098 0x8>; 
+
++               #address-cells = <1>; 
+
++               #size-cells = <1>; 
+
++ 
+
++               pinctrl-single,register-width = <32>; 
+
++               pinctrl-single,function-mask = <0x10fff>; 
+
++ 
+
++               pinctrl-names = "default"; 
+
++               pinctrl-0 = <&rtc_pins_default>; 
+
++ 
+
++               rtc_pins_default: rtc_pins_default { 
+
++                       pinctrl-single,pins = < 
+
++                               0x0 0x00010011 
+
++                               0x4 0x00000000 
+
++                       >; 
+
++               }; 
+
++       }; 
+
+  }; 
+
+ 
+
+  /* NAND Flash */
+diff --git a/drivers/rtc/rtc-omap.c b/drivers/rtc/rtc-omap.c
+index ec2e9c5..db2512c 100644
+--- a/drivers/rtc/rtc-omap.c
++++ b/drivers/rtc/rtc-omap.c
+@@ -134,6 +134,7 @@ struct omap_rtc_device_type {
+  struct omap_rtc {
+         struct rtc_device *rtc;
+         void __iomem *base;
++       resource_size_t res_size;
+         struct clk *clk;
+         int irq_alarm;
+         int irq_timer;
+@@ -428,8 +429,11 @@ static void omap_rtc_power_off(void)
+
+         rtc->type->unlock(rtc);
+         /* enable pmic_power_en control */
+-       val = rtc_readl(rtc, OMAP_RTC_PMIC_REG);
+-       rtc_writel(rtc, OMAP_RTC_PMIC_REG, val | OMAP_RTC_PMIC_POWER_EN_EN);
++       if (rtc->res_size > OMAP_RTC_PMIC_REG) {
++               val = rtc_readl(rtc, OMAP_RTC_PMIC_REG);
++               rtc_writel(rtc, OMAP_RTC_PMIC_REG,
++                       val | OMAP_RTC_PMIC_POWER_EN_EN);
++       }
+
+         /* set alarm two seconds from now */
+         omap_rtc_read_time_raw(rtc, &tm);
+@@ -567,6 +571,7 @@ static int omap_rtc_probe(struct platform_device *pdev)
+                 clk_prepare_enable(rtc->clk);
+
+         res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
++       rtc->res_size = resource_size(res);
+         rtc->base = devm_ioremap_resource(&pdev->dev, res);
+         if (IS_ERR(rtc->base))
+                 return PTR_ERR(rtc->base);
+@@ -681,6 +686,9 @@ static int omap_rtc_probe(struct platform_device *pdev)
+                 }
+         }
+
++       /* handle pinmux nodes which configure ext_wakeup inputs */
++       of_platform_populate(pdev->dev.of_node, NULL, NULL, &pdev->dev);
++
+         return 0;
+
+  err:
+
+-- 
+Marcin Niestroj
 
 -- 
 -- 
