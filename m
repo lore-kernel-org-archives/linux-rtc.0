@@ -1,23 +1,31 @@
-Return-Path: <rtc-linux+bncBAABBYES324AKGQEVOINIQI@googlegroups.com>
+Return-Path: <rtc-linux+bncBDQ2L75W5QGBBJEO7W4AKGQE5F4EZDQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from NAM02-SN1-obe.outbound.protection.outlook.com (mail-sn1nam02on0065.outbound.protection.outlook.com. [104.47.36.65])
-        by gmr-mx.google.com with ESMTPS id d22si4305748pfd.0.2016.04.20.06.51.27
+Received: from mezzanine.sirena.org.uk (mezzanine.sirena.org.uk. [2400:8900::f03c:91ff:fedb:4f4])
+        by gmr-mx.google.com with ESMTPS id vo1si682179pab.2.2016.04.26.03.46.59
         for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
-        Wed, 20 Apr 2016 06:51:27 -0700 (PDT)
-From: Anurag Kumar Vulisha <anurag.kumar.vulisha@xilinx.com>
-To: Alessandro Zummo <a.zummo@towertech.it>, Alexandre Belloni
-	<alexandre.belloni@free-electrons.com>, <soren.brinkmann@xilinx.com>
-CC: Michal Simek <michal.simek@xilinx.com>, <rtc-linux@googlegroups.com>,
-	<linux-arm-kernel@lists.infradead.org>, <linux-kernel@vger.kernel.org>,
-	Punnaiah Choudary Kalluri <punnaia@xilinx.com>, Anirudha Sarangi
-	<anirudh@xilinx.com>, Srikanth Vemula <svemula@xilinx.com>, Srinivas Goud
-	<sgoud@xilinx.com>, Anurag Kumar Vulisha <anuragku@xilinx.com>
-Subject: [rtc-linux] [PATCH V2] rtc: zynqmp: Update seconds time programming logic
-Date: Wed, 20 Apr 2016 19:21:19 +0530
-Message-ID: <1461160279-40600-1-git-send-email-anuragku@xilinx.com>
+        (version=TLS1_2 cipher=AES128-SHA bits=128/128);
+        Tue, 26 Apr 2016 03:46:59 -0700 (PDT)
+Date: Tue, 26 Apr 2016 11:46:45 +0100
+From: Mark Brown <broonie@kernel.org>
+To: Wadim Egorov <w.egorov@phytec.de>
+Cc: linux-kernel@vger.kernel.org, linux-clk@vger.kernel.org,
+	rtc-linux@googlegroups.com, devicetree@vger.kernel.org,
+	linux-rockchip@lists.infradead.org, robh+dt@kernel.org,
+	pawel.moll@arm.com, mark.rutland@arm.com,
+	ijc+devicetree@hellion.org.uk, galak@codeaurora.org,
+	mturquette@baylibre.com, sboyd@codeaurora.org, lee.jones@linaro.org,
+	lgirdwood@gmail.com, a.zummo@towertech.it,
+	alexandre.belloni@free-electrons.com, dianders@chromium.org,
+	zyw@rock-chips.com
+Message-ID: <20160426104645.GU3217@sirena.org.uk>
+References: <1461590448-47685-1-git-send-email-w.egorov@phytec.de>
+ <1461590448-47685-4-git-send-email-w.egorov@phytec.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="UDCjyp4MAF5V3Huu"
+In-Reply-To: <1461590448-47685-4-git-send-email-w.egorov@phytec.de>
+Subject: [rtc-linux] Re: [PATCH v3 3/8] regulator: rk808: remove linear range
+ definitions with a single range
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -27,110 +35,45 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-We programe RTC time using SET_TIME_WRITE register and read the RTC
-current time using CURRENT_TIME register. When we set the time by
-writing into SET_TIME_WRITE Register and immediately try to read the
-rtc time from CURRENT_TIME register, the previous old value is
-returned instead of the new loaded time. This is because RTC takes
-nearly 1 sec to update the  new loaded value into the CURRENT_TIME
-register. This behaviour is expected in our RTC IP.
+--UDCjyp4MAF5V3Huu
+Content-Type: text/plain; charset=UTF-8
+Content-Disposition: inline
 
-This patch updates the driver to read the current time from SET_TIME_WRITE
-register instead of CURRENT_TIME when rtc time is requested within an 1sec
-period after setting the RTC time. Doing so will ensure the correct time
-is given to the user.
+On Mon, Apr 25, 2016 at 03:20:43PM +0200, Wadim Egorov wrote:
+> The driver was using only linear ranges. Now we remove linear range
+> definitions with a single range. So we have to add an ops struct for
+> ranges and adjust all other ops functions accordingly.
 
-Since there is an delay of 1sec in updating the CURRENT_TIME we are loading
-set time +1sec while programming the SET_TIME_WRITE register, doing this
-will give correct time without any delay when read from CURRENT_TIME.
+This and some other cleanups are now available as a signed tag from my
+repository:
 
-This patch updates the above said.
+The following changes since commit f55532a0c0b8bb6148f4e07853b876ef73bc69ca:
 
-Signed-off-by: Anurag Kumar Vulisha <anuragku@xilinx.com>
----
- Changes in v2:
-    1. Updated the Time programming logic as suggested by Alexandre Belloni
-    2. Changed the commit message
----
- drivers/rtc/rtc-zynqmp.c | 41 ++++++++++++++++++++++++++++++++++++-----
- 1 file changed, 36 insertions(+), 5 deletions(-)
+  Linux 4.6-rc1 (2016-03-26 16:03:24 -0700)
 
-diff --git a/drivers/rtc/rtc-zynqmp.c b/drivers/rtc/rtc-zynqmp.c
-index f87f971..ba4203a 100644
---- a/drivers/rtc/rtc-zynqmp.c
-+++ b/drivers/rtc/rtc-zynqmp.c
-@@ -64,6 +64,12 @@ static int xlnx_rtc_set_time(struct device *dev, struct rtc_time *tm)
- 	struct xlnx_rtc_dev *xrtcdev = dev_get_drvdata(dev);
- 	unsigned long new_time;
- 
-+	/*
-+	 * The value written will be updated after 1 sec into the
-+	 * seconds read register, so we need to program time +1 sec
-+	 * to get the correct time on read.
-+	 */
-+	tm->tm_sec += 1;
- 	new_time = rtc_tm_to_time64(tm);
- 
- 	if (new_time > RTC_SEC_MAX_VAL)
-@@ -78,14 +84,41 @@ static int xlnx_rtc_set_time(struct device *dev, struct rtc_time *tm)
- 
- 	writel(new_time, xrtcdev->reg_base + RTC_SET_TM_WR);
- 
-+	/*
-+	 * Clear the rtc interrupt status register after setting the
-+	 * time. During a read_time function, the code should read the
-+	 * RTC_INT_STATUS register and if bit 0 is still 0, it means
-+	 * that one second has not elapsed yet since RTC was set and
-+	 * the current time should be read from SET_TIME_READ register;
-+	 * otherwise, CURRENT_TIME register is read to report the time
-+	 */
-+	writel(RTC_INT_SEC, xrtcdev->reg_base + RTC_INT_STS);
-+
- 	return 0;
- }
- 
- static int xlnx_rtc_read_time(struct device *dev, struct rtc_time *tm)
- {
-+	int status;
- 	struct xlnx_rtc_dev *xrtcdev = dev_get_drvdata(dev);
- 
--	rtc_time64_to_tm(readl(xrtcdev->reg_base + RTC_CUR_TM), tm);
-+	status = readl(xrtcdev->reg_base + RTC_INT_STS);
-+
-+	if (status & RTC_INT_SEC) {
-+		/*
-+		 * RTC has updated the CURRENT_TIME with the time written into
-+		 * SET_TIME_WRITE register.
-+		 */
-+		rtc_time64_to_tm(readl(xrtcdev->reg_base + RTC_CUR_TM), tm);
-+	} else {
-+		/*
-+		 * Time written in SET_TIME_WRITE has not yet updated into
-+		 * the seconds read register, so read the time from the
-+		 * SET_TIME_WRITE instead of CURRENT_TIME register.
-+		 */
-+		rtc_time64_to_tm(readl(xrtcdev->reg_base + RTC_SET_TM_RD), tm);
-+		tm->tm_sec -= 1;
-+	}
- 
- 	return rtc_valid_tm(tm);
- }
-@@ -166,11 +199,9 @@ static irqreturn_t xlnx_rtc_interrupt(int irq, void *id)
- 	if (!(status & (RTC_INT_SEC | RTC_INT_ALRM)))
- 		return IRQ_NONE;
- 
--	/* Clear interrupt */
--	writel(status, xrtcdev->reg_base + RTC_INT_STS);
-+	/* Clear RTC_INT_ALRM interrupt only */
-+	writel(RTC_INT_ALRM, xrtcdev->reg_base + RTC_INT_STS);
- 
--	if (status & RTC_INT_SEC)
--		rtc_update_irq(xrtcdev->rtc, 1, RTC_IRQF | RTC_UF);
- 	if (status & RTC_INT_ALRM)
- 		rtc_update_irq(xrtcdev->rtc, 1, RTC_IRQF | RTC_AF);
- 
--- 
-2.1.2
+are available in the git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/broonie/regulator.git tags/regulator-rk808-cleanups
+
+for you to fetch changes up to 4a5ed8c1adc39f86a2887183c71b007bc962fdce:
+
+  regulator: rk808: remove unused rk808_reg_ops_ranges (2016-04-26 11:11:29 +0100)
+
+----------------------------------------------------------------
+regulator: rk808: Some cleanups for the rk808 driver
+
+These are tagged to facilitate the addition of support for the rk818
+which may end up overlapping with some of these cleanups.
+
+----------------------------------------------------------------
+Arnd Bergmann (1):
+      regulator: rk808: remove unused rk808_reg_ops_ranges
+
+Wadim Egorov (1):
+      regulator: rk808: remove linear range definitions with a single range
+
+ drivers/regulator/rk808-regulator.c | 66 ++++++++++++++-----------------------
+ 1 file changed, 25 insertions(+), 41 deletions(-)
 
 -- 
 -- 
@@ -142,3 +85,20 @@ before submitting a driver.
 You received this message because you are subscribed to the Google Groups "rtc-linux" group.
 To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
+
+--UDCjyp4MAF5V3Huu
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQEcBAEBCAAGBQJXH0cUAAoJECTWi3JdVIfQ6aoH/AmnClPzC9wF7fbnXCseYz8O
+87ecgxRazLhU3fasgfIH8m6+Gj2P7Go+UgHWq9f3ewfdpdU1bFbmGVcCp5hhYscq
+N2X+QdPdcP8FlkqxXzsJP3RI8dCUXofhnVkfX6c5VpjvtT1eUXRyFlNM3fvH3Jpz
+c6mzb41jxOehCGNvnlYwKiYL/ADwa54y0XF8aLbSHjm2OKiA3TbcS0sAjsVAE529
+Eu3jxf9IoxEfVpd7nR5VjSUxjRKZtr8Q9/E8LMdnK9sFiDsWZ97LmaBdyP7II5Eq
+N7W5PmrxqnPo5Y4WBh6zMCvNWm92Wx/D1fkZrN+qQKLqA+ETkpsSIQ6tx0Yik2Q=
+=l/MP
+-----END PGP SIGNATURE-----
+
+--UDCjyp4MAF5V3Huu--
