@@ -1,28 +1,43 @@
-Return-Path: <rtc-linux+bncBCQPVKWLVAIRBR4VT64AKGQE373JRIA@googlegroups.com>
+Return-Path: <rtc-linux+bncBDEKVJM7XAHRBXGC764AKGQEP2TIBQY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from muru.com (muru.com. [72.249.23.125])
-        by gmr-mx.google.com with ESMTP id y20si161836pfa.2.2016.04.08.08.14.14
-        for <rtc-linux@googlegroups.com>;
-        Fri, 08 Apr 2016 08:14:15 -0700 (PDT)
-Date: Fri, 8 Apr 2016 08:14:09 -0700
-From: Tony Lindgren <tony@atomide.com>
-To: Grygorii Strashko <grygorii.strashko@ti.com>
-Cc: Marcin Niestroj <m.niestroj@grinn-global.com>,
-	rtc-linux@googlegroups.com, devicetree@vger.kernel.org,
-	Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Keerthy <j-keerthy@ti.com>, linux-omap@vger.kernel.org,
-	Dave Gerlach <d-gerlach@ti.com>, "Menon, Nishanth" <nm@ti.com>
-Subject: [rtc-linux] Re: [PATCH] rtc: omap: Support ext_wakeup configuration
-Message-ID: <20160408151408.GS16484@atomide.com>
-References: <1459785403-1725-1-git-send-email-m.niestroj@grinn-global.com>
- <20160404224046.GA17042@atomide.com>
- <57078A89.3080809@ti.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <57078A89.3080809@ti.com>
+Received: from mout.kundenserver.de (mout.kundenserver.de. [212.227.126.133])
+        by gmr-mx.google.com with ESMTPS id c7si113438wmf.2.2016.04.26.14.45.00
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 26 Apr 2016 14:45:00 -0700 (PDT)
+From: Arnd Bergmann <arnd@arndb.de>
+To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Arnd Bergmann <arnd@arndb.de>,
+	tony.luck@intel.com,
+	geert@linux-m68k.org,
+	jejb@parisc-linux.org,
+	deller@gmx.de,
+	benh@kernel.crashing.org,
+	mpe@ellerman.id.au,
+	dalias@libc.org,
+	dhowells@redhat.com,
+	yasutake.koichi@jp.panasonic.com,
+	rth@twiddle.net,
+	ink@jurassic.park.msu.ru,
+	linux-alpha@vger.kernel.org,
+	x86@kernel.org,
+	a.zummo@towertech.it,
+	alexandre.belloni@free-electrons.com,
+	linux-kernel@vger.kernel.org,
+	linux-ia64@vger.kernel.org,
+	linux-parisc@vger.kernel.org,
+	linuxppc-dev@lists.ozlabs.org,
+	linux-sh@vger.kernel.org,
+	rtc-linux@googlegroups.com,
+	linux-arch@vger.kernel.org
+Subject: [rtc-linux] [PATCH 6/8] char/genrtc: parisc: use asm-generic/rtc.h
+Date: Tue, 26 Apr 2016 23:44:10 +0200
+Message-Id: <1461707052-1337718-7-git-send-email-arnd@arndb.de>
+In-Reply-To: <1461707052-1337718-1-git-send-email-arnd@arndb.de>
+References: <1461707052-1337718-1-git-send-email-arnd@arndb.de>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -31,48 +46,93 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-* Grygorii Strashko <grygorii.strashko@ti.com> [160408 03:41]:
-> Hi Tony,
-> 
-> On 04/05/2016 01:40 AM, Tony Lindgren wrote:
-> > Hi,
-> > 
-> > * Marcin Niestroj <m.niestroj@grinn-global.com> [160404 08:57]:
-> >> Support configuration of ext_wakeup sources. This patch makes it
-> >> possible to enable ext_wakeup and set it's polarity, depending on board
-> >> configuration. AM335x's dedicated PMIC (tps65217) uses ext_wakeup to
-> >> notify about power-button presses. Handling power-button presses enables
-> >> to recover from RTC-only power states correctly.
-> > 
-> > I suggest you just set this pin up as a minimal gpiochip. That way
-> > we can use the standard binding :) And if we get lucky, this pin can
-> > also trigger during runtime.
-> > 
-> 
-> Following my comments on v2 of this patch I propose to rollback to
-> this version of the patch.
-> 
-> It seems doesn't fit in gpiochip, it's more likely irqchip, but since
-> rtc can't generate IRQ there are nor reasons for these genetic
-> experiments and RTC's specific bindings looks more suitable, at least for me.
+The asm-generic/rtc.h header can now be included by
+architectures that provide their own set_rtc_time/get_rtc_time
+macros, letting us remove most of the common contents in
+the powerpc implementation.
 
-Hmm well gpiochips typically are irqchip too. IMO the generic binding
-here sounds like "gpio-wakeup" as it's an input with polarity and with
-an optional interrupt.
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+---
+ arch/parisc/include/asm/rtc.h | 38 +++++---------------------------------
+ 1 file changed, 5 insertions(+), 33 deletions(-)
 
-Plain irqchip would work too in this case if there are no other GPIO
-specific features. Some other RTCs may have more GPIO like features.
-
-In any case, setting the ext_wakeup up as an irqchip means that the
-RTC controller can be used as a dedicated wakeirq with Linux :)
-
-Are you guys sure there's no wake pin events during runtime? AFAIK
-the RTCs just typically produce an interrupt when programmed to
-do so, they don't know the state of the SoC.
-
-Regards,
-
-Tony
+diff --git a/arch/parisc/include/asm/rtc.h b/arch/parisc/include/asm/rtc.h
+index 099d641a42c2..d06cc581ecc2 100644
+--- a/arch/parisc/include/asm/rtc.h
++++ b/arch/parisc/include/asm/rtc.h
+@@ -12,26 +12,15 @@
+ 
+ #ifdef __KERNEL__
+ 
+-#include <linux/rtc.h>
++#define get_rtc_time parisc_get_rtc_time
++#define set_rtc_time parisc_set_rtc_time
++#include <asm-generic/rtc.h>
+ 
+ #include <asm/pdc.h>
+ 
+ #define SECS_PER_HOUR   (60 * 60)
+ #define SECS_PER_DAY    (SECS_PER_HOUR * 24)
+ 
+-
+-#define RTC_PIE 0x40		/* periodic interrupt enable */
+-#define RTC_AIE 0x20		/* alarm interrupt enable */
+-#define RTC_UIE 0x10		/* update-finished interrupt enable */
+-
+-#define RTC_BATT_BAD 0x100	/* battery bad */
+-
+-/* some dummy definitions */
+-#define RTC_SQWE 0x08		/* enable square-wave output */
+-#define RTC_DM_BINARY 0x04	/* all time/date values are BCD if clear */
+-#define RTC_24H 0x02		/* 24 hour mode - else hours bit 7 means pm */
+-#define RTC_DST_EN 0x01	        /* auto switch DST - works f. USA only */
+-
+ # define __isleap(year) \
+   ((year) % 4 == 0 && ((year) % 100 != 0 || (year) % 400 == 0))
+ 
+@@ -44,7 +33,7 @@ static const unsigned short int __mon_yday[2][13] =
+ 	{ 0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335, 366 }
+ };
+ 
+-static inline unsigned int get_rtc_time(struct rtc_time *wtime)
++static inline unsigned int parisc_get_rtc_time(struct rtc_time *wtime)
+ {
+ 	struct pdc_tod tod_data;
+ 	long int days, rem, y;
+@@ -96,7 +85,7 @@ static inline unsigned int get_rtc_time(struct rtc_time *wtime)
+ 	return RTC_24H;
+ }
+ 
+-static int set_rtc_time(struct rtc_time *wtime)
++static int parisc_set_rtc_time(struct rtc_time *wtime)
+ {
+ 	u_int32_t secs;
+ 
+@@ -110,22 +99,5 @@ static int set_rtc_time(struct rtc_time *wtime)
+ 
+ }
+ 
+-static inline unsigned int get_rtc_ss(void)
+-{
+-	struct rtc_time h;
+-
+-	get_rtc_time(&h);
+-	return h.tm_sec;
+-}
+-
+-static inline int get_rtc_pll(struct rtc_pll_info *pll)
+-{
+-	return -EINVAL;
+-}
+-static inline int set_rtc_pll(struct rtc_pll_info *pll)
+-{
+-	return -EINVAL;
+-}
+-
+ #endif /* __KERNEL__ */
+ #endif /* __ASM_RTC_H__ */
+-- 
+2.7.0
 
 -- 
 -- 
