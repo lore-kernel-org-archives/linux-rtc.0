@@ -1,34 +1,41 @@
-Return-Path: <rtc-linux+bncBDEKVJM7XAHRBNGG764AKGQE5NS5LTQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBDEKVJM7XAHRBYWC764AKGQEIXSWZIQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 MIME-Version: 1.0
-Received: from mout.kundenserver.de (mout.kundenserver.de. [212.227.17.13])
-        by gmr-mx.google.com with ESMTPS id a65si762525wma.0.2016.04.26.14.52.51
+Received: from mout.kundenserver.de (mout.kundenserver.de. [212.227.126.187])
+        by gmr-mx.google.com with ESMTPS id t18si628196wmt.0.2016.04.26.14.45.06
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 26 Apr 2016 14:52:51 -0700 (PDT)
+        Tue, 26 Apr 2016 14:45:06 -0700 (PDT)
 From: Arnd Bergmann <arnd@arndb.de>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc: Arnd Bergmann <arnd@arndb.de>,
+	tony.luck@intel.com,
 	geert@linux-m68k.org,
+	jejb@parisc-linux.org,
 	deller@gmx.de,
 	benh@kernel.crashing.org,
 	mpe@ellerman.id.au,
 	dalias@libc.org,
 	dhowells@redhat.com,
+	yasutake.koichi@jp.panasonic.com,
+	rth@twiddle.net,
+	ink@jurassic.park.msu.ru,
 	linux-alpha@vger.kernel.org,
+	x86@kernel.org,
 	a.zummo@towertech.it,
+	alexandre.belloni@free-electrons.com,
 	linux-kernel@vger.kernel.org,
+	linux-ia64@vger.kernel.org,
 	linux-parisc@vger.kernel.org,
 	linuxppc-dev@lists.ozlabs.org,
 	linux-sh@vger.kernel.org,
-	linux-m68k@lists.linux-m68k.org,
 	rtc-linux@googlegroups.com,
 	linux-arch@vger.kernel.org
-Subject: [rtc-linux] [PATCH v2 2/6] rtc: m68k: provide ioctl for q40
-Date: Tue, 26 Apr 2016 23:52:27 +0200
-Message-Id: <1461707551-1337971-3-git-send-email-arnd@arndb.de>
-In-Reply-To: <1461707551-1337971-1-git-send-email-arnd@arndb.de>
-References: <1461707551-1337971-1-git-send-email-arnd@arndb.de>
+Subject: [rtc-linux] [PATCH 7/8] char/genrtc: disallow building on Alpha
+Date: Tue, 26 Apr 2016 23:44:11 +0200
+Message-Id: <1461707052-1337718-8-git-send-email-arnd@arndb.de>
+In-Reply-To: <1461707052-1337718-1-git-send-email-arnd@arndb.de>
+References: <1461707052-1337718-1-git-send-email-arnd@arndb.de>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -39,60 +46,34 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-The q40 platform is the only machine in the kernel that provides
-RTC_PLL_GET/RTC_PLL_SET ioctl commands in its rtc through the
-mach_get_rtc_pll/mach_set_rtc_pll callbacks.
+The genrtc driver serves no purpose on Alpha because it drives the
+same hardware as the original rtc.c driver, and the newer rtc-generic.c
+or rtc-cmos.c drivers on architectures that use the asm-generic/rtc.h
+header.
 
-However, this currenctly works only in the old-style genrtc
-driver, not the (somewhat) modern rtc-generic driver replacing
-it. This adds an ioctl implementation to the m68k generic_rtc_ops
-in order to let both drivers provide the same API.
-
-After this, we should be able to remove support for genrtc
-from the m68k architecture.
+The defconfig uses CONFIG_RTC=y, so this driver is not used by default.
+At one point it was used to abstract a quirk for the "Marvel" platform,
+but it does not do this any more after the code was moved into yet
+another driver in arch/alpha/kernel/rtc.c.
 
 Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 ---
- arch/m68k/kernel/time.c | 25 +++++++++++++++++++++++++
- 1 file changed, 25 insertions(+)
+ drivers/char/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/m68k/kernel/time.c b/arch/m68k/kernel/time.c
-index fe35890feede..5f0a5826a05e 100644
---- a/arch/m68k/kernel/time.c
-+++ b/arch/m68k/kernel/time.c
-@@ -100,7 +100,32 @@ static int rtc_generic_set_time(struct device *dev, struct rtc_time *tm)
- 	return 0;
- }
- 
-+static int rtc_ioctl(struct device *dev, unsigned int cmd, unsigned long arg)
-+{
-+	struct rtc_pll_info pll;
-+	struct rtc_pll_info __user *argp = (void __user *)arg;
-+
-+	switch (cmd) {
-+	case RTC_PLL_GET:
-+		if (!mach_get_rtc_pll || mach_get_rtc_pll(&pll))
-+			return -EINVAL;
-+		return copy_to_user(argp, &pll, sizeof pll) ? -EFAULT : 0;
-+
-+	case RTC_PLL_SET:
-+		if (!mach_set_rtc_pll)
-+			return -EINVAL;
-+		if (!capable(CAP_SYS_TIME))
-+			return -EACCES;
-+		if (copy_from_user(&pll, argp, sizeof(pll)))
-+			return -EFAULT;
-+		return mach_set_rtc_pll(&pll);
-+	}
-+
-+	return -ENOIOCTLCMD;
-+}
-+
- static const struct rtc_class_ops generic_rtc_ops = {
-+	.ioctl = rtc_ioctl,
- 	.read_time = rtc_generic_get_time,
- 	.set_time = rtc_generic_set_time,
- };
+diff --git a/drivers/char/Kconfig b/drivers/char/Kconfig
+index 9bdb629fbaae..697510325b1d 100644
+--- a/drivers/char/Kconfig
++++ b/drivers/char/Kconfig
+@@ -328,7 +328,7 @@ config JS_RTC
+ config GEN_RTC
+ 	tristate "Generic /dev/rtc emulation"
+ 	depends on RTC!=y
+-	depends on ALPHA || M68K || MN10300 || PARISC || PPC
++	depends on M68K || MN10300 || PARISC || PPC
+ 	---help---
+ 	  If you say Y here and create a character special file /dev/rtc with
+ 	  major number 10 and minor number 135 using mknod ("man mknod"), you
 -- 
 2.7.0
 
