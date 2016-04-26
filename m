@@ -1,18 +1,33 @@
-Return-Path: <rtc-linux+bncBAABBQUE724AKGQENEK7PMI@googlegroups.com>
+Return-Path: <rtc-linux+bncBCQPVKWLVAIRBSUX724AKGQE6XWUESA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-MIME-Version: 1.0
-Received: from root.phytec.de (mail.phycore.de. [217.6.246.34])
-        by gmr-mx.google.com with ESMTP id c7si76579wmf.2.2016.04.26.07.59.13
+Received: from muru.com (muru.com. [72.249.23.125])
+        by gmr-mx.google.com with ESMTP id yr8si376895pac.0.2016.04.26.08.39.53
         for <rtc-linux@googlegroups.com>;
-        Tue, 26 Apr 2016 07:59:13 -0700 (PDT)
-From: Wadim Egorov <w.egorov@phytec.de>
-To: linux-kernel@vger.kernel.org, linux-clk@vger.kernel.org, rtc-linux@googlegroups.com, devicetree@vger.kernel.org, linux-rockchip@lists.infradead.org, lee.jones@linaro.org
-Cc: robh+dt@kernel.org, pawel.moll@arm.com, mark.rutland@arm.com, ijc+devicetree@hellion.org.uk, galak@codeaurora.org, mturquette@baylibre.com, sboyd@codeaurora.org, lgirdwood@gmail.com, broonie@kernel.org, a.zummo@towertech.it, alexandre.belloni@free-electrons.com, dianders@chromium.org, zyw@rock-chips.com
-Subject: [rtc-linux] [PATCH v4 0/7] Add support for rk818
-Date: Tue, 26 Apr 2016 16:54:03 +0200
-Message-Id: <1461682450-22173-1-git-send-email-w.egorov@phytec.de>
-Reply-To: rtc-linux@googlegroups.com
+        Tue, 26 Apr 2016 08:39:54 -0700 (PDT)
+Date: Tue, 26 Apr 2016 08:39:48 -0700
+From: Tony Lindgren <tony@atomide.com>
+To: Marcin Niestroj <m.niestroj@grinn-global.com>
+Cc: Grygorii Strashko <grygorii.strashko@ti.com>,
+	rtc-linux@googlegroups.com, devicetree@vger.kernel.org,
+	Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Keerthy <j-keerthy@ti.com>, linux-omap@vger.kernel.org,
+	Dave Gerlach <d-gerlach@ti.com>, "Menon, Nishanth" <nm@ti.com>
+Subject: [rtc-linux] Re: [PATCH] rtc: omap: Support ext_wakeup configuration
+Message-ID: <20160426153948.GR5995@atomide.com>
+References: <1459785403-1725-1-git-send-email-m.niestroj@grinn-global.com>
+ <20160404224046.GA17042@atomide.com>
+ <57078A89.3080809@ti.com>
+ <20160408151408.GS16484@atomide.com>
+ <5707E764.7050204@ti.com>
+ <570D2F79.9040202@grinn-global.com>
+ <57111AF4.6070505@ti.com>
+ <fe6ab23a-5f0d-a317-14d9-f538c3ad4052@grinn-global.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <fe6ab23a-5f0d-a317-14d9-f538c3ad4052@grinn-global.com>
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -21,42 +36,34 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Hello,
+* Marcin Niestroj <m.niestroj@grinn-global.com> [160426 00:40]:
+> In below code we check reg resource size in order to know if we
+> should update RTC_PMIC or it is pinctrl responsibility. It's a little
+> hack, but we make sure, that every device with not modified device-tree
+> will work as previously. If we want to add support for ext_wakeup, we
+> just change reg resouce size in device-tree in order to not overlap
+> requested memory regions in rtc-omap and pinctrl.
+> 
+> I used am335x-chilisom instead of dra7 and updated
+> pinctrl-single,funcion-mask so the EXT_WAKEUP_STATUS is always cleared
+> after boot.
+> 
+> So the question now is: is this acceptable? Do we want to continue with
+> this approach?
 
-I dropped the patch which renamed the rk808 struct.
+Well the concern I have here is that we not use pinctrl-single
+as a separate driver if any of the registers are shared with
+the RTC driver. If the registers are shared, the pinctrl
+functionality should be implemented in the RTC driver.
 
-The regulator patches are based on top of
-commit 4a5ed8c1adc3 ("regulator: rk808: remove unused rk808_reg_ops_ranges")
+The pinctrl driver can also implement a chained IRQ later
+on for consumer device drivers to use with the wakeirq API.
+Maybe eventually we'll have real chained interrupt for the
+RTC to use from Linux side of the C-M3 driver.
 
-Changes since v3:
-- dropped rename patch
-- rebased patch 4: renamed rk8xx struct back to rk808
-- File comment description shows now RK808/RK818
-- Module descriptions show now RK808/RK818
+Regards,
 
-
-Wadim Egorov (7):
-  regulator: rk808: Add rk808_reg_ops_ranges for LDO3
-  regulator: rk808: Migrate to regulator core's simplified DT parsing
-    code
-  mfd: RK808: Add RK818 support
-  regulator: rk808: Add regulator driver for RK818
-  mfd: dt-bindings: Add RK818 device tree bindings document
-  clk: Kconfig: Name RK818 in Kconfig for COMMON_CLK_RK808
-  rtc: Kconfig: Name RK818 in Kconfig for RTC_DRV_RK808
-
- Documentation/devicetree/bindings/mfd/rk808.txt |  37 ++-
- drivers/clk/Kconfig                             |   4 +-
- drivers/mfd/Kconfig                             |   4 +-
- drivers/mfd/rk808.c                             | 229 +++++++++++---
- drivers/regulator/Kconfig                       |   4 +-
- drivers/regulator/rk808-regulator.c             | 393 ++++++++++++++----------
- drivers/rtc/Kconfig                             |   4 +-
- include/linux/mfd/rk808.h                       | 162 +++++++++-
- 8 files changed, 618 insertions(+), 219 deletions(-)
-
--- 
-1.9.1
+Tony
 
 -- 
 -- 
