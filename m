@@ -1,24 +1,20 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBOHP3K4AKGQEN7W5E2Q@googlegroups.com>
+Return-Path: <rtc-linux+bncBAABBQUE724AKGQENEK7PMI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id a80si308266wma.0.2016.04.19.15.56.55
-        for <rtc-linux@googlegroups.com>;
-        Tue, 19 Apr 2016 15:56:55 -0700 (PDT)
-Date: Wed, 20 Apr 2016 00:56:55 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Nishanth Menon <nm@ti.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>, linux-kernel@vger.kernel.org,
-	rtc-linux@googlegroups.com, linux-omap@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	Michael Lange <linuxstuff@milaw.biz>
-Subject: [rtc-linux] Re: [PATCH] rtc: ds1307: Use irq when available for
- wakeup-source device
-Message-ID: <20160419225655.GJ29844@piout.net>
-References: <1461083034-9227-1-git-send-email-nm@ti.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1461083034-9227-1-git-send-email-nm@ti.com>
+Received: from root.phytec.de (mail.phycore.de. [217.6.246.34])
+        by gmr-mx.google.com with ESMTP id v130si323779wmv.1.2016.04.26.07.59.14
+        for <rtc-linux@googlegroups.com>;
+        Tue, 26 Apr 2016 07:59:14 -0700 (PDT)
+From: Wadim Egorov <w.egorov@phytec.de>
+To: linux-kernel@vger.kernel.org, linux-clk@vger.kernel.org, rtc-linux@googlegroups.com, devicetree@vger.kernel.org, linux-rockchip@lists.infradead.org, lee.jones@linaro.org
+Cc: robh+dt@kernel.org, pawel.moll@arm.com, mark.rutland@arm.com, ijc+devicetree@hellion.org.uk, galak@codeaurora.org, mturquette@baylibre.com, sboyd@codeaurora.org, lgirdwood@gmail.com, broonie@kernel.org, a.zummo@towertech.it, alexandre.belloni@free-electrons.com, dianders@chromium.org, zyw@rock-chips.com
+Subject: [rtc-linux] [PATCH v4 6/7] clk: Kconfig: Name RK818 in Kconfig for COMMON_CLK_RK808
+Date: Tue, 26 Apr 2016 16:54:09 +0200
+Message-Id: <1461682450-22173-7-git-send-email-w.egorov@phytec.de>
+In-Reply-To: <1461682450-22173-1-git-send-email-w.egorov@phytec.de>
+References: <1461682450-22173-1-git-send-email-w.egorov@phytec.de>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -27,30 +23,35 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 19/04/2016 at 11:23:54 -0500, Nishanth Menon wrote :
-> With commit 8bc2a40730ec ("rtc: ds1307: add support for the
-> DT property 'wakeup-source'") we lost the ability for rtc irq
-> functionality for devices that are actually hooked on a real IRQ
-> line and have capability to wakeup as well. This is not an expected
-> behavior. So, instead of just not requesting IRQ, skip the IRQ
-> requirement only if interrupts are not defined for the device.
-> 
-> Fixes: 8bc2a40730ec ("rtc: ds1307: add support for the DT property 'wakeup-source'")
-> Reported-by: Tony Lindgren <tony@atomide.com>
-> Cc: Michael Lange <linuxstuff@milaw.biz>
-> Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-> Signed-off-by: Nishanth Menon <nm@ti.com>
-> ---
-> 
->  drivers/rtc/rtc-ds1307.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-Applied, thanks.
+The RK808 and RK818 PMICs are using a similar register map.
+We can reuse the clk driver for the RK818 PMIC. So let's add
+the RK818 in the Kconfig description.
 
+Signed-off-by: Wadim Egorov <w.egorov@phytec.de>
+Acked-by: Stephen Boyd <sboyd@codeaurora.org>
+---
+ drivers/clk/Kconfig | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/clk/Kconfig b/drivers/clk/Kconfig
+index 16f7d33..64b4daa 100644
+--- a/drivers/clk/Kconfig
++++ b/drivers/clk/Kconfig
+@@ -49,10 +49,10 @@ config COMMON_CLK_MAX77802
+ 	  This driver supports Maxim 77802 crystal oscillator clock.
+ 
+ config COMMON_CLK_RK808
+-	tristate "Clock driver for RK808"
++	tristate "Clock driver for RK808/RK818"
+ 	depends on MFD_RK808
+ 	---help---
+-	  This driver supports RK808 crystal oscillator clock. These
++	  This driver supports RK808 and RK818 crystal oscillator clock. These
+ 	  multi-function devices have two fixed-rate oscillators,
+ 	  clocked at 32KHz each. Clkout1 is always on, Clkout2 can off
+ 	  by control register.
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+1.9.1
 
 -- 
 -- 
