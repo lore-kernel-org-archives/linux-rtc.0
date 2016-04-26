@@ -1,23 +1,20 @@
-Return-Path: <rtc-linux+bncBCQI7JPS3IGRBXHRXS4AKGQEX4QOFDY@googlegroups.com>
+Return-Path: <rtc-linux+bncBDHPTCWTXEHRBP6I7S4AKGQEAGSPGHQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail-yw0-x241.google.com (mail-yw0-x241.google.com. [2607:f8b0:4002:c05::241])
-        by gmr-mx.google.com with ESMTPS id y6si2820265ywd.1.2016.04.13.23.29.47
+Received: from gloria.sntech.de (gloria.sntech.de. [95.129.55.99])
+        by gmr-mx.google.com with ESMTPS id u137si463013wmd.1.2016.04.26.01.18.06
         for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 13 Apr 2016 23:29:47 -0700 (PDT)
-Received: by mail-yw0-x241.google.com with SMTP id i125so9782806ywe.3
-        for <rtc-linux@googlegroups.com>; Wed, 13 Apr 2016 23:29:47 -0700 (PDT)
+        (version=TLS1_2 cipher=AES128-SHA bits=128/128);
+        Tue, 26 Apr 2016 01:18:06 -0700 (PDT)
+From: Heiko =?ISO-8859-1?Q?St=FCbner?= <heiko@sntech.de>
+To: Wadim Egorov <w.egorov@phytec.de>
+Cc: Mark Brown <broonie@kernel.org>, linux-kernel@vger.kernel.org, linux-clk@vger.kernel.org, rtc-linux@googlegroups.com, devicetree@vger.kernel.org, linux-rockchip@lists.infradead.org, robh+dt@kernel.org, pawel.moll@arm.com, mark.rutland@arm.com, ijc+devicetree@hellion.org.uk, galak@codeaurora.org, mturquette@baylibre.com, sboyd@codeaurora.org, lee.jones@linaro.org, lgirdwood@gmail.com, a.zummo@towertech.it, alexandre.belloni@free-electrons.com, dianders@chromium.org, zyw@rock-chips.com
+Subject: [rtc-linux] Re: [PATCH v3 4/8] regulator: rk808: Migrate to regulator
+ core's simplified DT parsing code
+Date: Tue, 26 Apr 2016 10:17:59 +0200
+Message-ID: <2669414.IKg01zC8vG@diego>
+In-Reply-To: <571F1CB4.10200@phytec.de>
+References: <1461590448-47685-1-git-send-email-w.egorov@phytec.de> <20160425173911.GQ3217@sirena.org.uk> <571F1CB4.10200@phytec.de>
 MIME-Version: 1.0
-In-Reply-To: <20160413224916.GH7765@piout.net>
-References: <570EAE8B.7010706@nkgroup.cz>
-	<20160413224916.GH7765@piout.net>
-Date: Thu, 14 Apr 2016 08:29:47 +0200
-Message-ID: <CAAJk-V1p5+sirH9wF1ucvjuCbpFVVR2iJ+cW7A7eBhRx_=91yQ@mail.gmail.com>
-Subject: [rtc-linux] Re: [PATCH] rtc: support for rv4162c7
-From: Tomas Krcka <tomas.krcka@nkgroup.cz>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: rtc-linux@googlegroups.com, Alessandro Zummo <a.zummo@towertech.it>,
-	linux-kernel@vger.kernel.org
 Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
@@ -28,50 +25,32 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Hi,
-  that's correct, but idetification of this chip is rv4162c7 so
-i2c_match_id() returns NULL.
-If it's there any workaround, how the chip can be detected
-automatically then OK, but without this patch it doesn't work for me.
+Am Dienstag, 26. April 2016, 09:45:56 schrieb Wadim Egorov:
+> On 25.04.2016 19:39, Mark Brown wrote:
+> > On Mon, Apr 25, 2016 at 03:20:44PM +0200, Wadim Egorov wrote:
+> >> A common simplified DT parsing code for regulators was introduced in
+> >> commit a0c7b164ad11 ("regulator: of: Provide simplified DT parsing
+> >> method")
+> > 
+> > This doesn't apply against current code, please check and resend.
+> 
+> Hm, for me all patches apply to the current code.
+> This patch depends on the first rename patch. Maybe this is the problem?
 
-2016-04-14 0:49 GMT+02:00 Alexandre Belloni
-<alexandre.belloni@free-electrons.com>:
-> Hi,
->
-> On 13/04/2016 at 22:39:39 +0200, Tomas Krcka wrote :
->> This patch is for support of rv4162c7 RTC chip.
->> The device has same parameters as rv4162, but with different identification.
->> Tested with PhyTec module AM335x.
->>
->
-> Well, technically, it is an rv4162. rv4162-c7 is the only available one.
-> So this patch is not necessary.
->
->> Signed-off-by: Tomas Krcka <tomas.krcka@nkgroup.cz>
->>
->> ---
->>  drivers/rtc/rtc-m41t80.c | 1 +
->>  1 file changed, 1 insertion(+)
->>
->> diff --git a/drivers/rtc/rtc-m41t80.c b/drivers/rtc/rtc-m41t80.c
->> index d107a8e..1aa57d8 100644
->> --- a/drivers/rtc/rtc-m41t80.c
->> +++ b/drivers/rtc/rtc-m41t80.c
->> @@ -81,6 +81,7 @@ static const struct i2c_device_id m41t80_id[] = {
->>      { "m41st85", M41T80_FEATURE_HT | M41T80_FEATURE_BL | M41T80_FEATURE_SQ },
->>      { "m41st87", M41T80_FEATURE_HT | M41T80_FEATURE_BL | M41T80_FEATURE_SQ },
->>      { "rv4162", M41T80_FEATURE_SQ | M41T80_FEATURE_WD | M41T80_FEATURE_SQ_ALT },
->> +    { "rv4162c7", M41T80_FEATURE_SQ | M41T80_FEATURE_WD | M41T80_FEATURE_SQ_ALT },
->>      { }
->>  };
->>  MODULE_DEVICE_TABLE(i2c, m41t80_id);
->> -- 1.9.1
->>
->
-> --
-> Alexandre Belloni, Free Electrons
-> Embedded Linux, Kernel and Android engineering
-> http://free-electrons.com
+which is the reason why renaming stuff makes everything just more complicated 
+without providing additional value ;-) 
+
+The first patch would go through the mfd-tree (if accepted by Lee and Acked by 
+the other involved subsystem maintainers) which would then need a stable 
+branch merged into the regulator tree - or after the first patch goes in you 
+simply wait for a kernel release.
+
+Normally I would expect the reasonable kernel developer to be able to simply 
+read code, kconfig, docs stating the drivers being for rk808 and rk818 without 
+getting "confused" by some structs mentioning the rk808.
+
+
+Heiko
 
 -- 
 -- 
