@@ -1,27 +1,36 @@
-Return-Path: <rtc-linux+bncBDVNH3HM2UDBB2PF2O4AKGQEPHJDH4Q@googlegroups.com>
+Return-Path: <rtc-linux+bncBDEKVJM7XAHRBNGG764AKGQE5NS5LTQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail-ob0-x236.google.com (mail-ob0-x236.google.com. [2607:f8b0:4003:c01::236])
-        by gmr-mx.google.com with ESMTPS id au10si2354191igc.3.2016.04.18.07.44.57
+MIME-Version: 1.0
+Received: from mout.kundenserver.de (mout.kundenserver.de. [212.227.17.13])
+        by gmr-mx.google.com with ESMTPS id a65si762525wma.0.2016.04.26.14.52.51
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 18 Apr 2016 07:44:57 -0700 (PDT)
-Received: by mail-ob0-x236.google.com with SMTP id n10so34755189obb.2
-        for <rtc-linux@googlegroups.com>; Mon, 18 Apr 2016 07:44:57 -0700 (PDT)
-MIME-Version: 1.0
-In-Reply-To: <CAC5umygCGYEeA_yQEBz8q-bUyxT2wo7PbCMDfUfFiG0NTE17yA@mail.gmail.com>
-References: <1460938902-3120-1-git-send-email-akinobu.mita@gmail.com>
-	<CABrG=ZzVx3XcViRvuB6wqdJpaBF11wke2otHzbd8_M9S2T1rPQ@mail.gmail.com>
-	<CAC5umygCGYEeA_yQEBz8q-bUyxT2wo7PbCMDfUfFiG0NTE17yA@mail.gmail.com>
-Date: Mon, 18 Apr 2016 18:44:57 +0400
-Message-ID: <CABrG=Zy_VMqxjoqp-MnK1rNcCR-0ixHLyWw11hjU4AweT+-THw@mail.gmail.com>
-Subject: [rtc-linux] Re: [PATCH] rtc: ds1307: ds3231 temperature s16 overflow
-From: Michael Tatarinov <kukabu@gmail.com>
-To: Akinobu Mita <akinobu.mita@gmail.com>
-Cc: rtc-linux@googlegroups.com, Zhuang Yuyao <mlistz@gmail.com>,
-	Zhuang Yuyao <zhuangyy@syan.com.cn>, Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Content-Type: text/plain; charset=UTF-8
+        Tue, 26 Apr 2016 14:52:51 -0700 (PDT)
+From: Arnd Bergmann <arnd@arndb.de>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: Arnd Bergmann <arnd@arndb.de>,
+	geert@linux-m68k.org,
+	deller@gmx.de,
+	benh@kernel.crashing.org,
+	mpe@ellerman.id.au,
+	dalias@libc.org,
+	dhowells@redhat.com,
+	linux-alpha@vger.kernel.org,
+	a.zummo@towertech.it,
+	linux-kernel@vger.kernel.org,
+	linux-parisc@vger.kernel.org,
+	linuxppc-dev@lists.ozlabs.org,
+	linux-sh@vger.kernel.org,
+	linux-m68k@lists.linux-m68k.org,
+	rtc-linux@googlegroups.com,
+	linux-arch@vger.kernel.org
+Subject: [rtc-linux] [PATCH v2 2/6] rtc: m68k: provide ioctl for q40
+Date: Tue, 26 Apr 2016 23:52:27 +0200
+Message-Id: <1461707551-1337971-3-git-send-email-arnd@arndb.de>
+In-Reply-To: <1461707551-1337971-1-git-send-email-arnd@arndb.de>
+References: <1461707551-1337971-1-git-send-email-arnd@arndb.de>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -30,23 +39,62 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-2016-04-18 17:05 GMT+04:00, Akinobu Mita <akinobu.mita@gmail.com>:
-> 2016-04-18 19:24 GMT+09:00 Michael Tatarinov <kukabu@gmail.com>:
->> Thanks.
->>
->> I'm testing the patch, it workins as expected.
->>
->> $ cat
->> /sys/devices/platform/soc/20804000.i2c/i2c-1/1-0068/hwmon/hwmon1/temp1_input
->> 33000
->
-> Thanks for testing!
+The q40 platform is the only machine in the kernel that provides
+RTC_PLL_GET/RTC_PLL_SET ioctl commands in its rtc through the
+mach_get_rtc_pll/mach_set_rtc_pll callbacks.
 
-Thanks for original patch and fix. :)
+However, this currenctly works only in the old-style genrtc
+driver, not the (somewhat) modern rtc-generic driver replacing
+it. This adds an ioctl implementation to the m68k generic_rtc_ops
+in order to let both drivers provide the same API.
 
-> Can I put your Tested-by tag in this patch?
+After this, we should be able to remove support for genrtc
+from the m68k architecture.
 
-Yes.
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+---
+ arch/m68k/kernel/time.c | 25 +++++++++++++++++++++++++
+ 1 file changed, 25 insertions(+)
+
+diff --git a/arch/m68k/kernel/time.c b/arch/m68k/kernel/time.c
+index fe35890feede..5f0a5826a05e 100644
+--- a/arch/m68k/kernel/time.c
++++ b/arch/m68k/kernel/time.c
+@@ -100,7 +100,32 @@ static int rtc_generic_set_time(struct device *dev, struct rtc_time *tm)
+ 	return 0;
+ }
+ 
++static int rtc_ioctl(struct device *dev, unsigned int cmd, unsigned long arg)
++{
++	struct rtc_pll_info pll;
++	struct rtc_pll_info __user *argp = (void __user *)arg;
++
++	switch (cmd) {
++	case RTC_PLL_GET:
++		if (!mach_get_rtc_pll || mach_get_rtc_pll(&pll))
++			return -EINVAL;
++		return copy_to_user(argp, &pll, sizeof pll) ? -EFAULT : 0;
++
++	case RTC_PLL_SET:
++		if (!mach_set_rtc_pll)
++			return -EINVAL;
++		if (!capable(CAP_SYS_TIME))
++			return -EACCES;
++		if (copy_from_user(&pll, argp, sizeof(pll)))
++			return -EFAULT;
++		return mach_set_rtc_pll(&pll);
++	}
++
++	return -ENOIOCTLCMD;
++}
++
+ static const struct rtc_class_ops generic_rtc_ops = {
++	.ioctl = rtc_ioctl,
+ 	.read_time = rtc_generic_get_time,
+ 	.set_time = rtc_generic_set_time,
+ };
+-- 
+2.7.0
 
 -- 
 -- 
