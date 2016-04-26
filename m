@@ -1,23 +1,19 @@
-Return-Path: <rtc-linux+bncBD7N3SEV2QCRBSE5RK4AKGQEFK4UIVI@googlegroups.com>
+Return-Path: <rtc-linux+bncBAABBQUE724AKGQENEK7PMI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 MIME-Version: 1.0
-Received: from vk1046.megiteam.com.pl (2780.rev.megiteam.pl. [91.227.39.128])
-        by gmr-mx.google.com with ESMTP id s141si305341wmd.1.2016.04.04.08.56.55
+Received: from root.phytec.de (mail.phycore.de. [217.6.246.34])
+        by gmr-mx.google.com with ESMTP id a65si692749wma.0.2016.04.26.07.59.14
         for <rtc-linux@googlegroups.com>;
-        Mon, 04 Apr 2016 08:56:55 -0700 (PDT)
-From: Marcin Niestroj <m.niestroj@grinn-global.com>
-To: rtc-linux@googlegroups.com,
-	devicetree@vger.kernel.org
-Cc: Rob Herring <robh+dt@kernel.org>,
-	Pawel Moll <pawel.moll@arm.com>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Keerthy <j-keerthy@ti.com>,
-	Tony Lindgren <tony@atomide.com>,
-	Marcin Niestroj <m.niestroj@grinn-global.com>
-Subject: [rtc-linux] [PATCH] rtc: omap: Support ext_wakeup configuration
-Date: Mon,  4 Apr 2016 17:56:43 +0200
-Message-Id: <1459785403-1725-1-git-send-email-m.niestroj@grinn-global.com>
+        Tue, 26 Apr 2016 07:59:14 -0700 (PDT)
+From: Wadim Egorov <w.egorov@phytec.de>
+To: linux-kernel@vger.kernel.org, linux-clk@vger.kernel.org, rtc-linux@googlegroups.com, devicetree@vger.kernel.org, linux-rockchip@lists.infradead.org, lee.jones@linaro.org
+Cc: robh+dt@kernel.org, pawel.moll@arm.com, mark.rutland@arm.com, ijc+devicetree@hellion.org.uk, galak@codeaurora.org, mturquette@baylibre.com, sboyd@codeaurora.org, lgirdwood@gmail.com, broonie@kernel.org, a.zummo@towertech.it, alexandre.belloni@free-electrons.com, dianders@chromium.org, zyw@rock-chips.com
+Subject: [rtc-linux] [PATCH v4 5/7] mfd: dt-bindings: Add RK818 device tree
+ bindings document
+Date: Tue, 26 Apr 2016 16:54:08 +0200
+Message-Id: <1461682450-22173-6-git-send-email-w.egorov@phytec.de>
+In-Reply-To: <1461682450-22173-1-git-send-email-w.egorov@phytec.de>
+References: <1461682450-22173-1-git-send-email-w.egorov@phytec.de>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -28,138 +24,84 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Support configuration of ext_wakeup sources. This patch makes it
-possible to enable ext_wakeup and set it's polarity, depending on board
-configuration. AM335x's dedicated PMIC (tps65217) uses ext_wakeup to
-notify about power-button presses. Handling power-button presses enables
-to recover from RTC-only power states correctly.
+Add device tree bindings documentation for Rockchip's RK818 PMIC.
 
-Signed-off-by: Marcin Niestroj <m.niestroj@grinn-global.com>
+Signed-off-by: Wadim Egorov <w.egorov@phytec.de>
+Acked-by: Rob Herring <robh@kernel.org>
 ---
- Documentation/devicetree/bindings/rtc/rtc-omap.txt | 24 ++++++++++-
- drivers/rtc/rtc-omap.c                             | 46 +++++++++++++++++++++-
- 2 files changed, 68 insertions(+), 2 deletions(-)
+ Documentation/devicetree/bindings/mfd/rk808.txt | 37 +++++++++++++++++++++++--
+ 1 file changed, 34 insertions(+), 3 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/rtc/rtc-omap.txt b/Documentation/devicetree/bindings/rtc/rtc-omap.txt
-index bf7d11a..1c05311b 100644
---- a/Documentation/devicetree/bindings/rtc/rtc-omap.txt
-+++ b/Documentation/devicetree/bindings/rtc/rtc-omap.txt
-@@ -18,8 +18,20 @@ Optional properties:
-   through pmic_power_en
- - clocks: Any internal or external clocks feeding in to rtc
- - clock-names: Corresponding names of the clocks
-+- ti,ext-wakeup-en: Enables ext_wakeup[n] sources. Value determines which
-+		    ext_wakeup is enabled by bitwise OR of corresponding bits.
-+		    Examples:
-+		     <1> - enabled ext_wakeup[0],
-+		     <2> - enabled ext_wakeup[1],
-+		     <3> - enabled ext_wakeup[0] and enabled ext_wakeup[1],
-+		     ...
-+- ti,ext-wakeup-pol: Sets polarity of ext_wakeup[n] sources, similarly as
-+		     above. Set bit means active-low, unset bit means
-+		     active-high. Examples:
-+		      <1> - only ext_wakeup0 is active-low
-+		      <3> - only ext_wakeup0 and ext_wakeup1 are active-low
- 
--Example:
-+Examples:
- 
- rtc@1c23000 {
- 	compatible = "ti,da830-rtc";
-@@ -31,3 +43,13 @@ rtc@1c23000 {
- 	clocks = <&clk_32k_rtc>, <&clk_32768_ck>;
- 	clock-names = "ext-clk", "int-clk";
- };
+diff --git a/Documentation/devicetree/bindings/mfd/rk808.txt b/Documentation/devicetree/bindings/mfd/rk808.txt
+index 4ca6aab..9636ae8 100644
+--- a/Documentation/devicetree/bindings/mfd/rk808.txt
++++ b/Documentation/devicetree/bindings/mfd/rk808.txt
+@@ -1,7 +1,11 @@
+-RK808 Power Management Integrated Circuit
++RK8XX Power Management Integrated Circuit
 +
-+rtc@44e3e000 {
-+	compatible = "ti,am3352-rtc", "ti,da830-rtc";
-+	reg = <0x44e3e000 0x1000>;
-+	interrupts = <75
-+		      76>;
-+	system-power-controller;
-+	ti,ext-wakeup-en = <1>;
-+	ti,ext-wakeup-pol = <1>;
-+};
-diff --git a/drivers/rtc/rtc-omap.c b/drivers/rtc/rtc-omap.c
-index ec2e9c5..1a46f5d 100644
---- a/drivers/rtc/rtc-omap.c
-+++ b/drivers/rtc/rtc-omap.c
-@@ -114,7 +114,11 @@
- #define OMAP_RTC_IRQWAKEEN_ALARM_WAKEEN	BIT(1)
++The rk8xx family current members:
++rk808
++rk818
  
- /* OMAP_RTC_PMIC bit fields: */
--#define OMAP_RTC_PMIC_POWER_EN_EN	BIT(16)
-+#define OMAP_RTC_PMIC_POWER_EN_EN		BIT(16)
-+#define OMAP_RTC_PMIC_EXT_WAKEUP_EN(x)		(x)
-+#define OMAP_RTC_PMIC_EXT_WAKEUP_POL(x)		((x) << 4)
-+#define OMAP_RTC_PMIC_EXT_WAKEUP_EN_MASK	0x0F
-+#define OMAP_RTC_PMIC_EXT_WAKEUP_POL_MASK	0xF0
- 
- /* OMAP_RTC_KICKER values */
- #define	KICK0_VALUE			0x83e70b13
-@@ -533,6 +537,11 @@ static int omap_rtc_probe(struct platform_device *pdev)
- 	const struct platform_device_id *id_entry;
- 	const struct of_device_id *of_id;
- 	int ret;
-+	u32 ext_wakeup_en;
-+	u32 ext_wakeup_pol;
-+	bool has_ext_wakeup_en;
-+	bool has_ext_wakeup_pol;
-+	u32 val;
- 
- 	rtc = devm_kzalloc(&pdev->dev, sizeof(*rtc), GFP_KERNEL);
- 	if (!rtc)
-@@ -544,6 +553,30 @@ static int omap_rtc_probe(struct platform_device *pdev)
- 		rtc->is_pmic_controller = rtc->type->has_pmic_mode &&
- 				of_property_read_bool(pdev->dev.of_node,
- 						"system-power-controller");
-+		if (of_property_read_u32(pdev->dev.of_node,
-+						"ti,ext-wakeup-en",
-+						&ext_wakeup_en) >= 0) {
-+			if (ext_wakeup_en < BIT(4))
-+				has_ext_wakeup_en = true;
-+			else
-+				dev_err(&pdev->dev,
-+					"wrong ext-wakeup-en value\n");
-+		} else {
-+			dev_err(&pdev->dev,
-+				"no ext-wakeup-en\n");
-+		}
-+		if (of_property_read_u32(pdev->dev.of_node,
-+						"ti,ext-wakeup-pol",
-+						&ext_wakeup_pol) >= 0) {
-+			if (ext_wakeup_pol < BIT(4))
-+				has_ext_wakeup_pol = true;
-+			else
-+				dev_err(&pdev->dev,
-+					"wrong ext-wakeup-pol value\n");
-+		} else {
-+			dev_err(&pdev->dev,
-+				"no ext-wakeup-pol\n");
-+		}
- 	} else {
- 		id_entry = platform_get_device_id(pdev);
- 		rtc->type = (void *)id_entry->driver_data;
-@@ -650,6 +683,17 @@ static int omap_rtc_probe(struct platform_device *pdev)
- 			  reg | OMAP_RTC_OSC_SEL_32KCLK_SRC);
- 	}
- 
-+	if (has_ext_wakeup_en || has_ext_wakeup_pol) {
-+		val = rtc_readl(rtc, OMAP_RTC_PMIC_REG);
-+		if (has_ext_wakeup_en)
-+			val = (val & ~OMAP_RTC_PMIC_EXT_WAKEUP_EN_MASK)
-+				| OMAP_RTC_PMIC_EXT_WAKEUP_EN(ext_wakeup_en);
-+		if (has_ext_wakeup_pol)
-+			val = (val & ~OMAP_RTC_PMIC_EXT_WAKEUP_POL_MASK)
-+				| OMAP_RTC_PMIC_EXT_WAKEUP_POL(ext_wakeup_pol);
-+		rtc_writel(rtc, OMAP_RTC_PMIC_REG, val);
-+	}
+ Required properties:
+-- compatible: "rockchip,rk808"
++- compatible: "rockchip,rk808", "rockchip,rk818"
+ - reg: I2C slave address
+ - interrupt-parent: The parent interrupt controller.
+ - interrupts: the interrupt outputs of the controller.
+@@ -13,6 +17,8 @@ Optional properties:
+   default output clock name
+ - rockchip,system-power-controller: Telling whether or not this pmic is controlling
+   the system power.
 +
- 	rtc->type->lock(rtc);
++Optional RK808 properties:
+ - vcc1-supply:  The input supply for DCDC_REG1
+ - vcc2-supply:  The input supply for DCDC_REG2
+ - vcc3-supply:  The input supply for DCDC_REG3
+@@ -29,7 +35,20 @@ Optional properties:
+   the gpio controller. If DVS GPIOs aren't present, voltage changes will happen
+   very quickly with no slow ramp time.
  
- 	device_init_wakeup(&pdev->dev, true);
+-Regulators: All the regulators of RK808 to be instantiated shall be
++Optional RK818 properties:
++- vcc1-supply:  The input supply for DCDC_REG1
++- vcc2-supply:  The input supply for DCDC_REG2
++- vcc3-supply:  The input supply for DCDC_REG3
++- vcc4-supply:  The input supply for DCDC_REG4
++- boost-supply: The input supply for DCDC_BOOST
++- vcc6-supply:  The input supply for LDO_REG1 and LDO_REG2
++- vcc7-supply:  The input supply for LDO_REG3, LDO_REG5 and LDO_REG7
++- vcc8-supply:  The input supply for LDO_REG4, LDO_REG6 and LDO_REG8
++- vcc9-supply:  The input supply for LDO_REG9 and SWITCH_REG
++- h_5v-supply:  The input supply for HDMI_SWITCH
++- usb-supply:   The input supply for OTG_SWITCH
++
++Regulators: All the regulators of RK8XX to be instantiated shall be
+ listed in a child node named 'regulators'. Each regulator is represented
+ by a child node of the 'regulators' node.
+ 
+@@ -48,6 +67,18 @@ number as described in RK808 datasheet.
+ 	- SWITCH_REGn
+ 		- valid values for n are 1 to 2
+ 
++Following regulators of the RK818 PMIC block are supported. Note that
++the 'n' in regulator name, as in DCDC_REGn or LDOn, represents the DCDC or LDO
++number as described in RK818 datasheet.
++
++	- DCDC_REGn
++		- valid values for n are 1 to 4.
++	- LDO_REGn
++		- valid values for n are 1 to 9.
++	- SWITCH_REG
++	- HDMI_SWITCH
++	- OTG_SWITCH
++
+ Standard regulator bindings are used inside regulator subnodes. Check
+   Documentation/devicetree/bindings/regulator/regulator.txt
+ for more details
 -- 
-2.8.0
+1.9.1
 
 -- 
 -- 
