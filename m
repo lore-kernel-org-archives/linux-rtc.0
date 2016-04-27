@@ -1,21 +1,20 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRB7V62W4AKGQEG3DJDXI@googlegroups.com>
+Return-Path: <rtc-linux+bncBDEKVJM7XAHRBBM7QK4QKGQE3RNV6KQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id k143si34278wmg.1.2016.04.18.15.28.14
-        for <rtc-linux@googlegroups.com>;
-        Mon, 18 Apr 2016 15:28:14 -0700 (PDT)
-Date: Tue, 19 Apr 2016 00:28:03 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Nicolas Boullis <nboullis@debian.org>
-Cc: Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com
-Subject: [rtc-linux] Re: [PATCH] rtc: ds1307: ensure that any pending alarm is
- cleared before a new alarm is enabled
-Message-ID: <20160418222803.GA25196@piout.net>
-References: <20160402221047.GB3600@haddock.home>
- <20160410112305.GB3603@haddock.home>
+Received: from mout.kundenserver.de (mout.kundenserver.de. [217.72.192.73])
+        by gmr-mx.google.com with ESMTPS id c69si328894wme.2.2016.04.27.03.08.05
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 27 Apr 2016 03:08:05 -0700 (PDT)
+From: Arnd Bergmann <arnd@arndb.de>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, tony.luck@intel.com, geert@linux-m68k.org, jejb@parisc-linux.org, deller@gmx.de, benh@kernel.crashing.org, mpe@ellerman.id.au, dalias@libc.org, dhowells@redhat.com, yasutake.koichi@jp.panasonic.com, rth@twiddle.net, ink@jurassic.park.msu.ru, linux-alpha@vger.kernel.org, x86@kernel.org, a.zummo@towertech.it, linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-sh@vger.kernel.org, rtc-linux@googlegroups.com, linux-arch@vger.kernel.org
+Subject: [rtc-linux] Re: char: legacy RTC cleanups
+Date: Wed, 27 Apr 2016 12:07:29 +0200
+Message-ID: <4937900.aITlOE9vLo@wuerfel>
+In-Reply-To: <20160427094410.GJ3264@piout.net>
+References: <1461707052-1337718-1-git-send-email-arnd@arndb.de> <20160427094410.GJ3264@piout.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <20160410112305.GB3603@haddock.home>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -25,42 +24,39 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 10/04/2016 at 13:23:05 +0200, Nicolas Boullis wrote :
-> If a previously-set alarm was disabled and then triggered, it may still=
-=20
-> be pending when a new alarm is configured.
->=20
-> Then, if the alarm is enabled before the pending alarm is cleared, then=
-=20
-> an interrupt is immediately raised.
->=20
-> Unfortunately, when the alarm is cleared and enabled during the same I=E6=
-=B6=8E=20
-> block write, the chip (at least the DS1339 I have) considers that the=20
-> alarm is enabled before it is cleared, and raises an interrupt.
->=20
-> This patch ensures that the pending alarm is cleared before the alarm is=
-=20
-> enabled.
->=20
-> Signed-off-by: Nicolas Boullis <nboullis@debian.org>
->=20
-Applied, thanks.
+On Wednesday 27 April 2016 11:44:10 Alexandre Belloni wrote:
+> On 26/04/2016 at 23:44:04 +0200, Arnd Bergmann wrote :
+> > I've had these patches in my tree for a while, after the first one
+> > had a few issues that are fixed in this new version. The old-style
+> > PC RTC driver is now also disabled on m68k (as pointed out by
+> > Geert), ppc (it was also blacklisted), and m32r (I showed that
+> > it did not build).
+> > 
+> > For the genrtc driver, rearranging the headers makes it simpler
+> > to use and reduces duplication. In case of alpha and mn10300,
+> > I've shown that the genrtc and rtc drivers are doing the same
+> > thing, so we don't need them both. The remaining three
+> > architectures (m68k, parisc, powerpc) actually all support
+> > the newer rtc-generic driver, so we could remove genrtc completely
+> > if we want to.
+> > 
+> 
+> Personally, I'd go for the kill and remove genrtc instead of cleaning it up.
 
---=20
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+Right, so we could skip patches 5 and 6, and instead remove the two
+headers as we remove the driver. Let's see what the architecture
+maintainers think about it, at least powerpc actually enables gen_rtc
+in its defconfig, so it might take a while to move it over.
 
---=20
---=20
+	Arnd
+
+-- 
+-- 
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
----=20
-You received this message because you are subscribed to the Google Groups "=
-rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an e=
-mail to rtc-linux+unsubscribe@googlegroups.com.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
