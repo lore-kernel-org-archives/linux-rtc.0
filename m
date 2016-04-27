@@ -1,17 +1,18 @@
-Return-Path: <rtc-linux+bncBDQNTZVC44FBB3EGQG4AKGQEVWLHP6I@googlegroups.com>
+Return-Path: <rtc-linux+bncBDEKVJM7XAHRBJU3QK4QKGQEQYSMDKI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mailhost.home (mailhost.ilcode.fr. [2a01:240:fe87:2::2])
-        by gmr-mx.google.com with ESMTPS id 185si141424wml.0.2016.04.02.15.10.51
+Received: from mout.kundenserver.de (mout.kundenserver.de. [212.227.126.134])
+        by gmr-mx.google.com with ESMTPS id d2si412154igx.2.2016.04.27.03.00.05
         for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=AES128-SHA bits=128/128);
-        Sat, 02 Apr 2016 15:10:51 -0700 (PDT)
-Date: Sun, 3 Apr 2016 00:10:47 +0200
-From: Nicolas Boullis <nboullis@debian.org>
-To: Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	rtc-linux@googlegroups.com
-Subject: [rtc-linux] [PATCH 2/2] rtc: ds1307: clear the interrupts on probe
-Message-ID: <20160402221047.GB3600@haddock.home>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 27 Apr 2016 03:00:06 -0700 (PDT)
+From: Arnd Bergmann <arnd@arndb.de>
+To: linuxppc-dev@lists.ozlabs.org
+Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>, dalias@libc.org, linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org, dhowells@redhat.com, linux-arch@vger.kernel.org, deller@gmx.de, x86@kernel.org, jejb@parisc-linux.org, geert@linux-m68k.org, rtc-linux@googlegroups.com, ink@jurassic.park.msu.ru, rth@twiddle.net, a.zummo@towertech.it, tony.luck@intel.com, linux-parisc@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org, yasutake.koichi@jp.panasonic.com
+Subject: [rtc-linux] Re: [PATCH 4/8] char/rtc: move mc146818rtc code out of asm-generic/rtc.h
+Date: Wed, 27 Apr 2016 11:59:45 +0200
+Message-ID: <13463932.UFUngJV7ZH@wuerfel>
+In-Reply-To: <20160427084707.GI3264@piout.net>
+References: <1461707052-1337718-1-git-send-email-arnd@arndb.de> <1461707052-1337718-5-git-send-email-arnd@arndb.de> <20160427084707.GI3264@piout.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
@@ -23,59 +24,19 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-When the alarm is used to switch the computer on, the interrupts are 
-disabled, but the interrupt flags are not cleared.
+On Wednesday 27 April 2016 11:29:12 Alexandre Belloni wrote:
+> The subject should be:
+> rtc: cmos: move mc146818rtc code out of asm-generic/rtc.h
 
-When the alarm is set, later, the interrupt is enabled and the interrupt 
-flags are cleared. Unfortunately, at least with my DS1339 chip, it 
-behaves as if the interrupt was enabled before the flag was cleared, so 
-the interrupt is triggered.
-
-With this patch, the interrupt flags are cleared when the chip is 
-probed, so an interrupt is not triggered when the alarm is set.
-
-Signed-off-by: Nicolas Boullis <nboullis@debian.org>
-
----
-
-Not sure if I should check for errors with (tmp != 2) to be consistent 
-with the check after reading the same block, a few lines above, or with 
-(tmp < 0)...
-
-diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
-index b2156ee..19e7353 100644
---- a/drivers/rtc/rtc-ds1307.c
-+++ b/drivers/rtc/rtc-ds1307.c
-@@ -1320,19 +1324,24 @@ static int ds1307_probe(struct i2c_client *client,
- 			ds1307->regs[0] |= DS1337_BIT_INTCN
- 					| bbsqi_bitpos[ds1307->type];
- 			ds1307->regs[0] &= ~(DS1337_BIT_A2IE | DS1337_BIT_A1IE);
-+			ds1307->regs[1] &= ~(DS1337_BIT_A2I | DS1337_BIT_A1I);
+Good point, the functions are only used by rtc-cmos, not the old
+drivers/char/rtc.c.
  
- 			want_irq = true;
- 		}
- 
--		i2c_smbus_write_byte_data(client, DS1337_REG_CONTROL,
--							ds1307->regs[0]);
--
- 		/* oscillator fault?  clear flag, and warn */
- 		if (ds1307->regs[1] & DS1337_BIT_OSF) {
--			i2c_smbus_write_byte_data(client, DS1337_REG_STATUS,
--				ds1307->regs[1] & ~DS1337_BIT_OSF);
- 			dev_warn(&client->dev, "SET TIME!\n");
- 		}
-+
-+		tmp = ds1307->write_block_data(ds1307->client,
-+				DS1337_REG_CONTROL, 2, buf);
-+		if (tmp != 2) {
-+			dev_dbg(&client->dev, "write error %d\n", tmp);
-+			err = -EIO;
-+			goto exit;
-+		}
-+
- 		break;
- 
- 	case rx_8025:
+> Else, you can add:
+> Acked-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+
+Thanks.
+
+	Arnd
 
 -- 
 -- 
