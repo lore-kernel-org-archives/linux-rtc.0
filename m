@@ -1,26 +1,37 @@
-Return-Path: <rtc-linux+bncBD7N3SEV2QCRBVGGSW4AKGQEXJRYNCY@googlegroups.com>
+Return-Path: <rtc-linux+bncBDEKVJM7XAHRBDX5QS4QKGQEC7RNDXY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from vk1046.megiteam.com.pl (2780.rev.megiteam.pl. [91.227.39.128])
-        by gmr-mx.google.com with ESMTP id i196si662513wmf.0.2016.04.06.12.28.19
-        for <rtc-linux@googlegroups.com>;
-        Wed, 06 Apr 2016 12:28:19 -0700 (PDT)
-Subject: [rtc-linux] Re: [PATCH v2] rtc: omap: Support ext_wakeup configuration
-To: Tony Lindgren <tony@atomide.com>
-References: <1459960367-29399-1-git-send-email-m.niestroj@grinn-global.com>
- <1459960367-29399-2-git-send-email-m.niestroj@grinn-global.com>
- <20160406191103.GE27411@atomide.com>
-Cc: rtc-linux@googlegroups.com, devicetree@vger.kernel.org,
- Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>,
- Alessandro Zummo <a.zummo@towertech.it>,
- Alexandre Belloni <alexandre.belloni@free-electrons.com>,
- Keerthy <j-keerthy@ti.com>, linux-omap@vger.kernel.org
-From: Marcin Niestroj <m.niestroj@grinn-global.com>
-Message-ID: <57056352.1060801@grinn-global.com>
-Date: Wed, 6 Apr 2016 21:28:18 +0200
 MIME-Version: 1.0
-In-Reply-To: <20160406191103.GE27411@atomide.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Received: from mout.kundenserver.de (mout.kundenserver.de. [212.227.17.24])
+        by gmr-mx.google.com with ESMTPS id t18si797691wmt.0.2016.04.27.15.34.54
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 27 Apr 2016 15:34:54 -0700 (PDT)
+From: Arnd Bergmann <arnd@arndb.de>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: Arnd Bergmann <arnd@arndb.de>,
+	geert@linux-m68k.org,
+	deller@gmx.de,
+	benh@kernel.crashing.org,
+	mpe@ellerman.id.au,
+	dalias@libc.org,
+	dhowells@redhat.com,
+	linux-alpha@vger.kernel.org,
+	a.zummo@towertech.it,
+	linux-kernel@vger.kernel.org,
+	linux-parisc@vger.kernel.org,
+	linuxppc-dev@lists.ozlabs.org,
+	linux-sh@vger.kernel.org,
+	linux-m68k@lists.linux-m68k.org,
+	rtc-linux@googlegroups.com,
+	linux-arch@vger.kernel.org
+Subject: [rtc-linux] [PATCH v3 01/16] rtc: cmos: remove empty
+ asm/mc146818rtc.h files
+Date: Thu, 28 Apr 2016 00:34:15 +0200
+Message-Id: <1461796470-1291527-2-git-send-email-arnd@arndb.de>
+In-Reply-To: <1461796470-1291527-1-git-send-email-arnd@arndb.de>
+References: <1461796470-1291527-1-git-send-email-arnd@arndb.de>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -29,286 +40,110 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Hi,
+Nothing on these architectures ever includes the asm/mc146818rtc.h
+file, the drivers that used to do this have been fixed long ago,
+and the remaining users are all PC-specific.
 
-On 06.04.2016 21:11, Tony Lindgren wrote:
-> * Marcin Niestroj <m.niestroj@grinn-global.com> [160406 09:34]:
->> Support configuration of ext_wakeup sources. This patch makes it
->> possible to enable ext_wakeup (and set it's polarity), depending on
->> board configuration. AM335x's dedicated PMIC (tps65217) uses ext_wakeup
->> in SLEEP mode (RTC-only) to notify about power-button presses. Handling
->> power-button presses enables to recover from RTC-only power states
->> correctly.
->>
->> Implementation uses gpiochip to utilize standard bindings. However,
->> configuration is possible only using device-tree (no runtime changes).
->
-> Hey looks good to me, adding linux-omap list to Cc.
->
-> Can you please check that the "depends on GPIOLIB" does not disable
-> the RTC driver for omap1?
+This removes the files for good.
 
-Looks ok for omap1. ARCH_OMAP1 selects ARCH_REQUIRE_GPIOLIB, which
-selects GPIOLIB.
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Acked-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+---
+ arch/frv/include/asm/mc146818rtc.h    | 16 ----------------
+ arch/h8300/include/asm/mc146818rtc.h  |  9 ---------
+ arch/ia64/include/asm/mc146818rtc.h   | 10 ----------
+ arch/parisc/include/asm/mc146818rtc.h |  9 ---------
+ arch/sh/include/asm/mc146818rtc.h     |  7 -------
+ 5 files changed, 51 deletions(-)
+ delete mode 100644 arch/frv/include/asm/mc146818rtc.h
+ delete mode 100644 arch/h8300/include/asm/mc146818rtc.h
+ delete mode 100644 arch/ia64/include/asm/mc146818rtc.h
+ delete mode 100644 arch/parisc/include/asm/mc146818rtc.h
+ delete mode 100644 arch/sh/include/asm/mc146818rtc.h
 
-Best regards,
-Marcin
-
->
-> Regards,
->
-> Tony
->
->> Signed-off-by: Marcin Niestroj <m.niestroj@grinn-global.com>
->> ---
->>   Documentation/devicetree/bindings/rtc/rtc-omap.txt |  18 ++-
->>   drivers/rtc/Kconfig                                |   2 +-
->>   drivers/rtc/rtc-omap.c                             | 137 ++++++++++++++++++++-
->>   3 files changed, 154 insertions(+), 3 deletions(-)
->>
->> diff --git a/Documentation/devicetree/bindings/rtc/rtc-omap.txt b/Documentation/devicetree/bindings/rtc/rtc-omap.txt
->> index bf7d11a..4a7738e 100644
->> --- a/Documentation/devicetree/bindings/rtc/rtc-omap.txt
->> +++ b/Documentation/devicetree/bindings/rtc/rtc-omap.txt
->> @@ -18,8 +18,12 @@ Optional properties:
->>     through pmic_power_en
->>   - clocks: Any internal or external clocks feeding in to rtc
->>   - clock-names: Corresponding names of the clocks
->> +- gpio-controller: Mark as gpio controller when using ext_wakeup
->> +- #gpio-cells: Should be set to 2
->> +- ngpios: Number of ext_wakeup sources supported by processor (board)
->> +- ext-wakeup-gpios: List of ext_wakeup sources to configure
->>
->> -Example:
->> +Examples:
->>
->>   rtc@1c23000 {
->>   	compatible = "ti,da830-rtc";
->> @@ -31,3 +35,15 @@ rtc@1c23000 {
->>   	clocks = <&clk_32k_rtc>, <&clk_32768_ck>;
->>   	clock-names = "ext-clk", "int-clk";
->>   };
->> +
->> +rtc: rtc@44e3e000 {
->> +	compatible = "ti,am3352-rtc", "ti,da830-rtc";
->> +	reg = <0x44e3e000 0x1000>;
->> +	interrupts = <75
->> +		      76>;
->> +	system-power-controller;
->> +	gpio-controller;
->> +	#gpio-cells = <2>;
->> +	ngpios = <1>;
->> +	ext-wakeup-gpios = <&rtc 0 GPIO_ACTIVE_LOW>;
->> +};
->> diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
->> index 3e84315..f013346 100644
->> --- a/drivers/rtc/Kconfig
->> +++ b/drivers/rtc/Kconfig
->> @@ -1208,7 +1208,7 @@ config RTC_DRV_IMXDI
->>
->>   config RTC_DRV_OMAP
->>   	tristate "TI OMAP Real Time Clock"
->> -	depends on ARCH_OMAP || ARCH_DAVINCI || COMPILE_TEST
->> +	depends on (ARCH_OMAP || ARCH_DAVINCI || COMPILE_TEST) && GPIOLIB
->>   	help
->>   	  Say "yes" here to support the on chip real time clock
->>   	  present on TI OMAP1, AM33xx, DA8xx/OMAP-L13x, AM43xx and DRA7xx.
->> diff --git a/drivers/rtc/rtc-omap.c b/drivers/rtc/rtc-omap.c
->> index ec2e9c5..56c7155 100644
->> --- a/drivers/rtc/rtc-omap.c
->> +++ b/drivers/rtc/rtc-omap.c
->> @@ -26,6 +26,8 @@
->>   #include <linux/pm_runtime.h>
->>   #include <linux/io.h>
->>   #include <linux/clk.h>
->> +#include <linux/gpio/driver.h>
->> +#include <linux/gpio/consumer.h>
->>
->>   /*
->>    * The OMAP RTC is a year/month/day/hours/minutes/seconds BCD clock
->> @@ -114,7 +116,11 @@
->>   #define OMAP_RTC_IRQWAKEEN_ALARM_WAKEEN	BIT(1)
->>
->>   /* OMAP_RTC_PMIC bit fields: */
->> -#define OMAP_RTC_PMIC_POWER_EN_EN	BIT(16)
->> +#define OMAP_RTC_PMIC_POWER_EN_EN		BIT(16)
->> +#define OMAP_RTC_PMIC_EXT_WAKEUP_EN(x)		(BIT(x))
->> +#define OMAP_RTC_PMIC_EXT_WAKEUP_POL(x)		(BIT(x) << 4)
->> +#define OMAP_RTC_PMIC_EXT_WAKEUP_EN_MASK	(0x0F)
->> +#define OMAP_RTC_PMIC_EXT_WAKEUP_POL_MASK	(0x0F << 4)
->>
->>   /* OMAP_RTC_KICKER values */
->>   #define	KICK0_VALUE			0x83e70b13
->> @@ -141,6 +147,7 @@ struct omap_rtc {
->>   	bool is_pmic_controller;
->>   	bool has_ext_clk;
->>   	const struct omap_rtc_device_type *type;
->> +	struct gpio_chip gpio_chip;
->>   };
->>
->>   static inline u8 rtc_read(struct omap_rtc *rtc, unsigned int reg)
->> @@ -183,6 +190,104 @@ static void default_rtc_lock(struct omap_rtc *rtc)
->>   {
->>   }
->>
->> +static int omap_rtc_gpio_request(struct gpio_chip *chip,
->> +				unsigned int offset)
->> +{
->> +	struct omap_rtc *rtc = gpiochip_get_data(chip);
->> +	u32 val;
->> +
->> +	rtc->type->unlock(rtc);
->> +
->> +	val = rtc_readl(rtc, OMAP_RTC_PMIC_REG);
->> +	val |= OMAP_RTC_PMIC_EXT_WAKEUP_EN(offset);
->> +	rtc_writel(rtc, OMAP_RTC_PMIC_REG, val);
->> +
->> +	rtc->type->lock(rtc);
->> +
->> +	return 0;
->> +}
->> +
->> +static void omap_rtc_gpio_free(struct gpio_chip *chip,
->> +			unsigned int offset)
->> +{
->> +	struct omap_rtc *rtc = gpiochip_get_data(chip);
->> +	u32 val;
->> +
->> +	rtc->type->unlock(rtc);
->> +
->> +	val = rtc_readl(rtc, OMAP_RTC_PMIC_REG);
->> +	val &= ~OMAP_RTC_PMIC_EXT_WAKEUP_EN(offset);
->> +	rtc_writel(rtc, OMAP_RTC_PMIC_REG, val);
->> +
->> +	rtc->type->lock(rtc);
->> +}
->> +
->> +static int omap_rtc_gpio_get_direction(struct gpio_chip *chip,
->> +				unsigned int offset)
->> +{
->> +	return 1; /* Always in */
->> +}
->> +
->> +
->> +static int omap_rtc_gpio_direction_input(struct gpio_chip *chip,
->> +					unsigned int offset)
->> +{
->> +	return 0;
->> +}
->> +
->> +static int omap_rtc_gpio_get(struct gpio_chip *chip, unsigned int offset)
->> +{
->> +	return 0;
->> +}
->> +
->> +/*
->> + * Note: This function is called only when setting ext_wakeup polarity
->> + * with omap_rtc_gpio_set_polarity
->> + */
->> +static void omap_rtc_gpio_set(struct gpio_chip *chip, unsigned int offset,
->> +			int value)
->> +{
->> +	struct omap_rtc *rtc = gpiochip_get_data(chip);
->> +	u32 val;
->> +
->> +	rtc->type->unlock(rtc);
->> +
->> +	val = rtc_readl(rtc, OMAP_RTC_PMIC_REG);
->> +	if (value)
->> +		val |= OMAP_RTC_PMIC_EXT_WAKEUP_POL(offset);
->> +	else
->> +		val &= ~OMAP_RTC_PMIC_EXT_WAKEUP_POL(offset);
->> +	rtc_writel(rtc, OMAP_RTC_PMIC_REG, val);
->> +
->> +	rtc->type->lock(rtc);
->> +}
->> +
->> +static void omap_rtc_gpio_set_polarity(struct gpio_descs *ext_wakeup)
->> +{
->> +	struct gpio_desc *desc;
->> +	int i;
->> +
->> +	for (i = 0; i < ext_wakeup->ndescs; i++) {
->> +		desc = ext_wakeup->desc[i];
->> +		gpiod_set_raw_value_cansleep(desc,
->> +					gpiod_is_active_low(desc));
->> +	}
->> +}
->> +
->> +static struct gpio_chip template_chip = {
->> +	.label			= "omap-rtc-gpio",
->> +	.owner			= THIS_MODULE,
->> +	.request		= omap_rtc_gpio_request,
->> +	.free			= omap_rtc_gpio_free,
->> +	.get_direction		= omap_rtc_gpio_get_direction,
->> +	.direction_input	= omap_rtc_gpio_direction_input,
->> +	.get			= omap_rtc_gpio_get,
->> +	.set			= omap_rtc_gpio_set,
->> +	.base			= -1,
->> +	.ngpio			= 4,
->> +	.can_sleep		= true,
->> +};
->> +
->>   /*
->>    * We rely on the rtc framework to handle locking (rtc->ops_lock),
->>    * so the only other requirement is that register accesses which
->> @@ -533,6 +638,8 @@ static int omap_rtc_probe(struct platform_device *pdev)
->>   	const struct platform_device_id *id_entry;
->>   	const struct of_device_id *of_id;
->>   	int ret;
->> +	struct gpio_descs *ext_wakeup;
->> +	u32 ngpios = 0;
->>
->>   	rtc = devm_kzalloc(&pdev->dev, sizeof(*rtc), GFP_KERNEL);
->>   	if (!rtc)
->> @@ -544,6 +651,10 @@ static int omap_rtc_probe(struct platform_device *pdev)
->>   		rtc->is_pmic_controller = rtc->type->has_pmic_mode &&
->>   				of_property_read_bool(pdev->dev.of_node,
->>   						"system-power-controller");
->> +		ret = of_property_read_u32(pdev->dev.of_node, "ngpios",
->> +					&ngpios);
->> +		if (ret)
->> +			ngpios = 0;
->>   	} else {
->>   		id_entry = platform_get_device_id(pdev);
->>   		rtc->type = (void *)id_entry->driver_data;
->> @@ -577,6 +688,30 @@ static int omap_rtc_probe(struct platform_device *pdev)
->>   	pm_runtime_enable(&pdev->dev);
->>   	pm_runtime_get_sync(&pdev->dev);
->>
->> +	if (ngpios > 0) {
->> +		rtc->gpio_chip = template_chip;
->> +		rtc->gpio_chip.parent = &pdev->dev;
->> +		rtc->gpio_chip.ngpio = ngpios;
->> +		ret = devm_gpiochip_add_data(&pdev->dev, &rtc->gpio_chip,
->> +					rtc);
->> +		if (ret < 0) {
->> +			dev_err(&pdev->dev, "Could not register gpiochip, %d\n",
->> +				ret);
->> +			return ret;
->> +		}
->> +
->> +		ext_wakeup = devm_gpiod_get_array_optional(&pdev->dev,
->> +						"ext-wakeup", GPIOD_IN);
->> +		if (IS_ERR(ext_wakeup)) {
->> +			ret = PTR_ERR(ext_wakeup);
->> +			dev_err(&pdev->dev,
->> +				"ext-wakeup request failed, ret %d\n", ret);
->> +			return ret;
->> +		}
->> +		if (ext_wakeup)
->> +			omap_rtc_gpio_set_polarity(ext_wakeup);
->> +	}
->> +
->>   	rtc->type->unlock(rtc);
->>
->>   	/*
->> --
->> 2.8.0
->>
-
+diff --git a/arch/frv/include/asm/mc146818rtc.h b/arch/frv/include/asm/mc146818rtc.h
+deleted file mode 100644
+index 90dfb7a633d1..000000000000
+--- a/arch/frv/include/asm/mc146818rtc.h
++++ /dev/null
+@@ -1,16 +0,0 @@
+-/* mc146818rtc.h: RTC defs
+- *
+- * Copyright (C) 2005 Red Hat, Inc. All Rights Reserved.
+- * Written by David Howells (dhowells@redhat.com)
+- *
+- * This program is free software; you can redistribute it and/or
+- * modify it under the terms of the GNU General Public License
+- * as published by the Free Software Foundation; either version
+- * 2 of the License, or (at your option) any later version.
+- */
+-
+-#ifndef _ASM_MC146818RTC_H
+-#define _ASM_MC146818RTC_H
+-
+-
+-#endif /* _ASM_MC146818RTC_H */
+diff --git a/arch/h8300/include/asm/mc146818rtc.h b/arch/h8300/include/asm/mc146818rtc.h
+deleted file mode 100644
+index ab9d9646d241..000000000000
+--- a/arch/h8300/include/asm/mc146818rtc.h
++++ /dev/null
+@@ -1,9 +0,0 @@
+-/*
+- * Machine dependent access functions for RTC registers.
+- */
+-#ifndef _H8300_MC146818RTC_H
+-#define _H8300_MC146818RTC_H
+-
+-/* empty include file to satisfy the include in genrtc.c/ide-geometry.c */
+-
+-#endif /* _H8300_MC146818RTC_H */
+diff --git a/arch/ia64/include/asm/mc146818rtc.h b/arch/ia64/include/asm/mc146818rtc.h
+deleted file mode 100644
+index 407787a237ba..000000000000
+--- a/arch/ia64/include/asm/mc146818rtc.h
++++ /dev/null
+@@ -1,10 +0,0 @@
+-#ifndef _ASM_IA64_MC146818RTC_H
+-#define _ASM_IA64_MC146818RTC_H
+-
+-/*
+- * Machine dependent access functions for RTC registers.
+- */
+-
+-/* empty include file to satisfy the include in genrtc.c */
+-
+-#endif /* _ASM_IA64_MC146818RTC_H */
+diff --git a/arch/parisc/include/asm/mc146818rtc.h b/arch/parisc/include/asm/mc146818rtc.h
+deleted file mode 100644
+index adf41631449f..000000000000
+--- a/arch/parisc/include/asm/mc146818rtc.h
++++ /dev/null
+@@ -1,9 +0,0 @@
+-/*
+- * Machine dependent access functions for RTC registers.
+- */
+-#ifndef _ASM_MC146818RTC_H
+-#define _ASM_MC146818RTC_H
+-
+-/* empty include file to satisfy the include in genrtc.c */
+-
+-#endif /* _ASM_MC146818RTC_H */
+diff --git a/arch/sh/include/asm/mc146818rtc.h b/arch/sh/include/asm/mc146818rtc.h
+deleted file mode 100644
+index 0aee96a97330..000000000000
+--- a/arch/sh/include/asm/mc146818rtc.h
++++ /dev/null
+@@ -1,7 +0,0 @@
+-/*
+- * Machine dependent access functions for RTC registers.
+- */
+-#ifndef _ASM_MC146818RTC_H
+-#define _ASM_MC146818RTC_H
+-
+-#endif /* _ASM_MC146818RTC_H */
 -- 
-Marcin Niestroj
+2.7.0
 
 -- 
 -- 
