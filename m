@@ -1,21 +1,29 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBJ6B4W4AKGQE34MJKMA@googlegroups.com>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBTXWQG4QKGQEIKYD6EI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id a124si21940wme.0.2016.04.21.16.22.14
+        by gmr-mx.google.com with ESMTP id e64si665409wmi.3.2016.04.27.01.41.49
         for <rtc-linux@googlegroups.com>;
-        Thu, 21 Apr 2016 16:22:14 -0700 (PDT)
-Date: Fri, 22 Apr 2016 01:22:14 +0200
+        Wed, 27 Apr 2016 01:41:49 -0700 (PDT)
+Date: Wed, 27 Apr 2016 10:41:31 +0200
 From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Stefan Agner <stefan@agner.ch>
-Cc: a.zummo@towertech.it, rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH] rtc: snvs: return error in case
- enable_irq_wake fails
-Message-ID: <20160421232214.GE29844@piout.net>
-References: <1461193797-18015-1-git-send-email-stefan@agner.ch>
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, tony.luck@intel.com,
+	geert@linux-m68k.org, jejb@parisc-linux.org, deller@gmx.de,
+	benh@kernel.crashing.org, mpe@ellerman.id.au, dalias@libc.org,
+	dhowells@redhat.com, yasutake.koichi@jp.panasonic.com,
+	rth@twiddle.net, ink@jurassic.park.msu.ru,
+	linux-alpha@vger.kernel.org, x86@kernel.org, a.zummo@towertech.it,
+	linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org,
+	linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+	linux-sh@vger.kernel.org, rtc-linux@googlegroups.com,
+	linux-arch@vger.kernel.org
+Subject: [rtc-linux] Re: [PATCH 3/8] char/rtc: remove empty asm/mc146818rtc.h files
+Message-ID: <20160427084131.GH3264@piout.net>
+References: <1461707052-1337718-1-git-send-email-arnd@arndb.de>
+ <1461707052-1337718-4-git-send-email-arnd@arndb.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1461193797-18015-1-git-send-email-stefan@agner.ch>
+In-Reply-To: <1461707052-1337718-4-git-send-email-arnd@arndb.de>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -25,18 +33,113 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 20/04/2016 at 16:09:57 -0700, Stefan Agner wrote :
-> If enable_irq_wake fails, we should return that error code so that
-> entering suspend fails. Otherwise we will get a WARNING along with
-> the hint of a unbalanced wake disable:
-> Unbalanced IRQ 37 wake disable
+On 26/04/2016 at 23:44:07 +0200, Arnd Bergmann wrote :
+> Nothing on these architectures ever includes the asm/mc146818rtc.h
+> file, the drivers that used to do this have been fixed long ago,
+> and the remaining users are all PC-specific.
 > 
-> Signed-off-by: Stefan Agner <stefan@agner.ch>
+> This removes the files for good.
+> 
+> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Acked-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+
 > ---
->  drivers/rtc/rtc-snvs.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+>  arch/frv/include/asm/mc146818rtc.h    | 16 ----------------
+>  arch/h8300/include/asm/mc146818rtc.h  |  9 ---------
+>  arch/ia64/include/asm/mc146818rtc.h   | 10 ----------
+>  arch/parisc/include/asm/mc146818rtc.h |  9 ---------
+>  arch/sh/include/asm/mc146818rtc.h     |  7 -------
+>  5 files changed, 51 deletions(-)
+>  delete mode 100644 arch/frv/include/asm/mc146818rtc.h
+>  delete mode 100644 arch/h8300/include/asm/mc146818rtc.h
+>  delete mode 100644 arch/ia64/include/asm/mc146818rtc.h
+>  delete mode 100644 arch/parisc/include/asm/mc146818rtc.h
+>  delete mode 100644 arch/sh/include/asm/mc146818rtc.h
 > 
-Applied, thanks.
+> diff --git a/arch/frv/include/asm/mc146818rtc.h b/arch/frv/include/asm/mc146818rtc.h
+> deleted file mode 100644
+> index 90dfb7a633d1..000000000000
+> --- a/arch/frv/include/asm/mc146818rtc.h
+> +++ /dev/null
+> @@ -1,16 +0,0 @@
+> -/* mc146818rtc.h: RTC defs
+> - *
+> - * Copyright (C) 2005 Red Hat, Inc. All Rights Reserved.
+> - * Written by David Howells (dhowells@redhat.com)
+> - *
+> - * This program is free software; you can redistribute it and/or
+> - * modify it under the terms of the GNU General Public License
+> - * as published by the Free Software Foundation; either version
+> - * 2 of the License, or (at your option) any later version.
+> - */
+> -
+> -#ifndef _ASM_MC146818RTC_H
+> -#define _ASM_MC146818RTC_H
+> -
+> -
+> -#endif /* _ASM_MC146818RTC_H */
+> diff --git a/arch/h8300/include/asm/mc146818rtc.h b/arch/h8300/include/asm/mc146818rtc.h
+> deleted file mode 100644
+> index ab9d9646d241..000000000000
+> --- a/arch/h8300/include/asm/mc146818rtc.h
+> +++ /dev/null
+> @@ -1,9 +0,0 @@
+> -/*
+> - * Machine dependent access functions for RTC registers.
+> - */
+> -#ifndef _H8300_MC146818RTC_H
+> -#define _H8300_MC146818RTC_H
+> -
+> -/* empty include file to satisfy the include in genrtc.c/ide-geometry.c */
+> -
+> -#endif /* _H8300_MC146818RTC_H */
+> diff --git a/arch/ia64/include/asm/mc146818rtc.h b/arch/ia64/include/asm/mc146818rtc.h
+> deleted file mode 100644
+> index 407787a237ba..000000000000
+> --- a/arch/ia64/include/asm/mc146818rtc.h
+> +++ /dev/null
+> @@ -1,10 +0,0 @@
+> -#ifndef _ASM_IA64_MC146818RTC_H
+> -#define _ASM_IA64_MC146818RTC_H
+> -
+> -/*
+> - * Machine dependent access functions for RTC registers.
+> - */
+> -
+> -/* empty include file to satisfy the include in genrtc.c */
+> -
+> -#endif /* _ASM_IA64_MC146818RTC_H */
+> diff --git a/arch/parisc/include/asm/mc146818rtc.h b/arch/parisc/include/asm/mc146818rtc.h
+> deleted file mode 100644
+> index adf41631449f..000000000000
+> --- a/arch/parisc/include/asm/mc146818rtc.h
+> +++ /dev/null
+> @@ -1,9 +0,0 @@
+> -/*
+> - * Machine dependent access functions for RTC registers.
+> - */
+> -#ifndef _ASM_MC146818RTC_H
+> -#define _ASM_MC146818RTC_H
+> -
+> -/* empty include file to satisfy the include in genrtc.c */
+> -
+> -#endif /* _ASM_MC146818RTC_H */
+> diff --git a/arch/sh/include/asm/mc146818rtc.h b/arch/sh/include/asm/mc146818rtc.h
+> deleted file mode 100644
+> index 0aee96a97330..000000000000
+> --- a/arch/sh/include/asm/mc146818rtc.h
+> +++ /dev/null
+> @@ -1,7 +0,0 @@
+> -/*
+> - * Machine dependent access functions for RTC registers.
+> - */
+> -#ifndef _ASM_MC146818RTC_H
+> -#define _ASM_MC146818RTC_H
+> -
+> -#endif /* _ASM_MC146818RTC_H */
+> -- 
+> 2.7.0
+> 
 
 -- 
 Alexandre Belloni, Free Electrons
