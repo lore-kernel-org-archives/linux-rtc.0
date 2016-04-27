@@ -1,22 +1,18 @@
-Return-Path: <rtc-linux+bncBAABBXUQRK4QKGQEIHIZVRI@googlegroups.com>
+Return-Path: <rtc-linux+bncBDEKVJM7XAHRBXWFQK4QKGQERYX4GSI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id k143si16263wmg.1.2016.04.28.15.02.05
-        for <rtc-linux@googlegroups.com>;
-        Thu, 28 Apr 2016 15:02:05 -0700 (PDT)
-From: =?UTF-8?q?Myl=C3=A8ne=20Josserand?= <mylene.josserand@free-electrons.com>
-To: alexandre.belloni@free-electrons.com,
-	rtc-linux@googlegroups.com
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
-	linux-kernel@vger.kernel.org,
-	mylene.josserand@free-electrons.com
-Subject: [rtc-linux] [PATCH V2 4/6] rtc: rv3029: Removes some checks and warnings
-Date: Fri, 29 Apr 2016 00:00:35 +0200
-Message-Id: <0f3b36cc2254ef7198974fdbe86fce5a8ecca93b.1461879175.git.mylene.josserand@free-electrons.com>
-In-Reply-To: <cover.1461879175.git.mylene.josserand@free-electrons.com>
-References: <cover.1461879175.git.mylene.josserand@free-electrons.com>
-In-Reply-To: <cover.1461879175.git.mylene.josserand@free-electrons.com>
-References: <cover.1461250479.git.mylene.josserand@free-electrons.com> <cover.1461879175.git.mylene.josserand@free-electrons.com>
+Received: from mout.kundenserver.de (mout.kundenserver.de. [212.227.126.187])
+        by gmr-mx.google.com with ESMTPS id c7si180702wmf.2.2016.04.27.04.30.38
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 27 Apr 2016 04:30:38 -0700 (PDT)
+From: Arnd Bergmann <arnd@arndb.de>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Tony Luck <tony.luck@intel.com>, "James E.J. Bottomley" <jejb@parisc-linux.org>, Helge Deller <deller@gmx.de>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Michael Ellerman <mpe@ellerman.id.au>, Rich Felker <dalias@libc.org>, David Howells <dhowells@redhat.com>, Koichi Yasutake <yasutake.koichi@jp.panasonic.com>, Richard Henderson <rth@twiddle.net>, Ivan Kokshaysky <ink@jurassic.park.msu.ru>, alpha <linux-alpha@vger.kernel.org>, the arch/x86 maintainers <x86@kernel.org>, Alessandro Zummo <a.zummo@towertech.it>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-ia64@vger.kernel.org" <linux-ia64@vger.kernel.org>, Parisc List <linux-parisc@vger.kernel.org>, "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>, Linux-sh list <linux-sh@vger.kernel.org>, RTCLINUX <rtc-linux@googlegroups.com>, Linux-Arch <linux-arch@vger.kernel.org>
+Subject: [rtc-linux] Re: char: legacy RTC cleanups
+Date: Wed, 27 Apr 2016 13:30:05 +0200
+Message-ID: <13390963.BOLfm8tOYx@wuerfel>
+In-Reply-To: <CAMuHMdW6AODmVwB59uTvMydbTNiDDxQWB3p-Dp9Dka+GVyP_iw@mail.gmail.com>
+References: <1461707052-1337718-1-git-send-email-arnd@arndb.de> <4937900.aITlOE9vLo@wuerfel> <CAMuHMdW6AODmVwB59uTvMydbTNiDDxQWB3p-Dp9Dka+GVyP_iw@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
@@ -28,179 +24,41 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Removes some checks from checkpatch such as spaces around arithmetic
-operations or prefer "unsigned int".
+On Wednesday 27 April 2016 12:19:59 Geert Uytterhoeven wrote:
+> >
+> > Right, so we could skip patches 5 and 6, and instead remove the two
+> > headers as we remove the driver. Let's see what the architecture
+> > maintainers think about it, at least powerpc actually enables gen_rtc
+> > in its defconfig, so it might take a while to move it over.
+> 
+> FWIW, all PPC defconfigs (except tqm8xx.dts, which is a more recent platform)
+> enabling it did that long before my old commit to enable rtc-generic support
+> on PPC:
+> 
+> commit bcd68a70cb0eee556d86d93133aa150319bd9f53
+> Author: Geert Uytterhoeven <Geert.Uytterhoeven@sonycom.com>
+> Date:   Thu Feb 19 16:50:46 2009 +0100
+> 
+>     powerpc: Hook up rtc-generic, and kill rtc-ppc
 
-Signed-off-by: Myl=C3=A8ne Josserand <mylene.josserand@free-electrons.com>
----
- drivers/rtc/rtc-rv3029c2.c | 68 +++++++++++++++++++++++-------------------=
-----
- 1 file changed, 34 insertions(+), 34 deletions(-)
+Ah, interesting. I have two observations about that patch:
 
-diff --git a/drivers/rtc/rtc-rv3029c2.c b/drivers/rtc/rtc-rv3029c2.c
-index 1310646..cf8d465 100644
---- a/drivers/rtc/rtc-rv3029c2.c
-+++ b/drivers/rtc/rtc-rv3029c2.c
-@@ -125,24 +125,24 @@ struct rv3029_data {
- };
-=20
- static int rv3029_read_regs(struct device *dev, u8 reg, u8 *buf,
--			    unsigned len)
-+			    unsigned int len)
- {
- 	struct rv3029_data *rv3029 =3D dev_get_drvdata(dev);
-=20
- 	if ((reg > RV3029_USR1_RAM_PAGE + 7) ||
--		(reg + len > RV3029_USR1_RAM_PAGE + 8))
-+	    (reg + len > RV3029_USR1_RAM_PAGE + 8))
- 		return -EINVAL;
-=20
- 	return regmap_bulk_read(rv3029->regmap, reg, buf, len);
- }
-=20
- static int rv3029_write_regs(struct device *dev, u8 reg, u8 const buf[],
--			     unsigned len)
-+			     unsigned int len)
- {
- 	struct rv3029_data *rv3029 =3D dev_get_drvdata(dev);
-=20
- 	if ((reg > RV3029_USR1_RAM_PAGE + 7) ||
--		(reg + len > RV3029_USR1_RAM_PAGE + 8))
-+	    (reg + len > RV3029_USR1_RAM_PAGE + 8))
- 		return -EINVAL;
-=20
- 	return regmap_bulk_write(rv3029->regmap, reg, buf, len);
-@@ -347,12 +347,12 @@ static int rv3029_read_time(struct device *dev, struc=
-t rtc_time *tm)
- 		return ret;
- 	}
-=20
--	tm->tm_sec =3D bcd2bin(regs[RV3029_W_SEC-RV3029_W_SEC]);
--	tm->tm_min =3D bcd2bin(regs[RV3029_W_MINUTES-RV3029_W_SEC]);
-+	tm->tm_sec =3D bcd2bin(regs[RV3029_W_SEC - RV3029_W_SEC]);
-+	tm->tm_min =3D bcd2bin(regs[RV3029_W_MINUTES - RV3029_W_SEC]);
-=20
- 	/* HR field has a more complex interpretation */
- 	{
--		const u8 _hr =3D regs[RV3029_W_HOURS-RV3029_W_SEC];
-+		const u8 _hr =3D regs[RV3029_W_HOURS - RV3029_W_SEC];
-=20
- 		if (_hr & RV3029_REG_HR_12_24) {
- 			/* 12h format */
-@@ -363,10 +363,10 @@ static int rv3029_read_time(struct device *dev, struc=
-t rtc_time *tm)
- 			tm->tm_hour =3D bcd2bin(_hr & 0x3f);
- 	}
-=20
--	tm->tm_mday =3D bcd2bin(regs[RV3029_W_DATE-RV3029_W_SEC]);
--	tm->tm_mon =3D bcd2bin(regs[RV3029_W_MONTHS-RV3029_W_SEC]) - 1;
--	tm->tm_year =3D bcd2bin(regs[RV3029_W_YEARS-RV3029_W_SEC]) + 100;
--	tm->tm_wday =3D bcd2bin(regs[RV3029_W_DAYS-RV3029_W_SEC]) - 1;
-+	tm->tm_mday =3D bcd2bin(regs[RV3029_W_DATE - RV3029_W_SEC]);
-+	tm->tm_mon =3D bcd2bin(regs[RV3029_W_MONTHS - RV3029_W_SEC]) - 1;
-+	tm->tm_year =3D bcd2bin(regs[RV3029_W_YEARS - RV3029_W_SEC]) + 100;
-+	tm->tm_wday =3D bcd2bin(regs[RV3029_W_DAYS - RV3029_W_SEC]) - 1;
-=20
- 	return 0;
- }
-@@ -391,13 +391,13 @@ static int rv3029_read_alarm(struct device *dev, stru=
-ct rtc_wkalrm *alarm)
- 		return ret;
- 	}
-=20
--	tm->tm_sec =3D bcd2bin(regs[RV3029_A_SC-RV3029_A_SC] & 0x7f);
--	tm->tm_min =3D bcd2bin(regs[RV3029_A_MN-RV3029_A_SC] & 0x7f);
--	tm->tm_hour =3D bcd2bin(regs[RV3029_A_HR-RV3029_A_SC] & 0x3f);
--	tm->tm_mday =3D bcd2bin(regs[RV3029_A_DT-RV3029_A_SC] & 0x3f);
--	tm->tm_mon =3D bcd2bin(regs[RV3029_A_MO-RV3029_A_SC] & 0x1f) - 1;
--	tm->tm_year =3D bcd2bin(regs[RV3029_A_YR-RV3029_A_SC] & 0x7f) + 100;
--	tm->tm_wday =3D bcd2bin(regs[RV3029_A_DW-RV3029_A_SC] & 0x07) - 1;
-+	tm->tm_sec =3D bcd2bin(regs[RV3029_A_SC - RV3029_A_SC] & 0x7f);
-+	tm->tm_min =3D bcd2bin(regs[RV3029_A_MN - RV3029_A_SC] & 0x7f);
-+	tm->tm_hour =3D bcd2bin(regs[RV3029_A_HR - RV3029_A_SC] & 0x3f);
-+	tm->tm_mday =3D bcd2bin(regs[RV3029_A_DT - RV3029_A_SC] & 0x3f);
-+	tm->tm_mon =3D bcd2bin(regs[RV3029_A_MO - RV3029_A_SC] & 0x1f) - 1;
-+	tm->tm_year =3D bcd2bin(regs[RV3029_A_YR - RV3029_A_SC] & 0x7f) + 100;
-+	tm->tm_wday =3D bcd2bin(regs[RV3029_A_DW - RV3029_A_SC] & 0x07) - 1;
-=20
- 	return 0;
- }
-@@ -436,13 +436,13 @@ static int rv3029_set_alarm(struct device *dev, struc=
-t rtc_wkalrm *alarm)
- 		dev_err(dev, "%s: reading SR failed\n", __func__);
- 		return -EIO;
- 	}
--	regs[RV3029_A_SC-RV3029_A_SC] =3D bin2bcd(tm->tm_sec & 0x7f);
--	regs[RV3029_A_MN-RV3029_A_SC] =3D bin2bcd(tm->tm_min & 0x7f);
--	regs[RV3029_A_HR-RV3029_A_SC] =3D bin2bcd(tm->tm_hour & 0x3f);
--	regs[RV3029_A_DT-RV3029_A_SC] =3D bin2bcd(tm->tm_mday & 0x3f);
--	regs[RV3029_A_MO-RV3029_A_SC] =3D bin2bcd((tm->tm_mon & 0x1f) - 1);
--	regs[RV3029_A_DW-RV3029_A_SC] =3D bin2bcd((tm->tm_wday & 7) - 1);
--	regs[RV3029_A_YR-RV3029_A_SC] =3D bin2bcd((tm->tm_year & 0x7f) - 100);
-+	regs[RV3029_A_SC - RV3029_A_SC] =3D bin2bcd(tm->tm_sec & 0x7f);
-+	regs[RV3029_A_MN - RV3029_A_SC] =3D bin2bcd(tm->tm_min & 0x7f);
-+	regs[RV3029_A_HR - RV3029_A_SC] =3D bin2bcd(tm->tm_hour & 0x3f);
-+	regs[RV3029_A_DT - RV3029_A_SC] =3D bin2bcd(tm->tm_mday & 0x3f);
-+	regs[RV3029_A_MO - RV3029_A_SC] =3D bin2bcd((tm->tm_mon & 0x1f) - 1);
-+	regs[RV3029_A_DW - RV3029_A_SC] =3D bin2bcd((tm->tm_wday & 7) - 1);
-+	regs[RV3029_A_YR - RV3029_A_SC] =3D bin2bcd((tm->tm_year & 0x7f) - 100);
-=20
- 	ret =3D rv3029_write_regs(dev, RV3029_A_SC, regs,
- 				RV3029_ALARM_SECTION_LEN);
-@@ -488,13 +488,13 @@ static int rv3029_set_time(struct device *dev, struct=
- rtc_time *tm)
- 	if (tm->tm_year < 100)
- 		return -EINVAL;
-=20
--	regs[RV3029_W_SEC-RV3029_W_SEC] =3D bin2bcd(tm->tm_sec);
--	regs[RV3029_W_MINUTES-RV3029_W_SEC] =3D bin2bcd(tm->tm_min);
--	regs[RV3029_W_HOURS-RV3029_W_SEC] =3D bin2bcd(tm->tm_hour);
--	regs[RV3029_W_DATE-RV3029_W_SEC] =3D bin2bcd(tm->tm_mday);
--	regs[RV3029_W_MONTHS-RV3029_W_SEC] =3D bin2bcd(tm->tm_mon+1);
--	regs[RV3029_W_DAYS-RV3029_W_SEC] =3D bin2bcd((tm->tm_wday & 7)+1);
--	regs[RV3029_W_YEARS-RV3029_W_SEC] =3D bin2bcd(tm->tm_year - 100);
-+	regs[RV3029_W_SEC - RV3029_W_SEC] =3D bin2bcd(tm->tm_sec);
-+	regs[RV3029_W_MINUTES - RV3029_W_SEC] =3D bin2bcd(tm->tm_min);
-+	regs[RV3029_W_HOURS - RV3029_W_SEC] =3D bin2bcd(tm->tm_hour);
-+	regs[RV3029_W_DATE - RV3029_W_SEC] =3D bin2bcd(tm->tm_mday);
-+	regs[RV3029_W_MONTHS - RV3029_W_SEC] =3D bin2bcd(tm->tm_mon + 1);
-+	regs[RV3029_W_DAYS - RV3029_W_SEC] =3D bin2bcd((tm->tm_wday & 7) + 1);
-+	regs[RV3029_W_YEARS - RV3029_W_SEC] =3D bin2bcd(tm->tm_year - 100);
-=20
- 	ret =3D rv3029_write_regs(dev, RV3029_W_SEC, regs,
- 				RV3029_WATCH_SECTION_LEN);
-@@ -515,6 +515,7 @@ static int rv3029_set_time(struct device *dev, struct r=
-tc_time *tm)
-=20
- 	return 0;
- }
-+
- static const struct rv3029_trickle_tab_elem {
- 	u32 r;		/* resistance in ohms */
- 	u8 conf;	/* trickle config bits */
-@@ -603,9 +604,8 @@ static void rv3029_trickle_config(struct device *dev)
- 	err =3D rv3029_eeprom_update_bits(dev, RV3029_CONTROL_E2P_EECTRL,
- 					RV3029_TRICKLE_MASK,
- 					trickle_set_bits);
--	if (err < 0) {
-+	if (err < 0)
- 		dev_err(dev, "Failed to update trickle charger config\n");
--	}
- }
-=20
- #ifdef CONFIG_RTC_DRV_RV3029_HWMON
---=20
-2.8.0.rc3
+- you were moving basically in the opposite direction that I am
+  trying to bring it now. ;-)
 
---=20
---=20
+- I see now that four defconfigs (gamecube, powernv, pseries and wii)
+  do enable RTC_DRV_GENERIC. For some reason, ppc64_defconfig only
+  enables RTC_DRV_DS1307, I assume that is not intentional.
+
+	Arnd
+
+-- 
+-- 
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
----=20
-You received this message because you are subscribed to the Google Groups "=
-rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an e=
-mail to rtc-linux+unsubscribe@googlegroups.com.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
