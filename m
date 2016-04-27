@@ -1,25 +1,30 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBDUSS24AKGQENYX3JOA@googlegroups.com>
+Return-Path: <rtc-linux+bncBDQ2L75W5QGBB3G6QO4QKGQEGZCETBI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id a80si244326wma.0.2016.04.06.15.09.18
-        for <rtc-linux@googlegroups.com>;
-        Wed, 06 Apr 2016 15:09:18 -0700 (PDT)
-Date: Thu, 7 Apr 2016 00:09:09 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Tony Lindgren <tony@atomide.com>
-Cc: Marcin Niestroj <m.niestroj@grinn-global.com>,
+Received: from mezzanine.sirena.org.uk (mezzanine.sirena.org.uk. [2400:8900::f03c:91ff:fedb:4f4])
+        by gmr-mx.google.com with ESMTPS id vo1si799844pab.2.2016.04.27.09.57.15
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=AES128-SHA bits=128/128);
+        Wed, 27 Apr 2016 09:57:15 -0700 (PDT)
+Date: Wed, 27 Apr 2016 17:57:07 +0100
+From: Mark Brown <broonie@kernel.org>
+To: Wadim Egorov <w.egorov@phytec.de>
+Cc: linux-kernel@vger.kernel.org, linux-clk@vger.kernel.org,
 	rtc-linux@googlegroups.com, devicetree@vger.kernel.org,
-	Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>,
-	Alessandro Zummo <a.zummo@towertech.it>, Keerthy <j-keerthy@ti.com>,
-	linux-omap@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH v2] rtc: omap: Support ext_wakeup configuration
-Message-ID: <20160406220909.GG7190@piout.net>
-References: <1459960367-29399-1-git-send-email-m.niestroj@grinn-global.com>
- <1459960367-29399-2-git-send-email-m.niestroj@grinn-global.com>
- <20160406191103.GE27411@atomide.com>
+	linux-rockchip@lists.infradead.org, lee.jones@linaro.org,
+	robh+dt@kernel.org, pawel.moll@arm.com, mark.rutland@arm.com,
+	ijc+devicetree@hellion.org.uk, galak@codeaurora.org,
+	mturquette@baylibre.com, sboyd@codeaurora.org, lgirdwood@gmail.com,
+	a.zummo@towertech.it, alexandre.belloni@free-electrons.com,
+	dianders@chromium.org, zyw@rock-chips.com
+Message-ID: <20160427165707.GH3217@sirena.org.uk>
+References: <1461682450-22173-1-git-send-email-w.egorov@phytec.de>
+ <1461682450-22173-3-git-send-email-w.egorov@phytec.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <20160406191103.GE27411@atomide.com>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="bTTI3rp5igVUz0aj"
+In-Reply-To: <1461682450-22173-3-git-send-email-w.egorov@phytec.de>
+Subject: [rtc-linux] Re: [PATCH v4 2/7] regulator: rk808: Migrate to regulator
+ core's simplified DT parsing code
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -29,28 +34,16 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 06/04/2016 at 12:11:03 -0700, Tony Lindgren wrote :
-> * Marcin Niestroj <m.niestroj@grinn-global.com> [160406 09:34]:
-> > Support configuration of ext_wakeup sources. This patch makes it
-> > possible to enable ext_wakeup (and set it's polarity), depending on
-> > board configuration. AM335x's dedicated PMIC (tps65217) uses ext_wakeup
-> > in SLEEP mode (RTC-only) to notify about power-button presses. Handling
-> > power-button presses enables to recover from RTC-only power states
-> > correctly.
-> > 
-> > Implementation uses gpiochip to utilize standard bindings. However,
-> > configuration is possible only using device-tree (no runtime changes).
-> 
-> Hey looks good to me, adding linux-omap list to Cc.
-> 
+--bTTI3rp5igVUz0aj
+Content-Type: text/plain; charset=UTF-8
+Content-Disposition: inline
 
-Seems good to me too. Tony, is that an ack?
+On Tue, Apr 26, 2016 at 04:54:05PM +0200, Wadim Egorov wrote:
+> A common simplified DT parsing code for regulators was introduced in
+> commit a0c7b164ad11 ("regulator: of: Provide simplified DT parsing
+> method")
 
-
--- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+Acked-by: Mark Brown <broonie@kernel.org>
 
 -- 
 -- 
@@ -62,3 +55,20 @@ before submitting a driver.
 You received this message because you are subscribed to the Google Groups "rtc-linux" group.
 To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
+
+--bTTI3rp5igVUz0aj
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQEcBAEBCAAGBQJXIO9jAAoJECTWi3JdVIfQaS4H/3PrjVpssZwNq60JvPllMf5F
+Q/RxqhBYC82obh9ORIV0YTkmLa459p/iWzp3umzbtYVrhfkj1LWM1wcyQ66R7H8L
+ma1Gf7riiKz+7xonXuFrrlpNT+0NsLAhBTLwVF8QXnWbYgYDMIkp+L0+MZ2VBO5P
+CQcGmVFyaeNjbvzQviJZ7nI+uHRzhyZDUQvlVPg0mweQjdxEoLTAYYMY6VyCf8xZ
+2wBsCdeDmUTXCfIxng3+/s6eAfmDy7e7Vue0HdXgacrpozkaa9FFWJq7R9vBFFDF
+pCvyQUVA3uigLhUo9FpSErp7SlGaXte7OSfx5fv7YIMZFsK00lER/uBAv74A0Z0=
+=/aTg
+-----END PGP SIGNATURE-----
+
+--bTTI3rp5igVUz0aj--
