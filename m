@@ -1,43 +1,36 @@
-Return-Path: <rtc-linux+bncBDEKVJM7XAHRBXGC764AKGQEP2TIBQY@googlegroups.com>
-Sender: rtc-linux@googlegroups.com
-MIME-Version: 1.0
-Received: from mout.kundenserver.de (mout.kundenserver.de. [212.227.126.133])
-        by gmr-mx.google.com with ESMTPS id c7si113438wmf.2.2016.04.26.14.45.00
+Return-Path: <rtc-linux+bncBCQJP74GSUDRBH7WQG4QKGQEDPAT7YI@googlegroups.com>
+Received: from mail-io0-x243.google.com (mail-io0-x243.google.com. [2607:f8b0:4001:c06::243])
+        by gmr-mx.google.com with ESMTPS id au10si1303837igc.3.2016.04.27.01.41.02
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 26 Apr 2016 14:45:00 -0700 (PDT)
-From: Arnd Bergmann <arnd@arndb.de>
-To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Arnd Bergmann <arnd@arndb.de>,
-	tony.luck@intel.com,
-	geert@linux-m68k.org,
-	jejb@parisc-linux.org,
-	deller@gmx.de,
-	benh@kernel.crashing.org,
-	mpe@ellerman.id.au,
-	dalias@libc.org,
-	dhowells@redhat.com,
-	yasutake.koichi@jp.panasonic.com,
-	rth@twiddle.net,
-	ink@jurassic.park.msu.ru,
-	linux-alpha@vger.kernel.org,
-	x86@kernel.org,
-	a.zummo@towertech.it,
-	alexandre.belloni@free-electrons.com,
-	linux-kernel@vger.kernel.org,
-	linux-ia64@vger.kernel.org,
-	linux-parisc@vger.kernel.org,
-	linuxppc-dev@lists.ozlabs.org,
-	linux-sh@vger.kernel.org,
-	rtc-linux@googlegroups.com,
-	linux-arch@vger.kernel.org
-Subject: [rtc-linux] [PATCH 6/8] char/genrtc: parisc: use asm-generic/rtc.h
-Date: Tue, 26 Apr 2016 23:44:10 +0200
-Message-Id: <1461707052-1337718-7-git-send-email-arnd@arndb.de>
-In-Reply-To: <1461707052-1337718-1-git-send-email-arnd@arndb.de>
+        Wed, 27 Apr 2016 01:41:02 -0700 (PDT)
+Received: by mail-io0-x243.google.com with SMTP id x35so5320810ioi.0
+        for <rtc-linux@googlegroups.com>; Wed, 27 Apr 2016 01:41:02 -0700 (PDT)
+MIME-Version: 1.0
+Sender: geert.uytterhoeven@gmail.com
+In-Reply-To: <6883809.SRgmlLMdyd@wuerfel>
 References: <1461707052-1337718-1-git-send-email-arnd@arndb.de>
-Reply-To: rtc-linux@googlegroups.com
+	<CAMuHMdV=R3ad33vPdMZNvZZ8A_DF+F2C8nyAmXOmFiiP50D_UQ@mail.gmail.com>
+	<6883809.SRgmlLMdyd@wuerfel>
+Date: Wed, 27 Apr 2016 10:41:02 +0200
+Message-ID: <CAMuHMdU8WGkosaC7wK8Jp9D7DGjUjBEHURYkp9GppTz2wxRe_A@mail.gmail.com>
+Subject: [rtc-linux] Re: char: legacy RTC cleanups
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Tony Luck <tony.luck@intel.com>,
+	"James E.J. Bottomley" <jejb@parisc-linux.org>, Helge Deller <deller@gmx.de>,
+	Benjamin Herrenschmidt <benh@kernel.crashing.org>, Michael Ellerman <mpe@ellerman.id.au>,
+	Rich Felker <dalias@libc.org>, David Howells <dhowells@redhat.com>,
+	Koichi Yasutake <yasutake.koichi@jp.panasonic.com>, Richard Henderson <rth@twiddle.net>,
+	Ivan Kokshaysky <ink@jurassic.park.msu.ru>, alpha <linux-alpha@vger.kernel.org>,
+	"the arch/x86 maintainers" <x86@kernel.org>, Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+	"linux-ia64@vger.kernel.org" <linux-ia64@vger.kernel.org>, Parisc List <linux-parisc@vger.kernel.org>,
+	"linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>, Linux-sh list <linux-sh@vger.kernel.org>,
+	RTCLINUX <rtc-linux@googlegroups.com>, Linux-Arch <linux-arch@vger.kernel.org>
 Content-Type: text/plain; charset=UTF-8
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -46,93 +39,46 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-The asm-generic/rtc.h header can now be included by
-architectures that provide their own set_rtc_time/get_rtc_time
-macros, letting us remove most of the common contents in
-the powerpc implementation.
+Hi Arnd,
 
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
----
- arch/parisc/include/asm/rtc.h | 38 +++++---------------------------------
- 1 file changed, 5 insertions(+), 33 deletions(-)
+On Wed, Apr 27, 2016 at 10:33 AM, Arnd Bergmann <arnd@arndb.de> wrote:
+> On Wednesday 27 April 2016 09:54:41 Geert Uytterhoeven wrote:
+>> On Tue, Apr 26, 2016 at 11:44 PM, Arnd Bergmann <arnd@arndb.de> wrote:
+>> > For the genrtc driver, rearranging the headers makes it simpler
+>> > to use and reduces duplication. In case of alpha and mn10300,
+>> > I've shown that the genrtc and rtc drivers are doing the same
+>> > thing, so we don't need them both. The remaining three
+>> > architectures (m68k, parisc, powerpc) actually all support
+>> > the newer rtc-generic driver, so we could remove genrtc completely
+>> > if we want to.
+>>
+>> CONFIG_GEN_RTC is not enabled in any of the m68k defconfigs, so I think genrtc
+>> has been unused for a while.
+>> All defconfigs either use CONFIG_RTC_DRV_GENERIC, or enable a more specific
+>> RTC driver.
+>
+> Ok, good to know. I'm guessing the same is true for parisc, but there are
+> also very few users.
+>
+> Regarding the Q40 specific ioctls, what do you think this means, is it
+>
+> a) nobody uses Q40 with modern kernels,
+> b) nobody calls RTC_PLL_GET/RTC_PLL_SET on q40, or
+> c) Q40 users have their own configurations and enable GEN_RTC?
 
-diff --git a/arch/parisc/include/asm/rtc.h b/arch/parisc/include/asm/rtc.h
-index 099d641a42c2..d06cc581ecc2 100644
---- a/arch/parisc/include/asm/rtc.h
-+++ b/arch/parisc/include/asm/rtc.h
-@@ -12,26 +12,15 @@
- 
- #ifdef __KERNEL__
- 
--#include <linux/rtc.h>
-+#define get_rtc_time parisc_get_rtc_time
-+#define set_rtc_time parisc_set_rtc_time
-+#include <asm-generic/rtc.h>
- 
- #include <asm/pdc.h>
- 
- #define SECS_PER_HOUR   (60 * 60)
- #define SECS_PER_DAY    (SECS_PER_HOUR * 24)
- 
--
--#define RTC_PIE 0x40		/* periodic interrupt enable */
--#define RTC_AIE 0x20		/* alarm interrupt enable */
--#define RTC_UIE 0x10		/* update-finished interrupt enable */
--
--#define RTC_BATT_BAD 0x100	/* battery bad */
--
--/* some dummy definitions */
--#define RTC_SQWE 0x08		/* enable square-wave output */
--#define RTC_DM_BINARY 0x04	/* all time/date values are BCD if clear */
--#define RTC_24H 0x02		/* 24 hour mode - else hours bit 7 means pm */
--#define RTC_DST_EN 0x01	        /* auto switch DST - works f. USA only */
--
- # define __isleap(year) \
-   ((year) % 4 == 0 && ((year) % 100 != 0 || (year) % 400 == 0))
- 
-@@ -44,7 +33,7 @@ static const unsigned short int __mon_yday[2][13] =
- 	{ 0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335, 366 }
- };
- 
--static inline unsigned int get_rtc_time(struct rtc_time *wtime)
-+static inline unsigned int parisc_get_rtc_time(struct rtc_time *wtime)
- {
- 	struct pdc_tod tod_data;
- 	long int days, rem, y;
-@@ -96,7 +85,7 @@ static inline unsigned int get_rtc_time(struct rtc_time *wtime)
- 	return RTC_24H;
- }
- 
--static int set_rtc_time(struct rtc_time *wtime)
-+static int parisc_set_rtc_time(struct rtc_time *wtime)
- {
- 	u_int32_t secs;
- 
-@@ -110,22 +99,5 @@ static int set_rtc_time(struct rtc_time *wtime)
- 
- }
- 
--static inline unsigned int get_rtc_ss(void)
--{
--	struct rtc_time h;
--
--	get_rtc_time(&h);
--	return h.tm_sec;
--}
--
--static inline int get_rtc_pll(struct rtc_pll_info *pll)
--{
--	return -EINVAL;
--}
--static inline int set_rtc_pll(struct rtc_pll_info *pll)
--{
--	return -EINVAL;
--}
--
- #endif /* __KERNEL__ */
- #endif /* __ASM_RTC_H__ */
--- 
-2.7.0
+To be honest, I have no idea. There have never been many Q40 users.
+(old) http://www.linux-m68k.org/Registry/Statistics.html shows only 8.
+
+Gr{oetje,eeting}s,
+
+                        Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
 
 -- 
 -- 
