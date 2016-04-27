@@ -1,30 +1,36 @@
-Return-Path: <rtc-linux+bncBDQ2L75W5QGBBI4HQO4QKGQE3KTIKJA@googlegroups.com>
+Return-Path: <rtc-linux+bncBDEKVJM7XAHRBFP5QS4QKGQEAYNQRIY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mezzanine.sirena.org.uk (mezzanine.sirena.org.uk. [2400:8900::f03c:91ff:fedb:4f4])
-        by gmr-mx.google.com with ESMTPS id ph3si1052036pac.1.2016.04.27.06.50.27
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=AES128-SHA bits=128/128);
-        Wed, 27 Apr 2016 06:50:27 -0700 (PDT)
-Date: Wed, 27 Apr 2016 14:50:12 +0100
-From: Mark Brown <broonie@kernel.org>
-To: Akinobu Mita <akinobu.mita@gmail.com>
-Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Sergei Ianovich <ynvich@gmail.com>, rtc-linux@googlegroups.com,
-	"open list:OPEN FIRMWARE AND..." <devicetree@vger.kernel.org>,
-	Alessandro Zummo <a.zummo@towertech.it>
-Message-ID: <20160427135012.GP3217@sirena.org.uk>
-References: <1460300366-25248-1-git-send-email-akinobu.mita@gmail.com>
- <20160410151237.GD5377@piout.net>
- <1460301781.17404.171.camel@gmail.com>
- <20160410153855.GG5377@piout.net>
- <20160412012518.GQ3351@sirena.org.uk>
- <CAC5umyguFq7vBenkJYM8AWCNJ3oGBKzKAMHHMsO=+OFHtE4b0A@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="2NUUivEUh6/D4/qT"
-In-Reply-To: <CAC5umyguFq7vBenkJYM8AWCNJ3oGBKzKAMHHMsO=+OFHtE4b0A@mail.gmail.com>
-Subject: [rtc-linux] Re: [PATCH 0/4] support control with using GPIO lines
+Received: from mout.kundenserver.de (mout.kundenserver.de. [212.227.17.13])
+        by gmr-mx.google.com with ESMTPS id t18si797707wmt.0.2016.04.27.15.35.01
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 27 Apr 2016 15:35:01 -0700 (PDT)
+From: Arnd Bergmann <arnd@arndb.de>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: Arnd Bergmann <arnd@arndb.de>,
+	geert@linux-m68k.org,
+	deller@gmx.de,
+	benh@kernel.crashing.org,
+	mpe@ellerman.id.au,
+	dalias@libc.org,
+	dhowells@redhat.com,
+	linux-alpha@vger.kernel.org,
+	a.zummo@towertech.it,
+	linux-kernel@vger.kernel.org,
+	linux-parisc@vger.kernel.org,
+	linuxppc-dev@lists.ozlabs.org,
+	linux-sh@vger.kernel.org,
+	linux-m68k@lists.linux-m68k.org,
+	rtc-linux@googlegroups.com,
+	linux-arch@vger.kernel.org
+Subject: [rtc-linux] [PATCH v3 10/16] rtc: m68k: provide ioctl for q40
+Date: Thu, 28 Apr 2016 00:34:24 +0200
+Message-Id: <1461796470-1291527-11-git-send-email-arnd@arndb.de>
+In-Reply-To: <1461796470-1291527-1-git-send-email-arnd@arndb.de>
+References: <1461796470-1291527-1-git-send-email-arnd@arndb.de>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -33,18 +39,62 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
---2NUUivEUh6/D4/qT
-Content-Type: text/plain; charset=UTF-8
-Content-Disposition: inline
+The q40 platform is the only machine in the kernel that provides
+RTC_PLL_GET/RTC_PLL_SET ioctl commands in its rtc through the
+mach_get_rtc_pll/mach_set_rtc_pll callbacks.
 
-On Wed, Apr 27, 2016 at 04:53:18AM +0900, Akinobu Mita wrote:
+However, this currenctly works only in the old-style genrtc
+driver, not the (somewhat) modern rtc-generic driver replacing
+it. This adds an ioctl implementation to the m68k generic_rtc_ops
+in order to let both drivers provide the same API.
 
-> For the read data transfer, the address/command byte is sent on the
-> rising edge of the first eight SCLK cycles and the read data byte is
-> transmitted on the falling edge of the next eight SCL cycles.
+After this, we should be able to remove support for genrtc
+from the m68k architecture.
 
-That's an innovative and exciting hardware design :/  Definitely doesn't
-seem to correspond too closely to any SPI mode I can think of.
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+---
+ arch/m68k/kernel/time.c | 25 +++++++++++++++++++++++++
+ 1 file changed, 25 insertions(+)
+
+diff --git a/arch/m68k/kernel/time.c b/arch/m68k/kernel/time.c
+index 80e024a10115..465423c07a92 100644
+--- a/arch/m68k/kernel/time.c
++++ b/arch/m68k/kernel/time.c
+@@ -100,7 +100,32 @@ static int rtc_generic_set_time(struct device *dev, struct rtc_time *tm)
+ 	return 0;
+ }
+ 
++static int rtc_ioctl(struct device *dev, unsigned int cmd, unsigned long arg)
++{
++	struct rtc_pll_info pll;
++	struct rtc_pll_info __user *argp = (void __user *)arg;
++
++	switch (cmd) {
++	case RTC_PLL_GET:
++		if (!mach_get_rtc_pll || mach_get_rtc_pll(&pll))
++			return -EINVAL;
++		return copy_to_user(argp, &pll, sizeof pll) ? -EFAULT : 0;
++
++	case RTC_PLL_SET:
++		if (!mach_set_rtc_pll)
++			return -EINVAL;
++		if (!capable(CAP_SYS_TIME))
++			return -EACCES;
++		if (copy_from_user(&pll, argp, sizeof(pll)))
++			return -EFAULT;
++		return mach_set_rtc_pll(&pll);
++	}
++
++	return -ENOIOCTLCMD;
++}
++
+ static const struct rtc_class_ops generic_rtc_ops = {
++	.ioctl = rtc_ioctl,
+ 	.read_time = rtc_generic_get_time,
+ 	.set_time = rtc_generic_set_time,
+ };
+-- 
+2.7.0
 
 -- 
 -- 
@@ -56,20 +106,3 @@ before submitting a driver.
 You received this message because you are subscribed to the Google Groups "rtc-linux" group.
 To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
-
---2NUUivEUh6/D4/qT
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
-
-iQEcBAEBCAAGBQJXIMOUAAoJECTWi3JdVIfQSdUH/jFLq+UE3JQuAprUW68kzyK6
-7apF+0wyC5vc+5HGoJqhHrqqTEFh9bMfMbmEUrsNAz3pj5hV7gDmw8D3QKBE3JAN
-ZMHAZFInMZ0v5iOBhU5bAlsmj24krdTjUwSN4+ApQNEAJ/AJSnr514WThUxNiXP0
-sUV4fKM06FYWiM4t4pZnvR0ksUgL7aASKdwoQfkLOfi6kGrCtliAjBJhNRk2waxF
-/OD+8+DGniJ6RA2Y53DXyKtAt7Fqov9fNtBrqGDc8UlMV/VP9RZSpjGeJAx3L7dB
-E7Kq1Zw1oFdCE+sMmPgXVv3lJVobaqsL/SvETgmqKRS8I1bZ7Nt3K2UufDe4hM8=
-=2PZU
------END PGP SIGNATURE-----
-
---2NUUivEUh6/D4/qT--
