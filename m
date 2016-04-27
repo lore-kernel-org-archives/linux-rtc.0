@@ -1,23 +1,34 @@
-Return-Path: <rtc-linux+bncBCPM5SUWUYIRBXWUVG4AKGQE6KHJCSI@googlegroups.com>
+Return-Path: <rtc-linux+bncBDEKVJM7XAHRBDX5QS4QKGQEC7RNDXY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 MIME-Version: 1.0
-Received: from mail-pa0-x242.google.com (mail-pa0-x242.google.com. [2607:f8b0:400e:c03::242])
-        by gmr-mx.google.com with ESMTPS id y20si1149388pfa.2.2016.04.10.07.59.42
+Received: from mout.kundenserver.de (mout.kundenserver.de. [217.72.192.73])
+        by gmr-mx.google.com with ESMTPS id a65si121520wma.0.2016.04.27.15.34.54
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sun, 10 Apr 2016 07:59:42 -0700 (PDT)
-Received: by mail-pa0-x242.google.com with SMTP id hb4so12537267pac.1
-        for <rtc-linux@googlegroups.com>; Sun, 10 Apr 2016 07:59:42 -0700 (PDT)
-From: Akinobu Mita <akinobu.mita@gmail.com>
-To: rtc-linux@googlegroups.com,
-	devicetree@vger.kernel.org
-Cc: Akinobu Mita <akinobu.mita@gmail.com>,
-	Sergey Yanovich <ynvich@gmail.com>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Subject: [rtc-linux] [PATCH 0/4] support control with using GPIO lines
-Date: Sun, 10 Apr 2016 23:59:22 +0900
-Message-Id: <1460300366-25248-1-git-send-email-akinobu.mita@gmail.com>
+        Wed, 27 Apr 2016 15:34:54 -0700 (PDT)
+From: Arnd Bergmann <arnd@arndb.de>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: Arnd Bergmann <arnd@arndb.de>,
+	geert@linux-m68k.org,
+	deller@gmx.de,
+	benh@kernel.crashing.org,
+	mpe@ellerman.id.au,
+	dalias@libc.org,
+	dhowells@redhat.com,
+	linux-alpha@vger.kernel.org,
+	a.zummo@towertech.it,
+	linux-kernel@vger.kernel.org,
+	linux-parisc@vger.kernel.org,
+	linuxppc-dev@lists.ozlabs.org,
+	linux-sh@vger.kernel.org,
+	linux-m68k@lists.linux-m68k.org,
+	rtc-linux@googlegroups.com,
+	linux-arch@vger.kernel.org
+Subject: [rtc-linux] [PATCH v3 06/16] char/genrtc: remove mn10300 support
+Date: Thu, 28 Apr 2016 00:34:20 +0200
+Message-Id: <1461796470-1291527-7-git-send-email-arnd@arndb.de>
+In-Reply-To: <1461796470-1291527-1-git-send-email-arnd@arndb.de>
+References: <1461796470-1291527-1-git-send-email-arnd@arndb.de>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -28,32 +39,67 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-This series adds support access to DS1302 with GPIO lines.
+The genrtc driver serves no purpose on mn10300 because it drives the
+same hardware as the original rtc.c driver, and the newer rtc-generic.c
+or rtc-cmos.c drivers on architectures that use the asm-generic/rtc.h
+header.
 
-Recently rtc-ds1302 is rewritten using SPI 3wire mode.  This adds
-another platform driver using GPIO while supporting both modes.
+I assume it was initially only added for completeness when the
+mn10300 port was done, but the older rtc.c driver was always used
+instead.
 
-Thie series first fixes two problems I found while tesing, secondly
-introduces the abstraction layer for the register access which enables
-to share the most code between spi and platform driver, and adds
-the platform driver using GPIO.
+We can also stop include asm-generic/rtc.h now, because we
+just call mc146818_set_time() directly.
 
-Akinobu Mita (4):
-  rtc: ds1302: fix error check in set_time
-  rtc: ds1302: fix write value for day of week register
-  rtc: ds1302: add register access abstraction layer
-  rtc: ds1302: support control with using GPIO lines
+It would be nice to change the architecture to use the rtc-cmos driver
+next, and remove support for the old rtc driver as well.
 
- .../devicetree/bindings/rtc/maxim-ds1302.txt       |  13 +
- drivers/rtc/Kconfig                                |  17 +-
- drivers/rtc/rtc-ds1302.c                           | 558 ++++++++++++++++++---
- 3 files changed, 503 insertions(+), 85 deletions(-)
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+---
+ arch/mn10300/include/asm/rtc.h | 2 --
+ arch/mn10300/kernel/rtc.c      | 2 +-
+ drivers/char/Kconfig           | 2 +-
+ 3 files changed, 2 insertions(+), 4 deletions(-)
 
-Cc: Sergey Yanovich <ynvich@gmail.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>
-Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+diff --git a/arch/mn10300/include/asm/rtc.h b/arch/mn10300/include/asm/rtc.h
+index 6c14bb1d0d9b..07dc87656197 100644
+--- a/arch/mn10300/include/asm/rtc.h
++++ b/arch/mn10300/include/asm/rtc.h
+@@ -25,6 +25,4 @@ static inline void calibrate_clock(void)
+ 
+ #endif /* !CONFIG_MN10300_RTC */
+ 
+-#include <asm-generic/rtc.h>
+-
+ #endif /* _ASM_RTC_H */
+diff --git a/arch/mn10300/kernel/rtc.c b/arch/mn10300/kernel/rtc.c
+index 48d7058b3295..77e0be4d92ea 100644
+--- a/arch/mn10300/kernel/rtc.c
++++ b/arch/mn10300/kernel/rtc.c
+@@ -27,7 +27,7 @@ void read_persistent_clock(struct timespec *ts)
+ {
+ 	struct rtc_time tm;
+ 
+-	get_rtc_time(&tm);
++	mc146818_set_time(&tm);
+ 
+ 	ts->tv_nsec = 0;
+ 	ts->tv_sec = mktime(tm.tm_year, tm.tm_mon, tm.tm_mday,
+diff --git a/drivers/char/Kconfig b/drivers/char/Kconfig
+index 697510325b1d..d17ed90ebc82 100644
+--- a/drivers/char/Kconfig
++++ b/drivers/char/Kconfig
+@@ -328,7 +328,7 @@ config JS_RTC
+ config GEN_RTC
+ 	tristate "Generic /dev/rtc emulation"
+ 	depends on RTC!=y
+-	depends on M68K || MN10300 || PARISC || PPC
++	depends on M68K || PARISC || PPC
+ 	---help---
+ 	  If you say Y here and create a character special file /dev/rtc with
+ 	  major number 10 and minor number 135 using mknod ("man mknod"), you
 -- 
-2.5.0
+2.7.0
 
 -- 
 -- 
