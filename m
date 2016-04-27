@@ -1,25 +1,36 @@
-Return-Path: <rtc-linux+bncBAABBYEQRK4QKGQENKGEUAY@googlegroups.com>
+Return-Path: <rtc-linux+bncBDEKVJM7XAHRBEX5QS4QKGQEGJEOVFY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id k143si16275wmg.1.2016.04.28.15.02.08
-        for <rtc-linux@googlegroups.com>;
-        Thu, 28 Apr 2016 15:02:08 -0700 (PDT)
-From: =?UTF-8?q?Myl=C3=A8ne=20Josserand?= <mylene.josserand@free-electrons.com>
-To: alexandre.belloni@free-electrons.com,
-	rtc-linux@googlegroups.com
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
-	linux-kernel@vger.kernel.org,
-	mylene.josserand@free-electrons.com
-Subject: [rtc-linux] [PATCH V2 5/6] rtc: rv3029: fix alarm support
-Date: Fri, 29 Apr 2016 00:00:36 +0200
-Message-Id: <110190e646c33da59f84a6e96bc656c17a878c7e.1461879175.git.mylene.josserand@free-electrons.com>
-In-Reply-To: <cover.1461879175.git.mylene.josserand@free-electrons.com>
-References: <cover.1461879175.git.mylene.josserand@free-electrons.com>
-In-Reply-To: <cover.1461879175.git.mylene.josserand@free-electrons.com>
-References: <cover.1461250479.git.mylene.josserand@free-electrons.com> <cover.1461879175.git.mylene.josserand@free-electrons.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Received: from mout.kundenserver.de (mout.kundenserver.de. [217.72.192.74])
+        by gmr-mx.google.com with ESMTPS id k143si430555wmg.1.2016.04.27.15.34.58
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 27 Apr 2016 15:34:58 -0700 (PDT)
+From: Arnd Bergmann <arnd@arndb.de>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: Arnd Bergmann <arnd@arndb.de>,
+	geert@linux-m68k.org,
+	deller@gmx.de,
+	benh@kernel.crashing.org,
+	mpe@ellerman.id.au,
+	dalias@libc.org,
+	dhowells@redhat.com,
+	linux-alpha@vger.kernel.org,
+	a.zummo@towertech.it,
+	linux-kernel@vger.kernel.org,
+	linux-parisc@vger.kernel.org,
+	linuxppc-dev@lists.ozlabs.org,
+	linux-sh@vger.kernel.org,
+	linux-m68k@lists.linux-m68k.org,
+	rtc-linux@googlegroups.com,
+	linux-arch@vger.kernel.org
+Subject: [rtc-linux] [PATCH v3 03/16] char/genrtc: x86: remove remnants of asm/rtc.h
+Date: Thu, 28 Apr 2016 00:34:17 +0200
+Message-Id: <1461796470-1291527-4-git-send-email-arnd@arndb.de>
+In-Reply-To: <1461796470-1291527-1-git-send-email-arnd@arndb.de>
+References: <1461796470-1291527-1-git-send-email-arnd@arndb.de>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -28,86 +39,174 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-The RTC RV3029 handles different types of alarms : seconds, minutes, ...
-These alarms can be enabled or disabled individually using an AE_x bit
-which is the last bit (BIT(7)) on each alarm registers.
+Commit 3195ef59cb42 ("x86: Do full rtc synchronization with ntp") had
+the side-effect of unconditionally enabling the RTC_LIB symbol on x86,
+which in turn disables the selection of the CONFIG_RTC and
+CONFIG_GEN_RTC drivers that contain a two older implementations of
+the CONFIG_RTC_DRV_CMOS driver.
 
-To prepare the alarm IRQ support, the current code enables all the alarm
-types by setting each AE_x to 1.
-It also fixes others alarms issues :
-   - month and weekday errors : it was performing -1 instead of +1.
-   - wrong use of bit mask with bin2bcd
+This removes x86 from the list for genrtc, and changes all references
+to the asm/rtc.h header to instead point to the interfaces
+from linux/mc146818rtc.h.
 
-Signed-off-by: Myl=C3=A8ne Josserand <mylene.josserand@free-electrons.com>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 ---
- drivers/rtc/rtc-rv3029c2.c | 25 +++++++++++++++++--------
- 1 file changed, 17 insertions(+), 8 deletions(-)
+ arch/x86/include/asm/rtc.h   | 1 -
+ arch/x86/kernel/hpet.c       | 3 +--
+ arch/x86/kernel/rtc.c        | 3 +--
+ arch/x86/platform/efi/efi.c  | 1 -
+ drivers/acpi/acpi_cmos_rtc.c | 2 +-
+ drivers/base/power/trace.c   | 6 +++---
+ drivers/char/Kconfig         | 2 +-
+ drivers/rtc/rtc-mrst.c       | 2 +-
+ 8 files changed, 8 insertions(+), 12 deletions(-)
+ delete mode 100644 arch/x86/include/asm/rtc.h
 
-diff --git a/drivers/rtc/rtc-rv3029c2.c b/drivers/rtc/rtc-rv3029c2.c
-index cf8d465..916bbc2 100644
---- a/drivers/rtc/rtc-rv3029c2.c
-+++ b/drivers/rtc/rtc-rv3029c2.c
-@@ -76,6 +76,7 @@
- #define RV3029_A_DW			0x14
- #define RV3029_A_MO			0x15
- #define RV3029_A_YR			0x16
-+#define RV3029_A_AE_X			BIT(7)
- #define RV3029_ALARM_SECTION_LEN	0x07
-=20
- /* timer section */
-@@ -436,14 +437,22 @@ static int rv3029_set_alarm(struct device *dev, struc=
-t rtc_wkalrm *alarm)
- 		dev_err(dev, "%s: reading SR failed\n", __func__);
- 		return -EIO;
- 	}
--	regs[RV3029_A_SC - RV3029_A_SC] =3D bin2bcd(tm->tm_sec & 0x7f);
--	regs[RV3029_A_MN - RV3029_A_SC] =3D bin2bcd(tm->tm_min & 0x7f);
--	regs[RV3029_A_HR - RV3029_A_SC] =3D bin2bcd(tm->tm_hour & 0x3f);
--	regs[RV3029_A_DT - RV3029_A_SC] =3D bin2bcd(tm->tm_mday & 0x3f);
--	regs[RV3029_A_MO - RV3029_A_SC] =3D bin2bcd((tm->tm_mon & 0x1f) - 1);
--	regs[RV3029_A_DW - RV3029_A_SC] =3D bin2bcd((tm->tm_wday & 7) - 1);
--	regs[RV3029_A_YR - RV3029_A_SC] =3D bin2bcd((tm->tm_year & 0x7f) - 100);
-=20
-+	/* Activate all the alarms with AE_x bit */
-+	regs[RV3029_A_SC - RV3029_A_SC] =3D bin2bcd(tm->tm_sec) | RV3029_A_AE_X;
-+	regs[RV3029_A_MN - RV3029_A_SC] =3D bin2bcd(tm->tm_min) | RV3029_A_AE_X;
-+	regs[RV3029_A_HR - RV3029_A_SC] =3D (bin2bcd(tm->tm_hour) & 0x3f)
-+		| RV3029_A_AE_X;
-+	regs[RV3029_A_DT - RV3029_A_SC] =3D (bin2bcd(tm->tm_mday) & 0x3f)
-+		| RV3029_A_AE_X;
-+	regs[RV3029_A_MO - RV3029_A_SC] =3D (bin2bcd(tm->tm_mon + 1) & 0x1f)
-+		| RV3029_A_AE_X;
-+	regs[RV3029_A_DW - RV3029_A_SC] =3D (bin2bcd(tm->tm_wday + 1) & 0x7)
-+		| RV3029_A_AE_X;
-+	regs[RV3029_A_YR - RV3029_A_SC] =3D (bin2bcd(tm->tm_year - 100))
-+		| RV3029_A_AE_X;
-+
-+	/* Write the alarm */
- 	ret =3D rv3029_write_regs(dev, RV3029_A_SC, regs,
- 				RV3029_ALARM_SECTION_LEN);
- 	if (ret < 0)
-@@ -493,7 +502,7 @@ static int rv3029_set_time(struct device *dev, struct r=
-tc_time *tm)
- 	regs[RV3029_W_HOURS - RV3029_W_SEC] =3D bin2bcd(tm->tm_hour);
- 	regs[RV3029_W_DATE - RV3029_W_SEC] =3D bin2bcd(tm->tm_mday);
- 	regs[RV3029_W_MONTHS - RV3029_W_SEC] =3D bin2bcd(tm->tm_mon + 1);
--	regs[RV3029_W_DAYS - RV3029_W_SEC] =3D bin2bcd((tm->tm_wday & 7) + 1);
-+	regs[RV3029_W_DAYS - RV3029_W_SEC] =3D bin2bcd(tm->tm_wday + 1) & 0x7;
- 	regs[RV3029_W_YEARS - RV3029_W_SEC] =3D bin2bcd(tm->tm_year - 100);
-=20
- 	ret =3D rv3029_write_regs(dev, RV3029_W_SEC, regs,
---=20
-2.8.0.rc3
+diff --git a/arch/x86/include/asm/rtc.h b/arch/x86/include/asm/rtc.h
+deleted file mode 100644
+index f71c3b0ed360..000000000000
+--- a/arch/x86/include/asm/rtc.h
++++ /dev/null
+@@ -1 +0,0 @@
+-#include <asm-generic/rtc.h>
+diff --git a/arch/x86/kernel/hpet.c b/arch/x86/kernel/hpet.c
+index f112af7aa62e..357900aad62c 100644
+--- a/arch/x86/kernel/hpet.c
++++ b/arch/x86/kernel/hpet.c
+@@ -1020,7 +1020,6 @@ void hpet_disable(void)
+  */
+ #include <linux/mc146818rtc.h>
+ #include <linux/rtc.h>
+-#include <asm/rtc.h>
+ 
+ #define DEFAULT_RTC_INT_FREQ	64
+ #define DEFAULT_RTC_SHIFT	6
+@@ -1244,7 +1243,7 @@ irqreturn_t hpet_rtc_interrupt(int irq, void *dev_id)
+ 	memset(&curr_time, 0, sizeof(struct rtc_time));
+ 
+ 	if (hpet_rtc_flags & (RTC_UIE | RTC_AIE))
+-		get_rtc_time(&curr_time);
++		mc146818_set_time(&curr_time);
+ 
+ 	if (hpet_rtc_flags & RTC_UIE &&
+ 	    curr_time.tm_sec != hpet_prev_update_sec) {
+diff --git a/arch/x86/kernel/rtc.c b/arch/x86/kernel/rtc.c
+index eceaa082ec3f..79c6311cd912 100644
+--- a/arch/x86/kernel/rtc.c
++++ b/arch/x86/kernel/rtc.c
+@@ -13,7 +13,6 @@
+ #include <asm/x86_init.h>
+ #include <asm/time.h>
+ #include <asm/intel-mid.h>
+-#include <asm/rtc.h>
+ #include <asm/setup.h>
+ 
+ #ifdef CONFIG_X86_32
+@@ -47,7 +46,7 @@ int mach_set_rtc_mmss(const struct timespec *now)
+ 
+ 	rtc_time_to_tm(nowtime, &tm);
+ 	if (!rtc_valid_tm(&tm)) {
+-		retval = set_rtc_time(&tm);
++		retval = mc146818_set_time(&tm);
+ 		if (retval)
+ 			printk(KERN_ERR "%s: RTC write failed with error %d\n",
+ 			       __func__, retval);
+diff --git a/arch/x86/platform/efi/efi.c b/arch/x86/platform/efi/efi.c
+index 994a7df84a7b..13b216f71191 100644
+--- a/arch/x86/platform/efi/efi.c
++++ b/arch/x86/platform/efi/efi.c
+@@ -51,7 +51,6 @@
+ #include <asm/cacheflush.h>
+ #include <asm/tlbflush.h>
+ #include <asm/x86_init.h>
+-#include <asm/rtc.h>
+ #include <asm/uv/uv.h>
+ 
+ #define EFI_DEBUG
+diff --git a/drivers/acpi/acpi_cmos_rtc.c b/drivers/acpi/acpi_cmos_rtc.c
+index 81dc75033f15..0980a133916f 100644
+--- a/drivers/acpi/acpi_cmos_rtc.c
++++ b/drivers/acpi/acpi_cmos_rtc.c
+@@ -14,7 +14,7 @@
+ #include <linux/err.h>
+ #include <linux/kernel.h>
+ #include <linux/module.h>
+-#include <asm-generic/rtc.h>
++#include <linux/mc146818rtc.h>
+ 
+ #include "internal.h"
+ 
+diff --git a/drivers/base/power/trace.c b/drivers/base/power/trace.c
+index a6975795e7f3..efec10b49d59 100644
+--- a/drivers/base/power/trace.c
++++ b/drivers/base/power/trace.c
+@@ -11,7 +11,7 @@
+ #include <linux/export.h>
+ #include <linux/rtc.h>
+ 
+-#include <asm/rtc.h>
++#include <linux/mc146818rtc.h>
+ 
+ #include "power.h"
+ 
+@@ -103,7 +103,7 @@ static int set_magic_time(unsigned int user, unsigned int file, unsigned int dev
+ 	n /= 24;
+ 	time.tm_min = (n % 20) * 3;
+ 	n /= 20;
+-	set_rtc_time(&time);
++	mc146818_set_time(&time);
+ 	return n ? -1 : 0;
+ }
+ 
+@@ -112,7 +112,7 @@ static unsigned int read_magic_time(void)
+ 	struct rtc_time time;
+ 	unsigned int val;
+ 
+-	get_rtc_time(&time);
++	mc146818_get_time(&time);
+ 	pr_info("RTC time: %2d:%02d:%02d, date: %02d/%02d/%02d\n",
+ 		time.tm_hour, time.tm_min, time.tm_sec,
+ 		time.tm_mon + 1, time.tm_mday, time.tm_year % 100);
+diff --git a/drivers/char/Kconfig b/drivers/char/Kconfig
+index ca397384dc15..9bdb629fbaae 100644
+--- a/drivers/char/Kconfig
++++ b/drivers/char/Kconfig
+@@ -328,7 +328,7 @@ config JS_RTC
+ config GEN_RTC
+ 	tristate "Generic /dev/rtc emulation"
+ 	depends on RTC!=y
+-	depends on ALPHA || M68K || MN10300 || PARISC || PPC || X86
++	depends on ALPHA || M68K || MN10300 || PARISC || PPC
+ 	---help---
+ 	  If you say Y here and create a character special file /dev/rtc with
+ 	  major number 10 and minor number 135 using mknod ("man mknod"), you
+diff --git a/drivers/rtc/rtc-mrst.c b/drivers/rtc/rtc-mrst.c
+index 548ea6f6f384..bb8ac7c5e217 100644
+--- a/drivers/rtc/rtc-mrst.c
++++ b/drivers/rtc/rtc-mrst.c
+@@ -32,11 +32,11 @@
+ #include <linux/interrupt.h>
+ #include <linux/spinlock.h>
+ #include <linux/kernel.h>
++#include <linux/mc146818rtc.h>
+ #include <linux/module.h>
+ #include <linux/init.h>
+ #include <linux/sfi.h>
+ 
+-#include <asm-generic/rtc.h>
+ #include <asm/intel_scu_ipc.h>
+ #include <asm/intel-mid.h>
+ #include <asm/intel_mid_vrtc.h>
+-- 
+2.7.0
 
---=20
---=20
+-- 
+-- 
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
----=20
-You received this message because you are subscribed to the Google Groups "=
-rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an e=
-mail to rtc-linux+unsubscribe@googlegroups.com.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
