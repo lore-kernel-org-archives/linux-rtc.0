@@ -1,20 +1,34 @@
-Return-Path: <rtc-linux+bncBAABB2PEYK4AKGQEIIZ26JQ@googlegroups.com>
-Sender: rtc-linux@googlegroups.com
+Return-Path: <rtc-linux+bncBCQJP74GSUDRBQXAQG4QKGQEA2PEICY@googlegroups.com>
+Received: from mail-ig0-x243.google.com (mail-ig0-x243.google.com. [2607:f8b0:4001:c05::243])
+        by gmr-mx.google.com with ESMTPS id gm17si1802053igb.1.2016.04.27.00.54.42
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 27 Apr 2016 00:54:42 -0700 (PDT)
+Received: by mail-ig0-x243.google.com with SMTP id g8so5518864igr.0
+        for <rtc-linux@googlegroups.com>; Wed, 27 Apr 2016 00:54:42 -0700 (PDT)
 MIME-Version: 1.0
-Received: from root.phytec.de (mail.rapiddevelopmentkit.de. [217.6.246.34])
-        by gmr-mx.google.com with ESMTP id a80si1673650wma.0.2016.04.15.02.20.41
-        for <rtc-linux@googlegroups.com>;
-        Fri, 15 Apr 2016 02:20:41 -0700 (PDT)
-From: Wadim Egorov <w.egorov@phytec.de>
-To: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-clk@vger.kernel.org, rtc-linux@googlegroups.com, linux-rockchip@lists.infradead.org
-Cc: robh+dt@kernel.org, pawel.moll@arm.com, mark.rutland@arm.com, ijc+devicetree@hellion.org.uk, galak@codeaurora.org, linux@arm.linux.org.uk, mturquette@baylibre.com, sboyd@codeaurora.org, lee.jones@linaro.org, lgirdwood@gmail.com, broonie@kernel.org, a.zummo@towertech.it, alexandre.belloni@free-electrons.com, dianders@chromium.org, zyw@rock-chips.com, arnd@arndb.de, k.kozlowski@samsung.com, javier@osg.samsung.com, kgene@kernel.org, olof@lixom.net, geert+renesas@glider.be, sjoerd.simons@collabora.co.uk, treding@nvidia.com, public_timo.s@silentcreek.de
-Subject: [rtc-linux] [PATCH 5/6] regulator: rk8xx: Add regulator driver for RK818
-Date: Fri, 15 Apr 2016 11:16:29 +0200
-Message-Id: <1460711790-22646-6-git-send-email-w.egorov@phytec.de>
-In-Reply-To: <1460711790-22646-1-git-send-email-w.egorov@phytec.de>
-References: <1460711790-22646-1-git-send-email-w.egorov@phytec.de>
-Reply-To: rtc-linux@googlegroups.com
+Sender: geert.uytterhoeven@gmail.com
+In-Reply-To: <1461707052-1337718-1-git-send-email-arnd@arndb.de>
+References: <1461707052-1337718-1-git-send-email-arnd@arndb.de>
+Date: Wed, 27 Apr 2016 09:54:41 +0200
+Message-ID: <CAMuHMdV=R3ad33vPdMZNvZZ8A_DF+F2C8nyAmXOmFiiP50D_UQ@mail.gmail.com>
+Subject: [rtc-linux] Re: char: legacy RTC cleanups
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Tony Luck <tony.luck@intel.com>,
+	"James E.J. Bottomley" <jejb@parisc-linux.org>, Helge Deller <deller@gmx.de>,
+	Benjamin Herrenschmidt <benh@kernel.crashing.org>, Michael Ellerman <mpe@ellerman.id.au>,
+	Rich Felker <dalias@libc.org>, David Howells <dhowells@redhat.com>,
+	Koichi Yasutake <yasutake.koichi@jp.panasonic.com>, Richard Henderson <rth@twiddle.net>,
+	Ivan Kokshaysky <ink@jurassic.park.msu.ru>, alpha <linux-alpha@vger.kernel.org>,
+	"the arch/x86 maintainers" <x86@kernel.org>, Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+	"linux-ia64@vger.kernel.org" <linux-ia64@vger.kernel.org>, Parisc List <linux-parisc@vger.kernel.org>,
+	"linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>, Linux-sh list <linux-sh@vger.kernel.org>,
+	RTCLINUX <rtc-linux@googlegroups.com>, Linux-Arch <linux-arch@vger.kernel.org>
 Content-Type: text/plain; charset=UTF-8
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -23,210 +37,32 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Add support for the rk818 regulator. The regulator module consists
-of 4 DCDCs, 9 LDOs, 1 switch and 1 BOOST converter which is used to
-power OTG and HDMI5V.
+Hi Arnd,
 
-The output voltages are configurable and are meant to supply power
-to the main processor and other components.
+On Tue, Apr 26, 2016 at 11:44 PM, Arnd Bergmann <arnd@arndb.de> wrote:
+> For the genrtc driver, rearranging the headers makes it simpler
+> to use and reduces duplication. In case of alpha and mn10300,
+> I've shown that the genrtc and rtc drivers are doing the same
+> thing, so we don't need them both. The remaining three
+> architectures (m68k, parisc, powerpc) actually all support
+> the newer rtc-generic driver, so we could remove genrtc completely
+> if we want to.
 
-Signed-off-by: Wadim Egorov <w.egorov@phytec.de>
----
- drivers/regulator/rk8xx-regulator.c | 139 ++++++++++++++++++++++++++++++++++--
- 1 file changed, 134 insertions(+), 5 deletions(-)
+CONFIG_GEN_RTC is not enabled in any of the m68k defconfigs, so I think genrtc
+has been unused for a while.
+All defconfigs either use CONFIG_RTC_DRV_GENERIC, or enable a more specific
+RTC driver.
 
-diff --git a/drivers/regulator/rk8xx-regulator.c b/drivers/regulator/rk8xx-regulator.c
-index 4a29726..57f2c72 100644
---- a/drivers/regulator/rk8xx-regulator.c
-+++ b/drivers/regulator/rk8xx-regulator.c
-@@ -6,6 +6,10 @@
-  * Author: Chris Zhong <zyw@rock-chips.com>
-  * Author: Zhang Qing <zhangqing@rock-chips.com>
-  *
-+ * Copyright (C) 2016 PHYTEC Messtechnik GmbH
-+ *
-+ * Author: Wadim Egorov <w.egorov@phytec.de>
-+ *
-  * This program is free software; you can redistribute it and/or modify it
-  * under the terms and conditions of the GNU General Public License,
-  * version 2, as published by the Free Software Foundation.
-@@ -32,6 +36,12 @@
- #define RK808_BUCK4_VSEL_MASK	0xf
- #define RK808_LDO_VSEL_MASK	0x1f
- 
-+#define RK818_BUCK_VSEL_MASK		0x3f
-+#define RK818_BUCK4_VSEL_MASK		0x1f
-+#define RK818_LDO_VSEL_MASK		0x1f
-+#define RK818_LDO3_ON_VSEL_MASK		0xf
-+#define RK818_BOOST_ON_VSEL_MASK	0xe0
-+
- /* Ramp rate definitions for buck1 / buck2 only */
- #define RK808_RAMP_RATE_OFFSET		3
- #define RK808_RAMP_RATE_MASK		(3 << RK808_RAMP_RATE_OFFSET)
-@@ -454,6 +464,108 @@ static const struct regulator_desc rk808_reg[] = {
- 		RK808_DCDC_EN_REG, BIT(6)),
- };
- 
-+static const struct regulator_desc rk818_reg[] = {
-+	{
-+		.name = "DCDC_REG1",
-+		.supply_name = "vcc1",
-+		.of_match = of_match_ptr("DCDC_REG1"),
-+		.regulators_node = of_match_ptr("regulators"),
-+		.id = RK818_ID_DCDC1,
-+		.ops = &rk808_reg_ops,
-+		.type = REGULATOR_VOLTAGE,
-+		.min_uV = 712500,
-+		.uV_step = 12500,
-+		.n_voltages = 64,
-+		.vsel_reg = RK818_BUCK1_ON_VSEL_REG,
-+		.vsel_mask = RK818_BUCK_VSEL_MASK,
-+		.enable_reg = RK818_DCDC_EN_REG,
-+		.enable_mask = BIT(0),
-+		.owner = THIS_MODULE,
-+	}, {
-+		.name = "DCDC_REG2",
-+		.supply_name = "vcc2",
-+		.of_match = of_match_ptr("DCDC_REG2"),
-+		.regulators_node = of_match_ptr("regulators"),
-+		.id = RK818_ID_DCDC2,
-+		.ops = &rk808_reg_ops,
-+		.type = REGULATOR_VOLTAGE,
-+		.min_uV = 712500,
-+		.uV_step = 12500,
-+		.n_voltages = 64,
-+		.vsel_reg = RK818_BUCK2_ON_VSEL_REG,
-+		.vsel_mask = RK818_BUCK_VSEL_MASK,
-+		.enable_reg = RK818_DCDC_EN_REG,
-+		.enable_mask = BIT(1),
-+		.owner = THIS_MODULE,
-+	}, {
-+		.name = "DCDC_REG3",
-+		.supply_name = "vcc3",
-+		.of_match = of_match_ptr("DCDC_REG3"),
-+		.regulators_node = of_match_ptr("regulators"),
-+		.id = RK818_ID_DCDC3,
-+		.ops = &rk808_switch_ops,
-+		.type = REGULATOR_VOLTAGE,
-+		.n_voltages = 1,
-+		.enable_reg = RK818_DCDC_EN_REG,
-+		.enable_mask = BIT(2),
-+		.owner = THIS_MODULE,
-+	},
-+	RK8XX_DESC(RK818_ID_DCDC4, "DCDC_REG4", "vcc4", 1800, 3600, 100,
-+		RK818_BUCK4_ON_VSEL_REG, RK818_BUCK4_VSEL_MASK,
-+		RK818_DCDC_EN_REG, BIT(3), 0),
-+	RK8XX_DESC(RK818_ID_BOOST, "DCDC_BOOST", "boost", 4700, 5400, 100,
-+		RK818_BOOST_LDO9_ON_VSEL_REG, RK818_BOOST_ON_VSEL_MASK,
-+		RK818_DCDC_EN_REG, BIT(4), 0),
-+	RK8XX_DESC(RK818_ID_LDO1, "LDO_REG1", "vcc6", 1800, 3400, 100,
-+		RK818_LDO1_ON_VSEL_REG, RK818_LDO_VSEL_MASK, RK818_LDO_EN_REG,
-+		BIT(0), 400),
-+	RK8XX_DESC(RK818_ID_LDO2, "LDO_REG2", "vcc6", 1800, 3400, 100,
-+		RK818_LDO1_ON_VSEL_REG, RK818_LDO_VSEL_MASK, RK818_LDO_EN_REG,
-+		BIT(1), 400),
-+	{
-+		.name = "LDO_REG3",
-+		.supply_name = "vcc7",
-+		.of_match = of_match_ptr("LDO_REG3"),
-+		.regulators_node = of_match_ptr("regulators"),
-+		.id = RK818_ID_LDO3,
-+		.ops = &rk808_reg_ops_ranges,
-+		.type = REGULATOR_VOLTAGE,
-+		.n_voltages = 16,
-+		.linear_ranges = rk808_ldo3_voltage_ranges,
-+		.n_linear_ranges = ARRAY_SIZE(rk808_ldo3_voltage_ranges),
-+		.vsel_reg = RK818_LDO3_ON_VSEL_REG,
-+		.vsel_mask = RK818_LDO3_ON_VSEL_MASK,
-+		.enable_reg = RK818_LDO_EN_REG,
-+		.enable_mask = BIT(2),
-+		.enable_time = 400,
-+		.owner = THIS_MODULE,
-+	},
-+	RK8XX_DESC(RK818_ID_LDO4, "LDO_REG4", "vcc8", 1800, 3400, 100,
-+		RK818_LDO4_ON_VSEL_REG, RK818_LDO_VSEL_MASK, RK818_LDO_EN_REG,
-+		BIT(3), 400),
-+	RK8XX_DESC(RK818_ID_LDO5, "LDO_REG5", "vcc7", 1800, 3400, 100,
-+		RK818_LDO5_ON_VSEL_REG, RK818_LDO_VSEL_MASK, RK818_LDO_EN_REG,
-+		BIT(4), 400),
-+	RK8XX_DESC(RK818_ID_LDO6, "LDO_REG6", "vcc8", 800, 2500, 100,
-+		RK818_LDO6_ON_VSEL_REG, RK818_LDO_VSEL_MASK, RK818_LDO_EN_REG,
-+		BIT(5), 400),
-+	RK8XX_DESC(RK818_ID_LDO7, "LDO_REG7", "vcc7", 800, 2500, 100,
-+		RK818_LDO7_ON_VSEL_REG, RK818_LDO_VSEL_MASK, RK818_LDO_EN_REG,
-+		BIT(6), 400),
-+	RK8XX_DESC(RK818_ID_LDO8, "LDO_REG8", "vcc8", 1800, 3400, 100,
-+		RK818_LDO8_ON_VSEL_REG, RK818_LDO_VSEL_MASK, RK818_LDO_EN_REG,
-+		BIT(7), 400),
-+	RK8XX_DESC(RK818_ID_LDO9, "LDO_REG9", "vcc9", 1800, 3400, 100,
-+		RK818_BOOST_LDO9_ON_VSEL_REG, RK818_LDO_VSEL_MASK,
-+		RK818_DCDC_EN_REG, BIT(5), 400),
-+	RK8XX_DESC_SWITCH(RK818_ID_SWITCH, "SWITCH_REG", "vcc9",
-+		RK818_DCDC_EN_REG, BIT(6)),
-+	RK8XX_DESC_SWITCH(RK818_ID_HDMI_SWITCH, "HDMI_SWITCH", "h_5v",
-+		RK818_H5V_EN_REG, BIT(0)),
-+	RK8XX_DESC_SWITCH(RK818_ID_OTG_SWITCH, "OTG_SWITCH", "usb",
-+		RK818_DCDC_EN_REG, BIT(7)),
-+};
-+
- static int rk8xx_regulator_dt_parse_pdata(struct device *dev,
- 				   struct device *client_dev,
- 				   struct regmap *map,
-@@ -499,7 +611,8 @@ static int rk8xx_regulator_probe(struct platform_device *pdev)
- 	struct regulator_config config = {};
- 	struct regulator_dev *rk8xx_rdev;
- 	struct rk808_regulator_data *pdata;
--	int ret, i;
-+	const struct regulator_desc *regulators;
-+	int ret, i, nregulators;
- 
- 	pdata = devm_kzalloc(&pdev->dev, sizeof(*pdata), GFP_KERNEL);
- 	if (!pdata)
-@@ -512,14 +625,29 @@ static int rk8xx_regulator_probe(struct platform_device *pdev)
- 
- 	platform_set_drvdata(pdev, pdata);
- 
-+	switch (rk8xx->variant) {
-+	case RK808_ID:
-+		regulators = rk808_reg;
-+		nregulators = RK808_NUM_REGULATORS;
-+		break;
-+	case RK818_ID:
-+		regulators = rk818_reg;
-+		nregulators = RK818_NUM_REGULATORS;
-+		break;
-+	default:
-+		dev_err(&client->dev, "unsupported RK8XX ID %lu\n",
-+			rk8xx->variant);
-+		return -EINVAL;
-+	}
-+
- 	config.dev = &client->dev;
- 	config.driver_data = pdata;
- 	config.regmap = rk8xx->regmap;
- 
- 	/* Instantiate the regulators */
--	for (i = 0; i < RK808_NUM_REGULATORS; i++) {
-+	for (i = 0; i < nregulators; i++) {
- 		rk8xx_rdev = devm_regulator_register(&pdev->dev,
--						     &rk808_reg[i], &config);
-+						     &regulators[i], &config);
- 		if (IS_ERR(rk8xx_rdev)) {
- 			dev_err(&client->dev,
- 				"failed to register %d regulator\n", i);
-@@ -541,7 +669,8 @@ static struct platform_driver rk8xx_regulator_driver = {
- module_platform_driver(rk8xx_regulator_driver);
- 
- MODULE_DESCRIPTION("regulator driver for the rk8xx series PMICs");
--MODULE_AUTHOR("Chris Zhong<zyw@rock-chips.com>");
--MODULE_AUTHOR("Zhang Qing<zhangqing@rock-chips.com>");
-+MODULE_AUTHOR("Chris Zhong <zyw@rock-chips.com>");
-+MODULE_AUTHOR("Zhang Qing <zhangqing@rock-chips.com>");
-+MODULE_AUTHOR("Wadim Egorov <w.egorov@phytec.de>");
- MODULE_LICENSE("GPL");
- MODULE_ALIAS("platform:rk8xx-regulator");
--- 
-1.9.1
+Gr{oetje,eeting}s,
+
+                        Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
 
 -- 
 -- 
