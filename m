@@ -1,22 +1,29 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRB4OB2W4AKGQEKK7MYFI@googlegroups.com>
+Return-Path: <rtc-linux+bncBDQ2L75W5QGBBI4HQO4QKGQE3KTIKJA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id k143si34816wmg.1.2016.04.18.15.34.24
-        for <rtc-linux@googlegroups.com>;
-        Mon, 18 Apr 2016 15:34:24 -0700 (PDT)
-Date: Tue, 19 Apr 2016 00:34:14 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Steve Twiss <stwiss.opensource@diasemi.com>
-Cc: LINUXKERNEL <linux-kernel@vger.kernel.org>,
-	RTC-LINUX <rtc-linux@googlegroups.com>,
-	Support Opensource <support.opensource@diasemi.com>
-Subject: [rtc-linux] Re: [PATCH V1] rtc: da9053: fix access ordering error
- during RTC interrupt at system power on
-Message-ID: <20160418223414.GB25196@piout.net>
-References: <20160414111014.BB8B73FB1D@swsrvapps-01.diasemi.com>
+Received: from mezzanine.sirena.org.uk (mezzanine.sirena.org.uk. [2400:8900::f03c:91ff:fedb:4f4])
+        by gmr-mx.google.com with ESMTPS id ph3si1052036pac.1.2016.04.27.06.50.27
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=AES128-SHA bits=128/128);
+        Wed, 27 Apr 2016 06:50:27 -0700 (PDT)
+Date: Wed, 27 Apr 2016 14:50:12 +0100
+From: Mark Brown <broonie@kernel.org>
+To: Akinobu Mita <akinobu.mita@gmail.com>
+Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Sergei Ianovich <ynvich@gmail.com>, rtc-linux@googlegroups.com,
+	"open list:OPEN FIRMWARE AND..." <devicetree@vger.kernel.org>,
+	Alessandro Zummo <a.zummo@towertech.it>
+Message-ID: <20160427135012.GP3217@sirena.org.uk>
+References: <1460300366-25248-1-git-send-email-akinobu.mita@gmail.com>
+ <20160410151237.GD5377@piout.net>
+ <1460301781.17404.171.camel@gmail.com>
+ <20160410153855.GG5377@piout.net>
+ <20160412012518.GQ3351@sirena.org.uk>
+ <CAC5umyguFq7vBenkJYM8AWCNJ3oGBKzKAMHHMsO=+OFHtE4b0A@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <20160414111014.BB8B73FB1D@swsrvapps-01.diasemi.com>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="2NUUivEUh6/D4/qT"
+In-Reply-To: <CAC5umyguFq7vBenkJYM8AWCNJ3oGBKzKAMHHMsO=+OFHtE4b0A@mail.gmail.com>
+Subject: [rtc-linux] Re: [PATCH 0/4] support control with using GPIO lines
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -26,47 +33,18 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 14/04/2016 at 12:04:54 +0100, Steve Twiss wrote :
-> From: Steve Twiss <stwiss.opensource@diasemi.com>
-> 
-> This fix alters the ordering of the IRQ and device registrations in the RTC
-> driver probe function. This change will apply to the RTC driver that supports
-> both DA9052 and DA9053 PMICs.
-> 
-> A problem could occur with the existing RTC driver if:
-> 
-> A system is started from a cold boot using the PMIC RTC IRQ to initiate a
-> power on operation. For instance, if an RTC alarm is used to start a
-> platform from power off.
-> The existing driver IRQ is requested before the device has been properly
-> registered.
-> 
-> i.e.
-> ret = da9052_request_irq()
-> comes before
-> rtc->rtc = devm_rtc_device_register();
-> 
-> In this case, an interrupt exists before the device has been registered and
-> the IRQ handler can be called immediately: this can happen be before the
-> memory for rtc->rtc has been allocated. The IRQ handler da9052_rtc_irq()
-> contains the function call:
-> 
-> rtc_update_irq(rtc->rtc, 1, RTC_IRQF | RTC_AF);
-> 
-> which in turn tries to access the unavailable rtc->rtc.
-> 
-> The fix is to reorder the functions inside the RTC probe. The IRQ is
-> requested after the RTC device resource has been registered so that
-> da9052_request_irq() is the last thing to happen.
-> 
-> Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
-> 
-Applied, thanks.
+--2NUUivEUh6/D4/qT
+Content-Type: text/plain; charset=UTF-8
+Content-Disposition: inline
 
--- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+On Wed, Apr 27, 2016 at 04:53:18AM +0900, Akinobu Mita wrote:
+
+> For the read data transfer, the address/command byte is sent on the
+> rising edge of the first eight SCLK cycles and the read data byte is
+> transmitted on the falling edge of the next eight SCL cycles.
+
+That's an innovative and exciting hardware design :/  Definitely doesn't
+seem to correspond too closely to any SPI mode I can think of.
 
 -- 
 -- 
@@ -78,3 +56,20 @@ before submitting a driver.
 You received this message because you are subscribed to the Google Groups "rtc-linux" group.
 To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
+
+--2NUUivEUh6/D4/qT
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQEcBAEBCAAGBQJXIMOUAAoJECTWi3JdVIfQSdUH/jFLq+UE3JQuAprUW68kzyK6
+7apF+0wyC5vc+5HGoJqhHrqqTEFh9bMfMbmEUrsNAz3pj5hV7gDmw8D3QKBE3JAN
+ZMHAZFInMZ0v5iOBhU5bAlsmj24krdTjUwSN4+ApQNEAJ/AJSnr514WThUxNiXP0
+sUV4fKM06FYWiM4t4pZnvR0ksUgL7aASKdwoQfkLOfi6kGrCtliAjBJhNRk2waxF
+/OD+8+DGniJ6RA2Y53DXyKtAt7Fqov9fNtBrqGDc8UlMV/VP9RZSpjGeJAx3L7dB
+E7Kq1Zw1oFdCE+sMmPgXVv3lJVobaqsL/SvETgmqKRS8I1bZ7Nt3K2UufDe4hM8=
+=2PZU
+-----END PGP SIGNATURE-----
+
+--2NUUivEUh6/D4/qT--
