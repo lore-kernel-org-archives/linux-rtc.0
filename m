@@ -1,22 +1,21 @@
-Return-Path: <rtc-linux+bncBCEJHTXX7MFBBDMY4C4AKGQE54SCL6A@googlegroups.com>
+Return-Path: <rtc-linux+bncBDEKVJM7XAHRBX6BQK4QKGQEWLZ4E5I@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-MIME-Version: 1.0
-Received: from mail.kmu-office.ch (mail.kmu-office.ch. [178.209.48.109])
-        by gmr-mx.google.com with ESMTPS id d92si477262wma.2.2016.04.20.16.09.01
+Received: from mout.kundenserver.de (mout.kundenserver.de. [217.72.192.75])
+        by gmr-mx.google.com with ESMTPS id k143si266295wmg.1.2016.04.27.04.22.07
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 20 Apr 2016 16:09:01 -0700 (PDT)
-From: Stefan Agner <stefan@agner.ch>
-To: a.zummo@towertech.it,
-	alexandre.belloni@free-electrons.com
-Cc: rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org,
-	Stefan Agner <stefan@agner.ch>
-Subject: [rtc-linux] [PATCH] rtc: snvs: return error in case enable_irq_wake fails
-Date: Wed, 20 Apr 2016 16:09:57 -0700
-Message-Id: <1461193797-18015-1-git-send-email-stefan@agner.ch>
-Reply-To: rtc-linux@googlegroups.com
+        Wed, 27 Apr 2016 04:22:07 -0700 (PDT)
+From: Arnd Bergmann <arnd@arndb.de>
+To: Rolf Eike Beer <eike-kernel@sf-tec.de>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, tony.luck@intel.com, geert@linux-m68k.org, jejb@parisc-linux.org, deller@gmx.de, benh@kernel.crashing.org, mpe@ellerman.id.au, dalias@libc.org, dhowells@redhat.com, yasutake.koichi@jp.panasonic.com, rth@twiddle.net, ink@jurassic.park.msu.ru, linux-alpha@vger.kernel.org, x86@kernel.org, a.zummo@towertech.it, alexandre.belloni@free-electrons.com, linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-sh@vger.kernel.org, rtc-linux@googlegroups.com, linux-arch@vger.kernel.org
+Subject: [rtc-linux] Re: [PATCH 6/8] char/genrtc: parisc: use asm-generic/rtc.h
+Date: Wed, 27 Apr 2016 13:21:16 +0200
+Message-ID: <18012781.hPTzXnRcSP@wuerfel>
+In-Reply-To: <3034953.EvqV1iv2Ef@caliban.sf-tec.de>
+References: <1461707052-1337718-1-git-send-email-arnd@arndb.de> <1461707052-1337718-7-git-send-email-arnd@arndb.de> <3034953.EvqV1iv2Ef@caliban.sf-tec.de>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -25,31 +24,19 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-If enable_irq_wake fails, we should return that error code so that
-entering suspend fails. Otherwise we will get a WARNING along with
-the hint of a unbalanced wake disable:
-Unbalanced IRQ 37 wake disable
+On Wednesday 27 April 2016 00:07:47 Rolf Eike Beer wrote:
+> Arnd Bergmann wrote:
+> > The asm-generic/rtc.h header can now be included by
+> > architectures that provide their own set_rtc_time/get_rtc_time
+> > macros, letting us remove most of the common contents in
+> > the powerpc implementation.
+> 
+> parisc in this case.
+> 
 
-Signed-off-by: Stefan Agner <stefan@agner.ch>
----
- drivers/rtc/rtc-snvs.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Fixed, thanks!
 
-diff --git a/drivers/rtc/rtc-snvs.c b/drivers/rtc/rtc-snvs.c
-index 950c5d0..0f11c2a2 100644
---- a/drivers/rtc/rtc-snvs.c
-+++ b/drivers/rtc/rtc-snvs.c
-@@ -322,7 +322,7 @@ static int snvs_rtc_suspend(struct device *dev)
- 	struct snvs_rtc_data *data = dev_get_drvdata(dev);
- 
- 	if (device_may_wakeup(dev))
--		enable_irq_wake(data->irq);
-+		return enable_irq_wake(data->irq);
- 
- 	return 0;
- }
--- 
-2.8.0
+	Arnd
 
 -- 
 -- 
