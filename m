@@ -1,20 +1,21 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBRNZ2W4AKGQEE5JU5PQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBDHPTCWTXEHRBIXKQS4QKGQED26FU2A@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id k143si33294wmg.1.2016.04.18.15.16.37
-        for <rtc-linux@googlegroups.com>;
-        Mon, 18 Apr 2016 15:16:37 -0700 (PDT)
-Date: Tue, 19 Apr 2016 00:16:26 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Nicolas Boullis <nboullis@debian.org>, Wolfram Sang <wsa@the-dreams.de>
-Cc: Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com
-Subject: [rtc-linux] Re: [PATCH 1/2] rtc: ds1307: fix ds1307_native_smbus_read_block_data
- function
-Message-ID: <20160418221626.GY25196@piout.net>
-References: <20160402221037.GA3600@haddock.home>
+Received: from gloria.sntech.de (gloria.sntech.de. [95.129.55.99])
+        by gmr-mx.google.com with ESMTPS id c7si285454wmf.2.2016.04.27.14.54.42
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=AES128-SHA bits=128/128);
+        Wed, 27 Apr 2016 14:54:42 -0700 (PDT)
+From: Heiko =?ISO-8859-1?Q?St=FCbner?= <heiko@sntech.de>
+To: linux-rockchip@lists.infradead.org
+Cc: Wadim Egorov <w.egorov@phytec.de>, linux-kernel@vger.kernel.org, linux-clk@vger.kernel.org, rtc-linux@googlegroups.com, devicetree@vger.kernel.org, lee.jones@linaro.org, mark.rutland@arm.com, a.zummo@towertech.it, pawel.moll@arm.com, ijc+devicetree@hellion.org.uk, mturquette@baylibre.com, sboyd@codeaurora.org, lgirdwood@gmail.com, dianders@chromium.org, robh+dt@kernel.org, alexandre.belloni@free-electrons.com, broonie@kernel.org, galak@codeaurora.org, zyw@rock-chips.com
+Subject: [rtc-linux] Re: [PATCH v4 1/7] regulator: rk808: Add
+ rk808_reg_ops_ranges for LDO3
+Date: Wed, 27 Apr 2016 23:54:36 +0200
+Message-ID: <1574567.Qm9YHLQrGG@diego>
+In-Reply-To: <1461682450-22173-2-git-send-email-w.egorov@phytec.de>
+References: <1461682450-22173-1-git-send-email-w.egorov@phytec.de> <1461682450-22173-2-git-send-email-w.egorov@phytec.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <20160402221037.GA3600@haddock.home>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -24,63 +25,18 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Hi,
-
-On 03/04/2016 at 00:10:37 +0200, Nicolas Boullis wrote :
-> The i2c_smbus_read_i2c_block_data function returns 0 on success, not the 
-> number of bytes written.
+Am Dienstag, 26. April 2016, 16:54:04 schrieb Wadim Egorov:
+> LDO_REG3 descriptor is using linear_ranges.
+> Add and use proper ops for LDO_REG3.
 > 
-> Hence, when there are 32 bytes or less to send, the 
-> ds1307_native_smbus_write_block_data function returns 0 on success, 
-> while it returns the number of bytes when there are more than 32.
-> 
-> The ds1307_write_block_data always returns the number of bytes on 
-> success.
-> 
-> Signed-off-by: Nicolas Boullis <nboullis@debian.org>
-> 
-> ---
-> 
-> Should the behavior of the i2c_smbus_write_i2c_block_data function be 
-> changed to be consistant with that of the i2c_smbus_read_i2c_block_data 
-> function?
-> 
-> It might be more consistent, but the impact is certainly much larger, 
-> and that's far beyond the scope of the RTC subsystem.
-> 
+> Signed-off-by: Wadim Egorov <w.egorov@phytec.de>
 
-I think it will be difficult to change it now.
-
-Wolfram, you may have an opinion?
+I'm to late to the party judging by Mark's "Aplied" message, but just to 
+confirm, this patch sucessfully fixes the issue on veyron-devices reported 
+yesterday.
 
 
-> diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
-> index b2156ee..19e7353 100644
-> --- a/drivers/rtc/rtc-ds1307.c
-> +++ b/drivers/rtc/rtc-ds1307.c
-> @@ -275,9 +275,13 @@ static s32 ds1307_native_smbus_write_block_data(const struct i2c_client *client,
->  {
->  	u8 suboffset = 0;
->  
-> -	if (length <= I2C_SMBUS_BLOCK_MAX)
-> -		return i2c_smbus_write_i2c_block_data(client,
-> +	if (length <= I2C_SMBUS_BLOCK_MAX) {
-> +		s32 retval = i2c_smbus_write_i2c_block_data(client,
->  					command, length, values);
-> +		if (retval < 0)
-> +			return retval;
-> +		return length;
-> +	}
->  
->  	while (suboffset < length) {
->  		s32 retval = i2c_smbus_write_i2c_block_data(client,
-
-
-
--- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+Heiko
 
 -- 
 -- 
