@@ -1,25 +1,35 @@
-Return-Path: <rtc-linux+bncBCPM5SUWUYIRBYOUVG4AKGQE3CFWNXA@googlegroups.com>
+Return-Path: <rtc-linux+bncBDEKVJM7XAHRBEH5QS4QKGQEVWFDIIA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 MIME-Version: 1.0
-Received: from mail-pf0-x241.google.com (mail-pf0-x241.google.com. [2607:f8b0:400e:c00::241])
-        by gmr-mx.google.com with ESMTPS id ph3si966875pac.1.2016.04.10.07.59.45
+Received: from mout.kundenserver.de (mout.kundenserver.de. [217.72.192.73])
+        by gmr-mx.google.com with ESMTPS id a124si459728wme.0.2016.04.27.15.34.55
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sun, 10 Apr 2016 07:59:45 -0700 (PDT)
-Received: by mail-pf0-x241.google.com with SMTP id d184so13072397pfc.1
-        for <rtc-linux@googlegroups.com>; Sun, 10 Apr 2016 07:59:45 -0700 (PDT)
-From: Akinobu Mita <akinobu.mita@gmail.com>
-To: rtc-linux@googlegroups.com,
-	devicetree@vger.kernel.org
-Cc: Akinobu Mita <akinobu.mita@gmail.com>,
-	Sergey Yanovich <ynvich@gmail.com>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Subject: [rtc-linux] [PATCH 1/4] rtc: ds1302: fix error check in set_time
-Date: Sun, 10 Apr 2016 23:59:23 +0900
-Message-Id: <1460300366-25248-2-git-send-email-akinobu.mita@gmail.com>
-In-Reply-To: <1460300366-25248-1-git-send-email-akinobu.mita@gmail.com>
-References: <1460300366-25248-1-git-send-email-akinobu.mita@gmail.com>
+        Wed, 27 Apr 2016 15:34:55 -0700 (PDT)
+From: Arnd Bergmann <arnd@arndb.de>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: Arnd Bergmann <arnd@arndb.de>,
+	geert@linux-m68k.org,
+	deller@gmx.de,
+	benh@kernel.crashing.org,
+	mpe@ellerman.id.au,
+	dalias@libc.org,
+	dhowells@redhat.com,
+	linux-alpha@vger.kernel.org,
+	a.zummo@towertech.it,
+	linux-kernel@vger.kernel.org,
+	linux-parisc@vger.kernel.org,
+	linuxppc-dev@lists.ozlabs.org,
+	linux-sh@vger.kernel.org,
+	linux-m68k@lists.linux-m68k.org,
+	rtc-linux@googlegroups.com,
+	linux-arch@vger.kernel.org
+Subject: [rtc-linux] [PATCH v3 14/16] rtc: generic: remove get_rtc_time/set_rtc_time
+ wrappers
+Date: Thu, 28 Apr 2016 00:34:28 +0200
+Message-Id: <1461796470-1291527-15-git-send-email-arnd@arndb.de>
+In-Reply-To: <1461796470-1291527-1-git-send-email-arnd@arndb.de>
+References: <1461796470-1291527-1-git-send-email-arnd@arndb.de>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -30,33 +40,66 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-The set_time callback for rtc-ds1302 doesn't write clock registers
-because the error check for the return value from spi_write_then_read()
-is not correct.  spi_write_then_read() which returns zero on success.
+All architectures using this driver are now converted to
+provide their own operations, so this one can be turned
+into a trivial stub driver relying on its platform data.
 
-Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
-Cc: Sergey Yanovich <ynvich@gmail.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>
-Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 ---
- drivers/rtc/rtc-ds1302.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/rtc/rtc-generic.c | 35 +----------------------------------
+ 1 file changed, 1 insertion(+), 34 deletions(-)
 
-diff --git a/drivers/rtc/rtc-ds1302.c b/drivers/rtc/rtc-ds1302.c
-index 5cdc0f2..5e05653 100644
---- a/drivers/rtc/rtc-ds1302.c
-+++ b/drivers/rtc/rtc-ds1302.c
-@@ -54,7 +54,7 @@ static int ds1302_rtc_set_time(struct device *dev, struct rtc_time *time)
+diff --git a/drivers/rtc/rtc-generic.c b/drivers/rtc/rtc-generic.c
+index efcb9833cac8..1bf5d2347928 100644
+--- a/drivers/rtc/rtc-generic.c
++++ b/drivers/rtc/rtc-generic.c
+@@ -9,43 +9,10 @@
+ #include <linux/platform_device.h>
+ #include <linux/rtc.h>
  
- 	status = spi_write_then_read(spi, buf, 2,
- 			NULL, 0);
--	if (!status)
-+	if (status)
- 		return status;
+-#if 0
+-#include <asm/rtc.h>
+-
+-static int generic_get_time(struct device *dev, struct rtc_time *tm)
+-{
+-	unsigned int ret = get_rtc_time(tm);
+-
+-	if (ret & RTC_BATT_BAD)
+-		return -EOPNOTSUPP;
+-
+-	return rtc_valid_tm(tm);
+-}
+-
+-static int generic_set_time(struct device *dev, struct rtc_time *tm)
+-{
+-	if (set_rtc_time(tm) < 0)
+-		return -EOPNOTSUPP;
+-
+-	return 0;
+-}
+-
+-static const struct rtc_class_ops generic_rtc_ops = {
+-	.read_time = generic_get_time,
+-	.set_time = generic_set_time,
+-};
+-#else
+-#define generic_rtc_ops *(struct rtc_class_ops*)NULL
+-#endif
+-
+ static int __init generic_rtc_probe(struct platform_device *dev)
+ {
+ 	struct rtc_device *rtc;
+-	const struct rtc_class_ops *ops;
+-
+-	ops = dev_get_platdata(&dev->dev);
+-	if (!ops)
+-		ops = &generic_rtc_ops;
++	const struct rtc_class_ops *ops = dev_get_platdata(&dev->dev);
  
- 	/* Write registers starting at the first time/date address. */
+ 	rtc = devm_rtc_device_register(&dev->dev, "rtc-generic",
+ 					ops, THIS_MODULE);
 -- 
-2.5.0
+2.7.0
 
 -- 
 -- 
