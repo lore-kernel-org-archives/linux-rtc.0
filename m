@@ -1,32 +1,36 @@
-Return-Path: <rtc-linux+bncBDQ2L75W5QGBBZPS4O4AKGQEWN3ANJQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBDEKVJM7XAHRBEP5QS4QKGQE3B33DCI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mezzanine.sirena.org.uk (mezzanine.sirena.org.uk. [2400:8900::f03c:91ff:fedb:4f4])
-        by gmr-mx.google.com with ESMTPS id gg5si193669igb.0.2016.04.21.09.01.40
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=AES128-SHA bits=128/128);
-        Thu, 21 Apr 2016 09:01:40 -0700 (PDT)
-Date: Thu, 21 Apr 2016 17:01:20 +0100
-From: Mark Brown <broonie@kernel.org>
-To: Wadim Egorov <w.egorov@phytec.de>
-Cc: linux-kernel@vger.kernel.org, linux-clk@vger.kernel.org,
-	rtc-linux@googlegroups.com, devicetree@vger.kernel.org,
-	linux-rockchip@lists.infradead.org, robh+dt@kernel.org,
-	pawel.moll@arm.com, mark.rutland@arm.com,
-	ijc+devicetree@hellion.org.uk, galak@codeaurora.org,
-	mturquette@baylibre.com, sboyd@codeaurora.org, lee.jones@linaro.org,
-	lgirdwood@gmail.com, a.zummo@towertech.it,
-	alexandre.belloni@free-electrons.com, dianders@chromium.org,
-	zyw@rock-chips.com
-Message-ID: <20160421160120.GT3217@sirena.org.uk>
-References: <1461244361-45686-1-git-send-email-w.egorov@phytec.de>
- <1461244361-45686-4-git-send-email-w.egorov@phytec.de>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="x735uyZ2C9eR7U1j"
-In-Reply-To: <1461244361-45686-4-git-send-email-w.egorov@phytec.de>
-Subject: [rtc-linux] Re: [PATCH v2 3/7] regulator: rk808: Migrate to regulator
- core's simplified DT parsing code
+Received: from mout.kundenserver.de (mout.kundenserver.de. [217.72.192.75])
+        by gmr-mx.google.com with ESMTPS id e78si284809wmc.3.2016.04.27.15.34.57
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 27 Apr 2016 15:34:57 -0700 (PDT)
+From: Arnd Bergmann <arnd@arndb.de>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: Arnd Bergmann <arnd@arndb.de>,
+	geert@linux-m68k.org,
+	deller@gmx.de,
+	benh@kernel.crashing.org,
+	mpe@ellerman.id.au,
+	dalias@libc.org,
+	dhowells@redhat.com,
+	linux-alpha@vger.kernel.org,
+	a.zummo@towertech.it,
+	linux-kernel@vger.kernel.org,
+	linux-parisc@vger.kernel.org,
+	linuxppc-dev@lists.ozlabs.org,
+	linux-sh@vger.kernel.org,
+	linux-m68k@lists.linux-m68k.org,
+	rtc-linux@googlegroups.com,
+	linux-arch@vger.kernel.org
+Subject: [rtc-linux] [PATCH v3 05/16] char/genrtc: remove alpha support
+Date: Thu, 28 Apr 2016 00:34:19 +0200
+Message-Id: <1461796470-1291527-6-git-send-email-arnd@arndb.de>
+In-Reply-To: <1461796470-1291527-1-git-send-email-arnd@arndb.de>
+References: <1461796470-1291527-1-git-send-email-arnd@arndb.de>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -35,29 +39,58 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
---x735uyZ2C9eR7U1j
-Content-Type: text/plain; charset=UTF-8
-Content-Disposition: inline
+The genrtc driver serves no purpose on Alpha because it drives the
+same hardware as the original rtc.c driver, and the newer rtc-generic.c
+or rtc-cmos.c drivers on architectures that use the asm-generic/rtc.h
+header.
 
-On Thu, Apr 21, 2016 at 03:12:37PM +0200, Wadim Egorov wrote:
+The defconfig uses CONFIG_RTC=y, so this driver is not used by default.
+At one point it was used to abstract a quirk for the "Marvel" platform,
+but it does not do this any more after the code was moved into yet
+another driver in arch/alpha/kernel/rtc.c.
 
-> +static int rk808_set_suspend_voltage(struct regulator_dev *rdev, int uv)
-> +{
-> +	unsigned int reg;
-> +	int sel = regulator_map_voltage_linear(rdev, uv, uv);
-> +
-> +	if (sel < 0)
-> +		return -EINVAL;
-> +
-> +	reg = rdev->desc->vsel_reg + RK808_SLP_REG_OFFSET;
-> +
-> +	return regmap_update_bits(rdev->regmap, reg,
-> +				  rdev->desc->vsel_mask,
-> +				  sel);
-> +}
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+---
+ arch/alpha/include/asm/rtc.h    | 1 -
+ arch/alpha/kernel/core_marvel.c | 1 -
+ drivers/char/Kconfig            | 2 +-
+ 3 files changed, 1 insertion(+), 3 deletions(-)
+ delete mode 100644 arch/alpha/include/asm/rtc.h
 
-This is fine but is adding a new feature and not part of the refactoring
-that the changelog talked about so should be in a separate commit.
+diff --git a/arch/alpha/include/asm/rtc.h b/arch/alpha/include/asm/rtc.h
+deleted file mode 100644
+index f71c3b0ed360..000000000000
+--- a/arch/alpha/include/asm/rtc.h
++++ /dev/null
+@@ -1 +0,0 @@
+-#include <asm-generic/rtc.h>
+diff --git a/arch/alpha/kernel/core_marvel.c b/arch/alpha/kernel/core_marvel.c
+index 53dd2f1a53aa..d5f0580746a5 100644
+--- a/arch/alpha/kernel/core_marvel.c
++++ b/arch/alpha/kernel/core_marvel.c
+@@ -24,7 +24,6 @@
+ #include <asm/gct.h>
+ #include <asm/pgalloc.h>
+ #include <asm/tlbflush.h>
+-#include <asm/rtc.h>
+ #include <asm/vga.h>
+ 
+ #include "proto.h"
+diff --git a/drivers/char/Kconfig b/drivers/char/Kconfig
+index 9bdb629fbaae..697510325b1d 100644
+--- a/drivers/char/Kconfig
++++ b/drivers/char/Kconfig
+@@ -328,7 +328,7 @@ config JS_RTC
+ config GEN_RTC
+ 	tristate "Generic /dev/rtc emulation"
+ 	depends on RTC!=y
+-	depends on ALPHA || M68K || MN10300 || PARISC || PPC
++	depends on M68K || MN10300 || PARISC || PPC
+ 	---help---
+ 	  If you say Y here and create a character special file /dev/rtc with
+ 	  major number 10 and minor number 135 using mknod ("man mknod"), you
+-- 
+2.7.0
 
 -- 
 -- 
@@ -69,20 +102,3 @@ before submitting a driver.
 You received this message because you are subscribed to the Google Groups "rtc-linux" group.
 To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
-
---x735uyZ2C9eR7U1j
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
-
-iQEcBAEBCAAGBQJXGPlKAAoJECTWi3JdVIfQqxcH/3zHYCsco7Um+vuiC3Tx+h+S
-6zDWfQtNVsxmf75m9fTYsY91t1ub/SNY8DGvEeCPRffvVHxLQBaaKyW0HcaBvdS3
-h2LOaXlJlTE5o3SnA/RVC7qM5OEGLU94oxa5x+j03MUbqMtm4ngDCe0LzFdGsq4a
-2kaUCx35X9Kdy6N2pHPGxF3A0v+gqSnQ35L/JfUqAy0KhjdN/y0G2pZpfuxhM6+U
-jniv0nasEatBpB6KZPSDqwjOMsNB9kPpBixRtTHksfPjZgCC8NqNT1eGEyJq8eOZ
-QWZr6Is7zpwT388PaDDfwdpd9K758Jv15EnXDb+IF0Zxz0Mp4Ds3hPEUKJBNbFE=
-=tDQJ
------END PGP SIGNATURE-----
-
---x735uyZ2C9eR7U1j--
