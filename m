@@ -1,40 +1,35 @@
-Return-Path: <eike-kernel@sf-tec.de>
-From: Rolf Eike Beer <eike-kernel@sf-tec.de>
+Return-Path: <tglx@linutronix.de>
+Date: Wed, 27 Apr 2016 12:05:23 +0200 (CEST)
+From: Thomas Gleixner <tglx@linutronix.de>
 To: Arnd Bergmann <arnd@arndb.de>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, tony.luck@intel.com, geert@linux-m68k.org, jejb@parisc-linux.org, deller@gmx.de, benh@kernel.crashing.org, mpe@ellerman.id.au, dalias@libc.org, dhowells@redhat.com, yasutake.koichi@jp.panasonic.com, rth@twiddle.net, ink@jurassic.park.msu.ru, linux-alpha@vger.kernel.org, x86@kernel.org, a.zummo@towertech.it, alexandre.belloni@free-electrons.com, linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-sh@vger.kernel.org, rtc-linux@googlegroups.com, linux-arch@vger.kernel.org
-Subject: Re: [PATCH 6/8] char/genrtc: parisc: use asm-generic/rtc.h
-Date: Wed, 27 Apr 2016 00:07:47 +0200
-Message-ID: <3034953.EvqV1iv2Ef@caliban.sf-tec.de>
-In-Reply-To: <1461707052-1337718-7-git-send-email-arnd@arndb.de>
-References: <1461707052-1337718-1-git-send-email-arnd@arndb.de> <1461707052-1337718-7-git-send-email-arnd@arndb.de>
+cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, tony.luck@intel.com,
+    geert@linux-m68k.org, jejb@parisc-linux.org, deller@gmx.de,
+    benh@kernel.crashing.org, mpe@ellerman.id.au, dalias@libc.org,
+    dhowells@redhat.com, yasutake.koichi@jp.panasonic.com, rth@twiddle.net,
+    ink@jurassic.park.msu.ru, linux-alpha@vger.kernel.org, x86@kernel.org,
+    a.zummo@towertech.it, alexandre.belloni@free-electrons.com,
+    linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org,
+    linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+    linux-sh@vger.kernel.org, rtc-linux@googlegroups.com,
+    linux-arch@vger.kernel.org
+Subject: Re: [PATCH 2/8] char/rtc: legacy RTC is no longer supported on x86
+In-Reply-To: <1461707052-1337718-3-git-send-email-arnd@arndb.de>
+Message-ID: <alpine.DEB.2.11.1604271205100.3941@nanos>
+References: <1461707052-1337718-1-git-send-email-arnd@arndb.de> <1461707052-1337718-3-git-send-email-arnd@arndb.de>
 MIME-Version: 1.0
-Content-Type: multipart/signed; boundary="nextPart1484825.uGIj57kKZR"; micalg="pgp-sha1"; protocol="application/pgp-signature"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 List-ID: <rtc-linux.googlegroups.com>
 
---nextPart1484825.uGIj57kKZR
-Content-Transfer-Encoding: 7Bit
-Content-Type: text/plain; charset="us-ascii"
+On Tue, 26 Apr 2016, Arnd Bergmann wrote:
 
-Arnd Bergmann wrote:
-> The asm-generic/rtc.h header can now be included by
-> architectures that provide their own set_rtc_time/get_rtc_time
-> macros, letting us remove most of the common contents in
-> the powerpc implementation.
+> Commit 3195ef59cb42 ("x86: Do full rtc synchronization with ntp") had
+> the side-effect of unconditionally enabling the RTC_LIB symbol on x86,
+> which in turn disables the selection of the CONFIG_RTC and
+> CONFIG_GEN_RTC drivers that contain a two older implementations of
+> the CONFIG_RTC_DRV_CMOS driver.
+> 
+> This removes x86 from the list.
+> 
+> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 
-parisc in this case.
-
-Eike
---nextPart1484825.uGIj57kKZR
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part.
-Content-Transfer-Encoding: 7Bit
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.22 (GNU/Linux)
-
-iEYEABECAAYFAlcf5rgACgkQXKSJPmm5/E4XHQCfYLbFGGoGa3RONzYALJ5wXGhV
-eswAoJzCfTkDFm06E5j/I7xKraT4hn9i
-=TRZX
------END PGP SIGNATURE-----
-
---nextPart1484825.uGIj57kKZR--
+Reviewed-by: Thomas Gleixner <tglx@linutronix.de>
