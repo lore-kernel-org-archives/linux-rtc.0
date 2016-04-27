@@ -1,25 +1,34 @@
-Return-Path: <rtc-linux+bncBD7N3SEV2QCRBRXUSS4AKGQEMV3UNTA@googlegroups.com>
+Return-Path: <rtc-linux+bncBDEKVJM7XAHRBGP5QS4QKGQES4RRIFQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 MIME-Version: 1.0
-Received: from vk1046.megiteam.com.pl (2780.rev.megiteam.pl. [91.227.39.128])
-        by gmr-mx.google.com with ESMTP id a80si192912wma.0.2016.04.06.09.33.10
-        for <rtc-linux@googlegroups.com>;
-        Wed, 06 Apr 2016 09:33:10 -0700 (PDT)
-From: Marcin Niestroj <m.niestroj@grinn-global.com>
-To: rtc-linux@googlegroups.com,
-	devicetree@vger.kernel.org
-Cc: Rob Herring <robh+dt@kernel.org>,
-	Pawel Moll <pawel.moll@arm.com>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Keerthy <j-keerthy@ti.com>,
-	Tony Lindgren <tony@atomide.com>,
-	Marcin Niestroj <m.niestroj@grinn-global.com>
-Subject: [rtc-linux] [PATCH v2] rtc: omap: Support ext_wakeup configuration
-Date: Wed,  6 Apr 2016 18:32:47 +0200
-Message-Id: <1459960367-29399-2-git-send-email-m.niestroj@grinn-global.com>
-In-Reply-To: <1459960367-29399-1-git-send-email-m.niestroj@grinn-global.com>
-References: <1459960367-29399-1-git-send-email-m.niestroj@grinn-global.com>
+Received: from mout.kundenserver.de (mout.kundenserver.de. [217.72.192.74])
+        by gmr-mx.google.com with ESMTPS id k143si430571wmg.1.2016.04.27.15.35.05
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 27 Apr 2016 15:35:05 -0700 (PDT)
+From: Arnd Bergmann <arnd@arndb.de>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: Arnd Bergmann <arnd@arndb.de>,
+	geert@linux-m68k.org,
+	deller@gmx.de,
+	benh@kernel.crashing.org,
+	mpe@ellerman.id.au,
+	dalias@libc.org,
+	dhowells@redhat.com,
+	linux-alpha@vger.kernel.org,
+	a.zummo@towertech.it,
+	linux-kernel@vger.kernel.org,
+	linux-parisc@vger.kernel.org,
+	linuxppc-dev@lists.ozlabs.org,
+	linux-sh@vger.kernel.org,
+	linux-m68k@lists.linux-m68k.org,
+	rtc-linux@googlegroups.com,
+	linux-arch@vger.kernel.org
+Subject: [rtc-linux] [PATCH v3 12/16] rtc: powerpc: provide rtc_class_ops directly
+Date: Thu, 28 Apr 2016 00:34:26 +0200
+Message-Id: <1461796470-1291527-13-git-send-email-arnd@arndb.de>
+In-Reply-To: <1461796470-1291527-1-git-send-email-arnd@arndb.de>
+References: <1461796470-1291527-1-git-send-email-arnd@arndb.de>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -30,262 +39,92 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Support configuration of ext_wakeup sources. This patch makes it
-possible to enable ext_wakeup (and set it's polarity), depending on
-board configuration. AM335x's dedicated PMIC (tps65217) uses ext_wakeup
-in SLEEP mode (RTC-only) to notify about power-button presses. Handling
-power-button presses enables to recover from RTC-only power states
-correctly.
+The rtc-generic driver provides an architecture specific
+wrapper on top of the generic rtc_class_ops abstraction,
+and powerpc has another abstraction on top, which is a bit
+silly.
 
-Implementation uses gpiochip to utilize standard bindings. However,
-configuration is possible only using device-tree (no runtime changes).
+This changes the powerpc rtc-generic device to provide its
+rtc_class_ops directly, to reduce the number of layers
+by one.
 
-Signed-off-by: Marcin Niestroj <m.niestroj@grinn-global.com>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 ---
- Documentation/devicetree/bindings/rtc/rtc-omap.txt |  18 ++-
- drivers/rtc/Kconfig                                |   2 +-
- drivers/rtc/rtc-omap.c                             | 137 ++++++++++++++++++++-
- 3 files changed, 154 insertions(+), 3 deletions(-)
+ arch/powerpc/kernel/time.c | 29 ++++++++++++++++++++++++++++-
+ drivers/rtc/rtc-generic.c  |  2 +-
+ 2 files changed, 29 insertions(+), 2 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/rtc/rtc-omap.txt b/Documentation/devicetree/bindings/rtc/rtc-omap.txt
-index bf7d11a..4a7738e 100644
---- a/Documentation/devicetree/bindings/rtc/rtc-omap.txt
-+++ b/Documentation/devicetree/bindings/rtc/rtc-omap.txt
-@@ -18,8 +18,12 @@ Optional properties:
-   through pmic_power_en
- - clocks: Any internal or external clocks feeding in to rtc
- - clock-names: Corresponding names of the clocks
-+- gpio-controller: Mark as gpio controller when using ext_wakeup
-+- #gpio-cells: Should be set to 2
-+- ngpios: Number of ext_wakeup sources supported by processor (board)
-+- ext-wakeup-gpios: List of ext_wakeup sources to configure
+diff --git a/arch/powerpc/kernel/time.c b/arch/powerpc/kernel/time.c
+index 3ed9a5a21d77..7a482a7f4d8d 100644
+--- a/arch/powerpc/kernel/time.c
++++ b/arch/powerpc/kernel/time.c
+@@ -56,6 +56,7 @@
+ #include <linux/irq_work.h>
+ #include <linux/clk-provider.h>
+ #include <linux/suspend.h>
++#include <linux/rtc.h>
+ #include <asm/trace.h>
  
--Example:
-+Examples:
- 
- rtc@1c23000 {
- 	compatible = "ti,da830-rtc";
-@@ -31,3 +35,15 @@ rtc@1c23000 {
- 	clocks = <&clk_32k_rtc>, <&clk_32768_ck>;
- 	clock-names = "ext-clk", "int-clk";
- };
-+
-+rtc: rtc@44e3e000 {
-+	compatible = "ti,am3352-rtc", "ti,da830-rtc";
-+	reg = <0x44e3e000 0x1000>;
-+	interrupts = <75
-+		      76>;
-+	system-power-controller;
-+	gpio-controller;
-+	#gpio-cells = <2>;
-+	ngpios = <1>;
-+	ext-wakeup-gpios = <&rtc 0 GPIO_ACTIVE_LOW>;
-+};
-diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
-index 3e84315..f013346 100644
---- a/drivers/rtc/Kconfig
-+++ b/drivers/rtc/Kconfig
-@@ -1208,7 +1208,7 @@ config RTC_DRV_IMXDI
- 
- config RTC_DRV_OMAP
- 	tristate "TI OMAP Real Time Clock"
--	depends on ARCH_OMAP || ARCH_DAVINCI || COMPILE_TEST
-+	depends on (ARCH_OMAP || ARCH_DAVINCI || COMPILE_TEST) && GPIOLIB
- 	help
- 	  Say "yes" here to support the on chip real time clock
- 	  present on TI OMAP1, AM33xx, DA8xx/OMAP-L13x, AM43xx and DRA7xx.
-diff --git a/drivers/rtc/rtc-omap.c b/drivers/rtc/rtc-omap.c
-index ec2e9c5..56c7155 100644
---- a/drivers/rtc/rtc-omap.c
-+++ b/drivers/rtc/rtc-omap.c
-@@ -26,6 +26,8 @@
- #include <linux/pm_runtime.h>
- #include <linux/io.h>
- #include <linux/clk.h>
-+#include <linux/gpio/driver.h>
-+#include <linux/gpio/consumer.h>
- 
- /*
-  * The OMAP RTC is a year/month/day/hours/minutes/seconds BCD clock
-@@ -114,7 +116,11 @@
- #define OMAP_RTC_IRQWAKEEN_ALARM_WAKEEN	BIT(1)
- 
- /* OMAP_RTC_PMIC bit fields: */
--#define OMAP_RTC_PMIC_POWER_EN_EN	BIT(16)
-+#define OMAP_RTC_PMIC_POWER_EN_EN		BIT(16)
-+#define OMAP_RTC_PMIC_EXT_WAKEUP_EN(x)		(BIT(x))
-+#define OMAP_RTC_PMIC_EXT_WAKEUP_POL(x)		(BIT(x) << 4)
-+#define OMAP_RTC_PMIC_EXT_WAKEUP_EN_MASK	(0x0F)
-+#define OMAP_RTC_PMIC_EXT_WAKEUP_POL_MASK	(0x0F << 4)
- 
- /* OMAP_RTC_KICKER values */
- #define	KICK0_VALUE			0x83e70b13
-@@ -141,6 +147,7 @@ struct omap_rtc {
- 	bool is_pmic_controller;
- 	bool has_ext_clk;
- 	const struct omap_rtc_device_type *type;
-+	struct gpio_chip gpio_chip;
- };
- 
- static inline u8 rtc_read(struct omap_rtc *rtc, unsigned int reg)
-@@ -183,6 +190,104 @@ static void default_rtc_lock(struct omap_rtc *rtc)
- {
+ #include <asm/io.h>
+@@ -1081,6 +1082,29 @@ void calibrate_delay(void)
+ 	loops_per_jiffy = tb_ticks_per_jiffy;
  }
  
-+static int omap_rtc_gpio_request(struct gpio_chip *chip,
-+				unsigned int offset)
++#if IS_ENABLED(CONFIG_RTC_DRV_GENERIC)
++static int rtc_generic_get_time(struct device *dev, struct rtc_time *tm)
 +{
-+	struct omap_rtc *rtc = gpiochip_get_data(chip);
-+	u32 val;
++	ppc_md.get_rtc_time(tm);
++	return rtc_valid_tm(tm);
++}
 +
-+	rtc->type->unlock(rtc);
++static int rtc_generic_set_time(struct device *dev, struct rtc_time *tm)
++{
++	if (!ppc_md.set_rtc_time)
++		return -EOPNOTSUPP;
 +
-+	val = rtc_readl(rtc, OMAP_RTC_PMIC_REG);
-+	val |= OMAP_RTC_PMIC_EXT_WAKEUP_EN(offset);
-+	rtc_writel(rtc, OMAP_RTC_PMIC_REG, val);
-+
-+	rtc->type->lock(rtc);
++	if (ppc_md.set_rtc_time(tm) < 0)
++		return -EOPNOTSUPP;
 +
 +	return 0;
 +}
 +
-+static void omap_rtc_gpio_free(struct gpio_chip *chip,
-+			unsigned int offset)
-+{
-+	struct omap_rtc *rtc = gpiochip_get_data(chip);
-+	u32 val;
-+
-+	rtc->type->unlock(rtc);
-+
-+	val = rtc_readl(rtc, OMAP_RTC_PMIC_REG);
-+	val &= ~OMAP_RTC_PMIC_EXT_WAKEUP_EN(offset);
-+	rtc_writel(rtc, OMAP_RTC_PMIC_REG, val);
-+
-+	rtc->type->lock(rtc);
-+}
-+
-+static int omap_rtc_gpio_get_direction(struct gpio_chip *chip,
-+				unsigned int offset)
-+{
-+	return 1; /* Always in */
-+}
-+
-+
-+static int omap_rtc_gpio_direction_input(struct gpio_chip *chip,
-+					unsigned int offset)
-+{
-+	return 0;
-+}
-+
-+static int omap_rtc_gpio_get(struct gpio_chip *chip, unsigned int offset)
-+{
-+	return 0;
-+}
-+
-+/*
-+ * Note: This function is called only when setting ext_wakeup polarity
-+ * with omap_rtc_gpio_set_polarity
-+ */
-+static void omap_rtc_gpio_set(struct gpio_chip *chip, unsigned int offset,
-+			int value)
-+{
-+	struct omap_rtc *rtc = gpiochip_get_data(chip);
-+	u32 val;
-+
-+	rtc->type->unlock(rtc);
-+
-+	val = rtc_readl(rtc, OMAP_RTC_PMIC_REG);
-+	if (value)
-+		val |= OMAP_RTC_PMIC_EXT_WAKEUP_POL(offset);
-+	else
-+		val &= ~OMAP_RTC_PMIC_EXT_WAKEUP_POL(offset);
-+	rtc_writel(rtc, OMAP_RTC_PMIC_REG, val);
-+
-+	rtc->type->lock(rtc);
-+}
-+
-+static void omap_rtc_gpio_set_polarity(struct gpio_descs *ext_wakeup)
-+{
-+	struct gpio_desc *desc;
-+	int i;
-+
-+	for (i = 0; i < ext_wakeup->ndescs; i++) {
-+		desc = ext_wakeup->desc[i];
-+		gpiod_set_raw_value_cansleep(desc,
-+					gpiod_is_active_low(desc));
-+	}
-+}
-+
-+static struct gpio_chip template_chip = {
-+	.label			= "omap-rtc-gpio",
-+	.owner			= THIS_MODULE,
-+	.request		= omap_rtc_gpio_request,
-+	.free			= omap_rtc_gpio_free,
-+	.get_direction		= omap_rtc_gpio_get_direction,
-+	.direction_input	= omap_rtc_gpio_direction_input,
-+	.get			= omap_rtc_gpio_get,
-+	.set			= omap_rtc_gpio_set,
-+	.base			= -1,
-+	.ngpio			= 4,
-+	.can_sleep		= true,
++static const struct rtc_class_ops rtc_generic_ops = {
++	.read_time = rtc_generic_get_time,
++	.set_time = rtc_generic_set_time,
 +};
 +
- /*
-  * We rely on the rtc framework to handle locking (rtc->ops_lock),
-  * so the only other requirement is that register accesses which
-@@ -533,6 +638,8 @@ static int omap_rtc_probe(struct platform_device *pdev)
- 	const struct platform_device_id *id_entry;
- 	const struct of_device_id *of_id;
- 	int ret;
-+	struct gpio_descs *ext_wakeup;
-+	u32 ngpios = 0;
+ static int __init rtc_init(void)
+ {
+ 	struct platform_device *pdev;
+@@ -1088,9 +1112,12 @@ static int __init rtc_init(void)
+ 	if (!ppc_md.get_rtc_time)
+ 		return -ENODEV;
  
- 	rtc = devm_kzalloc(&pdev->dev, sizeof(*rtc), GFP_KERNEL);
- 	if (!rtc)
-@@ -544,6 +651,10 @@ static int omap_rtc_probe(struct platform_device *pdev)
- 		rtc->is_pmic_controller = rtc->type->has_pmic_mode &&
- 				of_property_read_bool(pdev->dev.of_node,
- 						"system-power-controller");
-+		ret = of_property_read_u32(pdev->dev.of_node, "ngpios",
-+					&ngpios);
-+		if (ret)
-+			ngpios = 0;
- 	} else {
- 		id_entry = platform_get_device_id(pdev);
- 		rtc->type = (void *)id_entry->driver_data;
-@@ -577,6 +688,30 @@ static int omap_rtc_probe(struct platform_device *pdev)
- 	pm_runtime_enable(&pdev->dev);
- 	pm_runtime_get_sync(&pdev->dev);
+-	pdev = platform_device_register_simple("rtc-generic", -1, NULL, 0);
++	pdev = platform_device_register_data(NULL, "rtc-generic", -1,
++					     &rtc_generic_ops,
++					     sizeof(rtc_generic_ops));
  
-+	if (ngpios > 0) {
-+		rtc->gpio_chip = template_chip;
-+		rtc->gpio_chip.parent = &pdev->dev;
-+		rtc->gpio_chip.ngpio = ngpios;
-+		ret = devm_gpiochip_add_data(&pdev->dev, &rtc->gpio_chip,
-+					rtc);
-+		if (ret < 0) {
-+			dev_err(&pdev->dev, "Could not register gpiochip, %d\n",
-+				ret);
-+			return ret;
-+		}
-+
-+		ext_wakeup = devm_gpiod_get_array_optional(&pdev->dev,
-+						"ext-wakeup", GPIOD_IN);
-+		if (IS_ERR(ext_wakeup)) {
-+			ret = PTR_ERR(ext_wakeup);
-+			dev_err(&pdev->dev,
-+				"ext-wakeup request failed, ret %d\n", ret);
-+			return ret;
-+		}
-+		if (ext_wakeup)
-+			omap_rtc_gpio_set_polarity(ext_wakeup);
-+	}
-+
- 	rtc->type->unlock(rtc);
+ 	return PTR_ERR_OR_ZERO(pdev);
+ }
  
- 	/*
+ device_initcall(rtc_init);
++#endif
+diff --git a/drivers/rtc/rtc-generic.c b/drivers/rtc/rtc-generic.c
+index 5c82bae73b9c..efcb9833cac8 100644
+--- a/drivers/rtc/rtc-generic.c
++++ b/drivers/rtc/rtc-generic.c
+@@ -9,7 +9,7 @@
+ #include <linux/platform_device.h>
+ #include <linux/rtc.h>
+ 
+-#if defined(CONFIG_PPC)
++#if 0
+ #include <asm/rtc.h>
+ 
+ static int generic_get_time(struct device *dev, struct rtc_time *tm)
 -- 
-2.8.0
+2.7.0
 
 -- 
 -- 
