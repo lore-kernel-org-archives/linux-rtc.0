@@ -1,24 +1,24 @@
-Return-Path: <rtc-linux+bncBAABBTF3224AKGQE2CXPNYI@googlegroups.com>
+Return-Path: <rtc-linux+bncBC2JFQ6TUUPRB7PXSO4QKGQE4HNTGUY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from emea01-am1-obe.outbound.protection.outlook.com (mail-am1on0093.outbound.protection.outlook.com. [157.56.112.93])
-        by gmr-mx.google.com with ESMTPS id d22si3038582pfd.0.2016.04.18.19.54.04
+Received: from mail-wm0-x22b.google.com (mail-wm0-x22b.google.com. [2a00:1450:400c:c09::22b])
+        by gmr-mx.google.com with ESMTPS id e64si365974wmi.3.2016.04.30.11.39.57
         for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
-        Mon, 18 Apr 2016 19:54:04 -0700 (PDT)
-From: Qianyu Gong <qianyu.gong@nxp.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Sat, 30 Apr 2016 11:39:57 -0700 (PDT)
+Received: by mail-wm0-x22b.google.com with SMTP id g17so83096392wme.1
+        for <rtc-linux@googlegroups.com>; Sat, 30 Apr 2016 11:39:57 -0700 (PDT)
+Date: Sat, 30 Apr 2016 19:39:54 +0100
+From: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
 To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-CC: "akinobu.mita@gmail.com" <akinobu.mita@gmail.com>, Mingkai Hu
-	<mingkai.hu@nxp.com>, "rtc-linux@googlegroups.com"
-	<rtc-linux@googlegroups.com>, "linux-kernel@vger.kernel.org"
-	<linux-kernel@vger.kernel.org>
-Subject: [rtc-linux] RE: rtc ds3232 call trace in kernel
-Date: Tue, 19 Apr 2016 02:54:01 +0000
-Message-ID: <AM2PR04MB0964DB6638272AE6BC28FD56E76C0@AM2PR04MB0964.eurprd04.prod.outlook.com>
-References: <AM2PR04MB09643A16272FB78B0D9FA103E76B0@AM2PR04MB0964.eurprd04.prod.outlook.com>
- <20160418162151.GR25196@piout.net>
-In-Reply-To: <20160418162151.GR25196@piout.net>
-Content-Type: text/plain; charset=UTF-8
+Cc: Alessandro Zummo <a.zummo@towertech.it>, linux-kernel@vger.kernel.org,
+	rtc-linux@googlegroups.com
+Subject: [rtc-linux] Re: [PATCH] rtc: stmp3xxx: check for failure
+Message-ID: <20160430183954.GD25043@sudip-laptop>
+References: <1460392435-23803-1-git-send-email-sudipm.mukherjee@gmail.com>
+ <20160415210715.GF25196@piout.net>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <20160415210715.GF25196@piout.net>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -28,62 +28,28 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-
-> -----Original Message-----
-> From: Alexandre Belloni [mailto:alexandre.belloni@free-electrons.com]
-> Sent: Tuesday, April 19, 2016 12:22 AM
-> To: Qianyu Gong <qianyu.gong@nxp.com>
-> Cc: akinobu.mita@gmail.com; Mingkai Hu <mingkai.hu@nxp.com>; rtc-
-> linux@googlegroups.com; linux-kernel@vger.kernel.org
-> Subject: Re: rtc ds3232 call trace in kernel
+On Fri, Apr 15, 2016 at 11:07:15PM +0200, Alexandre Belloni wrote:
+> Hi,
 > 
-> On 18/04/2016 at 06:15:40 +0000, Qianyu Gong wrote :
-> > Hi Akinobu,
-> >
-> > I got an rtc call trace when booting 4.6 kernel on our board and I
-> > found it was caused by this patch:
-> >
-> > commit fc1dcb0b39dbb10d3290f2fcd6e154670f699166
-> > Author: Akinobu Mita <akinobu.mita@gmail.com>
-> > Date:   Mon Mar 7 00:27:53 2016 +0900
-> >
-> >     rtc: ds3232: use rtc->ops_lock to protect alarm operations
-> >
-> >     ds3232->mutex is used to protect for alarm operations which
-> >     need to access status and control registers.
-> >
-> >     But we can use rtc->ops_lock instead.  rtc->ops_lock is held when most
-> >     of rtc_class_ops methods are called, so we only need to explicitly
-> >     acquire it from irq handler in order to protect form concurrent
-> >     accesses.
-> >
-> >     Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
-> > Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com
-> >
-> > The problem is that rtc->ops_lock would be accessed in ds3232_irq()
-> > without being initialized as rtc_device_register() is called too late.
-> >
-> > As I'm not familiar with rtc things, could I just revert the patch or
-> > you already have a solution to this problem? Thanks in advance.
-> >
-> >
+> On 11/04/2016 at 22:03:55 +0530, Sudip Mukherjee wrote :
+> > stmp3xxx_wdt_register() can fail as platform_device_alloc() or
+> > platform_device_add() can fail. Lets check for the return value from
+> > both platform_device_alloc() and platform_device_add() and return the
+> > error value accordingly which is now propagated from probe.
+> > 
 > 
-> Well, many RTC drivers actually suffer from that. I'm planning to change the
-> infrastructure to handle this case better.
-> Meanwhile, this is worth fixing.
+> Well, this may have been intentional. The RTC doesn't need the watchdog
+> driver to be present to work correctly. However, I agree that failing
+> silently is not nice.
 > 
-> 
-> --
-> Alexandre Belloni, Free Electrons
-> Embedded Linux, Kernel and Android engineering http://free-electrons.com
+> Did you have any particular issue? Maybe simply adding a dev_err() or
+> two would be fine.
 
-Thanks. I followed Akinobu's suggest and put devm_rtc_device_register() just
-before registering the irq handler. The call trace disappeared. Looks like it's 
-working well.
+I didnot have any particular issue. I will send a new patch with some
+error message there.
 
-
-Regards,
-Qianyu
+regards
+sudip
 
 -- 
 -- 
