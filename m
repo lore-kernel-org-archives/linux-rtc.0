@@ -1,18 +1,29 @@
-Return-Path: <rtc-linux+bncBCX3TTWUQMPRBXWMU24QKGQE2CAS3IA@googlegroups.com>
-Sender: rtc-linux@googlegroups.com
-Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de. [2001:67c:670:201:290:27ff:fe1d:cc33])
-        by gmr-mx.google.com with ESMTPS id a65si257285wma.0.2016.05.04.00.35.58
+Return-Path: <rtc-linux+bncBCQJP74GSUDRBQNHTS4QKGQEJZBJSFQ@googlegroups.com>
+Received: from mail-io0-x244.google.com (mail-io0-x244.google.com. [2607:f8b0:4001:c06::244])
+        by gmr-mx.google.com with ESMTPS id uo2si734143igb.2.2016.05.02.01.45.53
         for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=AES128-SHA bits=128/128);
-        Wed, 04 May 2016 00:35:58 -0700 (PDT)
-Date: Wed, 4 May 2016 09:35:55 +0200
-From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <u.kleine-koenig@pengutronix.de>
-To: Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: rtc-linux@googlegroups.com, 794266@bugs.debian.org
-Subject: [rtc-linux] rtc-s35390a: the big mess or inconsistencies during startup
-Message-ID: <20160504073555.GA29930@pengutronix.de>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 02 May 2016 01:45:53 -0700 (PDT)
+Received: by mail-io0-x244.google.com with SMTP id d62so22149853iof.1
+        for <rtc-linux@googlegroups.com>; Mon, 02 May 2016 01:45:53 -0700 (PDT)
 MIME-Version: 1.0
+Sender: geert.uytterhoeven@gmail.com
+In-Reply-To: <CAMuHMdUcrB38jL1_estfq5aK55UFUeF=4JciVGFqcE17pY9X7g@mail.gmail.com>
+References: <1461796470-1291527-1-git-send-email-arnd@arndb.de>
+	<CAMuHMdUcrB38jL1_estfq5aK55UFUeF=4JciVGFqcE17pY9X7g@mail.gmail.com>
+Date: Mon, 2 May 2016 10:45:52 +0200
+Message-ID: <CAMuHMdV3ZHEKgv-LPPQdZzP8KBY-yiSoeJ-cAXy54qD04--LgA@mail.gmail.com>
+Subject: [rtc-linux] Re: [PATCH v3 00/16] genrtc removal
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>, Helge Deller <deller@gmx.de>,
+	Benjamin Herrenschmidt <benh@kernel.crashing.org>, Michael Ellerman <mpe@ellerman.id.au>,
+	Rich Felker <dalias@libc.org>, David Howells <dhowells@redhat.com>,
+	alpha <linux-alpha@vger.kernel.org>, Alessandro Zummo <a.zummo@towertech.it>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Parisc List <linux-parisc@vger.kernel.org>,
+	"linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>, Linux-sh list <linux-sh@vger.kernel.org>,
+	linux-m68k <linux-m68k@lists.linux-m68k.org>, RTCLINUX <rtc-linux@googlegroups.com>,
+	Linux-Arch <linux-arch@vger.kernel.org>
 Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
@@ -23,58 +34,99 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Hello,
+Hi Arnd,
 
-there was a bug reported against the Debian kernel that seems related to
-the rtc-s35390a driver/chip. See https://bugs.debian.org/794266.
+On Thu, Apr 28, 2016 at 9:48 AM, Geert Uytterhoeven
+<geert@linux-m68k.org> wrote:
+> On Thu, Apr 28, 2016 at 12:34 AM, Arnd Bergmann <arnd@arndb.de> wrote:
+>> I ended up stuffing the two patch series into one, as they are now
+>> more dependent on one another. This now thoroughly removes the
+>> genrtc driver including the asm/rtc.h headers it uses. For all
+>> architectures that still have a meaningful asm/rtc.h, this goes
+>> through two stages:
+>>
+>> 1) make the rtc-generic implementation independent of asm/rtc.h
+>> 2) remove the asm/rtc.h header and disallow the gen_rtc driver
+>>
+>> As the last step, the driver itself gets removed.
+>
+> In general, after fixing the minor nit:
+> Acked-by: Geert Uytterhoeven <geert@linux-m68k.org>
+>
+> For the m68k bits:
+> Tested-by: Geert Uytterhoeven <geert@linux-m68k.org>
 
-I looked a bit into the driver now, and there are several problems. As I
-don't have access to such a chip I just want to tell what I found and
-how I think it should be tackled.
+More build coverage uncovered two build failures on m68k due to "[PATCH v3
+02/16] rtc: cmos: move mc146818rtc code out of asm-generic/rtc.h":
 
- - The rtc-s35390a chip's alarm uses only minute, hour and dow.
-   The .read_alarm callback (s35390a_read_alarm()) returns -EINVAL if
-   the alarm is not enabled. I think it should just set alm->enabled =3D 0
-   in this case. Further it only sets alm->time.tm_wday,
-   alm->time.tm_hour and alm->time.tm_min which isn't handled in a sane
-   way by __rtc_read_alarm. Maybe rtc_read_alarm_internal should better
-   initialize all fields of alarm->time to -1 instead of 0?
+bvme6000_defconfig:
 
- - During startup we saw:
+    In file included from arch/m68k/bvme6000/rtc.c:19:
+    include/linux/mc146818rtc.h: In function =E2=80=98mc146818_is_updating=
+=E2=80=99:
+    include/linux/mc146818rtc.h:138: error: implicit declaration of
+function =E2=80=98CMOS_READ=E2=80=99
+    include/linux/mc146818rtc.h: In function =E2=80=98mc146818_get_time=E2=
+=80=99:
+    include/linux/mc146818rtc.h:189: error: =E2=80=98RTC_ALWAYS_BCD=E2=80=
+=99
+undeclared (first use in this function)
+    include/linux/mc146818rtc.h:189: error: (Each undeclared
+identifier is reported only once
+    include/linux/mc146818rtc.h:189: error: for each function it appears in=
+.)
+    include/linux/mc146818rtc.h: In function =E2=80=98mc146818_set_time=E2=
+=80=99:
+    include/linux/mc146818rtc.h:279: error: =E2=80=98RTC_ALWAYS_BCD=E2=80=
+=99
+undeclared (first use in this function)
+    include/linux/mc146818rtc.h:290: error: implicit declaration of
+function =E2=80=98CMOS_WRITE=E2=80=99
 
- 	[    2.257418] rtc rtc0: invalid alarm value: 1900-1-29 1193031:57:16
+mvme16x_defconfig:
 
-   I don't see how this big hour value can be found, looking at the
-   driver it sets alm->time.tm_hour at most to
+    In file included from arch/m68k/mvme16x/rtc.c:18:
+    include/linux/mc146818rtc.h: In function =E2=80=98mc146818_is_updating=
+=E2=80=99:
+    include/linux/mc146818rtc.h:138: error: implicit declaration of
+function =E2=80=98CMOS_READ=E2=80=99
+    include/linux/mc146818rtc.h: In function =E2=80=98mc146818_get_time=E2=
+=80=99:
+    include/linux/mc146818rtc.h:189: error: =E2=80=98RTC_ALWAYS_BCD=E2=80=
+=99
+undeclared (first use in this function)
+    include/linux/mc146818rtc.h:189: error: (Each undeclared
+identifier is reported only once
+    include/linux/mc146818rtc.h:189: error: for each function it appears in=
+.)
+    include/linux/mc146818rtc.h: In function =E2=80=98mc146818_set_time=E2=
+=80=99:
+    include/linux/mc146818rtc.h:279: error: =E2=80=98RTC_ALWAYS_BCD=E2=80=
+=99
+undeclared (first use in this function)
+    include/linux/mc146818rtc.h:290: error: implicit declaration of
+function =E2=80=98CMOS_WRITE=E2=80=99
 
-   	bcd2bin(reg & 0x3f) + 12
+These do not show up with a multi-platform config including Atari
+support, as arch/m68k/include/asm/mc146818rtc.h provides a definition of
+CMOS_READ() if CONFIG_ATARI=3Dy.
 
-   where reg is a char. Then in __rtc_read_alarm we get into the missing
-   =3D day case (because it doesn't handle an initialized wday).
-   So it must be rtc_time64_to_tm that returns that big hour, probably
-   because rtc_tm_to_time64(&alarm->time) is < 0 which rtc_time64_to_tm
-   cannot handle?
+Fortunately the fixes are simple: replace <linux/mc146818rtc.h> by
+<linux/rtc.h>. Will send patches to fix...
 
-So the action items are:
+Gr{oetje,eeting}s,
 
-  - let rtc_read_alarm_internal initialize alarm->time to 9*{-1} (or fix
-    s35390a_read_alarm to set the uninitialized values to -1).
-  - let s35390a_read_alarm set alm->pending and alm->enabled.
-  - teach __rtc_read_alarm to handle mday =3D -1 but wday >=3D 0.
-  - tell hw-engineers not to use read-to-clear events (use a big clue
-    stick).
-  - debug rtc_tm_to_time64 + rtc_time64_to_tm for dates < 1970
-    (or clamp t_alm in __rtc_read_alarm to >=3D 0?)
+                        Geert
 
-Any volunteers?
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k=
+.org
 
-Best regards
-Uwe
-
---=20
-Pengutronix e.K.                           | Uwe Kleine-K=C3=B6nig         =
-   |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+In personal conversations with technical people, I call myself a hacker. Bu=
+t
+when I'm talking to journalists I just say "programmer" or something like t=
+hat.
+                                -- Linus Torvalds
 
 --=20
 --=20
