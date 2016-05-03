@@ -1,37 +1,21 @@
-Return-Path: <rtc-linux+bncBDEKVJM7XAHRBPU2WK5AKGQEYDMY6AY@googlegroups.com>
+Return-Path: <rtc-linux+bncBAABB6XKUG4QKGQECIAWHIA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-MIME-Version: 1.0
-Received: from mout.kundenserver.de (mout.kundenserver.de. [212.227.17.13])
-        by gmr-mx.google.com with ESMTPS id l184si1137950wmg.2.2016.05.30.11.58.06
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 30 May 2016 11:58:06 -0700 (PDT)
-From: Arnd Bergmann <arnd@arndb.de>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Arnd Bergmann <arnd@arndb.de>,
-	geert@linux-m68k.org,
-	gregkh@linuxfoundation.org,
-	deller@gmx.de,
-	benh@kernel.crashing.org,
-	mpe@ellerman.id.au,
-	dalias@libc.org,
-	dhowells@redhat.com,
-	linux-alpha@vger.kernel.org,
-	a.zummo@towertech.it,
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id e78si107611wmc.3.2016.05.03.02.55.06
+        for <rtc-linux@googlegroups.com>;
+        Tue, 03 May 2016 02:55:06 -0700 (PDT)
+From: =?UTF-8?q?Myl=C3=A8ne=20Josserand?= <mylene.josserand@free-electrons.com>
+To: alexandre.belloni@free-electrons.com,
+	rtc-linux@googlegroups.com
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
 	linux-kernel@vger.kernel.org,
-	linux-parisc@vger.kernel.org,
-	linuxppc-dev@lists.ozlabs.org,
-	linux-sh@vger.kernel.org,
-	linux-m68k@lists.linux-m68k.org,
-	rtc-linux@googlegroups.com,
-	linux-arch@vger.kernel.org
-Subject: [rtc-linux] [PATCH v4 05/16] char/genrtc: remove alpha support
-Date: Mon, 30 May 2016 20:57:53 +0200
-Message-Id: <1464634684-1248135-6-git-send-email-arnd@arndb.de>
-In-Reply-To: <1464634684-1248135-1-git-send-email-arnd@arndb.de>
-References: <1464634684-1248135-1-git-send-email-arnd@arndb.de>
-Reply-To: rtc-linux@googlegroups.com
+	mylene.josserand@free-electrons.com
+Subject: [rtc-linux] [PATCH V3 0/7] add support for Microcrystal RV-3049
+Date: Tue,  3 May 2016 11:54:31 +0200
+Message-Id: <cover.1462268107.git.mylene.josserand@free-electrons.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -40,65 +24,44 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-The genrtc driver serves no purpose on Alpha because it drives the
-same hardware as the original rtc.c driver, and the newer rtc-generic.c
-or rtc-cmos.c drivers on architectures that use the asm-generic/rtc.h
-header.
+The current patchset adds the support of the microcrystal RV-3049 (spi).
+This RTC will use the same driver than RV-3029 by updating it to use regmap=
+.
+It also adds the alarm IRQ functionality.
 
-The defconfig uses CONFIG_RTC=y, so this driver is not used by default.
-At one point it was used to abstract a quirk for the "Marvel" platform,
-but it does not do this any more after the code was moved into yet
-another driver in arch/alpha/kernel/rtc.c.
+V3:
+ - Create a patch to fix bit mask on bin2bcd for set_time function
 
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
----
- arch/alpha/include/asm/rtc.h    | 1 -
- arch/alpha/kernel/core_marvel.c | 1 -
- drivers/char/Kconfig            | 2 +-
- 3 files changed, 1 insertion(+), 3 deletions(-)
- delete mode 100644 arch/alpha/include/asm/rtc.h
+V2 :
+ - Add some checks removal from checkpatch
+ - Fix the alarm support with a wrong use of bit mask on bin2bcd
 
-diff --git a/arch/alpha/include/asm/rtc.h b/arch/alpha/include/asm/rtc.h
-deleted file mode 100644
-index f71c3b0ed360..000000000000
---- a/arch/alpha/include/asm/rtc.h
-+++ /dev/null
-@@ -1 +0,0 @@
--#include <asm-generic/rtc.h>
-diff --git a/arch/alpha/kernel/core_marvel.c b/arch/alpha/kernel/core_marvel.c
-index 53dd2f1a53aa..d5f0580746a5 100644
---- a/arch/alpha/kernel/core_marvel.c
-+++ b/arch/alpha/kernel/core_marvel.c
-@@ -24,7 +24,6 @@
- #include <asm/gct.h>
- #include <asm/pgalloc.h>
- #include <asm/tlbflush.h>
--#include <asm/rtc.h>
- #include <asm/vga.h>
- 
- #include "proto.h"
-diff --git a/drivers/char/Kconfig b/drivers/char/Kconfig
-index 31b5861649ee..e3f2f3e293e5 100644
---- a/drivers/char/Kconfig
-+++ b/drivers/char/Kconfig
-@@ -328,7 +328,7 @@ config JS_RTC
- config GEN_RTC
- 	tristate "Generic /dev/rtc emulation"
- 	depends on RTC!=y
--	depends on ALPHA || M68K || MN10300 || PARISC || PPC
-+	depends on M68K || MN10300 || PARISC || PPC
- 	---help---
- 	  If you say Y here and create a character special file /dev/rtc with
- 	  major number 10 and minor number 135 using mknod ("man mknod"), you
--- 
-2.7.0
+Myl=C3=A8ne Josserand (7):
+  rtc: rv3029: remove 'i2c' in functions names
+  rtc: rv3029: convert to use regmap
+  rtc: rv3029: Add support of RV3049
+  rtc: rv3029: Remove some checks and warnings
+  rtc: rv3029: fix alarm support
+  rtc: rv3029: fix set_time function
+  rtc: rv3029: add alarm IRQ
 
--- 
+ drivers/rtc/Kconfig        |  37 +--
+ drivers/rtc/rtc-rv3029c2.c | 582 +++++++++++++++++++++++++++++------------=
+----
+ 2 files changed, 397 insertions(+), 222 deletions(-)
+
+--=20
+2.8.0.rc3
+
+--=20
+--=20
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+---=20
+You received this message because you are subscribed to the Google Groups "=
+rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an e=
+mail to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
