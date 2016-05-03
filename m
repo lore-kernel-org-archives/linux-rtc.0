@@ -1,38 +1,22 @@
-Return-Path: <rtc-linux+bncBDEKVJM7XAHRBQU2WK5AKGQE2EEKLCQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBXOUUK4QKGQE7BWXKKI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id e64si888819wmi.3.2016.05.03.06.40.45
+        for <rtc-linux@googlegroups.com>;
+        Tue, 03 May 2016 06:40:45 -0700 (PDT)
+Date: Tue, 3 May 2016 15:40:34 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Arnd Bergmann <arnd@arndb.de>, a.zummo@towertech.it,
+	rtc-linux@googlegroups.com, linux-m68k@lists.linux-m68k.org,
+	linux-kernel@vger.kernel.org
+Subject: [rtc-linux] Re: [PATCH 0/2] m68k RTC fixes
+Message-ID: <20160503134034.GK2335@piout.net>
+References: <1462178783-29294-1-git-send-email-geert@linux-m68k.org>
 MIME-Version: 1.0
-Received: from mout.kundenserver.de (mout.kundenserver.de. [212.227.17.10])
-        by gmr-mx.google.com with ESMTPS id b77si569241wmb.0.2016.05.30.11.58.09
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 30 May 2016 11:58:09 -0700 (PDT)
-From: Arnd Bergmann <arnd@arndb.de>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Arnd Bergmann <arnd@arndb.de>,
-	geert@linux-m68k.org,
-	gregkh@linuxfoundation.org,
-	deller@gmx.de,
-	benh@kernel.crashing.org,
-	mpe@ellerman.id.au,
-	dalias@libc.org,
-	dhowells@redhat.com,
-	linux-alpha@vger.kernel.org,
-	a.zummo@towertech.it,
-	linux-kernel@vger.kernel.org,
-	linux-parisc@vger.kernel.org,
-	linuxppc-dev@lists.ozlabs.org,
-	linux-sh@vger.kernel.org,
-	linux-m68k@lists.linux-m68k.org,
-	rtc-linux@googlegroups.com,
-	linux-arch@vger.kernel.org
-Subject: [rtc-linux] [PATCH v4 14/16] rtc: generic: remove get_rtc_time/set_rtc_time
- wrappers
-Date: Mon, 30 May 2016 20:58:02 +0200
-Message-Id: <1464634684-1248135-15-git-send-email-arnd@arndb.de>
-In-Reply-To: <1464634684-1248135-1-git-send-email-arnd@arndb.de>
-References: <1464634684-1248135-1-git-send-email-arnd@arndb.de>
-Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1462178783-29294-1-git-send-email-geert@linux-m68k.org>
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -41,73 +25,96 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-All architectures using this driver are now converted to
-provide their own operations, so this one can be turned
-into a trivial stub driver relying on its platform data.
+On 02/05/2016 at 10:46:21 +0200, Geert Uytterhoeven wrote :
+> 	Hi Arnd, Alexandre,
+>=20
+> "[PATCH v3 02/16] rtc: cmos: move mc146818rtc code out of
+> asm-generic/rtc.h" of Arnd's series "[PATCH v3 00/16] genrtc removal"
+> caused two new build failures on m68k:
+>=20
+> bvme6000_defconfig:
+>=20
+>     In file included from arch/m68k/bvme6000/rtc.c:19:
+>     include/linux/mc146818rtc.h: In function =E2=80=98mc146818_is_updatin=
+g=E2=80=99:
+>     include/linux/mc146818rtc.h:138: error: implicit declaration of funct=
+ion =E2=80=98CMOS_READ=E2=80=99
+>     include/linux/mc146818rtc.h: In function =E2=80=98mc146818_get_time=
+=E2=80=99:
+>     include/linux/mc146818rtc.h:189: error: =E2=80=98RTC_ALWAYS_BCD=E2=80=
+=99 undeclared (first use in this function)
+>     include/linux/mc146818rtc.h:189: error: (Each undeclared identifier i=
+s reported only once
+>     include/linux/mc146818rtc.h:189: error: for each function it appears =
+in.)
+>     include/linux/mc146818rtc.h: In function =E2=80=98mc146818_set_time=
+=E2=80=99:
+>     include/linux/mc146818rtc.h:279: error: =E2=80=98RTC_ALWAYS_BCD=E2=80=
+=99 undeclared (first use in this function)
+>     include/linux/mc146818rtc.h:290: error: implicit declaration of funct=
+ion =E2=80=98CMOS_WRITE=E2=80=99
+>=20
+>=20
+> mvme16x_defconfig:
+>=20
+>     In file included from arch/m68k/mvme16x/rtc.c:18:
+>     include/linux/mc146818rtc.h: In function =E2=80=98mc146818_is_updatin=
+g=E2=80=99:
+>     include/linux/mc146818rtc.h:138: error: implicit declaration of funct=
+ion =E2=80=98CMOS_READ=E2=80=99
+>     include/linux/mc146818rtc.h: In function =E2=80=98mc146818_get_time=
+=E2=80=99:
+>     include/linux/mc146818rtc.h:189: error: =E2=80=98RTC_ALWAYS_BCD=E2=80=
+=99 undeclared (first use in this function)
+>     include/linux/mc146818rtc.h:189: error: (Each undeclared identifier i=
+s reported only once
+>     include/linux/mc146818rtc.h:189: error: for each function it appears =
+in.)
+>     include/linux/mc146818rtc.h: In function =E2=80=98mc146818_set_time=
+=E2=80=99:
+>     include/linux/mc146818rtc.h:279: error: =E2=80=98RTC_ALWAYS_BCD=E2=80=
+=99 undeclared (first use in this function)
+>     include/linux/mc146818rtc.h:290: error: implicit declaration of funct=
+ion =E2=80=98CMOS_WRITE=E2=80=99
+>=20
+> These do not show up with a multi-platform config including Atari
+> support, as arch/m68k/include/asm/mc146818rtc.h provides a definition of
+> CMOS_READ() if CONFIG_ATARI=3Dy.
+>=20
+> Fortunately the fixes are simple: replace <linux/mc146818rtc.h> by
+> <linux/rtc.h>.  This is safe to apply to current upstream, too.
+>=20
+> Queue strategy:
+>   1. These are queued together with Arnd's series,
+>   1. I queue them for v4.7 myself, but then the RTC tree must be mergest
+>      after the m68k tree,
+>   2. I queue them for v4.6.
+>=20
+> As I currently don't have any m68k patches queued for v4.7, perhaps it's
+> easiest if these are included with Arnd's series?
+>=20
 
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
----
- drivers/rtc/rtc-generic.c | 35 +----------------------------------
- 1 file changed, 1 insertion(+), 34 deletions(-)
+I suggest you take them for 4.7 anyway. I don't think I am confident
+enough to merge Arnd's series for 4.7. Also, I doubt I'll get many acks
+from some architecture maintainers.
 
-diff --git a/drivers/rtc/rtc-generic.c b/drivers/rtc/rtc-generic.c
-index efcb9833cac8..1bf5d2347928 100644
---- a/drivers/rtc/rtc-generic.c
-+++ b/drivers/rtc/rtc-generic.c
-@@ -9,43 +9,10 @@
- #include <linux/platform_device.h>
- #include <linux/rtc.h>
- 
--#if 0
--#include <asm/rtc.h>
--
--static int generic_get_time(struct device *dev, struct rtc_time *tm)
--{
--	unsigned int ret = get_rtc_time(tm);
--
--	if (ret & RTC_BATT_BAD)
--		return -EOPNOTSUPP;
--
--	return rtc_valid_tm(tm);
--}
--
--static int generic_set_time(struct device *dev, struct rtc_time *tm)
--{
--	if (set_rtc_time(tm) < 0)
--		return -EOPNOTSUPP;
--
--	return 0;
--}
--
--static const struct rtc_class_ops generic_rtc_ops = {
--	.read_time = generic_get_time,
--	.set_time = generic_set_time,
--};
--#else
--#define generic_rtc_ops *(struct rtc_class_ops*)NULL
--#endif
--
- static int __init generic_rtc_probe(struct platform_device *dev)
- {
- 	struct rtc_device *rtc;
--	const struct rtc_class_ops *ops;
--
--	ops = dev_get_platdata(&dev->dev);
--	if (!ops)
--		ops = &generic_rtc_ops;
-+	const struct rtc_class_ops *ops = dev_get_platdata(&dev->dev);
- 
- 	rtc = devm_rtc_device_register(&dev->dev, "rtc-generic",
- 					ops, THIS_MODULE);
--- 
-2.7.0
+So, my plan is to apply it on top of 4.7-rc1 and let it sit in
+linux-next for a while.
 
--- 
+--=20
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
+
+--=20
+--=20
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+---=20
+You received this message because you are subscribed to the Google Groups "=
+rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an e=
+mail to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
