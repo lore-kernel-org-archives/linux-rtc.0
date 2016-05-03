@@ -1,22 +1,18 @@
-Return-Path: <rtc-linux+bncBCO7J6GN7ELBBZ6BWG4QKGQEL5VU5IY@googlegroups.com>
+Return-Path: <rtc-linux+bncBDEKVJM7XAHRBGX3UG4QKGQETY4CLPI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail-pf0-x243.google.com (mail-pf0-x243.google.com. [2607:f8b0:400e:c00::243])
-        by gmr-mx.google.com with ESMTPS id ph3si2798966pac.1.2016.05.06.02.16.23
+Received: from mout.kundenserver.de (mout.kundenserver.de. [212.227.17.13])
+        by gmr-mx.google.com with ESMTPS id d2si179134igx.2.2016.05.03.03.29.45
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 06 May 2016 02:16:23 -0700 (PDT)
-Received: by mail-pf0-x243.google.com with SMTP id p185so11852295pfb.3
-        for <rtc-linux@googlegroups.com>; Fri, 06 May 2016 02:16:23 -0700 (PDT)
-From: venkat.prashanth2498@gmail.com
-To: a.zummo@towertech.it
-Cc: rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org,
-	alexandre.belloni@free-electrons.com,
-	marcus.folkesson@gmail.com,
-	venkat-prashanth <venkat.prashanth2498@gmail.com>
-Subject: [rtc-linux] [PATCH] rtc: add support to maxim rtc max6916 v2.0
-Date: Fri,  6 May 2016 02:16:04 -0700
-Message-Id: <1462526164-6086-1-git-send-email-venkat.prashanth2498@gmail.com>
+        Tue, 03 May 2016 03:29:46 -0700 (PDT)
+From: Arnd Bergmann <arnd@arndb.de>
+To: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>, geert@linux-m68k.org, deller@gmx.de, benh@kernel.crashing.org, dalias@libc.org, dhowells@redhat.com, linux-alpha@vger.kernel.org, a.zummo@towertech.it, linux-kernel@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-sh@vger.kernel.org, linux-m68k@lists.linux-m68k.org, rtc-linux@googlegroups.com, linux-arch@vger.kernel.org
+Subject: [rtc-linux] Re: [PATCH v3 12/16] rtc: powerpc: provide rtc_class_ops directly
+Date: Tue, 03 May 2016 12:29:21 +0200
+Message-ID: <3723014.RkUgaFBZte@wuerfel>
+In-Reply-To: <1462248309.12788.4.camel@ellerman.id.au>
+References: <1461796470-1291527-1-git-send-email-arnd@arndb.de> <1461796470-1291527-13-git-send-email-arnd@arndb.de> <1462248309.12788.4.camel@ellerman.id.au>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
@@ -28,267 +24,75 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-From: venkat-prashanth <venkat.prashanth2498@gmail.com>
+On Tuesday 03 May 2016 14:05:09 Michael Ellerman wrote:
+> On Thu, 2016-04-28 at 00:34 +0200, Arnd Bergmann wrote:
+> 
+> > The rtc-generic driver provides an architecture specific
+> > wrapper on top of the generic rtc_class_ops abstraction,
+> > and powerpc has another abstraction on top, which is a bit
+> > silly.
+> > 
+> > This changes the powerpc rtc-generic device to provide its
+> > rtc_class_ops directly, to reduce the number of layers
+> > by one.
+> > 
+> > Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+> > ---
+> >  arch/powerpc/kernel/time.c | 29 ++++++++++++++++++++++++++++-
+> >  drivers/rtc/rtc-generic.c  |  2 +-
+> >  2 files changed, 29 insertions(+), 2 deletions(-)
+> 
+> If this hits linux-next it will go through my automated boot testing, which
+> hopefully would be sufficient to catch any bugs in this patch, cross fingers.
+> 
+> I don't know jack about all the layers of RTC mess, so my ack is basically
+> worthless here. But if you like you can have one anyway 
+> 
+> Acked-by: Michael Ellerman <mpe@ellerman.id.au>
 
-This is a patch to add=20
-support for maxim rtc MAX6916
+Thanks!
 
-Signed-off-by : Venkat Prashanth B U <venkat.prashanth2498@gmail.com>
----
- Kconfig       |  10 ++++
- changeLOG     |  36 ++++++++++++
- rtc-max6916.c | 172 ++++++++++++++++++++++++++++++++++++++++++++++++++++++=
-++++
- 3 files changed, 218 insertions(+)
+The main thing that could use testing here is for patch 12/16 to see if
+/sbin/hwclock can still read and write the time on a machine that
+uses one of the genrtc backends on powerpc, this includes
+rtas_get_rtc_time, mpc8xx_get_rtc_time, maple_get_rtc_time,
+ps3_get_rtc_time and pmac_get_rtc_time. Testing on a pSeries with rtas
+should be sufficient, and if I made a mistake, it probably fails
+spectacularly.
 
-diff --git a/drivers/rtcKconfig b/drivers/rtc/Kconfig
-index e69de29..81aaa1e 100644
---- a/drivers/rtc/Kconfig
-+++ b/drivers/rtc/Kconfig
-@@ -0,0 +1,10 @@
-+config RTC_DRV_MAX6916
-+tristate "Maxim MAX6916"
-+
-+help
-+If you say yes here you get support for the
-+Maxim MAX6916 chips.
-+This driver only supports the RTC feature, and not other chip
-+features such as alarms.
-+This driver can also be built as a module. If so, the module
-+will be called rtc=E2=80=90max6916.
-diff --git a/changeLOG b/changeLOG
-index e69de29..6aa0a76 100644
---- a/drivers/rtc/changeLOG
-+++ b/drivers/rtc/changeLOG
-@@ -0,0 +1,36 @@
-+Changes incorporated after pre-commit review
-+
-+1./*created folders=20
-+drivers/rtc/rtc-max6916.c
-+drivers/rtc/Kconfig/
-+
-+2./*deleted the port i/o's since it does not add=20
-+any significance in overall system design aspect*/
-+/*=20
-+#define ADDRESS_REG      0x70
-+#define DATA_REG         0x71
-+#define ADDRESS_REG_MASK 0xe0
-+
-+static unsigned char get_rtc(unsigned char addr)
-+{
-+outb(addr, ADDRESS_REG);
-+return inb(DATA_REG);
-+}*/
-+
-+3./* Clock burst value is modified from 0X00 to 0X3F and=20
-+further get_rtc() function is replaced with bcd2bin()=20
-+since the time in Linux is in binary format so the conversion is done*/
-+
-+
-+4./*enforced the year range instead of accepting any value
-+which is as follows:
-+/* starting from year 2000,limit to 100 years from now
-+that is subtract the year by 100 */
-+dt->tm_year =3D dt->tm_year % 100;
-+if(dt->tm_year >=3D 100)
-+dt->tm_year -=3D 100;
-+
-+if (dt->tm_year < 100 || dt->tm_year > 199) {
-+		dev_err(&spi->dev, "Year must be between 2000 and 2099. It's %d.\n",dt->=
-tm_year + 1900);
-+		return -EINVAL;
-+}*/
-diff --git a/drivers/rtc/rtc-max6916.c b/drivers/rtc/rtc-max6916.c
-index e69de29..f5e396f 100644
---- a/drivers/rtc/rtc-max6916.c
-+++ b/drivers/rtc/rtc-max6916.c
-@@ -0,0 +1,172 @@
-+/* rtc-max6916.c
-+ *
-+ * Driver for MAXIM  max6916 Low Current, SPI Compatible
-+ * Real Time Clock
-+ *
-+ * Author : Venkat Prashanth B U <venkat.prashanth2498@gmail.com>
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
-+ *
-+ */
-+=20
-+#include <linux/init.h>
-+#include <linux/module.h>
-+#include <linux/device.h>
-+#include <linux/platform_device.h>
-+#include <linux/rtc.h>
-+#include <linux/spi/spi.h>
-+#include <linux/bcd.h>
-+
-+/* Registers in max6916 rtc */
-+
-+#define MAX6916_SECONDS_REG	0x01
-+#define MAX6916_MINUTES_REG	0x02
-+#define MAX6916_HOURS_REG	   0x03
-+#define MAX6916_DATE_REG	   0x04
-+#define MAX6916_MONTH_REG	   0x05
-+#define MAX6916_DAY_REG		   0x06
-+#define MAX6916_YEAR_REG	   0x07
-+#define MAX6916_CONTROL_REG	0x08
-+#define MAX6916_STATUS_REG	   0x0C
-+#define MAX6916_CLOCK_BURST	0x3F
-+
-+static int max6916_read_reg(struct device *dev, unsigned char address,=20
-+				                       unsigned char *data)
-+{
-+	struct spi_device *spi =3D to_spi_device(dev);
-+
-+	*data =3D address | 0x80;
-+
-+	return spi_write_then_read(spi, data, 1, data, 1);
-+}
-+
-+static int max6916_write_reg(struct device *dev, unsigned char address,=20
-+				                        unsigned char data)
-+{
-+	struct spi_device *spi =3D to_spi_device(dev);
-+	unsigned char buf[2];
-+
-+	buf[0] =3D address&0x7F;
-+	buf[1] =3D data;
-+
-+	return spi_write_then_read(spi, buf, 2, NULL, 0);
-+}
-+
-+static int max6916_read_time(struct device *dev, struct rtc_time *dt)
-+{
-+	struct spi_device *spi =3D to_spi_device(dev);
-+	int err;
-+	unsigned char buf[8];
-+
-+	buf[0] =3D MAX6916_CLOCK_BURST | 0x80;
-+=09
-+	err =3D spi_write_then_read(spi, buf, 1, buf, 8);
-+	if (err)
-+		return err;
-+	=09
-+	dt->tm_sec =3D bcd2bin(buf[0]);
-+	dt->tm_min =3D bcd2bin(buf[1]);
-+	dt->tm_hour =3D bcd2bin(buf[2] & 0x3F);
-+	dt->tm_mday =3D bcd2bin(buf[3]);
-+	dt->tm_mon =3D bcd2bin(buf[4]) - 1;
-+	dt->tm_wday =3D bcd2bin(buf[5]) - 1;
-+	dt->tm_year =3D bcd2bin(buf[6]) + 100;
-+
-+	return rtc_valid_tm(dt);
-+}
-+
-+static int max6916_set_time(struct device *dev, struct rtc_time *dt)
-+{
-+	struct spi_device *spi =3D to_spi_device(dev);
-+	unsigned char buf[9];
-+
-+	buf[0] =3D MAX6916_CLOCK_BURST & 0x7F;
-+	buf[1] =3D bin2bcd(dt->tm_sec);
-+	buf[2] =3D bin2bcd(dt->tm_min);
-+	buf[3] =3D (bin2bcd(dt->tm_hour)& 0X3F);
-+	buf[4] =3D bin2bcd(dt->tm_mday);
-+	buf[5] =3D bin2bcd(dt->tm_mon + 1);
-+	buf[6] =3D bin2bcd(dt->tm_wday + 1);
-+
-+	/* starting from year 2000,limit to 100 years=20
-+	from now that is subtract the year by 100 */
-+	dt->tm_year =3D dt->tm_year % 100;
-+	if(dt->tm_year >=3D 100)
-+		dt->tm_year -=3D 100;
-+	=09
-+	if (dt->tm_year < 100 || dt->tm_year > 199) {
-+		dev_err(&spi->dev,"Year must be between 2000 and 2099. It's %d.\n", dt->=
-tm_year + 1900);
-+		return -EINVAL;
-+	}
-+ =09
-+	buf[7] =3D bin2bcd(dt->tm_year);
-+	buf[8] =3D bin2bcd(0x00);
-+=09
-+	/* write the rtc settings */
-+	return spi_write_then_read(spi, buf, 9, NULL, 0);
-+}
-+
-+static const struct rtc_class_ops max6916_rtc_ops =3D {
-+	.read_time =3D max6916_read_time,
-+	.set_time =3D max6916_set_time,
-+};
-+
-+static int max6916_probe(struct spi_device *spi)
-+{
-+	struct rtc_device *rtc;
-+	unsigned char data;
-+	int res;
-+
-+	/* spi setup with max6916 in mode 3 and bits per word as 8 */
-+	spi->mode =3D SPI_MODE_3;
-+	spi->bits_per_word =3D 8;
-+	spi_setup(spi);
-+
-+	/* RTC Settings */
-+	res =3D max6916_read_reg(&spi->dev, MAX6916_SECONDS_REG , &data);
-+=09
-+	if (res)
-+		return res;
-+
-+	/* Disable the write protect of rtc */
-+	max6916_read_reg(&spi->dev, MAX6916_CONTROL_REG, &data);
-+	data =3D data & ~(1<<7);
-+	max6916_write_reg(&spi->dev, MAX6916_CONTROL_REG, data);
-+
-+	/*Enable the oscillator,disable the oscillator stop flag, and glitch filt=
-er to reduce current consumption*/
-+	max6916_read_reg(&spi->dev, MAX6916_STATUS_REG, &data);
-+	data =3D data & 0x1B;
-+	max6916_write_reg(&spi->dev, MAX6916_STATUS_REG, data);
-+
-+	/* display the settings */
-+	max6916_read_reg(&spi->dev, MAX6916_CONTROL_REG, &data);
-+	dev_info(&spi->dev, "MAX6916 RTC CTRL Reg =3D 0x%02x\n", data);
-+
-+	max6916_read_reg(&spi->dev, MAX6916_STATUS_REG, &data);
-+	dev_info(&spi->dev, "MAX6916 RTC Status Reg =3D 0x%02x\n", data);
-+
-+	rtc =3D devm_rtc_device_register(&spi->dev, "max6916",=20
-+			      &max6916_rtc_ops, THIS_MODULE);
-+			     =20
-+	if (IS_ERR(rtc))
-+		return PTR_ERR(rtc);
-+	=09
-+	spi_set_drvdata(spi, rtc);
-+
-+	return 0;
-+}
-+
-+static struct spi_driver max6916_driver =3D {
-+	.driver =3D {
-+	.name =3D "max6916",
-+	},
-+	.probe =3D max6916_probe,
-+};
-+
-+module_spi_driver(max6916_driver);
-+
-+MODULE_DESCRIPTION("MAX6916 SPI RTC DRIVER");
-+MODULE_AUTHOR("Venkat Prashanth B U <venkat.prashanth2498@gmail.com>");
-+MODULE_LICENSE("GPL v2");
---=20
-1.9.2
+Just for reference, if anyone ever wants to clean this up further on
+powerpc to remove all of the rtc handling from architecture code,
+it has gotten easier after my series:
 
---=20
---=20
+- The update_persistent_clock() and read_persistent_clock() callbacks
+  are now unnecessary: as long as the RTC driver is built into the
+  kernel, drivers/rtc/hctosys.c takes care of setting the initial
+  time (otherwise user space has to do it), and the other users
+  (ntp and suspend/resume) will work fine whenever an rtc driver
+  is loaded. Obviously you will want to test the kernel better after
+  removing the two functions.
+
+- Once they are gone, the only users of the ppc_md.{get,set}_rtc_time
+  callbacks are in the "const struct rtc_class_ops rtc_generic_ops".
+  You can move them into the five files implementing those callbacks
+  and call the functions directly to get rid of the function pointers.
+
+- Lastly, after that is done, you basically have five independent
+  rtc device drivers that can get moved to drivers/rtc and converted
+  into regular platform drivers. Instead of registering the fake
+  "rtc-generic" device, you then register the one that is actually
+  there like arch/powerpc/sysdev/rtc_cmos_setup.c already does, or
+  use the one that gets created from DT.
+
+	Arnd
+
+-- 
+-- 
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
----=20
-You received this message because you are subscribed to the Google Groups "=
-rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an e=
-mail to rtc-linux+unsubscribe@googlegroups.com.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
