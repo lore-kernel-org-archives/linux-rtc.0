@@ -1,25 +1,25 @@
-Return-Path: <rtc-linux+bncBAABB7XKUG4QKGQEIHC2BCI@googlegroups.com>
+Return-Path: <rtc-linux+bncBCO7J6GN7ELBBB5YVS4QKGQEESYP7IQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id t18si615714wmt.0.2016.05.03.02.55.10
-        for <rtc-linux@googlegroups.com>;
-        Tue, 03 May 2016 02:55:10 -0700 (PDT)
-From: =?UTF-8?q?Myl=C3=A8ne=20Josserand?= <mylene.josserand@free-electrons.com>
-To: alexandre.belloni@free-electrons.com,
-	rtc-linux@googlegroups.com
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
-	linux-kernel@vger.kernel.org,
-	mylene.josserand@free-electrons.com
-Subject: [rtc-linux] [PATCH V3 4/7] rtc: rv3029: Remove some checks and warnings
-Date: Tue,  3 May 2016 11:54:35 +0200
-Message-Id: <911356b548067d3c671df39ec842e72f8911e2b1.1462268107.git.mylene.josserand@free-electrons.com>
-In-Reply-To: <cover.1462268107.git.mylene.josserand@free-electrons.com>
-References: <cover.1462268107.git.mylene.josserand@free-electrons.com>
-In-Reply-To: <cover.1462268107.git.mylene.josserand@free-electrons.com>
-References: <cover.1462268107.git.mylene.josserand@free-electrons.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Received: from mail-pa0-x242.google.com (mail-pa0-x242.google.com. [2607:f8b0:400e:c03::242])
+        by gmr-mx.google.com with ESMTPS id ph3si1662854pac.1.2016.05.05.03.10.15
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 05 May 2016 03:10:15 -0700 (PDT)
+Received: by mail-pa0-x242.google.com with SMTP id zy2so8863287pac.2
+        for <rtc-linux@googlegroups.com>; Thu, 05 May 2016 03:10:15 -0700 (PDT)
+From: venkat.prashanth2498@gmail.com
+To: a.zummo@towertech.it
+Cc: marcus.folkesson@gmail.com,
+	alexandre.belloni@free-electrons.com,
+	rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org,
+	venkat-prashanth <venkat.prashanth2498@gmail.com>
+Subject: [rtc-linux] [PATCH] rtc: add support for maxim rtc max6916
+Date: Thu,  5 May 2016 03:09:49 -0700
+Message-Id: <1462442989-3894-1-git-send-email-venkat.prashanth2498@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -28,179 +28,197 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Remove some checks from checkpatch such as spaces around arithmetic
-operations or prefer "unsigned int".
+From: venkat-prashanth <venkat.prashanth2498@gmail.com>
 
-Signed-off-by: Myl=C3=A8ne Josserand <mylene.josserand@free-electrons.com>
+This a patch to add support for
+maxim rtc max6916
+
+Signed-off-by: Venkat Prashanth B U <venkat.prashanth2498@gmail.com>
 ---
- drivers/rtc/rtc-rv3029c2.c | 68 +++++++++++++++++++++++-------------------=
-----
- 1 file changed, 34 insertions(+), 34 deletions(-)
+---
+ drivers/rtc/rtc-max6916.c | 165 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 165 insertions(+)
 
-diff --git a/drivers/rtc/rtc-rv3029c2.c b/drivers/rtc/rtc-rv3029c2.c
-index 1310646..cf8d465 100644
---- a/drivers/rtc/rtc-rv3029c2.c
-+++ b/drivers/rtc/rtc-rv3029c2.c
-@@ -125,24 +125,24 @@ struct rv3029_data {
- };
-=20
- static int rv3029_read_regs(struct device *dev, u8 reg, u8 *buf,
--			    unsigned len)
-+			    unsigned int len)
- {
- 	struct rv3029_data *rv3029 =3D dev_get_drvdata(dev);
-=20
- 	if ((reg > RV3029_USR1_RAM_PAGE + 7) ||
--		(reg + len > RV3029_USR1_RAM_PAGE + 8))
-+	    (reg + len > RV3029_USR1_RAM_PAGE + 8))
- 		return -EINVAL;
-=20
- 	return regmap_bulk_read(rv3029->regmap, reg, buf, len);
- }
-=20
- static int rv3029_write_regs(struct device *dev, u8 reg, u8 const buf[],
--			     unsigned len)
-+			     unsigned int len)
- {
- 	struct rv3029_data *rv3029 =3D dev_get_drvdata(dev);
-=20
- 	if ((reg > RV3029_USR1_RAM_PAGE + 7) ||
--		(reg + len > RV3029_USR1_RAM_PAGE + 8))
-+	    (reg + len > RV3029_USR1_RAM_PAGE + 8))
- 		return -EINVAL;
-=20
- 	return regmap_bulk_write(rv3029->regmap, reg, buf, len);
-@@ -347,12 +347,12 @@ static int rv3029_read_time(struct device *dev, struc=
-t rtc_time *tm)
- 		return ret;
- 	}
-=20
--	tm->tm_sec =3D bcd2bin(regs[RV3029_W_SEC-RV3029_W_SEC]);
--	tm->tm_min =3D bcd2bin(regs[RV3029_W_MINUTES-RV3029_W_SEC]);
-+	tm->tm_sec =3D bcd2bin(regs[RV3029_W_SEC - RV3029_W_SEC]);
-+	tm->tm_min =3D bcd2bin(regs[RV3029_W_MINUTES - RV3029_W_SEC]);
-=20
- 	/* HR field has a more complex interpretation */
- 	{
--		const u8 _hr =3D regs[RV3029_W_HOURS-RV3029_W_SEC];
-+		const u8 _hr =3D regs[RV3029_W_HOURS - RV3029_W_SEC];
-=20
- 		if (_hr & RV3029_REG_HR_12_24) {
- 			/* 12h format */
-@@ -363,10 +363,10 @@ static int rv3029_read_time(struct device *dev, struc=
-t rtc_time *tm)
- 			tm->tm_hour =3D bcd2bin(_hr & 0x3f);
- 	}
-=20
--	tm->tm_mday =3D bcd2bin(regs[RV3029_W_DATE-RV3029_W_SEC]);
--	tm->tm_mon =3D bcd2bin(regs[RV3029_W_MONTHS-RV3029_W_SEC]) - 1;
--	tm->tm_year =3D bcd2bin(regs[RV3029_W_YEARS-RV3029_W_SEC]) + 100;
--	tm->tm_wday =3D bcd2bin(regs[RV3029_W_DAYS-RV3029_W_SEC]) - 1;
-+	tm->tm_mday =3D bcd2bin(regs[RV3029_W_DATE - RV3029_W_SEC]);
-+	tm->tm_mon =3D bcd2bin(regs[RV3029_W_MONTHS - RV3029_W_SEC]) - 1;
-+	tm->tm_year =3D bcd2bin(regs[RV3029_W_YEARS - RV3029_W_SEC]) + 100;
-+	tm->tm_wday =3D bcd2bin(regs[RV3029_W_DAYS - RV3029_W_SEC]) - 1;
-=20
- 	return 0;
- }
-@@ -391,13 +391,13 @@ static int rv3029_read_alarm(struct device *dev, stru=
-ct rtc_wkalrm *alarm)
- 		return ret;
- 	}
-=20
--	tm->tm_sec =3D bcd2bin(regs[RV3029_A_SC-RV3029_A_SC] & 0x7f);
--	tm->tm_min =3D bcd2bin(regs[RV3029_A_MN-RV3029_A_SC] & 0x7f);
--	tm->tm_hour =3D bcd2bin(regs[RV3029_A_HR-RV3029_A_SC] & 0x3f);
--	tm->tm_mday =3D bcd2bin(regs[RV3029_A_DT-RV3029_A_SC] & 0x3f);
--	tm->tm_mon =3D bcd2bin(regs[RV3029_A_MO-RV3029_A_SC] & 0x1f) - 1;
--	tm->tm_year =3D bcd2bin(regs[RV3029_A_YR-RV3029_A_SC] & 0x7f) + 100;
--	tm->tm_wday =3D bcd2bin(regs[RV3029_A_DW-RV3029_A_SC] & 0x07) - 1;
-+	tm->tm_sec =3D bcd2bin(regs[RV3029_A_SC - RV3029_A_SC] & 0x7f);
-+	tm->tm_min =3D bcd2bin(regs[RV3029_A_MN - RV3029_A_SC] & 0x7f);
-+	tm->tm_hour =3D bcd2bin(regs[RV3029_A_HR - RV3029_A_SC] & 0x3f);
-+	tm->tm_mday =3D bcd2bin(regs[RV3029_A_DT - RV3029_A_SC] & 0x3f);
-+	tm->tm_mon =3D bcd2bin(regs[RV3029_A_MO - RV3029_A_SC] & 0x1f) - 1;
-+	tm->tm_year =3D bcd2bin(regs[RV3029_A_YR - RV3029_A_SC] & 0x7f) + 100;
-+	tm->tm_wday =3D bcd2bin(regs[RV3029_A_DW - RV3029_A_SC] & 0x07) - 1;
-=20
- 	return 0;
- }
-@@ -436,13 +436,13 @@ static int rv3029_set_alarm(struct device *dev, struc=
-t rtc_wkalrm *alarm)
- 		dev_err(dev, "%s: reading SR failed\n", __func__);
- 		return -EIO;
- 	}
--	regs[RV3029_A_SC-RV3029_A_SC] =3D bin2bcd(tm->tm_sec & 0x7f);
--	regs[RV3029_A_MN-RV3029_A_SC] =3D bin2bcd(tm->tm_min & 0x7f);
--	regs[RV3029_A_HR-RV3029_A_SC] =3D bin2bcd(tm->tm_hour & 0x3f);
--	regs[RV3029_A_DT-RV3029_A_SC] =3D bin2bcd(tm->tm_mday & 0x3f);
--	regs[RV3029_A_MO-RV3029_A_SC] =3D bin2bcd((tm->tm_mon & 0x1f) - 1);
--	regs[RV3029_A_DW-RV3029_A_SC] =3D bin2bcd((tm->tm_wday & 7) - 1);
--	regs[RV3029_A_YR-RV3029_A_SC] =3D bin2bcd((tm->tm_year & 0x7f) - 100);
-+	regs[RV3029_A_SC - RV3029_A_SC] =3D bin2bcd(tm->tm_sec & 0x7f);
-+	regs[RV3029_A_MN - RV3029_A_SC] =3D bin2bcd(tm->tm_min & 0x7f);
-+	regs[RV3029_A_HR - RV3029_A_SC] =3D bin2bcd(tm->tm_hour & 0x3f);
-+	regs[RV3029_A_DT - RV3029_A_SC] =3D bin2bcd(tm->tm_mday & 0x3f);
-+	regs[RV3029_A_MO - RV3029_A_SC] =3D bin2bcd((tm->tm_mon & 0x1f) - 1);
-+	regs[RV3029_A_DW - RV3029_A_SC] =3D bin2bcd((tm->tm_wday & 7) - 1);
-+	regs[RV3029_A_YR - RV3029_A_SC] =3D bin2bcd((tm->tm_year & 0x7f) - 100);
-=20
- 	ret =3D rv3029_write_regs(dev, RV3029_A_SC, regs,
- 				RV3029_ALARM_SECTION_LEN);
-@@ -488,13 +488,13 @@ static int rv3029_set_time(struct device *dev, struct=
- rtc_time *tm)
- 	if (tm->tm_year < 100)
- 		return -EINVAL;
-=20
--	regs[RV3029_W_SEC-RV3029_W_SEC] =3D bin2bcd(tm->tm_sec);
--	regs[RV3029_W_MINUTES-RV3029_W_SEC] =3D bin2bcd(tm->tm_min);
--	regs[RV3029_W_HOURS-RV3029_W_SEC] =3D bin2bcd(tm->tm_hour);
--	regs[RV3029_W_DATE-RV3029_W_SEC] =3D bin2bcd(tm->tm_mday);
--	regs[RV3029_W_MONTHS-RV3029_W_SEC] =3D bin2bcd(tm->tm_mon+1);
--	regs[RV3029_W_DAYS-RV3029_W_SEC] =3D bin2bcd((tm->tm_wday & 7)+1);
--	regs[RV3029_W_YEARS-RV3029_W_SEC] =3D bin2bcd(tm->tm_year - 100);
-+	regs[RV3029_W_SEC - RV3029_W_SEC] =3D bin2bcd(tm->tm_sec);
-+	regs[RV3029_W_MINUTES - RV3029_W_SEC] =3D bin2bcd(tm->tm_min);
-+	regs[RV3029_W_HOURS - RV3029_W_SEC] =3D bin2bcd(tm->tm_hour);
-+	regs[RV3029_W_DATE - RV3029_W_SEC] =3D bin2bcd(tm->tm_mday);
-+	regs[RV3029_W_MONTHS - RV3029_W_SEC] =3D bin2bcd(tm->tm_mon + 1);
-+	regs[RV3029_W_DAYS - RV3029_W_SEC] =3D bin2bcd((tm->tm_wday & 7) + 1);
-+	regs[RV3029_W_YEARS - RV3029_W_SEC] =3D bin2bcd(tm->tm_year - 100);
-=20
- 	ret =3D rv3029_write_regs(dev, RV3029_W_SEC, regs,
- 				RV3029_WATCH_SECTION_LEN);
-@@ -515,6 +515,7 @@ static int rv3029_set_time(struct device *dev, struct r=
-tc_time *tm)
-=20
- 	return 0;
- }
+diff --git a/drivers/rtc/rtc-max6916.c b/drivers/rtc/rtc-max6916.c
+index e69de29..2085151 100644
+--- a/drivers/rtc/rtc-max6916.c
++++ b/drivers/rtc/rtc-max6916.c
+@@ -0,0 +1,165 @@
++/* rtc-max6916.c
++ *
++ * Driver for MAXIM  max6916 Low Current, SPI Compatible
++ * Real Time Clock
++ *
++ * Author : Venkat Prashanth B U <venkat.prashanth2498@gmail.com>
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ *
++ */
++ 
++#include <linux/init.h>
++#include <linux/module.h>
++#include <linux/device.h>
++#include <linux/platform_device.h>
++#include <linux/rtc.h>
++#include <linux/spi/spi.h>
++#include <linux/bcd.h>
 +
- static const struct rv3029_trickle_tab_elem {
- 	u32 r;		/* resistance in ohms */
- 	u8 conf;	/* trickle config bits */
-@@ -603,9 +604,8 @@ static void rv3029_trickle_config(struct device *dev)
- 	err =3D rv3029_eeprom_update_bits(dev, RV3029_CONTROL_E2P_EECTRL,
- 					RV3029_TRICKLE_MASK,
- 					trickle_set_bits);
--	if (err < 0) {
-+	if (err < 0)
- 		dev_err(dev, "Failed to update trickle charger config\n");
--	}
- }
-=20
- #ifdef CONFIG_RTC_DRV_RV3029_HWMON
---=20
-2.8.0.rc3
++/* Registers in max6916 rtc */
++
++#define MAX6916_SECONDS_REG	0x01
++#define MAX6916_MINUTES_REG	0x02
++#define MAX6916_HOURS_REG	   0x03
++#define MAX6916_DATE_REG	   0x04
++#define MAX6916_MONTH_REG	   0x05
++#define MAX6916_DAY_REG	   0x06
++#define MAX6916_YEAR_REG	   0x07
++#define MAX6916_CONTROL_REG	0x08
++#define MAX6916_STATUS_REG	0x0C
++#define MAX6916_CLOCK_BURST	0x00
++
++static int max6916_read_reg(struct device *dev, unsigned char address, 
++				    unsigned char *data)
++{
++	struct spi_device *spi = to_spi_device(dev);
++
++	*data = address | 0x80;
++
++	return spi_write_then_read(spi, data, 1, data, 1);
++}
++
++static int max6916_write_reg(struct device *dev, unsigned char address, 
++				     unsigned char data)
++{
++	struct spi_device *spi = to_spi_device(dev);
++	unsigned char buf[2];
++
++	buf[0] = address&0x7F;
++	buf[1] = data;
++
++	return spi_write_then_read(spi, buf, 2, NULL, 0);
++}
++
++static int max6916_read_time(struct device *dev, struct rtc_time *dt)
++{
++	struct spi_device *spi = to_spi_device(dev);
++	int err;
++	unsigned char buf[8];
++
++	buf[0] = MAX6916_CLOCK_BURST | 0x80;
++	
++	err = spi_write_then_read(spi, buf, 1, buf, 8);
++	if (err)
++		return err;
++		
++	dt->tm_sec = bcd2bin(buf[0]);
++	dt->tm_min = bcd2bin(buf[1]);
++	dt->tm_hour = bcd2bin(buf[2] & MAX6916_CLOCK_BURST);
++	dt->tm_mday = bcd2bin(buf[3]);
++	dt->tm_mon = bcd2bin(buf[4]) - 1;
++	dt->tm_wday = bcd2bin(buf[5]) - 1;
++	dt->tm_year = bcd2bin(buf[6]) + 100;
++
++	return rtc_valid_tm(dt);
++}
++
++static int max6916_set_time(struct device *dev, struct rtc_time *dt)
++{
++	struct spi_device *spi = to_spi_device(dev);
++	unsigned char buf[9];
++
++	buf[0] = MAX6916_CLOCK_BURST & 0x7F;
++	buf[1] = bcd2bin(dt->tm_sec);
++	buf[2] = bcd2bin(dt->tm_min);
++	buf[3] = (bcd2bin(dt->tm_hour)&MAX6916_CLOCK_BURST);
++	buf[4] = bcd2bin(dt->tm_mday);
++	buf[5] = bcd2bin(dt->tm_mon + 1);
++	buf[6] = bcd2bin(dt->tm_wday + 1);
++
++	/* year from 1900-range of 100 in rtc from 00 to 99 */
++	dt->tm_year = dt->tm_year % 100;
++
++	buf[7] = bcd2bin(dt->tm_year);
++	buf[8] = bcd2bin(0x00);
++	
++	/* write the rtc settings */
++	return spi_write_then_read(spi, buf, 9, NULL, 0);
++}
++
++static const struct rtc_class_ops max6916_rtc_ops = {
++	.read_time = max6916_read_time,
++	.set_time = max6916_set_time,
++};
++
++static int max6916_probe(struct spi_device *spi)
++{
++	struct rtc_device *rtc;
++	unsigned char data;
++	int res;
++
++	/* spi setup with max6916 in mode 3 and bits per word as 8 */
++	spi->mode = SPI_MODE_3;
++	spi->bits_per_word = 8;
++	spi_setup(spi);
++
++	/* RTC Settings */
++	res = max6916_read_reg(&spi->dev, MAX6916_SECONDS_REG, &data);
++	
++	if (res)
++		return res;
++
++	/* Disable the write protect of rtc */
++	max6916_read_reg(&spi->dev, MAX6916_CONTROL_REG, &data);
++	data = data & ~(1<<7);
++	max6916_write_reg(&spi->dev, MAX6916_CONTROL_REG, data);
++
++	/* Enable the oscillator,disable the oscillator stop flag,
++	and glitch filter to reduce current consumption */
++	max6916_read_reg(&spi->dev, MAX6916_STATUS_REG, &data);
++	data = data & 0x1B;
++	max6916_write_reg(&spi->dev, MAX6916_STATUS_REG, data);
++
++	/* display the settings */
++	max6916_read_reg(&spi->dev, MAX6916_CONTROL_REG, &data);
++	dev_info(&spi->dev, "MAX6916 RTC CTRL Reg = 0x%02x\n", data);
++
++	max6916_read_reg(&spi->dev, MAX6916_STATUS_REG, &data);
++	dev_info(&spi->dev, "MAX6916 RTC Status Reg = 0x%02x\n", data);
++
++	rtc = devm_rtc_device_register(&spi->dev, "max6916", 
++			      &max6916_rtc_ops, THIS_MODULE);
++			      
++	if (IS_ERR(rtc))
++		return PTR_ERR(rtc);
++		
++	spi_set_drvdata(spi, rtc);
++
++	return 0;
++}
++
++static struct spi_driver max6916_driver = {
++	.driver = {
++	.name = "max6916",
++	},
++	.probe = max6916_probe,
++};
++
++module_spi_driver(max6916_driver);
++
++MODULE_DESCRIPTION("MAX6916 SPI RTC DRIVER");
++MODULE_AUTHOR("Venkat Prashanth B U <venkat.prashanth2498@gmail.com>");
++MODULE_LICENSE("GPL v2");
+-- 
+1.9.2
 
---=20
---=20
+-- 
+-- 
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
----=20
-You received this message because you are subscribed to the Google Groups "=
-rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an e=
-mail to rtc-linux+unsubscribe@googlegroups.com.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
