@@ -1,31 +1,42 @@
-Return-Path: <rtc-linux+bncBCQJP74GSUDRBQNHTS4QKGQEJZBJSFQ@googlegroups.com>
-Received: from mail-io0-x244.google.com (mail-io0-x244.google.com. [2607:f8b0:4001:c06::244])
-        by gmr-mx.google.com with ESMTPS id uo2si734143igb.2.2016.05.02.01.45.53
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 02 May 2016 01:45:53 -0700 (PDT)
-Received: by mail-io0-x244.google.com with SMTP id d62so22149853iof.1
-        for <rtc-linux@googlegroups.com>; Mon, 02 May 2016 01:45:53 -0700 (PDT)
+Return-Path: <rtc-linux+bncBDKZNNNLXAHBB2UOWG4QKGQECUGLWSY@googlegroups.com>
+Sender: rtc-linux@googlegroups.com
 MIME-Version: 1.0
-Sender: geert.uytterhoeven@gmail.com
-In-Reply-To: <CAMuHMdUcrB38jL1_estfq5aK55UFUeF=4JciVGFqcE17pY9X7g@mail.gmail.com>
-References: <1461796470-1291527-1-git-send-email-arnd@arndb.de>
-	<CAMuHMdUcrB38jL1_estfq5aK55UFUeF=4JciVGFqcE17pY9X7g@mail.gmail.com>
-Date: Mon, 2 May 2016 10:45:52 +0200
-Message-ID: <CAMuHMdV3ZHEKgv-LPPQdZzP8KBY-yiSoeJ-cAXy54qD04--LgA@mail.gmail.com>
-Subject: [rtc-linux] Re: [PATCH v3 00/16] genrtc removal
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>, Helge Deller <deller@gmx.de>,
-	Benjamin Herrenschmidt <benh@kernel.crashing.org>, Michael Ellerman <mpe@ellerman.id.au>,
-	Rich Felker <dalias@libc.org>, David Howells <dhowells@redhat.com>,
-	alpha <linux-alpha@vger.kernel.org>, Alessandro Zummo <a.zummo@towertech.it>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Parisc List <linux-parisc@vger.kernel.org>,
-	"linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>, Linux-sh list <linux-sh@vger.kernel.org>,
-	linux-m68k <linux-m68k@lists.linux-m68k.org>, RTCLINUX <rtc-linux@googlegroups.com>,
-	Linux-Arch <linux-arch@vger.kernel.org>
-Content-Type: text/plain; charset=UTF-8
+Received: from mailout3.w1.samsung.com (mailout3.w1.samsung.com. [210.118.77.13])
+        by gmr-mx.google.com with ESMTPS id 17si2743349pfw.0.2016.05.06.00.27.38
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1 cipher=AES128-SHA bits=128/128);
+        Fri, 06 May 2016 00:27:38 -0700 (PDT)
+Received: from eucpsbgm2.samsung.com (unknown [203.254.199.245])
+ by mailout3.w1.samsung.com
+ (Oracle Communications Messaging Server 7.0.5.31.0 64bit (built May  5 2014))
+ with ESMTP id <0O6Q002NEVDY9D80@mailout3.w1.samsung.com> for
+ rtc-linux@googlegroups.com; Fri, 06 May 2016 08:27:34 +0100 (BST)
+From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+To: Kukjin Kim <kgene@kernel.org>,
+ Krzysztof Kozlowski <k.kozlowski@samsung.com>,
+ MyungJoo Ham <myungjoo.ham@samsung.com>, Chanwoo Choi <cw00.choi@samsung.com>,
+ Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+ Richard Purdie <rpurdie@rpsys.net>,
+ Jacek Anaszewski <j.anaszewski@samsung.com>, Lee Jones <lee.jones@linaro.org>,
+ Sebastian Reichel <sre@kernel.org>,
+ Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>,
+ David Woodhouse <dwmw2@infradead.org>, Liam Girdwood <lgirdwood@gmail.com>,
+ Mark Brown <broonie@kernel.org>, Alessandro Zummo <a.zummo@towertech.it>,
+ Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+ devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+ linux-samsung-soc@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-input@vger.kernel.org, linux-leds@vger.kernel.org,
+ linux-pm@vger.kernel.org, rtc-linux@googlegroups.com
+Cc: r.baldyga@hackerion.com,
+ Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+Subject: [rtc-linux] [PATCH v6 7/9] extcon: max8997: Fix inconsistent indenting
+Date: Fri, 06 May 2016 09:27:14 +0200
+Message-id: <1462519636-3250-6-git-send-email-k.kozlowski@samsung.com>
+In-reply-to: <1462519636-3250-1-git-send-email-k.kozlowski@samsung.com>
+References: <1462519289-2356-2-git-send-email-k.kozlowski@samsung.com>
+ <1462519636-3250-1-git-send-email-k.kozlowski@samsung.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -34,109 +45,37 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Hi Arnd,
+Fix smatch warning:
+	max8997_muic_probe() warn: inconsistent indenting
 
-On Thu, Apr 28, 2016 at 9:48 AM, Geert Uytterhoeven
-<geert@linux-m68k.org> wrote:
-> On Thu, Apr 28, 2016 at 12:34 AM, Arnd Bergmann <arnd@arndb.de> wrote:
->> I ended up stuffing the two patch series into one, as they are now
->> more dependent on one another. This now thoroughly removes the
->> genrtc driver including the asm/rtc.h headers it uses. For all
->> architectures that still have a meaningful asm/rtc.h, this goes
->> through two stages:
->>
->> 1) make the rtc-generic implementation independent of asm/rtc.h
->> 2) remove the asm/rtc.h header and disallow the gen_rtc driver
->>
->> As the last step, the driver itself gets removed.
->
-> In general, after fixing the minor nit:
-> Acked-by: Geert Uytterhoeven <geert@linux-m68k.org>
->
-> For the m68k bits:
-> Tested-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Signed-off-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+---
+ drivers/extcon/extcon-max8997.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-More build coverage uncovered two build failures on m68k due to "[PATCH v3
-02/16] rtc: cmos: move mc146818rtc code out of asm-generic/rtc.h":
+diff --git a/drivers/extcon/extcon-max8997.c b/drivers/extcon/extcon-max8997.c
+index 0afa3e8b5dc3..cf8de5be2405 100644
+--- a/drivers/extcon/extcon-max8997.c
++++ b/drivers/extcon/extcon-max8997.c
+@@ -737,7 +737,7 @@ static int max8997_muic_probe(struct platform_device *pdev)
+ 	}
+ 
+ 	/* Set initial path for UART */
+-	 max8997_muic_set_path(info, info->path_uart, true);
++	max8997_muic_set_path(info, info->path_uart, true);
+ 
+ 	/* Set ADC debounce time */
+ 	max8997_muic_set_debounce_time(info, ADC_DEBOUNCE_TIME_25MS);
+-- 
+1.9.1
 
-bvme6000_defconfig:
-
-    In file included from arch/m68k/bvme6000/rtc.c:19:
-    include/linux/mc146818rtc.h: In function =E2=80=98mc146818_is_updating=
-=E2=80=99:
-    include/linux/mc146818rtc.h:138: error: implicit declaration of
-function =E2=80=98CMOS_READ=E2=80=99
-    include/linux/mc146818rtc.h: In function =E2=80=98mc146818_get_time=E2=
-=80=99:
-    include/linux/mc146818rtc.h:189: error: =E2=80=98RTC_ALWAYS_BCD=E2=80=
-=99
-undeclared (first use in this function)
-    include/linux/mc146818rtc.h:189: error: (Each undeclared
-identifier is reported only once
-    include/linux/mc146818rtc.h:189: error: for each function it appears in=
-.)
-    include/linux/mc146818rtc.h: In function =E2=80=98mc146818_set_time=E2=
-=80=99:
-    include/linux/mc146818rtc.h:279: error: =E2=80=98RTC_ALWAYS_BCD=E2=80=
-=99
-undeclared (first use in this function)
-    include/linux/mc146818rtc.h:290: error: implicit declaration of
-function =E2=80=98CMOS_WRITE=E2=80=99
-
-mvme16x_defconfig:
-
-    In file included from arch/m68k/mvme16x/rtc.c:18:
-    include/linux/mc146818rtc.h: In function =E2=80=98mc146818_is_updating=
-=E2=80=99:
-    include/linux/mc146818rtc.h:138: error: implicit declaration of
-function =E2=80=98CMOS_READ=E2=80=99
-    include/linux/mc146818rtc.h: In function =E2=80=98mc146818_get_time=E2=
-=80=99:
-    include/linux/mc146818rtc.h:189: error: =E2=80=98RTC_ALWAYS_BCD=E2=80=
-=99
-undeclared (first use in this function)
-    include/linux/mc146818rtc.h:189: error: (Each undeclared
-identifier is reported only once
-    include/linux/mc146818rtc.h:189: error: for each function it appears in=
-.)
-    include/linux/mc146818rtc.h: In function =E2=80=98mc146818_set_time=E2=
-=80=99:
-    include/linux/mc146818rtc.h:279: error: =E2=80=98RTC_ALWAYS_BCD=E2=80=
-=99
-undeclared (first use in this function)
-    include/linux/mc146818rtc.h:290: error: implicit declaration of
-function =E2=80=98CMOS_WRITE=E2=80=99
-
-These do not show up with a multi-platform config including Atari
-support, as arch/m68k/include/asm/mc146818rtc.h provides a definition of
-CMOS_READ() if CONFIG_ATARI=3Dy.
-
-Fortunately the fixes are simple: replace <linux/mc146818rtc.h> by
-<linux/rtc.h>. Will send patches to fix...
-
-Gr{oetje,eeting}s,
-
-                        Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k=
-.org
-
-In personal conversations with technical people, I call myself a hacker. Bu=
-t
-when I'm talking to journalists I just say "programmer" or something like t=
-hat.
-                                -- Linus Torvalds
-
---=20
---=20
+-- 
+-- 
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
----=20
-You received this message because you are subscribed to the Google Groups "=
-rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an e=
-mail to rtc-linux+unsubscribe@googlegroups.com.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
