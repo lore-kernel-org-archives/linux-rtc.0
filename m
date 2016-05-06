@@ -1,21 +1,39 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBIVWUK4QKGQE3L3IW2A@googlegroups.com>
+Return-Path: <rtc-linux+bncBDKZNNNLXAHBBBMMWG4QKGQEQSJUD6Q@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id c69si1104443wme.2.2016.05.03.05.35.45
-        for <rtc-linux@googlegroups.com>;
-        Tue, 03 May 2016 05:35:45 -0700 (PDT)
-Date: Tue, 3 May 2016 14:35:44 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: =?iso-8859-1?Q?Myl=E8ne?= Josserand <mylene.josserand@free-electrons.com>
-Cc: rtc-linux@googlegroups.com, Alessandro Zummo <a.zummo@towertech.it>,
-	linux-kernel@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH V3 0/7] add support for Microcrystal RV-3049
-Message-ID: <20160503123544.GJ2335@piout.net>
-References: <cover.1462268107.git.mylene.josserand@free-electrons.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <cover.1462268107.git.mylene.josserand@free-electrons.com>
+Received: from mailout1.w1.samsung.com (mailout1.w1.samsung.com. [210.118.77.11])
+        by gmr-mx.google.com with ESMTPS id xo2si2672124pab.0.2016.05.06.00.21.40
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1 cipher=AES128-SHA bits=128/128);
+        Fri, 06 May 2016 00:21:41 -0700 (PDT)
+Received: from eucpsbgm2.samsung.com (unknown [203.254.199.245])
+ by mailout1.w1.samsung.com
+ (Oracle Communications Messaging Server 7.0.5.31.0 64bit (built May  5 2014))
+ with ESMTP id <0O6Q00H63V413780@mailout1.w1.samsung.com> for
+ rtc-linux@googlegroups.com; Fri, 06 May 2016 08:21:37 +0100 (BST)
+From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+To: Kukjin Kim <kgene@kernel.org>,
+ Krzysztof Kozlowski <k.kozlowski@samsung.com>,
+ MyungJoo Ham <myungjoo.ham@samsung.com>, Chanwoo Choi <cw00.choi@samsung.com>,
+ Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+ Richard Purdie <rpurdie@rpsys.net>,
+ Jacek Anaszewski <j.anaszewski@samsung.com>, Lee Jones <lee.jones@linaro.org>,
+ Sebastian Reichel <sre@kernel.org>,
+ Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>,
+ David Woodhouse <dwmw2@infradead.org>, Liam Girdwood <lgirdwood@gmail.com>,
+ Mark Brown <broonie@kernel.org>, Alessandro Zummo <a.zummo@towertech.it>,
+ Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+ devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+ linux-samsung-soc@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-input@vger.kernel.org, linux-leds@vger.kernel.org,
+ linux-pm@vger.kernel.org, rtc-linux@googlegroups.com
+Cc: r.baldyga@hackerion.com,
+ Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+Subject: [rtc-linux] [PATCH v6 0/9] mfd: max8997: Add regmap support
+Date: Fri, 06 May 2016 09:21:20 +0200
+Message-id: <1462519289-2356-1-git-send-email-k.kozlowski@samsung.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -24,49 +42,85 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 03/05/2016 at 11:54:31 +0200, Myl=C4=8Dne Josserand wrote :
-> The current patchset adds the support of the microcrystal RV-3049 (spi).
-> This RTC will use the same driver than RV-3029 by updating it to use regm=
-ap.
-> It also adds the alarm IRQ functionality.
->=20
-> V3:
->  - Create a patch to fix bit mask on bin2bcd for set_time function
->=20
-> V2 :
->  - Add some checks removal from checkpatch
->  - Fix the alarm support with a wrong use of bit mask on bin2bcd
->=20
-> Myl=C4=8Dne Josserand (7):
->   rtc: rv3029: remove 'i2c' in functions names
->   rtc: rv3029: convert to use regmap
->   rtc: rv3029: Add support of RV3049
->   rtc: rv3029: Remove some checks and warnings
->   rtc: rv3029: fix alarm support
->   rtc: rv3029: fix set_time function
->   rtc: rv3029: add alarm IRQ
->=20
->  drivers/rtc/Kconfig        |  37 +--
->  drivers/rtc/rtc-rv3029c2.c | 582 +++++++++++++++++++++++++++++----------=
-------
->  2 files changed, 397 insertions(+), 222 deletions(-)
->=20
-Applied, thanks.
+Hi,
 
---=20
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
 
---=20
---=20
+This is a rebase and extension of old Robert Baldyga's work. [0]
+
+Robert no longer works in Samsung.
+
+>From the original cover letter:
+"This patchset modifies max8997 driver and associated function drivers to use
+register maps instead of operating directly on i2c bus. This change allowed
+to simplify irq handling, and to move some initializations to individual
+function drivers. Hence now when some functions are not enabled, their i2c
+clients, regmaps and irqs are not registered."
+
+
+My changes (since Robert's v5)
+==============================
+1. Rebase on v4.6-rc6.
+2. Collect more acks.
+3. Add few fixes:
+   a. Haptic fix from Marek,
+   b. Extcon and RTC fix from me,
+   c. DTS fixes from Marek.
+
+DTS changes are independent but rest of them (extcon/input/MFD) rely
+on each other.
+
+One way of merging would be to pick everything (except DTS) through
+one tree. Or use tags.
+
+
+Best regards,
+Krzysztof
+
+[0] http://lkml.iu.edu/hypermail//linux/kernel/1411.1/03152.html
+
+
+Krzysztof Kozlowski (3):
+  extcon: max8997: Fix handling error code of regmap_irq_get_virq()
+  rtc: max8997: Check for ERRNO of regmap_irq_get_virq()
+  extcon: max8997: Fix inconsistent indenting
+
+Marek Szyprowski (3):
+  input: max8997-haptic: Fix NULL pointer dereference
+  ARM: dts: exynos: Fix regulator name to avoid forbidden character on
+    exynos4210-trats
+  ARM: dts: exynos: Add interrupt line to MAX8997 PMIC on
+    exynos4210-trats
+
+Robert Baldyga (3):
+  mfd: max8997: Use regmap to access registers
+  mfd: max8997: handle IRQs using regmap
+  mfd: max8997: Change irq names to upper case
+
+ arch/arm/boot/dts/exynos4210-trats.dts |   4 +-
+ drivers/extcon/extcon-max8997.c        |  72 ++++---
+ drivers/input/misc/max8997_haptic.c    |  40 ++--
+ drivers/leds/leds-max8997.c            |  13 +-
+ drivers/mfd/Kconfig                    |   3 +-
+ drivers/mfd/Makefile                   |   2 +-
+ drivers/mfd/max8997-irq.c              | 383 ---------------------------------
+ drivers/mfd/max8997.c                  | 245 ++++++++++++++-------
+ drivers/power/max8997_charger.c        |  33 +--
+ drivers/regulator/max8997.c            |  87 ++++----
+ drivers/rtc/rtc-max8997.c              |  60 +++---
+ include/linux/mfd/max8997-private.h    |  82 +++++--
+ 12 files changed, 392 insertions(+), 632 deletions(-)
+ delete mode 100644 drivers/mfd/max8997-irq.c
+
+-- 
+1.9.1
+
+-- 
+-- 
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
----=20
-You received this message because you are subscribed to the Google Groups "=
-rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an e=
-mail to rtc-linux+unsubscribe@googlegroups.com.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
