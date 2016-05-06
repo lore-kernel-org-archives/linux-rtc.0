@@ -1,21 +1,40 @@
-Return-Path: <rtc-linux+bncBDMITSXR5QMBB5736K4QKGQEOUPAUCY@googlegroups.com>
+Return-Path: <rtc-linux+bncBDKZNNNLXAHBB2EOWG4QKGQEGK4U7CI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 MIME-Version: 1.0
-Received: from mout.gmx.net (mout.gmx.net. [212.227.17.22])
-        by gmr-mx.google.com with ESMTPS id u18si905531wmd.1.2016.05.18.12.09.42
+Received: from mailout2.w1.samsung.com (mailout2.w1.samsung.com. [210.118.77.12])
+        by gmr-mx.google.com with ESMTPS id xo2si2674355pab.0.2016.05.06.00.27.35
         for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 18 May 2016 12:09:43 -0700 (PDT)
-From: Heinrich Schuchardt <xypron.glpk@gmx.de>
-To: Joshua Kinard <kumba@gentoo.org>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org,
-	Heinrich Schuchardt <xypron.glpk@gmx.de>
-Subject: [rtc-linux] [PATCH 1/1] rtc: ds1685: correct check of day of month
-Date: Wed, 18 May 2016 21:09:29 +0200
-Message-Id: <1463598569-4329-1-git-send-email-xypron.glpk@gmx.de>
+        (version=TLS1 cipher=AES128-SHA bits=128/128);
+        Fri, 06 May 2016 00:27:36 -0700 (PDT)
+Received: from eucpsbgm2.samsung.com (unknown [203.254.199.245])
+ by mailout2.w1.samsung.com
+ (Oracle Communications Messaging Server 7.0.5.31.0 64bit (built May  5 2014))
+ with ESMTP id <0O6Q00BMFVDXIX00@mailout2.w1.samsung.com> for
+ rtc-linux@googlegroups.com; Fri, 06 May 2016 08:27:33 +0100 (BST)
+From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+To: Kukjin Kim <kgene@kernel.org>,
+ Krzysztof Kozlowski <k.kozlowski@samsung.com>,
+ MyungJoo Ham <myungjoo.ham@samsung.com>, Chanwoo Choi <cw00.choi@samsung.com>,
+ Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+ Richard Purdie <rpurdie@rpsys.net>,
+ Jacek Anaszewski <j.anaszewski@samsung.com>, Lee Jones <lee.jones@linaro.org>,
+ Sebastian Reichel <sre@kernel.org>,
+ Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>,
+ David Woodhouse <dwmw2@infradead.org>, Liam Girdwood <lgirdwood@gmail.com>,
+ Mark Brown <broonie@kernel.org>, Alessandro Zummo <a.zummo@towertech.it>,
+ Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+ devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+ linux-samsung-soc@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-input@vger.kernel.org, linux-leds@vger.kernel.org,
+ linux-pm@vger.kernel.org, rtc-linux@googlegroups.com
+Cc: r.baldyga@hackerion.com,
+ Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+Subject: [rtc-linux] [PATCH v6 6/9] rtc: max8997: Check for ERRNO of regmap_irq_get_virq()
+Date: Fri, 06 May 2016 09:27:13 +0200
+Message-id: <1462519636-3250-5-git-send-email-k.kozlowski@samsung.com>
+In-reply-to: <1462519636-3250-1-git-send-email-k.kozlowski@samsung.com>
+References: <1462519289-2356-2-git-send-email-k.kozlowski@samsung.com>
+ <1462519636-3250-1-git-send-email-k.kozlowski@samsung.com>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -26,38 +45,29 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Operator ! has a higher priority than &&.
-(!(mday >= 1) && (mday <= 31)) is false for mday == 32.
+The regmap_irq_get_virq() can return zero or negative ERRNO, so it is
+insufficient to check only for non-zero value.
 
-Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Signed-off-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
 ---
- drivers/rtc/rtc-ds1685.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/rtc/rtc-max8997.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/rtc/rtc-ds1685.c b/drivers/rtc/rtc-ds1685.c
-index b3ce3c6..b4fae3c 100644
---- a/drivers/rtc/rtc-ds1685.c
-+++ b/drivers/rtc/rtc-ds1685.c
-@@ -389,7 +389,7 @@ ds1685_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
- 	ds1685_rtc_end_data_access(rtc);
+diff --git a/drivers/rtc/rtc-max8997.c b/drivers/rtc/rtc-max8997.c
+index 4998aee0f07f..1a06e17ebe9b 100644
+--- a/drivers/rtc/rtc-max8997.c
++++ b/drivers/rtc/rtc-max8997.c
+@@ -497,7 +497,7 @@ static int max8997_rtc_probe(struct platform_device *pdev)
+ 	}
  
- 	/* Check month date. */
--	if (!(mday >= 1) && (mday <= 31))
-+	if ((mday < 1) || (mday > 31))
- 		return -EDOM;
- 
- 	/*
-@@ -461,7 +461,7 @@ ds1685_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
- 				     RTC_MDAY_BCD_MASK);
- 
- 	/* Check the month date for validity. */
--	if (!(mday >= 1) && (mday <= 31))
-+	if ((mday < 1) || (mday > 31))
- 		return -EDOM;
- 
- 	/*
+ 	virq = regmap_irq_get_virq(max8997->irq_data, MAX8997_PMICIRQ_RTCA1);
+-	if (!virq) {
++	if (virq <= 0) {
+ 		dev_err(&pdev->dev, "Failed to create mapping alarm IRQ\n");
+ 		ret = -ENXIO;
+ 		goto err_out;
 -- 
-2.1.4
+1.9.1
 
 -- 
 -- 
