@@ -1,35 +1,41 @@
-Return-Path: <rtc-linux+bncBDEKVJM7XAHRBPU2WK5AKGQEYDMY6AY@googlegroups.com>
+Return-Path: <rtc-linux+bncBDKZNNNLXAHBB2MOWG4QKGQEIX2QY6I@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 MIME-Version: 1.0
-Received: from mout.kundenserver.de (mout.kundenserver.de. [217.72.192.75])
-        by gmr-mx.google.com with ESMTPS id l68si1161828wmd.3.2016.05.30.11.58.05
+Received: from mailout2.w1.samsung.com (mailout2.w1.samsung.com. [210.118.77.12])
+        by gmr-mx.google.com with ESMTPS id xo2si2674355pab.0.2016.05.06.00.27.36
         for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 30 May 2016 11:58:05 -0700 (PDT)
-From: Arnd Bergmann <arnd@arndb.de>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Arnd Bergmann <arnd@arndb.de>,
-	geert@linux-m68k.org,
-	gregkh@linuxfoundation.org,
-	deller@gmx.de,
-	benh@kernel.crashing.org,
-	mpe@ellerman.id.au,
-	dalias@libc.org,
-	dhowells@redhat.com,
-	linux-alpha@vger.kernel.org,
-	a.zummo@towertech.it,
-	linux-kernel@vger.kernel.org,
-	linux-parisc@vger.kernel.org,
-	linuxppc-dev@lists.ozlabs.org,
-	linux-sh@vger.kernel.org,
-	linux-m68k@lists.linux-m68k.org,
-	rtc-linux@googlegroups.com,
-	linux-arch@vger.kernel.org
-Subject: [rtc-linux] [PATCH v4 12/16] rtc: powerpc: provide rtc_class_ops directly
-Date: Mon, 30 May 2016 20:58:00 +0200
-Message-Id: <1464634684-1248135-13-git-send-email-arnd@arndb.de>
-In-Reply-To: <1464634684-1248135-1-git-send-email-arnd@arndb.de>
-References: <1464634684-1248135-1-git-send-email-arnd@arndb.de>
+        (version=TLS1 cipher=AES128-SHA bits=128/128);
+        Fri, 06 May 2016 00:27:37 -0700 (PDT)
+Received: from eucpsbgm1.samsung.com (unknown [203.254.199.244])
+ by mailout2.w1.samsung.com
+ (Oracle Communications Messaging Server 7.0.5.31.0 64bit (built May  5 2014))
+ with ESMTP id <0O6Q00BMHVDZIX00@mailout2.w1.samsung.com> for
+ rtc-linux@googlegroups.com; Fri, 06 May 2016 08:27:35 +0100 (BST)
+From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+To: Kukjin Kim <kgene@kernel.org>,
+ Krzysztof Kozlowski <k.kozlowski@samsung.com>,
+ MyungJoo Ham <myungjoo.ham@samsung.com>, Chanwoo Choi <cw00.choi@samsung.com>,
+ Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+ Richard Purdie <rpurdie@rpsys.net>,
+ Jacek Anaszewski <j.anaszewski@samsung.com>, Lee Jones <lee.jones@linaro.org>,
+ Sebastian Reichel <sre@kernel.org>,
+ Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>,
+ David Woodhouse <dwmw2@infradead.org>, Liam Girdwood <lgirdwood@gmail.com>,
+ Mark Brown <broonie@kernel.org>, Alessandro Zummo <a.zummo@towertech.it>,
+ Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+ devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+ linux-samsung-soc@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-input@vger.kernel.org, linux-leds@vger.kernel.org,
+ linux-pm@vger.kernel.org, rtc-linux@googlegroups.com
+Cc: r.baldyga@hackerion.com,
+ Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+Subject: [rtc-linux] [PATCH v6 8/9] ARM: dts: exynos: Fix regulator name to
+ avoid forbidden character on exynos4210-trats
+Date: Fri, 06 May 2016 09:27:15 +0200
+Message-id: <1462519636-3250-7-git-send-email-k.kozlowski@samsung.com>
+In-reply-to: <1462519636-3250-1-git-send-email-k.kozlowski@samsung.com>
+References: <1462519289-2356-2-git-send-email-k.kozlowski@samsung.com>
+ <1462519636-3250-1-git-send-email-k.kozlowski@samsung.com>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -40,93 +46,35 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-The rtc-generic driver provides an architecture specific
-wrapper on top of the generic rtc_class_ops abstraction,
-and powerpc has another abstraction on top, which is a bit
-silly.
+From: Marek Szyprowski <m.szyprowski@samsung.com>
 
-This changes the powerpc rtc-generic device to provide its
-rtc_class_ops directly, to reduce the number of layers
-by one.
+The usage of slash character causes failure when creating regulator
+debugfs entry.
 
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
+[k.kozlowski: Write commit message]
+Signed-off-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
 ---
- arch/powerpc/kernel/time.c | 29 ++++++++++++++++++++++++++++-
- drivers/rtc/rtc-generic.c  |  2 +-
- 2 files changed, 29 insertions(+), 2 deletions(-)
+ arch/arm/boot/dts/exynos4210-trats.dts | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/kernel/time.c b/arch/powerpc/kernel/time.c
-index 3ed9a5a21d77..7a482a7f4d8d 100644
---- a/arch/powerpc/kernel/time.c
-+++ b/arch/powerpc/kernel/time.c
-@@ -56,6 +56,7 @@
- #include <linux/irq_work.h>
- #include <linux/clk-provider.h>
- #include <linux/suspend.h>
-+#include <linux/rtc.h>
- #include <asm/trace.h>
+diff --git a/arch/arm/boot/dts/exynos4210-trats.dts b/arch/arm/boot/dts/exynos4210-trats.dts
+index 1df2f0bc1d76..fed5847410d3 100644
+--- a/arch/arm/boot/dts/exynos4210-trats.dts
++++ b/arch/arm/boot/dts/exynos4210-trats.dts
+@@ -359,7 +359,7 @@
+ 			};
  
- #include <asm/io.h>
-@@ -1081,6 +1082,29 @@ void calibrate_delay(void)
- 	loops_per_jiffy = tb_ticks_per_jiffy;
- }
- 
-+#if IS_ENABLED(CONFIG_RTC_DRV_GENERIC)
-+static int rtc_generic_get_time(struct device *dev, struct rtc_time *tm)
-+{
-+	ppc_md.get_rtc_time(tm);
-+	return rtc_valid_tm(tm);
-+}
-+
-+static int rtc_generic_set_time(struct device *dev, struct rtc_time *tm)
-+{
-+	if (!ppc_md.set_rtc_time)
-+		return -EOPNOTSUPP;
-+
-+	if (ppc_md.set_rtc_time(tm) < 0)
-+		return -EOPNOTSUPP;
-+
-+	return 0;
-+}
-+
-+static const struct rtc_class_ops rtc_generic_ops = {
-+	.read_time = rtc_generic_get_time,
-+	.set_time = rtc_generic_set_time,
-+};
-+
- static int __init rtc_init(void)
- {
- 	struct platform_device *pdev;
-@@ -1088,9 +1112,12 @@ static int __init rtc_init(void)
- 	if (!ppc_md.get_rtc_time)
- 		return -ENODEV;
- 
--	pdev = platform_device_register_simple("rtc-generic", -1, NULL, 0);
-+	pdev = platform_device_register_data(NULL, "rtc-generic", -1,
-+					     &rtc_generic_ops,
-+					     sizeof(rtc_generic_ops));
- 
- 	return PTR_ERR_OR_ZERO(pdev);
- }
- 
- device_initcall(rtc_init);
-+#endif
-diff --git a/drivers/rtc/rtc-generic.c b/drivers/rtc/rtc-generic.c
-index 5c82bae73b9c..efcb9833cac8 100644
---- a/drivers/rtc/rtc-generic.c
-+++ b/drivers/rtc/rtc-generic.c
-@@ -9,7 +9,7 @@
- #include <linux/platform_device.h>
- #include <linux/rtc.h>
- 
--#if defined(CONFIG_PPC)
-+#if 0
- #include <asm/rtc.h>
- 
- static int generic_get_time(struct device *dev, struct rtc_time *tm)
+ 			vusbdac_reg: LDO8 {
+-			     regulator-name = "VUSB/VDAC_3.3V_C210";
++			     regulator-name = "VUSB+VDAC_3.3V_C210";
+ 			     regulator-min-microvolt = <3300000>;
+ 			     regulator-max-microvolt = <3300000>;
+ 			};
 -- 
-2.7.0
+1.9.1
 
+-- 
 -- 
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
