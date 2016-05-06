@@ -1,28 +1,43 @@
-Return-Path: <rtc-linux+bncBCQJP74GSUDRBCXBUK4QKGQER5PO3XQ@googlegroups.com>
-Received: from mail-io0-x241.google.com (mail-io0-x241.google.com. [2607:f8b0:4001:c06::241])
-        by gmr-mx.google.com with ESMTPS id au10si1241644igc.3.2016.05.03.07.07.06
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 03 May 2016 07:07:06 -0700 (PDT)
-Received: by mail-io0-x241.google.com with SMTP id d62so2381616iof.1
-        for <rtc-linux@googlegroups.com>; Tue, 03 May 2016 07:07:06 -0700 (PDT)
+Return-Path: <rtc-linux+bncBDKZNNNLXAHBB2EOWG4QKGQEGK4U7CI@googlegroups.com>
+Sender: rtc-linux@googlegroups.com
 MIME-Version: 1.0
-Sender: geert.uytterhoeven@gmail.com
-In-Reply-To: <1708606.ou3btFVZ5o@wuerfel>
-References: <1462178783-29294-1-git-send-email-geert@linux-m68k.org>
-	<20160503134034.GK2335@piout.net>
-	<1708606.ou3btFVZ5o@wuerfel>
-Date: Tue, 3 May 2016 16:07:05 +0200
-Message-ID: <CAMuHMdVmfMbnNpUGvdVWa4fxOZjN5Dip0coaikUanCgdH+8fqw@mail.gmail.com>
-Subject: [rtc-linux] Re: [PATCH 0/2] m68k RTC fixes
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Alessandro Zummo <a.zummo@towertech.it>, RTCLINUX <rtc-linux@googlegroups.com>,
-	linux-m68k <linux-m68k@lists.linux-m68k.org>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset=UTF-8
+Received: from mailout1.w1.samsung.com (mailout1.w1.samsung.com. [210.118.77.11])
+        by gmr-mx.google.com with ESMTPS id xo2si2674369pab.0.2016.05.06.00.27.36
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1 cipher=AES128-SHA bits=128/128);
+        Fri, 06 May 2016 00:27:36 -0700 (PDT)
+Received: from eucpsbgm1.samsung.com (unknown [203.254.199.244])
+ by mailout1.w1.samsung.com
+ (Oracle Communications Messaging Server 7.0.5.31.0 64bit (built May  5 2014))
+ with ESMTP id <0O6Q00HBEVDW3780@mailout1.w1.samsung.com> for
+ rtc-linux@googlegroups.com; Fri, 06 May 2016 08:27:32 +0100 (BST)
+From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+To: Kukjin Kim <kgene@kernel.org>,
+ Krzysztof Kozlowski <k.kozlowski@samsung.com>,
+ MyungJoo Ham <myungjoo.ham@samsung.com>, Chanwoo Choi <cw00.choi@samsung.com>,
+ Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+ Richard Purdie <rpurdie@rpsys.net>,
+ Jacek Anaszewski <j.anaszewski@samsung.com>, Lee Jones <lee.jones@linaro.org>,
+ Sebastian Reichel <sre@kernel.org>,
+ Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>,
+ David Woodhouse <dwmw2@infradead.org>, Liam Girdwood <lgirdwood@gmail.com>,
+ Mark Brown <broonie@kernel.org>, Alessandro Zummo <a.zummo@towertech.it>,
+ Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+ devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+ linux-samsung-soc@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-input@vger.kernel.org, linux-leds@vger.kernel.org,
+ linux-pm@vger.kernel.org, rtc-linux@googlegroups.com
+Cc: r.baldyga@hackerion.com,
+ Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+Subject: [rtc-linux] [PATCH v6 5/9] extcon: max8997: Fix handling error code
+ of regmap_irq_get_virq()
+Date: Fri, 06 May 2016 09:27:12 +0200
+Message-id: <1462519636-3250-4-git-send-email-k.kozlowski@samsung.com>
+In-reply-to: <1462519636-3250-1-git-send-email-k.kozlowski@samsung.com>
+References: <1462519289-2356-2-git-send-email-k.kozlowski@samsung.com>
+ <1462519636-3250-1-git-send-email-k.kozlowski@samsung.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -31,40 +46,34 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Tue, May 3, 2016 at 3:49 PM, Arnd Bergmann <arnd@arndb.de> wrote:
-> On Tuesday 03 May 2016 15:40:34 Alexandre Belloni wrote:
->> > Queue strategy:
->> >   1. These are queued together with Arnd's series,
->> >   1. I queue them for v4.7 myself, but then the RTC tree must be mergest
->> >      after the m68k tree,
->> >   2. I queue them for v4.6.
->> >
->> > As I currently don't have any m68k patches queued for v4.7, perhaps it's
->> > easiest if these are included with Arnd's series?
->> >
->>
->> I suggest you take them for 4.7 anyway. I don't think I am confident
->> enough to merge Arnd's series for 4.7. Also, I doubt I'll get many acks
->> from some architecture maintainers.
->>
->> So, my plan is to apply it on top of 4.7-rc1 and let it sit in
->> linux-next for a while.
->
-> Good idea. It's getting a bit late for 4.7 now, and there is nothing
-> urgent in my series.
+The regmap_irq_get_virq() can return negative ERRNO, so its result
+should not be stored in unsigned int because error would be ignored.
 
-OK, I've applied the m68k preparatory fixes and pushed them out.
+Signed-off-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+---
+ drivers/extcon/extcon-max8997.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-Gr{oetje,eeting}s,
-
-                        Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+diff --git a/drivers/extcon/extcon-max8997.c b/drivers/extcon/extcon-max8997.c
+index 68754ac2c8ea..0afa3e8b5dc3 100644
+--- a/drivers/extcon/extcon-max8997.c
++++ b/drivers/extcon/extcon-max8997.c
+@@ -660,11 +660,11 @@ static int max8997_muic_probe(struct platform_device *pdev)
+ 
+ 	for (i = 0; i < ARRAY_SIZE(muic_irqs); i++) {
+ 		struct max8997_muic_irq *muic_irq = &muic_irqs[i];
+-		unsigned int virq = 0;
++		int virq = 0;
+ 
+ 		virq = regmap_irq_get_virq(max8997->irq_data_muic,
+ 					muic_irq->irq);
+-		if (!virq) {
++		if (virq <= 0) {
+ 			ret = -EINVAL;
+ 			goto err_irq;
+ 		}
+-- 
+1.9.1
 
 -- 
 -- 
