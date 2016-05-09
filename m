@@ -1,236 +1,127 @@
-Date: Tue, 3 May 2016 14:09:41 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: venkat.prashanth2498@gmail.com
-Cc: a.zummo@towertech.it, rtc-linux@googlegroups.com,
-	inux-kernel@vger.kernel.org
-Subject: Re: [rtc-linux] [PATCH] rtc: add support for maxim rtc max6916
-Message-ID: <20160503120941.GH2335@piout.net>
-References: <1462273240-2050-1-git-send-email-venkat.prashanth2498@gmail.com>
+Return-Path: <rtc-linux+bncBDP6N55ZUYDRBLPXYK4QKGQEIJZPXOQ@googlegroups.com>
+Sender: rtc-linux@googlegroups.com
+Received: from mail-pa0-x22e.google.com (mail-pa0-x22e.google.com. [2607:f8b0:400e:c03::22e])
+        by gmr-mx.google.com with ESMTPS id 17si4839872pfw.0.2016.05.09.09.32.44
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 09 May 2016 09:32:44 -0700 (PDT)
+Received: by mail-pa0-x22e.google.com with SMTP id r5so76144783pag.1
+        for <rtc-linux@googlegroups.com>; Mon, 09 May 2016 09:32:44 -0700 (PDT)
+Date: Mon, 9 May 2016 09:32:41 -0700
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+Cc: Kukjin Kim <kgene@kernel.org>, MyungJoo Ham <myungjoo.ham@samsung.com>,
+	Chanwoo Choi <cw00.choi@samsung.com>,
+	Richard Purdie <rpurdie@rpsys.net>,
+	Jacek Anaszewski <j.anaszewski@samsung.com>,
+	Lee Jones <lee.jones@linaro.org>,
+	Sebastian Reichel <sre@kernel.org>,
+	Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>,
+	David Woodhouse <dwmw2@infradead.org>,
+	Liam Girdwood <lgirdwood@gmail.com>,
+	Mark Brown <broonie@kernel.org>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+	linux-samsung-soc@vger.kernel.org, linux-kernel@vger.kernel.org,
+	linux-input@vger.kernel.org, linux-leds@vger.kernel.org,
+	linux-pm@vger.kernel.org, rtc-linux@googlegroups.com,
+	r.baldyga@hackerion.com,
+	Marek Szyprowski <m.szyprowski@samsung.com>, stable@vger.kernel.org,
+	Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+Subject: [rtc-linux] Re: [PATCH v6 1/9] input: max8997-haptic: Fix NULL
+ pointer dereference
+Message-ID: <20160509163241.GB15535@dtor-ws>
+References: <1462519289-2356-1-git-send-email-k.kozlowski@samsung.com>
+ <1462519289-2356-2-git-send-email-k.kozlowski@samsung.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-In-Reply-To: <1462273240-2050-1-git-send-email-venkat.prashanth2498@gmail.com>
+Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1462519289-2356-2-git-send-email-k.kozlowski@samsung.com>
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
+List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
+List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
+List-Archive: <https://groups.google.com/group/rtc-linux
+List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
+List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
+ <https://groups.google.com/group/rtc-linux/subscribe>
 
-Hi,
-
-Please use checkpatch before submitting.
-
-On 03/05/2016 at 04:00:40 -0700, venkat.prashanth2498@gmail.com wrote :
-> From: venkat-prashanth <venkat.prashanth2498@gmail.com>
+On Fri, May 06, 2016 at 09:21:21AM +0200, Krzysztof Kozlowski wrote:
+> From: Marek Szyprowski <m.szyprowski@samsung.com>
 > 
-> This is a patch to add support for
-> maxim rtc max6916
+> NULL pointer derefence happens when booting with DTB because the
+> platform data for haptic device is not set in supplied data from parent
+> MFD device.
 > 
-> Signed-off-by:Venkat Prashanth B U <venkat.prashanth2498@gmail.com>
+> The MFD device creates only platform data (from Device Tree) for itself,
+> not for haptic child.
+> 
+> Unable to handle kernel NULL pointer dereference at virtual address 0000009c
+> pgd = c0004000
+> 	[0000009c] *pgd=00000000
+> 	Internal error: Oops: 5 [#1] PREEMPT SMP ARM
+> 	(max8997_haptic_probe) from [<c03f9cec>] (platform_drv_probe+0x4c/0xb0)
+> 	(platform_drv_probe) from [<c03f8440>] (driver_probe_device+0x214/0x2c0)
+> 	(driver_probe_device) from [<c03f8598>] (__driver_attach+0xac/0xb0)
+> 	(__driver_attach) from [<c03f67ac>] (bus_for_each_dev+0x68/0x9c)
+> 	(bus_for_each_dev) from [<c03f7a38>] (bus_add_driver+0x1a0/0x218)
+> 	(bus_add_driver) from [<c03f8db0>] (driver_register+0x78/0xf8)
+> 	(driver_register) from [<c0101774>] (do_one_initcall+0x90/0x1d8)
+> 	(do_one_initcall) from [<c0a00dbc>] (kernel_init_freeable+0x15c/0x1fc)
+> 	(kernel_init_freeable) from [<c06bb5b4>] (kernel_init+0x8/0x114)
+> 	(kernel_init) from [<c0107938>] (ret_from_fork+0x14/0x3c)
+> 
+> Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
+> Cc: <stable@vger.kernel.org>
+> Fixes: 104594b01ce7 ("Input: add driver support for MAX8997-haptic")
+> [k.kozlowski: Write commit message, add CC-stable]
+> Signed-off-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+
+Applied, thank you.
+
 > ---
-> ---
->  rtc-max6916.c | 157 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-This will not apply, that driver has to be in drivers/rtc
-
->  txtfile       |  11 ++++
-
-What is that file?
-
->  2 files changed, 168 insertions(+)
->  create mode 100644 rtc-max6916.c
->  create mode 100644 txtfile
+>  drivers/input/misc/max8997_haptic.c | 6 ++++--
+>  1 file changed, 4 insertions(+), 2 deletions(-)
 > 
-> diff --git a/rtc-max6916.c b/rtc-max6916.c
-> new file mode 100644
-> index 0000000..7fabaa2
-> --- /dev/null
-> +++ b/rtc-max6916.c
-> @@ -0,0 +1,157 @@
-> +/* rtc-max6916.c
-> + *
-> + * Driver for MAXIM  max6916 Low Current, SPI Compatible
-> + * Real Time Clock
-> + *
-> + * Author : Venkat Prashanth B U <venkat.prashanth2498@gmail.com>
-> + *
-> + * This program is free software; you can redistribute it and/or modify
-> + * it under the terms of the GNU General Public License version 2 as
-> + * published by the Free Software Foundation.
-> + *
-> + */
-> +#include <linux/init.h>
-> +#include <linux/module.h>
-> +#include <linux/device.h>
-> +#include <linux/platform_device.h>
-> +#include <linux/rtc.h>
-> +#include <linux/spi/spi.h>
-> +#include <linux/bcd.h>
+> diff --git a/drivers/input/misc/max8997_haptic.c b/drivers/input/misc/max8997_haptic.c
+> index a806ba3818f7..8d6326d7e7be 100644
+> --- a/drivers/input/misc/max8997_haptic.c
+> +++ b/drivers/input/misc/max8997_haptic.c
+> @@ -255,12 +255,14 @@ static int max8997_haptic_probe(struct platform_device *pdev)
+>  	struct max8997_dev *iodev = dev_get_drvdata(pdev->dev.parent);
+>  	const struct max8997_platform_data *pdata =
+>  					dev_get_platdata(iodev->dev);
+> -	const struct max8997_haptic_platform_data *haptic_pdata =
+> -					pdata->haptic_pdata;
+> +	const struct max8997_haptic_platform_data *haptic_pdata = NULL;
+>  	struct max8997_haptic *chip;
+>  	struct input_dev *input_dev;
+>  	int error;
+>  
+> +	if (pdata)
+> +		haptic_pdata = pdata->haptic_pdata;
 > +
-> +/* Registers in max6916 rtc */
-> +
-> +#define MAX6916_SECONDS_REG	0x01
-> +#define MAX6916_MINUTES_REG	0x02
-> +#define MAX6916_HOURS_REG	0x03
-> +#define MAX6916_DATE_REG	0x04
-> +#define MAX6916_MONTH_REG	0x05
-> +#define MAX6916_DAY_REG	0x06
-> +#define MAX6916_YEAR_REG	0x07
-> +#define MAX6916_CONTROL_REG	0x08
-> +#define MAX6916_STATUS_REG	0x0C
-> +#define MAX6916_CLOCK_BURST	0x00
-> +#define ADDRESS_REG            0x70
-> +#define DATA_REG               0x71
-> +#define ADDRESS_REG_MASK       0xe0
-> +
-> +static unsigned char get_rtc(unsigned char addr)
-> +{
-> +	outb(addr, ADDRESS_REG);
-> +	return inb(DATA_REG);
-
-What is the use of those port IOs?
-
-> +}
-> +
-> +static int max6916_read_reg(struct device *dev, unsigned char address,unsigned char *data)
-> +{
-> +	struct spi_device *spi = to_spi_device(dev);
-> +	*data = address | 0x80;
-> +	return spi_write_then_read(spi, data, 1, data, 1);
-> +}
-> +
-> +static int max6916_write_reg(struct device *dev, unsigned char address,unsigned char data)
-> +{
-> +	struct spi_device *spi = to_spi_device(dev);
-> +	unsigned char buf[2];
-> +	buf[0] = address & 0x7F;
-> +	buf[1] = data;
-> +	return spi_write_then_read(spi, buf, 2, NULL, 0);
-> +}
-> +
-> +static int max6916_read_time(struct device *dev, struct rtc_time *dt)
-> +{
-> +	struct spi_device *spi = to_spi_device(dev);
-> +	int err;
-> +	unsigned char buf[8];
-> +	buf[0] = MAX6916_CLOCK_BURST | 0x80;
-> +	err = spi_write_then_read(spi, buf, 1, buf, 8);
-> +	if (err)
-> +	return err;
-> +	dt->tm_sec = get_rtc(buf[0]);
-> +	dt->tm_min = get_rtc(buf[1]);
-> +	dt->tm_hour = get_rtc(buf[2] & 0x00);
-
-How can that work?
-
-> +	dt->tm_mday = get_rtc(buf[3]);
-> +	dt->tm_mon = get_rtc(buf[4]) - 1;
-> +	dt->tm_wday = get_rtc(buf[5]) - 1;
-> +	dt->tm_year = get_rtc(buf[6]) + 100;
-> +	return rtc_valid_tm(dt);
-> +}
-> +
-> +static int max6916_set_time(struct device *dev, struct rtc_time *dt)
-> +{
-> +	struct spi_device *spi = to_spi_device(dev);
-> +	unsigned char buf[9];
-> +
-> +	buf[0] = MAX6916_CLOCK_BURST & 0x7F;
-> +	buf[1] = bcd2bin(dt->tm_sec);
-> +	buf[2] = bcd2bin(dt->tm_min);
-> +	buf[3] = (bcd2bin(dt->tm_hour) & 0x00);
-
-Same question, this is always setting 0...
-
-> +	buf[4] = bcd2bin(dt->tm_mday);
-> +	buf[5] = bcd2bin(dt->tm_mon + 1);
-> +	buf[6] = bcd2bin(dt->tm_wday + 1);
-> +
-> +	/* year in linux is from 1900 i.e in range of 100
-> +	in rtc it is from 00 to 99 */
-> +	dt->tm_year = dt->tm_year % 100;
-
-You should enforce the year range instead of accepting any value.
-
-> +
-> +	buf[7] = bcd2bin(dt->tm_year);
-> +	buf[8] = bcd2bin(0x00);
-> +
-> +	/* write the rtc settings */
-> +	return spi_write_then_read(spi, buf, 9, NULL, 0);
-> +}
-> +
-> +static const struct rtc_class_ops max6916_rtc_ops = {
-> +	.read_time = max6916_read_time,
-> +	.set_time = max6916_set_time,
-> +};
-> +
-> +static int max6916_probe(struct spi_device *spi)
-> +{
-> +	struct rtc_device *rtc;
-> +	unsigned char data;
-> +	int res;
-> +
-> +	/* spi setup with max6916 in mode 3 and bits per word as 8 */
-> +	spi->mode = SPI_MODE_3;
-> +	spi->bits_per_word = 8;
-> +	spi_setup(spi);
-> +
-> +	/* RTC Settings */
-> +	res = max6916_read_reg(&spi->dev, MAX6916_SECONDS_REG, &data);
-> +	if (res)
-> +	return res;
-> +	/* Disable the write protect of rtc */
-> +	max6916_read_reg(&spi->dev, MAX6916_CONTROL_REG, &data);
-> +	data = data & ~(1<<7);
-> +	max6916_write_reg(&spi->dev, MAX6916_CONTROL_REG, data);
-> +	/* Enable the oscillator , disable the oscillator stop flag,
-> +	 and glitch filter to reduce current consumption */
-> +	max6916_read_reg(&spi->dev, MAX6916_STATUS_REG, &data);
-> +	data = data & 0x1B;
-> +	max6916_write_reg(&spi->dev, MAX6916_STATUS_REG, data);
-> +	/* display the settings */
-> +	max6916_read_reg(&spi->dev, MAX6916_CONTROL_REG, &data);
-> +	dev_info(&spi->dev, "MAX6916 RTC CTRL Reg = 0x%02x\n", data);
-> +	max6916_read_reg(&spi->dev, MAX6916_STATUS_REG, &data);
-> +	dev_info(&spi->dev, "MAX6916 RTC Status Reg = 0x%02x\n", data);
-> +	rtc = devm_rtc_device_register(&spi->dev, "max6916",&max6916_rtc_ops, THIS_MODULE);
-> +	if (IS_ERR(rtc))
-> +	return PTR_ERR(rtc);
-> +	spi_set_drvdata(spi, rtc);
-> +
-> +	return 0;
-> +}
-> +static struct spi_driver max6916_driver = {
-> +	.driver = {
-> +	.name = "max6916",
-> +	},
-> +	.probe = max6916_probe,
-> +};
-> +static void __exit rtc_exit(void)
-> +{
-> +	pr_info("rtc module unloaded\n");
-> +}
-> +
-> +module_spi_driver(max6916_driver);
-> +MODULE_DESCRIPTION("MAX6916 SPI RTC DRIVER");
-> +MODULE_AUTHOR("Venkat Prashanth B U <venkat.prashanth2498@gmail.com>");
-> +MODULE_LICENSE("GPL v2");
-> diff --git a/txtfile b/txtfile
-> new file mode 100644
-> index 0000000..1604409
-> --- /dev/null
-> +++ b/txtfile
-> @@ -0,0 +1,11 @@
-> +config RTC_DRV_MAX6916
-> +tristate "Maxim MAX6916"
-> +
-> +help 
-> +  If you say yes here you get support for the 
-> +  Maxim MAX6916 chips. 
-> +  This driver only supports the RTC feature, and not other chip
-> +  features such as alarms.
-> +  This driver can also be built as a module. If so, the module
-> +  will be called rtc‐max6916.
-
-Ok, this should go in drivers/rtc/Kconfig
+>  	if (!haptic_pdata) {
+>  		dev_err(&pdev->dev, "no haptic platform data\n");
+>  		return -EINVAL;
+> -- 
+> 1.9.1
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+Dmitry
+
+-- 
+-- 
+You received this message because you are subscribed to "rtc-linux".
+Membership options at http://groups.google.com/group/rtc-linux .
+Please read http://groups.google.com/group/rtc-linux/web/checklist
+before submitting a driver.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+For more options, visit https://groups.google.com/d/optout.
