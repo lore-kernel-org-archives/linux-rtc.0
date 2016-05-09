@@ -5,53 +5,47 @@ To: Alessandro Zummo <a.zummo@towertech.it>,
 Cc: rtc-linux@googlegroups.com,
 	Michael Langer <michael.brainbug.langer@googlemail.com>,
 	Byron Bradley <byron.bbradley@gmail.com>,
-	=?UTF-8?q?Manuel=20R=C3=B6der?= <manuel_roeder@gmx.de>
-Subject: [PATCH RESEND 0/2] rtc: initial patches to fix borkage of rtc-s35390a
-Date: Wed, 11 May 2016 09:11:22 +0200
-Message-Id: <1462950684-3661-1-git-send-email-uwe@kleine-koenig.org>
+	Tim Ellis <tim@ngndg.com>
+Subject: [PATCH 1/2] rtc: initialize output parameter for read alarm to "uninitialized"
+Date: Mon,  9 May 2016 23:37:33 +0200
+Message-Id: <1462829854-789-2-git-send-email-uwe@kleine-koenig.org>
+In-Reply-To: <1462829854-789-1-git-send-email-uwe@kleine-koenig.org>
+References: <1462829854-789-1-git-send-email-uwe@kleine-koenig.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 
-Hello,
+rtc drivers are supposed to set values they don't support to -1. To
+simplify this for drivers and also make it harder for them to get it
+wrong initialize the values to -1.
 
-[I'm resending because only a single patch made it to the rtc list, don't know
-why.]
-
-here are two patches that improve the rtc core's robustness regarding
-stuff the rtc-s35390a does. That is in .read_alarm it only assigns
-alm->time.tm_wday, alm->time.tm_hour and alm->time.tm_min which as of
-now makes the kernel report things like:
-
-	[    2.257418] rtc rtc0: invalid alarm value: 1900-1-29 1193031:57:16
-
-.
-
-The open issues (I'm aware of) but which are orthogonal to the patches
-here are:
-
- - The core doesn't handle a driver setting alm->time.tm_wday but not
-   alm->time.tm_mday.
- - The chip has status bits that signal if an irq is pending, but these
-   are cleared at read and the first read during driver probe doesn't
-   check for these bits set. (There are more such read-to-clear bits,
-   e.g. when the battery backing was lost ...)
-   The result is that the irq isn't acked (by unsetting INT2AE) which
-   prevents some devices (e.g. QNAP TS-41x) to shutdown.
-   (https://bugs.debian.org/794266)
-
-So with the two patches in this series the QNAP TS-41x still fails to
-shutdown, but it is handled a bit better. 
-
-I'd consider this merge window material.
-
-Uwe Kleine-König (2):
-  rtc: initialize output parameter for read alarm to "uninitialized"
-  rtc: make rtc_time64_to_tm save to use for dates before 1970
-
+Signed-off-by: Uwe Kleine-König <uwe@kleine-koenig.org>
+---
  drivers/rtc/interface.c | 12 +++++++++++-
- drivers/rtc/rtc-lib.c   | 13 +++++++++----
- 2 files changed, 20 insertions(+), 5 deletions(-)
+ 1 file changed, 11 insertions(+), 1 deletion(-)
 
+diff --git a/drivers/rtc/interface.c b/drivers/rtc/interface.c
+index 9ef5f6f89f98..99475908e556 100644
+--- a/drivers/rtc/interface.c
++++ b/drivers/rtc/interface.c
+@@ -104,7 +104,17 @@ static int rtc_read_alarm_internal(struct rtc_device *rtc, struct rtc_wkalrm *al
+ 	else if (!rtc->ops->read_alarm)
+ 		err = -EINVAL;
+ 	else {
+-		memset(alarm, 0, sizeof(struct rtc_wkalrm));
++		alarm->enabled = 0;
++		alarm->pending = 0;
++		alarm->time.tm_sec = -1;
++		alarm->time.tm_min = -1;
++		alarm->time.tm_hour = -1;
++		alarm->time.tm_mday = -1;
++		alarm->time.tm_mon = -1;
++		alarm->time.tm_year = -1;
++		alarm->time.tm_wday = -1;
++		alarm->time.tm_yday = -1;
++		alarm->time.tm_isdst = -1;
+ 		err = rtc->ops->read_alarm(rtc->dev.parent, alarm);
+ 	}
+ 
 -- 
 2.8.1
