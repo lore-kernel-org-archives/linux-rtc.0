@@ -1,26 +1,27 @@
-Return-Path: <rtc-linux+bncBCQJP74GSUDRBJXNQW5AKGQETZ3ZQ3Q@googlegroups.com>
+Return-Path: <rtc-linux+bncBDP5VQPV4IBRBRNMZG4QKGQEPM3LLVA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-MIME-Version: 1.0
-Received: from xavier.telenet-ops.be (xavier.telenet-ops.be. [2a02:1800:120:4::f00:14])
-        by gmr-mx.google.com with ESMTPS id l68si255240wmd.3.2016.05.22.02.06.46
+Received: from mail-lf0-x241.google.com (mail-lf0-x241.google.com. [2a00:1450:4010:c07::241])
+        by gmr-mx.google.com with ESMTPS id ai9si170928lbc.2.2016.05.10.14.44.37
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sun, 22 May 2016 02:06:46 -0700 (PDT)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: devicetree@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	rtc-linux@googlegroups.com
-Subject: [rtc-linux] [PATCH 39/54] MAINTAINERS: Add file patterns for rtc
- device tree bindings
-Date: Sun, 22 May 2016 11:06:16 +0200
-Message-Id: <1463907991-7916-40-git-send-email-geert@linux-m68k.org>
-In-Reply-To: <1463907991-7916-1-git-send-email-geert@linux-m68k.org>
-References: <1463907991-7916-1-git-send-email-geert@linux-m68k.org>
-Reply-To: rtc-linux@googlegroups.com
+        Tue, 10 May 2016 14:44:37 -0700 (PDT)
+Received: by mail-lf0-x241.google.com with SMTP id m101so2889136lfi.1
+        for <rtc-linux@googlegroups.com>; Tue, 10 May 2016 14:44:37 -0700 (PDT)
+MIME-Version: 1.0
+In-Reply-To: <573201AD.7080705@wwwdotorg.org>
+References: <1462876002-6462-1-git-send-email-kwizart@gmail.com>
+	<573201AD.7080705@wwwdotorg.org>
+Date: Tue, 10 May 2016 23:44:37 +0200
+Message-ID: <CABr+WTnFodrRSThovUCwY+8Th0TjeOPSAFkCKcupfjAXE4bUAA@mail.gmail.com>
+Subject: [rtc-linux] Re: [PATCH] rtc: rename so the tps6586x-rtc module can be
+ autoloaded at boot
+From: Nicolas Chauvet <kwizart@gmail.com>
+To: Stephen Warren <swarren@wwwdotorg.org>
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>, rtc-linux@googlegroups.com,
+	linux-omap@vger.kernel.org, linux-tegra@vger.kernel.org
 Content-Type: text/plain; charset=UTF-8
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -29,35 +30,35 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Submitters of device tree binding documentation may forget to CC
-the subsystem maintainer if this is missing.
+2016-05-10 17:43 GMT+02:00 Stephen Warren <swarren@wwwdotorg.org>:
+> On 05/10/2016 04:26 AM, Nicolas Chauvet wrote:
+>>
+>> This module is loaded by the related mfd driver which has
+>> the needed MODULE_DEVICE_TABLE(i2c,...).
+>>
+>> This patch fix the modalias when the rtc driver is built
+>> as a module, so the right name is used.
+>> Everything operates correctly when this module is builtin.
+>
+>
+> I'm sure this used to work. Do you know when/why it broke? Perhaps a Fixes:
+> tag would be useful, and perhaps a Cc: stable?
 
-Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Alessandro Zummo <a.zummo@towertech.it>
-Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: rtc-linux@googlegroups.com
----
-Please apply this patch directly if you want to be involved in device
-tree binding documentation for your subsystem.
----
- MAINTAINERS | 1 +
- 1 file changed, 1 insertion(+)
+I don't remember autoloading of rtc-tps6586x.ko has ever worked. Then
+there is still the issue of rtc modules loaded too late for the kernel
+(or the kernel not capable to defer the read of hw clock), but that's
+another issue.
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index e204132911b63624..1942e29d55320f01 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -9580,6 +9580,7 @@ L:	rtc-linux@googlegroups.com
- Q:	http://patchwork.ozlabs.org/project/rtc-linux/list/
- T:	git git://git.kernel.org/pub/scm/linux/kernel/git/abelloni/linux.git
- S:	Maintained
-+F:	Documentation/devicetree/bindings/rtc/
- F:	Documentation/rtc.txt
- F:	drivers/rtc/
- F:	include/linux/rtc.h
+I first tried to report the issue on this bug tracker and at that
+time, autoloading wasn't working (was in 2014).
+https://bugzilla.redhat.com/show_bug.cgi?id=1074002
+
+I'm sure current distros using an arm generic kernel (with all
+modules) will rebase on kernel 4.4, but technically the bug is present
+in kernel 3.10 from the oldest current maintained branch (since the
+driver introduction).
+
 -- 
-1.9.1
-
 -- 
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
