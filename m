@@ -1,42 +1,23 @@
-Return-Path: <rtc-linux+bncBDKZNNNLXAHBB2EOWG4QKGQEGK4U7CI@googlegroups.com>
+Return-Path: <rtc-linux+bncBAABBIO2Y64QKGQEALGTYSY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
+Received: from root.phytec.de (mail.x-arc.de. [217.6.246.34])
+        by gmr-mx.google.com with ESMTP id k143si85895wmg.1.2016.05.10.07.16.01
+        for <rtc-linux@googlegroups.com>;
+        Tue, 10 May 2016 07:16:01 -0700 (PDT)
+Subject: [rtc-linux] Re: [PATCH v5 3/6] regulator: rk808: Add regulator driver
+ for RK818
+To: Lee Jones <lee.jones@linaro.org>
+References: <1462886340-7893-1-git-send-email-w.egorov@phytec.de>
+ <1462886340-7893-4-git-send-email-w.egorov@phytec.de>
+ <20160510140320.GO19473@dell>
+Cc: linux-kernel@vger.kernel.org, linux-clk@vger.kernel.org, rtc-linux@googlegroups.com, devicetree@vger.kernel.org, linux-rockchip@lists.infradead.org, robh+dt@kernel.org, mark.rutland@arm.com, ijc+devicetree@hellion.org.uk, galak@codeaurora.org, mturquette@baylibre.com, sboyd@codeaurora.org, lgirdwood@gmail.com, broonie@kernel.org, a.zummo@towertech.it, alexandre.belloni@free-electrons.com, dianders@chromium.org, zyw@rock-chips.com
+From: Wadim Egorov <w.egorov@phytec.de>
+Message-ID: <5731ECFB.2000207@phytec.de>
+Date: Tue, 10 May 2016 16:15:23 +0200
 MIME-Version: 1.0
-Received: from mailout2.w1.samsung.com (mailout2.w1.samsung.com. [210.118.77.12])
-        by gmr-mx.google.com with ESMTPS id xo2si2674355pab.0.2016.05.06.00.27.35
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1 cipher=AES128-SHA bits=128/128);
-        Fri, 06 May 2016 00:27:36 -0700 (PDT)
-Received: from eucpsbgm2.samsung.com (unknown [203.254.199.245])
- by mailout2.w1.samsung.com
- (Oracle Communications Messaging Server 7.0.5.31.0 64bit (built May  5 2014))
- with ESMTP id <0O6Q00BMFVDXIX00@mailout2.w1.samsung.com> for
- rtc-linux@googlegroups.com; Fri, 06 May 2016 08:27:33 +0100 (BST)
-From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-To: Kukjin Kim <kgene@kernel.org>,
- Krzysztof Kozlowski <k.kozlowski@samsung.com>,
- MyungJoo Ham <myungjoo.ham@samsung.com>, Chanwoo Choi <cw00.choi@samsung.com>,
- Dmitry Torokhov <dmitry.torokhov@gmail.com>,
- Richard Purdie <rpurdie@rpsys.net>,
- Jacek Anaszewski <j.anaszewski@samsung.com>, Lee Jones <lee.jones@linaro.org>,
- Sebastian Reichel <sre@kernel.org>,
- Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>,
- David Woodhouse <dwmw2@infradead.org>, Liam Girdwood <lgirdwood@gmail.com>,
- Mark Brown <broonie@kernel.org>, Alessandro Zummo <a.zummo@towertech.it>,
- Alexandre Belloni <alexandre.belloni@free-electrons.com>,
- devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
- linux-samsung-soc@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-input@vger.kernel.org, linux-leds@vger.kernel.org,
- linux-pm@vger.kernel.org, rtc-linux@googlegroups.com
-Cc: r.baldyga@hackerion.com,
- Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
-Subject: [rtc-linux] [PATCH v6 6/9] rtc: max8997: Check for ERRNO of regmap_irq_get_virq()
-Date: Fri, 06 May 2016 09:27:13 +0200
-Message-id: <1462519636-3250-5-git-send-email-k.kozlowski@samsung.com>
-In-reply-to: <1462519636-3250-1-git-send-email-k.kozlowski@samsung.com>
-References: <1462519289-2356-2-git-send-email-k.kozlowski@samsung.com>
- <1462519636-3250-1-git-send-email-k.kozlowski@samsung.com>
-Reply-To: rtc-linux@googlegroups.com
+In-Reply-To: <20160510140320.GO19473@dell>
 Content-Type: text/plain; charset=UTF-8
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -45,29 +26,29 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-The regmap_irq_get_virq() can return zero or negative ERRNO, so it is
-insufficient to check only for non-zero value.
 
-Signed-off-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
----
- drivers/rtc/rtc-max8997.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/rtc/rtc-max8997.c b/drivers/rtc/rtc-max8997.c
-index 4998aee0f07f..1a06e17ebe9b 100644
---- a/drivers/rtc/rtc-max8997.c
-+++ b/drivers/rtc/rtc-max8997.c
-@@ -497,7 +497,7 @@ static int max8997_rtc_probe(struct platform_device *pdev)
- 	}
- 
- 	virq = regmap_irq_get_virq(max8997->irq_data, MAX8997_PMICIRQ_RTCA1);
--	if (!virq) {
-+	if (virq <= 0) {
- 		dev_err(&pdev->dev, "Failed to create mapping alarm IRQ\n");
- 		ret = -ENXIO;
- 		goto err_out;
--- 
-1.9.1
+On 10.05.2016 16:03, Lee Jones wrote:
+> On Tue, 10 May 2016, Wadim Egorov wrote:
+>
+>> Add support for the rk818 regulator. The regulator module consists
+>> of 4 DCDCs, 9 LDOs, 1 switch and 1 BOOST converter which is used to
+>> power OTG and HDMI5V.
+>>
+>> The output voltages are configurable and are meant to supply power
+>> to the main processor and other components.
+>>
+>> Signed-off-by: Wadim Egorov <w.egorov@phytec.de>
+>> ---
+>>  drivers/regulator/Kconfig           |   4 +-
+>>  drivers/regulator/rk808-regulator.c | 143 ++++++++++++++++++++++++++++++++++--
+>>  2 files changed, 138 insertions(+), 9 deletions(-)
+> Needs an Ack before I can take the set.
+>
+
+Mark acked this patch in v3.
+After small changes I removed the ack again. I don't know if it is ok to
+keep an Acked-by with small changes in the patch.
 
 -- 
 -- 
