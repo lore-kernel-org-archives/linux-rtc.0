@@ -1,37 +1,27 @@
-Return-Path: <rtc-linux+bncBDEKVJM7XAHRBPU2WK5AKGQEYDMY6AY@googlegroups.com>
+Return-Path: <rtc-linux+bncBDP5VQPV4IBRBS5IZG4QKGQEMVYELCY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-MIME-Version: 1.0
-Received: from mout.kundenserver.de (mout.kundenserver.de. [212.227.17.24])
-        by gmr-mx.google.com with ESMTPS id l184si1137947wmg.2.2016.05.30.11.58.05
+Received: from mail-lf0-x244.google.com (mail-lf0-x244.google.com. [2a00:1450:4010:c07::244])
+        by gmr-mx.google.com with ESMTPS id ai9si169982lbc.2.2016.05.10.14.36.10
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 30 May 2016 11:58:05 -0700 (PDT)
-From: Arnd Bergmann <arnd@arndb.de>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Arnd Bergmann <arnd@arndb.de>,
-	geert@linux-m68k.org,
-	gregkh@linuxfoundation.org,
-	deller@gmx.de,
-	benh@kernel.crashing.org,
-	mpe@ellerman.id.au,
-	dalias@libc.org,
-	dhowells@redhat.com,
-	linux-alpha@vger.kernel.org,
-	a.zummo@towertech.it,
-	linux-kernel@vger.kernel.org,
-	linux-parisc@vger.kernel.org,
-	linuxppc-dev@lists.ozlabs.org,
-	linux-sh@vger.kernel.org,
-	linux-m68k@lists.linux-m68k.org,
-	rtc-linux@googlegroups.com,
-	linux-arch@vger.kernel.org
-Subject: [rtc-linux] [PATCH v4 07/16] rtc: parisc: provide rtc_class_ops directly
-Date: Mon, 30 May 2016 20:57:55 +0200
-Message-Id: <1464634684-1248135-8-git-send-email-arnd@arndb.de>
-In-Reply-To: <1464634684-1248135-1-git-send-email-arnd@arndb.de>
-References: <1464634684-1248135-1-git-send-email-arnd@arndb.de>
+        Tue, 10 May 2016 14:36:10 -0700 (PDT)
+Received: by mail-lf0-x244.google.com with SMTP id m101so2868838lfi.1
+        for <rtc-linux@googlegroups.com>; Tue, 10 May 2016 14:36:10 -0700 (PDT)
+MIME-Version: 1.0
+In-Reply-To: <573201AD.7080705@wwwdotorg.org>
+References: <1462876002-6462-1-git-send-email-kwizart@gmail.com>
+	<573201AD.7080705@wwwdotorg.org>
+Date: Tue, 10 May 2016 23:36:10 +0200
+Message-ID: <CABr+WTm2mfg5=40ONBfSac3G9NOAROz1xuu11pmPCXh0VS=3hw@mail.gmail.com>
+Subject: [rtc-linux] Re: [PATCH] rtc: rename so the tps6586x-rtc module can be
+ autoloaded at boot
+From: Nicolas Chauvet <kwizart@gmail.com>
+To: Stephen Warren <swarren@wwwdotorg.org>
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>, rtc-linux@googlegroups.com,
+	linux-omap@vger.kernel.org, linux-tegra@vger.kernel.org
+Content-Type: multipart/alternative; boundary=001a11401b5ab01740053283b695
 Reply-To: rtc-linux@googlegroups.com
-Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -40,100 +30,40 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-The rtc-generic driver provides an architecture specific
-wrapper on top of the generic rtc_class_ops abstraction,
-and on pa-risc, that is implemented using an open-coded
-version of rtc_time_to_tm/rtc_tm_to_time.
+--001a11401b5ab01740053283b695
+Content-Type: text/plain; charset=UTF-8
 
-This changes the parisc rtc-generic device to provide its
-rtc_class_ops directly, using the normal helper functions,
-which makes this y2038 safe (on 32-bit) and simplifies
-the implementation.
+2016-05-10 17:43 GMT+02:00 Stephen Warren <swarren@wwwdotorg.org>:
 
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
----
- arch/parisc/kernel/time.c | 36 +++++++++++++++++++++++++++++++++++-
- drivers/rtc/rtc-generic.c |  3 +--
- 2 files changed, 36 insertions(+), 3 deletions(-)
+> On 05/10/2016 04:26 AM, Nicolas Chauvet wrote:
+>
+>> This module is loaded by the related mfd driver which has
+>> the needed MODULE_DEVICE_TABLE(i2c,...).
+>>
+>> This patch fix the modalias when the rtc driver is built
+>> as a module, so the right name is used.
+>> Everything operates correctly when this module is builtin.
+>>
+>
+> I'm sure this used to work. Do you know when/why it broke? Perhaps a
+> Fixes: tag would be useful, and perhaps a Cc: stable?
+>
 
-diff --git a/arch/parisc/kernel/time.c b/arch/parisc/kernel/time.c
-index 58dd6801f5be..744878789752 100644
---- a/arch/parisc/kernel/time.c
-+++ b/arch/parisc/kernel/time.c
-@@ -12,6 +12,7 @@
-  */
- #include <linux/errno.h>
- #include <linux/module.h>
-+#include <linux/rtc.h>
- #include <linux/sched.h>
- #include <linux/kernel.h>
- #include <linux/param.h>
-@@ -248,14 +249,47 @@ void __init start_cpu_itimer(void)
- 	per_cpu(cpu_data, cpu).it_value = next_tick;
- }
- 
-+#if IS_ENABLED(CONFIG_RTC_DRV_GENERIC)
-+static int rtc_generic_get_time(struct device *dev, struct rtc_time *tm)
-+{
-+	struct pdc_tod tod_data;
-+
-+	memset(tm, 0, sizeof(*tm));
-+	if (pdc_tod_read(&tod_data) < 0)
-+		return -EOPNOTSUPP;
-+
-+	/* we treat tod_sec as unsigned, so this can work until year 2106 */
-+	rtc_time64_to_tm(tod_data.tod_sec, tm);
-+	return rtc_valid_tm(tm);
-+}
-+
-+static int rtc_generic_set_time(struct device *dev, struct rtc_time *tm)
-+{
-+	time64_t secs = rtc_tm_to_time64(tm);
-+
-+	if (pdc_tod_set(secs, 0) < 0)
-+		return -EOPNOTSUPP;
-+
-+	return 0;
-+}
-+
-+static const struct rtc_class_ops rtc_generic_ops = {
-+	.read_time = rtc_generic_get_time,
-+	.set_time = rtc_generic_set_time,
-+};
-+
- static int __init rtc_init(void)
- {
- 	struct platform_device *pdev;
- 
--	pdev = platform_device_register_simple("rtc-generic", -1, NULL, 0);
-+	pdev = platform_device_register_data(NULL, "rtc-generic", -1,
-+					     &rtc_generic_ops,
-+					     sizeof(rtc_generic_ops));
-+
- 	return PTR_ERR_OR_ZERO(pdev);
- }
- device_initcall(rtc_init);
-+#endif
- 
- void read_persistent_clock(struct timespec *ts)
- {
-diff --git a/drivers/rtc/rtc-generic.c b/drivers/rtc/rtc-generic.c
-index 3958e87a05fa..92b5e02a3750 100644
---- a/drivers/rtc/rtc-generic.c
-+++ b/drivers/rtc/rtc-generic.c
-@@ -9,8 +9,7 @@
- #include <linux/platform_device.h>
- #include <linux/rtc.h>
- 
--#if defined(CONFIG_M68K) || defined(CONFIG_PARISC) || \
--    defined(CONFIG_PPC)
-+#if defined(CONFIG_M68K) || defined(CONFIG_PPC)
- #include <asm/rtc.h>
- 
- static int generic_get_time(struct device *dev, struct rtc_time *tm)
+
+I don't remember autoloading of rtc-tps6586x.ko has ever worked. Then there
+is still the issue of rtc modules loaded too late for the kernel (or the
+kernel not capable to defer the read of hw clock), but that's another issue.
+
+I first tried to report the issue on this bug tracker and at that time,
+autoloading wasn't working (was in 2014).
+https://bugzilla.redhat.com/show_bug.cgi?id=1074002
+
+I'm sure current distros using an arm generic kernel (with all modules)
+will rebase on kernel 4.4, but technically the bug is present in kernel
+3.10 from the oldest current maintained branch (since the driver
+introduction).
+
 -- 
-2.7.0
-
 -- 
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
@@ -143,3 +73,60 @@ before submitting a driver.
 You received this message because you are subscribed to the Google Groups "rtc-linux" group.
 To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
+
+--001a11401b5ab01740053283b695
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"ltr"><div class=3D"gmail_extra"><div class=3D"gmail_quote">2016=
+-05-10 17:43 GMT+02:00 Stephen Warren <span dir=3D"ltr">&lt;<a href=3D"mail=
+to:swarren@wwwdotorg.org" target=3D"_blank">swarren@wwwdotorg.org</a>&gt;</=
+span>:<br><blockquote class=3D"gmail_quote" style=3D"margin:0px 0px 0px 0.8=
+ex;border-left:1px solid rgb(204,204,204);padding-left:1ex"><span class=3D"=
+">On 05/10/2016 04:26 AM, Nicolas Chauvet wrote:<br>
+<blockquote class=3D"gmail_quote" style=3D"margin:0px 0px 0px 0.8ex;border-=
+left:1px solid rgb(204,204,204);padding-left:1ex">
+This module is loaded by the related mfd driver which has<br>
+the needed MODULE_DEVICE_TABLE(i2c,...).<br>
+<br>
+This patch fix the modalias when the rtc driver is built<br>
+as a module, so the right name is used.<br>
+Everything operates correctly when this module is builtin.<br>
+</blockquote>
+<br></span>
+I&#39;m sure this used to work. Do you know when/why it broke? Perhaps a Fi=
+xes: tag would be useful, and perhaps a Cc: stable?<br>
+</blockquote></div><br><br></div><div class=3D"gmail_extra">I don&#39;t rem=
+ember autoloading of rtc-tps6586x.ko has ever worked. Then there is still t=
+he issue of rtc modules loaded too late for the kernel (or the kernel not c=
+apable to defer the read of hw clock), but that&#39;s another issue.<br><br=
+>I first tried to report the issue on this bug tracker and at that time, au=
+toloading wasn&#39;t working (was in 2014).<br><a href=3D"https://bugzilla.=
+redhat.com/show_bug.cgi?id=3D1074002">https://bugzilla.redhat.com/show_bug.=
+cgi?id=3D1074002</a><br><br></div><div class=3D"gmail_extra">I&#39;m sure c=
+urrent distros using an arm generic kernel (with all modules) will rebase o=
+n kernel 4.4, but technically the bug is present in kernel 3.10 from the ol=
+dest current maintained branch (since the driver introduction).<br clear=3D=
+"all"><br><br><br></div></div>
+
+<p></p>
+
+-- <br />
+-- <br />
+You received this message because you are subscribed to &quot;rtc-linux&quo=
+t;.<br />
+Membership options at <a href=3D"http://groups.google.com/group/rtc-linux">=
+http://groups.google.com/group/rtc-linux</a> .<br />
+Please read <a href=3D"http://groups.google.com/group/rtc-linux/web/checkli=
+st">http://groups.google.com/group/rtc-linux/web/checklist</a><br />
+before submitting a driver.<br />
+--- <br />
+You received this message because you are subscribed to the Google Groups &=
+quot;rtc-linux&quot; group.<br />
+To unsubscribe from this group and stop receiving emails from it, send an e=
+mail to <a href=3D"mailto:rtc-linux+unsubscribe@googlegroups.com">rtc-linux=
++unsubscribe@googlegroups.com</a>.<br />
+For more options, visit <a href=3D"https://groups.google.com/d/optout">http=
+s://groups.google.com/d/optout</a>.<br />
+
+--001a11401b5ab01740053283b695--
