@@ -2,15 +2,15 @@ Return-Path: <rtc-linux+bncBAABB257Y64QKGQEOZ3NYJA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 MIME-Version: 1.0
 Received: from root.phytec.de (mail.x-arc.de. [217.6.246.34])
-        by gmr-mx.google.com with ESMTP id c69si1216699wme.2.2016.05.10.06.19.39
+        by gmr-mx.google.com with ESMTP id t18si769062wmt.0.2016.05.10.06.19.39
         for <rtc-linux@googlegroups.com>;
         Tue, 10 May 2016 06:19:39 -0700 (PDT)
 From: Wadim Egorov <w.egorov@phytec.de>
 To: linux-kernel@vger.kernel.org, linux-clk@vger.kernel.org, rtc-linux@googlegroups.com, devicetree@vger.kernel.org, linux-rockchip@lists.infradead.org
 Cc: robh+dt@kernel.org, mark.rutland@arm.com, ijc+devicetree@hellion.org.uk, galak@codeaurora.org, mturquette@baylibre.com, sboyd@codeaurora.org, lee.jones@linaro.org, lgirdwood@gmail.com, broonie@kernel.org, a.zummo@towertech.it, alexandre.belloni@free-electrons.com, dianders@chromium.org, zyw@rock-chips.com
-Subject: [rtc-linux] [PATCH v5 2/6] mfd: RK808: Add RK818 support
-Date: Tue, 10 May 2016 15:18:56 +0200
-Message-Id: <1462886340-7893-3-git-send-email-w.egorov@phytec.de>
+Subject: [rtc-linux] [PATCH v5 3/6] regulator: rk808: Add regulator driver for RK818
+Date: Tue, 10 May 2016 15:18:57 +0200
+Message-Id: <1462886340-7893-4-git-send-email-w.egorov@phytec.de>
 In-Reply-To: <1462886340-7893-1-git-send-email-w.egorov@phytec.de>
 References: <1462886340-7893-1-git-send-email-w.egorov@phytec.de>
 Reply-To: rtc-linux@googlegroups.com
@@ -23,56 +23,45 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-The RK818 chip is a power management IC for multimedia and handheld
-devices. It contains the following components:
+Add support for the rk818 regulator. The regulator module consists
+of 4 DCDCs, 9 LDOs, 1 switch and 1 BOOST converter which is used to
+power OTG and HDMI5V.
 
-- Regulators
-- RTC
-- Clkout
-- battery support
-
-Both chips RK808 and RK818 are using a similar register map.
-So we can reuse the RTC and Clkout functionality.
+The output voltages are configurable and are meant to supply power
+to the main processor and other components.
 
 Signed-off-by: Wadim Egorov <w.egorov@phytec.de>
 ---
-Changes since v4:
-- rebased on top of
-  commit d5623161accb ("mfd: rk808: Use devm_mfd_add_devices() for mfd_device registration")
----
- drivers/mfd/Kconfig       |   4 +-
- drivers/mfd/rk808.c       | 231 ++++++++++++++++++++++++++++++++++++++--------
- include/linux/mfd/rk808.h | 162 ++++++++++++++++++++++++++++++--
- 3 files changed, 350 insertions(+), 47 deletions(-)
+ drivers/regulator/Kconfig           |   4 +-
+ drivers/regulator/rk808-regulator.c | 143 ++++++++++++++++++++++++++++++++++--
+ 2 files changed, 138 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/mfd/Kconfig b/drivers/mfd/Kconfig
-index a49565c..c50ce1e5 100644
---- a/drivers/mfd/Kconfig
-+++ b/drivers/mfd/Kconfig
-@@ -829,13 +829,13 @@ config MFD_RC5T583
- 	  different functionality of the device.
+diff --git a/drivers/regulator/Kconfig b/drivers/regulator/Kconfig
+index 8e665e2..234131a 100644
+--- a/drivers/regulator/Kconfig
++++ b/drivers/regulator/Kconfig
+@@ -617,11 +617,11 @@ config REGULATOR_RC5T583
+ 	  outputs which can be controlled by i2c communication.
  
- config MFD_RK808
--	tristate "Rockchip RK808 Power Management chip"
-+	tristate "Rockchip RK808/RK818 Power Management chip"
- 	depends on I2C && OF
- 	select MFD_CORE
- 	select REGMAP_I2C
- 	select REGMAP_IRQ
+ config REGULATOR_RK808
+-	tristate "Rockchip RK808 Power regulators"
++	tristate "Rockchip RK808/RK818 Power regulators"
+ 	depends on MFD_RK808
  	help
--	  If you say yes here you get support for the RK808
-+	  If you say yes here you get support for the RK808 and RK818
- 	  Power Management chips.
- 	  This driver provides common support for accessing the device
- 	  through I2C interface. The device supports multiple sub-devices
-diff --git a/drivers/mfd/rk808.c b/drivers/mfd/rk808.c
-index 49d7f62..3cf9724 100644
---- a/drivers/mfd/rk808.c
-+++ b/drivers/mfd/rk808.c
+ 	  Select this option to enable the power regulator of ROCKCHIP
+-	  PMIC RK808.
++	  PMIC RK808 and RK818.
+ 	  This driver supports the control of different power rails of device
+ 	  through regulator interface. The device supports multiple DCDC/LDO
+ 	  outputs which can be controlled by i2c communication.
+diff --git a/drivers/regulator/rk808-regulator.c b/drivers/regulator/rk808-regulator.c
+index 40d07ba..5f412a5 100644
+--- a/drivers/regulator/rk808-regulator.c
++++ b/drivers/regulator/rk808-regulator.c
 @@ -1,11 +1,15 @@
  /*
-- * MFD core driver for Rockchip RK808
-+ * MFD core driver for Rockchip RK808/RK818
+- * Regulator driver for Rockchip RK808
++ * Regulator driver for Rockchip RK808/RK818
   *
   * Copyright (c) 2014, Fuzhou Rockchip Electronics Co., Ltd
   *
@@ -86,530 +75,183 @@ index 49d7f62..3cf9724 100644
   * This program is free software; you can redistribute it and/or modify it
   * under the terms and conditions of the GNU General Public License,
   * version 2, as published by the Free Software Foundation.
-@@ -22,12 +26,7 @@
- #include <linux/mfd/core.h>
- #include <linux/module.h>
- #include <linux/regmap.h>
--
--struct rk808_reg_data {
--	int addr;
--	int mask;
--	int value;
--};
-+#include <linux/of_device.h>
+@@ -32,6 +36,12 @@
+ #define RK808_BUCK4_VSEL_MASK	0xf
+ #define RK808_LDO_VSEL_MASK	0x1f
  
- static bool rk808_is_volatile_reg(struct device *dev, unsigned int reg)
- {
-@@ -57,6 +56,14 @@ static bool rk808_is_volatile_reg(struct device *dev, unsigned int reg)
- 	return false;
- }
- 
-+static const struct regmap_config rk818_regmap_config = {
-+	.reg_bits = 8,
-+	.val_bits = 8,
-+	.max_register = RK818_USB_CTRL_REG,
-+	.cache_type = REGCACHE_RBTREE,
-+	.volatile_reg = rk808_is_volatile_reg,
-+};
++#define RK818_BUCK_VSEL_MASK		0x3f
++#define RK818_BUCK4_VSEL_MASK		0x1f
++#define RK818_LDO_VSEL_MASK		0x1f
++#define RK818_LDO3_ON_VSEL_MASK		0xf
++#define RK818_BOOST_ON_VSEL_MASK	0xe0
 +
- static const struct regmap_config rk808_regmap_config = {
- 	.reg_bits = 8,
- 	.val_bits = 8,
-@@ -83,7 +90,17 @@ static const struct mfd_cell rk808s[] = {
- 	},
+ /* Ramp rate definitions for buck1 / buck2 only */
+ #define RK808_RAMP_RATE_OFFSET		3
+ #define RK808_RAMP_RATE_MASK		(3 << RK808_RAMP_RATE_OFFSET)
+@@ -454,6 +464,108 @@ static const struct regulator_desc rk808_reg[] = {
+ 		RK808_DCDC_EN_REG, BIT(6)),
  };
  
--static const struct rk808_reg_data pre_init_reg[] = {
-+static const struct mfd_cell rk818s[] = {
-+	{ .name = "rk808-clkout", },
-+	{ .name = "rk808-regulator", },
++static const struct regulator_desc rk818_reg[] = {
 +	{
-+		.name = "rk808-rtc",
-+		.num_resources = ARRAY_SIZE(rtc_resources),
-+		.resources = &rtc_resources[0],
++		.name = "DCDC_REG1",
++		.supply_name = "vcc1",
++		.of_match = of_match_ptr("DCDC_REG1"),
++		.regulators_node = of_match_ptr("regulators"),
++		.id = RK818_ID_DCDC1,
++		.ops = &rk808_reg_ops,
++		.type = REGULATOR_VOLTAGE,
++		.min_uV = 712500,
++		.uV_step = 12500,
++		.n_voltages = 64,
++		.vsel_reg = RK818_BUCK1_ON_VSEL_REG,
++		.vsel_mask = RK818_BUCK_VSEL_MASK,
++		.enable_reg = RK818_DCDC_EN_REG,
++		.enable_mask = BIT(0),
++		.owner = THIS_MODULE,
++	}, {
++		.name = "DCDC_REG2",
++		.supply_name = "vcc2",
++		.of_match = of_match_ptr("DCDC_REG2"),
++		.regulators_node = of_match_ptr("regulators"),
++		.id = RK818_ID_DCDC2,
++		.ops = &rk808_reg_ops,
++		.type = REGULATOR_VOLTAGE,
++		.min_uV = 712500,
++		.uV_step = 12500,
++		.n_voltages = 64,
++		.vsel_reg = RK818_BUCK2_ON_VSEL_REG,
++		.vsel_mask = RK818_BUCK_VSEL_MASK,
++		.enable_reg = RK818_DCDC_EN_REG,
++		.enable_mask = BIT(1),
++		.owner = THIS_MODULE,
++	}, {
++		.name = "DCDC_REG3",
++		.supply_name = "vcc3",
++		.of_match = of_match_ptr("DCDC_REG3"),
++		.regulators_node = of_match_ptr("regulators"),
++		.id = RK818_ID_DCDC3,
++		.ops = &rk808_switch_ops,
++		.type = REGULATOR_VOLTAGE,
++		.n_voltages = 1,
++		.enable_reg = RK818_DCDC_EN_REG,
++		.enable_mask = BIT(2),
++		.owner = THIS_MODULE,
 +	},
++	RK8XX_DESC(RK818_ID_DCDC4, "DCDC_REG4", "vcc4", 1800, 3600, 100,
++		RK818_BUCK4_ON_VSEL_REG, RK818_BUCK4_VSEL_MASK,
++		RK818_DCDC_EN_REG, BIT(3), 0),
++	RK8XX_DESC(RK818_ID_BOOST, "DCDC_BOOST", "boost", 4700, 5400, 100,
++		RK818_BOOST_LDO9_ON_VSEL_REG, RK818_BOOST_ON_VSEL_MASK,
++		RK818_DCDC_EN_REG, BIT(4), 0),
++	RK8XX_DESC(RK818_ID_LDO1, "LDO_REG1", "vcc6", 1800, 3400, 100,
++		RK818_LDO1_ON_VSEL_REG, RK818_LDO_VSEL_MASK, RK818_LDO_EN_REG,
++		BIT(0), 400),
++	RK8XX_DESC(RK818_ID_LDO2, "LDO_REG2", "vcc6", 1800, 3400, 100,
++		RK818_LDO1_ON_VSEL_REG, RK818_LDO_VSEL_MASK, RK818_LDO_EN_REG,
++		BIT(1), 400),
++	{
++		.name = "LDO_REG3",
++		.supply_name = "vcc7",
++		.of_match = of_match_ptr("LDO_REG3"),
++		.regulators_node = of_match_ptr("regulators"),
++		.id = RK818_ID_LDO3,
++		.ops = &rk808_reg_ops_ranges,
++		.type = REGULATOR_VOLTAGE,
++		.n_voltages = 16,
++		.linear_ranges = rk808_ldo3_voltage_ranges,
++		.n_linear_ranges = ARRAY_SIZE(rk808_ldo3_voltage_ranges),
++		.vsel_reg = RK818_LDO3_ON_VSEL_REG,
++		.vsel_mask = RK818_LDO3_ON_VSEL_MASK,
++		.enable_reg = RK818_LDO_EN_REG,
++		.enable_mask = BIT(2),
++		.enable_time = 400,
++		.owner = THIS_MODULE,
++	},
++	RK8XX_DESC(RK818_ID_LDO4, "LDO_REG4", "vcc8", 1800, 3400, 100,
++		RK818_LDO4_ON_VSEL_REG, RK818_LDO_VSEL_MASK, RK818_LDO_EN_REG,
++		BIT(3), 400),
++	RK8XX_DESC(RK818_ID_LDO5, "LDO_REG5", "vcc7", 1800, 3400, 100,
++		RK818_LDO5_ON_VSEL_REG, RK818_LDO_VSEL_MASK, RK818_LDO_EN_REG,
++		BIT(4), 400),
++	RK8XX_DESC(RK818_ID_LDO6, "LDO_REG6", "vcc8", 800, 2500, 100,
++		RK818_LDO6_ON_VSEL_REG, RK818_LDO_VSEL_MASK, RK818_LDO_EN_REG,
++		BIT(5), 400),
++	RK8XX_DESC(RK818_ID_LDO7, "LDO_REG7", "vcc7", 800, 2500, 100,
++		RK818_LDO7_ON_VSEL_REG, RK818_LDO_VSEL_MASK, RK818_LDO_EN_REG,
++		BIT(6), 400),
++	RK8XX_DESC(RK818_ID_LDO8, "LDO_REG8", "vcc8", 1800, 3400, 100,
++		RK818_LDO8_ON_VSEL_REG, RK818_LDO_VSEL_MASK, RK818_LDO_EN_REG,
++		BIT(7), 400),
++	RK8XX_DESC(RK818_ID_LDO9, "LDO_REG9", "vcc9", 1800, 3400, 100,
++		RK818_BOOST_LDO9_ON_VSEL_REG, RK818_LDO_VSEL_MASK,
++		RK818_DCDC_EN_REG, BIT(5), 400),
++	RK8XX_DESC_SWITCH(RK818_ID_SWITCH, "SWITCH_REG", "vcc9",
++		RK818_DCDC_EN_REG, BIT(6)),
++	RK8XX_DESC_SWITCH(RK818_ID_HDMI_SWITCH, "HDMI_SWITCH", "h_5v",
++		RK818_H5V_EN_REG, BIT(0)),
++	RK8XX_DESC_SWITCH(RK818_ID_OTG_SWITCH, "OTG_SWITCH", "usb",
++		RK818_DCDC_EN_REG, BIT(7)),
 +};
 +
-+static const struct rk8xx_reg_data rk808_pre_init_reg[] = {
- 	{ RK808_BUCK3_CONFIG_REG, BUCK_ILMIN_MASK,  BUCK_ILMIN_150MA },
- 	{ RK808_BUCK4_CONFIG_REG, BUCK_ILMIN_MASK,  BUCK_ILMIN_200MA },
- 	{ RK808_BOOST_CONFIG_REG, BOOST_ILMIN_MASK, BOOST_ILMIN_100MA },
-@@ -94,6 +111,22 @@ static const struct rk808_reg_data pre_init_reg[] = {
- 						    VB_LO_SEL_3500MV },
- };
+ static int rk808_regulator_dt_parse_pdata(struct device *dev,
+ 				   struct device *client_dev,
+ 				   struct regmap *map,
+@@ -499,7 +611,8 @@ static int rk808_regulator_probe(struct platform_device *pdev)
+ 	struct regulator_config config = {};
+ 	struct regulator_dev *rk808_rdev;
+ 	struct rk808_regulator_data *pdata;
+-	int ret, i;
++	const struct regulator_desc *regulators;
++	int ret, i, nregulators;
  
-+static const struct rk8xx_reg_data rk818_pre_init_reg[] = {
-+	{ RK818_USB_CTRL_REG,	RK818_USB_ILIM_SEL_MASK,
-+						RK818_USB_ILMIN_2000MA },
-+	/* close charger when usb lower then 3.4V */
-+	{ RK818_USB_CTRL_REG,	RK818_USB_CHG_SD_VSEL_MASK, (0x7 << 4) },
-+	/* no action when vref */
-+	{ RK818_H5V_EN_REG,	BIT(1),		RK818_REF_RDY_CTRL },
-+	/* enable HDMI 5V */
-+	{ RK818_H5V_EN_REG,	BIT(0),		RK818_H5V_EN },
-+	/* improve efficiency */
-+	{ RK818_BUCK2_CONFIG_REG, BUCK2_RATE_MASK,	BUCK_ILMIN_250MA },
-+	{ RK818_BUCK4_CONFIG_REG, BUCK_ILMIN_MASK,	BUCK_ILMIN_250MA },
-+	{ RK818_BOOST_CONFIG_REG, BOOST_ILMIN_MASK,	BOOST_ILMIN_100MA },
-+	{ RK808_VB_MON_REG,	MASK_ALL,	VB_LO_ACT | VB_LO_SEL_3500MV },
-+};
-+
- static const struct regmap_irq rk808_irqs[] = {
- 	/* INT_STS */
- 	[RK808_IRQ_VOUT_LO] = {
-@@ -136,6 +169,76 @@ static const struct regmap_irq rk808_irqs[] = {
- 	},
- };
+ 	pdata = devm_kzalloc(&pdev->dev, sizeof(*pdata), GFP_KERNEL);
+ 	if (!pdata)
+@@ -512,14 +625,29 @@ static int rk808_regulator_probe(struct platform_device *pdev)
  
-+static const struct regmap_irq rk818_irqs[] = {
-+	/* INT_STS */
-+	[RK818_IRQ_VOUT_LO] = {
-+		.mask = RK818_IRQ_VOUT_LO_MSK,
-+		.reg_offset = 0,
-+	},
-+	[RK818_IRQ_VB_LO] = {
-+		.mask = RK818_IRQ_VB_LO_MSK,
-+		.reg_offset = 0,
-+	},
-+	[RK818_IRQ_PWRON] = {
-+		.mask = RK818_IRQ_PWRON_MSK,
-+		.reg_offset = 0,
-+	},
-+	[RK818_IRQ_PWRON_LP] = {
-+		.mask = RK818_IRQ_PWRON_LP_MSK,
-+		.reg_offset = 0,
-+	},
-+	[RK818_IRQ_HOTDIE] = {
-+		.mask = RK818_IRQ_HOTDIE_MSK,
-+		.reg_offset = 0,
-+	},
-+	[RK818_IRQ_RTC_ALARM] = {
-+		.mask = RK818_IRQ_RTC_ALARM_MSK,
-+		.reg_offset = 0,
-+	},
-+	[RK818_IRQ_RTC_PERIOD] = {
-+		.mask = RK818_IRQ_RTC_PERIOD_MSK,
-+		.reg_offset = 0,
-+	},
-+	[RK818_IRQ_USB_OV] = {
-+		.mask = RK818_IRQ_USB_OV_MSK,
-+		.reg_offset = 0,
-+	},
-+
-+	/* INT_STS2 */
-+	[RK818_IRQ_PLUG_IN] = {
-+		.mask = RK818_IRQ_PLUG_IN_MSK,
-+		.reg_offset = 1,
-+	},
-+	[RK818_IRQ_PLUG_OUT] = {
-+		.mask = RK818_IRQ_PLUG_OUT_MSK,
-+		.reg_offset = 1,
-+	},
-+	[RK818_IRQ_CHG_OK] = {
-+		.mask = RK818_IRQ_CHG_OK_MSK,
-+		.reg_offset = 1,
-+	},
-+	[RK818_IRQ_CHG_TE] = {
-+		.mask = RK818_IRQ_CHG_TE_MSK,
-+		.reg_offset = 1,
-+	},
-+	[RK818_IRQ_CHG_TS1] = {
-+		.mask = RK818_IRQ_CHG_TS1_MSK,
-+		.reg_offset = 1,
-+	},
-+	[RK818_IRQ_TS2] = {
-+		.mask = RK818_IRQ_TS2_MSK,
-+		.reg_offset = 1,
-+	},
-+	[RK818_IRQ_CHG_CVTLIM] = {
-+		.mask = RK818_IRQ_CHG_CVTLIM_MSK,
-+		.reg_offset = 1,
-+	},
-+	[RK818_IRQ_DISCHG_ILIM] = {
-+		.mask = RK818_IRQ_DISCHG_ILIM_MSK,
-+		.reg_offset = 1,
-+	},
-+};
-+
- static struct regmap_irq_chip rk808_irq_chip = {
- 	.name = "rk808",
- 	.irqs = rk808_irqs,
-@@ -148,6 +251,18 @@ static struct regmap_irq_chip rk808_irq_chip = {
- 	.init_ack_masked = true,
- };
+ 	platform_set_drvdata(pdev, pdata);
  
-+static struct regmap_irq_chip rk818_irq_chip = {
-+	.name = "rk818",
-+	.irqs = rk818_irqs,
-+	.num_irqs = ARRAY_SIZE(rk818_irqs),
-+	.num_regs = 2,
-+	.irq_reg_stride = 2,
-+	.status_base = RK818_INT_STS_REG1,
-+	.mask_base = RK818_INT_STS_MSK_REG1,
-+	.ack_base = RK818_INT_STS_REG1,
-+	.init_ack_masked = true,
-+};
-+
- static struct i2c_client *rk808_i2c_client;
- static void rk808_device_shutdown(void)
- {
-@@ -167,6 +282,48 @@ static void rk808_device_shutdown(void)
- 		dev_err(&rk808_i2c_client->dev, "power off error!\n");
- }
- 
-+static const struct of_device_id rk808_of_match[] = {
-+	{ .compatible = "rockchip,rk808", .data = (void *) RK808_ID },
-+	{ .compatible = "rockchip,rk818", .data = (void *) RK818_ID },
-+	{ },
-+};
-+MODULE_DEVICE_TABLE(of, rk808_of_match);
-+
-+static int rk8xx_match_device(struct rk808 *rk808, struct device *dev)
-+{
-+	const struct of_device_id *of_id;
-+
-+	of_id = of_match_device(rk808_of_match, dev);
-+	if (!of_id) {
-+		dev_err(dev, "Unable to match OF ID\n");
-+		return -ENODEV;
-+	}
-+	rk808->variant = (long) of_id->data;
-+
 +	switch (rk808->variant) {
 +	case RK808_ID:
-+		rk808->nr_cells = ARRAY_SIZE(rk808s);
-+		rk808->cells = rk808s;
-+		rk808->regmap_cfg = &rk808_regmap_config;
-+		rk808->regmap_irq_chip = &rk808_irq_chip;
-+		rk808->pre_init_reg = rk808_pre_init_reg;
-+		rk808->nr_pre_init_regs = ARRAY_SIZE(rk808_pre_init_reg);
++		regulators = rk808_reg;
++		nregulators = RK808_NUM_REGULATORS;
 +		break;
 +	case RK818_ID:
-+		rk808->nr_cells = ARRAY_SIZE(rk818s);
-+		rk808->cells = rk818s;
-+		rk808->regmap_cfg = &rk818_regmap_config;
-+		rk808->regmap_irq_chip = &rk818_irq_chip;
-+		rk808->pre_init_reg = rk818_pre_init_reg;
-+		rk808->nr_pre_init_regs = ARRAY_SIZE(rk818_pre_init_reg);
++		regulators = rk818_reg;
++		nregulators = RK818_NUM_REGULATORS;
 +		break;
 +	default:
-+		dev_err(dev, "unsupported RK8XX ID %lu\n", rk808->variant);
++		dev_err(&client->dev, "unsupported RK8XX ID %lu\n",
++			rk808->variant);
 +		return -EINVAL;
 +	}
 +
-+	return 0;
-+}
- static int rk808_probe(struct i2c_client *client,
- 		       const struct i2c_device_id *id)
- {
-@@ -176,46 +333,52 @@ static int rk808_probe(struct i2c_client *client,
- 	int ret;
- 	int i;
+ 	config.dev = &client->dev;
+ 	config.driver_data = pdata;
+ 	config.regmap = rk808->regmap;
  
--	if (!client->irq) {
--		dev_err(&client->dev, "No interrupt support, no core IRQ\n");
--		return -EINVAL;
--	}
--
- 	rk808 = devm_kzalloc(&client->dev, sizeof(*rk808), GFP_KERNEL);
- 	if (!rk808)
- 		return -ENOMEM;
+ 	/* Instantiate the regulators */
+-	for (i = 0; i < RK808_NUM_REGULATORS; i++) {
++	for (i = 0; i < nregulators; i++) {
+ 		rk808_rdev = devm_regulator_register(&pdev->dev,
+-						     &rk808_reg[i], &config);
++						     &regulators[i], &config);
+ 		if (IS_ERR(rk808_rdev)) {
+ 			dev_err(&client->dev,
+ 				"failed to register %d regulator\n", i);
+@@ -540,8 +668,9 @@ static struct platform_driver rk808_regulator_driver = {
  
--	rk808->regmap = devm_regmap_init_i2c(client, &rk808_regmap_config);
-+	ret = rk8xx_match_device(rk808, &client->dev);
-+	if (ret)
-+		return ret;
-+
-+	rk808->i2c = client;
-+	i2c_set_clientdata(client, rk808);
-+
-+	rk808->regmap = devm_regmap_init_i2c(client, rk808->regmap_cfg);
- 	if (IS_ERR(rk808->regmap)) {
- 		dev_err(&client->dev, "regmap initialization failed\n");
- 		return PTR_ERR(rk808->regmap);
- 	}
+ module_platform_driver(rk808_regulator_driver);
  
--	for (i = 0; i < ARRAY_SIZE(pre_init_reg); i++) {
--		ret = regmap_update_bits(rk808->regmap, pre_init_reg[i].addr,
--					 pre_init_reg[i].mask,
--					 pre_init_reg[i].value);
--		if (ret) {
--			dev_err(&client->dev,
--				"0x%x write err\n", pre_init_reg[i].addr);
--			return ret;
--		}
-+	if (!client->irq) {
-+		dev_err(&client->dev, "No interrupt support, no core IRQ\n");
-+		return -EINVAL;
- 	}
- 
- 	ret = regmap_add_irq_chip(rk808->regmap, client->irq,
- 				  IRQF_ONESHOT, -1,
--				  &rk808_irq_chip, &rk808->irq_data);
-+				  rk808->regmap_irq_chip, &rk808->irq_data);
- 	if (ret) {
- 		dev_err(&client->dev, "Failed to add irq_chip %d\n", ret);
- 		return ret;
- 	}
- 
--	rk808->i2c = client;
--	i2c_set_clientdata(client, rk808);
-+	for (i = 0; i < rk808->nr_pre_init_regs; i++) {
-+		ret = regmap_update_bits(rk808->regmap,
-+					rk808->pre_init_reg[i].addr,
-+					rk808->pre_init_reg[i].mask,
-+					rk808->pre_init_reg[i].value);
-+		if (ret) {
-+			dev_err(&client->dev,
-+				"0x%x write err\n",
-+				rk808->pre_init_reg[i].addr);
-+			return ret;
-+		}
-+	}
- 
--	ret = devm_mfd_add_devices(&client->dev, -1,
--				   rk808s, ARRAY_SIZE(rk808s), NULL, 0,
--				   regmap_irq_get_domain(rk808->irq_data));
-+	ret = devm_mfd_add_devices(&client->dev, PLATFORM_DEVID_NONE,
-+			      rk808->cells, rk808->nr_cells, NULL, 0,
-+			      regmap_irq_get_domain(rk808->irq_data));
- 	if (ret) {
- 		dev_err(&client->dev, "failed to add MFD devices %d\n", ret);
- 		goto err_irq;
-@@ -245,14 +408,9 @@ static int rk808_remove(struct i2c_client *client)
- 	return 0;
- }
- 
--static const struct of_device_id rk808_of_match[] = {
--	{ .compatible = "rockchip,rk808" },
--	{ },
--};
--MODULE_DEVICE_TABLE(of, rk808_of_match);
--
- static const struct i2c_device_id rk808_ids[] = {
- 	{ "rk808" },
-+	{ "rk818" },
- 	{ },
- };
- MODULE_DEVICE_TABLE(i2c, rk808_ids);
-@@ -272,4 +430,5 @@ module_i2c_driver(rk808_i2c_driver);
- MODULE_LICENSE("GPL");
- MODULE_AUTHOR("Chris Zhong <zyw@rock-chips.com>");
- MODULE_AUTHOR("Zhang Qing <zhangqing@rock-chips.com>");
--MODULE_DESCRIPTION("RK808 PMIC driver");
+-MODULE_DESCRIPTION("regulator driver for the rk808 series PMICs");
+-MODULE_AUTHOR("Chris Zhong<zyw@rock-chips.com>");
+-MODULE_AUTHOR("Zhang Qing<zhangqing@rock-chips.com>");
++MODULE_DESCRIPTION("regulator driver for the RK808/RK818 series PMICs");
++MODULE_AUTHOR("Chris Zhong <zyw@rock-chips.com>");
++MODULE_AUTHOR("Zhang Qing <zhangqing@rock-chips.com>");
 +MODULE_AUTHOR("Wadim Egorov <w.egorov@phytec.de>");
-+MODULE_DESCRIPTION("RK808/RK818 PMIC driver");
-diff --git a/include/linux/mfd/rk808.h b/include/linux/mfd/rk808.h
-index 441b6ee..5ce810c 100644
---- a/include/linux/mfd/rk808.h
-+++ b/include/linux/mfd/rk808.h
-@@ -1,11 +1,15 @@
- /*
-- * rk808.h for Rockchip RK808
-+ * Register definitions for Rockchip's RK808/RK818 PMIC
-  *
-  * Copyright (c) 2014, Fuzhou Rockchip Electronics Co., Ltd
-  *
-  * Author: Chris Zhong <zyw@rock-chips.com>
-  * Author: Zhang Qing <zhangqing@rock-chips.com>
-  *
-+ * Copyright (C) 2016 PHYTEC Messtechnik GmbH
-+ *
-+ * Author: Wadim Egorov <w.egorov@phytec.de>
-+ *
-  * This program is free software; you can redistribute it and/or modify it
-  * under the terms and conditions of the GNU General Public License,
-  * version 2, as published by the Free Software Foundation.
-@@ -16,8 +20,8 @@
-  * more details.
-  */
- 
--#ifndef __LINUX_REGULATOR_rk808_H
--#define __LINUX_REGULATOR_rk808_H
-+#ifndef __LINUX_REGULATOR_RK808_H
-+#define __LINUX_REGULATOR_RK808_H
- 
- #include <linux/regulator/machine.h>
- #include <linux/regmap.h>
-@@ -28,7 +32,7 @@
- 
- #define RK808_DCDC1	0 /* (0+RK808_START) */
- #define RK808_LDO1	4 /* (4+RK808_START) */
--#define RK808_NUM_REGULATORS   14
-+#define RK808_NUM_REGULATORS	14
- 
- enum rk808_reg {
- 	RK808_ID_DCDC1,
-@@ -115,7 +119,92 @@ enum rk808_reg {
- #define RK808_INT_STS_MSK_REG2	0x4f
- #define RK808_IO_POL_REG	0x50
- 
--/* IRQ Definitions */
-+/* RK818 */
-+#define RK818_DCDC1			0
-+#define RK818_LDO1			4
-+#define RK818_NUM_REGULATORS		17
-+
-+enum rk818_reg {
-+	RK818_ID_DCDC1,
-+	RK818_ID_DCDC2,
-+	RK818_ID_DCDC3,
-+	RK818_ID_DCDC4,
-+	RK818_ID_BOOST,
-+	RK818_ID_LDO1,
-+	RK818_ID_LDO2,
-+	RK818_ID_LDO3,
-+	RK818_ID_LDO4,
-+	RK818_ID_LDO5,
-+	RK818_ID_LDO6,
-+	RK818_ID_LDO7,
-+	RK818_ID_LDO8,
-+	RK818_ID_LDO9,
-+	RK818_ID_SWITCH,
-+	RK818_ID_HDMI_SWITCH,
-+	RK818_ID_OTG_SWITCH,
-+};
-+
-+#define RK818_DCDC_EN_REG		0x23
-+#define RK818_LDO_EN_REG		0x24
-+#define RK818_SLEEP_SET_OFF_REG1	0x25
-+#define RK818_SLEEP_SET_OFF_REG2	0x26
-+#define RK818_DCDC_UV_STS_REG		0x27
-+#define RK818_DCDC_UV_ACT_REG		0x28
-+#define RK818_LDO_UV_STS_REG		0x29
-+#define RK818_LDO_UV_ACT_REG		0x2a
-+#define RK818_DCDC_PG_REG		0x2b
-+#define RK818_LDO_PG_REG		0x2c
-+#define RK818_VOUT_MON_TDB_REG		0x2d
-+#define RK818_BUCK1_CONFIG_REG		0x2e
-+#define RK818_BUCK1_ON_VSEL_REG		0x2f
-+#define RK818_BUCK1_SLP_VSEL_REG	0x30
-+#define RK818_BUCK2_CONFIG_REG		0x32
-+#define RK818_BUCK2_ON_VSEL_REG		0x33
-+#define RK818_BUCK2_SLP_VSEL_REG	0x34
-+#define RK818_BUCK3_CONFIG_REG		0x36
-+#define RK818_BUCK4_CONFIG_REG		0x37
-+#define RK818_BUCK4_ON_VSEL_REG		0x38
-+#define RK818_BUCK4_SLP_VSEL_REG	0x39
-+#define RK818_BOOST_CONFIG_REG		0x3a
-+#define RK818_LDO1_ON_VSEL_REG		0x3b
-+#define RK818_LDO1_SLP_VSEL_REG		0x3c
-+#define RK818_LDO2_ON_VSEL_REG		0x3d
-+#define RK818_LDO2_SLP_VSEL_REG		0x3e
-+#define RK818_LDO3_ON_VSEL_REG		0x3f
-+#define RK818_LDO3_SLP_VSEL_REG		0x40
-+#define RK818_LDO4_ON_VSEL_REG		0x41
-+#define RK818_LDO4_SLP_VSEL_REG		0x42
-+#define RK818_LDO5_ON_VSEL_REG		0x43
-+#define RK818_LDO5_SLP_VSEL_REG		0x44
-+#define RK818_LDO6_ON_VSEL_REG		0x45
-+#define RK818_LDO6_SLP_VSEL_REG		0x46
-+#define RK818_LDO7_ON_VSEL_REG		0x47
-+#define RK818_LDO7_SLP_VSEL_REG		0x48
-+#define RK818_LDO8_ON_VSEL_REG		0x49
-+#define RK818_LDO8_SLP_VSEL_REG		0x4a
-+#define RK818_BOOST_LDO9_ON_VSEL_REG	0x54
-+#define RK818_BOOST_LDO9_SLP_VSEL_REG	0x55
-+#define RK818_DEVCTRL_REG		0x4b
-+#define RK818_INT_STS_REG1		0X4c
-+#define RK818_INT_STS_MSK_REG1		0x4d
-+#define RK818_INT_STS_REG2		0x4e
-+#define RK818_INT_STS_MSK_REG2		0x4f
-+#define RK818_IO_POL_REG		0x50
-+#define RK818_H5V_EN_REG		0x52
-+#define RK818_SLEEP_SET_OFF_REG3	0x53
-+#define RK818_BOOST_LDO9_ON_VSEL_REG	0x54
-+#define RK818_BOOST_LDO9_SLP_VSEL_REG	0x55
-+#define RK818_BOOST_CTRL_REG		0x56
-+#define RK818_DCDC_ILMAX		0x90
-+#define RK818_USB_CTRL_REG		0xa1
-+
-+#define RK818_H5V_EN			BIT(0)
-+#define RK818_REF_RDY_CTRL		BIT(1)
-+#define RK818_USB_ILIM_SEL_MASK		0xf
-+#define RK818_USB_ILMIN_2000MA		0x7
-+#define RK818_USB_CHG_SD_VSEL_MASK	0x70
-+
-+/* RK808 IRQ Definitions */
- #define RK808_IRQ_VOUT_LO	0
- #define RK808_IRQ_VB_LO		1
- #define RK808_IRQ_PWRON		2
-@@ -137,6 +226,43 @@ enum rk808_reg {
- #define RK808_IRQ_PLUG_IN_INT_MSK	BIT(0)
- #define RK808_IRQ_PLUG_OUT_INT_MSK	BIT(1)
- 
-+/* RK818 IRQ Definitions */
-+#define RK818_IRQ_VOUT_LO	0
-+#define RK818_IRQ_VB_LO		1
-+#define RK818_IRQ_PWRON		2
-+#define RK818_IRQ_PWRON_LP	3
-+#define RK818_IRQ_HOTDIE	4
-+#define RK818_IRQ_RTC_ALARM	5
-+#define RK818_IRQ_RTC_PERIOD	6
-+#define RK818_IRQ_USB_OV	7
-+#define RK818_IRQ_PLUG_IN	8
-+#define RK818_IRQ_PLUG_OUT	9
-+#define RK818_IRQ_CHG_OK	10
-+#define RK818_IRQ_CHG_TE	11
-+#define RK818_IRQ_CHG_TS1	12
-+#define RK818_IRQ_TS2		13
-+#define RK818_IRQ_CHG_CVTLIM	14
-+#define RK818_IRQ_DISCHG_ILIM	7
-+
-+#define RK818_IRQ_VOUT_LO_MSK		BIT(0)
-+#define RK818_IRQ_VB_LO_MSK		BIT(1)
-+#define RK818_IRQ_PWRON_MSK		BIT(2)
-+#define RK818_IRQ_PWRON_LP_MSK		BIT(3)
-+#define RK818_IRQ_HOTDIE_MSK		BIT(4)
-+#define RK818_IRQ_RTC_ALARM_MSK		BIT(5)
-+#define RK818_IRQ_RTC_PERIOD_MSK	BIT(6)
-+#define RK818_IRQ_USB_OV_MSK		BIT(7)
-+#define RK818_IRQ_PLUG_IN_MSK		BIT(0)
-+#define RK818_IRQ_PLUG_OUT_MSK		BIT(1)
-+#define RK818_IRQ_CHG_OK_MSK		BIT(2)
-+#define RK818_IRQ_CHG_TE_MSK		BIT(3)
-+#define RK818_IRQ_CHG_TS1_MSK		BIT(4)
-+#define RK818_IRQ_TS2_MSK		BIT(5)
-+#define RK818_IRQ_CHG_CVTLIM_MSK	BIT(6)
-+#define RK818_IRQ_DISCHG_ILIM_MSK	BIT(7)
-+
-+#define RK818_NUM_IRQ		16
-+
- #define RK808_VBAT_LOW_2V8	0x00
- #define RK808_VBAT_LOW_2V9	0x01
- #define RK808_VBAT_LOW_3V0	0x02
-@@ -191,9 +317,27 @@ enum {
- 	BOOST_ILMIN_250MA,
- };
- 
-+enum {
-+	RK808_ID,
-+	RK818_ID,
-+};
-+
-+struct rk8xx_reg_data {
-+	int addr;
-+	int mask;
-+	int value;
-+};
-+
- struct rk808 {
--	struct i2c_client *i2c;
--	struct regmap_irq_chip_data *irq_data;
--	struct regmap *regmap;
-+	struct i2c_client		*i2c;
-+	struct regmap_irq_chip_data	*irq_data;
-+	struct regmap			*regmap;
-+	long				variant;
-+	int				nr_cells;
-+	const struct mfd_cell		*cells;
-+	const struct regmap_config	*regmap_cfg;
-+	const struct regmap_irq_chip	*regmap_irq_chip;
-+	const struct rk8xx_reg_data	*pre_init_reg;
-+	int				nr_pre_init_regs;
- };
--#endif /* __LINUX_REGULATOR_rk808_H */
-+#endif /* __LINUX_REGULATOR_RK808_H */
+ MODULE_LICENSE("GPL");
+ MODULE_ALIAS("platform:rk808-regulator");
 -- 
 1.9.1
 
