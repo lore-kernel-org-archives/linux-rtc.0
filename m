@@ -1,22 +1,24 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBK74VW5AKGQEUDT3URA@googlegroups.com>
+Return-Path: <rtc-linux+bncBCZPNS6XRIARBS4DZC4QKGQEHCZPAZA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id x203si722261wme.0.2016.05.29.16.41.30
-        for <rtc-linux@googlegroups.com>;
-        Sun, 29 May 2016 16:41:30 -0700 (PDT)
-Date: Mon, 30 May 2016 01:41:29 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-	Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com
-Subject: [rtc-linux] Re: [PATCH 39/54] MAINTAINERS: Add file patterns for rtc
- device tree bindings
-Message-ID: <20160529234129.GQ3451@piout.net>
-References: <1463907991-7916-1-git-send-email-geert@linux-m68k.org>
- <1463907991-7916-40-git-send-email-geert@linux-m68k.org>
+Received: from avon.wwwdotorg.org (avon.wwwdotorg.org. [70.85.31.133])
+        by gmr-mx.google.com with ESMTPS id xg7si1629794igb.1.2016.05.10.08.44.10
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 10 May 2016 08:44:11 -0700 (PDT)
+Subject: [rtc-linux] Re: [PATCH] rtc: rename so the tps6586x-rtc module can be
+ autoloaded at boot
+To: Nicolas Chauvet <kwizart@gmail.com>
+References: <1462876002-6462-1-git-send-email-kwizart@gmail.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+ Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+ rtc-linux@googlegroups.com, linux-omap@vger.kernel.org,
+ linux-tegra@vger.kernel.org
+From: Stephen Warren <swarren@wwwdotorg.org>
+Message-ID: <573201AD.7080705@wwwdotorg.org>
+Date: Tue, 10 May 2016 09:43:41 -0600
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1463907991-7916-40-git-send-email-geert@linux-m68k.org>
+In-Reply-To: <1462876002-6462-1-git-send-email-kwizart@gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -26,28 +28,18 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 22/05/2016 at 11:06:16 +0200, Geert Uytterhoeven wrote :
-> Submitters of device tree binding documentation may forget to CC
-> the subsystem maintainer if this is missing.
-> 
-> Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
-> Cc: Alessandro Zummo <a.zummo@towertech.it>
-> Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-> Cc: rtc-linux@googlegroups.com
-> ---
-> Please apply this patch directly if you want to be involved in device
-> tree binding documentation for your subsystem.
-> ---
->  MAINTAINERS | 1 +
->  1 file changed, 1 insertion(+)
-> 
-Applied, thanks.
+On 05/10/2016 04:26 AM, Nicolas Chauvet wrote:
+> This module is loaded by the related mfd driver which has
+> the needed MODULE_DEVICE_TABLE(i2c,...).
+>
+> This patch fix the modalias when the rtc driver is built
+> as a module, so the right name is used.
+> Everything operates correctly when this module is builtin.
+
+I'm sure this used to work. Do you know when/why it broke? Perhaps a 
+Fixes: tag would be useful, and perhaps a Cc: stable?
 
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
-
 -- 
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
