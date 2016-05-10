@@ -1,24 +1,42 @@
-Return-Path: <rtc-linux+bncBAABB7HKUG4QKGQENRLV2XY@googlegroups.com>
+Return-Path: <rtc-linux+bncBDL3F4G2ZAIBBT7QYS4QKGQEGGVOH5Y@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id u18si669658wmd.1.2016.05.03.02.55.08
-        for <rtc-linux@googlegroups.com>;
-        Tue, 03 May 2016 02:55:08 -0700 (PDT)
-From: =?UTF-8?q?Myl=C3=A8ne=20Josserand?= <mylene.josserand@free-electrons.com>
-To: alexandre.belloni@free-electrons.com,
-	rtc-linux@googlegroups.com
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
-	linux-kernel@vger.kernel.org,
-	mylene.josserand@free-electrons.com
-Subject: [rtc-linux] [PATCH V3 3/7] rtc: rv3029: Add support of RV3049
-Date: Tue,  3 May 2016 11:54:34 +0200
-Message-Id: <48896bffe8ece47523bd4989c7f16901266482e6.1462268107.git.mylene.josserand@free-electrons.com>
-In-Reply-To: <cover.1462268107.git.mylene.josserand@free-electrons.com>
-References: <cover.1462268107.git.mylene.josserand@free-electrons.com>
-In-Reply-To: <cover.1462268107.git.mylene.josserand@free-electrons.com>
-References: <cover.1462268107.git.mylene.josserand@free-electrons.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Received: from mailout3.samsung.com (mailout3.samsung.com. [203.254.224.33])
+        by gmr-mx.google.com with ESMTPS id d141si4922006pfd.1.2016.05.09.18.24.31
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1 cipher=AES128-SHA bits=128/128);
+        Mon, 09 May 2016 18:24:31 -0700 (PDT)
+MIME-version: 1.0
+Content-type: text/plain; charset=UTF-8
+Received: from epcpsbgr1.samsung.com
+ (u141.gpu120.samsung.co.kr [203.254.230.141])
+ by mailout3.samsung.com (Oracle Communications Messaging Server 7.0.5.31.0
+ 64bit (built May  5 2014))
+ with ESMTP id <0O6X00QB8T8TVQA0@mailout3.samsung.com> for
+ rtc-linux@googlegroups.com; Tue, 10 May 2016 10:24:29 +0900 (KST)
+Message-id: <5731384C.6000209@samsung.com>
+Date: Tue, 10 May 2016 10:24:28 +0900
+From: Chanwoo Choi <cw00.choi@samsung.com>
+To: Krzysztof Kozlowski <k.kozlowski@samsung.com>,
+ Kukjin Kim <kgene@kernel.org>, MyungJoo Ham <myungjoo.ham@samsung.com>,
+ Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+ Richard Purdie <rpurdie@rpsys.net>,
+ Jacek Anaszewski <j.anaszewski@samsung.com>, Lee Jones <lee.jones@linaro.org>,
+ Sebastian Reichel <sre@kernel.org>,
+ Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>,
+ David Woodhouse <dwmw2@infradead.org>, Liam Girdwood <lgirdwood@gmail.com>,
+ Mark Brown <broonie@kernel.org>, Alessandro Zummo <a.zummo@towertech.it>,
+ Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+ devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+ linux-samsung-soc@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-input@vger.kernel.org, linux-leds@vger.kernel.org,
+ linux-pm@vger.kernel.org, rtc-linux@googlegroups.com
+Cc: r.baldyga@hackerion.com,
+ Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+Subject: [rtc-linux] Re: [PATCH v6 7/9] extcon: max8997: Fix inconsistent indenting
+References: <1462519289-2356-2-git-send-email-k.kozlowski@samsung.com>
+ <1462519636-3250-1-git-send-email-k.kozlowski@samsung.com>
+ <1462519636-3250-6-git-send-email-k.kozlowski@samsung.com>
+In-reply-to: <1462519636-3250-6-git-send-email-k.kozlowski@samsung.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -28,213 +46,38 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Add support of Microcrystal RV3049 RTC (SPI) using regmap on the
-RV3029 (I2C) driver.
+Hi Krzysztof,
 
-Signed-off-by: Myl=C3=A8ne Josserand <mylene.josserand@free-electrons.com>
----
- drivers/rtc/Kconfig        |  37 ++++++++--------
- drivers/rtc/rtc-rv3029c2.c | 108 +++++++++++++++++++++++++++++++++++++++++=
-++--
- 2 files changed, 124 insertions(+), 21 deletions(-)
+On 2016=EB=85=84 05=EC=9B=94 06=EC=9D=BC 16:27, Krzysztof Kozlowski wrote:
+> Fix smatch warning:
+> 	max8997_muic_probe() warn: inconsistent indenting
+>=20
+> Signed-off-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+> ---
+>  drivers/extcon/extcon-max8997.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>=20
+> diff --git a/drivers/extcon/extcon-max8997.c b/drivers/extcon/extcon-max8=
+997.c
+> index 0afa3e8b5dc3..cf8de5be2405 100644
+> --- a/drivers/extcon/extcon-max8997.c
+> +++ b/drivers/extcon/extcon-max8997.c
+> @@ -737,7 +737,7 @@ static int max8997_muic_probe(struct platform_device =
+*pdev)
+>  	}
+> =20
+>  	/* Set initial path for UART */
+> -	 max8997_muic_set_path(info, info->path_uart, true);
+> +	max8997_muic_set_path(info, info->path_uart, true);
+> =20
+>  	/* Set ADC debounce time */
+>  	max8997_muic_set_debounce_time(info, ADC_DEBOUNCE_TIME_25MS);
+>=20
 
-diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
-index f1e1f50..18639e0 100644
---- a/drivers/rtc/Kconfig
-+++ b/drivers/rtc/Kconfig
-@@ -573,24 +573,6 @@ config RTC_DRV_EM3027
- 	  This driver can also be built as a module. If so, the module
- 	  will be called rtc-em3027.
-=20
--config RTC_DRV_RV3029C2
--	tristate "Micro Crystal RV3029"
--	help
--	  If you say yes here you get support for the Micro Crystal
--	  RV3029 RTC chips.
--
--	  This driver can also be built as a module. If so, the module
--	  will be called rtc-rv3029c2.
--
--config RTC_DRV_RV3029_HWMON
--	bool "HWMON support for RV3029"
--	depends on RTC_DRV_RV3029C2 && HWMON
--	depends on !(RTC_DRV_RV3029C2=3Dy && HWMON=3Dm)
--	default y
--	help
--	  Say Y here if you want to expose temperature sensor data on
--	  rtc-rv3029.
--
- config RTC_DRV_RV8803
- 	tristate "Micro Crystal RV8803"
- 	help
-@@ -786,6 +768,25 @@ config RTC_DRV_PCF2127
- 	  This driver can also be built as a module. If so, the module
- 	  will be called rtc-pcf2127.
-=20
-+config RTC_DRV_RV3029C2
-+	tristate "Micro Crystal RV3029/3049"
-+	depends on RTC_I2C_AND_SPI
-+	help
-+	  If you say yes here you get support for the Micro Crystal
-+	  RV3029 and RV3049 RTC chips.
-+
-+	  This driver can also be built as a module. If so, the module
-+	  will be called rtc-rv3029c2.
-+
-+config RTC_DRV_RV3029_HWMON
-+	bool "HWMON support for RV3029/3049"
-+	depends on RTC_DRV_RV3029C2 && HWMON
-+	depends on !(RTC_DRV_RV3029C2=3Dy && HWMON=3Dm)
-+	default y
-+	help
-+	  Say Y here if you want to expose temperature sensor data on
-+	  rtc-rv3029.
-+
- comment "Platform RTC drivers"
-=20
- # this 'CMOS' RTC driver is arch dependent because <asm-generic/rtc.h>
-diff --git a/drivers/rtc/rtc-rv3029c2.c b/drivers/rtc/rtc-rv3029c2.c
-index 96dd166..1310646 100644
---- a/drivers/rtc/rtc-rv3029c2.c
-+++ b/drivers/rtc/rtc-rv3029c2.c
-@@ -1,5 +1,5 @@
- /*
-- * Micro Crystal RV-3029 rtc class driver
-+ * Micro Crystal RV-3029 / RV-3049 rtc class driver
-  *
-  * Author: Gregory Hermant <gregory.hermant@calao-systems.com>
-  *         Michael Buesch <m@bues.ch>
-@@ -14,6 +14,7 @@
-=20
- #include <linux/module.h>
- #include <linux/i2c.h>
-+#include <linux/spi/spi.h>
- #include <linux/bcd.h>
- #include <linux/rtc.h>
- #include <linux/delay.h>
-@@ -766,6 +767,8 @@ static int rv3029_probe(struct device *dev, struct regm=
-ap *regmap, int irq,
- 	return PTR_ERR_OR_ZERO(rv3029->rtc);
- }
-=20
-+#if IS_ENABLED(CONFIG_I2C)
-+
- static int rv3029_i2c_probe(struct i2c_client *client,
- 			    const struct i2c_device_id *id)
- {
-@@ -799,9 +802,108 @@ static struct i2c_driver rv3029_driver =3D {
- 	.id_table	=3D rv3029_id,
- };
-=20
--module_i2c_driver(rv3029_driver);
-+static int rv3029_register_driver(void)
-+{
-+	return i2c_add_driver(&rv3029_driver);
-+}
-+
-+static void rv3029_unregister_driver(void)
-+{
-+	i2c_del_driver(&rv3029_driver);
-+}
-+
-+#else
-+
-+static int rv3029_register_driver(void)
-+{
-+	return 0;
-+}
-+
-+static void rv3029_unregister_driver(void)
-+{
-+}
-+
-+#endif
-+
-+#if IS_ENABLED(CONFIG_SPI_MASTER)
-+
-+static int rv3049_probe(struct spi_device *spi)
-+{
-+	static const struct regmap_config config =3D {
-+		.reg_bits =3D 8,
-+		.val_bits =3D 8,
-+	};
-+	struct regmap *regmap;
-+
-+	regmap =3D devm_regmap_init_spi(spi, &config);
-+	if (IS_ERR(regmap)) {
-+		dev_err(&spi->dev, "%s: regmap allocation failed: %ld\n",
-+			__func__, PTR_ERR(regmap));
-+		return PTR_ERR(regmap);
-+	}
-+
-+	return rv3029_probe(&spi->dev, regmap, spi->irq, "rv3049");
-+}
-+
-+static struct spi_driver rv3049_driver =3D {
-+	.driver =3D {
-+		.name    =3D "rv3049",
-+	},
-+	.probe   =3D rv3049_probe,
-+};
-+
-+static int rv3049_register_driver(void)
-+{
-+	return spi_register_driver(&rv3049_driver);
-+}
-+
-+static void rv3049_unregister_driver(void)
-+{
-+	spi_unregister_driver(&rv3049_driver);
-+}
-+
-+#else
-+
-+static int rv3049_register_driver(void)
-+{
-+	return 0;
-+}
-+
-+static void rv3049_unregister_driver(void)
-+{
-+}
-+
-+#endif
-+
-+static int __init rv30x9_init(void)
-+{
-+	int ret;
-+
-+	ret =3D rv3029_register_driver();
-+	if (ret) {
-+		pr_err("Failed to register rv3029 driver: %d\n", ret);
-+		return ret;
-+	}
-+
-+	ret =3D rv3049_register_driver();
-+	if (ret) {
-+		pr_err("Failed to register rv3049 driver: %d\n", ret);
-+		rv3029_unregister_driver();
-+	}
-+
-+	return ret;
-+}
-+module_init(rv30x9_init)
-+
-+static void __exit rv30x9_exit(void)
-+{
-+	rv3049_unregister_driver();
-+	rv3029_unregister_driver();
-+}
-+module_exit(rv30x9_exit)
-=20
- MODULE_AUTHOR("Gregory Hermant <gregory.hermant@calao-systems.com>");
- MODULE_AUTHOR("Michael Buesch <m@bues.ch>");
--MODULE_DESCRIPTION("Micro Crystal RV3029 RTC driver");
-+MODULE_DESCRIPTION("Micro Crystal RV3029/RV3049 RTC driver");
- MODULE_LICENSE("GPL");
-+MODULE_ALIAS("spi:rv3049");
---=20
-2.8.0.rc3
+Acked-by: Chanwoo Choi <cw00.choi@samsung.com>
+
+Thanks,
+Chanwoo Choi
 
 --=20
 --=20
