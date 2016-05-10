@@ -1,26 +1,32 @@
-Return-Path: <rtc-linux+bncBDP5VQPV4IBRB2POY24QKGQEFDQ4HSQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBDA7X7F2WUEBBHWUY64QKGQEHMQJUYI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-MIME-Version: 1.0
-Received: from mail-wm0-x22f.google.com (mail-wm0-x22f.google.com. [2a00:1450:400c:c09::22f])
-        by gmr-mx.google.com with ESMTPS id k143si56830wmg.1.2016.05.10.03.26.48
+Received: from mail-wm0-x231.google.com (mail-wm0-x231.google.com. [2a00:1450:400c:c09::231])
+        by gmr-mx.google.com with ESMTPS id a124si120348wme.0.2016.05.10.07.03.10
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 10 May 2016 03:26:48 -0700 (PDT)
-Received: by mail-wm0-x22f.google.com with SMTP id a17so19032683wme.0
-        for <rtc-linux@googlegroups.com>; Tue, 10 May 2016 03:26:48 -0700 (PDT)
-From: Nicolas Chauvet <kwizart@gmail.com>
-To: Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	rtc-linux@googlegroups.com
-Cc: linux-omap@vger.kernel.org,
-	linux-tegra@vger.kernel.org,
-	Nicolas Chauvet <kwizart@gmail.com>
-Subject: [rtc-linux] [PATCH] rtc: rename so the tps6586x-rtc module can be
- autoloaded at boot
-Date: Tue, 10 May 2016 12:26:42 +0200
-Message-Id: <1462876002-6462-1-git-send-email-kwizart@gmail.com>
-Reply-To: rtc-linux@googlegroups.com
+        Tue, 10 May 2016 07:03:10 -0700 (PDT)
+Received: by mail-wm0-x231.google.com with SMTP id g17so29814376wme.1
+        for <rtc-linux@googlegroups.com>; Tue, 10 May 2016 07:03:10 -0700 (PDT)
+Date: Tue, 10 May 2016 15:03:20 +0100
+From: Lee Jones <lee.jones@linaro.org>
+To: Wadim Egorov <w.egorov@phytec.de>
+Cc: linux-kernel@vger.kernel.org, linux-clk@vger.kernel.org,
+	rtc-linux@googlegroups.com, devicetree@vger.kernel.org,
+	linux-rockchip@lists.infradead.org, robh+dt@kernel.org,
+	mark.rutland@arm.com, ijc+devicetree@hellion.org.uk,
+	galak@codeaurora.org, mturquette@baylibre.com, sboyd@codeaurora.org,
+	lgirdwood@gmail.com, broonie@kernel.org, a.zummo@towertech.it,
+	alexandre.belloni@free-electrons.com, dianders@chromium.org,
+	zyw@rock-chips.com
+Subject: [rtc-linux] Re: [PATCH v5 3/6] regulator: rk808: Add regulator driver
+ for RK818
+Message-ID: <20160510140320.GO19473@dell>
+References: <1462886340-7893-1-git-send-email-w.egorov@phytec.de>
+ <1462886340-7893-4-git-send-email-w.egorov@phytec.de>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1462886340-7893-4-git-send-email-w.egorov@phytec.de>
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -29,41 +35,39 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-This module is loaded by the related mfd driver which has
-the needed MODULE_DEVICE_TABLE(i2c,...).
+On Tue, 10 May 2016, Wadim Egorov wrote:
 
-This patch fix the modalias when the rtc driver is built
-as a module, so the right name is used.
-Everything operates correctly when this module is builtin.
+> Add support for the rk818 regulator. The regulator module consists
+> of 4 DCDCs, 9 LDOs, 1 switch and 1 BOOST converter which is used to
+> power OTG and HDMI5V.
+>=20
+> The output voltages are configurable and are meant to supply power
+> to the main processor and other components.
+>=20
+> Signed-off-by: Wadim Egorov <w.egorov@phytec.de>
+> ---
+>  drivers/regulator/Kconfig           |   4 +-
+>  drivers/regulator/rk808-regulator.c | 143 ++++++++++++++++++++++++++++++=
+++++--
+>  2 files changed, 138 insertions(+), 9 deletions(-)
 
-Signed-off-by: Nicolas Chauvet <kwizart@gmail.com>
----
- drivers/rtc/rtc-tps6586x.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Needs an Ack before I can take the set.
 
-diff --git a/drivers/rtc/rtc-tps6586x.c b/drivers/rtc/rtc-tps6586x.c
-index e404faa..a3418a8 100644
---- a/drivers/rtc/rtc-tps6586x.c
-+++ b/drivers/rtc/rtc-tps6586x.c
-@@ -344,7 +344,7 @@ static struct platform_driver tps6586x_rtc_driver = {
- };
- module_platform_driver(tps6586x_rtc_driver);
- 
--MODULE_ALIAS("platform:rtc-tps6586x");
-+MODULE_ALIAS("platform:tps6586x-rtc");
- MODULE_DESCRIPTION("TI TPS6586x RTC driver");
- MODULE_AUTHOR("Laxman dewangan <ldewangan@nvidia.com>");
- MODULE_LICENSE("GPL v2");
--- 
-2.4.11
+--=20
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org =E2=94=82 Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog
 
--- 
--- 
+--=20
+--=20
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+---=20
+You received this message because you are subscribed to the Google Groups "=
+rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an e=
+mail to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
