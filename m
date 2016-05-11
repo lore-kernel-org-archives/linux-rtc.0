@@ -5,15 +5,18 @@ To: Alessandro Zummo <a.zummo@towertech.it>,
 Cc: rtc-linux@googlegroups.com,
 	Michael Langer <michael.brainbug.langer@googlemail.com>,
 	Byron Bradley <byron.bbradley@gmail.com>,
-	Tim Ellis <tim@ngndg.com>
-Subject: [PATCH 0/2] rtc: initial patches to fix borkage of rtc-s35390a
-Date: Mon,  9 May 2016 23:37:32 +0200
-Message-Id: <1462829854-789-1-git-send-email-uwe@kleine-koenig.org>
+	=?UTF-8?q?Manuel=20R=C3=B6der?= <manuel_roeder@gmx.de>
+Subject: [PATCH RESEND 0/2] rtc: initial patches to fix borkage of rtc-s35390a
+Date: Wed, 11 May 2016 09:11:22 +0200
+Message-Id: <1462950684-3661-1-git-send-email-uwe@kleine-koenig.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 
 Hello,
+
+[I'm resending because only a single patch made it to the rtc list, don't know
+why.]
 
 here are two patches that improve the rtc core's robustness regarding
 stuff the rtc-s35390a does. That is in .read_alarm it only assigns
