@@ -1,29 +1,22 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRB764664QKGQESCROZAQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBDU5DXUG4MFRBY7H464QKGQEDJRJJMI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id b193si12712wmb.1.2016.05.19.09.49.02
-        for <rtc-linux@googlegroups.com>;
-        Thu, 19 May 2016 09:49:02 -0700 (PDT)
-Received: from localhost (unknown [88.191.26.124])
-	by mail.free-electrons.com (Postfix) with ESMTPSA id 22C8412D
-	for <rtc-linux@googlegroups.com>; Thu, 19 May 2016 18:48:48 +0200 (CEST)
-Resent-Message-ID: <20160519164848.GL2890@piout.net>
-From: =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <uwe@kleine-koenig.org>
-To: Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: rtc-linux@googlegroups.com,
-	Michael Langer <michael.brainbug.langer@googlemail.com>,
-	Byron Bradley <byron.bbradley@gmail.com>,
-	=?UTF-8?q?Manuel=20R=C3=B6der?= <manuel_roeder@gmx.de>
-Subject: [rtc-linux] [PATCH RESEND 2/2] rtc: make rtc_time64_to_tm save to use
- for dates before 1970
-Date: Wed, 11 May 2016 09:11:24 +0200
-Message-Id: <1462950684-3661-3-git-send-email-uwe@kleine-koenig.org>
-In-Reply-To: <1462950684-3661-1-git-send-email-uwe@kleine-koenig.org>
-References: <1462950684-3661-1-git-send-email-uwe@kleine-koenig.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Received: from youngberry.canonical.com (youngberry.canonical.com. [91.189.89.112])
+        by gmr-mx.google.com with ESMTPS id e78si541009wmc.3.2016.05.16.09.22.59
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1 cipher=AES128-SHA bits=128/128);
+        Mon, 16 May 2016 09:22:59 -0700 (PDT)
+From: Colin King <colin.king@canonical.com>
+To: Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	rtc-linux@googlegroups.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [rtc-linux] [PATCH] rtc: interface: ignore exprired timers one
+ enqueing new timers
+Date: Mon, 16 May 2016 17:22:54 +0100
+Message-Id: <1463415774-28014-1-git-send-email-colin.king@canonical.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -32,71 +25,72 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-When the time parameter to rtc_time64_to_tm is negative and so
-represents a date before 1970 several outputs were calculated wrongly.
-A comment in the code signaled that the code doesn't handle negative
-times but that didn't stop __rtc_read_alarm to still pass negative
-values.
+From: Colin Ian King <colin.king@canonical.com>
 
-For example with time=3D-2208565980 (1900-01-05 21:27 UTC) the days variabl=
-e
-was assigned a negative value (-25562) which was then used to calculate
+This patch fixes a RTC wakealarm issue, namely, the event fires during
+hibernate and is not cleared from the list, causing hwclock to block.
 
-	secs =3D time - (unsigned int) days * 86400;
+The current enqueuing does not trigger an alarm if any expired timers
+already exist on the timerqueue. This can occur when a RTC wake alarm
+is used to wake a machine out of hibernate and the resumed state has
+old expired timers that have not been removed from the timer queue.
+This fix skips over any expired timers and triggers an alarm if there
+are no pending timers on the timerqueue. Note that the skipped expired
+timer will get repead later on, so there is no need to clean it up
+immediately.
 
-resulting in an overflow in both the multiplication and the subtraction
-yielding secs =3D 4294958116 which is then used to calculate
-tm_hour =3D 1193043; tm_min =3D 55; tm_sec =3D 16.
+The issue can be reproduced by putting a machine into hibernate and
+waking it with the RTC wakealarm.  Running the example RTC test program
+from tools/testing/selftests/timers/rtctest.c after the hibernate will
+block indefinitely.  With the fix, it no longer blocks after the
+hibernate resume.
 
-With the changes in this patch the time stamp from the example above is
-converted correctly.
+BugLink: http://bugs.launchpad.net/bugs/1333569
 
-Signed-off-by: Uwe Kleine-K=C3=B6nig <uwe@kleine-koenig.org>
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
 ---
- drivers/rtc/rtc-lib.c | 13 +++++++++----
- 1 file changed, 9 insertions(+), 4 deletions(-)
+ drivers/rtc/interface.c | 16 +++++++++++++++-
+ 1 file changed, 15 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/rtc/rtc-lib.c b/drivers/rtc/rtc-lib.c
-index e6bfb9c42a10..0140ce7088ac 100644
---- a/drivers/rtc/rtc-lib.c
-+++ b/drivers/rtc/rtc-lib.c
-@@ -53,15 +53,20 @@ EXPORT_SYMBOL(rtc_year_days);
- void rtc_time64_to_tm(time64_t time, struct rtc_time *tm)
+diff --git a/drivers/rtc/interface.c b/drivers/rtc/interface.c
+index 9ef5f6f..7fa910f 100644
+--- a/drivers/rtc/interface.c
++++ b/drivers/rtc/interface.c
+@@ -748,9 +748,23 @@ EXPORT_SYMBOL_GPL(rtc_irq_set_freq);
+  */
+ static int rtc_timer_enqueue(struct rtc_device *rtc, struct rtc_timer *timer)
  {
- 	unsigned int month, year;
--	unsigned long secs;
-+	s32 secs
- 	int days;
-=20
--	/* time must be positive */
--	days =3D div_s64(time, 86400);
--	secs =3D time - (unsigned int) days * 86400;
-+	days =3D div_s64_rem(time, 86400, &secs);
++	struct timerqueue_node *next = timerqueue_getnext(&rtc->timerqueue);
++	struct rtc_time tm;
++	ktime_t now;
 +
-+	if (secs < 0) {
-+		secs +=3D 86400;
-+		days -=3D 1;
+ 	timer->enabled = 1;
++	__rtc_read_time(rtc, &tm);
++	now = rtc_tm_to_ktime(tm);
++
++	/* Skip over expired timers */
++	while (next) {
++		if (next->expires.tv64 >= now.tv64)
++			break;
++		next = timerqueue_iterate_next(next);
 +	}
-=20
- 	/* day of the week, 1970-01-01 was a Thursday */
- 	tm->tm_wday =3D (days + 4) % 7;
-+	if (tm->tm_wday < 0)
-+		tm->tm_wday +=3D 7;
-=20
- 	year =3D 1970 + days / 365;
- 	days -=3D (year - 1970) * 365
---=20
-2.8.1
++
+ 	timerqueue_add(&rtc->timerqueue, &timer->node);
+-	if (&timer->node == timerqueue_getnext(&rtc->timerqueue)) {
++	if (!next) {
+ 		struct rtc_wkalrm alarm;
+ 		int err;
+ 		alarm.time = rtc_ktime_to_tm(timer->node.expires);
+-- 
+2.7.4
 
---=20
---=20
+-- 
+-- 
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
----=20
-You received this message because you are subscribed to the Google Groups "=
-rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an e=
-mail to rtc-linux+unsubscribe@googlegroups.com.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
