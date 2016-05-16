@@ -1,35 +1,24 @@
-Return-Path: <rtc-linux+bncBDEKVJM7XAHRBPM2WK5AKGQE3ON4ABA@googlegroups.com>
+Return-Path: <rtc-linux+bncBCO7J6GN7ELBBPEE464QKGQE72IKC2Q@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 MIME-Version: 1.0
-Received: from mout.kundenserver.de (mout.kundenserver.de. [217.72.192.73])
-        by gmr-mx.google.com with ESMTPS id a65si987912wma.3.2016.05.30.11.58.05
+Received: from mail-pa0-x241.google.com (mail-pa0-x241.google.com. [2607:f8b0:400e:c03::241])
+        by gmr-mx.google.com with ESMTPS id 17si4811662pfw.0.2016.05.16.05.51.08
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 30 May 2016 11:58:05 -0700 (PDT)
-From: Arnd Bergmann <arnd@arndb.de>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Arnd Bergmann <arnd@arndb.de>,
-	geert@linux-m68k.org,
-	gregkh@linuxfoundation.org,
-	deller@gmx.de,
-	benh@kernel.crashing.org,
-	mpe@ellerman.id.au,
-	dalias@libc.org,
-	dhowells@redhat.com,
-	linux-alpha@vger.kernel.org,
-	a.zummo@towertech.it,
+        Mon, 16 May 2016 05:51:08 -0700 (PDT)
+Received: by mail-pa0-x241.google.com with SMTP id rw9so503783pab.2
+        for <rtc-linux@googlegroups.com>; Mon, 16 May 2016 05:51:08 -0700 (PDT)
+From: venkat.prashanth2498@gmail.com
+To: a.zummo@towertech.it
+Cc: rtc-linux@googlegroups.com,
 	linux-kernel@vger.kernel.org,
-	linux-parisc@vger.kernel.org,
-	linuxppc-dev@lists.ozlabs.org,
-	linux-sh@vger.kernel.org,
-	linux-m68k@lists.linux-m68k.org,
-	rtc-linux@googlegroups.com,
-	linux-arch@vger.kernel.org
-Subject: [rtc-linux] [PATCH v4 08/16] char/genrtc: remove parisc support
-Date: Mon, 30 May 2016 20:57:56 +0200
-Message-Id: <1464634684-1248135-9-git-send-email-arnd@arndb.de>
-In-Reply-To: <1464634684-1248135-1-git-send-email-arnd@arndb.de>
-References: <1464634684-1248135-1-git-send-email-arnd@arndb.de>
+	k.kozlowski@samsung.com,
+	alexandre.belloni@free-electrons.com,
+	marcus.folkesson@gmail.com,
+	VENKAT PRASHANTH B U <venkat.prashanth2498@gmail.com>
+Subject: [rtc-linux] [PATCH v4] rtc:add support for maxim rtc max6916
+Date: Mon, 16 May 2016 18:20:48 +0530
+Message-Id: <1463403048-5657-1-git-send-email-venkat.prashanth2498@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -40,172 +29,250 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-This architecture selects RTC_CLASS unconditionally, so the GEN_RTC
-has not worked here for a long time.
+From: VENKAT PRASHANTH B U <venkat.prashanth2498@gmail.com>
 
-Now we can remove both the asm/rtc.h header and the Kconfig dependency
-for CONFIG_GEN_RTC.
+This is a patch to add support for
+maxim rtc max6916
 
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Venkat Prashanth B U <venkat.prashanth2498@gmail.com>
 ---
- arch/parisc/include/asm/rtc.h | 131 ------------------------------------------
- drivers/char/Kconfig          |   2 +-
- 2 files changed, 1 insertion(+), 132 deletions(-)
- delete mode 100644 arch/parisc/include/asm/rtc.h
+changelog v4:
+- fixed the line wrapping to around 72 characters
+- Aligned the values with tabs
+- inserted the correct coding style in the conditional statements
+- removed the empty lines towards the end of the code
+- fixed the checkpatch issues
+- code clean up on max6916_read_reg()
 
-diff --git a/arch/parisc/include/asm/rtc.h b/arch/parisc/include/asm/rtc.h
-deleted file mode 100644
-index 099d641a42c2..000000000000
---- a/arch/parisc/include/asm/rtc.h
-+++ /dev/null
-@@ -1,131 +0,0 @@
--/* 
-- * include/asm-parisc/rtc.h
-- *
-- * Copyright 2002 Randolph CHung <tausq@debian.org>
-- *
-- * Based on: include/asm-ppc/rtc.h and the genrtc driver in the
-- * 2.4 parisc linux tree
-- */
--
--#ifndef __ASM_RTC_H__
--#define __ASM_RTC_H__
--
--#ifdef __KERNEL__
--
--#include <linux/rtc.h>
--
--#include <asm/pdc.h>
--
--#define SECS_PER_HOUR   (60 * 60)
--#define SECS_PER_DAY    (SECS_PER_HOUR * 24)
--
--
--#define RTC_PIE 0x40		/* periodic interrupt enable */
--#define RTC_AIE 0x20		/* alarm interrupt enable */
--#define RTC_UIE 0x10		/* update-finished interrupt enable */
--
--#define RTC_BATT_BAD 0x100	/* battery bad */
--
--/* some dummy definitions */
--#define RTC_SQWE 0x08		/* enable square-wave output */
--#define RTC_DM_BINARY 0x04	/* all time/date values are BCD if clear */
--#define RTC_24H 0x02		/* 24 hour mode - else hours bit 7 means pm */
--#define RTC_DST_EN 0x01	        /* auto switch DST - works f. USA only */
--
--# define __isleap(year) \
--  ((year) % 4 == 0 && ((year) % 100 != 0 || (year) % 400 == 0))
--
--/* How many days come before each month (0-12).  */
--static const unsigned short int __mon_yday[2][13] =
--{
--	/* Normal years.  */
--	{ 0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365 },
--	/* Leap years.  */
--	{ 0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335, 366 }
--};
--
--static inline unsigned int get_rtc_time(struct rtc_time *wtime)
--{
--	struct pdc_tod tod_data;
--	long int days, rem, y;
--	const unsigned short int *ip;
--
--	memset(wtime, 0, sizeof(*wtime));
--	if (pdc_tod_read(&tod_data) < 0)
--		return RTC_24H | RTC_BATT_BAD;
--
--	// most of the remainder of this function is:
--//	Copyright (C) 1991, 1993, 1997, 1998 Free Software Foundation, Inc.
--//	This was originally a part of the GNU C Library.
--//      It is distributed under the GPL, and was swiped from offtime.c
--
--
--	days = tod_data.tod_sec / SECS_PER_DAY;
--	rem = tod_data.tod_sec % SECS_PER_DAY;
--
--	wtime->tm_hour = rem / SECS_PER_HOUR;
--	rem %= SECS_PER_HOUR;
--	wtime->tm_min = rem / 60;
--	wtime->tm_sec = rem % 60;
--
--	y = 1970;
--
--#define DIV(a, b) ((a) / (b) - ((a) % (b) < 0))
--#define LEAPS_THRU_END_OF(y) (DIV (y, 4) - DIV (y, 100) + DIV (y, 400))
--
--	while (days < 0 || days >= (__isleap (y) ? 366 : 365))
--	{
--		/* Guess a corrected year, assuming 365 days per year.  */
--		long int yg = y + days / 365 - (days % 365 < 0);
--
--		/* Adjust DAYS and Y to match the guessed year.  */
--		days -= ((yg - y) * 365
--			 + LEAPS_THRU_END_OF (yg - 1)
--			 - LEAPS_THRU_END_OF (y - 1));
--		y = yg;
--	}
--	wtime->tm_year = y - 1900;
--
--	ip = __mon_yday[__isleap(y)];
--	for (y = 11; days < (long int) ip[y]; --y)
--		continue;
--	days -= ip[y];
--	wtime->tm_mon = y;
--	wtime->tm_mday = days + 1;
--
--	return RTC_24H;
--}
--
--static int set_rtc_time(struct rtc_time *wtime)
--{
--	u_int32_t secs;
--
--	secs = mktime(wtime->tm_year + 1900, wtime->tm_mon + 1, wtime->tm_mday, 
--		      wtime->tm_hour, wtime->tm_min, wtime->tm_sec);
--
--	if(pdc_tod_set(secs, 0) < 0)
--		return -1;
--	else
--		return 0;
--
--}
--
--static inline unsigned int get_rtc_ss(void)
--{
--	struct rtc_time h;
--
--	get_rtc_time(&h);
--	return h.tm_sec;
--}
--
--static inline int get_rtc_pll(struct rtc_pll_info *pll)
--{
--	return -EINVAL;
--}
--static inline int set_rtc_pll(struct rtc_pll_info *pll)
--{
--	return -EINVAL;
--}
--
--#endif /* __KERNEL__ */
--#endif /* __ASM_RTC_H__ */
-diff --git a/drivers/char/Kconfig b/drivers/char/Kconfig
-index 1d9e3063373b..074bc394e31b 100644
---- a/drivers/char/Kconfig
-+++ b/drivers/char/Kconfig
-@@ -328,7 +328,7 @@ config JS_RTC
- config GEN_RTC
- 	tristate "Generic /dev/rtc emulation"
- 	depends on RTC!=y
--	depends on M68K || PARISC || PPC
-+	depends on M68K || PPC
- 	---help---
- 	  If you say Y here and create a character special file /dev/rtc with
- 	  major number 10 and minor number 135 using mknod ("man mknod"), you
+changelog v3:
+- saperated the logical code sections with an empty line
+- used indentations after if statements.
+- fixed the out of tree makefile
+- placed the test condition at the begining of the function
+
+change log v2:
+- deleted the port i/o's
+- clock burst value is modified from 0x00 to 0x3F
+- The time in linux is in binary format so get_rtc()replaced with bcd2bin()
+- enforced the year range instead of accepting any value
+---
+---
+ drivers/rtc/Kconfig		|  12 ++++
+ drivers/rtc/Makefile		|   1 +
+ drivers/rtc/rtc-max6916.c	| 167 ++++++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 180 insertions(+)
+
+diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
+index 83b4b89..5bc38f0 100644
+--- a/drivers/rtc/Kconfig
++++ b/drivers/rtc/Kconfig
+@@ -681,6 +681,18 @@ config RTC_DRV_MAX6902
+ 	  This driver can also be built as a module. If so, the module
+ 	  will be called rtc-max6902.
+ 
++config RTC_DRV_MAX6916
++	tristate "Maxim MAX6916"
++	help
++	  If you say yes here you will get support for the
++	  Maxim MAX6916 SPI RTC chip.
++
++	  This driver only supports the RTC feature, and not other chip
++	  features such as alarms.
++
++	  This driver can also be built as a module. If so, the module
++	  will be called rtc-max6916.
++
+ config RTC_DRV_R9701
+ 	tristate "Epson RTC-9701JE"
+ 	help
+diff --git a/drivers/rtc/Makefile b/drivers/rtc/Makefile
+index 1b09a62..702c167 100644
+--- a/drivers/rtc/Makefile
++++ b/drivers/rtc/Makefile
+@@ -84,6 +84,7 @@ obj-$(CONFIG_RTC_DRV_M48T59)	+= rtc-m48t59.o
+ obj-$(CONFIG_RTC_DRV_M48T86)	+= rtc-m48t86.o
+ obj-$(CONFIG_RTC_DRV_MAX6900)	+= rtc-max6900.o
+ obj-$(CONFIG_RTC_DRV_MAX6902)	+= rtc-max6902.o
++obj-$(CONFIG_RTC_DRV_MAX6916)	+= rtc-max6916.o
+ obj-$(CONFIG_RTC_DRV_MAX77686)	+= rtc-max77686.o
+ obj-$(CONFIG_RTC_DRV_MAX77802)	+= rtc-max77802.o
+ obj-$(CONFIG_RTC_DRV_MAX8907)	+= rtc-max8907.o
+diff --git a/drivers/rtc/rtc-max6916.c b/drivers/rtc/rtc-max6916.c
+index e69de29..4d1ef9a 100644
+--- a/drivers/rtc/rtc-max6916.c
++++ b/drivers/rtc/rtc-max6916.c
+@@ -0,1 +1,167 @@
++/* rtc-max6916.c
++ *
++ * Driver for MAXIM  max6916 Low Current, SPI Compatible
++ * Real Time Clock
++ *
++ * Author : Venkat Prashanth B U <venkat.prashanth2498@gmail.com>
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ *
++ */
++
++#include <linux/init.h>
++#include <linux/module.h>
++#include <linux/device.h>
++#include <linux/platform_device.h>
++#include <linux/rtc.h>
++#include <linux/spi/spi.h>
++#include <linux/bcd.h>
++
++/* Registers in max6916 rtc */
++
++#define MAX6916_SECONDS_REG	0x01
++#define MAX6916_MINUTES_REG	0x02
++#define MAX6916_HOURS_REG	0x03
++#define MAX6916_DATE_REG	0x04
++#define MAX6916_MONTH_REG	0x05
++#define MAX6916_DAY_REG	0x06
++#define MAX6916_YEAR_REG	0x07
++#define MAX6916_CONTROL_REG	0x08
++#define MAX6916_STATUS_REG	0x0C
++#define MAX6916_CLOCK_BURST	0x3F
++
++static int max6916_read_reg(struct device *dev, unsigned char address,
++			    unsigned char *data)
++{
++	struct spi_device *spi = to_spi_device(dev);
++
++	*data = address | 0x80;
++
++	return spi_write_then_read(spi, data, 1, data, 1);
++}
++
++static int max6916_write_reg(struct device *dev, unsigned char address,
++			     unsigned char data)
++{
++	struct spi_device *spi = to_spi_device(dev);
++	unsigned char buf[2];
++
++	buf[0] = address&0x7F;
++	buf[1] = data;
++
++	return spi_write_then_read(spi, buf, 2, NULL, 0);
++}
++
++static int max6916_read_time(struct device *dev, struct rtc_time *dt)
++{
++	struct spi_device *spi = to_spi_device(dev);
++	int err;
++	unsigned char buf[8];
++
++	buf[0] = MAX6916_CLOCK_BURST | 0x80;
++
++	err = spi_write_then_read(spi, buf, 1, buf, 8);
++
++	if (err)
++		return err;
++
++	dt->tm_sec = bcd2bin(buf[0]);
++	dt->tm_min = bcd2bin(buf[1]);
++	dt->tm_hour = bcd2bin(buf[2] & 0x3F);
++	dt->tm_mday = bcd2bin(buf[3]);
++	dt->tm_mon = bcd2bin(buf[4]) - 1;
++	dt->tm_wday = bcd2bin(buf[5]) - 1;
++	dt->tm_year = bcd2bin(buf[6]) + 100;
++
++	return rtc_valid_tm(dt);
++}
++
++static int max6916_set_time(struct device *dev, struct rtc_time *dt)
++{
++	struct spi_device *spi = to_spi_device(dev);
++	unsigned char buf[9];
++
++	if (dt->tm_year < 100 || dt->tm_year > 199) {
++		dev_err(&spi->dev, "Year must be between 2000 and 2099. It's %d.\n",
++			dt->tm_year + 1900);
++	return -EINVAL;
++	}
++
++	buf[0] = MAX6916_CLOCK_BURST & 0x7F;
++	buf[1] = bin2bcd(dt->tm_sec);
++	buf[2] = bin2bcd(dt->tm_min);
++	buf[3] = (bin2bcd(dt->tm_hour) & 0X3F);
++	buf[4] = bin2bcd(dt->tm_mday);
++	buf[5] = bin2bcd(dt->tm_mon + 1);
++	buf[6] = bin2bcd(dt->tm_wday + 1);
++	buf[7] = bin2bcd(dt->tm_year % 100);
++	buf[8] = bin2bcd(0x00);
++
++	/* write the rtc settings */
++	return spi_write_then_read(spi, buf, 9, NULL, 0);
++}
++
++static const struct rtc_class_ops max6916_rtc_ops = {
++	.read_time = max6916_read_time,
++	.set_time = max6916_set_time,
++};
++
++static int max6916_probe(struct spi_device *spi)
++{
++	struct rtc_device *rtc;
++	unsigned char data;
++	int res;
++
++	/* spi setup with max6916 in mode 3 and bits per word as 8 */
++	spi->mode = SPI_MODE_3;
++	spi->bits_per_word = 8;
++	spi_setup(spi);
++
++	/* RTC Settings */
++	res = max6916_read_reg(&spi->dev, MAX6916_SECONDS_REG, &data);
++
++	if (res)
++		return res;
++
++	/* Disable the write protect of rtc */
++	max6916_read_reg(&spi->dev, MAX6916_CONTROL_REG, &data);
++	data = data & ~(1<<7);
++	max6916_write_reg(&spi->dev, MAX6916_CONTROL_REG, data);
++
++	/*Enable oscillator,disable oscillator stop flag, glitch filter*/
++	max6916_read_reg(&spi->dev, MAX6916_STATUS_REG, &data);
++	data = data & 0x1B;
++	max6916_write_reg(&spi->dev, MAX6916_STATUS_REG, data);
++
++	/* display the settings */
++	max6916_read_reg(&spi->dev, MAX6916_CONTROL_REG, &data);
++	dev_info(&spi->dev, "MAX6916 RTC CTRL Reg = 0x%02x\n", data);
++
++	max6916_read_reg(&spi->dev, MAX6916_STATUS_REG, &data);
++	dev_info(&spi->dev, "MAX6916 RTC Status Reg = 0x%02x\n", data);
++
++	rtc = devm_rtc_device_register(&spi->dev, "max6916",
++				 &max6916_rtc_ops, THIS_MODULE);
++
++	if (IS_ERR(rtc))
++		return PTR_ERR(rtc);
++
++	spi_set_drvdata(spi, rtc);
++
++	return 0;
++}
++
++static struct spi_driver max6916_driver = {
++	.driver = {
++		.name = "max6916",
++	},
++	.probe = max6916_probe,
++};
++
++module_spi_driver(max6916_driver);
++
++MODULE_DESCRIPTION("MAX6916 SPI RTC DRIVER");
++MODULE_AUTHOR("Venkat Prashanth B U <venkat.prashanth2498@gmail.com>");
++MODULE_LICENSE("GPL v2");
+--
+1.9.2
+
 -- 
-2.7.0
-
 -- 
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
