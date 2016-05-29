@@ -1,18 +1,28 @@
-Return-Path: <rtc-linux+bncBAABB257Y64QKGQEOZ3NYJA@googlegroups.com>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBOP2VW5AKGQEMR5NR2A@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-MIME-Version: 1.0
-Received: from root.phytec.de (mail.x-arc.de. [217.6.246.34])
-        by gmr-mx.google.com with ESMTP id e78si75364wmc.3.2016.05.10.06.19.39
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id l68si1023093wmd.3.2016.05.29.16.37.29
         for <rtc-linux@googlegroups.com>;
-        Tue, 10 May 2016 06:19:39 -0700 (PDT)
-From: Wadim Egorov <w.egorov@phytec.de>
-To: linux-kernel@vger.kernel.org, linux-clk@vger.kernel.org, rtc-linux@googlegroups.com, devicetree@vger.kernel.org, linux-rockchip@lists.infradead.org
-Cc: robh+dt@kernel.org, mark.rutland@arm.com, ijc+devicetree@hellion.org.uk, galak@codeaurora.org, mturquette@baylibre.com, sboyd@codeaurora.org, lee.jones@linaro.org, lgirdwood@gmail.com, broonie@kernel.org, a.zummo@towertech.it, alexandre.belloni@free-electrons.com, dianders@chromium.org, zyw@rock-chips.com
-Subject: [rtc-linux] [PATCH v5 0/6] Add support for rk818
-Date: Tue, 10 May 2016 15:18:54 +0200
-Message-Id: <1462886340-7893-1-git-send-email-w.egorov@phytec.de>
-Reply-To: rtc-linux@googlegroups.com
+        Sun, 29 May 2016 16:37:29 -0700 (PDT)
+Date: Mon, 30 May 2016 01:37:28 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: geert@linux-m68k.org, deller@gmx.de, benh@kernel.crashing.org,
+	mpe@ellerman.id.au, dalias@libc.org, dhowells@redhat.com,
+	linux-alpha@vger.kernel.org, a.zummo@towertech.it,
+	linux-kernel@vger.kernel.org, linux-parisc@vger.kernel.org,
+	linuxppc-dev@lists.ozlabs.org, linux-sh@vger.kernel.org,
+	linux-m68k@lists.linux-m68k.org, rtc-linux@googlegroups.com,
+	linux-arch@vger.kernel.org, gregkh@linuxfoundation.org
+Subject: [rtc-linux] Re: [PATCH v3 00/16] genrtc removal
+Message-ID: <20160529233728.GP3451@piout.net>
+References: <1461796470-1291527-1-git-send-email-arnd@arndb.de>
+ <20160503072418.GA2335@piout.net>
+ <3351574.jQ0612lD2O@wuerfel>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <3351574.jQ0612lD2O@wuerfel>
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -21,42 +31,38 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Hello,
+Hi,
 
-patches are based on top of
+On 03/05/2016 at 12:05:34 +0200, Arnd Bergmann wrote :
+> On Tuesday 03 May 2016 09:24:18 Alexandre Belloni wrote:
+> > Hi Arnd,
+> > 
+> > I see you didn't copy Greg on that series (that may explain his
+> > confusion on the previous patch), do you expect me to take it
+> > through the RTC tree? That is fine but I'd like some acks from him.
+> 
+> Yes, that was a mistake. I dropped Greg from one Cc list in v2 when
+> I split up the RTC changes into the part that was for drivers/rtc
+> and the other one for Greg's char-misc tree. Then I reused the first
+> Cc list when I sent a combined series for v3 again. I'll fix that
+> when I post v4. There are only very small changes in there that
+> I still need to pick up, so hopefully that will be the last version.
+> 
+> It would be nice if you could take it through your tree then.
+> 
 
-commit d5623161accb ("mfd: rk808: Use devm_mfd_add_devices() for mfd_device registration")
+We are now at 4.7-rc1. Can you send v4 soon so that I can apply that
+series  and get it in linux-next?
 
-in linux-next.
+There is a small rebase to do on patch v3.
 
-Changes since v4:
-- Added Acked-by from Mark Brown in patch 1
-- Dropped a patch from this series which was applied by Mark Brown
-  commit 129d7cf98f5c ("regulator: rk808: Add rk808_reg_ops_ranges for LDO3")
-
-Wadim Egorov (6):
-  regulator: rk808: Migrate to regulator core's simplified DT parsing
-    code
-  mfd: RK808: Add RK818 support
-  regulator: rk808: Add regulator driver for RK818
-  mfd: dt-bindings: Add RK818 device tree bindings document
-  clk: Kconfig: Name RK818 in Kconfig for COMMON_CLK_RK808
-  rtc: Kconfig: Name RK818 in Kconfig for RTC_DRV_RK808
-
- Documentation/devicetree/bindings/mfd/rk808.txt |  37 ++-
- drivers/clk/Kconfig                             |   4 +-
- drivers/mfd/Kconfig                             |   4 +-
- drivers/mfd/rk808.c                             | 231 ++++++++++++---
- drivers/regulator/Kconfig                       |   4 +-
- drivers/regulator/rk808-regulator.c             | 363 +++++++++++++-----------
- drivers/rtc/Kconfig                             |   4 +-
- include/linux/mfd/rk808.h                       | 162 ++++++++++-
- 8 files changed, 590 insertions(+), 219 deletions(-)
+Thanks!
 
 -- 
-1.9.1
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
--- 
 -- 
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
