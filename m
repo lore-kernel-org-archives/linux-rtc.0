@@ -1,18 +1,35 @@
-Return-Path: <rtc-linux+bncBAABB257Y64QKGQEOZ3NYJA@googlegroups.com>
+Return-Path: <rtc-linux+bncBDEKVJM7XAHRBPU2WK5AKGQEYDMY6AY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 MIME-Version: 1.0
-Received: from root.phytec.de (mail.x-arc.de. [217.6.246.34])
-        by gmr-mx.google.com with ESMTP id a65si1734152wma.0.2016.05.10.06.19.39
-        for <rtc-linux@googlegroups.com>;
-        Tue, 10 May 2016 06:19:39 -0700 (PDT)
-From: Wadim Egorov <w.egorov@phytec.de>
-To: linux-kernel@vger.kernel.org, linux-clk@vger.kernel.org, rtc-linux@googlegroups.com, devicetree@vger.kernel.org, linux-rockchip@lists.infradead.org
-Cc: robh+dt@kernel.org, mark.rutland@arm.com, ijc+devicetree@hellion.org.uk, galak@codeaurora.org, mturquette@baylibre.com, sboyd@codeaurora.org, lee.jones@linaro.org, lgirdwood@gmail.com, broonie@kernel.org, a.zummo@towertech.it, alexandre.belloni@free-electrons.com, dianders@chromium.org, zyw@rock-chips.com
-Subject: [rtc-linux] [PATCH v5 6/6] rtc: Kconfig: Name RK818 in Kconfig for RTC_DRV_RK808
-Date: Tue, 10 May 2016 15:19:00 +0200
-Message-Id: <1462886340-7893-7-git-send-email-w.egorov@phytec.de>
-In-Reply-To: <1462886340-7893-1-git-send-email-w.egorov@phytec.de>
-References: <1462886340-7893-1-git-send-email-w.egorov@phytec.de>
+Received: from mout.kundenserver.de (mout.kundenserver.de. [212.227.17.13])
+        by gmr-mx.google.com with ESMTPS id l184si1137950wmg.2.2016.05.30.11.58.06
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 30 May 2016 11:58:06 -0700 (PDT)
+From: Arnd Bergmann <arnd@arndb.de>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: Arnd Bergmann <arnd@arndb.de>,
+	geert@linux-m68k.org,
+	gregkh@linuxfoundation.org,
+	deller@gmx.de,
+	benh@kernel.crashing.org,
+	mpe@ellerman.id.au,
+	dalias@libc.org,
+	dhowells@redhat.com,
+	linux-alpha@vger.kernel.org,
+	a.zummo@towertech.it,
+	linux-kernel@vger.kernel.org,
+	linux-parisc@vger.kernel.org,
+	linuxppc-dev@lists.ozlabs.org,
+	linux-sh@vger.kernel.org,
+	linux-m68k@lists.linux-m68k.org,
+	rtc-linux@googlegroups.com,
+	linux-arch@vger.kernel.org
+Subject: [rtc-linux] [PATCH v4 05/16] char/genrtc: remove alpha support
+Date: Mon, 30 May 2016 20:57:53 +0200
+Message-Id: <1464634684-1248135-6-git-send-email-arnd@arndb.de>
+In-Reply-To: <1464634684-1248135-1-git-send-email-arnd@arndb.de>
+References: <1464634684-1248135-1-git-send-email-arnd@arndb.de>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -23,38 +40,59 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-The RK808 and RK818 PMICs are using a similar register map.
-We can reuse the rtc driver for the RK818 PMIC. So let's add
-the RK818 in the Kconfig description.
+The genrtc driver serves no purpose on Alpha because it drives the
+same hardware as the original rtc.c driver, and the newer rtc-generic.c
+or rtc-cmos.c drivers on architectures that use the asm-generic/rtc.h
+header.
 
-Signed-off-by: Wadim Egorov <w.egorov@phytec.de>
-Acked-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+The defconfig uses CONFIG_RTC=y, so this driver is not used by default.
+At one point it was used to abstract a quirk for the "Marvel" platform,
+but it does not do this any more after the code was moved into yet
+another driver in arch/alpha/kernel/rtc.c.
+
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 ---
- drivers/rtc/Kconfig | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/alpha/include/asm/rtc.h    | 1 -
+ arch/alpha/kernel/core_marvel.c | 1 -
+ drivers/char/Kconfig            | 2 +-
+ 3 files changed, 1 insertion(+), 3 deletions(-)
+ delete mode 100644 arch/alpha/include/asm/rtc.h
 
-diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
-index 18639e0..2faed74 100644
---- a/drivers/rtc/Kconfig
-+++ b/drivers/rtc/Kconfig
-@@ -324,11 +324,11 @@ config RTC_DRV_MAX77686
- 	  will be called rtc-max77686.
+diff --git a/arch/alpha/include/asm/rtc.h b/arch/alpha/include/asm/rtc.h
+deleted file mode 100644
+index f71c3b0ed360..000000000000
+--- a/arch/alpha/include/asm/rtc.h
++++ /dev/null
+@@ -1 +0,0 @@
+-#include <asm-generic/rtc.h>
+diff --git a/arch/alpha/kernel/core_marvel.c b/arch/alpha/kernel/core_marvel.c
+index 53dd2f1a53aa..d5f0580746a5 100644
+--- a/arch/alpha/kernel/core_marvel.c
++++ b/arch/alpha/kernel/core_marvel.c
+@@ -24,7 +24,6 @@
+ #include <asm/gct.h>
+ #include <asm/pgalloc.h>
+ #include <asm/tlbflush.h>
+-#include <asm/rtc.h>
+ #include <asm/vga.h>
  
- config RTC_DRV_RK808
--	tristate "Rockchip RK808 RTC"
-+	tristate "Rockchip RK808/RK818 RTC"
- 	depends on MFD_RK808
- 	help
- 	  If you say yes here you will get support for the
--	  RTC of RK808 PMIC.
-+	  RTC of RK808 and RK818 PMIC.
- 
- 	  This driver can also be built as a module. If so, the module
- 	  will be called rk808-rtc.
+ #include "proto.h"
+diff --git a/drivers/char/Kconfig b/drivers/char/Kconfig
+index 31b5861649ee..e3f2f3e293e5 100644
+--- a/drivers/char/Kconfig
++++ b/drivers/char/Kconfig
+@@ -328,7 +328,7 @@ config JS_RTC
+ config GEN_RTC
+ 	tristate "Generic /dev/rtc emulation"
+ 	depends on RTC!=y
+-	depends on ALPHA || M68K || MN10300 || PARISC || PPC
++	depends on M68K || MN10300 || PARISC || PPC
+ 	---help---
+ 	  If you say Y here and create a character special file /dev/rtc with
+ 	  major number 10 and minor number 135 using mknod ("man mknod"), you
 -- 
-1.9.1
+2.7.0
 
--- 
 -- 
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
