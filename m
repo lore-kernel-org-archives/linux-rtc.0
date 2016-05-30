@@ -1,41 +1,23 @@
-Return-Path: <rtc-linux+bncBDKZNNNLXAHBBBUMWG4QKGQEV2NKZEI@googlegroups.com>
+Return-Path: <rtc-linux+bncBDS7HNEFSALRBUUGWG5AKGQEG3H6O2I@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id a65si952021wma.3.2016.05.30.06.42.42
+        for <rtc-linux@googlegroups.com>;
+        Mon, 30 May 2016 06:42:42 -0700 (PDT)
+Date: Mon, 30 May 2016 15:42:41 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: kbuild test robot <fengguang.wu@intel.com>, kbuild-all@01.org,
+	rtc-linux@googlegroups.com
+Subject: [rtc-linux] Re: [abelloni:rtc-testing 2/17] include/linux/printk.h:375:9:
+ error: type defaults to 'int' in declaration of 'DEFINE_RATELIMIT_STATE'
+Message-ID: <20160530134241.GX3451@piout.net>
+References: <201605300959.yAdCexQ0%fengguang.wu@intel.com>
+ <11302444.RbnVRHuxj4@wuerfel>
 MIME-Version: 1.0
-Received: from mailout3.w1.samsung.com (mailout3.w1.samsung.com. [210.118.77.13])
-        by gmr-mx.google.com with ESMTPS id xo2si2672129pab.0.2016.05.06.00.21.41
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1 cipher=AES128-SHA bits=128/128);
-        Fri, 06 May 2016 00:21:42 -0700 (PDT)
-Received: from eucpsbgm2.samsung.com (unknown [203.254.199.245])
- by mailout3.w1.samsung.com
- (Oracle Communications Messaging Server 7.0.5.31.0 64bit (built May  5 2014))
- with ESMTP id <0O6Q00NLYV413F80@mailout3.w1.samsung.com> for
- rtc-linux@googlegroups.com; Fri, 06 May 2016 08:21:38 +0100 (BST)
-From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-To: Kukjin Kim <kgene@kernel.org>,
- Krzysztof Kozlowski <k.kozlowski@samsung.com>,
- MyungJoo Ham <myungjoo.ham@samsung.com>, Chanwoo Choi <cw00.choi@samsung.com>,
- Dmitry Torokhov <dmitry.torokhov@gmail.com>,
- Richard Purdie <rpurdie@rpsys.net>,
- Jacek Anaszewski <j.anaszewski@samsung.com>, Lee Jones <lee.jones@linaro.org>,
- Sebastian Reichel <sre@kernel.org>,
- Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>,
- David Woodhouse <dwmw2@infradead.org>, Liam Girdwood <lgirdwood@gmail.com>,
- Mark Brown <broonie@kernel.org>, Alessandro Zummo <a.zummo@towertech.it>,
- Alexandre Belloni <alexandre.belloni@free-electrons.com>,
- devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
- linux-samsung-soc@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-input@vger.kernel.org, linux-leds@vger.kernel.org,
- linux-pm@vger.kernel.org, rtc-linux@googlegroups.com
-Cc: r.baldyga@hackerion.com, Marek Szyprowski <m.szyprowski@samsung.com>,
- stable@vger.kernel.org, Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
-Subject: [rtc-linux] [PATCH v6 1/9] input: max8997-haptic: Fix NULL pointer dereference
-Date: Fri, 06 May 2016 09:21:21 +0200
-Message-id: <1462519289-2356-2-git-send-email-k.kozlowski@samsung.com>
-In-reply-to: <1462519289-2356-1-git-send-email-k.kozlowski@samsung.com>
-References: <1462519289-2356-1-git-send-email-k.kozlowski@samsung.com>
-Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <11302444.RbnVRHuxj4@wuerfel>
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -44,64 +26,38 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-From: Marek Szyprowski <m.szyprowski@samsung.com>
+On 30/05/2016 at 15:30:58 +0200, Arnd Bergmann wrote :
+> On Monday, May 30, 2016 9:06:03 AM CEST kbuild test robot wrote:
+> > tree:   https://git.kernel.org/pub/scm/linux/kernel/git/abelloni/linux.git rtc-testing
+> > head:   1a4cab5badddc8b5e0c5bf7eaaddcb6296c8d926
+> > commit: a3829b4602bb384f1d6c3b427c5b53c5b23c5ca0 [2/17] rtc: cmos: move mc146818rtc code out of asm-generic/rtc.h
+> > config: i386-alldefconfig (attached as .config)
+> > compiler: gcc-6 (Debian 6.1.1-1) 6.1.1 20160430
+> > reproduce:
+> >         git checkout a3829b4602bb384f1d6c3b427c5b53c5b23c5ca0
+> >         # save the attached .config to linux build tree
+> >         make ARCH=i386 
+> > 
+> 
+> I've run into the same one and fixed it up locally. I don't think there were
+> any other issues I noticed, so see below for the replacement patch.
+> 
+> Alexandre, let me know if you'd prefer me to post the whole series
+> again instead.
+> 
 
-NULL pointer derefence happens when booting with DTB because the
-platform data for haptic device is not set in supplied data from parent
-MFD device.
+Well, I think the plan was to send v4 and include GKH in the Cc list so
+that he could maybe put some acks.
 
-The MFD device creates only platform data (from Device Tree) for itself,
-not for haptic child.
-
-Unable to handle kernel NULL pointer dereference at virtual address 0000009c
-pgd = c0004000
-	[0000009c] *pgd=00000000
-	Internal error: Oops: 5 [#1] PREEMPT SMP ARM
-	(max8997_haptic_probe) from [<c03f9cec>] (platform_drv_probe+0x4c/0xb0)
-	(platform_drv_probe) from [<c03f8440>] (driver_probe_device+0x214/0x2c0)
-	(driver_probe_device) from [<c03f8598>] (__driver_attach+0xac/0xb0)
-	(__driver_attach) from [<c03f67ac>] (bus_for_each_dev+0x68/0x9c)
-	(bus_for_each_dev) from [<c03f7a38>] (bus_add_driver+0x1a0/0x218)
-	(bus_add_driver) from [<c03f8db0>] (driver_register+0x78/0xf8)
-	(driver_register) from [<c0101774>] (do_one_initcall+0x90/0x1d8)
-	(do_one_initcall) from [<c0a00dbc>] (kernel_init_freeable+0x15c/0x1fc)
-	(kernel_init_freeable) from [<c06bb5b4>] (kernel_init+0x8/0x114)
-	(kernel_init) from [<c0107938>] (ret_from_fork+0x14/0x3c)
-
-Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Cc: <stable@vger.kernel.org>
-Fixes: 104594b01ce7 ("Input: add driver support for MAX8997-haptic")
-[k.kozlowski: Write commit message, add CC-stable]
-Signed-off-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
----
- drivers/input/misc/max8997_haptic.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/input/misc/max8997_haptic.c b/drivers/input/misc/max8997_haptic.c
-index a806ba3818f7..8d6326d7e7be 100644
---- a/drivers/input/misc/max8997_haptic.c
-+++ b/drivers/input/misc/max8997_haptic.c
-@@ -255,12 +255,14 @@ static int max8997_haptic_probe(struct platform_device *pdev)
- 	struct max8997_dev *iodev = dev_get_drvdata(pdev->dev.parent);
- 	const struct max8997_platform_data *pdata =
- 					dev_get_platdata(iodev->dev);
--	const struct max8997_haptic_platform_data *haptic_pdata =
--					pdata->haptic_pdata;
-+	const struct max8997_haptic_platform_data *haptic_pdata = NULL;
- 	struct max8997_haptic *chip;
- 	struct input_dev *input_dev;
- 	int error;
- 
-+	if (pdata)
-+		haptic_pdata = pdata->haptic_pdata;
-+
- 	if (!haptic_pdata) {
- 		dev_err(&pdev->dev, "no haptic platform data\n");
- 		return -EINVAL;
--- 
-1.9.1
+There is also the mn10300 one:
+arch/mn10300/proc-mn103e010/proc-init.c:54:2: error: implicit
+declaration of function 'mn10300_dcache_flush_inv'
 
 -- 
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
+
 -- 
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
