@@ -1,40 +1,38 @@
-Return-Path: <rtc-linux+bncBDA7X7F2WUEBBSX3YC4QKGQEH4WQKAA@googlegroups.com>
+Return-Path: <rtc-linux+bncBDEKVJM7XAHRBPM2WK5AKGQE3ON4ABA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail-wm0-x22d.google.com (mail-wm0-x22d.google.com. [2a00:1450:400c:c09::22d])
-        by gmr-mx.google.com with ESMTPS id k143si885337wmg.1.2016.05.09.00.35.38
+MIME-Version: 1.0
+Received: from mout.kundenserver.de (mout.kundenserver.de. [217.72.192.73])
+        by gmr-mx.google.com with ESMTPS id v69si1135719wmv.0.2016.05.30.11.58.05
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 09 May 2016 00:35:38 -0700 (PDT)
-Received: by mail-wm0-x22d.google.com with SMTP id a17so170518479wme.0
-        for <rtc-linux@googlegroups.com>; Mon, 09 May 2016 00:35:38 -0700 (PDT)
-Date: Mon, 9 May 2016 08:35:49 +0100
-From: Lee Jones <lee.jones@linaro.org>
-To: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-Cc: Kukjin Kim <kgene@kernel.org>, MyungJoo Ham <myungjoo.ham@samsung.com>,
-	Chanwoo Choi <cw00.choi@samsung.com>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Richard Purdie <rpurdie@rpsys.net>,
-	Jacek Anaszewski <j.anaszewski@samsung.com>,
-	Sebastian Reichel <sre@kernel.org>,
-	Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>,
-	David Woodhouse <dwmw2@infradead.org>,
-	Liam Girdwood <lgirdwood@gmail.com>,
-	Mark Brown <broonie@kernel.org>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-	linux-samsung-soc@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux-input@vger.kernel.org, linux-leds@vger.kernel.org,
-	linux-pm@vger.kernel.org, rtc-linux@googlegroups.com,
-	r.baldyga@hackerion.com,
-	Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
-Subject: [rtc-linux] Re: [PATCH v6 0/9] mfd: max8997: Add regmap support
-Message-ID: <20160509073549.GC8324@dell>
-References: <1462519289-2356-1-git-send-email-k.kozlowski@samsung.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1462519289-2356-1-git-send-email-k.kozlowski@samsung.com>
+        Mon, 30 May 2016 11:58:05 -0700 (PDT)
+From: Arnd Bergmann <arnd@arndb.de>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: Arnd Bergmann <arnd@arndb.de>,
+	geert@linux-m68k.org,
+	gregkh@linuxfoundation.org,
+	deller@gmx.de,
+	benh@kernel.crashing.org,
+	mpe@ellerman.id.au,
+	dalias@libc.org,
+	dhowells@redhat.com,
+	linux-alpha@vger.kernel.org,
+	a.zummo@towertech.it,
+	linux-kernel@vger.kernel.org,
+	linux-parisc@vger.kernel.org,
+	linuxppc-dev@lists.ozlabs.org,
+	linux-sh@vger.kernel.org,
+	linux-m68k@lists.linux-m68k.org,
+	rtc-linux@googlegroups.com,
+	linux-arch@vger.kernel.org
+Subject: [rtc-linux] [PATCH v4 01/16] rtc: cmos: remove empty
+ asm/mc146818rtc.h files
+Date: Mon, 30 May 2016 20:57:49 +0200
+Message-Id: <1464634684-1248135-2-git-send-email-arnd@arndb.de>
+In-Reply-To: <1464634684-1248135-1-git-send-email-arnd@arndb.de>
+References: <1464634684-1248135-1-git-send-email-arnd@arndb.de>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -43,95 +41,117 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Fri, 06 May 2016, Krzysztof Kozlowski wrote:
-> This is a rebase and extension of old Robert Baldyga's work. [0]
->=20
-> Robert no longer works in Samsung.
->=20
-> From the original cover letter:
-> "This patchset modifies max8997 driver and associated function drivers to=
- use
-> register maps instead of operating directly on i2c bus. This change allow=
-ed
-> to simplify irq handling, and to move some initializations to individual
-> function drivers. Hence now when some functions are not enabled, their i2=
-c
-> clients, regmaps and irqs are not registered."
->=20
->=20
-> My changes (since Robert's v5)
-> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D
-> 1. Rebase on v4.6-rc6.
-> 2. Collect more acks.
-> 3. Add few fixes:
->    a. Haptic fix from Marek,
->    b. Extcon and RTC fix from me,
->    c. DTS fixes from Marek.
->=20
-> DTS changes are independent but rest of them (extcon/input/MFD) rely
-> on each other.
->=20
-> One way of merging would be to pick everything (except DTS) through
-> one tree. Or use tags.
+Nothing on these architectures ever includes the asm/mc146818rtc.h
+file, the drivers that used to do this have been fixed long ago,
+and the remaining users are all PC-specific.
 
-I'd be happy to take the set, once you have collected all Acks.
+This removes the files for good.
 
-> Best regards,
-> Krzysztof
->=20
-> [0] http://lkml.iu.edu/hypermail//linux/kernel/1411.1/03152.html
->=20
->=20
-> Krzysztof Kozlowski (3):
->   extcon: max8997: Fix handling error code of regmap_irq_get_virq()
->   rtc: max8997: Check for ERRNO of regmap_irq_get_virq()
->   extcon: max8997: Fix inconsistent indenting
->=20
-> Marek Szyprowski (3):
->   input: max8997-haptic: Fix NULL pointer dereference
->   ARM: dts: exynos: Fix regulator name to avoid forbidden character on
->     exynos4210-trats
->   ARM: dts: exynos: Add interrupt line to MAX8997 PMIC on
->     exynos4210-trats
->=20
-> Robert Baldyga (3):
->   mfd: max8997: Use regmap to access registers
->   mfd: max8997: handle IRQs using regmap
->   mfd: max8997: Change irq names to upper case
->=20
->  arch/arm/boot/dts/exynos4210-trats.dts |   4 +-
->  drivers/extcon/extcon-max8997.c        |  72 ++++---
->  drivers/input/misc/max8997_haptic.c    |  40 ++--
->  drivers/leds/leds-max8997.c            |  13 +-
->  drivers/mfd/Kconfig                    |   3 +-
->  drivers/mfd/Makefile                   |   2 +-
->  drivers/mfd/max8997-irq.c              | 383 ---------------------------=
-------
->  drivers/mfd/max8997.c                  | 245 ++++++++++++++-------
->  drivers/power/max8997_charger.c        |  33 +--
->  drivers/regulator/max8997.c            |  87 ++++----
->  drivers/rtc/rtc-max8997.c              |  60 +++---
->  include/linux/mfd/max8997-private.h    |  82 +++++--
->  12 files changed, 392 insertions(+), 632 deletions(-)
->  delete mode 100644 drivers/mfd/max8997-irq.c
->=20
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Acked-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+---
+ arch/frv/include/asm/mc146818rtc.h    | 16 ----------------
+ arch/h8300/include/asm/mc146818rtc.h  |  9 ---------
+ arch/ia64/include/asm/mc146818rtc.h   | 10 ----------
+ arch/parisc/include/asm/mc146818rtc.h |  9 ---------
+ arch/sh/include/asm/mc146818rtc.h     |  7 -------
+ 5 files changed, 51 deletions(-)
+ delete mode 100644 arch/frv/include/asm/mc146818rtc.h
+ delete mode 100644 arch/h8300/include/asm/mc146818rtc.h
+ delete mode 100644 arch/ia64/include/asm/mc146818rtc.h
+ delete mode 100644 arch/parisc/include/asm/mc146818rtc.h
+ delete mode 100644 arch/sh/include/asm/mc146818rtc.h
 
---=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+diff --git a/arch/frv/include/asm/mc146818rtc.h b/arch/frv/include/asm/mc146818rtc.h
+deleted file mode 100644
+index 90dfb7a633d1..000000000000
+--- a/arch/frv/include/asm/mc146818rtc.h
++++ /dev/null
+@@ -1,16 +0,0 @@
+-/* mc146818rtc.h: RTC defs
+- *
+- * Copyright (C) 2005 Red Hat, Inc. All Rights Reserved.
+- * Written by David Howells (dhowells@redhat.com)
+- *
+- * This program is free software; you can redistribute it and/or
+- * modify it under the terms of the GNU General Public License
+- * as published by the Free Software Foundation; either version
+- * 2 of the License, or (at your option) any later version.
+- */
+-
+-#ifndef _ASM_MC146818RTC_H
+-#define _ASM_MC146818RTC_H
+-
+-
+-#endif /* _ASM_MC146818RTC_H */
+diff --git a/arch/h8300/include/asm/mc146818rtc.h b/arch/h8300/include/asm/mc146818rtc.h
+deleted file mode 100644
+index ab9d9646d241..000000000000
+--- a/arch/h8300/include/asm/mc146818rtc.h
++++ /dev/null
+@@ -1,9 +0,0 @@
+-/*
+- * Machine dependent access functions for RTC registers.
+- */
+-#ifndef _H8300_MC146818RTC_H
+-#define _H8300_MC146818RTC_H
+-
+-/* empty include file to satisfy the include in genrtc.c/ide-geometry.c */
+-
+-#endif /* _H8300_MC146818RTC_H */
+diff --git a/arch/ia64/include/asm/mc146818rtc.h b/arch/ia64/include/asm/mc146818rtc.h
+deleted file mode 100644
+index 407787a237ba..000000000000
+--- a/arch/ia64/include/asm/mc146818rtc.h
++++ /dev/null
+@@ -1,10 +0,0 @@
+-#ifndef _ASM_IA64_MC146818RTC_H
+-#define _ASM_IA64_MC146818RTC_H
+-
+-/*
+- * Machine dependent access functions for RTC registers.
+- */
+-
+-/* empty include file to satisfy the include in genrtc.c */
+-
+-#endif /* _ASM_IA64_MC146818RTC_H */
+diff --git a/arch/parisc/include/asm/mc146818rtc.h b/arch/parisc/include/asm/mc146818rtc.h
+deleted file mode 100644
+index adf41631449f..000000000000
+--- a/arch/parisc/include/asm/mc146818rtc.h
++++ /dev/null
+@@ -1,9 +0,0 @@
+-/*
+- * Machine dependent access functions for RTC registers.
+- */
+-#ifndef _ASM_MC146818RTC_H
+-#define _ASM_MC146818RTC_H
+-
+-/* empty include file to satisfy the include in genrtc.c */
+-
+-#endif /* _ASM_MC146818RTC_H */
+diff --git a/arch/sh/include/asm/mc146818rtc.h b/arch/sh/include/asm/mc146818rtc.h
+deleted file mode 100644
+index 0aee96a97330..000000000000
+--- a/arch/sh/include/asm/mc146818rtc.h
++++ /dev/null
+@@ -1,7 +0,0 @@
+-/*
+- * Machine dependent access functions for RTC registers.
+- */
+-#ifndef _ASM_MC146818RTC_H
+-#define _ASM_MC146818RTC_H
+-
+-#endif /* _ASM_MC146818RTC_H */
+-- 
+2.7.0
 
---=20
---=20
+-- 
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
----=20
-You received this message because you are subscribed to the Google Groups "=
-rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an e=
-mail to rtc-linux+unsubscribe@googlegroups.com.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
