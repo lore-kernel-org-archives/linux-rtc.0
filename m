@@ -1,21 +1,37 @@
-Return-Path: <rtc-linux+bncBDEKVJM7XAHRB4WYUK4QKGQERIKYR2A@googlegroups.com>
+Return-Path: <rtc-linux+bncBDEKVJM7XAHRBPM2WK5AKGQE3ON4ABA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mout.kundenserver.de (mout.kundenserver.de. [212.227.126.131])
-        by gmr-mx.google.com with ESMTPS id a65si1530724wma.0.2016.05.03.06.49.37
+MIME-Version: 1.0
+Received: from mout.kundenserver.de (mout.kundenserver.de. [217.72.192.73])
+        by gmr-mx.google.com with ESMTPS id l68si1161826wmd.3.2016.05.30.11.58.05
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 03 May 2016 06:49:38 -0700 (PDT)
+        Mon, 30 May 2016 11:58:05 -0700 (PDT)
 From: Arnd Bergmann <arnd@arndb.de>
 To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>, a.zummo@towertech.it, rtc-linux@googlegroups.com, linux-m68k@lists.linux-m68k.org, linux-kernel@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH 0/2] m68k RTC fixes
-Date: Tue, 03 May 2016 15:49:31 +0200
-Message-ID: <1708606.ou3btFVZ5o@wuerfel>
-In-Reply-To: <20160503134034.GK2335@piout.net>
-References: <1462178783-29294-1-git-send-email-geert@linux-m68k.org> <20160503134034.GK2335@piout.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Cc: Arnd Bergmann <arnd@arndb.de>,
+	geert@linux-m68k.org,
+	gregkh@linuxfoundation.org,
+	deller@gmx.de,
+	benh@kernel.crashing.org,
+	mpe@ellerman.id.au,
+	dalias@libc.org,
+	dhowells@redhat.com,
+	linux-alpha@vger.kernel.org,
+	a.zummo@towertech.it,
+	linux-kernel@vger.kernel.org,
+	linux-parisc@vger.kernel.org,
+	linuxppc-dev@lists.ozlabs.org,
+	linux-sh@vger.kernel.org,
+	linux-m68k@lists.linux-m68k.org,
+	rtc-linux@googlegroups.com,
+	linux-arch@vger.kernel.org
+Subject: [rtc-linux] [PATCH v4 09/16] rtc: m68k: provide rtc_class_ops directly
+Date: Mon, 30 May 2016 20:57:57 +0200
+Message-Id: <1464634684-1248135-10-git-send-email-arnd@arndb.de>
+In-Reply-To: <1464634684-1248135-1-git-send-email-arnd@arndb.de>
+References: <1464634684-1248135-1-git-send-email-arnd@arndb.de>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -24,31 +40,78 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Tuesday 03 May 2016 15:40:34 Alexandre Belloni wrote:
-> > Queue strategy:
-> >   1. These are queued together with Arnd's series,
-> >   1. I queue them for v4.7 myself, but then the RTC tree must be mergest
-> >      after the m68k tree,
-> >   2. I queue them for v4.6.
-> > 
-> > As I currently don't have any m68k patches queued for v4.7, perhaps it's
-> > easiest if these are included with Arnd's series?
-> > 
-> 
-> I suggest you take them for 4.7 anyway. I don't think I am confident
-> enough to merge Arnd's series for 4.7. Also, I doubt I'll get many acks
-> from some architecture maintainers.
-> 
-> So, my plan is to apply it on top of 4.7-rc1 and let it sit in
-> linux-next for a while.
-> 
+The rtc-generic driver provides an architecture specific
+wrapper on top of the generic rtc_class_ops abstraction,
+and m68k has another abstraction on top, which is a bit
+silly.
 
-Good idea. It's getting a bit late for 4.7 now, and there is nothing
-urgent in my series.
+This changes the m68k rtc-generic device to provide its
+rtc_class_ops directly, to reduce the number of layers
+by one.
 
-	Arnd
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+---
+ arch/m68k/kernel/time.c   | 23 +++++++++++++++++++++--
+ drivers/rtc/rtc-generic.c |  2 +-
+ 2 files changed, 22 insertions(+), 3 deletions(-)
 
+diff --git a/arch/m68k/kernel/time.c b/arch/m68k/kernel/time.c
+index 3857737e3958..bd6417d38d5a 100644
+--- a/arch/m68k/kernel/time.c
++++ b/arch/m68k/kernel/time.c
+@@ -86,7 +86,24 @@ void read_persistent_clock(struct timespec *ts)
+ 	}
+ }
+ 
+-#ifdef CONFIG_ARCH_USES_GETTIMEOFFSET
++#if defined(CONFIG_ARCH_USES_GETTIMEOFFSET) && IS_ENABLED(CONFIG_RTC_DRV_GENERIC)
++static int rtc_generic_get_time(struct device *dev, struct rtc_time *tm)
++{
++	mach_hwclk(0, tm);
++	return rtc_valid_tm(tm);
++}
++
++static int rtc_generic_set_time(struct device *dev, struct rtc_time *tm)
++{
++	if (mach_hwclk(1, tm) < 0)
++		return -EOPNOTSUPP;
++	return 0;
++}
++
++static const struct rtc_class_ops generic_rtc_ops = {
++	.read_time = rtc_generic_get_time,
++	.set_time = rtc_generic_set_time,
++};
+ 
+ static int __init rtc_init(void)
+ {
+@@ -95,7 +112,9 @@ static int __init rtc_init(void)
+ 	if (!mach_hwclk)
+ 		return -ENODEV;
+ 
+-	pdev = platform_device_register_simple("rtc-generic", -1, NULL, 0);
++	pdev = platform_device_register_data(NULL, "rtc-generic", -1,
++					     &generic_rtc_ops,
++					     sizeof(generic_rtc_ops));
+ 	return PTR_ERR_OR_ZERO(pdev);
+ }
+ 
+diff --git a/drivers/rtc/rtc-generic.c b/drivers/rtc/rtc-generic.c
+index 92b5e02a3750..5c82bae73b9c 100644
+--- a/drivers/rtc/rtc-generic.c
++++ b/drivers/rtc/rtc-generic.c
+@@ -9,7 +9,7 @@
+ #include <linux/platform_device.h>
+ #include <linux/rtc.h>
+ 
+-#if defined(CONFIG_M68K) || defined(CONFIG_PPC)
++#if defined(CONFIG_PPC)
+ #include <asm/rtc.h>
+ 
+ static int generic_get_time(struct device *dev, struct rtc_time *tm)
 -- 
+2.7.0
+
 -- 
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
