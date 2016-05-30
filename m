@@ -1,39 +1,38 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBUU7W24QKGQE4WEJNNQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBDEKVJM7XAHRBPU2WK5AKGQEYDMY6AY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id e64si554620wmi.3.2016.05.06.23.48.49
-        for <rtc-linux@googlegroups.com>;
-        Fri, 06 May 2016 23:48:49 -0700 (PDT)
-Date: Sat, 7 May 2016 08:48:45 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-Cc: Kukjin Kim <kgene@kernel.org>, MyungJoo Ham <myungjoo.ham@samsung.com>,
-	Chanwoo Choi <cw00.choi@samsung.com>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Richard Purdie <rpurdie@rpsys.net>,
-	Jacek Anaszewski <j.anaszewski@samsung.com>,
-	Lee Jones <lee.jones@linaro.org>,
-	Sebastian Reichel <sre@kernel.org>,
-	Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>,
-	David Woodhouse <dwmw2@infradead.org>,
-	Liam Girdwood <lgirdwood@gmail.com>,
-	Mark Brown <broonie@kernel.org>,
-	Alessandro Zummo <a.zummo@towertech.it>, devicetree@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	linux-samsung-soc@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux-input@vger.kernel.org, linux-leds@vger.kernel.org,
-	linux-pm@vger.kernel.org, rtc-linux@googlegroups.com,
-	r.baldyga@hackerion.com,
-	Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
-Subject: [rtc-linux] Re: [PATCH v6 6/9] rtc: max8997: Check for ERRNO of regmap_irq_get_virq()
-Message-ID: <20160507064845.GD2890@piout.net>
-References: <1462519289-2356-2-git-send-email-k.kozlowski@samsung.com>
- <1462519636-3250-1-git-send-email-k.kozlowski@samsung.com>
- <1462519636-3250-5-git-send-email-k.kozlowski@samsung.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1462519636-3250-5-git-send-email-k.kozlowski@samsung.com>
+Received: from mout.kundenserver.de (mout.kundenserver.de. [217.72.192.75])
+        by gmr-mx.google.com with ESMTPS id j140si259448wmf.1.2016.05.30.11.58.05
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 30 May 2016 11:58:05 -0700 (PDT)
+From: Arnd Bergmann <arnd@arndb.de>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: Arnd Bergmann <arnd@arndb.de>,
+	geert@linux-m68k.org,
+	gregkh@linuxfoundation.org,
+	deller@gmx.de,
+	benh@kernel.crashing.org,
+	mpe@ellerman.id.au,
+	dalias@libc.org,
+	dhowells@redhat.com,
+	linux-alpha@vger.kernel.org,
+	a.zummo@towertech.it,
+	linux-kernel@vger.kernel.org,
+	linux-parisc@vger.kernel.org,
+	linuxppc-dev@lists.ozlabs.org,
+	linux-sh@vger.kernel.org,
+	linux-m68k@lists.linux-m68k.org,
+	rtc-linux@googlegroups.com,
+	linux-arch@vger.kernel.org
+Subject: [rtc-linux] [PATCH v4 15/16] char/genrtc: remove asm-generic/rtc.h
+ from mips
+Date: Mon, 30 May 2016 20:58:03 +0200
+Message-Id: <1464634684-1248135-16-git-send-email-arnd@arndb.de>
+In-Reply-To: <1464634684-1248135-1-git-send-email-arnd@arndb.de>
+References: <1464634684-1248135-1-git-send-email-arnd@arndb.de>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -42,40 +41,30 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 06/05/2016 at 09:27:13 +0200, Krzysztof Kozlowski wrote :
-> The regmap_irq_get_virq() can return zero or negative ERRNO, so it is
-> insufficient to check only for non-zero value.
-> 
-> Signed-off-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-Acked-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+arch/mips/sni/time.c includes asm-generic/rtc.h for no apparent reason,
+and it works fine without that header, so lets remove the inclusion
+in preparation of deleting the file.
 
-> ---
->  drivers/rtc/rtc-max8997.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/rtc/rtc-max8997.c b/drivers/rtc/rtc-max8997.c
-> index 4998aee0f07f..1a06e17ebe9b 100644
-> --- a/drivers/rtc/rtc-max8997.c
-> +++ b/drivers/rtc/rtc-max8997.c
-> @@ -497,7 +497,7 @@ static int max8997_rtc_probe(struct platform_device *pdev)
->  	}
->  
->  	virq = regmap_irq_get_virq(max8997->irq_data, MAX8997_PMICIRQ_RTCA1);
-> -	if (!virq) {
-> +	if (virq <= 0) {
->  		dev_err(&pdev->dev, "Failed to create mapping alarm IRQ\n");
->  		ret = -ENXIO;
->  		goto err_out;
-> -- 
-> 1.9.1
-> 
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+---
+ arch/mips/sni/time.c | 1 -
+ 1 file changed, 1 deletion(-)
 
+diff --git a/arch/mips/sni/time.c b/arch/mips/sni/time.c
+index fb4b3520cdc6..7ee14f41fc25 100644
+--- a/arch/mips/sni/time.c
++++ b/arch/mips/sni/time.c
+@@ -8,7 +8,6 @@
+ 
+ #include <asm/sni.h>
+ #include <asm/time.h>
+-#include <asm-generic/rtc.h>
+ 
+ #define SNI_CLOCK_TICK_RATE	3686400
+ #define SNI_COUNTER2_DIV	64
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+2.7.0
 
--- 
 -- 
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
