@@ -1,39 +1,35 @@
-Return-Path: <rtc-linux+bncBDKZNNNLXAHBBX4NWG4QKGQEBZ5IPHI@googlegroups.com>
+Return-Path: <rtc-linux+bncBDEKVJM7XAHRBPM2WK5AKGQE3ON4ABA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 MIME-Version: 1.0
-Received: from mailout1.w1.samsung.com (mailout1.w1.samsung.com. [210.118.77.11])
-        by gmr-mx.google.com with ESMTPS id 22si2729321pfv.2.2016.05.06.00.25.19
+Received: from mout.kundenserver.de (mout.kundenserver.de. [217.72.192.75])
+        by gmr-mx.google.com with ESMTPS id v69si1135720wmv.0.2016.05.30.11.58.05
         for <rtc-linux@googlegroups.com>
-        (version=TLS1 cipher=AES128-SHA bits=128/128);
-        Fri, 06 May 2016 00:25:19 -0700 (PDT)
-Received: from eucpsbgm2.samsung.com (unknown [203.254.199.245])
- by mailout1.w1.samsung.com
- (Oracle Communications Messaging Server 7.0.5.31.0 64bit (built May  5 2014))
- with ESMTP id <0O6Q00DG5VA35Q80@mailout1.w1.samsung.com> for
- rtc-linux@googlegroups.com; Fri, 06 May 2016 08:25:15 +0100 (BST)
-From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-To: Kukjin Kim <kgene@kernel.org>,
- Krzysztof Kozlowski <k.kozlowski@samsung.com>,
- MyungJoo Ham <myungjoo.ham@samsung.com>, Chanwoo Choi <cw00.choi@samsung.com>,
- Dmitry Torokhov <dmitry.torokhov@gmail.com>,
- Richard Purdie <rpurdie@rpsys.net>,
- Jacek Anaszewski <j.anaszewski@samsung.com>, Lee Jones <lee.jones@linaro.org>,
- Sebastian Reichel <sre@kernel.org>,
- Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>,
- David Woodhouse <dwmw2@infradead.org>, Liam Girdwood <lgirdwood@gmail.com>,
- Mark Brown <broonie@kernel.org>, Alessandro Zummo <a.zummo@towertech.it>,
- Alexandre Belloni <alexandre.belloni@free-electrons.com>,
- devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
- linux-samsung-soc@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-input@vger.kernel.org, linux-leds@vger.kernel.org,
- linux-pm@vger.kernel.org, rtc-linux@googlegroups.com
-Cc: r.baldyga@hackerion.com, Marek Szyprowski <m.szyprowski@samsung.com>,
- stable@vger.kernel.org, Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
-Subject: [rtc-linux] [PATCH v6 1/9] input: max8997-haptic: Fix NULL pointer dereference
-Date: Fri, 06 May 2016 09:24:56 +0200
-Message-id: <1462519504-3092-1-git-send-email-k.kozlowski@samsung.com>
-In-reply-to: <1462519289-2356-2-git-send-email-k.kozlowski@samsung.com>
-References: <1462519289-2356-2-git-send-email-k.kozlowski@samsung.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 30 May 2016 11:58:05 -0700 (PDT)
+From: Arnd Bergmann <arnd@arndb.de>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: Arnd Bergmann <arnd@arndb.de>,
+	geert@linux-m68k.org,
+	gregkh@linuxfoundation.org,
+	deller@gmx.de,
+	benh@kernel.crashing.org,
+	mpe@ellerman.id.au,
+	dalias@libc.org,
+	dhowells@redhat.com,
+	linux-alpha@vger.kernel.org,
+	a.zummo@towertech.it,
+	linux-kernel@vger.kernel.org,
+	linux-parisc@vger.kernel.org,
+	linuxppc-dev@lists.ozlabs.org,
+	linux-sh@vger.kernel.org,
+	linux-m68k@lists.linux-m68k.org,
+	rtc-linux@googlegroups.com,
+	linux-arch@vger.kernel.org
+Subject: [rtc-linux] [PATCH v4 11/16] char/genrtc: remove m68k support
+Date: Mon, 30 May 2016 20:57:59 +0200
+Message-Id: <1464634684-1248135-12-git-send-email-arnd@arndb.de>
+In-Reply-To: <1464634684-1248135-1-git-send-email-arnd@arndb.de>
+References: <1464634684-1248135-1-git-send-email-arnd@arndb.de>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -44,64 +40,318 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-From: Marek Szyprowski <m.szyprowski@samsung.com>
+The asm/rtc.h header is only used for the old gen_rtc driver
+that has been replaced by rtc-generic. According to Geert
+Uytterhoeven, nobody has used the old driver on m68k for
+a long time, so we can now just remove the header file
+and disallow the driver in Kconfig.
 
-NULL pointer derefence happens when booting with DTB because the
-platform data for haptic device is not set in supplied data from parent
-MFD device.
+All files that used to include asm/rtc.h are now changed so
+they include the headers that were used implicitly through
+asm/rtc.h.
 
-The MFD device creates only platform data (from Device Tree) for itself,
-not for haptic child.
-
-Unable to handle kernel NULL pointer dereference at virtual address 0000009c
-pgd = c0004000
-	[0000009c] *pgd=00000000
-	Internal error: Oops: 5 [#1] PREEMPT SMP ARM
-	(max8997_haptic_probe) from [<c03f9cec>] (platform_drv_probe+0x4c/0xb0)
-	(platform_drv_probe) from [<c03f8440>] (driver_probe_device+0x214/0x2c0)
-	(driver_probe_device) from [<c03f8598>] (__driver_attach+0xac/0xb0)
-	(__driver_attach) from [<c03f67ac>] (bus_for_each_dev+0x68/0x9c)
-	(bus_for_each_dev) from [<c03f7a38>] (bus_add_driver+0x1a0/0x218)
-	(bus_add_driver) from [<c03f8db0>] (driver_register+0x78/0xf8)
-	(driver_register) from [<c0101774>] (do_one_initcall+0x90/0x1d8)
-	(do_one_initcall) from [<c0a00dbc>] (kernel_init_freeable+0x15c/0x1fc)
-	(kernel_init_freeable) from [<c06bb5b4>] (kernel_init+0x8/0x114)
-	(kernel_init) from [<c0107938>] (ret_from_fork+0x14/0x3c)
-
-Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Cc: <stable@vger.kernel.org>
-Fixes: 104594b01ce7 ("Input: add driver support for MAX8997-haptic")
-[k.kozlowski: Write commit message, add CC-stable]
-Signed-off-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 ---
- drivers/input/misc/max8997_haptic.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ arch/m68k/amiga/config.c    |  1 -
+ arch/m68k/apollo/config.c   |  1 -
+ arch/m68k/bvme6000/config.c |  1 -
+ arch/m68k/hp300/config.c    |  2 +-
+ arch/m68k/include/asm/rtc.h | 79 ---------------------------------------------
+ arch/m68k/mac/config.c      |  3 +-
+ arch/m68k/mac/misc.c        |  1 -
+ arch/m68k/mvme147/config.c  |  1 -
+ arch/m68k/mvme16x/config.c  |  1 -
+ arch/m68k/q40/config.c      |  2 +-
+ arch/m68k/sun3/config.c     |  1 -
+ arch/m68k/sun3/intersil.c   |  2 +-
+ arch/m68k/sun3x/time.c      |  2 +-
+ drivers/char/Kconfig        |  2 +-
+ 14 files changed, 7 insertions(+), 92 deletions(-)
+ delete mode 100644 arch/m68k/include/asm/rtc.h
 
-diff --git a/drivers/input/misc/max8997_haptic.c b/drivers/input/misc/max8997_haptic.c
-index a806ba3818f7..8d6326d7e7be 100644
---- a/drivers/input/misc/max8997_haptic.c
-+++ b/drivers/input/misc/max8997_haptic.c
-@@ -255,12 +255,14 @@ static int max8997_haptic_probe(struct platform_device *pdev)
- 	struct max8997_dev *iodev = dev_get_drvdata(pdev->dev.parent);
- 	const struct max8997_platform_data *pdata =
- 					dev_get_platdata(iodev->dev);
--	const struct max8997_haptic_platform_data *haptic_pdata =
--					pdata->haptic_pdata;
-+	const struct max8997_haptic_platform_data *haptic_pdata = NULL;
- 	struct max8997_haptic *chip;
- 	struct input_dev *input_dev;
- 	int error;
+diff --git a/arch/m68k/amiga/config.c b/arch/m68k/amiga/config.c
+index 01693df7f2f6..ec9cc1fdd237 100644
+--- a/arch/m68k/amiga/config.c
++++ b/arch/m68k/amiga/config.c
+@@ -35,7 +35,6 @@
+ #include <asm/amigahw.h>
+ #include <asm/amigaints.h>
+ #include <asm/irq.h>
+-#include <asm/rtc.h>
+ #include <asm/machdep.h>
+ #include <asm/io.h>
  
-+	if (pdata)
-+		haptic_pdata = pdata->haptic_pdata;
-+
- 	if (!haptic_pdata) {
- 		dev_err(&pdev->dev, "no haptic platform data\n");
- 		return -EINVAL;
+diff --git a/arch/m68k/apollo/config.c b/arch/m68k/apollo/config.c
+index 6e62d66c396e..432bc8bacfc2 100644
+--- a/arch/m68k/apollo/config.c
++++ b/arch/m68k/apollo/config.c
+@@ -15,7 +15,6 @@
+ #include <asm/pgtable.h>
+ #include <asm/apollohw.h>
+ #include <asm/irq.h>
+-#include <asm/rtc.h>
+ #include <asm/machdep.h>
+ 
+ u_long sio01_physaddr;
+diff --git a/arch/m68k/bvme6000/config.c b/arch/m68k/bvme6000/config.c
+index 478623dbb209..611d4d9ea2bd 100644
+--- a/arch/m68k/bvme6000/config.c
++++ b/arch/m68k/bvme6000/config.c
+@@ -34,7 +34,6 @@
+ #include <asm/setup.h>
+ #include <asm/irq.h>
+ #include <asm/traps.h>
+-#include <asm/rtc.h>
+ #include <asm/machdep.h>
+ #include <asm/bvme6000hw.h>
+ 
+diff --git a/arch/m68k/hp300/config.c b/arch/m68k/hp300/config.c
+index a9befe65adc4..7cfab158fb61 100644
+--- a/arch/m68k/hp300/config.c
++++ b/arch/m68k/hp300/config.c
+@@ -12,6 +12,7 @@
+ #include <linux/string.h>
+ #include <linux/kernel.h>
+ #include <linux/console.h>
++#include <linux/rtc.h>
+ 
+ #include <asm/bootinfo.h>
+ #include <asm/bootinfo-hp300.h>
+@@ -20,7 +21,6 @@
+ #include <asm/blinken.h>
+ #include <asm/io.h>                               /* readb() and writeb() */
+ #include <asm/hp300hw.h>
+-#include <asm/rtc.h>
+ 
+ #include "time.h"
+ 
+diff --git a/arch/m68k/include/asm/rtc.h b/arch/m68k/include/asm/rtc.h
+deleted file mode 100644
+index a4d08ea122ee..000000000000
+--- a/arch/m68k/include/asm/rtc.h
++++ /dev/null
+@@ -1,79 +0,0 @@
+-/* include/asm-m68k/rtc.h
+- *
+- * Copyright Richard Zidlicky
+- * implementation details for genrtc/q40rtc driver
+- */
+-/* permission is hereby granted to copy, modify and redistribute this code
+- * in terms of the GNU Library General Public License, Version 2 or later,
+- * at your option.
+- */
+-
+-#ifndef _ASM_RTC_H
+-#define _ASM_RTC_H
+-
+-#ifdef __KERNEL__
+-
+-#include <linux/rtc.h>
+-#include <asm/errno.h>
+-#include <asm/machdep.h>
+-
+-#define RTC_PIE 0x40		/* periodic interrupt enable */
+-#define RTC_AIE 0x20		/* alarm interrupt enable */
+-#define RTC_UIE 0x10		/* update-finished interrupt enable */
+-
+-/* some dummy definitions */
+-#define RTC_BATT_BAD 0x100	/* battery bad */
+-#define RTC_SQWE 0x08		/* enable square-wave output */
+-#define RTC_DM_BINARY 0x04	/* all time/date values are BCD if clear */
+-#define RTC_24H 0x02		/* 24 hour mode - else hours bit 7 means pm */
+-#define RTC_DST_EN 0x01	        /* auto switch DST - works f. USA only */
+-
+-static inline unsigned int get_rtc_time(struct rtc_time *time)
+-{
+-	/*
+-	 * Only the values that we read from the RTC are set. We leave
+-	 * tm_wday, tm_yday and tm_isdst untouched. Even though the
+-	 * RTC has RTC_DAY_OF_WEEK, we ignore it, as it is only updated
+-	 * by the RTC when initially set to a non-zero value.
+-	 */
+-	if (mach_hwclk)
+-		mach_hwclk(0, time);
+-	return RTC_24H;
+-}
+-
+-static inline int set_rtc_time(struct rtc_time *time)
+-{
+-	if (mach_hwclk)
+-		return mach_hwclk(1, time);
+-	return -EINVAL;
+-}
+-
+-static inline unsigned int get_rtc_ss(void)
+-{
+-	if (mach_get_ss)
+-		return mach_get_ss();
+-	else{
+-		struct rtc_time h;
+-
+-		get_rtc_time(&h);
+-		return h.tm_sec;
+-	}
+-}
+-
+-static inline int get_rtc_pll(struct rtc_pll_info *pll)
+-{
+-	if (mach_get_rtc_pll)
+-		return mach_get_rtc_pll(pll);
+-	else
+-		return -EINVAL;
+-}
+-static inline int set_rtc_pll(struct rtc_pll_info *pll)
+-{
+-	if (mach_set_rtc_pll)
+-		return mach_set_rtc_pll(pll);
+-	else
+-		return -EINVAL;
+-}
+-#endif /* __KERNEL__ */
+-
+-#endif /* _ASM__RTC_H */
+diff --git a/arch/m68k/mac/config.c b/arch/m68k/mac/config.c
+index 689b47d292ac..2f33a33001e5 100644
+--- a/arch/m68k/mac/config.c
++++ b/arch/m68k/mac/config.c
+@@ -10,6 +10,7 @@
+  * Miscellaneous linux stuff
+  */
+ 
++#include <linux/errno.h>
+ #include <linux/module.h>
+ #include <linux/types.h>
+ #include <linux/mm.h>
+@@ -25,6 +26,7 @@
+ #include <linux/platform_device.h>
+ #include <linux/adb.h>
+ #include <linux/cuda.h>
++#include <linux/rtc.h>
+ 
+ #include <asm/setup.h>
+ #include <asm/bootinfo.h>
+@@ -34,7 +36,6 @@
+ #include <asm/io.h>
+ #include <asm/irq.h>
+ #include <asm/pgtable.h>
+-#include <asm/rtc.h>
+ #include <asm/machdep.h>
+ 
+ #include <asm/macintosh.h>
+diff --git a/arch/m68k/mac/misc.c b/arch/m68k/mac/misc.c
+index 707b61aea203..0fb54a90eac2 100644
+--- a/arch/m68k/mac/misc.c
++++ b/arch/m68k/mac/misc.c
+@@ -18,7 +18,6 @@
+ 
+ #include <asm/uaccess.h>
+ #include <asm/io.h>
+-#include <asm/rtc.h>
+ #include <asm/segment.h>
+ #include <asm/setup.h>
+ #include <asm/macintosh.h>
+diff --git a/arch/m68k/mvme147/config.c b/arch/m68k/mvme147/config.c
+index e6a3b56c6481..c11d38dfad08 100644
+--- a/arch/m68k/mvme147/config.c
++++ b/arch/m68k/mvme147/config.c
+@@ -32,7 +32,6 @@
+ #include <asm/setup.h>
+ #include <asm/irq.h>
+ #include <asm/traps.h>
+-#include <asm/rtc.h>
+ #include <asm/machdep.h>
+ #include <asm/mvme147hw.h>
+ 
+diff --git a/arch/m68k/mvme16x/config.c b/arch/m68k/mvme16x/config.c
+index a53803cc66cd..58e240939d26 100644
+--- a/arch/m68k/mvme16x/config.c
++++ b/arch/m68k/mvme16x/config.c
+@@ -35,7 +35,6 @@
+ #include <asm/setup.h>
+ #include <asm/irq.h>
+ #include <asm/traps.h>
+-#include <asm/rtc.h>
+ #include <asm/machdep.h>
+ #include <asm/mvme16xhw.h>
+ 
+diff --git a/arch/m68k/q40/config.c b/arch/m68k/q40/config.c
+index e90fe903613e..fcb7f05b60b6 100644
+--- a/arch/m68k/q40/config.c
++++ b/arch/m68k/q40/config.c
+@@ -12,6 +12,7 @@
+  * for more details.
+  */
+ 
++#include <linux/errno.h>
+ #include <linux/types.h>
+ #include <linux/kernel.h>
+ #include <linux/mm.h>
+@@ -27,7 +28,6 @@
+ #include <linux/platform_device.h>
+ 
+ #include <asm/io.h>
+-#include <asm/rtc.h>
+ #include <asm/bootinfo.h>
+ #include <asm/pgtable.h>
+ #include <asm/setup.h>
+diff --git a/arch/m68k/sun3/config.c b/arch/m68k/sun3/config.c
+index 71884bf01d72..3af34fa3a344 100644
+--- a/arch/m68k/sun3/config.c
++++ b/arch/m68k/sun3/config.c
+@@ -26,7 +26,6 @@
+ #include <asm/pgalloc.h>
+ #include <asm/sun3-head.h>
+ #include <asm/sun3mmu.h>
+-#include <asm/rtc.h>
+ #include <asm/machdep.h>
+ #include <asm/machines.h>
+ #include <asm/idprom.h>
+diff --git a/arch/m68k/sun3/intersil.c b/arch/m68k/sun3/intersil.c
+index 889829e11f1d..2cd0bcbe6f30 100644
+--- a/arch/m68k/sun3/intersil.c
++++ b/arch/m68k/sun3/intersil.c
+@@ -14,8 +14,8 @@
+ #include <linux/rtc.h>
+ 
+ #include <asm/errno.h>
+-#include <asm/rtc.h>
+ #include <asm/intersil.h>
++#include <asm/machdep.h>
+ 
+ 
+ /* bits to set for start/run of the intersil */
+diff --git a/arch/m68k/sun3x/time.c b/arch/m68k/sun3x/time.c
+index c8eb08add6b0..431d3c4306dd 100644
+--- a/arch/m68k/sun3x/time.c
++++ b/arch/m68k/sun3x/time.c
+@@ -15,10 +15,10 @@
+ 
+ #include <asm/irq.h>
+ #include <asm/io.h>
++#include <asm/machdep.h>
+ #include <asm/traps.h>
+ #include <asm/sun3x.h>
+ #include <asm/sun3ints.h>
+-#include <asm/rtc.h>
+ 
+ #include "time.h"
+ 
+diff --git a/drivers/char/Kconfig b/drivers/char/Kconfig
+index 074bc394e31b..fccac76257c9 100644
+--- a/drivers/char/Kconfig
++++ b/drivers/char/Kconfig
+@@ -328,7 +328,7 @@ config JS_RTC
+ config GEN_RTC
+ 	tristate "Generic /dev/rtc emulation"
+ 	depends on RTC!=y
+-	depends on M68K || PPC
++	depends on PPC
+ 	---help---
+ 	  If you say Y here and create a character special file /dev/rtc with
+ 	  major number 10 and minor number 135 using mknod ("man mknod"), you
 -- 
-1.9.1
+2.7.0
 
--- 
 -- 
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
