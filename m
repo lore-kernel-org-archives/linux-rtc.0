@@ -1,23 +1,38 @@
-Return-Path: <rtc-linux+bncBAABBIO2Y64QKGQEALGTYSY@googlegroups.com>
+Return-Path: <rtc-linux+bncBDEKVJM7XAHRBQU2WK5AKGQE2EEKLCQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from root.phytec.de (mail.x-arc.de. [217.6.246.34])
-        by gmr-mx.google.com with ESMTP id k143si85895wmg.1.2016.05.10.07.16.01
-        for <rtc-linux@googlegroups.com>;
-        Tue, 10 May 2016 07:16:01 -0700 (PDT)
-Subject: [rtc-linux] Re: [PATCH v5 3/6] regulator: rk808: Add regulator driver
- for RK818
-To: Lee Jones <lee.jones@linaro.org>
-References: <1462886340-7893-1-git-send-email-w.egorov@phytec.de>
- <1462886340-7893-4-git-send-email-w.egorov@phytec.de>
- <20160510140320.GO19473@dell>
-Cc: linux-kernel@vger.kernel.org, linux-clk@vger.kernel.org, rtc-linux@googlegroups.com, devicetree@vger.kernel.org, linux-rockchip@lists.infradead.org, robh+dt@kernel.org, mark.rutland@arm.com, ijc+devicetree@hellion.org.uk, galak@codeaurora.org, mturquette@baylibre.com, sboyd@codeaurora.org, lgirdwood@gmail.com, broonie@kernel.org, a.zummo@towertech.it, alexandre.belloni@free-electrons.com, dianders@chromium.org, zyw@rock-chips.com
-From: Wadim Egorov <w.egorov@phytec.de>
-Message-ID: <5731ECFB.2000207@phytec.de>
-Date: Tue, 10 May 2016 16:15:23 +0200
 MIME-Version: 1.0
-In-Reply-To: <20160510140320.GO19473@dell>
-Content-Type: text/plain; charset=UTF-8
+Received: from mout.kundenserver.de (mout.kundenserver.de. [212.227.17.10])
+        by gmr-mx.google.com with ESMTPS id b77si569241wmb.0.2016.05.30.11.58.09
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 30 May 2016 11:58:09 -0700 (PDT)
+From: Arnd Bergmann <arnd@arndb.de>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: Arnd Bergmann <arnd@arndb.de>,
+	geert@linux-m68k.org,
+	gregkh@linuxfoundation.org,
+	deller@gmx.de,
+	benh@kernel.crashing.org,
+	mpe@ellerman.id.au,
+	dalias@libc.org,
+	dhowells@redhat.com,
+	linux-alpha@vger.kernel.org,
+	a.zummo@towertech.it,
+	linux-kernel@vger.kernel.org,
+	linux-parisc@vger.kernel.org,
+	linuxppc-dev@lists.ozlabs.org,
+	linux-sh@vger.kernel.org,
+	linux-m68k@lists.linux-m68k.org,
+	rtc-linux@googlegroups.com,
+	linux-arch@vger.kernel.org
+Subject: [rtc-linux] [PATCH v4 14/16] rtc: generic: remove get_rtc_time/set_rtc_time
+ wrappers
+Date: Mon, 30 May 2016 20:58:02 +0200
+Message-Id: <1464634684-1248135-15-git-send-email-arnd@arndb.de>
+In-Reply-To: <1464634684-1248135-1-git-send-email-arnd@arndb.de>
+References: <1464634684-1248135-1-git-send-email-arnd@arndb.de>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -26,31 +41,67 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
+All architectures using this driver are now converted to
+provide their own operations, so this one can be turned
+into a trivial stub driver relying on its platform data.
 
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+---
+ drivers/rtc/rtc-generic.c | 35 +----------------------------------
+ 1 file changed, 1 insertion(+), 34 deletions(-)
 
-On 10.05.2016 16:03, Lee Jones wrote:
-> On Tue, 10 May 2016, Wadim Egorov wrote:
->
->> Add support for the rk818 regulator. The regulator module consists
->> of 4 DCDCs, 9 LDOs, 1 switch and 1 BOOST converter which is used to
->> power OTG and HDMI5V.
->>
->> The output voltages are configurable and are meant to supply power
->> to the main processor and other components.
->>
->> Signed-off-by: Wadim Egorov <w.egorov@phytec.de>
->> ---
->>  drivers/regulator/Kconfig           |   4 +-
->>  drivers/regulator/rk808-regulator.c | 143 ++++++++++++++++++++++++++++++++++--
->>  2 files changed, 138 insertions(+), 9 deletions(-)
-> Needs an Ack before I can take the set.
->
-
-Mark acked this patch in v3.
-After small changes I removed the ack again. I don't know if it is ok to
-keep an Acked-by with small changes in the patch.
-
+diff --git a/drivers/rtc/rtc-generic.c b/drivers/rtc/rtc-generic.c
+index efcb9833cac8..1bf5d2347928 100644
+--- a/drivers/rtc/rtc-generic.c
++++ b/drivers/rtc/rtc-generic.c
+@@ -9,43 +9,10 @@
+ #include <linux/platform_device.h>
+ #include <linux/rtc.h>
+ 
+-#if 0
+-#include <asm/rtc.h>
+-
+-static int generic_get_time(struct device *dev, struct rtc_time *tm)
+-{
+-	unsigned int ret = get_rtc_time(tm);
+-
+-	if (ret & RTC_BATT_BAD)
+-		return -EOPNOTSUPP;
+-
+-	return rtc_valid_tm(tm);
+-}
+-
+-static int generic_set_time(struct device *dev, struct rtc_time *tm)
+-{
+-	if (set_rtc_time(tm) < 0)
+-		return -EOPNOTSUPP;
+-
+-	return 0;
+-}
+-
+-static const struct rtc_class_ops generic_rtc_ops = {
+-	.read_time = generic_get_time,
+-	.set_time = generic_set_time,
+-};
+-#else
+-#define generic_rtc_ops *(struct rtc_class_ops*)NULL
+-#endif
+-
+ static int __init generic_rtc_probe(struct platform_device *dev)
+ {
+ 	struct rtc_device *rtc;
+-	const struct rtc_class_ops *ops;
+-
+-	ops = dev_get_platdata(&dev->dev);
+-	if (!ops)
+-		ops = &generic_rtc_ops;
++	const struct rtc_class_ops *ops = dev_get_platdata(&dev->dev);
+ 
+ 	rtc = devm_rtc_device_register(&dev->dev, "rtc-generic",
+ 					ops, THIS_MODULE);
 -- 
+2.7.0
+
 -- 
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
