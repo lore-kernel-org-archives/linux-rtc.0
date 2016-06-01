@@ -1,41 +1,23 @@
-Return-Path: <rtc-linux+bncBDKZNNNLXAHBBVXBXK5AKGQE7IZOJII@googlegroups.com>
+Return-Path: <rtc-linux+bncBCL4FNGB7UHBB4UDXS5AKGQEKVLRO2I@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 MIME-Version: 1.0
-Received: from mailout1.w1.samsung.com (mailout1.w1.samsung.com. [210.118.77.11])
-        by gmr-mx.google.com with ESMTPS id tp10si8291284pac.2.2016.06.01.02.54.30
+Received: from mail-wm0-x244.google.com (mail-wm0-x244.google.com. [2a00:1450:400c:c09::244])
+        by gmr-mx.google.com with ESMTPS id d193si458053wmd.2.2016.06.01.08.40.33
         for <rtc-linux@googlegroups.com>
-        (version=TLS1 cipher=AES128-SHA bits=128/128);
-        Wed, 01 Jun 2016 02:54:30 -0700 (PDT)
-Received: from eucpsbgm1.samsung.com (unknown [203.254.199.244])
- by mailout1.w1.samsung.com
- (Oracle Communications Messaging Server 7.0.5.31.0 64bit (built May  5 2014))
- with ESMTP id <0O8300G057IR5C70@mailout1.w1.samsung.com> for
- rtc-linux@googlegroups.com; Wed, 01 Jun 2016 10:54:27 +0100 (BST)
-From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-To: Kukjin Kim <kgene@kernel.org>,
- Krzysztof Kozlowski <k.kozlowski@samsung.com>,
- MyungJoo Ham <myungjoo.ham@samsung.com>, Chanwoo Choi <cw00.choi@samsung.com>,
- Dmitry Torokhov <dmitry.torokhov@gmail.com>,
- Richard Purdie <rpurdie@rpsys.net>,
- Jacek Anaszewski <j.anaszewski@samsung.com>, Lee Jones <lee.jones@linaro.org>,
- Sebastian Reichel <sre@kernel.org>,
- Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>,
- David Woodhouse <dwmw2@infradead.org>, Liam Girdwood <lgirdwood@gmail.com>,
- Mark Brown <broonie@kernel.org>, Alessandro Zummo <a.zummo@towertech.it>,
- Alexandre Belloni <alexandre.belloni@free-electrons.com>,
- devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
- linux-samsung-soc@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-input@vger.kernel.org, linux-leds@vger.kernel.org,
- linux-pm@vger.kernel.org, rtc-linux@googlegroups.com
-Cc: r.baldyga@hackerion.com,
- Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
-Subject: [rtc-linux] [PATCH v7 5/6] rtc: max8997: Check for ERRNO of regmap_irq_get_virq()
-Date: Wed, 01 Jun 2016 11:54:00 +0200
-Message-id: <1464774841-1439-5-git-send-email-k.kozlowski@samsung.com>
-In-reply-to: <1464774841-1439-1-git-send-email-k.kozlowski@samsung.com>
-References: <1464774841-1439-1-git-send-email-k.kozlowski@samsung.com>
-In-reply-to: <1464773339-756-1-git-send-email-k.kozlowski@samsung.com>
-References: <1464773339-756-1-git-send-email-k.kozlowski@samsung.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 01 Jun 2016 08:40:33 -0700 (PDT)
+Received: by mail-wm0-x244.google.com with SMTP id q62so7919646wmg.3
+        for <rtc-linux@googlegroups.com>; Wed, 01 Jun 2016 08:40:33 -0700 (PDT)
+From: Gabriele Mazzotta <gabriele.mzt@gmail.com>
+To: a.zummo@towertech.it,
+	alexandre.belloni@free-electrons.com
+Cc: rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org,
+	matthew.garrett@nebula.com,
+	Gabriele Mazzotta <gabriele.mzt@gmail.com>
+Subject: [rtc-linux] [PATCH 1/2] rtc-cmos: Clear expired alarm after resume
+Date: Wed,  1 Jun 2016 17:40:14 +0200
+Message-Id: <1464795615-7748-1-git-send-email-gabriele.mzt@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -46,30 +28,56 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-The regmap_irq_get_virq() can return zero or negative ERRNO, so it is
-insufficient to check only for non-zero value.
+If the system wakes up because of a wake alarm, the internal state
+of the alarm is not updated. As consequence, the state no longer
+reflects the actual state of the hardware and setting a new alarm
+is not possible until the expired alarm is cleared.
 
-Signed-off-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-Acked-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Signed-off-by: Gabriele Mazzotta <gabriele.mzt@gmail.com>
 ---
- drivers/rtc/rtc-max8997.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/rtc/rtc-cmos.c | 22 ++++++++++++++++++++++
+ 1 file changed, 22 insertions(+)
 
-diff --git a/drivers/rtc/rtc-max8997.c b/drivers/rtc/rtc-max8997.c
-index 4998aee0f07f..1a06e17ebe9b 100644
---- a/drivers/rtc/rtc-max8997.c
-+++ b/drivers/rtc/rtc-max8997.c
-@@ -497,7 +497,7 @@ static int max8997_rtc_probe(struct platform_device *pdev)
- 	}
+diff --git a/drivers/rtc/rtc-cmos.c b/drivers/rtc/rtc-cmos.c
+index fbe9c72..fd121e3 100644
+--- a/drivers/rtc/rtc-cmos.c
++++ b/drivers/rtc/rtc-cmos.c
+@@ -900,11 +900,33 @@ static inline int cmos_poweroff(struct device *dev)
  
- 	virq = regmap_irq_get_virq(max8997->irq_data, MAX8997_PMICIRQ_RTCA1);
--	if (!virq) {
-+	if (virq <= 0) {
- 		dev_err(&pdev->dev, "Failed to create mapping alarm IRQ\n");
- 		ret = -ENXIO;
- 		goto err_out;
+ #ifdef	CONFIG_PM_SLEEP
+ 
++static void cmos_check_alarm(struct device *dev)
++{
++	struct cmos_rtc *cmos = dev_get_drvdata(dev);
++	struct rtc_wkalrm alarm;
++	struct rtc_time now;
++	time64_t t_now;
++	time64_t t_expires;
++
++	cmos_read_time(dev, &now);
++	rtc_read_alarm(cmos->rtc, &alarm);
++	t_now = rtc_tm_to_time64(&now);
++	t_expires = rtc_tm_to_time64(&alarm.time);
++
++	if (t_expires <= t_now && alarm.enabled) {
++		alarm.enabled = 0;
++		cmos->suspend_ctrl &= ~RTC_AIE;
++		rtc_set_alarm(cmos->rtc, &alarm);
++	}
++}
++
+ static int cmos_resume(struct device *dev)
+ {
+ 	struct cmos_rtc	*cmos = dev_get_drvdata(dev);
+ 	unsigned char tmp;
+ 
++	cmos_check_alarm(dev);
++
+ 	if (cmos->enabled_wake) {
+ 		if (cmos->wake_off)
+ 			cmos->wake_off(dev);
 -- 
-1.9.1
+2.8.1
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
