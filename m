@@ -1,24 +1,41 @@
-Return-Path: <rtc-linux+bncBDKOBWPM5ABRB2O5QO5QKGQEKNS2HPI@googlegroups.com>
+Return-Path: <rtc-linux+bncBDKZNNNLXAHBBVXBXK5AKGQE7IZOJII@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 MIME-Version: 1.0
-Received: from mail-pf0-x243.google.com (mail-pf0-x243.google.com. [2607:f8b0:400e:c00::243])
-        by gmr-mx.google.com with ESMTPS id un17si1493626pab.0.2016.06.14.23.00.09
+Received: from mailout2.w1.samsung.com (mailout2.w1.samsung.com. [210.118.77.12])
+        by gmr-mx.google.com with ESMTPS id ci4si7985263pad.1.2016.06.01.02.54.29
         for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 14 Jun 2016 23:00:09 -0700 (PDT)
-Received: by mail-pf0-x243.google.com with SMTP id t190so988764pfb.2
-        for <rtc-linux@googlegroups.com>; Tue, 14 Jun 2016 23:00:09 -0700 (PDT)
-From: Andrey Smirnov <andrew.smirnov@gmail.com>
-To: rtc-linux@googlegroups.com
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	linux-kernel@vger.kernel.org,
-	Andrey Smirnov <andrew.smirnov@gmail.com>
-Subject: [rtc-linux] [PATCH 05/13] RTC: ds1307: Convert want_irq into a predicate
-Date: Tue, 14 Jun 2016 22:59:31 -0700
-Message-Id: <1465970379-14703-6-git-send-email-andrew.smirnov@gmail.com>
-In-Reply-To: <1465970379-14703-1-git-send-email-andrew.smirnov@gmail.com>
-References: <1465970379-14703-1-git-send-email-andrew.smirnov@gmail.com>
+        (version=TLS1 cipher=AES128-SHA bits=128/128);
+        Wed, 01 Jun 2016 02:54:30 -0700 (PDT)
+Received: from eucpsbgm2.samsung.com (unknown [203.254.199.245])
+ by mailout2.w1.samsung.com
+ (Oracle Communications Messaging Server 7.0.5.31.0 64bit (built May  5 2014))
+ with ESMTP id <0O8300BQD7IPL090@mailout2.w1.samsung.com> for
+ rtc-linux@googlegroups.com; Wed, 01 Jun 2016 10:54:25 +0100 (BST)
+From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+To: Kukjin Kim <kgene@kernel.org>,
+ Krzysztof Kozlowski <k.kozlowski@samsung.com>,
+ MyungJoo Ham <myungjoo.ham@samsung.com>, Chanwoo Choi <cw00.choi@samsung.com>,
+ Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+ Richard Purdie <rpurdie@rpsys.net>,
+ Jacek Anaszewski <j.anaszewski@samsung.com>, Lee Jones <lee.jones@linaro.org>,
+ Sebastian Reichel <sre@kernel.org>,
+ Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>,
+ David Woodhouse <dwmw2@infradead.org>, Liam Girdwood <lgirdwood@gmail.com>,
+ Mark Brown <broonie@kernel.org>, Alessandro Zummo <a.zummo@towertech.it>,
+ Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+ devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+ linux-samsung-soc@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-input@vger.kernel.org, linux-leds@vger.kernel.org,
+ linux-pm@vger.kernel.org, rtc-linux@googlegroups.com
+Cc: r.baldyga@hackerion.com,
+ Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+Subject: [rtc-linux] [PATCH v7 3/6] mfd: max8997: Change irq names to upper case
+Date: Wed, 01 Jun 2016 11:53:58 +0200
+Message-id: <1464774841-1439-3-git-send-email-k.kozlowski@samsung.com>
+In-reply-to: <1464774841-1439-1-git-send-email-k.kozlowski@samsung.com>
+References: <1464774841-1439-1-git-send-email-k.kozlowski@samsung.com>
+In-reply-to: <1464773339-756-1-git-send-email-k.kozlowski@samsung.com>
+References: <1464773339-756-1-git-send-email-k.kozlowski@samsung.com>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -29,108 +46,109 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Convert want_irq variable into a predicate in order to detangle various
-independent chunks of ds1307_probe().
+From: Robert Baldyga <r.baldyga@samsung.com>
 
-Signed-off-by: Andrey Smirnov <andrew.smirnov@gmail.com>
+This patch changes naming convention of MUIC interrupts form CamelCase
+to upper case. It makes names more readable and consistent with another
+interrupt names in max8997 driver.
+
+Signed-off-by: Robert Baldyga <r.baldyga@samsung.com>
+Reviewed-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+
+[For the mfd part]
+Acked-by: Lee Jones <lee.jones@linaro.org>
+Acked-by: Chanwoo Choi <cw00.choi@samsung.com>
+Acked-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+[k.kozlowski: Collect acks, rebase on v4.6-rc6]
+Signed-off-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
 ---
- drivers/rtc/rtc-ds1307.c | 44 +++++++++++++++++++++++++++++---------------
- 1 file changed, 29 insertions(+), 15 deletions(-)
+ drivers/extcon/extcon-max8997.c     | 32 ++++++++++++++++----------------
+ include/linux/mfd/max8997-private.h | 16 ++++++++--------
+ 2 files changed, 24 insertions(+), 24 deletions(-)
 
-diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
-index c482d8b..81967c1 100644
---- a/drivers/rtc/rtc-ds1307.c
-+++ b/drivers/rtc/rtc-ds1307.c
-@@ -1247,6 +1247,30 @@ static bool ds1307_can_wakeup_device(const struct ds1307 *ds1307)
- 				     "wakeup-source");
- }
+diff --git a/drivers/extcon/extcon-max8997.c b/drivers/extcon/extcon-max8997.c
+index 9d27cc23038f..68754ac2c8ea 100644
+--- a/drivers/extcon/extcon-max8997.c
++++ b/drivers/extcon/extcon-max8997.c
+@@ -46,15 +46,15 @@ struct max8997_muic_irq {
+ };
  
-+static bool ds1307_want_irq(const struct ds1307 *ds1307,
-+			    const struct chip_desc *chip)
-+{
-+
-+
-+	if (chip->alarm) {
-+		switch (ds1307->type) {
-+		case ds_1337:
-+		case ds_1339:
-+		case ds_3231:
-+		case ds_1341:
-+			return (ds1307->client->irq > 0 ||
-+				ds1307_can_wakeup_device(ds1307));
-+
-+		case mcp794xx:
-+			return (ds1307->client->irq > 0);
-+		default:
-+			break;
-+		}
-+	}
-+
-+	return false;
-+}
-+
- static int ds1307_probe(struct i2c_client *client,
- 			const struct i2c_device_id *id)
- {
-@@ -1255,7 +1279,6 @@ static int ds1307_probe(struct i2c_client *client,
- 	int			tmp;
- 	struct chip_desc	*chip = &chips[id->driver_data];
- 	struct i2c_adapter	*adapter = to_i2c_adapter(client->dev.parent);
--	bool			want_irq = false;
- 	unsigned char		*buf;
- 	struct ds1307_platform_data *pdata = dev_get_platdata(&client->dev);
- 	irq_handler_t	irq_handler = ds1307_irq;
-@@ -1356,10 +1379,6 @@ static int ds1307_probe(struct i2c_client *client,
- 			| bbsqi_bitpos[ds1307->type];
- 		ds1307->regs[0] &= ~(DS1337_BIT_A2IE | DS1337_BIT_A1IE);
+ static struct max8997_muic_irq muic_irqs[] = {
+-	{ MAX8997_MUICIRQ_ADCError,	"muic-ADCERROR" },
+-	{ MAX8997_MUICIRQ_ADCLow,	"muic-ADCLOW" },
+-	{ MAX8997_MUICIRQ_ADC,		"muic-ADC" },
+-	{ MAX8997_MUICIRQ_VBVolt,	"muic-VBVOLT" },
+-	{ MAX8997_MUICIRQ_DBChg,	"muic-DBCHG" },
+-	{ MAX8997_MUICIRQ_DCDTmr,	"muic-DCDTMR" },
+-	{ MAX8997_MUICIRQ_ChgDetRun,	"muic-CHGDETRUN" },
+-	{ MAX8997_MUICIRQ_ChgTyp,	"muic-CHGTYP" },
+-	{ MAX8997_MUICIRQ_OVP,		"muic-OVP" },
++	{ MAX8997_MUICIRQ_ADCERROR,	"MUIC-ADCERROR" },
++	{ MAX8997_MUICIRQ_ADCLOW,	"MUIC-ADCLOW" },
++	{ MAX8997_MUICIRQ_ADC,		"MUIC-ADC" },
++	{ MAX8997_MUICIRQ_VBVOLT,	"MUIC-VBVOLT" },
++	{ MAX8997_MUICIRQ_DBCHG,	"MUIC-DBCHG" },
++	{ MAX8997_MUICIRQ_DCDTMR,	"MUIC-DCDTMR" },
++	{ MAX8997_MUICIRQ_CHGDETRUN,	"MUIC-CHGDETRUN" },
++	{ MAX8997_MUICIRQ_CHGTYP,	"MUIC-CHGTYP" },
++	{ MAX8997_MUICIRQ_OVP,		"MUIC-OVP" },
+ };
  
--		if (chip->alarm && (ds1307->client->irq > 0 ||
--				    ds1307_can_wakeup_device(ds1307)))
--			want_irq = true;
--
- 		i2c_smbus_write_byte_data(client, DS1337_REG_CONTROL,
- 							ds1307->regs[0]);
- 
-@@ -1441,10 +1460,7 @@ static int ds1307_probe(struct i2c_client *client,
- 		break;
- 	case mcp794xx:
- 		rtc_ops = &mcp794xx_rtc_ops;
--		if (ds1307->client->irq > 0 && chip->alarm) {
--			irq_handler = mcp794xx_irq;
--			want_irq = true;
--		}
-+		irq_handler = mcp794xx_irq;
- 		break;
- 	default:
- 		break;
-@@ -1557,7 +1573,7 @@ read_rtc:
- 				bin2bcd(tmp));
+ /* Define supported cable type */
+@@ -540,17 +540,17 @@ static void max8997_muic_irq_work(struct work_struct *work)
  	}
  
--	if (want_irq) {
-+	if (ds1307_want_irq(ds1307, chip)) {
- 		device_set_wakeup_capable(&client->dev, true);
- 		set_bit(HAS_ALARM, &ds1307->flags);
- 	}
-@@ -1570,13 +1586,11 @@ read_rtc:
- 	if (ds1307_can_wakeup_device(ds1307) &&
- 	    ds1307->client->irq <= 0) {
- 		/* Disable request for an IRQ */
--		want_irq = false;
--		dev_info(&client->dev, "'wakeup-source' is set, request for an IRQ is disabled!\n");
-+		dev_info(&client->dev,
-+			 "'wakeup-source' is set, request for an IRQ is disabled!\n");
- 		/* We cannot support UIE mode if we do not have an IRQ line */
- 		ds1307->rtc->uie_unsupported = 1;
--	}
+ 	switch (irq_type) {
+-	case MAX8997_MUICIRQ_ADCError:
+-	case MAX8997_MUICIRQ_ADCLow:
++	case MAX8997_MUICIRQ_ADCERROR:
++	case MAX8997_MUICIRQ_ADCLOW:
+ 	case MAX8997_MUICIRQ_ADC:
+ 		/* Handle all of cable except for charger cable */
+ 		ret = max8997_muic_adc_handler(info);
+ 		break;
+-	case MAX8997_MUICIRQ_VBVolt:
+-	case MAX8997_MUICIRQ_DBChg:
+-	case MAX8997_MUICIRQ_DCDTmr:
+-	case MAX8997_MUICIRQ_ChgDetRun:
+-	case MAX8997_MUICIRQ_ChgTyp:
++	case MAX8997_MUICIRQ_VBVOLT:
++	case MAX8997_MUICIRQ_DBCHG:
++	case MAX8997_MUICIRQ_DCDTMR:
++	case MAX8997_MUICIRQ_CHGDETRUN:
++	case MAX8997_MUICIRQ_CHGTYP:
+ 		/* Handle charger cable */
+ 		ret = max8997_muic_chg_handler(info);
+ 		break;
+diff --git a/include/linux/mfd/max8997-private.h b/include/linux/mfd/max8997-private.h
+index f42ea222988f..2817fa69383e 100644
+--- a/include/linux/mfd/max8997-private.h
++++ b/include/linux/mfd/max8997-private.h
+@@ -411,14 +411,14 @@ enum max8997_irq {
+ 
+ enum max8997_irq_muic {
+ 	MAX8997_MUICIRQ_ADC,
+-	MAX8997_MUICIRQ_ADCLow,
+-	MAX8997_MUICIRQ_ADCError,
 -
--	if (want_irq) {
-+	} else if (ds1307_want_irq(ds1307, chip)) {
- 		err = devm_request_threaded_irq(&client->dev,
- 						client->irq, NULL, irq_handler,
- 						IRQF_SHARED | IRQF_ONESHOT,
+-	MAX8997_MUICIRQ_ChgTyp,
+-	MAX8997_MUICIRQ_ChgDetRun,
+-	MAX8997_MUICIRQ_DCDTmr,
+-	MAX8997_MUICIRQ_DBChg,
+-	MAX8997_MUICIRQ_VBVolt,
++	MAX8997_MUICIRQ_ADCLOW,
++	MAX8997_MUICIRQ_ADCERROR,
++
++	MAX8997_MUICIRQ_CHGTYP,
++	MAX8997_MUICIRQ_CHGDETRUN,
++	MAX8997_MUICIRQ_DCDTMR,
++	MAX8997_MUICIRQ_DBCHG,
++	MAX8997_MUICIRQ_VBVOLT,
+ 
+ 	MAX8997_MUICIRQ_OVP,
+ 
 -- 
-2.5.5
+1.9.1
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
