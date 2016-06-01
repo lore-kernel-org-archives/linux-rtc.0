@@ -1,24 +1,23 @@
-Return-Path: <rtc-linux+bncBDSNL5X27IMRBV7YUS5QKGQEEUAZN7A@googlegroups.com>
+Return-Path: <rtc-linux+bncBCL4FNGB7UHBBKESXS5AKGQEHOZOSHA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail-it0-x22f.google.com (mail-it0-x22f.google.com. [2607:f8b0:4001:c0b::22f])
-        by gmr-mx.google.com with ESMTPS id f63si138253ith.2.2016.06.21.06.08.39
+Received: from mail-wm0-x244.google.com (mail-wm0-x244.google.com. [2a00:1450:400c:c09::244])
+        by gmr-mx.google.com with ESMTPS id v69si1499995wmv.0.2016.06.01.09.11.20
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 21 Jun 2016 06:08:39 -0700 (PDT)
-Received: by mail-it0-x22f.google.com with SMTP id f6so13291469ith.0
-        for <rtc-linux@googlegroups.com>; Tue, 21 Jun 2016 06:08:39 -0700 (PDT)
+        Wed, 01 Jun 2016 09:11:20 -0700 (PDT)
+Received: by mail-wm0-x244.google.com with SMTP id n184so7635536wmn.1
+        for <rtc-linux@googlegroups.com>; Wed, 01 Jun 2016 09:11:20 -0700 (PDT)
+Subject: [rtc-linux] Re: [PATCH 1/2] rtc-cmos: Clear expired alarm after resume
+To: a.zummo@towertech.it, alexandre.belloni@free-electrons.com
+References: <1464795615-7748-1-git-send-email-gabriele.mzt@gmail.com>
+Cc: rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org,
+ matthew.garrett@nebula.com
+From: Gabriele Mazzotta <gabriele.mzt@gmail.com>
+Message-ID: <337d25d5-f5e2-c2db-e3fa-57a820ef16ac@gmail.com>
+Date: Wed, 1 Jun 2016 18:11:17 +0200
 MIME-Version: 1.0
-In-Reply-To: <1466493294-11143-1-git-send-email-andrew.smirnov@gmail.com>
-References: <1466493294-11143-1-git-send-email-andrew.smirnov@gmail.com>
-From: Chris Healy <cphealy@gmail.com>
-Date: Tue, 21 Jun 2016 06:08:38 -0700
-Message-ID: <CAFXsbZpWyaf7GFCrwpxnH79scBUZ=T_+BEVctY9-u0K5xMBRHw@mail.gmail.com>
-Subject: [rtc-linux] Re: [PATCH v2 00/17] DS1341 support and code cleanup
-To: Andrey Smirnov <andrew.smirnov@gmail.com>
-Cc: rtc-linux@googlegroups.com, Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-Content-Type: multipart/alternative; boundary=001a1140c338f4dc540535c98434
+In-Reply-To: <1464795615-7748-1-git-send-email-gabriele.mzt@gmail.com>
+Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -28,62 +27,62 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
---001a1140c338f4dc540535c98434
-Content-Type: text/plain; charset=UTF-8
+On 01/06/2016 17:40, Gabriele Mazzotta wrote:
+> If the system wakes up because of a wake alarm, the internal state
+> of the alarm is not updated. As consequence, the state no longer
+> reflects the actual state of the hardware and setting a new alarm
+> is not possible until the expired alarm is cleared.
+> 
+> Signed-off-by: Gabriele Mazzotta <gabriele.mzt@gmail.com>
+> ---
+>  drivers/rtc/rtc-cmos.c | 22 ++++++++++++++++++++++
+>  1 file changed, 22 insertions(+)
+> 
+> diff --git a/drivers/rtc/rtc-cmos.c b/drivers/rtc/rtc-cmos.c
+> index fbe9c72..fd121e3 100644
+> --- a/drivers/rtc/rtc-cmos.c
+> +++ b/drivers/rtc/rtc-cmos.c
+> @@ -900,11 +900,33 @@ static inline int cmos_poweroff(struct device *dev)
+>  
+>  #ifdef	CONFIG_PM_SLEEP
+>  
+> +static void cmos_check_alarm(struct device *dev)
+> +{
+> +	struct cmos_rtc *cmos = dev_get_drvdata(dev);
+> +	struct rtc_wkalrm alarm;
+> +	struct rtc_time now;
+> +	time64_t t_now;
+> +	time64_t t_expires;
+> +
+> +	cmos_read_time(dev, &now);
+> +	rtc_read_alarm(cmos->rtc, &alarm);
 
-On Tue, Jun 21, 2016 at 12:14 AM, Andrey Smirnov <andrew.smirnov@gmail.com>
-wrote:
+Here it should probably check the return value and exit in case of error.
 
-> Hi everyone,
->
-> This set is a v2 of the DS1307 driver patches. Changes since v1:
->
->  - Devicetree bindings are separated into a separate commit
->
->  - Device tree properties now have vendor specific prefixes and
->    documenatation explicitly stating their type
->
->  - Three more patches, with improvements to rtctest.c, are added to
->    the patchset
->
-> Any feedback is appreciated.
->
-> Thank you,
-> Andrey Smirnov
->
-> Andrey Smirnov (17):
->   RTC: ds1307: Add DS1341 variant
->   RTC: ds1307: Disable square wave and timers as default
->   RTC: ds1307: Add devicetree bindings for DS1341
->   RTC: ds1307: Add DS1341 specific power-saving options
->   RTC: ds1307: Convert ds1307_can_wakeup_device into a predicate
->   RTC: ds1307: Convert want_irq into a predicate
->   RTC: ds1307: Move chip configuration into a separate routine
->   RTC: ds1307: Move chip sanity checking into a separate routine
->   RTC: ds1307: Remove register "cache"
->   RTC: ds1307: Constify struct ds1307 where possible
->   RTC: ds1307: Convert goto to a loop
->   RTC: ds1307: Redefine RX8025_REG_* to minimize extra code
->   RTC: ds1307: Report oscillator problems more intelligently
->   RTC: ds1307: Move last bits of sanity checking out of chip_configure
->   RTC: rtctest: Change alarm IRQ support detection
->   RTC: rtctest: Change no IRQ detection for RTC_IRQP_READ
->   RTC: rtctest: Change no IRQ detection for RTC_IRQP_SET
->
->  .../devicetree/bindings/rtc/dallas,ds1341.txt      |  23 +
->  drivers/rtc/rtc-ds1307.c                           | 742
-> ++++++++++++---------
->  tools/testing/selftests/timers/rtctest.c           |  13 +-
->  3 files changed, 467 insertions(+), 311 deletions(-)
->  create mode 100644 Documentation/devicetree/bindings/rtc/dallas,ds1341.txt
->
-> --
-> 2.5.5
->
-> Full series tested on a Freescale (NXP) i.MX6 with a DS1341 RTC both with
-and without the new DT bindings.  Additionally, ran rtctest successfully.
+> +	t_now = rtc_tm_to_time64(&now);
+> +	t_expires = rtc_tm_to_time64(&alarm.time);
+> +
+> +	if (t_expires <= t_now && alarm.enabled) {
+> +		alarm.enabled = 0;
+> +		cmos->suspend_ctrl &= ~RTC_AIE;
+> +		rtc_set_alarm(cmos->rtc, &alarm);
 
-Tested-by: Chris Healy <cphealy@gmail.com>
+Same here.
+
+> +	}
+> +}
+> +
+>  static int cmos_resume(struct device *dev)
+>  {
+>  	struct cmos_rtc	*cmos = dev_get_drvdata(dev);
+>  	unsigned char tmp;
+>  
+> +	cmos_check_alarm(dev);
+> +
+>  	if (cmos->enabled_wake) {
+>  		if (cmos->wake_off)
+>  			cmos->wake_off(dev);
+> 
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
@@ -94,92 +93,3 @@ before submitting a driver.
 You received this message because you are subscribed to the Google Groups "rtc-linux" group.
 To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
-
---001a1140c338f4dc540535c98434
-Content-Type: text/html; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-
-<div dir=3D"ltr"><div>On Tue, Jun 21, 2016 at 12:14 AM, Andrey Smirnov <spa=
-n dir=3D"ltr">&lt;<a href=3D"mailto:andrew.smirnov@gmail.com" target=3D"_bl=
-ank">andrew.smirnov@gmail.com</a>&gt;</span> wrote:<br></div><div><div clas=
-s=3D"gmail_extra"><div class=3D"gmail_quote"><blockquote class=3D"gmail_quo=
-te" style=3D"margin:0px 0px 0px 0.8ex;border-left-width:1px;border-left-sty=
-le:solid;border-left-color:rgb(204,204,204);padding-left:1ex">Hi everyone,<=
-br>
-<br>
-This set is a v2 of the DS1307 driver patches. Changes since v1:<br>
-<br>
-=C2=A0- Devicetree bindings are separated into a separate commit<br>
-<br>
-=C2=A0- Device tree properties now have vendor specific prefixes and<br>
-=C2=A0 =C2=A0documenatation explicitly stating their type<br>
-<br>
-=C2=A0- Three more patches, with improvements to rtctest.c, are added to<br=
->
-=C2=A0 =C2=A0the patchset<br>
-<br>
-Any feedback is appreciated.<br>
-<br>
-Thank you,<br>
-Andrey Smirnov<br>
-<br>
-Andrey Smirnov (17):<br>
-=C2=A0 RTC: ds1307: Add DS1341 variant<br>
-=C2=A0 RTC: ds1307: Disable square wave and timers as default<br>
-=C2=A0 RTC: ds1307: Add devicetree bindings for DS1341<br>
-=C2=A0 RTC: ds1307: Add DS1341 specific power-saving options<br>
-=C2=A0 RTC: ds1307: Convert ds1307_can_wakeup_device into a predicate<br>
-=C2=A0 RTC: ds1307: Convert want_irq into a predicate<br>
-=C2=A0 RTC: ds1307: Move chip configuration into a separate routine<br>
-=C2=A0 RTC: ds1307: Move chip sanity checking into a separate routine<br>
-=C2=A0 RTC: ds1307: Remove register &quot;cache&quot;<br>
-=C2=A0 RTC: ds1307: Constify struct ds1307 where possible<br>
-=C2=A0 RTC: ds1307: Convert goto to a loop<br>
-=C2=A0 RTC: ds1307: Redefine RX8025_REG_* to minimize extra code<br>
-=C2=A0 RTC: ds1307: Report oscillator problems more intelligently<br>
-=C2=A0 RTC: ds1307: Move last bits of sanity checking out of chip_configure=
-<br>
-=C2=A0 RTC: rtctest: Change alarm IRQ support detection<br>
-=C2=A0 RTC: rtctest: Change no IRQ detection for RTC_IRQP_READ<br>
-=C2=A0 RTC: rtctest: Change no IRQ detection for RTC_IRQP_SET<br>
-<br>
-=C2=A0.../devicetree/bindings/rtc/dallas,ds1341.txt=C2=A0 =C2=A0 =C2=A0 |=
-=C2=A0 23 +<br>
-=C2=A0drivers/rtc/rtc-ds1307.c=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
-=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0| 742 ++++++++++++-----=
-----<br>
-=C2=A0tools/testing/selftests/timers/rtctest.c=C2=A0 =C2=A0 =C2=A0 =C2=A0 =
-=C2=A0 =C2=A0|=C2=A0 13 +-<br>
-=C2=A03 files changed, 467 insertions(+), 311 deletions(-)<br>
-=C2=A0create mode 100644 Documentation/devicetree/bindings/rtc/dallas,ds134=
-1.txt<br>
-<span class=3D""><font color=3D"#888888"><br>
---<br>
-2.5.5<br>
-<br>
-</font></span></blockquote></div><div>Full series tested on a Freescale (NX=
-P) i.MX6 with a DS1341 RTC both with and without the new DT bindings.=C2=A0=
- Additionally, ran rtctest successfully.</div><div><br></div><div>Tested-by=
-: Chris Healy &lt;<a href=3D"mailto:cphealy@gmail.com">cphealy@gmail.com</a=
->&gt;</div><div><br></div></div></div></div>
-
-<p></p>
-
--- <br />
-You received this message because you are subscribed to &quot;rtc-linux&quo=
-t;.<br />
-Membership options at <a href=3D"http://groups.google.com/group/rtc-linux">=
-http://groups.google.com/group/rtc-linux</a> .<br />
-Please read <a href=3D"http://groups.google.com/group/rtc-linux/web/checkli=
-st">http://groups.google.com/group/rtc-linux/web/checklist</a><br />
-before submitting a driver.<br />
---- <br />
-You received this message because you are subscribed to the Google Groups &=
-quot;rtc-linux&quot; group.<br />
-To unsubscribe from this group and stop receiving emails from it, send an e=
-mail to <a href=3D"mailto:rtc-linux+unsubscribe@googlegroups.com">rtc-linux=
-+unsubscribe@googlegroups.com</a>.<br />
-For more options, visit <a href=3D"https://groups.google.com/d/optout">http=
-s://groups.google.com/d/optout</a>.<br />
-
---001a1140c338f4dc540535c98434--
