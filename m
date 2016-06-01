@@ -1,32 +1,43 @@
-Return-Path: <rtc-linux+bncBDSJBYGBRIMBBKOEVG5QKGQE74DUTNQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBDKZNNNLXAHBBVXBXK5AKGQE7IZOJII@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id x70si41605wmf.1.2016.06.22.03.02.17
-        for <rtc-linux@googlegroups.com>;
-        Wed, 22 Jun 2016 03:02:17 -0700 (PDT)
-Date: Wed, 22 Jun 2016 12:02:06 +0200
-From: Maxime Ripard <maxime.ripard@free-electrons.com>
-To: Chen-Yu Tsai <wens@csie.org>
-Cc: Mark Brown <broonie@kernel.org>, Lee Jones <lee.jones@linaro.org>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Ian Campbell <ijc+devicetree@hellion.org.uk>,
-	Kumar Gala <galak@codeaurora.org>,
-	Michael Turquette <mturquette@baylibre.com>,
-	Stephen Boyd <sboyd@codeaurora.org>, rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org, devicetree@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org, linux-clk@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH v3 5/8] rtc: ac100: Add clk output support
-Message-ID: <20160622100206.GV26668@lukather>
-References: <1466391138-12862-1-git-send-email-wens@csie.org>
- <1466391138-12862-6-git-send-email-wens@csie.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="buDNgeHiu+HCsDEc"
-In-Reply-To: <1466391138-12862-6-git-send-email-wens@csie.org>
+Received: from mailout1.w1.samsung.com (mailout1.w1.samsung.com. [210.118.77.11])
+        by gmr-mx.google.com with ESMTPS id tp10si8291284pac.2.2016.06.01.02.54.30
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1 cipher=AES128-SHA bits=128/128);
+        Wed, 01 Jun 2016 02:54:30 -0700 (PDT)
+Received: from eucpsbgm1.samsung.com (unknown [203.254.199.244])
+ by mailout1.w1.samsung.com
+ (Oracle Communications Messaging Server 7.0.5.31.0 64bit (built May  5 2014))
+ with ESMTP id <0O8300G057IR5C70@mailout1.w1.samsung.com> for
+ rtc-linux@googlegroups.com; Wed, 01 Jun 2016 10:54:27 +0100 (BST)
+From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+To: Kukjin Kim <kgene@kernel.org>,
+ Krzysztof Kozlowski <k.kozlowski@samsung.com>,
+ MyungJoo Ham <myungjoo.ham@samsung.com>, Chanwoo Choi <cw00.choi@samsung.com>,
+ Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+ Richard Purdie <rpurdie@rpsys.net>,
+ Jacek Anaszewski <j.anaszewski@samsung.com>, Lee Jones <lee.jones@linaro.org>,
+ Sebastian Reichel <sre@kernel.org>,
+ Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>,
+ David Woodhouse <dwmw2@infradead.org>, Liam Girdwood <lgirdwood@gmail.com>,
+ Mark Brown <broonie@kernel.org>, Alessandro Zummo <a.zummo@towertech.it>,
+ Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+ devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+ linux-samsung-soc@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-input@vger.kernel.org, linux-leds@vger.kernel.org,
+ linux-pm@vger.kernel.org, rtc-linux@googlegroups.com
+Cc: r.baldyga@hackerion.com,
+ Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+Subject: [rtc-linux] [PATCH v7 5/6] rtc: max8997: Check for ERRNO of regmap_irq_get_virq()
+Date: Wed, 01 Jun 2016 11:54:00 +0200
+Message-id: <1464774841-1439-5-git-send-email-k.kozlowski@samsung.com>
+In-reply-to: <1464774841-1439-1-git-send-email-k.kozlowski@samsung.com>
+References: <1464774841-1439-1-git-send-email-k.kozlowski@samsung.com>
+In-reply-to: <1464773339-756-1-git-send-email-k.kozlowski@samsung.com>
+References: <1464773339-756-1-git-send-email-k.kozlowski@samsung.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -35,31 +46,30 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
+The regmap_irq_get_virq() can return zero or negative ERRNO, so it is
+insufficient to check only for non-zero value.
 
---buDNgeHiu+HCsDEc
-Content-Type: text/plain; charset=UTF-8
-Content-Disposition: inline
+Signed-off-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+Acked-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+---
+ drivers/rtc/rtc-max8997.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Hi,
-
-On Mon, Jun 20, 2016 at 10:52:15AM +0800, Chen-Yu Tsai wrote:
-> +	/*
-> +	 * The ADDA 4 MHz clock is from the codec side of the AC100,
-> +	 * which is likely a different power domain. However, boards
-> +	 * always have both sides powered on, so it is impossible to
-> +	 * test this.
-> +	 */
-
-If that ADDA clock is exposed by the codec, why are you putting it in
-the RTC?
-
-Thanks,
-Maxime
-
+diff --git a/drivers/rtc/rtc-max8997.c b/drivers/rtc/rtc-max8997.c
+index 4998aee0f07f..1a06e17ebe9b 100644
+--- a/drivers/rtc/rtc-max8997.c
++++ b/drivers/rtc/rtc-max8997.c
+@@ -497,7 +497,7 @@ static int max8997_rtc_probe(struct platform_device *pdev)
+ 	}
+ 
+ 	virq = regmap_irq_get_virq(max8997->irq_data, MAX8997_PMICIRQ_RTCA1);
+-	if (!virq) {
++	if (virq <= 0) {
+ 		dev_err(&pdev->dev, "Failed to create mapping alarm IRQ\n");
+ 		ret = -ENXIO;
+ 		goto err_out;
 -- 
-Maxime Ripard, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+1.9.1
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
@@ -70,26 +80,3 @@ before submitting a driver.
 You received this message because you are subscribed to the Google Groups "rtc-linux" group.
 To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
-
---buDNgeHiu+HCsDEc
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJXamIeAAoJEBx+YmzsjxAgep8QALb4QiyE0axUbD8L9KkpG7V0
-dOsu/m7Qg+xvaQRGz5AUkytzp3EggzTyyaDQdwL9FaPQEzkxsq275QRu81jfcW28
-pYi02XaSUpvAeMIlcAil4xKRzR9M7pWrL8/d/GBwMn/5Znw4nc2cosR4iwfMOH6i
-aKSw9pJYjWRqqjaT6QZn+iny3v+diTETG4IAcPqBnljpXCuUHjYYEOJS+PNLYQvL
-c09lui5fc9t7ZLIJgQsrJ7hSiNu5XL/qErRWNYxXQqwX4QJnURRW0S+q4z0wysWT
-+Z77rMsKo6KKRqDDJRlnVtYwTiyrXnWgCKKI8m23e21biTdCEC1mKdDZciX26v2F
-TgTo5+htGKknjpo5qeg+qukL+8aK0kHnLLSaHRLtXScIXYQEMFcY74+RlNcsnNPM
-tMQSXcKbGm3HvLediuU4ldUGwQblu6aIDNBPcnetDGH1ehh/ocIfuCH2YSiBQF0g
-Po8Yybgn4+kcpIjwIHoWEF4WvjeWY+EbX0/LuSbwl/L6CwzFe2u9HKK76rqPWwlp
-E6uG57uWFFzwXtvMem9PKsC8McUU9571GYlSCUxN5ThmhH+cmbeshwN5U5RA7otp
-RewA+kwqB0JYzzVdj89gFbaYfIcaXM93uImBinkoCxWMpLxHdtQ9EIcumTcO8zjg
-Tuc3OrdLvJzf9H8ybHdv
-=Z3pe
------END PGP SIGNATURE-----
-
---buDNgeHiu+HCsDEc--
