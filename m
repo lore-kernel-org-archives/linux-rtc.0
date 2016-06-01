@@ -1,30 +1,43 @@
-Return-Path: <rtc-linux+bncBDAYD2P3QYGRBH43VG5QKGQEVBXIXAY@googlegroups.com>
+Return-Path: <rtc-linux+bncBDKZNNNLXAHBBV7BXK5AKGQECTZL5AI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail-lf0-x22f.google.com (mail-lf0-x22f.google.com. [2a00:1450:4010:c07::22f])
-        by gmr-mx.google.com with ESMTPS id e2si913239lbv.0.2016.06.22.01.34.39
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 22 Jun 2016 01:34:39 -0700 (PDT)
-Received: by mail-lf0-x22f.google.com with SMTP id l188so64981352lfe.2
-        for <rtc-linux@googlegroups.com>; Wed, 22 Jun 2016 01:34:39 -0700 (PDT)
-Subject: [rtc-linux] Re: [PATCH 4/5] mfd: qcom-rpm: Add support for pm8018 RPM Regulator
-To: Bjorn Andersson <bjorn.andersson@linaro.org>
-References: <1466158929-19524-1-git-send-email-narmstrong@baylibre.com>
- <1466158929-19524-5-git-send-email-narmstrong@baylibre.com>
- <20160622052340.GI1256@tuxbot>
-Cc: linus.walleij@linaro.org, dmitry.torokhov@gmail.com,
- andy.gross@linaro.org, david.brown@linaro.org, lee.jones@linaro.org,
- lgirdwood@gmail.com, broonie@kernel.org, a.zummo@towertech.it,
- alexandre.belloni@free-electrons.com, linux-input@vger.kernel.org,
- linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org,
- linux-soc@vger.kernel.org, rtc-linux@googlegroups.com
-From: Neil Armstrong <narmstrong@baylibre.com>
-Message-ID: <576A4D95.3080804@baylibre.com>
-Date: Wed, 22 Jun 2016 10:34:29 +0200
 MIME-Version: 1.0
-In-Reply-To: <20160622052340.GI1256@tuxbot>
-Content-Type: text/plain; charset=UTF-8
+Received: from mailout1.w1.samsung.com (mailout1.w1.samsung.com. [210.118.77.11])
+        by gmr-mx.google.com with ESMTPS id tp10si8291284pac.2.2016.06.01.02.54.31
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1 cipher=AES128-SHA bits=128/128);
+        Wed, 01 Jun 2016 02:54:31 -0700 (PDT)
+Received: from eucpsbgm1.samsung.com (unknown [203.254.199.244])
+ by mailout1.w1.samsung.com
+ (Oracle Communications Messaging Server 7.0.5.31.0 64bit (built May  5 2014))
+ with ESMTP id <0O8300E357ISCF70@mailout1.w1.samsung.com> for
+ rtc-linux@googlegroups.com; Wed, 01 Jun 2016 10:54:28 +0100 (BST)
+From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+To: Kukjin Kim <kgene@kernel.org>,
+ Krzysztof Kozlowski <k.kozlowski@samsung.com>,
+ MyungJoo Ham <myungjoo.ham@samsung.com>, Chanwoo Choi <cw00.choi@samsung.com>,
+ Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+ Richard Purdie <rpurdie@rpsys.net>,
+ Jacek Anaszewski <j.anaszewski@samsung.com>, Lee Jones <lee.jones@linaro.org>,
+ Sebastian Reichel <sre@kernel.org>,
+ Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>,
+ David Woodhouse <dwmw2@infradead.org>, Liam Girdwood <lgirdwood@gmail.com>,
+ Mark Brown <broonie@kernel.org>, Alessandro Zummo <a.zummo@towertech.it>,
+ Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+ devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+ linux-samsung-soc@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-input@vger.kernel.org, linux-leds@vger.kernel.org,
+ linux-pm@vger.kernel.org, rtc-linux@googlegroups.com
+Cc: r.baldyga@hackerion.com,
+ Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+Subject: [rtc-linux] [PATCH v7 6/6] extcon: max8997: Fix inconsistent indenting
+Date: Wed, 01 Jun 2016 11:54:01 +0200
+Message-id: <1464774841-1439-6-git-send-email-k.kozlowski@samsung.com>
+In-reply-to: <1464774841-1439-1-git-send-email-k.kozlowski@samsung.com>
+References: <1464774841-1439-1-git-send-email-k.kozlowski@samsung.com>
+In-reply-to: <1464773339-756-1-git-send-email-k.kozlowski@samsung.com>
+References: <1464773339-756-1-git-send-email-k.kozlowski@samsung.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -33,88 +46,30 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 06/22/2016 07:23 AM, Bjorn Andersson wrote:
-> On Fri 17 Jun 03:22 PDT 2016, Neil Armstrong wrote:
-> 
-> [..]
->> diff --git a/drivers/mfd/qcom_rpm.c b/drivers/mfd/qcom_rpm.c
-> [..]
->> +
->> +static const struct qcom_rpm_data mdm9615_template = {
->> +	.version = 3,
->> +	.resource_table = mdm9615_rpm_resource_table,
->> +	.n_resources = ARRAY_SIZE(mdm9615_rpm_resource_table),
->> +};
-> 
-> Please see:
-> https://patchwork.kernel.org/patch/9177159/
-> 
-> You should set the new .sel_size to 4 here, please either rebase ontop
-> of Linus patch or send an update after both are merged.
-> 
->> +
->>  static const struct of_device_id qcom_rpm_of_match[] = {
->>  	{ .compatible = "qcom,rpm-apq8064", .data = &apq8064_template },
->>  	{ .compatible = "qcom,rpm-msm8660", .data = &msm8660_template },
->>  	{ .compatible = "qcom,rpm-msm8960", .data = &msm8960_template },
->>  	{ .compatible = "qcom,rpm-ipq8064", .data = &ipq806x_template },
->> +	{ .compatible = "qcom,rpm-mdm9615", .data = &mdm9615_template },
->>  	{ }
->>  };
->>  MODULE_DEVICE_TABLE(of, qcom_rpm_of_match);
->> diff --git a/include/dt-bindings/mfd/qcom-rpm.h b/include/dt-bindings/mfd/qcom-rpm.h
->> index 13a9d4b..db85912 100644
->> --- a/include/dt-bindings/mfd/qcom-rpm.h
->> +++ b/include/dt-bindings/mfd/qcom-rpm.h
->> @@ -148,6 +148,29 @@
->>  #define QCOM_RPM_SMB208_S2a			138
->>  #define QCOM_RPM_SMB208_S2b			139
->>  
->> +#define QCOM_RPM_PM8018_SMPS1			200
-> 
-> These numbers are a logical identifier and as such you shouldn't skip
-> 140-199.
-> 
->> +#define QCOM_RPM_PM8018_SMPS2			201
->> +#define QCOM_RPM_PM8018_SMPS3			202
->> +#define QCOM_RPM_PM8018_SMPS4			203
->> +#define QCOM_RPM_PM8018_SMPS5			204
->> +#define QCOM_RPM_PM8018_LDO1			205
->> +#define QCOM_RPM_PM8018_LDO2			206
->> +#define QCOM_RPM_PM8018_LDO3			207
->> +#define QCOM_RPM_PM8018_LDO4			208
->> +#define QCOM_RPM_PM8018_LDO5			209
->> +#define QCOM_RPM_PM8018_LDO6			210
->> +#define QCOM_RPM_PM8018_LDO7			211
->> +#define QCOM_RPM_PM8018_LDO8			212
->> +#define QCOM_RPM_PM8018_LDO9			213
->> +#define QCOM_RPM_PM8018_LDO10			214
->> +#define QCOM_RPM_PM8018_LDO11			215
->> +#define QCOM_RPM_PM8018_LDO12			216
->> +#define QCOM_RPM_PM8018_LDO13			217
->> +#define QCOM_RPM_PM8018_LDO14			218
->> +#define QCOM_RPM_PM8018_LVS1			219
->> +#define QCOM_RPM_NCP				220
-> 
-> We already have PM8921_NCP and PM8058_NCP, so better make this
-> QCOM_RPM_PM8018_NCP for consistency.
-> 
->> +#define QCOM_RPM_VOLTAGE_CORNER			221
->> +
-> 
-> Other then these details
-> Acked-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-> 
-> Regards,
-> Bjorn
-> 
-Thanks,
+Fix smatch warning:
+	max8997_muic_probe() warn: inconsistent indenting
 
-I rebased on Linus two patches ("fix offset error for msm8660" and "parametrize also ack selector size")
+Signed-off-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+Acked-by: Chanwoo Choi <cw00.choi@samsung.com>
+---
+ drivers/extcon/extcon-max8997.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-I suppose I should also drop the QCOM_RPM_VOLTAGE_CORNER rpm entry also ?
-
-Neil
+diff --git a/drivers/extcon/extcon-max8997.c b/drivers/extcon/extcon-max8997.c
+index 0afa3e8b5dc3..cf8de5be2405 100644
+--- a/drivers/extcon/extcon-max8997.c
++++ b/drivers/extcon/extcon-max8997.c
+@@ -737,7 +737,7 @@ static int max8997_muic_probe(struct platform_device *pdev)
+ 	}
+ 
+ 	/* Set initial path for UART */
+-	 max8997_muic_set_path(info, info->path_uart, true);
++	max8997_muic_set_path(info, info->path_uart, true);
+ 
+ 	/* Set ADC debounce time */
+ 	max8997_muic_set_debounce_time(info, ADC_DEBOUNCE_TIME_25MS);
+-- 
+1.9.1
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
