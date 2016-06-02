@@ -1,33 +1,19 @@
-Return-Path: <rtc-linux+bncBDAYD2P3QYGRBWPVWO5QKGQE637P4HA@googlegroups.com>
+Return-Path: <rtc-linux+bncBAABBCVPX65AKGQEGYSHVDA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 MIME-Version: 1.0
-Received: from mail-wm0-x22f.google.com (mail-wm0-x22f.google.com. [2a00:1450:400c:c09::22f])
-        by gmr-mx.google.com with ESMTPS id x70si97297wmf.1.2016.06.24.02.18.17
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 24 Jun 2016 02:18:17 -0700 (PDT)
-Received: by mail-wm0-x22f.google.com with SMTP id a66so16792590wme.0
-        for <rtc-linux@googlegroups.com>; Fri, 24 Jun 2016 02:18:17 -0700 (PDT)
-From: Neil Armstrong <narmstrong@baylibre.com>
-To: dmitry.torokhov@gmail.com,
-	andy.gross@linaro.org,
-	david.brown@linaro.org,
-	lee.jones@linaro.org,
-	lgirdwood@gmail.com,
-	broonie@kernel.org,
-	a.zummo@towertech.it,
-	alexandre.belloni@free-electrons.com
-Cc: Neil Armstrong <narmstrong@baylibre.com>,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	linux-arm-msm@vger.kernel.org,
-	linux-soc@vger.kernel.org,
-	rtc-linux@googlegroups.com
-Subject: [rtc-linux] [PATCH v2 4/5] mfd: qcom-rpm: Add support for pm8018 RPM Regulator
-Date: Fri, 24 Jun 2016 11:18:06 +0200
-Message-Id: <1466759887-25394-5-git-send-email-narmstrong@baylibre.com>
-In-Reply-To: <1466759887-25394-1-git-send-email-narmstrong@baylibre.com>
-References: <1466759887-25394-1-git-send-email-narmstrong@baylibre.com>
+Received: from root.phytec.de (mail.phycore.de. [217.6.246.34])
+        by gmr-mx.google.com with ESMTP id l184si1629490wmg.2.2016.06.01.23.51.53
+        for <rtc-linux@googlegroups.com>;
+        Wed, 01 Jun 2016 23:51:53 -0700 (PDT)
+From: Wadim Egorov <w.egorov@phytec.de>
+To: linux-kernel@vger.kernel.org, linux-clk@vger.kernel.org, rtc-linux@googlegroups.com, devicetree@vger.kernel.org, linux-rockchip@lists.infradead.org
+Cc: robh+dt@kernel.org, pawel.moll@arm.com, mark.rutland@arm.com, ijc+devicetree@hellion.org.uk, galak@codeaurora.org, mturquette@baylibre.com, sboyd@codeaurora.org, lee.jones@linaro.org, lgirdwood@gmail.com, broonie@kernel.org, a.zummo@towertech.it, alexandre.belloni@free-electrons.com, dianders@chromium.org, zyw@rock-chips.com
+Subject: [rtc-linux] [RESEND PATCH v5 2/5] regulator: rk808: Add regulator
+ driver for RK818
+Date: Thu, 2 Jun 2016 08:50:25 +0200
+Message-Id: <1464850228-17244-2-git-send-email-w.egorov@phytec.de>
+In-Reply-To: <1464850228-17244-1-git-send-email-w.egorov@phytec.de>
+References: <1464850228-17244-1-git-send-email-w.egorov@phytec.de>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -38,129 +24,236 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-In order to support the Qualcomm MDM9615 SoC, add support for the
-RPM regulator entries in the qcom-rpm driver.
+Add support for the rk818 regulator. The regulator module consists
+of 4 DCDCs, 9 LDOs, 1 switch and 1 BOOST converter which is used to
+power OTG and HDMI5V.
 
-Acked-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
+The output voltages are configurable and are meant to supply power
+to the main processor and other components.
+
+Signed-off-by: Wadim Egorov <w.egorov@phytec.de>
+Acked-by: Mark Brown <broonie@kernel.org>
 ---
- Documentation/devicetree/bindings/mfd/qcom-rpm.txt |  1 +
- drivers/mfd/qcom_rpm.c                             | 51 ++++++++++++++++++++++
- include/dt-bindings/mfd/qcom-rpm.h                 | 22 ++++++++++
- 3 files changed, 74 insertions(+)
+ drivers/regulator/Kconfig           |   4 +-
+ drivers/regulator/rk808-regulator.c | 143 ++++++++++++++++++++++++++++++++++--
+ 2 files changed, 138 insertions(+), 9 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/mfd/qcom-rpm.txt b/Documentation/devicetree/bindings/mfd/qcom-rpm.txt
-index b98b291..72d68d4 100644
---- a/Documentation/devicetree/bindings/mfd/qcom-rpm.txt
-+++ b/Documentation/devicetree/bindings/mfd/qcom-rpm.txt
-@@ -13,6 +13,7 @@ frequencies.
- 		    "qcom,rpm-msm8660"
- 		    "qcom,rpm-msm8960"
- 		    "qcom,rpm-ipq8064"
-+		    "qcom,rpm-mdm9615"
+diff --git a/drivers/regulator/Kconfig b/drivers/regulator/Kconfig
+index 144cbf5..9852777 100644
+--- a/drivers/regulator/Kconfig
++++ b/drivers/regulator/Kconfig
+@@ -626,11 +626,11 @@ config REGULATOR_RC5T583
+ 	  outputs which can be controlled by i2c communication.
  
- - reg:
- 	Usage: required
-diff --git a/drivers/mfd/qcom_rpm.c b/drivers/mfd/qcom_rpm.c
-index 880d469..c309ebe 100644
---- a/drivers/mfd/qcom_rpm.c
-+++ b/drivers/mfd/qcom_rpm.c
-@@ -390,11 +390,62 @@ static const struct qcom_rpm_data ipq806x_template = {
- 	.ack_sel_size = 7,
- };
- 
-+static const struct qcom_rpm_resource mdm9615_rpm_resource_table[] = {
-+	[QCOM_RPM_CXO_CLK] =			{ 25, 9, 5, 1 },
-+	[QCOM_RPM_SYS_FABRIC_CLK] =		{ 26, 10, 9, 1 },
-+	[QCOM_RPM_DAYTONA_FABRIC_CLK] =		{ 27, 11, 11, 1 },
-+	[QCOM_RPM_SFPB_CLK] =			{ 28, 12, 12, 1 },
-+	[QCOM_RPM_CFPB_CLK] =			{ 29, 13, 13, 1 },
-+	[QCOM_RPM_EBI1_CLK] =			{ 30, 14, 16, 1 },
-+	[QCOM_RPM_APPS_FABRIC_HALT] =		{ 31, 15, 22, 2 },
-+	[QCOM_RPM_APPS_FABRIC_MODE] =		{ 33, 16, 23, 3 },
-+	[QCOM_RPM_APPS_FABRIC_IOCTL] =		{ 36, 17, 24, 1 },
-+	[QCOM_RPM_APPS_FABRIC_ARB] =		{ 37, 18, 25, 27 },
-+	[QCOM_RPM_PM8018_SMPS1] =		{ 64, 19, 30, 2 },
-+	[QCOM_RPM_PM8018_SMPS2] =		{ 66, 21, 31, 2 },
-+	[QCOM_RPM_PM8018_SMPS3] =		{ 68, 23, 32, 2 },
-+	[QCOM_RPM_PM8018_SMPS4] =		{ 70, 25, 33, 2 },
-+	[QCOM_RPM_PM8018_SMPS5] =		{ 72, 27, 34, 2 },
-+	[QCOM_RPM_PM8018_LDO1] =		{ 74, 29, 35, 2 },
-+	[QCOM_RPM_PM8018_LDO2] =		{ 76, 31, 36, 2 },
-+	[QCOM_RPM_PM8018_LDO3] =		{ 78, 33, 37, 2 },
-+	[QCOM_RPM_PM8018_LDO4] =		{ 80, 35, 38, 2 },
-+	[QCOM_RPM_PM8018_LDO5] =		{ 82, 37, 39, 2 },
-+	[QCOM_RPM_PM8018_LDO6] =		{ 84, 39, 40, 2 },
-+	[QCOM_RPM_PM8018_LDO7] =		{ 86, 41, 41, 2 },
-+	[QCOM_RPM_PM8018_LDO8] =		{ 88, 43, 42, 2 },
-+	[QCOM_RPM_PM8018_LDO9] =		{ 90, 45, 43, 2 },
-+	[QCOM_RPM_PM8018_LDO10] =		{ 92, 47, 44, 2 },
-+	[QCOM_RPM_PM8018_LDO11] =		{ 94, 49, 45, 2 },
-+	[QCOM_RPM_PM8018_LDO12] =		{ 96, 51, 46, 2 },
-+	[QCOM_RPM_PM8018_LDO13] =		{ 98, 53, 47, 2 },
-+	[QCOM_RPM_PM8018_LDO14] =		{ 100, 55, 48, 2 },
-+	[QCOM_RPM_PM8018_LVS1] =		{ 102, 57, 49, 1 },
-+	[QCOM_RPM_PM8018_NCP] =			{ 103, 58, 80, 2 },
-+	[QCOM_RPM_CXO_BUFFERS] =		{ 105, 60, 81, 1 },
-+	[QCOM_RPM_USB_OTG_SWITCH] =		{ 106, 61, 82, 1 },
-+	[QCOM_RPM_HDMI_SWITCH] =		{ 107, 62, 83, 1 },
-+	[QCOM_RPM_VOLTAGE_CORNER] =		{ 109, 64, 87, 1 },
-+};
-+
-+static const struct qcom_rpm_data mdm9615_template = {
-+	.version = 3,
-+	.resource_table = mdm9615_rpm_resource_table,
-+	.n_resources = ARRAY_SIZE(mdm9615_rpm_resource_table),
-+	.req_ctx_off = 3,
-+	.req_sel_off = 11,
-+	.ack_ctx_off = 15,
-+	.ack_sel_off = 23,
-+	.req_sel_size = 4,
-+	.ack_sel_size = 7,
-+};
-+
- static const struct of_device_id qcom_rpm_of_match[] = {
- 	{ .compatible = "qcom,rpm-apq8064", .data = &apq8064_template },
- 	{ .compatible = "qcom,rpm-msm8660", .data = &msm8660_template },
- 	{ .compatible = "qcom,rpm-msm8960", .data = &msm8960_template },
- 	{ .compatible = "qcom,rpm-ipq8064", .data = &ipq806x_template },
-+	{ .compatible = "qcom,rpm-mdm9615", .data = &mdm9615_template },
- 	{ }
- };
- MODULE_DEVICE_TABLE(of, qcom_rpm_of_match);
-diff --git a/include/dt-bindings/mfd/qcom-rpm.h b/include/dt-bindings/mfd/qcom-rpm.h
-index 13a9d4b..54aef5e 100644
---- a/include/dt-bindings/mfd/qcom-rpm.h
-+++ b/include/dt-bindings/mfd/qcom-rpm.h
-@@ -147,6 +147,28 @@
- #define QCOM_RPM_SMB208_S1b			137
- #define QCOM_RPM_SMB208_S2a			138
- #define QCOM_RPM_SMB208_S2b			139
-+#define QCOM_RPM_PM8018_SMPS1			140
-+#define QCOM_RPM_PM8018_SMPS2			141
-+#define QCOM_RPM_PM8018_SMPS3			142
-+#define QCOM_RPM_PM8018_SMPS4			143
-+#define QCOM_RPM_PM8018_SMPS5			144
-+#define QCOM_RPM_PM8018_LDO1			145
-+#define QCOM_RPM_PM8018_LDO2			146
-+#define QCOM_RPM_PM8018_LDO3			147
-+#define QCOM_RPM_PM8018_LDO4			148
-+#define QCOM_RPM_PM8018_LDO5			149
-+#define QCOM_RPM_PM8018_LDO6			150
-+#define QCOM_RPM_PM8018_LDO7			151
-+#define QCOM_RPM_PM8018_LDO8			152
-+#define QCOM_RPM_PM8018_LDO9			153
-+#define QCOM_RPM_PM8018_LDO10			154
-+#define QCOM_RPM_PM8018_LDO11			155
-+#define QCOM_RPM_PM8018_LDO12			156
-+#define QCOM_RPM_PM8018_LDO13			157
-+#define QCOM_RPM_PM8018_LDO14			158
-+#define QCOM_RPM_PM8018_LVS1			159
-+#define QCOM_RPM_PM8018_NCP			160
-+#define QCOM_RPM_VOLTAGE_CORNER			161
- 
+ config REGULATOR_RK808
+-	tristate "Rockchip RK808 Power regulators"
++	tristate "Rockchip RK808/RK818 Power regulators"
+ 	depends on MFD_RK808
+ 	help
+ 	  Select this option to enable the power regulator of ROCKCHIP
+-	  PMIC RK808.
++	  PMIC RK808 and RK818.
+ 	  This driver supports the control of different power rails of device
+ 	  through regulator interface. The device supports multiple DCDC/LDO
+ 	  outputs which can be controlled by i2c communication.
+diff --git a/drivers/regulator/rk808-regulator.c b/drivers/regulator/rk808-regulator.c
+index 40d07ba..5f412a5 100644
+--- a/drivers/regulator/rk808-regulator.c
++++ b/drivers/regulator/rk808-regulator.c
+@@ -1,11 +1,15 @@
  /*
-  * Constants used to select force mode for regulators.
+- * Regulator driver for Rockchip RK808
++ * Regulator driver for Rockchip RK808/RK818
+  *
+  * Copyright (c) 2014, Fuzhou Rockchip Electronics Co., Ltd
+  *
+  * Author: Chris Zhong <zyw@rock-chips.com>
+  * Author: Zhang Qing <zhangqing@rock-chips.com>
+  *
++ * Copyright (C) 2016 PHYTEC Messtechnik GmbH
++ *
++ * Author: Wadim Egorov <w.egorov@phytec.de>
++ *
+  * This program is free software; you can redistribute it and/or modify it
+  * under the terms and conditions of the GNU General Public License,
+  * version 2, as published by the Free Software Foundation.
+@@ -32,6 +36,12 @@
+ #define RK808_BUCK4_VSEL_MASK	0xf
+ #define RK808_LDO_VSEL_MASK	0x1f
+ 
++#define RK818_BUCK_VSEL_MASK		0x3f
++#define RK818_BUCK4_VSEL_MASK		0x1f
++#define RK818_LDO_VSEL_MASK		0x1f
++#define RK818_LDO3_ON_VSEL_MASK		0xf
++#define RK818_BOOST_ON_VSEL_MASK	0xe0
++
+ /* Ramp rate definitions for buck1 / buck2 only */
+ #define RK808_RAMP_RATE_OFFSET		3
+ #define RK808_RAMP_RATE_MASK		(3 << RK808_RAMP_RATE_OFFSET)
+@@ -454,6 +464,108 @@ static const struct regulator_desc rk808_reg[] = {
+ 		RK808_DCDC_EN_REG, BIT(6)),
+ };
+ 
++static const struct regulator_desc rk818_reg[] = {
++	{
++		.name = "DCDC_REG1",
++		.supply_name = "vcc1",
++		.of_match = of_match_ptr("DCDC_REG1"),
++		.regulators_node = of_match_ptr("regulators"),
++		.id = RK818_ID_DCDC1,
++		.ops = &rk808_reg_ops,
++		.type = REGULATOR_VOLTAGE,
++		.min_uV = 712500,
++		.uV_step = 12500,
++		.n_voltages = 64,
++		.vsel_reg = RK818_BUCK1_ON_VSEL_REG,
++		.vsel_mask = RK818_BUCK_VSEL_MASK,
++		.enable_reg = RK818_DCDC_EN_REG,
++		.enable_mask = BIT(0),
++		.owner = THIS_MODULE,
++	}, {
++		.name = "DCDC_REG2",
++		.supply_name = "vcc2",
++		.of_match = of_match_ptr("DCDC_REG2"),
++		.regulators_node = of_match_ptr("regulators"),
++		.id = RK818_ID_DCDC2,
++		.ops = &rk808_reg_ops,
++		.type = REGULATOR_VOLTAGE,
++		.min_uV = 712500,
++		.uV_step = 12500,
++		.n_voltages = 64,
++		.vsel_reg = RK818_BUCK2_ON_VSEL_REG,
++		.vsel_mask = RK818_BUCK_VSEL_MASK,
++		.enable_reg = RK818_DCDC_EN_REG,
++		.enable_mask = BIT(1),
++		.owner = THIS_MODULE,
++	}, {
++		.name = "DCDC_REG3",
++		.supply_name = "vcc3",
++		.of_match = of_match_ptr("DCDC_REG3"),
++		.regulators_node = of_match_ptr("regulators"),
++		.id = RK818_ID_DCDC3,
++		.ops = &rk808_switch_ops,
++		.type = REGULATOR_VOLTAGE,
++		.n_voltages = 1,
++		.enable_reg = RK818_DCDC_EN_REG,
++		.enable_mask = BIT(2),
++		.owner = THIS_MODULE,
++	},
++	RK8XX_DESC(RK818_ID_DCDC4, "DCDC_REG4", "vcc4", 1800, 3600, 100,
++		RK818_BUCK4_ON_VSEL_REG, RK818_BUCK4_VSEL_MASK,
++		RK818_DCDC_EN_REG, BIT(3), 0),
++	RK8XX_DESC(RK818_ID_BOOST, "DCDC_BOOST", "boost", 4700, 5400, 100,
++		RK818_BOOST_LDO9_ON_VSEL_REG, RK818_BOOST_ON_VSEL_MASK,
++		RK818_DCDC_EN_REG, BIT(4), 0),
++	RK8XX_DESC(RK818_ID_LDO1, "LDO_REG1", "vcc6", 1800, 3400, 100,
++		RK818_LDO1_ON_VSEL_REG, RK818_LDO_VSEL_MASK, RK818_LDO_EN_REG,
++		BIT(0), 400),
++	RK8XX_DESC(RK818_ID_LDO2, "LDO_REG2", "vcc6", 1800, 3400, 100,
++		RK818_LDO1_ON_VSEL_REG, RK818_LDO_VSEL_MASK, RK818_LDO_EN_REG,
++		BIT(1), 400),
++	{
++		.name = "LDO_REG3",
++		.supply_name = "vcc7",
++		.of_match = of_match_ptr("LDO_REG3"),
++		.regulators_node = of_match_ptr("regulators"),
++		.id = RK818_ID_LDO3,
++		.ops = &rk808_reg_ops_ranges,
++		.type = REGULATOR_VOLTAGE,
++		.n_voltages = 16,
++		.linear_ranges = rk808_ldo3_voltage_ranges,
++		.n_linear_ranges = ARRAY_SIZE(rk808_ldo3_voltage_ranges),
++		.vsel_reg = RK818_LDO3_ON_VSEL_REG,
++		.vsel_mask = RK818_LDO3_ON_VSEL_MASK,
++		.enable_reg = RK818_LDO_EN_REG,
++		.enable_mask = BIT(2),
++		.enable_time = 400,
++		.owner = THIS_MODULE,
++	},
++	RK8XX_DESC(RK818_ID_LDO4, "LDO_REG4", "vcc8", 1800, 3400, 100,
++		RK818_LDO4_ON_VSEL_REG, RK818_LDO_VSEL_MASK, RK818_LDO_EN_REG,
++		BIT(3), 400),
++	RK8XX_DESC(RK818_ID_LDO5, "LDO_REG5", "vcc7", 1800, 3400, 100,
++		RK818_LDO5_ON_VSEL_REG, RK818_LDO_VSEL_MASK, RK818_LDO_EN_REG,
++		BIT(4), 400),
++	RK8XX_DESC(RK818_ID_LDO6, "LDO_REG6", "vcc8", 800, 2500, 100,
++		RK818_LDO6_ON_VSEL_REG, RK818_LDO_VSEL_MASK, RK818_LDO_EN_REG,
++		BIT(5), 400),
++	RK8XX_DESC(RK818_ID_LDO7, "LDO_REG7", "vcc7", 800, 2500, 100,
++		RK818_LDO7_ON_VSEL_REG, RK818_LDO_VSEL_MASK, RK818_LDO_EN_REG,
++		BIT(6), 400),
++	RK8XX_DESC(RK818_ID_LDO8, "LDO_REG8", "vcc8", 1800, 3400, 100,
++		RK818_LDO8_ON_VSEL_REG, RK818_LDO_VSEL_MASK, RK818_LDO_EN_REG,
++		BIT(7), 400),
++	RK8XX_DESC(RK818_ID_LDO9, "LDO_REG9", "vcc9", 1800, 3400, 100,
++		RK818_BOOST_LDO9_ON_VSEL_REG, RK818_LDO_VSEL_MASK,
++		RK818_DCDC_EN_REG, BIT(5), 400),
++	RK8XX_DESC_SWITCH(RK818_ID_SWITCH, "SWITCH_REG", "vcc9",
++		RK818_DCDC_EN_REG, BIT(6)),
++	RK8XX_DESC_SWITCH(RK818_ID_HDMI_SWITCH, "HDMI_SWITCH", "h_5v",
++		RK818_H5V_EN_REG, BIT(0)),
++	RK8XX_DESC_SWITCH(RK818_ID_OTG_SWITCH, "OTG_SWITCH", "usb",
++		RK818_DCDC_EN_REG, BIT(7)),
++};
++
+ static int rk808_regulator_dt_parse_pdata(struct device *dev,
+ 				   struct device *client_dev,
+ 				   struct regmap *map,
+@@ -499,7 +611,8 @@ static int rk808_regulator_probe(struct platform_device *pdev)
+ 	struct regulator_config config = {};
+ 	struct regulator_dev *rk808_rdev;
+ 	struct rk808_regulator_data *pdata;
+-	int ret, i;
++	const struct regulator_desc *regulators;
++	int ret, i, nregulators;
+ 
+ 	pdata = devm_kzalloc(&pdev->dev, sizeof(*pdata), GFP_KERNEL);
+ 	if (!pdata)
+@@ -512,14 +625,29 @@ static int rk808_regulator_probe(struct platform_device *pdev)
+ 
+ 	platform_set_drvdata(pdev, pdata);
+ 
++	switch (rk808->variant) {
++	case RK808_ID:
++		regulators = rk808_reg;
++		nregulators = RK808_NUM_REGULATORS;
++		break;
++	case RK818_ID:
++		regulators = rk818_reg;
++		nregulators = RK818_NUM_REGULATORS;
++		break;
++	default:
++		dev_err(&client->dev, "unsupported RK8XX ID %lu\n",
++			rk808->variant);
++		return -EINVAL;
++	}
++
+ 	config.dev = &client->dev;
+ 	config.driver_data = pdata;
+ 	config.regmap = rk808->regmap;
+ 
+ 	/* Instantiate the regulators */
+-	for (i = 0; i < RK808_NUM_REGULATORS; i++) {
++	for (i = 0; i < nregulators; i++) {
+ 		rk808_rdev = devm_regulator_register(&pdev->dev,
+-						     &rk808_reg[i], &config);
++						     &regulators[i], &config);
+ 		if (IS_ERR(rk808_rdev)) {
+ 			dev_err(&client->dev,
+ 				"failed to register %d regulator\n", i);
+@@ -540,8 +668,9 @@ static struct platform_driver rk808_regulator_driver = {
+ 
+ module_platform_driver(rk808_regulator_driver);
+ 
+-MODULE_DESCRIPTION("regulator driver for the rk808 series PMICs");
+-MODULE_AUTHOR("Chris Zhong<zyw@rock-chips.com>");
+-MODULE_AUTHOR("Zhang Qing<zhangqing@rock-chips.com>");
++MODULE_DESCRIPTION("regulator driver for the RK808/RK818 series PMICs");
++MODULE_AUTHOR("Chris Zhong <zyw@rock-chips.com>");
++MODULE_AUTHOR("Zhang Qing <zhangqing@rock-chips.com>");
++MODULE_AUTHOR("Wadim Egorov <w.egorov@phytec.de>");
+ MODULE_LICENSE("GPL");
+ MODULE_ALIAS("platform:rk808-regulator");
 -- 
 1.9.1
 
