@@ -1,24 +1,22 @@
-Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBI5CYG5QKGQERXOPV7Q@googlegroups.com>
+Return-Path: <rtc-linux+bncBDEKVJM7XAHRBMOCZK5AKGQEPIJXMJI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 MIME-Version: 1.0
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id x70si108936wmf.1.2016.06.26.15.03.14
-        for <rtc-linux@googlegroups.com>;
-        Sun, 26 Jun 2016 15:03:15 -0700 (PDT)
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: rtc-linux@googlegroups.com
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
-	linux-kernel@vger.kernel.org,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Daniel Mack <daniel@zonque.org>,
-	Haojian Zhuang <haojian.zhuang@gmail.com>,
-	Robert Jarzmik <robert.jarzmik@free.fr>,
-	linux-arm-kernel@lists.infradead.org
-Subject: [rtc-linux] [PATCH 5/5] rtc: v3020: move rtc-v3020.h to platform_data
-Date: Mon, 27 Jun 2016 00:03:03 +0200
-Message-Id: <1466978583-13310-5-git-send-email-alexandre.belloni@free-electrons.com>
-In-Reply-To: <1466978583-13310-1-git-send-email-alexandre.belloni@free-electrons.com>
-References: <1466978583-13310-1-git-send-email-alexandre.belloni@free-electrons.com>
+Received: from mout.kundenserver.de (mout.kundenserver.de. [212.227.126.130])
+        by gmr-mx.google.com with ESMTPS id x203si78306wme.0.2016.06.04.02.36.49
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Sat, 04 Jun 2016 02:36:49 -0700 (PDT)
+From: Arnd Bergmann <arnd@arndb.de>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: linux-kernel@vger.kernel.org,
+	Jiri Kosina <jikos@kernel.org>,
+	rtc-linux@googlegroups.com,
+	Arnd Bergmann <arnd@arndb.de>,
+	"David S. Miller" <davem@davemloft.net>,
+	sparclinux@vger.kernel.org
+Subject: [rtc-linux] [PATCH] sparc32: remove stale RTC_PORT definition
+Date: Sat,  4 Jun 2016 11:36:44 +0200
+Message-Id: <1465033041-2512569-1-git-send-email-arnd@arndb.de>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -29,80 +27,61 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-rtc-v3020.h belongs to include/linux/platform_data/
+sparc32:allmodconfig fails to build in next-20160602 as follows.
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+In file included from drivers/block/floppy.c:185:0:
+include/linux/mc146818rtc.h: In function 'mc146818_is_updating':
+include/linux/mc146818rtc.h:138:9: error: 'rtc_port' undeclared (first use in this function)
+include/linux/mc146818rtc.h:138:9: note: each undeclared identifier is reported only once for each function it appears in
+include/linux/mc146818rtc.h: In function 'mc146818_get_time':
+include/linux/mc146818rtc.h:172:17: error: 'rtc_port' undeclared (first use in this function)
+include/linux/mc146818rtc.h: In function 'mc146818_set_time':
+include/linux/mc146818rtc.h:278:8: error: 'rtc_port' undeclared (first use in this function)
+scripts/Makefile.build:295: recipe for target 'drivers/block/floppy.o' failed
+
+The reason is a duplicate definition of the RTC_PORT macro. The
+one in arch/sparc/include/asm/io_32.h was apparently used a long time
+ago for the drivers/char/rtc.c driver that is not available on SPARC
+any more, since we now select 'RTC_CLASS' unconditionally.
+
+Removing the macro fixes the build problem, and for consistency,
+this also removes the RTC_ALWAYS_BCD macro and the comment for both.
+
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Reported-by: Guenter Roeck <linux@roeck-us.net>
+Fixes: fd09cc80165c ("rtc: cmos: move mc146818rtc code out of asm-generic/rtc.h")
 ---
-Cc: Daniel Mack <daniel@zonque.org>
-Cc: Haojian Zhuang <haojian.zhuang@gmail.com>
-Cc: Robert Jarzmik <robert.jarzmik@free.fr>
-Cc: linux-arm-kernel@lists.infradead.org
- arch/arm/mach-pxa/cm-x270.c                   | 2 +-
- arch/arm/mach-pxa/cm-x300.c                   | 2 +-
- arch/arm/mach-pxa/em-x270.c                   | 2 +-
- drivers/rtc/rtc-v3020.c                       | 2 +-
- include/linux/{ => platform_data}/rtc-v3020.h | 0
- 5 files changed, 4 insertions(+), 4 deletions(-)
- rename include/linux/{ => platform_data}/rtc-v3020.h (100%)
+I thought I'd sent this out yesterday, but cannot find an indication of
+that now, and Alexandre didn't seem to get it. This should probably
+go through the rtc tree that introduced the build failure after my
+earlier patches
 
-diff --git a/arch/arm/mach-pxa/cm-x270.c b/arch/arm/mach-pxa/cm-x270.c
-index fa5f51d633a3..be4a66166d61 100644
---- a/arch/arm/mach-pxa/cm-x270.c
-+++ b/arch/arm/mach-pxa/cm-x270.c
-@@ -14,7 +14,7 @@
- #include <linux/gpio.h>
- #include <linux/delay.h>
+ arch/sparc/include/asm/io_32.h | 10 ----------
+ 1 file changed, 10 deletions(-)
+
+diff --git a/arch/sparc/include/asm/io_32.h b/arch/sparc/include/asm/io_32.h
+index 57f26c398dc9..4dd268a3a8b0 100644
+--- a/arch/sparc/include/asm/io_32.h
++++ b/arch/sparc/include/asm/io_32.h
+@@ -140,16 +140,6 @@ void ioport_unmap(void __iomem *);
+ struct pci_dev;
+ void pci_iounmap(struct pci_dev *dev, void __iomem *);
  
--#include <linux/rtc-v3020.h>
-+#include <linux/platform_data/rtc-v3020.h>
- #include <video/mbxfb.h>
- 
- #include <linux/spi/spi.h>
-diff --git a/arch/arm/mach-pxa/cm-x300.c b/arch/arm/mach-pxa/cm-x300.c
-index 5f5ac7c8faf0..868448d2cd82 100644
---- a/arch/arm/mach-pxa/cm-x300.c
-+++ b/arch/arm/mach-pxa/cm-x300.c
-@@ -25,7 +25,7 @@
- #include <linux/gpio.h>
- #include <linux/dm9000.h>
- #include <linux/leds.h>
--#include <linux/rtc-v3020.h>
-+#include <linux/platform_data/rtc-v3020.h>
- #include <linux/pwm.h>
- #include <linux/pwm_backlight.h>
- 
-diff --git a/arch/arm/mach-pxa/em-x270.c b/arch/arm/mach-pxa/em-x270.c
-index 6e0268deec43..03354c21e1f2 100644
---- a/arch/arm/mach-pxa/em-x270.c
-+++ b/arch/arm/mach-pxa/em-x270.c
-@@ -14,7 +14,7 @@
- #include <linux/delay.h>
- 
- #include <linux/dm9000.h>
--#include <linux/rtc-v3020.h>
-+#include <linux/platform_data/rtc-v3020.h>
- #include <linux/mtd/nand.h>
- #include <linux/mtd/partitions.h>
- #include <linux/mtd/physmap.h>
-diff --git a/drivers/rtc/rtc-v3020.c b/drivers/rtc/rtc-v3020.c
-index 7a0436329d6c..1f3117b5a83c 100644
---- a/drivers/rtc/rtc-v3020.c
-+++ b/drivers/rtc/rtc-v3020.c
-@@ -25,7 +25,7 @@
- #include <linux/rtc.h>
- #include <linux/types.h>
- #include <linux/bcd.h>
--#include <linux/rtc-v3020.h>
-+#include <linux/platform_data/rtc-v3020.h>
- #include <linux/delay.h>
- #include <linux/gpio.h>
- #include <linux/slab.h>
-diff --git a/include/linux/rtc-v3020.h b/include/linux/platform_data/rtc-v3020.h
-similarity index 100%
-rename from include/linux/rtc-v3020.h
-rename to include/linux/platform_data/rtc-v3020.h
+-
+-
+-/*
+- * At the moment, we do not use CMOS_READ anywhere outside of rtc.c,
+- * so rtc_port is static in it. This should not change unless a new
+- * hardware pops up.
+- */
+-#define RTC_PORT(x)   (rtc_port + (x))
+-#define RTC_ALWAYS_BCD  0
+-
+ static inline int sbus_can_dma_64bit(void)
+ {
+ 	return 0; /* actually, sparc_cpu_model==sun4d */
 -- 
-2.8.1
+2.7.0
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
