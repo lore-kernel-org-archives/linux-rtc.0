@@ -1,26 +1,21 @@
-Return-Path: <rtc-linux+bncBDJIP47K7MERBQ6JZO5QKGQE6LNFU4Y@googlegroups.com>
+Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBV7FZK5AKGQEY4UVQJQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail-qk0-f195.google.com (mail-qk0-f195.google.com. [209.85.220.195])
-        by gmr-mx.google.com with ESMTPS id u136si12890ywc.7.2016.06.28.13.57.39
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 28 Jun 2016 13:57:39 -0700 (PDT)
-Received: by mail-qk0-f195.google.com with SMTP id j2so5892513qkf.1
-        for <rtc-linux@googlegroups.com>; Tue, 28 Jun 2016 13:57:39 -0700 (PDT)
-Date: Tue, 28 Jun 2016 15:57:31 -0500
-From: Rob Herring <robh@kernel.org>
-To: Ben Dooks <ben.dooks@codethink.co.uk>
-Cc: linux-kernel@lists.codethink.co.uk, rtc-linux@googlegroups.com,
-	a.zummo@towertech.it, alexandre.belloni@free-electrons.com,
-	devicetree@vger.kernel.org, frowand.list@gmail.com,
-	linux-amlogic@lists.infradead.org
-Subject: [rtc-linux] Re: [PATCH v2 2/4] meson-rtc: add device-tree binding
-Message-ID: <20160628205731.GW3737@rob-hp-laptop>
-References: <1467045849-495-1-git-send-email-ben.dooks@codethink.co.uk>
- <1467045849-495-3-git-send-email-ben.dooks@codethink.co.uk>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id j140si153404wmf.1.2016.06.04.03.52.06
+        for <rtc-linux@googlegroups.com>;
+        Sat, 04 Jun 2016 03:52:06 -0700 (PDT)
+Date: Sat, 4 Jun 2016 12:52:03 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: linux-kernel@vger.kernel.org, Jiri Kosina <jikos@kernel.org>,
+	rtc-linux@googlegroups.com, "David S. Miller" <davem@davemloft.net>,
+	sparclinux@vger.kernel.org
+Subject: [rtc-linux] Re: [PATCH] sparc32: remove stale RTC_PORT definition
+Message-ID: <20160604105203.GH4594@piout.net>
+References: <1465033041-2512569-1-git-send-email-arnd@arndb.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1467045849-495-3-git-send-email-ben.dooks@codethink.co.uk>
+In-Reply-To: <1465033041-2512569-1-git-send-email-arnd@arndb.de>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -30,16 +25,45 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Mon, Jun 27, 2016 at 05:44:07PM +0100, Ben Dooks wrote:
-> Add documentation for the AMLogic Meson RTC.
+On 04/06/2016 at 11:36:44 +0200, Arnd Bergmann wrote :
+> sparc32:allmodconfig fails to build in next-20160602 as follows.
 > 
-> Signed-off-by: Ben Dooks <ben.dooks@codethink.co.uk>
+> In file included from drivers/block/floppy.c:185:0:
+> include/linux/mc146818rtc.h: In function 'mc146818_is_updating':
+> include/linux/mc146818rtc.h:138:9: error: 'rtc_port' undeclared (first use in this function)
+> include/linux/mc146818rtc.h:138:9: note: each undeclared identifier is reported only once for each function it appears in
+> include/linux/mc146818rtc.h: In function 'mc146818_get_time':
+> include/linux/mc146818rtc.h:172:17: error: 'rtc_port' undeclared (first use in this function)
+> include/linux/mc146818rtc.h: In function 'mc146818_set_time':
+> include/linux/mc146818rtc.h:278:8: error: 'rtc_port' undeclared (first use in this function)
+> scripts/Makefile.build:295: recipe for target 'drivers/block/floppy.o' failed
+> 
+> The reason is a duplicate definition of the RTC_PORT macro. The
+> one in arch/sparc/include/asm/io_32.h was apparently used a long time
+> ago for the drivers/char/rtc.c driver that is not available on SPARC
+> any more, since we now select 'RTC_CLASS' unconditionally.
+> 
+> Removing the macro fixes the build problem, and for consistency,
+> this also removes the RTC_ALWAYS_BCD macro and the comment for both.
+> 
+> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+> Reported-by: Guenter Roeck <linux@roeck-us.net>
+> Fixes: fd09cc80165c ("rtc: cmos: move mc146818rtc code out of asm-generic/rtc.h")
 > ---
->  .../devicetree/bindings/rtc/rtc-amlogic.txt         | 21 +++++++++++++++++++++
->  1 file changed, 21 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/rtc/rtc-amlogic.txt
+> I thought I'd sent this out yesterday, but cannot find an indication of
+> that now, and Alexandre didn't seem to get it. This should probably
+> go through the rtc tree that introduced the build failure after my
+> earlier patches
+> 
+>  arch/sparc/include/asm/io_32.h | 10 ----------
+>  1 file changed, 10 deletions(-)
+> 
+Applied, thanks.
 
-Acked-by: Rob Herring <robh@kernel.org>
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
