@@ -1,25 +1,20 @@
-Return-Path: <rtc-linux+bncBDE6RCFOWIARBFPWYC5AKGQEM4V5ETY@googlegroups.com>
+Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBBN2ZO5AKGQE6C4JQIQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail-oi0-x236.google.com (mail-oi0-x236.google.com. [2607:f8b0:4003:c06::236])
-        by gmr-mx.google.com with ESMTPS id p65si1509695itb.1.2016.06.02.06.56.37
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 02 Jun 2016 06:56:37 -0700 (PDT)
-Received: by mail-oi0-x236.google.com with SMTP id e72so76267299oib.1
-        for <rtc-linux@googlegroups.com>; Thu, 02 Jun 2016 06:56:36 -0700 (PDT)
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id j140si187865wmf.1.2016.06.04.06.52.05
+        for <rtc-linux@googlegroups.com>;
+        Sat, 04 Jun 2016 06:52:05 -0700 (PDT)
+Date: Sat, 4 Jun 2016 15:52:04 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Martin Kepplinger <martink@posteo.de>
+Cc: a.zummo@towertech.it, rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org
+Subject: [rtc-linux] Re: [PATCH] rtc-pcf2123: use sign_extend32() for sign extension
+Message-ID: <20160604135204.GK4594@piout.net>
+References: <1460974664-7525-1-git-send-email-martink@posteo.de>
 MIME-Version: 1.0
-In-Reply-To: <1464875584-31505-1-git-send-email-linus.walleij@linaro.org>
-References: <1464875584-31505-1-git-send-email-linus.walleij@linaro.org>
-Date: Thu, 2 Jun 2016 15:56:36 +0200
-Message-ID: <CACRpkdYNus_ck2bAoU=KhrGGp_0VbOGPtmzGxd9nHa2ZPt8+9g@mail.gmail.com>
-Subject: [rtc-linux] Re: [PATCH] rtc: ab8500: move device_init_wakeup() call
-From: Linus Walleij <linus.walleij@linaro.org>
-To: Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: "rtc-linux@googlegroups.com" <rtc-linux@googlegroups.com>, Linus Walleij <linus.walleij@linaro.org>,
-	stable <stable@vger.kernel.org>, Sudeep Holla <sudeep.holla@arm.com>,
-	Ulf Hansson <ulf.hansson@linaro.org>
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1460974664-7525-1-git-send-email-martink@posteo.de>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -29,20 +24,18 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Thu, Jun 2, 2016 at 3:53 PM, Linus Walleij <linus.walleij@linaro.org> wrote:
+On 18/04/2016 at 12:17:44 +0200, Martin Kepplinger wrote :
+> Signed-off-by: Martin Kepplinger <martink@posteo.de>
+> ---
+>  drivers/rtc/rtc-pcf2123.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+> 
+Applied, thanks.
 
-> commit 93a6f9168f2f ("rtc: ab8500: remove misuse of IRQF_NO_SUSPEND flag")
-> introduced the dev_pm_set_wake_irq() call to register a wake
-> IRQ for the AB8500 driver.
-
-If this looks like a deja vu it is because I sent it before, then thought my
-suspend/resume bugs were due to something else, fixed the other things,
-and return to the conclusion that this patch is indeed needed too.
-
-Sorry if it's confusing, please apply this patch.
-
-Yours,
-Linus Walleij
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
