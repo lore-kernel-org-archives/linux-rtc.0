@@ -1,23 +1,23 @@
-Return-Path: <rtc-linux+bncBDAMN6NI5EERBDPI3G5AKGQE273GZBA@googlegroups.com>
+Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBCFJZS5AKGQEFZSU4KY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from Galois.linutronix.de (linutronix.de. [2001:470:1f0b:db:abcd:42:0:1])
-        by gmr-mx.google.com with ESMTPS id j140si533552wmf.1.2016.06.06.07.14.50
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=AES128-SHA bits=128/128);
-        Mon, 06 Jun 2016 07:14:50 -0700 (PDT)
-Date: Mon, 6 Jun 2016 16:12:55 +0200 (CEST)
-From: Thomas Gleixner <tglx@linutronix.de>
-To: Arnd Bergmann <arnd@arndb.de>
-cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-    linux-kernel@vger.kernel.org, rtc-linux@googlegroups.com,
-    Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>,
-    x86@kernel.org
-Subject: [rtc-linux] Re: [PATCH] x86: include linux/ratelimit.h in nmi.c
-In-Reply-To: <1465222212-2579966-1-git-send-email-arnd@arndb.de>
-Message-ID: <alpine.DEB.2.11.1606061612390.28031@nanos>
-References: <1465222212-2579966-1-git-send-email-arnd@arndb.de>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id d193si182581wmd.2.2016.06.04.10.48.55
+        for <rtc-linux@googlegroups.com>;
+        Sat, 04 Jun 2016 10:48:55 -0700 (PDT)
+Date: Sat, 4 Jun 2016 19:48:54 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Gabriele Mazzotta <gabriele.mzt@gmail.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+	matthew.garrett@nebula.com
+Subject: [rtc-linux] Re: [PATCH 1/2] rtc-cmos: Clear expired alarm after resume
+Message-ID: <20160604174854.GN4594@piout.net>
+References: <1464795615-7748-1-git-send-email-gabriele.mzt@gmail.com>
+ <20160604144626.GM4594@piout.net>
+ <CABFtUbQ7OWChggMPxYfpUeVCdTTtM74YpkqTF3--RT+wWkPoWQ@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <CABFtUbQ7OWChggMPxYfpUeVCdTTtM74YpkqTF3--RT+wWkPoWQ@mail.gmail.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -27,35 +27,62 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Mon, 6 Jun 2016, Arnd Bergmann wrote:
-> When building random configurations, we now occasionally get a new
-> build error:
+On 04/06/2016 at 18:58:59 +0200, Gabriele Mazzotta wrote :
+> 2016-06-04 16:46 GMT+02:00 Alexandre Belloni
+> <alexandre.belloni@free-electrons.com>:
+> > On 01/06/2016 at 17:40:14 +0200, Gabriele Mazzotta wrote :
+> >> If the system wakes up because of a wake alarm, the internal state
+> >> of the alarm is not updated. As consequence, the state no longer
+> >> reflects the actual state of the hardware and setting a new alarm
+> >> is not possible until the expired alarm is cleared.
+> >>
+> >
+> > I'm not completely sure to understand what is happening but could you
+> > check whether that one is solved by
+> > 2b2f5ff00f63847d95adad6289bd8b05f5983dd5 in my tree (rtc-next).
+> >
 > 
->    In file included from include/linux/kernel.h:13:0,
->                     from include/linux/list.h:8,
->                     from include/linux/preempt.h:10,
->                     from include/linux/spinlock.h:50,
->                     from arch/x86/kernel/nmi.c:13:
->    arch/x86/kernel/nmi.c: In function 'nmi_max_handler':
->    include/linux/printk.h:375:9: error: type defaults to 'int' in declaration of 'DEFINE_RATELIMIT_STATE' [-Werror=implicit-int]
->      static DEFINE_RATELIMIT_STATE(_rs,    \
->             ^
->    arch/x86/kernel/nmi.c:110:2: note: in expansion of macro 'printk_ratelimited'
->      printk_ratelimited(KERN_INFO
->      ^~~~~~~~~~~~~~~~~~
+> I picked 2b2f5ff00f63847d95adad6289bd8b05f5983dd5 and applied it
+> on top of 4.7-rc1, but that didn't fix the problem.
 > 
-> This was working before the rtc rework series because linux/ratelimit.h
-> was included implictly through asm/mach_traps.h -> asm/mc146818rtc.h
-> -> linux/mc146818rtc.h -> linux/rtc.h -> linux/device.h.
+> Let me explain the problem by showing you how I reproduce it:
 > 
-> We clearly shouldn't rely on this indirect inclusion, so this adds
-> an explicit #include in the file that needs it.
+> root@localhost:~# cat /proc/driver/rtc | grep alarm_IRQ
+> alarm_IRQ       : no
+> root@localhost:~# echo +10 > /sys/class/rtc/rtc0/wakealarm
+> root@localhost:~# echo mem > /sys/power/state  # wait for auto-resume
+> root@localhost:~# echo +10 > /sys/class/rtc/rtc0/wakealarm
+> bash: echo: write error: Device or resource busy
+> root@localhost:~# cat /proc/driver/rtc | grep alarm_IRQ
+> alarm_IRQ       : yes
 > 
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-> Reported-by: kbuild test robot <fengguang.wu@intel.com>
-> Fixes: 5ab788d73832 ("rtc: cmos: move mc146818rtc code out of asm-generic/rtc.h")
-> ---
-> It's only broken in the linux-rtc git at the moment, so it makes sense
-> to fix it there.
+> To set another alarm, I have to first write 0 to wakealarm. After that
+> I can set what I want. This doesn't happen if the alarm fires while
+> the system is awake, it happens only if the system is suspended and
+> the alarm wakes it.
+> 
+> I actually forgot to say that maybe this problem is not limited
+> to rtc-cmos and that maybe a general solution could be used.
+> 
+> I've just looked better into what is causing this and the problem
+> seems to be caused by the fact that rtc_timer_do_work() is not
+> executed if the timer expires while the system is suspended.
+> 
 
-Acked-by: Thomas Gleixner <tglx@linutronix.de>
+I doubt this is a driver independent issues as I don't get that
+behaviour on many other RTCs. I'll have a look.
+
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
+
+-- 
+You received this message because you are subscribed to "rtc-linux".
+Membership options at http://groups.google.com/group/rtc-linux .
+Please read http://groups.google.com/group/rtc-linux/web/checklist
+before submitting a driver.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+For more options, visit https://groups.google.com/d/optout.
