@@ -1,24 +1,23 @@
-Return-Path: <rtc-linux+bncBD66BCOYSQBBBOFMQO5QKGQE3AH4G5I@googlegroups.com>
+Return-Path: <rtc-linux+bncBCSJFY6GXEGBB67EZ65AKGQEUSHXGLY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from devils.ext.ti.com (devils.ext.ti.com. [198.47.26.153])
-        by gmr-mx.google.com with ESMTPS id d189si490527ith.1.2016.06.14.21.14.47
+MIME-Version: 1.0
+Received: from mx2.suse.de (mx2.suse.de. [195.135.220.15])
+        by gmr-mx.google.com with ESMTPS id l184si253658wmg.2.2016.06.05.02.35.55
         for <rtc-linux@googlegroups.com>
         (version=TLS1 cipher=AES128-SHA bits=128/128);
-        Tue, 14 Jun 2016 21:14:47 -0700 (PDT)
-Subject: [rtc-linux] Re: [PATCH] rtc: ds1307: Fix relying on reset value for weekday
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-References: <1464778147-22075-1-git-send-email-j-keerthy@ti.com>
- <20160601121802.GF4249@piout.net> <574ED6D1.70800@ti.com>
- <575693E1.2090302@ti.com> <20160614143948.GP3240@piout.net>
-CC: Keerthy <j-keerthy@ti.com>, <a.zummo@towertech.it>, <nm@ti.com>,
-        <rtc-linux@googlegroups.com>, <linux-kernel@vger.kernel.org>
-From: Keerthy <a0393675@ti.com>
-Message-ID: <5760D631.1050006@ti.com>
-Date: Wed, 15 Jun 2016 09:44:41 +0530
-MIME-Version: 1.0
-In-Reply-To: <20160614143948.GP3240@piout.net>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+        Sun, 05 Jun 2016 02:35:55 -0700 (PDT)
+From: Alexander Graf <agraf@suse.de>
+To: rtc-linux@googlegroups.com
+Cc: leif.lindholm@linaro.org,
+	linux-kernel@vger.kernel.org,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Subject: [rtc-linux] [PATCH] rtc: efi: Fail probing if RTC reads don't work
+Date: Sun,  5 Jun 2016 11:35:56 +0200
+Message-Id: <1465119356-129799-1-git-send-email-agraf@suse.de>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -27,54 +26,37 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
+While the EFI spec mandates an RTC, not every implementation actually adheres
+to that rule (or can adhere to it - some systems just don't have an RTC).
 
+For those, we really don't want to probe the EFI RTC driver at all, because if
+we do we'd get a non-functional driver that does nothing useful but only spills
+our kernel log with warnings.
 
-On Tuesday 14 June 2016 08:09 PM, Alexandre Belloni wrote:
-> On 07/06/2016 at 14:59:05 +0530, Keerthy wrote :
->> Hi Alexandre,
->>
->> On Wednesday 01 June 2016 06:06 PM, Keerthy wrote:
->>>
->>>
->>> On Wednesday 01 June 2016 05:48 PM, Alexandre Belloni wrote:
->>>> Hi,
->>>>
->>>> On 01/06/2016 at 16:19:07 +0530, Keerthy wrote :
->>>>> The reset value of weekday is 0x1. This is wrong since
->>>>> the reset values of the day/month/year make up to Jan 1 2001.
->>>>> When computed weekday comes out to be Monday. On a scale
->>>>> of 1-7(Sunday - Saturday) it should be 0x2. So we should not
->>>>> be relying on the reset value.
->>>>>
->>>>
->>>> Hum, what are the chances that the reset value is actually the correct
->>>> date/time?
->>>> Won't that be corrected after the first call to set_time? Until then,
->>>> the date is not correct so, do we care anyway?
->>>
->>> Yes if an alarm is programmed without set_time.
->>>
->>> ex: rtcwake -d /dev/rtc0 -s 5
->>>
->>> Even the basic rtctest under tools/testing/selftests/timers/rtctest.c fails
->>> as the wday is wrong and no alarm fires.
->>>
->>> Instead of relying on some one to call set_time before programming alarm
->>> its better to fix the wday to reflect the current day right?
->>>
->>>
->>>>
->>>> Maybe I'm missing something here.
->>
->> Let me know if you feel this is a valid fix.
->>
->
-> Well, this is probably a valid fix and I'll take it as is if I don't
-> find the time to make something more generic.
+Signed-off-by: Alexander Graf <agraf@suse.de>
+---
+ drivers/rtc/rtc-efi.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-Okay Thanks.
-
->
+diff --git a/drivers/rtc/rtc-efi.c b/drivers/rtc/rtc-efi.c
+index 96d3860..0130afd 100644
+--- a/drivers/rtc/rtc-efi.c
++++ b/drivers/rtc/rtc-efi.c
+@@ -259,6 +259,12 @@ static const struct rtc_class_ops efi_rtc_ops = {
+ static int __init efi_rtc_probe(struct platform_device *dev)
+ {
+ 	struct rtc_device *rtc;
++	efi_time_t eft;
++	efi_time_cap_t cap;
++
++	/* First check if the RTC is usable */
++	if (efi.get_time(&eft, &cap) != EFI_SUCCESS)
++		return -ENODEV;
+ 
+ 	rtc = devm_rtc_device_register(&dev->dev, "rtc-efi", &efi_rtc_ops,
+ 					THIS_MODULE);
+-- 
+1.8.5.6
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
