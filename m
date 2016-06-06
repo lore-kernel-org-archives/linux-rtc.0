@@ -1,27 +1,23 @@
-Return-Path: <rtc-linux+bncBDKOBWPM5ABRB3W5QO5QKGQEQBGOG2Q@googlegroups.com>
+Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBVVD225AKGQENZWCJ4A@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-MIME-Version: 1.0
-Received: from mail-pa0-x243.google.com (mail-pa0-x243.google.com. [2607:f8b0:400e:c03::243])
-        by gmr-mx.google.com with ESMTPS id ci4si3625974pad.1.2016.06.14.23.00.13
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 14 Jun 2016 23:00:13 -0700 (PDT)
-Received: by mail-pa0-x243.google.com with SMTP id ts6so798783pac.0
-        for <rtc-linux@googlegroups.com>; Tue, 14 Jun 2016 23:00:13 -0700 (PDT)
-From: Andrey Smirnov <andrew.smirnov@gmail.com>
-To: rtc-linux@googlegroups.com
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id x203si264499wme.0.2016.06.06.08.08.06
+        for <rtc-linux@googlegroups.com>;
+        Mon, 06 Jun 2016 08:08:06 -0700 (PDT)
+Date: Mon, 6 Jun 2016 17:08:05 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Alexander Graf <agraf@suse.de>
+Cc: rtc-linux@googlegroups.com, leif.lindholm@linaro.org,
 	linux-kernel@vger.kernel.org,
-	Andrey Smirnov <andrew.smirnov@gmail.com>
-Subject: [rtc-linux] [PATCH 12/13] RTC: ds1307: Report oscillator problems
- more intelligently
-Date: Tue, 14 Jun 2016 22:59:38 -0700
-Message-Id: <1465970379-14703-13-git-send-email-andrew.smirnov@gmail.com>
-In-Reply-To: <1465970379-14703-1-git-send-email-andrew.smirnov@gmail.com>
-References: <1465970379-14703-1-git-send-email-andrew.smirnov@gmail.com>
-Reply-To: rtc-linux@googlegroups.com
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Subject: [rtc-linux] Re: [PATCH] rtc: efi: Fail probing if RTC reads don't work
+Message-ID: <20160606150805.GB3363@piout.net>
+References: <1465119356-129799-1-git-send-email-agraf@suse.de>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1465119356-129799-1-git-send-email-agraf@suse.de>
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -30,98 +26,24 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Report oscillator problems more intelligently, by printing more
-information about what cause the issue and not yelling "SET TIME!" at
-the user.
+On 05/06/2016 at 11:35:56 +0200, Alexander Graf wrote :
+> While the EFI spec mandates an RTC, not every implementation actually adheres
+> to that rule (or can adhere to it - some systems just don't have an RTC).
+> 
+> For those, we really don't want to probe the EFI RTC driver at all, because if
+> we do we'd get a non-functional driver that does nothing useful but only spills
+> our kernel log with warnings.
+> 
+> Signed-off-by: Alexander Graf <agraf@suse.de>
+> ---
+>  drivers/rtc/rtc-efi.c | 6 ++++++
+>  1 file changed, 6 insertions(+)
+Applied, thanks.
 
-Signed-off-by: Andrey Smirnov <andrew.smirnov@gmail.com>
----
- drivers/rtc/rtc-ds1307.c | 28 +++++++++++++++++++++++-----
- 1 file changed, 23 insertions(+), 5 deletions(-)
-
-diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
-index 76e66a3..d9693bd 100644
---- a/drivers/rtc/rtc-ds1307.c
-+++ b/drivers/rtc/rtc-ds1307.c
-@@ -1424,6 +1424,19 @@ static int ds1307_chip_configure(const struct ds1307 *ds1307)
- 	return 0;
- }
- 
-+static void ds1307_report_clock_halt(const struct ds1307 *ds1307)
-+{
-+	dev_warn(&ds1307->client->dev, "RTC's oscillator is turned off. "
-+		 "Turning it on. Please set time");
-+}
-+
-+static void ds1307_report_oscillator_fault(const struct ds1307 *ds1307)
-+{
-+	dev_warn(&ds1307->client->dev, "RTC's reported oscillator fault. "
-+		 "Clearing the fault flag and re-reading RTC status. "
-+		 "Please set time");
-+}
-+
- static int ds1307_chip_sanity_check(const struct ds1307 *ds1307)
- {
- 	int tmp, retries;
-@@ -1453,7 +1466,7 @@ static int ds1307_chip_sanity_check(const struct ds1307 *ds1307)
- 			if (tmp & DS1307_BIT_CH) {
- 				i2c_smbus_write_byte_data(client,
- 							  DS1307_REG_SECS, 0);
--				dev_warn(&client->dev, "SET TIME!\n");
-+				ds1307_report_clock_halt(ds1307);
- 				continue;
- 			}
- 			break;
-@@ -1469,15 +1482,17 @@ static int ds1307_chip_sanity_check(const struct ds1307 *ds1307)
- 							  DS1307_REG_CONTROL,
- 							  regs[DS1307_REG_CONTROL]
- 							  & ~DS1338_BIT_OSF);
--				dev_warn(&client->dev, "SET TIME!\n");
-+				ds1307_report_oscillator_fault(ds1307);
- 				continue;
- 			}
- 			break;
- 		case ds_1340:
- 			/* clock halted?  turn it on, so clock can tick. */
--			if (tmp & DS1340_BIT_nEOSC)
-+			if (tmp & DS1340_BIT_nEOSC) {
- 				i2c_smbus_write_byte_data(client,
- 							  DS1307_REG_SECS, 0);
-+				ds1307_report_clock_halt(ds1307);
-+			}
- 
- 			tmp = i2c_smbus_read_byte_data(client, DS1340_REG_FLAG);
- 			if (tmp < 0) {
-@@ -1489,7 +1504,7 @@ static int ds1307_chip_sanity_check(const struct ds1307 *ds1307)
- 			if (tmp & DS1340_BIT_OSF) {
- 				i2c_smbus_write_byte_data(client,
- 							  DS1340_REG_FLAG, 0);
--				dev_warn(&client->dev, "SET TIME!\n");
-+				ds1307_report_oscillator_fault(ds1307);
- 			}
- 			return 0;
- 
-@@ -1500,6 +1515,9 @@ static int ds1307_chip_sanity_check(const struct ds1307 *ds1307)
- 							  DS1307_REG_WDAY,
- 							  regs[DS1307_REG_WDAY]
- 							  | MCP794XX_BIT_VBATEN);
-+				dev_warn(&client->dev,
-+					 "battery backup was disabled. "
-+					 "Re-enabling it\n");
- 			}
- 
- 			/* clock halted?  turn it on, so clock can tick. */
-@@ -1507,7 +1525,7 @@ static int ds1307_chip_sanity_check(const struct ds1307 *ds1307)
- 				i2c_smbus_write_byte_data(client,
- 							  DS1307_REG_SECS,
- 							  MCP794XX_BIT_ST);
--				dev_warn(&client->dev, "SET TIME!\n");
-+				ds1307_report_clock_halt(ds1307);
- 				continue;
- 			}
- 
 -- 
-2.5.5
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
