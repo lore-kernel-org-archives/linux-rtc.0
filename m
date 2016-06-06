@@ -1,28 +1,26 @@
-Return-Path: <rtc-linux+bncBCEPJZEDQIBBBXVPYW5QKGQEGN4BVCI@googlegroups.com>
+Return-Path: <rtc-linux+bncBDYNJBOFRECBBWPU2S5AKGQE55XW22Y@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-MIME-Version: 1.0
-Received: from rainbowdash.ducie.codethink.co.uk (82-70-136-246.dsl.in-addr.zen.co.uk. [82.70.136.246])
-        by gmr-mx.google.com with ESMTPS id c135si198260wme.2.2016.06.27.09.44.13
+Received: from mail-io0-x230.google.com (mail-io0-x230.google.com. [2607:f8b0:4001:c06::230])
+        by gmr-mx.google.com with ESMTPS id b6si603527ith.0.2016.06.06.01.54.48
         for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Mon, 27 Jun 2016 09:44:13 -0700 (PDT)
-From: Ben Dooks <ben.dooks@codethink.co.uk>
-To: linux-kernel@lists.codethink.co.uk,
-	rtc-linux@googlegroups.com,
-	a.zummo@towertech.it,
-	alexandre.belloni@free-electrons.com,
-	devicetree@vger.kernel.org
-Cc: robh+dt@kernel.org,
-	frowand.list@gmail.com,
-	linux-amlogic@lists.infradead.org,
-	Ben Dooks <ben.dooks@codethink.co.uk>
-Subject: [rtc-linux] [PATCH v2 3/4] ARM: dts: amlogic: add rtc node for meson8b
-Date: Mon, 27 Jun 2016 17:44:08 +0100
-Message-Id: <1467045849-495-4-git-send-email-ben.dooks@codethink.co.uk>
-In-Reply-To: <1467045849-495-1-git-send-email-ben.dooks@codethink.co.uk>
-References: <1467045849-495-1-git-send-email-ben.dooks@codethink.co.uk>
-Reply-To: rtc-linux@googlegroups.com
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 06 Jun 2016 01:54:48 -0700 (PDT)
+Received: by mail-io0-x230.google.com with SMTP id o189so122486057ioe.2
+        for <rtc-linux@googlegroups.com>; Mon, 06 Jun 2016 01:54:48 -0700 (PDT)
+MIME-Version: 1.0
+In-Reply-To: <1465119356-129799-1-git-send-email-agraf@suse.de>
+References: <1465119356-129799-1-git-send-email-agraf@suse.de>
+From: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Date: Mon, 6 Jun 2016 10:54:48 +0200
+Message-ID: <CAKv+Gu9cHvOBo_4Bq_rj6wqo61w=RtsL=+cRcAek7XkH5Wf+Hw@mail.gmail.com>
+Subject: [rtc-linux] Re: [PATCH] rtc: efi: Fail probing if RTC reads don't work
+To: Alexander Graf <agraf@suse.de>
+Cc: rtc-linux@googlegroups.com, Leif Lindholm <leif.lindholm@linaro.org>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Alessandro Zummo <a.zummo@towertech.it>
 Content-Type: text/plain; charset=UTF-8
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -31,33 +29,42 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Add the DT node for the RTC support.
+On 5 June 2016 at 11:35, Alexander Graf <agraf@suse.de> wrote:
+> While the EFI spec mandates an RTC, not every implementation actually adheres
+> to that rule (or can adhere to it - some systems just don't have an RTC).
+>
+> For those, we really don't want to probe the EFI RTC driver at all, because if
+> we do we'd get a non-functional driver that does nothing useful but only spills
+> our kernel log with warnings.
+>
+> Signed-off-by: Alexander Graf <agraf@suse.de>
 
-Signed-off-by: Ben Dooks <ben.dooks@codethink.co.uk>
----
- arch/arm/boot/dts/meson8b.dtsi | 7 +++++++
- 1 file changed, 7 insertions(+)
+Acked-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
 
-diff --git a/arch/arm/boot/dts/meson8b.dtsi b/arch/arm/boot/dts/meson8b.dtsi
-index 2bfe401..ff97aa8 100644
---- a/arch/arm/boot/dts/meson8b.dtsi
-+++ b/arch/arm/boot/dts/meson8b.dtsi
-@@ -149,6 +149,13 @@
- 			status = "disabled";
- 		};
- 
-+		rtc: rtc@c8100740 {
-+			compatible = "amlogic,meson8b-rtc";
-+			reg = <0xc8100740 0x14>;
-+			resets = <&reset RESET_RTC>;
-+			status = "disabled";
-+		};
-+
- 		clkc: clock-controller@c1104000 {
- 			#clock-cells = <1>;
- 			compatible = "amlogic,meson8b-clkc";
--- 
-2.8.1
+> ---
+>  drivers/rtc/rtc-efi.c | 6 ++++++
+>  1 file changed, 6 insertions(+)
+>
+> diff --git a/drivers/rtc/rtc-efi.c b/drivers/rtc/rtc-efi.c
+> index 96d3860..0130afd 100644
+> --- a/drivers/rtc/rtc-efi.c
+> +++ b/drivers/rtc/rtc-efi.c
+> @@ -259,6 +259,12 @@ static const struct rtc_class_ops efi_rtc_ops = {
+>  static int __init efi_rtc_probe(struct platform_device *dev)
+>  {
+>         struct rtc_device *rtc;
+> +       efi_time_t eft;
+> +       efi_time_cap_t cap;
+> +
+> +       /* First check if the RTC is usable */
+> +       if (efi.get_time(&eft, &cap) != EFI_SUCCESS)
+> +               return -ENODEV;
+>
+>         rtc = devm_rtc_device_register(&dev->dev, "rtc-efi", &efi_rtc_ops,
+>                                         THIS_MODULE);
+> --
+> 1.8.5.6
+>
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
