@@ -1,27 +1,23 @@
-Return-Path: <rtc-linux+bncBDCMXBNSKAINHZVIXMCRUBABWICEC@googlegroups.com>
+Return-Path: <rtc-linux+bncBDAMN6NI5EERBDPI3G5AKGQE273GZBA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from smtp6-v.fe.bosch.de (smtp6-v.fe.bosch.de. [2a03:cc00:ff0:100::2])
-        by gmr-mx.google.com with ESMTPS id f10si180878wmg.2.2016.06.21.23.42.27
+Received: from Galois.linutronix.de (linutronix.de. [2001:470:1f0b:db:abcd:42:0:1])
+        by gmr-mx.google.com with ESMTPS id j140si533552wmf.1.2016.06.06.07.14.50
         for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 21 Jun 2016 23:42:27 -0700 (PDT)
-Received: from vsmta14.fe.internet.bosch.com (unknown [10.4.98.54])
-	by imta23.fe.bosch.de (Postfix) with ESMTP id E59FD158016B
-	for <rtc-linux@googlegroups.com>; Wed, 22 Jun 2016 08:42:26 +0200 (CEST)
-Received: from FE-HUB1001.de.bosch.com (vsgw22.fe.internet.bosch.com [10.4.98.11])
-	by vsmta14.fe.internet.bosch.com (Postfix) with ESMTP id 9B395A405B5
-	for <rtc-linux@googlegroups.com>; Wed, 22 Jun 2016 08:42:26 +0200 (CEST)
-From: Dirk Behme <dirk.behme@de.bosch.com>
-To: <rtc-linux@googlegroups.com>, <devicetree@vger.kernel.org>
-CC: Knut Wohlrab <Knut.Wohlrab@de.bosch.com>, Oleksij Rempel
-	<fixed-term.Oleksij.Rempel@de.bosch.com>
-Subject: [rtc-linux] [PATCH v2 3/4] rtc: rv8803: add device tree compatible names
-Date: Wed, 22 Jun 2016 08:42:21 +0200
-Message-ID: <1466577742-18824-4-git-send-email-dirk.behme@de.bosch.com>
-In-Reply-To: <1466577742-18824-1-git-send-email-dirk.behme@de.bosch.com>
-References: <1466577742-18824-1-git-send-email-dirk.behme@de.bosch.com>
+        (version=TLS1_2 cipher=AES128-SHA bits=128/128);
+        Mon, 06 Jun 2016 07:14:50 -0700 (PDT)
+Date: Mon, 6 Jun 2016 16:12:55 +0200 (CEST)
+From: Thomas Gleixner <tglx@linutronix.de>
+To: Arnd Bergmann <arnd@arndb.de>
+cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+    linux-kernel@vger.kernel.org, rtc-linux@googlegroups.com,
+    Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>,
+    x86@kernel.org
+Subject: [rtc-linux] Re: [PATCH] x86: include linux/ratelimit.h in nmi.c
+In-Reply-To: <1465222212-2579966-1-git-send-email-arnd@arndb.de>
+Message-ID: <alpine.DEB.2.11.1606061612390.28031@nanos>
+References: <1465222212-2579966-1-git-send-email-arnd@arndb.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -31,59 +27,35 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-From: Knut Wohlrab <Knut.Wohlrab@de.bosch.com>
+On Mon, 6 Jun 2016, Arnd Bergmann wrote:
+> When building random configurations, we now occasionally get a new
+> build error:
+> 
+>    In file included from include/linux/kernel.h:13:0,
+>                     from include/linux/list.h:8,
+>                     from include/linux/preempt.h:10,
+>                     from include/linux/spinlock.h:50,
+>                     from arch/x86/kernel/nmi.c:13:
+>    arch/x86/kernel/nmi.c: In function 'nmi_max_handler':
+>    include/linux/printk.h:375:9: error: type defaults to 'int' in declaration of 'DEFINE_RATELIMIT_STATE' [-Werror=implicit-int]
+>      static DEFINE_RATELIMIT_STATE(_rs,    \
+>             ^
+>    arch/x86/kernel/nmi.c:110:2: note: in expansion of macro 'printk_ratelimited'
+>      printk_ratelimited(KERN_INFO
+>      ^~~~~~~~~~~~~~~~~~
+> 
+> This was working before the rtc rework series because linux/ratelimit.h
+> was included implictly through asm/mach_traps.h -> asm/mc146818rtc.h
+> -> linux/mc146818rtc.h -> linux/rtc.h -> linux/device.h.
+> 
+> We clearly shouldn't rely on this indirect inclusion, so this adds
+> an explicit #include in the file that needs it.
+> 
+> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+> Reported-by: kbuild test robot <fengguang.wu@intel.com>
+> Fixes: 5ab788d73832 ("rtc: cmos: move mc146818rtc code out of asm-generic/rtc.h")
+> ---
+> It's only broken in the linux-rtc git at the moment, so it makes sense
+> to fix it there.
 
-Add device tree compatible names for usage in a compatible
-list of alternative RTC devices.
-
-Signed-off-by: Knut Wohlrab <Knut.Wohlrab@de.bosch.com>
-Signed-off-by: Oleksij Rempel <fixed-term.Oleksij.Rempel@de.bosch.com>
-Cc: devicetree@vger.kernel.org
----
- drivers/rtc/rtc-rv8803.c | 11 +++++++++++
- 1 file changed, 11 insertions(+)
-
-diff --git a/drivers/rtc/rtc-rv8803.c b/drivers/rtc/rtc-rv8803.c
-index f623038..e122b51 100644
---- a/drivers/rtc/rtc-rv8803.c
-+++ b/drivers/rtc/rtc-rv8803.c
-@@ -18,6 +18,7 @@
- #include <linux/kernel.h>
- #include <linux/module.h>
- #include <linux/rtc.h>
-+#include <linux/of.h>
- 
- #define RV8803_SEC			0x00
- #define RV8803_MIN			0x01
-@@ -520,9 +521,19 @@ static const struct i2c_device_id rv8803_id[] = {
- };
- MODULE_DEVICE_TABLE(i2c, rv8803_id);
- 
-+#ifdef CONFIG_OF
-+static const struct of_device_id rv8803_of_match[] = {
-+	{ .compatible = "microcrystal,rv8803", },
-+	{ .compatible = "epson,rx8900", },
-+	{},
-+};
-+MODULE_DEVICE_TABLE(of, rv8803_of_match);
-+#endif
-+
- static struct i2c_driver rv8803_driver = {
- 	.driver = {
- 		.name = "rtc-rv8803",
-+		.of_match_table = of_match_ptr(rv8803_of_match),
- 	},
- 	.probe		= rv8803_probe,
- 	.remove		= rv8803_remove,
--- 
-1.9.1
-
--- 
-You received this message because you are subscribed to "rtc-linux".
-Membership options at http://groups.google.com/group/rtc-linux .
-Please read http://groups.google.com/group/rtc-linux/web/checklist
-before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
-For more options, visit https://groups.google.com/d/optout.
+Acked-by: Thomas Gleixner <tglx@linutronix.de>
