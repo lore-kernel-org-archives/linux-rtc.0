@@ -1,38 +1,25 @@
-Return-Path: <rtc-linux+bncBCMILY6JWQBBBKW3QS5QKGQES2DSYUI@googlegroups.com>
+Return-Path: <rtc-linux+bncBC36JT6HRIDRBQEN3W5AKGQEYKU6XTI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-MIME-Version: 1.0
-Received: from wens.csie.org (mirror2.csie.ntu.edu.tw. [140.112.30.76])
-        by gmr-mx.google.com with ESMTPS id e68si3383279pfa.0.2016.06.15.03.27.54
+Received: from resqmta-po-04v.sys.comcast.net (resqmta-po-04v.sys.comcast.net. [2001:558:fe16:19:96:114:154:163])
+        by gmr-mx.google.com with ESMTPS id k1si1401104itb.1.2016.06.07.15.12.15
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 15 Jun 2016 03:27:54 -0700 (PDT)
-From: Chen-Yu Tsai <wens@csie.org>
-To: Mark Brown <broonie@kernel.org>,
-	Lee Jones <lee.jones@linaro.org>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Rob Herring <robh+dt@kernel.org>,
-	Pawel Moll <pawel.moll@arm.com>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Ian Campbell <ijc+devicetree@hellion.org.uk>,
-	Kumar Gala <galak@codeaurora.org>,
-	Maxime Ripard <maxime.ripard@free-electrons.com>,
-	Michael Turquette <mturquette@baylibre.com>,
-	Stephen Boyd <sboyd@codeaurora.org>
-Cc: Chen-Yu Tsai <wens@csie.org>,
-	rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org,
-	devicetree@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	linux-clk@vger.kernel.org
-Subject: [rtc-linux] [PATCH v2 02/10] mfd: ac100: Add device tree bindings for
- X-Powers AC100 codec/RTC combo IC
-Date: Wed, 15 Jun 2016 18:27:39 +0800
-Message-Id: <1465986467-14802-3-git-send-email-wens@csie.org>
-In-Reply-To: <1465986467-14802-1-git-send-email-wens@csie.org>
-References: <1465986467-14802-1-git-send-email-wens@csie.org>
-Reply-To: rtc-linux@googlegroups.com
+        Tue, 07 Jun 2016 15:12:15 -0700 (PDT)
+Subject: [rtc-linux] Re: linux-4.7-rc2/drivers/rtc/rtc-ds1685.c: 2 * bad if
+ test ?
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+ David Binderman <linuxdev.baldrick@gmail.com>
+References: <CAMzoamZ64+P0Np6WQj-8JYhCw+zXdG-VQ7g2-q80fSS2cq+xyQ@mail.gmail.com>
+ <20160607153027.GK3363@piout.net>
+Cc: a.zummo@towertech.it, rtc-linux@googlegroups.com,
+ linux-kernel@vger.kernel.org, dcb314@hotmail.com
+From: Joshua Kinard <kumba@gentoo.org>
+Message-ID: <2e0e2f2f-6e19-6727-fbc2-0712e32da18e@gentoo.org>
+Date: Tue, 7 Jun 2016 18:12:04 -0400
+MIME-Version: 1.0
+In-Reply-To: <20160607153027.GK3363@piout.net>
 Content-Type: text/plain; charset=UTF-8
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -41,62 +28,44 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Signed-off-by: Chen-Yu Tsai <wens@csie.org>
----
- Documentation/devicetree/bindings/mfd/ac100.txt | 42 +++++++++++++++++++++++++
- 1 file changed, 42 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/mfd/ac100.txt
+On 06/07/2016 11:30, Alexandre Belloni wrote:
+> Hi,
+> 
+> On 07/06/2016 at 16:18:31 +0100, David Binderman wrote :
+>> Hello there,
+>>
 
-diff --git a/Documentation/devicetree/bindings/mfd/ac100.txt b/Documentation/devicetree/bindings/mfd/ac100.txt
-new file mode 100644
-index 000000000000..fbab623e6fba
---- /dev/null
-+++ b/Documentation/devicetree/bindings/mfd/ac100.txt
-@@ -0,0 +1,42 @@
-+X-Powers AC100 Codec/RTC IC device tree bindings
-+
-+AC100 is a audio codec and RTC subsystem combo IC. The 2 parts are
-+separated, including power supplies and interrupt lines, but share
-+a common register address space and host interface.
-+
-+Required properties:
-+- compatible: "x-powers,ac100"
-+- reg: The I2C slave address or RSB hardware address for the chip
-+- sub-nodes:
-+  - codec
-+    - compatible: "x-powers,ac100-codec"
-+    - interrupt-parent: The parent interrupt controller
-+    - interrupts: SoC NMI / GPIO interrupt connected to the IRQ_AUDIO pin
-+  - rtc
-+    - compatible: "x-powers,ac100-rtc"
-+    - interrupt-parent: The parent interrupt controller
-+    - interrupts: SoC NMI / GPIO interrupt connected to the IRQ_RTC pin
-+    - #clock-cells: shall be 1
-+    - clock-output-names: "cko1_rtc", "cko2_rtc", "cko3_rtc"
-+    - see clock/clock-bindings.txt for common clock bindings
-+
-+Example:
-+
-+ac100: codec@e89 {
-+	compatible = "x-powers,ac100";
-+	reg = <0xe89>;
-+
-+	ac100_codec {
-+		compatible = "x-powers,ac100-codec";
-+		interrupt-parent = <&nmi_intc>;
-+		interrupts = <0 IRQ_TYPE_LEVEL_LOW>;
-+	};
-+
-+	ac100_rtc {
-+		compatible = "x-powers,ac100-rtc";
-+		interrupt-parent = <&nmi_intc>;
-+		interrupts = <0 IRQ_TYPE_LEVEL_LOW>;
-+		#clock-cells = <1>;
-+		clock-output-names = "cko1_rtc", "cko2_rtc", "cko3_rtc";
-+	};
-+};
+[snip]
+
+>> Duplicate. Also in the same file:
+>>
+>> [drivers/rtc/rtc-ds1685.c:265]: (style) Variable 'ctrlb' is assigned a
+>> value that is never used.
+
+This looks like it can be removed.  I believe it's a relic of before I added
+the handling of either BCD or Binary modes for the SGI Octane's RTC interface.
+
+
+>> [drivers/rtc/rtc-ds1685.c:812]: (style) Variable 'ctrlc' is assigned a
+>> value that is never used.
+
+This needs to be wrapped in #ifdef CONFIG_RTC_DS1685_PROC_REGS, as the value of
+'ctrlc' is displayed in /proc/drivers/rtc if that kconfig option is selected on
+supported systems.
+
+
+
 -- 
-2.8.1
+Joshua Kinard
+Gentoo/MIPS
+kumba@gentoo.org
+6144R/F5C6C943 2015-04-27
+177C 1972 1FB8 F254 BAD0 3E72 5C63 F4E3 F5C6 C943
+
+"The past tempts us, the present confuses us, the future frightens us.  And our
+lives slip away, moment by moment, lost in that vast, terrible in-between."
+
+--Emperor Turhan, Centauri Republic
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
