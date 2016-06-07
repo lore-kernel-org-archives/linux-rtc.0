@@ -1,39 +1,20 @@
-Return-Path: <rtc-linux+bncBCMILY6JWQBBBAWJVG5QKGQE3OBSL4I@googlegroups.com>
+Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBANM3S5AKGQE65DXSUY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from smtp.csie.ntu.edu.tw (smtp.csie.ntu.edu.tw. [140.112.30.61])
-        by gmr-mx.google.com with ESMTPS id un17si6413850pab.0.2016.06.22.03.12.18
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 22 Jun 2016 03:12:18 -0700 (PDT)
-Received: from mail-it0-f50.google.com (mail-it0-f50.google.com [209.85.214.50])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	(Authenticated sender: b93043)
-	by smtp.csie.ntu.edu.tw (Postfix) with ESMTPSA id 4713120E72
-	for <rtc-linux@googlegroups.com>; Wed, 22 Jun 2016 18:12:16 +0800 (CST)
-Received: by mail-it0-f50.google.com with SMTP id f6so35099122ith.0
-        for <rtc-linux@googlegroups.com>; Wed, 22 Jun 2016 03:12:16 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <20160622100206.GV26668@lukather>
-References: <1466391138-12862-1-git-send-email-wens@csie.org>
- <1466391138-12862-6-git-send-email-wens@csie.org> <20160622100206.GV26668@lukather>
-From: Chen-Yu Tsai <wens@csie.org>
-Date: Wed, 22 Jun 2016 18:11:55 +0800
-Message-ID: <CAGb2v67DVBZbRb2PWLP8WurPaNin=2Fa=HMAEK_PdBeqv1x+8Q@mail.gmail.com>
-Subject: [rtc-linux] Re: [PATCH v3 5/8] rtc: ac100: Add clk output support
-To: Maxime Ripard <maxime.ripard@free-electrons.com>
-Cc: Chen-Yu Tsai <wens@csie.org>, Mark Brown <broonie@kernel.org>, Lee Jones <lee.jones@linaro.org>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>, Rob Herring <robh+dt@kernel.org>,
-	Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>,
-	Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>,
-	Michael Turquette <mturquette@baylibre.com>, Stephen Boyd <sboyd@codeaurora.org>,
-	rtc-linux@googlegroups.com, linux-kernel <linux-kernel@vger.kernel.org>,
-	devicetree <devicetree@vger.kernel.org>,
-	linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
-	linux-clk <linux-clk@vger.kernel.org>
-Content-Type: text/plain; charset=UTF-8
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id f69si372004wmf.3.2016.06.07.11.44.17
+        for <rtc-linux@googlegroups.com>;
+        Tue, 07 Jun 2016 11:44:17 -0700 (PDT)
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: rtc-linux@googlegroups.com
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+	linux-kernel@vger.kernel.org,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Subject: [rtc-linux] [PATCH] rtc: rv8803: broaden workaround
+Date: Tue,  7 Jun 2016 20:44:05 +0200
+Message-Id: <1465325045-774-1-git-send-email-alexandre.belloni@free-electrons.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -42,31 +23,48 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Wed, Jun 22, 2016 at 6:02 PM, Maxime Ripard
-<maxime.ripard@free-electrons.com> wrote:
-> Hi,
->
-> On Mon, Jun 20, 2016 at 10:52:15AM +0800, Chen-Yu Tsai wrote:
->> +     /*
->> +      * The ADDA 4 MHz clock is from the codec side of the AC100,
->> +      * which is likely a different power domain. However, boards
->> +      * always have both sides powered on, so it is impossible to
->> +      * test this.
->> +      */
->
-> If that ADDA clock is exposed by the codec, why are you putting it in
-> the RTC?
+The previous workaround may still fail as there are actually 4 retries to
+be done to ensure the communication succeed. Also, some I2C adapter drivers
+may return -EIO instead of -ENXIO.
 
-The thing is it's not entirely clear that it's from the codec side.
-I'm just inferring this from the name. (I'll make the comment clearer.)
-The codec parts of the datasheet don't mention this clock at all.
+Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+---
+ drivers/rtc/rtc-rv8803.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-Allwinner's SDK puts all the clocks under the RTC module. And the
-are always on, so I can't really turn off the codec and see what
-happens. That and I don't have an oscilloscope or logic analyzer.
-
-Regards
-ChenYu
+diff --git a/drivers/rtc/rtc-rv8803.c b/drivers/rtc/rtc-rv8803.c
+index 82ab41074156..533ca5bcaa96 100644
+--- a/drivers/rtc/rtc-rv8803.c
++++ b/drivers/rtc/rtc-rv8803.c
+@@ -68,7 +68,7 @@ static irqreturn_t rv8803_handle_irq(int irq, void *dev_id)
+ 	do {
+ 		flags = i2c_smbus_read_byte_data(client, RV8803_FLAG);
+ 		try++;
+-	} while ((flags == -ENXIO) && (try < 3));
++	} while (((flags == -ENXIO) || (flags == -EIO)) && (try < 4));
+ 	if (flags <= 0) {
+ 		spin_unlock(&rv8803->flags_lock);
+ 		return IRQ_NONE;
+@@ -455,7 +455,7 @@ static int rv8803_probe(struct i2c_client *client,
+ 	do {
+ 		flags = i2c_smbus_read_byte_data(client, RV8803_FLAG);
+ 		try++;
+-	} while ((flags == -ENXIO) && (try < 3));
++	} while (((flags == -ENXIO) || (flags == -EIO)) && (try < 4));
+ 
+ 	if (flags < 0)
+ 		return flags;
+@@ -496,7 +496,7 @@ static int rv8803_probe(struct i2c_client *client,
+ 		err = i2c_smbus_write_byte_data(rv8803->client, RV8803_EXT,
+ 						RV8803_EXT_WADA);
+ 		try++;
+-	} while ((err == -ENXIO) && (try < 3));
++	} while (((err == -ENXIO) || (flags == -EIO)) && (try < 4));
+ 	if (err)
+ 		return err;
+ 
+-- 
+2.8.1
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
