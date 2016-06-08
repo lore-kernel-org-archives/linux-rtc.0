@@ -1,27 +1,42 @@
-Return-Path: <rtc-linux+bncBDKOBWPM5ABRB3W5QO5QKGQEQBGOG2Q@googlegroups.com>
+Return-Path: <rtc-linux+bncBDKZNNNLXAHBBJWY4C5AKGQENSCUBYY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-MIME-Version: 1.0
-Received: from mail-pa0-x242.google.com (mail-pa0-x242.google.com. [2607:f8b0:400e:c03::242])
-        by gmr-mx.google.com with ESMTPS id 62si3601890pfx.1.2016.06.14.23.00.14
+Received: from mailout1.w1.samsung.com (mailout1.w1.samsung.com. [210.118.77.11])
+        by gmr-mx.google.com with ESMTPS id i191si227597pfe.1.2016.06.08.07.31.02
         for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 14 Jun 2016 23:00:14 -0700 (PDT)
-Received: by mail-pa0-x242.google.com with SMTP id hf6so794121pac.2
-        for <rtc-linux@googlegroups.com>; Tue, 14 Jun 2016 23:00:14 -0700 (PDT)
-From: Andrey Smirnov <andrew.smirnov@gmail.com>
-To: rtc-linux@googlegroups.com
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	linux-kernel@vger.kernel.org,
-	Andrey Smirnov <andrew.smirnov@gmail.com>
-Subject: [rtc-linux] [PATCH 13/13] RTC: ds1307: Move last bits of sanity
- checking out of chip_configure
-Date: Tue, 14 Jun 2016 22:59:39 -0700
-Message-Id: <1465970379-14703-14-git-send-email-andrew.smirnov@gmail.com>
-In-Reply-To: <1465970379-14703-1-git-send-email-andrew.smirnov@gmail.com>
-References: <1465970379-14703-1-git-send-email-andrew.smirnov@gmail.com>
+        (version=TLS1 cipher=AES128-SHA bits=128/128);
+        Wed, 08 Jun 2016 07:31:02 -0700 (PDT)
+Received: from eucpsbgm1.samsung.com (unknown [203.254.199.244])
+ by mailout1.w1.samsung.com
+ (Oracle Communications Messaging Server 7.0.5.31.0 64bit (built May  5 2014))
+ with ESMTP id <0O8G00D15IZMCR50@mailout1.w1.samsung.com> for
+ rtc-linux@googlegroups.com; Wed, 08 Jun 2016 15:30:58 +0100 (BST)
+Subject: [rtc-linux] Re: [PATCH v7 1/6] mfd: max8997: Use regmap to access registers
+To: Lee Jones <lee.jones@linaro.org>, Mark Brown <broonie@kernel.org>
+References: <1464773339-756-1-git-send-email-k.kozlowski@samsung.com>
+ <1464774841-1439-1-git-send-email-k.kozlowski@samsung.com>
+ <20160608142621.GG14888@dell>
+Cc: Kukjin Kim <kgene@kernel.org>, MyungJoo Ham <myungjoo.ham@samsung.com>,
+ Chanwoo Choi <cw00.choi@samsung.com>,
+ Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+ Richard Purdie <rpurdie@rpsys.net>,
+ Jacek Anaszewski <j.anaszewski@samsung.com>,
+ Sebastian Reichel <sre@kernel.org>,
+ Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>,
+ David Woodhouse <dwmw2@infradead.org>, Liam Girdwood <lgirdwood@gmail.com>,
+ Alessandro Zummo <a.zummo@towertech.it>,
+ Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+ devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+ linux-samsung-soc@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-input@vger.kernel.org, linux-leds@vger.kernel.org,
+ linux-pm@vger.kernel.org, rtc-linux@googlegroups.com, r.baldyga@hackerion.com,
+ Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+Message-id: <57582C1F.5040306@samsung.com>
+Date: Wed, 08 Jun 2016 16:30:55 +0200
+MIME-version: 1.0
+In-reply-to: <20160608142621.GG14888@dell>
+Content-type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
-Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -30,157 +45,44 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Signed-off-by: Andrey Smirnov <andrew.smirnov@gmail.com>
----
- drivers/rtc/rtc-ds1307.c | 106 ++++++++++++++++++++++++++---------------------
- 1 file changed, 59 insertions(+), 47 deletions(-)
+On 06/08/2016 04:26 PM, Lee Jones wrote:
+> On Wed, 01 Jun 2016, Krzysztof Kozlowski wrote:
+> 
+>> From: Robert Baldyga <r.baldyga@samsung.com>
+>>
+>> This patch modifies max8997 driver and each associated function driver,
+>> to use regmap instead of operating directly on i2c bus. It will allow to
+>> simplify IRQ handling using regmap-irq.
+>>
+>> Signed-off-by: Robert Baldyga <r.baldyga@samsung.com>
+>> Reviewed-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+>>
+>> Acked-by: Chanwoo Choi <cw00.choi@samsung.com>
+>> Acked-by: Bryan Wu <cooloney@gmail.com>
+>> Acked-by: Lee Jones <lee.jones@linaro.org>
+>> Acked-by: Sebastian Reichel <sre@kernel.org>
+>> Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+>> Acked-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+>> [k.kozlowski: Collect acks, rebase on v4.6-rc6]
+>> Signed-off-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+>> Acked-by: Jacek Anaszewski <j.anaszewski@samsung.com>
+>> ---
+>>  drivers/extcon/extcon-max8997.c       |  31 ++++----
+>>  drivers/input/misc/max8997_haptic.c   |  34 ++++----
+>>  drivers/leds/leds-max8997.c           |  13 ++--
+>>  drivers/mfd/Kconfig                   |   1 +
+>>  drivers/mfd/max8997-irq.c             |  64 ++++++---------
+>>  drivers/mfd/max8997.c                 | 141 +++++++++++++++-------------------
+>>  drivers/power/max8997_charger.c       |  33 ++++----
+>>  drivers/regulator/max8997-regulator.c |  87 ++++++++++-----------
+> 
+> Is it just Mark's Ack you require?
 
-diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
-index d9693bd..4452661 100644
---- a/drivers/rtc/rtc-ds1307.c
-+++ b/drivers/rtc/rtc-ds1307.c
-@@ -1344,66 +1344,23 @@ static int ds1307_chip_configure(const struct ds1307 *ds1307)
- 					  DS1337_REG_CONTROL,
- 					  regs[0]);
- 
--		/* oscillator fault?  clear flag, and warn */
--		if (regs[1] & DS1337_BIT_OSF) {
--			i2c_smbus_write_byte_data(client,
--						  DS1337_REG_STATUS,
--						  regs[1] & ~DS1337_BIT_OSF);
--			dev_warn(&ds1307->client->dev, "SET TIME!\n");
--		}
- 		break;
- 	}
- 	case rx_8025:
--		tmp = i2c_smbus_read_i2c_block_data(client,
--						    RX8025_REG_CTRL1,
--						    2, regs);
--		if (tmp != 2) {
-+		tmp = i2c_smbus_read_byte_data(client, RX8025_REG_CTRL1);
-+		if (tmp < 0) {
- 			dev_dbg(&client->dev, "read error %d\n", tmp);
- 			return -EIO;
- 		}
- 
--		/* oscillator off?  turn it on, so clock can tick. */
--		if (!(regs[1] & RX8025_BIT_XST)) {
--			regs[1] |= RX8025_BIT_XST;
--			i2c_smbus_write_byte_data(client,
--						  RX8025_REG_CTRL2,
--						  regs[1]);
--			dev_warn(&client->dev,
--				 "oscillator stop detected - SET TIME!\n");
--		}
--
--		if (regs[1] & RX8025_BIT_PON) {
--			regs[1] &= ~RX8025_BIT_PON;
--			i2c_smbus_write_byte_data(client,
--						  RX8025_REG_CTRL2,
--						  regs[1]);
--			dev_warn(&client->dev, "power-on detected\n");
--		}
--
--		if (regs[1] & RX8025_BIT_VDET) {
--			regs[1] &= ~RX8025_BIT_VDET;
--			i2c_smbus_write_byte_data(client,
--						  RX8025_REG_CTRL2,
--						  regs[1]);
--			dev_warn(&client->dev, "voltage drop detected\n");
--		}
--
- 		/* make sure we are running in 24hour mode */
--		if (!(regs[0] & RX8025_BIT_2412)) {
-+		if (!(tmp & RX8025_BIT_2412)) {
- 			u8 hour;
- 
- 			/* switch to 24 hour mode */
- 			i2c_smbus_write_byte_data(client,
- 						  RX8025_REG_CTRL1,
--						  regs[0] | RX8025_BIT_2412);
--
--			tmp = i2c_smbus_read_i2c_block_data(client,
--							    RX8025_REG_CTRL1,
--							    2, regs);
--			if (tmp != 2) {
--				dev_dbg(&client->dev, "read error %d\n", tmp);
--				return -EIO;
--			}
-+						  tmp | RX8025_BIT_2412);
- 
- 			/* correct hour */
- 			hour = bcd2bin(regs[DS1307_REG_HOUR]);
-@@ -1486,6 +1443,27 @@ static int ds1307_chip_sanity_check(const struct ds1307 *ds1307)
- 				continue;
- 			}
- 			break;
-+
-+		case ds_1337:
-+		case ds_1339:
-+		case ds_3231:
-+		case ds_1341:
-+			tmp = i2c_smbus_read_byte_data(client,
-+						       DS1337_REG_STATUS);
-+			if (tmp < 0) {
-+				dev_dbg(&client->dev, "read error %d\n", tmp);
-+				return -EIO;
-+			}
-+
-+			/* oscillator fault?  clear flag, and warn */
-+			if (tmp & DS1337_BIT_OSF) {
-+				i2c_smbus_write_byte_data(client,
-+							  DS1337_REG_STATUS,
-+							  regs[1] & ~DS1337_BIT_OSF);
-+				ds1307_report_oscillator_fault(ds1307);
-+			}
-+			return 0;
-+
- 		case ds_1340:
- 			/* clock halted?  turn it on, so clock can tick. */
- 			if (tmp & DS1340_BIT_nEOSC) {
-@@ -1530,6 +1508,40 @@ static int ds1307_chip_sanity_check(const struct ds1307 *ds1307)
- 			}
- 
- 			break;
-+
-+		case rx_8025:
-+			tmp = i2c_smbus_read_byte_data(client,
-+						       RX8025_REG_CTRL2);
-+			if (tmp < 0) {
-+				dev_dbg(&client->dev, "read error %d\n", tmp);
-+				return -EIO;
-+			}
-+
-+			/* oscillator off?  turn it on, so clock can tick. */
-+			if (!(tmp & RX8025_BIT_XST)) {
-+				tmp |= RX8025_BIT_XST;
-+				i2c_smbus_write_byte_data(client,
-+							  RX8025_REG_CTRL2,
-+							  tmp);
-+				ds1307_report_clock_halt(ds1307);
-+			}
-+
-+			if (tmp & RX8025_BIT_PON) {
-+				tmp &= ~RX8025_BIT_PON;
-+				i2c_smbus_write_byte_data(client,
-+							  RX8025_REG_CTRL2,
-+							  tmp);
-+				dev_warn(&client->dev, "power-on detected\n");
-+			}
-+
-+			if (tmp & RX8025_BIT_VDET) {
-+				tmp &= ~RX8025_BIT_VDET;
-+				i2c_smbus_write_byte_data(client,
-+							  RX8025_REG_CTRL2,
-+							  tmp);
-+				dev_warn(&client->dev, "voltage drop detected\n");
-+			}
-+			break;
- 		default:
- 			break;
- 		}
--- 
-2.5.5
+Yes, only Mark's is missing here. All other patches got everything they
+need.
+
+Best regards,
+Krzysztof
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
