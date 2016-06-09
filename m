@@ -1,35 +1,22 @@
-Return-Path: <rtc-linux+bncBDAYD2P3QYGRBVXVWO5QKGQE6FXFURI@googlegroups.com>
+Return-Path: <rtc-linux+bncBAABBQ6W4W5AKGQEDFQPAUA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
+Received: from root.phytec.de (mail.visioncatalog.com. [217.6.246.34])
+        by gmr-mx.google.com with ESMTP id f69si291281wmf.3.2016.06.09.06.12.35
+        for <rtc-linux@googlegroups.com>;
+        Thu, 09 Jun 2016 06:12:35 -0700 (PDT)
+Subject: [rtc-linux] Re: [RESEND PATCH v5 1/5] mfd: RK808: Add RK818 support
+To: Lee Jones <lee.jones@linaro.org>
+References: <1464850228-17244-1-git-send-email-w.egorov@phytec.de>
+ <20160608141735.GE14888@dell> <5759277D.7090101@phytec.de>
+ <20160609111201.GA1388@dell>
+Cc: linux-kernel@vger.kernel.org, linux-clk@vger.kernel.org, rtc-linux@googlegroups.com, devicetree@vger.kernel.org, linux-rockchip@lists.infradead.org, robh+dt@kernel.org, pawel.moll@arm.com, mark.rutland@arm.com, ijc+devicetree@hellion.org.uk, galak@codeaurora.org, mturquette@baylibre.com, sboyd@codeaurora.org, lgirdwood@gmail.com, broonie@kernel.org, a.zummo@towertech.it, alexandre.belloni@free-electrons.com, dianders@chromium.org, zyw@rock-chips.com
+From: Wadim Egorov <w.egorov@phytec.de>
+Message-ID: <57596B1C.2010101@phytec.de>
+Date: Thu, 9 Jun 2016 15:11:56 +0200
 MIME-Version: 1.0
-Received: from mail-wm0-x232.google.com (mail-wm0-x232.google.com. [2a00:1450:400c:c09::232])
-        by gmr-mx.google.com with ESMTPS id f138si95464wmf.3.2016.06.24.02.18.14
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 24 Jun 2016 02:18:14 -0700 (PDT)
-Received: by mail-wm0-x232.google.com with SMTP id r201so16677956wme.1
-        for <rtc-linux@googlegroups.com>; Fri, 24 Jun 2016 02:18:14 -0700 (PDT)
-From: Neil Armstrong <narmstrong@baylibre.com>
-To: dmitry.torokhov@gmail.com,
-	andy.gross@linaro.org,
-	david.brown@linaro.org,
-	lee.jones@linaro.org,
-	lgirdwood@gmail.com,
-	broonie@kernel.org,
-	a.zummo@towertech.it,
-	alexandre.belloni@free-electrons.com
-Cc: Neil Armstrong <narmstrong@baylibre.com>,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	linux-arm-msm@vger.kernel.org,
-	linux-soc@vger.kernel.org,
-	rtc-linux@googlegroups.com
-Subject: [rtc-linux] [PATCH v2 1/5] mfd: pm8921: Add support for pm8018
-Date: Fri, 24 Jun 2016 11:18:03 +0200
-Message-Id: <1466759887-25394-2-git-send-email-narmstrong@baylibre.com>
-In-Reply-To: <1466759887-25394-1-git-send-email-narmstrong@baylibre.com>
-References: <1466759887-25394-1-git-send-email-narmstrong@baylibre.com>
-Reply-To: rtc-linux@googlegroups.com
+In-Reply-To: <20160609111201.GA1388@dell>
 Content-Type: text/plain; charset=UTF-8
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -38,29 +25,56 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-In order to support the Qualcomm MDM9615 PMIC, add support for the
-pm8018 in pm8921 mfd driver.
 
-Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
----
- drivers/mfd/pm8921-core.c | 1 +
- 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/mfd/pm8921-core.c b/drivers/mfd/pm8921-core.c
-index 1b7ec08..0e3a2ea 100644
---- a/drivers/mfd/pm8921-core.c
-+++ b/drivers/mfd/pm8921-core.c
-@@ -309,6 +309,7 @@ static const struct regmap_config ssbi_regmap_config = {
- };
- 
- static const struct of_device_id pm8921_id_table[] = {
-+	{ .compatible = "qcom,pm8018", },
- 	{ .compatible = "qcom,pm8058", },
- 	{ .compatible = "qcom,pm8921", },
- 	{ }
--- 
-1.9.1
+On 09.06.2016 13:12, Lee Jones wrote:
+> On Thu, 09 Jun 2016, Wadim Egorov wrote:
+>> On 08.06.2016 16:17, Lee Jones wrote:
+>>> On Thu, 02 Jun 2016, Wadim Egorov wrote:
+>>>
+>>>> The RK818 chip is a power management IC for multimedia and handheld
+>>> "Power Management IC (PMIC)"
+>>>
+>>>> devices. It contains the following components:
+>>>>
+>>>> - Regulators
+>>>> - RTC
+>>>> - Clkout
+>>> Clocking
+>>>
+>>>> - battery support
+>>> Battery support
+>>>
+>>>> Both chips RK808 and RK818 are using a similar register map.
+>>> "Both RK808 ad RK818 chips"
+>>>
+>>>> So we can reuse the RTC and Clkout functionality.
+>>> Swap '.' for ','.
+>>>
+>>>> Signed-off-by: Wadim Egorov <w.egorov@phytec.de>
+>>>> ---
+>>>>  drivers/mfd/Kconfig       |   4 +-
+>>>>  drivers/mfd/rk808.c       | 231 ++++++++++++++++++++++++++++++++++++++--------
+>>>>  include/linux/mfd/rk808.h | 162 ++++++++++++++++++++++++++++++--
+>>>>  3 files changed, 350 insertions(+), 47 deletions(-)
+> [...]
+>
+>>>> -struct rk808_reg_data {
+>>>> -	int addr;
+>>>> -	int mask;
+>>>> -	int value;
+>>>> -};
+>>> Why are you moving this to the header?
+>> It is now part of the rk808 struct.
+> Why?
+>
+For me it seemed reasonable. My idea was to have only one chip variant
+check.
+
+I can move the rk808_reg_data struct back to the c file, check for the
+chip variant within the probe function and initialize the proper
+reg_data variable.
+This would also apply to the mfd_cell variables.
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
