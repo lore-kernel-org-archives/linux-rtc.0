@@ -1,33 +1,35 @@
-Return-Path: <rtc-linux+bncBCMILY6JWQBBBXMD2W5QKGQE2KLLGYY@googlegroups.com>
+Return-Path: <rtc-linux+bncBDA7X7F2WUEBBEMW425AKGQEHQPKYXI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-MIME-Version: 1.0
-Received: from wens.csie.org (mirror2.csie.ntu.edu.tw. [140.112.30.76])
-        by gmr-mx.google.com with ESMTPS id 62si639155pfx.1.2016.06.30.08.59.24
+Received: from mail-wm0-x22a.google.com (mail-wm0-x22a.google.com. [2a00:1450:400c:c09::22a])
+        by gmr-mx.google.com with ESMTPS id f10si158336wmg.2.2016.06.09.08.28.17
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 30 Jun 2016 08:59:24 -0700 (PDT)
-From: Chen-Yu Tsai <wens@csie.org>
-To: Lee Jones <lee.jones@linaro.org>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Rob Herring <robh+dt@kernel.org>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Maxime Ripard <maxime.ripard@free-electrons.com>,
-	Michael Turquette <mturquette@baylibre.com>,
-	Stephen Boyd <sboyd@codeaurora.org>
-Cc: Chen-Yu Tsai <wens@csie.org>,
-	linux-arm-kernel@lists.infradead.org,
-	rtc-linux@googlegroups.com,
-	linux-clk@vger.kernel.org,
-	devicetree@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [rtc-linux] [PATCH v4 4/7] rtc: ac100: Add clk output support
-Date: Thu, 30 Jun 2016 23:58:48 +0800
-Message-Id: <1467302331-9663-5-git-send-email-wens@csie.org>
-In-Reply-To: <1467302331-9663-1-git-send-email-wens@csie.org>
-References: <1467302331-9663-1-git-send-email-wens@csie.org>
-Reply-To: rtc-linux@googlegroups.com
+        Thu, 09 Jun 2016 08:28:17 -0700 (PDT)
+Received: by mail-wm0-x22a.google.com with SMTP id m124so58732946wme.1
+        for <rtc-linux@googlegroups.com>; Thu, 09 Jun 2016 08:28:17 -0700 (PDT)
+Date: Thu, 9 Jun 2016 16:28:52 +0100
+From: Lee Jones <lee.jones@linaro.org>
+To: Wadim Egorov <w.egorov@phytec.de>
+Cc: linux-kernel@vger.kernel.org, linux-clk@vger.kernel.org,
+	rtc-linux@googlegroups.com, devicetree@vger.kernel.org,
+	linux-rockchip@lists.infradead.org, robh+dt@kernel.org,
+	pawel.moll@arm.com, mark.rutland@arm.com,
+	ijc+devicetree@hellion.org.uk, galak@codeaurora.org,
+	mturquette@baylibre.com, sboyd@codeaurora.org, lgirdwood@gmail.com,
+	broonie@kernel.org, a.zummo@towertech.it,
+	alexandre.belloni@free-electrons.com, dianders@chromium.org,
+	zyw@rock-chips.com
+Subject: [rtc-linux] Re: [RESEND PATCH v5 1/5] mfd: RK808: Add RK818 support
+Message-ID: <20160609152852.GA5438@dell>
+References: <1464850228-17244-1-git-send-email-w.egorov@phytec.de>
+ <20160608141735.GE14888@dell>
+ <5759277D.7090101@phytec.de>
+ <20160609111201.GA1388@dell>
+ <57596B1C.2010101@phytec.de>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <57596B1C.2010101@phytec.de>
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -36,389 +38,79 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-The AC100's RTC side has 3 clock outputs on external pins, which can
-provide a clock signal to the SoC or other modules, such as WiFi or
-GSM modules.
+On Thu, 09 Jun 2016, Wadim Egorov wrote:
 
-Support this with a custom clk driver integrated with the rtc driver.
+>=20
+>=20
+> On 09.06.2016 13:12, Lee Jones wrote:
+> > On Thu, 09 Jun 2016, Wadim Egorov wrote:
+> >> On 08.06.2016 16:17, Lee Jones wrote:
+> >>> On Thu, 02 Jun 2016, Wadim Egorov wrote:
+> >>>
+> >>>> The RK818 chip is a power management IC for multimedia and handheld
+> >>> "Power Management IC (PMIC)"
+> >>>
+> >>>> devices. It contains the following components:
+> >>>>
+> >>>> - Regulators
+> >>>> - RTC
+> >>>> - Clkout
+> >>> Clocking
+> >>>
+> >>>> - battery support
+> >>> Battery support
+> >>>
+> >>>> Both chips RK808 and RK818 are using a similar register map.
+> >>> "Both RK808 ad RK818 chips"
+> >>>
+> >>>> So we can reuse the RTC and Clkout functionality.
+> >>> Swap '.' for ','.
+> >>>
+> >>>> Signed-off-by: Wadim Egorov <w.egorov@phytec.de>
+> >>>> ---
+> >>>>  drivers/mfd/Kconfig       |   4 +-
+> >>>>  drivers/mfd/rk808.c       | 231 +++++++++++++++++++++++++++++++++++=
++++--------
+> >>>>  include/linux/mfd/rk808.h | 162 ++++++++++++++++++++++++++++++--
+> >>>>  3 files changed, 350 insertions(+), 47 deletions(-)
+> > [...]
+> >
+> >>>> -struct rk808_reg_data {
+> >>>> -	int addr;
+> >>>> -	int mask;
+> >>>> -	int value;
+> >>>> -};
+> >>> Why are you moving this to the header?
+> >> It is now part of the rk808 struct.
+> > Why?
+> >
+> For me it seemed reasonable. My idea was to have only one chip variant
+> check.
+>=20
+> I can move the rk808_reg_data struct back to the c file, check for the
+> chip variant within the probe function and initialize the proper
+> reg_data variable.
+> This would also apply to the mfd_cell variables.
 
-Signed-off-by: Chen-Yu Tsai <wens@csie.org>
----
-Changes since v3:
+'struct rk808' should only contain information you wish to share with
+your subordinate/child devices.  Any data only used in the parent/MFD
+driver should be declared, initialised and used only the latter.  No
+need to export.
 
-  - Renamed clk32k prefixes to clkout, except for the internal 32k clk
-  - Changed default clk output names to "ac100-cko{1,2,3}-rtc"
-  - Moved 4M ADDA clk to codec side
+--=20
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org =E2=94=82 Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog
 
-Changes since v2: none
-Changes since v1: none
----
- drivers/rtc/rtc-ac100.c | 302 ++++++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 302 insertions(+)
-
-diff --git a/drivers/rtc/rtc-ac100.c b/drivers/rtc/rtc-ac100.c
-index 5a9ca89d04c7..70b4fd0f6122 100644
---- a/drivers/rtc/rtc-ac100.c
-+++ b/drivers/rtc/rtc-ac100.c
-@@ -16,6 +16,7 @@
-  */
- 
- #include <linux/bcd.h>
-+#include <linux/clk-provider.h>
- #include <linux/device.h>
- #include <linux/interrupt.h>
- #include <linux/kernel.h>
-@@ -31,6 +32,15 @@
- /* Control register */
- #define AC100_RTC_CTRL_24HOUR	BIT(0)
- 
-+/* Clock output register bits */
-+#define AC100_CLKOUT_PRE_DIV_SHIFT	5
-+#define AC100_CLKOUT_PRE_DIV_WIDTH	3
-+#define AC100_CLKOUT_MUX_SHIFT		4
-+#define AC100_CLKOUT_MUX_WIDTH		1
-+#define AC100_CLKOUT_DIV_SHIFT		1
-+#define AC100_CLKOUT_DIV_WIDTH		3
-+#define AC100_CLKOUT_EN			BIT(0)
-+
- /* RTC */
- #define AC100_RTC_SEC_MASK	GENMASK(6, 0)
- #define AC100_RTC_MIN_MASK	GENMASK(6, 0)
-@@ -67,14 +77,292 @@
- #define AC100_YEAR_MAX				2069
- #define AC100_YEAR_OFF				(AC100_YEAR_MIN - 1900)
- 
-+struct ac100_clkout {
-+	struct clk_hw hw;
-+	struct regmap *regmap;
-+	u8 offset;
-+};
-+
-+#define to_ac100_clkout(_hw) container_of(_hw, struct ac100_clkout, hw)
-+
-+#define AC100_RTC_32K_NAME	"ac100-rtc-32k"
-+#define AC100_RTC_32K_RATE	32768
-+#define AC100_CLKOUT_NUM	3
-+
-+static const char * const ac100_clkout_names[AC100_CLKOUT_NUM] = {
-+	"ac100-cko1-rtc",
-+	"ac100-cko2-rtc",
-+	"ac100-cko3-rtc",
-+};
-+
- struct ac100_rtc_dev {
- 	struct rtc_device *rtc;
- 	struct device *dev;
- 	struct regmap *regmap;
- 	int irq;
- 	unsigned long alarm;
-+
-+	struct clk_hw *rtc_32k_clk;
-+	struct ac100_clkout clks[AC100_CLKOUT_NUM];
-+	struct clk_hw_onecell_data *clk_data;
- };
- 
-+/**
-+ * Clock controls for 3 clock output pins
-+ */
-+
-+static const struct clk_div_table ac100_clkout_prediv[] = {
-+	{ .val = 0, .div = 1 },
-+	{ .val = 1, .div = 2 },
-+	{ .val = 2, .div = 4 },
-+	{ .val = 3, .div = 8 },
-+	{ .val = 4, .div = 16 },
-+	{ .val = 5, .div = 32 },
-+	{ .val = 6, .div = 64 },
-+	{ .val = 7, .div = 122 },
-+	{ },
-+};
-+
-+/* Abuse the fact that one parent is 32768 Hz, and the other is 4 MHz */
-+static unsigned long ac100_clkout_recalc_rate(struct clk_hw *hw,
-+					      unsigned long prate)
-+{
-+	struct ac100_clkout *clk = to_ac100_clkout(hw);
-+	unsigned int reg, div;
-+
-+	regmap_read(clk->regmap, clk->offset, &reg);
-+
-+	/* Handle pre-divider first */
-+	if (prate != AC100_RTC_32K_RATE) {
-+		div = (reg >> AC100_CLKOUT_PRE_DIV_SHIFT) &
-+			((1 << AC100_CLKOUT_PRE_DIV_WIDTH) - 1);
-+		prate = divider_recalc_rate(hw, prate, div,
-+					    ac100_clkout_prediv, 0);
-+	}
-+
-+	div = (reg >> AC100_CLKOUT_DIV_SHIFT) &
-+		(BIT(AC100_CLKOUT_DIV_WIDTH) - 1);
-+	return divider_recalc_rate(hw, prate, div, NULL,
-+				   CLK_DIVIDER_POWER_OF_TWO);
-+}
-+
-+static long ac100_clkout_round_rate(struct clk_hw *hw, unsigned long rate,
-+				    unsigned long prate)
-+{
-+	unsigned long best_rate = 0, tmp_rate, tmp_prate;
-+	int i;
-+
-+	if (prate == AC100_RTC_32K_RATE)
-+		return divider_round_rate(hw, rate, &prate, NULL,
-+					  AC100_CLKOUT_DIV_WIDTH,
-+					  CLK_DIVIDER_POWER_OF_TWO);
-+
-+	for (i = 0; ac100_clkout_prediv[i].div; i++) {
-+		tmp_prate = DIV_ROUND_UP(prate, ac100_clkout_prediv[i].val);
-+		tmp_rate = divider_round_rate(hw, rate, &tmp_prate, NULL,
-+					      AC100_CLKOUT_DIV_WIDTH,
-+					      CLK_DIVIDER_POWER_OF_TWO);
-+
-+		if (tmp_rate > rate)
-+			continue;
-+		if (rate - tmp_rate < best_rate - tmp_rate)
-+			best_rate = tmp_rate;
-+	}
-+
-+	return best_rate;
-+}
-+
-+static int ac100_clkout_determine_rate(struct clk_hw *hw,
-+				       struct clk_rate_request *req)
-+{
-+	struct clk_hw *best_parent;
-+	unsigned long best = 0;
-+	int i, num_parents = clk_hw_get_num_parents(hw);
-+
-+	for (i = 0; i < num_parents; i++) {
-+		struct clk_hw *parent = clk_hw_get_parent_by_index(hw, i);
-+		unsigned long tmp, prate = clk_hw_get_rate(parent);
-+
-+		tmp = ac100_clkout_round_rate(hw, req->rate, prate);
-+
-+		if (tmp > req->rate)
-+			continue;
-+		if (req->rate - tmp < req->rate - best) {
-+			best = tmp;
-+			best_parent = parent;
-+		}
-+	}
-+
-+	if (!best)
-+		return -EINVAL;
-+
-+	req->best_parent_hw = best_parent;
-+	req->best_parent_rate = best;
-+	req->rate = best;
-+
-+	return 0;
-+}
-+
-+static int ac100_clkout_set_rate(struct clk_hw *hw, unsigned long rate,
-+				 unsigned long prate)
-+{
-+	struct ac100_clkout *clk = to_ac100_clkout(hw);
-+	int div = 0, pre_div = 0;
-+
-+	do {
-+		div = divider_get_val(rate * ac100_clkout_prediv[pre_div].div,
-+				      prate, NULL, AC100_CLKOUT_DIV_WIDTH,
-+				      CLK_DIVIDER_POWER_OF_TWO);
-+		if (div >= 0)
-+			break;
-+	} while (prate != AC100_RTC_32K_RATE &&
-+		 ac100_clkout_prediv[++pre_div].div);
-+
-+	if (div < 0)
-+		return div;
-+
-+	pre_div = ac100_clkout_prediv[pre_div].val;
-+
-+	regmap_update_bits(clk->regmap, clk->offset,
-+			   ((1 << AC100_CLKOUT_DIV_WIDTH) - 1) << AC100_CLKOUT_DIV_SHIFT |
-+			   ((1 << AC100_CLKOUT_PRE_DIV_WIDTH) - 1) << AC100_CLKOUT_PRE_DIV_SHIFT,
-+			   (div - 1) << AC100_CLKOUT_DIV_SHIFT |
-+			   (pre_div - 1) << AC100_CLKOUT_PRE_DIV_SHIFT);
-+
-+	return 0;
-+}
-+
-+static int ac100_clkout_prepare(struct clk_hw *hw)
-+{
-+	struct ac100_clkout *clk = to_ac100_clkout(hw);
-+
-+	return regmap_update_bits(clk->regmap, clk->offset, AC100_CLKOUT_EN,
-+				  AC100_CLKOUT_EN);
-+}
-+
-+static void ac100_clkout_unprepare(struct clk_hw *hw)
-+{
-+	struct ac100_clkout *clk = to_ac100_clkout(hw);
-+
-+	regmap_update_bits(clk->regmap, clk->offset, AC100_CLKOUT_EN, 0);
-+}
-+
-+static int ac100_clkout_is_prepared(struct clk_hw *hw)
-+{
-+	struct ac100_clkout *clk = to_ac100_clkout(hw);
-+	unsigned int reg;
-+
-+	regmap_read(clk->regmap, clk->offset, &reg);
-+
-+	return reg & AC100_CLKOUT_EN;
-+}
-+
-+static u8 ac100_clkout_get_parent(struct clk_hw *hw)
-+{
-+	struct ac100_clkout *clk = to_ac100_clkout(hw);
-+	unsigned int reg;
-+
-+	regmap_read(clk->regmap, clk->offset, &reg);
-+
-+	return (reg >> AC100_CLKOUT_MUX_SHIFT) & 0x1;
-+}
-+
-+static int ac100_clkout_set_parent(struct clk_hw *hw, u8 index)
-+{
-+	struct ac100_clkout *clk = to_ac100_clkout(hw);
-+
-+	return regmap_update_bits(clk->regmap, clk->offset,
-+				  BIT(AC100_CLKOUT_MUX_SHIFT),
-+				  index ? BIT(AC100_CLKOUT_MUX_SHIFT) : 0);
-+}
-+
-+static const struct clk_ops ac100_clkout_ops = {
-+	.prepare	= ac100_clkout_prepare,
-+	.unprepare	= ac100_clkout_unprepare,
-+	.is_prepared	= ac100_clkout_is_prepared,
-+	.recalc_rate	= ac100_clkout_recalc_rate,
-+	.determine_rate	= ac100_clkout_determine_rate,
-+	.get_parent	= ac100_clkout_get_parent,
-+	.set_parent	= ac100_clkout_set_parent,
-+	.set_rate	= ac100_clkout_set_rate,
-+};
-+
-+static int ac100_rtc_register_clks(struct ac100_rtc_dev *chip)
-+{
-+	struct device_node *np = chip->dev->of_node;
-+	const char *parents[2] = {AC100_RTC_32K_NAME};
-+	int i, ret;
-+
-+	chip->clk_data = devm_kzalloc(chip->dev, sizeof(*chip->clk_data) +
-+						 sizeof(*chip->clk_data->hws) *
-+						 AC100_CLKOUT_NUM,
-+						 GFP_KERNEL);
-+	if (!chip->clk_data)
-+		return -ENOMEM;
-+
-+	chip->rtc_32k_clk = clk_hw_register_fixed_rate(chip->dev,
-+						       AC100_RTC_32K_NAME,
-+						       NULL, 0,
-+						       AC100_RTC_32K_RATE);
-+	if (IS_ERR(chip->rtc_32k_clk)) {
-+		ret = PTR_ERR(chip->rtc_32k_clk);
-+		dev_err(chip->dev, "Failed to register RTC-32k clock: %d\n",
-+			ret);
-+		return ret;
-+	}
-+
-+	parents[1] = of_clk_get_parent_name(np, 0);
-+	if (!parents[1]) {
-+		dev_err(chip->dev, "Failed to get ADDA 4M clock\n");
-+		return -EINVAL;
-+	}
-+
-+	for (i = 0; i < AC100_CLKOUT_NUM; i++) {
-+		struct ac100_clkout *clk = &chip->clks[i];
-+		struct clk_init_data init = {
-+			.name = ac100_clkout_names[i],
-+			.ops = &ac100_clkout_ops,
-+			.parent_names = parents,
-+			.num_parents = ARRAY_SIZE(parents),
-+			.flags = 0,
-+		};
-+
-+		clk->regmap = chip->regmap;
-+		clk->offset = AC100_CLKOUT_CTRL1 + i;
-+		clk->hw.init = &init;
-+
-+		ret = devm_clk_hw_register(chip->dev, &clk->hw);
-+		if (ret) {
-+			dev_err(chip->dev, "Failed to register clk '%s': %d\n",
-+				init.name, ret);
-+			goto err_unregister_rtc_32k;
-+		}
-+
-+		chip->clk_data->hws[i] = &clk->hw;
-+	}
-+
-+	chip->clk_data->num = i;
-+	ret = of_clk_add_hw_provider(np, of_clk_hw_onecell_get, chip->clk_data);
-+	if (ret)
-+		goto err_unregister_rtc_32k;
-+
-+	return 0;
-+
-+err_unregister_rtc_32k:
-+	clk_unregister_fixed_rate(chip->rtc_32k_clk->clk);
-+
-+	return ret;
-+}
-+
-+static void ac100_rtc_unregister_clks(struct ac100_rtc_dev *chip)
-+{
-+	of_clk_del_provider(chip->dev->of_node);
-+	clk_unregister_fixed_rate(chip->rtc_32k_clk->clk);
-+}
-+
-+/**
-+ * RTC related bits
-+ */
- static int ac100_rtc_get_time(struct device *dev, struct rtc_time *rtc_tm)
- {
- 	struct ac100_rtc_dev *chip = dev_get_drvdata(dev);
-@@ -300,11 +588,24 @@ static int ac100_rtc_probe(struct platform_device *pdev)
- 		return PTR_ERR(chip->rtc);
- 	}
- 
-+	ret = ac100_rtc_register_clks(chip);
-+	if (ret)
-+		return ret;
-+
- 	dev_info(&pdev->dev, "RTC enabled\n");
- 
- 	return 0;
- }
- 
-+static int ac100_rtc_remove(struct platform_device *pdev)
-+{
-+	struct ac100_rtc_dev *chip = platform_get_drvdata(pdev);
-+
-+	ac100_rtc_unregister_clks(chip);
-+
-+	return 0;
-+}
-+
- static const struct of_device_id ac100_rtc_match[] = {
- 	{ .compatible = "x-powers,ac100-rtc" },
- 	{ },
-@@ -313,6 +614,7 @@ MODULE_DEVICE_TABLE(of, ac100_rtc_match);
- 
- static struct platform_driver ac100_rtc_driver = {
- 	.probe		= ac100_rtc_probe,
-+	.remove		= ac100_rtc_remove,
- 	.driver		= {
- 		.name		= "ac100-rtc",
- 		.of_match_table	= of_match_ptr(ac100_rtc_match),
--- 
-2.8.1
-
--- 
+--=20
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+---=20
+You received this message because you are subscribed to the Google Groups "=
+rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an e=
+mail to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
