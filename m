@@ -1,36 +1,19 @@
-Return-Path: <rtc-linux+bncBCMILY6JWQBBB2OS7W5AKGQEPMK3QUQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBAABBRWK7G5AKGQEPCAISAQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 MIME-Version: 1.0
-Received: from wens.csie.org (mirror2.csie.ntu.edu.tw. [140.112.30.76])
-        by gmr-mx.google.com with ESMTPS id c11si1162867pfc.2.2016.06.13.19.18.17
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 13 Jun 2016 19:18:17 -0700 (PDT)
-From: Chen-Yu Tsai <wens@csie.org>
-To: Mark Brown <broonie@kernel.org>,
-	Lee Jones <lee.jones@linaro.org>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Rob Herring <robh+dt@kernel.org>,
-	Pawel Moll <pawel.moll@arm.com>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Ian Campbell <ijc+devicetree@hellion.org.uk>,
-	Kumar Gala <galak@codeaurora.org>,
-	Maxime Ripard <maxime.ripard@free-electrons.com>,
-	Michael Turquette <mturquette@baylibre.com>,
-	Stephen Boyd <sboyd@codeaurora.org>
-Cc: Chen-Yu Tsai <wens@csie.org>,
-	rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org,
-	devicetree@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	linux-clk@vger.kernel.org
-Subject: [rtc-linux] [PATCH 10/10] ARM: dts: sun9i: Switch to the AC100 RTC
- clock outputs for osc32k
-Date: Tue, 14 Jun 2016 10:17:58 +0800
-Message-Id: <1465870678-30128-12-git-send-email-wens@csie.org>
-In-Reply-To: <1465870678-30128-1-git-send-email-wens@csie.org>
-References: <1465870678-30128-1-git-send-email-wens@csie.org>
+Received: from root.phytec.de (mail.phytec.de. [217.6.246.34])
+        by gmr-mx.google.com with ESMTP id f138si216651wmf.3.2016.06.13.00.48.21
+        for <rtc-linux@googlegroups.com>;
+        Mon, 13 Jun 2016 00:48:21 -0700 (PDT)
+From: Wadim Egorov <w.egorov@phytec.de>
+To: linux-kernel@vger.kernel.org, linux-clk@vger.kernel.org, rtc-linux@googlegroups.com, devicetree@vger.kernel.org, linux-rockchip@lists.infradead.org
+Cc: robh+dt@kernel.org, mark.rutland@arm.com, mturquette@baylibre.com, sboyd@codeaurora.org, lee.jones@linaro.org, lgirdwood@gmail.com, broonie@kernel.org, a.zummo@towertech.it, alexandre.belloni@free-electrons.com, dianders@chromium.org, zyw@rock-chips.com
+Subject: [rtc-linux] [PATCH v6 3/5] mfd: dt-bindings: Add RK818 device tree
+ bindings document
+Date: Mon, 13 Jun 2016 09:46:27 +0200
+Message-Id: <1465803989-33632-3-git-send-email-w.egorov@phytec.de>
+In-Reply-To: <1465803989-33632-1-git-send-email-w.egorov@phytec.de>
+References: <1465803989-33632-1-git-send-email-w.egorov@phytec.de>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -41,76 +24,88 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-The 32.768 kHz clock inside the A80 SoC is fed from an external source,
-typically the AC100 RTC module.
+Add device tree bindings documentation for Rockchip's RK818 PMIC.
 
-Make the osc32k placeholder a fixed-factor clock so board dts files can
-specify its source.
-
-Signed-off-by: Chen-Yu Tsai <wens@csie.org>
+Signed-off-by: Wadim Egorov <w.egorov@phytec.de>
+Acked-by: Rob Herring <robh@kernel.org>
+Acked-by: Lee Jones <lee.jones@linaro.org>
 ---
- arch/arm/boot/dts/sun9i-a80-cubieboard4.dts | 5 +++++
- arch/arm/boot/dts/sun9i-a80-optimus.dts     | 5 +++++
- arch/arm/boot/dts/sun9i-a80.dtsi            | 9 +++------
- 3 files changed, 13 insertions(+), 6 deletions(-)
+Changes since v5:
+- Added Acked-by from Lee Jones
+---
+ Documentation/devicetree/bindings/mfd/rk808.txt | 37 +++++++++++++++++++++++--
+ 1 file changed, 34 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm/boot/dts/sun9i-a80-cubieboard4.dts b/arch/arm/boot/dts/sun9i-a80-cubieboard4.dts
-index 65f4f32f89ad..b6299a9c14e3 100644
---- a/arch/arm/boot/dts/sun9i-a80-cubieboard4.dts
-+++ b/arch/arm/boot/dts/sun9i-a80-cubieboard4.dts
-@@ -103,6 +103,11 @@
- 	allwinner,drive = <SUN4I_PINCTRL_40_MA>;
- };
- 
-+&osc32k {
-+	/* osc32k input is from AC100 */
-+	clocks = <&ac100_rtc 0>;
-+};
+diff --git a/Documentation/devicetree/bindings/mfd/rk808.txt b/Documentation/devicetree/bindings/mfd/rk808.txt
+index 4ca6aab..9636ae8 100644
+--- a/Documentation/devicetree/bindings/mfd/rk808.txt
++++ b/Documentation/devicetree/bindings/mfd/rk808.txt
+@@ -1,7 +1,11 @@
+-RK808 Power Management Integrated Circuit
++RK8XX Power Management Integrated Circuit
 +
- &pio {
- 	led_pins_cubieboard4: led-pins@0 {
- 		allwinner,pins = "PH6", "PH17";
-diff --git a/arch/arm/boot/dts/sun9i-a80-optimus.dts b/arch/arm/boot/dts/sun9i-a80-optimus.dts
-index 3b013dc5fef1..2f079cbd2025 100644
---- a/arch/arm/boot/dts/sun9i-a80-optimus.dts
-+++ b/arch/arm/boot/dts/sun9i-a80-optimus.dts
-@@ -152,6 +152,11 @@
- 	status = "okay";
- };
++The rk8xx family current members:
++rk808
++rk818
  
-+&osc32k {
-+	/* osc32k input is from AC100 */
-+	clocks = <&ac100_rtc 0>;
-+};
+ Required properties:
+-- compatible: "rockchip,rk808"
++- compatible: "rockchip,rk808", "rockchip,rk818"
+ - reg: I2C slave address
+ - interrupt-parent: The parent interrupt controller.
+ - interrupts: the interrupt outputs of the controller.
+@@ -13,6 +17,8 @@ Optional properties:
+   default output clock name
+ - rockchip,system-power-controller: Telling whether or not this pmic is controlling
+   the system power.
 +
- &pio {
- 	led_pins_optimus: led-pins@0 {
- 		allwinner,pins = "PH0", "PH1";
-diff --git a/arch/arm/boot/dts/sun9i-a80.dtsi b/arch/arm/boot/dts/sun9i-a80.dtsi
-index f68b3242b33a..dd11115ec087 100644
---- a/arch/arm/boot/dts/sun9i-a80.dtsi
-+++ b/arch/arm/boot/dts/sun9i-a80.dtsi
-@@ -148,15 +148,12 @@
++Optional RK808 properties:
+ - vcc1-supply:  The input supply for DCDC_REG1
+ - vcc2-supply:  The input supply for DCDC_REG2
+ - vcc3-supply:  The input supply for DCDC_REG3
+@@ -29,7 +35,20 @@ Optional properties:
+   the gpio controller. If DVS GPIOs aren't present, voltage changes will happen
+   very quickly with no slow ramp time.
  
- 		/*
- 		 * The 32k clock is from an external source, normally the
--		 * AC100 codec/RTC chip. This clock is by default enabled
--		 * and clocked at 32768 Hz, from the oscillator connected
--		 * to the AC100. It is configurable, but no such driver or
--		 * bindings exist yet.
-+		 * AC100 codec/RTC chip. This serves as a placeholder for
-+		 * board dts files to specify the source.
- 		 */
- 		osc32k: osc32k_clk {
- 			#clock-cells = <0>;
--			compatible = "fixed-clock";
--			clock-frequency = <32768>;
-+			compatible = "fixed-factor-clock";
- 			clock-output-names = "osc32k";
- 		};
+-Regulators: All the regulators of RK808 to be instantiated shall be
++Optional RK818 properties:
++- vcc1-supply:  The input supply for DCDC_REG1
++- vcc2-supply:  The input supply for DCDC_REG2
++- vcc3-supply:  The input supply for DCDC_REG3
++- vcc4-supply:  The input supply for DCDC_REG4
++- boost-supply: The input supply for DCDC_BOOST
++- vcc6-supply:  The input supply for LDO_REG1 and LDO_REG2
++- vcc7-supply:  The input supply for LDO_REG3, LDO_REG5 and LDO_REG7
++- vcc8-supply:  The input supply for LDO_REG4, LDO_REG6 and LDO_REG8
++- vcc9-supply:  The input supply for LDO_REG9 and SWITCH_REG
++- h_5v-supply:  The input supply for HDMI_SWITCH
++- usb-supply:   The input supply for OTG_SWITCH
++
++Regulators: All the regulators of RK8XX to be instantiated shall be
+ listed in a child node named 'regulators'. Each regulator is represented
+ by a child node of the 'regulators' node.
  
+@@ -48,6 +67,18 @@ number as described in RK808 datasheet.
+ 	- SWITCH_REGn
+ 		- valid values for n are 1 to 2
+ 
++Following regulators of the RK818 PMIC block are supported. Note that
++the 'n' in regulator name, as in DCDC_REGn or LDOn, represents the DCDC or LDO
++number as described in RK818 datasheet.
++
++	- DCDC_REGn
++		- valid values for n are 1 to 4.
++	- LDO_REGn
++		- valid values for n are 1 to 9.
++	- SWITCH_REG
++	- HDMI_SWITCH
++	- OTG_SWITCH
++
+ Standard regulator bindings are used inside regulator subnodes. Check
+   Documentation/devicetree/bindings/regulator/regulator.txt
+ for more details
 -- 
-2.8.1
+1.9.1
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
