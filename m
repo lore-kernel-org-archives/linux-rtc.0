@@ -1,32 +1,38 @@
-Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBCWTXS5QKGQEZUYFZPI@googlegroups.com>
+Return-Path: <rtc-linux+bncBCMILY6JWQBBB2OS7W5AKGQEPMK3QUQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id q124si142869wme.3.2016.06.25.18.02.02
-        for <rtc-linux@googlegroups.com>;
-        Sat, 25 Jun 2016 18:02:02 -0700 (PDT)
-Date: Sun, 26 Jun 2016 03:02:00 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Chen-Yu Tsai <wens@csie.org>
-Cc: Mark Brown <broonie@kernel.org>, Lee Jones <lee.jones@linaro.org>,
+MIME-Version: 1.0
+Received: from wens.csie.org (mirror2.csie.ntu.edu.tw. [140.112.30.76])
+        by gmr-mx.google.com with ESMTPS id 62si2830172pfx.1.2016.06.13.19.18.17
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 13 Jun 2016 19:18:17 -0700 (PDT)
+From: Chen-Yu Tsai <wens@csie.org>
+To: Mark Brown <broonie@kernel.org>,
+	Lee Jones <lee.jones@linaro.org>,
 	Alessandro Zummo <a.zummo@towertech.it>,
-	Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Rob Herring <robh+dt@kernel.org>,
+	Pawel Moll <pawel.moll@arm.com>,
 	Mark Rutland <mark.rutland@arm.com>,
 	Ian Campbell <ijc+devicetree@hellion.org.uk>,
 	Kumar Gala <galak@codeaurora.org>,
 	Maxime Ripard <maxime.ripard@free-electrons.com>,
 	Michael Turquette <mturquette@baylibre.com>,
-	Stephen Boyd <sboyd@codeaurora.org>, rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org, devicetree@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org, linux-clk@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH v3 4/8] rtc: ac100: Add RTC driver for
- X-Powers AC100
-Message-ID: <20160626010200.GZ5809@piout.net>
-References: <1466391138-12862-1-git-send-email-wens@csie.org>
- <1466391138-12862-5-git-send-email-wens@csie.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1466391138-12862-5-git-send-email-wens@csie.org>
+	Stephen Boyd <sboyd@codeaurora.org>
+Cc: Chen-Yu Tsai <wens@csie.org>,
+	rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org,
+	devicetree@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	linux-clk@vger.kernel.org
+Subject: [rtc-linux] [PATCH 09/10] ARM: dts: sun9i: a80-optimus: Order nodes
+ by alphabetical order
+Date: Tue, 14 Jun 2016 10:17:57 +0800
+Message-Id: <1465870678-30128-11-git-send-email-wens@csie.org>
+In-Reply-To: <1465870678-30128-1-git-send-email-wens@csie.org>
+References: <1465870678-30128-1-git-send-email-wens@csie.org>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -35,34 +41,83 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 20/06/2016 at 10:52:14 +0800, Chen-Yu Tsai wrote :
-> +static int ac100_rtc_probe(struct platform_device *pdev)
-> +{
-> +	struct ac100_dev *ac100 = dev_get_drvdata(pdev->dev.parent);
-> +	struct ac100_rtc_dev *chip;
-> +	int ret;
-> +
-> +	chip = devm_kzalloc(&pdev->dev, sizeof(*chip), GFP_KERNEL);
-> +	platform_set_drvdata(pdev, chip);
-> +	chip->dev = &pdev->dev;
-> +	chip->regmap = ac100->regmap;
-> +	mutex_init(&chip->mutex);
-> +
-> +	chip->irq = of_irq_get(pdev->dev.of_node, 0);
+Move the mmc nodes above the ohci nodes for proper ordering by name.
 
-Forgot that one, platform_get_irq() is probably more common but I don't
-care that much. I think you can then avoid including of.h and of_irq.h.
+Signed-off-by: Chen-Yu Tsai <wens@csie.org>
+---
+ arch/arm/boot/dts/sun9i-a80-optimus.dts | 50 ++++++++++++++++-----------------
+ 1 file changed, 25 insertions(+), 25 deletions(-)
 
-> +	if (chip->irq < 0) {
-> +		dev_err(&pdev->dev, "No IRQ resource\n");
-> +		return chip->irq;
-> +	}
-> +
-
+diff --git a/arch/arm/boot/dts/sun9i-a80-optimus.dts b/arch/arm/boot/dts/sun9i-a80-optimus.dts
+index 24ef8e65a975..3b013dc5fef1 100644
+--- a/arch/arm/boot/dts/sun9i-a80-optimus.dts
++++ b/arch/arm/boot/dts/sun9i-a80-optimus.dts
+@@ -119,6 +119,31 @@
+ 	status = "okay";
+ };
+ 
++&mmc0 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&mmc0_pins>, <&mmc0_cd_pin_optimus>;
++	vmmc-supply = <&reg_dcdc1>;
++	bus-width = <4>;
++	cd-gpios = <&pio 7 18 GPIO_ACTIVE_HIGH>; /* PH8 */
++	cd-inverted;
++	status = "okay";
++};
++
++&mmc2 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&mmc2_8bit_pins>;
++	vmmc-supply = <&reg_dcdc1>;
++	bus-width = <8>;
++	non-removable;
++	cap-mmc-hw-reset;
++	status = "okay";
++};
++
++&mmc2_8bit_pins {
++	/* Increase drive strength for DDR modes */
++	allwinner,drive = <SUN4I_PINCTRL_40_MA>;
++};
++
+ &ohci0 {
+ 	status = "okay";
+ };
+@@ -157,31 +182,6 @@
+ 	};
+ };
+ 
+-&mmc0 {
+-	pinctrl-names = "default";
+-	pinctrl-0 = <&mmc0_pins>, <&mmc0_cd_pin_optimus>;
+-	vmmc-supply = <&reg_dcdc1>;
+-	bus-width = <4>;
+-	cd-gpios = <&pio 7 18 GPIO_ACTIVE_HIGH>; /* PH8 */
+-	cd-inverted;
+-	status = "okay";
+-};
+-
+-&mmc2 {
+-	pinctrl-names = "default";
+-	pinctrl-0 = <&mmc2_8bit_pins>;
+-	vmmc-supply = <&reg_dcdc1>;
+-	bus-width = <8>;
+-	non-removable;
+-	cap-mmc-hw-reset;
+-	status = "okay";
+-};
+-
+-&mmc2_8bit_pins {
+-	/* Increase drive strength for DDR modes */
+-	allwinner,drive = <SUN4I_PINCTRL_40_MA>;
+-};
+-
+ &r_ir {
+ 	status = "okay";
+ };
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+2.8.1
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
