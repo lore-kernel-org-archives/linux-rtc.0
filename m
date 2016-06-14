@@ -1,26 +1,34 @@
-Return-Path: <rtc-linux+bncBDKOBWPM5ABRBYOWUO5QKGQEJLX2F7I@googlegroups.com>
+Return-Path: <rtc-linux+bncBCMILY6JWQBBBZ6S7W5AKGQE5XINMJA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 MIME-Version: 1.0
-Received: from mail-pa0-x241.google.com (mail-pa0-x241.google.com. [2607:f8b0:400e:c03::241])
-        by gmr-mx.google.com with ESMTPS id un17si5444521pab.0.2016.06.21.00.23.13
+Received: from wens.csie.org (mirror2.csie.ntu.edu.tw. [140.112.30.76])
+        by gmr-mx.google.com with ESMTPS id c11si1162853pfc.2.2016.06.13.19.18.15
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 21 Jun 2016 00:23:13 -0700 (PDT)
-Received: by mail-pa0-x241.google.com with SMTP id fg1so738933pad.3
-        for <rtc-linux@googlegroups.com>; Tue, 21 Jun 2016 00:23:13 -0700 (PDT)
-From: Andrey Smirnov <andrew.smirnov@gmail.com>
-To: rtc-linux@googlegroups.com
-Cc: Andrey Smirnov <andrew.smirnov@gmail.com>,
+        Mon, 13 Jun 2016 19:18:15 -0700 (PDT)
+From: Chen-Yu Tsai <wens@csie.org>
+To: Mark Brown <broonie@kernel.org>,
+	Lee Jones <lee.jones@linaro.org>,
 	Alessandro Zummo <a.zummo@towertech.it>,
 	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Rob Herring <robh+dt@kernel.org>,
+	Pawel Moll <pawel.moll@arm.com>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Ian Campbell <ijc+devicetree@hellion.org.uk>,
+	Kumar Gala <galak@codeaurora.org>,
+	Maxime Ripard <maxime.ripard@free-electrons.com>,
+	Michael Turquette <mturquette@baylibre.com>,
+	Stephen Boyd <sboyd@codeaurora.org>
+Cc: Chen-Yu Tsai <wens@csie.org>,
+	rtc-linux@googlegroups.com,
 	linux-kernel@vger.kernel.org,
-	cphealy@gmail.com
-Subject: [rtc-linux] [PATCH v2 17/17] RTC: rtctest: Change no IRQ detection
- for RTC_IRQP_SET
-Date: Tue, 21 Jun 2016 00:22:50 -0700
-Message-Id: <1466493770-11895-16-git-send-email-andrew.smirnov@gmail.com>
-In-Reply-To: <1466493770-11895-1-git-send-email-andrew.smirnov@gmail.com>
-References: <1466493770-11895-1-git-send-email-andrew.smirnov@gmail.com>
+	devicetree@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	linux-clk@vger.kernel.org
+Subject: [rtc-linux] [PATCH 00/10] mfd: ac100: Add support for X-Powers AC100
+ audio codec / RTC combo IC
+Date: Tue, 14 Jun 2016 10:17:47 +0800
+Message-Id: <1465870678-30128-1-git-send-email-wens@csie.org>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -31,30 +39,82 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-A call to ioctl(..., RTC_IRQP_SET, ...) should never result in
-ENOTTY. All new style RTC drivers implement it and all of the old style
-drivers return EINVAL when they don't support periodic IRQs.
+Hi everyone,
 
-Signed-off-by: Andrey Smirnov <andrew.smirnov@gmail.com>
----
- tools/testing/selftests/timers/rtctest.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+This series adds support for X-Powers' AC100 audio codec / RTC combo IC.
+This chip is found on Allwinner A80 SoC based boards, and is also part
+of the AXP813/AXP818 PMIC found with Allwinner A83T SoCs.
 
-diff --git a/tools/testing/selftests/timers/rtctest.c b/tools/testing/selftests/timers/rtctest.c
-index 97beadf..4230d30 100644
---- a/tools/testing/selftests/timers/rtctest.c
-+++ b/tools/testing/selftests/timers/rtctest.c
-@@ -218,7 +218,7 @@ test_PIE:
- 		retval = ioctl(fd, RTC_IRQP_SET, tmp);
- 		if (retval == -1) {
- 			/* not all RTCs can change their periodic IRQ rate */
--			if (errno == ENOTTY) {
-+			if (errno == EINVAL) {
- 				fprintf(stderr,
- 					"\n...Periodic IRQ rate is fixed\n");
- 				goto done;
+The series focuses on the RTC side of the chip. The audio codec will
+be done later, once the digital audio interface of the SoC is supported.
+
+Patch 1 adds bulk write support for regmaps without raw formatting.
+This is used in the RTC driver to write out the date and time in one
+call.
+
+Patch 2 adds device tree bindings for the AC100.
+
+Patch 3 adds the mfd driver for the AC100.
+
+Patch 4 adds the RTC driver for the AC100.
+
+Patch 5 adds RTC clk output support to the RTC driver.
+This is a separate patch as the clk code is over 300 LoC. Having a
+separate patch should make it easier for the clk maintainers to review.
+
+Patch 6 adds the AC100 device nodes to the A80 Optimus board dts.
+
+Patch 7 adds the AC100 device nodes to the Cubieboard4 board dts.
+
+Patch 8 fixes the order of device nodes in the A80 Optimus board dts.
+
+Patch 9 fixes the order of device nodes in the Cubieboard4 board dts.
+
+Patch 10 changes the fixed osc_32k clk to a fixed factor clk,
+representing the 32k clk input pin on the SoC, and also hooks up the
+ac100 rtc clk output to this clk in the board dts files.
+
+I'm hoping we can merge the driver bits (patches 2~5) through the
+mfd tree, with acks from the rtc and clk maintainers for patches
+4 and 5.
+
+Regards
+ChenYu
+
+
+Chen-Yu Tsai (10):
+  regmap: Support bulk writes for devices without raw formatting
+  mfd: ac100: Add device tree bindings for X-Powers AC100 codec/RTC
+    combo IC
+  mfd: ac100: Add driver for X-Powers AC100 audio codec / RTC combo IC
+  rtc: ac100: Add RTC driver for X-Powers AC100
+  rtc: ac100: Add clk output support
+  ARM: dts: sun9i: a80-optimus: Add device node for AC100
+  ARM: dts: sun9i: cubieboard4: Add device node for AC100
+  ARM: dts: sun9i: cubieboard4: Order nodes by alphabetical order
+  ARM: dts: sun9i: a80-optimus: Order nodes by alphabetical order
+  ARM: dts: sun9i: Switch to the AC100 RTC clock outputs for osc32k
+
+ Documentation/devicetree/bindings/mfd/ac100.txt |  42 ++
+ arch/arm/boot/dts/sun9i-a80-cubieboard4.dts     |  58 +-
+ arch/arm/boot/dts/sun9i-a80-optimus.dts         |  76 ++-
+ arch/arm/boot/dts/sun9i-a80.dtsi                |   9 +-
+ drivers/base/regmap/regmap.c                    |  31 +-
+ drivers/mfd/Kconfig                             |  10 +
+ drivers/mfd/Makefile                            |   2 +
+ drivers/mfd/ac100.c                             | 135 +++++
+ drivers/rtc/Kconfig                             |  10 +
+ drivers/rtc/Makefile                            |   1 +
+ drivers/rtc/rtc-ac100.c                         | 686 ++++++++++++++++++++++++
+ include/linux/mfd/ac100.h                       | 176 ++++++
+ 12 files changed, 1186 insertions(+), 50 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/mfd/ac100.txt
+ create mode 100644 drivers/mfd/ac100.c
+ create mode 100644 drivers/rtc/rtc-ac100.c
+ create mode 100644 include/linux/mfd/ac100.h
+
 -- 
-2.5.5
+2.8.1
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
