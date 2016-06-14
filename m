@@ -1,28 +1,23 @@
-Return-Path: <rtc-linux+bncBDCMXBNSKAIMNO6PXMCRUBBXWTGXM@googlegroups.com>
+Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBP5OQC5QKGQE2MDWPMA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from smtp6-v.fe.bosch.de (smtp6-v.fe.bosch.de. [2a03:cc00:ff0:100::2])
-        by gmr-mx.google.com with ESMTPS id f138si394517wmf.3.2016.06.29.07.40.05
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 29 Jun 2016 07:40:05 -0700 (PDT)
-Received: from vsmta12.fe.internet.bosch.com (unknown [10.4.98.52])
-	by imta23.fe.bosch.de (Postfix) with ESMTP id 591FD1580201
-	for <rtc-linux@googlegroups.com>; Wed, 29 Jun 2016 16:40:05 +0200 (CEST)
-Received: from FE-HUB1000.de.bosch.com (vsgw24.fe.internet.bosch.com [10.4.98.24])
-	by vsmta12.fe.internet.bosch.com (Postfix) with ESMTP id 070891B803EB
-	for <rtc-linux@googlegroups.com>; Wed, 29 Jun 2016 16:40:05 +0200 (CEST)
-From: Dirk Behme <dirk.behme@de.bosch.com>
-To: <rtc-linux@googlegroups.com>, <devicetree@vger.kernel.org>
-CC: Oleksij Rempel <fixed-term.Oleksij.Rempel@de.bosch.com>, Carsten Resch
-	<Carsten.Resch@de.bosch.com>, Dirk Behme <dirk.behme@de.bosch.com>
-Subject: [rtc-linux] [PATCH v3 3/3] rtc: rv8803: Be able to set VDETOFF and
- SWOFF via devcie tree
-Date: Wed, 29 Jun 2016 16:40:01 +0200
-Message-ID: <1467211201-17252-4-git-send-email-dirk.behme@de.bosch.com>
-In-Reply-To: <1467211201-17252-1-git-send-email-dirk.behme@de.bosch.com>
-References: <1467211201-17252-1-git-send-email-dirk.behme@de.bosch.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id c135si123003wme.2.2016.06.14.07.39.58
+        for <rtc-linux@googlegroups.com>;
+        Tue, 14 Jun 2016 07:39:58 -0700 (PDT)
+Date: Tue, 14 Jun 2016 16:39:48 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Keerthy <a0393675@ti.com>
+Cc: Keerthy <j-keerthy@ti.com>, a.zummo@towertech.it, nm@ti.com,
+	rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org
+Subject: [rtc-linux] Re: [PATCH] rtc: ds1307: Fix relying on reset value for weekday
+Message-ID: <20160614143948.GP3240@piout.net>
+References: <1464778147-22075-1-git-send-email-j-keerthy@ti.com>
+ <20160601121802.GF4249@piout.net>
+ <574ED6D1.70800@ti.com>
+ <575693E1.2090302@ti.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <575693E1.2090302@ti.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -32,116 +27,52 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-From: Oleksij Rempel <fixed-term.Oleksij.Rempel@de.bosch.com>
+On 07/06/2016 at 14:59:05 +0530, Keerthy wrote :
+> Hi Alexandre,
+> 
+> On Wednesday 01 June 2016 06:06 PM, Keerthy wrote:
+> > 
+> > 
+> > On Wednesday 01 June 2016 05:48 PM, Alexandre Belloni wrote:
+> > > Hi,
+> > > 
+> > > On 01/06/2016 at 16:19:07 +0530, Keerthy wrote :
+> > > > The reset value of weekday is 0x1. This is wrong since
+> > > > the reset values of the day/month/year make up to Jan 1 2001.
+> > > > When computed weekday comes out to be Monday. On a scale
+> > > > of 1-7(Sunday - Saturday) it should be 0x2. So we should not
+> > > > be relying on the reset value.
+> > > > 
+> > > 
+> > > Hum, what are the chances that the reset value is actually the correct
+> > > date/time?
+> > > Won't that be corrected after the first call to set_time? Until then,
+> > > the date is not correct so, do we care anyway?
+> > 
+> > Yes if an alarm is programmed without set_time.
+> > 
+> > ex: rtcwake -d /dev/rtc0 -s 5
+> > 
+> > Even the basic rtctest under tools/testing/selftests/timers/rtctest.c fails
+> > as the wday is wrong and no alarm fires.
+> > 
+> > Instead of relying on some one to call set_time before programming alarm
+> > its better to fix the wday to reflect the current day right?
+> > 
+> > 
+> > > 
+> > > Maybe I'm missing something here.
+> 
+> Let me know if you feel this is a valid fix.
+> 
 
-There might be designs where the power supply circuit is designed
-in a way that VDETOFF and SWOFF is reuqired to be set. Otherwise the
-RTC detects a power loss. Add a device tree interface for this.
+Well, this is probably a valid fix and I'll take it as is if I don't
+find the time to make something more generic.
 
-Signed-off-by: Carsten Resch <Carsten.Resch@de.bosch.com>
-Signed-off-by: Dirk Behme <dirk.behme@de.bosch.com>
-Signed-off-by: Oleksij Rempel <fixed-term.Oleksij.Rempel@de.bosch.com>
-Cc: devicetree@vger.kernel.org
----
- drivers/rtc/rtc-rv8803.c | 50 ++++++++++++++++++++++++++++++++++++++++++++++--
- 1 file changed, 48 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/rtc/rtc-rv8803.c b/drivers/rtc/rtc-rv8803.c
-index f623038..0801048 100644
---- a/drivers/rtc/rtc-rv8803.c
-+++ b/drivers/rtc/rtc-rv8803.c
-@@ -49,11 +49,21 @@
- #define RV8803_CTRL_TIE			BIT(4)
- #define RV8803_CTRL_UIE			BIT(5)
- 
-+#define RX8900_BACKUP_CTRL		0x18
-+#define RX8900_FLAG_SWOFF		BIT(2)
-+#define RX8900_FLAG_VDETOFF		BIT(3)
-+
-+enum rv8803_type {
-+	rv_8803,
-+	rx_8900
-+};
-+
- struct rv8803_data {
- 	struct i2c_client *client;
- 	struct rtc_device *rtc;
- 	struct mutex flags_lock;
- 	u8 ctrl;
-+	enum rv8803_type type;
- };
- 
- static irqreturn_t rv8803_handle_irq(int irq, void *dev_id)
-@@ -422,6 +432,35 @@ static struct rtc_class_ops rv8803_rtc_ops = {
- 	.ioctl = rv8803_ioctl,
- };
- 
-+static int rx8900_trickle_charger_init(struct rv8803_data *rv8803)
-+{
-+	struct i2c_client *client = rv8803->client;
-+	struct device_node *node = client->dev.of_node;
-+	int err;
-+	u8 flags;
-+
-+	if (!node)
-+		return 0;
-+
-+	if (rv8803->type != rx_8900)
-+		return 0;
-+
-+	err = i2c_smbus_read_byte_data(rv8803->client, RX8900_BACKUP_CTRL);
-+	if (err < 0)
-+		return err;
-+
-+	flags = ~(RX8900_FLAG_VDETOFF | RX8900_FLAG_SWOFF) & (u8)err;
-+
-+	if (of_property_read_bool(node, "epson,vdet-disable"))
-+		flags |= RX8900_FLAG_VDETOFF;
-+
-+	if (of_property_read_bool(node, "trickle-diode-disable"))
-+		flags |= RX8900_FLAG_SWOFF;
-+
-+	return i2c_smbus_write_byte_data(rv8803->client, RX8900_BACKUP_CTRL,
-+					 flags);
-+}
-+
- static int rv8803_probe(struct i2c_client *client,
- 			const struct i2c_device_id *id)
- {
-@@ -442,6 +481,7 @@ static int rv8803_probe(struct i2c_client *client,
- 
- 	mutex_init(&rv8803->flags_lock);
- 	rv8803->client = client;
-+	rv8803->type = id->driver_data;
- 	i2c_set_clientdata(client, rv8803);
- 
- 	/*
-@@ -497,6 +537,12 @@ static int rv8803_probe(struct i2c_client *client,
- 	if (err)
- 		return err;
- 
-+	err = rx8900_trickle_charger_init(rv8803);
-+	if (err) {
-+		dev_err(&client->dev, "failed to init charger\n");
-+		return err;
-+	}
-+
- 	err = device_create_bin_file(&client->dev, &rv8803_nvram_attr);
- 	if (err)
- 		return err;
-@@ -514,8 +560,8 @@ static int rv8803_remove(struct i2c_client *client)
- }
- 
- static const struct i2c_device_id rv8803_id[] = {
--	{ "rv8803", 0 },
--	{ "rx8900", 0 },
-+	{ "rv8803", rv_8803 },
-+	{ "rx8900", rx_8900 },
- 	{ }
- };
- MODULE_DEVICE_TABLE(i2c, rv8803_id);
 -- 
-1.9.1
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
