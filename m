@@ -1,26 +1,38 @@
-Return-Path: <rtc-linux+bncBDJIP47K7MERB25KWW5QKGQEAJZ25AA@googlegroups.com>
+Return-Path: <rtc-linux+bncBCMILY6JWQBBB2GS7W5AKGQEKA7EGUY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail-oi0-f66.google.com (mail-oi0-f66.google.com. [209.85.218.66])
-        by gmr-mx.google.com with ESMTPS id e5si233236ith.1.2016.06.24.08.44.43
+MIME-Version: 1.0
+Received: from wens.csie.org (mirror2.csie.ntu.edu.tw. [140.112.30.76])
+        by gmr-mx.google.com with ESMTPS id ci4si2955936pad.1.2016.06.13.19.18.16
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 24 Jun 2016 08:44:43 -0700 (PDT)
-Received: by mail-oi0-f66.google.com with SMTP id w141so18993599oia.0
-        for <rtc-linux@googlegroups.com>; Fri, 24 Jun 2016 08:44:43 -0700 (PDT)
-Date: Fri, 24 Jun 2016 10:44:42 -0500
-From: Rob Herring <robh@kernel.org>
-To: Dirk Behme <dirk.behme@de.bosch.com>
-Cc: rtc-linux@googlegroups.com, devicetree@vger.kernel.org,
-	Oleksij Rempel <fixed-term.Oleksij.Rempel@de.bosch.com>
-Subject: [rtc-linux] Re: [PATCH v2 2/4] dt/bindings: Add bindings for Micro
- Crystal rv8803
-Message-ID: <20160624154442.GA7439@rob-hp-laptop>
-References: <1466577742-18824-1-git-send-email-dirk.behme@de.bosch.com>
- <1466577742-18824-3-git-send-email-dirk.behme@de.bosch.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1466577742-18824-3-git-send-email-dirk.behme@de.bosch.com>
+        Mon, 13 Jun 2016 19:18:16 -0700 (PDT)
+From: Chen-Yu Tsai <wens@csie.org>
+To: Mark Brown <broonie@kernel.org>,
+	Lee Jones <lee.jones@linaro.org>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Rob Herring <robh+dt@kernel.org>,
+	Pawel Moll <pawel.moll@arm.com>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Ian Campbell <ijc+devicetree@hellion.org.uk>,
+	Kumar Gala <galak@codeaurora.org>,
+	Maxime Ripard <maxime.ripard@free-electrons.com>,
+	Michael Turquette <mturquette@baylibre.com>,
+	Stephen Boyd <sboyd@codeaurora.org>
+Cc: Chen-Yu Tsai <wens@csie.org>,
+	rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org,
+	devicetree@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	linux-clk@vger.kernel.org
+Subject: [rtc-linux] [PATCH 07/10] ARM: dts: sun9i: cubieboard4: Add device
+ node for AC100
+Date: Tue, 14 Jun 2016 10:17:55 +0800
+Message-Id: <1465870678-30128-9-git-send-email-wens@csie.org>
+In-Reply-To: <1465870678-30128-1-git-send-email-wens@csie.org>
+References: <1465870678-30128-1-git-send-email-wens@csie.org>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -29,19 +41,45 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Wed, Jun 22, 2016 at 08:42:20AM +0200, Dirk Behme wrote:
-> From: Oleksij Rempel <fixed-term.Oleksij.Rempel@de.bosch.com>
-> 
-> ... and Epson RX8900 real time clock
-> 
-> Signed-off-by: Oleksij Rempel <fixed-term.Oleksij.Rempel@de.bosch.com>
-> Cc: devicetree@vger.kernel.org
-> ---
->  .../devicetree/bindings/rtc/epson,rx8900.txt       | 22 ++++++++++++++++++++++
->  1 file changed, 22 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/rtc/epson,rx8900.txt
+Signed-off-by: Chen-Yu Tsai <wens@csie.org>
+---
+ arch/arm/boot/dts/sun9i-a80-cubieboard4.dts | 21 +++++++++++++++++++++
+ 1 file changed, 21 insertions(+)
 
-Acked-by: Rob Herring <robh@kernel.org>
+diff --git a/arch/arm/boot/dts/sun9i-a80-cubieboard4.dts b/arch/arm/boot/dts/sun9i-a80-cubieboard4.dts
+index db770d06c31e..a92eeea1b222 100644
+--- a/arch/arm/boot/dts/sun9i-a80-cubieboard4.dts
++++ b/arch/arm/boot/dts/sun9i-a80-cubieboard4.dts
+@@ -250,6 +250,27 @@
+ 			};
+ 		};
+ 	};
++
++	ac100: codec@e89 {
++		compatible = "x-powers,ac100";
++		reg = <0xe89>;
++
++		ac100_codec: codec {
++			compatible = "x-powers,ac100-codec";
++			interrupt-parent = <&r_pio>;
++			interrupts = <0 9 IRQ_TYPE_LEVEL_LOW>; /* PL9 */
++		};
++
++		ac100_rtc: rtc {
++			compatible = "x-powers,ac100-rtc";
++			interrupt-parent = <&nmi_intc>;
++			interrupts = <0 IRQ_TYPE_LEVEL_LOW>;
++			#clock-cells = <1>;
++			clock-output-names = "cko1_rtc",
++					     "cko2_rtc",
++					     "cko3_rtc";
++		};
++	};
+ };
+ 
+ #include "axp809.dtsi"
+-- 
+2.8.1
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
