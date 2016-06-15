@@ -1,36 +1,24 @@
-Return-Path: <rtc-linux+bncBCMILY6JWQBBB2OS7W5AKGQEPMK3QUQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBDKOBWPM5ABRB2O5QO5QKGQEKNS2HPI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 MIME-Version: 1.0
-Received: from wens.csie.org (mirror2.csie.ntu.edu.tw. [140.112.30.76])
-        by gmr-mx.google.com with ESMTPS id c11si1162865pfc.2.2016.06.13.19.18.17
+Received: from mail-pf0-x243.google.com (mail-pf0-x243.google.com. [2607:f8b0:400e:c00::243])
+        by gmr-mx.google.com with ESMTPS id un17si1493626pab.0.2016.06.14.23.00.09
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 13 Jun 2016 19:18:17 -0700 (PDT)
-From: Chen-Yu Tsai <wens@csie.org>
-To: Mark Brown <broonie@kernel.org>,
-	Lee Jones <lee.jones@linaro.org>,
-	Alessandro Zummo <a.zummo@towertech.it>,
+        Tue, 14 Jun 2016 23:00:09 -0700 (PDT)
+Received: by mail-pf0-x243.google.com with SMTP id t190so988764pfb.2
+        for <rtc-linux@googlegroups.com>; Tue, 14 Jun 2016 23:00:09 -0700 (PDT)
+From: Andrey Smirnov <andrew.smirnov@gmail.com>
+To: rtc-linux@googlegroups.com
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
 	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Rob Herring <robh+dt@kernel.org>,
-	Pawel Moll <pawel.moll@arm.com>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Ian Campbell <ijc+devicetree@hellion.org.uk>,
-	Kumar Gala <galak@codeaurora.org>,
-	Maxime Ripard <maxime.ripard@free-electrons.com>,
-	Michael Turquette <mturquette@baylibre.com>,
-	Stephen Boyd <sboyd@codeaurora.org>
-Cc: Chen-Yu Tsai <wens@csie.org>,
-	rtc-linux@googlegroups.com,
 	linux-kernel@vger.kernel.org,
-	devicetree@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	linux-clk@vger.kernel.org
-Subject: [rtc-linux] [PATCH 08/10] ARM: dts: sun9i: cubieboard4: Order nodes
- by alphabetical order
-Date: Tue, 14 Jun 2016 10:17:56 +0800
-Message-Id: <1465870678-30128-10-git-send-email-wens@csie.org>
-In-Reply-To: <1465870678-30128-1-git-send-email-wens@csie.org>
-References: <1465870678-30128-1-git-send-email-wens@csie.org>
+	Andrey Smirnov <andrew.smirnov@gmail.com>
+Subject: [rtc-linux] [PATCH 05/13] RTC: ds1307: Convert want_irq into a predicate
+Date: Tue, 14 Jun 2016 22:59:31 -0700
+Message-Id: <1465970379-14703-6-git-send-email-andrew.smirnov@gmail.com>
+In-Reply-To: <1465970379-14703-1-git-send-email-andrew.smirnov@gmail.com>
+References: <1465970379-14703-1-git-send-email-andrew.smirnov@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -41,65 +29,108 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Move the &pio node below the mmc nodes for proper ordering by name.
+Convert want_irq variable into a predicate in order to detangle various
+independent chunks of ds1307_probe().
 
-Signed-off-by: Chen-Yu Tsai <wens@csie.org>
+Signed-off-by: Andrey Smirnov <andrew.smirnov@gmail.com>
 ---
- arch/arm/boot/dts/sun9i-a80-cubieboard4.dts | 32 ++++++++++++++---------------
- 1 file changed, 16 insertions(+), 16 deletions(-)
+ drivers/rtc/rtc-ds1307.c | 44 +++++++++++++++++++++++++++++---------------
+ 1 file changed, 29 insertions(+), 15 deletions(-)
 
-diff --git a/arch/arm/boot/dts/sun9i-a80-cubieboard4.dts b/arch/arm/boot/dts/sun9i-a80-cubieboard4.dts
-index a92eeea1b222..65f4f32f89ad 100644
---- a/arch/arm/boot/dts/sun9i-a80-cubieboard4.dts
-+++ b/arch/arm/boot/dts/sun9i-a80-cubieboard4.dts
-@@ -78,22 +78,6 @@
- 	};
- };
+diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
+index c482d8b..81967c1 100644
+--- a/drivers/rtc/rtc-ds1307.c
++++ b/drivers/rtc/rtc-ds1307.c
+@@ -1247,6 +1247,30 @@ static bool ds1307_can_wakeup_device(const struct ds1307 *ds1307)
+ 				     "wakeup-source");
+ }
  
--&pio {
--	led_pins_cubieboard4: led-pins@0 {
--		allwinner,pins = "PH6", "PH17";
--		allwinner,function = "gpio_out";
--		allwinner,drive = <SUN4I_PINCTRL_10_MA>;
--		allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
--	};
--
--	mmc0_cd_pin_cubieboard4: mmc0_cd_pin@0 {
--		allwinner,pins = "PH18";
--		allwinner,function = "gpio_in";
--		allwinner,drive = <SUN4I_PINCTRL_10_MA>;
--		allwinner,pull = <SUN4I_PINCTRL_PULL_UP>;
--	};
--};
--
- &mmc0 {
- 	pinctrl-names = "default";
- 	pinctrl-0 = <&mmc0_pins>, <&mmc0_cd_pin_cubieboard4>;
-@@ -119,6 +103,22 @@
- 	allwinner,drive = <SUN4I_PINCTRL_40_MA>;
- };
++static bool ds1307_want_irq(const struct ds1307 *ds1307,
++			    const struct chip_desc *chip)
++{
++
++
++	if (chip->alarm) {
++		switch (ds1307->type) {
++		case ds_1337:
++		case ds_1339:
++		case ds_3231:
++		case ds_1341:
++			return (ds1307->client->irq > 0 ||
++				ds1307_can_wakeup_device(ds1307));
++
++		case mcp794xx:
++			return (ds1307->client->irq > 0);
++		default:
++			break;
++		}
++	}
++
++	return false;
++}
++
+ static int ds1307_probe(struct i2c_client *client,
+ 			const struct i2c_device_id *id)
+ {
+@@ -1255,7 +1279,6 @@ static int ds1307_probe(struct i2c_client *client,
+ 	int			tmp;
+ 	struct chip_desc	*chip = &chips[id->driver_data];
+ 	struct i2c_adapter	*adapter = to_i2c_adapter(client->dev.parent);
+-	bool			want_irq = false;
+ 	unsigned char		*buf;
+ 	struct ds1307_platform_data *pdata = dev_get_platdata(&client->dev);
+ 	irq_handler_t	irq_handler = ds1307_irq;
+@@ -1356,10 +1379,6 @@ static int ds1307_probe(struct i2c_client *client,
+ 			| bbsqi_bitpos[ds1307->type];
+ 		ds1307->regs[0] &= ~(DS1337_BIT_A2IE | DS1337_BIT_A1IE);
  
-+&pio {
-+	led_pins_cubieboard4: led-pins@0 {
-+		allwinner,pins = "PH6", "PH17";
-+		allwinner,function = "gpio_out";
-+		allwinner,drive = <SUN4I_PINCTRL_10_MA>;
-+		allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
-+	};
-+
-+	mmc0_cd_pin_cubieboard4: mmc0_cd_pin@0 {
-+		allwinner,pins = "PH18";
-+		allwinner,function = "gpio_in";
-+		allwinner,drive = <SUN4I_PINCTRL_10_MA>;
-+		allwinner,pull = <SUN4I_PINCTRL_PULL_UP>;
-+	};
-+};
-+
- &r_ir {
- 	status = "okay";
- };
+-		if (chip->alarm && (ds1307->client->irq > 0 ||
+-				    ds1307_can_wakeup_device(ds1307)))
+-			want_irq = true;
+-
+ 		i2c_smbus_write_byte_data(client, DS1337_REG_CONTROL,
+ 							ds1307->regs[0]);
+ 
+@@ -1441,10 +1460,7 @@ static int ds1307_probe(struct i2c_client *client,
+ 		break;
+ 	case mcp794xx:
+ 		rtc_ops = &mcp794xx_rtc_ops;
+-		if (ds1307->client->irq > 0 && chip->alarm) {
+-			irq_handler = mcp794xx_irq;
+-			want_irq = true;
+-		}
++		irq_handler = mcp794xx_irq;
+ 		break;
+ 	default:
+ 		break;
+@@ -1557,7 +1573,7 @@ read_rtc:
+ 				bin2bcd(tmp));
+ 	}
+ 
+-	if (want_irq) {
++	if (ds1307_want_irq(ds1307, chip)) {
+ 		device_set_wakeup_capable(&client->dev, true);
+ 		set_bit(HAS_ALARM, &ds1307->flags);
+ 	}
+@@ -1570,13 +1586,11 @@ read_rtc:
+ 	if (ds1307_can_wakeup_device(ds1307) &&
+ 	    ds1307->client->irq <= 0) {
+ 		/* Disable request for an IRQ */
+-		want_irq = false;
+-		dev_info(&client->dev, "'wakeup-source' is set, request for an IRQ is disabled!\n");
++		dev_info(&client->dev,
++			 "'wakeup-source' is set, request for an IRQ is disabled!\n");
+ 		/* We cannot support UIE mode if we do not have an IRQ line */
+ 		ds1307->rtc->uie_unsupported = 1;
+-	}
+-
+-	if (want_irq) {
++	} else if (ds1307_want_irq(ds1307, chip)) {
+ 		err = devm_request_threaded_irq(&client->dev,
+ 						client->irq, NULL, irq_handler,
+ 						IRQF_SHARED | IRQF_ONESHOT,
 -- 
-2.8.1
+2.5.5
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
