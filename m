@@ -1,24 +1,37 @@
-Return-Path: <rtc-linux+bncBDKOBWPM5ABRB75FU65QKGQEKTKJHUA@googlegroups.com>
+Return-Path: <rtc-linux+bncBCMILY6JWQBBBK63QS5QKGQE4PM5T2Y@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail-yw0-x232.google.com (mail-yw0-x232.google.com. [2607:f8b0:4002:c05::232])
-        by gmr-mx.google.com with ESMTPS id c2si3970177ywf.5.2016.06.21.16.51.27
+MIME-Version: 1.0
+Received: from wens.csie.org (mirror2.csie.ntu.edu.tw. [140.112.30.76])
+        by gmr-mx.google.com with ESMTPS id 62si3724213pfx.1.2016.06.15.03.27.55
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 21 Jun 2016 16:51:27 -0700 (PDT)
-Received: by mail-yw0-x232.google.com with SMTP id i12so28002613ywa.1
-        for <rtc-linux@googlegroups.com>; Tue, 21 Jun 2016 16:51:27 -0700 (PDT)
-MIME-Version: 1.0
-In-Reply-To: <20160621213219.GC5809@piout.net>
-References: <1466493519-11277-1-git-send-email-andrew.smirnov@gmail.com> <20160621213219.GC5809@piout.net>
-From: Andrey Smirnov <andrew.smirnov@gmail.com>
-Date: Tue, 21 Jun 2016 16:51:26 -0700
-Message-ID: <CAHQ1cqHyw8BXxpMVRmFTUP9HUy6TAau48wZc3=XJB8ZexuVkjw@mail.gmail.com>
-Subject: [rtc-linux] Re: [PATCH v2 00/17] DS1341 support and code cleanup
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: rtc-linux@googlegroups.com, Alessandro Zummo <a.zummo@towertech.it>,
-	linux-kernel@vger.kernel.org, Chris Healy <cphealy@gmail.com>
-Content-Type: text/plain; charset=UTF-8
+        Wed, 15 Jun 2016 03:27:55 -0700 (PDT)
+From: Chen-Yu Tsai <wens@csie.org>
+To: Mark Brown <broonie@kernel.org>,
+	Lee Jones <lee.jones@linaro.org>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Rob Herring <robh+dt@kernel.org>,
+	Pawel Moll <pawel.moll@arm.com>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Ian Campbell <ijc+devicetree@hellion.org.uk>,
+	Kumar Gala <galak@codeaurora.org>,
+	Maxime Ripard <maxime.ripard@free-electrons.com>,
+	Michael Turquette <mturquette@baylibre.com>,
+	Stephen Boyd <sboyd@codeaurora.org>
+Cc: Chen-Yu Tsai <wens@csie.org>,
+	rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org,
+	devicetree@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	linux-clk@vger.kernel.org
+Subject: [rtc-linux] [PATCH v2 05/10] rtc: ac100: Add clk output support
+Date: Wed, 15 Jun 2016 18:27:42 +0800
+Message-Id: <1465986467-14802-6-git-send-email-wens@csie.org>
+In-Reply-To: <1465986467-14802-1-git-send-email-wens@csie.org>
+References: <1465986467-14802-1-git-send-email-wens@csie.org>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -27,34 +40,386 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
->>
->> Andrey Smirnov (17):
->>   RTC: ds1307: Add DS1341 variant
->>   RTC: ds1307: Disable square wave and timers as default
->>   RTC: ds1307: Add devicetree bindings for DS1341
->>   RTC: ds1307: Add DS1341 specific power-saving options
->>   RTC: ds1307: Convert ds1307_can_wakeup_device into a predicate
->>   RTC: ds1307: Convert want_irq into a predicate
->
-> I'll have to triple check that one, it breaks in thousand different
-> ways, every time someone touches that code :)
+The AC100's RTC side has 3 clock outputs on external pins, which can
+provide a clock signal to the SoC or other modules, such as WiFi or
+GSM modules.
 
-Wouldn't you agree that this might be an indication that the code is a
-bit convoluted and some cleanup is in order? ;-)
+Support this with a custom clk driver integrated with the rtc driver.
 
->
->>   RTC: ds1307: Move chip configuration into a separate routine
->>   RTC: ds1307: Move chip sanity checking into a separate routine
->
-> I'm not sure about the cleanup in those two patches yet, It moves a lot
-> of code and the readability improvement is not obvious
+Signed-off-by: Chen-Yu Tsai <wens@csie.org>
+---
+ drivers/rtc/rtc-ac100.c | 319 ++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 319 insertions(+)
 
-OK, I agree that this patch moves a lot of code, and can't really
-argue with "not obvious" since that is subjective. Please let me know
-what you decide and I'll change v3 appropriately.
-
-Thanks,
-Andrey
+diff --git a/drivers/rtc/rtc-ac100.c b/drivers/rtc/rtc-ac100.c
+index 360346792ca5..89b63b4bb88f 100644
+--- a/drivers/rtc/rtc-ac100.c
++++ b/drivers/rtc/rtc-ac100.c
+@@ -15,6 +15,7 @@
+  */
+ 
+ #include <linux/bcd.h>
++#include <linux/clk-provider.h>
+ #include <linux/device.h>
+ #include <linux/interrupt.h>
+ #include <linux/kernel.h>
+@@ -31,6 +32,15 @@
+ /* Control register */
+ #define AC100_RTC_CTRL_24HOUR	BIT(0)
+ 
++/* Clock output register bits */
++#define AC100_CLK32K_PRE_DIV_SHIFT	5
++#define AC100_CLK32K_PRE_DIV_WIDTH	3
++#define AC100_CLK32K_MUX_SHIFT		4
++#define AC100_CLK32K_MUX_WIDTH		1
++#define AC100_CLK32K_DIV_SHIFT		1
++#define AC100_CLK32K_DIV_WIDTH		3
++#define AC100_CLK32K_EN			BIT(0)
++
+ /* RTC */
+ #define AC100_RTC_SEC_MASK	GENMASK(6, 0)
+ #define AC100_RTC_MIN_MASK	GENMASK(6, 0)
+@@ -67,6 +77,26 @@
+ #define AC100_YEAR_MAX				2069
+ #define AC100_YEAR_OFF				(AC100_YEAR_MIN - 1900)
+ 
++struct ac100_clk32k {
++	struct clk_hw hw;
++	struct regmap *regmap;
++	u8 offset;
++};
++
++#define to_ac100_clk32k(_hw) container_of(_hw, struct ac100_clk32k, hw)
++
++#define AC100_RTC_32K_NAME	"ac100-rtc-32k"
++#define AC100_RTC_32K_RATE	32768
++#define AC100_ADDA_4M_NAME	"ac100-adda-4M"
++#define AC100_ADDA_4M_RATE	4000000
++#define AC100_CLK32K_NUM	3
++
++static const char * const ac100_clk32k_names[] = {
++	"ac100-clk32k-ap",
++	"ac100-clk32k-bb",
++	"ac100-clk32k-md",
++};
++
+ struct ac100_rtc_dev {
+ 	struct rtc_device *rtc;
+ 	struct device *dev;
+@@ -74,8 +104,283 @@ struct ac100_rtc_dev {
+ 	struct mutex mutex;
+ 	int irq;
+ 	unsigned long alarm;
++
++	struct clk_hw *rtc_32k_clk;
++	struct clk_hw *adda_4M_clk;
++	struct ac100_clk32k clks[AC100_CLK32K_NUM];
++	struct clk_hw_onecell_data *clk_data;
++};
++
++/**
++ * Clock controls for 3 clock output pins
++ */
++
++static const struct clk_div_table ac100_clk32k_prediv[] = {
++	{ .val = 0, .div = 1 },
++	{ .val = 1, .div = 2 },
++	{ .val = 2, .div = 4 },
++	{ .val = 3, .div = 8 },
++	{ .val = 4, .div = 16 },
++	{ .val = 5, .div = 32 },
++	{ .val = 6, .div = 64 },
++	{ .val = 7, .div = 122 },
++	{ },
++};
++
++/* Abuse the fact that one parent is 32768 Hz, and the other is 4 MHz */
++static unsigned long ac100_clk32k_recalc_rate(struct clk_hw *hw,
++					      unsigned long prate)
++{
++	struct ac100_clk32k *clk = to_ac100_clk32k(hw);
++	unsigned int reg, div;
++
++	regmap_read(clk->regmap, clk->offset, &reg);
++
++	/* Handle pre-divider first */
++	if (prate != AC100_RTC_32K_RATE) {
++		div = (reg >> AC100_CLK32K_PRE_DIV_SHIFT) &
++			((1 << AC100_CLK32K_PRE_DIV_WIDTH) - 1);
++		prate = divider_recalc_rate(hw, prate, div,
++					    ac100_clk32k_prediv, 0);
++	}
++
++	div = (reg >> AC100_CLK32K_DIV_SHIFT) &
++		(BIT(AC100_CLK32K_DIV_WIDTH) - 1);
++	return divider_recalc_rate(hw, prate, div, NULL,
++				   CLK_DIVIDER_POWER_OF_TWO);
++}
++
++static long ac100_clk32k_round_rate(struct clk_hw *hw, unsigned long rate,
++				    unsigned long prate)
++{
++	unsigned long best_rate = 0, tmp_rate, tmp_prate;
++	int i;
++
++	if (prate == AC100_RTC_32K_RATE)
++		return divider_round_rate(hw, rate, &prate, NULL,
++					  AC100_CLK32K_DIV_WIDTH,
++					  CLK_DIVIDER_POWER_OF_TWO);
++
++	for (i = 0; ac100_clk32k_prediv[i].div; i++) {
++		tmp_prate = DIV_ROUND_UP(prate, ac100_clk32k_prediv[i].val);
++		tmp_rate = divider_round_rate(hw, rate, &tmp_prate, NULL,
++					      AC100_CLK32K_DIV_WIDTH,
++					      CLK_DIVIDER_POWER_OF_TWO);
++
++		if (tmp_rate > rate)
++			continue;
++		if (rate - tmp_rate < best_rate - tmp_rate)
++			best_rate = tmp_rate;
++	}
++
++	return best_rate;
++}
++
++static int ac100_clk32k_determine_rate(struct clk_hw *hw,
++				       struct clk_rate_request *req)
++{
++	struct clk_hw *best_parent;
++	unsigned long best = 0;
++	int i, num_parents = clk_hw_get_num_parents(hw);
++
++	for (i = 0; i < num_parents; i++) {
++		struct clk_hw *parent = clk_hw_get_parent_by_index(hw, i);
++		unsigned long tmp, prate = clk_hw_get_rate(parent);
++
++		tmp = ac100_clk32k_round_rate(hw, req->rate, prate);
++
++		if (tmp > req->rate)
++			continue;
++		if (req->rate - tmp < req->rate - best) {
++			best = tmp;
++			best_parent = parent;
++		}
++	}
++
++	if (!best)
++		return -EINVAL;
++
++	req->best_parent_hw = best_parent;
++	req->best_parent_rate = best;
++	req->rate = best;
++
++	return 0;
++}
++
++static int ac100_clk32k_set_rate(struct clk_hw *hw, unsigned long rate,
++				 unsigned long prate)
++{
++	struct ac100_clk32k *clk = to_ac100_clk32k(hw);
++	int div = 0, pre_div = 0;
++
++	do {
++		div = divider_get_val(rate * ac100_clk32k_prediv[pre_div].div,
++				      prate, NULL, AC100_CLK32K_DIV_WIDTH,
++				      CLK_DIVIDER_POWER_OF_TWO);
++		if (div >= 0)
++			break;
++	} while (prate == AC100_ADDA_4M_RATE &&
++		 ac100_clk32k_prediv[++pre_div].div);
++
++	if (div < 0)
++		return div;
++
++	pre_div = ac100_clk32k_prediv[pre_div].val;
++
++	regmap_update_bits(clk->regmap, clk->offset,
++			   ((1 << AC100_CLK32K_DIV_WIDTH) - 1) << AC100_CLK32K_DIV_SHIFT |
++			   ((1 << AC100_CLK32K_PRE_DIV_WIDTH) - 1) << AC100_CLK32K_PRE_DIV_SHIFT,
++			   (div - 1) << AC100_CLK32K_DIV_SHIFT |
++			   (pre_div - 1) << AC100_CLK32K_PRE_DIV_SHIFT);
++
++	return 0;
++}
++
++static int ac100_clk32k_prepare(struct clk_hw *hw)
++{
++	struct ac100_clk32k *clk = to_ac100_clk32k(hw);
++
++	return regmap_update_bits(clk->regmap, clk->offset, AC100_CLK32K_EN,
++				  AC100_CLK32K_EN);
++}
++
++static void ac100_clk32k_unprepare(struct clk_hw *hw)
++{
++	struct ac100_clk32k *clk = to_ac100_clk32k(hw);
++
++	regmap_update_bits(clk->regmap, clk->offset, AC100_CLK32K_EN, 0);
++}
++
++static int ac100_clk32k_is_prepared(struct clk_hw *hw)
++{
++	struct ac100_clk32k *clk = to_ac100_clk32k(hw);
++	unsigned int reg;
++
++	regmap_read(clk->regmap, clk->offset, &reg);
++
++	return reg & AC100_CLK32K_EN;
++}
++
++static u8 ac100_clk32k_get_parent(struct clk_hw *hw)
++{
++	struct ac100_clk32k *clk = to_ac100_clk32k(hw);
++	unsigned int reg;
++
++	regmap_read(clk->regmap, clk->offset, &reg);
++
++	return (reg >> AC100_CLK32K_MUX_SHIFT) & 0x1;
++}
++
++static int ac100_clk32k_set_parent(struct clk_hw *hw, u8 index)
++{
++	struct ac100_clk32k *clk = to_ac100_clk32k(hw);
++
++	return regmap_update_bits(clk->regmap, clk->offset,
++				  BIT(AC100_CLK32K_MUX_SHIFT),
++				  index ? BIT(AC100_CLK32K_MUX_SHIFT) : 0);
++}
++
++static const struct clk_ops ac100_clk32k_ops = {
++	.prepare	= ac100_clk32k_prepare,
++	.unprepare	= ac100_clk32k_unprepare,
++	.is_prepared	= ac100_clk32k_is_prepared,
++	.recalc_rate	= ac100_clk32k_recalc_rate,
++	.determine_rate	= ac100_clk32k_determine_rate,
++	.get_parent	= ac100_clk32k_get_parent,
++	.set_parent	= ac100_clk32k_set_parent,
++	.set_rate	= ac100_clk32k_set_rate,
+ };
+ 
++static int ac100_rtc_register_clks(struct ac100_rtc_dev *chip)
++{
++	struct device_node *np = chip->dev->of_node;
++	const char *parents[2] = {AC100_RTC_32K_NAME, AC100_ADDA_4M_NAME};
++	int i, ret;
++
++	chip->clk_data = devm_kzalloc(chip->dev, sizeof(*chip->clk_data) +
++						 sizeof(*chip->clk_data->hws) *
++						 AC100_CLK32K_NUM,
++						 GFP_KERNEL);
++	if (!chip->clk_data)
++		return -ENOMEM;
++
++	chip->rtc_32k_clk = clk_hw_register_fixed_rate(chip->dev,
++						       AC100_RTC_32K_NAME,
++						       NULL, 0,
++						       AC100_RTC_32K_RATE);
++	if (IS_ERR(chip->rtc_32k_clk)) {
++		ret = PTR_ERR(chip->rtc_32k_clk);
++		dev_err(chip->dev, "Failed to register RTC-32k clock: %d\n",
++			ret);
++		return ret;
++	}
++
++	/*
++	 * The ADDA 4 MHz clock is from the codec side of the AC100,
++	 * which is likely a different power domain. However, boards
++	 * always have both sides powered on, so it is impossible to
++	 * test this.
++	 */
++	chip->adda_4M_clk = clk_hw_register_fixed_rate(chip->dev,
++						       AC100_ADDA_4M_NAME,
++						       NULL, 0,
++						       AC100_ADDA_4M_RATE);
++	if (IS_ERR(chip->adda_4M_clk)) {
++		ret = PTR_ERR(chip->adda_4M_clk);
++		dev_err(chip->dev, "Failed to register ADDA-4M clock: %d\n",
++			ret);
++		goto err_unregister_rtc_32k;
++	}
++
++	for (i = 0; i < AC100_CLK32K_NUM; i++) {
++		struct ac100_clk32k *clk = &chip->clks[i];
++		struct clk_init_data init = {
++			.name = ac100_clk32k_names[i],
++			.ops = &ac100_clk32k_ops,
++			.parent_names = parents,
++			.num_parents = ARRAY_SIZE(parents),
++			.flags = 0,
++		};
++
++		clk->regmap = chip->regmap;
++		clk->offset = AC100_CLK32K_OUT_CTRL1 + i;
++		clk->hw.init = &init;
++
++		ret = devm_clk_hw_register(chip->dev, &clk->hw);
++		if (ret) {
++			dev_err(chip->dev, "Failed to register clk '%s': %d\n",
++				init.name, ret);
++			goto err_unregister_adda_4M;
++		}
++
++		chip->clk_data->hws[i] = &clk->hw;
++	}
++
++	chip->clk_data->num = i;
++	ret = of_clk_add_hw_provider(np, of_clk_hw_onecell_get, chip->clk_data);
++	if (ret)
++		goto err_unregister_adda_4M;
++
++	return 0;
++
++err_unregister_adda_4M:
++	clk_unregister_fixed_rate(chip->adda_4M_clk->clk);
++err_unregister_rtc_32k:
++	clk_unregister_fixed_rate(chip->rtc_32k_clk->clk);
++
++	return ret;
++}
++
++static void ac100_rtc_unregister_clks(struct ac100_rtc_dev *chip)
++{
++	of_clk_del_provider(chip->dev->of_node);
++	clk_unregister_fixed_rate(chip->adda_4M_clk->clk);
++	clk_unregister_fixed_rate(chip->rtc_32k_clk->clk);
++}
++
++/**
++ * RTC related bits
++ */
+ static int ac100_rtc_get_time(struct device *dev, struct rtc_time *rtc_tm)
+ {
+ 	struct ac100_rtc_dev *chip = dev_get_drvdata(dev);
+@@ -349,13 +654,27 @@ static int ac100_rtc_probe(struct platform_device *pdev)
+ 	/* We do not support user interrupts */
+ 	chip->rtc->uie_unsupported = 1;
+ 
++	ret = ac100_rtc_register_clks(chip);
++	if (ret)
++		return ret;
++
+ 	dev_info(&pdev->dev, "RTC enabled\n");
+ 
+ 	return 0;
+ }
+ 
++static int ac100_rtc_remove(struct platform_device *pdev)
++{
++	struct ac100_rtc_dev *chip = platform_get_drvdata(pdev);
++
++	ac100_rtc_unregister_clks(chip);
++
++	return 0;
++}
++
+ static struct platform_driver ac100_rtc_driver = {
+ 	.probe		= ac100_rtc_probe,
++	.remove		= ac100_rtc_remove,
+ 	.driver		= {
+ 		.name		= "ac100-rtc",
+ 	},
+-- 
+2.8.1
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
