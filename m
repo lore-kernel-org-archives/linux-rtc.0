@@ -1,22 +1,38 @@
-Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBWVRX65QKGQE4JKNWPI@googlegroups.com>
+Return-Path: <rtc-linux+bncBCMILY6JWQBBBLG3QS5QKGQEKPN7QEQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id f10si226368wmg.2.2016.06.26.06.30.01
-        for <rtc-linux@googlegroups.com>;
-        Sun, 26 Jun 2016 06:30:01 -0700 (PDT)
-Date: Sun, 26 Jun 2016 15:30:01 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Andrey Smirnov <andrew.smirnov@gmail.com>
-Cc: rtc-linux@googlegroups.com, Alessandro Zummo <a.zummo@towertech.it>,
-	linux-kernel@vger.kernel.org, cphealy@gmail.com
-Subject: [rtc-linux] Re: [PATCH v2 00/17] DS1341 support and code cleanup
-Message-ID: <20160626133001.GA29249@piout.net>
-References: <1466493519-11277-1-git-send-email-andrew.smirnov@gmail.com>
- <20160621213219.GC5809@piout.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <20160621213219.GC5809@piout.net>
+Received: from wens.csie.org (mirror2.csie.ntu.edu.tw. [140.112.30.76])
+        by gmr-mx.google.com with ESMTPS id un17si1624706pab.0.2016.06.15.03.27.56
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 15 Jun 2016 03:27:56 -0700 (PDT)
+From: Chen-Yu Tsai <wens@csie.org>
+To: Mark Brown <broonie@kernel.org>,
+	Lee Jones <lee.jones@linaro.org>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Rob Herring <robh+dt@kernel.org>,
+	Pawel Moll <pawel.moll@arm.com>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Ian Campbell <ijc+devicetree@hellion.org.uk>,
+	Kumar Gala <galak@codeaurora.org>,
+	Maxime Ripard <maxime.ripard@free-electrons.com>,
+	Michael Turquette <mturquette@baylibre.com>,
+	Stephen Boyd <sboyd@codeaurora.org>
+Cc: Chen-Yu Tsai <wens@csie.org>,
+	rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org,
+	devicetree@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	linux-clk@vger.kernel.org
+Subject: [rtc-linux] [PATCH v2 10/10] ARM: dts: sun9i: Switch to the AC100 RTC
+ clock outputs for osc32k
+Date: Wed, 15 Jun 2016 18:27:47 +0800
+Message-Id: <1465986467-14802-11-git-send-email-wens@csie.org>
+In-Reply-To: <1465986467-14802-1-git-send-email-wens@csie.org>
+References: <1465986467-14802-1-git-send-email-wens@csie.org>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -25,21 +41,76 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 21/06/2016 at 23:32:19 +0200, Alexandre Belloni wrote :
-> >   RTC: rtctest: Change alarm IRQ support detection
-> >   RTC: rtctest: Change no IRQ detection for RTC_IRQP_READ
-> >   RTC: rtctest: Change no IRQ detection for RTC_IRQP_SET
-> 
-> I already had patches for that issue in a development tree, I'll see if
-> they match what I did.
-> 
+The 32.768 kHz clock inside the A80 SoC is fed from an external source,
+typically the AC100 RTC module.
 
-I've applied those now.
+Make the osc32k placeholder a fixed-factor clock so board dts files can
+specify its source.
 
+Signed-off-by: Chen-Yu Tsai <wens@csie.org>
+---
+ arch/arm/boot/dts/sun9i-a80-cubieboard4.dts | 5 +++++
+ arch/arm/boot/dts/sun9i-a80-optimus.dts     | 5 +++++
+ arch/arm/boot/dts/sun9i-a80.dtsi            | 9 +++------
+ 3 files changed, 13 insertions(+), 6 deletions(-)
+
+diff --git a/arch/arm/boot/dts/sun9i-a80-cubieboard4.dts b/arch/arm/boot/dts/sun9i-a80-cubieboard4.dts
+index 65f4f32f89ad..b6299a9c14e3 100644
+--- a/arch/arm/boot/dts/sun9i-a80-cubieboard4.dts
++++ b/arch/arm/boot/dts/sun9i-a80-cubieboard4.dts
+@@ -103,6 +103,11 @@
+ 	allwinner,drive = <SUN4I_PINCTRL_40_MA>;
+ };
+ 
++&osc32k {
++	/* osc32k input is from AC100 */
++	clocks = <&ac100_rtc 0>;
++};
++
+ &pio {
+ 	led_pins_cubieboard4: led-pins@0 {
+ 		allwinner,pins = "PH6", "PH17";
+diff --git a/arch/arm/boot/dts/sun9i-a80-optimus.dts b/arch/arm/boot/dts/sun9i-a80-optimus.dts
+index 3b013dc5fef1..2f079cbd2025 100644
+--- a/arch/arm/boot/dts/sun9i-a80-optimus.dts
++++ b/arch/arm/boot/dts/sun9i-a80-optimus.dts
+@@ -152,6 +152,11 @@
+ 	status = "okay";
+ };
+ 
++&osc32k {
++	/* osc32k input is from AC100 */
++	clocks = <&ac100_rtc 0>;
++};
++
+ &pio {
+ 	led_pins_optimus: led-pins@0 {
+ 		allwinner,pins = "PH0", "PH1";
+diff --git a/arch/arm/boot/dts/sun9i-a80.dtsi b/arch/arm/boot/dts/sun9i-a80.dtsi
+index f68b3242b33a..dd11115ec087 100644
+--- a/arch/arm/boot/dts/sun9i-a80.dtsi
++++ b/arch/arm/boot/dts/sun9i-a80.dtsi
+@@ -148,15 +148,12 @@
+ 
+ 		/*
+ 		 * The 32k clock is from an external source, normally the
+-		 * AC100 codec/RTC chip. This clock is by default enabled
+-		 * and clocked at 32768 Hz, from the oscillator connected
+-		 * to the AC100. It is configurable, but no such driver or
+-		 * bindings exist yet.
++		 * AC100 codec/RTC chip. This serves as a placeholder for
++		 * board dts files to specify the source.
+ 		 */
+ 		osc32k: osc32k_clk {
+ 			#clock-cells = <0>;
+-			compatible = "fixed-clock";
+-			clock-frequency = <32768>;
++			compatible = "fixed-factor-clock";
+ 			clock-output-names = "osc32k";
+ 		};
+ 
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+2.8.1
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
