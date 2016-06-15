@@ -1,21 +1,27 @@
-Return-Path: <rtc-linux+bncBDS7HNEFSALRBBNFXO5AKGQE3CVH6KI@googlegroups.com>
+Return-Path: <rtc-linux+bncBDKOBWPM5ABRB2W5QO5QKGQEE7Z2DGA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id l184si1506706wmg.2.2016.06.01.05.18.13
-        for <rtc-linux@googlegroups.com>;
-        Wed, 01 Jun 2016 05:18:13 -0700 (PDT)
-Date: Wed, 1 Jun 2016 14:18:02 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Keerthy <j-keerthy@ti.com>
-Cc: a.zummo@towertech.it, nm@ti.com, rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH] rtc: ds1307: Fix relying on reset value for weekday
-Message-ID: <20160601121802.GF4249@piout.net>
-References: <1464778147-22075-1-git-send-email-j-keerthy@ti.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1464778147-22075-1-git-send-email-j-keerthy@ti.com>
+Received: from mail-pf0-x242.google.com (mail-pf0-x242.google.com. [2607:f8b0:400e:c00::242])
+        by gmr-mx.google.com with ESMTPS id tp10si3983394pac.2.2016.06.14.23.00.10
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 14 Jun 2016 23:00:10 -0700 (PDT)
+Received: by mail-pf0-x242.google.com with SMTP id c74so998094pfb.0
+        for <rtc-linux@googlegroups.com>; Tue, 14 Jun 2016 23:00:10 -0700 (PDT)
+From: Andrey Smirnov <andrew.smirnov@gmail.com>
+To: rtc-linux@googlegroups.com
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	linux-kernel@vger.kernel.org,
+	Andrey Smirnov <andrew.smirnov@gmail.com>
+Subject: [rtc-linux] [PATCH 07/13] RTC: ds1307: Move chip sanity checking into
+ a separate routine
+Date: Tue, 14 Jun 2016 22:59:33 -0700
+Message-Id: <1465970379-14703-8-git-send-email-andrew.smirnov@gmail.com>
+In-Reply-To: <1465970379-14703-1-git-send-email-andrew.smirnov@gmail.com>
+References: <1465970379-14703-1-git-send-email-andrew.smirnov@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -24,103 +30,202 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Hi,
+Signed-off-by: Andrey Smirnov <andrew.smirnov@gmail.com>
+---
+ drivers/rtc/rtc-ds1307.c | 148 +++++++++++++++++++++++++----------------------
+ 1 file changed, 79 insertions(+), 69 deletions(-)
 
-On 01/06/2016 at 16:19:07 +0530, Keerthy wrote :
-> The reset value of weekday is 0x1. This is wrong since
-> the reset values of the day/month/year make up to Jan 1 2001.
-> When computed weekday comes out to be Monday. On a scale
-> of 1-7(Sunday - Saturday) it should be 0x2. So we should not
-> be relying on the reset value.
-> 
-
-Hum, what are the chances that the reset value is actually the correct
-date/time?
-Won't that be corrected after the first call to set_time? Until then,
-the date is not correct so, do we care anyway?
-
-Maybe I'm missing something here.
-
-> Hence compute the wday using the current date/month/year values.
-> Check if reset wday is any different from the computed wday,
-> If different then set the wday which we computed using
-> date/month/year values.
-> 
-> Document Referred:
-> http://ww1.microchip.com/downloads/en/DeviceDoc/20002266F.pdf
-> 
-> Fixes: 1d1945d261a2af "drivers/rtc/rtc-ds1307.c: add alarm support for mcp7941x chips"
-> Signed-off-by: Keerthy <j-keerthy@ti.com>
-> ---
->  drivers/rtc/rtc-ds1307.c | 28 +++++++++++++++++++++++++++-
->  1 file changed, 27 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
-> index 821d9c0..d9045cc 100644
-> --- a/drivers/rtc/rtc-ds1307.c
-> +++ b/drivers/rtc/rtc-ds1307.c
-> @@ -602,6 +602,8 @@ static const struct rtc_class_ops ds13xx_rtc_ops = {
->   * Alarm support for mcp794xx devices.
->   */
->  
-> +#define MCP794XX_REG_WEEKDAY		0x3
-> +#define MCP794XX_REG_WEEKDAY_WDAY_MASK	0x7
->  #define MCP794XX_REG_CONTROL		0x07
->  #	define MCP794XX_BIT_ALM0_EN	0x10
->  #	define MCP794XX_BIT_ALM1_EN	0x20
-> @@ -1231,13 +1233,16 @@ static int ds1307_probe(struct i2c_client *client,
->  {
->  	struct ds1307		*ds1307;
->  	int			err = -ENODEV;
-> -	int			tmp;
-> +	int			tmp, wday;
->  	struct chip_desc	*chip = &chips[id->driver_data];
->  	struct i2c_adapter	*adapter = to_i2c_adapter(client->dev.parent);
->  	bool			want_irq = false;
->  	bool			ds1307_can_wakeup_device = false;
->  	unsigned char		*buf;
->  	struct ds1307_platform_data *pdata = dev_get_platdata(&client->dev);
-> +	struct rtc_time		tm;
-> +	unsigned long		timestamp;
-> +
->  	irq_handler_t	irq_handler = ds1307_irq;
->  
->  	static const int	bbsqi_bitpos[] = {
-> @@ -1526,6 +1531,27 @@ read_rtc:
->  				bin2bcd(tmp));
->  	}
->  
-> +	/*
-> +	 * Some IPs have weekday reset value = 0x1 which might not correct
-> +	 * hence compute the wday using the current date/month/year values
-> +	 */
-> +	ds1307_get_time(&client->dev, &tm);
-> +	wday = tm.tm_wday;
-> +	timestamp = rtc_tm_to_time64(&tm);
-> +	rtc_time64_to_tm(timestamp, &tm);
-> +
-> +	/*
-> +	 * Check if reset wday is different from the computed wday
-> +	 * If different then set the wday which we computed using
-> +	 * timestamp
-> +	 */
-> +	if (wday != tm.tm_wday) {
-> +		wday = i2c_smbus_read_byte_data(client, MCP794XX_REG_WEEKDAY);
-> +		wday = wday & ~MCP794XX_REG_WEEKDAY_WDAY_MASK;
-> +		wday = wday | (tm.tm_wday + 1);
-> +		i2c_smbus_write_byte_data(client, MCP794XX_REG_WEEKDAY, wday);
-> +	}
-> +
->  	if (want_irq) {
->  		device_set_wakeup_capable(&client->dev, true);
->  		set_bit(HAS_ALARM, &ds1307->flags);
-> -- 
-> 1.9.1
-
+diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
+index df8c78a..5e7eb13 100644
+--- a/drivers/rtc/rtc-ds1307.c
++++ b/drivers/rtc/rtc-ds1307.c
+@@ -1422,79 +1422,20 @@ static int ds1307_chip_configure(struct ds1307 *ds1307)
+ 	return 0;
+ }
+ 
+-static int ds1307_probe(struct i2c_client *client,
+-			const struct i2c_device_id *id)
++static int ds1307_chip_sanity_check(struct ds1307 *ds1307)
+ {
+-	struct ds1307		*ds1307;
+-	int			err = -ENODEV;
+-	int			tmp;
+-	struct chip_desc	*chip = &chips[id->driver_data];
+-	struct i2c_adapter	*adapter = to_i2c_adapter(client->dev.parent);
+-	unsigned char		*buf;
+-	struct ds1307_platform_data *pdata = dev_get_platdata(&client->dev);
+-	irq_handler_t	irq_handler = ds1307_irq;
+-
+-	const struct rtc_class_ops *rtc_ops = &ds13xx_rtc_ops;
+-
+-	if (!i2c_check_functionality(adapter, I2C_FUNC_SMBUS_BYTE_DATA)
+-	    && !i2c_check_functionality(adapter, I2C_FUNC_SMBUS_I2C_BLOCK))
+-		return -EIO;
+-
+-	ds1307 = devm_kzalloc(&client->dev, sizeof(struct ds1307), GFP_KERNEL);
+-	if (!ds1307)
+-		return -ENOMEM;
+-
+-	i2c_set_clientdata(client, ds1307);
+-
+-	ds1307->client	= client;
+-	ds1307->type	= id->driver_data;
+-
+-	if (!pdata && client->dev.of_node)
+-		ds1307_trickle_of_init(client, chip);
+-	else if (pdata && pdata->trickle_charger_setup)
+-		chip->trickle_charger_setup = pdata->trickle_charger_setup;
+-
+-	if (chip->trickle_charger_setup && chip->trickle_charger_reg) {
+-		dev_dbg(&client->dev, "writing trickle charger info 0x%x to 0x%x\n",
+-		    DS13XX_TRICKLE_CHARGER_MAGIC | chip->trickle_charger_setup,
+-		    chip->trickle_charger_reg);
+-		i2c_smbus_write_byte_data(client, chip->trickle_charger_reg,
+-		    DS13XX_TRICKLE_CHARGER_MAGIC |
+-		    chip->trickle_charger_setup);
+-	}
++	int tmp;
++	unsigned char *buf;
++	struct i2c_client *client = ds1307->client;
+ 
+ 	buf = ds1307->regs;
+-	if (i2c_check_functionality(adapter, I2C_FUNC_SMBUS_I2C_BLOCK)) {
+-		ds1307->read_block_data = ds1307_native_smbus_read_block_data;
+-		ds1307->write_block_data = ds1307_native_smbus_write_block_data;
+-	} else {
+-		ds1307->read_block_data = ds1307_read_block_data;
+-		ds1307->write_block_data = ds1307_write_block_data;
+-	}
+-
+-	err = ds1307_chip_configure(ds1307);
+-	if (err < 0)
+-		return err;
+-
+-	switch (ds1307->type) {
+-	case ds_1388:
+-		ds1307->offset = 1; /* Seconds starts at 1 */
+-		break;
+-	case mcp794xx:
+-		rtc_ops = &mcp794xx_rtc_ops;
+-		irq_handler = mcp794xx_irq;
+-		break;
+-	default:
+-		break;
+-	}
+ 
+ read_rtc:
+ 	/* read RTC registers */
+ 	tmp = ds1307->read_block_data(ds1307->client, ds1307->offset, 8, buf);
+ 	if (tmp != 8) {
+ 		dev_dbg(&client->dev, "read error %d\n", tmp);
+-		err = -EIO;
+-		goto exit;
++		return -EIO;
+ 	}
+ 
+ 	/*
+@@ -1535,8 +1476,7 @@ read_rtc:
+ 		tmp = i2c_smbus_read_byte_data(client, DS1340_REG_FLAG);
+ 		if (tmp < 0) {
+ 			dev_dbg(&client->dev, "read error %d\n", tmp);
+-			err = -EIO;
+-			goto exit;
++			return -EIO;
+ 		}
+ 
+ 		/* oscillator fault?  clear flag, and warn */
+@@ -1566,6 +1506,79 @@ read_rtc:
+ 		break;
+ 	}
+ 
++	return 0;
++}
++
++static int ds1307_probe(struct i2c_client *client,
++			const struct i2c_device_id *id)
++{
++	struct ds1307		*ds1307;
++	int			err = -ENODEV;
++	int			tmp;
++	struct chip_desc	*chip = &chips[id->driver_data];
++	struct i2c_adapter	*adapter = to_i2c_adapter(client->dev.parent);
++	unsigned char		*buf;
++	struct ds1307_platform_data *pdata = dev_get_platdata(&client->dev);
++	irq_handler_t	irq_handler = ds1307_irq;
++
++	const struct rtc_class_ops *rtc_ops = &ds13xx_rtc_ops;
++
++	if (!i2c_check_functionality(adapter, I2C_FUNC_SMBUS_BYTE_DATA)
++	    && !i2c_check_functionality(adapter, I2C_FUNC_SMBUS_I2C_BLOCK))
++		return -EIO;
++
++	ds1307 = devm_kzalloc(&client->dev, sizeof(struct ds1307), GFP_KERNEL);
++	if (!ds1307)
++		return -ENOMEM;
++
++	i2c_set_clientdata(client, ds1307);
++
++	ds1307->client	= client;
++	ds1307->type	= id->driver_data;
++
++	if (!pdata && client->dev.of_node)
++		ds1307_trickle_of_init(client, chip);
++	else if (pdata && pdata->trickle_charger_setup)
++		chip->trickle_charger_setup = pdata->trickle_charger_setup;
++
++	if (chip->trickle_charger_setup && chip->trickle_charger_reg) {
++		dev_dbg(&client->dev, "writing trickle charger info 0x%x to 0x%x\n",
++		    DS13XX_TRICKLE_CHARGER_MAGIC | chip->trickle_charger_setup,
++		    chip->trickle_charger_reg);
++		i2c_smbus_write_byte_data(client, chip->trickle_charger_reg,
++		    DS13XX_TRICKLE_CHARGER_MAGIC |
++		    chip->trickle_charger_setup);
++	}
++
++	buf = ds1307->regs;
++	if (i2c_check_functionality(adapter, I2C_FUNC_SMBUS_I2C_BLOCK)) {
++		ds1307->read_block_data = ds1307_native_smbus_read_block_data;
++		ds1307->write_block_data = ds1307_native_smbus_write_block_data;
++	} else {
++		ds1307->read_block_data = ds1307_read_block_data;
++		ds1307->write_block_data = ds1307_write_block_data;
++	}
++
++	err = ds1307_chip_configure(ds1307);
++	if (err < 0)
++		return err;
++
++	switch (ds1307->type) {
++	case ds_1388:
++		ds1307->offset = 1; /* Seconds starts at 1 */
++		break;
++	case mcp794xx:
++		rtc_ops = &mcp794xx_rtc_ops;
++		irq_handler = mcp794xx_irq;
++		break;
++	default:
++		break;
++	}
++
++	err = ds1307_chip_sanity_check(ds1307);
++	if (err < 0)
++		return err;
++
+ 	tmp = ds1307->regs[DS1307_REG_HOUR];
+ 	switch (ds1307->type) {
+ 	case ds_1340:
+@@ -1663,9 +1676,6 @@ read_rtc:
+ 	ds1307_clks_register(ds1307);
+ 
+ 	return 0;
+-
+-exit:
+-	return err;
+ }
+ 
+ static int ds1307_remove(struct i2c_client *client)
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+2.5.5
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
