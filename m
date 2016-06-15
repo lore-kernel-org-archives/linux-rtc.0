@@ -1,36 +1,30 @@
-Return-Path: <rtc-linux+bncBDKZNNNLXAHBB2GVXK5AKGQEJGMMJAQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBD7N3SEV2QCRBXVHQS5QKGQEEY4P7ZY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-MIME-Version: 1.0
-Received: from mailout1.w1.samsung.com (mailout1.w1.samsung.com. [210.118.77.11])
-        by gmr-mx.google.com with ESMTPS id tp10si8278008pac.2.2016.06.01.02.29.11
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1 cipher=AES128-SHA bits=128/128);
-        Wed, 01 Jun 2016 02:29:12 -0700 (PDT)
-Received: from eucpsbgm1.samsung.com (unknown [203.254.199.244])
- by mailout1.w1.samsung.com
- (Oracle Communications Messaging Server 7.0.5.31.0 64bit (built May  5 2014))
- with ESMTP id <0O8300GCD6CK5C60@mailout1.w1.samsung.com> for
- rtc-linux@googlegroups.com; Wed, 01 Jun 2016 10:29:08 +0100 (BST)
-From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-To: MyungJoo Ham <myungjoo.ham@samsung.com>,
- Chanwoo Choi <cw00.choi@samsung.com>,
- Dmitry Torokhov <dmitry.torokhov@gmail.com>,
- Richard Purdie <rpurdie@rpsys.net>,
- Jacek Anaszewski <j.anaszewski@samsung.com>, Lee Jones <lee.jones@linaro.org>,
- Sebastian Reichel <sre@kernel.org>,
- Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>,
- David Woodhouse <dwmw2@infradead.org>, Liam Girdwood <lgirdwood@gmail.com>,
- Mark Brown <broonie@kernel.org>, Alessandro Zummo <a.zummo@towertech.it>,
+Received: from vk1046.megiteam.com.pl (2780.rev.megiteam.pl. [91.227.39.128])
+        by gmr-mx.google.com with ESMTP id a186si260024wma.1.2016.06.15.01.37.49
+        for <rtc-linux@googlegroups.com>;
+        Wed, 15 Jun 2016 01:37:49 -0700 (PDT)
+Subject: [rtc-linux] Re: [PATCH] rtc: omap: Support ext_wakeup configuration
+To: Tony Lindgren <tony@atomide.com>
+References: <1459785403-1725-1-git-send-email-m.niestroj@grinn-global.com>
+ <20160404224046.GA17042@atomide.com> <57078A89.3080809@ti.com>
+ <20160408151408.GS16484@atomide.com> <5707E764.7050204@ti.com>
+ <570D2F79.9040202@grinn-global.com> <57111AF4.6070505@ti.com>
+ <fe6ab23a-5f0d-a317-14d9-f538c3ad4052@grinn-global.com>
+ <20160426153948.GR5995@atomide.com>
+Cc: Grygorii Strashko <grygorii.strashko@ti.com>, rtc-linux@googlegroups.com,
+ devicetree@vger.kernel.org, Rob Herring <robh+dt@kernel.org>,
+ Pawel Moll <pawel.moll@arm.com>, Alessandro Zummo <a.zummo@towertech.it>,
  Alexandre Belloni <alexandre.belloni@free-electrons.com>,
- Krzysztof Kozlowski <k.kozlowski@samsung.com>, linux-kernel@vger.kernel.org,
- linux-input@vger.kernel.org, linux-leds@vger.kernel.org,
- linux-pm@vger.kernel.org, rtc-linux@googlegroups.com
-Cc: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
-Subject: [rtc-linux] [PATCH v7 0/6] mfd: (multiple trees): max8997: Add regmap
-Date: Wed, 01 Jun 2016 11:28:53 +0200
-Message-id: <1464773339-756-1-git-send-email-k.kozlowski@samsung.com>
+ Keerthy <j-keerthy@ti.com>, linux-omap@vger.kernel.org,
+ Dave Gerlach <d-gerlach@ti.com>, "Menon, Nishanth" <nm@ti.com>
+From: Marcin Niestroj <m.niestroj@grinn-global.com>
+Message-ID: <65595642-33fb-368b-f47f-8e62b885c0a2@grinn-global.com>
+Date: Wed, 15 Jun 2016 10:37:47 +0200
+MIME-Version: 1.0
+In-Reply-To: <20160426153948.GR5995@atomide.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Reply-To: rtc-linux@googlegroups.com
-Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -41,46 +35,58 @@ List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegro
 
 Hi,
 
+Sorry for such delay in response. Please see my comments/questions on
+using pinctrl below.
 
-I'm pushing old Robert's work. I miss only ack from regulator subsystem.
-Mark, could you take a look at patch 1/6?
+On 26.04.2016 17:39, Tony Lindgren wrote:
+> * Marcin Niestroj <m.niestroj@grinn-global.com> [160426 00:40]:
+>> In below code we check reg resource size in order to know if we
+>> should update RTC_PMIC or it is pinctrl responsibility. It's a little
+>> hack, but we make sure, that every device with not modified device-tree
+>> will work as previously. If we want to add support for ext_wakeup, we
+>> just change reg resouce size in device-tree in order to not overlap
+>> requested memory regions in rtc-omap and pinctrl.
+>>
+>> I used am335x-chilisom instead of dra7 and updated
+>> pinctrl-single,funcion-mask so the EXT_WAKEUP_STATUS is always cleared
+>> after boot.
+>>
+>> So the question now is: is this acceptable? Do we want to continue with
+>> this approach?
+>
+> Well the concern I have here is that we not use pinctrl-single
+> as a separate driver if any of the registers are shared with
+> the RTC driver. If the registers are shared, the pinctrl
+> functionality should be implemented in the RTC driver.
 
-Changes since v6
-================
-1. Add some acks.
-2. Remove patches already applied.
+We can use pinctrl generic params for:
+  * enable wakeup inputs - with 'input-enable'
+  * input debounce enable/configuration - with 'input-debounce'
 
+However I don't see any generic way for setting wakeup input polarity.
+So I guess we should add some driver specific devicetree binding to
+handle hat. I also didn't find any other driver that implements it.
 
-Best regards,
-Krzysztof
+In case of pinctrl-single we have just written custom register values to
+set polarity.
 
+So the question is: how should we proceed? Is pinctrl still and option?
+If yes, what is your idea about configuring input polarity?
 
-Krzysztof Kozlowski (3):
-  extcon: max8997: Fix handling error code of regmap_irq_get_virq()
-  rtc: max8997: Check for ERRNO of regmap_irq_get_virq()
-  extcon: max8997: Fix inconsistent indenting
+>
+> The pinctrl driver can also implement a chained IRQ later
+> on for consumer device drivers to use with the wakeirq API.
+> Maybe eventually we'll have real chained interrupt for the
+> RTC to use from Linux side of the C-M3 driver.
+>
+> Regards,
+>
+> Tony
+>
 
-Robert Baldyga (3):
-  mfd: max8997: Use regmap to access registers
-  mfd: max8997: handle IRQs using regmap
-  mfd: max8997: Change irq names to upper case
-
- drivers/extcon/extcon-max8997.c       |  72 +++----
- drivers/input/misc/max8997_haptic.c   |  34 +--
- drivers/leds/leds-max8997.c           |  13 +-
- drivers/mfd/Kconfig                   |   3 +-
- drivers/mfd/Makefile                  |   2 +-
- drivers/mfd/max8997-irq.c             | 383 ----------------------------------
- drivers/mfd/max8997.c                 | 245 +++++++++++++++-------
- drivers/power/max8997_charger.c       |  33 +--
- drivers/regulator/max8997-regulator.c |  87 ++++----
- drivers/rtc/rtc-max8997.c             |  60 +++---
- include/linux/mfd/max8997-private.h   |  82 ++++++--
- 11 files changed, 385 insertions(+), 629 deletions(-)
- delete mode 100644 drivers/mfd/max8997-irq.c
 
 -- 
-1.9.1
+Marcin Niestroj
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
