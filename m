@@ -1,34 +1,25 @@
-Return-Path: <rtc-linux+bncBDAYD2P3QYGRBW46R65QKGQEMWOPULQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBDKOBWPM5ABRB3W5QO5QKGQEQBGOG2Q@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 MIME-Version: 1.0
-Received: from mail-wm0-x236.google.com (mail-wm0-x236.google.com. [2a00:1450:400c:c09::236])
-        by gmr-mx.google.com with ESMTPS id a186si622266wma.1.2016.06.17.03.22.19
+Received: from mail-pa0-x243.google.com (mail-pa0-x243.google.com. [2607:f8b0:400e:c03::243])
+        by gmr-mx.google.com with ESMTPS id ci4si3625974pad.1.2016.06.14.23.00.13
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 17 Jun 2016 03:22:19 -0700 (PDT)
-Received: by mail-wm0-x236.google.com with SMTP id m124so104630766wme.1
-        for <rtc-linux@googlegroups.com>; Fri, 17 Jun 2016 03:22:19 -0700 (PDT)
-From: Neil Armstrong <narmstrong@baylibre.com>
-To: dmitry.torokhov@gmail.com,
-	andy.gross@linaro.org,
-	david.brown@linaro.org,
-	lee.jones@linaro.org,
-	lgirdwood@gmail.com,
-	broonie@kernel.org,
-	a.zummo@towertech.it,
-	alexandre.belloni@free-electrons.com
-Cc: Neil Armstrong <narmstrong@baylibre.com>,
-	linux-input@vger.kernel.org,
+        Tue, 14 Jun 2016 23:00:13 -0700 (PDT)
+Received: by mail-pa0-x243.google.com with SMTP id ts6so798783pac.0
+        for <rtc-linux@googlegroups.com>; Tue, 14 Jun 2016 23:00:13 -0700 (PDT)
+From: Andrey Smirnov <andrew.smirnov@gmail.com>
+To: rtc-linux@googlegroups.com
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
 	linux-kernel@vger.kernel.org,
-	linux-arm-msm@vger.kernel.org,
-	linux-soc@vger.kernel.org,
-	rtc-linux@googlegroups.com
-Subject: [rtc-linux] [PATCH 5/5] regulator: qcom_rpm-regulator: Add support
- for pm8018 rpm regulator
-Date: Fri, 17 Jun 2016 12:22:09 +0200
-Message-Id: <1466158929-19524-6-git-send-email-narmstrong@baylibre.com>
-In-Reply-To: <1466158929-19524-1-git-send-email-narmstrong@baylibre.com>
-References: <1466158929-19524-1-git-send-email-narmstrong@baylibre.com>
+	Andrey Smirnov <andrew.smirnov@gmail.com>
+Subject: [rtc-linux] [PATCH 12/13] RTC: ds1307: Report oscillator problems
+ more intelligently
+Date: Tue, 14 Jun 2016 22:59:38 -0700
+Message-Id: <1465970379-14703-13-git-send-email-andrew.smirnov@gmail.com>
+In-Reply-To: <1465970379-14703-1-git-send-email-andrew.smirnov@gmail.com>
+References: <1465970379-14703-1-git-send-email-andrew.smirnov@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -39,229 +30,98 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-In order to support eh Qualcomm MDM9615 SoC, add support for the
-PM8018 RPM regulator in the qcom_rpm-regulator driver.
+Report oscillator problems more intelligently, by printing more
+information about what cause the issue and not yelling "SET TIME!" at
+the user.
 
-Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
+Signed-off-by: Andrey Smirnov <andrew.smirnov@gmail.com>
 ---
- Documentation/devicetree/bindings/mfd/qcom-rpm.txt |  14 +++
- drivers/regulator/qcom_rpm-regulator.c             | 134 +++++++++++++++++++++
- 2 files changed, 148 insertions(+)
+ drivers/rtc/rtc-ds1307.c | 28 +++++++++++++++++++++++-----
+ 1 file changed, 23 insertions(+), 5 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/mfd/qcom-rpm.txt b/Documentation/devicetree/bindings/mfd/qcom-rpm.txt
-index 72d68d4..d866a69 100644
---- a/Documentation/devicetree/bindings/mfd/qcom-rpm.txt
-+++ b/Documentation/devicetree/bindings/mfd/qcom-rpm.txt
-@@ -60,6 +60,7 @@ Regulator nodes are identified by their compatible:
- 		    "qcom,rpm-pm8058-regulators"
- 		    "qcom,rpm-pm8901-regulators"
- 		    "qcom,rpm-pm8921-regulators"
-+		    "qcom,rpm-pm8018-regulators"
+diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
+index 76e66a3..d9693bd 100644
+--- a/drivers/rtc/rtc-ds1307.c
++++ b/drivers/rtc/rtc-ds1307.c
+@@ -1424,6 +1424,19 @@ static int ds1307_chip_configure(const struct ds1307 *ds1307)
+ 	return 0;
+ }
  
- - vdd_l0_l1_lvs-supply:
- - vdd_l2_l11_l12-supply:
-@@ -138,6 +139,15 @@ Regulator nodes are identified by their compatible:
- 	Definition: reference to regulator supplying the input pin, as
- 		    described in the data sheet
++static void ds1307_report_clock_halt(const struct ds1307 *ds1307)
++{
++	dev_warn(&ds1307->client->dev, "RTC's oscillator is turned off. "
++		 "Turning it on. Please set time");
++}
++
++static void ds1307_report_oscillator_fault(const struct ds1307 *ds1307)
++{
++	dev_warn(&ds1307->client->dev, "RTC's reported oscillator fault. "
++		 "Clearing the fault flag and re-reading RTC status. "
++		 "Please set time");
++}
++
+ static int ds1307_chip_sanity_check(const struct ds1307 *ds1307)
+ {
+ 	int tmp, retries;
+@@ -1453,7 +1466,7 @@ static int ds1307_chip_sanity_check(const struct ds1307 *ds1307)
+ 			if (tmp & DS1307_BIT_CH) {
+ 				i2c_smbus_write_byte_data(client,
+ 							  DS1307_REG_SECS, 0);
+-				dev_warn(&client->dev, "SET TIME!\n");
++				ds1307_report_clock_halt(ds1307);
+ 				continue;
+ 			}
+ 			break;
+@@ -1469,15 +1482,17 @@ static int ds1307_chip_sanity_check(const struct ds1307 *ds1307)
+ 							  DS1307_REG_CONTROL,
+ 							  regs[DS1307_REG_CONTROL]
+ 							  & ~DS1338_BIT_OSF);
+-				dev_warn(&client->dev, "SET TIME!\n");
++				ds1307_report_oscillator_fault(ds1307);
+ 				continue;
+ 			}
+ 			break;
+ 		case ds_1340:
+ 			/* clock halted?  turn it on, so clock can tick. */
+-			if (tmp & DS1340_BIT_nEOSC)
++			if (tmp & DS1340_BIT_nEOSC) {
+ 				i2c_smbus_write_byte_data(client,
+ 							  DS1307_REG_SECS, 0);
++				ds1307_report_clock_halt(ds1307);
++			}
  
-+- vin_lvs1-supply:
-+- vdd_l7-supply:
-+- vdd_l8-supply:
-+- vdd_l9_l10_l11_l12-supply:
-+	Usage: optional (pm8018 only)
-+	Value type: <phandle>
-+	Definition: reference to regulator supplying the input pin, as
-+		    described in the data sheet
-+
- The regulator node houses sub-nodes for each regulator within the device. Each
- sub-node is identified using the node's name, with valid values listed for each
- of the pmics below.
-@@ -157,6 +167,10 @@ pm8921:
- 	l29, lvs1, lvs2, lvs3, lvs4, lvs5, lvs6, lvs7, usb-switch, hdmi-switch,
- 	ncp
+ 			tmp = i2c_smbus_read_byte_data(client, DS1340_REG_FLAG);
+ 			if (tmp < 0) {
+@@ -1489,7 +1504,7 @@ static int ds1307_chip_sanity_check(const struct ds1307 *ds1307)
+ 			if (tmp & DS1340_BIT_OSF) {
+ 				i2c_smbus_write_byte_data(client,
+ 							  DS1340_REG_FLAG, 0);
+-				dev_warn(&client->dev, "SET TIME!\n");
++				ds1307_report_oscillator_fault(ds1307);
+ 			}
+ 			return 0;
  
-+pm8018:
-+	s1, s2, s3, s4, s5, , l1, l2, l3, l4, l5, l6, l7, l8, l9, l10, l11,
-+	l12, l14, lvs1, dig_corner
-+
- The content of each sub-node is defined by the standard binding for regulators -
- see regulator.txt - with additional custom properties described below:
+@@ -1500,6 +1515,9 @@ static int ds1307_chip_sanity_check(const struct ds1307 *ds1307)
+ 							  DS1307_REG_WDAY,
+ 							  regs[DS1307_REG_WDAY]
+ 							  | MCP794XX_BIT_VBATEN);
++				dev_warn(&client->dev,
++					 "battery backup was disabled. "
++					 "Re-enabling it\n");
+ 			}
  
-diff --git a/drivers/regulator/qcom_rpm-regulator.c b/drivers/regulator/qcom_rpm-regulator.c
-index e254272..93ef130 100644
---- a/drivers/regulator/qcom_rpm-regulator.c
-+++ b/drivers/regulator/qcom_rpm-regulator.c
-@@ -70,6 +70,45 @@ struct qcom_rpm_reg {
- 	bool supports_force_mode_bypass;
- };
+ 			/* clock halted?  turn it on, so clock can tick. */
+@@ -1507,7 +1525,7 @@ static int ds1307_chip_sanity_check(const struct ds1307 *ds1307)
+ 				i2c_smbus_write_byte_data(client,
+ 							  DS1307_REG_SECS,
+ 							  MCP794XX_BIT_ST);
+-				dev_warn(&client->dev, "SET TIME!\n");
++				ds1307_report_clock_halt(ds1307);
+ 				continue;
+ 			}
  
-+static struct rpm_reg_parts rpm8018_ldo_parts = {
-+	.request_len	= 2,
-+	.uV		= { 0, 0x007FFFFF,  0},
-+	.pd		= { 0, 0x00800000, 23},
-+	.pc		= { 0, 0x0F000000, 24},
-+	.pf		= { 0, 0xF0000000, 28},
-+	.ip		= { 1, 0x000003FF,  0},
-+	.ia		= { 1, 0x000FFC00, 10},
-+	.fm		= { 1, 0x00700000, 20},
-+};
-+
-+static struct rpm_reg_parts rpm8018_smps_parts = {
-+	.request_len	= 2,
-+	.uV		= {  0, 0x007FFFFF,  0},
-+	.pd		= {  0, 0x00800000, 23},
-+	.pc		= {  0, 0x0F000000, 24},
-+	.pf		= {  0, 0xF0000000, 28},
-+	.ip		= {  1, 0x000003FF,  0},
-+	.ia		= {  1, 0x000FFC00, 10},
-+	.fm		= {  1, 0x00700000, 20},
-+	.pm		= {  1, 0x00800000, 23},
-+	.freq		= {  1, 0x1F000000, 24},
-+	.freq_clk_src	= {  1, 0x60000000, 29},
-+};
-+
-+static struct rpm_reg_parts rpm8018_switch_parts = {
-+	.request_len	= 1,
-+	.enable_state	= {  0, 0x00000001,  0},
-+	.pd		= {  0, 0x00000002,  1},
-+	.pc		= {  0, 0x0000003C,  2},
-+	.pf		= {  0, 0x000003C0,  6},
-+	.hpm		= {  0, 0x00000C00, 10},
-+};
-+
-+static struct rpm_reg_parts rpm8018_corner_parts = {
-+	.request_len	= 1,
-+	.uV		= {  0, 0x00000003,  0},
-+};
-+
- static const struct rpm_reg_parts rpm8660_ldo_parts = {
- 	.request_len    = 2,
- 	.mV             = { 0, 0x00000FFF,  0 },
-@@ -194,6 +233,24 @@ static const struct regulator_linear_range ncp_ranges[] = {
- 	REGULATOR_LINEAR_RANGE(1500000,   0,  31, 50000),
- };
- 
-+/**
-+ * enum rpm_vreg_voltage_corner - possible voltage corner values
-+ *
-+ * These should be used in regulator_set_voltage and rpm_vreg_set_voltage calls
-+ * for corner type regulators as if they had units of uV.
-+ */
-+enum rpm_vreg_voltage_corner {
-+	RPM_VREG_CORNER_NONE = 1,
-+	RPM_VREG_CORNER_LOW,
-+	RPM_VREG_CORNER_NOMINAL,
-+	RPM_VREG_CORNER_HIGH,
-+};
-+
-+static struct regulator_linear_range corner_ranges[] = {
-+	REGULATOR_LINEAR_RANGE(RPM_VREG_CORNER_NONE, 0,
-+				RPM_VREG_CORNER_HIGH, 1),
-+};
-+
- static int rpm_reg_write(struct qcom_rpm_reg *vreg,
- 			 const struct request_member *req,
- 			 const int value)
-@@ -448,6 +505,52 @@ static struct regulator_ops switch_ops = {
- };
- 
- /*
-+ * PM8018 regulators
-+ */
-+static const struct qcom_rpm_reg pm8018_pldo = {
-+	.desc.linear_ranges = pldo_ranges,
-+	.desc.n_linear_ranges = ARRAY_SIZE(pldo_ranges),
-+	.desc.n_voltages = 161,
-+	.desc.ops = &uV_ops,
-+	.parts = &rpm8018_ldo_parts,
-+	.supports_force_mode_auto = false,
-+	.supports_force_mode_bypass = false,
-+};
-+
-+static const struct qcom_rpm_reg pm8018_nldo = {
-+	.desc.linear_ranges = nldo_ranges,
-+	.desc.n_linear_ranges = ARRAY_SIZE(nldo_ranges),
-+	.desc.n_voltages = 64,
-+	.desc.ops = &uV_ops,
-+	.parts = &rpm8018_ldo_parts,
-+	.supports_force_mode_auto = false,
-+	.supports_force_mode_bypass = false,
-+};
-+
-+static const struct qcom_rpm_reg pm8018_smps = {
-+	.desc.linear_ranges = smps_ranges,
-+	.desc.n_linear_ranges = ARRAY_SIZE(smps_ranges),
-+	.desc.n_voltages = 154,
-+	.desc.ops = &uV_ops,
-+	.parts = &rpm8018_smps_parts,
-+	.supports_force_mode_auto = false,
-+	.supports_force_mode_bypass = false,
-+};
-+
-+static const struct qcom_rpm_reg pm8018_switch = {
-+	.desc.ops = &switch_ops,
-+	.parts = &rpm8018_switch_parts,
-+};
-+
-+static const struct qcom_rpm_reg pm8018_corner = {
-+	.desc.linear_ranges = corner_ranges,
-+	.desc.n_linear_ranges = ARRAY_SIZE(corner_ranges),
-+	.desc.n_voltages = 4,
-+	.desc.ops = &uV_ops,
-+	.parts = &rpm8018_corner_parts,
-+};
-+
-+/*
-  * PM8058 regulators
-  */
- static const struct qcom_rpm_reg pm8058_pldo = {
-@@ -755,6 +858,35 @@ struct rpm_regulator_data {
- 	const char *supply;
- };
- 
-+static const struct rpm_regulator_data rpm_pm8018_regulators[] = {
-+	{ "s1",  QCOM_RPM_PM8018_SMPS1, &pm8018_smps, "vdd_s1" },
-+	{ "s2",  QCOM_RPM_PM8018_SMPS2, &pm8018_smps, "vdd_s2" },
-+	{ "s3",  QCOM_RPM_PM8018_SMPS3, &pm8018_smps, "vdd_s3" },
-+	{ "s4",  QCOM_RPM_PM8018_SMPS4, &pm8018_smps, "vdd_s4" },
-+	{ "s5",  QCOM_RPM_PM8018_SMPS5, &pm8018_smps, "vdd_s5" },
-+
-+	{ "l2",  QCOM_RPM_PM8018_LDO2,  &pm8018_pldo, "vdd_l2" },
-+	{ "l3",  QCOM_RPM_PM8018_LDO3,  &pm8018_pldo, "vdd_l3" },
-+	{ "l4",  QCOM_RPM_PM8018_LDO4,  &pm8018_pldo, "vdd_l4" },
-+	{ "l5",  QCOM_RPM_PM8018_LDO5,  &pm8018_pldo, "vdd_l5" },
-+	{ "l6",  QCOM_RPM_PM8018_LDO6,  &pm8018_pldo, "vdd_l7" },
-+	{ "l7",  QCOM_RPM_PM8018_LDO7,  &pm8018_pldo, "vdd_l7" },
-+	{ "l8",  QCOM_RPM_PM8018_LDO8,  &pm8018_nldo, "vdd_l8" },
-+	{ "l9",  QCOM_RPM_PM8018_LDO9,  &pm8921_nldo1200,
-+						      "vdd_l9_l10_l11_l12" },
-+	{ "l10", QCOM_RPM_PM8018_LDO10, &pm8018_nldo, "vdd_l9_l10_l11_l12" },
-+	{ "l11", QCOM_RPM_PM8018_LDO11, &pm8018_nldo, "vdd_l9_l10_l11_l12" },
-+	{ "l12", QCOM_RPM_PM8018_LDO12, &pm8018_nldo, "vdd_l9_l10_l11_l12" },
-+	{ "l14", QCOM_RPM_PM8018_LDO14, &pm8018_pldo, "vdd_l14" },
-+
-+	{ "lvs1", QCOM_RPM_PM8018_LVS1, &pm8018_switch, "lvs1_in" },
-+
-+	{ "dig_corner", QCOM_RPM_VOLTAGE_CORNER, &pm8018_corner,
-+						      "vdd_dig_corner" },
-+
-+	{ }
-+};
-+
- static const struct rpm_regulator_data rpm_pm8058_regulators[] = {
- 	{ "l0",   QCOM_RPM_PM8058_LDO0,   &pm8058_nldo, "vdd_l0_l1_lvs"	},
- 	{ "l1",   QCOM_RPM_PM8058_LDO1,   &pm8058_nldo, "vdd_l0_l1_lvs" },
-@@ -870,6 +1002,8 @@ static const struct rpm_regulator_data rpm_pm8921_regulators[] = {
- };
- 
- static const struct of_device_id rpm_of_match[] = {
-+	{ .compatible = "qcom,rpm-pm8018-regulators",
-+		.data = &rpm_pm8018_regulators },
- 	{ .compatible = "qcom,rpm-pm8058-regulators", .data = &rpm_pm8058_regulators },
- 	{ .compatible = "qcom,rpm-pm8901-regulators", .data = &rpm_pm8901_regulators },
- 	{ .compatible = "qcom,rpm-pm8921-regulators", .data = &rpm_pm8921_regulators },
 -- 
-1.9.1
+2.5.5
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
