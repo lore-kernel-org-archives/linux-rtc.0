@@ -1,22 +1,23 @@
-Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBVVD225AKGQENZWCJ4A@googlegroups.com>
+Return-Path: <rtc-linux+bncBD66BCOYSQBBBOFMQO5QKGQE3AH4G5I@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id x203si264499wme.0.2016.06.06.08.08.06
-        for <rtc-linux@googlegroups.com>;
-        Mon, 06 Jun 2016 08:08:06 -0700 (PDT)
-Date: Mon, 6 Jun 2016 17:08:05 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Alexander Graf <agraf@suse.de>
-Cc: rtc-linux@googlegroups.com, leif.lindholm@linaro.org,
-	linux-kernel@vger.kernel.org,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Subject: [rtc-linux] Re: [PATCH] rtc: efi: Fail probing if RTC reads don't work
-Message-ID: <20160606150805.GB3363@piout.net>
-References: <1465119356-129799-1-git-send-email-agraf@suse.de>
+Received: from devils.ext.ti.com (devils.ext.ti.com. [198.47.26.153])
+        by gmr-mx.google.com with ESMTPS id d189si490527ith.1.2016.06.14.21.14.47
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1 cipher=AES128-SHA bits=128/128);
+        Tue, 14 Jun 2016 21:14:47 -0700 (PDT)
+Subject: [rtc-linux] Re: [PATCH] rtc: ds1307: Fix relying on reset value for weekday
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+References: <1464778147-22075-1-git-send-email-j-keerthy@ti.com>
+ <20160601121802.GF4249@piout.net> <574ED6D1.70800@ti.com>
+ <575693E1.2090302@ti.com> <20160614143948.GP3240@piout.net>
+CC: Keerthy <j-keerthy@ti.com>, <a.zummo@towertech.it>, <nm@ti.com>,
+        <rtc-linux@googlegroups.com>, <linux-kernel@vger.kernel.org>
+From: Keerthy <a0393675@ti.com>
+Message-ID: <5760D631.1050006@ti.com>
+Date: Wed, 15 Jun 2016 09:44:41 +0530
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1465119356-129799-1-git-send-email-agraf@suse.de>
+In-Reply-To: <20160614143948.GP3240@piout.net>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -26,24 +27,54 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 05/06/2016 at 11:35:56 +0200, Alexander Graf wrote :
-> While the EFI spec mandates an RTC, not every implementation actually adheres
-> to that rule (or can adhere to it - some systems just don't have an RTC).
-> 
-> For those, we really don't want to probe the EFI RTC driver at all, because if
-> we do we'd get a non-functional driver that does nothing useful but only spills
-> our kernel log with warnings.
-> 
-> Signed-off-by: Alexander Graf <agraf@suse.de>
-> ---
->  drivers/rtc/rtc-efi.c | 6 ++++++
->  1 file changed, 6 insertions(+)
-Applied, thanks.
 
--- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+
+On Tuesday 14 June 2016 08:09 PM, Alexandre Belloni wrote:
+> On 07/06/2016 at 14:59:05 +0530, Keerthy wrote :
+>> Hi Alexandre,
+>>
+>> On Wednesday 01 June 2016 06:06 PM, Keerthy wrote:
+>>>
+>>>
+>>> On Wednesday 01 June 2016 05:48 PM, Alexandre Belloni wrote:
+>>>> Hi,
+>>>>
+>>>> On 01/06/2016 at 16:19:07 +0530, Keerthy wrote :
+>>>>> The reset value of weekday is 0x1. This is wrong since
+>>>>> the reset values of the day/month/year make up to Jan 1 2001.
+>>>>> When computed weekday comes out to be Monday. On a scale
+>>>>> of 1-7(Sunday - Saturday) it should be 0x2. So we should not
+>>>>> be relying on the reset value.
+>>>>>
+>>>>
+>>>> Hum, what are the chances that the reset value is actually the correct
+>>>> date/time?
+>>>> Won't that be corrected after the first call to set_time? Until then,
+>>>> the date is not correct so, do we care anyway?
+>>>
+>>> Yes if an alarm is programmed without set_time.
+>>>
+>>> ex: rtcwake -d /dev/rtc0 -s 5
+>>>
+>>> Even the basic rtctest under tools/testing/selftests/timers/rtctest.c fails
+>>> as the wday is wrong and no alarm fires.
+>>>
+>>> Instead of relying on some one to call set_time before programming alarm
+>>> its better to fix the wday to reflect the current day right?
+>>>
+>>>
+>>>>
+>>>> Maybe I'm missing something here.
+>>
+>> Let me know if you feel this is a valid fix.
+>>
+>
+> Well, this is probably a valid fix and I'll take it as is if I don't
+> find the time to make something more generic.
+
+Okay Thanks.
+
+>
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
