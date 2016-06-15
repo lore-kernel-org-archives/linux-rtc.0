@@ -1,24 +1,36 @@
-Return-Path: <rtc-linux+bncBDKOBWPM5ABRB3G5QO5QKGQEDFJYDCY@googlegroups.com>
+Return-Path: <rtc-linux+bncBCMILY6JWQBBBLG3QS5QKGQEKPN7QEQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 MIME-Version: 1.0
-Received: from mail-pf0-x241.google.com (mail-pf0-x241.google.com. [2607:f8b0:400e:c00::241])
-        by gmr-mx.google.com with ESMTPS id 62si3602201pfx.1.2016.06.14.23.00.12
+Received: from wens.csie.org (mirror2.csie.ntu.edu.tw. [140.112.30.76])
+        by gmr-mx.google.com with ESMTPS id un17si1624702pab.0.2016.06.15.03.27.55
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 14 Jun 2016 23:00:12 -0700 (PDT)
-Received: by mail-pf0-x241.google.com with SMTP id 62so986725pfd.3
-        for <rtc-linux@googlegroups.com>; Tue, 14 Jun 2016 23:00:12 -0700 (PDT)
-From: Andrey Smirnov <andrew.smirnov@gmail.com>
-To: rtc-linux@googlegroups.com
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
+        Wed, 15 Jun 2016 03:27:55 -0700 (PDT)
+From: Chen-Yu Tsai <wens@csie.org>
+To: Mark Brown <broonie@kernel.org>,
+	Lee Jones <lee.jones@linaro.org>,
+	Alessandro Zummo <a.zummo@towertech.it>,
 	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Rob Herring <robh+dt@kernel.org>,
+	Pawel Moll <pawel.moll@arm.com>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Ian Campbell <ijc+devicetree@hellion.org.uk>,
+	Kumar Gala <galak@codeaurora.org>,
+	Maxime Ripard <maxime.ripard@free-electrons.com>,
+	Michael Turquette <mturquette@baylibre.com>,
+	Stephen Boyd <sboyd@codeaurora.org>
+Cc: Chen-Yu Tsai <wens@csie.org>,
+	rtc-linux@googlegroups.com,
 	linux-kernel@vger.kernel.org,
-	Andrey Smirnov <andrew.smirnov@gmail.com>
-Subject: [rtc-linux] [PATCH 10/13] RTC: ds1307: Convert goto to a loop
-Date: Tue, 14 Jun 2016 22:59:36 -0700
-Message-Id: <1465970379-14703-11-git-send-email-andrew.smirnov@gmail.com>
-In-Reply-To: <1465970379-14703-1-git-send-email-andrew.smirnov@gmail.com>
-References: <1465970379-14703-1-git-send-email-andrew.smirnov@gmail.com>
+	devicetree@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	linux-clk@vger.kernel.org
+Subject: [rtc-linux] [PATCH v2 08/10] ARM: dts: sun9i: cubieboard4: Order
+ nodes by alphabetical order
+Date: Wed, 15 Jun 2016 18:27:45 +0800
+Message-Id: <1465986467-14802-9-git-send-email-wens@csie.org>
+In-Reply-To: <1465986467-14802-1-git-send-email-wens@csie.org>
+References: <1465986467-14802-1-git-send-email-wens@csie.org>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -29,191 +41,65 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Convert goto to a loop and set a hard upper limit on the number of times
-driver would try to make RTC work (as opposed to having an infinite
-retry loop).
+Move the &pio node below the mmc nodes for proper ordering by name.
 
-Signed-off-by: Andrey Smirnov <andrew.smirnov@gmail.com>
+Signed-off-by: Chen-Yu Tsai <wens@csie.org>
 ---
- drivers/rtc/rtc-ds1307.c | 151 +++++++++++++++++++++++++----------------------
- 1 file changed, 82 insertions(+), 69 deletions(-)
+ arch/arm/boot/dts/sun9i-a80-cubieboard4.dts | 32 ++++++++++++++---------------
+ 1 file changed, 16 insertions(+), 16 deletions(-)
 
-diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
-index dbf8361..8ccfe5b 100644
---- a/drivers/rtc/rtc-ds1307.c
-+++ b/drivers/rtc/rtc-ds1307.c
-@@ -1424,87 +1424,100 @@ static int ds1307_chip_configure(const struct ds1307 *ds1307)
+diff --git a/arch/arm/boot/dts/sun9i-a80-cubieboard4.dts b/arch/arm/boot/dts/sun9i-a80-cubieboard4.dts
+index a92eeea1b222..65f4f32f89ad 100644
+--- a/arch/arm/boot/dts/sun9i-a80-cubieboard4.dts
++++ b/arch/arm/boot/dts/sun9i-a80-cubieboard4.dts
+@@ -78,22 +78,6 @@
+ 	};
+ };
  
- static int ds1307_chip_sanity_check(const struct ds1307 *ds1307)
- {
--	int tmp;
-+	int tmp, retries;
- 	u8  regs[DS1307_REG_COUNT];
- 	struct i2c_client *client = ds1307->client;
- 
--read_rtc:
--	/* read RTC registers */
--	tmp = ds1307->read_block_data(ds1307->client, ds1307->offset, 8, regs);
--	if (tmp != 8) {
--		dev_dbg(&client->dev, "read error %d\n", tmp);
--		return -EIO;
--	}
+-&pio {
+-	led_pins_cubieboard4: led-pins@0 {
+-		allwinner,pins = "PH6", "PH17";
+-		allwinner,function = "gpio_out";
+-		allwinner,drive = <SUN4I_PINCTRL_10_MA>;
+-		allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
+-	};
 -
--	/*
--	 * minimal sanity checking; some chips (like DS1340) don't
--	 * specify the extra bits as must-be-zero, but there are
--	 * still a few values that are clearly out-of-range.
--	 */
--	tmp = regs[DS1307_REG_SECS];
--	switch (ds1307->type) {
--	case ds_1307:
--	case m41t00:
--		/* clock halted?  turn it on, so clock can tick. */
--		if (tmp & DS1307_BIT_CH) {
--			i2c_smbus_write_byte_data(client, DS1307_REG_SECS, 0);
--			dev_warn(&client->dev, "SET TIME!\n");
--			goto read_rtc;
--		}
--		break;
--	case ds_1338:
--		/* clock halted?  turn it on, so clock can tick. */
--		if (tmp & DS1307_BIT_CH)
--			i2c_smbus_write_byte_data(client, DS1307_REG_SECS, 0);
+-	mmc0_cd_pin_cubieboard4: mmc0_cd_pin@0 {
+-		allwinner,pins = "PH18";
+-		allwinner,function = "gpio_in";
+-		allwinner,drive = <SUN4I_PINCTRL_10_MA>;
+-		allwinner,pull = <SUN4I_PINCTRL_PULL_UP>;
+-	};
+-};
 -
--		/* oscillator fault?  clear flag, and warn */
--		if (regs[DS1307_REG_CONTROL] & DS1338_BIT_OSF) {
--			i2c_smbus_write_byte_data(client, DS1307_REG_CONTROL,
--					regs[DS1307_REG_CONTROL]
--					& ~DS1338_BIT_OSF);
--			dev_warn(&client->dev, "SET TIME!\n");
--			goto read_rtc;
--		}
--		break;
--	case ds_1340:
--		/* clock halted?  turn it on, so clock can tick. */
--		if (tmp & DS1340_BIT_nEOSC)
--			i2c_smbus_write_byte_data(client, DS1307_REG_SECS, 0);
--
--		tmp = i2c_smbus_read_byte_data(client, DS1340_REG_FLAG);
--		if (tmp < 0) {
-+	for (retries = 0; retries < 5; retries++) {
-+		/* read RTC registers */
-+		tmp = ds1307->read_block_data(ds1307->client,
-+					      ds1307->offset, 8, regs);
-+		if (tmp != 8) {
- 			dev_dbg(&client->dev, "read error %d\n", tmp);
- 			return -EIO;
- 		}
+ &mmc0 {
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&mmc0_pins>, <&mmc0_cd_pin_cubieboard4>;
+@@ -119,6 +103,22 @@
+ 	allwinner,drive = <SUN4I_PINCTRL_40_MA>;
+ };
  
--		/* oscillator fault?  clear flag, and warn */
--		if (tmp & DS1340_BIT_OSF) {
--			i2c_smbus_write_byte_data(client, DS1340_REG_FLAG, 0);
--			dev_warn(&client->dev, "SET TIME!\n");
--		}
--		break;
--	case mcp794xx:
--		/* make sure that the backup battery is enabled */
--		if (!(regs[DS1307_REG_WDAY] & MCP794XX_BIT_VBATEN)) {
--			i2c_smbus_write_byte_data(client, DS1307_REG_WDAY,
--					regs[DS1307_REG_WDAY]
--					| MCP794XX_BIT_VBATEN);
--		}
-+		/*
-+		 * minimal sanity checking; some chips (like DS1340)
-+		 * don't specify the extra bits as must-be-zero, but
-+		 * there are still a few values that are clearly
-+		 * out-of-range.
-+		 */
-+		tmp = regs[DS1307_REG_SECS];
-+		switch (ds1307->type) {
-+		case ds_1307:
-+		case m41t00:
-+			/* clock halted?  turn it on, so clock can tick. */
-+			if (tmp & DS1307_BIT_CH) {
-+				i2c_smbus_write_byte_data(client,
-+							  DS1307_REG_SECS, 0);
-+				dev_warn(&client->dev, "SET TIME!\n");
-+				continue;
-+			}
-+			break;
-+		case ds_1338:
-+			/* clock halted?  turn it on, so clock can tick. */
-+			if (tmp & DS1307_BIT_CH)
-+				i2c_smbus_write_byte_data(client,
-+							  DS1307_REG_SECS, 0);
++&pio {
++	led_pins_cubieboard4: led-pins@0 {
++		allwinner,pins = "PH6", "PH17";
++		allwinner,function = "gpio_out";
++		allwinner,drive = <SUN4I_PINCTRL_10_MA>;
++		allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
++	};
 +
-+			/* oscillator fault?  clear flag, and warn */
-+			if (regs[DS1307_REG_CONTROL] & DS1338_BIT_OSF) {
-+				i2c_smbus_write_byte_data(client,
-+							  DS1307_REG_CONTROL,
-+							  regs[DS1307_REG_CONTROL]
-+							  & ~DS1338_BIT_OSF);
-+				dev_warn(&client->dev, "SET TIME!\n");
-+				continue;
-+			}
-+			break;
-+		case ds_1340:
-+			/* clock halted?  turn it on, so clock can tick. */
-+			if (tmp & DS1340_BIT_nEOSC)
-+				i2c_smbus_write_byte_data(client,
-+							  DS1307_REG_SECS, 0);
++	mmc0_cd_pin_cubieboard4: mmc0_cd_pin@0 {
++		allwinner,pins = "PH18";
++		allwinner,function = "gpio_in";
++		allwinner,drive = <SUN4I_PINCTRL_10_MA>;
++		allwinner,pull = <SUN4I_PINCTRL_PULL_UP>;
++	};
++};
 +
-+			tmp = i2c_smbus_read_byte_data(client, DS1340_REG_FLAG);
-+			if (tmp < 0) {
-+				dev_dbg(&client->dev, "read error %d\n", tmp);
-+				return -EIO;
-+			}
-+
-+			/* oscillator fault?  clear flag, and warn */
-+			if (tmp & DS1340_BIT_OSF) {
-+				i2c_smbus_write_byte_data(client,
-+							  DS1340_REG_FLAG, 0);
-+				dev_warn(&client->dev, "SET TIME!\n");
-+			}
-+			return 0;
- 
--		/* clock halted?  turn it on, so clock can tick. */
--		if (!(tmp & MCP794XX_BIT_ST)) {
--			i2c_smbus_write_byte_data(client, DS1307_REG_SECS,
--					MCP794XX_BIT_ST);
--			dev_warn(&client->dev, "SET TIME!\n");
--			goto read_rtc;
-+		case mcp794xx:
-+			/* make sure that the backup battery is enabled */
-+			if (!(regs[DS1307_REG_WDAY] & MCP794XX_BIT_VBATEN)) {
-+				i2c_smbus_write_byte_data(client,
-+							  DS1307_REG_WDAY,
-+							  regs[DS1307_REG_WDAY]
-+							  | MCP794XX_BIT_VBATEN);
-+			}
-+
-+			/* clock halted?  turn it on, so clock can tick. */
-+			if (!(tmp & MCP794XX_BIT_ST)) {
-+				i2c_smbus_write_byte_data(client,
-+							  DS1307_REG_SECS,
-+							  MCP794XX_BIT_ST);
-+				dev_warn(&client->dev, "SET TIME!\n");
-+				continue;
-+			}
-+
-+			break;
-+		default:
-+			break;
- 		}
- 
--		break;
--	default:
--		break;
-+		return 0;
- 	}
- 
--	return 0;
-+	return -EIO;
- }
- 
- static int ds1307_probe(struct i2c_client *client,
+ &r_ir {
+ 	status = "okay";
+ };
 -- 
-2.5.5
+2.8.1
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
