@@ -1,28 +1,34 @@
-Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBIVCYG5QKGQEJAZLP4Q@googlegroups.com>
+Return-Path: <rtc-linux+bncBCMILY6JWQBBBKW3QS5QKGQES2DSYUI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 MIME-Version: 1.0
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id r10si205863wmf.0.2016.06.26.15.03.14
-        for <rtc-linux@googlegroups.com>;
-        Sun, 26 Jun 2016 15:03:14 -0700 (PDT)
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: rtc-linux@googlegroups.com
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
-	linux-kernel@vger.kernel.org,
+Received: from wens.csie.org (mirror2.csie.ntu.edu.tw. [140.112.30.76])
+        by gmr-mx.google.com with ESMTPS id tp10si4096025pac.2.2016.06.15.03.27.53
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 15 Jun 2016 03:27:53 -0700 (PDT)
+From: Chen-Yu Tsai <wens@csie.org>
+To: Mark Brown <broonie@kernel.org>,
+	Lee Jones <lee.jones@linaro.org>,
+	Alessandro Zummo <a.zummo@towertech.it>,
 	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Hartley Sweeten <hsweeten@visionengravers.com>,
-	Ryan Mallon <rmallon@gmail.com>,
-	Alexander Clouter <alex@digriz.org.uk>,
-	Jason Cooper <jason@lakedaemon.net>,
-	Andrew Lunn <andrew@lunn.ch>,
-	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
-	Gregory Clement <gregory.clement@free-electrons.com>,
-	linux-arm-kernel@lists.infradead.org
-Subject: [rtc-linux] [PATCH 4/5] rtc: m48t86: move m48t86.h to platform_data
-Date: Mon, 27 Jun 2016 00:03:02 +0200
-Message-Id: <1466978583-13310-4-git-send-email-alexandre.belloni@free-electrons.com>
-In-Reply-To: <1466978583-13310-1-git-send-email-alexandre.belloni@free-electrons.com>
-References: <1466978583-13310-1-git-send-email-alexandre.belloni@free-electrons.com>
+	Rob Herring <robh+dt@kernel.org>,
+	Pawel Moll <pawel.moll@arm.com>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Ian Campbell <ijc+devicetree@hellion.org.uk>,
+	Kumar Gala <galak@codeaurora.org>,
+	Maxime Ripard <maxime.ripard@free-electrons.com>,
+	Michael Turquette <mturquette@baylibre.com>,
+	Stephen Boyd <sboyd@codeaurora.org>
+Cc: Chen-Yu Tsai <wens@csie.org>,
+	rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org,
+	devicetree@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	linux-clk@vger.kernel.org
+Subject: [rtc-linux] [PATCH v2 00/10]  mfd: ac100: Add support for X-Powers
+ AC100 audio codec / RTC combo IC
+Date: Wed, 15 Jun 2016 18:27:37 +0800
+Message-Id: <1465986467-14802-1-git-send-email-wens@csie.org>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -33,69 +39,89 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-m48t86.h belongs to include/linux/platform_data/
+Hi everyone,
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
----
-Cc: Hartley Sweeten <hsweeten@visionengravers.com>
-Cc: Ryan Mallon <rmallon@gmail.com>
-Cc: Alexander Clouter <alex@digriz.org.uk>
-Cc: Jason Cooper <jason@lakedaemon.net>
-Cc: Andrew Lunn <andrew@lunn.ch>
-Cc: Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>
-Cc: Gregory Clement <gregory.clement@free-electrons.com>
-Cc: linux-arm-kernel@lists.infradead.org
+This series adds support for X-Powers' AC100 audio codec / RTC combo IC.
+This chip is found on Allwinner A80 SoC based boards, and is also part
+of the AXP813/AXP818 PMIC found with Allwinner A83T SoCs.
 
- arch/arm/mach-ep93xx/ts72xx.c                          | 2 +-
- arch/arm/mach-orion5x/ts78xx-setup.c                   | 2 +-
- drivers/rtc/rtc-m48t86.c                               | 2 +-
- include/linux/{m48t86.h => platform_data/rtc-m48t86.h} | 0
- 4 files changed, 3 insertions(+), 3 deletions(-)
- rename include/linux/{m48t86.h => platform_data/rtc-m48t86.h} (100%)
+The series focuses on the RTC side of the chip. The audio codec will
+be done later, once the digital audio interface of the SoC is supported.
 
-diff --git a/arch/arm/mach-ep93xx/ts72xx.c b/arch/arm/mach-ep93xx/ts72xx.c
-index 45b81a2bcd4b..3b39ea353d30 100644
---- a/arch/arm/mach-ep93xx/ts72xx.c
-+++ b/arch/arm/mach-ep93xx/ts72xx.c
-@@ -16,7 +16,7 @@
- #include <linux/init.h>
- #include <linux/platform_device.h>
- #include <linux/io.h>
--#include <linux/m48t86.h>
-+#include <linux/platform_data/rtc-m48t86.h>
- #include <linux/mtd/nand.h>
- #include <linux/mtd/partitions.h>
- 
-diff --git a/arch/arm/mach-orion5x/ts78xx-setup.c b/arch/arm/mach-orion5x/ts78xx-setup.c
-index 3a58a5d4a28a..8d597267d0c4 100644
---- a/arch/arm/mach-orion5x/ts78xx-setup.c
-+++ b/arch/arm/mach-orion5x/ts78xx-setup.c
-@@ -16,7 +16,7 @@
- #include <linux/platform_device.h>
- #include <linux/mv643xx_eth.h>
- #include <linux/ata_platform.h>
--#include <linux/m48t86.h>
-+#include <linux/platform_data/rtc-m48t86.h>
- #include <linux/mtd/nand.h>
- #include <linux/mtd/partitions.h>
- #include <linux/timeriomem-rng.h>
-diff --git a/drivers/rtc/rtc-m48t86.c b/drivers/rtc/rtc-m48t86.c
-index f72b91f2501f..0eeb5714c00f 100644
---- a/drivers/rtc/rtc-m48t86.c
-+++ b/drivers/rtc/rtc-m48t86.c
-@@ -16,7 +16,7 @@
- #include <linux/module.h>
- #include <linux/rtc.h>
- #include <linux/platform_device.h>
--#include <linux/m48t86.h>
-+#include <linux/platform_data/rtc-m48t86.h>
- #include <linux/bcd.h>
- 
- #define M48T86_REG_SEC		0x00
-diff --git a/include/linux/m48t86.h b/include/linux/platform_data/rtc-m48t86.h
-similarity index 100%
-rename from include/linux/m48t86.h
-rename to include/linux/platform_data/rtc-m48t86.h
+Changes since v1:
+
+  - Complete register definitions and regmap regions.
+
+v1 was actually a working version that wasn't updated with the codec
+register definitions.
+
+
+Patch 1 adds bulk write support for regmaps without raw formatting.
+This is used in the RTC driver to write out the date and time in one
+call.
+
+Patch 2 adds device tree bindings for the AC100.
+
+Patch 3 adds the mfd driver for the AC100.
+
+Patch 4 adds the RTC driver for the AC100.
+
+Patch 5 adds RTC clk output support to the RTC driver.
+This is a separate patch as the clk code is over 300 LoC. Having a
+separate patch should make it easier for the clk maintainers to review.
+
+Patch 6 adds the AC100 device nodes to the A80 Optimus board dts.
+
+Patch 7 adds the AC100 device nodes to the Cubieboard4 board dts.
+
+Patch 8 fixes the order of device nodes in the A80 Optimus board dts.
+
+Patch 9 fixes the order of device nodes in the Cubieboard4 board dts.
+
+Patch 10 changes the fixed osc_32k clk to a fixed factor clk,
+representing the 32k clk input pin on the SoC, and also hooks up the
+ac100 rtc clk output to this clk in the board dts files.
+
+I'm hoping we can merge the driver bits (patches 2~5) through the
+mfd tree, with acks from the rtc and clk maintainers for patches
+4 and 5.
+
+
+Regards
+ChenYu
+
+
+Chen-Yu Tsai (10):
+  regmap: Support bulk writes for devices without raw formatting
+  mfd: ac100: Add device tree bindings for X-Powers AC100 codec/RTC
+    combo IC
+  mfd: ac100: Add driver for X-Powers AC100 audio codec / RTC combo IC
+  rtc: ac100: Add RTC driver for X-Powers AC100
+  rtc: ac100: Add clk output support
+  ARM: dts: sun9i: a80-optimus: Add device node for AC100
+  ARM: dts: sun9i: cubieboard4: Add device node for AC100
+  ARM: dts: sun9i: cubieboard4: Order nodes by alphabetical order
+  ARM: dts: sun9i: a80-optimus: Order nodes by alphabetical order
+  ARM: dts: sun9i: Switch to the AC100 RTC clock outputs for osc32k
+
+ Documentation/devicetree/bindings/mfd/ac100.txt |  42 ++
+ arch/arm/boot/dts/sun9i-a80-cubieboard4.dts     |  58 +-
+ arch/arm/boot/dts/sun9i-a80-optimus.dts         |  76 ++-
+ arch/arm/boot/dts/sun9i-a80.dtsi                |   9 +-
+ drivers/base/regmap/regmap.c                    |  31 +-
+ drivers/mfd/Kconfig                             |  10 +
+ drivers/mfd/Makefile                            |   2 +
+ drivers/mfd/ac100.c                             | 135 +++++
+ drivers/rtc/Kconfig                             |  10 +
+ drivers/rtc/Makefile                            |   1 +
+ drivers/rtc/rtc-ac100.c                         | 686 ++++++++++++++++++++++++
+ include/linux/mfd/ac100.h                       | 176 ++++++
+ 12 files changed, 1186 insertions(+), 50 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/mfd/ac100.txt
+ create mode 100644 drivers/mfd/ac100.c
+ create mode 100644 drivers/rtc/rtc-ac100.c
+ create mode 100644 include/linux/mfd/ac100.h
+
 -- 
 2.8.1
 
