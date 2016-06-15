@@ -1,31 +1,40 @@
-Return-Path: <rtc-linux+bncBDP6N55ZUYDRBEOSXK5QKGQECLM4ZYI@googlegroups.com>
+Return-Path: <rtc-linux+bncBCMILY6JWQBBBF42QW5QKGQEWREDT7A@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail-pf0-x232.google.com (mail-pf0-x232.google.com. [2607:f8b0:400e:c00::232])
-        by gmr-mx.google.com with ESMTPS id c11si1413356pfc.2.2016.06.25.08.53.52
+Received: from smtp.csie.ntu.edu.tw (smtp.csie.ntu.edu.tw. [140.112.30.61])
+        by gmr-mx.google.com with ESMTPS id ci4si3792582pad.1.2016.06.15.05.41.58
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sat, 25 Jun 2016 08:53:52 -0700 (PDT)
-Received: by mail-pf0-x232.google.com with SMTP id t190so48162250pfb.3
-        for <rtc-linux@googlegroups.com>; Sat, 25 Jun 2016 08:53:52 -0700 (PDT)
-Date: Sat, 25 Jun 2016 08:53:49 -0700
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Neil Armstrong <narmstrong@baylibre.com>
-Cc: andy.gross@linaro.org, david.brown@linaro.org, lee.jones@linaro.org,
-	lgirdwood@gmail.com, broonie@kernel.org, a.zummo@towertech.it,
-	alexandre.belloni@free-electrons.com, linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org,
-	linux-soc@vger.kernel.org, rtc-linux@googlegroups.com,
-	Rob Herring <robh@kernel.org>
-Subject: [rtc-linux] Re: [PATCH v2 2/5] input: pmic8xxx-pwrkey: Add support
- for pm8018 pwrkey
-Message-ID: <20160625155349.GD17812@dtor-ws>
-References: <1466759887-25394-1-git-send-email-narmstrong@baylibre.com>
- <1466759887-25394-3-git-send-email-narmstrong@baylibre.com>
- <20160624220748.GB11719@dtor-ws>
- <576E41FC.1080102@baylibre.com>
+        Wed, 15 Jun 2016 05:41:58 -0700 (PDT)
+Received: from mail-io0-f175.google.com (mail-io0-f175.google.com [209.85.223.175])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	(Authenticated sender: b93043)
+	by smtp.csie.ntu.edu.tw (Postfix) with ESMTPSA id 5782C20A54
+	for <rtc-linux@googlegroups.com>; Wed, 15 Jun 2016 20:41:56 +0800 (CST)
+Received: by mail-io0-f175.google.com with SMTP id 5so21336675ioy.1
+        for <rtc-linux@googlegroups.com>; Wed, 15 Jun 2016 05:41:56 -0700 (PDT)
 MIME-Version: 1.0
+In-Reply-To: <20160615123646.GD4948@dell>
+References: <1465986467-14802-1-git-send-email-wens@csie.org>
+ <1465986467-14802-4-git-send-email-wens@csie.org> <20160615123646.GD4948@dell>
+From: Chen-Yu Tsai <wens@csie.org>
+Date: Wed, 15 Jun 2016 20:41:35 +0800
+Message-ID: <CAGb2v669g6G4aK5UssyLLve1a-AbdVfo4CPYrt+YWmCUURz9qQ@mail.gmail.com>
+Subject: [rtc-linux] Re: [PATCH v2 03/10] mfd: ac100: Add driver for X-Powers
+ AC100 audio codec / RTC combo IC
+To: Lee Jones <lee.jones@linaro.org>
+Cc: Chen-Yu Tsai <wens@csie.org>, Mark Brown <broonie@kernel.org>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>, Rob Herring <robh+dt@kernel.org>,
+	Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>,
+	Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>,
+	Maxime Ripard <maxime.ripard@free-electrons.com>,
+	Michael Turquette <mturquette@baylibre.com>, Stephen Boyd <sboyd@codeaurora.org>,
+	rtc-linux@googlegroups.com, linux-kernel <linux-kernel@vger.kernel.org>,
+	devicetree <devicetree@vger.kernel.org>,
+	linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
+	linux-clk <linux-clk@vger.kernel.org>
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <576E41FC.1080102@baylibre.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -35,54 +44,79 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Sat, Jun 25, 2016 at 10:34:04AM +0200, Neil Armstrong wrote:
-> On 06/25/2016 12:07 AM, Dmitry Torokhov wrote:
-> > On Fri, Jun 24, 2016 at 11:18:04AM +0200, Neil Armstrong wrote:
-> >> In order to support pwrkey for Qualcomm MDM9615 SoC, add support
-> >> for the pm8018 pwrkey in pmic8xxx-pwrkey.
-> >>
-> >> Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-> >> Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
-> > 
-> > NAK.
-> 
-> Hi Dmitry,
-> 
-> Actually, the new compatible string make sense, because the driver is compatible with the
-> "pm8018" pwrkey but from a system point of view, it's not a pm8921 pwrkey, hence the new
-> compatible string.
+On Wed, Jun 15, 2016 at 8:36 PM, Lee Jones <lee.jones@linaro.org> wrote:
+> On Wed, 15 Jun 2016, Chen-Yu Tsai wrote:
+>
+>> The AC100 is a multifunction device with an audio codec subsystem and
+>> an RTC subsystem. These two subsystems share a common register space
+>> and host interface.
+>>
+>> Signed-off-by: Chen-Yu Tsai <wens@csie.org>
+>> ---
+>
+> Change log?
 
-A lot of systems note this fact in DTS, but not require driver changes,
-by specifying several compatible strings:
+Change log was in the cover letter. Changes were the addition of the
+codec related register macros and regmap ranges.
 
-	compatible = "nvidia,tegra114-sdhci", "nvidia,tegra30-sdhci";
-	compatible = "fsl,imx6q-i2c", "fsl,imx21-i2c";
-	compatible = "rockchip,rk3036-timer", "rockchip,rk3288-timer";
-
-> 
-> Rob Herring was very clear with me with this policy, and it will simplify further driver
-
-Could I get a pointer to this discussion so I can educate myself better
-about DT policies?
-
-> architecture change since it will not imply devicetree changes anymore.
-
-Would we need the driver changes? What are the differences in power key
-functionality between 8018 and 8921?
-
-> 
-> My point of view is that the devicetree describes the hardware and need to have SoC specific
-> compatible string since it describes the actual silicon, and drivers must make sure to handle
-> all the SoC or family variants using the compatible string and the match data.
-
-No, the compatible string means that the hardware is *compatible* with
-something. It does not mean that we need to adjust driver every time a
-company pumps out a new package including said hardware.
+>>  drivers/mfd/Kconfig       |  10 +++
+>>  drivers/mfd/Makefile      |   2 +
+>>  drivers/mfd/ac100.c       | 135 +++++++++++++++++++++++++++++++++++
+>>  include/linux/mfd/ac100.h | 176 ++++++++++++++++++++++++++++++++++++++++++++++
+>>  4 files changed, 323 insertions(+)
+>>  create mode 100644 drivers/mfd/ac100.c
+>>  create mode 100644 include/linux/mfd/ac100.h
+>>
+>> diff --git a/drivers/mfd/Kconfig b/drivers/mfd/Kconfig
+>> index 1bcf601de5bc..bd83849a0c8d 100644
+>> --- a/drivers/mfd/Kconfig
+>> +++ b/drivers/mfd/Kconfig
+>> @@ -101,6 +101,16 @@ config MFD_BCM590XX
+>>       help
+>>         Support for the BCM590xx PMUs from Broadcom
+>>
+>> +config MFD_AC100
+>> +     tristate "X-Powers AC100"
+>> +     select MFD_CORE
+>> +     depends on SUNXI_RSB
+>> +     help
+>> +       If you say Y here you get support for the X-Powers AC100 audio codec
+>> +       IC.
+>> +       This driver include only the core APIs. You have to select individual
+>> +       components like codecs or RTC under the corresponding menus.
+>> +
+>>  config MFD_AXP20X
+>>       tristate
+>>       select MFD_CORE
+>> diff --git a/drivers/mfd/Makefile b/drivers/mfd/Makefile
+>> index 42a66e19e191..60f9a6b0557c 100644
+>> --- a/drivers/mfd/Makefile
+>> +++ b/drivers/mfd/Makefile
+>> @@ -113,6 +113,8 @@ obj-$(CONFIG_PMIC_DA9052) += da9052-irq.o
+>>  obj-$(CONFIG_PMIC_DA9052)    += da9052-core.o
+>>  obj-$(CONFIG_MFD_DA9052_SPI) += da9052-spi.o
+>>  obj-$(CONFIG_MFD_DA9052_I2C) += da9052-i2c.o
+>> +
+>> +obj-$(CONFIG_MFD_AC100)              += ac100.o
+>>  obj-$(CONFIG_MFD_AXP20X)     += axp20x.o
+>>  obj-$(CONFIG_MFD_AXP20X_I2C) += axp20x-i2c.o
+>>  obj-$(CONFIG_MFD_AXP20X_RSB) += axp20x-rsb.o
+>> diff --git a/drivers/mfd/ac100.c b/drivers/mfd/ac100.c
+>> new file mode 100644
+>> index 000000000000..15d24fa77771
+>> --- /dev/null
+>> +++ b/drivers/mfd/ac100.c
+>> @@ -0,0 +1,135 @@
+>> +/*
+>> + * ac100.c - MFD core driver for X-Powers' AC100 Audio Codec IC
+>
+> Nit: Drop the filename here.
+>
+> Apart from that:
+>   Acked-by: Lee Jones <lee.jones@linaro.org>
 
 Thanks.
-
--- 
-Dmitry
+ChenYu
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
