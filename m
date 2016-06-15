@@ -1,41 +1,38 @@
-Return-Path: <rtc-linux+bncBCMILY6JWQBBBF42QW5QKGQEWREDT7A@googlegroups.com>
+Return-Path: <rtc-linux+bncBCMILY6JWQBBBKW3QS5QKGQES2DSYUI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from smtp.csie.ntu.edu.tw (smtp.csie.ntu.edu.tw. [140.112.30.61])
-        by gmr-mx.google.com with ESMTPS id ci4si3792582pad.1.2016.06.15.05.41.58
+MIME-Version: 1.0
+Received: from wens.csie.org (mirror2.csie.ntu.edu.tw. [140.112.30.76])
+        by gmr-mx.google.com with ESMTPS id e68si3383280pfa.0.2016.06.15.03.27.54
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 15 Jun 2016 05:41:58 -0700 (PDT)
-Received: from mail-io0-f175.google.com (mail-io0-f175.google.com [209.85.223.175])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	(Authenticated sender: b93043)
-	by smtp.csie.ntu.edu.tw (Postfix) with ESMTPSA id 5782C20A54
-	for <rtc-linux@googlegroups.com>; Wed, 15 Jun 2016 20:41:56 +0800 (CST)
-Received: by mail-io0-f175.google.com with SMTP id 5so21336675ioy.1
-        for <rtc-linux@googlegroups.com>; Wed, 15 Jun 2016 05:41:56 -0700 (PDT)
-MIME-Version: 1.0
-In-Reply-To: <20160615123646.GD4948@dell>
-References: <1465986467-14802-1-git-send-email-wens@csie.org>
- <1465986467-14802-4-git-send-email-wens@csie.org> <20160615123646.GD4948@dell>
+        Wed, 15 Jun 2016 03:27:54 -0700 (PDT)
 From: Chen-Yu Tsai <wens@csie.org>
-Date: Wed, 15 Jun 2016 20:41:35 +0800
-Message-ID: <CAGb2v669g6G4aK5UssyLLve1a-AbdVfo4CPYrt+YWmCUURz9qQ@mail.gmail.com>
-Subject: [rtc-linux] Re: [PATCH v2 03/10] mfd: ac100: Add driver for X-Powers
- AC100 audio codec / RTC combo IC
-To: Lee Jones <lee.jones@linaro.org>
-Cc: Chen-Yu Tsai <wens@csie.org>, Mark Brown <broonie@kernel.org>,
+To: Mark Brown <broonie@kernel.org>,
+	Lee Jones <lee.jones@linaro.org>,
 	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>, Rob Herring <robh+dt@kernel.org>,
-	Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>,
-	Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Rob Herring <robh+dt@kernel.org>,
+	Pawel Moll <pawel.moll@arm.com>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Ian Campbell <ijc+devicetree@hellion.org.uk>,
+	Kumar Gala <galak@codeaurora.org>,
 	Maxime Ripard <maxime.ripard@free-electrons.com>,
-	Michael Turquette <mturquette@baylibre.com>, Stephen Boyd <sboyd@codeaurora.org>,
-	rtc-linux@googlegroups.com, linux-kernel <linux-kernel@vger.kernel.org>,
-	devicetree <devicetree@vger.kernel.org>,
-	linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
-	linux-clk <linux-clk@vger.kernel.org>
-Content-Type: text/plain; charset=UTF-8
+	Michael Turquette <mturquette@baylibre.com>,
+	Stephen Boyd <sboyd@codeaurora.org>
+Cc: Chen-Yu Tsai <wens@csie.org>,
+	rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org,
+	devicetree@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	linux-clk@vger.kernel.org
+Subject: [rtc-linux] [PATCH v2 01/10] regmap: Support bulk writes for devices
+ without raw formatting
+Date: Wed, 15 Jun 2016 18:27:38 +0800
+Message-Id: <1465986467-14802-2-git-send-email-wens@csie.org>
+In-Reply-To: <1465986467-14802-1-git-send-email-wens@csie.org>
+References: <1465986467-14802-1-git-send-email-wens@csie.org>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -44,79 +41,81 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Wed, Jun 15, 2016 at 8:36 PM, Lee Jones <lee.jones@linaro.org> wrote:
-> On Wed, 15 Jun 2016, Chen-Yu Tsai wrote:
->
->> The AC100 is a multifunction device with an audio codec subsystem and
->> an RTC subsystem. These two subsystems share a common register space
->> and host interface.
->>
->> Signed-off-by: Chen-Yu Tsai <wens@csie.org>
->> ---
->
-> Change log?
+When doing a bulk writes from a device which lacks raw I/O support we
+fall back to doing register at a time reads but we still use the raw
+formatters in order to render the data into the word size used by the
+device (since bulk reads still operate on the device word size rather
+than unsigned ints).  This means that devices without raw formatting
+such as those that provide reg_read() are not supported.  Provide
+handling for them by copying the values read into native endian values
+of the appropriate size.
 
-Change log was in the cover letter. Changes were the addition of the
-codec related register macros and regmap ranges.
+This complements commit d5b98eb12420 ("regmap: Support bulk reads for
+devices without raw formatting").
 
->>  drivers/mfd/Kconfig       |  10 +++
->>  drivers/mfd/Makefile      |   2 +
->>  drivers/mfd/ac100.c       | 135 +++++++++++++++++++++++++++++++++++
->>  include/linux/mfd/ac100.h | 176 ++++++++++++++++++++++++++++++++++++++++++++++
->>  4 files changed, 323 insertions(+)
->>  create mode 100644 drivers/mfd/ac100.c
->>  create mode 100644 include/linux/mfd/ac100.h
->>
->> diff --git a/drivers/mfd/Kconfig b/drivers/mfd/Kconfig
->> index 1bcf601de5bc..bd83849a0c8d 100644
->> --- a/drivers/mfd/Kconfig
->> +++ b/drivers/mfd/Kconfig
->> @@ -101,6 +101,16 @@ config MFD_BCM590XX
->>       help
->>         Support for the BCM590xx PMUs from Broadcom
->>
->> +config MFD_AC100
->> +     tristate "X-Powers AC100"
->> +     select MFD_CORE
->> +     depends on SUNXI_RSB
->> +     help
->> +       If you say Y here you get support for the X-Powers AC100 audio codec
->> +       IC.
->> +       This driver include only the core APIs. You have to select individual
->> +       components like codecs or RTC under the corresponding menus.
->> +
->>  config MFD_AXP20X
->>       tristate
->>       select MFD_CORE
->> diff --git a/drivers/mfd/Makefile b/drivers/mfd/Makefile
->> index 42a66e19e191..60f9a6b0557c 100644
->> --- a/drivers/mfd/Makefile
->> +++ b/drivers/mfd/Makefile
->> @@ -113,6 +113,8 @@ obj-$(CONFIG_PMIC_DA9052) += da9052-irq.o
->>  obj-$(CONFIG_PMIC_DA9052)    += da9052-core.o
->>  obj-$(CONFIG_MFD_DA9052_SPI) += da9052-spi.o
->>  obj-$(CONFIG_MFD_DA9052_I2C) += da9052-i2c.o
->> +
->> +obj-$(CONFIG_MFD_AC100)              += ac100.o
->>  obj-$(CONFIG_MFD_AXP20X)     += axp20x.o
->>  obj-$(CONFIG_MFD_AXP20X_I2C) += axp20x-i2c.o
->>  obj-$(CONFIG_MFD_AXP20X_RSB) += axp20x-rsb.o
->> diff --git a/drivers/mfd/ac100.c b/drivers/mfd/ac100.c
->> new file mode 100644
->> index 000000000000..15d24fa77771
->> --- /dev/null
->> +++ b/drivers/mfd/ac100.c
->> @@ -0,0 +1,135 @@
->> +/*
->> + * ac100.c - MFD core driver for X-Powers' AC100 Audio Codec IC
->
-> Nit: Drop the filename here.
->
-> Apart from that:
->   Acked-by: Lee Jones <lee.jones@linaro.org>
+Signed-off-by: Chen-Yu Tsai <wens@csie.org>
+---
+ drivers/base/regmap/regmap.c | 31 ++++++++++++++++++++++++++++---
+ 1 file changed, 28 insertions(+), 3 deletions(-)
 
-Thanks.
-ChenYu
+diff --git a/drivers/base/regmap/regmap.c b/drivers/base/regmap/regmap.c
+index df2d2ef5d6b3..51fa7d66a393 100644
+--- a/drivers/base/regmap/regmap.c
++++ b/drivers/base/regmap/regmap.c
+@@ -1777,8 +1777,6 @@ int regmap_bulk_write(struct regmap *map, unsigned int reg, const void *val,
+ 	size_t val_bytes = map->format.val_bytes;
+ 	size_t total_size = val_bytes * val_count;
+ 
+-	if (map->bus && !map->format.parse_inplace)
+-		return -EINVAL;
+ 	if (!IS_ALIGNED(reg, map->reg_stride))
+ 		return -EINVAL;
+ 
+@@ -1789,7 +1787,8 @@ int regmap_bulk_write(struct regmap *map, unsigned int reg, const void *val,
+ 	 *
+ 	 * The first if block is used for memory mapped io. It does not allow
+ 	 * val_bytes of 3 for example.
+-	 * The second one is used for busses which do not have this limitation
++	 * The second one is for busses that do not provide raw I/O.
++	 * The third one is used for busses which do not have these limitations
+ 	 * and can write arbitrary value lengths.
+ 	 */
+ 	if (!map->bus) {
+@@ -1825,6 +1824,32 @@ int regmap_bulk_write(struct regmap *map, unsigned int reg, const void *val,
+ 		}
+ out:
+ 		map->unlock(map->lock_arg);
++	} else if (map->bus && !map->format.parse_inplace) {
++		const u8 *u8 = val;
++		const u16 *u16 = val;
++		const u32 *u32 = val;
++		unsigned int ival;
++
++		for (i = 0; i < val_count; i++) {
++			switch (map->format.val_bytes) {
++			case 4:
++				ival = u32[i];
++				break;
++			case 2:
++				ival = u16[i];
++				break;
++			case 1:
++				ival = u8[i];
++				break;
++			default:
++				return -EINVAL;
++			}
++
++			ret = regmap_write(map, reg + (i * map->reg_stride),
++					   ival);
++			if (ret)
++				return ret;
++		}
+ 	} else if (map->use_single_write ||
+ 		   (map->max_raw_write && map->max_raw_write < total_size)) {
+ 		int chunk_stride = map->reg_stride;
+-- 
+2.8.1
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
