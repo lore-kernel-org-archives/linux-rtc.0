@@ -1,32 +1,42 @@
-Return-Path: <rtc-linux+bncBDA7X7F2WUEBBQGU4C5AKGQEXO75IAY@googlegroups.com>
+Return-Path: <rtc-linux+bncBDA7X7F2WUEBBBMBRO5QKGQE7QLYCDA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail-wm0-x232.google.com (mail-wm0-x232.google.com. [2a00:1450:400c:c09::232])
-        by gmr-mx.google.com with ESMTPS id f10si27985wmg.2.2016.06.08.07.22.55
+Received: from mail-wm0-x22a.google.com (mail-wm0-x22a.google.com. [2a00:1450:400c:c09::22a])
+        by gmr-mx.google.com with ESMTPS id a6si500392wma.1.2016.06.16.08.06.45
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 08 Jun 2016 07:22:55 -0700 (PDT)
-Received: by mail-wm0-x232.google.com with SMTP id k204so19119630wmk.0
-        for <rtc-linux@googlegroups.com>; Wed, 08 Jun 2016 07:22:55 -0700 (PDT)
-Date: Wed, 8 Jun 2016 15:23:26 +0100
+        Thu, 16 Jun 2016 08:06:45 -0700 (PDT)
+Received: by mail-wm0-x22a.google.com with SMTP id m124so73183076wme.1
+        for <rtc-linux@googlegroups.com>; Thu, 16 Jun 2016 08:06:45 -0700 (PDT)
+Date: Thu, 16 Jun 2016 16:07:27 +0100
 From: Lee Jones <lee.jones@linaro.org>
-To: Wadim Egorov <w.egorov@phytec.de>
-Cc: linux-kernel@vger.kernel.org, linux-clk@vger.kernel.org,
-	rtc-linux@googlegroups.com, devicetree@vger.kernel.org,
-	linux-rockchip@lists.infradead.org, robh+dt@kernel.org,
-	pawel.moll@arm.com, mark.rutland@arm.com,
-	ijc+devicetree@hellion.org.uk, galak@codeaurora.org,
-	mturquette@baylibre.com, sboyd@codeaurora.org, lgirdwood@gmail.com,
-	broonie@kernel.org, a.zummo@towertech.it,
-	alexandre.belloni@free-electrons.com, dianders@chromium.org,
-	zyw@rock-chips.com
-Subject: [rtc-linux] Re: [RESEND PATCH v5 3/5] mfd: dt-bindings: Add RK818
- device tree bindings document
-Message-ID: <20160608142326.GF14888@dell>
-References: <1464850228-17244-1-git-send-email-w.egorov@phytec.de>
- <1464850228-17244-3-git-send-email-w.egorov@phytec.de>
+To: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+Cc: Mark Brown <broonie@kernel.org>, Kukjin Kim <kgene@kernel.org>,
+	MyungJoo Ham <myungjoo.ham@samsung.com>,
+	Chanwoo Choi <cw00.choi@samsung.com>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Richard Purdie <rpurdie@rpsys.net>,
+	Jacek Anaszewski <j.anaszewski@samsung.com>,
+	Sebastian Reichel <sre@kernel.org>,
+	Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>,
+	David Woodhouse <dwmw2@infradead.org>,
+	Liam Girdwood <lgirdwood@gmail.com>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+	linux-samsung-soc@vger.kernel.org, linux-kernel@vger.kernel.org,
+	linux-input@vger.kernel.org, linux-leds@vger.kernel.org,
+	linux-pm@vger.kernel.org, rtc-linux@googlegroups.com,
+	r.baldyga@hackerion.com,
+	Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+Subject: [rtc-linux] Re: [PATCH v7 1/6] mfd: max8997: Use regmap to access registers
+Message-ID: <20160616150727.GF4948@dell>
+References: <1464773339-756-1-git-send-email-k.kozlowski@samsung.com>
+ <1464774841-1439-1-git-send-email-k.kozlowski@samsung.com>
+ <20160608142621.GG14888@dell>
+ <57582C1F.5040306@samsung.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1464850228-17244-3-git-send-email-w.egorov@phytec.de>
+In-Reply-To: <57582C1F.5040306@samsung.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -36,92 +46,52 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Thu, 02 Jun 2016, Wadim Egorov wrote:
+On Wed, 08 Jun 2016, Krzysztof Kozlowski wrote:
 
-> Add device tree bindings documentation for Rockchip's RK818 PMIC.
+> On 06/08/2016 04:26 PM, Lee Jones wrote:
+> > On Wed, 01 Jun 2016, Krzysztof Kozlowski wrote:
+> >=20
+> >> From: Robert Baldyga <r.baldyga@samsung.com>
+> >>
+> >> This patch modifies max8997 driver and each associated function driver=
+,
+> >> to use regmap instead of operating directly on i2c bus. It will allow =
+to
+> >> simplify IRQ handling using regmap-irq.
+> >>
+> >> Signed-off-by: Robert Baldyga <r.baldyga@samsung.com>
+> >> Reviewed-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+> >>
+> >> Acked-by: Chanwoo Choi <cw00.choi@samsung.com>
+> >> Acked-by: Bryan Wu <cooloney@gmail.com>
+> >> Acked-by: Lee Jones <lee.jones@linaro.org>
+> >> Acked-by: Sebastian Reichel <sre@kernel.org>
+> >> Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> >> Acked-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+> >> [k.kozlowski: Collect acks, rebase on v4.6-rc6]
+> >> Signed-off-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+> >> Acked-by: Jacek Anaszewski <j.anaszewski@samsung.com>
+> >> ---
+> >>  drivers/extcon/extcon-max8997.c       |  31 ++++----
+> >>  drivers/input/misc/max8997_haptic.c   |  34 ++++----
+> >>  drivers/leds/leds-max8997.c           |  13 ++--
+> >>  drivers/mfd/Kconfig                   |   1 +
+> >>  drivers/mfd/max8997-irq.c             |  64 ++++++---------
+> >>  drivers/mfd/max8997.c                 | 141 +++++++++++++++----------=
+---------
+> >>  drivers/power/max8997_charger.c       |  33 ++++----
+> >>  drivers/regulator/max8997-regulator.c |  87 ++++++++++-----------
+> >=20
+> > Is it just Mark's Ack you require?
 >=20
-> Signed-off-by: Wadim Egorov <w.egorov@phytec.de>
-> Acked-by: Rob Herring <robh@kernel.org>
+> Yes, only Mark's is missing here. All other patches got everything they
+> need.
 
-Acked-by: Lee Jones <lee.jones@linaro.org>
+I think you'd better re-submit and get Mark's attention.
 
-> ---
->  Documentation/devicetree/bindings/mfd/rk808.txt | 37 +++++++++++++++++++=
-++++--
->  1 file changed, 34 insertions(+), 3 deletions(-)
->=20
-> diff --git a/Documentation/devicetree/bindings/mfd/rk808.txt b/Documentat=
-ion/devicetree/bindings/mfd/rk808.txt
-> index 4ca6aab..9636ae8 100644
-> --- a/Documentation/devicetree/bindings/mfd/rk808.txt
-> +++ b/Documentation/devicetree/bindings/mfd/rk808.txt
-> @@ -1,7 +1,11 @@
-> -RK808 Power Management Integrated Circuit
-> +RK8XX Power Management Integrated Circuit
-> +
-> +The rk8xx family current members:
-> +rk808
-> +rk818
-> =20
->  Required properties:
-> -- compatible: "rockchip,rk808"
-> +- compatible: "rockchip,rk808", "rockchip,rk818"
->  - reg: I2C slave address
->  - interrupt-parent: The parent interrupt controller.
->  - interrupts: the interrupt outputs of the controller.
-> @@ -13,6 +17,8 @@ Optional properties:
->    default output clock name
->  - rockchip,system-power-controller: Telling whether or not this pmic is =
-controlling
->    the system power.
-> +
-> +Optional RK808 properties:
->  - vcc1-supply:  The input supply for DCDC_REG1
->  - vcc2-supply:  The input supply for DCDC_REG2
->  - vcc3-supply:  The input supply for DCDC_REG3
-> @@ -29,7 +35,20 @@ Optional properties:
->    the gpio controller. If DVS GPIOs aren't present, voltage changes will=
- happen
->    very quickly with no slow ramp time.
-> =20
-> -Regulators: All the regulators of RK808 to be instantiated shall be
-> +Optional RK818 properties:
-> +- vcc1-supply:  The input supply for DCDC_REG1
-> +- vcc2-supply:  The input supply for DCDC_REG2
-> +- vcc3-supply:  The input supply for DCDC_REG3
-> +- vcc4-supply:  The input supply for DCDC_REG4
-> +- boost-supply: The input supply for DCDC_BOOST
-> +- vcc6-supply:  The input supply for LDO_REG1 and LDO_REG2
-> +- vcc7-supply:  The input supply for LDO_REG3, LDO_REG5 and LDO_REG7
-> +- vcc8-supply:  The input supply for LDO_REG4, LDO_REG6 and LDO_REG8
-> +- vcc9-supply:  The input supply for LDO_REG9 and SWITCH_REG
-> +- h_5v-supply:  The input supply for HDMI_SWITCH
-> +- usb-supply:   The input supply for OTG_SWITCH
-> +
-> +Regulators: All the regulators of RK8XX to be instantiated shall be
->  listed in a child node named 'regulators'. Each regulator is represented
->  by a child node of the 'regulators' node.
-> =20
-> @@ -48,6 +67,18 @@ number as described in RK808 datasheet.
->  	- SWITCH_REGn
->  		- valid values for n are 1 to 2
-> =20
-> +Following regulators of the RK818 PMIC block are supported. Note that
-> +the 'n' in regulator name, as in DCDC_REGn or LDOn, represents the DCDC =
-or LDO
-> +number as described in RK818 datasheet.
-> +
-> +	- DCDC_REGn
-> +		- valid values for n are 1 to 4.
-> +	- LDO_REGn
-> +		- valid values for n are 1 to 9.
-> +	- SWITCH_REG
-> +	- HDMI_SWITCH
-> +	- OTG_SWITCH
-> +
->  Standard regulator bindings are used inside regulator subnodes. Check
->    Documentation/devicetree/bindings/regulator/regulator.txt
->  for more details
+Also indicate that his Ack is all you need.
+
+Once received, I can take the set.
 
 --=20
 Lee Jones
