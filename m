@@ -1,26 +1,33 @@
-Return-Path: <rtc-linux+bncBDKOBWPM5ABRBXWWUO5QKGQEFCNBBNI@googlegroups.com>
+Return-Path: <rtc-linux+bncBDAYD2P3QYGRBV46R65QKGQESXRVJDY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 MIME-Version: 1.0
-Received: from mail-pf0-x241.google.com (mail-pf0-x241.google.com. [2607:f8b0:400e:c00::241])
-        by gmr-mx.google.com with ESMTPS id po17si907962pab.2.2016.06.21.00.23.10
+Received: from mail-wm0-x22f.google.com (mail-wm0-x22f.google.com. [2a00:1450:400c:c09::22f])
+        by gmr-mx.google.com with ESMTPS id a6si638344wma.1.2016.06.17.03.22.15
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 21 Jun 2016 00:23:10 -0700 (PDT)
-Received: by mail-pf0-x241.google.com with SMTP id t190so762020pfb.2
-        for <rtc-linux@googlegroups.com>; Tue, 21 Jun 2016 00:23:10 -0700 (PDT)
-From: Andrey Smirnov <andrew.smirnov@gmail.com>
-To: rtc-linux@googlegroups.com
-Cc: Andrey Smirnov <andrew.smirnov@gmail.com>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        Fri, 17 Jun 2016 03:22:15 -0700 (PDT)
+Received: by mail-wm0-x22f.google.com with SMTP id r190so36893069wmr.0
+        for <rtc-linux@googlegroups.com>; Fri, 17 Jun 2016 03:22:15 -0700 (PDT)
+From: Neil Armstrong <narmstrong@baylibre.com>
+To: dmitry.torokhov@gmail.com,
+	andy.gross@linaro.org,
+	david.brown@linaro.org,
+	lee.jones@linaro.org,
+	lgirdwood@gmail.com,
+	broonie@kernel.org,
+	a.zummo@towertech.it,
+	alexandre.belloni@free-electrons.com
+Cc: Neil Armstrong <narmstrong@baylibre.com>,
+	linux-input@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
-	cphealy@gmail.com
-Subject: [rtc-linux] [PATCH v2 13/17] RTC: ds1307: Report oscillator problems
- more intelligently
-Date: Tue, 21 Jun 2016 00:22:46 -0700
-Message-Id: <1466493770-11895-12-git-send-email-andrew.smirnov@gmail.com>
-In-Reply-To: <1466493770-11895-1-git-send-email-andrew.smirnov@gmail.com>
-References: <1466493770-11895-1-git-send-email-andrew.smirnov@gmail.com>
+	linux-arm-msm@vger.kernel.org,
+	linux-soc@vger.kernel.org,
+	rtc-linux@googlegroups.com
+Subject: [rtc-linux] [PATCH 1/5] mfd: pm8921: Add support for pm8018
+Date: Fri, 17 Jun 2016 12:22:05 +0200
+Message-Id: <1466158929-19524-2-git-send-email-narmstrong@baylibre.com>
+In-Reply-To: <1466158929-19524-1-git-send-email-narmstrong@baylibre.com>
+References: <1466158929-19524-1-git-send-email-narmstrong@baylibre.com>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -31,98 +38,28 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Report oscillator problems more intelligently, by printing more
-information about what cause the issue and not yelling "SET TIME!" at
-the user.
+In order to support the Qualcomm MDM9615 PMIC, add support for the
+pm8018 in pm8921 mfd driver.
 
-Signed-off-by: Andrey Smirnov <andrew.smirnov@gmail.com>
+Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
 ---
- drivers/rtc/rtc-ds1307.c | 28 +++++++++++++++++++++++-----
- 1 file changed, 23 insertions(+), 5 deletions(-)
+ drivers/mfd/pm8921-core.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
-index 2af9c00..2169e5b 100644
---- a/drivers/rtc/rtc-ds1307.c
-+++ b/drivers/rtc/rtc-ds1307.c
-@@ -1424,6 +1424,19 @@ static int ds1307_chip_configure(const struct ds1307 *ds1307)
- 	return 0;
- }
+diff --git a/drivers/mfd/pm8921-core.c b/drivers/mfd/pm8921-core.c
+index 1b7ec08..0e3a2ea 100644
+--- a/drivers/mfd/pm8921-core.c
++++ b/drivers/mfd/pm8921-core.c
+@@ -309,6 +309,7 @@ static const struct regmap_config ssbi_regmap_config = {
+ };
  
-+static void ds1307_report_clock_halt(const struct ds1307 *ds1307)
-+{
-+	dev_warn(&ds1307->client->dev, "RTC's oscillator is turned off. "
-+		 "Turning it on. Please set time");
-+}
-+
-+static void ds1307_report_oscillator_fault(const struct ds1307 *ds1307)
-+{
-+	dev_warn(&ds1307->client->dev, "RTC's reported oscillator fault. "
-+		 "Clearing the fault flag and re-reading RTC status. "
-+		 "Please set time");
-+}
-+
- static int ds1307_chip_sanity_check(const struct ds1307 *ds1307)
- {
- 	int tmp, retries;
-@@ -1453,7 +1466,7 @@ static int ds1307_chip_sanity_check(const struct ds1307 *ds1307)
- 			if (tmp & DS1307_BIT_CH) {
- 				i2c_smbus_write_byte_data(client,
- 							  DS1307_REG_SECS, 0);
--				dev_warn(&client->dev, "SET TIME!\n");
-+				ds1307_report_clock_halt(ds1307);
- 				continue;
- 			}
- 			break;
-@@ -1469,15 +1482,17 @@ static int ds1307_chip_sanity_check(const struct ds1307 *ds1307)
- 							  DS1307_REG_CONTROL,
- 							  regs[DS1307_REG_CONTROL]
- 							  & ~DS1338_BIT_OSF);
--				dev_warn(&client->dev, "SET TIME!\n");
-+				ds1307_report_oscillator_fault(ds1307);
- 				continue;
- 			}
- 			break;
- 		case ds_1340:
- 			/* clock halted?  turn it on, so clock can tick. */
--			if (tmp & DS1340_BIT_nEOSC)
-+			if (tmp & DS1340_BIT_nEOSC) {
- 				i2c_smbus_write_byte_data(client,
- 							  DS1307_REG_SECS, 0);
-+				ds1307_report_clock_halt(ds1307);
-+			}
- 
- 			tmp = i2c_smbus_read_byte_data(client, DS1340_REG_FLAG);
- 			if (tmp < 0) {
-@@ -1489,7 +1504,7 @@ static int ds1307_chip_sanity_check(const struct ds1307 *ds1307)
- 			if (tmp & DS1340_BIT_OSF) {
- 				i2c_smbus_write_byte_data(client,
- 							  DS1340_REG_FLAG, 0);
--				dev_warn(&client->dev, "SET TIME!\n");
-+				ds1307_report_oscillator_fault(ds1307);
- 			}
- 			return 0;
- 
-@@ -1500,6 +1515,9 @@ static int ds1307_chip_sanity_check(const struct ds1307 *ds1307)
- 							  DS1307_REG_WDAY,
- 							  regs[DS1307_REG_WDAY]
- 							  | MCP794XX_BIT_VBATEN);
-+				dev_warn(&client->dev,
-+					 "battery backup was disabled. "
-+					 "Re-enabling it\n");
- 			}
- 
- 			/* clock halted?  turn it on, so clock can tick. */
-@@ -1507,7 +1525,7 @@ static int ds1307_chip_sanity_check(const struct ds1307 *ds1307)
- 				i2c_smbus_write_byte_data(client,
- 							  DS1307_REG_SECS,
- 							  MCP794XX_BIT_ST);
--				dev_warn(&client->dev, "SET TIME!\n");
-+				ds1307_report_clock_halt(ds1307);
- 				continue;
- 			}
- 
+ static const struct of_device_id pm8921_id_table[] = {
++	{ .compatible = "qcom,pm8018", },
+ 	{ .compatible = "qcom,pm8058", },
+ 	{ .compatible = "qcom,pm8921", },
+ 	{ }
 -- 
-2.5.5
+1.9.1
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
