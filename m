@@ -1,13 +1,13 @@
-Return-Path: <rtc-linux+bncBDAYD2P3QYGRBV7VWO5QKGQEWG2NWVY@googlegroups.com>
+Return-Path: <rtc-linux+bncBDAYD2P3QYGRBWE6R65QKGQEJABVMIY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 MIME-Version: 1.0
-Received: from mail-wm0-x22d.google.com (mail-wm0-x22d.google.com. [2a00:1450:400c:c09::22d])
-        by gmr-mx.google.com with ESMTPS id f70si104183wmf.0.2016.06.24.02.18.15
+Received: from mail-wm0-x233.google.com (mail-wm0-x233.google.com. [2a00:1450:400c:c09::233])
+        by gmr-mx.google.com with ESMTPS id x70si348169wmf.1.2016.06.17.03.22.16
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 24 Jun 2016 02:18:15 -0700 (PDT)
-Received: by mail-wm0-x22d.google.com with SMTP id v199so14407446wmv.0
-        for <rtc-linux@googlegroups.com>; Fri, 24 Jun 2016 02:18:15 -0700 (PDT)
+        Fri, 17 Jun 2016 03:22:16 -0700 (PDT)
+Received: by mail-wm0-x233.google.com with SMTP id f126so82534649wma.1
+        for <rtc-linux@googlegroups.com>; Fri, 17 Jun 2016 03:22:16 -0700 (PDT)
 From: Neil Armstrong <narmstrong@baylibre.com>
 To: dmitry.torokhov@gmail.com,
 	andy.gross@linaro.org,
@@ -23,12 +23,12 @@ Cc: Neil Armstrong <narmstrong@baylibre.com>,
 	linux-arm-msm@vger.kernel.org,
 	linux-soc@vger.kernel.org,
 	rtc-linux@googlegroups.com
-Subject: [rtc-linux] [PATCH v2 2/5] input: pmic8xxx-pwrkey: Add support for
+Subject: [rtc-linux] [PATCH 2/5] input: pmic8xxx-pwrkey: Add support for
  pm8018 pwrkey
-Date: Fri, 24 Jun 2016 11:18:04 +0200
-Message-Id: <1466759887-25394-3-git-send-email-narmstrong@baylibre.com>
-In-Reply-To: <1466759887-25394-1-git-send-email-narmstrong@baylibre.com>
-References: <1466759887-25394-1-git-send-email-narmstrong@baylibre.com>
+Date: Fri, 17 Jun 2016 12:22:06 +0200
+Message-Id: <1466158929-19524-3-git-send-email-narmstrong@baylibre.com>
+In-Reply-To: <1466158929-19524-1-git-send-email-narmstrong@baylibre.com>
+References: <1466158929-19524-1-git-send-email-narmstrong@baylibre.com>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -42,7 +42,6 @@ List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegro
 In order to support pwrkey for Qualcomm MDM9615 SoC, add support
 for the pm8018 pwrkey in pmic8xxx-pwrkey.
 
-Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
 ---
  Documentation/devicetree/bindings/input/qcom,pm8xxx-pwrkey.txt | 1 +
