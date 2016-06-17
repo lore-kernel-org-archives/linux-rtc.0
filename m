@@ -1,22 +1,33 @@
-Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBIVCYG5QKGQEJAZLP4Q@googlegroups.com>
+Return-Path: <rtc-linux+bncBDAYD2P3QYGRBWM6R65QKGQET3YA23A@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 MIME-Version: 1.0
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id a6si320178wma.1.2016.06.26.15.03.13
-        for <rtc-linux@googlegroups.com>;
-        Sun, 26 Jun 2016 15:03:13 -0700 (PDT)
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: rtc-linux@googlegroups.com
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
+Received: from mail-wm0-x234.google.com (mail-wm0-x234.google.com. [2a00:1450:400c:c09::234])
+        by gmr-mx.google.com with ESMTPS id f10si338286wmg.2.2016.06.17.03.22.17
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Fri, 17 Jun 2016 03:22:17 -0700 (PDT)
+Received: by mail-wm0-x234.google.com with SMTP id k184so36859625wme.1
+        for <rtc-linux@googlegroups.com>; Fri, 17 Jun 2016 03:22:17 -0700 (PDT)
+From: Neil Armstrong <narmstrong@baylibre.com>
+To: dmitry.torokhov@gmail.com,
+	andy.gross@linaro.org,
+	david.brown@linaro.org,
+	lee.jones@linaro.org,
+	lgirdwood@gmail.com,
+	broonie@kernel.org,
+	a.zummo@towertech.it,
+	alexandre.belloni@free-electrons.com
+Cc: Neil Armstrong <narmstrong@baylibre.com>,
+	linux-input@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Ralf Baechle <ralf@linux-mips.org>,
-	linux-mips@linux-mips.org
-Subject: [rtc-linux] [PATCH 2/5] rtc: ds1286: move header to linux/rtc
-Date: Mon, 27 Jun 2016 00:03:00 +0200
-Message-Id: <1466978583-13310-2-git-send-email-alexandre.belloni@free-electrons.com>
-In-Reply-To: <1466978583-13310-1-git-send-email-alexandre.belloni@free-electrons.com>
-References: <1466978583-13310-1-git-send-email-alexandre.belloni@free-electrons.com>
+	linux-arm-msm@vger.kernel.org,
+	linux-soc@vger.kernel.org,
+	rtc-linux@googlegroups.com
+Subject: [rtc-linux] [PATCH 3/5] rtc: rtc-pm8xxx: Add support for pm8018 rtc
+Date: Fri, 17 Jun 2016 12:22:07 +0200
+Message-Id: <1466158929-19524-4-git-send-email-narmstrong@baylibre.com>
+In-Reply-To: <1466158929-19524-1-git-send-email-narmstrong@baylibre.com>
+References: <1466158929-19524-1-git-send-email-narmstrong@baylibre.com>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -27,50 +38,58 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Move ds1286.h to rtc specific folder.
+In order to support RTC on Qualcomm MDM9615 SoC, add support for
+the pm8018 rtc in rtc-pm8xxx driver.
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
 ---
-Cc: Ralf Baechle <ralf@linux-mips.org>
-Cc: linux-mips@linux-mips.org
- arch/mips/sgi-ip22/ip22-reset.c  | 2 +-
- drivers/rtc/rtc-ds1286.c         | 2 +-
- include/linux/{ => rtc}/ds1286.h | 0
- 3 files changed, 2 insertions(+), 2 deletions(-)
- rename include/linux/{ => rtc}/ds1286.h (100%)
+ Documentation/devicetree/bindings/mfd/qcom-pm8xxx.txt |  1 +
+ drivers/rtc/rtc-pm8xxx.c                              | 11 +++++++++++
+ 2 files changed, 12 insertions(+)
 
-diff --git a/arch/mips/sgi-ip22/ip22-reset.c b/arch/mips/sgi-ip22/ip22-reset.c
-index 063c2dd31e72..2f45b0357021 100644
---- a/arch/mips/sgi-ip22/ip22-reset.c
-+++ b/arch/mips/sgi-ip22/ip22-reset.c
-@@ -7,7 +7,7 @@
-  */
- #include <linux/linkage.h>
- #include <linux/init.h>
--#include <linux/ds1286.h>
-+#include <linux/rtc/ds1286.h>
- #include <linux/module.h>
- #include <linux/interrupt.h>
- #include <linux/kernel.h>
-diff --git a/drivers/rtc/rtc-ds1286.c b/drivers/rtc/rtc-ds1286.c
-index 756e509f6ed2..ef75c349dff9 100644
---- a/drivers/rtc/rtc-ds1286.c
-+++ b/drivers/rtc/rtc-ds1286.c
-@@ -16,7 +16,7 @@
- #include <linux/rtc.h>
- #include <linux/platform_device.h>
- #include <linux/bcd.h>
--#include <linux/ds1286.h>
-+#include <linux/rtc/ds1286.h>
- #include <linux/io.h>
- #include <linux/slab.h>
+diff --git a/Documentation/devicetree/bindings/mfd/qcom-pm8xxx.txt b/Documentation/devicetree/bindings/mfd/qcom-pm8xxx.txt
+index f24f334..37a088f 100644
+--- a/Documentation/devicetree/bindings/mfd/qcom-pm8xxx.txt
++++ b/Documentation/devicetree/bindings/mfd/qcom-pm8xxx.txt
+@@ -62,6 +62,7 @@ The below bindings specify the set of valid subnodes.
+ 		    "qcom,pm8058-rtc"
+ 		    "qcom,pm8921-rtc"
+ 		    "qcom,pm8941-rtc"
++		    "qcom,pm8018-rtc"
  
-diff --git a/include/linux/ds1286.h b/include/linux/rtc/ds1286.h
-similarity index 100%
-rename from include/linux/ds1286.h
-rename to include/linux/rtc/ds1286.h
+ - reg:
+ 	Usage: required
+diff --git a/drivers/rtc/rtc-pm8xxx.c b/drivers/rtc/rtc-pm8xxx.c
+index 795fcbd..976f5f6 100644
+--- a/drivers/rtc/rtc-pm8xxx.c
++++ b/drivers/rtc/rtc-pm8xxx.c
+@@ -393,6 +393,16 @@ static int pm8xxx_rtc_enable(struct pm8xxx_rtc *rtc_dd)
+ 	return 0;
+ }
+ 
++static const struct pm8xxx_rtc_regs pm8018_regs = {
++	.ctrl		= 0x11d,
++	.write		= 0x11f,
++	.read		= 0x123,
++	.alarm_rw	= 0x127,
++	.alarm_ctrl	= 0x11d,
++	.alarm_ctrl2	= 0x11e,
++	.alarm_en	= BIT(1),
++};
++
+ static const struct pm8xxx_rtc_regs pm8921_regs = {
+ 	.ctrl		= 0x11d,
+ 	.write		= 0x11f,
+@@ -428,6 +438,7 @@ static const struct pm8xxx_rtc_regs pm8941_regs = {
+  */
+ static const struct of_device_id pm8xxx_id_table[] = {
+ 	{ .compatible = "qcom,pm8921-rtc", .data = &pm8921_regs },
++	{ .compatible = "qcom,pm8018-rtc", .data = &pm8018_regs },
+ 	{ .compatible = "qcom,pm8058-rtc", .data = &pm8058_regs },
+ 	{ .compatible = "qcom,pm8941-rtc", .data = &pm8941_regs },
+ 	{ },
 -- 
-2.8.1
+1.9.1
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
