@@ -1,25 +1,39 @@
-Return-Path: <rtc-linux+bncBDKOBWPM5ABRB2W5QO5QKGQEE7Z2DGA@googlegroups.com>
+Return-Path: <rtc-linux+bncBDKZNNNLXAHBB2FIR25QKGQEQVWM5ZQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 MIME-Version: 1.0
-Received: from mail-pf0-x242.google.com (mail-pf0-x242.google.com. [2607:f8b0:400e:c00::242])
-        by gmr-mx.google.com with ESMTPS id tp10si3983394pac.2.2016.06.14.23.00.10
+Received: from mailout1.w1.samsung.com (mailout1.w1.samsung.com. [210.118.77.11])
+        by gmr-mx.google.com with ESMTPS id ci4si4897742pad.1.2016.06.16.23.10.48
         for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 14 Jun 2016 23:00:10 -0700 (PDT)
-Received: by mail-pf0-x242.google.com with SMTP id c74so998094pfb.0
-        for <rtc-linux@googlegroups.com>; Tue, 14 Jun 2016 23:00:10 -0700 (PDT)
-From: Andrey Smirnov <andrew.smirnov@gmail.com>
-To: rtc-linux@googlegroups.com
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	linux-kernel@vger.kernel.org,
-	Andrey Smirnov <andrew.smirnov@gmail.com>
-Subject: [rtc-linux] [PATCH 07/13] RTC: ds1307: Move chip sanity checking into
- a separate routine
-Date: Tue, 14 Jun 2016 22:59:33 -0700
-Message-Id: <1465970379-14703-8-git-send-email-andrew.smirnov@gmail.com>
-In-Reply-To: <1465970379-14703-1-git-send-email-andrew.smirnov@gmail.com>
-References: <1465970379-14703-1-git-send-email-andrew.smirnov@gmail.com>
+        (version=TLS1 cipher=AES128-SHA bits=128/128);
+        Thu, 16 Jun 2016 23:10:48 -0700 (PDT)
+Received: from eucpsbgm2.samsung.com (unknown [203.254.199.245])
+ by mailout1.w1.samsung.com
+ (Oracle Communications Messaging Server 7.0.5.31.0 64bit (built May  5 2014))
+ with ESMTP id <0O8W008RBJTX8X80@mailout1.w1.samsung.com> for
+ rtc-linux@googlegroups.com; Fri, 17 Jun 2016 07:10:45 +0100 (BST)
+From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+To: Kukjin Kim <kgene@kernel.org>,
+ Krzysztof Kozlowski <k.kozlowski@samsung.com>,
+ MyungJoo Ham <myungjoo.ham@samsung.com>, Chanwoo Choi <cw00.choi@samsung.com>,
+ Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+ Richard Purdie <rpurdie@rpsys.net>,
+ Jacek Anaszewski <j.anaszewski@samsung.com>, Lee Jones <lee.jones@linaro.org>,
+ Sebastian Reichel <sre@kernel.org>,
+ Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>,
+ David Woodhouse <dwmw2@infradead.org>, Liam Girdwood <lgirdwood@gmail.com>,
+ Mark Brown <broonie@kernel.org>, Alessandro Zummo <a.zummo@towertech.it>,
+ Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+ devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+ linux-samsung-soc@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-input@vger.kernel.org, linux-leds@vger.kernel.org,
+ linux-pm@vger.kernel.org, rtc-linux@googlegroups.com
+Cc: r.baldyga@hackerion.com,
+ Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+Subject: [rtc-linux] [RESEND v7 6/6] extcon: max8997: Fix inconsistent indenting
+Date: Fri, 17 Jun 2016 08:10:33 +0200
+Message-id: <1466143833-5856-7-git-send-email-k.kozlowski@samsung.com>
+In-reply-to: <1466143833-5856-1-git-send-email-k.kozlowski@samsung.com>
+References: <1466143833-5856-1-git-send-email-k.kozlowski@samsung.com>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -30,202 +44,30 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Signed-off-by: Andrey Smirnov <andrew.smirnov@gmail.com>
----
- drivers/rtc/rtc-ds1307.c | 148 +++++++++++++++++++++++++----------------------
- 1 file changed, 79 insertions(+), 69 deletions(-)
+Fix smatch warning:
+	max8997_muic_probe() warn: inconsistent indenting
 
-diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
-index df8c78a..5e7eb13 100644
---- a/drivers/rtc/rtc-ds1307.c
-+++ b/drivers/rtc/rtc-ds1307.c
-@@ -1422,79 +1422,20 @@ static int ds1307_chip_configure(struct ds1307 *ds1307)
- 	return 0;
- }
- 
--static int ds1307_probe(struct i2c_client *client,
--			const struct i2c_device_id *id)
-+static int ds1307_chip_sanity_check(struct ds1307 *ds1307)
- {
--	struct ds1307		*ds1307;
--	int			err = -ENODEV;
--	int			tmp;
--	struct chip_desc	*chip = &chips[id->driver_data];
--	struct i2c_adapter	*adapter = to_i2c_adapter(client->dev.parent);
--	unsigned char		*buf;
--	struct ds1307_platform_data *pdata = dev_get_platdata(&client->dev);
--	irq_handler_t	irq_handler = ds1307_irq;
--
--	const struct rtc_class_ops *rtc_ops = &ds13xx_rtc_ops;
--
--	if (!i2c_check_functionality(adapter, I2C_FUNC_SMBUS_BYTE_DATA)
--	    && !i2c_check_functionality(adapter, I2C_FUNC_SMBUS_I2C_BLOCK))
--		return -EIO;
--
--	ds1307 = devm_kzalloc(&client->dev, sizeof(struct ds1307), GFP_KERNEL);
--	if (!ds1307)
--		return -ENOMEM;
--
--	i2c_set_clientdata(client, ds1307);
--
--	ds1307->client	= client;
--	ds1307->type	= id->driver_data;
--
--	if (!pdata && client->dev.of_node)
--		ds1307_trickle_of_init(client, chip);
--	else if (pdata && pdata->trickle_charger_setup)
--		chip->trickle_charger_setup = pdata->trickle_charger_setup;
--
--	if (chip->trickle_charger_setup && chip->trickle_charger_reg) {
--		dev_dbg(&client->dev, "writing trickle charger info 0x%x to 0x%x\n",
--		    DS13XX_TRICKLE_CHARGER_MAGIC | chip->trickle_charger_setup,
--		    chip->trickle_charger_reg);
--		i2c_smbus_write_byte_data(client, chip->trickle_charger_reg,
--		    DS13XX_TRICKLE_CHARGER_MAGIC |
--		    chip->trickle_charger_setup);
--	}
-+	int tmp;
-+	unsigned char *buf;
-+	struct i2c_client *client = ds1307->client;
- 
- 	buf = ds1307->regs;
--	if (i2c_check_functionality(adapter, I2C_FUNC_SMBUS_I2C_BLOCK)) {
--		ds1307->read_block_data = ds1307_native_smbus_read_block_data;
--		ds1307->write_block_data = ds1307_native_smbus_write_block_data;
--	} else {
--		ds1307->read_block_data = ds1307_read_block_data;
--		ds1307->write_block_data = ds1307_write_block_data;
--	}
--
--	err = ds1307_chip_configure(ds1307);
--	if (err < 0)
--		return err;
--
--	switch (ds1307->type) {
--	case ds_1388:
--		ds1307->offset = 1; /* Seconds starts at 1 */
--		break;
--	case mcp794xx:
--		rtc_ops = &mcp794xx_rtc_ops;
--		irq_handler = mcp794xx_irq;
--		break;
--	default:
--		break;
--	}
- 
- read_rtc:
- 	/* read RTC registers */
- 	tmp = ds1307->read_block_data(ds1307->client, ds1307->offset, 8, buf);
- 	if (tmp != 8) {
- 		dev_dbg(&client->dev, "read error %d\n", tmp);
--		err = -EIO;
--		goto exit;
-+		return -EIO;
+Signed-off-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+Acked-by: Chanwoo Choi <cw00.choi@samsung.com>
+---
+ drivers/extcon/extcon-max8997.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/extcon/extcon-max8997.c b/drivers/extcon/extcon-max8997.c
+index 0afa3e8b5dc3..cf8de5be2405 100644
+--- a/drivers/extcon/extcon-max8997.c
++++ b/drivers/extcon/extcon-max8997.c
+@@ -737,7 +737,7 @@ static int max8997_muic_probe(struct platform_device *pdev)
  	}
  
- 	/*
-@@ -1535,8 +1476,7 @@ read_rtc:
- 		tmp = i2c_smbus_read_byte_data(client, DS1340_REG_FLAG);
- 		if (tmp < 0) {
- 			dev_dbg(&client->dev, "read error %d\n", tmp);
--			err = -EIO;
--			goto exit;
-+			return -EIO;
- 		}
+ 	/* Set initial path for UART */
+-	 max8997_muic_set_path(info, info->path_uart, true);
++	max8997_muic_set_path(info, info->path_uart, true);
  
- 		/* oscillator fault?  clear flag, and warn */
-@@ -1566,6 +1506,79 @@ read_rtc:
- 		break;
- 	}
- 
-+	return 0;
-+}
-+
-+static int ds1307_probe(struct i2c_client *client,
-+			const struct i2c_device_id *id)
-+{
-+	struct ds1307		*ds1307;
-+	int			err = -ENODEV;
-+	int			tmp;
-+	struct chip_desc	*chip = &chips[id->driver_data];
-+	struct i2c_adapter	*adapter = to_i2c_adapter(client->dev.parent);
-+	unsigned char		*buf;
-+	struct ds1307_platform_data *pdata = dev_get_platdata(&client->dev);
-+	irq_handler_t	irq_handler = ds1307_irq;
-+
-+	const struct rtc_class_ops *rtc_ops = &ds13xx_rtc_ops;
-+
-+	if (!i2c_check_functionality(adapter, I2C_FUNC_SMBUS_BYTE_DATA)
-+	    && !i2c_check_functionality(adapter, I2C_FUNC_SMBUS_I2C_BLOCK))
-+		return -EIO;
-+
-+	ds1307 = devm_kzalloc(&client->dev, sizeof(struct ds1307), GFP_KERNEL);
-+	if (!ds1307)
-+		return -ENOMEM;
-+
-+	i2c_set_clientdata(client, ds1307);
-+
-+	ds1307->client	= client;
-+	ds1307->type	= id->driver_data;
-+
-+	if (!pdata && client->dev.of_node)
-+		ds1307_trickle_of_init(client, chip);
-+	else if (pdata && pdata->trickle_charger_setup)
-+		chip->trickle_charger_setup = pdata->trickle_charger_setup;
-+
-+	if (chip->trickle_charger_setup && chip->trickle_charger_reg) {
-+		dev_dbg(&client->dev, "writing trickle charger info 0x%x to 0x%x\n",
-+		    DS13XX_TRICKLE_CHARGER_MAGIC | chip->trickle_charger_setup,
-+		    chip->trickle_charger_reg);
-+		i2c_smbus_write_byte_data(client, chip->trickle_charger_reg,
-+		    DS13XX_TRICKLE_CHARGER_MAGIC |
-+		    chip->trickle_charger_setup);
-+	}
-+
-+	buf = ds1307->regs;
-+	if (i2c_check_functionality(adapter, I2C_FUNC_SMBUS_I2C_BLOCK)) {
-+		ds1307->read_block_data = ds1307_native_smbus_read_block_data;
-+		ds1307->write_block_data = ds1307_native_smbus_write_block_data;
-+	} else {
-+		ds1307->read_block_data = ds1307_read_block_data;
-+		ds1307->write_block_data = ds1307_write_block_data;
-+	}
-+
-+	err = ds1307_chip_configure(ds1307);
-+	if (err < 0)
-+		return err;
-+
-+	switch (ds1307->type) {
-+	case ds_1388:
-+		ds1307->offset = 1; /* Seconds starts at 1 */
-+		break;
-+	case mcp794xx:
-+		rtc_ops = &mcp794xx_rtc_ops;
-+		irq_handler = mcp794xx_irq;
-+		break;
-+	default:
-+		break;
-+	}
-+
-+	err = ds1307_chip_sanity_check(ds1307);
-+	if (err < 0)
-+		return err;
-+
- 	tmp = ds1307->regs[DS1307_REG_HOUR];
- 	switch (ds1307->type) {
- 	case ds_1340:
-@@ -1663,9 +1676,6 @@ read_rtc:
- 	ds1307_clks_register(ds1307);
- 
- 	return 0;
--
--exit:
--	return err;
- }
- 
- static int ds1307_remove(struct i2c_client *client)
+ 	/* Set ADC debounce time */
+ 	max8997_muic_set_debounce_time(info, ADC_DEBOUNCE_TIME_25MS);
 -- 
-2.5.5
+1.9.1
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
