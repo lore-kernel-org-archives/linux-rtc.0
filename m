@@ -1,26 +1,41 @@
-Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBROUUW5QKGQEX3O26NQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBDKZNNNLXAHBBZVIR25QKGQEMIFLMSY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id x203si133610wme.0.2016.06.21.09.24.37
-        for <rtc-linux@googlegroups.com>;
-        Tue, 21 Jun 2016 09:24:37 -0700 (PDT)
-Date: Tue, 21 Jun 2016 18:24:26 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Neil Armstrong <narmstrong@baylibre.com>
-Cc: dmitry.torokhov@gmail.com, andy.gross@linaro.org,
-	david.brown@linaro.org, lee.jones@linaro.org, lgirdwood@gmail.com,
-	broonie@kernel.org, a.zummo@towertech.it,
-	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux-arm-msm@vger.kernel.org, linux-soc@vger.kernel.org,
-	rtc-linux@googlegroups.com
-Subject: [rtc-linux] Re: [PATCH 3/5] rtc: rtc-pm8xxx: Add support for pm8018 rtc
-Message-ID: <20160621162426.GX5809@piout.net>
-References: <1466158929-19524-1-git-send-email-narmstrong@baylibre.com>
- <1466158929-19524-4-git-send-email-narmstrong@baylibre.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1466158929-19524-4-git-send-email-narmstrong@baylibre.com>
+Received: from mailout1.w1.samsung.com (mailout1.w1.samsung.com. [210.118.77.11])
+        by gmr-mx.google.com with ESMTPS id ci4si4897742pad.1.2016.06.16.23.10.46
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1 cipher=AES128-SHA bits=128/128);
+        Thu, 16 Jun 2016 23:10:46 -0700 (PDT)
+Received: from eucpsbgm2.samsung.com (unknown [203.254.199.245])
+ by mailout1.w1.samsung.com
+ (Oracle Communications Messaging Server 7.0.5.31.0 64bit (built May  5 2014))
+ with ESMTP id <0O8W00BIDJTUVE80@mailout1.w1.samsung.com> for
+ rtc-linux@googlegroups.com; Fri, 17 Jun 2016 07:10:42 +0100 (BST)
+From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+To: Kukjin Kim <kgene@kernel.org>,
+ Krzysztof Kozlowski <k.kozlowski@samsung.com>,
+ MyungJoo Ham <myungjoo.ham@samsung.com>, Chanwoo Choi <cw00.choi@samsung.com>,
+ Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+ Richard Purdie <rpurdie@rpsys.net>,
+ Jacek Anaszewski <j.anaszewski@samsung.com>, Lee Jones <lee.jones@linaro.org>,
+ Sebastian Reichel <sre@kernel.org>,
+ Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>,
+ David Woodhouse <dwmw2@infradead.org>, Liam Girdwood <lgirdwood@gmail.com>,
+ Mark Brown <broonie@kernel.org>, Alessandro Zummo <a.zummo@towertech.it>,
+ Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+ devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+ linux-samsung-soc@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-input@vger.kernel.org, linux-leds@vger.kernel.org,
+ linux-pm@vger.kernel.org, rtc-linux@googlegroups.com
+Cc: r.baldyga@hackerion.com,
+ Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+Subject: [rtc-linux] [RESEND v7 3/6] mfd: max8997: Change irq names to upper case
+Date: Fri, 17 Jun 2016 08:10:30 +0200
+Message-id: <1466143833-5856-4-git-send-email-k.kozlowski@samsung.com>
+In-reply-to: <1466143833-5856-1-git-send-email-k.kozlowski@samsung.com>
+References: <1466143833-5856-1-git-send-email-k.kozlowski@samsung.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -29,18 +44,107 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 17/06/2016 at 12:22:07 +0200, Neil Armstrong wrote :
-> In order to support RTC on Qualcomm MDM9615 SoC, add support for
-> the pm8018 rtc in rtc-pm8xxx driver.
-> 
-> Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
+From: Robert Baldyga <r.baldyga@samsung.com>
+
+This patch changes naming convention of MUIC interrupts form CamelCase
+to upper case. It makes names more readable and consistent with another
+interrupt names in max8997 driver.
+
+Signed-off-by: Robert Baldyga <r.baldyga@samsung.com>
+Reviewed-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+Acked-by: Lee Jones <lee.jones@linaro.org>
+Acked-by: Chanwoo Choi <cw00.choi@samsung.com>
 Acked-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+[k.kozlowski: Collect acks, rebase on v4.6-rc6]
+Signed-off-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+---
+ drivers/extcon/extcon-max8997.c     | 32 ++++++++++++++++----------------
+ include/linux/mfd/max8997-private.h | 16 ++++++++--------
+ 2 files changed, 24 insertions(+), 24 deletions(-)
 
-
+diff --git a/drivers/extcon/extcon-max8997.c b/drivers/extcon/extcon-max8997.c
+index 9d27cc23038f..68754ac2c8ea 100644
+--- a/drivers/extcon/extcon-max8997.c
++++ b/drivers/extcon/extcon-max8997.c
+@@ -46,15 +46,15 @@ struct max8997_muic_irq {
+ };
+ 
+ static struct max8997_muic_irq muic_irqs[] = {
+-	{ MAX8997_MUICIRQ_ADCError,	"muic-ADCERROR" },
+-	{ MAX8997_MUICIRQ_ADCLow,	"muic-ADCLOW" },
+-	{ MAX8997_MUICIRQ_ADC,		"muic-ADC" },
+-	{ MAX8997_MUICIRQ_VBVolt,	"muic-VBVOLT" },
+-	{ MAX8997_MUICIRQ_DBChg,	"muic-DBCHG" },
+-	{ MAX8997_MUICIRQ_DCDTmr,	"muic-DCDTMR" },
+-	{ MAX8997_MUICIRQ_ChgDetRun,	"muic-CHGDETRUN" },
+-	{ MAX8997_MUICIRQ_ChgTyp,	"muic-CHGTYP" },
+-	{ MAX8997_MUICIRQ_OVP,		"muic-OVP" },
++	{ MAX8997_MUICIRQ_ADCERROR,	"MUIC-ADCERROR" },
++	{ MAX8997_MUICIRQ_ADCLOW,	"MUIC-ADCLOW" },
++	{ MAX8997_MUICIRQ_ADC,		"MUIC-ADC" },
++	{ MAX8997_MUICIRQ_VBVOLT,	"MUIC-VBVOLT" },
++	{ MAX8997_MUICIRQ_DBCHG,	"MUIC-DBCHG" },
++	{ MAX8997_MUICIRQ_DCDTMR,	"MUIC-DCDTMR" },
++	{ MAX8997_MUICIRQ_CHGDETRUN,	"MUIC-CHGDETRUN" },
++	{ MAX8997_MUICIRQ_CHGTYP,	"MUIC-CHGTYP" },
++	{ MAX8997_MUICIRQ_OVP,		"MUIC-OVP" },
+ };
+ 
+ /* Define supported cable type */
+@@ -540,17 +540,17 @@ static void max8997_muic_irq_work(struct work_struct *work)
+ 	}
+ 
+ 	switch (irq_type) {
+-	case MAX8997_MUICIRQ_ADCError:
+-	case MAX8997_MUICIRQ_ADCLow:
++	case MAX8997_MUICIRQ_ADCERROR:
++	case MAX8997_MUICIRQ_ADCLOW:
+ 	case MAX8997_MUICIRQ_ADC:
+ 		/* Handle all of cable except for charger cable */
+ 		ret = max8997_muic_adc_handler(info);
+ 		break;
+-	case MAX8997_MUICIRQ_VBVolt:
+-	case MAX8997_MUICIRQ_DBChg:
+-	case MAX8997_MUICIRQ_DCDTmr:
+-	case MAX8997_MUICIRQ_ChgDetRun:
+-	case MAX8997_MUICIRQ_ChgTyp:
++	case MAX8997_MUICIRQ_VBVOLT:
++	case MAX8997_MUICIRQ_DBCHG:
++	case MAX8997_MUICIRQ_DCDTMR:
++	case MAX8997_MUICIRQ_CHGDETRUN:
++	case MAX8997_MUICIRQ_CHGTYP:
+ 		/* Handle charger cable */
+ 		ret = max8997_muic_chg_handler(info);
+ 		break;
+diff --git a/include/linux/mfd/max8997-private.h b/include/linux/mfd/max8997-private.h
+index f42ea222988f..2817fa69383e 100644
+--- a/include/linux/mfd/max8997-private.h
++++ b/include/linux/mfd/max8997-private.h
+@@ -411,14 +411,14 @@ enum max8997_irq {
+ 
+ enum max8997_irq_muic {
+ 	MAX8997_MUICIRQ_ADC,
+-	MAX8997_MUICIRQ_ADCLow,
+-	MAX8997_MUICIRQ_ADCError,
+-
+-	MAX8997_MUICIRQ_ChgTyp,
+-	MAX8997_MUICIRQ_ChgDetRun,
+-	MAX8997_MUICIRQ_DCDTmr,
+-	MAX8997_MUICIRQ_DBChg,
+-	MAX8997_MUICIRQ_VBVolt,
++	MAX8997_MUICIRQ_ADCLOW,
++	MAX8997_MUICIRQ_ADCERROR,
++
++	MAX8997_MUICIRQ_CHGTYP,
++	MAX8997_MUICIRQ_CHGDETRUN,
++	MAX8997_MUICIRQ_DCDTMR,
++	MAX8997_MUICIRQ_DBCHG,
++	MAX8997_MUICIRQ_VBVOLT,
+ 
+ 	MAX8997_MUICIRQ_OVP,
+ 
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+1.9.1
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
