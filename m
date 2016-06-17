@@ -1,26 +1,39 @@
-Return-Path: <rtc-linux+bncBDEKVJM7XAHRBPXLXO5AKGQEXPPFABI@googlegroups.com>
+Return-Path: <rtc-linux+bncBDKZNNNLXAHBBZVIR25QKGQEMIFLMSY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 MIME-Version: 1.0
-Received: from mout.kundenserver.de (mout.kundenserver.de. [212.227.126.130])
-        by gmr-mx.google.com with ESMTPS id l184si1530247wmg.2.2016.06.01.07.48.30
+Received: from mailout3.w1.samsung.com (mailout3.w1.samsung.com. [210.118.77.13])
+        by gmr-mx.google.com with ESMTPS id tp10si5336765pac.2.2016.06.16.23.10.46
         for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 01 Jun 2016 07:48:30 -0700 (PDT)
-From: Arnd Bergmann <arnd@arndb.de>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Arnd Bergmann <arnd@arndb.de>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Ingo Molnar <mingo@redhat.com>,
-	"H. Peter Anvin" <hpa@zytor.com>,
-	x86@kernel.org,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	linux-kernel@vger.kernel.org,
-	rtc-linux@googlegroups.com
-Subject: [rtc-linux] [PATCH 2/2] rtc: move mc146818 helper functions out-of-line
-Date: Wed,  1 Jun 2016 16:46:23 +0200
-Message-Id: <1464792470-1565319-2-git-send-email-arnd@arndb.de>
-In-Reply-To: <1464792470-1565319-1-git-send-email-arnd@arndb.de>
-References: <1464792470-1565319-1-git-send-email-arnd@arndb.de>
+        (version=TLS1 cipher=AES128-SHA bits=128/128);
+        Thu, 16 Jun 2016 23:10:46 -0700 (PDT)
+Received: from eucpsbgm1.samsung.com (unknown [203.254.199.244])
+ by mailout3.w1.samsung.com
+ (Oracle Communications Messaging Server 7.0.5.31.0 64bit (built May  5 2014))
+ with ESMTP id <0O8W00M2AJTTSF90@mailout3.w1.samsung.com> for
+ rtc-linux@googlegroups.com; Fri, 17 Jun 2016 07:10:41 +0100 (BST)
+From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+To: Kukjin Kim <kgene@kernel.org>,
+ Krzysztof Kozlowski <k.kozlowski@samsung.com>,
+ MyungJoo Ham <myungjoo.ham@samsung.com>, Chanwoo Choi <cw00.choi@samsung.com>,
+ Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+ Richard Purdie <rpurdie@rpsys.net>,
+ Jacek Anaszewski <j.anaszewski@samsung.com>, Lee Jones <lee.jones@linaro.org>,
+ Sebastian Reichel <sre@kernel.org>,
+ Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>,
+ David Woodhouse <dwmw2@infradead.org>, Liam Girdwood <lgirdwood@gmail.com>,
+ Mark Brown <broonie@kernel.org>, Alessandro Zummo <a.zummo@towertech.it>,
+ Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+ devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+ linux-samsung-soc@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-input@vger.kernel.org, linux-leds@vger.kernel.org,
+ linux-pm@vger.kernel.org, rtc-linux@googlegroups.com
+Cc: r.baldyga@hackerion.com,
+ Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+Subject: [rtc-linux] [RESEND v7 2/6] mfd: max8997: handle IRQs using regmap
+Date: Fri, 17 Jun 2016 08:10:29 +0200
+Message-id: <1466143833-5856-3-git-send-email-k.kozlowski@samsung.com>
+In-reply-to: <1466143833-5856-1-git-send-email-k.kozlowski@samsung.com>
+References: <1466143833-5856-1-git-send-email-k.kozlowski@samsung.com>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -31,496 +44,722 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-The mc146818_get_time/mc146818_set_time functions are rather large
-inline functions in a global header file and are used in several
-drivers and in x86 specific code.
+From: Robert Baldyga <r.baldyga@samsung.com>
 
-Here we move them into a separate .c file that is compiled whenever
-any of the users require it. This also lets us remove the linux/acpi.h
-header inclusion from mc146818rtc.h, which in turn avoids some
-warnings about duplicate definition of the TRUE/FALSE macros.
+This patch modifies mfd driver to use regmap for handling interrupts.
+It allows to simplify irq handling process. This modifications needed
+to make small changes in function drivers, which use interrupts.
 
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Robert Baldyga <r.baldyga@samsung.com>
+Reviewed-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+Acked-by: Chanwoo Choi <cw00.choi@samsung.com>
+Acked-by: Lee Jones <lee.jones@linaro.org>
+Acked-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+[k.kozlowski: Collect acks, rebase on v4.6-rc6]
+Signed-off-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
 ---
- arch/x86/Kconfig               |   1 +
- drivers/rtc/Kconfig            |   6 ++
- drivers/rtc/Makefile           |   1 +
- drivers/rtc/rtc-mc146818-lib.c | 198 +++++++++++++++++++++++++++++++++++++++++
- include/linux/mc146818rtc.h    | 193 +--------------------------------------
- 5 files changed, 208 insertions(+), 191 deletions(-)
- create mode 100644 drivers/rtc/rtc-mc146818-lib.c
+ drivers/extcon/extcon-max8997.c     |   3 +-
+ drivers/mfd/Kconfig                 |   2 +-
+ drivers/mfd/Makefile                |   2 +-
+ drivers/mfd/max8997-irq.c           | 369 ------------------------------------
+ drivers/mfd/max8997.c               | 112 ++++++++++-
+ drivers/rtc/rtc-max8997.c           |   2 +-
+ include/linux/mfd/max8997-private.h |  63 +++++-
+ 7 files changed, 165 insertions(+), 388 deletions(-)
+ delete mode 100644 drivers/mfd/max8997-irq.c
 
-diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
-index c6a825cc5bf3..879d6d32cf95 100644
---- a/arch/x86/Kconfig
-+++ b/arch/x86/Kconfig
-@@ -151,6 +151,7 @@ config X86
- 	select OLD_SIGSUSPEND3			if X86_32 || IA32_EMULATION
- 	select PERF_EVENTS
- 	select RTC_LIB
-+	select RTC_MC146818_LIB
- 	select SPARSE_IRQ
- 	select SRCU
- 	select SYSCTL_EXCEPTION_TRACE
-diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
-index e8ef709f3945..d7a642a8c6bc 100644
---- a/drivers/rtc/Kconfig
-+++ b/drivers/rtc/Kconfig
-@@ -5,6 +5,10 @@
- config RTC_LIB
- 	bool
+diff --git a/drivers/extcon/extcon-max8997.c b/drivers/extcon/extcon-max8997.c
+index fc812257bfc7..9d27cc23038f 100644
+--- a/drivers/extcon/extcon-max8997.c
++++ b/drivers/extcon/extcon-max8997.c
+@@ -662,7 +662,8 @@ static int max8997_muic_probe(struct platform_device *pdev)
+ 		struct max8997_muic_irq *muic_irq = &muic_irqs[i];
+ 		unsigned int virq = 0;
  
-+config RTC_MC146818_LIB
-+	bool
-+	select RTC_LIB
-+
- menuconfig RTC_CLASS
- 	bool "Real Time Clock"
- 	default n
-@@ -797,6 +801,7 @@ config RTC_DRV_CMOS
- 	tristate "PC-style 'CMOS'"
- 	depends on X86 || ARM || M32R || PPC || MIPS || SPARC64 || MN10300
- 	default y if X86
-+	select RTC_MC146818_LIB
+-		virq = irq_create_mapping(max8997->irq_domain, muic_irq->irq);
++		virq = regmap_irq_get_virq(max8997->irq_data_muic,
++					muic_irq->irq);
+ 		if (!virq) {
+ 			ret = -EINVAL;
+ 			goto err_irq;
+diff --git a/drivers/mfd/Kconfig b/drivers/mfd/Kconfig
+index d7c6491ce3b9..b1bc339a91f9 100644
+--- a/drivers/mfd/Kconfig
++++ b/drivers/mfd/Kconfig
+@@ -622,7 +622,7 @@ config MFD_MAX8997
+ 	depends on I2C=y
+ 	select MFD_CORE
+ 	select REGMAP_I2C
+-	select IRQ_DOMAIN
++	select REGMAP_IRQ
  	help
- 	  Say "yes" here to get direct support for the real time clock
- 	  found in every PC or ACPI-based system, and some other boards.
-@@ -815,6 +820,7 @@ config RTC_DRV_CMOS
- config RTC_DRV_ALPHA
- 	bool "Alpha PC-style CMOS"
- 	depends on ALPHA
-+	select RTC_MC146818_LIB
- 	default y
- 	help
- 	  Direct support for the real-time clock found on every Alpha
-diff --git a/drivers/rtc/Makefile b/drivers/rtc/Makefile
-index ea2833723fa9..c34cf9ded754 100644
---- a/drivers/rtc/Makefile
-+++ b/drivers/rtc/Makefile
-@@ -8,6 +8,7 @@ obj-$(CONFIG_RTC_LIB)		+= rtc-lib.o
- obj-$(CONFIG_RTC_HCTOSYS)	+= hctosys.o
- obj-$(CONFIG_RTC_SYSTOHC)	+= systohc.o
- obj-$(CONFIG_RTC_CLASS)		+= rtc-core.o
-+obj-$(CONFIG_RTC_MC146818_LIB)	+= rtc-mc146818-lib.o
- rtc-core-y			:= class.o interface.o
+ 	  Say yes here to add support for Maxim Semiconductor MAX8997/8966.
+ 	  This is a Power Management IC with RTC, Flash, Fuel Gauge, Haptic,
+diff --git a/drivers/mfd/Makefile b/drivers/mfd/Makefile
+index 42a66e19e191..cd2cd2b2c316 100644
+--- a/drivers/mfd/Makefile
++++ b/drivers/mfd/Makefile
+@@ -135,7 +135,7 @@ obj-$(CONFIG_MFD_MAX77843)	+= max77843.o
+ obj-$(CONFIG_MFD_MAX8907)	+= max8907.o
+ max8925-objs			:= max8925-core.o max8925-i2c.o
+ obj-$(CONFIG_MFD_MAX8925)	+= max8925.o
+-obj-$(CONFIG_MFD_MAX8997)	+= max8997.o max8997-irq.o
++obj-$(CONFIG_MFD_MAX8997)	+= max8997.o
+ obj-$(CONFIG_MFD_MAX8998)	+= max8998.o max8998-irq.o
  
- ifdef CONFIG_RTC_DRV_EFI
-diff --git a/drivers/rtc/rtc-mc146818-lib.c b/drivers/rtc/rtc-mc146818-lib.c
-new file mode 100644
-index 000000000000..2f1772a358ca
---- /dev/null
-+++ b/drivers/rtc/rtc-mc146818-lib.c
-@@ -0,0 +1,198 @@
-+#include <linux/bcd.h>
-+#include <linux/delay.h>
-+#include <linux/export.h>
-+#include <linux/mc146818rtc.h>
-+
-+#ifdef CONFIG_ACPI
-+#include <linux/acpi.h>
-+#endif
-+
-+/*
-+ * Returns true if a clock update is in progress
-+ */
-+static inline unsigned char mc146818_is_updating(void)
-+{
-+	unsigned char uip;
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&rtc_lock, flags);
-+	uip = (CMOS_READ(RTC_FREQ_SELECT) & RTC_UIP);
-+	spin_unlock_irqrestore(&rtc_lock, flags);
-+	return uip;
-+}
-+
-+unsigned int mc146818_get_time(struct rtc_time *time)
-+{
-+	unsigned char ctrl;
-+	unsigned long flags;
-+	unsigned char century = 0;
-+
-+#ifdef CONFIG_MACH_DECSTATION
-+	unsigned int real_year;
-+#endif
-+
-+	/*
-+	 * read RTC once any update in progress is done. The update
-+	 * can take just over 2ms. We wait 20ms. There is no need to
-+	 * to poll-wait (up to 1s - eeccch) for the falling edge of RTC_UIP.
-+	 * If you need to know *exactly* when a second has started, enable
-+	 * periodic update complete interrupts, (via ioctl) and then
-+	 * immediately read /dev/rtc which will block until you get the IRQ.
-+	 * Once the read clears, read the RTC time (again via ioctl). Easy.
-+	 */
-+	if (mc146818_is_updating())
-+		mdelay(20);
-+
-+	/*
-+	 * Only the values that we read from the RTC are set. We leave
-+	 * tm_wday, tm_yday and tm_isdst untouched. Even though the
-+	 * RTC has RTC_DAY_OF_WEEK, we ignore it, as it is only updated
-+	 * by the RTC when initially set to a non-zero value.
-+	 */
-+	spin_lock_irqsave(&rtc_lock, flags);
-+	time->tm_sec = CMOS_READ(RTC_SECONDS);
-+	time->tm_min = CMOS_READ(RTC_MINUTES);
-+	time->tm_hour = CMOS_READ(RTC_HOURS);
-+	time->tm_mday = CMOS_READ(RTC_DAY_OF_MONTH);
-+	time->tm_mon = CMOS_READ(RTC_MONTH);
-+	time->tm_year = CMOS_READ(RTC_YEAR);
-+#ifdef CONFIG_MACH_DECSTATION
-+	real_year = CMOS_READ(RTC_DEC_YEAR);
-+#endif
-+#ifdef CONFIG_ACPI
-+	if (acpi_gbl_FADT.header.revision >= FADT2_REVISION_ID &&
-+	    acpi_gbl_FADT.century)
-+		century = CMOS_READ(acpi_gbl_FADT.century);
-+#endif
-+	ctrl = CMOS_READ(RTC_CONTROL);
-+	spin_unlock_irqrestore(&rtc_lock, flags);
-+
-+	if (!(ctrl & RTC_DM_BINARY) || RTC_ALWAYS_BCD)
-+	{
-+		time->tm_sec = bcd2bin(time->tm_sec);
-+		time->tm_min = bcd2bin(time->tm_min);
-+		time->tm_hour = bcd2bin(time->tm_hour);
-+		time->tm_mday = bcd2bin(time->tm_mday);
-+		time->tm_mon = bcd2bin(time->tm_mon);
-+		time->tm_year = bcd2bin(time->tm_year);
-+		century = bcd2bin(century);
-+	}
-+
-+#ifdef CONFIG_MACH_DECSTATION
-+	time->tm_year += real_year - 72;
-+#endif
-+
-+	if (century)
-+		time->tm_year += (century - 19) * 100;
-+
-+	/*
-+	 * Account for differences between how the RTC uses the values
-+	 * and how they are defined in a struct rtc_time;
-+	 */
-+	if (time->tm_year <= 69)
-+		time->tm_year += 100;
-+
-+	time->tm_mon--;
-+
-+	return RTC_24H;
-+}
-+EXPORT_SYMBOL_GPL(mc146818_get_time);
-+
-+/* Set the current date and time in the real time clock. */
-+int mc146818_set_time(struct rtc_time *time)
-+{
-+	unsigned long flags;
-+	unsigned char mon, day, hrs, min, sec;
-+	unsigned char save_control, save_freq_select;
-+	unsigned int yrs;
-+#ifdef CONFIG_MACH_DECSTATION
-+	unsigned int real_yrs, leap_yr;
-+#endif
-+	unsigned char century = 0;
-+
-+	yrs = time->tm_year;
-+	mon = time->tm_mon + 1;   /* tm_mon starts at zero */
-+	day = time->tm_mday;
-+	hrs = time->tm_hour;
-+	min = time->tm_min;
-+	sec = time->tm_sec;
-+
-+	if (yrs > 255)	/* They are unsigned */
-+		return -EINVAL;
-+
-+	spin_lock_irqsave(&rtc_lock, flags);
-+#ifdef CONFIG_MACH_DECSTATION
-+	real_yrs = yrs;
-+	leap_yr = ((!((yrs + 1900) % 4) && ((yrs + 1900) % 100)) ||
-+			!((yrs + 1900) % 400));
-+	yrs = 72;
-+
-+	/*
-+	 * We want to keep the year set to 73 until March
-+	 * for non-leap years, so that Feb, 29th is handled
-+	 * correctly.
-+	 */
-+	if (!leap_yr && mon < 3) {
-+		real_yrs--;
-+		yrs = 73;
-+	}
-+#endif
-+
-+#ifdef CONFIG_ACPI
-+	if (acpi_gbl_FADT.header.revision >= FADT2_REVISION_ID &&
-+	    acpi_gbl_FADT.century) {
-+		century = (yrs + 1900) / 100;
-+		yrs %= 100;
-+	}
-+#endif
-+
-+	/* These limits and adjustments are independent of
-+	 * whether the chip is in binary mode or not.
-+	 */
-+	if (yrs > 169) {
-+		spin_unlock_irqrestore(&rtc_lock, flags);
-+		return -EINVAL;
-+	}
-+
-+	if (yrs >= 100)
-+		yrs -= 100;
-+
-+	if (!(CMOS_READ(RTC_CONTROL) & RTC_DM_BINARY)
-+	    || RTC_ALWAYS_BCD) {
-+		sec = bin2bcd(sec);
-+		min = bin2bcd(min);
-+		hrs = bin2bcd(hrs);
-+		day = bin2bcd(day);
-+		mon = bin2bcd(mon);
-+		yrs = bin2bcd(yrs);
-+		century = bin2bcd(century);
-+	}
-+
-+	save_control = CMOS_READ(RTC_CONTROL);
-+	CMOS_WRITE((save_control|RTC_SET), RTC_CONTROL);
-+	save_freq_select = CMOS_READ(RTC_FREQ_SELECT);
-+	CMOS_WRITE((save_freq_select|RTC_DIV_RESET2), RTC_FREQ_SELECT);
-+
-+#ifdef CONFIG_MACH_DECSTATION
-+	CMOS_WRITE(real_yrs, RTC_DEC_YEAR);
-+#endif
-+	CMOS_WRITE(yrs, RTC_YEAR);
-+	CMOS_WRITE(mon, RTC_MONTH);
-+	CMOS_WRITE(day, RTC_DAY_OF_MONTH);
-+	CMOS_WRITE(hrs, RTC_HOURS);
-+	CMOS_WRITE(min, RTC_MINUTES);
-+	CMOS_WRITE(sec, RTC_SECONDS);
-+#ifdef CONFIG_ACPI
-+	if (acpi_gbl_FADT.header.revision >= FADT2_REVISION_ID &&
-+	    acpi_gbl_FADT.century)
-+		CMOS_WRITE(century, acpi_gbl_FADT.century);
-+#endif
-+
-+	CMOS_WRITE(save_control, RTC_CONTROL);
-+	CMOS_WRITE(save_freq_select, RTC_FREQ_SELECT);
-+
-+	spin_unlock_irqrestore(&rtc_lock, flags);
-+
-+	return 0;
-+}
-+EXPORT_SYMBOL_GPL(mc146818_set_time);
-diff --git a/include/linux/mc146818rtc.h b/include/linux/mc146818rtc.h
-index e9e346b37846..a585b4b5fa0e 100644
---- a/include/linux/mc146818rtc.h
-+++ b/include/linux/mc146818rtc.h
-@@ -17,10 +17,6 @@
- #include <linux/bcd.h>
- #include <linux/delay.h>
- 
--#ifdef CONFIG_ACPI
--#include <linux/acpi.h>
--#endif
--
- #ifdef __KERNEL__
- #include <linux/spinlock.h>		/* spinlock_t */
- extern spinlock_t rtc_lock;		/* serialize CMOS RAM access */
-@@ -126,192 +122,7 @@ struct cmos_rtc_board_info {
- #define RTC_IO_EXTENT_USED      RTC_IO_EXTENT
- #endif /* ARCH_RTC_LOCATION */
- 
+ pcf50633-objs			:= pcf50633-core.o pcf50633-irq.o
+diff --git a/drivers/mfd/max8997-irq.c b/drivers/mfd/max8997-irq.c
+deleted file mode 100644
+index 6ab5f955c510..000000000000
+--- a/drivers/mfd/max8997-irq.c
++++ /dev/null
+@@ -1,369 +0,0 @@
 -/*
-- * Returns true if a clock update is in progress
+- * max8997-irq.c - Interrupt controller support for MAX8997
+- *
+- * Copyright (C) 2011 Samsung Electronics Co.Ltd
+- * MyungJoo Ham <myungjoo.ham@samsung.com>
+- *
+- * This program is free software; you can redistribute it and/or modify
+- * it under the terms of the GNU General Public License as published by
+- * the Free Software Foundation; either version 2 of the License, or
+- * (at your option) any later version.
+- *
+- * This program is distributed in the hope that it will be useful,
+- * but WITHOUT ANY WARRANTY; without even the implied warranty of
+- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+- * GNU General Public License for more details.
+- *
+- * You should have received a copy of the GNU General Public License
+- * along with this program; if not, write to the Free Software
+- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+- *
+- * This driver is based on max8998-irq.c
 - */
--static inline unsigned char mc146818_is_updating(void)
--{
--	unsigned char uip;
--	unsigned long flags;
 -
--	spin_lock_irqsave(&rtc_lock, flags);
--	uip = (CMOS_READ(RTC_FREQ_SELECT) & RTC_UIP);
--	spin_unlock_irqrestore(&rtc_lock, flags);
--	return uip;
+-#include <linux/err.h>
+-#include <linux/irq.h>
+-#include <linux/interrupt.h>
+-#include <linux/mfd/max8997.h>
+-#include <linux/mfd/max8997-private.h>
+-#include <linux/regmap.h>
+-
+-static const u8 max8997_mask_reg[] = {
+-	[PMIC_INT1] = MAX8997_REG_INT1MSK,
+-	[PMIC_INT2] = MAX8997_REG_INT2MSK,
+-	[PMIC_INT3] = MAX8997_REG_INT3MSK,
+-	[PMIC_INT4] = MAX8997_REG_INT4MSK,
+-	[FUEL_GAUGE] = MAX8997_REG_INVALID,
+-	[MUIC_INT1] = MAX8997_MUIC_REG_INTMASK1,
+-	[MUIC_INT2] = MAX8997_MUIC_REG_INTMASK2,
+-	[MUIC_INT3] = MAX8997_MUIC_REG_INTMASK3,
+-	[GPIO_LOW] = MAX8997_REG_INVALID,
+-	[GPIO_HI] = MAX8997_REG_INVALID,
+-	[FLASH_STATUS] = MAX8997_REG_INVALID,
+-};
+-
+-struct max8997_irq_data {
+-	int mask;
+-	enum max8997_irq_source group;
+-};
+-
+-#define DECLARE_IRQ(idx, _group, _mask)		\
+-	[(idx)] = { .group = (_group), .mask = (_mask) }
+-static const struct max8997_irq_data max8997_irqs[] = {
+-	DECLARE_IRQ(MAX8997_PMICIRQ_PWRONR,	PMIC_INT1, 1 << 0),
+-	DECLARE_IRQ(MAX8997_PMICIRQ_PWRONF,	PMIC_INT1, 1 << 1),
+-	DECLARE_IRQ(MAX8997_PMICIRQ_PWRON1SEC,	PMIC_INT1, 1 << 3),
+-	DECLARE_IRQ(MAX8997_PMICIRQ_JIGONR,	PMIC_INT1, 1 << 4),
+-	DECLARE_IRQ(MAX8997_PMICIRQ_JIGONF,	PMIC_INT1, 1 << 5),
+-	DECLARE_IRQ(MAX8997_PMICIRQ_LOWBAT2,	PMIC_INT1, 1 << 6),
+-	DECLARE_IRQ(MAX8997_PMICIRQ_LOWBAT1,	PMIC_INT1, 1 << 7),
+-
+-	DECLARE_IRQ(MAX8997_PMICIRQ_JIGR,	PMIC_INT2, 1 << 0),
+-	DECLARE_IRQ(MAX8997_PMICIRQ_JIGF,	PMIC_INT2, 1 << 1),
+-	DECLARE_IRQ(MAX8997_PMICIRQ_MR,		PMIC_INT2, 1 << 2),
+-	DECLARE_IRQ(MAX8997_PMICIRQ_DVS1OK,	PMIC_INT2, 1 << 3),
+-	DECLARE_IRQ(MAX8997_PMICIRQ_DVS2OK,	PMIC_INT2, 1 << 4),
+-	DECLARE_IRQ(MAX8997_PMICIRQ_DVS3OK,	PMIC_INT2, 1 << 5),
+-	DECLARE_IRQ(MAX8997_PMICIRQ_DVS4OK,	PMIC_INT2, 1 << 6),
+-
+-	DECLARE_IRQ(MAX8997_PMICIRQ_CHGINS,	PMIC_INT3, 1 << 0),
+-	DECLARE_IRQ(MAX8997_PMICIRQ_CHGRM,	PMIC_INT3, 1 << 1),
+-	DECLARE_IRQ(MAX8997_PMICIRQ_DCINOVP,	PMIC_INT3, 1 << 2),
+-	DECLARE_IRQ(MAX8997_PMICIRQ_TOPOFFR,	PMIC_INT3, 1 << 3),
+-	DECLARE_IRQ(MAX8997_PMICIRQ_CHGRSTF,	PMIC_INT3, 1 << 5),
+-	DECLARE_IRQ(MAX8997_PMICIRQ_MBCHGTMEXPD,	PMIC_INT3, 1 << 7),
+-
+-	DECLARE_IRQ(MAX8997_PMICIRQ_RTC60S,	PMIC_INT4, 1 << 0),
+-	DECLARE_IRQ(MAX8997_PMICIRQ_RTCA1,	PMIC_INT4, 1 << 1),
+-	DECLARE_IRQ(MAX8997_PMICIRQ_RTCA2,	PMIC_INT4, 1 << 2),
+-	DECLARE_IRQ(MAX8997_PMICIRQ_SMPL_INT,	PMIC_INT4, 1 << 3),
+-	DECLARE_IRQ(MAX8997_PMICIRQ_RTC1S,	PMIC_INT4, 1 << 4),
+-	DECLARE_IRQ(MAX8997_PMICIRQ_WTSR,	PMIC_INT4, 1 << 5),
+-
+-	DECLARE_IRQ(MAX8997_MUICIRQ_ADCError,	MUIC_INT1, 1 << 2),
+-	DECLARE_IRQ(MAX8997_MUICIRQ_ADCLow,	MUIC_INT1, 1 << 1),
+-	DECLARE_IRQ(MAX8997_MUICIRQ_ADC,	MUIC_INT1, 1 << 0),
+-
+-	DECLARE_IRQ(MAX8997_MUICIRQ_VBVolt,	MUIC_INT2, 1 << 4),
+-	DECLARE_IRQ(MAX8997_MUICIRQ_DBChg,	MUIC_INT2, 1 << 3),
+-	DECLARE_IRQ(MAX8997_MUICIRQ_DCDTmr,	MUIC_INT2, 1 << 2),
+-	DECLARE_IRQ(MAX8997_MUICIRQ_ChgDetRun,	MUIC_INT2, 1 << 1),
+-	DECLARE_IRQ(MAX8997_MUICIRQ_ChgTyp,	MUIC_INT2, 1 << 0),
+-
+-	DECLARE_IRQ(MAX8997_MUICIRQ_OVP,	MUIC_INT3, 1 << 2),
+-};
+-
+-static void max8997_irq_lock(struct irq_data *data)
+-{
+-	struct max8997_dev *max8997 = irq_data_get_irq_chip_data(data);
+-
+-	mutex_lock(&max8997->irqlock);
 -}
 -
--static inline unsigned int mc146818_get_time(struct rtc_time *time)
+-static void max8997_irq_sync_unlock(struct irq_data *data)
 -{
--	unsigned char ctrl;
--	unsigned long flags;
--	unsigned char century = 0;
+-	struct max8997_dev *max8997 = irq_data_get_irq_chip_data(data);
+-	int i;
 -
--#ifdef CONFIG_MACH_DECSTATION
--	unsigned int real_year;
--#endif
+-	for (i = 0; i < MAX8997_IRQ_GROUP_NR; i++) {
+-		struct regmap *map;
+-		u8 mask_reg = max8997_mask_reg[i];
 -
--	/*
--	 * read RTC once any update in progress is done. The update
--	 * can take just over 2ms. We wait 20ms. There is no need to
--	 * to poll-wait (up to 1s - eeccch) for the falling edge of RTC_UIP.
--	 * If you need to know *exactly* when a second has started, enable
--	 * periodic update complete interrupts, (via ioctl) and then 
--	 * immediately read /dev/rtc which will block until you get the IRQ.
--	 * Once the read clears, read the RTC time (again via ioctl). Easy.
--	 */
--	if (mc146818_is_updating())
--		mdelay(20);
+-		if (i >= MUIC_INT1 && i <= MUIC_INT3)
+-			map = max8997->regmap_muic;
+-		else
+-			map = max8997->regmap;
 -
--	/*
--	 * Only the values that we read from the RTC are set. We leave
--	 * tm_wday, tm_yday and tm_isdst untouched. Even though the
--	 * RTC has RTC_DAY_OF_WEEK, we ignore it, as it is only updated
--	 * by the RTC when initially set to a non-zero value.
--	 */
--	spin_lock_irqsave(&rtc_lock, flags);
--	time->tm_sec = CMOS_READ(RTC_SECONDS);
--	time->tm_min = CMOS_READ(RTC_MINUTES);
--	time->tm_hour = CMOS_READ(RTC_HOURS);
--	time->tm_mday = CMOS_READ(RTC_DAY_OF_MONTH);
--	time->tm_mon = CMOS_READ(RTC_MONTH);
--	time->tm_year = CMOS_READ(RTC_YEAR);
--#ifdef CONFIG_MACH_DECSTATION
--	real_year = CMOS_READ(RTC_DEC_YEAR);
--#endif
--#ifdef CONFIG_ACPI
--	if (acpi_gbl_FADT.header.revision >= FADT2_REVISION_ID &&
--	    acpi_gbl_FADT.century)
--		century = CMOS_READ(acpi_gbl_FADT.century);
--#endif
--	ctrl = CMOS_READ(RTC_CONTROL);
--	spin_unlock_irqrestore(&rtc_lock, flags);
+-		if (mask_reg == MAX8997_REG_INVALID ||
+-				IS_ERR_OR_NULL(map))
+-			continue;
+-		max8997->irq_masks_cache[i] = max8997->irq_masks_cur[i];
 -
--	if (!(ctrl & RTC_DM_BINARY) || RTC_ALWAYS_BCD)
--	{
--		time->tm_sec = bcd2bin(time->tm_sec);
--		time->tm_min = bcd2bin(time->tm_min);
--		time->tm_hour = bcd2bin(time->tm_hour);
--		time->tm_mday = bcd2bin(time->tm_mday);
--		time->tm_mon = bcd2bin(time->tm_mon);
--		time->tm_year = bcd2bin(time->tm_year);
--		century = bcd2bin(century);
+-		regmap_write(map, max8997_mask_reg[i],
+-				max8997->irq_masks_cur[i]);
 -	}
 -
--#ifdef CONFIG_MACH_DECSTATION
--	time->tm_year += real_year - 72;
--#endif
--
--	if (century)
--		time->tm_year += (century - 19) * 100;
--
--	/*
--	 * Account for differences between how the RTC uses the values
--	 * and how they are defined in a struct rtc_time;
--	 */
--	if (time->tm_year <= 69)
--		time->tm_year += 100;
--
--	time->tm_mon--;
--
--	return RTC_24H;
+-	mutex_unlock(&max8997->irqlock);
 -}
 -
--/* Set the current date and time in the real time clock. */
--static inline int mc146818_set_time(struct rtc_time *time)
+-static const inline struct max8997_irq_data *
+-irq_to_max8997_irq(struct max8997_dev *max8997, struct irq_data *data)
 -{
--	unsigned long flags;
--	unsigned char mon, day, hrs, min, sec;
--	unsigned char save_control, save_freq_select;
--	unsigned int yrs;
--#ifdef CONFIG_MACH_DECSTATION
--	unsigned int real_yrs, leap_yr;
--#endif
--	unsigned char century = 0;
+-	return &max8997_irqs[data->hwirq];
+-}
 -
--	yrs = time->tm_year;
--	mon = time->tm_mon + 1;   /* tm_mon starts at zero */
--	day = time->tm_mday;
--	hrs = time->tm_hour;
--	min = time->tm_min;
--	sec = time->tm_sec;
+-static void max8997_irq_mask(struct irq_data *data)
+-{
+-	struct max8997_dev *max8997 = irq_data_get_irq_chip_data(data);
+-	const struct max8997_irq_data *irq_data = irq_to_max8997_irq(max8997,
+-								     data);
 -
--	if (yrs > 255)	/* They are unsigned */
--		return -EINVAL;
+-	max8997->irq_masks_cur[irq_data->group] |= irq_data->mask;
+-}
 -
--	spin_lock_irqsave(&rtc_lock, flags);
--#ifdef CONFIG_MACH_DECSTATION
--	real_yrs = yrs;
--	leap_yr = ((!((yrs + 1900) % 4) && ((yrs + 1900) % 100)) ||
--			!((yrs + 1900) % 400));
--	yrs = 72;
+-static void max8997_irq_unmask(struct irq_data *data)
+-{
+-	struct max8997_dev *max8997 = irq_data_get_irq_chip_data(data);
+-	const struct max8997_irq_data *irq_data = irq_to_max8997_irq(max8997,
+-								     data);
 -
--	/*
--	 * We want to keep the year set to 73 until March
--	 * for non-leap years, so that Feb, 29th is handled
--	 * correctly.
--	 */
--	if (!leap_yr && mon < 3) {
--		real_yrs--;
--		yrs = 73;
--	}
--#endif
+-	max8997->irq_masks_cur[irq_data->group] &= ~irq_data->mask;
+-}
 -
--#ifdef CONFIG_ACPI
--	if (acpi_gbl_FADT.header.revision >= FADT2_REVISION_ID &&
--	    acpi_gbl_FADT.century) {
--		century = (yrs + 1900) / 100;
--		yrs %= 100;
--	}
--#endif
+-static struct irq_chip max8997_irq_chip = {
+-	.name			= "max8997",
+-	.irq_bus_lock		= max8997_irq_lock,
+-	.irq_bus_sync_unlock	= max8997_irq_sync_unlock,
+-	.irq_mask		= max8997_irq_mask,
+-	.irq_unmask		= max8997_irq_unmask,
+-};
 -
--	/* These limits and adjustments are independent of
--	 * whether the chip is in binary mode or not.
--	 */
--	if (yrs > 169) {
--		spin_unlock_irqrestore(&rtc_lock, flags);
--		return -EINVAL;
+-#define MAX8997_IRQSRC_PMIC		(1 << 1)
+-#define MAX8997_IRQSRC_FUELGAUGE	(1 << 2)
+-#define MAX8997_IRQSRC_MUIC		(1 << 3)
+-#define MAX8997_IRQSRC_GPIO		(1 << 4)
+-#define MAX8997_IRQSRC_FLASH		(1 << 5)
+-static irqreturn_t max8997_irq_thread(int irq, void *data)
+-{
+-	struct max8997_dev *max8997 = data;
+-	u8 irq_reg[MAX8997_IRQ_GROUP_NR] = {};
+-	unsigned int irq_src;
+-	int ret;
+-	int i, cur_irq;
+-
+-	ret = regmap_read(max8997->regmap, MAX8997_REG_INTSRC, &irq_src);
+-	if (ret < 0) {
+-		dev_err(max8997->dev, "Failed to read interrupt source: %d\n",
+-				ret);
+-		return IRQ_NONE;
 -	}
 -
--	if (yrs >= 100)
--		yrs -= 100;
+-	if (irq_src & MAX8997_IRQSRC_PMIC) {
+-		/* PMIC INT1 ~ INT4 */
+-		regmap_bulk_read(max8997->regmap, MAX8997_REG_INT1,
+-				&irq_reg[PMIC_INT1], 4);
+-	}
+-	if (irq_src & MAX8997_IRQSRC_FUELGAUGE) {
+-		/*
+-		 * TODO: FUEL GAUGE
+-		 *
+-		 * This is to be supported by Max17042 driver. When
+-		 * an interrupt incurs here, it should be relayed to a
+-		 * Max17042 device that is connected (probably by
+-		 * platform-data). However, we do not have interrupt
+-		 * handling in Max17042 driver currently. The Max17042 IRQ
+-		 * driver should be ready to be used as a stand-alone device and
+-		 * a Max8997-dependent device. Because it is not ready in
+-		 * Max17042-side and it is not too critical in operating
+-		 * Max8997, we do not implement this in initial releases.
+-		 */
+-		irq_reg[FUEL_GAUGE] = 0;
+-	}
+-	if (irq_src & MAX8997_IRQSRC_MUIC) {
+-		/* MUIC INT1 ~ INT3 */
+-		regmap_bulk_read(max8997->regmap_muic, MAX8997_MUIC_REG_INT1,
+-				&irq_reg[MUIC_INT1], 3);
+-	}
+-	if (irq_src & MAX8997_IRQSRC_GPIO) {
+-		/* GPIO Interrupt */
+-		u8 gpio_info[MAX8997_NUM_GPIO];
 -
--	if (!(CMOS_READ(RTC_CONTROL) & RTC_DM_BINARY)
--	    || RTC_ALWAYS_BCD) {
--		sec = bin2bcd(sec);
--		min = bin2bcd(min);
--		hrs = bin2bcd(hrs);
--		day = bin2bcd(day);
--		mon = bin2bcd(mon);
--		yrs = bin2bcd(yrs);
--		century = bin2bcd(century);
+-		irq_reg[GPIO_LOW] = 0;
+-		irq_reg[GPIO_HI] = 0;
+-
+-		regmap_bulk_read(max8997->regmap, MAX8997_REG_GPIOCNTL1,
+-				gpio_info, MAX8997_NUM_GPIO);
+-		for (i = 0; i < MAX8997_NUM_GPIO; i++) {
+-			bool interrupt = false;
+-
+-			switch (gpio_info[i] & MAX8997_GPIO_INT_MASK) {
+-			case MAX8997_GPIO_INT_BOTH:
+-				if (max8997->gpio_status[i] != gpio_info[i])
+-					interrupt = true;
+-				break;
+-			case MAX8997_GPIO_INT_RISE:
+-				if ((max8997->gpio_status[i] != gpio_info[i]) &&
+-				    (gpio_info[i] & MAX8997_GPIO_DATA_MASK))
+-					interrupt = true;
+-				break;
+-			case MAX8997_GPIO_INT_FALL:
+-				if ((max8997->gpio_status[i] != gpio_info[i]) &&
+-				    !(gpio_info[i] & MAX8997_GPIO_DATA_MASK))
+-					interrupt = true;
+-				break;
+-			default:
+-				break;
+-			}
+-
+-			if (interrupt) {
+-				if (i < 8)
+-					irq_reg[GPIO_LOW] |= (1 << i);
+-				else
+-					irq_reg[GPIO_HI] |= (1 << (i - 8));
+-			}
+-
+-		}
+-	}
+-	if (irq_src & MAX8997_IRQSRC_FLASH) {
+-		/* Flash Status Interrupt */
+-		unsigned int data;
+-		ret = regmap_read(max8997->regmap,
+-				MAX8997_REG_FLASHSTATUS, &data);
+-		irq_reg[FLASH_STATUS] = data;
 -	}
 -
--	save_control = CMOS_READ(RTC_CONTROL);
--	CMOS_WRITE((save_control|RTC_SET), RTC_CONTROL);
--	save_freq_select = CMOS_READ(RTC_FREQ_SELECT);
--	CMOS_WRITE((save_freq_select|RTC_DIV_RESET2), RTC_FREQ_SELECT);
+-	/* Apply masking */
+-	for (i = 0; i < MAX8997_IRQ_GROUP_NR; i++)
+-		irq_reg[i] &= ~max8997->irq_masks_cur[i];
 -
--#ifdef CONFIG_MACH_DECSTATION
--	CMOS_WRITE(real_yrs, RTC_DEC_YEAR);
--#endif
--	CMOS_WRITE(yrs, RTC_YEAR);
--	CMOS_WRITE(mon, RTC_MONTH);
--	CMOS_WRITE(day, RTC_DAY_OF_MONTH);
--	CMOS_WRITE(hrs, RTC_HOURS);
--	CMOS_WRITE(min, RTC_MINUTES);
--	CMOS_WRITE(sec, RTC_SECONDS);
--#ifdef CONFIG_ACPI
--	if (acpi_gbl_FADT.header.revision >= FADT2_REVISION_ID &&
--	    acpi_gbl_FADT.century)
--		CMOS_WRITE(century, acpi_gbl_FADT.century);
--#endif
+-	/* Report */
+-	for (i = 0; i < MAX8997_IRQ_NR; i++) {
+-		if (irq_reg[max8997_irqs[i].group] & max8997_irqs[i].mask) {
+-			cur_irq = irq_find_mapping(max8997->irq_domain, i);
+-			if (cur_irq)
+-				handle_nested_irq(cur_irq);
+-		}
+-	}
 -
--	CMOS_WRITE(save_control, RTC_CONTROL);
--	CMOS_WRITE(save_freq_select, RTC_FREQ_SELECT);
+-	return IRQ_HANDLED;
+-}
 -
--	spin_unlock_irqrestore(&rtc_lock, flags);
+-int max8997_irq_resume(struct max8997_dev *max8997)
+-{
+-	if (max8997->irq && max8997->irq_domain)
+-		max8997_irq_thread(0, max8997);
+-	return 0;
+-}
+-
+-static int max8997_irq_domain_map(struct irq_domain *d, unsigned int irq,
+-					irq_hw_number_t hw)
+-{
+-	struct max8997_dev *max8997 = d->host_data;
+-
+-	irq_set_chip_data(irq, max8997);
+-	irq_set_chip_and_handler(irq, &max8997_irq_chip, handle_edge_irq);
+-	irq_set_nested_thread(irq, 1);
+-	irq_set_noprobe(irq);
 -
 -	return 0;
 -}
-+unsigned int mc146818_get_time(struct rtc_time *time);
-+int mc146818_set_time(struct rtc_time *time);
+-
+-static const struct irq_domain_ops max8997_irq_domain_ops = {
+-	.map = max8997_irq_domain_map,
+-};
+-
+-int max8997_irq_init(struct max8997_dev *max8997)
+-{
+-	struct irq_domain *domain;
+-	int i;
+-	int ret;
+-	unsigned int val;
+-
+-	if (!max8997->irq) {
+-		dev_warn(max8997->dev, "No interrupt specified.\n");
+-		return 0;
+-	}
+-
+-	mutex_init(&max8997->irqlock);
+-
+-	/* Mask individual interrupt sources */
+-	for (i = 0; i < MAX8997_IRQ_GROUP_NR; i++) {
+-		max8997->irq_masks_cur[i] = 0xff;
+-		max8997->irq_masks_cache[i] = 0xff;
+-
+-		if (IS_ERR_OR_NULL(max8997->regmap))
+-			continue;
+-		if (max8997_mask_reg[i] == MAX8997_REG_INVALID)
+-			continue;
+-
+-		regmap_write(max8997->regmap, max8997_mask_reg[i], 0xff);
+-	}
+-
+-	for (i = 0; i < MAX8997_NUM_GPIO; i++) {
+-		max8997->gpio_status[i] = (regmap_read(max8997->regmap,
+-						MAX8997_REG_GPIOCNTL1 + i,
+-						&val)
+-					& MAX8997_GPIO_DATA_MASK) ?
+-					true : false;
+-	}
+-
+-	domain = irq_domain_add_linear(NULL, MAX8997_IRQ_NR,
+-					&max8997_irq_domain_ops, max8997);
+-	if (!domain) {
+-		dev_err(max8997->dev, "could not create irq domain\n");
+-		return -ENODEV;
+-	}
+-	max8997->irq_domain = domain;
+-
+-	ret = request_threaded_irq(max8997->irq, NULL, max8997_irq_thread,
+-			IRQF_TRIGGER_FALLING | IRQF_ONESHOT,
+-			"max8997-irq", max8997);
+-
+-	if (ret) {
+-		dev_err(max8997->dev, "Failed to request IRQ %d: %d\n",
+-				max8997->irq, ret);
+-		return ret;
+-	}
+-
+-	if (!max8997->ono)
+-		return 0;
+-
+-	ret = request_threaded_irq(max8997->ono, NULL, max8997_irq_thread,
+-			IRQF_TRIGGER_FALLING | IRQF_TRIGGER_RISING |
+-			IRQF_ONESHOT, "max8997-ono", max8997);
+-
+-	if (ret)
+-		dev_err(max8997->dev, "Failed to request ono-IRQ %d: %d\n",
+-				max8997->ono, ret);
+-
+-	return 0;
+-}
+-
+-void max8997_irq_exit(struct max8997_dev *max8997)
+-{
+-	if (max8997->ono)
+-		free_irq(max8997->ono, max8997);
+-
+-	if (max8997->irq)
+-		free_irq(max8997->irq, max8997);
+-}
+diff --git a/drivers/mfd/max8997.c b/drivers/mfd/max8997.c
+index f1c82110b2ab..932e22c05026 100644
+--- a/drivers/mfd/max8997.c
++++ b/drivers/mfd/max8997.c
+@@ -65,6 +65,49 @@ static const struct regmap_config max8997_regmap_config = {
+ 	.max_register = MAX8997_REG_PMIC_END,
+ };
  
- #endif /* _MC146818RTC_H */
++static const struct regmap_irq max8997_irqs[] = {
++	/* PMIC_INT1 interrupts */
++	{ .reg_offset = 0, .mask = PMIC_INT1_PWRONR_MASK, },
++	{ .reg_offset = 0, .mask = PMIC_INT1_PWRONF_MASK, },
++	{ .reg_offset = 0, .mask = PMIC_INT1_PWRON1SEC_MASK, },
++	{ .reg_offset = 0, .mask = PMIC_INT1_JIGONR_MASK, },
++	{ .reg_offset = 0, .mask = PMIC_INT1_JIGONF_MASK, },
++	{ .reg_offset = 0, .mask = PMIC_INT1_LOWBAT2_MASK, },
++	{ .reg_offset = 0, .mask = PMIC_INT1_LOWBAT1_MASK, },
++	/* PMIC_INT2 interrupts */
++	{ .reg_offset = 1, .mask = PMIC_INT2_JIGR_MASK, },
++	{ .reg_offset = 1, .mask = PMIC_INT2_JIGF_MASK, },
++	{ .reg_offset = 1, .mask = PMIC_INT2_MR_MASK, },
++	{ .reg_offset = 1, .mask = PMIC_INT2_DVS1OK_MASK, },
++	{ .reg_offset = 1, .mask = PMIC_INT2_DVS2OK_MASK, },
++	{ .reg_offset = 1, .mask = PMIC_INT2_DVS3OK_MASK, },
++	{ .reg_offset = 1, .mask = PMIC_INT2_DVS4OK_MASK, },
++	/* PMIC_INT3 interrupts */
++	{ .reg_offset = 2, .mask = PMIC_INT3_CHGINS_MASK, },
++	{ .reg_offset = 2, .mask = PMIC_INT3_CHGRM_MASK, },
++	{ .reg_offset = 2, .mask = PMIC_INT3_DCINOVP_MASK, },
++	{ .reg_offset = 2, .mask = PMIC_INT3_TOPOFFR_MASK, },
++	{ .reg_offset = 2, .mask = PMIC_INT3_CHGRSTF_MASK, },
++	{ .reg_offset = 2, .mask = PMIC_INT3_MBCHGTMEXPD_MASK, },
++	/* PMIC_INT4 interrupts */
++	{ .reg_offset = 3, .mask = PMIC_INT4_RTC60S_MASK, },
++	{ .reg_offset = 3, .mask = PMIC_INT4_RTCA1_MASK, },
++	{ .reg_offset = 3, .mask = PMIC_INT4_RTCA2_MASK, },
++	{ .reg_offset = 3, .mask = PMIC_INT4_SMPL_INT_MASK, },
++	{ .reg_offset = 3, .mask = PMIC_INT4_RTC1S_MASK, },
++	{ .reg_offset = 3, .mask = PMIC_INT4_WTSR_MASK, },
++};
++
++static const struct regmap_irq_chip max8997_irq_chip = {
++	.name			= "max8997",
++	.status_base		= MAX8997_REG_INT1,
++	.mask_base		= MAX8997_REG_INT1MSK,
++	.mask_invert		= false,
++	.num_regs		= 4,
++	.irqs			= max8997_irqs,
++	.num_irqs		= ARRAY_SIZE(max8997_irqs),
++};
++
+ static const struct regmap_config max8997_regmap_rtc_config = {
+ 	.reg_bits = 8,
+ 	.val_bits = 8,
+@@ -83,6 +126,31 @@ static const struct regmap_config max8997_regmap_muic_config = {
+ 	.max_register = MAX8997_MUIC_REG_END,
+ };
+ 
++static const struct regmap_irq max8997_irqs_muic[] = {
++	/* MUIC_INT1 interrupts */
++	{ .reg_offset = 0, .mask = MUIC_INT1_ADC_MASK, },
++	{ .reg_offset = 0, .mask = MUIC_INT1_ADCLOW_MASK, },
++	{ .reg_offset = 0, .mask = MUIC_INT1_ADCERROR_MASK, },
++	/* MUIC_INT2 interrupts */
++	{ .reg_offset = 1, .mask = MUIC_INT2_CHGTYP_MASK, },
++	{ .reg_offset = 1, .mask = MUIC_INT2_CHGDETRUN_MASK, },
++	{ .reg_offset = 1, .mask = MUIC_INT2_DCDTMR_MASK, },
++	{ .reg_offset = 1, .mask = MUIC_INT2_DBCHG_MASK, },
++	{ .reg_offset = 1, .mask = MUIC_INT2_VBVOLT_MASK, },
++	/* MUIC_INT3 interrupts */
++	{ .reg_offset = 2, .mask = MUIC_INT3_OVP_MASK, },
++};
++
++static const struct regmap_irq_chip max8997_irq_chip_muic = {
++	.name			= "max8997-muic",
++	.status_base		= MAX8997_MUIC_REG_INT1,
++	.mask_base		= MAX8997_MUIC_REG_INTMASK1,
++	.mask_invert		= true,
++	.num_regs		= 3,
++	.irqs			= max8997_irqs_muic,
++	.num_irqs		= ARRAY_SIZE(max8997_irqs_muic),
++};
++
+ /*
+  * Only the common platform data elements for max8997 are parsed here from the
+  * device tree. Other sub-modules of max8997 such as pmic, rtc and others have
+@@ -215,9 +283,26 @@ static int max8997_i2c_probe(struct i2c_client *i2c,
+ 		goto err_regmap;
+ 	}
+ 
+-	pm_runtime_set_active(max8997->dev);
++	ret = regmap_add_irq_chip(max8997->regmap, max8997->irq,
++				IRQF_ONESHOT | IRQF_SHARED |
++				IRQF_TRIGGER_FALLING, 0,
++				&max8997_irq_chip, &max8997->irq_data);
++	if (ret) {
++		dev_err(max8997->dev, "failed to add irq chip: %d\n", ret);
++		goto err_regmap;
++	}
+ 
+-	max8997_irq_init(max8997);
++	ret = regmap_add_irq_chip(max8997->regmap_muic, max8997->irq,
++				IRQF_ONESHOT | IRQF_SHARED |
++				IRQF_TRIGGER_FALLING, 0,
++				&max8997_irq_chip_muic,
++				&max8997->irq_data_muic);
++	if (ret) {
++		dev_err(max8997->dev, "failed to add irq chip: %d\n", ret);
++		goto err_irq_muic;
++	}
++
++	pm_runtime_set_active(max8997->dev);
+ 
+ 	ret = mfd_add_devices(max8997->dev, -1, max8997_devs,
+ 			ARRAY_SIZE(max8997_devs),
+@@ -239,6 +324,9 @@ static int max8997_i2c_probe(struct i2c_client *i2c,
+ 
+ err_mfd:
+ 	mfd_remove_devices(max8997->dev);
++	regmap_del_irq_chip(max8997->irq, max8997->irq_data_muic);
++err_irq_muic:
++	regmap_del_irq_chip(max8997->irq, max8997->irq_data);
+ err_regmap:
+ 	i2c_unregister_device(max8997->muic);
+ err_i2c_muic:
+@@ -253,6 +341,10 @@ static int max8997_i2c_remove(struct i2c_client *i2c)
+ 	struct max8997_dev *max8997 = i2c_get_clientdata(i2c);
+ 
+ 	mfd_remove_devices(max8997->dev);
++
++	regmap_del_irq_chip(max8997->irq, max8997->irq_data_muic);
++	regmap_del_irq_chip(max8997->irq, max8997->irq_data);
++
+ 	i2c_unregister_device(max8997->muic);
+ 	i2c_unregister_device(max8997->haptic);
+ 	i2c_unregister_device(max8997->rtc);
+@@ -469,8 +561,11 @@ static int max8997_suspend(struct device *dev)
+ 	struct i2c_client *i2c = to_i2c_client(dev);
+ 	struct max8997_dev *max8997 = i2c_get_clientdata(i2c);
+ 
+-	if (device_may_wakeup(dev))
+-		irq_set_irq_wake(max8997->irq, 1);
++	if (device_may_wakeup(dev)) {
++		enable_irq_wake(max8997->irq);
++		disable_irq(max8997->irq);
++	}
++
+ 	return 0;
+ }
+ 
+@@ -479,9 +574,12 @@ static int max8997_resume(struct device *dev)
+ 	struct i2c_client *i2c = to_i2c_client(dev);
+ 	struct max8997_dev *max8997 = i2c_get_clientdata(i2c);
+ 
+-	if (device_may_wakeup(dev))
+-		irq_set_irq_wake(max8997->irq, 0);
+-	return max8997_irq_resume(max8997);
++	if (device_may_wakeup(dev)) {
++		disable_irq_wake(max8997->irq);
++		enable_irq(max8997->irq);
++	}
++
++	return 0;
+ }
+ 
+ static const struct dev_pm_ops max8997_pm = {
+diff --git a/drivers/rtc/rtc-max8997.c b/drivers/rtc/rtc-max8997.c
+index d017a34a9f70..4998aee0f07f 100644
+--- a/drivers/rtc/rtc-max8997.c
++++ b/drivers/rtc/rtc-max8997.c
+@@ -496,7 +496,7 @@ static int max8997_rtc_probe(struct platform_device *pdev)
+ 		return ret;
+ 	}
+ 
+-	virq = irq_create_mapping(max8997->irq_domain, MAX8997_PMICIRQ_RTCA1);
++	virq = regmap_irq_get_virq(max8997->irq_data, MAX8997_PMICIRQ_RTCA1);
+ 	if (!virq) {
+ 		dev_err(&pdev->dev, "Failed to create mapping alarm IRQ\n");
+ 		ret = -ENXIO;
+diff --git a/include/linux/mfd/max8997-private.h b/include/linux/mfd/max8997-private.h
+index ea80ef80dbf8..f42ea222988f 100644
+--- a/include/linux/mfd/max8997-private.h
++++ b/include/linux/mfd/max8997-private.h
+@@ -333,6 +333,48 @@ enum max8997_irq_source {
+ 	MAX8997_IRQ_GROUP_NR,
+ };
+ 
++#define PMIC_INT1_PWRONR_MASK		(0x1 << 0)
++#define PMIC_INT1_PWRONF_MASK		(0x1 << 1)
++#define PMIC_INT1_PWRON1SEC_MASK	(0x1 << 3)
++#define PMIC_INT1_JIGONR_MASK		(0x1 << 4)
++#define PMIC_INT1_JIGONF_MASK		(0x1 << 5)
++#define PMIC_INT1_LOWBAT2_MASK		(0x1 << 6)
++#define PMIC_INT1_LOWBAT1_MASK		(0x1 << 7)
++
++#define PMIC_INT2_JIGR_MASK		(0x1 << 0)
++#define PMIC_INT2_JIGF_MASK		(0x1 << 1)
++#define PMIC_INT2_MR_MASK		(0x1 << 2)
++#define PMIC_INT2_DVS1OK_MASK		(0x1 << 3)
++#define PMIC_INT2_DVS2OK_MASK		(0x1 << 4)
++#define PMIC_INT2_DVS3OK_MASK		(0x1 << 5)
++#define PMIC_INT2_DVS4OK_MASK		(0x1 << 6)
++
++#define PMIC_INT3_CHGINS_MASK		(0x1 << 0)
++#define PMIC_INT3_CHGRM_MASK		(0x1 << 1)
++#define PMIC_INT3_DCINOVP_MASK		(0x1 << 2)
++#define PMIC_INT3_TOPOFFR_MASK		(0x1 << 3)
++#define PMIC_INT3_CHGRSTF_MASK		(0x1 << 5)
++#define PMIC_INT3_MBCHGTMEXPD_MASK	(0x1 << 7)
++
++#define PMIC_INT4_RTC60S_MASK		(0x1 << 0)
++#define PMIC_INT4_RTCA1_MASK		(0x1 << 1)
++#define PMIC_INT4_RTCA2_MASK		(0x1 << 2)
++#define PMIC_INT4_SMPL_INT_MASK		(0x1 << 3)
++#define PMIC_INT4_RTC1S_MASK		(0x1 << 4)
++#define PMIC_INT4_WTSR_MASK		(0x1 << 5)
++
++#define MUIC_INT1_ADC_MASK		(0x1 << 0)
++#define MUIC_INT1_ADCLOW_MASK		(0x1 << 1)
++#define MUIC_INT1_ADCERROR_MASK		(0x1 << 2)
++
++#define MUIC_INT2_CHGTYP_MASK		(0x1 << 0)
++#define MUIC_INT2_CHGDETRUN_MASK	(0x1 << 1)
++#define MUIC_INT2_DCDTMR_MASK		(0x1 << 2)
++#define MUIC_INT2_DBCHG_MASK		(0x1 << 3)
++#define MUIC_INT2_VBVOLT_MASK		(0x1 << 4)
++
++#define MUIC_INT3_OVP_MASK		(0x1 << 2)
++
+ enum max8997_irq {
+ 	MAX8997_PMICIRQ_PWRONR,
+ 	MAX8997_PMICIRQ_PWRONF,
+@@ -364,19 +406,23 @@ enum max8997_irq {
+ 	MAX8997_PMICIRQ_RTC1S,
+ 	MAX8997_PMICIRQ_WTSR,
+ 
+-	MAX8997_MUICIRQ_ADCError,
+-	MAX8997_MUICIRQ_ADCLow,
++	MAX8997_PMICIRQ_NR,
++};
++
++enum max8997_irq_muic {
+ 	MAX8997_MUICIRQ_ADC,
++	MAX8997_MUICIRQ_ADCLow,
++	MAX8997_MUICIRQ_ADCError,
+ 
+-	MAX8997_MUICIRQ_VBVolt,
+-	MAX8997_MUICIRQ_DBChg,
+-	MAX8997_MUICIRQ_DCDTmr,
+-	MAX8997_MUICIRQ_ChgDetRun,
+ 	MAX8997_MUICIRQ_ChgTyp,
++	MAX8997_MUICIRQ_ChgDetRun,
++	MAX8997_MUICIRQ_DCDTmr,
++	MAX8997_MUICIRQ_DBChg,
++	MAX8997_MUICIRQ_VBVolt,
+ 
+ 	MAX8997_MUICIRQ_OVP,
+ 
+-	MAX8997_IRQ_NR,
++	MAX8997_MUCIRQ_NR,
+ };
+ 
+ #define MAX8997_NUM_GPIO	12
+@@ -397,9 +443,10 @@ struct max8997_dev {
+ 	struct regmap *regmap_haptic;
+ 	struct regmap *regmap_muic;
+ 
++	struct regmap_irq_chip_data *irq_data;
++	struct regmap_irq_chip_data *irq_data_muic;
+ 	int irq;
+ 	int ono;
+-	struct irq_domain *irq_domain;
+ 	struct mutex irqlock;
+ 	int irq_masks_cur[MAX8997_IRQ_GROUP_NR];
+ 	int irq_masks_cache[MAX8997_IRQ_GROUP_NR];
 -- 
-2.7.0
+1.9.1
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
