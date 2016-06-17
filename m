@@ -1,18 +1,37 @@
-Return-Path: <rtc-linux+bncBAABBRWK7G5AKGQEPCAISAQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBDKZNNNLXAHBBY5IR25QKGQEHWT7CYA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 MIME-Version: 1.0
-Received: from root.phytec.de (mail.phytec.de. [217.6.246.34])
-        by gmr-mx.google.com with ESMTP id f138si216652wmf.3.2016.06.13.00.48.21
-        for <rtc-linux@googlegroups.com>;
-        Mon, 13 Jun 2016 00:48:21 -0700 (PDT)
-From: Wadim Egorov <w.egorov@phytec.de>
-To: linux-kernel@vger.kernel.org, linux-clk@vger.kernel.org, rtc-linux@googlegroups.com, devicetree@vger.kernel.org, linux-rockchip@lists.infradead.org
-Cc: robh+dt@kernel.org, mark.rutland@arm.com, mturquette@baylibre.com, sboyd@codeaurora.org, lee.jones@linaro.org, lgirdwood@gmail.com, broonie@kernel.org, a.zummo@towertech.it, alexandre.belloni@free-electrons.com, dianders@chromium.org, zyw@rock-chips.com
-Subject: [rtc-linux] [PATCH v6 5/5] rtc: Kconfig: Name RK818 in Kconfig for RTC_DRV_RK808
-Date: Mon, 13 Jun 2016 09:46:29 +0200
-Message-Id: <1465803989-33632-5-git-send-email-w.egorov@phytec.de>
-In-Reply-To: <1465803989-33632-1-git-send-email-w.egorov@phytec.de>
-References: <1465803989-33632-1-git-send-email-w.egorov@phytec.de>
+Received: from mailout2.w1.samsung.com (mailout2.w1.samsung.com. [210.118.77.12])
+        by gmr-mx.google.com with ESMTPS id i135si1053364pfe.0.2016.06.16.23.10.43
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1 cipher=AES128-SHA bits=128/128);
+        Thu, 16 Jun 2016 23:10:43 -0700 (PDT)
+Received: from eucpsbgm2.samsung.com (unknown [203.254.199.245])
+ by mailout2.w1.samsung.com
+ (Oracle Communications Messaging Server 7.0.5.31.0 64bit (built May  5 2014))
+ with ESMTP id <0O8W00J99JTRPP10@mailout2.w1.samsung.com> for
+ rtc-linux@googlegroups.com; Fri, 17 Jun 2016 07:10:39 +0100 (BST)
+From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+To: Kukjin Kim <kgene@kernel.org>,
+ Krzysztof Kozlowski <k.kozlowski@samsung.com>,
+ MyungJoo Ham <myungjoo.ham@samsung.com>, Chanwoo Choi <cw00.choi@samsung.com>,
+ Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+ Richard Purdie <rpurdie@rpsys.net>,
+ Jacek Anaszewski <j.anaszewski@samsung.com>, Lee Jones <lee.jones@linaro.org>,
+ Sebastian Reichel <sre@kernel.org>,
+ Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>,
+ David Woodhouse <dwmw2@infradead.org>, Liam Girdwood <lgirdwood@gmail.com>,
+ Mark Brown <broonie@kernel.org>, Alessandro Zummo <a.zummo@towertech.it>,
+ Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+ devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+ linux-samsung-soc@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-input@vger.kernel.org, linux-leds@vger.kernel.org,
+ linux-pm@vger.kernel.org, rtc-linux@googlegroups.com
+Cc: r.baldyga@hackerion.com,
+ Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+Subject: [rtc-linux] [RESEND v7 0/6] regulator: mfd: max8997: Add regmap
+Date: Fri, 17 Jun 2016 08:10:27 +0200
+Message-id: <1466143833-5856-1-git-send-email-k.kozlowski@samsung.com>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -23,34 +42,46 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-The RK808 and RK818 PMICs are using a similar register map.
-We can reuse the rtc driver for the RK818 PMIC. So let's add
-the RK818 in the Kconfig description.
+Dear Mark,
 
-Signed-off-by: Wadim Egorov <w.egorov@phytec.de>
-Acked-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
----
- drivers/rtc/Kconfig | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+I'm pushing old Robert's work and I miss only ack from you.
+Could you take a look at patch 1/6?
 
-diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
-index 18639e0..2faed74 100644
---- a/drivers/rtc/Kconfig
-+++ b/drivers/rtc/Kconfig
-@@ -324,11 +324,11 @@ config RTC_DRV_MAX77686
- 	  will be called rtc-max77686.
- 
- config RTC_DRV_RK808
--	tristate "Rockchip RK808 RTC"
-+	tristate "Rockchip RK808/RK818 RTC"
- 	depends on MFD_RK808
- 	help
- 	  If you say yes here you will get support for the
--	  RTC of RK808 PMIC.
-+	  RTC of RK808 and RK818 PMIC.
- 
- 	  This driver can also be built as a module. If so, the module
- 	  will be called rk808-rtc.
+
+Changes since v6
+================
+1. Add some acks.
+2. Remove patches already applied.
+
+
+Best regards,
+Krzysztof
+
+
+Krzysztof Kozlowski (3):
+  extcon: max8997: Fix handling error code of regmap_irq_get_virq()
+  rtc: max8997: Check for ERRNO of regmap_irq_get_virq()
+  extcon: max8997: Fix inconsistent indenting
+
+Robert Baldyga (3):
+  mfd: max8997: Use regmap to access registers
+  mfd: max8997: handle IRQs using regmap
+  mfd: max8997: Change irq names to upper case
+
+ drivers/extcon/extcon-max8997.c       |  72 +++----
+ drivers/input/misc/max8997_haptic.c   |  34 +--
+ drivers/leds/leds-max8997.c           |  13 +-
+ drivers/mfd/Kconfig                   |   3 +-
+ drivers/mfd/Makefile                  |   2 +-
+ drivers/mfd/max8997-irq.c             | 383 ----------------------------------
+ drivers/mfd/max8997.c                 | 245 +++++++++++++++-------
+ drivers/power/max8997_charger.c       |  33 +--
+ drivers/regulator/max8997-regulator.c |  87 ++++----
+ drivers/rtc/rtc-max8997.c             |  60 +++---
+ include/linux/mfd/max8997-private.h   |  82 ++++++--
+ 11 files changed, 385 insertions(+), 629 deletions(-)
+ delete mode 100644 drivers/mfd/max8997-irq.c
+
 -- 
 1.9.1
 
