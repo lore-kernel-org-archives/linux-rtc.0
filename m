@@ -1,29 +1,39 @@
-Return-Path: <rtc-linux+bncBC2JZN6WSAHRBJGWSC5QKGQEPUOLHOA@googlegroups.com>
+Return-Path: <rtc-linux+bncBDQ2L75W5QGBBXHIR65QKGQERZKRBOQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail-pa0-x234.google.com (mail-pa0-x234.google.com. [2607:f8b0:400e:c03::234])
-        by gmr-mx.google.com with ESMTPS id 62si5378195pfx.1.2016.06.17.09.53.55
+Received: from mezzanine.sirena.org.uk (mezzanine.sirena.org.uk. [2400:8900::f03c:91ff:fedb:4f4])
+        by gmr-mx.google.com with ESMTPS id c11si3625733pfc.2.2016.06.17.06.00.12
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 17 Jun 2016 09:53:55 -0700 (PDT)
-Received: by mail-pa0-x234.google.com with SMTP id bz2so30110821pad.1
-        for <rtc-linux@googlegroups.com>; Fri, 17 Jun 2016 09:53:55 -0700 (PDT)
-Date: Fri, 17 Jun 2016 09:53:52 -0700
-From: Bjorn Andersson <bjorn.andersson@linaro.org>
-To: Neil Armstrong <narmstrong@baylibre.com>
-Cc: dmitry.torokhov@gmail.com, andy.gross@linaro.org,
-	david.brown@linaro.org, lee.jones@linaro.org, lgirdwood@gmail.com,
-	broonie@kernel.org, a.zummo@towertech.it,
-	alexandre.belloni@free-electrons.com, linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org,
-	linux-soc@vger.kernel.org, rtc-linux@googlegroups.com
-Subject: [rtc-linux] Re: [PATCH 5/5] regulator: qcom_rpm-regulator: Add
- support for pm8018 rpm regulator
-Message-ID: <20160617165352.GA1256@tuxbot>
-References: <1466158929-19524-1-git-send-email-narmstrong@baylibre.com>
- <1466158929-19524-6-git-send-email-narmstrong@baylibre.com>
+        Fri, 17 Jun 2016 06:00:12 -0700 (PDT)
+Date: Fri, 17 Jun 2016 13:59:23 +0100
+From: Mark Brown <broonie@kernel.org>
+To: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+Cc: Kukjin Kim <kgene@kernel.org>, MyungJoo Ham <myungjoo.ham@samsung.com>,
+	Chanwoo Choi <cw00.choi@samsung.com>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Richard Purdie <rpurdie@rpsys.net>,
+	Jacek Anaszewski <j.anaszewski@samsung.com>,
+	Lee Jones <lee.jones@linaro.org>,
+	Sebastian Reichel <sre@kernel.org>,
+	Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>,
+	David Woodhouse <dwmw2@infradead.org>,
+	Liam Girdwood <lgirdwood@gmail.com>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+	linux-samsung-soc@vger.kernel.org, linux-kernel@vger.kernel.org,
+	linux-input@vger.kernel.org, linux-leds@vger.kernel.org,
+	linux-pm@vger.kernel.org, rtc-linux@googlegroups.com,
+	r.baldyga@hackerion.com,
+	Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+Message-ID: <20160617125923.GQ26099@sirena.org.uk>
+References: <1466143833-5856-1-git-send-email-k.kozlowski@samsung.com>
+ <1466143833-5856-2-git-send-email-k.kozlowski@samsung.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1466158929-19524-6-git-send-email-narmstrong@baylibre.com>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="rUztinBX/EQDJOOk"
+In-Reply-To: <1466143833-5856-2-git-send-email-k.kozlowski@samsung.com>
+Subject: [rtc-linux] Re: [RESEND v7 1/6] mfd: max8997: Use regmap to access registers
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -33,62 +43,78 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Fri 17 Jun 03:22 PDT 2016, Neil Armstrong wrote:
 
-> In order to support eh Qualcomm MDM9615 SoC, add support for the
-> PM8018 RPM regulator in the qcom_rpm-regulator driver.
-> 
-> Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
-[..]
-> diff --git a/drivers/regulator/qcom_rpm-regulator.c b/drivers/regulator/qcom_rpm-regulator.c
-[..]
-> +/**
-> + * enum rpm_vreg_voltage_corner - possible voltage corner values
-> + *
-> + * These should be used in regulator_set_voltage and rpm_vreg_set_voltage calls
-> + * for corner type regulators as if they had units of uV.
-> + */
-> +enum rpm_vreg_voltage_corner {
-> +	RPM_VREG_CORNER_NONE = 1,
-> +	RPM_VREG_CORNER_LOW,
-> +	RPM_VREG_CORNER_NOMINAL,
-> +	RPM_VREG_CORNER_HIGH,
-> +};
-> +
-> +static struct regulator_linear_range corner_ranges[] = {
-> +	REGULATOR_LINEAR_RANGE(RPM_VREG_CORNER_NONE, 0,
-> +				RPM_VREG_CORNER_HIGH, 1),
-> +};
-> +
->  static int rpm_reg_write(struct qcom_rpm_reg *vreg,
-[..]
-> +
-> +static const struct qcom_rpm_reg pm8018_corner = {
-> +	.desc.linear_ranges = corner_ranges,
-> +	.desc.n_linear_ranges = ARRAY_SIZE(corner_ranges),
-> +	.desc.n_voltages = 4,
-> +	.desc.ops = &uV_ops,
-> +	.parts = &rpm8018_corner_parts,
-> +};
-> +
-[..]
-> +static const struct rpm_regulator_data rpm_pm8018_regulators[] = {
-[..]
-> +	{ "dig_corner", QCOM_RPM_VOLTAGE_CORNER, &pm8018_corner,
-> +						      "vdd_dig_corner" },
-> +
-> +	{ }
-> +};
+--rUztinBX/EQDJOOk
+Content-Type: text/plain; charset=UTF-8
+Content-Disposition: inline
 
-We have discussed the corners for a long time and I think we've
-concluded that they should be exposed as something like an OPP. What we
-have agreed on is that they should not be exposed as a regulator with
-voltages 1-4uV.
+On Fri, Jun 17, 2016 at 08:10:28AM +0200, Krzysztof Kozlowski wrote:
 
-So please drop the corner for now.
+>  drivers/extcon/extcon-max8997.c       |  31 ++++----
+>  drivers/input/misc/max8997_haptic.c   |  34 ++++----
+>  drivers/leds/leds-max8997.c           |  13 ++--
+>  drivers/mfd/Kconfig                   |   1 +
+>  drivers/mfd/max8997-irq.c             |  64 ++++++---------
+>  drivers/mfd/max8997.c                 | 141 +++++++++++++++-------------------
+>  drivers/power/max8997_charger.c       |  33 ++++----
+>  drivers/regulator/max8997-regulator.c |  87 ++++++++++-----------
+>  drivers/rtc/rtc-max8997.c             |  56 ++++++++------
+>  include/linux/mfd/max8997-private.h   |  17 ++--
+>  10 files changed, 228 insertions(+), 249 deletions(-)
 
-Regards,
-Bjorn
+This is doing two things at once - it's changing the I/O mechanism over
+to regmap and updating all the client drivers in a single commit.
+Conversions like this are normally done by first converting the
+driver-specific I/O functions to use regmap internally and then
+subsequently updating the individual client drivers (if that's even
+useful, sometimes people don't bother as the static inlines you
+usually end up with in the header are not a real cost).  This makes for
+a set of smaller, more focused patches which are easier to get reviewed.
+
+As it is due to the subject line not looking at all relevant and these
+Maxim PMIC drivers generating an awful lot of resends this is the first
+time I actually looked at this enough to notice there's any regulator
+code, I suspect I've either deleted older versions unread or scanned
+the commit message and not seen that there was a regulator change.  I
+only saw it at all because it was mentioned to me on IRC and a copy
+forwarded on to me.
+
+> @@ -464,15 +449,15 @@ static int max8997_restore(struct device *dev)
+>  	int i;
+>  
+>  	for (i = 0; i < ARRAY_SIZE(max8997_dumpaddr_pmic); i++)
+> -		max8997_write_reg(i2c, max8997_dumpaddr_pmic[i],
+> +		regmap_write(max8997->regmap, max8997_dumpaddr_pmic[i],
+>  				max8997->reg_dump[i]);
+>  
+
+Looks like a conversion to regcache is also useful but that can be done
+as a followup.
+
+> @@ -257,15 +258,14 @@ static int max8997_get_enable_register(struct regulator_dev *rdev,
+>  static int max8997_reg_is_enabled(struct regulator_dev *rdev)
+>  {
+>  	struct max8997_data *max8997 = rdev_get_drvdata(rdev);
+> -	struct i2c_client *i2c = max8997->iodev->i2c;
+>  	int ret, reg, mask, pattern;
+> -	u8 val;
+> +	unsigned int val;
+>  
+>  	ret = max8997_get_enable_register(rdev, &reg, &mask, &pattern);
+>  	if (ret)
+>  		return ret;
+>  
+> -	ret = max8997_read_reg(i2c, reg, &val);
+> +	ret = regmap_read(max8997->iodev->regmap, reg, &val);
+>  	if (ret)
+>  		return ret;
+>  
+
+A proper regmap conversion of this driver would be to convert the
+driver to use the core regmap operations and remove all the driver
+specific code.  It's a step in the right direction but it's making a
+bunch of code that's obviously problematic so it's hard to get
+enthusiastic.  
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
@@ -99,3 +125,20 @@ before submitting a driver.
 You received this message because you are subscribed to the Google Groups "rtc-linux" group.
 To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
+
+--rUztinBX/EQDJOOk
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQEcBAEBCAAGBQJXY/QpAAoJECTWi3JdVIfQS8oIAIWyNG8L5BMcQ8vAOFQbbOo/
+ieB8e00FZLsG9ZaHLdT7ZL0ZhHAPjolUYzIW0lrgHuvSyX/vGjy25EIa/cGbeQ6M
+KSHtHVJRjiEPCO8WtKDZmml1niRLM8xpGne/D9ZzUTeRU0K/C2TbQSAdESkjyQ/L
+IRdyw8UEN2eYu4OQ9ZawBdrxUru4H5tU5AqCpcXe0v2P4Tv74l9n7vYuTEr0xz9/
+orfU5z8jU/6RDqXa72p+vqPHTKucLhM3KxF4I8MT1vAwDCyPbtGyQRVOJQ8RLOgp
+72S4A4X+1xKJsJUuUU4sBQ0cKs36982x/o4xhr6gtu+/LZQbi0+aJwNcIkER58E=
+=1Ep9
+-----END PGP SIGNATURE-----
+
+--rUztinBX/EQDJOOk--
