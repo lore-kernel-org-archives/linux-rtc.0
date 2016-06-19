@@ -1,26 +1,30 @@
-Return-Path: <rtc-linux+bncBDKOBWPM5ABRBBMNW25QKGQEXRGR4UQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBDJIP47K7MERBT6YTK5QKGQEOVTUP2Q@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail-yw0-x241.google.com (mail-yw0-x241.google.com. [2607:f8b0:4002:c05::241])
-        by gmr-mx.google.com with ESMTPS id c2si432305ywf.5.2016.06.24.12.14.13
+Received: from mail-oi0-f67.google.com (mail-oi0-f67.google.com. [209.85.218.67])
+        by gmr-mx.google.com with ESMTPS id o125si147289ith.3.2016.06.19.07.29.35
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 24 Jun 2016 12:14:13 -0700 (PDT)
-Received: by mail-yw0-x241.google.com with SMTP id v77so16040543ywg.2
-        for <rtc-linux@googlegroups.com>; Fri, 24 Jun 2016 12:14:13 -0700 (PDT)
+        Sun, 19 Jun 2016 07:29:35 -0700 (PDT)
+Received: by mail-oi0-f67.google.com with SMTP id d132so21148299oig.3
+        for <rtc-linux@googlegroups.com>; Sun, 19 Jun 2016 07:29:35 -0700 (PDT)
+Date: Sun, 19 Jun 2016 09:29:34 -0500
+From: Rob Herring <robh@kernel.org>
+To: Andrey Smirnov <andrew.smirnov@gmail.com>
+Cc: rtc-linux@googlegroups.com, Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Pawel Moll <pawel.moll@arm.com>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Ian Campbell <ijc+devicetree@hellion.org.uk>,
+	Kumar Gala <galak@codeaurora.org>, devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [rtc-linux] Re: [PATCH 03/13] RTC: ds1307: Add DS1341 specific
+ power-saving options
+Message-ID: <20160619142934.GA8522@rob-hp-laptop>
+References: <1465970379-14703-1-git-send-email-andrew.smirnov@gmail.com>
+ <1465970379-14703-4-git-send-email-andrew.smirnov@gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <20160624074849.GK5809@piout.net>
-References: <1466577742-18824-1-git-send-email-dirk.behme@de.bosch.com>
- <1466577742-18824-3-git-send-email-dirk.behme@de.bosch.com> <20160624074849.GK5809@piout.net>
-From: Andrey Smirnov <andrew.smirnov@gmail.com>
-Date: Fri, 24 Jun 2016 12:14:12 -0700
-Message-ID: <CAHQ1cqF7ByYz9stnL_-siMJHGoyuLNAPwjcWA_fWRqy7WeMF=A@mail.gmail.com>
-Subject: Re: [rtc-linux] [PATCH v2 2/4] dt/bindings: Add bindings for Micro
- Crystal rv8803
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Dirk Behme <dirk.behme@de.bosch.com>, Rob Herring <robh+dt@kernel.org>,
-	rtc-linux@googlegroups.com, devicetree@vger.kernel.org,
-	Oleksij Rempel <fixed-term.Oleksij.Rempel@de.bosch.com>
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1465970379-14703-4-git-send-email-andrew.smirnov@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -30,60 +34,49 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Fri, Jun 24, 2016 at 12:48 AM, Alexandre Belloni
-<alexandre.belloni@free-electrons.com> wrote:
-> On 22/06/2016 at 08:42:20 +0200, Dirk Behme wrote :
->> From: Oleksij Rempel <fixed-term.Oleksij.Rempel@de.bosch.com>
->>
->> ... and Epson RX8900 real time clock
->>
->> Signed-off-by: Oleksij Rempel <fixed-term.Oleksij.Rempel@de.bosch.com>
->> Cc: devicetree@vger.kernel.org
->> ---
->>  .../devicetree/bindings/rtc/epson,rx8900.txt       | 22 ++++++++++++++++++++++
->>  1 file changed, 22 insertions(+)
->>  create mode 100644 Documentation/devicetree/bindings/rtc/epson,rx8900.txt
->>
->> diff --git a/Documentation/devicetree/bindings/rtc/epson,rx8900.txt b/Documentation/devicetree/bindings/rtc/epson,rx8900.txt
->> new file mode 100644
->> index 0000000..3f61e51
->> --- /dev/null
->> +++ b/Documentation/devicetree/bindings/rtc/epson,rx8900.txt
->> @@ -0,0 +1,22 @@
->> +Real Time Clock driver for:
->> +  - Epson RX8900
->> +  - Micro Crystal rv8803
->> +
->> +Required properties:
->> +- compatible: should be: "microcrystal,rv8803" or "epson,rx8900"
->> +- reg : the I2C address of the device for I2C
->> +
->> +Optional properties:
->> +- epson,vdet-disable : boolean, if present will disable voltage detector.
->> +  Should be set if no backup battery is used.
->
-> I guess we need to make that one generic. I would use
-> voltage-detection-disable.
->
-> Andrey, can you use that one instead of
-> dallas,disable-oscillator-stop-flag ?
->
+On Tue, Jun 14, 2016 at 10:59:29PM -0700, Andrey Smirnov wrote:
+> Add DS1341 specific power-saving options that allow to disable certain
+> functional aspects of the chip in order to minimize its power
+> consumption.
 
-AFAIU from reading RX8900 datasheet, it has two power rails main and a
-backup one, so setting this property disables circuitry responsible
-for detecting main power rail failure and switching to a backup one.
+This description doesn't match that you are adding a new binding. It is 
+preferred that bindings are a separate patch.
 
-DS1341 has only one power rail and setting
-"dallas,disable-oscillator-stop-flag" will disable circuitry
-responsible for detection of failure of the oscillator ticking its
-internal clock.
+> 
+> Signed-off-by: Andrey Smirnov <andrew.smirnov@gmail.com>
+> ---
+>  .../devicetree/bindings/rtc/dallas,ds1341.txt      | 23 ++++++++++++++++++
+>  drivers/rtc/rtc-ds1307.c                           | 28 ++++++++++++++++++++++
+>  2 files changed, 51 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/rtc/dallas,ds1341.txt
+> 
+> diff --git a/Documentation/devicetree/bindings/rtc/dallas,ds1341.txt b/Documentation/devicetree/bindings/rtc/dallas,ds1341.txt
+> new file mode 100644
+> index 0000000..b8be7a4
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/rtc/dallas,ds1341.txt
+> @@ -0,0 +1,23 @@
+> +* Dallas DS1341		I2C Serial Real-Time Clock
+> +
+> +Required properties:
+> +
+> +- compatible: Should contain "dallas,ds1341".
+> +
+> +- reg: I2C address for chip
+> +
+> +Optional properties:
+> +
+> +- disable-oscillator-stop-flag : Configure chip to disable oscillator
+> +  fault detection circuitry
+> +
+> +- enable-glitch-filter : Configure chip to enable crystal oscillator
+> +  output glitch filtering
 
-IMHO, those functionalities don't have much in common and using the
-same property would be confusing for users of that binding on DS1341,
-but it's a boolean so there's not technical reason I couldn't.
+What determines setting these properties or not?
 
-Thanks,
-Andrey Smirnov
+They should have vendor prefix and be explicit that they are boolean.
+
+Rob
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
