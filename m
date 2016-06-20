@@ -1,21 +1,38 @@
-Return-Path: <rtc-linux+bncBCU67L5YYYNRBGFJUC5QKGQE6B5V5UA@googlegroups.com>
+Return-Path: <rtc-linux+bncBCMILY6JWQBBB25UTW5QKGQEDRX52HQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from na01-bl2-obe.outbound.protection.outlook.com (mail-bl2on0141.outbound.protection.outlook.com. [65.55.169.141])
-        by gmr-mx.google.com with ESMTPS id h76si708491ywc.7.2016.06.20.09.06.46
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
-        Mon, 20 Jun 2016 09:06:46 -0700 (PDT)
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-	<rtc-linux@googlegroups.com>
-CC: Alexandre Belloni <alexandre.belloni@free-electrons.com>, Alessandro Zummo
-	<a.zummo@towertech.it>, Joe Lawrence <joe.lawrence@stratus.com>
-From: Joe Lawrence <joe.lawrence@stratus.com>
-Subject: [rtc-linux] __rtc_read_alarm missing month/year field bug?
-Message-ID: <5768148E.8090304@stratus.com>
-Date: Mon, 20 Jun 2016 12:06:38 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Received: from wens.csie.org (mirror2.csie.ntu.edu.tw. [140.112.30.76])
+        by gmr-mx.google.com with ESMTPS id 62si6541485pfx.1.2016.06.19.19.52.26
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Sun, 19 Jun 2016 19:52:27 -0700 (PDT)
+From: Chen-Yu Tsai <wens@csie.org>
+To: Mark Brown <broonie@kernel.org>,
+	Lee Jones <lee.jones@linaro.org>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Rob Herring <robh+dt@kernel.org>,
+	Pawel Moll <pawel.moll@arm.com>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Ian Campbell <ijc+devicetree@hellion.org.uk>,
+	Kumar Gala <galak@codeaurora.org>,
+	Maxime Ripard <maxime.ripard@free-electrons.com>,
+	Michael Turquette <mturquette@baylibre.com>,
+	Stephen Boyd <sboyd@codeaurora.org>
+Cc: Chen-Yu Tsai <wens@csie.org>,
+	rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org,
+	devicetree@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	linux-clk@vger.kernel.org
+Subject: [rtc-linux] [PATCH v3 6/8] ARM: dts: sun9i: a80-optimus: Add device
+ node for AC100
+Date: Mon, 20 Jun 2016 10:52:16 +0800
+Message-Id: <1466391138-12862-7-git-send-email-wens@csie.org>
+In-Reply-To: <1466391138-12862-1-git-send-email-wens@csie.org>
+References: <1466391138-12862-1-git-send-email-wens@csie.org>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -24,142 +41,48 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Hello Alessandro and Alexandre,
-
-I noticed an interesting cmos_rtc.rtc.aie_timer on a Stratus machine
-running the 4.6 kernel, with an expiration time that puts the alarm way
-out into next year.  This is easily reproducible on this machine by
-setting a wakealarm sometime in the near future, then rebooting.
-
->From a fresh boot:
-
-  % cat /proc/driver/rtc
-  rtc_time        : 17:55:10
-  rtc_date        : 2016-06-09
-  alrm_time       : 14:04:37
-  alrm_date       : 2017-06-09         << 2017 ?
-  alarm_IRQ       : no
-  alrm_pending    : no
-  update IRQ enabled      : no
-  periodic IRQ enabled    : no
-  periodic IRQ frequency  : 1024
-  max user IRQ frequency  : 64
-  24hr            : yes
-  periodic_IRQ    : no
-  update_IRQ      : no
-  HPET_emulated   : yes
-  BCD             : yes
-  DST_enable      : no
-  periodic_freq   : 1024
-  batt_status     : okay
-
-
-I added some debugging code to the kernel, saw this on the next boot:
-
-  __rtc_read_alarm: A - alarm->time.tm_year = -1, missing = 0
-  __rtc_read_alarm: B - alarm->time.tm_year = 116, missing = 3
-  __rtc_read_alarm: C - alarm->time.tm_year = 117
-
-
-Corresponding to these parts of __rtc_read_alarm:
-
-  int __rtc_read_alarm(struct rtc_device *rtc, struct rtc_wkalrm *alarm)
-  ...
-  	enum { none, day, month, year } missing = none;
-  ...
-  		err = rtc_read_alarm_internal(rtc, alarm);
-  ...
-  	/* Fill in the missing alarm fields using the timestamp; we
-  	 * know there's at least one since alarm->time is invalid.
-  	 */
-  ...
-  [A]
-  	if (alarm->time.tm_year == -1) {
-  		alarm->time.tm_year = now.tm_year;
-  		if (missing == none)
-  			missing = year;
-  	}
-  [B]
-  ...
-  	switch (missing) {
-  ...
-  	/* Year rollover ... easy except for leap years! */
-  	case year:
-  		dev_dbg(&rtc->dev, "alarm rollover: %s\n", "year");
-  		do {
-  			alarm->time.tm_year++;
-  		} while (!is_leap_year(alarm->time.tm_year + 1900)
-  			&& rtc_valid_tm(&alarm->time) != 0);
-  [C]		break;
-
-
-I noticed that the missing year and month cases increment their
-respective time units inside a do ... while (condition) loop, pushing
-the default 'filled-in' values to now + 1.
-
-Should this 'roll-over' code check for a valid date before incrementing
-the alarm time?  (See attached patch.)  I think this might also apply to
-a missing month field as well.
-
-(After the patch + reboot):
-
-  % cat /proc/driver/rtc
-  rtc_time        : 18:24:02
-  rtc_date        : 2016-06-09
-  alrm_time       : 14:04:37
-  alrm_date       : 2016-06-09
-  alarm_IRQ       : no
-  alrm_pending    : no
-  update IRQ enabled      : no
-  periodic IRQ enabled    : no
-  periodic IRQ frequency  : 1024
-  max user IRQ frequency  : 64
-  24hr            : yes
-  periodic_IRQ    : no
-  update_IRQ      : no
-  HPET_emulated   : yes
-  BCD             : yes
-  DST_enable      : no
-  periodic_freq   : 1024
-  batt_status     : okay
-
--- >8 --
-
->From d6feacf20b312c8ebfee902b8b84f68c1a82f035 Mon Sep 17 00:00:00 2001
-From: Joe Lawrence <joe.lawrence@stratus.com>
-Date: Thu, 9 Jun 2016 14:52:28 -0400
-Subject: [PATCH] rtc: check filled-in alarm values before incrementing
-
-In __rtc_read_alarm, check filled-in alarm->time.tm_year values (those
-not returned by the RTC and defaulted to now.tm_year) before
-incrementing them in the rollover handling case.
-
-Signed-off-by: Joe Lawrence <joe.lawrence@stratus.com>
+Signed-off-by: Chen-Yu Tsai <wens@csie.org>
 ---
- drivers/rtc/interface.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+Changes since v2: none
+Changes since v1: none
+---
+ arch/arm/boot/dts/sun9i-a80-optimus.dts | 21 +++++++++++++++++++++
+ 1 file changed, 21 insertions(+)
 
-diff --git a/drivers/rtc/interface.c b/drivers/rtc/interface.c
-index 9ef5f6f89f98..3098ce4167ef 100644
---- a/drivers/rtc/interface.c
-+++ b/drivers/rtc/interface.c
-@@ -258,10 +258,10 @@ int __rtc_read_alarm(struct rtc_device *rtc,
-struct rtc_wkalrm *alarm)
- 	/* Year rollover ... easy except for leap years! */
- 	case year:
- 		dev_dbg(&rtc->dev, "alarm rollover: %s\n", "year");
--		do {
-+		while (!is_leap_year(alarm->time.tm_year + 1900)
-+			&& rtc_valid_tm(&alarm->time) != 0) {
- 			alarm->time.tm_year++;
--		} while (!is_leap_year(alarm->time.tm_year + 1900)
--			&& rtc_valid_tm(&alarm->time) != 0);
-+		}
- 		break;
-
- 	default:
+diff --git a/arch/arm/boot/dts/sun9i-a80-optimus.dts b/arch/arm/boot/dts/sun9i-a80-optimus.dts
+index 7fd22e888602..3b013dc5fef1 100644
+--- a/arch/arm/boot/dts/sun9i-a80-optimus.dts
++++ b/arch/arm/boot/dts/sun9i-a80-optimus.dts
+@@ -322,6 +322,27 @@
+ 			};
+ 		};
+ 	};
++
++	ac100: codec@e89 {
++		compatible = "x-powers,ac100";
++		reg = <0xe89>;
++
++		ac100_codec: codec {
++			compatible = "x-powers,ac100-codec";
++			interrupt-parent = <&r_pio>;
++			interrupts = <0 9 IRQ_TYPE_LEVEL_LOW>; /* PL9 */
++		};
++
++		ac100_rtc: rtc {
++			compatible = "x-powers,ac100-rtc";
++			interrupt-parent = <&nmi_intc>;
++			interrupts = <0 IRQ_TYPE_LEVEL_LOW>;
++			#clock-cells = <1>;
++			clock-output-names = "cko1_rtc",
++					     "cko2_rtc",
++					     "cko3_rtc";
++		};
++	};
+ };
+ 
+ #include "axp809.dtsi"
 -- 
-1.8.3.1
+2.8.1
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
