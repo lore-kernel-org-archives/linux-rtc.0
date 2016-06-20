@@ -1,31 +1,22 @@
-Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBQGEXS5QKGQEL74DOAI@googlegroups.com>
+Return-Path: <rtc-linux+bncBAABB4PLT65QKGQEOPOYPQQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id a186si157032wma.1.2016.06.25.17.30.56
-        for <rtc-linux@googlegroups.com>;
-        Sat, 25 Jun 2016 17:30:56 -0700 (PDT)
-Date: Sun, 26 Jun 2016 02:30:54 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Chen-Yu Tsai <wens@csie.org>
-Cc: Mark Brown <broonie@kernel.org>, Lee Jones <lee.jones@linaro.org>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Ian Campbell <ijc+devicetree@hellion.org.uk>,
-	Kumar Gala <galak@codeaurora.org>,
-	Maxime Ripard <maxime.ripard@free-electrons.com>,
-	Michael Turquette <mturquette@baylibre.com>,
-	Stephen Boyd <sboyd@codeaurora.org>, rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org, devicetree@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org, linux-clk@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH v3 4/8] rtc: ac100: Add RTC driver for
- X-Powers AC100
-Message-ID: <20160626003054.GW5809@piout.net>
-References: <1466391138-12862-1-git-send-email-wens@csie.org>
- <1466391138-12862-5-git-send-email-wens@csie.org>
+Received: from arcturus.kleine-koenig.org (arcturus.kleine-koenig.org. [78.47.169.190])
+        by gmr-mx.google.com with ESMTPS id a6si420938wma.1.2016.06.20.06.56.01
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 20 Jun 2016 06:56:01 -0700 (PDT)
+From: =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <uwe@kleine-koenig.org>
+To: Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: rtc-linux@googlegroups.com,
+	=?UTF-8?q?Manuel=20R=C3=B6der?= <manuel_roeder@gmx.de>
+Subject: [rtc-linux] [PATCH 1/5] rtc: s35390a: fix reading out alarm
+Date: Mon, 20 Jun 2016 15:55:49 +0200
+Message-Id: <1466430953-18659-2-git-send-email-uwe@kleine-koenig.org>
+In-Reply-To: <1466430953-18659-1-git-send-email-uwe@kleine-koenig.org>
+References: <1466430953-18659-1-git-send-email-uwe@kleine-koenig.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1466391138-12862-5-git-send-email-wens@csie.org>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -35,215 +26,89 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Hi,
+There are several issues fixed in this patch:
 
-A few comments, mostly about style.
+ - When alarm isn't enabled, set .enabled to zero instead of returning
+   -EINVAL.
+ - Ignore how IRQ1 is configured when determining if IRQ2 is on.
+ - The three alarm registers have an enable flag which must be
+   evaluated.
+ - The chip always triggers when the seconds register gets 0.
 
-On 20/06/2016 at 10:52:14 +0800, Chen-Yu Tsai wrote :
-> +struct ac100_rtc_dev {
-> +	struct rtc_device *rtc;
-> +	struct device *dev;
-> +	struct regmap *regmap;
-> +	struct mutex mutex;
+Note that the rtc framework however doesn't handle the result correctly
+because it doesn't check wday being initialized and so interprets an
+alarm being set for 10:00 AM in three days as 10:00 AM tomorrow (or
+today if that's not over yet).
 
-I don't think that mutex is needed. Instead, you can take rtc->ops_lock
-from the interrupt handler.
+Signed-off-by: Uwe Kleine-K=C3=B6nig <uwe@kleine-koenig.org>
+---
+ drivers/rtc/rtc-s35390a.c | 32 +++++++++++++++++++++++---------
+ 1 file changed, 23 insertions(+), 9 deletions(-)
 
-> +	int irq;
-> +	unsigned long alarm;
-> +};
-> +
-> +static int ac100_rtc_get_time(struct device *dev, struct rtc_time *rtc_tm)
-> +{
-> +	struct ac100_rtc_dev *chip = dev_get_drvdata(dev);
-> +	struct regmap *regmap = chip->regmap;
-> +	u16 reg[7];
-> +	int ret;
-> +
-> +	ret = regmap_bulk_read(regmap, AC100_RTC_SEC, reg, 7);
-> +	if (ret)
-> +		return ret;
-> +
-> +	rtc_tm->tm_sec  = bcd2bin(reg[0] & AC100_RTC_SEC_MASK);
-> +	rtc_tm->tm_min  = bcd2bin(reg[1] & AC100_RTC_MIN_MASK);
-> +	rtc_tm->tm_hour = bcd2bin(reg[2] & AC100_RTC_HOU_MASK);
-> +	rtc_tm->tm_wday = bcd2bin(reg[3] & AC100_RTC_WEE_MASK);
-> +	rtc_tm->tm_mday = bcd2bin(reg[4] & AC100_RTC_DAY_MASK);
-> +	rtc_tm->tm_mon  = bcd2bin(reg[5] & AC100_RTC_MON_MASK);
-> +	rtc_tm->tm_year = bcd2bin(reg[6] & AC100_RTC_YEA_MASK);
-> +
-> +	rtc_tm->tm_mon  -= 1;
+diff --git a/drivers/rtc/rtc-s35390a.c b/drivers/rtc/rtc-s35390a.c
+index f40afdd0e5f5..a9f108f045d6 100644
+--- a/drivers/rtc/rtc-s35390a.c
++++ b/drivers/rtc/rtc-s35390a.c
+@@ -269,23 +269,37 @@ static int s35390a_read_alarm(struct i2c_client *clie=
+nt, struct rtc_wkalrm *alm)
+ 	if (err < 0)
+ 		return err;
+=20
+-	if (bitrev8(sts) !=3D S35390A_INT2_MODE_ALARM)
+-		return -EINVAL;
++	if ((bitrev8(sts) & S35390A_INT2_MODE_MASK) !=3D S35390A_INT2_MODE_ALARM)
++		alm->enabled =3D 0;
++	else
++		alm->enabled =3D 1;
+=20
+ 	err =3D s35390a_get_reg(s35390a, S35390A_CMD_INT2_REG1, buf, sizeof(buf))=
+;
+ 	if (err < 0)
+ 		return err;
+=20
+ 	/* This chip returns the bits of each byte in reverse order */
+-	for (i =3D 0; i < 3; ++i) {
++	for (i =3D 0; i < 3; ++i)
+ 		buf[i] =3D bitrev8(buf[i]);
+-		buf[i] &=3D ~0x80;
+-	}
+=20
+-	alm->time.tm_wday =3D bcd2bin(buf[S35390A_ALRM_BYTE_WDAY]);
+-	alm->time.tm_hour =3D s35390a_reg2hr(s35390a,
+-						buf[S35390A_ALRM_BYTE_HOURS]);
+-	alm->time.tm_min =3D bcd2bin(buf[S35390A_ALRM_BYTE_MINS]);
++	/*
++	 * B0 of the three matching registers is an enable flag. Iff it is set
++	 * the configured value is used for matching.
++	 */
++	if (buf[S35390A_ALRM_BYTE_WDAY] & 0x80)
++		alm->time.tm_wday =3D
++			bcd2bin(buf[S35390A_ALRM_BYTE_WDAY] & ~0x80);
++
++	if (buf[S35390A_ALRM_BYTE_HOURS] & 0x80)
++		alm->time.tm_hour =3D
++			s35390a_reg2hr(s35390a,
++				       buf[S35390A_ALRM_BYTE_HOURS] & ~0x80);
++
++	if (buf[S35390A_ALRM_BYTE_MINS] & 0x80)
++		alm->time.tm_min =3D bcd2bin(buf[S35390A_ALRM_BYTE_MINS] & ~0x80);
++
++	/* alarm triggers always at s=3D0 */
++	alm->time.tm_sec =3D 0;
+=20
+ 	dev_dbg(&client->dev, "%s: alm is mins=3D%d, hours=3D%d, wday=3D%d\n",
+ 			__func__, alm->time.tm_min, alm->time.tm_hour,
+--=20
+2.8.1
 
-I would put the - 1 inline with the first tm_mon assignment.
-
-> +
-> +	/*
-> +	 * switch from (data_year->min)-relative offset to
-> +	 * a (1900)-relative one
-> +	 */
-> +	rtc_tm->tm_year += AC100_YEAR_OFF;
-
-Unless you feel the comment is absolutely necessary, I'd also put that
-with the first tm_year assignment.
-
-BTW, is that RTC aware that 0 is actually 1970? And so 2000 (30) is not
-a leap year but 2016 is? I'd say that this is not the case, seeing
-AC100_RTC_YEA_LEAP but it is worth checking.
-
-Is this bit (AC100_RTC_YEA_LEAP) updated by the rtc? IF that is not the
-case, the time will have to be set at least once between first of
-January and 28th of February of leap years else it will fail...
-
-> +
-> +	return rtc_valid_tm(rtc_tm);
-> +}
-> +
-> +static int ac100_rtc_set_time(struct device *dev, struct rtc_time *rtc_tm)
-> +{
-> +	struct ac100_rtc_dev *chip = dev_get_drvdata(dev);
-> +	struct regmap *regmap = chip->regmap;
-> +	int year;
-> +	u16 reg[8];
-> +
-> +	/* our RTC has a limited year range... */
-> +	year = rtc_tm->tm_year + 1900;
-> +	if (year < AC100_YEAR_MIN || year > AC100_YEAR_MAX) {
-> +		dev_err(dev, "rtc only supports year in range %d - %d\n",
-> +			AC100_YEAR_MIN, AC100_YEAR_MAX);
-> +		return -EINVAL;
-> +	}
-> +
-
-What about:
-
-year = rtc_tm->tm_year - AC100_YEAR_OFF
-if (year < 0 || year > (AC100_YEAR_MAX - 1900))
-
-It allows to reuse year for the reg[6] assignment. IT is a simple
-suggestion, maybe the compiler is smarter than I am ;).
-
-> +	/* correct offsets */
-> +	rtc_tm->tm_year -= AC100_YEAR_OFF;
-> +	rtc_tm->tm_mon += 1;
-> +
-
-Those could also got inline with their respective reg[] assignment
-
-
-> +	/* convert to BCD */
-> +	reg[0] = bin2bcd(rtc_tm->tm_sec)  & AC100_RTC_SEC_MASK;
-> +	reg[1] = bin2bcd(rtc_tm->tm_min)  & AC100_RTC_MIN_MASK;
-> +	reg[2] = bin2bcd(rtc_tm->tm_hour) & AC100_RTC_HOU_MASK;
-> +	reg[3] = bin2bcd(rtc_tm->tm_wday) & AC100_RTC_WEE_MASK;
-> +	reg[4] = bin2bcd(rtc_tm->tm_mday) & AC100_RTC_DAY_MASK;
-> +	reg[5] = bin2bcd(rtc_tm->tm_mon)  & AC100_RTC_MON_MASK;
-> +	reg[6] = bin2bcd(rtc_tm->tm_year) & AC100_RTC_YEA_MASK;
-> +	/* trigger write */
-> +	reg[7] = AC100_RTC_UPD_TRIGGER;
-> +
-> +	/* Is it a leap year? */
-> +	if (is_leap_year(year))
-> +		reg[6] |= AC100_RTC_YEA_LEAP;
-> +
-> +	return regmap_bulk_write(regmap, AC100_RTC_SEC, reg, 8);
-> +}
-> +
-> +
-
-[...]
-
-> +	alrm_tm->tm_sec  = bcd2bin(reg[0] & AC100_ALM_SEC_MASK);
-> +	alrm_tm->tm_min  = bcd2bin(reg[1] & AC100_ALM_MIN_MASK);
-> +	alrm_tm->tm_hour = bcd2bin(reg[2] & AC100_ALM_HOU_MASK);
-> +	alrm_tm->tm_wday = bcd2bin(reg[3] & AC100_ALM_WEE_MASK);
-> +	alrm_tm->tm_mday = bcd2bin(reg[4] & AC100_ALM_DAY_MASK);
-> +	alrm_tm->tm_mon  = bcd2bin(reg[5] & AC100_ALM_MON_MASK);
-> +	alrm_tm->tm_year = bcd2bin(reg[6] & AC100_ALM_YEA_MASK);
-> +
-> +	alrm_tm->tm_mon  -= 1;
-> +
-> +	/*
-> +	 * switch from (data_year->min)-relative offset to
-> +	 * a (1900)-relative one
-> +	 */
-> +	alrm_tm->tm_year += AC100_YEAR_OFF;
-> +
-
-Well, same comments as in ac100_rtc_get_time()
-
-
-> +out:
-> +	mutex_unlock(&chip->mutex);
-> +	return ret;
-> +}
-> +
-> +static int ac100_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
-> +{
-> +	struct ac100_rtc_dev *chip = dev_get_drvdata(dev);
-> +	struct regmap *regmap = chip->regmap;
-> +	struct rtc_time *alrm_tm = &alrm->time;
-> +	u16 reg[8];
-> +	int year;
-> +	int ret;
-> +
-> +	/* our alarm has a limited year range... */
-> +	year = alrm_tm->tm_year + 1900;
-> +	if (year < AC100_YEAR_MIN || year > AC100_YEAR_MAX) {
-> +		dev_err(dev, "alarm only supports year in range %d - %d\n",
-> +			AC100_YEAR_MIN, AC100_YEAR_MAX);
-> +		return -EINVAL;
-> +	}
-> +
-> +	/* correct offsets */
-> +	alrm_tm->tm_year -= AC100_YEAR_OFF;
-> +	alrm_tm->tm_mon += 1;
-> +
-
-Same comment as ac100_rtc_set_time()
-
-> +	/* convert to BCD */
-> +	reg[0] = (bin2bcd(alrm_tm->tm_sec)  & AC100_ALM_SEC_MASK) |
-> +			AC100_ALM_ENABLE_FLAG;
-> +	reg[1] = (bin2bcd(alrm_tm->tm_min)  & AC100_ALM_MIN_MASK) |
-> +			AC100_ALM_ENABLE_FLAG;
-> +	reg[2] = (bin2bcd(alrm_tm->tm_hour) & AC100_ALM_HOU_MASK) |
-> +			AC100_ALM_ENABLE_FLAG;
-> +	/* Do not enable weekday alarm */
-> +	reg[3] = bin2bcd(alrm_tm->tm_wday) & AC100_ALM_WEE_MASK;
-> +	reg[4] = (bin2bcd(alrm_tm->tm_mday) & AC100_ALM_DAY_MASK) |
-> +			AC100_ALM_ENABLE_FLAG;
-> +	reg[5] = (bin2bcd(alrm_tm->tm_mon)  & AC100_ALM_MON_MASK) |
-> +			AC100_ALM_ENABLE_FLAG;
-> +	reg[6] = (bin2bcd(alrm_tm->tm_year) & AC100_ALM_YEA_MASK) |
-> +			AC100_ALM_ENABLE_FLAG;
-> +	/* trigger write */
-> +	reg[7] = AC100_ALM_UPD_TRIGGER;
-> +
-> +	mutex_lock(&chip->mutex);
-> +
-> +	ret = regmap_bulk_write(regmap, AC100_ALM_SEC, reg, 8);
-> +	if (ret)
-> +		goto out;
-> +
-> +	ret = _ac100_rtc_alarm_irq_enable(chip, alrm->enabled);
-> +
-> +out:
-> +	mutex_unlock(&chip->mutex);
-> +	return ret;
-> +}
-> +
-
--- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
-
--- 
+--=20
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+---=20
+You received this message because you are subscribed to the Google Groups "=
+rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an e=
+mail to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
