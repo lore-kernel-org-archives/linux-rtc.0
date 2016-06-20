@@ -1,33 +1,36 @@
-Return-Path: <rtc-linux+bncBDAYD2P3QYGRBWHVWO5QKGQEMZZWX7A@googlegroups.com>
+Return-Path: <rtc-linux+bncBCMILY6JWQBBB25UTW5QKGQEDRX52HQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 MIME-Version: 1.0
-Received: from mail-wm0-x235.google.com (mail-wm0-x235.google.com. [2a00:1450:400c:c09::235])
-        by gmr-mx.google.com with ESMTPS id x203si130389wme.0.2016.06.24.02.18.16
+Received: from wens.csie.org (mirror2.csie.ntu.edu.tw. [140.112.30.76])
+        by gmr-mx.google.com with ESMTPS id i135si2242578pfe.0.2016.06.19.19.52.26
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 24 Jun 2016 02:18:16 -0700 (PDT)
-Received: by mail-wm0-x235.google.com with SMTP id v199so14291062wmv.0
-        for <rtc-linux@googlegroups.com>; Fri, 24 Jun 2016 02:18:16 -0700 (PDT)
-From: Neil Armstrong <narmstrong@baylibre.com>
-To: dmitry.torokhov@gmail.com,
-	andy.gross@linaro.org,
-	david.brown@linaro.org,
-	lee.jones@linaro.org,
-	lgirdwood@gmail.com,
-	broonie@kernel.org,
-	a.zummo@towertech.it,
-	alexandre.belloni@free-electrons.com
-Cc: Neil Armstrong <narmstrong@baylibre.com>,
-	linux-input@vger.kernel.org,
+        Sun, 19 Jun 2016 19:52:27 -0700 (PDT)
+From: Chen-Yu Tsai <wens@csie.org>
+To: Mark Brown <broonie@kernel.org>,
+	Lee Jones <lee.jones@linaro.org>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Rob Herring <robh+dt@kernel.org>,
+	Pawel Moll <pawel.moll@arm.com>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Ian Campbell <ijc+devicetree@hellion.org.uk>,
+	Kumar Gala <galak@codeaurora.org>,
+	Maxime Ripard <maxime.ripard@free-electrons.com>,
+	Michael Turquette <mturquette@baylibre.com>,
+	Stephen Boyd <sboyd@codeaurora.org>
+Cc: Chen-Yu Tsai <wens@csie.org>,
+	rtc-linux@googlegroups.com,
 	linux-kernel@vger.kernel.org,
-	linux-arm-msm@vger.kernel.org,
-	linux-soc@vger.kernel.org,
-	rtc-linux@googlegroups.com
-Subject: [rtc-linux] [PATCH v2 3/5] rtc: rtc-pm8xxx: Add support for pm8018 rtc
-Date: Fri, 24 Jun 2016 11:18:05 +0200
-Message-Id: <1466759887-25394-4-git-send-email-narmstrong@baylibre.com>
-In-Reply-To: <1466759887-25394-1-git-send-email-narmstrong@baylibre.com>
-References: <1466759887-25394-1-git-send-email-narmstrong@baylibre.com>
+	devicetree@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	linux-clk@vger.kernel.org
+Subject: [rtc-linux] [PATCH v3 7/8] ARM: dts: sun9i: cubieboard4: Add device
+ node for AC100
+Date: Mon, 20 Jun 2016 10:52:17 +0800
+Message-Id: <1466391138-12862-8-git-send-email-wens@csie.org>
+In-Reply-To: <1466391138-12862-1-git-send-email-wens@csie.org>
+References: <1466391138-12862-1-git-send-email-wens@csie.org>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -38,60 +41,48 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-In order to support RTC on Qualcomm MDM9615 SoC, add support for
-the pm8018 rtc in rtc-pm8xxx driver.
-
-Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Acked-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
+Signed-off-by: Chen-Yu Tsai <wens@csie.org>
 ---
- Documentation/devicetree/bindings/mfd/qcom-pm8xxx.txt |  1 +
- drivers/rtc/rtc-pm8xxx.c                              | 11 +++++++++++
- 2 files changed, 12 insertions(+)
+Changes since v2: none
+Changes since v1: none
+---
+ arch/arm/boot/dts/sun9i-a80-cubieboard4.dts | 21 +++++++++++++++++++++
+ 1 file changed, 21 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/mfd/qcom-pm8xxx.txt b/Documentation/devicetree/bindings/mfd/qcom-pm8xxx.txt
-index f24f334..37a088f 100644
---- a/Documentation/devicetree/bindings/mfd/qcom-pm8xxx.txt
-+++ b/Documentation/devicetree/bindings/mfd/qcom-pm8xxx.txt
-@@ -62,6 +62,7 @@ The below bindings specify the set of valid subnodes.
- 		    "qcom,pm8058-rtc"
- 		    "qcom,pm8921-rtc"
- 		    "qcom,pm8941-rtc"
-+		    "qcom,pm8018-rtc"
- 
- - reg:
- 	Usage: required
-diff --git a/drivers/rtc/rtc-pm8xxx.c b/drivers/rtc/rtc-pm8xxx.c
-index 795fcbd..976f5f6 100644
---- a/drivers/rtc/rtc-pm8xxx.c
-+++ b/drivers/rtc/rtc-pm8xxx.c
-@@ -393,6 +393,16 @@ static int pm8xxx_rtc_enable(struct pm8xxx_rtc *rtc_dd)
- 	return 0;
- }
- 
-+static const struct pm8xxx_rtc_regs pm8018_regs = {
-+	.ctrl		= 0x11d,
-+	.write		= 0x11f,
-+	.read		= 0x123,
-+	.alarm_rw	= 0x127,
-+	.alarm_ctrl	= 0x11d,
-+	.alarm_ctrl2	= 0x11e,
-+	.alarm_en	= BIT(1),
-+};
+diff --git a/arch/arm/boot/dts/sun9i-a80-cubieboard4.dts b/arch/arm/boot/dts/sun9i-a80-cubieboard4.dts
+index 1526b41c70f1..65f4f32f89ad 100644
+--- a/arch/arm/boot/dts/sun9i-a80-cubieboard4.dts
++++ b/arch/arm/boot/dts/sun9i-a80-cubieboard4.dts
+@@ -250,6 +250,27 @@
+ 			};
+ 		};
+ 	};
 +
- static const struct pm8xxx_rtc_regs pm8921_regs = {
- 	.ctrl		= 0x11d,
- 	.write		= 0x11f,
-@@ -428,6 +438,7 @@ static const struct pm8xxx_rtc_regs pm8941_regs = {
-  */
- static const struct of_device_id pm8xxx_id_table[] = {
- 	{ .compatible = "qcom,pm8921-rtc", .data = &pm8921_regs },
-+	{ .compatible = "qcom,pm8018-rtc", .data = &pm8018_regs },
- 	{ .compatible = "qcom,pm8058-rtc", .data = &pm8058_regs },
- 	{ .compatible = "qcom,pm8941-rtc", .data = &pm8941_regs },
- 	{ },
++	ac100: codec@e89 {
++		compatible = "x-powers,ac100";
++		reg = <0xe89>;
++
++		ac100_codec: codec {
++			compatible = "x-powers,ac100-codec";
++			interrupt-parent = <&r_pio>;
++			interrupts = <0 9 IRQ_TYPE_LEVEL_LOW>; /* PL9 */
++		};
++
++		ac100_rtc: rtc {
++			compatible = "x-powers,ac100-rtc";
++			interrupt-parent = <&nmi_intc>;
++			interrupts = <0 IRQ_TYPE_LEVEL_LOW>;
++			#clock-cells = <1>;
++			clock-output-names = "cko1_rtc",
++					     "cko2_rtc",
++					     "cko3_rtc";
++		};
++	};
+ };
+ 
+ #include "axp809.dtsi"
 -- 
-1.9.1
+2.8.1
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
