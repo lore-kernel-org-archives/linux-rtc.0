@@ -1,20 +1,22 @@
-Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBANM3S5AKGQE65DXSUY@googlegroups.com>
+Return-Path: <rtc-linux+bncBAABB4PLT65QKGQEOPOYPQQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-MIME-Version: 1.0
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id f69si372004wmf.3.2016.06.07.11.44.17
-        for <rtc-linux@googlegroups.com>;
-        Tue, 07 Jun 2016 11:44:17 -0700 (PDT)
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: rtc-linux@googlegroups.com
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
-	linux-kernel@vger.kernel.org,
+Received: from arcturus.kleine-koenig.org (arcturus.kleine-koenig.org. [2a01:4f8:d12:1f44::2])
+        by gmr-mx.google.com with ESMTPS id f70si432022wmf.0.2016.06.20.06.56.00
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 20 Jun 2016 06:56:00 -0700 (PDT)
+From: =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <uwe@kleine-koenig.org>
+To: Alessandro Zummo <a.zummo@towertech.it>,
 	Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Subject: [rtc-linux] [PATCH] rtc: rv8803: broaden workaround
-Date: Tue,  7 Jun 2016 20:44:05 +0200
-Message-Id: <1465325045-774-1-git-send-email-alexandre.belloni@free-electrons.com>
-Reply-To: rtc-linux@googlegroups.com
+Cc: rtc-linux@googlegroups.com,
+	=?UTF-8?q?Manuel=20R=C3=B6der?= <manuel_roeder@gmx.de>
+Subject: [rtc-linux] [PATCH 0/5] rtc: s35390a: allow shutdown on NAS after
+ alarm triggered
+Date: Mon, 20 Jun 2016 15:55:48 +0200
+Message-Id: <1466430953-18659-1-git-send-email-uwe@kleine-koenig.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -23,55 +25,55 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-The previous workaround may still fail as there are actually 4 retries to
-be done to ensure the communication succeed. Also, some I2C adapter drivers
-may return -EIO instead of -ENXIO.
+Hello,
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
----
- drivers/rtc/rtc-rv8803.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+this series addresses the issued reported at https://bugs.debian.org/794266=
+.
 
-diff --git a/drivers/rtc/rtc-rv8803.c b/drivers/rtc/rtc-rv8803.c
-index 82ab41074156..533ca5bcaa96 100644
---- a/drivers/rtc/rtc-rv8803.c
-+++ b/drivers/rtc/rtc-rv8803.c
-@@ -68,7 +68,7 @@ static irqreturn_t rv8803_handle_irq(int irq, void *dev_id)
- 	do {
- 		flags = i2c_smbus_read_byte_data(client, RV8803_FLAG);
- 		try++;
--	} while ((flags == -ENXIO) && (try < 3));
-+	} while (((flags == -ENXIO) || (flags == -EIO)) && (try < 4));
- 	if (flags <= 0) {
- 		spin_unlock(&rv8803->flags_lock);
- 		return IRQ_NONE;
-@@ -455,7 +455,7 @@ static int rv8803_probe(struct i2c_client *client,
- 	do {
- 		flags = i2c_smbus_read_byte_data(client, RV8803_FLAG);
- 		try++;
--	} while ((flags == -ENXIO) && (try < 3));
-+	} while (((flags == -ENXIO) || (flags == -EIO)) && (try < 4));
- 
- 	if (flags < 0)
- 		return flags;
-@@ -496,7 +496,7 @@ static int rv8803_probe(struct i2c_client *client,
- 		err = i2c_smbus_write_byte_data(rv8803->client, RV8803_EXT,
- 						RV8803_EXT_WADA);
- 		try++;
--	} while ((err == -ENXIO) && (try < 3));
-+	} while (((err == -ENXIO) || (flags == -EIO)) && (try < 4));
- 	if (err)
- 		return err;
- 
--- 
+The problem at hand is that some qnap NAS devices can wake up on rtc
+alarm and the s35390a driver didn't handle the particularities of the
+rtc: When an irq is pending the irq line is pulled low and the INT2 bit
+in a status register is set. Unfortunately this INT2 is cleared when the
+status register is read, but the irq line isn't deasserted at the same
+time. (No cookie for the hardware engineer!)
+
+So the driver (which doesn't pay attention at the first read of the
+status register) cannot notice that the irq is pending and so doesn't
+disable it which makes the NAS wake up instantly after shutdown.
+
+Among other fixes this series makes the driver aware on the first read
+of the status register to check for the INT2 flag and handle
+accordingly. Note that this means that if the RTC is already in the
+state that the irq is active but the status register was already read,
+this is still not noticed (because that's impossible AFAIK). But it
+should make it harder to enter this state.
+
+Best regards
+Uwe
+
+Uwe Kleine-K=C3=B6nig (5):
+  rtc: s35390a: fix reading out alarm
+  rtc: s35390a: implement reset routine as suggested by the reference
+  rtc: s35390a: improve irq handling
+  rtc: s35390a: improve two comments in .set_alarm
+  rtc: fix a typo and reduce three empty lines to one
+
+ drivers/rtc/interface.c   |   4 +-
+ drivers/rtc/rtc-s35390a.c | 149 ++++++++++++++++++++++++++++++++++--------=
+----
+ 2 files changed, 112 insertions(+), 41 deletions(-)
+
+--=20
 2.8.1
 
--- 
+--=20
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+---=20
+You received this message because you are subscribed to the Google Groups "=
+rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an e=
+mail to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
