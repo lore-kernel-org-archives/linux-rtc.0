@@ -1,26 +1,29 @@
-Return-Path: <rtc-linux+bncBDCMXBNSKAIMLO6PXMCRUBCHKDM76@googlegroups.com>
+Return-Path: <rtc-linux+bncBDAYD2P3QYGRBTXCT25QKGQEDYCXJ2Y@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from smtp6-v.fe.bosch.de (smtp6-v.fe.bosch.de. [2a03:cc00:ff0:100::2])
-        by gmr-mx.google.com with ESMTPS id r10si347726wmf.0.2016.06.29.07.40.05
+Received: from mail-wm0-x235.google.com (mail-wm0-x235.google.com. [2a00:1450:400c:c09::235])
+        by gmr-mx.google.com with ESMTPS id f138si324531wmf.3.2016.06.20.02.03.10
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 29 Jun 2016 07:40:05 -0700 (PDT)
-Received: from vsmta12.fe.internet.bosch.com (unknown [10.4.98.52])
-	by imta24.fe.bosch.de (Postfix) with ESMTP id 18BBED80224
-	for <rtc-linux@googlegroups.com>; Wed, 29 Jun 2016 16:40:05 +0200 (CEST)
-Received: from FE-HUB1000.de.bosch.com (vsgw24.fe.internet.bosch.com [10.4.98.24])
-	by vsmta12.fe.internet.bosch.com (Postfix) with ESMTP id 5CC331B80495
-	for <rtc-linux@googlegroups.com>; Wed, 29 Jun 2016 16:40:04 +0200 (CEST)
-From: Dirk Behme <dirk.behme@de.bosch.com>
-To: <rtc-linux@googlegroups.com>, <devicetree@vger.kernel.org>
-CC: Oleksij Rempel <fixed-term.Oleksij.Rempel@de.bosch.com>
-Subject: [rtc-linux] [PATCH v3 2/3] dt/bindings: Add bindings for Micro
- Crystal rv8803
-Date: Wed, 29 Jun 2016 16:40:00 +0200
-Message-ID: <1467211201-17252-3-git-send-email-dirk.behme@de.bosch.com>
-In-Reply-To: <1467211201-17252-1-git-send-email-dirk.behme@de.bosch.com>
-References: <1467211201-17252-1-git-send-email-dirk.behme@de.bosch.com>
+        Mon, 20 Jun 2016 02:03:10 -0700 (PDT)
+Received: by mail-wm0-x235.google.com with SMTP id r201so51510290wme.1
+        for <rtc-linux@googlegroups.com>; Mon, 20 Jun 2016 02:03:10 -0700 (PDT)
+Subject: [rtc-linux] Re: [PATCH 5/5] regulator: qcom_rpm-regulator: Add
+ support for pm8018 rpm regulator
+To: Bjorn Andersson <bjorn.andersson@linaro.org>
+References: <1466158929-19524-1-git-send-email-narmstrong@baylibre.com>
+ <1466158929-19524-6-git-send-email-narmstrong@baylibre.com>
+ <20160617165352.GA1256@tuxbot>
+Cc: dmitry.torokhov@gmail.com, andy.gross@linaro.org, david.brown@linaro.org,
+ lee.jones@linaro.org, lgirdwood@gmail.com, broonie@kernel.org,
+ a.zummo@towertech.it, alexandre.belloni@free-electrons.com,
+ linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-arm-msm@vger.kernel.org, linux-soc@vger.kernel.org,
+ rtc-linux@googlegroups.com
+From: Neil Armstrong <narmstrong@baylibre.com>
+Message-ID: <5767B147.5000102@baylibre.com>
+Date: Mon, 20 Jun 2016 11:03:03 +0200
 MIME-Version: 1.0
+In-Reply-To: <20160617165352.GA1256@tuxbot>
 Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
@@ -31,48 +34,70 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-From: Oleksij Rempel <fixed-term.Oleksij.Rempel@de.bosch.com>
+On 06/17/2016 06:53 PM, Bjorn Andersson wrote:
+> On Fri 17 Jun 03:22 PDT 2016, Neil Armstrong wrote:
+> 
+>> In order to support eh Qualcomm MDM9615 SoC, add support for the
+>> PM8018 RPM regulator in the qcom_rpm-regulator driver.
+>>
+>> Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
+> [..]
+>> diff --git a/drivers/regulator/qcom_rpm-regulator.c b/drivers/regulator/qcom_rpm-regulator.c
+> [..]
+>> +/**
+>> + * enum rpm_vreg_voltage_corner - possible voltage corner values
+>> + *
+>> + * These should be used in regulator_set_voltage and rpm_vreg_set_voltage calls
+>> + * for corner type regulators as if they had units of uV.
+>> + */
+>> +enum rpm_vreg_voltage_corner {
+>> +	RPM_VREG_CORNER_NONE = 1,
+>> +	RPM_VREG_CORNER_LOW,
+>> +	RPM_VREG_CORNER_NOMINAL,
+>> +	RPM_VREG_CORNER_HIGH,
+>> +};
+>> +
+>> +static struct regulator_linear_range corner_ranges[] = {
+>> +	REGULATOR_LINEAR_RANGE(RPM_VREG_CORNER_NONE, 0,
+>> +				RPM_VREG_CORNER_HIGH, 1),
+>> +};
+>> +
+>>  static int rpm_reg_write(struct qcom_rpm_reg *vreg,
+> [..]
+>> +
+>> +static const struct qcom_rpm_reg pm8018_corner = {
+>> +	.desc.linear_ranges = corner_ranges,
+>> +	.desc.n_linear_ranges = ARRAY_SIZE(corner_ranges),
+>> +	.desc.n_voltages = 4,
+>> +	.desc.ops = &uV_ops,
+>> +	.parts = &rpm8018_corner_parts,
+>> +};
+>> +
+> [..]
+>> +static const struct rpm_regulator_data rpm_pm8018_regulators[] = {
+> [..]
+>> +	{ "dig_corner", QCOM_RPM_VOLTAGE_CORNER, &pm8018_corner,
+>> +						      "vdd_dig_corner" },
+>> +
+>> +	{ }
+>> +};
+> 
+> We have discussed the corners for a long time and I think we've
+> concluded that they should be exposed as something like an OPP. What we
+> have agreed on is that they should not be exposed as a regulator with
+> voltages 1-4uV.
+> 
+> So please drop the corner for now.
 
-... and Epson RX8900 real time clock
+OK,
 
-Signed-off-by: Oleksij Rempel <fixed-term.Oleksij.Rempel@de.bosch.com>
-Acked-by: Rob Herring <robh@kernel.org>
-Cc: devicetree@vger.kernel.org
----
- .../devicetree/bindings/rtc/epson,rx8900.txt       | 22 ++++++++++++++++++++++
- 1 file changed, 22 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/rtc/epson,rx8900.txt
+Thanks,
+Neil
 
-diff --git a/Documentation/devicetree/bindings/rtc/epson,rx8900.txt b/Documentation/devicetree/bindings/rtc/epson,rx8900.txt
-new file mode 100644
-index 0000000..3f61e51
---- /dev/null
-+++ b/Documentation/devicetree/bindings/rtc/epson,rx8900.txt
-@@ -0,0 +1,22 @@
-+Real Time Clock driver for:
-+  - Epson RX8900
-+  - Micro Crystal rv8803
-+
-+Required properties:
-+- compatible: should be: "microcrystal,rv8803" or "epson,rx8900"
-+- reg : the I2C address of the device for I2C
-+
-+Optional properties:
-+- epson,vdet-disable : boolean, if present will disable voltage detector.
-+  Should be set if no backup battery is used.
-+- trickle-diode-disable : boolean, if present will disable internal trickle
-+  charger diode
-+
-+Example:
-+
-+	rtc: rtc@32 {
-+		compatible = "epson,rx8900"
-+		reg = <0x32>;
-+		epson,vdet-disable;
-+		trickle-diode-disable;
-+	};
--- 
-1.9.1
+> 
+> Regards,
+> Bjorn
+> 
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
