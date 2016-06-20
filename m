@@ -1,11 +1,11 @@
-Return-Path: <rtc-linux+bncBCMILY6JWQBBBZ6S7W5AKGQE5XINMJA@googlegroups.com>
+Return-Path: <rtc-linux+bncBCMILY6JWQBBB2NUTW5QKGQELJVG3QY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 MIME-Version: 1.0
 Received: from wens.csie.org (mirror2.csie.ntu.edu.tw. [140.112.30.76])
-        by gmr-mx.google.com with ESMTPS id 62si2830156pfx.1.2016.06.13.19.18.14
+        by gmr-mx.google.com with ESMTPS id un17si4619908pab.0.2016.06.19.19.52.25
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 13 Jun 2016 19:18:15 -0700 (PDT)
+        Sun, 19 Jun 2016 19:52:25 -0700 (PDT)
 From: Chen-Yu Tsai <wens@csie.org>
 To: Mark Brown <broonie@kernel.org>,
 	Lee Jones <lee.jones@linaro.org>,
@@ -25,12 +25,12 @@ Cc: Chen-Yu Tsai <wens@csie.org>,
 	devicetree@vger.kernel.org,
 	linux-arm-kernel@lists.infradead.org,
 	linux-clk@vger.kernel.org
-Subject: [rtc-linux] [PATCH 01/10] regmap: Support bulk writes for devices
+Subject: [rtc-linux] [PATCH v3 1/8] regmap: Support bulk writes for devices
  without raw formatting
-Date: Tue, 14 Jun 2016 10:17:48 +0800
-Message-Id: <1465870678-30128-2-git-send-email-wens@csie.org>
-In-Reply-To: <1465870678-30128-1-git-send-email-wens@csie.org>
-References: <1465870678-30128-1-git-send-email-wens@csie.org>
+Date: Mon, 20 Jun 2016 10:52:11 +0800
+Message-Id: <1466391138-12862-2-git-send-email-wens@csie.org>
+In-Reply-To: <1466391138-12862-1-git-send-email-wens@csie.org>
+References: <1466391138-12862-1-git-send-email-wens@csie.org>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -54,6 +54,9 @@ This complements commit d5b98eb12420 ("regmap: Support bulk reads for
 devices without raw formatting").
 
 Signed-off-by: Chen-Yu Tsai <wens@csie.org>
+---
+Changes since v2: none
+Changes since v1: none
 ---
  drivers/base/regmap/regmap.c | 31 ++++++++++++++++++++++++++++---
  1 file changed, 28 insertions(+), 3 deletions(-)
