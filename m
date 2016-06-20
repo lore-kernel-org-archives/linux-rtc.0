@@ -1,25 +1,23 @@
-Return-Path: <rtc-linux+bncBCL4FNGB7UHBB4UDXS5AKGQEKVLRO2I@googlegroups.com>
+Return-Path: <rtc-linux+bncBAABB47LT65QKGQE3MGSXQA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-MIME-Version: 1.0
-Received: from mail-wm0-x244.google.com (mail-wm0-x244.google.com. [2a00:1450:400c:c09::244])
-        by gmr-mx.google.com with ESMTPS id d193si458053wmd.2.2016.06.01.08.40.33
+Received: from arcturus.kleine-koenig.org (arcturus.kleine-koenig.org. [78.47.169.190])
+        by gmr-mx.google.com with ESMTPS id a186si409584wma.1.2016.06.20.06.56.02
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 01 Jun 2016 08:40:33 -0700 (PDT)
-Received: by mail-wm0-x244.google.com with SMTP id q62so7919646wmg.3
-        for <rtc-linux@googlegroups.com>; Wed, 01 Jun 2016 08:40:33 -0700 (PDT)
-From: Gabriele Mazzotta <gabriele.mzt@gmail.com>
-To: a.zummo@towertech.it,
-	alexandre.belloni@free-electrons.com
+        Mon, 20 Jun 2016 06:56:02 -0700 (PDT)
+From: =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <uwe@kleine-koenig.org>
+To: Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>
 Cc: rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org,
-	matthew.garrett@nebula.com,
-	Gabriele Mazzotta <gabriele.mzt@gmail.com>
-Subject: [rtc-linux] [PATCH 1/2] rtc-cmos: Clear expired alarm after resume
-Date: Wed,  1 Jun 2016 17:40:14 +0200
-Message-Id: <1464795615-7748-1-git-send-email-gabriele.mzt@gmail.com>
-Reply-To: rtc-linux@googlegroups.com
+	=?UTF-8?q?Manuel=20R=C3=B6der?= <manuel_roeder@gmx.de>
+Subject: [rtc-linux] [PATCH 4/5] rtc: s35390a: improve two comments in .set_alarm
+Date: Mon, 20 Jun 2016 15:55:52 +0200
+Message-Id: <1466430953-18659-5-git-send-email-uwe@kleine-koenig.org>
+In-Reply-To: <1466430953-18659-1-git-send-email-uwe@kleine-koenig.org>
+References: <1466430953-18659-1-git-send-email-uwe@kleine-koenig.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -28,63 +26,42 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-If the system wakes up because of a wake alarm, the internal state
-of the alarm is not updated. As consequence, the state no longer
-reflects the actual state of the hardware and setting a new alarm
-is not possible until the expired alarm is cleared.
-
-Signed-off-by: Gabriele Mazzotta <gabriele.mzt@gmail.com>
+Signed-off-by: Uwe Kleine-K=C3=B6nig <uwe@kleine-koenig.org>
 ---
- drivers/rtc/rtc-cmos.c | 22 ++++++++++++++++++++++
- 1 file changed, 22 insertions(+)
+ drivers/rtc/rtc-s35390a.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/rtc/rtc-cmos.c b/drivers/rtc/rtc-cmos.c
-index fbe9c72..fd121e3 100644
---- a/drivers/rtc/rtc-cmos.c
-+++ b/drivers/rtc/rtc-cmos.c
-@@ -900,11 +900,33 @@ static inline int cmos_poweroff(struct device *dev)
- 
- #ifdef	CONFIG_PM_SLEEP
- 
-+static void cmos_check_alarm(struct device *dev)
-+{
-+	struct cmos_rtc *cmos = dev_get_drvdata(dev);
-+	struct rtc_wkalrm alarm;
-+	struct rtc_time now;
-+	time64_t t_now;
-+	time64_t t_expires;
-+
-+	cmos_read_time(dev, &now);
-+	rtc_read_alarm(cmos->rtc, &alarm);
-+	t_now = rtc_tm_to_time64(&now);
-+	t_expires = rtc_tm_to_time64(&alarm.time);
-+
-+	if (t_expires <= t_now && alarm.enabled) {
-+		alarm.enabled = 0;
-+		cmos->suspend_ctrl &= ~RTC_AIE;
-+		rtc_set_alarm(cmos->rtc, &alarm);
-+	}
-+}
-+
- static int cmos_resume(struct device *dev)
- {
- 	struct cmos_rtc	*cmos = dev_get_drvdata(dev);
- 	unsigned char tmp;
- 
-+	cmos_check_alarm(dev);
-+
- 	if (cmos->enabled_wake) {
- 		if (cmos->wake_off)
- 			cmos->wake_off(dev);
--- 
+diff --git a/drivers/rtc/rtc-s35390a.c b/drivers/rtc/rtc-s35390a.c
+index 543a01509116..a37eeef9e247 100644
+--- a/drivers/rtc/rtc-s35390a.c
++++ b/drivers/rtc/rtc-s35390a.c
+@@ -266,12 +266,12 @@ static int s35390a_set_alarm(struct i2c_client *clien=
+t, struct rtc_wkalrm *alm)
+ 		alm->time.tm_min, alm->time.tm_hour, alm->time.tm_mday,
+ 		alm->time.tm_mon, alm->time.tm_year, alm->time.tm_wday);
+=20
+-	/* disable interrupt */
++	/* disable interrupt (which deasserts the irq line) */
+ 	err =3D s35390a_set_reg(s35390a, S35390A_CMD_STATUS2, &sts, sizeof(sts));
+ 	if (err < 0)
+ 		return err;
+=20
+-	/* clear pending interrupt, if any */
++	/* clear pending interrupt (in STATUS1 only), if any */
+ 	err =3D s35390a_get_reg(s35390a, S35390A_CMD_STATUS1, &sts, sizeof(sts));
+ 	if (err < 0)
+ 		return err;
+--=20
 2.8.1
 
--- 
+--=20
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+---=20
+You received this message because you are subscribed to the Google Groups "=
+rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an e=
+mail to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
