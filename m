@@ -1,26 +1,38 @@
-Return-Path: <rtc-linux+bncBAABB7E7ZW5QKGQEBONJN4I@googlegroups.com>
+Return-Path: <rtc-linux+bncBCMILY6JWQBBB25UTW5QKGQEDRX52HQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from smtp6-v.fe.bosch.de (smtp6-v.fe.bosch.de. [2a03:cc00:ff0:100::2])
-        by gmr-mx.google.com with ESMTPS id a186si397231wma.1.2016.06.28.21.35.08
+MIME-Version: 1.0
+Received: from wens.csie.org (mirror2.csie.ntu.edu.tw. [140.112.30.76])
+        by gmr-mx.google.com with ESMTPS id c11si5099756pfc.2.2016.06.19.19.52.26
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 28 Jun 2016 21:35:08 -0700 (PDT)
-Subject: Re: [rtc-linux] [PATCH v2 4/4] rtc: rv8803: Be able to set VDETOFF
- and SWOFF via devcie tree
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>, Dirk Behme
-	<dirk.behme@de.bosch.com>
-References: <1466577742-18824-1-git-send-email-dirk.behme@de.bosch.com>
- <1466577742-18824-5-git-send-email-dirk.behme@de.bosch.com>
- <20160624074407.GJ5809@piout.net>
-CC: <rtc-linux@googlegroups.com>, <devicetree@vger.kernel.org>, Carsten Resch
-	<Carsten.Resch@de.bosch.com>
-From: fixed-term.Oleksij.Rempel <fixed-term.Oleksij.Rempel@de.bosch.com>
-Message-ID: <57734FFB.4000104@de.bosch.com>
-Date: Wed, 29 Jun 2016 06:35:07 +0200
-MIME-Version: 1.0
-In-Reply-To: <20160624074407.GJ5809@piout.net>
-Content-Type: text/plain; charset=UTF-8
+        Sun, 19 Jun 2016 19:52:27 -0700 (PDT)
+From: Chen-Yu Tsai <wens@csie.org>
+To: Mark Brown <broonie@kernel.org>,
+	Lee Jones <lee.jones@linaro.org>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Rob Herring <robh+dt@kernel.org>,
+	Pawel Moll <pawel.moll@arm.com>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Ian Campbell <ijc+devicetree@hellion.org.uk>,
+	Kumar Gala <galak@codeaurora.org>,
+	Maxime Ripard <maxime.ripard@free-electrons.com>,
+	Michael Turquette <mturquette@baylibre.com>,
+	Stephen Boyd <sboyd@codeaurora.org>
+Cc: Chen-Yu Tsai <wens@csie.org>,
+	rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org,
+	devicetree@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	linux-clk@vger.kernel.org
+Subject: [rtc-linux] [PATCH v3 8/8] ARM: dts: sun9i: Switch to the AC100 RTC
+ clock outputs for osc32k
+Date: Mon, 20 Jun 2016 10:52:18 +0800
+Message-Id: <1466391138-12862-9-git-send-email-wens@csie.org>
+In-Reply-To: <1466391138-12862-1-git-send-email-wens@csie.org>
+References: <1466391138-12862-1-git-send-email-wens@csie.org>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -29,64 +41,79 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
+The 32.768 kHz clock inside the A80 SoC is fed from an external source,
+typically the AC100 RTC module.
 
+Make the osc32k placeholder a fixed-factor clock so board dts files can
+specify its source.
 
-On 24.06.2016 09:44, Alexandre Belloni wrote:
-> On 22/06/2016 at 08:42:22 +0200, Dirk Behme wrote :
->> From: Oleksij Rempel <fixed-term.Oleksij.Rempel@de.bosch.com>
->>
->> There might be designs where the power supply circuit is designed
->> in a way that VDETOFF and SWOFF is reuqired to be set. Otherwise the
->> RTC detects a power loss. Add a device tree interface for this.
->>
->> Signed-off-by: Carsten Resch <Carsten.Resch@de.bosch.com>
->> Signed-off-by: Dirk Behme <dirk.behme@de.bosch.com>
->> Signed-off-by: Oleksij Rempel <fixed-term.Oleksij.Rempel@de.bosch.com>
->> Cc: devicetree@vger.kernel.org
->> ---
->>  drivers/rtc/rtc-rv8803.c | 39 +++++++++++++++++++++++++++++++++++++++
->>  1 file changed, 39 insertions(+)
->>
->> diff --git a/drivers/rtc/rtc-rv8803.c b/drivers/rtc/rtc-rv8803.c
->> index e122b51..32a5686 100644
->> --- a/drivers/rtc/rtc-rv8803.c
->> +++ b/drivers/rtc/rtc-rv8803.c
->> @@ -50,6 +50,10 @@
->>  #define RV8803_CTRL_TIE			BIT(4)
->>  #define RV8803_CTRL_UIE			BIT(5)
->>  
->> +#define RX8900_BACKUP_CTRL		0x18
->> +#define RX8900_FLAG_SWOFF		BIT(2)
->> +#define RX8900_FLAG_VDETOFF		BIT(3)
->> +
->>  struct rv8803_data {
->>  	struct i2c_client *client;
->>  	struct rtc_device *rtc;
->> @@ -423,6 +427,35 @@ static struct rtc_class_ops rv8803_rtc_ops = {
->>  	.ioctl = rv8803_ioctl,
->>  };
->>  
->> +static int rx8900_trickle_charger_init(struct rv8803_data *rv8803)
->> +{
->> +	struct i2c_client *client = rv8803->client;
->> +	struct device_node *node = client->dev.of_node;
->> +	int err;
->> +	u8 flags;
->> +
->> +	if (!node)
->> +		return 0;
->> +
->> +	if (!of_device_is_compatible(node, "epson,rx8900"))
->> +		return 0;
->> +
-> 
-> Can you use the i2c_device_id instead of of_device_is_compatible to
-> avoid matching on yet another string?
+Signed-off-by: Chen-Yu Tsai <wens@csie.org>
+---
+Changes since v2: none
+Changes since v1: none
+---
+ arch/arm/boot/dts/sun9i-a80-cubieboard4.dts | 5 +++++
+ arch/arm/boot/dts/sun9i-a80-optimus.dts     | 5 +++++
+ arch/arm/boot/dts/sun9i-a80.dtsi            | 9 +++------
+ 3 files changed, 13 insertions(+), 6 deletions(-)
 
-Sure, ... is it possible that device tree defines rx8900 but i2c will
-detect rv8803?
-I assume it is potential source of errors. What would be better way to
-handle it?
+diff --git a/arch/arm/boot/dts/sun9i-a80-cubieboard4.dts b/arch/arm/boot/dts/sun9i-a80-cubieboard4.dts
+index 65f4f32f89ad..b6299a9c14e3 100644
+--- a/arch/arm/boot/dts/sun9i-a80-cubieboard4.dts
++++ b/arch/arm/boot/dts/sun9i-a80-cubieboard4.dts
+@@ -103,6 +103,11 @@
+ 	allwinner,drive = <SUN4I_PINCTRL_40_MA>;
+ };
+ 
++&osc32k {
++	/* osc32k input is from AC100 */
++	clocks = <&ac100_rtc 0>;
++};
++
+ &pio {
+ 	led_pins_cubieboard4: led-pins@0 {
+ 		allwinner,pins = "PH6", "PH17";
+diff --git a/arch/arm/boot/dts/sun9i-a80-optimus.dts b/arch/arm/boot/dts/sun9i-a80-optimus.dts
+index 3b013dc5fef1..2f079cbd2025 100644
+--- a/arch/arm/boot/dts/sun9i-a80-optimus.dts
++++ b/arch/arm/boot/dts/sun9i-a80-optimus.dts
+@@ -152,6 +152,11 @@
+ 	status = "okay";
+ };
+ 
++&osc32k {
++	/* osc32k input is from AC100 */
++	clocks = <&ac100_rtc 0>;
++};
++
+ &pio {
+ 	led_pins_optimus: led-pins@0 {
+ 		allwinner,pins = "PH0", "PH1";
+diff --git a/arch/arm/boot/dts/sun9i-a80.dtsi b/arch/arm/boot/dts/sun9i-a80.dtsi
+index f68b3242b33a..dd11115ec087 100644
+--- a/arch/arm/boot/dts/sun9i-a80.dtsi
++++ b/arch/arm/boot/dts/sun9i-a80.dtsi
+@@ -148,15 +148,12 @@
+ 
+ 		/*
+ 		 * The 32k clock is from an external source, normally the
+-		 * AC100 codec/RTC chip. This clock is by default enabled
+-		 * and clocked at 32768 Hz, from the oscillator connected
+-		 * to the AC100. It is configurable, but no such driver or
+-		 * bindings exist yet.
++		 * AC100 codec/RTC chip. This serves as a placeholder for
++		 * board dts files to specify the source.
+ 		 */
+ 		osc32k: osc32k_clk {
+ 			#clock-cells = <0>;
+-			compatible = "fixed-clock";
+-			clock-frequency = <32768>;
++			compatible = "fixed-factor-clock";
+ 			clock-output-names = "osc32k";
+ 		};
+ 
+-- 
+2.8.1
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
