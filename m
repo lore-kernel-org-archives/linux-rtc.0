@@ -1,19 +1,26 @@
-Return-Path: <rtc-linux+bncBAABBCVPX65AKGQEGYSHVDA@googlegroups.com>
+Return-Path: <rtc-linux+bncBDKOBWPM5ABRBWOWUO5QKGQE33LHVFQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 MIME-Version: 1.0
-Received: from root.phytec.de (mail.phycore.de. [217.6.246.34])
-        by gmr-mx.google.com with ESMTP id j140si835239wmf.1.2016.06.01.23.51.53
-        for <rtc-linux@googlegroups.com>;
-        Wed, 01 Jun 2016 23:51:53 -0700 (PDT)
-From: Wadim Egorov <w.egorov@phytec.de>
-To: linux-kernel@vger.kernel.org, linux-clk@vger.kernel.org, rtc-linux@googlegroups.com, devicetree@vger.kernel.org, linux-rockchip@lists.infradead.org
-Cc: robh+dt@kernel.org, pawel.moll@arm.com, mark.rutland@arm.com, ijc+devicetree@hellion.org.uk, galak@codeaurora.org, mturquette@baylibre.com, sboyd@codeaurora.org, lee.jones@linaro.org, lgirdwood@gmail.com, broonie@kernel.org, a.zummo@towertech.it, alexandre.belloni@free-electrons.com, dianders@chromium.org, zyw@rock-chips.com
-Subject: [rtc-linux] [RESEND PATCH v5 3/5] mfd: dt-bindings: Add RK818 device
- tree bindings document
-Date: Thu, 2 Jun 2016 08:50:26 +0200
-Message-Id: <1464850228-17244-3-git-send-email-w.egorov@phytec.de>
-In-Reply-To: <1464850228-17244-1-git-send-email-w.egorov@phytec.de>
-References: <1464850228-17244-1-git-send-email-w.egorov@phytec.de>
+Received: from mail-pa0-x241.google.com (mail-pa0-x241.google.com. [2607:f8b0:400e:c03::241])
+        by gmr-mx.google.com with ESMTPS id c11si5951032pfc.2.2016.06.21.00.23.04
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 21 Jun 2016 00:23:04 -0700 (PDT)
+Received: by mail-pa0-x241.google.com with SMTP id us13so739156pab.1
+        for <rtc-linux@googlegroups.com>; Tue, 21 Jun 2016 00:23:04 -0700 (PDT)
+From: Andrey Smirnov <andrew.smirnov@gmail.com>
+To: rtc-linux@googlegroups.com
+Cc: Andrey Smirnov <andrew.smirnov@gmail.com>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	linux-kernel@vger.kernel.org,
+	cphealy@gmail.com
+Subject: [rtc-linux] [PATCH v2 07/17] RTC: ds1307: Move chip configuration
+ into a separate routine
+Date: Tue, 21 Jun 2016 00:22:40 -0700
+Message-Id: <1466493770-11895-6-git-send-email-andrew.smirnov@gmail.com>
+In-Reply-To: <1466493770-11895-1-git-send-email-andrew.smirnov@gmail.com>
+References: <1466493770-11895-1-git-send-email-andrew.smirnov@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -24,84 +31,248 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Add device tree bindings documentation for Rockchip's RK818 PMIC.
+Move chip configuration into a separate routine to improve readablity of
+the code.
 
-Signed-off-by: Wadim Egorov <w.egorov@phytec.de>
-Acked-by: Rob Herring <robh@kernel.org>
+Signed-off-by: Andrey Smirnov <andrew.smirnov@gmail.com>
 ---
- Documentation/devicetree/bindings/mfd/rk808.txt | 37 +++++++++++++++++++++++--
- 1 file changed, 34 insertions(+), 3 deletions(-)
+ drivers/rtc/rtc-ds1307.c | 172 ++++++++++++++++++++++++++---------------------
+ 1 file changed, 97 insertions(+), 75 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/mfd/rk808.txt b/Documentation/devicetree/bindings/mfd/rk808.txt
-index 4ca6aab..9636ae8 100644
---- a/Documentation/devicetree/bindings/mfd/rk808.txt
-+++ b/Documentation/devicetree/bindings/mfd/rk808.txt
-@@ -1,7 +1,11 @@
--RK808 Power Management Integrated Circuit
-+RK8XX Power Management Integrated Circuit
-+
-+The rk8xx family current members:
-+rk808
-+rk818
+diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
+index ccfaba4..4fa09dc 100644
+--- a/drivers/rtc/rtc-ds1307.c
++++ b/drivers/rtc/rtc-ds1307.c
+@@ -1271,74 +1271,32 @@ static bool ds1307_want_irq(const struct ds1307 *ds1307,
+ 	return false;
+ }
  
- Required properties:
--- compatible: "rockchip,rk808"
-+- compatible: "rockchip,rk808", "rockchip,rk818"
- - reg: I2C slave address
- - interrupt-parent: The parent interrupt controller.
- - interrupts: the interrupt outputs of the controller.
-@@ -13,6 +17,8 @@ Optional properties:
-   default output clock name
- - rockchip,system-power-controller: Telling whether or not this pmic is controlling
-   the system power.
-+
-+Optional RK808 properties:
- - vcc1-supply:  The input supply for DCDC_REG1
- - vcc2-supply:  The input supply for DCDC_REG2
- - vcc3-supply:  The input supply for DCDC_REG3
-@@ -29,7 +35,20 @@ Optional properties:
-   the gpio controller. If DVS GPIOs aren't present, voltage changes will happen
-   very quickly with no slow ramp time.
+-static int ds1307_probe(struct i2c_client *client,
+-			const struct i2c_device_id *id)
++static int ds1307_chip_configure(struct ds1307 *ds1307)
+ {
+-	struct ds1307		*ds1307;
+-	int			err = -ENODEV;
+-	int			tmp;
+-	struct chip_desc	*chip = &chips[id->driver_data];
+-	struct i2c_adapter	*adapter = to_i2c_adapter(client->dev.parent);
+-	unsigned char		*buf;
+-	struct ds1307_platform_data *pdata = dev_get_platdata(&client->dev);
+-	irq_handler_t	irq_handler = ds1307_irq;
+-
+-	static const int	bbsqi_bitpos[] = {
+-		[ds_1337] = 0,
+-		[ds_1341] = 0,
+-		[ds_1339] = DS1339_BIT_BBSQI,
+-		[ds_3231] = DS3231_BIT_BBSQW,
+-	};
+-	const struct rtc_class_ops *rtc_ops = &ds13xx_rtc_ops;
+-
+-	if (!i2c_check_functionality(adapter, I2C_FUNC_SMBUS_BYTE_DATA)
+-	    && !i2c_check_functionality(adapter, I2C_FUNC_SMBUS_I2C_BLOCK))
+-		return -EIO;
+-
+-	ds1307 = devm_kzalloc(&client->dev, sizeof(struct ds1307), GFP_KERNEL);
+-	if (!ds1307)
+-		return -ENOMEM;
+-
+-	i2c_set_clientdata(client, ds1307);
+-
+-	ds1307->client	= client;
+-	ds1307->type	= id->driver_data;
+-
+-	if (!pdata && client->dev.of_node)
+-		ds1307_trickle_of_init(client, chip);
+-	else if (pdata && pdata->trickle_charger_setup)
+-		chip->trickle_charger_setup = pdata->trickle_charger_setup;
+-
+-	if (chip->trickle_charger_setup && chip->trickle_charger_reg) {
+-		dev_dbg(&client->dev, "writing trickle charger info 0x%x to 0x%x\n",
+-		    DS13XX_TRICKLE_CHARGER_MAGIC | chip->trickle_charger_setup,
+-		    chip->trickle_charger_reg);
+-		i2c_smbus_write_byte_data(client, chip->trickle_charger_reg,
+-		    DS13XX_TRICKLE_CHARGER_MAGIC |
+-		    chip->trickle_charger_setup);
+-	}
++	int tmp;
++	unsigned char *buf;
++	struct i2c_client *client = ds1307->client;
  
--Regulators: All the regulators of RK808 to be instantiated shall be
-+Optional RK818 properties:
-+- vcc1-supply:  The input supply for DCDC_REG1
-+- vcc2-supply:  The input supply for DCDC_REG2
-+- vcc3-supply:  The input supply for DCDC_REG3
-+- vcc4-supply:  The input supply for DCDC_REG4
-+- boost-supply: The input supply for DCDC_BOOST
-+- vcc6-supply:  The input supply for LDO_REG1 and LDO_REG2
-+- vcc7-supply:  The input supply for LDO_REG3, LDO_REG5 and LDO_REG7
-+- vcc8-supply:  The input supply for LDO_REG4, LDO_REG6 and LDO_REG8
-+- vcc9-supply:  The input supply for LDO_REG9 and SWITCH_REG
-+- h_5v-supply:  The input supply for HDMI_SWITCH
-+- usb-supply:   The input supply for OTG_SWITCH
-+
-+Regulators: All the regulators of RK8XX to be instantiated shall be
- listed in a child node named 'regulators'. Each regulator is represented
- by a child node of the 'regulators' node.
+ 	buf = ds1307->regs;
+-	if (i2c_check_functionality(adapter, I2C_FUNC_SMBUS_I2C_BLOCK)) {
+-		ds1307->read_block_data = ds1307_native_smbus_read_block_data;
+-		ds1307->write_block_data = ds1307_native_smbus_write_block_data;
+-	} else {
+-		ds1307->read_block_data = ds1307_read_block_data;
+-		ds1307->write_block_data = ds1307_write_block_data;
+-	}
  
-@@ -48,6 +67,18 @@ number as described in RK808 datasheet.
- 	- SWITCH_REGn
- 		- valid values for n are 1 to 2
+ 	switch (ds1307->type) {
+ 	case ds_1337:
+ 	case ds_1339:
+ 	case ds_3231:
+-	case ds_1341:
++	case ds_1341: {
++		static const int bbsqi_bitpos[] = {
++			[ds_1337] = 0,
++			[ds_1341] = 0,
++			[ds_1339] = DS1339_BIT_BBSQI,
++			[ds_3231] = DS3231_BIT_BBSQW,
++		};
++
+ 		/* get registers that the "rtc" read below won't read... */
+-		tmp = ds1307->read_block_data(ds1307->client,
+-				DS1337_REG_CONTROL, 2, buf);
++		tmp = ds1307->read_block_data(client,
++					      DS1337_REG_CONTROL, 2, buf);
+ 		if (tmp != 2) {
+-			dev_dbg(&client->dev, "read error %d\n", tmp);
+-			err = -EIO;
+-			goto exit;
++			dev_dbg(&ds1307->client->dev, "read error %d\n", tmp);
++			return -EIO;
+ 		}
  
-+Following regulators of the RK818 PMIC block are supported. Note that
-+the 'n' in regulator name, as in DCDC_REGn or LDOn, represents the DCDC or LDO
-+number as described in RK818 datasheet.
+ 		/* oscillator off?  turn it on, so clock can tick. */
+@@ -1366,7 +1324,8 @@ static int ds1307_probe(struct i2c_client *client,
+ 			 * Write status register. Control register
+ 			 * would be set by the code below
+ 			 */
+-			i2c_smbus_write_byte_data(client, DS1337_REG_STATUS,
++			i2c_smbus_write_byte_data(client,
++						  DS1337_REG_STATUS,
+ 						  ds1307->regs[1]);
+ 		}
+ 
+@@ -1379,24 +1338,26 @@ static int ds1307_probe(struct i2c_client *client,
+ 			| bbsqi_bitpos[ds1307->type];
+ 		ds1307->regs[0] &= ~(DS1337_BIT_A2IE | DS1337_BIT_A1IE);
+ 
+-		i2c_smbus_write_byte_data(client, DS1337_REG_CONTROL,
+-							ds1307->regs[0]);
++		i2c_smbus_write_byte_data(client,
++					  DS1337_REG_CONTROL,
++					  ds1307->regs[0]);
+ 
+ 		/* oscillator fault?  clear flag, and warn */
+ 		if (ds1307->regs[1] & DS1337_BIT_OSF) {
+-			i2c_smbus_write_byte_data(client, DS1337_REG_STATUS,
+-				ds1307->regs[1] & ~DS1337_BIT_OSF);
+-			dev_warn(&client->dev, "SET TIME!\n");
++			i2c_smbus_write_byte_data(client,
++						  DS1337_REG_STATUS,
++						  ds1307->regs[1] & ~DS1337_BIT_OSF);
++			dev_warn(&ds1307->client->dev, "SET TIME!\n");
+ 		}
+ 		break;
+-
++	}
+ 	case rx_8025:
+-		tmp = i2c_smbus_read_i2c_block_data(ds1307->client,
+-				RX8025_REG_CTRL1 << 4 | 0x08, 2, buf);
++		tmp = i2c_smbus_read_i2c_block_data(client,
++						    RX8025_REG_CTRL1 << 4 | 0x08,
++						    2, buf);
+ 		if (tmp != 2) {
+ 			dev_dbg(&client->dev, "read error %d\n", tmp);
+-			err = -EIO;
+-			goto exit;
++			return -EIO;
+ 		}
+ 
+ 		/* oscillator off?  turn it on, so clock can tick. */
+@@ -1432,15 +1393,14 @@ static int ds1307_probe(struct i2c_client *client,
+ 			/* switch to 24 hour mode */
+ 			i2c_smbus_write_byte_data(client,
+ 						  RX8025_REG_CTRL1 << 4 | 0x08,
+-						  ds1307->regs[0] |
+-						  RX8025_BIT_2412);
++						  ds1307->regs[0] | RX8025_BIT_2412);
+ 
+-			tmp = i2c_smbus_read_i2c_block_data(ds1307->client,
+-					RX8025_REG_CTRL1 << 4 | 0x08, 2, buf);
++			tmp = i2c_smbus_read_i2c_block_data(client,
++							    RX8025_REG_CTRL1 << 4 | 0x08,
++							    2, buf);
+ 			if (tmp != 2) {
+ 				dev_dbg(&client->dev, "read error %d\n", tmp);
+-				err = -EIO;
+-				goto exit;
++				return -EIO;
+ 			}
+ 
+ 			/* correct hour */
+@@ -1455,6 +1415,68 @@ static int ds1307_probe(struct i2c_client *client,
+ 						  hour);
+ 		}
+ 		break;
++	default:
++		break;
++	}
 +
-+	- DCDC_REGn
-+		- valid values for n are 1 to 4.
-+	- LDO_REGn
-+		- valid values for n are 1 to 9.
-+	- SWITCH_REG
-+	- HDMI_SWITCH
-+	- OTG_SWITCH
++	return 0;
++}
 +
- Standard regulator bindings are used inside regulator subnodes. Check
-   Documentation/devicetree/bindings/regulator/regulator.txt
- for more details
++static int ds1307_probe(struct i2c_client *client,
++			const struct i2c_device_id *id)
++{
++	struct ds1307		*ds1307;
++	int			err = -ENODEV;
++	int			tmp;
++	struct chip_desc	*chip = &chips[id->driver_data];
++	struct i2c_adapter	*adapter = to_i2c_adapter(client->dev.parent);
++	unsigned char		*buf;
++	struct ds1307_platform_data *pdata = dev_get_platdata(&client->dev);
++	irq_handler_t	irq_handler = ds1307_irq;
++
++	const struct rtc_class_ops *rtc_ops = &ds13xx_rtc_ops;
++
++	if (!i2c_check_functionality(adapter, I2C_FUNC_SMBUS_BYTE_DATA)
++	    && !i2c_check_functionality(adapter, I2C_FUNC_SMBUS_I2C_BLOCK))
++		return -EIO;
++
++	ds1307 = devm_kzalloc(&client->dev, sizeof(struct ds1307), GFP_KERNEL);
++	if (!ds1307)
++		return -ENOMEM;
++
++	i2c_set_clientdata(client, ds1307);
++
++	ds1307->client	= client;
++	ds1307->type	= id->driver_data;
++
++	if (!pdata && client->dev.of_node)
++		ds1307_trickle_of_init(client, chip);
++	else if (pdata && pdata->trickle_charger_setup)
++		chip->trickle_charger_setup = pdata->trickle_charger_setup;
++
++	if (chip->trickle_charger_setup && chip->trickle_charger_reg) {
++		dev_dbg(&client->dev, "writing trickle charger info 0x%x to 0x%x\n",
++		    DS13XX_TRICKLE_CHARGER_MAGIC | chip->trickle_charger_setup,
++		    chip->trickle_charger_reg);
++		i2c_smbus_write_byte_data(client, chip->trickle_charger_reg,
++		    DS13XX_TRICKLE_CHARGER_MAGIC |
++		    chip->trickle_charger_setup);
++	}
++
++	buf = ds1307->regs;
++	if (i2c_check_functionality(adapter, I2C_FUNC_SMBUS_I2C_BLOCK)) {
++		ds1307->read_block_data = ds1307_native_smbus_read_block_data;
++		ds1307->write_block_data = ds1307_native_smbus_write_block_data;
++	} else {
++		ds1307->read_block_data = ds1307_read_block_data;
++		ds1307->write_block_data = ds1307_write_block_data;
++	}
++
++	err = ds1307_chip_configure(ds1307);
++	if (err < 0)
++		return err;
++
++	switch (ds1307->type) {
+ 	case ds_1388:
+ 		ds1307->offset = 1; /* Seconds starts at 1 */
+ 		break;
 -- 
-1.9.1
+2.5.5
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
