@@ -1,38 +1,27 @@
-Return-Path: <rtc-linux+bncBCMILY6JWQBBB2GS7W5AKGQEKA7EGUY@googlegroups.com>
+Return-Path: <rtc-linux+bncBDJIP47K7MERBNPMU25QKGQE366VUFA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-MIME-Version: 1.0
-Received: from wens.csie.org (mirror2.csie.ntu.edu.tw. [140.112.30.76])
-        by gmr-mx.google.com with ESMTPS id un17si691255pab.0.2016.06.13.19.18.15
+Received: from mail-oi0-f66.google.com (mail-oi0-f66.google.com. [209.85.218.66])
+        by gmr-mx.google.com with ESMTPS id f63si294042ith.2.2016.06.21.14.48.37
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 13 Jun 2016 19:18:15 -0700 (PDT)
-From: Chen-Yu Tsai <wens@csie.org>
-To: Mark Brown <broonie@kernel.org>,
-	Lee Jones <lee.jones@linaro.org>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Rob Herring <robh+dt@kernel.org>,
-	Pawel Moll <pawel.moll@arm.com>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Ian Campbell <ijc+devicetree@hellion.org.uk>,
-	Kumar Gala <galak@codeaurora.org>,
-	Maxime Ripard <maxime.ripard@free-electrons.com>,
-	Michael Turquette <mturquette@baylibre.com>,
-	Stephen Boyd <sboyd@codeaurora.org>
-Cc: Chen-Yu Tsai <wens@csie.org>,
-	rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org,
-	devicetree@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	linux-clk@vger.kernel.org
-Subject: [rtc-linux] [PATCH 02/10] mfd: ac100: Add device tree bindings for
- X-Powers AC100 codec/RTC combo IC
-Date: Tue, 14 Jun 2016 10:17:49 +0800
-Message-Id: <1465870678-30128-3-git-send-email-wens@csie.org>
-In-Reply-To: <1465870678-30128-1-git-send-email-wens@csie.org>
-References: <1465870678-30128-1-git-send-email-wens@csie.org>
-Reply-To: rtc-linux@googlegroups.com
+        Tue, 21 Jun 2016 14:48:37 -0700 (PDT)
+Received: by mail-oi0-f66.google.com with SMTP id s17so889669oih.1
+        for <rtc-linux@googlegroups.com>; Tue, 21 Jun 2016 14:48:37 -0700 (PDT)
+Date: Tue, 21 Jun 2016 16:48:36 -0500
+From: Rob Herring <robh@kernel.org>
+To: Dirk Behme <dirk.behme@de.bosch.com>
+Cc: rtc-linux@googlegroups.com,
+	Oleksij Rempel <fixed-term.Oleksij.Rempel@de.bosch.com>,
+	devicetree@vger.kernel.org
+Subject: [rtc-linux] Re: [PATCH 2/4] dt/bindings: Add bindings for Micro
+ Crystal rv8803
+Message-ID: <20160621214836.GA10197@rob-hp-laptop>
+References: <1466492240-5528-1-git-send-email-dirk.behme@de.bosch.com>
+ <1466492240-5528-2-git-send-email-dirk.behme@de.bosch.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1466492240-5528-2-git-send-email-dirk.behme@de.bosch.com>
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -41,62 +30,62 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Signed-off-by: Chen-Yu Tsai <wens@csie.org>
----
- Documentation/devicetree/bindings/mfd/ac100.txt | 42 +++++++++++++++++++++++++
- 1 file changed, 42 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/mfd/ac100.txt
+On Tue, Jun 21, 2016 at 08:57:18AM +0200, Dirk Behme wrote:
+> From: Oleksij Rempel <fixed-term.Oleksij.Rempel@de.bosch.com>
+> 
+> ... and Epson RX8900 real time clock
+> 
+> Signed-off-by: Oleksij Rempel <fixed-term.Oleksij.Rempel@de.bosch.com>
+> Cc: devicetree@vger.kernel.org
+> ---
+>  .../devicetree/bindings/rtc/epson,rx8900.txt        | 21 +++++++++++++++++++++
+>  1 file changed, 21 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/rtc/epson,rx8900.txt
+> 
+> diff --git a/Documentation/devicetree/bindings/rtc/epson,rx8900.txt b/Documentation/devicetree/bindings/rtc/epson,rx8900.txt
+> new file mode 100644
+> index 0000000..51959de
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/rtc/epson,rx8900.txt
+> @@ -0,0 +1,21 @@
+> +Real Time Clock driver for:
+> +  - Epson RX8900
+> +  - Micro Crystal rv8803
+> +
+> +Required properties:
+> +- compatible: should be: "mc,rv8803" or "epson,rx8900"
+> +- reg : the I2C address of the device for I2C
+> +
+> +Optional properties:
+> +- epson,vdetoff : Disable Voltage Detector. Should be set if no
+> +  backup battery is used.
 
-diff --git a/Documentation/devicetree/bindings/mfd/ac100.txt b/Documentation/devicetree/bindings/mfd/ac100.txt
-new file mode 100644
-index 000000000000..fbab623e6fba
---- /dev/null
-+++ b/Documentation/devicetree/bindings/mfd/ac100.txt
-@@ -0,0 +1,42 @@
-+X-Powers AC100 Codec/RTC IC device tree bindings
-+
-+AC100 is a audio codec and RTC subsystem combo IC. The 2 parts are
-+separated, including power supplies and interrupt lines, but share
-+a common register address space and host interface.
-+
-+Required properties:
-+- compatible: "x-powers,ac100"
-+- reg: The I2C slave address or RSB hardware address for the chip
-+- sub-nodes:
-+  - codec
-+    - compatible: "x-powers,ac100-codec"
-+    - interrupt-parent: The parent interrupt controller
-+    - interrupts: SoC NMI / GPIO interrupt connected to the IRQ_AUDIO pin
-+  - rtc
-+    - compatible: "x-powers,ac100-rtc"
-+    - interrupt-parent: The parent interrupt controller
-+    - interrupts: SoC NMI / GPIO interrupt connected to the IRQ_RTC pin
-+    - #clock-cells: shall be 1
-+    - clock-output-names: "cko1_rtc", "cko2_rtc", "cko3_rtc"
-+    - see clock/clock-bindings.txt for common clock bindings
-+
-+Example:
-+
-+ac100: codec@e89 {
-+	compatible = "x-powers,ac100";
-+	reg = <0xe89>;
-+
-+	ac100_codec {
-+		compatible = "x-powers,ac100-codec";
-+		interrupt-parent = <&nmi_intc>;
-+		interrupts = <0 IRQ_TYPE_LEVEL_LOW>;
-+	};
-+
-+	ac100_rtc {
-+		compatible = "x-powers,ac100-rtc";
-+		interrupt-parent = <&nmi_intc>;
-+		interrupts = <0 IRQ_TYPE_LEVEL_LOW>;
-+		#clock-cells = <1>;
-+		clock-output-names = "cko1_rtc", "cko2_rtc", "cko3_rtc";
-+	};
-+};
--- 
-2.8.1
+set to no? Looks like a boolean to me.
+
+How about epson,vdet-disable to be consistent.
+
+> +- trickle-diode-disable : Disable internal trickle charger diode
+
+boolean?
+
+Needs a vendor prefix.
+
+> +
+> +Example:
+> +
+> +	rtc: rtc@32 {
+> +		compatible = "epson,rx8900"
+> +		reg = <0x32>;
+> +		epson,vdetoff;
+> +		trickle-diode-disable;
+> +	};
+> -- 
+> 2.8.0
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe devicetree" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
