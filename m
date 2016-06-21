@@ -1,32 +1,20 @@
-Return-Path: <rtc-linux+bncBDSJBYGBRIMBBZF7RG5QKGQEFSZIOIY@googlegroups.com>
+Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBZHEU25QKGQEF4R3O7Q@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id x203si482929wme.0.2016.06.16.01.14.28
+        by gmr-mx.google.com with ESMTP id f4si209881wmg.0.2016.06.21.14.32.20
         for <rtc-linux@googlegroups.com>;
-        Thu, 16 Jun 2016 01:14:28 -0700 (PDT)
-Date: Thu, 16 Jun 2016 10:14:27 +0200
-From: Maxime Ripard <maxime.ripard@free-electrons.com>
-To: Chen-Yu Tsai <wens@csie.org>
-Cc: Mark Brown <broonie@kernel.org>, Lee Jones <lee.jones@linaro.org>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Ian Campbell <ijc+devicetree@hellion.org.uk>,
-	Kumar Gala <galak@codeaurora.org>,
-	Michael Turquette <mturquette@baylibre.com>,
-	Stephen Boyd <sboyd@codeaurora.org>, rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org, devicetree@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org, linux-clk@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH v2 09/10] ARM: dts: sun9i: a80-optimus: Order
- nodes by alphabetical order
-Message-ID: <20160616081427.GG5144@lukather>
-References: <1465986467-14802-1-git-send-email-wens@csie.org>
- <1465986467-14802-10-git-send-email-wens@csie.org>
+        Tue, 21 Jun 2016 14:32:20 -0700 (PDT)
+Date: Tue, 21 Jun 2016 23:32:19 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Andrey Smirnov <andrew.smirnov@gmail.com>
+Cc: rtc-linux@googlegroups.com, Alessandro Zummo <a.zummo@towertech.it>,
+	linux-kernel@vger.kernel.org, cphealy@gmail.com
+Subject: [rtc-linux] Re: [PATCH v2 00/17] DS1341 support and code cleanup
+Message-ID: <20160621213219.GC5809@piout.net>
+References: <1466493519-11277-1-git-send-email-andrew.smirnov@gmail.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="gm5TwAJMO0F2iVRz"
-In-Reply-To: <1465986467-14802-10-git-send-email-wens@csie.org>
+Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1466493519-11277-1-git-send-email-andrew.smirnov@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -36,22 +24,62 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
+Hi,
 
---gm5TwAJMO0F2iVRz
-Content-Type: text/plain; charset=UTF-8
-Content-Disposition: inline
-
-On Wed, Jun 15, 2016 at 06:27:46PM +0800, Chen-Yu Tsai wrote:
-> Move the mmc nodes above the ohci nodes for proper ordering by name.
+On 21/06/2016 at 00:18:22 -0700, Andrey Smirnov wrote :
+> Hi everyone,
 > 
-> Signed-off-by: Chen-Yu Tsai <wens@csie.org>
+> This set is a v2 of the DS1307 driver patches. Changes since v1:
+> 
+>  - Devicetree bindings are separated into a separate commit
+> 
+>  - Device tree properties now have vendor specific prefixes and
+>    documenatation explicitly stating their type
+> 
+>  - Three more patches, with improvements to rtctest.c, are added to
+>    the patchset
+> 
 
-Applied, thanks!
 
-Maxime
+
+> Any feedback is appreciated.
+> 
+> Thank you,
+> Andrey Smirnov
+> 
+> Andrey Smirnov (17):
+>   RTC: ds1307: Add DS1341 variant
+>   RTC: ds1307: Disable square wave and timers as default
+>   RTC: ds1307: Add devicetree bindings for DS1341
+>   RTC: ds1307: Add DS1341 specific power-saving options
+>   RTC: ds1307: Convert ds1307_can_wakeup_device into a predicate
+>   RTC: ds1307: Convert want_irq into a predicate
+
+I'll have to triple check that one, it breaks in thousand different
+ways, every time someone touches that code :)
+
+>   RTC: ds1307: Move chip configuration into a separate routine
+>   RTC: ds1307: Move chip sanity checking into a separate routine
+
+I'm not sure about the cleanup in those two patches yet, It moves a lot
+of code and the readability improvement is not obvious
+
+>   RTC: ds1307: Remove register "cache"
+>   RTC: ds1307: Constify struct ds1307 where possible
+>   RTC: ds1307: Convert goto to a loop
+>   RTC: ds1307: Redefine RX8025_REG_* to minimize extra code
+>   RTC: ds1307: Report oscillator problems more intelligently
+>   RTC: ds1307: Move last bits of sanity checking out of chip_configure
+
+>   RTC: rtctest: Change alarm IRQ support detection
+>   RTC: rtctest: Change no IRQ detection for RTC_IRQP_READ
+>   RTC: rtctest: Change no IRQ detection for RTC_IRQP_SET
+
+I already had patches for that issue in a development tree, I'll see if
+they match what I did.
 
 -- 
-Maxime Ripard, Free Electrons
+Alexandre Belloni, Free Electrons
 Embedded Linux, Kernel and Android engineering
 http://free-electrons.com
 
@@ -64,26 +92,3 @@ before submitting a driver.
 You received this message because you are subscribed to the Google Groups "rtc-linux" group.
 To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
-
---gm5TwAJMO0F2iVRz
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJXYl/jAAoJEBx+YmzsjxAgd1MP/idSUAw5syl9OYAtiKeJ7RNr
-W9AUz+wc0pHjra9Ui7Y8TDXtRYOKnw15lSpw1KCIXCSfFUV+zfc/vZH0Ed8NPeAr
-RSb2zR6D+YEMf+oOGJbD+AM/9GxzuaCqiHBh93rOeeWo0sa31ns2wIdD2DInJRU1
-MasoUVWkgGDA2F/p5cbj70UPiIjjahRgk8Tk4VRKfgBFCeLEsZMkUKi48EjqCrCn
-zibYKucH3v1qKgzI2Gd3557xzpewiO8Pdf2KHiwzDqmL9DTcfyXpoNG7bTUXJmRd
-hWj5RqZEfngNPaIr+MtmsrYZf4JV4Nbq2joHIvpBwRxLBx2l/xZxl52VI9gD1Zt1
-yap0Se+IDjVB5LQbeEFtbIEP5p1BGGkVOltHK6pj5iJu306gyNNrEueXfqXzlneT
-L9njjQvD14V+VE9gyqeytdeVkwOjWlHShUtkng8GWYnC3wSh9OB1vZjLpZvsvTqx
-O/WbxmBleUGgrvHUTJxBpXcHjZe/5UtD9ALKX9djNGCbYY4GlWZrtnR+e4nDJ9BD
-fFj29BzO5l0UOtwbmkTYx8elSJNG28lYP6Tk5i6mWnqq37uQP5+LmfhxEo7SQXR/
-z7lfEg8hCZCa0etJ2HOau7bHQ9ET32+o0oxr9unyglTUPQ0yWDx1FmFZYiSo0SlW
-jH0YPQqhQJH0khuyje0d
-=S8IS
------END PGP SIGNATURE-----
-
---gm5TwAJMO0F2iVRz--
