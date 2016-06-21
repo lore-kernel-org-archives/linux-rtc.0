@@ -1,22 +1,29 @@
-Return-Path: <rtc-linux+bncBCL4FNGB7UHBBKESXS5AKGQEHOZOSHA@googlegroups.com>
+Return-Path: <rtc-linux+bncBDKOBWPM5ABRBVMYU65QKGQEXS7UFEI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail-wm0-x244.google.com (mail-wm0-x244.google.com. [2a00:1450:400c:c09::244])
-        by gmr-mx.google.com with ESMTPS id v69si1499995wmv.0.2016.06.01.09.11.20
+Received: from mail-yw0-x231.google.com (mail-yw0-x231.google.com. [2607:f8b0:4002:c05::231])
+        by gmr-mx.google.com with ESMTPS id c2si3965519ywf.5.2016.06.21.16.23.01
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 01 Jun 2016 09:11:20 -0700 (PDT)
-Received: by mail-wm0-x244.google.com with SMTP id n184so7635536wmn.1
-        for <rtc-linux@googlegroups.com>; Wed, 01 Jun 2016 09:11:20 -0700 (PDT)
-Subject: [rtc-linux] Re: [PATCH 1/2] rtc-cmos: Clear expired alarm after resume
-To: a.zummo@towertech.it, alexandre.belloni@free-electrons.com
-References: <1464795615-7748-1-git-send-email-gabriele.mzt@gmail.com>
-Cc: rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org,
- matthew.garrett@nebula.com
-From: Gabriele Mazzotta <gabriele.mzt@gmail.com>
-Message-ID: <337d25d5-f5e2-c2db-e3fa-57a820ef16ac@gmail.com>
-Date: Wed, 1 Jun 2016 18:11:17 +0200
+        Tue, 21 Jun 2016 16:23:01 -0700 (PDT)
+Received: by mail-yw0-x231.google.com with SMTP id b72so28310181ywa.3
+        for <rtc-linux@googlegroups.com>; Tue, 21 Jun 2016 16:23:01 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <1464795615-7748-1-git-send-email-gabriele.mzt@gmail.com>
+In-Reply-To: <20160621204904.GA9779@rob-hp-laptop>
+References: <1465970379-14703-1-git-send-email-andrew.smirnov@gmail.com>
+ <1465970379-14703-4-git-send-email-andrew.smirnov@gmail.com>
+ <20160619142934.GA8522@rob-hp-laptop> <CAHQ1cqFfFpLmMMr9itinha9rotG7Btr9UmWbO2_0VWxX_HeG1g@mail.gmail.com>
+ <20160621204904.GA9779@rob-hp-laptop>
+From: Andrey Smirnov <andrew.smirnov@gmail.com>
+Date: Tue, 21 Jun 2016 16:23:00 -0700
+Message-ID: <CAHQ1cqFgD--n7NMguZNQ+qdQk7zdxPHCM-Phq09wJwBacjMd8Q@mail.gmail.com>
+Subject: [rtc-linux] Re: [PATCH 03/13] RTC: ds1307: Add DS1341 specific
+ power-saving options
+To: Rob Herring <robh@kernel.org>
+Cc: rtc-linux@googlegroups.com, Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>, Pawel Moll <pawel.moll@arm.com>,
+	Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>,
+	Kumar Gala <galak@codeaurora.org>, devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org
 Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
@@ -27,62 +34,42 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 01/06/2016 17:40, Gabriele Mazzotta wrote:
-> If the system wakes up because of a wake alarm, the internal state
-> of the alarm is not updated. As consequence, the state no longer
-> reflects the actual state of the hardware and setting a new alarm
-> is not possible until the expired alarm is cleared.
-> 
-> Signed-off-by: Gabriele Mazzotta <gabriele.mzt@gmail.com>
-> ---
->  drivers/rtc/rtc-cmos.c | 22 ++++++++++++++++++++++
->  1 file changed, 22 insertions(+)
-> 
-> diff --git a/drivers/rtc/rtc-cmos.c b/drivers/rtc/rtc-cmos.c
-> index fbe9c72..fd121e3 100644
-> --- a/drivers/rtc/rtc-cmos.c
-> +++ b/drivers/rtc/rtc-cmos.c
-> @@ -900,11 +900,33 @@ static inline int cmos_poweroff(struct device *dev)
->  
->  #ifdef	CONFIG_PM_SLEEP
->  
-> +static void cmos_check_alarm(struct device *dev)
-> +{
-> +	struct cmos_rtc *cmos = dev_get_drvdata(dev);
-> +	struct rtc_wkalrm alarm;
-> +	struct rtc_time now;
-> +	time64_t t_now;
-> +	time64_t t_expires;
-> +
-> +	cmos_read_time(dev, &now);
-> +	rtc_read_alarm(cmos->rtc, &alarm);
+> So wouldn't you want to set one mode while running and the lower power
+> mode while suspended? I'm trying to understand the frequency of changing
+> this. If it is always one setting for a board, then yes it belongs in
+> DT. If it is a user decision, then it probably shouldn't be in DT.
 
-Here it should probably check the return value and exit in case of error.
+I don't really see a use-case where you'd want setting that
+dynamically. I might be wrong, but IMHO, power consumption of a system
+in suspended mode would dwarf that of an RTC, so there's really much
+to gain by enabling this feature dynamically. Where it matters the
+most is time setting retention when the system is powered off and RTC
+is ticking off of a battery or a some other power storage device. So
+in my opinion it is more of a system design question where one has to
+choose if reliability of RTC data is more important (detection of
+oscillator faults and higher oscillator glitch immunity) and bigger
+power storage device is needed or higher risk of RTC "malfunction" is
+acceptable and cheaper/more convenient power storage device can be
+used
 
-> +	t_now = rtc_tm_to_time64(&now);
-> +	t_expires = rtc_tm_to_time64(&alarm.time);
-> +
-> +	if (t_expires <= t_now && alarm.enabled) {
-> +		alarm.enabled = 0;
-> +		cmos->suspend_ctrl &= ~RTC_AIE;
-> +		rtc_set_alarm(cmos->rtc, &alarm);
+>
+> Seeing as these are reused, I've probably already had this discussion...
+>
+>> > They should have vendor prefix and be explicit that they are boolean.
+>>
+>> I was trying to be consistent with ds1339 and ds1390 bindings which do
+>> not have vendor prefixes. Will fix in v2.
+>
+> Okay, then they are fine if you are using existing properties. Perhaps
+> these should all be in a common binding doc though.
 
-Same here.
+I think we have a misunderstanding. What I meant by "trying to be
+consistent" was that bindings for other DS1307 variants do not prefix
+their own properties with vendor name. Your comment about properties
+being reused makes me suspicious that I misled you to believe that
+other chip variants use those exact properties which is not the case.
 
-> +	}
-> +}
-> +
->  static int cmos_resume(struct device *dev)
->  {
->  	struct cmos_rtc	*cmos = dev_get_drvdata(dev);
->  	unsigned char tmp;
->  
-> +	cmos_check_alarm(dev);
-> +
->  	if (cmos->enabled_wake) {
->  		if (cmos->wake_off)
->  			cmos->wake_off(dev);
-> 
+Andrey
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
