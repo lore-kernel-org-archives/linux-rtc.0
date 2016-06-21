@@ -1,24 +1,29 @@
-Return-Path: <rtc-linux+bncBDKOBWPM5ABRBX6WUO5QKGQEGH2RKFA@googlegroups.com>
+Return-Path: <rtc-linux+bncBDKOBWPM5ABRBVOWUO5QKGQEEOBADSQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 MIME-Version: 1.0
-Received: from mail-pf0-x242.google.com (mail-pf0-x242.google.com. [2607:f8b0:400e:c00::242])
-        by gmr-mx.google.com with ESMTPS id po17si907888pab.2.2016.06.21.00.23.10
+Received: from mail-pf0-x241.google.com (mail-pf0-x241.google.com. [2607:f8b0:400e:c00::241])
+        by gmr-mx.google.com with ESMTPS id po17si907962pab.2.2016.06.21.00.23.01
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 21 Jun 2016 00:23:10 -0700 (PDT)
-Received: by mail-pf0-x242.google.com with SMTP id c74so763755pfb.0
-        for <rtc-linux@googlegroups.com>; Tue, 21 Jun 2016 00:23:10 -0700 (PDT)
+        Tue, 21 Jun 2016 00:23:01 -0700 (PDT)
+Received: by mail-pf0-x241.google.com with SMTP id t190so762020pfb.2
+        for <rtc-linux@googlegroups.com>; Tue, 21 Jun 2016 00:23:01 -0700 (PDT)
 From: Andrey Smirnov <andrew.smirnov@gmail.com>
 To: rtc-linux@googlegroups.com
 Cc: Andrey Smirnov <andrew.smirnov@gmail.com>,
 	Alessandro Zummo <a.zummo@towertech.it>,
 	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
 	linux-kernel@vger.kernel.org,
+	Rob Herring <robh+dt@kernel.org>,
+	Pawel Moll <pawel.moll@arm.com>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Ian Campbell <ijc+devicetree@hellion.org.uk>,
+	Kumar Gala <galak@codeaurora.org>,
+	devicetree@vger.kernel.org,
 	cphealy@gmail.com
-Subject: [rtc-linux] [PATCH v2 14/17] RTC: ds1307: Move last bits of sanity
- checking out of chip_configure
-Date: Tue, 21 Jun 2016 00:22:47 -0700
-Message-Id: <1466493770-11895-13-git-send-email-andrew.smirnov@gmail.com>
+Subject: [rtc-linux] [PATCH v2 03/17] RTC: ds1307: Add devicetree bindings for DS1341
+Date: Tue, 21 Jun 2016 00:22:36 -0700
+Message-Id: <1466493770-11895-2-git-send-email-andrew.smirnov@gmail.com>
 In-Reply-To: <1466493770-11895-1-git-send-email-andrew.smirnov@gmail.com>
 References: <1466493770-11895-1-git-send-email-andrew.smirnov@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
@@ -31,155 +36,44 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
+Add devicetree bindings for DS1341 that allow to control settings
+affecting power consumption of the chip.
+
 Signed-off-by: Andrey Smirnov <andrew.smirnov@gmail.com>
 ---
- drivers/rtc/rtc-ds1307.c | 106 ++++++++++++++++++++++++++---------------------
- 1 file changed, 59 insertions(+), 47 deletions(-)
+ .../devicetree/bindings/rtc/dallas,ds1341.txt      | 23 ++++++++++++++++++++++
+ 1 file changed, 23 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/rtc/dallas,ds1341.txt
 
-diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
-index 2169e5b..45b2adb 100644
---- a/drivers/rtc/rtc-ds1307.c
-+++ b/drivers/rtc/rtc-ds1307.c
-@@ -1344,66 +1344,23 @@ static int ds1307_chip_configure(const struct ds1307 *ds1307)
- 					  DS1337_REG_CONTROL,
- 					  regs[0]);
- 
--		/* oscillator fault?  clear flag, and warn */
--		if (regs[1] & DS1337_BIT_OSF) {
--			i2c_smbus_write_byte_data(client,
--						  DS1337_REG_STATUS,
--						  regs[1] & ~DS1337_BIT_OSF);
--			dev_warn(&ds1307->client->dev, "SET TIME!\n");
--		}
- 		break;
- 	}
- 	case rx_8025:
--		tmp = i2c_smbus_read_i2c_block_data(client,
--						    RX8025_REG_CTRL1,
--						    2, regs);
--		if (tmp != 2) {
-+		tmp = i2c_smbus_read_byte_data(client, RX8025_REG_CTRL1);
-+		if (tmp < 0) {
- 			dev_dbg(&client->dev, "read error %d\n", tmp);
- 			return -EIO;
- 		}
- 
--		/* oscillator off?  turn it on, so clock can tick. */
--		if (!(regs[1] & RX8025_BIT_XST)) {
--			regs[1] |= RX8025_BIT_XST;
--			i2c_smbus_write_byte_data(client,
--						  RX8025_REG_CTRL2,
--						  regs[1]);
--			dev_warn(&client->dev,
--				 "oscillator stop detected - SET TIME!\n");
--		}
--
--		if (regs[1] & RX8025_BIT_PON) {
--			regs[1] &= ~RX8025_BIT_PON;
--			i2c_smbus_write_byte_data(client,
--						  RX8025_REG_CTRL2,
--						  regs[1]);
--			dev_warn(&client->dev, "power-on detected\n");
--		}
--
--		if (regs[1] & RX8025_BIT_VDET) {
--			regs[1] &= ~RX8025_BIT_VDET;
--			i2c_smbus_write_byte_data(client,
--						  RX8025_REG_CTRL2,
--						  regs[1]);
--			dev_warn(&client->dev, "voltage drop detected\n");
--		}
--
- 		/* make sure we are running in 24hour mode */
--		if (!(regs[0] & RX8025_BIT_2412)) {
-+		if (!(tmp & RX8025_BIT_2412)) {
- 			u8 hour;
- 
- 			/* switch to 24 hour mode */
- 			i2c_smbus_write_byte_data(client,
- 						  RX8025_REG_CTRL1,
--						  regs[0] | RX8025_BIT_2412);
--
--			tmp = i2c_smbus_read_i2c_block_data(client,
--							    RX8025_REG_CTRL1,
--							    2, regs);
--			if (tmp != 2) {
--				dev_dbg(&client->dev, "read error %d\n", tmp);
--				return -EIO;
--			}
-+						  tmp | RX8025_BIT_2412);
- 
- 			/* correct hour */
- 			hour = bcd2bin(regs[DS1307_REG_HOUR]);
-@@ -1486,6 +1443,27 @@ static int ds1307_chip_sanity_check(const struct ds1307 *ds1307)
- 				continue;
- 			}
- 			break;
+diff --git a/Documentation/devicetree/bindings/rtc/dallas,ds1341.txt b/Documentation/devicetree/bindings/rtc/dallas,ds1341.txt
+new file mode 100644
+index 0000000..7942dd0
+--- /dev/null
++++ b/Documentation/devicetree/bindings/rtc/dallas,ds1341.txt
+@@ -0,0 +1,23 @@
++* Dallas DS1341		I2C Serial Real-Time Clock
 +
-+		case ds_1337:
-+		case ds_1339:
-+		case ds_3231:
-+		case ds_1341:
-+			tmp = i2c_smbus_read_byte_data(client,
-+						       DS1337_REG_STATUS);
-+			if (tmp < 0) {
-+				dev_dbg(&client->dev, "read error %d\n", tmp);
-+				return -EIO;
-+			}
++Required properties:
 +
-+			/* oscillator fault?  clear flag, and warn */
-+			if (tmp & DS1337_BIT_OSF) {
-+				i2c_smbus_write_byte_data(client,
-+							  DS1337_REG_STATUS,
-+							  regs[1] & ~DS1337_BIT_OSF);
-+				ds1307_report_oscillator_fault(ds1307);
-+			}
-+			return 0;
++- compatible: Should contain "dallas,ds1341".
 +
- 		case ds_1340:
- 			/* clock halted?  turn it on, so clock can tick. */
- 			if (tmp & DS1340_BIT_nEOSC) {
-@@ -1530,6 +1508,40 @@ static int ds1307_chip_sanity_check(const struct ds1307 *ds1307)
- 			}
- 
- 			break;
++- reg: I2C address for chip
 +
-+		case rx_8025:
-+			tmp = i2c_smbus_read_byte_data(client,
-+						       RX8025_REG_CTRL2);
-+			if (tmp < 0) {
-+				dev_dbg(&client->dev, "read error %d\n", tmp);
-+				return -EIO;
-+			}
++Optional properties:
 +
-+			/* oscillator off?  turn it on, so clock can tick. */
-+			if (!(tmp & RX8025_BIT_XST)) {
-+				tmp |= RX8025_BIT_XST;
-+				i2c_smbus_write_byte_data(client,
-+							  RX8025_REG_CTRL2,
-+							  tmp);
-+				ds1307_report_clock_halt(ds1307);
-+			}
++- dallas,disable-oscillator-stop-flag : Boolean. Configure chip to disable oscillator
++  fault detection circuitry. Setting this flag is beneficial for power saving.
 +
-+			if (tmp & RX8025_BIT_PON) {
-+				tmp &= ~RX8025_BIT_PON;
-+				i2c_smbus_write_byte_data(client,
-+							  RX8025_REG_CTRL2,
-+							  tmp);
-+				dev_warn(&client->dev, "power-on detected\n");
-+			}
++- dallas,enable-glitch-filter : Boolean. Configure chip to enable crystal oscillator
++  output glitch filtering. Setting this flag will increase power consumption.
 +
-+			if (tmp & RX8025_BIT_VDET) {
-+				tmp &= ~RX8025_BIT_VDET;
-+				i2c_smbus_write_byte_data(client,
-+							  RX8025_REG_CTRL2,
-+							  tmp);
-+				dev_warn(&client->dev, "voltage drop detected\n");
-+			}
-+			break;
- 		default:
- 			break;
- 		}
++Example:
++	ds1341: rtc@68 {
++		compatible = "dallas,ds1341";
++		dallas,disable-oscillator-stop-flag;
++		dallas,enable-glitch-filter;
++		reg = <0x68>;
++	};
 -- 
 2.5.5
 
