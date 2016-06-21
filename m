@@ -1,34 +1,26 @@
-Return-Path: <rtc-linux+bncBCMILY6JWQBBB2NUTW5QKGQELJVG3QY@googlegroups.com>
+Return-Path: <rtc-linux+bncBDKOBWPM5ABRBV6WUO5QKGQE2F6V34Q@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 MIME-Version: 1.0
-Received: from wens.csie.org (mirror2.csie.ntu.edu.tw. [140.112.30.76])
-        by gmr-mx.google.com with ESMTPS id 62si6541474pfx.1.2016.06.19.19.52.25
+Received: from mail-pf0-x242.google.com (mail-pf0-x242.google.com. [2607:f8b0:400e:c00::242])
+        by gmr-mx.google.com with ESMTPS id po17si907888pab.2.2016.06.21.00.23.03
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sun, 19 Jun 2016 19:52:25 -0700 (PDT)
-From: Chen-Yu Tsai <wens@csie.org>
-To: Mark Brown <broonie@kernel.org>,
-	Lee Jones <lee.jones@linaro.org>,
+        Tue, 21 Jun 2016 00:23:03 -0700 (PDT)
+Received: by mail-pf0-x242.google.com with SMTP id c74so763755pfb.0
+        for <rtc-linux@googlegroups.com>; Tue, 21 Jun 2016 00:23:03 -0700 (PDT)
+From: Andrey Smirnov <andrew.smirnov@gmail.com>
+To: rtc-linux@googlegroups.com
+Cc: Andrey Smirnov <andrew.smirnov@gmail.com>,
 	Alessandro Zummo <a.zummo@towertech.it>,
 	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Rob Herring <robh+dt@kernel.org>,
-	Pawel Moll <pawel.moll@arm.com>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Ian Campbell <ijc+devicetree@hellion.org.uk>,
-	Kumar Gala <galak@codeaurora.org>,
-	Maxime Ripard <maxime.ripard@free-electrons.com>,
-	Michael Turquette <mturquette@baylibre.com>,
-	Stephen Boyd <sboyd@codeaurora.org>
-Cc: Chen-Yu Tsai <wens@csie.org>,
-	rtc-linux@googlegroups.com,
 	linux-kernel@vger.kernel.org,
-	devicetree@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	linux-clk@vger.kernel.org
-Subject: [rtc-linux] [PATCH v3 0/8] mfd: ac100: Add support for X-Powers AC100
- audio codec / RTC combo IC
-Date: Mon, 20 Jun 2016 10:52:10 +0800
-Message-Id: <1466391138-12862-1-git-send-email-wens@csie.org>
+	cphealy@gmail.com
+Subject: [rtc-linux] [PATCH v2 05/17] RTC: ds1307: Convert ds1307_can_wakeup_device
+ into a predicate
+Date: Tue, 21 Jun 2016 00:22:38 -0700
+Message-Id: <1466493770-11895-4-git-send-email-andrew.smirnov@gmail.com>
+In-Reply-To: <1466493770-11895-1-git-send-email-andrew.smirnov@gmail.com>
+References: <1466493770-11895-1-git-send-email-andrew.smirnov@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -39,104 +31,91 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Hi everyone,
+Convert ds1307_can_wakeup_device in ds1307_probe into a predicate in
+order to make various chunks of code in that function less connected to
+each other.
 
-This series adds support for X-Powers' AC100 audio codec / RTC combo IC.
-This chip is found on Allwinner A80 SoC based boards, and is also part
-of the AXP813/AXP818 PMIC found with Allwinner A83T SoCs.
+Signed-off-by: Andrey Smirnov <andrew.smirnov@gmail.com>
+---
+ drivers/rtc/rtc-ds1307.c | 35 ++++++++++++++++++-----------------
+ 1 file changed, 18 insertions(+), 17 deletions(-)
 
-The series focuses on the RTC side of the chip. The audio codec will
-be done later, once the digital audio interface of the SoC is supported.
-
-Changes since v2:
-
-  - Fix ac100_codec interrupt line in DT binding example.
-
-  - Fix copy-paste errors in RTC set_alarm. Alarm now works.
-
-  - Drop file name from MFD driver.
-
-  - Add / update copyright notices.
-
-  - Change license of RTC driver to GPL v2, matching MFD driver.
-
-  - Fix MFD driver MODULE_LICENSE to match license declaration in header.
-
-Changes since v1:
-
-  - Complete register definitions and regmap regions.
-
-v1 was actually a working version that wasn't updated with the codec
-register definitions.
-
-
-Patch 1 adds bulk write support for regmaps without raw formatting.
-This is used in the RTC driver to write out the date and time in one
-call.
-
-Patch 2 adds device tree bindings for the AC100.
-
-Patch 3 adds the mfd driver for the AC100.
-
-Patch 4 adds the RTC driver for the AC100.
-
-Patch 5 adds RTC clk output support to the RTC driver.
-This is a separate patch as the clk code is over 300 LoC. Having a
-separate patch should make it easier for the clk maintainers to review.
-
-Patch 6 adds the AC100 device nodes to the A80 Optimus board dts.
-
-Patch 7 adds the AC100 device nodes to the Cubieboard4 board dts.
-
-Patch 8 fixes the order of device nodes in the A80 Optimus board dts.
-
-Patch 9 fixes the order of device nodes in the Cubieboard4 board dts.
-
-Patch 10 changes the fixed osc_32k clk to a fixed factor clk,
-representing the 32k clk input pin on the SoC, and also hooks up the
-ac100 rtc clk output to this clk in the board dts files.
-
-I'm hoping we can merge the driver bits (patches 2~5) through the
-mfd tree, with acks from the rtc and clk maintainers for patches
-4 and 5.
-
-
-Regards
-ChenYu
-
-
-
-Chen-Yu Tsai (8):
-  regmap: Support bulk writes for devices without raw formatting
-  mfd: ac100: Add device tree bindings for X-Powers AC100 codec/RTC
-    combo IC
-  mfd: ac100: Add driver for X-Powers AC100 audio codec / RTC combo IC
-  rtc: ac100: Add RTC driver for X-Powers AC100
-  rtc: ac100: Add clk output support
-  ARM: dts: sun9i: a80-optimus: Add device node for AC100
-  ARM: dts: sun9i: cubieboard4: Add device node for AC100
-  ARM: dts: sun9i: Switch to the AC100 RTC clock outputs for osc32k
-
- Documentation/devicetree/bindings/mfd/ac100.txt |  42 ++
- arch/arm/boot/dts/sun9i-a80-cubieboard4.dts     |  26 +
- arch/arm/boot/dts/sun9i-a80-optimus.dts         |  26 +
- arch/arm/boot/dts/sun9i-a80.dtsi                |   9 +-
- drivers/base/regmap/regmap.c                    |  31 +-
- drivers/mfd/Kconfig                             |  10 +
- drivers/mfd/Makefile                            |   2 +
- drivers/mfd/ac100.c                             | 137 +++++
- drivers/rtc/Kconfig                             |  10 +
- drivers/rtc/Makefile                            |   1 +
- drivers/rtc/rtc-ac100.c                         | 684 ++++++++++++++++++++++++
- include/linux/mfd/ac100.h                       | 178 ++++++
- 12 files changed, 1147 insertions(+), 9 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/mfd/ac100.txt
- create mode 100644 drivers/mfd/ac100.c
- create mode 100644 drivers/rtc/rtc-ac100.c
- create mode 100644 include/linux/mfd/ac100.h
-
+diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
+index b21ea5d..98e1f81 100644
+--- a/drivers/rtc/rtc-ds1307.c
++++ b/drivers/rtc/rtc-ds1307.c
+@@ -1232,6 +1232,21 @@ static void ds1307_clks_register(struct ds1307 *ds1307)
+ 
+ #endif /* CONFIG_COMMON_CLK */
+ 
++static bool ds1307_can_wakeup_device(const struct ds1307 *ds1307)
++{
++
++/*
++ * For devices with no IRQ directly connected to the SoC, the RTC chip
++ * can be forced as a wakeup source by stating that explicitly in
++ * the device's .dts file using the "wakeup-source" boolean property.
++ * If the "wakeup-source" property is set, don't request an IRQ.
++ * This will guarantee the 'wakealarm' sysfs entry is available on the device,
++ * if supported by the RTC.
++ */
++	return of_property_read_bool(ds1307->client->dev.of_node,
++				     "wakeup-source");
++}
++
+ static int ds1307_probe(struct i2c_client *client,
+ 			const struct i2c_device_id *id)
+ {
+@@ -1241,7 +1256,6 @@ static int ds1307_probe(struct i2c_client *client,
+ 	struct chip_desc	*chip = &chips[id->driver_data];
+ 	struct i2c_adapter	*adapter = to_i2c_adapter(client->dev.parent);
+ 	bool			want_irq = false;
+-	bool			ds1307_can_wakeup_device = false;
+ 	unsigned char		*buf;
+ 	struct ds1307_platform_data *pdata = dev_get_platdata(&client->dev);
+ 	irq_handler_t	irq_handler = ds1307_irq;
+@@ -1290,20 +1304,6 @@ static int ds1307_probe(struct i2c_client *client,
+ 		ds1307->write_block_data = ds1307_write_block_data;
+ 	}
+ 
+-#ifdef CONFIG_OF
+-/*
+- * For devices with no IRQ directly connected to the SoC, the RTC chip
+- * can be forced as a wakeup source by stating that explicitly in
+- * the device's .dts file using the "wakeup-source" boolean property.
+- * If the "wakeup-source" property is set, don't request an IRQ.
+- * This will guarantee the 'wakealarm' sysfs entry is available on the device,
+- * if supported by the RTC.
+- */
+-	if (of_property_read_bool(client->dev.of_node, "wakeup-source")) {
+-		ds1307_can_wakeup_device = true;
+-	}
+-#endif
+-
+ 	switch (ds1307->type) {
+ 	case ds_1337:
+ 	case ds_1339:
+@@ -1357,7 +1357,7 @@ static int ds1307_probe(struct i2c_client *client,
+ 		ds1307->regs[0] &= ~(DS1337_BIT_A2IE | DS1337_BIT_A1IE);
+ 
+ 		if (chip->alarm && (ds1307->client->irq > 0 ||
+-				    ds1307_can_wakeup_device))
++				    ds1307_can_wakeup_device(ds1307)))
+ 			want_irq = true;
+ 
+ 		i2c_smbus_write_byte_data(client, DS1337_REG_CONTROL,
+@@ -1567,7 +1567,8 @@ read_rtc:
+ 		return PTR_ERR(ds1307->rtc);
+ 	}
+ 
+-	if (ds1307_can_wakeup_device && ds1307->client->irq <= 0) {
++	if (ds1307_can_wakeup_device(ds1307) &&
++	    ds1307->client->irq <= 0) {
+ 		/* Disable request for an IRQ */
+ 		want_irq = false;
+ 		dev_info(&client->dev, "'wakeup-source' is set, request for an IRQ is disabled!\n");
 -- 
-2.8.1
+2.5.5
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
