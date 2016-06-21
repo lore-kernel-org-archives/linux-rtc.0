@@ -1,36 +1,23 @@
-Return-Path: <rtc-linux+bncBCMILY6JWQBBB2OS7W5AKGQEPMK3QUQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBDKOBWPM5ABRBYOVUO5QKGQEM7SSM4Y@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 MIME-Version: 1.0
-Received: from wens.csie.org (mirror2.csie.ntu.edu.tw. [140.112.30.76])
-        by gmr-mx.google.com with ESMTPS id 62si2830170pfx.1.2016.06.13.19.18.17
+Received: from mail-pa0-x244.google.com (mail-pa0-x244.google.com. [2607:f8b0:400e:c03::244])
+        by gmr-mx.google.com with ESMTPS id 62si7278635pfx.1.2016.06.21.00.21.04
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 13 Jun 2016 19:18:17 -0700 (PDT)
-From: Chen-Yu Tsai <wens@csie.org>
-To: Mark Brown <broonie@kernel.org>,
-	Lee Jones <lee.jones@linaro.org>,
+        Tue, 21 Jun 2016 00:21:04 -0700 (PDT)
+Received: by mail-pa0-x244.google.com with SMTP id hf6so732601pac.2
+        for <rtc-linux@googlegroups.com>; Tue, 21 Jun 2016 00:21:04 -0700 (PDT)
+From: Andrey Smirnov <andrew.smirnov@gmail.com>
+To: rtc-linux@googlegroups.com
+Cc: Andrey Smirnov <andrew.smirnov@gmail.com>,
 	Alessandro Zummo <a.zummo@towertech.it>,
 	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Rob Herring <robh+dt@kernel.org>,
-	Pawel Moll <pawel.moll@arm.com>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Ian Campbell <ijc+devicetree@hellion.org.uk>,
-	Kumar Gala <galak@codeaurora.org>,
-	Maxime Ripard <maxime.ripard@free-electrons.com>,
-	Michael Turquette <mturquette@baylibre.com>,
-	Stephen Boyd <sboyd@codeaurora.org>
-Cc: Chen-Yu Tsai <wens@csie.org>,
-	rtc-linux@googlegroups.com,
 	linux-kernel@vger.kernel.org,
-	devicetree@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	linux-clk@vger.kernel.org
-Subject: [rtc-linux] [PATCH 06/10] ARM: dts: sun9i: a80-optimus: Add device
- node for AC100
-Date: Tue, 14 Jun 2016 10:17:54 +0800
-Message-Id: <1465870678-30128-8-git-send-email-wens@csie.org>
-In-Reply-To: <1465870678-30128-1-git-send-email-wens@csie.org>
-References: <1465870678-30128-1-git-send-email-wens@csie.org>
+	cphealy@gmail.com
+Subject: [rtc-linux] [PATCH v2 01/17] RTC: ds1307: Add DS1341 variant
+Date: Tue, 21 Jun 2016 00:20:50 -0700
+Message-Id: <1466493650-11509-1-git-send-email-andrew.smirnov@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -41,45 +28,57 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Signed-off-by: Chen-Yu Tsai <wens@csie.org>
+Signed-off-by: Andrey Smirnov <andrew.smirnov@gmail.com>
 ---
- arch/arm/boot/dts/sun9i-a80-optimus.dts | 21 +++++++++++++++++++++
- 1 file changed, 21 insertions(+)
+ drivers/rtc/rtc-ds1307.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/arch/arm/boot/dts/sun9i-a80-optimus.dts b/arch/arm/boot/dts/sun9i-a80-optimus.dts
-index 78fddd9152a5..24ef8e65a975 100644
---- a/arch/arm/boot/dts/sun9i-a80-optimus.dts
-+++ b/arch/arm/boot/dts/sun9i-a80-optimus.dts
-@@ -322,6 +322,27 @@
- 			};
- 		};
- 	};
-+
-+	ac100: codec@e89 {
-+		compatible = "x-powers,ac100";
-+		reg = <0xe89>;
-+
-+		ac100_codec: codec {
-+			compatible = "x-powers,ac100-codec";
-+			interrupt-parent = <&r_pio>;
-+			interrupts = <0 9 IRQ_TYPE_LEVEL_LOW>; /* PL9 */
-+		};
-+
-+		ac100_rtc: rtc {
-+			compatible = "x-powers,ac100-rtc";
-+			interrupt-parent = <&nmi_intc>;
-+			interrupts = <0 IRQ_TYPE_LEVEL_LOW>;
-+			#clock-cells = <1>;
-+			clock-output-names = "cko1_rtc",
-+					     "cko2_rtc",
-+					     "cko3_rtc";
-+		};
-+	};
- };
+diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
+index 821d9c0..7e65e2e 100644
+--- a/drivers/rtc/rtc-ds1307.c
++++ b/drivers/rtc/rtc-ds1307.c
+@@ -35,6 +35,7 @@ enum ds_type {
+ 	ds_1338,
+ 	ds_1339,
+ 	ds_1340,
++	ds_1341,
+ 	ds_1388,
+ 	ds_3231,
+ 	m41t00,
+@@ -178,6 +179,7 @@ static const struct i2c_device_id ds1307_id[] = {
+ 	{ "ds1337", ds_1337 },
+ 	{ "ds1338", ds_1338 },
+ 	{ "ds1339", ds_1339 },
++	{ "ds1341", ds_1341 },
+ 	{ "ds1388", ds_1388 },
+ 	{ "ds1340", ds_1340 },
+ 	{ "ds3231", ds_3231 },
+@@ -424,6 +426,7 @@ static int ds1307_set_time(struct device *dev, struct rtc_time *t)
+ 	case ds_1337:
+ 	case ds_1339:
+ 	case ds_3231:
++	case ds_1341:
+ 		buf[DS1307_REG_MONTH] |= DS1337_BIT_CENTURY;
+ 		break;
+ 	case ds_1340:
+@@ -1242,6 +1245,7 @@ static int ds1307_probe(struct i2c_client *client,
  
- #include "axp809.dtsi"
+ 	static const int	bbsqi_bitpos[] = {
+ 		[ds_1337] = 0,
++		[ds_1341] = 0,
+ 		[ds_1339] = DS1339_BIT_BBSQI,
+ 		[ds_3231] = DS3231_BIT_BBSQW,
+ 	};
+@@ -1301,6 +1305,7 @@ static int ds1307_probe(struct i2c_client *client,
+ 	case ds_1337:
+ 	case ds_1339:
+ 	case ds_3231:
++	case ds_1341:
+ 		/* get registers that the "rtc" read below won't read... */
+ 		tmp = ds1307->read_block_data(ds1307->client,
+ 				DS1337_REG_CONTROL, 2, buf);
 -- 
-2.8.1
+2.5.5
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
