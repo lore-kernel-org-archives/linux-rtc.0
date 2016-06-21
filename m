@@ -1,31 +1,27 @@
-Return-Path: <rtc-linux+bncBDAYD2P3QYGRBTXCT25QKGQEDYCXJ2Y@googlegroups.com>
+Return-Path: <rtc-linux+bncBDKOBWPM5ABRBX6WUO5QKGQEGH2RKFA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail-wm0-x235.google.com (mail-wm0-x235.google.com. [2a00:1450:400c:c09::235])
-        by gmr-mx.google.com with ESMTPS id f138si324531wmf.3.2016.06.20.02.03.10
+MIME-Version: 1.0
+Received: from mail-pa0-x241.google.com (mail-pa0-x241.google.com. [2607:f8b0:400e:c03::241])
+        by gmr-mx.google.com with ESMTPS id un17si5444521pab.0.2016.06.21.00.23.11
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 20 Jun 2016 02:03:10 -0700 (PDT)
-Received: by mail-wm0-x235.google.com with SMTP id r201so51510290wme.1
-        for <rtc-linux@googlegroups.com>; Mon, 20 Jun 2016 02:03:10 -0700 (PDT)
-Subject: [rtc-linux] Re: [PATCH 5/5] regulator: qcom_rpm-regulator: Add
- support for pm8018 rpm regulator
-To: Bjorn Andersson <bjorn.andersson@linaro.org>
-References: <1466158929-19524-1-git-send-email-narmstrong@baylibre.com>
- <1466158929-19524-6-git-send-email-narmstrong@baylibre.com>
- <20160617165352.GA1256@tuxbot>
-Cc: dmitry.torokhov@gmail.com, andy.gross@linaro.org, david.brown@linaro.org,
- lee.jones@linaro.org, lgirdwood@gmail.com, broonie@kernel.org,
- a.zummo@towertech.it, alexandre.belloni@free-electrons.com,
- linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-arm-msm@vger.kernel.org, linux-soc@vger.kernel.org,
- rtc-linux@googlegroups.com
-From: Neil Armstrong <narmstrong@baylibre.com>
-Message-ID: <5767B147.5000102@baylibre.com>
-Date: Mon, 20 Jun 2016 11:03:03 +0200
-MIME-Version: 1.0
-In-Reply-To: <20160617165352.GA1256@tuxbot>
-Content-Type: text/plain; charset=UTF-8
+        Tue, 21 Jun 2016 00:23:11 -0700 (PDT)
+Received: by mail-pa0-x241.google.com with SMTP id fg1so738933pad.3
+        for <rtc-linux@googlegroups.com>; Tue, 21 Jun 2016 00:23:11 -0700 (PDT)
+From: Andrey Smirnov <andrew.smirnov@gmail.com>
+To: rtc-linux@googlegroups.com
+Cc: Andrey Smirnov <andrew.smirnov@gmail.com>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	linux-kernel@vger.kernel.org,
+	cphealy@gmail.com
+Subject: [rtc-linux] [PATCH v2 15/17] RTC: rtctest: Change alarm IRQ support detection
+Date: Tue, 21 Jun 2016 00:22:48 -0700
+Message-Id: <1466493770-11895-14-git-send-email-andrew.smirnov@gmail.com>
+In-Reply-To: <1466493770-11895-1-git-send-email-andrew.smirnov@gmail.com>
+References: <1466493770-11895-1-git-send-email-andrew.smirnov@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -34,70 +30,88 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 06/17/2016 06:53 PM, Bjorn Andersson wrote:
-> On Fri 17 Jun 03:22 PDT 2016, Neil Armstrong wrote:
-> 
->> In order to support eh Qualcomm MDM9615 SoC, add support for the
->> PM8018 RPM regulator in the qcom_rpm-regulator driver.
->>
->> Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
-> [..]
->> diff --git a/drivers/regulator/qcom_rpm-regulator.c b/drivers/regulator/qcom_rpm-regulator.c
-> [..]
->> +/**
->> + * enum rpm_vreg_voltage_corner - possible voltage corner values
->> + *
->> + * These should be used in regulator_set_voltage and rpm_vreg_set_voltage calls
->> + * for corner type regulators as if they had units of uV.
->> + */
->> +enum rpm_vreg_voltage_corner {
->> +	RPM_VREG_CORNER_NONE = 1,
->> +	RPM_VREG_CORNER_LOW,
->> +	RPM_VREG_CORNER_NOMINAL,
->> +	RPM_VREG_CORNER_HIGH,
->> +};
->> +
->> +static struct regulator_linear_range corner_ranges[] = {
->> +	REGULATOR_LINEAR_RANGE(RPM_VREG_CORNER_NONE, 0,
->> +				RPM_VREG_CORNER_HIGH, 1),
->> +};
->> +
->>  static int rpm_reg_write(struct qcom_rpm_reg *vreg,
-> [..]
->> +
->> +static const struct qcom_rpm_reg pm8018_corner = {
->> +	.desc.linear_ranges = corner_ranges,
->> +	.desc.n_linear_ranges = ARRAY_SIZE(corner_ranges),
->> +	.desc.n_voltages = 4,
->> +	.desc.ops = &uV_ops,
->> +	.parts = &rpm8018_corner_parts,
->> +};
->> +
-> [..]
->> +static const struct rpm_regulator_data rpm_pm8018_regulators[] = {
-> [..]
->> +	{ "dig_corner", QCOM_RPM_VOLTAGE_CORNER, &pm8018_corner,
->> +						      "vdd_dig_corner" },
->> +
->> +	{ }
->> +};
-> 
-> We have discussed the corners for a long time and I think we've
-> concluded that they should be exposed as something like an OPP. What we
-> have agreed on is that they should not be exposed as a regulator with
-> voltages 1-4uV.
-> 
-> So please drop the corner for now.
+For old style drivers, call a call to ioctl(..., RTC_ALM_SET, ...):
 
-OK,
+    - char/ds1302.c will always return -EINVAL
+    - char/genrtc.c: will always return -EINVAL
+    - char/rtc.c will succeed regardless if IRQs are supported or not
+    - char/efirtc.c will always return -EINVAL
+    - input/misc/hp_sdc_rtc.c ... that ioctl code is a good lesson about
+      ifdefing code out and punting implementation ... and it will
+      always return -EINVAL
 
-Thanks,
-Neil
+For new style rtc drivers, a call to ioctl(..., RTC_ALM_SET, ...) never
+results in a call to __rtc_set_alarm, since struct rtc_wkalarm passed to
+rtc_set_alarm has 'enabled' field set to 0. This means that
+rtc->ops->set_alarm driver hook is never called in that ioctl. Since no
+driver code interaction happens as a part of that call, using its
+results to ascertain properties of the driver is not going to work. To
+remedy this - use the result of RTC_AIE_ON to make the judgement.
 
-> 
-> Regards,
-> Bjorn
-> 
+This patch also changes ENOTTY to EINVAL as a error code value that
+would tell us that IRQs are not supported. There are three reason for
+this:
+
+ - As mentioned above old style driver never retunr ENOTTY for this
+   ioctl
+
+ - In it's code __rtc_set_alarm() returns -EINVAL if rtc->ops->set_alarm
+   method is not provided by the driver, so one reason for change is to
+   be consistent with that code path.
+
+ - A call to ioctl(..., RTC_UIE_ON, ...) will result in a call to
+   rtc_update_irq_enable() and then __rtc_set_alarm(), which, if IRQs
+   are not supported by the driver, will result in a non-zero error
+   code. Returning ENOTTY in that case would:
+
+   	 a) Not be consistent with other codepaths of
+   	 rtc_update_irq_enable, for example the check of
+   	 rtc->uie_unsupported
+
+	 b) Would break update IRQ emulation code since that codpath
+	 expects EINVAL
+
+	 c) Would break test's logic for feature support detection in
+	 the case of RTC_UIE_ON ioctl
+
+Signed-off-by: Andrey Smirnov <andrew.smirnov@gmail.com>
+---
+ tools/testing/selftests/timers/rtctest.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
+
+diff --git a/tools/testing/selftests/timers/rtctest.c b/tools/testing/selftests/timers/rtctest.c
+index 624bce5..0cb4628 100644
+--- a/tools/testing/selftests/timers/rtctest.c
++++ b/tools/testing/selftests/timers/rtctest.c
+@@ -144,11 +144,12 @@ test_READ:
+ 
+ 	retval = ioctl(fd, RTC_ALM_SET, &rtc_tm);
+ 	if (retval == -1) {
+-		if (errno == ENOTTY) {
++		if (errno == EINVAL) {
+ 			fprintf(stderr,
+ 				"\n...Alarm IRQs not supported.\n");
+ 			goto test_PIE;
+ 		}
++
+ 		perror("RTC_ALM_SET ioctl");
+ 		exit(errno);
+ 	}
+@@ -166,6 +167,12 @@ test_READ:
+ 	/* Enable alarm interrupts */
+ 	retval = ioctl(fd, RTC_AIE_ON, 0);
+ 	if (retval == -1) {
++		if (errno == EINVAL) {
++			fprintf(stderr,
++				"\n...Alarm IRQs not supported.\n");
++			goto test_PIE;
++		}
++
+ 		perror("RTC_AIE_ON ioctl");
+ 		exit(errno);
+ 	}
+-- 
+2.5.5
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
