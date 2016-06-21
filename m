@@ -1,20 +1,22 @@
-Return-Path: <rtc-linux+bncBAABBQ6W4W5AKGQEDFQPAUA@googlegroups.com>
+Return-Path: <rtc-linux+bncBDKOBWPM5ABRB75FU65QKGQEKTKJHUA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from root.phytec.de (mail.visioncatalog.com. [217.6.246.34])
-        by gmr-mx.google.com with ESMTP id f69si291281wmf.3.2016.06.09.06.12.35
-        for <rtc-linux@googlegroups.com>;
-        Thu, 09 Jun 2016 06:12:35 -0700 (PDT)
-Subject: [rtc-linux] Re: [RESEND PATCH v5 1/5] mfd: RK808: Add RK818 support
-To: Lee Jones <lee.jones@linaro.org>
-References: <1464850228-17244-1-git-send-email-w.egorov@phytec.de>
- <20160608141735.GE14888@dell> <5759277D.7090101@phytec.de>
- <20160609111201.GA1388@dell>
-Cc: linux-kernel@vger.kernel.org, linux-clk@vger.kernel.org, rtc-linux@googlegroups.com, devicetree@vger.kernel.org, linux-rockchip@lists.infradead.org, robh+dt@kernel.org, pawel.moll@arm.com, mark.rutland@arm.com, ijc+devicetree@hellion.org.uk, galak@codeaurora.org, mturquette@baylibre.com, sboyd@codeaurora.org, lgirdwood@gmail.com, broonie@kernel.org, a.zummo@towertech.it, alexandre.belloni@free-electrons.com, dianders@chromium.org, zyw@rock-chips.com
-From: Wadim Egorov <w.egorov@phytec.de>
-Message-ID: <57596B1C.2010101@phytec.de>
-Date: Thu, 9 Jun 2016 15:11:56 +0200
+Received: from mail-yw0-x232.google.com (mail-yw0-x232.google.com. [2607:f8b0:4002:c05::232])
+        by gmr-mx.google.com with ESMTPS id c2si3970177ywf.5.2016.06.21.16.51.27
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 21 Jun 2016 16:51:27 -0700 (PDT)
+Received: by mail-yw0-x232.google.com with SMTP id i12so28002613ywa.1
+        for <rtc-linux@googlegroups.com>; Tue, 21 Jun 2016 16:51:27 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <20160609111201.GA1388@dell>
+In-Reply-To: <20160621213219.GC5809@piout.net>
+References: <1466493519-11277-1-git-send-email-andrew.smirnov@gmail.com> <20160621213219.GC5809@piout.net>
+From: Andrey Smirnov <andrew.smirnov@gmail.com>
+Date: Tue, 21 Jun 2016 16:51:26 -0700
+Message-ID: <CAHQ1cqHyw8BXxpMVRmFTUP9HUy6TAau48wZc3=XJB8ZexuVkjw@mail.gmail.com>
+Subject: [rtc-linux] Re: [PATCH v2 00/17] DS1341 support and code cleanup
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: rtc-linux@googlegroups.com, Alessandro Zummo <a.zummo@towertech.it>,
+	linux-kernel@vger.kernel.org, Chris Healy <cphealy@gmail.com>
 Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
@@ -25,56 +27,34 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-
-
-On 09.06.2016 13:12, Lee Jones wrote:
-> On Thu, 09 Jun 2016, Wadim Egorov wrote:
->> On 08.06.2016 16:17, Lee Jones wrote:
->>> On Thu, 02 Jun 2016, Wadim Egorov wrote:
->>>
->>>> The RK818 chip is a power management IC for multimedia and handheld
->>> "Power Management IC (PMIC)"
->>>
->>>> devices. It contains the following components:
->>>>
->>>> - Regulators
->>>> - RTC
->>>> - Clkout
->>> Clocking
->>>
->>>> - battery support
->>> Battery support
->>>
->>>> Both chips RK808 and RK818 are using a similar register map.
->>> "Both RK808 ad RK818 chips"
->>>
->>>> So we can reuse the RTC and Clkout functionality.
->>> Swap '.' for ','.
->>>
->>>> Signed-off-by: Wadim Egorov <w.egorov@phytec.de>
->>>> ---
->>>>  drivers/mfd/Kconfig       |   4 +-
->>>>  drivers/mfd/rk808.c       | 231 ++++++++++++++++++++++++++++++++++++++--------
->>>>  include/linux/mfd/rk808.h | 162 ++++++++++++++++++++++++++++++--
->>>>  3 files changed, 350 insertions(+), 47 deletions(-)
-> [...]
+>>
+>> Andrey Smirnov (17):
+>>   RTC: ds1307: Add DS1341 variant
+>>   RTC: ds1307: Disable square wave and timers as default
+>>   RTC: ds1307: Add devicetree bindings for DS1341
+>>   RTC: ds1307: Add DS1341 specific power-saving options
+>>   RTC: ds1307: Convert ds1307_can_wakeup_device into a predicate
+>>   RTC: ds1307: Convert want_irq into a predicate
 >
->>>> -struct rk808_reg_data {
->>>> -	int addr;
->>>> -	int mask;
->>>> -	int value;
->>>> -};
->>> Why are you moving this to the header?
->> It is now part of the rk808 struct.
-> Why?
->
-For me it seemed reasonable. My idea was to have only one chip variant
-check.
+> I'll have to triple check that one, it breaks in thousand different
+> ways, every time someone touches that code :)
 
-I can move the rk808_reg_data struct back to the c file, check for the
-chip variant within the probe function and initialize the proper
-reg_data variable.
-This would also apply to the mfd_cell variables.
+Wouldn't you agree that this might be an indication that the code is a
+bit convoluted and some cleanup is in order? ;-)
+
+>
+>>   RTC: ds1307: Move chip configuration into a separate routine
+>>   RTC: ds1307: Move chip sanity checking into a separate routine
+>
+> I'm not sure about the cleanup in those two patches yet, It moves a lot
+> of code and the readability improvement is not obvious
+
+OK, I agree that this patch moves a lot of code, and can't really
+argue with "not obvious" since that is subjective. Please let me know
+what you decide and I'll change v3 appropriately.
+
+Thanks,
+Andrey
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
