@@ -1,22 +1,27 @@
-Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBV7FZK5AKGQEY4UVQJQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBDKOBWPM5ABRBXGWUO5QKGQEBLZ6N5I@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id j140si153404wmf.1.2016.06.04.03.52.06
-        for <rtc-linux@googlegroups.com>;
-        Sat, 04 Jun 2016 03:52:06 -0700 (PDT)
-Date: Sat, 4 Jun 2016 12:52:03 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: linux-kernel@vger.kernel.org, Jiri Kosina <jikos@kernel.org>,
-	rtc-linux@googlegroups.com, "David S. Miller" <davem@davemloft.net>,
-	sparclinux@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH] sparc32: remove stale RTC_PORT definition
-Message-ID: <20160604105203.GH4594@piout.net>
-References: <1465033041-2512569-1-git-send-email-arnd@arndb.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1465033041-2512569-1-git-send-email-arnd@arndb.de>
+Received: from mail-pf0-x242.google.com (mail-pf0-x242.google.com. [2607:f8b0:400e:c00::242])
+        by gmr-mx.google.com with ESMTPS id po17si907888pab.2.2016.06.21.00.23.08
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 21 Jun 2016 00:23:08 -0700 (PDT)
+Received: by mail-pf0-x242.google.com with SMTP id c74so763755pfb.0
+        for <rtc-linux@googlegroups.com>; Tue, 21 Jun 2016 00:23:08 -0700 (PDT)
+From: Andrey Smirnov <andrew.smirnov@gmail.com>
+To: rtc-linux@googlegroups.com
+Cc: Andrey Smirnov <andrew.smirnov@gmail.com>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	linux-kernel@vger.kernel.org,
+	cphealy@gmail.com
+Subject: [rtc-linux] [PATCH v2 11/17] RTC: ds1307: Convert goto to a loop
+Date: Tue, 21 Jun 2016 00:22:44 -0700
+Message-Id: <1466493770-11895-10-git-send-email-andrew.smirnov@gmail.com>
+In-Reply-To: <1466493770-11895-1-git-send-email-andrew.smirnov@gmail.com>
+References: <1466493770-11895-1-git-send-email-andrew.smirnov@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -25,45 +30,191 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 04/06/2016 at 11:36:44 +0200, Arnd Bergmann wrote :
-> sparc32:allmodconfig fails to build in next-20160602 as follows.
-> 
-> In file included from drivers/block/floppy.c:185:0:
-> include/linux/mc146818rtc.h: In function 'mc146818_is_updating':
-> include/linux/mc146818rtc.h:138:9: error: 'rtc_port' undeclared (first use in this function)
-> include/linux/mc146818rtc.h:138:9: note: each undeclared identifier is reported only once for each function it appears in
-> include/linux/mc146818rtc.h: In function 'mc146818_get_time':
-> include/linux/mc146818rtc.h:172:17: error: 'rtc_port' undeclared (first use in this function)
-> include/linux/mc146818rtc.h: In function 'mc146818_set_time':
-> include/linux/mc146818rtc.h:278:8: error: 'rtc_port' undeclared (first use in this function)
-> scripts/Makefile.build:295: recipe for target 'drivers/block/floppy.o' failed
-> 
-> The reason is a duplicate definition of the RTC_PORT macro. The
-> one in arch/sparc/include/asm/io_32.h was apparently used a long time
-> ago for the drivers/char/rtc.c driver that is not available on SPARC
-> any more, since we now select 'RTC_CLASS' unconditionally.
-> 
-> Removing the macro fixes the build problem, and for consistency,
-> this also removes the RTC_ALWAYS_BCD macro and the comment for both.
-> 
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-> Reported-by: Guenter Roeck <linux@roeck-us.net>
-> Fixes: fd09cc80165c ("rtc: cmos: move mc146818rtc code out of asm-generic/rtc.h")
-> ---
-> I thought I'd sent this out yesterday, but cannot find an indication of
-> that now, and Alexandre didn't seem to get it. This should probably
-> go through the rtc tree that introduced the build failure after my
-> earlier patches
-> 
->  arch/sparc/include/asm/io_32.h | 10 ----------
->  1 file changed, 10 deletions(-)
-> 
-Applied, thanks.
+Convert goto to a loop and set a hard upper limit on the number of times
+driver would try to make RTC work (as opposed to having an infinite
+retry loop).
 
+Signed-off-by: Andrey Smirnov <andrew.smirnov@gmail.com>
+---
+ drivers/rtc/rtc-ds1307.c | 151 +++++++++++++++++++++++++----------------------
+ 1 file changed, 82 insertions(+), 69 deletions(-)
+
+diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
+index 67907f1..cbbe9f0 100644
+--- a/drivers/rtc/rtc-ds1307.c
++++ b/drivers/rtc/rtc-ds1307.c
+@@ -1424,87 +1424,100 @@ static int ds1307_chip_configure(const struct ds1307 *ds1307)
+ 
+ static int ds1307_chip_sanity_check(const struct ds1307 *ds1307)
+ {
+-	int tmp;
++	int tmp, retries;
+ 	u8  regs[DS1307_REG_COUNT];
+ 	struct i2c_client *client = ds1307->client;
+ 
+-read_rtc:
+-	/* read RTC registers */
+-	tmp = ds1307->read_block_data(ds1307->client, ds1307->offset, 8, regs);
+-	if (tmp != 8) {
+-		dev_dbg(&client->dev, "read error %d\n", tmp);
+-		return -EIO;
+-	}
+-
+-	/*
+-	 * minimal sanity checking; some chips (like DS1340) don't
+-	 * specify the extra bits as must-be-zero, but there are
+-	 * still a few values that are clearly out-of-range.
+-	 */
+-	tmp = regs[DS1307_REG_SECS];
+-	switch (ds1307->type) {
+-	case ds_1307:
+-	case m41t00:
+-		/* clock halted?  turn it on, so clock can tick. */
+-		if (tmp & DS1307_BIT_CH) {
+-			i2c_smbus_write_byte_data(client, DS1307_REG_SECS, 0);
+-			dev_warn(&client->dev, "SET TIME!\n");
+-			goto read_rtc;
+-		}
+-		break;
+-	case ds_1338:
+-		/* clock halted?  turn it on, so clock can tick. */
+-		if (tmp & DS1307_BIT_CH)
+-			i2c_smbus_write_byte_data(client, DS1307_REG_SECS, 0);
+-
+-		/* oscillator fault?  clear flag, and warn */
+-		if (regs[DS1307_REG_CONTROL] & DS1338_BIT_OSF) {
+-			i2c_smbus_write_byte_data(client, DS1307_REG_CONTROL,
+-					regs[DS1307_REG_CONTROL]
+-					& ~DS1338_BIT_OSF);
+-			dev_warn(&client->dev, "SET TIME!\n");
+-			goto read_rtc;
+-		}
+-		break;
+-	case ds_1340:
+-		/* clock halted?  turn it on, so clock can tick. */
+-		if (tmp & DS1340_BIT_nEOSC)
+-			i2c_smbus_write_byte_data(client, DS1307_REG_SECS, 0);
+-
+-		tmp = i2c_smbus_read_byte_data(client, DS1340_REG_FLAG);
+-		if (tmp < 0) {
++	for (retries = 0; retries < 5; retries++) {
++		/* read RTC registers */
++		tmp = ds1307->read_block_data(ds1307->client,
++					      ds1307->offset, 8, regs);
++		if (tmp != 8) {
+ 			dev_dbg(&client->dev, "read error %d\n", tmp);
+ 			return -EIO;
+ 		}
+ 
+-		/* oscillator fault?  clear flag, and warn */
+-		if (tmp & DS1340_BIT_OSF) {
+-			i2c_smbus_write_byte_data(client, DS1340_REG_FLAG, 0);
+-			dev_warn(&client->dev, "SET TIME!\n");
+-		}
+-		break;
+-	case mcp794xx:
+-		/* make sure that the backup battery is enabled */
+-		if (!(regs[DS1307_REG_WDAY] & MCP794XX_BIT_VBATEN)) {
+-			i2c_smbus_write_byte_data(client, DS1307_REG_WDAY,
+-					regs[DS1307_REG_WDAY]
+-					| MCP794XX_BIT_VBATEN);
+-		}
++		/*
++		 * minimal sanity checking; some chips (like DS1340)
++		 * don't specify the extra bits as must-be-zero, but
++		 * there are still a few values that are clearly
++		 * out-of-range.
++		 */
++		tmp = regs[DS1307_REG_SECS];
++		switch (ds1307->type) {
++		case ds_1307:
++		case m41t00:
++			/* clock halted?  turn it on, so clock can tick. */
++			if (tmp & DS1307_BIT_CH) {
++				i2c_smbus_write_byte_data(client,
++							  DS1307_REG_SECS, 0);
++				dev_warn(&client->dev, "SET TIME!\n");
++				continue;
++			}
++			break;
++		case ds_1338:
++			/* clock halted?  turn it on, so clock can tick. */
++			if (tmp & DS1307_BIT_CH)
++				i2c_smbus_write_byte_data(client,
++							  DS1307_REG_SECS, 0);
++
++			/* oscillator fault?  clear flag, and warn */
++			if (regs[DS1307_REG_CONTROL] & DS1338_BIT_OSF) {
++				i2c_smbus_write_byte_data(client,
++							  DS1307_REG_CONTROL,
++							  regs[DS1307_REG_CONTROL]
++							  & ~DS1338_BIT_OSF);
++				dev_warn(&client->dev, "SET TIME!\n");
++				continue;
++			}
++			break;
++		case ds_1340:
++			/* clock halted?  turn it on, so clock can tick. */
++			if (tmp & DS1340_BIT_nEOSC)
++				i2c_smbus_write_byte_data(client,
++							  DS1307_REG_SECS, 0);
++
++			tmp = i2c_smbus_read_byte_data(client, DS1340_REG_FLAG);
++			if (tmp < 0) {
++				dev_dbg(&client->dev, "read error %d\n", tmp);
++				return -EIO;
++			}
++
++			/* oscillator fault?  clear flag, and warn */
++			if (tmp & DS1340_BIT_OSF) {
++				i2c_smbus_write_byte_data(client,
++							  DS1340_REG_FLAG, 0);
++				dev_warn(&client->dev, "SET TIME!\n");
++			}
++			return 0;
+ 
+-		/* clock halted?  turn it on, so clock can tick. */
+-		if (!(tmp & MCP794XX_BIT_ST)) {
+-			i2c_smbus_write_byte_data(client, DS1307_REG_SECS,
+-					MCP794XX_BIT_ST);
+-			dev_warn(&client->dev, "SET TIME!\n");
+-			goto read_rtc;
++		case mcp794xx:
++			/* make sure that the backup battery is enabled */
++			if (!(regs[DS1307_REG_WDAY] & MCP794XX_BIT_VBATEN)) {
++				i2c_smbus_write_byte_data(client,
++							  DS1307_REG_WDAY,
++							  regs[DS1307_REG_WDAY]
++							  | MCP794XX_BIT_VBATEN);
++			}
++
++			/* clock halted?  turn it on, so clock can tick. */
++			if (!(tmp & MCP794XX_BIT_ST)) {
++				i2c_smbus_write_byte_data(client,
++							  DS1307_REG_SECS,
++							  MCP794XX_BIT_ST);
++				dev_warn(&client->dev, "SET TIME!\n");
++				continue;
++			}
++
++			break;
++		default:
++			break;
+ 		}
+ 
+-		break;
+-	default:
+-		break;
++		return 0;
+ 	}
+ 
+-	return 0;
++	return -EIO;
+ }
+ 
+ static int ds1307_probe(struct i2c_client *client,
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+2.5.5
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
