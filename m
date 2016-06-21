@@ -1,29 +1,37 @@
-Return-Path: <rtc-linux+bncBC2JZN6WSAHRBYGBVC5QKGQELPQWR2Q@googlegroups.com>
+Return-Path: <rtc-linux+bncBDI57DN47YOBB74RUO5QKGQEJGGXTFQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail-pf0-x22e.google.com (mail-pf0-x22e.google.com. [2607:f8b0:400e:c00::22e])
-        by gmr-mx.google.com with ESMTPS id c11si6793697pfc.2.2016.06.21.22.23.44
+MIME-Version: 1.0
+Received: from mail-qk0-f172.google.com (mail-qk0-f172.google.com. [209.85.220.172])
+        by gmr-mx.google.com with ESMTPS id c2si3710683ywf.5.2016.06.20.21.56.30
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 21 Jun 2016 22:23:44 -0700 (PDT)
-Received: by mail-pf0-x22e.google.com with SMTP id i123so13921054pfg.0
-        for <rtc-linux@googlegroups.com>; Tue, 21 Jun 2016 22:23:44 -0700 (PDT)
-Date: Tue, 21 Jun 2016 22:23:40 -0700
-From: Bjorn Andersson <bjorn.andersson@linaro.org>
-To: Neil Armstrong <narmstrong@baylibre.com>
-Cc: linus.walleij@linaro.org, dmitry.torokhov@gmail.com,
-	andy.gross@linaro.org, david.brown@linaro.org, lee.jones@linaro.org,
-	lgirdwood@gmail.com, broonie@kernel.org, a.zummo@towertech.it,
-	alexandre.belloni@free-electrons.com, linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org,
-	linux-soc@vger.kernel.org, rtc-linux@googlegroups.com
-Subject: [rtc-linux] Re: [PATCH 4/5] mfd: qcom-rpm: Add support for pm8018 RPM Regulator
-Message-ID: <20160622052340.GI1256@tuxbot>
-References: <1466158929-19524-1-git-send-email-narmstrong@baylibre.com>
- <1466158929-19524-5-git-send-email-narmstrong@baylibre.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1466158929-19524-5-git-send-email-narmstrong@baylibre.com>
+        Mon, 20 Jun 2016 21:56:30 -0700 (PDT)
+Received: by mail-qk0-f172.google.com with SMTP id t127so6442780qkf.1
+        for <rtc-linux@googlegroups.com>; Mon, 20 Jun 2016 21:56:30 -0700 (PDT)
+From: Pratyush Anand <panand@redhat.com>
+To: mingo@kernel.org,
+	alexandre.belloni@free-electrons.com
+Cc: rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org,
+	prarit@redhat.com,
+	Pratyush Anand <panand@redhat.com>,
+	Andy Lutomirski <luto@kernel.org>,
+	Borislav Petkov <bp@suse.de>,
+	"H. Peter Anvin" <hpa@zytor.com>,
+	Ingo Molnar <mingo@redhat.com>,
+	Jan Beulich <JBeulich@suse.com>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Viresh Kumar <viresh.kumar@linaro.org>,
+	x86@kernel.org (maintainer:X86 ARCHITECTURE (32-BIT AND 64-BIT))
+Subject: [rtc-linux] [PATCH RFC 1/2] rtc/hpet: Factorize hpet_rtc_timer_init()
+Date: Tue, 21 Jun 2016 10:25:35 +0530
+Message-Id: <076fc9f526af98a2ce7e68897378213271d40519.1466484019.git.panand@redhat.com>
+In-Reply-To: <cover.1466484019.git.panand@redhat.com>
+References: <cover.1466484019.git.panand@redhat.com>
+In-Reply-To: <cover.1466484019.git.panand@redhat.com>
+References: <cover.1466484019.git.panand@redhat.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -32,79 +40,98 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Fri 17 Jun 03:22 PDT 2016, Neil Armstrong wrote:
+This patch factorize hpet_rtc_timer_init(), so that counter can be
+initialized before irq is registered.
 
-[..]
-> diff --git a/drivers/mfd/qcom_rpm.c b/drivers/mfd/qcom_rpm.c
-[..]
-> +
-> +static const struct qcom_rpm_data mdm9615_template = {
-> +	.version = 3,
-> +	.resource_table = mdm9615_rpm_resource_table,
-> +	.n_resources = ARRAY_SIZE(mdm9615_rpm_resource_table),
-> +};
+Signed-off-by: Pratyush Anand <panand@redhat.com>
+---
+ arch/x86/include/asm/hpet.h |  2 ++
+ arch/x86/kernel/hpet.c      | 41 +++++++++++++++++++++++++++++++++++------
+ 2 files changed, 37 insertions(+), 6 deletions(-)
 
-Please see:
-https://patchwork.kernel.org/patch/9177159/
-
-You should set the new .sel_size to 4 here, please either rebase ontop
-of Linus patch or send an update after both are merged.
-
-> +
->  static const struct of_device_id qcom_rpm_of_match[] = {
->  	{ .compatible = "qcom,rpm-apq8064", .data = &apq8064_template },
->  	{ .compatible = "qcom,rpm-msm8660", .data = &msm8660_template },
->  	{ .compatible = "qcom,rpm-msm8960", .data = &msm8960_template },
->  	{ .compatible = "qcom,rpm-ipq8064", .data = &ipq806x_template },
-> +	{ .compatible = "qcom,rpm-mdm9615", .data = &mdm9615_template },
->  	{ }
->  };
->  MODULE_DEVICE_TABLE(of, qcom_rpm_of_match);
-> diff --git a/include/dt-bindings/mfd/qcom-rpm.h b/include/dt-bindings/mfd/qcom-rpm.h
-> index 13a9d4b..db85912 100644
-> --- a/include/dt-bindings/mfd/qcom-rpm.h
-> +++ b/include/dt-bindings/mfd/qcom-rpm.h
-> @@ -148,6 +148,29 @@
->  #define QCOM_RPM_SMB208_S2a			138
->  #define QCOM_RPM_SMB208_S2b			139
->  
-> +#define QCOM_RPM_PM8018_SMPS1			200
-
-These numbers are a logical identifier and as such you shouldn't skip
-140-199.
-
-> +#define QCOM_RPM_PM8018_SMPS2			201
-> +#define QCOM_RPM_PM8018_SMPS3			202
-> +#define QCOM_RPM_PM8018_SMPS4			203
-> +#define QCOM_RPM_PM8018_SMPS5			204
-> +#define QCOM_RPM_PM8018_LDO1			205
-> +#define QCOM_RPM_PM8018_LDO2			206
-> +#define QCOM_RPM_PM8018_LDO3			207
-> +#define QCOM_RPM_PM8018_LDO4			208
-> +#define QCOM_RPM_PM8018_LDO5			209
-> +#define QCOM_RPM_PM8018_LDO6			210
-> +#define QCOM_RPM_PM8018_LDO7			211
-> +#define QCOM_RPM_PM8018_LDO8			212
-> +#define QCOM_RPM_PM8018_LDO9			213
-> +#define QCOM_RPM_PM8018_LDO10			214
-> +#define QCOM_RPM_PM8018_LDO11			215
-> +#define QCOM_RPM_PM8018_LDO12			216
-> +#define QCOM_RPM_PM8018_LDO13			217
-> +#define QCOM_RPM_PM8018_LDO14			218
-> +#define QCOM_RPM_PM8018_LVS1			219
-> +#define QCOM_RPM_NCP				220
-
-We already have PM8921_NCP and PM8058_NCP, so better make this
-QCOM_RPM_PM8018_NCP for consistency.
-
-> +#define QCOM_RPM_VOLTAGE_CORNER			221
-> +
-
-Other then these details
-Acked-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-
-Regards,
-Bjorn
+diff --git a/arch/x86/include/asm/hpet.h b/arch/x86/include/asm/hpet.h
+index cc285ec4b2c1..8eecb31bebcb 100644
+--- a/arch/x86/include/asm/hpet.h
++++ b/arch/x86/include/asm/hpet.h
+@@ -96,6 +96,8 @@ extern int hpet_set_alarm_time(unsigned char hrs, unsigned char min,
+ 			       unsigned char sec);
+ extern int hpet_set_periodic_freq(unsigned long freq);
+ extern int hpet_rtc_dropped_irq(void);
++extern int hpet_rtc_timer_counter_init(void);
++extern int hpet_rtc_timer_enable(void);
+ extern int hpet_rtc_timer_init(void);
+ extern irqreturn_t hpet_rtc_interrupt(int irq, void *dev_id);
+ extern int hpet_register_irq_handler(rtc_irq_handler handler);
+diff --git a/arch/x86/kernel/hpet.c b/arch/x86/kernel/hpet.c
+index f112af7aa62e..cd5153126958 100644
+--- a/arch/x86/kernel/hpet.c
++++ b/arch/x86/kernel/hpet.c
+@@ -1076,14 +1076,12 @@ void hpet_unregister_irq_handler(rtc_irq_handler handler)
+ EXPORT_SYMBOL_GPL(hpet_unregister_irq_handler);
+ 
+ /*
+- * Timer 1 for RTC emulation. We use one shot mode, as periodic mode
+- * is not supported by all HPET implementations for timer 1.
+- *
+- * hpet_rtc_timer_init() is called when the rtc is initialized.
++ * hpet_rtc_timer_counter_init() is called before interrupt can be
++ * registered
+  */
+-int hpet_rtc_timer_init(void)
++int hpet_rtc_timer_counter_init(void)
+ {
+-	unsigned int cfg, cnt, delta;
++	unsigned int cnt, delta;
+ 	unsigned long flags;
+ 
+ 	if (!is_hpet_enabled())
+@@ -1108,6 +1106,22 @@ int hpet_rtc_timer_init(void)
+ 	hpet_writel(cnt, HPET_T1_CMP);
+ 	hpet_t1_cmp = cnt;
+ 
++	local_irq_restore(flags);
++
++	return 1;
++}
++EXPORT_SYMBOL_GPL(hpet_rtc_timer_counter_init);
++
++/*
++ * hpet_rtc_timer_enable() is called during RTC initialization
++ */
++int hpet_rtc_timer_enable(void)
++{
++	unsigned int cfg;
++	unsigned long flags;
++
++	local_irq_save(flags);
++
+ 	cfg = hpet_readl(HPET_T1_CFG);
+ 	cfg &= ~HPET_TN_PERIODIC;
+ 	cfg |= HPET_TN_ENABLE | HPET_TN_32BIT;
+@@ -1117,6 +1131,21 @@ int hpet_rtc_timer_init(void)
+ 
+ 	return 1;
+ }
++EXPORT_SYMBOL_GPL(hpet_rtc_timer_enable);
++
++/*
++ * Timer 1 for RTC emulation. We use one shot mode, as periodic mode
++ * is not supported by all HPET implementations for timer 1.
++ *
++ * hpet_rtc_timer_init() is called when the rtc is initialized.
++ */
++int hpet_rtc_timer_init(void)
++{
++	if (!hpet_rtc_timer_counter_init())
++		return 0;
++
++	return hpet_rtc_timer_enable();
++}
+ EXPORT_SYMBOL_GPL(hpet_rtc_timer_init);
+ 
+ static void hpet_disable_rtc_channel(void)
+-- 
+2.5.5
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
