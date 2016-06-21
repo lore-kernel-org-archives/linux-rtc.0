@@ -1,34 +1,22 @@
-Return-Path: <rtc-linux+bncBDA7X7F2WUEBBEMW425AKGQEHQPKYXI@googlegroups.com>
+Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBH7AU25QKGQE35GH3DA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail-wm0-x22a.google.com (mail-wm0-x22a.google.com. [2a00:1450:400c:c09::22a])
-        by gmr-mx.google.com with ESMTPS id f10si158336wmg.2.2016.06.09.08.28.17
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 09 Jun 2016 08:28:17 -0700 (PDT)
-Received: by mail-wm0-x22a.google.com with SMTP id m124so58732946wme.1
-        for <rtc-linux@googlegroups.com>; Thu, 09 Jun 2016 08:28:17 -0700 (PDT)
-Date: Thu, 9 Jun 2016 16:28:52 +0100
-From: Lee Jones <lee.jones@linaro.org>
-To: Wadim Egorov <w.egorov@phytec.de>
-Cc: linux-kernel@vger.kernel.org, linux-clk@vger.kernel.org,
-	rtc-linux@googlegroups.com, devicetree@vger.kernel.org,
-	linux-rockchip@lists.infradead.org, robh+dt@kernel.org,
-	pawel.moll@arm.com, mark.rutland@arm.com,
-	ijc+devicetree@hellion.org.uk, galak@codeaurora.org,
-	mturquette@baylibre.com, sboyd@codeaurora.org, lgirdwood@gmail.com,
-	broonie@kernel.org, a.zummo@towertech.it,
-	alexandre.belloni@free-electrons.com, dianders@chromium.org,
-	zyw@rock-chips.com
-Subject: [rtc-linux] Re: [RESEND PATCH v5 1/5] mfd: RK808: Add RK818 support
-Message-ID: <20160609152852.GA5438@dell>
-References: <1464850228-17244-1-git-send-email-w.egorov@phytec.de>
- <20160608141735.GE14888@dell>
- <5759277D.7090101@phytec.de>
- <20160609111201.GA1388@dell>
- <57596B1C.2010101@phytec.de>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id f4si207768wmg.0.2016.06.21.14.22.39
+        for <rtc-linux@googlegroups.com>;
+        Tue, 21 Jun 2016 14:22:39 -0700 (PDT)
+Date: Tue, 21 Jun 2016 23:22:38 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Andrey Smirnov <andrew.smirnov@gmail.com>
+Cc: rtc-linux@googlegroups.com, Alessandro Zummo <a.zummo@towertech.it>,
+	linux-kernel@vger.kernel.org, cphealy@gmail.com
+Subject: [rtc-linux] Re: [PATCH v2 13/17] RTC: ds1307: Report oscillator
+ problems more intelligently
+Message-ID: <20160621212238.GA5809@piout.net>
+References: <1466493770-11895-1-git-send-email-andrew.smirnov@gmail.com>
+ <1466493770-11895-12-git-send-email-andrew.smirnov@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <57596B1C.2010101@phytec.de>
+In-Reply-To: <1466493770-11895-12-git-send-email-andrew.smirnov@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -38,79 +26,117 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Thu, 09 Jun 2016, Wadim Egorov wrote:
+On 21/06/2016 at 00:22:46 -0700, Andrey Smirnov wrote :
+> Report oscillator problems more intelligently, by printing more
+> information about what cause the issue and not yelling "SET TIME!" at
+> the user.
+> 
 
->=20
->=20
-> On 09.06.2016 13:12, Lee Jones wrote:
-> > On Thu, 09 Jun 2016, Wadim Egorov wrote:
-> >> On 08.06.2016 16:17, Lee Jones wrote:
-> >>> On Thu, 02 Jun 2016, Wadim Egorov wrote:
-> >>>
-> >>>> The RK818 chip is a power management IC for multimedia and handheld
-> >>> "Power Management IC (PMIC)"
-> >>>
-> >>>> devices. It contains the following components:
-> >>>>
-> >>>> - Regulators
-> >>>> - RTC
-> >>>> - Clkout
-> >>> Clocking
-> >>>
-> >>>> - battery support
-> >>> Battery support
-> >>>
-> >>>> Both chips RK808 and RK818 are using a similar register map.
-> >>> "Both RK808 ad RK818 chips"
-> >>>
-> >>>> So we can reuse the RTC and Clkout functionality.
-> >>> Swap '.' for ','.
-> >>>
-> >>>> Signed-off-by: Wadim Egorov <w.egorov@phytec.de>
-> >>>> ---
-> >>>>  drivers/mfd/Kconfig       |   4 +-
-> >>>>  drivers/mfd/rk808.c       | 231 +++++++++++++++++++++++++++++++++++=
-+++--------
-> >>>>  include/linux/mfd/rk808.h | 162 ++++++++++++++++++++++++++++++--
-> >>>>  3 files changed, 350 insertions(+), 47 deletions(-)
-> > [...]
-> >
-> >>>> -struct rk808_reg_data {
-> >>>> -	int addr;
-> >>>> -	int mask;
-> >>>> -	int value;
-> >>>> -};
-> >>> Why are you moving this to the header?
-> >> It is now part of the rk808 struct.
-> > Why?
-> >
-> For me it seemed reasonable. My idea was to have only one chip variant
-> check.
->=20
-> I can move the rk808_reg_data struct back to the c file, check for the
-> chip variant within the probe function and initialize the proper
-> reg_data variable.
-> This would also apply to the mfd_cell variables.
+Well, the proper way of doing that is to ensure that -EINVAL is returned
+when reading the time until it has been set once instead of starting the
+oscillator and forgetting about that useful information.
 
-'struct rk808' should only contain information you wish to share with
-your subordinate/child devices.  Any data only used in the parent/MFD
-driver should be declared, initialised and used only the latter.  No
-need to export.
+> Signed-off-by: Andrey Smirnov <andrew.smirnov@gmail.com>
+> ---
+>  drivers/rtc/rtc-ds1307.c | 28 +++++++++++++++++++++++-----
+>  1 file changed, 23 insertions(+), 5 deletions(-)
+> 
+> diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
+> index 2af9c00..2169e5b 100644
+> --- a/drivers/rtc/rtc-ds1307.c
+> +++ b/drivers/rtc/rtc-ds1307.c
+> @@ -1424,6 +1424,19 @@ static int ds1307_chip_configure(const struct ds1307 *ds1307)
+>  	return 0;
+>  }
+>  
+> +static void ds1307_report_clock_halt(const struct ds1307 *ds1307)
+> +{
+> +	dev_warn(&ds1307->client->dev, "RTC's oscillator is turned off. "
+> +		 "Turning it on. Please set time");
+> +}
+> +
+> +static void ds1307_report_oscillator_fault(const struct ds1307 *ds1307)
+> +{
+> +	dev_warn(&ds1307->client->dev, "RTC's reported oscillator fault. "
+> +		 "Clearing the fault flag and re-reading RTC status. "
+> +		 "Please set time");
+> +}
+> +
+>  static int ds1307_chip_sanity_check(const struct ds1307 *ds1307)
+>  {
+>  	int tmp, retries;
+> @@ -1453,7 +1466,7 @@ static int ds1307_chip_sanity_check(const struct ds1307 *ds1307)
+>  			if (tmp & DS1307_BIT_CH) {
+>  				i2c_smbus_write_byte_data(client,
+>  							  DS1307_REG_SECS, 0);
+> -				dev_warn(&client->dev, "SET TIME!\n");
+> +				ds1307_report_clock_halt(ds1307);
+>  				continue;
+>  			}
+>  			break;
+> @@ -1469,15 +1482,17 @@ static int ds1307_chip_sanity_check(const struct ds1307 *ds1307)
+>  							  DS1307_REG_CONTROL,
+>  							  regs[DS1307_REG_CONTROL]
+>  							  & ~DS1338_BIT_OSF);
+> -				dev_warn(&client->dev, "SET TIME!\n");
+> +				ds1307_report_oscillator_fault(ds1307);
+>  				continue;
+>  			}
+>  			break;
+>  		case ds_1340:
+>  			/* clock halted?  turn it on, so clock can tick. */
+> -			if (tmp & DS1340_BIT_nEOSC)
+> +			if (tmp & DS1340_BIT_nEOSC) {
+>  				i2c_smbus_write_byte_data(client,
+>  							  DS1307_REG_SECS, 0);
+> +				ds1307_report_clock_halt(ds1307);
+> +			}
+>  
+>  			tmp = i2c_smbus_read_byte_data(client, DS1340_REG_FLAG);
+>  			if (tmp < 0) {
+> @@ -1489,7 +1504,7 @@ static int ds1307_chip_sanity_check(const struct ds1307 *ds1307)
+>  			if (tmp & DS1340_BIT_OSF) {
+>  				i2c_smbus_write_byte_data(client,
+>  							  DS1340_REG_FLAG, 0);
+> -				dev_warn(&client->dev, "SET TIME!\n");
+> +				ds1307_report_oscillator_fault(ds1307);
+>  			}
+>  			return 0;
+>  
+> @@ -1500,6 +1515,9 @@ static int ds1307_chip_sanity_check(const struct ds1307 *ds1307)
+>  							  DS1307_REG_WDAY,
+>  							  regs[DS1307_REG_WDAY]
+>  							  | MCP794XX_BIT_VBATEN);
+> +				dev_warn(&client->dev,
+> +					 "battery backup was disabled. "
+> +					 "Re-enabling it\n");
+>  			}
+>  
+>  			/* clock halted?  turn it on, so clock can tick. */
+> @@ -1507,7 +1525,7 @@ static int ds1307_chip_sanity_check(const struct ds1307 *ds1307)
+>  				i2c_smbus_write_byte_data(client,
+>  							  DS1307_REG_SECS,
+>  							  MCP794XX_BIT_ST);
+> -				dev_warn(&client->dev, "SET TIME!\n");
+> +				ds1307_report_clock_halt(ds1307);
+>  				continue;
+>  			}
+>  
+> -- 
+> 2.5.5
+> 
 
---=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
---=20
+-- 
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
----=20
-You received this message because you are subscribed to the Google Groups "=
-rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an e=
-mail to rtc-linux+unsubscribe@googlegroups.com.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
