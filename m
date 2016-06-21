@@ -1,26 +1,26 @@
-Return-Path: <rtc-linux+bncBCEPJZEDQIBBBNH3YS5QKGQE4PARFTA@googlegroups.com>
+Return-Path: <rtc-linux+bncBDKOBWPM5ABRBYOWUO5QKGQEJLX2F7I@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 MIME-Version: 1.0
-Received: from rainbowdash.ducie.codethink.co.uk (82-70-136-246.dsl.in-addr.zen.co.uk. [82.70.136.246])
-        by gmr-mx.google.com with ESMTPS id c135si135347wme.2.2016.06.27.07.52.36
+Received: from mail-pa0-x241.google.com (mail-pa0-x241.google.com. [2607:f8b0:400e:c03::241])
+        by gmr-mx.google.com with ESMTPS id un17si5444521pab.0.2016.06.21.00.23.13
         for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Mon, 27 Jun 2016 07:52:36 -0700 (PDT)
-From: Ben Dooks <ben.dooks@codethink.co.uk>
-To: linux-kernel@lists.codethink.co.uk,
-	rtc-linux@googlegroups.com,
-	a.zummo@towertech.it,
-	alexandre.belloni@free-electrons.com,
-	devicetree@vger.kernel.org
-Cc: robh+dt@kernel.org,
-	frowand.list@gmail.com,
-	linux-amlogic@lists.infradead.org,
-	Ben Dooks <ben.dooks@codethink.co.uk>
-Subject: [rtc-linux] [PATCH 2/4] meson-rtc: add device-tree binding
-Date: Mon, 27 Jun 2016 15:52:13 +0100
-Message-Id: <1467039135-26588-3-git-send-email-ben.dooks@codethink.co.uk>
-In-Reply-To: <1467039135-26588-1-git-send-email-ben.dooks@codethink.co.uk>
-References: <1467039135-26588-1-git-send-email-ben.dooks@codethink.co.uk>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 21 Jun 2016 00:23:13 -0700 (PDT)
+Received: by mail-pa0-x241.google.com with SMTP id fg1so738933pad.3
+        for <rtc-linux@googlegroups.com>; Tue, 21 Jun 2016 00:23:13 -0700 (PDT)
+From: Andrey Smirnov <andrew.smirnov@gmail.com>
+To: rtc-linux@googlegroups.com
+Cc: Andrey Smirnov <andrew.smirnov@gmail.com>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	linux-kernel@vger.kernel.org,
+	cphealy@gmail.com
+Subject: [rtc-linux] [PATCH v2 17/17] RTC: rtctest: Change no IRQ detection
+ for RTC_IRQP_SET
+Date: Tue, 21 Jun 2016 00:22:50 -0700
+Message-Id: <1466493770-11895-16-git-send-email-andrew.smirnov@gmail.com>
+In-Reply-To: <1466493770-11895-1-git-send-email-andrew.smirnov@gmail.com>
+References: <1466493770-11895-1-git-send-email-andrew.smirnov@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -31,43 +31,30 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Add documentation for the AMLogic Meson RTC.
+A call to ioctl(..., RTC_IRQP_SET, ...) should never result in
+ENOTTY. All new style RTC drivers implement it and all of the old style
+drivers return EINVAL when they don't support periodic IRQs.
 
-Signed-off-by: Ben Dooks <ben.dooks@codethink.co.uk>
+Signed-off-by: Andrey Smirnov <andrew.smirnov@gmail.com>
 ---
- .../devicetree/bindings/rtc/rtc-amlogic.txt         | 21 +++++++++++++++++++++
- 1 file changed, 21 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/rtc/rtc-amlogic.txt
+ tools/testing/selftests/timers/rtctest.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/Documentation/devicetree/bindings/rtc/rtc-amlogic.txt b/Documentation/devicetree/bindings/rtc/rtc-amlogic.txt
-new file mode 100644
-index 0000000..efc7672
---- /dev/null
-+++ b/Documentation/devicetree/bindings/rtc/rtc-amlogic.txt
-@@ -0,0 +1,21 @@
-+* AMlogic Meson RTC
-+
-+Required properties:
-+- compatible: should be one of the following describing the hardware:
-+	* "amlogic,meson6-rtc"
-+	* "amlogic,meson8-rtc"
-+	* "amlogic,meson8b-rtc"
-+
-+- reg: physical register space for the controller's memory mapped registers.
-+
-+Optional properties:
-+- resets: reset controller reference to allow reset of the controller
-+- interrupts: single interrupt reference if interrupt support needed
-+
-+Example:
-+
-+	rtc: rtc@c8100740 {
-+		compatible = "amlogic,meson6-rtc";
-+		reg = <0xc8100740 0x14>;
-+		status = "disabled";
-+	};
+diff --git a/tools/testing/selftests/timers/rtctest.c b/tools/testing/selftests/timers/rtctest.c
+index 97beadf..4230d30 100644
+--- a/tools/testing/selftests/timers/rtctest.c
++++ b/tools/testing/selftests/timers/rtctest.c
+@@ -218,7 +218,7 @@ test_PIE:
+ 		retval = ioctl(fd, RTC_IRQP_SET, tmp);
+ 		if (retval == -1) {
+ 			/* not all RTCs can change their periodic IRQ rate */
+-			if (errno == ENOTTY) {
++			if (errno == EINVAL) {
+ 				fprintf(stderr,
+ 					"\n...Periodic IRQ rate is fixed\n");
+ 				goto done;
 -- 
-2.8.1
+2.5.5
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
