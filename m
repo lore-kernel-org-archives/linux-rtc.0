@@ -1,32 +1,25 @@
-Return-Path: <rtc-linux+bncBDP6N55ZUYDRBJWGVC5QKGQE7OGUWMA@googlegroups.com>
+Return-Path: <rtc-linux+bncBDKOBWPM5ABRBB6TUO5QKGQEDJOZPAQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail-vk0-x234.google.com (mail-vk0-x234.google.com. [2607:f8b0:400c:c05::234])
-        by gmr-mx.google.com with ESMTPS id v190si1162289vkf.2.2016.06.21.22.33.25
+MIME-Version: 1.0
+Received: from mail-pa0-x241.google.com (mail-pa0-x241.google.com. [2607:f8b0:400e:c03::241])
+        by gmr-mx.google.com with ESMTPS id 62si7276556pfx.1.2016.06.21.00.15.19
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 21 Jun 2016 22:33:25 -0700 (PDT)
-Received: by mail-vk0-x234.google.com with SMTP id j2so48403211vkg.2
-        for <rtc-linux@googlegroups.com>; Tue, 21 Jun 2016 22:33:25 -0700 (PDT)
-MIME-Version: 1.0
-In-Reply-To: <20160622052517.GJ1256@tuxbot>
-References: <1466158929-19524-1-git-send-email-narmstrong@baylibre.com>
- <1466158929-19524-3-git-send-email-narmstrong@baylibre.com> <20160622052517.GJ1256@tuxbot>
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Date: Tue, 21 Jun 2016 22:33:25 -0700
-Message-ID: <CAKdAkRQnKs1+3mEO0L_0kntm5EY93hnONpEj=kUA2m5iZhXUDg@mail.gmail.com>
-Subject: [rtc-linux] Re: [PATCH 2/5] input: pmic8xxx-pwrkey: Add support for
- pm8018 pwrkey
-To: Bjorn Andersson <bjorn.andersson@linaro.org>
-Cc: Neil Armstrong <narmstrong@baylibre.com>, Andy Gross <andy.gross@linaro.org>,
-	David Brown <david.brown@linaro.org>, Lee Jones <lee.jones@linaro.org>,
-	Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>,
+        Tue, 21 Jun 2016 00:15:19 -0700 (PDT)
+Received: by mail-pa0-x241.google.com with SMTP id us13so724202pab.1
+        for <rtc-linux@googlegroups.com>; Tue, 21 Jun 2016 00:15:19 -0700 (PDT)
+From: Andrey Smirnov <andrew.smirnov@gmail.com>
+To: rtc-linux@googlegroups.com
+Cc: Andrey Smirnov <andrew.smirnov@gmail.com>,
 	Alessandro Zummo <a.zummo@towertech.it>,
 	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	"linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>,
-	"linux-arm-msm@vger.kernel.org" <linux-arm-msm@vger.kernel.org>, linux-soc@vger.kernel.org,
-	RTCLINUX <rtc-linux@googlegroups.com>
-Content-Type: text/plain; charset=UTF-8
+	linux-kernel@vger.kernel.org,
+	cphealy@gmail.com
+Subject: [rtc-linux] [PATCH v2 00/17] DS1341 support and code cleanup
+Date: Tue, 21 Jun 2016 00:14:37 -0700
+Message-Id: <1466493294-11143-1-git-send-email-andrew.smirnov@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -35,24 +28,50 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Tue, Jun 21, 2016 at 10:25 PM, Bjorn Andersson
-<bjorn.andersson@linaro.org> wrote:
-> On Fri 17 Jun 03:22 PDT 2016, Neil Armstrong wrote:
->
->> In order to support pwrkey for Qualcomm MDM9615 SoC, add support
->> for the pm8018 pwrkey in pmic8xxx-pwrkey.
->>
->> Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
->
-> Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Hi everyone,
 
-But why? What does this new compat string gives us if the behavior is
-exactly the same as 8921?
+This set is a v2 of the DS1307 driver patches. Changes since v1:
 
-Thanks.
+ - Devicetree bindings are separated into a separate commit
+
+ - Device tree properties now have vendor specific prefixes and
+   documenatation explicitly stating their type
+
+ - Three more patches, with improvements to rtctest.c, are added to
+   the patchset
+
+Any feedback is appreciated.
+
+Thank you,
+Andrey Smirnov
+
+Andrey Smirnov (17):
+  RTC: ds1307: Add DS1341 variant
+  RTC: ds1307: Disable square wave and timers as default
+  RTC: ds1307: Add devicetree bindings for DS1341
+  RTC: ds1307: Add DS1341 specific power-saving options
+  RTC: ds1307: Convert ds1307_can_wakeup_device into a predicate
+  RTC: ds1307: Convert want_irq into a predicate
+  RTC: ds1307: Move chip configuration into a separate routine
+  RTC: ds1307: Move chip sanity checking into a separate routine
+  RTC: ds1307: Remove register "cache"
+  RTC: ds1307: Constify struct ds1307 where possible
+  RTC: ds1307: Convert goto to a loop
+  RTC: ds1307: Redefine RX8025_REG_* to minimize extra code
+  RTC: ds1307: Report oscillator problems more intelligently
+  RTC: ds1307: Move last bits of sanity checking out of chip_configure
+  RTC: rtctest: Change alarm IRQ support detection
+  RTC: rtctest: Change no IRQ detection for RTC_IRQP_READ
+  RTC: rtctest: Change no IRQ detection for RTC_IRQP_SET
+
+ .../devicetree/bindings/rtc/dallas,ds1341.txt      |  23 +
+ drivers/rtc/rtc-ds1307.c                           | 742 ++++++++++++---------
+ tools/testing/selftests/timers/rtctest.c           |  13 +-
+ 3 files changed, 467 insertions(+), 311 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/rtc/dallas,ds1341.txt
 
 -- 
-Dmitry
+2.5.5
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
