@@ -1,28 +1,28 @@
-Return-Path: <rtc-linux+bncBCI4NDXKXQHBBIFVXW5AKGQEA3JEEAA@googlegroups.com>
-Received: from brightrain.aerifal.cx (216-12-86-13.cv.mvl.ntelos.net. [216.12.86.13])
-        by gmr-mx.google.com with ESMTP id d71si2391529ywb.3.2016.06.01.14.58.56
-        for <rtc-linux@googlegroups.com>;
-        Wed, 01 Jun 2016 14:58:56 -0700 (PDT)
-Date: Wed, 1 Jun 2016 17:58:14 -0400
-From: Rich Felker <dalias@libc.org>
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	geert@linux-m68k.org, gregkh@linuxfoundation.org, deller@gmx.de,
-	benh@kernel.crashing.org, mpe@ellerman.id.au, dhowells@redhat.com,
-	linux-alpha@vger.kernel.org, a.zummo@towertech.it,
-	linux-kernel@vger.kernel.org, linux-parisc@vger.kernel.org,
-	linuxppc-dev@lists.ozlabs.org, linux-sh@vger.kernel.org,
-	linux-m68k@lists.linux-m68k.org, rtc-linux@googlegroups.com,
-	linux-arch@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH v4 04/16] rtc: sh: provide rtc_class_ops directly
-Message-ID: <20160601215814.GE10893@brightrain.aerifal.cx>
-References: <1464634684-1248135-1-git-send-email-arnd@arndb.de>
- <1464634684-1248135-5-git-send-email-arnd@arndb.de>
+Return-Path: <rtc-linux+bncBDKOBWPM5ABRBYGWUO5QKGQES3SNHLY@googlegroups.com>
+Sender: rtc-linux@googlegroups.com
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1464634684-1248135-5-git-send-email-arnd@arndb.de>
-Sender: Rich Felker <dalias@aerifal.cx>
+Received: from mail-pf0-x241.google.com (mail-pf0-x241.google.com. [2607:f8b0:400e:c00::241])
+        by gmr-mx.google.com with ESMTPS id po17si908028pab.2.2016.06.21.00.23.12
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 21 Jun 2016 00:23:12 -0700 (PDT)
+Received: by mail-pf0-x241.google.com with SMTP id c74so764660pfb.0
+        for <rtc-linux@googlegroups.com>; Tue, 21 Jun 2016 00:23:12 -0700 (PDT)
+From: Andrey Smirnov <andrew.smirnov@gmail.com>
+To: rtc-linux@googlegroups.com
+Cc: Andrey Smirnov <andrew.smirnov@gmail.com>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	linux-kernel@vger.kernel.org,
+	cphealy@gmail.com
+Subject: [rtc-linux] [PATCH v2 16/17] RTC: rtctest: Change no IRQ detection
+ for RTC_IRQP_READ
+Date: Tue, 21 Jun 2016 00:22:49 -0700
+Message-Id: <1466493770-11895-15-git-send-email-andrew.smirnov@gmail.com>
+In-Reply-To: <1466493770-11895-1-git-send-email-andrew.smirnov@gmail.com>
+References: <1466493770-11895-1-git-send-email-andrew.smirnov@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -31,131 +31,30 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Mon, May 30, 2016 at 08:57:52PM +0200, Arnd Bergmann wrote:
-> The rtc-generic driver provides an architecture specific
-> wrapper on top of the generic rtc_class_ops abstraction,
-> and on sh, that goes through another indirection using
-> the rtc_sh_get_time/rtc_sh_set_time functions.
-> 
-> This changes the sh rtc-generic device to provide its
-> rtc_class_ops directly, skipping one of the abstraction
-> levels.
-> 
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+A call to ioctl(..., RTC_IRQP_READ, ...) should never result in
+ENOTTY. All new style RTC drivers implement it and all of the old style
+drivers return EINVAL when they don't support periodic IRQs.
 
-I haven't tested any of this, but based on our discussion of the
-previous version, I'm satisfied that it makes sense.
+Signed-off-by: Andrey Smirnov <andrew.smirnov@gmail.com>
+---
+ tools/testing/selftests/timers/rtctest.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Acked-by: Rich Felker <dalias@libc.org>
-
-> ---
->  arch/sh/include/asm/rtc.h | 11 -----------
->  arch/sh/kernel/time.c     | 33 ++++++++++++++++++++-------------
->  drivers/rtc/rtc-generic.c |  2 +-
->  3 files changed, 21 insertions(+), 25 deletions(-)
-> 
-> diff --git a/arch/sh/include/asm/rtc.h b/arch/sh/include/asm/rtc.h
-> index 52b0c2dba979..f7b010d48af7 100644
-> --- a/arch/sh/include/asm/rtc.h
-> +++ b/arch/sh/include/asm/rtc.h
-> @@ -6,17 +6,6 @@ extern void (*board_time_init)(void);
->  extern void (*rtc_sh_get_time)(struct timespec *);
->  extern int (*rtc_sh_set_time)(const time_t);
->  
-> -/* some dummy definitions */
-> -#define RTC_BATT_BAD 0x100	/* battery bad */
-> -#define RTC_SQWE 0x08		/* enable square-wave output */
-> -#define RTC_DM_BINARY 0x04	/* all time/date values are BCD if clear */
-> -#define RTC_24H 0x02		/* 24 hour mode - else hours bit 7 means pm */
-> -#define RTC_DST_EN 0x01	        /* auto switch DST - works f. USA only */
-> -
-> -struct rtc_time;
-> -unsigned int get_rtc_time(struct rtc_time *);
-> -int set_rtc_time(struct rtc_time *);
-> -
->  #define RTC_CAP_4_DIGIT_YEAR	(1 << 0)
->  
->  struct sh_rtc_platform_info {
-> diff --git a/arch/sh/kernel/time.c b/arch/sh/kernel/time.c
-> index d6d0a986c6e9..a4a7862b489a 100644
-> --- a/arch/sh/kernel/time.c
-> +++ b/arch/sh/kernel/time.c
-> @@ -50,27 +50,31 @@ int update_persistent_clock(struct timespec now)
->  }
->  #endif
->  
-> -unsigned int get_rtc_time(struct rtc_time *tm)
-> +static int rtc_generic_get_time(struct device *dev, struct rtc_time *tm)
->  {
-> -	if (rtc_sh_get_time != null_rtc_get_time) {
-> -		struct timespec tv;
-> +	struct timespec tv;
->  
-> -		rtc_sh_get_time(&tv);
-> -		rtc_time_to_tm(tv.tv_sec, tm);
-> -	}
-> -
-> -	return RTC_24H;
-> +	rtc_sh_get_time(&tv);
-> +	rtc_time_to_tm(tv.tv_sec, tm);
-> +	return 0;
->  }
-> -EXPORT_SYMBOL(get_rtc_time);
->  
-> -int set_rtc_time(struct rtc_time *tm)
-> +static int rtc_generic_set_time(struct device *dev, struct rtc_time *tm)
->  {
->  	unsigned long secs;
->  
->  	rtc_tm_to_time(tm, &secs);
-> -	return rtc_sh_set_time(secs);
-> +	if ((rtc_sh_set_time == null_rtc_set_time) ||
-> +	    (rtc_sh_set_time(secs) < 0))
-> +		return -EOPNOTSUPP;
-> +
-> +	return 0;
->  }
-> -EXPORT_SYMBOL(set_rtc_time);
-> +
-> +static const struct rtc_class_ops rtc_generic_ops = {
-> +	.read_time = rtc_generic_get_time,
-> +	.set_time = rtc_generic_set_time,
-> +};
->  
->  static int __init rtc_generic_init(void)
->  {
-> @@ -79,7 +83,10 @@ static int __init rtc_generic_init(void)
->  	if (rtc_sh_get_time == null_rtc_get_time)
->  		return -ENODEV;
->  
-> -	pdev = platform_device_register_simple("rtc-generic", -1, NULL, 0);
-> +	pdev = platform_device_register_data(NULL, "rtc-generic", -1,
-> +					     &rtc_generic_ops,
-> +					     sizeof(rtc_generic_ops));
-> +
->  
->  	return PTR_ERR_OR_ZERO(pdev);
->  }
-> diff --git a/drivers/rtc/rtc-generic.c b/drivers/rtc/rtc-generic.c
-> index d726c6aa96a8..3958e87a05fa 100644
-> --- a/drivers/rtc/rtc-generic.c
-> +++ b/drivers/rtc/rtc-generic.c
-> @@ -10,7 +10,7 @@
->  #include <linux/rtc.h>
->  
->  #if defined(CONFIG_M68K) || defined(CONFIG_PARISC) || \
-> -    defined(CONFIG_PPC) || defined(CONFIG_SUPERH32)
-> +    defined(CONFIG_PPC)
->  #include <asm/rtc.h>
->  
->  static int generic_get_time(struct device *dev, struct rtc_time *tm)
-> -- 
-> 2.7.0
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-sh" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+diff --git a/tools/testing/selftests/timers/rtctest.c b/tools/testing/selftests/timers/rtctest.c
+index 0cb4628..97beadf 100644
+--- a/tools/testing/selftests/timers/rtctest.c
++++ b/tools/testing/selftests/timers/rtctest.c
+@@ -200,7 +200,7 @@ test_PIE:
+ 	retval = ioctl(fd, RTC_IRQP_READ, &tmp);
+ 	if (retval == -1) {
+ 		/* not all RTCs support periodic IRQs */
+-		if (errno == ENOTTY) {
++		if (errno == EINVAL) {
+ 			fprintf(stderr, "\nNo periodic IRQ support\n");
+ 			goto done;
+ 		}
+-- 
+2.5.5
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
