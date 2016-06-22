@@ -1,23 +1,28 @@
-Return-Path: <rtc-linux+bncBCSJFY6GXEGBB67EZ65AKGQEUSHXGLY@googlegroups.com>
+Return-Path: <rtc-linux+bncBDCMXBNSKAINHZVIXMCRUBABWICEC@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-MIME-Version: 1.0
-Received: from mx2.suse.de (mx2.suse.de. [195.135.220.15])
-        by gmr-mx.google.com with ESMTPS id l184si253658wmg.2.2016.06.05.02.35.55
+Received: from smtp6-v.fe.bosch.de (smtp6-v.fe.bosch.de. [2a03:cc00:ff0:100::2])
+        by gmr-mx.google.com with ESMTPS id f10si180878wmg.2.2016.06.21.23.42.27
         for <rtc-linux@googlegroups.com>
-        (version=TLS1 cipher=AES128-SHA bits=128/128);
-        Sun, 05 Jun 2016 02:35:55 -0700 (PDT)
-From: Alexander Graf <agraf@suse.de>
-To: rtc-linux@googlegroups.com
-Cc: leif.lindholm@linaro.org,
-	linux-kernel@vger.kernel.org,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Subject: [rtc-linux] [PATCH] rtc: efi: Fail probing if RTC reads don't work
-Date: Sun,  5 Jun 2016 11:35:56 +0200
-Message-Id: <1465119356-129799-1-git-send-email-agraf@suse.de>
-Reply-To: rtc-linux@googlegroups.com
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 21 Jun 2016 23:42:27 -0700 (PDT)
+Received: from vsmta14.fe.internet.bosch.com (unknown [10.4.98.54])
+	by imta23.fe.bosch.de (Postfix) with ESMTP id E59FD158016B
+	for <rtc-linux@googlegroups.com>; Wed, 22 Jun 2016 08:42:26 +0200 (CEST)
+Received: from FE-HUB1001.de.bosch.com (vsgw22.fe.internet.bosch.com [10.4.98.11])
+	by vsmta14.fe.internet.bosch.com (Postfix) with ESMTP id 9B395A405B5
+	for <rtc-linux@googlegroups.com>; Wed, 22 Jun 2016 08:42:26 +0200 (CEST)
+From: Dirk Behme <dirk.behme@de.bosch.com>
+To: <rtc-linux@googlegroups.com>, <devicetree@vger.kernel.org>
+CC: Knut Wohlrab <Knut.Wohlrab@de.bosch.com>, Oleksij Rempel
+	<fixed-term.Oleksij.Rempel@de.bosch.com>
+Subject: [rtc-linux] [PATCH v2 3/4] rtc: rv8803: add device tree compatible names
+Date: Wed, 22 Jun 2016 08:42:21 +0200
+Message-ID: <1466577742-18824-4-git-send-email-dirk.behme@de.bosch.com>
+In-Reply-To: <1466577742-18824-1-git-send-email-dirk.behme@de.bosch.com>
+References: <1466577742-18824-1-git-send-email-dirk.behme@de.bosch.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -26,37 +31,52 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-While the EFI spec mandates an RTC, not every implementation actually adheres
-to that rule (or can adhere to it - some systems just don't have an RTC).
+From: Knut Wohlrab <Knut.Wohlrab@de.bosch.com>
 
-For those, we really don't want to probe the EFI RTC driver at all, because if
-we do we'd get a non-functional driver that does nothing useful but only spills
-our kernel log with warnings.
+Add device tree compatible names for usage in a compatible
+list of alternative RTC devices.
 
-Signed-off-by: Alexander Graf <agraf@suse.de>
+Signed-off-by: Knut Wohlrab <Knut.Wohlrab@de.bosch.com>
+Signed-off-by: Oleksij Rempel <fixed-term.Oleksij.Rempel@de.bosch.com>
+Cc: devicetree@vger.kernel.org
 ---
- drivers/rtc/rtc-efi.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/rtc/rtc-rv8803.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-diff --git a/drivers/rtc/rtc-efi.c b/drivers/rtc/rtc-efi.c
-index 96d3860..0130afd 100644
---- a/drivers/rtc/rtc-efi.c
-+++ b/drivers/rtc/rtc-efi.c
-@@ -259,6 +259,12 @@ static const struct rtc_class_ops efi_rtc_ops = {
- static int __init efi_rtc_probe(struct platform_device *dev)
- {
- 	struct rtc_device *rtc;
-+	efi_time_t eft;
-+	efi_time_cap_t cap;
-+
-+	/* First check if the RTC is usable */
-+	if (efi.get_time(&eft, &cap) != EFI_SUCCESS)
-+		return -ENODEV;
+diff --git a/drivers/rtc/rtc-rv8803.c b/drivers/rtc/rtc-rv8803.c
+index f623038..e122b51 100644
+--- a/drivers/rtc/rtc-rv8803.c
++++ b/drivers/rtc/rtc-rv8803.c
+@@ -18,6 +18,7 @@
+ #include <linux/kernel.h>
+ #include <linux/module.h>
+ #include <linux/rtc.h>
++#include <linux/of.h>
  
- 	rtc = devm_rtc_device_register(&dev->dev, "rtc-efi", &efi_rtc_ops,
- 					THIS_MODULE);
+ #define RV8803_SEC			0x00
+ #define RV8803_MIN			0x01
+@@ -520,9 +521,19 @@ static const struct i2c_device_id rv8803_id[] = {
+ };
+ MODULE_DEVICE_TABLE(i2c, rv8803_id);
+ 
++#ifdef CONFIG_OF
++static const struct of_device_id rv8803_of_match[] = {
++	{ .compatible = "microcrystal,rv8803", },
++	{ .compatible = "epson,rx8900", },
++	{},
++};
++MODULE_DEVICE_TABLE(of, rv8803_of_match);
++#endif
++
+ static struct i2c_driver rv8803_driver = {
+ 	.driver = {
+ 		.name = "rtc-rv8803",
++		.of_match_table = of_match_ptr(rv8803_of_match),
+ 	},
+ 	.probe		= rv8803_probe,
+ 	.remove		= rv8803_remove,
 -- 
-1.8.5.6
+1.9.1
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
