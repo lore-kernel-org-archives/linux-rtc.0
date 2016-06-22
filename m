@@ -1,31 +1,28 @@
-Return-Path: <rtc-linux+bncBDI57DN47YOBBGESUO5QKGQEWL5J42Y@googlegroups.com>
+Return-Path: <rtc-linux+bncBDCMXBNSKAINHZVIXMCRUBABWICEC@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-MIME-Version: 1.0
-Received: from mail-qk0-f177.google.com (mail-qk0-f177.google.com. [209.85.220.177])
-        by gmr-mx.google.com with ESMTPS id v70si125307ywc.2.2016.06.20.21.56.56
+Received: from smtp6-v.fe.bosch.de (smtp6-v.fe.bosch.de. [2a03:cc00:ff0:100::2])
+        by gmr-mx.google.com with ESMTPS id f10si180879wmg.2.2016.06.21.23.42.27
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 20 Jun 2016 21:56:56 -0700 (PDT)
-Received: by mail-qk0-f177.google.com with SMTP id a186so6476880qkf.0
-        for <rtc-linux@googlegroups.com>; Mon, 20 Jun 2016 21:56:56 -0700 (PDT)
-From: Pratyush Anand <panand@redhat.com>
-To: mingo@kernel.org,
-	alexandre.belloni@free-electrons.com
-Cc: rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org,
-	prarit@redhat.com,
-	Pratyush Anand <panand@redhat.com>,
-	Alessandro Zummo <a.zummo@towertech.it>
-Subject: [rtc-linux] [PATCH RFC 2/2] rtc/rtc-cmos: Initialize software
- counters before irq is registered
-Date: Tue, 21 Jun 2016 10:25:36 +0530
-Message-Id: <26cd375a8d7ef97db5f8d12ecda6ee6676aca211.1466484019.git.panand@redhat.com>
-In-Reply-To: <cover.1466484019.git.panand@redhat.com>
-References: <cover.1466484019.git.panand@redhat.com>
-In-Reply-To: <cover.1466484019.git.panand@redhat.com>
-References: <cover.1466484019.git.panand@redhat.com>
-Reply-To: rtc-linux@googlegroups.com
+        Tue, 21 Jun 2016 23:42:27 -0700 (PDT)
+Received: from vsmta13.fe.internet.bosch.com (unknown [10.4.98.53])
+	by imta23.fe.bosch.de (Postfix) with ESMTP id 315F4158016B
+	for <rtc-linux@googlegroups.com>; Wed, 22 Jun 2016 08:42:27 +0200 (CEST)
+Received: from SI-HUB1001.de.bosch.com (vsgw23.fe.internet.bosch.com [10.4.98.23])
+	by vsmta13.fe.internet.bosch.com (Postfix) with ESMTP id CC4AF2E40315
+	for <rtc-linux@googlegroups.com>; Wed, 22 Jun 2016 08:42:26 +0200 (CEST)
+From: Dirk Behme <dirk.behme@de.bosch.com>
+To: <rtc-linux@googlegroups.com>, <devicetree@vger.kernel.org>
+CC: Oleksij Rempel <fixed-term.Oleksij.Rempel@de.bosch.com>
+Subject: [rtc-linux] [PATCH v2 2/4] dt/bindings: Add bindings for Micro
+ Crystal rv8803
+Date: Wed, 22 Jun 2016 08:42:20 +0200
+Message-ID: <1466577742-18824-3-git-send-email-dirk.behme@de.bosch.com>
+In-Reply-To: <1466577742-18824-1-git-send-email-dirk.behme@de.bosch.com>
+References: <1466577742-18824-1-git-send-email-dirk.behme@de.bosch.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -34,69 +31,47 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-We have observed on few machines with rtc-cmos device that
-hpet_rtc_interrupt() is called before cmos_do_probe() could call
-hpet_rtc_timer_init(). It has not been observed during normal boot/reboot
-of machines. It *sometime* happens when system is booted with kdump
-secondary kernel. So, neither hpet_default_delta nor hpet_t1_cmp is
-initialized by the time interrupt is raised in the given situation.
-Therefore while loop of hpet_cnt_ahead() in hpet_rtc_timer_reinit() never
-completes. This leads to "NMI watchdog: Watchdog detected hard LOCKUP on
-cpu 0".
+From: Oleksij Rempel <fixed-term.Oleksij.Rempel@de.bosch.com>
 
-I am still clueless, how can an interrupt be raised before RTC is enabled.
-But I do not have any idea about this device, so I am putting this patch as
-RFC to get feedback from hpet/rtc-cmos developer.
+... and Epson RX8900 real time clock
 
-I am initializing software counters in this patch so that LOCKUP could be
-avoided. Even if it resolves the issue, I understand that proposed patch
-may not be the best way to solve this issue.
-
-Signed-off-by: Pratyush Anand <panand@redhat.com>
+Signed-off-by: Oleksij Rempel <fixed-term.Oleksij.Rempel@de.bosch.com>
+Cc: devicetree@vger.kernel.org
 ---
- drivers/rtc/rtc-cmos.c | 13 ++++++++++++-
- 1 file changed, 12 insertions(+), 1 deletion(-)
+ .../devicetree/bindings/rtc/epson,rx8900.txt       | 22 ++++++++++++++++++++++
+ 1 file changed, 22 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/rtc/epson,rx8900.txt
 
-diff --git a/drivers/rtc/rtc-cmos.c b/drivers/rtc/rtc-cmos.c
-index fbe9c72438e1..101dc948295f 100644
---- a/drivers/rtc/rtc-cmos.c
-+++ b/drivers/rtc/rtc-cmos.c
-@@ -129,6 +129,16 @@ static inline int hpet_rtc_dropped_irq(void)
- 	return 0;
- }
- 
-+static inline int hpet_rtc_timer_counter_init(void)
-+{
-+	return 0;
-+}
+diff --git a/Documentation/devicetree/bindings/rtc/epson,rx8900.txt b/Documentation/devicetree/bindings/rtc/epson,rx8900.txt
+new file mode 100644
+index 0000000..3f61e51
+--- /dev/null
++++ b/Documentation/devicetree/bindings/rtc/epson,rx8900.txt
+@@ -0,0 +1,22 @@
++Real Time Clock driver for:
++  - Epson RX8900
++  - Micro Crystal rv8803
 +
-+static inline int hpet_rtc_timer_enable(void)
-+{
-+	return 0;
-+}
++Required properties:
++- compatible: should be: "microcrystal,rv8803" or "epson,rx8900"
++- reg : the I2C address of the device for I2C
 +
- static inline int hpet_rtc_timer_init(void)
- {
- 	return 0;
-@@ -710,6 +720,7 @@ cmos_do_probe(struct device *dev, struct resource *ports, int rtc_irq)
- 		goto cleanup1;
- 	}
- 
-+	hpet_rtc_timer_counter_init();
- 	if (is_valid_irq(rtc_irq)) {
- 		irq_handler_t rtc_cmos_int_handler;
- 
-@@ -732,7 +743,7 @@ cmos_do_probe(struct device *dev, struct resource *ports, int rtc_irq)
- 			goto cleanup1;
- 		}
- 	}
--	hpet_rtc_timer_init();
-+	hpet_rtc_timer_enable();
- 
- 	/* export at least the first block of NVRAM */
- 	nvram.size = address_space - NVRAM_OFFSET;
++Optional properties:
++- epson,vdet-disable : boolean, if present will disable voltage detector.
++  Should be set if no backup battery is used.
++- trickle-diode-disable : boolean, if present will disable internal trickle
++  charger diode
++
++Example:
++
++	rtc: rtc@32 {
++		compatible = "epson,rx8900"
++		reg = <0x32>;
++		epson,vdet-disable;
++		trickle-diode-disable;
++	};
 -- 
-2.5.5
+1.9.1
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
