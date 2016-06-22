@@ -1,24 +1,31 @@
-Return-Path: <rtc-linux+bncBD66BCOYSQBBB2FH3K5AKGQEZRGMYUQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBDSJBYGBRIMBBKOEVG5QKGQE74DUTNQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from bear.ext.ti.com (bear.ext.ti.com. [198.47.19.11])
-        by gmr-mx.google.com with ESMTPS id v62si984139itf.3.2016.06.07.02.29.12
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1 cipher=AES128-SHA bits=128/128);
-        Tue, 07 Jun 2016 02:29:12 -0700 (PDT)
-Subject: [rtc-linux] Re: [PATCH] rtc: ds1307: Fix relying on reset value for weekday
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        Keerthy
-	<j-keerthy@ti.com>
-References: <1464778147-22075-1-git-send-email-j-keerthy@ti.com>
- <20160601121802.GF4249@piout.net> <574ED6D1.70800@ti.com>
-CC: <a.zummo@towertech.it>, <nm@ti.com>, <rtc-linux@googlegroups.com>,
-        <linux-kernel@vger.kernel.org>
-From: Keerthy <a0393675@ti.com>
-Message-ID: <575693E1.2090302@ti.com>
-Date: Tue, 7 Jun 2016 14:59:05 +0530
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id x70si41605wmf.1.2016.06.22.03.02.17
+        for <rtc-linux@googlegroups.com>;
+        Wed, 22 Jun 2016 03:02:17 -0700 (PDT)
+Date: Wed, 22 Jun 2016 12:02:06 +0200
+From: Maxime Ripard <maxime.ripard@free-electrons.com>
+To: Chen-Yu Tsai <wens@csie.org>
+Cc: Mark Brown <broonie@kernel.org>, Lee Jones <lee.jones@linaro.org>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Ian Campbell <ijc+devicetree@hellion.org.uk>,
+	Kumar Gala <galak@codeaurora.org>,
+	Michael Turquette <mturquette@baylibre.com>,
+	Stephen Boyd <sboyd@codeaurora.org>, rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org, devicetree@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org, linux-clk@vger.kernel.org
+Subject: [rtc-linux] Re: [PATCH v3 5/8] rtc: ac100: Add clk output support
+Message-ID: <20160622100206.GV26668@lukather>
+References: <1466391138-12862-1-git-send-email-wens@csie.org>
+ <1466391138-12862-6-git-send-email-wens@csie.org>
 MIME-Version: 1.0
-In-Reply-To: <574ED6D1.70800@ti.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="buDNgeHiu+HCsDEc"
+In-Reply-To: <1466391138-12862-6-git-send-email-wens@csie.org>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -28,126 +35,31 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Hi Alexandre,
 
-On Wednesday 01 June 2016 06:06 PM, Keerthy wrote:
->
->
-> On Wednesday 01 June 2016 05:48 PM, Alexandre Belloni wrote:
->> Hi,
->>
->> On 01/06/2016 at 16:19:07 +0530, Keerthy wrote :
->>> The reset value of weekday is 0x1. This is wrong since
->>> the reset values of the day/month/year make up to Jan 1 2001.
->>> When computed weekday comes out to be Monday. On a scale
->>> of 1-7(Sunday - Saturday) it should be 0x2. So we should not
->>> be relying on the reset value.
->>>
->>
->> Hum, what are the chances that the reset value is actually the correct
->> date/time?
->> Won't that be corrected after the first call to set_time? Until then,
->> the date is not correct so, do we care anyway?
->
-> Yes if an alarm is programmed without set_time.
->
-> ex: rtcwake -d /dev/rtc0 -s 5
->
-> Even the basic rtctest under tools/testing/selftests/timers/rtctest.c fails
-> as the wday is wrong and no alarm fires.
->
-> Instead of relying on some one to call set_time before programming alarm
-> its better to fix the wday to reflect the current day right?
->
->
->>
->> Maybe I'm missing something here.
+--buDNgeHiu+HCsDEc
+Content-Type: text/plain; charset=UTF-8
+Content-Disposition: inline
 
-Let me know if you feel this is a valid fix.
+Hi,
 
-Regards,
-Keerthy
->>
->>> Hence compute the wday using the current date/month/year values.
->>> Check if reset wday is any different from the computed wday,
->>> If different then set the wday which we computed using
->>> date/month/year values.
->>>
->>> Document Referred:
->>> http://ww1.microchip.com/downloads/en/DeviceDoc/20002266F.pdf
->>>
->>> Fixes: 1d1945d261a2af "drivers/rtc/rtc-ds1307.c: add alarm support
->>> for mcp7941x chips"
->>> Signed-off-by: Keerthy <j-keerthy@ti.com>
->>> ---
->>>   drivers/rtc/rtc-ds1307.c | 28 +++++++++++++++++++++++++++-
->>>   1 file changed, 27 insertions(+), 1 deletion(-)
->>>
->>> diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
->>> index 821d9c0..d9045cc 100644
->>> --- a/drivers/rtc/rtc-ds1307.c
->>> +++ b/drivers/rtc/rtc-ds1307.c
->>> @@ -602,6 +602,8 @@ static const struct rtc_class_ops ds13xx_rtc_ops = {
->>>    * Alarm support for mcp794xx devices.
->>>    */
->>>
->>> +#define MCP794XX_REG_WEEKDAY        0x3
->>> +#define MCP794XX_REG_WEEKDAY_WDAY_MASK    0x7
->>>   #define MCP794XX_REG_CONTROL        0x07
->>>   #    define MCP794XX_BIT_ALM0_EN    0x10
->>>   #    define MCP794XX_BIT_ALM1_EN    0x20
->>> @@ -1231,13 +1233,16 @@ static int ds1307_probe(struct i2c_client
->>> *client,
->>>   {
->>>       struct ds1307        *ds1307;
->>>       int            err = -ENODEV;
->>> -    int            tmp;
->>> +    int            tmp, wday;
->>>       struct chip_desc    *chip = &chips[id->driver_data];
->>>       struct i2c_adapter    *adapter =
->>> to_i2c_adapter(client->dev.parent);
->>>       bool            want_irq = false;
->>>       bool            ds1307_can_wakeup_device = false;
->>>       unsigned char        *buf;
->>>       struct ds1307_platform_data *pdata =
->>> dev_get_platdata(&client->dev);
->>> +    struct rtc_time        tm;
->>> +    unsigned long        timestamp;
->>> +
->>>       irq_handler_t    irq_handler = ds1307_irq;
->>>
->>>       static const int    bbsqi_bitpos[] = {
->>> @@ -1526,6 +1531,27 @@ read_rtc:
->>>                   bin2bcd(tmp));
->>>       }
->>>
->>> +    /*
->>> +     * Some IPs have weekday reset value = 0x1 which might not correct
->>> +     * hence compute the wday using the current date/month/year values
->>> +     */
->>> +    ds1307_get_time(&client->dev, &tm);
->>> +    wday = tm.tm_wday;
->>> +    timestamp = rtc_tm_to_time64(&tm);
->>> +    rtc_time64_to_tm(timestamp, &tm);
->>> +
->>> +    /*
->>> +     * Check if reset wday is different from the computed wday
->>> +     * If different then set the wday which we computed using
->>> +     * timestamp
->>> +     */
->>> +    if (wday != tm.tm_wday) {
->>> +        wday = i2c_smbus_read_byte_data(client, MCP794XX_REG_WEEKDAY);
->>> +        wday = wday & ~MCP794XX_REG_WEEKDAY_WDAY_MASK;
->>> +        wday = wday | (tm.tm_wday + 1);
->>> +        i2c_smbus_write_byte_data(client, MCP794XX_REG_WEEKDAY, wday);
->>> +    }
->>> +
->>>       if (want_irq) {
->>>           device_set_wakeup_capable(&client->dev, true);
->>>           set_bit(HAS_ALARM, &ds1307->flags);
->>> --
->>> 1.9.1
->>
+On Mon, Jun 20, 2016 at 10:52:15AM +0800, Chen-Yu Tsai wrote:
+> +	/*
+> +	 * The ADDA 4 MHz clock is from the codec side of the AC100,
+> +	 * which is likely a different power domain. However, boards
+> +	 * always have both sides powered on, so it is impossible to
+> +	 * test this.
+> +	 */
+
+If that ADDA clock is exposed by the codec, why are you putting it in
+the RTC?
+
+Thanks,
+Maxime
+
+-- 
+Maxime Ripard, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
@@ -158,3 +70,26 @@ before submitting a driver.
 You received this message because you are subscribed to the Google Groups "rtc-linux" group.
 To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
+
+--buDNgeHiu+HCsDEc
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJXamIeAAoJEBx+YmzsjxAgep8QALb4QiyE0axUbD8L9KkpG7V0
+dOsu/m7Qg+xvaQRGz5AUkytzp3EggzTyyaDQdwL9FaPQEzkxsq275QRu81jfcW28
+pYi02XaSUpvAeMIlcAil4xKRzR9M7pWrL8/d/GBwMn/5Znw4nc2cosR4iwfMOH6i
+aKSw9pJYjWRqqjaT6QZn+iny3v+diTETG4IAcPqBnljpXCuUHjYYEOJS+PNLYQvL
+c09lui5fc9t7ZLIJgQsrJ7hSiNu5XL/qErRWNYxXQqwX4QJnURRW0S+q4z0wysWT
++Z77rMsKo6KKRqDDJRlnVtYwTiyrXnWgCKKI8m23e21biTdCEC1mKdDZciX26v2F
+TgTo5+htGKknjpo5qeg+qukL+8aK0kHnLLSaHRLtXScIXYQEMFcY74+RlNcsnNPM
+tMQSXcKbGm3HvLediuU4ldUGwQblu6aIDNBPcnetDGH1ehh/ocIfuCH2YSiBQF0g
+Po8Yybgn4+kcpIjwIHoWEF4WvjeWY+EbX0/LuSbwl/L6CwzFe2u9HKK76rqPWwlp
+E6uG57uWFFzwXtvMem9PKsC8McUU9571GYlSCUxN5ThmhH+cmbeshwN5U5RA7otp
+RewA+kwqB0JYzzVdj89gFbaYfIcaXM93uImBinkoCxWMpLxHdtQ9EIcumTcO8zjg
+Tuc3OrdLvJzf9H8ybHdv
+=Z3pe
+-----END PGP SIGNATURE-----
+
+--buDNgeHiu+HCsDEc--
