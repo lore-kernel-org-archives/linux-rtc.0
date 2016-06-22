@@ -1,38 +1,31 @@
-Return-Path: <rtc-linux+bncBCMILY6JWQBBB2OS7W5AKGQEPMK3QUQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBDKOBWPM5ABRBUPSU65QKGQEFDCZK7Q@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-MIME-Version: 1.0
-Received: from wens.csie.org (mirror2.csie.ntu.edu.tw. [140.112.30.76])
-        by gmr-mx.google.com with ESMTPS id 62si2830172pfx.1.2016.06.13.19.18.17
+Received: from mail-yw0-x229.google.com (mail-yw0-x229.google.com. [2607:f8b0:4002:c05::229])
+        by gmr-mx.google.com with ESMTPS id k133si397518ywc.3.2016.06.21.19.34.57
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 13 Jun 2016 19:18:17 -0700 (PDT)
-From: Chen-Yu Tsai <wens@csie.org>
-To: Mark Brown <broonie@kernel.org>,
-	Lee Jones <lee.jones@linaro.org>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Rob Herring <robh+dt@kernel.org>,
-	Pawel Moll <pawel.moll@arm.com>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Ian Campbell <ijc+devicetree@hellion.org.uk>,
-	Kumar Gala <galak@codeaurora.org>,
-	Maxime Ripard <maxime.ripard@free-electrons.com>,
-	Michael Turquette <mturquette@baylibre.com>,
-	Stephen Boyd <sboyd@codeaurora.org>
-Cc: Chen-Yu Tsai <wens@csie.org>,
-	rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org,
-	devicetree@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	linux-clk@vger.kernel.org
-Subject: [rtc-linux] [PATCH 09/10] ARM: dts: sun9i: a80-optimus: Order nodes
- by alphabetical order
-Date: Tue, 14 Jun 2016 10:17:57 +0800
-Message-Id: <1465870678-30128-11-git-send-email-wens@csie.org>
-In-Reply-To: <1465870678-30128-1-git-send-email-wens@csie.org>
-References: <1465870678-30128-1-git-send-email-wens@csie.org>
-Reply-To: rtc-linux@googlegroups.com
+        Tue, 21 Jun 2016 19:34:57 -0700 (PDT)
+Received: by mail-yw0-x229.google.com with SMTP id v77so31226690ywg.0
+        for <rtc-linux@googlegroups.com>; Tue, 21 Jun 2016 19:34:57 -0700 (PDT)
+MIME-Version: 1.0
+In-Reply-To: <20160621210739.GY5809@piout.net>
+References: <1465970379-14703-1-git-send-email-andrew.smirnov@gmail.com>
+ <1465970379-14703-4-git-send-email-andrew.smirnov@gmail.com>
+ <20160619142934.GA8522@rob-hp-laptop> <CAHQ1cqFfFpLmMMr9itinha9rotG7Btr9UmWbO2_0VWxX_HeG1g@mail.gmail.com>
+ <20160621204904.GA9779@rob-hp-laptop> <20160621210739.GY5809@piout.net>
+From: Andrey Smirnov <andrew.smirnov@gmail.com>
+Date: Tue, 21 Jun 2016 19:34:56 -0700
+Message-ID: <CAHQ1cqGRqhOAqfJZEixkxAHZ4Y8dd-hD__T1ci0LS28Orphs3Q@mail.gmail.com>
+Subject: [rtc-linux] Re: [PATCH 03/13] RTC: ds1307: Add DS1341 specific
+ power-saving options
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: Rob Herring <robh@kernel.org>, rtc-linux@googlegroups.com,
+	Alessandro Zummo <a.zummo@towertech.it>, Pawel Moll <pawel.moll@arm.com>,
+	Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>,
+	Kumar Gala <galak@codeaurora.org>, devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org
 Content-Type: text/plain; charset=UTF-8
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -41,83 +34,59 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Move the mmc nodes above the ohci nodes for proper ordering by name.
+On Tue, Jun 21, 2016 at 2:07 PM, Alexandre Belloni
+<alexandre.belloni@free-electrons.com> wrote:
+> On 21/06/2016 at 15:49:04 -0500, Rob Herring wrote :
+>> So wouldn't you want to set one mode while running and the lower power
+>> mode while suspended? I'm trying to understand the frequency of changing
+>> this. If it is always one setting for a board, then yes it belongs in
+>> DT. If it is a user decision, then it probably shouldn't be in DT.
+>>
+>> Seeing as these are reused, I've probably already had this discussion...
+>>
+>
+> I would agree with Rob here. It may be better to provide a sysfs
+> interface to configure that particular behavior.
 
-Signed-off-by: Chen-Yu Tsai <wens@csie.org>
----
- arch/arm/boot/dts/sun9i-a80-optimus.dts | 50 ++++++++++++++++-----------------
- 1 file changed, 25 insertions(+), 25 deletions(-)
+I don't see any value in doing that, could you give me a realistic
+example of a scenario in which a user would want to spend some of
+uptime with RTC oscillator fault detection/glitch filtering disabled
+and then enable it?
 
-diff --git a/arch/arm/boot/dts/sun9i-a80-optimus.dts b/arch/arm/boot/dts/sun9i-a80-optimus.dts
-index 24ef8e65a975..3b013dc5fef1 100644
---- a/arch/arm/boot/dts/sun9i-a80-optimus.dts
-+++ b/arch/arm/boot/dts/sun9i-a80-optimus.dts
-@@ -119,6 +119,31 @@
- 	status = "okay";
- };
- 
-+&mmc0 {
-+	pinctrl-names = "default";
-+	pinctrl-0 = <&mmc0_pins>, <&mmc0_cd_pin_optimus>;
-+	vmmc-supply = <&reg_dcdc1>;
-+	bus-width = <4>;
-+	cd-gpios = <&pio 7 18 GPIO_ACTIVE_HIGH>; /* PH8 */
-+	cd-inverted;
-+	status = "okay";
-+};
-+
-+&mmc2 {
-+	pinctrl-names = "default";
-+	pinctrl-0 = <&mmc2_8bit_pins>;
-+	vmmc-supply = <&reg_dcdc1>;
-+	bus-width = <8>;
-+	non-removable;
-+	cap-mmc-hw-reset;
-+	status = "okay";
-+};
-+
-+&mmc2_8bit_pins {
-+	/* Increase drive strength for DDR modes */
-+	allwinner,drive = <SUN4I_PINCTRL_40_MA>;
-+};
-+
- &ohci0 {
- 	status = "okay";
- };
-@@ -157,31 +182,6 @@
- 	};
- };
- 
--&mmc0 {
--	pinctrl-names = "default";
--	pinctrl-0 = <&mmc0_pins>, <&mmc0_cd_pin_optimus>;
--	vmmc-supply = <&reg_dcdc1>;
--	bus-width = <4>;
--	cd-gpios = <&pio 7 18 GPIO_ACTIVE_HIGH>; /* PH8 */
--	cd-inverted;
--	status = "okay";
--};
--
--&mmc2 {
--	pinctrl-names = "default";
--	pinctrl-0 = <&mmc2_8bit_pins>;
--	vmmc-supply = <&reg_dcdc1>;
--	bus-width = <8>;
--	non-removable;
--	cap-mmc-hw-reset;
--	status = "okay";
--};
--
--&mmc2_8bit_pins {
--	/* Increase drive strength for DDR modes */
--	allwinner,drive = <SUN4I_PINCTRL_40_MA>;
--};
--
- &r_ir {
- 	status = "okay";
- };
--- 
-2.8.1
+> This is usually ok because the use case is:
+>  - the RTC is not configured, time has never been set
+>  - time is set for the first time
+>  - the user can set the oscillator mode/detection/...
+
+Unfortunately exposing that feature using sysfs gives you a leaky
+abstraction and your userspace instead of using a generic RTC starts
+using DS1341 RTC. So to accommodate for that a user would have to:
+
+a) Write + integrate a userspace tool to set the mode (which IMHO is
+decided upon once and doesn't change)
+b) If a board design is new and there's a chance of moving this chip
+to a different I2C bus, the code above would have to account for that
+and not hardcore sysfs path
+c) If board's BSP is intended to be used in multiple generations of a
+product, not all of which would use DS1341, it would be necessary to
+accommodate for that by either more code in the tool or an additional
+BSP build configuration variant
+
+>  - on subsequent reboots, the mode is kept alongside the time and date
+>
+
+This assumes that your bootloader leaves those mode bits alone.
+
+> I would advise against trying to set a mode automatically in the driver
+> because you may have unexpected power cuts and it may then let the RTC
+> consume more power than what you really want.
+>
+
+I fell like I am not understanding you correctly.  Why would moving
+configuration decision logic into userspace improve the situation in
+case of unexpected power loss?
+
+Andrey
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
