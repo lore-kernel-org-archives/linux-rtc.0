@@ -1,32 +1,38 @@
-Return-Path: <rtc-linux+bncBDJIP47K7MERBQWQU25QKGQEBZ3MZHA@googlegroups.com>
+Return-Path: <rtc-linux+bncBCMILY6JWQBBBAWJVG5QKGQE3OBSL4I@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail-yw0-f194.google.com (mail-yw0-f194.google.com. [209.85.161.194])
-        by gmr-mx.google.com with ESMTPS id n132si1232862ywb.1.2016.06.21.13.49.06
+Received: from smtp.csie.ntu.edu.tw (smtp.csie.ntu.edu.tw. [140.112.30.61])
+        by gmr-mx.google.com with ESMTPS id un17si6413850pab.0.2016.06.22.03.12.18
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 21 Jun 2016 13:49:06 -0700 (PDT)
-Received: by mail-yw0-f194.google.com with SMTP id v77so3498439ywg.2
-        for <rtc-linux@googlegroups.com>; Tue, 21 Jun 2016 13:49:06 -0700 (PDT)
-Date: Tue, 21 Jun 2016 15:49:04 -0500
-From: Rob Herring <robh@kernel.org>
-To: Andrey Smirnov <andrew.smirnov@gmail.com>
-Cc: rtc-linux@googlegroups.com, Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Pawel Moll <pawel.moll@arm.com>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Ian Campbell <ijc+devicetree@hellion.org.uk>,
-	Kumar Gala <galak@codeaurora.org>, devicetree@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH 03/13] RTC: ds1307: Add DS1341 specific
- power-saving options
-Message-ID: <20160621204904.GA9779@rob-hp-laptop>
-References: <1465970379-14703-1-git-send-email-andrew.smirnov@gmail.com>
- <1465970379-14703-4-git-send-email-andrew.smirnov@gmail.com>
- <20160619142934.GA8522@rob-hp-laptop>
- <CAHQ1cqFfFpLmMMr9itinha9rotG7Btr9UmWbO2_0VWxX_HeG1g@mail.gmail.com>
+        Wed, 22 Jun 2016 03:12:18 -0700 (PDT)
+Received: from mail-it0-f50.google.com (mail-it0-f50.google.com [209.85.214.50])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	(Authenticated sender: b93043)
+	by smtp.csie.ntu.edu.tw (Postfix) with ESMTPSA id 4713120E72
+	for <rtc-linux@googlegroups.com>; Wed, 22 Jun 2016 18:12:16 +0800 (CST)
+Received: by mail-it0-f50.google.com with SMTP id f6so35099122ith.0
+        for <rtc-linux@googlegroups.com>; Wed, 22 Jun 2016 03:12:16 -0700 (PDT)
 MIME-Version: 1.0
+In-Reply-To: <20160622100206.GV26668@lukather>
+References: <1466391138-12862-1-git-send-email-wens@csie.org>
+ <1466391138-12862-6-git-send-email-wens@csie.org> <20160622100206.GV26668@lukather>
+From: Chen-Yu Tsai <wens@csie.org>
+Date: Wed, 22 Jun 2016 18:11:55 +0800
+Message-ID: <CAGb2v67DVBZbRb2PWLP8WurPaNin=2Fa=HMAEK_PdBeqv1x+8Q@mail.gmail.com>
+Subject: [rtc-linux] Re: [PATCH v3 5/8] rtc: ac100: Add clk output support
+To: Maxime Ripard <maxime.ripard@free-electrons.com>
+Cc: Chen-Yu Tsai <wens@csie.org>, Mark Brown <broonie@kernel.org>, Lee Jones <lee.jones@linaro.org>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>, Rob Herring <robh+dt@kernel.org>,
+	Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>,
+	Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>,
+	Michael Turquette <mturquette@baylibre.com>, Stephen Boyd <sboyd@codeaurora.org>,
+	rtc-linux@googlegroups.com, linux-kernel <linux-kernel@vger.kernel.org>,
+	devicetree <devicetree@vger.kernel.org>,
+	linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
+	linux-clk <linux-clk@vger.kernel.org>
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <CAHQ1cqFfFpLmMMr9itinha9rotG7Btr9UmWbO2_0VWxX_HeG1g@mail.gmail.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -36,72 +42,31 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Sun, Jun 19, 2016 at 11:12:55AM -0700, Andrey Smirnov wrote:
-> On Sun, Jun 19, 2016 at 7:29 AM, Rob Herring <robh@kernel.org> wrote:
-> > On Tue, Jun 14, 2016 at 10:59:29PM -0700, Andrey Smirnov wrote:
-> >> Add DS1341 specific power-saving options that allow to disable certain
-> >> functional aspects of the chip in order to minimize its power
-> >> consumption.
-> >
-> > This description doesn't match that you are adding a new binding. It is
-> > preferred that bindings are a separate patch.
-> 
-> OK, will split this patch into two in v2.
-> 
-> >
-> >>
-> >> Signed-off-by: Andrey Smirnov <andrew.smirnov@gmail.com>
-> >> ---
-> >>  .../devicetree/bindings/rtc/dallas,ds1341.txt      | 23 ++++++++++++++++++
-> >>  drivers/rtc/rtc-ds1307.c                           | 28 ++++++++++++++++++++++
-> >>  2 files changed, 51 insertions(+)
-> >>  create mode 100644 Documentation/devicetree/bindings/rtc/dallas,ds1341.txt
-> >>
-> >> diff --git a/Documentation/devicetree/bindings/rtc/dallas,ds1341.txt b/Documentation/devicetree/bindings/rtc/dallas,ds1341.txt
-> >> new file mode 100644
-> >> index 0000000..b8be7a4
-> >> --- /dev/null
-> >> +++ b/Documentation/devicetree/bindings/rtc/dallas,ds1341.txt
-> >> @@ -0,0 +1,23 @@
-> >> +* Dallas DS1341              I2C Serial Real-Time Clock
-> >> +
-> >> +Required properties:
-> >> +
-> >> +- compatible: Should contain "dallas,ds1341".
-> >> +
-> >> +- reg: I2C address for chip
-> >> +
-> >> +Optional properties:
-> >> +
-> >> +- disable-oscillator-stop-flag : Configure chip to disable oscillator
-> >> +  fault detection circuitry
-> >> +
-> >> +- enable-glitch-filter : Configure chip to enable crystal oscillator
-> >> +  output glitch filtering
-> >
-> > What determines setting these properties or not?
-> 
-> Setting those properties allows drastically reduce RTC's power
-> consumption at the expense of reliability and quality of service. In
-> my use case, DS1341 is powered by a supercap and enabling those two
-> setting allows to increase holdup from less than a day do 2+ weeks.
+On Wed, Jun 22, 2016 at 6:02 PM, Maxime Ripard
+<maxime.ripard@free-electrons.com> wrote:
+> Hi,
+>
+> On Mon, Jun 20, 2016 at 10:52:15AM +0800, Chen-Yu Tsai wrote:
+>> +     /*
+>> +      * The ADDA 4 MHz clock is from the codec side of the AC100,
+>> +      * which is likely a different power domain. However, boards
+>> +      * always have both sides powered on, so it is impossible to
+>> +      * test this.
+>> +      */
+>
+> If that ADDA clock is exposed by the codec, why are you putting it in
+> the RTC?
 
-So wouldn't you want to set one mode while running and the lower power 
-mode while suspended? I'm trying to understand the frequency of changing 
-this. If it is always one setting for a board, then yes it belongs in 
-DT. If it is a user decision, then it probably shouldn't be in DT.
+The thing is it's not entirely clear that it's from the codec side.
+I'm just inferring this from the name. (I'll make the comment clearer.)
+The codec parts of the datasheet don't mention this clock at all.
 
-Seeing as these are reused, I've probably already had this discussion...
+Allwinner's SDK puts all the clocks under the RTC module. And the
+are always on, so I can't really turn off the codec and see what
+happens. That and I don't have an oscilloscope or logic analyzer.
 
-> > They should have vendor prefix and be explicit that they are boolean.
-> 
-> I was trying to be consistent with ds1339 and ds1390 bindings which do
-> not have vendor prefixes. Will fix in v2.
-
-Okay, then they are fine if you are using existing properties. Perhaps 
-these should all be in a common binding doc though.
-
-Rob
+Regards
+ChenYu
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
