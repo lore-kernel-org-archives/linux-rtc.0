@@ -1,25 +1,27 @@
-Return-Path: <rtc-linux+bncBCPM5SUWUYIRBT4XYS5QKGQEIWELKUQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBDCMXBNSKAINHZVIXMCRUBABWICEC@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-MIME-Version: 1.0
-Received: from mail-pf0-x244.google.com (mail-pf0-x244.google.com. [2607:f8b0:400e:c00::244])
-        by gmr-mx.google.com with ESMTPS id c11si2169679pfc.2.2016.06.27.04.19.43
+Received: from smtp6-v.fe.bosch.de (smtp6-v.fe.bosch.de. [2a03:cc00:ff0:100::2])
+        by gmr-mx.google.com with ESMTPS id a186si204233wma.1.2016.06.21.23.42.27
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 27 Jun 2016 04:19:43 -0700 (PDT)
-Received: by mail-pf0-x244.google.com with SMTP id c74so15620836pfb.0
-        for <rtc-linux@googlegroups.com>; Mon, 27 Jun 2016 04:19:43 -0700 (PDT)
-From: Akinobu Mita <akinobu.mita@gmail.com>
-To: rtc-linux@googlegroups.com,
-	devicetree@vger.kernel.org
-Cc: Akinobu Mita <akinobu.mita@gmail.com>,
-	Sergey Yanovich <ynvich@gmail.com>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Subject: [rtc-linux] [PATCH v2 0/2] support control with using GPIO lines
-Date: Mon, 27 Jun 2016 20:19:20 +0900
-Message-Id: <1467026362-29446-1-git-send-email-akinobu.mita@gmail.com>
-Reply-To: rtc-linux@googlegroups.com
+        Tue, 21 Jun 2016 23:42:27 -0700 (PDT)
+Received: from vsmta14.fe.internet.bosch.com (unknown [10.4.98.54])
+	by imta23.fe.bosch.de (Postfix) with ESMTP id DB26D1580227
+	for <rtc-linux@googlegroups.com>; Wed, 22 Jun 2016 08:42:26 +0200 (CEST)
+Received: from SI-HUB1000.de.bosch.com (vsgw22.fe.internet.bosch.com [10.4.98.11])
+	by vsmta14.fe.internet.bosch.com (Postfix) with ESMTP id 64DFDA405B3
+	for <rtc-linux@googlegroups.com>; Wed, 22 Jun 2016 08:42:26 +0200 (CEST)
+From: Dirk Behme <dirk.behme@de.bosch.com>
+To: <rtc-linux@googlegroups.com>, <devicetree@vger.kernel.org>
+CC: Oleksij Rempel <fixed-term.Oleksij.Rempel@de.bosch.com>
+Subject: [rtc-linux] [PATCH v2 1/4] devicetree: Add Micro Crystal AG vendor id
+Date: Wed, 22 Jun 2016 08:42:19 +0200
+Message-ID: <1466577742-18824-2-git-send-email-dirk.behme@de.bosch.com>
+In-Reply-To: <1466577742-18824-1-git-send-email-dirk.behme@de.bosch.com>
+References: <1466577742-18824-1-git-send-email-dirk.behme@de.bosch.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -28,32 +30,28 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-This series adds support access to DS1302 with GPIO lines.
+From: Oleksij Rempel <fixed-term.Oleksij.Rempel@de.bosch.com>
 
-This series first introduces the abstraction layer for the register
-access which enables to share the most code between existing spi driver
-and new platform driver, and then adds the platform driver using GPIO.
+Signed-off-by: Oleksij Rempel <fixed-term.Oleksij.Rempel@de.bosch.com>
+Cc: devicetree@vger.kernel.org
+---
+ Documentation/devicetree/bindings/vendor-prefixes.txt | 1 +
+ 1 file changed, 1 insertion(+)
 
-Changes from v1
-* Remove two fixes which have already been merged
-* Remove readbyte and writebyte ops from ds1302_ops because they were
-  just special cases for readburst and writeburst ops
-* Place Kconfig entry under Platform RTC drivers
-
-Akinobu Mita (2):
-  rtc: ds1302: add register access abstraction layer
-  rtc: ds1302: support control with using GPIO lines
-
- .../devicetree/bindings/rtc/maxim-ds1302.txt       |  13 +
- drivers/rtc/Kconfig                                |  17 +-
- drivers/rtc/rtc-ds1302.c                           | 509 ++++++++++++++++++---
- 3 files changed, 456 insertions(+), 83 deletions(-)
-
-Cc: Sergey Yanovich <ynvich@gmail.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>
-Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+diff --git a/Documentation/devicetree/bindings/vendor-prefixes.txt b/Documentation/devicetree/bindings/vendor-prefixes.txt
+index 2c2500d..7a1d5ea 100644
+--- a/Documentation/devicetree/bindings/vendor-prefixes.txt
++++ b/Documentation/devicetree/bindings/vendor-prefixes.txt
+@@ -158,6 +158,7 @@ melexis	Melexis N.V.
+ merrii	Merrii Technology Co., Ltd.
+ micrel	Micrel Inc.
+ microchip	Microchip Technology Inc.
++microcrystal	Micro Crystal AG
+ micron	Micron Technology Inc.
+ minix	MINIX Technology Ltd.
+ mitsubishi	Mitsubishi Electric Corporation
 -- 
-2.7.4
+1.9.1
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
