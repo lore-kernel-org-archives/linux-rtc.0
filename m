@@ -1,36 +1,31 @@
-Return-Path: <rtc-linux+bncBDAYD2P3QYGRBWE6R65QKGQEJABVMIY@googlegroups.com>
+Return-Path: <rtc-linux+bncBDI57DN47YOBBHXIV65QKGQEWUYFHGI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-MIME-Version: 1.0
-Received: from mail-wm0-x233.google.com (mail-wm0-x233.google.com. [2a00:1450:400c:c09::233])
-        by gmr-mx.google.com with ESMTPS id x70si348169wmf.1.2016.06.17.03.22.16
+Received: from mail-qk0-f170.google.com (mail-qk0-f170.google.com. [209.85.220.170])
+        by gmr-mx.google.com with ESMTPS id v190si30928vkf.2.2016.06.23.07.37.18
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 17 Jun 2016 03:22:16 -0700 (PDT)
-Received: by mail-wm0-x233.google.com with SMTP id f126so82534649wma.1
-        for <rtc-linux@googlegroups.com>; Fri, 17 Jun 2016 03:22:16 -0700 (PDT)
-From: Neil Armstrong <narmstrong@baylibre.com>
-To: dmitry.torokhov@gmail.com,
-	andy.gross@linaro.org,
-	david.brown@linaro.org,
-	lee.jones@linaro.org,
-	lgirdwood@gmail.com,
-	broonie@kernel.org,
-	a.zummo@towertech.it,
-	alexandre.belloni@free-electrons.com
-Cc: Neil Armstrong <narmstrong@baylibre.com>,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	linux-arm-msm@vger.kernel.org,
-	linux-soc@vger.kernel.org,
-	rtc-linux@googlegroups.com
-Subject: [rtc-linux] [PATCH 2/5] input: pmic8xxx-pwrkey: Add support for
- pm8018 pwrkey
-Date: Fri, 17 Jun 2016 12:22:06 +0200
-Message-Id: <1466158929-19524-3-git-send-email-narmstrong@baylibre.com>
-In-Reply-To: <1466158929-19524-1-git-send-email-narmstrong@baylibre.com>
-References: <1466158929-19524-1-git-send-email-narmstrong@baylibre.com>
-Reply-To: rtc-linux@googlegroups.com
+        Thu, 23 Jun 2016 07:37:18 -0700 (PDT)
+Received: by mail-qk0-f170.google.com with SMTP id a186so109168001qkf.0
+        for <rtc-linux@googlegroups.com>; Thu, 23 Jun 2016 07:37:18 -0700 (PDT)
+Date: Thu, 23 Jun 2016 20:07:13 +0530
+From: Pratyush Anand <panand@redhat.com>
+To: Thomas Gleixner <tglx@linutronix.de>
+Cc: mingo@kernel.org, alexandre.belloni@free-electrons.com,
+	rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org,
+	prarit@redhat.com, Andy Lutomirski <luto@kernel.org>,
+	Borislav Petkov <bp@suse.de>, "H. Peter Anvin" <hpa@zytor.com>,
+	Ingo Molnar <mingo@redhat.com>, Jan Beulich <JBeulich@suse.com>,
+	Viresh Kumar <viresh.kumar@linaro.org>,
+	"maintainer:X86 ARCHITECTURE (32-BIT AND 64-BIT)" <x86@kernel.org>
+Subject: [rtc-linux] Re: [PATCH RFC 1/2] rtc/hpet: Factorize hpet_rtc_timer_init()
+Message-ID: <20160623143713.GB16398@dhcppc9>
+References: <cover.1466484019.git.panand@redhat.com>
+ <076fc9f526af98a2ce7e68897378213271d40519.1466484019.git.panand@redhat.com>
+ <alpine.DEB.2.11.1606231032380.5839@nanos>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <alpine.DEB.2.11.1606231032380.5839@nanos>
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -39,41 +34,25 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-In order to support pwrkey for Qualcomm MDM9615 SoC, add support
-for the pm8018 pwrkey in pmic8xxx-pwrkey.
+Hi Thomas,
 
-Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
----
- Documentation/devicetree/bindings/input/qcom,pm8xxx-pwrkey.txt | 1 +
- drivers/input/misc/pmic8xxx-pwrkey.c                           | 1 +
- 2 files changed, 2 insertions(+)
+On 23/06/2016:10:33:26 AM, Thomas Gleixner wrote:
+> On Tue, 21 Jun 2016, Pratyush Anand wrote:
+> 
+> > This patch factorize hpet_rtc_timer_init(), so that counter can be
+> > initialized before irq is registered.
+> 
+> This changelog is useless. It tells what the patch does, but not WHY this is
+> required.
 
-diff --git a/Documentation/devicetree/bindings/input/qcom,pm8xxx-pwrkey.txt b/Documentation/devicetree/bindings/input/qcom,pm8xxx-pwrkey.txt
-index 588536c..9e530e2 100644
---- a/Documentation/devicetree/bindings/input/qcom,pm8xxx-pwrkey.txt
-+++ b/Documentation/devicetree/bindings/input/qcom,pm8xxx-pwrkey.txt
-@@ -8,6 +8,7 @@ PROPERTIES
- 	Definition: must be one of:
- 		    "qcom,pm8058-pwrkey"
- 		    "qcom,pm8921-pwrkey"
-+		    "qcom,pm8018-pwrkey"
- 
- - reg:
- 	Usage: required
-diff --git a/drivers/input/misc/pmic8xxx-pwrkey.c b/drivers/input/misc/pmic8xxx-pwrkey.c
-index 67aab86..f6f9b87 100644
---- a/drivers/input/misc/pmic8xxx-pwrkey.c
-+++ b/drivers/input/misc/pmic8xxx-pwrkey.c
-@@ -446,6 +446,7 @@ static int pmic8xxx_pwrkey_remove(struct platform_device *pdev)
- }
- 
- static const struct of_device_id pm8xxx_pwr_key_id_table[] = {
-+	{ .compatible = "qcom,pm8018-pwrkey", .data = &pm8921_pwrkey_shutdown },
- 	{ .compatible = "qcom,pm8058-pwrkey", .data = &pm8058_pwrkey_shutdown },
- 	{ .compatible = "qcom,pm8921-pwrkey", .data = &pm8921_pwrkey_shutdown },
- 	{ }
--- 
-1.9.1
+Sorry, I have described the problem in the cover letter which is here [1].
+Please, let me know if any further test/debug result you would need.
+
+Thanks for your help!!
+
+~Pratyush
+
+[1] https://lkml.org/lkml/2016/6/21/35
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
