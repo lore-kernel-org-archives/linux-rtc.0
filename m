@@ -1,38 +1,23 @@
-Return-Path: <rtc-linux+bncBCMILY6JWQBBBKW3QS5QKGQES2DSYUI@googlegroups.com>
+Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBGVVWO5QKGQEA3MGBCA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id f4si75243wmg.0.2016.06.24.00.00.41
+        for <rtc-linux@googlegroups.com>;
+        Fri, 24 Jun 2016 00:00:41 -0700 (PDT)
+Date: Fri, 24 Jun 2016 09:00:41 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Dirk Behme <dirk.behme@de.bosch.com>
+Cc: rtc-linux@googlegroups.com, devicetree@vger.kernel.org,
+	Oleksij Rempel <fixed-term.Oleksij.Rempel@de.bosch.com>
+Subject: Re: [rtc-linux] [PATCH v2 1/4] devicetree: Add Micro Crystal AG
+ vendor id
+Message-ID: <20160624070041.GI5809@piout.net>
+References: <1466577742-18824-1-git-send-email-dirk.behme@de.bosch.com>
+ <1466577742-18824-2-git-send-email-dirk.behme@de.bosch.com>
 MIME-Version: 1.0
-Received: from wens.csie.org (mirror2.csie.ntu.edu.tw. [140.112.30.76])
-        by gmr-mx.google.com with ESMTPS id e68si3383280pfa.0.2016.06.15.03.27.54
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 15 Jun 2016 03:27:54 -0700 (PDT)
-From: Chen-Yu Tsai <wens@csie.org>
-To: Mark Brown <broonie@kernel.org>,
-	Lee Jones <lee.jones@linaro.org>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Rob Herring <robh+dt@kernel.org>,
-	Pawel Moll <pawel.moll@arm.com>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Ian Campbell <ijc+devicetree@hellion.org.uk>,
-	Kumar Gala <galak@codeaurora.org>,
-	Maxime Ripard <maxime.ripard@free-electrons.com>,
-	Michael Turquette <mturquette@baylibre.com>,
-	Stephen Boyd <sboyd@codeaurora.org>
-Cc: Chen-Yu Tsai <wens@csie.org>,
-	rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org,
-	devicetree@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	linux-clk@vger.kernel.org
-Subject: [rtc-linux] [PATCH v2 01/10] regmap: Support bulk writes for devices
- without raw formatting
-Date: Wed, 15 Jun 2016 18:27:38 +0800
-Message-Id: <1465986467-14802-2-git-send-email-wens@csie.org>
-In-Reply-To: <1465986467-14802-1-git-send-email-wens@csie.org>
-References: <1465986467-14802-1-git-send-email-wens@csie.org>
-Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1466577742-18824-2-git-send-email-dirk.behme@de.bosch.com>
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -41,81 +26,47 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-When doing a bulk writes from a device which lacks raw I/O support we
-fall back to doing register at a time reads but we still use the raw
-formatters in order to render the data into the word size used by the
-device (since bulk reads still operate on the device word size rather
-than unsigned ints).  This means that devices without raw formatting
-such as those that provide reg_read() are not supported.  Provide
-handling for them by copying the values read into native endian values
-of the appropriate size.
+On 22/06/2016 at 08:42:19 +0200, Dirk Behme wrote :
+> From: Oleksij Rempel <fixed-term.Oleksij.Rempel@de.bosch.com>
+> 
 
-This complements commit d5b98eb12420 ("regmap: Support bulk reads for
-devices without raw formatting").
+Please always include a commit message.
 
-Signed-off-by: Chen-Yu Tsai <wens@csie.org>
----
- drivers/base/regmap/regmap.c | 31 ++++++++++++++++++++++++++++---
- 1 file changed, 28 insertions(+), 3 deletions(-)
+> Signed-off-by: Oleksij Rempel <fixed-term.Oleksij.Rempel@de.bosch.com>
+> Cc: devicetree@vger.kernel.org
+> ---
+>  Documentation/devicetree/bindings/vendor-prefixes.txt | 1 +
+>  1 file changed, 1 insertion(+)
+> 
+> diff --git a/Documentation/devicetree/bindings/vendor-prefixes.txt b/Documentation/devicetree/bindings/vendor-prefixes.txt
+> index 2c2500d..7a1d5ea 100644
+> --- a/Documentation/devicetree/bindings/vendor-prefixes.txt
+> +++ b/Documentation/devicetree/bindings/vendor-prefixes.txt
+> @@ -158,6 +158,7 @@ melexis	Melexis N.V.
+>  merrii	Merrii Technology Co., Ltd.
+>  micrel	Micrel Inc.
+>  microchip	Microchip Technology Inc.
+> +microcrystal	Micro Crystal AG
+>  micron	Micron Technology Inc.
+>  minix	MINIX Technology Ltd.
+>  mitsubishi	Mitsubishi Electric Corporation
+> -- 
+> 1.9.1
+> 
+> -- 
+> You received this message because you are subscribed to "rtc-linux".
+> Membership options at http://groups.google.com/group/rtc-linux .
+> Please read http://groups.google.com/group/rtc-linux/web/checklist
+> before submitting a driver.
+> --- 
+> You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+> To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+> For more options, visit https://groups.google.com/d/optout.
 
-diff --git a/drivers/base/regmap/regmap.c b/drivers/base/regmap/regmap.c
-index df2d2ef5d6b3..51fa7d66a393 100644
---- a/drivers/base/regmap/regmap.c
-+++ b/drivers/base/regmap/regmap.c
-@@ -1777,8 +1777,6 @@ int regmap_bulk_write(struct regmap *map, unsigned int reg, const void *val,
- 	size_t val_bytes = map->format.val_bytes;
- 	size_t total_size = val_bytes * val_count;
- 
--	if (map->bus && !map->format.parse_inplace)
--		return -EINVAL;
- 	if (!IS_ALIGNED(reg, map->reg_stride))
- 		return -EINVAL;
- 
-@@ -1789,7 +1787,8 @@ int regmap_bulk_write(struct regmap *map, unsigned int reg, const void *val,
- 	 *
- 	 * The first if block is used for memory mapped io. It does not allow
- 	 * val_bytes of 3 for example.
--	 * The second one is used for busses which do not have this limitation
-+	 * The second one is for busses that do not provide raw I/O.
-+	 * The third one is used for busses which do not have these limitations
- 	 * and can write arbitrary value lengths.
- 	 */
- 	if (!map->bus) {
-@@ -1825,6 +1824,32 @@ int regmap_bulk_write(struct regmap *map, unsigned int reg, const void *val,
- 		}
- out:
- 		map->unlock(map->lock_arg);
-+	} else if (map->bus && !map->format.parse_inplace) {
-+		const u8 *u8 = val;
-+		const u16 *u16 = val;
-+		const u32 *u32 = val;
-+		unsigned int ival;
-+
-+		for (i = 0; i < val_count; i++) {
-+			switch (map->format.val_bytes) {
-+			case 4:
-+				ival = u32[i];
-+				break;
-+			case 2:
-+				ival = u16[i];
-+				break;
-+			case 1:
-+				ival = u8[i];
-+				break;
-+			default:
-+				return -EINVAL;
-+			}
-+
-+			ret = regmap_write(map, reg + (i * map->reg_stride),
-+					   ival);
-+			if (ret)
-+				return ret;
-+		}
- 	} else if (map->use_single_write ||
- 		   (map->max_raw_write && map->max_raw_write < total_size)) {
- 		int chunk_stride = map->reg_stride;
 -- 
-2.8.1
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
