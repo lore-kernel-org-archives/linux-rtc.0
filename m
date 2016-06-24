@@ -1,28 +1,29 @@
-Return-Path: <rtc-linux+bncBDKOBWPM5ABRBXOWUO5QKGQEC7FO5MY@googlegroups.com>
+Return-Path: <rtc-linux+bncBDP6N55ZUYDRBOG6W25QKGQECX3YGHY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-MIME-Version: 1.0
-Received: from mail-pf0-x242.google.com (mail-pf0-x242.google.com. [2607:f8b0:400e:c00::242])
-        by gmr-mx.google.com with ESMTPS id po17si907888pab.2.2016.06.21.00.23.09
+Received: from mail-pf0-x241.google.com (mail-pf0-x241.google.com. [2607:f8b0:400e:c00::241])
+        by gmr-mx.google.com with ESMTPS id po17si1062332pab.2.2016.06.24.15.07.52
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 21 Jun 2016 00:23:09 -0700 (PDT)
-Received: by mail-pf0-x242.google.com with SMTP id c74so763755pfb.0
-        for <rtc-linux@googlegroups.com>; Tue, 21 Jun 2016 00:23:09 -0700 (PDT)
-From: Andrey Smirnov <andrew.smirnov@gmail.com>
-To: rtc-linux@googlegroups.com
-Cc: Andrey Smirnov <andrew.smirnov@gmail.com>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	linux-kernel@vger.kernel.org,
-	cphealy@gmail.com
-Subject: [rtc-linux] [PATCH v2 12/17] RTC: ds1307: Redefine RX8025_REG_* to
- minimize extra code
-Date: Tue, 21 Jun 2016 00:22:45 -0700
-Message-Id: <1466493770-11895-11-git-send-email-andrew.smirnov@gmail.com>
-In-Reply-To: <1466493770-11895-1-git-send-email-andrew.smirnov@gmail.com>
-References: <1466493770-11895-1-git-send-email-andrew.smirnov@gmail.com>
-Reply-To: rtc-linux@googlegroups.com
+        Fri, 24 Jun 2016 15:07:52 -0700 (PDT)
+Received: by mail-pf0-x241.google.com with SMTP id 66so10280198pfy.1
+        for <rtc-linux@googlegroups.com>; Fri, 24 Jun 2016 15:07:52 -0700 (PDT)
+Date: Fri, 24 Jun 2016 15:07:48 -0700
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Neil Armstrong <narmstrong@baylibre.com>
+Cc: andy.gross@linaro.org, david.brown@linaro.org, lee.jones@linaro.org,
+	lgirdwood@gmail.com, broonie@kernel.org, a.zummo@towertech.it,
+	alexandre.belloni@free-electrons.com, linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org,
+	linux-soc@vger.kernel.org, rtc-linux@googlegroups.com
+Subject: [rtc-linux] Re: [PATCH v2 2/5] input: pmic8xxx-pwrkey: Add support
+ for pm8018 pwrkey
+Message-ID: <20160624220748.GB11719@dtor-ws>
+References: <1466759887-25394-1-git-send-email-narmstrong@baylibre.com>
+ <1466759887-25394-3-git-send-email-narmstrong@baylibre.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1466759887-25394-3-git-send-email-narmstrong@baylibre.com>
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -31,85 +32,50 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-The only place in the driver where RX8025_REG_* are used they are always
-shifted and ORed the same way, so instead of repeating that idiom make
-it a part of symbolic constant.
+On Fri, Jun 24, 2016 at 11:18:04AM +0200, Neil Armstrong wrote:
+> In order to support pwrkey for Qualcomm MDM9615 SoC, add support
+> for the pm8018 pwrkey in pmic8xxx-pwrkey.
+> 
+> Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+> Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
 
-Signed-off-by: Andrey Smirnov <andrew.smirnov@gmail.com>
----
- drivers/rtc/rtc-ds1307.c | 18 ++++++++++--------
- 1 file changed, 10 insertions(+), 8 deletions(-)
+NAK.
 
-diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
-index cbbe9f0..2af9c00 100644
---- a/drivers/rtc/rtc-ds1307.c
-+++ b/drivers/rtc/rtc-ds1307.c
-@@ -103,9 +103,11 @@ enum ds_type {
- 
- #define DS13XX_TRICKLE_CHARGER_MAGIC	0xa0
- 
--#define RX8025_REG_CTRL1	0x0e
-+#define RX8025_REG_CTRL1_	0x0e
-+#define RX8025_REG_CTRL1	((RX8025_REG_CTRL1_ << 4) | 0x08)
- #	define RX8025_BIT_2412		0x20
--#define RX8025_REG_CTRL2	0x0f
-+#define RX8025_REG_CTRL2_	0x0f
-+#define RX8025_REG_CTRL2	((RX8025_REG_CTRL2_ << 4) | 0x08)
- #	define RX8025_BIT_PON		0x10
- #	define RX8025_BIT_VDET		0x40
- #	define RX8025_BIT_XST		0x20
-@@ -1353,7 +1355,7 @@ static int ds1307_chip_configure(const struct ds1307 *ds1307)
- 	}
- 	case rx_8025:
- 		tmp = i2c_smbus_read_i2c_block_data(client,
--						    RX8025_REG_CTRL1 << 4 | 0x08,
-+						    RX8025_REG_CTRL1,
- 						    2, regs);
- 		if (tmp != 2) {
- 			dev_dbg(&client->dev, "read error %d\n", tmp);
-@@ -1364,7 +1366,7 @@ static int ds1307_chip_configure(const struct ds1307 *ds1307)
- 		if (!(regs[1] & RX8025_BIT_XST)) {
- 			regs[1] |= RX8025_BIT_XST;
- 			i2c_smbus_write_byte_data(client,
--						  RX8025_REG_CTRL2 << 4 | 0x08,
-+						  RX8025_REG_CTRL2,
- 						  regs[1]);
- 			dev_warn(&client->dev,
- 				 "oscillator stop detected - SET TIME!\n");
-@@ -1373,7 +1375,7 @@ static int ds1307_chip_configure(const struct ds1307 *ds1307)
- 		if (regs[1] & RX8025_BIT_PON) {
- 			regs[1] &= ~RX8025_BIT_PON;
- 			i2c_smbus_write_byte_data(client,
--						  RX8025_REG_CTRL2 << 4 | 0x08,
-+						  RX8025_REG_CTRL2,
- 						  regs[1]);
- 			dev_warn(&client->dev, "power-on detected\n");
- 		}
-@@ -1381,7 +1383,7 @@ static int ds1307_chip_configure(const struct ds1307 *ds1307)
- 		if (regs[1] & RX8025_BIT_VDET) {
- 			regs[1] &= ~RX8025_BIT_VDET;
- 			i2c_smbus_write_byte_data(client,
--						  RX8025_REG_CTRL2 << 4 | 0x08,
-+						  RX8025_REG_CTRL2,
- 						  regs[1]);
- 			dev_warn(&client->dev, "voltage drop detected\n");
- 		}
-@@ -1392,11 +1394,11 @@ static int ds1307_chip_configure(const struct ds1307 *ds1307)
- 
- 			/* switch to 24 hour mode */
- 			i2c_smbus_write_byte_data(client,
--						  RX8025_REG_CTRL1 << 4 | 0x08,
-+						  RX8025_REG_CTRL1,
- 						  regs[0] | RX8025_BIT_2412);
- 
- 			tmp = i2c_smbus_read_i2c_block_data(client,
--							    RX8025_REG_CTRL1 << 4 | 0x08,
-+							    RX8025_REG_CTRL1,
- 							    2, regs);
- 			if (tmp != 2) {
- 				dev_dbg(&client->dev, "read error %d\n", tmp);
+> ---
+>  Documentation/devicetree/bindings/input/qcom,pm8xxx-pwrkey.txt | 1 +
+>  drivers/input/misc/pmic8xxx-pwrkey.c                           | 1 +
+>  2 files changed, 2 insertions(+)
+> 
+> diff --git a/Documentation/devicetree/bindings/input/qcom,pm8xxx-pwrkey.txt b/Documentation/devicetree/bindings/input/qcom,pm8xxx-pwrkey.txt
+> index 588536c..9e530e2 100644
+> --- a/Documentation/devicetree/bindings/input/qcom,pm8xxx-pwrkey.txt
+> +++ b/Documentation/devicetree/bindings/input/qcom,pm8xxx-pwrkey.txt
+> @@ -8,6 +8,7 @@ PROPERTIES
+>  	Definition: must be one of:
+>  		    "qcom,pm8058-pwrkey"
+>  		    "qcom,pm8921-pwrkey"
+> +		    "qcom,pm8018-pwrkey"
+>  
+>  - reg:
+>  	Usage: required
+> diff --git a/drivers/input/misc/pmic8xxx-pwrkey.c b/drivers/input/misc/pmic8xxx-pwrkey.c
+> index 67aab86..f6f9b87 100644
+> --- a/drivers/input/misc/pmic8xxx-pwrkey.c
+> +++ b/drivers/input/misc/pmic8xxx-pwrkey.c
+> @@ -446,6 +446,7 @@ static int pmic8xxx_pwrkey_remove(struct platform_device *pdev)
+>  }
+>  
+>  static const struct of_device_id pm8xxx_pwr_key_id_table[] = {
+> +	{ .compatible = "qcom,pm8018-pwrkey", .data = &pm8921_pwrkey_shutdown },
+>  	{ .compatible = "qcom,pm8058-pwrkey", .data = &pm8058_pwrkey_shutdown },
+>  	{ .compatible = "qcom,pm8921-pwrkey", .data = &pm8921_pwrkey_shutdown },
+>  	{ }
+> -- 
+> 1.9.1
+> 
+
 -- 
-2.5.5
+Dmitry
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
