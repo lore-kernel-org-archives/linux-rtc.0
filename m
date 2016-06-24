@@ -1,21 +1,33 @@
-Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBZHEU25QKGQEF4R3O7Q@googlegroups.com>
+Return-Path: <rtc-linux+bncBDAYD2P3QYGRBVPVWO5QKGQE76O54EA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id f4si209881wmg.0.2016.06.21.14.32.20
-        for <rtc-linux@googlegroups.com>;
-        Tue, 21 Jun 2016 14:32:20 -0700 (PDT)
-Date: Tue, 21 Jun 2016 23:32:19 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Andrey Smirnov <andrew.smirnov@gmail.com>
-Cc: rtc-linux@googlegroups.com, Alessandro Zummo <a.zummo@towertech.it>,
-	linux-kernel@vger.kernel.org, cphealy@gmail.com
-Subject: [rtc-linux] Re: [PATCH v2 00/17] DS1341 support and code cleanup
-Message-ID: <20160621213219.GC5809@piout.net>
-References: <1466493519-11277-1-git-send-email-andrew.smirnov@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1466493519-11277-1-git-send-email-andrew.smirnov@gmail.com>
+Received: from mail-wm0-x233.google.com (mail-wm0-x233.google.com. [2a00:1450:400c:c09::233])
+        by gmr-mx.google.com with ESMTPS id q124si83574wme.3.2016.06.24.02.18.12
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Fri, 24 Jun 2016 02:18:12 -0700 (PDT)
+Received: by mail-wm0-x233.google.com with SMTP id r201so16814317wme.1
+        for <rtc-linux@googlegroups.com>; Fri, 24 Jun 2016 02:18:12 -0700 (PDT)
+From: Neil Armstrong <narmstrong@baylibre.com>
+To: dmitry.torokhov@gmail.com,
+	andy.gross@linaro.org,
+	david.brown@linaro.org,
+	lee.jones@linaro.org,
+	lgirdwood@gmail.com,
+	broonie@kernel.org,
+	a.zummo@towertech.it,
+	alexandre.belloni@free-electrons.com
+Cc: Neil Armstrong <narmstrong@baylibre.com>,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	linux-arm-msm@vger.kernel.org,
+	linux-soc@vger.kernel.org,
+	rtc-linux@googlegroups.com
+Subject: [rtc-linux] [PATCH v2 0/5] Add support for the Qualcomm PM8018 PMIC
+Date: Fri, 24 Jun 2016 11:18:02 +0200
+Message-Id: <1466759887-25394-1-git-send-email-narmstrong@baylibre.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -24,64 +36,42 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Hi,
+In order to support the Qualcomm MDM9615 in the Sierra Wireless WP8548
+Modules, add the PM8018 PMIC support into MFD, Regulator, RTC and input.
 
-On 21/06/2016 at 00:18:22 -0700, Andrey Smirnov wrote :
-> Hi everyone,
-> 
-> This set is a v2 of the DS1307 driver patches. Changes since v1:
-> 
->  - Devicetree bindings are separated into a separate commit
-> 
->  - Device tree properties now have vendor specific prefixes and
->    documenatation explicitly stating their type
-> 
->  - Three more patches, with improvements to rtctest.c, are added to
->    the patchset
-> 
+This patchset is part of a global SoC + Module + Board support for the
+Sierra Wireless mangOH Board support with the WP8548 module.
 
+Patch "mfd: qcom-rpm: Add support for pm8018 RPM Regulator" depends on :
+ - "fix offset error for msm8660" at http://lkml.kernel.org/r/1465897725-16213-1-git-send-email-linus.walleij@linaro.org
+ - "parametrize also ack selector size" at http://lkml.kernel.org/r/1466576837-21995-1-git-send-email-linus.walleij@linaro.org
 
+Changes since v1 at http://lkml.kernel.org/r/1466158929-19524-1-git-send-email-narmstrong@baylibre.com :
+ - Rebase mfd/qcom_rpm.c on top of Linus "fix offset error for msm8660" and "parametrize also ack selector size" patches
+ - Rename QCOM_RPM_NCP in to QCOM_RPM_PM8018_NCP
+ - Rebased qcom-rpm.h PM8018 defines numbers without a gap
+ - Dropped regulator corner
 
-> Any feedback is appreciated.
-> 
-> Thank you,
-> Andrey Smirnov
-> 
-> Andrey Smirnov (17):
->   RTC: ds1307: Add DS1341 variant
->   RTC: ds1307: Disable square wave and timers as default
->   RTC: ds1307: Add devicetree bindings for DS1341
->   RTC: ds1307: Add DS1341 specific power-saving options
->   RTC: ds1307: Convert ds1307_can_wakeup_device into a predicate
->   RTC: ds1307: Convert want_irq into a predicate
+Neil Armstrong (5):
+  mfd: pm8921: Add support for pm8018
+  input: pmic8xxx-pwrkey: Add support for pm8018 pwrkey
+  rtc: rtc-pm8xxx: Add support for pm8018 rtc
+  mfd: qcom-rpm: Add support for pm8018 RPM Regulator
+  regulator: qcom_rpm-regulator: Add support for pm8018 rpm regulator
 
-I'll have to triple check that one, it breaks in thousand different
-ways, every time someone touches that code :)
-
->   RTC: ds1307: Move chip configuration into a separate routine
->   RTC: ds1307: Move chip sanity checking into a separate routine
-
-I'm not sure about the cleanup in those two patches yet, It moves a lot
-of code and the readability improvement is not obvious
-
->   RTC: ds1307: Remove register "cache"
->   RTC: ds1307: Constify struct ds1307 where possible
->   RTC: ds1307: Convert goto to a loop
->   RTC: ds1307: Redefine RX8025_REG_* to minimize extra code
->   RTC: ds1307: Report oscillator problems more intelligently
->   RTC: ds1307: Move last bits of sanity checking out of chip_configure
-
->   RTC: rtctest: Change alarm IRQ support detection
->   RTC: rtctest: Change no IRQ detection for RTC_IRQP_READ
->   RTC: rtctest: Change no IRQ detection for RTC_IRQP_SET
-
-I already had patches for that issue in a development tree, I'll see if
-they match what I did.
+ .../bindings/input/qcom,pm8xxx-pwrkey.txt          |   1 +
+ .../devicetree/bindings/mfd/qcom-pm8xxx.txt        |   1 +
+ Documentation/devicetree/bindings/mfd/qcom-rpm.txt |  15 ++++
+ drivers/input/misc/pmic8xxx-pwrkey.c               |   1 +
+ drivers/mfd/pm8921-core.c                          |   1 +
+ drivers/mfd/qcom_rpm.c                             |  51 +++++++++++
+ drivers/regulator/qcom_rpm-regulator.c             | 100 +++++++++++++++++++++
+ drivers/rtc/rtc-pm8xxx.c                           |  11 +++
+ include/dt-bindings/mfd/qcom-rpm.h                 |  22 +++++
+ 9 files changed, 203 insertions(+)
 
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+1.9.1
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
