@@ -1,20 +1,26 @@
-Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBQ6TZO5AKGQEW42QGJQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBDKOBWPM5ABRBBMNW25QKGQEXRGR4UQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id b77si305024wmb.0.2016.06.04.07.46.27
-        for <rtc-linux@googlegroups.com>;
-        Sat, 04 Jun 2016 07:46:27 -0700 (PDT)
-Date: Sat, 4 Jun 2016 16:46:26 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Gabriele Mazzotta <gabriele.mzt@gmail.com>
-Cc: a.zummo@towertech.it, rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org, matthew.garrett@nebula.com
-Subject: [rtc-linux] Re: [PATCH 1/2] rtc-cmos: Clear expired alarm after resume
-Message-ID: <20160604144626.GM4594@piout.net>
-References: <1464795615-7748-1-git-send-email-gabriele.mzt@gmail.com>
+Received: from mail-yw0-x241.google.com (mail-yw0-x241.google.com. [2607:f8b0:4002:c05::241])
+        by gmr-mx.google.com with ESMTPS id c2si432305ywf.5.2016.06.24.12.14.13
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Fri, 24 Jun 2016 12:14:13 -0700 (PDT)
+Received: by mail-yw0-x241.google.com with SMTP id v77so16040543ywg.2
+        for <rtc-linux@googlegroups.com>; Fri, 24 Jun 2016 12:14:13 -0700 (PDT)
 MIME-Version: 1.0
+In-Reply-To: <20160624074849.GK5809@piout.net>
+References: <1466577742-18824-1-git-send-email-dirk.behme@de.bosch.com>
+ <1466577742-18824-3-git-send-email-dirk.behme@de.bosch.com> <20160624074849.GK5809@piout.net>
+From: Andrey Smirnov <andrew.smirnov@gmail.com>
+Date: Fri, 24 Jun 2016 12:14:12 -0700
+Message-ID: <CAHQ1cqF7ByYz9stnL_-siMJHGoyuLNAPwjcWA_fWRqy7WeMF=A@mail.gmail.com>
+Subject: Re: [rtc-linux] [PATCH v2 2/4] dt/bindings: Add bindings for Micro
+ Crystal rv8803
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: Dirk Behme <dirk.behme@de.bosch.com>, Rob Herring <robh+dt@kernel.org>,
+	rtc-linux@googlegroups.com, devicetree@vger.kernel.org,
+	Oleksij Rempel <fixed-term.Oleksij.Rempel@de.bosch.com>
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1464795615-7748-1-git-send-email-gabriele.mzt@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -24,24 +30,60 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Hi,
+On Fri, Jun 24, 2016 at 12:48 AM, Alexandre Belloni
+<alexandre.belloni@free-electrons.com> wrote:
+> On 22/06/2016 at 08:42:20 +0200, Dirk Behme wrote :
+>> From: Oleksij Rempel <fixed-term.Oleksij.Rempel@de.bosch.com>
+>>
+>> ... and Epson RX8900 real time clock
+>>
+>> Signed-off-by: Oleksij Rempel <fixed-term.Oleksij.Rempel@de.bosch.com>
+>> Cc: devicetree@vger.kernel.org
+>> ---
+>>  .../devicetree/bindings/rtc/epson,rx8900.txt       | 22 ++++++++++++++++++++++
+>>  1 file changed, 22 insertions(+)
+>>  create mode 100644 Documentation/devicetree/bindings/rtc/epson,rx8900.txt
+>>
+>> diff --git a/Documentation/devicetree/bindings/rtc/epson,rx8900.txt b/Documentation/devicetree/bindings/rtc/epson,rx8900.txt
+>> new file mode 100644
+>> index 0000000..3f61e51
+>> --- /dev/null
+>> +++ b/Documentation/devicetree/bindings/rtc/epson,rx8900.txt
+>> @@ -0,0 +1,22 @@
+>> +Real Time Clock driver for:
+>> +  - Epson RX8900
+>> +  - Micro Crystal rv8803
+>> +
+>> +Required properties:
+>> +- compatible: should be: "microcrystal,rv8803" or "epson,rx8900"
+>> +- reg : the I2C address of the device for I2C
+>> +
+>> +Optional properties:
+>> +- epson,vdet-disable : boolean, if present will disable voltage detector.
+>> +  Should be set if no backup battery is used.
+>
+> I guess we need to make that one generic. I would use
+> voltage-detection-disable.
+>
+> Andrey, can you use that one instead of
+> dallas,disable-oscillator-stop-flag ?
+>
 
-On 01/06/2016 at 17:40:14 +0200, Gabriele Mazzotta wrote :
-> If the system wakes up because of a wake alarm, the internal state
-> of the alarm is not updated. As consequence, the state no longer
-> reflects the actual state of the hardware and setting a new alarm
-> is not possible until the expired alarm is cleared.
-> 
+AFAIU from reading RX8900 datasheet, it has two power rails main and a
+backup one, so setting this property disables circuitry responsible
+for detecting main power rail failure and switching to a backup one.
 
-I'm not completely sure to understand what is happening but could you
-check whether that one is solved by
-2b2f5ff00f63847d95adad6289bd8b05f5983dd5 in my tree (rtc-next).
+DS1341 has only one power rail and setting
+"dallas,disable-oscillator-stop-flag" will disable circuitry
+responsible for detection of failure of the oscillator ticking its
+internal clock.
 
+IMHO, those functionalities don't have much in common and using the
+same property would be confusing for users of that binding on DS1341,
+but it's a boolean so there's not technical reason I couldn't.
 
--- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+Thanks,
+Andrey Smirnov
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
