@@ -1,22 +1,24 @@
-Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBUFXZO5AKGQEBLKNKJI@googlegroups.com>
+Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBYWLWO5QKGQEFBS2UEI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id f142si112942wmf.3.2016.06.04.06.46.56
+        by gmr-mx.google.com with ESMTP id a186si75323wma.1.2016.06.24.00.48.49
         for <rtc-linux@googlegroups.com>;
-        Sat, 04 Jun 2016 06:46:56 -0700 (PDT)
-Date: Sat, 4 Jun 2016 15:46:55 +0200
+        Fri, 24 Jun 2016 00:48:49 -0700 (PDT)
+Date: Fri, 24 Jun 2016 09:48:49 +0200
 From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Heinrich Schuchardt <xypron.glpk@gmx.de>
-Cc: Joshua Kinard <kumba@gentoo.org>,
-	Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH v2 1/1] rtc: ds1685: correct check of day of month
-Message-ID: <20160604134655.GJ4594@piout.net>
-References: <20160520223829.GA4963@piout.net>
- <1463869135-32575-1-git-send-email-xypron.glpk@gmx.de>
+To: Dirk Behme <dirk.behme@de.bosch.com>,
+	Andrey Smirnov <andrew.smirnov@gmail.com>,
+	Rob Herring <robh+dt@kernel.org>
+Cc: rtc-linux@googlegroups.com, devicetree@vger.kernel.org,
+	Oleksij Rempel <fixed-term.Oleksij.Rempel@de.bosch.com>
+Subject: Re: [rtc-linux] [PATCH v2 2/4] dt/bindings: Add bindings for Micro
+ Crystal rv8803
+Message-ID: <20160624074849.GK5809@piout.net>
+References: <1466577742-18824-1-git-send-email-dirk.behme@de.bosch.com>
+ <1466577742-18824-3-git-send-email-dirk.behme@de.bosch.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1463869135-32575-1-git-send-email-xypron.glpk@gmx.de>
+In-Reply-To: <1466577742-18824-3-git-send-email-dirk.behme@de.bosch.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -26,28 +28,41 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 22/05/2016 at 00:18:55 +0200, Heinrich Schuchardt wrote :
-> The day of month is checked in ds1685_rtc_read_alarm
-> and ds1685_rtc_set_alarm.
+On 22/06/2016 at 08:42:20 +0200, Dirk Behme wrote :
+> From: Oleksij Rempel <fixed-term.Oleksij.Rempel@de.bosch.com>
 > 
-> Multiple errors exist in the day of month check.
+> ... and Epson RX8900 real time clock
 > 
-> Operator ! has a higher priority than &&.
-> (!(mday >= 1) && (mday <= 31)) is false for mday == 32.
-> 
-> When verifying the day of month the binary and the BCD mode
-> have to be considered.
-> 
-> v2:
-> 	consider ds1685_rtc_read_alarm
-> 	consider rtc->bcd_mode as indicated by Alexandre Belloni
-> 
-> Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+> Signed-off-by: Oleksij Rempel <fixed-term.Oleksij.Rempel@de.bosch.com>
+> Cc: devicetree@vger.kernel.org
 > ---
->  drivers/rtc/rtc-ds1685.c | 34 +++++++++++++++++++++++++++++-----
->  1 file changed, 29 insertions(+), 5 deletions(-)
+>  .../devicetree/bindings/rtc/epson,rx8900.txt       | 22 ++++++++++++++++++++++
+>  1 file changed, 22 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/rtc/epson,rx8900.txt
 > 
-Applied, thanks.
+> diff --git a/Documentation/devicetree/bindings/rtc/epson,rx8900.txt b/Documentation/devicetree/bindings/rtc/epson,rx8900.txt
+> new file mode 100644
+> index 0000000..3f61e51
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/rtc/epson,rx8900.txt
+> @@ -0,0 +1,22 @@
+> +Real Time Clock driver for:
+> +  - Epson RX8900
+> +  - Micro Crystal rv8803
+> +
+> +Required properties:
+> +- compatible: should be: "microcrystal,rv8803" or "epson,rx8900"
+> +- reg : the I2C address of the device for I2C
+> +
+> +Optional properties:
+> +- epson,vdet-disable : boolean, if present will disable voltage detector.
+> +  Should be set if no backup battery is used.
+
+I guess we need to make that one generic. I would use
+voltage-detection-disable.
+
+Andrey, can you use that one instead of
+dallas,disable-oscillator-stop-flag ?
 
 -- 
 Alexandre Belloni, Free Electrons
