@@ -1,25 +1,30 @@
-Return-Path: <rtc-linux+bncBDJIP47K7MERBBHLU25QKGQEGH67EYQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBIVCYG5QKGQEJAZLP4Q@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail-oi0-f68.google.com (mail-oi0-f68.google.com. [209.85.218.68])
-        by gmr-mx.google.com with ESMTPS id o1si306192ith.1.2016.06.21.14.45.40
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 21 Jun 2016 14:45:40 -0700 (PDT)
-Received: by mail-oi0-f68.google.com with SMTP id x6so870256oif.3
-        for <rtc-linux@googlegroups.com>; Tue, 21 Jun 2016 14:45:40 -0700 (PDT)
-Date: Tue, 21 Jun 2016 16:45:39 -0500
-From: Rob Herring <robh@kernel.org>
-To: Dirk Behme <dirk.behme@de.bosch.com>
-Cc: rtc-linux@googlegroups.com,
-	Oleksij Rempel <fixed-term.Oleksij.Rempel@de.bosch.com>,
-	devicetree@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH 1/4] devicetree: Add Micro Crystal AG vendor id
-Message-ID: <20160621214539.GA9080@rob-hp-laptop>
-References: <1466492240-5528-1-git-send-email-dirk.behme@de.bosch.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1466492240-5528-1-git-send-email-dirk.behme@de.bosch.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id r10si205863wmf.0.2016.06.26.15.03.14
+        for <rtc-linux@googlegroups.com>;
+        Sun, 26 Jun 2016 15:03:14 -0700 (PDT)
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: rtc-linux@googlegroups.com
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+	linux-kernel@vger.kernel.org,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Hartley Sweeten <hsweeten@visionengravers.com>,
+	Ryan Mallon <rmallon@gmail.com>,
+	Alexander Clouter <alex@digriz.org.uk>,
+	Jason Cooper <jason@lakedaemon.net>,
+	Andrew Lunn <andrew@lunn.ch>,
+	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
+	Gregory Clement <gregory.clement@free-electrons.com>,
+	linux-arm-kernel@lists.infradead.org
+Subject: [rtc-linux] [PATCH 4/5] rtc: m48t86: move m48t86.h to platform_data
+Date: Mon, 27 Jun 2016 00:03:02 +0200
+Message-Id: <1466978583-13310-4-git-send-email-alexandre.belloni@free-electrons.com>
+In-Reply-To: <1466978583-13310-1-git-send-email-alexandre.belloni@free-electrons.com>
+References: <1466978583-13310-1-git-send-email-alexandre.belloni@free-electrons.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -28,37 +33,71 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Tue, Jun 21, 2016 at 08:57:17AM +0200, Dirk Behme wrote:
-> From: Oleksij Rempel <fixed-term.Oleksij.Rempel@de.bosch.com>
-> 
-> Signed-off-by: Oleksij Rempel <fixed-term.Oleksij.Rempel@de.bosch.com>
-> Cc: devicetree@vger.kernel.org
-> ---
->  Documentation/devicetree/bindings/vendor-prefixes.txt | 1 +
->  1 file changed, 1 insertion(+)
-> 
-> diff --git a/Documentation/devicetree/bindings/vendor-prefixes.txt b/Documentation/devicetree/bindings/vendor-prefixes.txt
-> index 2c2500d..a6b39f9 100644
-> --- a/Documentation/devicetree/bindings/vendor-prefixes.txt
-> +++ b/Documentation/devicetree/bindings/vendor-prefixes.txt
-> @@ -152,6 +152,7 @@ lsi	LSI Corp. (LSI Logic)
->  lltc	Linear Technology Corporation
->  marvell	Marvell Technology Group Ltd.
->  maxim	Maxim Integrated Products
-> +mc	Micro Crystal AG
+m48t86.h belongs to include/linux/platform_data/
 
-mc is a bit short. How about microcrystal?
+Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+---
+Cc: Hartley Sweeten <hsweeten@visionengravers.com>
+Cc: Ryan Mallon <rmallon@gmail.com>
+Cc: Alexander Clouter <alex@digriz.org.uk>
+Cc: Jason Cooper <jason@lakedaemon.net>
+Cc: Andrew Lunn <andrew@lunn.ch>
+Cc: Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>
+Cc: Gregory Clement <gregory.clement@free-electrons.com>
+Cc: linux-arm-kernel@lists.infradead.org
 
->  meas	Measurement Specialties
->  mediatek	MediaTek Inc.
->  melexis	Melexis N.V.
-> -- 
-> 2.8.0
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe devicetree" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+ arch/arm/mach-ep93xx/ts72xx.c                          | 2 +-
+ arch/arm/mach-orion5x/ts78xx-setup.c                   | 2 +-
+ drivers/rtc/rtc-m48t86.c                               | 2 +-
+ include/linux/{m48t86.h => platform_data/rtc-m48t86.h} | 0
+ 4 files changed, 3 insertions(+), 3 deletions(-)
+ rename include/linux/{m48t86.h => platform_data/rtc-m48t86.h} (100%)
+
+diff --git a/arch/arm/mach-ep93xx/ts72xx.c b/arch/arm/mach-ep93xx/ts72xx.c
+index 45b81a2bcd4b..3b39ea353d30 100644
+--- a/arch/arm/mach-ep93xx/ts72xx.c
++++ b/arch/arm/mach-ep93xx/ts72xx.c
+@@ -16,7 +16,7 @@
+ #include <linux/init.h>
+ #include <linux/platform_device.h>
+ #include <linux/io.h>
+-#include <linux/m48t86.h>
++#include <linux/platform_data/rtc-m48t86.h>
+ #include <linux/mtd/nand.h>
+ #include <linux/mtd/partitions.h>
+ 
+diff --git a/arch/arm/mach-orion5x/ts78xx-setup.c b/arch/arm/mach-orion5x/ts78xx-setup.c
+index 3a58a5d4a28a..8d597267d0c4 100644
+--- a/arch/arm/mach-orion5x/ts78xx-setup.c
++++ b/arch/arm/mach-orion5x/ts78xx-setup.c
+@@ -16,7 +16,7 @@
+ #include <linux/platform_device.h>
+ #include <linux/mv643xx_eth.h>
+ #include <linux/ata_platform.h>
+-#include <linux/m48t86.h>
++#include <linux/platform_data/rtc-m48t86.h>
+ #include <linux/mtd/nand.h>
+ #include <linux/mtd/partitions.h>
+ #include <linux/timeriomem-rng.h>
+diff --git a/drivers/rtc/rtc-m48t86.c b/drivers/rtc/rtc-m48t86.c
+index f72b91f2501f..0eeb5714c00f 100644
+--- a/drivers/rtc/rtc-m48t86.c
++++ b/drivers/rtc/rtc-m48t86.c
+@@ -16,7 +16,7 @@
+ #include <linux/module.h>
+ #include <linux/rtc.h>
+ #include <linux/platform_device.h>
+-#include <linux/m48t86.h>
++#include <linux/platform_data/rtc-m48t86.h>
+ #include <linux/bcd.h>
+ 
+ #define M48T86_REG_SEC		0x00
+diff --git a/include/linux/m48t86.h b/include/linux/platform_data/rtc-m48t86.h
+similarity index 100%
+rename from include/linux/m48t86.h
+rename to include/linux/platform_data/rtc-m48t86.h
+-- 
+2.8.1
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
