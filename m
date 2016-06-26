@@ -1,24 +1,24 @@
-Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBSOJWO5QKGQEHZTSWRI@googlegroups.com>
+Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBIVCYG5QKGQEJAZLP4Q@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id c135si73494wme.2.2016.06.24.00.44.08
-        for <rtc-linux@googlegroups.com>;
-        Fri, 24 Jun 2016 00:44:08 -0700 (PDT)
-Date: Fri, 24 Jun 2016 09:44:07 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Dirk Behme <dirk.behme@de.bosch.com>
-Cc: rtc-linux@googlegroups.com, devicetree@vger.kernel.org,
-	Oleksij Rempel <fixed-term.Oleksij.Rempel@de.bosch.com>,
-	Carsten Resch <Carsten.Resch@de.bosch.com>
-Subject: Re: [rtc-linux] [PATCH v2 4/4] rtc: rv8803: Be able to set VDETOFF
- and SWOFF via devcie tree
-Message-ID: <20160624074407.GJ5809@piout.net>
-References: <1466577742-18824-1-git-send-email-dirk.behme@de.bosch.com>
- <1466577742-18824-5-git-send-email-dirk.behme@de.bosch.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1466577742-18824-5-git-send-email-dirk.behme@de.bosch.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id a6si320178wma.1.2016.06.26.15.03.13
+        for <rtc-linux@googlegroups.com>;
+        Sun, 26 Jun 2016 15:03:13 -0700 (PDT)
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: rtc-linux@googlegroups.com
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+	linux-kernel@vger.kernel.org,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Ralf Baechle <ralf@linux-mips.org>,
+	linux-mips@linux-mips.org
+Subject: [rtc-linux] [PATCH 2/5] rtc: ds1286: move header to linux/rtc
+Date: Mon, 27 Jun 2016 00:03:00 +0200
+Message-Id: <1466978583-13310-2-git-send-email-alexandre.belloni@free-electrons.com>
+In-Reply-To: <1466978583-13310-1-git-send-email-alexandre.belloni@free-electrons.com>
+References: <1466978583-13310-1-git-send-email-alexandre.belloni@free-electrons.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -27,62 +27,50 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 22/06/2016 at 08:42:22 +0200, Dirk Behme wrote :
-> From: Oleksij Rempel <fixed-term.Oleksij.Rempel@de.bosch.com>
-> 
-> There might be designs where the power supply circuit is designed
-> in a way that VDETOFF and SWOFF is reuqired to be set. Otherwise the
-> RTC detects a power loss. Add a device tree interface for this.
-> 
-> Signed-off-by: Carsten Resch <Carsten.Resch@de.bosch.com>
-> Signed-off-by: Dirk Behme <dirk.behme@de.bosch.com>
-> Signed-off-by: Oleksij Rempel <fixed-term.Oleksij.Rempel@de.bosch.com>
-> Cc: devicetree@vger.kernel.org
-> ---
->  drivers/rtc/rtc-rv8803.c | 39 +++++++++++++++++++++++++++++++++++++++
->  1 file changed, 39 insertions(+)
-> 
-> diff --git a/drivers/rtc/rtc-rv8803.c b/drivers/rtc/rtc-rv8803.c
-> index e122b51..32a5686 100644
-> --- a/drivers/rtc/rtc-rv8803.c
-> +++ b/drivers/rtc/rtc-rv8803.c
-> @@ -50,6 +50,10 @@
->  #define RV8803_CTRL_TIE			BIT(4)
->  #define RV8803_CTRL_UIE			BIT(5)
->  
-> +#define RX8900_BACKUP_CTRL		0x18
-> +#define RX8900_FLAG_SWOFF		BIT(2)
-> +#define RX8900_FLAG_VDETOFF		BIT(3)
-> +
->  struct rv8803_data {
->  	struct i2c_client *client;
->  	struct rtc_device *rtc;
-> @@ -423,6 +427,35 @@ static struct rtc_class_ops rv8803_rtc_ops = {
->  	.ioctl = rv8803_ioctl,
->  };
->  
-> +static int rx8900_trickle_charger_init(struct rv8803_data *rv8803)
-> +{
-> +	struct i2c_client *client = rv8803->client;
-> +	struct device_node *node = client->dev.of_node;
-> +	int err;
-> +	u8 flags;
-> +
-> +	if (!node)
-> +		return 0;
-> +
-> +	if (!of_device_is_compatible(node, "epson,rx8900"))
-> +		return 0;
-> +
+Move ds1286.h to rtc specific folder.
 
-Can you use the i2c_device_id instead of of_device_is_compatible to
-avoid matching on yet another string?
+Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+---
+Cc: Ralf Baechle <ralf@linux-mips.org>
+Cc: linux-mips@linux-mips.org
+ arch/mips/sgi-ip22/ip22-reset.c  | 2 +-
+ drivers/rtc/rtc-ds1286.c         | 2 +-
+ include/linux/{ => rtc}/ds1286.h | 0
+ 3 files changed, 2 insertions(+), 2 deletions(-)
+ rename include/linux/{ => rtc}/ds1286.h (100%)
 
-
+diff --git a/arch/mips/sgi-ip22/ip22-reset.c b/arch/mips/sgi-ip22/ip22-reset.c
+index 063c2dd31e72..2f45b0357021 100644
+--- a/arch/mips/sgi-ip22/ip22-reset.c
++++ b/arch/mips/sgi-ip22/ip22-reset.c
+@@ -7,7 +7,7 @@
+  */
+ #include <linux/linkage.h>
+ #include <linux/init.h>
+-#include <linux/ds1286.h>
++#include <linux/rtc/ds1286.h>
+ #include <linux/module.h>
+ #include <linux/interrupt.h>
+ #include <linux/kernel.h>
+diff --git a/drivers/rtc/rtc-ds1286.c b/drivers/rtc/rtc-ds1286.c
+index 756e509f6ed2..ef75c349dff9 100644
+--- a/drivers/rtc/rtc-ds1286.c
++++ b/drivers/rtc/rtc-ds1286.c
+@@ -16,7 +16,7 @@
+ #include <linux/rtc.h>
+ #include <linux/platform_device.h>
+ #include <linux/bcd.h>
+-#include <linux/ds1286.h>
++#include <linux/rtc/ds1286.h>
+ #include <linux/io.h>
+ #include <linux/slab.h>
+ 
+diff --git a/include/linux/ds1286.h b/include/linux/rtc/ds1286.h
+similarity index 100%
+rename from include/linux/ds1286.h
+rename to include/linux/rtc/ds1286.h
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+2.8.1
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
