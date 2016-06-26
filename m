@@ -1,25 +1,31 @@
-Return-Path: <rtc-linux+bncBDYNJBOFRECBBWPU2S5AKGQE55XW22Y@googlegroups.com>
+Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBQGEXS5QKGQEL74DOAI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail-io0-x230.google.com (mail-io0-x230.google.com. [2607:f8b0:4001:c06::230])
-        by gmr-mx.google.com with ESMTPS id b6si603527ith.0.2016.06.06.01.54.48
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 06 Jun 2016 01:54:48 -0700 (PDT)
-Received: by mail-io0-x230.google.com with SMTP id o189so122486057ioe.2
-        for <rtc-linux@googlegroups.com>; Mon, 06 Jun 2016 01:54:48 -0700 (PDT)
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id a186si157032wma.1.2016.06.25.17.30.56
+        for <rtc-linux@googlegroups.com>;
+        Sat, 25 Jun 2016 17:30:56 -0700 (PDT)
+Date: Sun, 26 Jun 2016 02:30:54 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Chen-Yu Tsai <wens@csie.org>
+Cc: Mark Brown <broonie@kernel.org>, Lee Jones <lee.jones@linaro.org>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Ian Campbell <ijc+devicetree@hellion.org.uk>,
+	Kumar Gala <galak@codeaurora.org>,
+	Maxime Ripard <maxime.ripard@free-electrons.com>,
+	Michael Turquette <mturquette@baylibre.com>,
+	Stephen Boyd <sboyd@codeaurora.org>, rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org, devicetree@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org, linux-clk@vger.kernel.org
+Subject: [rtc-linux] Re: [PATCH v3 4/8] rtc: ac100: Add RTC driver for
+ X-Powers AC100
+Message-ID: <20160626003054.GW5809@piout.net>
+References: <1466391138-12862-1-git-send-email-wens@csie.org>
+ <1466391138-12862-5-git-send-email-wens@csie.org>
 MIME-Version: 1.0
-In-Reply-To: <1465119356-129799-1-git-send-email-agraf@suse.de>
-References: <1465119356-129799-1-git-send-email-agraf@suse.de>
-From: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Date: Mon, 6 Jun 2016 10:54:48 +0200
-Message-ID: <CAKv+Gu9cHvOBo_4Bq_rj6wqo61w=RtsL=+cRcAek7XkH5Wf+Hw@mail.gmail.com>
-Subject: [rtc-linux] Re: [PATCH] rtc: efi: Fail probing if RTC reads don't work
-To: Alexander Graf <agraf@suse.de>
-Cc: rtc-linux@googlegroups.com, Leif Lindholm <leif.lindholm@linaro.org>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Alessandro Zummo <a.zummo@towertech.it>
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1466391138-12862-5-git-send-email-wens@csie.org>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -29,42 +35,208 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 5 June 2016 at 11:35, Alexander Graf <agraf@suse.de> wrote:
-> While the EFI spec mandates an RTC, not every implementation actually adheres
-> to that rule (or can adhere to it - some systems just don't have an RTC).
->
-> For those, we really don't want to probe the EFI RTC driver at all, because if
-> we do we'd get a non-functional driver that does nothing useful but only spills
-> our kernel log with warnings.
->
-> Signed-off-by: Alexander Graf <agraf@suse.de>
+Hi,
 
-Acked-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+A few comments, mostly about style.
 
-> ---
->  drivers/rtc/rtc-efi.c | 6 ++++++
->  1 file changed, 6 insertions(+)
->
-> diff --git a/drivers/rtc/rtc-efi.c b/drivers/rtc/rtc-efi.c
-> index 96d3860..0130afd 100644
-> --- a/drivers/rtc/rtc-efi.c
-> +++ b/drivers/rtc/rtc-efi.c
-> @@ -259,6 +259,12 @@ static const struct rtc_class_ops efi_rtc_ops = {
->  static int __init efi_rtc_probe(struct platform_device *dev)
->  {
->         struct rtc_device *rtc;
-> +       efi_time_t eft;
-> +       efi_time_cap_t cap;
+On 20/06/2016 at 10:52:14 +0800, Chen-Yu Tsai wrote :
+> +struct ac100_rtc_dev {
+> +	struct rtc_device *rtc;
+> +	struct device *dev;
+> +	struct regmap *regmap;
+> +	struct mutex mutex;
+
+I don't think that mutex is needed. Instead, you can take rtc->ops_lock
+from the interrupt handler.
+
+> +	int irq;
+> +	unsigned long alarm;
+> +};
 > +
-> +       /* First check if the RTC is usable */
-> +       if (efi.get_time(&eft, &cap) != EFI_SUCCESS)
-> +               return -ENODEV;
->
->         rtc = devm_rtc_device_register(&dev->dev, "rtc-efi", &efi_rtc_ops,
->                                         THIS_MODULE);
-> --
-> 1.8.5.6
->
+> +static int ac100_rtc_get_time(struct device *dev, struct rtc_time *rtc_tm)
+> +{
+> +	struct ac100_rtc_dev *chip = dev_get_drvdata(dev);
+> +	struct regmap *regmap = chip->regmap;
+> +	u16 reg[7];
+> +	int ret;
+> +
+> +	ret = regmap_bulk_read(regmap, AC100_RTC_SEC, reg, 7);
+> +	if (ret)
+> +		return ret;
+> +
+> +	rtc_tm->tm_sec  = bcd2bin(reg[0] & AC100_RTC_SEC_MASK);
+> +	rtc_tm->tm_min  = bcd2bin(reg[1] & AC100_RTC_MIN_MASK);
+> +	rtc_tm->tm_hour = bcd2bin(reg[2] & AC100_RTC_HOU_MASK);
+> +	rtc_tm->tm_wday = bcd2bin(reg[3] & AC100_RTC_WEE_MASK);
+> +	rtc_tm->tm_mday = bcd2bin(reg[4] & AC100_RTC_DAY_MASK);
+> +	rtc_tm->tm_mon  = bcd2bin(reg[5] & AC100_RTC_MON_MASK);
+> +	rtc_tm->tm_year = bcd2bin(reg[6] & AC100_RTC_YEA_MASK);
+> +
+> +	rtc_tm->tm_mon  -= 1;
+
+I would put the - 1 inline with the first tm_mon assignment.
+
+> +
+> +	/*
+> +	 * switch from (data_year->min)-relative offset to
+> +	 * a (1900)-relative one
+> +	 */
+> +	rtc_tm->tm_year += AC100_YEAR_OFF;
+
+Unless you feel the comment is absolutely necessary, I'd also put that
+with the first tm_year assignment.
+
+BTW, is that RTC aware that 0 is actually 1970? And so 2000 (30) is not
+a leap year but 2016 is? I'd say that this is not the case, seeing
+AC100_RTC_YEA_LEAP but it is worth checking.
+
+Is this bit (AC100_RTC_YEA_LEAP) updated by the rtc? IF that is not the
+case, the time will have to be set at least once between first of
+January and 28th of February of leap years else it will fail...
+
+> +
+> +	return rtc_valid_tm(rtc_tm);
+> +}
+> +
+> +static int ac100_rtc_set_time(struct device *dev, struct rtc_time *rtc_tm)
+> +{
+> +	struct ac100_rtc_dev *chip = dev_get_drvdata(dev);
+> +	struct regmap *regmap = chip->regmap;
+> +	int year;
+> +	u16 reg[8];
+> +
+> +	/* our RTC has a limited year range... */
+> +	year = rtc_tm->tm_year + 1900;
+> +	if (year < AC100_YEAR_MIN || year > AC100_YEAR_MAX) {
+> +		dev_err(dev, "rtc only supports year in range %d - %d\n",
+> +			AC100_YEAR_MIN, AC100_YEAR_MAX);
+> +		return -EINVAL;
+> +	}
+> +
+
+What about:
+
+year = rtc_tm->tm_year - AC100_YEAR_OFF
+if (year < 0 || year > (AC100_YEAR_MAX - 1900))
+
+It allows to reuse year for the reg[6] assignment. IT is a simple
+suggestion, maybe the compiler is smarter than I am ;).
+
+> +	/* correct offsets */
+> +	rtc_tm->tm_year -= AC100_YEAR_OFF;
+> +	rtc_tm->tm_mon += 1;
+> +
+
+Those could also got inline with their respective reg[] assignment
+
+
+> +	/* convert to BCD */
+> +	reg[0] = bin2bcd(rtc_tm->tm_sec)  & AC100_RTC_SEC_MASK;
+> +	reg[1] = bin2bcd(rtc_tm->tm_min)  & AC100_RTC_MIN_MASK;
+> +	reg[2] = bin2bcd(rtc_tm->tm_hour) & AC100_RTC_HOU_MASK;
+> +	reg[3] = bin2bcd(rtc_tm->tm_wday) & AC100_RTC_WEE_MASK;
+> +	reg[4] = bin2bcd(rtc_tm->tm_mday) & AC100_RTC_DAY_MASK;
+> +	reg[5] = bin2bcd(rtc_tm->tm_mon)  & AC100_RTC_MON_MASK;
+> +	reg[6] = bin2bcd(rtc_tm->tm_year) & AC100_RTC_YEA_MASK;
+> +	/* trigger write */
+> +	reg[7] = AC100_RTC_UPD_TRIGGER;
+> +
+> +	/* Is it a leap year? */
+> +	if (is_leap_year(year))
+> +		reg[6] |= AC100_RTC_YEA_LEAP;
+> +
+> +	return regmap_bulk_write(regmap, AC100_RTC_SEC, reg, 8);
+> +}
+> +
+> +
+
+[...]
+
+> +	alrm_tm->tm_sec  = bcd2bin(reg[0] & AC100_ALM_SEC_MASK);
+> +	alrm_tm->tm_min  = bcd2bin(reg[1] & AC100_ALM_MIN_MASK);
+> +	alrm_tm->tm_hour = bcd2bin(reg[2] & AC100_ALM_HOU_MASK);
+> +	alrm_tm->tm_wday = bcd2bin(reg[3] & AC100_ALM_WEE_MASK);
+> +	alrm_tm->tm_mday = bcd2bin(reg[4] & AC100_ALM_DAY_MASK);
+> +	alrm_tm->tm_mon  = bcd2bin(reg[5] & AC100_ALM_MON_MASK);
+> +	alrm_tm->tm_year = bcd2bin(reg[6] & AC100_ALM_YEA_MASK);
+> +
+> +	alrm_tm->tm_mon  -= 1;
+> +
+> +	/*
+> +	 * switch from (data_year->min)-relative offset to
+> +	 * a (1900)-relative one
+> +	 */
+> +	alrm_tm->tm_year += AC100_YEAR_OFF;
+> +
+
+Well, same comments as in ac100_rtc_get_time()
+
+
+> +out:
+> +	mutex_unlock(&chip->mutex);
+> +	return ret;
+> +}
+> +
+> +static int ac100_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
+> +{
+> +	struct ac100_rtc_dev *chip = dev_get_drvdata(dev);
+> +	struct regmap *regmap = chip->regmap;
+> +	struct rtc_time *alrm_tm = &alrm->time;
+> +	u16 reg[8];
+> +	int year;
+> +	int ret;
+> +
+> +	/* our alarm has a limited year range... */
+> +	year = alrm_tm->tm_year + 1900;
+> +	if (year < AC100_YEAR_MIN || year > AC100_YEAR_MAX) {
+> +		dev_err(dev, "alarm only supports year in range %d - %d\n",
+> +			AC100_YEAR_MIN, AC100_YEAR_MAX);
+> +		return -EINVAL;
+> +	}
+> +
+> +	/* correct offsets */
+> +	alrm_tm->tm_year -= AC100_YEAR_OFF;
+> +	alrm_tm->tm_mon += 1;
+> +
+
+Same comment as ac100_rtc_set_time()
+
+> +	/* convert to BCD */
+> +	reg[0] = (bin2bcd(alrm_tm->tm_sec)  & AC100_ALM_SEC_MASK) |
+> +			AC100_ALM_ENABLE_FLAG;
+> +	reg[1] = (bin2bcd(alrm_tm->tm_min)  & AC100_ALM_MIN_MASK) |
+> +			AC100_ALM_ENABLE_FLAG;
+> +	reg[2] = (bin2bcd(alrm_tm->tm_hour) & AC100_ALM_HOU_MASK) |
+> +			AC100_ALM_ENABLE_FLAG;
+> +	/* Do not enable weekday alarm */
+> +	reg[3] = bin2bcd(alrm_tm->tm_wday) & AC100_ALM_WEE_MASK;
+> +	reg[4] = (bin2bcd(alrm_tm->tm_mday) & AC100_ALM_DAY_MASK) |
+> +			AC100_ALM_ENABLE_FLAG;
+> +	reg[5] = (bin2bcd(alrm_tm->tm_mon)  & AC100_ALM_MON_MASK) |
+> +			AC100_ALM_ENABLE_FLAG;
+> +	reg[6] = (bin2bcd(alrm_tm->tm_year) & AC100_ALM_YEA_MASK) |
+> +			AC100_ALM_ENABLE_FLAG;
+> +	/* trigger write */
+> +	reg[7] = AC100_ALM_UPD_TRIGGER;
+> +
+> +	mutex_lock(&chip->mutex);
+> +
+> +	ret = regmap_bulk_write(regmap, AC100_ALM_SEC, reg, 8);
+> +	if (ret)
+> +		goto out;
+> +
+> +	ret = _ac100_rtc_alarm_irq_enable(chip, alrm->enabled);
+> +
+> +out:
+> +	mutex_unlock(&chip->mutex);
+> +	return ret;
+> +}
+> +
+
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
