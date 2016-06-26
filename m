@@ -1,27 +1,26 @@
-Return-Path: <rtc-linux+bncBCMILY6JWQBBBLGZX65QKGQEIP7LQWA@googlegroups.com>
+Return-Path: <rtc-linux+bncBCMILY6JWQBBBF63X65QKGQEN34Q3AA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 Received: from smtp.csie.ntu.edu.tw (smtp.csie.ntu.edu.tw. [140.112.30.61])
-        by gmr-mx.google.com with ESMTPS id c11si1773176pfc.2.2016.06.26.07.54.36
+        by gmr-mx.google.com with ESMTPS id zj2si1780988pac.1.2016.06.26.07.58.30
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sun, 26 Jun 2016 07:54:36 -0700 (PDT)
+        Sun, 26 Jun 2016 07:58:31 -0700 (PDT)
 Received: from mail-it0-f46.google.com (mail-it0-f46.google.com [209.85.214.46])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
 	(Authenticated sender: b93043)
-	by smtp.csie.ntu.edu.tw (Postfix) with ESMTPSA id D891C20A01
-	for <rtc-linux@googlegroups.com>; Sun, 26 Jun 2016 22:54:34 +0800 (CST)
-Received: by mail-it0-f46.google.com with SMTP id f6so45648196ith.0
-        for <rtc-linux@googlegroups.com>; Sun, 26 Jun 2016 07:54:34 -0700 (PDT)
+	by smtp.csie.ntu.edu.tw (Postfix) with ESMTPSA id 260A920A01
+	for <rtc-linux@googlegroups.com>; Sun, 26 Jun 2016 22:58:29 +0800 (CST)
+Received: by mail-it0-f46.google.com with SMTP id a5so48664248ita.1
+        for <rtc-linux@googlegroups.com>; Sun, 26 Jun 2016 07:58:29 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <20160626003054.GW5809@piout.net>
+In-Reply-To: <20160626004557.GX5809@piout.net>
 References: <1466391138-12862-1-git-send-email-wens@csie.org>
- <1466391138-12862-5-git-send-email-wens@csie.org> <20160626003054.GW5809@piout.net>
+ <1466391138-12862-6-git-send-email-wens@csie.org> <20160626004557.GX5809@piout.net>
 From: Chen-Yu Tsai <wens@csie.org>
-Date: Sun, 26 Jun 2016 22:54:13 +0800
-Message-ID: <CAGb2v661AUiAZpH2oFLVAqdy_sBGi_3Hg7oGCKO416L=P0zUSA@mail.gmail.com>
-Subject: [rtc-linux] Re: [PATCH v3 4/8] rtc: ac100: Add RTC driver for
- X-Powers AC100
+Date: Sun, 26 Jun 2016 22:58:07 +0800
+Message-ID: <CAGb2v64YnSz5MnnF==ZeeqZw4yBY2R=dNVdyi9BczVR5WCNZ3g@mail.gmail.com>
+Subject: [rtc-linux] Re: [PATCH v3 5/8] rtc: ac100: Add clk output support
 To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
 Cc: Chen-Yu Tsai <wens@csie.org>, Mark Brown <broonie@kernel.org>, Lee Jones <lee.jones@linaro.org>,
 	Alessandro Zummo <a.zummo@towertech.it>, Rob Herring <robh+dt@kernel.org>,
@@ -43,222 +42,44 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Sun, Jun 26, 2016 at 8:30 AM, Alexandre Belloni
+On Sun, Jun 26, 2016 at 8:45 AM, Alexandre Belloni
 <alexandre.belloni@free-electrons.com> wrote:
-> Hi,
->
-> A few comments, mostly about style.
->
-> On 20/06/2016 at 10:52:14 +0800, Chen-Yu Tsai wrote :
->> +struct ac100_rtc_dev {
->> +     struct rtc_device *rtc;
->> +     struct device *dev;
+> On 20/06/2016 at 10:52:15 +0800, Chen-Yu Tsai wrote :
+>> +struct ac100_clk32k {
+>> +     struct clk_hw hw;
 >> +     struct regmap *regmap;
->> +     struct mutex mutex;
->
-> I don't think that mutex is needed. Instead, you can take rtc->ops_lock
-> from the interrupt handler.
-
-OK. I didn't think using the lock from the rtc device was a good idea.
-
->
->> +     int irq;
->> +     unsigned long alarm;
+>> +     u8 offset;
 >> +};
 >> +
->> +static int ac100_rtc_get_time(struct device *dev, struct rtc_time *rtc_tm)
->> +{
->> +     struct ac100_rtc_dev *chip = dev_get_drvdata(dev);
->> +     struct regmap *regmap = chip->regmap;
->> +     u16 reg[7];
->> +     int ret;
+>> +#define to_ac100_clk32k(_hw) container_of(_hw, struct ac100_clk32k, hw)
 >> +
->> +     ret = regmap_bulk_read(regmap, AC100_RTC_SEC, reg, 7);
->> +     if (ret)
->> +             return ret;
+>> +#define AC100_RTC_32K_NAME   "ac100-rtc-32k"
+>> +#define AC100_RTC_32K_RATE   32768
+>> +#define AC100_ADDA_4M_NAME   "ac100-adda-4M"
+>> +#define AC100_ADDA_4M_RATE   4000000
+>> +#define AC100_CLK32K_NUM     3
 >> +
->> +     rtc_tm->tm_sec  = bcd2bin(reg[0] & AC100_RTC_SEC_MASK);
->> +     rtc_tm->tm_min  = bcd2bin(reg[1] & AC100_RTC_MIN_MASK);
->> +     rtc_tm->tm_hour = bcd2bin(reg[2] & AC100_RTC_HOU_MASK);
->> +     rtc_tm->tm_wday = bcd2bin(reg[3] & AC100_RTC_WEE_MASK);
->> +     rtc_tm->tm_mday = bcd2bin(reg[4] & AC100_RTC_DAY_MASK);
->> +     rtc_tm->tm_mon  = bcd2bin(reg[5] & AC100_RTC_MON_MASK);
->> +     rtc_tm->tm_year = bcd2bin(reg[6] & AC100_RTC_YEA_MASK);
+>> +static const char * const ac100_clk32k_names[] = {
+>> +     "ac100-clk32k-ap",
+>> +     "ac100-clk32k-bb",
+>> +     "ac100-clk32k-md",
+>> +};
 >> +
->> +     rtc_tm->tm_mon  -= 1;
 >
-> I would put the - 1 inline with the first tm_mon assignment.
+> Well, naming things is hard but I don't feel ac100_clk32k and
+> ac100-clk32k are good prefixes for those clocks as they are actually
+> dividing a 32KHz or 4MHz clock (one configuration out of 128 is 32KHz).
 
-OK
+I agree it's a bit misleading. There are 2 names used throughout the
+datasheet: 1) CKOn_RTC for the pin names, and 2) CLK32Kxx for the
+register names and block diagram.
 
->
->> +
->> +     /*
->> +      * switch from (data_year->min)-relative offset to
->> +      * a (1900)-relative one
->> +      */
->> +     rtc_tm->tm_year += AC100_YEAR_OFF;
->
-> Unless you feel the comment is absolutely necessary, I'd also put that
-> with the first tm_year assignment.
->
-> BTW, is that RTC aware that 0 is actually 1970? And so 2000 (30) is not
-> a leap year but 2016 is? I'd say that this is not the case, seeing
-> AC100_RTC_YEA_LEAP but it is worth checking.
->
-> Is this bit (AC100_RTC_YEA_LEAP) updated by the rtc? IF that is not the
-> case, the time will have to be set at least once between first of
-> January and 28th of February of leap years else it will fail...
+I'll switch to the pin names, since this is probably what is shown on
+board schematics.
 
-Unfortunately it is not. The datasheet explicitly said the RTC does not
-update the leap year bit. So yes, the RTC will have to be updated at
-least once a year...
+> Else, I don't have any objection.
 
->> +
->> +     return rtc_valid_tm(rtc_tm);
->> +}
->> +
->> +static int ac100_rtc_set_time(struct device *dev, struct rtc_time *rtc_tm)
->> +{
->> +     struct ac100_rtc_dev *chip = dev_get_drvdata(dev);
->> +     struct regmap *regmap = chip->regmap;
->> +     int year;
->> +     u16 reg[8];
->> +
->> +     /* our RTC has a limited year range... */
->> +     year = rtc_tm->tm_year + 1900;
->> +     if (year < AC100_YEAR_MIN || year > AC100_YEAR_MAX) {
->> +             dev_err(dev, "rtc only supports year in range %d - %d\n",
->> +                     AC100_YEAR_MIN, AC100_YEAR_MAX);
->> +             return -EINVAL;
->> +     }
->> +
->
-> What about:
->
-> year = rtc_tm->tm_year - AC100_YEAR_OFF
-> if (year < 0 || year > (AC100_YEAR_MAX - 1900))
->
-> It allows to reuse year for the reg[6] assignment. IT is a simple
-> suggestion, maybe the compiler is smarter than I am ;).
->
->> +     /* correct offsets */
->> +     rtc_tm->tm_year -= AC100_YEAR_OFF;
->> +     rtc_tm->tm_mon += 1;
->> +
->
-> Those could also got inline with their respective reg[] assignment
-
-OK. I'll see if I can still fit everything in a single line, to keep
-the nice table-like formatting.
-
->
->
->> +     /* convert to BCD */
->> +     reg[0] = bin2bcd(rtc_tm->tm_sec)  & AC100_RTC_SEC_MASK;
->> +     reg[1] = bin2bcd(rtc_tm->tm_min)  & AC100_RTC_MIN_MASK;
->> +     reg[2] = bin2bcd(rtc_tm->tm_hour) & AC100_RTC_HOU_MASK;
->> +     reg[3] = bin2bcd(rtc_tm->tm_wday) & AC100_RTC_WEE_MASK;
->> +     reg[4] = bin2bcd(rtc_tm->tm_mday) & AC100_RTC_DAY_MASK;
->> +     reg[5] = bin2bcd(rtc_tm->tm_mon)  & AC100_RTC_MON_MASK;
->> +     reg[6] = bin2bcd(rtc_tm->tm_year) & AC100_RTC_YEA_MASK;
->> +     /* trigger write */
->> +     reg[7] = AC100_RTC_UPD_TRIGGER;
->> +
->> +     /* Is it a leap year? */
->> +     if (is_leap_year(year))
->> +             reg[6] |= AC100_RTC_YEA_LEAP;
->> +
->> +     return regmap_bulk_write(regmap, AC100_RTC_SEC, reg, 8);
->> +}
->> +
->> +
->
-> [...]
->
->> +     alrm_tm->tm_sec  = bcd2bin(reg[0] & AC100_ALM_SEC_MASK);
->> +     alrm_tm->tm_min  = bcd2bin(reg[1] & AC100_ALM_MIN_MASK);
->> +     alrm_tm->tm_hour = bcd2bin(reg[2] & AC100_ALM_HOU_MASK);
->> +     alrm_tm->tm_wday = bcd2bin(reg[3] & AC100_ALM_WEE_MASK);
->> +     alrm_tm->tm_mday = bcd2bin(reg[4] & AC100_ALM_DAY_MASK);
->> +     alrm_tm->tm_mon  = bcd2bin(reg[5] & AC100_ALM_MON_MASK);
->> +     alrm_tm->tm_year = bcd2bin(reg[6] & AC100_ALM_YEA_MASK);
->> +
->> +     alrm_tm->tm_mon  -= 1;
->> +
->> +     /*
->> +      * switch from (data_year->min)-relative offset to
->> +      * a (1900)-relative one
->> +      */
->> +     alrm_tm->tm_year += AC100_YEAR_OFF;
->> +
->
-> Well, same comments as in ac100_rtc_get_time()
->
->
->> +out:
->> +     mutex_unlock(&chip->mutex);
->> +     return ret;
->> +}
->> +
->> +static int ac100_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
->> +{
->> +     struct ac100_rtc_dev *chip = dev_get_drvdata(dev);
->> +     struct regmap *regmap = chip->regmap;
->> +     struct rtc_time *alrm_tm = &alrm->time;
->> +     u16 reg[8];
->> +     int year;
->> +     int ret;
->> +
->> +     /* our alarm has a limited year range... */
->> +     year = alrm_tm->tm_year + 1900;
->> +     if (year < AC100_YEAR_MIN || year > AC100_YEAR_MAX) {
->> +             dev_err(dev, "alarm only supports year in range %d - %d\n",
->> +                     AC100_YEAR_MIN, AC100_YEAR_MAX);
->> +             return -EINVAL;
->> +     }
->> +
->> +     /* correct offsets */
->> +     alrm_tm->tm_year -= AC100_YEAR_OFF;
->> +     alrm_tm->tm_mon += 1;
->> +
->
-> Same comment as ac100_rtc_set_time()
->
->> +     /* convert to BCD */
->> +     reg[0] = (bin2bcd(alrm_tm->tm_sec)  & AC100_ALM_SEC_MASK) |
->> +                     AC100_ALM_ENABLE_FLAG;
->> +     reg[1] = (bin2bcd(alrm_tm->tm_min)  & AC100_ALM_MIN_MASK) |
->> +                     AC100_ALM_ENABLE_FLAG;
->> +     reg[2] = (bin2bcd(alrm_tm->tm_hour) & AC100_ALM_HOU_MASK) |
->> +                     AC100_ALM_ENABLE_FLAG;
->> +     /* Do not enable weekday alarm */
->> +     reg[3] = bin2bcd(alrm_tm->tm_wday) & AC100_ALM_WEE_MASK;
->> +     reg[4] = (bin2bcd(alrm_tm->tm_mday) & AC100_ALM_DAY_MASK) |
->> +                     AC100_ALM_ENABLE_FLAG;
->> +     reg[5] = (bin2bcd(alrm_tm->tm_mon)  & AC100_ALM_MON_MASK) |
->> +                     AC100_ALM_ENABLE_FLAG;
->> +     reg[6] = (bin2bcd(alrm_tm->tm_year) & AC100_ALM_YEA_MASK) |
->> +                     AC100_ALM_ENABLE_FLAG;
->> +     /* trigger write */
->> +     reg[7] = AC100_ALM_UPD_TRIGGER;
->> +
->> +     mutex_lock(&chip->mutex);
->> +
->> +     ret = regmap_bulk_write(regmap, AC100_ALM_SEC, reg, 8);
->> +     if (ret)
->> +             goto out;
->> +
->> +     ret = _ac100_rtc_alarm_irq_enable(chip, alrm->enabled);
->> +
->> +out:
->> +     mutex_unlock(&chip->mutex);
->> +     return ret;
->> +}
->> +
-
-Thanks for the review!
-
+Thanks!
 ChenYu
 
 -- 
