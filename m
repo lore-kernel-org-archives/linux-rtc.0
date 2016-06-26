@@ -1,26 +1,31 @@
-Return-Path: <rtc-linux+bncBDJIP47K7MERBNPMU25QKGQE366VUFA@googlegroups.com>
+Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBCWTXS5QKGQEZUYFZPI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail-oi0-f66.google.com (mail-oi0-f66.google.com. [209.85.218.66])
-        by gmr-mx.google.com with ESMTPS id f63si294042ith.2.2016.06.21.14.48.37
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 21 Jun 2016 14:48:37 -0700 (PDT)
-Received: by mail-oi0-f66.google.com with SMTP id s17so889669oih.1
-        for <rtc-linux@googlegroups.com>; Tue, 21 Jun 2016 14:48:37 -0700 (PDT)
-Date: Tue, 21 Jun 2016 16:48:36 -0500
-From: Rob Herring <robh@kernel.org>
-To: Dirk Behme <dirk.behme@de.bosch.com>
-Cc: rtc-linux@googlegroups.com,
-	Oleksij Rempel <fixed-term.Oleksij.Rempel@de.bosch.com>,
-	devicetree@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH 2/4] dt/bindings: Add bindings for Micro
- Crystal rv8803
-Message-ID: <20160621214836.GA10197@rob-hp-laptop>
-References: <1466492240-5528-1-git-send-email-dirk.behme@de.bosch.com>
- <1466492240-5528-2-git-send-email-dirk.behme@de.bosch.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id q124si142869wme.3.2016.06.25.18.02.02
+        for <rtc-linux@googlegroups.com>;
+        Sat, 25 Jun 2016 18:02:02 -0700 (PDT)
+Date: Sun, 26 Jun 2016 03:02:00 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Chen-Yu Tsai <wens@csie.org>
+Cc: Mark Brown <broonie@kernel.org>, Lee Jones <lee.jones@linaro.org>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Ian Campbell <ijc+devicetree@hellion.org.uk>,
+	Kumar Gala <galak@codeaurora.org>,
+	Maxime Ripard <maxime.ripard@free-electrons.com>,
+	Michael Turquette <mturquette@baylibre.com>,
+	Stephen Boyd <sboyd@codeaurora.org>, rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org, devicetree@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org, linux-clk@vger.kernel.org
+Subject: [rtc-linux] Re: [PATCH v3 4/8] rtc: ac100: Add RTC driver for
+ X-Powers AC100
+Message-ID: <20160626010200.GZ5809@piout.net>
+References: <1466391138-12862-1-git-send-email-wens@csie.org>
+ <1466391138-12862-5-git-send-email-wens@csie.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1466492240-5528-2-git-send-email-dirk.behme@de.bosch.com>
+In-Reply-To: <1466391138-12862-5-git-send-email-wens@csie.org>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -30,62 +35,34 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Tue, Jun 21, 2016 at 08:57:18AM +0200, Dirk Behme wrote:
-> From: Oleksij Rempel <fixed-term.Oleksij.Rempel@de.bosch.com>
-> 
-> ... and Epson RX8900 real time clock
-> 
-> Signed-off-by: Oleksij Rempel <fixed-term.Oleksij.Rempel@de.bosch.com>
-> Cc: devicetree@vger.kernel.org
-> ---
->  .../devicetree/bindings/rtc/epson,rx8900.txt        | 21 +++++++++++++++++++++
->  1 file changed, 21 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/rtc/epson,rx8900.txt
-> 
-> diff --git a/Documentation/devicetree/bindings/rtc/epson,rx8900.txt b/Documentation/devicetree/bindings/rtc/epson,rx8900.txt
-> new file mode 100644
-> index 0000000..51959de
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/rtc/epson,rx8900.txt
-> @@ -0,0 +1,21 @@
-> +Real Time Clock driver for:
-> +  - Epson RX8900
-> +  - Micro Crystal rv8803
+On 20/06/2016 at 10:52:14 +0800, Chen-Yu Tsai wrote :
+> +static int ac100_rtc_probe(struct platform_device *pdev)
+> +{
+> +	struct ac100_dev *ac100 = dev_get_drvdata(pdev->dev.parent);
+> +	struct ac100_rtc_dev *chip;
+> +	int ret;
 > +
-> +Required properties:
-> +- compatible: should be: "mc,rv8803" or "epson,rx8900"
-> +- reg : the I2C address of the device for I2C
+> +	chip = devm_kzalloc(&pdev->dev, sizeof(*chip), GFP_KERNEL);
+> +	platform_set_drvdata(pdev, chip);
+> +	chip->dev = &pdev->dev;
+> +	chip->regmap = ac100->regmap;
+> +	mutex_init(&chip->mutex);
 > +
-> +Optional properties:
-> +- epson,vdetoff : Disable Voltage Detector. Should be set if no
-> +  backup battery is used.
+> +	chip->irq = of_irq_get(pdev->dev.of_node, 0);
 
-set to no? Looks like a boolean to me.
+Forgot that one, platform_get_irq() is probably more common but I don't
+care that much. I think you can then avoid including of.h and of_irq.h.
 
-How about epson,vdet-disable to be consistent.
-
-> +- trickle-diode-disable : Disable internal trickle charger diode
-
-boolean?
-
-Needs a vendor prefix.
-
+> +	if (chip->irq < 0) {
+> +		dev_err(&pdev->dev, "No IRQ resource\n");
+> +		return chip->irq;
+> +	}
 > +
-> +Example:
-> +
-> +	rtc: rtc@32 {
-> +		compatible = "epson,rx8900"
-> +		reg = <0x32>;
-> +		epson,vdetoff;
-> +		trickle-diode-disable;
-> +	};
-> -- 
-> 2.8.0
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe devicetree" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
