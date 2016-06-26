@@ -1,20 +1,40 @@
-Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBIVCYG5QKGQEJAZLP4Q@googlegroups.com>
+Return-Path: <rtc-linux+bncBCMILY6JWQBBBLGZX65QKGQEIP7LQWA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
+Received: from smtp.csie.ntu.edu.tw (smtp.csie.ntu.edu.tw. [140.112.30.61])
+        by gmr-mx.google.com with ESMTPS id c11si1773176pfc.2.2016.06.26.07.54.36
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Sun, 26 Jun 2016 07:54:36 -0700 (PDT)
+Received: from mail-it0-f46.google.com (mail-it0-f46.google.com [209.85.214.46])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	(Authenticated sender: b93043)
+	by smtp.csie.ntu.edu.tw (Postfix) with ESMTPSA id D891C20A01
+	for <rtc-linux@googlegroups.com>; Sun, 26 Jun 2016 22:54:34 +0800 (CST)
+Received: by mail-it0-f46.google.com with SMTP id f6so45648196ith.0
+        for <rtc-linux@googlegroups.com>; Sun, 26 Jun 2016 07:54:34 -0700 (PDT)
 MIME-Version: 1.0
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id f70si126397wmf.0.2016.06.26.15.03.13
-        for <rtc-linux@googlegroups.com>;
-        Sun, 26 Jun 2016 15:03:13 -0700 (PDT)
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: rtc-linux@googlegroups.com
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
-	linux-kernel@vger.kernel.org,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Subject: [rtc-linux] [PATCH 1/5] rtc: ds17287: remove unused header
-Date: Mon, 27 Jun 2016 00:02:59 +0200
-Message-Id: <1466978583-13310-1-git-send-email-alexandre.belloni@free-electrons.com>
-Reply-To: rtc-linux@googlegroups.com
+In-Reply-To: <20160626003054.GW5809@piout.net>
+References: <1466391138-12862-1-git-send-email-wens@csie.org>
+ <1466391138-12862-5-git-send-email-wens@csie.org> <20160626003054.GW5809@piout.net>
+From: Chen-Yu Tsai <wens@csie.org>
+Date: Sun, 26 Jun 2016 22:54:13 +0800
+Message-ID: <CAGb2v661AUiAZpH2oFLVAqdy_sBGi_3Hg7oGCKO416L=P0zUSA@mail.gmail.com>
+Subject: [rtc-linux] Re: [PATCH v3 4/8] rtc: ac100: Add RTC driver for
+ X-Powers AC100
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: Chen-Yu Tsai <wens@csie.org>, Mark Brown <broonie@kernel.org>, Lee Jones <lee.jones@linaro.org>,
+	Alessandro Zummo <a.zummo@towertech.it>, Rob Herring <robh+dt@kernel.org>,
+	Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>,
+	Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>,
+	Maxime Ripard <maxime.ripard@free-electrons.com>,
+	Michael Turquette <mturquette@baylibre.com>, Stephen Boyd <sboyd@codeaurora.org>,
+	rtc-linux@googlegroups.com, linux-kernel <linux-kernel@vger.kernel.org>,
+	devicetree <devicetree@vger.kernel.org>,
+	linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
+	linux-clk <linux-clk@vger.kernel.org>
 Content-Type: text/plain; charset=UTF-8
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -23,89 +43,223 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-ds17287rtc.h is unused since commit 15beb694c661 ("mips: ip32: add
-platform data hooks to use DS1685 driver"), remove it.
+On Sun, Jun 26, 2016 at 8:30 AM, Alexandre Belloni
+<alexandre.belloni@free-electrons.com> wrote:
+> Hi,
+>
+> A few comments, mostly about style.
+>
+> On 20/06/2016 at 10:52:14 +0800, Chen-Yu Tsai wrote :
+>> +struct ac100_rtc_dev {
+>> +     struct rtc_device *rtc;
+>> +     struct device *dev;
+>> +     struct regmap *regmap;
+>> +     struct mutex mutex;
+>
+> I don't think that mutex is needed. Instead, you can take rtc->ops_lock
+> from the interrupt handler.
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
----
- include/linux/ds17287rtc.h | 66 ----------------------------------------------
- 1 file changed, 66 deletions(-)
- delete mode 100644 include/linux/ds17287rtc.h
+OK. I didn't think using the lock from the rtc device was a good idea.
 
-diff --git a/include/linux/ds17287rtc.h b/include/linux/ds17287rtc.h
-deleted file mode 100644
-index d85d3f497b96..000000000000
---- a/include/linux/ds17287rtc.h
-+++ /dev/null
-@@ -1,66 +0,0 @@
--/*
-- * ds17287rtc.h - register definitions for the ds1728[57] RTC / CMOS RAM
-- *
-- * This file is subject to the terms and conditions of the GNU General Public
-- * License.  See the file "COPYING" in the main directory of this archive
-- * for more details.
-- *
-- * (C) 2003 Guido Guenther <agx@sigxcpu.org>
-- */
--#ifndef __LINUX_DS17287RTC_H
--#define __LINUX_DS17287RTC_H
--
--#include <linux/rtc.h>			/* get the user-level API */
--#include <linux/mc146818rtc.h>
--
--/* Register A */
--#define DS_REGA_DV2	0x40		/* countdown chain */
--#define DS_REGA_DV1	0x20		/* oscillator enable */
--#define DS_REGA_DV0	0x10		/* bank select */
--
--/* bank 1 registers */
--#define DS_B1_MODEL	0x40		/* model number byte */
--#define DS_B1_SN1 	0x41		/* serial number byte 1 */
--#define DS_B1_SN2 	0x42		/* serial number byte 2 */
--#define DS_B1_SN3 	0x43		/* serial number byte 3 */
--#define DS_B1_SN4 	0x44		/* serial number byte 4 */
--#define DS_B1_SN5 	0x45		/* serial number byte 5 */
--#define DS_B1_SN6 	0x46		/* serial number byte 6 */
--#define DS_B1_CRC 	0x47		/* CRC byte */
--#define DS_B1_CENTURY 	0x48		/* Century byte */
--#define DS_B1_DALARM 	0x49		/* date alarm */
--#define DS_B1_XCTRL4A	0x4a		/* extendec control register 4a */
--#define DS_B1_XCTRL4B	0x4b		/* extendec control register 4b */
--#define DS_B1_RTCADDR2 	0x4e		/* rtc address 2 */
--#define DS_B1_RTCADDR3 	0x4f		/* rtc address 3 */
--#define DS_B1_RAMLSB	0x50		/* extended ram LSB */
--#define DS_B1_RAMMSB	0x51		/* extended ram MSB */
--#define DS_B1_RAMDPORT	0x53		/* extended ram data port */
--
--/* register details */
--/* extended control register 4a */
--#define DS_XCTRL4A_VRT2	0x80 		/* valid ram and time */
--#define DS_XCTRL4A_INCR	0x40		/* increment progress status */
--#define DS_XCTRL4A_BME	0x20		/* burst mode enable */
--#define DS_XCTRL4A_PAB	0x08		/* power active bar ctrl */
--#define DS_XCTRL4A_RF	0x04		/* ram clear flag */
--#define DS_XCTRL4A_WF	0x02		/* wake up alarm flag */
--#define DS_XCTRL4A_KF	0x01		/* kickstart flag */
--
--/* interrupt causes */
--#define DS_XCTRL4A_IFS	(DS_XCTRL4A_RF|DS_XCTRL4A_WF|DS_XCTRL4A_KF)
--
--/* extended control register 4b */
--#define DS_XCTRL4B_ABE	0x80 		/* auxiliary battery enable */
--#define DS_XCTRL4B_E32K	0x40		/* enable 32.768 kHz Output */
--#define DS_XCTRL4B_CS	0x20		/* crystal select */
--#define DS_XCTRL4B_RCE	0x10		/* ram clear enable */
--#define DS_XCTRL4B_PRS	0x08		/* PAB resec select */
--#define DS_XCTRL4B_RIE	0x04		/* ram clear interrupt enable */
--#define DS_XCTRL4B_WFE	0x02		/* wake up alarm interrupt enable */
--#define DS_XCTRL4B_KFE	0x01		/* kickstart interrupt enable */
--
--/* interrupt enable bits */
--#define DS_XCTRL4B_IFES	(DS_XCTRL4B_RIE|DS_XCTRL4B_WFE|DS_XCTRL4B_KFE)
--
--#endif /* __LINUX_DS17287RTC_H */
--- 
-2.8.1
+>
+>> +     int irq;
+>> +     unsigned long alarm;
+>> +};
+>> +
+>> +static int ac100_rtc_get_time(struct device *dev, struct rtc_time *rtc_tm)
+>> +{
+>> +     struct ac100_rtc_dev *chip = dev_get_drvdata(dev);
+>> +     struct regmap *regmap = chip->regmap;
+>> +     u16 reg[7];
+>> +     int ret;
+>> +
+>> +     ret = regmap_bulk_read(regmap, AC100_RTC_SEC, reg, 7);
+>> +     if (ret)
+>> +             return ret;
+>> +
+>> +     rtc_tm->tm_sec  = bcd2bin(reg[0] & AC100_RTC_SEC_MASK);
+>> +     rtc_tm->tm_min  = bcd2bin(reg[1] & AC100_RTC_MIN_MASK);
+>> +     rtc_tm->tm_hour = bcd2bin(reg[2] & AC100_RTC_HOU_MASK);
+>> +     rtc_tm->tm_wday = bcd2bin(reg[3] & AC100_RTC_WEE_MASK);
+>> +     rtc_tm->tm_mday = bcd2bin(reg[4] & AC100_RTC_DAY_MASK);
+>> +     rtc_tm->tm_mon  = bcd2bin(reg[5] & AC100_RTC_MON_MASK);
+>> +     rtc_tm->tm_year = bcd2bin(reg[6] & AC100_RTC_YEA_MASK);
+>> +
+>> +     rtc_tm->tm_mon  -= 1;
+>
+> I would put the - 1 inline with the first tm_mon assignment.
+
+OK
+
+>
+>> +
+>> +     /*
+>> +      * switch from (data_year->min)-relative offset to
+>> +      * a (1900)-relative one
+>> +      */
+>> +     rtc_tm->tm_year += AC100_YEAR_OFF;
+>
+> Unless you feel the comment is absolutely necessary, I'd also put that
+> with the first tm_year assignment.
+>
+> BTW, is that RTC aware that 0 is actually 1970? And so 2000 (30) is not
+> a leap year but 2016 is? I'd say that this is not the case, seeing
+> AC100_RTC_YEA_LEAP but it is worth checking.
+>
+> Is this bit (AC100_RTC_YEA_LEAP) updated by the rtc? IF that is not the
+> case, the time will have to be set at least once between first of
+> January and 28th of February of leap years else it will fail...
+
+Unfortunately it is not. The datasheet explicitly said the RTC does not
+update the leap year bit. So yes, the RTC will have to be updated at
+least once a year...
+
+>> +
+>> +     return rtc_valid_tm(rtc_tm);
+>> +}
+>> +
+>> +static int ac100_rtc_set_time(struct device *dev, struct rtc_time *rtc_tm)
+>> +{
+>> +     struct ac100_rtc_dev *chip = dev_get_drvdata(dev);
+>> +     struct regmap *regmap = chip->regmap;
+>> +     int year;
+>> +     u16 reg[8];
+>> +
+>> +     /* our RTC has a limited year range... */
+>> +     year = rtc_tm->tm_year + 1900;
+>> +     if (year < AC100_YEAR_MIN || year > AC100_YEAR_MAX) {
+>> +             dev_err(dev, "rtc only supports year in range %d - %d\n",
+>> +                     AC100_YEAR_MIN, AC100_YEAR_MAX);
+>> +             return -EINVAL;
+>> +     }
+>> +
+>
+> What about:
+>
+> year = rtc_tm->tm_year - AC100_YEAR_OFF
+> if (year < 0 || year > (AC100_YEAR_MAX - 1900))
+>
+> It allows to reuse year for the reg[6] assignment. IT is a simple
+> suggestion, maybe the compiler is smarter than I am ;).
+>
+>> +     /* correct offsets */
+>> +     rtc_tm->tm_year -= AC100_YEAR_OFF;
+>> +     rtc_tm->tm_mon += 1;
+>> +
+>
+> Those could also got inline with their respective reg[] assignment
+
+OK. I'll see if I can still fit everything in a single line, to keep
+the nice table-like formatting.
+
+>
+>
+>> +     /* convert to BCD */
+>> +     reg[0] = bin2bcd(rtc_tm->tm_sec)  & AC100_RTC_SEC_MASK;
+>> +     reg[1] = bin2bcd(rtc_tm->tm_min)  & AC100_RTC_MIN_MASK;
+>> +     reg[2] = bin2bcd(rtc_tm->tm_hour) & AC100_RTC_HOU_MASK;
+>> +     reg[3] = bin2bcd(rtc_tm->tm_wday) & AC100_RTC_WEE_MASK;
+>> +     reg[4] = bin2bcd(rtc_tm->tm_mday) & AC100_RTC_DAY_MASK;
+>> +     reg[5] = bin2bcd(rtc_tm->tm_mon)  & AC100_RTC_MON_MASK;
+>> +     reg[6] = bin2bcd(rtc_tm->tm_year) & AC100_RTC_YEA_MASK;
+>> +     /* trigger write */
+>> +     reg[7] = AC100_RTC_UPD_TRIGGER;
+>> +
+>> +     /* Is it a leap year? */
+>> +     if (is_leap_year(year))
+>> +             reg[6] |= AC100_RTC_YEA_LEAP;
+>> +
+>> +     return regmap_bulk_write(regmap, AC100_RTC_SEC, reg, 8);
+>> +}
+>> +
+>> +
+>
+> [...]
+>
+>> +     alrm_tm->tm_sec  = bcd2bin(reg[0] & AC100_ALM_SEC_MASK);
+>> +     alrm_tm->tm_min  = bcd2bin(reg[1] & AC100_ALM_MIN_MASK);
+>> +     alrm_tm->tm_hour = bcd2bin(reg[2] & AC100_ALM_HOU_MASK);
+>> +     alrm_tm->tm_wday = bcd2bin(reg[3] & AC100_ALM_WEE_MASK);
+>> +     alrm_tm->tm_mday = bcd2bin(reg[4] & AC100_ALM_DAY_MASK);
+>> +     alrm_tm->tm_mon  = bcd2bin(reg[5] & AC100_ALM_MON_MASK);
+>> +     alrm_tm->tm_year = bcd2bin(reg[6] & AC100_ALM_YEA_MASK);
+>> +
+>> +     alrm_tm->tm_mon  -= 1;
+>> +
+>> +     /*
+>> +      * switch from (data_year->min)-relative offset to
+>> +      * a (1900)-relative one
+>> +      */
+>> +     alrm_tm->tm_year += AC100_YEAR_OFF;
+>> +
+>
+> Well, same comments as in ac100_rtc_get_time()
+>
+>
+>> +out:
+>> +     mutex_unlock(&chip->mutex);
+>> +     return ret;
+>> +}
+>> +
+>> +static int ac100_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
+>> +{
+>> +     struct ac100_rtc_dev *chip = dev_get_drvdata(dev);
+>> +     struct regmap *regmap = chip->regmap;
+>> +     struct rtc_time *alrm_tm = &alrm->time;
+>> +     u16 reg[8];
+>> +     int year;
+>> +     int ret;
+>> +
+>> +     /* our alarm has a limited year range... */
+>> +     year = alrm_tm->tm_year + 1900;
+>> +     if (year < AC100_YEAR_MIN || year > AC100_YEAR_MAX) {
+>> +             dev_err(dev, "alarm only supports year in range %d - %d\n",
+>> +                     AC100_YEAR_MIN, AC100_YEAR_MAX);
+>> +             return -EINVAL;
+>> +     }
+>> +
+>> +     /* correct offsets */
+>> +     alrm_tm->tm_year -= AC100_YEAR_OFF;
+>> +     alrm_tm->tm_mon += 1;
+>> +
+>
+> Same comment as ac100_rtc_set_time()
+>
+>> +     /* convert to BCD */
+>> +     reg[0] = (bin2bcd(alrm_tm->tm_sec)  & AC100_ALM_SEC_MASK) |
+>> +                     AC100_ALM_ENABLE_FLAG;
+>> +     reg[1] = (bin2bcd(alrm_tm->tm_min)  & AC100_ALM_MIN_MASK) |
+>> +                     AC100_ALM_ENABLE_FLAG;
+>> +     reg[2] = (bin2bcd(alrm_tm->tm_hour) & AC100_ALM_HOU_MASK) |
+>> +                     AC100_ALM_ENABLE_FLAG;
+>> +     /* Do not enable weekday alarm */
+>> +     reg[3] = bin2bcd(alrm_tm->tm_wday) & AC100_ALM_WEE_MASK;
+>> +     reg[4] = (bin2bcd(alrm_tm->tm_mday) & AC100_ALM_DAY_MASK) |
+>> +                     AC100_ALM_ENABLE_FLAG;
+>> +     reg[5] = (bin2bcd(alrm_tm->tm_mon)  & AC100_ALM_MON_MASK) |
+>> +                     AC100_ALM_ENABLE_FLAG;
+>> +     reg[6] = (bin2bcd(alrm_tm->tm_year) & AC100_ALM_YEA_MASK) |
+>> +                     AC100_ALM_ENABLE_FLAG;
+>> +     /* trigger write */
+>> +     reg[7] = AC100_ALM_UPD_TRIGGER;
+>> +
+>> +     mutex_lock(&chip->mutex);
+>> +
+>> +     ret = regmap_bulk_write(regmap, AC100_ALM_SEC, reg, 8);
+>> +     if (ret)
+>> +             goto out;
+>> +
+>> +     ret = _ac100_rtc_alarm_irq_enable(chip, alrm->enabled);
+>> +
+>> +out:
+>> +     mutex_unlock(&chip->mutex);
+>> +     return ret;
+>> +}
+>> +
+
+Thanks for the review!
+
+ChenYu
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
