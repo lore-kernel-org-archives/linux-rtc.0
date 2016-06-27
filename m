@@ -1,32 +1,26 @@
-Return-Path: <rtc-linux+bncBCMILY6JWQBBBXUD2W5QKGQEILMEFPA@googlegroups.com>
+Return-Path: <rtc-linux+bncBCEPJZEDQIBBBNH3YS5QKGQE4PARFTA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 MIME-Version: 1.0
-Received: from wens.csie.org (mirror2.csie.ntu.edu.tw. [140.112.30.76])
-        by gmr-mx.google.com with ESMTPS id c11si800069pfc.2.2016.06.30.08.59.26
+Received: from rainbowdash.ducie.codethink.co.uk (82-70-136-246.dsl.in-addr.zen.co.uk. [82.70.136.246])
+        by gmr-mx.google.com with ESMTPS id c135si135347wme.2.2016.06.27.07.52.36
         for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 30 Jun 2016 08:59:26 -0700 (PDT)
-From: Chen-Yu Tsai <wens@csie.org>
-To: Lee Jones <lee.jones@linaro.org>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Rob Herring <robh+dt@kernel.org>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Maxime Ripard <maxime.ripard@free-electrons.com>,
-	Michael Turquette <mturquette@baylibre.com>,
-	Stephen Boyd <sboyd@codeaurora.org>
-Cc: Chen-Yu Tsai <wens@csie.org>,
-	linux-arm-kernel@lists.infradead.org,
+        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
+        Mon, 27 Jun 2016 07:52:36 -0700 (PDT)
+From: Ben Dooks <ben.dooks@codethink.co.uk>
+To: linux-kernel@lists.codethink.co.uk,
 	rtc-linux@googlegroups.com,
-	linux-clk@vger.kernel.org,
-	devicetree@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [rtc-linux] [PATCH v4 6/7] ARM: dts: sun9i: cubieboard4: Add device
- node for AC100
-Date: Thu, 30 Jun 2016 23:58:50 +0800
-Message-Id: <1467302331-9663-7-git-send-email-wens@csie.org>
-In-Reply-To: <1467302331-9663-1-git-send-email-wens@csie.org>
-References: <1467302331-9663-1-git-send-email-wens@csie.org>
+	a.zummo@towertech.it,
+	alexandre.belloni@free-electrons.com,
+	devicetree@vger.kernel.org
+Cc: robh+dt@kernel.org,
+	frowand.list@gmail.com,
+	linux-amlogic@lists.infradead.org,
+	Ben Dooks <ben.dooks@codethink.co.uk>
+Subject: [rtc-linux] [PATCH 2/4] meson-rtc: add device-tree binding
+Date: Mon, 27 Jun 2016 15:52:13 +0100
+Message-Id: <1467039135-26588-3-git-send-email-ben.dooks@codethink.co.uk>
+In-Reply-To: <1467039135-26588-1-git-send-email-ben.dooks@codethink.co.uk>
+References: <1467039135-26588-1-git-send-email-ben.dooks@codethink.co.uk>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -37,53 +31,41 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Signed-off-by: Chen-Yu Tsai <wens@csie.org>
+Add documentation for the AMLogic Meson RTC.
+
+Signed-off-by: Ben Dooks <ben.dooks@codethink.co.uk>
 ---
-Changes since v3:                           
+ .../devicetree/bindings/rtc/rtc-amlogic.txt         | 21 +++++++++++++++++++++
+ 1 file changed, 21 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/rtc/rtc-amlogic.txt
 
-  - Moved 4M ADDA clk to codec side
-
-Changes since v2: none
-Changes since v1: none
----
- arch/arm/boot/dts/sun9i-a80-cubieboard4.dts | 24 ++++++++++++++++++++++++
- 1 file changed, 24 insertions(+)
-
-diff --git a/arch/arm/boot/dts/sun9i-a80-cubieboard4.dts b/arch/arm/boot/dts/sun9i-a80-cubieboard4.dts
-index 1526b41c70f1..cf2f4b72a841 100644
---- a/arch/arm/boot/dts/sun9i-a80-cubieboard4.dts
-+++ b/arch/arm/boot/dts/sun9i-a80-cubieboard4.dts
-@@ -250,6 +250,30 @@
- 			};
- 		};
- 	};
+diff --git a/Documentation/devicetree/bindings/rtc/rtc-amlogic.txt b/Documentation/devicetree/bindings/rtc/rtc-amlogic.txt
+new file mode 100644
+index 0000000..efc7672
+--- /dev/null
++++ b/Documentation/devicetree/bindings/rtc/rtc-amlogic.txt
+@@ -0,0 +1,21 @@
++* AMlogic Meson RTC
 +
-+	ac100: codec@e89 {
-+		compatible = "x-powers,ac100";
-+		reg = <0xe89>;
++Required properties:
++- compatible: should be one of the following describing the hardware:
++	* "amlogic,meson6-rtc"
++	* "amlogic,meson8-rtc"
++	* "amlogic,meson8b-rtc"
 +
-+		ac100_codec: codec {
-+			compatible = "x-powers,ac100-codec";
-+			interrupt-parent = <&r_pio>;
-+			interrupts = <0 9 IRQ_TYPE_LEVEL_LOW>; /* PL9 */
-+			#clock-cells = <0>;
-+			clock-output-names = "4M_adda";
-+		};
++- reg: physical register space for the controller's memory mapped registers.
 +
-+		ac100_rtc: rtc {
-+			compatible = "x-powers,ac100-rtc";
-+			interrupt-parent = <&nmi_intc>;
-+			interrupts = <0 IRQ_TYPE_LEVEL_LOW>;
-+			clocks = <&ac100_codec>;
-+			#clock-cells = <1>;
-+			clock-output-names = "cko1_rtc",
-+					     "cko2_rtc",
-+					     "cko3_rtc";
-+		};
++Optional properties:
++- resets: reset controller reference to allow reset of the controller
++- interrupts: single interrupt reference if interrupt support needed
++
++Example:
++
++	rtc: rtc@c8100740 {
++		compatible = "amlogic,meson6-rtc";
++		reg = <0xc8100740 0x14>;
++		status = "disabled";
 +	};
- };
- 
- #include "axp809.dtsi"
 -- 
 2.8.1
 
