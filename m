@@ -1,26 +1,25 @@
-Return-Path: <rtc-linux+bncBDCMXBNSKAIMLO6PXMCRUBCHKDM76@googlegroups.com>
+Return-Path: <rtc-linux+bncBDI57DN47YOBBSHAYK5QKGQEOUZEWFQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from smtp6-v.fe.bosch.de (smtp6-v.fe.bosch.de. [2a03:cc00:ff0:100::2])
-        by gmr-mx.google.com with ESMTPS id q124si100360wme.3.2016.06.29.07.40.05
+Received: from mail-qt0-f174.google.com (mail-qt0-f174.google.com. [209.85.216.174])
+        by gmr-mx.google.com with ESMTPS id i4si52323ywf.6.2016.06.26.21.49.11
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 29 Jun 2016 07:40:05 -0700 (PDT)
-Received: from vsmta14.fe.internet.bosch.com (unknown [10.4.98.54])
-	by imta24.fe.bosch.de (Postfix) with ESMTP id 1B0CBD80227
-	for <rtc-linux@googlegroups.com>; Wed, 29 Jun 2016 16:40:05 +0200 (CEST)
-Received: from SI-HUB1000.de.bosch.com (vsgw22.fe.internet.bosch.com [10.4.98.11])
-	by vsmta14.fe.internet.bosch.com (Postfix) with ESMTP id 73CF3A405F7
-	for <rtc-linux@googlegroups.com>; Wed, 29 Jun 2016 16:40:04 +0200 (CEST)
-From: Dirk Behme <dirk.behme@de.bosch.com>
-To: <rtc-linux@googlegroups.com>, <devicetree@vger.kernel.org>
-CC: Oleksij Rempel <fixed-term.Oleksij.Rempel@de.bosch.com>
-Subject: [rtc-linux] [PATCH v3 1/3] devicetree: Add Micro Crystal AG vendor id
-Date: Wed, 29 Jun 2016 16:39:59 +0200
-Message-ID: <1467211201-17252-2-git-send-email-dirk.behme@de.bosch.com>
-In-Reply-To: <1467211201-17252-1-git-send-email-dirk.behme@de.bosch.com>
-References: <1467211201-17252-1-git-send-email-dirk.behme@de.bosch.com>
+        Sun, 26 Jun 2016 21:49:11 -0700 (PDT)
+Received: by mail-qt0-f174.google.com with SMTP id c34so17059240qte.0
+        for <rtc-linux@googlegroups.com>; Sun, 26 Jun 2016 21:49:11 -0700 (PDT)
+Date: Mon, 27 Jun 2016 10:19:07 +0530
+From: Pratyush Anand <panand@redhat.com>
+To: mingo@kernel.org, alexandre.belloni@free-electrons.com,
+	Thomas Gleixner <tglx@linutronix.de>
+Cc: rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org,
+	prarit@redhat.com
+Subject: [rtc-linux] Re: [PATCH RFC 0/2] rtc-cmos: Workaround unwanted
+ interrupt generation
+Message-ID: <20160627044907.GA29870@dhcppc9>
+References: <cover.1466484019.git.panand@redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <cover.1466484019.git.panand@redhat.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -30,31 +29,42 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-From: Oleksij Rempel <fixed-term.Oleksij.Rempel@de.bosch.com>
+On 21/06/2016:10:25:34 AM, Pratyush Anand wrote:
+> We have observed on few machines with rtc-cmos device that
+> hpet_rtc_interrupt() is called before cmos_do_probe() could call
+> hpet_rtc_timer_init(). It has not been observed during normal boot/reboot
+> of machines. It *sometime* happens when system is booted with kdump
+> secondary kernel. So, neither hpet_default_delta nor hpet_t1_cmp is
+> initialized by the time interrupt is raised in the given situation.
+> Therefore while loop of hpet_cnt_ahead() in hpet_rtc_timer_reinit() never
+> completes. This leads to "NMI watchdog: Watchdog detected hard LOCKUP on
+> cpu 0".
+> 
+> I am still clueless, how can an interrupt be raised before RTC is enabled.
+> But i do not have any idea about this device, so I am putting this patch as
+> RFC to get feedback from hpet/rtc-cmos developer. I am sure there would be
+> some better solution than this.
 
-Add Micro Crystal AG vendor id
+Do you think that if I improve commit log of patches as pointed by Thomas and
+send a formal version of these patches, then they should acceptable to upstream?
 
-Signed-off-by: Oleksij Rempel <fixed-term.Oleksij.Rempel@de.bosch.com>
-Acked-by: Rob Herring <robh@kernel.org>
-Cc: devicetree@vger.kernel.org
----
- Documentation/devicetree/bindings/vendor-prefixes.txt | 1 +
- 1 file changed, 1 insertion(+)
+Thanks
 
-diff --git a/Documentation/devicetree/bindings/vendor-prefixes.txt b/Documentation/devicetree/bindings/vendor-prefixes.txt
-index a7440bc..1bd6c8c 100644
---- a/Documentation/devicetree/bindings/vendor-prefixes.txt
-+++ b/Documentation/devicetree/bindings/vendor-prefixes.txt
-@@ -158,6 +158,7 @@ melexis	Melexis N.V.
- merrii	Merrii Technology Co., Ltd.
- micrel	Micrel Inc.
- microchip	Microchip Technology Inc.
-+microcrystal	Micro Crystal AG
- micron	Micron Technology Inc.
- minix	MINIX Technology Ltd.
- mitsubishi	Mitsubishi Electric Corporation
--- 
-1.9.1
+~Pratyush
+> 
+> 
+> 
+> Pratyush Anand (2):
+>   rtc/hpet: Factorize hpet_rtc_timer_init()
+>   rtc/rtc-cmos: Initialize software counters before irq is registered
+> 
+>  arch/x86/include/asm/hpet.h |  2 ++
+>  arch/x86/kernel/hpet.c      | 41 +++++++++++++++++++++++++++++++++++------
+>  drivers/rtc/rtc-cmos.c      | 13 ++++++++++++-
+>  3 files changed, 49 insertions(+), 7 deletions(-)
+> 
+> -- 
+> 2.5.5
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
