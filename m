@@ -1,29 +1,28 @@
-Return-Path: <rtc-linux+bncBC2JZN6WSAHRB4VZVC5QKGQELRGPXLI@googlegroups.com>
+Return-Path: <rtc-linux+bncBCEPJZEDQIBBBXVPYW5QKGQEGN4BVCI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail-pf0-x233.google.com (mail-pf0-x233.google.com. [2607:f8b0:400e:c00::233])
-        by gmr-mx.google.com with ESMTPS id c11si6782563pfc.2.2016.06.21.22.06.57
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 21 Jun 2016 22:06:57 -0700 (PDT)
-Received: by mail-pf0-x233.google.com with SMTP id t190so13763201pfb.3
-        for <rtc-linux@googlegroups.com>; Tue, 21 Jun 2016 22:06:57 -0700 (PDT)
-Date: Tue, 21 Jun 2016 22:06:54 -0700
-From: Bjorn Andersson <bjorn.andersson@linaro.org>
-To: Neil Armstrong <narmstrong@baylibre.com>
-Cc: dmitry.torokhov@gmail.com, andy.gross@linaro.org,
-	david.brown@linaro.org, lee.jones@linaro.org, lgirdwood@gmail.com,
-	broonie@kernel.org, a.zummo@towertech.it,
-	alexandre.belloni@free-electrons.com, linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org,
-	linux-soc@vger.kernel.org, rtc-linux@googlegroups.com
-Subject: [rtc-linux] Re: [PATCH 3/5] rtc: rtc-pm8xxx: Add support for pm8018 rtc
-Message-ID: <20160622050654.GG1256@tuxbot>
-References: <1466158929-19524-1-git-send-email-narmstrong@baylibre.com>
- <1466158929-19524-4-git-send-email-narmstrong@baylibre.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1466158929-19524-4-git-send-email-narmstrong@baylibre.com>
+Received: from rainbowdash.ducie.codethink.co.uk (82-70-136-246.dsl.in-addr.zen.co.uk. [82.70.136.246])
+        by gmr-mx.google.com with ESMTPS id c135si198260wme.2.2016.06.27.09.44.13
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
+        Mon, 27 Jun 2016 09:44:13 -0700 (PDT)
+From: Ben Dooks <ben.dooks@codethink.co.uk>
+To: linux-kernel@lists.codethink.co.uk,
+	rtc-linux@googlegroups.com,
+	a.zummo@towertech.it,
+	alexandre.belloni@free-electrons.com,
+	devicetree@vger.kernel.org
+Cc: robh+dt@kernel.org,
+	frowand.list@gmail.com,
+	linux-amlogic@lists.infradead.org,
+	Ben Dooks <ben.dooks@codethink.co.uk>
+Subject: [rtc-linux] [PATCH v2 3/4] ARM: dts: amlogic: add rtc node for meson8b
+Date: Mon, 27 Jun 2016 17:44:08 +0100
+Message-Id: <1467045849-495-4-git-send-email-ben.dooks@codethink.co.uk>
+In-Reply-To: <1467045849-495-1-git-send-email-ben.dooks@codethink.co.uk>
+References: <1467045849-495-1-git-send-email-ben.dooks@codethink.co.uk>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -32,33 +31,33 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Fri 17 Jun 03:22 PDT 2016, Neil Armstrong wrote:
+Add the DT node for the RTC support.
 
-> In order to support RTC on Qualcomm MDM9615 SoC, add support for
-> the pm8018 rtc in rtc-pm8xxx driver.
-> 
-> Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
-> ---
->  Documentation/devicetree/bindings/mfd/qcom-pm8xxx.txt |  1 +
->  drivers/rtc/rtc-pm8xxx.c                              | 11 +++++++++++
->  2 files changed, 12 insertions(+)
-> 
-> diff --git a/Documentation/devicetree/bindings/mfd/qcom-pm8xxx.txt b/Documentation/devicetree/bindings/mfd/qcom-pm8xxx.txt
-> index f24f334..37a088f 100644
-> --- a/Documentation/devicetree/bindings/mfd/qcom-pm8xxx.txt
-> +++ b/Documentation/devicetree/bindings/mfd/qcom-pm8xxx.txt
-> @@ -62,6 +62,7 @@ The below bindings specify the set of valid subnodes.
->  		    "qcom,pm8058-rtc"
->  		    "qcom,pm8921-rtc"
->  		    "qcom,pm8941-rtc"
-> +		    "qcom,pm8018-rtc"
+Signed-off-by: Ben Dooks <ben.dooks@codethink.co.uk>
+---
+ arch/arm/boot/dts/meson8b.dtsi | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-Would be nice if we kept this sorted, but the patch looks good.
-
-Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-
-Regards,
-Bjorn
+diff --git a/arch/arm/boot/dts/meson8b.dtsi b/arch/arm/boot/dts/meson8b.dtsi
+index 2bfe401..ff97aa8 100644
+--- a/arch/arm/boot/dts/meson8b.dtsi
++++ b/arch/arm/boot/dts/meson8b.dtsi
+@@ -149,6 +149,13 @@
+ 			status = "disabled";
+ 		};
+ 
++		rtc: rtc@c8100740 {
++			compatible = "amlogic,meson8b-rtc";
++			reg = <0xc8100740 0x14>;
++			resets = <&reset RESET_RTC>;
++			status = "disabled";
++		};
++
+ 		clkc: clock-controller@c1104000 {
+ 			#clock-cells = <1>;
+ 			compatible = "amlogic,meson8b-clkc";
+-- 
+2.8.1
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
