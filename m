@@ -1,25 +1,25 @@
-Return-Path: <rtc-linux+bncBDKOBWPM5ABRBYOVUO5QKGQEM7SSM4Y@googlegroups.com>
+Return-Path: <rtc-linux+bncBCEPJZEDQIBBBUMGY25QKGQEDWP3TYY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-MIME-Version: 1.0
-Received: from mail-pa0-x244.google.com (mail-pa0-x244.google.com. [2607:f8b0:400e:c03::244])
-        by gmr-mx.google.com with ESMTPS id 62si7278635pfx.1.2016.06.21.00.21.04
+Received: from ducie-dc1.codethink.co.uk (ducie-dc1.codethink.co.uk. [185.25.241.215])
+        by gmr-mx.google.com with ESMTPS id f10si570209wmg.2.2016.06.27.12.49.36
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 21 Jun 2016 00:21:04 -0700 (PDT)
-Received: by mail-pa0-x244.google.com with SMTP id hf6so732601pac.2
-        for <rtc-linux@googlegroups.com>; Tue, 21 Jun 2016 00:21:04 -0700 (PDT)
-From: Andrey Smirnov <andrew.smirnov@gmail.com>
-To: rtc-linux@googlegroups.com
-Cc: Andrey Smirnov <andrew.smirnov@gmail.com>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	linux-kernel@vger.kernel.org,
-	cphealy@gmail.com
-Subject: [rtc-linux] [PATCH v2 01/17] RTC: ds1307: Add DS1341 variant
-Date: Tue, 21 Jun 2016 00:20:50 -0700
-Message-Id: <1466493650-11509-1-git-send-email-andrew.smirnov@gmail.com>
-Reply-To: rtc-linux@googlegroups.com
+        Mon, 27 Jun 2016 12:49:36 -0700 (PDT)
+Subject: [rtc-linux] Re: RTC support for AMlogic devies
+To: Kevin Hilman <khilman@baylibre.com>
+References: <1467039135-26588-1-git-send-email-ben.dooks@codethink.co.uk>
+ <m2bn2mtut1.fsf@baylibre.com>
+Cc: linux-kernel@lists.codethink.co.uk, rtc-linux@googlegroups.com,
+ a.zummo@towertech.it, alexandre.belloni@free-electrons.com,
+ devicetree@vger.kernel.org, robh+dt@kernel.org, frowand.list@gmail.com,
+ linux-amlogic@lists.infradead.org
+From: Ben Dooks <ben.dooks@codethink.co.uk>
+Message-ID: <70b8eaf9-b07c-8a56-8205-58bf6475a3f4@codethink.co.uk>
+Date: Mon, 27 Jun 2016 20:49:28 +0100
+MIME-Version: 1.0
+In-Reply-To: <m2bn2mtut1.fsf@baylibre.com>
 Content-Type: text/plain; charset=UTF-8
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -28,57 +28,41 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Signed-off-by: Andrey Smirnov <andrew.smirnov@gmail.com>
----
- drivers/rtc/rtc-ds1307.c | 5 +++++
- 1 file changed, 5 insertions(+)
+On 27/06/16 18:18, Kevin Hilman wrote:
+> Ben Dooks <ben.dooks@codethink.co.uk> writes:
+> 
+>> This series is support for the RTC block on some of the AMLogic
+>> Meson ARM SoCs.
+>>
+>> The first patch is the driver, followed by device-tree patches
+>> and enablement for the ODRoid-C1 (where it has been tested)
+> 
+> In the cover letter, please be explicit about any dependencies that are
+> not upstream.  This series applies to mainline (v4.7-rc*) but does not
+> build.  I tested it with my v4.7/integ branch and it seems to work.
 
-diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
-index 821d9c0..7e65e2e 100644
---- a/drivers/rtc/rtc-ds1307.c
-+++ b/drivers/rtc/rtc-ds1307.c
-@@ -35,6 +35,7 @@ enum ds_type {
- 	ds_1338,
- 	ds_1339,
- 	ds_1340,
-+	ds_1341,
- 	ds_1388,
- 	ds_3231,
- 	m41t00,
-@@ -178,6 +179,7 @@ static const struct i2c_device_id ds1307_id[] = {
- 	{ "ds1337", ds_1337 },
- 	{ "ds1338", ds_1338 },
- 	{ "ds1339", ds_1339 },
-+	{ "ds1341", ds_1341 },
- 	{ "ds1388", ds_1388 },
- 	{ "ds1340", ds_1340 },
- 	{ "ds3231", ds_3231 },
-@@ -424,6 +426,7 @@ static int ds1307_set_time(struct device *dev, struct rtc_time *t)
- 	case ds_1337:
- 	case ds_1339:
- 	case ds_3231:
-+	case ds_1341:
- 		buf[DS1307_REG_MONTH] |= DS1337_BIT_CENTURY;
- 		break;
- 	case ds_1340:
-@@ -1242,6 +1245,7 @@ static int ds1307_probe(struct i2c_client *client,
- 
- 	static const int	bbsqi_bitpos[] = {
- 		[ds_1337] = 0,
-+		[ds_1341] = 0,
- 		[ds_1339] = DS1339_BIT_BBSQI,
- 		[ds_3231] = DS3231_BIT_BBSQW,
- 	};
-@@ -1301,6 +1305,7 @@ static int ds1307_probe(struct i2c_client *client,
- 	case ds_1337:
- 	case ds_1339:
- 	case ds_3231:
-+	case ds_1341:
- 		/* get registers that the "rtc" read below won't read... */
- 		tmp = ds1307->read_block_data(ds1307->client,
- 				DS1337_REG_CONTROL, 2, buf);
+I think this is just the DT bindings for the reset controller which
+are currently in -next.
+
+> The series also has a handful of checkpatch warnings that should be
+> addressed (see: http://hastebin.com/tacurokasu.pas)
+
+The msleep() ones I think are not a big isuse. The line length could
+be solved, but at the moment is one of the few issues that are in the
+rtc-meson.c driver.
+
+The documentation one is solved by the patch adding the device-tree
+binding information.
+
+> Other than that, I gave it a quick spin on meson8b-odroidc1 using
+> tools/testing/selftests/timers/rtctest.c, and the basic time stuff seems
+> to be working:
+
+Thank you.
+
 -- 
-2.5.5
+Ben Dooks				http://www.codethink.co.uk/
+Senior Engineer				Codethink - Providing Genius
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
