@@ -1,19 +1,23 @@
-Return-Path: <rtc-linux+bncBAABBRWK7G5AKGQEPCAISAQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBCPM5SUWUYIRBT4XYS5QKGQEIWELKUQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 MIME-Version: 1.0
-Received: from root.phytec.de (mail.phytec.de. [217.6.246.34])
-        by gmr-mx.google.com with ESMTP id f138si216651wmf.3.2016.06.13.00.48.21
-        for <rtc-linux@googlegroups.com>;
-        Mon, 13 Jun 2016 00:48:21 -0700 (PDT)
-From: Wadim Egorov <w.egorov@phytec.de>
-To: linux-kernel@vger.kernel.org, linux-clk@vger.kernel.org, rtc-linux@googlegroups.com, devicetree@vger.kernel.org, linux-rockchip@lists.infradead.org
-Cc: robh+dt@kernel.org, mark.rutland@arm.com, mturquette@baylibre.com, sboyd@codeaurora.org, lee.jones@linaro.org, lgirdwood@gmail.com, broonie@kernel.org, a.zummo@towertech.it, alexandre.belloni@free-electrons.com, dianders@chromium.org, zyw@rock-chips.com
-Subject: [rtc-linux] [PATCH v6 3/5] mfd: dt-bindings: Add RK818 device tree
- bindings document
-Date: Mon, 13 Jun 2016 09:46:27 +0200
-Message-Id: <1465803989-33632-3-git-send-email-w.egorov@phytec.de>
-In-Reply-To: <1465803989-33632-1-git-send-email-w.egorov@phytec.de>
-References: <1465803989-33632-1-git-send-email-w.egorov@phytec.de>
+Received: from mail-pf0-x244.google.com (mail-pf0-x244.google.com. [2607:f8b0:400e:c00::244])
+        by gmr-mx.google.com with ESMTPS id c11si2169679pfc.2.2016.06.27.04.19.43
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 27 Jun 2016 04:19:43 -0700 (PDT)
+Received: by mail-pf0-x244.google.com with SMTP id c74so15620836pfb.0
+        for <rtc-linux@googlegroups.com>; Mon, 27 Jun 2016 04:19:43 -0700 (PDT)
+From: Akinobu Mita <akinobu.mita@gmail.com>
+To: rtc-linux@googlegroups.com,
+	devicetree@vger.kernel.org
+Cc: Akinobu Mita <akinobu.mita@gmail.com>,
+	Sergey Yanovich <ynvich@gmail.com>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Subject: [rtc-linux] [PATCH v2 0/2] support control with using GPIO lines
+Date: Mon, 27 Jun 2016 20:19:20 +0900
+Message-Id: <1467026362-29446-1-git-send-email-akinobu.mita@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -24,88 +28,32 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Add device tree bindings documentation for Rockchip's RK818 PMIC.
+This series adds support access to DS1302 with GPIO lines.
 
-Signed-off-by: Wadim Egorov <w.egorov@phytec.de>
-Acked-by: Rob Herring <robh@kernel.org>
-Acked-by: Lee Jones <lee.jones@linaro.org>
----
-Changes since v5:
-- Added Acked-by from Lee Jones
----
- Documentation/devicetree/bindings/mfd/rk808.txt | 37 +++++++++++++++++++++++--
- 1 file changed, 34 insertions(+), 3 deletions(-)
+This series first introduces the abstraction layer for the register
+access which enables to share the most code between existing spi driver
+and new platform driver, and then adds the platform driver using GPIO.
 
-diff --git a/Documentation/devicetree/bindings/mfd/rk808.txt b/Documentation/devicetree/bindings/mfd/rk808.txt
-index 4ca6aab..9636ae8 100644
---- a/Documentation/devicetree/bindings/mfd/rk808.txt
-+++ b/Documentation/devicetree/bindings/mfd/rk808.txt
-@@ -1,7 +1,11 @@
--RK808 Power Management Integrated Circuit
-+RK8XX Power Management Integrated Circuit
-+
-+The rk8xx family current members:
-+rk808
-+rk818
- 
- Required properties:
--- compatible: "rockchip,rk808"
-+- compatible: "rockchip,rk808", "rockchip,rk818"
- - reg: I2C slave address
- - interrupt-parent: The parent interrupt controller.
- - interrupts: the interrupt outputs of the controller.
-@@ -13,6 +17,8 @@ Optional properties:
-   default output clock name
- - rockchip,system-power-controller: Telling whether or not this pmic is controlling
-   the system power.
-+
-+Optional RK808 properties:
- - vcc1-supply:  The input supply for DCDC_REG1
- - vcc2-supply:  The input supply for DCDC_REG2
- - vcc3-supply:  The input supply for DCDC_REG3
-@@ -29,7 +35,20 @@ Optional properties:
-   the gpio controller. If DVS GPIOs aren't present, voltage changes will happen
-   very quickly with no slow ramp time.
- 
--Regulators: All the regulators of RK808 to be instantiated shall be
-+Optional RK818 properties:
-+- vcc1-supply:  The input supply for DCDC_REG1
-+- vcc2-supply:  The input supply for DCDC_REG2
-+- vcc3-supply:  The input supply for DCDC_REG3
-+- vcc4-supply:  The input supply for DCDC_REG4
-+- boost-supply: The input supply for DCDC_BOOST
-+- vcc6-supply:  The input supply for LDO_REG1 and LDO_REG2
-+- vcc7-supply:  The input supply for LDO_REG3, LDO_REG5 and LDO_REG7
-+- vcc8-supply:  The input supply for LDO_REG4, LDO_REG6 and LDO_REG8
-+- vcc9-supply:  The input supply for LDO_REG9 and SWITCH_REG
-+- h_5v-supply:  The input supply for HDMI_SWITCH
-+- usb-supply:   The input supply for OTG_SWITCH
-+
-+Regulators: All the regulators of RK8XX to be instantiated shall be
- listed in a child node named 'regulators'. Each regulator is represented
- by a child node of the 'regulators' node.
- 
-@@ -48,6 +67,18 @@ number as described in RK808 datasheet.
- 	- SWITCH_REGn
- 		- valid values for n are 1 to 2
- 
-+Following regulators of the RK818 PMIC block are supported. Note that
-+the 'n' in regulator name, as in DCDC_REGn or LDOn, represents the DCDC or LDO
-+number as described in RK818 datasheet.
-+
-+	- DCDC_REGn
-+		- valid values for n are 1 to 4.
-+	- LDO_REGn
-+		- valid values for n are 1 to 9.
-+	- SWITCH_REG
-+	- HDMI_SWITCH
-+	- OTG_SWITCH
-+
- Standard regulator bindings are used inside regulator subnodes. Check
-   Documentation/devicetree/bindings/regulator/regulator.txt
- for more details
+Changes from v1
+* Remove two fixes which have already been merged
+* Remove readbyte and writebyte ops from ds1302_ops because they were
+  just special cases for readburst and writeburst ops
+* Place Kconfig entry under Platform RTC drivers
+
+Akinobu Mita (2):
+  rtc: ds1302: add register access abstraction layer
+  rtc: ds1302: support control with using GPIO lines
+
+ .../devicetree/bindings/rtc/maxim-ds1302.txt       |  13 +
+ drivers/rtc/Kconfig                                |  17 +-
+ drivers/rtc/rtc-ds1302.c                           | 509 ++++++++++++++++++---
+ 3 files changed, 456 insertions(+), 83 deletions(-)
+
+Cc: Sergey Yanovich <ynvich@gmail.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>
+Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
 -- 
-1.9.1
+2.7.4
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
