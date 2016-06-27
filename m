@@ -1,32 +1,25 @@
-Return-Path: <rtc-linux+bncBDA7X7F2WUEBBXU54W5AKGQEF6LZG4I@googlegroups.com>
-Sender: rtc-linux@googlegroups.com
-Received: from mail-wm0-x235.google.com (mail-wm0-x235.google.com. [2a00:1450:400c:c09::235])
-        by gmr-mx.google.com with ESMTPS id f142si920747wmf.3.2016.06.09.04.11.26
+Return-Path: <rtc-linux+bncBDHIF2NA5EJBBSGGYW5QKGQEVOBC22A@googlegroups.com>
+Received: from mail-lf0-x234.google.com (mail-lf0-x234.google.com. [2a00:1450:4010:c07::234])
+        by gmr-mx.google.com with ESMTPS id c135si221771wme.2.2016.06.27.10.32.55
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 09 Jun 2016 04:11:26 -0700 (PDT)
-Received: by mail-wm0-x235.google.com with SMTP id k184so22126761wme.1
-        for <rtc-linux@googlegroups.com>; Thu, 09 Jun 2016 04:11:26 -0700 (PDT)
-Date: Thu, 9 Jun 2016 12:12:01 +0100
-From: Lee Jones <lee.jones@linaro.org>
-To: Wadim Egorov <w.egorov@phytec.de>
-Cc: linux-kernel@vger.kernel.org, linux-clk@vger.kernel.org,
-	rtc-linux@googlegroups.com, devicetree@vger.kernel.org,
-	linux-rockchip@lists.infradead.org, robh+dt@kernel.org,
-	pawel.moll@arm.com, mark.rutland@arm.com,
-	ijc+devicetree@hellion.org.uk, galak@codeaurora.org,
-	mturquette@baylibre.com, sboyd@codeaurora.org, lgirdwood@gmail.com,
-	broonie@kernel.org, a.zummo@towertech.it,
-	alexandre.belloni@free-electrons.com, dianders@chromium.org,
-	zyw@rock-chips.com
-Subject: [rtc-linux] Re: [RESEND PATCH v5 1/5] mfd: RK808: Add RK818 support
-Message-ID: <20160609111201.GA1388@dell>
-References: <1464850228-17244-1-git-send-email-w.egorov@phytec.de>
- <20160608141735.GE14888@dell>
- <5759277D.7090101@phytec.de>
+        Mon, 27 Jun 2016 10:32:55 -0700 (PDT)
+Received: by mail-lf0-x234.google.com with SMTP id h129so161351416lfh.1
+        for <rtc-linux@googlegroups.com>; Mon, 27 Jun 2016 10:32:55 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <5759277D.7090101@phytec.de>
+In-Reply-To: <m2bn2mtut1.fsf@baylibre.com>
+References: <1467039135-26588-1-git-send-email-ben.dooks@codethink.co.uk>
+	<m2bn2mtut1.fsf@baylibre.com>
+Date: Mon, 27 Jun 2016 18:32:55 +0100
+Message-ID: <CANe6Qb-aSSigiY_oC7=avLZ=0yhEFFwkMi+sLiaRJKNFnmetRA@mail.gmail.com>
+Subject: [rtc-linux] Re: RTC support for AMlogic devies
+From: "'Ben Dooks' via rtc-linux" <rtc-linux@googlegroups.com>
+To: Kevin Hilman <khilman@baylibre.com>
+Cc: linux-kernel@lists.codethink.co.uk, ben.dooks@codethink.co.uk,
+	devicetree@vger.kernel.org, rtc-linux@googlegroups.com, a.zummo@towertech.it,
+	alexandre.belloni@free-electrons.com, frowand.list@gmail.com,
+	linux-amlogic@lists.infradead.org, robh+dt@kernel.org
+Content-Type: multipart/alternative; boundary=001a114a6a7223fd33053645e9ba
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -36,64 +29,135 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Thu, 09 Jun 2016, Wadim Egorov wrote:
-> On 08.06.2016 16:17, Lee Jones wrote:
-> > On Thu, 02 Jun 2016, Wadim Egorov wrote:
-> >
-> >> The RK818 chip is a power management IC for multimedia and handheld
-> > "Power Management IC (PMIC)"
-> >
-> >> devices. It contains the following components:
-> >>
-> >> - Regulators
-> >> - RTC
-> >> - Clkout
-> > Clocking
-> >
-> >> - battery support
-> > Battery support
-> >
-> >> Both chips RK808 and RK818 are using a similar register map.
-> > "Both RK808 ad RK818 chips"
-> >
-> >> So we can reuse the RTC and Clkout functionality.
-> > Swap '.' for ','.
-> >
-> >> Signed-off-by: Wadim Egorov <w.egorov@phytec.de>
-> >> ---
-> >>  drivers/mfd/Kconfig       |   4 +-
-> >>  drivers/mfd/rk808.c       | 231 +++++++++++++++++++++++++++++++++++++=
-+--------
-> >>  include/linux/mfd/rk808.h | 162 ++++++++++++++++++++++++++++++--
-> >>  3 files changed, 350 insertions(+), 47 deletions(-)
+--001a114a6a7223fd33053645e9ba
+Content-Type: text/plain; charset=UTF-8
 
-[...]
+I will check later. I think the issue is the dt patches require the reset
+controller patches. The driver itself should compile fine
+On 27 Jun 2016 6:18 p.m., "Kevin Hilman" <khilman@baylibre.com> wrote:
 
-> >> -struct rk808_reg_data {
-> >> -	int addr;
-> >> -	int mask;
-> >> -	int value;
-> >> -};
-> > Why are you moving this to the header?
->=20
-> It is now part of the rk808 struct.
+> Ben Dooks <ben.dooks@codethink.co.uk> writes:
+>
+> > This series is support for the RTC block on some of the AMLogic
+> > Meson ARM SoCs.
+> >
+> > The first patch is the driver, followed by device-tree patches
+> > and enablement for the ODRoid-C1 (where it has been tested)
+>
+> In the cover letter, please be explicit about any dependencies that are
+> not upstream.  This series applies to mainline (v4.7-rc*) but does not
+> build.  I tested it with my v4.7/integ branch and it seems to work.
+>
+> The series also has a handful of checkpatch warnings that should be
+> addressed (see: http://hastebin.com/tacurokasu.pas)
+>
+> Other than that, I gave it a quick spin on meson8b-odroidc1 using
+> tools/testing/selftests/timers/rtctest.c, and the basic time stuff seems
+> to be working:
+>
+> / # ./rtctest
+>
+>                         RTC Driver Test Example.
+>
+>
+> ...Update IRQs not supported.
+>
+>
+> Current RTC date/time is 27-6-2016, 00:01:41.
+> RTC_ALM_READ ioctl: Invalid argument
+>
+>
+>
+> _______________________________________________
+> linux-amlogic mailing list
+> linux-amlogic@lists.infradead.org
+> http://lists.infradead.org/mailman/listinfo/linux-amlogic
+>
 
-Why?
-
---=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
-
---=20
+-- 
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
----=20
-You received this message because you are subscribed to the Google Groups "=
-rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an e=
-mail to rtc-linux+unsubscribe@googlegroups.com.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
+
+--001a114a6a7223fd33053645e9ba
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+<p dir=3D"ltr">I will check later. I think the issue is the dt patches requ=
+ire the reset controller patches. The driver itself should compile fine</p>
+<div class=3D"gmail_quote">On 27 Jun 2016 6:18 p.m., &quot;Kevin Hilman&quo=
+t; &lt;<a href=3D"mailto:khilman@baylibre.com">khilman@baylibre.com</a>&gt;=
+ wrote:<br type=3D"attribution"><blockquote class=3D"gmail_quote" style=3D"=
+margin:0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1ex">Ben Dooks &l=
+t;<a href=3D"mailto:ben.dooks@codethink.co.uk">ben.dooks@codethink.co.uk</a=
+>&gt; writes:<br>
+<br>
+&gt; This series is support for the RTC block on some of the AMLogic<br>
+&gt; Meson ARM SoCs.<br>
+&gt;<br>
+&gt; The first patch is the driver, followed by device-tree patches<br>
+&gt; and enablement for the ODRoid-C1 (where it has been tested)<br>
+<br>
+In the cover letter, please be explicit about any dependencies that are<br>
+not upstream.=C2=A0 This series applies to mainline (v4.7-rc*) but does not=
+<br>
+build.=C2=A0 I tested it with my v4.7/integ branch and it seems to work.<br=
+>
+<br>
+The series also has a handful of checkpatch warnings that should be<br>
+addressed (see: <a href=3D"http://hastebin.com/tacurokasu.pas" rel=3D"noref=
+errer" target=3D"_blank">http://hastebin.com/tacurokasu.pas</a>)<br>
+<br>
+Other than that, I gave it a quick spin on meson8b-odroidc1 using<br>
+tools/testing/selftests/timers/rtctest.c, and the basic time stuff seems<br=
+>
+to be working:<br>
+<br>
+/ # ./rtctest<br>
+<br>
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
+=A0 =C2=A0 RTC Driver Test Example.<br>
+<br>
+<br>
+...Update IRQs not supported.<br>
+<br>
+<br>
+Current RTC date/time is 27-6-2016, 00:01:41.<br>
+RTC_ALM_READ ioctl: Invalid argument<br>
+<br>
+<br>
+<br>
+_______________________________________________<br>
+linux-amlogic mailing list<br>
+<a href=3D"mailto:linux-amlogic@lists.infradead.org">linux-amlogic@lists.in=
+fradead.org</a><br>
+<a href=3D"http://lists.infradead.org/mailman/listinfo/linux-amlogic" rel=
+=3D"noreferrer" target=3D"_blank">http://lists.infradead.org/mailman/listin=
+fo/linux-amlogic</a><br>
+</blockquote></div>
+
+<p></p>
+
+-- <br />
+You received this message because you are subscribed to &quot;rtc-linux&quo=
+t;.<br />
+Membership options at <a href=3D"http://groups.google.com/group/rtc-linux">=
+http://groups.google.com/group/rtc-linux</a> .<br />
+Please read <a href=3D"http://groups.google.com/group/rtc-linux/web/checkli=
+st">http://groups.google.com/group/rtc-linux/web/checklist</a><br />
+before submitting a driver.<br />
+--- <br />
+You received this message because you are subscribed to the Google Groups &=
+quot;rtc-linux&quot; group.<br />
+To unsubscribe from this group and stop receiving emails from it, send an e=
+mail to <a href=3D"mailto:rtc-linux+unsubscribe@googlegroups.com">rtc-linux=
++unsubscribe@googlegroups.com</a>.<br />
+For more options, visit <a href=3D"https://groups.google.com/d/optout">http=
+s://groups.google.com/d/optout</a>.<br />
+
+--001a114a6a7223fd33053645e9ba--
