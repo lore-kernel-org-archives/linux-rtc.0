@@ -1,36 +1,36 @@
-Return-Path: <rtc-linux+bncBCMILY6JWQBBBKW3QS5QKGQES2DSYUI@googlegroups.com>
+Return-Path: <rtc-linux+bncBDSJBYGBRIMBBKX2YW5QKGQESXDTJEY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-MIME-Version: 1.0
-Received: from wens.csie.org (mirror2.csie.ntu.edu.tw. [140.112.30.76])
-        by gmr-mx.google.com with ESMTPS id tp10si4096025pac.2.2016.06.15.03.27.53
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 15 Jun 2016 03:27:53 -0700 (PDT)
-From: Chen-Yu Tsai <wens@csie.org>
-To: Mark Brown <broonie@kernel.org>,
-	Lee Jones <lee.jones@linaro.org>,
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id x70si375482wmf.1.2016.06.27.12.23.22
+        for <rtc-linux@googlegroups.com>;
+        Mon, 27 Jun 2016 12:23:22 -0700 (PDT)
+Date: Mon, 27 Jun 2016 21:23:21 +0200
+From: Maxime Ripard <maxime.ripard@free-electrons.com>
+To: Chen-Yu Tsai <wens@csie.org>
+Cc: Mark Brown <broonie@kernel.org>, Lee Jones <lee.jones@linaro.org>,
 	Alessandro Zummo <a.zummo@towertech.it>,
 	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Rob Herring <robh+dt@kernel.org>,
-	Pawel Moll <pawel.moll@arm.com>,
+	Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>,
 	Mark Rutland <mark.rutland@arm.com>,
 	Ian Campbell <ijc+devicetree@hellion.org.uk>,
 	Kumar Gala <galak@codeaurora.org>,
-	Maxime Ripard <maxime.ripard@free-electrons.com>,
 	Michael Turquette <mturquette@baylibre.com>,
-	Stephen Boyd <sboyd@codeaurora.org>
-Cc: Chen-Yu Tsai <wens@csie.org>,
-	rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org,
-	devicetree@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	linux-clk@vger.kernel.org
-Subject: [rtc-linux] [PATCH v2 00/10]  mfd: ac100: Add support for X-Powers
- AC100 audio codec / RTC combo IC
-Date: Wed, 15 Jun 2016 18:27:37 +0800
-Message-Id: <1465986467-14802-1-git-send-email-wens@csie.org>
+	Stephen Boyd <sboyd@codeaurora.org>, rtc-linux@googlegroups.com,
+	linux-kernel <linux-kernel@vger.kernel.org>,
+	devicetree <devicetree@vger.kernel.org>,
+	linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
+	linux-clk <linux-clk@vger.kernel.org>
+Subject: [rtc-linux] Re: [PATCH v3 5/8] rtc: ac100: Add clk output support
+Message-ID: <20160627192321.GX4000@lukather>
+References: <1466391138-12862-1-git-send-email-wens@csie.org>
+ <1466391138-12862-6-git-send-email-wens@csie.org>
+ <20160622100206.GV26668@lukather>
+ <CAGb2v67DVBZbRb2PWLP8WurPaNin=2Fa=HMAEK_PdBeqv1x+8Q@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="o/BvujNCPFVhiGON"
+In-Reply-To: <CAGb2v67DVBZbRb2PWLP8WurPaNin=2Fa=HMAEK_PdBeqv1x+8Q@mail.gmail.com>
 Reply-To: rtc-linux@googlegroups.com
-Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -39,91 +39,44 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Hi everyone,
 
-This series adds support for X-Powers' AC100 audio codec / RTC combo IC.
-This chip is found on Allwinner A80 SoC based boards, and is also part
-of the AXP813/AXP818 PMIC found with Allwinner A83T SoCs.
+--o/BvujNCPFVhiGON
+Content-Type: text/plain; charset=UTF-8
+Content-Disposition: inline
 
-The series focuses on the RTC side of the chip. The audio codec will
-be done later, once the digital audio interface of the SoC is supported.
+On Wed, Jun 22, 2016 at 06:11:55PM +0800, Chen-Yu Tsai wrote:
+> On Wed, Jun 22, 2016 at 6:02 PM, Maxime Ripard
+> <maxime.ripard@free-electrons.com> wrote:
+> > Hi,
+> >
+> > On Mon, Jun 20, 2016 at 10:52:15AM +0800, Chen-Yu Tsai wrote:
+> >> +     /*
+> >> +      * The ADDA 4 MHz clock is from the codec side of the AC100,
+> >> +      * which is likely a different power domain. However, boards
+> >> +      * always have both sides powered on, so it is impossible to
+> >> +      * test this.
+> >> +      */
+> >
+> > If that ADDA clock is exposed by the codec, why are you putting it in
+> > the RTC?
+> 
+> The thing is it's not entirely clear that it's from the codec side.
+> I'm just inferring this from the name. (I'll make the comment clearer.)
+> The codec parts of the datasheet don't mention this clock at all.
+> 
+> Allwinner's SDK puts all the clocks under the RTC module. And the
+> are always on, so I can't really turn off the codec and see what
+> happens. That and I don't have an oscilloscope or logic analyzer.
 
-Changes since v1:
+Why not just create a separate clock driver then?
 
-  - Complete register definitions and regmap regions.
-
-v1 was actually a working version that wasn't updated with the codec
-register definitions.
-
-
-Patch 1 adds bulk write support for regmaps without raw formatting.
-This is used in the RTC driver to write out the date and time in one
-call.
-
-Patch 2 adds device tree bindings for the AC100.
-
-Patch 3 adds the mfd driver for the AC100.
-
-Patch 4 adds the RTC driver for the AC100.
-
-Patch 5 adds RTC clk output support to the RTC driver.
-This is a separate patch as the clk code is over 300 LoC. Having a
-separate patch should make it easier for the clk maintainers to review.
-
-Patch 6 adds the AC100 device nodes to the A80 Optimus board dts.
-
-Patch 7 adds the AC100 device nodes to the Cubieboard4 board dts.
-
-Patch 8 fixes the order of device nodes in the A80 Optimus board dts.
-
-Patch 9 fixes the order of device nodes in the Cubieboard4 board dts.
-
-Patch 10 changes the fixed osc_32k clk to a fixed factor clk,
-representing the 32k clk input pin on the SoC, and also hooks up the
-ac100 rtc clk output to this clk in the board dts files.
-
-I'm hoping we can merge the driver bits (patches 2~5) through the
-mfd tree, with acks from the rtc and clk maintainers for patches
-4 and 5.
-
-
-Regards
-ChenYu
-
-
-Chen-Yu Tsai (10):
-  regmap: Support bulk writes for devices without raw formatting
-  mfd: ac100: Add device tree bindings for X-Powers AC100 codec/RTC
-    combo IC
-  mfd: ac100: Add driver for X-Powers AC100 audio codec / RTC combo IC
-  rtc: ac100: Add RTC driver for X-Powers AC100
-  rtc: ac100: Add clk output support
-  ARM: dts: sun9i: a80-optimus: Add device node for AC100
-  ARM: dts: sun9i: cubieboard4: Add device node for AC100
-  ARM: dts: sun9i: cubieboard4: Order nodes by alphabetical order
-  ARM: dts: sun9i: a80-optimus: Order nodes by alphabetical order
-  ARM: dts: sun9i: Switch to the AC100 RTC clock outputs for osc32k
-
- Documentation/devicetree/bindings/mfd/ac100.txt |  42 ++
- arch/arm/boot/dts/sun9i-a80-cubieboard4.dts     |  58 +-
- arch/arm/boot/dts/sun9i-a80-optimus.dts         |  76 ++-
- arch/arm/boot/dts/sun9i-a80.dtsi                |   9 +-
- drivers/base/regmap/regmap.c                    |  31 +-
- drivers/mfd/Kconfig                             |  10 +
- drivers/mfd/Makefile                            |   2 +
- drivers/mfd/ac100.c                             | 135 +++++
- drivers/rtc/Kconfig                             |  10 +
- drivers/rtc/Makefile                            |   1 +
- drivers/rtc/rtc-ac100.c                         | 686 ++++++++++++++++++++++++
- include/linux/mfd/ac100.h                       | 176 ++++++
- 12 files changed, 1186 insertions(+), 50 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/mfd/ac100.txt
- create mode 100644 drivers/mfd/ac100.c
- create mode 100644 drivers/rtc/rtc-ac100.c
- create mode 100644 include/linux/mfd/ac100.h
+Thanks,
+Maxime
 
 -- 
-2.8.1
+Maxime Ripard, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
@@ -134,3 +87,26 @@ before submitting a driver.
 You received this message because you are subscribed to the Google Groups "rtc-linux" group.
 To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
+
+--o/BvujNCPFVhiGON
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJXcX0pAAoJEBx+YmzsjxAgH5oP/1SDE/ZGU8JvaVyGamQnRemk
+hGoiDYWZ5t0/fradi68lkp9imwYvPCxd8EfG6vyVw+J4/4QBXdKijPc4s5XzRuNU
+CaS46PpfxpPkk4UHSEjxCoXY6RHZCsexl7AIdZWXuUxinyLqqEjI3vV/rZvtdh3L
+68tJsyfuamITQAkcAKp+z6g4BY3pTA8sZHJPt1NsmApHD2d5Px6qIlsRSnPNVXNa
+h6yvocYDeZbDqcKrWax77ZN+FROvdNdA9PcJgAJDgi1WCsirlKBZ6CxueR8ME2rd
+JxfGUJecdpijXhNdA39mkvMnAJ3OPBrsupLeox2pd3zN+v9IPvd4Qz3Rwp1PYk91
+jvq9jmxaU5IvidDA7Mf1aV0k464S33J1oTWGMwsg2+qaciRg0RhH3Gd4KDGdEL7x
+7TU2ftZE3ni+sUHBVHUgvJB07QNhZsVYmLb/7uZo5JmhGwKMcMKZTJ5wIdUbAodz
+kMhD8KwJ22W7camroq2odh8DQouAOki3uS4IkAMbSx/ztr8gkUnVhHl6YbjsvCqM
+V7dVQSTYbV3RN+CtOxyKbaRWbDLXx6AiC4tJCpr3cRbZ6XvCG5A+nC7yNQf0w/i/
+XYk54xexFTZO54b0wUqSkpw/cgfj5LDkxcstTYMDRPj/B1kVUnoqAHuAWtUvzvhh
+FvvgltlJclLztLZyRr9T
+=Vh/U
+-----END PGP SIGNATURE-----
+
+--o/BvujNCPFVhiGON--
