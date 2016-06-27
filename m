@@ -1,34 +1,24 @@
-Return-Path: <rtc-linux+bncBCMILY6JWQBBBXUD2W5QKGQEILMEFPA@googlegroups.com>
+Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBMN7YS5QKGQE2LTLX4Q@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id f138si468582wmf.3.2016.06.27.05.44.33
+        for <rtc-linux@googlegroups.com>;
+        Mon, 27 Jun 2016 05:44:33 -0700 (PDT)
+Date: Mon, 27 Jun 2016 14:44:32 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Sergei Ianovich <ynvich@gmail.com>
+Cc: Akinobu Mita <akinobu.mita@gmail.com>, rtc-linux@googlegroups.com,
+	devicetree@vger.kernel.org, Alessandro Zummo <a.zummo@towertech.it>
+Subject: [rtc-linux] Re: [PATCH v2 1/2] rtc: ds1302: add register access
+ abstraction layer
+Message-ID: <20160627124432.GI29249@piout.net>
+References: <1467026362-29446-1-git-send-email-akinobu.mita@gmail.com>
+ <1467026362-29446-2-git-send-email-akinobu.mita@gmail.com>
+ <1467028249.3182.11.camel@gmail.com>
 MIME-Version: 1.0
-Received: from wens.csie.org (mirror2.csie.ntu.edu.tw. [140.112.30.76])
-        by gmr-mx.google.com with ESMTPS id zj2si678894pac.1.2016.06.30.08.59.26
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 30 Jun 2016 08:59:26 -0700 (PDT)
-From: Chen-Yu Tsai <wens@csie.org>
-To: Lee Jones <lee.jones@linaro.org>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Rob Herring <robh+dt@kernel.org>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Maxime Ripard <maxime.ripard@free-electrons.com>,
-	Michael Turquette <mturquette@baylibre.com>,
-	Stephen Boyd <sboyd@codeaurora.org>
-Cc: Chen-Yu Tsai <wens@csie.org>,
-	linux-arm-kernel@lists.infradead.org,
-	rtc-linux@googlegroups.com,
-	linux-clk@vger.kernel.org,
-	devicetree@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [rtc-linux] [PATCH v4 5/7] ARM: dts: sun9i: a80-optimus: Add device
- node for AC100
-Date: Thu, 30 Jun 2016 23:58:49 +0800
-Message-Id: <1467302331-9663-6-git-send-email-wens@csie.org>
-In-Reply-To: <1467302331-9663-1-git-send-email-wens@csie.org>
-References: <1467302331-9663-1-git-send-email-wens@csie.org>
-Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1467028249.3182.11.camel@gmail.com>
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -37,62 +27,60 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Signed-off-by: Chen-Yu Tsai <wens@csie.org>
----
-Changes since v3:
+On 27/06/2016 at 14:50:49 +0300, Sergei Ianovich wrote :
+> On Mon, 2016-06-27 at 20:19 +0900, Akinobu Mita wrote:
+> > The rtc-ds1302 driver now implemented using SPI 3wire mode.
+> > But I would like to access it with using three wires connected to
+> > GPIO
+> > lines.
+> >=20
+> > This adds abstraction layer for DS1302 register access in order to
+> > prepare to support for using GPIO lines.=C2=A0=C2=A0This enables to sha=
+re
+> > common
+> > code between SPI driver and GPIO driver.
+>=20
+> I don't think this is the right way. DS-1302 is an SPI device, not a
+> GPIO one. It can be connected to a hardware SPI controller or a
+> software one (on top of GPIO or memory).
+>=20
+> Your patch re-adds Microwire SPI control logic to RTC subsystem, which
+> was cleared by my rewrite of drivers/rtc/rtc-ds1302.c. The logic is
+> already present in=C2=A0bitbang_txrx_be_cpha0_lsb() in=C2=A0drivers/spi/s=
+pi-
+> lp8841-rtc.c.
+>=20
+> I still think you need to implement=C2=A0spi-gpio-3wire with LSB-first
+> support in SPI subsystem instead. It wasn't done when I was adding
+> LP8841 support, because LP8841 was the only use case of Microwire SPI
+> control logic. If you add it, drivers/spi/spi-lp8841-rtc.c can be
+> removed and replaced by a GPIO driver to host a new spi-gpio-3wire
+> device.
 
-  - Moved 4M ADDA clk to codec side
+Well, back in April, we concluded it was not easily doable after
+discussing with Mark and there was still issues after implementing it in
+spi-gpio.
 
-Changes since v2: none
-Changes since v1: none
----
- arch/arm/boot/dts/sun9i-a80-optimus.dts | 24 ++++++++++++++++++++++++
- 1 file changed, 24 insertions(+)
+My understanding is that while microwire seems compatible with SPI mode
+0, it actually isn't and this should be treated as a different mode.
+If we want to do something generic, I think we should have a
+microwire-gpio driver. Maybe in the SPI subsystem?
 
-diff --git a/arch/arm/boot/dts/sun9i-a80-optimus.dts b/arch/arm/boot/dts/sun9i-a80-optimus.dts
-index 7fd22e888602..e35c06c162a7 100644
---- a/arch/arm/boot/dts/sun9i-a80-optimus.dts
-+++ b/arch/arm/boot/dts/sun9i-a80-optimus.dts
-@@ -322,6 +322,30 @@
- 			};
- 		};
- 	};
-+
-+	ac100: codec@e89 {
-+		compatible = "x-powers,ac100";
-+		reg = <0xe89>;
-+
-+		ac100_codec: codec {
-+			compatible = "x-powers,ac100-codec";
-+			interrupt-parent = <&r_pio>;
-+			interrupts = <0 9 IRQ_TYPE_LEVEL_LOW>; /* PL9 */
-+			#clock-cells = <0>;
-+			clock-output-names = "4M_adda";
-+		};
-+
-+		ac100_rtc: rtc {
-+			compatible = "x-powers,ac100-rtc";
-+			interrupt-parent = <&nmi_intc>;
-+			interrupts = <0 IRQ_TYPE_LEVEL_LOW>;
-+			clocks = <&ac100_codec>;
-+			#clock-cells = <1>;
-+			clock-output-names = "cko1_rtc",
-+					     "cko2_rtc",
-+					     "cko3_rtc";
-+		};
-+	};
- };
- 
- #include "axp809.dtsi"
--- 
-2.8.1
+How do yo currently select microwire mode for PX270?
 
--- 
+--=20
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
+
+--=20
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+---=20
+You received this message because you are subscribed to the Google Groups "=
+rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an e=
+mail to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
