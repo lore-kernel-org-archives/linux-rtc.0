@@ -1,25 +1,23 @@
-Return-Path: <rtc-linux+bncBDEKVJM7XAHRBD4I225AKGQEBUFKQAI@googlegroups.com>
+Return-Path: <rtc-linux+bncBCU67L5YYYNRBDGIYW5QKGQET4BVKXA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-MIME-Version: 1.0
-Received: from mout.kundenserver.de (mout.kundenserver.de. [212.227.126.131])
-        by gmr-mx.google.com with ESMTPS id f69si112550wmf.3.2016.06.06.07.09.19
+Received: from na01-bl2-obe.outbound.protection.outlook.com (mail-bl2on0119.outbound.protection.outlook.com. [65.55.169.119])
+        by gmr-mx.google.com with ESMTPS id i4si233910ywf.6.2016.06.27.10.36.12
         for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 06 Jun 2016 07:09:19 -0700 (PDT)
-From: Arnd Bergmann <arnd@arndb.de>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: linux-kernel@vger.kernel.org,
-	rtc-linux@googlegroups.com,
-	Arnd Bergmann <arnd@arndb.de>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Ingo Molnar <mingo@redhat.com>,
-	"H. Peter Anvin" <hpa@zytor.com>,
-	x86@kernel.org
-Subject: [rtc-linux] [PATCH] x86: include linux/ratelimit.h in nmi.c
-Date: Mon,  6 Jun 2016 16:09:52 +0200
-Message-Id: <1465222212-2579966-1-git-send-email-arnd@arndb.de>
-Reply-To: rtc-linux@googlegroups.com
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
+        Mon, 27 Jun 2016 10:36:12 -0700 (PDT)
+Subject: [rtc-linux] Re: __rtc_read_alarm missing month/year field bug?
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+	<rtc-linux@googlegroups.com>
+References: <5768148E.8090304@stratus.com>
+CC: Alexandre Belloni <alexandre.belloni@free-electrons.com>, Alessandro Zummo
+	<a.zummo@towertech.it>
+From: Joe Lawrence <joe.lawrence@stratus.com>
+Message-ID: <57716404.9080204@stratus.com>
+Date: Mon, 27 Jun 2016 13:36:04 -0400
+MIME-Version: 1.0
+In-Reply-To: <5768148E.8090304@stratus.com>
 Content-Type: text/plain; charset=UTF-8
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -28,53 +26,148 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-When building random configurations, we now occasionally get a new
-build error:
+On 06/20/2016 12:06 PM, Joe Lawrence wrote:
+> Hello Alessandro and Alexandre,
+> 
+> I noticed an interesting cmos_rtc.rtc.aie_timer on a Stratus machine
+> running the 4.6 kernel, with an expiration time that puts the alarm way
+> out into next year.  This is easily reproducible on this machine by
+> setting a wakealarm sometime in the near future, then rebooting.
+> 
+> From a fresh boot:
+> 
+>   % cat /proc/driver/rtc
+>   rtc_time        : 17:55:10
+>   rtc_date        : 2016-06-09
+>   alrm_time       : 14:04:37
+>   alrm_date       : 2017-06-09         << 2017 ?
+>   alarm_IRQ       : no
+>   alrm_pending    : no
+>   update IRQ enabled      : no
+>   periodic IRQ enabled    : no
+>   periodic IRQ frequency  : 1024
+>   max user IRQ frequency  : 64
+>   24hr            : yes
+>   periodic_IRQ    : no
+>   update_IRQ      : no
+>   HPET_emulated   : yes
+>   BCD             : yes
+>   DST_enable      : no
+>   periodic_freq   : 1024
+>   batt_status     : okay
+> 
+> 
+> I added some debugging code to the kernel, saw this on the next boot:
+> 
+>   __rtc_read_alarm: A - alarm->time.tm_year = -1, missing = 0
+>   __rtc_read_alarm: B - alarm->time.tm_year = 116, missing = 3
+>   __rtc_read_alarm: C - alarm->time.tm_year = 117
+> 
+> 
+> Corresponding to these parts of __rtc_read_alarm:
+> 
+>   int __rtc_read_alarm(struct rtc_device *rtc, struct rtc_wkalrm *alarm)
+>   ...
+>   	enum { none, day, month, year } missing = none;
+>   ...
+>   		err = rtc_read_alarm_internal(rtc, alarm);
+>   ...
+>   	/* Fill in the missing alarm fields using the timestamp; we
+>   	 * know there's at least one since alarm->time is invalid.
+>   	 */
+>   ...
+>   [A]
+>   	if (alarm->time.tm_year == -1) {
+>   		alarm->time.tm_year = now.tm_year;
+>   		if (missing == none)
+>   			missing = year;
+>   	}
+>   [B]
+>   ...
+>   	switch (missing) {
+>   ...
+>   	/* Year rollover ... easy except for leap years! */
+>   	case year:
+>   		dev_dbg(&rtc->dev, "alarm rollover: %s\n", "year");
+>   		do {
+>   			alarm->time.tm_year++;
+>   		} while (!is_leap_year(alarm->time.tm_year + 1900)
+>   			&& rtc_valid_tm(&alarm->time) != 0);
+>   [C]		break;
+> 
+> 
+> I noticed that the missing year and month cases increment their
+> respective time units inside a do ... while (condition) loop, pushing
+> the default 'filled-in' values to now + 1.
+> 
+> Should this 'roll-over' code check for a valid date before incrementing
+> the alarm time?  (See attached patch.)  I think this might also apply to
+> a missing month field as well.
+> 
+> (After the patch + reboot):
+> 
+>   % cat /proc/driver/rtc
+>   rtc_time        : 18:24:02
+>   rtc_date        : 2016-06-09
+>   alrm_time       : 14:04:37
+>   alrm_date       : 2016-06-09
+>   alarm_IRQ       : no
+>   alrm_pending    : no
+>   update IRQ enabled      : no
+>   periodic IRQ enabled    : no
+>   periodic IRQ frequency  : 1024
+>   max user IRQ frequency  : 64
+>   24hr            : yes
+>   periodic_IRQ    : no
+>   update_IRQ      : no
+>   HPET_emulated   : yes
+>   BCD             : yes
+>   DST_enable      : no
+>   periodic_freq   : 1024
+>   batt_status     : okay
+> 
+> -- >8 --
+> 
+> From d6feacf20b312c8ebfee902b8b84f68c1a82f035 Mon Sep 17 00:00:00 2001
+> From: Joe Lawrence <joe.lawrence@stratus.com>
+> Date: Thu, 9 Jun 2016 14:52:28 -0400
+> Subject: [PATCH] rtc: check filled-in alarm values before incrementing
+> 
+> In __rtc_read_alarm, check filled-in alarm->time.tm_year values (those
+> not returned by the RTC and defaulted to now.tm_year) before
+> incrementing them in the rollover handling case.
+> 
+> Signed-off-by: Joe Lawrence <joe.lawrence@stratus.com>
+> ---
+>  drivers/rtc/interface.c | 6 +++---
+>  1 file changed, 3 insertions(+), 3 deletions(-)
+> 
+> diff --git a/drivers/rtc/interface.c b/drivers/rtc/interface.c
+> index 9ef5f6f89f98..3098ce4167ef 100644
+> --- a/drivers/rtc/interface.c
+> +++ b/drivers/rtc/interface.c
+> @@ -258,10 +258,10 @@ int __rtc_read_alarm(struct rtc_device *rtc,
+> struct rtc_wkalrm *alarm)
+>  	/* Year rollover ... easy except for leap years! */
+>  	case year:
+>  		dev_dbg(&rtc->dev, "alarm rollover: %s\n", "year");
+> -		do {
+> +		while (!is_leap_year(alarm->time.tm_year + 1900)
+> +			&& rtc_valid_tm(&alarm->time) != 0) {
+>  			alarm->time.tm_year++;
+> -		} while (!is_leap_year(alarm->time.tm_year + 1900)
+> -			&& rtc_valid_tm(&alarm->time) != 0);
+> +		}
+>  		break;
+> 
+>  	default:
+> 
 
-   In file included from include/linux/kernel.h:13:0,
-                    from include/linux/list.h:8,
-                    from include/linux/preempt.h:10,
-                    from include/linux/spinlock.h:50,
-                    from arch/x86/kernel/nmi.c:13:
-   arch/x86/kernel/nmi.c: In function 'nmi_max_handler':
-   include/linux/printk.h:375:9: error: type defaults to 'int' in declaration of 'DEFINE_RATELIMIT_STATE' [-Werror=implicit-int]
-     static DEFINE_RATELIMIT_STATE(_rs,    \
-            ^
-   arch/x86/kernel/nmi.c:110:2: note: in expansion of macro 'printk_ratelimited'
-     printk_ratelimited(KERN_INFO
-     ^~~~~~~~~~~~~~~~~~
+Ping?  This isn't a major problem, but can setup endless RTC interrupts
+under certain conditions on said hardware.
 
-This was working before the rtc rework series because linux/ratelimit.h
-was included implictly through asm/mach_traps.h -> asm/mc146818rtc.h
--> linux/mc146818rtc.h -> linux/rtc.h -> linux/device.h.
 
-We clearly shouldn't rely on this indirect inclusion, so this adds
-an explicit #include in the file that needs it.
-
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Reported-by: kbuild test robot <fengguang.wu@intel.com>
-Fixes: 5ab788d73832 ("rtc: cmos: move mc146818rtc code out of asm-generic/rtc.h")
----
-It's only broken in the linux-rtc git at the moment, so it makes sense
-to fix it there.
-
- arch/x86/kernel/nmi.c | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/arch/x86/kernel/nmi.c b/arch/x86/kernel/nmi.c
-index 04b132a767f1..bfe4d6c96fbd 100644
---- a/arch/x86/kernel/nmi.c
-+++ b/arch/x86/kernel/nmi.c
-@@ -17,6 +17,7 @@
- #include <linux/debugfs.h>
- #include <linux/delay.h>
- #include <linux/hardirq.h>
-+#include <linux/ratelimit.h>
- #include <linux/slab.h>
- #include <linux/export.h>
- 
--- 
-2.7.0
+-- Joe
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
