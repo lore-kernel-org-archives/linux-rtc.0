@@ -1,30 +1,27 @@
-Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBHGZU25QKGQE6UCSPLI@googlegroups.com>
+Return-Path: <rtc-linux+bncBDJIP47K7MERBJ6JZO5QKGQEGTMDDFA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id f138si147019wmf.3.2016.06.21.14.07.40
-        for <rtc-linux@googlegroups.com>;
-        Tue, 21 Jun 2016 14:07:40 -0700 (PDT)
-Date: Tue, 21 Jun 2016 23:07:39 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Rob Herring <robh@kernel.org>
-Cc: Andrey Smirnov <andrew.smirnov@gmail.com>, rtc-linux@googlegroups.com,
+Received: from mail-qk0-f195.google.com (mail-qk0-f195.google.com. [209.85.220.195])
+        by gmr-mx.google.com with ESMTPS id x204si21913ywb.1.2016.06.28.13.57.11
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 28 Jun 2016 13:57:11 -0700 (PDT)
+Received: by mail-qk0-f195.google.com with SMTP id n132so5912400qka.0
+        for <rtc-linux@googlegroups.com>; Tue, 28 Jun 2016 13:57:11 -0700 (PDT)
+Date: Tue, 28 Jun 2016 15:57:04 -0500
+From: Rob Herring <robh@kernel.org>
+To: Akinobu Mita <akinobu.mita@gmail.com>
+Cc: rtc-linux@googlegroups.com, devicetree@vger.kernel.org,
+	Sergey Yanovich <ynvich@gmail.com>,
 	Alessandro Zummo <a.zummo@towertech.it>,
-	Pawel Moll <pawel.moll@arm.com>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Ian Campbell <ijc+devicetree@hellion.org.uk>,
-	Kumar Gala <galak@codeaurora.org>, devicetree@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH 03/13] RTC: ds1307: Add DS1341 specific
- power-saving options
-Message-ID: <20160621210739.GY5809@piout.net>
-References: <1465970379-14703-1-git-send-email-andrew.smirnov@gmail.com>
- <1465970379-14703-4-git-send-email-andrew.smirnov@gmail.com>
- <20160619142934.GA8522@rob-hp-laptop>
- <CAHQ1cqFfFpLmMMr9itinha9rotG7Btr9UmWbO2_0VWxX_HeG1g@mail.gmail.com>
- <20160621204904.GA9779@rob-hp-laptop>
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Subject: [rtc-linux] Re: [PATCH v2 2/2] rtc: ds1302: support control with
+ using GPIO lines
+Message-ID: <20160628205704.GT3737@rob-hp-laptop>
+References: <1467026362-29446-1-git-send-email-akinobu.mita@gmail.com>
+ <1467026362-29446-3-git-send-email-akinobu.mita@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <20160621204904.GA9779@rob-hp-laptop>
+In-Reply-To: <1467026362-29446-3-git-send-email-akinobu.mita@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -34,43 +31,40 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 21/06/2016 at 15:49:04 -0500, Rob Herring wrote :
-> So wouldn't you want to set one mode while running and the lower power 
-> mode while suspended? I'm trying to understand the frequency of changing 
-> this. If it is always one setting for a board, then yes it belongs in 
-> DT. If it is a user decision, then it probably shouldn't be in DT.
+On Mon, Jun 27, 2016 at 08:19:22PM +0900, Akinobu Mita wrote:
+> This adds support control with GPIO lines connected to the DS1302
+> which can communicate with three wires.
 > 
-> Seeing as these are reused, I've probably already had this discussion...
+> Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
+> Cc: Sergey Yanovich <ynvich@gmail.com>
+> Cc: Alessandro Zummo <a.zummo@towertech.it>
+> Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+> ---
+>  .../devicetree/bindings/rtc/maxim-ds1302.txt       |  13 +
+>  drivers/rtc/Kconfig                                |  17 +-
+>  drivers/rtc/rtc-ds1302.c                           | 320 ++++++++++++++++++++-
+>  3 files changed, 331 insertions(+), 19 deletions(-)
 > 
+> diff --git a/Documentation/devicetree/bindings/rtc/maxim-ds1302.txt b/Documentation/devicetree/bindings/rtc/maxim-ds1302.txt
+> index ba470c5..d489753 100644
+> --- a/Documentation/devicetree/bindings/rtc/maxim-ds1302.txt
+> +++ b/Documentation/devicetree/bindings/rtc/maxim-ds1302.txt
+> @@ -27,6 +27,12 @@ Required SPI properties:
+>  - spi-cs-high: DS-1302 has active high chip select line. This is
+>    required unless inverted in hardware.
+>  
+> +Required properties when using GPIO lines:
+> +
+> +- gpio-ce: GPIO connected to CE pin
+> +- gpio-io: GPIO connected to I/O pin
+> +- gpio-reset: GPIO connected to SCLK pin
+> +
 
-I would agree with Rob here. It may be better to provide a sysfs
-interface to configure that particular behavior. This is usually ok
-because the use case is:
- - the RTC is not configured, time has never been set
- - time is set for the first time
- - the user can set the oscillator mode/detection/...
- - on subsequent reboots, the mode is kept alongside the time and date
+IIRC, we got rid of the direct gpio bit-banging in this driver (or a 
+similar one) and replaced it with SPI GPIO driver. We should do that 
+here.
 
-I would advise against trying to set a mode automatically in the driver
-because you may have unexpected power cuts and it may then let the RTC
-consume more power than what you really want.
-
-> > > They should have vendor prefix and be explicit that they are boolean.
-> > 
-> > I was trying to be consistent with ds1339 and ds1390 bindings which do
-> > not have vendor prefixes. Will fix in v2.
-> 
-> Okay, then they are fine if you are using existing properties. Perhaps 
-> these should all be in a common binding doc though.
-> 
-
-I'll try to collect the existing common properties and write that doc
-this week.
-
--- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+Rob
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
