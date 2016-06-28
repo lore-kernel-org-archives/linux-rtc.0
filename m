@@ -1,25 +1,26 @@
-Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBAMBZ25QKGQEOOLBSFA@googlegroups.com>
+Return-Path: <rtc-linux+bncBDAYD2P3QYGRBJ6LZC5QKGQEP4W6OUI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id q124si514060wme.3.2016.06.29.01.02.09
-        for <rtc-linux@googlegroups.com>;
-        Wed, 29 Jun 2016 01:02:09 -0700 (PDT)
-Date: Wed, 29 Jun 2016 10:02:08 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: "fixed-term.Oleksij.Rempel" <fixed-term.Oleksij.Rempel@de.bosch.com>
-Cc: Dirk Behme <dirk.behme@de.bosch.com>, rtc-linux@googlegroups.com,
-	devicetree@vger.kernel.org,
-	Carsten Resch <Carsten.Resch@de.bosch.com>
-Subject: Re: [rtc-linux] [PATCH v2 4/4] rtc: rv8803: Be able to set VDETOFF
- and SWOFF via devcie tree
-Message-ID: <20160629080208.GQ29249@piout.net>
-References: <1466577742-18824-1-git-send-email-dirk.behme@de.bosch.com>
- <1466577742-18824-5-git-send-email-dirk.behme@de.bosch.com>
- <20160624074407.GJ5809@piout.net>
- <57734FFB.4000104@de.bosch.com>
+Received: from mail-wm0-x235.google.com (mail-wm0-x235.google.com. [2a00:1450:400c:c09::235])
+        by gmr-mx.google.com with ESMTPS id q124si431191wme.3.2016.06.28.00.22.15
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 28 Jun 2016 00:22:15 -0700 (PDT)
+Received: by mail-wm0-x235.google.com with SMTP id a66so13356791wme.0
+        for <rtc-linux@googlegroups.com>; Tue, 28 Jun 2016 00:22:15 -0700 (PDT)
+Subject: [rtc-linux] Re: AMLogic RTC series (second round)
+To: Ben Dooks <ben.dooks@codethink.co.uk>,
+ linux-kernel@lists.codethink.co.uk, rtc-linux@googlegroups.com,
+ a.zummo@towertech.it, alexandre.belloni@free-electrons.com,
+ devicetree@vger.kernel.org
+References: <1467045849-495-1-git-send-email-ben.dooks@codethink.co.uk>
+Cc: linux-amlogic@lists.infradead.org, robh+dt@kernel.org,
+ frowand.list@gmail.com
+From: Neil Armstrong <narmstrong@baylibre.com>
+Message-ID: <577225A3.9010409@baylibre.com>
+Date: Tue, 28 Jun 2016 09:22:11 +0200
 MIME-Version: 1.0
+In-Reply-To: <1467045849-495-1-git-send-email-ben.dooks@codethink.co.uk>
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <57734FFB.4000104@de.bosch.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -29,76 +30,54 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 29/06/2016 at 06:35:07 +0200, fixed-term.Oleksij.Rempel wrote :
+On 06/27/2016 06:44 PM, Ben Dooks wrote:
+> Apologies, forgot to put the RTC driver through checkpatch
+> before sending. This gets rid of most of the warnings.
 > 
 > 
-> On 24.06.2016 09:44, Alexandre Belloni wrote:
-> > On 22/06/2016 at 08:42:22 +0200, Dirk Behme wrote :
-> >> From: Oleksij Rempel <fixed-term.Oleksij.Rempel@de.bosch.com>
-> >>
-> >> There might be designs where the power supply circuit is designed
-> >> in a way that VDETOFF and SWOFF is reuqired to be set. Otherwise the
-> >> RTC detects a power loss. Add a device tree interface for this.
-> >>
-> >> Signed-off-by: Carsten Resch <Carsten.Resch@de.bosch.com>
-> >> Signed-off-by: Dirk Behme <dirk.behme@de.bosch.com>
-> >> Signed-off-by: Oleksij Rempel <fixed-term.Oleksij.Rempel@de.bosch.com>
-> >> Cc: devicetree@vger.kernel.org
-> >> ---
-> >>  drivers/rtc/rtc-rv8803.c | 39 +++++++++++++++++++++++++++++++++++++++
-> >>  1 file changed, 39 insertions(+)
-> >>
-> >> diff --git a/drivers/rtc/rtc-rv8803.c b/drivers/rtc/rtc-rv8803.c
-> >> index e122b51..32a5686 100644
-> >> --- a/drivers/rtc/rtc-rv8803.c
-> >> +++ b/drivers/rtc/rtc-rv8803.c
-> >> @@ -50,6 +50,10 @@
-> >>  #define RV8803_CTRL_TIE			BIT(4)
-> >>  #define RV8803_CTRL_UIE			BIT(5)
-> >>  
-> >> +#define RX8900_BACKUP_CTRL		0x18
-> >> +#define RX8900_FLAG_SWOFF		BIT(2)
-> >> +#define RX8900_FLAG_VDETOFF		BIT(3)
-> >> +
-> >>  struct rv8803_data {
-> >>  	struct i2c_client *client;
-> >>  	struct rtc_device *rtc;
-> >> @@ -423,6 +427,35 @@ static struct rtc_class_ops rv8803_rtc_ops = {
-> >>  	.ioctl = rv8803_ioctl,
-> >>  };
-> >>  
-> >> +static int rx8900_trickle_charger_init(struct rv8803_data *rv8803)
-> >> +{
-> >> +	struct i2c_client *client = rv8803->client;
-> >> +	struct device_node *node = client->dev.of_node;
-> >> +	int err;
-> >> +	u8 flags;
-> >> +
-> >> +	if (!node)
-> >> +		return 0;
-> >> +
-> >> +	if (!of_device_is_compatible(node, "epson,rx8900"))
-> >> +		return 0;
-> >> +
-> > 
-> > Can you use the i2c_device_id instead of of_device_is_compatible to
-> > avoid matching on yet another string?
+> _______________________________________________
+> linux-amlogic mailing list
+> linux-amlogic@lists.infradead.org
+> http://lists.infradead.org/mailman/listinfo/linux-amlogic
 > 
-> Sure, ... is it possible that device tree defines rx8900 but i2c will
-> detect rv8803?
 
-There is no detection in i2c, it will use the compatible strng to pass
-the correct i2c_device_id.
+Hi Ben,
 
-> I assume it is potential source of errors. What would be better way to
-> handle it?
+The patchset looks good but misses some quick introduction on how
+the RTC works, it seems to be connected to an internal serial bus,
+do you have some informations about this ?
 
-i2c is doing the right thing, you just have to use the i2c_device_id.
+Then, the cover letter of your patchset should contain much more informations
+that "git format-patch --cover-letter" generates.
 
--- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+My personal workflow when I have a set ready is :
+
+* run checkpatch on C files and check my changes
+# scripts/checkpatch.pl -f path/to/my/driver.c
+* I identify the number of patches to include
+* I generate the patches with cover-letter, signoff and eventually subject-prefix, here for 4 commits
+# git format-patch --cover-letter -s -4 --subject-prefix "PATCH v2" -o my_drivers_patches_v2
+* Then I complete the cover letter in my_drivers_patches_v2/0000-cover-letter
+* I also reference a small changelog between patchset version and identify the previous cover letter via it's message id
+Use the http://lkml.kernel.org service to reference a message-id, i.e this email I answer would be referenced by :
+http://lkml.kernel.org/r/1467045849-495-1-git-send-email-ben.dooks@codethink.co.uk
+while looking at the email headers at :
+Message-Id: <1467045849-495-1-git-send-email-ben.dooks@codethink.co.uk>
+* Then I look again all the patches and check all the descriptions
+* I re-run a checkpatch.pl on all the patches (and ignore errors on the cover letter)
+# scripts/checkpatch.pl my_drivers_patches_v2/*
+* I identify all the maintainers and mailing lists
+# scripts/get_maintainer.pl my_drivers_patches_v2/*
+* Personally, I fill the CC: and To: in the headers of each patches, only adding the devicetree mailing list on DT related patches
+* Then I send them via git send-email
+# git send-email my_drivers_patches_v2/*
+=> here you can also select the recipients
+=> you can also do a dry run or send yourself the patchset to check before final sending
+
+Another rule is time, please wait at least 1 week after the last review before send another run,
+and give yourself more time to check the integrity of the patchset.
+
+Neil
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
