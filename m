@@ -1,36 +1,27 @@
-Return-Path: <rtc-linux+bncBCMILY6JWQBBBZ6S7W5AKGQE5XINMJA@googlegroups.com>
+Return-Path: <rtc-linux+bncBDJIP47K7MERBQ6JZO5QKGQE6LNFU4Y@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-MIME-Version: 1.0
-Received: from wens.csie.org (mirror2.csie.ntu.edu.tw. [140.112.30.76])
-        by gmr-mx.google.com with ESMTPS id c11si1162853pfc.2.2016.06.13.19.18.15
+Received: from mail-qk0-f195.google.com (mail-qk0-f195.google.com. [209.85.220.195])
+        by gmr-mx.google.com with ESMTPS id u136si12890ywc.7.2016.06.28.13.57.39
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 13 Jun 2016 19:18:15 -0700 (PDT)
-From: Chen-Yu Tsai <wens@csie.org>
-To: Mark Brown <broonie@kernel.org>,
-	Lee Jones <lee.jones@linaro.org>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Rob Herring <robh+dt@kernel.org>,
-	Pawel Moll <pawel.moll@arm.com>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Ian Campbell <ijc+devicetree@hellion.org.uk>,
-	Kumar Gala <galak@codeaurora.org>,
-	Maxime Ripard <maxime.ripard@free-electrons.com>,
-	Michael Turquette <mturquette@baylibre.com>,
-	Stephen Boyd <sboyd@codeaurora.org>
-Cc: Chen-Yu Tsai <wens@csie.org>,
-	rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org,
-	devicetree@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	linux-clk@vger.kernel.org
-Subject: [rtc-linux] [PATCH 00/10] mfd: ac100: Add support for X-Powers AC100
- audio codec / RTC combo IC
-Date: Tue, 14 Jun 2016 10:17:47 +0800
-Message-Id: <1465870678-30128-1-git-send-email-wens@csie.org>
-Reply-To: rtc-linux@googlegroups.com
+        Tue, 28 Jun 2016 13:57:39 -0700 (PDT)
+Received: by mail-qk0-f195.google.com with SMTP id j2so5892513qkf.1
+        for <rtc-linux@googlegroups.com>; Tue, 28 Jun 2016 13:57:39 -0700 (PDT)
+Date: Tue, 28 Jun 2016 15:57:31 -0500
+From: Rob Herring <robh@kernel.org>
+To: Ben Dooks <ben.dooks@codethink.co.uk>
+Cc: linux-kernel@lists.codethink.co.uk, rtc-linux@googlegroups.com,
+	a.zummo@towertech.it, alexandre.belloni@free-electrons.com,
+	devicetree@vger.kernel.org, frowand.list@gmail.com,
+	linux-amlogic@lists.infradead.org
+Subject: [rtc-linux] Re: [PATCH v2 2/4] meson-rtc: add device-tree binding
+Message-ID: <20160628205731.GW3737@rob-hp-laptop>
+References: <1467045849-495-1-git-send-email-ben.dooks@codethink.co.uk>
+ <1467045849-495-3-git-send-email-ben.dooks@codethink.co.uk>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1467045849-495-3-git-send-email-ben.dooks@codethink.co.uk>
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -39,82 +30,16 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Hi everyone,
+On Mon, Jun 27, 2016 at 05:44:07PM +0100, Ben Dooks wrote:
+> Add documentation for the AMLogic Meson RTC.
+> 
+> Signed-off-by: Ben Dooks <ben.dooks@codethink.co.uk>
+> ---
+>  .../devicetree/bindings/rtc/rtc-amlogic.txt         | 21 +++++++++++++++++++++
+>  1 file changed, 21 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/rtc/rtc-amlogic.txt
 
-This series adds support for X-Powers' AC100 audio codec / RTC combo IC.
-This chip is found on Allwinner A80 SoC based boards, and is also part
-of the AXP813/AXP818 PMIC found with Allwinner A83T SoCs.
-
-The series focuses on the RTC side of the chip. The audio codec will
-be done later, once the digital audio interface of the SoC is supported.
-
-Patch 1 adds bulk write support for regmaps without raw formatting.
-This is used in the RTC driver to write out the date and time in one
-call.
-
-Patch 2 adds device tree bindings for the AC100.
-
-Patch 3 adds the mfd driver for the AC100.
-
-Patch 4 adds the RTC driver for the AC100.
-
-Patch 5 adds RTC clk output support to the RTC driver.
-This is a separate patch as the clk code is over 300 LoC. Having a
-separate patch should make it easier for the clk maintainers to review.
-
-Patch 6 adds the AC100 device nodes to the A80 Optimus board dts.
-
-Patch 7 adds the AC100 device nodes to the Cubieboard4 board dts.
-
-Patch 8 fixes the order of device nodes in the A80 Optimus board dts.
-
-Patch 9 fixes the order of device nodes in the Cubieboard4 board dts.
-
-Patch 10 changes the fixed osc_32k clk to a fixed factor clk,
-representing the 32k clk input pin on the SoC, and also hooks up the
-ac100 rtc clk output to this clk in the board dts files.
-
-I'm hoping we can merge the driver bits (patches 2~5) through the
-mfd tree, with acks from the rtc and clk maintainers for patches
-4 and 5.
-
-Regards
-ChenYu
-
-
-Chen-Yu Tsai (10):
-  regmap: Support bulk writes for devices without raw formatting
-  mfd: ac100: Add device tree bindings for X-Powers AC100 codec/RTC
-    combo IC
-  mfd: ac100: Add driver for X-Powers AC100 audio codec / RTC combo IC
-  rtc: ac100: Add RTC driver for X-Powers AC100
-  rtc: ac100: Add clk output support
-  ARM: dts: sun9i: a80-optimus: Add device node for AC100
-  ARM: dts: sun9i: cubieboard4: Add device node for AC100
-  ARM: dts: sun9i: cubieboard4: Order nodes by alphabetical order
-  ARM: dts: sun9i: a80-optimus: Order nodes by alphabetical order
-  ARM: dts: sun9i: Switch to the AC100 RTC clock outputs for osc32k
-
- Documentation/devicetree/bindings/mfd/ac100.txt |  42 ++
- arch/arm/boot/dts/sun9i-a80-cubieboard4.dts     |  58 +-
- arch/arm/boot/dts/sun9i-a80-optimus.dts         |  76 ++-
- arch/arm/boot/dts/sun9i-a80.dtsi                |   9 +-
- drivers/base/regmap/regmap.c                    |  31 +-
- drivers/mfd/Kconfig                             |  10 +
- drivers/mfd/Makefile                            |   2 +
- drivers/mfd/ac100.c                             | 135 +++++
- drivers/rtc/Kconfig                             |  10 +
- drivers/rtc/Makefile                            |   1 +
- drivers/rtc/rtc-ac100.c                         | 686 ++++++++++++++++++++++++
- include/linux/mfd/ac100.h                       | 176 ++++++
- 12 files changed, 1186 insertions(+), 50 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/mfd/ac100.txt
- create mode 100644 drivers/mfd/ac100.c
- create mode 100644 drivers/rtc/rtc-ac100.c
- create mode 100644 include/linux/mfd/ac100.h
-
--- 
-2.8.1
+Acked-by: Rob Herring <robh@kernel.org>
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
