@@ -1,26 +1,29 @@
-Return-Path: <rtc-linux+bncBDKOBWPM5ABRBVGWUO5QKGQEZVTCF6Q@googlegroups.com>
+Return-Path: <rtc-linux+bncBDA7X7F2WUEBBSVGZK5QKGQEF7LMRMI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-MIME-Version: 1.0
-Received: from mail-pf0-x241.google.com (mail-pf0-x241.google.com. [2607:f8b0:400e:c00::241])
-        by gmr-mx.google.com with ESMTPS id po17si907962pab.2.2016.06.21.00.23.00
+Received: from mail-wm0-x22c.google.com (mail-wm0-x22c.google.com. [2a00:1450:400c:c09::22c])
+        by gmr-mx.google.com with ESMTPS id a6si1029334wma.1.2016.06.28.08.10.02
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 21 Jun 2016 00:23:00 -0700 (PDT)
-Received: by mail-pf0-x241.google.com with SMTP id t190so762020pfb.2
-        for <rtc-linux@googlegroups.com>; Tue, 21 Jun 2016 00:23:00 -0700 (PDT)
-From: Andrey Smirnov <andrew.smirnov@gmail.com>
-To: rtc-linux@googlegroups.com
-Cc: Andrey Smirnov <andrew.smirnov@gmail.com>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	linux-kernel@vger.kernel.org,
-	cphealy@gmail.com
-Subject: [rtc-linux] [PATCH v2 02/17] RTC: ds1307: Disable square wave and
- timers as default
-Date: Tue, 21 Jun 2016 00:22:35 -0700
-Message-Id: <1466493770-11895-1-git-send-email-andrew.smirnov@gmail.com>
-Reply-To: rtc-linux@googlegroups.com
+        Tue, 28 Jun 2016 08:10:02 -0700 (PDT)
+Received: by mail-wm0-x22c.google.com with SMTP id a66so32453311wme.0
+        for <rtc-linux@googlegroups.com>; Tue, 28 Jun 2016 08:10:02 -0700 (PDT)
+Date: Tue, 28 Jun 2016 16:10:54 +0100
+From: Lee Jones <lee.jones@linaro.org>
+To: Neil Armstrong <narmstrong@baylibre.com>
+Cc: dmitry.torokhov@gmail.com, andy.gross@linaro.org,
+	david.brown@linaro.org, lgirdwood@gmail.com, broonie@kernel.org,
+	a.zummo@towertech.it, alexandre.belloni@free-electrons.com,
+	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+	linux-arm-msm@vger.kernel.org, linux-soc@vger.kernel.org,
+	rtc-linux@googlegroups.com
+Subject: [rtc-linux] Re: [PATCH v2 1/5] mfd: pm8921: Add support for pm8018
+Message-ID: <20160628151054.GP24982@dell>
+References: <1466759887-25394-1-git-send-email-narmstrong@baylibre.com>
+ <1466759887-25394-2-git-send-email-narmstrong@baylibre.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1466759887-25394-2-git-send-email-narmstrong@baylibre.com>
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -29,56 +32,48 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Disable square wave and timers as default for DS1337/39/41 and
-DS3231. The rationale being that configuring a chip this way puts it
-into a known state with lower power consumption. While it is not very
-likely it is still possible that the code controlling RTCs that ran
-before this driver configured it to produce square wave and left it in
-such a state.
+On Fri, 24 Jun 2016, Neil Armstrong wrote:
 
-Signed-off-by: Andrey Smirnov <andrew.smirnov@gmail.com>
----
- drivers/rtc/rtc-ds1307.c | 12 +++++-------
- 1 file changed, 5 insertions(+), 7 deletions(-)
+> In order to support the Qualcomm MDM9615 PMIC, add support for the
+> pm8018 in pm8921 mfd driver.
+>=20
+> Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+> Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
+> ---
+>  drivers/mfd/pm8921-core.c | 1 +
+>  1 file changed, 1 insertion(+)
 
-diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
-index 7e65e2e..c618c22 100644
---- a/drivers/rtc/rtc-ds1307.c
-+++ b/drivers/rtc/rtc-ds1307.c
-@@ -1320,19 +1320,17 @@ static int ds1307_probe(struct i2c_client *client,
- 			ds1307->regs[0] &= ~DS1337_BIT_nEOSC;
- 
- 		/*
--		 * Using IRQ or defined as wakeup-source?
- 		 * Disable the square wave and both alarms.
- 		 * For some variants, be sure alarms can trigger when we're
- 		 * running on Vbackup (BBSQI/BBSQW)
- 		 */
--		if (chip->alarm && (ds1307->client->irq > 0 ||
--						ds1307_can_wakeup_device)) {
--			ds1307->regs[0] |= DS1337_BIT_INTCN
--					| bbsqi_bitpos[ds1307->type];
--			ds1307->regs[0] &= ~(DS1337_BIT_A2IE | DS1337_BIT_A1IE);
-+		ds1307->regs[0] |= DS1337_BIT_INTCN
-+			| bbsqi_bitpos[ds1307->type];
-+		ds1307->regs[0] &= ~(DS1337_BIT_A2IE | DS1337_BIT_A1IE);
- 
-+		if (chip->alarm && (ds1307->client->irq > 0 ||
-+				    ds1307_can_wakeup_device))
- 			want_irq = true;
--		}
- 
- 		i2c_smbus_write_byte_data(client, DS1337_REG_CONTROL,
- 							ds1307->regs[0]);
--- 
-2.5.5
+For my own reference:
+  Acked-by: Lee Jones <lee.jones@linaro.org>
 
--- 
+> diff --git a/drivers/mfd/pm8921-core.c b/drivers/mfd/pm8921-core.c
+> index 1b7ec08..0e3a2ea 100644
+> --- a/drivers/mfd/pm8921-core.c
+> +++ b/drivers/mfd/pm8921-core.c
+> @@ -309,6 +309,7 @@ static const struct regmap_config ssbi_regmap_config =
+=3D {
+>  };
+> =20
+>  static const struct of_device_id pm8921_id_table[] =3D {
+> +	{ .compatible =3D "qcom,pm8018", },
+>  	{ .compatible =3D "qcom,pm8058", },
+>  	{ .compatible =3D "qcom,pm8921", },
+>  	{ }
+
+--=20
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org =E2=94=82 Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog
+
+--=20
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+---=20
+You received this message because you are subscribed to the Google Groups "=
+rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an e=
+mail to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
