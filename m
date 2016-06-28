@@ -1,28 +1,22 @@
-Return-Path: <rtc-linux+bncBDA63GMRREGBBC4ZYO5QKGQE5L34QRY@googlegroups.com>
+Return-Path: <rtc-linux+bncBAABBSPRZC5QKGQEH2DZALY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from marmot.wormnet.eu (marmot.wormnet.eu. [2a03:9800:10:2d:3203:b3a5:8bdc:5b68])
-        by gmr-mx.google.com with ESMTPS id f70si195659wmf.0.2016.06.26.23.49.46
+Received: from arcturus.kleine-koenig.org (arcturus.kleine-koenig.org. [78.47.169.190])
+        by gmr-mx.google.com with ESMTPS id r10si646647wmf.0.2016.06.28.01.43.53
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sun, 26 Jun 2016 23:49:46 -0700 (PDT)
-Date: Mon, 27 Jun 2016 07:49:43 +0100
-From: Alexander Clouter <alex@digriz.org.uk>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: rtc-linux@googlegroups.com, Alessandro Zummo <a.zummo@towertech.it>,
-	linux-kernel@vger.kernel.org,
-	Hartley Sweeten <hsweeten@visionengravers.com>,
-	Ryan Mallon <rmallon@gmail.com>,
-	Jason Cooper <jason@lakedaemon.net>, Andrew Lunn <andrew@lunn.ch>,
-	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
-	Gregory Clement <gregory.clement@free-electrons.com>,
-	linux-arm-kernel@lists.infradead.org
-Subject: [rtc-linux] Re: [PATCH 4/5] rtc: m48t86: move m48t86.h to platform_data
-Message-ID: <20160627064943.GA5125@quatermain.digriz.org.uk>
-References: <1466978583-13310-1-git-send-email-alexandre.belloni@free-electrons.com>
- <1466978583-13310-4-git-send-email-alexandre.belloni@free-electrons.com>
+        Tue, 28 Jun 2016 01:43:53 -0700 (PDT)
+From: =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <uwe@kleine-koenig.org>
+To: Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	rtc-linux@googlegroups.com
+Subject: [rtc-linux] [PATCH 2/4] rtc: isl12057: let the rtc core interpret the
+ partial alarm
+Date: Tue, 28 Jun 2016 10:43:46 +0200
+Message-Id: <1467103428-19047-2-git-send-email-uwe@kleine-koenig.org>
+In-Reply-To: <1467103428-19047-1-git-send-email-uwe@kleine-koenig.org>
+References: <1467103428-19047-1-git-send-email-uwe@kleine-koenig.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
-In-Reply-To: <1466978583-13310-4-git-send-email-alexandre.belloni@free-electrons.com>
+Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -32,79 +26,68 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Acked-by: Alexander Clouter <alex@digriz.org.uk>
+The rtc chip doesn't support triggering on month and year. So just don't
+assign the respective fields in .read_alarm and let the rtc core
+interpret this accordingly.
 
-On Mon, Jun 27, 2016 at 12:03:02AM +0200, Alexandre Belloni wrote:
->m48t86.h belongs to include/linux/platform_data/
->
->Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
->---
->Cc: Hartley Sweeten <hsweeten@visionengravers.com>
->Cc: Ryan Mallon <rmallon@gmail.com>
->Cc: Alexander Clouter <alex@digriz.org.uk>
->Cc: Jason Cooper <jason@lakedaemon.net>
->Cc: Andrew Lunn <andrew@lunn.ch>
->Cc: Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>
->Cc: Gregory Clement <gregory.clement@free-electrons.com>
->Cc: linux-arm-kernel@lists.infradead.org
->
-> arch/arm/mach-ep93xx/ts72xx.c                          | 2 +-
-> arch/arm/mach-orion5x/ts78xx-setup.c                   | 2 +-
-> drivers/rtc/rtc-m48t86.c                               | 2 +-
-> include/linux/{m48t86.h => platform_data/rtc-m48t86.h} | 0
-> 4 files changed, 3 insertions(+), 3 deletions(-)
-> rename include/linux/{m48t86.h => platform_data/rtc-m48t86.h} (100%)
->
->diff --git a/arch/arm/mach-ep93xx/ts72xx.c b/arch/arm/mach-ep93xx/ts72xx.c
->index 45b81a2bcd4b..3b39ea353d30 100644
->--- a/arch/arm/mach-ep93xx/ts72xx.c
->+++ b/arch/arm/mach-ep93xx/ts72xx.c
->@@ -16,7 +16,7 @@
-> #include <linux/init.h>
-> #include <linux/platform_device.h>
-> #include <linux/io.h>
->-#include <linux/m48t86.h>
->+#include <linux/platform_data/rtc-m48t86.h>
-> #include <linux/mtd/nand.h>
-> #include <linux/mtd/partitions.h>
->
->diff --git a/arch/arm/mach-orion5x/ts78xx-setup.c b/arch/arm/mach-orion5x/ts78xx-setup.c
->index 3a58a5d4a28a..8d597267d0c4 100644
->--- a/arch/arm/mach-orion5x/ts78xx-setup.c
->+++ b/arch/arm/mach-orion5x/ts78xx-setup.c
->@@ -16,7 +16,7 @@
-> #include <linux/platform_device.h>
-> #include <linux/mv643xx_eth.h>
-> #include <linux/ata_platform.h>
->-#include <linux/m48t86.h>
->+#include <linux/platform_data/rtc-m48t86.h>
-> #include <linux/mtd/nand.h>
-> #include <linux/mtd/partitions.h>
-> #include <linux/timeriomem-rng.h>
->diff --git a/drivers/rtc/rtc-m48t86.c b/drivers/rtc/rtc-m48t86.c
->index f72b91f2501f..0eeb5714c00f 100644
->--- a/drivers/rtc/rtc-m48t86.c
->+++ b/drivers/rtc/rtc-m48t86.c
->@@ -16,7 +16,7 @@
-> #include <linux/module.h>
-> #include <linux/rtc.h>
-> #include <linux/platform_device.h>
->-#include <linux/m48t86.h>
->+#include <linux/platform_data/rtc-m48t86.h>
-> #include <linux/bcd.h>
->
-> #define M48T86_REG_SEC		0x00
->diff --git a/include/linux/m48t86.h b/include/linux/platform_data/rtc-m48t86.h
->similarity index 100%
->rename from include/linux/m48t86.h
->rename to include/linux/platform_data/rtc-m48t86.h
+Signed-off-by: Uwe Kleine-K=C3=B6nig <uwe@kleine-koenig.org>
+---
+ drivers/rtc/rtc-isl12057.c | 30 ------------------------------
+ 1 file changed, 30 deletions(-)
 
--- 
+diff --git a/drivers/rtc/rtc-isl12057.c b/drivers/rtc/rtc-isl12057.c
+index 54328d4ac0d3..e0245fc6205e 100644
+--- a/drivers/rtc/rtc-isl12057.c
++++ b/drivers/rtc/rtc-isl12057.c
+@@ -264,36 +264,6 @@ static int isl12057_rtc_read_alarm(struct device *dev,=
+ struct rtc_wkalrm *alarm)
+ 	alarm_tm->tm_min  =3D bcd2bin(regs[1] & 0x7f);
+ 	alarm_tm->tm_hour =3D bcd2bin(regs[2] & 0x3f);
+ 	alarm_tm->tm_mday =3D bcd2bin(regs[3] & 0x3f);
+-	alarm_tm->tm_wday =3D -1;
+-
+-	/*
+-	 * The alarm section does not store year/month. We use the ones in rtc
+-	 * section as a basis and increment month and then year if needed to get
+-	 * alarm after current time.
+-	 */
+-	ret =3D _isl12057_rtc_read_time(dev, &rtc_tm);
+-	if (ret)
+-		goto err_unlock;
+-
+-	alarm_tm->tm_year =3D rtc_tm.tm_year;
+-	alarm_tm->tm_mon =3D rtc_tm.tm_mon;
+-
+-	ret =3D rtc_tm_to_time(&rtc_tm, &rtc_secs);
+-	if (ret)
+-		goto err_unlock;
+-
+-	ret =3D rtc_tm_to_time(alarm_tm, &alarm_secs);
+-	if (ret)
+-		goto err_unlock;
+-
+-	if (alarm_secs < rtc_secs) {
+-		if (alarm_tm->tm_mon =3D=3D 11) {
+-			alarm_tm->tm_mon =3D 0;
+-			alarm_tm->tm_year +=3D 1;
+-		} else {
+-			alarm_tm->tm_mon +=3D 1;
+-		}
+-	}
+=20
+ 	ret =3D regmap_read(data->regmap, ISL12057_REG_INT, &ir);
+ 	if (ret) {
+--=20
+2.8.1
+
+--=20
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+---=20
+You received this message because you are subscribed to the Google Groups "=
+rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an e=
+mail to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
