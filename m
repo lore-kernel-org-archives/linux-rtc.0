@@ -1,23 +1,24 @@
-Return-Path: <rtc-linux+bncBDCMXBNSKAIMLO6PXMCRUBCHKDM76@googlegroups.com>
+Return-Path: <rtc-linux+bncBAABB7E7ZW5QKGQEBONJN4I@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 Received: from smtp6-v.fe.bosch.de (smtp6-v.fe.bosch.de. [2a03:cc00:ff0:100::2])
-        by gmr-mx.google.com with ESMTPS id r10si347722wmf.0.2016.06.29.07.40.04
+        by gmr-mx.google.com with ESMTPS id a186si397231wma.1.2016.06.28.21.35.08
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 29 Jun 2016 07:40:04 -0700 (PDT)
-Received: from vsmta14.fe.internet.bosch.com (unknown [10.4.98.54])
-	by imta24.fe.bosch.de (Postfix) with ESMTP id 7DBB6D800EA
-	for <rtc-linux@googlegroups.com>; Wed, 29 Jun 2016 16:40:04 +0200 (CEST)
-Received: from SI-HUB1000.de.bosch.com (vsgw22.fe.internet.bosch.com [10.4.98.11])
-	by vsmta14.fe.internet.bosch.com (Postfix) with ESMTP id 34CEAA40484
-	for <rtc-linux@googlegroups.com>; Wed, 29 Jun 2016 16:40:04 +0200 (CEST)
-From: Dirk Behme <dirk.behme@de.bosch.com>
-To: <rtc-linux@googlegroups.com>, <devicetree@vger.kernel.org>
-CC: Oleksij Rempel <linux@rempel-privat.de>
-Subject: [rtc-linux] [PATCH v3 0/3] add device tree support for rtc-rv8803
-Date: Wed, 29 Jun 2016 16:39:58 +0200
-Message-ID: <1467211201-17252-1-git-send-email-dirk.behme@de.bosch.com>
+        Tue, 28 Jun 2016 21:35:08 -0700 (PDT)
+Subject: Re: [rtc-linux] [PATCH v2 4/4] rtc: rv8803: Be able to set VDETOFF
+ and SWOFF via devcie tree
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>, Dirk Behme
+	<dirk.behme@de.bosch.com>
+References: <1466577742-18824-1-git-send-email-dirk.behme@de.bosch.com>
+ <1466577742-18824-5-git-send-email-dirk.behme@de.bosch.com>
+ <20160624074407.GJ5809@piout.net>
+CC: <rtc-linux@googlegroups.com>, <devicetree@vger.kernel.org>, Carsten Resch
+	<Carsten.Resch@de.bosch.com>
+From: fixed-term.Oleksij.Rempel <fixed-term.Oleksij.Rempel@de.bosch.com>
+Message-ID: <57734FFB.4000104@de.bosch.com>
+Date: Wed, 29 Jun 2016 06:35:07 +0200
 MIME-Version: 1.0
+In-Reply-To: <20160624074407.GJ5809@piout.net>
 Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
@@ -28,29 +29,64 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-From: Oleksij Rempel <linux@rempel-privat.de>
 
-Changes v2:
-- rename mc to microcrystal
-- rename vdetoff to vdet-disable
 
-Changes v3:
-- remove of_device_id patch
-- use device type instead of of_device_is_compatible
+On 24.06.2016 09:44, Alexandre Belloni wrote:
+> On 22/06/2016 at 08:42:22 +0200, Dirk Behme wrote :
+>> From: Oleksij Rempel <fixed-term.Oleksij.Rempel@de.bosch.com>
+>>
+>> There might be designs where the power supply circuit is designed
+>> in a way that VDETOFF and SWOFF is reuqired to be set. Otherwise the
+>> RTC detects a power loss. Add a device tree interface for this.
+>>
+>> Signed-off-by: Carsten Resch <Carsten.Resch@de.bosch.com>
+>> Signed-off-by: Dirk Behme <dirk.behme@de.bosch.com>
+>> Signed-off-by: Oleksij Rempel <fixed-term.Oleksij.Rempel@de.bosch.com>
+>> Cc: devicetree@vger.kernel.org
+>> ---
+>>  drivers/rtc/rtc-rv8803.c | 39 +++++++++++++++++++++++++++++++++++++++
+>>  1 file changed, 39 insertions(+)
+>>
+>> diff --git a/drivers/rtc/rtc-rv8803.c b/drivers/rtc/rtc-rv8803.c
+>> index e122b51..32a5686 100644
+>> --- a/drivers/rtc/rtc-rv8803.c
+>> +++ b/drivers/rtc/rtc-rv8803.c
+>> @@ -50,6 +50,10 @@
+>>  #define RV8803_CTRL_TIE			BIT(4)
+>>  #define RV8803_CTRL_UIE			BIT(5)
+>>  
+>> +#define RX8900_BACKUP_CTRL		0x18
+>> +#define RX8900_FLAG_SWOFF		BIT(2)
+>> +#define RX8900_FLAG_VDETOFF		BIT(3)
+>> +
+>>  struct rv8803_data {
+>>  	struct i2c_client *client;
+>>  	struct rtc_device *rtc;
+>> @@ -423,6 +427,35 @@ static struct rtc_class_ops rv8803_rtc_ops = {
+>>  	.ioctl = rv8803_ioctl,
+>>  };
+>>  
+>> +static int rx8900_trickle_charger_init(struct rv8803_data *rv8803)
+>> +{
+>> +	struct i2c_client *client = rv8803->client;
+>> +	struct device_node *node = client->dev.of_node;
+>> +	int err;
+>> +	u8 flags;
+>> +
+>> +	if (!node)
+>> +		return 0;
+>> +
+>> +	if (!of_device_is_compatible(node, "epson,rx8900"))
+>> +		return 0;
+>> +
+> 
+> Can you use the i2c_device_id instead of of_device_is_compatible to
+> avoid matching on yet another string?
 
-Oleksij Rempel (3):
-  devicetree: Add Micro Crystal AG vendor id
-  dt/bindings: Add bindings for Micro Crystal rv8803
-  rtc: rv8803: Be able to set VDETOFF and SWOFF via devcie tree
-
- .../devicetree/bindings/rtc/epson,rx8900.txt       | 22 ++++++++++
- .../devicetree/bindings/vendor-prefixes.txt        |  1 +
- drivers/rtc/rtc-rv8803.c                           | 50 +++++++++++++++++++++-
- 3 files changed, 71 insertions(+), 2 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/rtc/epson,rx8900.txt
-
--- 
-1.9.1
+Sure, ... is it possible that device tree defines rx8900 but i2c will
+detect rv8803?
+I assume it is potential source of errors. What would be better way to
+handle it?
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
