@@ -1,28 +1,29 @@
-Return-Path: <rtc-linux+bncBDKOBWPM5ABRBW6WUO5QKGQEG7YTU6Q@googlegroups.com>
+Return-Path: <rtc-linux+bncBDCMXBNSKAIMNO6PXMCRUBBXWTGXM@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-MIME-Version: 1.0
-Received: from mail-pa0-x242.google.com (mail-pa0-x242.google.com. [2607:f8b0:400e:c03::242])
-        by gmr-mx.google.com with ESMTPS id c11si5951082pfc.2.2016.06.21.00.23.07
+Received: from smtp6-v.fe.bosch.de (smtp6-v.fe.bosch.de. [2a03:cc00:ff0:100::2])
+        by gmr-mx.google.com with ESMTPS id f138si394517wmf.3.2016.06.29.07.40.05
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 21 Jun 2016 00:23:07 -0700 (PDT)
-Received: by mail-pa0-x242.google.com with SMTP id ts6so744545pac.0
-        for <rtc-linux@googlegroups.com>; Tue, 21 Jun 2016 00:23:07 -0700 (PDT)
-From: Andrey Smirnov <andrew.smirnov@gmail.com>
-To: rtc-linux@googlegroups.com
-Cc: Andrey Smirnov <andrew.smirnov@gmail.com>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	linux-kernel@vger.kernel.org,
-	cphealy@gmail.com
-Subject: [rtc-linux] [PATCH v2 10/17] RTC: ds1307: Constify struct ds1307
- where possible
-Date: Tue, 21 Jun 2016 00:22:43 -0700
-Message-Id: <1466493770-11895-9-git-send-email-andrew.smirnov@gmail.com>
-In-Reply-To: <1466493770-11895-1-git-send-email-andrew.smirnov@gmail.com>
-References: <1466493770-11895-1-git-send-email-andrew.smirnov@gmail.com>
-Reply-To: rtc-linux@googlegroups.com
+        Wed, 29 Jun 2016 07:40:05 -0700 (PDT)
+Received: from vsmta12.fe.internet.bosch.com (unknown [10.4.98.52])
+	by imta23.fe.bosch.de (Postfix) with ESMTP id 591FD1580201
+	for <rtc-linux@googlegroups.com>; Wed, 29 Jun 2016 16:40:05 +0200 (CEST)
+Received: from FE-HUB1000.de.bosch.com (vsgw24.fe.internet.bosch.com [10.4.98.24])
+	by vsmta12.fe.internet.bosch.com (Postfix) with ESMTP id 070891B803EB
+	for <rtc-linux@googlegroups.com>; Wed, 29 Jun 2016 16:40:05 +0200 (CEST)
+From: Dirk Behme <dirk.behme@de.bosch.com>
+To: <rtc-linux@googlegroups.com>, <devicetree@vger.kernel.org>
+CC: Oleksij Rempel <fixed-term.Oleksij.Rempel@de.bosch.com>, Carsten Resch
+	<Carsten.Resch@de.bosch.com>, Dirk Behme <dirk.behme@de.bosch.com>
+Subject: [rtc-linux] [PATCH v3 3/3] rtc: rv8803: Be able to set VDETOFF and
+ SWOFF via devcie tree
+Date: Wed, 29 Jun 2016 16:40:01 +0200
+Message-ID: <1467211201-17252-4-git-send-email-dirk.behme@de.bosch.com>
+In-Reply-To: <1467211201-17252-1-git-send-email-dirk.behme@de.bosch.com>
+References: <1467211201-17252-1-git-send-email-dirk.behme@de.bosch.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -31,239 +32,116 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Signed-off-by: Andrey Smirnov <andrew.smirnov@gmail.com>
----
- drivers/rtc/rtc-ds1307.c | 50 ++++++++++++++++++++++++------------------------
- 1 file changed, 25 insertions(+), 25 deletions(-)
+From: Oleksij Rempel <fixed-term.Oleksij.Rempel@de.bosch.com>
 
-diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
-index 66e7168..67907f1 100644
---- a/drivers/rtc/rtc-ds1307.c
-+++ b/drivers/rtc/rtc-ds1307.c
-@@ -333,7 +333,7 @@ static s32 ds1307_native_smbus_read_block_data(const struct i2c_client *client,
- static irqreturn_t ds1307_irq(int irq, void *dev_id)
- {
- 	struct i2c_client	*client = dev_id;
--	struct ds1307		*ds1307 = i2c_get_clientdata(client);
-+	const struct ds1307	*ds1307 = i2c_get_clientdata(client);
- 	struct mutex		*lock = &ds1307->rtc->ops_lock;
- 	int			stat, control;
+There might be designs where the power supply circuit is designed
+in a way that VDETOFF and SWOFF is reuqired to be set. Otherwise the
+RTC detects a power loss. Add a device tree interface for this.
+
+Signed-off-by: Carsten Resch <Carsten.Resch@de.bosch.com>
+Signed-off-by: Dirk Behme <dirk.behme@de.bosch.com>
+Signed-off-by: Oleksij Rempel <fixed-term.Oleksij.Rempel@de.bosch.com>
+Cc: devicetree@vger.kernel.org
+---
+ drivers/rtc/rtc-rv8803.c | 50 ++++++++++++++++++++++++++++++++++++++++++++++--
+ 1 file changed, 48 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/rtc/rtc-rv8803.c b/drivers/rtc/rtc-rv8803.c
+index f623038..0801048 100644
+--- a/drivers/rtc/rtc-rv8803.c
++++ b/drivers/rtc/rtc-rv8803.c
+@@ -49,11 +49,21 @@
+ #define RV8803_CTRL_TIE			BIT(4)
+ #define RV8803_CTRL_UIE			BIT(5)
  
-@@ -367,8 +367,8 @@ out:
- static int ds1307_get_time(struct device *dev, struct rtc_time *t)
- {
- 	u8              regs[DS1307_REG_COUNT];
--	struct ds1307	*ds1307 = dev_get_drvdata(dev);
- 	int		tmp;
-+	const struct ds1307 *ds1307 = dev_get_drvdata(dev);
- 
- 	/* read the RTC date and time registers all at once */
- 	tmp = ds1307->read_block_data(ds1307->client,
-@@ -404,7 +404,7 @@ static int ds1307_get_time(struct device *dev, struct rtc_time *t)
- 
- static int ds1307_set_time(struct device *dev, struct rtc_time *t)
- {
--	struct ds1307	*ds1307 = dev_get_drvdata(dev);
-+	const struct ds1307 *ds1307 = dev_get_drvdata(dev);
- 	int		result;
- 	int		tmp;
- 	u8		regs[DS1307_REG_COUNT];
-@@ -464,7 +464,7 @@ static int ds1307_set_time(struct device *dev, struct rtc_time *t)
- static int ds1337_read_alarm(struct device *dev, struct rtc_wkalrm *t)
- {
- 	struct i2c_client       *client = to_i2c_client(dev);
--	struct ds1307		*ds1307 = i2c_get_clientdata(client);
-+	const struct ds1307	*ds1307 = i2c_get_clientdata(client);
- 	int			ret;
- 	u8			regs[DS1307_REG_COUNT];
- 
-@@ -512,7 +512,7 @@ static int ds1337_read_alarm(struct device *dev, struct rtc_wkalrm *t)
- static int ds1337_set_alarm(struct device *dev, struct rtc_wkalrm *t)
- {
- 	struct i2c_client	*client = to_i2c_client(dev);
--	struct ds1307		*ds1307 = i2c_get_clientdata(client);
-+	const struct ds1307	*ds1307 = i2c_get_clientdata(client);
- 	u8			regs[DS1307_REG_COUNT];
- 	u8			control, status;
- 	int			ret;
-@@ -574,7 +574,7 @@ static int ds1337_set_alarm(struct device *dev, struct rtc_wkalrm *t)
- static int ds1307_alarm_irq_enable(struct device *dev, unsigned int enabled)
- {
- 	struct i2c_client	*client = to_i2c_client(dev);
--	struct ds1307		*ds1307 = i2c_get_clientdata(client);
-+	const struct ds1307	*ds1307 = i2c_get_clientdata(client);
- 	int			ret;
- 
- 	if (!test_bit(HAS_ALARM, &ds1307->flags))
-@@ -629,7 +629,7 @@ static const struct rtc_class_ops ds13xx_rtc_ops = {
- static irqreturn_t mcp794xx_irq(int irq, void *dev_id)
- {
- 	struct i2c_client       *client = dev_id;
--	struct ds1307           *ds1307 = i2c_get_clientdata(client);
-+	const struct ds1307     *ds1307 = i2c_get_clientdata(client);
- 	struct mutex            *lock = &ds1307->rtc->ops_lock;
- 	int reg, ret;
- 
-@@ -666,7 +666,7 @@ out:
- static int mcp794xx_read_alarm(struct device *dev, struct rtc_wkalrm *t)
- {
- 	struct i2c_client *client = to_i2c_client(dev);
--	struct ds1307 *ds1307 = i2c_get_clientdata(client);
-+	const struct ds1307 *ds1307 = i2c_get_clientdata(client);
- 	u8  regs[DS1307_REG_COUNT];
- 	int ret;
- 
-@@ -705,7 +705,7 @@ static int mcp794xx_read_alarm(struct device *dev, struct rtc_wkalrm *t)
- static int mcp794xx_set_alarm(struct device *dev, struct rtc_wkalrm *t)
- {
- 	struct i2c_client *client = to_i2c_client(dev);
--	struct ds1307 *ds1307 = i2c_get_clientdata(client);
-+	const struct ds1307 *ds1307 = i2c_get_clientdata(client);
- 	u8  regs[DS1307_REG_COUNT];
- 	int ret;
- 
-@@ -751,7 +751,7 @@ static int mcp794xx_set_alarm(struct device *dev, struct rtc_wkalrm *t)
- static int mcp794xx_alarm_irq_enable(struct device *dev, unsigned int enabled)
- {
- 	struct i2c_client *client = to_i2c_client(dev);
--	struct ds1307 *ds1307 = i2c_get_clientdata(client);
-+	const struct ds1307 *ds1307 = i2c_get_clientdata(client);
- 	int reg;
- 
- 	if (!test_bit(HAS_ALARM, &ds1307->flags))
-@@ -785,7 +785,7 @@ ds1307_nvram_read(struct file *filp, struct kobject *kobj,
- 		char *buf, loff_t off, size_t count)
- {
- 	struct i2c_client	*client;
--	struct ds1307		*ds1307;
-+	const struct ds1307	*ds1307;
- 	int			result;
- 
- 	client = kobj_to_i2c_client(kobj);
-@@ -804,7 +804,7 @@ ds1307_nvram_write(struct file *filp, struct kobject *kobj,
- 		char *buf, loff_t off, size_t count)
- {
- 	struct i2c_client	*client;
--	struct ds1307		*ds1307;
-+	const struct ds1307	*ds1307;
- 	int			result;
- 
- 	client = kobj_to_i2c_client(kobj);
-@@ -880,7 +880,7 @@ out:
-  */
- static int ds3231_hwmon_read_temp(struct device *dev, s32 *mC)
- {
--	struct ds1307 *ds1307 = dev_get_drvdata(dev);
-+	const struct ds1307 *ds1307 = dev_get_drvdata(dev);
- 	u8 temp_buf[2];
- 	s16 temp;
- 	int ret;
-@@ -973,7 +973,7 @@ static int ds3231_clk_sqw_rates[] = {
- 	8192,
++#define RX8900_BACKUP_CTRL		0x18
++#define RX8900_FLAG_SWOFF		BIT(2)
++#define RX8900_FLAG_VDETOFF		BIT(3)
++
++enum rv8803_type {
++	rv_8803,
++	rx_8900
++};
++
+ struct rv8803_data {
+ 	struct i2c_client *client;
+ 	struct rtc_device *rtc;
+ 	struct mutex flags_lock;
+ 	u8 ctrl;
++	enum rv8803_type type;
  };
  
--static int ds1337_write_control(struct ds1307 *ds1307, u8 mask, u8 value)
-+static int ds1337_write_control(const struct ds1307 *ds1307, u8 mask, u8 value)
- {
- 	struct i2c_client *client = ds1307->client;
- 	struct mutex *lock = &ds1307->rtc->ops_lock;
-@@ -1001,7 +1001,7 @@ out:
- static unsigned long ds3231_clk_sqw_recalc_rate(struct clk_hw *hw,
- 						unsigned long parent_rate)
- {
--	struct ds1307 *ds1307 = clk_sqw_to_ds1307(hw);
-+	const struct ds1307 *ds1307 = clk_sqw_to_ds1307(hw);
- 	int control;
- 	int rate_sel = 0;
+ static irqreturn_t rv8803_handle_irq(int irq, void *dev_id)
+@@ -422,6 +432,35 @@ static struct rtc_class_ops rv8803_rtc_ops = {
+ 	.ioctl = rv8803_ioctl,
+ };
  
-@@ -1032,7 +1032,7 @@ static long ds3231_clk_sqw_round_rate(struct clk_hw *hw, unsigned long rate,
- static int ds3231_clk_sqw_set_rate(struct clk_hw *hw, unsigned long rate,
- 					unsigned long parent_rate)
++static int rx8900_trickle_charger_init(struct rv8803_data *rv8803)
++{
++	struct i2c_client *client = rv8803->client;
++	struct device_node *node = client->dev.of_node;
++	int err;
++	u8 flags;
++
++	if (!node)
++		return 0;
++
++	if (rv8803->type != rx_8900)
++		return 0;
++
++	err = i2c_smbus_read_byte_data(rv8803->client, RX8900_BACKUP_CTRL);
++	if (err < 0)
++		return err;
++
++	flags = ~(RX8900_FLAG_VDETOFF | RX8900_FLAG_SWOFF) & (u8)err;
++
++	if (of_property_read_bool(node, "epson,vdet-disable"))
++		flags |= RX8900_FLAG_VDETOFF;
++
++	if (of_property_read_bool(node, "trickle-diode-disable"))
++		flags |= RX8900_FLAG_SWOFF;
++
++	return i2c_smbus_write_byte_data(rv8803->client, RX8900_BACKUP_CTRL,
++					 flags);
++}
++
+ static int rv8803_probe(struct i2c_client *client,
+ 			const struct i2c_device_id *id)
  {
--	struct ds1307 *ds1307 = clk_sqw_to_ds1307(hw);
-+	const struct ds1307 *ds1307 = clk_sqw_to_ds1307(hw);
- 	int control = 0;
- 	int rate_sel;
+@@ -442,6 +481,7 @@ static int rv8803_probe(struct i2c_client *client,
  
-@@ -1056,21 +1056,21 @@ static int ds3231_clk_sqw_set_rate(struct clk_hw *hw, unsigned long rate,
+ 	mutex_init(&rv8803->flags_lock);
+ 	rv8803->client = client;
++	rv8803->type = id->driver_data;
+ 	i2c_set_clientdata(client, rv8803);
  
- static int ds3231_clk_sqw_prepare(struct clk_hw *hw)
- {
--	struct ds1307 *ds1307 = clk_sqw_to_ds1307(hw);
-+	const struct ds1307 *ds1307 = clk_sqw_to_ds1307(hw);
+ 	/*
+@@ -497,6 +537,12 @@ static int rv8803_probe(struct i2c_client *client,
+ 	if (err)
+ 		return err;
  
- 	return ds1337_write_control(ds1307, DS1337_BIT_INTCN, 0);
++	err = rx8900_trickle_charger_init(rv8803);
++	if (err) {
++		dev_err(&client->dev, "failed to init charger\n");
++		return err;
++	}
++
+ 	err = device_create_bin_file(&client->dev, &rv8803_nvram_attr);
+ 	if (err)
+ 		return err;
+@@ -514,8 +560,8 @@ static int rv8803_remove(struct i2c_client *client)
  }
  
- static void ds3231_clk_sqw_unprepare(struct clk_hw *hw)
- {
--	struct ds1307 *ds1307 = clk_sqw_to_ds1307(hw);
-+	const struct ds1307 *ds1307 = clk_sqw_to_ds1307(hw);
- 
- 	ds1337_write_control(ds1307, DS1337_BIT_INTCN, DS1337_BIT_INTCN);
- }
- 
- static int ds3231_clk_sqw_is_prepared(struct clk_hw *hw)
- {
--	struct ds1307 *ds1307 = clk_sqw_to_ds1307(hw);
-+	const struct ds1307 *ds1307 = clk_sqw_to_ds1307(hw);
- 	int control;
- 
- 	control = i2c_smbus_read_byte_data(ds1307->client, DS1337_REG_CONTROL);
-@@ -1095,7 +1095,7 @@ static unsigned long ds3231_clk_32khz_recalc_rate(struct clk_hw *hw,
- 	return 32768;
- }
- 
--static int ds3231_clk_32khz_control(struct ds1307 *ds1307, bool enable)
-+static int ds3231_clk_32khz_control(const struct ds1307 *ds1307, bool enable)
- {
- 	struct i2c_client *client = ds1307->client;
- 	struct mutex *lock = &ds1307->rtc->ops_lock;
-@@ -1124,21 +1124,21 @@ out:
- 
- static int ds3231_clk_32khz_prepare(struct clk_hw *hw)
- {
--	struct ds1307 *ds1307 = clk_32khz_to_ds1307(hw);
-+	const struct ds1307 *ds1307 = clk_32khz_to_ds1307(hw);
- 
- 	return ds3231_clk_32khz_control(ds1307, true);
- }
- 
- static void ds3231_clk_32khz_unprepare(struct clk_hw *hw)
- {
--	struct ds1307 *ds1307 = clk_32khz_to_ds1307(hw);
-+	const struct ds1307 *ds1307 = clk_32khz_to_ds1307(hw);
- 
- 	ds3231_clk_32khz_control(ds1307, false);
- }
- 
- static int ds3231_clk_32khz_is_prepared(struct clk_hw *hw)
- {
--	struct ds1307 *ds1307 = clk_32khz_to_ds1307(hw);
-+	const struct ds1307 *ds1307 = clk_32khz_to_ds1307(hw);
- 	int status;
- 
- 	status = i2c_smbus_read_byte_data(ds1307->client, DS1337_REG_STATUS);
-@@ -1273,7 +1273,7 @@ static bool ds1307_want_irq(const struct ds1307 *ds1307,
- 	return false;
- }
- 
--static int ds1307_chip_configure(struct ds1307 *ds1307)
-+static int ds1307_chip_configure(const struct ds1307 *ds1307)
- {
- 	int tmp;
- 	u8  regs[DS1307_REG_COUNT];
-@@ -1422,7 +1422,7 @@ static int ds1307_chip_configure(struct ds1307 *ds1307)
- 	return 0;
- }
- 
--static int ds1307_chip_sanity_check(struct ds1307 *ds1307)
-+static int ds1307_chip_sanity_check(const struct ds1307 *ds1307)
- {
- 	int tmp;
- 	u8  regs[DS1307_REG_COUNT];
+ static const struct i2c_device_id rv8803_id[] = {
+-	{ "rv8803", 0 },
+-	{ "rx8900", 0 },
++	{ "rv8803", rv_8803 },
++	{ "rx8900", rx_8900 },
+ 	{ }
+ };
+ MODULE_DEVICE_TABLE(i2c, rv8803_id);
 -- 
-2.5.5
+1.9.1
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
