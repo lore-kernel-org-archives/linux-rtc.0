@@ -1,28 +1,28 @@
-Return-Path: <rtc-linux+bncBDKOBWPM5ABRBWWWUO5QKGQEQJEYVBI@googlegroups.com>
+Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBOMBZ25QKGQE5NOWJ2Y@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-MIME-Version: 1.0
-Received: from mail-pf0-x241.google.com (mail-pf0-x241.google.com. [2607:f8b0:400e:c00::241])
-        by gmr-mx.google.com with ESMTPS id po17si907962pab.2.2016.06.21.00.23.06
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 21 Jun 2016 00:23:06 -0700 (PDT)
-Received: by mail-pf0-x241.google.com with SMTP id t190so762020pfb.2
-        for <rtc-linux@googlegroups.com>; Tue, 21 Jun 2016 00:23:06 -0700 (PDT)
-From: Andrey Smirnov <andrew.smirnov@gmail.com>
-To: rtc-linux@googlegroups.com
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id a186si447715wma.1.2016.06.29.01.03.05
+        for <rtc-linux@googlegroups.com>;
+        Wed, 29 Jun 2016 01:03:05 -0700 (PDT)
+Date: Wed, 29 Jun 2016 10:03:04 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: "fixed-term.Oleksij.Rempel" <fixed-term.Oleksij.Rempel@de.bosch.com>
 Cc: Andrey Smirnov <andrew.smirnov@gmail.com>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	linux-kernel@vger.kernel.org,
-	cphealy@gmail.com
-Subject: [rtc-linux] [PATCH v2 08/17] RTC: ds1307: Move chip sanity checking
- into a separate routine
-Date: Tue, 21 Jun 2016 00:22:41 -0700
-Message-Id: <1466493770-11895-7-git-send-email-andrew.smirnov@gmail.com>
-In-Reply-To: <1466493770-11895-1-git-send-email-andrew.smirnov@gmail.com>
-References: <1466493770-11895-1-git-send-email-andrew.smirnov@gmail.com>
-Reply-To: rtc-linux@googlegroups.com
+	Dirk Behme <dirk.behme@de.bosch.com>,
+	Rob Herring <robh+dt@kernel.org>, rtc-linux@googlegroups.com,
+	devicetree@vger.kernel.org
+Subject: Re: [rtc-linux] [PATCH v2 2/4] dt/bindings: Add bindings for Micro
+ Crystal rv8803
+Message-ID: <20160629080304.GR29249@piout.net>
+References: <1466577742-18824-1-git-send-email-dirk.behme@de.bosch.com>
+ <1466577742-18824-3-git-send-email-dirk.behme@de.bosch.com>
+ <20160624074849.GK5809@piout.net>
+ <CAHQ1cqF7ByYz9stnL_-siMJHGoyuLNAPwjcWA_fWRqy7WeMF=A@mail.gmail.com>
+ <57734FF2.7070208@de.bosch.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <57734FF2.7070208@de.bosch.com>
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -31,202 +31,70 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Signed-off-by: Andrey Smirnov <andrew.smirnov@gmail.com>
----
- drivers/rtc/rtc-ds1307.c | 148 +++++++++++++++++++++++++----------------------
- 1 file changed, 79 insertions(+), 69 deletions(-)
+On 29/06/2016 at 06:34:58 +0200, fixed-term.Oleksij.Rempel wrote :
+> 
+> 
+> On 24.06.2016 21:14, Andrey Smirnov wrote:
+> > On Fri, Jun 24, 2016 at 12:48 AM, Alexandre Belloni
+> > <alexandre.belloni@free-electrons.com> wrote:
+> >> On 22/06/2016 at 08:42:20 +0200, Dirk Behme wrote :
+> >>> From: Oleksij Rempel <fixed-term.Oleksij.Rempel@de.bosch.com>
+> >>>
+> >>> ... and Epson RX8900 real time clock
+> >>>
+> >>> Signed-off-by: Oleksij Rempel <fixed-term.Oleksij.Rempel@de.bosch.com>
+> >>> Cc: devicetree@vger.kernel.org
+> >>> ---
+> >>>  .../devicetree/bindings/rtc/epson,rx8900.txt       | 22 ++++++++++++++++++++++
+> >>>  1 file changed, 22 insertions(+)
+> >>>  create mode 100644 Documentation/devicetree/bindings/rtc/epson,rx8900.txt
+> >>>
+> >>> diff --git a/Documentation/devicetree/bindings/rtc/epson,rx8900.txt b/Documentation/devicetree/bindings/rtc/epson,rx8900.txt
+> >>> new file mode 100644
+> >>> index 0000000..3f61e51
+> >>> --- /dev/null
+> >>> +++ b/Documentation/devicetree/bindings/rtc/epson,rx8900.txt
+> >>> @@ -0,0 +1,22 @@
+> >>> +Real Time Clock driver for:
+> >>> +  - Epson RX8900
+> >>> +  - Micro Crystal rv8803
+> >>> +
+> >>> +Required properties:
+> >>> +- compatible: should be: "microcrystal,rv8803" or "epson,rx8900"
+> >>> +- reg : the I2C address of the device for I2C
+> >>> +
+> >>> +Optional properties:
+> >>> +- epson,vdet-disable : boolean, if present will disable voltage detector.
+> >>> +  Should be set if no backup battery is used.
+> >>
+> >> I guess we need to make that one generic. I would use
+> >> voltage-detection-disable.
+> >>
+> >> Andrey, can you use that one instead of
+> >> dallas,disable-oscillator-stop-flag ?
+> >>
+> > 
+> > AFAIU from reading RX8900 datasheet, it has two power rails main and a
+> > backup one, so setting this property disables circuitry responsible
+> > for detecting main power rail failure and switching to a backup one.
+> > 
+> > DS1341 has only one power rail and setting
+> > "dallas,disable-oscillator-stop-flag" will disable circuitry
+> > responsible for detection of failure of the oscillator ticking its
+> > internal clock.
+> > 
+> > IMHO, those functionalities don't have much in common and using the
+> > same property would be confusing for users of that binding on DS1341,
+> > but it's a boolean so there's not technical reason I couldn't.
+> 
+> Should i still replace epson,vdet-disable to voltage-detection-disable?
 
-diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
-index 4fa09dc..d262db5 100644
---- a/drivers/rtc/rtc-ds1307.c
-+++ b/drivers/rtc/rtc-ds1307.c
-@@ -1422,79 +1422,20 @@ static int ds1307_chip_configure(struct ds1307 *ds1307)
- 	return 0;
- }
- 
--static int ds1307_probe(struct i2c_client *client,
--			const struct i2c_device_id *id)
-+static int ds1307_chip_sanity_check(struct ds1307 *ds1307)
- {
--	struct ds1307		*ds1307;
--	int			err = -ENODEV;
--	int			tmp;
--	struct chip_desc	*chip = &chips[id->driver_data];
--	struct i2c_adapter	*adapter = to_i2c_adapter(client->dev.parent);
--	unsigned char		*buf;
--	struct ds1307_platform_data *pdata = dev_get_platdata(&client->dev);
--	irq_handler_t	irq_handler = ds1307_irq;
--
--	const struct rtc_class_ops *rtc_ops = &ds13xx_rtc_ops;
--
--	if (!i2c_check_functionality(adapter, I2C_FUNC_SMBUS_BYTE_DATA)
--	    && !i2c_check_functionality(adapter, I2C_FUNC_SMBUS_I2C_BLOCK))
--		return -EIO;
--
--	ds1307 = devm_kzalloc(&client->dev, sizeof(struct ds1307), GFP_KERNEL);
--	if (!ds1307)
--		return -ENOMEM;
--
--	i2c_set_clientdata(client, ds1307);
--
--	ds1307->client	= client;
--	ds1307->type	= id->driver_data;
--
--	if (!pdata && client->dev.of_node)
--		ds1307_trickle_of_init(client, chip);
--	else if (pdata && pdata->trickle_charger_setup)
--		chip->trickle_charger_setup = pdata->trickle_charger_setup;
--
--	if (chip->trickle_charger_setup && chip->trickle_charger_reg) {
--		dev_dbg(&client->dev, "writing trickle charger info 0x%x to 0x%x\n",
--		    DS13XX_TRICKLE_CHARGER_MAGIC | chip->trickle_charger_setup,
--		    chip->trickle_charger_reg);
--		i2c_smbus_write_byte_data(client, chip->trickle_charger_reg,
--		    DS13XX_TRICKLE_CHARGER_MAGIC |
--		    chip->trickle_charger_setup);
--	}
-+	int tmp;
-+	unsigned char *buf;
-+	struct i2c_client *client = ds1307->client;
- 
- 	buf = ds1307->regs;
--	if (i2c_check_functionality(adapter, I2C_FUNC_SMBUS_I2C_BLOCK)) {
--		ds1307->read_block_data = ds1307_native_smbus_read_block_data;
--		ds1307->write_block_data = ds1307_native_smbus_write_block_data;
--	} else {
--		ds1307->read_block_data = ds1307_read_block_data;
--		ds1307->write_block_data = ds1307_write_block_data;
--	}
--
--	err = ds1307_chip_configure(ds1307);
--	if (err < 0)
--		return err;
--
--	switch (ds1307->type) {
--	case ds_1388:
--		ds1307->offset = 1; /* Seconds starts at 1 */
--		break;
--	case mcp794xx:
--		rtc_ops = &mcp794xx_rtc_ops;
--		irq_handler = mcp794xx_irq;
--		break;
--	default:
--		break;
--	}
- 
- read_rtc:
- 	/* read RTC registers */
- 	tmp = ds1307->read_block_data(ds1307->client, ds1307->offset, 8, buf);
- 	if (tmp != 8) {
- 		dev_dbg(&client->dev, "read error %d\n", tmp);
--		err = -EIO;
--		goto exit;
-+		return -EIO;
- 	}
- 
- 	/*
-@@ -1535,8 +1476,7 @@ read_rtc:
- 		tmp = i2c_smbus_read_byte_data(client, DS1340_REG_FLAG);
- 		if (tmp < 0) {
- 			dev_dbg(&client->dev, "read error %d\n", tmp);
--			err = -EIO;
--			goto exit;
-+			return -EIO;
- 		}
- 
- 		/* oscillator fault?  clear flag, and warn */
-@@ -1566,6 +1506,79 @@ read_rtc:
- 		break;
- 	}
- 
-+	return 0;
-+}
-+
-+static int ds1307_probe(struct i2c_client *client,
-+			const struct i2c_device_id *id)
-+{
-+	struct ds1307		*ds1307;
-+	int			err = -ENODEV;
-+	int			tmp;
-+	struct chip_desc	*chip = &chips[id->driver_data];
-+	struct i2c_adapter	*adapter = to_i2c_adapter(client->dev.parent);
-+	unsigned char		*buf;
-+	struct ds1307_platform_data *pdata = dev_get_platdata(&client->dev);
-+	irq_handler_t	irq_handler = ds1307_irq;
-+
-+	const struct rtc_class_ops *rtc_ops = &ds13xx_rtc_ops;
-+
-+	if (!i2c_check_functionality(adapter, I2C_FUNC_SMBUS_BYTE_DATA)
-+	    && !i2c_check_functionality(adapter, I2C_FUNC_SMBUS_I2C_BLOCK))
-+		return -EIO;
-+
-+	ds1307 = devm_kzalloc(&client->dev, sizeof(struct ds1307), GFP_KERNEL);
-+	if (!ds1307)
-+		return -ENOMEM;
-+
-+	i2c_set_clientdata(client, ds1307);
-+
-+	ds1307->client	= client;
-+	ds1307->type	= id->driver_data;
-+
-+	if (!pdata && client->dev.of_node)
-+		ds1307_trickle_of_init(client, chip);
-+	else if (pdata && pdata->trickle_charger_setup)
-+		chip->trickle_charger_setup = pdata->trickle_charger_setup;
-+
-+	if (chip->trickle_charger_setup && chip->trickle_charger_reg) {
-+		dev_dbg(&client->dev, "writing trickle charger info 0x%x to 0x%x\n",
-+		    DS13XX_TRICKLE_CHARGER_MAGIC | chip->trickle_charger_setup,
-+		    chip->trickle_charger_reg);
-+		i2c_smbus_write_byte_data(client, chip->trickle_charger_reg,
-+		    DS13XX_TRICKLE_CHARGER_MAGIC |
-+		    chip->trickle_charger_setup);
-+	}
-+
-+	buf = ds1307->regs;
-+	if (i2c_check_functionality(adapter, I2C_FUNC_SMBUS_I2C_BLOCK)) {
-+		ds1307->read_block_data = ds1307_native_smbus_read_block_data;
-+		ds1307->write_block_data = ds1307_native_smbus_write_block_data;
-+	} else {
-+		ds1307->read_block_data = ds1307_read_block_data;
-+		ds1307->write_block_data = ds1307_write_block_data;
-+	}
-+
-+	err = ds1307_chip_configure(ds1307);
-+	if (err < 0)
-+		return err;
-+
-+	switch (ds1307->type) {
-+	case ds_1388:
-+		ds1307->offset = 1; /* Seconds starts at 1 */
-+		break;
-+	case mcp794xx:
-+		rtc_ops = &mcp794xx_rtc_ops;
-+		irq_handler = mcp794xx_irq;
-+		break;
-+	default:
-+		break;
-+	}
-+
-+	err = ds1307_chip_sanity_check(ds1307);
-+	if (err < 0)
-+		return err;
-+
- 	tmp = ds1307->regs[DS1307_REG_HOUR];
- 	switch (ds1307->type) {
- 	case ds_1340:
-@@ -1663,9 +1676,6 @@ read_rtc:
- 	ds1307_clks_register(ds1307);
- 
- 	return 0;
--
--exit:
--	return err;
- }
- 
- static int ds1307_remove(struct i2c_client *client)
+No, Andrey is right.
+
 -- 
-2.5.5
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
