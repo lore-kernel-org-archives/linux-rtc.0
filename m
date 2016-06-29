@@ -1,27 +1,27 @@
-Return-Path: <rtc-linux+bncBDKOBWPM5ABRBZ65QO5QKGQEWTJQFFI@googlegroups.com>
+Return-Path: <rtc-linux+bncBDCMXBNSKAIMLO6PXMCRUBCHKDM76@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-MIME-Version: 1.0
-Received: from mail-pf0-x242.google.com (mail-pf0-x242.google.com. [2607:f8b0:400e:c00::242])
-        by gmr-mx.google.com with ESMTPS id tp10si3983394pac.2.2016.06.14.23.00.06
+Received: from smtp6-v.fe.bosch.de (smtp6-v.fe.bosch.de. [2a03:cc00:ff0:100::2])
+        by gmr-mx.google.com with ESMTPS id q124si100360wme.3.2016.06.29.07.40.05
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 14 Jun 2016 23:00:06 -0700 (PDT)
-Received: by mail-pf0-x242.google.com with SMTP id c74so998094pfb.0
-        for <rtc-linux@googlegroups.com>; Tue, 14 Jun 2016 23:00:06 -0700 (PDT)
-From: Andrey Smirnov <andrew.smirnov@gmail.com>
-To: rtc-linux@googlegroups.com
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	linux-kernel@vger.kernel.org,
-	Andrey Smirnov <andrew.smirnov@gmail.com>
-Subject: [rtc-linux] [PATCH 02/13] RTC: ds1307: Disable square wave and timers
- as default
-Date: Tue, 14 Jun 2016 22:59:28 -0700
-Message-Id: <1465970379-14703-3-git-send-email-andrew.smirnov@gmail.com>
-In-Reply-To: <1465970379-14703-1-git-send-email-andrew.smirnov@gmail.com>
-References: <1465970379-14703-1-git-send-email-andrew.smirnov@gmail.com>
-Reply-To: rtc-linux@googlegroups.com
+        Wed, 29 Jun 2016 07:40:05 -0700 (PDT)
+Received: from vsmta14.fe.internet.bosch.com (unknown [10.4.98.54])
+	by imta24.fe.bosch.de (Postfix) with ESMTP id 1B0CBD80227
+	for <rtc-linux@googlegroups.com>; Wed, 29 Jun 2016 16:40:05 +0200 (CEST)
+Received: from SI-HUB1000.de.bosch.com (vsgw22.fe.internet.bosch.com [10.4.98.11])
+	by vsmta14.fe.internet.bosch.com (Postfix) with ESMTP id 73CF3A405F7
+	for <rtc-linux@googlegroups.com>; Wed, 29 Jun 2016 16:40:04 +0200 (CEST)
+From: Dirk Behme <dirk.behme@de.bosch.com>
+To: <rtc-linux@googlegroups.com>, <devicetree@vger.kernel.org>
+CC: Oleksij Rempel <fixed-term.Oleksij.Rempel@de.bosch.com>
+Subject: [rtc-linux] [PATCH v3 1/3] devicetree: Add Micro Crystal AG vendor id
+Date: Wed, 29 Jun 2016 16:39:59 +0200
+Message-ID: <1467211201-17252-2-git-send-email-dirk.behme@de.bosch.com>
+In-Reply-To: <1467211201-17252-1-git-send-email-dirk.behme@de.bosch.com>
+References: <1467211201-17252-1-git-send-email-dirk.behme@de.bosch.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -30,49 +30,31 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Disable square wave and timers as default for DS1337/39/41 and
-DS3231. The rationale being that configuring a chip this way puts it
-into a known state with lower power consumption. While it is not very
-likely it is still possible that the code controlling RTCs that ran
-before this driver configured it to produce square wave and left it in
-such a state.
+From: Oleksij Rempel <fixed-term.Oleksij.Rempel@de.bosch.com>
 
-Signed-off-by: Andrey Smirnov <andrew.smirnov@gmail.com>
+Add Micro Crystal AG vendor id
+
+Signed-off-by: Oleksij Rempel <fixed-term.Oleksij.Rempel@de.bosch.com>
+Acked-by: Rob Herring <robh@kernel.org>
+Cc: devicetree@vger.kernel.org
 ---
- drivers/rtc/rtc-ds1307.c | 12 +++++-------
- 1 file changed, 5 insertions(+), 7 deletions(-)
+ Documentation/devicetree/bindings/vendor-prefixes.txt | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
-index 7e65e2e..c618c22 100644
---- a/drivers/rtc/rtc-ds1307.c
-+++ b/drivers/rtc/rtc-ds1307.c
-@@ -1320,19 +1320,17 @@ static int ds1307_probe(struct i2c_client *client,
- 			ds1307->regs[0] &= ~DS1337_BIT_nEOSC;
- 
- 		/*
--		 * Using IRQ or defined as wakeup-source?
- 		 * Disable the square wave and both alarms.
- 		 * For some variants, be sure alarms can trigger when we're
- 		 * running on Vbackup (BBSQI/BBSQW)
- 		 */
--		if (chip->alarm && (ds1307->client->irq > 0 ||
--						ds1307_can_wakeup_device)) {
--			ds1307->regs[0] |= DS1337_BIT_INTCN
--					| bbsqi_bitpos[ds1307->type];
--			ds1307->regs[0] &= ~(DS1337_BIT_A2IE | DS1337_BIT_A1IE);
-+		ds1307->regs[0] |= DS1337_BIT_INTCN
-+			| bbsqi_bitpos[ds1307->type];
-+		ds1307->regs[0] &= ~(DS1337_BIT_A2IE | DS1337_BIT_A1IE);
- 
-+		if (chip->alarm && (ds1307->client->irq > 0 ||
-+				    ds1307_can_wakeup_device))
- 			want_irq = true;
--		}
- 
- 		i2c_smbus_write_byte_data(client, DS1337_REG_CONTROL,
- 							ds1307->regs[0]);
+diff --git a/Documentation/devicetree/bindings/vendor-prefixes.txt b/Documentation/devicetree/bindings/vendor-prefixes.txt
+index a7440bc..1bd6c8c 100644
+--- a/Documentation/devicetree/bindings/vendor-prefixes.txt
++++ b/Documentation/devicetree/bindings/vendor-prefixes.txt
+@@ -158,6 +158,7 @@ melexis	Melexis N.V.
+ merrii	Merrii Technology Co., Ltd.
+ micrel	Micrel Inc.
+ microchip	Microchip Technology Inc.
++microcrystal	Micro Crystal AG
+ micron	Micron Technology Inc.
+ minix	MINIX Technology Ltd.
+ mitsubishi	Mitsubishi Electric Corporation
 -- 
-2.5.5
+1.9.1
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
