@@ -1,24 +1,33 @@
-Return-Path: <rtc-linux+bncBDX5ZRH7XQGRBTN7YW5QKGQEMMTOL5A@googlegroups.com>
+Return-Path: <rtc-linux+bncBCMILY6JWQBBBXED2W5QKGQE5DDVACY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail-pf0-x230.google.com (mail-pf0-x230.google.com. [2607:f8b0:400e:c00::230])
-        by gmr-mx.google.com with ESMTPS id un17si2723262pab.0.2016.06.27.10.18.05
+MIME-Version: 1.0
+Received: from wens.csie.org (mirror2.csie.ntu.edu.tw. [140.112.30.76])
+        by gmr-mx.google.com with ESMTPS id i135si684647pfe.0.2016.06.30.08.59.24
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 27 Jun 2016 10:18:05 -0700 (PDT)
-Received: by mail-pf0-x230.google.com with SMTP id t190so63756428pfb.3
-        for <rtc-linux@googlegroups.com>; Mon, 27 Jun 2016 10:18:05 -0700 (PDT)
-From: Kevin Hilman <khilman@baylibre.com>
-To: Ben Dooks <ben.dooks@codethink.co.uk>
-Cc: linux-kernel@lists.codethink.co.uk,  rtc-linux@googlegroups.com,  a.zummo@towertech.it,  alexandre.belloni@free-electrons.com,  devicetree@vger.kernel.org,  robh+dt@kernel.org,  frowand.list@gmail.com,  linux-amlogic@lists.infradead.org
-Subject: [rtc-linux] Re: RTC support for AMlogic devies
-References: <1467039135-26588-1-git-send-email-ben.dooks@codethink.co.uk>
-Date: Mon, 27 Jun 2016 10:18:02 -0700
-In-Reply-To: <1467039135-26588-1-git-send-email-ben.dooks@codethink.co.uk>
-	(Ben Dooks's message of "Mon, 27 Jun 2016 15:52:11 +0100")
-Message-ID: <m2bn2mtut1.fsf@baylibre.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+        Thu, 30 Jun 2016 08:59:24 -0700 (PDT)
+From: Chen-Yu Tsai <wens@csie.org>
+To: Lee Jones <lee.jones@linaro.org>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Rob Herring <robh+dt@kernel.org>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Maxime Ripard <maxime.ripard@free-electrons.com>,
+	Michael Turquette <mturquette@baylibre.com>,
+	Stephen Boyd <sboyd@codeaurora.org>
+Cc: Chen-Yu Tsai <wens@csie.org>,
+	linux-arm-kernel@lists.infradead.org,
+	rtc-linux@googlegroups.com,
+	linux-clk@vger.kernel.org,
+	devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [rtc-linux] [PATCH v4 3/7] rtc: ac100: Add RTC driver for X-Powers AC100
+Date: Thu, 30 Jun 2016 23:58:47 +0800
+Message-Id: <1467302331-9663-4-git-send-email-wens@csie.org>
+In-Reply-To: <1467302331-9663-1-git-send-email-wens@csie.org>
+References: <1467302331-9663-1-git-send-email-wens@csie.org>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -27,36 +36,404 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Ben Dooks <ben.dooks@codethink.co.uk> writes:
+X-Powers AC100 is a codec / RTC combo chip. This driver supports
+the RTC sub-device.
 
-> This series is support for the RTC block on some of the AMLogic
-> Meson ARM SoCs.
->
-> The first patch is the driver, followed by device-tree patches
-> and enablement for the ODRoid-C1 (where it has been tested)
+The RTC block also has clock outputs and non-volatile storage.
+Non-volatile storage wthin the RTC hardware is not supported.
+Clock output support is added in the next patch.
 
-In the cover letter, please be explicit about any dependencies that are
-not upstream.  This series applies to mainline (v4.7-rc*) but does not
-build.  I tested it with my v4.7/integ branch and it seems to work.
+Signed-off-by: Chen-Yu Tsai <wens@csie.org>
+---
+Changes since v3:
 
-The series also has a handful of checkpatch warnings that should be
-addressed (see: http://hastebin.com/tacurokasu.pas)
+  - Moved month/year conversion offsets inline with reg[] assignments
+  - Used platform_get_irq instead of of_get_irq
+  - Dropped separate mutex and use rtc->ops_lock in interrupt handler
+  - Dropped of_irq.h from includes
+  - Added of_device_id and .of_match_table
 
-Other than that, I gave it a quick spin on meson8b-odroidc1 using
-tools/testing/selftests/timers/rtctest.c, and the basic time stuff seems
-to be working:
+Changes since v2:
 
-/ # ./rtctest
+  - Fixed off-by-1 errors in register mask macros
+  - Fixed copy-paste error in set_alarm function
+  - Drop uie_unsupported, since the alarm works now
+  - Fixed up copyright notice
+  - Changed license to GPL v2, matching mfd driver
 
-                        RTC Driver Test Example.
+---
+ drivers/rtc/Kconfig     |  10 ++
+ drivers/rtc/Makefile    |   1 +
+ drivers/rtc/rtc-ac100.c | 325 ++++++++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 336 insertions(+)
+ create mode 100644 drivers/rtc/rtc-ac100.c
 
-
-...Update IRQs not supported.
-
-
-Current RTC date/time is 27-6-2016, 00:01:41.
-RTC_ALM_READ ioctl: Invalid argument
-
+diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
+index 18639e0cb6e2..b9d7cbb6bd76 100644
+--- a/drivers/rtc/Kconfig
++++ b/drivers/rtc/Kconfig
+@@ -183,6 +183,16 @@ config RTC_DRV_ABX80X
+ 	  This driver can also be built as a module. If so, the module
+ 	  will be called rtc-abx80x.
+ 
++config RTC_DRV_AC100
++	tristate "X-Powers AC100"
++	depends on MFD_AC100
++	help
++	  If you say yes here you get support for the real-time clock found
++	  in X-Powers AC100 family peripheral ICs.
++
++	  This driver can also be built as a module. If so, the module
++	  will be called rtc-ac100.
++
+ config RTC_DRV_AS3722
+ 	tristate "ams AS3722 RTC driver"
+ 	depends on MFD_AS3722
+diff --git a/drivers/rtc/Makefile b/drivers/rtc/Makefile
+index ea2833723fa9..b07c28779573 100644
+--- a/drivers/rtc/Makefile
++++ b/drivers/rtc/Makefile
+@@ -26,6 +26,7 @@ obj-$(CONFIG_RTC_DRV_AB3100)	+= rtc-ab3100.o
+ obj-$(CONFIG_RTC_DRV_AB8500)	+= rtc-ab8500.o
+ obj-$(CONFIG_RTC_DRV_ABB5ZES3)	+= rtc-ab-b5ze-s3.o
+ obj-$(CONFIG_RTC_DRV_ABX80X)	+= rtc-abx80x.o
++obj-$(CONFIG_RTC_DRV_AC100)	+= rtc-ac100.o
+ obj-$(CONFIG_RTC_DRV_ARMADA38X)	+= rtc-armada38x.o
+ obj-$(CONFIG_RTC_DRV_AS3722)	+= rtc-as3722.o
+ obj-$(CONFIG_RTC_DRV_ASM9260)	+= rtc-asm9260.o
+diff --git a/drivers/rtc/rtc-ac100.c b/drivers/rtc/rtc-ac100.c
+new file mode 100644
+index 000000000000..5a9ca89d04c7
+--- /dev/null
++++ b/drivers/rtc/rtc-ac100.c
+@@ -0,0 +1,325 @@
++/*
++ * RTC Driver for X-Powers AC100
++ *
++ * Copyright (c) 2016 Chen-Yu Tsai
++ *
++ * Chen-Yu Tsai <wens@csie.org>
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ *
++ * This program is distributed in the hope that it will be useful, but WITHOUT
++ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
++ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
++ * more details.
++ */
++
++#include <linux/bcd.h>
++#include <linux/device.h>
++#include <linux/interrupt.h>
++#include <linux/kernel.h>
++#include <linux/mfd/ac100.h>
++#include <linux/module.h>
++#include <linux/mutex.h>
++#include <linux/of.h>
++#include <linux/platform_device.h>
++#include <linux/regmap.h>
++#include <linux/rtc.h>
++#include <linux/types.h>
++
++/* Control register */
++#define AC100_RTC_CTRL_24HOUR	BIT(0)
++
++/* RTC */
++#define AC100_RTC_SEC_MASK	GENMASK(6, 0)
++#define AC100_RTC_MIN_MASK	GENMASK(6, 0)
++#define AC100_RTC_HOU_MASK	GENMASK(5, 0)
++#define AC100_RTC_WEE_MASK	GENMASK(2, 0)
++#define AC100_RTC_DAY_MASK	GENMASK(5, 0)
++#define AC100_RTC_MON_MASK	GENMASK(4, 0)
++#define AC100_RTC_YEA_MASK	GENMASK(7, 0)
++#define AC100_RTC_YEA_LEAP	BIT(15)
++#define AC100_RTC_UPD_TRIGGER	BIT(15)
++
++/* Alarm (wall clock) */
++#define AC100_ALM_INT_ENABLE	BIT(0)
++
++#define AC100_ALM_SEC_MASK	GENMASK(6, 0)
++#define AC100_ALM_MIN_MASK	GENMASK(6, 0)
++#define AC100_ALM_HOU_MASK	GENMASK(5, 0)
++#define AC100_ALM_WEE_MASK	GENMASK(2, 0)
++#define AC100_ALM_DAY_MASK	GENMASK(5, 0)
++#define AC100_ALM_MON_MASK	GENMASK(4, 0)
++#define AC100_ALM_YEA_MASK	GENMASK(7, 0)
++#define AC100_ALM_ENABLE_FLAG	BIT(15)
++#define AC100_ALM_UPD_TRIGGER	BIT(15)
++
++/*
++ * The year parameter passed to the driver is usually an offset relative to
++ * the year 1900. This macro is used to convert this offset to another one
++ * relative to the minimum year allowed by the hardware.
++ *
++ * The year range is 1970 - 2069. This range is selected to match Allwinner's
++ * driver.
++ */
++#define AC100_YEAR_MIN				1970
++#define AC100_YEAR_MAX				2069
++#define AC100_YEAR_OFF				(AC100_YEAR_MIN - 1900)
++
++struct ac100_rtc_dev {
++	struct rtc_device *rtc;
++	struct device *dev;
++	struct regmap *regmap;
++	int irq;
++	unsigned long alarm;
++};
++
++static int ac100_rtc_get_time(struct device *dev, struct rtc_time *rtc_tm)
++{
++	struct ac100_rtc_dev *chip = dev_get_drvdata(dev);
++	struct regmap *regmap = chip->regmap;
++	u16 reg[7];
++	int ret;
++
++	ret = regmap_bulk_read(regmap, AC100_RTC_SEC, reg, 7);
++	if (ret)
++		return ret;
++
++	rtc_tm->tm_sec  = bcd2bin(reg[0] & AC100_RTC_SEC_MASK);
++	rtc_tm->tm_min  = bcd2bin(reg[1] & AC100_RTC_MIN_MASK);
++	rtc_tm->tm_hour = bcd2bin(reg[2] & AC100_RTC_HOU_MASK);
++	rtc_tm->tm_wday = bcd2bin(reg[3] & AC100_RTC_WEE_MASK);
++	rtc_tm->tm_mday = bcd2bin(reg[4] & AC100_RTC_DAY_MASK);
++	rtc_tm->tm_mon  = bcd2bin(reg[5] & AC100_RTC_MON_MASK) - 1;
++	rtc_tm->tm_year = bcd2bin(reg[6] & AC100_RTC_YEA_MASK) +
++			  AC100_YEAR_OFF;
++
++	return rtc_valid_tm(rtc_tm);
++}
++
++static int ac100_rtc_set_time(struct device *dev, struct rtc_time *rtc_tm)
++{
++	struct ac100_rtc_dev *chip = dev_get_drvdata(dev);
++	struct regmap *regmap = chip->regmap;
++	int year;
++	u16 reg[8];
++
++	/* our RTC has a limited year range... */
++	year = rtc_tm->tm_year - AC100_YEAR_OFF;
++	if (year < 0 || year > (AC100_YEAR_MAX - 1900)) {
++		dev_err(dev, "rtc only supports year in range %d - %d\n",
++			AC100_YEAR_MIN, AC100_YEAR_MAX);
++		return -EINVAL;
++	}
++
++	/* convert to BCD */
++	reg[0] = bin2bcd(rtc_tm->tm_sec)     & AC100_RTC_SEC_MASK;
++	reg[1] = bin2bcd(rtc_tm->tm_min)     & AC100_RTC_MIN_MASK;
++	reg[2] = bin2bcd(rtc_tm->tm_hour)    & AC100_RTC_HOU_MASK;
++	reg[3] = bin2bcd(rtc_tm->tm_wday)    & AC100_RTC_WEE_MASK;
++	reg[4] = bin2bcd(rtc_tm->tm_mday)    & AC100_RTC_DAY_MASK;
++	reg[5] = bin2bcd(rtc_tm->tm_mon + 1) & AC100_RTC_MON_MASK;
++	reg[6] = bin2bcd(year)		     & AC100_RTC_YEA_MASK;
++	/* trigger write */
++	reg[7] = AC100_RTC_UPD_TRIGGER;
++
++	/* Is it a leap year? */
++	if (is_leap_year(year + AC100_YEAR_OFF + 1900))
++		reg[6] |= AC100_RTC_YEA_LEAP;
++
++	return regmap_bulk_write(regmap, AC100_RTC_SEC, reg, 8);
++}
++
++static int ac100_rtc_alarm_irq_enable(struct device *dev, unsigned int en)
++{
++	struct ac100_rtc_dev *chip = dev_get_drvdata(dev);
++	struct regmap *regmap = chip->regmap;
++	unsigned int val;
++
++	val = en ? AC100_ALM_INT_ENABLE : 0;
++
++	return regmap_write(regmap, AC100_ALM_INT_ENA, val);
++}
++
++static int ac100_rtc_get_alarm(struct device *dev, struct rtc_wkalrm *alrm)
++{
++	struct ac100_rtc_dev *chip = dev_get_drvdata(dev);
++	struct regmap *regmap = chip->regmap;
++	struct rtc_time *alrm_tm = &alrm->time;
++	u16 reg[7];
++	unsigned int val;
++	int ret;
++
++	ret = regmap_read(regmap, AC100_ALM_INT_ENA, &val);
++	if (ret)
++		return ret;
++
++	alrm->enabled = !!(val & AC100_ALM_INT_ENABLE);
++
++	ret = regmap_bulk_read(regmap, AC100_ALM_SEC, reg, 7);
++	if (ret)
++		return ret;
++
++	alrm_tm->tm_sec  = bcd2bin(reg[0] & AC100_ALM_SEC_MASK);
++	alrm_tm->tm_min  = bcd2bin(reg[1] & AC100_ALM_MIN_MASK);
++	alrm_tm->tm_hour = bcd2bin(reg[2] & AC100_ALM_HOU_MASK);
++	alrm_tm->tm_wday = bcd2bin(reg[3] & AC100_ALM_WEE_MASK);
++	alrm_tm->tm_mday = bcd2bin(reg[4] & AC100_ALM_DAY_MASK);
++	alrm_tm->tm_mon  = bcd2bin(reg[5] & AC100_ALM_MON_MASK) - 1;
++	alrm_tm->tm_year = bcd2bin(reg[6] & AC100_ALM_YEA_MASK) +
++			   AC100_YEAR_OFF;
++
++	return 0;
++}
++
++static int ac100_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
++{
++	struct ac100_rtc_dev *chip = dev_get_drvdata(dev);
++	struct regmap *regmap = chip->regmap;
++	struct rtc_time *alrm_tm = &alrm->time;
++	u16 reg[8];
++	int year;
++	int ret;
++
++	/* our alarm has a limited year range... */
++	year = alrm_tm->tm_year - AC100_YEAR_OFF;
++	if (year < 0 || year > (AC100_YEAR_MAX - 1900)) {
++		dev_err(dev, "alarm only supports year in range %d - %d\n",
++			AC100_YEAR_MIN, AC100_YEAR_MAX);
++		return -EINVAL;
++	}
++
++	/* convert to BCD */
++	reg[0] = (bin2bcd(alrm_tm->tm_sec)  & AC100_ALM_SEC_MASK) |
++			AC100_ALM_ENABLE_FLAG;
++	reg[1] = (bin2bcd(alrm_tm->tm_min)  & AC100_ALM_MIN_MASK) |
++			AC100_ALM_ENABLE_FLAG;
++	reg[2] = (bin2bcd(alrm_tm->tm_hour) & AC100_ALM_HOU_MASK) |
++			AC100_ALM_ENABLE_FLAG;
++	/* Do not enable weekday alarm */
++	reg[3] = bin2bcd(alrm_tm->tm_wday) & AC100_ALM_WEE_MASK;
++	reg[4] = (bin2bcd(alrm_tm->tm_mday) & AC100_ALM_DAY_MASK) |
++			AC100_ALM_ENABLE_FLAG;
++	reg[5] = (bin2bcd(alrm_tm->tm_mon + 1)  & AC100_ALM_MON_MASK) |
++			AC100_ALM_ENABLE_FLAG;
++	reg[6] = (bin2bcd(year) & AC100_ALM_YEA_MASK) |
++			AC100_ALM_ENABLE_FLAG;
++	/* trigger write */
++	reg[7] = AC100_ALM_UPD_TRIGGER;
++
++	ret = regmap_bulk_write(regmap, AC100_ALM_SEC, reg, 8);
++	if (ret)
++		return ret;
++
++	return ac100_rtc_alarm_irq_enable(dev, alrm->enabled);
++}
++
++static irqreturn_t ac100_rtc_irq(int irq, void *data)
++{
++	struct ac100_rtc_dev *chip = data;
++	struct regmap *regmap = chip->regmap;
++	unsigned int val = 0;
++	int ret;
++
++	mutex_lock(&chip->rtc->ops_lock);
++
++	/* read status */
++	ret = regmap_read(regmap, AC100_ALM_INT_STA, &val);
++	if (ret)
++		goto out;
++
++	if (val & AC100_ALM_INT_ENABLE) {
++		/* signal rtc framework */
++		rtc_update_irq(chip->rtc, 1, RTC_AF | RTC_IRQF);
++
++		/* clear status */
++		ret = regmap_write(regmap, AC100_ALM_INT_STA, val);
++		if (ret)
++			goto out;
++
++		/* disable interrupt */
++		ret = ac100_rtc_alarm_irq_enable(chip->dev, 0);
++		if (ret)
++			goto out;
++	}
++
++out:
++	mutex_unlock(&chip->rtc->ops_lock);
++	return IRQ_HANDLED;
++}
++
++static const struct rtc_class_ops ac100_rtc_ops = {
++	.read_time	  = ac100_rtc_get_time,
++	.set_time	  = ac100_rtc_set_time,
++	.read_alarm	  = ac100_rtc_get_alarm,
++	.set_alarm	  = ac100_rtc_set_alarm,
++	.alarm_irq_enable = ac100_rtc_alarm_irq_enable,
++};
++
++static int ac100_rtc_probe(struct platform_device *pdev)
++{
++	struct ac100_dev *ac100 = dev_get_drvdata(pdev->dev.parent);
++	struct ac100_rtc_dev *chip;
++	int ret;
++
++	chip = devm_kzalloc(&pdev->dev, sizeof(*chip), GFP_KERNEL);
++	platform_set_drvdata(pdev, chip);
++	chip->dev = &pdev->dev;
++	chip->regmap = ac100->regmap;
++
++	chip->irq = platform_get_irq(pdev, 0);
++	if (chip->irq < 0) {
++		dev_err(&pdev->dev, "No IRQ resource\n");
++		return chip->irq;
++	}
++
++	ret = devm_request_threaded_irq(&pdev->dev, chip->irq, NULL,
++					ac100_rtc_irq,
++					IRQF_SHARED | IRQF_ONESHOT,
++					dev_name(&pdev->dev), chip);
++	if (ret) {
++		dev_err(&pdev->dev, "Could not request IRQ\n");
++		return ret;
++	}
++
++	/* always use 24 hour mode */
++	regmap_write_bits(chip->regmap, AC100_RTC_CTRL, AC100_RTC_CTRL_24HOUR,
++			  AC100_RTC_CTRL_24HOUR);
++
++	/* disable counter alarm interrupt */
++	regmap_write(chip->regmap, AC100_ALM_INT_ENA, 0);
++
++	/* clear counter alarm pending interrupts */
++	regmap_write(chip->regmap, AC100_ALM_INT_STA, AC100_ALM_INT_ENABLE);
++
++	chip->rtc = devm_rtc_device_register(&pdev->dev, "rtc-ac100",
++					     &ac100_rtc_ops, THIS_MODULE);
++	if (IS_ERR(chip->rtc)) {
++		dev_err(&pdev->dev, "unable to register device\n");
++		return PTR_ERR(chip->rtc);
++	}
++
++	dev_info(&pdev->dev, "RTC enabled\n");
++
++	return 0;
++}
++
++static const struct of_device_id ac100_rtc_match[] = {
++	{ .compatible = "x-powers,ac100-rtc" },
++	{ },
++};
++MODULE_DEVICE_TABLE(of, ac100_rtc_match);
++
++static struct platform_driver ac100_rtc_driver = {
++	.probe		= ac100_rtc_probe,
++	.driver		= {
++		.name		= "ac100-rtc",
++		.of_match_table	= of_match_ptr(ac100_rtc_match),
++	},
++};
++module_platform_driver(ac100_rtc_driver);
++
++MODULE_DESCRIPTION("X-Powers AC100 RTC driver");
++MODULE_AUTHOR("Chen-Yu Tsai <wens@csie.org>");
++MODULE_LICENSE("GPL v2");
+-- 
+2.8.1
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
