@@ -1,25 +1,32 @@
-Return-Path: <rtc-linux+bncBDKOBWPM5ABRBW6WUO5QKGQEG7YTU6Q@googlegroups.com>
+Return-Path: <rtc-linux+bncBCMILY6JWQBBBXMD2W5QKGQE2KLLGYY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 MIME-Version: 1.0
-Received: from mail-pa0-x241.google.com (mail-pa0-x241.google.com. [2607:f8b0:400e:c03::241])
-        by gmr-mx.google.com with ESMTPS id c11si5951032pfc.2.2016.06.21.00.23.07
+Received: from wens.csie.org (mirror2.csie.ntu.edu.tw. [140.112.30.76])
+        by gmr-mx.google.com with ESMTPS id un17si772368pab.0.2016.06.30.08.59.24
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 21 Jun 2016 00:23:07 -0700 (PDT)
-Received: by mail-pa0-x241.google.com with SMTP id us13so739156pab.1
-        for <rtc-linux@googlegroups.com>; Tue, 21 Jun 2016 00:23:07 -0700 (PDT)
-From: Andrey Smirnov <andrew.smirnov@gmail.com>
-To: rtc-linux@googlegroups.com
-Cc: Andrey Smirnov <andrew.smirnov@gmail.com>,
+        Thu, 30 Jun 2016 08:59:24 -0700 (PDT)
+From: Chen-Yu Tsai <wens@csie.org>
+To: Lee Jones <lee.jones@linaro.org>,
 	Alessandro Zummo <a.zummo@towertech.it>,
 	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	linux-kernel@vger.kernel.org,
-	cphealy@gmail.com
-Subject: [rtc-linux] [PATCH v2 09/17] RTC: ds1307: Remove register "cache"
-Date: Tue, 21 Jun 2016 00:22:42 -0700
-Message-Id: <1466493770-11895-8-git-send-email-andrew.smirnov@gmail.com>
-In-Reply-To: <1466493770-11895-1-git-send-email-andrew.smirnov@gmail.com>
-References: <1466493770-11895-1-git-send-email-andrew.smirnov@gmail.com>
+	Rob Herring <robh+dt@kernel.org>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Maxime Ripard <maxime.ripard@free-electrons.com>,
+	Michael Turquette <mturquette@baylibre.com>,
+	Stephen Boyd <sboyd@codeaurora.org>
+Cc: Chen-Yu Tsai <wens@csie.org>,
+	linux-arm-kernel@lists.infradead.org,
+	rtc-linux@googlegroups.com,
+	linux-clk@vger.kernel.org,
+	devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [rtc-linux] [PATCH v4 2/7] mfd: ac100: Add driver for X-Powers AC100
+ audio codec / RTC combo IC
+Date: Thu, 30 Jun 2016 23:58:46 +0800
+Message-Id: <1467302331-9663-3-git-send-email-wens@csie.org>
+In-Reply-To: <1467302331-9663-1-git-send-email-wens@csie.org>
+References: <1467302331-9663-1-git-send-email-wens@csie.org>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -30,600 +37,396 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Remove shared area used by many subroutines to store values of RTC's
-registers. There wasn't very much caching or sharing going on in the
-code and that register cache, being a semi-global variable, only created
-additional implicit dependencies between function and made code more
-confusing (there were a number of functions that defined a convenience
-variable pointing to ds1307->regs, but failed to use it in the code
-consistently).
+The AC100 is a multifunction device with an audio codec subsystem and
+an RTC subsystem. These two subsystems share a common register space
+and host interface.
 
-Signed-off-by: Andrey Smirnov <andrew.smirnov@gmail.com>
+Signed-off-by: Chen-Yu Tsai <wens@csie.org>
+Acked-by: Lee Jones <lee.jones@linaro.org>
 ---
- drivers/rtc/rtc-ds1307.c | 229 ++++++++++++++++++++++++-----------------------
- 1 file changed, 116 insertions(+), 113 deletions(-)
+Changes since v3:
 
-diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
-index d262db5..66e7168 100644
---- a/drivers/rtc/rtc-ds1307.c
-+++ b/drivers/rtc/rtc-ds1307.c
-@@ -110,10 +110,10 @@ enum ds_type {
- #	define RX8025_BIT_VDET		0x40
- #	define RX8025_BIT_XST		0x20
+  - Changed register name prefix to CLKOUT_ for clock output controls
+
+Changes since v2:
+
+  - Dropped file name
+  - Added copyright line.
+  - Changed MODULE_LICENSE to GPL v2, matching the header
+  - Added Lee's ack
+
+---
+ drivers/mfd/Kconfig       |  10 +++
+ drivers/mfd/Makefile      |   2 +
+ drivers/mfd/ac100.c       | 137 +++++++++++++++++++++++++++++++++++
+ include/linux/mfd/ac100.h | 178 ++++++++++++++++++++++++++++++++++++++++++++++
+ 4 files changed, 327 insertions(+)
+ create mode 100644 drivers/mfd/ac100.c
+ create mode 100644 include/linux/mfd/ac100.h
+
+diff --git a/drivers/mfd/Kconfig b/drivers/mfd/Kconfig
+index 00ec1290b639..c2ceb303c856 100644
+--- a/drivers/mfd/Kconfig
++++ b/drivers/mfd/Kconfig
+@@ -112,6 +112,16 @@ config MFD_BCM590XX
+ 	help
+ 	  Support for the BCM590xx PMUs from Broadcom
  
-+#define DS1307_REG_COUNT	11
- 
- struct ds1307 {
- 	u8			offset; /* register's offset */
--	u8			regs[11];
- 	u16			nvram_offset;
- 	struct bin_attribute	*nvram;
- 	enum ds_type		type;
-@@ -366,30 +366,31 @@ out:
- 
- static int ds1307_get_time(struct device *dev, struct rtc_time *t)
- {
-+	u8              regs[DS1307_REG_COUNT];
- 	struct ds1307	*ds1307 = dev_get_drvdata(dev);
- 	int		tmp;
- 
- 	/* read the RTC date and time registers all at once */
- 	tmp = ds1307->read_block_data(ds1307->client,
--		ds1307->offset, 7, ds1307->regs);
-+		ds1307->offset, 7, regs);
- 	if (tmp != 7) {
- 		dev_err(dev, "%s error %d\n", "read", tmp);
- 		return -EIO;
- 	}
- 
--	dev_dbg(dev, "%s: %7ph\n", "read", ds1307->regs);
-+	dev_dbg(dev, "%s: %7ph\n", "read", regs);
- 
--	t->tm_sec = bcd2bin(ds1307->regs[DS1307_REG_SECS] & 0x7f);
--	t->tm_min = bcd2bin(ds1307->regs[DS1307_REG_MIN] & 0x7f);
--	tmp = ds1307->regs[DS1307_REG_HOUR] & 0x3f;
-+	t->tm_sec = bcd2bin(regs[DS1307_REG_SECS] & 0x7f);
-+	t->tm_min = bcd2bin(regs[DS1307_REG_MIN] & 0x7f);
-+	tmp = regs[DS1307_REG_HOUR] & 0x3f;
- 	t->tm_hour = bcd2bin(tmp);
--	t->tm_wday = bcd2bin(ds1307->regs[DS1307_REG_WDAY] & 0x07) - 1;
--	t->tm_mday = bcd2bin(ds1307->regs[DS1307_REG_MDAY] & 0x3f);
--	tmp = ds1307->regs[DS1307_REG_MONTH] & 0x1f;
-+	t->tm_wday = bcd2bin(regs[DS1307_REG_WDAY] & 0x07) - 1;
-+	t->tm_mday = bcd2bin(regs[DS1307_REG_MDAY] & 0x3f);
-+	tmp = regs[DS1307_REG_MONTH] & 0x1f;
- 	t->tm_mon = bcd2bin(tmp) - 1;
- 
- 	/* assume 20YY not 19YY, and ignore DS1337_BIT_CENTURY */
--	t->tm_year = bcd2bin(ds1307->regs[DS1307_REG_YEAR]) + 100;
-+	t->tm_year = bcd2bin(regs[DS1307_REG_YEAR]) + 100;
- 
- 	dev_dbg(dev, "%s secs=%d, mins=%d, "
- 		"hours=%d, mday=%d, mon=%d, year=%d, wday=%d\n",
-@@ -406,7 +407,7 @@ static int ds1307_set_time(struct device *dev, struct rtc_time *t)
- 	struct ds1307	*ds1307 = dev_get_drvdata(dev);
- 	int		result;
- 	int		tmp;
--	u8		*buf = ds1307->regs;
-+	u8		regs[DS1307_REG_COUNT];
- 
- 	dev_dbg(dev, "%s secs=%d, mins=%d, "
- 		"hours=%d, mday=%d, mon=%d, year=%d, wday=%d\n",
-@@ -414,26 +415,26 @@ static int ds1307_set_time(struct device *dev, struct rtc_time *t)
- 		t->tm_hour, t->tm_mday,
- 		t->tm_mon, t->tm_year, t->tm_wday);
- 
--	buf[DS1307_REG_SECS] = bin2bcd(t->tm_sec);
--	buf[DS1307_REG_MIN] = bin2bcd(t->tm_min);
--	buf[DS1307_REG_HOUR] = bin2bcd(t->tm_hour);
--	buf[DS1307_REG_WDAY] = bin2bcd(t->tm_wday + 1);
--	buf[DS1307_REG_MDAY] = bin2bcd(t->tm_mday);
--	buf[DS1307_REG_MONTH] = bin2bcd(t->tm_mon + 1);
-+	regs[DS1307_REG_SECS]  = bin2bcd(t->tm_sec);
-+	regs[DS1307_REG_MIN]   = bin2bcd(t->tm_min);
-+	regs[DS1307_REG_HOUR]  = bin2bcd(t->tm_hour);
-+	regs[DS1307_REG_WDAY]  = bin2bcd(t->tm_wday + 1);
-+	regs[DS1307_REG_MDAY]  = bin2bcd(t->tm_mday);
-+	regs[DS1307_REG_MONTH] = bin2bcd(t->tm_mon + 1);
- 
- 	/* assume 20YY not 19YY */
- 	tmp = t->tm_year - 100;
--	buf[DS1307_REG_YEAR] = bin2bcd(tmp);
-+	regs[DS1307_REG_YEAR] = bin2bcd(tmp);
- 
- 	switch (ds1307->type) {
- 	case ds_1337:
- 	case ds_1339:
- 	case ds_3231:
- 	case ds_1341:
--		buf[DS1307_REG_MONTH] |= DS1337_BIT_CENTURY;
-+		regs[DS1307_REG_MONTH] |= DS1337_BIT_CENTURY;
- 		break;
- 	case ds_1340:
--		buf[DS1307_REG_HOUR] |= DS1340_BIT_CENTURY_EN
-+		regs[DS1307_REG_HOUR] |= DS1340_BIT_CENTURY_EN
- 				| DS1340_BIT_CENTURY;
- 		break;
- 	case mcp794xx:
-@@ -442,17 +443,17 @@ static int ds1307_set_time(struct device *dev, struct rtc_time *t)
- 		 * values and need to be set again before writing the
- 		 * buffer out to the device.
- 		 */
--		buf[DS1307_REG_SECS] |= MCP794XX_BIT_ST;
--		buf[DS1307_REG_WDAY] |= MCP794XX_BIT_VBATEN;
-+		regs[DS1307_REG_SECS] |= MCP794XX_BIT_ST;
-+		regs[DS1307_REG_WDAY] |= MCP794XX_BIT_VBATEN;
- 		break;
- 	default:
- 		break;
- 	}
- 
--	dev_dbg(dev, "%s: %7ph\n", "write", buf);
-+	dev_dbg(dev, "%s: %7ph\n", "write", regs);
- 
- 	result = ds1307->write_block_data(ds1307->client,
--		ds1307->offset, 7, buf);
-+		ds1307->offset, 7, regs);
- 	if (result < 0) {
- 		dev_err(dev, "%s error %d\n", "write", result);
- 		return result;
-@@ -465,29 +466,30 @@ static int ds1337_read_alarm(struct device *dev, struct rtc_wkalrm *t)
- 	struct i2c_client       *client = to_i2c_client(dev);
- 	struct ds1307		*ds1307 = i2c_get_clientdata(client);
- 	int			ret;
-+	u8			regs[DS1307_REG_COUNT];
- 
- 	if (!test_bit(HAS_ALARM, &ds1307->flags))
- 		return -EINVAL;
- 
- 	/* read all ALARM1, ALARM2, and status registers at once */
- 	ret = ds1307->read_block_data(client,
--			DS1339_REG_ALARM1_SECS, 9, ds1307->regs);
-+			DS1339_REG_ALARM1_SECS, 9, regs);
- 	if (ret != 9) {
- 		dev_err(dev, "%s error %d\n", "alarm read", ret);
- 		return -EIO;
- 	}
- 
- 	dev_dbg(dev, "%s: %4ph, %3ph, %2ph\n", "alarm read",
--		&ds1307->regs[0], &ds1307->regs[4], &ds1307->regs[7]);
-+		&regs[0], &regs[4], &regs[7]);
- 
- 	/*
- 	 * report alarm time (ALARM1); assume 24 hour and day-of-month modes,
- 	 * and that all four fields are checked matches
- 	 */
--	t->time.tm_sec = bcd2bin(ds1307->regs[0] & 0x7f);
--	t->time.tm_min = bcd2bin(ds1307->regs[1] & 0x7f);
--	t->time.tm_hour = bcd2bin(ds1307->regs[2] & 0x3f);
--	t->time.tm_mday = bcd2bin(ds1307->regs[3] & 0x3f);
-+	t->time.tm_sec = bcd2bin(regs[0] & 0x7f);
-+	t->time.tm_min = bcd2bin(regs[1] & 0x7f);
-+	t->time.tm_hour = bcd2bin(regs[2] & 0x3f);
-+	t->time.tm_mday = bcd2bin(regs[3] & 0x3f);
- 	t->time.tm_mon = -1;
- 	t->time.tm_year = -1;
- 	t->time.tm_wday = -1;
-@@ -495,8 +497,8 @@ static int ds1337_read_alarm(struct device *dev, struct rtc_wkalrm *t)
- 	t->time.tm_isdst = -1;
- 
- 	/* ... and status */
--	t->enabled = !!(ds1307->regs[7] & DS1337_BIT_A1IE);
--	t->pending = !!(ds1307->regs[8] & DS1337_BIT_A1I);
-+	t->enabled = !!(regs[7] & DS1337_BIT_A1IE);
-+	t->pending = !!(regs[8] & DS1337_BIT_A1I);
- 
- 	dev_dbg(dev, "%s secs=%d, mins=%d, "
- 		"hours=%d, mday=%d, enabled=%d, pending=%d\n",
-@@ -511,7 +513,7 @@ static int ds1337_set_alarm(struct device *dev, struct rtc_wkalrm *t)
- {
- 	struct i2c_client	*client = to_i2c_client(dev);
- 	struct ds1307		*ds1307 = i2c_get_clientdata(client);
--	unsigned char		*buf = ds1307->regs;
-+	u8			regs[DS1307_REG_COUNT];
- 	u8			control, status;
- 	int			ret;
- 
-@@ -526,34 +528,34 @@ static int ds1337_set_alarm(struct device *dev, struct rtc_wkalrm *t)
- 
- 	/* read current status of both alarms and the chip */
- 	ret = ds1307->read_block_data(client,
--			DS1339_REG_ALARM1_SECS, 9, buf);
-+			DS1339_REG_ALARM1_SECS, 9, regs);
- 	if (ret != 9) {
- 		dev_err(dev, "%s error %d\n", "alarm write", ret);
- 		return -EIO;
- 	}
--	control = ds1307->regs[7];
--	status = ds1307->regs[8];
-+	control = regs[7];
-+	status  = regs[8];
- 
- 	dev_dbg(dev, "%s: %4ph, %3ph, %02x %02x\n", "alarm set (old status)",
--		&ds1307->regs[0], &ds1307->regs[4], control, status);
-+		&regs[0], &regs[4], control, status);
- 
- 	/* set ALARM1, using 24 hour and day-of-month modes */
--	buf[0] = bin2bcd(t->time.tm_sec);
--	buf[1] = bin2bcd(t->time.tm_min);
--	buf[2] = bin2bcd(t->time.tm_hour);
--	buf[3] = bin2bcd(t->time.tm_mday);
-+	regs[0] = bin2bcd(t->time.tm_sec);
-+	regs[1] = bin2bcd(t->time.tm_min);
-+	regs[2] = bin2bcd(t->time.tm_hour);
-+	regs[3] = bin2bcd(t->time.tm_mday);
- 
- 	/* set ALARM2 to non-garbage */
--	buf[4] = 0;
--	buf[5] = 0;
--	buf[6] = 0;
-+	regs[4] = 0;
-+	regs[5] = 0;
-+	regs[6] = 0;
- 
- 	/* disable alarms */
--	buf[7] = control & ~(DS1337_BIT_A1IE | DS1337_BIT_A2IE);
--	buf[8] = status & ~(DS1337_BIT_A1I | DS1337_BIT_A2I);
-+	regs[7] = control & ~(DS1337_BIT_A1IE | DS1337_BIT_A2IE);
-+	regs[8] = status & ~(DS1337_BIT_A1I | DS1337_BIT_A2I);
- 
- 	ret = ds1307->write_block_data(client,
--			DS1339_REG_ALARM1_SECS, 9, buf);
-+			DS1339_REG_ALARM1_SECS, 9, regs);
- 	if (ret < 0) {
- 		dev_err(dev, "can't set alarm time\n");
- 		return ret;
-@@ -562,8 +564,8 @@ static int ds1337_set_alarm(struct device *dev, struct rtc_wkalrm *t)
- 	/* optionally enable ALARM1 */
- 	if (t->enabled) {
- 		dev_dbg(dev, "alarm IRQ armed\n");
--		buf[7] |= DS1337_BIT_A1IE;	/* only ALARM1 is used */
--		i2c_smbus_write_byte_data(client, DS1337_REG_CONTROL, buf[7]);
-+		regs[7] |= DS1337_BIT_A1IE;	/* only ALARM1 is used */
-+		i2c_smbus_write_byte_data(client, DS1337_REG_CONTROL, regs[7]);
- 	}
- 
- 	return 0;
-@@ -665,7 +667,7 @@ static int mcp794xx_read_alarm(struct device *dev, struct rtc_wkalrm *t)
- {
- 	struct i2c_client *client = to_i2c_client(dev);
- 	struct ds1307 *ds1307 = i2c_get_clientdata(client);
--	u8 *regs = ds1307->regs;
-+	u8  regs[DS1307_REG_COUNT];
- 	int ret;
- 
- 	if (!test_bit(HAS_ALARM, &ds1307->flags))
-@@ -679,12 +681,12 @@ static int mcp794xx_read_alarm(struct device *dev, struct rtc_wkalrm *t)
- 	t->enabled = !!(regs[0] & MCP794XX_BIT_ALM0_EN);
- 
- 	/* Report alarm 0 time assuming 24-hour and day-of-month modes. */
--	t->time.tm_sec = bcd2bin(ds1307->regs[3] & 0x7f);
--	t->time.tm_min = bcd2bin(ds1307->regs[4] & 0x7f);
--	t->time.tm_hour = bcd2bin(ds1307->regs[5] & 0x3f);
--	t->time.tm_wday = bcd2bin(ds1307->regs[6] & 0x7) - 1;
--	t->time.tm_mday = bcd2bin(ds1307->regs[7] & 0x3f);
--	t->time.tm_mon = bcd2bin(ds1307->regs[8] & 0x1f) - 1;
-+	t->time.tm_sec = bcd2bin(regs[3] & 0x7f);
-+	t->time.tm_min = bcd2bin(regs[4] & 0x7f);
-+	t->time.tm_hour = bcd2bin(regs[5] & 0x3f);
-+	t->time.tm_wday = bcd2bin(regs[6] & 0x7) - 1;
-+	t->time.tm_mday = bcd2bin(regs[7] & 0x3f);
-+	t->time.tm_mon = bcd2bin(regs[8] & 0x1f) - 1;
- 	t->time.tm_year = -1;
- 	t->time.tm_yday = -1;
- 	t->time.tm_isdst = -1;
-@@ -693,9 +695,9 @@ static int mcp794xx_read_alarm(struct device *dev, struct rtc_wkalrm *t)
- 		"enabled=%d polarity=%d irq=%d match=%d\n", __func__,
- 		t->time.tm_sec, t->time.tm_min, t->time.tm_hour,
- 		t->time.tm_wday, t->time.tm_mday, t->time.tm_mon, t->enabled,
--		!!(ds1307->regs[6] & MCP794XX_BIT_ALMX_POL),
--		!!(ds1307->regs[6] & MCP794XX_BIT_ALMX_IF),
--		(ds1307->regs[6] & MCP794XX_MSK_ALMX_MATCH) >> 4);
-+		!!(regs[6] & MCP794XX_BIT_ALMX_POL),
-+		!!(regs[6] & MCP794XX_BIT_ALMX_IF),
-+		(regs[6] & MCP794XX_MSK_ALMX_MATCH) >> 4);
- 
- 	return 0;
- }
-@@ -704,7 +706,7 @@ static int mcp794xx_set_alarm(struct device *dev, struct rtc_wkalrm *t)
- {
- 	struct i2c_client *client = to_i2c_client(dev);
- 	struct ds1307 *ds1307 = i2c_get_clientdata(client);
--	unsigned char *regs = ds1307->regs;
-+	u8  regs[DS1307_REG_COUNT];
- 	int ret;
- 
- 	if (!test_bit(HAS_ALARM, &ds1307->flags))
-@@ -1274,11 +1276,9 @@ static bool ds1307_want_irq(const struct ds1307 *ds1307,
- static int ds1307_chip_configure(struct ds1307 *ds1307)
- {
- 	int tmp;
--	unsigned char *buf;
-+	u8  regs[DS1307_REG_COUNT];
- 	struct i2c_client *client = ds1307->client;
- 
--	buf = ds1307->regs;
--
- 	switch (ds1307->type) {
- 	case ds_1337:
- 	case ds_1339:
-@@ -1293,32 +1293,32 @@ static int ds1307_chip_configure(struct ds1307 *ds1307)
- 
- 		/* get registers that the "rtc" read below won't read... */
- 		tmp = ds1307->read_block_data(client,
--					      DS1337_REG_CONTROL, 2, buf);
-+					      DS1337_REG_CONTROL, 2, regs);
- 		if (tmp != 2) {
- 			dev_dbg(&ds1307->client->dev, "read error %d\n", tmp);
- 			return -EIO;
- 		}
- 
- 		/* oscillator off?  turn it on, so clock can tick. */
--		if (ds1307->regs[0] & DS1337_BIT_nEOSC)
--			ds1307->regs[0] &= ~DS1337_BIT_nEOSC;
-+		if (regs[0] & DS1337_BIT_nEOSC)
-+			regs[0] &= ~DS1337_BIT_nEOSC;
- 
- 		if (ds1307->type == ds_1341) {
- 			/* Make sure we are not generating square wave
- 			 * output */
--			ds1307->regs[1] &= ~DS1341_BIT_ECLK;
-+			regs[1] &= ~DS1341_BIT_ECLK;
- 
- 			if (of_property_read_bool(client->dev.of_node,
- 						  "dallas,disable-oscillator-stop-flag"))
--				ds1307->regs[1] |= DS1341_BIT_DOSF;
-+				regs[1] |= DS1341_BIT_DOSF;
- 			else
--				ds1307->regs[1] &= ~DS1341_BIT_DOSF;
-+				regs[1] &= ~DS1341_BIT_DOSF;
- 
- 			if (of_property_read_bool(client->dev.of_node,
- 						  "dallas,enable-glitch-filter"))
--				ds1307->regs[0] |= DS1341_BIT_EGFIL;
-+				regs[0] |= DS1341_BIT_EGFIL;
- 			else
--				ds1307->regs[0] &= ~DS1341_BIT_EGFIL;
-+				regs[0] &= ~DS1341_BIT_EGFIL;
- 
- 			/*
- 			 * Write status register. Control register
-@@ -1326,7 +1326,7 @@ static int ds1307_chip_configure(struct ds1307 *ds1307)
- 			 */
- 			i2c_smbus_write_byte_data(client,
- 						  DS1337_REG_STATUS,
--						  ds1307->regs[1]);
-+						  regs[1]);
- 		}
- 
- 		/*
-@@ -1334,19 +1334,19 @@ static int ds1307_chip_configure(struct ds1307 *ds1307)
- 		 * For some variants, be sure alarms can trigger when we're
- 		 * running on Vbackup (BBSQI/BBSQW)
- 		 */
--		ds1307->regs[0] |= DS1337_BIT_INTCN
-+		regs[0] |= DS1337_BIT_INTCN
- 			| bbsqi_bitpos[ds1307->type];
--		ds1307->regs[0] &= ~(DS1337_BIT_A2IE | DS1337_BIT_A1IE);
-+		regs[0] &= ~(DS1337_BIT_A2IE | DS1337_BIT_A1IE);
- 
- 		i2c_smbus_write_byte_data(client,
- 					  DS1337_REG_CONTROL,
--					  ds1307->regs[0]);
-+					  regs[0]);
- 
- 		/* oscillator fault?  clear flag, and warn */
--		if (ds1307->regs[1] & DS1337_BIT_OSF) {
-+		if (regs[1] & DS1337_BIT_OSF) {
- 			i2c_smbus_write_byte_data(client,
- 						  DS1337_REG_STATUS,
--						  ds1307->regs[1] & ~DS1337_BIT_OSF);
-+						  regs[1] & ~DS1337_BIT_OSF);
- 			dev_warn(&ds1307->client->dev, "SET TIME!\n");
- 		}
- 		break;
-@@ -1354,60 +1354,60 @@ static int ds1307_chip_configure(struct ds1307 *ds1307)
- 	case rx_8025:
- 		tmp = i2c_smbus_read_i2c_block_data(client,
- 						    RX8025_REG_CTRL1 << 4 | 0x08,
--						    2, buf);
-+						    2, regs);
- 		if (tmp != 2) {
- 			dev_dbg(&client->dev, "read error %d\n", tmp);
- 			return -EIO;
- 		}
- 
- 		/* oscillator off?  turn it on, so clock can tick. */
--		if (!(ds1307->regs[1] & RX8025_BIT_XST)) {
--			ds1307->regs[1] |= RX8025_BIT_XST;
-+		if (!(regs[1] & RX8025_BIT_XST)) {
-+			regs[1] |= RX8025_BIT_XST;
- 			i2c_smbus_write_byte_data(client,
- 						  RX8025_REG_CTRL2 << 4 | 0x08,
--						  ds1307->regs[1]);
-+						  regs[1]);
- 			dev_warn(&client->dev,
- 				 "oscillator stop detected - SET TIME!\n");
- 		}
- 
--		if (ds1307->regs[1] & RX8025_BIT_PON) {
--			ds1307->regs[1] &= ~RX8025_BIT_PON;
-+		if (regs[1] & RX8025_BIT_PON) {
-+			regs[1] &= ~RX8025_BIT_PON;
- 			i2c_smbus_write_byte_data(client,
- 						  RX8025_REG_CTRL2 << 4 | 0x08,
--						  ds1307->regs[1]);
-+						  regs[1]);
- 			dev_warn(&client->dev, "power-on detected\n");
- 		}
- 
--		if (ds1307->regs[1] & RX8025_BIT_VDET) {
--			ds1307->regs[1] &= ~RX8025_BIT_VDET;
-+		if (regs[1] & RX8025_BIT_VDET) {
-+			regs[1] &= ~RX8025_BIT_VDET;
- 			i2c_smbus_write_byte_data(client,
- 						  RX8025_REG_CTRL2 << 4 | 0x08,
--						  ds1307->regs[1]);
-+						  regs[1]);
- 			dev_warn(&client->dev, "voltage drop detected\n");
- 		}
- 
- 		/* make sure we are running in 24hour mode */
--		if (!(ds1307->regs[0] & RX8025_BIT_2412)) {
-+		if (!(regs[0] & RX8025_BIT_2412)) {
- 			u8 hour;
- 
- 			/* switch to 24 hour mode */
- 			i2c_smbus_write_byte_data(client,
- 						  RX8025_REG_CTRL1 << 4 | 0x08,
--						  ds1307->regs[0] | RX8025_BIT_2412);
-+						  regs[0] | RX8025_BIT_2412);
- 
- 			tmp = i2c_smbus_read_i2c_block_data(client,
- 							    RX8025_REG_CTRL1 << 4 | 0x08,
--							    2, buf);
-+							    2, regs);
- 			if (tmp != 2) {
- 				dev_dbg(&client->dev, "read error %d\n", tmp);
- 				return -EIO;
- 			}
- 
- 			/* correct hour */
--			hour = bcd2bin(ds1307->regs[DS1307_REG_HOUR]);
-+			hour = bcd2bin(regs[DS1307_REG_HOUR]);
- 			if (hour == 12)
- 				hour = 0;
--			if (ds1307->regs[DS1307_REG_HOUR] & DS1307_BIT_PM)
-+			if (regs[DS1307_REG_HOUR] & DS1307_BIT_PM)
- 				hour += 12;
- 
- 			i2c_smbus_write_byte_data(client,
-@@ -1425,14 +1425,12 @@ static int ds1307_chip_configure(struct ds1307 *ds1307)
- static int ds1307_chip_sanity_check(struct ds1307 *ds1307)
- {
- 	int tmp;
--	unsigned char *buf;
-+	u8  regs[DS1307_REG_COUNT];
- 	struct i2c_client *client = ds1307->client;
- 
--	buf = ds1307->regs;
--
- read_rtc:
- 	/* read RTC registers */
--	tmp = ds1307->read_block_data(ds1307->client, ds1307->offset, 8, buf);
-+	tmp = ds1307->read_block_data(ds1307->client, ds1307->offset, 8, regs);
- 	if (tmp != 8) {
- 		dev_dbg(&client->dev, "read error %d\n", tmp);
- 		return -EIO;
-@@ -1443,7 +1441,7 @@ read_rtc:
- 	 * specify the extra bits as must-be-zero, but there are
- 	 * still a few values that are clearly out-of-range.
- 	 */
--	tmp = ds1307->regs[DS1307_REG_SECS];
-+	tmp = regs[DS1307_REG_SECS];
- 	switch (ds1307->type) {
- 	case ds_1307:
- 	case m41t00:
-@@ -1460,9 +1458,9 @@ read_rtc:
- 			i2c_smbus_write_byte_data(client, DS1307_REG_SECS, 0);
- 
- 		/* oscillator fault?  clear flag, and warn */
--		if (ds1307->regs[DS1307_REG_CONTROL] & DS1338_BIT_OSF) {
-+		if (regs[DS1307_REG_CONTROL] & DS1338_BIT_OSF) {
- 			i2c_smbus_write_byte_data(client, DS1307_REG_CONTROL,
--					ds1307->regs[DS1307_REG_CONTROL]
-+					regs[DS1307_REG_CONTROL]
- 					& ~DS1338_BIT_OSF);
- 			dev_warn(&client->dev, "SET TIME!\n");
- 			goto read_rtc;
-@@ -1487,9 +1485,9 @@ read_rtc:
- 		break;
- 	case mcp794xx:
- 		/* make sure that the backup battery is enabled */
--		if (!(ds1307->regs[DS1307_REG_WDAY] & MCP794XX_BIT_VBATEN)) {
-+		if (!(regs[DS1307_REG_WDAY] & MCP794XX_BIT_VBATEN)) {
- 			i2c_smbus_write_byte_data(client, DS1307_REG_WDAY,
--					ds1307->regs[DS1307_REG_WDAY]
-+					regs[DS1307_REG_WDAY]
- 					| MCP794XX_BIT_VBATEN);
- 		}
- 
-@@ -1514,10 +1512,10 @@ static int ds1307_probe(struct i2c_client *client,
- {
- 	struct ds1307		*ds1307;
- 	int			err = -ENODEV;
--	int			tmp;
-+	int			reg;
-+	u8			hour;
- 	struct chip_desc	*chip = &chips[id->driver_data];
- 	struct i2c_adapter	*adapter = to_i2c_adapter(client->dev.parent);
--	unsigned char		*buf;
- 	struct ds1307_platform_data *pdata = dev_get_platdata(&client->dev);
- 	irq_handler_t	irq_handler = ds1307_irq;
- 
-@@ -1550,7 +1548,6 @@ static int ds1307_probe(struct i2c_client *client,
- 		    chip->trickle_charger_setup);
- 	}
- 
--	buf = ds1307->regs;
- 	if (i2c_check_functionality(adapter, I2C_FUNC_SMBUS_I2C_BLOCK)) {
- 		ds1307->read_block_data = ds1307_native_smbus_read_block_data;
- 		ds1307->write_block_data = ds1307_native_smbus_write_block_data;
-@@ -1579,7 +1576,14 @@ static int ds1307_probe(struct i2c_client *client,
- 	if (err < 0)
- 		return err;
- 
--	tmp = ds1307->regs[DS1307_REG_HOUR];
-+	reg = i2c_smbus_read_byte_data(client,
-+				       ds1307->offset + DS1307_REG_HOUR);
-+	if (reg < 0) {
-+		dev_err(&client->dev,
-+			"failed to read HOUR register\n");
-+		return reg;
++config MFD_AC100
++	tristate "X-Powers AC100"
++	select MFD_CORE
++	depends on SUNXI_RSB
++	help
++	  If you say Y here you get support for the X-Powers AC100 audio codec
++	  IC.
++	  This driver include only the core APIs. You have to select individual
++	  components like codecs or RTC under the corresponding menus.
++
+ config MFD_AXP20X
+ 	tristate
+ 	select MFD_CORE
+diff --git a/drivers/mfd/Makefile b/drivers/mfd/Makefile
+index 2ba3ba35f745..bca83dbb5ed8 100644
+--- a/drivers/mfd/Makefile
++++ b/drivers/mfd/Makefile
+@@ -113,6 +113,8 @@ obj-$(CONFIG_PMIC_DA9052)	+= da9052-irq.o
+ obj-$(CONFIG_PMIC_DA9052)	+= da9052-core.o
+ obj-$(CONFIG_MFD_DA9052_SPI)	+= da9052-spi.o
+ obj-$(CONFIG_MFD_DA9052_I2C)	+= da9052-i2c.o
++
++obj-$(CONFIG_MFD_AC100)		+= ac100.o
+ obj-$(CONFIG_MFD_AXP20X)	+= axp20x.o
+ obj-$(CONFIG_MFD_AXP20X_I2C)	+= axp20x-i2c.o
+ obj-$(CONFIG_MFD_AXP20X_RSB)	+= axp20x-rsb.o
+diff --git a/drivers/mfd/ac100.c b/drivers/mfd/ac100.c
+new file mode 100644
+index 000000000000..9bc69cd7807d
+--- /dev/null
++++ b/drivers/mfd/ac100.c
+@@ -0,0 +1,137 @@
++/*
++ * MFD core driver for X-Powers' AC100 Audio Codec IC
++ *
++ * The AC100 is a highly integrated audio codec and RTC subsystem designed
++ * for mobile applications. It has 3 I2S/PCM interfaces, a 2 channel DAC,
++ * a 2 channel ADC with 5 inputs and a builtin mixer. The RTC subsystem has
++ * 3 clock outputs.
++ *
++ * The audio codec and RTC parts are completely separate, sharing only the
++ * host interface for access to its registers.
++ *
++ * Copyright (2016) Chen-Yu Tsai
++ *
++ * Author: Chen-Yu Tsai <wens@csie.org>
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++
++#include <linux/interrupt.h>
++#include <linux/kernel.h>
++#include <linux/mfd/core.h>
++#include <linux/mfd/ac100.h>
++#include <linux/module.h>
++#include <linux/of.h>
++#include <linux/regmap.h>
++#include <linux/sunxi-rsb.h>
++
++static const struct regmap_range ac100_writeable_ranges[] = {
++	regmap_reg_range(AC100_CHIP_AUDIO_RST, AC100_I2S_SR_CTRL),
++	regmap_reg_range(AC100_I2S1_CLK_CTRL, AC100_I2S1_MXR_GAIN),
++	regmap_reg_range(AC100_I2S2_CLK_CTRL, AC100_I2S2_MXR_GAIN),
++	regmap_reg_range(AC100_I2S3_CLK_CTRL, AC100_I2S3_SIG_PATH_CTRL),
++	regmap_reg_range(AC100_ADC_DIG_CTRL, AC100_ADC_VOL_CTRL),
++	regmap_reg_range(AC100_HMIC_CTRL1, AC100_HMIC_STATUS),
++	regmap_reg_range(AC100_DAC_DIG_CTRL, AC100_DAC_MXR_GAIN),
++	regmap_reg_range(AC100_ADC_APC_CTRL, AC100_LINEOUT_CTRL),
++	regmap_reg_range(AC100_ADC_DAP_L_CTRL, AC100_ADC_DAP_OPT),
++	regmap_reg_range(AC100_DAC_DAP_CTRL, AC100_DAC_DAP_OPT),
++	regmap_reg_range(AC100_ADC_DAP_ENA, AC100_DAC_DAP_ENA),
++	regmap_reg_range(AC100_SRC1_CTRL1, AC100_SRC1_CTRL2),
++	regmap_reg_range(AC100_SRC2_CTRL1, AC100_SRC2_CTRL2),
++	regmap_reg_range(AC100_CLK32K_ANALOG_CTRL, AC100_CLKOUT_CTRL3),
++	regmap_reg_range(AC100_RTC_RST, AC100_RTC_UPD),
++	regmap_reg_range(AC100_ALM_INT_ENA, AC100_ALM_INT_STA),
++	regmap_reg_range(AC100_ALM_SEC, AC100_RTC_GP(15)),
++};
++
++static const struct regmap_range ac100_volatile_ranges[] = {
++	regmap_reg_range(AC100_CHIP_AUDIO_RST, AC100_PLL_CTRL2),
++	regmap_reg_range(AC100_HMIC_STATUS, AC100_HMIC_STATUS),
++	regmap_reg_range(AC100_ADC_DAP_L_STA, AC100_ADC_DAP_L_STA),
++	regmap_reg_range(AC100_SRC1_CTRL1, AC100_SRC1_CTRL1),
++	regmap_reg_range(AC100_SRC1_CTRL3, AC100_SRC2_CTRL1),
++	regmap_reg_range(AC100_SRC2_CTRL3, AC100_SRC2_CTRL4),
++	regmap_reg_range(AC100_RTC_RST, AC100_RTC_RST),
++	regmap_reg_range(AC100_RTC_SEC, AC100_ALM_INT_STA),
++	regmap_reg_range(AC100_ALM_SEC, AC100_ALM_UPD),
++};
++
++static const struct regmap_access_table ac100_writeable_table = {
++	.yes_ranges	= ac100_writeable_ranges,
++	.n_yes_ranges	= ARRAY_SIZE(ac100_writeable_ranges),
++};
++
++static const struct regmap_access_table ac100_volatile_table = {
++	.yes_ranges	= ac100_volatile_ranges,
++	.n_yes_ranges	= ARRAY_SIZE(ac100_volatile_ranges),
++};
++
++static const struct regmap_config ac100_regmap_config = {
++	.reg_bits	= 8,
++	.val_bits	= 16,
++	.wr_table	= &ac100_writeable_table,
++	.volatile_table	= &ac100_volatile_table,
++	.max_register	= AC100_RTC_GP(15),
++	.cache_type	= REGCACHE_RBTREE,
++};
++
++static struct mfd_cell ac100_cells[] = {
++	{
++		.name		= "ac100-codec",
++		.of_compatible	= "x-powers,ac100-codec",
++	}, {
++		.name		= "ac100-rtc",
++		.of_compatible	= "x-powers,ac100-rtc",
++	},
++};
++
++static int ac100_rsb_probe(struct sunxi_rsb_device *rdev)
++{
++	struct ac100_dev *ac100;
++	int ret;
++
++	ac100 = devm_kzalloc(&rdev->dev, sizeof(*ac100), GFP_KERNEL);
++	if (!ac100)
++		return -ENOMEM;
++
++	ac100->dev = &rdev->dev;
++	sunxi_rsb_device_set_drvdata(rdev, ac100);
++
++	ac100->regmap = devm_regmap_init_sunxi_rsb(rdev, &ac100_regmap_config);
++	if (IS_ERR(ac100->regmap)) {
++		ret = PTR_ERR(ac100->regmap);
++		dev_err(ac100->dev, "regmap init failed: %d\n", ret);
++		return ret;
 +	}
 +
- 	switch (ds1307->type) {
- 	case ds_1340:
- 	case m41t00:
-@@ -1591,21 +1595,21 @@ static int ds1307_probe(struct i2c_client *client,
- 	case rx_8025:
- 		break;
- 	default:
--		if (!(tmp & DS1307_BIT_12HR))
-+		if (!(reg & DS1307_BIT_12HR))
- 			break;
- 
- 		/*
- 		 * Be sure we're in 24 hour mode.  Multi-master systems
- 		 * take note...
- 		 */
--		tmp = bcd2bin(tmp & 0x1f);
--		if (tmp == 12)
--			tmp = 0;
--		if (ds1307->regs[DS1307_REG_HOUR] & DS1307_BIT_PM)
--			tmp += 12;
-+		hour = bcd2bin(reg & 0x1f);
-+		if (hour == 12)
-+			hour = 0;
-+		if (reg & DS1307_BIT_PM)
-+			hour += 12;
- 		i2c_smbus_write_byte_data(client,
- 				ds1307->offset + DS1307_REG_HOUR,
--				bin2bcd(tmp));
-+				bin2bcd(hour));
- 	}
- 
- 	if (ds1307_want_irq(ds1307, chip)) {
-@@ -1620,7 +1624,6 @@ static int ds1307_probe(struct i2c_client *client,
- 
- 	if (ds1307_can_wakeup_device(ds1307) &&
- 	    ds1307->client->irq <= 0) {
--		/* Disable request for an IRQ */
- 		dev_info(&client->dev,
- 			 "'wakeup-source' is set, request for an IRQ is disabled!\n");
- 		/* We cannot support UIE mode if we do not have an IRQ line */
++	ret = devm_mfd_add_devices(ac100->dev, PLATFORM_DEVID_NONE, ac100_cells,
++				   ARRAY_SIZE(ac100_cells), NULL, 0, NULL);
++	if (ret) {
++		dev_err(ac100->dev, "failed to add MFD devices: %d\n", ret);
++		return ret;
++	}
++
++	return 0;
++}
++
++static const struct of_device_id ac100_of_match[] = {
++	{ .compatible = "x-powers,ac100" },
++	{ },
++};
++MODULE_DEVICE_TABLE(of, ac100_of_match);
++
++static struct sunxi_rsb_driver ac100_rsb_driver = {
++	.driver = {
++		.name	= "ac100",
++		.of_match_table	= of_match_ptr(ac100_of_match),
++	},
++	.probe	= ac100_rsb_probe,
++};
++module_sunxi_rsb_driver(ac100_rsb_driver);
++
++MODULE_DESCRIPTION("Audio codec MFD core driver for AC100");
++MODULE_AUTHOR("Chen-Yu Tsai <wens@csie.org>");
++MODULE_LICENSE("GPL v2");
+diff --git a/include/linux/mfd/ac100.h b/include/linux/mfd/ac100.h
+new file mode 100644
+index 000000000000..3c148f196b9f
+--- /dev/null
++++ b/include/linux/mfd/ac100.h
+@@ -0,0 +1,178 @@
++/*
++ * Functions and registers to access AC100 codec / RTC combo IC.
++ *
++ * Copyright (C) 2016 Chen-Yu Tsai
++ *
++ * Chen-Yu Tsai <wens@csie.org>
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++
++#ifndef __LINUX_MFD_AC100_H
++#define __LINUX_MFD_AC100_H
++
++#include <linux/regmap.h>
++
++struct ac100_dev {
++	struct device			*dev;
++	struct regmap			*regmap;
++};
++
++/* Audio codec related registers */
++#define AC100_CHIP_AUDIO_RST		0x00
++#define AC100_PLL_CTRL1			0x01
++#define AC100_PLL_CTRL2			0x02
++#define AC100_SYSCLK_CTRL		0x03
++#define AC100_MOD_CLK_ENA		0x04
++#define AC100_MOD_RST_CTRL		0x05
++#define AC100_I2S_SR_CTRL		0x06
++
++/* I2S1 interface */
++#define AC100_I2S1_CLK_CTRL		0x10
++#define AC100_I2S1_SND_OUT_CTRL		0x11
++#define AC100_I2S1_SND_IN_CTRL		0x12
++#define AC100_I2S1_MXR_SRC		0x13
++#define AC100_I2S1_VOL_CTRL1		0x14
++#define AC100_I2S1_VOL_CTRL2		0x15
++#define AC100_I2S1_VOL_CTRL3		0x16
++#define AC100_I2S1_VOL_CTRL4		0x17
++#define AC100_I2S1_MXR_GAIN		0x18
++
++/* I2S2 interface */
++#define AC100_I2S2_CLK_CTRL		0x20
++#define AC100_I2S2_SND_OUT_CTRL		0x21
++#define AC100_I2S2_SND_IN_CTRL		0x22
++#define AC100_I2S2_MXR_SRC		0x23
++#define AC100_I2S2_VOL_CTRL1		0x24
++#define AC100_I2S2_VOL_CTRL2		0x25
++#define AC100_I2S2_VOL_CTRL3		0x26
++#define AC100_I2S2_VOL_CTRL4		0x27
++#define AC100_I2S2_MXR_GAIN		0x28
++
++/* I2S3 interface */
++#define AC100_I2S3_CLK_CTRL		0x30
++#define AC100_I2S3_SND_OUT_CTRL		0x31
++#define AC100_I2S3_SND_IN_CTRL		0x32
++#define AC100_I2S3_SIG_PATH_CTRL	0x33
++
++/* ADC digital controls */
++#define AC100_ADC_DIG_CTRL		0x40
++#define AC100_ADC_VOL_CTRL		0x41
++
++/* HMIC plug sensing / key detection */
++#define AC100_HMIC_CTRL1		0x44
++#define AC100_HMIC_CTRL2		0x45
++#define AC100_HMIC_STATUS		0x46
++
++/* DAC digital controls */
++#define AC100_DAC_DIG_CTRL		0x48
++#define AC100_DAC_VOL_CTRL		0x49
++#define AC100_DAC_MXR_SRC		0x4c
++#define AC100_DAC_MXR_GAIN		0x4d
++
++/* Analog controls */
++#define AC100_ADC_APC_CTRL		0x50
++#define AC100_ADC_SRC			0x51
++#define AC100_ADC_SRC_BST_CTRL		0x52
++#define AC100_OUT_MXR_DAC_A_CTRL	0x53
++#define AC100_OUT_MXR_SRC		0x54
++#define AC100_OUT_MXR_SRC_BST		0x55
++#define AC100_HPOUT_CTRL		0x56
++#define AC100_ERPOUT_CTRL		0x57
++#define AC100_SPKOUT_CTRL		0x58
++#define AC100_LINEOUT_CTRL		0x59
++
++/* ADC digital audio processing (high pass filter & auto gain control */
++#define AC100_ADC_DAP_L_STA		0x80
++#define AC100_ADC_DAP_R_STA		0x81
++#define AC100_ADC_DAP_L_CTRL		0x82
++#define AC100_ADC_DAP_R_CTRL		0x83
++#define AC100_ADC_DAP_L_T_L		0x84 /* Left Target Level */
++#define AC100_ADC_DAP_R_T_L		0x85 /* Right Target Level */
++#define AC100_ADC_DAP_L_H_A_C		0x86 /* Left High Avg. Coef */
++#define AC100_ADC_DAP_L_L_A_C		0x87 /* Left Low Avg. Coef */
++#define AC100_ADC_DAP_R_H_A_C		0x88 /* Right High Avg. Coef */
++#define AC100_ADC_DAP_R_L_A_C		0x89 /* Right Low Avg. Coef */
++#define AC100_ADC_DAP_L_D_T		0x8a /* Left Decay Time */
++#define AC100_ADC_DAP_L_A_T		0x8b /* Left Attack Time */
++#define AC100_ADC_DAP_R_D_T		0x8c /* Right Decay Time */
++#define AC100_ADC_DAP_R_A_T		0x8d /* Right Attack Time */
++#define AC100_ADC_DAP_N_TH		0x8e /* Noise Threshold */
++#define AC100_ADC_DAP_L_H_N_A_C		0x8f /* Left High Noise Avg. Coef */
++#define AC100_ADC_DAP_L_L_N_A_C		0x90 /* Left Low Noise Avg. Coef */
++#define AC100_ADC_DAP_R_H_N_A_C		0x91 /* Right High Noise Avg. Coef */
++#define AC100_ADC_DAP_R_L_N_A_C		0x92 /* Right Low Noise Avg. Coef */
++#define AC100_ADC_DAP_H_HPF_C		0x93 /* High High-Pass-Filter Coef */
++#define AC100_ADC_DAP_L_HPF_C		0x94 /* Low High-Pass-Filter Coef */
++#define AC100_ADC_DAP_OPT		0x95 /* AGC Optimum */
++
++/* DAC digital audio processing (high pass filter & dynamic range control) */
++#define AC100_DAC_DAP_CTRL		0xa0
++#define AC100_DAC_DAP_H_HPF_C		0xa1 /* High High-Pass-Filter Coef */
++#define AC100_DAC_DAP_L_HPF_C		0xa2 /* Low High-Pass-Filter Coef */
++#define AC100_DAC_DAP_L_H_E_A_C		0xa3 /* Left High Energy Avg Coef */
++#define AC100_DAC_DAP_L_L_E_A_C		0xa4 /* Left Low Energy Avg Coef */
++#define AC100_DAC_DAP_R_H_E_A_C		0xa5 /* Right High Energy Avg Coef */
++#define AC100_DAC_DAP_R_L_E_A_C		0xa6 /* Right Low Energy Avg Coef */
++#define AC100_DAC_DAP_H_G_D_T_C		0xa7 /* High Gain Delay Time Coef */
++#define AC100_DAC_DAP_L_G_D_T_C		0xa8 /* Low Gain Delay Time Coef */
++#define AC100_DAC_DAP_H_G_A_T_C		0xa9 /* High Gain Attack Time Coef */
++#define AC100_DAC_DAP_L_G_A_T_C		0xaa /* Low Gain Attack Time Coef */
++#define AC100_DAC_DAP_H_E_TH		0xab /* High Energy Threshold */
++#define AC100_DAC_DAP_L_E_TH		0xac /* Low Energy Threshold */
++#define AC100_DAC_DAP_H_G_K		0xad /* High Gain K parameter */
++#define AC100_DAC_DAP_L_G_K		0xae /* Low Gain K parameter */
++#define AC100_DAC_DAP_H_G_OFF		0xaf /* High Gain offset */
++#define AC100_DAC_DAP_L_G_OFF		0xb0 /* Low Gain offset */
++#define AC100_DAC_DAP_OPT		0xb1 /* DRC optimum */
++
++/* Digital audio processing enable */
++#define AC100_ADC_DAP_ENA		0xb4
++#define AC100_DAC_DAP_ENA		0xb5
++
++/* SRC control */
++#define AC100_SRC1_CTRL1		0xb8
++#define AC100_SRC1_CTRL2		0xb9
++#define AC100_SRC1_CTRL3		0xba
++#define AC100_SRC1_CTRL4		0xbb
++#define AC100_SRC2_CTRL1		0xbc
++#define AC100_SRC2_CTRL2		0xbd
++#define AC100_SRC2_CTRL3		0xbe
++#define AC100_SRC2_CTRL4		0xbf
++
++/* RTC clk control */
++#define AC100_CLK32K_ANALOG_CTRL	0xc0
++#define AC100_CLKOUT_CTRL1		0xc1
++#define AC100_CLKOUT_CTRL2		0xc2
++#define AC100_CLKOUT_CTRL3		0xc3
++
++/* RTC module */
++#define AC100_RTC_RST			0xc6
++#define AC100_RTC_CTRL			0xc7
++#define AC100_RTC_SEC			0xc8 /* second */
++#define AC100_RTC_MIN			0xc9 /* minute */
++#define AC100_RTC_HOU			0xca /* hour */
++#define AC100_RTC_WEE			0xcb /* weekday */
++#define AC100_RTC_DAY			0xcc /* day */
++#define AC100_RTC_MON			0xcd /* month */
++#define AC100_RTC_YEA			0xce /* year */
++#define AC100_RTC_UPD			0xcf /* update trigger */
++
++/* RTC alarm */
++#define AC100_ALM_INT_ENA		0xd0
++#define	AC100_ALM_INT_STA		0xd1
++#define AC100_ALM_SEC			0xd8
++#define AC100_ALM_MIN			0xd9
++#define AC100_ALM_HOU			0xda
++#define AC100_ALM_WEE			0xdb
++#define AC100_ALM_DAY			0xdc
++#define AC100_ALM_MON			0xdd
++#define AC100_ALM_YEA			0xde
++#define AC100_ALM_UPD			0xdf
++
++/* RTC general purpose register 0 ~ 15 */
++#define AC100_RTC_GP(x)			(0xe0 + (x))
++
++#endif /* __LINUX_MFD_AC100_H */
 -- 
-2.5.5
+2.8.1
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
