@@ -1,25 +1,30 @@
-Return-Path: <rtc-linux+bncBDKOBWPM5ABRBXGWUO5QKGQEBLZ6N5I@googlegroups.com>
+Return-Path: <rtc-linux+bncBCMILY6JWQBBBXED2W5QKGQE5DDVACY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 MIME-Version: 1.0
-Received: from mail-pf0-x242.google.com (mail-pf0-x242.google.com. [2607:f8b0:400e:c00::242])
-        by gmr-mx.google.com with ESMTPS id po17si907888pab.2.2016.06.21.00.23.08
+Received: from wens.csie.org (mirror2.csie.ntu.edu.tw. [140.112.30.76])
+        by gmr-mx.google.com with ESMTPS id c11si800037pfc.2.2016.06.30.08.59.24
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 21 Jun 2016 00:23:08 -0700 (PDT)
-Received: by mail-pf0-x242.google.com with SMTP id c74so763755pfb.0
-        for <rtc-linux@googlegroups.com>; Tue, 21 Jun 2016 00:23:08 -0700 (PDT)
-From: Andrey Smirnov <andrew.smirnov@gmail.com>
-To: rtc-linux@googlegroups.com
-Cc: Andrey Smirnov <andrew.smirnov@gmail.com>,
+        Thu, 30 Jun 2016 08:59:24 -0700 (PDT)
+From: Chen-Yu Tsai <wens@csie.org>
+To: Lee Jones <lee.jones@linaro.org>,
 	Alessandro Zummo <a.zummo@towertech.it>,
 	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	linux-kernel@vger.kernel.org,
-	cphealy@gmail.com
-Subject: [rtc-linux] [PATCH v2 11/17] RTC: ds1307: Convert goto to a loop
-Date: Tue, 21 Jun 2016 00:22:44 -0700
-Message-Id: <1466493770-11895-10-git-send-email-andrew.smirnov@gmail.com>
-In-Reply-To: <1466493770-11895-1-git-send-email-andrew.smirnov@gmail.com>
-References: <1466493770-11895-1-git-send-email-andrew.smirnov@gmail.com>
+	Rob Herring <robh+dt@kernel.org>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Maxime Ripard <maxime.ripard@free-electrons.com>,
+	Michael Turquette <mturquette@baylibre.com>,
+	Stephen Boyd <sboyd@codeaurora.org>
+Cc: Chen-Yu Tsai <wens@csie.org>,
+	linux-arm-kernel@lists.infradead.org,
+	rtc-linux@googlegroups.com,
+	linux-clk@vger.kernel.org,
+	devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [rtc-linux] [PATCH v4 0/7] mfd: ac100: Add support for X-Powers AC100
+ audio codec / RTC combo IC
+Date: Thu, 30 Jun 2016 23:58:44 +0800
+Message-Id: <1467302331-9663-1-git-send-email-wens@csie.org>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -30,191 +35,118 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Convert goto to a loop and set a hard upper limit on the number of times
-driver would try to make RTC work (as opposed to having an infinite
-retry loop).
+Hi everyone,
 
-Signed-off-by: Andrey Smirnov <andrew.smirnov@gmail.com>
----
- drivers/rtc/rtc-ds1307.c | 151 +++++++++++++++++++++++++----------------------
- 1 file changed, 82 insertions(+), 69 deletions(-)
+This series adds support for X-Powers' AC100 audio codec / RTC combo IC.
+This chip is found on Allwinner A80 SoC based boards, and is also part
+of the AXP813/AXP818 PMIC found with Allwinner A83T SoCs.
 
-diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
-index 67907f1..cbbe9f0 100644
---- a/drivers/rtc/rtc-ds1307.c
-+++ b/drivers/rtc/rtc-ds1307.c
-@@ -1424,87 +1424,100 @@ static int ds1307_chip_configure(const struct ds1307 *ds1307)
- 
- static int ds1307_chip_sanity_check(const struct ds1307 *ds1307)
- {
--	int tmp;
-+	int tmp, retries;
- 	u8  regs[DS1307_REG_COUNT];
- 	struct i2c_client *client = ds1307->client;
- 
--read_rtc:
--	/* read RTC registers */
--	tmp = ds1307->read_block_data(ds1307->client, ds1307->offset, 8, regs);
--	if (tmp != 8) {
--		dev_dbg(&client->dev, "read error %d\n", tmp);
--		return -EIO;
--	}
--
--	/*
--	 * minimal sanity checking; some chips (like DS1340) don't
--	 * specify the extra bits as must-be-zero, but there are
--	 * still a few values that are clearly out-of-range.
--	 */
--	tmp = regs[DS1307_REG_SECS];
--	switch (ds1307->type) {
--	case ds_1307:
--	case m41t00:
--		/* clock halted?  turn it on, so clock can tick. */
--		if (tmp & DS1307_BIT_CH) {
--			i2c_smbus_write_byte_data(client, DS1307_REG_SECS, 0);
--			dev_warn(&client->dev, "SET TIME!\n");
--			goto read_rtc;
--		}
--		break;
--	case ds_1338:
--		/* clock halted?  turn it on, so clock can tick. */
--		if (tmp & DS1307_BIT_CH)
--			i2c_smbus_write_byte_data(client, DS1307_REG_SECS, 0);
--
--		/* oscillator fault?  clear flag, and warn */
--		if (regs[DS1307_REG_CONTROL] & DS1338_BIT_OSF) {
--			i2c_smbus_write_byte_data(client, DS1307_REG_CONTROL,
--					regs[DS1307_REG_CONTROL]
--					& ~DS1338_BIT_OSF);
--			dev_warn(&client->dev, "SET TIME!\n");
--			goto read_rtc;
--		}
--		break;
--	case ds_1340:
--		/* clock halted?  turn it on, so clock can tick. */
--		if (tmp & DS1340_BIT_nEOSC)
--			i2c_smbus_write_byte_data(client, DS1307_REG_SECS, 0);
--
--		tmp = i2c_smbus_read_byte_data(client, DS1340_REG_FLAG);
--		if (tmp < 0) {
-+	for (retries = 0; retries < 5; retries++) {
-+		/* read RTC registers */
-+		tmp = ds1307->read_block_data(ds1307->client,
-+					      ds1307->offset, 8, regs);
-+		if (tmp != 8) {
- 			dev_dbg(&client->dev, "read error %d\n", tmp);
- 			return -EIO;
- 		}
- 
--		/* oscillator fault?  clear flag, and warn */
--		if (tmp & DS1340_BIT_OSF) {
--			i2c_smbus_write_byte_data(client, DS1340_REG_FLAG, 0);
--			dev_warn(&client->dev, "SET TIME!\n");
--		}
--		break;
--	case mcp794xx:
--		/* make sure that the backup battery is enabled */
--		if (!(regs[DS1307_REG_WDAY] & MCP794XX_BIT_VBATEN)) {
--			i2c_smbus_write_byte_data(client, DS1307_REG_WDAY,
--					regs[DS1307_REG_WDAY]
--					| MCP794XX_BIT_VBATEN);
--		}
-+		/*
-+		 * minimal sanity checking; some chips (like DS1340)
-+		 * don't specify the extra bits as must-be-zero, but
-+		 * there are still a few values that are clearly
-+		 * out-of-range.
-+		 */
-+		tmp = regs[DS1307_REG_SECS];
-+		switch (ds1307->type) {
-+		case ds_1307:
-+		case m41t00:
-+			/* clock halted?  turn it on, so clock can tick. */
-+			if (tmp & DS1307_BIT_CH) {
-+				i2c_smbus_write_byte_data(client,
-+							  DS1307_REG_SECS, 0);
-+				dev_warn(&client->dev, "SET TIME!\n");
-+				continue;
-+			}
-+			break;
-+		case ds_1338:
-+			/* clock halted?  turn it on, so clock can tick. */
-+			if (tmp & DS1307_BIT_CH)
-+				i2c_smbus_write_byte_data(client,
-+							  DS1307_REG_SECS, 0);
-+
-+			/* oscillator fault?  clear flag, and warn */
-+			if (regs[DS1307_REG_CONTROL] & DS1338_BIT_OSF) {
-+				i2c_smbus_write_byte_data(client,
-+							  DS1307_REG_CONTROL,
-+							  regs[DS1307_REG_CONTROL]
-+							  & ~DS1338_BIT_OSF);
-+				dev_warn(&client->dev, "SET TIME!\n");
-+				continue;
-+			}
-+			break;
-+		case ds_1340:
-+			/* clock halted?  turn it on, so clock can tick. */
-+			if (tmp & DS1340_BIT_nEOSC)
-+				i2c_smbus_write_byte_data(client,
-+							  DS1307_REG_SECS, 0);
-+
-+			tmp = i2c_smbus_read_byte_data(client, DS1340_REG_FLAG);
-+			if (tmp < 0) {
-+				dev_dbg(&client->dev, "read error %d\n", tmp);
-+				return -EIO;
-+			}
-+
-+			/* oscillator fault?  clear flag, and warn */
-+			if (tmp & DS1340_BIT_OSF) {
-+				i2c_smbus_write_byte_data(client,
-+							  DS1340_REG_FLAG, 0);
-+				dev_warn(&client->dev, "SET TIME!\n");
-+			}
-+			return 0;
- 
--		/* clock halted?  turn it on, so clock can tick. */
--		if (!(tmp & MCP794XX_BIT_ST)) {
--			i2c_smbus_write_byte_data(client, DS1307_REG_SECS,
--					MCP794XX_BIT_ST);
--			dev_warn(&client->dev, "SET TIME!\n");
--			goto read_rtc;
-+		case mcp794xx:
-+			/* make sure that the backup battery is enabled */
-+			if (!(regs[DS1307_REG_WDAY] & MCP794XX_BIT_VBATEN)) {
-+				i2c_smbus_write_byte_data(client,
-+							  DS1307_REG_WDAY,
-+							  regs[DS1307_REG_WDAY]
-+							  | MCP794XX_BIT_VBATEN);
-+			}
-+
-+			/* clock halted?  turn it on, so clock can tick. */
-+			if (!(tmp & MCP794XX_BIT_ST)) {
-+				i2c_smbus_write_byte_data(client,
-+							  DS1307_REG_SECS,
-+							  MCP794XX_BIT_ST);
-+				dev_warn(&client->dev, "SET TIME!\n");
-+				continue;
-+			}
-+
-+			break;
-+		default:
-+			break;
- 		}
- 
--		break;
--	default:
--		break;
-+		return 0;
- 	}
- 
--	return 0;
-+	return -EIO;
- }
- 
- static int ds1307_probe(struct i2c_client *client,
+The series focuses on the RTC side of the chip. The audio codec will
+be done later, once the digital audio interface of the SoC is supported.
+
+Changes since v3:
+
+  - bulk write support for regmaps without raw formatting patch merged
+    and thus dropped from series.
+
+  - sun9i device node re-ordering patches merged and thus dropped from
+    series.
+
+  - Fixed device node name and added labels to device tree binding example.
+
+  - Moved 4M_adda clock to codec side, and added clock bindings to codec
+    node.
+
+  - Rename RTC clock output related prefixes from clk32k to clkout.
+
+  - Rename default clock output names to cko{1,2,3}-rtc.
+
+  - Move struct tm to/from RTC conversion offsets inline with reg[]
+    assignments
+
+  - Drop separate mutex and use rtc->ops_lock in interrupt handler.
+
+  - Use platform_get_irq instead of of_get_irq.
+
+  - Add struct of_device_id and .of_match_table to RTC driver.
+
+Changes since v2:
+
+  - Fix ac100_codec interrupt line in DT binding example.
+
+  - Fix copy-paste errors in RTC set_alarm. Alarm now works.
+
+  - Drop file name from MFD driver.
+
+  - Add / update copyright notices.
+
+  - Change license of RTC driver to GPL v2, matching MFD driver.
+
+  - Fix MFD driver MODULE_LICENSE to match license declaration in header.
+
+Changes since v1:
+
+  - Complete register definitions and regmap regions.
+
+v1 was actually a working version that wasn't updated with the codec
+register definitions.
+
+Patch 1 adds device tree bindings for the AC100.
+
+Patch 2 adds the mfd driver for the AC100.
+
+Patch 3 adds the RTC driver for the AC100.
+
+Patch 4 adds RTC clk output support to the RTC driver.
+This is a separate patch as the clk code is over 300 LoC. Having a
+separate patch should make it easier for the clk maintainers to review.
+
+Patch 5 adds the AC100 device nodes to the A80 Optimus board dts.
+
+Patch 6 adds the AC100 device nodes to the Cubieboard4 board dts.
+
+Patch 7 changes the fixed osc_32k clk to a fixed factor clk,
+representing the 32k clk input pin on the SoC, and also hooks up the
+ac100 rtc clk output to this clk in the board dts files.
+
+I'm hoping we can merge the driver bits (patches 1~4) through the
+mfd tree, with acks from the rtc and clk maintainers for patches
+3 and 4.
+
+
+Regards
+ChenYu
+
+
+Chen-Yu Tsai (7):
+  mfd: ac100: Add device tree bindings for X-Powers AC100 codec/RTC
+    combo IC
+  mfd: ac100: Add driver for X-Powers AC100 audio codec / RTC combo IC
+  rtc: ac100: Add RTC driver for X-Powers AC100
+  rtc: ac100: Add clk output support
+  ARM: dts: sun9i: a80-optimus: Add device node for AC100
+  ARM: dts: sun9i: cubieboard4: Add device node for AC100
+  ARM: dts: sun9i: Switch to the AC100 RTC clock outputs for osc32k
+
+ Documentation/devicetree/bindings/mfd/ac100.txt |  49 ++
+ arch/arm/boot/dts/sun9i-a80-cubieboard4.dts     |  29 ++
+ arch/arm/boot/dts/sun9i-a80-optimus.dts         |  29 ++
+ arch/arm/boot/dts/sun9i-a80.dtsi                |   9 +-
+ drivers/mfd/Kconfig                             |  10 +
+ drivers/mfd/Makefile                            |   2 +
+ drivers/mfd/ac100.c                             | 137 ++++++
+ drivers/rtc/Kconfig                             |  10 +
+ drivers/rtc/Makefile                            |   1 +
+ drivers/rtc/rtc-ac100.c                         | 627 ++++++++++++++++++++++++
+ include/linux/mfd/ac100.h                       | 178 +++++++
+ 11 files changed, 1075 insertions(+), 6 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/mfd/ac100.txt
+ create mode 100644 drivers/mfd/ac100.c
+ create mode 100644 drivers/rtc/rtc-ac100.c
+ create mode 100644 include/linux/mfd/ac100.h
+
 -- 
-2.5.5
+2.8.1
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
