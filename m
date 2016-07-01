@@ -1,32 +1,33 @@
-Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBAW4XK6AKGQEOHKV3PY@googlegroups.com>
+Return-Path: <rtc-linux+bncBDJIP47K7MERBEVU265QKGQE4H3GJOI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id o85si1341298wme.0.2016.07.19.15.47.29
-        for <rtc-linux@googlegroups.com>;
-        Tue, 19 Jul 2016 15:47:29 -0700 (PDT)
-Date: Wed, 20 Jul 2016 00:47:28 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Andrey Smirnov <andrew.smirnov@gmail.com>
-Cc: Rob Herring <robh@kernel.org>, rtc-linux@googlegroups.com,
+Received: from mail-qk0-f195.google.com (mail-qk0-f195.google.com. [209.85.220.195])
+        by gmr-mx.google.com with ESMTPS id u136si66906ywc.7.2016.06.30.19.48.50
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 30 Jun 2016 19:48:50 -0700 (PDT)
+Received: by mail-qk0-f195.google.com with SMTP id j2so20787614qkf.1
+        for <rtc-linux@googlegroups.com>; Thu, 30 Jun 2016 19:48:50 -0700 (PDT)
+Date: Thu, 30 Jun 2016 21:48:47 -0500
+From: Rob Herring <robh@kernel.org>
+To: Chen-Yu Tsai <wens@csie.org>
+Cc: Lee Jones <lee.jones@linaro.org>,
 	Alessandro Zummo <a.zummo@towertech.it>,
-	Pawel Moll <pawel.moll@arm.com>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
 	Mark Rutland <mark.rutland@arm.com>,
-	Ian Campbell <ijc+devicetree@hellion.org.uk>,
-	Kumar Gala <galak@codeaurora.org>, devicetree@vger.kernel.org,
+	Maxime Ripard <maxime.ripard@free-electrons.com>,
+	Michael Turquette <mturquette@baylibre.com>,
+	Stephen Boyd <sboyd@codeaurora.org>,
+	linux-arm-kernel@lists.infradead.org, rtc-linux@googlegroups.com,
+	linux-clk@vger.kernel.org, devicetree@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH 03/13] RTC: ds1307: Add DS1341 specific
- power-saving options
-Message-ID: <20160719224728.GP7132@piout.net>
-References: <1465970379-14703-1-git-send-email-andrew.smirnov@gmail.com>
- <1465970379-14703-4-git-send-email-andrew.smirnov@gmail.com>
- <20160619142934.GA8522@rob-hp-laptop>
- <CAHQ1cqFfFpLmMMr9itinha9rotG7Btr9UmWbO2_0VWxX_HeG1g@mail.gmail.com>
- <20160621204904.GA9779@rob-hp-laptop>
- <20160621210739.GY5809@piout.net>
- <CAHQ1cqGRqhOAqfJZEixkxAHZ4Y8dd-hD__T1ci0LS28Orphs3Q@mail.gmail.com>
+Subject: [rtc-linux] Re: [PATCH v4 1/7] mfd: ac100: Add device tree bindings
+ for X-Powers AC100 codec/RTC combo IC
+Message-ID: <20160701024847.GA1444@rob-hp-laptop>
+References: <1467302331-9663-1-git-send-email-wens@csie.org>
+ <1467302331-9663-2-git-send-email-wens@csie.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <CAHQ1cqGRqhOAqfJZEixkxAHZ4Y8dd-hD__T1ci0LS28Orphs3Q@mail.gmail.com>
+In-Reply-To: <1467302331-9663-2-git-send-email-wens@csie.org>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -36,83 +37,24 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 21/06/2016 at 19:34:56 -0700, Andrey Smirnov wrote :
-> On Tue, Jun 21, 2016 at 2:07 PM, Alexandre Belloni
-> <alexandre.belloni@free-electrons.com> wrote:
-> > On 21/06/2016 at 15:49:04 -0500, Rob Herring wrote :
-> >> So wouldn't you want to set one mode while running and the lower power
-> >> mode while suspended? I'm trying to understand the frequency of changing
-> >> this. If it is always one setting for a board, then yes it belongs in
-> >> DT. If it is a user decision, then it probably shouldn't be in DT.
-> >>
-> >> Seeing as these are reused, I've probably already had this discussion...
-> >>
-> >
-> > I would agree with Rob here. It may be better to provide a sysfs
-> > interface to configure that particular behavior.
+On Thu, Jun 30, 2016 at 11:58:45PM +0800, Chen-Yu Tsai wrote:
+> Signed-off-by: Chen-Yu Tsai <wens@csie.org>
+> ---
+> Changes since v3:
 > 
-> I don't see any value in doing that, could you give me a realistic
-> example of a scenario in which a user would want to spend some of
-> uptime with RTC oscillator fault detection/glitch filtering disabled
-> and then enable it?
+>   - Fixed device node names and added labels.
+>   - Added clock output from codec and input to rtc.
 > 
+> Changes since v2:
+> 
+>   - Fix interrupt line for ac100_codec in provided example.
+> 
+> ---
+>  Documentation/devicetree/bindings/mfd/ac100.txt | 49 +++++++++++++++++++++++++
+>  1 file changed, 49 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/mfd/ac100.txt
 
-Well, the issue is not being dynamic, it is differentiating between
-hardware description and user configuration. Configuration must not be in
-DT. And this choice is definitively not hardware related (as opposed to
-the trickle charging that depends on the battery that is used on the
-board).
-
-> > This is usually ok because the use case is:
-> >  - the RTC is not configured, time has never been set
-> >  - time is set for the first time
-> >  - the user can set the oscillator mode/detection/...
-> 
-> Unfortunately exposing that feature using sysfs gives you a leaky
-> abstraction and your userspace instead of using a generic RTC starts
-> using DS1341 RTC. So to accommodate for that a user would have to:
-> 
-> a) Write + integrate a userspace tool to set the mode (which IMHO is
-> decided upon once and doesn't change)
-> b) If a board design is new and there's a chance of moving this chip
-> to a different I2C bus, the code above would have to account for that
-> and not hardcore sysfs path
-> c) If board's BSP is intended to be used in multiple generations of a
-> product, not all of which would use DS1341, it would be necessary to
-> accommodate for that by either more code in the tool or an additional
-> BSP build configuration variant
-> 
-
-Well, it doesn't leak abstraction as long as all the RTC that are able
-to disable the oscillator failure detection use the same ABI.
-
-> >  - on subsequent reboots, the mode is kept alongside the time and date
-> >
-> 
-> This assumes that your bootloader leaves those mode bits alone.
-> 
-
-Well, if that is not the case, the bootloader as to be fixed anyway and
-silently changing the configuration back using DT is probably worse.
-
-> > I would advise against trying to set a mode automatically in the driver
-> > because you may have unexpected power cuts and it may then let the RTC
-> > consume more power than what you really want.
-> >
-> 
-> I fell like I am not understanding you correctly.  Why would moving
-> configuration decision logic into userspace improve the situation in
-> case of unexpected power loss?
-> 
-
-I was reacting to Rob's idea to running in the lower power mode when
-suspend. I'm pretty sure this is not a good idea. I'd leave the whole
-policy to userspace.
-
--- 
-Alexandre Belloni, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+Acked-by: Rob Herring <robh@kernel.org>
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
