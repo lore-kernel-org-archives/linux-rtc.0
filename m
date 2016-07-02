@@ -1,26 +1,22 @@
-Return-Path: <rtc-linux+bncBDSJBYGBRIMBBQ4DRW6AKGQEEO4F7NA@googlegroups.com>
+Return-Path: <rtc-linux+bncBAABBE53365QKGQEBYJNOUA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id c135si657679wme.2.2016.07.10.23.50.43
-        for <rtc-linux@googlegroups.com>;
-        Sun, 10 Jul 2016 23:50:43 -0700 (PDT)
-Date: Mon, 11 Jul 2016 08:50:42 +0200
-From: Maxime Ripard <maxime.ripard@free-electrons.com>
-To: Chen-Yu Tsai <wens@csie.org>
-Cc: Lee Jones <lee.jones@linaro.org>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	linux-kernel@vger.kernel.org, rtc-linux@googlegroups.com,
-	devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org
-Subject: [rtc-linux] Re: [PATCH v5 7/7] ARM: dts: sun9i: Switch to the AC100
- RTC clock outputs for osc32k
-Message-ID: <20160711065042.GC4589@lukather>
-References: <1467988422-17934-1-git-send-email-wens@csie.org>
- <1467988422-17934-8-git-send-email-wens@csie.org>
+Received: from arcturus.kleine-koenig.org (arcturus.kleine-koenig.org. [2a01:4f8:d12:1f44::2])
+        by gmr-mx.google.com with ESMTPS id x70si239117wmf.1.2016.07.02.08.28.19
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Sat, 02 Jul 2016 08:28:19 -0700 (PDT)
+From: =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <uwe@kleine-koenig.org>
+To: Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: rtc-linux@googlegroups.com,
+	=?UTF-8?q?Manuel=20R=C3=B6der?= <manuel_roeder@gmx.de>
+Subject: [rtc-linux] [PATCH v2 1/5] rtc: s35390a: fix reading out alarm
+Date: Sat,  2 Jul 2016 17:28:08 +0200
+Message-Id: <1467473292-26371-2-git-send-email-uwe@kleine-koenig.org>
+In-Reply-To: <1467473292-26371-1-git-send-email-uwe@kleine-koenig.org>
+References: <1467473292-26371-1-git-send-email-uwe@kleine-koenig.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="m51xatjYGsM+13rf"
-In-Reply-To: <1467988422-17934-8-git-send-email-wens@csie.org>
+Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -30,88 +26,106 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
+There are several issues fixed in this patch:
 
---m51xatjYGsM+13rf
-Content-Type: text/plain; charset=UTF-8
-Content-Disposition: inline
+ - When alarm isn't enabled, set .enabled to zero instead of returning
+   -EINVAL.
+ - Ignore how IRQ1 is configured when determining if IRQ2 is on.
+ - The three alarm registers have an enable flag which must be
+   evaluated.
+ - The chip always triggers when the seconds register gets 0.
 
-Hi,
+Note that the rtc framework however doesn't handle the result correctly
+because it doesn't check wday being initialized and so interprets an
+alarm being set for 10:00 AM in three days as 10:00 AM tomorrow (or
+today if that's not over yet).
 
-On Fri, Jul 08, 2016 at 10:33:42PM +0800, Chen-Yu Tsai wrote:
-> The 32.768 kHz clock inside the A80 SoC is fed from an external source,
-> typically the AC100 RTC module.
-> 
-> Make the osc32k placeholder a fixed-factor clock so board dts files can
-> specify its source.
-> 
-> Signed-off-by: Chen-Yu Tsai <wens@csie.org>
-> ---
-> Changes since v4: none
-> Changes since v3: none
-> Changes since v2: none
-> Changes since v1: none
-> ---
->  arch/arm/boot/dts/sun9i-a80-cubieboard4.dts | 5 +++++
->  arch/arm/boot/dts/sun9i-a80-optimus.dts     | 5 +++++
->  arch/arm/boot/dts/sun9i-a80.dtsi            | 9 +++------
->  3 files changed, 13 insertions(+), 6 deletions(-)
-> 
-> diff --git a/arch/arm/boot/dts/sun9i-a80-cubieboard4.dts b/arch/arm/boot/dts/sun9i-a80-cubieboard4.dts
-> index cf2f4b72a841..04b014603659 100644
-> --- a/arch/arm/boot/dts/sun9i-a80-cubieboard4.dts
-> +++ b/arch/arm/boot/dts/sun9i-a80-cubieboard4.dts
-> @@ -103,6 +103,11 @@
->  	allwinner,drive = <SUN4I_PINCTRL_40_MA>;
->  };
->  
-> +&osc32k {
-> +	/* osc32k input is from AC100 */
-> +	clocks = <&ac100_rtc 0>;
-> +};
-> +
+Signed-off-by: Uwe Kleine-K=C3=B6nig <uwe@kleine-koenig.org>
+---
+ drivers/rtc/rtc-s35390a.c | 40 +++++++++++++++++++++++++++++++---------
+ 1 file changed, 31 insertions(+), 9 deletions(-)
 
-I'm guessing that an unresolved dependency when the driver has not
-loaded yet, or is not even compiled ?
+diff --git a/drivers/rtc/rtc-s35390a.c b/drivers/rtc/rtc-s35390a.c
+index f40afdd0e5f5..6507a01cf9ad 100644
+--- a/drivers/rtc/rtc-s35390a.c
++++ b/drivers/rtc/rtc-s35390a.c
+@@ -242,6 +242,8 @@ static int s35390a_set_alarm(struct i2c_client *client,=
+ struct rtc_wkalrm *alm)
+=20
+ 	if (alm->time.tm_wday !=3D -1)
+ 		buf[S35390A_ALRM_BYTE_WDAY] =3D bin2bcd(alm->time.tm_wday) | 0x80;
++	else
++		buf[S35390A_ALRM_BYTE_WDAY] =3D 0;
+=20
+ 	buf[S35390A_ALRM_BYTE_HOURS] =3D s35390a_hr2reg(s35390a,
+ 			alm->time.tm_hour) | 0x80;
+@@ -269,23 +271,43 @@ static int s35390a_read_alarm(struct i2c_client *clie=
+nt, struct rtc_wkalrm *alm)
+ 	if (err < 0)
+ 		return err;
+=20
+-	if (bitrev8(sts) !=3D S35390A_INT2_MODE_ALARM)
+-		return -EINVAL;
++	if ((bitrev8(sts) & S35390A_INT2_MODE_MASK) !=3D S35390A_INT2_MODE_ALARM)=
+ {
++		/*
++		 * When the alarm isn't enabled, the register to configure
++		 * the alarm time isn't accessible.
++		 */
++		alm->enabled =3D 0;
++		return 0;
++	} else {
++		alm->enabled =3D 1;
++	}
+=20
+ 	err =3D s35390a_get_reg(s35390a, S35390A_CMD_INT2_REG1, buf, sizeof(buf))=
+;
+ 	if (err < 0)
+ 		return err;
+=20
+ 	/* This chip returns the bits of each byte in reverse order */
+-	for (i =3D 0; i < 3; ++i) {
++	for (i =3D 0; i < 3; ++i)
+ 		buf[i] =3D bitrev8(buf[i]);
+-		buf[i] &=3D ~0x80;
+-	}
+=20
+-	alm->time.tm_wday =3D bcd2bin(buf[S35390A_ALRM_BYTE_WDAY]);
+-	alm->time.tm_hour =3D s35390a_reg2hr(s35390a,
+-						buf[S35390A_ALRM_BYTE_HOURS]);
+-	alm->time.tm_min =3D bcd2bin(buf[S35390A_ALRM_BYTE_MINS]);
++	/*
++	 * B0 of the three matching registers is an enable flag. Iff it is set
++	 * the configured value is used for matching.
++	 */
++	if (buf[S35390A_ALRM_BYTE_WDAY] & 0x80)
++		alm->time.tm_wday =3D
++			bcd2bin(buf[S35390A_ALRM_BYTE_WDAY] & ~0x80);
++
++	if (buf[S35390A_ALRM_BYTE_HOURS] & 0x80)
++		alm->time.tm_hour =3D
++			s35390a_reg2hr(s35390a,
++				       buf[S35390A_ALRM_BYTE_HOURS] & ~0x80);
++
++	if (buf[S35390A_ALRM_BYTE_MINS] & 0x80)
++		alm->time.tm_min =3D bcd2bin(buf[S35390A_ALRM_BYTE_MINS] & ~0x80);
++
++	/* alarm triggers always at s=3D0 */
++	alm->time.tm_sec =3D 0;
+=20
+ 	dev_dbg(&client->dev, "%s: alm is mins=3D%d, hours=3D%d, wday=3D%d\n",
+ 			__func__, alm->time.tm_min, alm->time.tm_hour,
+--=20
+2.8.1
 
-How is it working then?
-
-Thanks,
-Maxime
-
--- 
-Maxime Ripard, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
-
--- 
+--=20
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+---=20
+You received this message because you are subscribed to the Google Groups "=
+rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an e=
+mail to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
-
---m51xatjYGsM+13rf
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJXg0HCAAoJEBx+YmzsjxAgD1QP/iMPsyu3wQ0/vF2Esn3zV7kR
-e2aZO2cZoOclzt+yNxFSgpJyYhP2zLFnm8Iy2BhaLBrLK6PiW3J6BriX31slm6Tw
-EdgzPAM3JujEg+7EPv1Ha+YvtWSZdnzIB4fJbdK6SvBLAqjfy9EMl9ra8qN0V+oL
-jRxpYwK2ef+Mi+ZMq+WLGpfANt3879bz87h4NPqI9T00mY6pY+gjVM7NayvrRSZo
-zvQk/JjH8SAyLa9nq0YKDznMbLScEcWGbEm4TqHp/8ay/VELDcj+GM/NSDVrm4Ai
-Vzmq+8qZ2fndJdnr1qEMZbjeezWZkzYEr9FOO5yMC07TV6f/tht7nS8KTjFzHu24
-u94KIaHUVtYVqw3pT7NLAaWZsAORUIN554aCbzb+F/ytnwR6nKGhAEdDNxWV2ulw
-cZIiv7wOQvLFuisF95zDvdMv2f9GXSb/3zdZyvIOHSBektcWmzde6rdY294l8tiG
-7ceTSqo1aGuBchxIheQmdbr6SZpeAmazF1yDex/eaB3rNAtINddKcgePrmMY0SKB
-JJHH5I4EIG4T4nB5bjKujsgM+bE4IrOO3tsPhp660IiA/Rat73Qt5+FVQ3zZpmNy
-4S0K+QWkB2jZlONtHpv/R7S/kLmUPbQSQxW6sKY2yhzDlv5iCbnbpq0HsfC1jBef
-8pxOoGqnOV/QM6hFdWCa
-=M6Em
------END PGP SIGNATURE-----
-
---m51xatjYGsM+13rf--
