@@ -1,23 +1,22 @@
-Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBZVDX66AKGQEIZ46DMA@googlegroups.com>
+Return-Path: <rtc-linux+bncBAABBFN3365QKGQEY3G23MI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id o85si1633155wme.0.2016.07.20.12.32.54
-        for <rtc-linux@googlegroups.com>;
-        Wed, 20 Jul 2016 12:32:54 -0700 (PDT)
-Date: Wed, 20 Jul 2016 21:32:53 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Arnaud Ebalard <arno@natisbad.org>, Rob Herring <robh+dt@kernel.org>
-Cc: Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH 1/3] Documentation: dt: Intersil isl12057 is
- not a trivial device
-Message-ID: <20160720193253.GB4446@piout.net>
-References: <1468371571-22641-1-git-send-email-alexandre.belloni@free-electrons.com>
- <1468371571-22641-2-git-send-email-alexandre.belloni@free-electrons.com>
- <87zipkgeuv.fsf@natisbad.org>
+Received: from arcturus.kleine-koenig.org (arcturus.kleine-koenig.org. [2a01:4f8:d12:1f44::2])
+        by gmr-mx.google.com with ESMTPS id a6si269186wma.1.2016.07.02.08.28.20
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Sat, 02 Jul 2016 08:28:20 -0700 (PDT)
+From: =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <uwe@kleine-koenig.org>
+To: Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: rtc-linux@googlegroups.com,
+	=?UTF-8?q?Manuel=20R=C3=B6der?= <manuel_roeder@gmx.de>
+Subject: [rtc-linux] [PATCH v2 4/5] rtc: s35390a: improve two comments in .set_alarm
+Date: Sat,  2 Jul 2016 17:28:11 +0200
+Message-Id: <1467473292-26371-5-git-send-email-uwe@kleine-koenig.org>
+In-Reply-To: <1467473292-26371-1-git-send-email-uwe@kleine-koenig.org>
+References: <1467473292-26371-1-git-send-email-uwe@kleine-koenig.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <87zipkgeuv.fsf@natisbad.org>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -27,52 +26,42 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-+robh
+Signed-off-by: Uwe Kleine-K=C3=B6nig <uwe@kleine-koenig.org>
+---
+ drivers/rtc/rtc-s35390a.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-On 14/07/2016 at 22:10:48 +0200, Arnaud Ebalard wrote :
-> Alexandre Belloni <alexandre.belloni@free-electrons.com> writes:
-> 
-> > The ISL12057 has a documentation file, remove it from trivial-devices.txt
-> >
-> > Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-> > ---
-> >  Documentation/devicetree/bindings/i2c/trivial-devices.txt | 1 -
-> >  1 file changed, 1 deletion(-)
-> >
-> > diff --git a/Documentation/devicetree/bindings/i2c/trivial-devices.txt b/Documentation/devicetree/bindings/i2c/trivial-devices.txt
-> > index 539874490492..a397d39ea741 100644
-> > --- a/Documentation/devicetree/bindings/i2c/trivial-devices.txt
-> > +++ b/Documentation/devicetree/bindings/i2c/trivial-devices.txt
-> > @@ -50,7 +50,6 @@ fsl,sgtl5000		SGTL5000: Ultra Low-Power Audio Codec
-> >  gmt,g751		G751: Digital Temperature Sensor and Thermal Watchdog with Two-Wire Interface
-> >  infineon,slb9635tt	Infineon SLB9635 (Soft-) I2C TPM (old protocol, max 100khz)
-> >  infineon,slb9645tt	Infineon SLB9645 I2C TPM (new protocol, max 400khz)
-> > -isil,isl12057		Intersil ISL12057 I2C RTC Chip
-> >  isil,isl29028		Intersil ISL29028 Ambient Light and Proximity Sensor
-> >  maxim,ds1050		5 Bit Programmable, Pulse-Width Modulator
-> >  maxim,max1237		Low-Power, 4-/12-Channel, 2-Wire Serial, 12-Bit ADCs
-> 
-> No strong advice on this but I thought it qualified as a trivial device
-> because it did not *need* anything else except a compatible, an address
-> and possibly an interrupt. The additional boolean property documented in
-> Documentation/devicetree/bindings/rtc/isil,isl12057.txt is optional.
-> 
+diff --git a/drivers/rtc/rtc-s35390a.c b/drivers/rtc/rtc-s35390a.c
+index d5b572266a72..5dab4665ca3b 100644
+--- a/drivers/rtc/rtc-s35390a.c
++++ b/drivers/rtc/rtc-s35390a.c
+@@ -266,12 +266,12 @@ static int s35390a_set_alarm(struct i2c_client *clien=
+t, struct rtc_wkalrm *alm)
+ 		alm->time.tm_min, alm->time.tm_hour, alm->time.tm_mday,
+ 		alm->time.tm_mon, alm->time.tm_year, alm->time.tm_wday);
+=20
+-	/* disable interrupt */
++	/* disable interrupt (which deasserts the irq line) */
+ 	err =3D s35390a_set_reg(s35390a, S35390A_CMD_STATUS2, &sts, sizeof(sts));
+ 	if (err < 0)
+ 		return err;
+=20
+-	/* clear pending interrupt, if any */
++	/* clear pending interrupt (in STATUS1 only), if any */
+ 	err =3D s35390a_get_reg(s35390a, S35390A_CMD_STATUS1, &sts, sizeof(sts));
+ 	if (err < 0)
+ 		return err;
+--=20
+2.8.1
 
-Well, my thinking is that trivial devices are in trivial-devices.txt
-because they are not documented anywhere else. This is mostly the case.
-
-
--- 
-Alexandre Belloni, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
-
--- 
+--=20
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+---=20
+You received this message because you are subscribed to the Google Groups "=
+rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an e=
+mail to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
