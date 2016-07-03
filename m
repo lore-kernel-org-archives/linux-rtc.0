@@ -1,31 +1,24 @@
-Return-Path: <rtc-linux+bncBD747RFBYUPBBHPI5W5QKGQE4AMKCVQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBC2JFQ6TUUPRBN7G4W5QKGQEAUY2NLQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mailout2.samsung.com (mailout2.samsung.com. [203.254.224.25])
-        by gmr-mx.google.com with ESMTPS id i135si336814pfe.0.2016.07.05.01.47.25
+MIME-Version: 1.0
+Received: from mail-wm0-x241.google.com (mail-wm0-x241.google.com. [2a00:1450:400c:c09::241])
+        by gmr-mx.google.com with ESMTPS id f70si49326wmf.0.2016.07.03.13.19.03
         for <rtc-linux@googlegroups.com>
-        (version=TLS1 cipher=AES128-SHA bits=128/128);
-        Tue, 05 Jul 2016 01:47:25 -0700 (PDT)
-Received: from epcpsbgr2.samsung.com
- (u142.gpu120.samsung.co.kr [203.254.230.142])
- by mailout2.samsung.com (Oracle Communications Messaging Server 7.0.5.31.0
- 64bit (built May  5 2014))
- with ESMTP id <0O9U00XY032ZR8D0@mailout2.samsung.com> for
- rtc-linux@googlegroups.com; Tue, 05 Jul 2016 17:47:23 +0900 (KST)
-Message-id: <577B73FE.1020509@samsung.com>
-Date: Tue, 05 Jul 2016 14:16:54 +0530
-From: Alim Akhtar <alim.akhtar@samsung.com>
-MIME-version: 1.0
-To: Krzysztof Kozlowski <k.kozlowski@samsung.com>, rtc-linux@googlegroups.com,
- linux-kernel@vger.kernel.org
-Cc: alexandre.belloni@free-electrons.com, javier@osg.samsung.com,
- pankaj.dubey@samsung.com
-Subject: [rtc-linux] Re: [RFC PATCH 1/2] rtc: s3c: Remove unnecessary call to
- disable already disabled clock
-References: <1467630195-6929-1-git-send-email-alim.akhtar@samsung.com>
- <577B5F28.1010905@samsung.com>
-In-reply-to: <577B5F28.1010905@samsung.com>
-Content-type: text/plain; charset=UTF-8; format=flowed
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Sun, 03 Jul 2016 13:19:03 -0700 (PDT)
+Received: by mail-wm0-x241.google.com with SMTP id 187so17346920wmz.1
+        for <rtc-linux@googlegroups.com>; Sun, 03 Jul 2016 13:19:03 -0700 (PDT)
+From: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+To: Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: linux-kernel@vger.kernel.org,
+	rtc-linux@googlegroups.com,
+	Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Subject: [rtc-linux] [PATCH] rtc: m41t80: use devm_add_action_or_reset()
+Date: Sun,  3 Jul 2016 21:18:58 +0100
+Message-Id: <1467577138-30453-1-git-send-email-sudipm.mukherjee@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -34,53 +27,35 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Hi Krzsztof,
+If devm_add_action() fails we are explicitly calling the cleanup to free
+the resources allocated.  Lets use the helper devm_add_action_or_reset()
+and return directly in case of error, as we know that the cleanup function
+has been already called by the helper if there was any error.
 
-On 07/05/2016 12:48 PM, Krzysztof Kozlowski wrote:
-> On 07/04/2016 01:03 PM, Alim Akhtar wrote:
->> At the end of s3c_rtc_probe(), s3c_rtc_disable_clk() being called with rtc
->> clock already disabled, which looks extra and unnecessary call.
->> Lets clean it up.
->
-> Does not look right. Till that place, the clocks are enabled. Then
-> s3c_rtc_setaie() is called which expects that clocks are disabled...
-> otherwise counters get mixed.
->
+Signed-off-by: Sudip Mukherjee <sudip.mukherjee@codethink.co.uk>
+---
+ drivers/rtc/rtc-m41t80.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-The clock is always disabled when it reach s3c_rtc_setfreq() in probe(),
-because s3c_rtc_gettime() will always disable the clock.
-
-As far as s3c_rtc_setaie() is concern, it enables clock while entering 
-and disables it while leaving the function. And in 
-s3c_rtc_{enable,disable}_clk() there is check info->clk_disabled flag 
-which will make sure clock balancing.
-
-> So overall this looks like wrong approach unless I am missing something?
->
-> Best regards,
-> Krzysztof
->
->>
->> Signed-off-by: Alim Akhtar <alim.akhtar@samsung.com>
->> ---
->>   drivers/rtc/rtc-s3c.c |    2 --
->>   1 file changed, 2 deletions(-)
->>
->> diff --git a/drivers/rtc/rtc-s3c.c b/drivers/rtc/rtc-s3c.c
->> index d01ad7e..b083840 100644
->> --- a/drivers/rtc/rtc-s3c.c
->> +++ b/drivers/rtc/rtc-s3c.c
->> @@ -577,8 +577,6 @@ static int s3c_rtc_probe(struct platform_device *pdev)
->>
->>   	s3c_rtc_setfreq(info, 1);
->>
->> -	s3c_rtc_disable_clk(info);
->> -
->>   	return 0;
->>
->>    err_nortc:
->
->
+diff --git a/drivers/rtc/rtc-m41t80.c b/drivers/rtc/rtc-m41t80.c
+index d1bf93a..49bc464 100644
+--- a/drivers/rtc/rtc-m41t80.c
++++ b/drivers/rtc/rtc-m41t80.c
+@@ -831,10 +831,9 @@ static int m41t80_probe(struct i2c_client *client,
+ 		return rc;
+ 	}
+ 
+-	rc = devm_add_action(&client->dev, m41t80_remove_sysfs_group,
+-			     &client->dev);
++	rc = devm_add_action_or_reset(&client->dev, m41t80_remove_sysfs_group,
++				      &client->dev);
+ 	if (rc) {
+-		m41t80_remove_sysfs_group(&client->dev);
+ 		dev_err(&client->dev,
+ 			"Failed to add sysfs cleanup action: %d\n", rc);
+ 		return rc;
+-- 
+1.9.1
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
