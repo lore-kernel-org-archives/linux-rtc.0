@@ -1,26 +1,24 @@
-Return-Path: <rtc-linux+bncBAABBBUH7C5QKGQE5CCPLZA@googlegroups.com>
+Return-Path: <rtc-linux+bncBC2JFQ6TUUPRBXPM4W5QKGQE5ZAVR6Y@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail-out1.kundencontroller.de (mail-out1.kundencontroller.de. [2a02:180:ffff:1::551f:b822])
-        by gmr-mx.google.com with ESMTPS id x70si42823wmf.1.2016.07.06.23.12.16
+MIME-Version: 1.0
+Received: from mail-wm0-x243.google.com (mail-wm0-x243.google.com. [2a00:1450:400c:c09::243])
+        by gmr-mx.google.com with ESMTPS id c135si87965wme.2.2016.07.03.13.32.29
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 06 Jul 2016 23:12:16 -0700 (PDT)
-Subject: [rtc-linux] Re: [PATCH] rtc: sunxi: use external oscillator
-To: Chen-Yu Tsai <wens@csie.org>
-References: <577CC494.8020103@roslen.de> <20160706202000.GC4247@lukather>
- <577DDF8C.6060404@roslen.de>
- <CAGb2v64Q6ERA2cHP48Wop5hdmKq0aYSUDfU6Q7qDGRJmk5G--g@mail.gmail.com>
-Cc: Maxime Ripard <maxime.ripard@free-electrons.com>,
- Alessandro Zummo <a.zummo@towertech.it>,
- Alexandre Belloni <alexandre.belloni@free-electrons.com>,
- rtc-linux@googlegroups.com
-From: Stephan Roslen <stephan@roslen.de>
-Message-ID: <577DF2B9.602@roslen.de>
-Date: Thu, 7 Jul 2016 08:12:09 +0200
-MIME-Version: 1.0
-In-Reply-To: <CAGb2v64Q6ERA2cHP48Wop5hdmKq0aYSUDfU6Q7qDGRJmk5G--g@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8
+        Sun, 03 Jul 2016 13:32:29 -0700 (PDT)
+Received: by mail-wm0-x243.google.com with SMTP id a66so17364239wme.2
+        for <rtc-linux@googlegroups.com>; Sun, 03 Jul 2016 13:32:29 -0700 (PDT)
+From: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+To: Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: linux-kernel@vger.kernel.org,
+	rtc-linux@googlegroups.com,
+	Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Subject: [rtc-linux] [PATCH] rtc: abx80x: use devm_add_action_or_reset()
+Date: Sun,  3 Jul 2016 21:32:22 +0100
+Message-Id: <1467577942-31473-1-git-send-email-sudipm.mukherjee@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -29,28 +27,45 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
+If devm_add_action() fails we are explicitly calling the cleanup to free
+the resources allocated.  Lets use the helper devm_add_action_or_reset()
+and return directly in case of error, as we know that the cleanup function
+has been already called by the helper if there was any error.
 
+Signed-off-by: Sudip Mukherjee <sudip.mukherjee@codethink.co.uk>
+---
+ drivers/rtc/rtc-abx80x.c | 12 +++++-------
+ 1 file changed, 5 insertions(+), 7 deletions(-)
 
-On 07.07.2016 06:53, Chen-Yu Tsai wrote:
-> On Thu, Jul 7, 2016 at 12:50 PM, Stephan Roslen <stephan@roslen.de> wrote:
->> I agree. Checking the diagram in subsection 1.5.2 of the A20 manual it seems, that LOSC can be a source for clocks like CPU and some SoC busses. So my patch could indeed mess with the whole clock tree.
-> 
-> (Please wrap your email)
-
-Sorry.
-
-> 
-> Within the current sunxi clk structure, the LOSC is registered as a fixed
-> 32.768 KHz clk. So this patch actually makes things right.
-
-In this case it should still be addressed somewhere in drivers/clk/sunxi, not 
-in drivers/rtc, I guess? Would you prefer setting the external 32.768 KHz crystal
-as hard coded default instead of providing the muxer? It could be considered okay,
-for the data sheet seems to demand presence of the external oscillator and there
-is absolutely no use in a 32KHz +- 20% oscillator, if a 32.768KHz crystal is
-available.
-
-Stephan
+diff --git a/drivers/rtc/rtc-abx80x.c b/drivers/rtc/rtc-abx80x.c
+index ba0d619..fea9a60 100644
+--- a/drivers/rtc/rtc-abx80x.c
++++ b/drivers/rtc/rtc-abx80x.c
+@@ -643,17 +643,15 @@ static int abx80x_probe(struct i2c_client *client,
+ 		return err;
+ 	}
+ 
+-	err = devm_add_action(&client->dev, rtc_calib_remove_sysfs_group,
+-			      &client->dev);
+-	if (err) {
+-		rtc_calib_remove_sysfs_group(&client->dev);
++	err = devm_add_action_or_reset(&client->dev,
++				       rtc_calib_remove_sysfs_group,
++				       &client->dev);
++	if (err)
+ 		dev_err(&client->dev,
+ 			"Failed to add sysfs cleanup action: %d\n",
+ 			err);
+-		return err;
+-	}
+ 
+-	return 0;
++	return err;
+ }
+ 
+ static int abx80x_remove(struct i2c_client *client)
+-- 
+1.9.1
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
