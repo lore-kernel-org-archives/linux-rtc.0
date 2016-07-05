@@ -1,25 +1,19 @@
-Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBUHI725QKGQEPNMSNVI@googlegroups.com>
+Return-Path: <rtc-linux+bncBAABBLV7525QKGQESDMDMKQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id a6si176866wma.1.2016.07.08.07.10.24
-        for <rtc-linux@googlegroups.com>;
-        Fri, 08 Jul 2016 07:10:24 -0700 (PDT)
-Date: Fri, 8 Jul 2016 16:10:23 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Mark Salyzyn <salyzyn@android.com>
-Cc: linux-kernel@vger.kernel.org, Alessandro Zummo <a.zummo@towertech.it>,
-	rtc-linux@googlegroups.com
-Subject: [rtc-linux] Re: rtc-palmas: correct for bcd year
-Message-ID: <20160708141023.GH22202@piout.net>
-References: <1451508726-31769-1-git-send-email-salyzyn@android.com>
- <20160104161853.GC32724@piout.net>
- <568AA1C2.2070407@android.com>
- <20160105000000.GE32724@piout.net>
- <568BEA92.2090701@android.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <568BEA92.2090701@android.com>
+Received: from root.phytec.de (mail.phycard.co.uk. [217.6.246.34])
+        by gmr-mx.google.com with ESMTP id r10si83181wmf.0.2016.07.05.04.53.18
+        for <rtc-linux@googlegroups.com>;
+        Tue, 05 Jul 2016 04:53:18 -0700 (PDT)
+From: Stefan Christ <s.christ@phytec.de>
+To: a.zummo@towertech.it, alexandre.belloni@free-electrons.com, rtc-linux@googlegroups.com
+Subject: [rtc-linux] [PATCH 2/2] rtc: m41t80: add suspend handlers for alarm IRQ
+Date: Tue, 5 Jul 2016 13:53:17 +0200
+Message-Id: <1467719597-5593-2-git-send-email-s.christ@phytec.de>
+In-Reply-To: <1467719597-5593-1-git-send-email-s.christ@phytec.de>
+References: <1467719597-5593-1-git-send-email-s.christ@phytec.de>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -28,40 +22,59 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 05/01/2016 at 08:08:50 -0800, Mark Salyzyn wrote :
-> On 01/04/2016 04:00 PM, Alexandre Belloni wrote:
-> > I'd say that the proper course of action is to refuse to set dates
-> > before 2000 and after 2100. See
-> > http://patchwork.ozlabs.org/patch/541037/
-> Got it.
-> 
-> We have an issue though, Android (or rather any embedded) devices must
-> continue to function when date is manually set to any value between 1970 and
-> 2037. The issue here is a fresh device with a recently charged battery will
-> _start_ at 1970 until ntp or cell time/date/locale is set and the device
-> must continue to function in this vacuum. A device reboot should not result
-> in the other calendar values being reset, should the year be wrong, as this
-> will result in a bad user experience.
-> 
-> We will have to use a different patch on Android than upstream if dates
-> before 2000 are deprecated.
-> 
-> All other factors (rollover, leap) can be corrected by frameworks and
-> runtime since the rtc is generally secondary (ie: first rtc driver was in
-> 1979, created a daemon to correct the flaws in the hardware clock using a
-> cron job)
-> 
+Allow the alarm IRQ of RTC to be used as a wakeup source for the system
+suspend.
 
-Well, I was still thinking about that issue but while handling properly
-a gap in the RTC continuity is impossible, it is actually easy to handle
-an offset in the RTC by using mktime and then offseting the resulting
-time_t. Of course you'll then need to handle leap years and the likes
-but you said that was not an issue for you.
+Signed-off-by: Stefan Christ <s.christ@phytec.de>
+---
+ drivers/rtc/rtc-m41t80.c | 25 +++++++++++++++++++++++++
+ 1 file changed, 25 insertions(+)
 
+diff --git a/drivers/rtc/rtc-m41t80.c b/drivers/rtc/rtc-m41t80.c
+index 04e8577..4f09089 100644
+--- a/drivers/rtc/rtc-m41t80.c
++++ b/drivers/rtc/rtc-m41t80.c
+@@ -337,6 +337,30 @@ static struct rtc_class_ops m41t80_rtc_ops = {
+ 	.proc = m41t80_rtc_proc,
+ };
+ 
++#ifdef CONFIG_PM_SLEEP
++static int m41t80_suspend(struct device *dev)
++{
++	struct i2c_client *client = to_i2c_client(dev);
++
++	if (client->irq >= 0 && device_may_wakeup(dev))
++		enable_irq_wake(client->irq);
++
++	return 0;
++}
++
++static int m41t80_resume(struct device *dev)
++{
++	struct i2c_client *client = to_i2c_client(dev);
++
++	if (client->irq >= 0 && device_may_wakeup(dev))
++		disable_irq_wake(client->irq);
++
++	return 0;
++}
++#endif
++
++static SIMPLE_DEV_PM_OPS(m41t80_pm, m41t80_suspend, m41t80_resume);
++
+ static ssize_t flags_show(struct device *dev,
+ 			  struct device_attribute *attr, char *buf)
+ {
+@@ -873,6 +897,7 @@ static int m41t80_remove(struct i2c_client *client)
+ static struct i2c_driver m41t80_driver = {
+ 	.driver = {
+ 		.name = "rtc-m41t80",
++		.pm = &m41t80_pm,
+ 	},
+ 	.probe = m41t80_probe,
+ 	.remove = m41t80_remove,
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+1.9.1
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
