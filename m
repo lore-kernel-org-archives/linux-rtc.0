@@ -1,30 +1,27 @@
-Return-Path: <rtc-linux+bncBDKZNNNLXAHBBX6Z5W5QKGQECU25VMY@googlegroups.com>
+Return-Path: <rtc-linux+bncBCEPJZEDQIBBBIE66C5QKGQEZOAPA5Y@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mailout1.w1.samsung.com (mailout1.w1.samsung.com. [210.118.77.11])
-        by gmr-mx.google.com with ESMTPS id i135si324919pfe.0.2016.07.05.01.16.30
+MIME-Version: 1.0
+Received: from rainbowdash.ducie.codethink.co.uk (82-70-136-246.dsl.in-addr.zen.co.uk. [82.70.136.246])
+        by gmr-mx.google.com with ESMTPS id f10si181865wmg.2.2016.07.05.12.48.47
         for <rtc-linux@googlegroups.com>
-        (version=TLS1 cipher=AES128-SHA bits=128/128);
-        Tue, 05 Jul 2016 01:16:31 -0700 (PDT)
-Received: from eucpsbgm2.samsung.com (unknown [203.254.199.245])
- by mailout1.w1.samsung.com
- (Oracle Communications Messaging Server 7.0.5.31.0 64bit (built May  5 2014))
- with ESMTP id <0O9U009E41NFGL50@mailout1.w1.samsung.com> for
- rtc-linux@googlegroups.com; Tue, 05 Jul 2016 09:16:27 +0100 (BST)
-Subject: [rtc-linux] Re: [RFC PATCH 2/2] rtc: s3c: Add s3c_rtc_{enable/disable}_clk
- in s3c_rtc_setfreq()
-To: Alim Akhtar <alim.akhtar@samsung.com>, rtc-linux@googlegroups.com,
- linux-kernel@vger.kernel.org
-References: <1467630195-6929-1-git-send-email-alim.akhtar@samsung.com>
- <1467630195-6929-2-git-send-email-alim.akhtar@samsung.com>
-Cc: alexandre.belloni@free-electrons.com, javier@osg.samsung.com,
- pankaj.dubey@samsung.com
-From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-Message-id: <577B6CD9.80605@samsung.com>
-Date: Tue, 05 Jul 2016 10:16:25 +0200
-MIME-version: 1.0
-In-reply-to: <1467630195-6929-2-git-send-email-alim.akhtar@samsung.com>
-Content-type: text/plain; charset=UTF-8
+        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
+        Tue, 05 Jul 2016 12:48:47 -0700 (PDT)
+From: Ben Dooks <ben.dooks@codethink.co.uk>
+To: linux-kernel@lists.codethink.co.uk,
+	linux-amlogic@lists.infradead.org,
+	rtc-linux@googlegroups.com
+Cc: a.zummo@towertech.it,
+	alexandre.belloni@free-electrons.com,
+	devicetree@vger.kernel.org,
+	narmstrong@baylibre.com,
+	frowand.list@gmail.com,
+	khilman@baylibre.com,
+	Ben Dooks <ben.dooks@codethink.co.uk>
+Subject: [rtc-linux] [PATCH v3 0/2] AMLogic Meson SoC RTC driver
+Date: Tue,  5 Jul 2016 20:48:39 +0100
+Message-Id: <1467748122-14833-1-git-send-email-ben.dooks@codethink.co.uk>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -33,35 +30,40 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 07/04/2016 01:03 PM, Alim Akhtar wrote:
-> As per code flow it is possible that s3c_rtc_setfreq() might get called
-> with rtc clock disabled and in set_freq we perform h/w registers read/write,
-> which might results in a kernel crash while probing rtc driver.
-> Below is one such case:
-> s3c_rtc_probe()
->     clk_prepare_enable(info->rtc_clk) // rtc clock enabled
->       s3c_rtc_gettime() // will enable clk if not done, and disable it upon exit
->         s3c_rtc_setfreq() //then this will be called with clk disabled
+This series adds support for the on SoC RTC driver on the
+AMLogic Meson devices. The device-tree updates are not included
+as they depend on the reset-controller support in -next.
 
-The indentation suggests levels of calls (chain) not sequence. This
-should be:
-s3c_rtc_probe()
-  clk_prepare_enable(info->rtc_clk) // rtc clock enabled
-  s3c_rtc_gettime() // will enable clk if not done, and disable it upon exit
-  s3c_rtc_setfreq() //then this will be called with clk disabled
+The series does not have any build dependencies, but does require
+the reset controller and device-tree entries for the relevant boards
+and has been tested on the ODroid-C1 board.
 
-> 
-> This patch take cares of such issue by adding s3c_rtc_{enable/disable}_clk in
-> s3c_rtc_setfreq().
+Thanks to Kevin Hilmand and Neil Armstrong for reviewing the driver.
 
-What I don't get is that you wrote "it is *possible* that
-s3c_rtc_setfreq() *might* get called". From my understanding this will
-happen always because src_rtc_gettime() always disables the clocks.
+Changes since V1:
+  <1467039135-26588-1-git-send-email-ben.dooks@codethink.co.uk>
 
-Why it does not happen always?
+ - Fixed checkpatch and sparse errors
+ - Fixed minor locking bug when writing static-control register
+ - Updated the code ordering in the rtc-meson.c driver
+ - Fixed alphanumeric ordering in on-cpu rtc block
+ - Added Rob Hering's ack for the DT binding documentation
+ - Added better description to the RTC driver header.
 
-Best regards,
-Krzysztof
+Ben Dooks (2):
+  rtc: support for amlogic meson rtc
+  meson-rtc: add device-tree binding
+
+ .../devicetree/bindings/rtc/rtc-amlogic.txt        |  21 ++
+ drivers/rtc/Kconfig                                |   9 +
+ drivers/rtc/Makefile                               |   1 +
+ drivers/rtc/rtc-meson.c                            | 349 +++++++++++++++++++++
+ 6 files changed, 392 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/rtc/rtc-amlogic.txt
+ create mode 100644 drivers/rtc/rtc-meson.c
+
+-- 
+2.8.1
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
