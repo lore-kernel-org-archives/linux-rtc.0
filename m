@@ -1,24 +1,28 @@
-Return-Path: <rtc-linux+bncBCEPJZEDQIBBBJV5SS6AKGQECI3C6FA@googlegroups.com>
+Return-Path: <rtc-linux+bncBDKZNNNLXAHBBL565W5QKGQEFK3LMEQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from ducie-dc1.codethink.co.uk (ducie-dc1.codethink.co.uk. [185.25.241.215])
-        by gmr-mx.google.com with ESMTPS id 65si162931wmr.3.2016.07.12.09.45.25
+Received: from mailout2.w1.samsung.com (mailout2.w1.samsung.com. [210.118.77.12])
+        by gmr-mx.google.com with ESMTPS id un17si307437pab.0.2016.07.05.00.18.06
         for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 12 Jul 2016 09:45:25 -0700 (PDT)
-Subject: [rtc-linux] Re: [PATCH v3 0/2] AMLogic Meson SoC RTC driver
-To: Kevin Hilman <khilman@baylibre.com>
-References: <1467748089-14718-1-git-send-email-ben.dooks@codethink.co.uk>
- <7hinwg85k7.fsf@baylibre.com>
-Cc: linux-kernel@lists.codethink.co.uk, linux-amlogic@lists.infradead.org,
- rtc-linux@googlegroups.com, a.zummo@towertech.it, narmstrong@baylibre.com,
- devicetree@vger.kernel.org, alexandre.belloni@free-electrons.com,
- frowand.list@gmail.com
-From: Ben Dooks <ben.dooks@codethink.co.uk>
-Message-ID: <53016146-6647-224c-ba1a-f2a9dc364a86@codethink.co.uk>
-Date: Tue, 12 Jul 2016 17:45:22 +0100
-MIME-Version: 1.0
-In-Reply-To: <7hinwg85k7.fsf@baylibre.com>
-Content-Type: text/plain; charset=UTF-8
+        (version=TLS1 cipher=AES128-SHA bits=128/128);
+        Tue, 05 Jul 2016 00:18:07 -0700 (PDT)
+Received: from eucpsbgm2.samsung.com (unknown [203.254.199.245])
+ by mailout2.w1.samsung.com
+ (Oracle Communications Messaging Server 7.0.5.31.0 64bit (built May  5 2014))
+ with ESMTP id <0O9T00CRCYY25530@mailout2.w1.samsung.com> for
+ rtc-linux@googlegroups.com; Tue, 05 Jul 2016 08:18:02 +0100 (BST)
+Subject: [rtc-linux] Re: [RFC PATCH 1/2] rtc: s3c: Remove unnecessary call to
+ disable already disabled clock
+To: Alim Akhtar <alim.akhtar@samsung.com>, rtc-linux@googlegroups.com,
+ linux-kernel@vger.kernel.org
+References: <1467630195-6929-1-git-send-email-alim.akhtar@samsung.com>
+Cc: alexandre.belloni@free-electrons.com, javier@osg.samsung.com,
+ pankaj.dubey@samsung.com
+From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+Message-id: <577B5F28.1010905@samsung.com>
+Date: Tue, 05 Jul 2016 09:18:00 +0200
+MIME-version: 1.0
+In-reply-to: <1467630195-6929-1-git-send-email-alim.akhtar@samsung.com>
+Content-type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -28,38 +32,39 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 08/07/16 17:20, Kevin Hilman wrote:
-> Ben Dooks <ben.dooks@codethink.co.uk> writes:
+On 07/04/2016 01:03 PM, Alim Akhtar wrote:
+> At the end of s3c_rtc_probe(), s3c_rtc_disable_clk() being called with rtc
+> clock already disabled, which looks extra and unnecessary call.
+> Lets clean it up.
+
+Does not look right. Till that place, the clocks are enabled. Then
+s3c_rtc_setaie() is called which expects that clocks are disabled...
+otherwise counters get mixed.
+
+So overall this looks like wrong approach unless I am missing something?
+
+Best regards,
+Krzysztof
+
 > 
->> This series adds support for the on SoC RTC driver on the
->> AMLogic Meson devices.
+> Signed-off-by: Alim Akhtar <alim.akhtar@samsung.com>
+> ---
+>  drivers/rtc/rtc-s3c.c |    2 --
+>  1 file changed, 2 deletions(-)
 > 
-> -ECONFUSED
-> 
-> In reply to this patch, there are two other "PATCH v3 0/2" replies, an
-> then the two patches themselves, have "PATCH n/4" subjects when one
-> would expect "PATCH n/2" subjects.
-
-This was my mistake of formatting the patch then thinking it would
-be easy to remove the other two patches I decided to keep separate
-(for reasons below)
-
-> Anyways, I was able to test this version with the DTs from the previous
-> version, and it works ok.
-
-Yes, no changes for the DT bits so I decided to remove them as firstly
-they depend on the reset-controller changes going in and secondly
-the rtc driver part doesn't need them to be there to be able to build.
-
-> Can you respin one more time (including the Tested-by) so the RTC
-> maintainers can pick it up?
-
-I'll do that now and try and post them tonight.
-Thankyou for testing.
-
--- 
-Ben Dooks				http://www.codethink.co.uk/
-Senior Engineer				Codethink - Providing Genius
+> diff --git a/drivers/rtc/rtc-s3c.c b/drivers/rtc/rtc-s3c.c
+> index d01ad7e..b083840 100644
+> --- a/drivers/rtc/rtc-s3c.c
+> +++ b/drivers/rtc/rtc-s3c.c
+> @@ -577,8 +577,6 @@ static int s3c_rtc_probe(struct platform_device *pdev)
+>  
+>  	s3c_rtc_setfreq(info, 1);
+>  
+> -	s3c_rtc_disable_clk(info);
+> -
+>  	return 0;
+>  
+>   err_nortc:
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
