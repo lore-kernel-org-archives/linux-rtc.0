@@ -1,37 +1,30 @@
-Return-Path: <rtc-linux+bncBCMILY6JWQBBB2HKYW6AKGQESVYR2EI@googlegroups.com>
+Return-Path: <rtc-linux+bncBDKZNNNLXAHBBNPM5W5QKGQE4Y6W4YY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from smtp.csie.ntu.edu.tw (smtp.csie.ntu.edu.tw. [140.112.30.61])
-        by gmr-mx.google.com with ESMTPS id i136si1627171pfe.1.2016.07.21.18.22.48
+Received: from mailout4.w1.samsung.com (mailout4.w1.samsung.com. [210.118.77.14])
+        by gmr-mx.google.com with ESMTPS id 62si315846pfx.1.2016.07.05.01.56.21
         for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 21 Jul 2016 18:22:48 -0700 (PDT)
-Received: from mail-io0-f176.google.com (mail-io0-f176.google.com [209.85.223.176])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	(Authenticated sender: b93043)
-	by smtp.csie.ntu.edu.tw (Postfix) with ESMTPSA id 5ECAF2072C
-	for <rtc-linux@googlegroups.com>; Fri, 22 Jul 2016 09:22:46 +0800 (CST)
-Received: by mail-io0-f176.google.com with SMTP id q83so92847073iod.1
-        for <rtc-linux@googlegroups.com>; Thu, 21 Jul 2016 18:22:46 -0700 (PDT)
-MIME-Version: 1.0
-In-Reply-To: <146914709427.8780.16475894348537760808@resonance>
-References: <1467302331-9663-1-git-send-email-wens@csie.org>
- <1467302331-9663-5-git-send-email-wens@csie.org> <146800297598.73491.13472152266331488346@resonance>
- <CAGb2v67ft=EktCcfGFdBN1K4SoOyK+Stz2WuvqScMmRjoBWxfA@mail.gmail.com> <146914709427.8780.16475894348537760808@resonance>
-From: Chen-Yu Tsai <wens@csie.org>
-Date: Fri, 22 Jul 2016 09:22:25 +0800
-Message-ID: <CAGb2v65x_3b84mRJMkt2e7-rbbyYQ3Zz05hS3GuH=P9v8ecwpA@mail.gmail.com>
-Subject: [rtc-linux] Re: [PATCH v4 4/7] rtc: ac100: Add clk output support
-To: Michael Turquette <mturquette@baylibre.com>
-Cc: Chen-Yu Tsai <wens@csie.org>, Lee Jones <lee.jones@linaro.org>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>, Rob Herring <robh+dt@kernel.org>,
-	Mark Rutland <mark.rutland@arm.com>, Maxime Ripard <maxime.ripard@free-electrons.com>,
-	Stephen Boyd <sboyd@codeaurora.org>,
-	linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, rtc-linux@googlegroups.com,
-	linux-clk <linux-clk@vger.kernel.org>, devicetree <devicetree@vger.kernel.org>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset=UTF-8
+        (version=TLS1 cipher=AES128-SHA bits=128/128);
+        Tue, 05 Jul 2016 01:56:21 -0700 (PDT)
+Received: from eucpsbgm2.samsung.com (unknown [203.254.199.245])
+ by mailout4.w1.samsung.com
+ (Oracle Communications Messaging Server 7.0.5.31.0 64bit (built May  5 2014))
+ with ESMTP id <0O9U005HB3HTA660@mailout4.w1.samsung.com> for
+ rtc-linux@googlegroups.com; Tue, 05 Jul 2016 09:56:17 +0100 (BST)
+Subject: [rtc-linux] Re: [RFC PATCH 2/2] rtc: s3c: Add s3c_rtc_{enable/disable}_clk
+ in s3c_rtc_setfreq()
+To: Alim Akhtar <alim.akhtar@samsung.com>, rtc-linux@googlegroups.com,
+ linux-kernel@vger.kernel.org
+References: <1467630195-6929-1-git-send-email-alim.akhtar@samsung.com>
+ <1467630195-6929-2-git-send-email-alim.akhtar@samsung.com>
+ <577B6CD9.80605@samsung.com> <577B7537.4080506@samsung.com>
+Cc: alexandre.belloni@free-electrons.com, javier@osg.samsung.com,
+ pankaj.dubey@samsung.com
+From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+Message-id: <577B762F.6020609@samsung.com>
+Date: Tue, 05 Jul 2016 10:56:15 +0200
+MIME-version: 1.0
+In-reply-to: <577B7537.4080506@samsung.com>
+Content-type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -41,95 +34,58 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Fri, Jul 22, 2016 at 8:24 AM, Michael Turquette
-<mturquette@baylibre.com> wrote:
-> Quoting Chen-Yu Tsai (2016-07-13 20:34:34)
->> On Sat, Jul 9, 2016 at 2:36 AM, Michael Turquette
->> <mturquette@baylibre.com> wrote:
->> > Quoting Chen-Yu Tsai (2016-06-30 08:58:48)
->> >> +static long ac100_clkout_round_rate(struct clk_hw *hw, unsigned long rate,
->> >> +                                   unsigned long prate)
->> >> +{
->> >> +       unsigned long best_rate = 0, tmp_rate, tmp_prate;
->> >> +       int i;
->> >> +
->> >> +       if (prate == AC100_RTC_32K_RATE)
->> >> +               return divider_round_rate(hw, rate, &prate, NULL,
->> >> +                                         AC100_CLKOUT_DIV_WIDTH,
->> >> +                                         CLK_DIVIDER_POWER_OF_TWO);
->> >> +
->> >> +       for (i = 0; ac100_clkout_prediv[i].div; i++) {
->> >> +               tmp_prate = DIV_ROUND_UP(prate, ac100_clkout_prediv[i].val);
->> >> +               tmp_rate = divider_round_rate(hw, rate, &tmp_prate, NULL,
->> >> +                                             AC100_CLKOUT_DIV_WIDTH,
->> >> +                                             CLK_DIVIDER_POWER_OF_TWO);
->> >> +
->> >> +               if (tmp_rate > rate)
->> >> +                       continue;
->> >> +               if (rate - tmp_rate < best_rate - tmp_rate)
->> >> +                       best_rate = tmp_rate;
->> >> +       }
->> >> +
->> >> +       return best_rate;
->> >> +}
->> >> +
->> >> +static int ac100_clkout_determine_rate(struct clk_hw *hw,
->> >> +                                      struct clk_rate_request *req)
->> >> +{
->> >> +       struct clk_hw *best_parent;
->> >> +       unsigned long best = 0;
->> >> +       int i, num_parents = clk_hw_get_num_parents(hw);
->> >> +
->> >> +       for (i = 0; i < num_parents; i++) {
->> >> +               struct clk_hw *parent = clk_hw_get_parent_by_index(hw, i);
->> >> +               unsigned long tmp, prate = clk_hw_get_rate(parent);
->> >> +
->> >> +               tmp = ac100_clkout_round_rate(hw, req->rate, prate);
->> >> +
->> >> +               if (tmp > req->rate)
->> >> +                       continue;
->> >> +               if (req->rate - tmp < req->rate - best) {
->> >> +                       best = tmp;
->> >> +                       best_parent = parent;
->> >> +               }
->> >> +       }
->> >> +
->> >> +       if (!best)
->> >> +               return -EINVAL;
->> >> +
->> >> +       req->best_parent_hw = best_parent;
->> >> +       req->best_parent_rate = best;
->> >> +       req->rate = best;
->> >> +
->> >> +       return 0;
->> >> +}
->> >
->> > You only need one of the two functions above. Keep the .determine_rate
->> > callback and drop .round_rate.
+On 07/05/2016 10:52 AM, Alim Akhtar wrote:
+> 
+> 
+> On 07/05/2016 01:46 PM, Krzysztof Kozlowski wrote:
+>> On 07/04/2016 01:03 PM, Alim Akhtar wrote:
+>>> As per code flow it is possible that s3c_rtc_setfreq() might get called
+>>> with rtc clock disabled and in set_freq we perform h/w registers
+>>> read/write,
+>>> which might results in a kernel crash while probing rtc driver.
+>>> Below is one such case:
+>>> s3c_rtc_probe()
+>>>      clk_prepare_enable(info->rtc_clk) // rtc clock enabled
+>>>        s3c_rtc_gettime() // will enable clk if not done, and disable
+>>> it upon exit
+>>>          s3c_rtc_setfreq() //then this will be called with clk disabled
 >>
->> Only .round_rate is set in the clk_ops. ac100_clkout_round_rate just
->> serves to split out some of the calculations done per parent.
->
-> If you only use .round_rate, shouldn't you drop .determine_rate then?
+>> The indentation suggests levels of calls (chain) not sequence. This
+>> should be:
+>> s3c_rtc_probe()
+>>    clk_prepare_enable(info->rtc_clk) // rtc clock enabled
+>>    s3c_rtc_gettime() // will enable clk if not done, and disable it
+>> upon exit
+>>    s3c_rtc_setfreq() //then this will be called with clk disabled
+>>
+>>>
+>>> This patch take cares of such issue by adding
+>>> s3c_rtc_{enable/disable}_clk in
+>>> s3c_rtc_setfreq().
+>>
+>> What I don't get is that you wrote "it is *possible* that
+>> s3c_rtc_setfreq() *might* get called". From my understanding this will
+>> happen always because src_rtc_gettime() always disables the clocks.
+>>
+>> Why it does not happen always?
+>>
+> 
+> Yes, you are right, it is always disabled when reaches s3c_rtc_setfreq().
+> And I observed a kernel crash while testing on exynos7 platform in
+> s3c_rtc_setfreq() because clock was always disabled at this point. And
+> this patches fixes this issue.
 
-Oops! I meant we only set .determine_rate. ac100_clkout_round_rate is
-called in the per parent loop in .determine_rate.
+Ok, thanks! Could you adjust the commit message mentioning that it
+always causes crash on Exynos 7 platform and adding:
 
-ChenYu
+Fixes: 24e1455493da ("drivers/rtc/rtc-s3c.c: delete duplicate clock
+control")
+Cc: <stable@vger.kernel.org>
 
->
-> Regards,
-> Mike
->
->>
->> > Otherwise the rest of the clk support looks great to me. Feel free to
->> > add:
->> >
->> > Reviewed-by: Michael Turquette <mturquette@baylibre.com>
->>
->> Thanks!
->>
->> ChenYu
+Reviewed-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+
+Best regards,
+Krzysztof
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
