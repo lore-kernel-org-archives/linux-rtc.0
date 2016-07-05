@@ -1,21 +1,29 @@
-Return-Path: <rtc-linux+bncBCKYNX7Y3IMBB7HN3G6AKGQEQIY7DDQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBDKZNNNLXAHBBX6Z5W5QKGQECU25VMY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id r197si1027982wmf.2.2016.07.25.13.30.52
-        for <rtc-linux@googlegroups.com>;
-        Mon, 25 Jul 2016 13:30:52 -0700 (PDT)
-Date: Mon, 25 Jul 2016 22:30:52 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Stefan Christ <s.christ@phytec.de>
-Cc: a.zummo@towertech.it, rtc-linux@googlegroups.com
-Subject: [rtc-linux] Re: [PATCH 2/2] rtc: m41t80: add suspend handlers for
- alarm IRQ
-Message-ID: <20160725203052.GM11405@piout.net>
-References: <1467719597-5593-1-git-send-email-s.christ@phytec.de>
- <1467719597-5593-2-git-send-email-s.christ@phytec.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1467719597-5593-2-git-send-email-s.christ@phytec.de>
+Received: from mailout1.w1.samsung.com (mailout1.w1.samsung.com. [210.118.77.11])
+        by gmr-mx.google.com with ESMTPS id i135si324919pfe.0.2016.07.05.01.16.30
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1 cipher=AES128-SHA bits=128/128);
+        Tue, 05 Jul 2016 01:16:31 -0700 (PDT)
+Received: from eucpsbgm2.samsung.com (unknown [203.254.199.245])
+ by mailout1.w1.samsung.com
+ (Oracle Communications Messaging Server 7.0.5.31.0 64bit (built May  5 2014))
+ with ESMTP id <0O9U009E41NFGL50@mailout1.w1.samsung.com> for
+ rtc-linux@googlegroups.com; Tue, 05 Jul 2016 09:16:27 +0100 (BST)
+Subject: [rtc-linux] Re: [RFC PATCH 2/2] rtc: s3c: Add s3c_rtc_{enable/disable}_clk
+ in s3c_rtc_setfreq()
+To: Alim Akhtar <alim.akhtar@samsung.com>, rtc-linux@googlegroups.com,
+ linux-kernel@vger.kernel.org
+References: <1467630195-6929-1-git-send-email-alim.akhtar@samsung.com>
+ <1467630195-6929-2-git-send-email-alim.akhtar@samsung.com>
+Cc: alexandre.belloni@free-electrons.com, javier@osg.samsung.com,
+ pankaj.dubey@samsung.com
+From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+Message-id: <577B6CD9.80605@samsung.com>
+Date: Tue, 05 Jul 2016 10:16:25 +0200
+MIME-version: 1.0
+In-reply-to: <1467630195-6929-2-git-send-email-alim.akhtar@samsung.com>
+Content-type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -25,21 +33,35 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 05/07/2016 at 13:53:17 +0200, Stefan Christ wrote :
-> Allow the alarm IRQ of RTC to be used as a wakeup source for the system
-> suspend.
-> 
-> Signed-off-by: Stefan Christ <s.christ@phytec.de>
-> ---
->  drivers/rtc/rtc-m41t80.c | 25 +++++++++++++++++++++++++
->  1 file changed, 25 insertions(+)
-> 
-Applied, thanks.
+On 07/04/2016 01:03 PM, Alim Akhtar wrote:
+> As per code flow it is possible that s3c_rtc_setfreq() might get called
+> with rtc clock disabled and in set_freq we perform h/w registers read/write,
+> which might results in a kernel crash while probing rtc driver.
+> Below is one such case:
+> s3c_rtc_probe()
+>     clk_prepare_enable(info->rtc_clk) // rtc clock enabled
+>       s3c_rtc_gettime() // will enable clk if not done, and disable it upon exit
+>         s3c_rtc_setfreq() //then this will be called with clk disabled
 
--- 
-Alexandre Belloni, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+The indentation suggests levels of calls (chain) not sequence. This
+should be:
+s3c_rtc_probe()
+  clk_prepare_enable(info->rtc_clk) // rtc clock enabled
+  s3c_rtc_gettime() // will enable clk if not done, and disable it upon exit
+  s3c_rtc_setfreq() //then this will be called with clk disabled
+
+> 
+> This patch take cares of such issue by adding s3c_rtc_{enable/disable}_clk in
+> s3c_rtc_setfreq().
+
+What I don't get is that you wrote "it is *possible* that
+s3c_rtc_setfreq() *might* get called". From my understanding this will
+happen always because src_rtc_gettime() always disables the clocks.
+
+Why it does not happen always?
+
+Best regards,
+Krzysztof
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
