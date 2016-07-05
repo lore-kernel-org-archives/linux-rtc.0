@@ -1,30 +1,30 @@
-Return-Path: <rtc-linux+bncBDKZNNNLXAHBBJPIRS6AKGQE7EYL5ZY@googlegroups.com>
+Return-Path: <rtc-linux+bncBD747RFBYUPBBHPI5W5QKGQE4AMKCVQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mailout1.w1.samsung.com (mailout1.w1.samsung.com. [210.118.77.11])
-        by gmr-mx.google.com with ESMTPS id w75si283749pfd.0.2016.07.10.22.52.36
+Received: from mailout2.samsung.com (mailout2.samsung.com. [203.254.224.25])
+        by gmr-mx.google.com with ESMTPS id i135si336814pfe.0.2016.07.05.01.47.25
         for <rtc-linux@googlegroups.com>
         (version=TLS1 cipher=AES128-SHA bits=128/128);
-        Sun, 10 Jul 2016 22:52:37 -0700 (PDT)
-Received: from eucpsbgm1.samsung.com (unknown [203.254.199.244])
- by mailout1.w1.samsung.com
- (Oracle Communications Messaging Server 7.0.5.31.0 64bit (built May  5 2014))
- with ESMTP id <0OA400L5ZYZKVC10@mailout1.w1.samsung.com> for
- rtc-linux@googlegroups.com; Mon, 11 Jul 2016 06:52:32 +0100 (BST)
-Subject: [rtc-linux] Re: [PATCH 3/3] ARM: dts: exynos: correct the rtc
- compatible value for exynos5
-To: Randy Li <ayaka@soulik.info>
-References: <1468056226-19128-1-git-send-email-ayaka@soulik.info>
- <1468056226-19128-4-git-send-email-ayaka@soulik.info>
-Cc: alexandre.belloni@free-electrons.com, a.zummo@towertech.it,
- rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org, robh+dt@kernel.org,
- mark.rutland@arm.com, linux@armlinux.org.uk, devicetree@vger.kernel.org,
- linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org
-From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-Message-id: <5783341F.1030006@samsung.com>
-Date: Mon, 11 Jul 2016 07:52:31 +0200
+        Tue, 05 Jul 2016 01:47:25 -0700 (PDT)
+Received: from epcpsbgr2.samsung.com
+ (u142.gpu120.samsung.co.kr [203.254.230.142])
+ by mailout2.samsung.com (Oracle Communications Messaging Server 7.0.5.31.0
+ 64bit (built May  5 2014))
+ with ESMTP id <0O9U00XY032ZR8D0@mailout2.samsung.com> for
+ rtc-linux@googlegroups.com; Tue, 05 Jul 2016 17:47:23 +0900 (KST)
+Message-id: <577B73FE.1020509@samsung.com>
+Date: Tue, 05 Jul 2016 14:16:54 +0530
+From: Alim Akhtar <alim.akhtar@samsung.com>
 MIME-version: 1.0
-In-reply-to: <1468056226-19128-4-git-send-email-ayaka@soulik.info>
-Content-type: text/plain; charset=UTF-8
+To: Krzysztof Kozlowski <k.kozlowski@samsung.com>, rtc-linux@googlegroups.com,
+ linux-kernel@vger.kernel.org
+Cc: alexandre.belloni@free-electrons.com, javier@osg.samsung.com,
+ pankaj.dubey@samsung.com
+Subject: [rtc-linux] Re: [RFC PATCH 1/2] rtc: s3c: Remove unnecessary call to
+ disable already disabled clock
+References: <1467630195-6929-1-git-send-email-alim.akhtar@samsung.com>
+ <577B5F28.1010905@samsung.com>
+In-reply-to: <577B5F28.1010905@samsung.com>
+Content-type: text/plain; charset=UTF-8; format=flowed
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -34,51 +34,53 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 07/09/2016 11:23 AM, Randy Li wrote:
-> Those platforms are reported to use the same rtc IP core
-> as exynos3250's.
+Hi Krzsztof,
 
-Insufficient. Exynos4 also has to be updated. Actually all SoC from SoC
-family requires rtc src clock. I think S3C6410 also requires it but I
-don't have all the data necessary to confirm this.
+On 07/05/2016 12:48 PM, Krzysztof Kozlowski wrote:
+> On 07/04/2016 01:03 PM, Alim Akhtar wrote:
+>> At the end of s3c_rtc_probe(), s3c_rtc_disable_clk() being called with rtc
+>> clock already disabled, which looks extra and unnecessary call.
+>> Lets clean it up.
+>
+> Does not look right. Till that place, the clocks are enabled. Then
+> s3c_rtc_setaie() is called which expects that clocks are disabled...
+> otherwise counters get mixed.
+>
 
-Best regards,
-Krzysztof
+The clock is always disabled when it reach s3c_rtc_setfreq() in probe(),
+because s3c_rtc_gettime() will always disable the clock.
 
-> 
-> Signed-off-by: Randy Li <ayaka@soulik.info>
-> ---
->  arch/arm/boot/dts/exynos3250.dtsi | 2 +-
->  arch/arm/boot/dts/exynos5.dtsi    | 2 +-
->  2 files changed, 2 insertions(+), 2 deletions(-)
-> 
-> diff --git a/arch/arm/boot/dts/exynos3250.dtsi b/arch/arm/boot/dts/exynos3250.dtsi
-> index 62f3dcd..cdd69a0 100644
-> --- a/arch/arm/boot/dts/exynos3250.dtsi
-> +++ b/arch/arm/boot/dts/exynos3250.dtsi
-> @@ -208,7 +208,7 @@
->  		};
->  
->  		rtc: rtc@10070000 {
-> -			compatible = "samsung,s3c6410-rtc";
-> +			compatible = "samsung,exynos3250-rtc";
->  			reg = <0x10070000 0x100>;
->  			interrupts = <0 73 0>, <0 74 0>;
->  			interrupt-parent = <&pmu_system_controller>;
-> diff --git a/arch/arm/boot/dts/exynos5.dtsi b/arch/arm/boot/dts/exynos5.dtsi
-> index d5c0f18..71a1ad2 100644
-> --- a/arch/arm/boot/dts/exynos5.dtsi
-> +++ b/arch/arm/boot/dts/exynos5.dtsi
-> @@ -88,7 +88,7 @@
->  	};
->  
->  	rtc: rtc@101E0000 {
-> -		compatible = "samsung,s3c6410-rtc";
-> +		compatible = "samsung,exynos3250-rtc";
->  		reg = <0x101E0000 0x100>;
->  		interrupts = <0 43 0>, <0 44 0>;
->  		status = "disabled";
-> 
+As far as s3c_rtc_setaie() is concern, it enables clock while entering 
+and disables it while leaving the function. And in 
+s3c_rtc_{enable,disable}_clk() there is check info->clk_disabled flag 
+which will make sure clock balancing.
+
+> So overall this looks like wrong approach unless I am missing something?
+>
+> Best regards,
+> Krzysztof
+>
+>>
+>> Signed-off-by: Alim Akhtar <alim.akhtar@samsung.com>
+>> ---
+>>   drivers/rtc/rtc-s3c.c |    2 --
+>>   1 file changed, 2 deletions(-)
+>>
+>> diff --git a/drivers/rtc/rtc-s3c.c b/drivers/rtc/rtc-s3c.c
+>> index d01ad7e..b083840 100644
+>> --- a/drivers/rtc/rtc-s3c.c
+>> +++ b/drivers/rtc/rtc-s3c.c
+>> @@ -577,8 +577,6 @@ static int s3c_rtc_probe(struct platform_device *pdev)
+>>
+>>   	s3c_rtc_setfreq(info, 1);
+>>
+>> -	s3c_rtc_disable_clk(info);
+>> -
+>>   	return 0;
+>>
+>>    err_nortc:
+>
+>
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
