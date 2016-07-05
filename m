@@ -1,33 +1,29 @@
-Return-Path: <rtc-linux+bncBDI57DN47YOBBDXNXO6AKGQE53CYD4Q@googlegroups.com>
+Return-Path: <rtc-linux+bncBCEPJZEDQIBBBH466C5QKGQE7PPAEKY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail-pf0-f170.google.com (mail-pf0-f170.google.com. [209.85.192.170])
-        by gmr-mx.google.com with ESMTPS id a133si77389pfa.0.2016.07.19.20.57.02
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 19 Jul 2016 20:57:02 -0700 (PDT)
-Received: by mail-pf0-f170.google.com with SMTP id h186so14238834pfg.3
-        for <rtc-linux@googlegroups.com>; Tue, 19 Jul 2016 20:57:02 -0700 (PDT)
-Date: Wed, 20 Jul 2016 09:26:59 +0530
-From: Pratyush Anand <panand@redhat.com>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Thomas Gleixner <tglx@linutronix.de>, mingo@kernel.org,
-	hpa@zytor.com, x86@kernel.org
-Cc: Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
-	open list <linux-kernel@vger.kernel.org>,
-	Prarit Bhargava <prarit@redhat.com>,
-	RuiRui Yang <dyoung@redhat.com>
-Subject: [rtc-linux] Re: [PATCH RFC 0/2] rtc-cmos: Workaround unwanted
- interrupt generation
-Message-ID: <20160720035659.GA4797@localhost.localdomain>
-References: <cover.1466484019.git.panand@redhat.com>
- <20160627044907.GA29870@dhcppc9>
- <20160704161948.GB11075@dhcppc9>
- <CAHB_Gup0uaOrr9R5qaydc2057o-L290Jwqd2iC0-+tsEwzKbQQ@mail.gmail.com>
- <20160719142907.GG7132@piout.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <20160719142907.GG7132@piout.net>
+Received: from rainbowdash.ducie.codethink.co.uk (82-70-136-246.dsl.in-addr.zen.co.uk. [82.70.136.246])
+        by gmr-mx.google.com with ESMTPS id a186si85901wma.1.2016.07.05.12.48.47
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
+        Tue, 05 Jul 2016 12:48:47 -0700 (PDT)
+From: Ben Dooks <ben.dooks@codethink.co.uk>
+To: linux-kernel@lists.codethink.co.uk,
+	linux-amlogic@lists.infradead.org,
+	rtc-linux@googlegroups.com
+Cc: a.zummo@towertech.it,
+	alexandre.belloni@free-electrons.com,
+	devicetree@vger.kernel.org,
+	narmstrong@baylibre.com,
+	frowand.list@gmail.com,
+	khilman@baylibre.com,
+	Ben Dooks <ben.dooks@codethink.co.uk>
+Subject: [rtc-linux] [PATCH v3 2/4] meson-rtc: add device-tree binding
+Date: Tue,  5 Jul 2016 20:48:42 +0100
+Message-Id: <1467748122-14833-4-git-send-email-ben.dooks@codethink.co.uk>
+In-Reply-To: <1467748122-14833-1-git-send-email-ben.dooks@codethink.co.uk>
+References: <1467748122-14833-1-git-send-email-ben.dooks@codethink.co.uk>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -36,51 +32,44 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 19/07/2016:04:29:07 PM, Alexandre Belloni wrote:
-> Hi,
-> 
-> On 18/07/2016 at 17:17:44 +0530, Pratyush Anand wrote :
-> > Hi RTC-Maintainers,
-> > 
-> > 
-> > On Mon, Jul 4, 2016 at 9:49 PM, Pratyush Anand <panand@redhat.com> wrote:
-> > > On 27/06/2016:10:19:07 AM, Pratyush Anand wrote:
-> > >> On 21/06/2016:10:25:34 AM, Pratyush Anand wrote:
-> > >> > We have observed on few machines with rtc-cmos device that
-> > >> > hpet_rtc_interrupt() is called before cmos_do_probe() could call
-> > >> > hpet_rtc_timer_init(). It has not been observed during normal boot/reboot
-> > >> > of machines. It *sometime* happens when system is booted with kdump
-> > >> > secondary kernel. So, neither hpet_default_delta nor hpet_t1_cmp is
-> > >> > initialized by the time interrupt is raised in the given situation.
-> > >> > Therefore while loop of hpet_cnt_ahead() in hpet_rtc_timer_reinit() never
-> > >> > completes. This leads to "NMI watchdog: Watchdog detected hard LOCKUP on
-> > >> > cpu 0".
-> > >> >
-> > >> > I am still clueless, how can an interrupt be raised before RTC is enabled.
-> > >> > But i do not have any idea about this device, so I am putting this patch as
-> > >> > RFC to get feedback from hpet/rtc-cmos developer. I am sure there would be
-> > >> > some better solution than this.
-> > >>
-> > >> Do you think that if I improve commit log of patches as pointed by Thomas and
-> > >> send a formal version of these patches, then they should acceptable to upstream?
-> > >
-> > > A gentle reminder for your comment/feedback :-)
-> > 
-> > Please let me know how to make progress on this. If you think, there
-> > could be some better way to handle this issue then please let me know.
-> > If you need any more data then also please let me know.
-> > 
-> 
-> Well, the change is x86 specific and I don't know much about HPET so
-> until you get an ack from the x86 maintainers, I guess I can't help
-> much.
+Add documentation for the AMLogic Meson RTC.
 
-Thanks Alexandre for your reply.
+Signed-off-by: Ben Dooks <ben.dooks@codethink.co.uk>
+Acked-by: Rob Herring <robh@kernel.org>
+---
+ .../devicetree/bindings/rtc/rtc-amlogic.txt         | 21 +++++++++++++++++++++
+ 1 file changed, 21 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/rtc/rtc-amlogic.txt
 
-Thomas, Ingo, Peter, Your comment/feedback will be very helpful to make progress
-on this.
-
-~Pratyush
+diff --git a/Documentation/devicetree/bindings/rtc/rtc-amlogic.txt b/Documentation/devicetree/bindings/rtc/rtc-amlogic.txt
+new file mode 100644
+index 0000000..efc7672
+--- /dev/null
++++ b/Documentation/devicetree/bindings/rtc/rtc-amlogic.txt
+@@ -0,0 +1,21 @@
++* AMlogic Meson RTC
++
++Required properties:
++- compatible: should be one of the following describing the hardware:
++	* "amlogic,meson6-rtc"
++	* "amlogic,meson8-rtc"
++	* "amlogic,meson8b-rtc"
++
++- reg: physical register space for the controller's memory mapped registers.
++
++Optional properties:
++- resets: reset controller reference to allow reset of the controller
++- interrupts: single interrupt reference if interrupt support needed
++
++Example:
++
++	rtc: rtc@c8100740 {
++		compatible = "amlogic,meson6-rtc";
++		reg = <0xc8100740 0x14>;
++		status = "disabled";
++	};
+-- 
+2.8.1
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
