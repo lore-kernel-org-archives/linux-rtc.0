@@ -1,20 +1,18 @@
-Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBSUPXG6AKGQEF7RGNQA@googlegroups.com>
+Return-Path: <rtc-linux+bncBAABBF4J6O5QKGQEFFPOXLA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id o85si1158351wme.0.2016.07.19.08.31.22
-        for <rtc-linux@googlegroups.com>;
-        Tue, 19 Jul 2016 08:31:22 -0700 (PDT)
-Date: Tue, 19 Jul 2016 17:31:21 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>, linux-kernel@vger.kernel.org,
-	rtc-linux@googlegroups.com
-Subject: [rtc-linux] Re: [PATCH] rtc: m41t80: use devm_add_action_or_reset()
-Message-ID: <20160719153121.GI7132@piout.net>
-References: <1467577138-30453-1-git-send-email-sudipm.mukherjee@gmail.com>
+Received: from mail-out1.kundencontroller.de (mail-out1.kundencontroller.de. [85.31.184.34])
+        by gmr-mx.google.com with ESMTPS id c135si249246wme.2.2016.07.06.01.43.03
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 06 Jul 2016 01:43:03 -0700 (PDT)
+From: Stephan Roslen <stephan@roslen.de>
+Subject: [rtc-linux] [PATCH] rtc: sunxi: use external oscillator
+To: a.zummo@towertech.it, alexandre.belloni@free-electrons.com,
+ maxime.ripard@free-electrons.com, wens@csie.org, rtc-linux@googlegroups.com
+Message-ID: <577CC494.8020103@roslen.de>
+Date: Wed, 6 Jul 2016 10:43:00 +0200
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1467577138-30453-1-git-send-email-sudipm.mukherjee@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -24,23 +22,68 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 03/07/2016 at 21:18:58 +0100, Sudip Mukherjee wrote :
-> If devm_add_action() fails we are explicitly calling the cleanup to free
-> the resources allocated.  Lets use the helper devm_add_action_or_reset()
-> and return directly in case of error, as we know that the cleanup function
-> has been already called by the helper if there was any error.
-> 
-> Signed-off-by: Sudip Mukherjee <sudip.mukherjee@codethink.co.uk>
-> ---
->  drivers/rtc/rtc-m41t80.c | 5 ++---
->  1 file changed, 2 insertions(+), 3 deletions(-)
-> 
-Applied, thanks.
+We noticed some serious drift problems in Allwinner A20 RTCs. I found out, that the oscillator source needs to be set to an external 32.768 KHz oscillator instead of the internal 32.000 KHz oscillator.
 
+Signed-off-by: Stephan Roslen <stephan@roslen.de>
+---
+ drivers/rtc/rtc-sunxi.c | 25 +++++++++++++++++++++++++
+ 1 file changed, 25 insertions(+)
+
+diff --git a/drivers/rtc/rtc-sunxi.c b/drivers/rtc/rtc-sunxi.c
+index abada60..001256e 100644
+--- a/drivers/rtc/rtc-sunxi.c
++++ b/drivers/rtc/rtc-sunxi.c
+@@ -34,9 +34,19 @@
+ #include <linux/types.h>
+ 
+ #define SUNXI_LOSC_CTRL				0x0000
++
++/* magic number required to set bit 0 */
++#define SUNXI_LOSC_CTRL_KEY			0x16AA0000
++
++#define SUNXI_LOSC_CTRL_AUTO_SWT_EN		BIT(14)
++
+ #define SUNXI_LOSC_CTRL_RTC_HMS_ACC		BIT(8)
+ #define SUNXI_LOSC_CTRL_RTC_YMD_ACC		BIT(7)
+ 
++#define SUNXI_LOSC_CTRL_EXT_GSM1		BIT(3)
++#define SUNXI_LOSC_CTRL_EXT_GSM0		BIT(2)
++#define SUNXI_LOSC_CTRL_SRC_SEL			BIT(0)
++
+ #define SUNXI_RTC_YMD				0x0004
+ 
+ #define SUNXI_RTC_HMS				0x0008
+@@ -438,6 +448,8 @@ static int sunxi_rtc_probe(struct platform_device *pdev)
+ 	struct resource *res;
+ 	int ret;
+ 
++	uint32_t loscctrl;
++
+ 	chip = devm_kzalloc(&pdev->dev, sizeof(*chip), GFP_KERNEL);
+ 	if (!chip)
+ 		return -ENOMEM;
+@@ -468,6 +480,19 @@ static int sunxi_rtc_probe(struct platform_device *pdev)
+ 		return -ENODEV;
+ 	}
+ 
++	loscctrl = readl(chip->base + SUNXI_LOSC_CTRL);
++	loscctrl &= ~(SUNXI_LOSC_CTRL_AUTO_SWT_EN);
++	loscctrl |= (SUNXI_LOSC_CTRL_SRC_SEL | SUNXI_LOSC_CTRL_KEY);
++	loscctrl |= SUNXI_LOSC_CTRL_EXT_GSM1;
++	writel(loscctrl, chip->base + SUNXI_LOSC_CTRL);
++	udelay(100);
++
++	loscctrl = readl(chip->base + SUNXI_LOSC_CTRL);
++	if (!(loscctrl & SUNXI_LOSC_CTRL_SRC_SEL)) {
++		dev_err(&pdev->dev, "Error: Set LOSC to external failed.\n");
++		dev_err(&pdev->dev, "Warning: RTC time will be wrong!\n");
++	}
++
+ 	/* clear the alarm count value */
+ 	writel(0, chip->base + SUNXI_ALRM_DHMS);
+ 
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+2.7.4
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
