@@ -1,36 +1,26 @@
-Return-Path: <rtc-linux+bncBCMILY6JWQBBBYUQTS6AKGQEAXVNBQI@googlegroups.com>
+Return-Path: <rtc-linux+bncBDSJBYGBRIMBBWX7665QKGQELQZJD3Y@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from smtp.csie.ntu.edu.tw (smtp.csie.ntu.edu.tw. [140.112.30.61])
-        by gmr-mx.google.com with ESMTPS id i136si32843pfe.1.2016.07.13.20.34.58
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 13 Jul 2016 20:34:58 -0700 (PDT)
-Received: from mail-it0-f51.google.com (mail-it0-f51.google.com [209.85.214.51])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	(Authenticated sender: b93043)
-	by smtp.csie.ntu.edu.tw (Postfix) with ESMTPSA id 0AC7D266E4
-	for <rtc-linux@googlegroups.com>; Thu, 14 Jul 2016 11:34:56 +0800 (CST)
-Received: by mail-it0-f51.google.com with SMTP id f6so1821541ith.0
-        for <rtc-linux@googlegroups.com>; Wed, 13 Jul 2016 20:34:55 -0700 (PDT)
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id 65si47906wmr.3.2016.07.07.00.08.09
+        for <rtc-linux@googlegroups.com>;
+        Thu, 07 Jul 2016 00:08:09 -0700 (PDT)
+Date: Thu, 7 Jul 2016 09:08:09 +0200
+From: Maxime Ripard <maxime.ripard@free-electrons.com>
+To: Stephan Roslen <stephan@roslen.de>
+Cc: Chen-Yu Tsai <wens@csie.org>, Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	rtc-linux@googlegroups.com
+Subject: [rtc-linux] Re: [PATCH] rtc: sunxi: use external oscillator
+Message-ID: <20160707070809.GB5907@lukather>
+References: <577CC494.8020103@roslen.de>
+ <20160706202000.GC4247@lukather>
+ <577DDF8C.6060404@roslen.de>
+ <CAGb2v64Q6ERA2cHP48Wop5hdmKq0aYSUDfU6Q7qDGRJmk5G--g@mail.gmail.com>
+ <577DF2B9.602@roslen.de>
 MIME-Version: 1.0
-In-Reply-To: <146800297598.73491.13472152266331488346@resonance>
-References: <1467302331-9663-1-git-send-email-wens@csie.org>
- <1467302331-9663-5-git-send-email-wens@csie.org> <146800297598.73491.13472152266331488346@resonance>
-From: Chen-Yu Tsai <wens@csie.org>
-Date: Thu, 14 Jul 2016 11:34:34 +0800
-Message-ID: <CAGb2v67ft=EktCcfGFdBN1K4SoOyK+Stz2WuvqScMmRjoBWxfA@mail.gmail.com>
-Subject: [rtc-linux] Re: [PATCH v4 4/7] rtc: ac100: Add clk output support
-To: Michael Turquette <mturquette@baylibre.com>
-Cc: Chen-Yu Tsai <wens@csie.org>, Lee Jones <lee.jones@linaro.org>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>, Rob Herring <robh+dt@kernel.org>,
-	Mark Rutland <mark.rutland@arm.com>, Maxime Ripard <maxime.ripard@free-electrons.com>,
-	Stephen Boyd <sboyd@codeaurora.org>,
-	linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, rtc-linux@googlegroups.com,
-	linux-clk <linux-clk@vger.kernel.org>, devicetree <devicetree@vger.kernel.org>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset=UTF-8
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="7ZAtKRhVyVSsbBD2"
+In-Reply-To: <577DF2B9.602@roslen.de>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -40,80 +30,30 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Sat, Jul 9, 2016 at 2:36 AM, Michael Turquette
-<mturquette@baylibre.com> wrote:
-> Quoting Chen-Yu Tsai (2016-06-30 08:58:48)
->> +static long ac100_clkout_round_rate(struct clk_hw *hw, unsigned long rate,
->> +                                   unsigned long prate)
->> +{
->> +       unsigned long best_rate = 0, tmp_rate, tmp_prate;
->> +       int i;
->> +
->> +       if (prate == AC100_RTC_32K_RATE)
->> +               return divider_round_rate(hw, rate, &prate, NULL,
->> +                                         AC100_CLKOUT_DIV_WIDTH,
->> +                                         CLK_DIVIDER_POWER_OF_TWO);
->> +
->> +       for (i = 0; ac100_clkout_prediv[i].div; i++) {
->> +               tmp_prate = DIV_ROUND_UP(prate, ac100_clkout_prediv[i].val);
->> +               tmp_rate = divider_round_rate(hw, rate, &tmp_prate, NULL,
->> +                                             AC100_CLKOUT_DIV_WIDTH,
->> +                                             CLK_DIVIDER_POWER_OF_TWO);
->> +
->> +               if (tmp_rate > rate)
->> +                       continue;
->> +               if (rate - tmp_rate < best_rate - tmp_rate)
->> +                       best_rate = tmp_rate;
->> +       }
->> +
->> +       return best_rate;
->> +}
->> +
->> +static int ac100_clkout_determine_rate(struct clk_hw *hw,
->> +                                      struct clk_rate_request *req)
->> +{
->> +       struct clk_hw *best_parent;
->> +       unsigned long best = 0;
->> +       int i, num_parents = clk_hw_get_num_parents(hw);
->> +
->> +       for (i = 0; i < num_parents; i++) {
->> +               struct clk_hw *parent = clk_hw_get_parent_by_index(hw, i);
->> +               unsigned long tmp, prate = clk_hw_get_rate(parent);
->> +
->> +               tmp = ac100_clkout_round_rate(hw, req->rate, prate);
->> +
->> +               if (tmp > req->rate)
->> +                       continue;
->> +               if (req->rate - tmp < req->rate - best) {
->> +                       best = tmp;
->> +                       best_parent = parent;
->> +               }
->> +       }
->> +
->> +       if (!best)
->> +               return -EINVAL;
->> +
->> +       req->best_parent_hw = best_parent;
->> +       req->best_parent_rate = best;
->> +       req->rate = best;
->> +
->> +       return 0;
->> +}
->
-> You only need one of the two functions above. Keep the .determine_rate
-> callback and drop .round_rate.
 
-Only .round_rate is set in the clk_ops. ac100_clkout_round_rate just
-serves to split out some of the calculations done per parent.
+--7ZAtKRhVyVSsbBD2
+Content-Type: text/plain; charset=UTF-8
+Content-Disposition: inline
 
-> Otherwise the rest of the clk support looks great to me. Feel free to
-> add:
->
-> Reviewed-by: Michael Turquette <mturquette@baylibre.com>
+On Thu, Jul 07, 2016 at 08:12:09AM +0200, Stephan Roslen wrote:
+> > Within the current sunxi clk structure, the LOSC is registered as a fixed
+> > 32.768 KHz clk. So this patch actually makes things right.
+> 
+> In this case it should still be addressed somewhere in drivers/clk/sunxi, not 
+> in drivers/rtc, I guess? Would you prefer setting the external 32.768 KHz crystal
+> as hard coded default instead of providing the muxer? It could be considered okay,
+> for the data sheet seems to demand presence of the external oscillator and there
+> is absolutely no use in a 32KHz +- 20% oscillator, if a 32.768KHz crystal is
+> available.
 
-Thanks!
+Yes, poking into the registers in drivers/clk would also work.
 
-ChenYu
+Maxime
+
+-- 
+Maxime Ripard, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
@@ -124,3 +64,26 @@ before submitting a driver.
 You received this message because you are subscribed to the Google Groups "rtc-linux" group.
 To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
+
+--7ZAtKRhVyVSsbBD2
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJXff/ZAAoJEBx+YmzsjxAgKk8QAKOltZhAGJe9VkbyrMURjWnT
+WQR+2N1doXVoigf7v2+ZaEijpxgPxAi0SRvNcc0+Mhdc21jJQM3imWpd1CME96di
+NXbpeOU1zy6Ab6QdZYDBXLyEYUsVVViRy8leNmh+zWWK03nC751B5kpZ8lOw2sYI
+nBxw3hZD6FXvHundk4/eS6V/1X7V4o8xJ1/7zZkD2Z60hfhQ5rfVxobtEYzg78Xi
+l9cldWv0q3slPbldKtxb4MpPJJg1k3KANHVNNtArRudpnY6HyHOYOHjz0QmFalmy
+l7SOF4n/tMAOlDGZzSUfGptGtd0A2/VLXpiMSOErsQcm/NCDKVBL9BRIW/vWJRY2
+CIt+d5ws87YNPI68qsO3IEtRA1QEmCBgvYSVneoxJLQI2OgSfSZQMTwGk/fjQ3Be
+pxSP9RL6D7ondOyLGOztaDL7I02tkTX4EWLtiXMDdb6MLs9v9GdFuBPylO2fDFL5
+eO5v3+nd1G10MSNr/T+CLNRY4+hVfjctjFhNR4rQV9XfyF0MDIMjPGDqpPEQfJy/
+zRnfsxLapTxdMOYyYGbs6ffJL/wWzFbqcshnSbHSs2RC1hZLWdTfLWm0FXy7HYts
+f5xubRqsVH1GeKaB0RMqPHducdNT5L7hzD0sgmBvZ01MK40NnDRY6htaEwz9zaaZ
+Svp7N7r9unHCTsKPznwG
+=PbgV
+-----END PGP SIGNATURE-----
+
+--7ZAtKRhVyVSsbBD2--
