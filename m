@@ -1,34 +1,26 @@
-Return-Path: <rtc-linux+bncBDAYD2P3QYGRB2PAXC6AKGQE4W2Z6EI@googlegroups.com>
+Return-Path: <rtc-linux+bncBAABBBUH7C5QKGQE5CCPLZA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-MIME-Version: 1.0
-Received: from mail-wm0-x22b.google.com (mail-wm0-x22b.google.com. [2a00:1450:400c:c09::22b])
-        by gmr-mx.google.com with ESMTPS id v14si985803wmf.0.2016.07.19.06.51.37
+Received: from mail-out1.kundencontroller.de (mail-out1.kundencontroller.de. [2a02:180:ffff:1::551f:b822])
+        by gmr-mx.google.com with ESMTPS id x70si42823wmf.1.2016.07.06.23.12.16
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 19 Jul 2016 06:51:37 -0700 (PDT)
-Received: by mail-wm0-x22b.google.com with SMTP id o80so27229952wme.1
-        for <rtc-linux@googlegroups.com>; Tue, 19 Jul 2016 06:51:37 -0700 (PDT)
-From: Neil Armstrong <narmstrong@baylibre.com>
-To: andy.gross@linaro.org,
-	david.brown@linaro.org,
-	lee.jones@linaro.org,
-	lgirdwood@gmail.com,
-	broonie@kernel.org,
-	a.zummo@towertech.it,
-	alexandre.belloni@free-electrons.com
-Cc: Neil Armstrong <narmstrong@baylibre.com>,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	linux-arm-msm@vger.kernel.org,
-	linux-soc@vger.kernel.org,
-	rtc-linux@googlegroups.com
-Subject: [rtc-linux] [PATCH v3 1/4] mfd: pm8921: Add support for pm8018
-Date: Tue, 19 Jul 2016 15:51:23 +0200
-Message-Id: <1468936286-2710-2-git-send-email-narmstrong@baylibre.com>
-In-Reply-To: <1468936286-2710-1-git-send-email-narmstrong@baylibre.com>
-References: <1468936286-2710-1-git-send-email-narmstrong@baylibre.com>
-Reply-To: rtc-linux@googlegroups.com
+        Wed, 06 Jul 2016 23:12:16 -0700 (PDT)
+Subject: [rtc-linux] Re: [PATCH] rtc: sunxi: use external oscillator
+To: Chen-Yu Tsai <wens@csie.org>
+References: <577CC494.8020103@roslen.de> <20160706202000.GC4247@lukather>
+ <577DDF8C.6060404@roslen.de>
+ <CAGb2v64Q6ERA2cHP48Wop5hdmKq0aYSUDfU6Q7qDGRJmk5G--g@mail.gmail.com>
+Cc: Maxime Ripard <maxime.ripard@free-electrons.com>,
+ Alessandro Zummo <a.zummo@towertech.it>,
+ Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+ rtc-linux@googlegroups.com
+From: Stephan Roslen <stephan@roslen.de>
+Message-ID: <577DF2B9.602@roslen.de>
+Date: Thu, 7 Jul 2016 08:12:09 +0200
+MIME-Version: 1.0
+In-Reply-To: <CAGb2v64Q6ERA2cHP48Wop5hdmKq0aYSUDfU6Q7qDGRJmk5G--g@mail.gmail.com>
 Content-Type: text/plain; charset=UTF-8
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -37,30 +29,28 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-In order to support the Qualcomm MDM9615 PMIC, add support for the
-pm8018 in pm8921 mfd driver.
 
-Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Acked-by: Lee Jones <lee.jones@linaro.org>
-Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
----
- drivers/mfd/pm8921-core.c | 1 +
- 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/mfd/pm8921-core.c b/drivers/mfd/pm8921-core.c
-index 1b7ec08..0e3a2ea 100644
---- a/drivers/mfd/pm8921-core.c
-+++ b/drivers/mfd/pm8921-core.c
-@@ -309,6 +309,7 @@ static const struct regmap_config ssbi_regmap_config = {
- };
- 
- static const struct of_device_id pm8921_id_table[] = {
-+	{ .compatible = "qcom,pm8018", },
- 	{ .compatible = "qcom,pm8058", },
- 	{ .compatible = "qcom,pm8921", },
- 	{ }
--- 
-1.9.1
+On 07.07.2016 06:53, Chen-Yu Tsai wrote:
+> On Thu, Jul 7, 2016 at 12:50 PM, Stephan Roslen <stephan@roslen.de> wrote:
+>> I agree. Checking the diagram in subsection 1.5.2 of the A20 manual it seems, that LOSC can be a source for clocks like CPU and some SoC busses. So my patch could indeed mess with the whole clock tree.
+> 
+> (Please wrap your email)
+
+Sorry.
+
+> 
+> Within the current sunxi clk structure, the LOSC is registered as a fixed
+> 32.768 KHz clk. So this patch actually makes things right.
+
+In this case it should still be addressed somewhere in drivers/clk/sunxi, not 
+in drivers/rtc, I guess? Would you prefer setting the external 32.768 KHz crystal
+as hard coded default instead of providing the muxer? It could be considered okay,
+for the data sheet seems to demand presence of the external oscillator and there
+is absolutely no use in a 32KHz +- 20% oscillator, if a 32.768KHz crystal is
+available.
+
+Stephan
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
