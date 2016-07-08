@@ -1,25 +1,28 @@
-Return-Path: <rtc-linux+bncBAABBTNGRW6AKGQE36UF66I@googlegroups.com>
+Return-Path: <rtc-linux+bncBCMILY6JWQBBBUXT725QKGQE64XZZBY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from arcturus.kleine-koenig.org (arcturus.kleine-koenig.org. [78.47.169.190])
-        by gmr-mx.google.com with ESMTPS id f10si41648wmg.2.2016.07.11.01.05.33
+MIME-Version: 1.0
+Received: from wens.csie.org (mirror2.csie.ntu.edu.tw. [140.112.30.76])
+        by gmr-mx.google.com with ESMTPS id z4si250954pam.0.2016.07.08.07.33.53
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 11 Jul 2016 01:05:33 -0700 (PDT)
-From: =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <uwe@kleine-koenig.org>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Ben Hutchings <benh@debian.org>,
+        Fri, 08 Jul 2016 07:33:53 -0700 (PDT)
+From: Chen-Yu Tsai <wens@csie.org>
+To: Lee Jones <lee.jones@linaro.org>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Maxime Ripard <maxime.ripard@free-electrons.com>
+Cc: Chen-Yu Tsai <wens@csie.org>,
+	linux-kernel@vger.kernel.org,
 	rtc-linux@googlegroups.com,
-	kernel@pengutronix.de,
-	Alessandro Zummo <a.zummo@towertech.it>
-Subject: [rtc-linux] [PATCH 1/2] rtc: explicitly set tm_sec = 0 for drivers
- with minute accurancy
-Date: Mon, 11 Jul 2016 10:05:27 +0200
-Message-Id: <1468224328-7391-2-git-send-email-uwe@kleine-koenig.org>
-In-Reply-To: <1468224328-7391-1-git-send-email-uwe@kleine-koenig.org>
-References: <1468224328-7391-1-git-send-email-uwe@kleine-koenig.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+	devicetree@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org
+Subject: [rtc-linux] [PATCH v5 4/7] rtc: ac100: Add clk output support
+Date: Fri,  8 Jul 2016 22:33:39 +0800
+Message-Id: <1467988422-17934-5-git-send-email-wens@csie.org>
+In-Reply-To: <1467988422-17934-1-git-send-email-wens@csie.org>
+References: <1467988422-17934-1-git-send-email-wens@csie.org>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -28,105 +31,392 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Since all time members of the alarm data is initialized to -1 the drivers
-are responsible to set the tm_sec member to 0.
+The AC100's RTC side has 3 clock outputs on external pins, which can
+provide a clock signal to the SoC or other modules, such as WiFi or
+GSM modules.
 
-Fixes: d68778b80dd7 ("rtc: initialize output parameter for read alarm to "u=
-ninitialized"")
-Signed-off-by: Uwe Kleine-K=C3=B6nig <uwe@kleine-koenig.org>
+Support this with a custom clk driver integrated with the rtc driver.
+
+Signed-off-by: Chen-Yu Tsai <wens@csie.org>
 ---
-Hello,
+Changes since v4: none
 
-while going through all .read_alarm functions I wondered about rtc-sa1100
-which only sets .enabled and .pending but no time.
+Changes since v3:
 
-Best regards
-Uwe
+  - Renamed clk32k prefixes to clkout, except for the internal 32k clk
+  - Changed default clk output names to "ac100-cko{1,2,3}-rtc"
+  - Moved 4M ADDA clk to codec side
+
+Changes since v2: none
+Changes since v1: none
+
 ---
- drivers/rtc/rtc-da9052.c  | 1 +
- drivers/rtc/rtc-da9055.c  | 1 +
- drivers/rtc/rtc-davinci.c | 2 ++
- drivers/rtc/rtc-pcf8563.c | 1 +
- drivers/rtc/rtc-rc5t583.c | 1 +
- 5 files changed, 6 insertions(+)
+ drivers/rtc/rtc-ac100.c | 302 ++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 302 insertions(+)
 
-diff --git a/drivers/rtc/rtc-da9052.c b/drivers/rtc/rtc-da9052.c
-index a20bcf0e33cd..4273377562ec 100644
---- a/drivers/rtc/rtc-da9052.c
-+++ b/drivers/rtc/rtc-da9052.c
-@@ -85,6 +85,7 @@ static int da9052_read_alarm(struct da9052_rtc *rtc, stru=
-ct rtc_time *rtc_tm)
- 			rtc_tm->tm_mday =3D v[0][2] & DA9052_RTC_DAY;
- 			rtc_tm->tm_hour =3D v[0][1] & DA9052_RTC_HOUR;
- 			rtc_tm->tm_min  =3D v[0][0] & DA9052_RTC_MIN;
-+			rtc_tm->tm_sec =3D 0;
-=20
- 			ret =3D rtc_valid_tm(rtc_tm);
- 			return ret;
-diff --git a/drivers/rtc/rtc-da9055.c b/drivers/rtc/rtc-da9055.c
-index 7ec0872d5e3b..678af8648c45 100644
---- a/drivers/rtc/rtc-da9055.c
-+++ b/drivers/rtc/rtc-da9055.c
-@@ -74,6 +74,7 @@ static int da9055_read_alarm(struct da9055 *da9055, struc=
-t rtc_time *rtc_tm)
- 	rtc_tm->tm_mday =3D v[2] & DA9055_RTC_ALM_DAY;
- 	rtc_tm->tm_hour =3D v[1] & DA9055_RTC_ALM_HOUR;
- 	rtc_tm->tm_min  =3D v[0] & DA9055_RTC_ALM_MIN;
-+	rtc_tm->tm_sec =3D 0;
-=20
- 	return rtc_valid_tm(rtc_tm);
- }
-diff --git a/drivers/rtc/rtc-davinci.c b/drivers/rtc/rtc-davinci.c
-index c5432bf64e1c..dba60c1dfce2 100644
---- a/drivers/rtc/rtc-davinci.c
-+++ b/drivers/rtc/rtc-davinci.c
-@@ -388,6 +388,8 @@ static int davinci_rtc_read_alarm(struct device *dev, s=
-truct rtc_wkalrm *alm)
- 	u8 day0, day1;
- 	unsigned long flags;
-=20
-+	alm->time.tm_sec =3D 0;
+diff --git a/drivers/rtc/rtc-ac100.c b/drivers/rtc/rtc-ac100.c
+index 5a9ca89d04c7..70b4fd0f6122 100644
+--- a/drivers/rtc/rtc-ac100.c
++++ b/drivers/rtc/rtc-ac100.c
+@@ -16,6 +16,7 @@
+  */
+ 
+ #include <linux/bcd.h>
++#include <linux/clk-provider.h>
+ #include <linux/device.h>
+ #include <linux/interrupt.h>
+ #include <linux/kernel.h>
+@@ -31,6 +32,15 @@
+ /* Control register */
+ #define AC100_RTC_CTRL_24HOUR	BIT(0)
+ 
++/* Clock output register bits */
++#define AC100_CLKOUT_PRE_DIV_SHIFT	5
++#define AC100_CLKOUT_PRE_DIV_WIDTH	3
++#define AC100_CLKOUT_MUX_SHIFT		4
++#define AC100_CLKOUT_MUX_WIDTH		1
++#define AC100_CLKOUT_DIV_SHIFT		1
++#define AC100_CLKOUT_DIV_WIDTH		3
++#define AC100_CLKOUT_EN			BIT(0)
 +
- 	spin_lock_irqsave(&davinci_rtc_lock, flags);
-=20
- 	davinci_rtcss_calendar_wait(davinci_rtc);
-diff --git a/drivers/rtc/rtc-pcf8563.c b/drivers/rtc/rtc-pcf8563.c
-index 26091a48925f..1227ceab61ee 100644
---- a/drivers/rtc/rtc-pcf8563.c
-+++ b/drivers/rtc/rtc-pcf8563.c
-@@ -341,6 +341,7 @@ static int pcf8563_rtc_read_alarm(struct device *dev, s=
-truct rtc_wkalrm *tm)
- 		"%s: raw data is min=3D%02x, hr=3D%02x, mday=3D%02x, wday=3D%02x\n",
- 		__func__, buf[0], buf[1], buf[2], buf[3]);
-=20
-+	tm->time.tm_sec =3D 0;
- 	tm->time.tm_min =3D bcd2bin(buf[0] & 0x7F);
- 	tm->time.tm_hour =3D bcd2bin(buf[1] & 0x3F);
- 	tm->time.tm_mday =3D bcd2bin(buf[2] & 0x3F);
-diff --git a/drivers/rtc/rtc-rc5t583.c b/drivers/rtc/rtc-rc5t583.c
-index f28d57788951..68ce77414bdc 100644
---- a/drivers/rtc/rtc-rc5t583.c
-+++ b/drivers/rtc/rtc-rc5t583.c
-@@ -128,6 +128,7 @@ static int rc5t583_rtc_read_alarm(struct device *dev, s=
-truct rtc_wkalrm *alm)
- 		return ret;
+ /* RTC */
+ #define AC100_RTC_SEC_MASK	GENMASK(6, 0)
+ #define AC100_RTC_MIN_MASK	GENMASK(6, 0)
+@@ -67,14 +77,292 @@
+ #define AC100_YEAR_MAX				2069
+ #define AC100_YEAR_OFF				(AC100_YEAR_MIN - 1900)
+ 
++struct ac100_clkout {
++	struct clk_hw hw;
++	struct regmap *regmap;
++	u8 offset;
++};
++
++#define to_ac100_clkout(_hw) container_of(_hw, struct ac100_clkout, hw)
++
++#define AC100_RTC_32K_NAME	"ac100-rtc-32k"
++#define AC100_RTC_32K_RATE	32768
++#define AC100_CLKOUT_NUM	3
++
++static const char * const ac100_clkout_names[AC100_CLKOUT_NUM] = {
++	"ac100-cko1-rtc",
++	"ac100-cko2-rtc",
++	"ac100-cko3-rtc",
++};
++
+ struct ac100_rtc_dev {
+ 	struct rtc_device *rtc;
+ 	struct device *dev;
+ 	struct regmap *regmap;
+ 	int irq;
+ 	unsigned long alarm;
++
++	struct clk_hw *rtc_32k_clk;
++	struct ac100_clkout clks[AC100_CLKOUT_NUM];
++	struct clk_hw_onecell_data *clk_data;
+ };
+ 
++/**
++ * Clock controls for 3 clock output pins
++ */
++
++static const struct clk_div_table ac100_clkout_prediv[] = {
++	{ .val = 0, .div = 1 },
++	{ .val = 1, .div = 2 },
++	{ .val = 2, .div = 4 },
++	{ .val = 3, .div = 8 },
++	{ .val = 4, .div = 16 },
++	{ .val = 5, .div = 32 },
++	{ .val = 6, .div = 64 },
++	{ .val = 7, .div = 122 },
++	{ },
++};
++
++/* Abuse the fact that one parent is 32768 Hz, and the other is 4 MHz */
++static unsigned long ac100_clkout_recalc_rate(struct clk_hw *hw,
++					      unsigned long prate)
++{
++	struct ac100_clkout *clk = to_ac100_clkout(hw);
++	unsigned int reg, div;
++
++	regmap_read(clk->regmap, clk->offset, &reg);
++
++	/* Handle pre-divider first */
++	if (prate != AC100_RTC_32K_RATE) {
++		div = (reg >> AC100_CLKOUT_PRE_DIV_SHIFT) &
++			((1 << AC100_CLKOUT_PRE_DIV_WIDTH) - 1);
++		prate = divider_recalc_rate(hw, prate, div,
++					    ac100_clkout_prediv, 0);
++	}
++
++	div = (reg >> AC100_CLKOUT_DIV_SHIFT) &
++		(BIT(AC100_CLKOUT_DIV_WIDTH) - 1);
++	return divider_recalc_rate(hw, prate, div, NULL,
++				   CLK_DIVIDER_POWER_OF_TWO);
++}
++
++static long ac100_clkout_round_rate(struct clk_hw *hw, unsigned long rate,
++				    unsigned long prate)
++{
++	unsigned long best_rate = 0, tmp_rate, tmp_prate;
++	int i;
++
++	if (prate == AC100_RTC_32K_RATE)
++		return divider_round_rate(hw, rate, &prate, NULL,
++					  AC100_CLKOUT_DIV_WIDTH,
++					  CLK_DIVIDER_POWER_OF_TWO);
++
++	for (i = 0; ac100_clkout_prediv[i].div; i++) {
++		tmp_prate = DIV_ROUND_UP(prate, ac100_clkout_prediv[i].val);
++		tmp_rate = divider_round_rate(hw, rate, &tmp_prate, NULL,
++					      AC100_CLKOUT_DIV_WIDTH,
++					      CLK_DIVIDER_POWER_OF_TWO);
++
++		if (tmp_rate > rate)
++			continue;
++		if (rate - tmp_rate < best_rate - tmp_rate)
++			best_rate = tmp_rate;
++	}
++
++	return best_rate;
++}
++
++static int ac100_clkout_determine_rate(struct clk_hw *hw,
++				       struct clk_rate_request *req)
++{
++	struct clk_hw *best_parent;
++	unsigned long best = 0;
++	int i, num_parents = clk_hw_get_num_parents(hw);
++
++	for (i = 0; i < num_parents; i++) {
++		struct clk_hw *parent = clk_hw_get_parent_by_index(hw, i);
++		unsigned long tmp, prate = clk_hw_get_rate(parent);
++
++		tmp = ac100_clkout_round_rate(hw, req->rate, prate);
++
++		if (tmp > req->rate)
++			continue;
++		if (req->rate - tmp < req->rate - best) {
++			best = tmp;
++			best_parent = parent;
++		}
++	}
++
++	if (!best)
++		return -EINVAL;
++
++	req->best_parent_hw = best_parent;
++	req->best_parent_rate = best;
++	req->rate = best;
++
++	return 0;
++}
++
++static int ac100_clkout_set_rate(struct clk_hw *hw, unsigned long rate,
++				 unsigned long prate)
++{
++	struct ac100_clkout *clk = to_ac100_clkout(hw);
++	int div = 0, pre_div = 0;
++
++	do {
++		div = divider_get_val(rate * ac100_clkout_prediv[pre_div].div,
++				      prate, NULL, AC100_CLKOUT_DIV_WIDTH,
++				      CLK_DIVIDER_POWER_OF_TWO);
++		if (div >= 0)
++			break;
++	} while (prate != AC100_RTC_32K_RATE &&
++		 ac100_clkout_prediv[++pre_div].div);
++
++	if (div < 0)
++		return div;
++
++	pre_div = ac100_clkout_prediv[pre_div].val;
++
++	regmap_update_bits(clk->regmap, clk->offset,
++			   ((1 << AC100_CLKOUT_DIV_WIDTH) - 1) << AC100_CLKOUT_DIV_SHIFT |
++			   ((1 << AC100_CLKOUT_PRE_DIV_WIDTH) - 1) << AC100_CLKOUT_PRE_DIV_SHIFT,
++			   (div - 1) << AC100_CLKOUT_DIV_SHIFT |
++			   (pre_div - 1) << AC100_CLKOUT_PRE_DIV_SHIFT);
++
++	return 0;
++}
++
++static int ac100_clkout_prepare(struct clk_hw *hw)
++{
++	struct ac100_clkout *clk = to_ac100_clkout(hw);
++
++	return regmap_update_bits(clk->regmap, clk->offset, AC100_CLKOUT_EN,
++				  AC100_CLKOUT_EN);
++}
++
++static void ac100_clkout_unprepare(struct clk_hw *hw)
++{
++	struct ac100_clkout *clk = to_ac100_clkout(hw);
++
++	regmap_update_bits(clk->regmap, clk->offset, AC100_CLKOUT_EN, 0);
++}
++
++static int ac100_clkout_is_prepared(struct clk_hw *hw)
++{
++	struct ac100_clkout *clk = to_ac100_clkout(hw);
++	unsigned int reg;
++
++	regmap_read(clk->regmap, clk->offset, &reg);
++
++	return reg & AC100_CLKOUT_EN;
++}
++
++static u8 ac100_clkout_get_parent(struct clk_hw *hw)
++{
++	struct ac100_clkout *clk = to_ac100_clkout(hw);
++	unsigned int reg;
++
++	regmap_read(clk->regmap, clk->offset, &reg);
++
++	return (reg >> AC100_CLKOUT_MUX_SHIFT) & 0x1;
++}
++
++static int ac100_clkout_set_parent(struct clk_hw *hw, u8 index)
++{
++	struct ac100_clkout *clk = to_ac100_clkout(hw);
++
++	return regmap_update_bits(clk->regmap, clk->offset,
++				  BIT(AC100_CLKOUT_MUX_SHIFT),
++				  index ? BIT(AC100_CLKOUT_MUX_SHIFT) : 0);
++}
++
++static const struct clk_ops ac100_clkout_ops = {
++	.prepare	= ac100_clkout_prepare,
++	.unprepare	= ac100_clkout_unprepare,
++	.is_prepared	= ac100_clkout_is_prepared,
++	.recalc_rate	= ac100_clkout_recalc_rate,
++	.determine_rate	= ac100_clkout_determine_rate,
++	.get_parent	= ac100_clkout_get_parent,
++	.set_parent	= ac100_clkout_set_parent,
++	.set_rate	= ac100_clkout_set_rate,
++};
++
++static int ac100_rtc_register_clks(struct ac100_rtc_dev *chip)
++{
++	struct device_node *np = chip->dev->of_node;
++	const char *parents[2] = {AC100_RTC_32K_NAME};
++	int i, ret;
++
++	chip->clk_data = devm_kzalloc(chip->dev, sizeof(*chip->clk_data) +
++						 sizeof(*chip->clk_data->hws) *
++						 AC100_CLKOUT_NUM,
++						 GFP_KERNEL);
++	if (!chip->clk_data)
++		return -ENOMEM;
++
++	chip->rtc_32k_clk = clk_hw_register_fixed_rate(chip->dev,
++						       AC100_RTC_32K_NAME,
++						       NULL, 0,
++						       AC100_RTC_32K_RATE);
++	if (IS_ERR(chip->rtc_32k_clk)) {
++		ret = PTR_ERR(chip->rtc_32k_clk);
++		dev_err(chip->dev, "Failed to register RTC-32k clock: %d\n",
++			ret);
++		return ret;
++	}
++
++	parents[1] = of_clk_get_parent_name(np, 0);
++	if (!parents[1]) {
++		dev_err(chip->dev, "Failed to get ADDA 4M clock\n");
++		return -EINVAL;
++	}
++
++	for (i = 0; i < AC100_CLKOUT_NUM; i++) {
++		struct ac100_clkout *clk = &chip->clks[i];
++		struct clk_init_data init = {
++			.name = ac100_clkout_names[i],
++			.ops = &ac100_clkout_ops,
++			.parent_names = parents,
++			.num_parents = ARRAY_SIZE(parents),
++			.flags = 0,
++		};
++
++		clk->regmap = chip->regmap;
++		clk->offset = AC100_CLKOUT_CTRL1 + i;
++		clk->hw.init = &init;
++
++		ret = devm_clk_hw_register(chip->dev, &clk->hw);
++		if (ret) {
++			dev_err(chip->dev, "Failed to register clk '%s': %d\n",
++				init.name, ret);
++			goto err_unregister_rtc_32k;
++		}
++
++		chip->clk_data->hws[i] = &clk->hw;
++	}
++
++	chip->clk_data->num = i;
++	ret = of_clk_add_hw_provider(np, of_clk_hw_onecell_get, chip->clk_data);
++	if (ret)
++		goto err_unregister_rtc_32k;
++
++	return 0;
++
++err_unregister_rtc_32k:
++	clk_unregister_fixed_rate(chip->rtc_32k_clk->clk);
++
++	return ret;
++}
++
++static void ac100_rtc_unregister_clks(struct ac100_rtc_dev *chip)
++{
++	of_clk_del_provider(chip->dev->of_node);
++	clk_unregister_fixed_rate(chip->rtc_32k_clk->clk);
++}
++
++/**
++ * RTC related bits
++ */
+ static int ac100_rtc_get_time(struct device *dev, struct rtc_time *rtc_tm)
+ {
+ 	struct ac100_rtc_dev *chip = dev_get_drvdata(dev);
+@@ -300,11 +588,24 @@ static int ac100_rtc_probe(struct platform_device *pdev)
+ 		return PTR_ERR(chip->rtc);
  	}
-=20
-+	alm->time.tm_sec =3D 0;
- 	alm->time.tm_min =3D bcd2bin(alarm_data[0]);
- 	alm->time.tm_hour =3D bcd2bin(alarm_data[1]);
- 	alm->time.tm_mday =3D bcd2bin(alarm_data[2]);
---=20
+ 
++	ret = ac100_rtc_register_clks(chip);
++	if (ret)
++		return ret;
++
+ 	dev_info(&pdev->dev, "RTC enabled\n");
+ 
+ 	return 0;
+ }
+ 
++static int ac100_rtc_remove(struct platform_device *pdev)
++{
++	struct ac100_rtc_dev *chip = platform_get_drvdata(pdev);
++
++	ac100_rtc_unregister_clks(chip);
++
++	return 0;
++}
++
+ static const struct of_device_id ac100_rtc_match[] = {
+ 	{ .compatible = "x-powers,ac100-rtc" },
+ 	{ },
+@@ -313,6 +614,7 @@ MODULE_DEVICE_TABLE(of, ac100_rtc_match);
+ 
+ static struct platform_driver ac100_rtc_driver = {
+ 	.probe		= ac100_rtc_probe,
++	.remove		= ac100_rtc_remove,
+ 	.driver		= {
+ 		.name		= "ac100-rtc",
+ 		.of_match_table	= of_match_ptr(ac100_rtc_match),
+-- 
 2.8.1
 
---=20
+-- 
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
----=20
-You received this message because you are subscribed to the Google Groups "=
-rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an e=
-mail to rtc-linux+unsubscribe@googlegroups.com.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
