@@ -1,26 +1,23 @@
-Return-Path: <rtc-linux+bncBDSJBYGBRIMBBWX7665QKGQELQZJD3Y@googlegroups.com>
+Return-Path: <rtc-linux+bncBDX5ZRH7XQGRBWVF765QKGQEU72PP6Q@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id 65si47906wmr.3.2016.07.07.00.08.09
-        for <rtc-linux@googlegroups.com>;
-        Thu, 07 Jul 2016 00:08:09 -0700 (PDT)
-Date: Thu, 7 Jul 2016 09:08:09 +0200
-From: Maxime Ripard <maxime.ripard@free-electrons.com>
-To: Stephan Roslen <stephan@roslen.de>
-Cc: Chen-Yu Tsai <wens@csie.org>, Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	rtc-linux@googlegroups.com
-Subject: [rtc-linux] Re: [PATCH] rtc: sunxi: use external oscillator
-Message-ID: <20160707070809.GB5907@lukather>
-References: <577CC494.8020103@roslen.de>
- <20160706202000.GC4247@lukather>
- <577DDF8C.6060404@roslen.de>
- <CAGb2v64Q6ERA2cHP48Wop5hdmKq0aYSUDfU6Q7qDGRJmk5G--g@mail.gmail.com>
- <577DF2B9.602@roslen.de>
+Received: from mail-pa0-x235.google.com (mail-pa0-x235.google.com. [2607:f8b0:400e:c03::235])
+        by gmr-mx.google.com with ESMTPS id ph9si621332pac.1.2016.07.08.09.20.42
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Fri, 08 Jul 2016 09:20:42 -0700 (PDT)
+Received: by mail-pa0-x235.google.com with SMTP id fi15so366089pac.1
+        for <rtc-linux@googlegroups.com>; Fri, 08 Jul 2016 09:20:42 -0700 (PDT)
+From: Kevin Hilman <khilman@baylibre.com>
+To: Ben Dooks <ben.dooks@codethink.co.uk>
+Cc: linux-kernel@lists.codethink.co.uk,  linux-amlogic@lists.infradead.org,  rtc-linux@googlegroups.com,  kh@codethink.co.uk,  a.zummo@towertech.it,  narmstrong@baylibre.com,  devicetree@vger.kernel.org,  alexandre.belloni@free-electrons.com,  frowand.list@gmail.com
+Subject: [rtc-linux] Re: [PATCH v3 0/2] AMLogic Meson SoC RTC driver
+References: <1467748089-14718-1-git-send-email-ben.dooks@codethink.co.uk>
+Date: Fri, 08 Jul 2016 09:20:40 -0700
+In-Reply-To: <1467748089-14718-1-git-send-email-ben.dooks@codethink.co.uk>
+	(Ben Dooks's message of "Tue, 5 Jul 2016 20:48:06 +0100")
+Message-ID: <7hinwg85k7.fsf@baylibre.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="7ZAtKRhVyVSsbBD2"
-In-Reply-To: <577DF2B9.602@roslen.de>
+Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -30,30 +27,30 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
+Ben Dooks <ben.dooks@codethink.co.uk> writes:
 
---7ZAtKRhVyVSsbBD2
-Content-Type: text/plain; charset=UTF-8
-Content-Disposition: inline
+> This series adds support for the on SoC RTC driver on the
+> AMLogic Meson devices.
 
-On Thu, Jul 07, 2016 at 08:12:09AM +0200, Stephan Roslen wrote:
-> > Within the current sunxi clk structure, the LOSC is registered as a fixed
-> > 32.768 KHz clk. So this patch actually makes things right.
-> 
-> In this case it should still be addressed somewhere in drivers/clk/sunxi, not 
-> in drivers/rtc, I guess? Would you prefer setting the external 32.768 KHz crystal
-> as hard coded default instead of providing the muxer? It could be considered okay,
-> for the data sheet seems to demand presence of the external oscillator and there
-> is absolutely no use in a 32KHz +- 20% oscillator, if a 32.768KHz crystal is
-> available.
+-ECONFUSED
 
-Yes, poking into the registers in drivers/clk would also work.
+In reply to this patch, there are two other "PATCH v3 0/2" replies, an
+then the two patches themselves, have "PATCH n/4" subjects when one
+would expect "PATCH n/2" subjects.
 
-Maxime
+Might I recommend that you use 'git format-patch --cover-letter
+--subject-prefix="PATCH vX"' when formatting your series.  Doing that
+will take care of all the numbering for you.
 
--- 
-Maxime Ripard, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+Anyways, I was able to test this version with the DTs from the previous
+version, and it works ok.
+
+Can you respin one more time (including the Tested-by) so the RTC
+maintainers can pick it up?
+
+Thanks,
+
+Kevin
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
@@ -64,26 +61,3 @@ before submitting a driver.
 You received this message because you are subscribed to the Google Groups "rtc-linux" group.
 To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
-
---7ZAtKRhVyVSsbBD2
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJXff/ZAAoJEBx+YmzsjxAgKk8QAKOltZhAGJe9VkbyrMURjWnT
-WQR+2N1doXVoigf7v2+ZaEijpxgPxAi0SRvNcc0+Mhdc21jJQM3imWpd1CME96di
-NXbpeOU1zy6Ab6QdZYDBXLyEYUsVVViRy8leNmh+zWWK03nC751B5kpZ8lOw2sYI
-nBxw3hZD6FXvHundk4/eS6V/1X7V4o8xJ1/7zZkD2Z60hfhQ5rfVxobtEYzg78Xi
-l9cldWv0q3slPbldKtxb4MpPJJg1k3KANHVNNtArRudpnY6HyHOYOHjz0QmFalmy
-l7SOF4n/tMAOlDGZzSUfGptGtd0A2/VLXpiMSOErsQcm/NCDKVBL9BRIW/vWJRY2
-CIt+d5ws87YNPI68qsO3IEtRA1QEmCBgvYSVneoxJLQI2OgSfSZQMTwGk/fjQ3Be
-pxSP9RL6D7ondOyLGOztaDL7I02tkTX4EWLtiXMDdb6MLs9v9GdFuBPylO2fDFL5
-eO5v3+nd1G10MSNr/T+CLNRY4+hVfjctjFhNR4rQV9XfyF0MDIMjPGDqpPEQfJy/
-zRnfsxLapTxdMOYyYGbs6ffJL/wWzFbqcshnSbHSs2RC1hZLWdTfLWm0FXy7HYts
-f5xubRqsVH1GeKaB0RMqPHducdNT5L7hzD0sgmBvZ01MK40NnDRY6htaEwz9zaaZ
-Svp7N7r9unHCTsKPznwG
-=PbgV
------END PGP SIGNATURE-----
-
---7ZAtKRhVyVSsbBD2--
