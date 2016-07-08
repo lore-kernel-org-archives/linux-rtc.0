@@ -1,19 +1,25 @@
-Return-Path: <rtc-linux+bncBAABBLV7525QKGQESDMDMKQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBJXR725QKGQEJDZV5LY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-MIME-Version: 1.0
-Received: from root.phytec.de (mail.phycard.co.uk. [217.6.246.34])
-        by gmr-mx.google.com with ESMTP id r10si83181wmf.0.2016.07.05.04.53.18
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id 65si121461wmr.3.2016.07.08.07.28.54
         for <rtc-linux@googlegroups.com>;
-        Tue, 05 Jul 2016 04:53:18 -0700 (PDT)
-From: Stefan Christ <s.christ@phytec.de>
-To: a.zummo@towertech.it, alexandre.belloni@free-electrons.com, rtc-linux@googlegroups.com
-Subject: [rtc-linux] [PATCH 2/2] rtc: m41t80: add suspend handlers for alarm IRQ
-Date: Tue, 5 Jul 2016 13:53:17 +0200
-Message-Id: <1467719597-5593-2-git-send-email-s.christ@phytec.de>
-In-Reply-To: <1467719597-5593-1-git-send-email-s.christ@phytec.de>
-References: <1467719597-5593-1-git-send-email-s.christ@phytec.de>
-Reply-To: rtc-linux@googlegroups.com
+        Fri, 08 Jul 2016 07:28:54 -0700 (PDT)
+Date: Fri, 8 Jul 2016 16:28:53 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Rob Herring <robh@kernel.org>
+Cc: Akinobu Mita <akinobu.mita@gmail.com>, rtc-linux@googlegroups.com,
+	devicetree@vger.kernel.org, Sergey Yanovich <ynvich@gmail.com>,
+	Alessandro Zummo <a.zummo@towertech.it>
+Subject: [rtc-linux] Re: [PATCH v2 2/2] rtc: ds1302: support control with
+ using GPIO lines
+Message-ID: <20160708142853.GJ22202@piout.net>
+References: <1467026362-29446-1-git-send-email-akinobu.mita@gmail.com>
+ <1467026362-29446-3-git-send-email-akinobu.mita@gmail.com>
+ <20160628205704.GT3737@rob-hp-laptop>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <20160628205704.GT3737@rob-hp-laptop>
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -22,59 +28,48 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Allow the alarm IRQ of RTC to be used as a wakeup source for the system
-suspend.
+On 28/06/2016 at 15:57:04 -0500, Rob Herring wrote :
+> On Mon, Jun 27, 2016 at 08:19:22PM +0900, Akinobu Mita wrote:
+> > This adds support control with GPIO lines connected to the DS1302
+> > which can communicate with three wires.
+> > 
+> > Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
+> > Cc: Sergey Yanovich <ynvich@gmail.com>
+> > Cc: Alessandro Zummo <a.zummo@towertech.it>
+> > Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+> > ---
+> >  .../devicetree/bindings/rtc/maxim-ds1302.txt       |  13 +
+> >  drivers/rtc/Kconfig                                |  17 +-
+> >  drivers/rtc/rtc-ds1302.c                           | 320 ++++++++++++++++++++-
+> >  3 files changed, 331 insertions(+), 19 deletions(-)
+> > 
+> > diff --git a/Documentation/devicetree/bindings/rtc/maxim-ds1302.txt b/Documentation/devicetree/bindings/rtc/maxim-ds1302.txt
+> > index ba470c5..d489753 100644
+> > --- a/Documentation/devicetree/bindings/rtc/maxim-ds1302.txt
+> > +++ b/Documentation/devicetree/bindings/rtc/maxim-ds1302.txt
+> > @@ -27,6 +27,12 @@ Required SPI properties:
+> >  - spi-cs-high: DS-1302 has active high chip select line. This is
+> >    required unless inverted in hardware.
+> >  
+> > +Required properties when using GPIO lines:
+> > +
+> > +- gpio-ce: GPIO connected to CE pin
+> > +- gpio-io: GPIO connected to I/O pin
+> > +- gpio-reset: GPIO connected to SCLK pin
+> > +
+> 
+> IIRC, we got rid of the direct gpio bit-banging in this driver (or a 
+> similar one) and replaced it with SPI GPIO driver. We should do that 
+> here.
+> 
 
-Signed-off-by: Stefan Christ <s.christ@phytec.de>
----
- drivers/rtc/rtc-m41t80.c | 25 +++++++++++++++++++++++++
- 1 file changed, 25 insertions(+)
+Well, the fact is that it is not actually SPI but microwire which has
+different timings and we didn't reach a conclusion yet with Mark.
 
-diff --git a/drivers/rtc/rtc-m41t80.c b/drivers/rtc/rtc-m41t80.c
-index 04e8577..4f09089 100644
---- a/drivers/rtc/rtc-m41t80.c
-+++ b/drivers/rtc/rtc-m41t80.c
-@@ -337,6 +337,30 @@ static struct rtc_class_ops m41t80_rtc_ops = {
- 	.proc = m41t80_rtc_proc,
- };
- 
-+#ifdef CONFIG_PM_SLEEP
-+static int m41t80_suspend(struct device *dev)
-+{
-+	struct i2c_client *client = to_i2c_client(dev);
-+
-+	if (client->irq >= 0 && device_may_wakeup(dev))
-+		enable_irq_wake(client->irq);
-+
-+	return 0;
-+}
-+
-+static int m41t80_resume(struct device *dev)
-+{
-+	struct i2c_client *client = to_i2c_client(dev);
-+
-+	if (client->irq >= 0 && device_may_wakeup(dev))
-+		disable_irq_wake(client->irq);
-+
-+	return 0;
-+}
-+#endif
-+
-+static SIMPLE_DEV_PM_OPS(m41t80_pm, m41t80_suspend, m41t80_resume);
-+
- static ssize_t flags_show(struct device *dev,
- 			  struct device_attribute *attr, char *buf)
- {
-@@ -873,6 +897,7 @@ static int m41t80_remove(struct i2c_client *client)
- static struct i2c_driver m41t80_driver = {
- 	.driver = {
- 		.name = "rtc-m41t80",
-+		.pm = &m41t80_pm,
- 	},
- 	.probe = m41t80_probe,
- 	.remove = m41t80_remove,
 -- 
-1.9.1
+Alexandre Belloni, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
