@@ -1,22 +1,29 @@
-Return-Path: <rtc-linux+bncBDSJR27JS4DBB6WNYK6AKGQEZZNIOQQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBCMILY6JWQBBBUXT725QKGQE64XZZBY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from authsmtp.register.it (authsmtp77.register.it. [195.110.122.162])
-        by gmr-mx.google.com with ESMTPS id p199si12237wmd.1.2016.07.21.03.42.01
+MIME-Version: 1.0
+Received: from wens.csie.org (mirror2.csie.ntu.edu.tw. [140.112.30.76])
+        by gmr-mx.google.com with ESMTPS id ph9si558418pac.1.2016.07.08.07.33.54
         for <rtc-linux@googlegroups.com>
-        (version=TLS1 cipher=AES128-SHA bits=128/128);
-        Thu, 21 Jul 2016 03:42:01 -0700 (PDT)
-From: =?UTF-8?q?Beno=C3=AEt=20Th=C3=A9baudeau?= <benoit@wsystem.com>
-To: rtc-linux@googlegroups.com
-Cc: linux-kernel@vger.kernel.org,
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Fri, 08 Jul 2016 07:33:54 -0700 (PDT)
+From: Chen-Yu Tsai <wens@csie.org>
+To: Lee Jones <lee.jones@linaro.org>,
 	Alessandro Zummo <a.zummo@towertech.it>,
 	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	=?UTF-8?q?Beno=C3=AEt=20Th=C3=A9baudeau?= <benoit@wsystem.com>
-Subject: [rtc-linux] [PATCH 1/6] rtc: rv8803: Kconfig: Indicate rx8900 support
-Date: Thu, 21 Jul 2016 12:41:27 +0200
-Message-Id: <1469097692-103146-1-git-send-email-benoit@wsystem.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+	Maxime Ripard <maxime.ripard@free-electrons.com>
+Cc: Chen-Yu Tsai <wens@csie.org>,
+	linux-kernel@vger.kernel.org,
+	rtc-linux@googlegroups.com,
+	devicetree@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org
+Subject: [rtc-linux] [PATCH v5 7/7] ARM: dts: sun9i: Switch to the AC100 RTC
+ clock outputs for osc32k
+Date: Fri,  8 Jul 2016 22:33:42 +0800
+Message-Id: <1467988422-17934-8-git-send-email-wens@csie.org>
+In-Reply-To: <1467988422-17934-1-git-send-email-wens@csie.org>
+References: <1467988422-17934-1-git-send-email-wens@csie.org>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -25,43 +32,88 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-This driver supports the Epson RX8900, but this was not indicated in
-Kconfig.
+The 32.768 kHz clock inside the A80 SoC is fed from an external source,
+typically the AC100 RTC module.
 
-Signed-off-by: Beno=C3=AEt Th=C3=A9baudeau <benoit@wsystem.com>
+Make the osc32k placeholder a fixed-factor clock so board dts files can
+specify its source.
+
+Signed-off-by: Chen-Yu Tsai <wens@csie.org>
 ---
- drivers/rtc/Kconfig | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+Changes since v4: none
+Changes since v3: none
+Changes since v2: none
+Changes since v1: none
+---
+ arch/arm/boot/dts/sun9i-a80-cubieboard4.dts | 5 +++++
+ arch/arm/boot/dts/sun9i-a80-optimus.dts     | 5 +++++
+ arch/arm/boot/dts/sun9i-a80.dtsi            | 9 +++------
+ 3 files changed, 13 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
-index 8526f1c..e215f50 100644
---- a/drivers/rtc/Kconfig
-+++ b/drivers/rtc/Kconfig
-@@ -578,10 +578,10 @@ config RTC_DRV_EM3027
- 	  will be called rtc-em3027.
-=20
- config RTC_DRV_RV8803
--	tristate "Micro Crystal RV8803"
-+	tristate "Micro Crystal RV8803, Epson RX8900"
- 	help
--	  If you say yes here you get support for the Micro Crystal
--	  RV8803 RTC chips.
-+	  If you say yes here you get support for the Micro Crystal RV8803 and
-+	  Epson RX8900 RTC chips.
-=20
- 	  This driver can also be built as a module. If so, the module
- 	  will be called rtc-rv8803.
---=20
-2.5.0
+diff --git a/arch/arm/boot/dts/sun9i-a80-cubieboard4.dts b/arch/arm/boot/dts/sun9i-a80-cubieboard4.dts
+index cf2f4b72a841..04b014603659 100644
+--- a/arch/arm/boot/dts/sun9i-a80-cubieboard4.dts
++++ b/arch/arm/boot/dts/sun9i-a80-cubieboard4.dts
+@@ -103,6 +103,11 @@
+ 	allwinner,drive = <SUN4I_PINCTRL_40_MA>;
+ };
+ 
++&osc32k {
++	/* osc32k input is from AC100 */
++	clocks = <&ac100_rtc 0>;
++};
++
+ &pio {
+ 	led_pins_cubieboard4: led-pins@0 {
+ 		allwinner,pins = "PH6", "PH17";
+diff --git a/arch/arm/boot/dts/sun9i-a80-optimus.dts b/arch/arm/boot/dts/sun9i-a80-optimus.dts
+index e35c06c162a7..fd874ded890e 100644
+--- a/arch/arm/boot/dts/sun9i-a80-optimus.dts
++++ b/arch/arm/boot/dts/sun9i-a80-optimus.dts
+@@ -152,6 +152,11 @@
+ 	status = "okay";
+ };
+ 
++&osc32k {
++	/* osc32k input is from AC100 */
++	clocks = <&ac100_rtc 0>;
++};
++
+ &pio {
+ 	led_pins_optimus: led-pins@0 {
+ 		allwinner,pins = "PH0", "PH1";
+diff --git a/arch/arm/boot/dts/sun9i-a80.dtsi b/arch/arm/boot/dts/sun9i-a80.dtsi
+index f68b3242b33a..dd11115ec087 100644
+--- a/arch/arm/boot/dts/sun9i-a80.dtsi
++++ b/arch/arm/boot/dts/sun9i-a80.dtsi
+@@ -148,15 +148,12 @@
+ 
+ 		/*
+ 		 * The 32k clock is from an external source, normally the
+-		 * AC100 codec/RTC chip. This clock is by default enabled
+-		 * and clocked at 32768 Hz, from the oscillator connected
+-		 * to the AC100. It is configurable, but no such driver or
+-		 * bindings exist yet.
++		 * AC100 codec/RTC chip. This serves as a placeholder for
++		 * board dts files to specify the source.
+ 		 */
+ 		osc32k: osc32k_clk {
+ 			#clock-cells = <0>;
+-			compatible = "fixed-clock";
+-			clock-frequency = <32768>;
++			compatible = "fixed-factor-clock";
+ 			clock-output-names = "osc32k";
+ 		};
+ 
+-- 
+2.8.1
 
---=20
+-- 
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
----=20
-You received this message because you are subscribed to the Google Groups "=
-rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an e=
-mail to rtc-linux+unsubscribe@googlegroups.com.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
