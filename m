@@ -1,19 +1,29 @@
-Return-Path: <rtc-linux+bncBC4L3MVYV4CBBC64T66AKGQE3I3CPCI@googlegroups.com>
+Return-Path: <rtc-linux+bncBCMILY6JWQBBBUXT725QKGQE64XZZBY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from smtp.natisbad.org (36.223.133.77.rev.sfr.net. [77.133.223.36])
-        by gmr-mx.google.com with ESMTP id o85si1877283wme.0.2016.07.14.12.54.51
-        for <rtc-linux@googlegroups.com>;
-        Thu, 14 Jul 2016 12:54:51 -0700 (PDT)
-From: arno@natisbad.org (Arnaud Ebalard)
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>,  rtc-linux@googlegroups.com,  linux-kernel@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH] rtc: ds1307: fix century bit support
-References: <1468370064-19255-1-git-send-email-alexandre.belloni@free-electrons.com>
-Date: Thu, 14 Jul 2016 21:54:45 +0200
-Message-ID: <87inw8hu62.fsf@natisbad.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Received: from wens.csie.org (mirror2.csie.ntu.edu.tw. [140.112.30.76])
+        by gmr-mx.google.com with ESMTPS id ph9si558393pac.1.2016.07.08.07.33.53
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Fri, 08 Jul 2016 07:33:54 -0700 (PDT)
+From: Chen-Yu Tsai <wens@csie.org>
+To: Lee Jones <lee.jones@linaro.org>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Maxime Ripard <maxime.ripard@free-electrons.com>
+Cc: Chen-Yu Tsai <wens@csie.org>,
+	linux-kernel@vger.kernel.org,
+	rtc-linux@googlegroups.com,
+	devicetree@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org
+Subject: [rtc-linux] [PATCH v5 1/7] mfd: ac100: Add device tree bindings for
+ X-Powers AC100 codec/RTC combo IC
+Date: Fri,  8 Jul 2016 22:33:36 +0800
+Message-Id: <1467988422-17934-2-git-send-email-wens@csie.org>
+In-Reply-To: <1467988422-17934-1-git-send-email-wens@csie.org>
+References: <1467988422-17934-1-git-send-email-wens@csie.org>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -22,60 +32,95 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Hi Alexandre,
+The AC100 is a multifunction device with an audio codec subsystem and
+an RTC subsystem. These two subsystems share a common register space
+and host interface.
 
-Alexandre Belloni <alexandre.belloni@free-electrons.com> writes:
+Signed-off-by: Chen-Yu Tsai <wens@csie.org>
+Acked-by: Rob Herring <robh@kernel.org>
+---
+Changes since v4:
 
-> Add an option to properly support the century bit of ds1337 and compatibles
-> and ds1340.
-> Because the driver had a bug until now, it is not possible to switch users
-> to the fixed code directly as RTCs in the field will wrongly have the
-> century bit set.
->
-> Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-> ---
->
-> Arnaud, do you mind testing that patch, I still don't have the necessary
-> hardware but I think this is the proper course of action.
+  - Style changes suggested by Lee.
+  - Added commit message.
+  - Added Rob's ack.
 
-I did some tests w/ all patches applied (the one below and the ones in
-the other series). I had to fix two errors: one pointed in the patch
-below and the other one in a patch in the other series (I'll reply to
-the patch).
+Changes since v3:
 
-With both RTC_DRV_DS1307 and RTC_DRV_DS1307_CENTURY enabled, this works
-as expected on my side: booting on a system which had only seen an
-ISL12057 driver, the time on the system at boot (or via hwclock -r) is
-correct. Playing w/ -s and -w options works as expected. Booting back on
-a kernel w/ ISL12057 driver, things are also ok. So, AFAICT, your
-changes do the work.
+  - Fixed device node names and added labels.
+  - Added clock output from codec and input to rtc.
 
-One small thing though: for user which have always used RTC_DRV_ISL12057
-config knob, the change will not be transparent. Would it be possible to
-somehow make that old kernel config knob some kind of alias for
-RTC_DRV_DS1307 and RTC_DRV_DS1307_CENTURY in Kconfig?
+Changes since v2:
 
-Cheers,
+  - Fix interrupt line for ac100_codec in provided example.
 
-a+
+---
+ Documentation/devicetree/bindings/mfd/ac100.txt | 54 +++++++++++++++++++++++++
+ 1 file changed, 54 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/mfd/ac100.txt
 
-
-> +#ifdef CONFIG_RTC_DRV_DS1307_CENTURY
-> +	switch (ds1307->type) {
-> +	case ds_1337:
-> +	case ds_1339:
-> +	case ds_3231:
-> +		if (ds1307->regs[DS1307_REG_MONTH] && DS1337_BIT_CENTURY)
-
-                                                   ^^
-
-
-> +			t->tm_year += 100;
-> +		break;
-> +	case ds_1340:
-> +		if (ds1307->regs[DS1307_REG_HOUR] && DS1340_BIT_CENTURY)
-
-                                                  ^^
+diff --git a/Documentation/devicetree/bindings/mfd/ac100.txt b/Documentation/devicetree/bindings/mfd/ac100.txt
+new file mode 100644
+index 000000000000..b8ef00667599
+--- /dev/null
++++ b/Documentation/devicetree/bindings/mfd/ac100.txt
+@@ -0,0 +1,54 @@
++X-Powers AC100 Codec/RTC IC Device Tree bindings
++
++AC100 is a audio codec and RTC subsystem combo IC. The 2 parts are
++separated, including power supplies and interrupt lines, but share
++a common register address space and host interface.
++
++Required properties:
++- compatible: "x-powers,ac100"
++- reg: The I2C slave address or RSB hardware address for the chip
++- sub-nodes:
++  - codec
++    - compatible:		"x-powers,ac100-codec"
++    - interrupt-parent:		The parent interrupt controller
++    - interrupts:		SoC NMI / GPIO interrupt connected to the
++    				IRQ_AUDIO pin
++    - #clock-cells:		Shall be 0
++    - clock-output-names:	"4M_adda"
++
++    - see clock/clock-bindings.txt for common clock bindings
++
++  - rtc
++    - compatible:		"x-powers,ac100-rtc"
++    - interrupt-parent:		The parent interrupt controller
++    - interrupts:		SoC NMI / GPIO interrupt connected to the
++    				IRQ_RTC pin
++    - clocks:			A phandle to the codec's "4M_adda" clock
++    - #clock-cells:		Shall be 1
++    - clock-output-names:	"cko1_rtc", "cko2_rtc", "cko3_rtc"
++
++    - see clock/clock-bindings.txt for common clock bindings
++
++Example:
++
++ac100: codec@e89 {
++	compatible = "x-powers,ac100";
++	reg = <0xe89>;
++
++	ac100_codec: codec {
++		compatible = "x-powers,ac100-codec";
++		interrupt-parent = <&r_pio>;
++		interrupts = <0 9 IRQ_TYPE_LEVEL_LOW>; /* PL9 */
++		#clock-cells = <0>;
++		clock-output-names = "4M_adda";
++	};
++
++	ac100_rtc: rtc {
++		compatible = "x-powers,ac100-rtc";
++		interrupt-parent = <&nmi_intc>;
++		interrupts = <0 IRQ_TYPE_LEVEL_LOW>;
++		clocks = <&ac100_codec>;
++		#clock-cells = <1>;
++		clock-output-names = "cko1_rtc", "cko2_rtc", "cko3_rtc";
++	};
++};
+-- 
+2.8.1
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
