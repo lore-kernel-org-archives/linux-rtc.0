@@ -1,27 +1,22 @@
-Return-Path: <rtc-linux+bncBCEPJZEDQIBBBIE66C5QKGQEZOAPA5Y@googlegroups.com>
+Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBOHX725QKGQEDOY76RQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id o85si75971wme.0.2016.07.08.07.41.59
+        for <rtc-linux@googlegroups.com>;
+        Fri, 08 Jul 2016 07:41:59 -0700 (PDT)
+Date: Fri, 8 Jul 2016 16:41:58 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <uwe@kleine-koenig.org>
+Cc: Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
+	Manuel =?iso-8859-1?Q?R=F6der?= <manuel_roeder@gmx.de>
+Subject: [rtc-linux] Re: [PATCH v2 0/5] rtc: s35390a: allow shutdown of NAS
+ after alarm triggered
+Message-ID: <20160708144158.GL22202@piout.net>
+References: <1467473292-26371-1-git-send-email-uwe@kleine-koenig.org>
 MIME-Version: 1.0
-Received: from rainbowdash.ducie.codethink.co.uk (82-70-136-246.dsl.in-addr.zen.co.uk. [82.70.136.246])
-        by gmr-mx.google.com with ESMTPS id f10si181865wmg.2.2016.07.05.12.48.47
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Tue, 05 Jul 2016 12:48:47 -0700 (PDT)
-From: Ben Dooks <ben.dooks@codethink.co.uk>
-To: linux-kernel@lists.codethink.co.uk,
-	linux-amlogic@lists.infradead.org,
-	rtc-linux@googlegroups.com
-Cc: a.zummo@towertech.it,
-	alexandre.belloni@free-electrons.com,
-	devicetree@vger.kernel.org,
-	narmstrong@baylibre.com,
-	frowand.list@gmail.com,
-	khilman@baylibre.com,
-	Ben Dooks <ben.dooks@codethink.co.uk>
-Subject: [rtc-linux] [PATCH v3 0/2] AMLogic Meson SoC RTC driver
-Date: Tue,  5 Jul 2016 20:48:39 +0100
-Message-Id: <1467748122-14833-1-git-send-email-ben.dooks@codethink.co.uk>
-Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1467473292-26371-1-git-send-email-uwe@kleine-koenig.org>
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -30,47 +25,56 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-This series adds support for the on SoC RTC driver on the
-AMLogic Meson devices. The device-tree updates are not included
-as they depend on the reset-controller support in -next.
+On 02/07/2016 at 17:28:07 +0200, Uwe Kleine-K=C3=B6nig wrote :
+> Hello,
+>=20
+> this is v2 of the series fixing https://bugs.debian.org/794266.
+>=20
+> The only change compared to (implicit) v1 is that reading out a disabled
+> alarm is fixed. When the alarm is disabled the respective register is
+> shadowed with the result is that the reported alarm time is 45:85:0
+> because both hour and minute byte are read as 0xff and bcd2bin(0x3f) and
+> bcd2bin(0x7f) are 45 and 85 respectively.
+>=20
+> The new behaviour is to only set .enabled =3D 0 and return. Not 100% sure
+> this is the right thing, though. The only alternative is to enable alarm
+> and read out a time, but that might have the side effect to trigger an
+> unwanted alarm, so I didn't chose this way.
+>=20
+> Best regards
+> Uwe
+>=20
+> Uwe Kleine-K=C3=B6nig (5):
+>   rtc: s35390a: fix reading out alarm
+>   rtc: s35390a: implement reset routine as suggested by the reference
+>   rtc: s35390a: improve irq handling
+>   rtc: s35390a: improve two comments in .set_alarm
+>   rtc: fix a typo and reduce three empty lines to one
+>=20
+>  drivers/rtc/interface.c   |   4 +-
+>  drivers/rtc/rtc-s35390a.c | 157 +++++++++++++++++++++++++++++++++++-----=
+------
+>  2 files changed, 120 insertions(+), 41 deletions(-)
+>=20
 
-The series does not have any build dependencies, but does require
-the reset controller and device-tree entries for the relevant boards
-and has been tested on the ODroid-C1 board.
+All applied, thanks!
 
-Thanks to Kevin Hilmand and Neil Armstrong for reviewing the driver.
 
-Changes since V1:
-  <1467039135-26588-1-git-send-email-ben.dooks@codethink.co.uk>
+I added a quick commit message in 4/5.
 
- - Fixed checkpatch and sparse errors
- - Fixed minor locking bug when writing static-control register
- - Updated the code ordering in the rtc-meson.c driver
- - Fixed alphanumeric ordering in on-cpu rtc block
- - Added Rob Hering's ack for the DT binding documentation
- - Added better description to the RTC driver header.
+--=20
+Alexandre Belloni, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
 
-Ben Dooks (2):
-  rtc: support for amlogic meson rtc
-  meson-rtc: add device-tree binding
-
- .../devicetree/bindings/rtc/rtc-amlogic.txt        |  21 ++
- drivers/rtc/Kconfig                                |   9 +
- drivers/rtc/Makefile                               |   1 +
- drivers/rtc/rtc-meson.c                            | 349 +++++++++++++++++++++
- 6 files changed, 392 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/rtc/rtc-amlogic.txt
- create mode 100644 drivers/rtc/rtc-meson.c
-
--- 
-2.8.1
-
--- 
+--=20
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+---=20
+You received this message because you are subscribed to the Google Groups "=
+rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an e=
+mail to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
