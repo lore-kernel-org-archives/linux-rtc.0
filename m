@@ -1,21 +1,22 @@
-Return-Path: <rtc-linux+bncBDSJR27JS4DBB6WNYK6AKGQEZZNIOQQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBDX5ZRH7XQGRBYFD765QKGQEAV5OGJQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from authsmtp.register.it (authsmtp91.register.it. [195.110.122.176])
-        by gmr-mx.google.com with ESMTPS id i198si139430wmd.2.2016.07.21.03.42.02
+Received: from mail-pa0-x22b.google.com (mail-pa0-x22b.google.com. [2607:f8b0:400e:c03::22b])
+        by gmr-mx.google.com with ESMTPS id c11si572134pfc.2.2016.07.08.09.16.32
         for <rtc-linux@googlegroups.com>
-        (version=TLS1 cipher=AES128-SHA bits=128/128);
-        Thu, 21 Jul 2016 03:42:02 -0700 (PDT)
-From: =?UTF-8?q?Beno=C3=AEt=20Th=C3=A9baudeau?= <benoit@wsystem.com>
-To: rtc-linux@googlegroups.com
-Cc: linux-kernel@vger.kernel.org,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	=?UTF-8?q?Beno=C3=AEt=20Th=C3=A9baudeau?= <benoit@wsystem.com>
-Subject: [rtc-linux] [PATCH 2/6] rtc: rv8803: Remove the check for valid time
-Date: Thu, 21 Jul 2016 12:41:28 +0200
-Message-Id: <1469097692-103146-2-git-send-email-benoit@wsystem.com>
-In-Reply-To: <1469097692-103146-1-git-send-email-benoit@wsystem.com>
-References: <1469097692-103146-1-git-send-email-benoit@wsystem.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Fri, 08 Jul 2016 09:16:32 -0700 (PDT)
+Received: by mail-pa0-x22b.google.com with SMTP id dx3so13451039pab.2
+        for <rtc-linux@googlegroups.com>; Fri, 08 Jul 2016 09:16:32 -0700 (PDT)
+From: Kevin Hilman <khilman@baylibre.com>
+To: Ben Dooks <ben.dooks@codethink.co.uk>
+Cc: linux-kernel@lists.codethink.co.uk,  linux-amlogic@lists.infradead.org,  rtc-linux@googlegroups.com,  a.zummo@towertech.it,  alexandre.belloni@free-electrons.com,  devicetree@vger.kernel.org,  narmstrong@baylibre.com,  frowand.list@gmail.com
+Subject: [rtc-linux] Re: [PATCH v3 1/4] rtc: support for amlogic meson rtc
+References: <1467748122-14833-1-git-send-email-ben.dooks@codethink.co.uk>
+	<1467748122-14833-3-git-send-email-ben.dooks@codethink.co.uk>
+Date: Fri, 08 Jul 2016 09:16:30 -0700
+In-Reply-To: <1467748122-14833-3-git-send-email-ben.dooks@codethink.co.uk>
+	(Ben Dooks's message of "Tue, 5 Jul 2016 20:48:41 +0100")
+Message-ID: <7hoa6885r5.fsf@baylibre.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
@@ -27,39 +28,20 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-The RTC core always calls rtc_valid_tm() after ->read_time() in case of
-success (in __rtc_read_time()), so do not call it twice.
+Ben Dooks <ben.dooks@codethink.co.uk> writes:
 
-Signed-off-by: Beno=C3=AEt Th=C3=A9baudeau <benoit@wsystem.com>
----
- drivers/rtc/rtc-rv8803.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+> Add support for the AMLogic meson8b/meson6 RTC block.
+>
+> Signed-off-by: Ben Dooks <ben.dooks@codethink.co.uk>
 
-diff --git a/drivers/rtc/rtc-rv8803.c b/drivers/rtc/rtc-rv8803.c
-index 05c79c3..e740c83 100644
---- a/drivers/rtc/rtc-rv8803.c
-+++ b/drivers/rtc/rtc-rv8803.c
-@@ -150,7 +150,7 @@ static int rv8803_get_time(struct device *dev, struct r=
-tc_time *tm)
- 	tm->tm_mon  =3D bcd2bin(date[RV8803_MONTH] & 0x1f) - 1;
- 	tm->tm_year =3D bcd2bin(date[RV8803_YEAR]) + 100;
-=20
--	return rtc_valid_tm(tm);
-+	return 0;
- }
-=20
- static int rv8803_set_time(struct device *dev, struct rtc_time *tm)
---=20
-2.5.0
+Tested-by: Kevin Hilman <khilman@baylibre.com>
 
---=20
+-- 
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
----=20
-You received this message because you are subscribed to the Google Groups "=
-rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an e=
-mail to rtc-linux+unsubscribe@googlegroups.com.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
