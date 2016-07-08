@@ -1,21 +1,19 @@
-Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBOHX725QKGQEDOY76RQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBOPS725QKGQEPWWMSEY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id o85si75971wme.0.2016.07.08.07.41.59
+        by gmr-mx.google.com with ESMTP id q124si122567wme.3.2016.07.08.07.31.21
         for <rtc-linux@googlegroups.com>;
-        Fri, 08 Jul 2016 07:41:59 -0700 (PDT)
-Date: Fri, 8 Jul 2016 16:41:58 +0200
+        Fri, 08 Jul 2016 07:31:21 -0700 (PDT)
+Date: Fri, 8 Jul 2016 16:31:20 +0200
 From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
 To: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <uwe@kleine-koenig.org>
-Cc: Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
-	Manuel =?iso-8859-1?Q?R=F6der?= <manuel_roeder@gmx.de>
-Subject: [rtc-linux] Re: [PATCH v2 0/5] rtc: s35390a: allow shutdown of NAS
- after alarm triggered
-Message-ID: <20160708144158.GL22202@piout.net>
-References: <1467473292-26371-1-git-send-email-uwe@kleine-koenig.org>
+Cc: Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com
+Subject: [rtc-linux] Re: [PATCH 1/4] rtc: simplify implementations of read_alarm
+Message-ID: <20160708143120.GK22202@piout.net>
+References: <1467103428-19047-1-git-send-email-uwe@kleine-koenig.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1467473292-26371-1-git-send-email-uwe@kleine-koenig.org>
+In-Reply-To: <1467103428-19047-1-git-send-email-uwe@kleine-koenig.org>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -25,42 +23,33 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 02/07/2016 at 17:28:07 +0200, Uwe Kleine-K=C3=B6nig wrote :
-> Hello,
+On 28/06/2016 at 10:43:45 +0200, Uwe Kleine-K=C3=B6nig wrote :
+> Since commit d68778b80dd7 ("rtc: initialize output parameter for read
+> alarm to "uninitialized"") there is no need to explicitly set
+> unsupported members to -1. So drop the respective assignments from
+> drivers.
 >=20
-> this is v2 of the series fixing https://bugs.debian.org/794266.
+> Signed-off-by: Uwe Kleine-K=C3=B6nig <uwe@kleine-koenig.org>
+> ---
+>  drivers/rtc/rtc-cmos.c    |  3 ---
+>  drivers/rtc/rtc-ds1305.c  |  7 -------
+>  drivers/rtc/rtc-ds1307.c  |  5 -----
+>  drivers/rtc/rtc-ds1343.c  |  6 ------
+>  drivers/rtc/rtc-ds1685.c  | 19 ++++---------------
+>  drivers/rtc/rtc-ds3232.c  |  6 ------
+>  drivers/rtc/rtc-hym8563.c |  3 ---
+>  drivers/rtc/rtc-m41t80.c  |  2 --
+>  drivers/rtc/rtc-mrst.c    |  8 --------
+>  drivers/rtc/rtc-pcf8563.c |  4 ----
+>  drivers/rtc/rtc-rs5c372.c |  6 ------
+>  drivers/rtc/rtc-rv8803.c  |  3 ---
+>  drivers/rtc/rtc-rx8010.c  |  8 +-------
+>  drivers/rtc/rtc-rx8025.c  |  5 -----
+>  drivers/rtc/rtc-s3c.c     | 12 ------------
+>  drivers/rtc/rtc-tegra.c   |  6 ------
+>  16 files changed, 5 insertions(+), 98 deletions(-)
 >=20
-> The only change compared to (implicit) v1 is that reading out a disabled
-> alarm is fixed. When the alarm is disabled the respective register is
-> shadowed with the result is that the reported alarm time is 45:85:0
-> because both hour and minute byte are read as 0xff and bcd2bin(0x3f) and
-> bcd2bin(0x7f) are 45 and 85 respectively.
->=20
-> The new behaviour is to only set .enabled =3D 0 and return. Not 100% sure
-> this is the right thing, though. The only alternative is to enable alarm
-> and read out a time, but that might have the side effect to trigger an
-> unwanted alarm, so I didn't chose this way.
->=20
-> Best regards
-> Uwe
->=20
-> Uwe Kleine-K=C3=B6nig (5):
->   rtc: s35390a: fix reading out alarm
->   rtc: s35390a: implement reset routine as suggested by the reference
->   rtc: s35390a: improve irq handling
->   rtc: s35390a: improve two comments in .set_alarm
->   rtc: fix a typo and reduce three empty lines to one
->=20
->  drivers/rtc/interface.c   |   4 +-
->  drivers/rtc/rtc-s35390a.c | 157 +++++++++++++++++++++++++++++++++++-----=
-------
->  2 files changed, 120 insertions(+), 41 deletions(-)
->=20
-
-All applied, thanks!
-
-
-I added a quick commit message in 4/5.
+All applied, thanks.
 
 --=20
 Alexandre Belloni, Free Electrons
