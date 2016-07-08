@@ -1,19 +1,29 @@
-Return-Path: <rtc-linux+bncBAABBF4J6O5QKGQEFFPOXLA@googlegroups.com>
+Return-Path: <rtc-linux+bncBCMILY6JWQBBBVHT725QKGQEUO2AB2I@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail-out1.kundencontroller.de (mail-out1.kundencontroller.de. [85.31.184.34])
-        by gmr-mx.google.com with ESMTPS id c135si249246wme.2.2016.07.06.01.43.03
+MIME-Version: 1.0
+Received: from wens.csie.org (mirror2.csie.ntu.edu.tw. [140.112.30.76])
+        by gmr-mx.google.com with ESMTPS id ph9si558415pac.1.2016.07.08.07.33.54
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 06 Jul 2016 01:43:03 -0700 (PDT)
-From: Stephan Roslen <stephan@roslen.de>
-Subject: [rtc-linux] [PATCH] rtc: sunxi: use external oscillator
-To: a.zummo@towertech.it, alexandre.belloni@free-electrons.com,
- maxime.ripard@free-electrons.com, wens@csie.org, rtc-linux@googlegroups.com
-Message-ID: <577CC494.8020103@roslen.de>
-Date: Wed, 6 Jul 2016 10:43:00 +0200
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+        Fri, 08 Jul 2016 07:33:54 -0700 (PDT)
+From: Chen-Yu Tsai <wens@csie.org>
+To: Lee Jones <lee.jones@linaro.org>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Maxime Ripard <maxime.ripard@free-electrons.com>
+Cc: Chen-Yu Tsai <wens@csie.org>,
+	linux-kernel@vger.kernel.org,
+	rtc-linux@googlegroups.com,
+	devicetree@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org
+Subject: [rtc-linux] [PATCH v5 6/7] ARM: dts: sun9i: cubieboard4: Add device
+ node for AC100
+Date: Fri,  8 Jul 2016 22:33:41 +0800
+Message-Id: <1467988422-17934-7-git-send-email-wens@csie.org>
+In-Reply-To: <1467988422-17934-1-git-send-email-wens@csie.org>
+References: <1467988422-17934-1-git-send-email-wens@csie.org>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -22,68 +32,57 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-We noticed some serious drift problems in Allwinner A20 RTCs. I found out, that the oscillator source needs to be set to an external 32.768 KHz oscillator instead of the internal 32.000 KHz oscillator.
-
-Signed-off-by: Stephan Roslen <stephan@roslen.de>
+Signed-off-by: Chen-Yu Tsai <wens@csie.org>
 ---
- drivers/rtc/rtc-sunxi.c | 25 +++++++++++++++++++++++++
- 1 file changed, 25 insertions(+)
+Changes since v4: none
 
-diff --git a/drivers/rtc/rtc-sunxi.c b/drivers/rtc/rtc-sunxi.c
-index abada60..001256e 100644
---- a/drivers/rtc/rtc-sunxi.c
-+++ b/drivers/rtc/rtc-sunxi.c
-@@ -34,9 +34,19 @@
- #include <linux/types.h>
+Changes since v3:                           
+
+  - Moved 4M ADDA clk to codec side
+
+Changes since v2: none
+Changes since v1: none
+---
+ arch/arm/boot/dts/sun9i-a80-cubieboard4.dts | 24 ++++++++++++++++++++++++
+ 1 file changed, 24 insertions(+)
+
+diff --git a/arch/arm/boot/dts/sun9i-a80-cubieboard4.dts b/arch/arm/boot/dts/sun9i-a80-cubieboard4.dts
+index 1526b41c70f1..cf2f4b72a841 100644
+--- a/arch/arm/boot/dts/sun9i-a80-cubieboard4.dts
++++ b/arch/arm/boot/dts/sun9i-a80-cubieboard4.dts
+@@ -250,6 +250,30 @@
+ 			};
+ 		};
+ 	};
++
++	ac100: codec@e89 {
++		compatible = "x-powers,ac100";
++		reg = <0xe89>;
++
++		ac100_codec: codec {
++			compatible = "x-powers,ac100-codec";
++			interrupt-parent = <&r_pio>;
++			interrupts = <0 9 IRQ_TYPE_LEVEL_LOW>; /* PL9 */
++			#clock-cells = <0>;
++			clock-output-names = "4M_adda";
++		};
++
++		ac100_rtc: rtc {
++			compatible = "x-powers,ac100-rtc";
++			interrupt-parent = <&nmi_intc>;
++			interrupts = <0 IRQ_TYPE_LEVEL_LOW>;
++			clocks = <&ac100_codec>;
++			#clock-cells = <1>;
++			clock-output-names = "cko1_rtc",
++					     "cko2_rtc",
++					     "cko3_rtc";
++		};
++	};
+ };
  
- #define SUNXI_LOSC_CTRL				0x0000
-+
-+/* magic number required to set bit 0 */
-+#define SUNXI_LOSC_CTRL_KEY			0x16AA0000
-+
-+#define SUNXI_LOSC_CTRL_AUTO_SWT_EN		BIT(14)
-+
- #define SUNXI_LOSC_CTRL_RTC_HMS_ACC		BIT(8)
- #define SUNXI_LOSC_CTRL_RTC_YMD_ACC		BIT(7)
- 
-+#define SUNXI_LOSC_CTRL_EXT_GSM1		BIT(3)
-+#define SUNXI_LOSC_CTRL_EXT_GSM0		BIT(2)
-+#define SUNXI_LOSC_CTRL_SRC_SEL			BIT(0)
-+
- #define SUNXI_RTC_YMD				0x0004
- 
- #define SUNXI_RTC_HMS				0x0008
-@@ -438,6 +448,8 @@ static int sunxi_rtc_probe(struct platform_device *pdev)
- 	struct resource *res;
- 	int ret;
- 
-+	uint32_t loscctrl;
-+
- 	chip = devm_kzalloc(&pdev->dev, sizeof(*chip), GFP_KERNEL);
- 	if (!chip)
- 		return -ENOMEM;
-@@ -468,6 +480,19 @@ static int sunxi_rtc_probe(struct platform_device *pdev)
- 		return -ENODEV;
- 	}
- 
-+	loscctrl = readl(chip->base + SUNXI_LOSC_CTRL);
-+	loscctrl &= ~(SUNXI_LOSC_CTRL_AUTO_SWT_EN);
-+	loscctrl |= (SUNXI_LOSC_CTRL_SRC_SEL | SUNXI_LOSC_CTRL_KEY);
-+	loscctrl |= SUNXI_LOSC_CTRL_EXT_GSM1;
-+	writel(loscctrl, chip->base + SUNXI_LOSC_CTRL);
-+	udelay(100);
-+
-+	loscctrl = readl(chip->base + SUNXI_LOSC_CTRL);
-+	if (!(loscctrl & SUNXI_LOSC_CTRL_SRC_SEL)) {
-+		dev_err(&pdev->dev, "Error: Set LOSC to external failed.\n");
-+		dev_err(&pdev->dev, "Warning: RTC time will be wrong!\n");
-+	}
-+
- 	/* clear the alarm count value */
- 	writel(0, chip->base + SUNXI_ALRM_DHMS);
- 
+ #include "axp809.dtsi"
 -- 
-2.7.4
+2.8.1
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
