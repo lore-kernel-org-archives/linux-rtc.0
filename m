@@ -1,32 +1,25 @@
-Return-Path: <rtc-linux+bncBAABBRU3QO6AKGQE52YB54A@googlegroups.com>
+Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBUHI725QKGQEPNMSNVI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id a6si176866wma.1.2016.07.08.07.10.24
+        for <rtc-linux@googlegroups.com>;
+        Fri, 08 Jul 2016 07:10:24 -0700 (PDT)
+Date: Fri, 8 Jul 2016 16:10:23 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Mark Salyzyn <salyzyn@android.com>
+Cc: linux-kernel@vger.kernel.org, Alessandro Zummo <a.zummo@towertech.it>,
+	rtc-linux@googlegroups.com
+Subject: [rtc-linux] Re: rtc-palmas: correct for bcd year
+Message-ID: <20160708141023.GH22202@piout.net>
+References: <1451508726-31769-1-git-send-email-salyzyn@android.com>
+ <20160104161853.GC32724@piout.net>
+ <568AA1C2.2070407@android.com>
+ <20160105000000.GE32724@piout.net>
+ <568BEA92.2090701@android.com>
 MIME-Version: 1.0
-Received: from kozue.soulik.info (kozue.soulik.info. [108.61.200.231])
-        by gmr-mx.google.com with ESMTPS id 62si219093pfx.1.2016.07.09.02.24.17
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sat, 09 Jul 2016 02:24:17 -0700 (PDT)
-From: Randy Li <ayaka@soulik.info>
-To: k.kozlowski@samsung.com
-Cc: alexandre.belloni@free-electrons.com,
-	a.zummo@towertech.it,
-	rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org,
-	robh+dt@kernel.org,
-	mark.rutland@arm.com,
-	linux@armlinux.org.uk,
-	devicetree@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	linux-samsung-soc@vger.kernel.org,
-	Randy Li <ayaka@soulik.info>
-Subject: [rtc-linux] [PATCH 1/3] Revert "drivers/rtc/rtc-s3c.c: add
- .needs_src_clk to s3c6410 RTC data"
-Date: Sat,  9 Jul 2016 17:23:44 +0800
-Message-Id: <1468056226-19128-2-git-send-email-ayaka@soulik.info>
-In-Reply-To: <1468056226-19128-1-git-send-email-ayaka@soulik.info>
-References: <1468056226-19128-1-git-send-email-ayaka@soulik.info>
-Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <568BEA92.2090701@android.com>
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -35,30 +28,40 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-This reverts commit 8792f7772f4f40ffc68bad5f28311205584b734d.
-The s3c6410 rtc don't use rtc_src property, that property is designed
-for Exynos5250 and Exynos5440. The problem reported in the commit
-I mentioned should be fixed in the other way.
+On 05/01/2016 at 08:08:50 -0800, Mark Salyzyn wrote :
+> On 01/04/2016 04:00 PM, Alexandre Belloni wrote:
+> > I'd say that the proper course of action is to refuse to set dates
+> > before 2000 and after 2100. See
+> > http://patchwork.ozlabs.org/patch/541037/
+> Got it.
+> 
+> We have an issue though, Android (or rather any embedded) devices must
+> continue to function when date is manually set to any value between 1970 and
+> 2037. The issue here is a fresh device with a recently charged battery will
+> _start_ at 1970 until ntp or cell time/date/locale is set and the device
+> must continue to function in this vacuum. A device reboot should not result
+> in the other calendar values being reset, should the year be wrong, as this
+> will result in a bad user experience.
+> 
+> We will have to use a different patch on Android than upstream if dates
+> before 2000 are deprecated.
+> 
+> All other factors (rollover, leap) can be corrected by frameworks and
+> runtime since the rtc is generally secondary (ie: first rtc driver was in
+> 1979, created a daemon to correct the flaws in the hardware clock using a
+> cron job)
+> 
 
-Signed-off-by: Randy Li <ayaka@soulik.info>
----
- drivers/rtc/rtc-s3c.c | 1 -
- 1 file changed, 1 deletion(-)
+Well, I was still thinking about that issue but while handling properly
+a gap in the RTC continuity is impossible, it is actually easy to handle
+an offset in the RTC by using mktime and then offseting the resulting
+time_t. Of course you'll then need to handle leap years and the likes
+but you said that was not an issue for you.
 
-diff --git a/drivers/rtc/rtc-s3c.c b/drivers/rtc/rtc-s3c.c
-index d01ad7e..5dc18ca 100644
---- a/drivers/rtc/rtc-s3c.c
-+++ b/drivers/rtc/rtc-s3c.c
-@@ -801,7 +801,6 @@ static struct s3c_rtc_data const s3c2443_rtc_data = {
- 
- static struct s3c_rtc_data const s3c6410_rtc_data = {
- 	.max_user_freq		= 32768,
--	.needs_src_clk		= true,
- 	.irq_handler		= s3c6410_rtc_irq,
- 	.set_freq		= s3c6410_rtc_setfreq,
- 	.enable_tick		= s3c6410_rtc_enable_tick,
 -- 
-2.7.4
+Alexandre Belloni, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
