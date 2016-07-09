@@ -1,25 +1,30 @@
-Return-Path: <rtc-linux+bncBCEPJZEDQIBBBCM66C5QKGQE3422VEY@googlegroups.com>
+Return-Path: <rtc-linux+bncBAABBRU3QO6AKGQE52YB54A@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 MIME-Version: 1.0
-Received: from rainbowdash.ducie.codethink.co.uk (82-70-136-246.dsl.in-addr.zen.co.uk. [82.70.136.246])
-        by gmr-mx.google.com with ESMTPS id f138si243864wmf.3.2016.07.05.12.48.25
+Received: from kozue.soulik.info (kozue.soulik.info. [108.61.200.231])
+        by gmr-mx.google.com with ESMTPS id 62si219093pfx.1.2016.07.09.02.24.17
         for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Tue, 05 Jul 2016 12:48:25 -0700 (PDT)
-From: Ben Dooks <ben.dooks@codethink.co.uk>
-To: linux-kernel@lists.codethink.co.uk,
-	linux-amlogic@lists.infradead.org,
-	rtc-linux@googlegroups.com
-Cc: a.zummo@towertech.it,
-	alexandre.belloni@free-electrons.com,
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Sat, 09 Jul 2016 02:24:17 -0700 (PDT)
+From: Randy Li <ayaka@soulik.info>
+To: k.kozlowski@samsung.com
+Cc: alexandre.belloni@free-electrons.com,
+	a.zummo@towertech.it,
+	rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org,
+	robh+dt@kernel.org,
+	mark.rutland@arm.com,
+	linux@armlinux.org.uk,
 	devicetree@vger.kernel.org,
-	narmstrong@baylibre.com,
-	frowand.list@gmail.com,
-	kh@codethink.co.uk,
-	Ben Dooks <ben.dooks@codethink.co.uk>
-Subject: [rtc-linux] [PATCH v3 0/2] AMLogic Meson SoC RTC driver
-Date: Tue,  5 Jul 2016 20:48:06 +0100
-Message-Id: <1467748089-14718-1-git-send-email-ben.dooks@codethink.co.uk>
+	linux-arm-kernel@lists.infradead.org,
+	linux-samsung-soc@vger.kernel.org,
+	Randy Li <ayaka@soulik.info>
+Subject: [rtc-linux] [PATCH 1/3] Revert "drivers/rtc/rtc-s3c.c: add
+ .needs_src_clk to s3c6410 RTC data"
+Date: Sat,  9 Jul 2016 17:23:44 +0800
+Message-Id: <1468056226-19128-2-git-send-email-ayaka@soulik.info>
+In-Reply-To: <1468056226-19128-1-git-send-email-ayaka@soulik.info>
+References: <1468056226-19128-1-git-send-email-ayaka@soulik.info>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -30,38 +35,30 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-This series adds support for the on SoC RTC driver on the
-AMLogic Meson devices. The device-tree updates are not included
-as they depend on the reset-controller support in -next.
+This reverts commit 8792f7772f4f40ffc68bad5f28311205584b734d.
+The s3c6410 rtc don't use rtc_src property, that property is designed
+for Exynos5250 and Exynos5440. The problem reported in the commit
+I mentioned should be fixed in the other way.
 
-The series does not have any build dependencies, but does require
-the reset controller and device-tree entries for the relevant boards
-and has been tested on the ODroid-C1 board.
+Signed-off-by: Randy Li <ayaka@soulik.info>
+---
+ drivers/rtc/rtc-s3c.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-Changes since V1:
-  <1467039135-26588-1-git-send-email-ben.dooks@codethink.co.uk>
-
- - Fixed checkpatch and sparse errors
- - Fixed minor locking bug when writing static-control register
- - Updated the code ordering in the rtc-meson.c driver
- - Fixed alphanumeric ordering in on-cpu rtc block
- - Added Rob Hering's ack for the DT binding documentation
- - Added better description to the RTC driver header.
-
-Ben Dooks (2):
-  rtc: support for amlogic meson rtc
-  meson-rtc: add device-tree binding
-
- .../devicetree/bindings/rtc/rtc-amlogic.txt        |  21 ++
- drivers/rtc/Kconfig                                |   9 +
- drivers/rtc/Makefile                               |   1 +
- drivers/rtc/rtc-meson.c                            | 349 +++++++++++++++++++++
- 6 files changed, 392 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/rtc/rtc-amlogic.txt
- create mode 100644 drivers/rtc/rtc-meson.c
-
+diff --git a/drivers/rtc/rtc-s3c.c b/drivers/rtc/rtc-s3c.c
+index d01ad7e..5dc18ca 100644
+--- a/drivers/rtc/rtc-s3c.c
++++ b/drivers/rtc/rtc-s3c.c
+@@ -801,7 +801,6 @@ static struct s3c_rtc_data const s3c2443_rtc_data = {
+ 
+ static struct s3c_rtc_data const s3c6410_rtc_data = {
+ 	.max_user_freq		= 32768,
+-	.needs_src_clk		= true,
+ 	.irq_handler		= s3c6410_rtc_irq,
+ 	.set_freq		= s3c6410_rtc_setfreq,
+ 	.enable_tick		= s3c6410_rtc_enable_tick,
 -- 
-2.8.1
+2.7.4
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
