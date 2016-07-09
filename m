@@ -1,25 +1,24 @@
-Return-Path: <rtc-linux+bncBCKYNX7Y3IMBB4WVSS6AKGQE5ZMZTBY@googlegroups.com>
+Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBBPKQK6AKGQEGKMFHDA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id b77si763346wmb.1.2016.07.12.10.37.53
+        by gmr-mx.google.com with ESMTP id s21si318177wme.1.2016.07.09.01.25.41
         for <rtc-linux@googlegroups.com>;
-        Tue, 12 Jul 2016 10:37:53 -0700 (PDT)
-Date: Tue, 12 Jul 2016 19:37:53 +0200
+        Sat, 09 Jul 2016 01:25:41 -0700 (PDT)
+Date: Sat, 9 Jul 2016 10:25:40 +0200
 From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Ben Dooks <ben.dooks@codethink.co.uk>
-Cc: linux-kernel@lists.codethink.co.uk, linux-amlogic@lists.infradead.org,
-	rtc-linux@googlegroups.com, a.zummo@towertech.it,
-	devicetree@vger.kernel.org, narmstrong@baylibre.com,
-	frowand.list@gmail.com, khilman@baylibre.com
-Subject: [rtc-linux] Re: [PATCH v3 1/4] rtc: support for amlogic meson rtc
-Message-ID: <20160712173753.GW22202@piout.net>
-References: <1467748122-14833-1-git-send-email-ben.dooks@codethink.co.uk>
- <1467748122-14833-3-git-send-email-ben.dooks@codethink.co.uk>
- <20160712172235.GU22202@piout.net>
- <4d98df06-cf00-b4fd-dfb5-1ac5d9c548fc@codethink.co.uk>
+To: Robert Jarzmik <robert.jarzmik@free.fr>
+Cc: rtc-linux@googlegroups.com, Alessandro Zummo <a.zummo@towertech.it>,
+	linux-kernel@vger.kernel.org, Daniel Mack <daniel@zonque.org>,
+	Haojian Zhuang <haojian.zhuang@gmail.com>,
+	linux-arm-kernel@lists.infradead.org
+Subject: [rtc-linux] Re: [PATCH 5/5] rtc: v3020: move rtc-v3020.h to platform_data
+Message-ID: <20160709082540.GO22202@piout.net>
+References: <1466978583-13310-1-git-send-email-alexandre.belloni@free-electrons.com>
+ <1466978583-13310-5-git-send-email-alexandre.belloni@free-electrons.com>
+ <87bn2745lb.fsf@belgarion.home>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <4d98df06-cf00-b4fd-dfb5-1ac5d9c548fc@codethink.co.uk>
+In-Reply-To: <87bn2745lb.fsf@belgarion.home>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -29,45 +28,33 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 12/07/2016 at 18:27:12 +0100, Ben Dooks wrote :
-> On 12/07/16 18:22, Alexandre Belloni wrote:
-> > Hi,
-> > 
-> > Very few comments below
-> > 
-> > On 05/07/2016 at 20:48:41 +0100, Ben Dooks wrote :
-> >> +/* registers accessed from cpu bus */
-> >> +#define RTC_REG(x)		((x) * 4)	/* rtc registers 0-4 */
-> >> +
-> >> +#define LINE_SDI		(1 << 2)
-> >> +#define LINE_SEN		(1 << 1)
-> >> +#define LINE_SCLK		(1 << 0)
-> > 
-> > Maybe use BIT() here.
+On 09/07/2016 at 09:45:52 +0200, Robert Jarzmik wrote :
+> Alexandre Belloni <alexandre.belloni@free-electrons.com> writes:
 > 
-> I'll sort that out later.
+> > rtc-v3020.h belongs to include/linux/platform_data/
+> >
+> > Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+> > ---
+> > Cc: Daniel Mack <daniel@zonque.org>
+> > Cc: Haojian Zhuang <haojian.zhuang@gmail.com>
+> > Cc: Robert Jarzmik <robert.jarzmik@free.fr>
+> > Cc: linux-arm-kernel@lists.infradead.org
+> >  arch/arm/mach-pxa/cm-x270.c                   | 2 +-
+> >  arch/arm/mach-pxa/cm-x300.c                   | 2 +-
+> >  arch/arm/mach-pxa/em-x270.c                   | 2 +-
+> >  drivers/rtc/rtc-v3020.c                       | 2 +-
+> >  include/linux/{ => platform_data}/rtc-v3020.h | 0
+> >  5 files changed, 4 insertions(+), 4 deletions(-)
+> >  rename include/linux/{ => platform_data}/rtc-v3020.h (100%)
+> For mach-pxa :
+> Acked-by: Robert Jarzmik <robert.jarzmik@free.fr>
 > 
-> >> +/* RTC interface layer functions */
-> >> +
-> >> +static int meson_rtc_gettime(struct device *dev, struct rtc_time *tm)
-> >> +{
-> >> +	struct meson_rtc *rtc = dev_get_drvdata(dev);
-> >> +	int ret;
-> >> +	u32 time;
-> >> +
-> >> +	mutex_lock(&rtc->lock);
-> >> +
-> >> +	ret = meson_rtc_read(rtc, RTC_COUNTER, &time);
-> >> +	if (!ret) {
-> >> +		rtc_time_to_tm(time, tm);
-> > 
-> > Can you use the 64bit version?
-> 
-> What would the 64bit version gain? The hardware register is 32bit.
+> Is this going through your rtc tree, or should I pick it up through the pxa one ?
 > 
 
-Well, at some point, I'll remove the 32bit version:
-http://lxr.free-electrons.com/source/include/linux/rtc.h#L36
+Actually, I've pushed it through rtc-next yesterday. I've just added
+your ack now.
+
 
 -- 
 Alexandre Belloni, Free Electrons
