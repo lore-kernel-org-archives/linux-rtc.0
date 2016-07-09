@@ -1,27 +1,29 @@
-Return-Path: <rtc-linux+bncBCMILY6JWQBBBVHT725QKGQEUO2AB2I@googlegroups.com>
+Return-Path: <rtc-linux+bncBAABBRM3QO6AKGQEFNDWQ4Q@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 MIME-Version: 1.0
-Received: from wens.csie.org (mirror2.csie.ntu.edu.tw. [140.112.30.76])
-        by gmr-mx.google.com with ESMTPS id ph9si558415pac.1.2016.07.08.07.33.54
+Received: from kozue.soulik.info (kozue.soulik.info. [108.61.200.231])
+        by gmr-mx.google.com with ESMTPS id po17si235271pab.2.2016.07.09.02.24.21
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 08 Jul 2016 07:33:54 -0700 (PDT)
-From: Chen-Yu Tsai <wens@csie.org>
-To: Lee Jones <lee.jones@linaro.org>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Maxime Ripard <maxime.ripard@free-electrons.com>
-Cc: Chen-Yu Tsai <wens@csie.org>,
-	linux-kernel@vger.kernel.org,
+        Sat, 09 Jul 2016 02:24:22 -0700 (PDT)
+From: Randy Li <ayaka@soulik.info>
+To: k.kozlowski@samsung.com
+Cc: alexandre.belloni@free-electrons.com,
+	a.zummo@towertech.it,
 	rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org,
+	robh+dt@kernel.org,
+	mark.rutland@arm.com,
+	linux@armlinux.org.uk,
 	devicetree@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org
-Subject: [rtc-linux] [PATCH v5 6/7] ARM: dts: sun9i: cubieboard4: Add device
- node for AC100
-Date: Fri,  8 Jul 2016 22:33:41 +0800
-Message-Id: <1467988422-17934-7-git-send-email-wens@csie.org>
-In-Reply-To: <1467988422-17934-1-git-send-email-wens@csie.org>
-References: <1467988422-17934-1-git-send-email-wens@csie.org>
+	linux-arm-kernel@lists.infradead.org,
+	linux-samsung-soc@vger.kernel.org,
+	Randy Li <ayaka@soulik.info>
+Subject: [rtc-linux] [PATCH 2/3] rtc: s3c: add device data for samsung,exynos3250-rtc
+Date: Sat,  9 Jul 2016 17:23:45 +0800
+Message-Id: <1468056226-19128-3-git-send-email-ayaka@soulik.info>
+In-Reply-To: <1468056226-19128-1-git-send-email-ayaka@soulik.info>
+References: <1468056226-19128-1-git-send-email-ayaka@soulik.info>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -32,57 +34,49 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Signed-off-by: Chen-Yu Tsai <wens@csie.org>
+The device data for samsung,exynos3250-rtc and samsung,s3c6410-rtc
+are just have a difference, but keeping using the same device data
+would cause the platform using the other IP core not work.
+
+Signed-off-by: Randy Li <ayaka@soulik.info>
 ---
-Changes since v4: none
+ drivers/rtc/rtc-s3c.c | 14 +++++++++++++-
+ 1 file changed, 13 insertions(+), 1 deletion(-)
 
-Changes since v3:                           
-
-  - Moved 4M ADDA clk to codec side
-
-Changes since v2: none
-Changes since v1: none
----
- arch/arm/boot/dts/sun9i-a80-cubieboard4.dts | 24 ++++++++++++++++++++++++
- 1 file changed, 24 insertions(+)
-
-diff --git a/arch/arm/boot/dts/sun9i-a80-cubieboard4.dts b/arch/arm/boot/dts/sun9i-a80-cubieboard4.dts
-index 1526b41c70f1..cf2f4b72a841 100644
---- a/arch/arm/boot/dts/sun9i-a80-cubieboard4.dts
-+++ b/arch/arm/boot/dts/sun9i-a80-cubieboard4.dts
-@@ -250,6 +250,30 @@
- 			};
- 		};
- 	};
-+
-+	ac100: codec@e89 {
-+		compatible = "x-powers,ac100";
-+		reg = <0xe89>;
-+
-+		ac100_codec: codec {
-+			compatible = "x-powers,ac100-codec";
-+			interrupt-parent = <&r_pio>;
-+			interrupts = <0 9 IRQ_TYPE_LEVEL_LOW>; /* PL9 */
-+			#clock-cells = <0>;
-+			clock-output-names = "4M_adda";
-+		};
-+
-+		ac100_rtc: rtc {
-+			compatible = "x-powers,ac100-rtc";
-+			interrupt-parent = <&nmi_intc>;
-+			interrupts = <0 IRQ_TYPE_LEVEL_LOW>;
-+			clocks = <&ac100_codec>;
-+			#clock-cells = <1>;
-+			clock-output-names = "cko1_rtc",
-+					     "cko2_rtc",
-+					     "cko3_rtc";
-+		};
-+	};
+diff --git a/drivers/rtc/rtc-s3c.c b/drivers/rtc/rtc-s3c.c
+index 5dc18ca..e9f6151 100644
+--- a/drivers/rtc/rtc-s3c.c
++++ b/drivers/rtc/rtc-s3c.c
+@@ -810,6 +810,18 @@ static struct s3c_rtc_data const s3c6410_rtc_data = {
+ 	.disable		= s3c6410_rtc_disable,
  };
  
- #include "axp809.dtsi"
++static struct s3c_rtc_data const exynos3250_rtc_data = {
++	.max_user_freq		= 32768,
++	.needs_src_clk          = true,
++	.irq_handler		= s3c6410_rtc_irq,
++	.set_freq		= s3c6410_rtc_setfreq,
++	.enable_tick		= s3c6410_rtc_enable_tick,
++	.save_tick_cnt		= s3c6410_rtc_save_tick_cnt,
++	.restore_tick_cnt	= s3c6410_rtc_restore_tick_cnt,
++	.enable			= s3c24xx_rtc_enable,
++	.disable		= s3c6410_rtc_disable,
++};
++
+ static const struct of_device_id s3c_rtc_dt_match[] = {
+ 	{
+ 		.compatible = "samsung,s3c2410-rtc",
+@@ -825,7 +837,7 @@ static const struct of_device_id s3c_rtc_dt_match[] = {
+ 		.data = (void *)&s3c6410_rtc_data,
+ 	}, {
+ 		.compatible = "samsung,exynos3250-rtc",
+-		.data = (void *)&s3c6410_rtc_data,
++		.data = (void *)&exynos3250_rtc_data,
+ 	},
+ 	{ /* sentinel */ },
+ };
 -- 
-2.8.1
+2.7.4
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
