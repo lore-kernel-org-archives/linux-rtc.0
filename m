@@ -1,24 +1,30 @@
-Return-Path: <rtc-linux+bncBCAP3QEPQIDBBMHU226AKGQEO3EOYBI@googlegroups.com>
+Return-Path: <rtc-linux+bncBAABBRU3QO6AKGQE52YB54A@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail-pa0-x242.google.com (mail-pa0-x242.google.com. [2607:f8b0:400e:c03::242])
-        by gmr-mx.google.com with ESMTPS id a133si3181750pfa.0.2016.07.25.00.05.20
+MIME-Version: 1.0
+Received: from kozue.soulik.info (kozue.soulik.info. [108.61.200.231])
+        by gmr-mx.google.com with ESMTPS id i135si215606pfe.0.2016.07.09.02.24.08
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 25 Jul 2016 00:05:20 -0700 (PDT)
-Received: by mail-pa0-x242.google.com with SMTP id hh10so10965802pac.1
-        for <rtc-linux@googlegroups.com>; Mon, 25 Jul 2016 00:05:20 -0700 (PDT)
-From: Wei Yongjun <weiyj.lk@gmail.com>
-To: Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Wei Yongjun <weiyj.lk@gmail.com>,
+        Sat, 09 Jul 2016 02:24:08 -0700 (PDT)
+From: Randy Li <ayaka@soulik.info>
+To: k.kozlowski@samsung.com
+Cc: alexandre.belloni@free-electrons.com,
+	a.zummo@towertech.it,
 	rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org
-Subject: [rtc-linux] [PATCH -next] rtc: at91sam9: Fix missing spin_lock_init()
-Date: Mon, 25 Jul 2016 07:05:11 +0000
-Message-Id: <1469430311-8651-1-git-send-email-weiyj.lk@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+	linux-kernel@vger.kernel.org,
+	robh+dt@kernel.org,
+	mark.rutland@arm.com,
+	linux@armlinux.org.uk,
+	devicetree@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	linux-samsung-soc@vger.kernel.org,
+	Randy Li <ayaka@soulik.info>
+Subject: [rtc-linux] [PATCH 0/3] making rtc cores from s3c6410 and exynos3250
+ both work
+Date: Sat,  9 Jul 2016 17:23:43 +0800
+Message-Id: <1468056226-19128-1-git-send-email-ayaka@soulik.info>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -27,30 +33,23 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-The driver allocates the spinlock but not initialize it.
-Use spin_lock_init() on it to initialize it correctly.
+The 8792f7772f4f40ffc68bad5f28311205584b734d would just make those
+platform using rtc core from exynos3250 work but have a huge 
+effect on those platforms using the rtc core from s3c6410.
+These patches would fix this problem.
 
-This is detected by Coccinelle semantic patch.
+Randy Li (3):
+  Revert "drivers/rtc/rtc-s3c.c: add .needs_src_clk to s3c6410 RTC data"
+  rtc: s3c: add device data for samsung,exynos3250-rtc
+  ARM: dts: exynos: correct the rtc compatible value for exynos5
 
-Signed-off-by: Wei Yongjun <weiyj.lk@gmail.com>
----
- drivers/rtc/rtc-at91sam9.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/arm/boot/dts/exynos3250.dtsi |  2 +-
+ arch/arm/boot/dts/exynos5.dtsi    |  2 +-
+ drivers/rtc/rtc-s3c.c             | 15 +++++++++++++--
+ 3 files changed, 15 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/rtc/rtc-at91sam9.c b/drivers/rtc/rtc-at91sam9.c
-index 99732e6..7418a76 100644
---- a/drivers/rtc/rtc-at91sam9.c
-+++ b/drivers/rtc/rtc-at91sam9.c
-@@ -375,6 +375,7 @@ static int at91_rtc_probe(struct platform_device *pdev)
- 	if (!rtc)
- 		return -ENOMEM;
- 
-+	spin_lock_init(&rtc->lock);
- 	rtc->irq = irq;
- 
- 	/* platform setup code should have handled this; sigh */
-
-
+-- 
+2.7.4
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
