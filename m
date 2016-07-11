@@ -1,32 +1,30 @@
-Return-Path: <rtc-linux+bncBAABBRU3QO6AKGQE52YB54A@googlegroups.com>
+Return-Path: <rtc-linux+bncBDKZNNNLXAHBBB7HRS6AKGQEDJRO3MA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-MIME-Version: 1.0
-Received: from kozue.soulik.info (kozue.soulik.info. [2001:19f0:7000:8404:5054:ff:fe75:428f])
-        by gmr-mx.google.com with ESMTPS id i135si215683pfe.0.2016.07.09.02.24.27
+Received: from mailout2.w1.samsung.com (mailout2.w1.samsung.com. [210.118.77.12])
+        by gmr-mx.google.com with ESMTPS id 62si151295pfx.1.2016.07.10.22.49.58
         for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sat, 09 Jul 2016 02:24:27 -0700 (PDT)
-From: Randy Li <ayaka@soulik.info>
-To: k.kozlowski@samsung.com
-Cc: alexandre.belloni@free-electrons.com,
-	a.zummo@towertech.it,
-	rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org,
-	robh+dt@kernel.org,
-	mark.rutland@arm.com,
-	linux@armlinux.org.uk,
-	devicetree@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	linux-samsung-soc@vger.kernel.org,
-	Randy Li <ayaka@soulik.info>
-Subject: [rtc-linux] [PATCH 3/3] ARM: dts: exynos: correct the rtc compatible
- value for exynos5
-Date: Sat,  9 Jul 2016 17:23:46 +0800
-Message-Id: <1468056226-19128-4-git-send-email-ayaka@soulik.info>
-In-Reply-To: <1468056226-19128-1-git-send-email-ayaka@soulik.info>
+        (version=TLS1 cipher=AES128-SHA bits=128/128);
+        Sun, 10 Jul 2016 22:49:58 -0700 (PDT)
+Received: from eucpsbgm2.samsung.com (unknown [203.254.199.245])
+ by mailout2.w1.samsung.com
+ (Oracle Communications Messaging Server 7.0.5.31.0 64bit (built May  5 2014))
+ with ESMTP id <0OA40087IYV7HQ10@mailout2.w1.samsung.com> for
+ rtc-linux@googlegroups.com; Mon, 11 Jul 2016 06:49:55 +0100 (BST)
+Subject: [rtc-linux] Re: [PATCH 2/3] rtc: s3c: add device data for samsung,exynos3250-rtc
+To: Randy Li <ayaka@soulik.info>
 References: <1468056226-19128-1-git-send-email-ayaka@soulik.info>
+ <1468056226-19128-3-git-send-email-ayaka@soulik.info>
+Cc: alexandre.belloni@free-electrons.com, a.zummo@towertech.it,
+ rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org, robh+dt@kernel.org,
+ mark.rutland@arm.com, linux@armlinux.org.uk, devicetree@vger.kernel.org,
+ linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org
+From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+Message-id: <57833381.7050503@samsung.com>
+Date: Mon, 11 Jul 2016 07:49:53 +0200
+MIME-version: 1.0
+In-reply-to: <1468056226-19128-3-git-send-email-ayaka@soulik.info>
+Content-type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
-Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -35,43 +33,57 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Those platforms are reported to use the same rtc IP core
-as exynos3250's.
+On 07/09/2016 11:23 AM, Randy Li wrote:
+> The device data for samsung,exynos3250-rtc and samsung,s3c6410-rtc
+> are just have a difference, but keeping using the same device data
+> would cause the platform using the other IP core not work.
 
-Signed-off-by: Randy Li <ayaka@soulik.info>
----
- arch/arm/boot/dts/exynos3250.dtsi | 2 +-
- arch/arm/boot/dts/exynos5.dtsi    | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+I cannot understand what you wanted to say here. Please rephrase it.
 
-diff --git a/arch/arm/boot/dts/exynos3250.dtsi b/arch/arm/boot/dts/exynos3250.dtsi
-index 62f3dcd..cdd69a0 100644
---- a/arch/arm/boot/dts/exynos3250.dtsi
-+++ b/arch/arm/boot/dts/exynos3250.dtsi
-@@ -208,7 +208,7 @@
- 		};
- 
- 		rtc: rtc@10070000 {
--			compatible = "samsung,s3c6410-rtc";
-+			compatible = "samsung,exynos3250-rtc";
- 			reg = <0x10070000 0x100>;
- 			interrupts = <0 73 0>, <0 74 0>;
- 			interrupt-parent = <&pmu_system_controller>;
-diff --git a/arch/arm/boot/dts/exynos5.dtsi b/arch/arm/boot/dts/exynos5.dtsi
-index d5c0f18..71a1ad2 100644
---- a/arch/arm/boot/dts/exynos5.dtsi
-+++ b/arch/arm/boot/dts/exynos5.dtsi
-@@ -88,7 +88,7 @@
- 	};
- 
- 	rtc: rtc@101E0000 {
--		compatible = "samsung,s3c6410-rtc";
-+		compatible = "samsung,exynos3250-rtc";
- 		reg = <0x101E0000 0x100>;
- 		interrupts = <0 43 0>, <0 44 0>;
- 		status = "disabled";
--- 
-2.7.4
+Why not just reverting a42e6eae457837d6a5925f4926f5ba05ccf44f89?
+
+Best regards,
+Krzysztof
+
+> 
+> Signed-off-by: Randy Li <ayaka@soulik.info>
+> ---
+>  drivers/rtc/rtc-s3c.c | 14 +++++++++++++-
+>  1 file changed, 13 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/rtc/rtc-s3c.c b/drivers/rtc/rtc-s3c.c
+> index 5dc18ca..e9f6151 100644
+> --- a/drivers/rtc/rtc-s3c.c
+> +++ b/drivers/rtc/rtc-s3c.c
+> @@ -810,6 +810,18 @@ static struct s3c_rtc_data const s3c6410_rtc_data = {
+>  	.disable		= s3c6410_rtc_disable,
+>  };
+>  
+> +static struct s3c_rtc_data const exynos3250_rtc_data = {
+> +	.max_user_freq		= 32768,
+> +	.needs_src_clk          = true,
+> +	.irq_handler		= s3c6410_rtc_irq,
+> +	.set_freq		= s3c6410_rtc_setfreq,
+> +	.enable_tick		= s3c6410_rtc_enable_tick,
+> +	.save_tick_cnt		= s3c6410_rtc_save_tick_cnt,
+> +	.restore_tick_cnt	= s3c6410_rtc_restore_tick_cnt,
+> +	.enable			= s3c24xx_rtc_enable,
+> +	.disable		= s3c6410_rtc_disable,
+> +};
+> +
+>  static const struct of_device_id s3c_rtc_dt_match[] = {
+>  	{
+>  		.compatible = "samsung,s3c2410-rtc",
+> @@ -825,7 +837,7 @@ static const struct of_device_id s3c_rtc_dt_match[] = {
+>  		.data = (void *)&s3c6410_rtc_data,
+>  	}, {
+>  		.compatible = "samsung,exynos3250-rtc",
+> -		.data = (void *)&s3c6410_rtc_data,
+> +		.data = (void *)&exynos3250_rtc_data,
+>  	},
+>  	{ /* sentinel */ },
+>  };
+> 
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
