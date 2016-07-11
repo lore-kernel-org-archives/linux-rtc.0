@@ -1,24 +1,29 @@
-Return-Path: <rtc-linux+bncBDSJR27JS4DBB34CYO6AKGQEDQSKGRY@googlegroups.com>
+Return-Path: <rtc-linux+bncBDKZNNNLXAHBBR7FRS6AKGQEKKV7TVY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from authsmtp.register.it (authsmtp69.register.it. [195.110.101.53])
-        by gmr-mx.google.com with ESMTPS id r197si160313wmf.2.2016.07.21.05.34.55
+Received: from mailout2.w1.samsung.com (mailout2.w1.samsung.com. [210.118.77.12])
+        by gmr-mx.google.com with ESMTPS id 62si149796pfx.1.2016.07.10.22.46.46
         for <rtc-linux@googlegroups.com>
         (version=TLS1 cipher=AES128-SHA bits=128/128);
-        Thu, 21 Jul 2016 05:34:55 -0700 (PDT)
-Subject: =?UTF-8?Q?=5Brtc=2Dlinux=5D_Re=3A_=5BPATCH_4=2F6=5D_rtc=3A_rv8803=3A_Always_appl?=
-	=?UTF-8?Q?y_the_I=C2=B2C_workaround?=
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-References: <1469097692-103146-1-git-send-email-benoit@wsystem.com>
- <1469097692-103146-4-git-send-email-benoit@wsystem.com>
- <20160721111008.GE4446@piout.net>
-Cc: rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org,
- Alessandro Zummo <a.zummo@towertech.it>
-From: =?UTF-8?Q?Beno=c3=aet_Th=c3=a9baudeau?= <benoit@wsystem.com>
-Message-ID: <53845770-179d-cf6c-0391-f8bde4c8b0e3@wsystem.com>
-Date: Thu, 21 Jul 2016 14:34:54 +0200
-MIME-Version: 1.0
-In-Reply-To: <20160721111008.GE4446@piout.net>
-Content-Type: text/plain; charset=UTF-8
+        Sun, 10 Jul 2016 22:46:47 -0700 (PDT)
+Received: from eucpsbgm2.samsung.com (unknown [203.254.199.245])
+ by mailout2.w1.samsung.com
+ (Oracle Communications Messaging Server 7.0.5.31.0 64bit (built May  5 2014))
+ with ESMTP id <0OA40076NYPUOA10@mailout2.w1.samsung.com> for
+ rtc-linux@googlegroups.com; Mon, 11 Jul 2016 06:46:42 +0100 (BST)
+Subject: [rtc-linux] Re: [PATCH 0/3] making rtc cores from s3c6410 and
+ exynos3250 both work
+To: Randy Li <ayaka@soulik.info>
+References: <1468056226-19128-1-git-send-email-ayaka@soulik.info>
+Cc: alexandre.belloni@free-electrons.com, a.zummo@towertech.it,
+ rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org, robh+dt@kernel.org,
+ mark.rutland@arm.com, linux@armlinux.org.uk, devicetree@vger.kernel.org,
+ linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org
+From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+Message-id: <578332C0.4010601@samsung.com>
+Date: Mon, 11 Jul 2016 07:46:40 +0200
+MIME-version: 1.0
+In-reply-to: <1468056226-19128-1-git-send-email-ayaka@soulik.info>
+Content-type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -28,53 +33,39 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 21/07/2016 at 13:10, Alexandre Belloni wrote:
-> On 21/07/2016 at 12:41:30 +0200, Beno=C3=AEt Th=C3=A9baudeau wrote :
->> The I=C2=B2C NACK issue of the RV-8803 may occur after any I=C2=B2C STAR=
-T
->> condition, depending on the timings. Consequently, the workaround must
->> be applied for all the I=C2=B2C transfers.
->>
->> This commit abstracts the I=C2=B2C transfer code into register access
->> functions. This avoids duplicating the I=C2=B2C workaround everywhere. T=
-his
->> also avoids the duplication of the code handling the return value of
->> i2c_smbus_read_i2c_block_data(). Error messages are issued in case of
->> definitive register access failures (if the workaround fails). This
->> change also makes the I=C2=B2C transfer return value checks consistent.
->>
->=20
-> Well, my initial idea was that the workaround is actually needed only
-> for operations that are not restartable from userspace.
->=20
-> Did you it that bug? On which RTC?
+On 07/09/2016 11:23 AM, Randy Li wrote:
+> The 8792f7772f4f40ffc68bad5f28311205584b734d would just make those
+> platform using rtc core from exynos3250 work but have a huge 
+> effect on those platforms using the rtc core from s3c6410.
+> These patches would fix this problem.
+> 
 
-No, I've not seen that bug. However, the errata sheet says that this issue =
-may
-occur if two consecutive I=C2=B2C START conditions are slightly more than 9=
-50 ms
-apart. It does not even say that this is restricted to I=C2=B2C transfers a=
-ddressing
-this RTC. Moreover, if the time is read or set from userspace, this might o=
-ccur
-at any time relatively to an RTC interrupt or to a previous time read/set
-operation, so possibly 950 ms afterwards.
+Which problem? What huge effect? On which platforms? You didn't describe
+it...
 
-All in all, it's safer and easier to always apply this workaround, all the =
-more
-it is applied at almost no cost when there is no issue.
+Your change breaks the ABI and is not compatible with current bindings
+documentation.
 
 Best regards,
-Beno=C3=AEt
+Krzysztof
 
---=20
+> Randy Li (3):
+>   Revert "drivers/rtc/rtc-s3c.c: add .needs_src_clk to s3c6410 RTC data"
+>   rtc: s3c: add device data for samsung,exynos3250-rtc
+>   ARM: dts: exynos: correct the rtc compatible value for exynos5
+> 
+>  arch/arm/boot/dts/exynos3250.dtsi |  2 +-
+>  arch/arm/boot/dts/exynos5.dtsi    |  2 +-
+>  drivers/rtc/rtc-s3c.c             | 15 +++++++++++++--
+>  3 files changed, 15 insertions(+), 4 deletions(-)
+> 
+
+-- 
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
----=20
-You received this message because you are subscribed to the Google Groups "=
-rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an e=
-mail to rtc-linux+unsubscribe@googlegroups.com.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
