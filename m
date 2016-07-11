@@ -1,25 +1,26 @@
-Return-Path: <rtc-linux+bncBDX5ZRH7XQGRBYFD765QKGQEAV5OGJQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBDEKVJM7XAHRBRVESC6AKGQEDQ2YIOQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail-pa0-x22b.google.com (mail-pa0-x22b.google.com. [2607:f8b0:400e:c03::22b])
-        by gmr-mx.google.com with ESMTPS id c11si572134pfc.2.2016.07.08.09.16.32
+MIME-Version: 1.0
+Received: from mout.kundenserver.de (mout.kundenserver.de. [217.72.192.73])
+        by gmr-mx.google.com with ESMTPS id 65si213545wmr.3.2016.07.11.14.40.22
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 08 Jul 2016 09:16:32 -0700 (PDT)
-Received: by mail-pa0-x22b.google.com with SMTP id dx3so13451039pab.2
-        for <rtc-linux@googlegroups.com>; Fri, 08 Jul 2016 09:16:32 -0700 (PDT)
-From: Kevin Hilman <khilman@baylibre.com>
-To: Ben Dooks <ben.dooks@codethink.co.uk>
-Cc: linux-kernel@lists.codethink.co.uk,  linux-amlogic@lists.infradead.org,  rtc-linux@googlegroups.com,  a.zummo@towertech.it,  alexandre.belloni@free-electrons.com,  devicetree@vger.kernel.org,  narmstrong@baylibre.com,  frowand.list@gmail.com
-Subject: [rtc-linux] Re: [PATCH v3 1/4] rtc: support for amlogic meson rtc
-References: <1467748122-14833-1-git-send-email-ben.dooks@codethink.co.uk>
-	<1467748122-14833-3-git-send-email-ben.dooks@codethink.co.uk>
-Date: Fri, 08 Jul 2016 09:16:30 -0700
-In-Reply-To: <1467748122-14833-3-git-send-email-ben.dooks@codethink.co.uk>
-	(Ben Dooks's message of "Tue, 5 Jul 2016 20:48:41 +0100")
-Message-ID: <7hoa6885r5.fsf@baylibre.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+        Mon, 11 Jul 2016 14:40:22 -0700 (PDT)
+From: Arnd Bergmann <arnd@arndb.de>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: Arnd Bergmann <arnd@arndb.de>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Javier Martinez Canillas <javier@osg.samsung.com>,
+	Sudeep Holla <Sudeep.Holla@arm.com>,
+	=?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <uwe@kleine-koenig.org>,
+	Krzysztof Kozlowski <k.kozlowski@samsung.com>,
+	rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org
+Subject: [rtc-linux] [PATCH] rtc: isl12057: remove unused variables
+Date: Mon, 11 Jul 2016 23:42:57 +0200
+Message-Id: <20160711214340.2574022-1-arnd@arndb.de>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -28,13 +29,43 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Ben Dooks <ben.dooks@codethink.co.uk> writes:
+A cleanup patch introduced a harmless warning about now unused local variables:
 
-> Add support for the AMLogic meson8b/meson6 RTC block.
->
-> Signed-off-by: Ben Dooks <ben.dooks@codethink.co.uk>
+drivers/rtc/rtc-isl12057.c: In function 'isl12057_rtc_read_alarm':
+drivers/rtc/rtc-isl12057.c:249:26: error: unused variable 'alarm_secs' [-Werror=unused-variable]
+  unsigned long rtc_secs, alarm_secs;
+                          ^~~~~~~~~~
+drivers/rtc/rtc-isl12057.c:249:16: error: unused variable 'rtc_secs' [-Werror=unused-variable]
+  unsigned long rtc_secs, alarm_secs;
+                ^~~~~~~~
+drivers/rtc/rtc-isl12057.c:248:18: error: unused variable 'rtc_tm' [-Werror=unused-variable]
+  struct rtc_time rtc_tm, *alarm_tm = &alarm->time;
+                  ^~~~~~
 
-Tested-by: Kevin Hilman <khilman@baylibre.com>
+This removes the variables to shut up those warnings.
+
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Fixes: 4e30a585a343 ("rtc: isl12057: let the rtc core interpret the partial alarm")
+---
+ drivers/rtc/rtc-isl12057.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/drivers/rtc/rtc-isl12057.c b/drivers/rtc/rtc-isl12057.c
+index e0245fc6205e..0e7f0f52bfe4 100644
+--- a/drivers/rtc/rtc-isl12057.c
++++ b/drivers/rtc/rtc-isl12057.c
+@@ -245,8 +245,7 @@ static int isl12057_rtc_update_alarm(struct device *dev, int enable)
+ static int isl12057_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alarm)
+ {
+ 	struct isl12057_rtc_data *data = dev_get_drvdata(dev);
+-	struct rtc_time rtc_tm, *alarm_tm = &alarm->time;
+-	unsigned long rtc_secs, alarm_secs;
++	struct rtc_time *alarm_tm = &alarm->time;
+ 	u8 regs[ISL12057_A1_SEC_LEN];
+ 	unsigned int ir;
+ 	int ret;
+-- 
+2.9.0
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
