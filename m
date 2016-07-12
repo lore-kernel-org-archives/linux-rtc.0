@@ -1,21 +1,28 @@
-Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBUFI3S6AKGQEPB4PX4A@googlegroups.com>
+Return-Path: <rtc-linux+bncBCEPJZEDQIBBBBWMSS6AKGQEFYDMVUI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id b77si1177488wmb.1.2016.07.26.00.42.08
-        for <rtc-linux@googlegroups.com>;
-        Tue, 26 Jul 2016 00:42:08 -0700 (PDT)
-Date: Tue, 26 Jul 2016 09:42:07 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Wei Yongjun <weiyj.lk@gmail.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH -next] rtc: at91sam9: Fix missing spin_lock_init()
-Message-ID: <20160726074207.GO11405@piout.net>
-References: <1469430311-8651-1-git-send-email-weiyj.lk@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1469430311-8651-1-git-send-email-weiyj.lk@gmail.com>
+Received: from rainbowdash.ducie.codethink.co.uk (82-70-136-246.dsl.in-addr.zen.co.uk. [82.70.136.246])
+        by gmr-mx.google.com with ESMTPS id v14si362870wmf.0.2016.07.12.10.16.54
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
+        Tue, 12 Jul 2016 10:16:54 -0700 (PDT)
+From: Ben Dooks <ben.dooks@codethink.co.uk>
+To: linux-kernel@lists.codethink.co.uk,
+	linux-amlogic@lists.infradead.org,
+	rtc-linux@googlegroups.com
+Cc: a.zummo@towertech.it,
+	alexandre.belloni@free-electrons.com,
+	devicetree@vger.kernel.org,
+	narmstrong@baylibre.com,
+	khilman@baylibre.com,
+	Ben Dooks <ben.dooks@codethink.co.uk>
+Subject: [rtc-linux] [PATCH v4 2/2] meson-rtc: add device-tree binding
+Date: Tue, 12 Jul 2016 18:16:39 +0100
+Message-Id: <1468343799-12844-3-git-send-email-ben.dooks@codethink.co.uk>
+In-Reply-To: <1468343799-12844-1-git-send-email-ben.dooks@codethink.co.uk>
+References: <1468343799-12844-1-git-send-email-ben.dooks@codethink.co.uk>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -24,23 +31,44 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 25/07/2016 at 07:05:11 +0000, Wei Yongjun wrote :
-> The driver allocates the spinlock but not initialize it.
-> Use spin_lock_init() on it to initialize it correctly.
-> 
-> This is detected by Coccinelle semantic patch.
-> 
-> Signed-off-by: Wei Yongjun <weiyj.lk@gmail.com>
-> ---
->  drivers/rtc/rtc-at91sam9.c | 1 +
->  1 file changed, 1 insertion(+)
-> 
-Applied, thanks.
+Add documentation for the AMLogic Meson RTC.
 
+Signed-off-by: Ben Dooks <ben.dooks@codethink.co.uk>
+Acked-by: Rob Herring <robh@kernel.org>
+---
+ .../devicetree/bindings/rtc/rtc-amlogic.txt         | 21 +++++++++++++++++++++
+ 1 file changed, 21 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/rtc/rtc-amlogic.txt
+
+diff --git a/Documentation/devicetree/bindings/rtc/rtc-amlogic.txt b/Documentation/devicetree/bindings/rtc/rtc-amlogic.txt
+new file mode 100644
+index 0000000..efc7672
+--- /dev/null
++++ b/Documentation/devicetree/bindings/rtc/rtc-amlogic.txt
+@@ -0,0 +1,21 @@
++* AMlogic Meson RTC
++
++Required properties:
++- compatible: should be one of the following describing the hardware:
++	* "amlogic,meson6-rtc"
++	* "amlogic,meson8-rtc"
++	* "amlogic,meson8b-rtc"
++
++- reg: physical register space for the controller's memory mapped registers.
++
++Optional properties:
++- resets: reset controller reference to allow reset of the controller
++- interrupts: single interrupt reference if interrupt support needed
++
++Example:
++
++	rtc: rtc@c8100740 {
++		compatible = "amlogic,meson6-rtc";
++		reg = <0xc8100740 0x14>;
++		status = "disabled";
++	};
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+2.8.1
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
