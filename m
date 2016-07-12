@@ -1,31 +1,22 @@
-Return-Path: <rtc-linux+bncBDZ4TKHXUMNBBWMB525QKGQERJFWF4A@googlegroups.com>
+Return-Path: <rtc-linux+bncBCQ2RG5RUQPBBEV4SW6AKGQE4DFU7WA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mailout4.samsung.com (mailout4.samsung.com. [203.254.224.34])
-        by gmr-mx.google.com with ESMTPS id c11si360335pfc.2.2016.07.05.02.41.44
+Received: from mail-qk0-x229.google.com (mail-qk0-x229.google.com. [2607:f8b0:400d:c09::229])
+        by gmr-mx.google.com with ESMTPS id t206si394560ywb.3.2016.07.12.14.16.01
         for <rtc-linux@googlegroups.com>
-        (version=TLS1 cipher=AES128-SHA bits=128/128);
-        Tue, 05 Jul 2016 02:41:44 -0700 (PDT)
-Received: from epcpsbgr3.samsung.com
- (u143.gpu120.samsung.co.kr [203.254.230.143])
- by mailout4.samsung.com (Oracle Communications Messaging Server 7.0.5.31.0
- 64bit (built May  5 2014))
- with ESMTP id <0O9U00CDH5LJM950@mailout4.samsung.com> for
- rtc-linux@googlegroups.com; Tue, 05 Jul 2016 18:41:43 +0900 (KST)
-Subject: [rtc-linux] Re: [RFC PATCH 2/2] rtc: s3c: Add s3c_rtc_{enable/disable}_clk
- in s3c_rtc_setfreq()
-To: Alim Akhtar <alim.akhtar@samsung.com>,
- Krzysztof Kozlowski <k.kozlowski@samsung.com>, rtc-linux@googlegroups.com,
- linux-kernel@vger.kernel.org
-References: <1467630195-6929-1-git-send-email-alim.akhtar@samsung.com>
- <1467630195-6929-2-git-send-email-alim.akhtar@samsung.com>
- <577B6CD9.80605@samsung.com> <577B7537.4080506@samsung.com>
-Cc: alexandre.belloni@free-electrons.com, javier@osg.samsung.com
-From: "pankaj.dubey" <pankaj.dubey@samsung.com>
-Message-id: <577B8166.8060208@samsung.com>
-Date: Tue, 05 Jul 2016 15:14:06 +0530
-MIME-version: 1.0
-In-reply-to: <577B7537.4080506@samsung.com>
-Content-type: text/plain; charset=UTF-8
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 12 Jul 2016 14:16:01 -0700 (PDT)
+Received: by mail-qk0-x229.google.com with SMTP id s63so26358244qkb.2
+        for <rtc-linux@googlegroups.com>; Tue, 12 Jul 2016 14:16:01 -0700 (PDT)
+From: Chris DeBruin <cdeb5783@gmail.com>
+To: a.zummo@towertech.it,
+	alexandre.belloni@free-electrons.com
+Cc: rtc-linux@googlegroups.com,
+	Chris DeBruin <cdeb5783@gmail.com>
+Subject: [rtc-linux] [PATCH] rtc: pcf85063: Add support for the PCF85063A device
+Date: Tue, 12 Jul 2016 17:15:46 -0400
+Message-Id: <1468358146-18717-1-git-send-email-cdeb5783@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -35,72 +26,129 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Hi Alim,
+The current rtc-pcf85063 driver only supports the PCF85063TP device.
+Using the existing driver on a PCF85063A will result in the time being
+set correctly into the RTC, but the RTC is held in the stopped state.
+Therefore, the time will no longer advance and no error is indicated.
 
-On Tuesday 05 July 2016 02:22 PM, Alim Akhtar wrote:
-> 
-> 
-> On 07/05/2016 01:46 PM, Krzysztof Kozlowski wrote:
->> On 07/04/2016 01:03 PM, Alim Akhtar wrote:
->>> As per code flow it is possible that s3c_rtc_setfreq() might get called
->>> with rtc clock disabled and in set_freq we perform h/w registers
->>> read/write,
->>> which might results in a kernel crash while probing rtc driver.
->>> Below is one such case:
->>> s3c_rtc_probe()
->>>      clk_prepare_enable(info->rtc_clk) // rtc clock enabled
->>>        s3c_rtc_gettime() // will enable clk if not done, and disable
->>> it upon exit
->>>          s3c_rtc_setfreq() //then this will be called with clk disabled
->>
->> The indentation suggests levels of calls (chain) not sequence. This
->> should be:
->> s3c_rtc_probe()
->>    clk_prepare_enable(info->rtc_clk) // rtc clock enabled
->>    s3c_rtc_gettime() // will enable clk if not done, and disable it
->> upon exit
->>    s3c_rtc_setfreq() //then this will be called with clk disabled
->>
->>>
->>> This patch take cares of such issue by adding
->>> s3c_rtc_{enable/disable}_clk in
->>> s3c_rtc_setfreq().
->>
->> What I don't get is that you wrote "it is *possible* that
->> s3c_rtc_setfreq() *might* get called". From my understanding this will
->> happen always because src_rtc_gettime() always disables the clocks.
->>
->> Why it does not happen always?
->>
-> 
-> Yes, you are right, it is always disabled when reaches s3c_rtc_setfreq().
-> And I observed a kernel crash while testing on exynos7 platform in
-> s3c_rtc_setfreq() because clock was always disabled at this point. And
-> this patches fixes this issue.
-> 
+The PCF85063A device has a bigger memory map than the PCF85063TP.
+The existing driver make use of an address rollover condition,
+but the rollover point is different in the two devices.
 
-After addressing Krzysztof's review comments, Please feel free to add
+Signed-off-by: Chris DeBruin <cdeb5783@gmail.com>
+---
+ drivers/rtc/rtc-pcf85063.c | 48 +++++++++++++++++++++++++++++++++++++-----=
+----
+ 1 file changed, 39 insertions(+), 9 deletions(-)
 
-Reviewed-by: Pankaj Dubey <pankaj.dubey@samsung.com>
+diff --git a/drivers/rtc/rtc-pcf85063.c b/drivers/rtc/rtc-pcf85063.c
+index e8ddbb359..95b2b97 100644
+--- a/drivers/rtc/rtc-pcf85063.c
++++ b/drivers/rtc/rtc-pcf85063.c
+@@ -16,6 +16,17 @@
+ #include <linux/rtc.h>
+ #include <linux/module.h>
+=20
++/*
++ * Information for this driver was pulled from the following datasheets.
++ *
++ *  http://www.nxp.com/documents/data_sheet/PCF85063A.pdf
++ *  http://www.nxp.com/documents/data_sheet/PCF85063TP.pdf
++ *
++ *  PCF85063A -- Rev. 6 =E2=80=94 18 November 2015
++ *  PCF85063TP -- Rev. 4 =E2=80=94 6 May 2015
++*/
++
++
+ #define PCF85063_REG_CTRL1		0x00 /* status */
+ #define PCF85063_REG_CTRL1_STOP		BIT(5)
+ #define PCF85063_REG_CTRL2		0x01
+@@ -55,6 +66,22 @@ static int pcf85063_stop_clock(struct i2c_client *client=
+, u8 *ctrl1)
+ 	return 0;
+ }
+=20
++static int pcf85063_start_clock(struct i2c_client *client, u8 ctrl1)
++{
++	s32 ret;
++
++	/* start the clock */
++	ctrl1 &=3D PCF85063_REG_CTRL1_STOP;
++
++	ret =3D i2c_smbus_write_byte_data(client, PCF85063_REG_CTRL1, ctrl1);
++	if (ret < 0) {
++		dev_err(&client->dev, "Failing to start the clock\n");
++		return -EIO;
++	}
++
++	return 0;
++}
++
+ /*
+  * In the routines that deal directly with the pcf85063 hardware, we use
+  * rtc_time -- month 0-11, hour 0-23, yr =3D calendar year-epoch.
+@@ -99,13 +126,14 @@ static int pcf85063_get_datetime(struct i2c_client *cl=
+ient, struct rtc_time *tm)
+ static int pcf85063_set_datetime(struct i2c_client *client, struct rtc_tim=
+e *tm)
+ {
+ 	int rc;
+-	u8 regs[8];
++	u8 regs[7];
++	u8 ctrl1;
+=20
+ 	/*
+ 	 * to accurately set the time, reset the divider chain and keep it in
+ 	 * reset state until all time/date registers are written
+ 	 */
+-	rc =3D pcf85063_stop_clock(client, &regs[7]);
++	rc =3D pcf85063_stop_clock(client, &ctrl1);
+ 	if (rc !=3D 0)
+ 		return rc;
+=20
+@@ -127,13 +155,6 @@ static int pcf85063_set_datetime(struct i2c_client *cl=
+ient, struct rtc_time *tm)
+ 	/* year and century */
+ 	regs[6] =3D bin2bcd(tm->tm_year % 100);
+=20
+-	/*
+-	 * after all time/date registers are written, let the 'address auto
+-	 * increment' feature wrap around and write register CTRL1 to re-enable
+-	 * the clock divider chain again
+-	 */
+-	regs[7] &=3D ~PCF85063_REG_CTRL1_STOP;
+-
+ 	/* write all registers at once */
+ 	rc =3D i2c_smbus_write_i2c_block_data(client, PCF85063_REG_SC,
+ 					    sizeof(regs), regs);
+@@ -142,6 +163,15 @@ static int pcf85063_set_datetime(struct i2c_client *cl=
+ient, struct rtc_time *tm)
+ 		return rc;
+ 	}
+=20
++    /*
++     * Write the control register as a seperate action since the size of
++     * the register space is different between the PCF85063TP and
++     * PCF85063A devices.  The rollover point can not be used.
++     */
++	rc =3D pcf85063_start_clock(client, ctrl1);
++	if (rc !=3D 0)
++		return rc;
++
+ 	return 0;
+ }
+=20
+--=20
+1.9.1
 
-For testing on Exynos7420
-Tested-by: Pankaj Dubey <pankaj.dubey@samsung.com>
-
-Thanks,
-Pankaj Dubey
-
-> 
->> Best regards,
->> Krzysztof
->>
-> 
-
--- 
+--=20
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+---=20
+You received this message because you are subscribed to the Google Groups "=
+rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an e=
+mail to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
