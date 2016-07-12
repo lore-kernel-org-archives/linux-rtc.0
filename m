@@ -1,21 +1,26 @@
-Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBCVGXG6AKGQEFJH5FVQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBCEPJZEDQIBBBBGMSS6AKGQEV365ATI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id r74si1059870wme.3.2016.07.19.09.19.22
-        for <rtc-linux@googlegroups.com>;
-        Tue, 19 Jul 2016 09:19:22 -0700 (PDT)
-Date: Tue, 19 Jul 2016 18:19:21 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <uwe@kleine-koenig.org>
-Cc: Ben Hutchings <benh@debian.org>, rtc-linux@googlegroups.com,
-	kernel@pengutronix.de, Alessandro Zummo <a.zummo@towertech.it>
-Subject: [rtc-linux] Re: [PATCH 0/2] rtc: fix regressions of d68778b80dd7
-Message-ID: <20160719161921.GM7132@piout.net>
-References: <1468224328-7391-1-git-send-email-uwe@kleine-koenig.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1468224328-7391-1-git-send-email-uwe@kleine-koenig.org>
+Received: from rainbowdash.ducie.codethink.co.uk (82-70-136-246.dsl.in-addr.zen.co.uk. [82.70.136.246])
+        by gmr-mx.google.com with ESMTPS id v14si362846wmf.0.2016.07.12.10.16.52
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
+        Tue, 12 Jul 2016 10:16:52 -0700 (PDT)
+From: Ben Dooks <ben.dooks@codethink.co.uk>
+To: linux-kernel@lists.codethink.co.uk,
+	linux-amlogic@lists.infradead.org,
+	rtc-linux@googlegroups.com
+Cc: a.zummo@towertech.it,
+	alexandre.belloni@free-electrons.com,
+	devicetree@vger.kernel.org,
+	narmstrong@baylibre.com,
+	khilman@baylibre.com,
+	Ben Dooks <ben.dooks@codethink.co.uk>
+Subject: [rtc-linux] [PATCH v4 0/2] AMLogic Meson SoC RTC driver
+Date: Tue, 12 Jul 2016 18:16:37 +0100
+Message-Id: <1468343799-12844-1-git-send-email-ben.dooks@codethink.co.uk>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -24,38 +29,55 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 11/07/2016 at 10:05:26 +0200, Uwe Kleine-K=C3=B6nig wrote :
-> Hello,
->=20
-> while applying d68778b80dd7 ("rtc: initialize output parameter for read
-> alarm to "uninitialized"") to the Debian kernel Ben Hutchings wondered
-> if there are drivers that rely on .tm_sec being initialized to 0.
->=20
-> I checked this now an found a few that do.
->=20
-> The hym8563 already used -1 explicitly, it is fixed in a separate patch.
->=20
-> Uwe Kleine-K=C3=B6nig (2):
->   rtc: explicitly set tm_sec =3D 0 for drivers with minute accurancy
->   rtc: hym8563: in .read_alarm set .tm_sec to 0 to signal minute
->     accuracy
->=20
+This series adds support for the on SoC RTC driver on the
+AMLogic Meson devices. The device-tree updates are not included
+as they depend on the reset-controller support in -next.
 
-Applied, thanks.
+The series does not have any build dependencies, but does require
+the reset controller and device-tree entries for the device-tree
+files for the relevant boards. 
 
---=20
-Alexandre Belloni, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+The series tested by myself on the ODroid-C1 board with a battery
+pack attached. It has also been tested by Kevin Hilman.
 
---=20
+I will send the DT changes in a second series so that they can be
+merged once the dependencies have been satisified.
+
+Changes since V3:
+  <1467748122-14833-1-git-send-email-ben.dooks@codethink.co.uk>
+- Added Kevin's tested by
+
+Changes since V1:
+  <1467039135-26588-1-git-send-email-ben.dooks@codethink.co.uk>
+
+ - Fixed checkpatch and sparse errors
+ - Fixed minor locking bug when writing static-control register
+ - Updated the code ordering in the rtc-meson.c driver
+ - Fixed alphanumeric ordering in on-cpu rtc block
+ - Added Rob Hering's ack for the DT binding documentation
+ - Added better description to the RTC driver header.
+
+Ben Dooks (2):
+  rtc: support for amlogic meson rtc
+  meson-rtc: add device-tree binding
+
+ .../devicetree/bindings/rtc/rtc-amlogic.txt        |  21 ++
+ drivers/rtc/Kconfig                                |   9 +
+ drivers/rtc/Makefile                               |   1 +
+ drivers/rtc/rtc-meson.c                            | 349 +++++++++++++++++++++
+ 4 files changed, 380 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/rtc/rtc-amlogic.txt
+ create mode 100644 drivers/rtc/rtc-meson.c
+
+-- 
+2.8.1
+
+-- 
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
----=20
-You received this message because you are subscribed to the Google Groups "=
-rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an e=
-mail to rtc-linux+unsubscribe@googlegroups.com.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
