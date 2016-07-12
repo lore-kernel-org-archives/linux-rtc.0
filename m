@@ -1,27 +1,24 @@
-Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBO7SXC6AKGQEL5K5VJI@googlegroups.com>
+Return-Path: <rtc-linux+bncBCEPJZEDQIBBBJV5SS6AKGQECI3C6FA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id o85si1124799wme.0.2016.07.19.07.29.14
-        for <rtc-linux@googlegroups.com>;
-        Tue, 19 Jul 2016 07:29:14 -0700 (PDT)
-Date: Tue, 19 Jul 2016 16:29:07 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Pratyush Anand <panand@redhat.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
-	open list <linux-kernel@vger.kernel.org>,
-	Prarit Bhargava <prarit@redhat.com>,
-	RuiRui Yang <dyoung@redhat.com>,
-	Thomas Gleixner <tglx@linutronix.de>, mingo@kernel.org
-Subject: [rtc-linux] Re: [PATCH RFC 0/2] rtc-cmos: Workaround unwanted
- interrupt generation
-Message-ID: <20160719142907.GG7132@piout.net>
-References: <cover.1466484019.git.panand@redhat.com>
- <20160627044907.GA29870@dhcppc9>
- <20160704161948.GB11075@dhcppc9>
- <CAHB_Gup0uaOrr9R5qaydc2057o-L290Jwqd2iC0-+tsEwzKbQQ@mail.gmail.com>
+Received: from ducie-dc1.codethink.co.uk (ducie-dc1.codethink.co.uk. [185.25.241.215])
+        by gmr-mx.google.com with ESMTPS id 65si162931wmr.3.2016.07.12.09.45.25
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 12 Jul 2016 09:45:25 -0700 (PDT)
+Subject: [rtc-linux] Re: [PATCH v3 0/2] AMLogic Meson SoC RTC driver
+To: Kevin Hilman <khilman@baylibre.com>
+References: <1467748089-14718-1-git-send-email-ben.dooks@codethink.co.uk>
+ <7hinwg85k7.fsf@baylibre.com>
+Cc: linux-kernel@lists.codethink.co.uk, linux-amlogic@lists.infradead.org,
+ rtc-linux@googlegroups.com, a.zummo@towertech.it, narmstrong@baylibre.com,
+ devicetree@vger.kernel.org, alexandre.belloni@free-electrons.com,
+ frowand.list@gmail.com
+From: Ben Dooks <ben.dooks@codethink.co.uk>
+Message-ID: <53016146-6647-224c-ba1a-f2a9dc364a86@codethink.co.uk>
+Date: Tue, 12 Jul 2016 17:45:22 +0100
 MIME-Version: 1.0
+In-Reply-To: <7hinwg85k7.fsf@baylibre.com>
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <CAHB_Gup0uaOrr9R5qaydc2057o-L290Jwqd2iC0-+tsEwzKbQQ@mail.gmail.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -31,48 +28,38 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Hi,
+On 08/07/16 17:20, Kevin Hilman wrote:
+> Ben Dooks <ben.dooks@codethink.co.uk> writes:
+> 
+>> This series adds support for the on SoC RTC driver on the
+>> AMLogic Meson devices.
+> 
+> -ECONFUSED
+> 
+> In reply to this patch, there are two other "PATCH v3 0/2" replies, an
+> then the two patches themselves, have "PATCH n/4" subjects when one
+> would expect "PATCH n/2" subjects.
 
-On 18/07/2016 at 17:17:44 +0530, Pratyush Anand wrote :
-> Hi RTC-Maintainers,
-> 
-> 
-> On Mon, Jul 4, 2016 at 9:49 PM, Pratyush Anand <panand@redhat.com> wrote:
-> > On 27/06/2016:10:19:07 AM, Pratyush Anand wrote:
-> >> On 21/06/2016:10:25:34 AM, Pratyush Anand wrote:
-> >> > We have observed on few machines with rtc-cmos device that
-> >> > hpet_rtc_interrupt() is called before cmos_do_probe() could call
-> >> > hpet_rtc_timer_init(). It has not been observed during normal boot/reboot
-> >> > of machines. It *sometime* happens when system is booted with kdump
-> >> > secondary kernel. So, neither hpet_default_delta nor hpet_t1_cmp is
-> >> > initialized by the time interrupt is raised in the given situation.
-> >> > Therefore while loop of hpet_cnt_ahead() in hpet_rtc_timer_reinit() never
-> >> > completes. This leads to "NMI watchdog: Watchdog detected hard LOCKUP on
-> >> > cpu 0".
-> >> >
-> >> > I am still clueless, how can an interrupt be raised before RTC is enabled.
-> >> > But i do not have any idea about this device, so I am putting this patch as
-> >> > RFC to get feedback from hpet/rtc-cmos developer. I am sure there would be
-> >> > some better solution than this.
-> >>
-> >> Do you think that if I improve commit log of patches as pointed by Thomas and
-> >> send a formal version of these patches, then they should acceptable to upstream?
-> >
-> > A gentle reminder for your comment/feedback :-)
-> 
-> Please let me know how to make progress on this. If you think, there
-> could be some better way to handle this issue then please let me know.
-> If you need any more data then also please let me know.
-> 
+This was my mistake of formatting the patch then thinking it would
+be easy to remove the other two patches I decided to keep separate
+(for reasons below)
 
-Well, the change is x86 specific and I don't know much about HPET so
-until you get an ack from the x86 maintainers, I guess I can't help
-much.
+> Anyways, I was able to test this version with the DTs from the previous
+> version, and it works ok.
+
+Yes, no changes for the DT bits so I decided to remove them as firstly
+they depend on the reset-controller changes going in and secondly
+the rtc driver part doesn't need them to be there to be able to build.
+
+> Can you respin one more time (including the Tested-by) so the RTC
+> maintainers can pick it up?
+
+I'll do that now and try and post them tonight.
+Thankyou for testing.
 
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+Ben Dooks				http://www.codethink.co.uk/
+Senior Engineer				Codethink - Providing Genius
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
