@@ -1,27 +1,21 @@
-Return-Path: <rtc-linux+bncBCMILY6JWQBBBUXT725QKGQE64XZZBY@googlegroups.com>
+Return-Path: <rtc-linux+bncBCKYNX7Y3IMBB6FES26AKGQEYITJKHI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 MIME-Version: 1.0
-Received: from wens.csie.org (mirror2.csie.ntu.edu.tw. [140.112.30.76])
-        by gmr-mx.google.com with ESMTPS id i135si446036pfe.0.2016.07.08.07.33.54
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 08 Jul 2016 07:33:54 -0700 (PDT)
-From: Chen-Yu Tsai <wens@csie.org>
-To: Lee Jones <lee.jones@linaro.org>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Maxime Ripard <maxime.ripard@free-electrons.com>
-Cc: Chen-Yu Tsai <wens@csie.org>,
-	linux-kernel@vger.kernel.org,
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id c135si1208928wme.2.2016.07.12.17.59.36
+        for <rtc-linux@googlegroups.com>;
+        Tue, 12 Jul 2016 17:59:36 -0700 (PDT)
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Arnaud Ebalard <arno@natisbad.org>
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
 	rtc-linux@googlegroups.com,
-	devicetree@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org
-Subject: [rtc-linux] [PATCH v5 5/7] ARM: dts: sun9i: a80-optimus: Add device
- node for AC100
-Date: Fri,  8 Jul 2016 22:33:40 +0800
-Message-Id: <1467988422-17934-6-git-send-email-wens@csie.org>
-In-Reply-To: <1467988422-17934-1-git-send-email-wens@csie.org>
-References: <1467988422-17934-1-git-send-email-wens@csie.org>
+	linux-kernel@vger.kernel.org,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Subject: [rtc-linux] [PATCH 2/3] rtc: ds1307: add Intersil ISL12057 support
+Date: Wed, 13 Jul 2016 02:59:30 +0200
+Message-Id: <1468371571-22641-3-git-send-email-alexandre.belloni@free-electrons.com>
+In-Reply-To: <1468371571-22641-1-git-send-email-alexandre.belloni@free-electrons.com>
+References: <1468371571-22641-1-git-send-email-alexandre.belloni@free-electrons.com>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -32,55 +26,62 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Signed-off-by: Chen-Yu Tsai <wens@csie.org>
+Intersil ISL12057 is a drop-in replacement for DS1337. It can be supported
+by the ds1307 driver.
+
+Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
 ---
-Changes since v4: none
+ drivers/rtc/Kconfig      | 8 ++++----
+ drivers/rtc/rtc-ds1307.c | 6 ++++++
+ 2 files changed, 10 insertions(+), 4 deletions(-)
 
-Changes since v3:
-
-  - Moved 4M ADDA clk to codec side
-
-Changes since v2: none
-Changes since v1: none
----
- arch/arm/boot/dts/sun9i-a80-optimus.dts | 24 ++++++++++++++++++++++++
- 1 file changed, 24 insertions(+)
-
-diff --git a/arch/arm/boot/dts/sun9i-a80-optimus.dts b/arch/arm/boot/dts/sun9i-a80-optimus.dts
-index 7fd22e888602..e35c06c162a7 100644
---- a/arch/arm/boot/dts/sun9i-a80-optimus.dts
-+++ b/arch/arm/boot/dts/sun9i-a80-optimus.dts
-@@ -322,6 +322,30 @@
- 			};
- 		};
- 	};
-+
-+	ac100: codec@e89 {
-+		compatible = "x-powers,ac100";
-+		reg = <0xe89>;
-+
-+		ac100_codec: codec {
-+			compatible = "x-powers,ac100-codec";
-+			interrupt-parent = <&r_pio>;
-+			interrupts = <0 9 IRQ_TYPE_LEVEL_LOW>; /* PL9 */
-+			#clock-cells = <0>;
-+			clock-output-names = "4M_adda";
-+		};
-+
-+		ac100_rtc: rtc {
-+			compatible = "x-powers,ac100-rtc";
-+			interrupt-parent = <&nmi_intc>;
-+			interrupts = <0 IRQ_TYPE_LEVEL_LOW>;
-+			clocks = <&ac100_codec>;
-+			#clock-cells = <1>;
-+			clock-output-names = "cko1_rtc",
-+					     "cko2_rtc",
-+					     "cko3_rtc";
-+		};
-+	};
- };
+diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
+index f47c2f5ff70d..ba0b3e7ce4c5 100644
+--- a/drivers/rtc/Kconfig
++++ b/drivers/rtc/Kconfig
+@@ -198,14 +198,14 @@ config RTC_DRV_AS3722
+ 	  will be called rtc-as3722.
  
- #include "axp809.dtsi"
+ config RTC_DRV_DS1307
+-	tristate "Dallas/Maxim DS1307/37/38/39/40, ST M41T00, EPSON RX-8025"
++	tristate "Dallas/Maxim DS1307/37/38/39/40, ST M41T00, EPSON RX-8025, ISL12057"
+ 	help
+ 	  If you say yes here you get support for various compatible RTC
+ 	  chips (often with battery backup) connected with I2C. This driver
+ 	  should handle DS1307, DS1337, DS1338, DS1339, DS1340, ST M41T00,
+-	  EPSON RX-8025 and probably other chips. In some cases the RTC
+-	  must already have been initialized (by manufacturing or a
+-	  bootloader).
++	  EPSON RX-8025, Intersil ISL12057 and probably other chips. In some
++	  cases the RTC must already have been initialized (by manufacturing or
++	  a bootloader).
+ 
+ 	  The first seven registers on these chips hold an RTC, and other
+ 	  registers may add features such as NVRAM, a trickle charger for
+diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
+index 4c5890864d9c..52be48f2e3c0 100644
+--- a/drivers/rtc/rtc-ds1307.c
++++ b/drivers/rtc/rtc-ds1307.c
+@@ -186,6 +186,7 @@ static const struct i2c_device_id ds1307_id[] = {
+ 	{ "mcp7941x", mcp794xx },
+ 	{ "pt7c4338", ds_1307 },
+ 	{ "rx8025", rx_8025 },
++	{ "isl1207", ds_1337 },
+ 	{ }
+ };
+ MODULE_DEVICE_TABLE(i2c, ds1307_id);
+@@ -1333,6 +1334,11 @@ static int ds1307_probe(struct i2c_client *client,
+ 	if (of_property_read_bool(client->dev.of_node, "wakeup-source")) {
+ 		ds1307_can_wakeup_device = true;
+ 	}
++	/* Intersil ISL12057 DT backward compatibility */
++	if (of_property_read_bool(client->dev.of_node,
++				  "isil,irq2-can-wakeup-machine")) {
++		ds1307_can_wakeup_device = true;
++	}
+ #endif
+ 
+ 	switch (ds1307->type) {
 -- 
 2.8.1
 
