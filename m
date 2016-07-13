@@ -1,27 +1,24 @@
-Return-Path: <rtc-linux+bncBCEPJZEDQIBBBXMKTC6AKGQEJN2AELY@googlegroups.com>
+Return-Path: <rtc-linux+bncBCKYNX7Y3IMBB6FES26AKGQEYITJKHI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from ducie-dc1.codethink.co.uk (ducie-dc1.codethink.co.uk. [185.25.241.215])
-        by gmr-mx.google.com with ESMTPS id r74si1026514wme.3.2016.07.13.02.09.49
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 13 Jul 2016 02:09:49 -0700 (PDT)
-Subject: [rtc-linux] Re: [PATCH v3 2/4] meson-rtc: add device-tree binding
-To: Frank Rowand <frowand.list@gmail.com>,
- linux-kernel@lists.codethink.co.uk, linux-amlogic@lists.infradead.org,
- rtc-linux@googlegroups.com
-References: <1467748122-14833-1-git-send-email-ben.dooks@codethink.co.uk>
- <1467748122-14833-4-git-send-email-ben.dooks@codethink.co.uk>
- <5785D83C.2000809@gmail.com>
-Cc: a.zummo@towertech.it, alexandre.belloni@free-electrons.com,
- devicetree@vger.kernel.org, narmstrong@baylibre.com, khilman@baylibre.com,
- Mark Rutland <mark.rutland@arm.com>
-From: Ben Dooks <ben.dooks@codethink.co.uk>
-Message-ID: <51411c13-8cb4-3623-f70e-03b4190655f2@codethink.co.uk>
-Date: Wed, 13 Jul 2016 10:09:44 +0100
 MIME-Version: 1.0
-In-Reply-To: <5785D83C.2000809@gmail.com>
-Content-Type: text/plain; charset=UTF-8
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id c135si1208926wme.2.2016.07.12.17.59.36
+        for <rtc-linux@googlegroups.com>;
+        Tue, 12 Jul 2016 17:59:36 -0700 (PDT)
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Arnaud Ebalard <arno@natisbad.org>
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+	rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Subject: [rtc-linux] [PATCH 1/3] Documentation: dt: Intersil isl12057 is not a
+ trivial device
+Date: Wed, 13 Jul 2016 02:59:29 +0200
+Message-Id: <1468371571-22641-2-git-send-email-alexandre.belloni@free-electrons.com>
+In-Reply-To: <1468371571-22641-1-git-send-email-alexandre.belloni@free-electrons.com>
+References: <1468371571-22641-1-git-send-email-alexandre.belloni@free-electrons.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -30,33 +27,27 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 13/07/16 06:57, Frank Rowand wrote:
-> On 07/05/16 12:48, Ben Dooks wrote:
->> Add documentation for the AMLogic Meson RTC.
->>
->> Signed-off-by: Ben Dooks <ben.dooks@codethink.co.uk>
->> Acked-by: Rob Herring <robh@kernel.org>
->> ---
->>  .../devicetree/bindings/rtc/rtc-amlogic.txt         | 21 +++++++++++++++++++++
->>  1 file changed, 21 insertions(+)
->>  create mode 100644 Documentation/devicetree/bindings/rtc/rtc-amlogic.txt
-> 
-> Hi Ben,
-> 
-> I suspect you already know this since you have Rob's ack, but you need to
-> send bindings to
-> 
->   Rob Herring <robh+dt@kernel.org>
->   Mark Rutland <mark.rutland@arm.com>
+The ISL12057 has a documentation file, remove it from trivial-devices.txt
 
-Sorry, missed copying the email when sending.
+Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+---
+ Documentation/devicetree/bindings/i2c/trivial-devices.txt | 1 -
+ 1 file changed, 1 deletion(-)
 
-I hope he's seen them from being on the devicetree@vger.kernel.org
-list? I've added him as an CC: on this one to check.
-
+diff --git a/Documentation/devicetree/bindings/i2c/trivial-devices.txt b/Documentation/devicetree/bindings/i2c/trivial-devices.txt
+index 539874490492..a397d39ea741 100644
+--- a/Documentation/devicetree/bindings/i2c/trivial-devices.txt
++++ b/Documentation/devicetree/bindings/i2c/trivial-devices.txt
+@@ -50,7 +50,6 @@ fsl,sgtl5000		SGTL5000: Ultra Low-Power Audio Codec
+ gmt,g751		G751: Digital Temperature Sensor and Thermal Watchdog with Two-Wire Interface
+ infineon,slb9635tt	Infineon SLB9635 (Soft-) I2C TPM (old protocol, max 100khz)
+ infineon,slb9645tt	Infineon SLB9645 I2C TPM (new protocol, max 400khz)
+-isil,isl12057		Intersil ISL12057 I2C RTC Chip
+ isil,isl29028		Intersil ISL29028 Ambient Light and Proximity Sensor
+ maxim,ds1050		5 Bit Programmable, Pulse-Width Modulator
+ maxim,max1237		Low-Power, 4-/12-Channel, 2-Wire Serial, 12-Bit ADCs
 -- 
-Ben Dooks				http://www.codethink.co.uk/
-Senior Engineer				Codethink - Providing Genius
+2.8.1
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
