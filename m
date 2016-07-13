@@ -1,23 +1,21 @@
-Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBK4YXG6AKGQEGYQFVCA@googlegroups.com>
+Return-Path: <rtc-linux+bncBCKYNX7Y3IMBB6FES26AKGQEYITJKHI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id b77si939791wmb.1.2016.07.19.08.50.02
-        for <rtc-linux@googlegroups.com>;
-        Tue, 19 Jul 2016 08:50:02 -0700 (PDT)
-Date: Tue, 19 Jul 2016 17:50:02 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Alim Akhtar <alim.akhtar@samsung.com>
-Cc: rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org,
-	k.kozlowski@samsung.com, javier@osg.samsung.com,
-	pankaj.dubey@samsung.com
-Subject: [rtc-linux] Re: [PATCH v2 1/2] rtc: s3c: Remove unnecessary call to
- disable already disabled clock
-Message-ID: <20160719155002.GK7132@piout.net>
-References: <1467712733-15800-1-git-send-email-alim.akhtar@samsung.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1467712733-15800-1-git-send-email-alim.akhtar@samsung.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id 65si246596wmr.3.2016.07.12.17.59.36
+        for <rtc-linux@googlegroups.com>;
+        Tue, 12 Jul 2016 17:59:36 -0700 (PDT)
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Arnaud Ebalard <arno@natisbad.org>
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+	rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Subject: [rtc-linux] [PATCH 0/3] rtc: remove intersil isl12057
+Date: Wed, 13 Jul 2016 02:59:28 +0200
+Message-Id: <1468371571-22641-1-git-send-email-alexandre.belloni@free-electrons.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -26,25 +24,26 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 05/07/2016 at 15:28:52 +0530, Alim Akhtar wrote :
-> At the end of s3c_rtc_probe(), s3c_rtc_disable_clk() being called with rtc
-> clock already disabled (by s3c_rtc_gettime()), which looks extra and
-> unnecessary call. Lets clean it up.
-> 
-> Signed-off-by: Alim Akhtar <alim.akhtar@samsung.com>
-> Reviewed-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-> Reviewed-by: Pankaj Dubey <pankaj.dubey@samsung.com>
-> Tested-by: Pankaj Dubey <pankaj.dubey@samsung.com>
-> ---
->  drivers/rtc/rtc-s3c.c |    2 --
->  1 file changed, 2 deletions(-)
-> 
-Applied, thanks.
+Arnaud,
+
+This is the series I intend to apply once you confirm my previous patch
+is working.
+
+Alexandre Belloni (3):
+  Documentation: dt: Intersil isl12057 is not a trivial device
+  rtc: ds1307: add Intersil ISL12057 support
+  rtc: isl12057: remove driver
+
+ .../devicetree/bindings/i2c/trivial-devices.txt    |   1 -
+ drivers/rtc/Kconfig                                |  18 +-
+ drivers/rtc/Makefile                               |   1 -
+ drivers/rtc/rtc-ds1307.c                           |   6 +
+ drivers/rtc/rtc-isl12057.c                         | 643 ---------------------
+ 5 files changed, 10 insertions(+), 659 deletions(-)
+ delete mode 100644 drivers/rtc/rtc-isl12057.c
 
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+2.8.1
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
