@@ -1,22 +1,36 @@
-Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBIGPSS6AKGQE6XRKOZA@googlegroups.com>
+Return-Path: <rtc-linux+bncBCMILY6JWQBBBYUQTS6AKGQEAXVNBQI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id i193si240635wmg.1.2016.07.12.10.23.44
-        for <rtc-linux@googlegroups.com>;
-        Tue, 12 Jul 2016 10:23:44 -0700 (PDT)
-Date: Tue, 12 Jul 2016 19:23:43 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Ben Dooks <ben.dooks@codethink.co.uk>
-Cc: linux-kernel@lists.codethink.co.uk, linux-amlogic@lists.infradead.org,
-	rtc-linux@googlegroups.com, a.zummo@towertech.it,
-	devicetree@vger.kernel.org, narmstrong@baylibre.com,
-	khilman@baylibre.com
-Subject: [rtc-linux] Re: [PATCH v4 0/2] AMLogic Meson SoC RTC driver
-Message-ID: <20160712172343.GV22202@piout.net>
-References: <1468343799-12844-1-git-send-email-ben.dooks@codethink.co.uk>
+Received: from smtp.csie.ntu.edu.tw (smtp.csie.ntu.edu.tw. [140.112.30.61])
+        by gmr-mx.google.com with ESMTPS id i136si32843pfe.1.2016.07.13.20.34.58
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 13 Jul 2016 20:34:58 -0700 (PDT)
+Received: from mail-it0-f51.google.com (mail-it0-f51.google.com [209.85.214.51])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	(Authenticated sender: b93043)
+	by smtp.csie.ntu.edu.tw (Postfix) with ESMTPSA id 0AC7D266E4
+	for <rtc-linux@googlegroups.com>; Thu, 14 Jul 2016 11:34:56 +0800 (CST)
+Received: by mail-it0-f51.google.com with SMTP id f6so1821541ith.0
+        for <rtc-linux@googlegroups.com>; Wed, 13 Jul 2016 20:34:55 -0700 (PDT)
 MIME-Version: 1.0
+In-Reply-To: <146800297598.73491.13472152266331488346@resonance>
+References: <1467302331-9663-1-git-send-email-wens@csie.org>
+ <1467302331-9663-5-git-send-email-wens@csie.org> <146800297598.73491.13472152266331488346@resonance>
+From: Chen-Yu Tsai <wens@csie.org>
+Date: Thu, 14 Jul 2016 11:34:34 +0800
+Message-ID: <CAGb2v67ft=EktCcfGFdBN1K4SoOyK+Stz2WuvqScMmRjoBWxfA@mail.gmail.com>
+Subject: [rtc-linux] Re: [PATCH v4 4/7] rtc: ac100: Add clk output support
+To: Michael Turquette <mturquette@baylibre.com>
+Cc: Chen-Yu Tsai <wens@csie.org>, Lee Jones <lee.jones@linaro.org>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>, Rob Herring <robh+dt@kernel.org>,
+	Mark Rutland <mark.rutland@arm.com>, Maxime Ripard <maxime.ripard@free-electrons.com>,
+	Stephen Boyd <sboyd@codeaurora.org>,
+	linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, rtc-linux@googlegroups.com,
+	linux-clk <linux-clk@vger.kernel.org>, devicetree <devicetree@vger.kernel.org>,
+	linux-kernel <linux-kernel@vger.kernel.org>
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1468343799-12844-1-git-send-email-ben.dooks@codethink.co.uk>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -26,58 +40,80 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Well, I hoped I could send my review before v4 but I was a bit too
-late...
+On Sat, Jul 9, 2016 at 2:36 AM, Michael Turquette
+<mturquette@baylibre.com> wrote:
+> Quoting Chen-Yu Tsai (2016-06-30 08:58:48)
+>> +static long ac100_clkout_round_rate(struct clk_hw *hw, unsigned long rate,
+>> +                                   unsigned long prate)
+>> +{
+>> +       unsigned long best_rate = 0, tmp_rate, tmp_prate;
+>> +       int i;
+>> +
+>> +       if (prate == AC100_RTC_32K_RATE)
+>> +               return divider_round_rate(hw, rate, &prate, NULL,
+>> +                                         AC100_CLKOUT_DIV_WIDTH,
+>> +                                         CLK_DIVIDER_POWER_OF_TWO);
+>> +
+>> +       for (i = 0; ac100_clkout_prediv[i].div; i++) {
+>> +               tmp_prate = DIV_ROUND_UP(prate, ac100_clkout_prediv[i].val);
+>> +               tmp_rate = divider_round_rate(hw, rate, &tmp_prate, NULL,
+>> +                                             AC100_CLKOUT_DIV_WIDTH,
+>> +                                             CLK_DIVIDER_POWER_OF_TWO);
+>> +
+>> +               if (tmp_rate > rate)
+>> +                       continue;
+>> +               if (rate - tmp_rate < best_rate - tmp_rate)
+>> +                       best_rate = tmp_rate;
+>> +       }
+>> +
+>> +       return best_rate;
+>> +}
+>> +
+>> +static int ac100_clkout_determine_rate(struct clk_hw *hw,
+>> +                                      struct clk_rate_request *req)
+>> +{
+>> +       struct clk_hw *best_parent;
+>> +       unsigned long best = 0;
+>> +       int i, num_parents = clk_hw_get_num_parents(hw);
+>> +
+>> +       for (i = 0; i < num_parents; i++) {
+>> +               struct clk_hw *parent = clk_hw_get_parent_by_index(hw, i);
+>> +               unsigned long tmp, prate = clk_hw_get_rate(parent);
+>> +
+>> +               tmp = ac100_clkout_round_rate(hw, req->rate, prate);
+>> +
+>> +               if (tmp > req->rate)
+>> +                       continue;
+>> +               if (req->rate - tmp < req->rate - best) {
+>> +                       best = tmp;
+>> +                       best_parent = parent;
+>> +               }
+>> +       }
+>> +
+>> +       if (!best)
+>> +               return -EINVAL;
+>> +
+>> +       req->best_parent_hw = best_parent;
+>> +       req->best_parent_rate = best;
+>> +       req->rate = best;
+>> +
+>> +       return 0;
+>> +}
+>
+> You only need one of the two functions above. Keep the .determine_rate
+> callback and drop .round_rate.
 
-On 12/07/2016 at 18:16:37 +0100, Ben Dooks wrote :
-> This series adds support for the on SoC RTC driver on the
-> AMLogic Meson devices. The device-tree updates are not included
-> as they depend on the reset-controller support in -next.
-> 
-> The series does not have any build dependencies, but does require
-> the reset controller and device-tree entries for the device-tree
-> files for the relevant boards. 
-> 
-> The series tested by myself on the ODroid-C1 board with a battery
-> pack attached. It has also been tested by Kevin Hilman.
-> 
-> I will send the DT changes in a second series so that they can be
-> merged once the dependencies have been satisified.
-> 
-> Changes since V3:
->   <1467748122-14833-1-git-send-email-ben.dooks@codethink.co.uk>
-> - Added Kevin's tested by
-> 
-> Changes since V1:
->   <1467039135-26588-1-git-send-email-ben.dooks@codethink.co.uk>
-> 
->  - Fixed checkpatch and sparse errors
->  - Fixed minor locking bug when writing static-control register
->  - Updated the code ordering in the rtc-meson.c driver
->  - Fixed alphanumeric ordering in on-cpu rtc block
->  - Added Rob Hering's ack for the DT binding documentation
->  - Added better description to the RTC driver header.
-> 
-> Ben Dooks (2):
->   rtc: support for amlogic meson rtc
->   meson-rtc: add device-tree binding
-> 
->  .../devicetree/bindings/rtc/rtc-amlogic.txt        |  21 ++
->  drivers/rtc/Kconfig                                |   9 +
->  drivers/rtc/Makefile                               |   1 +
->  drivers/rtc/rtc-meson.c                            | 349 +++++++++++++++++++++
->  4 files changed, 380 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/rtc/rtc-amlogic.txt
->  create mode 100644 drivers/rtc/rtc-meson.c
-> 
-> -- 
-> 2.8.1
-> 
+Only .round_rate is set in the clk_ops. ac100_clkout_round_rate just
+serves to split out some of the calculations done per parent.
 
--- 
-Alexandre Belloni, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+> Otherwise the rest of the clk support looks great to me. Feel free to
+> add:
+>
+> Reviewed-by: Michael Turquette <mturquette@baylibre.com>
+
+Thanks!
+
+ChenYu
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
