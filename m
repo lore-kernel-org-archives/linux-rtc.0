@@ -1,27 +1,23 @@
-Return-Path: <rtc-linux+bncBD747RFBYUPBBD4F5G5QKGQEAISNIQA@googlegroups.com>
+Return-Path: <rtc-linux+bncBC4L3MVYV4CBBTPDT66AKGQECZMUKSI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
+Received: from smtp.natisbad.org (36.223.133.77.rev.sfr.net. [77.133.223.36])
+        by gmr-mx.google.com with ESMTP id o10si4195wme.0.2016.07.14.13.10.52
+        for <rtc-linux@googlegroups.com>;
+        Thu, 14 Jul 2016 13:10:53 -0700 (PDT)
+From: arno@natisbad.org (Arnaud Ebalard)
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>,  rtc-linux@googlegroups.com,  linux-kernel@vger.kernel.org
+Subject: [rtc-linux] Re: [PATCH 1/3] Documentation: dt: Intersil isl12057 is
+ not a trivial device
+References: <1468371571-22641-1-git-send-email-alexandre.belloni@free-electrons.com>
+	<1468371571-22641-2-git-send-email-alexandre.belloni@free-electrons.com>
+Date: Thu, 14 Jul 2016 22:10:48 +0200
+In-Reply-To: <1468371571-22641-2-git-send-email-alexandre.belloni@free-electrons.com>
+	(Alexandre Belloni's message of "Wed, 13 Jul 2016 02:59:29 +0200")
+Message-ID: <87zipkgeuv.fsf@natisbad.org>
 MIME-Version: 1.0
-Received: from mailout3.samsung.com (mailout3.samsung.com. [203.254.224.33])
-        by gmr-mx.google.com with ESMTPS id 62si240622pfx.1.2016.07.04.04.03.42
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1 cipher=AES128-SHA bits=128/128);
-        Mon, 04 Jul 2016 04:03:43 -0700 (PDT)
-Received: from epcpsbgr1.samsung.com
- (u141.gpu120.samsung.co.kr [203.254.230.141])
- by mailout3.samsung.com (Oracle Communications Messaging Server 7.0.5.31.0
- 64bit (built May  5 2014))
- with ESMTP id <0O9S02UU2EQ57870@mailout3.samsung.com> for
- rtc-linux@googlegroups.com; Mon, 04 Jul 2016 20:03:41 +0900 (KST)
-From: Alim Akhtar <alim.akhtar@samsung.com>
-To: rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org
-Cc: alexandre.belloni@free-electrons.com, k.kozlowski@samsung.com,
- javier@osg.samsung.com, pankaj.dubey@samsung.com, alim.akhtar@samsung.com
-Subject: [rtc-linux] [RFC PATCH 1/2] rtc: s3c: Remove unnecessary call to
- disable already disabled clock
-Date: Mon, 04 Jul 2016 16:33:13 +0530
-Message-id: <1467630195-6929-1-git-send-email-alim.akhtar@samsung.com>
-Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -30,30 +26,36 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-At the end of s3c_rtc_probe(), s3c_rtc_disable_clk() being called with rtc
-clock already disabled, which looks extra and unnecessary call.
-Lets clean it up.
+Hello,
 
-Signed-off-by: Alim Akhtar <alim.akhtar@samsung.com>
----
- drivers/rtc/rtc-s3c.c |    2 --
- 1 file changed, 2 deletions(-)
+Alexandre Belloni <alexandre.belloni@free-electrons.com> writes:
 
-diff --git a/drivers/rtc/rtc-s3c.c b/drivers/rtc/rtc-s3c.c
-index d01ad7e..b083840 100644
---- a/drivers/rtc/rtc-s3c.c
-+++ b/drivers/rtc/rtc-s3c.c
-@@ -577,8 +577,6 @@ static int s3c_rtc_probe(struct platform_device *pdev)
- 
- 	s3c_rtc_setfreq(info, 1);
- 
--	s3c_rtc_disable_clk(info);
--
- 	return 0;
- 
-  err_nortc:
--- 
-1.7.10.4
+> The ISL12057 has a documentation file, remove it from trivial-devices.txt
+>
+> Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+> ---
+>  Documentation/devicetree/bindings/i2c/trivial-devices.txt | 1 -
+>  1 file changed, 1 deletion(-)
+>
+> diff --git a/Documentation/devicetree/bindings/i2c/trivial-devices.txt b/Documentation/devicetree/bindings/i2c/trivial-devices.txt
+> index 539874490492..a397d39ea741 100644
+> --- a/Documentation/devicetree/bindings/i2c/trivial-devices.txt
+> +++ b/Documentation/devicetree/bindings/i2c/trivial-devices.txt
+> @@ -50,7 +50,6 @@ fsl,sgtl5000		SGTL5000: Ultra Low-Power Audio Codec
+>  gmt,g751		G751: Digital Temperature Sensor and Thermal Watchdog with Two-Wire Interface
+>  infineon,slb9635tt	Infineon SLB9635 (Soft-) I2C TPM (old protocol, max 100khz)
+>  infineon,slb9645tt	Infineon SLB9645 I2C TPM (new protocol, max 400khz)
+> -isil,isl12057		Intersil ISL12057 I2C RTC Chip
+>  isil,isl29028		Intersil ISL29028 Ambient Light and Proximity Sensor
+>  maxim,ds1050		5 Bit Programmable, Pulse-Width Modulator
+>  maxim,max1237		Low-Power, 4-/12-Channel, 2-Wire Serial, 12-Bit ADCs
+
+No strong advice on this but I thought it qualified as a trivial device
+because it did not *need* anything else except a compatible, an address
+and possibly an interrupt. The additional boolean property documented in
+Documentation/devicetree/bindings/rtc/isil,isl12057.txt is optional.
+
+a+
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
