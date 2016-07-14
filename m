@@ -1,30 +1,21 @@
-Return-Path: <rtc-linux+bncBD747RFBYUPBB7EJ525QKGQEWSH5BRA@googlegroups.com>
+Return-Path: <rtc-linux+bncBC4L3MVYV4CBBDHGT66AKGQE3CSRHPI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
+Received: from smtp.natisbad.org (2a02-8428-026f-b200-0221-70ff-fe55-8f78.rev.sfr.net. [2a02:8428:26f:b200:221:70ff:fe55:8f78])
+        by gmr-mx.google.com with ESMTP id v14si500004wmf.0.2016.07.14.13.16.12
+        for <rtc-linux@googlegroups.com>;
+        Thu, 14 Jul 2016 13:16:12 -0700 (PDT)
+From: arno@natisbad.org (Arnaud Ebalard)
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>,  rtc-linux@googlegroups.com,  linux-kernel@vger.kernel.org
+Subject: [rtc-linux] Re: [PATCH 0/3] rtc: remove intersil isl12057
+References: <1468371571-22641-1-git-send-email-alexandre.belloni@free-electrons.com>
+Date: Thu, 14 Jul 2016 22:16:07 +0200
+In-Reply-To: <1468371571-22641-1-git-send-email-alexandre.belloni@free-electrons.com>
+	(Alexandre Belloni's message of "Wed, 13 Jul 2016 02:59:28 +0200")
+Message-ID: <87vb08gem0.fsf@natisbad.org>
 MIME-Version: 1.0
-Received: from mailout3.samsung.com (mailout3.samsung.com. [203.254.224.33])
-        by gmr-mx.google.com with ESMTPS id po17si371826pab.2.2016.07.05.02.59.23
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1 cipher=AES128-SHA bits=128/128);
-        Tue, 05 Jul 2016 02:59:24 -0700 (PDT)
-Received: from epcpsbgr1.samsung.com
- (u141.gpu120.samsung.co.kr [203.254.230.141])
- by mailout3.samsung.com (Oracle Communications Messaging Server 7.0.5.31.0
- 64bit (built May  5 2014))
- with ESMTP id <0O9U01SGX6EY5E70@mailout3.samsung.com> for
- rtc-linux@googlegroups.com; Tue, 05 Jul 2016 18:59:22 +0900 (KST)
-From: Alim Akhtar <alim.akhtar@samsung.com>
-To: rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org
-Cc: alexandre.belloni@free-electrons.com, k.kozlowski@samsung.com,
- javier@osg.samsung.com, pankaj.dubey@samsung.com, alim.akhtar@samsung.com,
- stable@vger.kernel.org
-Subject: [rtc-linux] [PATCH v2 2/2] rtc: s3c: Add s3c_rtc_{enable/disable}_clk
- in s3c_rtc_setfreq()
-Date: Tue, 05 Jul 2016 15:28:53 +0530
-Message-id: <1467712733-15800-2-git-send-email-alim.akhtar@samsung.com>
-In-reply-to: <1467712733-15800-1-git-send-email-alim.akhtar@samsung.com>
-References: <1467712733-15800-1-git-send-email-alim.akhtar@samsung.com>
-Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -33,54 +24,36 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-As per code flow s3c_rtc_setfreq() will get called with rtc clock disabled
-and in set_freq we perform h/w registers read/write, which results in a
-kernel crash on exynos7 platform while probing rtc driver.
-Below is code flow:
-s3c_rtc_probe()
-    clk_prepare_enable(info->rtc_clk) // rtc clock enabled
-    s3c_rtc_gettime() // will enable clk if not done, and disable it upon exit
-    s3c_rtc_setfreq() //then this will be called with clk disabled
+Hi Alexandre,
 
-This patch take cares of such issue by adding s3c_rtc_{enable/disable}_clk in
-s3c_rtc_setfreq().
+Alexandre Belloni <alexandre.belloni@free-electrons.com> writes:
 
-Fixes: 24e1455493da ("drivers/rtc/rtc-s3c.c: delete duplicate clock control")
+> This is the series I intend to apply once you confirm my previous patch
+> is working.
 
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Alim Akhtar <alim.akhtar@samsung.com>
-Reviewed-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-Reviewed-by: Pankaj Dubey <pankaj.dubey@samsung.com>
-Tested-by: Pankaj Dubey <pankaj.dubey@samsung.com>
----
- drivers/rtc/rtc-s3c.c |    2 ++
- 1 file changed, 2 insertions(+)
+For previous patch and that series, once the typos are fixed:
 
-* Changes from v1
-   -updated commit message as suggested by Krzysztof.
-   -updated reviewed-by, tested-by tags
+Acked-by: Arnaud Ebalard <arno@natisbad.org>
 
-diff --git a/drivers/rtc/rtc-s3c.c b/drivers/rtc/rtc-s3c.c
-index b083840..1168814 100644
---- a/drivers/rtc/rtc-s3c.c
-+++ b/drivers/rtc/rtc-s3c.c
-@@ -149,12 +149,14 @@ static int s3c_rtc_setfreq(struct s3c_rtc *info, int freq)
- 	if (!is_power_of_2(freq))
- 		return -EINVAL;
- 
-+	s3c_rtc_enable_clk(info);
- 	spin_lock_irq(&info->pie_lock);
- 
- 	if (info->data->set_freq)
- 		info->data->set_freq(info, freq);
- 
- 	spin_unlock_irq(&info->pie_lock);
-+	s3c_rtc_disable_clk(info);
- 
- 	return 0;
- }
--- 
-1.7.10.4
+Thanks for spotting the duplication and your work.
+
+Cheers,
+
+a+
+
+>
+> Alexandre Belloni (3):
+>   Documentation: dt: Intersil isl12057 is not a trivial device
+>   rtc: ds1307: add Intersil ISL12057 support
+>   rtc: isl12057: remove driver
+>
+>  .../devicetree/bindings/i2c/trivial-devices.txt    |   1 -
+>  drivers/rtc/Kconfig                                |  18 +-
+>  drivers/rtc/Makefile                               |   1 -
+>  drivers/rtc/rtc-ds1307.c                           |   6 +
+>  drivers/rtc/rtc-isl12057.c                         | 643 ---------------------
+>  5 files changed, 10 insertions(+), 659 deletions(-)
+>  delete mode 100644 drivers/rtc/rtc-isl12057.c
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
