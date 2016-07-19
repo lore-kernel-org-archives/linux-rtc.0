@@ -1,24 +1,21 @@
-Return-Path: <rtc-linux+bncBCKYNX7Y3IMBB6FES26AKGQEYITJKHI@googlegroups.com>
+Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBCVGXG6AKGQEFJH5FVQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-MIME-Version: 1.0
 Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id c135si1208926wme.2.2016.07.12.17.59.36
+        by gmr-mx.google.com with ESMTP id r74si1059870wme.3.2016.07.19.09.19.22
         for <rtc-linux@googlegroups.com>;
-        Tue, 12 Jul 2016 17:59:36 -0700 (PDT)
+        Tue, 19 Jul 2016 09:19:22 -0700 (PDT)
+Date: Tue, 19 Jul 2016 18:19:21 +0200
 From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Arnaud Ebalard <arno@natisbad.org>
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
-	rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Subject: [rtc-linux] [PATCH 1/3] Documentation: dt: Intersil isl12057 is not a
- trivial device
-Date: Wed, 13 Jul 2016 02:59:29 +0200
-Message-Id: <1468371571-22641-2-git-send-email-alexandre.belloni@free-electrons.com>
-In-Reply-To: <1468371571-22641-1-git-send-email-alexandre.belloni@free-electrons.com>
-References: <1468371571-22641-1-git-send-email-alexandre.belloni@free-electrons.com>
-Reply-To: rtc-linux@googlegroups.com
+To: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <uwe@kleine-koenig.org>
+Cc: Ben Hutchings <benh@debian.org>, rtc-linux@googlegroups.com,
+	kernel@pengutronix.de, Alessandro Zummo <a.zummo@towertech.it>
+Subject: [rtc-linux] Re: [PATCH 0/2] rtc: fix regressions of d68778b80dd7
+Message-ID: <20160719161921.GM7132@piout.net>
+References: <1468224328-7391-1-git-send-email-uwe@kleine-koenig.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1468224328-7391-1-git-send-email-uwe@kleine-koenig.org>
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -27,34 +24,38 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-The ISL12057 has a documentation file, remove it from trivial-devices.txt
+On 11/07/2016 at 10:05:26 +0200, Uwe Kleine-K=C3=B6nig wrote :
+> Hello,
+>=20
+> while applying d68778b80dd7 ("rtc: initialize output parameter for read
+> alarm to "uninitialized"") to the Debian kernel Ben Hutchings wondered
+> if there are drivers that rely on .tm_sec being initialized to 0.
+>=20
+> I checked this now an found a few that do.
+>=20
+> The hym8563 already used -1 explicitly, it is fixed in a separate patch.
+>=20
+> Uwe Kleine-K=C3=B6nig (2):
+>   rtc: explicitly set tm_sec =3D 0 for drivers with minute accurancy
+>   rtc: hym8563: in .read_alarm set .tm_sec to 0 to signal minute
+>     accuracy
+>=20
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
----
- Documentation/devicetree/bindings/i2c/trivial-devices.txt | 1 -
- 1 file changed, 1 deletion(-)
+Applied, thanks.
 
-diff --git a/Documentation/devicetree/bindings/i2c/trivial-devices.txt b/Documentation/devicetree/bindings/i2c/trivial-devices.txt
-index 539874490492..a397d39ea741 100644
---- a/Documentation/devicetree/bindings/i2c/trivial-devices.txt
-+++ b/Documentation/devicetree/bindings/i2c/trivial-devices.txt
-@@ -50,7 +50,6 @@ fsl,sgtl5000		SGTL5000: Ultra Low-Power Audio Codec
- gmt,g751		G751: Digital Temperature Sensor and Thermal Watchdog with Two-Wire Interface
- infineon,slb9635tt	Infineon SLB9635 (Soft-) I2C TPM (old protocol, max 100khz)
- infineon,slb9645tt	Infineon SLB9645 I2C TPM (new protocol, max 400khz)
--isil,isl12057		Intersil ISL12057 I2C RTC Chip
- isil,isl29028		Intersil ISL29028 Ambient Light and Proximity Sensor
- maxim,ds1050		5 Bit Programmable, Pulse-Width Modulator
- maxim,max1237		Low-Power, 4-/12-Channel, 2-Wire Serial, 12-Bit ADCs
--- 
-2.8.1
+--=20
+Alexandre Belloni, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
 
--- 
+--=20
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+---=20
+You received this message because you are subscribed to the Google Groups "=
+rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an e=
+mail to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
