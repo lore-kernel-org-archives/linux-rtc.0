@@ -1,30 +1,20 @@
-Return-Path: <rtc-linux+bncBCYKZMUQ7QBBBOMJ625QKGQE2UEEJGI@googlegroups.com>
+Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBV4PXG6AKGQEA3PUQKA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail-pa0-x229.google.com (mail-pa0-x229.google.com. [2607:f8b0:400e:c03::229])
-        by gmr-mx.google.com with ESMTPS id un17si49607pab.0.2016.07.06.15.22.49
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 06 Jul 2016 15:22:49 -0700 (PDT)
-Received: by mail-pa0-x229.google.com with SMTP id dx3so95911pab.2
-        for <rtc-linux@googlegroups.com>; Wed, 06 Jul 2016 15:22:49 -0700 (PDT)
-Content-Type: text/plain; charset=UTF-8
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id v14si1040667wmf.0.2016.07.19.08.31.35
+        for <rtc-linux@googlegroups.com>;
+        Tue, 19 Jul 2016 08:31:35 -0700 (PDT)
+Date: Tue, 19 Jul 2016 17:31:34 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>, linux-kernel@vger.kernel.org,
+	rtc-linux@googlegroups.com
+Subject: [rtc-linux] Re: [PATCH] rtc: abx80x: use devm_add_action_or_reset()
+Message-ID: <20160719153134.GJ7132@piout.net>
+References: <1467577942-31473-1-git-send-email-sudipm.mukherjee@gmail.com>
 MIME-Version: 1.0
-To: Wadim Egorov <w.egorov@phytec.de>, linux-kernel@vger.kernel.org,
- linux-clk@vger.kernel.org, rtc-linux@googlegroups.com,
- devicetree@vger.kernel.org, linux-rockchip@lists.infradead.org
-From: Michael Turquette <mturquette@baylibre.com>
-In-Reply-To: <1464850228-17244-4-git-send-email-w.egorov@phytec.de>
-Cc: robh+dt@kernel.org, pawel.moll@arm.com, mark.rutland@arm.com,
- ijc+devicetree@hellion.org.uk, galak@codeaurora.org, sboyd@codeaurora.org,
- lee.jones@linaro.org, lgirdwood@gmail.com, broonie@kernel.org,
- a.zummo@towertech.it, alexandre.belloni@free-electrons.com,
- dianders@chromium.org, zyw@rock-chips.com
-References: <1464850228-17244-1-git-send-email-w.egorov@phytec.de>
- <1464850228-17244-4-git-send-email-w.egorov@phytec.de>
-Message-ID: <146784376682.73491.439491426208764255@resonance>
-Subject: [rtc-linux] Re: [RESEND PATCH v5 4/5] clk: Kconfig: Name RK818 in
- Kconfig for COMMON_CLK_RK808
-Date: Wed, 06 Jul 2016 15:22:46 -0700
+Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1467577942-31473-1-git-send-email-sudipm.mukherjee@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -34,43 +24,23 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Quoting Wadim Egorov (2016-06-01 23:50:27)
-> The RK808 and RK818 PMICs are using a similar register map.
-> We can reuse the clk driver for the RK818 PMIC. So let's add
-> the RK818 in the Kconfig description.
+On 03/07/2016 at 21:32:22 +0100, Sudip Mukherjee wrote :
+> If devm_add_action() fails we are explicitly calling the cleanup to free
+> the resources allocated.  Lets use the helper devm_add_action_or_reset()
+> and return directly in case of error, as we know that the cleanup function
+> has been already called by the helper if there was any error.
 > 
-> Signed-off-by: Wadim Egorov <w.egorov@phytec.de>
-> Acked-by: Stephen Boyd <sboyd@codeaurora.org>
-
-Applied.
-
-Regards,
-Mike
-
+> Signed-off-by: Sudip Mukherjee <sudip.mukherjee@codethink.co.uk>
 > ---
->  drivers/clk/Kconfig | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
+>  drivers/rtc/rtc-abx80x.c | 12 +++++-------
+>  1 file changed, 5 insertions(+), 7 deletions(-)
 > 
-> diff --git a/drivers/clk/Kconfig b/drivers/clk/Kconfig
-> index 53ddba2..87b9fd2 100644
-> --- a/drivers/clk/Kconfig
-> +++ b/drivers/clk/Kconfig
-> @@ -49,10 +49,10 @@ config COMMON_CLK_MAX77802
->           This driver supports Maxim 77802 crystal oscillator clock.
->  
->  config COMMON_CLK_RK808
-> -       tristate "Clock driver for RK808"
-> +       tristate "Clock driver for RK808/RK818"
->         depends on MFD_RK808
->         ---help---
-> -         This driver supports RK808 crystal oscillator clock. These
-> +         This driver supports RK808 and RK818 crystal oscillator clock. These
->           multi-function devices have two fixed-rate oscillators,
->           clocked at 32KHz each. Clkout1 is always on, Clkout2 can off
->           by control register.
-> -- 
-> 1.9.1
-> 
+Applied, thanks.
+
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
