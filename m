@@ -1,26 +1,24 @@
-Return-Path: <rtc-linux+bncBCEPJZEDQIBBBBGMSS6AKGQEV365ATI@googlegroups.com>
+Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBNUYXG6AKGQENPF6VTQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id r197si833520wmf.2.2016.07.19.08.50.14
+        for <rtc-linux@googlegroups.com>;
+        Tue, 19 Jul 2016 08:50:14 -0700 (PDT)
+Date: Tue, 19 Jul 2016 17:50:13 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Alim Akhtar <alim.akhtar@samsung.com>
+Cc: rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org,
+	k.kozlowski@samsung.com, javier@osg.samsung.com,
+	pankaj.dubey@samsung.com, stable@vger.kernel.org
+Subject: [rtc-linux] Re: [PATCH v2 2/2] rtc: s3c: Add s3c_rtc_{enable/disable}_clk
+ in s3c_rtc_setfreq()
+Message-ID: <20160719155013.GL7132@piout.net>
+References: <1467712733-15800-1-git-send-email-alim.akhtar@samsung.com>
+ <1467712733-15800-2-git-send-email-alim.akhtar@samsung.com>
 MIME-Version: 1.0
-Received: from rainbowdash.ducie.codethink.co.uk (82-70-136-246.dsl.in-addr.zen.co.uk. [82.70.136.246])
-        by gmr-mx.google.com with ESMTPS id v14si362846wmf.0.2016.07.12.10.16.52
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Tue, 12 Jul 2016 10:16:52 -0700 (PDT)
-From: Ben Dooks <ben.dooks@codethink.co.uk>
-To: linux-kernel@lists.codethink.co.uk,
-	linux-amlogic@lists.infradead.org,
-	rtc-linux@googlegroups.com
-Cc: a.zummo@towertech.it,
-	alexandre.belloni@free-electrons.com,
-	devicetree@vger.kernel.org,
-	narmstrong@baylibre.com,
-	khilman@baylibre.com,
-	Ben Dooks <ben.dooks@codethink.co.uk>
-Subject: [rtc-linux] [PATCH v4 0/2] AMLogic Meson SoC RTC driver
-Date: Tue, 12 Jul 2016 18:16:37 +0100
-Message-Id: <1468343799-12844-1-git-send-email-ben.dooks@codethink.co.uk>
-Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1467712733-15800-2-git-send-email-alim.akhtar@samsung.com>
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -29,48 +27,36 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-This series adds support for the on SoC RTC driver on the
-AMLogic Meson devices. The device-tree updates are not included
-as they depend on the reset-controller support in -next.
-
-The series does not have any build dependencies, but does require
-the reset controller and device-tree entries for the device-tree
-files for the relevant boards. 
-
-The series tested by myself on the ODroid-C1 board with a battery
-pack attached. It has also been tested by Kevin Hilman.
-
-I will send the DT changes in a second series so that they can be
-merged once the dependencies have been satisified.
-
-Changes since V3:
-  <1467748122-14833-1-git-send-email-ben.dooks@codethink.co.uk>
-- Added Kevin's tested by
-
-Changes since V1:
-  <1467039135-26588-1-git-send-email-ben.dooks@codethink.co.uk>
-
- - Fixed checkpatch and sparse errors
- - Fixed minor locking bug when writing static-control register
- - Updated the code ordering in the rtc-meson.c driver
- - Fixed alphanumeric ordering in on-cpu rtc block
- - Added Rob Hering's ack for the DT binding documentation
- - Added better description to the RTC driver header.
-
-Ben Dooks (2):
-  rtc: support for amlogic meson rtc
-  meson-rtc: add device-tree binding
-
- .../devicetree/bindings/rtc/rtc-amlogic.txt        |  21 ++
- drivers/rtc/Kconfig                                |   9 +
- drivers/rtc/Makefile                               |   1 +
- drivers/rtc/rtc-meson.c                            | 349 +++++++++++++++++++++
- 4 files changed, 380 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/rtc/rtc-amlogic.txt
- create mode 100644 drivers/rtc/rtc-meson.c
+On 05/07/2016 at 15:28:53 +0530, Alim Akhtar wrote :
+> As per code flow s3c_rtc_setfreq() will get called with rtc clock disabled
+> and in set_freq we perform h/w registers read/write, which results in a
+> kernel crash on exynos7 platform while probing rtc driver.
+> Below is code flow:
+> s3c_rtc_probe()
+>     clk_prepare_enable(info->rtc_clk) // rtc clock enabled
+>     s3c_rtc_gettime() // will enable clk if not done, and disable it upon exit
+>     s3c_rtc_setfreq() //then this will be called with clk disabled
+> 
+> This patch take cares of such issue by adding s3c_rtc_{enable/disable}_clk in
+> s3c_rtc_setfreq().
+> 
+> Fixes: 24e1455493da ("drivers/rtc/rtc-s3c.c: delete duplicate clock control")
+> 
+> Cc: <stable@vger.kernel.org>
+> Signed-off-by: Alim Akhtar <alim.akhtar@samsung.com>
+> Reviewed-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+> Reviewed-by: Pankaj Dubey <pankaj.dubey@samsung.com>
+> Tested-by: Pankaj Dubey <pankaj.dubey@samsung.com>
+> ---
+>  drivers/rtc/rtc-s3c.c |    2 ++
+>  1 file changed, 2 insertions(+)
+> 
+Applied, thanks.
 
 -- 
-2.8.1
+Alexandre Belloni, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
