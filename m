@@ -1,31 +1,32 @@
-Return-Path: <rtc-linux+bncBCYKZMUQ7QBBBI7F765QKGQEDNOXJCQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBDAYD2P3QYGRBEXBXC6AKGQEAGV3UNI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail-pa0-x22d.google.com (mail-pa0-x22d.google.com. [2607:f8b0:400e:c03::22d])
-        by gmr-mx.google.com with ESMTPS id c11si649370pfc.2.2016.07.08.11.36.19
+MIME-Version: 1.0
+Received: from mail-wm0-x230.google.com (mail-wm0-x230.google.com. [2a00:1450:400c:c09::230])
+        by gmr-mx.google.com with ESMTPS id i198si850096wmd.2.2016.07.19.06.52.18
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 08 Jul 2016 11:36:19 -0700 (PDT)
-Received: by mail-pa0-x22d.google.com with SMTP id b13so14543011pat.0
-        for <rtc-linux@googlegroups.com>; Fri, 08 Jul 2016 11:36:19 -0700 (PDT)
-Content-Type: text/plain; charset=UTF-8
-MIME-Version: 1.0
-To: Chen-Yu Tsai <wens@csie.org>, "Lee Jones" <lee.jones@linaro.org>,
- "Alessandro Zummo" <a.zummo@towertech.it>,
- "Alexandre Belloni" <alexandre.belloni@free-electrons.com>,
- "Rob Herring" <robh+dt@kernel.org>, "Mark Rutland" <mark.rutland@arm.com>,
- "Maxime Ripard" <maxime.ripard@free-electrons.com>,
- "Stephen Boyd" <sboyd@codeaurora.org>
-From: Michael Turquette <mturquette@baylibre.com>
-In-Reply-To: <1467302331-9663-5-git-send-email-wens@csie.org>
-Cc: "Chen-Yu Tsai" <wens@csie.org>, linux-arm-kernel@lists.infradead.org,
- rtc-linux@googlegroups.com, linux-clk@vger.kernel.org,
- devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <1467302331-9663-1-git-send-email-wens@csie.org>
- <1467302331-9663-5-git-send-email-wens@csie.org>
-Message-ID: <146800297598.73491.13472152266331488346@resonance>
-Subject: [rtc-linux] Re: [PATCH v4 4/7] rtc: ac100: Add clk output support
-Date: Fri, 08 Jul 2016 11:36:16 -0700
+        Tue, 19 Jul 2016 06:52:18 -0700 (PDT)
+Received: by mail-wm0-x230.google.com with SMTP id f65so139734170wmi.0
+        for <rtc-linux@googlegroups.com>; Tue, 19 Jul 2016 06:52:18 -0700 (PDT)
+From: Neil Armstrong <narmstrong@baylibre.com>
+To: andy.gross@linaro.org,
+	david.brown@linaro.org,
+	lee.jones@linaro.org,
+	lgirdwood@gmail.com,
+	broonie@kernel.org,
+	a.zummo@towertech.it,
+	alexandre.belloni@free-electrons.com
+Cc: Neil Armstrong <narmstrong@baylibre.com>,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	linux-arm-msm@vger.kernel.org,
+	linux-soc@vger.kernel.org,
+	rtc-linux@googlegroups.com
+Subject: [rtc-linux] [PATCH v3 0/4] Add support for the Qualcomm PM8018 PMIC
+Date: Tue, 19 Jul 2016 15:52:11 +0200
+Message-Id: <1468936331-2981-1-git-send-email-narmstrong@baylibre.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -34,74 +35,42 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Quoting Chen-Yu Tsai (2016-06-30 08:58:48)
-> +static long ac100_clkout_round_rate(struct clk_hw *hw, unsigned long rate,
-> +                                   unsigned long prate)
-> +{
-> +       unsigned long best_rate = 0, tmp_rate, tmp_prate;
-> +       int i;
-> +
-> +       if (prate == AC100_RTC_32K_RATE)
-> +               return divider_round_rate(hw, rate, &prate, NULL,
-> +                                         AC100_CLKOUT_DIV_WIDTH,
-> +                                         CLK_DIVIDER_POWER_OF_TWO);
-> +
-> +       for (i = 0; ac100_clkout_prediv[i].div; i++) {
-> +               tmp_prate = DIV_ROUND_UP(prate, ac100_clkout_prediv[i].val);
-> +               tmp_rate = divider_round_rate(hw, rate, &tmp_prate, NULL,
-> +                                             AC100_CLKOUT_DIV_WIDTH,
-> +                                             CLK_DIVIDER_POWER_OF_TWO);
-> +
-> +               if (tmp_rate > rate)
-> +                       continue;
-> +               if (rate - tmp_rate < best_rate - tmp_rate)
-> +                       best_rate = tmp_rate;
-> +       }
-> +
-> +       return best_rate;
-> +}
-> +
-> +static int ac100_clkout_determine_rate(struct clk_hw *hw,
-> +                                      struct clk_rate_request *req)
-> +{
-> +       struct clk_hw *best_parent;
-> +       unsigned long best = 0;
-> +       int i, num_parents = clk_hw_get_num_parents(hw);
-> +
-> +       for (i = 0; i < num_parents; i++) {
-> +               struct clk_hw *parent = clk_hw_get_parent_by_index(hw, i);
-> +               unsigned long tmp, prate = clk_hw_get_rate(parent);
-> +
-> +               tmp = ac100_clkout_round_rate(hw, req->rate, prate);
-> +
-> +               if (tmp > req->rate)
-> +                       continue;
-> +               if (req->rate - tmp < req->rate - best) {
-> +                       best = tmp;
-> +                       best_parent = parent;
-> +               }
-> +       }
-> +
-> +       if (!best)
-> +               return -EINVAL;
-> +
-> +       req->best_parent_hw = best_parent;
-> +       req->best_parent_rate = best;
-> +       req->rate = best;
-> +
-> +       return 0;
-> +}
+In order to support the Qualcomm MDM9615 in the Sierra Wireless WP8548
+Modules, add the PM8018 PMIC support into MFD, Regulator, RTC and input.
 
-You only need one of the two functions above. Keep the .determine_rate
-callback and drop .round_rate.
+This patchset is part of a global SoC + Module + Board support for the
+Sierra Wireless mangOH Board support with the WP8548 module.
 
-Otherwise the rest of the clk support looks great to me. Feel free to
-add:
+Patch "mfd: qcom-rpm: Add support for pm8018 RPM Regulator" depends on :
+ - "fix offset error for msm8660" at http://lkml.kernel.org/r/1465897725-16213-1-git-send-email-linus.walleij@linaro.org
+ - "parametrize also ack selector size" at http://lkml.kernel.org/r/1466576837-21995-1-git-send-email-linus.walleij@linaro.org
 
-Reviewed-by: Michael Turquette <mturquette@baylibre.com>
+Changes since v2 at http://lkml.kernel.org/r/1466759887-25394-1-git-send-email-narmstrong@baylibre.com :
+ - Dropped pwrkey changes
 
-Regards,
-Mike
+Changes since v1 at http://lkml.kernel.org/r/1466158929-19524-1-git-send-email-narmstrong@baylibre.com :
+ - Rebase mfd/qcom_rpm.c on top of Linus "fix offset error for msm8660" and "parametrize also ack selector size" patches
+ - Rename QCOM_RPM_NCP in to QCOM_RPM_PM8018_NCP
+ - Rebased qcom-rpm.h PM8018 defines numbers without a gap
+ - Dropped regulator corner
+
+Neil Armstrong (4):
+  mfd: pm8921: Add support for pm8018
+  rtc: rtc-pm8xxx: Add support for pm8018 rtc
+  mfd: qcom-rpm: Add support for pm8018 RPM Regulator
+  regulator: qcom_rpm-regulator: Add support for pm8018 rpm regulator
+
+ .../devicetree/bindings/mfd/qcom-pm8xxx.txt        |   1 +
+ Documentation/devicetree/bindings/mfd/qcom-rpm.txt |  15 ++++
+ drivers/mfd/pm8921-core.c                          |   1 +
+ drivers/mfd/qcom_rpm.c                             |  51 +++++++++++
+ drivers/regulator/qcom_rpm-regulator.c             | 100 +++++++++++++++++++++
+ drivers/rtc/rtc-pm8xxx.c                           |  11 +++
+ include/dt-bindings/mfd/qcom-rpm.h                 |  22 +++++
+ 7 files changed, 201 insertions(+)
+
+-- 
+1.9.1
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
