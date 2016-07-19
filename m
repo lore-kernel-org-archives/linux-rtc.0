@@ -1,29 +1,23 @@
-Return-Path: <rtc-linux+bncBCEPJZEDQIBBBIE66C5QKGQEZOAPA5Y@googlegroups.com>
+Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBK4YXG6AKGQEGYQFVCA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id b77si939791wmb.1.2016.07.19.08.50.02
+        for <rtc-linux@googlegroups.com>;
+        Tue, 19 Jul 2016 08:50:02 -0700 (PDT)
+Date: Tue, 19 Jul 2016 17:50:02 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Alim Akhtar <alim.akhtar@samsung.com>
+Cc: rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org,
+	k.kozlowski@samsung.com, javier@osg.samsung.com,
+	pankaj.dubey@samsung.com
+Subject: [rtc-linux] Re: [PATCH v2 1/2] rtc: s3c: Remove unnecessary call to
+ disable already disabled clock
+Message-ID: <20160719155002.GK7132@piout.net>
+References: <1467712733-15800-1-git-send-email-alim.akhtar@samsung.com>
 MIME-Version: 1.0
-Received: from rainbowdash.ducie.codethink.co.uk (82-70-136-246.dsl.in-addr.zen.co.uk. [82.70.136.246])
-        by gmr-mx.google.com with ESMTPS id a186si85902wma.1.2016.07.05.12.48.47
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Tue, 05 Jul 2016 12:48:47 -0700 (PDT)
-From: Ben Dooks <ben.dooks@codethink.co.uk>
-To: linux-kernel@lists.codethink.co.uk,
-	linux-amlogic@lists.infradead.org,
-	rtc-linux@googlegroups.com
-Cc: a.zummo@towertech.it,
-	alexandre.belloni@free-electrons.com,
-	devicetree@vger.kernel.org,
-	narmstrong@baylibre.com,
-	frowand.list@gmail.com,
-	khilman@baylibre.com,
-	Ben Dooks <ben.dooks@codethink.co.uk>
-Subject: [rtc-linux] [PATCH v3 0/2] AMLogic Meson SoC RTC driver
-Date: Tue,  5 Jul 2016 20:48:40 +0100
-Message-Id: <1467748122-14833-2-git-send-email-ben.dooks@codethink.co.uk>
-In-Reply-To: <1467748122-14833-1-git-send-email-ben.dooks@codethink.co.uk>
-References: <1467748122-14833-1-git-send-email-ben.dooks@codethink.co.uk>
-Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1467712733-15800-1-git-send-email-alim.akhtar@samsung.com>
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -32,38 +26,25 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-This series adds support for the on SoC RTC driver on the
-AMLogic Meson devices. The device-tree updates are not included
-as they depend on the reset-controller support in -next.
-
-The series does not have any build dependencies, but does require
-the reset controller and device-tree entries for the relevant boards
-and has been tested on the ODroid-C1 board.
-
-Changes since V1:
-  <1467039135-26588-1-git-send-email-ben.dooks@codethink.co.uk>
-
- - Fixed checkpatch and sparse errors
- - Fixed minor locking bug when writing static-control register
- - Updated the code ordering in the rtc-meson.c driver
- - Fixed alphanumeric ordering in on-cpu rtc block
- - Added Rob Hering's ack for the DT binding documentation
- - Added better description to the RTC driver header.
-
-Ben Dooks (2):
-  rtc: support for amlogic meson rtc
-  meson-rtc: add device-tree binding
-
- .../devicetree/bindings/rtc/rtc-amlogic.txt        |  21 ++
- drivers/rtc/Kconfig                                |   9 +
- drivers/rtc/Makefile                               |   1 +
- drivers/rtc/rtc-meson.c                            | 349 +++++++++++++++++++++
- 6 files changed, 392 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/rtc/rtc-amlogic.txt
- create mode 100644 drivers/rtc/rtc-meson.c
+On 05/07/2016 at 15:28:52 +0530, Alim Akhtar wrote :
+> At the end of s3c_rtc_probe(), s3c_rtc_disable_clk() being called with rtc
+> clock already disabled (by s3c_rtc_gettime()), which looks extra and
+> unnecessary call. Lets clean it up.
+> 
+> Signed-off-by: Alim Akhtar <alim.akhtar@samsung.com>
+> Reviewed-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+> Reviewed-by: Pankaj Dubey <pankaj.dubey@samsung.com>
+> Tested-by: Pankaj Dubey <pankaj.dubey@samsung.com>
+> ---
+>  drivers/rtc/rtc-s3c.c |    2 --
+>  1 file changed, 2 deletions(-)
+> 
+Applied, thanks.
 
 -- 
-2.8.1
+Alexandre Belloni, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
