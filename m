@@ -1,28 +1,20 @@
-Return-Path: <rtc-linux+bncBDKZNNNLXAHBBL565W5QKGQEFK3LMEQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBNMKXC6AKGQE2XFXYDY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mailout2.w1.samsung.com (mailout2.w1.samsung.com. [210.118.77.12])
-        by gmr-mx.google.com with ESMTPS id un17si307437pab.0.2016.07.05.00.18.06
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1 cipher=AES128-SHA bits=128/128);
-        Tue, 05 Jul 2016 00:18:07 -0700 (PDT)
-Received: from eucpsbgm2.samsung.com (unknown [203.254.199.245])
- by mailout2.w1.samsung.com
- (Oracle Communications Messaging Server 7.0.5.31.0 64bit (built May  5 2014))
- with ESMTP id <0O9T00CRCYY25530@mailout2.w1.samsung.com> for
- rtc-linux@googlegroups.com; Tue, 05 Jul 2016 08:18:02 +0100 (BST)
-Subject: [rtc-linux] Re: [RFC PATCH 1/2] rtc: s3c: Remove unnecessary call to
- disable already disabled clock
-To: Alim Akhtar <alim.akhtar@samsung.com>, rtc-linux@googlegroups.com,
- linux-kernel@vger.kernel.org
-References: <1467630195-6929-1-git-send-email-alim.akhtar@samsung.com>
-Cc: alexandre.belloni@free-electrons.com, javier@osg.samsung.com,
- pankaj.dubey@samsung.com
-From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-Message-id: <577B5F28.1010905@samsung.com>
-Date: Tue, 05 Jul 2016 09:18:00 +0200
-MIME-version: 1.0
-In-reply-to: <1467630195-6929-1-git-send-email-alim.akhtar@samsung.com>
-Content-type: text/plain; charset=UTF-8
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id v14si913994wmf.0.2016.07.19.03.47.17
+        for <rtc-linux@googlegroups.com>;
+        Tue, 19 Jul 2016 03:47:17 -0700 (PDT)
+Date: Tue, 19 Jul 2016 12:46:02 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Joe Lawrence <joe.lawrence@stratus.com>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+	rtc-linux@googlegroups.com, Alessandro Zummo <a.zummo@towertech.it>
+Subject: [rtc-linux] Re: __rtc_read_alarm missing month/year field bug?
+Message-ID: <20160719104602.GE7132@piout.net>
+References: <5768148E.8090304@stratus.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <5768148E.8090304@stratus.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -32,39 +24,159 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 07/04/2016 01:03 PM, Alim Akhtar wrote:
-> At the end of s3c_rtc_probe(), s3c_rtc_disable_clk() being called with rtc
-> clock already disabled, which looks extra and unnecessary call.
-> Lets clean it up.
+Hi,
 
-Does not look right. Till that place, the clocks are enabled. Then
-s3c_rtc_setaie() is called which expects that clocks are disabled...
-otherwise counters get mixed.
-
-So overall this looks like wrong approach unless I am missing something?
-
-Best regards,
-Krzysztof
-
+On 20/06/2016 at 12:06:38 -0400, Joe Lawrence wrote :
+> Hello Alessandro and Alexandre,
 > 
-> Signed-off-by: Alim Akhtar <alim.akhtar@samsung.com>
+> I noticed an interesting cmos_rtc.rtc.aie_timer on a Stratus machine
+> running the 4.6 kernel, with an expiration time that puts the alarm way
+> out into next year.  This is easily reproducible on this machine by
+> setting a wakealarm sometime in the near future, then rebooting.
+> 
+> From a fresh boot:
+> 
+>   % cat /proc/driver/rtc
+>   rtc_time        : 17:55:10
+>   rtc_date        : 2016-06-09
+>   alrm_time       : 14:04:37
+>   alrm_date       : 2017-06-09         << 2017 ?
+
+Well, alrm_time is before rtc_time so it either already expired or is set
+for the future. The code assume it is set in the future (hence the
+rollover).
+
+What you patch will do in that case is effectively always remove the
+rollover.
+
+>   alarm_IRQ       : no
+>   alrm_pending    : no
+>   update IRQ enabled      : no
+>   periodic IRQ enabled    : no
+>   periodic IRQ frequency  : 1024
+>   max user IRQ frequency  : 64
+>   24hr            : yes
+>   periodic_IRQ    : no
+>   update_IRQ      : no
+>   HPET_emulated   : yes
+>   BCD             : yes
+>   DST_enable      : no
+>   periodic_freq   : 1024
+>   batt_status     : okay
+> 
+> 
+> I added some debugging code to the kernel, saw this on the next boot:
+> 
+>   __rtc_read_alarm: A - alarm->time.tm_year = -1, missing = 0
+>   __rtc_read_alarm: B - alarm->time.tm_year = 116, missing = 3
+>   __rtc_read_alarm: C - alarm->time.tm_year = 117
+> 
+> 
+> Corresponding to these parts of __rtc_read_alarm:
+> 
+>   int __rtc_read_alarm(struct rtc_device *rtc, struct rtc_wkalrm *alarm)
+>   ...
+>   	enum { none, day, month, year } missing = none;
+>   ...
+>   		err = rtc_read_alarm_internal(rtc, alarm);
+>   ...
+>   	/* Fill in the missing alarm fields using the timestamp; we
+>   	 * know there's at least one since alarm->time is invalid.
+>   	 */
+>   ...
+>   [A]
+>   	if (alarm->time.tm_year == -1) {
+>   		alarm->time.tm_year = now.tm_year;
+>   		if (missing == none)
+>   			missing = year;
+>   	}
+>   [B]
+>   ...
+>   	switch (missing) {
+>   ...
+>   	/* Year rollover ... easy except for leap years! */
+>   	case year:
+>   		dev_dbg(&rtc->dev, "alarm rollover: %s\n", "year");
+>   		do {
+>   			alarm->time.tm_year++;
+>   		} while (!is_leap_year(alarm->time.tm_year + 1900)
+>   			&& rtc_valid_tm(&alarm->time) != 0);
+>   [C]		break;
+> 
+> 
+> I noticed that the missing year and month cases increment their
+> respective time units inside a do ... while (condition) loop, pushing
+> the default 'filled-in' values to now + 1.
+> 
+> Should this 'roll-over' code check for a valid date before incrementing
+> the alarm time?  (See attached patch.)  I think this might also apply to
+> a missing month field as well.
+> 
+> (After the patch + reboot):
+> 
+>   % cat /proc/driver/rtc
+>   rtc_time        : 18:24:02
+>   rtc_date        : 2016-06-09
+>   alrm_time       : 14:04:37
+>   alrm_date       : 2016-06-09
+>   alarm_IRQ       : no
+>   alrm_pending    : no
+>   update IRQ enabled      : no
+>   periodic IRQ enabled    : no
+>   periodic IRQ frequency  : 1024
+>   max user IRQ frequency  : 64
+>   24hr            : yes
+>   periodic_IRQ    : no
+>   update_IRQ      : no
+>   HPET_emulated   : yes
+>   BCD             : yes
+>   DST_enable      : no
+>   periodic_freq   : 1024
+>   batt_status     : okay
+> 
+> -- >8 --
+> 
+> From d6feacf20b312c8ebfee902b8b84f68c1a82f035 Mon Sep 17 00:00:00 2001
+> From: Joe Lawrence <joe.lawrence@stratus.com>
+> Date: Thu, 9 Jun 2016 14:52:28 -0400
+> Subject: [PATCH] rtc: check filled-in alarm values before incrementing
+> 
+> In __rtc_read_alarm, check filled-in alarm->time.tm_year values (those
+> not returned by the RTC and defaulted to now.tm_year) before
+> incrementing them in the rollover handling case.
+> 
+> Signed-off-by: Joe Lawrence <joe.lawrence@stratus.com>
 > ---
->  drivers/rtc/rtc-s3c.c |    2 --
->  1 file changed, 2 deletions(-)
+>  drivers/rtc/interface.c | 6 +++---
+>  1 file changed, 3 insertions(+), 3 deletions(-)
 > 
-> diff --git a/drivers/rtc/rtc-s3c.c b/drivers/rtc/rtc-s3c.c
-> index d01ad7e..b083840 100644
-> --- a/drivers/rtc/rtc-s3c.c
-> +++ b/drivers/rtc/rtc-s3c.c
-> @@ -577,8 +577,6 @@ static int s3c_rtc_probe(struct platform_device *pdev)
->  
->  	s3c_rtc_setfreq(info, 1);
->  
-> -	s3c_rtc_disable_clk(info);
-> -
->  	return 0;
->  
->   err_nortc:
+> diff --git a/drivers/rtc/interface.c b/drivers/rtc/interface.c
+> index 9ef5f6f89f98..3098ce4167ef 100644
+> --- a/drivers/rtc/interface.c
+> +++ b/drivers/rtc/interface.c
+> @@ -258,10 +258,10 @@ int __rtc_read_alarm(struct rtc_device *rtc,
+> struct rtc_wkalrm *alarm)
+>  	/* Year rollover ... easy except for leap years! */
+>  	case year:
+>  		dev_dbg(&rtc->dev, "alarm rollover: %s\n", "year");
+> -		do {
+> +		while (!is_leap_year(alarm->time.tm_year + 1900)
+> +			&& rtc_valid_tm(&alarm->time) != 0) {
+>  			alarm->time.tm_year++;
+> -		} while (!is_leap_year(alarm->time.tm_year + 1900)
+> -			&& rtc_valid_tm(&alarm->time) != 0);
+> +		}
+>  		break;
+> 
+>  	default:
+> -- 
+> 1.8.3.1
+> 
+
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
