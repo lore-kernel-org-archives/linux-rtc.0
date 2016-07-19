@@ -1,26 +1,34 @@
-Return-Path: <rtc-linux+bncBCEPJZEDQIBBB5GQSS6AKGQEEEQFHNY@googlegroups.com>
+Return-Path: <rtc-linux+bncBDAYD2P3QYGRB2XAXC6AKGQEWXGZCXY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from ducie-dc1.codethink.co.uk (ducie-dc1.codethink.co.uk. [185.25.241.215])
-        by gmr-mx.google.com with ESMTPS id d196si108392wmd.1.2016.07.12.10.27.15
+MIME-Version: 1.0
+Received: from mail-wm0-x229.google.com (mail-wm0-x229.google.com. [2a00:1450:400c:c09::229])
+        by gmr-mx.google.com with ESMTPS id v14si983692wmf.0.2016.07.19.06.51.38
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 12 Jul 2016 10:27:16 -0700 (PDT)
-Subject: [rtc-linux] Re: [PATCH v3 1/4] rtc: support for amlogic meson rtc
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-References: <1467748122-14833-1-git-send-email-ben.dooks@codethink.co.uk>
- <1467748122-14833-3-git-send-email-ben.dooks@codethink.co.uk>
- <20160712172235.GU22202@piout.net>
-Cc: linux-kernel@lists.codethink.co.uk, linux-amlogic@lists.infradead.org,
- rtc-linux@googlegroups.com, a.zummo@towertech.it,
- devicetree@vger.kernel.org, narmstrong@baylibre.com, frowand.list@gmail.com,
- khilman@baylibre.com
-From: Ben Dooks <ben.dooks@codethink.co.uk>
-Message-ID: <4d98df06-cf00-b4fd-dfb5-1ac5d9c548fc@codethink.co.uk>
-Date: Tue, 12 Jul 2016 18:27:12 +0100
-MIME-Version: 1.0
-In-Reply-To: <20160712172235.GU22202@piout.net>
-Content-Type: text/plain; charset=UTF-8
+        Tue, 19 Jul 2016 06:51:38 -0700 (PDT)
+Received: by mail-wm0-x229.google.com with SMTP id o80so27084903wme.1
+        for <rtc-linux@googlegroups.com>; Tue, 19 Jul 2016 06:51:38 -0700 (PDT)
+From: Neil Armstrong <narmstrong@baylibre.com>
+To: andy.gross@linaro.org,
+	david.brown@linaro.org,
+	lee.jones@linaro.org,
+	lgirdwood@gmail.com,
+	broonie@kernel.org,
+	a.zummo@towertech.it,
+	alexandre.belloni@free-electrons.com
+Cc: Neil Armstrong <narmstrong@baylibre.com>,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	linux-arm-msm@vger.kernel.org,
+	linux-soc@vger.kernel.org,
+	rtc-linux@googlegroups.com
+Subject: [rtc-linux] [PATCH v3 2/4] rtc: rtc-pm8xxx: Add support for pm8018 rtc
+Date: Tue, 19 Jul 2016 15:51:24 +0200
+Message-Id: <1468936286-2710-3-git-send-email-narmstrong@baylibre.com>
+In-Reply-To: <1468936286-2710-1-git-send-email-narmstrong@baylibre.com>
+References: <1468936286-2710-1-git-send-email-narmstrong@baylibre.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -29,44 +37,60 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 12/07/16 18:22, Alexandre Belloni wrote:
-> Hi,
-> 
-> Very few comments below
-> 
-> On 05/07/2016 at 20:48:41 +0100, Ben Dooks wrote :
->> +/* registers accessed from cpu bus */
->> +#define RTC_REG(x)		((x) * 4)	/* rtc registers 0-4 */
->> +
->> +#define LINE_SDI		(1 << 2)
->> +#define LINE_SEN		(1 << 1)
->> +#define LINE_SCLK		(1 << 0)
-> 
-> Maybe use BIT() here.
+In order to support RTC on Qualcomm MDM9615 SoC, add support for
+the pm8018 rtc in rtc-pm8xxx driver.
 
-I'll sort that out later.
+Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Acked-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
+---
+ Documentation/devicetree/bindings/mfd/qcom-pm8xxx.txt |  1 +
+ drivers/rtc/rtc-pm8xxx.c                              | 11 +++++++++++
+ 2 files changed, 12 insertions(+)
 
->> +/* RTC interface layer functions */
->> +
->> +static int meson_rtc_gettime(struct device *dev, struct rtc_time *tm)
->> +{
->> +	struct meson_rtc *rtc = dev_get_drvdata(dev);
->> +	int ret;
->> +	u32 time;
->> +
->> +	mutex_lock(&rtc->lock);
->> +
->> +	ret = meson_rtc_read(rtc, RTC_COUNTER, &time);
->> +	if (!ret) {
->> +		rtc_time_to_tm(time, tm);
-> 
-> Can you use the 64bit version?
-
-What would the 64bit version gain? The hardware register is 32bit.
-
+diff --git a/Documentation/devicetree/bindings/mfd/qcom-pm8xxx.txt b/Documentation/devicetree/bindings/mfd/qcom-pm8xxx.txt
+index f24f334..37a088f 100644
+--- a/Documentation/devicetree/bindings/mfd/qcom-pm8xxx.txt
++++ b/Documentation/devicetree/bindings/mfd/qcom-pm8xxx.txt
+@@ -62,6 +62,7 @@ The below bindings specify the set of valid subnodes.
+ 		    "qcom,pm8058-rtc"
+ 		    "qcom,pm8921-rtc"
+ 		    "qcom,pm8941-rtc"
++		    "qcom,pm8018-rtc"
+ 
+ - reg:
+ 	Usage: required
+diff --git a/drivers/rtc/rtc-pm8xxx.c b/drivers/rtc/rtc-pm8xxx.c
+index 795fcbd..976f5f6 100644
+--- a/drivers/rtc/rtc-pm8xxx.c
++++ b/drivers/rtc/rtc-pm8xxx.c
+@@ -393,6 +393,16 @@ static int pm8xxx_rtc_enable(struct pm8xxx_rtc *rtc_dd)
+ 	return 0;
+ }
+ 
++static const struct pm8xxx_rtc_regs pm8018_regs = {
++	.ctrl		= 0x11d,
++	.write		= 0x11f,
++	.read		= 0x123,
++	.alarm_rw	= 0x127,
++	.alarm_ctrl	= 0x11d,
++	.alarm_ctrl2	= 0x11e,
++	.alarm_en	= BIT(1),
++};
++
+ static const struct pm8xxx_rtc_regs pm8921_regs = {
+ 	.ctrl		= 0x11d,
+ 	.write		= 0x11f,
+@@ -428,6 +438,7 @@ static const struct pm8xxx_rtc_regs pm8941_regs = {
+  */
+ static const struct of_device_id pm8xxx_id_table[] = {
+ 	{ .compatible = "qcom,pm8921-rtc", .data = &pm8921_regs },
++	{ .compatible = "qcom,pm8018-rtc", .data = &pm8018_regs },
+ 	{ .compatible = "qcom,pm8058-rtc", .data = &pm8058_regs },
+ 	{ .compatible = "qcom,pm8941-rtc", .data = &pm8941_regs },
+ 	{ },
 -- 
-Ben Dooks				http://www.codethink.co.uk/
-Senior Engineer				Codethink - Providing Genius
+1.9.1
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
