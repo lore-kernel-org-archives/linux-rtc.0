@@ -1,21 +1,27 @@
-Return-Path: <rtc-linux+bncBAABBBUH7C5QKGQE5CCPLZA@googlegroups.com>
+Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBO7SXC6AKGQEL5K5VJI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail-out1.kundencontroller.de (mail-out1.kundencontroller.de. [2a02:180:ffff:1::551f:b822])
-        by gmr-mx.google.com with ESMTPS id f70si102196wmf.0.2016.07.06.21.50.27
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 06 Jul 2016 21:50:27 -0700 (PDT)
-Subject: [rtc-linux] Re: [PATCH] rtc: sunxi: use external oscillator
-To: Maxime Ripard <maxime.ripard@free-electrons.com>
-References: <577CC494.8020103@roslen.de> <20160706202000.GC4247@lukather>
-Cc: a.zummo@towertech.it, alexandre.belloni@free-electrons.com,
- wens@csie.org, rtc-linux@googlegroups.com
-From: Stephan Roslen <stephan@roslen.de>
-Message-ID: <577DDF8C.6060404@roslen.de>
-Date: Thu, 7 Jul 2016 06:50:20 +0200
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id o85si1124799wme.0.2016.07.19.07.29.14
+        for <rtc-linux@googlegroups.com>;
+        Tue, 19 Jul 2016 07:29:14 -0700 (PDT)
+Date: Tue, 19 Jul 2016 16:29:07 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Pratyush Anand <panand@redhat.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
+	open list <linux-kernel@vger.kernel.org>,
+	Prarit Bhargava <prarit@redhat.com>,
+	RuiRui Yang <dyoung@redhat.com>,
+	Thomas Gleixner <tglx@linutronix.de>, mingo@kernel.org
+Subject: [rtc-linux] Re: [PATCH RFC 0/2] rtc-cmos: Workaround unwanted
+ interrupt generation
+Message-ID: <20160719142907.GG7132@piout.net>
+References: <cover.1466484019.git.panand@redhat.com>
+ <20160627044907.GA29870@dhcppc9>
+ <20160704161948.GB11075@dhcppc9>
+ <CAHB_Gup0uaOrr9R5qaydc2057o-L290Jwqd2iC0-+tsEwzKbQQ@mail.gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <20160706202000.GC4247@lukather>
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <CAHB_Gup0uaOrr9R5qaydc2057o-L290Jwqd2iC0-+tsEwzKbQQ@mail.gmail.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -25,67 +31,55 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 06.07.2016 22:20, Maxime Ripard wrote:
-> On Wed, Jul 06, 2016 at 10:43:00AM +0200, Stephan Roslen wrote:
->> +	writel(loscctrl, chip->base + SUNXI_LOSC_CTRL);
->> +	udelay(100);
->=20
-> Why is that udelay needed?
+Hi,
 
-I found that studying the sunxi 3.4 kernel code and considered it a necessa=
-ry delay for the hardware setup and update SUNXI_LOSC_CTRL_SRC_SEL bit. My =
-assumption was wrong, it seems. At least a few reboots show, that it is lik=
-ely to work without.
+On 18/07/2016 at 17:17:44 +0530, Pratyush Anand wrote :
+> Hi RTC-Maintainers,
+> 
+> 
+> On Mon, Jul 4, 2016 at 9:49 PM, Pratyush Anand <panand@redhat.com> wrote:
+> > On 27/06/2016:10:19:07 AM, Pratyush Anand wrote:
+> >> On 21/06/2016:10:25:34 AM, Pratyush Anand wrote:
+> >> > We have observed on few machines with rtc-cmos device that
+> >> > hpet_rtc_interrupt() is called before cmos_do_probe() could call
+> >> > hpet_rtc_timer_init(). It has not been observed during normal boot/reboot
+> >> > of machines. It *sometime* happens when system is booted with kdump
+> >> > secondary kernel. So, neither hpet_default_delta nor hpet_t1_cmp is
+> >> > initialized by the time interrupt is raised in the given situation.
+> >> > Therefore while loop of hpet_cnt_ahead() in hpet_rtc_timer_reinit() never
+> >> > completes. This leads to "NMI watchdog: Watchdog detected hard LOCKUP on
+> >> > cpu 0".
+> >> >
+> >> > I am still clueless, how can an interrupt be raised before RTC is enabled.
+> >> > But i do not have any idea about this device, so I am putting this patch as
+> >> > RFC to get feedback from hpet/rtc-cmos developer. I am sure there would be
+> >> > some better solution than this.
+> >>
+> >> Do you think that if I improve commit log of patches as pointed by Thomas and
+> >> send a formal version of these patches, then they should acceptable to upstream?
+> >
+> > A gentle reminder for your comment/feedback :-)
+> 
+> Please let me know how to make progress on this. If you think, there
+> could be some better way to handle this issue then please let me know.
+> If you need any more data then also please let me know.
+> 
 
->=20
->> +
->> +	loscctrl =3D readl(chip->base + SUNXI_LOSC_CTRL);
->> +	if (!(loscctrl & SUNXI_LOSC_CTRL_SRC_SEL)) {
->> +		dev_err(&pdev->dev, "Error: Set LOSC to external failed.\n");
->> +		dev_err(&pdev->dev, "Warning: RTC time will be wrong!\n");
->> +	}
->> +
->=20
-> This isn't needed
->=20
-> The issue is actually worse than that.
->=20
-> That register controls the losc source for the whole clock tree, so it
-> will affect every clock in the system.
->=20
-> In order to have that correctly propagated, you should register a new
-> mux here in the clock framework, and have all the other clocks using
-> that mux as a parent.
+Well, the change is x86 specific and I don't know much about HPET so
+until you get an ack from the x86 maintainers, I guess I can't help
+much.
 
-I agree. Checking the diagram in subsection 1.5.2 of the A20 manual it seem=
-s, that LOSC can be a source for clocks like CPU and some SoC busses. So my=
- patch could indeed mess with the whole clock tree.
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
 
->=20
-> That's going to be tricky, because the clocks usually probe way
-> earlier than the RTC driver. So I'm guessing you could do a clock
-> driver that maps the registers, register its clock, and then when the
-> RTC probes just takes over what has been setup already by the clock
-> driver. This also means removing the ability for the RTC to be
-> compiled as a module.
-
-I agree again. Though I think, the RTC should still work as a module. The C=
-LK driver could provide the regmap MFD style and the RTC driver may access =
-it. Or rather the CLK driver should use an MFD, that is provided early, too=
-. Eventually even a syscon? Actually the whole bunch described in subsectio=
-n 1.9 (including timers, arlarms, rtc and even the watchdog) would have to =
-rely on that MFD. Do I miss a point?
-
-Stephan
-
---=20
+-- 
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
----=20
-You received this message because you are subscribed to the Google Groups "=
-rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an e=
-mail to rtc-linux+unsubscribe@googlegroups.com.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
