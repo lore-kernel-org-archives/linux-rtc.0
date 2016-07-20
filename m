@@ -1,20 +1,21 @@
-Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBV4PXG6AKGQEA3PUQKA@googlegroups.com>
+Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBHWUX66AKGQENY6OFIA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id v14si1040667wmf.0.2016.07.19.08.31.35
+        by gmr-mx.google.com with ESMTP id o85si1658558wme.0.2016.07.20.14.16.14
         for <rtc-linux@googlegroups.com>;
-        Tue, 19 Jul 2016 08:31:35 -0700 (PDT)
-Date: Tue, 19 Jul 2016 17:31:34 +0200
+        Wed, 20 Jul 2016 14:16:14 -0700 (PDT)
+Date: Wed, 20 Jul 2016 23:16:02 +0200
 From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>, linux-kernel@vger.kernel.org,
-	rtc-linux@googlegroups.com
-Subject: [rtc-linux] Re: [PATCH] rtc: abx80x: use devm_add_action_or_reset()
-Message-ID: <20160719153134.GJ7132@piout.net>
-References: <1467577942-31473-1-git-send-email-sudipm.mukherjee@gmail.com>
+To: Arnaud Ebalard <arno@natisbad.org>
+Cc: Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org
+Subject: [rtc-linux] Re: [PATCH] rtc: ds1307: fix century bit support
+Message-ID: <20160720211602.GD4446@piout.net>
+References: <1468370064-19255-1-git-send-email-alexandre.belloni@free-electrons.com>
+ <87inw8hu62.fsf@natisbad.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1467577942-31473-1-git-send-email-sudipm.mukherjee@gmail.com>
+In-Reply-To: <87inw8hu62.fsf@natisbad.org>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -24,18 +25,17 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 03/07/2016 at 21:32:22 +0100, Sudip Mukherjee wrote :
-> If devm_add_action() fails we are explicitly calling the cleanup to free
-> the resources allocated.  Lets use the helper devm_add_action_or_reset()
-> and return directly in case of error, as we know that the cleanup function
-> has been already called by the helper if there was any error.
+On 14/07/2016 at 21:54:45 +0200, Arnaud Ebalard wrote :
+> One small thing though: for user which have always used RTC_DRV_ISL12057
+> config knob, the change will not be transparent. Would it be possible to
+> somehow make that old kernel config knob some kind of alias for
+> RTC_DRV_DS1307 and RTC_DRV_DS1307_CENTURY in Kconfig?
 > 
-> Signed-off-by: Sudip Mukherjee <sudip.mukherjee@codethink.co.uk>
-> ---
->  drivers/rtc/rtc-abx80x.c | 12 +++++-------
->  1 file changed, 5 insertions(+), 7 deletions(-)
-> 
-Applied, thanks.
+
+Well, I tried multiple things but making RTC_DRV_ISL12057 hidden makes it
+unable to select both RTC_DRV_DS1307 and RTC_DRV_DS1307_CENTURY. I'll
+try to find a solution but I pretty much prefer not having
+RTC_DRV_ISL12057 selectable anymore
 
 -- 
 Alexandre Belloni, Free Electrons
