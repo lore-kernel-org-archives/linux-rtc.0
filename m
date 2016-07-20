@@ -1,33 +1,32 @@
-Return-Path: <rtc-linux+bncBDJIP47K7MERBEVU265QKGQE4H3GJOI@googlegroups.com>
+Return-Path: <rtc-linux+bncBDI57DN47YOBBDXNXO6AKGQE53CYD4Q@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail-qk0-f195.google.com (mail-qk0-f195.google.com. [209.85.220.195])
-        by gmr-mx.google.com with ESMTPS id u136si66906ywc.7.2016.06.30.19.48.50
+Received: from mail-pf0-f170.google.com (mail-pf0-f170.google.com. [209.85.192.170])
+        by gmr-mx.google.com with ESMTPS id a133si77389pfa.0.2016.07.19.20.57.02
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 30 Jun 2016 19:48:50 -0700 (PDT)
-Received: by mail-qk0-f195.google.com with SMTP id j2so20787614qkf.1
-        for <rtc-linux@googlegroups.com>; Thu, 30 Jun 2016 19:48:50 -0700 (PDT)
-Date: Thu, 30 Jun 2016 21:48:47 -0500
-From: Rob Herring <robh@kernel.org>
-To: Chen-Yu Tsai <wens@csie.org>
-Cc: Lee Jones <lee.jones@linaro.org>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Maxime Ripard <maxime.ripard@free-electrons.com>,
-	Michael Turquette <mturquette@baylibre.com>,
-	Stephen Boyd <sboyd@codeaurora.org>,
-	linux-arm-kernel@lists.infradead.org, rtc-linux@googlegroups.com,
-	linux-clk@vger.kernel.org, devicetree@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH v4 1/7] mfd: ac100: Add device tree bindings
- for X-Powers AC100 codec/RTC combo IC
-Message-ID: <20160701024847.GA1444@rob-hp-laptop>
-References: <1467302331-9663-1-git-send-email-wens@csie.org>
- <1467302331-9663-2-git-send-email-wens@csie.org>
+        Tue, 19 Jul 2016 20:57:02 -0700 (PDT)
+Received: by mail-pf0-f170.google.com with SMTP id h186so14238834pfg.3
+        for <rtc-linux@googlegroups.com>; Tue, 19 Jul 2016 20:57:02 -0700 (PDT)
+Date: Wed, 20 Jul 2016 09:26:59 +0530
+From: Pratyush Anand <panand@redhat.com>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Thomas Gleixner <tglx@linutronix.de>, mingo@kernel.org,
+	hpa@zytor.com, x86@kernel.org
+Cc: Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
+	open list <linux-kernel@vger.kernel.org>,
+	Prarit Bhargava <prarit@redhat.com>,
+	RuiRui Yang <dyoung@redhat.com>
+Subject: [rtc-linux] Re: [PATCH RFC 0/2] rtc-cmos: Workaround unwanted
+ interrupt generation
+Message-ID: <20160720035659.GA4797@localhost.localdomain>
+References: <cover.1466484019.git.panand@redhat.com>
+ <20160627044907.GA29870@dhcppc9>
+ <20160704161948.GB11075@dhcppc9>
+ <CAHB_Gup0uaOrr9R5qaydc2057o-L290Jwqd2iC0-+tsEwzKbQQ@mail.gmail.com>
+ <20160719142907.GG7132@piout.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1467302331-9663-2-git-send-email-wens@csie.org>
+In-Reply-To: <20160719142907.GG7132@piout.net>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -37,24 +36,51 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Thu, Jun 30, 2016 at 11:58:45PM +0800, Chen-Yu Tsai wrote:
-> Signed-off-by: Chen-Yu Tsai <wens@csie.org>
-> ---
-> Changes since v3:
+On 19/07/2016:04:29:07 PM, Alexandre Belloni wrote:
+> Hi,
 > 
->   - Fixed device node names and added labels.
->   - Added clock output from codec and input to rtc.
+> On 18/07/2016 at 17:17:44 +0530, Pratyush Anand wrote :
+> > Hi RTC-Maintainers,
+> > 
+> > 
+> > On Mon, Jul 4, 2016 at 9:49 PM, Pratyush Anand <panand@redhat.com> wrote:
+> > > On 27/06/2016:10:19:07 AM, Pratyush Anand wrote:
+> > >> On 21/06/2016:10:25:34 AM, Pratyush Anand wrote:
+> > >> > We have observed on few machines with rtc-cmos device that
+> > >> > hpet_rtc_interrupt() is called before cmos_do_probe() could call
+> > >> > hpet_rtc_timer_init(). It has not been observed during normal boot/reboot
+> > >> > of machines. It *sometime* happens when system is booted with kdump
+> > >> > secondary kernel. So, neither hpet_default_delta nor hpet_t1_cmp is
+> > >> > initialized by the time interrupt is raised in the given situation.
+> > >> > Therefore while loop of hpet_cnt_ahead() in hpet_rtc_timer_reinit() never
+> > >> > completes. This leads to "NMI watchdog: Watchdog detected hard LOCKUP on
+> > >> > cpu 0".
+> > >> >
+> > >> > I am still clueless, how can an interrupt be raised before RTC is enabled.
+> > >> > But i do not have any idea about this device, so I am putting this patch as
+> > >> > RFC to get feedback from hpet/rtc-cmos developer. I am sure there would be
+> > >> > some better solution than this.
+> > >>
+> > >> Do you think that if I improve commit log of patches as pointed by Thomas and
+> > >> send a formal version of these patches, then they should acceptable to upstream?
+> > >
+> > > A gentle reminder for your comment/feedback :-)
+> > 
+> > Please let me know how to make progress on this. If you think, there
+> > could be some better way to handle this issue then please let me know.
+> > If you need any more data then also please let me know.
+> > 
 > 
-> Changes since v2:
-> 
->   - Fix interrupt line for ac100_codec in provided example.
-> 
-> ---
->  Documentation/devicetree/bindings/mfd/ac100.txt | 49 +++++++++++++++++++++++++
->  1 file changed, 49 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/mfd/ac100.txt
+> Well, the change is x86 specific and I don't know much about HPET so
+> until you get an ack from the x86 maintainers, I guess I can't help
+> much.
 
-Acked-by: Rob Herring <robh@kernel.org>
+Thanks Alexandre for your reply.
+
+Thomas, Ingo, Peter, Your comment/feedback will be very helpful to make progress
+on this.
+
+~Pratyush
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
