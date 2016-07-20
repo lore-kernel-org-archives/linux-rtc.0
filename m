@@ -1,23 +1,34 @@
-Return-Path: <rtc-linux+bncBCKYNX7Y3IMBB6FES26AKGQEYITJKHI@googlegroups.com>
+Return-Path: <rtc-linux+bncBDKOBWPM5ABRBMWFX26AKGQELUFQJCY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
+Received: from mail-yw0-x230.google.com (mail-yw0-x230.google.com. [2607:f8b0:4002:c05::230])
+        by gmr-mx.google.com with ESMTPS id t206si241294ywb.3.2016.07.20.09.11.30
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 20 Jul 2016 09:11:30 -0700 (PDT)
+Received: by mail-yw0-x230.google.com with SMTP id z8so27738156ywa.1
+        for <rtc-linux@googlegroups.com>; Wed, 20 Jul 2016 09:11:30 -0700 (PDT)
 MIME-Version: 1.0
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id c135si1208928wme.2.2016.07.12.17.59.36
-        for <rtc-linux@googlegroups.com>;
-        Tue, 12 Jul 2016 17:59:36 -0700 (PDT)
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Arnaud Ebalard <arno@natisbad.org>
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
-	rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Subject: [rtc-linux] [PATCH 2/3] rtc: ds1307: add Intersil ISL12057 support
-Date: Wed, 13 Jul 2016 02:59:30 +0200
-Message-Id: <1468371571-22641-3-git-send-email-alexandre.belloni@free-electrons.com>
-In-Reply-To: <1468371571-22641-1-git-send-email-alexandre.belloni@free-electrons.com>
-References: <1468371571-22641-1-git-send-email-alexandre.belloni@free-electrons.com>
-Reply-To: rtc-linux@googlegroups.com
+In-Reply-To: <20160720153836.GS7132@piout.net>
+References: <1465970379-14703-4-git-send-email-andrew.smirnov@gmail.com>
+ <20160619142934.GA8522@rob-hp-laptop> <CAHQ1cqFfFpLmMMr9itinha9rotG7Btr9UmWbO2_0VWxX_HeG1g@mail.gmail.com>
+ <20160621204904.GA9779@rob-hp-laptop> <20160621210739.GY5809@piout.net>
+ <CAHQ1cqGRqhOAqfJZEixkxAHZ4Y8dd-hD__T1ci0LS28Orphs3Q@mail.gmail.com>
+ <20160719224728.GP7132@piout.net> <CAHQ1cqF+Z5sKhtxgFiTGJdaOtkQRtQmXU=DzG0qxnDDwfAMp_g@mail.gmail.com>
+ <20160720090220.GQ7132@piout.net> <CAHQ1cqEoN7PEQApHBo-FOqumtLJWoURHOPZfrzL=6h2p4S0Fdg@mail.gmail.com>
+ <20160720153836.GS7132@piout.net>
+From: Andrey Smirnov <andrew.smirnov@gmail.com>
+Date: Wed, 20 Jul 2016 09:11:28 -0700
+Message-ID: <CAHQ1cqFjpu8i8HOZt3FgE8pRhD1x1iwP3NhRFec7aj=xH9Z50g@mail.gmail.com>
+Subject: [rtc-linux] Re: [PATCH 03/13] RTC: ds1307: Add DS1341 specific
+ power-saving options
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: Rob Herring <robh@kernel.org>, rtc-linux@googlegroups.com,
+	Alessandro Zummo <a.zummo@towertech.it>, Pawel Moll <pawel.moll@arm.com>,
+	Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>,
+	Kumar Gala <galak@codeaurora.org>, devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org
 Content-Type: text/plain; charset=UTF-8
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -26,64 +37,44 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Intersil ISL12057 is a drop-in replacement for DS1337. It can be supported
-by the ds1307 driver.
+On Wed, Jul 20, 2016 at 8:38 AM, Alexandre Belloni
+<alexandre.belloni@free-electrons.com> wrote:
+> On 20/07/2016 at 07:36:55 -0700, Andrey Smirnov wrote :
+>> On Wed, Jul 20, 2016 at 2:02 AM, Alexandre Belloni
+>> <alexandre.belloni@free-electrons.com> wrote:
+>> > On 19/07/2016 at 16:56:56 -0700, Andrey Smirnov wrote :
+>> >> >> I don't see any value in doing that, could you give me a realistic
+>> >> >> example of a scenario in which a user would want to spend some of
+>> >> >> uptime with RTC oscillator fault detection/glitch filtering disabled
+>> >> >> and then enable it?
+>> >> >>
+>> >> >
+>> >> > Well, the issue is not being dynamic, it is differentiating between
+>> >> > hardware description and user configuration. Configuration must not be in
+>> >> > DT.
+>> >>
+>> >> Why? And I don't mean in a generic sense, but in this particular case.
+>> >> What is gained by not having this bit of configuration, whose only
+>> >> consumer is the driver, in the device tree file?
+>> >>
+>> >
+>> > Because configuration doesn't belong to DT. DT is about hardware
+>> > description, not configuration.
+>>
+>> That doesn't really answer my question. You just re-iterating some
+>> maxim without explaining what is the point behind applying it.
+>>
+>
+> Well, that is from the device tree specification and how the device tree
+> maintainers want it...
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
----
- drivers/rtc/Kconfig      | 8 ++++----
- drivers/rtc/rtc-ds1307.c | 6 ++++++
- 2 files changed, 10 insertions(+), 4 deletions(-)
+And yet, we have whole subsystems such as "nvmem" and I am sure plenty
+of other smaller examples where that maxim is being applied very lax
+if at all. So it seems people can and do make compromises regarding
+the "no configuration in DT" rule if pros of doing so outweighs the
+cons.
 
-diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
-index f47c2f5ff70d..ba0b3e7ce4c5 100644
---- a/drivers/rtc/Kconfig
-+++ b/drivers/rtc/Kconfig
-@@ -198,14 +198,14 @@ config RTC_DRV_AS3722
- 	  will be called rtc-as3722.
- 
- config RTC_DRV_DS1307
--	tristate "Dallas/Maxim DS1307/37/38/39/40, ST M41T00, EPSON RX-8025"
-+	tristate "Dallas/Maxim DS1307/37/38/39/40, ST M41T00, EPSON RX-8025, ISL12057"
- 	help
- 	  If you say yes here you get support for various compatible RTC
- 	  chips (often with battery backup) connected with I2C. This driver
- 	  should handle DS1307, DS1337, DS1338, DS1339, DS1340, ST M41T00,
--	  EPSON RX-8025 and probably other chips. In some cases the RTC
--	  must already have been initialized (by manufacturing or a
--	  bootloader).
-+	  EPSON RX-8025, Intersil ISL12057 and probably other chips. In some
-+	  cases the RTC must already have been initialized (by manufacturing or
-+	  a bootloader).
- 
- 	  The first seven registers on these chips hold an RTC, and other
- 	  registers may add features such as NVRAM, a trickle charger for
-diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
-index 4c5890864d9c..52be48f2e3c0 100644
---- a/drivers/rtc/rtc-ds1307.c
-+++ b/drivers/rtc/rtc-ds1307.c
-@@ -186,6 +186,7 @@ static const struct i2c_device_id ds1307_id[] = {
- 	{ "mcp7941x", mcp794xx },
- 	{ "pt7c4338", ds_1307 },
- 	{ "rx8025", rx_8025 },
-+	{ "isl1207", ds_1337 },
- 	{ }
- };
- MODULE_DEVICE_TABLE(i2c, ds1307_id);
-@@ -1333,6 +1334,11 @@ static int ds1307_probe(struct i2c_client *client,
- 	if (of_property_read_bool(client->dev.of_node, "wakeup-source")) {
- 		ds1307_can_wakeup_device = true;
- 	}
-+	/* Intersil ISL12057 DT backward compatibility */
-+	if (of_property_read_bool(client->dev.of_node,
-+				  "isil,irq2-can-wakeup-machine")) {
-+		ds1307_can_wakeup_device = true;
-+	}
- #endif
- 
- 	switch (ds1307->type) {
--- 
-2.8.1
+Andrey
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
