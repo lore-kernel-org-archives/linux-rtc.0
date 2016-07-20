@@ -1,21 +1,35 @@
-Return-Path: <rtc-linux+bncBAABBS5GRW6AKGQEJJZTHUA@googlegroups.com>
+Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBB5WX26AKGQEJAUDONI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from arcturus.kleine-koenig.org (arcturus.kleine-koenig.org. [78.47.169.190])
-        by gmr-mx.google.com with ESMTPS id b77si342367wmb.1.2016.07.11.01.05.31
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 11 Jul 2016 01:05:31 -0700 (PDT)
-From: =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <uwe@kleine-koenig.org>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Ben Hutchings <benh@debian.org>,
-	rtc-linux@googlegroups.com,
-	kernel@pengutronix.de,
-	Alessandro Zummo <a.zummo@towertech.it>
-Subject: [rtc-linux] [PATCH 0/2] rtc: fix regressions of d68778b80dd7
-Date: Mon, 11 Jul 2016 10:05:26 +0200
-Message-Id: <1468224328-7391-1-git-send-email-uwe@kleine-koenig.org>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id i193si184957wmg.1.2016.07.20.08.38.46
+        for <rtc-linux@googlegroups.com>;
+        Wed, 20 Jul 2016 08:38:46 -0700 (PDT)
+Date: Wed, 20 Jul 2016 17:38:36 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Andrey Smirnov <andrew.smirnov@gmail.com>
+Cc: Rob Herring <robh@kernel.org>, rtc-linux@googlegroups.com,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Pawel Moll <pawel.moll@arm.com>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Ian Campbell <ijc+devicetree@hellion.org.uk>,
+	Kumar Gala <galak@codeaurora.org>, devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [rtc-linux] Re: [PATCH 03/13] RTC: ds1307: Add DS1341 specific
+ power-saving options
+Message-ID: <20160720153836.GS7132@piout.net>
+References: <1465970379-14703-4-git-send-email-andrew.smirnov@gmail.com>
+ <20160619142934.GA8522@rob-hp-laptop>
+ <CAHQ1cqFfFpLmMMr9itinha9rotG7Btr9UmWbO2_0VWxX_HeG1g@mail.gmail.com>
+ <20160621204904.GA9779@rob-hp-laptop>
+ <20160621210739.GY5809@piout.net>
+ <CAHQ1cqGRqhOAqfJZEixkxAHZ4Y8dd-hD__T1ci0LS28Orphs3Q@mail.gmail.com>
+ <20160719224728.GP7132@piout.net>
+ <CAHQ1cqF+Z5sKhtxgFiTGJdaOtkQRtQmXU=DzG0qxnDDwfAMp_g@mail.gmail.com>
+ <20160720090220.GQ7132@piout.net>
+ <CAHQ1cqEoN7PEQApHBo-FOqumtLJWoURHOPZfrzL=6h2p4S0Fdg@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <CAHQ1cqEoN7PEQApHBo-FOqumtLJWoURHOPZfrzL=6h2p4S0Fdg@mail.gmail.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -25,40 +39,46 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Hello,
+On 20/07/2016 at 07:36:55 -0700, Andrey Smirnov wrote :
+> On Wed, Jul 20, 2016 at 2:02 AM, Alexandre Belloni
+> <alexandre.belloni@free-electrons.com> wrote:
+> > On 19/07/2016 at 16:56:56 -0700, Andrey Smirnov wrote :
+> >> >> I don't see any value in doing that, could you give me a realistic
+> >> >> example of a scenario in which a user would want to spend some of
+> >> >> uptime with RTC oscillator fault detection/glitch filtering disabled
+> >> >> and then enable it?
+> >> >>
+> >> >
+> >> > Well, the issue is not being dynamic, it is differentiating between
+> >> > hardware description and user configuration. Configuration must not be in
+> >> > DT.
+> >>
+> >> Why? And I don't mean in a generic sense, but in this particular case.
+> >> What is gained by not having this bit of configuration, whose only
+> >> consumer is the driver, in the device tree file?
+> >>
+> >
+> > Because configuration doesn't belong to DT. DT is about hardware
+> > description, not configuration.
+> 
+> That doesn't really answer my question. You just re-iterating some
+> maxim without explaining what is the point behind applying it.
+> 
 
-while applying d68778b80dd7 ("rtc: initialize output parameter for read
-alarm to "uninitialized"") to the Debian kernel Ben Hutchings wondered
-if there are drivers that rely on .tm_sec being initialized to 0.
+Well, that is from the device tree specification and how the device tree
+maintainers want it...
 
-I checked this now an found a few that do.
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
 
-The hym8563 already used -1 explicitly, it is fixed in a separate patch.
-
-Uwe Kleine-K=C3=B6nig (2):
-  rtc: explicitly set tm_sec =3D 0 for drivers with minute accurancy
-  rtc: hym8563: in .read_alarm set .tm_sec to 0 to signal minute
-    accuracy
-
- drivers/rtc/rtc-da9052.c  | 1 +
- drivers/rtc/rtc-da9055.c  | 1 +
- drivers/rtc/rtc-davinci.c | 2 ++
- drivers/rtc/rtc-hym8563.c | 2 +-
- drivers/rtc/rtc-pcf8563.c | 1 +
- drivers/rtc/rtc-rc5t583.c | 1 +
- 6 files changed, 7 insertions(+), 1 deletion(-)
-
---=20
-2.8.1
-
---=20
+-- 
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
----=20
-You received this message because you are subscribed to the Google Groups "=
-rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an e=
-mail to rtc-linux+unsubscribe@googlegroups.com.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
