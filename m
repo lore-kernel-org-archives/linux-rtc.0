@@ -1,34 +1,22 @@
-Return-Path: <rtc-linux+bncBCMILY6JWQBBBZ47SG6AKGQEPLTATUI@googlegroups.com>
+Return-Path: <rtc-linux+bncBDSJR27JS4DBB7GNYK6AKGQEH3S74VQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from smtp.csie.ntu.edu.tw (smtp.csie.ntu.edu.tw. [140.112.30.61])
-        by gmr-mx.google.com with ESMTPS id ph9si142577pac.1.2016.07.11.19.03.18
+Received: from authsmtp.register.it (authsmtp91.register.it. [195.110.122.176])
+        by gmr-mx.google.com with ESMTPS id i198si139430wmd.2.2016.07.21.03.42.04
         for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 11 Jul 2016 19:03:18 -0700 (PDT)
-Received: from mail-io0-f176.google.com (mail-io0-f176.google.com [209.85.223.176])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	(Authenticated sender: b93043)
-	by smtp.csie.ntu.edu.tw (Postfix) with ESMTPSA id 8988F26635
-	for <rtc-linux@googlegroups.com>; Tue, 12 Jul 2016 10:03:16 +0800 (CST)
-Received: by mail-io0-f176.google.com with SMTP id 38so4272891iol.0
-        for <rtc-linux@googlegroups.com>; Mon, 11 Jul 2016 19:03:16 -0700 (PDT)
-MIME-Version: 1.0
-In-Reply-To: <20160711065042.GC4589@lukather>
-References: <1467988422-17934-1-git-send-email-wens@csie.org>
- <1467988422-17934-8-git-send-email-wens@csie.org> <20160711065042.GC4589@lukather>
-From: Chen-Yu Tsai <wens@csie.org>
-Date: Tue, 12 Jul 2016 10:02:55 +0800
-Message-ID: <CAGb2v66OhH=C5CqB56jN=T4c8TDgyuC=F0689d7=GBhy_rEonA@mail.gmail.com>
-Subject: [rtc-linux] Re: [PATCH v5 7/7] ARM: dts: sun9i: Switch to the AC100
- RTC clock outputs for osc32k
-To: Maxime Ripard <maxime.ripard@free-electrons.com>
-Cc: Chen-Yu Tsai <wens@csie.org>, Lee Jones <lee.jones@linaro.org>,
+        (version=TLS1 cipher=AES128-SHA bits=128/128);
+        Thu, 21 Jul 2016 03:42:04 -0700 (PDT)
+From: =?UTF-8?q?Beno=C3=AEt=20Th=C3=A9baudeau?= <benoit@wsystem.com>
+To: rtc-linux@googlegroups.com
+Cc: linux-kernel@vger.kernel.org,
 	Alessandro Zummo <a.zummo@towertech.it>,
 	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	linux-kernel <linux-kernel@vger.kernel.org>, rtc-linux@googlegroups.com,
-	devicetree <devicetree@vger.kernel.org>,
-	linux-arm-kernel <linux-arm-kernel@lists.infradead.org>
+	=?UTF-8?q?Beno=C3=AEt=20Th=C3=A9baudeau?= <benoit@wsystem.com>
+Subject: [rtc-linux] [PATCH 6/6] rtc: rv8803: Clear V1F when setting the time
+Date: Thu, 21 Jul 2016 12:41:32 +0200
+Message-Id: <1469097692-103146-6-git-send-email-benoit@wsystem.com>
+In-Reply-To: <1469097692-103146-1-git-send-email-benoit@wsystem.com>
+References: <1469097692-103146-1-git-send-email-benoit@wsystem.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
@@ -39,61 +27,45 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Mon, Jul 11, 2016 at 2:50 PM, Maxime Ripard
-<maxime.ripard@free-electrons.com> wrote:
-> Hi,
->
-> On Fri, Jul 08, 2016 at 10:33:42PM +0800, Chen-Yu Tsai wrote:
->> The 32.768 kHz clock inside the A80 SoC is fed from an external source,
->> typically the AC100 RTC module.
->>
->> Make the osc32k placeholder a fixed-factor clock so board dts files can
->> specify its source.
->>
->> Signed-off-by: Chen-Yu Tsai <wens@csie.org>
->> ---
->> Changes since v4: none
->> Changes since v3: none
->> Changes since v2: none
->> Changes since v1: none
->> ---
->>  arch/arm/boot/dts/sun9i-a80-cubieboard4.dts | 5 +++++
->>  arch/arm/boot/dts/sun9i-a80-optimus.dts     | 5 +++++
->>  arch/arm/boot/dts/sun9i-a80.dtsi            | 9 +++------
->>  3 files changed, 13 insertions(+), 6 deletions(-)
->>
->> diff --git a/arch/arm/boot/dts/sun9i-a80-cubieboard4.dts b/arch/arm/boot/dts/sun9i-a80-cubieboard4.dts
->> index cf2f4b72a841..04b014603659 100644
->> --- a/arch/arm/boot/dts/sun9i-a80-cubieboard4.dts
->> +++ b/arch/arm/boot/dts/sun9i-a80-cubieboard4.dts
->> @@ -103,6 +103,11 @@
->>       allwinner,drive = <SUN4I_PINCTRL_40_MA>;
->>  };
->>
->> +&osc32k {
->> +     /* osc32k input is from AC100 */
->> +     clocks = <&ac100_rtc 0>;
->> +};
->> +
->
-> I'm guessing that an unresolved dependency when the driver has not
-> loaded yet, or is not even compiled ?
->
-> How is it working then?
+V1F indicates that the time accuracy may have been compromised because
+of a voltage drop (possibly only temporary) below VLOW1, which stops the
+temperature compensation. When the time is set, the accuracy is
+restored, so V1F should be cleared in order to indicate this and to be
+able to detect the next temperature compensation loss. This is the same
+principle as for V2F, which is cleared when the time is set to indicate
+that the time is no longer invalid and to be able to detect the next
+data loss.
 
-I assume the clk framework will leave it unresolved and unusable.
-Also it seems that none of existing clks use it as a parent by
-default. I will need to check the remaining unimplemented ones
-though.
+Signed-off-by: Beno=C3=AEt Th=C3=A9baudeau <benoit@wsystem.com>
+---
+ drivers/rtc/rtc-rv8803.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-ChenYu
+diff --git a/drivers/rtc/rtc-rv8803.c b/drivers/rtc/rtc-rv8803.c
+index 24c688e..9a2f6a9 100644
+--- a/drivers/rtc/rtc-rv8803.c
++++ b/drivers/rtc/rtc-rv8803.c
+@@ -265,7 +265,7 @@ static int rv8803_set_time(struct device *dev, struct r=
+tc_time *tm)
+ 	}
+=20
+ 	ret =3D rv8803_write_reg(rv8803->client, RV8803_FLAG,
+-			       flags & ~RV8803_FLAG_V2F);
++			       flags & ~(RV8803_FLAG_V1F | RV8803_FLAG_V2F));
+=20
+ 	mutex_unlock(&rv8803->flags_lock);
+=20
+--=20
+2.5.0
 
--- 
+--=20
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+---=20
+You received this message because you are subscribed to the Google Groups "=
+rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an e=
+mail to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
