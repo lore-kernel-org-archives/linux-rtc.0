@@ -1,27 +1,24 @@
-Return-Path: <rtc-linux+bncBCMILY6JWQBBBUHT725QKGQEZNCRC6Y@googlegroups.com>
+Return-Path: <rtc-linux+bncBD5LPQWS74GBBZWPYS6AKGQE62PXVII@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-MIME-Version: 1.0
-Received: from wens.csie.org (mirror2.csie.ntu.edu.tw. [140.112.30.76])
-        by gmr-mx.google.com with ESMTPS id i135si446014pfe.0.2016.07.08.07.33.52
+Received: from mx1.redhat.com (mx1.redhat.com. [209.132.183.28])
+        by gmr-mx.google.com with ESMTPS id r127si725253ywh.0.2016.07.21.12.52.05
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 08 Jul 2016 07:33:52 -0700 (PDT)
-From: Chen-Yu Tsai <wens@csie.org>
-To: Lee Jones <lee.jones@linaro.org>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Maxime Ripard <maxime.ripard@free-electrons.com>
-Cc: Chen-Yu Tsai <wens@csie.org>,
-	linux-kernel@vger.kernel.org,
-	rtc-linux@googlegroups.com,
-	devicetree@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org
-Subject: [rtc-linux] [PATCH v5 0/7] mfd: ac100: Add support for X-Powers AC100
- audio codec / RTC combo IC
-Date: Fri,  8 Jul 2016 22:33:35 +0800
-Message-Id: <1467988422-17934-1-git-send-email-wens@csie.org>
-Reply-To: rtc-linux@googlegroups.com
+        Thu, 21 Jul 2016 12:52:05 -0700 (PDT)
+Subject: [rtc-linux] Re: __rtc_read_alarm missing month/year field bug?
+To: joe.lawrence@redhat.com,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        rtc-linux@googlegroups.com
+References: <5768148E.8090304@stratus.com> <57716404.9080204@stratus.com>
+Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        Alessandro Zummo <a.zummo@towertech.it>
+From: Joe Lawrence <joe.lawrence@redhat.com>
+Message-ID: <579127E2.9040706@redhat.com>
+Date: Thu, 21 Jul 2016 15:52:02 -0400
+MIME-Version: 1.0
+In-Reply-To: <57716404.9080204@stratus.com>
 Content-Type: text/plain; charset=UTF-8
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -30,119 +27,36 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Hi everyone,
+On 07/19/2016, Alexandre Belloni wrote:
+>
+> Well like said in my previous mail, I don't think the rollover is the
+> issue here but I'm interested in knowing what conditions are leading >
+to endless interrupts.
 
-This series adds support for X-Powers' AC100 audio codec / RTC combo IC.
-This chip is found on Allwinner A80 SoC based boards, and is also part
-of the AXP813/AXP818 PMIC found with Allwinner A83T SoCs.
+Hi Alexandre,
 
-The series focuses on the RTC side of the chip. The audio codec will
-be done later, once the digital audio interface of the SoC is supported.
+Unfortunately I've switched employers so I no longer have access to the
+hardware, but if I remember correctly the scenario went like this:
 
-Changes since v4:
+  - boot machine with RTC alarm set in far future
+  - run 'hwclock' user program
+    - hwclock sync to clock tick
+      - RTC_UIE_ON
+      - RTC_UIE_OFF
+  - kernel sees RTC alarm is outstanding
+    - hpet_rtc_interrupt's start streaming in
 
-  - Style changes to DT bindings.
-  - Added commit message to DT bindings commit.
+In the case of this hardware platform, there was a problem with the CMOS
+RTC read such that  hpet_rtc_interrupt / rtc_cmos_read believed that the
+RTC was busy updating ... that code would delay long enough that the
+next HPET rtc interrupt would come in right behind it and choke the CPU
+from scheduling anything else.
 
-Changes since v3:
+That platform-specific bug aside, I thought I would report this
+strangeness in case it was a real bug -- looks like I didn't fully
+consider the rollover case.
 
-  - bulk write support for regmaps without raw formatting patch merged
-    and thus dropped from series.
-
-  - sun9i device node re-ordering patches merged and thus dropped from
-    series.
-
-  - Fixed device node name and added labels to device tree binding example.
-
-  - Moved 4M_adda clock to codec side, and added clock bindings to codec
-    node.
-
-  - Rename RTC clock output related prefixes from clk32k to clkout.
-
-  - Rename default clock output names to cko{1,2,3}-rtc.
-
-  - Move struct tm to/from RTC conversion offsets inline with reg[]
-    assignments
-
-  - Drop separate mutex and use rtc->ops_lock in interrupt handler.
-
-  - Use platform_get_irq instead of of_get_irq.
-
-  - Add struct of_device_id and .of_match_table to RTC driver.
-
-Changes since v2:
-
-  - Fix ac100_codec interrupt line in DT binding example.
-
-  - Fix copy-paste errors in RTC set_alarm. Alarm now works.
-
-  - Drop file name from MFD driver.
-
-  - Add / update copyright notices.
-
-  - Change license of RTC driver to GPL v2, matching MFD driver.
-
-  - Fix MFD driver MODULE_LICENSE to match license declaration in header.
-
-Changes since v1:
-
-  - Complete register definitions and regmap regions.
-
-Patch 1 adds device tree bindings for the AC100.
-
-Patch 2 adds the mfd driver for the AC100.
-
-Patch 3 adds the RTC driver for the AC100.
-
-Patch 4 adds RTC clk output support to the RTC driver.
-This is a separate patch as the clk code is over 300 LoC. Having a
-separate patch should make it easier for the clk maintainers to review.
-
-Patch 5 adds the AC100 device nodes to the A80 Optimus board dts.
-
-Patch 6 adds the AC100 device nodes to the Cubieboard4 board dts.
-
-Patch 7 changes the fixed osc_32k clk to a fixed factor clk,
-representing the 32k clk input pin on the SoC, and also hooks up the
-ac100 rtc clk output to this clk in the board dts files.
-
-I'm hoping we can merge the driver bits (patches 1~4) through the
-mfd tree, with acks from the rtc maintainers for patches 3 and 4.
-
-
-Regards
-ChenYu
-
-
-Chen-Yu Tsai (7):
-  mfd: ac100: Add device tree bindings for X-Powers AC100 codec/RTC
-    combo IC
-  mfd: ac100: Add driver for X-Powers AC100 audio codec / RTC combo IC
-  rtc: ac100: Add RTC driver for X-Powers AC100
-  rtc: ac100: Add clk output support
-  ARM: dts: sun9i: a80-optimus: Add device node for AC100
-  ARM: dts: sun9i: cubieboard4: Add device node for AC100
-  ARM: dts: sun9i: Switch to the AC100 RTC clock outputs for osc32k
-
- Documentation/devicetree/bindings/mfd/ac100.txt |  54 ++
- arch/arm/boot/dts/sun9i-a80-cubieboard4.dts     |  29 ++
- arch/arm/boot/dts/sun9i-a80-optimus.dts         |  29 ++
- arch/arm/boot/dts/sun9i-a80.dtsi                |   9 +-
- drivers/mfd/Kconfig                             |  10 +
- drivers/mfd/Makefile                            |   2 +
- drivers/mfd/ac100.c                             | 137 ++++++
- drivers/rtc/Kconfig                             |  10 +
- drivers/rtc/Makefile                            |   1 +
- drivers/rtc/rtc-ac100.c                         | 627 ++++++++++++++++++++++++
- include/linux/mfd/ac100.h                       | 178 +++++++
- 11 files changed, 1080 insertions(+), 6 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/mfd/ac100.txt
- create mode 100644 drivers/mfd/ac100.c
- create mode 100644 drivers/rtc/rtc-ac100.c
- create mode 100644 include/linux/mfd/ac100.h
-
--- 
-2.8.1
+-- Joe
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
