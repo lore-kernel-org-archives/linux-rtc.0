@@ -1,19 +1,19 @@
-Return-Path: <rtc-linux+bncBDSJR27JS4DBB7GNYK6AKGQEH3S74VQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBDSJR27JS4DBB6WNYK6AKGQEZZNIOQQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from authsmtp.register.it (authsmtp91.register.it. [195.110.122.176])
-        by gmr-mx.google.com with ESMTPS id i198si139430wmd.2.2016.07.21.03.42.04
+Received: from authsmtp.register.it (authsmtp77.register.it. [195.110.122.162])
+        by gmr-mx.google.com with ESMTPS id p199si12237wmd.1.2016.07.21.03.42.02
         for <rtc-linux@googlegroups.com>
         (version=TLS1 cipher=AES128-SHA bits=128/128);
-        Thu, 21 Jul 2016 03:42:04 -0700 (PDT)
+        Thu, 21 Jul 2016 03:42:02 -0700 (PDT)
 From: =?UTF-8?q?Beno=C3=AEt=20Th=C3=A9baudeau?= <benoit@wsystem.com>
 To: rtc-linux@googlegroups.com
 Cc: linux-kernel@vger.kernel.org,
 	Alessandro Zummo <a.zummo@towertech.it>,
 	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
 	=?UTF-8?q?Beno=C3=AEt=20Th=C3=A9baudeau?= <benoit@wsystem.com>
-Subject: [rtc-linux] [PATCH 6/6] rtc: rv8803: Clear V1F when setting the time
-Date: Thu, 21 Jul 2016 12:41:32 +0200
-Message-Id: <1469097692-103146-6-git-send-email-benoit@wsystem.com>
+Subject: [rtc-linux] [PATCH 3/6] rtc: rv8803: Fix read day of week
+Date: Thu, 21 Jul 2016 12:41:29 +0200
+Message-Id: <1469097692-103146-3-git-send-email-benoit@wsystem.com>
 In-Reply-To: <1469097692-103146-1-git-send-email-benoit@wsystem.com>
 References: <1469097692-103146-1-git-send-email-benoit@wsystem.com>
 MIME-Version: 1.0
@@ -27,34 +27,39 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-V1F indicates that the time accuracy may have been compromised because
-of a voltage drop (possibly only temporary) below VLOW1, which stops the
-temperature compensation. When the time is set, the accuracy is
-restored, so V1F should be cleared in order to indicate this and to be
-able to detect the next temperature compensation loss. This is the same
-principle as for V2F, which is cleared when the time is set to indicate
-that the time is no longer invalid and to be able to detect the next
-data loss.
+The Weekday register is encoded as 2^tm_wday, with tm_wday in 0..6, so
+using tm_wday =3D ffs(reg) to fill tm_wday from the register value is
+wrong because this gives the expected value + 1. This could be fixed as
+tm_wday =3D ffs(reg) - 1, but tm_wday =3D ilog2(reg) works as well and is
+more direct.
 
 Signed-off-by: Beno=C3=AEt Th=C3=A9baudeau <benoit@wsystem.com>
 ---
- drivers/rtc/rtc-rv8803.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/rtc/rtc-rv8803.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/rtc/rtc-rv8803.c b/drivers/rtc/rtc-rv8803.c
-index 24c688e..9a2f6a9 100644
+index e740c83..aa1d6b6 100644
 --- a/drivers/rtc/rtc-rv8803.c
 +++ b/drivers/rtc/rtc-rv8803.c
-@@ -265,7 +265,7 @@ static int rv8803_set_time(struct device *dev, struct r=
+@@ -13,6 +13,7 @@
+=20
+ #include <linux/bcd.h>
+ #include <linux/bitops.h>
++#include <linux/log2.h>
+ #include <linux/i2c.h>
+ #include <linux/interrupt.h>
+ #include <linux/kernel.h>
+@@ -145,7 +146,7 @@ static int rv8803_get_time(struct device *dev, struct r=
 tc_time *tm)
- 	}
-=20
- 	ret =3D rv8803_write_reg(rv8803->client, RV8803_FLAG,
--			       flags & ~RV8803_FLAG_V2F);
-+			       flags & ~(RV8803_FLAG_V1F | RV8803_FLAG_V2F));
-=20
- 	mutex_unlock(&rv8803->flags_lock);
-=20
+ 	tm->tm_sec  =3D bcd2bin(date[RV8803_SEC] & 0x7f);
+ 	tm->tm_min  =3D bcd2bin(date[RV8803_MIN] & 0x7f);
+ 	tm->tm_hour =3D bcd2bin(date[RV8803_HOUR] & 0x3f);
+-	tm->tm_wday =3D ffs(date[RV8803_WEEK] & 0x7f);
++	tm->tm_wday =3D ilog2(date[RV8803_WEEK] & 0x7f);
+ 	tm->tm_mday =3D bcd2bin(date[RV8803_DAY] & 0x3f);
+ 	tm->tm_mon  =3D bcd2bin(date[RV8803_MONTH] & 0x1f) - 1;
+ 	tm->tm_year =3D bcd2bin(date[RV8803_YEAR]) + 100;
 --=20
 2.5.0
 
