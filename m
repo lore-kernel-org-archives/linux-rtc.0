@@ -1,28 +1,23 @@
-Return-Path: <rtc-linux+bncBCMILY6JWQBBBUXT725QKGQE64XZZBY@googlegroups.com>
+Return-Path: <rtc-linux+bncBDSJR27JS4DBBWFJYS6AKGQEBK567LI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-MIME-Version: 1.0
-Received: from wens.csie.org (mirror2.csie.ntu.edu.tw. [140.112.30.76])
-        by gmr-mx.google.com with ESMTPS id ph9si558418pac.1.2016.07.08.07.33.54
+Received: from hostingsmtp.register.it (hostingsmtp71.register.it. [81.88.56.31])
+        by gmr-mx.google.com with ESMTPS id y7si299940wmd.0.2016.07.21.11.30.47
         for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 08 Jul 2016 07:33:54 -0700 (PDT)
-From: Chen-Yu Tsai <wens@csie.org>
-To: Lee Jones <lee.jones@linaro.org>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Maxime Ripard <maxime.ripard@free-electrons.com>
-Cc: Chen-Yu Tsai <wens@csie.org>,
-	linux-kernel@vger.kernel.org,
-	rtc-linux@googlegroups.com,
-	devicetree@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org
-Subject: [rtc-linux] [PATCH v5 7/7] ARM: dts: sun9i: Switch to the AC100 RTC
- clock outputs for osc32k
-Date: Fri,  8 Jul 2016 22:33:42 +0800
-Message-Id: <1467988422-17934-8-git-send-email-wens@csie.org>
-In-Reply-To: <1467988422-17934-1-git-send-email-wens@csie.org>
-References: <1467988422-17934-1-git-send-email-wens@csie.org>
+        (version=TLS1 cipher=AES128-SHA bits=128/128);
+        Thu, 21 Jul 2016 11:30:47 -0700 (PDT)
+Date: Thu, 21 Jul 2016 20:30:46 +0200 (CEST)
+From: =?UTF-8?Q?Beno=C3=AEt_Th=C3=A9baudeau?= <benoit@wsystem.com>
 Reply-To: rtc-linux@googlegroups.com
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+	linux-kernel <linux-kernel@vger.kernel.org>,
+	rtc-linux <rtc-linux@googlegroups.com>
+Message-ID: <664693872.422612.1469125846237.JavaMail.open-xchange@popperamen03.register.it>
+In-Reply-To: <20160721111008.GE4446@piout.net>
+References: <1469097692-103146-1-git-send-email-benoit@wsystem.com> <1469097692-103146-4-git-send-email-benoit@wsystem.com> <20160721111008.GE4446@piout.net>
+Subject: =?UTF-8?Q?=5Brtc=2Dlinux=5D_Re=3A_=5BPATCH_4=2F6=5D_rtc=3A_rv8803=3A_Always_appl?=
+	=?UTF-8?Q?y_the_I=C2=B2C_workaround?=
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -32,88 +27,70 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-The 32.768 kHz clock inside the A80 SoC is fed from an external source,
-typically the AC100 RTC module.
+On 21/07/2016 at 14:34, Beno=C3=AEt Th=C3=A9baudeau wrote:
+> On 21/07/2016 at 13:10, Alexandre Belloni wrote:
+>> On 21/07/2016 at 12:41:30 +0200, Beno=C3=AEt Th=C3=A9baudeau wrote :
+>>> The I=C2=B2C NACK issue of the RV-8803 may occur after any I=C2=B2C STA=
+RT
+>>> condition, depending on the timings. Consequently, the workaround must
+>>> be applied for all the I=C2=B2C transfers.
+>>>
+>>> This commit abstracts the I=C2=B2C transfer code into register access
+>>> functions. This avoids duplicating the I=C2=B2C workaround everywhere. =
+This
+>>> also avoids the duplication of the code handling the return value of
+>>> i2c_smbus_read_i2c_block_data(). Error messages are issued in case of
+>>> definitive register access failures (if the workaround fails). This
+>>> change also makes the I=C2=B2C transfer return value checks consistent.
+>>>
+>>
+>> Well, my initial idea was that the workaround is actually needed only
+>> for operations that are not restartable from userspace.
+>>
+>> Did you it that bug? On which RTC?
+>
+> No, I've not seen that bug. However, the errata sheet says that this issu=
+e may
+> occur if two consecutive I=C2=B2C START conditions are slightly more than=
+ 950 ms
+> apart. It does not even say that this is restricted to I=C2=B2C transfers
+> addressing
+> this RTC. Moreover, if the time is read or set from userspace, this might
+> occur
+> at any time relatively to an RTC interrupt or to a previous time read/set
+> operation, so possibly 950 ms afterwards.
+>
+> All in all, it's safer and easier to always apply this workaround, all th=
+e
+> more
+> it is applied at almost no cost when there is no issue.
 
-Make the osc32k placeholder a fixed-factor clock so board dts files can
-specify its source.
+To fully answer your questions, it's the job of the driver to execute the
+userspace requests properly without returning spurious errors. Userspace mi=
+ght
+consider that such errors are definitive and that there is no reason to try=
+ and
+restart the operation, which could cause all sorts of issues. In other word=
+s,
+the driver should not rely on userspace operation restarts as a kind of
+workaround if it can easily handle this itself.
 
-Signed-off-by: Chen-Yu Tsai <wens@csie.org>
----
-Changes since v4: none
-Changes since v3: none
-Changes since v2: none
-Changes since v1: none
----
- arch/arm/boot/dts/sun9i-a80-cubieboard4.dts | 5 +++++
- arch/arm/boot/dts/sun9i-a80-optimus.dts     | 5 +++++
- arch/arm/boot/dts/sun9i-a80.dtsi            | 9 +++------
- 3 files changed, 13 insertions(+), 6 deletions(-)
+Also, the kernel itself (not only userspace) may read the RTC time (with
+CONFIG_RTC_HCTOSYS), without userspace caring.
 
-diff --git a/arch/arm/boot/dts/sun9i-a80-cubieboard4.dts b/arch/arm/boot/dts/sun9i-a80-cubieboard4.dts
-index cf2f4b72a841..04b014603659 100644
---- a/arch/arm/boot/dts/sun9i-a80-cubieboard4.dts
-+++ b/arch/arm/boot/dts/sun9i-a80-cubieboard4.dts
-@@ -103,6 +103,11 @@
- 	allwinner,drive = <SUN4I_PINCTRL_40_MA>;
- };
- 
-+&osc32k {
-+	/* osc32k input is from AC100 */
-+	clocks = <&ac100_rtc 0>;
-+};
-+
- &pio {
- 	led_pins_cubieboard4: led-pins@0 {
- 		allwinner,pins = "PH6", "PH17";
-diff --git a/arch/arm/boot/dts/sun9i-a80-optimus.dts b/arch/arm/boot/dts/sun9i-a80-optimus.dts
-index e35c06c162a7..fd874ded890e 100644
---- a/arch/arm/boot/dts/sun9i-a80-optimus.dts
-+++ b/arch/arm/boot/dts/sun9i-a80-optimus.dts
-@@ -152,6 +152,11 @@
- 	status = "okay";
- };
- 
-+&osc32k {
-+	/* osc32k input is from AC100 */
-+	clocks = <&ac100_rtc 0>;
-+};
-+
- &pio {
- 	led_pins_optimus: led-pins@0 {
- 		allwinner,pins = "PH0", "PH1";
-diff --git a/arch/arm/boot/dts/sun9i-a80.dtsi b/arch/arm/boot/dts/sun9i-a80.dtsi
-index f68b3242b33a..dd11115ec087 100644
---- a/arch/arm/boot/dts/sun9i-a80.dtsi
-+++ b/arch/arm/boot/dts/sun9i-a80.dtsi
-@@ -148,15 +148,12 @@
- 
- 		/*
- 		 * The 32k clock is from an external source, normally the
--		 * AC100 codec/RTC chip. This clock is by default enabled
--		 * and clocked at 32768 Hz, from the oscillator connected
--		 * to the AC100. It is configurable, but no such driver or
--		 * bindings exist yet.
-+		 * AC100 codec/RTC chip. This serves as a placeholder for
-+		 * board dts files to specify the source.
- 		 */
- 		osc32k: osc32k_clk {
- 			#clock-cells = <0>;
--			compatible = "fixed-clock";
--			clock-frequency = <32768>;
-+			compatible = "fixed-factor-clock";
- 			clock-output-names = "osc32k";
- 		};
- 
--- 
-2.8.1
+I'm rather working with the RX8900.
 
--- 
+Best regards,
+Beno=C3=AEt
+
+--=20
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+---=20
+You received this message because you are subscribed to the Google Groups "=
+rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an e=
+mail to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
