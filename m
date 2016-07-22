@@ -1,21 +1,37 @@
-Return-Path: <rtc-linux+bncBDSJBYGBRIMBB4OP6W5QKGQENWI7V2I@googlegroups.com>
+Return-Path: <rtc-linux+bncBCMILY6JWQBBB2HKYW6AKGQESVYR2EI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id f10si179857wmg.2.2016.07.06.13.20.01
-        for <rtc-linux@googlegroups.com>;
-        Wed, 06 Jul 2016 13:20:01 -0700 (PDT)
-Date: Wed, 6 Jul 2016 22:20:00 +0200
-From: Maxime Ripard <maxime.ripard@free-electrons.com>
-To: Stephan Roslen <stephan@roslen.de>
-Cc: a.zummo@towertech.it, alexandre.belloni@free-electrons.com,
-	wens@csie.org, rtc-linux@googlegroups.com
-Subject: [rtc-linux] Re: [PATCH] rtc: sunxi: use external oscillator
-Message-ID: <20160706202000.GC4247@lukather>
-References: <577CC494.8020103@roslen.de>
+Received: from smtp.csie.ntu.edu.tw (smtp.csie.ntu.edu.tw. [140.112.30.61])
+        by gmr-mx.google.com with ESMTPS id i136si1627171pfe.1.2016.07.21.18.22.48
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 21 Jul 2016 18:22:48 -0700 (PDT)
+Received: from mail-io0-f176.google.com (mail-io0-f176.google.com [209.85.223.176])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	(Authenticated sender: b93043)
+	by smtp.csie.ntu.edu.tw (Postfix) with ESMTPSA id 5ECAF2072C
+	for <rtc-linux@googlegroups.com>; Fri, 22 Jul 2016 09:22:46 +0800 (CST)
+Received: by mail-io0-f176.google.com with SMTP id q83so92847073iod.1
+        for <rtc-linux@googlegroups.com>; Thu, 21 Jul 2016 18:22:46 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="+nBD6E3TurpgldQp"
-In-Reply-To: <577CC494.8020103@roslen.de>
+In-Reply-To: <146914709427.8780.16475894348537760808@resonance>
+References: <1467302331-9663-1-git-send-email-wens@csie.org>
+ <1467302331-9663-5-git-send-email-wens@csie.org> <146800297598.73491.13472152266331488346@resonance>
+ <CAGb2v67ft=EktCcfGFdBN1K4SoOyK+Stz2WuvqScMmRjoBWxfA@mail.gmail.com> <146914709427.8780.16475894348537760808@resonance>
+From: Chen-Yu Tsai <wens@csie.org>
+Date: Fri, 22 Jul 2016 09:22:25 +0800
+Message-ID: <CAGb2v65x_3b84mRJMkt2e7-rbbyYQ3Zz05hS3GuH=P9v8ecwpA@mail.gmail.com>
+Subject: [rtc-linux] Re: [PATCH v4 4/7] rtc: ac100: Add clk output support
+To: Michael Turquette <mturquette@baylibre.com>
+Cc: Chen-Yu Tsai <wens@csie.org>, Lee Jones <lee.jones@linaro.org>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>, Rob Herring <robh+dt@kernel.org>,
+	Mark Rutland <mark.rutland@arm.com>, Maxime Ripard <maxime.ripard@free-electrons.com>,
+	Stephen Boyd <sboyd@codeaurora.org>,
+	linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, rtc-linux@googlegroups.com,
+	linux-clk <linux-clk@vger.kernel.org>, devicetree <devicetree@vger.kernel.org>,
+	linux-kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -25,102 +41,95 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
+On Fri, Jul 22, 2016 at 8:24 AM, Michael Turquette
+<mturquette@baylibre.com> wrote:
+> Quoting Chen-Yu Tsai (2016-07-13 20:34:34)
+>> On Sat, Jul 9, 2016 at 2:36 AM, Michael Turquette
+>> <mturquette@baylibre.com> wrote:
+>> > Quoting Chen-Yu Tsai (2016-06-30 08:58:48)
+>> >> +static long ac100_clkout_round_rate(struct clk_hw *hw, unsigned long rate,
+>> >> +                                   unsigned long prate)
+>> >> +{
+>> >> +       unsigned long best_rate = 0, tmp_rate, tmp_prate;
+>> >> +       int i;
+>> >> +
+>> >> +       if (prate == AC100_RTC_32K_RATE)
+>> >> +               return divider_round_rate(hw, rate, &prate, NULL,
+>> >> +                                         AC100_CLKOUT_DIV_WIDTH,
+>> >> +                                         CLK_DIVIDER_POWER_OF_TWO);
+>> >> +
+>> >> +       for (i = 0; ac100_clkout_prediv[i].div; i++) {
+>> >> +               tmp_prate = DIV_ROUND_UP(prate, ac100_clkout_prediv[i].val);
+>> >> +               tmp_rate = divider_round_rate(hw, rate, &tmp_prate, NULL,
+>> >> +                                             AC100_CLKOUT_DIV_WIDTH,
+>> >> +                                             CLK_DIVIDER_POWER_OF_TWO);
+>> >> +
+>> >> +               if (tmp_rate > rate)
+>> >> +                       continue;
+>> >> +               if (rate - tmp_rate < best_rate - tmp_rate)
+>> >> +                       best_rate = tmp_rate;
+>> >> +       }
+>> >> +
+>> >> +       return best_rate;
+>> >> +}
+>> >> +
+>> >> +static int ac100_clkout_determine_rate(struct clk_hw *hw,
+>> >> +                                      struct clk_rate_request *req)
+>> >> +{
+>> >> +       struct clk_hw *best_parent;
+>> >> +       unsigned long best = 0;
+>> >> +       int i, num_parents = clk_hw_get_num_parents(hw);
+>> >> +
+>> >> +       for (i = 0; i < num_parents; i++) {
+>> >> +               struct clk_hw *parent = clk_hw_get_parent_by_index(hw, i);
+>> >> +               unsigned long tmp, prate = clk_hw_get_rate(parent);
+>> >> +
+>> >> +               tmp = ac100_clkout_round_rate(hw, req->rate, prate);
+>> >> +
+>> >> +               if (tmp > req->rate)
+>> >> +                       continue;
+>> >> +               if (req->rate - tmp < req->rate - best) {
+>> >> +                       best = tmp;
+>> >> +                       best_parent = parent;
+>> >> +               }
+>> >> +       }
+>> >> +
+>> >> +       if (!best)
+>> >> +               return -EINVAL;
+>> >> +
+>> >> +       req->best_parent_hw = best_parent;
+>> >> +       req->best_parent_rate = best;
+>> >> +       req->rate = best;
+>> >> +
+>> >> +       return 0;
+>> >> +}
+>> >
+>> > You only need one of the two functions above. Keep the .determine_rate
+>> > callback and drop .round_rate.
+>>
+>> Only .round_rate is set in the clk_ops. ac100_clkout_round_rate just
+>> serves to split out some of the calculations done per parent.
+>
+> If you only use .round_rate, shouldn't you drop .determine_rate then?
 
---+nBD6E3TurpgldQp
-Content-Type: text/plain; charset=UTF-8
-Content-Disposition: inline
+Oops! I meant we only set .determine_rate. ac100_clkout_round_rate is
+called in the per parent loop in .determine_rate.
 
-On Wed, Jul 06, 2016 at 10:43:00AM +0200, Stephan Roslen wrote:
-> We noticed some serious drift problems in Allwinner A20 RTCs. I
-> found out, that the oscillator source needs to be set to an external
-> 32.768 KHz oscillator instead of the internal 32.000 KHz oscillator.
+ChenYu
 
-You should wrap the commit description.
-
-> 
-> Signed-off-by: Stephan Roslen <stephan@roslen.de>
-> ---
->  drivers/rtc/rtc-sunxi.c | 25 +++++++++++++++++++++++++
->  1 file changed, 25 insertions(+)
-> 
-> diff --git a/drivers/rtc/rtc-sunxi.c b/drivers/rtc/rtc-sunxi.c
-> index abada60..001256e 100644
-> --- a/drivers/rtc/rtc-sunxi.c
-> +++ b/drivers/rtc/rtc-sunxi.c
-> @@ -34,9 +34,19 @@
->  #include <linux/types.h>
->  
->  #define SUNXI_LOSC_CTRL				0x0000
-> +
-> +/* magic number required to set bit 0 */
-> +#define SUNXI_LOSC_CTRL_KEY			0x16AA0000
-> +
-> +#define SUNXI_LOSC_CTRL_AUTO_SWT_EN		BIT(14)
-> +
->  #define SUNXI_LOSC_CTRL_RTC_HMS_ACC		BIT(8)
->  #define SUNXI_LOSC_CTRL_RTC_YMD_ACC		BIT(7)
->  
-> +#define SUNXI_LOSC_CTRL_EXT_GSM1		BIT(3)
-> +#define SUNXI_LOSC_CTRL_EXT_GSM0		BIT(2)
-> +#define SUNXI_LOSC_CTRL_SRC_SEL			BIT(0)
-> +
->  #define SUNXI_RTC_YMD				0x0004
->  
->  #define SUNXI_RTC_HMS				0x0008
-> @@ -438,6 +448,8 @@ static int sunxi_rtc_probe(struct platform_device *pdev)
->  	struct resource *res;
->  	int ret;
->  
-> +	uint32_t loscctrl;
-> +
->  	chip = devm_kzalloc(&pdev->dev, sizeof(*chip), GFP_KERNEL);
->  	if (!chip)
->  		return -ENOMEM;
-> @@ -468,6 +480,19 @@ static int sunxi_rtc_probe(struct platform_device *pdev)
->  		return -ENODEV;
->  	}
->  
-> +	loscctrl = readl(chip->base + SUNXI_LOSC_CTRL);
-> +	loscctrl &= ~(SUNXI_LOSC_CTRL_AUTO_SWT_EN);
-> +	loscctrl |= (SUNXI_LOSC_CTRL_SRC_SEL | SUNXI_LOSC_CTRL_KEY);
-> +	loscctrl |= SUNXI_LOSC_CTRL_EXT_GSM1;
-> +	writel(loscctrl, chip->base + SUNXI_LOSC_CTRL);
-> +	udelay(100);
-
-Why is that udelay needed?
-
-> +
-> +	loscctrl = readl(chip->base + SUNXI_LOSC_CTRL);
-> +	if (!(loscctrl & SUNXI_LOSC_CTRL_SRC_SEL)) {
-> +		dev_err(&pdev->dev, "Error: Set LOSC to external failed.\n");
-> +		dev_err(&pdev->dev, "Warning: RTC time will be wrong!\n");
-> +	}
-> +
-
-This isn't needed
-
-The issue is actually worse than that.
-
-That register controls the losc source for the whole clock tree, so it
-will affect every clock in the system.
-
-In order to have that correctly propagated, you should register a new
-mux here in the clock framework, and have all the other clocks using
-that mux as a parent.
-
-That's going to be tricky, because the clocks usually probe way
-earlier than the RTC driver. So I'm guessing you could do a clock
-driver that maps the registers, register its clock, and then when the
-RTC probes just takes over what has been setup already by the clock
-driver. This also means removing the ability for the RTC to be
-compiled as a module.
-
-Maxime
-
--- 
-Maxime Ripard, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+>
+> Regards,
+> Mike
+>
+>>
+>> > Otherwise the rest of the clk support looks great to me. Feel free to
+>> > add:
+>> >
+>> > Reviewed-by: Michael Turquette <mturquette@baylibre.com>
+>>
+>> Thanks!
+>>
+>> ChenYu
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
@@ -131,26 +140,3 @@ before submitting a driver.
 You received this message because you are subscribed to the Google Groups "rtc-linux" group.
 To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
-
---+nBD6E3TurpgldQp
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJXfWfwAAoJEBx+YmzsjxAg1+kP/ifCIpM8kP6BlHzSVAnO6Fv9
-iGBNj9UqScYxRZDYmXHg3dt/+hzG/rlg8zkkf+G1PHjRcp+8v21ND+LBGt78RELU
-9yaZXXcDQkhJRQgH/REBDXHak1CGwsC2Dwvv5OyJZm48kMjtoLBevyTiE1wij6N4
-QVMXuA3cZhLXdV2IIy5+nno3MBRv7HG2lllCuG/L5l6ETsBMRpiexzx6ImF2KSHU
-FH13lEpQ1TIuD88iIi8P46lgBhvK0QGNDe5nGMppgal/kCoYDxB2H6pfTdsX4xow
-RjEv1gqmicsNhKTPSCjoYNM7ajq5TpPV1V4KrtShEjKnXVX5s1QAyyRyELEbkxDS
-zeMPacSRYmNnsxi9da1jLYBE6SAHOdrhh7VTNFGiblAjOr+2k3KNNmtfVa4QWW8f
-dedr4/RQmdNFptZaOUvJnJDv/cfgPPLR9DofMUkSzWZCsXp5O7cMhnMkJuCCR/fN
-McLLVY/IvVG1AFiBbaJ3NmMHLKRQfJSHDX1rzBHPLUVy2v3ZM/werVWLKwVyruHz
-DsttVn+zk78APKH1dU3UhNz1/w/GsHeqY+bXQIipgmVQAliH9UL/M9ljzGYAXLHF
-nQDAjZgzzhhiZ7Mza1hjhocQm6vwq/Bt49XZ8GvvDNTizuJmf9wwI0Qr+RIwOdss
-bDcwmpHMZnIKFEDaFDbG
-=KWoq
------END PGP SIGNATURE-----
-
---+nBD6E3TurpgldQp--
