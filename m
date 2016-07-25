@@ -1,23 +1,21 @@
-Return-Path: <rtc-linux+bncBDX5ZRH7XQGRBWVF765QKGQEU72PP6Q@googlegroups.com>
+Return-Path: <rtc-linux+bncBCKYNX7Y3IMBB7HN3G6AKGQEQIY7DDQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail-pa0-x235.google.com (mail-pa0-x235.google.com. [2607:f8b0:400e:c03::235])
-        by gmr-mx.google.com with ESMTPS id ph9si621332pac.1.2016.07.08.09.20.42
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 08 Jul 2016 09:20:42 -0700 (PDT)
-Received: by mail-pa0-x235.google.com with SMTP id fi15so366089pac.1
-        for <rtc-linux@googlegroups.com>; Fri, 08 Jul 2016 09:20:42 -0700 (PDT)
-From: Kevin Hilman <khilman@baylibre.com>
-To: Ben Dooks <ben.dooks@codethink.co.uk>
-Cc: linux-kernel@lists.codethink.co.uk,  linux-amlogic@lists.infradead.org,  rtc-linux@googlegroups.com,  kh@codethink.co.uk,  a.zummo@towertech.it,  narmstrong@baylibre.com,  devicetree@vger.kernel.org,  alexandre.belloni@free-electrons.com,  frowand.list@gmail.com
-Subject: [rtc-linux] Re: [PATCH v3 0/2] AMLogic Meson SoC RTC driver
-References: <1467748089-14718-1-git-send-email-ben.dooks@codethink.co.uk>
-Date: Fri, 08 Jul 2016 09:20:40 -0700
-In-Reply-To: <1467748089-14718-1-git-send-email-ben.dooks@codethink.co.uk>
-	(Ben Dooks's message of "Tue, 5 Jul 2016 20:48:06 +0100")
-Message-ID: <7hinwg85k7.fsf@baylibre.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id r197si1027982wmf.2.2016.07.25.13.30.52
+        for <rtc-linux@googlegroups.com>;
+        Mon, 25 Jul 2016 13:30:52 -0700 (PDT)
+Date: Mon, 25 Jul 2016 22:30:52 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Stefan Christ <s.christ@phytec.de>
+Cc: a.zummo@towertech.it, rtc-linux@googlegroups.com
+Subject: [rtc-linux] Re: [PATCH 2/2] rtc: m41t80: add suspend handlers for
+ alarm IRQ
+Message-ID: <20160725203052.GM11405@piout.net>
+References: <1467719597-5593-1-git-send-email-s.christ@phytec.de>
+ <1467719597-5593-2-git-send-email-s.christ@phytec.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1467719597-5593-2-git-send-email-s.christ@phytec.de>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -27,30 +25,21 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Ben Dooks <ben.dooks@codethink.co.uk> writes:
+On 05/07/2016 at 13:53:17 +0200, Stefan Christ wrote :
+> Allow the alarm IRQ of RTC to be used as a wakeup source for the system
+> suspend.
+> 
+> Signed-off-by: Stefan Christ <s.christ@phytec.de>
+> ---
+>  drivers/rtc/rtc-m41t80.c | 25 +++++++++++++++++++++++++
+>  1 file changed, 25 insertions(+)
+> 
+Applied, thanks.
 
-> This series adds support for the on SoC RTC driver on the
-> AMLogic Meson devices.
-
--ECONFUSED
-
-In reply to this patch, there are two other "PATCH v3 0/2" replies, an
-then the two patches themselves, have "PATCH n/4" subjects when one
-would expect "PATCH n/2" subjects.
-
-Might I recommend that you use 'git format-patch --cover-letter
---subject-prefix="PATCH vX"' when formatting your series.  Doing that
-will take care of all the numbering for you.
-
-Anyways, I was able to test this version with the DTs from the previous
-version, and it works ok.
-
-Can you respin one more time (including the Tested-by) so the RTC
-maintainers can pick it up?
-
-Thanks,
-
-Kevin
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
