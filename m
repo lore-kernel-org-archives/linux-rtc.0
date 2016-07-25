@@ -1,24 +1,23 @@
-Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBBPKQK6AKGQEGKMFHDA@googlegroups.com>
+Return-Path: <rtc-linux+bncBCAP3QEPQIDBBP7U226AKGQEQT4SUDQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id s21si318177wme.1.2016.07.09.01.25.41
-        for <rtc-linux@googlegroups.com>;
-        Sat, 09 Jul 2016 01:25:41 -0700 (PDT)
-Date: Sat, 9 Jul 2016 10:25:40 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Robert Jarzmik <robert.jarzmik@free.fr>
-Cc: rtc-linux@googlegroups.com, Alessandro Zummo <a.zummo@towertech.it>,
-	linux-kernel@vger.kernel.org, Daniel Mack <daniel@zonque.org>,
-	Haojian Zhuang <haojian.zhuang@gmail.com>,
-	linux-arm-kernel@lists.infradead.org
-Subject: [rtc-linux] Re: [PATCH 5/5] rtc: v3020: move rtc-v3020.h to platform_data
-Message-ID: <20160709082540.GO22202@piout.net>
-References: <1466978583-13310-1-git-send-email-alexandre.belloni@free-electrons.com>
- <1466978583-13310-5-git-send-email-alexandre.belloni@free-electrons.com>
- <87bn2745lb.fsf@belgarion.home>
+Received: from mail-pf0-x241.google.com (mail-pf0-x241.google.com. [2607:f8b0:400e:c00::241])
+        by gmr-mx.google.com with ESMTPS id z4si3267980pam.0.2016.07.25.00.05.35
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 25 Jul 2016 00:05:35 -0700 (PDT)
+Received: by mail-pf0-x241.google.com with SMTP id i6so11420863pfe.0
+        for <rtc-linux@googlegroups.com>; Mon, 25 Jul 2016 00:05:35 -0700 (PDT)
+From: Wei Yongjun <weiyj.lk@gmail.com>
+To: Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: Wei Yongjun <weiyj.lk@gmail.com>,
+	rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org
+Subject: [rtc-linux] [PATCH -next] rtc: asm9260: Fix missing spin_lock_init()
+Date: Mon, 25 Jul 2016 07:05:29 +0000
+Message-Id: <1469430329-8737-1-git-send-email-weiyj.lk@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <87bn2745lb.fsf@belgarion.home>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -28,38 +27,30 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 09/07/2016 at 09:45:52 +0200, Robert Jarzmik wrote :
-> Alexandre Belloni <alexandre.belloni@free-electrons.com> writes:
-> 
-> > rtc-v3020.h belongs to include/linux/platform_data/
-> >
-> > Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-> > ---
-> > Cc: Daniel Mack <daniel@zonque.org>
-> > Cc: Haojian Zhuang <haojian.zhuang@gmail.com>
-> > Cc: Robert Jarzmik <robert.jarzmik@free.fr>
-> > Cc: linux-arm-kernel@lists.infradead.org
-> >  arch/arm/mach-pxa/cm-x270.c                   | 2 +-
-> >  arch/arm/mach-pxa/cm-x300.c                   | 2 +-
-> >  arch/arm/mach-pxa/em-x270.c                   | 2 +-
-> >  drivers/rtc/rtc-v3020.c                       | 2 +-
-> >  include/linux/{ => platform_data}/rtc-v3020.h | 0
-> >  5 files changed, 4 insertions(+), 4 deletions(-)
-> >  rename include/linux/{ => platform_data}/rtc-v3020.h (100%)
-> For mach-pxa :
-> Acked-by: Robert Jarzmik <robert.jarzmik@free.fr>
-> 
-> Is this going through your rtc tree, or should I pick it up through the pxa one ?
-> 
+The driver allocates the spinlock but not initialize it.
+Use spin_lock_init() on it to initialize it correctly.
 
-Actually, I've pushed it through rtc-next yesterday. I've just added
-your ack now.
+This is detected by Coccinelle semantic patch.
+
+Signed-off-by: Wei Yongjun <weiyj.lk@gmail.com>
+---
+ drivers/rtc/rtc-asm9260.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/drivers/rtc/rtc-asm9260.c b/drivers/rtc/rtc-asm9260.c
+index 355fdb9..5ddcc91 100644
+--- a/drivers/rtc/rtc-asm9260.c
++++ b/drivers/rtc/rtc-asm9260.c
+@@ -267,6 +267,7 @@ static int asm9260_rtc_probe(struct platform_device *pdev)
+ 	if (!priv)
+ 		return -ENOMEM;
+ 
++	spin_lock_init(&priv->lock);
+ 	priv->dev = &pdev->dev;
+ 	platform_set_drvdata(pdev, priv);
+ 
 
 
--- 
-Alexandre Belloni, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
