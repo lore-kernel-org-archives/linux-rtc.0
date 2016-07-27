@@ -1,20 +1,29 @@
-Return-Path: <rtc-linux+bncBCKYNX7Y3IMBB47P725QKGQEHPU4FMY@googlegroups.com>
+Return-Path: <rtc-linux+bncBDQ2L75W5QGBBSMD4S6AKGQER2ENRVI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id q124si121760wme.3.2016.07.08.07.25.55
-        for <rtc-linux@googlegroups.com>;
-        Fri, 08 Jul 2016 07:25:55 -0700 (PDT)
-Date: Fri, 8 Jul 2016 16:25:54 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Keerthy <j-keerthy@ti.com>
-Cc: a.zummo@towertech.it, nm@ti.com, rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH] rtc: ds1307: Fix relying on reset value for weekday
-Message-ID: <20160708142554.GI22202@piout.net>
-References: <1464778147-22075-1-git-send-email-j-keerthy@ti.com>
+Received: from mezzanine.sirena.org.uk (mezzanine.sirena.org.uk. [2400:8900::f03c:91ff:fedb:4f4])
+        by gmr-mx.google.com with ESMTPS id yt6si1721432pac.2.2016.07.27.11.47.37
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 27 Jul 2016 11:47:37 -0700 (PDT)
+Date: Wed, 27 Jul 2016 19:47:23 +0100
+From: Mark Brown <broonie@kernel.org>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: Sergei Ianovich <ynvich@gmail.com>,
+	Akinobu Mita <akinobu.mita@gmail.com>, rtc-linux@googlegroups.com,
+	devicetree@vger.kernel.org, Alessandro Zummo <a.zummo@towertech.it>
+Message-ID: <20160727184723.GZ11806@sirena.org.uk>
+References: <1467026362-29446-1-git-send-email-akinobu.mita@gmail.com>
+ <1467026362-29446-2-git-send-email-akinobu.mita@gmail.com>
+ <1467028249.3182.11.camel@gmail.com>
+ <20160627124432.GI29249@piout.net>
+ <1467040517.3182.34.camel@gmail.com>
+ <20160719151314.GH7132@piout.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1464778147-22075-1-git-send-email-j-keerthy@ti.com>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="Er97KPJOrxRt+yKZ"
+In-Reply-To: <20160719151314.GH7132@piout.net>
+Subject: [rtc-linux] Re: [PATCH v2 1/2] rtc: ds1302: add register access
+ abstraction layer
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -24,33 +33,26 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 01/06/2016 at 16:19:07 +0530, Keerthy wrote :
-> The reset value of weekday is 0x1. This is wrong since
-> the reset values of the day/month/year make up to Jan 1 2001.
-> When computed weekday comes out to be Monday. On a scale
-> of 1-7(Sunday - Saturday) it should be 0x2. So we should not
-> be relying on the reset value.
-> 
-> Hence compute the wday using the current date/month/year values.
-> Check if reset wday is any different from the computed wday,
-> If different then set the wday which we computed using
-> date/month/year values.
-> 
-> Document Referred:
-> http://ww1.microchip.com/downloads/en/DeviceDoc/20002266F.pdf
-> 
-> Fixes: 1d1945d261a2af "drivers/rtc/rtc-ds1307.c: add alarm support for mcp7941x chips"
-> Signed-off-by: Keerthy <j-keerthy@ti.com>
-> ---
->  drivers/rtc/rtc-ds1307.c | 28 +++++++++++++++++++++++++++-
->  1 file changed, 27 insertions(+), 1 deletion(-)
-> 
-Applied, thanks.
 
--- 
-Alexandre Belloni, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+--Er97KPJOrxRt+yKZ
+Content-Type: text/plain; charset=UTF-8
+Content-Disposition: inline
+
+On Tue, Jul 19, 2016 at 05:13:14PM +0200, Alexandre Belloni wrote:
+
+> Ok, seeing that, now I'm thinking that switching the ds1302 driver to
+> spi was a mistake and bitbanging in the driver was the right thing to
+> do.
+> What you introduced are two drivers instead of one and the abstraction
+> is actually getting worse.
+
+> So I'm thinking the best solution is to write a proper driver bitbanging
+> microwire (maybe in the SPI subsystem) that everybody could use,
+> including old architectures.
+
+That seems to make sense to me.  We could probably accomodate in SPI,
+the programming model should be very similar so the microwire bit could
+be hidden in the driver.
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
@@ -61,3 +63,20 @@ before submitting a driver.
 You received this message because you are subscribed to the Google Groups "rtc-linux" group.
 To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
+
+--Er97KPJOrxRt+yKZ
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQEcBAEBCAAGBQJXmQG2AAoJECTWi3JdVIfQn2cH/03oacarRiEE29pto/RFuf0D
+UTULip7IsS4B4+2/4cb3YDSPBwA6xVo9J4U/Skw54OJogsMhpESulmdqyS+TB23t
+2e5c5YRWc6txNVejAwp6iOYMTJypueJCoLcJH5Q4EPT5stCAtlZkcpt/HKZA+JOK
+66aogWisx10pylsqDLYPrQGX1hp2ln1xWxZsxk7Iamex2wzQD3N9Rm9FJK3T/CVx
+Fz9zJzzqqrNWqshcUZ+xt2Us6kgen2eHtfyMD0SjefWgyhKrDMkCZosN/TSapa4H
+49ugbRwZwJHm+n8+PeZg2E6IYTSxAgYqdpNCIA2vgzyJfM3QwhGZYFBW1quPNdY=
+=A7ou
+-----END PGP SIGNATURE-----
+
+--Er97KPJOrxRt+yKZ--
