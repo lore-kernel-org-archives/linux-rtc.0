@@ -1,23 +1,20 @@
-Return-Path: <rtc-linux+bncBD5LPQWS74GBBZWPYS6AKGQE62PXVII@googlegroups.com>
+Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBDXX426AKGQERTHI5YY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mx1.redhat.com (mx1.redhat.com. [209.132.183.28])
-        by gmr-mx.google.com with ESMTPS id r127si725253ywh.0.2016.07.21.12.52.05
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 21 Jul 2016 12:52:05 -0700 (PDT)
-Subject: [rtc-linux] Re: __rtc_read_alarm missing month/year field bug?
-To: joe.lawrence@redhat.com,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        rtc-linux@googlegroups.com
-References: <5768148E.8090304@stratus.com> <57716404.9080204@stratus.com>
-Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        Alessandro Zummo <a.zummo@towertech.it>
-From: Joe Lawrence <joe.lawrence@redhat.com>
-Message-ID: <579127E2.9040706@redhat.com>
-Date: Thu, 21 Jul 2016 15:52:02 -0400
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id i198si737271wmd.2.2016.07.28.01.00.14
+        for <rtc-linux@googlegroups.com>;
+        Thu, 28 Jul 2016 01:00:14 -0700 (PDT)
+Date: Thu, 28 Jul 2016 10:00:11 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: =?iso-8859-1?Q?Beno=EEt_Th=E9baudeau?= <benoit@wsystem.com>
+Cc: rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org,
+	Alessandro Zummo <a.zummo@towertech.it>
+Subject: [rtc-linux] Re: [PATCH 1/6] rtc: rv8803: Kconfig: Indicate rx8900 support
+Message-ID: <20160728080011.GE1494@piout.net>
+References: <1469097692-103146-1-git-send-email-benoit@wsystem.com>
 MIME-Version: 1.0
-In-Reply-To: <57716404.9080204@stratus.com>
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1469097692-103146-1-git-send-email-benoit@wsystem.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -27,43 +24,31 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 07/19/2016, Alexandre Belloni wrote:
->
-> Well like said in my previous mail, I don't think the rollover is the
-> issue here but I'm interested in knowing what conditions are leading >
-to endless interrupts.
+On 21/07/2016 at 12:41:27 +0200, Beno=C3=AEt Th=C3=A9baudeau wrote :
+> This driver supports the Epson RX8900, but this was not indicated in
+> Kconfig.
+>=20
+> Signed-off-by: Beno=C3=AEt Th=C3=A9baudeau <benoit@wsystem.com>
+> ---
+>  drivers/rtc/Kconfig | 6 +++---
+>  1 file changed, 3 insertions(+), 3 deletions(-)
+>=20
 
-Hi Alexandre,
+All applied, thanks.
 
-Unfortunately I've switched employers so I no longer have access to the
-hardware, but if I remember correctly the scenario went like this:
+--=20
+Alexandre Belloni, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
 
-  - boot machine with RTC alarm set in far future
-  - run 'hwclock' user program
-    - hwclock sync to clock tick
-      - RTC_UIE_ON
-      - RTC_UIE_OFF
-  - kernel sees RTC alarm is outstanding
-    - hpet_rtc_interrupt's start streaming in
-
-In the case of this hardware platform, there was a problem with the CMOS
-RTC read such that  hpet_rtc_interrupt / rtc_cmos_read believed that the
-RTC was busy updating ... that code would delay long enough that the
-next HPET rtc interrupt would come in right behind it and choke the CPU
-from scheduling anything else.
-
-That platform-specific bug aside, I thought I would report this
-strangeness in case it was a real bug -- looks like I didn't fully
-consider the rollover case.
-
--- Joe
-
--- 
+--=20
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+---=20
+You received this message because you are subscribed to the Google Groups "=
+rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an e=
+mail to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
