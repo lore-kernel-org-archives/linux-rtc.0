@@ -1,27 +1,21 @@
-Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBZEBTS7AKGQEEIM76EQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBCLLTU5HV4PRBTO77W6AKGQECPWH6BY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id r74si2515438wme.3.2016.08.31.09.08.03
-        for <rtc-linux@googlegroups.com>;
-        Wed, 31 Aug 2016 09:08:03 -0700 (PDT)
-Date: Wed, 31 Aug 2016 18:08:01 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Gabriele Mazzotta <gabriele.mzt@gmail.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-	matthew.garrett@nebula.com
-Subject: [rtc-linux] Re: [PATCH 1/2] rtc-cmos: Clear expired alarm after resume
-Message-ID: <20160831160801.a4b7mrzkqbdfnsyp@piout.net>
-References: <1464795615-7748-1-git-send-email-gabriele.mzt@gmail.com>
- <20160604144626.GM4594@piout.net>
- <CABFtUbQ7OWChggMPxYfpUeVCdTTtM74YpkqTF3--RT+wWkPoWQ@mail.gmail.com>
- <20160604174854.GN4594@piout.net>
- <8f29ddb1-aaf9-9769-536e-d748eb22ed67@gmail.com>
- <20160830232813.fvbfyeltgwjwzqtv@piout.net>
- <4b934eae-d887-343c-c560-72cc6887d368@gmail.com>
+Received: from mta2.parkeon.com (ip83.parkeon.com. [213.152.31.83])
+        by gmr-mx.google.com with ESMTPS id i193si867935wmg.1.2016.08.01.08.50.37
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=AES128-SHA bits=128/128);
+        Mon, 01 Aug 2016 08:50:37 -0700 (PDT)
+Subject: [rtc-linux] [PATCH 1/3] dt-binding: rtc Add DT binding for NXP 85263 RTC
+To: Alessandro Zummo <a.zummo@towertech.it>, Rob Herring <robh+dt@kernel.org>,
+ Alexandre Belloni <alexandre.belloni@free-electrons.com>
+From: Martin Fuzzey <mfuzzey@parkeon.com>
+Cc: devicetree@vger.kernel.org, rtc-linux@googlegroups.com
+Date: Mon, 01 Aug 2016 17:50:32 +0200
+Message-ID: <20160801155032.32232.68432.stgit@localhost>
+In-Reply-To: <20160801155029.32232.56063.stgit@localhost>
+References: <20160801155029.32232.56063.stgit@localhost>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <4b934eae-d887-343c-c560-72cc6887d368@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -31,86 +25,81 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 31/08/2016 at 17:05:58 +0200, Gabriele Mazzotta wrote :
-> On 31/08/2016 01:28, Alexandre Belloni wrote:
-> > Hi,
-> > 
-> > On 25/08/2016 at 16:54:18 +0200, Gabriele Mazzotta wrote :
-> >> Hi,
-> >>
-> >> were you able to verify that no other driver is affect?
-> >>
-> > 
-> > I had a closer look at the issue. I think what is happening is that you
-> > don't enter the do/while loop in cmos_resume twice. That is supposed to
-> > handle then clear the RTC_AIE bit and that is why the alarm still seems
-> > enabled.
-> > 
-> > Can you add some tracing there to understand why? It is probably also
-> > useful to know the value of cmos->suspend_ctrl in cmos_suspend.
-> 
-> cmos->suspend_ctrl is 0x2 when no alarm is set, 0x22 otherwise.
-> The only way to clear RTC_AIE is to set an alarm and wait for it to
-> expire while the system is awake.
-> 
-> > My guess is that is_intr(mask) is false and you break out of the loop at
-> > the first pass, meaning that the RTC_AIE bit is never cleared from
-> > RTC_CONTROL. That would also mean that your RTC is not setting RTC_AF
-> > after waking your PC. Am I right?
-> 
-> You are right, is_intr(mask) is false and now I see where the problem is.
-> 
-> I thought cmos_interrupt() was taking care of everything, but I've just
-> noticed that it's executed only when the system is awake. That's because
-> cmos->wake_on is not NULL, so enable_irq_wake() is not called.
-> 
-> However, not even rtc_handler() is called, so I guess the BIOS silently
-> wakes the system when an alarm expires while suspended. This means that
-> we can't update RTC_CONTROL from rtc_handler() and that we have to do it
-> from cmos_resume().
-> 
-> There's a problem with this. We don't know whether the system is waking up
-> because of an alarm or because the user resumed it. In both cases RTC_AIE
-> is set.
-> 
-> One way to solve this problem is to manually check from cmos_resume() if
-> any alarm expired while suspended. If we find such an alarm, we don't
-> break early out of the loop and let it clear the flags.
-> 
-> Is this reasonable?
-> 
+Signed-off-by: Martin Fuzzey <mfuzzey@parkeon.com>
+---
+ .../devicetree/bindings/rtc/nxp,pcf85263.txt       |   41 ++++++++++++++++++++
+ include/dt-bindings/rtc/nxp,pcf85263.h             |   14 +++++++
+ 2 files changed, 55 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/rtc/nxp,pcf85263.txt
+ create mode 100644 include/dt-bindings/rtc/nxp,pcf85263.h
 
-Yeah, I think the fix is to clear RTC_AIE in cmos_resume when now >
-alarm (same check as in your original patch) after the do/while loop.
-Also, you will need to properly handle the "missed" interrupt and call
-rtc_update_irq
-
-To be clear, something like:
-
-if (mask & RTC_AIE) {
-	...
-	if (now > alarm) {
-			rtc_update_irq(cmos->rtc, 1, mask);
-			tmp &= ~RTC_AIE;
-			CMOS_WRITE(tmp, RTC_CONTROL);
-	}
-}
-
-This limits the impact of the patch as (mask & RTC_AIE) will be false in
-the case of a properly functioning RTC.
-
-Don't forget to comment that it is a quirk, possibly mentioning the
-maker of the PC and the BIOS.
-
-The other quirk is a bit more complicated than your second fix. You
-actually have to read the alarm in cmos_suspend and then compare it with what
-you have in cmos_resume. If it has changed and is not expired then you
-have to set it back.
-
--- 
-Alexandre Belloni, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+diff --git a/Documentation/devicetree/bindings/rtc/nxp,pcf85263.txt b/Documentation/devicetree/bindings/rtc/nxp,pcf85263.txt
+new file mode 100644
+index 0000000..03b9505
+--- /dev/null
++++ b/Documentation/devicetree/bindings/rtc/nxp,pcf85263.txt
+@@ -0,0 +1,41 @@
++NXP PCF85263 I2C Real Time Clock
++
++Required properties:
++- compatible: must be: "nxp,rtc-pcf85263"
++- reg: must be the I2C address
++
++Optional properties:
++- interrupt-names: Which interrupt signal is used must be "INTA" or "INTB"
++    Defaults to "INTA"
++
++- quartz-load-capacitance: The internal capacitor to select for the quartz:
++	PCF85263_QUARTZCAP_7pF		[0]
++	PCF85263_QUARTZCAP_6pF		[1]
++	PCF85263_QUARTZCAP_12p5pF	[2] DEFAULT
++
++- quartz-drive-strength: Drive strength for the quartz:
++	PCF85263_QUARTZDRIVE_NORMAL	[0] DEFAULT
++	PCF85263_QUARTZDRIVE_LOW	[1]
++	PCF85263_QUARTZDRIVE_HIGH	[2]
++
++- quartz-low-jitter: Boolean property, if present enables low jitter mode which
++    reduces jitter at the cost of increased power consumption.
++
++- wakeup-source: mark the chip as a wakeup source, independently of
++    the availability of an IRQ line connected to the SoC.
++    This is useful if the IRQ line is connected to a PMIC or other circuit
++    that can power up the device rather than to a normal SOC interrupt.
++
++Example:
++
++rtc@51 {
++	compatible = "nxp,pcf85263";
++	reg = <0x51>;
++
++	interrupt-parent = <&gpio4>;
++	interrupts = <5 IRQ_TYPE_LEVEL_LOW>;
++	interrupt-names = "INTB";
++
++	quartz-load-capacitance = <PCF85263_QUARTZCAP_12p5pF>;
++	quartz-drive-strength = <PCF85263_QUARTZDRIVE_LOW>;
++};
+diff --git a/include/dt-bindings/rtc/nxp,pcf85263.h b/include/dt-bindings/rtc/nxp,pcf85263.h
+new file mode 100644
+index 0000000..ea87ae4
+--- /dev/null
++++ b/include/dt-bindings/rtc/nxp,pcf85263.h
+@@ -0,0 +1,14 @@
++#ifndef _DT_BINDINGS_RTC_NXP_PCF85263_H
++#define _DT_BINDINGS_RTC_NXP_PCF85263_H
++
++/* Quartz capacitance */
++#define PCF85263_QUARTZCAP_7pF		0
++#define PCF85263_QUARTZCAP_6pF		1
++#define PCF85263_QUARTZCAP_12p5pF	2
++
++/* Quartz drive strength */
++#define PCF85263_QUARTZDRIVE_NORMAL	0
++#define PCF85263_QUARTZDRIVE_LOW	1
++#define PCF85263_QUARTZDRIVE_HIGH	2
++
++#endif /* _DT_BINDINGS_RTC_NXP_PCF85263_H */
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
