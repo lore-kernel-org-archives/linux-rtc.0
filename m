@@ -1,20 +1,22 @@
-Return-Path: <rtc-linux+bncBAABBFFQSC7AKGQEPNDNCMA@googlegroups.com>
+Return-Path: <rtc-linux+bncBCLLTU5HV4PRBUG77W6AKGQETK4KBVI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
+Received: from mta2.parkeon.com (ip83.parkeon.com. [213.152.31.83])
+        by gmr-mx.google.com with ESMTPS id i198si779575wmd.2.2016.08.01.08.50.40
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=AES128-SHA bits=128/128);
+        Mon, 01 Aug 2016 08:50:40 -0700 (PDT)
+Subject: [rtc-linux] [PATCH 3/3] rtc: pcf85263: Support multiple centuries
+To: Alessandro Zummo <a.zummo@towertech.it>, Rob Herring <robh+dt@kernel.org>,
+ Alexandre Belloni <alexandre.belloni@free-electrons.com>
+From: Martin Fuzzey <mfuzzey@parkeon.com>
+Cc: devicetree@vger.kernel.org, rtc-linux@googlegroups.com
+Date: Mon, 01 Aug 2016 17:50:36 +0200
+Message-ID: <20160801155036.32232.7242.stgit@localhost>
+In-Reply-To: <20160801155029.32232.56063.stgit@localhost>
+References: <20160801155029.32232.56063.stgit@localhost>
 MIME-Version: 1.0
-Received: from root.phytec.de (mail.phytec.co.uk. [217.6.246.34])
-        by gmr-mx.google.com with ESMTP id i198si1281754wmd.2.2016.08.29.04.10.12
-        for <rtc-linux@googlegroups.com>;
-        Mon, 29 Aug 2016 04:10:12 -0700 (PDT)
-From: Wadim Egorov <w.egorov@phytec.de>
-To: linux-kernel@vger.kernel.org, rtc-linux@googlegroups.com, devicetree@vger.kernel.org, linux-rockchip@lists.infradead.org
-Cc: robh+dt@kernel.org, mark.rutland@arm.com, lee.jones@linaro.org, lgirdwood@gmail.com, broonie@kernel.org, a.zummo@towertech.it, alexandre.belloni@free-electrons.com
-Subject: [rtc-linux] [PATCH v8 2/4] regulator: rk808: Add regulator driver for RK818
-Date: Mon, 29 Aug 2016 13:07:59 +0200
-Message-Id: <1472468881-15337-2-git-send-email-w.egorov@phytec.de>
-In-Reply-To: <1472468881-15337-1-git-send-email-w.egorov@phytec.de>
-References: <1472468881-15337-1-git-send-email-w.egorov@phytec.de>
-Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -23,238 +25,172 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Add support for the rk818 regulator. The regulator module consists
-of 4 DCDCs, 9 LDOs, 1 switch and 1 BOOST converter which is used to
-power OTG and HDMI5V.
+The hardware has neither a century register nor a century warp around bit.
 
-The output voltages are configurable and are meant to supply power
-to the main processor and other components.
+However it does have a single byte of non volatile RAM.
 
-Signed-off-by: Wadim Egorov <w.egorov@phytec.de>
-Acked-by: Mark Brown <broonie@kernel.org>
+Use this to provide full century and wrap around support by storing:
+* The current century
+* The current half century (lower=00-49, upper=50-99)
+
+If the byte is not set the 21st century is assumed.
+
+Signed-off-by: Martin Fuzzey <mfuzzey@parkeon.com>
 ---
- drivers/regulator/Kconfig           |   4 +-
- drivers/regulator/rk808-regulator.c | 143 ++++++++++++++++++++++++++++++++++--
- 2 files changed, 138 insertions(+), 9 deletions(-)
+ drivers/rtc/rtc-pcf85263.c |  105 +++++++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 103 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/regulator/Kconfig b/drivers/regulator/Kconfig
-index 6c88e31..d3a86a8 100644
---- a/drivers/regulator/Kconfig
-+++ b/drivers/regulator/Kconfig
-@@ -635,11 +635,11 @@ config REGULATOR_RC5T583
- 	  outputs which can be controlled by i2c communication.
+diff --git a/drivers/rtc/rtc-pcf85263.c b/drivers/rtc/rtc-pcf85263.c
+index 997742d..7b55d92 100644
+--- a/drivers/rtc/rtc-pcf85263.c
++++ b/drivers/rtc/rtc-pcf85263.c
+@@ -83,6 +83,10 @@
  
- config REGULATOR_RK808
--	tristate "Rockchip RK808 Power regulators"
-+	tristate "Rockchip RK808/RK818 Power regulators"
- 	depends on MFD_RK808
- 	help
- 	  Select this option to enable the power regulator of ROCKCHIP
--	  PMIC RK808.
-+	  PMIC RK808 and RK818.
- 	  This driver supports the control of different power rails of device
- 	  through regulator interface. The device supports multiple DCDC/LDO
- 	  outputs which can be controlled by i2c communication.
-diff --git a/drivers/regulator/rk808-regulator.c b/drivers/regulator/rk808-regulator.c
-index 40d07ba..5f412a5 100644
---- a/drivers/regulator/rk808-regulator.c
-+++ b/drivers/regulator/rk808-regulator.c
-@@ -1,11 +1,15 @@
- /*
-- * Regulator driver for Rockchip RK808
-+ * Regulator driver for Rockchip RK808/RK818
-  *
-  * Copyright (c) 2014, Fuzhou Rockchip Electronics Co., Ltd
-  *
-  * Author: Chris Zhong <zyw@rock-chips.com>
-  * Author: Zhang Qing <zhangqing@rock-chips.com>
-  *
-+ * Copyright (C) 2016 PHYTEC Messtechnik GmbH
-+ *
-+ * Author: Wadim Egorov <w.egorov@phytec.de>
-+ *
-  * This program is free software; you can redistribute it and/or modify it
-  * under the terms and conditions of the GNU General Public License,
-  * version 2, as published by the Free Software Foundation.
-@@ -32,6 +36,12 @@
- #define RK808_BUCK4_VSEL_MASK	0xf
- #define RK808_LDO_VSEL_MASK	0x1f
+ #define PCF85263_HR_PM		BIT(5)
  
-+#define RK818_BUCK_VSEL_MASK		0x3f
-+#define RK818_BUCK4_VSEL_MASK		0x1f
-+#define RK818_LDO_VSEL_MASK		0x1f
-+#define RK818_LDO3_ON_VSEL_MASK		0xf
-+#define RK818_BOOST_ON_VSEL_MASK	0xe0
++/* Our data stored in the RAM byte */
++#define PCF85263_STATE_CENTURY_MASK		0x7f
++#define PCF85263_STATE_UPPER_HALF_CENTURY	BIT(7)
 +
- /* Ramp rate definitions for buck1 / buck2 only */
- #define RK808_RAMP_RATE_OFFSET		3
- #define RK808_RAMP_RATE_MASK		(3 << RK808_RAMP_RATE_OFFSET)
-@@ -454,6 +464,108 @@ static const struct regulator_desc rk808_reg[] = {
- 		RK808_DCDC_EN_REG, BIT(6)),
+ enum pcf85263_irqpin {
+ 	PCF85263_IRQPIN_NONE,
+ 	PCF85263_IRQPIN_INTA,
+@@ -101,6 +105,8 @@ struct pcf85263 {
+ 	struct regmap *regmap;
+ 	enum pcf85263_irqpin irq_pin;
+ 	int irq;
++	u8 century;		/* 1 = 1900 2 = 2000, ... */
++	bool century_half;	/* false = 0-49, true=50-99 */
+ 	bool mode_12h;
  };
  
-+static const struct regulator_desc rk818_reg[] = {
-+	{
-+		.name = "DCDC_REG1",
-+		.supply_name = "vcc1",
-+		.of_match = of_match_ptr("DCDC_REG1"),
-+		.regulators_node = of_match_ptr("regulators"),
-+		.id = RK818_ID_DCDC1,
-+		.ops = &rk808_reg_ops,
-+		.type = REGULATOR_VOLTAGE,
-+		.min_uV = 712500,
-+		.uV_step = 12500,
-+		.n_voltages = 64,
-+		.vsel_reg = RK818_BUCK1_ON_VSEL_REG,
-+		.vsel_mask = RK818_BUCK_VSEL_MASK,
-+		.enable_reg = RK818_DCDC_EN_REG,
-+		.enable_mask = BIT(0),
-+		.owner = THIS_MODULE,
-+	}, {
-+		.name = "DCDC_REG2",
-+		.supply_name = "vcc2",
-+		.of_match = of_match_ptr("DCDC_REG2"),
-+		.regulators_node = of_match_ptr("regulators"),
-+		.id = RK818_ID_DCDC2,
-+		.ops = &rk808_reg_ops,
-+		.type = REGULATOR_VOLTAGE,
-+		.min_uV = 712500,
-+		.uV_step = 12500,
-+		.n_voltages = 64,
-+		.vsel_reg = RK818_BUCK2_ON_VSEL_REG,
-+		.vsel_mask = RK818_BUCK_VSEL_MASK,
-+		.enable_reg = RK818_DCDC_EN_REG,
-+		.enable_mask = BIT(1),
-+		.owner = THIS_MODULE,
-+	}, {
-+		.name = "DCDC_REG3",
-+		.supply_name = "vcc3",
-+		.of_match = of_match_ptr("DCDC_REG3"),
-+		.regulators_node = of_match_ptr("regulators"),
-+		.id = RK818_ID_DCDC3,
-+		.ops = &rk808_switch_ops,
-+		.type = REGULATOR_VOLTAGE,
-+		.n_voltages = 1,
-+		.enable_reg = RK818_DCDC_EN_REG,
-+		.enable_mask = BIT(2),
-+		.owner = THIS_MODULE,
-+	},
-+	RK8XX_DESC(RK818_ID_DCDC4, "DCDC_REG4", "vcc4", 1800, 3600, 100,
-+		RK818_BUCK4_ON_VSEL_REG, RK818_BUCK4_VSEL_MASK,
-+		RK818_DCDC_EN_REG, BIT(3), 0),
-+	RK8XX_DESC(RK818_ID_BOOST, "DCDC_BOOST", "boost", 4700, 5400, 100,
-+		RK818_BOOST_LDO9_ON_VSEL_REG, RK818_BOOST_ON_VSEL_MASK,
-+		RK818_DCDC_EN_REG, BIT(4), 0),
-+	RK8XX_DESC(RK818_ID_LDO1, "LDO_REG1", "vcc6", 1800, 3400, 100,
-+		RK818_LDO1_ON_VSEL_REG, RK818_LDO_VSEL_MASK, RK818_LDO_EN_REG,
-+		BIT(0), 400),
-+	RK8XX_DESC(RK818_ID_LDO2, "LDO_REG2", "vcc6", 1800, 3400, 100,
-+		RK818_LDO1_ON_VSEL_REG, RK818_LDO_VSEL_MASK, RK818_LDO_EN_REG,
-+		BIT(1), 400),
-+	{
-+		.name = "LDO_REG3",
-+		.supply_name = "vcc7",
-+		.of_match = of_match_ptr("LDO_REG3"),
-+		.regulators_node = of_match_ptr("regulators"),
-+		.id = RK818_ID_LDO3,
-+		.ops = &rk808_reg_ops_ranges,
-+		.type = REGULATOR_VOLTAGE,
-+		.n_voltages = 16,
-+		.linear_ranges = rk808_ldo3_voltage_ranges,
-+		.n_linear_ranges = ARRAY_SIZE(rk808_ldo3_voltage_ranges),
-+		.vsel_reg = RK818_LDO3_ON_VSEL_REG,
-+		.vsel_mask = RK818_LDO3_ON_VSEL_MASK,
-+		.enable_reg = RK818_LDO_EN_REG,
-+		.enable_mask = BIT(2),
-+		.enable_time = 400,
-+		.owner = THIS_MODULE,
-+	},
-+	RK8XX_DESC(RK818_ID_LDO4, "LDO_REG4", "vcc8", 1800, 3400, 100,
-+		RK818_LDO4_ON_VSEL_REG, RK818_LDO_VSEL_MASK, RK818_LDO_EN_REG,
-+		BIT(3), 400),
-+	RK8XX_DESC(RK818_ID_LDO5, "LDO_REG5", "vcc7", 1800, 3400, 100,
-+		RK818_LDO5_ON_VSEL_REG, RK818_LDO_VSEL_MASK, RK818_LDO_EN_REG,
-+		BIT(4), 400),
-+	RK8XX_DESC(RK818_ID_LDO6, "LDO_REG6", "vcc8", 800, 2500, 100,
-+		RK818_LDO6_ON_VSEL_REG, RK818_LDO_VSEL_MASK, RK818_LDO_EN_REG,
-+		BIT(5), 400),
-+	RK8XX_DESC(RK818_ID_LDO7, "LDO_REG7", "vcc7", 800, 2500, 100,
-+		RK818_LDO7_ON_VSEL_REG, RK818_LDO_VSEL_MASK, RK818_LDO_EN_REG,
-+		BIT(6), 400),
-+	RK8XX_DESC(RK818_ID_LDO8, "LDO_REG8", "vcc8", 1800, 3400, 100,
-+		RK818_LDO8_ON_VSEL_REG, RK818_LDO_VSEL_MASK, RK818_LDO_EN_REG,
-+		BIT(7), 400),
-+	RK8XX_DESC(RK818_ID_LDO9, "LDO_REG9", "vcc9", 1800, 3400, 100,
-+		RK818_BOOST_LDO9_ON_VSEL_REG, RK818_LDO_VSEL_MASK,
-+		RK818_DCDC_EN_REG, BIT(5), 400),
-+	RK8XX_DESC_SWITCH(RK818_ID_SWITCH, "SWITCH_REG", "vcc9",
-+		RK818_DCDC_EN_REG, BIT(6)),
-+	RK8XX_DESC_SWITCH(RK818_ID_HDMI_SWITCH, "HDMI_SWITCH", "h_5v",
-+		RK818_H5V_EN_REG, BIT(0)),
-+	RK8XX_DESC_SWITCH(RK818_ID_OTG_SWITCH, "OTG_SWITCH", "usb",
-+		RK818_DCDC_EN_REG, BIT(7)),
-+};
+@@ -136,6 +142,85 @@ static int pcf85263_bin24h_to_bcd12h(int hr24)
+ 	return bin2bcd(hr12) | pm ? 0 : PCF85263_HR_PM;
+ }
+ 
++static inline bool pcf85263_century_half(int year)
++{
++	return (year % 100) >= 50;
++}
 +
- static int rk808_regulator_dt_parse_pdata(struct device *dev,
- 				   struct device *client_dev,
- 				   struct regmap *map,
-@@ -499,7 +611,8 @@ static int rk808_regulator_probe(struct platform_device *pdev)
- 	struct regulator_config config = {};
- 	struct regulator_dev *rk808_rdev;
- 	struct rk808_regulator_data *pdata;
--	int ret, i;
-+	const struct regulator_desc *regulators;
-+	int ret, i, nregulators;
- 
- 	pdata = devm_kzalloc(&pdev->dev, sizeof(*pdata), GFP_KERNEL);
- 	if (!pdata)
-@@ -512,14 +625,29 @@ static int rk808_regulator_probe(struct platform_device *pdev)
- 
- 	platform_set_drvdata(pdev, pdata);
- 
-+	switch (rk808->variant) {
-+	case RK808_ID:
-+		regulators = rk808_reg;
-+		nregulators = RK808_NUM_REGULATORS;
-+		break;
-+	case RK818_ID:
-+		regulators = rk818_reg;
-+		nregulators = RK818_NUM_REGULATORS;
-+		break;
-+	default:
-+		dev_err(&client->dev, "unsupported RK8XX ID %lu\n",
-+			rk808->variant);
-+		return -EINVAL;
++/*
++ * Since the hardware only has a year range of 00 to 99 we use
++ * the ram byte to store the century. 1=1900, 2=2000, 3=2100
++ * A value of zero is assumed to be 2000
++ *
++ * Set the ram byte when we set the clock which lets us use any
++ * century supported by linux (tm_year=0 => 1900)
++ *
++ * Unfortunately the hardware has no wrap around flag so fix it
++ * by also storing a flag indicating if the year is in the
++ * upper or lower half of the century.
++ */
++static int pcf85263_update_ram_byte(struct pcf85263 *pcf85263)
++{
++	u8 val = pcf85263->century & PCF85263_STATE_CENTURY_MASK;
++
++	if (pcf85263->century_half)
++		val |= PCF85263_STATE_UPPER_HALF_CENTURY;
++
++	return regmap_write(pcf85263->regmap, PCF85263_REG_RAM_BYTE, val);
++}
++
++static int pcf85263_read_ram_byte(struct pcf85263 *pcf85263)
++{
++	unsigned int regval;
++	int ret;
++
++	ret = regmap_read(pcf85263->regmap, PCF85263_REG_RAM_BYTE, &regval);
++	if (ret)
++		return ret;
++
++	pcf85263->century = regval & PCF85263_STATE_CENTURY_MASK;
++	pcf85263->century_half = !!(regval & PCF85263_STATE_UPPER_HALF_CENTURY);
++
++	if (!pcf85263->century) { /* Not valid => not initialised yet */
++		int year;
++
++		ret = regmap_read(pcf85263->regmap,
++				  PCF85263_REG_RTC_YR, &regval);
++		if (ret)
++			return ret;
++
++		pcf85263->century = 2;
++		year = bcd2bin(regval) + 1900 + (pcf85263->century - 1) * 100;
++		pcf85263->century_half = pcf85263_century_half(year);
++
++		dev_warn(pcf85263->dev, "No century in NVRAM - assume %d\n",
++			 year);
 +	}
 +
- 	config.dev = &client->dev;
- 	config.driver_data = pdata;
- 	config.regmap = rk808->regmap;
++	return 0;
++}
++
++/*
++ * Detect year overflow by comparing the half (upper, lower) of
++ * the current year with the half the last time we read it
++ */
++static int pcf85263_update_century(struct pcf85263 *pcf85263, int year)
++{
++	bool cur_century_half;
++
++	cur_century_half = pcf85263_century_half(year);
++
++	if (cur_century_half == pcf85263->century_half)
++		return 0;
++
++	if (!cur_century_half) /* Year has wrapped around */
++		pcf85263->century++;
++
++	pcf85263->century_half = cur_century_half;
++
++	return pcf85263_update_ram_byte(pcf85263);
++}
++
+ static int pcf85263_read_time(struct device *dev, struct rtc_time *tm)
+ {
+ 	struct pcf85263 *pcf85263 = dev_get_drvdata(dev);
+@@ -169,7 +254,11 @@ static int pcf85263_read_time(struct device *dev, struct rtc_time *tm)
+ 	tm->tm_mon  = bcd2bin(regs[PCF85263_REG_RTC_MO - first]) - 1;
+ 	tm->tm_year = bcd2bin(regs[PCF85263_REG_RTC_YR - first]);
  
- 	/* Instantiate the regulators */
--	for (i = 0; i < RK808_NUM_REGULATORS; i++) {
-+	for (i = 0; i < nregulators; i++) {
- 		rk808_rdev = devm_regulator_register(&pdev->dev,
--						     &rk808_reg[i], &config);
-+						     &regulators[i], &config);
- 		if (IS_ERR(rk808_rdev)) {
- 			dev_err(&client->dev,
- 				"failed to register %d regulator\n", i);
-@@ -540,8 +668,9 @@ static struct platform_driver rk808_regulator_driver = {
+-	tm->tm_year += 100;  /* Assume 21st century */
++	ret = pcf85263_update_century(pcf85263, tm->tm_year);
++	if (ret)
++		return ret;
++
++	tm->tm_year += (pcf85263->century - 1) * 100;
  
- module_platform_driver(rk808_regulator_driver);
+ 	return 0;
+ }
+@@ -214,7 +303,14 @@ static int pcf85263_set_time(struct device *dev, struct rtc_time *tm)
+ 	}
  
--MODULE_DESCRIPTION("regulator driver for the rk808 series PMICs");
--MODULE_AUTHOR("Chris Zhong<zyw@rock-chips.com>");
--MODULE_AUTHOR("Zhang Qing<zhangqing@rock-chips.com>");
-+MODULE_DESCRIPTION("regulator driver for the RK808/RK818 series PMICs");
-+MODULE_AUTHOR("Chris Zhong <zyw@rock-chips.com>");
-+MODULE_AUTHOR("Zhang Qing <zhangqing@rock-chips.com>");
-+MODULE_AUTHOR("Wadim Egorov <w.egorov@phytec.de>");
- MODULE_LICENSE("GPL");
- MODULE_ALIAS("platform:rk808-regulator");
--- 
-1.9.1
+ 	/* Start it again */
+-	return regmap_write(pcf85263->regmap, PCF85263_REG_STOPENABLE, 0);
++	ret = regmap_write(pcf85263->regmap, PCF85263_REG_STOPENABLE, 0);
++	if (ret)
++		return ret;
++
++	pcf85263->century = (tm->tm_year / 100) + 1;
++	pcf85263->century_half = pcf85263_century_half(tm->tm_year);
++
++	return pcf85263_update_ram_byte(pcf85263);
+ }
+ 
+ static int pcf85263_enable_alarm(struct pcf85263 *pcf85263, bool enable)
+@@ -422,6 +518,11 @@ static int pcf85263_init_hw(struct pcf85263 *pcf85263)
+ 		return ret;
+ 	}
+ 
++	/* Get our persistent state from the ram byte */
++	ret = pcf85263_read_ram_byte(pcf85263);
++	if (ret < 0)
++		return ret;
++
+ 	/* Determine 12/24H mode */
+ 	ret = regmap_read(pcf85263->regmap, PCF85263_REG_OSC, &regval);
+ 	if (ret)
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
