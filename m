@@ -1,28 +1,29 @@
-Return-Path: <rtc-linux+bncBDI57DN47YOBBTMWQG6QKGQE5HIWAII@googlegroups.com>
+Return-Path: <rtc-linux+bncBCL7FKNRWUNRBMFFQK6QKGQE2KRFUNY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 MIME-Version: 1.0
-Received: from mail-pf0-f182.google.com (mail-pf0-f182.google.com. [209.85.192.182])
-        by gmr-mx.google.com with ESMTPS id z4si229184pam.0.2016.08.02.00.27.08
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 02 Aug 2016 00:27:08 -0700 (PDT)
-Received: by mail-pf0-f182.google.com with SMTP id x72so63743638pfd.2
-        for <rtc-linux@googlegroups.com>; Tue, 02 Aug 2016 00:27:08 -0700 (PDT)
-From: Pratyush Anand <panand@redhat.com>
-To: mingo@kernel.org,
+Received: from mga03.intel.com (mga03.intel.com. [134.134.136.65])
+        by gmr-mx.google.com with ESMTP id i136si452083pfe.1.2016.08.02.05.31.44
+        for <rtc-linux@googlegroups.com>;
+        Tue, 02 Aug 2016 05:31:44 -0700 (PDT)
+From: Baole Ni <baolex.ni@intel.com>
+To: a.zummo@towertech.it,
 	alexandre.belloni@free-electrons.com,
-	tglx@linutronix.de,
-	hpa@zytor.com,
-	x86@kernel.org
+	paulus@samba.org,
+	mpe@ellerman.id.au,
+	dwmw2@infradead.org,
+	m.chehab@samsung.com,
+	pawel@osciak.com,
+	m.szyprowski@samsung.com,
+	kyungmin.park@samsung.com,
+	k.kozlowski@samsung.com
 Cc: rtc-linux@googlegroups.com,
 	linux-kernel@vger.kernel.org,
-	prarit@redhat.com,
-	dyoung@redhat.com,
-	a.zummo@towertech.it,
-	Pratyush Anand <panand@redhat.com>
-Subject: [rtc-linux] [PATCH V2 0/2] rtc-cmos: Workaround unwanted interrupt generation
-Date: Tue,  2 Aug 2016 12:56:58 +0530
-Message-Id: <cover.1470122380.git.panand@redhat.com>
+	chuansheng.liu@intel.com,
+	baolex.ni@intel.com
+Subject: [rtc-linux] [PATCH 0873/1285] Replace numeric parameter like 0444
+ with macro
+Date: Tue,  2 Aug 2016 19:54:03 +0800
+Message-Id: <20160802115403.8176-1-baolex.ni@intel.com>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -33,34 +34,38 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-We have observed on few machines with rtc-cmos device that
-hpet_rtc_interrupt() is called before cmos_do_probe() could call
-hpet_rtc_timer_init(). It has not been observed during normal boot/reboot
-of machines. It *sometime* happens when system is booted with kdump
-secondary kernel. So, neither hpet_default_delta nor hpet_t1_cmp is
-initialized by the time interrupt is raised in the given situation.
-Therefore while loop of hpet_cnt_ahead() in hpet_rtc_timer_reinit() never
-completes. This leads to "NMI watchdog: Watchdog detected hard LOCKUP on
-cpu 0".
+I find that the developers often just specified the numeric value
+when calling a macro which is defined with a parameter for access permission.
+As we know, these numeric value for access permission have had the corresponding macro,
+and that using macro can improve the robustness and readability of the code,
+thus, I suggest replacing the numeric parameter with the macro.
 
-These patch set initializes hpet_default_delta and hpet_t1_cmp before
-interrupt can be raised.
+Signed-off-by: Chuansheng Liu <chuansheng.liu@intel.com>
+Signed-off-by: Baole Ni <baolex.ni@intel.com>
+---
+ drivers/rtc/rtc-max8997.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-Changes since RFC:
-  - Commit log of patches has been improved.
-  - RFCs were here: https://lkml.org/lkml/2016/6/21/35
-
-Pratyush Anand (2):
-  rtc/hpet: Factorize hpet_rtc_timer_init()
-  rtc/rtc-cmos: Initialize software counters before irq is registered
-
- arch/x86/include/asm/hpet.h |  2 ++
- arch/x86/kernel/hpet.c      | 41 +++++++++++++++++++++++++++++++++++------
- drivers/rtc/rtc-cmos.c      | 13 ++++++++++++-
- 3 files changed, 49 insertions(+), 7 deletions(-)
-
+diff --git a/drivers/rtc/rtc-max8997.c b/drivers/rtc/rtc-max8997.c
+index db984d4..006c362 100644
+--- a/drivers/rtc/rtc-max8997.c
++++ b/drivers/rtc/rtc-max8997.c
+@@ -25,11 +25,11 @@
+ 
+ /* Module parameter for WTSR function control */
+ static int wtsr_en = 1;
+-module_param(wtsr_en, int, 0444);
++module_param(wtsr_en, int, S_IRUSR | S_IRGRP | S_IROTH);
+ MODULE_PARM_DESC(wtsr_en, "Watchdog Timeout & Software Reset (default=on)");
+ /* Module parameter for SMPL function control */
+ static int smpl_en = 1;
+-module_param(smpl_en, int, 0444);
++module_param(smpl_en, int, S_IRUSR | S_IRGRP | S_IROTH);
+ MODULE_PARM_DESC(smpl_en, "Sudden Momentary Power Loss (default=on)");
+ 
+ /* RTC Control Register */
 -- 
-2.5.5
+2.9.2
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
