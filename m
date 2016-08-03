@@ -1,21 +1,21 @@
-Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBNWIXG6QKGQEIOM5UDA@googlegroups.com>
+Return-Path: <rtc-linux+bncBDULZYNR2QMRBKGTQW6QKGQELKKTVTY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 MIME-Version: 1.0
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id w64si225015wmf.3.2016.08.12.17.05.09
-        for <rtc-linux@googlegroups.com>;
-        Fri, 12 Aug 2016 17:05:09 -0700 (PDT)
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Alessandro Zummo <a.zummo@towertech.it>
-Cc: rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Subject: [rtc-linux] [PATCH v2 4/4] Documentation: dt: Intersil isl12057 is
- not a trivial device
-Date: Sat, 13 Aug 2016 02:05:02 +0200
-Message-Id: <1471046702-20231-4-git-send-email-alexandre.belloni@free-electrons.com>
-In-Reply-To: <1471046702-20231-1-git-send-email-alexandre.belloni@free-electrons.com>
-References: <1471046702-20231-1-git-send-email-alexandre.belloni@free-electrons.com>
+Received: from mail-yw0-x242.google.com (mail-yw0-x242.google.com. [2607:f8b0:4002:c05::242])
+        by gmr-mx.google.com with ESMTPS id f6si419343ywh.1.2016.08.02.20.48.56
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 02 Aug 2016 20:48:56 -0700 (PDT)
+Received: by mail-yw0-x242.google.com with SMTP id r9so16067158ywg.2
+        for <rtc-linux@googlegroups.com>; Tue, 02 Aug 2016 20:48:56 -0700 (PDT)
+From: Fabio Estevam <festevam@gmail.com>
+To: alexandre.belloni@free-electrons.com
+Cc: grimaldi.ivan@gmail.com,
+	rtc-linux@googlegroups.com,
+	Fabio Estevam <fabio.estevam@nxp.com>
+Subject: [rtc-linux] [PATCH] rtc: ds1390: Fix the SPI chip select number
+Date: Wed,  3 Aug 2016 00:48:22 -0300
+Message-Id: <1470196102-23713-1-git-send-email-festevam@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -26,27 +26,34 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-The ISL12057 has a documentation file, remove it from trivial-devices.txt
+From: Fabio Estevam <fabio.estevam@nxp.com>
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+The number after the '@' symbol should be the SPI chip select
+number associated with the ds1390 and it should match the 'reg'
+field.
+
+So change it the address to zero, to make it consistent.
+
+Signed-off-by: Fabio Estevam <fabio.estevam@nxp.com>
 ---
- Documentation/devicetree/bindings/i2c/trivial-devices.txt | 1 -
- 1 file changed, 1 deletion(-)
+ Documentation/devicetree/bindings/rtc/dallas,ds1390.txt | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/Documentation/devicetree/bindings/i2c/trivial-devices.txt b/Documentation/devicetree/bindings/i2c/trivial-devices.txt
-index 5c70ce9c1954..43af4765d5fe 100644
---- a/Documentation/devicetree/bindings/i2c/trivial-devices.txt
-+++ b/Documentation/devicetree/bindings/i2c/trivial-devices.txt
-@@ -50,7 +50,6 @@ fsl,sgtl5000		SGTL5000: Ultra Low-Power Audio Codec
- gmt,g751		G751: Digital Temperature Sensor and Thermal Watchdog with Two-Wire Interface
- infineon,slb9635tt	Infineon SLB9635 (Soft-) I2C TPM (old protocol, max 100khz)
- infineon,slb9645tt	Infineon SLB9645 I2C TPM (new protocol, max 400khz)
--isil,isl12057		Intersil ISL12057 I2C RTC Chip
- isil,isl29028		Intersil ISL29028 Ambient Light and Proximity Sensor
- maxim,ds1050		5 Bit Programmable, Pulse-Width Modulator
- maxim,max1237		Low-Power, 4-/12-Channel, 2-Wire Serial, 12-Bit ADCs
+diff --git a/Documentation/devicetree/bindings/rtc/dallas,ds1390.txt b/Documentation/devicetree/bindings/rtc/dallas,ds1390.txt
+index 8e76f26..9882b81 100644
+--- a/Documentation/devicetree/bindings/rtc/dallas,ds1390.txt
++++ b/Documentation/devicetree/bindings/rtc/dallas,ds1390.txt
+@@ -11,7 +11,7 @@ Optional properties:
+ - trickle-diode-disable : Do not use internal trickle charger diode
+ 	Should be given if internal trickle charger diode should be disabled
+ Example:
+-	ds1390: rtc@68 {
++	ds1390: rtc@0 {
+ 		compatible = "dallas,ds1390";
+ 		trickle-resistor-ohms = <250>;
+ 		reg = <0>;
 -- 
-2.8.1
+1.9.1
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
