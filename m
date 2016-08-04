@@ -1,23 +1,27 @@
-Return-Path: <rtc-linux+bncBDZJXP7F6YLRBRURU66QKGQERJPR6NA@googlegroups.com>
+Return-Path: <rtc-linux+bncBDHZXHXDRAMBBC7YR26QKGQECDOFA3I@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail3-relais-sop.national.inria.fr (mail3-relais-sop.national.inria.fr. [192.134.164.104])
-        by gmr-mx.google.com with ESMTPS id j127si239313ith.0.2016.08.09.05.12.54
+Received: from smtp.codeaurora.org (smtp.codeaurora.org. [198.145.29.96])
+        by gmr-mx.google.com with ESMTPS id i136si2840280pfe.1.2016.08.04.15.04.59
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 09 Aug 2016 05:12:54 -0700 (PDT)
-Date: Tue, 9 Aug 2016 14:03:35 +0200 (CEST)
-From: Julia Lawall <julia.lawall@lip6.fr>
-To: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-cc: a.zummo@towertech.it, alexandre.belloni@free-electrons.com,
-    rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org,
-    kernel-janitors@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH] rtc: pcf2123: Add missing error code
- assignment before test
-In-Reply-To: <1470743907-11498-1-git-send-email-christophe.jaillet@wanadoo.fr>
-Message-ID: <alpine.DEB.2.10.1608091403050.2911@hadrien>
-References: <1470743907-11498-1-git-send-email-christophe.jaillet@wanadoo.fr>
+        Thu, 04 Aug 2016 15:04:59 -0700 (PDT)
+Subject: [rtc-linux] Re: [PATCH v3 4/4] regulator: qcom_rpm-regulator: Add
+ support for pm8018 rpm regulator
+To: Neil Armstrong <narmstrong@baylibre.com>, andy.gross@linaro.org,
+ david.brown@linaro.org, lee.jones@linaro.org, lgirdwood@gmail.com,
+ broonie@kernel.org, a.zummo@towertech.it,
+ alexandre.belloni@free-electrons.com
+References: <1468936286-2710-1-git-send-email-narmstrong@baylibre.com>
+ <1468936286-2710-5-git-send-email-narmstrong@baylibre.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-arm-msm@vger.kernel.org, linux-soc@vger.kernel.org,
+ rtc-linux@googlegroups.com
+From: Stephen Boyd <sboyd@codeaurora.org>
+Message-ID: <6eb6d742-eca4-a442-cff1-0a26601b362d@codeaurora.org>
+Date: Thu, 4 Aug 2016 15:04:56 -0700
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="8323329-1817157135-1470744216=:2911"
+In-Reply-To: <1468936286-2710-5-git-send-email-narmstrong@baylibre.com>
+Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -27,69 +31,123 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+On 07/19/2016 06:51 AM, Neil Armstrong wrote:
+> In order to support eh Qualcomm MDM9615 SoC, add support for the
 
---8323329-1817157135-1470744216=:2911
-Content-Type: TEXT/PLAIN; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
+s/eh/the/
 
+> PM8018 RPM regulator in the qcom_rpm-regulator driver.
+>
+> Acked-by: Mark Brown <broonie@kernel.org>
+> Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
+>
+> diff --git a/drivers/regulator/qcom_rpm-regulator.c b/drivers/regulator/qcom_rpm-regulator.c
+> index e254272..0734a5f 100644
+> --- a/drivers/regulator/qcom_rpm-regulator.c
+> +++ b/drivers/regulator/qcom_rpm-regulator.c
+> @@ -70,6 +70,40 @@ struct qcom_rpm_reg {
+>  	bool supports_force_mode_bypass;
+>  };
+>  
+> +static struct rpm_reg_parts rpm8018_ldo_parts = {
+> +	.request_len	= 2,
+> +	.uV		= { 0, 0x007FFFFF,  0},
+> +	.pd		= { 0, 0x00800000, 23},
+> +	.pc		= { 0, 0x0F000000, 24},
+> +	.pf		= { 0, 0xF0000000, 28},
+> +	.ip		= { 1, 0x000003FF,  0},
+> +	.ia		= { 1, 0x000FFC00, 10},
+> +	.fm		= { 1, 0x00700000, 20},
+> +};
+> +
+> +static struct rpm_reg_parts rpm8018_smps_parts = {
+> +	.request_len	= 2,
+> +	.uV		= {  0, 0x007FFFFF,  0},
+> +	.pd		= {  0, 0x00800000, 23},
+> +	.pc		= {  0, 0x0F000000, 24},
+> +	.pf		= {  0, 0xF0000000, 28},
+> +	.ip		= {  1, 0x000003FF,  0},
+> +	.ia		= {  1, 0x000FFC00, 10},
+> +	.fm		= {  1, 0x00700000, 20},
+> +	.pm		= {  1, 0x00800000, 23},
+> +	.freq		= {  1, 0x1F000000, 24},
+> +	.freq_clk_src	= {  1, 0x60000000, 29},
+> +};
+> +
+> +static struct rpm_reg_parts rpm8018_switch_parts = {
+> +	.request_len	= 1,
+> +	.enable_state	= {  0, 0x00000001,  0},
+> +	.pd		= {  0, 0x00000002,  1},
+> +	.pc		= {  0, 0x0000003C,  2},
+> +	.pf		= {  0, 0x000003C0,  6},
+> +	.hpm		= {  0, 0x00000C00, 10},
+> +};
+> +
 
+These are all the same as the rpm8960 ones, so why don't we reuse those
+structures?
 
-On Tue, 9 Aug 2016, Christophe JAILLET wrote:
+>  static const struct rpm_reg_parts rpm8660_ldo_parts = {
+>  	.request_len    = 2,
+>  	.mV             = { 0, 0x00000FFF,  0 },
+> @@ -448,6 +482,44 @@ static struct regulator_ops switch_ops = {
+>  };
+>  
+>  /*
+> + * PM8018 regulators
+> + */
+> +static const struct qcom_rpm_reg pm8018_pldo = {
+> +	.desc.linear_ranges = pldo_ranges,
+> +	.desc.n_linear_ranges = ARRAY_SIZE(pldo_ranges),
+> +	.desc.n_voltages = 161,
+> +	.desc.ops = &uV_ops,
+> +	.parts = &rpm8018_ldo_parts,
+> +	.supports_force_mode_auto = false,
+> +	.supports_force_mode_bypass = false,
+> +};
+> +
+> +static const struct qcom_rpm_reg pm8018_nldo = {
+> +	.desc.linear_ranges = nldo_ranges,
+> +	.desc.n_linear_ranges = ARRAY_SIZE(nldo_ranges),
+> +	.desc.n_voltages = 64,
+> +	.desc.ops = &uV_ops,
+> +	.parts = &rpm8018_ldo_parts,
+> +	.supports_force_mode_auto = false,
+> +	.supports_force_mode_bypass = false,
+> +};
+> +
+> +static const struct qcom_rpm_reg pm8018_smps = {
+> +	.desc.linear_ranges = smps_ranges,
+> +	.desc.n_linear_ranges = ARRAY_SIZE(smps_ranges),
+> +	.desc.n_voltages = 154,
+> +	.desc.ops = &uV_ops,
+> +	.parts = &rpm8018_smps_parts,
+> +	.supports_force_mode_auto = false,
+> +	.supports_force_mode_bypass = false,
+> +};
+> +
+> +static const struct qcom_rpm_reg pm8018_switch = {
+> +	.desc.ops = &switch_ops,
+> +	.parts = &rpm8018_switch_parts,
+> +};
+> +
 
-> It is likely that checking the result of 'pcf2123_write_reg' is expected
-> here.
-> Also fix a small style issue. The '{' at the beginning of the function
-> is misplaced.
+These are all the same as the pm8921 ones too? So just use those instead?
 
-They shouldn't be in the same patch.  If you are wrong about the ret
-issue, the { should still be moved.
+We should probably rethink this design and have these structures based
+on PMIC derivatives instead of SoCs because things are quite similar
+across many PMICs.
 
-julia
+-- 
+Qualcomm Innovation Center, Inc. is a member of Code Aurora Forum,
+a Linux Foundation Collaborative Project
 
->
-> Fixes: 809b453b76e15 ("rtc: pcf2123: clean up writes to the rtc chip")
->
-> Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-> ---
->  drivers/rtc/rtc-pcf2123.c | 5 +++--
->  1 file changed, 3 insertions(+), 2 deletions(-)
->
-> diff --git a/drivers/rtc/rtc-pcf2123.c b/drivers/rtc/rtc-pcf2123.c
-> index b4478cc92b55..8895f77726e8 100644
-> --- a/drivers/rtc/rtc-pcf2123.c
-> +++ b/drivers/rtc/rtc-pcf2123.c
-> @@ -182,7 +182,8 @@ static ssize_t pcf2123_show(struct device *dev, struct device_attribute *attr,
->  }
->
->  static ssize_t pcf2123_store(struct device *dev, struct device_attribute *attr,
-> -			     const char *buffer, size_t count) {
-> +			     const char *buffer, size_t count)
-> +{
->  	struct pcf2123_sysfs_reg *r;
->  	unsigned long reg;
->  	unsigned long val;
-> @@ -199,7 +200,7 @@ static ssize_t pcf2123_store(struct device *dev, struct device_attribute *attr,
->  	if (ret)
->  		return ret;
->
-> -	pcf2123_write_reg(dev, reg, val);
-> +	ret = pcf2123_write_reg(dev, reg, val);
->  	if (ret < 0)
->  		return -EIO;
->  	return count;
-> --
-> 2.7.4
->
->
-> ---
-> L'absence de virus dans ce courrier électronique a été vérifiée par le logiciel antivirus Avast.
-> https://www.avast.com/antivirus
->
-> --
-> To unsubscribe from this list: send the line "unsubscribe kernel-janitors" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->
---8323329-1817157135-1470744216=:2911--
+-- 
+You received this message because you are subscribed to "rtc-linux".
+Membership options at http://groups.google.com/group/rtc-linux .
+Please read http://groups.google.com/group/rtc-linux/web/checklist
+before submitting a driver.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+For more options, visit https://groups.google.com/d/optout.
