@@ -1,39 +1,29 @@
-Return-Path: <rtc-linux+bncBDI57DN47YOBBUUWQG6QKGQEJ2QAL7I@googlegroups.com>
+Return-Path: <rtc-linux+bncBDA7X7F2WUEBBPPGUG6QKGQEMVFEVKQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-MIME-Version: 1.0
-Received: from mail-pf0-f182.google.com (mail-pf0-f182.google.com. [209.85.192.182])
-        by gmr-mx.google.com with ESMTPS id z4si229184pam.0.2016.08.02.00.27.13
+Received: from mail-wm0-x22a.google.com (mail-wm0-x22a.google.com. [2a00:1450:400c:c09::22a])
+        by gmr-mx.google.com with ESMTPS id w64si1033322wmf.3.2016.08.08.04.55.41
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 02 Aug 2016 00:27:13 -0700 (PDT)
-Received: by mail-pf0-f182.google.com with SMTP id x72so63743638pfd.2
-        for <rtc-linux@googlegroups.com>; Tue, 02 Aug 2016 00:27:13 -0700 (PDT)
-From: Pratyush Anand <panand@redhat.com>
-To: mingo@kernel.org,
-	alexandre.belloni@free-electrons.com,
-	tglx@linutronix.de,
-	hpa@zytor.com,
-	x86@kernel.org
-Cc: rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org,
-	prarit@redhat.com,
-	dyoung@redhat.com,
-	a.zummo@towertech.it,
-	Pratyush Anand <panand@redhat.com>,
-	Borislav Petkov <bp@suse.de>,
-	Denys Vlasenko <dvlasenk@redhat.com>,
-	Ingo Molnar <mingo@redhat.com>,
-	Jan Beulich <JBeulich@suse.com>,
-	Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Subject: [rtc-linux] [PATCH V2 1/2] rtc/hpet: Factorize hpet_rtc_timer_init()
-Date: Tue,  2 Aug 2016 12:56:59 +0530
-Message-Id: <c722d5058b543b2878ed88dcd4569541a62cf353.1470122380.git.panand@redhat.com>
-In-Reply-To: <cover.1470122380.git.panand@redhat.com>
-References: <cover.1470122380.git.panand@redhat.com>
-In-Reply-To: <cover.1470122380.git.panand@redhat.com>
-References: <cover.1470122380.git.panand@redhat.com>
-Reply-To: rtc-linux@googlegroups.com
+        Mon, 08 Aug 2016 04:55:41 -0700 (PDT)
+Received: by mail-wm0-x22a.google.com with SMTP id o80so133582594wme.1
+        for <rtc-linux@googlegroups.com>; Mon, 08 Aug 2016 04:55:41 -0700 (PDT)
+Date: Mon, 8 Aug 2016 12:57:07 +0100
+From: Lee Jones <lee.jones@linaro.org>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: Chen-Yu Tsai <wens@csie.org>, Alessandro Zummo <a.zummo@towertech.it>,
+	Maxime Ripard <maxime.ripard@free-electrons.com>,
+	linux-kernel@vger.kernel.org, rtc-linux@googlegroups.com,
+	devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Subject: [rtc-linux] Re: [PATCH v5 3/7] rtc: ac100: Add RTC driver for
+ X-Powers AC100
+Message-ID: <20160808115707.GP5243@dell>
+References: <1467988422-17934-1-git-send-email-wens@csie.org>
+ <1467988422-17934-4-git-send-email-wens@csie.org>
+ <20160708162152.GM22202@piout.net>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <20160708162152.GM22202@piout.net>
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -42,117 +32,443 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-We have observed on few machines with rtc-cmos device that
-hpet_rtc_interrupt() is called before cmos_do_probe() could call
-hpet_rtc_timer_init(). It has not been observed during normal boot/reboot
-of machines. It *sometime* happens when system is booted with kdump
-secondary kernel. So, neither hpet_default_delta nor hpet_t1_cmp is
-initialized by the time interrupt is raised in the given situation.
-Therefore while loop of hpet_cnt_ahead() in hpet_rtc_timer_reinit() never
-completes. This leads to "NMI watchdog: Watchdog detected hard LOCKUP on
-cpu 0".
+On Fri, 08 Jul 2016, Alexandre Belloni wrote:
 
-This patch factorize hpet_rtc_timer_init(), so that counter can be
-initialized before irq is registered.
+> On 08/07/2016 at 22:33:38 +0800, Chen-Yu Tsai wrote :
+> > X-Powers AC100 is a codec / RTC combo chip. This driver supports
+> > the RTC sub-device.
+> >=20
+> > The RTC block also has clock outputs and non-volatile storage.
+> > Non-volatile storage wthin the RTC hardware is not supported.
+> > Clock output support is added in the next patch.
+> >=20
+> > Signed-off-by: Chen-Yu Tsai <wens@csie.org>
+> Acked-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
 
-No functional change in this patch.
+Applied, thanks.
 
-Signed-off-by: Pratyush Anand <panand@redhat.com>
----
- arch/x86/include/asm/hpet.h |  2 ++
- arch/x86/kernel/hpet.c      | 41 +++++++++++++++++++++++++++++++++++------
- 2 files changed, 37 insertions(+), 6 deletions(-)
+> > ---
+> > Changes since v4:
+> >=20
+> >   - None.
+> >=20
+> > Changes since v3:
+> >=20
+> >   - Moved month/year conversion offsets inline with reg[] assignments
+> >   - Used platform_get_irq instead of of_get_irq
+> >   - Dropped separate mutex and use rtc->ops_lock in interrupt handler
+> >   - Dropped of_irq.h from includes
+> >   - Added of_device_id and .of_match_table
+> >=20
+> > Changes since v2:
+> >=20
+> >   - Fixed off-by-1 errors in register mask macros
+> >   - Fixed copy-paste error in set_alarm function
+> >   - Drop uie_unsupported, since the alarm works now
+> >   - Fixed up copyright notice
+> >   - Changed license to GPL v2, matching mfd driver
+> >=20
+> > ---
+> >  drivers/rtc/Kconfig     |  10 ++
+> >  drivers/rtc/Makefile    |   1 +
+> >  drivers/rtc/rtc-ac100.c | 325 ++++++++++++++++++++++++++++++++++++++++=
+++++++++
+> >  3 files changed, 336 insertions(+)
+> >  create mode 100644 drivers/rtc/rtc-ac100.c
+> >=20
+> > diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
+> > index 18639e0cb6e2..b9d7cbb6bd76 100644
+> > --- a/drivers/rtc/Kconfig
+> > +++ b/drivers/rtc/Kconfig
+> > @@ -183,6 +183,16 @@ config RTC_DRV_ABX80X
+> >  	  This driver can also be built as a module. If so, the module
+> >  	  will be called rtc-abx80x.
+> > =20
+> > +config RTC_DRV_AC100
+> > +	tristate "X-Powers AC100"
+> > +	depends on MFD_AC100
+> > +	help
+> > +	  If you say yes here you get support for the real-time clock found
+> > +	  in X-Powers AC100 family peripheral ICs.
+> > +
+> > +	  This driver can also be built as a module. If so, the module
+> > +	  will be called rtc-ac100.
+> > +
+> >  config RTC_DRV_AS3722
+> >  	tristate "ams AS3722 RTC driver"
+> >  	depends on MFD_AS3722
+> > diff --git a/drivers/rtc/Makefile b/drivers/rtc/Makefile
+> > index ea2833723fa9..b07c28779573 100644
+> > --- a/drivers/rtc/Makefile
+> > +++ b/drivers/rtc/Makefile
+> > @@ -26,6 +26,7 @@ obj-$(CONFIG_RTC_DRV_AB3100)	+=3D rtc-ab3100.o
+> >  obj-$(CONFIG_RTC_DRV_AB8500)	+=3D rtc-ab8500.o
+> >  obj-$(CONFIG_RTC_DRV_ABB5ZES3)	+=3D rtc-ab-b5ze-s3.o
+> >  obj-$(CONFIG_RTC_DRV_ABX80X)	+=3D rtc-abx80x.o
+> > +obj-$(CONFIG_RTC_DRV_AC100)	+=3D rtc-ac100.o
+> >  obj-$(CONFIG_RTC_DRV_ARMADA38X)	+=3D rtc-armada38x.o
+> >  obj-$(CONFIG_RTC_DRV_AS3722)	+=3D rtc-as3722.o
+> >  obj-$(CONFIG_RTC_DRV_ASM9260)	+=3D rtc-asm9260.o
+> > diff --git a/drivers/rtc/rtc-ac100.c b/drivers/rtc/rtc-ac100.c
+> > new file mode 100644
+> > index 000000000000..5a9ca89d04c7
+> > --- /dev/null
+> > +++ b/drivers/rtc/rtc-ac100.c
+> > @@ -0,0 +1,325 @@
+> > +/*
+> > + * RTC Driver for X-Powers AC100
+> > + *
+> > + * Copyright (c) 2016 Chen-Yu Tsai
+> > + *
+> > + * Chen-Yu Tsai <wens@csie.org>
+> > + *
+> > + * This program is free software; you can redistribute it and/or modif=
+y
+> > + * it under the terms of the GNU General Public License version 2 as
+> > + * published by the Free Software Foundation.
+> > + *
+> > + * This program is distributed in the hope that it will be useful, but=
+ WITHOUT
+> > + * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY =
+or
+> > + * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public Licen=
+se for
+> > + * more details.
+> > + */
+> > +
+> > +#include <linux/bcd.h>
+> > +#include <linux/device.h>
+> > +#include <linux/interrupt.h>
+> > +#include <linux/kernel.h>
+> > +#include <linux/mfd/ac100.h>
+> > +#include <linux/module.h>
+> > +#include <linux/mutex.h>
+> > +#include <linux/of.h>
+> > +#include <linux/platform_device.h>
+> > +#include <linux/regmap.h>
+> > +#include <linux/rtc.h>
+> > +#include <linux/types.h>
+> > +
+> > +/* Control register */
+> > +#define AC100_RTC_CTRL_24HOUR	BIT(0)
+> > +
+> > +/* RTC */
+> > +#define AC100_RTC_SEC_MASK	GENMASK(6, 0)
+> > +#define AC100_RTC_MIN_MASK	GENMASK(6, 0)
+> > +#define AC100_RTC_HOU_MASK	GENMASK(5, 0)
+> > +#define AC100_RTC_WEE_MASK	GENMASK(2, 0)
+> > +#define AC100_RTC_DAY_MASK	GENMASK(5, 0)
+> > +#define AC100_RTC_MON_MASK	GENMASK(4, 0)
+> > +#define AC100_RTC_YEA_MASK	GENMASK(7, 0)
+> > +#define AC100_RTC_YEA_LEAP	BIT(15)
+> > +#define AC100_RTC_UPD_TRIGGER	BIT(15)
+> > +
+> > +/* Alarm (wall clock) */
+> > +#define AC100_ALM_INT_ENABLE	BIT(0)
+> > +
+> > +#define AC100_ALM_SEC_MASK	GENMASK(6, 0)
+> > +#define AC100_ALM_MIN_MASK	GENMASK(6, 0)
+> > +#define AC100_ALM_HOU_MASK	GENMASK(5, 0)
+> > +#define AC100_ALM_WEE_MASK	GENMASK(2, 0)
+> > +#define AC100_ALM_DAY_MASK	GENMASK(5, 0)
+> > +#define AC100_ALM_MON_MASK	GENMASK(4, 0)
+> > +#define AC100_ALM_YEA_MASK	GENMASK(7, 0)
+> > +#define AC100_ALM_ENABLE_FLAG	BIT(15)
+> > +#define AC100_ALM_UPD_TRIGGER	BIT(15)
+> > +
+> > +/*
+> > + * The year parameter passed to the driver is usually an offset relati=
+ve to
+> > + * the year 1900. This macro is used to convert this offset to another=
+ one
+> > + * relative to the minimum year allowed by the hardware.
+> > + *
+> > + * The year range is 1970 - 2069. This range is selected to match Allw=
+inner's
+> > + * driver.
+> > + */
+> > +#define AC100_YEAR_MIN				1970
+> > +#define AC100_YEAR_MAX				2069
+> > +#define AC100_YEAR_OFF				(AC100_YEAR_MIN - 1900)
+> > +
+> > +struct ac100_rtc_dev {
+> > +	struct rtc_device *rtc;
+> > +	struct device *dev;
+> > +	struct regmap *regmap;
+> > +	int irq;
+> > +	unsigned long alarm;
+> > +};
+> > +
+> > +static int ac100_rtc_get_time(struct device *dev, struct rtc_time *rtc=
+_tm)
+> > +{
+> > +	struct ac100_rtc_dev *chip =3D dev_get_drvdata(dev);
+> > +	struct regmap *regmap =3D chip->regmap;
+> > +	u16 reg[7];
+> > +	int ret;
+> > +
+> > +	ret =3D regmap_bulk_read(regmap, AC100_RTC_SEC, reg, 7);
+> > +	if (ret)
+> > +		return ret;
+> > +
+> > +	rtc_tm->tm_sec  =3D bcd2bin(reg[0] & AC100_RTC_SEC_MASK);
+> > +	rtc_tm->tm_min  =3D bcd2bin(reg[1] & AC100_RTC_MIN_MASK);
+> > +	rtc_tm->tm_hour =3D bcd2bin(reg[2] & AC100_RTC_HOU_MASK);
+> > +	rtc_tm->tm_wday =3D bcd2bin(reg[3] & AC100_RTC_WEE_MASK);
+> > +	rtc_tm->tm_mday =3D bcd2bin(reg[4] & AC100_RTC_DAY_MASK);
+> > +	rtc_tm->tm_mon  =3D bcd2bin(reg[5] & AC100_RTC_MON_MASK) - 1;
+> > +	rtc_tm->tm_year =3D bcd2bin(reg[6] & AC100_RTC_YEA_MASK) +
+> > +			  AC100_YEAR_OFF;
+> > +
+> > +	return rtc_valid_tm(rtc_tm);
+> > +}
+> > +
+> > +static int ac100_rtc_set_time(struct device *dev, struct rtc_time *rtc=
+_tm)
+> > +{
+> > +	struct ac100_rtc_dev *chip =3D dev_get_drvdata(dev);
+> > +	struct regmap *regmap =3D chip->regmap;
+> > +	int year;
+> > +	u16 reg[8];
+> > +
+> > +	/* our RTC has a limited year range... */
+> > +	year =3D rtc_tm->tm_year - AC100_YEAR_OFF;
+> > +	if (year < 0 || year > (AC100_YEAR_MAX - 1900)) {
+> > +		dev_err(dev, "rtc only supports year in range %d - %d\n",
+> > +			AC100_YEAR_MIN, AC100_YEAR_MAX);
+> > +		return -EINVAL;
+> > +	}
+> > +
+> > +	/* convert to BCD */
+> > +	reg[0] =3D bin2bcd(rtc_tm->tm_sec)     & AC100_RTC_SEC_MASK;
+> > +	reg[1] =3D bin2bcd(rtc_tm->tm_min)     & AC100_RTC_MIN_MASK;
+> > +	reg[2] =3D bin2bcd(rtc_tm->tm_hour)    & AC100_RTC_HOU_MASK;
+> > +	reg[3] =3D bin2bcd(rtc_tm->tm_wday)    & AC100_RTC_WEE_MASK;
+> > +	reg[4] =3D bin2bcd(rtc_tm->tm_mday)    & AC100_RTC_DAY_MASK;
+> > +	reg[5] =3D bin2bcd(rtc_tm->tm_mon + 1) & AC100_RTC_MON_MASK;
+> > +	reg[6] =3D bin2bcd(year)		     & AC100_RTC_YEA_MASK;
+> > +	/* trigger write */
+> > +	reg[7] =3D AC100_RTC_UPD_TRIGGER;
+> > +
+> > +	/* Is it a leap year? */
+> > +	if (is_leap_year(year + AC100_YEAR_OFF + 1900))
+> > +		reg[6] |=3D AC100_RTC_YEA_LEAP;
+> > +
+> > +	return regmap_bulk_write(regmap, AC100_RTC_SEC, reg, 8);
+> > +}
+> > +
+> > +static int ac100_rtc_alarm_irq_enable(struct device *dev, unsigned int=
+ en)
+> > +{
+> > +	struct ac100_rtc_dev *chip =3D dev_get_drvdata(dev);
+> > +	struct regmap *regmap =3D chip->regmap;
+> > +	unsigned int val;
+> > +
+> > +	val =3D en ? AC100_ALM_INT_ENABLE : 0;
+> > +
+> > +	return regmap_write(regmap, AC100_ALM_INT_ENA, val);
+> > +}
+> > +
+> > +static int ac100_rtc_get_alarm(struct device *dev, struct rtc_wkalrm *=
+alrm)
+> > +{
+> > +	struct ac100_rtc_dev *chip =3D dev_get_drvdata(dev);
+> > +	struct regmap *regmap =3D chip->regmap;
+> > +	struct rtc_time *alrm_tm =3D &alrm->time;
+> > +	u16 reg[7];
+> > +	unsigned int val;
+> > +	int ret;
+> > +
+> > +	ret =3D regmap_read(regmap, AC100_ALM_INT_ENA, &val);
+> > +	if (ret)
+> > +		return ret;
+> > +
+> > +	alrm->enabled =3D !!(val & AC100_ALM_INT_ENABLE);
+> > +
+> > +	ret =3D regmap_bulk_read(regmap, AC100_ALM_SEC, reg, 7);
+> > +	if (ret)
+> > +		return ret;
+> > +
+> > +	alrm_tm->tm_sec  =3D bcd2bin(reg[0] & AC100_ALM_SEC_MASK);
+> > +	alrm_tm->tm_min  =3D bcd2bin(reg[1] & AC100_ALM_MIN_MASK);
+> > +	alrm_tm->tm_hour =3D bcd2bin(reg[2] & AC100_ALM_HOU_MASK);
+> > +	alrm_tm->tm_wday =3D bcd2bin(reg[3] & AC100_ALM_WEE_MASK);
+> > +	alrm_tm->tm_mday =3D bcd2bin(reg[4] & AC100_ALM_DAY_MASK);
+> > +	alrm_tm->tm_mon  =3D bcd2bin(reg[5] & AC100_ALM_MON_MASK) - 1;
+> > +	alrm_tm->tm_year =3D bcd2bin(reg[6] & AC100_ALM_YEA_MASK) +
+> > +			   AC100_YEAR_OFF;
+> > +
+> > +	return 0;
+> > +}
+> > +
+> > +static int ac100_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *=
+alrm)
+> > +{
+> > +	struct ac100_rtc_dev *chip =3D dev_get_drvdata(dev);
+> > +	struct regmap *regmap =3D chip->regmap;
+> > +	struct rtc_time *alrm_tm =3D &alrm->time;
+> > +	u16 reg[8];
+> > +	int year;
+> > +	int ret;
+> > +
+> > +	/* our alarm has a limited year range... */
+> > +	year =3D alrm_tm->tm_year - AC100_YEAR_OFF;
+> > +	if (year < 0 || year > (AC100_YEAR_MAX - 1900)) {
+> > +		dev_err(dev, "alarm only supports year in range %d - %d\n",
+> > +			AC100_YEAR_MIN, AC100_YEAR_MAX);
+> > +		return -EINVAL;
+> > +	}
+> > +
+> > +	/* convert to BCD */
+> > +	reg[0] =3D (bin2bcd(alrm_tm->tm_sec)  & AC100_ALM_SEC_MASK) |
+> > +			AC100_ALM_ENABLE_FLAG;
+> > +	reg[1] =3D (bin2bcd(alrm_tm->tm_min)  & AC100_ALM_MIN_MASK) |
+> > +			AC100_ALM_ENABLE_FLAG;
+> > +	reg[2] =3D (bin2bcd(alrm_tm->tm_hour) & AC100_ALM_HOU_MASK) |
+> > +			AC100_ALM_ENABLE_FLAG;
+> > +	/* Do not enable weekday alarm */
+> > +	reg[3] =3D bin2bcd(alrm_tm->tm_wday) & AC100_ALM_WEE_MASK;
+> > +	reg[4] =3D (bin2bcd(alrm_tm->tm_mday) & AC100_ALM_DAY_MASK) |
+> > +			AC100_ALM_ENABLE_FLAG;
+> > +	reg[5] =3D (bin2bcd(alrm_tm->tm_mon + 1)  & AC100_ALM_MON_MASK) |
+> > +			AC100_ALM_ENABLE_FLAG;
+> > +	reg[6] =3D (bin2bcd(year) & AC100_ALM_YEA_MASK) |
+> > +			AC100_ALM_ENABLE_FLAG;
+> > +	/* trigger write */
+> > +	reg[7] =3D AC100_ALM_UPD_TRIGGER;
+> > +
+> > +	ret =3D regmap_bulk_write(regmap, AC100_ALM_SEC, reg, 8);
+> > +	if (ret)
+> > +		return ret;
+> > +
+> > +	return ac100_rtc_alarm_irq_enable(dev, alrm->enabled);
+> > +}
+> > +
+> > +static irqreturn_t ac100_rtc_irq(int irq, void *data)
+> > +{
+> > +	struct ac100_rtc_dev *chip =3D data;
+> > +	struct regmap *regmap =3D chip->regmap;
+> > +	unsigned int val =3D 0;
+> > +	int ret;
+> > +
+> > +	mutex_lock(&chip->rtc->ops_lock);
+> > +
+> > +	/* read status */
+> > +	ret =3D regmap_read(regmap, AC100_ALM_INT_STA, &val);
+> > +	if (ret)
+> > +		goto out;
+> > +
+> > +	if (val & AC100_ALM_INT_ENABLE) {
+> > +		/* signal rtc framework */
+> > +		rtc_update_irq(chip->rtc, 1, RTC_AF | RTC_IRQF);
+> > +
+> > +		/* clear status */
+> > +		ret =3D regmap_write(regmap, AC100_ALM_INT_STA, val);
+> > +		if (ret)
+> > +			goto out;
+> > +
+> > +		/* disable interrupt */
+> > +		ret =3D ac100_rtc_alarm_irq_enable(chip->dev, 0);
+> > +		if (ret)
+> > +			goto out;
+> > +	}
+> > +
+> > +out:
+> > +	mutex_unlock(&chip->rtc->ops_lock);
+> > +	return IRQ_HANDLED;
+> > +}
+> > +
+> > +static const struct rtc_class_ops ac100_rtc_ops =3D {
+> > +	.read_time	  =3D ac100_rtc_get_time,
+> > +	.set_time	  =3D ac100_rtc_set_time,
+> > +	.read_alarm	  =3D ac100_rtc_get_alarm,
+> > +	.set_alarm	  =3D ac100_rtc_set_alarm,
+> > +	.alarm_irq_enable =3D ac100_rtc_alarm_irq_enable,
+> > +};
+> > +
+> > +static int ac100_rtc_probe(struct platform_device *pdev)
+> > +{
+> > +	struct ac100_dev *ac100 =3D dev_get_drvdata(pdev->dev.parent);
+> > +	struct ac100_rtc_dev *chip;
+> > +	int ret;
+> > +
+> > +	chip =3D devm_kzalloc(&pdev->dev, sizeof(*chip), GFP_KERNEL);
+> > +	platform_set_drvdata(pdev, chip);
+> > +	chip->dev =3D &pdev->dev;
+> > +	chip->regmap =3D ac100->regmap;
+> > +
+> > +	chip->irq =3D platform_get_irq(pdev, 0);
+> > +	if (chip->irq < 0) {
+> > +		dev_err(&pdev->dev, "No IRQ resource\n");
+> > +		return chip->irq;
+> > +	}
+> > +
+> > +	ret =3D devm_request_threaded_irq(&pdev->dev, chip->irq, NULL,
+> > +					ac100_rtc_irq,
+> > +					IRQF_SHARED | IRQF_ONESHOT,
+> > +					dev_name(&pdev->dev), chip);
+> > +	if (ret) {
+> > +		dev_err(&pdev->dev, "Could not request IRQ\n");
+> > +		return ret;
+> > +	}
+> > +
+> > +	/* always use 24 hour mode */
+> > +	regmap_write_bits(chip->regmap, AC100_RTC_CTRL, AC100_RTC_CTRL_24HOUR=
+,
+> > +			  AC100_RTC_CTRL_24HOUR);
+> > +
+> > +	/* disable counter alarm interrupt */
+> > +	regmap_write(chip->regmap, AC100_ALM_INT_ENA, 0);
+> > +
+> > +	/* clear counter alarm pending interrupts */
+> > +	regmap_write(chip->regmap, AC100_ALM_INT_STA, AC100_ALM_INT_ENABLE);
+> > +
+> > +	chip->rtc =3D devm_rtc_device_register(&pdev->dev, "rtc-ac100",
+> > +					     &ac100_rtc_ops, THIS_MODULE);
+> > +	if (IS_ERR(chip->rtc)) {
+> > +		dev_err(&pdev->dev, "unable to register device\n");
+> > +		return PTR_ERR(chip->rtc);
+> > +	}
+> > +
+> > +	dev_info(&pdev->dev, "RTC enabled\n");
+> > +
+> > +	return 0;
+> > +}
+> > +
+> > +static const struct of_device_id ac100_rtc_match[] =3D {
+> > +	{ .compatible =3D "x-powers,ac100-rtc" },
+> > +	{ },
+> > +};
+> > +MODULE_DEVICE_TABLE(of, ac100_rtc_match);
+> > +
+> > +static struct platform_driver ac100_rtc_driver =3D {
+> > +	.probe		=3D ac100_rtc_probe,
+> > +	.driver		=3D {
+> > +		.name		=3D "ac100-rtc",
+> > +		.of_match_table	=3D of_match_ptr(ac100_rtc_match),
+> > +	},
+> > +};
+> > +module_platform_driver(ac100_rtc_driver);
+> > +
+> > +MODULE_DESCRIPTION("X-Powers AC100 RTC driver");
+> > +MODULE_AUTHOR("Chen-Yu Tsai <wens@csie.org>");
+> > +MODULE_LICENSE("GPL v2");
+>=20
 
-diff --git a/arch/x86/include/asm/hpet.h b/arch/x86/include/asm/hpet.h
-index cc285ec4b2c1..8eecb31bebcb 100644
---- a/arch/x86/include/asm/hpet.h
-+++ b/arch/x86/include/asm/hpet.h
-@@ -96,6 +96,8 @@ extern int hpet_set_alarm_time(unsigned char hrs, unsigned char min,
- 			       unsigned char sec);
- extern int hpet_set_periodic_freq(unsigned long freq);
- extern int hpet_rtc_dropped_irq(void);
-+extern int hpet_rtc_timer_counter_init(void);
-+extern int hpet_rtc_timer_enable(void);
- extern int hpet_rtc_timer_init(void);
- extern irqreturn_t hpet_rtc_interrupt(int irq, void *dev_id);
- extern int hpet_register_irq_handler(rtc_irq_handler handler);
-diff --git a/arch/x86/kernel/hpet.c b/arch/x86/kernel/hpet.c
-index 3d747070fe67..c9da694ff236 100644
---- a/arch/x86/kernel/hpet.c
-+++ b/arch/x86/kernel/hpet.c
-@@ -1075,14 +1075,12 @@ void hpet_unregister_irq_handler(rtc_irq_handler handler)
- EXPORT_SYMBOL_GPL(hpet_unregister_irq_handler);
- 
- /*
-- * Timer 1 for RTC emulation. We use one shot mode, as periodic mode
-- * is not supported by all HPET implementations for timer 1.
-- *
-- * hpet_rtc_timer_init() is called when the rtc is initialized.
-+ * hpet_rtc_timer_counter_init() is called before interrupt can be
-+ * registered
-  */
--int hpet_rtc_timer_init(void)
-+int hpet_rtc_timer_counter_init(void)
- {
--	unsigned int cfg, cnt, delta;
-+	unsigned int cnt, delta;
- 	unsigned long flags;
- 
- 	if (!is_hpet_enabled())
-@@ -1107,6 +1105,22 @@ int hpet_rtc_timer_init(void)
- 	hpet_writel(cnt, HPET_T1_CMP);
- 	hpet_t1_cmp = cnt;
- 
-+	local_irq_restore(flags);
-+
-+	return 1;
-+}
-+EXPORT_SYMBOL_GPL(hpet_rtc_timer_counter_init);
-+
-+/*
-+ * hpet_rtc_timer_enable() is called during RTC initialization
-+ */
-+int hpet_rtc_timer_enable(void)
-+{
-+	unsigned int cfg;
-+	unsigned long flags;
-+
-+	local_irq_save(flags);
-+
- 	cfg = hpet_readl(HPET_T1_CFG);
- 	cfg &= ~HPET_TN_PERIODIC;
- 	cfg |= HPET_TN_ENABLE | HPET_TN_32BIT;
-@@ -1116,6 +1130,21 @@ int hpet_rtc_timer_init(void)
- 
- 	return 1;
- }
-+EXPORT_SYMBOL_GPL(hpet_rtc_timer_enable);
-+
-+/*
-+ * Timer 1 for RTC emulation. We use one shot mode, as periodic mode
-+ * is not supported by all HPET implementations for timer 1.
-+ *
-+ * hpet_rtc_timer_init() is called when the rtc is initialized.
-+ */
-+int hpet_rtc_timer_init(void)
-+{
-+	if (!hpet_rtc_timer_counter_init())
-+		return 0;
-+
-+	return hpet_rtc_timer_enable();
-+}
- EXPORT_SYMBOL_GPL(hpet_rtc_timer_init);
- 
- static void hpet_disable_rtc_channel(void)
--- 
-2.5.5
+--=20
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org =E2=94=82 Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog
 
--- 
+--=20
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+---=20
+You received this message because you are subscribed to the Google Groups "=
+rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an e=
+mail to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
