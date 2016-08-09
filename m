@@ -1,21 +1,26 @@
-Return-Path: <rtc-linux+bncBCJLBW6OUMMRBUMOU66QKGQED4JXXVA@googlegroups.com>
+Return-Path: <rtc-linux+bncBDEKVJM7XAHRBQPKVC6QKGQEXTTLODQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from smtp.smtpout.orange.fr (smtp11.smtpout.orange.fr. [80.12.242.133])
-        by gmr-mx.google.com with ESMTPS id w64si128337wmf.3.2016.08.09.04.58.35
+Received: from mout.kundenserver.de (mout.kundenserver.de. [212.227.126.131])
+        by gmr-mx.google.com with ESMTPS id l195si2690214vki.2.2016.08.09.12.55.44
         for <rtc-linux@googlegroups.com>
-        (version=TLS1 cipher=AES128-SHA bits=128/128);
-        Tue, 09 Aug 2016 04:58:35 -0700 (PDT)
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-To: a.zummo@towertech.it,
-	alexandre.belloni@free-electrons.com
-Cc: rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org,
-	kernel-janitors@vger.kernel.org,
-	Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Subject: [rtc-linux] [PATCH] rtc: pcf2123: Add missing error code assignment
- before test
-Date: Tue,  9 Aug 2016 13:58:27 +0200
-Message-Id: <1470743907-11498-1-git-send-email-christophe.jaillet@wanadoo.fr>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 09 Aug 2016 12:55:44 -0700 (PDT)
+From: Arnd Bergmann <arnd@arndb.de>
+To: Thomas Gleixner <tglx@linutronix.de>,
+	Ingo Molnar <mingo@redhat.com>,
+	"H. Peter Anvin" <hpa@zytor.com>,
+	x86@kernel.org
+Cc: =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= <ville.syrjala@linux.intel.com>,
+	Geert Uytterhoeven <geert@linux-m68k.org>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	rtc-linux@googlegroups.com,
+	Arnd Bergmann <arnd@arndb.de>,
+	Borislav Petkov <bp@suse.de>,
+	linux-kernel@vger.kernel.org
+Subject: [rtc-linux] [PATCH] x86/hpet: fix typo from rtc cleanup
+Date: Tue,  9 Aug 2016 21:54:53 +0200
+Message-Id: <20160809195528.1604312-1-arnd@arndb.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
@@ -27,52 +32,50 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-It is likely that checking the result of 'pcf2123_write_reg' is expected
-here.
-Also fix a small style issue. The '{' at the beginning of the function
-is misplaced.
+Ville Syrj=C3=A4l=C3=A4 reports "The first time I run hwclock after rebooti=
+ng
+I get this:
 
-Fixes: 809b453b76e15 ("rtc: pcf2123: clean up writes to the rtc chip")
+ open("/dev/rtc", O_RDONLY)              =3D 3
+ ioctl(3, PHN_SET_REGS or RTC_UIE_ON, 0) =3D 0
+ select(4, [3], NULL, NULL, {10, 0})     =3D 0 (Timeout)
+ ioctl(3, PHN_NOT_OH or RTC_UIE_OFF, 0)  =3D 0
+ close(3)                                =3D 0
 
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+On all subsequent runs I get this:
+ open("/dev/rtc", O_RDONLY)              =3D 3
+ ioctl(3, PHN_SET_REGS or RTC_UIE_ON, 0) =3D -1 EINVAL (Invalid argument)
+ ioctl(3, RTC_RD_TIME, 0x7ffd76b3ae70)   =3D -1 EINVAL (Invalid argument)
+ close(3)                                =3D 0"
+
+This was caused by a stupid typo in a patch that should have been
+a simple rename to move around contents of a header file, but
+accidentally wrote zeroes into the rtc rather than reading from
+it.
+
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Reported-by: Ville Syrj=C3=A4l=C3=A4 <ville.syrjala@linux.intel.com>
+Tested-by: Ville Syrj=C3=A4l=C3=A4 <ville.syrjala@linux.intel.com>
+Fixes: 463a86304cae ("char/genrtc: x86: remove remnants of asm/rtc.h")
 ---
- drivers/rtc/rtc-pcf2123.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ arch/x86/kernel/hpet.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/rtc/rtc-pcf2123.c b/drivers/rtc/rtc-pcf2123.c
-index b4478cc92b55..8895f77726e8 100644
---- a/drivers/rtc/rtc-pcf2123.c
-+++ b/drivers/rtc/rtc-pcf2123.c
-@@ -182,7 +182,8 @@ static ssize_t pcf2123_show(struct device *dev, struct =
-device_attribute *attr,
- }
+diff --git a/arch/x86/kernel/hpet.c b/arch/x86/kernel/hpet.c
+index ed16e58658a4..c6dfd801df97 100644
+--- a/arch/x86/kernel/hpet.c
++++ b/arch/x86/kernel/hpet.c
+@@ -1242,7 +1242,7 @@ irqreturn_t hpet_rtc_interrupt(int irq, void *dev_id)
+ 	memset(&curr_time, 0, sizeof(struct rtc_time));
 =20
- static ssize_t pcf2123_store(struct device *dev, struct device_attribute *=
-attr,
--			     const char *buffer, size_t count) {
-+			     const char *buffer, size_t count)
-+{
- 	struct pcf2123_sysfs_reg *r;
- 	unsigned long reg;
- 	unsigned long val;
-@@ -199,7 +200,7 @@ static ssize_t pcf2123_store(struct device *dev, struct=
- device_attribute *attr,
- 	if (ret)
- 		return ret;
+ 	if (hpet_rtc_flags & (RTC_UIE | RTC_AIE))
+-		mc146818_set_time(&curr_time);
++		mc146818_get_time(&curr_time);
 =20
--	pcf2123_write_reg(dev, reg, val);
-+	ret =3D pcf2123_write_reg(dev, reg, val);
- 	if (ret < 0)
- 		return -EIO;
- 	return count;
+ 	if (hpet_rtc_flags & RTC_UIE &&
+ 	    curr_time.tm_sec !=3D hpet_prev_update_sec) {
 --=20
-2.7.4
-
-
----
-L'absence de virus dans ce courrier =C3=A9lectronique a =C3=A9t=C3=A9 v=C3=
-=A9rifi=C3=A9e par le logiciel antivirus Avast.
-https://www.avast.com/antivirus
+2.9.0
 
 --=20
 You received this message because you are subscribed to "rtc-linux".
