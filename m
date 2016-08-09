@@ -1,23 +1,24 @@
-Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBI4FTS7AKGQEU62SYKI@googlegroups.com>
+Return-Path: <rtc-linux+bncBDZJXP7F6YLRBRURU66QKGQERJPR6NA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
+Received: from mail3-relais-sop.national.inria.fr (mail3-relais-sop.national.inria.fr. [192.134.164.104])
+        by gmr-mx.google.com with ESMTPS id j127si239313ith.0.2016.08.09.05.12.54
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 09 Aug 2016 05:12:54 -0700 (PDT)
+Date: Tue, 9 Aug 2016 14:03:35 +0200 (CEST)
+From: Julia Lawall <julia.lawall@lip6.fr>
+To: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+cc: a.zummo@towertech.it, alexandre.belloni@free-electrons.com,
+    rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org,
+    kernel-janitors@vger.kernel.org
+Subject: [rtc-linux] Re: [PATCH] rtc: pcf2123: Add missing error code
+ assignment before test
+In-Reply-To: <1470743907-11498-1-git-send-email-christophe.jaillet@wanadoo.fr>
+Message-ID: <alpine.DEB.2.10.1608091403050.2911@hadrien>
+References: <1470743907-11498-1-git-send-email-christophe.jaillet@wanadoo.fr>
 MIME-Version: 1.0
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id u3si95911wmf.1.2016.08.31.09.15.30
-        for <rtc-linux@googlegroups.com>;
-        Wed, 31 Aug 2016 09:15:30 -0700 (PDT)
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Alessandro Zummo <a.zummo@towertech.it>
-Cc: Oleksij Rempel <linux@rempel-privat.de>,
-	rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Subject: [rtc-linux] [PATCH v2 2/2] rtc: asm9260: rework locking
-Date: Wed, 31 Aug 2016 18:15:28 +0200
-Message-Id: <20160831161528.11217-2-alexandre.belloni@free-electrons.com>
-In-Reply-To: <20160831161528.11217-1-alexandre.belloni@free-electrons.com>
-References: <20160831161528.11217-1-alexandre.belloni@free-electrons.com>
+Content-Type: MULTIPART/MIXED; BOUNDARY="8323329-1817157135-1470744216=:2911"
 Reply-To: rtc-linux@googlegroups.com
-Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -26,125 +27,69 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-The rtc-asm9260 driver uses a discrete spinlock (wrongly uninitialized).
-Use the rtc mutex to lock mmio accesses instead.
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
----
- drivers/rtc/rtc-asm9260.c | 20 +++++---------------
- 1 file changed, 5 insertions(+), 15 deletions(-)
+--8323329-1817157135-1470744216=:2911
+Content-Type: TEXT/PLAIN; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
 
-diff --git a/drivers/rtc/rtc-asm9260.c b/drivers/rtc/rtc-asm9260.c
-index 5219916ce11d..18a93d3e3f93 100644
---- a/drivers/rtc/rtc-asm9260.c
-+++ b/drivers/rtc/rtc-asm9260.c
-@@ -112,8 +112,6 @@ struct asm9260_rtc_priv {
- 	void __iomem		*iobase;
- 	struct rtc_device	*rtc;
- 	struct clk		*clk;
--	/* io lock */
--	spinlock_t		lock;
- };
- 
- static irqreturn_t asm9260_rtc_irq(int irq, void *dev_id)
-@@ -122,11 +120,15 @@ static irqreturn_t asm9260_rtc_irq(int irq, void *dev_id)
- 	u32 isr;
- 	unsigned long events = 0;
- 
-+	mutex_lock(&priv->rtc->ops_lock);
- 	isr = ioread32(priv->iobase + HW_CIIR);
--	if (!isr)
-+	if (!isr) {
-+		mutex_unlock(&priv->rtc->ops_lock);
- 		return IRQ_NONE;
-+	}
- 
- 	iowrite32(0, priv->iobase + HW_CIIR);
-+	mutex_unlock(&priv->rtc->ops_lock);
- 
- 	events |= RTC_AF | RTC_IRQF;
- 
-@@ -139,9 +141,7 @@ static int asm9260_rtc_read_time(struct device *dev, struct rtc_time *tm)
- {
- 	struct asm9260_rtc_priv *priv = dev_get_drvdata(dev);
- 	u32 ctime0, ctime1, ctime2;
--	unsigned long irq_flags;
- 
--	spin_lock_irqsave(&priv->lock, irq_flags);
- 	ctime0 = ioread32(priv->iobase + HW_CTIME0);
- 	ctime1 = ioread32(priv->iobase + HW_CTIME1);
- 	ctime2 = ioread32(priv->iobase + HW_CTIME2);
-@@ -155,7 +155,6 @@ static int asm9260_rtc_read_time(struct device *dev, struct rtc_time *tm)
- 		ctime1 = ioread32(priv->iobase + HW_CTIME1);
- 		ctime2 = ioread32(priv->iobase + HW_CTIME2);
- 	}
--	spin_unlock_irqrestore(&priv->lock, irq_flags);
- 
- 	tm->tm_sec  = (ctime0 >> BM_CTIME0_SEC_S)  & BM_CTIME0_SEC_M;
- 	tm->tm_min  = (ctime0 >> BM_CTIME0_MIN_S)  & BM_CTIME0_MIN_M;
-@@ -174,9 +173,7 @@ static int asm9260_rtc_read_time(struct device *dev, struct rtc_time *tm)
- static int asm9260_rtc_set_time(struct device *dev, struct rtc_time *tm)
- {
- 	struct asm9260_rtc_priv *priv = dev_get_drvdata(dev);
--	unsigned long irq_flags;
- 
--	spin_lock_irqsave(&priv->lock, irq_flags);
- 	/*
- 	 * make sure SEC counter will not flip other counter on write time,
- 	 * real value will be written at the enf of sequence.
-@@ -191,7 +188,6 @@ static int asm9260_rtc_set_time(struct device *dev, struct rtc_time *tm)
- 	iowrite32(tm->tm_hour, priv->iobase + HW_HOUR);
- 	iowrite32(tm->tm_min,  priv->iobase + HW_MIN);
- 	iowrite32(tm->tm_sec,  priv->iobase + HW_SEC);
--	spin_unlock_irqrestore(&priv->lock, irq_flags);
- 
- 	return 0;
- }
-@@ -199,9 +195,7 @@ static int asm9260_rtc_set_time(struct device *dev, struct rtc_time *tm)
- static int asm9260_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
- {
- 	struct asm9260_rtc_priv *priv = dev_get_drvdata(dev);
--	unsigned long irq_flags;
- 
--	spin_lock_irqsave(&priv->lock, irq_flags);
- 	alrm->time.tm_year = ioread32(priv->iobase + HW_ALYEAR);
- 	alrm->time.tm_mon  = ioread32(priv->iobase + HW_ALMON);
- 	alrm->time.tm_mday = ioread32(priv->iobase + HW_ALDOM);
-@@ -213,7 +207,6 @@ static int asm9260_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
- 
- 	alrm->enabled = ioread32(priv->iobase + HW_AMR) ? 1 : 0;
- 	alrm->pending = ioread32(priv->iobase + HW_CIIR) ? 1 : 0;
--	spin_unlock_irqrestore(&priv->lock, irq_flags);
- 
- 	return rtc_valid_tm(&alrm->time);
- }
-@@ -221,9 +214,7 @@ static int asm9260_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
- static int asm9260_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
- {
- 	struct asm9260_rtc_priv *priv = dev_get_drvdata(dev);
--	unsigned long irq_flags;
- 
--	spin_lock_irqsave(&priv->lock, irq_flags);
- 	iowrite32(alrm->time.tm_year, priv->iobase + HW_ALYEAR);
- 	iowrite32(alrm->time.tm_mon,  priv->iobase + HW_ALMON);
- 	iowrite32(alrm->time.tm_mday, priv->iobase + HW_ALDOM);
-@@ -234,7 +225,6 @@ static int asm9260_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
- 	iowrite32(alrm->time.tm_sec,  priv->iobase + HW_ALSEC);
- 
- 	iowrite32(alrm->enabled ? 0 : BM_AMR_OFF, priv->iobase + HW_AMR);
--	spin_unlock_irqrestore(&priv->lock, irq_flags);
- 
- 	return 0;
- }
--- 
-2.9.3
 
--- 
-You received this message because you are subscribed to "rtc-linux".
-Membership options at http://groups.google.com/group/rtc-linux .
-Please read http://groups.google.com/group/rtc-linux/web/checklist
-before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
-For more options, visit https://groups.google.com/d/optout.
+
+On Tue, 9 Aug 2016, Christophe JAILLET wrote:
+
+> It is likely that checking the result of 'pcf2123_write_reg' is expected
+> here.
+> Also fix a small style issue. The '{' at the beginning of the function
+> is misplaced.
+
+They shouldn't be in the same patch.  If you are wrong about the ret
+issue, the { should still be moved.
+
+julia
+
+>
+> Fixes: 809b453b76e15 ("rtc: pcf2123: clean up writes to the rtc chip")
+>
+> Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+> ---
+>  drivers/rtc/rtc-pcf2123.c | 5 +++--
+>  1 file changed, 3 insertions(+), 2 deletions(-)
+>
+> diff --git a/drivers/rtc/rtc-pcf2123.c b/drivers/rtc/rtc-pcf2123.c
+> index b4478cc92b55..8895f77726e8 100644
+> --- a/drivers/rtc/rtc-pcf2123.c
+> +++ b/drivers/rtc/rtc-pcf2123.c
+> @@ -182,7 +182,8 @@ static ssize_t pcf2123_show(struct device *dev, struct device_attribute *attr,
+>  }
+>
+>  static ssize_t pcf2123_store(struct device *dev, struct device_attribute *attr,
+> -			     const char *buffer, size_t count) {
+> +			     const char *buffer, size_t count)
+> +{
+>  	struct pcf2123_sysfs_reg *r;
+>  	unsigned long reg;
+>  	unsigned long val;
+> @@ -199,7 +200,7 @@ static ssize_t pcf2123_store(struct device *dev, struct device_attribute *attr,
+>  	if (ret)
+>  		return ret;
+>
+> -	pcf2123_write_reg(dev, reg, val);
+> +	ret = pcf2123_write_reg(dev, reg, val);
+>  	if (ret < 0)
+>  		return -EIO;
+>  	return count;
+> --
+> 2.7.4
+>
+>
+> ---
+> L'absence de virus dans ce courrier électronique a été vérifiée par le logiciel antivirus Avast.
+> https://www.avast.com/antivirus
+>
+> --
+> To unsubscribe from this list: send the line "unsubscribe kernel-janitors" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>
+--8323329-1817157135-1470744216=:2911--
