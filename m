@@ -1,20 +1,24 @@
-Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBNOIXG6QKGQE5VSCZJI@googlegroups.com>
+Return-Path: <rtc-linux+bncBAABBRX2U66QKGQECQBY7NA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-MIME-Version: 1.0
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id r74si153607wme.3.2016.08.12.17.05.08
+Received: from mga04.intel.com (mga04.intel.com. [192.55.52.120])
+        by gmr-mx.google.com with ESMTP id ph9si5468543pac.1.2016.08.09.08.56.54
         for <rtc-linux@googlegroups.com>;
-        Fri, 12 Aug 2016 17:05:08 -0700 (PDT)
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Alessandro Zummo <a.zummo@towertech.it>
-Cc: rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Subject: [rtc-linux] [PATCH v2 1/4] rtc: ds1307: fix century bit support
-Date: Sat, 13 Aug 2016 02:04:59 +0200
-Message-Id: <1471046702-20231-1-git-send-email-alexandre.belloni@free-electrons.com>
-Reply-To: rtc-linux@googlegroups.com
+        Tue, 09 Aug 2016 08:56:54 -0700 (PDT)
+Date: Tue, 9 Aug 2016 18:56:49 +0300
+From: Ville =?iso-8859-1?Q?Syrj=E4l=E4?= <ville.syrjala@linux.intel.com>
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: Geert Uytterhoeven <geert@linux-m68k.org>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>,
+	x86@kernel.org, Alessandro Zummo <a.zummo@towertech.it>,
+	linux-kernel@vger.kernel.org, rtc-linux@googlegroups.com
+Subject: [rtc-linux] rtc regression [463a86304cae ("char/genrtc: x86: remove
+ remnants of asm/rtc.h")]
+Message-ID: <20160809155649.GX4329@intel.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -23,134 +27,47 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Add an option to properly support the century bit of ds1337 and compatibles
-and ds1340.
-Because the driver had a bug until now, it is not possible to switch users
-to the fixed code directly as RTCs in the field will wrongly have the
-century bit set.
+Hi,
 
-Acked-by: Arnaud Ebalard <arno@natisbad.org>
-Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
----
-Changes in v2:
- - use proper bit operations (& instead of &&)
+commit 463a86304cae ("char/genrtc: x86: remove remnants of asm/rtc.h")
+broke rtc for me. Neither hwclock or rtcwake work anymore. This is just
+a very standard x86-64 IVB box, and it was reported that machines in
+our i915 test farm are having rtc related problems as well.
 
+The first time I run hwclock after rebooting I get this:
+ open("/dev/rtc", O_RDONLY)              =3D 3
+ ioctl(3, PHN_SET_REGS or RTC_UIE_ON, 0) =3D 0
+ select(4, [3], NULL, NULL, {10, 0})     =3D 0 (Timeout)
+ ioctl(3, PHN_NOT_OH or RTC_UIE_OFF, 0)  =3D 0
+ close(3)                                =3D 0
 
- drivers/rtc/Kconfig      | 14 ++++++++++++++
- drivers/rtc/rtc-ds1307.c | 48 +++++++++++++++++++++++++++++++++++++++++++-----
- 2 files changed, 57 insertions(+), 5 deletions(-)
+On all subsequent runs I get this:
+ open("/dev/rtc", O_RDONLY)              =3D 3
+ ioctl(3, PHN_SET_REGS or RTC_UIE_ON, 0) =3D -1 EINVAL (Invalid argument)
+ ioctl(3, RTC_RD_TIME, 0x7ffd76b3ae70)   =3D -1 EINVAL (Invalid argument)
+ close(3)                                =3D 0
 
-diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
-index e215f50794b6..022e833c2143 100644
---- a/drivers/rtc/Kconfig
-+++ b/drivers/rtc/Kconfig
-@@ -224,6 +224,20 @@ config RTC_DRV_DS1307_HWMON
- 	  Say Y here if you want to expose temperature sensor data on
- 	  rtc-ds1307 (only DS3231)
- 
-+config RTC_DRV_DS1307_CENTURY
-+	bool "Century bit support for rtc-ds1307"
-+	depends on RTC_DRV_DS1307
-+	default n
-+	help
-+	  The DS1307 driver suffered from a bug where it was enabling the
-+	  century bit inconditionnally but never used it when reading the time.
-+	  It made the driver unable to support dates beyond 2099.
-+	  Setting this option will add proper support for the century bit but if
-+	  the time was previously set using a kernel predating this option,
-+	  reading the date will return a date in the next century.
-+	  To solve that, you could boot a kernel without this option set, set
-+	  the RTC date and then boot a kernel with this option set.
-+
- config RTC_DRV_DS1374
- 	tristate "Dallas/Maxim DS1374"
- 	help
-diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
-index 8e1c5cb6ece6..712e221d2415 100644
---- a/drivers/rtc/rtc-ds1307.c
-+++ b/drivers/rtc/rtc-ds1307.c
-@@ -382,10 +382,25 @@ static int ds1307_get_time(struct device *dev, struct rtc_time *t)
- 	t->tm_mday = bcd2bin(ds1307->regs[DS1307_REG_MDAY] & 0x3f);
- 	tmp = ds1307->regs[DS1307_REG_MONTH] & 0x1f;
- 	t->tm_mon = bcd2bin(tmp) - 1;
--
--	/* assume 20YY not 19YY, and ignore DS1337_BIT_CENTURY */
- 	t->tm_year = bcd2bin(ds1307->regs[DS1307_REG_YEAR]) + 100;
- 
-+#ifdef CONFIG_RTC_DRV_DS1307_CENTURY
-+	switch (ds1307->type) {
-+	case ds_1337:
-+	case ds_1339:
-+	case ds_3231:
-+		if (ds1307->regs[DS1307_REG_MONTH] & DS1337_BIT_CENTURY)
-+			t->tm_year += 100;
-+		break;
-+	case ds_1340:
-+		if (ds1307->regs[DS1307_REG_HOUR] & DS1340_BIT_CENTURY)
-+			t->tm_year += 100;
-+		break;
-+	default:
-+		break;
-+	}
-+#endif
-+
- 	dev_dbg(dev, "%s secs=%d, mins=%d, "
- 		"hours=%d, mday=%d, mon=%d, year=%d, wday=%d\n",
- 		"read", t->tm_sec, t->tm_min,
-@@ -409,6 +424,27 @@ static int ds1307_set_time(struct device *dev, struct rtc_time *t)
- 		t->tm_hour, t->tm_mday,
- 		t->tm_mon, t->tm_year, t->tm_wday);
- 
-+#ifdef CONFIG_RTC_DRV_DS1307_CENTURY
-+	if (t->tm_year < 100)
-+		return -EINVAL;
-+
-+	switch (ds1307->type) {
-+	case ds_1337:
-+	case ds_1339:
-+	case ds_3231:
-+	case ds_1340:
-+		if (t->tm_year > 299)
-+			return -EINVAL;
-+	default:
-+		if (t->tm_year > 199)
-+			return -EINVAL;
-+		break;
-+	}
-+#else
-+	if (t->tm_year < 100 || t->tm_year > 199)
-+		return -EINVAL;
-+#endif
-+
- 	buf[DS1307_REG_SECS] = bin2bcd(t->tm_sec);
- 	buf[DS1307_REG_MIN] = bin2bcd(t->tm_min);
- 	buf[DS1307_REG_HOUR] = bin2bcd(t->tm_hour);
-@@ -424,11 +460,13 @@ static int ds1307_set_time(struct device *dev, struct rtc_time *t)
- 	case ds_1337:
- 	case ds_1339:
- 	case ds_3231:
--		buf[DS1307_REG_MONTH] |= DS1337_BIT_CENTURY;
-+		if (t->tm_year > 199)
-+			buf[DS1307_REG_MONTH] |= DS1337_BIT_CENTURY;
- 		break;
- 	case ds_1340:
--		buf[DS1307_REG_HOUR] |= DS1340_BIT_CENTURY_EN
--				| DS1340_BIT_CENTURY;
-+		buf[DS1307_REG_HOUR] |= DS1340_BIT_CENTURY_EN;
-+		if (t->tm_year > 199)
-+			buf[DS1307_REG_HOUR] |= DS1340_BIT_CENTURY;
- 		break;
- 	case mcp794xx:
- 		/*
--- 
-2.8.1
+463a86304cae^ gets me back to working condition:
+ open("/dev/rtc", O_RDONLY)              =3D 3
+ ioctl(3, PHN_SET_REGS or RTC_UIE_ON, 0) =3D 0
+ select(4, [3], NULL, NULL, {10, 0})     =3D 1 (in [3], left {9, 530998})
+ ioctl(3, PHN_NOT_OH or RTC_UIE_OFF, 0)  =3D 0
+ ioctl(3, RTC_RD_TIME, {tm_sec=3D20, tm_min=3D17, tm_hour=3D15, tm_mday=3D9=
+, tm_mon=3D7, tm_year=3D116, ...}) =3D 0
+ close(3)                                =3D 0
 
--- 
+--=20
+Ville Syrj=C3=A4l=C3=A4
+Intel OTC
+
+--=20
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+---=20
+You received this message because you are subscribed to the Google Groups "=
+rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an e=
+mail to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
