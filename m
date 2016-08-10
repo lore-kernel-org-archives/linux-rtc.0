@@ -1,26 +1,20 @@
-Return-Path: <rtc-linux+bncBC6LTXWRRYFRBU4ESW7AKGQE2742ARI@googlegroups.com>
+Return-Path: <rtc-linux+bncBAABBF65VO6QKGQE7LLC4KA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mx1.redhat.com (mx1.redhat.com. [209.132.183.28])
-        by gmr-mx.google.com with ESMTPS id d206si3015782ywh.3.2016.08.30.01.22.43
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 30 Aug 2016 01:22:43 -0700 (PDT)
-Date: Tue, 30 Aug 2016 16:22:30 +0800
-From: Dave Young <dyoung@redhat.com>
-To: Pratyush Anand <panand@redhat.com>
-Cc: mingo@kernel.org, alexandre.belloni@free-electrons.com, tglx@linutronix.de,
-        hpa@zytor.com, x86@kernel.org, rtc-linux@googlegroups.com,
-        linux-kernel@vger.kernel.org, prarit@redhat.com, dzickus@redhat.com,
-        a.zummo@towertech.it
-Subject: [rtc-linux] Re: [PATCH V3 2/2] rtc/rtc-cmos: Initialize software
- counters before irq is registered
-Message-ID: <20160830082230.GA7000@dhcp-128-65.nay.redhat.com>
-References: <cover.1470985727.git.panand@redhat.com>
- <90426708da5934284839e6f23d23e265afcc779f.1470985727.git.panand@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <90426708da5934284839e6f23d23e265afcc779f.1470985727.git.panand@redhat.com>
+Received: from root.phytec.de (mail.visioncatalog.de. [217.6.246.34])
+        by gmr-mx.google.com with ESMTP id w64si409537wmf.3.2016.08.10.02.06.31
+        for <rtc-linux@googlegroups.com>;
+        Wed, 10 Aug 2016 02:06:31 -0700 (PDT)
+From: Wadim Egorov <w.egorov@phytec.de>
+To: linux-kernel@vger.kernel.org, rtc-linux@googlegroups.com, devicetree@vger.kernel.org, linux-rockchip@lists.infradead.org
+Cc: dianders@chromium.org, zyw@rock-chips.com, robh+dt@kernel.org, mark.rutland@arm.com, lee.jones@linaro.org, lgirdwood@gmail.com, broonie@kernel.org, a.zummo@towertech.it, alexandre.belloni@free-electrons.com
+Subject: [rtc-linux] [PATCH v7 2/4] regulator: rk808: Add regulator driver for RK818
+Date: Wed, 10 Aug 2016 11:05:05 +0200
+Message-Id: <1470819907-11237-3-git-send-email-w.egorov@phytec.de>
+In-Reply-To: <1470819907-11237-1-git-send-email-w.egorov@phytec.de>
+References: <1470819907-11237-1-git-send-email-w.egorov@phytec.de>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -29,141 +23,238 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Hi, Pratyush
+Add support for the rk818 regulator. The regulator module consists
+of 4 DCDCs, 9 LDOs, 1 switch and 1 BOOST converter which is used to
+power OTG and HDMI5V.
 
-On 08/16/16 at 08:55am, Pratyush Anand wrote:
-> We have observed on few x86 machines with rtc-cmos device that
-> hpet_rtc_interrupt() is called just after irq registration and before
-> cmos_do_probe() could call hpet_rtc_timer_init().
-> 
-> So, neither hpet_default_delta nor hpet_t1_cmp is initialized by the time
-> interrupt is raised in the given situation, and this results in NMI
-> watchdog LOCKUP.
-> 
-> It has only been observed sporadically on kdump secondary kernels.
-> 
-> See the call trace:
-> ---<-snip->---
->    27.913194] Kernel panic - not syncing: Watchdog detected hard LOCKUP on
-> cpu 0
-> [   27.915371] CPU: 0 PID: 1 Comm: swapper/0 Not tainted
-> 3.10.0-342.el7.x86_64 #1
-> [   27.917503] Hardware name: HP ProLiant DL160 Gen8, BIOS J03 02/10/2014
-> [   27.919455]  ffffffff8186a728 0000000059c82488 ffff880034e05af0
-> ffffffff81637bd4
-> [   27.921870]  ffff880034e05b70 ffffffff8163144a 0000000000000010
-> ffff880034e05b80
-> [   27.924257]  ffff880034e05b20 0000000059c82488 0000000000000000
-> 0000000000000000
-> [   27.926599] Call Trace:
-> [   27.927352]  <NMI>  [<ffffffff81637bd4>] dump_stack+0x19/0x1b
-> [   27.929080]  [<ffffffff8163144a>] panic+0xd8/0x1e7
-> [   27.930588]  [<ffffffff8111d3e0>] ? restart_watchdog_hrtimer+0x50/0x50
-> [   27.932502]  [<ffffffff8111d4a2>] watchdog_overflow_callback+0xc2/0xd0
-> [   27.934427]  [<ffffffff811612c1>] __perf_event_overflow+0xa1/0x250
-> [   27.936232]  [<ffffffff81161d94>] perf_event_overflow+0x14/0x20
-> [   27.937957]  [<ffffffff81032ae8>] intel_pmu_handle_irq+0x1e8/0x470
-> [   27.939799]  [<ffffffff8164164b>] perf_event_nmi_handler+0x2b/0x50
-> [   27.941649]  [<ffffffff81640d99>] nmi_handle.isra.0+0x69/0xb0
-> [   27.943348]  [<ffffffff81640f49>] do_nmi+0x169/0x340
-> [   27.944802]  [<ffffffff816401d3>] end_repeat_nmi+0x1e/0x2e
-> [   27.946424]  [<ffffffff81056ee5>] ? hpet_rtc_interrupt+0x85/0x380
-> [   27.948197]  [<ffffffff81056ee5>] ? hpet_rtc_interrupt+0x85/0x380
-> [   27.949992]  [<ffffffff81056ee5>] ? hpet_rtc_interrupt+0x85/0x380
-> [   27.951816]  <<EOE>>  <IRQ>  [<ffffffff8108f5a3>] ?
-> run_timer_softirq+0x43/0x340
-> [   27.954114]  [<ffffffff8111e24e>] handle_irq_event_percpu+0x3e/0x1e0
-> [   27.955962]  [<ffffffff8111e42d>] handle_irq_event+0x3d/0x60
-> [   27.957635]  [<ffffffff811210c7>] handle_edge_irq+0x77/0x130
-> [   27.959332]  [<ffffffff8101704f>] handle_irq+0xbf/0x150
-> [   27.960949]  [<ffffffff8164a86f>] do_IRQ+0x4f/0xf0
-> [   27.962434]  [<ffffffff8163faed>] common_interrupt+0x6d/0x6d
-> [   27.964101]  <EOI>  [<ffffffff8163f43b>] ?
-> _raw_spin_unlock_irqrestore+0x1b/0x40
-> [   27.966308]  [<fffff8111ff07>] __setup_irq+0x2a7/0x570
-> [   28.067859]  [<ffffffff81056e60>] ? hpet_cpuhp_notify+0x140/0x140
-> [   28.069709]  [<ffffffff8112032c>] request_threaded_irq+0xcc/0x170
-> [   28.071585]  [<ffffffff814b24a6>] cmos_do_probe+0x1e6/0x450
-> [   28.073240]  [<ffffffff814b2710>] ? cmos_do_probe+0x450/0x450
-> [   28.074911]  [<ffffffff814b27cb>] cmos_pnp_probe+0xbb/0xc0
-> [   28.076533]  [<ffffffff8139b245>] pnp_device_probe+0x65/0xd0
-> [   28.078198]  [<ffffffff813f8ca7>] driver_probe_device+0x87/0x390
-> [   28.079971]  [<ffffffff813f9083>] __driver_attach+0x93/0xa0
-> [   28.081660]  [<ffffffff813f8ff0>] ? __device_attach+0x40/0x40
-> [   28.083662]  [<ffffffff813f6a13>] bus_for_each_dev+0x73/0xc0
-> [   28.085370]  [<ffffffff813f86fe>] driver_attach+0x1e/0x20
-> [   28.086974]  [<ffffffff813f8250>] bus_add_driver+0x200/0x2d0
-> [   28.088634]  [<ffffffff81ade49a>] ? rtc_sysfs_init+0xe/0xe
-> [   28.090349]  [<ffffffff813f9704>] driver_register+0x64/0xf0
-> [   28.091989]  [<ffffffff8139b070>] pnp_register_driver+0x20/0x30
-> [   28.093707]  [<ffffffff81ade4ab>] cmos_init+0x11/0x71
-> ---<-snip->---
-> 
-> The previous patch split hpet_rtc_timer_init into
-> hpet_rtc_timer_counter_init() and hpet_rtc_timer_enable().
-> 
-> Therefore, this patch moved hpet_rtc_timer_counter_init() before IRQ
-> registration, so that we can gracefully handle such spurious interrupts.
-> 
-> We were able to reproduce the problem in maximum 15 trials of kdump
-> secondary kernel boot on an hp-dl160gen8 machine without this patch.
-> However, more than 35 trials went fine after applying this patch.
-> 
-> Signed-off-by: Pratyush Anand <panand@redhat.com>
-> [dzickus@redhat.com: edited the patch's summary]
-> Signed-off-by: Don Zickus <dzickus@redhat.com>
-> ---
->  drivers/rtc/rtc-cmos.c | 13 ++++++++++++-
->  1 file changed, 12 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/rtc/rtc-cmos.c b/drivers/rtc/rtc-cmos.c
-> index 43745cac0141..089d987f2638 100644
-> --- a/drivers/rtc/rtc-cmos.c
-> +++ b/drivers/rtc/rtc-cmos.c
-> @@ -129,6 +129,16 @@ static inline int hpet_rtc_dropped_irq(void)
->  	return 0;
->  }
->  
-> +static inline int hpet_rtc_timer_counter_init(void)
-> +{
-> +	return 0;
-> +}
-> +
-> +static inline int hpet_rtc_timer_enable(void)
-> +{
-> +	return 0;
-> +}
-> +
+The output voltages are configurable and are meant to supply power
+to the main processor and other components.
 
-Can these dummy functions go to /usr/include/linux/hpet.h alont with
-the #ifdef  etc.
+Signed-off-by: Wadim Egorov <w.egorov@phytec.de>
+Acked-by: Mark Brown <broonie@kernel.org>
+---
+ drivers/regulator/Kconfig           |   4 +-
+ drivers/regulator/rk808-regulator.c | 143 ++++++++++++++++++++++++++++++++++--
+ 2 files changed, 138 insertions(+), 9 deletions(-)
 
->  static inline int hpet_rtc_timer_init(void)
->  {
->  	return 0;
-> @@ -707,6 +717,7 @@ cmos_do_probe(struct device *dev, struct resource *ports, int rtc_irq)
->  		goto cleanup1;
->  	}
->  
-> +	hpet_rtc_timer_counter_init();
->  	if (is_valid_irq(rtc_irq)) {
->  		irq_handler_t rtc_cmos_int_handler;
->  
-> @@ -729,7 +740,7 @@ cmos_do_probe(struct device *dev, struct resource *ports, int rtc_irq)
->  			goto cleanup1;
->  		}
->  	}
-> -	hpet_rtc_timer_init();
-> +	hpet_rtc_timer_enable();
->  
->  	/* export at least the first block of NVRAM */
->  	nvram.size = address_space - NVRAM_OFFSET;
-> -- 
-> 2.5.5
-> 
-
-Thanks
-Dave
+diff --git a/drivers/regulator/Kconfig b/drivers/regulator/Kconfig
+index 6c88e31..d3a86a8 100644
+--- a/drivers/regulator/Kconfig
++++ b/drivers/regulator/Kconfig
+@@ -635,11 +635,11 @@ config REGULATOR_RC5T583
+ 	  outputs which can be controlled by i2c communication.
+ 
+ config REGULATOR_RK808
+-	tristate "Rockchip RK808 Power regulators"
++	tristate "Rockchip RK808/RK818 Power regulators"
+ 	depends on MFD_RK808
+ 	help
+ 	  Select this option to enable the power regulator of ROCKCHIP
+-	  PMIC RK808.
++	  PMIC RK808 and RK818.
+ 	  This driver supports the control of different power rails of device
+ 	  through regulator interface. The device supports multiple DCDC/LDO
+ 	  outputs which can be controlled by i2c communication.
+diff --git a/drivers/regulator/rk808-regulator.c b/drivers/regulator/rk808-regulator.c
+index 40d07ba..5f412a5 100644
+--- a/drivers/regulator/rk808-regulator.c
++++ b/drivers/regulator/rk808-regulator.c
+@@ -1,11 +1,15 @@
+ /*
+- * Regulator driver for Rockchip RK808
++ * Regulator driver for Rockchip RK808/RK818
+  *
+  * Copyright (c) 2014, Fuzhou Rockchip Electronics Co., Ltd
+  *
+  * Author: Chris Zhong <zyw@rock-chips.com>
+  * Author: Zhang Qing <zhangqing@rock-chips.com>
+  *
++ * Copyright (C) 2016 PHYTEC Messtechnik GmbH
++ *
++ * Author: Wadim Egorov <w.egorov@phytec.de>
++ *
+  * This program is free software; you can redistribute it and/or modify it
+  * under the terms and conditions of the GNU General Public License,
+  * version 2, as published by the Free Software Foundation.
+@@ -32,6 +36,12 @@
+ #define RK808_BUCK4_VSEL_MASK	0xf
+ #define RK808_LDO_VSEL_MASK	0x1f
+ 
++#define RK818_BUCK_VSEL_MASK		0x3f
++#define RK818_BUCK4_VSEL_MASK		0x1f
++#define RK818_LDO_VSEL_MASK		0x1f
++#define RK818_LDO3_ON_VSEL_MASK		0xf
++#define RK818_BOOST_ON_VSEL_MASK	0xe0
++
+ /* Ramp rate definitions for buck1 / buck2 only */
+ #define RK808_RAMP_RATE_OFFSET		3
+ #define RK808_RAMP_RATE_MASK		(3 << RK808_RAMP_RATE_OFFSET)
+@@ -454,6 +464,108 @@ static const struct regulator_desc rk808_reg[] = {
+ 		RK808_DCDC_EN_REG, BIT(6)),
+ };
+ 
++static const struct regulator_desc rk818_reg[] = {
++	{
++		.name = "DCDC_REG1",
++		.supply_name = "vcc1",
++		.of_match = of_match_ptr("DCDC_REG1"),
++		.regulators_node = of_match_ptr("regulators"),
++		.id = RK818_ID_DCDC1,
++		.ops = &rk808_reg_ops,
++		.type = REGULATOR_VOLTAGE,
++		.min_uV = 712500,
++		.uV_step = 12500,
++		.n_voltages = 64,
++		.vsel_reg = RK818_BUCK1_ON_VSEL_REG,
++		.vsel_mask = RK818_BUCK_VSEL_MASK,
++		.enable_reg = RK818_DCDC_EN_REG,
++		.enable_mask = BIT(0),
++		.owner = THIS_MODULE,
++	}, {
++		.name = "DCDC_REG2",
++		.supply_name = "vcc2",
++		.of_match = of_match_ptr("DCDC_REG2"),
++		.regulators_node = of_match_ptr("regulators"),
++		.id = RK818_ID_DCDC2,
++		.ops = &rk808_reg_ops,
++		.type = REGULATOR_VOLTAGE,
++		.min_uV = 712500,
++		.uV_step = 12500,
++		.n_voltages = 64,
++		.vsel_reg = RK818_BUCK2_ON_VSEL_REG,
++		.vsel_mask = RK818_BUCK_VSEL_MASK,
++		.enable_reg = RK818_DCDC_EN_REG,
++		.enable_mask = BIT(1),
++		.owner = THIS_MODULE,
++	}, {
++		.name = "DCDC_REG3",
++		.supply_name = "vcc3",
++		.of_match = of_match_ptr("DCDC_REG3"),
++		.regulators_node = of_match_ptr("regulators"),
++		.id = RK818_ID_DCDC3,
++		.ops = &rk808_switch_ops,
++		.type = REGULATOR_VOLTAGE,
++		.n_voltages = 1,
++		.enable_reg = RK818_DCDC_EN_REG,
++		.enable_mask = BIT(2),
++		.owner = THIS_MODULE,
++	},
++	RK8XX_DESC(RK818_ID_DCDC4, "DCDC_REG4", "vcc4", 1800, 3600, 100,
++		RK818_BUCK4_ON_VSEL_REG, RK818_BUCK4_VSEL_MASK,
++		RK818_DCDC_EN_REG, BIT(3), 0),
++	RK8XX_DESC(RK818_ID_BOOST, "DCDC_BOOST", "boost", 4700, 5400, 100,
++		RK818_BOOST_LDO9_ON_VSEL_REG, RK818_BOOST_ON_VSEL_MASK,
++		RK818_DCDC_EN_REG, BIT(4), 0),
++	RK8XX_DESC(RK818_ID_LDO1, "LDO_REG1", "vcc6", 1800, 3400, 100,
++		RK818_LDO1_ON_VSEL_REG, RK818_LDO_VSEL_MASK, RK818_LDO_EN_REG,
++		BIT(0), 400),
++	RK8XX_DESC(RK818_ID_LDO2, "LDO_REG2", "vcc6", 1800, 3400, 100,
++		RK818_LDO1_ON_VSEL_REG, RK818_LDO_VSEL_MASK, RK818_LDO_EN_REG,
++		BIT(1), 400),
++	{
++		.name = "LDO_REG3",
++		.supply_name = "vcc7",
++		.of_match = of_match_ptr("LDO_REG3"),
++		.regulators_node = of_match_ptr("regulators"),
++		.id = RK818_ID_LDO3,
++		.ops = &rk808_reg_ops_ranges,
++		.type = REGULATOR_VOLTAGE,
++		.n_voltages = 16,
++		.linear_ranges = rk808_ldo3_voltage_ranges,
++		.n_linear_ranges = ARRAY_SIZE(rk808_ldo3_voltage_ranges),
++		.vsel_reg = RK818_LDO3_ON_VSEL_REG,
++		.vsel_mask = RK818_LDO3_ON_VSEL_MASK,
++		.enable_reg = RK818_LDO_EN_REG,
++		.enable_mask = BIT(2),
++		.enable_time = 400,
++		.owner = THIS_MODULE,
++	},
++	RK8XX_DESC(RK818_ID_LDO4, "LDO_REG4", "vcc8", 1800, 3400, 100,
++		RK818_LDO4_ON_VSEL_REG, RK818_LDO_VSEL_MASK, RK818_LDO_EN_REG,
++		BIT(3), 400),
++	RK8XX_DESC(RK818_ID_LDO5, "LDO_REG5", "vcc7", 1800, 3400, 100,
++		RK818_LDO5_ON_VSEL_REG, RK818_LDO_VSEL_MASK, RK818_LDO_EN_REG,
++		BIT(4), 400),
++	RK8XX_DESC(RK818_ID_LDO6, "LDO_REG6", "vcc8", 800, 2500, 100,
++		RK818_LDO6_ON_VSEL_REG, RK818_LDO_VSEL_MASK, RK818_LDO_EN_REG,
++		BIT(5), 400),
++	RK8XX_DESC(RK818_ID_LDO7, "LDO_REG7", "vcc7", 800, 2500, 100,
++		RK818_LDO7_ON_VSEL_REG, RK818_LDO_VSEL_MASK, RK818_LDO_EN_REG,
++		BIT(6), 400),
++	RK8XX_DESC(RK818_ID_LDO8, "LDO_REG8", "vcc8", 1800, 3400, 100,
++		RK818_LDO8_ON_VSEL_REG, RK818_LDO_VSEL_MASK, RK818_LDO_EN_REG,
++		BIT(7), 400),
++	RK8XX_DESC(RK818_ID_LDO9, "LDO_REG9", "vcc9", 1800, 3400, 100,
++		RK818_BOOST_LDO9_ON_VSEL_REG, RK818_LDO_VSEL_MASK,
++		RK818_DCDC_EN_REG, BIT(5), 400),
++	RK8XX_DESC_SWITCH(RK818_ID_SWITCH, "SWITCH_REG", "vcc9",
++		RK818_DCDC_EN_REG, BIT(6)),
++	RK8XX_DESC_SWITCH(RK818_ID_HDMI_SWITCH, "HDMI_SWITCH", "h_5v",
++		RK818_H5V_EN_REG, BIT(0)),
++	RK8XX_DESC_SWITCH(RK818_ID_OTG_SWITCH, "OTG_SWITCH", "usb",
++		RK818_DCDC_EN_REG, BIT(7)),
++};
++
+ static int rk808_regulator_dt_parse_pdata(struct device *dev,
+ 				   struct device *client_dev,
+ 				   struct regmap *map,
+@@ -499,7 +611,8 @@ static int rk808_regulator_probe(struct platform_device *pdev)
+ 	struct regulator_config config = {};
+ 	struct regulator_dev *rk808_rdev;
+ 	struct rk808_regulator_data *pdata;
+-	int ret, i;
++	const struct regulator_desc *regulators;
++	int ret, i, nregulators;
+ 
+ 	pdata = devm_kzalloc(&pdev->dev, sizeof(*pdata), GFP_KERNEL);
+ 	if (!pdata)
+@@ -512,14 +625,29 @@ static int rk808_regulator_probe(struct platform_device *pdev)
+ 
+ 	platform_set_drvdata(pdev, pdata);
+ 
++	switch (rk808->variant) {
++	case RK808_ID:
++		regulators = rk808_reg;
++		nregulators = RK808_NUM_REGULATORS;
++		break;
++	case RK818_ID:
++		regulators = rk818_reg;
++		nregulators = RK818_NUM_REGULATORS;
++		break;
++	default:
++		dev_err(&client->dev, "unsupported RK8XX ID %lu\n",
++			rk808->variant);
++		return -EINVAL;
++	}
++
+ 	config.dev = &client->dev;
+ 	config.driver_data = pdata;
+ 	config.regmap = rk808->regmap;
+ 
+ 	/* Instantiate the regulators */
+-	for (i = 0; i < RK808_NUM_REGULATORS; i++) {
++	for (i = 0; i < nregulators; i++) {
+ 		rk808_rdev = devm_regulator_register(&pdev->dev,
+-						     &rk808_reg[i], &config);
++						     &regulators[i], &config);
+ 		if (IS_ERR(rk808_rdev)) {
+ 			dev_err(&client->dev,
+ 				"failed to register %d regulator\n", i);
+@@ -540,8 +668,9 @@ static struct platform_driver rk808_regulator_driver = {
+ 
+ module_platform_driver(rk808_regulator_driver);
+ 
+-MODULE_DESCRIPTION("regulator driver for the rk808 series PMICs");
+-MODULE_AUTHOR("Chris Zhong<zyw@rock-chips.com>");
+-MODULE_AUTHOR("Zhang Qing<zhangqing@rock-chips.com>");
++MODULE_DESCRIPTION("regulator driver for the RK808/RK818 series PMICs");
++MODULE_AUTHOR("Chris Zhong <zyw@rock-chips.com>");
++MODULE_AUTHOR("Zhang Qing <zhangqing@rock-chips.com>");
++MODULE_AUTHOR("Wadim Egorov <w.egorov@phytec.de>");
+ MODULE_LICENSE("GPL");
+ MODULE_ALIAS("platform:rk808-regulator");
+-- 
+1.9.1
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
