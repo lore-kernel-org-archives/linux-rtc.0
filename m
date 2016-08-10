@@ -1,32 +1,19 @@
-Return-Path: <rtc-linux+bncBDAYD2P3QYGRBRPVWG6QKGQEDZHR45Y@googlegroups.com>
+Return-Path: <rtc-linux+bncBAABBF65VO6QKGQE7LLC4KA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 MIME-Version: 1.0
-Received: from mail-wm0-x22d.google.com (mail-wm0-x22d.google.com. [2a00:1450:400c:c09::22d])
-        by gmr-mx.google.com with ESMTPS id r74si1633wme.3.2016.08.11.06.16.52
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 11 Aug 2016 06:16:52 -0700 (PDT)
-Received: by mail-wm0-x22d.google.com with SMTP id q128so4558577wma.1
-        for <rtc-linux@googlegroups.com>; Thu, 11 Aug 2016 06:16:52 -0700 (PDT)
-From: Neil Armstrong <narmstrong@baylibre.com>
-To: andy.gross@linaro.org,
-	david.brown@linaro.org,
-	lee.jones@linaro.org,
-	lgirdwood@gmail.com,
-	broonie@kernel.org,
-	a.zummo@towertech.it,
-	alexandre.belloni@free-electrons.com
-Cc: Neil Armstrong <narmstrong@baylibre.com>,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	linux-arm-msm@vger.kernel.org,
-	linux-soc@vger.kernel.org,
-	rtc-linux@googlegroups.com
-Subject: [rtc-linux] [PATCH v4 2/4] rtc: rtc-pm8xxx: Add support for pm8018 rtc
-Date: Thu, 11 Aug 2016 15:16:44 +0200
-Message-Id: <1470921406-18468-3-git-send-email-narmstrong@baylibre.com>
-In-Reply-To: <1470921406-18468-1-git-send-email-narmstrong@baylibre.com>
-References: <1470921406-18468-1-git-send-email-narmstrong@baylibre.com>
+Received: from root.phytec.de (mail.visioncatalog.de. [217.6.246.34])
+        by gmr-mx.google.com with ESMTP id o85si422472wme.0.2016.08.10.02.06.31
+        for <rtc-linux@googlegroups.com>;
+        Wed, 10 Aug 2016 02:06:31 -0700 (PDT)
+From: Wadim Egorov <w.egorov@phytec.de>
+To: linux-kernel@vger.kernel.org, rtc-linux@googlegroups.com, devicetree@vger.kernel.org, linux-rockchip@lists.infradead.org
+Cc: dianders@chromium.org, zyw@rock-chips.com, robh+dt@kernel.org, mark.rutland@arm.com, lee.jones@linaro.org, lgirdwood@gmail.com, broonie@kernel.org, a.zummo@towertech.it, alexandre.belloni@free-electrons.com
+Subject: [rtc-linux] [PATCH v7 3/4] mfd: dt-bindings: Add RK818 device tree
+ bindings document
+Date: Wed, 10 Aug 2016 11:05:06 +0200
+Message-Id: <1470819907-11237-4-git-send-email-w.egorov@phytec.de>
+In-Reply-To: <1470819907-11237-1-git-send-email-w.egorov@phytec.de>
+References: <1470819907-11237-1-git-send-email-w.egorov@phytec.de>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -37,41 +24,83 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-In order to support RTC on Qualcomm MDM9615 SoC, add support for
-the pm8018 rtc in rtc-pm8xxx driver.
+Add device tree bindings documentation for Rockchip's RK818 PMIC.
 
-Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Acked-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
+Signed-off-by: Wadim Egorov <w.egorov@phytec.de>
+Acked-by: Rob Herring <robh@kernel.org>
+Acked-by: Lee Jones <lee.jones@linaro.org>
 ---
- Documentation/devicetree/bindings/mfd/qcom-pm8xxx.txt | 1 +
- drivers/rtc/rtc-pm8xxx.c                              | 1 +
- 2 files changed, 2 insertions(+)
+ Documentation/devicetree/bindings/mfd/rk808.txt | 37 +++++++++++++++++++++++--
+ 1 file changed, 34 insertions(+), 3 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/mfd/qcom-pm8xxx.txt b/Documentation/devicetree/bindings/mfd/qcom-pm8xxx.txt
-index f24f334..37a088f 100644
---- a/Documentation/devicetree/bindings/mfd/qcom-pm8xxx.txt
-+++ b/Documentation/devicetree/bindings/mfd/qcom-pm8xxx.txt
-@@ -62,6 +62,7 @@ The below bindings specify the set of valid subnodes.
- 		    "qcom,pm8058-rtc"
- 		    "qcom,pm8921-rtc"
- 		    "qcom,pm8941-rtc"
-+		    "qcom,pm8018-rtc"
+diff --git a/Documentation/devicetree/bindings/mfd/rk808.txt b/Documentation/devicetree/bindings/mfd/rk808.txt
+index 4ca6aab..9636ae8 100644
+--- a/Documentation/devicetree/bindings/mfd/rk808.txt
++++ b/Documentation/devicetree/bindings/mfd/rk808.txt
+@@ -1,7 +1,11 @@
+-RK808 Power Management Integrated Circuit
++RK8XX Power Management Integrated Circuit
++
++The rk8xx family current members:
++rk808
++rk818
  
- - reg:
- 	Usage: required
-diff --git a/drivers/rtc/rtc-pm8xxx.c b/drivers/rtc/rtc-pm8xxx.c
-index 795fcbd..fac8355 100644
---- a/drivers/rtc/rtc-pm8xxx.c
-+++ b/drivers/rtc/rtc-pm8xxx.c
-@@ -428,6 +428,7 @@ static const struct pm8xxx_rtc_regs pm8941_regs = {
-  */
- static const struct of_device_id pm8xxx_id_table[] = {
- 	{ .compatible = "qcom,pm8921-rtc", .data = &pm8921_regs },
-+	{ .compatible = "qcom,pm8018-rtc", .data = &pm8921_regs },
- 	{ .compatible = "qcom,pm8058-rtc", .data = &pm8058_regs },
- 	{ .compatible = "qcom,pm8941-rtc", .data = &pm8941_regs },
- 	{ },
+ Required properties:
+-- compatible: "rockchip,rk808"
++- compatible: "rockchip,rk808", "rockchip,rk818"
+ - reg: I2C slave address
+ - interrupt-parent: The parent interrupt controller.
+ - interrupts: the interrupt outputs of the controller.
+@@ -13,6 +17,8 @@ Optional properties:
+   default output clock name
+ - rockchip,system-power-controller: Telling whether or not this pmic is controlling
+   the system power.
++
++Optional RK808 properties:
+ - vcc1-supply:  The input supply for DCDC_REG1
+ - vcc2-supply:  The input supply for DCDC_REG2
+ - vcc3-supply:  The input supply for DCDC_REG3
+@@ -29,7 +35,20 @@ Optional properties:
+   the gpio controller. If DVS GPIOs aren't present, voltage changes will happen
+   very quickly with no slow ramp time.
+ 
+-Regulators: All the regulators of RK808 to be instantiated shall be
++Optional RK818 properties:
++- vcc1-supply:  The input supply for DCDC_REG1
++- vcc2-supply:  The input supply for DCDC_REG2
++- vcc3-supply:  The input supply for DCDC_REG3
++- vcc4-supply:  The input supply for DCDC_REG4
++- boost-supply: The input supply for DCDC_BOOST
++- vcc6-supply:  The input supply for LDO_REG1 and LDO_REG2
++- vcc7-supply:  The input supply for LDO_REG3, LDO_REG5 and LDO_REG7
++- vcc8-supply:  The input supply for LDO_REG4, LDO_REG6 and LDO_REG8
++- vcc9-supply:  The input supply for LDO_REG9 and SWITCH_REG
++- h_5v-supply:  The input supply for HDMI_SWITCH
++- usb-supply:   The input supply for OTG_SWITCH
++
++Regulators: All the regulators of RK8XX to be instantiated shall be
+ listed in a child node named 'regulators'. Each regulator is represented
+ by a child node of the 'regulators' node.
+ 
+@@ -48,6 +67,18 @@ number as described in RK808 datasheet.
+ 	- SWITCH_REGn
+ 		- valid values for n are 1 to 2
+ 
++Following regulators of the RK818 PMIC block are supported. Note that
++the 'n' in regulator name, as in DCDC_REGn or LDOn, represents the DCDC or LDO
++number as described in RK818 datasheet.
++
++	- DCDC_REGn
++		- valid values for n are 1 to 4.
++	- LDO_REGn
++		- valid values for n are 1 to 9.
++	- SWITCH_REG
++	- HDMI_SWITCH
++	- OTG_SWITCH
++
+ Standard regulator bindings are used inside regulator subnodes. Check
+   Documentation/devicetree/bindings/regulator/regulator.txt
+ for more details
 -- 
 1.9.1
 
