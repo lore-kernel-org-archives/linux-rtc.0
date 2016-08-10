@@ -1,32 +1,18 @@
-Return-Path: <rtc-linux+bncBDAYD2P3QYGRBQ7VWG6QKGQEE7WKFVQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBAABBGG5VO6QKGQESGAR2YI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 MIME-Version: 1.0
-Received: from mail-wm0-x22e.google.com (mail-wm0-x22e.google.com. [2a00:1450:400c:c09::22e])
-        by gmr-mx.google.com with ESMTPS id i193si136091wmg.1.2016.08.11.06.16.51
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 11 Aug 2016 06:16:51 -0700 (PDT)
-Received: by mail-wm0-x22e.google.com with SMTP id i5so13885584wmg.0
-        for <rtc-linux@googlegroups.com>; Thu, 11 Aug 2016 06:16:51 -0700 (PDT)
-From: Neil Armstrong <narmstrong@baylibre.com>
-To: andy.gross@linaro.org,
-	david.brown@linaro.org,
-	lee.jones@linaro.org,
-	lgirdwood@gmail.com,
-	broonie@kernel.org,
-	a.zummo@towertech.it,
-	alexandre.belloni@free-electrons.com
-Cc: Neil Armstrong <narmstrong@baylibre.com>,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	linux-arm-msm@vger.kernel.org,
-	linux-soc@vger.kernel.org,
-	rtc-linux@googlegroups.com
-Subject: [rtc-linux] [PATCH v4 1/4] mfd: pm8921: Add support for pm8018
-Date: Thu, 11 Aug 2016 15:16:43 +0200
-Message-Id: <1470921406-18468-2-git-send-email-narmstrong@baylibre.com>
-In-Reply-To: <1470921406-18468-1-git-send-email-narmstrong@baylibre.com>
-References: <1470921406-18468-1-git-send-email-narmstrong@baylibre.com>
+Received: from root.phytec.de (mail.visioncatalog.de. [217.6.246.34])
+        by gmr-mx.google.com with ESMTP id r74si334020wme.3.2016.08.10.02.06.31
+        for <rtc-linux@googlegroups.com>;
+        Wed, 10 Aug 2016 02:06:31 -0700 (PDT)
+From: Wadim Egorov <w.egorov@phytec.de>
+To: linux-kernel@vger.kernel.org, rtc-linux@googlegroups.com, devicetree@vger.kernel.org, linux-rockchip@lists.infradead.org
+Cc: dianders@chromium.org, zyw@rock-chips.com, robh+dt@kernel.org, mark.rutland@arm.com, lee.jones@linaro.org, lgirdwood@gmail.com, broonie@kernel.org, a.zummo@towertech.it, alexandre.belloni@free-electrons.com
+Subject: [rtc-linux] [PATCH v7 4/4] rtc: Kconfig: Name RK818 in Kconfig for RTC_DRV_RK808
+Date: Wed, 10 Aug 2016 11:05:07 +0200
+Message-Id: <1470819907-11237-5-git-send-email-w.egorov@phytec.de>
+In-Reply-To: <1470819907-11237-1-git-send-email-w.egorov@phytec.de>
+References: <1470819907-11237-1-git-send-email-w.egorov@phytec.de>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -37,28 +23,34 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-In order to support the Qualcomm MDM9615 PMIC, add support for the
-pm8018 in pm8921 mfd driver.
+The RK808 and RK818 PMICs are using a similar register map.
+We can reuse the rtc driver for the RK818 PMIC. So let's add
+the RK818 in the Kconfig description.
 
-Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Acked-by: Lee Jones <lee.jones@linaro.org>
-Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
+Signed-off-by: Wadim Egorov <w.egorov@phytec.de>
+Acked-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
 ---
- drivers/mfd/pm8921-core.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/rtc/Kconfig | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/mfd/pm8921-core.c b/drivers/mfd/pm8921-core.c
-index 1b7ec08..0e3a2ea 100644
---- a/drivers/mfd/pm8921-core.c
-+++ b/drivers/mfd/pm8921-core.c
-@@ -309,6 +309,7 @@ static const struct regmap_config ssbi_regmap_config = {
- };
+diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
+index e215f50..1102e8f 100644
+--- a/drivers/rtc/Kconfig
++++ b/drivers/rtc/Kconfig
+@@ -328,11 +328,11 @@ config RTC_DRV_MAX77686
+ 	  will be called rtc-max77686.
  
- static const struct of_device_id pm8921_id_table[] = {
-+	{ .compatible = "qcom,pm8018", },
- 	{ .compatible = "qcom,pm8058", },
- 	{ .compatible = "qcom,pm8921", },
- 	{ }
+ config RTC_DRV_RK808
+-	tristate "Rockchip RK808 RTC"
++	tristate "Rockchip RK808/RK818 RTC"
+ 	depends on MFD_RK808
+ 	help
+ 	  If you say yes here you will get support for the
+-	  RTC of RK808 PMIC.
++	  RTC of RK808 and RK818 PMIC.
+ 
+ 	  This driver can also be built as a module. If so, the module
+ 	  will be called rk808-rtc.
 -- 
 1.9.1
 
