@@ -1,19 +1,33 @@
-Return-Path: <rtc-linux+bncBAABBFFQSC7AKGQEPNDNCMA@googlegroups.com>
+Return-Path: <rtc-linux+bncBDAYD2P3QYGRBR7VWG6QKGQEFDNNSNI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 MIME-Version: 1.0
-Received: from root.phytec.de (mail.phytec.co.uk. [217.6.246.34])
-        by gmr-mx.google.com with ESMTP id i198si1281753wmd.2.2016.08.29.04.10.12
-        for <rtc-linux@googlegroups.com>;
-        Mon, 29 Aug 2016 04:10:12 -0700 (PDT)
-From: Wadim Egorov <w.egorov@phytec.de>
-To: linux-kernel@vger.kernel.org, rtc-linux@googlegroups.com, devicetree@vger.kernel.org, linux-rockchip@lists.infradead.org
-Cc: robh+dt@kernel.org, mark.rutland@arm.com, lee.jones@linaro.org, lgirdwood@gmail.com, broonie@kernel.org, a.zummo@towertech.it, alexandre.belloni@free-electrons.com
-Subject: [rtc-linux] [PATCH v8 3/4] mfd: dt-bindings: Add RK818 device tree
- bindings document
-Date: Mon, 29 Aug 2016 13:08:00 +0200
-Message-Id: <1472468881-15337-3-git-send-email-w.egorov@phytec.de>
-In-Reply-To: <1472468881-15337-1-git-send-email-w.egorov@phytec.de>
-References: <1472468881-15337-1-git-send-email-w.egorov@phytec.de>
+Received: from mail-wm0-x22a.google.com (mail-wm0-x22a.google.com. [2a00:1450:400c:c09::22a])
+        by gmr-mx.google.com with ESMTPS id i193si146195wmg.1.2016.08.11.06.16.55
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 11 Aug 2016 06:16:55 -0700 (PDT)
+Received: by mail-wm0-x22a.google.com with SMTP id d196so4572784wmd.0
+        for <rtc-linux@googlegroups.com>; Thu, 11 Aug 2016 06:16:55 -0700 (PDT)
+From: Neil Armstrong <narmstrong@baylibre.com>
+To: andy.gross@linaro.org,
+	david.brown@linaro.org,
+	lee.jones@linaro.org,
+	lgirdwood@gmail.com,
+	broonie@kernel.org,
+	a.zummo@towertech.it,
+	alexandre.belloni@free-electrons.com
+Cc: Neil Armstrong <narmstrong@baylibre.com>,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	linux-arm-msm@vger.kernel.org,
+	linux-soc@vger.kernel.org,
+	rtc-linux@googlegroups.com
+Subject: [rtc-linux] [PATCH v4 4/4] regulator: qcom_rpm-regulator: Add support
+ for pm8018 rpm regulator
+Date: Thu, 11 Aug 2016 15:16:46 +0200
+Message-Id: <1470921406-18468-5-git-send-email-narmstrong@baylibre.com>
+In-Reply-To: <1470921406-18468-1-git-send-email-narmstrong@baylibre.com>
+References: <1470921406-18468-1-git-send-email-narmstrong@baylibre.com>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -24,83 +38,146 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Add device tree bindings documentation for Rockchip's RK818 PMIC.
+In order to support the Qualcomm MDM9615 SoC, add support for the
+PM8018 RPM regulator in the qcom_rpm-regulator driver.
 
-Signed-off-by: Wadim Egorov <w.egorov@phytec.de>
-Acked-by: Rob Herring <robh@kernel.org>
-Acked-by: Lee Jones <lee.jones@linaro.org>
+Acked-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
 ---
- Documentation/devicetree/bindings/mfd/rk808.txt | 37 +++++++++++++++++++++++--
- 1 file changed, 34 insertions(+), 3 deletions(-)
+ Documentation/devicetree/bindings/mfd/qcom-rpm.txt | 14 +++++
+ drivers/regulator/qcom_rpm-regulator.c             | 66 ++++++++++++++++++++++
+ 2 files changed, 80 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/mfd/rk808.txt b/Documentation/devicetree/bindings/mfd/rk808.txt
-index 4ca6aab..9636ae8 100644
---- a/Documentation/devicetree/bindings/mfd/rk808.txt
-+++ b/Documentation/devicetree/bindings/mfd/rk808.txt
-@@ -1,7 +1,11 @@
--RK808 Power Management Integrated Circuit
-+RK8XX Power Management Integrated Circuit
-+
-+The rk8xx family current members:
-+rk808
-+rk818
+diff --git a/Documentation/devicetree/bindings/mfd/qcom-rpm.txt b/Documentation/devicetree/bindings/mfd/qcom-rpm.txt
+index 72d68d4..485bc59 100644
+--- a/Documentation/devicetree/bindings/mfd/qcom-rpm.txt
++++ b/Documentation/devicetree/bindings/mfd/qcom-rpm.txt
+@@ -60,6 +60,7 @@ Regulator nodes are identified by their compatible:
+ 		    "qcom,rpm-pm8058-regulators"
+ 		    "qcom,rpm-pm8901-regulators"
+ 		    "qcom,rpm-pm8921-regulators"
++		    "qcom,rpm-pm8018-regulators"
  
- Required properties:
--- compatible: "rockchip,rk808"
-+- compatible: "rockchip,rk808", "rockchip,rk818"
- - reg: I2C slave address
- - interrupt-parent: The parent interrupt controller.
- - interrupts: the interrupt outputs of the controller.
-@@ -13,6 +17,8 @@ Optional properties:
-   default output clock name
- - rockchip,system-power-controller: Telling whether or not this pmic is controlling
-   the system power.
-+
-+Optional RK808 properties:
- - vcc1-supply:  The input supply for DCDC_REG1
- - vcc2-supply:  The input supply for DCDC_REG2
- - vcc3-supply:  The input supply for DCDC_REG3
-@@ -29,7 +35,20 @@ Optional properties:
-   the gpio controller. If DVS GPIOs aren't present, voltage changes will happen
-   very quickly with no slow ramp time.
+ - vdd_l0_l1_lvs-supply:
+ - vdd_l2_l11_l12-supply:
+@@ -138,6 +139,15 @@ Regulator nodes are identified by their compatible:
+ 	Definition: reference to regulator supplying the input pin, as
+ 		    described in the data sheet
  
--Regulators: All the regulators of RK808 to be instantiated shall be
-+Optional RK818 properties:
-+- vcc1-supply:  The input supply for DCDC_REG1
-+- vcc2-supply:  The input supply for DCDC_REG2
-+- vcc3-supply:  The input supply for DCDC_REG3
-+- vcc4-supply:  The input supply for DCDC_REG4
-+- boost-supply: The input supply for DCDC_BOOST
-+- vcc6-supply:  The input supply for LDO_REG1 and LDO_REG2
-+- vcc7-supply:  The input supply for LDO_REG3, LDO_REG5 and LDO_REG7
-+- vcc8-supply:  The input supply for LDO_REG4, LDO_REG6 and LDO_REG8
-+- vcc9-supply:  The input supply for LDO_REG9 and SWITCH_REG
-+- h_5v-supply:  The input supply for HDMI_SWITCH
-+- usb-supply:   The input supply for OTG_SWITCH
++- vin_lvs1-supply:
++- vdd_l7-supply:
++- vdd_l8-supply:
++- vdd_l9_l10_l11_l12-supply:
++	Usage: optional (pm8018 only)
++	Value type: <phandle>
++	Definition: reference to regulator supplying the input pin, as
++		    described in the data sheet
 +
-+Regulators: All the regulators of RK8XX to be instantiated shall be
- listed in a child node named 'regulators'. Each regulator is represented
- by a child node of the 'regulators' node.
+ The regulator node houses sub-nodes for each regulator within the device. Each
+ sub-node is identified using the node's name, with valid values listed for each
+ of the pmics below.
+@@ -157,6 +167,10 @@ pm8921:
+ 	l29, lvs1, lvs2, lvs3, lvs4, lvs5, lvs6, lvs7, usb-switch, hdmi-switch,
+ 	ncp
  
-@@ -48,6 +67,18 @@ number as described in RK808 datasheet.
- 	- SWITCH_REGn
- 		- valid values for n are 1 to 2
++pm8018:
++	s1, s2, s3, s4, s5, , l1, l2, l3, l4, l5, l6, l7, l8, l9, l10, l11,
++	l12, l14, lvs1
++
+ The content of each sub-node is defined by the standard binding for regulators -
+ see regulator.txt - with additional custom properties described below:
  
-+Following regulators of the RK818 PMIC block are supported. Note that
-+the 'n' in regulator name, as in DCDC_REGn or LDOn, represents the DCDC or LDO
-+number as described in RK818 datasheet.
+diff --git a/drivers/regulator/qcom_rpm-regulator.c b/drivers/regulator/qcom_rpm-regulator.c
+index e254272..1b2acc4 100644
+--- a/drivers/regulator/qcom_rpm-regulator.c
++++ b/drivers/regulator/qcom_rpm-regulator.c
+@@ -448,6 +448,44 @@ static struct regulator_ops switch_ops = {
+ };
+ 
+ /*
++ * PM8018 regulators
++ */
++static const struct qcom_rpm_reg pm8018_pldo = {
++	.desc.linear_ranges = pldo_ranges,
++	.desc.n_linear_ranges = ARRAY_SIZE(pldo_ranges),
++	.desc.n_voltages = 161,
++	.desc.ops = &uV_ops,
++	.parts = &rpm8960_ldo_parts,
++	.supports_force_mode_auto = false,
++	.supports_force_mode_bypass = false,
++};
 +
-+	- DCDC_REGn
-+		- valid values for n are 1 to 4.
-+	- LDO_REGn
-+		- valid values for n are 1 to 9.
-+	- SWITCH_REG
-+	- HDMI_SWITCH
-+	- OTG_SWITCH
++static const struct qcom_rpm_reg pm8018_nldo = {
++	.desc.linear_ranges = nldo_ranges,
++	.desc.n_linear_ranges = ARRAY_SIZE(nldo_ranges),
++	.desc.n_voltages = 64,
++	.desc.ops = &uV_ops,
++	.parts = &rpm8960_ldo_parts,
++	.supports_force_mode_auto = false,
++	.supports_force_mode_bypass = false,
++};
 +
- Standard regulator bindings are used inside regulator subnodes. Check
-   Documentation/devicetree/bindings/regulator/regulator.txt
- for more details
++static const struct qcom_rpm_reg pm8018_smps = {
++	.desc.linear_ranges = smps_ranges,
++	.desc.n_linear_ranges = ARRAY_SIZE(smps_ranges),
++	.desc.n_voltages = 154,
++	.desc.ops = &uV_ops,
++	.parts = &rpm8960_smps_parts,
++	.supports_force_mode_auto = false,
++	.supports_force_mode_bypass = false,
++};
++
++static const struct qcom_rpm_reg pm8018_switch = {
++	.desc.ops = &switch_ops,
++	.parts = &rpm8960_switch_parts,
++};
++
++/*
+  * PM8058 regulators
+  */
+ static const struct qcom_rpm_reg pm8058_pldo = {
+@@ -755,6 +793,32 @@ struct rpm_regulator_data {
+ 	const char *supply;
+ };
+ 
++static const struct rpm_regulator_data rpm_pm8018_regulators[] = {
++	{ "s1",  QCOM_RPM_PM8018_SMPS1, &pm8018_smps, "vdd_s1" },
++	{ "s2",  QCOM_RPM_PM8018_SMPS2, &pm8018_smps, "vdd_s2" },
++	{ "s3",  QCOM_RPM_PM8018_SMPS3, &pm8018_smps, "vdd_s3" },
++	{ "s4",  QCOM_RPM_PM8018_SMPS4, &pm8018_smps, "vdd_s4" },
++	{ "s5",  QCOM_RPM_PM8018_SMPS5, &pm8018_smps, "vdd_s5" },
++
++	{ "l2",  QCOM_RPM_PM8018_LDO2,  &pm8018_pldo, "vdd_l2" },
++	{ "l3",  QCOM_RPM_PM8018_LDO3,  &pm8018_pldo, "vdd_l3" },
++	{ "l4",  QCOM_RPM_PM8018_LDO4,  &pm8018_pldo, "vdd_l4" },
++	{ "l5",  QCOM_RPM_PM8018_LDO5,  &pm8018_pldo, "vdd_l5" },
++	{ "l6",  QCOM_RPM_PM8018_LDO6,  &pm8018_pldo, "vdd_l7" },
++	{ "l7",  QCOM_RPM_PM8018_LDO7,  &pm8018_pldo, "vdd_l7" },
++	{ "l8",  QCOM_RPM_PM8018_LDO8,  &pm8018_nldo, "vdd_l8" },
++	{ "l9",  QCOM_RPM_PM8018_LDO9,  &pm8921_nldo1200,
++						      "vdd_l9_l10_l11_l12" },
++	{ "l10", QCOM_RPM_PM8018_LDO10, &pm8018_nldo, "vdd_l9_l10_l11_l12" },
++	{ "l11", QCOM_RPM_PM8018_LDO11, &pm8018_nldo, "vdd_l9_l10_l11_l12" },
++	{ "l12", QCOM_RPM_PM8018_LDO12, &pm8018_nldo, "vdd_l9_l10_l11_l12" },
++	{ "l14", QCOM_RPM_PM8018_LDO14, &pm8018_pldo, "vdd_l14" },
++
++	{ "lvs1", QCOM_RPM_PM8018_LVS1, &pm8018_switch, "lvs1_in" },
++
++	{ }
++};
++
+ static const struct rpm_regulator_data rpm_pm8058_regulators[] = {
+ 	{ "l0",   QCOM_RPM_PM8058_LDO0,   &pm8058_nldo, "vdd_l0_l1_lvs"	},
+ 	{ "l1",   QCOM_RPM_PM8058_LDO1,   &pm8058_nldo, "vdd_l0_l1_lvs" },
+@@ -870,6 +934,8 @@ static const struct rpm_regulator_data rpm_pm8921_regulators[] = {
+ };
+ 
+ static const struct of_device_id rpm_of_match[] = {
++	{ .compatible = "qcom,rpm-pm8018-regulators",
++		.data = &rpm_pm8018_regulators },
+ 	{ .compatible = "qcom,rpm-pm8058-regulators", .data = &rpm_pm8058_regulators },
+ 	{ .compatible = "qcom,rpm-pm8901-regulators", .data = &rpm_pm8901_regulators },
+ 	{ .compatible = "qcom,rpm-pm8921-regulators", .data = &rpm_pm8921_regulators },
 -- 
 1.9.1
 
