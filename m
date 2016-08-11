@@ -1,25 +1,30 @@
-Return-Path: <rtc-linux+bncBAABBWWIVO6QKGQEZ55CMRI@googlegroups.com>
+Return-Path: <rtc-linux+bncBDMLZJ6I5AIBBL6EWG6QKGQEEKM33OA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mga04.intel.com (mga04.intel.com. [192.55.52.120])
-        by gmr-mx.google.com with ESMTP id a133si5927919pfa.0.2016.08.10.01.22.50
-        for <rtc-linux@googlegroups.com>;
-        Wed, 10 Aug 2016 01:22:50 -0700 (PDT)
-Subject: [rtc-linux] Re: [PATCH] x86/hpet: fix typo from rtc cleanup
-To: Arnd Bergmann <arnd@arndb.de>, Thomas Gleixner <tglx@linutronix.de>,
- Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>,
- x86@kernel.org
-References: <20160809195528.1604312-1-arnd@arndb.de>
-Cc: =?UTF-8?B?VmlsbGUgU3lyasOkbMOk?= <ville.syrjala@linux.intel.com>,
- Geert Uytterhoeven <geert@linux-m68k.org>,
- Alexandre Belloni <alexandre.belloni@free-electrons.com>,
- Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
- Borislav Petkov <bp@suse.de>, linux-kernel@vger.kernel.org
-From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Message-ID: <adba492a-ad23-1376-4383-b819e43f786e@linux.intel.com>
-Date: Wed, 10 Aug 2016 11:22:46 +0300
+Received: from mail-wm0-x241.google.com (mail-wm0-x241.google.com. [2a00:1450:400c:c09::241])
+        by gmr-mx.google.com with ESMTPS id b77si584392wmb.1.2016.08.11.04.31.59
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 11 Aug 2016 04:31:59 -0700 (PDT)
+Received: by mail-wm0-x241.google.com with SMTP id i5so812992wmg.2
+        for <rtc-linux@googlegroups.com>; Thu, 11 Aug 2016 04:31:59 -0700 (PDT)
+From: Daniel Romell <danielromell@gmail.com>
+To: a.zummo@towertech.it
+Cc: alexandre.belloni@free-electrons.com,
+	rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org,
+	daro@hms.se,
+	jao@hms.se,
+	mago@hms.se
+Subject: [rtc-linux] [PATCH v2 1/2] rtc: bq32k: Use correct mask name for
+ 'minutes' register.
+Date: Thu, 11 Aug 2016 13:31:43 +0200
+Message-Id: <1470915104-10683-2-git-send-email-daro@hms.se>
+In-Reply-To: <1470915104-10683-1-git-send-email-daro@hms.se>
+References: <1470915104-10683-1-git-send-email-daro@hms.se>
 MIME-Version: 1.0
-In-Reply-To: <20160809195528.1604312-1-arnd@arndb.de>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+In-Reply-To: <1470909555-9226-1-git-send-email-daro@hms.se>
+References: <1470909555-9226-1-git-send-email-daro@hms.se>
+Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -29,44 +34,32 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Hi
+From: Jan =C3=96stlund <jao@hms.se>
 
-On 08/09/2016 10:54 PM, Arnd Bergmann wrote:
-> Ville Syrj=C3=A4l=C3=A4 reports "The first time I run hwclock after reboo=
-ting
-> I get this:
->
->  open("/dev/rtc", O_RDONLY)              =3D 3
->  ioctl(3, PHN_SET_REGS or RTC_UIE_ON, 0) =3D 0
->  select(4, [3], NULL, NULL, {10, 0})     =3D 0 (Timeout)
->  ioctl(3, PHN_NOT_OH or RTC_UIE_OFF, 0)  =3D 0
->  close(3)                                =3D 0
->
-> On all subsequent runs I get this:
->  open("/dev/rtc", O_RDONLY)              =3D 3
->  ioctl(3, PHN_SET_REGS or RTC_UIE_ON, 0) =3D -1 EINVAL (Invalid argument)
->  ioctl(3, RTC_RD_TIME, 0x7ffd76b3ae70)   =3D -1 EINVAL (Invalid argument)
->  close(3)                                =3D 0"
->
-> This was caused by a stupid typo in a patch that should have been
-> a simple rename to move around contents of a header file, but
-> accidentally wrote zeroes into the rtc rather than reading from
-> it.
->
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-> Reported-by: Ville Syrj=C3=A4l=C3=A4 <ville.syrjala@linux.intel.com>
-> Tested-by: Ville Syrj=C3=A4l=C3=A4 <ville.syrjala@linux.intel.com>
-> Fixes: 463a86304cae ("char/genrtc: x86: remove remnants of asm/rtc.h")
-> ---
->  arch/x86/kernel/hpet.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->
-I started seeing system reboots and lockups during kernel boot on a=20
-prototype HW this week using v4.8-rc1 and bisected to this same commit.
+The BQ32K_SECONDS_MASK and BQ32K_MINUTES_MASK both has the same
+value. This is no functional change.
 
-This patch fixes the issue.
+Signed-off-by: Daniel Romell <daro@hms.se>
+---
+ drivers/rtc/rtc-bq32k.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Tested-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+diff --git a/drivers/rtc/rtc-bq32k.c b/drivers/rtc/rtc-bq32k.c
+index 0299988..5a0c137 100644
+--- a/drivers/rtc/rtc-bq32k.c
++++ b/drivers/rtc/rtc-bq32k.c
+@@ -94,7 +94,7 @@ static int bq32k_rtc_read_time(struct device *dev, struct=
+ rtc_time *tm)
+ 		return error;
+=20
+ 	tm->tm_sec =3D bcd2bin(regs.seconds & BQ32K_SECONDS_MASK);
+-	tm->tm_min =3D bcd2bin(regs.minutes & BQ32K_SECONDS_MASK);
++	tm->tm_min =3D bcd2bin(regs.minutes & BQ32K_MINUTES_MASK);
+ 	tm->tm_hour =3D bcd2bin(regs.cent_hours & BQ32K_HOURS_MASK);
+ 	tm->tm_mday =3D bcd2bin(regs.date);
+ 	tm->tm_wday =3D bcd2bin(regs.day) - 1;
+--=20
+2.7.4
 
 --=20
 You received this message because you are subscribed to "rtc-linux".
