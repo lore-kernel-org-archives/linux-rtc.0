@@ -1,12 +1,12 @@
-Return-Path: <rtc-linux+bncBDMLZJ6I5AIBBMOEWG6QKGQEDJDBR2I@googlegroups.com>
+Return-Path: <rtc-linux+bncBDMLZJ6I5AIBBK6EWG6QKGQEZCBMFOA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail-wm0-x243.google.com (mail-wm0-x243.google.com. [2a00:1450:400c:c09::243])
-        by gmr-mx.google.com with ESMTPS id o85si706225wme.0.2016.08.11.04.32.01
+Received: from mail-wm0-x241.google.com (mail-wm0-x241.google.com. [2a00:1450:400c:c09::241])
+        by gmr-mx.google.com with ESMTPS id b77si584392wmb.1.2016.08.11.04.31.55
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 11 Aug 2016 04:32:01 -0700 (PDT)
-Received: by mail-wm0-x243.google.com with SMTP id q128so816621wma.1
-        for <rtc-linux@googlegroups.com>; Thu, 11 Aug 2016 04:32:01 -0700 (PDT)
+        Thu, 11 Aug 2016 04:31:55 -0700 (PDT)
+Received: by mail-wm0-x241.google.com with SMTP id i5so812992wmg.2
+        for <rtc-linux@googlegroups.com>; Thu, 11 Aug 2016 04:31:55 -0700 (PDT)
 From: Daniel Romell <danielromell@gmail.com>
 To: a.zummo@towertech.it
 Cc: alexandre.belloni@free-electrons.com,
@@ -15,15 +15,12 @@ Cc: alexandre.belloni@free-electrons.com,
 	daro@hms.se,
 	jao@hms.se,
 	mago@hms.se
-Subject: [rtc-linux] [PATCH v2 2/2] rtc: bq32k: Fix handling of oscillator
- failure flag
-Date: Thu, 11 Aug 2016 13:31:44 +0200
-Message-Id: <1470915104-10683-3-git-send-email-daro@hms.se>
-In-Reply-To: <1470915104-10683-1-git-send-email-daro@hms.se>
-References: <1470915104-10683-1-git-send-email-daro@hms.se>
-MIME-Version: 1.0
+Subject: [rtc-linux] [PATCH v2 0/2] bq32000 fixes
+Date: Thu, 11 Aug 2016 13:31:42 +0200
+Message-Id: <1470915104-10683-1-git-send-email-daro@hms.se>
 In-Reply-To: <1470909555-9226-1-git-send-email-daro@hms.se>
 References: <1470909555-9226-1-git-send-email-daro@hms.se>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
@@ -34,55 +31,17 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-From: Jan =C3=96stlund <jao@hms.se>
+Changes since v1:
+* Return -EINVAL instead of -EIO when failure flag is set.
 
-While the oscillator failure flag is set, the RTC registers
-should be considered invalid. bq32k_rtc_read_time() now
-returns an error instead of an invalid time.
+Jan =C3=96stlund (2):
+  rtc: bq32k: Use correct mask name for 'minutes' register.
+  rtc: bq32k: Fix handling of oscillator failure flag
 
-The failure flag is cleared the next time the clock is set.
+ drivers/rtc/rtc-bq32k.c | 16 ++++++++++------
+ 1 file changed, 10 insertions(+), 6 deletions(-)
 
-Signed-off-by: Daniel Romell <daro@hms.se>
----
- drivers/rtc/rtc-bq32k.c | 14 +++++++++-----
- 1 file changed, 9 insertions(+), 5 deletions(-)
-
-diff --git a/drivers/rtc/rtc-bq32k.c b/drivers/rtc/rtc-bq32k.c
-index 5a0c137..3977424 100644
---- a/drivers/rtc/rtc-bq32k.c
-+++ b/drivers/rtc/rtc-bq32k.c
-@@ -93,6 +93,13 @@ static int bq32k_rtc_read_time(struct device *dev, struc=
-t rtc_time *tm)
- 	if (error)
- 		return error;
-=20
-+	/*
-+	 * In case of oscillator failure, the register contents should be
-+	 * considered invalid. The flag is cleared the next time the RTC is set.
-+	 */
-+	if (regs.minutes & BQ32K_OF)
-+		return -EINVAL;
-+
- 	tm->tm_sec =3D bcd2bin(regs.seconds & BQ32K_SECONDS_MASK);
- 	tm->tm_min =3D bcd2bin(regs.minutes & BQ32K_MINUTES_MASK);
- 	tm->tm_hour =3D bcd2bin(regs.cent_hours & BQ32K_HOURS_MASK);
-@@ -204,13 +211,10 @@ static int bq32k_probe(struct i2c_client *client,
-=20
- 	/* Check Oscillator Failure flag */
- 	error =3D bq32k_read(dev, &reg, BQ32K_MINUTES, 1);
--	if (!error && (reg & BQ32K_OF)) {
--		dev_warn(dev, "Oscillator Failure. Check RTC battery.\n");
--		reg &=3D ~BQ32K_OF;
--		error =3D bq32k_write(dev, &reg, BQ32K_MINUTES, 1);
--	}
- 	if (error)
- 		return error;
-+	if (reg & BQ32K_OF)
-+		dev_warn(dev, "Oscillator Failure. Check RTC battery.\n");
-=20
- 	if (client->dev.of_node)
- 		trickle_charger_of_init(dev, client->dev.of_node);
---=20
+--
 2.7.4
 
 --=20
