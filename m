@@ -1,20 +1,20 @@
-Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBN76S67AKGQEP4TL4NQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBXPBWO6QKGQEEQF6RMY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id y7si2562781wmd.0.2016.08.30.14.48.38
+        by gmr-mx.google.com with ESMTP id w64si89597wmf.3.2016.08.11.14.40.45
         for <rtc-linux@googlegroups.com>;
-        Tue, 30 Aug 2016 14:48:38 -0700 (PDT)
-Date: Tue, 30 Aug 2016 23:48:37 +0200
+        Thu, 11 Aug 2016 14:40:45 -0700 (PDT)
+Date: Thu, 11 Aug 2016 23:40:31 +0200
 From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: RAGHAVENDRA GANIGA <ravi23ganiga@gmail.com>
-Cc: a.zummo@towertech.it, rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH] rtc: changed raw spi calls to register map calls
-Message-ID: <20160830214837.4muxmee3mueimhg4@piout.net>
-References: <57C5E569.4050605@gmail.com>
+To: Fabio Estevam <festevam@gmail.com>
+Cc: grimaldi.ivan@gmail.com, rtc-linux@googlegroups.com,
+	Fabio Estevam <fabio.estevam@nxp.com>
+Subject: [rtc-linux] Re: [PATCH] rtc: ds1390: Fix the SPI chip select number
+Message-ID: <20160811214031.GM8132@piout.net>
+References: <1470196102-23713-1-git-send-email-festevam@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <57C5E569.4050605@gmail.com>
+In-Reply-To: <1470196102-23713-1-git-send-email-festevam@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -24,30 +24,21 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Hi,
-
-Please fix the subject, this patch is ds1347 specific.
-
-On 31/08/2016 at 01:28:33 +0530, RAGHAVENDRA GANIGA wrote :
-> From 2ec82b6c9b99647e31d26c4c828dc7c51af8a633 Mon Sep 17 00:00:00 2001
-> From: Raghavendra Ganiga <ravi23ganiga@gmail.com>
-> Date: Wed, 31 Aug 2016 01:13:30 +0530
-> Subject: [PATCH] rtc: changed raw spi calls to register map calls
+On 03/08/2016 at 00:48:22 -0300, Fabio Estevam wrote :
+> From: Fabio Estevam <fabio.estevam@nxp.com>
 > 
-> This patch changes calls of spi read write calls to register map
-> read and write calls
+> The number after the '@' symbol should be the SPI chip select
+> number associated with the ds1390 and it should match the 'reg'
+> field.
 > 
-
-Can you explain why you need that change? I'm not sure what you gain
-from it (it makes the driver and the kernel bigger).
-
->  	/* year in linux is from 1900 i.e in range of 100
-> -	in rtc it is from 00 to 99 */
-> +	 * in rtc it is from 00 to 99
-> +	 */
-
-Unrelated change.
-
+> So change it the address to zero, to make it consistent.
+> 
+> Signed-off-by: Fabio Estevam <fabio.estevam@nxp.com>
+> ---
+>  Documentation/devicetree/bindings/rtc/dallas,ds1390.txt | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+Applied, thanks.
 
 -- 
 Alexandre Belloni, Free Electrons
