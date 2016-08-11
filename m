@@ -1,21 +1,22 @@
-Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBDEOU66QKGQEN3HUG3Q@googlegroups.com>
+Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBYUBWK6QKGQE5E5KTIY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id r197si103420wmf.2.2016.08.09.05.05.32
+        by gmr-mx.google.com with ESMTP id i193si154222wmg.1.2016.08.11.06.42.58
         for <rtc-linux@googlegroups.com>;
-        Tue, 09 Aug 2016 05:05:32 -0700 (PDT)
-Date: Tue, 9 Aug 2016 14:05:31 +0200
+        Thu, 11 Aug 2016 06:42:58 -0700 (PDT)
+Date: Thu, 11 Aug 2016 15:42:57 +0200
 From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+To: Daniel Romell <danielromell@gmail.com>
 Cc: a.zummo@towertech.it, rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org, kernel-janitors@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH] rtc: pcf2123: Add missing error code
- assignment before test
-Message-ID: <20160809120531.GY8132@piout.net>
-References: <1470743907-11498-1-git-send-email-christophe.jaillet@wanadoo.fr>
+	linux-kernel@vger.kernel.org, daro@hms.se, jao@hms.se, mago@hms.se
+Subject: [rtc-linux] Re: [PATCH v2 1/2] rtc: bq32k: Use correct mask name for
+ 'minutes' register.
+Message-ID: <20160811134257.GH8132@piout.net>
+References: <1470909555-9226-1-git-send-email-daro@hms.se>
+ <1470915104-10683-2-git-send-email-daro@hms.se>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1470743907-11498-1-git-send-email-christophe.jaillet@wanadoo.fr>
+In-Reply-To: <1470915104-10683-2-git-send-email-daro@hms.se>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -25,32 +26,52 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 09/08/2016 at 13:58:27 +0200, Christophe JAILLET wrote :
-> It is likely that checking the result of 'pcf2123_write_reg' is expected
-> here.
-> Also fix a small style issue. The '{' at the beginning of the function
-> is misplaced.
-> 
-> Fixes: 809b453b76e15 ("rtc: pcf2123: clean up writes to the rtc chip")
-> 
-> Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-> ---
->  drivers/rtc/rtc-pcf2123.c | 5 +++--
->  1 file changed, 3 insertions(+), 2 deletions(-)
-> 
-Applied, thanks.
+On 11/08/2016 at 13:31:43 +0200, Daniel Romell wrote :
+> From: Jan =C3=96stlund <jao@hms.se>
+>=20
+> The BQ32K_SECONDS_MASK and BQ32K_MINUTES_MASK both has the same
+> value. This is no functional change.
+>=20
+> Signed-off-by: Daniel Romell <daro@hms.se>
 
--- 
+Sorry, I saw it only before trying apply but both patches also need Jan's S=
+oB.
+
+> ---
+>  drivers/rtc/rtc-bq32k.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>=20
+> diff --git a/drivers/rtc/rtc-bq32k.c b/drivers/rtc/rtc-bq32k.c
+> index 0299988..5a0c137 100644
+> --- a/drivers/rtc/rtc-bq32k.c
+> +++ b/drivers/rtc/rtc-bq32k.c
+> @@ -94,7 +94,7 @@ static int bq32k_rtc_read_time(struct device *dev, stru=
+ct rtc_time *tm)
+>  		return error;
+> =20
+>  	tm->tm_sec =3D bcd2bin(regs.seconds & BQ32K_SECONDS_MASK);
+> -	tm->tm_min =3D bcd2bin(regs.minutes & BQ32K_SECONDS_MASK);
+> +	tm->tm_min =3D bcd2bin(regs.minutes & BQ32K_MINUTES_MASK);
+>  	tm->tm_hour =3D bcd2bin(regs.cent_hours & BQ32K_HOURS_MASK);
+>  	tm->tm_mday =3D bcd2bin(regs.date);
+>  	tm->tm_wday =3D bcd2bin(regs.day) - 1;
+> --=20
+> 2.7.4
+>=20
+
+--=20
 Alexandre Belloni, Free Electrons
 Embedded Linux and Kernel engineering
 http://free-electrons.com
 
--- 
+--=20
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+---=20
+You received this message because you are subscribed to the Google Groups "=
+rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an e=
+mail to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
