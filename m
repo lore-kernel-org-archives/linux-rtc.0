@@ -1,28 +1,29 @@
-Return-Path: <rtc-linux+bncBCMILY6JWQBBB7EK3O6QKGQE5MVYQIY@googlegroups.com>
+Return-Path: <rtc-linux+bncBDMLZJ6I5AIBBW4ZWG6QKGQER24KZUI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-MIME-Version: 1.0
-Received: from wens.csie.org (mirror2.csie.ntu.edu.tw. [140.112.30.76])
-        by gmr-mx.google.com with ESMTPS id d201si351799pfd.2.2016.08.19.01.38.20
+Received: from mail-wm0-x242.google.com (mail-wm0-x242.google.com. [2a00:1450:400c:c09::242])
+        by gmr-mx.google.com with ESMTPS id i198si71599wmd.2.2016.08.11.03.00.59
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 19 Aug 2016 01:38:20 -0700 (PDT)
-From: Chen-Yu Tsai <wens@csie.org>
-To: Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Maxime Ripard <maxime.ripard@free-electrons.com>
-Cc: Chen-Yu Tsai <wens@csie.org>,
+        Thu, 11 Aug 2016 03:00:59 -0700 (PDT)
+Received: by mail-wm0-x242.google.com with SMTP id i5so370701wmg.2
+        for <rtc-linux@googlegroups.com>; Thu, 11 Aug 2016 03:00:59 -0700 (PDT)
+From: Daniel Romell <danielromell@gmail.com>
+To: a.zummo@towertech.it
+Cc: alexandre.belloni@free-electrons.com,
 	rtc-linux@googlegroups.com,
 	linux-kernel@vger.kernel.org,
-	devicetree@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org
-Subject: [rtc-linux] [PATCH v6 3/4] ARM: dts: sun9i: cubieboard4: Add device
- node for AC100
-Date: Fri, 19 Aug 2016 15:42:25 +0800
-Message-Id: <20160819074226.16636-4-wens@csie.org>
-In-Reply-To: <20160819074226.16636-1-wens@csie.org>
-References: <20160819074226.16636-1-wens@csie.org>
-Reply-To: rtc-linux@googlegroups.com
+	daro@hms.se,
+	jao@hms.se,
+	mago@hms.se
+Subject: [rtc-linux] [PATCH 2/2] rtc: bq32k: Fix handling of oscillator
+ failure flag
+Date: Thu, 11 Aug 2016 11:59:15 +0200
+Message-Id: <1470909555-9226-3-git-send-email-daro@hms.se>
+In-Reply-To: <1470909555-9226-1-git-send-email-daro@hms.se>
+References: <1470909555-9226-1-git-send-email-daro@hms.se>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -31,65 +32,65 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Signed-off-by: Chen-Yu Tsai <wens@csie.org>
+From: Jan =C3=96stlund <jao@hms.se>
+
+While the oscillator failure flag is set, the RTC registers
+should be considered invalid. bq32k_rtc_read_time() now
+returns an error instead of an invalid time.
+
+The failure flag is cleared the next time the clock is set.
+
+Signed-off-by: Daniel Romell <daro@hms.se>
 ---
-Changes since v5: none
-Changes since v4: none
+ drivers/rtc/rtc-bq32k.c | 14 +++++++++-----
+ 1 file changed, 9 insertions(+), 5 deletions(-)
 
-Changes since v3:                           
-
-  - Moved 4M ADDA clk to codec side
-
-Changes since v2: none
-Changes since v1: none
----
- arch/arm/boot/dts/sun9i-a80-cubieboard4.dts | 24 ++++++++++++++++++++++++
- 1 file changed, 24 insertions(+)
-
-diff --git a/arch/arm/boot/dts/sun9i-a80-cubieboard4.dts b/arch/arm/boot/dts/sun9i-a80-cubieboard4.dts
-index 1526b41c70f1..cf2f4b72a841 100644
---- a/arch/arm/boot/dts/sun9i-a80-cubieboard4.dts
-+++ b/arch/arm/boot/dts/sun9i-a80-cubieboard4.dts
-@@ -250,6 +250,30 @@
- 			};
- 		};
- 	};
+diff --git a/drivers/rtc/rtc-bq32k.c b/drivers/rtc/rtc-bq32k.c
+index 5a0c137..3fc6f7c 100644
+--- a/drivers/rtc/rtc-bq32k.c
++++ b/drivers/rtc/rtc-bq32k.c
+@@ -93,6 +93,13 @@ static int bq32k_rtc_read_time(struct device *dev, struc=
+t rtc_time *tm)
+ 	if (error)
+ 		return error;
+=20
++	/*
++	 * In case of oscillator failure, the register contents should be
++	 * considered invalid. The flag is cleared the next time the RTC is set.
++	 */
++	if (regs.minutes & BQ32K_OF)
++		return -EIO;
 +
-+	ac100: codec@e89 {
-+		compatible = "x-powers,ac100";
-+		reg = <0xe89>;
-+
-+		ac100_codec: codec {
-+			compatible = "x-powers,ac100-codec";
-+			interrupt-parent = <&r_pio>;
-+			interrupts = <0 9 IRQ_TYPE_LEVEL_LOW>; /* PL9 */
-+			#clock-cells = <0>;
-+			clock-output-names = "4M_adda";
-+		};
-+
-+		ac100_rtc: rtc {
-+			compatible = "x-powers,ac100-rtc";
-+			interrupt-parent = <&nmi_intc>;
-+			interrupts = <0 IRQ_TYPE_LEVEL_LOW>;
-+			clocks = <&ac100_codec>;
-+			#clock-cells = <1>;
-+			clock-output-names = "cko1_rtc",
-+					     "cko2_rtc",
-+					     "cko3_rtc";
-+		};
-+	};
- };
- 
- #include "axp809.dtsi"
--- 
-2.9.3
+ 	tm->tm_sec =3D bcd2bin(regs.seconds & BQ32K_SECONDS_MASK);
+ 	tm->tm_min =3D bcd2bin(regs.minutes & BQ32K_MINUTES_MASK);
+ 	tm->tm_hour =3D bcd2bin(regs.cent_hours & BQ32K_HOURS_MASK);
+@@ -204,13 +211,10 @@ static int bq32k_probe(struct i2c_client *client,
+=20
+ 	/* Check Oscillator Failure flag */
+ 	error =3D bq32k_read(dev, &reg, BQ32K_MINUTES, 1);
+-	if (!error && (reg & BQ32K_OF)) {
+-		dev_warn(dev, "Oscillator Failure. Check RTC battery.\n");
+-		reg &=3D ~BQ32K_OF;
+-		error =3D bq32k_write(dev, &reg, BQ32K_MINUTES, 1);
+-	}
+ 	if (error)
+ 		return error;
++	if (reg & BQ32K_OF)
++		dev_warn(dev, "Oscillator Failure. Check RTC battery.\n");
+=20
+ 	if (client->dev.of_node)
+ 		trickle_charger_of_init(dev, client->dev.of_node);
+--=20
+2.7.4
 
--- 
+--=20
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+---=20
+You received this message because you are subscribed to the Google Groups "=
+rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an e=
+mail to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
