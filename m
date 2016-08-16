@@ -1,22 +1,36 @@
-Return-Path: <rtc-linux+bncBCLLTU5HV4PRBTO77W6AKGQECPWH6BY@googlegroups.com>
+Return-Path: <rtc-linux+bncBDI57DN47YOBBZ4PZK6QKGQEZC6EI5Q@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mta2.parkeon.com (ip83.parkeon.com. [213.152.31.83])
-        by gmr-mx.google.com with ESMTPS id i193si867935wmg.1.2016.08.01.08.50.37
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=AES128-SHA bits=128/128);
-        Mon, 01 Aug 2016 08:50:37 -0700 (PDT)
-Subject: [rtc-linux] [PATCH 1/3] dt-binding: rtc Add DT binding for NXP 85263 RTC
-To: Alessandro Zummo <a.zummo@towertech.it>, Rob Herring <robh+dt@kernel.org>,
- Alexandre Belloni <alexandre.belloni@free-electrons.com>
-From: Martin Fuzzey <mfuzzey@parkeon.com>
-Cc: devicetree@vger.kernel.org, rtc-linux@googlegroups.com
-Date: Mon, 01 Aug 2016 17:50:32 +0200
-Message-ID: <20160801155032.32232.68432.stgit@localhost>
-In-Reply-To: <20160801155029.32232.56063.stgit@localhost>
-References: <20160801155029.32232.56063.stgit@localhost>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Received: from mail-yb0-f181.google.com (mail-yb0-f181.google.com. [209.85.213.181])
+        by gmr-mx.google.com with ESMTPS id d206si1374607ywh.3.2016.08.15.20.26.30
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 15 Aug 2016 20:26:30 -0700 (PDT)
+Received: by mail-yb0-f181.google.com with SMTP id e31so10888042ybi.3
+        for <rtc-linux@googlegroups.com>; Mon, 15 Aug 2016 20:26:30 -0700 (PDT)
+From: Pratyush Anand <panand@redhat.com>
+To: mingo@kernel.org,
+	alexandre.belloni@free-electrons.com,
+	tglx@linutronix.de,
+	hpa@zytor.com,
+	x86@kernel.org
+Cc: rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org,
+	prarit@redhat.com,
+	dzickus@redhat.com,
+	dyoung@redhat.com,
+	a.zummo@towertech.it,
+	Pratyush Anand <panand@redhat.com>
+Subject: [rtc-linux] [PATCH V3 2/2] rtc/rtc-cmos: Initialize software counters
+ before irq is registered
+Date: Tue, 16 Aug 2016 08:55:44 +0530
+Message-Id: <90426708da5934284839e6f23d23e265afcc779f.1470985727.git.panand@redhat.com>
+In-Reply-To: <cover.1470985727.git.panand@redhat.com>
+References: <cover.1470985727.git.panand@redhat.com>
+In-Reply-To: <cover.1470985727.git.panand@redhat.com>
+References: <cover.1470985727.git.panand@redhat.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -25,81 +39,130 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Signed-off-by: Martin Fuzzey <mfuzzey@parkeon.com>
----
- .../devicetree/bindings/rtc/nxp,pcf85263.txt       |   41 ++++++++++++++++++++
- include/dt-bindings/rtc/nxp,pcf85263.h             |   14 +++++++
- 2 files changed, 55 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/rtc/nxp,pcf85263.txt
- create mode 100644 include/dt-bindings/rtc/nxp,pcf85263.h
+We have observed on few x86 machines with rtc-cmos device that
+hpet_rtc_interrupt() is called just after irq registration and before
+cmos_do_probe() could call hpet_rtc_timer_init().
 
-diff --git a/Documentation/devicetree/bindings/rtc/nxp,pcf85263.txt b/Documentation/devicetree/bindings/rtc/nxp,pcf85263.txt
-new file mode 100644
-index 0000000..03b9505
---- /dev/null
-+++ b/Documentation/devicetree/bindings/rtc/nxp,pcf85263.txt
-@@ -0,0 +1,41 @@
-+NXP PCF85263 I2C Real Time Clock
+So, neither hpet_default_delta nor hpet_t1_cmp is initialized by the time
+interrupt is raised in the given situation, and this results in NMI
+watchdog LOCKUP.
+
+It has only been observed sporadically on kdump secondary kernels.
+
+See the call trace:
+---<-snip->---
+   27.913194] Kernel panic - not syncing: Watchdog detected hard LOCKUP on
+cpu 0
+[   27.915371] CPU: 0 PID: 1 Comm: swapper/0 Not tainted
+3.10.0-342.el7.x86_64 #1
+[   27.917503] Hardware name: HP ProLiant DL160 Gen8, BIOS J03 02/10/2014
+[   27.919455]  ffffffff8186a728 0000000059c82488 ffff880034e05af0
+ffffffff81637bd4
+[   27.921870]  ffff880034e05b70 ffffffff8163144a 0000000000000010
+ffff880034e05b80
+[   27.924257]  ffff880034e05b20 0000000059c82488 0000000000000000
+0000000000000000
+[   27.926599] Call Trace:
+[   27.927352]  <NMI>  [<ffffffff81637bd4>] dump_stack+0x19/0x1b
+[   27.929080]  [<ffffffff8163144a>] panic+0xd8/0x1e7
+[   27.930588]  [<ffffffff8111d3e0>] ? restart_watchdog_hrtimer+0x50/0x50
+[   27.932502]  [<ffffffff8111d4a2>] watchdog_overflow_callback+0xc2/0xd0
+[   27.934427]  [<ffffffff811612c1>] __perf_event_overflow+0xa1/0x250
+[   27.936232]  [<ffffffff81161d94>] perf_event_overflow+0x14/0x20
+[   27.937957]  [<ffffffff81032ae8>] intel_pmu_handle_irq+0x1e8/0x470
+[   27.939799]  [<ffffffff8164164b>] perf_event_nmi_handler+0x2b/0x50
+[   27.941649]  [<ffffffff81640d99>] nmi_handle.isra.0+0x69/0xb0
+[   27.943348]  [<ffffffff81640f49>] do_nmi+0x169/0x340
+[   27.944802]  [<ffffffff816401d3>] end_repeat_nmi+0x1e/0x2e
+[   27.946424]  [<ffffffff81056ee5>] ? hpet_rtc_interrupt+0x85/0x380
+[   27.948197]  [<ffffffff81056ee5>] ? hpet_rtc_interrupt+0x85/0x380
+[   27.949992]  [<ffffffff81056ee5>] ? hpet_rtc_interrupt+0x85/0x380
+[   27.951816]  <<EOE>>  <IRQ>  [<ffffffff8108f5a3>] ?
+run_timer_softirq+0x43/0x340
+[   27.954114]  [<ffffffff8111e24e>] handle_irq_event_percpu+0x3e/0x1e0
+[   27.955962]  [<ffffffff8111e42d>] handle_irq_event+0x3d/0x60
+[   27.957635]  [<ffffffff811210c7>] handle_edge_irq+0x77/0x130
+[   27.959332]  [<ffffffff8101704f>] handle_irq+0xbf/0x150
+[   27.960949]  [<ffffffff8164a86f>] do_IRQ+0x4f/0xf0
+[   27.962434]  [<ffffffff8163faed>] common_interrupt+0x6d/0x6d
+[   27.964101]  <EOI>  [<ffffffff8163f43b>] ?
+_raw_spin_unlock_irqrestore+0x1b/0x40
+[   27.966308]  [<fffff8111ff07>] __setup_irq+0x2a7/0x570
+[   28.067859]  [<ffffffff81056e60>] ? hpet_cpuhp_notify+0x140/0x140
+[   28.069709]  [<ffffffff8112032c>] request_threaded_irq+0xcc/0x170
+[   28.071585]  [<ffffffff814b24a6>] cmos_do_probe+0x1e6/0x450
+[   28.073240]  [<ffffffff814b2710>] ? cmos_do_probe+0x450/0x450
+[   28.074911]  [<ffffffff814b27cb>] cmos_pnp_probe+0xbb/0xc0
+[   28.076533]  [<ffffffff8139b245>] pnp_device_probe+0x65/0xd0
+[   28.078198]  [<ffffffff813f8ca7>] driver_probe_device+0x87/0x390
+[   28.079971]  [<ffffffff813f9083>] __driver_attach+0x93/0xa0
+[   28.081660]  [<ffffffff813f8ff0>] ? __device_attach+0x40/0x40
+[   28.083662]  [<ffffffff813f6a13>] bus_for_each_dev+0x73/0xc0
+[   28.085370]  [<ffffffff813f86fe>] driver_attach+0x1e/0x20
+[   28.086974]  [<ffffffff813f8250>] bus_add_driver+0x200/0x2d0
+[   28.088634]  [<ffffffff81ade49a>] ? rtc_sysfs_init+0xe/0xe
+[   28.090349]  [<ffffffff813f9704>] driver_register+0x64/0xf0
+[   28.091989]  [<ffffffff8139b070>] pnp_register_driver+0x20/0x30
+[   28.093707]  [<ffffffff81ade4ab>] cmos_init+0x11/0x71
+---<-snip->---
+
+The previous patch split hpet_rtc_timer_init into
+hpet_rtc_timer_counter_init() and hpet_rtc_timer_enable().
+
+Therefore, this patch moved hpet_rtc_timer_counter_init() before IRQ
+registration, so that we can gracefully handle such spurious interrupts.
+
+We were able to reproduce the problem in maximum 15 trials of kdump
+secondary kernel boot on an hp-dl160gen8 machine without this patch.
+However, more than 35 trials went fine after applying this patch.
+
+Signed-off-by: Pratyush Anand <panand@redhat.com>
+[dzickus@redhat.com: edited the patch's summary]
+Signed-off-by: Don Zickus <dzickus@redhat.com>
+---
+ drivers/rtc/rtc-cmos.c | 13 ++++++++++++-
+ 1 file changed, 12 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/rtc/rtc-cmos.c b/drivers/rtc/rtc-cmos.c
+index 43745cac0141..089d987f2638 100644
+--- a/drivers/rtc/rtc-cmos.c
++++ b/drivers/rtc/rtc-cmos.c
+@@ -129,6 +129,16 @@ static inline int hpet_rtc_dropped_irq(void)
+ 	return 0;
+ }
+ 
++static inline int hpet_rtc_timer_counter_init(void)
++{
++	return 0;
++}
 +
-+Required properties:
-+- compatible: must be: "nxp,rtc-pcf85263"
-+- reg: must be the I2C address
++static inline int hpet_rtc_timer_enable(void)
++{
++	return 0;
++}
 +
-+Optional properties:
-+- interrupt-names: Which interrupt signal is used must be "INTA" or "INTB"
-+    Defaults to "INTA"
-+
-+- quartz-load-capacitance: The internal capacitor to select for the quartz:
-+	PCF85263_QUARTZCAP_7pF		[0]
-+	PCF85263_QUARTZCAP_6pF		[1]
-+	PCF85263_QUARTZCAP_12p5pF	[2] DEFAULT
-+
-+- quartz-drive-strength: Drive strength for the quartz:
-+	PCF85263_QUARTZDRIVE_NORMAL	[0] DEFAULT
-+	PCF85263_QUARTZDRIVE_LOW	[1]
-+	PCF85263_QUARTZDRIVE_HIGH	[2]
-+
-+- quartz-low-jitter: Boolean property, if present enables low jitter mode which
-+    reduces jitter at the cost of increased power consumption.
-+
-+- wakeup-source: mark the chip as a wakeup source, independently of
-+    the availability of an IRQ line connected to the SoC.
-+    This is useful if the IRQ line is connected to a PMIC or other circuit
-+    that can power up the device rather than to a normal SOC interrupt.
-+
-+Example:
-+
-+rtc@51 {
-+	compatible = "nxp,pcf85263";
-+	reg = <0x51>;
-+
-+	interrupt-parent = <&gpio4>;
-+	interrupts = <5 IRQ_TYPE_LEVEL_LOW>;
-+	interrupt-names = "INTB";
-+
-+	quartz-load-capacitance = <PCF85263_QUARTZCAP_12p5pF>;
-+	quartz-drive-strength = <PCF85263_QUARTZDRIVE_LOW>;
-+};
-diff --git a/include/dt-bindings/rtc/nxp,pcf85263.h b/include/dt-bindings/rtc/nxp,pcf85263.h
-new file mode 100644
-index 0000000..ea87ae4
---- /dev/null
-+++ b/include/dt-bindings/rtc/nxp,pcf85263.h
-@@ -0,0 +1,14 @@
-+#ifndef _DT_BINDINGS_RTC_NXP_PCF85263_H
-+#define _DT_BINDINGS_RTC_NXP_PCF85263_H
-+
-+/* Quartz capacitance */
-+#define PCF85263_QUARTZCAP_7pF		0
-+#define PCF85263_QUARTZCAP_6pF		1
-+#define PCF85263_QUARTZCAP_12p5pF	2
-+
-+/* Quartz drive strength */
-+#define PCF85263_QUARTZDRIVE_NORMAL	0
-+#define PCF85263_QUARTZDRIVE_LOW	1
-+#define PCF85263_QUARTZDRIVE_HIGH	2
-+
-+#endif /* _DT_BINDINGS_RTC_NXP_PCF85263_H */
+ static inline int hpet_rtc_timer_init(void)
+ {
+ 	return 0;
+@@ -707,6 +717,7 @@ cmos_do_probe(struct device *dev, struct resource *ports, int rtc_irq)
+ 		goto cleanup1;
+ 	}
+ 
++	hpet_rtc_timer_counter_init();
+ 	if (is_valid_irq(rtc_irq)) {
+ 		irq_handler_t rtc_cmos_int_handler;
+ 
+@@ -729,7 +740,7 @@ cmos_do_probe(struct device *dev, struct resource *ports, int rtc_irq)
+ 			goto cleanup1;
+ 		}
+ 	}
+-	hpet_rtc_timer_init();
++	hpet_rtc_timer_enable();
+ 
+ 	/* export at least the first block of NVRAM */
+ 	nvram.size = address_space - NVRAM_OFFSET;
+-- 
+2.5.5
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
