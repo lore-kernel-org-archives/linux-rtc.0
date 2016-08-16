@@ -1,31 +1,31 @@
-Return-Path: <rtc-linux+bncBDMLZJ6I5AIBBL6EWG6QKGQEEKM33OA@googlegroups.com>
+Return-Path: <rtc-linux+bncBDI57DN47YOBBXEPZK6QKGQEX3OSWQY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail-wm0-x241.google.com (mail-wm0-x241.google.com. [2a00:1450:400c:c09::241])
-        by gmr-mx.google.com with ESMTPS id b77si584392wmb.1.2016.08.11.04.31.59
+MIME-Version: 1.0
+Received: from mail-yw0-f173.google.com (mail-yw0-f173.google.com. [209.85.161.173])
+        by gmr-mx.google.com with ESMTPS id f206si1541067ywb.6.2016.08.15.20.26.19
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 11 Aug 2016 04:31:59 -0700 (PDT)
-Received: by mail-wm0-x241.google.com with SMTP id i5so812992wmg.2
-        for <rtc-linux@googlegroups.com>; Thu, 11 Aug 2016 04:31:59 -0700 (PDT)
-From: Daniel Romell <danielromell@gmail.com>
-To: a.zummo@towertech.it
-Cc: alexandre.belloni@free-electrons.com,
-	rtc-linux@googlegroups.com,
+        Mon, 15 Aug 2016 20:26:19 -0700 (PDT)
+Received: by mail-yw0-f173.google.com with SMTP id j12so36758061ywb.2
+        for <rtc-linux@googlegroups.com>; Mon, 15 Aug 2016 20:26:19 -0700 (PDT)
+From: Pratyush Anand <panand@redhat.com>
+To: mingo@kernel.org,
+	alexandre.belloni@free-electrons.com,
+	tglx@linutronix.de,
+	hpa@zytor.com,
+	x86@kernel.org
+Cc: rtc-linux@googlegroups.com,
 	linux-kernel@vger.kernel.org,
-	daro@hms.se,
-	jao@hms.se,
-	mago@hms.se
-Subject: [rtc-linux] [PATCH v2 1/2] rtc: bq32k: Use correct mask name for
- 'minutes' register.
-Date: Thu, 11 Aug 2016 13:31:43 +0200
-Message-Id: <1470915104-10683-2-git-send-email-daro@hms.se>
-In-Reply-To: <1470915104-10683-1-git-send-email-daro@hms.se>
-References: <1470915104-10683-1-git-send-email-daro@hms.se>
-MIME-Version: 1.0
-In-Reply-To: <1470909555-9226-1-git-send-email-daro@hms.se>
-References: <1470909555-9226-1-git-send-email-daro@hms.se>
-Content-Type: text/plain; charset=UTF-8
+	prarit@redhat.com,
+	dzickus@redhat.com,
+	dyoung@redhat.com,
+	a.zummo@towertech.it,
+	Pratyush Anand <panand@redhat.com>
+Subject: [rtc-linux] [PATCH V3 0/2] rtc-cmos: Workaround unwanted interrupt generation
+Date: Tue, 16 Aug 2016 08:55:42 +0530
+Message-Id: <cover.1470985727.git.panand@redhat.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -34,41 +34,40 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-From: Jan =C3=96stlund <jao@hms.se>
+We have observed on few machines with rtc-cmos devices that it generates
+an interrupt before the hpet_rtc_timer_init() call is finished. This leads
+to hpet_rtc_interrupt() being called before it is fully initialized.
 
-The BQ32K_SECONDS_MASK and BQ32K_MINUTES_MASK both has the same
-value. This is no functional change.
+Therefore the while-loop of hpet_cnt_ahead() in hpet_rtc_timer_reinit()
+never completes. This leads to "NMI watchdog: Watchdog detected hard LOCKUP
+on cpu 0".
 
-Signed-off-by: Daniel Romell <daro@hms.se>
----
- drivers/rtc/rtc-bq32k.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+This patch set initializes hpet_default_delta and hpet_t1_cmp before
+interrupt can be raised.
 
-diff --git a/drivers/rtc/rtc-bq32k.c b/drivers/rtc/rtc-bq32k.c
-index 0299988..5a0c137 100644
---- a/drivers/rtc/rtc-bq32k.c
-+++ b/drivers/rtc/rtc-bq32k.c
-@@ -94,7 +94,7 @@ static int bq32k_rtc_read_time(struct device *dev, struct=
- rtc_time *tm)
- 		return error;
-=20
- 	tm->tm_sec =3D bcd2bin(regs.seconds & BQ32K_SECONDS_MASK);
--	tm->tm_min =3D bcd2bin(regs.minutes & BQ32K_SECONDS_MASK);
-+	tm->tm_min =3D bcd2bin(regs.minutes & BQ32K_MINUTES_MASK);
- 	tm->tm_hour =3D bcd2bin(regs.cent_hours & BQ32K_HOURS_MASK);
- 	tm->tm_mday =3D bcd2bin(regs.date);
- 	tm->tm_wday =3D bcd2bin(regs.day) - 1;
---=20
-2.7.4
+Changes since V2:
+  - Improved commit log further
+Changes since RFC:
+  - Commit log of patches has been improved.
 
---=20
+Pratyush Anand (2):
+  rtc/hpet: Factorize hpet_rtc_timer_init()
+  rtc/rtc-cmos: Initialize software counters before irq is registered
+
+ arch/x86/include/asm/hpet.h |  2 ++
+ arch/x86/kernel/hpet.c      | 41 +++++++++++++++++++++++++++++++++++------
+ drivers/rtc/rtc-cmos.c      | 13 ++++++++++++-
+ 3 files changed, 49 insertions(+), 7 deletions(-)
+
+-- 
+2.5.5
+
+-- 
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
----=20
-You received this message because you are subscribed to the Google Groups "=
-rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an e=
-mail to rtc-linux+unsubscribe@googlegroups.com.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
