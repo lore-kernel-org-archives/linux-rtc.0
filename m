@@ -1,21 +1,37 @@
-Return-Path: <rtc-linux+bncBDAKXCE7XADRBBNESO6QKGQEHHTIPHI@googlegroups.com>
+Return-Path: <rtc-linux+bncBCMILY6JWQBBBSP5ZK6QKGQEGMCU6NI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-MIME-Version: 1.0
-Received: from mail-it0-x241.google.com (mail-it0-x241.google.com. [2607:f8b0:4001:c0b::241])
-        by gmr-mx.google.com with ESMTPS id d6si650374ith.1.2016.08.05.10.51.01
+Received: from smtp.csie.ntu.edu.tw (smtp.csie.ntu.edu.tw. [140.112.30.61])
+        by gmr-mx.google.com with ESMTPS id ph9si2884363pac.1.2016.08.16.00.20.41
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 05 Aug 2016 10:51:01 -0700 (PDT)
-Received: by mail-it0-x241.google.com with SMTP id u186so2138509ita.1
-        for <rtc-linux@googlegroups.com>; Fri, 05 Aug 2016 10:51:01 -0700 (PDT)
-From: Ryan Jones <ryan@rjones.io>
-To: rtc-linux@googlegroups.com
-Cc: Ryan Jones <ryan@rjones.io>
-Subject: [rtc-linux] [PATCH] rtc: Add support for RX4035
-Date: Fri,  5 Aug 2016 11:54:36 -0600
-Message-Id: <1470419676-5616-1-git-send-email-ryan@rjones.io>
-Reply-To: rtc-linux@googlegroups.com
+        Tue, 16 Aug 2016 00:20:41 -0700 (PDT)
+Received: from mail-it0-f45.google.com (mail-it0-f45.google.com [209.85.214.45])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	(Authenticated sender: b93043)
+	by smtp.csie.ntu.edu.tw (Postfix) with ESMTPSA id 3C2C323187
+	for <rtc-linux@googlegroups.com>; Tue, 16 Aug 2016 14:24:34 +0800 (CST)
+Received: by mail-it0-f45.google.com with SMTP id e63so26336077ith.1
+        for <rtc-linux@googlegroups.com>; Tue, 16 Aug 2016 00:20:39 -0700 (PDT)
+MIME-Version: 1.0
+In-Reply-To: <CAGb2v66OhH=C5CqB56jN=T4c8TDgyuC=F0689d7=GBhy_rEonA@mail.gmail.com>
+References: <1467988422-17934-1-git-send-email-wens@csie.org>
+ <1467988422-17934-8-git-send-email-wens@csie.org> <20160711065042.GC4589@lukather>
+ <CAGb2v66OhH=C5CqB56jN=T4c8TDgyuC=F0689d7=GBhy_rEonA@mail.gmail.com>
+From: Chen-Yu Tsai <wens@csie.org>
+Date: Tue, 16 Aug 2016 15:20:17 +0800
+Message-ID: <CAGb2v66kLO2RnAyzasuqDbJXYZhcH0pBKraE3MUEJzb6hsEoTg@mail.gmail.com>
+Subject: [rtc-linux] Re: [PATCH v5 7/7] ARM: dts: sun9i: Switch to the AC100
+ RTC clock outputs for osc32k
+To: Chen-Yu Tsai <wens@csie.org>
+Cc: Maxime Ripard <maxime.ripard@free-electrons.com>, Lee Jones <lee.jones@linaro.org>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	linux-kernel <linux-kernel@vger.kernel.org>, rtc-linux@googlegroups.com,
+	devicetree <devicetree@vger.kernel.org>,
+	linux-arm-kernel <linux-arm-kernel@lists.infradead.org>
 Content-Type: text/plain; charset=UTF-8
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -24,278 +40,74 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Add support for spi rtc rx4035. The driver is based off of rtc-rx4581 but
-accounts for some discrepancies in device register map/ data transfer format.
+On Tue, Jul 12, 2016 at 10:02 AM, Chen-Yu Tsai <wens@csie.org> wrote:
+> On Mon, Jul 11, 2016 at 2:50 PM, Maxime Ripard
+> <maxime.ripard@free-electrons.com> wrote:
+>> Hi,
+>>
+>> On Fri, Jul 08, 2016 at 10:33:42PM +0800, Chen-Yu Tsai wrote:
+>>> The 32.768 kHz clock inside the A80 SoC is fed from an external source,
+>>> typically the AC100 RTC module.
+>>>
+>>> Make the osc32k placeholder a fixed-factor clock so board dts files can
+>>> specify its source.
+>>>
+>>> Signed-off-by: Chen-Yu Tsai <wens@csie.org>
+>>> ---
+>>> Changes since v4: none
+>>> Changes since v3: none
+>>> Changes since v2: none
+>>> Changes since v1: none
+>>> ---
+>>>  arch/arm/boot/dts/sun9i-a80-cubieboard4.dts | 5 +++++
+>>>  arch/arm/boot/dts/sun9i-a80-optimus.dts     | 5 +++++
+>>>  arch/arm/boot/dts/sun9i-a80.dtsi            | 9 +++------
+>>>  3 files changed, 13 insertions(+), 6 deletions(-)
+>>>
+>>> diff --git a/arch/arm/boot/dts/sun9i-a80-cubieboard4.dts b/arch/arm/boot/dts/sun9i-a80-cubieboard4.dts
+>>> index cf2f4b72a841..04b014603659 100644
+>>> --- a/arch/arm/boot/dts/sun9i-a80-cubieboard4.dts
+>>> +++ b/arch/arm/boot/dts/sun9i-a80-cubieboard4.dts
+>>> @@ -103,6 +103,11 @@
+>>>       allwinner,drive = <SUN4I_PINCTRL_40_MA>;
+>>>  };
+>>>
+>>> +&osc32k {
+>>> +     /* osc32k input is from AC100 */
+>>> +     clocks = <&ac100_rtc 0>;
+>>> +};
+>>> +
+>>
+>> I'm guessing that an unresolved dependency when the driver has not
+>> loaded yet, or is not even compiled ?
+>>
+>> How is it working then?
+>
+> I assume the clk framework will leave it unresolved and unusable.
+> Also it seems that none of existing clks use it as a parent by
+> default. I will need to check the remaining unimplemented ones
+> though.
 
-Signed-off-by: Ryan Jones <ryan@rjones.io>
----
- drivers/rtc/Kconfig      |   8 ++
- drivers/rtc/Makefile     |   1 +
- drivers/rtc/rtc-rx4035.c | 222 +++++++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 231 insertions(+)
- create mode 100644 drivers/rtc/rtc-rx4035.c
+On the latest sunxi-next kernel, one clock is clocked from osc32k, which
+becomes an orphaned clock:
 
-diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
-index e215f50..257808d 100644
---- a/drivers/rtc/Kconfig
-+++ b/drivers/rtc/Kconfig
-@@ -695,6 +695,14 @@ config RTC_DRV_R9701
- 	  This driver can also be built as a module. If so, the module
- 	  will be called rtc-r9701.
- 
-+config RTC_DRV_RX4035
-+	tristate "Epson RX-4035"
-+	help
-+	  If you say yes here you will get support for the Epson RX-4035.
-+
-+	  This driver can also be built as a module. If so the module
-+	  will be called rtc-rx4035.
-+
- config RTC_DRV_RX4581
- 	tristate "Epson RX-4581"
- 	help
-diff --git a/drivers/rtc/Makefile b/drivers/rtc/Makefile
-index 7cf7ad5..1c86a65 100644
---- a/drivers/rtc/Makefile
-+++ b/drivers/rtc/Makefile
-@@ -129,6 +129,7 @@ obj-$(CONFIG_RTC_DRV_RS5C348)	+= rtc-rs5c348.o
- obj-$(CONFIG_RTC_DRV_RS5C372)	+= rtc-rs5c372.o
- obj-$(CONFIG_RTC_DRV_RV3029C2)	+= rtc-rv3029c2.o
- obj-$(CONFIG_RTC_DRV_RV8803)	+= rtc-rv8803.o
-+obj-$(CONFIG_RTC_DRV_RX4035)	+= rtc-rx4035.o
- obj-$(CONFIG_RTC_DRV_RX4581)	+= rtc-rx4581.o
- obj-$(CONFIG_RTC_DRV_RX6110)	+= rtc-rx6110.o
- obj-$(CONFIG_RTC_DRV_RX8010)	+= rtc-rx8010.o
-diff --git a/drivers/rtc/rtc-rx4035.c b/drivers/rtc/rtc-rx4035.c
-new file mode 100644
-index 0000000..82f26a8
---- /dev/null
-+++ b/drivers/rtc/rtc-rx4035.c
-@@ -0,0 +1,222 @@
-+/* drivers/rtc/rtc-rx4035.c
-+ *
-+ * written by Ryan Jones <ryan@rjones.io>
-+ *
-+ * RTC SPI Driver for Epson RX4035
-+ *
-+ * Based on:
-+ * drivers/rtc/rtc-rx4581.c
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
-+ *
-+ */
-+
-+#include <linux/module.h>
-+#include <linux/kernel.h>
-+#include <linux/platform_device.h>
-+#include <linux/init.h>
-+#include <linux/rtc.h>
-+#include <linux/spi/spi.h>
-+#include <linux/bcd.h>
-+
-+#define RX4035_REG_SC		0x00 /* Second in BCD */
-+#define RX4035_REG_MN		0x01 /* Minute in BCD */
-+#define RX4035_REG_HR		0x02 /* Hour in BCD */
-+#define RX4035_REG_DW		0x03 /* Day of Week */
-+#define RX4035_REG_DM		0x04 /* Day of Month in BCD */
-+#define RX4035_REG_MO		0x05 /* Month in BCD */
-+#define RX4035_REG_YR		0x06 /* Year in BCD */
-+#define RX4035_REG_RAM		0x0D /* RAM */
-+#define RX4035_REG_CTL1		0x0E /* Control Register 1*/
-+#define RX4035_REG_CTL2		0x0F /* Control Register 2*/
-+
-+/* Flag Register bit definitions */
-+#define RX4035_FLAG_VDET	0x40 /* Low Voltage Detection */
-+#define RX4035_FLAG_PON		0x10 /* Indicates a Power On condition */
-+
-+static int rx4035_set_reg(struct spi_device *spi, unsigned char address,
-+	unsigned char data)
-+{
-+	unsigned char buf[2];
-+
-+	/*Set MSB to indicate a write transfer*/
-+	buf[0] = (address<<4) | 0x08;
-+	buf[1] = data;
-+
-+	return spi_write_then_read(spi, buf, 2, NULL, 0);
-+}
-+
-+static int rx4035_get_reg(struct spi_device *spi, unsigned char address,
-+	unsigned char *data)
-+{
-+	/*Set MSB to indicate a write transfer*/
-+	*data = (address<<4) | 0x0c;
-+
-+	return spi_write_then_read(spi, data, 1, data, 1);
-+}
-+
-+/*
-+ * In the routines that deal directly with the rx4035 hardware, we use
-+ * rtc_time -- month 0-11, hour 0-23, yr = calendar year-epoch.
-+ */
-+static int rx4035_get_datetime(struct device *dev, struct rtc_time *tm)
-+{
-+	struct spi_device *spi = to_spi_device(dev);
-+	unsigned char date[7];
-+	unsigned char data;
-+	int err;
-+
-+	/*Check that data is reliable*/
-+	err = rx4035_get_reg(spi, RX4035_REG_CTL1, &data);
-+	if (err != 0) {
-+		dev_err(dev, "Unable to read control register\n");
-+		return -EIO;
-+	}
-+	if (data & (RX4035_FLAG_VDET | RX4035_FLAG_PON))
-+		dev_err(dev, "RTC DATA UNRELIABLE - battery voltage fell below minimum value\n");
-+
-+	/* Read time and date */
-+	date[0] = 0x04;
-+	err = spi_write_then_read(spi, date, 1, date, 7);
-+	if (err < 0) {
-+		dev_err(dev, "Unable to read date\n");
-+		return -EIO;
-+	}
-+
-+	dev_dbg(dev,
-+		"%s: raw data is sec=%02x, min=%02x, hr=%02x, wday=%02x, mday=%02x, mon=%02x, year=%02x\n",
-+		__func__,
-+		date[0], date[1], date[2], date[3], date[4], date[5], date[6]);
-+
-+	tm->tm_sec = bcd2bin(date[RX4035_REG_SC] & 0x7F);
-+	tm->tm_min = bcd2bin(date[RX4035_REG_MN] & 0x7F);
-+	tm->tm_hour = bcd2bin(date[RX4035_REG_HR] & 0x3F); /* rtc hr 0-23 */
-+	tm->tm_wday = date[RX4035_REG_DW] & 0x7F;
-+	tm->tm_mday = bcd2bin(date[RX4035_REG_DM] & 0x3F);
-+	tm->tm_mon = bcd2bin(date[RX4035_REG_MO] & 0x1F) - 1; /* rtc mn 1-12 */
-+	tm->tm_year = bcd2bin(date[RX4035_REG_YR]);
-+	if (tm->tm_year < 70)
-+		tm->tm_year += 100; /* assume we are in 1970...2069 */
-+
-+	dev_dbg(dev,
-+		"%s: tm is secs=%d, mins=%d, hours=%d, mday=%d, mon=%d, year=%d, wday=%d\n",
-+		__func__,
-+		tm->tm_sec, tm->tm_min, tm->tm_hour,
-+		tm->tm_mday, tm->tm_mon, tm->tm_year, tm->tm_wday);
-+
-+	err = rtc_valid_tm(tm);
-+	if (err < 0)
-+		dev_err(dev, "retrieved date/time is not valid.\n");
-+
-+	return err;
-+}
-+
-+static int rx4035_set_datetime(struct device *dev, struct rtc_time *tm)
-+{
-+	struct spi_device *spi = to_spi_device(dev);
-+	int err;
-+	unsigned char buf[8], *data;
-+
-+	data = buf;
-+
-+	/*
-+	 *		Clear power-on / low voltage flags
-+	 * We aren't concerned if this is the first power up or if data
-+	 * is unreliable in date setting operations - clear flags
-+	 */
-+	err = rx4035_get_reg(spi, RX4035_REG_CTL1, data);
-+	if (err != 0) {
-+		dev_err(dev, "Unable to read control register\n");
-+		return -EIO;
-+	}
-+
-+	*data &= ~(RX4035_FLAG_PON|RX4035_FLAG_VDET);
-+
-+	err = rx4035_set_reg(spi, RX4035_REG_CTL1, *data);
-+	if (err != 0) {
-+		dev_err(dev, "Unable to load control register\n");
-+		return -EIO;
-+	}
-+
-+	dev_dbg(dev, "%s: secs=%d, mins=%d, hours=%d, mday=%d, mon=%d, year=%d, wday=%d\n",
-+		__func__,
-+		tm->tm_sec, tm->tm_min, tm->tm_hour,
-+		tm->tm_mday, tm->tm_mon, tm->tm_year, tm->tm_wday);
-+
-+	/*Set write xfer format address 0 and offset*/
-+	*data++ = 0x00;
-+
-+	/* minutes and seconds */
-+	data[RX4035_REG_SC] = bin2bcd(tm->tm_sec);
-+	data[RX4035_REG_MN] = bin2bcd(tm->tm_min);
-+
-+	/*hours, indicating 24 hour mode*/
-+	data[RX4035_REG_HR] = bin2bcd(tm->tm_hour) | 0x80;
-+
-+	data[RX4035_REG_DM] = bin2bcd(tm->tm_mday);
-+
-+	/* month, 1 - 12 */
-+	data[RX4035_REG_MO] = bin2bcd(tm->tm_mon + 1);
-+
-+	/* year and century */
-+	data[RX4035_REG_YR] = bin2bcd(tm->tm_year % 100);
-+
-+	/* day of week */
-+	data[RX4035_REG_DW] = tm->tm_wday;
-+
-+	/* write time data */
-+	err = spi_write_then_read(spi, buf, 8, NULL, 0);
-+	if (err != 0) {
-+		dev_err(dev, "Unable to write to date registers\n");
-+		return -EIO;
-+	}
-+
-+	return 0;
-+}
-+
-+static const struct rtc_class_ops rx4035_rtc_ops = {
-+	.read_time	= rx4035_get_datetime,
-+	.set_time	= rx4035_set_datetime,
-+};
-+
-+static int rx4035_probe(struct spi_device *spi)
-+{
-+	struct rtc_device *rtc;
-+	unsigned char tmp;
-+	int res;
-+
-+	res = rx4035_get_reg(spi, RX4035_REG_SC, &tmp);
-+	if (res != 0)
-+		return res;
-+
-+	rtc = devm_rtc_device_register(&spi->dev, "rx4035",
-+		&rx4035_rtc_ops, THIS_MODULE);
-+	if (IS_ERR(rtc))
-+		return PTR_ERR(rtc);
-+
-+	spi_set_drvdata(spi, rtc);
-+	return 0;
-+}
-+
-+static const struct spi_device_id rx4035_id[] = {
-+	{ "rx4035", 0 },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(spi, rx4035_id);
-+
-+static struct spi_driver rx4035_driver = {
-+	.driver = {
-+		.name = "rtc-rx4035",
-+	},
-+	.probe = rx4035_probe,
-+	.id_table = rx4035_id,
-+};
-+
-+module_spi_driver(rx4035_driver);
-+
-+MODULE_DESCRIPTION("rx4035 spi RTC driver");
-+MODULE_AUTHOR("Ryan Jones");
-+MODULE_LICENSE("GPL");
-+MODULE_ALIAS("spi:rtc-rx4035");
--- 
-2.1.4
+   clock                         enable_cnt  prepare_cnt        rate
+accuracy   phase
+----------------------------------------------------------------------------------------
+ osc24M                                   6            6    24000000
+       0 0
+    r_ir                                  1            1     8000000
+       0 0
+ r_1wire                                  0            0           0
+       0 0
+
+r_ir is clocked from osc32k by default, but the clk_set_rate call in the
+IR driver seems to forces it to reparent to the working osc24M clock.
+
+So I think we're good here. Can you merge the 3 remaining dts patches?
+
+Thanks
+ChenYu
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
