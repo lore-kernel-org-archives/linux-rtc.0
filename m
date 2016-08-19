@@ -1,28 +1,28 @@
-Return-Path: <rtc-linux+bncBDA7X7F2WUEBB3VETO7AKGQEW4JWW2A@googlegroups.com>
+Return-Path: <rtc-linux+bncBCMILY6JWQBBB7MK3O6QKGQE7DKP2NY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail-wm0-x233.google.com (mail-wm0-x233.google.com. [2a00:1450:400c:c09::233])
-        by gmr-mx.google.com with ESMTPS id w64si1149973wmf.3.2016.08.31.05.49.50
+MIME-Version: 1.0
+Received: from wens.csie.org (mirror2.csie.ntu.edu.tw. [140.112.30.76])
+        by gmr-mx.google.com with ESMTPS id a133si395775pfa.0.2016.08.19.01.38.21
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 31 Aug 2016 05:49:50 -0700 (PDT)
-Received: by mail-wm0-x233.google.com with SMTP id c133so29004418wmd.1
-        for <rtc-linux@googlegroups.com>; Wed, 31 Aug 2016 05:49:50 -0700 (PDT)
-Date: Wed, 31 Aug 2016 13:51:37 +0100
-From: Lee Jones <lee.jones@linaro.org>
-To: Wadim Egorov <w.egorov@phytec.de>
-Cc: linux-kernel@vger.kernel.org, rtc-linux@googlegroups.com,
-	devicetree@vger.kernel.org, linux-rockchip@lists.infradead.org,
-	robh+dt@kernel.org, mark.rutland@arm.com, lgirdwood@gmail.com,
-	broonie@kernel.org, a.zummo@towertech.it,
-	alexandre.belloni@free-electrons.com
-Subject: [rtc-linux] [GIT PULL] Immutable branch between MFD, Regulator and
- RTC due for the v4.9 merge window
-Message-ID: <20160831125137.GI9415@dell>
-References: <1472468881-15337-1-git-send-email-w.egorov@phytec.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1472468881-15337-1-git-send-email-w.egorov@phytec.de>
+        Fri, 19 Aug 2016 01:38:21 -0700 (PDT)
+From: Chen-Yu Tsai <wens@csie.org>
+To: Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Maxime Ripard <maxime.ripard@free-electrons.com>
+Cc: Chen-Yu Tsai <wens@csie.org>,
+	rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org,
+	devicetree@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org
+Subject: [rtc-linux] [PATCH v6 4/4] ARM: dts: sun9i: Switch to the AC100 RTC
+ clock outputs for osc32k
+Date: Fri, 19 Aug 2016 15:42:26 +0800
+Message-Id: <20160819074226.16636-5-wens@csie.org>
+In-Reply-To: <20160819074226.16636-1-wens@csie.org>
+References: <20160819074226.16636-1-wens@csie.org>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -31,58 +31,95 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Enjoy!
+The 32.768 kHz clock inside the A80 SoC is fed from an external source,
+typically the AC100 RTC module.
 
-The following changes since commit 694d0d0bb2030d2e36df73e2d23d5770511dbc8d=
-:
+Make the osc32k placeholder a fixed-factor clock so board dts files can
+specify its source.
 
-  Linux 4.8-rc2 (2016-08-14 19:11:36 -0700)
+Signed-off-by: Chen-Yu Tsai <wens@csie.org>
+---
+Changes since v5:
 
-are available in the git repository at:
+  - Added "clk-div" and "clk-mult" fixed-factor-clock properties to osc32k
+    placeholder.
 
-  git://git.kernel.org/pub/scm/linux/kernel/git/lee/mfd.git ib-mfd-regulato=
-r-rtc-v4.9-1
+Changes since v4: none
+Changes since v3: none
+Changes since v2: none
+Changes since v1: none
+---
+ arch/arm/boot/dts/sun9i-a80-cubieboard4.dts |  5 +++++
+ arch/arm/boot/dts/sun9i-a80-optimus.dts     |  5 +++++
+ arch/arm/boot/dts/sun9i-a80.dtsi            | 11 +++++------
+ 3 files changed, 15 insertions(+), 6 deletions(-)
 
-for you to fetch changes up to 5d2fd5c79e169547fcd4bf363f96cc544fd3489e:
+diff --git a/arch/arm/boot/dts/sun9i-a80-cubieboard4.dts b/arch/arm/boot/dts/sun9i-a80-cubieboard4.dts
+index cf2f4b72a841..04b014603659 100644
+--- a/arch/arm/boot/dts/sun9i-a80-cubieboard4.dts
++++ b/arch/arm/boot/dts/sun9i-a80-cubieboard4.dts
+@@ -103,6 +103,11 @@
+ 	allwinner,drive = <SUN4I_PINCTRL_40_MA>;
+ };
+ 
++&osc32k {
++	/* osc32k input is from AC100 */
++	clocks = <&ac100_rtc 0>;
++};
++
+ &pio {
+ 	led_pins_cubieboard4: led-pins@0 {
+ 		allwinner,pins = "PH6", "PH17";
+diff --git a/arch/arm/boot/dts/sun9i-a80-optimus.dts b/arch/arm/boot/dts/sun9i-a80-optimus.dts
+index e35c06c162a7..fd874ded890e 100644
+--- a/arch/arm/boot/dts/sun9i-a80-optimus.dts
++++ b/arch/arm/boot/dts/sun9i-a80-optimus.dts
+@@ -152,6 +152,11 @@
+ 	status = "okay";
+ };
+ 
++&osc32k {
++	/* osc32k input is from AC100 */
++	clocks = <&ac100_rtc 0>;
++};
++
+ &pio {
+ 	led_pins_optimus: led-pins@0 {
+ 		allwinner,pins = "PH0", "PH1";
+diff --git a/arch/arm/boot/dts/sun9i-a80.dtsi b/arch/arm/boot/dts/sun9i-a80.dtsi
+index f68b3242b33a..24e3cac4f571 100644
+--- a/arch/arm/boot/dts/sun9i-a80.dtsi
++++ b/arch/arm/boot/dts/sun9i-a80.dtsi
+@@ -148,15 +148,14 @@
+ 
+ 		/*
+ 		 * The 32k clock is from an external source, normally the
+-		 * AC100 codec/RTC chip. This clock is by default enabled
+-		 * and clocked at 32768 Hz, from the oscillator connected
+-		 * to the AC100. It is configurable, but no such driver or
+-		 * bindings exist yet.
++		 * AC100 codec/RTC chip. This serves as a placeholder for
++		 * board dts files to specify the source.
+ 		 */
+ 		osc32k: osc32k_clk {
+ 			#clock-cells = <0>;
+-			compatible = "fixed-clock";
+-			clock-frequency = <32768>;
++			compatible = "fixed-factor-clock";
++			clock-div = <1>;
++			clock-mult = <1>;
+ 			clock-output-names = "osc32k";
+ 		};
+ 
+-- 
+2.9.3
 
-  rtc: Kconfig: Name RK818 in Kconfig for RTC_DRV_RK808 (2016-08-31 13:48:5=
-7 +0100)
-
-----------------------------------------------------------------
-Immutable branch between MFD, Regulator and RTC due for the v4.9 merge wind=
-ow
-
-----------------------------------------------------------------
-Wadim Egorov (4):
-      mfd: rk808: Add RK818 support
-      regulator: rk808: Add regulator driver for RK818
-      mfd: dt-bindings: Add RK818 device tree bindings document
-      rtc: Kconfig: Name RK818 in Kconfig for RTC_DRV_RK808
-
- Documentation/devicetree/bindings/mfd/rk808.txt |  37 +++-
- drivers/mfd/Kconfig                             |   4 +-
- drivers/mfd/rk808.c                             | 226 ++++++++++++++++++++=
-----
- drivers/regulator/Kconfig                       |   4 +-
- drivers/regulator/rk808-regulator.c             | 143 ++++++++++++++-
- drivers/rtc/Kconfig                             |   4 +-
- include/linux/mfd/rk808.h                       | 154 +++++++++++++++-
- 7 files changed, 516 insertions(+), 56 deletions(-)
-
---=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
-
---=20
+-- 
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
----=20
-You received this message because you are subscribed to the Google Groups "=
-rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an e=
-mail to rtc-linux+unsubscribe@googlegroups.com.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
