@@ -1,27 +1,20 @@
-Return-Path: <rtc-linux+bncBDEKVJM7XAHRBQPKVC6QKGQEXTTLODQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBAABBV6J3K6QKGQEYZGKU6Y@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mout.kundenserver.de (mout.kundenserver.de. [212.227.126.131])
-        by gmr-mx.google.com with ESMTPS id l195si2690214vki.2.2016.08.09.12.55.44
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 09 Aug 2016 12:55:44 -0700 (PDT)
-From: Arnd Bergmann <arnd@arndb.de>
-To: Thomas Gleixner <tglx@linutronix.de>,
-	Ingo Molnar <mingo@redhat.com>,
-	"H. Peter Anvin" <hpa@zytor.com>,
-	x86@kernel.org
-Cc: =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= <ville.syrjala@linux.intel.com>,
-	Geert Uytterhoeven <geert@linux-m68k.org>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	rtc-linux@googlegroups.com,
-	Arnd Bergmann <arnd@arndb.de>,
-	Borislav Petkov <bp@suse.de>,
-	linux-kernel@vger.kernel.org
-Subject: [rtc-linux] [PATCH] x86/hpet: fix typo from rtc cleanup
-Date: Tue,  9 Aug 2016 21:54:53 +0200
-Message-Id: <20160809195528.1604312-1-arnd@arndb.de>
+Received: from root.phytec.de (mail.phytec.de. [217.6.246.34])
+        by gmr-mx.google.com with ESMTP id i193si139073wmg.1.2016.08.18.23.19.02
+        for <rtc-linux@googlegroups.com>;
+        Thu, 18 Aug 2016 23:19:02 -0700 (PDT)
+Subject: [rtc-linux] Re: [PATCH v7 1/4] mfd: RK808: Add RK818 support
+To: Lee Jones <lee.jones@linaro.org>
+References: <1470819907-11237-1-git-send-email-w.egorov@phytec.de>
+ <1470819907-11237-2-git-send-email-w.egorov@phytec.de>
+ <20160818143440.GG4254@dell>
+Cc: linux-kernel@vger.kernel.org, rtc-linux@googlegroups.com, devicetree@vger.kernel.org, linux-rockchip@lists.infradead.org, dianders@chromium.org, zyw@rock-chips.com, robh+dt@kernel.org, mark.rutland@arm.com, lgirdwood@gmail.com, broonie@kernel.org, a.zummo@towertech.it, alexandre.belloni@free-electrons.com
+From: Wadim Egorov <w.egorov@phytec.de>
+Message-ID: <57B6A4D1.20108@phytec.de>
+Date: Fri, 19 Aug 2016 08:18:57 +0200
 MIME-Version: 1.0
+In-Reply-To: <20160818143440.GG4254@dell>
 Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
@@ -32,59 +25,119 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Ville Syrj=C3=A4l=C3=A4 reports "The first time I run hwclock after rebooti=
-ng
-I get this:
 
- open("/dev/rtc", O_RDONLY)              =3D 3
- ioctl(3, PHN_SET_REGS or RTC_UIE_ON, 0) =3D 0
- select(4, [3], NULL, NULL, {10, 0})     =3D 0 (Timeout)
- ioctl(3, PHN_NOT_OH or RTC_UIE_OFF, 0)  =3D 0
- close(3)                                =3D 0
 
-On all subsequent runs I get this:
- open("/dev/rtc", O_RDONLY)              =3D 3
- ioctl(3, PHN_SET_REGS or RTC_UIE_ON, 0) =3D -1 EINVAL (Invalid argument)
- ioctl(3, RTC_RD_TIME, 0x7ffd76b3ae70)   =3D -1 EINVAL (Invalid argument)
- close(3)                                =3D 0"
+On 18.08.2016 16:34, Lee Jones wrote:
+> On Wed, 10 Aug 2016, Wadim Egorov wrote:
+>
+>> The RK818 chip is a Power Management IC (PMIC) for multimedia and handheld
+>> devices. It contains the following components:
+>>
+>> - Regulators
+>> - RTC
+>> - Clocking
+>> - Battery support
+>>
+>> Both RK808 and RK818 chips are using a similar register map,
+>> so we can reuse the RTC and Clocking functionality.
+>>
+>> Signed-off-by: Wadim Egorov <w.egorov@phytec.de>
+>> Tested-by: Andy Yan <andy.yan@rock-chips.com>
+>> ---
+>> Changes since v6:
+>> - Squashed in the patch
+>>   mfd: RK808: Fetch PMIC variant from chip id register
+>>
+>> ---
+>>  drivers/mfd/Kconfig       |   4 +-
+>>  drivers/mfd/rk808.c       | 226 +++++++++++++++++++++++++++++++++++++++-------
+>>  include/linux/mfd/rk808.h | 154 +++++++++++++++++++++++++++++--
+>>  3 files changed, 342 insertions(+), 42 deletions(-)
+>>
+>> diff --git a/drivers/mfd/Kconfig b/drivers/mfd/Kconfig
+>> index 2d1fb64..a55be95 100644
+>> --- a/drivers/mfd/Kconfig
+>> +++ b/drivers/mfd/Kconfig
+>> @@ -852,13 +852,13 @@ config MFD_RC5T583
+>>  	  different functionality of the device.
+>>  
+>>  config MFD_RK808
+>> -	tristate "Rockchip RK808 Power Management chip"
+>> +	tristate "Rockchip RK808/RK818 Power Management Chip"
+>>  	depends on I2C && OF
+>>  	select MFD_CORE
+>>  	select REGMAP_I2C
+>>  	select REGMAP_IRQ
+>>  	help
+>> -	  If you say yes here you get support for the RK808
+>> +	  If you say yes here you get support for the RK808 and RK818
+>>  	  Power Management chips.
+>>  	  This driver provides common support for accessing the device
+>>  	  through I2C interface. The device supports multiple sub-devices
+>> diff --git a/drivers/mfd/rk808.c b/drivers/mfd/rk808.c
+>> index 49d7f62..fbec1d8 100644
+>> --- a/drivers/mfd/rk808.c
+>> +++ b/drivers/mfd/rk808.c
+>> @@ -1,11 +1,15 @@
+>>  /*
+>> - * MFD core driver for Rockchip RK808
+>> + * MFD core driver for Rockchip RK808/RK818
+>>   *
+>>   * Copyright (c) 2014, Fuzhou Rockchip Electronics Co., Ltd
+>>   *
+>>   * Author: Chris Zhong <zyw@rock-chips.com>
+>>   * Author: Zhang Qing <zhangqing@rock-chips.com>
+>>   *
+>> + * Copyright (C) 2016 PHYTEC Messtechnik GmbH
+>> + *
+>> + * Author: Wadim Egorov <w.egorov@phytec.de>
+>> + *
+>>   * This program is free software; you can redistribute it and/or modify it
+>>   * under the terms and conditions of the GNU General Public License,
+>>   * version 2, as published by the Free Software Foundation.
+>> @@ -22,6 +26,7 @@
+>>  #include <linux/mfd/core.h>
+>>  #include <linux/module.h>
+>>  #include <linux/regmap.h>
+>> +#include <linux/of_device.h>
+> Alphabetical.
 
-This was caused by a stupid typo in a patch that should have been
-a simple rename to move around contents of a header file, but
-accidentally wrote zeroes into the rtc rather than reading from
-it.
+ok
 
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Reported-by: Ville Syrj=C3=A4l=C3=A4 <ville.syrjala@linux.intel.com>
-Tested-by: Ville Syrj=C3=A4l=C3=A4 <ville.syrjala@linux.intel.com>
-Fixes: 463a86304cae ("char/genrtc: x86: remove remnants of asm/rtc.h")
----
- arch/x86/kernel/hpet.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+>
+>>  struct rk808_reg_data {
+>>  	int addr;
+>> @@ -57,6 +62,14 @@ static bool rk808_is_volatile_reg(struct device *dev, unsigned int reg)
+>>  	return false;
+>>  }
+>>  
+>> +static const struct regmap_config rk818_regmap_config = {
+>> +	.reg_bits = 8,
+>> +	.val_bits = 8,
+>> +	.max_register = RK818_USB_CTRL_REG,
+>> +	.cache_type = REGCACHE_RBTREE,
+>> +	.volatile_reg = rk808_is_volatile_reg,
+>> +};
+>> +
+>>  static const struct regmap_config rk808_regmap_config = {
+>>  	.reg_bits = 8,
+>>  	.val_bits = 8,
+>> @@ -79,11 +92,21 @@ static const struct mfd_cell rk808s[] = {
+>>  	{
+>>  		.name = "rk808-rtc",
+>>  		.num_resources = ARRAY_SIZE(rtc_resources),
+>> -		.resources = &rtc_resources[0],
+>> +		.resources = rtc_resources,
+> ?
 
-diff --git a/arch/x86/kernel/hpet.c b/arch/x86/kernel/hpet.c
-index ed16e58658a4..c6dfd801df97 100644
---- a/arch/x86/kernel/hpet.c
-+++ b/arch/x86/kernel/hpet.c
-@@ -1242,7 +1242,7 @@ irqreturn_t hpet_rtc_interrupt(int irq, void *dev_id)
- 	memset(&curr_time, 0, sizeof(struct rtc_time));
-=20
- 	if (hpet_rtc_flags & (RTC_UIE | RTC_AIE))
--		mc146818_set_time(&curr_time);
-+		mc146818_get_time(&curr_time);
-=20
- 	if (hpet_rtc_flags & RTC_UIE &&
- 	    curr_time.tm_sec !=3D hpet_prev_update_sec) {
---=20
-2.9.0
+you told me to change this
 
---=20
+-- 
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
----=20
-You received this message because you are subscribed to the Google Groups "=
-rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an e=
-mail to rtc-linux+unsubscribe@googlegroups.com.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
