@@ -1,28 +1,27 @@
-Return-Path: <rtc-linux+bncBDA7X7F2WUEBBJPDUG6QKGQEQOPKLZI@googlegroups.com>
+Return-Path: <rtc-linux+bncBCL4FNGB7UHBBHEN7S6QKGQEOA6K2BY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail-wm0-x236.google.com (mail-wm0-x236.google.com. [2a00:1450:400c:c09::236])
-        by gmr-mx.google.com with ESMTPS id y7si1026423wmd.0.2016.08.08.04.48.52
+Received: from mail-wm0-x242.google.com (mail-wm0-x242.google.com. [2a00:1450:400c:c09::242])
+        by gmr-mx.google.com with ESMTPS id o85si2299769wme.0.2016.08.25.07.54.19
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 08 Aug 2016 04:48:52 -0700 (PDT)
-Received: by mail-wm0-x236.google.com with SMTP id f65so113313603wmi.0
-        for <rtc-linux@googlegroups.com>; Mon, 08 Aug 2016 04:48:52 -0700 (PDT)
-Date: Mon, 8 Aug 2016 12:50:19 +0100
-From: Lee Jones <lee.jones@linaro.org>
-To: Chen-Yu Tsai <wens@csie.org>
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Maxime Ripard <maxime.ripard@free-electrons.com>,
-	linux-kernel@vger.kernel.org, rtc-linux@googlegroups.com,
-	devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org
-Subject: [rtc-linux] Re: [PATCH v5 1/7] mfd: ac100: Add device tree bindings
- for X-Powers AC100 codec/RTC combo IC
-Message-ID: <20160808115019.GL5243@dell>
-References: <1467988422-17934-1-git-send-email-wens@csie.org>
- <1467988422-17934-2-git-send-email-wens@csie.org>
+        Thu, 25 Aug 2016 07:54:19 -0700 (PDT)
+Received: by mail-wm0-x242.google.com with SMTP id o80so7781532wme.0
+        for <rtc-linux@googlegroups.com>; Thu, 25 Aug 2016 07:54:19 -0700 (PDT)
+Subject: [rtc-linux] Re: [PATCH 1/2] rtc-cmos: Clear expired alarm after resume
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+References: <1464795615-7748-1-git-send-email-gabriele.mzt@gmail.com>
+ <20160604144626.GM4594@piout.net>
+ <CABFtUbQ7OWChggMPxYfpUeVCdTTtM74YpkqTF3--RT+wWkPoWQ@mail.gmail.com>
+ <20160604174854.GN4594@piout.net>
+Cc: Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
+ "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+ matthew.garrett@nebula.com
+From: Gabriele Mazzotta <gabriele.mzt@gmail.com>
+Message-ID: <8f29ddb1-aaf9-9769-536e-d748eb22ed67@gmail.com>
+Date: Thu, 25 Aug 2016 16:54:18 +0200
 MIME-Version: 1.0
+In-Reply-To: <20160604174854.GN4594@piout.net>
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1467988422-17934-2-git-send-email-wens@csie.org>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -32,115 +31,64 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Fri, 08 Jul 2016, Chen-Yu Tsai wrote:
+On 04/06/2016 19:48, Alexandre Belloni wrote:
+> On 04/06/2016 at 18:58:59 +0200, Gabriele Mazzotta wrote :
+>> 2016-06-04 16:46 GMT+02:00 Alexandre Belloni
+>> <alexandre.belloni@free-electrons.com>:
+>>> On 01/06/2016 at 17:40:14 +0200, Gabriele Mazzotta wrote :
+>>>> If the system wakes up because of a wake alarm, the internal state
+>>>> of the alarm is not updated. As consequence, the state no longer
+>>>> reflects the actual state of the hardware and setting a new alarm
+>>>> is not possible until the expired alarm is cleared.
+>>>>
+>>>
+>>> I'm not completely sure to understand what is happening but could you
+>>> check whether that one is solved by
+>>> 2b2f5ff00f63847d95adad6289bd8b05f5983dd5 in my tree (rtc-next).
+>>>
+>>
+>> I picked 2b2f5ff00f63847d95adad6289bd8b05f5983dd5 and applied it
+>> on top of 4.7-rc1, but that didn't fix the problem.
+>>
+>> Let me explain the problem by showing you how I reproduce it:
+>>
+>> root@localhost:~# cat /proc/driver/rtc | grep alarm_IRQ
+>> alarm_IRQ       : no
+>> root@localhost:~# echo +10 > /sys/class/rtc/rtc0/wakealarm
+>> root@localhost:~# echo mem > /sys/power/state  # wait for auto-resume
+>> root@localhost:~# echo +10 > /sys/class/rtc/rtc0/wakealarm
+>> bash: echo: write error: Device or resource busy
+>> root@localhost:~# cat /proc/driver/rtc | grep alarm_IRQ
+>> alarm_IRQ       : yes
+>>
+>> To set another alarm, I have to first write 0 to wakealarm. After that
+>> I can set what I want. This doesn't happen if the alarm fires while
+>> the system is awake, it happens only if the system is suspended and
+>> the alarm wakes it.
+>>
+>> I actually forgot to say that maybe this problem is not limited
+>> to rtc-cmos and that maybe a general solution could be used.
+>>
+>> I've just looked better into what is causing this and the problem
+>> seems to be caused by the fact that rtc_timer_do_work() is not
+>> executed if the timer expires while the system is suspended.
+>>
+> 
+> I doubt this is a driver independent issues as I don't get that
+> behaviour on many other RTCs. I'll have a look.
 
-> The AC100 is a multifunction device with an audio codec subsystem and
-> an RTC subsystem. These two subsystems share a common register space
-> and host interface.
->=20
-> Signed-off-by: Chen-Yu Tsai <wens@csie.org>
-> Acked-by: Rob Herring <robh@kernel.org>
-> ---
-> Changes since v4:
->=20
->   - Style changes suggested by Lee.
->   - Added commit message.
->   - Added Rob's ack.
->=20
-> Changes since v3:
->=20
->   - Fixed device node names and added labels.
->   - Added clock output from codec and input to rtc.
->=20
-> Changes since v2:
->=20
->   - Fix interrupt line for ac100_codec in provided example.
->=20
-> ---
->  Documentation/devicetree/bindings/mfd/ac100.txt | 54 +++++++++++++++++++=
-++++++
->  1 file changed, 54 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/mfd/ac100.txt
+Hi,
 
-For my own reference:
-  Acked-by: Lee Jones <lee.jones@linaro.org>
+were you able to verify that no other driver is affect?
 
-> diff --git a/Documentation/devicetree/bindings/mfd/ac100.txt b/Documentat=
-ion/devicetree/bindings/mfd/ac100.txt
-> new file mode 100644
-> index 000000000000..b8ef00667599
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/mfd/ac100.txt
-> @@ -0,0 +1,54 @@
-> +X-Powers AC100 Codec/RTC IC Device Tree bindings
-> +
-> +AC100 is a audio codec and RTC subsystem combo IC. The 2 parts are
-> +separated, including power supplies and interrupt lines, but share
-> +a common register address space and host interface.
-> +
-> +Required properties:
-> +- compatible: "x-powers,ac100"
-> +- reg: The I2C slave address or RSB hardware address for the chip
-> +- sub-nodes:
-> +  - codec
-> +    - compatible:		"x-powers,ac100-codec"
-> +    - interrupt-parent:		The parent interrupt controller
-> +    - interrupts:		SoC NMI / GPIO interrupt connected to the
-> +    				IRQ_AUDIO pin
-> +    - #clock-cells:		Shall be 0
-> +    - clock-output-names:	"4M_adda"
-> +
-> +    - see clock/clock-bindings.txt for common clock bindings
-> +
-> +  - rtc
-> +    - compatible:		"x-powers,ac100-rtc"
-> +    - interrupt-parent:		The parent interrupt controller
-> +    - interrupts:		SoC NMI / GPIO interrupt connected to the
-> +    				IRQ_RTC pin
-> +    - clocks:			A phandle to the codec's "4M_adda" clock
-> +    - #clock-cells:		Shall be 1
-> +    - clock-output-names:	"cko1_rtc", "cko2_rtc", "cko3_rtc"
-> +
-> +    - see clock/clock-bindings.txt for common clock bindings
-> +
-> +Example:
-> +
-> +ac100: codec@e89 {
-> +	compatible =3D "x-powers,ac100";
-> +	reg =3D <0xe89>;
-> +
-> +	ac100_codec: codec {
-> +		compatible =3D "x-powers,ac100-codec";
-> +		interrupt-parent =3D <&r_pio>;
-> +		interrupts =3D <0 9 IRQ_TYPE_LEVEL_LOW>; /* PL9 */
-> +		#clock-cells =3D <0>;
-> +		clock-output-names =3D "4M_adda";
-> +	};
-> +
-> +	ac100_rtc: rtc {
-> +		compatible =3D "x-powers,ac100-rtc";
-> +		interrupt-parent =3D <&nmi_intc>;
-> +		interrupts =3D <0 IRQ_TYPE_LEVEL_LOW>;
-> +		clocks =3D <&ac100_codec>;
-> +		#clock-cells =3D <1>;
-> +		clock-output-names =3D "cko1_rtc", "cko2_rtc", "cko3_rtc";
-> +	};
-> +};
+Gabriele
 
---=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
-
---=20
+-- 
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
----=20
-You received this message because you are subscribed to the Google Groups "=
-rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an e=
-mail to rtc-linux+unsubscribe@googlegroups.com.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
