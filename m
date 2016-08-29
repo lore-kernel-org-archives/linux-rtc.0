@@ -1,26 +1,18 @@
-Return-Path: <rtc-linux+bncBD7N3SEV2QCRBVFI7O6QKGQE7JYY3HQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBAABBFFQSC7AKGQEPNDNCMA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 MIME-Version: 1.0
-Received: from smtp2.megiteam.pl (smtp2.megiteam.pl. [213.189.52.193])
-        by gmr-mx.google.com with ESMTPS id o10si985822wme.0.2016.08.25.04.19.48
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=AES128-SHA bits=128/128);
-        Thu, 25 Aug 2016 04:19:48 -0700 (PDT)
-From: Marcin Niestroj <m.niestroj@grinn-global.com>
-To: Tony Lindgren <tony@atomide.com>
-Cc: Grygorii Strashko <grygorii.strashko@ti.com>,
-	rtc-linux@googlegroups.com,
-	linux-omap@vger.kernel.org,
-	devicetree@vger.kernel.org,
-	Rob Herring <robh+dt@kernel.org>,
-	Pawel Moll <pawel.moll@arm.com>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Keerthy <j-keerthy@ti.com>,
-	Marcin Niestroj <m.niestroj@grinn-global.com>
-Subject: [rtc-linux] [PATCH v4] rtc: omap: Support ext_wakeup configuration
-Date: Thu, 25 Aug 2016 13:19:12 +0200
-Message-Id: <20160825111912.23017-1-m.niestroj@grinn-global.com>
+Received: from root.phytec.de (mail.phytec.co.uk. [217.6.246.34])
+        by gmr-mx.google.com with ESMTP id o85si1516718wme.0.2016.08.29.04.10.12
+        for <rtc-linux@googlegroups.com>;
+        Mon, 29 Aug 2016 04:10:12 -0700 (PDT)
+From: Wadim Egorov <w.egorov@phytec.de>
+To: linux-kernel@vger.kernel.org, rtc-linux@googlegroups.com, devicetree@vger.kernel.org, linux-rockchip@lists.infradead.org
+Cc: robh+dt@kernel.org, mark.rutland@arm.com, lee.jones@linaro.org, lgirdwood@gmail.com, broonie@kernel.org, a.zummo@towertech.it, alexandre.belloni@free-electrons.com
+Subject: [rtc-linux] [PATCH v8 4/4] rtc: Kconfig: Name RK818 in Kconfig for RTC_DRV_RK808
+Date: Mon, 29 Aug 2016 13:08:01 +0200
+Message-Id: <1472468881-15337-4-git-send-email-w.egorov@phytec.de>
+In-Reply-To: <1472468881-15337-1-git-send-email-w.egorov@phytec.de>
+References: <1472468881-15337-1-git-send-email-w.egorov@phytec.de>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -31,299 +23,36 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Support configuration of ext_wakeup sources. This patch makes it
-possible to enable ext_wakeup and set it's polarity, depending on board
-configuration. AM335x's dedicated PMIC (tps65217) uses ext_wakeup to
-notify about power-button presses. Handling power-button presses enables
-to recover from RTC-only power states correctly.
+The RK808 and RK818 PMICs are using a similar register map.
+We can reuse the rtc driver for the RK818 PMIC. So let's add
+the RK818 in the Kconfig description.
 
-Signed-off-by: Marcin Niestroj <m.niestroj@grinn-global.com>
+Signed-off-by: Wadim Egorov <w.egorov@phytec.de>
+Acked-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
 ---
-Hi,
+ drivers/rtc/Kconfig | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-This is a total reimplementation, so it is not based on any of the previos
-patch versions. This patch adds support for ext_wakeup using generic pinconf
-device-tree bindings, with one added "ti,input-polarity" custom property.
-This approach has been suggested by Tony and Grygorii in [1].
-
-Patch was developed on 4.6, rebased on 4.8-rc3, tested using chiliBoard.
-
-[1] http://www.spinics.net/lists/devicetree/msg131516.html
-
- Documentation/devicetree/bindings/rtc/rtc-omap.txt |  21 +++
- drivers/rtc/Kconfig                                |   1 +
- drivers/rtc/rtc-omap.c                             | 167 ++++++++++++++++++++-
- 3 files changed, 181 insertions(+), 8 deletions(-)
-
-diff --git a/Documentation/devicetree/bindings/rtc/rtc-omap.txt b/Documentation/devicetree/bindings/rtc/rtc-omap.txt
-index bf7d11a..5d18373 100644
---- a/Documentation/devicetree/bindings/rtc/rtc-omap.txt
-+++ b/Documentation/devicetree/bindings/rtc/rtc-omap.txt
-@@ -18,6 +18,18 @@ Optional properties:
-   through pmic_power_en
- - clocks: Any internal or external clocks feeding in to rtc
- - clock-names: Corresponding names of the clocks
-+- pinctrl-0: a phandle pointing to the pin settings for the device
-+- pinctrl-names: should be "default"
-+
-+Optional subnodes:
-+- generic pinctrl node
-+
-+Required pinctrl subnodes properties:
-+- pins - Names of ext_wakeup pins to configure
-+
-+Optional pinctrl subnodes properties:
-+- input-enable - Enables ext_wakeup
-+- ti,input-polarity - GPIO_ACTIVE_LOW or GPIO_ACTIVE_HIGH depending board
- 
- Example:
- 
-@@ -30,4 +42,13 @@ rtc@1c23000 {
- 	system-power-controller;
- 	clocks = <&clk_32k_rtc>, <&clk_32768_ck>;
- 	clock-names = "ext-clk", "int-clk";
-+
-+	pinctrl-0 = <&ext_wakeup>;
-+	pinctrl-names = "default";
-+
-+	ext_wakeup: ext_wakeup {
-+		pins = "ext_wakeup0";
-+		input-enable;
-+		ti,input-polarity = <GPIO_ACTIVE_LOW>;
-+	};
- };
 diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
-index e215f50..647d913 100644
+index e215f50..1102e8f 100644
 --- a/drivers/rtc/Kconfig
 +++ b/drivers/rtc/Kconfig
-@@ -1231,6 +1231,7 @@ config RTC_DRV_IMXDI
- config RTC_DRV_OMAP
- 	tristate "TI OMAP Real Time Clock"
- 	depends on ARCH_OMAP || ARCH_DAVINCI || COMPILE_TEST
-+	select GENERIC_PINCONF
+@@ -328,11 +328,11 @@ config RTC_DRV_MAX77686
+ 	  will be called rtc-max77686.
+ 
+ config RTC_DRV_RK808
+-	tristate "Rockchip RK808 RTC"
++	tristate "Rockchip RK808/RK818 RTC"
+ 	depends on MFD_RK808
  	help
- 	  Say "yes" here to support the on chip real time clock
- 	  present on TI OMAP1, AM33xx, DA8xx/OMAP-L13x, AM43xx and DRA7xx.
-diff --git a/drivers/rtc/rtc-omap.c b/drivers/rtc/rtc-omap.c
-index ec2e9c5..b817afb 100644
---- a/drivers/rtc/rtc-omap.c
-+++ b/drivers/rtc/rtc-omap.c
-@@ -13,19 +13,23 @@
-  * 2 of the License, or (at your option) any later version.
-  */
+ 	  If you say yes here you will get support for the
+-	  RTC of RK808 PMIC.
++	  RTC of RK808 and RK818 PMIC.
  
--#include <linux/kernel.h>
-+#include <dt-bindings/gpio/gpio.h>
-+#include <linux/bcd.h>
-+#include <linux/clk.h>
-+#include <linux/delay.h>
- #include <linux/init.h>
--#include <linux/module.h>
-+#include <linux/io.h>
- #include <linux/ioport.h>
--#include <linux/delay.h>
--#include <linux/rtc.h>
--#include <linux/bcd.h>
--#include <linux/platform_device.h>
-+#include <linux/kernel.h>
-+#include <linux/module.h>
- #include <linux/of.h>
- #include <linux/of_device.h>
-+#include <linux/pinctrl/pinctrl.h>
-+#include <linux/pinctrl/pinconf.h>
-+#include <linux/pinctrl/pinconf-generic.h>
-+#include <linux/platform_device.h>
- #include <linux/pm_runtime.h>
--#include <linux/io.h>
--#include <linux/clk.h>
-+#include <linux/rtc.h>
- 
- /*
-  * The OMAP RTC is a year/month/day/hours/minutes/seconds BCD clock
-@@ -115,6 +119,8 @@
- 
- /* OMAP_RTC_PMIC bit fields: */
- #define OMAP_RTC_PMIC_POWER_EN_EN	BIT(16)
-+#define OMAP_RTC_PMIC_EXT_WKUP_EN(x)	BIT(x)
-+#define OMAP_RTC_PMIC_EXT_WKUP_POL(x)	BIT(4 + x)
- 
- /* OMAP_RTC_KICKER values */
- #define	KICK0_VALUE			0x83e70b13
-@@ -141,6 +147,7 @@ struct omap_rtc {
- 	bool is_pmic_controller;
- 	bool has_ext_clk;
- 	const struct omap_rtc_device_type *type;
-+	struct pinctrl_dev *pctldev;
- };
- 
- static inline u8 rtc_read(struct omap_rtc *rtc, unsigned int reg)
-@@ -525,6 +532,138 @@ static const struct of_device_id omap_rtc_of_match[] = {
- };
- MODULE_DEVICE_TABLE(of, omap_rtc_of_match);
- 
-+static const struct pinctrl_pin_desc rtc_pins_desc[] = {
-+	PINCTRL_PIN(0, "ext_wakeup0"),
-+	PINCTRL_PIN(1, "ext_wakeup1"),
-+	PINCTRL_PIN(2, "ext_wakeup2"),
-+	PINCTRL_PIN(3, "ext_wakeup3"),
-+};
-+
-+static int rtc_pinctrl_get_groups_count(struct pinctrl_dev *pctldev)
-+{
-+	return 0;
-+}
-+
-+static const char *rtc_pinctrl_get_group_name(struct pinctrl_dev *pctldev,
-+					unsigned int group)
-+{
-+	return NULL;
-+}
-+
-+static const struct pinctrl_ops rtc_pinctrl_ops = {
-+	.get_groups_count = rtc_pinctrl_get_groups_count,
-+	.get_group_name = rtc_pinctrl_get_group_name,
-+	.dt_node_to_map = pinconf_generic_dt_node_to_map_pin,
-+	.dt_free_map = pinconf_generic_dt_free_map,
-+};
-+
-+enum rtc_pin_config_param {
-+	PIN_CONFIG_INPUT_POLARITY = PIN_CONFIG_END + 1,
-+};
-+
-+static const struct pinconf_generic_params rtc_params[] = {
-+	{"ti,input-polarity", PIN_CONFIG_INPUT_POLARITY, GPIO_ACTIVE_HIGH},
-+};
-+
-+#ifdef CONFIG_DEBUG_FS
-+static const struct pin_config_item rtc_conf_items[ARRAY_SIZE(rtc_params)] = {
-+	PCONFDUMP(PIN_CONFIG_INPUT_POLARITY, "input polarity", NULL, true),
-+};
-+#endif
-+
-+static int rtc_pinconf_get(struct pinctrl_dev *pctldev,
-+			unsigned int pin, unsigned long *config)
-+{
-+	struct omap_rtc *rtc = pinctrl_dev_get_drvdata(pctldev);
-+	unsigned int param = pinconf_to_config_param(*config);
-+	u32 val;
-+	u16 arg = 0;
-+
-+	rtc->type->unlock(rtc);
-+	val = rtc_readl(rtc, OMAP_RTC_PMIC_REG);
-+	rtc->type->lock(rtc);
-+
-+	switch (param) {
-+	case PIN_CONFIG_INPUT_ENABLE:
-+		if (!(val & OMAP_RTC_PMIC_EXT_WKUP_EN(pin)))
-+			return -EINVAL;
-+		break;
-+	case PIN_CONFIG_INPUT_POLARITY:
-+		arg = !!(val & OMAP_RTC_PMIC_EXT_WKUP_POL(pin));
-+		break;
-+	default:
-+		return -ENOTSUPP;
-+	};
-+
-+	*config = pinconf_to_config_packed(param, arg);
-+
-+	return 0;
-+}
-+
-+static int rtc_pinconf_set(struct pinctrl_dev *pctldev,
-+			unsigned int pin, unsigned long *configs,
-+			unsigned int num_configs)
-+{
-+	struct omap_rtc *rtc = pinctrl_dev_get_drvdata(pctldev);
-+	u32 val;
-+	unsigned int param;
-+	u16 param_val;
-+	int i;
-+
-+	rtc->type->unlock(rtc);
-+	val = rtc_readl(rtc, OMAP_RTC_PMIC_REG);
-+	rtc->type->lock(rtc);
-+
-+	for (i = 0; i < num_configs; i++) {
-+		param = pinconf_to_config_param(configs[i]);
-+		param_val = pinconf_to_config_argument(configs[i]);
-+
-+		switch (param) {
-+		case PIN_CONFIG_INPUT_ENABLE:
-+			if (param_val)
-+				val |= OMAP_RTC_PMIC_EXT_WKUP_EN(pin);
-+			else
-+				val &= ~OMAP_RTC_PMIC_EXT_WKUP_EN(pin);
-+			break;
-+		case PIN_CONFIG_INPUT_POLARITY:
-+			if (param_val == GPIO_ACTIVE_LOW)
-+				val |= OMAP_RTC_PMIC_EXT_WKUP_POL(pin);
-+			else
-+				val &= ~OMAP_RTC_PMIC_EXT_WKUP_POL(pin);
-+			break;
-+		default:
-+			dev_err(&rtc->rtc->dev, "Property %u not supported\n",
-+				param);
-+			return -ENOTSUPP;
-+		}
-+	}
-+
-+	rtc->type->unlock(rtc);
-+	rtc_writel(rtc, OMAP_RTC_PMIC_REG, val);
-+	rtc->type->lock(rtc);
-+
-+	return 0;
-+}
-+
-+static const struct pinconf_ops rtc_pinconf_ops = {
-+	.is_generic = true,
-+	.pin_config_get = rtc_pinconf_get,
-+	.pin_config_set = rtc_pinconf_set,
-+};
-+
-+static struct pinctrl_desc rtc_pinctrl_desc = {
-+	.pins = rtc_pins_desc,
-+	.npins = ARRAY_SIZE(rtc_pins_desc),
-+	.pctlops = &rtc_pinctrl_ops,
-+	.confops = &rtc_pinconf_ops,
-+	.custom_params = rtc_params,
-+	.num_custom_params = ARRAY_SIZE(rtc_params),
-+#ifdef CONFIG_DEBUG_FS
-+	.custom_conf_items = rtc_conf_items,
-+#endif
-+	.owner = THIS_MODULE,
-+};
-+
- static int omap_rtc_probe(struct platform_device *pdev)
- {
- 	struct omap_rtc	*rtc;
-@@ -681,6 +820,15 @@ static int omap_rtc_probe(struct platform_device *pdev)
- 		}
- 	}
- 
-+	/* Support ext_wakeup pinconf */
-+	rtc_pinctrl_desc.name = dev_name(&pdev->dev);
-+
-+	rtc->pctldev = pinctrl_register(&rtc_pinctrl_desc, &pdev->dev, rtc);
-+	if (IS_ERR(rtc->pctldev)) {
-+		dev_err(&pdev->dev, "Couldn't register pinctrl driver\n");
-+		return PTR_ERR(rtc->pctldev);
-+	}
-+
- 	return 0;
- 
- err:
-@@ -724,6 +872,9 @@ static int __exit omap_rtc_remove(struct platform_device *pdev)
- 	pm_runtime_put_sync(&pdev->dev);
- 	pm_runtime_disable(&pdev->dev);
- 
-+	/* Remove ext_wakeup pinconf */
-+	pinctrl_unregister(rtc->pctldev);
-+
- 	return 0;
- }
- 
+ 	  This driver can also be built as a module. If so, the module
+ 	  will be called rk808-rtc.
 -- 
-2.9.3
+1.9.1
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
