@@ -1,29 +1,21 @@
-Return-Path: <rtc-linux+bncBDA7X7F2WUEBBZFOTK7AKGQEDTGY6AQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBAABBFFQSC7AKGQEPNDNCMA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail-wm0-x236.google.com (mail-wm0-x236.google.com. [2a00:1450:400c:c09::236])
-        by gmr-mx.google.com with ESMTPS id w64si1047227wmf.3.2016.08.31.01.37.56
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 31 Aug 2016 01:37:56 -0700 (PDT)
-Received: by mail-wm0-x236.google.com with SMTP id i5so74092170wmg.0
-        for <rtc-linux@googlegroups.com>; Wed, 31 Aug 2016 01:37:56 -0700 (PDT)
-Date: Wed, 31 Aug 2016 09:39:43 +0100
-From: Lee Jones <lee.jones@linaro.org>
-To: Neil Armstrong <narmstrong@baylibre.com>
-Cc: andy.gross@linaro.org, david.brown@linaro.org, lgirdwood@gmail.com,
-	broonie@kernel.org, a.zummo@towertech.it,
-	alexandre.belloni@free-electrons.com, linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org,
-	linux-soc@vger.kernel.org, rtc-linux@googlegroups.com
-Subject: [rtc-linux] Re: [PATCH v4 3/4] mfd: qcom-rpm: Add support for pm8018
- RPM Regulator
-Message-ID: <20160831083943.GR10121@dell>
-References: <1470921406-18468-1-git-send-email-narmstrong@baylibre.com>
- <1470921406-18468-4-git-send-email-narmstrong@baylibre.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1470921406-18468-4-git-send-email-narmstrong@baylibre.com>
+Received: from root.phytec.de (mail.phytec.co.uk. [217.6.246.34])
+        by gmr-mx.google.com with ESMTP id i198si1281753wmd.2.2016.08.29.04.10.12
+        for <rtc-linux@googlegroups.com>;
+        Mon, 29 Aug 2016 04:10:12 -0700 (PDT)
+From: Wadim Egorov <w.egorov@phytec.de>
+To: linux-kernel@vger.kernel.org, rtc-linux@googlegroups.com, devicetree@vger.kernel.org, linux-rockchip@lists.infradead.org
+Cc: robh+dt@kernel.org, mark.rutland@arm.com, lee.jones@linaro.org, lgirdwood@gmail.com, broonie@kernel.org, a.zummo@towertech.it, alexandre.belloni@free-electrons.com
+Subject: [rtc-linux] [PATCH v8 3/4] mfd: dt-bindings: Add RK818 device tree
+ bindings document
+Date: Mon, 29 Aug 2016 13:08:00 +0200
+Message-Id: <1472468881-15337-3-git-send-email-w.egorov@phytec.de>
+In-Reply-To: <1472468881-15337-1-git-send-email-w.egorov@phytec.de>
+References: <1472468881-15337-1-git-send-email-w.egorov@phytec.de>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -32,156 +24,92 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Thu, 11 Aug 2016, Neil Armstrong wrote:
+Add device tree bindings documentation for Rockchip's RK818 PMIC.
 
-> In order to support the Qualcomm MDM9615 SoC, add support for the
-> RPM regulator entries in the qcom-rpm driver.
->=20
-> Acked-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-> Acked-by: Lee Jones <lee.jones@linaro.org>
-> Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
+Signed-off-by: Wadim Egorov <w.egorov@phytec.de>
+Acked-by: Rob Herring <robh@kernel.org>
+Acked-by: Lee Jones <lee.jones@linaro.org>
+---
+ Documentation/devicetree/bindings/mfd/rk808.txt | 37 +++++++++++++++++++++++--
+ 1 file changed, 34 insertions(+), 3 deletions(-)
 
-Quick note.  In future can you keep these chronological please?
+diff --git a/Documentation/devicetree/bindings/mfd/rk808.txt b/Documentation/devicetree/bindings/mfd/rk808.txt
+index 4ca6aab..9636ae8 100644
+--- a/Documentation/devicetree/bindings/mfd/rk808.txt
++++ b/Documentation/devicetree/bindings/mfd/rk808.txt
+@@ -1,7 +1,11 @@
+-RK808 Power Management Integrated Circuit
++RK8XX Power Management Integrated Circuit
++
++The rk8xx family current members:
++rk808
++rk818
+ 
+ Required properties:
+-- compatible: "rockchip,rk808"
++- compatible: "rockchip,rk808", "rockchip,rk818"
+ - reg: I2C slave address
+ - interrupt-parent: The parent interrupt controller.
+ - interrupts: the interrupt outputs of the controller.
+@@ -13,6 +17,8 @@ Optional properties:
+   default output clock name
+ - rockchip,system-power-controller: Telling whether or not this pmic is controlling
+   the system power.
++
++Optional RK808 properties:
+ - vcc1-supply:  The input supply for DCDC_REG1
+ - vcc2-supply:  The input supply for DCDC_REG2
+ - vcc3-supply:  The input supply for DCDC_REG3
+@@ -29,7 +35,20 @@ Optional properties:
+   the gpio controller. If DVS GPIOs aren't present, voltage changes will happen
+   very quickly with no slow ramp time.
+ 
+-Regulators: All the regulators of RK808 to be instantiated shall be
++Optional RK818 properties:
++- vcc1-supply:  The input supply for DCDC_REG1
++- vcc2-supply:  The input supply for DCDC_REG2
++- vcc3-supply:  The input supply for DCDC_REG3
++- vcc4-supply:  The input supply for DCDC_REG4
++- boost-supply: The input supply for DCDC_BOOST
++- vcc6-supply:  The input supply for LDO_REG1 and LDO_REG2
++- vcc7-supply:  The input supply for LDO_REG3, LDO_REG5 and LDO_REG7
++- vcc8-supply:  The input supply for LDO_REG4, LDO_REG6 and LDO_REG8
++- vcc9-supply:  The input supply for LDO_REG9 and SWITCH_REG
++- h_5v-supply:  The input supply for HDMI_SWITCH
++- usb-supply:   The input supply for OTG_SWITCH
++
++Regulators: All the regulators of RK8XX to be instantiated shall be
+ listed in a child node named 'regulators'. Each regulator is represented
+ by a child node of the 'regulators' node.
+ 
+@@ -48,6 +67,18 @@ number as described in RK808 datasheet.
+ 	- SWITCH_REGn
+ 		- valid values for n are 1 to 2
+ 
++Following regulators of the RK818 PMIC block are supported. Note that
++the 'n' in regulator name, as in DCDC_REGn or LDOn, represents the DCDC or LDO
++number as described in RK818 datasheet.
++
++	- DCDC_REGn
++		- valid values for n are 1 to 4.
++	- LDO_REGn
++		- valid values for n are 1 to 9.
++	- SWITCH_REG
++	- HDMI_SWITCH
++	- OTG_SWITCH
++
+ Standard regulator bindings are used inside regulator subnodes. Check
+   Documentation/devicetree/bindings/regulator/regulator.txt
+ for more details
+-- 
+1.9.1
 
-Bjorn and I could not have Acked the patch before you sent it.
-
-> ---
->  Documentation/devicetree/bindings/mfd/qcom-rpm.txt |  1 +
->  drivers/mfd/qcom_rpm.c                             | 51 ++++++++++++++++=
-++++++
->  include/dt-bindings/mfd/qcom-rpm.h                 | 22 ++++++++++
->  3 files changed, 74 insertions(+)
->=20
-> diff --git a/Documentation/devicetree/bindings/mfd/qcom-rpm.txt b/Documen=
-tation/devicetree/bindings/mfd/qcom-rpm.txt
-> index b98b291..72d68d4 100644
-> --- a/Documentation/devicetree/bindings/mfd/qcom-rpm.txt
-> +++ b/Documentation/devicetree/bindings/mfd/qcom-rpm.txt
-> @@ -13,6 +13,7 @@ frequencies.
->  		    "qcom,rpm-msm8660"
->  		    "qcom,rpm-msm8960"
->  		    "qcom,rpm-ipq8064"
-> +		    "qcom,rpm-mdm9615"
-> =20
->  - reg:
->  	Usage: required
-> diff --git a/drivers/mfd/qcom_rpm.c b/drivers/mfd/qcom_rpm.c
-> index 2e44323..a74210d 100644
-> --- a/drivers/mfd/qcom_rpm.c
-> +++ b/drivers/mfd/qcom_rpm.c
-> @@ -388,11 +388,62 @@ static const struct qcom_rpm_data ipq806x_template =
-=3D {
->  	.ack_sel_size =3D 7,
->  };
-> =20
-> +static const struct qcom_rpm_resource mdm9615_rpm_resource_table[] =3D {
-> +	[QCOM_RPM_CXO_CLK] =3D			{ 25, 9, 5, 1 },
-> +	[QCOM_RPM_SYS_FABRIC_CLK] =3D		{ 26, 10, 9, 1 },
-> +	[QCOM_RPM_DAYTONA_FABRIC_CLK] =3D		{ 27, 11, 11, 1 },
-> +	[QCOM_RPM_SFPB_CLK] =3D			{ 28, 12, 12, 1 },
-> +	[QCOM_RPM_CFPB_CLK] =3D			{ 29, 13, 13, 1 },
-> +	[QCOM_RPM_EBI1_CLK] =3D			{ 30, 14, 16, 1 },
-> +	[QCOM_RPM_APPS_FABRIC_HALT] =3D		{ 31, 15, 22, 2 },
-> +	[QCOM_RPM_APPS_FABRIC_MODE] =3D		{ 33, 16, 23, 3 },
-> +	[QCOM_RPM_APPS_FABRIC_IOCTL] =3D		{ 36, 17, 24, 1 },
-> +	[QCOM_RPM_APPS_FABRIC_ARB] =3D		{ 37, 18, 25, 27 },
-> +	[QCOM_RPM_PM8018_SMPS1] =3D		{ 64, 19, 30, 2 },
-> +	[QCOM_RPM_PM8018_SMPS2] =3D		{ 66, 21, 31, 2 },
-> +	[QCOM_RPM_PM8018_SMPS3] =3D		{ 68, 23, 32, 2 },
-> +	[QCOM_RPM_PM8018_SMPS4] =3D		{ 70, 25, 33, 2 },
-> +	[QCOM_RPM_PM8018_SMPS5] =3D		{ 72, 27, 34, 2 },
-> +	[QCOM_RPM_PM8018_LDO1] =3D		{ 74, 29, 35, 2 },
-> +	[QCOM_RPM_PM8018_LDO2] =3D		{ 76, 31, 36, 2 },
-> +	[QCOM_RPM_PM8018_LDO3] =3D		{ 78, 33, 37, 2 },
-> +	[QCOM_RPM_PM8018_LDO4] =3D		{ 80, 35, 38, 2 },
-> +	[QCOM_RPM_PM8018_LDO5] =3D		{ 82, 37, 39, 2 },
-> +	[QCOM_RPM_PM8018_LDO6] =3D		{ 84, 39, 40, 2 },
-> +	[QCOM_RPM_PM8018_LDO7] =3D		{ 86, 41, 41, 2 },
-> +	[QCOM_RPM_PM8018_LDO8] =3D		{ 88, 43, 42, 2 },
-> +	[QCOM_RPM_PM8018_LDO9] =3D		{ 90, 45, 43, 2 },
-> +	[QCOM_RPM_PM8018_LDO10] =3D		{ 92, 47, 44, 2 },
-> +	[QCOM_RPM_PM8018_LDO11] =3D		{ 94, 49, 45, 2 },
-> +	[QCOM_RPM_PM8018_LDO12] =3D		{ 96, 51, 46, 2 },
-> +	[QCOM_RPM_PM8018_LDO13] =3D		{ 98, 53, 47, 2 },
-> +	[QCOM_RPM_PM8018_LDO14] =3D		{ 100, 55, 48, 2 },
-> +	[QCOM_RPM_PM8018_LVS1] =3D		{ 102, 57, 49, 1 },
-> +	[QCOM_RPM_PM8018_NCP] =3D			{ 103, 58, 80, 2 },
-> +	[QCOM_RPM_CXO_BUFFERS] =3D		{ 105, 60, 81, 1 },
-> +	[QCOM_RPM_USB_OTG_SWITCH] =3D		{ 106, 61, 82, 1 },
-> +	[QCOM_RPM_HDMI_SWITCH] =3D		{ 107, 62, 83, 1 },
-> +	[QCOM_RPM_VOLTAGE_CORNER] =3D		{ 109, 64, 87, 1 },
-> +};
-> +
-> +static const struct qcom_rpm_data mdm9615_template =3D {
-> +	.version =3D 3,
-> +	.resource_table =3D mdm9615_rpm_resource_table,
-> +	.n_resources =3D ARRAY_SIZE(mdm9615_rpm_resource_table),
-> +	.req_ctx_off =3D 3,
-> +	.req_sel_off =3D 11,
-> +	.ack_ctx_off =3D 15,
-> +	.ack_sel_off =3D 23,
-> +	.req_sel_size =3D 4,
-> +	.ack_sel_size =3D 7,
-> +};
-> +
->  static const struct of_device_id qcom_rpm_of_match[] =3D {
->  	{ .compatible =3D "qcom,rpm-apq8064", .data =3D &apq8064_template },
->  	{ .compatible =3D "qcom,rpm-msm8660", .data =3D &msm8660_template },
->  	{ .compatible =3D "qcom,rpm-msm8960", .data =3D &msm8960_template },
->  	{ .compatible =3D "qcom,rpm-ipq8064", .data =3D &ipq806x_template },
-> +	{ .compatible =3D "qcom,rpm-mdm9615", .data =3D &mdm9615_template },
->  	{ }
->  };
->  MODULE_DEVICE_TABLE(of, qcom_rpm_of_match);
-> diff --git a/include/dt-bindings/mfd/qcom-rpm.h b/include/dt-bindings/mfd=
-/qcom-rpm.h
-> index 13a9d4b..54aef5e 100644
-> --- a/include/dt-bindings/mfd/qcom-rpm.h
-> +++ b/include/dt-bindings/mfd/qcom-rpm.h
-> @@ -147,6 +147,28 @@
->  #define QCOM_RPM_SMB208_S1b			137
->  #define QCOM_RPM_SMB208_S2a			138
->  #define QCOM_RPM_SMB208_S2b			139
-> +#define QCOM_RPM_PM8018_SMPS1			140
-> +#define QCOM_RPM_PM8018_SMPS2			141
-> +#define QCOM_RPM_PM8018_SMPS3			142
-> +#define QCOM_RPM_PM8018_SMPS4			143
-> +#define QCOM_RPM_PM8018_SMPS5			144
-> +#define QCOM_RPM_PM8018_LDO1			145
-> +#define QCOM_RPM_PM8018_LDO2			146
-> +#define QCOM_RPM_PM8018_LDO3			147
-> +#define QCOM_RPM_PM8018_LDO4			148
-> +#define QCOM_RPM_PM8018_LDO5			149
-> +#define QCOM_RPM_PM8018_LDO6			150
-> +#define QCOM_RPM_PM8018_LDO7			151
-> +#define QCOM_RPM_PM8018_LDO8			152
-> +#define QCOM_RPM_PM8018_LDO9			153
-> +#define QCOM_RPM_PM8018_LDO10			154
-> +#define QCOM_RPM_PM8018_LDO11			155
-> +#define QCOM_RPM_PM8018_LDO12			156
-> +#define QCOM_RPM_PM8018_LDO13			157
-> +#define QCOM_RPM_PM8018_LDO14			158
-> +#define QCOM_RPM_PM8018_LVS1			159
-> +#define QCOM_RPM_PM8018_NCP			160
-> +#define QCOM_RPM_VOLTAGE_CORNER			161
-> =20
->  /*
->   * Constants used to select force mode for regulators.
-
---=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
-
---=20
+-- 
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
----=20
-You received this message because you are subscribed to the Google Groups "=
-rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an e=
-mail to rtc-linux+unsubscribe@googlegroups.com.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
