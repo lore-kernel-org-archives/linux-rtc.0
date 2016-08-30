@@ -1,25 +1,27 @@
-Return-Path: <rtc-linux+bncBCQPVKWLVAIRBPU7QG7AKGQEIJUIDPY@googlegroups.com>
+Return-Path: <rtc-linux+bncBC6LTXWRRYFRB7U2SW7AKGQE3CNGIGA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from muru.com (muru.com. [72.249.23.125])
-        by gmr-mx.google.com with ESMTP id y7si233340wmd.0.2016.08.26.07.18.37
-        for <rtc-linux@googlegroups.com>;
-        Fri, 26 Aug 2016 07:18:37 -0700 (PDT)
-Date: Fri, 26 Aug 2016 07:18:33 -0700
-From: Tony Lindgren <tony@atomide.com>
-To: Marcin Niestroj <m.niestroj@grinn-global.com>
-Cc: Grygorii Strashko <grygorii.strashko@ti.com>,
-	rtc-linux@googlegroups.com, linux-omap@vger.kernel.org,
-	devicetree@vger.kernel.org, Rob Herring <robh+dt@kernel.org>,
-	Pawel Moll <pawel.moll@arm.com>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Keerthy <j-keerthy@ti.com>
-Subject: [rtc-linux] Re: [PATCH v4] rtc: omap: Support ext_wakeup configuration
-Message-ID: <20160826141833.wyz4bn3jtdr7iadv@atomide.com>
-References: <20160825111912.23017-1-m.niestroj@grinn-global.com>
+Received: from mx1.redhat.com (mx1.redhat.com. [209.132.183.28])
+        by gmr-mx.google.com with ESMTPS id d206si3026089ywh.3.2016.08.30.02.10.22
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 30 Aug 2016 02:10:22 -0700 (PDT)
+Date: Tue, 30 Aug 2016 17:10:10 +0800
+From: Dave Young <dyoung@redhat.com>
+To: Pratyush Anand <panand@redhat.com>
+Cc: mingo@kernel.org, alexandre.belloni@free-electrons.com, tglx@linutronix.de,
+        hpa@zytor.com, x86@kernel.org, rtc-linux@googlegroups.com,
+        linux-kernel@vger.kernel.org, prarit@redhat.com, dzickus@redhat.com,
+        a.zummo@towertech.it
+Subject: [rtc-linux] Re: [PATCH V3 2/2] rtc/rtc-cmos: Initialize software
+ counters before irq is registered
+Message-ID: <20160830091010.GA7632@dhcp-128-65.nay.redhat.com>
+References: <cover.1470985727.git.panand@redhat.com>
+ <90426708da5934284839e6f23d23e265afcc779f.1470985727.git.panand@redhat.com>
+ <20160830082230.GA7000@dhcp-128-65.nay.redhat.com>
+ <20160830083814.GA7308@dhcp-128-65.nay.redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <20160825111912.23017-1-m.niestroj@grinn-global.com>
+In-Reply-To: <20160830083814.GA7308@dhcp-128-65.nay.redhat.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -29,29 +31,125 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-* Marcin Niestroj <m.niestroj@grinn-global.com> [160825 04:20]:
-> Support configuration of ext_wakeup sources. This patch makes it
-> possible to enable ext_wakeup and set it's polarity, depending on board
-> configuration. AM335x's dedicated PMIC (tps65217) uses ext_wakeup to
-> notify about power-button presses. Handling power-button presses enables
-> to recover from RTC-only power states correctly.
+On 08/30/16 at 04:38pm, Dave Young wrote:
+> On 08/30/16 at 04:22pm, Dave Young wrote:
+> > Hi, Pratyush
+> > 
+> > On 08/16/16 at 08:55am, Pratyush Anand wrote:
+> > > We have observed on few x86 machines with rtc-cmos device that
+> > > hpet_rtc_interrupt() is called just after irq registration and before
+> > > cmos_do_probe() could call hpet_rtc_timer_init().
+> > > 
+> > > So, neither hpet_default_delta nor hpet_t1_cmp is initialized by the time
+> > > interrupt is raised in the given situation, and this results in NMI
+> > > watchdog LOCKUP.
+> > > 
+> > > It has only been observed sporadically on kdump secondary kernels.
+> > > 
+> > > See the call trace:
+> > > ---<-snip->---
+> > >    27.913194] Kernel panic - not syncing: Watchdog detected hard LOCKUP on
+> > > cpu 0
+> > > [   27.915371] CPU: 0 PID: 1 Comm: swapper/0 Not tainted
+> > > 3.10.0-342.el7.x86_64 #1
+> > > [   27.917503] Hardware name: HP ProLiant DL160 Gen8, BIOS J03 02/10/2014
+> > > [   27.919455]  ffffffff8186a728 0000000059c82488 ffff880034e05af0
+> > > ffffffff81637bd4
+> > > [   27.921870]  ffff880034e05b70 ffffffff8163144a 0000000000000010
+> > > ffff880034e05b80
+> > > [   27.924257]  ffff880034e05b20 0000000059c82488 0000000000000000
+> > > 0000000000000000
+> > > [   27.926599] Call Trace:
+> > > [   27.927352]  <NMI>  [<ffffffff81637bd4>] dump_stack+0x19/0x1b
+> > > [   27.929080]  [<ffffffff8163144a>] panic+0xd8/0x1e7
+> > > [   27.930588]  [<ffffffff8111d3e0>] ? restart_watchdog_hrtimer+0x50/0x50
+> > > [   27.932502]  [<ffffffff8111d4a2>] watchdog_overflow_callback+0xc2/0xd0
+> > > [   27.934427]  [<ffffffff811612c1>] __perf_event_overflow+0xa1/0x250
+> > > [   27.936232]  [<ffffffff81161d94>] perf_event_overflow+0x14/0x20
+> > > [   27.937957]  [<ffffffff81032ae8>] intel_pmu_handle_irq+0x1e8/0x470
+> > > [   27.939799]  [<ffffffff8164164b>] perf_event_nmi_handler+0x2b/0x50
+> > > [   27.941649]  [<ffffffff81640d99>] nmi_handle.isra.0+0x69/0xb0
+> > > [   27.943348]  [<ffffffff81640f49>] do_nmi+0x169/0x340
+> > > [   27.944802]  [<ffffffff816401d3>] end_repeat_nmi+0x1e/0x2e
+> > > [   27.946424]  [<ffffffff81056ee5>] ? hpet_rtc_interrupt+0x85/0x380
+> > > [   27.948197]  [<ffffffff81056ee5>] ? hpet_rtc_interrupt+0x85/0x380
+> > > [   27.949992]  [<ffffffff81056ee5>] ? hpet_rtc_interrupt+0x85/0x380
+> > > [   27.951816]  <<EOE>>  <IRQ>  [<ffffffff8108f5a3>] ?
+> > > run_timer_softirq+0x43/0x340
+> > > [   27.954114]  [<ffffffff8111e24e>] handle_irq_event_percpu+0x3e/0x1e0
+> > > [   27.955962]  [<ffffffff8111e42d>] handle_irq_event+0x3d/0x60
+> > > [   27.957635]  [<ffffffff811210c7>] handle_edge_irq+0x77/0x130
+> > > [   27.959332]  [<ffffffff8101704f>] handle_irq+0xbf/0x150
+> > > [   27.960949]  [<ffffffff8164a86f>] do_IRQ+0x4f/0xf0
+> > > [   27.962434]  [<ffffffff8163faed>] common_interrupt+0x6d/0x6d
+> > > [   27.964101]  <EOI>  [<ffffffff8163f43b>] ?
+> > > _raw_spin_unlock_irqrestore+0x1b/0x40
+> > > [   27.966308]  [<fffff8111ff07>] __setup_irq+0x2a7/0x570
+> > > [   28.067859]  [<ffffffff81056e60>] ? hpet_cpuhp_notify+0x140/0x140
+> > > [   28.069709]  [<ffffffff8112032c>] request_threaded_irq+0xcc/0x170
+> > > [   28.071585]  [<ffffffff814b24a6>] cmos_do_probe+0x1e6/0x450
+> > > [   28.073240]  [<ffffffff814b2710>] ? cmos_do_probe+0x450/0x450
+> > > [   28.074911]  [<ffffffff814b27cb>] cmos_pnp_probe+0xbb/0xc0
+> > > [   28.076533]  [<ffffffff8139b245>] pnp_device_probe+0x65/0xd0
+> > > [   28.078198]  [<ffffffff813f8ca7>] driver_probe_device+0x87/0x390
+> > > [   28.079971]  [<ffffffff813f9083>] __driver_attach+0x93/0xa0
+> > > [   28.081660]  [<ffffffff813f8ff0>] ? __device_attach+0x40/0x40
+> > > [   28.083662]  [<ffffffff813f6a13>] bus_for_each_dev+0x73/0xc0
+> > > [   28.085370]  [<ffffffff813f86fe>] driver_attach+0x1e/0x20
+> > > [   28.086974]  [<ffffffff813f8250>] bus_add_driver+0x200/0x2d0
+> > > [   28.088634]  [<ffffffff81ade49a>] ? rtc_sysfs_init+0xe/0xe
+> > > [   28.090349]  [<ffffffff813f9704>] driver_register+0x64/0xf0
+> > > [   28.091989]  [<ffffffff8139b070>] pnp_register_driver+0x20/0x30
+> > > [   28.093707]  [<ffffffff81ade4ab>] cmos_init+0x11/0x71
+> > > ---<-snip->---
+> > > 
+> > > The previous patch split hpet_rtc_timer_init into
+> > > hpet_rtc_timer_counter_init() and hpet_rtc_timer_enable().
+> > > 
+> > > Therefore, this patch moved hpet_rtc_timer_counter_init() before IRQ
+> > > registration, so that we can gracefully handle such spurious interrupts.
+> > > 
+> > > We were able to reproduce the problem in maximum 15 trials of kdump
+> > > secondary kernel boot on an hp-dl160gen8 machine without this patch.
+> > > However, more than 35 trials went fine after applying this patch.
+> > > 
+> > > Signed-off-by: Pratyush Anand <panand@redhat.com>
+> > > [dzickus@redhat.com: edited the patch's summary]
+> > > Signed-off-by: Don Zickus <dzickus@redhat.com>
+> > > ---
+> > >  drivers/rtc/rtc-cmos.c | 13 ++++++++++++-
+> > >  1 file changed, 12 insertions(+), 1 deletion(-)
+> > > 
+> > > diff --git a/drivers/rtc/rtc-cmos.c b/drivers/rtc/rtc-cmos.c
+> > > index 43745cac0141..089d987f2638 100644
+> > > --- a/drivers/rtc/rtc-cmos.c
+> > > +++ b/drivers/rtc/rtc-cmos.c
+> > > @@ -129,6 +129,16 @@ static inline int hpet_rtc_dropped_irq(void)
+> > >  	return 0;
+> > >  }
+> > >  
+> > > +static inline int hpet_rtc_timer_counter_init(void)
+> > > +{
+> > > +	return 0;
+> > > +}
+> > > +
+> > > +static inline int hpet_rtc_timer_enable(void)
+> > > +{
+> > > +	return 0;
+> > > +}
+> > > +
+> > 
+> > Can these dummy functions go to /usr/include/linux/hpet.h alont with
+> > the #ifdef  etc.
 > 
-> Signed-off-by: Marcin Niestroj <m.niestroj@grinn-global.com>
-> ---
-> Hi,
-> 
-> This is a total reimplementation, so it is not based on any of the previos
-> patch versions. This patch adds support for ext_wakeup using generic pinconf
-> device-tree bindings, with one added "ti,input-polarity" custom property.
-> This approach has been suggested by Tony and Grygorii in [1].
-> 
-> Patch was developed on 4.6, rebased on 4.8-rc3, tested using chiliBoard.
-> 
-> [1] http://www.spinics.net/lists/devicetree/msg131516.html
+> Hmm, seems CONFIG_HPET_EMULATE_RTC is x86 only, so maybe go to
+> asm/hpet.h should be better..
 
-Thanks for persistance with this one, looks good to me:
+Oops, asm/hpet will not work since rtc-cmos is also used in other
+arches., please ignore the comment.
 
-Acked-by: Tony Lindgren <tony@atomide.com>
+Thanks
+Dave
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
