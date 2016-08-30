@@ -1,30 +1,26 @@
-Return-Path: <rtc-linux+bncBDAYD2P3QYGRBJPQWG6QKGQEPXUHHPQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBC6LTXWRRYFRBA4MSW7AKGQE3L7D3DA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail-wm0-x22d.google.com (mail-wm0-x22d.google.com. [2a00:1450:400c:c09::22d])
-        by gmr-mx.google.com with ESMTPS id o85si520wme.0.2016.08.11.06.05.41
+Received: from mx1.redhat.com (mx1.redhat.com. [209.132.183.28])
+        by gmr-mx.google.com with ESMTPS id m82si2551583ywm.2.2016.08.30.01.38.26
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 11 Aug 2016 06:05:41 -0700 (PDT)
-Received: by mail-wm0-x22d.google.com with SMTP id o80so14161274wme.1
-        for <rtc-linux@googlegroups.com>; Thu, 11 Aug 2016 06:05:41 -0700 (PDT)
-Subject: [rtc-linux] Re: [PATCH v3 4/4] regulator: qcom_rpm-regulator: Add
- support for pm8018 rpm regulator
-To: Stephen Boyd <sboyd@codeaurora.org>, andy.gross@linaro.org,
- david.brown@linaro.org, lee.jones@linaro.org, lgirdwood@gmail.com,
- broonie@kernel.org, a.zummo@towertech.it,
- alexandre.belloni@free-electrons.com
-References: <1468936286-2710-1-git-send-email-narmstrong@baylibre.com>
- <1468936286-2710-5-git-send-email-narmstrong@baylibre.com>
- <6eb6d742-eca4-a442-cff1-0a26601b362d@codeaurora.org>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-arm-msm@vger.kernel.org, linux-soc@vger.kernel.org,
- rtc-linux@googlegroups.com
-From: Neil Armstrong <narmstrong@baylibre.com>
-Message-ID: <66c73444-be00-5f89-8577-ce2312036ccc@baylibre.com>
-Date: Thu, 11 Aug 2016 15:05:41 +0200
+        Tue, 30 Aug 2016 01:38:26 -0700 (PDT)
+Date: Tue, 30 Aug 2016 16:38:14 +0800
+From: Dave Young <dyoung@redhat.com>
+To: Pratyush Anand <panand@redhat.com>
+Cc: mingo@kernel.org, alexandre.belloni@free-electrons.com, tglx@linutronix.de,
+        hpa@zytor.com, x86@kernel.org, rtc-linux@googlegroups.com,
+        linux-kernel@vger.kernel.org, prarit@redhat.com, dzickus@redhat.com,
+        a.zummo@towertech.it
+Subject: [rtc-linux] Re: [PATCH V3 2/2] rtc/rtc-cmos: Initialize software
+ counters before irq is registered
+Message-ID: <20160830083814.GA7308@dhcp-128-65.nay.redhat.com>
+References: <cover.1470985727.git.panand@redhat.com>
+ <90426708da5934284839e6f23d23e265afcc779f.1470985727.git.panand@redhat.com>
+ <20160830082230.GA7000@dhcp-128-65.nay.redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <6eb6d742-eca4-a442-cff1-0a26601b362d@codeaurora.org>
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <20160830082230.GA7000@dhcp-128-65.nay.redhat.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -34,125 +30,146 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Hi Stephen,
-On 08/05/2016 12:04 AM, Stephen Boyd wrote:
-> On 07/19/2016 06:51 AM, Neil Armstrong wrote:
->> In order to support eh Qualcomm MDM9615 SoC, add support for the
+On 08/30/16 at 04:22pm, Dave Young wrote:
+> Hi, Pratyush
 > 
-> s/eh/the/
+> On 08/16/16 at 08:55am, Pratyush Anand wrote:
+> > We have observed on few x86 machines with rtc-cmos device that
+> > hpet_rtc_interrupt() is called just after irq registration and before
+> > cmos_do_probe() could call hpet_rtc_timer_init().
+> > 
+> > So, neither hpet_default_delta nor hpet_t1_cmp is initialized by the time
+> > interrupt is raised in the given situation, and this results in NMI
+> > watchdog LOCKUP.
+> > 
+> > It has only been observed sporadically on kdump secondary kernels.
+> > 
+> > See the call trace:
+> > ---<-snip->---
+> >    27.913194] Kernel panic - not syncing: Watchdog detected hard LOCKUP on
+> > cpu 0
+> > [   27.915371] CPU: 0 PID: 1 Comm: swapper/0 Not tainted
+> > 3.10.0-342.el7.x86_64 #1
+> > [   27.917503] Hardware name: HP ProLiant DL160 Gen8, BIOS J03 02/10/2014
+> > [   27.919455]  ffffffff8186a728 0000000059c82488 ffff880034e05af0
+> > ffffffff81637bd4
+> > [   27.921870]  ffff880034e05b70 ffffffff8163144a 0000000000000010
+> > ffff880034e05b80
+> > [   27.924257]  ffff880034e05b20 0000000059c82488 0000000000000000
+> > 0000000000000000
+> > [   27.926599] Call Trace:
+> > [   27.927352]  <NMI>  [<ffffffff81637bd4>] dump_stack+0x19/0x1b
+> > [   27.929080]  [<ffffffff8163144a>] panic+0xd8/0x1e7
+> > [   27.930588]  [<ffffffff8111d3e0>] ? restart_watchdog_hrtimer+0x50/0x50
+> > [   27.932502]  [<ffffffff8111d4a2>] watchdog_overflow_callback+0xc2/0xd0
+> > [   27.934427]  [<ffffffff811612c1>] __perf_event_overflow+0xa1/0x250
+> > [   27.936232]  [<ffffffff81161d94>] perf_event_overflow+0x14/0x20
+> > [   27.937957]  [<ffffffff81032ae8>] intel_pmu_handle_irq+0x1e8/0x470
+> > [   27.939799]  [<ffffffff8164164b>] perf_event_nmi_handler+0x2b/0x50
+> > [   27.941649]  [<ffffffff81640d99>] nmi_handle.isra.0+0x69/0xb0
+> > [   27.943348]  [<ffffffff81640f49>] do_nmi+0x169/0x340
+> > [   27.944802]  [<ffffffff816401d3>] end_repeat_nmi+0x1e/0x2e
+> > [   27.946424]  [<ffffffff81056ee5>] ? hpet_rtc_interrupt+0x85/0x380
+> > [   27.948197]  [<ffffffff81056ee5>] ? hpet_rtc_interrupt+0x85/0x380
+> > [   27.949992]  [<ffffffff81056ee5>] ? hpet_rtc_interrupt+0x85/0x380
+> > [   27.951816]  <<EOE>>  <IRQ>  [<ffffffff8108f5a3>] ?
+> > run_timer_softirq+0x43/0x340
+> > [   27.954114]  [<ffffffff8111e24e>] handle_irq_event_percpu+0x3e/0x1e0
+> > [   27.955962]  [<ffffffff8111e42d>] handle_irq_event+0x3d/0x60
+> > [   27.957635]  [<ffffffff811210c7>] handle_edge_irq+0x77/0x130
+> > [   27.959332]  [<ffffffff8101704f>] handle_irq+0xbf/0x150
+> > [   27.960949]  [<ffffffff8164a86f>] do_IRQ+0x4f/0xf0
+> > [   27.962434]  [<ffffffff8163faed>] common_interrupt+0x6d/0x6d
+> > [   27.964101]  <EOI>  [<ffffffff8163f43b>] ?
+> > _raw_spin_unlock_irqrestore+0x1b/0x40
+> > [   27.966308]  [<fffff8111ff07>] __setup_irq+0x2a7/0x570
+> > [   28.067859]  [<ffffffff81056e60>] ? hpet_cpuhp_notify+0x140/0x140
+> > [   28.069709]  [<ffffffff8112032c>] request_threaded_irq+0xcc/0x170
+> > [   28.071585]  [<ffffffff814b24a6>] cmos_do_probe+0x1e6/0x450
+> > [   28.073240]  [<ffffffff814b2710>] ? cmos_do_probe+0x450/0x450
+> > [   28.074911]  [<ffffffff814b27cb>] cmos_pnp_probe+0xbb/0xc0
+> > [   28.076533]  [<ffffffff8139b245>] pnp_device_probe+0x65/0xd0
+> > [   28.078198]  [<ffffffff813f8ca7>] driver_probe_device+0x87/0x390
+> > [   28.079971]  [<ffffffff813f9083>] __driver_attach+0x93/0xa0
+> > [   28.081660]  [<ffffffff813f8ff0>] ? __device_attach+0x40/0x40
+> > [   28.083662]  [<ffffffff813f6a13>] bus_for_each_dev+0x73/0xc0
+> > [   28.085370]  [<ffffffff813f86fe>] driver_attach+0x1e/0x20
+> > [   28.086974]  [<ffffffff813f8250>] bus_add_driver+0x200/0x2d0
+> > [   28.088634]  [<ffffffff81ade49a>] ? rtc_sysfs_init+0xe/0xe
+> > [   28.090349]  [<ffffffff813f9704>] driver_register+0x64/0xf0
+> > [   28.091989]  [<ffffffff8139b070>] pnp_register_driver+0x20/0x30
+> > [   28.093707]  [<ffffffff81ade4ab>] cmos_init+0x11/0x71
+> > ---<-snip->---
+> > 
+> > The previous patch split hpet_rtc_timer_init into
+> > hpet_rtc_timer_counter_init() and hpet_rtc_timer_enable().
+> > 
+> > Therefore, this patch moved hpet_rtc_timer_counter_init() before IRQ
+> > registration, so that we can gracefully handle such spurious interrupts.
+> > 
+> > We were able to reproduce the problem in maximum 15 trials of kdump
+> > secondary kernel boot on an hp-dl160gen8 machine without this patch.
+> > However, more than 35 trials went fine after applying this patch.
+> > 
+> > Signed-off-by: Pratyush Anand <panand@redhat.com>
+> > [dzickus@redhat.com: edited the patch's summary]
+> > Signed-off-by: Don Zickus <dzickus@redhat.com>
+> > ---
+> >  drivers/rtc/rtc-cmos.c | 13 ++++++++++++-
+> >  1 file changed, 12 insertions(+), 1 deletion(-)
+> > 
+> > diff --git a/drivers/rtc/rtc-cmos.c b/drivers/rtc/rtc-cmos.c
+> > index 43745cac0141..089d987f2638 100644
+> > --- a/drivers/rtc/rtc-cmos.c
+> > +++ b/drivers/rtc/rtc-cmos.c
+> > @@ -129,6 +129,16 @@ static inline int hpet_rtc_dropped_irq(void)
+> >  	return 0;
+> >  }
+> >  
+> > +static inline int hpet_rtc_timer_counter_init(void)
+> > +{
+> > +	return 0;
+> > +}
+> > +
+> > +static inline int hpet_rtc_timer_enable(void)
+> > +{
+> > +	return 0;
+> > +}
+> > +
 > 
->> PM8018 RPM regulator in the qcom_rpm-regulator driver.
->>
->> Acked-by: Mark Brown <broonie@kernel.org>
->> Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
->>
->> diff --git a/drivers/regulator/qcom_rpm-regulator.c b/drivers/regulator/qcom_rpm-regulator.c
->> index e254272..0734a5f 100644
->> --- a/drivers/regulator/qcom_rpm-regulator.c
->> +++ b/drivers/regulator/qcom_rpm-regulator.c
->> @@ -70,6 +70,40 @@ struct qcom_rpm_reg {
->>  	bool supports_force_mode_bypass;
->>  };
->>  
->> +static struct rpm_reg_parts rpm8018_ldo_parts = {
->> +	.request_len	= 2,
->> +	.uV		= { 0, 0x007FFFFF,  0},
->> +	.pd		= { 0, 0x00800000, 23},
->> +	.pc		= { 0, 0x0F000000, 24},
->> +	.pf		= { 0, 0xF0000000, 28},
->> +	.ip		= { 1, 0x000003FF,  0},
->> +	.ia		= { 1, 0x000FFC00, 10},
->> +	.fm		= { 1, 0x00700000, 20},
->> +};
->> +
->> +static struct rpm_reg_parts rpm8018_smps_parts = {
->> +	.request_len	= 2,
->> +	.uV		= {  0, 0x007FFFFF,  0},
->> +	.pd		= {  0, 0x00800000, 23},
->> +	.pc		= {  0, 0x0F000000, 24},
->> +	.pf		= {  0, 0xF0000000, 28},
->> +	.ip		= {  1, 0x000003FF,  0},
->> +	.ia		= {  1, 0x000FFC00, 10},
->> +	.fm		= {  1, 0x00700000, 20},
->> +	.pm		= {  1, 0x00800000, 23},
->> +	.freq		= {  1, 0x1F000000, 24},
->> +	.freq_clk_src	= {  1, 0x60000000, 29},
->> +};
->> +
->> +static struct rpm_reg_parts rpm8018_switch_parts = {
->> +	.request_len	= 1,
->> +	.enable_state	= {  0, 0x00000001,  0},
->> +	.pd		= {  0, 0x00000002,  1},
->> +	.pc		= {  0, 0x0000003C,  2},
->> +	.pf		= {  0, 0x000003C0,  6},
->> +	.hpm		= {  0, 0x00000C00, 10},
->> +};
->> +
-> 
-> These are all the same as the rpm8960 ones, so why don't we reuse those
-> structures?
+> Can these dummy functions go to /usr/include/linux/hpet.h alont with
+> the #ifdef  etc.
 
-Indeed, I will reuse them.
+Hmm, seems CONFIG_HPET_EMULATE_RTC is x86 only, so maybe go to
+asm/hpet.h should be better..
 
 > 
->>  static const struct rpm_reg_parts rpm8660_ldo_parts = {
->>  	.request_len    = 2,
->>  	.mV             = { 0, 0x00000FFF,  0 },
->> @@ -448,6 +482,44 @@ static struct regulator_ops switch_ops = {
->>  };
->>  
->>  /*
->> + * PM8018 regulators
->> + */
->> +static const struct qcom_rpm_reg pm8018_pldo = {
->> +	.desc.linear_ranges = pldo_ranges,
->> +	.desc.n_linear_ranges = ARRAY_SIZE(pldo_ranges),
->> +	.desc.n_voltages = 161,
->> +	.desc.ops = &uV_ops,
->> +	.parts = &rpm8018_ldo_parts,
->> +	.supports_force_mode_auto = false,
->> +	.supports_force_mode_bypass = false,
->> +};
->> +
->> +static const struct qcom_rpm_reg pm8018_nldo = {
->> +	.desc.linear_ranges = nldo_ranges,
->> +	.desc.n_linear_ranges = ARRAY_SIZE(nldo_ranges),
->> +	.desc.n_voltages = 64,
->> +	.desc.ops = &uV_ops,
->> +	.parts = &rpm8018_ldo_parts,
->> +	.supports_force_mode_auto = false,
->> +	.supports_force_mode_bypass = false,
->> +};
->> +
->> +static const struct qcom_rpm_reg pm8018_smps = {
->> +	.desc.linear_ranges = smps_ranges,
->> +	.desc.n_linear_ranges = ARRAY_SIZE(smps_ranges),
->> +	.desc.n_voltages = 154,
->> +	.desc.ops = &uV_ops,
->> +	.parts = &rpm8018_smps_parts,
->> +	.supports_force_mode_auto = false,
->> +	.supports_force_mode_bypass = false,
->> +};
->> +
->> +static const struct qcom_rpm_reg pm8018_switch = {
->> +	.desc.ops = &switch_ops,
->> +	.parts = &rpm8018_switch_parts,
->> +};
->> +
+> >  static inline int hpet_rtc_timer_init(void)
+> >  {
+> >  	return 0;
+> > @@ -707,6 +717,7 @@ cmos_do_probe(struct device *dev, struct resource *ports, int rtc_irq)
+> >  		goto cleanup1;
+> >  	}
+> >  
+> > +	hpet_rtc_timer_counter_init();
+> >  	if (is_valid_irq(rtc_irq)) {
+> >  		irq_handler_t rtc_cmos_int_handler;
+> >  
+> > @@ -729,7 +740,7 @@ cmos_do_probe(struct device *dev, struct resource *ports, int rtc_irq)
+> >  			goto cleanup1;
+> >  		}
+> >  	}
+> > -	hpet_rtc_timer_init();
+> > +	hpet_rtc_timer_enable();
+> >  
+> >  	/* export at least the first block of NVRAM */
+> >  	nvram.size = address_space - NVRAM_OFFSET;
+> > -- 
+> > 2.5.5
+> > 
 > 
-> These are all the same as the pm8921 ones too? So just use those instead?
-
-They look but the supports_force_mode_bypass is set to "true" for pm8921.
-These pm8018 structures are still needed.
-
-> 
-> We should probably rethink this design and have these structures based
-> on PMIC derivatives instead of SoCs because things are quite similar
-> across many PMICs.
-> 
-This would help to support the huge pmic family !
-
-Neil
+> Thanks
+> Dave
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
