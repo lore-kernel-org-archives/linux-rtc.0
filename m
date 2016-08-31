@@ -1,20 +1,28 @@
-Return-Path: <rtc-linux+bncBAABBFFQSC7AKGQEPNDNCMA@googlegroups.com>
+Return-Path: <rtc-linux+bncBC6LTXWRRYFRB7GGTG7AKGQE3CGGNWI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
+Received: from mx1.redhat.com (mx1.redhat.com. [209.132.183.28])
+        by gmr-mx.google.com with ESMTPS id y205si167266ywa.6.2016.08.30.21.56.27
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 30 Aug 2016 21:56:27 -0700 (PDT)
+Date: Wed, 31 Aug 2016 12:56:17 +0800
+From: Dave Young <dyoung@redhat.com>
+To: Pratyush Anand <panand@redhat.com>
+Cc: mingo@kernel.org, alexandre.belloni@free-electrons.com, tglx@linutronix.de,
+        hpa@zytor.com, x86@kernel.org, rtc-linux@googlegroups.com,
+        linux-kernel@vger.kernel.org, prarit@redhat.com, dzickus@redhat.com,
+        a.zummo@towertech.it, akpm@linux-foundation.org
+Subject: [rtc-linux] Re: [PATCH V3 2/2] rtc/rtc-cmos: Initialize software
+ counters before irq is registered
+Message-ID: <20160831045617.GB4671@dhcp-128-65.nay.redhat.com>
+References: <cover.1470985727.git.panand@redhat.com>
+ <90426708da5934284839e6f23d23e265afcc779f.1470985727.git.panand@redhat.com>
+ <20160830082230.GA7000@dhcp-128-65.nay.redhat.com>
+ <20160830095423.GA7298@localhost.localdomain>
 MIME-Version: 1.0
-Received: from root.phytec.de (mail.phytec.co.uk. [217.6.246.34])
-        by gmr-mx.google.com with ESMTP id o85si1516718wme.0.2016.08.29.04.10.12
-        for <rtc-linux@googlegroups.com>;
-        Mon, 29 Aug 2016 04:10:12 -0700 (PDT)
-From: Wadim Egorov <w.egorov@phytec.de>
-To: linux-kernel@vger.kernel.org, rtc-linux@googlegroups.com, devicetree@vger.kernel.org, linux-rockchip@lists.infradead.org
-Cc: robh+dt@kernel.org, mark.rutland@arm.com, lee.jones@linaro.org, lgirdwood@gmail.com, broonie@kernel.org, a.zummo@towertech.it, alexandre.belloni@free-electrons.com
-Subject: [rtc-linux] [PATCH v8 4/4] rtc: Kconfig: Name RK818 in Kconfig for RTC_DRV_RK808
-Date: Mon, 29 Aug 2016 13:08:01 +0200
-Message-Id: <1472468881-15337-4-git-send-email-w.egorov@phytec.de>
-In-Reply-To: <1472468881-15337-1-git-send-email-w.egorov@phytec.de>
-References: <1472468881-15337-1-git-send-email-w.egorov@phytec.de>
-Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <20160830095423.GA7298@localhost.localdomain>
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -23,36 +31,166 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-The RK808 and RK818 PMICs are using a similar register map.
-We can reuse the rtc driver for the RK818 PMIC. So let's add
-the RK818 in the Kconfig description.
+Hi, Pratyush,
 
-Signed-off-by: Wadim Egorov <w.egorov@phytec.de>
-Acked-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
----
- drivers/rtc/Kconfig | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+I'm not sure who is the maintainer to review and take the patches,
+In MATAINERS file, x86 hpet is orphaned. rtc-cmos may go to rtc
+maitianer Alessandro Zummo
 
-diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
-index e215f50..1102e8f 100644
---- a/drivers/rtc/Kconfig
-+++ b/drivers/rtc/Kconfig
-@@ -328,11 +328,11 @@ config RTC_DRV_MAX77686
- 	  will be called rtc-max77686.
- 
- config RTC_DRV_RK808
--	tristate "Rockchip RK808 RTC"
-+	tristate "Rockchip RK808/RK818 RTC"
- 	depends on MFD_RK808
- 	help
- 	  If you say yes here you will get support for the
--	  RTC of RK808 PMIC.
-+	  RTC of RK808 and RK818 PMIC.
- 
- 	  This driver can also be built as a module. If so, the module
- 	  will be called rk808-rtc.
--- 
-1.9.1
+Ccing Andrew maybe he can also take the patches for orphaned component.
+
+On 08/30/16 at 03:24pm, Pratyush Anand wrote:
+> Hi Dave,
+> 
+> On 30/08/2016:04:22:30 PM, Dave Young wrote:
+> > Hi, Pratyush
+> > 
+> > On 08/16/16 at 08:55am, Pratyush Anand wrote:
+> > > We have observed on few x86 machines with rtc-cmos device that
+> > > hpet_rtc_interrupt() is called just after irq registration and before
+> > > cmos_do_probe() could call hpet_rtc_timer_init().
+> > > 
+> > > So, neither hpet_default_delta nor hpet_t1_cmp is initialized by the time
+> > > interrupt is raised in the given situation, and this results in NMI
+> > > watchdog LOCKUP.
+> > > 
+> > > It has only been observed sporadically on kdump secondary kernels.
+> > > 
+> > > See the call trace:
+> > > ---<-snip->---
+> > >    27.913194] Kernel panic - not syncing: Watchdog detected hard LOCKUP on
+> > > cpu 0
+> > > [   27.915371] CPU: 0 PID: 1 Comm: swapper/0 Not tainted
+> > > 3.10.0-342.el7.x86_64 #1
+> > > [   27.917503] Hardware name: HP ProLiant DL160 Gen8, BIOS J03 02/10/2014
+> > > [   27.919455]  ffffffff8186a728 0000000059c82488 ffff880034e05af0
+> > > ffffffff81637bd4
+> > > [   27.921870]  ffff880034e05b70 ffffffff8163144a 0000000000000010
+> > > ffff880034e05b80
+> > > [   27.924257]  ffff880034e05b20 0000000059c82488 0000000000000000
+> > > 0000000000000000
+> > > [   27.926599] Call Trace:
+> > > [   27.927352]  <NMI>  [<ffffffff81637bd4>] dump_stack+0x19/0x1b
+> > > [   27.929080]  [<ffffffff8163144a>] panic+0xd8/0x1e7
+> > > [   27.930588]  [<ffffffff8111d3e0>] ? restart_watchdog_hrtimer+0x50/0x50
+> > > [   27.932502]  [<ffffffff8111d4a2>] watchdog_overflow_callback+0xc2/0xd0
+> > > [   27.934427]  [<ffffffff811612c1>] __perf_event_overflow+0xa1/0x250
+> > > [   27.936232]  [<ffffffff81161d94>] perf_event_overflow+0x14/0x20
+> > > [   27.937957]  [<ffffffff81032ae8>] intel_pmu_handle_irq+0x1e8/0x470
+> > > [   27.939799]  [<ffffffff8164164b>] perf_event_nmi_handler+0x2b/0x50
+> > > [   27.941649]  [<ffffffff81640d99>] nmi_handle.isra.0+0x69/0xb0
+> > > [   27.943348]  [<ffffffff81640f49>] do_nmi+0x169/0x340
+> > > [   27.944802]  [<ffffffff816401d3>] end_repeat_nmi+0x1e/0x2e
+> > > [   27.946424]  [<ffffffff81056ee5>] ? hpet_rtc_interrupt+0x85/0x380
+> > > [   27.948197]  [<ffffffff81056ee5>] ? hpet_rtc_interrupt+0x85/0x380
+> > > [   27.949992]  [<ffffffff81056ee5>] ? hpet_rtc_interrupt+0x85/0x380
+> > > [   27.951816]  <<EOE>>  <IRQ>  [<ffffffff8108f5a3>] ?
+> > > run_timer_softirq+0x43/0x340
+> > > [   27.954114]  [<ffffffff8111e24e>] handle_irq_event_percpu+0x3e/0x1e0
+> > > [   27.955962]  [<ffffffff8111e42d>] handle_irq_event+0x3d/0x60
+> > > [   27.957635]  [<ffffffff811210c7>] handle_edge_irq+0x77/0x130
+> > > [   27.959332]  [<ffffffff8101704f>] handle_irq+0xbf/0x150
+> > > [   27.960949]  [<ffffffff8164a86f>] do_IRQ+0x4f/0xf0
+> > > [   27.962434]  [<ffffffff8163faed>] common_interrupt+0x6d/0x6d
+> > > [   27.964101]  <EOI>  [<ffffffff8163f43b>] ?
+> > > _raw_spin_unlock_irqrestore+0x1b/0x40
+> > > [   27.966308]  [<fffff8111ff07>] __setup_irq+0x2a7/0x570
+> > > [   28.067859]  [<ffffffff81056e60>] ? hpet_cpuhp_notify+0x140/0x140
+> > > [   28.069709]  [<ffffffff8112032c>] request_threaded_irq+0xcc/0x170
+> > > [   28.071585]  [<ffffffff814b24a6>] cmos_do_probe+0x1e6/0x450
+> > > [   28.073240]  [<ffffffff814b2710>] ? cmos_do_probe+0x450/0x450
+> > > [   28.074911]  [<ffffffff814b27cb>] cmos_pnp_probe+0xbb/0xc0
+> > > [   28.076533]  [<ffffffff8139b245>] pnp_device_probe+0x65/0xd0
+> > > [   28.078198]  [<ffffffff813f8ca7>] driver_probe_device+0x87/0x390
+> > > [   28.079971]  [<ffffffff813f9083>] __driver_attach+0x93/0xa0
+> > > [   28.081660]  [<ffffffff813f8ff0>] ? __device_attach+0x40/0x40
+> > > [   28.083662]  [<ffffffff813f6a13>] bus_for_each_dev+0x73/0xc0
+> > > [   28.085370]  [<ffffffff813f86fe>] driver_attach+0x1e/0x20
+> > > [   28.086974]  [<ffffffff813f8250>] bus_add_driver+0x200/0x2d0
+> > > [   28.088634]  [<ffffffff81ade49a>] ? rtc_sysfs_init+0xe/0xe
+> > > [   28.090349]  [<ffffffff813f9704>] driver_register+0x64/0xf0
+> > > [   28.091989]  [<ffffffff8139b070>] pnp_register_driver+0x20/0x30
+> > > [   28.093707]  [<ffffffff81ade4ab>] cmos_init+0x11/0x71
+> > > ---<-snip->---
+> > > 
+> > > The previous patch split hpet_rtc_timer_init into
+> > > hpet_rtc_timer_counter_init() and hpet_rtc_timer_enable().
+> > > 
+> > > Therefore, this patch moved hpet_rtc_timer_counter_init() before IRQ
+> > > registration, so that we can gracefully handle such spurious interrupts.
+> > > 
+> > > We were able to reproduce the problem in maximum 15 trials of kdump
+> > > secondary kernel boot on an hp-dl160gen8 machine without this patch.
+> > > However, more than 35 trials went fine after applying this patch.
+> > > 
+> > > Signed-off-by: Pratyush Anand <panand@redhat.com>
+> > > [dzickus@redhat.com: edited the patch's summary]
+> > > Signed-off-by: Don Zickus <dzickus@redhat.com>
+> > > ---
+> > >  drivers/rtc/rtc-cmos.c | 13 ++++++++++++-
+> > >  1 file changed, 12 insertions(+), 1 deletion(-)
+> > > 
+> > > diff --git a/drivers/rtc/rtc-cmos.c b/drivers/rtc/rtc-cmos.c
+> > > index 43745cac0141..089d987f2638 100644
+> > > --- a/drivers/rtc/rtc-cmos.c
+> > > +++ b/drivers/rtc/rtc-cmos.c
+> > > @@ -129,6 +129,16 @@ static inline int hpet_rtc_dropped_irq(void)
+> > >  	return 0;
+> > >  }
+> > >  
+> > > +static inline int hpet_rtc_timer_counter_init(void)
+> > > +{
+> > > +	return 0;
+> > > +}
+> > > +
+> > > +static inline int hpet_rtc_timer_enable(void)
+> > > +{
+> > > +	return 0;
+> > > +}
+> > > +
+> > 
+> > Can these dummy functions go to /usr/include/linux/hpet.h alont with
+> > the #ifdef  etc.
+> 
+> I kept them here because, similar functions like hpet_set_alarm_time() were
+> already there. So, if you suggest that I should have an additional cleanup patch
+> first, which moves existing #ifdef block to inlcude/linux/hpet.h and this
+> patch adds it's inline in linux/hpet.h, then may be I can take that. But not
+> sure if there is something more to be done which will help the MAINTAINER to
+> take it.
+> 
+> ~Pratyush
+> 
+> > 
+> > >  static inline int hpet_rtc_timer_init(void)
+> > >  {
+> > >  	return 0;
+> > > @@ -707,6 +717,7 @@ cmos_do_probe(struct device *dev, struct resource *ports, int rtc_irq)
+> > >  		goto cleanup1;
+> > >  	}
+> > >  
+> > > +	hpet_rtc_timer_counter_init();
+> > >  	if (is_valid_irq(rtc_irq)) {
+> > >  		irq_handler_t rtc_cmos_int_handler;
+> > >  
+> > > @@ -729,7 +740,7 @@ cmos_do_probe(struct device *dev, struct resource *ports, int rtc_irq)
+> > >  			goto cleanup1;
+> > >  		}
+> > >  	}
+> > > -	hpet_rtc_timer_init();
+> > > +	hpet_rtc_timer_enable();
+> > >  
+> > >  	/* export at least the first block of NVRAM */
+> > >  	nvram.size = address_space - NVRAM_OFFSET;
+> > > -- 
+> > > 2.5.5
+> > > 
+> > 
+> > Thanks
+> > Dave
+
+Thanks
+Dave
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
