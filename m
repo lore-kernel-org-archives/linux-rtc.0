@@ -1,22 +1,27 @@
-Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBQFPRS7QKGQEKRPKBBI@googlegroups.com>
+Return-Path: <rtc-linux+bncBCL4FNGB7UHBBP6CTW7AKGQEMJOIYMI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id w79si2093914wmw.0.2016.09.21.16.29.04
-        for <rtc-linux@googlegroups.com>;
-        Wed, 21 Sep 2016 16:29:04 -0700 (PDT)
-Date: Thu, 22 Sep 2016 01:29:03 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Gabriele Mazzotta <gabriele.mzt@gmail.com>
-Cc: a.zummo@towertech.it, rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH v2] rtc-cmos: Reject unsupported alarm values
-Message-ID: <20160921232903.lb43z3vzx33zenwq@piout.net>
-References: <20160831225929.20336-1-gabriele.mzt@gmail.com>
- <20160902195516.7068-1-gabriele.mzt@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <20160902195516.7068-1-gabriele.mzt@gmail.com>
+Received: from mail-wm0-x243.google.com (mail-wm0-x243.google.com. [2a00:1450:400c:c09::243])
+        by gmr-mx.google.com with ESMTPS id y7si3077420wmd.0.2016.08.31.15.59.11
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 31 Aug 2016 15:59:11 -0700 (PDT)
+Received: by mail-wm0-x243.google.com with SMTP id c133so1055767wmd.2
+        for <rtc-linux@googlegroups.com>; Wed, 31 Aug 2016 15:59:11 -0700 (PDT)
+From: Gabriele Mazzotta <gabriele.mzt@gmail.com>
+To: a.zummo@towertech.it,
+	alexandre.belloni@free-electrons.com
+Cc: rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org,
+	matthew.garrett@nebula.com,
+	Gabriele Mazzotta <gabriele.mzt@gmail.com>
+Subject: [rtc-linux] [PATCH v2 2/2] rtc-cmos: Restore alarm after resume
+Date: Thu,  1 Sep 2016 00:59:00 +0200
+Message-Id: <20160831225900.20122-2-gabriele.mzt@gmail.com>
+In-Reply-To: <20160831225900.20122-1-gabriele.mzt@gmail.com>
+References: <20160831225900.20122-1-gabriele.mzt@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -25,167 +30,102 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 02/09/2016 at 21:55:16 +0200, Gabriele Mazzotta wrote :
-> Some platforms allows to specify the month and day of the month in
-> which an alarm should go off, some others the day of the month and
-> some others just the time.
-> 
-> Currently any given value is accepted by the driver and only the
-> supported fields are used to program the hardware. As consequence,
-> alarms are potentially programmed to go off in the wrong moment.
-> 
-> Fix this by rejecting any value not supported by the hardware.
-> 
-> Signed-off-by: Gabriele Mazzotta <gabriele.mzt@gmail.com>
-> ---
-> 
-> I revisited the naive implementation of v1. I tested the new
-> algorithm using some dates that and verified that it behaved as
-> expected, but I might have missed some corner cases.
-> 
-> I made some assumptions that maybe should be dropped, at least
-> two of them. They are commented in the code, but I didn't mention
-> that they are assumptions:
-> 
->  - If the day can't be specified, the alarm can only be set to go
->    off 24 hours minus 1 second in the future. I'm worried things
->    would go wrong if the current time is used to set an alarm that
->    should go off the next day.
->  - If the mday can be specified and the next month has more days
->    than the current month, the alarm can be set to go off in the
->    extra days of the next month.
+Some platform firmware may interfere with the RTC alarm over suspend,
+resulting in the kernel and hardware having different ideas about system
+state but also potentially causing problems with firmware that assumes the
+OS will clean this case up.  This patch restores the RTC alarm on resume
+to ensure that kernel and hardware are in sync.
 
-Hum, you are actually not allowing them in the code below (which I think
-is the right thing to do).
+The case we've seen is Intel Rapid Start, which is a firmware-mediated
+feature that automatically transitions systems from suspend-to-RAM to
+suspend-to-disk without OS involvement.  It does this by setting the RTC
+alarm and a flag that indicates that on wake it should perform the
+transition rather than re-starting the OS.  However, if the OS has set a
+wakeup alarm that would wake the machine earlier, it refuses to overwrite
+it and allows the system to wake instead.
 
->  - If the month can be specified, it's the 28th of February and the
->    next year is a leap year, the alarm can be set for the 29th of
->    February of the next year.
+This fails in the following situation:
 
-Is that really true? I would expect the opposite. If it is currently
-28/02, the max date you can actually go to is 27/02. If you allow 29/02,
-at some time the RTC will have 28/02 and the alarm will fire.
+1) User configures Intel Rapid Start to transition after (say) 15
+minutes
+2) User suspends to RAM. Firmware sets the wakeup alarm for 15 minutes
+in the future
+3) User resumes after 5 minutes. Firmware does not reset the alarm, and
+as such it is still set for 10 minutes in the future
+4) User suspends after 5 minutes. Firmware notices that the alarm is set
+for 5 minutes in the future, which is less than the 15 minute transition
+threshold. It therefore assumes that the user wants the machine to wake
+in 5 minutes
+5) System resumes after 5 minutes
 
-> 
-> Basically I'm assuming that the hardware decides when an alarm should
-> go off comparing the current date with the one programmed. If they
-> match, the alarm goes off. This seemed reasonable to me, but it's
-> not easy to verify.
-> 
->  drivers/rtc/rtc-cmos.c | 104 +++++++++++++++++++++++++++++++++++++++++++++++++
->  1 file changed, 104 insertions(+)
-> 
-> diff --git a/drivers/rtc/rtc-cmos.c b/drivers/rtc/rtc-cmos.c
-> index 4cdb335..37cb7c1 100644
-> --- a/drivers/rtc/rtc-cmos.c
-> +++ b/drivers/rtc/rtc-cmos.c
-> @@ -328,14 +328,118 @@ static void cmos_irq_disable(struct cmos_rtc *cmos, unsigned char mask)
->  	cmos_checkintr(cmos, rtc_control);
->  }
->  
-> +static int cmos_validate_alarm(struct device *dev, struct rtc_wkalrm *t)
-> +{
-> +	struct cmos_rtc *cmos = dev_get_drvdata(dev);
-> +	struct rtc_time now;
-> +
-> +	cmos_read_time(dev, &now);
-> +
-> +	if (!cmos->day_alrm) {
-> +		time64_t t_max_date;
-> +		time64_t t_alrm;
-> +
-> +		t_alrm = rtc_tm_to_time64(&t->time);
-> +		t_max_date = rtc_tm_to_time64(&now);
-> +		/*
-> +		 * Subtract 1 second to ensure that the alarm time is
-> +		 * different from the current time.
-> +		 */
-> +		t_max_date += 24 * 60 * 60 - 1;
-> +		if (t_alrm > t_max_date) {
-> +			dev_err(dev,
-> +				"Alarms can be up to one day in the future\n");
-> +			return -EINVAL;
-> +		}
-> +	} else if (!cmos->mon_alrm) {
-> +		struct rtc_time max_date = now;
-> +		time64_t t_max_date;
-> +		time64_t t_alrm;
-> +		int max_mday;
-> +		bool is_max_mday = false;
-> +
-> +		/*
-> +		 * If the next month has more days than the current month
-> +		 * and we are at the max mday of this month, we can program
-> +		 * the alarm to go off the max mday of the next month without
-> +		 * it going off sooner than expected.
-> +		 */
-> +		max_mday = rtc_month_days(now.tm_mon, now.tm_year);
-> +		if (now.tm_mday == max_mday)
-> +			is_max_mday = true;
-> +
-> +		if (max_date.tm_mon == 11) {
-> +			max_date.tm_mon = 0;
-> +			max_date.tm_year += 1;
-> +		} else {
-> +			max_date.tm_mon += 1;
-> +		}
-> +		max_mday = rtc_month_days(max_date.tm_mon, max_date.tm_year);
-> +		if (max_date.tm_mday > max_mday || is_max_mday)
-> +			max_date.tm_mday = max_mday;
-> +
-> +		max_date.tm_hour = 23;
-> +		max_date.tm_min = 59;
-> +		max_date.tm_sec = 59;
-> +
+The worst case scenario here is that the user may have put the system in a
+bag between (4) and (5), resulting in it running in a confined space and
+potentially overheating.  This seems reasonably important.  The Rapid
+Start support code got added in 3.11, but it can be configured in the
+firmware regardless of kernel support.
 
-Actually, this is wrong.
+Signed-off-by: Gabriele Mazzotta <gabriele.mzt@gmail.com>
+---
+ drivers/rtc/rtc-cmos.c | 23 +++++++++++++++++++++++
+ 1 file changed, 23 insertions(+)
 
-If it is currently 1:23:45 on 22/09, you can go up to 1:23:44 on 22/10.
-trying to set a time after 1:23:45 will actually match on the same day
-instead of a month later.
-
-> +		t_max_date = rtc_tm_to_time64(&max_date);
-> +		t_alrm = rtc_tm_to_time64(&t->time);
-> +		if (t_alrm > t_max_date) {
-> +			dev_err(dev,
-> +				"Alarms can be up to one month in the future\n");
-> +			return -EINVAL;
-> +		}
-> +	} else {
-> +		struct rtc_time max_date = now;
-> +		time64_t t_max_date;
-> +		time64_t t_alrm;
-> +		int max_mday;
-> +		bool allow_leap_day = false;
-> +
-> +		/*
-> +		 * If it's the 28th of February and the next year is a leap
-> +		 * year, allow to set alarms for the 29th of February.
-> +		 */
-> +		if (now.tm_mon == 1) {
-> +			max_mday = rtc_month_days(now.tm_mon, now.tm_year);
-> +			if (now.tm_mday == max_mday)
-> +				allow_leap_day = true;
-> +		}
-> +
-> +		max_date.tm_year += 1;
-> +		max_mday = rtc_month_days(max_date.tm_mon, max_date.tm_year);
-> +		if (max_date.tm_mday > max_mday || allow_leap_day)
-> +			max_date.tm_mday = max_mday;
-> +
-> +		max_date.tm_hour = 23;
-> +		max_date.tm_min = 59;
-> +		max_date.tm_sec = 59;
-> +
-
-Ditto, 1:23:45 on 22/09/2016 can go up to 1:23:44 on 22/09/2017.
-
-Regards,
-
+diff --git a/drivers/rtc/rtc-cmos.c b/drivers/rtc/rtc-cmos.c
+index 62d5b33..4cdb335 100644
+--- a/drivers/rtc/rtc-cmos.c
++++ b/drivers/rtc/rtc-cmos.c
+@@ -62,6 +62,8 @@ struct cmos_rtc {
+ 	u8			day_alrm;
+ 	u8			mon_alrm;
+ 	u8			century;
++
++	struct rtc_wkalrm	saved_wkalrm;
+ };
+ 
+ /* both platform and pnp busses use negative numbers for invalid irqs */
+@@ -880,6 +882,8 @@ static int cmos_suspend(struct device *dev)
+ 			enable_irq_wake(cmos->irq);
+ 	}
+ 
++	cmos_read_alarm(dev, &cmos->saved_wkalrm);
++
+ 	dev_dbg(dev, "suspend%s, ctrl %02x\n",
+ 			(tmp & RTC_AIE) ? ", alarm may wake" : "",
+ 			tmp);
+@@ -900,6 +904,22 @@ static inline int cmos_poweroff(struct device *dev)
+ 
+ #ifdef	CONFIG_PM_SLEEP
+ 
++static void cmos_check_wkalrm(struct device *dev)
++{
++	struct cmos_rtc *cmos = dev_get_drvdata(dev);
++	struct rtc_wkalrm current_alarm;
++	time64_t t_current_expires;
++	time64_t t_saved_expires;
++
++	cmos_read_alarm(dev, &current_alarm);
++	t_current_expires = rtc_tm_to_time64(&current_alarm.time);
++	t_saved_expires = rtc_tm_to_time64(&cmos->saved_wkalrm.time);
++	if (t_current_expires != t_saved_expires ||
++	    cmos->saved_wkalrm.enabled != current_alarm.enabled) {
++		cmos_set_alarm(dev, &cmos->saved_wkalrm);
++	}
++}
++
+ static bool cmos_is_wkalrm_expired(struct device *dev)
+ {
+ 	struct cmos_rtc *cmos = dev_get_drvdata(dev);
+@@ -935,6 +955,9 @@ static int cmos_resume(struct device *dev)
+ 		cmos->enabled_wake = 0;
+ 	}
+ 
++	/* The BIOS might have changed the alarm, restore it */
++	cmos_check_wkalrm(dev);
++
+ 	is_wkalrm_expired = cmos_is_wkalrm_expired(dev);
+ 
+ 	spin_lock_irq(&rtc_lock);
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+2.9.3
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
