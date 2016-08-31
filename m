@@ -1,27 +1,23 @@
-Return-Path: <rtc-linux+bncBDA7X7F2WUEBBLVOTK7AKGQEDEMJJBA@googlegroups.com>
+Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBI4FTS7AKGQEU62SYKI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail-wm0-x22f.google.com (mail-wm0-x22f.google.com. [2a00:1450:400c:c09::22f])
-        by gmr-mx.google.com with ESMTPS id p199si2252259wmd.1.2016.08.31.01.37.02
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 31 Aug 2016 01:37:02 -0700 (PDT)
-Received: by mail-wm0-x22f.google.com with SMTP id 1so24918845wmz.1
-        for <rtc-linux@googlegroups.com>; Wed, 31 Aug 2016 01:37:02 -0700 (PDT)
-Date: Wed, 31 Aug 2016 09:38:49 +0100
-From: Lee Jones <lee.jones@linaro.org>
-To: Neil Armstrong <narmstrong@baylibre.com>
-Cc: andy.gross@linaro.org, david.brown@linaro.org, lgirdwood@gmail.com,
-	broonie@kernel.org, a.zummo@towertech.it,
-	alexandre.belloni@free-electrons.com, linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org,
-	linux-soc@vger.kernel.org, rtc-linux@googlegroups.com
-Subject: [rtc-linux] [GIT PULL] Immutable branch between MFD, Regulator and RTC
-Message-ID: <20160831083849.GQ10121@dell>
-References: <1470921406-18468-1-git-send-email-narmstrong@baylibre.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1470921406-18468-1-git-send-email-narmstrong@baylibre.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id u3si95911wmf.1.2016.08.31.09.15.30
+        for <rtc-linux@googlegroups.com>;
+        Wed, 31 Aug 2016 09:15:30 -0700 (PDT)
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Alessandro Zummo <a.zummo@towertech.it>
+Cc: Oleksij Rempel <linux@rempel-privat.de>,
+	rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Subject: [rtc-linux] [PATCH v2 2/2] rtc: asm9260: rework locking
+Date: Wed, 31 Aug 2016 18:15:28 +0200
+Message-Id: <20160831161528.11217-2-alexandre.belloni@free-electrons.com>
+In-Reply-To: <20160831161528.11217-1-alexandre.belloni@free-electrons.com>
+References: <20160831161528.11217-1-alexandre.belloni@free-electrons.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -30,58 +26,125 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Enjoy!
+The rtc-asm9260 driver uses a discrete spinlock (wrongly uninitialized).
+Use the rtc mutex to lock mmio accesses instead.
 
-The following changes since commit 694d0d0bb2030d2e36df73e2d23d5770511dbc8d=
-:
+Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+---
+ drivers/rtc/rtc-asm9260.c | 20 +++++---------------
+ 1 file changed, 5 insertions(+), 15 deletions(-)
 
-  Linux 4.8-rc2 (2016-08-14 19:11:36 -0700)
+diff --git a/drivers/rtc/rtc-asm9260.c b/drivers/rtc/rtc-asm9260.c
+index 5219916ce11d..18a93d3e3f93 100644
+--- a/drivers/rtc/rtc-asm9260.c
++++ b/drivers/rtc/rtc-asm9260.c
+@@ -112,8 +112,6 @@ struct asm9260_rtc_priv {
+ 	void __iomem		*iobase;
+ 	struct rtc_device	*rtc;
+ 	struct clk		*clk;
+-	/* io lock */
+-	spinlock_t		lock;
+ };
+ 
+ static irqreturn_t asm9260_rtc_irq(int irq, void *dev_id)
+@@ -122,11 +120,15 @@ static irqreturn_t asm9260_rtc_irq(int irq, void *dev_id)
+ 	u32 isr;
+ 	unsigned long events = 0;
+ 
++	mutex_lock(&priv->rtc->ops_lock);
+ 	isr = ioread32(priv->iobase + HW_CIIR);
+-	if (!isr)
++	if (!isr) {
++		mutex_unlock(&priv->rtc->ops_lock);
+ 		return IRQ_NONE;
++	}
+ 
+ 	iowrite32(0, priv->iobase + HW_CIIR);
++	mutex_unlock(&priv->rtc->ops_lock);
+ 
+ 	events |= RTC_AF | RTC_IRQF;
+ 
+@@ -139,9 +141,7 @@ static int asm9260_rtc_read_time(struct device *dev, struct rtc_time *tm)
+ {
+ 	struct asm9260_rtc_priv *priv = dev_get_drvdata(dev);
+ 	u32 ctime0, ctime1, ctime2;
+-	unsigned long irq_flags;
+ 
+-	spin_lock_irqsave(&priv->lock, irq_flags);
+ 	ctime0 = ioread32(priv->iobase + HW_CTIME0);
+ 	ctime1 = ioread32(priv->iobase + HW_CTIME1);
+ 	ctime2 = ioread32(priv->iobase + HW_CTIME2);
+@@ -155,7 +155,6 @@ static int asm9260_rtc_read_time(struct device *dev, struct rtc_time *tm)
+ 		ctime1 = ioread32(priv->iobase + HW_CTIME1);
+ 		ctime2 = ioread32(priv->iobase + HW_CTIME2);
+ 	}
+-	spin_unlock_irqrestore(&priv->lock, irq_flags);
+ 
+ 	tm->tm_sec  = (ctime0 >> BM_CTIME0_SEC_S)  & BM_CTIME0_SEC_M;
+ 	tm->tm_min  = (ctime0 >> BM_CTIME0_MIN_S)  & BM_CTIME0_MIN_M;
+@@ -174,9 +173,7 @@ static int asm9260_rtc_read_time(struct device *dev, struct rtc_time *tm)
+ static int asm9260_rtc_set_time(struct device *dev, struct rtc_time *tm)
+ {
+ 	struct asm9260_rtc_priv *priv = dev_get_drvdata(dev);
+-	unsigned long irq_flags;
+ 
+-	spin_lock_irqsave(&priv->lock, irq_flags);
+ 	/*
+ 	 * make sure SEC counter will not flip other counter on write time,
+ 	 * real value will be written at the enf of sequence.
+@@ -191,7 +188,6 @@ static int asm9260_rtc_set_time(struct device *dev, struct rtc_time *tm)
+ 	iowrite32(tm->tm_hour, priv->iobase + HW_HOUR);
+ 	iowrite32(tm->tm_min,  priv->iobase + HW_MIN);
+ 	iowrite32(tm->tm_sec,  priv->iobase + HW_SEC);
+-	spin_unlock_irqrestore(&priv->lock, irq_flags);
+ 
+ 	return 0;
+ }
+@@ -199,9 +195,7 @@ static int asm9260_rtc_set_time(struct device *dev, struct rtc_time *tm)
+ static int asm9260_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
+ {
+ 	struct asm9260_rtc_priv *priv = dev_get_drvdata(dev);
+-	unsigned long irq_flags;
+ 
+-	spin_lock_irqsave(&priv->lock, irq_flags);
+ 	alrm->time.tm_year = ioread32(priv->iobase + HW_ALYEAR);
+ 	alrm->time.tm_mon  = ioread32(priv->iobase + HW_ALMON);
+ 	alrm->time.tm_mday = ioread32(priv->iobase + HW_ALDOM);
+@@ -213,7 +207,6 @@ static int asm9260_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
+ 
+ 	alrm->enabled = ioread32(priv->iobase + HW_AMR) ? 1 : 0;
+ 	alrm->pending = ioread32(priv->iobase + HW_CIIR) ? 1 : 0;
+-	spin_unlock_irqrestore(&priv->lock, irq_flags);
+ 
+ 	return rtc_valid_tm(&alrm->time);
+ }
+@@ -221,9 +214,7 @@ static int asm9260_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
+ static int asm9260_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
+ {
+ 	struct asm9260_rtc_priv *priv = dev_get_drvdata(dev);
+-	unsigned long irq_flags;
+ 
+-	spin_lock_irqsave(&priv->lock, irq_flags);
+ 	iowrite32(alrm->time.tm_year, priv->iobase + HW_ALYEAR);
+ 	iowrite32(alrm->time.tm_mon,  priv->iobase + HW_ALMON);
+ 	iowrite32(alrm->time.tm_mday, priv->iobase + HW_ALDOM);
+@@ -234,7 +225,6 @@ static int asm9260_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
+ 	iowrite32(alrm->time.tm_sec,  priv->iobase + HW_ALSEC);
+ 
+ 	iowrite32(alrm->enabled ? 0 : BM_AMR_OFF, priv->iobase + HW_AMR);
+-	spin_unlock_irqrestore(&priv->lock, irq_flags);
+ 
+ 	return 0;
+ }
+-- 
+2.9.3
 
-are available in the git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/lee/mfd.git tags/ib-mfd-reg=
-ulator-rtc-v4.9
-
-for you to fetch changes up to ddc085d44dd001e65eecd0a8bf05064bff063668:
-
-  regulator: qcom_rpm-regulator: Add support for pm8018 rpm regulator (2016=
--08-31 09:33:54 +0100)
-
-----------------------------------------------------------------
-Immutable branch between MFD, Regulator and RTC due for the v4.9 merge wind=
-ow.
-
-----------------------------------------------------------------
-Neil Armstrong (4):
-      mfd: pm8921: Add support for pm8018
-      rtc: rtc-pm8xxx: Add support for pm8018 rtc
-      mfd: qcom-rpm: Add support for pm8018 RPM Regulator
-      regulator: qcom_rpm-regulator: Add support for pm8018 rpm regulator
-
- .../devicetree/bindings/mfd/qcom-pm8xxx.txt        |  1 +
- Documentation/devicetree/bindings/mfd/qcom-rpm.txt | 15 +++++
- drivers/mfd/pm8921-core.c                          |  1 +
- drivers/mfd/qcom_rpm.c                             | 51 +++++++++++++++++
- drivers/regulator/qcom_rpm-regulator.c             | 66 ++++++++++++++++++=
-++++
- drivers/rtc/rtc-pm8xxx.c                           |  1 +
- include/dt-bindings/mfd/qcom-rpm.h                 | 22 ++++++++
- 7 files changed, 157 insertions(+)
-
---=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
-
---=20
+-- 
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
----=20
-You received this message because you are subscribed to the Google Groups "=
-rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an e=
-mail to rtc-linux+unsubscribe@googlegroups.com.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
