@@ -1,25 +1,25 @@
-Return-Path: <rtc-linux+bncBCMILY6JWQBBB7EK3O6QKGQE5MVYQIY@googlegroups.com>
+Return-Path: <rtc-linux+bncBDQJZJXU2UMBB2PITO7AKGQE6MNZYEQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-MIME-Version: 1.0
-Received: from wens.csie.org (mirror2.csie.ntu.edu.tw. [140.112.30.76])
-        by gmr-mx.google.com with ESMTPS id a133si395768pfa.0.2016.08.19.01.38.20
+Received: from mout.gmx.net (mout.gmx.net. [212.227.17.21])
+        by gmr-mx.google.com with ESMTPS id p199si2422436wmd.1.2016.08.31.08.14.49
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 19 Aug 2016 01:38:20 -0700 (PDT)
-From: Chen-Yu Tsai <wens@csie.org>
-To: Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Maxime Ripard <maxime.ripard@free-electrons.com>
-Cc: Chen-Yu Tsai <wens@csie.org>,
-	rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org,
-	devicetree@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org
-Subject: [rtc-linux] [PATCH v6 0/4] ARM: dts: sun9i: Enable X-Powers AC100 RTC
-Date: Fri, 19 Aug 2016 15:42:22 +0800
-Message-Id: <20160819074226.16636-1-wens@csie.org>
+        Wed, 31 Aug 2016 08:14:49 -0700 (PDT)
+Subject: [rtc-linux] Re: [PATCH 2/2] rtc: asm9260: rework locking
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+ Alessandro Zummo <a.zummo@towertech.it>
+References: <20160831001805.8367-1-alexandre.belloni@free-electrons.com>
+ <20160831001805.8367-2-alexandre.belloni@free-electrons.com>
+Cc: rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org
+From: Oleksij Rempel <linux@rempel-privat.de>
+Message-ID: <5e6bfec7-d5b6-6311-9cab-76d9aa932408@rempel-privat.de>
+Date: Wed, 31 Aug 2016 17:14:27 +0200
+MIME-Version: 1.0
+In-Reply-To: <20160831001805.8367-2-alexandre.belloni@free-electrons.com>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="0OnJIiWKcXMvIWQIDT7SpxNbwpAgtmqt2"
 Reply-To: rtc-linux@googlegroups.com
-Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -28,97 +28,143 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Hi everyone,
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--0OnJIiWKcXMvIWQIDT7SpxNbwpAgtmqt2
+Content-Type: multipart/mixed; boundary="tVuEpBE5W2U5rBDT1u22dUGlILNmEwTI9";
+ protected-headers="v1"
+From: Oleksij Rempel <linux@rempel-privat.de>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+ Alessandro Zummo <a.zummo@towertech.it>
+Cc: rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org
+Message-ID: <5e6bfec7-d5b6-6311-9cab-76d9aa932408@rempel-privat.de>
+Subject: Re: [PATCH 2/2] rtc: asm9260: rework locking
+References: <20160831001805.8367-1-alexandre.belloni@free-electrons.com>
+ <20160831001805.8367-2-alexandre.belloni@free-electrons.com>
+In-Reply-To: <20160831001805.8367-2-alexandre.belloni@free-electrons.com>
 
-This was "mfd: ac100: Add support for X-Powers AC100 audio codec / RTC
-combo IC". The driver bits have all been merged.
+--tVuEpBE5W2U5rBDT1u22dUGlILNmEwTI9
+Content-Type: text/plain; charset=UTF-8
 
-Changes since v5:
+Hi
 
-  - Driver bits merged and dropped from series.
-  - Added fix to rtc-ac100 clock register code to honor the
-    "clock-output-names" DT property.
-  - Added "clk-div" and "clk-mult" to osc32k placeholder clock node
+Am 31.08.2016 um 02:18 schrieb Alexandre Belloni:
+> The rtc-asm9260 driver uses a discrete spinlock (wrongly uninitialized).
+> Use the rtc mutex to lock mmio accesses instead.
+> 
+> Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+> ---
+>  drivers/rtc/rtc-asm9260.c | 16 ++--------------
+>  1 file changed, 2 insertions(+), 14 deletions(-)
+> 
+> diff --git a/drivers/rtc/rtc-asm9260.c b/drivers/rtc/rtc-asm9260.c
+> index 5219916ce11d..812f131da694 100644
+> --- a/drivers/rtc/rtc-asm9260.c
+> +++ b/drivers/rtc/rtc-asm9260.c
+> @@ -112,8 +112,6 @@ struct asm9260_rtc_priv {
+>  	void __iomem		*iobase;
+>  	struct rtc_device	*rtc;
+>  	struct clk		*clk;
+> -	/* io lock */
+> -	spinlock_t		lock;
+>  };
+>  
+>  static irqreturn_t asm9260_rtc_irq(int irq, void *dev_id)
+> @@ -122,11 +120,13 @@ static irqreturn_t asm9260_rtc_irq(int irq, void *dev_id)
+>  	u32 isr;
+>  	unsigned long events = 0;
+>  
+> +	mutex_lock(&priv->rtc->ops_lock);
+>  	isr = ioread32(priv->iobase + HW_CIIR);
+>  	if (!isr)
+>  		return IRQ_NONE;
+>  
+>  	iowrite32(0, priv->iobase + HW_CIIR);
+> +	mutex_unlock(&priv->rtc->ops_lock);
 
-Changes since v4:
-
-  - Style changes to DT bindings.
-  - Added commit message to DT bindings commit.
-
-Changes since v3:
-
-  - bulk write support for regmaps without raw formatting patch merged
-    and thus dropped from series.
-
-  - sun9i device node re-ordering patches merged and thus dropped from
-    series.
-
-  - Fixed device node name and added labels to device tree binding example.
-
-  - Moved 4M_adda clock to codec side, and added clock bindings to codec
-    node.
-
-  - Rename RTC clock output related prefixes from clk32k to clkout.
-
-  - Rename default clock output names to cko{1,2,3}-rtc.
-
-  - Move struct tm to/from RTC conversion offsets inline with reg[]
-    assignments
-
-  - Drop separate mutex and use rtc->ops_lock in interrupt handler.
-
-  - Use platform_get_irq instead of of_get_irq.
-
-  - Add struct of_device_id and .of_match_table to RTC driver.
-
-Changes since v2:
-
-  - Fix ac100_codec interrupt line in DT binding example.
-
-  - Fix copy-paste errors in RTC set_alarm. Alarm now works.
-
-  - Drop file name from MFD driver.
-
-  - Add / update copyright notices.
-
-  - Change license of RTC driver to GPL v2, matching MFD driver.
-
-  - Fix MFD driver MODULE_LICENSE to match license declaration in header.
-
-Changes since v1:
-
-  - Complete register definitions and regmap regions.
+This means if we have shared or spurious interrupt we will get a
+deadlock here?
 
 
-Patch 1 adds a fix to rtc-ac100 clock register code to honor the
-"clock-output-names" DT property.
+>  	events |= RTC_AF | RTC_IRQF;
+>  
+> @@ -139,9 +139,7 @@ static int asm9260_rtc_read_time(struct device *dev, struct rtc_time *tm)
+>  {
+>  	struct asm9260_rtc_priv *priv = dev_get_drvdata(dev);
+>  	u32 ctime0, ctime1, ctime2;
+> -	unsigned long irq_flags;
+>  
+> -	spin_lock_irqsave(&priv->lock, irq_flags);
+>  	ctime0 = ioread32(priv->iobase + HW_CTIME0);
+>  	ctime1 = ioread32(priv->iobase + HW_CTIME1);
+>  	ctime2 = ioread32(priv->iobase + HW_CTIME2);
+> @@ -155,7 +153,6 @@ static int asm9260_rtc_read_time(struct device *dev, struct rtc_time *tm)
+>  		ctime1 = ioread32(priv->iobase + HW_CTIME1);
+>  		ctime2 = ioread32(priv->iobase + HW_CTIME2);
+>  	}
+> -	spin_unlock_irqrestore(&priv->lock, irq_flags);
+>  
+>  	tm->tm_sec  = (ctime0 >> BM_CTIME0_SEC_S)  & BM_CTIME0_SEC_M;
+>  	tm->tm_min  = (ctime0 >> BM_CTIME0_MIN_S)  & BM_CTIME0_MIN_M;
+> @@ -174,9 +171,7 @@ static int asm9260_rtc_read_time(struct device *dev, struct rtc_time *tm)
+>  static int asm9260_rtc_set_time(struct device *dev, struct rtc_time *tm)
+>  {
+>  	struct asm9260_rtc_priv *priv = dev_get_drvdata(dev);
+> -	unsigned long irq_flags;
+>  
+> -	spin_lock_irqsave(&priv->lock, irq_flags);
+>  	/*
+>  	 * make sure SEC counter will not flip other counter on write time,
+>  	 * real value will be written at the enf of sequence.
+> @@ -191,7 +186,6 @@ static int asm9260_rtc_set_time(struct device *dev, struct rtc_time *tm)
+>  	iowrite32(tm->tm_hour, priv->iobase + HW_HOUR);
+>  	iowrite32(tm->tm_min,  priv->iobase + HW_MIN);
+>  	iowrite32(tm->tm_sec,  priv->iobase + HW_SEC);
+> -	spin_unlock_irqrestore(&priv->lock, irq_flags);
+>  
+>  	return 0;
+>  }
+> @@ -199,9 +193,7 @@ static int asm9260_rtc_set_time(struct device *dev, struct rtc_time *tm)
+>  static int asm9260_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
+>  {
+>  	struct asm9260_rtc_priv *priv = dev_get_drvdata(dev);
+> -	unsigned long irq_flags;
+>  
+> -	spin_lock_irqsave(&priv->lock, irq_flags);
+>  	alrm->time.tm_year = ioread32(priv->iobase + HW_ALYEAR);
+>  	alrm->time.tm_mon  = ioread32(priv->iobase + HW_ALMON);
+>  	alrm->time.tm_mday = ioread32(priv->iobase + HW_ALDOM);
+> @@ -213,7 +205,6 @@ static int asm9260_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
+>  
+>  	alrm->enabled = ioread32(priv->iobase + HW_AMR) ? 1 : 0;
+>  	alrm->pending = ioread32(priv->iobase + HW_CIIR) ? 1 : 0;
+> -	spin_unlock_irqrestore(&priv->lock, irq_flags);
+>  
+>  	return rtc_valid_tm(&alrm->time);
+>  }
+> @@ -221,9 +212,7 @@ static int asm9260_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
+>  static int asm9260_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
+>  {
+>  	struct asm9260_rtc_priv *priv = dev_get_drvdata(dev);
+> -	unsigned long irq_flags;
+>  
+> -	spin_lock_irqsave(&priv->lock, irq_flags);
+>  	iowrite32(alrm->time.tm_year, priv->iobase + HW_ALYEAR);
+>  	iowrite32(alrm->time.tm_mon,  priv->iobase + HW_ALMON);
+>  	iowrite32(alrm->time.tm_mday, priv->iobase + HW_ALDOM);
+> @@ -234,7 +223,6 @@ static int asm9260_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
+>  	iowrite32(alrm->time.tm_sec,  priv->iobase + HW_ALSEC);
+>  
+>  	iowrite32(alrm->enabled ? 0 : BM_AMR_OFF, priv->iobase + HW_AMR);
+> -	spin_unlock_irqrestore(&priv->lock, irq_flags);
+>  
+>  	return 0;
+>  }
+> 
 
-Patch 2 adds the AC100 device nodes to the A80 Optimus board dts.
-
-Patch 3 adds the AC100 device nodes to the Cubieboard4 board dts.
-
-Patch 4 changes the fixed osc_32k clk to a fixed factor clk,
-representing the 32k clk input pin on the SoC, and also hooks up the
-ac100 rtc clk output to this clk in the board dts files.
-
-
-Regards
-ChenYu
-
-Chen-Yu Tsai (4):
-  rtc: ac100: support clock-output-names in device tree binding
-  ARM: dts: sun9i: a80-optimus: Add device node for AC100
-  ARM: dts: sun9i: cubieboard4: Add device node for AC100
-  ARM: dts: sun9i: Switch to the AC100 RTC clock outputs for osc32k
-
- arch/arm/boot/dts/sun9i-a80-cubieboard4.dts | 29 +++++++++++++++++++++++++++++
- arch/arm/boot/dts/sun9i-a80-optimus.dts     | 29 +++++++++++++++++++++++++++++
- arch/arm/boot/dts/sun9i-a80.dtsi            | 11 +++++------
- drivers/rtc/rtc-ac100.c                     |  2 ++
- 4 files changed, 65 insertions(+), 6 deletions(-)
 
 -- 
-2.9.3
+Regards,
+Oleksij
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
@@ -129,3 +175,20 @@ before submitting a driver.
 You received this message because you are subscribed to the Google Groups "rtc-linux" group.
 To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
+
+--tVuEpBE5W2U5rBDT1u22dUGlILNmEwTI9--
+
+--0OnJIiWKcXMvIWQIDT7SpxNbwpAgtmqt2
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iF4EAREIAAYFAlfG9FMACgkQHwImuRkmbWkEKQD+NWw/r8E+Rqqj/qmlcom1ZrBg
+LrWEPloD/7kHQoctbJwA+wUkiIZNXWSRoWtqFMsZ49jICVDZPD98hysYXyhn6bmr
+=BAck
+-----END PGP SIGNATURE-----
+
+--0OnJIiWKcXMvIWQIDT7SpxNbwpAgtmqt2--
