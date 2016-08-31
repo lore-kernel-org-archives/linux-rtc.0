@@ -1,27 +1,28 @@
-Return-Path: <rtc-linux+bncBC6LTXWRRYFRB7U2SW7AKGQE3CNGIGA@googlegroups.com>
+Return-Path: <rtc-linux+bncBDA7X7F2WUEBBZFOTK7AKGQEDTGY6AQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mx1.redhat.com (mx1.redhat.com. [209.132.183.28])
-        by gmr-mx.google.com with ESMTPS id d206si3026089ywh.3.2016.08.30.02.10.22
+Received: from mail-wm0-x236.google.com (mail-wm0-x236.google.com. [2a00:1450:400c:c09::236])
+        by gmr-mx.google.com with ESMTPS id w64si1047227wmf.3.2016.08.31.01.37.56
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 30 Aug 2016 02:10:22 -0700 (PDT)
-Date: Tue, 30 Aug 2016 17:10:10 +0800
-From: Dave Young <dyoung@redhat.com>
-To: Pratyush Anand <panand@redhat.com>
-Cc: mingo@kernel.org, alexandre.belloni@free-electrons.com, tglx@linutronix.de,
-        hpa@zytor.com, x86@kernel.org, rtc-linux@googlegroups.com,
-        linux-kernel@vger.kernel.org, prarit@redhat.com, dzickus@redhat.com,
-        a.zummo@towertech.it
-Subject: [rtc-linux] Re: [PATCH V3 2/2] rtc/rtc-cmos: Initialize software
- counters before irq is registered
-Message-ID: <20160830091010.GA7632@dhcp-128-65.nay.redhat.com>
-References: <cover.1470985727.git.panand@redhat.com>
- <90426708da5934284839e6f23d23e265afcc779f.1470985727.git.panand@redhat.com>
- <20160830082230.GA7000@dhcp-128-65.nay.redhat.com>
- <20160830083814.GA7308@dhcp-128-65.nay.redhat.com>
+        Wed, 31 Aug 2016 01:37:56 -0700 (PDT)
+Received: by mail-wm0-x236.google.com with SMTP id i5so74092170wmg.0
+        for <rtc-linux@googlegroups.com>; Wed, 31 Aug 2016 01:37:56 -0700 (PDT)
+Date: Wed, 31 Aug 2016 09:39:43 +0100
+From: Lee Jones <lee.jones@linaro.org>
+To: Neil Armstrong <narmstrong@baylibre.com>
+Cc: andy.gross@linaro.org, david.brown@linaro.org, lgirdwood@gmail.com,
+	broonie@kernel.org, a.zummo@towertech.it,
+	alexandre.belloni@free-electrons.com, linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org,
+	linux-soc@vger.kernel.org, rtc-linux@googlegroups.com
+Subject: [rtc-linux] Re: [PATCH v4 3/4] mfd: qcom-rpm: Add support for pm8018
+ RPM Regulator
+Message-ID: <20160831083943.GR10121@dell>
+References: <1470921406-18468-1-git-send-email-narmstrong@baylibre.com>
+ <1470921406-18468-4-git-send-email-narmstrong@baylibre.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <20160830083814.GA7308@dhcp-128-65.nay.redhat.com>
+In-Reply-To: <1470921406-18468-4-git-send-email-narmstrong@baylibre.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -31,132 +32,156 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 08/30/16 at 04:38pm, Dave Young wrote:
-> On 08/30/16 at 04:22pm, Dave Young wrote:
-> > Hi, Pratyush
-> > 
-> > On 08/16/16 at 08:55am, Pratyush Anand wrote:
-> > > We have observed on few x86 machines with rtc-cmos device that
-> > > hpet_rtc_interrupt() is called just after irq registration and before
-> > > cmos_do_probe() could call hpet_rtc_timer_init().
-> > > 
-> > > So, neither hpet_default_delta nor hpet_t1_cmp is initialized by the time
-> > > interrupt is raised in the given situation, and this results in NMI
-> > > watchdog LOCKUP.
-> > > 
-> > > It has only been observed sporadically on kdump secondary kernels.
-> > > 
-> > > See the call trace:
-> > > ---<-snip->---
-> > >    27.913194] Kernel panic - not syncing: Watchdog detected hard LOCKUP on
-> > > cpu 0
-> > > [   27.915371] CPU: 0 PID: 1 Comm: swapper/0 Not tainted
-> > > 3.10.0-342.el7.x86_64 #1
-> > > [   27.917503] Hardware name: HP ProLiant DL160 Gen8, BIOS J03 02/10/2014
-> > > [   27.919455]  ffffffff8186a728 0000000059c82488 ffff880034e05af0
-> > > ffffffff81637bd4
-> > > [   27.921870]  ffff880034e05b70 ffffffff8163144a 0000000000000010
-> > > ffff880034e05b80
-> > > [   27.924257]  ffff880034e05b20 0000000059c82488 0000000000000000
-> > > 0000000000000000
-> > > [   27.926599] Call Trace:
-> > > [   27.927352]  <NMI>  [<ffffffff81637bd4>] dump_stack+0x19/0x1b
-> > > [   27.929080]  [<ffffffff8163144a>] panic+0xd8/0x1e7
-> > > [   27.930588]  [<ffffffff8111d3e0>] ? restart_watchdog_hrtimer+0x50/0x50
-> > > [   27.932502]  [<ffffffff8111d4a2>] watchdog_overflow_callback+0xc2/0xd0
-> > > [   27.934427]  [<ffffffff811612c1>] __perf_event_overflow+0xa1/0x250
-> > > [   27.936232]  [<ffffffff81161d94>] perf_event_overflow+0x14/0x20
-> > > [   27.937957]  [<ffffffff81032ae8>] intel_pmu_handle_irq+0x1e8/0x470
-> > > [   27.939799]  [<ffffffff8164164b>] perf_event_nmi_handler+0x2b/0x50
-> > > [   27.941649]  [<ffffffff81640d99>] nmi_handle.isra.0+0x69/0xb0
-> > > [   27.943348]  [<ffffffff81640f49>] do_nmi+0x169/0x340
-> > > [   27.944802]  [<ffffffff816401d3>] end_repeat_nmi+0x1e/0x2e
-> > > [   27.946424]  [<ffffffff81056ee5>] ? hpet_rtc_interrupt+0x85/0x380
-> > > [   27.948197]  [<ffffffff81056ee5>] ? hpet_rtc_interrupt+0x85/0x380
-> > > [   27.949992]  [<ffffffff81056ee5>] ? hpet_rtc_interrupt+0x85/0x380
-> > > [   27.951816]  <<EOE>>  <IRQ>  [<ffffffff8108f5a3>] ?
-> > > run_timer_softirq+0x43/0x340
-> > > [   27.954114]  [<ffffffff8111e24e>] handle_irq_event_percpu+0x3e/0x1e0
-> > > [   27.955962]  [<ffffffff8111e42d>] handle_irq_event+0x3d/0x60
-> > > [   27.957635]  [<ffffffff811210c7>] handle_edge_irq+0x77/0x130
-> > > [   27.959332]  [<ffffffff8101704f>] handle_irq+0xbf/0x150
-> > > [   27.960949]  [<ffffffff8164a86f>] do_IRQ+0x4f/0xf0
-> > > [   27.962434]  [<ffffffff8163faed>] common_interrupt+0x6d/0x6d
-> > > [   27.964101]  <EOI>  [<ffffffff8163f43b>] ?
-> > > _raw_spin_unlock_irqrestore+0x1b/0x40
-> > > [   27.966308]  [<fffff8111ff07>] __setup_irq+0x2a7/0x570
-> > > [   28.067859]  [<ffffffff81056e60>] ? hpet_cpuhp_notify+0x140/0x140
-> > > [   28.069709]  [<ffffffff8112032c>] request_threaded_irq+0xcc/0x170
-> > > [   28.071585]  [<ffffffff814b24a6>] cmos_do_probe+0x1e6/0x450
-> > > [   28.073240]  [<ffffffff814b2710>] ? cmos_do_probe+0x450/0x450
-> > > [   28.074911]  [<ffffffff814b27cb>] cmos_pnp_probe+0xbb/0xc0
-> > > [   28.076533]  [<ffffffff8139b245>] pnp_device_probe+0x65/0xd0
-> > > [   28.078198]  [<ffffffff813f8ca7>] driver_probe_device+0x87/0x390
-> > > [   28.079971]  [<ffffffff813f9083>] __driver_attach+0x93/0xa0
-> > > [   28.081660]  [<ffffffff813f8ff0>] ? __device_attach+0x40/0x40
-> > > [   28.083662]  [<ffffffff813f6a13>] bus_for_each_dev+0x73/0xc0
-> > > [   28.085370]  [<ffffffff813f86fe>] driver_attach+0x1e/0x20
-> > > [   28.086974]  [<ffffffff813f8250>] bus_add_driver+0x200/0x2d0
-> > > [   28.088634]  [<ffffffff81ade49a>] ? rtc_sysfs_init+0xe/0xe
-> > > [   28.090349]  [<ffffffff813f9704>] driver_register+0x64/0xf0
-> > > [   28.091989]  [<ffffffff8139b070>] pnp_register_driver+0x20/0x30
-> > > [   28.093707]  [<ffffffff81ade4ab>] cmos_init+0x11/0x71
-> > > ---<-snip->---
-> > > 
-> > > The previous patch split hpet_rtc_timer_init into
-> > > hpet_rtc_timer_counter_init() and hpet_rtc_timer_enable().
-> > > 
-> > > Therefore, this patch moved hpet_rtc_timer_counter_init() before IRQ
-> > > registration, so that we can gracefully handle such spurious interrupts.
-> > > 
-> > > We were able to reproduce the problem in maximum 15 trials of kdump
-> > > secondary kernel boot on an hp-dl160gen8 machine without this patch.
-> > > However, more than 35 trials went fine after applying this patch.
-> > > 
-> > > Signed-off-by: Pratyush Anand <panand@redhat.com>
-> > > [dzickus@redhat.com: edited the patch's summary]
-> > > Signed-off-by: Don Zickus <dzickus@redhat.com>
-> > > ---
-> > >  drivers/rtc/rtc-cmos.c | 13 ++++++++++++-
-> > >  1 file changed, 12 insertions(+), 1 deletion(-)
-> > > 
-> > > diff --git a/drivers/rtc/rtc-cmos.c b/drivers/rtc/rtc-cmos.c
-> > > index 43745cac0141..089d987f2638 100644
-> > > --- a/drivers/rtc/rtc-cmos.c
-> > > +++ b/drivers/rtc/rtc-cmos.c
-> > > @@ -129,6 +129,16 @@ static inline int hpet_rtc_dropped_irq(void)
-> > >  	return 0;
-> > >  }
-> > >  
-> > > +static inline int hpet_rtc_timer_counter_init(void)
-> > > +{
-> > > +	return 0;
-> > > +}
-> > > +
-> > > +static inline int hpet_rtc_timer_enable(void)
-> > > +{
-> > > +	return 0;
-> > > +}
-> > > +
-> > 
-> > Can these dummy functions go to /usr/include/linux/hpet.h alont with
-> > the #ifdef  etc.
-> 
-> Hmm, seems CONFIG_HPET_EMULATE_RTC is x86 only, so maybe go to
-> asm/hpet.h should be better..
+On Thu, 11 Aug 2016, Neil Armstrong wrote:
 
-Oops, asm/hpet will not work since rtc-cmos is also used in other
-arches., please ignore the comment.
+> In order to support the Qualcomm MDM9615 SoC, add support for the
+> RPM regulator entries in the qcom-rpm driver.
+>=20
+> Acked-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+> Acked-by: Lee Jones <lee.jones@linaro.org>
+> Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
 
-Thanks
-Dave
+Quick note.  In future can you keep these chronological please?
 
--- 
+Bjorn and I could not have Acked the patch before you sent it.
+
+> ---
+>  Documentation/devicetree/bindings/mfd/qcom-rpm.txt |  1 +
+>  drivers/mfd/qcom_rpm.c                             | 51 ++++++++++++++++=
+++++++
+>  include/dt-bindings/mfd/qcom-rpm.h                 | 22 ++++++++++
+>  3 files changed, 74 insertions(+)
+>=20
+> diff --git a/Documentation/devicetree/bindings/mfd/qcom-rpm.txt b/Documen=
+tation/devicetree/bindings/mfd/qcom-rpm.txt
+> index b98b291..72d68d4 100644
+> --- a/Documentation/devicetree/bindings/mfd/qcom-rpm.txt
+> +++ b/Documentation/devicetree/bindings/mfd/qcom-rpm.txt
+> @@ -13,6 +13,7 @@ frequencies.
+>  		    "qcom,rpm-msm8660"
+>  		    "qcom,rpm-msm8960"
+>  		    "qcom,rpm-ipq8064"
+> +		    "qcom,rpm-mdm9615"
+> =20
+>  - reg:
+>  	Usage: required
+> diff --git a/drivers/mfd/qcom_rpm.c b/drivers/mfd/qcom_rpm.c
+> index 2e44323..a74210d 100644
+> --- a/drivers/mfd/qcom_rpm.c
+> +++ b/drivers/mfd/qcom_rpm.c
+> @@ -388,11 +388,62 @@ static const struct qcom_rpm_data ipq806x_template =
+=3D {
+>  	.ack_sel_size =3D 7,
+>  };
+> =20
+> +static const struct qcom_rpm_resource mdm9615_rpm_resource_table[] =3D {
+> +	[QCOM_RPM_CXO_CLK] =3D			{ 25, 9, 5, 1 },
+> +	[QCOM_RPM_SYS_FABRIC_CLK] =3D		{ 26, 10, 9, 1 },
+> +	[QCOM_RPM_DAYTONA_FABRIC_CLK] =3D		{ 27, 11, 11, 1 },
+> +	[QCOM_RPM_SFPB_CLK] =3D			{ 28, 12, 12, 1 },
+> +	[QCOM_RPM_CFPB_CLK] =3D			{ 29, 13, 13, 1 },
+> +	[QCOM_RPM_EBI1_CLK] =3D			{ 30, 14, 16, 1 },
+> +	[QCOM_RPM_APPS_FABRIC_HALT] =3D		{ 31, 15, 22, 2 },
+> +	[QCOM_RPM_APPS_FABRIC_MODE] =3D		{ 33, 16, 23, 3 },
+> +	[QCOM_RPM_APPS_FABRIC_IOCTL] =3D		{ 36, 17, 24, 1 },
+> +	[QCOM_RPM_APPS_FABRIC_ARB] =3D		{ 37, 18, 25, 27 },
+> +	[QCOM_RPM_PM8018_SMPS1] =3D		{ 64, 19, 30, 2 },
+> +	[QCOM_RPM_PM8018_SMPS2] =3D		{ 66, 21, 31, 2 },
+> +	[QCOM_RPM_PM8018_SMPS3] =3D		{ 68, 23, 32, 2 },
+> +	[QCOM_RPM_PM8018_SMPS4] =3D		{ 70, 25, 33, 2 },
+> +	[QCOM_RPM_PM8018_SMPS5] =3D		{ 72, 27, 34, 2 },
+> +	[QCOM_RPM_PM8018_LDO1] =3D		{ 74, 29, 35, 2 },
+> +	[QCOM_RPM_PM8018_LDO2] =3D		{ 76, 31, 36, 2 },
+> +	[QCOM_RPM_PM8018_LDO3] =3D		{ 78, 33, 37, 2 },
+> +	[QCOM_RPM_PM8018_LDO4] =3D		{ 80, 35, 38, 2 },
+> +	[QCOM_RPM_PM8018_LDO5] =3D		{ 82, 37, 39, 2 },
+> +	[QCOM_RPM_PM8018_LDO6] =3D		{ 84, 39, 40, 2 },
+> +	[QCOM_RPM_PM8018_LDO7] =3D		{ 86, 41, 41, 2 },
+> +	[QCOM_RPM_PM8018_LDO8] =3D		{ 88, 43, 42, 2 },
+> +	[QCOM_RPM_PM8018_LDO9] =3D		{ 90, 45, 43, 2 },
+> +	[QCOM_RPM_PM8018_LDO10] =3D		{ 92, 47, 44, 2 },
+> +	[QCOM_RPM_PM8018_LDO11] =3D		{ 94, 49, 45, 2 },
+> +	[QCOM_RPM_PM8018_LDO12] =3D		{ 96, 51, 46, 2 },
+> +	[QCOM_RPM_PM8018_LDO13] =3D		{ 98, 53, 47, 2 },
+> +	[QCOM_RPM_PM8018_LDO14] =3D		{ 100, 55, 48, 2 },
+> +	[QCOM_RPM_PM8018_LVS1] =3D		{ 102, 57, 49, 1 },
+> +	[QCOM_RPM_PM8018_NCP] =3D			{ 103, 58, 80, 2 },
+> +	[QCOM_RPM_CXO_BUFFERS] =3D		{ 105, 60, 81, 1 },
+> +	[QCOM_RPM_USB_OTG_SWITCH] =3D		{ 106, 61, 82, 1 },
+> +	[QCOM_RPM_HDMI_SWITCH] =3D		{ 107, 62, 83, 1 },
+> +	[QCOM_RPM_VOLTAGE_CORNER] =3D		{ 109, 64, 87, 1 },
+> +};
+> +
+> +static const struct qcom_rpm_data mdm9615_template =3D {
+> +	.version =3D 3,
+> +	.resource_table =3D mdm9615_rpm_resource_table,
+> +	.n_resources =3D ARRAY_SIZE(mdm9615_rpm_resource_table),
+> +	.req_ctx_off =3D 3,
+> +	.req_sel_off =3D 11,
+> +	.ack_ctx_off =3D 15,
+> +	.ack_sel_off =3D 23,
+> +	.req_sel_size =3D 4,
+> +	.ack_sel_size =3D 7,
+> +};
+> +
+>  static const struct of_device_id qcom_rpm_of_match[] =3D {
+>  	{ .compatible =3D "qcom,rpm-apq8064", .data =3D &apq8064_template },
+>  	{ .compatible =3D "qcom,rpm-msm8660", .data =3D &msm8660_template },
+>  	{ .compatible =3D "qcom,rpm-msm8960", .data =3D &msm8960_template },
+>  	{ .compatible =3D "qcom,rpm-ipq8064", .data =3D &ipq806x_template },
+> +	{ .compatible =3D "qcom,rpm-mdm9615", .data =3D &mdm9615_template },
+>  	{ }
+>  };
+>  MODULE_DEVICE_TABLE(of, qcom_rpm_of_match);
+> diff --git a/include/dt-bindings/mfd/qcom-rpm.h b/include/dt-bindings/mfd=
+/qcom-rpm.h
+> index 13a9d4b..54aef5e 100644
+> --- a/include/dt-bindings/mfd/qcom-rpm.h
+> +++ b/include/dt-bindings/mfd/qcom-rpm.h
+> @@ -147,6 +147,28 @@
+>  #define QCOM_RPM_SMB208_S1b			137
+>  #define QCOM_RPM_SMB208_S2a			138
+>  #define QCOM_RPM_SMB208_S2b			139
+> +#define QCOM_RPM_PM8018_SMPS1			140
+> +#define QCOM_RPM_PM8018_SMPS2			141
+> +#define QCOM_RPM_PM8018_SMPS3			142
+> +#define QCOM_RPM_PM8018_SMPS4			143
+> +#define QCOM_RPM_PM8018_SMPS5			144
+> +#define QCOM_RPM_PM8018_LDO1			145
+> +#define QCOM_RPM_PM8018_LDO2			146
+> +#define QCOM_RPM_PM8018_LDO3			147
+> +#define QCOM_RPM_PM8018_LDO4			148
+> +#define QCOM_RPM_PM8018_LDO5			149
+> +#define QCOM_RPM_PM8018_LDO6			150
+> +#define QCOM_RPM_PM8018_LDO7			151
+> +#define QCOM_RPM_PM8018_LDO8			152
+> +#define QCOM_RPM_PM8018_LDO9			153
+> +#define QCOM_RPM_PM8018_LDO10			154
+> +#define QCOM_RPM_PM8018_LDO11			155
+> +#define QCOM_RPM_PM8018_LDO12			156
+> +#define QCOM_RPM_PM8018_LDO13			157
+> +#define QCOM_RPM_PM8018_LDO14			158
+> +#define QCOM_RPM_PM8018_LVS1			159
+> +#define QCOM_RPM_PM8018_NCP			160
+> +#define QCOM_RPM_VOLTAGE_CORNER			161
+> =20
+>  /*
+>   * Constants used to select force mode for regulators.
+
+--=20
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org =E2=94=82 Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog
+
+--=20
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+---=20
+You received this message because you are subscribed to the Google Groups "=
+rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an e=
+mail to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
