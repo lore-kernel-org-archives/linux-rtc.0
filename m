@@ -1,28 +1,23 @@
-Return-Path: <rtc-linux+bncBCMILY6JWQBBB7MK3O6QKGQE7DKP2NY@googlegroups.com>
+Return-Path: <rtc-linux+bncBDJN3U5DZYHRBEFKTS7AKGQELMEVKOQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-MIME-Version: 1.0
-Received: from wens.csie.org (mirror2.csie.ntu.edu.tw. [140.112.30.76])
-        by gmr-mx.google.com with ESMTPS id a133si395775pfa.0.2016.08.19.01.38.21
+Received: from mail-pa0-x242.google.com (mail-pa0-x242.google.com. [2607:f8b0:400e:c03::242])
+        by gmr-mx.google.com with ESMTPS id z4si338223pam.0.2016.08.31.10.34.08
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 19 Aug 2016 01:38:21 -0700 (PDT)
-From: Chen-Yu Tsai <wens@csie.org>
-To: Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Maxime Ripard <maxime.ripard@free-electrons.com>
-Cc: Chen-Yu Tsai <wens@csie.org>,
-	rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org,
-	devicetree@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org
-Subject: [rtc-linux] [PATCH v6 4/4] ARM: dts: sun9i: Switch to the AC100 RTC
- clock outputs for osc32k
-Date: Fri, 19 Aug 2016 15:42:26 +0800
-Message-Id: <20160819074226.16636-5-wens@csie.org>
-In-Reply-To: <20160819074226.16636-1-wens@csie.org>
-References: <20160819074226.16636-1-wens@csie.org>
-Reply-To: rtc-linux@googlegroups.com
+        Wed, 31 Aug 2016 10:34:08 -0700 (PDT)
+Received: by mail-pa0-x242.google.com with SMTP id cf3so2934972pad.2
+        for <rtc-linux@googlegroups.com>; Wed, 31 Aug 2016 10:34:08 -0700 (PDT)
+To: a.zummo@towertech.it,
+ Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+ linux-kernel@vger.kernel.org, rtc-linux@googlegroups.com
+From: Raghavendra Chandra Ganiga <ravi23ganiga@gmail.com>
+Subject: [rtc-linux] [PATCH] rtc: ds1347: changed raw spi calls to register
+ map calls
+Message-ID: <57C71506.6000202@gmail.com>
+Date: Wed, 31 Aug 2016 23:03:58 +0530
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -31,88 +26,207 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-The 32.768 kHz clock inside the A80 SoC is fed from an external source,
-typically the AC100 RTC module.
+>From 633c012ba6c8f9bc6cf475d2434ca450cd06b18e Mon Sep 17 00:00:00 2001
+From: Raghavendra Ganiga <ravi23ganiga@gmail.com>
+Date: Wed, 31 Aug 2016 22:56:41 +0530
+Subject: [PATCH] rtc: ds1347: changed raw spi calls to register map calls
 
-Make the osc32k placeholder a fixed-factor clock so board dts files can
-specify its source.
+This patch changes calls of spi read write calls to register map
+read and write calls in rtc ds1347
 
-Signed-off-by: Chen-Yu Tsai <wens@csie.org>
+Signed-off-by: Raghavendra Chandra Ganiga <ravi23ganiga@gmail.com>
 ---
-Changes since v5:
+ drivers/rtc/Kconfig      |  1 +
+ drivers/rtc/rtc-ds1347.c | 96 ++++++++++++++++++++++++++----------------------
+ 2 files changed, 54 insertions(+), 43 deletions(-)
 
-  - Added "clk-div" and "clk-mult" fixed-factor-clock properties to osc32k
-    placeholder.
-
-Changes since v4: none
-Changes since v3: none
-Changes since v2: none
-Changes since v1: none
----
- arch/arm/boot/dts/sun9i-a80-cubieboard4.dts |  5 +++++
- arch/arm/boot/dts/sun9i-a80-optimus.dts     |  5 +++++
- arch/arm/boot/dts/sun9i-a80.dtsi            | 11 +++++------
- 3 files changed, 15 insertions(+), 6 deletions(-)
-
-diff --git a/arch/arm/boot/dts/sun9i-a80-cubieboard4.dts b/arch/arm/boot/dts/sun9i-a80-cubieboard4.dts
-index cf2f4b72a841..04b014603659 100644
---- a/arch/arm/boot/dts/sun9i-a80-cubieboard4.dts
-+++ b/arch/arm/boot/dts/sun9i-a80-cubieboard4.dts
-@@ -103,6 +103,11 @@
- 	allwinner,drive = <SUN4I_PINCTRL_40_MA>;
- };
+diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
+index 4621cd0..da2e331 100644
+--- a/drivers/rtc/Kconfig
++++ b/drivers/rtc/Kconfig
+@@ -655,6 +655,7 @@ config RTC_DRV_DS1343
+ 	  will be called rtc-ds1343.
  
-+&osc32k {
-+	/* osc32k input is from AC100 */
-+	clocks = <&ac100_rtc 0>;
+ config RTC_DRV_DS1347
++	select REGMAP_SPI
+ 	tristate "Dallas/Maxim DS1347"
+ 	help
+ 	  If you say yes here you get support for the
+diff --git a/drivers/rtc/rtc-ds1347.c b/drivers/rtc/rtc-ds1347.c
+index 641e8e8..7faf2f0 100644
+--- a/drivers/rtc/rtc-ds1347.c
++++ b/drivers/rtc/rtc-ds1347.c
+@@ -18,6 +18,7 @@
+ #include <linux/rtc.h>
+ #include <linux/spi/spi.h>
+ #include <linux/bcd.h>
++#include <linux/regmap.h>
+ 
+ /* Registers in ds1347 rtc */
+ 
+@@ -32,37 +33,28 @@
+ #define DS1347_STATUS_REG	0x17
+ #define DS1347_CLOCK_BURST	0x3F
+ 
+-static int ds1347_read_reg(struct device *dev, unsigned char address,
+-				unsigned char *data)
+-{
+-	struct spi_device *spi = to_spi_device(dev);
+-
+-	*data = address | 0x80;
+-
+-	return spi_write_then_read(spi, data, 1, data, 1);
+-}
+-
+-static int ds1347_write_reg(struct device *dev, unsigned char address,
+-				unsigned char data)
+-{
+-	struct spi_device *spi = to_spi_device(dev);
+-	unsigned char buf[2];
+-
+-	buf[0] = address & 0x7F;
+-	buf[1] = data;
++static const struct regmap_range ds1347_ranges[] = {
++	{
++		.range_min = DS1347_SECONDS_REG,
++		.range_max = DS1347_STATUS_REG,
++	},
 +};
-+
- &pio {
- 	led_pins_cubieboard4: led-pins@0 {
- 		allwinner,pins = "PH6", "PH17";
-diff --git a/arch/arm/boot/dts/sun9i-a80-optimus.dts b/arch/arm/boot/dts/sun9i-a80-optimus.dts
-index e35c06c162a7..fd874ded890e 100644
---- a/arch/arm/boot/dts/sun9i-a80-optimus.dts
-+++ b/arch/arm/boot/dts/sun9i-a80-optimus.dts
-@@ -152,6 +152,11 @@
- 	status = "okay";
- };
  
-+&osc32k {
-+	/* osc32k input is from AC100 */
-+	clocks = <&ac100_rtc 0>;
+-	return spi_write_then_read(spi, buf, 2, NULL, 0);
+-}
++static const struct regmap_access_table ds1347_access_table = {
++	.yes_ranges = ds1347_ranges,
++	.n_yes_ranges = ARRAY_SIZE(ds1347_ranges),
 +};
-+
- &pio {
- 	led_pins_optimus: led-pins@0 {
- 		allwinner,pins = "PH0", "PH1";
-diff --git a/arch/arm/boot/dts/sun9i-a80.dtsi b/arch/arm/boot/dts/sun9i-a80.dtsi
-index f68b3242b33a..24e3cac4f571 100644
---- a/arch/arm/boot/dts/sun9i-a80.dtsi
-+++ b/arch/arm/boot/dts/sun9i-a80.dtsi
-@@ -148,15 +148,14 @@
  
- 		/*
- 		 * The 32k clock is from an external source, normally the
--		 * AC100 codec/RTC chip. This clock is by default enabled
--		 * and clocked at 32768 Hz, from the oscillator connected
--		 * to the AC100. It is configurable, but no such driver or
--		 * bindings exist yet.
-+		 * AC100 codec/RTC chip. This serves as a placeholder for
-+		 * board dts files to specify the source.
- 		 */
- 		osc32k: osc32k_clk {
- 			#clock-cells = <0>;
--			compatible = "fixed-clock";
--			clock-frequency = <32768>;
-+			compatible = "fixed-factor-clock";
-+			clock-div = <1>;
-+			clock-mult = <1>;
- 			clock-output-names = "osc32k";
- 		};
+ static int ds1347_read_time(struct device *dev, struct rtc_time *dt)
+ {
+ 	struct spi_device *spi = to_spi_device(dev);
++	struct regmap *map;
+ 	int err;
+ 	unsigned char buf[8];
+ 
+-	buf[0] = DS1347_CLOCK_BURST | 0x80;
++	map = spi_get_drvdata(spi);
+ 
+-	err = spi_write_then_read(spi, buf, 1, buf, 8);
++	err = regmap_bulk_read(map, DS1347_CLOCK_BURST, buf, 8);
+ 	if (err)
+ 		return err;
+ 
+@@ -80,25 +72,27 @@ static int ds1347_read_time(struct device *dev, struct rtc_time *dt)
+ static int ds1347_set_time(struct device *dev, struct rtc_time *dt)
+ {
+ 	struct spi_device *spi = to_spi_device(dev);
+-	unsigned char buf[9];
++	struct regmap *map;
++	unsigned char buf[8];
++
++	map = spi_get_drvdata(spi);
+ 
+-	buf[0] = DS1347_CLOCK_BURST & 0x7F;
+-	buf[1] = bin2bcd(dt->tm_sec);
+-	buf[2] = bin2bcd(dt->tm_min);
+-	buf[3] = (bin2bcd(dt->tm_hour) & 0x3F);
+-	buf[4] = bin2bcd(dt->tm_mday);
+-	buf[5] = bin2bcd(dt->tm_mon + 1);
+-	buf[6] = bin2bcd(dt->tm_wday + 1);
++	buf[0] = bin2bcd(dt->tm_sec);
++	buf[1] = bin2bcd(dt->tm_min);
++	buf[2] = (bin2bcd(dt->tm_hour) & 0x3F);
++	buf[3] = bin2bcd(dt->tm_mday);
++	buf[4] = bin2bcd(dt->tm_mon + 1);
++	buf[5] = bin2bcd(dt->tm_wday + 1);
+ 
+ 	/* year in linux is from 1900 i.e in range of 100
+ 	in rtc it is from 00 to 99 */
+ 	dt->tm_year = dt->tm_year % 100;
+ 
+-	buf[7] = bin2bcd(dt->tm_year);
+-	buf[8] = bin2bcd(0x00);
++	buf[6] = bin2bcd(dt->tm_year);
++	buf[7] = bin2bcd(0x00);
+ 
+ 	/* write the rtc settings */
+-	return spi_write_then_read(spi, buf, 9, NULL, 0);
++	return regmap_bulk_write(map, DS1347_CLOCK_BURST, buf, 8);
+ }
+ 
+ static const struct rtc_class_ops ds1347_rtc_ops = {
+@@ -109,35 +103,53 @@ static const struct rtc_class_ops ds1347_rtc_ops = {
+ static int ds1347_probe(struct spi_device *spi)
+ {
+ 	struct rtc_device *rtc;
+-	unsigned char data;
++	struct regmap_config config;
++	struct regmap *map;
++	unsigned int data;
+ 	int res;
+ 
++	memset(&config, 0, sizeof(config));
++	config.reg_bits = 8;
++	config.val_bits = 8;
++	config.read_flag_mask = 0x80;
++	config.max_register = 0x3F;
++	config.wr_table = &ds1347_access_table;
++
+ 	/* spi setup with ds1347 in mode 3 and bits per word as 8 */
+ 	spi->mode = SPI_MODE_3;
+ 	spi->bits_per_word = 8;
+ 	spi_setup(spi);
+ 
++	map = devm_regmap_init_spi(spi, &config);
++
++	if (IS_ERR(map)) {
++		dev_err(&spi->dev, "ds1347 regmap init spi failed\n");
++		return PTR_ERR(map);
++	}
++
++	spi_set_drvdata(spi, map);
++
+ 	/* RTC Settings */
+-	res = ds1347_read_reg(&spi->dev, DS1347_SECONDS_REG, &data);
++	res = regmap_read(map, DS1347_SECONDS_REG, &data);
+ 	if (res)
+ 		return res;
+ 
+ 	/* Disable the write protect of rtc */
+-	ds1347_read_reg(&spi->dev, DS1347_CONTROL_REG, &data);
++	regmap_read(map, DS1347_CONTROL_REG, &data);
+ 	data = data & ~(1<<7);
+-	ds1347_write_reg(&spi->dev, DS1347_CONTROL_REG, data);
++	regmap_write(map, DS1347_CONTROL_REG, data);
+ 
+ 	/* Enable the oscillator , disable the oscillator stop flag,
+ 	 and glitch filter to reduce current consumption */
+-	ds1347_read_reg(&spi->dev, DS1347_STATUS_REG, &data);
++	regmap_read(map, DS1347_STATUS_REG, &data);
+ 	data = data & 0x1B;
+-	ds1347_write_reg(&spi->dev, DS1347_STATUS_REG, data);
++	regmap_write(map, DS1347_STATUS_REG, data);
+ 
+ 	/* display the settings */
+-	ds1347_read_reg(&spi->dev, DS1347_CONTROL_REG, &data);
++	regmap_read(map, DS1347_CONTROL_REG, &data);
+ 	dev_info(&spi->dev, "DS1347 RTC CTRL Reg = 0x%02x\n", data);
+ 
+-	ds1347_read_reg(&spi->dev, DS1347_STATUS_REG, &data);
++	regmap_read(map, DS1347_STATUS_REG, &data);
+ 	dev_info(&spi->dev, "DS1347 RTC Status Reg = 0x%02x\n", data);
+ 
+ 	rtc = devm_rtc_device_register(&spi->dev, "ds1347",
+@@ -146,8 +158,6 @@ static int ds1347_probe(struct spi_device *spi)
+ 	if (IS_ERR(rtc))
+ 		return PTR_ERR(rtc);
+ 
+-	spi_set_drvdata(spi, rtc);
+-
+ 	return 0;
+ }
  
 -- 
-2.9.3
+1.9.1
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
