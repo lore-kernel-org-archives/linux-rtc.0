@@ -1,28 +1,25 @@
-Return-Path: <rtc-linux+bncBCMILY6JWQBBB7EK3O6QKGQE5MVYQIY@googlegroups.com>
+Return-Path: <rtc-linux+bncBDJN3U5DZYHRBCUWTS7AKGQEAFAXC2Q@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-MIME-Version: 1.0
-Received: from wens.csie.org (mirror2.csie.ntu.edu.tw. [140.112.30.76])
-        by gmr-mx.google.com with ESMTPS id i136si395354pfe.1.2016.08.19.01.38.20
+Received: from mail-pa0-x241.google.com (mail-pa0-x241.google.com. [2607:f8b0:400e:c03::241])
+        by gmr-mx.google.com with ESMTPS id ph9si293568pac.1.2016.08.31.09.51.22
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 19 Aug 2016 01:38:20 -0700 (PDT)
-From: Chen-Yu Tsai <wens@csie.org>
-To: Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Maxime Ripard <maxime.ripard@free-electrons.com>
-Cc: Chen-Yu Tsai <wens@csie.org>,
-	rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org,
-	devicetree@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org
-Subject: [rtc-linux] [PATCH v6 2/4] ARM: dts: sun9i: a80-optimus: Add device
- node for AC100
-Date: Fri, 19 Aug 2016 15:42:24 +0800
-Message-Id: <20160819074226.16636-3-wens@csie.org>
-In-Reply-To: <20160819074226.16636-1-wens@csie.org>
-References: <20160819074226.16636-1-wens@csie.org>
-Reply-To: rtc-linux@googlegroups.com
+        Wed, 31 Aug 2016 09:51:22 -0700 (PDT)
+Received: by mail-pa0-x241.google.com with SMTP id cf3so2893150pad.2
+        for <rtc-linux@googlegroups.com>; Wed, 31 Aug 2016 09:51:22 -0700 (PDT)
+Subject: [rtc-linux] Re: [PATCH] rtc: changed raw spi calls to register map calls
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+References: <57C5E569.4050605@gmail.com>
+ <20160830214837.4muxmee3mueimhg4@piout.net>
+From: Raghavendra Chandra Ganiga <ravi23ganiga@gmail.com>
+Cc: rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org,
+ a.zummo@towertech.it
+Message-ID: <57C70B06.7030207@gmail.com>
+Date: Wed, 31 Aug 2016 22:21:18 +0530
+MIME-Version: 1.0
+In-Reply-To: <20160830214837.4muxmee3mueimhg4@piout.net>
 Content-Type: text/plain; charset=UTF-8
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -31,58 +28,40 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Signed-off-by: Chen-Yu Tsai <wens@csie.org>
----
-Changes since v5: none
-Changes since v4: none
 
-Changes since v3:
 
-  - Moved 4M ADDA clk to codec side
+On Wednesday 31 August 2016 03:18 AM, Alexandre Belloni wrote:
+> Hi,
+> 
+> Please fix the subject, this patch is ds1347 specific.
+> 
+Yes I will fix the subject
 
-Changes since v2: none
-Changes since v1: none
----
- arch/arm/boot/dts/sun9i-a80-optimus.dts | 24 ++++++++++++++++++++++++
- 1 file changed, 24 insertions(+)
+> On 31/08/2016 at 01:28:33 +0530, RAGHAVENDRA GANIGA wrote :
+>> From 2ec82b6c9b99647e31d26c4c828dc7c51af8a633 Mon Sep 17 00:00:00 2001
+>> From: Raghavendra Ganiga <ravi23ganiga@gmail.com>
+>> Date: Wed, 31 Aug 2016 01:13:30 +0530
+>> Subject: [PATCH] rtc: changed raw spi calls to register map calls
+>>
+>> This patch changes calls of spi read write calls to register map
+>> read and write calls
+>>
+> 
+> Can you explain why you need that change? I'm not sure what you gain
+> from it (it makes the driver and the kernel bigger).
+> 
+Regmaps abstract layer are a better way of accessing register through 
+spi interface rather than accessing directly through SPI layer
 
-diff --git a/arch/arm/boot/dts/sun9i-a80-optimus.dts b/arch/arm/boot/dts/sun9i-a80-optimus.dts
-index 7fd22e888602..e35c06c162a7 100644
---- a/arch/arm/boot/dts/sun9i-a80-optimus.dts
-+++ b/arch/arm/boot/dts/sun9i-a80-optimus.dts
-@@ -322,6 +322,30 @@
- 			};
- 		};
- 	};
-+
-+	ac100: codec@e89 {
-+		compatible = "x-powers,ac100";
-+		reg = <0xe89>;
-+
-+		ac100_codec: codec {
-+			compatible = "x-powers,ac100-codec";
-+			interrupt-parent = <&r_pio>;
-+			interrupts = <0 9 IRQ_TYPE_LEVEL_LOW>; /* PL9 */
-+			#clock-cells = <0>;
-+			clock-output-names = "4M_adda";
-+		};
-+
-+		ac100_rtc: rtc {
-+			compatible = "x-powers,ac100-rtc";
-+			interrupt-parent = <&nmi_intc>;
-+			interrupts = <0 IRQ_TYPE_LEVEL_LOW>;
-+			clocks = <&ac100_codec>;
-+			#clock-cells = <1>;
-+			clock-output-names = "cko1_rtc",
-+					     "cko2_rtc",
-+					     "cko3_rtc";
-+		};
-+	};
- };
- 
- #include "axp809.dtsi"
--- 
-2.9.3
+>>  	/* year in linux is from 1900 i.e in range of 100
+>> -	in rtc it is from 00 to 99 */
+>> +	 * in rtc it is from 00 to 99
+>> +	 */
+> 
+> Unrelated change.
+> 
+> 
+will have a seperate patch for this checkpatch.pl fix
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
