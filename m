@@ -1,28 +1,21 @@
-Return-Path: <rtc-linux+bncBDA7X7F2WUEBBJUO266QKGQE5RSGNQI@googlegroups.com>
+Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBIUFTS7AKGQEFOSFYUY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail-wm0-x22a.google.com (mail-wm0-x22a.google.com. [2a00:1450:400c:c09::22a])
-        by gmr-mx.google.com with ESMTPS id p199si232398wmd.1.2016.08.18.07.33.10
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 18 Aug 2016 07:33:10 -0700 (PDT)
-Received: by mail-wm0-x22a.google.com with SMTP id i5so34478672wmg.0
-        for <rtc-linux@googlegroups.com>; Thu, 18 Aug 2016 07:33:10 -0700 (PDT)
-Date: Thu, 18 Aug 2016 15:34:40 +0100
-From: Lee Jones <lee.jones@linaro.org>
-To: Wadim Egorov <w.egorov@phytec.de>
-Cc: linux-kernel@vger.kernel.org, rtc-linux@googlegroups.com,
-	devicetree@vger.kernel.org, linux-rockchip@lists.infradead.org,
-	dianders@chromium.org, zyw@rock-chips.com, robh+dt@kernel.org,
-	mark.rutland@arm.com, lgirdwood@gmail.com, broonie@kernel.org,
-	a.zummo@towertech.it, alexandre.belloni@free-electrons.com
-Subject: [rtc-linux] Re: [PATCH v7 1/4] mfd: RK808: Add RK818 support
-Message-ID: <20160818143440.GG4254@dell>
-References: <1470819907-11237-1-git-send-email-w.egorov@phytec.de>
- <1470819907-11237-2-git-send-email-w.egorov@phytec.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1470819907-11237-2-git-send-email-w.egorov@phytec.de>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id w64si1308373wmf.3.2016.08.31.09.15.30
+        for <rtc-linux@googlegroups.com>;
+        Wed, 31 Aug 2016 09:15:30 -0700 (PDT)
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Alessandro Zummo <a.zummo@towertech.it>
+Cc: Oleksij Rempel <linux@rempel-privat.de>,
+	rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Subject: [rtc-linux] [PATCH v2 1/2] rtc: asm9260: allow COMPILE_TEST
+Date: Wed, 31 Aug 2016 18:15:27 +0200
+Message-Id: <20160831161528.11217-1-alexandre.belloni@free-electrons.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -31,128 +24,36 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Wed, 10 Aug 2016, Wadim Egorov wrote:
+The rtc-asm9260 driver compiles correctly on other architectures, add
+COMPILE_TEST to improve code coverage.
 
-> The RK818 chip is a Power Management IC (PMIC) for multimedia and handhel=
-d
-> devices. It contains the following components:
->=20
-> - Regulators
-> - RTC
-> - Clocking
-> - Battery support
->=20
-> Both RK808 and RK818 chips are using a similar register map,
-> so we can reuse the RTC and Clocking functionality.
->=20
-> Signed-off-by: Wadim Egorov <w.egorov@phytec.de>
-> Tested-by: Andy Yan <andy.yan@rock-chips.com>
-> ---
-> Changes since v6:
-> - Squashed in the patch
->   mfd: RK808: Fetch PMIC variant from chip id register
->=20
-> ---
->  drivers/mfd/Kconfig       |   4 +-
->  drivers/mfd/rk808.c       | 226 +++++++++++++++++++++++++++++++++++++++-=
-------
->  include/linux/mfd/rk808.h | 154 +++++++++++++++++++++++++++++--
->  3 files changed, 342 insertions(+), 42 deletions(-)
->=20
-> diff --git a/drivers/mfd/Kconfig b/drivers/mfd/Kconfig
-> index 2d1fb64..a55be95 100644
-> --- a/drivers/mfd/Kconfig
-> +++ b/drivers/mfd/Kconfig
-> @@ -852,13 +852,13 @@ config MFD_RC5T583
->  	  different functionality of the device.
-> =20
->  config MFD_RK808
-> -	tristate "Rockchip RK808 Power Management chip"
-> +	tristate "Rockchip RK808/RK818 Power Management Chip"
->  	depends on I2C && OF
->  	select MFD_CORE
->  	select REGMAP_I2C
->  	select REGMAP_IRQ
->  	help
-> -	  If you say yes here you get support for the RK808
-> +	  If you say yes here you get support for the RK808 and RK818
->  	  Power Management chips.
->  	  This driver provides common support for accessing the device
->  	  through I2C interface. The device supports multiple sub-devices
-> diff --git a/drivers/mfd/rk808.c b/drivers/mfd/rk808.c
-> index 49d7f62..fbec1d8 100644
-> --- a/drivers/mfd/rk808.c
-> +++ b/drivers/mfd/rk808.c
-> @@ -1,11 +1,15 @@
->  /*
-> - * MFD core driver for Rockchip RK808
-> + * MFD core driver for Rockchip RK808/RK818
->   *
->   * Copyright (c) 2014, Fuzhou Rockchip Electronics Co., Ltd
->   *
->   * Author: Chris Zhong <zyw@rock-chips.com>
->   * Author: Zhang Qing <zhangqing@rock-chips.com>
->   *
-> + * Copyright (C) 2016 PHYTEC Messtechnik GmbH
-> + *
-> + * Author: Wadim Egorov <w.egorov@phytec.de>
-> + *
->   * This program is free software; you can redistribute it and/or modify =
-it
->   * under the terms and conditions of the GNU General Public License,
->   * version 2, as published by the Free Software Foundation.
-> @@ -22,6 +26,7 @@
->  #include <linux/mfd/core.h>
->  #include <linux/module.h>
->  #include <linux/regmap.h>
-> +#include <linux/of_device.h>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+---
+ drivers/rtc/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Alphabetical.
+diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
+index e215f50794b6..5be1d9261fa9 100644
+--- a/drivers/rtc/Kconfig
++++ b/drivers/rtc/Kconfig
+@@ -1191,7 +1191,7 @@ comment "on-CPU RTC drivers"
+ 
+ config RTC_DRV_ASM9260
+ 	tristate "Alphascale asm9260 RTC"
+-	depends on MACH_ASM9260
++	depends on MACH_ASM9260 || COMPILE_TEST
+ 	help
+ 	  If you say yes here you get support for the RTC on the
+ 	  Alphascale asm9260 SoC.
+-- 
+2.9.3
 
->  struct rk808_reg_data {
->  	int addr;
-> @@ -57,6 +62,14 @@ static bool rk808_is_volatile_reg(struct device *dev, =
-unsigned int reg)
->  	return false;
->  }
-> =20
-> +static const struct regmap_config rk818_regmap_config =3D {
-> +	.reg_bits =3D 8,
-> +	.val_bits =3D 8,
-> +	.max_register =3D RK818_USB_CTRL_REG,
-> +	.cache_type =3D REGCACHE_RBTREE,
-> +	.volatile_reg =3D rk808_is_volatile_reg,
-> +};
-> +
->  static const struct regmap_config rk808_regmap_config =3D {
->  	.reg_bits =3D 8,
->  	.val_bits =3D 8,
-> @@ -79,11 +92,21 @@ static const struct mfd_cell rk808s[] =3D {
->  	{
->  		.name =3D "rk808-rtc",
->  		.num_resources =3D ARRAY_SIZE(rtc_resources),
-> -		.resources =3D &rtc_resources[0],
-> +		.resources =3D rtc_resources,
-
-?
-
->  	},
->  };
-
---=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
-
---=20
+-- 
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
----=20
-You received this message because you are subscribed to the Google Groups "=
-rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an e=
-mail to rtc-linux+unsubscribe@googlegroups.com.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
