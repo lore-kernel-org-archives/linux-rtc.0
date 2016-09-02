@@ -1,31 +1,31 @@
-Return-Path: <rtc-linux+bncBDI57DN47YOBBNN55C7AKGQENQEPKJY@googlegroups.com>
+Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBU6DU67AKGQE5XYI3XA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id y7si753648wmd.0.2016.09.02.13.32.19
+        for <rtc-linux@googlegroups.com>;
+        Fri, 02 Sep 2016 13:32:19 -0700 (PDT)
+Date: Fri, 2 Sep 2016 22:32:18 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Julia Lawall <Julia.Lawall@lip6.fr>
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+	kernel-janitors@vger.kernel.org, linux-tegra@vger.kernel.org,
+	Alexandre Courbot <gnurou@gmail.com>,
+	Thierry Reding <thierry.reding@gmail.com>,
+	Stephen Warren <swarren@wwwdotorg.org>,
+	Hans Ulli Kroll <ulli.kroll@googlemail.com>,
+	linux-arm-kernel@lists.infradead.org, rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org, Wan ZongShun <mcuos.com@gmail.com>,
+	Linus Walleij <linus.walleij@linaro.org>,
+	Eddie Huang <eddie.huang@mediatek.com>,
+	linux-mediatek@lists.infradead.org,
+	Baruch Siach <baruch@tkos.co.il>
+Subject: [rtc-linux] Re: [PATCH] rtc: constify rtc_class_ops structures
+Message-ID: <20160902203218.swu3fcxb266jeq2s@piout.net>
+References: <1472630725-25465-1-git-send-email-Julia.Lawall@lip6.fr>
 MIME-Version: 1.0
-Received: from mail-yb0-f170.google.com (mail-yb0-f170.google.com. [209.85.213.170])
-        by gmr-mx.google.com with ESMTPS id l185si114710ywb.5.2016.09.14.21.08.21
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 14 Sep 2016 21:08:21 -0700 (PDT)
-Received: by mail-yb0-f170.google.com with SMTP id x93so28888677ybh.1
-        for <rtc-linux@googlegroups.com>; Wed, 14 Sep 2016 21:08:21 -0700 (PDT)
-From: Pratyush Anand <panand@redhat.com>
-To: mingo@kernel.org,
-	alexandre.belloni@free-electrons.com,
-	tglx@linutronix.de,
-	hpa@zytor.com,
-	x86@kernel.org
-Cc: rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org,
-	prarit@redhat.com,
-	dzickus@redhat.com,
-	dyoung@redhat.com,
-	a.zummo@towertech.it,
-	panand@redhat.com
-Subject: [rtc-linux] [PATCH] rtc/rtc-cmos: Initialize hpet timer before irq is registered
-Date: Thu, 15 Sep 2016 09:38:16 +0530
-Message-Id: <19b150a2f1087b80757d62770d99833781e57b31.1473862685.git.panand@redhat.com>
-Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1472630725-25465-1-git-send-email-Julia.Lawall@lip6.fr>
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -34,111 +34,80 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-We have observed on few x86 machines with rtc-cmos device that
-hpet_rtc_interrupt() is called just after irq registration and before
-cmos_do_probe() could call hpet_rtc_timer_init().
+On 31/08/2016 at 10:05:25 +0200, Julia Lawall wrote :
+> Check for rtc_class_ops structures that are only passed to
+> devm_rtc_device_register, rtc_device_register,
+> platform_device_register_data, all of which declare the corresponding
+> parameter as const.  Declare rtc_class_ops structures that have these
+> properties as const.
+> 
+> The semantic patch that makes this change is as follows:
+> (http://coccinelle.lip6.fr/)
+> 
+> // <smpl>
+> @r disable optional_qualifier@
+> identifier i;
+> position p;
+> @@
+> static struct rtc_class_ops i@p = { ... };
+> 
+> @ok@
+> identifier r.i;
+> expression e1,e2,e3,e4;
+> position p;
+> @@
+> (
+> devm_rtc_device_register(e1,e2,&i@p,e3)
+> |
+> rtc_device_register(e1,e2,&i@p,e3)
+> |
+> platform_device_register_data(e1,e2,e3,&i@p,e4)
+> )
+> 
+> @bad@
+> position p != {r.p,ok.p};
+> identifier r.i;
+> @@
+> i@p
+> 
+> @depends on !bad disable optional_qualifier@
+> identifier r.i;
+> @@
+> static
+> +const
+>  struct rtc_class_ops i = { ... };
+> // </smpl>
+> 
+> Signed-off-by: Julia Lawall <Julia.Lawall@lip6.fr>
+> 
+> ---
+>  drivers/rtc/rtc-at32ap700x.c |    2 +-
+>  drivers/rtc/rtc-coh901331.c  |    2 +-
+>  drivers/rtc/rtc-davinci.c    |    2 +-
+>  drivers/rtc/rtc-digicolor.c  |    2 +-
+>  drivers/rtc/rtc-ds1302.c     |    2 +-
+>  drivers/rtc/rtc-gemini.c     |    2 +-
+>  drivers/rtc/rtc-jz4740.c     |    2 +-
+>  drivers/rtc/rtc-mcp795.c     |    2 +-
+>  drivers/rtc/rtc-mt6397.c     |    2 +-
+>  drivers/rtc/rtc-nuc900.c     |    2 +-
+>  drivers/rtc/rtc-omap.c       |    2 +-
+>  drivers/rtc/rtc-palmas.c     |    2 +-
+>  drivers/rtc/rtc-pcf50633.c   |    2 +-
+>  drivers/rtc/rtc-rx6110.c     |    2 +-
+>  drivers/rtc/rtc-rx8025.c     |    2 +-
+>  drivers/rtc/rtc-spear.c      |    2 +-
+>  drivers/rtc/rtc-stmp3xxx.c   |    2 +-
+>  drivers/rtc/rtc-tegra.c      |    2 +-
+>  drivers/rtc/rtc-twl.c        |    2 +-
+>  19 files changed, 19 insertions(+), 19 deletions(-)
+> 
+Applied, thanks.
 
-So, neither hpet_default_delta nor hpet_t1_cmp is initialized by the time
-interrupt is raised in the given situation, and this results in NMI
-watchdog LOCKUP.
-
-It has only been observed sporadically on kdump secondary kernels.
-
-See the call trace:
----<-snip->---
-[   27.913194] Kernel panic - not syncing: Watchdog detected hard LOCKUP on cpu 0
-[   27.915371] CPU: 0 PID: 1 Comm: swapper/0 Not tainted 3.10.0-342.el7.x86_64 #1
-[   27.917503] Hardware name: HP ProLiant DL160 Gen8, BIOS J03 02/10/2014
-[   27.919455]  ffffffff8186a728 0000000059c82488 ffff880034e05af0 ffffffff81637bd4
-[   27.921870]  ffff880034e05b70 ffffffff8163144a 0000000000000010 ffff880034e05b80
-[   27.924257]  ffff880034e05b20 0000000059c82488 0000000000000000 0000000000000000
-[   27.926599] Call Trace:
-[   27.927352]  <NMI>  [<ffffffff81637bd4>] dump_stack+0x19/0x1b
-[   27.929080]  [<ffffffff8163144a>] panic+0xd8/0x1e7
-[   27.930588]  [<ffffffff8111d3e0>] ? restart_watchdog_hrtimer+0x50/0x50
-[   27.932502]  [<ffffffff8111d4a2>] watchdog_overflow_callback+0xc2/0xd0
-[   27.934427]  [<ffffffff811612c1>] __perf_event_overflow+0xa1/0x250
-[   27.936232]  [<ffffffff81161d94>] perf_event_overflow+0x14/0x20
-[   27.937957]  [<ffffffff81032ae8>] intel_pmu_handle_irq+0x1e8/0x470
-[   27.939799]  [<ffffffff8164164b>] perf_event_nmi_handler+0x2b/0x50
-[   27.941649]  [<ffffffff81640d99>] nmi_handle.isra.0+0x69/0xb0
-[   27.943348]  [<ffffffff81640f49>] do_nmi+0x169/0x340
-[   27.944802]  [<ffffffff816401d3>] end_repeat_nmi+0x1e/0x2e
-[   27.946424]  [<ffffffff81056ee5>] ? hpet_rtc_interrupt+0x85/0x380
-[   27.948197]  [<ffffffff81056ee5>] ? hpet_rtc_interrupt+0x85/0x380
-[   27.949992]  [<ffffffff81056ee5>] ? hpet_rtc_interrupt+0x85/0x380
-[   27.951816]  <<EOE>>  <IRQ>  [<ffffffff8108f5a3>] ? run_timer_softirq+0x43/0x340
-[   27.954114]  [<ffffffff8111e24e>] handle_irq_event_percpu+0x3e/0x1e0
-[   27.955962]  [<ffffffff8111e42d>] handle_irq_event+0x3d/0x60
-[   27.957635]  [<ffffffff811210c7>] handle_edge_irq+0x77/0x130
-[   27.959332]  [<ffffffff8101704f>] handle_irq+0xbf/0x150
-[   27.960949]  [<ffffffff8164a86f>] do_IRQ+0x4f/0xf0
-[   27.962434]  [<ffffffff8163faed>] common_interrupt+0x6d/0x6d
-[   27.964101]  <EOI>  [<ffffffff8163f43b>] ? _raw_spin_unlock_irqrestore+0x1b/0x40
-[   27.966308]  [<fffff8111ff07>] __setup_irq+0x2a7/0x570
-[   28.067859]  [<ffffffff81056e60>] ? hpet_cpuhp_notify+0x140/0x140
-[   28.069709]  [<ffffffff8112032c>] request_threaded_irq+0xcc/0x170
-[   28.071585]  [<ffffffff814b24a6>] cmos_do_probe+0x1e6/0x450
-[   28.073240]  [<ffffffff814b2710>] ? cmos_do_probe+0x450/0x450
-[   28.074911]  [<ffffffff814b27cb>] cmos_pnp_probe+0xbb/0xc0
-[   28.076533]  [<ffffffff8139b245>] pnp_device_probe+0x65/0xd0
-[   28.078198]  [<ffffffff813f8ca7>] driver_probe_device+0x87/0x390
-[   28.079971]  [<ffffffff813f9083>] __driver_attach+0x93/0xa0
-[   28.081660]  [<ffffffff813f8ff0>] ? __device_attach+0x40/0x40
-[   28.083662]  [<ffffffff813f6a13>] bus_for_each_dev+0x73/0xc0
-[   28.085370]  [<ffffffff813f86fe>] driver_attach+0x1e/0x20
-[   28.086974]  [<ffffffff813f8250>] bus_add_driver+0x200/0x2d0
-[   28.088634]  [<ffffffff81ade49a>] ? rtc_sysfs_init+0xe/0xe
-[   28.090349]  [<ffffffff813f9704>] driver_register+0x64/0xf0
-[   28.091989]  [<ffffffff8139b070>] pnp_register_driver+0x20/0x30
-[   28.093707]  [<ffffffff81ade4ab>] cmos_init+0x11/0x71
----<-snip->---
-
-This patch moves hpet_rtc_timer_init() before IRQ registration, so that we
-can gracefully handle such spurious interrupts. It also masks HPET RTC
-interrupts, in case IRQ registration fails.
-
-We were able to reproduce the problem in maximum 15 trials of kdump
-secondary kernel boot on an hp-dl160gen8 FCoE host machine without this
-patch.  However, more than 35 trials went fine after applying this patch.
-
-Suggested-by: Thomas Gleixner <tglx@linutronix.de>
-Signed-off-by: Pratyush Anand <panand@redhat.com>
----
- drivers/rtc/rtc-cmos.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/rtc/rtc-cmos.c b/drivers/rtc/rtc-cmos.c
-index 43745cac0141..fddde655cbd4 100644
---- a/drivers/rtc/rtc-cmos.c
-+++ b/drivers/rtc/rtc-cmos.c
-@@ -707,6 +707,8 @@ cmos_do_probe(struct device *dev, struct resource *ports, int rtc_irq)
- 		goto cleanup1;
- 	}
- 
-+	hpet_rtc_timer_init();
-+
- 	if (is_valid_irq(rtc_irq)) {
- 		irq_handler_t rtc_cmos_int_handler;
- 
-@@ -714,6 +716,7 @@ cmos_do_probe(struct device *dev, struct resource *ports, int rtc_irq)
- 			rtc_cmos_int_handler = hpet_rtc_interrupt;
- 			retval = hpet_register_irq_handler(cmos_interrupt);
- 			if (retval) {
-+				hpet_mask_rtc_irq_bit(RTC_IRQMASK);
- 				dev_warn(dev, "hpet_register_irq_handler "
- 						" failed in rtc_init().");
- 				goto cleanup1;
-@@ -729,7 +732,6 @@ cmos_do_probe(struct device *dev, struct resource *ports, int rtc_irq)
- 			goto cleanup1;
- 		}
- 	}
--	hpet_rtc_timer_init();
- 
- 	/* export at least the first block of NVRAM */
- 	nvram.size = address_space - NVRAM_OFFSET;
 -- 
-2.7.4
+Alexandre Belloni, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
