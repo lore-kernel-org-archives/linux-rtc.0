@@ -1,29 +1,27 @@
-Return-Path: <rtc-linux+bncBCN63E7T2ALBB4M7YO7AKGQEVG7WNZQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBD7N3SEV2QCRBKPJUS7AKGQEHJNAR4I@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-MIME-Version: 1.0
-Received: from mail-pa0-x22c.google.com (mail-pa0-x22c.google.com. [2607:f8b0:400e:c03::22c])
-        by gmr-mx.google.com with ESMTPS id 125si508097itw.2.2016.09.07.19.41.52
+Received: from smtp2.megiteam.pl (smtp2.megiteam.pl. [213.189.52.193])
+        by gmr-mx.google.com with ESMTPS id o85si195617wme.0.2016.09.02.01.13.29
         for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 07 Sep 2016 19:41:52 -0700 (PDT)
-Received: by mail-pa0-x22c.google.com with SMTP id to9so12186927pac.1
-        for <rtc-linux@googlegroups.com>; Wed, 07 Sep 2016 19:41:52 -0700 (PDT)
-From: Baolin Wang <baolin.wang@linaro.org>
-To: a.zummo@towertech.it,
-	alexandre.belloni@free-electrons.com
-Cc: rostedt@goodmis.org,
-	mingo@redhat.com,
-	john.stultz@linaro.org,
-	tglx@linutronix.de,
-	baolin.wang@linaro.org,
-	broonie@kernel.org,
-	linux-kernel@vger.kernel.org,
-	rtc-linux@googlegroups.com
-Subject: [rtc-linux] [PATCH v2] rtc: Add some dummy static inline functions
-Date: Thu,  8 Sep 2016 10:41:04 +0800
-Message-Id: <1a8cf6da9924b566aef1d00a31414e46e7f7fb71.1473302325.git.baolin.wang@linaro.org>
+        (version=TLS1_2 cipher=AES128-SHA bits=128/128);
+        Fri, 02 Sep 2016 01:13:29 -0700 (PDT)
+Subject: [rtc-linux] Re: [PATCH v4] rtc: omap: Support ext_wakeup configuration
+To: Rob Herring <robh@kernel.org>
+References: <20160825111912.23017-1-m.niestroj@grinn-global.com>
+ <20160830195903.GA14471@rob-hp-laptop>
+Cc: Tony Lindgren <tony@atomide.com>,
+ Grygorii Strashko <grygorii.strashko@ti.com>, rtc-linux@googlegroups.com,
+ linux-omap@vger.kernel.org, devicetree@vger.kernel.org,
+ Pawel Moll <pawel.moll@arm.com>, Alessandro Zummo <a.zummo@towertech.it>,
+ Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+ Keerthy <j-keerthy@ti.com>
+From: Marcin Niestroj <m.niestroj@grinn-global.com>
+Message-ID: <53fbdcb2-99cd-4b9d-7aea-11a2a0fb7fcb@grinn-global.com>
+Date: Fri, 2 Sep 2016 10:13:12 +0200
+MIME-Version: 1.0
+In-Reply-To: <20160830195903.GA14471@rob-hp-laptop>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Reply-To: rtc-linux@googlegroups.com
-Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -32,89 +30,87 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-The patch (commit id: a0a6e06d545a753740c9d8d5ce2c4fdd3ab1c021) adding
-tracepoints for alarmtimers will build failed on S390 platform, due to
-S390 defconfig did not define CONFIG_RTC_LIB macro to define the
-rtc_ktime_to_tm() function which is used in this patch. Thus we should
-add dummy static inline functions in case CONFIG_RTC_LIB is not defined.
+On 30.08.2016 21:59, Rob Herring wrote:
+> On Thu, Aug 25, 2016 at 01:19:12PM +0200, Marcin Niestroj wrote:
+>> Support configuration of ext_wakeup sources. This patch makes it
+>> possible to enable ext_wakeup and set it's polarity, depending on board
+>> configuration. AM335x's dedicated PMIC (tps65217) uses ext_wakeup to
+>> notify about power-button presses. Handling power-button presses enables
+>> to recover from RTC-only power states correctly.
+>>
+>> Signed-off-by: Marcin Niestroj <m.niestroj@grinn-global.com>
+>> ---
+>> Hi,
+>>
+>> This is a total reimplementation, so it is not based on any of the previos
+>> patch versions. This patch adds support for ext_wakeup using generic pinconf
+>> device-tree bindings, with one added "ti,input-polarity" custom property.
+>> This approach has been suggested by Tony and Grygorii in [1].
+>>
+>> Patch was developed on 4.6, rebased on 4.8-rc3, tested using chiliBoard.
+>>
+>> [1] http://www.spinics.net/lists/devicetree/msg131516.html
+>>
+>>  Documentation/devicetree/bindings/rtc/rtc-omap.txt |  21 +++
+>>  drivers/rtc/Kconfig                                |   1 +
+>>  drivers/rtc/rtc-omap.c                             | 167 ++++++++++++++++++++-
+>>  3 files changed, 181 insertions(+), 8 deletions(-)
+>>
+>> diff --git a/Documentation/devicetree/bindings/rtc/rtc-omap.txt b/Documentation/devicetree/bindings/rtc/rtc-omap.txt
+>> index bf7d11a..5d18373 100644
+>> --- a/Documentation/devicetree/bindings/rtc/rtc-omap.txt
+>> +++ b/Documentation/devicetree/bindings/rtc/rtc-omap.txt
+>> @@ -18,6 +18,18 @@ Optional properties:
+>>    through pmic_power_en
+>>  - clocks: Any internal or external clocks feeding in to rtc
+>>  - clock-names: Corresponding names of the clocks
+>> +- pinctrl-0: a phandle pointing to the pin settings for the device
+>> +- pinctrl-names: should be "default"
+>> +
+>> +Optional subnodes:
+>> +- generic pinctrl node
+>> +
+>> +Required pinctrl subnodes properties:
+>> +- pins - Names of ext_wakeup pins to configure
+>> +
+>> +Optional pinctrl subnodes properties:
+>> +- input-enable - Enables ext_wakeup
+>> +- ti,input-polarity - GPIO_ACTIVE_LOW or GPIO_ACTIVE_HIGH depending board
+>
+> This is not a GPIO, so don't use GPIO defines. Just make this boolean
+> with not present ideally being the more common case.
+>
+>>  Example:
+>>
+>> @@ -30,4 +42,13 @@ rtc@1c23000 {
+>>  	system-power-controller;
+>>  	clocks = <&clk_32k_rtc>, <&clk_32768_ck>;
+>>  	clock-names = "ext-clk", "int-clk";
+>> +
+>> +	pinctrl-0 = <&ext_wakeup>;
+>> +	pinctrl-names = "default";
+>> +
+>> +	ext_wakeup: ext_wakeup {
+>
+> Use '-', not '_' in node names.
 
-Signed-off-by: Baolin Wang <baolin.wang@linaro.org>
-Fixes: a0a6e06d545a ("time: alarmtimer: Add tracepoints for alarmtimers")
----
-Changes since v1:
- - Modify the commit log.
----
- include/linux/rtc.h |   49 ++++++++++++++++++++++++++++++++++++++++++++++++-
- 1 file changed, 48 insertions(+), 1 deletion(-)
+To be sure... It should look like below?
 
-diff --git a/include/linux/rtc.h b/include/linux/rtc.h
-index b693ada..521f752 100644
---- a/include/linux/rtc.h
-+++ b/include/linux/rtc.h
-@@ -16,13 +16,60 @@
- #include <linux/interrupt.h>
- #include <uapi/linux/rtc.h>
- 
-+#ifdef CONFIG_RTC_LIB
- extern int rtc_month_days(unsigned int month, unsigned int year);
--extern int rtc_year_days(unsigned int day, unsigned int month, unsigned int year);
-+extern int rtc_year_days(unsigned int day, unsigned int month,
-+			 unsigned int year);
- extern int rtc_valid_tm(struct rtc_time *tm);
- extern time64_t rtc_tm_to_time64(struct rtc_time *tm);
- extern void rtc_time64_to_tm(time64_t time, struct rtc_time *tm);
- ktime_t rtc_tm_to_ktime(struct rtc_time tm);
- struct rtc_time rtc_ktime_to_tm(ktime_t kt);
-+#else
-+static inline int rtc_month_days(unsigned int month, unsigned int year)
-+{
-+	return 0;
-+}
-+
-+static inline int rtc_year_days(unsigned int day, unsigned int month,
-+				unsigned int year)
-+{
-+	return 0;
-+}
-+
-+static inline int rtc_valid_tm(struct rtc_time *tm)
-+{
-+	return 0;
-+}
-+
-+static inline time64_t rtc_tm_to_time64(struct rtc_time *tm)
-+{
-+	time64_t ret;
-+
-+	memset(&ret, 0, sizeof(time64_t));
-+	return ret;
-+}
-+
-+static inline void rtc_time64_to_tm(time64_t time, struct rtc_time *tm)
-+{
-+}
-+
-+static inline ktime_t rtc_tm_to_ktime(struct rtc_time tm)
-+{
-+	ktime_t ret;
-+
-+	memset(&ret, 0, sizeof(ktime_t));
-+	return ret;
-+}
-+
-+static inline struct rtc_time rtc_ktime_to_tm(ktime_t kt)
-+{
-+	struct rtc_time ret;
-+
-+	memset(&ret, 0, sizeof(struct rtc_time));
-+	return ret;
-+}
-+#endif
- 
- /*
-  * rtc_tm_sub - Return the difference in seconds.
+ext_wakeup: ext-wakeup {
+	pins = "ext_wakeup0";
+	input-enable;
+	ti,active-high;
+}
+
+>
+>> +		pins = "ext_wakeup0";
+>> +		input-enable;
+>> +		ti,input-polarity = <GPIO_ACTIVE_LOW>;
+>> +	};
+>>  };
+
 -- 
-1.7.9.5
+Marcin Niestroj
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
