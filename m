@@ -1,31 +1,24 @@
-Return-Path: <rtc-linux+bncBDE6RCFOWIARBPMHUC7AKGQEIZFXEQA@googlegroups.com>
+Return-Path: <rtc-linux+bncBDJIP47K7MERBSMPU27AKGQEAFITZUQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail-oi0-x236.google.com (mail-oi0-x236.google.com. [2607:f8b0:4003:c06::236])
-        by gmr-mx.google.com with ESMTPS id w188si37841itc.3.2016.09.01.03.32.28
+Received: from mail-oi0-f41.google.com (mail-oi0-f41.google.com. [209.85.218.41])
+        by gmr-mx.google.com with ESMTPS id i2si308112ith.1.2016.09.02.07.08.06
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 01 Sep 2016 03:32:28 -0700 (PDT)
-Received: by mail-oi0-x236.google.com with SMTP id r205so30187526oih.3
-        for <rtc-linux@googlegroups.com>; Thu, 01 Sep 2016 03:32:28 -0700 (PDT)
+        Fri, 02 Sep 2016 07:08:07 -0700 (PDT)
+Received: by mail-oi0-f41.google.com with SMTP id p186so127281076oia.2
+        for <rtc-linux@googlegroups.com>; Fri, 02 Sep 2016 07:08:06 -0700 (PDT)
+Date: Fri, 2 Sep 2016 09:08:05 -0500
+From: Rob Herring <robh@kernel.org>
+To: Akinobu Mita <akinobu.mita@gmail.com>
+Cc: rtc-linux@googlegroups.com, devicetree@vger.kernel.org,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Subject: [rtc-linux] Re: [PATCH] rtc: add support for EPSON TOYOCOM RTC-7301SF/DG
+Message-ID: <20160902140805.GA18646@rob-hp-laptop>
+References: <1472396118-13424-1-git-send-email-akinobu.mita@gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <1472630725-25465-1-git-send-email-Julia.Lawall@lip6.fr>
-References: <1472630725-25465-1-git-send-email-Julia.Lawall@lip6.fr>
-From: Linus Walleij <linus.walleij@linaro.org>
-Date: Thu, 1 Sep 2016 12:32:28 +0200
-Message-ID: <CACRpkdZV6mF2XvY8DiV3GM8yksNLXiag4_i6EXaosSZAc784-Q@mail.gmail.com>
-Subject: [rtc-linux] Re: [PATCH] rtc: constify rtc_class_ops structures
-To: Julia Lawall <Julia.Lawall@lip6.fr>
-Cc: Alessandro Zummo <a.zummo@towertech.it>, kernel-janitors@vger.kernel.org,
-	"linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>, Alexandre Courbot <gnurou@gmail.com>,
-	Thierry Reding <thierry.reding@gmail.com>, Stephen Warren <swarren@wwwdotorg.org>,
-	Hans Ulli Kroll <ulli.kroll@googlemail.com>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>,
-	"rtc-linux@googlegroups.com" <rtc-linux@googlegroups.com>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Wan ZongShun <mcuos.com@gmail.com>,
-	Eddie Huang <eddie.huang@mediatek.com>,
-	"moderated list:ARM/Mediatek SoC support" <linux-mediatek@lists.infradead.org>, Baruch Siach <baruch@tkos.co.il>
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1472396118-13424-1-git-send-email-akinobu.mita@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -35,20 +28,29 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Wed, Aug 31, 2016 at 10:05 AM, Julia Lawall <Julia.Lawall@lip6.fr> wrote:
+On Sun, Aug 28, 2016 at 11:55:18PM +0900, Akinobu Mita wrote:
+> This adds support for EPSON TOYOCOM RTC-7301SF/DG which has parallel
+> interface compatible with SRAM.
+> 
+> This driver supports basic clock, calendar and alarm functionality.
+> 
+> Tested with Microblaze linux running on Artix7 FPGA board with my own
+> custom IP for RTC-7301.
+> 
+> Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
+> Cc: Alessandro Zummo <a.zummo@towertech.it>
+> Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+> ---
+>  .../devicetree/bindings/rtc/epson,rtc7301.txt      |  15 +
 
-> Check for rtc_class_ops structures that are only passed to
-> devm_rtc_device_register, rtc_device_register,
-> platform_device_register_data, all of which declare the corresponding
-> parameter as const.  Declare rtc_class_ops structures that have these
-> properties as const.
-(...)
-> Signed-off-by: Julia Lawall <Julia.Lawall@lip6.fr>
+Acked-by: Rob Herring <robh@kernel.org>
 
-Acked-by: Linus Walleij <linus.walleij@linaro.org>
-
-Yours,
-Linus Walleij
+>  drivers/rtc/Kconfig                                |  11 +
+>  drivers/rtc/Makefile                               |   1 +
+>  drivers/rtc/rtc-r7301.c                            | 458 +++++++++++++++++++++
+>  4 files changed, 485 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/rtc/epson,rtc7301.txt
+>  create mode 100644 drivers/rtc/rtc-r7301.c
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
