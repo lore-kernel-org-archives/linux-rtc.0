@@ -1,22 +1,29 @@
-Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBCGRRO7QKGQESIUQHNI@googlegroups.com>
+Return-Path: <rtc-linux+bncBCN63E7T2ALBBP76X27AKGQEIPNR3GQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id w16si1581629wmd.0.2016.09.21.13.07.36
-        for <rtc-linux@googlegroups.com>;
-        Wed, 21 Sep 2016 13:07:36 -0700 (PDT)
-Date: Wed, 21 Sep 2016 22:07:35 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Gabriele Mazzotta <gabriele.mzt@gmail.com>
-Cc: a.zummo@towertech.it, rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org, matthew.garrett@nebula.com
-Subject: [rtc-linux] Re: [PATCH v4 1/2] rtc-cmos: Clear ACPI-driven alarms
- upon resume
-Message-ID: <20160921200735.nqvs33topaaeq7fv@piout.net>
-References: <20160919231244.6775-1-gabriele.mzt@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <20160919231244.6775-1-gabriele.mzt@gmail.com>
+Received: from mail-pf0-x235.google.com (mail-pf0-x235.google.com. [2607:f8b0:400e:c00::235])
+        by gmr-mx.google.com with ESMTPS id 142si3277700pfx.2.2016.09.07.00.18.23
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 07 Sep 2016 00:18:23 -0700 (PDT)
+Received: by mail-pf0-x235.google.com with SMTP id 128so3705786pfb.3
+        for <rtc-linux@googlegroups.com>; Wed, 07 Sep 2016 00:18:23 -0700 (PDT)
+From: Baolin Wang <baolin.wang@linaro.org>
+To: a.zummo@towertech.it,
+	alexandre.belloni@free-electrons.com
+Cc: rostedt@goodmis.org,
+	mingo@redhat.com,
+	john.stultz@linaro.org,
+	tglx@linutronix.de,
+	baolin.wang@linaro.org,
+	broonie@kernel.org,
+	linux-kernel@vger.kernel.org,
+	rtc-linux@googlegroups.com
+Subject: [rtc-linux] [PATCH] rtc: Add some dummy static inline functions
+Date: Wed,  7 Sep 2016 15:17:26 +0800
+Message-Id: <08716c8296f91fc43a64fbd0a4145b451a02f161.1473232117.git.baolin.wang@linaro.org>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -25,61 +32,82 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Hi,
+Add some dummy static inline functions in case CONFIG_RTC_LIB is not defined.
 
-Thank you for your perseverance.
+Signed-off-by: Baolin Wang <baolin.wang@linaro.org>
+Fixes: a0a6e06d545a ("time: alarmtimer: Add tracepoints for alarmtimers")
+---
+ include/linux/rtc.h |   49 ++++++++++++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 48 insertions(+), 1 deletion(-)
 
-On 20/09/2016 at 01:12:43 +0200, Gabriele Mazzotta wrote :
-> Currently ACPI-driven alarms are not cleared when they wake the
-> system. As consequence, expired alarms must be manually cleared to
-> program a new alarm. Fix this by correctly handling ACPI-driven
-> alarms.
-> 
-> More specifically, the ACPI specification [1] provides for two
-> alternative implementations of the RTC. Depending on the
-> implementation, the driver either clear the alarm from the resume
-> callback or from ACPI interrupt handler:
-> 
->  - The platform has the RTC wakeup status fixed in hardware
->    (ACPI_FADT_FIXED_RTC is 0). In this case the driver can determine
->    if the RTC was the reason of the wakeup from the resume callback
->    by reading the RTC status register.
-> 
->  - The platform has no fixed hardware feature event bits. In this
->    case a GPE is used to wake the system and the driver clears the
->    alarm from its handler.
-> 
-> [1] http://www.acpi.info/DOWNLOADS/ACPI_5_Errata%20A.pdf
-> 
-> Signed-off-by: Gabriele Mazzotta <gabriele.mzt@gmail.com>
-> ---
->  drivers/rtc/rtc-cmos.c | 49 +++++++++++++++++++++++++++++++++++++++++++++++++
->  1 file changed, 49 insertions(+)
-
-Applied, with the following cosmetic change:
-@@ -982,13 +982,11 @@ static u32 rtc_handler(void *context)
- {
-        struct device *dev = context;
-        struct cmos_rtc *cmos = dev_get_drvdata(dev);
--       unsigned char rtc_control;
-+       unsigned char rtc_control = 0;
-        unsigned char rtc_intr;
+diff --git a/include/linux/rtc.h b/include/linux/rtc.h
+index b693ada..521f752 100644
+--- a/include/linux/rtc.h
++++ b/include/linux/rtc.h
+@@ -16,13 +16,60 @@
+ #include <linux/interrupt.h>
+ #include <uapi/linux/rtc.h>
  
-        spin_lock_irq(&rtc_lock);
--       if (!cmos_rtc.suspend_ctrl)
--               rtc_control = cmos_rtc.suspend_ctrl;
--       else
-+       if (cmos_rtc.suspend_ctrl)
-                rtc_control = CMOS_READ(RTC_CONTROL);
-        if (rtc_control & RTC_AIE) {
-                cmos_rtc.suspend_ctrl &= ~RTC_AIE;
-
-
-
++#ifdef CONFIG_RTC_LIB
+ extern int rtc_month_days(unsigned int month, unsigned int year);
+-extern int rtc_year_days(unsigned int day, unsigned int month, unsigned int year);
++extern int rtc_year_days(unsigned int day, unsigned int month,
++			 unsigned int year);
+ extern int rtc_valid_tm(struct rtc_time *tm);
+ extern time64_t rtc_tm_to_time64(struct rtc_time *tm);
+ extern void rtc_time64_to_tm(time64_t time, struct rtc_time *tm);
+ ktime_t rtc_tm_to_ktime(struct rtc_time tm);
+ struct rtc_time rtc_ktime_to_tm(ktime_t kt);
++#else
++static inline int rtc_month_days(unsigned int month, unsigned int year)
++{
++	return 0;
++}
++
++static inline int rtc_year_days(unsigned int day, unsigned int month,
++				unsigned int year)
++{
++	return 0;
++}
++
++static inline int rtc_valid_tm(struct rtc_time *tm)
++{
++	return 0;
++}
++
++static inline time64_t rtc_tm_to_time64(struct rtc_time *tm)
++{
++	time64_t ret;
++
++	memset(&ret, 0, sizeof(time64_t));
++	return ret;
++}
++
++static inline void rtc_time64_to_tm(time64_t time, struct rtc_time *tm)
++{
++}
++
++static inline ktime_t rtc_tm_to_ktime(struct rtc_time tm)
++{
++	ktime_t ret;
++
++	memset(&ret, 0, sizeof(ktime_t));
++	return ret;
++}
++
++static inline struct rtc_time rtc_ktime_to_tm(ktime_t kt)
++{
++	struct rtc_time ret;
++
++	memset(&ret, 0, sizeof(struct rtc_time));
++	return ret;
++}
++#endif
+ 
+ /*
+  * rtc_tm_sub - Return the difference in seconds.
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+1.7.9.5
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
