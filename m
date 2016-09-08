@@ -1,25 +1,29 @@
-Return-Path: <rtc-linux+bncBDAMN6NI5EERBU5YQG7QKGQEQU2J4VQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBCN63E7T2ALBB4M7YO7AKGQEVG7WNZQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from Galois.linutronix.de (Galois.linutronix.de. [2a01:7a0:2:106d:700::1])
-        by gmr-mx.google.com with ESMTPS id y6si1476505wmg.0.2016.09.19.14.44.50
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=AES128-SHA bits=128/128);
-        Mon, 19 Sep 2016 14:44:50 -0700 (PDT)
-Date: Mon, 19 Sep 2016 23:42:23 +0200 (CEST)
-From: Thomas Gleixner <tglx@linutronix.de>
-To: Pratyush Anand <panand@redhat.com>
-cc: mingo@kernel.org, alexandre.belloni@free-electrons.com, hpa@zytor.com,
-    x86@kernel.org, rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org,
-    prarit@redhat.com, dzickus@redhat.com, dyoung@redhat.com,
-    a.zummo@towertech.it
-Subject: [rtc-linux] Re: [PATCH] rtc/rtc-cmos: Initialize hpet timer before
- irq is registered
-In-Reply-To: <19b150a2f1087b80757d62770d99833781e57b31.1473862685.git.panand@redhat.com>
-Message-ID: <alpine.DEB.2.20.1609192341360.5524@nanos>
-References: <19b150a2f1087b80757d62770d99833781e57b31.1473862685.git.panand@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Received: from mail-pa0-x22c.google.com (mail-pa0-x22c.google.com. [2607:f8b0:400e:c03::22c])
+        by gmr-mx.google.com with ESMTPS id 125si508097itw.2.2016.09.07.19.41.52
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 07 Sep 2016 19:41:52 -0700 (PDT)
+Received: by mail-pa0-x22c.google.com with SMTP id to9so12186927pac.1
+        for <rtc-linux@googlegroups.com>; Wed, 07 Sep 2016 19:41:52 -0700 (PDT)
+From: Baolin Wang <baolin.wang@linaro.org>
+To: a.zummo@towertech.it,
+	alexandre.belloni@free-electrons.com
+Cc: rostedt@goodmis.org,
+	mingo@redhat.com,
+	john.stultz@linaro.org,
+	tglx@linutronix.de,
+	baolin.wang@linaro.org,
+	broonie@kernel.org,
+	linux-kernel@vger.kernel.org,
+	rtc-linux@googlegroups.com
+Subject: [rtc-linux] [PATCH v2] rtc: Add some dummy static inline functions
+Date: Thu,  8 Sep 2016 10:41:04 +0800
+Message-Id: <1a8cf6da9924b566aef1d00a31414e46e7f7fb71.1473302325.git.baolin.wang@linaro.org>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -28,12 +32,89 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Thu, 15 Sep 2016, Pratyush Anand wrote:
-> 
-> Suggested-by: Thomas Gleixner <tglx@linutronix.de>
-> Signed-off-by: Pratyush Anand <panand@redhat.com>
+The patch (commit id: a0a6e06d545a753740c9d8d5ce2c4fdd3ab1c021) adding
+tracepoints for alarmtimers will build failed on S390 platform, due to
+S390 defconfig did not define CONFIG_RTC_LIB macro to define the
+rtc_ktime_to_tm() function which is used in this patch. Thus we should
+add dummy static inline functions in case CONFIG_RTC_LIB is not defined.
 
-Acked-by: Thomas Gleixner <tglx@linutronix.de>
+Signed-off-by: Baolin Wang <baolin.wang@linaro.org>
+Fixes: a0a6e06d545a ("time: alarmtimer: Add tracepoints for alarmtimers")
+---
+Changes since v1:
+ - Modify the commit log.
+---
+ include/linux/rtc.h |   49 ++++++++++++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 48 insertions(+), 1 deletion(-)
+
+diff --git a/include/linux/rtc.h b/include/linux/rtc.h
+index b693ada..521f752 100644
+--- a/include/linux/rtc.h
++++ b/include/linux/rtc.h
+@@ -16,13 +16,60 @@
+ #include <linux/interrupt.h>
+ #include <uapi/linux/rtc.h>
+ 
++#ifdef CONFIG_RTC_LIB
+ extern int rtc_month_days(unsigned int month, unsigned int year);
+-extern int rtc_year_days(unsigned int day, unsigned int month, unsigned int year);
++extern int rtc_year_days(unsigned int day, unsigned int month,
++			 unsigned int year);
+ extern int rtc_valid_tm(struct rtc_time *tm);
+ extern time64_t rtc_tm_to_time64(struct rtc_time *tm);
+ extern void rtc_time64_to_tm(time64_t time, struct rtc_time *tm);
+ ktime_t rtc_tm_to_ktime(struct rtc_time tm);
+ struct rtc_time rtc_ktime_to_tm(ktime_t kt);
++#else
++static inline int rtc_month_days(unsigned int month, unsigned int year)
++{
++	return 0;
++}
++
++static inline int rtc_year_days(unsigned int day, unsigned int month,
++				unsigned int year)
++{
++	return 0;
++}
++
++static inline int rtc_valid_tm(struct rtc_time *tm)
++{
++	return 0;
++}
++
++static inline time64_t rtc_tm_to_time64(struct rtc_time *tm)
++{
++	time64_t ret;
++
++	memset(&ret, 0, sizeof(time64_t));
++	return ret;
++}
++
++static inline void rtc_time64_to_tm(time64_t time, struct rtc_time *tm)
++{
++}
++
++static inline ktime_t rtc_tm_to_ktime(struct rtc_time tm)
++{
++	ktime_t ret;
++
++	memset(&ret, 0, sizeof(ktime_t));
++	return ret;
++}
++
++static inline struct rtc_time rtc_ktime_to_tm(ktime_t kt)
++{
++	struct rtc_time ret;
++
++	memset(&ret, 0, sizeof(struct rtc_time));
++	return ret;
++}
++#endif
+ 
+ /*
+  * rtc_tm_sub - Return the difference in seconds.
+-- 
+1.7.9.5
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
