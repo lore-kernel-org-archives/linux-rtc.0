@@ -1,25 +1,24 @@
-Return-Path: <rtc-linux+bncBCQPVKWLVAIRBRVI6C7AKGQE47HENOY@googlegroups.com>
+Return-Path: <rtc-linux+bncBD35ZY754EARBFESZK7AKGQEPSHBXCA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from muru.com (muru.com. [72.249.23.125])
-        by gmr-mx.google.com with ESMTP id 7si2863616pfw.1.2016.09.16.08.48.22
-        for <rtc-linux@googlegroups.com>;
-        Fri, 16 Sep 2016 08:48:22 -0700 (PDT)
-Date: Fri, 16 Sep 2016 08:48:18 -0700
-From: Tony Lindgren <tony@atomide.com>
-To: Marcin Niestroj <m.niestroj@grinn-global.com>
-Cc: Rob Herring <robh+dt@kernel.org>,
-	Grygorii Strashko <grygorii.strashko@ti.com>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Keerthy <j-keerthy@ti.com>, Pawel Moll <pawel.moll@arm.com>,
-	Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
-	linux-omap@vger.kernel.org, devicetree@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH v6] rtc: omap: Support ext_wakeup configuration
-Message-ID: <20160916154817.m67rh4wpu2ov53zf@atomide.com>
-References: <20160916092628.1049-1-m.niestroj@grinn-global.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <20160916092628.1049-1-m.niestroj@grinn-global.com>
+Received: from mail-pa0-x242.google.com (mail-pa0-x242.google.com. [2607:f8b0:400e:c03::242])
+        by gmr-mx.google.com with ESMTPS id z4si402176pam.0.2016.09.09.03.04.04
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Fri, 09 Sep 2016 03:04:04 -0700 (PDT)
+Received: by mail-pa0-x242.google.com with SMTP id gi6so3645085pac.1
+        for <rtc-linux@googlegroups.com>; Fri, 09 Sep 2016 03:04:04 -0700 (PDT)
+From: Axel Lin <axel.lin@ingics.com>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: Chen-Yu Tsai <wens@csie.org>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	rtc-linux@googlegroups.com,
+	Axel Lin <axel.lin@ingics.com>
+Subject: [rtc-linux] [PATCH] rtc: ac100: Add NULL checking for devm_kzalloc call
+Date: Fri,  9 Sep 2016 18:03:54 +0800
+Message-Id: <1473415434-18956-1-git-send-email-axel.lin@ingics.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -28,16 +27,30 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-* Marcin Niestroj <m.niestroj@grinn-global.com> [160916 02:27]:
-> Support configuration of ext_wakeup sources. This patch makes it
-> possible to enable ext_wakeup and set it's polarity, depending on board
-> configuration. AM335x's dedicated PMIC (tps65217) uses ext_wakeup to
-> notify about power-button presses. Handling power-button presses enables
-> to recover from RTC-only power states correctly.
-> 
-> Signed-off-by: Marcin Niestroj <m.niestroj@grinn-global.com>
+devm_kzalloc can return NULL, add NULL checking to prevent NULL pointer
+dereference.
 
-Acked-by: Tony Lindgren <tony@atomide.com>
+Signed-off-by: Axel Lin <axel.lin@ingics.com>
+---
+ drivers/rtc/rtc-ac100.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/drivers/rtc/rtc-ac100.c b/drivers/rtc/rtc-ac100.c
+index 2d0bb02..9e33618 100644
+--- a/drivers/rtc/rtc-ac100.c
++++ b/drivers/rtc/rtc-ac100.c
+@@ -554,6 +554,9 @@ static int ac100_rtc_probe(struct platform_device *pdev)
+ 	int ret;
+ 
+ 	chip = devm_kzalloc(&pdev->dev, sizeof(*chip), GFP_KERNEL);
++	if (!chip)
++		return -ENOMEM;
++
+ 	platform_set_drvdata(pdev, chip);
+ 	chip->dev = &pdev->dev;
+ 	chip->regmap = ac100->regmap;
+-- 
+2.7.4
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
