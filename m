@@ -1,21 +1,27 @@
-Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBPMIYC7AKGQE5BFQFMA@googlegroups.com>
+Return-Path: <rtc-linux+bncBD7N3SEV2QCRBNNN4S7AKGQEKB2G3HY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id e21si243952wmc.2.2016.09.07.05.12.45
-        for <rtc-linux@googlegroups.com>;
-        Wed, 07 Sep 2016 05:12:45 -0700 (PDT)
-Date: Wed, 7 Sep 2016 14:12:34 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Baolin Wang <baolin.wang@linaro.org>
-Cc: a.zummo@towertech.it, rostedt@goodmis.org, mingo@redhat.com,
-	john.stultz@linaro.org, tglx@linutronix.de, broonie@kernel.org,
-	linux-kernel@vger.kernel.org, rtc-linux@googlegroups.com
-Subject: [rtc-linux] Re: [PATCH] rtc: Add some dummy static inline functions
-Message-ID: <20160907121234.wrmxikrkrnw6lm7z@piout.net>
-References: <08716c8296f91fc43a64fbd0a4145b451a02f161.1473232117.git.baolin.wang@linaro.org>
+Received: from smtp2.megiteam.pl (smtp2.megiteam.pl. [213.189.52.193])
+        by gmr-mx.google.com with ESMTPS id a126si196884wmd.1.2016.09.14.02.21.56
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=AES128-SHA bits=128/128);
+        Wed, 14 Sep 2016 02:21:57 -0700 (PDT)
+Subject: [rtc-linux] Re: [PATCH v5] rtc: omap: Support ext_wakeup configuration
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+References: <201609082240.a4dMqCnB%fengguang.wu@intel.com>
+ <4512fa0b-890b-0f10-00dd-188fcc98fb5c@grinn-global.com>
+ <20160913215837.xstx4c6d4pr42hgh@piout.net>
+Cc: kbuild test robot <lkp@intel.com>, kbuild-all@01.org,
+ Tony Lindgren <tony@atomide.com>, Rob Herring <robh+dt@kernel.org>,
+ Grygorii Strashko <grygorii.strashko@ti.com>, Keerthy <j-keerthy@ti.com>,
+ Pawel Moll <pawel.moll@arm.com>, Alessandro Zummo <a.zummo@towertech.it>,
+ rtc-linux@googlegroups.com, linux-omap@vger.kernel.org,
+ devicetree@vger.kernel.org
+From: Marcin Niestroj <m.niestroj@grinn-global.com>
+Message-ID: <eb67e85b-4651-33e0-abb7-339d83f36463@grinn-global.com>
+Date: Wed, 14 Sep 2016 11:21:48 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <08716c8296f91fc43a64fbd0a4145b451a02f161.1473232117.git.baolin.wang@linaro.org>
+In-Reply-To: <20160913215837.xstx4c6d4pr42hgh@piout.net>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -25,92 +31,35 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 07/09/2016 at 15:17:26 +0800, Baolin Wang wrote :
-> Add some dummy static inline functions in case CONFIG_RTC_LIB is not defined.
-> 
+On 13.09.2016 23:58, Alexandre Belloni wrote:
+> Hi,
+>
+> On 12/09/2016 at 11:01:05 +0200, Marcin Niestroj wrote :
+>> I guess we are missing PINCTRL in Kconfig. I didn't add that before,
+>> because I thought that there is a dependency chain GENERIC_PINCONF ->
+>> PINCONF -> PINCTRL.
+>>
+>> So to resolve this issue:
+>> 1) Should we add "select" or "depends on" for PINCTRL?
+>> 2) Should this option be somehow related to COMPILE_TEST?
+>>
+>
+> Adding a "depends on PINCTRL" line should be enough to solve that issue.
+>
 
-The question your commit log should answer is why?
+Ok, will add that together with "depends on OF", as I noticed it is
+also needed.
 
-> Signed-off-by: Baolin Wang <baolin.wang@linaro.org>
-> Fixes: a0a6e06d545a ("time: alarmtimer: Add tracepoints for alarmtimers")
-> ---
->  include/linux/rtc.h |   49 ++++++++++++++++++++++++++++++++++++++++++++++++-
->  1 file changed, 48 insertions(+), 1 deletion(-)
-> 
-> diff --git a/include/linux/rtc.h b/include/linux/rtc.h
-> index b693ada..521f752 100644
-> --- a/include/linux/rtc.h
-> +++ b/include/linux/rtc.h
-> @@ -16,13 +16,60 @@
->  #include <linux/interrupt.h>
->  #include <uapi/linux/rtc.h>
->  
-> +#ifdef CONFIG_RTC_LIB
->  extern int rtc_month_days(unsigned int month, unsigned int year);
-> -extern int rtc_year_days(unsigned int day, unsigned int month, unsigned int year);
-> +extern int rtc_year_days(unsigned int day, unsigned int month,
-> +			 unsigned int year);
->  extern int rtc_valid_tm(struct rtc_time *tm);
->  extern time64_t rtc_tm_to_time64(struct rtc_time *tm);
->  extern void rtc_time64_to_tm(time64_t time, struct rtc_time *tm);
->  ktime_t rtc_tm_to_ktime(struct rtc_time tm);
->  struct rtc_time rtc_ktime_to_tm(ktime_t kt);
-> +#else
-> +static inline int rtc_month_days(unsigned int month, unsigned int year)
-> +{
-> +	return 0;
-> +}
-> +
-> +static inline int rtc_year_days(unsigned int day, unsigned int month,
-> +				unsigned int year)
-> +{
-> +	return 0;
-> +}
-> +
-> +static inline int rtc_valid_tm(struct rtc_time *tm)
-> +{
-> +	return 0;
-> +}
-> +
-> +static inline time64_t rtc_tm_to_time64(struct rtc_time *tm)
-> +{
-> +	time64_t ret;
-> +
-> +	memset(&ret, 0, sizeof(time64_t));
-> +	return ret;
-> +}
-> +
-> +static inline void rtc_time64_to_tm(time64_t time, struct rtc_time *tm)
-> +{
-> +}
-> +
-> +static inline ktime_t rtc_tm_to_ktime(struct rtc_time tm)
-> +{
-> +	ktime_t ret;
-> +
-> +	memset(&ret, 0, sizeof(ktime_t));
-> +	return ret;
-> +}
-> +
-> +static inline struct rtc_time rtc_ktime_to_tm(ktime_t kt)
-> +{
-> +	struct rtc_time ret;
-> +
-> +	memset(&ret, 0, sizeof(struct rtc_time));
-> +	return ret;
-> +}
-> +#endif
->  
->  /*
->   * rtc_tm_sub - Return the difference in seconds.
-> -- 
-> 1.7.9.5
-> 
+
+But right now we will not be able to compile this driver with
+COMPILE_TEST, unless we select some architecture that selects PINCTRL.
+
+So maybe it is a good idea to change "config PINCTRL" option from
+'bool' to 'bool "Support PINCTRL" if COMPILE_TEST', so we can enable it
+manually?
 
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+Marcin Niestroj
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
