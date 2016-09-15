@@ -1,29 +1,28 @@
-Return-Path: <rtc-linux+bncBCN63E7T2ALBBP76X27AKGQEIPNR3GQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBM465K7AKGQE7ETHZVQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id a126si164892wmd.1.2016.09.15.05.08.19
+        for <rtc-linux@googlegroups.com>;
+        Thu, 15 Sep 2016 05:08:19 -0700 (PDT)
+Date: Thu, 15 Sep 2016 14:08:19 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Marcin Niestroj <m.niestroj@grinn-global.com>
+Cc: kbuild test robot <lkp@intel.com>, kbuild-all@01.org,
+	Tony Lindgren <tony@atomide.com>, Rob Herring <robh+dt@kernel.org>,
+	Grygorii Strashko <grygorii.strashko@ti.com>,
+	Keerthy <j-keerthy@ti.com>, Pawel Moll <pawel.moll@arm.com>,
+	Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
+	linux-omap@vger.kernel.org, devicetree@vger.kernel.org
+Subject: [rtc-linux] Re: [PATCH v5] rtc: omap: Support ext_wakeup configuration
+Message-ID: <20160915120819.3733dhvy5r7n3n4j@piout.net>
+References: <201609082240.a4dMqCnB%fengguang.wu@intel.com>
+ <4512fa0b-890b-0f10-00dd-188fcc98fb5c@grinn-global.com>
+ <20160913215837.xstx4c6d4pr42hgh@piout.net>
+ <eb67e85b-4651-33e0-abb7-339d83f36463@grinn-global.com>
 MIME-Version: 1.0
-Received: from mail-pf0-x235.google.com (mail-pf0-x235.google.com. [2607:f8b0:400e:c00::235])
-        by gmr-mx.google.com with ESMTPS id 142si3277700pfx.2.2016.09.07.00.18.23
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 07 Sep 2016 00:18:23 -0700 (PDT)
-Received: by mail-pf0-x235.google.com with SMTP id 128so3705786pfb.3
-        for <rtc-linux@googlegroups.com>; Wed, 07 Sep 2016 00:18:23 -0700 (PDT)
-From: Baolin Wang <baolin.wang@linaro.org>
-To: a.zummo@towertech.it,
-	alexandre.belloni@free-electrons.com
-Cc: rostedt@goodmis.org,
-	mingo@redhat.com,
-	john.stultz@linaro.org,
-	tglx@linutronix.de,
-	baolin.wang@linaro.org,
-	broonie@kernel.org,
-	linux-kernel@vger.kernel.org,
-	rtc-linux@googlegroups.com
-Subject: [rtc-linux] [PATCH] rtc: Add some dummy static inline functions
-Date: Wed,  7 Sep 2016 15:17:26 +0800
-Message-Id: <08716c8296f91fc43a64fbd0a4145b451a02f161.1473232117.git.baolin.wang@linaro.org>
-Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <eb67e85b-4651-33e0-abb7-339d83f36463@grinn-global.com>
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -32,82 +31,47 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Add some dummy static inline functions in case CONFIG_RTC_LIB is not defined.
+On 14/09/2016 at 11:21:48 +0200, Marcin Niestroj wrote :
+> On 13.09.2016 23:58, Alexandre Belloni wrote:
+> > Hi,
+> > 
+> > On 12/09/2016 at 11:01:05 +0200, Marcin Niestroj wrote :
+> > > I guess we are missing PINCTRL in Kconfig. I didn't add that before,
+> > > because I thought that there is a dependency chain GENERIC_PINCONF ->
+> > > PINCONF -> PINCTRL.
+> > > 
+> > > So to resolve this issue:
+> > > 1) Should we add "select" or "depends on" for PINCTRL?
+> > > 2) Should this option be somehow related to COMPILE_TEST?
+> > > 
+> > 
+> > Adding a "depends on PINCTRL" line should be enough to solve that issue.
+> > 
+> 
+> Ok, will add that together with "depends on OF", as I noticed it is
+> also needed.
+> 
+> 
+> But right now we will not be able to compile this driver with
+> COMPILE_TEST, unless we select some architecture that selects PINCTRL.
+> 
 
-Signed-off-by: Baolin Wang <baolin.wang@linaro.org>
-Fixes: a0a6e06d545a ("time: alarmtimer: Add tracepoints for alarmtimers")
----
- include/linux/rtc.h |   49 ++++++++++++++++++++++++++++++++++++++++++++++++-
- 1 file changed, 48 insertions(+), 1 deletion(-)
+That is find, Arnd was pointing out that the main use case is x86
+allmodconfig and that enables PINCTRL.
 
-diff --git a/include/linux/rtc.h b/include/linux/rtc.h
-index b693ada..521f752 100644
---- a/include/linux/rtc.h
-+++ b/include/linux/rtc.h
-@@ -16,13 +16,60 @@
- #include <linux/interrupt.h>
- #include <uapi/linux/rtc.h>
- 
-+#ifdef CONFIG_RTC_LIB
- extern int rtc_month_days(unsigned int month, unsigned int year);
--extern int rtc_year_days(unsigned int day, unsigned int month, unsigned int year);
-+extern int rtc_year_days(unsigned int day, unsigned int month,
-+			 unsigned int year);
- extern int rtc_valid_tm(struct rtc_time *tm);
- extern time64_t rtc_tm_to_time64(struct rtc_time *tm);
- extern void rtc_time64_to_tm(time64_t time, struct rtc_time *tm);
- ktime_t rtc_tm_to_ktime(struct rtc_time tm);
- struct rtc_time rtc_ktime_to_tm(ktime_t kt);
-+#else
-+static inline int rtc_month_days(unsigned int month, unsigned int year)
-+{
-+	return 0;
-+}
-+
-+static inline int rtc_year_days(unsigned int day, unsigned int month,
-+				unsigned int year)
-+{
-+	return 0;
-+}
-+
-+static inline int rtc_valid_tm(struct rtc_time *tm)
-+{
-+	return 0;
-+}
-+
-+static inline time64_t rtc_tm_to_time64(struct rtc_time *tm)
-+{
-+	time64_t ret;
-+
-+	memset(&ret, 0, sizeof(time64_t));
-+	return ret;
-+}
-+
-+static inline void rtc_time64_to_tm(time64_t time, struct rtc_time *tm)
-+{
-+}
-+
-+static inline ktime_t rtc_tm_to_ktime(struct rtc_time tm)
-+{
-+	ktime_t ret;
-+
-+	memset(&ret, 0, sizeof(ktime_t));
-+	return ret;
-+}
-+
-+static inline struct rtc_time rtc_ktime_to_tm(ktime_t kt)
-+{
-+	struct rtc_time ret;
-+
-+	memset(&ret, 0, sizeof(struct rtc_time));
-+	return ret;
-+}
-+#endif
- 
- /*
-  * rtc_tm_sub - Return the difference in seconds.
+> So maybe it is a good idea to change "config PINCTRL" option from
+> 'bool' to 'bool "Support PINCTRL" if COMPILE_TEST', so we can enable it
+> manually?
+> 
+
+This can be done too Mark Brown was suggesting it is a good idea. This
+can be submitted as a separate, unrelated patch.
+
+
 -- 
-1.7.9.5
+Alexandre Belloni, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
