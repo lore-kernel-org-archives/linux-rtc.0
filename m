@@ -1,29 +1,31 @@
-Return-Path: <rtc-linux+bncBCN63E7T2ALBBJX3Q67QKGQELRI2QBQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBDI57DN47YOBBNN55C7AKGQENQEPKJY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail-yw0-x22e.google.com (mail-yw0-x22e.google.com. [2607:f8b0:4002:c05::22e])
-        by gmr-mx.google.com with ESMTPS id 63si1482109ywe.1.2016.09.20.20.25.26
+MIME-Version: 1.0
+Received: from mail-yb0-f170.google.com (mail-yb0-f170.google.com. [209.85.213.170])
+        by gmr-mx.google.com with ESMTPS id l185si114710ywb.5.2016.09.14.21.08.21
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 20 Sep 2016 20:25:26 -0700 (PDT)
-Received: by mail-yw0-x22e.google.com with SMTP id g192so32282414ywh.1
-        for <rtc-linux@googlegroups.com>; Tue, 20 Sep 2016 20:25:26 -0700 (PDT)
-MIME-Version: 1.0
-In-Reply-To: <alpine.DEB.2.20.1609202340560.5476@nanos>
-References: <8c570c152c95087faa75e397c667b6d5b8d98b3b.1474177609.git.baolin.wang@linaro.org>
- <0d5cedb2f4ad46aa7fb07b990072bacb33517102.1474177609.git.baolin.wang@linaro.org>
- <alpine.DEB.2.20.1609202340560.5476@nanos>
-From: Baolin Wang <baolin.wang@linaro.org>
-Date: Wed, 21 Sep 2016 11:25:25 +0800
-Message-ID: <CAMz4kuLYkyZzs33VKmo9B3JxTFFDYun7AHBYUUmHz=424yiq8g@mail.gmail.com>
-Subject: [rtc-linux] Re: [PATCH 2/2] time: alarmtimer: Add the trcepoints for alarmtimer
-To: Thomas Gleixner <tglx@linutronix.de>
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>, Steven Rostedt <rostedt@goodmis.org>,
-	Ingo Molnar <mingo@redhat.com>, John Stultz <john.stultz@linaro.org>,
-	Mark Brown <broonie@kernel.org>, LKML <linux-kernel@vger.kernel.org>,
-	rtc-linux@googlegroups.com
-Content-Type: text/plain; charset=UTF-8
+        Wed, 14 Sep 2016 21:08:21 -0700 (PDT)
+Received: by mail-yb0-f170.google.com with SMTP id x93so28888677ybh.1
+        for <rtc-linux@googlegroups.com>; Wed, 14 Sep 2016 21:08:21 -0700 (PDT)
+From: Pratyush Anand <panand@redhat.com>
+To: mingo@kernel.org,
+	alexandre.belloni@free-electrons.com,
+	tglx@linutronix.de,
+	hpa@zytor.com,
+	x86@kernel.org
+Cc: rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org,
+	prarit@redhat.com,
+	dzickus@redhat.com,
+	dyoung@redhat.com,
+	a.zummo@towertech.it,
+	panand@redhat.com
+Subject: [rtc-linux] [PATCH] rtc/rtc-cmos: Initialize hpet timer before irq is registered
+Date: Thu, 15 Sep 2016 09:38:16 +0530
+Message-Id: <19b150a2f1087b80757d62770d99833781e57b31.1473862685.git.panand@redhat.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -32,161 +34,111 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 21 September 2016 at 06:27, Thomas Gleixner <tglx@linutronix.de> wrote:
-> On Sun, 18 Sep 2016, Baolin Wang wrote:
->> +DECLARE_EVENT_CLASS(alarm_setting,
->
-> What is alarm_setting? Without looking at the DEFINE_EVENT which uses this
-> I cannot decode the meaning.
+We have observed on few x86 machines with rtc-cmos device that
+hpet_rtc_interrupt() is called just after irq registration and before
+cmos_do_probe() could call hpet_rtc_timer_init().
 
-Will rename it.
+So, neither hpet_default_delta nor hpet_t1_cmp is initialized by the time
+interrupt is raised in the given situation, and this results in NMI
+watchdog LOCKUP.
 
->
->> +     TP_STRUCT__entry(
->> +             __field(unsigned char, second)
->> +             __field(unsigned char, minute)
->> +             __field(unsigned char, hour)
->> +             __field(unsigned char, day)
->> +             __field(unsigned char, mon)
->> +             __field(unsigned short, year)
->> +             __field(unsigned char, alarm_type)
->> +     ),
->> +
->> +     TP_fast_assign(
->> +             __entry->second = rtc_time->tm_sec;
->> +             __entry->minute = rtc_time->tm_min;
->> +             __entry->hour = rtc_time->tm_hour;
->> +             __entry->day = rtc_time->tm_mday;
->> +             __entry->mon = rtc_time->tm_mon;
->> +             __entry->year = rtc_time->tm_year;
->> +             __entry->alarm_type = flag;
->
-> What's the value of storing the alarm time in RTC format?
+It has only been observed sporadically on kdump secondary kernels.
 
-As suggested by Steven, change the type of RTC value to save trace buffer.
+See the call trace:
+---<-snip->---
+[   27.913194] Kernel panic - not syncing: Watchdog detected hard LOCKUP on cpu 0
+[   27.915371] CPU: 0 PID: 1 Comm: swapper/0 Not tainted 3.10.0-342.el7.x86_64 #1
+[   27.917503] Hardware name: HP ProLiant DL160 Gen8, BIOS J03 02/10/2014
+[   27.919455]  ffffffff8186a728 0000000059c82488 ffff880034e05af0 ffffffff81637bd4
+[   27.921870]  ffff880034e05b70 ffffffff8163144a 0000000000000010 ffff880034e05b80
+[   27.924257]  ffff880034e05b20 0000000059c82488 0000000000000000 0000000000000000
+[   27.926599] Call Trace:
+[   27.927352]  <NMI>  [<ffffffff81637bd4>] dump_stack+0x19/0x1b
+[   27.929080]  [<ffffffff8163144a>] panic+0xd8/0x1e7
+[   27.930588]  [<ffffffff8111d3e0>] ? restart_watchdog_hrtimer+0x50/0x50
+[   27.932502]  [<ffffffff8111d4a2>] watchdog_overflow_callback+0xc2/0xd0
+[   27.934427]  [<ffffffff811612c1>] __perf_event_overflow+0xa1/0x250
+[   27.936232]  [<ffffffff81161d94>] perf_event_overflow+0x14/0x20
+[   27.937957]  [<ffffffff81032ae8>] intel_pmu_handle_irq+0x1e8/0x470
+[   27.939799]  [<ffffffff8164164b>] perf_event_nmi_handler+0x2b/0x50
+[   27.941649]  [<ffffffff81640d99>] nmi_handle.isra.0+0x69/0xb0
+[   27.943348]  [<ffffffff81640f49>] do_nmi+0x169/0x340
+[   27.944802]  [<ffffffff816401d3>] end_repeat_nmi+0x1e/0x2e
+[   27.946424]  [<ffffffff81056ee5>] ? hpet_rtc_interrupt+0x85/0x380
+[   27.948197]  [<ffffffff81056ee5>] ? hpet_rtc_interrupt+0x85/0x380
+[   27.949992]  [<ffffffff81056ee5>] ? hpet_rtc_interrupt+0x85/0x380
+[   27.951816]  <<EOE>>  <IRQ>  [<ffffffff8108f5a3>] ? run_timer_softirq+0x43/0x340
+[   27.954114]  [<ffffffff8111e24e>] handle_irq_event_percpu+0x3e/0x1e0
+[   27.955962]  [<ffffffff8111e42d>] handle_irq_event+0x3d/0x60
+[   27.957635]  [<ffffffff811210c7>] handle_edge_irq+0x77/0x130
+[   27.959332]  [<ffffffff8101704f>] handle_irq+0xbf/0x150
+[   27.960949]  [<ffffffff8164a86f>] do_IRQ+0x4f/0xf0
+[   27.962434]  [<ffffffff8163faed>] common_interrupt+0x6d/0x6d
+[   27.964101]  <EOI>  [<ffffffff8163f43b>] ? _raw_spin_unlock_irqrestore+0x1b/0x40
+[   27.966308]  [<fffff8111ff07>] __setup_irq+0x2a7/0x570
+[   28.067859]  [<ffffffff81056e60>] ? hpet_cpuhp_notify+0x140/0x140
+[   28.069709]  [<ffffffff8112032c>] request_threaded_irq+0xcc/0x170
+[   28.071585]  [<ffffffff814b24a6>] cmos_do_probe+0x1e6/0x450
+[   28.073240]  [<ffffffff814b2710>] ? cmos_do_probe+0x450/0x450
+[   28.074911]  [<ffffffff814b27cb>] cmos_pnp_probe+0xbb/0xc0
+[   28.076533]  [<ffffffff8139b245>] pnp_device_probe+0x65/0xd0
+[   28.078198]  [<ffffffff813f8ca7>] driver_probe_device+0x87/0x390
+[   28.079971]  [<ffffffff813f9083>] __driver_attach+0x93/0xa0
+[   28.081660]  [<ffffffff813f8ff0>] ? __device_attach+0x40/0x40
+[   28.083662]  [<ffffffff813f6a13>] bus_for_each_dev+0x73/0xc0
+[   28.085370]  [<ffffffff813f86fe>] driver_attach+0x1e/0x20
+[   28.086974]  [<ffffffff813f8250>] bus_add_driver+0x200/0x2d0
+[   28.088634]  [<ffffffff81ade49a>] ? rtc_sysfs_init+0xe/0xe
+[   28.090349]  [<ffffffff813f9704>] driver_register+0x64/0xf0
+[   28.091989]  [<ffffffff8139b070>] pnp_register_driver+0x20/0x30
+[   28.093707]  [<ffffffff81ade4ab>] cmos_init+0x11/0x71
+---<-snip->---
 
->
-> What's wrong with simply storing the flat u64 based wall clock time?
-> Nothing, because you can do the RTC format conversion in user space.
->
->> +DECLARE_EVENT_CLASS(alarm_processing,
->
-> Again alarm_processing is not telling me anything.
+This patch moves hpet_rtc_timer_init() before IRQ registration, so that we
+can gracefully handle such spurious interrupts. It also masks HPET RTC
+interrupts, in case IRQ registration fails.
 
-Is alarm_class OK?
+We were able to reproduce the problem in maximum 15 trials of kdump
+secondary kernel boot on an hp-dl160gen8 FCoE host machine without this
+patch.  However, more than 35 trials went fine after applying this patch.
 
->
->> +
->> +     TP_PROTO(struct alarm *alarm, char *process_name),
->
-> Why do you want to store process_name? The tracer already tracks the name
-> of the process in which context the tracepoint is taken. So what's the
-> point of this? Look at the output:
->
-> system_server-2976  [003] d..2  1076.605608: alarmtimer_start: process:system_server
->
-> Completely pointless duplicated information.
+Suggested-by: Thomas Gleixner <tglx@linutronix.de>
+Signed-off-by: Pratyush Anand <panand@redhat.com>
+---
+ drivers/rtc/rtc-cmos.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-OK. Will remove it.
-
->
->> +
->> +     TP_ARGS(alarm, process_name),
->> +
->> +     TP_STRUCT__entry(
->> +             __field(unsigned long long, expires)
->> +             __field(unsigned char, second)
->> +             __field(unsigned char, minute)
->> +             __field(unsigned char, hour)
->> +             __field(unsigned char, day)
->> +             __field(unsigned char, mon)
->> +             __field(unsigned short, year)
->> +             __field(unsigned char, alarm_type)
->> +             __string(name, process_name)
->> +     ),
->> +
->> +     TP_fast_assign(
->> +             __entry->expires = alarm->node.expires.tv64;
->> +             __entry->alarm_type = alarm->type;
->> +             __assign_str(name, process_name);
->> +             __entry->second = rtc_ktime_to_tm(alarm->node.expires).tm_sec;
->> +             __entry->minute = rtc_ktime_to_tm(alarm->node.expires).tm_min;
->> +             __entry->hour = rtc_ktime_to_tm(alarm->node.expires).tm_hour;
->> +             __entry->day = rtc_ktime_to_tm(alarm->node.expires).tm_mday;
->> +             __entry->mon = rtc_ktime_to_tm(alarm->node.expires).tm_mon;
->> +             __entry->year = rtc_ktime_to_tm(alarm->node.expires).tm_year;
->
-> This is utter crap for various reasons:
->
-> 1) You store the expiry time over and over and in most cases it's simply
->    pointless.
-
-I will remove the 'expires' variable.
-
->
->    - If the timer is started then we want to store the expiry time.
->
->    - If the timer fires then the programmed expiry time is available from
->      the start trace point and you miss to store the information which is
->      really interesting: The actual time at which the timer expires
->      (REAL/BOOT)
->
->    - If the timer is canceled then the expiry time in the timer is not
->      interesting at all. All you care is about the fact that the timer has
->      been canceled. The expiry time can still be retrieved from the start
->      trace point.
->
->    - The restart tracepoint is redundant as well because either you see:
->
->      start -> expire -> start or start -> start which is clearly a restart.
->
->      If you put the start trace point into alarmtimer_enqueue() then you
->      spare the extra code size for two tracepoints because that is used in
->      start and restart
-
-Make sense.
-
->
->    See the hrtimer and timer tracepoints for reference.
->
->
-> 2) You store the expiry time again in RTC format. Store the information in
->    a plain u64 and be done with it.
-
-But I still think the RTC format is more readable for debugging alarm timer.
-
->
->
->> +DEFINE_EVENT(alarm_processing, alarmtimer_fired,
->> +
->> +     TP_PROTO(struct alarm *alarm, char *process_name),
->
-> So you hand in a NULL pointer to this tracepoint to have even more useless
-> information in the trace.
-
-Will remove 'process_name' parameter.
-
->
->> @@ -264,6 +270,11 @@ static int alarmtimer_suspend(struct device *dev)
->>       now = rtc_tm_to_ktime(tm);
->>       now = ktime_add(now, min);
->>
->> +     if (trace_alarmtimer_suspend_enabled()) {
->
-> What's the point of this conditional? Avoiding rtc_ktime_to_tm() ? Oh well...
->
->> +             tm_set = rtc_ktime_to_tm(now);
->> +             trace_alarmtimer_suspend(&tm_set, type);
->
-> "now" is CLOCK_REALTIME based. You store the type of the alarm timer which
-> is the first to expire and therefor is the one setting the RTC value, but
-> we don't know which timer it is. Useful - NOT!
-
-We can know the timer by comparing the expire time.
-
+diff --git a/drivers/rtc/rtc-cmos.c b/drivers/rtc/rtc-cmos.c
+index 43745cac0141..fddde655cbd4 100644
+--- a/drivers/rtc/rtc-cmos.c
++++ b/drivers/rtc/rtc-cmos.c
+@@ -707,6 +707,8 @@ cmos_do_probe(struct device *dev, struct resource *ports, int rtc_irq)
+ 		goto cleanup1;
+ 	}
+ 
++	hpet_rtc_timer_init();
++
+ 	if (is_valid_irq(rtc_irq)) {
+ 		irq_handler_t rtc_cmos_int_handler;
+ 
+@@ -714,6 +716,7 @@ cmos_do_probe(struct device *dev, struct resource *ports, int rtc_irq)
+ 			rtc_cmos_int_handler = hpet_rtc_interrupt;
+ 			retval = hpet_register_irq_handler(cmos_interrupt);
+ 			if (retval) {
++				hpet_mask_rtc_irq_bit(RTC_IRQMASK);
+ 				dev_warn(dev, "hpet_register_irq_handler "
+ 						" failed in rtc_init().");
+ 				goto cleanup1;
+@@ -729,7 +732,6 @@ cmos_do_probe(struct device *dev, struct resource *ports, int rtc_irq)
+ 			goto cleanup1;
+ 		}
+ 	}
+-	hpet_rtc_timer_init();
+ 
+ 	/* export at least the first block of NVRAM */
+ 	nvram.size = address_space - NVRAM_OFFSET;
 -- 
-Baolin.wang
-Best Regards
+2.7.4
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
