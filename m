@@ -1,30 +1,28 @@
-Return-Path: <rtc-linux+bncBCN63E7T2ALBBR6PRG7QKGQEV6SVE2Y@googlegroups.com>
+Return-Path: <rtc-linux+bncBD7N3SEV2QCRBX7V527AKGQEP5CD4OQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail-yw0-f180.google.com (mail-yw0-f180.google.com. [209.85.161.180])
-        by gmr-mx.google.com with ESMTPS id 63si1597787ywe.1.2016.09.21.03.58.15
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 21 Sep 2016 03:58:15 -0700 (PDT)
-Received: by mail-yw0-f180.google.com with SMTP id u82so45644788ywc.2
-        for <rtc-linux@googlegroups.com>; Wed, 21 Sep 2016 03:58:15 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <alpine.DEB.2.20.1609210919390.5573@nanos>
-References: <8c570c152c95087faa75e397c667b6d5b8d98b3b.1474177609.git.baolin.wang@linaro.org>
- <0d5cedb2f4ad46aa7fb07b990072bacb33517102.1474177609.git.baolin.wang@linaro.org>
- <alpine.DEB.2.20.1609202340560.5476@nanos> <CAMz4kuLYkyZzs33VKmo9B3JxTFFDYun7AHBYUUmHz=424yiq8g@mail.gmail.com>
- <alpine.DEB.2.20.1609210919390.5573@nanos>
-From: Baolin Wang <baolin.wang@linaro.org>
-Date: Wed, 21 Sep 2016 18:58:14 +0800
-Message-ID: <CAMz4kuKfVjJw21TpaMFjH3=5=7jyzKc71VZDFdu68T1Nspfqng@mail.gmail.com>
-Subject: [rtc-linux] Re: [PATCH 2/2] time: alarmtimer: Add the trcepoints for alarmtimer
-To: Thomas Gleixner <tglx@linutronix.de>
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>, Steven Rostedt <rostedt@goodmis.org>,
-	Ingo Molnar <mingo@redhat.com>, John Stultz <john.stultz@linaro.org>,
-	Mark Brown <broonie@kernel.org>, LKML <linux-kernel@vger.kernel.org>,
-	rtc-linux@googlegroups.com
-Content-Type: text/plain; charset=UTF-8
+Received: from smtp2.megiteam.pl (smtp2.megiteam.pl. [213.189.52.193])
+        by gmr-mx.google.com with ESMTPS id c13si512179wme.3.2016.09.16.02.26.54
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=AES128-SHA bits=128/128);
+        Fri, 16 Sep 2016 02:26:54 -0700 (PDT)
+From: Marcin Niestroj <m.niestroj@grinn-global.com>
+To: Tony Lindgren <tony@atomide.com>
+Cc: Rob Herring <robh+dt@kernel.org>,
+	Grygorii Strashko <grygorii.strashko@ti.com>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Keerthy <j-keerthy@ti.com>,
+	Pawel Moll <pawel.moll@arm.com>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	rtc-linux@googlegroups.com,
+	linux-omap@vger.kernel.org,
+	devicetree@vger.kernel.org,
+	Marcin Niestroj <m.niestroj@grinn-global.com>
+Subject: [rtc-linux] [PATCH v6] rtc: omap: Support ext_wakeup configuration
+Date: Fri, 16 Sep 2016 11:26:28 +0200
+Message-Id: <20160916092628.1049-1-m.niestroj@grinn-global.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -33,54 +31,313 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 21 September 2016 at 15:26, Thomas Gleixner <tglx@linutronix.de> wrote:
-> On Wed, 21 Sep 2016, Baolin Wang wrote:
->> On 21 September 2016 at 06:27, Thomas Gleixner <tglx@linutronix.de> wrote:
->> >> +     TP_fast_assign(
->> >> +             __entry->second = rtc_time->tm_sec;
->> >> +             __entry->minute = rtc_time->tm_min;
->> >> +             __entry->hour = rtc_time->tm_hour;
->> >> +             __entry->day = rtc_time->tm_mday;
->> >> +             __entry->mon = rtc_time->tm_mon;
->> >> +             __entry->year = rtc_time->tm_year;
->> >> +             __entry->alarm_type = flag;
->> >
->> > What's the value of storing the alarm time in RTC format?
->>
->> As suggested by Steven, change the type of RTC value to save trace buffer.
->
-> A single u64 does not take more storage space than this and it's a single
-> store.
+Support configuration of ext_wakeup sources. This patch makes it
+possible to enable ext_wakeup and set it's polarity, depending on board
+configuration. AM335x's dedicated PMIC (tps65217) uses ext_wakeup to
+notify about power-button presses. Handling power-button presses enables
+to recover from RTC-only power states correctly.
 
-OK.
+Signed-off-by: Marcin Niestroj <m.niestroj@grinn-global.com>
+---
+Hi,
 
->
->> > 2) You store the expiry time again in RTC format. Store the information in
->> >    a plain u64 and be done with it.
->>
->> But I still think the RTC format is more readable for debugging alarm timer.
->
-> That's what post processing is for.
->
->> > What's the point of this conditional? Avoiding rtc_ktime_to_tm() ? Oh well...
->> >
->> >> +             tm_set = rtc_ktime_to_tm(now);
->> >> +             trace_alarmtimer_suspend(&tm_set, type);
->> >
->> > "now" is CLOCK_REALTIME based. You store the type of the alarm timer which
->> > is the first to expire and therefor is the one setting the RTC value, but
->> > we don't know which timer it is. Useful - NOT!
->>
->> We can know the timer by comparing the expire time.
->
-> Please make it similar to the timer/hrtimer tracing so people can reuse
-> their postprocessing scripts with minimial tweaks.
+This patch adds support for ext_wakeup using generic pinconf device-tree
+bindings, with one added custom property.
 
-OK. Thanks.
+Changes v5 -> v6:
+ * Add depends on OF and PINCTRL in Kconfig (found by kbuild test robot)
 
+Changes v4 -> v5 (suggested by Rob):
+ * Don't use GPIO defines in ti,input-polarity, use optional ti,active-high
+   boolean instead.
+ * Use '-' instead of '_' in node name.
+
+Changes v1 -> v4:
+ * This is a total reimplementation, so it is not based on any of the previous
+   patch versions. This approach has been suggested by Tony and Grygorii
+   in [1].
+
+Patch was developed on 4.7, rebased on 4.8-rc6, tested using chiliBoard.
+
+[1] http://www.spinics.net/lists/devicetree/msg131516.html
+
+ Documentation/devicetree/bindings/rtc/rtc-omap.txt |  21 +++
+ drivers/rtc/Kconfig                                |   3 +
+ drivers/rtc/rtc-omap.c                             | 168 ++++++++++++++++++++-
+ 3 files changed, 184 insertions(+), 8 deletions(-)
+
+diff --git a/Documentation/devicetree/bindings/rtc/rtc-omap.txt b/Documentation/devicetree/bindings/rtc/rtc-omap.txt
+index bf7d11a..bee41f9 100644
+--- a/Documentation/devicetree/bindings/rtc/rtc-omap.txt
++++ b/Documentation/devicetree/bindings/rtc/rtc-omap.txt
+@@ -18,6 +18,18 @@ Optional properties:
+   through pmic_power_en
+ - clocks: Any internal or external clocks feeding in to rtc
+ - clock-names: Corresponding names of the clocks
++- pinctrl-0: a phandle pointing to the pin settings for the device
++- pinctrl-names: should be "default"
++
++Optional subnodes:
++- generic pinctrl node
++
++Required pinctrl subnodes properties:
++- pins - Names of ext_wakeup pins to configure
++
++Optional pinctrl subnodes properties:
++- input-enable - Enables ext_wakeup
++- ti,active-high - Set input active high (by default active low)
+ 
+ Example:
+ 
+@@ -30,4 +42,13 @@ rtc@1c23000 {
+ 	system-power-controller;
+ 	clocks = <&clk_32k_rtc>, <&clk_32768_ck>;
+ 	clock-names = "ext-clk", "int-clk";
++
++	pinctrl-0 = <&ext_wakeup>;
++	pinctrl-names = "default";
++
++	ext_wakeup: ext-wakeup {
++		pins = "ext_wakeup0";
++		input-enable;
++		ti,active-high;
++	};
+ };
+diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
+index e215f50..abeca83 100644
+--- a/drivers/rtc/Kconfig
++++ b/drivers/rtc/Kconfig
+@@ -1231,6 +1231,9 @@ config RTC_DRV_IMXDI
+ config RTC_DRV_OMAP
+ 	tristate "TI OMAP Real Time Clock"
+ 	depends on ARCH_OMAP || ARCH_DAVINCI || COMPILE_TEST
++	depends on OF
++	depends on PINCTRL
++	select GENERIC_PINCONF
+ 	help
+ 	  Say "yes" here to support the on chip real time clock
+ 	  present on TI OMAP1, AM33xx, DA8xx/OMAP-L13x, AM43xx and DRA7xx.
+diff --git a/drivers/rtc/rtc-omap.c b/drivers/rtc/rtc-omap.c
+index ec2e9c5..d5b4140 100644
+--- a/drivers/rtc/rtc-omap.c
++++ b/drivers/rtc/rtc-omap.c
+@@ -13,19 +13,23 @@
+  * 2 of the License, or (at your option) any later version.
+  */
+ 
+-#include <linux/kernel.h>
++#include <dt-bindings/gpio/gpio.h>
++#include <linux/bcd.h>
++#include <linux/clk.h>
++#include <linux/delay.h>
+ #include <linux/init.h>
+-#include <linux/module.h>
++#include <linux/io.h>
+ #include <linux/ioport.h>
+-#include <linux/delay.h>
+-#include <linux/rtc.h>
+-#include <linux/bcd.h>
+-#include <linux/platform_device.h>
++#include <linux/kernel.h>
++#include <linux/module.h>
+ #include <linux/of.h>
+ #include <linux/of_device.h>
++#include <linux/pinctrl/pinctrl.h>
++#include <linux/pinctrl/pinconf.h>
++#include <linux/pinctrl/pinconf-generic.h>
++#include <linux/platform_device.h>
+ #include <linux/pm_runtime.h>
+-#include <linux/io.h>
+-#include <linux/clk.h>
++#include <linux/rtc.h>
+ 
+ /*
+  * The OMAP RTC is a year/month/day/hours/minutes/seconds BCD clock
+@@ -115,6 +119,8 @@
+ 
+ /* OMAP_RTC_PMIC bit fields: */
+ #define OMAP_RTC_PMIC_POWER_EN_EN	BIT(16)
++#define OMAP_RTC_PMIC_EXT_WKUP_EN(x)	BIT(x)
++#define OMAP_RTC_PMIC_EXT_WKUP_POL(x)	BIT(4 + x)
+ 
+ /* OMAP_RTC_KICKER values */
+ #define	KICK0_VALUE			0x83e70b13
+@@ -141,6 +147,7 @@ struct omap_rtc {
+ 	bool is_pmic_controller;
+ 	bool has_ext_clk;
+ 	const struct omap_rtc_device_type *type;
++	struct pinctrl_dev *pctldev;
+ };
+ 
+ static inline u8 rtc_read(struct omap_rtc *rtc, unsigned int reg)
+@@ -525,6 +532,139 @@ static const struct of_device_id omap_rtc_of_match[] = {
+ };
+ MODULE_DEVICE_TABLE(of, omap_rtc_of_match);
+ 
++static const struct pinctrl_pin_desc rtc_pins_desc[] = {
++	PINCTRL_PIN(0, "ext_wakeup0"),
++	PINCTRL_PIN(1, "ext_wakeup1"),
++	PINCTRL_PIN(2, "ext_wakeup2"),
++	PINCTRL_PIN(3, "ext_wakeup3"),
++};
++
++static int rtc_pinctrl_get_groups_count(struct pinctrl_dev *pctldev)
++{
++	return 0;
++}
++
++static const char *rtc_pinctrl_get_group_name(struct pinctrl_dev *pctldev,
++					unsigned int group)
++{
++	return NULL;
++}
++
++static const struct pinctrl_ops rtc_pinctrl_ops = {
++	.get_groups_count = rtc_pinctrl_get_groups_count,
++	.get_group_name = rtc_pinctrl_get_group_name,
++	.dt_node_to_map = pinconf_generic_dt_node_to_map_pin,
++	.dt_free_map = pinconf_generic_dt_free_map,
++};
++
++enum rtc_pin_config_param {
++	PIN_CONFIG_ACTIVE_HIGH = PIN_CONFIG_END + 1,
++};
++
++static const struct pinconf_generic_params rtc_params[] = {
++	{"ti,active-high", PIN_CONFIG_ACTIVE_HIGH, 0},
++};
++
++#ifdef CONFIG_DEBUG_FS
++static const struct pin_config_item rtc_conf_items[ARRAY_SIZE(rtc_params)] = {
++	PCONFDUMP(PIN_CONFIG_ACTIVE_HIGH, "input active high", NULL, false),
++};
++#endif
++
++static int rtc_pinconf_get(struct pinctrl_dev *pctldev,
++			unsigned int pin, unsigned long *config)
++{
++	struct omap_rtc *rtc = pinctrl_dev_get_drvdata(pctldev);
++	unsigned int param = pinconf_to_config_param(*config);
++	u32 val;
++	u16 arg = 0;
++
++	rtc->type->unlock(rtc);
++	val = rtc_readl(rtc, OMAP_RTC_PMIC_REG);
++	rtc->type->lock(rtc);
++
++	switch (param) {
++	case PIN_CONFIG_INPUT_ENABLE:
++		if (!(val & OMAP_RTC_PMIC_EXT_WKUP_EN(pin)))
++			return -EINVAL;
++		break;
++	case PIN_CONFIG_ACTIVE_HIGH:
++		if (val & OMAP_RTC_PMIC_EXT_WKUP_POL(pin))
++			return -EINVAL;
++		break;
++	default:
++		return -ENOTSUPP;
++	};
++
++	*config = pinconf_to_config_packed(param, arg);
++
++	return 0;
++}
++
++static int rtc_pinconf_set(struct pinctrl_dev *pctldev,
++			unsigned int pin, unsigned long *configs,
++			unsigned int num_configs)
++{
++	struct omap_rtc *rtc = pinctrl_dev_get_drvdata(pctldev);
++	u32 val;
++	unsigned int param;
++	u16 param_val;
++	int i;
++
++	rtc->type->unlock(rtc);
++	val = rtc_readl(rtc, OMAP_RTC_PMIC_REG);
++	rtc->type->lock(rtc);
++
++	/* active low by default */
++	val |= OMAP_RTC_PMIC_EXT_WKUP_POL(pin);
++
++	for (i = 0; i < num_configs; i++) {
++		param = pinconf_to_config_param(configs[i]);
++		param_val = pinconf_to_config_argument(configs[i]);
++
++		switch (param) {
++		case PIN_CONFIG_INPUT_ENABLE:
++			if (param_val)
++				val |= OMAP_RTC_PMIC_EXT_WKUP_EN(pin);
++			else
++				val &= ~OMAP_RTC_PMIC_EXT_WKUP_EN(pin);
++			break;
++		case PIN_CONFIG_ACTIVE_HIGH:
++			val &= ~OMAP_RTC_PMIC_EXT_WKUP_POL(pin);
++			break;
++		default:
++			dev_err(&rtc->rtc->dev, "Property %u not supported\n",
++				param);
++			return -ENOTSUPP;
++		}
++	}
++
++	rtc->type->unlock(rtc);
++	rtc_writel(rtc, OMAP_RTC_PMIC_REG, val);
++	rtc->type->lock(rtc);
++
++	return 0;
++}
++
++static const struct pinconf_ops rtc_pinconf_ops = {
++	.is_generic = true,
++	.pin_config_get = rtc_pinconf_get,
++	.pin_config_set = rtc_pinconf_set,
++};
++
++static struct pinctrl_desc rtc_pinctrl_desc = {
++	.pins = rtc_pins_desc,
++	.npins = ARRAY_SIZE(rtc_pins_desc),
++	.pctlops = &rtc_pinctrl_ops,
++	.confops = &rtc_pinconf_ops,
++	.custom_params = rtc_params,
++	.num_custom_params = ARRAY_SIZE(rtc_params),
++#ifdef CONFIG_DEBUG_FS
++	.custom_conf_items = rtc_conf_items,
++#endif
++	.owner = THIS_MODULE,
++};
++
+ static int omap_rtc_probe(struct platform_device *pdev)
+ {
+ 	struct omap_rtc	*rtc;
+@@ -681,6 +821,15 @@ static int omap_rtc_probe(struct platform_device *pdev)
+ 		}
+ 	}
+ 
++	/* Support ext_wakeup pinconf */
++	rtc_pinctrl_desc.name = dev_name(&pdev->dev);
++
++	rtc->pctldev = pinctrl_register(&rtc_pinctrl_desc, &pdev->dev, rtc);
++	if (IS_ERR(rtc->pctldev)) {
++		dev_err(&pdev->dev, "Couldn't register pinctrl driver\n");
++		return PTR_ERR(rtc->pctldev);
++	}
++
+ 	return 0;
+ 
+ err:
+@@ -724,6 +873,9 @@ static int __exit omap_rtc_remove(struct platform_device *pdev)
+ 	pm_runtime_put_sync(&pdev->dev);
+ 	pm_runtime_disable(&pdev->dev);
+ 
++	/* Remove ext_wakeup pinconf */
++	pinctrl_unregister(rtc->pctldev);
++
+ 	return 0;
+ }
+ 
 -- 
-Baolin.wang
-Best Regards
+2.9.3
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
