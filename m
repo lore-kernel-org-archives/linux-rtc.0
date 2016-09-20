@@ -1,20 +1,23 @@
-Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBQEXW27AKGQEH3ECXMQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBDAMN6NI5EERBZOYQ27QKGQEFSPPN2Q@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id y7si805858wmd.0.2016.09.05.08.14.07
-        for <rtc-linux@googlegroups.com>;
-        Mon, 05 Sep 2016 08:14:07 -0700 (PDT)
-Date: Mon, 5 Sep 2016 17:14:07 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Axel Lin <axel.lin@ingics.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
-	Oleksij Rempel <linux@rempel-privat.de>, rtc-linux@googlegroups.com
-Subject: [rtc-linux] Re: [PATCH] rtc: asm9260: Fix missing spin_lock_init for priv->lock
-Message-ID: <20160905151407.sojyribngqka6k4k@piout.net>
-References: <1473087671-8866-1-git-send-email-axel.lin@ingics.com>
+Received: from Galois.linutronix.de (Galois.linutronix.de. [2a01:7a0:2:106d:700::1])
+        by gmr-mx.google.com with ESMTPS id w79si1644818wmw.0.2016.09.20.14.38.45
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=AES128-SHA bits=128/128);
+        Tue, 20 Sep 2016 14:38:45 -0700 (PDT)
+Date: Tue, 20 Sep 2016 23:36:10 +0200 (CEST)
+From: Thomas Gleixner <tglx@linutronix.de>
+To: Baolin Wang <baolin.wang@linaro.org>
+cc: a.zummo@towertech.it, alexandre.belloni@free-electrons.com,
+    rostedt@goodmis.org, mingo@redhat.com, john.stultz@linaro.org,
+    broonie@kernel.org, linux-kernel@vger.kernel.org,
+    rtc-linux@googlegroups.com
+Subject: [rtc-linux] Re: [PATCH 1/2] rtc: Add some dummy static inline functions
+In-Reply-To: <8c570c152c95087faa75e397c667b6d5b8d98b3b.1474177609.git.baolin.wang@linaro.org>
+Message-ID: <alpine.DEB.2.20.1609202333220.5476@nanos>
+References: <8c570c152c95087faa75e397c667b6d5b8d98b3b.1474177609.git.baolin.wang@linaro.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1473087671-8866-1-git-send-email-axel.lin@ingics.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -24,36 +27,23 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Hi,
+On Sun, 18 Sep 2016, Baolin Wang wrote:
 
-This is already solved by: http://patchwork.ozlabs.org/patch/664582/
+> The patch 2 in this patchset adding tracepoints for alarmtimers will build
+> failed on S390 platform, due to S390 defconfig did not define CONFIG_RTC_LIB
+> macro to define the rtc_ktime_to_tm() function which is used in this patch.
+> Thus we should add some ummy static inline functions in case CONFIG_RTC_LIB
+> is not defined.
 
-On 05/09/2016 at 23:01:11 +0800, Axel Lin wrote :
-> Signed-off-by: Axel Lin <axel.lin@ingics.com>
-> ---
->  drivers/rtc/rtc-asm9260.c | 1 +
->  1 file changed, 1 insertion(+)
-> 
-> diff --git a/drivers/rtc/rtc-asm9260.c b/drivers/rtc/rtc-asm9260.c
-> index 5219916..72a036f 100644
-> --- a/drivers/rtc/rtc-asm9260.c
-> +++ b/drivers/rtc/rtc-asm9260.c
-> @@ -269,6 +269,7 @@ static int asm9260_rtc_probe(struct platform_device *pdev)
->  
->  	priv->dev = &pdev->dev;
->  	platform_set_drvdata(pdev, priv);
-> +	spin_lock_init(&priv->lock);
->  
->  	irq_alarm = platform_get_irq(pdev, 0);
->  	if (irq_alarm < 0) {
-> -- 
-> 2.7.4
-> 
+I told you before that adding these inlines has the danger that we
+introduce code which uses these functions in places which does not depend
+on RTC_LIB. The resulting wreckage is going to be subtle and hard to debug.
 
--- 
-Alexandre Belloni, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+This still stands and this patch is going nowhere.
+
+Thanks,
+
+	tglx
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
