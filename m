@@ -1,25 +1,21 @@
-Return-Path: <rtc-linux+bncBDAMN6NI5EERBOHNRC7QKGQEAGRWLMI@googlegroups.com>
+Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBK4NRS7QKGQEYKMHXYY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from Galois.linutronix.de (Galois.linutronix.de. [2a01:7a0:2:106d:700::1])
-        by gmr-mx.google.com with ESMTPS id s6si1393028wmb.1.2016.09.21.00.28.56
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=AES128-SHA bits=128/128);
-        Wed, 21 Sep 2016 00:28:56 -0700 (PDT)
-Date: Wed, 21 Sep 2016 09:26:20 +0200 (CEST)
-From: Thomas Gleixner <tglx@linutronix.de>
-To: Baolin Wang <baolin.wang@linaro.org>
-cc: Alessandro Zummo <a.zummo@towertech.it>,
-    Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-    Steven Rostedt <rostedt@goodmis.org>, Ingo Molnar <mingo@redhat.com>,
-    John Stultz <john.stultz@linaro.org>, Mark Brown <broonie@kernel.org>,
-    LKML <linux-kernel@vger.kernel.org>, rtc-linux@googlegroups.com
-Subject: [rtc-linux] Re: [PATCH 2/2] time: alarmtimer: Add the trcepoints for alarmtimer
-In-Reply-To: <CAMz4kuLYkyZzs33VKmo9B3JxTFFDYun7AHBYUUmHz=424yiq8g@mail.gmail.com>
-Message-ID: <alpine.DEB.2.20.1609210919390.5573@nanos>
-References: <8c570c152c95087faa75e397c667b6d5b8d98b3b.1474177609.git.baolin.wang@linaro.org> <0d5cedb2f4ad46aa7fb07b990072bacb33517102.1474177609.git.baolin.wang@linaro.org> <alpine.DEB.2.20.1609202340560.5476@nanos>
- <CAMz4kuLYkyZzs33VKmo9B3JxTFFDYun7AHBYUUmHz=424yiq8g@mail.gmail.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id a126si2332528wmd.1.2016.09.21.15.16.11
+        for <rtc-linux@googlegroups.com>;
+        Wed, 21 Sep 2016 15:16:11 -0700 (PDT)
+Date: Thu, 22 Sep 2016 00:16:10 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Axel Lin <axel.lin@ingics.com>
+Cc: Chen-Yu Tsai <wens@csie.org>, Alessandro Zummo <a.zummo@towertech.it>,
+	rtc-linux@googlegroups.com
+Subject: [rtc-linux] Re: [PATCH] rtc: ac100: Add NULL checking for
+ devm_kzalloc call
+Message-ID: <20160921221610.nufg3iq34bjtwqo6@piout.net>
+References: <1473415434-18956-1-git-send-email-axel.lin@ingics.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1473415434-18956-1-git-send-email-axel.lin@ingics.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -29,48 +25,21 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Wed, 21 Sep 2016, Baolin Wang wrote:
-> On 21 September 2016 at 06:27, Thomas Gleixner <tglx@linutronix.de> wrote:
-> >> +     TP_fast_assign(
-> >> +             __entry->second = rtc_time->tm_sec;
-> >> +             __entry->minute = rtc_time->tm_min;
-> >> +             __entry->hour = rtc_time->tm_hour;
-> >> +             __entry->day = rtc_time->tm_mday;
-> >> +             __entry->mon = rtc_time->tm_mon;
-> >> +             __entry->year = rtc_time->tm_year;
-> >> +             __entry->alarm_type = flag;
-> >
-> > What's the value of storing the alarm time in RTC format?
+On 09/09/2016 at 18:03:54 +0800, Axel Lin wrote :
+> devm_kzalloc can return NULL, add NULL checking to prevent NULL pointer
+> dereference.
 > 
-> As suggested by Steven, change the type of RTC value to save trace buffer.
-
-A single u64 does not take more storage space than this and it's a single
-store.
- 
-> > 2) You store the expiry time again in RTC format. Store the information in
-> >    a plain u64 and be done with it.
+> Signed-off-by: Axel Lin <axel.lin@ingics.com>
+> ---
+>  drivers/rtc/rtc-ac100.c | 3 +++
+>  1 file changed, 3 insertions(+)
 > 
-> But I still think the RTC format is more readable for debugging alarm timer.
+Applied, thanks.
 
-That's what post processing is for.
- 
-> > What's the point of this conditional? Avoiding rtc_ktime_to_tm() ? Oh well...
-> >
-> >> +             tm_set = rtc_ktime_to_tm(now);
-> >> +             trace_alarmtimer_suspend(&tm_set, type);
-> >
-> > "now" is CLOCK_REALTIME based. You store the type of the alarm timer which
-> > is the first to expire and therefor is the one setting the RTC value, but
-> > we don't know which timer it is. Useful - NOT!
-> 
-> We can know the timer by comparing the expire time.
-
-Please make it similar to the timer/hrtimer tracing so people can reuse
-their postprocessing scripts with minimial tweaks.
-
-Thanks,
-
-	tglx
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
