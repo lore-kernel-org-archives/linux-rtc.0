@@ -1,24 +1,30 @@
-Return-Path: <rtc-linux+bncBCL4FNGB7UHBBXGCTW7AKGQEHRNUO3Q@googlegroups.com>
+Return-Path: <rtc-linux+bncBCN63E7T2ALBBR6PRG7QKGQEV6SVE2Y@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-MIME-Version: 1.0
-Received: from mail-wm0-x244.google.com (mail-wm0-x244.google.com. [2a00:1450:400c:c09::244])
-        by gmr-mx.google.com with ESMTPS id r74si2641179wme.3.2016.08.31.15.59.40
+Received: from mail-yw0-f180.google.com (mail-yw0-f180.google.com. [209.85.161.180])
+        by gmr-mx.google.com with ESMTPS id 63si1597787ywe.1.2016.09.21.03.58.15
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 31 Aug 2016 15:59:40 -0700 (PDT)
-Received: by mail-wm0-x244.google.com with SMTP id d196so5847112wmd.1
-        for <rtc-linux@googlegroups.com>; Wed, 31 Aug 2016 15:59:40 -0700 (PDT)
-From: Gabriele Mazzotta <gabriele.mzt@gmail.com>
-To: a.zummo@towertech.it,
-	alexandre.belloni@free-electrons.com
-Cc: rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org,
-	Gabriele Mazzotta <gabriele.mzt@gmail.com>
-Subject: [rtc-linux] [PATCH] rtc-cmos: Reject unsupported alarm values
-Date: Thu,  1 Sep 2016 00:59:29 +0200
-Message-Id: <20160831225929.20336-1-gabriele.mzt@gmail.com>
-Reply-To: rtc-linux@googlegroups.com
+        Wed, 21 Sep 2016 03:58:15 -0700 (PDT)
+Received: by mail-yw0-f180.google.com with SMTP id u82so45644788ywc.2
+        for <rtc-linux@googlegroups.com>; Wed, 21 Sep 2016 03:58:15 -0700 (PDT)
+MIME-Version: 1.0
+In-Reply-To: <alpine.DEB.2.20.1609210919390.5573@nanos>
+References: <8c570c152c95087faa75e397c667b6d5b8d98b3b.1474177609.git.baolin.wang@linaro.org>
+ <0d5cedb2f4ad46aa7fb07b990072bacb33517102.1474177609.git.baolin.wang@linaro.org>
+ <alpine.DEB.2.20.1609202340560.5476@nanos> <CAMz4kuLYkyZzs33VKmo9B3JxTFFDYun7AHBYUUmHz=424yiq8g@mail.gmail.com>
+ <alpine.DEB.2.20.1609210919390.5573@nanos>
+From: Baolin Wang <baolin.wang@linaro.org>
+Date: Wed, 21 Sep 2016 18:58:14 +0800
+Message-ID: <CAMz4kuKfVjJw21TpaMFjH3=5=7jyzKc71VZDFdu68T1Nspfqng@mail.gmail.com>
+Subject: [rtc-linux] Re: [PATCH 2/2] time: alarmtimer: Add the trcepoints for alarmtimer
+To: Thomas Gleixner <tglx@linutronix.de>
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>, Steven Rostedt <rostedt@goodmis.org>,
+	Ingo Molnar <mingo@redhat.com>, John Stultz <john.stultz@linaro.org>,
+	Mark Brown <broonie@kernel.org>, LKML <linux-kernel@vger.kernel.org>,
+	rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -27,47 +33,54 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Return an error if the user tries to set an alarm that isn't
-supported by the hardware.
+On 21 September 2016 at 15:26, Thomas Gleixner <tglx@linutronix.de> wrote:
+> On Wed, 21 Sep 2016, Baolin Wang wrote:
+>> On 21 September 2016 at 06:27, Thomas Gleixner <tglx@linutronix.de> wrote:
+>> >> +     TP_fast_assign(
+>> >> +             __entry->second = rtc_time->tm_sec;
+>> >> +             __entry->minute = rtc_time->tm_min;
+>> >> +             __entry->hour = rtc_time->tm_hour;
+>> >> +             __entry->day = rtc_time->tm_mday;
+>> >> +             __entry->mon = rtc_time->tm_mon;
+>> >> +             __entry->year = rtc_time->tm_year;
+>> >> +             __entry->alarm_type = flag;
+>> >
+>> > What's the value of storing the alarm time in RTC format?
+>>
+>> As suggested by Steven, change the type of RTC value to save trace buffer.
+>
+> A single u64 does not take more storage space than this and it's a single
+> store.
 
-Signed-off-by: Gabriele Mazzotta <gabriele.mzt@gmail.com>
----
- drivers/rtc/rtc-cmos.c | 20 ++++++++++++++++++++
- 1 file changed, 20 insertions(+)
+OK.
 
-diff --git a/drivers/rtc/rtc-cmos.c b/drivers/rtc/rtc-cmos.c
-index 4cdb335..b3f9298 100644
---- a/drivers/rtc/rtc-cmos.c
-+++ b/drivers/rtc/rtc-cmos.c
-@@ -336,6 +336,26 @@ static int cmos_set_alarm(struct device *dev, struct rtc_wkalrm *t)
- 	if (!is_valid_irq(cmos->irq))
- 		return -EIO;
- 
-+	if (!cmos->mon_alrm || !cmos->day_alrm) {
-+		struct rtc_time now;
-+		time64_t t_now;
-+		time64_t t_alrm;
-+
-+		cmos_read_time(dev, &now);
-+		t_now = rtc_tm_to_time64(&now);
-+		t_alrm = rtc_tm_to_time64(&t->time);
-+		if (!cmos->day_alrm && (t_alrm - t_now) > (24 * 60 * 60)) {
-+			dev_err(dev,
-+				"Alarms can be up to one day in the future\n");
-+			return -EINVAL;
-+		}
-+		if (!cmos->mon_alrm && (t_alrm - t_now) > (31 * 24 * 60 * 60)) {
-+			dev_err(dev,
-+				"Alarms can be up to 31 days in the future\n");
-+			return -EINVAL;
-+		}
-+	}
-+
- 	mon = t->time.tm_mon + 1;
- 	mday = t->time.tm_mday;
- 	hrs = t->time.tm_hour;
+>
+>> > 2) You store the expiry time again in RTC format. Store the information in
+>> >    a plain u64 and be done with it.
+>>
+>> But I still think the RTC format is more readable for debugging alarm timer.
+>
+> That's what post processing is for.
+>
+>> > What's the point of this conditional? Avoiding rtc_ktime_to_tm() ? Oh well...
+>> >
+>> >> +             tm_set = rtc_ktime_to_tm(now);
+>> >> +             trace_alarmtimer_suspend(&tm_set, type);
+>> >
+>> > "now" is CLOCK_REALTIME based. You store the type of the alarm timer which
+>> > is the first to expire and therefor is the one setting the RTC value, but
+>> > we don't know which timer it is. Useful - NOT!
+>>
+>> We can know the timer by comparing the expire time.
+>
+> Please make it similar to the timer/hrtimer tracing so people can reuse
+> their postprocessing scripts with minimial tweaks.
+
+OK. Thanks.
+
 -- 
-2.9.3
+Baolin.wang
+Best Regards
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
