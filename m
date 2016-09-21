@@ -1,24 +1,21 @@
-Return-Path: <rtc-linux+bncBDAMN6NI5EERBQVHXK7AKGQET223BIY@googlegroups.com>
+Return-Path: <rtc-linux+bncBCKYNX7Y3IMBB5UMRS7QKGQECFL6GDY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from Galois.linutronix.de (Galois.linutronix.de. [2a01:7a0:2:106d:700::1])
-        by gmr-mx.google.com with ESMTPS id 82si1044089wmg.3.2016.09.06.03.00.34
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=AES128-SHA bits=128/128);
-        Tue, 06 Sep 2016 03:00:34 -0700 (PDT)
-Date: Tue, 6 Sep 2016 11:58:08 +0200 (CEST)
-From: Thomas Gleixner <tglx@linutronix.de>
-To: Pratyush Anand <panand@redhat.com>
-cc: mingo@kernel.org, alexandre.belloni@free-electrons.com, hpa@zytor.com,
-    x86@kernel.org, rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org,
-    prarit@redhat.com, dzickus@redhat.com, dyoung@redhat.com,
-    a.zummo@towertech.it
-Subject: [rtc-linux] Re: [PATCH V3 2/2] rtc/rtc-cmos: Initialize software
- counters before irq is registered
-In-Reply-To: <90426708da5934284839e6f23d23e265afcc779f.1470985727.git.panand@redhat.com>
-Message-ID: <alpine.DEB.2.20.1609061155390.5647@nanos>
-References: <cover.1470985727.git.panand@redhat.com> <90426708da5934284839e6f23d23e265afcc779f.1470985727.git.panand@redhat.com>
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id 185si2940156wmr.2.2016.09.21.15.15.18
+        for <rtc-linux@googlegroups.com>;
+        Wed, 21 Sep 2016 15:15:18 -0700 (PDT)
+Date: Thu, 22 Sep 2016 00:15:17 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Raghavendra Chandra Ganiga <ravi23ganiga@gmail.com>
+Cc: a.zummo@towertech.it, linux-kernel@vger.kernel.org,
+	rtc-linux@googlegroups.com
+Subject: [rtc-linux] Re: [PATCH] rtc: ds1347: changed raw spi calls to
+ register map calls
+Message-ID: <20160921221517.jkvv7ngmw2yc3qtp@piout.net>
+References: <57C71506.6000202@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <57C71506.6000202@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -28,44 +25,27 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Tue, 16 Aug 2016, Pratyush Anand wrote:
+On 31/08/2016 at 23:03:58 +0530, Raghavendra Chandra Ganiga wrote :
+> From 633c012ba6c8f9bc6cf475d2434ca450cd06b18e Mon Sep 17 00:00:00 2001
+> From: Raghavendra Ganiga <ravi23ganiga@gmail.com>
+> Date: Wed, 31 Aug 2016 22:56:41 +0530
+> Subject: [PATCH] rtc: ds1347: changed raw spi calls to register map calls
+> 
+> This patch changes calls of spi read write calls to register map
+> read and write calls in rtc ds1347
+> 
+> Signed-off-by: Raghavendra Chandra Ganiga <ravi23ganiga@gmail.com>
+> ---
+>  drivers/rtc/Kconfig      |  1 +
+>  drivers/rtc/rtc-ds1347.c | 96 ++++++++++++++++++++++++++----------------------
+>  2 files changed, 54 insertions(+), 43 deletions(-)
+> 
+Applied, thanks.
 
-That's a lot of churn to fix that simple problem. The two liner below
-should fix that as well, right?
-
-Thanks,
-
-	tglx
-
-diff --git a/drivers/rtc/rtc-cmos.c b/drivers/rtc/rtc-cmos.c
-index 43745cac0141..cb8dfc3ee012 100644
---- a/drivers/rtc/rtc-cmos.c
-+++ b/drivers/rtc/rtc-cmos.c
-@@ -707,6 +707,7 @@ cmos_do_probe(struct device *dev, struct resource *ports, int rtc_irq)
- 		goto cleanup1;
- 	}
- 
-+	hpet_rtc_timer_init();
- 	if (is_valid_irq(rtc_irq)) {
- 		irq_handler_t rtc_cmos_int_handler;
- 
-@@ -714,6 +715,7 @@ cmos_do_probe(struct device *dev, struct resource *ports, int rtc_irq)
- 			rtc_cmos_int_handler = hpet_rtc_interrupt;
- 			retval = hpet_register_irq_handler(cmos_interrupt);
- 			if (retval) {
-+				hpet_mask_rtc_irq_bit(RTC_IRQMASK);
- 				dev_warn(dev, "hpet_register_irq_handler "
- 						" failed in rtc_init().");
- 				goto cleanup1;
-@@ -729,7 +731,6 @@ cmos_do_probe(struct device *dev, struct resource *ports, int rtc_irq)
- 			goto cleanup1;
- 		}
- 	}
--	hpet_rtc_timer_init();
- 
- 	/* export at least the first block of NVRAM */
- 	nvram.size = address_space - NVRAM_OFFSET;
-
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
