@@ -1,21 +1,28 @@
-Return-Path: <rtc-linux+bncBCKYNX7Y3IMBB6ORRO7QKGQEOR4D2CI@googlegroups.com>
+Return-Path: <rtc-linux+bncBCU73AEHRQBBBBX4RG7QKGQEUTOGC7Q@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
-        by gmr-mx.google.com with ESMTP id 82si2320589wmg.3.2016.09.21.13.09.28
-        for <rtc-linux@googlegroups.com>;
-        Wed, 21 Sep 2016 13:09:28 -0700 (PDT)
-Date: Wed, 21 Sep 2016 22:09:28 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Gabriele Mazzotta <gabriele.mzt@gmail.com>
-Cc: a.zummo@towertech.it, rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org, matthew.garrett@nebula.com
-Subject: [rtc-linux] Re: [PATCH v4 2/2] rtc-cmos: Restore alarm after resume
-Message-ID: <20160921200928.pq4ub7miunc33hxh@piout.net>
-References: <20160919231244.6775-1-gabriele.mzt@gmail.com>
- <20160919231244.6775-2-gabriele.mzt@gmail.com>
+Received: from smtprelay.hostedemail.com (smtprelay0082.hostedemail.com. [216.40.44.82])
+        by gmr-mx.google.com with ESMTPS id u125si2690865itc.0.2016.09.21.05.33.09
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 21 Sep 2016 05:33:09 -0700 (PDT)
+Date: Wed, 21 Sep 2016 08:33:05 -0400
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Thomas Gleixner <tglx@linutronix.de>
+Cc: Baolin Wang <baolin.wang@linaro.org>, Alessandro Zummo
+ <a.zummo@towertech.it>, Alexandre Belloni
+ <alexandre.belloni@free-electrons.com>, Ingo Molnar <mingo@redhat.com>,
+ John Stultz <john.stultz@linaro.org>, Mark Brown <broonie@kernel.org>, LKML
+ <linux-kernel@vger.kernel.org>, rtc-linux@googlegroups.com
+Subject: [rtc-linux] Re: [PATCH 2/2] time: alarmtimer: Add the trcepoints for alarmtimer
+Message-ID: <20160921083305.24524304@gandalf.local.home>
+In-Reply-To: <alpine.DEB.2.20.1609210919390.5573@nanos>
+References: <8c570c152c95087faa75e397c667b6d5b8d98b3b.1474177609.git.baolin.wang@linaro.org>
+	<0d5cedb2f4ad46aa7fb07b990072bacb33517102.1474177609.git.baolin.wang@linaro.org>
+	<alpine.DEB.2.20.1609202340560.5476@nanos>
+	<CAMz4kuLYkyZzs33VKmo9B3JxTFFDYun7AHBYUUmHz=424yiq8g@mail.gmail.com>
+	<alpine.DEB.2.20.1609210919390.5573@nanos>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <20160919231244.6775-2-gabriele.mzt@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -25,52 +32,24 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 20/09/2016 at 01:12:44 +0200, Gabriele Mazzotta wrote :
-> Some platform firmware may interfere with the RTC alarm over suspend,
-> resulting in the kernel and hardware having different ideas about system
-> state but also potentially causing problems with firmware that assumes the
-> OS will clean this case up.  This patch restores the RTC alarm on resume
-> to ensure that kernel and hardware are in sync.
-> 
-> The case we've seen is Intel Rapid Start, which is a firmware-mediated
-> feature that automatically transitions systems from suspend-to-RAM to
-> suspend-to-disk without OS involvement.  It does this by setting the RTC
-> alarm and a flag that indicates that on wake it should perform the
-> transition rather than re-starting the OS.  However, if the OS has set a
-> wakeup alarm that would wake the machine earlier, it refuses to overwrite
-> it and allows the system to wake instead.
-> 
-> This fails in the following situation:
-> 
-> 1) User configures Intel Rapid Start to transition after (say) 15
-> minutes
-> 2) User suspends to RAM. Firmware sets the wakeup alarm for 15 minutes
-> in the future
-> 3) User resumes after 5 minutes. Firmware does not reset the alarm, and
-> as such it is still set for 10 minutes in the future
-> 4) User suspends after 5 minutes. Firmware notices that the alarm is set
-> for 5 minutes in the future, which is less than the 15 minute transition
-> threshold. It therefore assumes that the user wants the machine to wake
-> in 5 minutes
-> 5) System resumes after 5 minutes
-> 
-> The worst case scenario here is that the user may have put the system in a
-> bag between (4) and (5), resulting in it running in a confined space and
-> potentially overheating.  This seems reasonably important.  The Rapid
-> Start support code got added in 3.11, but it can be configured in the
-> firmware regardless of kernel support.
-> 
-> Signed-off-by: Gabriele Mazzotta <gabriele.mzt@gmail.com>
-> ---
->  drivers/rtc/rtc-cmos.c | 23 +++++++++++++++++++++++
->  1 file changed, 23 insertions(+)
-> 
-Applied, thanks.
+On Wed, 21 Sep 2016 09:26:20 +0200 (CEST)
+Thomas Gleixner <tglx@linutronix.de> wrote:
 
--- 
-Alexandre Belloni, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+> > As suggested by Steven, change the type of RTC value to save trace buffer.  
+
+The original code did everything just like the above but stored every
+value into ints, I just said that the value could be stored in chars to
+save space.
+
+> 
+> A single u64 does not take more storage space than this and it's a single
+> store.
+
+So to use rtc_tm_to_time64()? Is the work to do the calculations of the
+conversion faster than a bunch of stores that are going to be in hot
+cache?
+
+-- Steve
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
