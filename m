@@ -1,29 +1,26 @@
-Return-Path: <rtc-linux+bncBCN63E7T2ALBB7O47C7AKGQEGNPZOHQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBDAMN6NI5EERBOHNRC7QKGQEAGRWLMI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-MIME-Version: 1.0
-Received: from mail-pf0-x22a.google.com (mail-pf0-x22a.google.com. [2607:f8b0:400e:c00::22a])
-        by gmr-mx.google.com with ESMTPS id h124si5474863pfe.0.2016.09.17.23.04.45
+Received: from Galois.linutronix.de (Galois.linutronix.de. [2a01:7a0:2:106d:700::1])
+        by gmr-mx.google.com with ESMTPS id s6si1393028wmb.1.2016.09.21.00.28.56
         for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sat, 17 Sep 2016 23:04:45 -0700 (PDT)
-Received: by mail-pf0-x22a.google.com with SMTP id z123so40111135pfz.2
-        for <rtc-linux@googlegroups.com>; Sat, 17 Sep 2016 23:04:45 -0700 (PDT)
-From: Baolin Wang <baolin.wang@linaro.org>
-To: a.zummo@towertech.it,
-	alexandre.belloni@free-electrons.com,
-	rostedt@goodmis.org,
-	mingo@redhat.com,
-	john.stultz@linaro.org,
-	tglx@linutronix.de
-Cc: baolin.wang@linaro.org,
-	broonie@kernel.org,
-	linux-kernel@vger.kernel.org,
-	rtc-linux@googlegroups.com
-Subject: [rtc-linux] [PATCH 1/2] rtc: Add some dummy static inline functions
-Date: Sun, 18 Sep 2016 14:03:54 +0800
-Message-Id: <8c570c152c95087faa75e397c667b6d5b8d98b3b.1474177609.git.baolin.wang@linaro.org>
-Reply-To: rtc-linux@googlegroups.com
+        (version=TLS1_2 cipher=AES128-SHA bits=128/128);
+        Wed, 21 Sep 2016 00:28:56 -0700 (PDT)
+Date: Wed, 21 Sep 2016 09:26:20 +0200 (CEST)
+From: Thomas Gleixner <tglx@linutronix.de>
+To: Baolin Wang <baolin.wang@linaro.org>
+cc: Alessandro Zummo <a.zummo@towertech.it>,
+    Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+    Steven Rostedt <rostedt@goodmis.org>, Ingo Molnar <mingo@redhat.com>,
+    John Stultz <john.stultz@linaro.org>, Mark Brown <broonie@kernel.org>,
+    LKML <linux-kernel@vger.kernel.org>, rtc-linux@googlegroups.com
+Subject: [rtc-linux] Re: [PATCH 2/2] time: alarmtimer: Add the trcepoints for alarmtimer
+In-Reply-To: <CAMz4kuLYkyZzs33VKmo9B3JxTFFDYun7AHBYUUmHz=424yiq8g@mail.gmail.com>
+Message-ID: <alpine.DEB.2.20.1609210919390.5573@nanos>
+References: <8c570c152c95087faa75e397c667b6d5b8d98b3b.1474177609.git.baolin.wang@linaro.org> <0d5cedb2f4ad46aa7fb07b990072bacb33517102.1474177609.git.baolin.wang@linaro.org> <alpine.DEB.2.20.1609202340560.5476@nanos>
+ <CAMz4kuLYkyZzs33VKmo9B3JxTFFDYun7AHBYUUmHz=424yiq8g@mail.gmail.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -32,85 +29,48 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-The patch 2 in this patchset adding tracepoints for alarmtimers will build
-failed on S390 platform, due to S390 defconfig did not define CONFIG_RTC_LIB
-macro to define the rtc_ktime_to_tm() function which is used in this patch.
-Thus we should add some ummy static inline functions in case CONFIG_RTC_LIB
-is not defined.
+On Wed, 21 Sep 2016, Baolin Wang wrote:
+> On 21 September 2016 at 06:27, Thomas Gleixner <tglx@linutronix.de> wrote:
+> >> +     TP_fast_assign(
+> >> +             __entry->second = rtc_time->tm_sec;
+> >> +             __entry->minute = rtc_time->tm_min;
+> >> +             __entry->hour = rtc_time->tm_hour;
+> >> +             __entry->day = rtc_time->tm_mday;
+> >> +             __entry->mon = rtc_time->tm_mon;
+> >> +             __entry->year = rtc_time->tm_year;
+> >> +             __entry->alarm_type = flag;
+> >
+> > What's the value of storing the alarm time in RTC format?
+> 
+> As suggested by Steven, change the type of RTC value to save trace buffer.
 
-Signed-off-by: Baolin Wang <baolin.wang@linaro.org>
----
- include/linux/rtc.h |   49 ++++++++++++++++++++++++++++++++++++++++++++++++-
- 1 file changed, 48 insertions(+), 1 deletion(-)
+A single u64 does not take more storage space than this and it's a single
+store.
+ 
+> > 2) You store the expiry time again in RTC format. Store the information in
+> >    a plain u64 and be done with it.
+> 
+> But I still think the RTC format is more readable for debugging alarm timer.
 
-diff --git a/include/linux/rtc.h b/include/linux/rtc.h
-index b693ada..521f752 100644
---- a/include/linux/rtc.h
-+++ b/include/linux/rtc.h
-@@ -16,13 +16,60 @@
- #include <linux/interrupt.h>
- #include <uapi/linux/rtc.h>
+That's what post processing is for.
  
-+#ifdef CONFIG_RTC_LIB
- extern int rtc_month_days(unsigned int month, unsigned int year);
--extern int rtc_year_days(unsigned int day, unsigned int month, unsigned int year);
-+extern int rtc_year_days(unsigned int day, unsigned int month,
-+			 unsigned int year);
- extern int rtc_valid_tm(struct rtc_time *tm);
- extern time64_t rtc_tm_to_time64(struct rtc_time *tm);
- extern void rtc_time64_to_tm(time64_t time, struct rtc_time *tm);
- ktime_t rtc_tm_to_ktime(struct rtc_time tm);
- struct rtc_time rtc_ktime_to_tm(ktime_t kt);
-+#else
-+static inline int rtc_month_days(unsigned int month, unsigned int year)
-+{
-+	return 0;
-+}
-+
-+static inline int rtc_year_days(unsigned int day, unsigned int month,
-+				unsigned int year)
-+{
-+	return 0;
-+}
-+
-+static inline int rtc_valid_tm(struct rtc_time *tm)
-+{
-+	return 0;
-+}
-+
-+static inline time64_t rtc_tm_to_time64(struct rtc_time *tm)
-+{
-+	time64_t ret;
-+
-+	memset(&ret, 0, sizeof(time64_t));
-+	return ret;
-+}
-+
-+static inline void rtc_time64_to_tm(time64_t time, struct rtc_time *tm)
-+{
-+}
-+
-+static inline ktime_t rtc_tm_to_ktime(struct rtc_time tm)
-+{
-+	ktime_t ret;
-+
-+	memset(&ret, 0, sizeof(ktime_t));
-+	return ret;
-+}
-+
-+static inline struct rtc_time rtc_ktime_to_tm(ktime_t kt)
-+{
-+	struct rtc_time ret;
-+
-+	memset(&ret, 0, sizeof(struct rtc_time));
-+	return ret;
-+}
-+#endif
- 
- /*
-  * rtc_tm_sub - Return the difference in seconds.
--- 
-1.7.9.5
+> > What's the point of this conditional? Avoiding rtc_ktime_to_tm() ? Oh well...
+> >
+> >> +             tm_set = rtc_ktime_to_tm(now);
+> >> +             trace_alarmtimer_suspend(&tm_set, type);
+> >
+> > "now" is CLOCK_REALTIME based. You store the type of the alarm timer which
+> > is the first to expire and therefor is the one setting the RTC value, but
+> > we don't know which timer it is. Useful - NOT!
+> 
+> We can know the timer by comparing the expire time.
+
+Please make it similar to the timer/hrtimer tracing so people can reuse
+their postprocessing scripts with minimial tweaks.
+
+Thanks,
+
+	tglx
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
