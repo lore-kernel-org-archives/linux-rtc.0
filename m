@@ -1,27 +1,23 @@
-Return-Path: <rtc-linux+bncBCL4FNGB7UHBB2GA427AKGQE6FND67Y@googlegroups.com>
+Return-Path: <rtc-linux+bncBCKYNX7Y3IMBB2PBRO7QKGQEHEYJK4Y@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
+Received: from mail.free-electrons.com (down.free-electrons.com. [37.187.137.238])
+        by gmr-mx.google.com with ESMTP id p199si3213327wmd.1.2016.09.21.13.43.20
+        for <rtc-linux@googlegroups.com>;
+        Wed, 21 Sep 2016 13:43:20 -0700 (PDT)
+Date: Wed, 21 Sep 2016 22:43:20 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Martin Fuzzey <mfuzzey@parkeon.com>, Rob Herring <robh+dt@kernel.org>
+Cc: Alessandro Zummo <a.zummo@towertech.it>, devicetree@vger.kernel.org,
+	rtc-linux@googlegroups.com
+Subject: [rtc-linux] Re: [PATCH 1/3] dt-binding: rtc Add DT binding for NXP
+ 85263 RTC
+Message-ID: <20160921204320.zueirn3cs42yhifd@piout.net>
+References: <20160801155029.32232.56063.stgit@localhost>
+ <20160801155032.32232.68432.stgit@localhost>
 MIME-Version: 1.0
-Received: from mail-wm0-x241.google.com (mail-wm0-x241.google.com. [2a00:1450:400c:c09::241])
-        by gmr-mx.google.com with ESMTPS id p199si2038090wmd.1.2016.09.14.12.09.28
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 14 Sep 2016 12:09:28 -0700 (PDT)
-Received: by mail-wm0-x241.google.com with SMTP id 133so1840128wmq.2
-        for <rtc-linux@googlegroups.com>; Wed, 14 Sep 2016 12:09:28 -0700 (PDT)
-From: Gabriele Mazzotta <gabriele.mzt@gmail.com>
-To: alexandre.belloni@free-electrons.com,
-	a.zummo@towertech.it
-Cc: rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org,
-	matthew.garrett@nebula.com,
-	Gabriele Mazzotta <gabriele.mzt@gmail.com>
-Subject: [rtc-linux] [PATCH v3 2/2] rtc-cmos: Restore alarm after resume
-Date: Wed, 14 Sep 2016 21:08:41 +0200
-Message-Id: <20160914190841.10684-2-gabriele.mzt@gmail.com>
-In-Reply-To: <20160914190841.10684-1-gabriele.mzt@gmail.com>
-References: <20160914190841.10684-1-gabriele.mzt@gmail.com>
-Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <20160801155032.32232.68432.stgit@localhost>
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -30,102 +26,98 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Some platform firmware may interfere with the RTC alarm over suspend,
-resulting in the kernel and hardware having different ideas about system
-state but also potentially causing problems with firmware that assumes the
-OS will clean this case up.  This patch restores the RTC alarm on resume
-to ensure that kernel and hardware are in sync.
+Rob, can you review those bindings?
 
-The case we've seen is Intel Rapid Start, which is a firmware-mediated
-feature that automatically transitions systems from suspend-to-RAM to
-suspend-to-disk without OS involvement.  It does this by setting the RTC
-alarm and a flag that indicates that on wake it should perform the
-transition rather than re-starting the OS.  However, if the OS has set a
-wakeup alarm that would wake the machine earlier, it refuses to overwrite
-it and allows the system to wake instead.
 
-This fails in the following situation:
+On 01/08/2016 at 17:50:32 +0200, Martin Fuzzey wrote :
 
-1) User configures Intel Rapid Start to transition after (say) 15
-minutes
-2) User suspends to RAM. Firmware sets the wakeup alarm for 15 minutes
-in the future
-3) User resumes after 5 minutes. Firmware does not reset the alarm, and
-as such it is still set for 10 minutes in the future
-4) User suspends after 5 minutes. Firmware notices that the alarm is set
-for 5 minutes in the future, which is less than the 15 minute transition
-threshold. It therefore assumes that the user wants the machine to wake
-in 5 minutes
-5) System resumes after 5 minutes
+Please always include a commit message.
 
-The worst case scenario here is that the user may have put the system in a
-bag between (4) and (5), resulting in it running in a confined space and
-potentially overheating.  This seems reasonably important.  The Rapid
-Start support code got added in 3.11, but it can be configured in the
-firmware regardless of kernel support.
+> Signed-off-by: Martin Fuzzey <mfuzzey@parkeon.com>
+> ---
+>  .../devicetree/bindings/rtc/nxp,pcf85263.txt       |   41 ++++++++++++++++++++
+>  include/dt-bindings/rtc/nxp,pcf85263.h             |   14 +++++++
+>  2 files changed, 55 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/rtc/nxp,pcf85263.txt
+>  create mode 100644 include/dt-bindings/rtc/nxp,pcf85263.h
+> 
+> diff --git a/Documentation/devicetree/bindings/rtc/nxp,pcf85263.txt b/Documentation/devicetree/bindings/rtc/nxp,pcf85263.txt
+> new file mode 100644
+> index 0000000..03b9505
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/rtc/nxp,pcf85263.txt
+> @@ -0,0 +1,41 @@
+> +NXP PCF85263 I2C Real Time Clock
+> +
+> +Required properties:
+> +- compatible: must be: "nxp,rtc-pcf85263"
+> +- reg: must be the I2C address
+> +
+> +Optional properties:
+> +- interrupt-names: Which interrupt signal is used must be "INTA" or "INTB"
+> +    Defaults to "INTA"
+> +
+> +- quartz-load-capacitance: The internal capacitor to select for the quartz:
+> +	PCF85263_QUARTZCAP_7pF		[0]
+> +	PCF85263_QUARTZCAP_6pF		[1]
+> +	PCF85263_QUARTZCAP_12p5pF	[2] DEFAULT
+> +
+> +- quartz-drive-strength: Drive strength for the quartz:
+> +	PCF85263_QUARTZDRIVE_NORMAL	[0] DEFAULT
+> +	PCF85263_QUARTZDRIVE_LOW	[1]
+> +	PCF85263_QUARTZDRIVE_HIGH	[2]
+> +
+> +- quartz-low-jitter: Boolean property, if present enables low jitter mode which
+> +    reduces jitter at the cost of increased power consumption.
+> +
 
-Signed-off-by: Gabriele Mazzotta <gabriele.mzt@gmail.com>
----
- drivers/rtc/rtc-cmos.c | 23 +++++++++++++++++++++++
- 1 file changed, 23 insertions(+)
+Maybe that one should be handled using sysfs instead of DT as it is more
+policy than HW related.
 
-diff --git a/drivers/rtc/rtc-cmos.c b/drivers/rtc/rtc-cmos.c
-index 6042257..5ca0945 100644
---- a/drivers/rtc/rtc-cmos.c
-+++ b/drivers/rtc/rtc-cmos.c
-@@ -62,6 +62,8 @@ struct cmos_rtc {
- 	u8			day_alrm;
- 	u8			mon_alrm;
- 	u8			century;
-+
-+	struct rtc_wkalrm	saved_wkalrm;
- };
- 
- /* both platform and pnp busses use negative numbers for invalid irqs */
-@@ -880,6 +882,8 @@ static int cmos_suspend(struct device *dev)
- 			enable_irq_wake(cmos->irq);
- 	}
- 
-+	cmos_read_alarm(dev, &cmos->saved_wkalrm);
-+
- 	dev_dbg(dev, "suspend%s, ctrl %02x\n",
- 			(tmp & RTC_AIE) ? ", alarm may wake" : "",
- 			tmp);
-@@ -900,6 +904,22 @@ static inline int cmos_poweroff(struct device *dev)
- 
- #ifdef	CONFIG_PM_SLEEP
- 
-+static void cmos_check_wkalrm(struct device *dev)
-+{
-+	struct cmos_rtc *cmos = dev_get_drvdata(dev);
-+	struct rtc_wkalrm current_alarm;
-+	time64_t t_current_expires;
-+	time64_t t_saved_expires;
-+
-+	cmos_read_alarm(dev, &current_alarm);
-+	t_current_expires = rtc_tm_to_time64(&current_alarm.time);
-+	t_saved_expires = rtc_tm_to_time64(&cmos->saved_wkalrm.time);
-+	if (t_current_expires != t_saved_expires ||
-+	    cmos->saved_wkalrm.enabled != current_alarm.enabled) {
-+		cmos_set_alarm(dev, &cmos->saved_wkalrm);
-+	}
-+}
-+
- static int cmos_resume(struct device *dev)
- {
- 	struct cmos_rtc	*cmos = dev_get_drvdata(dev);
-@@ -913,6 +933,9 @@ static int cmos_resume(struct device *dev)
- 		cmos->enabled_wake = 0;
- 	}
- 
-+	/* The BIOS might have changed the alarm, restore it */
-+	cmos_check_wkalrm(dev);
-+
- 	spin_lock_irq(&rtc_lock);
- 	tmp = cmos->suspend_ctrl;
- 	cmos->suspend_ctrl = 0;
+> +- wakeup-source: mark the chip as a wakeup source, independently of
+> +    the availability of an IRQ line connected to the SoC.
+> +    This is useful if the IRQ line is connected to a PMIC or other circuit
+> +    that can power up the device rather than to a normal SOC interrupt.
+> +
+> +Example:
+> +
+> +rtc@51 {
+> +	compatible = "nxp,pcf85263";
+> +	reg = <0x51>;
+> +
+> +	interrupt-parent = <&gpio4>;
+> +	interrupts = <5 IRQ_TYPE_LEVEL_LOW>;
+> +	interrupt-names = "INTB";
+> +
+> +	quartz-load-capacitance = <PCF85263_QUARTZCAP_12p5pF>;
+> +	quartz-drive-strength = <PCF85263_QUARTZDRIVE_LOW>;
+> +};
+> diff --git a/include/dt-bindings/rtc/nxp,pcf85263.h b/include/dt-bindings/rtc/nxp,pcf85263.h
+> new file mode 100644
+> index 0000000..ea87ae4
+> --- /dev/null
+> +++ b/include/dt-bindings/rtc/nxp,pcf85263.h
+> @@ -0,0 +1,14 @@
+> +#ifndef _DT_BINDINGS_RTC_NXP_PCF85263_H
+> +#define _DT_BINDINGS_RTC_NXP_PCF85263_H
+> +
+> +/* Quartz capacitance */
+> +#define PCF85263_QUARTZCAP_7pF		0
+> +#define PCF85263_QUARTZCAP_6pF		1
+> +#define PCF85263_QUARTZCAP_12p5pF	2
+> +
+> +/* Quartz drive strength */
+> +#define PCF85263_QUARTZDRIVE_NORMAL	0
+> +#define PCF85263_QUARTZDRIVE_LOW	1
+> +#define PCF85263_QUARTZDRIVE_HIGH	2
+> +
+> +#endif /* _DT_BINDINGS_RTC_NXP_PCF85263_H */
+> 
+
 -- 
-2.9.3
+Alexandre Belloni, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
