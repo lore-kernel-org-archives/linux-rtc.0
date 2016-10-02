@@ -1,31 +1,30 @@
-Return-Path: <rtc-linux+bncBC6MFNV32EFRB5VG3TAAKGQEUCYBSPA@googlegroups.com>
+Return-Path: <rtc-linux+bncBAABB6HJYW7QKGQEFIZITNQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail-lf0-x22f.google.com (mail-lf0-x22f.google.com. [2a00:1450:4010:c07::22f])
-        by gmr-mx.google.com with ESMTPS id w64si2059724wmf.1.2016.10.31.02.48.38
+MIME-Version: 1.0
+Received: from mail.kernel.org (mail.kernel.org. [198.145.29.136])
+        by gmr-mx.google.com with ESMTPS id um12si6681870pab.2.2016.10.02.13.58.32
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 31 Oct 2016 02:48:38 -0700 (PDT)
-Received: by mail-lf0-x22f.google.com with SMTP id b81so98668403lfe.1
-        for <rtc-linux@googlegroups.com>; Mon, 31 Oct 2016 02:48:38 -0700 (PDT)
-Subject: [rtc-linux] Re: [PATCH v2 2/7] Documentation: dt: Add binding info
- for jz4740-rtc driver
-To: Paul Cercueil <paul@crapouillou.net>, rtc-linux@googlegroups.com,
- Alessandro Zummo <a.zummo@towertech.it>,
- Alexandre Belloni <alexandre.belloni@free-electrons.com>,
- Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>,
- Ralf Baechle <ralf@linux-mips.org>,
- Maarten ter Huurne <maarten@treewalker.org>,
- Lars-Peter Clausen <lars@metafoo.de>, devicetree@vger.kernel.org,
- linux-kernel@vger.kernel.org, linux-mips@linux-mips.org
-References: <20161030230247.20538-1-paul@crapouillou.net>
- <20161030230247.20538-3-paul@crapouillou.net>
-From: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
-Message-ID: <27537b7b-2485-d51c-b2e1-cfd6ba29e5bf@cogentembedded.com>
-Date: Mon, 31 Oct 2016 12:48:36 +0300
-MIME-Version: 1.0
-In-Reply-To: <20161030230247.20538-3-paul@crapouillou.net>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+        Sun, 02 Oct 2016 13:58:32 -0700 (PDT)
+From: Krzysztof Kozlowski <krzk@kernel.org>
+To: Michael Turquette <mturquette@baylibre.com>,
+	Stephen Boyd <sboyd@codeaurora.org>,
+	Lee Jones <lee.jones@linaro.org>,
+	Liam Girdwood <lgirdwood@gmail.com>,
+	Mark Brown <broonie@kernel.org>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	linux-clk@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	rtc-linux@googlegroups.com
+Cc: Krzysztof Kozlowski <krzk@kernel.org>
+Subject: [rtc-linux] [PATCH 1/4] clk: Enable compile testing for s2mps11 and max77686
+Date: Sun,  2 Oct 2016 22:58:14 +0200
+Message-Id: <1475441897-15730-2-git-send-email-krzk@kernel.org>
+In-Reply-To: <1475441897-15730-1-git-send-email-krzk@kernel.org>
+References: <1475441897-15730-1-git-send-email-krzk@kernel.org>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -34,43 +33,38 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Hello.
+s2mps11 and max77686 clock drivers can be compile tested to increase
+build coverage.
 
-On 10/31/2016 2:02 AM, Paul Cercueil wrote:
+Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+---
+ drivers/clk/Kconfig | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-> This commit adds documentation for the device-tree bindings of the
-> jz4740-rtc driver, which supports the RTC unit present in the JZ4740 and
-> JZ4780 SoCs from Ingenic.
->
-> Signed-off-by: Paul Cercueil <paul@crapouillou.net>
-> Acked-by: Maarten ter Huurne <maarten@treewalker.org>
-> ---
->  .../devicetree/bindings/rtc/ingenic,jz4740-rtc.txt | 37 ++++++++++++++++++++++
->  1 file changed, 37 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/rtc/ingenic,jz4740-rtc.txt
->
-> v2:
-> - Remove 'interrupt-parent' of the list of required properties
-> - Add the -msec suffix for the DT entries that represent time
->
-> diff --git a/Documentation/devicetree/bindings/rtc/ingenic,jz4740-rtc.txt b/Documentation/devicetree/bindings/rtc/ingenic,jz4740-rtc.txt
-> new file mode 100644
-> index 0000000..df97594
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/rtc/ingenic,jz4740-rtc.txt
-> @@ -0,0 +1,37 @@
-[...]
-> +Example:
-> +
-> +rtc@10003000 {
-> +	compatible = "ingenic,jz4740-rtc";
-> +	reg = <0x10003000 0x3F>;
-
-    Are you sure it's not 0x40? It's a size, not a limit...
-
-[...]
-
-MBR, Sergei
+diff --git a/drivers/clk/Kconfig b/drivers/clk/Kconfig
+index 6a8ac04bedeb..56c1998ced3e 100644
+--- a/drivers/clk/Kconfig
++++ b/drivers/clk/Kconfig
+@@ -33,7 +33,7 @@ source "drivers/clk/versatile/Kconfig"
+ 
+ config COMMON_CLK_MAX77686
+ 	tristate "Clock driver for Maxim 77620/77686/77802 MFD"
+-	depends on MFD_MAX77686 || MFD_MAX77620
++	depends on MFD_MAX77686 || MFD_MAX77620 || COMPILE_TEST
+ 	---help---
+ 	  This driver supports Maxim 77620/77686/77802 crystal oscillator
+ 	  clock.
+@@ -119,7 +119,7 @@ config COMMON_CLK_CS2000_CP
+ 
+ config COMMON_CLK_S2MPS11
+ 	tristate "Clock driver for S2MPS1X/S5M8767 MFD"
+-	depends on MFD_SEC_CORE
++	depends on MFD_SEC_CORE || COMPILE_TEST
+ 	---help---
+ 	  This driver supports S2MPS11/S2MPS14/S5M8767 crystal oscillator
+ 	  clock. These multi-function devices have two (S2MPS14) or three
+-- 
+2.7.4
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
