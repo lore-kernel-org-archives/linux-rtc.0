@@ -1,29 +1,31 @@
-Return-Path: <rtc-linux+bncBDE6RCFOWIARBXPQ2HAAKGQEJ4GE4PA@googlegroups.com>
+Return-Path: <rtc-linux+bncBAABB7HJYW7QKGQEXVWLYVY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail-qk0-x235.google.com (mail-qk0-x235.google.com. [2607:f8b0:400d:c09::235])
-        by gmr-mx.google.com with ESMTPS id p22si19988ywe.3.2016.10.29.03.22.21
+MIME-Version: 1.0
+Received: from mail.kernel.org (mail.kernel.org. [198.145.29.136])
+        by gmr-mx.google.com with ESMTPS id z73si1058961pfa.1.2016.10.02.13.58.36
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sat, 29 Oct 2016 03:22:21 -0700 (PDT)
-Received: by mail-qk0-x235.google.com with SMTP id v138so23627580qka.0
-        for <rtc-linux@googlegroups.com>; Sat, 29 Oct 2016 03:22:21 -0700 (PDT)
-MIME-Version: 1.0
-In-Reply-To: <364a36215c44e0c2785911e9d9259cd866283cb9.1477735797.git.mchehab@s-opensource.com>
-References: <364a36215c44e0c2785911e9d9259cd866283cb9.1477735797.git.mchehab@s-opensource.com>
-From: Linus Walleij <linus.walleij@linaro.org>
-Date: Sat, 29 Oct 2016 12:22:20 +0200
-Message-ID: <CACRpkdb39Gp4ErqcnxenicgKJ6aSHS0AdC5MzY1xgHzMToF-iA@mail.gmail.com>
-Subject: [rtc-linux] Re: [PATCH 1/2] ABI: rtc-ab8500: fix rtc_calibration documentation
-To: Mauro Carvalho Chehab <mchehab@s-opensource.com>
-Cc: Linux Doc Mailing List <linux-doc@vger.kernel.org>,
-	Mauro Carvalho Chehab <mchehab@infradead.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	Mauro Carvalho Chehab <mchehab@kernel.org>, Mark Godfrey <mark.godfrey@stericsson.com>,
+        Sun, 02 Oct 2016 13:58:36 -0700 (PDT)
+From: Krzysztof Kozlowski <krzk@kernel.org>
+To: Michael Turquette <mturquette@baylibre.com>,
+	Stephen Boyd <sboyd@codeaurora.org>,
+	Lee Jones <lee.jones@linaro.org>,
+	Liam Girdwood <lgirdwood@gmail.com>,
+	Mark Brown <broonie@kernel.org>,
 	Alessandro Zummo <a.zummo@towertech.it>,
 	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>,
-	"rtc-linux@googlegroups.com" <rtc-linux@googlegroups.com>
-Content-Type: text/plain; charset=UTF-8
+	linux-clk@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	rtc-linux@googlegroups.com
+Cc: Krzysztof Kozlowski <krzk@kernel.org>
+Subject: [rtc-linux] [PATCH 2/4] regulator: Enable compile testing for Maxim
+ and Samsung PMIC drivers
+Date: Sun,  2 Oct 2016 22:58:15 +0200
+Message-Id: <1475441897-15730-3-git-send-email-krzk@kernel.org>
+In-Reply-To: <1475441897-15730-1-git-send-email-krzk@kernel.org>
+References: <1475441897-15730-1-git-send-email-krzk@kernel.org>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -32,26 +34,82 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Sat, Oct 29, 2016 at 12:10 PM, Mauro Carvalho Chehab
-<mchehab@s-opensource.com> wrote:
+Most of Maxim and Samsung PMIC/MUIC regulator drivers can be compile
+tested to increase build coverage.
 
-> The "What:" field at the ABI should describe the location of
-> the ABI, e. g. the position under a mounted sysfs.
->
-> Fix it.
->
-> Cc: Mark Godfrey <mark.godfrey@stericsson.com>
-> Cc: Linus Walleij <linus.walleij@linaro.org>
-> Cc: Alessandro Zummo <a.zummo@towertech.it>
-> Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-> Cc: linux-arm-kernel@lists.infradead.org
-> Cc: rtc-linux@googlegroups.com
-> Signed-off-by: Mauro Carvalho Chehab <mchehab@s-opensource.com>
+Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+---
+ drivers/regulator/Kconfig | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
-Acked-by: Linus Walleij <linus.walleij@linaro.org>
-
-Yours,
-Linus Walleij
+diff --git a/drivers/regulator/Kconfig b/drivers/regulator/Kconfig
+index 936f7ccc9736..1ce7e3633b63 100644
+--- a/drivers/regulator/Kconfig
++++ b/drivers/regulator/Kconfig
+@@ -379,7 +379,7 @@ config REGULATOR_MAX1586
+ 
+ config REGULATOR_MAX77620
+ 	tristate "Maxim 77620/MAX20024 voltage regulator"
+-	depends on MFD_MAX77620
++	depends on MFD_MAX77620 || COMPILE_TEST
+ 	help
+ 	  This driver controls Maxim MAX77620 voltage output regulator
+ 	  via I2C bus. The provided regulator is suitable for Tegra
+@@ -453,7 +453,7 @@ config REGULATOR_MAX8998
+ 
+ config REGULATOR_MAX77686
+ 	tristate "Maxim 77686 regulator"
+-	depends on MFD_MAX77686
++	depends on MFD_MAX77686 || COMPILE_TEST
+ 	help
+ 	  This driver controls a Maxim 77686 regulator
+ 	  via I2C bus. The provided regulator is suitable for
+@@ -461,7 +461,7 @@ config REGULATOR_MAX77686
+ 
+ config REGULATOR_MAX77693
+ 	tristate "Maxim 77693/77843 regulator"
+-	depends on (MFD_MAX77693 || MFD_MAX77843)
++	depends on MFD_MAX77693 || MFD_MAX77843 || COMPILE_TEST
+ 	help
+ 	  This driver controls a Maxim 77693/77843 regulators via I2C bus.
+ 	  The regulators include two LDOs, 'SAFEOUT1', 'SAFEOUT2'
+@@ -470,7 +470,7 @@ config REGULATOR_MAX77693
+ 
+ config REGULATOR_MAX77802
+ 	tristate "Maxim 77802 regulator"
+-	depends on MFD_MAX77686
++	depends on MFD_MAX77686 || COMPILE_TEST
+ 	help
+ 	  This driver controls a Maxim 77802 regulator
+ 	  via I2C bus. The provided regulator is suitable for
+@@ -669,14 +669,14 @@ config REGULATOR_RT5033
+ 
+ config REGULATOR_S2MPA01
+ 	tristate "Samsung S2MPA01 voltage regulator"
+-	depends on MFD_SEC_CORE
++	depends on MFD_SEC_CORE || COMPILE_TEST
+ 	help
+ 	 This driver controls Samsung S2MPA01 voltage output regulator
+ 	 via I2C bus. S2MPA01 has 10 Bucks and 26 LDO outputs.
+ 
+ config REGULATOR_S2MPS11
+ 	tristate "Samsung S2MPS11/13/14/15/S2MPU02 voltage regulator"
+-	depends on MFD_SEC_CORE
++	depends on MFD_SEC_CORE || COMPILE_TEST
+ 	help
+ 	 This driver supports a Samsung S2MPS11/13/14/15/S2MPU02 voltage
+ 	 output regulator via I2C bus. The chip is comprised of high efficient
+@@ -685,7 +685,7 @@ config REGULATOR_S2MPS11
+ 
+ config REGULATOR_S5M8767
+ 	tristate "Samsung S5M8767A voltage regulator"
+-	depends on MFD_SEC_CORE
++	depends on MFD_SEC_CORE || COMPILE_TEST
+ 	help
+ 	 This driver supports a Samsung S5M8767A voltage output regulator
+ 	 via I2C bus. S5M8767A have 9 Bucks and 28 LDOs output and
+-- 
+2.7.4
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
