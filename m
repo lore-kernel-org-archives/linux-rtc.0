@@ -1,32 +1,31 @@
-Return-Path: <rtc-linux+bncBC433LF43MBBBTWY33AAKGQE6LVXVYI@googlegroups.com>
+Return-Path: <rtc-linux+bncBDQ2L75W5QGBBV5NZS7QKGQE2G5DSXA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-MIME-Version: 1.0
-Received: from outils.crapouillou.net (outils.crapouillou.net. [89.234.176.41])
-        by gmr-mx.google.com with ESMTPS id f4si2288481wmf.1.2016.10.31.13.40.46
+Received: from mezzanine.sirena.org.uk (mezzanine.sirena.org.uk. [2400:8900::f03c:91ff:fedb:4f4])
+        by gmr-mx.google.com with ESMTPS id 80si655353pfw.0.2016.10.03.19.41.27
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 31 Oct 2016 13:40:46 -0700 (PDT)
-From: Paul Cercueil <paul@crapouillou.net>
-To: rtc-linux@googlegroups.com,
+        Mon, 03 Oct 2016 19:41:27 -0700 (PDT)
+Date: Tue, 4 Oct 2016 04:40:55 +0200
+From: Mark Brown <broonie@kernel.org>
+To: Krzysztof Kozlowski <krzk@kernel.org>
+Cc: Michael Turquette <mturquette@baylibre.com>,
+	Stephen Boyd <sboyd@codeaurora.org>,
+	Lee Jones <lee.jones@linaro.org>,
+	Liam Girdwood <lgirdwood@gmail.com>,
 	Alessandro Zummo <a.zummo@towertech.it>,
 	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Rob Herring <robh+dt@kernel.org>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Ralf Baechle <ralf@linux-mips.org>,
-	Maarten ter Huurne <maarten@treewalker.org>,
-	Lars-Peter Clausen <lars@metafoo.de>,
-	devicetree@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	linux-mips@linux-mips.org
-Cc: Paul Cercueil <paul@crapouillou.net>
-Subject: [rtc-linux] [PATCH v3 3/7] rtc: rtc-jz4740: Add support for devicetree
-Date: Mon, 31 Oct 2016 21:39:47 +0100
-Message-Id: <20161031203951.5444-3-paul@crapouillou.net>
-In-Reply-To: <20161031203951.5444-1-paul@crapouillou.net>
-References: <20161030230247.20538-1-paul@crapouillou.net>
- <20161031203951.5444-1-paul@crapouillou.net>
+	linux-clk@vger.kernel.org, linux-kernel@vger.kernel.org,
+	rtc-linux@googlegroups.com
+Message-ID: <20161004024055.4kdjvoiig4fwxi54@sirena.org.uk>
+References: <1475441897-15730-1-git-send-email-krzk@kernel.org>
+ <1475441897-15730-3-git-send-email-krzk@kernel.org>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="giaj4hhin6z2jwxx"
+In-Reply-To: <1475441897-15730-3-git-send-email-krzk@kernel.org>
+Subject: [rtc-linux] Re: [PATCH 2/4] regulator: Enable compile testing for
+ Maxim and Samsung PMIC drivers
 Reply-To: rtc-linux@googlegroups.com
-Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -35,74 +34,20 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-See
-Documentation/devicetree/bindings/rtc/ingenic,jz4740-rtc.txt
-for a description of the bindings.
 
-Signed-off-by: Paul Cercueil <paul@crapouillou.net>
-Acked-by: Maarten ter Huurne <maarten@treewalker.org>
----
- drivers/rtc/rtc-jz4740.c | 16 +++++++++++++++-
- 1 file changed, 15 insertions(+), 1 deletion(-)
+--giaj4hhin6z2jwxx
+Content-Type: text/plain; charset=UTF-8
+Content-Disposition: inline
 
-v2: No change
-v3: No change
+On Sun, Oct 02, 2016 at 10:58:15PM +0200, Krzysztof Kozlowski wrote:
+> Most of Maxim and Samsung PMIC/MUIC regulator drivers can be compile
+> tested to increase build coverage.
 
-diff --git a/drivers/rtc/rtc-jz4740.c b/drivers/rtc/rtc-jz4740.c
-index c616efe..4213554 100644
---- a/drivers/rtc/rtc-jz4740.c
-+++ b/drivers/rtc/rtc-jz4740.c
-@@ -17,6 +17,7 @@
- #include <linux/io.h>
- #include <linux/kernel.h>
- #include <linux/module.h>
-+#include <linux/of_device.h>
- #include <linux/platform_device.h>
- #include <linux/rtc.h>
- #include <linux/slab.h>
-@@ -245,6 +246,13 @@ void jz4740_rtc_poweroff(struct device *dev)
- }
- EXPORT_SYMBOL_GPL(jz4740_rtc_poweroff);
- 
-+static const struct of_device_id jz4740_rtc_of_match[] = {
-+	{ .compatible = "ingenic,jz4740-rtc", .data = (void *) ID_JZ4740 },
-+	{ .compatible = "ingenic,jz4780-rtc", .data = (void *) ID_JZ4780 },
-+	{},
-+};
-+MODULE_DEVICE_TABLE(of, jz4740_rtc_of_match);
-+
- static int jz4740_rtc_probe(struct platform_device *pdev)
- {
- 	int ret;
-@@ -252,12 +260,17 @@ static int jz4740_rtc_probe(struct platform_device *pdev)
- 	uint32_t scratchpad;
- 	struct resource *mem;
- 	const struct platform_device_id *id = platform_get_device_id(pdev);
-+	const struct of_device_id *of_id = of_match_device(
-+			jz4740_rtc_of_match, &pdev->dev);
- 
- 	rtc = devm_kzalloc(&pdev->dev, sizeof(*rtc), GFP_KERNEL);
- 	if (!rtc)
- 		return -ENOMEM;
- 
--	rtc->type = id->driver_data;
-+	if (of_id)
-+		rtc->type = (enum jz4740_rtc_type) of_id->data;
-+	else
-+		rtc->type = id->driver_data;
- 
- 	rtc->irq = platform_get_irq(pdev, 0);
- 	if (rtc->irq < 0) {
-@@ -345,6 +358,7 @@ static struct platform_driver jz4740_rtc_driver = {
- 	.driver	 = {
- 		.name  = "jz4740-rtc",
- 		.pm    = JZ4740_RTC_PM_OPS,
-+		.of_match_table = of_match_ptr(jz4740_rtc_of_match),
- 	},
- 	.id_table = jz4740_rtc_ids,
- };
--- 
-2.9.3
+All these drivers already just depend on the MFDs which don't have any
+weird architecture dependencies - the main goal with COMPILE_TEST is
+usually to eliminate dependencies which just can't be selected so they
+can be built at all.  Given that there's no easy way to select
+everything in a subsystem otherwise does this buy us a lot?
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
@@ -113,3 +58,19 @@ before submitting a driver.
 You received this message because you are subscribed to the Google Groups "rtc-linux" group.
 To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
+
+--giaj4hhin6z2jwxx
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEcBAABCAAGBQJX8xayAAoJECTWi3JdVIfQnv0H/0zexfPE1tSdzJJaf8Aveugm
+1iNs9WQYjg6ETfvh5UfeNS3uPHbkShrfjOhJkOvpTmwwvjLvc0jTWrgS9JqBM5r4
+t5ONQbZElteES3tuzIKZr6nAjJbT9ZEZ3j2eJeW3J4ygFdF76d6HQP+2SMbsckNP
+6D5xQZWWTD1/NodfRaZnOC34XxrirFgu3lp0BUPdDE5lGPefq+wiqvK1YShaKIuL
+UUriZ9ILjX1BO4BzyCjZVDT7BWxyvq4jLJXf5yW5I5Nx23FbUhCmBPSh8tB1/RWx
++hIPVaXHtaWEDECbsMfZsHcFmvrmtnuHTZjGfjbldKlr6UQ64uXqewwoLl94tD4=
+=qBzW
+-----END PGP SIGNATURE-----
+
+--giaj4hhin6z2jwxx--
