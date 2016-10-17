@@ -1,23 +1,21 @@
-Return-Path: <rtc-linux+bncBD66BCOYSQBBBT5OY3AAKGQE2ENI76A@googlegroups.com>
+Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBHHWSPAAKGQEZIL32AQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from devils.ext.ti.com (devils.ext.ti.com. [198.47.26.153])
-        by gmr-mx.google.com with ESMTPS id 200si58647itz.2.2016.10.26.22.57.35
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1 cipher=AES128-SHA bits=128/128);
-        Wed, 26 Oct 2016 22:57:35 -0700 (PDT)
-From: Keerthy <j-keerthy@ti.com>
-To: <alexandre.belloni@free-electrons.com>
-CC: <a.zummo@towertech.it>, <rtc-linux@googlegroups.com>,
-        <linux-omap@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-        <lokeshvutla@ti.com>, <j-keerthy@ti.com>, <t-kristo@ti.com>
-Subject: [rtc-linux] [PATCH 2/2] rtc: omap: prevent disabling of clock/module
- during suspend
-Date: Thu, 27 Oct 2016 11:27:26 +0530
-Message-ID: <1477547846-5335-2-git-send-email-j-keerthy@ti.com>
-In-Reply-To: <1477547846-5335-1-git-send-email-j-keerthy@ti.com>
-References: <1477547846-5335-1-git-send-email-j-keerthy@ti.com>
+Received: from mail.free-electrons.com (up.free-electrons.com. [163.172.77.33])
+        by gmr-mx.google.com with ESMTP id p131si5256138vkf.1.2016.10.17.09.23.55
+        for <rtc-linux@googlegroups.com>;
+        Mon, 17 Oct 2016 09:23:56 -0700 (PDT)
+Date: Mon, 17 Oct 2016 18:23:54 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Mirza Krak <mirza.krak@gmail.com>
+Cc: a.zummo@towertech.it, rtc-linux@googlegroups.com,
+	Mirza Krak <mirza.krak@hostmobility.com>
+Subject: [rtc-linux] Re: [PATCH 1/1] rtc: pcf85063: do not register a RTC
+ device if chip is not present
+Message-ID: <20161017161403.fkppk6fbvdjbp2lz@piout.net>
+References: <1476712411-20970-1-git-send-email-mirza.krak@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1476712411-20970-1-git-send-email-mirza.krak@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -27,99 +25,55 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-From: Tero Kristo <t-kristo@ti.com>
+Hi,
 
-If RTC is running from an internal clock source, the RTC module can't
-be disabled; otherwise it stops ticking completely. Current suspend
-handler implementation disables the clock/module unconditionally,
-instead fix this by disabling the clock only if we are running on
-external clock source, which is not affected by suspend.
+On 17/10/2016 at 15:53:31 +0200, Mirza Krak wrote :
+> From: Mirza Krak <mirza.krak@hostmobility.com>
+> 
+> Add a sanity check to see if chip is present. If we can not communicate
+> with the chip there is no point in registering a RTC device.
+> 
 
-The prevention of disabling the clock must be done via implementing
-the runtime_pm handlers for the device, and returning an error code
-from the runtime suspend handler; otherwise OMAP core PM will disable
-the clocks for the driver.
+Does it makes sense? If the device is not present, why has it been
+registered in the first place?
 
-Signed-off-by: Tero Kristo <t-kristo@ti.com>
-Signed-off-by: Keerthy <j-keerthy@ti.com>
----
+> Signed-off-by: Mirza Krak <mirza.krak@hostmobility.com>
+> ---
+>  drivers/rtc/rtc-pcf85063.c | 7 +++++++
+>  1 file changed, 7 insertions(+)
+> 
+> diff --git a/drivers/rtc/rtc-pcf85063.c b/drivers/rtc/rtc-pcf85063.c
+> index efb0a08..a06dff9 100644
+> --- a/drivers/rtc/rtc-pcf85063.c
+> +++ b/drivers/rtc/rtc-pcf85063.c
+> @@ -191,12 +191,19 @@ static int pcf85063_probe(struct i2c_client *client,
+>  				const struct i2c_device_id *id)
+>  {
+>  	struct rtc_device *rtc;
+> +	int err;
+>  
+>  	dev_dbg(&client->dev, "%s\n", __func__);
+>  
+>  	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C))
+>  		return -ENODEV;
+>  
+> +	err = i2c_smbus_read_byte_data(client, PCF85063_REG_CTRL1);
+> +	if (err < 0) {
+> +		dev_err(&client->dev, "RTC chip is not present\n");
+> +		return err;
+> +	}
+> +
+>  	rtc = devm_rtc_device_register(&client->dev,
+>  				       pcf85063_driver.driver.name,
+>  				       &pcf85063_rtc_ops, THIS_MODULE);
+> -- 
+> 2.1.4
+> 
 
-Boot tested and checked for rtc ticking on am335x-boneblack, am335x-bone
-am437x-gp-evm, dra7-evm, dra72-evm.
-
- drivers/rtc/rtc-omap.c | 32 ++++++++++++++++++++++++++------
- 1 file changed, 26 insertions(+), 6 deletions(-)
-
-diff --git a/drivers/rtc/rtc-omap.c b/drivers/rtc/rtc-omap.c
-index dddaa60..51e5244 100644
---- a/drivers/rtc/rtc-omap.c
-+++ b/drivers/rtc/rtc-omap.c
-@@ -147,6 +147,7 @@ struct omap_rtc {
- 	u8 interrupts_reg;
- 	bool is_pmic_controller;
- 	bool has_ext_clk;
-+	bool is_suspending;
- 	const struct omap_rtc_device_type *type;
- 	struct pinctrl_dev *pctldev;
- };
-@@ -900,8 +901,7 @@ static int omap_rtc_suspend(struct device *dev)
- 		rtc_write(rtc, OMAP_RTC_INTERRUPTS_REG, 0);
- 	rtc->type->lock(rtc);
- 
--	/* Disable the clock/module */
--	pm_runtime_put_sync(dev);
-+	rtc->is_suspending = true;
- 
- 	return 0;
- }
-@@ -910,9 +910,6 @@ static int omap_rtc_resume(struct device *dev)
- {
- 	struct omap_rtc *rtc = dev_get_drvdata(dev);
- 
--	/* Enable the clock/module so that we can access the registers */
--	pm_runtime_get_sync(dev);
--
- 	rtc->type->unlock(rtc);
- 	if (device_may_wakeup(dev))
- 		disable_irq_wake(rtc->irq_alarm);
-@@ -920,11 +917,34 @@ static int omap_rtc_resume(struct device *dev)
- 		rtc_write(rtc, OMAP_RTC_INTERRUPTS_REG, rtc->interrupts_reg);
- 	rtc->type->lock(rtc);
- 
-+	rtc->is_suspending = false;
-+
- 	return 0;
- }
- #endif
- 
--static SIMPLE_DEV_PM_OPS(omap_rtc_pm_ops, omap_rtc_suspend, omap_rtc_resume);
-+#ifdef CONFIG_PM
-+static int omap_rtc_runtime_suspend(struct device *dev)
-+{
-+	struct omap_rtc *rtc = dev_get_drvdata(dev);
-+
-+	if (rtc->is_suspending && !rtc->has_ext_clk)
-+		return -EBUSY;
-+
-+	return 0;
-+}
-+
-+static int omap_rtc_runtime_resume(struct device *dev)
-+{
-+	return 0;
-+}
-+#endif
-+
-+static const struct dev_pm_ops omap_rtc_pm_ops = {
-+	SET_SYSTEM_SLEEP_PM_OPS(omap_rtc_suspend, omap_rtc_resume)
-+	SET_RUNTIME_PM_OPS(omap_rtc_runtime_suspend,
-+			   omap_rtc_runtime_resume, NULL)
-+};
- 
- static void omap_rtc_shutdown(struct platform_device *pdev)
- {
 -- 
-1.9.1
+Alexandre Belloni, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
