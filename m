@@ -1,30 +1,20 @@
-Return-Path: <rtc-linux+bncBDJIP47K7MERBJ6O3PAAKGQETQEZPRQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBSW5TDAAKGQEB2MWIJQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail-oi0-f65.google.com (mail-oi0-f65.google.com. [209.85.218.65])
-        by gmr-mx.google.com with ESMTPS id a3si1292400itc.0.2016.10.30.23.39.35
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sun, 30 Oct 2016 23:39:35 -0700 (PDT)
-Received: by mail-oi0-f65.google.com with SMTP id 128so2478587oih.3
-        for <rtc-linux@googlegroups.com>; Sun, 30 Oct 2016 23:39:35 -0700 (PDT)
-Date: Mon, 31 Oct 2016 01:39:33 -0500
-From: Rob Herring <robh@kernel.org>
-To: Paul Cercueil <paul@crapouillou.net>
-Cc: rtc-linux@googlegroups.com, Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Ralf Baechle <ralf@linux-mips.org>,
-	Maarten ter Huurne <maarten@treewalker.org>,
-	Lars-Peter Clausen <lars@metafoo.de>, devicetree@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-mips@linux-mips.org
-Subject: [rtc-linux] Re: [PATCH v2 2/7] Documentation: dt: Add binding info
- for jz4740-rtc driver
-Message-ID: <20161031063933.wvsby4tgdbgc7zrp@rob-hp-laptop>
-References: <20161030230247.20538-1-paul@crapouillou.net>
- <20161030230247.20538-3-paul@crapouillou.net>
+Received: from mail.free-electrons.com (up.free-electrons.com. [163.172.77.33])
+        by gmr-mx.google.com with ESMTP id x14si5124833vkd.3.2016.10.18.07.16.41
+        for <rtc-linux@googlegroups.com>;
+        Tue, 18 Oct 2016 07:16:41 -0700 (PDT)
+Date: Tue, 18 Oct 2016 16:16:39 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Corentin Labbe <clabbe.montjoie@gmail.com>
+Cc: a.zummo@towertech.it, lars@metafoo.de, rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org
+Subject: [rtc-linux] Re: [PATCH v2] rtc: cmos: remove all __exit_p annotations
+Message-ID: <20161018141639.owhkvkn4k2rvgspr@piout.net>
+References: <1476791753-1837-1-git-send-email-clabbe.montjoie@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <20161030230247.20538-3-paul@crapouillou.net>
+In-Reply-To: <1476791753-1837-1-git-send-email-clabbe.montjoie@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -34,27 +24,47 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Mon, Oct 31, 2016 at 12:02:42AM +0100, Paul Cercueil wrote:
-> This commit adds documentation for the device-tree bindings of the
-> jz4740-rtc driver, which supports the RTC unit present in the JZ4740 and
-> JZ4780 SoCs from Ingenic.
+Hi,
+
+On 18/10/2016 at 13:55:53 +0200, Corentin Labbe wrote :
+> Change since v1:
+> - restored __exit for module_exit function
 > 
-> Signed-off-by: Paul Cercueil <paul@crapouillou.net>
-> Acked-by: Maarten ter Huurne <maarten@treewalker.org>
+> ---8<---
+
+I don't think this is the proper scissor symbol for git. At least, it is
+no recognized by patchwork and messes your patch.
+
+> From c04a24acebee4b4432afa7a2a7d4cfe114cc9a40 Mon Sep 17 00:00:00 2001
+> From: Corentin Labbe <clabbe.montjoie@gmail.com>
+> Date: Mon, 17 Oct 2016 14:17:49 +0200
+> Subject: [PATCH v2] rtc: cmos: remove all __exit_p annotations
+> 
+> I got the following stack trace under qemu:
+
+[...]
+> When cmos_set_alarm() is called dev is NULL and so trigger the deref via
+> cmos->irq
+> 
+> The problem comes from that the device is removed but no remove function
+> are called due to _exit_p().
+> 
+> This patch remove all _exit_p() annotation.
+> 
+> Signed-off-by: Corentin Labbe <clabbe.montjoie@gmail.com>
 > ---
->  .../devicetree/bindings/rtc/ingenic,jz4740-rtc.txt | 37 ++++++++++++++++++++++
->  1 file changed, 37 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/rtc/ingenic,jz4740-rtc.txt
+
+
+The changelog should go here.
+
+>  drivers/rtc/rtc-cmos.c | 10 +++++-----
+>  1 file changed, 5 insertions(+), 5 deletions(-)
 > 
-> v2:
-> - Remove 'interrupt-parent' of the list of required properties
-> - Add the -msec suffix for the DT entries that represent time
 
-Sorry, I told you the wrong suffix. It should be '-ms' as documented in 
-.../bindings/property-units.txt. I never can remember which is why I 
-wrote the doc to begin with. With that fix,
-
-Acked-by: Rob Herring <robh@kernel.org>
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
