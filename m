@@ -1,23 +1,23 @@
-Return-Path: <rtc-linux+bncBDUNBGN3R4KRBIPW7C7QKGQE65NSGZA@googlegroups.com>
+Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBHPETDAAKGQEZGEFMWY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-MIME-Version: 1.0
-Received: from bombadil.infradead.org (bombadil.infradead.org. [2001:1868:205::9])
-        by gmr-mx.google.com with ESMTPS id co10si883236pad.1.2016.10.12.06.31.12
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 12 Oct 2016 06:31:12 -0700 (PDT)
-From: Christoph Hellwig <hch@lst.de>
-To: alexandre.belloni@free-electrons.com,
-	a.zummo@towertech.it
-Cc: arnd@arndb.de,
-	david-b@pacbell.net,
-	rtc-linux@googlegroups.com,
+Received: from mail.free-electrons.com (up.free-electrons.com. [163.172.77.33])
+        by gmr-mx.google.com with ESMTP id p131si6288983vkf.1.2016.10.18.07.30.53
+        for <rtc-linux@googlegroups.com>;
+        Tue, 18 Oct 2016 07:30:53 -0700 (PDT)
+Date: Tue, 18 Oct 2016 16:30:51 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: LABBE Corentin <clabbe.montjoie@gmail.com>
+Cc: a.zummo@towertech.it, lars@metafoo.de, rtc-linux@googlegroups.com,
 	linux-kernel@vger.kernel.org
-Subject: [rtc-linux] [PATCH] rtc-cmos: don't refer to asm-generic/rtc.h
-Date: Wed, 12 Oct 2016 15:30:53 +0200
-Message-Id: <1476279053-27967-1-git-send-email-hch@lst.de>
-Reply-To: rtc-linux@googlegroups.com
+Subject: [rtc-linux] Re: [PATCH v2] rtc: cmos: remove all __exit_p annotations
+Message-ID: <20161018143051.3466uyqvw677j3ly@piout.net>
+References: <1476791753-1837-1-git-send-email-clabbe.montjoie@gmail.com>
+ <20161018141639.owhkvkn4k2rvgspr@piout.net>
+ <20161018142453.GA7552@Red>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <20161018142453.GA7552@Red>
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -26,47 +26,54 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-That header has been gone for a while.  I've fixed up the Kconfig
-comment, but the one in rtc-cmos.c doesn't make any sense to me
-even looking at its history.
+On 18/10/2016 at 16:24:53 +0200, LABBE Corentin wrote :
+> On Tue, Oct 18, 2016 at 04:16:39PM +0200, Alexandre Belloni wrote:
+> > Hi,
+> > 
+> > On 18/10/2016 at 13:55:53 +0200, Corentin Labbe wrote :
+> > > Change since v1:
+> > > - restored __exit for module_exit function
+> > > 
+> > > ---8<---
+> > 
+> > I don't think this is the proper scissor symbol for git. At least, it is
+> > no recognized by patchwork and messes your patch.
+> > 
+> > > From c04a24acebee4b4432afa7a2a7d4cfe114cc9a40 Mon Sep 17 00:00:00 2001
+> > > From: Corentin Labbe <clabbe.montjoie@gmail.com>
+> > > Date: Mon, 17 Oct 2016 14:17:49 +0200
+> > > Subject: [PATCH v2] rtc: cmos: remove all __exit_p annotations
+> > > 
+> > > I got the following stack trace under qemu:
+> > 
+> > [...]
+> > > When cmos_set_alarm() is called dev is NULL and so trigger the deref via
+> > > cmos->irq
+> > > 
+> > > The problem comes from that the device is removed but no remove function
+> > > are called due to _exit_p().
+> > > 
+> > > This patch remove all _exit_p() annotation.
+> > > 
+> > > Signed-off-by: Corentin Labbe <clabbe.montjoie@gmail.com>
+> > > ---
+> > 
+> > 
+> > The changelog should go here.
+> > 
+> > >  drivers/rtc/rtc-cmos.c | 10 +++++-----
+> > >  1 file changed, 5 insertions(+), 5 deletions(-)
+> > > 
+> 
+> Sorry, could I just resent it with PATCH RESENT v2 ? or does I need to bump it to v3.
+> 
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
----
- drivers/rtc/Kconfig    | 4 ++--
- drivers/rtc/rtc-cmos.c | 3 ---
- 2 files changed, 2 insertions(+), 5 deletions(-)
+Resending v2 is fine
 
-diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
-index d1e0807..9bc1b4d 100644
---- a/drivers/rtc/Kconfig
-+++ b/drivers/rtc/Kconfig
-@@ -815,8 +815,8 @@ config RTC_DRV_RV3029_HWMON
- 
- comment "Platform RTC drivers"
- 
--# this 'CMOS' RTC driver is arch dependent because <asm-generic/rtc.h>
--# requires <asm/mc146818rtc.h> defining CMOS_READ/CMOS_WRITE, and a
-+# this 'CMOS' RTC driver is arch dependent because it requires
-+# <asm/mc146818rtc.h> defining CMOS_READ/CMOS_WRITE, and a
- # global rtc_lock ... it's not yet just another platform_device.
- 
- config RTC_DRV_CMOS
-diff --git a/drivers/rtc/rtc-cmos.c b/drivers/rtc/rtc-cmos.c
-index 43745ca..a2b12eb 100644
---- a/drivers/rtc/rtc-cmos.c
-+++ b/drivers/rtc/rtc-cmos.c
-@@ -698,9 +698,6 @@ cmos_do_probe(struct device *dev, struct resource *ports, int rtc_irq)
- 
- 	spin_unlock_irq(&rtc_lock);
- 
--	/* FIXME:
--	 * <asm-generic/rtc.h> doesn't know 12-hour mode either.
--	 */
- 	if (is_valid_irq(rtc_irq) && !(rtc_control & RTC_24H)) {
- 		dev_warn(dev, "only 24-hr supported\n");
- 		retval = -ENXIO;
 -- 
-2.10.1.382.ga23ca1b
+Alexandre Belloni, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
