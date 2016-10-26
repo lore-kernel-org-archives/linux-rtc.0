@@ -1,33 +1,32 @@
-Return-Path: <rtc-linux+bncBC433LF43MBBBM6Y33AAKGQE6SCKJAI@googlegroups.com>
+Return-Path: <rtc-linux+bncBDA7X7F2WUEBBHF5YLAAKGQETKU7YPA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-MIME-Version: 1.0
-Received: from outils.crapouillou.net (outils.crapouillou.net. [89.234.176.41])
-        by gmr-mx.google.com with ESMTPS id s80si2479376wme.3.2016.10.31.13.40.19
+Received: from mail-wm0-x22e.google.com (mail-wm0-x22e.google.com. [2a00:1450:400c:c09::22e])
+        by gmr-mx.google.com with ESMTPS id s80si218312wme.3.2016.10.26.05.16.28
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 31 Oct 2016 13:40:19 -0700 (PDT)
-From: Paul Cercueil <paul@crapouillou.net>
-To: rtc-linux@googlegroups.com,
+        Wed, 26 Oct 2016 05:16:28 -0700 (PDT)
+Received: by mail-wm0-x22e.google.com with SMTP id d128so82027748wmf.1
+        for <rtc-linux@googlegroups.com>; Wed, 26 Oct 2016 05:16:28 -0700 (PDT)
+Date: Wed, 26 Oct 2016 13:19:01 +0100
+From: Lee Jones <lee.jones@linaro.org>
+To: Krzysztof Kozlowski <krzk@kernel.org>
+Cc: Michael Turquette <mturquette@baylibre.com>,
+	Stephen Boyd <sboyd@codeaurora.org>,
+	Liam Girdwood <lgirdwood@gmail.com>,
+	Mark Brown <broonie@kernel.org>,
 	Alessandro Zummo <a.zummo@towertech.it>,
 	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Rob Herring <robh+dt@kernel.org>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Ralf Baechle <ralf@linux-mips.org>,
-	Maarten ter Huurne <maarten@treewalker.org>,
-	Lars-Peter Clausen <lars@metafoo.de>,
-	devicetree@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	linux-mips@linux-mips.org
-Cc: Paul Cercueil <paul@crapouillou.net>
-Subject: [rtc-linux] [PATCH v3 2/7] Documentation: dt: Add binding info for
- jz4740-rtc driver
-Date: Mon, 31 Oct 2016 21:39:46 +0100
-Message-Id: <20161031203951.5444-2-paul@crapouillou.net>
-In-Reply-To: <20161031203951.5444-1-paul@crapouillou.net>
-References: <20161030230247.20538-1-paul@crapouillou.net>
- <20161031203951.5444-1-paul@crapouillou.net>
-Reply-To: rtc-linux@googlegroups.com
+	linux-clk@vger.kernel.org, linux-kernel@vger.kernel.org,
+	rtc-linux@googlegroups.com
+Subject: [rtc-linux] Re: [PATCH 4/4] mfd: Enable compile testing for max77620
+ and max77686
+Message-ID: <20161026121901.GU8574@dell>
+References: <1475441897-15730-1-git-send-email-krzk@kernel.org>
+ <1475441897-15730-5-git-send-email-krzk@kernel.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1475441897-15730-5-git-send-email-krzk@kernel.org>
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -36,77 +35,55 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-This commit adds documentation for the device-tree bindings of the
-jz4740-rtc driver, which supports the RTC unit present in the JZ4740 and
-JZ4780 SoCs from Ingenic.
+On Sun, 02 Oct 2016, Krzysztof Kozlowski wrote:
 
-Signed-off-by: Paul Cercueil <paul@crapouillou.net>
-Acked-by: Maarten ter Huurne <maarten@treewalker.org>
----
- .../devicetree/bindings/rtc/ingenic,jz4740-rtc.txt | 37 ++++++++++++++++++++++
- 1 file changed, 37 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/rtc/ingenic,jz4740-rtc.txt
+> The OF is not a strict build-time dependency so max77620 and max77686
+> can be compile tested to increase build coverage.
+>=20
+> Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+> ---
+>  drivers/mfd/Kconfig | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
 
-v2:
-- Remove 'interrupt-parent' of the list of required properties
-- Add the -msec suffix for the DT entries that represent time
+Applied, thanks.
 
-v3:
-- Replace the -msec suffix by -ms
-- Change the register area size from 0x3F to 0x40
+> diff --git a/drivers/mfd/Kconfig b/drivers/mfd/Kconfig
+> index c6df6442ba2b..ccea26943746 100644
+> --- a/drivers/mfd/Kconfig
+> +++ b/drivers/mfd/Kconfig
+> @@ -563,7 +563,7 @@ config MFD_MAX14577
+>  config MFD_MAX77620
+>  	bool "Maxim Semiconductor MAX77620 and MAX20024 PMIC Support"
+>  	depends on I2C=3Dy
+> -	depends on OF
+> +	depends on OF || COMPILE_TEST
+>  	select MFD_CORE
+>  	select REGMAP_I2C
+>  	select REGMAP_IRQ
+> @@ -578,7 +578,7 @@ config MFD_MAX77620
+>  config MFD_MAX77686
+>  	tristate "Maxim Semiconductor MAX77686/802 PMIC Support"
+>  	depends on I2C
+> -	depends on OF
+> +	depends on OF || COMPILE_TEST
+>  	select MFD_CORE
+>  	select REGMAP_I2C
+>  	select REGMAP_IRQ
 
-diff --git a/Documentation/devicetree/bindings/rtc/ingenic,jz4740-rtc.txt b/Documentation/devicetree/bindings/rtc/ingenic,jz4740-rtc.txt
-new file mode 100644
-index 0000000..df97594
---- /dev/null
-+++ b/Documentation/devicetree/bindings/rtc/ingenic,jz4740-rtc.txt
-@@ -0,0 +1,37 @@
-+JZ4740 and similar SoCs real-time clock driver
-+
-+Required properties:
-+
-+- compatible: One of:
-+  - "ingenic,jz4740-rtc" - for use with the JZ4740 SoC
-+  - "ingenic,jz4780-rtc" - for use with the JZ4780 SoC
-+- reg: Address range of rtc register set
-+- interrupts: IRQ number for the alarm interrupt
-+- clocks: phandle to the "rtc" clock
-+- clock-names: must be "rtc"
-+
-+Optional properties:
-+- system-power-controller: To use this component as the
-+  system power controller
-+- reset-pin-assert-time-ms: Reset pin low-level assertion
-+  time after wakeup (default 60ms; range 0-125ms if RTC clock
-+  at 32 kHz)
-+- min-wakeup-pin-assert-time-ms: Minimum wakeup pin assertion
-+  time (default 100ms; range 0-2s if RTC clock at 32 kHz)
-+
-+Example:
-+
-+rtc@10003000 {
-+	compatible = "ingenic,jz4740-rtc";
-+	reg = <0x10003000 0x40>;
-+
-+	interrupt-parent = <&intc>;
-+	interrupts = <32>;
-+
-+	clocks = <&rtc_clock>;
-+	clock-names = "rtc";
-+
-+	system-power-controller;
-+	reset-pin-assert-time-ms = <60>;
-+	min-wakeup-pin-assert-time-ms = <100>;
-+};
--- 
-2.9.3
+--=20
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org =E2=94=82 Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog
 
--- 
+--=20
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+---=20
+You received this message because you are subscribed to the Google Groups "=
+rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an e=
+mail to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
