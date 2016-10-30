@@ -1,24 +1,23 @@
-Return-Path: <rtc-linux+bncBCGP7DNSRUMRB5VH33AAKGQEIDO7SMQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBCF2PQPV4MDRB5FK27AAKGQEIXBKWUY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail5.wrs.com (mail5.windriver.com. [192.103.53.11])
-        by gmr-mx.google.com with ESMTPS id f131si1656891itc.3.2016.10.31.11.56.54
+Received: from mail-it0-x244.google.com (mail-it0-x244.google.com. [2607:f8b0:4001:c0b::244])
+        by gmr-mx.google.com with ESMTPS id c34si1031963itd.1.2016.10.30.04.11.48
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 31 Oct 2016 11:56:54 -0700 (PDT)
-From: Paul Gortmaker <paul.gortmaker@windriver.com>
-To: <linux-kernel@vger.kernel.org>
-CC: Paul Gortmaker <paul.gortmaker@windriver.com>,
-        Alessandro Zummo
-	<a.zummo@towertech.it>,
-        Alexandre Belloni
-	<alexandre.belloni@free-electrons.com>,
-        "David S. Miller"
-	<davem@davemloft.net>, <rtc-linux@googlegroups.com>,
-        <sparclinux@vger.kernel.org>
-Subject: [rtc-linux] [PATCH 0/3] rtc: remove modular usage from non-modular code
-Date: Mon, 31 Oct 2016 14:55:24 -0400
-Message-ID: <20161031185527.20279-1-paul.gortmaker@windriver.com>
+        Sun, 30 Oct 2016 04:11:48 -0700 (PDT)
+Received: by mail-it0-x244.google.com with SMTP id f129so3414783itc.2
+        for <rtc-linux@googlegroups.com>; Sun, 30 Oct 2016 04:11:48 -0700 (PDT)
 MIME-Version: 1.0
+In-Reply-To: <1476898864-7004-1-git-send-email-venkat.prashanth2498@gmail.com>
+References: <1476898864-7004-1-git-send-email-venkat.prashanth2498@gmail.com>
+From: Joachim  Eastwood <manabian@gmail.com>
+Date: Sun, 30 Oct 2016 12:11:47 +0100
+Message-ID: <CAGhQ9VyWpGq1nKVBLX0AcKkGU8teH6rVjTc749uvdW9LmX_5gQ@mail.gmail.com>
+Subject: [rtc-linux] Re: [PATCH v2] rtc: add support for rtc NXP pca21125
+To: VENKAT PRASHANTH B U <venkat.prashanth2498@gmail.com>
+Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
@@ -29,44 +28,23 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-My ongoing audit looking for non-modular code that needlessly uses
-modular macros (vs. built-in equivalents) and/or has dead code
-relating to module unloading that can never be executed led to the
-creation of these rtc related commits.
+Hi Venkat,
 
-For anyone new to the underlying goal of this cleanup, we are trying to
-not use module support for code that can never be built as a module since:
+On 19 October 2016 at 19:41, VENKAT PRASHANTH B U
+<venkat.prashanth2498@gmail.com> wrote:
+> This is a patch to add support for
+> NXP rtc pca21125
 
- (1) it is easy to accidentally write unused module_exit and remove code
- (2) it can be misleading when reading the source, thinking it can be
-     modular when the Makefile and/or Kconfig prohibit it
- (3) it requires the include of the module.h header file which in turn
-     includes nearly everything else, thus adding to CPP overhead.
- (4) it gets copied/replicated into other code and spreads like weeds.
+The register layout PCA21125 looks similar to PCF8563 which already
+has a driver.
 
-Build tested on current linux-next (sparc32) to ensure no silly typos
-or implicit include issues that would break compilation crept in.
+Would it be possible to support the PCA21125 device with the rtc-pcf8563 driver?
+You will need to add a regmap layer since the PCA21125 is SPI while
+the PCF8563 is I2C.
 
----
 
-Cc: Alessandro Zummo <a.zummo@towertech.it>
-Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: "David S. Miller" <davem@davemloft.net>
-Cc: rtc-linux@googlegroups.com
-Cc: sparclinux@vger.kernel.org
-
-Paul Gortmaker (3):
-  rtc: make rtc-lib explicitly non-modular
-  rtc: sparc: make starfire explicitly non-modular
-  rtc: sparc: make sun4v explicitly non-modular
-
- drivers/rtc/rtc-lib.c      |  4 +---
- drivers/rtc/rtc-starfire.c | 10 ++++------
- drivers/rtc/rtc-sun4v.c    | 10 ++++------
- 3 files changed, 9 insertions(+), 15 deletions(-)
-
--- 
-2.10.1
+regards,
+Joachim Eastwood
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
