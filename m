@@ -1,26 +1,30 @@
-Return-Path: <rtc-linux+bncBDRYNGFX7EDBBC7L2HAAKGQEUXJXDEQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBC433LF43MBBBSXY3HAAKGQEPTSOJWQ@googlegroups.com>
+Sender: rtc-linux@googlegroups.com
 MIME-Version: 1.0
-Received: from bombadil.infradead.org (bombadil.infradead.org. [2001:1868:205::9])
-        by gmr-mx.google.com with ESMTPS id z76si4287251pff.1.2016.10.29.03.10.18
+Received: from outils.crapouillou.net (outils.crapouillou.net. [89.234.176.41])
+        by gmr-mx.google.com with ESMTPS id y7si1517079wme.0.2016.10.30.16.03.38
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sat, 29 Oct 2016 03:10:18 -0700 (PDT)
-From: Mauro Carvalho Chehab <mchehab@s-opensource.com>
-To: Linux Doc Mailing List <linux-doc@vger.kernel.org>
-Cc: Mauro Carvalho Chehab <mchehab@s-opensource.com>,
-	Mauro Carvalho Chehab <mchehab@infradead.org>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	Mauro Carvalho Chehab <mchehab@kernel.org>,
-	Mark Godfrey <mark.godfrey@stericsson.com>,
-	Linus Walleij <linus.walleij@linaro.org>,
+        Sun, 30 Oct 2016 16:03:38 -0700 (PDT)
+From: Paul Cercueil <paul@crapouillou.net>
+To: rtc-linux@googlegroups.com,
 	Alessandro Zummo <a.zummo@towertech.it>,
 	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	linux-arm-kernel@lists.infradead.org,
-	rtc-linux@googlegroups.com
-Subject: [rtc-linux] [PATCH 1/2] ABI: rtc-ab8500: fix rtc_calibration documentation
-Date: Sat, 29 Oct 2016 08:10:02 -0200
-Message-Id: <364a36215c44e0c2785911e9d9259cd866283cb9.1477735797.git.mchehab@s-opensource.com>
-Sender: Mauro Carvalho Chehab <mchehab@osg.samsung.com>
+	Rob Herring <robh+dt@kernel.org>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Ralf Baechle <ralf@linux-mips.org>,
+	Maarten ter Huurne <maarten@treewalker.org>,
+	Lars-Peter Clausen <lars@metafoo.de>,
+	devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	linux-mips@linux-mips.org
+Cc: Paul Cercueil <paul@crapouillou.net>
+Subject: [rtc-linux] [PATCH v2 5/7] MIPS: jz4740: DTS: Probe the jz4740-rtc
+ driver from devicetree
+Date: Mon, 31 Oct 2016 00:02:45 +0100
+Message-Id: <20161030230247.20538-6-paul@crapouillou.net>
+In-Reply-To: <20161030230247.20538-1-paul@crapouillou.net>
+References: <20161030230247.20538-1-paul@crapouillou.net>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -31,40 +35,41 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-The "What:" field at the ABI should describe the location of
-the ABI, e. g. the position under a mounted sysfs.
+Now that the jz4740-rtc driver supports devicetree, we can add a
+devicetree node for it.
 
-Fix it.
-
-Cc: Mark Godfrey <mark.godfrey@stericsson.com>
-Cc: Linus Walleij <linus.walleij@linaro.org>
-Cc: Alessandro Zummo <a.zummo@towertech.it>
-Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: linux-arm-kernel@lists.infradead.org
-Cc: rtc-linux@googlegroups.com
-Signed-off-by: Mauro Carvalho Chehab <mchehab@s-opensource.com>
+Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+Acked-by: Maarten ter Huurne <maarten@treewalker.org>
 ---
- .../ABI/testing/sysfs-class-rtc-rtc0-device-rtc_calibration          | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ arch/mips/boot/dts/ingenic/jz4740.dtsi | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-diff --git a/Documentation/ABI/testing/sysfs-class-rtc-rtc0-device-rtc_calibration b/Documentation/ABI/testing/sysfs-class-rtc-rtc0-device-rtc_calibration
-index 4cf1e72222d9..ec950c93e5c6 100644
---- a/Documentation/ABI/testing/sysfs-class-rtc-rtc0-device-rtc_calibration
-+++ b/Documentation/ABI/testing/sysfs-class-rtc-rtc0-device-rtc_calibration
-@@ -1,8 +1,9 @@
--What:           Attribute for calibrating ST-Ericsson AB8500 Real Time Clock
-+What:           /sys/class/rtc/rtc0/device/rtc_calibration
- Date:           Oct 2011
- KernelVersion:  3.0
- Contact:        Mark Godfrey <mark.godfrey@stericsson.com>
--Description:    The rtc_calibration attribute allows the userspace to
-+Description:    Attribute for calibrating ST-Ericsson AB8500 Real Time Clock
-+		The rtc_calibration attribute allows the userspace to
-                 calibrate the AB8500.s 32KHz Real Time Clock.
-                 Every 60 seconds the AB8500 will correct the RTC's value
-                 by adding to it the value of this attribute.
+v2: Previous patch 5/5 was garbage. This is a new patch.
+
+diff --git a/arch/mips/boot/dts/ingenic/jz4740.dtsi b/arch/mips/boot/dts/ingenic/jz4740.dtsi
+index f6ae6ed..c6acd6a 100644
+--- a/arch/mips/boot/dts/ingenic/jz4740.dtsi
++++ b/arch/mips/boot/dts/ingenic/jz4740.dtsi
+@@ -44,6 +44,17 @@
+ 		#clock-cells = <1>;
+ 	};
+ 
++	rtc_dev: jz4740-rtc@10003000 {
++		compatible = "ingenic,jz4740-rtc";
++		reg = <0x10003000 0x40>;
++
++		interrupt-parent = <&intc>;
++		interrupts = <15>;
++
++		clocks = <&cgu JZ4740_CLK_RTC>;
++		clock-names = "rtc";
++	};
++
+ 	uart0: serial@10030000 {
+ 		compatible = "ingenic,jz4740-uart";
+ 		reg = <0x10030000 0x100>;
 -- 
-2.7.4
+2.9.3
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
