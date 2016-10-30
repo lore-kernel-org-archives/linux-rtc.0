@@ -1,26 +1,23 @@
-Return-Path: <rtc-linux+bncBCGP7DNSRUMRB55H33AAKGQEIR36GGY@googlegroups.com>
+Return-Path: <rtc-linux+bncBCF2PQPV4MDRBRFC27AAKGQEHB335PI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail1.windriver.com (mail1.windriver.com. [147.11.146.13])
-        by gmr-mx.google.com with ESMTPS id n18si2080741pfb.2.2016.10.31.11.56.55
+Received: from mail-it0-x232.google.com (mail-it0-x232.google.com. [2607:f8b0:4001:c0b::232])
+        by gmr-mx.google.com with ESMTPS id j198si1253056itb.0.2016.10.30.03.53.56
         for <rtc-linux@googlegroups.com>
-        (version=TLS1_1 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
-        Mon, 31 Oct 2016 11:56:55 -0700 (PDT)
-From: Paul Gortmaker <paul.gortmaker@windriver.com>
-To: <linux-kernel@vger.kernel.org>
-CC: Paul Gortmaker <paul.gortmaker@windriver.com>,
-        Alessandro Zummo
-	<a.zummo@towertech.it>,
-        Alexandre Belloni
-	<alexandre.belloni@free-electrons.com>,
-        "David S. Miller"
-	<davem@davemloft.net>, <sparclinux@vger.kernel.org>,
-        <rtc-linux@googlegroups.com>
-Subject: [rtc-linux] [PATCH 2/3] rtc: sparc: make starfire explicitly non-modular
-Date: Mon, 31 Oct 2016 14:55:26 -0400
-Message-ID: <20161031185527.20279-3-paul.gortmaker@windriver.com>
-In-Reply-To: <20161031185527.20279-1-paul.gortmaker@windriver.com>
-References: <20161031185527.20279-1-paul.gortmaker@windriver.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Sun, 30 Oct 2016 03:53:56 -0700 (PDT)
+Received: by mail-it0-x232.google.com with SMTP id f129so8854905itc.1
+        for <rtc-linux@googlegroups.com>; Sun, 30 Oct 2016 03:53:56 -0700 (PDT)
 MIME-Version: 1.0
+In-Reply-To: <1477814586-4795-1-git-send-email-venkat.prashanth2498@gmail.com>
+References: <1477814586-4795-1-git-send-email-venkat.prashanth2498@gmail.com>
+From: Joachim  Eastwood <manabian@gmail.com>
+Date: Sun, 30 Oct 2016 11:53:55 +0100
+Message-ID: <CAGhQ9VxhhU23n5V=ONfU4aXUfRqsjcvj2sa5xnOqSqGz4StM-w@mail.gmail.com>
+Subject: [rtc-linux] Re: [PATCH] rtc: add support for rtc NXP pca8565
+To: VENKAT PRASHANTH B U <venkat.prashanth2498@gmail.com>
+Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
@@ -31,65 +28,22 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-The Kconfig currently controlling compilation of this code is:
+Hi Venkat,
 
-drivers/rtc/Kconfig:config RTC_DRV_STARFIRE
-drivers/rtc/Kconfig:    bool "Starfire RTC"
+On 30 October 2016 at 09:03, VENKAT PRASHANTH B U
+<venkat.prashanth2498@gmail.com> wrote:
+> This is a patch to add support for
+> NXP rtc pca8565
 
-...meaning that it currently is not being built as a module by anyone.
+>From a quick look the PCA8565 register layout looks very similar to
+PCF8563 which already has a driver (rtc-pcf8563).
 
-Lets remove the couple traces of modular infrastructure use, so that
-when reading the driver there is no doubt it is builtin-only.
+Can you use that driver instead of creating a new one? If so; send a
+patch for rtc-pcf8563 that adds "pca8565" to the set of i2c ids.
 
-We delete the MODULE_LICENSE tag etc. since all that information
-was (or is now) contained at the top of the file in the comments.
 
-Cc: Alessandro Zummo <a.zummo@towertech.it>
-Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: "David S. Miller" <davem@davemloft.net>
-Cc: sparclinux@vger.kernel.org
-Cc: rtc-linux@googlegroups.com
-Signed-off-by: Paul Gortmaker <paul.gortmaker@windriver.com>
----
- drivers/rtc/rtc-starfire.c | 10 ++++------
- 1 file changed, 4 insertions(+), 6 deletions(-)
-
-diff --git a/drivers/rtc/rtc-starfire.c b/drivers/rtc/rtc-starfire.c
-index 83a057a03060..7fc36973fa33 100644
---- a/drivers/rtc/rtc-starfire.c
-+++ b/drivers/rtc/rtc-starfire.c
-@@ -1,20 +1,18 @@
- /* rtc-starfire.c: Starfire platform RTC driver.
-  *
-+ * Author: David S. Miller
-+ * License: GPL
-+ *
-  * Copyright (C) 2008 David S. Miller <davem@davemloft.net>
-  */
- 
- #include <linux/kernel.h>
--#include <linux/module.h>
- #include <linux/init.h>
- #include <linux/rtc.h>
- #include <linux/platform_device.h>
- 
- #include <asm/oplib.h>
- 
--MODULE_AUTHOR("David S. Miller <davem@davemloft.net>");
--MODULE_DESCRIPTION("Starfire RTC driver");
--MODULE_LICENSE("GPL");
--
- static u32 starfire_get_time(void)
- {
- 	static char obp_gettod[32];
-@@ -57,4 +55,4 @@ static struct platform_driver starfire_rtc_driver = {
- 	},
- };
- 
--module_platform_driver_probe(starfire_rtc_driver, starfire_rtc_probe);
-+builtin_platform_driver_probe(starfire_rtc_driver, starfire_rtc_probe);
--- 
-2.10.1
+regards,
+Joachim Eastwood
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
