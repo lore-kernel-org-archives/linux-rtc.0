@@ -1,22 +1,26 @@
-Return-Path: <rtc-linux+bncBD7YLCN32UNBBOEMSPAAKGQETM4SUOY@googlegroups.com>
+Return-Path: <rtc-linux+bncBC433LF43MBBBJHY3HAAKGQELRAS7PY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 MIME-Version: 1.0
-Received: from mail-qt0-x244.google.com (mail-qt0-x244.google.com. [2607:f8b0:400d:c0d::244])
-        by gmr-mx.google.com with ESMTPS id i84si2199566ywg.0.2016.10.17.05.38.16
+Received: from outils.crapouillou.net (outils.crapouillou.net. [89.234.176.41])
+        by gmr-mx.google.com with ESMTPS id d64si569819wmh.2.2016.10.30.16.02.59
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 17 Oct 2016 05:38:16 -0700 (PDT)
-Received: by mail-qt0-x244.google.com with SMTP id g49so6190781qtc.2
-        for <rtc-linux@googlegroups.com>; Mon, 17 Oct 2016 05:38:16 -0700 (PDT)
-From: Corentin Labbe <clabbe.montjoie@gmail.com>
-To: a.zummo@towertech.it,
-	alexandre.belloni@free-electrons.com
-Cc: rtc-linux@googlegroups.com,
+        Sun, 30 Oct 2016 16:02:59 -0700 (PDT)
+From: Paul Cercueil <paul@crapouillou.net>
+To: rtc-linux@googlegroups.com,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Rob Herring <robh+dt@kernel.org>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Ralf Baechle <ralf@linux-mips.org>,
+	Maarten ter Huurne <maarten@treewalker.org>,
+	Lars-Peter Clausen <lars@metafoo.de>,
+	devicetree@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
-	Corentin Labbe <clabbe.montjoie@gmail.com>
-Subject: [rtc-linux] [PATCH] rtc: cmos: remove all __exit_p annotations
-Date: Mon, 17 Oct 2016 14:36:03 +0200
-Message-Id: <1476707763-9222-1-git-send-email-clabbe.montjoie@gmail.com>
+	linux-mips@linux-mips.org
+Subject: [rtc-linux] [PATCH v2 0/7] DT bindings for the jz4740-rtc driver
+Date: Mon, 31 Oct 2016 00:02:40 +0100
+Message-Id: <20161030230247.20538-1-paul@crapouillou.net>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -27,125 +31,34 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-I got the following stack trace under qemu:
-[    7.575243] BUG: unable to handle kernel NULL pointer dereference at 0000000000000010
-[    7.596098] IP: [<ffffffff814f5b08>] cmos_set_alarm+0x38/0x280
-[    7.615699] PGD 3ccbe067
-[    7.615923] PUD 3daf2067
-[    7.635156] PMD 0
+This patch set is a v2 of a patchset I sent in March.
 
-[    7.654358] Oops: 0000 [#1] SMP
-[    7.673869] Modules linked in:
-[    7.693235] CPU: 0 PID: 1701 Comm: hwclock Tainted: G        W       4.9.0-rc1+ #24
-[    7.712455] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.9.3-0-ge2fc41e-prebuilt.qemu-project.org 04/01/2014
-[    7.753569] task: ffff88003d88dc40 task.stack: ffffc90000224000
-[    7.773743] RIP: 0010:[<ffffffff814f5b08>]  [<ffffffff814f5b08>] cmos_set_alarm+0x38/0x280
-[    7.794893] RSP: 0018:ffffc90000227c10  EFLAGS: 00010296
-[    7.815890] RAX: 000000000000001d RBX: ffffc90000227d28 RCX: ffffffff8182be78
-[    7.836057] RDX: 0000000000000001 RSI: 0000000000000202 RDI: 0000000000000202
-[    7.856612] RBP: ffffc90000227c48 R08: 0000000000000000 R09: 0000000000000001
-[    7.877561] R10: 00000000000001c0 R11: 00000000000001c0 R12: 0000000000000000
-[    7.897072] R13: ffff88003d96f400 R14: ffff88003dac6410 R15: ffff88003dac6420
-[    7.917403] FS:  00007f77f42d9700(0000) GS:ffff88003fc00000(0000) knlGS:0000000000000000
-[    7.938293] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[    7.958364] CR2: 0000000000000010 CR3: 000000003ccbb000 CR4: 00000000000006f0
-[    7.978028] Stack:
-[    7.997120]  ffff88003dac6000 ffff88003dac6410 0000000058049d01 ffffc90000227d28
-[    8.016993]  ffff88003dac6000 ffff88003dac6410 ffff88003dac6420 ffffc90000227c98
-[    8.039505]  ffffffff814f225d 0000001800227c98 000000090000002a 0000000900000011
-[    8.059985] Call Trace:
-[    8.080110]  [<ffffffff814f225d>] __rtc_set_alarm+0x8d/0xa0
-[    8.099421]  [<ffffffff814f2389>] rtc_timer_enqueue+0x119/0x190
-[    8.119925]  [<ffffffff814f2e6e>] rtc_update_irq_enable+0xbe/0x100
-[    8.140583]  [<ffffffff814f3bb0>] rtc_dev_ioctl+0x3c0/0x480
-[    8.161162]  [<ffffffff81146b6a>] ? user_path_at_empty+0x3a/0x50
-[    8.182717]  [<ffffffff8114aa36>] do_vfs_ioctl+0x96/0x5c0
-[    8.204624]  [<ffffffff8113e066>] ? vfs_stat+0x16/0x20
-[    8.225994]  [<ffffffff8113e135>] ? SyS_newstat+0x15/0x30
-[    8.247043]  [<ffffffff8114afa7>] SyS_ioctl+0x47/0x80
-[    8.267191]  [<ffffffff815f5c77>] entry_SYSCALL_64_fastpath+0x1a/0xa9
-[    8.288719] Code: 6a 81 48 89 e5 41 57 41 56 41 55 49 89 fd 41 54 53 48 89 f3 48 c7 c6 20 c4 78 81 48 83 ec 10 e8 8f 00 ef ff 4d 8b a5 a0 00 00 00 <41> 8b 44 24 10 85 c0 0f 8e 2b 02 00 00 4c 89 ef 31 c0 b9 53 01
-[    8.335233] RIP  [<ffffffff814f5b08>] cmos_set_alarm+0x38/0x280
-[    8.357096]  RSP <ffffc90000227c10>
-[    8.379051] CR2: 0000000000000010
-[    8.401736] ---[ end trace 5cbcd83a1f225ed3 ]---
+The previous patch 5/5 was garbage and has been dropped.
+It was garbage, for two reasons:
+- It enforced the jz4740-rtc as the system power controller in the
+  SoC devicetree file, which introduced policy (maybe the jz4740-based
+  boards want to use something else as the system power controller)
+- It added the 'system-power-controller' entry not to the jz4740-rtc driver
+  node, but to the 'rtc' clock node... I don't know how that slipped in, but
+  I apologise for that. I need to raise my QA standards.
 
-This occur only when CONFIG_DEBUG_TEST_DRIVER_REMOVE is enabled and
-CONFIG_RTC_DRV_CMOS builtin.
+For the rest:
 
-When cmos_set_alarm() is called dev is NULL and so trigger the deref via
-cmos->irq
+1/7: No change
 
-The problem comes from that the device is removed but no remove function
-are called due to _exit_p().
+2/7:
+- Remove 'interrupt-parent' of the list of required properties
+- Add the -msec suffix for the DT entries that represent time
 
-This patch remove all _exit_p() annotation.
+3/7: No change
 
-Signed-off-by: Corentin Labbe <clabbe.montjoie@gmail.com>
----
- drivers/rtc/rtc-cmos.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+4/7:
+- Get a handle to the 'rtc' clock in the probe function, to handle errors early
+- Call clk_prepare_enable() on the 'rtc' clock before calling clk_get_rate()
+- Use the -msec suffix for the OF properties that deal with time
+- Use of_property_read_32() instead of device_property_read_u32()
 
-diff --git a/drivers/rtc/rtc-cmos.c b/drivers/rtc/rtc-cmos.c
-index dd3d598..b1f3d64 100644
---- a/drivers/rtc/rtc-cmos.c
-+++ b/drivers/rtc/rtc-cmos.c
-@@ -776,7 +776,7 @@ static void cmos_do_shutdown(int rtc_irq)
- 	spin_unlock_irq(&rtc_lock);
- }
- 
--static void __exit cmos_do_remove(struct device *dev)
-+static void cmos_do_remove(struct device *dev)
- {
- 	struct cmos_rtc	*cmos = dev_get_drvdata(dev);
- 	struct resource *ports;
-@@ -1129,7 +1129,7 @@ static int cmos_pnp_probe(struct pnp_dev *pnp, const struct pnp_device_id *id)
- 				pnp_irq(pnp, 0));
- }
- 
--static void __exit cmos_pnp_remove(struct pnp_dev *pnp)
-+static void cmos_pnp_remove(struct pnp_dev *pnp)
- {
- 	cmos_do_remove(&pnp->dev);
- }
-@@ -1161,7 +1161,7 @@ static struct pnp_driver cmos_pnp_driver = {
- 	.name		= (char *) driver_name,
- 	.id_table	= rtc_ids,
- 	.probe		= cmos_pnp_probe,
--	.remove		= __exit_p(cmos_pnp_remove),
-+	.remove		= cmos_pnp_remove,
- 	.shutdown	= cmos_pnp_shutdown,
- 
- 	/* flag ensures resume() gets called, and stops syslog spam */
-@@ -1238,7 +1238,7 @@ static int __init cmos_platform_probe(struct platform_device *pdev)
- 	return cmos_do_probe(&pdev->dev, resource, irq);
- }
- 
--static int __exit cmos_platform_remove(struct platform_device *pdev)
-+static int cmos_platform_remove(struct platform_device *pdev)
- {
- 	cmos_do_remove(&pdev->dev);
- 	return 0;
-@@ -1263,7 +1263,7 @@ static void cmos_platform_shutdown(struct platform_device *pdev)
- MODULE_ALIAS("platform:rtc_cmos");
- 
- static struct platform_driver cmos_platform_driver = {
--	.remove		= __exit_p(cmos_platform_remove),
-+	.remove		= cmos_platform_remove,
- 	.shutdown	= cmos_platform_shutdown,
- 	.driver = {
- 		.name		= driver_name,
-@@ -1305,7 +1305,7 @@ static int __init cmos_init(void)
- }
- module_init(cmos_init);
- 
--static void __exit cmos_exit(void)
-+static void cmos_exit(void)
- {
- #ifdef	CONFIG_PNP
- 	if (pnp_driver_registered)
--- 
-2.7.3
+5/7, 6/7, 7/7: New patches
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
