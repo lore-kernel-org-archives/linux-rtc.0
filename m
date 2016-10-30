@@ -1,25 +1,24 @@
-Return-Path: <rtc-linux+bncBCDITI7XW4DRBFXRT3AAKGQEMLUVGTY@googlegroups.com>
+Return-Path: <rtc-linux+bncBCO7J6GN7ELBBVOS23AAKGQEVBSPIHI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from fireflyinternet.com (mail.fireflyinternet.com. [109.228.58.192])
-        by gmr-mx.google.com with ESMTPS id p131si7114544vkf.1.2016.10.19.11.16.54
+MIME-Version: 1.0
+Received: from mail-pf0-x242.google.com (mail-pf0-x242.google.com. [2607:f8b0:400e:c00::242])
+        by gmr-mx.google.com with ESMTPS id h11si3413063pfe.0.2016.10.30.01.03.33
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 19 Oct 2016 11:16:54 -0700 (PDT)
-Date: Wed, 19 Oct 2016 19:16:39 +0100
-From: Chris Wilson <chris@chris-wilson.co.uk>
-To: ville.syrjala@linux.intel.com
-Cc: rtc-linux@googlegroups.com, intel-gfx@lists.freedesktop.org,
-	Gabriele Mazzotta <gabriele.mzt@gmail.com>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	linux-kernel@vger.kernel.org
-Subject: [rtc-linux] Re: [Intel-gfx] [PATCH] rtc: cmos: Don't enable
- interrupts in the middle of the interrupt handler
-Message-ID: <20161019181639.GB10824@nuc-i3427.alporthouse.com>
-References: <1476900124-14405-1-git-send-email-ville.syrjala@linux.intel.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1476900124-14405-1-git-send-email-ville.syrjala@linux.intel.com>
+        Sun, 30 Oct 2016 01:03:33 -0700 (PDT)
+Received: by mail-pf0-x242.google.com with SMTP id s8so5664172pfj.2
+        for <rtc-linux@googlegroups.com>; Sun, 30 Oct 2016 01:03:33 -0700 (PDT)
+From: VENKAT PRASHANTH B U <venkat.prashanth2498@gmail.com>
+To: alexandre.belloni@free-electrons.com
+Cc: a.zummo@towertech.it,
+	rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org,
+	VENKAT PRASHANTH B U <venkat.prashanth2498@gmail.com>
+Subject: [rtc-linux] [PATCH] rtc: add support for rtc NXP pca8565
+Date: Sun, 30 Oct 2016 01:03:06 -0700
+Message-Id: <1477814586-4795-1-git-send-email-venkat.prashanth2498@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -28,111 +27,284 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Wed, Oct 19, 2016 at 09:02:04PM +0300, ville.syrjala@linux.intel.com wro=
-te:
-> From: Ville Syrj=C3=A4l=C3=A4 <ville.syrjala@linux.intel.com>
->=20
-> Using spin_lock_irq()/spin_unlock_irq() from within the interrupt
-> handler is a no-no. Let's save/restore the flags to avoid turning on
-> interrupts prematurely.
->=20
-> We hit this in a bunch of our CI systems, but for whatever reason I
-> wasn't able to reproduce on my own machine, so this fix is just
-> based on the backtrace.
->=20
-> [  202.634918] WARNING: CPU: 0 PID: 0 at kernel/locking/lockdep.c:2729 tr=
-ace_hardirqs_on_caller+0x113/0x1b0
-> [  202.634919] DEBUG_LOCKS_WARN_ON(current->hardirq_context)
-> [  202.634929] Modules linked in: snd_hda_intel i915 x86_pkg_temp_thermal=
- intel_powerclamp coretemp crct10dif_pclmul crc32_pclmul ghash_clmulni_inte=
-l lpc_ich snd_hda_codec_realtek snd_hda_codec_generic snd_hda_codec_hdmi sn=
-d_hda_codec snd_hwdep i2c_designware_platform i2c_designware_core snd_hda_c=
-ore mei_me mei snd_pcm r8169 mii sdhci_acpi sdhci mmc_core i2c_hid [last un=
-loaded: i915]
-> [  202.634930] CPU: 0 PID: 0 Comm: swapper/0 Tainted: G     U          4.=
-9.0-rc1-CI-CI_DRM_1734+ #1
-> [  202.634931] Hardware name: GIGABYTE M4HM87P-00/M4HM87P-00, BIOS F6 12/=
-10/2014
-> [  202.634933]  ffff88011ea03d68 ffffffff8142dce5 ffff88011ea03db8 000000=
-0000000000
-> [  202.634934]  ffff88011ea03da8 ffffffff8107e496 00000aa900000002 ffffff=
-ff81e249a0
-> [  202.634935]  ffffffff81815637 ffffffff82e7c280 0000000000000000 000000=
-0000000004
-> [  202.634936] Call Trace:
-> [  202.634939]  <IRQ>
-> [  202.634939]  [<ffffffff8142dce5>] dump_stack+0x67/0x92
-> [  202.634941]  [<ffffffff8107e496>] __warn+0xc6/0xe0
-> [  202.634944]  [<ffffffff81815637>] ? _raw_spin_unlock_irq+0x27/0x50
-> [  202.634945]  [<ffffffff8107e4fa>] warn_slowpath_fmt+0x4a/0x50
-> [  202.634946]  [<ffffffff810d6d83>] trace_hardirqs_on_caller+0x113/0x1b0
-> [  202.634948]  [<ffffffff810d6e2d>] trace_hardirqs_on+0xd/0x10
-> [  202.634949]  [<ffffffff81815637>] _raw_spin_unlock_irq+0x27/0x50
-> [  202.634951]  [<ffffffff81672042>] rtc_handler+0x32/0xa0
-> [  202.634954]  [<ffffffff814c08a3>] acpi_ev_fixed_event_detect+0xd4/0xfb
-> [  202.634956]  [<ffffffff814c2ccb>] acpi_ev_sci_xrupt_handler+0xf/0x2d
-> [  202.634957]  [<ffffffff814ab3ee>] acpi_irq+0x11/0x2c
-> [  202.634960]  [<ffffffff810e5288>] __handle_irq_event_percpu+0x58/0x370
-> [  202.634961]  [<ffffffff810e55be>] handle_irq_event_percpu+0x1e/0x50
-> [  202.634962]  [<ffffffff810e5624>] handle_irq_event+0x34/0x60
-> [  202.634963]  [<ffffffff810e8906>] handle_fasteoi_irq+0xa6/0x170
-> [  202.634966]  [<ffffffff8101eef5>] handle_irq+0x15/0x20
-> [  202.634967]  [<ffffffff8101e548>] do_IRQ+0x68/0x130
-> [  202.634968]  [<ffffffff81816789>] common_interrupt+0x89/0x89
-> [  202.634970]  <EOI>
-> [  202.634970]  [<ffffffff81814c73>] ? mwait_idle+0x93/0x210
-> [  202.634971]  [<ffffffff81814c6a>] ? mwait_idle+0x8a/0x210
-> [  202.634972]  [<ffffffff81026b0a>] arch_cpu_idle+0xa/0x10
-> [  202.634973]  [<ffffffff8181509e>] default_idle_call+0x1e/0x30
-> [  202.634974]  [<ffffffff810cbf6c>] cpu_startup_entry+0x17c/0x1f0
-> [  202.634976]  [<ffffffff8180ca87>] rest_init+0x127/0x130
-> [  202.634978]  [<ffffffff81f77f08>] start_kernel+0x3f6/0x403
-> [  202.634980]  [<ffffffff81f7728f>] x86_64_start_reservations+0x2a/0x2c
-> [  202.634981]  [<ffffffff81f77404>] x86_64_start_kernel+0x173/0x186
-> [  202.634982] ---[ end trace 293c99618fa08d34 ]---
->=20
-> Cc: Gabriele Mazzotta <gabriele.mzt@gmail.com>
-> Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-> Fixes: 983bf1256edb ("rtc: cmos: Clear ACPI-driven alarms upon resume")
-> Signed-off-by: Ville Syrj=C3=A4l=C3=A4 <ville.syrjala@linux.intel.com>
-> ---
->  drivers/rtc/rtc-cmos.c | 5 +++--
->  1 file changed, 3 insertions(+), 2 deletions(-)
->=20
-> diff --git a/drivers/rtc/rtc-cmos.c b/drivers/rtc/rtc-cmos.c
-> index dd3d59806ffa..19cd49ad92dc 100644
-> --- a/drivers/rtc/rtc-cmos.c
-> +++ b/drivers/rtc/rtc-cmos.c
-> @@ -996,8 +996,9 @@ static u32 rtc_handler(void *context)
->  	struct cmos_rtc *cmos =3D dev_get_drvdata(dev);
->  	unsigned char rtc_control =3D 0;
->  	unsigned char rtc_intr;
-> +	unsigned long flags;
-> =20
-> -	spin_lock_irq(&rtc_lock);
-> +	spin_lock_irqsave(&rtc_lock, flags);
+This is a patch to add support for
+NXP rtc pca8565
 
-My reading of the acpi fixed event handlers suggests that this can only
-be called from interrupt context.
+Signed-off-by: Venkat Prashanth B U <venkat.prashanth2498@gmail.com>
+---
+---
+ drivers/rtc/Kconfig       |   9 ++
+ drivers/rtc/Makefile      |   1 +
+ drivers/rtc/rtc-pca8565.c | 221 ++++++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 231 insertions(+)
 
-Anyway using irqsave is correct (just may be optimised away to a plain
-spin_lock() if the condition that this is only called in irq context is
-satisfied).
+diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
+index e215f50..f28b569 100644
+--- a/drivers/rtc/Kconfig
++++ b/drivers/rtc/Kconfig
+@@ -392,6 +392,15 @@ config RTC_DRV_PCF8523
+ 	  This driver can also be built as a module. If so, the module
+ 	  will be called rtc-pcf8523.
+ 
++config RTC_DRV_PCA8565
++	tristate "NXP PCA8565"
++	help
++	  If you say yes here you get support for the NXP PCA8565 RTC
++	  chips.
++
++	  This driver can also be built as a module. If so, the module
++	  will be called rtc-pca8565.
++
+ config RTC_DRV_PCF85063
+ 	tristate "NXP PCF85063"
+ 	help
+diff --git a/drivers/rtc/Makefile b/drivers/rtc/Makefile
+index 7cf7ad5..ec709a4 100644
+--- a/drivers/rtc/Makefile
++++ b/drivers/rtc/Makefile
+@@ -106,6 +106,7 @@ obj-$(CONFIG_RTC_DRV_OMAP)	+= rtc-omap.o
+ obj-$(CONFIG_RTC_DRV_OPAL)	+= rtc-opal.o
+ obj-$(CONFIG_RTC_DRV_PALMAS)	+= rtc-palmas.o
+ obj-$(CONFIG_RTC_DRV_PCAP)	+= rtc-pcap.o
++obj-$(CONFIG_RTC_DRV_PCA8565)	+= rtc-pca8565.o
+ obj-$(CONFIG_RTC_DRV_PCF2123)	+= rtc-pcf2123.o
+ obj-$(CONFIG_RTC_DRV_PCF2127)	+= rtc-pcf2127.o
+ obj-$(CONFIG_RTC_DRV_PCF50633)	+= rtc-pcf50633.o
+diff --git a/drivers/rtc/rtc-pca8565.c b/drivers/rtc/rtc-pca8565.c
+index e69de29..ec678ee 100644
+--- a/drivers/rtc/rtc-pca8565.c
++++ b/drivers/rtc/rtc-pca8565.c
+@@ -0,0 +1,221 @@
++/*
++ * An I2C driver for the PCA8565 RTC
++ *
++ * Author: Venkat Prashanth B U <venkat.prashanth2498@gmail.com>
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++
++#include <linux/i2c.h>
++#include <linux/bcd.h>
++#include <linux/rtc.h>
++#include <linux/module.h>
++
++#define PCA8565_REG_CTRL1		0x00 /* status */
++#define PCA8565_REG_CTRL1_STOP	BIT(5)
++#define PCA8565_REG_CTRL2		0x01
++#define PCA8565_REG_SC			0x02 /* datetime */
++#define PCA8565_REG_SC_OS		0x80
++#define PCA8565_REG_MN			0x03
++#define PCA8565_REG_HR			0x04
++#define PCA8565_REG_DM			0x05
++#define PCA8565_REG_DW			0x06
++#define PCA8565_REG_MO			0x07
++#define PCA8565_REG_YR			0x08
++
++static struct i2c_driver pca8565_driver;
++
++static int pca8565_stop_clock(struct i2c_client *client, u8 *ctrl1)
++{
++	s32 ret;
++
++	ret = i2c_smbus_read_byte_data(client, PCA8565_REG_CTRL1);
++	if (ret < 0) {
++		dev_err(&client->dev, "Failing to stop the clock\n");
++		return -EIO;
++	}
++
++	/* stop the clock */
++	ret |= PCA8565_REG_CTRL1_STOP;
++
++	ret = i2c_smbus_write_byte_data(client, PCA8565_REG_CTRL1, ret);
++	if (ret < 0) {
++		dev_err(&client->dev, "Failing to stop the clock\n");
++		return -EIO;
++	}
++
++	*ctrl1 = ret;
++
++	return 0;
++}
++
++static int pca8565_start_clock(struct i2c_client *client, u8 ctrl1)
++{
++	s32 ret;
++
++	/* start the clock */
++	ctrl1 &= PCA8565_REG_CTRL1_STOP;
++
++	ret = i2c_smbus_write_byte_data(client, PCA8565_REG_CTRL1, ctrl1);
++	if (ret < 0) {
++		dev_err(&client->dev, "Failing to start the clock\n");
++		return -EIO;
++	}
++
++	return 0;
++}
++
++static int pca8565_get_datetime(struct i2c_client *client, struct rtc_time *tm)
++{
++	int rc;
++	u8 regs[7];
++
++	/*
++	 * while reading, the time/date registers are blocked and not updated
++	 * anymore until the access is finished. To not lose a second
++	 * event, the access must be finished within one second. So, read all
++	 * time/date registers in one turn.
++	 */
++	rc = i2c_smbus_read_i2c_block_data(client, PCA8565_REG_SC,
++					   sizeof(regs), regs);
++	if (rc != sizeof(regs)) {
++		dev_err(&client->dev, "date/time register read error\n");
++		return -EIO;
++	}
++
++	/* if the clock has lost its power it makes no sense to use its time */
++	if (regs[0] & PCA8565_REG_SC_OS) {
++		dev_warn(&client->dev, "Power loss detected, invalid time\n");
++		return -EINVAL;
++	}
++
++	tm->tm_sec = bcd2bin(regs[0] & 0x7F);
++	tm->tm_min = bcd2bin(regs[1] & 0x7F);
++	tm->tm_hour = bcd2bin(regs[2] & 0x3F); /* rtc hr 0-23 */
++	tm->tm_mday = bcd2bin(regs[3] & 0x3F);
++	tm->tm_wday = regs[4] & 0x07;
++	tm->tm_mon = bcd2bin(regs[5] & 0x1F) - 1; /* rtc mn 1-12 */
++	tm->tm_year = bcd2bin(regs[6]);
++	tm->tm_year += 100;
++
++	return rtc_valid_tm(tm);
++}
++
++static int pca8565_set_datetime(struct i2c_client *client, struct rtc_time *tm)
++{
++	int rc;
++	u8 regs[7];
++	u8 ctrl1;
++
++	if ((tm->tm_year < 100) || (tm->tm_year > 199))
++		return -EINVAL;
++
++	/*
++	 * to accurately set the time, reset the divider chain and keep it in
++	 * reset state until all time/date registers are written
++	 */
++	rc = pca8565_stop_clock(client, &ctrl1);
++	if (rc != 0)
++		return rc;
++
++	/* hours, minutes and seconds */
++	regs[0] = bin2bcd(tm->tm_sec) & 0x7F; /* clear OS flag */
++
++	regs[1] = bin2bcd(tm->tm_min);
++	regs[2] = bin2bcd(tm->tm_hour);
++
++	/* Day of month, 1 - 31 */
++	regs[3] = bin2bcd(tm->tm_mday);
++
++	/* Day, 0 - 6 */
++	regs[4] = tm->tm_wday & 0x07;
++
++	/* month, 1 - 12 */
++	regs[5] = bin2bcd(tm->tm_mon + 1);
++
++	/* year and century */
++	regs[6] = bin2bcd(tm->tm_year - 100);
++
++	/* write all registers at once */
++	rc = i2c_smbus_write_i2c_block_data(client, PCA8565_REG_SC,
++					    sizeof(regs), regs);
++	if (rc < 0) {
++		dev_err(&client->dev, "date/time register write error\n");
++		return rc;
++	}
++
++	/*
++	 * Write the control register as a separate action since the size of
++	 * the register space is different between the PCA8565TP and
++	 * PCA8565A devices.  The rollover point can not be used.
++	 */
++	rc = pca8565_start_clock(client, ctrl1);
++	if (rc != 0)
++		return rc;
++
++	return 0;
++}
++
++static int pca8565_rtc_read_time(struct device *dev, struct rtc_time *tm)
++{
++	return pca8565_get_datetime(to_i2c_client(dev), tm);
++}
++
++static int pca8565_rtc_set_time(struct device *dev, struct rtc_time *tm)
++{
++	return pca8565_set_datetime(to_i2c_client(dev), tm);
++}
++
++static const struct rtc_class_ops pca8565_rtc_ops = {
++	.read_time	= pca8565_rtc_read_time,
++	.set_time	= pca8565_rtc_set_time
++};
++
++static int pca8565_probe(struct i2c_client *client,
++				const struct i2c_device_id *id)
++{
++	struct rtc_device *rtc;
++
++	dev_dbg(&client->dev, "%s\n", __func__);
++
++	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C))
++		return -ENODEV;
++
++	rtc = devm_rtc_device_register(&client->dev,
++				       pca8565_driver.driver.name,
++				       &pca8565_rtc_ops, THIS_MODULE);
++
++	return PTR_ERR_OR_ZERO(rtc);
++}
++
++static const struct i2c_device_id pca8565_id[] = {
++	{ "pca8565", 0 },
++	{ }
++};
++MODULE_DEVICE_TABLE(i2c, pca8565_id);
++
++#ifdef CONFIG_OF
++static const struct of_device_id pca8565_of_match[] = {
++	{ .compatible = "nxp,pca8565" },
++	{}
++};
++MODULE_DEVICE_TABLE(of, pca8565_of_match);
++#endif
++
++static struct i2c_driver pca8565_driver = {
++	.driver		= {
++		.name	= "rtc-pca8565",
++		.of_match_table = of_match_ptr(pca8565_of_match),
++	},
++	.probe		= pca8565_probe,
++	.id_table	= pca8565_id,
++};
++
++module_i2c_driver(pca8565_driver);
++
++MODULE_AUTHOR("Venkat Prashanth B U <venkat.prashanth2498@gmail.com>");
++MODULE_DESCRIPTION("PCA8565 RTC driver");
++MODULE_LICENSE("GPL");
++
+-- 
+1.9.2
 
-Reviewed-by: Chris Wilson <chris@chris-wilson.co.uk>
--Chris
-
---=20
-Chris Wilson, Intel Open Source Technology Centre
-
---=20
+-- 
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
----=20
-You received this message because you are subscribed to the Google Groups "=
-rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an e=
-mail to rtc-linux+unsubscribe@googlegroups.com.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
