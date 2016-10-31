@@ -1,35 +1,24 @@
-Return-Path: <rtc-linux+bncBDJIP47K7MERBYPJ33AAKGQE2XO2ZII@googlegroups.com>
+Return-Path: <rtc-linux+bncBCGP7DNSRUMRB5VH33AAKGQEIDO7SMQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail.kernel.org (mail.kernel.org. [198.145.29.136])
-        by gmr-mx.google.com with ESMTPS id qv3si6524657pab.2.2016.10.31.14.17.21
+Received: from mail5.wrs.com (mail5.windriver.com. [192.103.53.11])
+        by gmr-mx.google.com with ESMTPS id f131si1656891itc.3.2016.10.31.11.56.54
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 31 Oct 2016 14:17:21 -0700 (PDT)
-Received: from mail.kernel.org (localhost [127.0.0.1])
-	by mail.kernel.org (Postfix) with ESMTP id C8CA320375
-	for <rtc-linux@googlegroups.com>; Mon, 31 Oct 2016 21:17:19 +0000 (UTC)
-Received: from mail-yb0-f174.google.com (mail-yb0-f174.google.com [209.85.213.174])
-	(using TLSv1.2 with cipher AES128-GCM-SHA256 (128/128 bits))
-	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPSA id ED7FD20303
-	for <rtc-linux@googlegroups.com>; Mon, 31 Oct 2016 21:17:17 +0000 (UTC)
-Received: by mail-yb0-f174.google.com with SMTP id d128so67292755ybh.2
-        for <rtc-linux@googlegroups.com>; Mon, 31 Oct 2016 14:17:17 -0700 (PDT)
+        Mon, 31 Oct 2016 11:56:54 -0700 (PDT)
+From: Paul Gortmaker <paul.gortmaker@windriver.com>
+To: <linux-kernel@vger.kernel.org>
+CC: Paul Gortmaker <paul.gortmaker@windriver.com>,
+        Alessandro Zummo
+	<a.zummo@towertech.it>,
+        Alexandre Belloni
+	<alexandre.belloni@free-electrons.com>,
+        "David S. Miller"
+	<davem@davemloft.net>, <rtc-linux@googlegroups.com>,
+        <sparclinux@vger.kernel.org>
+Subject: [rtc-linux] [PATCH 0/3] rtc: remove modular usage from non-modular code
+Date: Mon, 31 Oct 2016 14:55:24 -0400
+Message-ID: <20161031185527.20279-1-paul.gortmaker@windriver.com>
 MIME-Version: 1.0
-In-Reply-To: <20161031203951.5444-2-paul@crapouillou.net>
-References: <20161030230247.20538-1-paul@crapouillou.net> <20161031203951.5444-1-paul@crapouillou.net>
- <20161031203951.5444-2-paul@crapouillou.net>
-From: Rob Herring <robh+dt@kernel.org>
-Date: Mon, 31 Oct 2016 16:16:56 -0500
-Message-ID: <CAL_Jsq+5=QXfCTux1S7ysu8J5qnzU5AXr-0xzRTifnUYtzaQOg@mail.gmail.com>
-Subject: [rtc-linux] Re: [PATCH v3 2/7] Documentation: dt: Add binding info
- for jz4740-rtc driver
-To: Paul Cercueil <paul@crapouillou.net>
-Cc: "open list:REAL TIME CLOCK (RTC) SUBSYSTEM" <rtc-linux@googlegroups.com>, Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>, Mark Rutland <mark.rutland@arm.com>,
-	Ralf Baechle <ralf@linux-mips.org>, Maarten ter Huurne <maarten@treewalker.org>,
-	Lars-Peter Clausen <lars@metafoo.de>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Linux-MIPS <linux-mips@linux-mips.org>
 Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
@@ -40,19 +29,44 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Mon, Oct 31, 2016 at 3:39 PM, Paul Cercueil <paul@crapouillou.net> wrote:
-> This commit adds documentation for the device-tree bindings of the
-> jz4740-rtc driver, which supports the RTC unit present in the JZ4740 and
-> JZ4780 SoCs from Ingenic.
->
-> Signed-off-by: Paul Cercueil <paul@crapouillou.net>
-> Acked-by: Maarten ter Huurne <maarten@treewalker.org>
-> ---
->  .../devicetree/bindings/rtc/ingenic,jz4740-rtc.txt | 37 ++++++++++++++++++++++
->  1 file changed, 37 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/rtc/ingenic,jz4740-rtc.txt
+My ongoing audit looking for non-modular code that needlessly uses
+modular macros (vs. built-in equivalents) and/or has dead code
+relating to module unloading that can never be executed led to the
+creation of these rtc related commits.
 
-Acked-by: Rob Herring <robh@kernel.org>
+For anyone new to the underlying goal of this cleanup, we are trying to
+not use module support for code that can never be built as a module since:
+
+ (1) it is easy to accidentally write unused module_exit and remove code
+ (2) it can be misleading when reading the source, thinking it can be
+     modular when the Makefile and/or Kconfig prohibit it
+ (3) it requires the include of the module.h header file which in turn
+     includes nearly everything else, thus adding to CPP overhead.
+ (4) it gets copied/replicated into other code and spreads like weeds.
+
+Build tested on current linux-next (sparc32) to ensure no silly typos
+or implicit include issues that would break compilation crept in.
+
+---
+
+Cc: Alessandro Zummo <a.zummo@towertech.it>
+Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: "David S. Miller" <davem@davemloft.net>
+Cc: rtc-linux@googlegroups.com
+Cc: sparclinux@vger.kernel.org
+
+Paul Gortmaker (3):
+  rtc: make rtc-lib explicitly non-modular
+  rtc: sparc: make starfire explicitly non-modular
+  rtc: sparc: make sun4v explicitly non-modular
+
+ drivers/rtc/rtc-lib.c      |  4 +---
+ drivers/rtc/rtc-starfire.c | 10 ++++------
+ drivers/rtc/rtc-sun4v.c    | 10 ++++------
+ 3 files changed, 9 insertions(+), 15 deletions(-)
+
+-- 
+2.10.1
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
