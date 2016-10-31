@@ -1,33 +1,26 @@
-Return-Path: <rtc-linux+bncBC433LF43MBBBUOY33AAKGQEF3DGM3I@googlegroups.com>
+Return-Path: <rtc-linux+bncBCGP7DNSRUMRB5NH33AAKGQEU6QIHCQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-MIME-Version: 1.0
-Received: from outils.crapouillou.net (outils.crapouillou.net. [89.234.176.41])
-        by gmr-mx.google.com with ESMTPS id y7si1976799wme.0.2016.10.31.13.40.49
+Received: from mail.windriver.com (mail.windriver.com. [147.11.1.11])
+        by gmr-mx.google.com with ESMTPS id h11si4801235pfe.0.2016.10.31.11.56.53
         for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 31 Oct 2016 13:40:49 -0700 (PDT)
-From: Paul Cercueil <paul@crapouillou.net>
-To: rtc-linux@googlegroups.com,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Rob Herring <robh+dt@kernel.org>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Ralf Baechle <ralf@linux-mips.org>,
-	Maarten ter Huurne <maarten@treewalker.org>,
-	Lars-Peter Clausen <lars@metafoo.de>,
-	devicetree@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	linux-mips@linux-mips.org
-Cc: Paul Cercueil <paul@crapouillou.net>
-Subject: [rtc-linux] [PATCH v3 5/7] MIPS: jz4740: DTS: Probe the jz4740-rtc
- driver from devicetree
-Date: Mon, 31 Oct 2016 21:39:49 +0100
-Message-Id: <20161031203951.5444-5-paul@crapouillou.net>
-In-Reply-To: <20161031203951.5444-1-paul@crapouillou.net>
-References: <20161030230247.20538-1-paul@crapouillou.net>
- <20161031203951.5444-1-paul@crapouillou.net>
-Reply-To: rtc-linux@googlegroups.com
+        (version=TLS1_1 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
+        Mon, 31 Oct 2016 11:56:53 -0700 (PDT)
+From: Paul Gortmaker <paul.gortmaker@windriver.com>
+To: <linux-kernel@vger.kernel.org>
+CC: Paul Gortmaker <paul.gortmaker@windriver.com>,
+        Alessandro Zummo
+	<a.zummo@towertech.it>,
+        Alexandre Belloni
+	<alexandre.belloni@free-electrons.com>,
+        <rtc-linux@googlegroups.com>
+Subject: [rtc-linux] [PATCH 1/3] rtc: make rtc-lib explicitly non-modular
+Date: Mon, 31 Oct 2016 14:55:25 -0400
+Message-ID: <20161031185527.20279-2-paul.gortmaker@windriver.com>
+In-Reply-To: <20161031185527.20279-1-paul.gortmaker@windriver.com>
+References: <20161031185527.20279-1-paul.gortmaker@windriver.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -36,42 +29,51 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Now that the jz4740-rtc driver supports devicetree, we can add a
-devicetree node for it.
+The Kconfig currently controlling compilation of this code is:
 
-Signed-off-by: Paul Cercueil <paul@crapouillou.net>
-Acked-by: Maarten ter Huurne <maarten@treewalker.org>
+drivers/rtc/Kconfig:config RTC_LIB
+drivers/rtc/Kconfig:    bool
+
+...meaning that it currently is not being built as a module by anyone.
+
+Lets remove the couple traces of modular infrastructure use, so that
+when reading the driver there is no doubt it is builtin-only.
+
+We delete the MODULE_LICENSE tag since all that information
+is already contained at the top of the file in the comments.
+
+We don't replace module.h with init.h since the file doesn't need that.
+However we do add export.h since the file uses EXPORT_SYMBOL.
+
+Cc: Alessandro Zummo <a.zummo@towertech.it>
+Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: rtc-linux@googlegroups.com
+Signed-off-by: Paul Gortmaker <paul.gortmaker@windriver.com>
 ---
- arch/mips/boot/dts/ingenic/jz4740.dtsi | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+ drivers/rtc/rtc-lib.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-v2: Previous patch 5/5 was garbage. This is a new patch.
-v3: Changed 'jz4740-rtc@10003000' to 'rtc@10003000'
-
-diff --git a/arch/mips/boot/dts/ingenic/jz4740.dtsi b/arch/mips/boot/dts/ingenic/jz4740.dtsi
-index f6ae6ed..c6acd6a 100644
---- a/arch/mips/boot/dts/ingenic/jz4740.dtsi
-+++ b/arch/mips/boot/dts/ingenic/jz4740.dtsi
-@@ -44,6 +44,17 @@
- 		#clock-cells = <1>;
- 	};
+diff --git a/drivers/rtc/rtc-lib.c b/drivers/rtc/rtc-lib.c
+index e6bfb9c42a10..1ae7da5cfc60 100644
+--- a/drivers/rtc/rtc-lib.c
++++ b/drivers/rtc/rtc-lib.c
+@@ -11,7 +11,7 @@
+  * published by the Free Software Foundation.
+ */
  
-+	rtc_dev: rtc@10003000 {
-+		compatible = "ingenic,jz4740-rtc";
-+		reg = <0x10003000 0x40>;
-+
-+		interrupt-parent = <&intc>;
-+		interrupts = <15>;
-+
-+		clocks = <&cgu JZ4740_CLK_RTC>;
-+		clock-names = "rtc";
-+	};
-+
- 	uart0: serial@10030000 {
- 		compatible = "ingenic,jz4740-uart";
- 		reg = <0x10030000 0x100>;
+-#include <linux/module.h>
++#include <linux/export.h>
+ #include <linux/rtc.h>
+ 
+ static const unsigned char rtc_days_in_month[] = {
+@@ -148,5 +148,3 @@ struct rtc_time rtc_ktime_to_tm(ktime_t kt)
+ 	return ret;
+ }
+ EXPORT_SYMBOL_GPL(rtc_ktime_to_tm);
+-
+-MODULE_LICENSE("GPL");
 -- 
-2.9.3
+2.10.1
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
