@@ -1,26 +1,32 @@
-Return-Path: <rtc-linux+bncBAABB27YT3AAKGQEHFJX4IQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBC433LF43MBBBVGY33AAKGQE5ZFPFVI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mga04.intel.com (mga04.intel.com. [192.55.52.120])
-        by gmr-mx.google.com with ESMTPS id z76si6484124pff.1.2016.10.19.11.33.14
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1 cipher=AES128-SHA bits=128/128);
-        Wed, 19 Oct 2016 11:33:15 -0700 (PDT)
-Date: Wed, 19 Oct 2016 21:33:10 +0300
-From: Ville =?iso-8859-1?Q?Syrj=E4l=E4?= <ville.syrjala@linux.intel.com>
-To: Chris Wilson <chris@chris-wilson.co.uk>, rtc-linux@googlegroups.com,
-	intel-gfx@lists.freedesktop.org,
-	Gabriele Mazzotta <gabriele.mzt@gmail.com>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	linux-kernel@vger.kernel.org
-Subject: [rtc-linux] Re: [Intel-gfx] [PATCH] rtc: cmos: Don't enable
- interrupts in the middle of the interrupt handler
-Message-ID: <20161019183310.GL4329@intel.com>
-References: <1476900124-14405-1-git-send-email-ville.syrjala@linux.intel.com>
- <20161019181639.GB10824@nuc-i3427.alporthouse.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <20161019181639.GB10824@nuc-i3427.alporthouse.com>
+Received: from outils.crapouillou.net (outils.crapouillou.net. [89.234.176.41])
+        by gmr-mx.google.com with ESMTPS id 18si1406186wmr.1.2016.10.31.13.40.52
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 31 Oct 2016 13:40:52 -0700 (PDT)
+From: Paul Cercueil <paul@crapouillou.net>
+To: rtc-linux@googlegroups.com,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Rob Herring <robh+dt@kernel.org>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Ralf Baechle <ralf@linux-mips.org>,
+	Maarten ter Huurne <maarten@treewalker.org>,
+	Lars-Peter Clausen <lars@metafoo.de>,
+	devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	linux-mips@linux-mips.org
+Cc: Paul Cercueil <paul@crapouillou.net>
+Subject: [rtc-linux] [PATCH v3 7/7] MIPS: jz4740: Remove obsolete code
+Date: Mon, 31 Oct 2016 21:39:51 +0100
+Message-Id: <20161031203951.5444-7-paul@crapouillou.net>
+In-Reply-To: <20161031203951.5444-1-paul@crapouillou.net>
+References: <20161030230247.20538-1-paul@crapouillou.net>
+ <20161031203951.5444-1-paul@crapouillou.net>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -29,123 +35,152 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Wed, Oct 19, 2016 at 07:16:39PM +0100, Chris Wilson wrote:
-> On Wed, Oct 19, 2016 at 09:02:04PM +0300, ville.syrjala@linux.intel.com w=
-rote:
-> > From: Ville Syrj=C3=A4l=C3=A4 <ville.syrjala@linux.intel.com>
-> >=20
-> > Using spin_lock_irq()/spin_unlock_irq() from within the interrupt
-> > handler is a no-no. Let's save/restore the flags to avoid turning on
-> > interrupts prematurely.
-> >=20
-> > We hit this in a bunch of our CI systems, but for whatever reason I
-> > wasn't able to reproduce on my own machine, so this fix is just
-> > based on the backtrace.
-> >=20
-> > [  202.634918] WARNING: CPU: 0 PID: 0 at kernel/locking/lockdep.c:2729 =
-trace_hardirqs_on_caller+0x113/0x1b0
-> > [  202.634919] DEBUG_LOCKS_WARN_ON(current->hardirq_context)
-> > [  202.634929] Modules linked in: snd_hda_intel i915 x86_pkg_temp_therm=
-al intel_powerclamp coretemp crct10dif_pclmul crc32_pclmul ghash_clmulni_in=
-tel lpc_ich snd_hda_codec_realtek snd_hda_codec_generic snd_hda_codec_hdmi =
-snd_hda_codec snd_hwdep i2c_designware_platform i2c_designware_core snd_hda=
-_core mei_me mei snd_pcm r8169 mii sdhci_acpi sdhci mmc_core i2c_hid [last =
-unloaded: i915]
-> > [  202.634930] CPU: 0 PID: 0 Comm: swapper/0 Tainted: G     U          =
-4.9.0-rc1-CI-CI_DRM_1734+ #1
-> > [  202.634931] Hardware name: GIGABYTE M4HM87P-00/M4HM87P-00, BIOS F6 1=
-2/10/2014
-> > [  202.634933]  ffff88011ea03d68 ffffffff8142dce5 ffff88011ea03db8 0000=
-000000000000
-> > [  202.634934]  ffff88011ea03da8 ffffffff8107e496 00000aa900000002 ffff=
-ffff81e249a0
-> > [  202.634935]  ffffffff81815637 ffffffff82e7c280 0000000000000000 0000=
-000000000004
-> > [  202.634936] Call Trace:
-> > [  202.634939]  <IRQ>
-> > [  202.634939]  [<ffffffff8142dce5>] dump_stack+0x67/0x92
-> > [  202.634941]  [<ffffffff8107e496>] __warn+0xc6/0xe0
-> > [  202.634944]  [<ffffffff81815637>] ? _raw_spin_unlock_irq+0x27/0x50
-> > [  202.634945]  [<ffffffff8107e4fa>] warn_slowpath_fmt+0x4a/0x50
-> > [  202.634946]  [<ffffffff810d6d83>] trace_hardirqs_on_caller+0x113/0x1=
-b0
-> > [  202.634948]  [<ffffffff810d6e2d>] trace_hardirqs_on+0xd/0x10
-> > [  202.634949]  [<ffffffff81815637>] _raw_spin_unlock_irq+0x27/0x50
-> > [  202.634951]  [<ffffffff81672042>] rtc_handler+0x32/0xa0
-> > [  202.634954]  [<ffffffff814c08a3>] acpi_ev_fixed_event_detect+0xd4/0x=
-fb
-> > [  202.634956]  [<ffffffff814c2ccb>] acpi_ev_sci_xrupt_handler+0xf/0x2d
-> > [  202.634957]  [<ffffffff814ab3ee>] acpi_irq+0x11/0x2c
-> > [  202.634960]  [<ffffffff810e5288>] __handle_irq_event_percpu+0x58/0x3=
-70
-> > [  202.634961]  [<ffffffff810e55be>] handle_irq_event_percpu+0x1e/0x50
-> > [  202.634962]  [<ffffffff810e5624>] handle_irq_event+0x34/0x60
-> > [  202.634963]  [<ffffffff810e8906>] handle_fasteoi_irq+0xa6/0x170
-> > [  202.634966]  [<ffffffff8101eef5>] handle_irq+0x15/0x20
-> > [  202.634967]  [<ffffffff8101e548>] do_IRQ+0x68/0x130
-> > [  202.634968]  [<ffffffff81816789>] common_interrupt+0x89/0x89
-> > [  202.634970]  <EOI>
-> > [  202.634970]  [<ffffffff81814c73>] ? mwait_idle+0x93/0x210
-> > [  202.634971]  [<ffffffff81814c6a>] ? mwait_idle+0x8a/0x210
-> > [  202.634972]  [<ffffffff81026b0a>] arch_cpu_idle+0xa/0x10
-> > [  202.634973]  [<ffffffff8181509e>] default_idle_call+0x1e/0x30
-> > [  202.634974]  [<ffffffff810cbf6c>] cpu_startup_entry+0x17c/0x1f0
-> > [  202.634976]  [<ffffffff8180ca87>] rest_init+0x127/0x130
-> > [  202.634978]  [<ffffffff81f77f08>] start_kernel+0x3f6/0x403
-> > [  202.634980]  [<ffffffff81f7728f>] x86_64_start_reservations+0x2a/0x2=
-c
-> > [  202.634981]  [<ffffffff81f77404>] x86_64_start_kernel+0x173/0x186
-> > [  202.634982] ---[ end trace 293c99618fa08d34 ]---
-> >=20
-> > Cc: Gabriele Mazzotta <gabriele.mzt@gmail.com>
-> > Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-> > Fixes: 983bf1256edb ("rtc: cmos: Clear ACPI-driven alarms upon resume")
-> > Signed-off-by: Ville Syrj=C3=A4l=C3=A4 <ville.syrjala@linux.intel.com>
-> > ---
-> >  drivers/rtc/rtc-cmos.c | 5 +++--
-> >  1 file changed, 3 insertions(+), 2 deletions(-)
-> >=20
-> > diff --git a/drivers/rtc/rtc-cmos.c b/drivers/rtc/rtc-cmos.c
-> > index dd3d59806ffa..19cd49ad92dc 100644
-> > --- a/drivers/rtc/rtc-cmos.c
-> > +++ b/drivers/rtc/rtc-cmos.c
-> > @@ -996,8 +996,9 @@ static u32 rtc_handler(void *context)
-> >  	struct cmos_rtc *cmos =3D dev_get_drvdata(dev);
-> >  	unsigned char rtc_control =3D 0;
-> >  	unsigned char rtc_intr;
-> > +	unsigned long flags;
-> > =20
-> > -	spin_lock_irq(&rtc_lock);
-> > +	spin_lock_irqsave(&rtc_lock, flags);
->=20
-> My reading of the acpi fixed event handlers suggests that this can only
-> be called from interrupt context.
+This commit removes two things:
+- The platform_device that corresponds to the RTC driver, since we now
+  probe this driver from devicetree;
+- The platform power-off code, since all the jz4740-based platforms are
+  now using the jz4740-rtc driver as the system power controller.
 
-Ah, could be. I didn't bother digging quite that deep.
+Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+Acked-by: Maarten ter Huurne <maarten@treewalker.org>
+---
+ arch/mips/include/asm/mach-jz4740/platform.h |  1 -
+ arch/mips/jz4740/platform.c                  | 21 ----------
+ arch/mips/jz4740/reset.c                     | 63 ----------------------------
+ 3 files changed, 85 deletions(-)
 
->=20
-> Anyway using irqsave is correct (just may be optimised away to a plain
-> spin_lock() if the condition that this is only called in irq context is
-> satisfied).
->=20
-> Reviewed-by: Chris Wilson <chris@chris-wilson.co.uk>
-> -Chris
->=20
-> --=20
-> Chris Wilson, Intel Open Source Technology Centre
+v2: New patch in this series
+v3: No change
 
---=20
-Ville Syrj=C3=A4l=C3=A4
-Intel OTC
+diff --git a/arch/mips/include/asm/mach-jz4740/platform.h b/arch/mips/include/asm/mach-jz4740/platform.h
+index 073b8bf..3645974 100644
+--- a/arch/mips/include/asm/mach-jz4740/platform.h
++++ b/arch/mips/include/asm/mach-jz4740/platform.h
+@@ -22,7 +22,6 @@
+ extern struct platform_device jz4740_udc_device;
+ extern struct platform_device jz4740_udc_xceiv_device;
+ extern struct platform_device jz4740_mmc_device;
+-extern struct platform_device jz4740_rtc_device;
+ extern struct platform_device jz4740_i2c_device;
+ extern struct platform_device jz4740_nand_device;
+ extern struct platform_device jz4740_framebuffer_device;
+diff --git a/arch/mips/jz4740/platform.c b/arch/mips/jz4740/platform.c
+index 2f1dab3..5b7cdd6 100644
+--- a/arch/mips/jz4740/platform.c
++++ b/arch/mips/jz4740/platform.c
+@@ -88,27 +88,6 @@ struct platform_device jz4740_mmc_device = {
+ 	.resource	= jz4740_mmc_resources,
+ };
+ 
+-/* RTC controller */
+-static struct resource jz4740_rtc_resources[] = {
+-	{
+-		.start	= JZ4740_RTC_BASE_ADDR,
+-		.end	= JZ4740_RTC_BASE_ADDR + 0x38 - 1,
+-		.flags	= IORESOURCE_MEM,
+-	},
+-	{
+-		.start	= JZ4740_IRQ_RTC,
+-		.end	= JZ4740_IRQ_RTC,
+-		.flags	= IORESOURCE_IRQ,
+-	},
+-};
+-
+-struct platform_device jz4740_rtc_device = {
+-	.name		= "jz4740-rtc",
+-	.id		= -1,
+-	.num_resources	= ARRAY_SIZE(jz4740_rtc_resources),
+-	.resource	= jz4740_rtc_resources,
+-};
+-
+ /* I2C controller */
+ static struct resource jz4740_i2c_resources[] = {
+ 	{
+diff --git a/arch/mips/jz4740/reset.c b/arch/mips/jz4740/reset.c
+index 954e669..67780c4 100644
+--- a/arch/mips/jz4740/reset.c
++++ b/arch/mips/jz4740/reset.c
+@@ -57,71 +57,8 @@ static void jz4740_restart(char *command)
+ 	jz4740_halt();
+ }
+ 
+-#define JZ_REG_RTC_CTRL			0x00
+-#define JZ_REG_RTC_HIBERNATE		0x20
+-#define JZ_REG_RTC_WAKEUP_FILTER	0x24
+-#define JZ_REG_RTC_RESET_COUNTER	0x28
+-
+-#define JZ_RTC_CTRL_WRDY		BIT(7)
+-#define JZ_RTC_WAKEUP_FILTER_MASK	0x0000FFE0
+-#define JZ_RTC_RESET_COUNTER_MASK	0x00000FE0
+-
+-static inline void jz4740_rtc_wait_ready(void __iomem *rtc_base)
+-{
+-	uint32_t ctrl;
+-
+-	do {
+-		ctrl = readl(rtc_base + JZ_REG_RTC_CTRL);
+-	} while (!(ctrl & JZ_RTC_CTRL_WRDY));
+-}
+-
+-static void jz4740_power_off(void)
+-{
+-	void __iomem *rtc_base = ioremap(JZ4740_RTC_BASE_ADDR, 0x38);
+-	unsigned long wakeup_filter_ticks;
+-	unsigned long reset_counter_ticks;
+-	struct clk *rtc_clk;
+-	unsigned long rtc_rate;
+-
+-	rtc_clk = clk_get(NULL, "rtc");
+-	if (IS_ERR(rtc_clk))
+-		panic("unable to get RTC clock");
+-	rtc_rate = clk_get_rate(rtc_clk);
+-	clk_put(rtc_clk);
+-
+-	/*
+-	 * Set minimum wakeup pin assertion time: 100 ms.
+-	 * Range is 0 to 2 sec if RTC is clocked at 32 kHz.
+-	 */
+-	wakeup_filter_ticks = (100 * rtc_rate) / 1000;
+-	if (wakeup_filter_ticks < JZ_RTC_WAKEUP_FILTER_MASK)
+-		wakeup_filter_ticks &= JZ_RTC_WAKEUP_FILTER_MASK;
+-	else
+-		wakeup_filter_ticks = JZ_RTC_WAKEUP_FILTER_MASK;
+-	jz4740_rtc_wait_ready(rtc_base);
+-	writel(wakeup_filter_ticks, rtc_base + JZ_REG_RTC_WAKEUP_FILTER);
+-
+-	/*
+-	 * Set reset pin low-level assertion time after wakeup: 60 ms.
+-	 * Range is 0 to 125 ms if RTC is clocked at 32 kHz.
+-	 */
+-	reset_counter_ticks = (60 * rtc_rate) / 1000;
+-	if (reset_counter_ticks < JZ_RTC_RESET_COUNTER_MASK)
+-		reset_counter_ticks &= JZ_RTC_RESET_COUNTER_MASK;
+-	else
+-		reset_counter_ticks = JZ_RTC_RESET_COUNTER_MASK;
+-	jz4740_rtc_wait_ready(rtc_base);
+-	writel(reset_counter_ticks, rtc_base + JZ_REG_RTC_RESET_COUNTER);
+-
+-	jz4740_rtc_wait_ready(rtc_base);
+-	writel(1, rtc_base + JZ_REG_RTC_HIBERNATE);
+-
+-	jz4740_halt();
+-}
+-
+ void jz4740_reset_init(void)
+ {
+ 	_machine_restart = jz4740_restart;
+ 	_machine_halt = jz4740_halt;
+-	pm_power_off = jz4740_power_off;
+ }
+-- 
+2.9.3
 
---=20
+-- 
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
----=20
-You received this message because you are subscribed to the Google Groups "=
-rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an e=
-mail to rtc-linux+unsubscribe@googlegroups.com.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
