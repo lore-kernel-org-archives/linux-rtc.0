@@ -1,27 +1,33 @@
-Return-Path: <rtc-linux+bncBCKYNX7Y3IMBB4VF3HAAKGQEAOZJSZI@googlegroups.com>
+Return-Path: <rtc-linux+bncBC433LF43MBBBNOY33AAKGQEE5DDEKI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail.free-electrons.com (up.free-electrons.com. [163.172.77.33])
-        by gmr-mx.google.com with ESMTP id d64si537989wmh.2.2016.10.30.13.07.14
-        for <rtc-linux@googlegroups.com>;
-        Sun, 30 Oct 2016 13:07:14 -0700 (PDT)
-Date: Sun, 30 Oct 2016 21:07:04 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Mauro Carvalho Chehab <mchehab@s-opensource.com>
-Cc: Linux Doc Mailing List <linux-doc@vger.kernel.org>,
-	Mauro Carvalho Chehab <mchehab@infradead.org>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	Mauro Carvalho Chehab <mchehab@kernel.org>,
-	Mark Godfrey <mark.godfrey@stericsson.com>,
-	Linus Walleij <linus.walleij@linaro.org>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	linux-arm-kernel@lists.infradead.org, rtc-linux@googlegroups.com
-Subject: [rtc-linux] Re: [PATCH 1/2] ABI: rtc-ab8500: fix rtc_calibration documentation
-Message-ID: <20161030200704.7skfbgt643kzmds4@piout.net>
-References: <364a36215c44e0c2785911e9d9259cd866283cb9.1477735797.git.mchehab@s-opensource.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <364a36215c44e0c2785911e9d9259cd866283cb9.1477735797.git.mchehab@s-opensource.com>
+Received: from outils.crapouillou.net (outils.crapouillou.net. [89.234.176.41])
+        by gmr-mx.google.com with ESMTPS id y7si1976606wme.0.2016.10.31.13.40.20
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 31 Oct 2016 13:40:20 -0700 (PDT)
+From: Paul Cercueil <paul@crapouillou.net>
+To: rtc-linux@googlegroups.com,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Rob Herring <robh+dt@kernel.org>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Ralf Baechle <ralf@linux-mips.org>,
+	Maarten ter Huurne <maarten@treewalker.org>,
+	Lars-Peter Clausen <lars@metafoo.de>,
+	devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	linux-mips@linux-mips.org
+Cc: Paul Cercueil <paul@crapouillou.net>
+Subject: [rtc-linux] [PATCH v3 6/7] MIPS: qi_lb60: Probe RTC driver from DT
+ and use it as power controller
+Date: Mon, 31 Oct 2016 21:39:50 +0100
+Message-Id: <20161031203951.5444-6-paul@crapouillou.net>
+In-Reply-To: <20161031203951.5444-1-paul@crapouillou.net>
+References: <20161030230247.20538-1-paul@crapouillou.net>
+ <20161031203951.5444-1-paul@crapouillou.net>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -30,29 +36,49 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 29/10/2016 at 08:10:02 -0200, Mauro Carvalho Chehab wrote :
-> The "What:" field at the ABI should describe the location of
-> the ABI, e. g. the position under a mounted sysfs.
-> 
-> Fix it.
-> 
-> Cc: Mark Godfrey <mark.godfrey@stericsson.com>
-> Cc: Linus Walleij <linus.walleij@linaro.org>
-> Cc: Alessandro Zummo <a.zummo@towertech.it>
-> Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-> Cc: linux-arm-kernel@lists.infradead.org
-> Cc: rtc-linux@googlegroups.com
-> Signed-off-by: Mauro Carvalho Chehab <mchehab@s-opensource.com>
-> ---
->  .../ABI/testing/sysfs-class-rtc-rtc0-device-rtc_calibration          | 5 +++--
->  1 file changed, 3 insertions(+), 2 deletions(-)
-> 
-Applied, thanks.
+Since we already have a devicetree node for the jz4740-rtc driver, we
+don't have to probe it from platform code.
 
+Besides, using the jz4740-rtc driver as the power controller for the
+qi_lb60 platform allows us to remove the jz4740 platform power-off code,
+since this is the only jz4740-based board upstream.
+
+Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+Acked-by: Maarten ter Huurne <maarten@treewalker.org>
+---
+ arch/mips/boot/dts/ingenic/qi_lb60.dts | 4 ++++
+ arch/mips/jz4740/board-qi_lb60.c       | 1 -
+ 2 files changed, 4 insertions(+), 1 deletion(-)
+
+v2: New patch in this series
+v3: No change
+
+diff --git a/arch/mips/boot/dts/ingenic/qi_lb60.dts b/arch/mips/boot/dts/ingenic/qi_lb60.dts
+index 2414d63..be1a7d3 100644
+--- a/arch/mips/boot/dts/ingenic/qi_lb60.dts
++++ b/arch/mips/boot/dts/ingenic/qi_lb60.dts
+@@ -13,3 +13,7 @@
+ &ext {
+ 	clock-frequency = <12000000>;
+ };
++
++&rtc_dev {
++	system-power-controller;
++};
+diff --git a/arch/mips/jz4740/board-qi_lb60.c b/arch/mips/jz4740/board-qi_lb60.c
+index 258fd03..a5bd94b 100644
+--- a/arch/mips/jz4740/board-qi_lb60.c
++++ b/arch/mips/jz4740/board-qi_lb60.c
+@@ -438,7 +438,6 @@ static struct platform_device *jz_platform_devices[] __initdata = {
+ 	&jz4740_pcm_device,
+ 	&jz4740_i2s_device,
+ 	&jz4740_codec_device,
+-	&jz4740_rtc_device,
+ 	&jz4740_adc_device,
+ 	&jz4740_pwm_device,
+ 	&jz4740_dma_device,
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+2.9.3
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
