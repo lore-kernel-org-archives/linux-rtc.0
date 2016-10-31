@@ -1,20 +1,30 @@
-Return-Path: <rtc-linux+bncBD66BCOYSQBBBTVOY3AAKGQEA2XOWRA@googlegroups.com>
+Return-Path: <rtc-linux+bncBC6MFNV32EFRB35H3TAAKGQEU5U23GA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from comal.ext.ti.com (comal.ext.ti.com. [198.47.26.152])
-        by gmr-mx.google.com with ESMTPS id l13si69515itl.1.2016.10.26.22.57.34
+Received: from mail-lf0-x22e.google.com (mail-lf0-x22e.google.com. [2a00:1450:4010:c07::22e])
+        by gmr-mx.google.com with ESMTPS id 18si1160665wmr.1.2016.10.31.02.50.39
         for <rtc-linux@googlegroups.com>
-        (version=TLS1 cipher=AES128-SHA bits=128/128);
-        Wed, 26 Oct 2016 22:57:34 -0700 (PDT)
-From: Keerthy <j-keerthy@ti.com>
-To: <alexandre.belloni@free-electrons.com>
-CC: <a.zummo@towertech.it>, <rtc-linux@googlegroups.com>,
-        <linux-omap@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-        <lokeshvutla@ti.com>, <j-keerthy@ti.com>, <t-kristo@ti.com>
-Subject: [rtc-linux] [PATCH 1/2] rtc: omap: Fix selecting external osc
-Date: Thu, 27 Oct 2016 11:27:25 +0530
-Message-ID: <1477547846-5335-1-git-send-email-j-keerthy@ti.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 31 Oct 2016 02:50:39 -0700 (PDT)
+Received: by mail-lf0-x22e.google.com with SMTP id t196so12557468lff.3
+        for <rtc-linux@googlegroups.com>; Mon, 31 Oct 2016 02:50:39 -0700 (PDT)
+Subject: [rtc-linux] Re: [PATCH v2 5/7] MIPS: jz4740: DTS: Probe the
+ jz4740-rtc driver from devicetree
+To: Paul Cercueil <paul@crapouillou.net>, rtc-linux@googlegroups.com,
+ Alessandro Zummo <a.zummo@towertech.it>,
+ Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+ Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>,
+ Ralf Baechle <ralf@linux-mips.org>,
+ Maarten ter Huurne <maarten@treewalker.org>,
+ Lars-Peter Clausen <lars@metafoo.de>, devicetree@vger.kernel.org,
+ linux-kernel@vger.kernel.org, linux-mips@linux-mips.org
+References: <20161030230247.20538-1-paul@crapouillou.net>
+ <20161030230247.20538-6-paul@crapouillou.net>
+From: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Message-ID: <0c9af39c-85e4-5372-2285-620b2c2863ad@cogentembedded.com>
+Date: Mon, 31 Oct 2016 12:50:35 +0300
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <20161030230247.20538-6-paul@crapouillou.net>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -24,71 +34,36 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-From: Lokesh Vutla <lokeshvutla@ti.com>
+Hello.
 
-RTC can be clocked from an external 32KHz oscillator, or from the
-Peripheral PLL. The RTC has an internal oscillator buffer to support
-direct operation with a crystal.
+On 10/31/2016 2:02 AM, Paul Cercueil wrote:
 
-            ----------------------------------------
-            |       Device          ---------       |
-            |                       |       |       |
-            |                       | RTCSS |       |
-            |       ---------       |       |       |
-    OSC     |<------| RTC   |       |       |       |
-            |------>| OSC   |---    |       |       |
-            |       --------   |    |       |       |
-            |                   ----|clk    |       |
-            |       --------   |    |       |       |
-            |       | PRCM  |---    |       |       |
-            |       --------        --------        |
-            ----------------------------------------
+> Now that the jz4740-rtc driver supports devicetree, we can add a
+> devicetree node for it.
+>
+> Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+> Acked-by: Maarten ter Huurne <maarten@treewalker.org>
+> ---
+>  arch/mips/boot/dts/ingenic/jz4740.dtsi | 11 +++++++++++
+>  1 file changed, 11 insertions(+)
+>
+> v2: Previous patch 5/5 was garbage. This is a new patch.
+>
+> diff --git a/arch/mips/boot/dts/ingenic/jz4740.dtsi b/arch/mips/boot/dts/ingenic/jz4740.dtsi
+> index f6ae6ed..c6acd6a 100644
+> --- a/arch/mips/boot/dts/ingenic/jz4740.dtsi
+> +++ b/arch/mips/boot/dts/ingenic/jz4740.dtsi
+> @@ -44,6 +44,17 @@
+>  		#clock-cells = <1>;
+>  	};
+>
+> +	rtc_dev: jz4740-rtc@10003000 {
 
-The RTC functional clock is sourced by default from the clock derived
-from the Peripheral PLL. In order to select source as external osc clk
-the following changes needs to be done:
-- Enable the RTC OSC (RTC_OSC_REG[4]OSC32K_GZ = 0)
-- Enable the clock mux(RTC_OSC_REG[6]K32CLK_EN = 1)
-- Select the external clock source (RTC_OSC_REG[3]32KCLK_SEL = 1)
+    Just "rtc@10003000" to comply with the DT spec.
 
-Fixes: 399cf0f63f6f2 ("rtc: omap: Add external clock enabling support")
-Signed-off-by: Keerthy <j-keerthy@ti.com>
-Signed-off-by: Lokesh Vutla <lokeshvutla@ti.com>
-Signed-off-by: Dave Gerlach <d-gerlach@ti.com>
----
+[...]
 
-Boot tested and checked for rtc ticking on am335x-boneblack, am335x-bone
-am437x-gp-evm, dra7-evm, dra72-evm.
-
- drivers/rtc/rtc-omap.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/rtc/rtc-omap.c b/drivers/rtc/rtc-omap.c
-index b04ea9b..dddaa60 100644
---- a/drivers/rtc/rtc-omap.c
-+++ b/drivers/rtc/rtc-omap.c
-@@ -113,6 +113,7 @@
- /* OMAP_RTC_OSC_REG bit fields: */
- #define OMAP_RTC_OSC_32KCLK_EN		BIT(6)
- #define OMAP_RTC_OSC_SEL_32KCLK_SRC	BIT(3)
-+#define OMAP_RTC_OSC_OSC32K_GZ_DISABLE	BIT(4)
- 
- /* OMAP_RTC_IRQWAKEEN bit fields: */
- #define OMAP_RTC_IRQWAKEEN_ALARM_WAKEEN	BIT(1)
-@@ -786,8 +787,9 @@ static int omap_rtc_probe(struct platform_device *pdev)
- 	 */
- 	if (rtc->has_ext_clk) {
- 		reg = rtc_read(rtc, OMAP_RTC_OSC_REG);
--		rtc_write(rtc, OMAP_RTC_OSC_REG,
--			  reg | OMAP_RTC_OSC_SEL_32KCLK_SRC);
-+		reg &= ~OMAP_RTC_OSC_OSC32K_GZ_DISABLE;
-+		reg |= OMAP_RTC_OSC_32KCLK_EN | OMAP_RTC_OSC_SEL_32KCLK_SRC;
-+		rtc_writel(rtc, OMAP_RTC_OSC_REG, reg);
- 	}
- 
- 	rtc->type->lock(rtc);
--- 
-1.9.1
+MBR, Sergei
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
