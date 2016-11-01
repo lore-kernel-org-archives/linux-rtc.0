@@ -1,26 +1,23 @@
-Return-Path: <rtc-linux+bncBAABBR44YHAQKGQELJMRY3Q@googlegroups.com>
+Return-Path: <rtc-linux+bncBAABBFGH4HAAKGQE4CLZM2Q@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-MIME-Version: 1.0
-Received: from botnar.kaiser.cx (botnar.kaiser.cx. [176.28.20.183])
-        by gmr-mx.google.com with ESMTPS id f71si371304wmf.2.2016.11.19.05.06.14
+Received: from relay1.mentorg.com (relay1.mentorg.com. [192.94.38.131])
+        by gmr-mx.google.com with ESMTPS id ua1si336727pac.0.2016.11.01.02.42.44
         for <rtc-linux@googlegroups.com>
-        (version=TLS1 cipher=AES128-SHA bits=128/128);
-        Sat, 19 Nov 2016 05:06:14 -0800 (PST)
-From: Martin Kaiser <martin@kaiser.cx>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Shawn Guo <shawnguo@kernel.org>,
-	Sascha Hauer <kernel@pengutronix.de>,
-	Juergen Borleis <jbe@pengutronix.de>
-Cc: Rob Herring <robh+dt@kernel.org>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Fabio Estevam <fabio.estevam@nxp.com>,
-	rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org
-Subject: [rtc-linux] [PATCH 1/2] rtc: imxdi: (trivial) fix a typo
-Date: Sat, 19 Nov 2016 14:03:33 +0100
-Message-Id: <1479560614-19293-1-git-send-email-martin@kaiser.cx>
-Reply-To: rtc-linux@googlegroups.com
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 01 Nov 2016 02:42:44 -0700 (PDT)
+From: Nicolae Rosia <Nicolae_Rosia@mentor.com>
+To: <devicetree@vger.kernel.org>
+CC: <rtc-linux@googlegroups.com>, <linux-omap@vger.kernel.org>, Rob Herring
+	<robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Alessandro Zummo
+	<a.zummo@towertech.it>, Alexandre Belloni
+	<alexandre.belloni@free-electrons.com>, Nicolae Rosia
+	<Nicolae_Rosia@mentor.com>
+Subject: [rtc-linux] [PATCH] Documentation: bindings: fix twl-rtc documentation
+Date: Tue, 1 Nov 2016 11:42:36 +0200
+Message-ID: <1477993356-9195-1-git-send-email-Nicolae_Rosia@mentor.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -29,26 +26,42 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Signed-off-by: Martin Kaiser <martin@kaiser.cx>
----
- drivers/rtc/rtc-imxdi.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Add interrupts documentation
+Fix example and formatting
 
-diff --git a/drivers/rtc/rtc-imxdi.c b/drivers/rtc/rtc-imxdi.c
-index 8d8049bd..67b56b8 100644
---- a/drivers/rtc/rtc-imxdi.c
-+++ b/drivers/rtc/rtc-imxdi.c
-@@ -67,7 +67,7 @@
- #define DSR_ETAD  (1 << 21)      /* External tamper A detected */
- #define DSR_EBD   (1 << 20)      /* External boot detected */
- #define DSR_SAD   (1 << 19)      /* SCC alarm detected */
--#define DSR_TTD   (1 << 18)      /* Temperatur tamper detected */
-+#define DSR_TTD   (1 << 18)      /* Temperature tamper detected */
- #define DSR_CTD   (1 << 17)      /* Clock tamper detected */
- #define DSR_VTD   (1 << 16)      /* Voltage tamper detected */
- #define DSR_WBF   (1 << 10)      /* Write Busy Flag (synchronous) */
+Signed-off-by: Nicolae Rosia <Nicolae_Rosia@mentor.com>
+---
+ Documentation/devicetree/bindings/rtc/twl-rtc.txt | 19 +++++++++----------
+ 1 file changed, 9 insertions(+), 10 deletions(-)
+
+diff --git a/Documentation/devicetree/bindings/rtc/twl-rtc.txt b/Documentation/devicetree/bindings/rtc/twl-rtc.txt
+index 596e0c9..8f9a94f 100644
+--- a/Documentation/devicetree/bindings/rtc/twl-rtc.txt
++++ b/Documentation/devicetree/bindings/rtc/twl-rtc.txt
+@@ -1,12 +1,11 @@
+-* TI twl RTC
+-
+-The TWL family (twl4030/6030) contains a RTC.
++* Texas Instruments TWL4030/6030 RTC
+ 
+ Required properties:
+-- compatible : Should be twl4030-rtc
+-
+-Examples:
+-
+-rtc@0 {
+-    compatible = "ti,twl4030-rtc";
+-};
++- compatible : Should be "ti,twl4030-rtc"
++- interrupts : Should be the interrupt number.
++
++Example:
++	rtc {
++		compatible = "ti,twl4030-rtc";
++		interrupts = <11>;
++	};
 -- 
-1.7.10.4
+2.5.5
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
