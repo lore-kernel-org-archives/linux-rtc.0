@@ -1,19 +1,18 @@
-Return-Path: <rtc-linux+bncBD7ZDTFR7QFRB7XD53AAKGQEBI4R6BA@googlegroups.com>
+Return-Path: <rtc-linux+bncBDRMFBMIXEGBBBVQ5XAAKGQEIU324OI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 Received: from foss.arm.com (foss.arm.com. [217.140.101.70])
-        by gmr-mx.google.com with ESMTP id p14si1743968pfl.0.2016.11.03.14.54.06
+        by gmr-mx.google.com with ESMTP id qv3si3098679pab.2.2016.11.03.08.30.14
         for <rtc-linux@googlegroups.com>;
-        Thu, 03 Nov 2016 14:54:06 -0700 (PDT)
-Date: Thu, 3 Nov 2016 15:53:47 -0600
-From: Sudeep Holla <sudeep.holla@arm.com>
+        Thu, 03 Nov 2016 08:30:14 -0700 (PDT)
+Date: Thu, 3 Nov 2016 15:30:10 +0000
+From: Mark Rutland <mark.rutland@arm.com>
 To: Neil Armstrong <narmstrong@baylibre.com>
 Cc: khilman@baylibre.com, carlo@caione.org, a.zummo@towertech.it,
 	alexandre.belloni@free-electrons.com,
 	linux-amlogic@lists.infradead.org, linux-kernel@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org, rtc-linux@googlegroups.com,
-	Sudeep Holla <sudeep.holla@arm.com>
+	linux-arm-kernel@lists.infradead.org, rtc-linux@googlegroups.com
 Subject: [rtc-linux] Re: [RFC PATCH 1/3] ARM64: meson: Add Amlogic Meson GX PM Suspend
-Message-ID: <20161103215347.GA23902@e106835-lin.cambridge.arm.com>
+Message-ID: <20161103153009.GC25852@remoulade>
 References: <1478183365-23708-1-git-send-email-narmstrong@baylibre.com>
  <1478183365-23708-2-git-send-email-narmstrong@baylibre.com>
 MIME-Version: 1.0
@@ -33,7 +32,15 @@ On Thu, Nov 03, 2016 at 03:29:23PM +0100, Neil Armstrong wrote:
 > PSCI CPU_SUSPEND call to enter system suspend.
 > 
 > Implement such call within platform_suspend_ops.
-> 
+
+While I am very much not happy with platform-specific extensions to PSCI, if
+this needs to go anywhere, it should live in the existing PSCI driver.
+
+That is to say, NAK to other driver invoking PSCI functions.
+
+Thanks,
+Mark.
+
 > Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
 > ---
 >  drivers/firmware/meson/Kconfig       |  6 +++
@@ -119,17 +126,50 @@ On Thu, Nov 03, 2016 at 03:29:23PM +0100, Neil Armstrong wrote:
 > +	case PM_SUSPEND_MEM:
 > +		return cpu_suspend(MESON_SUSPEND_PARAM,
 > +				   meson_gx_suspend_finish);
-
-Short response to this patch: NAK
-
-To be constructive, since this system lacks PSCI system suspend, it just
-can't support. Alternatively, this can be normal cpuidle state and you
-can use suspend to idle to achieve the same and you need not hack/work
-around using platform specific driver.
-
---
-Regards,
-Sudeep
+> +	}
+> +
+> +	return -EINVAL;
+> +}
+> +
+> +static const struct platform_suspend_ops meson_gx_pm_ops = {
+> +		.enter = meson_gx_suspend_enter,
+> +		.valid = suspend_valid_only_mem,
+> +};
+> +
+> +static const struct of_device_id meson_gx_pm_match[] = {
+> +	{ .compatible = "amlogic,meson-gx-pm", },
+> +	{ /* sentinel */ },
+> +};
+> +MODULE_DEVICE_TABLE(of, meson_gx_pm_match);
+> +
+> +static int meson_gx_pm_probe(struct platform_device *pdev)
+> +{
+> +	suspend_set_ops(&meson_gx_pm_ops);
+> +
+> +	return 0;
+> +}
+> +
+> +static struct platform_driver meson_gx_pm_driver = {
+> +	.probe = meson_gx_pm_probe,
+> +	.driver = {
+> +		.name = "meson-gx-pm",
+> +		.of_match_table = meson_gx_pm_match,
+> +	},
+> +};
+> +
+> +module_platform_driver(meson_gx_pm_driver);
+> +
+> +MODULE_AUTHOR("Neil Armstrong <narmstrong@baylibre.com>");
+> +MODULE_DESCRIPTION("Amlogic Meson GX PM driver");
+> +MODULE_LICENSE("GPL v2");
+> -- 
+> 1.9.1
+> 
+> 
+> _______________________________________________
+> linux-arm-kernel mailing list
+> linux-arm-kernel@lists.infradead.org
+> http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
