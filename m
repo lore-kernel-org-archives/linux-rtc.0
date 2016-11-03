@@ -1,20 +1,24 @@
-Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBNWHRHAQKGQEJIQSLEY@googlegroups.com>
+Return-Path: <rtc-linux+bncBDRMFBMIXEGBBEVT5XAAKGQE6E7MY5Y@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-MIME-Version: 1.0
-Received: from mail.free-electrons.com (up.free-electrons.com. [163.172.77.33])
-        by gmr-mx.google.com with ESMTP id 18si1468193wmr.1.2016.11.08.15.45.58
+Received: from foss.arm.com (foss.arm.com. [217.140.101.70])
+        by gmr-mx.google.com with ESMTP id qv3si3111454pab.2.2016.11.03.08.36.50
         for <rtc-linux@googlegroups.com>;
-        Tue, 08 Nov 2016 15:45:58 -0800 (PST)
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Alessandro Zummo <a.zummo@towertech.it>
-Cc: rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Subject: [rtc-linux] [PATCH] rtc: fix typos in Kconfig
-Date: Wed,  9 Nov 2016 00:45:52 +0100
-Message-Id: <20161108234552.3038-1-alexandre.belloni@free-electrons.com>
-Reply-To: rtc-linux@googlegroups.com
+        Thu, 03 Nov 2016 08:36:50 -0700 (PDT)
+Date: Thu, 3 Nov 2016 15:36:48 +0000
+From: Mark Rutland <mark.rutland@arm.com>
+To: Neil Armstrong <narmstrong@baylibre.com>
+Cc: khilman@baylibre.com, carlo@caione.org, a.zummo@towertech.it,
+	alexandre.belloni@free-electrons.com,
+	linux-amlogic@lists.infradead.org, linux-kernel@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org, rtc-linux@googlegroups.com
+Subject: [rtc-linux] Re: [RFC PATCH 2/3] rtc: Add Amlogic Virtual Wake RTC
+Message-ID: <20161103153647.GD25852@remoulade>
+References: <1478183365-23708-1-git-send-email-narmstrong@baylibre.com>
+ <1478183365-23708-3-git-send-email-narmstrong@baylibre.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1478183365-23708-3-git-send-email-narmstrong@baylibre.com>
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -23,37 +27,71 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-s/buillt/built/g
+On Thu, Nov 03, 2016 at 03:29:24PM +0100, Neil Armstrong wrote:
+> The Amlogic Meson GX SoCs uses a special register to store the
+> time in seconds to wakeup after a system suspend.
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
----
- drivers/rtc/Kconfig | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+Where does this register live, exactly? What IP block is it part of?
 
-diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
-index 24b0778f6e28..ab55f35019fc 100644
---- a/drivers/rtc/Kconfig
-+++ b/drivers/rtc/Kconfig
-@@ -1565,7 +1565,7 @@ config RTC_DRV_LPC24XX
- 	  NXP LPC178x/18xx/408x/43xx devices.
- 
- 	  If you have one of the devices above enable this driver to use
--	  the hardware RTC. This driver can also be buillt as a module. If
-+	  the hardware RTC. This driver can also be built as a module. If
- 	  so, the module will be called rtc-lpc24xx.
- 
- config RTC_DRV_LPC32XX
-@@ -1574,7 +1574,7 @@ config RTC_DRV_LPC32XX
- 	help
- 	  This enables support for the NXP RTC in the LPC32XX
- 
--	  This driver can also be buillt as a module. If so, the module
-+	  This driver can also be built as a module. If so, the module
- 	  will be called rtc-lpc32xx.
- 
- config RTC_DRV_PM8XXX
--- 
-2.10.2
+> In order to be able to reuse the RTC wakealarm feature, this
+> driver implements a fake RTC device which uses the system time
+> to deduce a suspend delay.
+
+This sounds like an always-on oneshot timer device, not an RTC.
+
+> +static int meson_vrtc_read_time(struct device *dev, struct rtc_time *tm)
+> +{
+> +	unsigned long local_time;
+> +	struct timeval time;
+> +
+> +	do_gettimeofday(&time);
+> +	local_time = time.tv_sec - (sys_tz.tz_minuteswest * 60);
+> +	rtc_time_to_tm(local_time, tm);
+> +
+> +	return 0;
+> +}
+
+... if this were a timer, you wouldn't need this hack.
+
+> +static int meson_vrtc_probe(struct platform_device *pdev)
+> +{
+> +	struct meson_vrtc_data *vrtc;
+> +	struct resource *res;
+> +
+> +	vrtc = devm_kzalloc(&pdev->dev, sizeof(*vrtc), GFP_KERNEL);
+> +	if (!vrtc)
+> +		return -ENOMEM;
+> +
+> +	vrtc->pdev = pdev;
+> +
+> +	/* Alarm registers */
+> +	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+> +	vrtc->io_alarm = devm_ioremap_resource(&pdev->dev, res);
+> +	if (IS_ERR(vrtc->io_alarm))
+> +		return PTR_ERR(vrtc->io_alarm);
+> +
+> +	device_init_wakeup(&pdev->dev, 1);
+> +
+> +	platform_set_drvdata(pdev, vrtc);
+> +
+> +	vrtc->rtc = devm_rtc_device_register(&pdev->dev, "meson-vrtc",
+> +			&meson_vrtc_ops, THIS_MODULE);
+> +	if (IS_ERR(vrtc->rtc))
+> +		return PTR_ERR(vrtc->rtc);
+> +
+> +	return 0;
+> +}
+
+I see that no interrupt is described. How exactly does this wake the system
+from suspend? Is there some interrupt managed by FW for this, for example?
+
+> +static const struct of_device_id meson_vrtc_dt_match[] = {
+> +	{ .compatible = "amlogic,meson-vrtc"},
+
+There was no binding documentation in this patch series.
+
+Thanks,
+Mark.
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
