@@ -1,27 +1,22 @@
-Return-Path: <rtc-linux+bncBDL53MW2W4EBB4FT2XAQKGQEKAPBU7I@googlegroups.com>
+Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBNFK6TAAKGQEAA3ZKLY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail-io0-x22e.google.com (mail-io0-x22e.google.com. [2607:f8b0:4001:c06::22e])
-        by gmr-mx.google.com with ESMTPS id 82si163513itf.0.2016.11.23.00.57.20
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 23 Nov 2016 00:57:20 -0800 (PST)
-Received: by mail-io0-x22e.google.com with SMTP id j65so11407629iof.0
-        for <rtc-linux@googlegroups.com>; Wed, 23 Nov 2016 00:57:20 -0800 (PST)
+Received: from mail.free-electrons.com (up.free-electrons.com. [163.172.77.33])
+        by gmr-mx.google.com with ESMTP id 18si890294wmr.0.2016.11.04.16.09.40
+        for <rtc-linux@googlegroups.com>;
+        Fri, 04 Nov 2016 16:09:40 -0700 (PDT)
+Date: Sat, 5 Nov 2016 00:09:34 +0100
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Nicolae Rosia <Nicolae_Rosia@mentor.com>
+Cc: devicetree@vger.kernel.org, rtc-linux@googlegroups.com,
+	linux-omap@vger.kernel.org, Rob Herring <robh+dt@kernel.org>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Alessandro Zummo <a.zummo@towertech.it>
+Subject: [rtc-linux] Re: [PATCH] Documentation: bindings: fix twl-rtc documentation
+Message-ID: <20161104230934.yc6kytououl7hzo6@piout.net>
+References: <1477993356-9195-1-git-send-email-Nicolae_Rosia@mentor.com>
 MIME-Version: 1.0
-In-Reply-To: <20161123084657.or53k7tlyjxcmrr2@piout.net>
-References: <1478945246-32056-1-git-send-email-Nicolae_Rosia@mentor.com>
- <1478945246-32056-2-git-send-email-Nicolae_Rosia@mentor.com>
- <20161122223103.qd44b3z5aj4ahroi@piout.net> <CAKP5S=0vLb+7az4aaFyPjGSEE5cG+epM2qpGP=zpzhvt6x69qA@mail.gmail.com>
- <20161123084657.or53k7tlyjxcmrr2@piout.net>
-From: Nicolae Rosia <nicolae.rosia.oss@gmail.com>
-Date: Wed, 23 Nov 2016 10:57:19 +0200
-Message-ID: <CAKP5S=1GXx5PMxo-Ns82FyzJQw1MCESZr051VdsCO5DUifV+QA@mail.gmail.com>
-Subject: [rtc-linux] Re: [PATCH 1/3] rtc: rtc-twl: kill static variables
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Nicolae Rosia <Nicolae_Rosia@mentor.com>, Alessandro Zummo <a.zummo@towertech.it>,
-	rtc-linux@googlegroups.com, linux-omap@vger.kernel.org,
-	Tony Lindgren <tony@atomide.com>
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1477993356-9195-1-git-send-email-Nicolae_Rosia@mentor.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -31,16 +26,21 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Hi,
+On 01/11/2016 at 11:42:36 +0200, Nicolae Rosia wrote :
+> Add interrupts documentation
+> Fix example and formatting
+> 
+> Signed-off-by: Nicolae Rosia <Nicolae_Rosia@mentor.com>
+> ---
+>  Documentation/devicetree/bindings/rtc/twl-rtc.txt | 19 +++++++++----------
+>  1 file changed, 9 insertions(+), 10 deletions(-)
+> 
+Applied, thanks.
 
-On Wed, Nov 23, 2016 at 10:46 AM, Alexandre Belloni
-<alexandre.belloni@free-electrons.com> wrote:
->> Ok, could you please indicate which lines so I can fix them instead of
->> wasting your time?
->>
->
-> checkpatch.pl --strict will find them for you
-Thanks, I had the wrong tab setting.
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
