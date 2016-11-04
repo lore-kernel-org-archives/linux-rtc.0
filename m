@@ -1,29 +1,22 @@
-Return-Path: <rtc-linux+bncBDHZXHXDRAMBBUHI4TAAKGQEM3WSN5I@googlegroups.com>
+Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBHMY6TAAKGQEEG5YE4Q@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from smtp.codeaurora.org (smtp.codeaurora.org. [198.145.29.96])
-        by gmr-mx.google.com with ESMTPS id qv3si8327921pab.2.2016.11.01.17.33.20
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 01 Nov 2016 17:33:20 -0700 (PDT)
-Date: Tue, 1 Nov 2016 17:33:19 -0700
-From: Stephen Boyd <sboyd@codeaurora.org>
-To: Krzysztof Kozlowski <krzk@kernel.org>
-Cc: Michael Turquette <mturquette@baylibre.com>,
-	Lee Jones <lee.jones@linaro.org>,
-	Liam Girdwood <lgirdwood@gmail.com>,
-	Mark Brown <broonie@kernel.org>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	linux-clk@vger.kernel.org, linux-kernel@vger.kernel.org,
-	rtc-linux@googlegroups.com
-Subject: [rtc-linux] Re: [PATCH 1/4] clk: Enable compile testing for s2mps11
- and max77686
-Message-ID: <20161102003319.GK16026@codeaurora.org>
-References: <1475441897-15730-1-git-send-email-krzk@kernel.org>
- <1475441897-15730-2-git-send-email-krzk@kernel.org>
+Received: from mail.free-electrons.com (up.free-electrons.com. [163.172.77.33])
+        by gmr-mx.google.com with ESMTP id 18si875760wmr.0.2016.11.04.15.30.53
+        for <rtc-linux@googlegroups.com>;
+        Fri, 04 Nov 2016 15:30:53 -0700 (PDT)
+Date: Fri, 4 Nov 2016 23:30:53 +0100
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Paul Gortmaker <paul.gortmaker@windriver.com>
+Cc: linux-kernel@vger.kernel.org, Alessandro Zummo <a.zummo@towertech.it>,
+	"David S. Miller" <davem@davemloft.net>, rtc-linux@googlegroups.com,
+	sparclinux@vger.kernel.org
+Subject: [rtc-linux] Re: [PATCH 0/3] rtc: remove modular usage from
+ non-modular code
+Message-ID: <20161104223053.luroc2zcwfmppejo@piout.net>
+References: <20161031185527.20279-1-paul.gortmaker@windriver.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1475441897-15730-2-git-send-email-krzk@kernel.org>
+In-Reply-To: <20161031185527.20279-1-paul.gortmaker@windriver.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -33,18 +26,49 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 10/02, Krzysztof Kozlowski wrote:
-> s2mps11 and max77686 clock drivers can be compile tested to increase
-> build coverage.
+On 31/10/2016 at 14:55:24 -0400, Paul Gortmaker wrote :
+> My ongoing audit looking for non-modular code that needlessly uses
+> modular macros (vs. built-in equivalents) and/or has dead code
+> relating to module unloading that can never be executed led to the
+> creation of these rtc related commits.
 > 
-> Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+> For anyone new to the underlying goal of this cleanup, we are trying to
+> not use module support for code that can never be built as a module since:
+> 
+>  (1) it is easy to accidentally write unused module_exit and remove code
+>  (2) it can be misleading when reading the source, thinking it can be
+>      modular when the Makefile and/or Kconfig prohibit it
+>  (3) it requires the include of the module.h header file which in turn
+>      includes nearly everything else, thus adding to CPP overhead.
+>  (4) it gets copied/replicated into other code and spreads like weeds.
+> 
+> Build tested on current linux-next (sparc32) to ensure no silly typos
+> or implicit include issues that would break compilation crept in.
+> 
 > ---
-
-Applied to clk-next
+> 
+> Cc: Alessandro Zummo <a.zummo@towertech.it>
+> Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+> Cc: "David S. Miller" <davem@davemloft.net>
+> Cc: rtc-linux@googlegroups.com
+> Cc: sparclinux@vger.kernel.org
+> 
+> Paul Gortmaker (3):
+>   rtc: make rtc-lib explicitly non-modular
+>   rtc: sparc: make starfire explicitly non-modular
+>   rtc: sparc: make sun4v explicitly non-modular
+> 
+>  drivers/rtc/rtc-lib.c      |  4 +---
+>  drivers/rtc/rtc-starfire.c | 10 ++++------
+>  drivers/rtc/rtc-sun4v.c    | 10 ++++------
+>  3 files changed, 9 insertions(+), 15 deletions(-)
+> 
+Applied, thanks.
 
 -- 
-Qualcomm Innovation Center, Inc. is a member of Code Aurora Forum,
-a Linux Foundation Collaborative Project
+Alexandre Belloni, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
