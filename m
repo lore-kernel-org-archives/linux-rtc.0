@@ -1,26 +1,28 @@
-Return-Path: <rtc-linux+bncBDL53MW2W4EBBAH6TPAQKGQEVOPBQ7I@googlegroups.com>
+Return-Path: <rtc-linux+bncBDFLXENW3AORBLNEQ3AQKGQEI3VCRDY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail-it0-x244.google.com (mail-it0-x244.google.com. [2607:f8b0:4001:c0b::244])
-        by gmr-mx.google.com with ESMTPS id v192si2463589itb.3.2016.11.12.03.37.36
+MIME-Version: 1.0
+Received: from mga14.intel.com (mga14.intel.com. [192.55.52.115])
+        by gmr-mx.google.com with ESMTPS id n18si8678066pfb.2.2016.11.08.00.51.56
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sat, 12 Nov 2016 03:37:36 -0800 (PST)
-Received: by mail-it0-x244.google.com with SMTP id b123so2476611itb.2
-        for <rtc-linux@googlegroups.com>; Sat, 12 Nov 2016 03:37:36 -0800 (PST)
-MIME-Version: 1.0
-In-Reply-To: <20161112112009.34gwcedl57v77ng5@earth>
-References: <1478945246-32056-1-git-send-email-Nicolae_Rosia@mentor.com>
- <1478945246-32056-4-git-send-email-Nicolae_Rosia@mentor.com> <20161112112009.34gwcedl57v77ng5@earth>
-From: Nicolae Rosia <nicolae.rosia.oss@gmail.com>
-Date: Sat, 12 Nov 2016 13:37:35 +0200
-Message-ID: <CAKP5S=27ZHZyKj9LWVDaeSXzCyrsrJmNbc3r-YRXXXKsk74yag@mail.gmail.com>
-Subject: [rtc-linux] Re: [PATCH 3/3] rtc: rtc-twl: use irq_of_parse_and_map helper
-To: Sebastian Reichel <sre@kernel.org>
-Cc: Nicolae Rosia <Nicolae_Rosia@mentor.com>, Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>, rtc-linux@googlegroups.com,
-	linux-omap@vger.kernel.org, Tony Lindgren <tony@atomide.com>
-Content-Type: text/plain; charset=UTF-8
+        Tue, 08 Nov 2016 00:51:56 -0800 (PST)
+From: Chen Yu <yu.c.chen@intel.com>
+To: x86@kernel.org
+Cc: Thomas Gleixner <tglx@linutronix.de>,
+	"Rafael J. Wysocki" <rjw@rjwysocki.net>,
+	Len Brown <lenb@kernel.org>,
+	John Stultz <john.stultz@linaro.org>,
+	Xunlei Pang <xlpang@redhat.com>,
+	linux-pm@vger.kernel.org,
+	rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org,
+	Chen Yu <yu.c.chen@intel.com>
+Subject: [rtc-linux] [PATCH 0/2][RFC v6] Ignore bogus sleep time if pm_trace
+ is enabled
+Date: Tue,  8 Nov 2016 17:00:10 +0800
+Message-Id: <cover.1478589736.git.yu.c.chen@intel.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -29,18 +31,27 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Hi,
+This patch set is based on Thomas's previous solution, to bypass
+the bogus CMOS-RTC sleep time after resumed, thus to avoid damage
+to timekeeping system. The bogus sleep time comes from pm_trace,
+which might use CMOS-RTC for debugging purpose.
 
+Meanwhile, a solution to save/restore of CMOS-RTC is also proposed to give
+better user experience. 
 
-On Sat, Nov 12, 2016 at 1:20 PM, Sebastian Reichel <sre@kernel.org> wrote:
-> This patch is missing long description. I would have patched it the
-> other way around. There is no reason to use irq_of_parse_and_map if
-> generic platform_get_irq can be used.
-Since this patch series removes platform support and makes the driver DT only,
-I thought it would be a good idea to make it explicit that it depends on OF_IRQ.
+Chen Yu (2):
+  timekeeping: Ignore the bogus sleep time if pm_trace is enabled
+  PM / sleep: save/restore RTC time after resumed if pm_trace enabled
 
-Regards,
-Nicolae
+ arch/x86/kernel/rtc.c       |  9 +++++++++
+ drivers/base/power/trace.c  | 31 +++++++++++++++++++++++++++++++
+ drivers/rtc/rtc-cmos.c      |  7 +++++++
+ include/linux/mc146818rtc.h |  1 +
+ include/linux/pm-trace.h    |  9 ++++++++-
+ 5 files changed, 56 insertions(+), 1 deletion(-)
+
+-- 
+2.7.4
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
