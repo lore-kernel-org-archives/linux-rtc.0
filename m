@@ -1,28 +1,23 @@
-Return-Path: <rtc-linux+bncBDAYD2P3QYGRBS5C6HAAKGQETRDZDBA@googlegroups.com>
+Return-Path: <rtc-linux+bncBCKYNX7Y3IMBB2W7RHAQKGQEPTR26HY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail-wm0-x22e.google.com (mail-wm0-x22e.google.com. [2a00:1450:400c:c09::22e])
-        by gmr-mx.google.com with ESMTPS id y7si338754wme.0.2016.11.04.02.13.46
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 04 Nov 2016 02:13:46 -0700 (PDT)
-Received: by mail-wm0-x22e.google.com with SMTP id a197so37043464wmd.0
-        for <rtc-linux@googlegroups.com>; Fri, 04 Nov 2016 02:13:46 -0700 (PDT)
-Subject: [rtc-linux] Re: [RFC PATCH 1/3] ARM64: meson: Add Amlogic Meson GX PM Suspend
-To: Sudeep Holla <sudeep.holla@arm.com>
-References: <1478183365-23708-1-git-send-email-narmstrong@baylibre.com>
- <1478183365-23708-2-git-send-email-narmstrong@baylibre.com>
- <20161103215347.GA23902@e106835-lin.cambridge.arm.com>
-Cc: khilman@baylibre.com, carlo@caione.org, a.zummo@towertech.it,
- alexandre.belloni@free-electrons.com, linux-amlogic@lists.infradead.org,
- linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
- rtc-linux@googlegroups.com
-From: Neil Armstrong <narmstrong@baylibre.com>
-Message-ID: <853a192a-520c-d939-88c3-6684e6e5e902@baylibre.com>
-Date: Fri, 4 Nov 2016 10:13:42 +0100
 MIME-Version: 1.0
-In-Reply-To: <20161103215347.GA23902@e106835-lin.cambridge.arm.com>
-Content-Type: text/plain; charset=UTF-8
+Received: from mail.free-electrons.com (up.free-electrons.com. [163.172.77.33])
+        by gmr-mx.google.com with ESMTP id 18si1483522wmr.1.2016.11.08.16.38.02
+        for <rtc-linux@googlegroups.com>;
+        Tue, 08 Nov 2016 16:38:02 -0800 (PST)
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Alessandro Zummo <a.zummo@towertech.it>
+Cc: Paul Cercueil <paul@crapouillou.net>,
+	rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Subject: [rtc-linux] [PATCH 2/2] rtc: jz4740: make the driver builtin only
+Date: Wed,  9 Nov 2016 01:37:53 +0100
+Message-Id: <20161109003753.29759-2-alexandre.belloni@free-electrons.com>
+In-Reply-To: <20161109003753.29759-1-alexandre.belloni@free-electrons.com>
+References: <20161109003753.29759-1-alexandre.belloni@free-electrons.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -31,45 +26,78 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 11/03/2016 10:53 PM, Sudeep Holla wrote:
-> 
-> Short response to this patch: NAK
-> 
-> To be constructive, since this system lacks PSCI system suspend, it just
-> can't support. Alternatively, this can be normal cpuidle state and you
-> can use suspend to idle to achieve the same and you need not hack/work
-> around using platform specific driver.
-> 
-> --
-> Regards,
-> Sudeep
-> 
+Since the driver is now calling machine_halt() that is not exported, it has
+to be built in the kernel. Building it as a module will fail at linking
+time.
 
-Hi Mark, Sudeep,
+Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+---
+ drivers/rtc/Kconfig      |  5 +----
+ drivers/rtc/rtc-jz4740.c | 10 +---------
+ 2 files changed, 2 insertions(+), 13 deletions(-)
 
-Thanks for your replies.
-First of all, I never intended to have this patchset Acked, I certainly know this is a bad hack !
-
-But, in the current Linux PSCI implementation, there is no way to handle System Suspend when the
-SoC FW implements PSCI 0.2, except idle-to-suspend which is quite different since the FW does not handle the wakeup.
-
-Don't worry, I'll prefer Amlogic to conform to PSCI 1.0, but like the SCPI, the GXBB was implemented
-using an early version of these FW protocols... and the SoC is here and should be supported somehow.
-
-I have a simple question : Could it be possible to declare an idle-state to be used exclusively by suspend-to-mem ?
-For example while parsing the idle-states, if we encounter a particular property, the we save the state, don't
-add it to the cpuidle states and register a platform_suspend_ops using this state.
-
-Would it be accepted to be able to select a declared DT idle-state and reserve it to suspend-to-mem state ?
-
-In the Amlogic case, their CPU_SUSPEND is partially conform, but since the power_state parameter was left as
-implementation defined, they added a deeper cluster sleep state.
-But potentially, we could need to handle system suspend on PSCI0.2 systems using a particular idle-state ?
-
-Yes, Sudeep mentioned suspend-to-idle, but in our tests the kernel enters each idle-state at boot time and when
-we declare this deep sleep idle state, it makes the whole system enter this system suspend state.
-
-Neil
+diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
+index 4259ce61c31b..24b0778f6e28 100644
+--- a/drivers/rtc/Kconfig
++++ b/drivers/rtc/Kconfig
+@@ -1550,15 +1550,12 @@ config RTC_DRV_MPC5121
+ 	  will be called rtc-mpc5121.
+ 
+ config RTC_DRV_JZ4740
+-	tristate "Ingenic JZ4740 SoC"
++	bool "Ingenic JZ4740 SoC"
+ 	depends on MACH_INGENIC || COMPILE_TEST
+ 	help
+ 	  If you say yes here you get support for the Ingenic JZ47xx SoCs RTC
+ 	  controllers.
+ 
+-	  This driver can also be buillt as a module. If so, the module
+-	  will be called rtc-jz4740.
+-
+ config RTC_DRV_LPC24XX
+ 	tristate "NXP RTC for LPC178x/18xx/408x/43xx"
+ 	depends on ARCH_LPC18XX || COMPILE_TEST
+diff --git a/drivers/rtc/rtc-jz4740.c b/drivers/rtc/rtc-jz4740.c
+index 18feae6c4e95..72918c1ba092 100644
+--- a/drivers/rtc/rtc-jz4740.c
++++ b/drivers/rtc/rtc-jz4740.c
+@@ -17,7 +17,6 @@
+ #include <linux/clk.h>
+ #include <linux/io.h>
+ #include <linux/kernel.h>
+-#include <linux/module.h>
+ #include <linux/of_device.h>
+ #include <linux/platform_device.h>
+ #include <linux/reboot.h>
+@@ -303,7 +302,6 @@ static const struct of_device_id jz4740_rtc_of_match[] = {
+ 	{ .compatible = "ingenic,jz4780-rtc", .data = (void *)ID_JZ4780 },
+ 	{},
+ };
+-MODULE_DEVICE_TABLE(of, jz4740_rtc_of_match);
+ 
+ static int jz4740_rtc_probe(struct platform_device *pdev)
+ {
+@@ -431,7 +429,6 @@ static const struct platform_device_id jz4740_rtc_ids[] = {
+ 	{ "jz4780-rtc", ID_JZ4780 },
+ 	{}
+ };
+-MODULE_DEVICE_TABLE(platform, jz4740_rtc_ids);
+ 
+ static struct platform_driver jz4740_rtc_driver = {
+ 	.probe	 = jz4740_rtc_probe,
+@@ -443,9 +440,4 @@ static struct platform_driver jz4740_rtc_driver = {
+ 	.id_table = jz4740_rtc_ids,
+ };
+ 
+-module_platform_driver(jz4740_rtc_driver);
+-
+-MODULE_AUTHOR("Lars-Peter Clausen <lars@metafoo.de>");
+-MODULE_LICENSE("GPL");
+-MODULE_DESCRIPTION("RTC driver for the JZ4740 SoC\n");
+-MODULE_ALIAS("platform:jz4740-rtc");
++builtin_platform_driver(jz4740_rtc_driver);
+-- 
+2.10.2
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
