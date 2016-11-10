@@ -1,21 +1,26 @@
-Return-Path: <rtc-linux+bncBAABBLFT2XAQKGQEB5HL3UA@googlegroups.com>
+Return-Path: <rtc-linux+bncBCJ7RPMX4EMBBQXXSLAQKGQEGLAYONI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from relay1.mentorg.com (relay1.mentorg.com. [192.94.38.131])
-        by gmr-mx.google.com with ESMTPS id g192si588166pfb.1.2016.11.23.00.56.12
+Received: from mail-yw0-x236.google.com (mail-yw0-x236.google.com. [2607:f8b0:4002:c05::236])
+        by gmr-mx.google.com with ESMTPS id p22si546876ywe.3.2016.11.10.10.26.10
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 23 Nov 2016 00:56:12 -0800 (PST)
-From: Nicolae Rosia <Nicolae_Rosia@mentor.com>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-CC: Alessandro Zummo <a.zummo@towertech.it>, <rtc-linux@googlegroups.com>,
-	<linux-omap@vger.kernel.org>, Tony Lindgren <tony@atomide.com>, Nicolae Rosia
-	<Nicolae_Rosia@mentor.com>
-Subject: [rtc-linux] [PATCH v2 2/2] rtc: rtc-twl: make driver DT only
-Date: Wed, 23 Nov 2016 10:55:57 +0200
-Message-ID: <20161123085557.5656-3-Nicolae_Rosia@mentor.com>
-In-Reply-To: <20161123085557.5656-1-Nicolae_Rosia@mentor.com>
-References: <20161123085557.5656-1-Nicolae_Rosia@mentor.com>
+        Thu, 10 Nov 2016 10:26:10 -0800 (PST)
+Received: by mail-yw0-x236.google.com with SMTP id r204so253898802ywb.0
+        for <rtc-linux@googlegroups.com>; Thu, 10 Nov 2016 10:26:10 -0800 (PST)
 MIME-Version: 1.0
+In-Reply-To: <1478753753-24650-1-git-send-email-yu.c.chen@intel.com>
+References: <1478753753-24650-1-git-send-email-yu.c.chen@intel.com>
+From: John Stultz <john.stultz@linaro.org>
+Date: Thu, 10 Nov 2016 10:26:09 -0800
+Message-ID: <CALAqxLXVaVWBTNs2w-4t6wNsPukQu40wgVcM9B9zudv2KL682Q@mail.gmail.com>
+Subject: [rtc-linux] Re: [PATCH][RFC v7] timekeeping: Ignore the bogus sleep
+ time if pm_trace is enabled
+To: Chen Yu <yu.c.chen@intel.com>
+Cc: Linux PM list <linux-pm@vger.kernel.org>, "x86@kernel.org" <x86@kernel.org>,
+	lkml <linux-kernel@vger.kernel.org>,
+	"rtc-linux@googlegroups.com" <rtc-linux@googlegroups.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>,
+	Xunlei Pang <xlpang@redhat.com>, Ingo Molnar <mingo@redhat.com>, Len Brown <lenb@kernel.org>,
+	"H. Peter Anvin" <hpa@zytor.com>, Pavel Machek <pavel@ucw.cz>, Thomas Gleixner <tglx@linutronix.de>
 Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
@@ -26,76 +31,40 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Since there are no platform based users and all users
-of this code are TI OMAP-based which is DT only, it makes
-sense to remove unused code.
+On Wed, Nov 9, 2016 at 8:55 PM, Chen Yu <yu.c.chen@intel.com> wrote:
+> Previously we encountered some memory overflow issues due to
+> the bogus sleep time brought by inconsistent rtc, which is
+> triggered when pm_trace is enabled, and we have fixed it
+> in recent kernel. However it's improper in the first place
+> to call __timekeeping_inject_sleeptime() in case that pm_trace
+> is enabled simply because that "hash" time value will wreckage
+> the timekeeping subsystem.
+>
+> This patch is originally written by Thomas, which would bypass
+> the bogus rtc interval when pm_trace is enabled.
+> Meanwhile, if system succeed to resume back with pm_trace set, the
+> users are warned to adjust the bogus rtc either by ntp-date or rdate,
+> by resetting pm_trace_rtc_abused to false, otherwise above tools might
+> not work as expected.
+>
+> Originally-from: Thomas Gleixner <tglx@linutronix.de>
+> Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+> Cc: John Stultz <john.stultz@linaro.org>
+> Cc: Xunlei Pang <xlpang@redhat.com>
+> Cc: Ingo Molnar <mingo@redhat.com>
+> Cc: Len Brown <lenb@kernel.org>
+> Cc: "H. Peter Anvin" <hpa@zytor.com>
+> Cc: Pavel Machek <pavel@ucw.cz>
+> Cc: Thomas Gleixner <tglx@linutronix.de>
+> Signed-off-by: Chen Yu <yu.c.chen@intel.com>
 
-Signed-off-by: Nicolae Rosia <Nicolae_Rosia@mentor.com>
----
- drivers/rtc/Kconfig   |  1 +
- drivers/rtc/rtc-twl.c | 12 +++++++-----
- 2 files changed, 8 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
-index e859d14..2189216 100644
---- a/drivers/rtc/Kconfig
-+++ b/drivers/rtc/Kconfig
-@@ -481,6 +481,7 @@ config RTC_DRV_TWL92330
- config RTC_DRV_TWL4030
- 	tristate "TI TWL4030/TWL5030/TWL6030/TPS659x0"
- 	depends on TWL4030_CORE
-+	depends on OF
- 	help
- 	  If you say yes here you get support for the RTC on the
- 	  TWL4030/TWL5030/TWL6030 family chips, used mostly with OMAP3 platforms.
-diff --git a/drivers/rtc/rtc-twl.c b/drivers/rtc/rtc-twl.c
-index 1e41526..c18c392 100644
---- a/drivers/rtc/rtc-twl.c
-+++ b/drivers/rtc/rtc-twl.c
-@@ -496,10 +496,16 @@ static const struct rtc_class_ops twl_rtc_ops = {
- static int twl_rtc_probe(struct platform_device *pdev)
- {
- 	struct twl_rtc *twl_rtc;
-+	struct device_node *np = pdev->dev.of_node;
- 	int ret = -EINVAL;
- 	int irq = platform_get_irq(pdev, 0);
- 	u8 rd_reg;
- 
-+	if (!np) {
-+		dev_err(&pdev->dev, "no DT info\n");
-+		return -EINVAL;
-+	}
-+
- 	if (irq <= 0)
- 		return ret;
- 
-@@ -632,15 +638,11 @@ static int twl_rtc_resume(struct device *dev)
- 
- static SIMPLE_DEV_PM_OPS(twl_rtc_pm_ops, twl_rtc_suspend, twl_rtc_resume);
- 
--#ifdef CONFIG_OF
- static const struct of_device_id twl_rtc_of_match[] = {
- 	{.compatible = "ti,twl4030-rtc", },
- 	{ },
- };
- MODULE_DEVICE_TABLE(of, twl_rtc_of_match);
--#endif
--
--MODULE_ALIAS("platform:twl_rtc");
- 
- static struct platform_driver twl4030rtc_driver = {
- 	.probe		= twl_rtc_probe,
-@@ -649,7 +651,7 @@ static struct platform_driver twl4030rtc_driver = {
- 	.driver		= {
- 		.name		= "twl_rtc",
- 		.pm		= &twl_rtc_pm_ops,
--		.of_match_table = of_match_ptr(twl_rtc_of_match),
-+		.of_match_table = twl_rtc_of_match,
- 	},
- };
- 
--- 
-2.9.3
+Looks ok to me. I'm queueing it up for testing.  If no one objects
+(and I don't see any issues) I'll merge it to my tree and push it to
+-tip through Thomas.
+
+thanks
+-john
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
