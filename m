@@ -1,23 +1,31 @@
-Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBHMY6TAAKGQEEG5YE4Q@googlegroups.com>
+Return-Path: <rtc-linux+bncBDFLXENW3AORBVPXR7AQKGQEPM74AKY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail.free-electrons.com (up.free-electrons.com. [163.172.77.33])
-        by gmr-mx.google.com with ESMTP id 18si875760wmr.0.2016.11.04.15.30.53
-        for <rtc-linux@googlegroups.com>;
-        Fri, 04 Nov 2016 15:30:53 -0700 (PDT)
-Date: Fri, 4 Nov 2016 23:30:53 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Paul Gortmaker <paul.gortmaker@windriver.com>
-Cc: linux-kernel@vger.kernel.org, Alessandro Zummo <a.zummo@towertech.it>,
-	"David S. Miller" <davem@davemloft.net>, rtc-linux@googlegroups.com,
-	sparclinux@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH 0/3] rtc: remove modular usage from
- non-modular code
-Message-ID: <20161104223053.luroc2zcwfmppejo@piout.net>
-References: <20161031185527.20279-1-paul.gortmaker@windriver.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <20161031185527.20279-1-paul.gortmaker@windriver.com>
+Received: from mga02.intel.com (mga02.intel.com. [134.134.136.20])
+        by gmr-mx.google.com with ESMTPS id gg10si836696pac.1.2016.11.09.20.47.17
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 09 Nov 2016 20:47:17 -0800 (PST)
+From: Chen Yu <yu.c.chen@intel.com>
+To: linux-pm@vger.kernel.org
+Cc: x86@kernel.org,
+	linux-kernel@vger.kernel.org,
+	rtc-linux@googlegroups.com,
+	Chen Yu <yu.c.chen@intel.com>,
+	"Rafael J. Wysocki" <rjw@rjwysocki.net>,
+	John Stultz <john.stultz@linaro.org>,
+	Xunlei Pang <xlpang@redhat.com>,
+	Ingo Molnar <mingo@redhat.com>,
+	Len Brown <lenb@kernel.org>,
+	"H. Peter Anvin" <hpa@zytor.com>,
+	Pavel Machek <pavel@ucw.cz>,
+	Thomas Gleixner <tglx@linutronix.de>
+Subject: [rtc-linux] [PATCH][RFC v7] timekeeping: Ignore the bogus sleep time
+ if pm_trace is enabled
+Date: Thu, 10 Nov 2016 12:55:53 +0800
+Message-Id: <1478753753-24650-1-git-send-email-yu.c.chen@intel.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -26,49 +34,185 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 31/10/2016 at 14:55:24 -0400, Paul Gortmaker wrote :
-> My ongoing audit looking for non-modular code that needlessly uses
-> modular macros (vs. built-in equivalents) and/or has dead code
-> relating to module unloading that can never be executed led to the
-> creation of these rtc related commits.
-> 
-> For anyone new to the underlying goal of this cleanup, we are trying to
-> not use module support for code that can never be built as a module since:
-> 
->  (1) it is easy to accidentally write unused module_exit and remove code
->  (2) it can be misleading when reading the source, thinking it can be
->      modular when the Makefile and/or Kconfig prohibit it
->  (3) it requires the include of the module.h header file which in turn
->      includes nearly everything else, thus adding to CPP overhead.
->  (4) it gets copied/replicated into other code and spreads like weeds.
-> 
-> Build tested on current linux-next (sparc32) to ensure no silly typos
-> or implicit include issues that would break compilation crept in.
-> 
-> ---
-> 
-> Cc: Alessandro Zummo <a.zummo@towertech.it>
-> Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-> Cc: "David S. Miller" <davem@davemloft.net>
-> Cc: rtc-linux@googlegroups.com
-> Cc: sparclinux@vger.kernel.org
-> 
-> Paul Gortmaker (3):
->   rtc: make rtc-lib explicitly non-modular
->   rtc: sparc: make starfire explicitly non-modular
->   rtc: sparc: make sun4v explicitly non-modular
-> 
->  drivers/rtc/rtc-lib.c      |  4 +---
->  drivers/rtc/rtc-starfire.c | 10 ++++------
->  drivers/rtc/rtc-sun4v.c    | 10 ++++------
->  3 files changed, 9 insertions(+), 15 deletions(-)
-> 
-Applied, thanks.
+Previously we encountered some memory overflow issues due to
+the bogus sleep time brought by inconsistent rtc, which is
+triggered when pm_trace is enabled, and we have fixed it
+in recent kernel. However it's improper in the first place
+to call __timekeeping_inject_sleeptime() in case that pm_trace
+is enabled simply because that "hash" time value will wreckage
+the timekeeping subsystem.
 
+This patch is originally written by Thomas, which would bypass
+the bogus rtc interval when pm_trace is enabled.
+Meanwhile, if system succeed to resume back with pm_trace set, the
+users are warned to adjust the bogus rtc either by ntp-date or rdate,
+by resetting pm_trace_rtc_abused to false, otherwise above tools might
+not work as expected.
+
+Originally-from: Thomas Gleixner <tglx@linutronix.de>
+Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Cc: John Stultz <john.stultz@linaro.org>
+Cc: Xunlei Pang <xlpang@redhat.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Len Brown <lenb@kernel.org>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Pavel Machek <pavel@ucw.cz>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Signed-off-by: Chen Yu <yu.c.chen@intel.com>
+---
+ arch/x86/kernel/rtc.c       |  9 +++++++++
+ drivers/base/power/trace.c  | 27 +++++++++++++++++++++++++++
+ drivers/rtc/rtc-cmos.c      |  7 +++++++
+ include/linux/mc146818rtc.h |  1 +
+ include/linux/pm-trace.h    |  9 ++++++++-
+ 5 files changed, 52 insertions(+), 1 deletion(-)
+
+diff --git a/arch/x86/kernel/rtc.c b/arch/x86/kernel/rtc.c
+index 79c6311c..898383c 100644
+--- a/arch/x86/kernel/rtc.c
++++ b/arch/x86/kernel/rtc.c
+@@ -64,6 +64,15 @@ void mach_get_cmos_time(struct timespec *now)
+ 	unsigned int status, year, mon, day, hour, min, sec, century = 0;
+ 	unsigned long flags;
+ 
++	/*
++	 * If pm trace abused the RTC as storage set the timespec to 0
++	 * which tells the caller that this RTC value is bogus.
++	 */
++	if (!pm_trace_rtc_valid()) {
++		now->tv_sec = now->tv_nsec = 0;
++		return;
++	}
++
+ 	spin_lock_irqsave(&rtc_lock, flags);
+ 
+ 	/*
+diff --git a/drivers/base/power/trace.c b/drivers/base/power/trace.c
+index efec10b..209e214 100644
+--- a/drivers/base/power/trace.c
++++ b/drivers/base/power/trace.c
+@@ -10,6 +10,7 @@
+ #include <linux/pm-trace.h>
+ #include <linux/export.h>
+ #include <linux/rtc.h>
++#include <linux/suspend.h>
+ 
+ #include <linux/mc146818rtc.h>
+ 
+@@ -74,6 +75,9 @@
+ 
+ #define DEVSEED (7919)
+ 
++bool pm_trace_rtc_abused __read_mostly;
++EXPORT_SYMBOL(pm_trace_rtc_abused);
++
+ static unsigned int dev_hash_value;
+ 
+ static int set_magic_time(unsigned int user, unsigned int file, unsigned int device)
+@@ -104,6 +108,7 @@ static int set_magic_time(unsigned int user, unsigned int file, unsigned int dev
+ 	time.tm_min = (n % 20) * 3;
+ 	n /= 20;
+ 	mc146818_set_time(&time);
++	pm_trace_rtc_abused = true;
+ 	return n ? -1 : 0;
+ }
+ 
+@@ -238,10 +243,32 @@ int show_trace_dev_match(char *buf, size_t size)
+ 	device_pm_unlock();
+ 	return ret;
+ }
++static int pm_trace_notify(struct notifier_block *nb,
++				unsigned long mode, void *_unused)
++{
++	switch (mode) {
++	case PM_POST_HIBERNATION:
++	case PM_POST_SUSPEND:
++		if (pm_trace_rtc_abused) {
++			pm_trace_rtc_abused = false;
++			pr_warn("Possible incorrect RTC due to pm_trace,"
++				"please use ntp-date or rdate to reset.\n");
++		}
++		break;
++	default:
++		break;
++	}
++	return 0;
++}
++
++static struct notifier_block pm_trace_nb = {
++	.notifier_call = pm_trace_notify,
++};
+ 
+ static int early_resume_init(void)
+ {
+ 	hash_value_early_read = read_magic_time();
++	register_pm_notifier(&pm_trace_nb);
+ 	return 0;
+ }
+ 
+diff --git a/drivers/rtc/rtc-cmos.c b/drivers/rtc/rtc-cmos.c
+index dd3d598..3d9aedc 100644
+--- a/drivers/rtc/rtc-cmos.c
++++ b/drivers/rtc/rtc-cmos.c
+@@ -191,6 +191,13 @@ static inline void cmos_write_bank2(unsigned char val, unsigned char addr)
+ 
+ static int cmos_read_time(struct device *dev, struct rtc_time *t)
+ {
++	/*
++	 * If pmtrace abused the RTC for storage tell the caller that it is
++	 * unusable.
++	 */
++	if (!pm_trace_rtc_valid())
++		return -EIO;
++
+ 	/* REVISIT:  if the clock has a "century" register, use
+ 	 * that instead of the heuristic in mc146818_get_time().
+ 	 * That'll make Y3K compatility (year > 2070) easy!
+diff --git a/include/linux/mc146818rtc.h b/include/linux/mc146818rtc.h
+index a585b4b..0661af1 100644
+--- a/include/linux/mc146818rtc.h
++++ b/include/linux/mc146818rtc.h
+@@ -16,6 +16,7 @@
+ #include <asm/mc146818rtc.h>		/* register access macros */
+ #include <linux/bcd.h>
+ #include <linux/delay.h>
++#include <linux/pm-trace.h>
+ 
+ #ifdef __KERNEL__
+ #include <linux/spinlock.h>		/* spinlock_t */
+diff --git a/include/linux/pm-trace.h b/include/linux/pm-trace.h
+index ecbde7a..7b78793 100644
+--- a/include/linux/pm-trace.h
++++ b/include/linux/pm-trace.h
+@@ -1,11 +1,17 @@
+ #ifndef PM_TRACE_H
+ #define PM_TRACE_H
+ 
++#include <linux/types.h>
+ #ifdef CONFIG_PM_TRACE
+ #include <asm/pm-trace.h>
+-#include <linux/types.h>
+ 
+ extern int pm_trace_enabled;
++extern bool pm_trace_rtc_abused;
++
++static inline bool pm_trace_rtc_valid(void)
++{
++	return !pm_trace_rtc_abused;
++}
+ 
+ static inline int pm_trace_is_enabled(void)
+ {
+@@ -24,6 +30,7 @@ extern int show_trace_dev_match(char *buf, size_t size);
+ 
+ #else
+ 
++static inline bool pm_trace_rtc_valid(void) { return true; }
+ static inline int pm_trace_is_enabled(void) { return 0; }
+ 
+ #define TRACE_DEVICE(dev) do { } while (0)
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+2.7.4
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
