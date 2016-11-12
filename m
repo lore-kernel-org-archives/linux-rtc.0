@@ -1,19 +1,24 @@
-Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBLOT57AQKGQED7DBBCQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBDL53MW2W4EBBDO3TPAQKGQE36MFOUQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
-        by gmr-mx.google.com with ESMTP id l130si2042797wmf.0.2016.11.28.00.24.13
-        for <rtc-linux@googlegroups.com>;
-        Mon, 28 Nov 2016 00:24:13 -0800 (PST)
-Date: Mon, 28 Nov 2016 09:24:07 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Peter Robinson <pbrobinson@gmail.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com
-Subject: [rtc-linux] Re: [PATCH] rtc: rtc-ds3232: add device tree support
-Message-ID: <20161128082407.brdt5qivibf32uk2@piout.net>
-References: <20161128070644.8386-1-pbrobinson@gmail.com>
+Received: from mail-it0-x243.google.com (mail-it0-x243.google.com. [2607:f8b0:4001:c0b::243])
+        by gmr-mx.google.com with ESMTPS id p84si2166999itg.1.2016.11.12.02.23.09
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Sat, 12 Nov 2016 02:23:09 -0800 (PST)
+Received: by mail-it0-x243.google.com with SMTP id b123so2285000itb.2
+        for <rtc-linux@googlegroups.com>; Sat, 12 Nov 2016 02:23:09 -0800 (PST)
 MIME-Version: 1.0
+In-Reply-To: <1478945246-32056-1-git-send-email-Nicolae_Rosia@mentor.com>
+References: <1478945246-32056-1-git-send-email-Nicolae_Rosia@mentor.com>
+From: Nicolae Rosia <nicolae.rosia.oss@gmail.com>
+Date: Sat, 12 Nov 2016 12:23:08 +0200
+Message-ID: <CAKP5S=1YeLRqun5ABjYRk=be1fVBGJPqo_nOC1oYmnguG0+jpg@mail.gmail.com>
+Subject: [rtc-linux] Re: [PATCH 0/3] rtc: rtc-twl: cleanup
+To: Tony Lindgren <tony@atomide.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>, rtc-linux@googlegroups.com,
+	linux-omap@vger.kernel.org, Nicolae Rosia <Nicolae_Rosia@mentor.com>
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <20161128070644.8386-1-pbrobinson@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -23,62 +28,16 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Hi,
+On Sat, Nov 12, 2016 at 12:07 PM, Nicolae Rosia
+<Nicolae_Rosia@mentor.com> wrote:
+> This is a cleanup and preparation of rtc-twl to reduce the usage of
+> twl-core exported functions.
+> The next patch series will further reduce the usage of exported functions
+> but first it requires some changes in mfd/twl-core.c
+Tony, could you please test this series again and add your Tested-By ?
 
-On 28/11/2016 at 07:06:44 +0000, Peter Robinson wrote :
-> Set the of_match_table for this driver so that devices can be described in
-> the device tree.  This device is used in a number of NXP devices as well as
-> the CryptoCap and is already defined in the various device trees.
-> 
-
-This is useless (as you mention it is already used in various device
-trees) as it will already be probed properly using the "dallas,ds3232"
-compatible string.
-
-> Signed-off-by: Peter Robinson <pbrobinson@gmail.com>
-> ---
->  drivers/rtc/rtc-ds3232.c | 10 ++++++++++
->  1 file changed, 10 insertions(+)
-> 
-> diff --git a/drivers/rtc/rtc-ds3232.c b/drivers/rtc/rtc-ds3232.c
-> index b1f20d8..711cc5b 100644
-> --- a/drivers/rtc/rtc-ds3232.c
-> +++ b/drivers/rtc/rtc-ds3232.c
-> @@ -15,6 +15,7 @@
->  
->  #include <linux/kernel.h>
->  #include <linux/module.h>
-> +#include <linux/of.h>
->  #include <linux/interrupt.h>
->  #include <linux/i2c.h>
->  #include <linux/spi/spi.h>
-> @@ -438,9 +439,18 @@ static const struct i2c_device_id ds3232_id[] = {
->  };
->  MODULE_DEVICE_TABLE(i2c, ds3232_id);
->  
-> +#ifdef CONFIG_OF
-> +static const struct of_device_id ds3232_of_match[] = {
-> +	{ .compatible = "dallas,ds3232", },
-> +	{ }
-> +};
-> +MODULE_DEVICE_TABLE(of, ds3232_of_match);
-> +#endif
-> +
->  static struct i2c_driver ds3232_driver = {
->  	.driver = {
->  		.name = "rtc-ds3232",
-> +		.of_match_table = of_match_ptr(ds3232_of_match),
->  		.pm	= &ds3232_pm_ops,
->  	},
->  	.probe = ds3232_i2c_probe,
-> -- 
-> 2.9.3
-> 
-
--- 
-Alexandre Belloni, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+Thanks a lot,
+Nicolae
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
