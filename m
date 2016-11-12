@@ -1,24 +1,22 @@
-Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBMVV4HAQKGQEJF3BIRI@googlegroups.com>
+Return-Path: <rtc-linux+bncBAABB6WTTPAQKGQEUANONYI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
-        by gmr-mx.google.com with ESMTP id l19si1347122wmg.0.2016.11.25.07.37.22
-        for <rtc-linux@googlegroups.com>;
-        Fri, 25 Nov 2016 07:37:22 -0800 (PST)
-Date: Fri, 25 Nov 2016 16:37:11 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Vesa =?iso-8859-1?B?SuTkc2tlbORpbmVu?= <vesa.jaaskelainen@vaisala.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
-	Lee Jones <lee.jones@linaro.org>, rtc-linux@googlegroups.com
-Subject: [rtc-linux] Re: [PATCH 1/2] drivers: rtc: rtc-tps65910: Add RTC
- calibration support
-Message-ID: <20161125153711.ueervgro35xqy3ec@piout.net>
-References: <1480067538-64415-1-git-send-email-vesa.jaaskelainen@vaisala.com>
- <1480067538-64415-2-git-send-email-vesa.jaaskelainen@vaisala.com>
- <20161125103254.7p7p4frk2cudwfwt@piout.net>
- <05f0a84b-00a1-5fe4-2f92-a58b0a87422c@vaisala.com>
+Received: from relay1.mentorg.com (relay1.mentorg.com. [192.94.38.131])
+        by gmr-mx.google.com with ESMTPS id gg10si3967675pac.1.2016.11.12.02.07.53
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Sat, 12 Nov 2016 02:07:53 -0800 (PST)
+From: Nicolae Rosia <Nicolae_Rosia@mentor.com>
+To: Alessandro Zummo <a.zummo@towertech.it>, Alexandre Belloni
+	<alexandre.belloni@free-electrons.com>
+CC: <rtc-linux@googlegroups.com>, <linux-omap@vger.kernel.org>, Tony Lindgren
+	<tony@atomide.com>, Nicolae Rosia <Nicolae_Rosia@mentor.com>
+Subject: [rtc-linux] [PATCH 1/3] rtc: rtc-twl: kill static variables
+Date: Sat, 12 Nov 2016 12:07:24 +0200
+Message-ID: <1478945246-32056-2-git-send-email-Nicolae_Rosia@mentor.com>
+In-Reply-To: <1478945246-32056-1-git-send-email-Nicolae_Rosia@mentor.com>
+References: <1478945246-32056-1-git-send-email-Nicolae_Rosia@mentor.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <05f0a84b-00a1-5fe4-2f92-a58b0a87422c@vaisala.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -28,52 +26,497 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 25/11/2016 at 13:20:05 +0200, Vesa J=C3=A4=C3=A4skel=C3=A4inen wrote :
-> On 2016-11-25 12:32, Alexandre Belloni wrote:
-> > Hi,
-> >=20
-> > On 25/11/2016 at 11:52:17 +0200, Vesa J=C3=A4=C3=A4skel=C3=A4inen wrote=
- :
-> > > Texas Instrument's TPS65910 has support for compensating RTC crystal
-> > > inaccuracies. When enabled every hour RTC counter value will be compe=
-nsated
-> > > with two's complement value.
-> > >=20
-> > > Signed-off-by: Vesa J=C3=A4=C3=A4skel=C3=A4inen <vesa.jaaskelainen@va=
-isala.com>
-> > There is already a sysfs attribute for that kind of calibration
-> > (offset, documented in Documentation/rtc.txt). Can you use that instead=
-?
->=20
-> That documentation in rtc.txt states that compensation is per billion tic=
-ks.
-> This compensation happens every 32768*60*60  =3D=3D 117964800 ticks.
->=20
-> I modeled this after similar functionality of rtc-ab8500.c which provided
-> similar sysfs file. But its time compensation happens also with different
-> interval.
->=20
-> Due to differences here in functionalities between different chips I deci=
-ded
-> to go with driver specific compensation value.
->=20
+The current code uses static variables which prevent
+the use of multiple rtc twl instances
 
-The functionality is exactly the same, but if I understand correctly,
-your resolution is 8.477 ppb is that right ?
+Signed-off-by: Nicolae Rosia <Nicolae_Rosia@mentor.com>
+---
+ drivers/rtc/rtc-twl.c | 177 +++++++++++++++++++++++++++++---------------------
+ 1 file changed, 104 insertions(+), 73 deletions(-)
 
---=20
-Alexandre Belloni, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+diff --git a/drivers/rtc/rtc-twl.c b/drivers/rtc/rtc-twl.c
+index 176720b..0a1700a0 100644
+--- a/drivers/rtc/rtc-twl.c
++++ b/drivers/rtc/rtc-twl.c
+@@ -136,16 +136,30 @@ static const u8 twl6030_rtc_reg_map[] = {
+ #define ALL_TIME_REGS		6
+ 
+ /*----------------------------------------------------------------------*/
+-static u8  *rtc_reg_map;
++struct twl_rtc {
++	struct device *dev;
++	struct rtc_device *rtc;
++	u8 *reg_map;
++	/*
++	 * Cache the value for timer/alarm interrupts register; this is
++	 * only changed by callers holding rtc ops lock (or resume).
++	 */
++	unsigned char rtc_irq_bits;
++	bool wake_enabled;
++#ifdef CONFIG_PM_SLEEP
++	unsigned char irqstat;
++#endif
++	bool is_4030;
++};
+ 
+ /*
+  * Supports 1 byte read from TWL RTC register.
+  */
+-static int twl_rtc_read_u8(u8 *data, u8 reg)
++static int twl_rtc_read_u8(struct twl_rtc *twl_rtc, u8 *data, u8 reg)
+ {
+ 	int ret;
+ 
+-	ret = twl_i2c_read_u8(TWL_MODULE_RTC, data, (rtc_reg_map[reg]));
++	ret = twl_i2c_read_u8(TWL_MODULE_RTC, data, (twl_rtc->reg_map[reg]));
+ 	if (ret < 0)
+ 		pr_err("Could not read TWL register %X - error %d\n", reg, ret);
+ 	return ret;
+@@ -154,11 +168,11 @@ static int twl_rtc_read_u8(u8 *data, u8 reg)
+ /*
+  * Supports 1 byte write to TWL RTC registers.
+  */
+-static int twl_rtc_write_u8(u8 data, u8 reg)
++static int twl_rtc_write_u8(struct twl_rtc *twl_rtc, u8 data, u8 reg)
+ {
+ 	int ret;
+ 
+-	ret = twl_i2c_write_u8(TWL_MODULE_RTC, data, (rtc_reg_map[reg]));
++	ret = twl_i2c_write_u8(TWL_MODULE_RTC, data, (twl_rtc->reg_map[reg]));
+ 	if (ret < 0)
+ 		pr_err("Could not write TWL register %X - error %d\n",
+ 		       reg, ret);
+@@ -166,28 +180,22 @@ static int twl_rtc_write_u8(u8 data, u8 reg)
+ }
+ 
+ /*
+- * Cache the value for timer/alarm interrupts register; this is
+- * only changed by callers holding rtc ops lock (or resume).
+- */
+-static unsigned char rtc_irq_bits;
+-
+-/*
+  * Enable 1/second update and/or alarm interrupts.
+  */
+-static int set_rtc_irq_bit(unsigned char bit)
++static int set_rtc_irq_bit(struct twl_rtc *twl_rtc, unsigned char bit)
+ {
+ 	unsigned char val;
+ 	int ret;
+ 
+ 	/* if the bit is set, return from here */
+-	if (rtc_irq_bits & bit)
++	if (twl_rtc->rtc_irq_bits & bit)
+ 		return 0;
+ 
+-	val = rtc_irq_bits | bit;
++	val = twl_rtc->rtc_irq_bits | bit;
+ 	val &= ~BIT_RTC_INTERRUPTS_REG_EVERY_M;
+-	ret = twl_rtc_write_u8(val, REG_RTC_INTERRUPTS_REG);
++	ret = twl_rtc_write_u8(twl_rtc, val, REG_RTC_INTERRUPTS_REG);
+ 	if (ret == 0)
+-		rtc_irq_bits = val;
++		twl_rtc->rtc_irq_bits = val;
+ 
+ 	return ret;
+ }
+@@ -195,19 +203,19 @@ static int set_rtc_irq_bit(unsigned char bit)
+ /*
+  * Disable update and/or alarm interrupts.
+  */
+-static int mask_rtc_irq_bit(unsigned char bit)
++static int mask_rtc_irq_bit(struct twl_rtc *twl_rtc, unsigned char bit)
+ {
+ 	unsigned char val;
+ 	int ret;
+ 
+ 	/* if the bit is clear, return from here */
+-	if (!(rtc_irq_bits & bit))
++	if (!(twl_rtc->rtc_irq_bits & bit))
+ 		return 0;
+ 
+-	val = rtc_irq_bits & ~bit;
+-	ret = twl_rtc_write_u8(val, REG_RTC_INTERRUPTS_REG);
++	val = twl_rtc->rtc_irq_bits & ~bit;
++	ret = twl_rtc_write_u8(twl_rtc, val, REG_RTC_INTERRUPTS_REG);
+ 	if (ret == 0)
+-		rtc_irq_bits = val;
++		twl_rtc->rtc_irq_bits = val;
+ 
+ 	return ret;
+ }
+@@ -215,21 +223,23 @@ static int mask_rtc_irq_bit(unsigned char bit)
+ static int twl_rtc_alarm_irq_enable(struct device *dev, unsigned enabled)
+ {
+ 	struct platform_device *pdev = to_platform_device(dev);
++	struct twl_rtc *twl_rtc = dev_get_drvdata(dev);
+ 	int irq = platform_get_irq(pdev, 0);
+-	static bool twl_rtc_wake_enabled;
+ 	int ret;
+ 
+ 	if (enabled) {
+-		ret = set_rtc_irq_bit(BIT_RTC_INTERRUPTS_REG_IT_ALARM_M);
+-		if (device_can_wakeup(dev) && !twl_rtc_wake_enabled) {
++		ret = set_rtc_irq_bit(twl_rtc,
++					BIT_RTC_INTERRUPTS_REG_IT_ALARM_M);
++		if (device_can_wakeup(dev) && !twl_rtc->wake_enabled) {
+ 			enable_irq_wake(irq);
+-			twl_rtc_wake_enabled = true;
++			twl_rtc->wake_enabled = true;
+ 		}
+ 	} else {
+-		ret = mask_rtc_irq_bit(BIT_RTC_INTERRUPTS_REG_IT_ALARM_M);
+-		if (twl_rtc_wake_enabled) {
++		ret = mask_rtc_irq_bit(twl_rtc,
++					BIT_RTC_INTERRUPTS_REG_IT_ALARM_M);
++		if (twl_rtc->wake_enabled) {
+ 			disable_irq_wake(irq);
+-			twl_rtc_wake_enabled = false;
++			twl_rtc->wake_enabled = false;
+ 		}
+ 	}
+ 
+@@ -247,21 +257,23 @@ static int twl_rtc_alarm_irq_enable(struct device *dev, unsigned enabled)
+  */
+ static int twl_rtc_read_time(struct device *dev, struct rtc_time *tm)
+ {
++	struct twl_rtc *twl_rtc = dev_get_drvdata(dev);
+ 	unsigned char rtc_data[ALL_TIME_REGS];
+ 	int ret;
+ 	u8 save_control;
+ 	u8 rtc_control;
+ 
+-	ret = twl_rtc_read_u8(&save_control, REG_RTC_CTRL_REG);
++	ret = twl_rtc_read_u8(twl_rtc, &save_control, REG_RTC_CTRL_REG);
+ 	if (ret < 0) {
+ 		dev_err(dev, "%s: reading CTRL_REG, error %d\n", __func__, ret);
+ 		return ret;
+ 	}
+ 	/* for twl6030/32 make sure BIT_RTC_CTRL_REG_GET_TIME_M is clear */
+-	if (twl_class_is_6030()) {
++	if (!twl_rtc->is_4030) {
+ 		if (save_control & BIT_RTC_CTRL_REG_GET_TIME_M) {
+ 			save_control &= ~BIT_RTC_CTRL_REG_GET_TIME_M;
+-			ret = twl_rtc_write_u8(save_control, REG_RTC_CTRL_REG);
++			ret = twl_rtc_write_u8(twl_rtc, save_control,
++						REG_RTC_CTRL_REG);
+ 			if (ret < 0) {
+ 				dev_err(dev, "%s clr GET_TIME, error %d\n",
+ 					__func__, ret);
+@@ -274,17 +286,17 @@ static int twl_rtc_read_time(struct device *dev, struct rtc_time *tm)
+ 	rtc_control = save_control | BIT_RTC_CTRL_REG_GET_TIME_M;
+ 
+ 	/* for twl6030/32 enable read access to static shadowed registers */
+-	if (twl_class_is_6030())
++	if (!twl_rtc->is_4030)
+ 		rtc_control |= BIT_RTC_CTRL_REG_RTC_V_OPT;
+ 
+-	ret = twl_rtc_write_u8(rtc_control, REG_RTC_CTRL_REG);
++	ret = twl_rtc_write_u8(twl_rtc, rtc_control, REG_RTC_CTRL_REG);
+ 	if (ret < 0) {
+ 		dev_err(dev, "%s: writing CTRL_REG, error %d\n", __func__, ret);
+ 		return ret;
+ 	}
+ 
+ 	ret = twl_i2c_read(TWL_MODULE_RTC, rtc_data,
+-			(rtc_reg_map[REG_SECONDS_REG]), ALL_TIME_REGS);
++			(twl_rtc->reg_map[REG_SECONDS_REG]), ALL_TIME_REGS);
+ 
+ 	if (ret < 0) {
+ 		dev_err(dev, "%s: reading data, error %d\n", __func__, ret);
+@@ -292,8 +304,8 @@ static int twl_rtc_read_time(struct device *dev, struct rtc_time *tm)
+ 	}
+ 
+ 	/* for twl6030 restore original state of rtc control register */
+-	if (twl_class_is_6030()) {
+-		ret = twl_rtc_write_u8(save_control, REG_RTC_CTRL_REG);
++	if (!twl_rtc->is_4030) {
++		ret = twl_rtc_write_u8(twl_rtc, save_control, REG_RTC_CTRL_REG);
+ 		if (ret < 0) {
+ 			dev_err(dev, "%s: restore CTRL_REG, error %d\n",
+ 				__func__, ret);
+@@ -313,6 +325,7 @@ static int twl_rtc_read_time(struct device *dev, struct rtc_time *tm)
+ 
+ static int twl_rtc_set_time(struct device *dev, struct rtc_time *tm)
+ {
++	struct twl_rtc *twl_rtc = dev_get_drvdata(dev);
+ 	unsigned char save_control;
+ 	unsigned char rtc_data[ALL_TIME_REGS];
+ 	int ret;
+@@ -325,18 +338,18 @@ static int twl_rtc_set_time(struct device *dev, struct rtc_time *tm)
+ 	rtc_data[5] = bin2bcd(tm->tm_year - 100);
+ 
+ 	/* Stop RTC while updating the TC registers */
+-	ret = twl_rtc_read_u8(&save_control, REG_RTC_CTRL_REG);
++	ret = twl_rtc_read_u8(twl_rtc, &save_control, REG_RTC_CTRL_REG);
+ 	if (ret < 0)
+ 		goto out;
+ 
+ 	save_control &= ~BIT_RTC_CTRL_REG_STOP_RTC_M;
+-	ret = twl_rtc_write_u8(save_control, REG_RTC_CTRL_REG);
++	ret = twl_rtc_write_u8(twl_rtc, save_control, REG_RTC_CTRL_REG);
+ 	if (ret < 0)
+ 		goto out;
+ 
+ 	/* update all the time registers in one shot */
+ 	ret = twl_i2c_write(TWL_MODULE_RTC, rtc_data,
+-		(rtc_reg_map[REG_SECONDS_REG]), ALL_TIME_REGS);
++		(twl_rtc->reg_map[REG_SECONDS_REG]), ALL_TIME_REGS);
+ 	if (ret < 0) {
+ 		dev_err(dev, "rtc_set_time error %d\n", ret);
+ 		goto out;
+@@ -344,7 +357,7 @@ static int twl_rtc_set_time(struct device *dev, struct rtc_time *tm)
+ 
+ 	/* Start back RTC */
+ 	save_control |= BIT_RTC_CTRL_REG_STOP_RTC_M;
+-	ret = twl_rtc_write_u8(save_control, REG_RTC_CTRL_REG);
++	ret = twl_rtc_write_u8(twl_rtc, save_control, REG_RTC_CTRL_REG);
+ 
+ out:
+ 	return ret;
+@@ -355,11 +368,12 @@ static int twl_rtc_set_time(struct device *dev, struct rtc_time *tm)
+  */
+ static int twl_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alm)
+ {
++	struct twl_rtc *twl_rtc = dev_get_drvdata(dev);
+ 	unsigned char rtc_data[ALL_TIME_REGS];
+ 	int ret;
+ 
+ 	ret = twl_i2c_read(TWL_MODULE_RTC, rtc_data,
+-			(rtc_reg_map[REG_ALARM_SECONDS_REG]), ALL_TIME_REGS);
++			twl_rtc->reg_map[REG_ALARM_SECONDS_REG], ALL_TIME_REGS);
+ 	if (ret < 0) {
+ 		dev_err(dev, "rtc_read_alarm error %d\n", ret);
+ 		return ret;
+@@ -374,7 +388,7 @@ static int twl_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alm)
+ 	alm->time.tm_year = bcd2bin(rtc_data[5]) + 100;
+ 
+ 	/* report cached alarm enable state */
+-	if (rtc_irq_bits & BIT_RTC_INTERRUPTS_REG_IT_ALARM_M)
++	if (twl_rtc->rtc_irq_bits & BIT_RTC_INTERRUPTS_REG_IT_ALARM_M)
+ 		alm->enabled = 1;
+ 
+ 	return ret;
+@@ -382,6 +396,8 @@ static int twl_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alm)
+ 
+ static int twl_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alm)
+ {
++	struct twl_rtc *twl_rtc = dev_get_drvdata(dev);
++
+ 	unsigned char alarm_data[ALL_TIME_REGS];
+ 	int ret;
+ 
+@@ -398,7 +414,7 @@ static int twl_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alm)
+ 
+ 	/* update all the alarm registers in one shot */
+ 	ret = twl_i2c_write(TWL_MODULE_RTC, alarm_data,
+-		(rtc_reg_map[REG_ALARM_SECONDS_REG]), ALL_TIME_REGS);
++			twl_rtc->reg_map[REG_ALARM_SECONDS_REG], ALL_TIME_REGS);
+ 	if (ret) {
+ 		dev_err(dev, "rtc_set_alarm error %d\n", ret);
+ 		goto out;
+@@ -410,14 +426,15 @@ static int twl_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alm)
+ 	return ret;
+ }
+ 
+-static irqreturn_t twl_rtc_interrupt(int irq, void *rtc)
++static irqreturn_t twl_rtc_interrupt(int irq, void *data)
+ {
++	struct twl_rtc *twl_rtc = data;
+ 	unsigned long events;
+ 	int ret = IRQ_NONE;
+ 	int res;
+ 	u8 rd_reg;
+ 
+-	res = twl_rtc_read_u8(&rd_reg, REG_RTC_STATUS_REG);
++	res = twl_rtc_read_u8(twl_rtc, &rd_reg, REG_RTC_STATUS_REG);
+ 	if (res)
+ 		goto out;
+ 	/*
+@@ -431,12 +448,12 @@ static irqreturn_t twl_rtc_interrupt(int irq, void *rtc)
+ 	else
+ 		events = RTC_IRQF | RTC_PF;
+ 
+-	res = twl_rtc_write_u8(BIT_RTC_STATUS_REG_ALARM_M,
++	res = twl_rtc_write_u8(twl_rtc, BIT_RTC_STATUS_REG_ALARM_M,
+ 				   REG_RTC_STATUS_REG);
+ 	if (res)
+ 		goto out;
+ 
+-	if (twl_class_is_4030()) {
++	if (twl_rtc->is_4030) {
+ 		/* Clear on Read enabled. RTC_IT bit of TWL4030_INT_PWR_ISR1
+ 		 * needs 2 reads to clear the interrupt. One read is done in
+ 		 * do_twl_pwrirq(). Doing the second read, to clear
+@@ -455,7 +472,7 @@ static irqreturn_t twl_rtc_interrupt(int irq, void *rtc)
+ 	}
+ 
+ 	/* Notify RTC core on event */
+-	rtc_update_irq(rtc, 1, events);
++	rtc_update_irq(twl_rtc->rtc, 1, events);
+ 
+ 	ret = IRQ_HANDLED;
+ out:
+@@ -474,7 +491,7 @@ static const struct rtc_class_ops twl_rtc_ops = {
+ 
+ static int twl_rtc_probe(struct platform_device *pdev)
+ {
+-	struct rtc_device *rtc;
++	struct twl_rtc *twl_rtc;
+ 	int ret = -EINVAL;
+ 	int irq = platform_get_irq(pdev, 0);
+ 	u8 rd_reg;
+@@ -482,13 +499,19 @@ static int twl_rtc_probe(struct platform_device *pdev)
+ 	if (irq <= 0)
+ 		return ret;
+ 
++	twl_rtc = devm_kzalloc(&pdev->dev, sizeof(*twl_rtc), GFP_KERNEL);
++	if (!twl_rtc)
++		return -ENOMEM;
++
++	twl_rtc->is_4030 = twl_class_is_4030();
++
+ 	/* Initialize the register map */
+-	if (twl_class_is_4030())
+-		rtc_reg_map = (u8 *)twl4030_rtc_reg_map;
++	if (twl_rtc->is_4030)
++		twl_rtc->reg_map = (u8 *)twl4030_rtc_reg_map;
+ 	else
+-		rtc_reg_map = (u8 *)twl6030_rtc_reg_map;
++		twl_rtc->reg_map = (u8 *)twl6030_rtc_reg_map;
+ 
+-	ret = twl_rtc_read_u8(&rd_reg, REG_RTC_STATUS_REG);
++	ret = twl_rtc_read_u8(twl_rtc, &rd_reg, REG_RTC_STATUS_REG);
+ 	if (ret < 0)
+ 		return ret;
+ 
+@@ -499,11 +522,11 @@ static int twl_rtc_probe(struct platform_device *pdev)
+ 		dev_warn(&pdev->dev, "Pending Alarm interrupt detected.\n");
+ 
+ 	/* Clear RTC Power up reset and pending alarm interrupts */
+-	ret = twl_rtc_write_u8(rd_reg, REG_RTC_STATUS_REG);
++	ret = twl_rtc_write_u8(twl_rtc, rd_reg, REG_RTC_STATUS_REG);
+ 	if (ret < 0)
+ 		return ret;
+ 
+-	if (twl_class_is_6030()) {
++	if (!twl_rtc->is_4030) {
+ 		twl6030_interrupt_unmask(TWL6030_RTC_INT_MASK,
+ 			REG_INT_MSK_LINE_A);
+ 		twl6030_interrupt_unmask(TWL6030_RTC_INT_MASK,
+@@ -511,40 +534,42 @@ static int twl_rtc_probe(struct platform_device *pdev)
+ 	}
+ 
+ 	dev_info(&pdev->dev, "Enabling TWL-RTC\n");
+-	ret = twl_rtc_write_u8(BIT_RTC_CTRL_REG_STOP_RTC_M, REG_RTC_CTRL_REG);
++	ret = twl_rtc_write_u8(twl_rtc, BIT_RTC_CTRL_REG_STOP_RTC_M,
++				REG_RTC_CTRL_REG);
+ 	if (ret < 0)
+ 		return ret;
+ 
+ 	/* ensure interrupts are disabled, bootloaders can be strange */
+-	ret = twl_rtc_write_u8(0, REG_RTC_INTERRUPTS_REG);
++	ret = twl_rtc_write_u8(twl_rtc, 0, REG_RTC_INTERRUPTS_REG);
+ 	if (ret < 0)
+ 		dev_warn(&pdev->dev, "unable to disable interrupt\n");
+ 
+ 	/* init cached IRQ enable bits */
+-	ret = twl_rtc_read_u8(&rtc_irq_bits, REG_RTC_INTERRUPTS_REG);
++	ret = twl_rtc_read_u8(twl_rtc, &twl_rtc->rtc_irq_bits,
++				REG_RTC_INTERRUPTS_REG);
+ 	if (ret < 0)
+ 		return ret;
+ 
++	platform_set_drvdata(pdev, twl_rtc);
+ 	device_init_wakeup(&pdev->dev, 1);
+ 
+-	rtc = devm_rtc_device_register(&pdev->dev, pdev->name,
++	twl_rtc->rtc = devm_rtc_device_register(&pdev->dev, pdev->name,
+ 					&twl_rtc_ops, THIS_MODULE);
+-	if (IS_ERR(rtc)) {
++	if (IS_ERR(twl_rtc->rtc)) {
+ 		dev_err(&pdev->dev, "can't register RTC device, err %ld\n",
+-			PTR_ERR(rtc));
+-		return PTR_ERR(rtc);
++			PTR_ERR(twl_rtc->rtc));
++		return PTR_ERR(twl_rtc->rtc);
+ 	}
+ 
+ 	ret = devm_request_threaded_irq(&pdev->dev, irq, NULL,
+ 					twl_rtc_interrupt,
+ 					IRQF_TRIGGER_RISING | IRQF_ONESHOT,
+-					dev_name(&rtc->dev), rtc);
++					dev_name(&twl_rtc->rtc->dev), twl_rtc);
+ 	if (ret < 0) {
+ 		dev_err(&pdev->dev, "IRQ is not free.\n");
+ 		return ret;
+ 	}
+ 
+-	platform_set_drvdata(pdev, rtc);
+ 	return 0;
+ }
+ 
+@@ -554,10 +579,12 @@ static int twl_rtc_probe(struct platform_device *pdev)
+  */
+ static int twl_rtc_remove(struct platform_device *pdev)
+ {
++	struct twl_rtc *twl_rtc = platform_get_drvdata(pdev);
++
+ 	/* leave rtc running, but disable irqs */
+-	mask_rtc_irq_bit(BIT_RTC_INTERRUPTS_REG_IT_ALARM_M);
+-	mask_rtc_irq_bit(BIT_RTC_INTERRUPTS_REG_IT_TIMER_M);
+-	if (twl_class_is_6030()) {
++	mask_rtc_irq_bit(twl_rtc, BIT_RTC_INTERRUPTS_REG_IT_ALARM_M);
++	mask_rtc_irq_bit(twl_rtc, BIT_RTC_INTERRUPTS_REG_IT_TIMER_M);
++	if (!twl_rtc->is_4030) {
+ 		twl6030_interrupt_mask(TWL6030_RTC_INT_MASK,
+ 			REG_INT_MSK_LINE_A);
+ 		twl6030_interrupt_mask(TWL6030_RTC_INT_MASK,
+@@ -569,25 +596,29 @@ static int twl_rtc_remove(struct platform_device *pdev)
+ 
+ static void twl_rtc_shutdown(struct platform_device *pdev)
+ {
++	struct twl_rtc *twl_rtc = platform_get_drvdata(pdev);
++
+ 	/* mask timer interrupts, but leave alarm interrupts on to enable
+ 	   power-on when alarm is triggered */
+-	mask_rtc_irq_bit(BIT_RTC_INTERRUPTS_REG_IT_TIMER_M);
++	mask_rtc_irq_bit(twl_rtc, BIT_RTC_INTERRUPTS_REG_IT_TIMER_M);
+ }
+ 
+ #ifdef CONFIG_PM_SLEEP
+-static unsigned char irqstat;
+-
+ static int twl_rtc_suspend(struct device *dev)
+ {
+-	irqstat = rtc_irq_bits;
++	struct twl_rtc *twl_rtc = dev_get_drvdata(dev);
+ 
+-	mask_rtc_irq_bit(BIT_RTC_INTERRUPTS_REG_IT_TIMER_M);
++	twl_rtc->irqstat = twl_rtc->rtc_irq_bits;
++
++	mask_rtc_irq_bit(twl_rtc, BIT_RTC_INTERRUPTS_REG_IT_TIMER_M);
+ 	return 0;
+ }
+ 
+ static int twl_rtc_resume(struct device *dev)
+ {
+-	set_rtc_irq_bit(irqstat);
++	struct twl_rtc *twl_rtc = dev_get_drvdata(dev);
++
++	set_rtc_irq_bit(twl_rtc, twl_rtc->irqstat);
+ 	return 0;
+ }
+ #endif
+-- 
+2.5.5
 
---=20
+-- 
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
----=20
-You received this message because you are subscribed to the Google Groups "=
-rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an e=
-mail to rtc-linux+unsubscribe@googlegroups.com.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
