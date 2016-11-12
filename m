@@ -1,30 +1,26 @@
-Return-Path: <rtc-linux+bncBC57DJ5R4ECBBSGB6XAQKGQEHCGFRRA@googlegroups.com>
-Received: from mailout1.samsung.com (mailout1.samsung.com. [203.254.224.24])
-        by gmr-mx.google.com with ESMTPS id p14si542033pfl.0.2016.11.29.03.04.40
+Return-Path: <rtc-linux+bncBDL53MW2W4EBBAH6TPAQKGQEVOPBQ7I@googlegroups.com>
+Sender: rtc-linux@googlegroups.com
+Received: from mail-it0-x244.google.com (mail-it0-x244.google.com. [2607:f8b0:4001:c0b::244])
+        by gmr-mx.google.com with ESMTPS id v192si2463589itb.3.2016.11.12.03.37.36
         for <rtc-linux@googlegroups.com>
-        (version=TLS1 cipher=AES128-SHA bits=128/128);
-        Tue, 29 Nov 2016 03:04:40 -0800 (PST)
-Received: from epcas5p2.samsung.com (unknown [182.195.41.40])
- by mailout1.samsung.com
- (Oracle Communications Messaging Server 7.0.5.31.0 64bit (built May  5 2014))
- with ESMTP id <0OHE0207VHFQSIE0@mailout1.samsung.com> for
- rtc-linux@googlegroups.com; Tue, 29 Nov 2016 20:04:38 +0900 (KST)
-MIME-version: 1.0
-Subject: [rtc-linux] [PATCH] rtc: ds1374: Merge conditional + WARN_ON()
-Reply-to: rtc-linux@googlegroups.com
-Sender: =?UTF-8?B?U3Jpa2FudCBSaXRvbGlh?= <s.ritolia@samsung.com>
-From: =?UTF-8?B?U3Jpa2FudCBSaXRvbGlh?= <s.ritolia@samsung.com>
-To: =?UTF-8?B?YS56dW1tb0B0b3dlcnRlY2guaXQ=?= <a.zummo@towertech.it>,
- =?UTF-8?B?YWxleGFuZHJlLmJlbGxvbmlAZnJlZS1lbGVjdHJvbnMuY29t?=
- <alexandre.belloni@free-electrons.com>
-Cc: =?UTF-8?B?cnRjLWxpbnV4QGdvb2dsZWdyb3Vwcy5jb20=?=
- <rtc-linux@googlegroups.com>, =?UTF-8?B?UmFtIFJlZGR5?= <ram.r@samsung.com>,
- =?UTF-8?B?QXNoaXNoIEthbHJh?= <ashish.kalra@samsung.com>
-Message-id: <20161129110437epcms5p3214f832f54aedeed6d0d8e1c32109ce1@epcms5p3>
-Date: Tue, 29 Nov 2016 11:04:37 +0000
-Content-type: multipart/related;
- boundary="----=_Part_139760_2117590721.1480417477913"
-References: <CGME20161129110437epcms5p3214f832f54aedeed6d0d8e1c32109ce1@epcms5p3>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Sat, 12 Nov 2016 03:37:36 -0800 (PST)
+Received: by mail-it0-x244.google.com with SMTP id b123so2476611itb.2
+        for <rtc-linux@googlegroups.com>; Sat, 12 Nov 2016 03:37:36 -0800 (PST)
+MIME-Version: 1.0
+In-Reply-To: <20161112112009.34gwcedl57v77ng5@earth>
+References: <1478945246-32056-1-git-send-email-Nicolae_Rosia@mentor.com>
+ <1478945246-32056-4-git-send-email-Nicolae_Rosia@mentor.com> <20161112112009.34gwcedl57v77ng5@earth>
+From: Nicolae Rosia <nicolae.rosia.oss@gmail.com>
+Date: Sat, 12 Nov 2016 13:37:35 +0200
+Message-ID: <CAKP5S=27ZHZyKj9LWVDaeSXzCyrsrJmNbc3r-YRXXXKsk74yag@mail.gmail.com>
+Subject: [rtc-linux] Re: [PATCH 3/3] rtc: rtc-twl: use irq_of_parse_and_map helper
+To: Sebastian Reichel <sre@kernel.org>
+Cc: Nicolae Rosia <Nicolae_Rosia@mentor.com>, Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>, rtc-linux@googlegroups.com,
+	linux-omap@vger.kernel.org, Tony Lindgren <tony@atomide.com>
+Content-Type: text/plain; charset=UTF-8
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -33,35 +29,18 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-------=_Part_139760_2117590721.1480417477913
-Content-Type: text/plain; charset=UTF-8
+Hi,
 
-WARN_ON does both these things in one statement.
-Using a better pattern with WARN_ON().
 
-Signed-off-by: Srikant Ritolia <s.ritolia@samsung.com>
----
- drivers/rtc/rtc-ds1374.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+On Sat, Nov 12, 2016 at 1:20 PM, Sebastian Reichel <sre@kernel.org> wrote:
+> This patch is missing long description. I would have patched it the
+> other way around. There is no reason to use irq_of_parse_and_map if
+> generic platform_get_irq can be used.
+Since this patch series removes platform support and makes the driver DT only,
+I thought it would be a good idea to make it explicit that it depends on OF_IRQ.
 
-diff --git a/drivers/rtc/rtc-ds1374.c b/drivers/rtc/rtc-ds1374.c
-index 3b3049c..52429f0 100644
---- a/drivers/rtc/rtc-ds1374.c
-+++ b/drivers/rtc/rtc-ds1374.c
-@@ -89,10 +89,8 @@ static int ds1374_read_rtc(struct i2c_client *client, u32 *time,
- 	int ret;
- 	int i;
- 
--	if (nbytes > 4) {
--		WARN_ON(1);
-+	if (WARN_ON(nbytes > 4))
- 		return -EINVAL;
--	}
- 
- 	ret = i2c_smbus_read_i2c_block_data(client, reg, nbytes, buf);
- 
--- 
-2.10.2.windows.1
+Regards,
+Nicolae
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
@@ -72,5 +51,3 @@ before submitting a driver.
 You received this message because you are subscribed to the Google Groups "rtc-linux" group.
 To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
-
-------=_Part_139760_2117590721.1480417477913--
