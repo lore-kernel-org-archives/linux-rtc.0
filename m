@@ -1,21 +1,22 @@
-Return-Path: <rtc-linux+bncBCKYNX7Y3IMBB7UK6XAAKGQEI5FMHBA@googlegroups.com>
+Return-Path: <rtc-linux+bncBCFPF2XH6UDBBPVLZDAQKGQEYRMUCWI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail.free-electrons.com (up.free-electrons.com. [163.172.77.33])
-        by gmr-mx.google.com with ESMTP id g142si675197wmd.2.2016.11.04.19.35.41
+Received: from shards.monkeyblade.net (shards.monkeyblade.net. [184.105.139.130])
+        by gmr-mx.google.com with ESMTP id h23si736490wmi.1.2016.11.20.13.29.34
         for <rtc-linux@googlegroups.com>;
-        Fri, 04 Nov 2016 19:35:41 -0700 (PDT)
-Date: Sat, 5 Nov 2016 03:35:41 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Keerthy <j-keerthy@ti.com>
-Cc: a.zummo@towertech.it, rtc-linux@googlegroups.com,
-	linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org,
-	lokeshvutla@ti.com, t-kristo@ti.com
-Subject: [rtc-linux] Re: [PATCH 1/2] rtc: omap: Fix selecting external osc
-Message-ID: <20161105023541.udo27ehloo22mtlq@piout.net>
-References: <1477547846-5335-1-git-send-email-j-keerthy@ti.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1477547846-5335-1-git-send-email-j-keerthy@ti.com>
+        Sun, 20 Nov 2016 13:29:34 -0800 (PST)
+Date: Sun, 20 Nov 2016 16:29:32 -0500 (EST)
+Message-Id: <20161120.162932.2149671663687873415.davem@davemloft.net>
+To: paul.gortmaker@windriver.com
+Cc: linux-kernel@vger.kernel.org, a.zummo@towertech.it,
+ alexandre.belloni@free-electrons.com, sparclinux@vger.kernel.org,
+ rtc-linux@googlegroups.com
+Subject: [rtc-linux] Re: [PATCH 3/3] rtc: sparc: make sun4v explicitly non-modular
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <20161031185527.20279-4-paul.gortmaker@windriver.com>
+References: <20161031185527.20279-1-paul.gortmaker@windriver.com>
+	<20161031185527.20279-4-paul.gortmaker@windriver.com>
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -25,59 +26,27 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 27/10/2016 at 11:27:25 +0530, Keerthy wrote :
-> From: Lokesh Vutla <lokeshvutla@ti.com>
-> 
-> RTC can be clocked from an external 32KHz oscillator, or from the
-> Peripheral PLL. The RTC has an internal oscillator buffer to support
-> direct operation with a crystal.
-> 
->             ----------------------------------------
->             |       Device          ---------       |
->             |                       |       |       |
->             |                       | RTCSS |       |
->             |       ---------       |       |       |
->     OSC     |<------| RTC   |       |       |       |
->             |------>| OSC   |---    |       |       |
->             |       --------   |    |       |       |
->             |                   ----|clk    |       |
->             |       --------   |    |       |       |
->             |       | PRCM  |---    |       |       |
->             |       --------        --------        |
->             ----------------------------------------
-> 
-> The RTC functional clock is sourced by default from the clock derived
-> from the Peripheral PLL. In order to select source as external osc clk
-> the following changes needs to be done:
-> - Enable the RTC OSC (RTC_OSC_REG[4]OSC32K_GZ = 0)
-> - Enable the clock mux(RTC_OSC_REG[6]K32CLK_EN = 1)
-> - Select the external clock source (RTC_OSC_REG[3]32KCLK_SEL = 1)
-> 
-> Fixes: 399cf0f63f6f2 ("rtc: omap: Add external clock enabling support")
-> Signed-off-by: Keerthy <j-keerthy@ti.com>
-> Signed-off-by: Lokesh Vutla <lokeshvutla@ti.com>
-> Signed-off-by: Dave Gerlach <d-gerlach@ti.com>
-> ---
-> 
-> Boot tested and checked for rtc ticking on am335x-boneblack, am335x-bone
-> am437x-gp-evm, dra7-evm, dra72-evm.
-> 
->  drivers/rtc/rtc-omap.c | 6 ++++--
->  1 file changed, 4 insertions(+), 2 deletions(-)
-> 
-Both applied, thanks.
+From: Paul Gortmaker <paul.gortmaker@windriver.com>
+Date: Mon, 31 Oct 2016 14:55:27 -0400
 
--- 
-Alexandre Belloni, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+> The Kconfig currently controlling compilation of this code is:
+> 
+> drivers/rtc/Kconfig:config RTC_DRV_SUN4V
+> drivers/rtc/Kconfig:    bool "SUN4V Hypervisor RTC"
+> 
+> ...meaning that it currently is not being built as a module by anyone.
+> 
+> Lets remove the couple traces of modular infrastructure use, so that
+> when reading the driver there is no doubt it is builtin-only.
+> 
+> We delete the MODULE_LICENSE tag etc. since all that information
+> was (or is now) contained at the top of the file in the comments.
+> 
+> Cc: Alessandro Zummo <a.zummo@towertech.it>
+> Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+> Cc: "David S. Miller" <davem@davemloft.net>
+> Cc: sparclinux@vger.kernel.org
+> Cc: rtc-linux@googlegroups.com
+> Signed-off-by: Paul Gortmaker <paul.gortmaker@windriver.com>
 
--- 
-You received this message because you are subscribed to "rtc-linux".
-Membership options at http://groups.google.com/group/rtc-linux .
-Please read http://groups.google.com/group/rtc-linux/web/checklist
-before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
-For more options, visit https://groups.google.com/d/optout.
+Applied.
