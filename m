@@ -1,26 +1,23 @@
-Return-Path: <rtc-linux+bncBDJ6H2FGZ4FBBQUE6HAQKGQENG2432A@googlegroups.com>
+Return-Path: <rtc-linux+bncBCKYNX7Y3IMBB35PZDAQKGQEJGKORSA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from hel-mailgw-01.vaisala.com (hel-mailgw-01.vaisala.com. [193.143.230.17])
-        by gmr-mx.google.com with ESMTPS id l130si2190051wmf.0.2016.11.28.06.42.09
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 28 Nov 2016 06:42:10 -0800 (PST)
-Subject: [rtc-linux] Re: [PATCH 1/2] drivers: rtc: rtc-tps65910: Add RTC
- calibration support
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-References: <1480067538-64415-1-git-send-email-vesa.jaaskelainen@vaisala.com>
- <1480067538-64415-2-git-send-email-vesa.jaaskelainen@vaisala.com>
- <20161125103254.7p7p4frk2cudwfwt@piout.net>
- <05f0a84b-00a1-5fe4-2f92-a58b0a87422c@vaisala.com>
- <20161125153711.ueervgro35xqy3ec@piout.net>
-Cc: Alessandro Zummo <a.zummo@towertech.it>, Lee Jones
- <lee.jones@linaro.org>, rtc-linux@googlegroups.com
-From: =?UTF-8?B?VmVzYSBKw6TDpHNrZWzDpGluZW4=?= <vesa.jaaskelainen@vaisala.com>
-Message-ID: <92675f10-b2ee-d8a0-c832-09b45d006881@vaisala.com>
-Date: Mon, 28 Nov 2016 16:42:05 +0200
+Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
+        by gmr-mx.google.com with ESMTP id m17si652937wma.1.2016.11.20.13.38.55
+        for <rtc-linux@googlegroups.com>;
+        Sun, 20 Nov 2016 13:38:55 -0800 (PST)
+Date: Sun, 20 Nov 2016 22:38:54 +0100
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: David Miller <davem@davemloft.net>
+Cc: paul.gortmaker@windriver.com, linux-kernel@vger.kernel.org,
+	a.zummo@towertech.it, sparclinux@vger.kernel.org,
+	rtc-linux@googlegroups.com
+Subject: [rtc-linux] Re: [PATCH 2/3] rtc: sparc: make starfire explicitly non-modular
+Message-ID: <20161120213854.ailkekyemj4hhmbw@piout.net>
+References: <20161031185527.20279-1-paul.gortmaker@windriver.com>
+ <20161031185527.20279-3-paul.gortmaker@windriver.com>
+ <20161120.162919.145900145134940393.davem@davemloft.net>
 MIME-Version: 1.0
-In-Reply-To: <20161125153711.ueervgro35xqy3ec@piout.net>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <20161120.162919.145900145134940393.davem@davemloft.net>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -30,68 +27,47 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 2016-11-25 17:37, Alexandre Belloni wrote:
-> On 25/11/2016 at 13:20:05 +0200, Vesa J=C3=A4=C3=A4skel=C3=A4inen wrote :
->> On 2016-11-25 12:32, Alexandre Belloni wrote:
->>> Hi,
->>>
->>> On 25/11/2016 at 11:52:17 +0200, Vesa J=C3=A4=C3=A4skel=C3=A4inen wrote=
- :
->>>> Texas Instrument's TPS65910 has support for compensating RTC crystal
->>>> inaccuracies. When enabled every hour RTC counter value will be compen=
-sated
->>>> with two's complement value.
->>>>
->>>> Signed-off-by: Vesa J=C3=A4=C3=A4skel=C3=A4inen <vesa.jaaskelainen@vai=
-sala.com>
->>> There is already a sysfs attribute for that kind of calibration
->>> (offset, documented in Documentation/rtc.txt). Can you use that instead=
-?
->> That documentation in rtc.txt states that compensation is per billion ti=
-cks.
->> This compensation happens every 32768*60*60  =3D=3D 117964800 ticks.
->>
->> I modeled this after similar functionality of rtc-ab8500.c which provide=
-d
->> similar sysfs file. But its time compensation happens also with differen=
-t
->> interval.
->>
->> Due to differences here in functionalities between different chips I dec=
-ided
->> to go with driver specific compensation value.
->>
-> The functionality is exactly the same, but if I understand correctly,
-> your resolution is 8.477 ppb is that right ?
+Hi Dave,
 
-I suppose so. Compensation resolution is the differenting factor here=20
-and also at what point of time compensation is happening.
+I already carry both patches in my tree but I would gladly add an ack.
 
-If I would convert this to 1ppb then there would be theoretical accuracy=20
-lost, not much but in year it sums up :).
+On 20/11/2016 at 16:29:19 -0500, David Miller wrote :
+> From: Paul Gortmaker <paul.gortmaker@windriver.com>
+> Date: Mon, 31 Oct 2016 14:55:26 -0400
+> 
+> > The Kconfig currently controlling compilation of this code is:
+> > 
+> > drivers/rtc/Kconfig:config RTC_DRV_STARFIRE
+> > drivers/rtc/Kconfig:    bool "Starfire RTC"
+> > 
+> > ...meaning that it currently is not being built as a module by anyone.
+> > 
+> > Lets remove the couple traces of modular infrastructure use, so that
+> > when reading the driver there is no doubt it is builtin-only.
+> > 
+> > We delete the MODULE_LICENSE tag etc. since all that information
+> > was (or is now) contained at the top of the file in the comments.
+> > 
+> > Cc: Alessandro Zummo <a.zummo@towertech.it>
+> > Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+> > Cc: "David S. Miller" <davem@davemloft.net>
+> > Cc: sparclinux@vger.kernel.org
+> > Cc: rtc-linux@googlegroups.com
+> > Signed-off-by: Paul Gortmaker <paul.gortmaker@windriver.com>
+> 
+> Applied.
 
-btw. is there existing RTC compensation daemon that would support also=20
-temperature based calibration and would internally handle updating=20
-'offset' or custom calibration fields?
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
 
-If I spotted correctly this 'offset' property is only supported by=20
-rtc-pcf2123.c. That driver seems to use some kind of dynamic scaling for=20
-compensation.
-
-Keeping data in chips native format would enable best possible accuracy=20
-and no-one could complain that it is not functioning in best possible way.
-
-Thanks,
-Vesa J=C3=A4=C3=A4skel=C3=A4inen
-
---=20
+-- 
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
----=20
-You received this message because you are subscribed to the Google Groups "=
-rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an e=
-mail to rtc-linux+unsubscribe@googlegroups.com.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
