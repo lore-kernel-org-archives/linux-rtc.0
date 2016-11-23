@@ -1,20 +1,24 @@
-Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBMPM7TAQKGQEC2KO6DY@googlegroups.com>
+Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBDFP2XAQKGQE3GTZH6I@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
-        by gmr-mx.google.com with ESMTP id l19si1130342wmg.0.2016.11.30.12.27.28
+        by gmr-mx.google.com with ESMTP id 85si111389wmb.3.2016.11.23.00.47.07
         for <rtc-linux@googlegroups.com>;
-        Wed, 30 Nov 2016 12:27:28 -0800 (PST)
-Date: Wed, 30 Nov 2016 21:27:28 +0100
+        Wed, 23 Nov 2016 00:47:07 -0800 (PST)
+Date: Wed, 23 Nov 2016 09:46:57 +0100
 From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Nicolae Rosia <Nicolae_Rosia@mentor.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
+To: Nicolae Rosia <nicolae.rosia.oss@gmail.com>
+Cc: Nicolae Rosia <Nicolae_Rosia@mentor.com>,
+	Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
 	linux-omap@vger.kernel.org, Tony Lindgren <tony@atomide.com>
-Subject: [rtc-linux] Re: [PATCH v2 0/2] rtc: rtc-twl: cleanup
-Message-ID: <20161130202728.zoldekjlc5qrcpgt@piout.net>
-References: <20161123085557.5656-1-Nicolae_Rosia@mentor.com>
+Subject: [rtc-linux] Re: [PATCH 1/3] rtc: rtc-twl: kill static variables
+Message-ID: <20161123084657.or53k7tlyjxcmrr2@piout.net>
+References: <1478945246-32056-1-git-send-email-Nicolae_Rosia@mentor.com>
+ <1478945246-32056-2-git-send-email-Nicolae_Rosia@mentor.com>
+ <20161122223103.qd44b3z5aj4ahroi@piout.net>
+ <CAKP5S=0vLb+7az4aaFyPjGSEE5cG+epM2qpGP=zpzhvt6x69qA@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <20161123085557.5656-1-Nicolae_Rosia@mentor.com>
+In-Reply-To: <CAKP5S=0vLb+7az4aaFyPjGSEE5cG+epM2qpGP=zpzhvt6x69qA@mail.gmail.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -24,32 +28,43 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 23/11/2016 at 10:55:55 +0200, Nicolae Rosia wrote :
-> This is a cleanup and preparation of rtc-twl to reduce the usage of
-> twl-core exported functions.
-> The next patch series will further reduce the usage of exported functions
-> but first it requires some changes in mfd/twl-core.c
+On 23/11/2016 at 10:39:12 +0200, Nicolae Rosia wrote :
+> Hi,
+> Thanks for the review.
 > 
-> v2:
-> - dropped patch "rtc: rtc-twl: use irq_of_parse_and_map helper"
-> - fixed style problems
-> - retained old logic of checking TWL class by introducing an enum
-> - dropped of_match_ptr since we depend on OF
-> 
-> v1 was Tested-by: Tony Lindgren <tony@atomide.com>
-> I did not add it in new version of patches because of the changes.
-> If you consider that the changes are not big, you could add Tony's Tested-by.
-> 
-> Nicolae Rosia (2):
->   rtc: rtc-twl: kill static variables
->   rtc: rtc-twl: make driver DT only
-> 
->  drivers/rtc/Kconfig   |   1 +
->  drivers/rtc/rtc-twl.c | 202 ++++++++++++++++++++++++++++++--------------------
->  2 files changed, 122 insertions(+), 81 deletions(-)
+> On Wed, Nov 23, 2016 at 12:31 AM, Alexandre Belloni
+> <alexandre.belloni@free-electrons.com> wrote:
+> > Hi,
+> >
+> > A few alignments are off but I can fix that provided you answer the
+> > question below:
+> >
+> Ok, could you please indicate which lines so I can fix them instead of
+> wasting your time?
 > 
 
-Both applied, thanks
+checkpatch.pl --strict will find them for you
+
+> > On 12/11/2016 at 12:07:24 +0200, Nicolae Rosia wrote :
+> >>       /* for twl6030/32 make sure BIT_RTC_CTRL_REG_GET_TIME_M is clear */
+> >> -     if (twl_class_is_6030()) {
+> >> +     if (!twl_rtc->is_4030) {
+> >
+> > This changes the meaning of it. What if at some point there is a new
+> > part that is neither a 4030 nor an 6030?
+> > That will probably mean going over ths part of code again but maybe the
+> > odds are low and nobody cares.
+> Since there are only two classes, 4030 and 6030, it will work.
+> But you're right, it's better to retain the old logic so the changes
+> are minimal.
+> 
+> Will send V2 in a bit.
+
+Thanks
+
+> 
+> Thanks,
+> Nicolae
 
 -- 
 Alexandre Belloni, Free Electrons
