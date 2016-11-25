@@ -1,20 +1,24 @@
-Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBQP47TAQKGQEZPGO2JI@googlegroups.com>
+Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBMVV4HAQKGQEJF3BIRI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
-        by gmr-mx.google.com with ESMTP id 85si951047wmb.3.2016.11.30.13.01.53
+        by gmr-mx.google.com with ESMTP id l19si1347122wmg.0.2016.11.25.07.37.22
         for <rtc-linux@googlegroups.com>;
-        Wed, 30 Nov 2016 13:01:53 -0800 (PST)
-Date: Wed, 30 Nov 2016 22:01:52 +0100
+        Fri, 25 Nov 2016 07:37:22 -0800 (PST)
+Date: Fri, 25 Nov 2016 16:37:11 +0100
 From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Akinobu Mita <akinobu.mita@gmail.com>
-Cc: rtc-linux@googlegroups.com, devicetree@vger.kernel.org,
-	Alessandro Zummo <a.zummo@towertech.it>
-Subject: [rtc-linux] Re: [PATCH] rtc: add support for EPSON TOYOCOM RTC-7301SF/DG
-Message-ID: <20161130210152.hiyfa3srismgvtj5@piout.net>
-References: <1472396118-13424-1-git-send-email-akinobu.mita@gmail.com>
+To: Vesa =?iso-8859-1?B?SuTkc2tlbORpbmVu?= <vesa.jaaskelainen@vaisala.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+	Lee Jones <lee.jones@linaro.org>, rtc-linux@googlegroups.com
+Subject: [rtc-linux] Re: [PATCH 1/2] drivers: rtc: rtc-tps65910: Add RTC
+ calibration support
+Message-ID: <20161125153711.ueervgro35xqy3ec@piout.net>
+References: <1480067538-64415-1-git-send-email-vesa.jaaskelainen@vaisala.com>
+ <1480067538-64415-2-git-send-email-vesa.jaaskelainen@vaisala.com>
+ <20161125103254.7p7p4frk2cudwfwt@piout.net>
+ <05f0a84b-00a1-5fe4-2f92-a58b0a87422c@vaisala.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1472396118-13424-1-git-send-email-akinobu.mita@gmail.com>
+In-Reply-To: <05f0a84b-00a1-5fe4-2f92-a58b0a87422c@vaisala.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -24,102 +28,52 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Hi,
+On 25/11/2016 at 13:20:05 +0200, Vesa J=C3=A4=C3=A4skel=C3=A4inen wrote :
+> On 2016-11-25 12:32, Alexandre Belloni wrote:
+> > Hi,
+> >=20
+> > On 25/11/2016 at 11:52:17 +0200, Vesa J=C3=A4=C3=A4skel=C3=A4inen wrote=
+ :
+> > > Texas Instrument's TPS65910 has support for compensating RTC crystal
+> > > inaccuracies. When enabled every hour RTC counter value will be compe=
+nsated
+> > > with two's complement value.
+> > >=20
+> > > Signed-off-by: Vesa J=C3=A4=C3=A4skel=C3=A4inen <vesa.jaaskelainen@va=
+isala.com>
+> > There is already a sysfs attribute for that kind of calibration
+> > (offset, documented in Documentation/rtc.txt). Can you use that instead=
+?
+>=20
+> That documentation in rtc.txt states that compensation is per billion tic=
+ks.
+> This compensation happens every 32768*60*60  =3D=3D 117964800 ticks.
+>=20
+> I modeled this after similar functionality of rtc-ab8500.c which provided
+> similar sysfs file. But its time compensation happens also with different
+> interval.
+>=20
+> Due to differences here in functionalities between different chips I deci=
+ded
+> to go with driver specific compensation value.
+>=20
 
-Sorry for the very late review!
+The functionality is exactly the same, but if I understand correctly,
+your resolution is 8.477 ppb is that right ?
 
-It seems mostly fine for me, two small comments:
-
-On 28/08/2016 at 23:55:18 +0900, Akinobu Mita wrote :
-> diff --git a/drivers/rtc/rtc-r7301.c b/drivers/rtc/rtc-r7301.c
-> new file mode 100644
-> index 0000000..b1be281
-> --- /dev/null
-> +++ b/drivers/rtc/rtc-r7301.c
-> @@ -0,0 +1,458 @@
-> +/*
-> + * EPSON TOYOCOM RTC-7301SF/DG Driver
-> + *
-> + * Copyright (c) 2016 Akinobu Mita <akinobu.mita@gmail.com>
-> + *
-> + * Based on rtc-rp5c01.c
-> + *
-> + * Datasheet: http://www5.epsondevice.com/en/products/parallel/rtc7301sf.html
-> + */
-> +
-> +#include <linux/io.h>
-> +#include <linux/kernel.h>
-> +#include <linux/module.h>
-> +#include <linux/delay.h>
-> +#include <linux/regmap.h>
-> +#include <linux/platform_device.h>
-> +#include <linux/rtc.h>
-> +
-> +#define DRV_NAME "rtc-r7301"
-> +
-> +enum {
-> +	RTC7301_1_SEC		= 0x0,	/* Bank 0 and Band 1 */
-> +	RTC7301_10_SEC		= 0x1,	/* Bank 0 and Band 1 */
-> +	RTC7301_AE		= BIT(3),
-> +	RTC7301_1_MIN		= 0x2,	/* Bank 0 and Band 1 */
-> +	RTC7301_10_MIN		= 0x3,	/* Bank 0 and Band 1 */
-> +	RTC7301_1_HOUR		= 0x4,	/* Bank 0 and Band 1 */
-> +	RTC7301_10_HOUR		= 0x5,	/* Bank 0 and Band 1 */
-> +	RTC7301_DAY_OF_WEEK	= 0x6,	/* Bank 0 and Band 1 */
-> +	RTC7301_1_DAY		= 0x7,	/* Bank 0 and Band 1 */
-> +	RTC7301_10_DAY		= 0x8,	/* Bank 0 and Band 1 */
-> +	RTC7301_1_MONTH		= 0x9,	/* Bank 0 */
-> +	RTC7301_10_MONTH	= 0xa,	/* Bank 0 */
-> +	RTC7301_1_YEAR		= 0xb,	/* Bank 0 */
-> +	RTC7301_10_YEAR		= 0xc,	/* Bank 0 */
-> +	RTC7301_100_YEAR	= 0xd,	/* Bank 0 */
-> +	RTC7301_1000_YEAR	= 0xe,	/* Bank 0 */
-> +	RTC7301_ALARM_CONTROL	= 0xe,	/* Bank 1 */
-> +	RTC7301_ALARM_CONTROL_AIE	= BIT(0),
-> +	RTC7301_ALARM_CONTROL_AF	= BIT(1),
-> +	RTC7301_TIMER_CONTROL	= 0xe,	/* Bank 2 */
-> +	RTC7301_ALARM_CONTROL_TIE	= BIT(0),
-> +	RTC7301_ALARM_CONTROL_TF	= BIT(1),
-> +	RTC7301_CONTROL		= 0xf,	/* All banks */
-> +	RTC7301_CONTROL_BUSY		= BIT(0),
-> +	RTC7301_CONTROL_STOP		= BIT(1),
-> +	RTC7301_CONTROL_BANK_SEL_0	= BIT(2),
-> +	RTC7301_CONTROL_BANK_SEL_1	= BIT(3),
-> +};
-> +
-
-Any particular reason why you use an enum instead of the usual #define?
-
-[...]
-
-> +static void rtc7301_init(struct rtc7301_priv *priv)
-> +{
-> +	unsigned long flags;
-> +
-> +	spin_lock_irqsave(&priv->lock, flags);
-> +
-> +	rtc7301_select_bank(priv, 1);
-> +	rtc7301_alarm_irq(priv, false);
-> +
-
-If the RTC is battery backed, it may still run with the core power off
-and maybe someone will actually expect the alarm to trigger at a later
-time.
-
-I don't mind much as you are probably the only user anyway.
-
-
--- 
+--=20
 Alexandre Belloni, Free Electrons
 Embedded Linux and Kernel engineering
 http://free-electrons.com
 
--- 
+--=20
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+---=20
+You received this message because you are subscribed to the Google Groups "=
+rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an e=
+mail to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
