@@ -1,28 +1,25 @@
-Return-Path: <rtc-linux+bncBDAYD2P3QYGRBS4T5XAAKGQEMKJO5JA@googlegroups.com>
+Return-Path: <rtc-linux+bncBDJ6H2FGZ4FBB3MT4DAQKGQER2QIUEQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-MIME-Version: 1.0
-Received: from mail-wm0-x230.google.com (mail-wm0-x230.google.com. [2a00:1450:400c:c09::230])
-        by gmr-mx.google.com with ESMTPS id g142si2832038wmd.2.2016.11.03.07.29.30
+Received: from hel-mailgw-01.vaisala.com (hel-mailgw-01.vaisala.com. [193.143.230.17])
+        by gmr-mx.google.com with ESMTPS id l130si1088220wmf.2.2016.11.25.01.52.44
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 03 Nov 2016 07:29:30 -0700 (PDT)
-Received: by mail-wm0-x230.google.com with SMTP id n67so104738282wme.1
-        for <rtc-linux@googlegroups.com>; Thu, 03 Nov 2016 07:29:30 -0700 (PDT)
-From: Neil Armstrong <narmstrong@baylibre.com>
-To: khilman@baylibre.com,
-	carlo@caione.org,
-	a.zummo@towertech.it,
-	alexandre.belloni@free-electrons.com
-Cc: Neil Armstrong <narmstrong@baylibre.com>,
-	rtc-linux@googlegroups.com,
-	linux-amlogic@lists.infradead.org,
-	linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org
-Subject: [rtc-linux] [RFC PATCH 0/3] ARM64: meson-gxbb: Add support for system suspend
-Date: Thu,  3 Nov 2016 15:29:22 +0100
-Message-Id: <1478183365-23708-1-git-send-email-narmstrong@baylibre.com>
-Reply-To: rtc-linux@googlegroups.com
+        Fri, 25 Nov 2016 01:52:44 -0800 (PST)
+From: =?UTF-8?q?Vesa=20J=C3=A4=C3=A4skel=C3=A4inen?= <vesa.jaaskelainen@vaisala.com>
+To: Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Lee Jones <lee.jones@linaro.org>
+Cc: =?UTF-8?q?Vesa=20J=C3=A4=C3=A4skel=C3=A4inen?= <vesa.jaaskelainen@vaisala.com>,
+	rtc-linux@googlegroups.com
+Subject: [rtc-linux] [PATCH 2/2] drivers: rtc: rtc-tps65910: use 'unsigned
+ int' instead of 'unsigned' in arguments
+Date: Fri, 25 Nov 2016 11:52:18 +0200
+Message-Id: <1480067538-64415-3-git-send-email-vesa.jaaskelainen@vaisala.com>
+In-Reply-To: <1480067538-64415-1-git-send-email-vesa.jaaskelainen@vaisala.com>
+References: <1480067538-64415-1-git-send-email-vesa.jaaskelainen@vaisala.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -31,47 +28,38 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Thie patchset is a very experiment patchset to support the System Suspend
-feature of the Amlogic Meson GX SoCs.
+Signed-off-by: Vesa J=C3=A4=C3=A4skel=C3=A4inen <vesa.jaaskelainen@vaisala.=
+com>
+---
+ drivers/rtc/rtc-tps65910.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-These SoCs implements system suspend using a non-standard PSCI CPU_SUSPEND
-parameter to enter system suspend.
-A small driver is added to properly fill the platform_suspend_ops and make
-to correct SMC call.
+diff --git a/drivers/rtc/rtc-tps65910.c b/drivers/rtc/rtc-tps65910.c
+index e1b0b0c..d06c0f7 100644
+--- a/drivers/rtc/rtc-tps65910.c
++++ b/drivers/rtc/rtc-tps65910.c
+@@ -36,7 +36,8 @@ struct tps65910_rtc {
+ /* Total number of RTC registers needed to set compensation registers */
+ #define NUM_COMP_REGS	(TPS65910_RTC_COMP_MSB - TPS65910_RTC_COMP_LSB + 1)
+=20
+-static int tps65910_rtc_alarm_irq_enable(struct device *dev, unsigned enab=
+led)
++static int tps65910_rtc_alarm_irq_enable(struct device *dev,
++					 unsigned int enabled)
+ {
+ 	struct tps65910 *tps =3D dev_get_drvdata(dev->parent);
+ 	u8 val =3D 0;
+--=20
+2.1.4
 
-In order to wake up from an alarm, these SoCs have a special memory mapped
-register where an alarm time delay in seconds is stored.
-In order to reuse the RTC wakealarm feature, implement a fake RTC device
-that uses the system time to calculate a delay to write to the register.
-
-Note that this RFC is here to seek a better way to handle these platform
-specific features.
-
-Neil Armstrong (3):
-  ARM64: meson: Add Amlogic Meson GX PM Suspend
-  rtc: Add Amlogic Virtual Wake RTC
-  ARM64: dts: meson-gxbb: Add support for PM and Virtual RTC
-
- arch/arm64/boot/dts/amlogic/meson-gxbb.dtsi |   9 ++
- drivers/firmware/meson/Kconfig              |   6 +
- drivers/firmware/meson/Makefile             |   1 +
- drivers/firmware/meson/meson_gx_pm.c        |  86 +++++++++++++++
- drivers/rtc/Kconfig                         |  10 ++
- drivers/rtc/Makefile                        |   1 +
- drivers/rtc/rtc-meson-vrtc.c                | 164 ++++++++++++++++++++++++++++
- 7 files changed, 277 insertions(+)
- create mode 100644 drivers/firmware/meson/meson_gx_pm.c
- create mode 100644 drivers/rtc/rtc-meson-vrtc.c
-
--- 
-1.9.1
-
--- 
+--=20
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+---=20
+You received this message because you are subscribed to the Google Groups "=
+rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an e=
+mail to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
