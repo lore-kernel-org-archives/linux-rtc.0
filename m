@@ -1,24 +1,29 @@
-Return-Path: <rtc-linux+bncBDRMFBMIXEGBBBVQ5XAAKGQEIU324OI@googlegroups.com>
-Sender: rtc-linux@googlegroups.com
-Received: from foss.arm.com (foss.arm.com. [217.140.101.70])
-        by gmr-mx.google.com with ESMTP id qv3si3098679pab.2.2016.11.03.08.30.14
-        for <rtc-linux@googlegroups.com>;
-        Thu, 03 Nov 2016 08:30:14 -0700 (PDT)
-Date: Thu, 3 Nov 2016 15:30:10 +0000
-From: Mark Rutland <mark.rutland@arm.com>
-To: Neil Armstrong <narmstrong@baylibre.com>
-Cc: khilman@baylibre.com, carlo@caione.org, a.zummo@towertech.it,
-	alexandre.belloni@free-electrons.com,
-	linux-amlogic@lists.infradead.org, linux-kernel@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org, rtc-linux@googlegroups.com
-Subject: [rtc-linux] Re: [RFC PATCH 1/3] ARM64: meson: Add Amlogic Meson GX PM Suspend
-Message-ID: <20161103153009.GC25852@remoulade>
-References: <1478183365-23708-1-git-send-email-narmstrong@baylibre.com>
- <1478183365-23708-2-git-send-email-narmstrong@baylibre.com>
+Return-Path: <rtc-linux+bncBCKZ7AUOVICRBJUA7HAQKGQECLBA5LY@googlegroups.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1478183365-23708-2-git-send-email-narmstrong@baylibre.com>
+Received: from mail-pg0-x22e.google.com (mail-pg0-x22e.google.com. [2607:f8b0:400e:c05::22e])
+        by gmr-mx.google.com with ESMTPS id p14si406399pfl.0.2016.11.29.18.57.42
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 29 Nov 2016 18:57:42 -0800 (PST)
+Received: by mail-pg0-x22e.google.com with SMTP id 3so76467499pgd.0
+        for <rtc-linux@googlegroups.com>; Tue, 29 Nov 2016 18:57:42 -0800 (PST)
+From: "'Tin Huynh' via rtc-linux" <rtc-linux@googlegroups.com>
+To: Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: linux-i2c@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	linux-acpi@vger.kernel.org,
+	rtc-linux@googlegroups.com,
+	Loc Ho <lho@apm.com>,
+	Thang Nguyen <tqnguyen@apm.com>,
+	Phong Vo <pvo@apm.com>,
+	patches@apm.com,
+	Tin Huynh <tnhuynh@apm.com>
+Subject: [rtc-linux] [PATCH V1] rtc: ds1307: Add ACPI support
+Date: Wed, 30 Nov 2016 09:57:31 +0700
+Message-Id: <1480474651-13984-1-git-send-email-tnhuynh@apm.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -27,149 +32,121 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Thu, Nov 03, 2016 at 03:29:23PM +0100, Neil Armstrong wrote:
-> The Amlogic Meson GX SoCs uses a non-standard argument to the
-> PSCI CPU_SUSPEND call to enter system suspend.
-> 
-> Implement such call within platform_suspend_ops.
+This patch enables ACPI support for rtc-ds1307 driver.
 
-While I am very much not happy with platform-specific extensions to PSCI, if
-this needs to go anywhere, it should live in the existing PSCI driver.
+Signed-off-by: Tin Huynh <tnhuynh@apm.com>
+---
+ drivers/rtc/rtc-ds1307.c |   51 ++++++++++++++++++++++++++++++++++++++-------
+ 1 files changed, 43 insertions(+), 8 deletions(-)
 
-That is to say, NAK to other driver invoking PSCI functions.
-
-Thanks,
-Mark.
-
-> Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
-> ---
->  drivers/firmware/meson/Kconfig       |  6 +++
->  drivers/firmware/meson/Makefile      |  1 +
->  drivers/firmware/meson/meson_gx_pm.c | 86 ++++++++++++++++++++++++++++++++++++
->  3 files changed, 93 insertions(+)
->  create mode 100644 drivers/firmware/meson/meson_gx_pm.c
-> 
-> diff --git a/drivers/firmware/meson/Kconfig b/drivers/firmware/meson/Kconfig
-> index 170d7e8..5b3fea3 100644
-> --- a/drivers/firmware/meson/Kconfig
-> +++ b/drivers/firmware/meson/Kconfig
-> @@ -7,3 +7,9 @@ config MESON_SM
->  	depends on ARM64_4K_PAGES
->  	help
->  	  Say y here to enable the Amlogic secure monitor driver
-> +
-> +config MESON_GX_PM
-> +	bool
-> +	default ARCH_MESON if ARM64
-> +	help
-> +	  Say y here to enable the Amlogic GX SoC Power Management
-> diff --git a/drivers/firmware/meson/Makefile b/drivers/firmware/meson/Makefile
-> index 9ab3884..b6e285d 100644
-> --- a/drivers/firmware/meson/Makefile
-> +++ b/drivers/firmware/meson/Makefile
-> @@ -1 +1,2 @@
->  obj-$(CONFIG_MESON_SM) +=	meson_sm.o
-> +obj-$(CONFIG_MESON_GX_PM) +=	meson_gx_pm.o
-> diff --git a/drivers/firmware/meson/meson_gx_pm.c b/drivers/firmware/meson/meson_gx_pm.c
-> new file mode 100644
-> index 0000000..c104c2e
-> --- /dev/null
-> +++ b/drivers/firmware/meson/meson_gx_pm.c
-> @@ -0,0 +1,86 @@
-> +/*
-> + * Amlogic Meson GX Power Management
-> + *
-> + * Copyright (c) 2016 Baylibre, SAS.
-> + * Author: Neil Armstrong <narmstrong@baylibre.com>
-> + *
-> + * This program is free software; you can redistribute it and/or modify it
-> + * under the terms of version 2 of the GNU General Public License as
-> + * published by the Free Software Foundation.
-> + *
-> + * This program is distributed in the hope that it will be useful, but WITHOUT
-> + * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-> + * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
-> + * more details.
-> + */
-> +
-> +#include <linux/module.h>
-> +#include <linux/of.h>
-> +#include <linux/platform_device.h>
-> +#include <linux/suspend.h>
-> +#include <linux/arm-smccc.h>
-> +
-> +#include <uapi/linux/psci.h>
-> +
-> +#include <asm/suspend.h>
-> +
-> +/*
-> + * The Amlogic GX SoCs uses a special argument value to the
-> + * PSCI CPU_SUSPEND method to enter SUSPEND_MEM.
-> + */
-> +
-> +#define MESON_SUSPEND_PARAM	0x0010000
-> +#define PSCI_FN_NATIVE(version, name)	PSCI_##version##_FN64_##name
-> +
-> +static int meson_gx_suspend_finish(unsigned long arg)
-> +{
-> +	struct arm_smccc_res res;
-> +
-> +	arm_smccc_smc(PSCI_FN_NATIVE(0_2, CPU_SUSPEND), arg,
-> +		      virt_to_phys(cpu_resume), 0, 0, 0, 0, 0, &res);
-> +
-> +	return res.a0;
-> +}
-> +
-> +static int meson_gx_suspend_enter(suspend_state_t state)
-> +{
-> +	switch (state) {
-> +	case PM_SUSPEND_MEM:
-> +		return cpu_suspend(MESON_SUSPEND_PARAM,
-> +				   meson_gx_suspend_finish);
-> +	}
-> +
-> +	return -EINVAL;
-> +}
-> +
-> +static const struct platform_suspend_ops meson_gx_pm_ops = {
-> +		.enter = meson_gx_suspend_enter,
-> +		.valid = suspend_valid_only_mem,
-> +};
-> +
-> +static const struct of_device_id meson_gx_pm_match[] = {
-> +	{ .compatible = "amlogic,meson-gx-pm", },
-> +	{ /* sentinel */ },
-> +};
-> +MODULE_DEVICE_TABLE(of, meson_gx_pm_match);
-> +
-> +static int meson_gx_pm_probe(struct platform_device *pdev)
-> +{
-> +	suspend_set_ops(&meson_gx_pm_ops);
-> +
-> +	return 0;
-> +}
-> +
-> +static struct platform_driver meson_gx_pm_driver = {
-> +	.probe = meson_gx_pm_probe,
-> +	.driver = {
-> +		.name = "meson-gx-pm",
-> +		.of_match_table = meson_gx_pm_match,
-> +	},
-> +};
-> +
-> +module_platform_driver(meson_gx_pm_driver);
-> +
-> +MODULE_AUTHOR("Neil Armstrong <narmstrong@baylibre.com>");
-> +MODULE_DESCRIPTION("Amlogic Meson GX PM driver");
-> +MODULE_LICENSE("GPL v2");
-> -- 
-> 1.9.1
-> 
-> 
-> _______________________________________________
-> linux-arm-kernel mailing list
-> linux-arm-kernel@lists.infradead.org
-> http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
+diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
+index 4e31036..2a1a4d3 100644
+--- a/drivers/rtc/rtc-ds1307.c
++++ b/drivers/rtc/rtc-ds1307.c
+@@ -11,6 +11,7 @@
+  * published by the Free Software Foundation.
+  */
+ 
++#include <linux/acpi.h>
+ #include <linux/bcd.h>
+ #include <linux/i2c.h>
+ #include <linux/init.h>
+@@ -191,6 +192,26 @@ static u8 do_trickle_setup_ds1339(struct i2c_client *,
+ };
+ MODULE_DEVICE_TABLE(i2c, ds1307_id);
+ 
++#ifdef CONFIG_ACPI
++static const struct acpi_device_id ds1307_acpi_ids[] = {
++	{ .id = "DS1307", .driver_data = ds_1307 },
++	{ .id = "DS1337", .driver_data = ds_1337 },
++	{ .id = "DS1338", .driver_data = ds_1338 },
++	{ .id = "DS1339", .driver_data = ds_1339 },
++	{ .id = "DS1388", .driver_data = ds_1388 },
++	{ .id = "DS1340", .driver_data = ds_1340 },
++	{ .id = "DS3231", .driver_data = ds_3231 },
++	{ .id = "M41T00", .driver_data = m41t00 },
++	{ .id = "MCP7940X", .driver_data = mcp794xx },
++	{ .id = "MCP7941X", .driver_data = mcp794xx },
++	{ .id = "PT7C4338", .driver_data = ds_1307 },
++	{ .id = "RX8025", .driver_data = rx_8025 },
++	{ .id = "ISL12057", .driver_data = ds_1337 },
++	{ }
++};
++MODULE_DEVICE_TABLE(acpi, ds1307_acpi_ids);
++#endif
++
+ /*----------------------------------------------------------------------*/
+ 
+ #define BLOCK_DATA_MAX_TRIES 10
+@@ -874,7 +895,7 @@ static u8 do_trickle_setup_ds1339(struct i2c_client *client,
+ 	return setup;
+ }
+ 
+-static void ds1307_trickle_of_init(struct i2c_client *client,
++static void ds1307_trickle_init(struct i2c_client *client,
+ 				   struct chip_desc *chip)
+ {
+ 	uint32_t ohms = 0;
+@@ -882,9 +903,10 @@ static void ds1307_trickle_of_init(struct i2c_client *client,
+ 
+ 	if (!chip->do_trickle_setup)
+ 		goto out;
+-	if (of_property_read_u32(client->dev.of_node, "trickle-resistor-ohms" , &ohms))
++	if (device_property_read_u32(&client->dev, "trickle-resistor-ohms",
++					&ohms))
+ 		goto out;
+-	if (of_property_read_bool(client->dev.of_node, "trickle-diode-disable"))
++	if (device_property_read_bool(&client->dev, "trickle-diode-disable"))
+ 		diode = false;
+ 	chip->trickle_charger_setup = chip->do_trickle_setup(client,
+ 							     ohms, diode);
+@@ -1268,7 +1290,7 @@ static int ds1307_probe(struct i2c_client *client,
+ 	struct ds1307		*ds1307;
+ 	int			err = -ENODEV;
+ 	int			tmp, wday;
+-	struct chip_desc	*chip = &chips[id->driver_data];
++	struct chip_desc	*chip;
+ 	struct i2c_adapter	*adapter = to_i2c_adapter(client->dev.parent);
+ 	bool			want_irq = false;
+ 	bool			ds1307_can_wakeup_device = false;
+@@ -1297,11 +1319,23 @@ static int ds1307_probe(struct i2c_client *client,
+ 	i2c_set_clientdata(client, ds1307);
+ 
+ 	ds1307->client	= client;
+-	ds1307->type	= id->driver_data;
++	if (id) {
++		chip = &chips[id->driver_data];
++		ds1307->type = id->driver_data;
++	} else {
++		const struct acpi_device_id *acpi_id;
++
++		acpi_id = acpi_match_device(ACPI_PTR(ds1307_acpi_ids),
++						&client->dev);
++		if (!acpi_id)
++			return -ENODEV;
++		chip = &chips[acpi_id->driver_data];
++		ds1307->type = acpi_id->driver_data;
++	}
+ 
+-	if (!pdata && client->dev.of_node)
+-		ds1307_trickle_of_init(client, chip);
+-	else if (pdata && pdata->trickle_charger_setup)
++	if (!pdata)
++		ds1307_trickle_init(client, chip);
++	else if (pdata->trickle_charger_setup)
+ 		chip->trickle_charger_setup = pdata->trickle_charger_setup;
+ 
+ 	if (chip->trickle_charger_setup && chip->trickle_charger_reg) {
+@@ -1678,6 +1712,7 @@ static int ds1307_remove(struct i2c_client *client)
+ static struct i2c_driver ds1307_driver = {
+ 	.driver = {
+ 		.name	= "rtc-ds1307",
++		.acpi_match_table = ACPI_PTR(ds1307_acpi_ids),
+ 	},
+ 	.probe		= ds1307_probe,
+ 	.remove		= ds1307_remove,
+-- 
+1.7.1
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
