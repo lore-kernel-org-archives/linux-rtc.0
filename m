@@ -1,26 +1,29 @@
-Return-Path: <rtc-linux+bncBCW4XG6ATMLBBYXYQDBQKGQE737D4ZI@googlegroups.com>
+Return-Path: <rtc-linux+bncBDLPBG4DUEARBZPLQ3BAKGQENO5C7MI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-MIME-Version: 1.0
-Received: from mail-lf0-x243.google.com (mail-lf0-x243.google.com. [2a00:1450:4010:c07::243])
-        by gmr-mx.google.com with ESMTPS id l66si3086755wml.0.2016.12.25.13.38.42
+Received: from mail-io0-x22f.google.com (mail-io0-x22f.google.com. [2607:f8b0:4001:c06::22f])
+        by gmr-mx.google.com with ESMTPS id m13si651006itb.3.2016.12.02.09.56.53
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sun, 25 Dec 2016 13:38:42 -0800 (PST)
-Received: by mail-lf0-x243.google.com with SMTP id d16so11763631lfb.1
-        for <rtc-linux@googlegroups.com>; Sun, 25 Dec 2016 13:38:42 -0800 (PST)
-From: Emil Bartczak <emilbart@gmail.com>
-To: a.zummo@towertech.it
-Cc: alexandre.belloni@free-electrons.com,
-	rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org,
-	Emil Bartczak <emilbart@gmail.com>
-Subject: [rtc-linux] [PATCH 2/2] rtc: mcp795: add alarm support.
-Date: Sun, 25 Dec 2016 22:38:29 +0100
-Message-Id: <1482701909-8714-2-git-send-email-emilbart@gmail.com>
-In-Reply-To: <1482701909-8714-1-git-send-email-emilbart@gmail.com>
-References: <1482701909-8714-1-git-send-email-emilbart@gmail.com>
-Reply-To: rtc-linux@googlegroups.com
+        Fri, 02 Dec 2016 09:56:53 -0800 (PST)
+Received: by mail-io0-x22f.google.com with SMTP id j65so494198363iof.0
+        for <rtc-linux@googlegroups.com>; Fri, 02 Dec 2016 09:56:53 -0800 (PST)
+Date: Fri, 2 Dec 2016 10:56:46 -0700
+From: Mathieu Poirier <mathieu.poirier@linaro.org>
+To: Amelie Delaunay <amelie.delaunay@st.com>
+Cc: a.zummo@towertech.it, alexandre.belloni@free-electrons.com,
+	robh+dt@kernel.org, mark.rutland@arm.com, mcoquelin.stm32@gmail.com,
+	alexandre.torgue@st.com, linux@armlinux.org.uk,
+	rtc-linux@googlegroups.com, devicetree@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+	gabriel.fernandez@st.com
+Subject: [rtc-linux] Re: [PATCH 3/8] rtc: add STM32 RTC driver
+Message-ID: <20161202175646.GA3284@linaro.org>
+References: <1480687801-19525-2-git-send-email-amelie.delaunay@st.com>
+ <1480687801-19525-5-git-send-email-amelie.delaunay@st.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1480687801-19525-5-git-send-email-amelie.delaunay@st.com>
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -29,229 +32,871 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-This patch adds alarm support. This allows to configure the chip
-to generate an interrupt when the alarm matches current time value.
-Alarm can be programmed up to one year in the future
-and is accurate to the second.
+On Fri, Dec 02, 2016 at 03:09:56PM +0100, Amelie Delaunay wrote:
+> This patch adds support for the STM32 RTC.
 
-Signed-off-by: Emil Bartczak <emilbart@gmail.com>
----
- drivers/rtc/rtc-mcp795.c | 171 ++++++++++++++++++++++++++++++++++++++++++++++-
- 1 file changed, 170 insertions(+), 1 deletion(-)
+Hello Amelie,
 
-diff --git a/drivers/rtc/rtc-mcp795.c b/drivers/rtc/rtc-mcp795.c
-index 8107fc0..77f2133 100644
---- a/drivers/rtc/rtc-mcp795.c
-+++ b/drivers/rtc/rtc-mcp795.c
-@@ -44,12 +44,22 @@
- #define MCP795_REG_DAY		0x04
- #define MCP795_REG_MONTH	0x06
- #define MCP795_REG_CONTROL	0x08
-+#define MCP795_REG_ALM0_SECONDS	0x0C
-+#define MCP795_REG_ALM0_DAY	0x0F
- 
- #define MCP795_ST_BIT		BIT(7)
- #define MCP795_24_BIT		BIT(6)
- #define MCP795_LP_BIT		BIT(5)
- #define MCP795_EXTOSC_BIT	BIT(3)
- #define MCP795_OSCON_BIT	BIT(5)
-+#define MCP795_ALM0_BIT		BIT(4)
-+#define MCP795_ALM1_BIT		BIT(5)
-+#define MCP795_ALM0IF_BIT	BIT(3)
-+#define MCP795_ALM0C0_BIT	BIT(4)
-+#define MCP795_ALM0C1_BIT	BIT(5)
-+#define MCP795_ALM0C2_BIT	BIT(6)
-+
-+#define SEC_PER_DAY		(24 * 60 * 60)
- 
- static int mcp795_rtcc_read(struct device *dev, u8 addr, u8 *buf, u8 count)
- {
-@@ -150,6 +160,30 @@ static int mcp795_start_oscillator(struct device *dev, bool *extosc)
- 			dev, MCP795_REG_SECONDS, MCP795_ST_BIT, MCP795_ST_BIT);
- }
- 
-+/* Enable or disable Alarm 0 in RTC */
-+static int mcp795_update_alarm(struct device *dev, bool enable)
-+{
-+	int ret;
-+
-+	dev_dbg(dev, "%s alarm\n", enable ? "Enable" : "Disable");
-+
-+	if (enable) {
-+		/* clear ALM0IF (Alarm 0 Interrupt Flag) bit */
-+		ret = mcp795_rtcc_set_bits(dev, MCP795_REG_ALM0_DAY,
-+					MCP795_ALM0IF_BIT, 0);
-+		if (ret)
-+			return ret;
-+		/* enable alarm 0 */
-+		ret = mcp795_rtcc_set_bits(dev, MCP795_REG_CONTROL,
-+					MCP795_ALM0_BIT, MCP795_ALM0_BIT);
-+	} else {
-+		/* disable alarm 0 and alarm 1 */
-+		ret = mcp795_rtcc_set_bits(dev, MCP795_REG_CONTROL,
-+					MCP795_ALM0_BIT | MCP795_ALM1_BIT, 0);
-+	}
-+	return ret;
-+}
-+
- static int mcp795_set_time(struct device *dev, struct rtc_time *tim)
- {
- 	int ret;
-@@ -231,9 +265,127 @@ static int mcp795_read_time(struct device *dev, struct rtc_time *tim)
- 	return rtc_valid_tm(tim);
- }
- 
-+static int mcp795_set_alarm(struct device *dev, struct rtc_wkalrm *alm)
-+{
-+	struct rtc_time now_tm;
-+	time64_t now;
-+	time64_t later;
-+	u8 tmp[6];
-+	int ret;
-+
-+	/* Read current time from RTC hardware */
-+	ret = mcp795_read_time(dev, &now_tm);
-+	if (ret)
-+		return ret;
-+	/* Get the number of seconds since 1970 */
-+	now = rtc_tm_to_time64(&now_tm);
-+	later = rtc_tm_to_time64(&alm->time);
-+	if (later <= now)
-+		return -EINVAL;
-+	/* make sure alarm fires within the next one year */
-+	if ((later - now) >=
-+		(SEC_PER_DAY * (365 + is_leap_year(alm->time.tm_year))))
-+		return -EDOM;
-+	/* disable alarm */
-+	ret = mcp795_update_alarm(dev, false);
-+	if (ret)
-+		return ret;
-+	/* Read registers, so we can leave configuration bits untouched */
-+	ret = mcp795_rtcc_read(dev, MCP795_REG_ALM0_SECONDS, tmp, sizeof(tmp));
-+	if (ret)
-+		return ret;
-+
-+	alm->time.tm_year	= -1;
-+	alm->time.tm_isdst	= -1;
-+	alm->time.tm_yday	= -1;
-+
-+	tmp[0] = (tmp[0] & 0x80) | bin2bcd(alm->time.tm_sec);
-+	tmp[1] = (tmp[1] & 0x80) | bin2bcd(alm->time.tm_min);
-+	tmp[2] = (tmp[2] & 0xE0) | bin2bcd(alm->time.tm_hour);
-+	tmp[3] = (tmp[3] & 0x80) | bin2bcd(alm->time.tm_wday + 1);
-+	/* set alarm match: seconds, minutes, hour, day, date and month */
-+	tmp[3] |= (MCP795_ALM0C2_BIT | MCP795_ALM0C1_BIT | MCP795_ALM0C0_BIT);
-+	tmp[4] = (tmp[4] & 0xC0) | bin2bcd(alm->time.tm_mday);
-+	tmp[5] = (tmp[5] & 0xE0) | bin2bcd(alm->time.tm_mon + 1);
-+
-+	ret = mcp795_rtcc_write(dev, MCP795_REG_ALM0_SECONDS, tmp, sizeof(tmp));
-+	if (ret)
-+		return ret;
-+
-+	/* enable alarm if requested */
-+	if (alm->enabled) {
-+		ret = mcp795_update_alarm(dev, true);
-+		if (ret)
-+			return ret;
-+		dev_dbg(dev, "Alarm IRQ armed\n");
-+	}
-+	dev_dbg(dev, "Set alarm: %02d-%02d(%d) %02d:%02d:%02d\n",
-+			alm->time.tm_mon, alm->time.tm_mday, alm->time.tm_wday,
-+			alm->time.tm_hour, alm->time.tm_min, alm->time.tm_sec);
-+	return 0;
-+}
-+
-+static int mcp795_read_alarm(struct device *dev, struct rtc_wkalrm *alm)
-+{
-+	u8 data[6];
-+	int ret;
-+
-+	ret = mcp795_rtcc_read(
-+			dev, MCP795_REG_ALM0_SECONDS, data, sizeof(data));
-+	if (ret)
-+		return ret;
-+
-+	alm->time.tm_sec	= bcd2bin(data[0] & 0x7F);
-+	alm->time.tm_min	= bcd2bin(data[1] & 0x7F);
-+	alm->time.tm_hour	= bcd2bin(data[2] & 0x1F);
-+	alm->time.tm_wday	= bcd2bin(data[3] & 0x07) - 1;
-+	alm->time.tm_mday	= bcd2bin(data[4] & 0x3F);
-+	alm->time.tm_mon	= bcd2bin(data[5] & 0x1F) - 1;
-+	alm->time.tm_year	= -1;
-+	alm->time.tm_isdst	= -1;
-+	alm->time.tm_yday	= -1;
-+
-+	dev_dbg(dev, "Read alarm: %02d-%02d(%d) %02d:%02d:%02d\n",
-+			alm->time.tm_mon, alm->time.tm_mday, alm->time.tm_wday,
-+			alm->time.tm_hour, alm->time.tm_min, alm->time.tm_sec);
-+	return 0;
-+}
-+
-+static int mcp795_alarm_irq_enable(struct device *dev, unsigned int enabled)
-+{
-+	return mcp795_update_alarm(dev, !!enabled);
-+}
-+
-+static irqreturn_t mcp795_irq(int irq, void *data)
-+{
-+	struct spi_device *spi = data;
-+	struct rtc_device *rtc = spi_get_drvdata(spi);
-+	struct mutex *lock = &rtc->ops_lock;
-+	int ret;
-+
-+	mutex_lock(lock);
-+
-+	/* Disable alarm.
-+	 * There is no need to clear ALM0IF (Alarm 0 Interrupt Flag) bit,
-+	 * because it is done every time when alarm is enabled.
-+	 */
-+	ret = mcp795_update_alarm(&spi->dev, false);
-+	if (ret)
-+		dev_err(&spi->dev,
-+			"Failed to disable alarm in IRQ (ret=%d)\n", ret);
-+	rtc_update_irq(rtc, 1, RTC_AF | RTC_IRQF);
-+
-+	mutex_unlock(lock);
-+
-+	return IRQ_HANDLED;
-+}
-+
- static const struct rtc_class_ops mcp795_rtc_ops = {
- 		.read_time = mcp795_read_time,
--		.set_time = mcp795_set_time
-+		.set_time = mcp795_set_time,
-+		.read_alarm = mcp795_read_alarm,
-+		.set_alarm = mcp795_set_alarm,
-+		.alarm_irq_enable = mcp795_alarm_irq_enable
- };
- 
- static int mcp795_probe(struct spi_device *spi)
-@@ -261,6 +413,23 @@ static int mcp795_probe(struct spi_device *spi)
- 
- 	spi_set_drvdata(spi, rtc);
- 
-+	if (spi->irq > 0) {
-+		dev_dbg(&spi->dev, "Alarm support enabled\n");
-+
-+		/* Clear any pending alarm (ALM0IF bit) before requesting
-+		 * the interrupt.
-+		 */
-+		mcp795_rtcc_set_bits(&spi->dev, MCP795_REG_ALM0_DAY,
-+					MCP795_ALM0IF_BIT, 0);
-+		ret = devm_request_threaded_irq(&spi->dev, spi->irq, NULL,
-+				mcp795_irq, IRQF_TRIGGER_FALLING | IRQF_ONESHOT,
-+				dev_name(&rtc->dev), spi);
-+		if (ret)
-+			dev_err(&spi->dev, "Failed to request IRQ: %d: %d\n",
-+						spi->irq, ret);
-+		else
-+			device_init_wakeup(&spi->dev, true);
-+	}
- 	return 0;
- }
- 
--- 
-2.7.4
+> 
+> Signed-off-by: Amelie Delaunay <amelie.delaunay@st.com>
+> ---
+>  drivers/rtc/Kconfig     |  10 +
+>  drivers/rtc/Makefile    |   1 +
+>  drivers/rtc/rtc-stm32.c | 777 ++++++++++++++++++++++++++++++++++++++++++++++++
+>  3 files changed, 788 insertions(+)
+>  create mode 100644 drivers/rtc/rtc-stm32.c
+> 
+> diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
+> index e859d14..dd8b218 100644
+> --- a/drivers/rtc/Kconfig
+> +++ b/drivers/rtc/Kconfig
+> @@ -1706,6 +1706,16 @@ config RTC_DRV_PIC32
+>  	   This driver can also be built as a module. If so, the module
+>  	   will be called rtc-pic32
+>  
+> +config RTC_DRV_STM32
+> +	tristate "STM32 On-Chip RTC"
+> +	depends on ARCH_STM32
+> +	help
+> +	   If you say yes here you get support for the STM32 On-Chip
+> +	   Real Time Clock.
+> +
+> +	   This driver can also be built as a module, if so, the module
+> +	   will be called "rtc-stm32".
+> +
+>  comment "HID Sensor RTC drivers"
+>  
+>  config RTC_DRV_HID_SENSOR_TIME
+> diff --git a/drivers/rtc/Makefile b/drivers/rtc/Makefile
+> index 1ac694a..87bd9cc 100644
+> --- a/drivers/rtc/Makefile
+> +++ b/drivers/rtc/Makefile
+> @@ -144,6 +144,7 @@ obj-$(CONFIG_RTC_DRV_SNVS)	+= rtc-snvs.o
+>  obj-$(CONFIG_RTC_DRV_SPEAR)	+= rtc-spear.o
+>  obj-$(CONFIG_RTC_DRV_STARFIRE)	+= rtc-starfire.o
+>  obj-$(CONFIG_RTC_DRV_STK17TA8)	+= rtc-stk17ta8.o
+> +obj-$(CONFIG_RTC_DRV_STM32) 	+= rtc-stm32.o
+>  obj-$(CONFIG_RTC_DRV_STMP)	+= rtc-stmp3xxx.o
+>  obj-$(CONFIG_RTC_DRV_ST_LPC)	+= rtc-st-lpc.o
+>  obj-$(CONFIG_RTC_DRV_SUN4V)	+= rtc-sun4v.o
+> diff --git a/drivers/rtc/rtc-stm32.c b/drivers/rtc/rtc-stm32.c
+> new file mode 100644
+> index 0000000..9e710ff
+> --- /dev/null
+> +++ b/drivers/rtc/rtc-stm32.c
+> @@ -0,0 +1,777 @@
+> +/*
+> + * Copyright (C) Amelie Delaunay 2015
+> + * Author:  Amelie Delaunay <adelaunay.stm32@gmail.com>
+> + * License terms:  GNU General Public License (GPL), version 2
+> + */
+> +
+> +#include <linux/bcd.h>
+> +#include <linux/clk.h>
+> +#include <linux/init.h>
+> +#include <linux/io.h>
+> +#include <linux/iopoll.h>
+> +#include <linux/ioport.h>
+> +#include <linux/kernel.h>
+> +#include <linux/mfd/syscon.h>
+> +#include <linux/module.h>
+> +#include <linux/of.h>
+> +#include <linux/of_device.h>
+> +#include <linux/platform_device.h>
+> +#include <linux/regmap.h>
+> +#include <linux/rtc.h>
+> +#include <linux/spinlock.h>
+> +
+> +#define DRIVER_NAME "stm32_rtc"
+> +
+> +/* STM32 RTC registers */
+> +#define STM32_RTC_TR		0x00
+> +#define STM32_RTC_DR		0x04
+> +#define STM32_RTC_CR		0x08
+> +#define STM32_RTC_ISR		0x0C
+> +#define STM32_RTC_PRER		0x10
+> +#define STM32_RTC_ALRMAR	0x1C
+> +#define STM32_RTC_WPR		0x24
+> +
+> +/* STM32_RTC_TR bit fields  */
+> +#define STM32_RTC_TR_SEC_SHIFT		0
+> +#define STM32_RTC_TR_SEC		GENMASK(6, 0)
+> +#define STM32_RTC_TR_MIN_SHIFT		8
+> +#define STM32_RTC_TR_MIN		GENMASK(14, 8)
+> +#define STM32_RTC_TR_HOUR_SHIFT		16
+> +#define STM32_RTC_TR_HOUR		GENMASK(21, 16)
+> +
+> +/* STM32_RTC_DR bit fields */
+> +#define STM32_RTC_DR_DATE_SHIFT		0
+> +#define STM32_RTC_DR_DATE		GENMASK(5, 0)
+> +#define STM32_RTC_DR_MONTH_SHIFT	8
+> +#define STM32_RTC_DR_MONTH		GENMASK(11, 8)
+> +#define STM32_RTC_DR_WDAY_SHIFT		13
+> +#define STM32_RTC_DR_WDAY		GENMASK(15, 13)
+> +#define STM32_RTC_DR_YEAR_SHIFT		16
+> +#define STM32_RTC_DR_YEAR		GENMASK(23, 16)
+> +
+> +/* STM32_RTC_CR bit fields */
+> +#define STM32_RTC_CR_FMT		BIT(6)
+> +#define STM32_RTC_CR_ALRAE		BIT(8)
+> +#define STM32_RTC_CR_ALRAIE		BIT(12)
+> +
+> +/* STM32_RTC_ISR bit fields */
+> +#define STM32_RTC_ISR_ALRAWF		BIT(0)
+> +#define STM32_RTC_ISR_INITS		BIT(4)
+> +#define STM32_RTC_ISR_RSF		BIT(5)
+> +#define STM32_RTC_ISR_INITF		BIT(6)
+> +#define STM32_RTC_ISR_INIT		BIT(7)
+> +#define STM32_RTC_ISR_ALRAF		BIT(8)
+> +
+> +/* STM32_RTC_PRER bit fields */
+> +#define STM32_RTC_PRER_PRED_S_SHIFT	0
+> +#define STM32_RTC_PRER_PRED_S		GENMASK(14, 0)
+> +#define STM32_RTC_PRER_PRED_A_SHIFT	16
+> +#define STM32_RTC_PRER_PRED_A		GENMASK(22, 16)
+> +
+> +/* STM32_RTC_ALRMAR and STM32_RTC_ALRMBR bit fields */
+> +#define STM32_RTC_ALRMXR_SEC_SHIFT	0
+> +#define STM32_RTC_ALRMXR_SEC		GENMASK(6, 0)
+> +#define STM32_RTC_ALRMXR_SEC_MASK	BIT(7)
+> +#define STM32_RTC_ALRMXR_MIN_SHIFT	8
+> +#define STM32_RTC_ALRMXR_MIN		GENMASK(14, 8)
+> +#define STM32_RTC_ALRMXR_MIN_MASK	BIT(15)
+> +#define STM32_RTC_ALRMXR_HOUR_SHIFT	16
+> +#define STM32_RTC_ALRMXR_HOUR		GENMASK(21, 16)
+> +#define STM32_RTC_ALRMXR_PM		BIT(22)
+> +#define STM32_RTC_ALRMXR_HOUR_MASK	BIT(23)
+> +#define STM32_RTC_ALRMXR_DATE_SHIFT	24
+> +#define STM32_RTC_ALRMXR_DATE		GENMASK(29, 24)
+> +#define STM32_RTC_ALRMXR_WDSEL		BIT(30)
+> +#define STM32_RTC_ALRMXR_WDAY_SHIFT	24
+> +#define STM32_RTC_ALRMXR_WDAY		GENMASK(27, 24)
+> +#define STM32_RTC_ALRMXR_DATE_MASK	BIT(31)
+> +
+> +/* STM32_RTC_WPR key constants */
+> +#define RTC_WPR_1ST_KEY			0xCA
+> +#define RTC_WPR_2ND_KEY			0x53
+> +#define RTC_WPR_WRONG_KEY		0xFF
+> +
+> +/*
+> + * RTC registers are protected agains parasitic write access.
+> + * PWR_CR_DBP bit must be set to enable write access to RTC registers.
+> + */
+> +/* STM32_PWR_CR */
+> +#define PWR_CR				0x00
+> +/* STM32_PWR_CR bit field */
+> +#define PWR_CR_DBP			BIT(8)
+> +
+> +static struct regmap *dbp;
+> +
+> +struct stm32_rtc {
+> +	struct rtc_device *rtc_dev;
+> +	void __iomem *base;
+> +	struct clk *pclk;
+> +	struct clk *ck_rtc;
+> +	unsigned int clksrc;
+> +	spinlock_t lock; /* Protects registers accesses */
+> +	int irq_alarm;
+> +	struct regmap *pwrcr;
+> +};
+> +
+> +static inline unsigned int stm32_rtc_readl(struct stm32_rtc *rtc,
+> +					   unsigned int offset)
+> +{
+> +	return readl_relaxed(rtc->base + offset);
+> +}
+> +
+> +static inline void stm32_rtc_writel(struct stm32_rtc *rtc,
+> +				    unsigned int offset, unsigned int value)
+> +{
+> +	writel_relaxed(value, rtc->base + offset);
+> +}
+
+I'm not sure wrapping the readl/writel_relaxed function does anything special
+other than simply redirecting the reader to another section of the code.
+
+> +
+> +static void stm32_rtc_wpr_unlock(struct stm32_rtc *rtc)
+> +{
+> +//	if (dbp)
+> +//		regmap_update_bits(dbp, PWR_CR, PWR_CR_DBP, PWR_CR_DBP);
+
+Did checkpatch let you get away with this?  What did you intend to do here? 
+
+> +
+> +	stm32_rtc_writel(rtc, STM32_RTC_WPR, RTC_WPR_1ST_KEY);
+> +	stm32_rtc_writel(rtc, STM32_RTC_WPR, RTC_WPR_2ND_KEY);
+> +}
+> +
+> +static void stm32_rtc_wpr_lock(struct stm32_rtc *rtc)
+> +{
+> +	stm32_rtc_writel(rtc, STM32_RTC_WPR, RTC_WPR_WRONG_KEY);
+> +
+> +//	if (dbp)
+> +//		regmap_update_bits(dbp, PWR_CR, PWR_CR_DBP, ~PWR_CR_DBP);
+> +}
+> +
+> +static int stm32_rtc_enter_init_mode(struct stm32_rtc *rtc)
+> +{
+> +	unsigned int isr = stm32_rtc_readl(rtc, STM32_RTC_ISR);
+> +
+> +	if (!(isr & STM32_RTC_ISR_INITF)) {
+> +		isr |= STM32_RTC_ISR_INIT;
+> +		stm32_rtc_writel(rtc, STM32_RTC_ISR, isr);
+> +
+> +		return readl_relaxed_poll_timeout_atomic(
+> +					rtc->base + STM32_RTC_ISR,
+> +					isr, (isr & STM32_RTC_ISR_INITF),
+> +					10, 100000);
+
+When using hard coded numerics please add comments that explains the reason
+behind the selected values.
+
+> +	}
+> +
+> +	return 0;
+> +}
+> +
+> +static void stm32_rtc_exit_init_mode(struct stm32_rtc *rtc)
+> +{
+> +	unsigned int isr = stm32_rtc_readl(rtc, STM32_RTC_ISR);
+> +
+> +	isr &= ~STM32_RTC_ISR_INIT;
+> +	stm32_rtc_writel(rtc, STM32_RTC_ISR, isr);
+> +}
+> +
+> +static int stm32_rtc_wait_sync(struct stm32_rtc *rtc)
+> +{
+> +	unsigned int isr;
+> +
+> +	isr = stm32_rtc_readl(rtc, STM32_RTC_ISR);
+> +
+> +	isr &= ~STM32_RTC_ISR_RSF;
+> +	stm32_rtc_writel(rtc, STM32_RTC_ISR, isr);
+> +
+> +	/* Wait the registers to be synchronised */
+> +	return readl_relaxed_poll_timeout_atomic(rtc->base + STM32_RTC_ISR,
+> +						 isr,
+> +						 (isr & STM32_RTC_ISR_RSF),
+> +						 10, 100000);
+
+Shouldn't the break condition be !((isr & STM32_RTC_ISR_RSF) ?  If not this
+probably deserve a better comment.
+
+> +}
+> +
+> +static irqreturn_t stm32_rtc_alarm_irq(int irq, void *dev_id)
+> +{
+> +	struct stm32_rtc *rtc = (struct stm32_rtc *)dev_id;
+> +	unsigned long irqflags, events = 0;
+> +	unsigned int isr, cr;
+> +
+> +	spin_lock_irqsave(&rtc->lock, irqflags);
+> +
+> +	isr = stm32_rtc_readl(rtc, STM32_RTC_ISR);
+> +	cr = stm32_rtc_readl(rtc, STM32_RTC_CR);
+> +
+> +	if ((isr & STM32_RTC_ISR_ALRAF) &&
+> +	    (cr & STM32_RTC_CR_ALRAIE)) {
+> +		/* Alarm A flag - Alarm interrupt */
+> +		events |= RTC_IRQF | RTC_AF;
+> +		isr &= ~STM32_RTC_ISR_ALRAF;
+> +	}
+> +
+> +	/* Clear event irqflags, otherwise new events won't be received */
+> +	stm32_rtc_writel(rtc, STM32_RTC_ISR, isr);
+> +
+> +	spin_unlock_irqrestore(&rtc->lock, irqflags);
+> +
+> +	if (events) {
+> +		dev_info(&rtc->rtc_dev->dev, "Alarm occurred\n");
+> +
+> +		/* Pass event to the kernel */
+> +		rtc_update_irq(rtc->rtc_dev, 1, events);
+> +		return IRQ_HANDLED;
+> +	} else {
+> +		return IRQ_NONE;
+> +	}
+> +}
+> +
+> +/* Convert rtc_time structure from bin to bcd format */
+> +static void tm2bcd(struct rtc_time *tm)
+> +{
+> +	tm->tm_sec = bin2bcd(tm->tm_sec);
+> +	tm->tm_min = bin2bcd(tm->tm_min);
+> +	tm->tm_hour = bin2bcd(tm->tm_hour);
+> +
+> +	tm->tm_mday = bin2bcd(tm->tm_mday);
+> +	tm->tm_mon = bin2bcd(tm->tm_mon + 1);
+> +	tm->tm_year = bin2bcd(tm->tm_year - 100);
+> +	/*
+> +	 * Number of days since Sunday
+> +	 * - on kernel side, 0=Sunday...6=Saturday
+> +	 * - on rtc side, 0=invalid,1=Monday...7=Sunday
+> +	 */
+> +	tm->tm_wday = (!tm->tm_wday) ? 7 : tm->tm_wday;
+> +}
+> +
+> +/* Convert rtc_time structure from bcd to bin format */
+> +static void bcd2tm(struct rtc_time *tm)
+> +{
+> +	tm->tm_sec = bcd2bin(tm->tm_sec);
+> +	tm->tm_min = bcd2bin(tm->tm_min);
+> +	tm->tm_hour = bcd2bin(tm->tm_hour);
+> +
+> +	tm->tm_mday = bcd2bin(tm->tm_mday);
+> +	tm->tm_mon = bcd2bin(tm->tm_mon) - 1;
+> +	tm->tm_year = bcd2bin(tm->tm_year) + 100;
+> +	/*
+> +	 * Number of days since Sunday
+> +	 * - on kernel side, 0=Sunday...6=Saturday
+> +	 * - on rtc side, 0=invalid,1=Monday...7=Sunday
+> +	 */
+> +	tm->tm_wday %= 7;
+> +}
+> +
+> +static int stm32_rtc_read_time(struct device *dev, struct rtc_time *tm)
+> +{
+> +	struct stm32_rtc *rtc = dev_get_drvdata(dev);
+> +	unsigned int tr, dr;
+> +	unsigned long irqflags;
+> +
+> +	spin_lock_irqsave(&rtc->lock, irqflags);
+> +
+> +	/* Time and Date in BCD format */
+> +	tr = stm32_rtc_readl(rtc, STM32_RTC_TR);
+> +	dr = stm32_rtc_readl(rtc, STM32_RTC_DR);
+> +
+> +	spin_unlock_irqrestore(&rtc->lock, irqflags);
+> +
+> +	tm->tm_sec = (tr & STM32_RTC_TR_SEC) >> STM32_RTC_TR_SEC_SHIFT;
+> +	tm->tm_min = (tr & STM32_RTC_TR_MIN) >> STM32_RTC_TR_MIN_SHIFT;
+> +	tm->tm_hour = (tr & STM32_RTC_TR_HOUR) >> STM32_RTC_TR_HOUR_SHIFT;
+> +
+> +	tm->tm_mday = (dr & STM32_RTC_DR_DATE) >> STM32_RTC_DR_DATE_SHIFT;
+> +	tm->tm_mon = (dr & STM32_RTC_DR_MONTH) >> STM32_RTC_DR_MONTH_SHIFT;
+> +	tm->tm_year = (dr & STM32_RTC_DR_YEAR) >> STM32_RTC_DR_YEAR_SHIFT;
+> +	tm->tm_wday = (dr & STM32_RTC_DR_WDAY) >> STM32_RTC_DR_WDAY_SHIFT;
+> +
+> +	/* We don't report tm_yday and tm_isdst */
+> +
+> +	bcd2tm(tm);
+> +
+> +	if (rtc_valid_tm(tm) < 0) {
+> +		dev_err(dev, "%s: rtc_time is not valid.\n", __func__);
+> +		return -EINVAL;
+> +	}
+> +
+> +	return 0;
+> +}
+> +
+> +static int stm32_rtc_set_time(struct device *dev, struct rtc_time *tm)
+> +{
+> +	struct stm32_rtc *rtc = dev_get_drvdata(dev);
+> +	unsigned int tr, dr;
+> +	unsigned long irqflags;
+> +	int ret = 0;
+> +
+> +	if (rtc_valid_tm(tm) < 0) {
+> +		dev_err(dev, "%s: rtc_time is not valid.\n", __func__);
+> +		return -EINVAL;
+> +	}
+> +
+> +	tm2bcd(tm);
+> +
+> +	/* Time in BCD format */
+> +	tr = ((tm->tm_sec << STM32_RTC_TR_SEC_SHIFT) & STM32_RTC_TR_SEC) |
+> +	     ((tm->tm_min << STM32_RTC_TR_MIN_SHIFT) & STM32_RTC_TR_MIN) |
+> +	     ((tm->tm_hour << STM32_RTC_TR_HOUR_SHIFT) & STM32_RTC_TR_HOUR);
+> +
+> +	/* Date in BCD format */
+> +	dr = ((tm->tm_mday << STM32_RTC_DR_DATE_SHIFT) & STM32_RTC_DR_DATE) |
+> +	     ((tm->tm_mon << STM32_RTC_DR_MONTH_SHIFT) & STM32_RTC_DR_MONTH) |
+> +	     ((tm->tm_year << STM32_RTC_DR_YEAR_SHIFT) & STM32_RTC_DR_YEAR) |
+> +	     ((tm->tm_wday << STM32_RTC_DR_WDAY_SHIFT) & STM32_RTC_DR_WDAY);
+> +
+> +	spin_lock_irqsave(&rtc->lock, irqflags);
+> +
+> +	stm32_rtc_wpr_unlock(rtc);
+> +
+> +	ret = stm32_rtc_enter_init_mode(rtc);
+> +	if (ret) {
+> +		dev_err(dev, "Can't enter in init mode. Set time aborted.\n");
+> +		goto end;
+> +	}
+> +
+> +	stm32_rtc_writel(rtc, STM32_RTC_TR, tr);
+> +	stm32_rtc_writel(rtc, STM32_RTC_DR, dr);
+> +
+> +	stm32_rtc_exit_init_mode(rtc);
+> +
+> +	ret = stm32_rtc_wait_sync(rtc);
+> +end:
+> +	stm32_rtc_wpr_lock(rtc);
+> +
+> +	spin_unlock_irqrestore(&rtc->lock, irqflags);
+> +
+> +	return ret;
+> +}
+> +
+> +static int stm32_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
+> +{
+> +	struct stm32_rtc *rtc = dev_get_drvdata(dev);
+> +	struct rtc_time *tm = &alrm->time;
+> +	unsigned int alrmar, cr, isr;
+> +	unsigned long irqflags;
+> +
+> +	spin_lock_irqsave(&rtc->lock, irqflags);
+> +
+> +	alrmar = stm32_rtc_readl(rtc, STM32_RTC_ALRMAR);
+> +	cr = stm32_rtc_readl(rtc, STM32_RTC_CR);
+> +	isr = stm32_rtc_readl(rtc, STM32_RTC_ISR);
+> +
+> +	spin_unlock_irqrestore(&rtc->lock, irqflags);
+> +
+> +	if (alrmar & STM32_RTC_ALRMXR_DATE_MASK) {
+> +		/*
+> +		 * Date/day don't care in Alarm comparison so alarm triggers
+> +		 * every day
+> +		 */
+> +		tm->tm_mday = -1;
+> +		tm->tm_wday = -1;
+> +	} else {
+> +		if (alrmar & STM32_RTC_ALRMXR_WDSEL) {
+> +			/* Alarm is set to a day of week */
+> +			tm->tm_mday = -1;
+> +			tm->tm_wday = (alrmar & STM32_RTC_ALRMXR_WDAY) >>
+> +				      STM32_RTC_ALRMXR_WDAY_SHIFT;
+> +			tm->tm_wday %= 7;
+> +		} else {
+> +			/* Alarm is set to a day of month */
+> +			tm->tm_wday = -1;
+> +			tm->tm_mday = (alrmar & STM32_RTC_ALRMXR_DATE) >>
+> +				       STM32_RTC_ALRMXR_DATE_SHIFT;
+> +		}
+> +	}
+> +
+> +	if (alrmar & STM32_RTC_ALRMXR_HOUR_MASK) {
+> +		/* Hours don't care in Alarm comparison */
+> +		tm->tm_hour = -1;
+> +	} else {
+> +		tm->tm_hour = (alrmar & STM32_RTC_ALRMXR_HOUR) >>
+> +			       STM32_RTC_ALRMXR_HOUR_SHIFT;
+> +		if (alrmar & STM32_RTC_ALRMXR_PM)
+> +			tm->tm_hour += 12;
+> +	}
+> +
+> +	if (alrmar & STM32_RTC_ALRMXR_MIN_MASK) {
+> +		/* Minutes don't care in Alarm comparison */
+> +		tm->tm_min = -1;
+> +	} else {
+> +		tm->tm_min = (alrmar & STM32_RTC_ALRMXR_MIN) >>
+> +			      STM32_RTC_ALRMXR_MIN_SHIFT;
+> +	}
+> +
+> +	if (alrmar & STM32_RTC_ALRMXR_SEC_MASK) {
+> +		/* Seconds don't care in Alarm comparison */
+> +		tm->tm_sec = -1;
+> +	} else {
+> +		tm->tm_sec = (alrmar & STM32_RTC_ALRMXR_SEC) >>
+> +			      STM32_RTC_ALRMXR_SEC_SHIFT;
+> +	}
+> +
+> +	bcd2tm(tm);
+> +
+> +	alrm->enabled = (cr & STM32_RTC_CR_ALRAE) ? 1 : 0;
+> +	alrm->pending = (isr & STM32_RTC_ISR_ALRAF) ? 1 : 0;
+> +
+> +	return 0;
+> +}
+> +
+> +static int stm32_rtc_alarm_irq_enable(struct device *dev, unsigned int enabled)
+> +{
+> +	struct stm32_rtc *rtc = dev_get_drvdata(dev);
+> +	unsigned long irqflags;
+> +	unsigned int isr, cr;
+> +
+> +	cr = stm32_rtc_readl(rtc, STM32_RTC_CR);
+
+Is the STM32_RTC_CR garanteed to be valid, i.e updated atomically?  If not this
+should probably be below the spinlock. 
+
+> +
+> +	spin_lock_irqsave(&rtc->lock, irqflags);
+> +
+> +	stm32_rtc_wpr_unlock(rtc);
+> +
+> +	/* We expose Alarm A to the kernel */
+> +	if (enabled)
+> +		cr |= (STM32_RTC_CR_ALRAIE | STM32_RTC_CR_ALRAE);
+> +	else
+> +		cr &= ~(STM32_RTC_CR_ALRAIE | STM32_RTC_CR_ALRAE);
+> +	stm32_rtc_writel(rtc, STM32_RTC_CR, cr);
+> +
+> +	/* Clear event irqflags, otherwise new events won't be received */
+> +	isr = stm32_rtc_readl(rtc, STM32_RTC_ISR);
+> +	isr &= ~STM32_RTC_ISR_ALRAF;
+> +	stm32_rtc_writel(rtc, STM32_RTC_ISR, isr);
+> +
+> +	stm32_rtc_wpr_lock(rtc);
+> +
+> +	spin_unlock_irqrestore(&rtc->lock, irqflags);
+> +
+> +	return 0;
+> +}
+> +
+> +static int stm32_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
+> +{
+> +	struct stm32_rtc *rtc = dev_get_drvdata(dev);
+> +	struct rtc_time *tm = &alrm->time;
+> +	unsigned long irqflags;
+> +	unsigned int cr, isr, alrmar;
+> +	int ret = 0;
+> +
+> +	if (rtc_valid_tm(tm)) {
+> +		dev_err(dev, "Alarm time not valid.\n");
+> +		return -EINVAL;
+> +	}
+> +
+> +	tm2bcd(tm);
+> +
+> +	spin_lock_irqsave(&rtc->lock, irqflags);
+> +
+> +	stm32_rtc_wpr_unlock(rtc);
+> +
+> +	/* Disable Alarm */
+> +	cr = stm32_rtc_readl(rtc, STM32_RTC_CR);
+> +	cr &= ~STM32_RTC_CR_ALRAE;
+> +	stm32_rtc_writel(rtc, STM32_RTC_CR, cr);
+> +
+> +	/* Poll Alarm write flag to be sure that Alarm update is allowed */
+> +	ret = readl_relaxed_poll_timeout_atomic(rtc->base + STM32_RTC_ISR,
+> +						isr,
+> +						(isr & STM32_RTC_ISR_ALRAWF),
+> +						10, 100);
+> +
+> +	if (ret) {
+> +		dev_err(dev, "Alarm update not allowed\n");
+> +		goto end;
+> +	}
+> +
+> +	alrmar = 0;
+> +
+> +	if (tm->tm_mday < 0 && tm->tm_wday < 0) {
+> +		/*
+> +		 * Date/day don't care in Alarm comparison so alarm triggers
+> +		 * every day
+> +		 */
+> +		alrmar |= STM32_RTC_ALRMXR_DATE_MASK;
+> +	} else {
+> +		if (tm->tm_mday > 0) {
+> +			/* Date is selected (ignoring wday) */
+> +			alrmar |= (tm->tm_mday << STM32_RTC_ALRMXR_DATE_SHIFT) &
+> +				  STM32_RTC_ALRMXR_DATE;
+> +		} else {
+> +			/* Day of week is selected */
+> +			int wday = (tm->tm_wday == 0) ? 7 : tm->tm_wday;
+> +
+> +			alrmar |= STM32_RTC_ALRMXR_WDSEL;
+> +			alrmar |= (wday << STM32_RTC_ALRMXR_WDAY_SHIFT) &
+> +				  STM32_RTC_ALRMXR_WDAY;
+> +		}
+> +	}
+> +
+> +	if (tm->tm_hour < 0) {
+> +		/* Hours don't care in Alarm comparison */
+> +		alrmar |= STM32_RTC_ALRMXR_HOUR_MASK;
+> +	} else {
+> +		/* 24-hour format */
+> +		alrmar &= ~STM32_RTC_ALRMXR_PM;
+> +		alrmar |= (tm->tm_hour << STM32_RTC_ALRMXR_HOUR_SHIFT) &
+> +			  STM32_RTC_ALRMXR_HOUR;
+> +	}
+> +
+> +	if (tm->tm_min < 0) {
+> +		/* Minutes don't care in Alarm comparison */
+> +		alrmar |= STM32_RTC_ALRMXR_MIN_MASK;
+> +	} else {
+> +		alrmar |= (tm->tm_min << STM32_RTC_ALRMXR_MIN_SHIFT) &
+> +			  STM32_RTC_ALRMXR_MIN;
+> +	}
+> +
+> +	if (tm->tm_sec < 0) {
+> +		/* Seconds don't care in Alarm comparison */
+> +		alrmar |= STM32_RTC_ALRMXR_SEC_MASK;
+> +	} else {
+> +		alrmar |= (tm->tm_sec << STM32_RTC_ALRMXR_SEC_SHIFT) &
+> +			  STM32_RTC_ALRMXR_SEC;
+> +	}
+> +
+> +	/* Write to Alarm register */
+> +	stm32_rtc_writel(rtc, STM32_RTC_ALRMAR, alrmar);
+> +
+> +	if (alrm->enabled)
+> +		stm32_rtc_alarm_irq_enable(dev, 1);
+> +	else
+> +		stm32_rtc_alarm_irq_enable(dev, 0);
+> +
+> +end:
+> +	stm32_rtc_wpr_lock(rtc);
+> +
+> +	spin_unlock_irqrestore(&rtc->lock, irqflags);
+> +
+> +	return ret;
+> +}
+> +
+> +static const struct rtc_class_ops stm32_rtc_ops = {
+> +	.read_time	= stm32_rtc_read_time,
+> +	.set_time	= stm32_rtc_set_time,
+> +	.read_alarm	= stm32_rtc_read_alarm,
+> +	.set_alarm	= stm32_rtc_set_alarm,
+> +	.alarm_irq_enable = stm32_rtc_alarm_irq_enable,
+> +};
+> +
+> +#ifdef CONFIG_OF
+> +static const struct of_device_id stm32_rtc_of_match[] = {
+> +	{ .compatible = "st,stm32-rtc" },
+> +	{}
+> +};
+> +MODULE_DEVICE_TABLE(of, stm32_rtc_of_match);
+> +#endif
+> +
+> +static int stm32_rtc_init(struct platform_device *pdev,
+> +			  struct stm32_rtc *rtc)
+> +{
+> +	unsigned int prer, pred_a, pred_s, pred_a_max, pred_s_max, cr;
+> +	unsigned int rate;
+> +	unsigned long irqflags;
+> +	int ret = 0;
+> +
+> +	rate = clk_get_rate(rtc->ck_rtc);
+> +
+> +	/* Find prediv_a and prediv_s to obtain the 1Hz calendar clock */
+> +	pred_a_max = STM32_RTC_PRER_PRED_A >> STM32_RTC_PRER_PRED_A_SHIFT;
+> +	pred_s_max = STM32_RTC_PRER_PRED_S >> STM32_RTC_PRER_PRED_S_SHIFT;
+> +
+> +	for (pred_a = pred_a_max; pred_a >= 0; pred_a--) {
+> +		pred_s = (rate / (pred_a + 1)) - 1;
+> +
+> +		if (((pred_s + 1) * (pred_a + 1)) == rate)
+> +			break;
+> +	}
+> +
+> +	/*
+> +	 * Can't find a 1Hz, so give priority to RTC power consumption
+> +	 * by choosing the higher possible value for prediv_a
+> +	 */
+> +	if ((pred_s > pred_s_max) || (pred_a > pred_a_max)) {
+> +		pred_a = pred_a_max;
+> +		pred_s = (rate / (pred_a + 1)) - 1;
+> +
+> +		dev_warn(&pdev->dev, "ck_rtc is %s\n",
+> +			 (rate - ((pred_a + 1) * (pred_s + 1)) < 0) ?
+> +			 "fast" : "slow");
+> +	}
+> +
+> +	spin_lock_irqsave(&rtc->lock, irqflags);
+> +
+> +	stm32_rtc_wpr_unlock(rtc);
+> +
+> +	ret = stm32_rtc_enter_init_mode(rtc);
+> +	if (ret) {
+> +		dev_err(&pdev->dev,
+> +			"Can't enter in init mode. Prescaler config failed.\n");
+> +		goto end;
+> +	}
+> +
+> +	prer = (pred_s << STM32_RTC_PRER_PRED_S_SHIFT) & STM32_RTC_PRER_PRED_S;
+> +	stm32_rtc_writel(rtc, STM32_RTC_PRER, prer);
+> +	prer |= (pred_a << STM32_RTC_PRER_PRED_A_SHIFT) & STM32_RTC_PRER_PRED_A;
+> +	stm32_rtc_writel(rtc, STM32_RTC_PRER, prer);
+> +
+> +	/* Force 24h time format */
+> +	cr = stm32_rtc_readl(rtc, STM32_RTC_CR);
+> +	cr &= ~STM32_RTC_CR_FMT;
+> +	stm32_rtc_writel(rtc, STM32_RTC_CR, cr);
+> +
+> +	stm32_rtc_exit_init_mode(rtc);
+> +
+> +	ret = stm32_rtc_wait_sync(rtc);
+> +
+> +	if (stm32_rtc_readl(rtc, STM32_RTC_ISR) & STM32_RTC_ISR_INITS)
+> +		dev_warn(&pdev->dev, "Date/Time must be initialized\n");
+> +end:
+> +	stm32_rtc_wpr_lock(rtc);
+> +
+> +	spin_unlock_irqrestore(&rtc->lock, irqflags);
+> +
+> +	return ret;
+> +}
+> +
+> +static int stm32_rtc_probe(struct platform_device *pdev)
+> +{
+> +	struct stm32_rtc *rtc;
+> +	struct resource *res;
+> +	int ret;
+> +
+> +	rtc = devm_kzalloc(&pdev->dev, sizeof(*rtc), GFP_KERNEL);
+> +	if (!rtc)
+> +		return -ENOMEM;
+> +
+> +	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+
+The value of 'res' should be checked before using it.
+
+> +	rtc->base = devm_ioremap_resource(&pdev->dev, res);
+> +	if (IS_ERR(rtc->base))
+> +		return PTR_ERR(rtc->base);
+> +
+> +	dbp = syscon_regmap_lookup_by_phandle(pdev->dev.of_node, "st,syscfg");
+> +	if (IS_ERR(dbp)) {
+> +		dev_err(&pdev->dev, "no st,syscfg\n");
+> +		return PTR_ERR(dbp);
+> +	}
+> +
+> +	spin_lock_init(&rtc->lock);
+> +
+> +	rtc->ck_rtc = devm_clk_get(&pdev->dev, "ck_rtc");
+> +	if (IS_ERR(rtc->ck_rtc)) {
+> +		dev_err(&pdev->dev, "no ck_rtc clock");
+> +		return PTR_ERR(rtc->ck_rtc);
+> +	}
+> +
+> +	ret = clk_prepare_enable(rtc->ck_rtc);
+> +	if (ret)
+> +		return ret;
+> +
+> +	if (dbp)
+> +		regmap_update_bits(dbp, PWR_CR, PWR_CR_DBP, PWR_CR_DBP);
+
+The code above exits if there is a problem with the dbp, there is no point in
+checking again.
+
+> +
+> +	ret = stm32_rtc_init(pdev, rtc);
+> +	if (ret)
+> +		goto err;
+> +
+> +	rtc->irq_alarm = platform_get_irq_byname(pdev, "alarm");
+> +	if (rtc->irq_alarm <= 0) {
+> +		dev_err(&pdev->dev, "no alarm irq\n");
+> +		ret = -ENOENT;
+> +		goto err;
+> +	}
+> +
+> +	platform_set_drvdata(pdev, rtc);
+> +
+> +	device_init_wakeup(&pdev->dev, true);
+
+What happens if device_init_wakeup() returns an error?
+
+> +
+> +	rtc->rtc_dev = devm_rtc_device_register(&pdev->dev, pdev->name,
+> +			&stm32_rtc_ops, THIS_MODULE);
+> +	if (IS_ERR(rtc->rtc_dev)) {
+> +		ret = PTR_ERR(rtc->rtc_dev);
+> +		dev_err(&pdev->dev, "rtc device registration failed, err=%d\n",
+> +			ret);
+> +		goto err;
+> +	}
+> +
+> +	/* Handle RTC alarm interrupts */
+> +	ret = devm_request_irq(&pdev->dev, rtc->irq_alarm,
+> +			       stm32_rtc_alarm_irq, IRQF_TRIGGER_RISING,
+> +			       dev_name(&rtc->rtc_dev->dev), rtc);
+> +	if (ret) {
+> +		dev_err(&pdev->dev, "IRQ%d (alarm interrupt) already claimed\n",
+> +			rtc->irq_alarm);
+> +		goto err;
+> +	}
+> +
+> +	return 0;
+> +err:
+> +	clk_disable_unprepare(rtc->ck_rtc);
+> +
+> +	if (dbp)
+> +		regmap_update_bits(dbp, PWR_CR, PWR_CR_DBP, ~PWR_CR_DBP);
+
+Same comment as above.
+
+> +
+> +	device_init_wakeup(&pdev->dev, false);
+> +
+> +	return ret;
+> +}
+> +
+> +static int __exit stm32_rtc_remove(struct platform_device *pdev)
+> +{
+> +	struct stm32_rtc *rtc = platform_get_drvdata(pdev);
+> +	unsigned int cr;
+> +
+> +	/* Disable interrupts */
+> +	stm32_rtc_wpr_unlock(rtc);
+> +	cr = stm32_rtc_readl(rtc, STM32_RTC_CR);
+> +	cr &= ~STM32_RTC_CR_ALRAIE;
+> +	stm32_rtc_writel(rtc, STM32_RTC_CR, cr);
+> +	stm32_rtc_wpr_lock(rtc);
+> +
+> +	clk_disable_unprepare(rtc->ck_rtc);
+> +
+> +	/* Enable backup domain write protection */
+> +	if (dbp)
+> +		regmap_update_bits(dbp, PWR_CR, PWR_CR_DBP, ~PWR_CR_DBP);
+> +
+> +	device_init_wakeup(&pdev->dev, false);
+> +
+> +	return 0;
+> +}
+> +
+> +#ifdef CONFIG_PM_SLEEP
+> +static int stm32_rtc_suspend(struct device *dev)
+> +{
+> +	struct stm32_rtc *rtc = dev_get_drvdata(dev);
+> +
+> +	if (device_may_wakeup(dev))
+> +		return enable_irq_wake(rtc->irq_alarm);
+> +
+> +	return 0;
+> +}
+> +
+> +static int stm32_rtc_resume(struct device *dev)
+> +{
+> +	struct stm32_rtc *rtc = dev_get_drvdata(dev);
+> +	int ret = 0;
+> +
+> +	ret = stm32_rtc_wait_sync(rtc);
+> +	if (ret < 0)
+> +		return ret;
+> +
+> +	if (device_may_wakeup(dev))
+> +		return disable_irq_wake(rtc->irq_alarm);
+> +
+> +	return ret;
+> +}
+> +#endif
+> +
+> +static SIMPLE_DEV_PM_OPS(stm32_rtc_pm_ops,
+> +			 stm32_rtc_suspend, stm32_rtc_resume);
+> +
+> +static struct platform_driver stm32_rtc_driver = {
+> +	.probe		= stm32_rtc_probe,
+> +	.remove		= stm32_rtc_remove,
+> +	.driver		= {
+> +		.name	= DRIVER_NAME,
+> +		.pm	= &stm32_rtc_pm_ops,
+> +		.of_match_table = stm32_rtc_of_match,
+> +	},
+> +};
+> +
+> +module_platform_driver(stm32_rtc_driver);
+> +
+> +MODULE_ALIAS("platform:" DRIVER_NAME);
+> +MODULE_AUTHOR("Amelie Delaunay <amelie.delaunay@st.com>");
+> +MODULE_DESCRIPTION("STMicroelectronics STM32 Real Time Clock driver");
+> +MODULE_LICENSE("GPL v2");
+> -- 
+> 1.9.1
+> 
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
