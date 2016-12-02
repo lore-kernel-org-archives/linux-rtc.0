@@ -1,41 +1,26 @@
-Return-Path: <rtc-linux+bncBAABBKPKXHBAKGQE2GEU3TQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBAABBT4CQ3BAKGQEHFUXCMA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 Received: from mx07-00178001.pphosted.com (mx07-00178001.pphosted.com. [62.209.51.94])
-        by gmr-mx.google.com with ESMTPS id l206si2210967wmf.2.2016.12.12.02.00.09
+        by gmr-mx.google.com with ESMTPS id d6si419626wmd.0.2016.12.02.06.12.30
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 12 Dec 2016 02:00:09 -0800 (PST)
-Subject: [rtc-linux] Re: [PATCH 3/8] rtc: add STM32 RTC driver
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+        Fri, 02 Dec 2016 06:12:31 -0800 (PST)
+From: Amelie Delaunay <amelie.delaunay@st.com>
+To: <a.zummo@towertech.it>, <alexandre.belloni@free-electrons.com>,
+        <robh+dt@kernel.org>, <mark.rutland@arm.com>,
+        <mcoquelin.stm32@gmail.com>, <alexandre.torgue@st.com>,
+        <linux@armlinux.org.uk>
+CC: <rtc-linux@googlegroups.com>, <devicetree@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>, <linux-kernel@vger.kernel.org>,
+        <gabriel.fernandez@st.com>, <amelie.delaunay@st.com>
+Subject: [rtc-linux] [PATCH 1/8] ARM: dts: stm32: set HSE_RTC clock frequency
+ to 1 MHz on stm32f429
+Date: Fri, 2 Dec 2016 15:09:54 +0100
+Message-ID: <1480687801-19525-3-git-send-email-amelie.delaunay@st.com>
+In-Reply-To: <1480687801-19525-2-git-send-email-amelie.delaunay@st.com>
 References: <1480687801-19525-2-git-send-email-amelie.delaunay@st.com>
- <1480687801-19525-5-git-send-email-amelie.delaunay@st.com>
- <20161202175646.GA3284@linaro.org>
- <15bea9e9-adcc-edb0-1bd1-33d395c72eec@st.com>
- <20161207183709.tbkapu34ljlg4skp@piout.net>
-CC: Mathieu Poirier <mathieu.poirier@linaro.org>,
-        "a.zummo@towertech.it"
-	<a.zummo@towertech.it>,
-        "robh+dt@kernel.org" <robh+dt@kernel.org>,
-        "mark.rutland@arm.com" <mark.rutland@arm.com>,
-        "mcoquelin.stm32@gmail.com"
-	<mcoquelin.stm32@gmail.com>,
-        Alexandre TORGUE <alexandre.torgue@st.com>,
-        "linux@armlinux.org.uk" <linux@armlinux.org.uk>,
-        "rtc-linux@googlegroups.com"
-	<rtc-linux@googlegroups.com>,
-        "devicetree@vger.kernel.org"
-	<devicetree@vger.kernel.org>,
-        "linux-arm-kernel@lists.infradead.org"
-	<linux-arm-kernel@lists.infradead.org>,
-        "linux-kernel@vger.kernel.org"
-	<linux-kernel@vger.kernel.org>,
-        Gabriel FERNANDEZ <gabriel.fernandez@st.com>
-From: Amelie DELAUNAY <amelie.delaunay@st.com>
-Message-ID: <a2d3ddc0-c8f6-0f42-ad33-a92e0ac6aee4@st.com>
-Date: Mon, 12 Dec 2016 10:59:51 +0100
 MIME-Version: 1.0
-In-Reply-To: <20161207183709.tbkapu34ljlg4skp@piout.net>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -45,24 +30,29 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Hi Alexandre,
+This patch set HSE_RTC clock frequency to 1 MHz, as the clock supplied to
+the RTC must be 1 MHz.
 
-On 12/07/2016 07:37 PM, Alexandre Belloni wrote:
-> On 05/12/2016 at 10:43:14 +0100, Amelie DELAUNAY wrote :
->>>> +
->>>> +    device_init_wakeup(&pdev->dev, true);
->>>
->>> What happens if device_init_wakeup() returns an error?
->> It means that RTC won't be able to wake up the board with RTC alarm. I can
->> add a warning for the user in this case ?
->>>
->
-> There is exactly one driver ever checking the return value of
-> device_init_wakeup(). It basically always succeeds.
->
->
-OK so, is it OK for everyone that I bet on the fact that it will always 
-succeed?
+Signed-off-by: Amelie Delaunay <amelie.delaunay@st.com>
+---
+ arch/arm/boot/dts/stm32f429.dtsi | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/arch/arm/boot/dts/stm32f429.dtsi b/arch/arm/boot/dts/stm32f429.dtsi
+index b077f99..d195ccf 100644
+--- a/arch/arm/boot/dts/stm32f429.dtsi
++++ b/arch/arm/boot/dts/stm32f429.dtsi
+@@ -371,6 +371,8 @@
+ 			reg = <0x40023800 0x400>;
+ 			clocks = <&clk_hse>, <&clk_i2s_ckin>;
+ 			st,syscfg = <&pwrcfg>;
++			assigned-clocks = <&rcc 1 CLK_HSE_RTC>;
++			assigned-clock-rates = <1000000>;
+ 		};
+ 
+ 		dma1: dma-controller@40026000 {
+-- 
+1.9.1
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
