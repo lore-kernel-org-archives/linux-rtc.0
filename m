@@ -1,28 +1,25 @@
-Return-Path: <rtc-linux+bncBAABBCMUS7BQKGQEPB3OX5I@googlegroups.com>
+Return-Path: <rtc-linux+bncBAABBUECQ3BAKGQE6COMSDY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail.kernel.org (mail.kernel.org. [198.145.29.136])
-        by gmr-mx.google.com with ESMTPS id t67si14357953pfd.3.2016.12.29.18.44.25
+Received: from mx07-00178001.pphosted.com (mx08-00178001.pphosted.com. [91.207.212.93])
+        by gmr-mx.google.com with ESMTPS id h23si373682wmi.1.2016.12.02.06.12.31
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 29 Dec 2016 18:44:25 -0800 (PST)
-Date: Fri, 30 Dec 2016 10:44:10 +0800
-From: Shawn Guo <shawnguo@kernel.org>
-To: Martin Kaiser <martin@kaiser.cx>
-Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Sascha Hauer <kernel@pengutronix.de>,
-	Juergen Borleis <jbe@pengutronix.de>,
-	Lucas Stach <l.stach@pengutronix.de>,
-	Fabio Estevam <fabio.estevam@nxp.com>, rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org, Rob Herring <robh+dt@kernel.org>,
-	Mark Rutland <mark.rutland@arm.com>
-Subject: [rtc-linux] Re: [PATCH 2/2 v2] ARM: i.MX25: add the optional security
- violation irq
-Message-ID: <20161230024409.GK6177@dragon>
-References: <1479560614-19293-1-git-send-email-martin@kaiser.cx>
- <1482361276-12475-1-git-send-email-martin@kaiser.cx>
+        Fri, 02 Dec 2016 06:12:31 -0800 (PST)
+From: Amelie Delaunay <amelie.delaunay@st.com>
+To: <a.zummo@towertech.it>, <alexandre.belloni@free-electrons.com>,
+        <robh+dt@kernel.org>, <mark.rutland@arm.com>,
+        <mcoquelin.stm32@gmail.com>, <alexandre.torgue@st.com>,
+        <linux@armlinux.org.uk>
+CC: <rtc-linux@googlegroups.com>, <devicetree@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>, <linux-kernel@vger.kernel.org>,
+        <gabriel.fernandez@st.com>, <amelie.delaunay@st.com>
+Subject: [rtc-linux] [PATCH 2/8] dt-bindings: document the STM32 RTC bindings
+Date: Fri, 2 Dec 2016 15:09:55 +0100
+Message-ID: <1480687801-19525-4-git-send-email-amelie.delaunay@st.com>
+In-Reply-To: <1480687801-19525-2-git-send-email-amelie.delaunay@st.com>
+References: <1480687801-19525-2-git-send-email-amelie.delaunay@st.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1482361276-12475-1-git-send-email-martin@kaiser.cx>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -32,62 +29,53 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Thu, Dec 22, 2016 at 12:01:16AM +0100, Martin Kaiser wrote:
-> Add the security violation irq as an optional entry to rtc-imxdi's
-> device tree bindings and to i.MX25's dtsi file.
-> 
-> Signed-off-by: Martin Kaiser <martin@kaiser.cx>
-> ---
-> v2:
->   - clarify that the security violation interrupt is optional
->   - use the same syntax as everwhere else for lists of interrupt numbers
-> 
->  Documentation/devicetree/bindings/rtc/imxdi-rtc.txt |    5 ++++-
->  arch/arm/boot/dts/imx25.dtsi                        |    2 +-
+This patch adds documentation of device tree bindings for the STM32 RTC.
 
-I take DTS changes only.  Please make the bindings doc change a separate
-patch, and have it go together with driver patch.  And I apply DTS patch
-only after driver and bindings changes get accepted by RTC maintainer.
+Signed-off-by: Amelie Delaunay <amelie.delaunay@st.com>
+---
+ .../devicetree/bindings/rtc/st,stm32-rtc.txt       | 31 ++++++++++++++++++++++
+ 1 file changed, 31 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/rtc/st,stm32-rtc.txt
 
-Shawn
-
->  2 files changed, 5 insertions(+), 2 deletions(-)
-> 
-> diff --git a/Documentation/devicetree/bindings/rtc/imxdi-rtc.txt b/Documentation/devicetree/bindings/rtc/imxdi-rtc.txt
-> index c9d80d7..323cf26 100644
-> --- a/Documentation/devicetree/bindings/rtc/imxdi-rtc.txt
-> +++ b/Documentation/devicetree/bindings/rtc/imxdi-rtc.txt
-> @@ -8,10 +8,13 @@ Required properties:
->    region.
->  - interrupts: rtc alarm interrupt
->  
-> +Optional properties:
-> +- interrupts: dryice security violation interrupt
-> +
->  Example:
->  
->  rtc@80056000 {
->  	compatible = "fsl,imx53-rtc", "fsl,imx25-rtc";
->  	reg = <0x80056000 2000>;
-> -	interrupts = <29>;
-> +	interrupts = <29 56>;
->  };
-> diff --git a/arch/arm/boot/dts/imx25.dtsi b/arch/arm/boot/dts/imx25.dtsi
-> index 831d09a..331d1e1 100644
-> --- a/arch/arm/boot/dts/imx25.dtsi
-> +++ b/arch/arm/boot/dts/imx25.dtsi
-> @@ -560,7 +560,7 @@
->  				reg = <0x53ffc000 0x4000>;
->  				clocks = <&clks 81>;
->  				clock-names = "ipg";
-> -				interrupts = <25>;
-> +				interrupts = <25 56>;
->  			};
->  		};
->  
-> -- 
-> 1.7.10.4
-> 
+diff --git a/Documentation/devicetree/bindings/rtc/st,stm32-rtc.txt b/Documentation/devicetree/bindings/rtc/st,stm32-rtc.txt
+new file mode 100644
+index 0000000..4578838
+--- /dev/null
++++ b/Documentation/devicetree/bindings/rtc/st,stm32-rtc.txt
+@@ -0,0 +1,31 @@
++STM32 Real Time Clock
++
++Required properties:
++- compatible: "st,stm32-rtc".
++- reg: address range of rtc register set.
++- clocks: reference to the clock entry ck_rtc.
++- clock-names: name of the clock used. Should be "ck_rtc".
++- interrupt-parent: phandle for the interrupt controller.
++- interrupts: rtc alarm interrupt.
++- interrupt-names: rtc alarm interrupt name, should be "alarm".
++- st,syscfg: phandle for pwrcfg, mandatory to disable/enable backup domain
++  (RTC registers) write protection.
++
++Optional properties (to override default ck_rtc parent clock):
++- assigned-clocks: reference to the ck_rtc clock entry.
++- assigned-clock-parents: phandle of the new parent clock of ck_rtc.
++
++Example:
++
++	rtc: rtc@40002800 {
++		compatible = "st,stm32-rtc";
++		reg = <0x40002800 0x400>;
++		clocks = <&rcc 1 CLK_RTC>;
++		clock-names = "ck_rtc";
++		assigned-clocks = <&rcc 1 CLK_RTC>;
++		assigned-clock-parents = <&rcc 1 CLK_LSE>;
++		interrupt-parent = <&exti>;
++		interrupts = <17 1>;
++		interrupt-names = "alarm";
++		st,syscfg = <&pwrcfg>;
++	};
+-- 
+1.9.1
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
