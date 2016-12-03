@@ -1,22 +1,20 @@
-Return-Path: <rtc-linux+bncBC6YH6VTZQDRBSMK5HBAKGQE4J2HHYA@googlegroups.com>
+Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBNHLRTBAKGQE5GEMHDI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
-        by gmr-mx.google.com with ESMTP id d199si1825818wmd.1.2016.12.21.01.03.05
+        by gmr-mx.google.com with ESMTP id d6si231894wmd.0.2016.12.03.13.14.27
         for <rtc-linux@googlegroups.com>;
-        Wed, 21 Dec 2016 01:03:05 -0800 (PST)
-From: Gregory CLEMENT <gregory.clement@free-electrons.com>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>,  rtc-linux@googlegroups.com,  Jason Cooper <jason@lakedaemon.net>,  Andrew Lunn <andrew@lunn.ch>,  Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,  Thomas Petazzoni <thomas.petazzoni@free-electrons.com>,  linux-arm-kernel@lists.infradead.org
-Subject: [rtc-linux] Re: [PATCH v2] rtc: armada38x: Followed the new
- recommendation for errata implementation
-References: <20161213112510.25692-1-gregory.clement@free-electrons.com>
-	<20161221004308.terkq5u5pb2hbcbw@piout.net>
-Date: Wed, 21 Dec 2016 10:02:54 +0100
-In-Reply-To: <20161221004308.terkq5u5pb2hbcbw@piout.net> (Alexandre Belloni's
-	message of "Wed, 21 Dec 2016 01:43:08 +0100")
-Message-ID: <87tw9xiri9.fsf@free-electrons.com>
+        Sat, 03 Dec 2016 13:14:27 -0800 (PST)
+Date: Sat, 3 Dec 2016 22:14:17 +0100
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Akinobu Mita <akinobu.mita@gmail.com>
+Cc: rtc-linux@googlegroups.com, devicetree@vger.kernel.org,
+	Alessandro Zummo <a.zummo@towertech.it>
+Subject: [rtc-linux] Re: [PATCH v2] rtc: add support for EPSON TOYOCOM RTC-7301SF/DG
+Message-ID: <20161203211417.hmab72565ubxywni@piout.net>
+References: <1480781636-15653-1-git-send-email-akinobu.mita@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1480781636-15653-1-git-send-email-akinobu.mita@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -26,55 +24,82 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Hi Alexandre,
-=20
- On mer., d=C3=A9c. 21 2016, Alexandre Belloni <alexandre.belloni@free-elec=
-trons.com> wrote:
+Hi,
 
+On 04/12/2016 at 01:13:56 +0900, Akinobu Mita wrote :
+> diff --git a/drivers/rtc/rtc-r7301.c b/drivers/rtc/rtc-r7301.c
+> new file mode 100644
+> index 0000000..0929f10
+> --- /dev/null
+> +++ b/drivers/rtc/rtc-r7301.c
+> @@ -0,0 +1,455 @@
+> +/*
+> + * EPSON TOYOCOM RTC-7301SF/DG Driver
+> + *
+> + * Copyright (c) 2016 Akinobu Mita <akinobu.mita@gmail.com>
+> + *
+> + * Based on rtc-rp5c01.c
+> + *
+> + * Datasheet: http://www5.epsondevice.com/en/products/parallel/rtc7301sf.html
+> + */
+> +
+> +#include <linux/io.h>
+> +#include <linux/kernel.h>
+> +#include <linux/module.h>
+> +#include <linux/delay.h>
+> +#include <linux/regmap.h>
+> +#include <linux/platform_device.h>
+> +#include <linux/rtc.h>
+> +
+> +#define DRV_NAME "rtc-r7301"
+> +
+> +enum {
+> +	RTC7301_1_SEC		= 0x0,	/* Bank 0 and Band 1 */
+> +	RTC7301_10_SEC		= 0x1,	/* Bank 0 and Band 1 */
+> +	RTC7301_AE		= BIT(3),
+> +	RTC7301_1_MIN		= 0x2,	/* Bank 0 and Band 1 */
+> +	RTC7301_10_MIN		= 0x3,	/* Bank 0 and Band 1 */
+> +	RTC7301_1_HOUR		= 0x4,	/* Bank 0 and Band 1 */
+> +	RTC7301_10_HOUR		= 0x5,	/* Bank 0 and Band 1 */
+> +	RTC7301_DAY_OF_WEEK	= 0x6,	/* Bank 0 and Band 1 */
+> +	RTC7301_1_DAY		= 0x7,	/* Bank 0 and Band 1 */
+> +	RTC7301_10_DAY		= 0x8,	/* Bank 0 and Band 1 */
+> +	RTC7301_1_MONTH		= 0x9,	/* Bank 0 */
+> +	RTC7301_10_MONTH	= 0xa,	/* Bank 0 */
+> +	RTC7301_1_YEAR		= 0xb,	/* Bank 0 */
+> +	RTC7301_10_YEAR		= 0xc,	/* Bank 0 */
+> +	RTC7301_100_YEAR	= 0xd,	/* Bank 0 */
+> +	RTC7301_1000_YEAR	= 0xe,	/* Bank 0 */
+> +	RTC7301_ALARM_CONTROL	= 0xe,	/* Bank 1 */
+> +	RTC7301_ALARM_CONTROL_AIE	= BIT(0),
+> +	RTC7301_ALARM_CONTROL_AF	= BIT(1),
+> +	RTC7301_TIMER_CONTROL	= 0xe,	/* Bank 2 */
+> +	RTC7301_TIMER_CONTROL_TIE	= BIT(0),
+> +	RTC7301_TIMER_CONTROL_TF	= BIT(1),
+> +	RTC7301_CONTROL		= 0xf,	/* All banks */
+> +	RTC7301_CONTROL_BUSY		= BIT(0),
+> +	RTC7301_CONTROL_STOP		= BIT(1),
+> +	RTC7301_CONTROL_BANK_SEL_0	= BIT(2),
+> +	RTC7301_CONTROL_BANK_SEL_1	= BIT(3),
+> +};
+> +
 
-I agree with all your remark expect one, see below:
-[...]
->>  	rtc_update_irq(rtc->rtc_dev, 1, event);
->> =20
->>  	return IRQ_HANDLED;
->> @@ -221,6 +282,11 @@ static __init int armada38x_rtc_probe(struct platfo=
-rm_device *pdev)
->>  	if (!rtc)
->>  		return -ENOMEM;
->> =20
->> +	rtc->val_to_freq =3D devm_kcalloc(&pdev->dev, SAMPLE_NR,
->> +				sizeof(struct value_to_freq), GFP_KERNEL);
->> +	if (!rtc->val_to_freq)
->> +		return -ENOMEM;
->> +
->
-> The whole struct armada38x_rtc is already allocated just before. Maybe
-> you can put the whole array inside the structure instead of doing a new
-> allocation.
+Well, I'm still not convinced this enum is useful, please change those
+to #defines.
 
-Actually it was done on purpose. Indeed the same RTC IP is used in the
-Armada 3700 (a patch is coming soon), and for this IP this issue was
-fixed and we do not need to store 100 read. That's why I want to
-allocate the array only if needed.
+Else, this seems good to me.
 
-Thanks,
-
-Gregory
-
---=20
-Gregory Clement, Free Electrons
-Kernel, drivers, real-time and embedded Linux
-development, consulting, training and support.
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux and Kernel engineering
 http://free-electrons.com
 
---=20
+-- 
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
----=20
-You received this message because you are subscribed to the Google Groups "=
-rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an e=
-mail to rtc-linux+unsubscribe@googlegroups.com.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
