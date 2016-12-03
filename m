@@ -1,28 +1,24 @@
-Return-Path: <rtc-linux+bncBAABBDMS5TBAKGQEVQHTNJY@googlegroups.com>
+Return-Path: <rtc-linux+bncBCPM5SUWUYIRBAGPRPBAKGQEG7VL4OA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-MIME-Version: 1.0
-Received: from botnar.kaiser.cx (botnar.kaiser.cx. [176.28.20.183])
-        by gmr-mx.google.com with ESMTPS id f71si1653117wmf.2.2016.12.21.14.58.20
+Received: from mail-qk0-x229.google.com (mail-qk0-x229.google.com. [2607:f8b0:400d:c09::229])
+        by gmr-mx.google.com with ESMTPS id p22si818010ywe.3.2016.12.03.07.40.48
         for <rtc-linux@googlegroups.com>
-        (version=TLS1 cipher=AES128-SHA bits=128/128);
-        Wed, 21 Dec 2016 14:58:20 -0800 (PST)
-From: Martin Kaiser <martin@kaiser.cx>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Shawn Guo <shawnguo@kernel.org>,
-	Sascha Hauer <kernel@pengutronix.de>,
-	Juergen Borleis <jbe@pengutronix.de>,
-	Lucas Stach <l.stach@pengutronix.de>
-Cc: Fabio Estevam <fabio.estevam@nxp.com>,
-	rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org,
-	Martin Kaiser <martin@kaiser.cx>
-Subject: [rtc-linux] [PATCH 1/2 v3] rtc: imxdi: use the security violation interrupt
-Date: Wed, 21 Dec 2016 23:56:42 +0100
-Message-Id: <1482361002-12390-1-git-send-email-martin@kaiser.cx>
-In-Reply-To: <1479560614-19293-1-git-send-email-martin@kaiser.cx>
-References: <1479560614-19293-1-git-send-email-martin@kaiser.cx>
-Reply-To: rtc-linux@googlegroups.com
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Sat, 03 Dec 2016 07:40:48 -0800 (PST)
+Received: by mail-qk0-x229.google.com with SMTP id n204so307779004qke.2
+        for <rtc-linux@googlegroups.com>; Sat, 03 Dec 2016 07:40:48 -0800 (PST)
+MIME-Version: 1.0
+In-Reply-To: <20161130210152.hiyfa3srismgvtj5@piout.net>
+References: <1472396118-13424-1-git-send-email-akinobu.mita@gmail.com> <20161130210152.hiyfa3srismgvtj5@piout.net>
+From: Akinobu Mita <akinobu.mita@gmail.com>
+Date: Sun, 4 Dec 2016 00:40:28 +0900
+Message-ID: <CAC5umyir0+i8cg4+1EtoAx40vr0LX+6E2K=VVUnrnN+i3Li4jg@mail.gmail.com>
+Subject: [rtc-linux] Re: [PATCH] rtc: add support for EPSON TOYOCOM RTC-7301SF/DG
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: rtc-linux@googlegroups.com,
+	"open list:OPEN FIRMWARE AND..." <devicetree@vger.kernel.org>, Alessandro Zummo <a.zummo@towertech.it>
 Content-Type: text/plain; charset=UTF-8
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -31,116 +27,94 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-The DryIce chipset has a dedicated security violation interrupt that is
-triggered for security violations (if configured to do so).  According
-to the publicly available imx258 reference manual, irq 56 is used for
-this interrupt.
+2016-12-01 6:01 GMT+09:00 Alexandre Belloni
+<alexandre.belloni@free-electrons.com>:
+> Hi,
+>
+> Sorry for the very late review!
+>
+> It seems mostly fine for me, two small comments:
+>
+> On 28/08/2016 at 23:55:18 +0900, Akinobu Mita wrote :
+>> diff --git a/drivers/rtc/rtc-r7301.c b/drivers/rtc/rtc-r7301.c
+>> new file mode 100644
+>> index 0000000..b1be281
+>> --- /dev/null
+>> +++ b/drivers/rtc/rtc-r7301.c
+>> @@ -0,0 +1,458 @@
+>> +/*
+>> + * EPSON TOYOCOM RTC-7301SF/DG Driver
+>> + *
+>> + * Copyright (c) 2016 Akinobu Mita <akinobu.mita@gmail.com>
+>> + *
+>> + * Based on rtc-rp5c01.c
+>> + *
+>> + * Datasheet: http://www5.epsondevice.com/en/products/parallel/rtc7301sf.html
+>> + */
+>> +
+>> +#include <linux/io.h>
+>> +#include <linux/kernel.h>
+>> +#include <linux/module.h>
+>> +#include <linux/delay.h>
+>> +#include <linux/regmap.h>
+>> +#include <linux/platform_device.h>
+>> +#include <linux/rtc.h>
+>> +
+>> +#define DRV_NAME "rtc-r7301"
+>> +
+>> +enum {
+>> +     RTC7301_1_SEC           = 0x0,  /* Bank 0 and Band 1 */
+>> +     RTC7301_10_SEC          = 0x1,  /* Bank 0 and Band 1 */
+>> +     RTC7301_AE              = BIT(3),
+>> +     RTC7301_1_MIN           = 0x2,  /* Bank 0 and Band 1 */
+>> +     RTC7301_10_MIN          = 0x3,  /* Bank 0 and Band 1 */
+>> +     RTC7301_1_HOUR          = 0x4,  /* Bank 0 and Band 1 */
+>> +     RTC7301_10_HOUR         = 0x5,  /* Bank 0 and Band 1 */
+>> +     RTC7301_DAY_OF_WEEK     = 0x6,  /* Bank 0 and Band 1 */
+>> +     RTC7301_1_DAY           = 0x7,  /* Bank 0 and Band 1 */
+>> +     RTC7301_10_DAY          = 0x8,  /* Bank 0 and Band 1 */
+>> +     RTC7301_1_MONTH         = 0x9,  /* Bank 0 */
+>> +     RTC7301_10_MONTH        = 0xa,  /* Bank 0 */
+>> +     RTC7301_1_YEAR          = 0xb,  /* Bank 0 */
+>> +     RTC7301_10_YEAR         = 0xc,  /* Bank 0 */
+>> +     RTC7301_100_YEAR        = 0xd,  /* Bank 0 */
+>> +     RTC7301_1000_YEAR       = 0xe,  /* Bank 0 */
+>> +     RTC7301_ALARM_CONTROL   = 0xe,  /* Bank 1 */
+>> +     RTC7301_ALARM_CONTROL_AIE       = BIT(0),
+>> +     RTC7301_ALARM_CONTROL_AF        = BIT(1),
+>> +     RTC7301_TIMER_CONTROL   = 0xe,  /* Bank 2 */
+>> +     RTC7301_ALARM_CONTROL_TIE       = BIT(0),
+>> +     RTC7301_ALARM_CONTROL_TF        = BIT(1),
+>> +     RTC7301_CONTROL         = 0xf,  /* All banks */
+>> +     RTC7301_CONTROL_BUSY            = BIT(0),
+>> +     RTC7301_CONTROL_STOP            = BIT(1),
+>> +     RTC7301_CONTROL_BANK_SEL_0      = BIT(2),
+>> +     RTC7301_CONTROL_BANK_SEL_1      = BIT(3),
+>> +};
+>> +
+>
+> Any particular reason why you use an enum instead of the usual #define?
 
-If an irq number is provided for the security violation interrupt,
-install the same handler that we're already using for the "normal"
-interrupt.
+No particular reason.  A part of this driver is based on rtc-rp5c01.c
+which declares the register addresses like this.
 
-imxdi->irq is used only in the probe function, make it a local variable.
+> [...]
+>
+>> +static void rtc7301_init(struct rtc7301_priv *priv)
+>> +{
+>> +     unsigned long flags;
+>> +
+>> +     spin_lock_irqsave(&priv->lock, flags);
+>> +
+>> +     rtc7301_select_bank(priv, 1);
+>> +     rtc7301_alarm_irq(priv, false);
+>> +
+>
+> If the RTC is battery backed, it may still run with the core power off
+> and maybe someone will actually expect the alarm to trigger at a later
+> time.
 
-Signed-off-by: Martin Kaiser <martin@kaiser.cx>
----
-v3:
-  - add the device tree changes to this patch series
-  - install the same interrupt handler for normal and sec irq, rename 
-    the handler function accordingly
-  - make imxdi->irq and imxdi->sec_irq local variables in the probe 
-    function
-
-v2:
-  - make sec_irq optional to avoid breaking the Device Tree ABI
-  - removed the Device Tree bindings, I'll prepare a separate patch for them
-
- drivers/rtc/rtc-imxdi.c |   28 ++++++++++++++++++++--------
- 1 file changed, 20 insertions(+), 8 deletions(-)
-
-diff --git a/drivers/rtc/rtc-imxdi.c b/drivers/rtc/rtc-imxdi.c
-index 67b56b8..73d6908 100644
---- a/drivers/rtc/rtc-imxdi.c
-+++ b/drivers/rtc/rtc-imxdi.c
-@@ -108,7 +108,6 @@
-  * @pdev: pionter to platform dev
-  * @rtc: pointer to rtc struct
-  * @ioaddr: IO registers pointer
-- * @irq: dryice normal interrupt
-  * @clk: input reference clock
-  * @dsr: copy of the DSR register
-  * @irq_lock: interrupt enable register (DIER) lock
-@@ -120,7 +119,6 @@ struct imxdi_dev {
- 	struct platform_device *pdev;
- 	struct rtc_device *rtc;
- 	void __iomem *ioaddr;
--	int irq;
- 	struct clk *clk;
- 	u32 dsr;
- 	spinlock_t irq_lock;
-@@ -677,9 +675,9 @@ static int dryice_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alarm)
- };
- 
- /*
-- * dryice "normal" interrupt handler
-+ * interrupt handler for dryice "normal" and security violation interrupt
-  */
--static irqreturn_t dryice_norm_irq(int irq, void *dev_id)
-+static irqreturn_t dryice_irq(int irq, void *dev_id)
- {
- 	struct imxdi_dev *imxdi = dev_id;
- 	u32 dsr, dier;
-@@ -765,6 +763,7 @@ static int __init dryice_rtc_probe(struct platform_device *pdev)
- {
- 	struct resource *res;
- 	struct imxdi_dev *imxdi;
-+	int norm_irq, sec_irq;
- 	int rc;
- 
- 	imxdi = devm_kzalloc(&pdev->dev, sizeof(*imxdi), GFP_KERNEL);
-@@ -780,9 +779,15 @@ static int __init dryice_rtc_probe(struct platform_device *pdev)
- 
- 	spin_lock_init(&imxdi->irq_lock);
- 
--	imxdi->irq = platform_get_irq(pdev, 0);
--	if (imxdi->irq < 0)
--		return imxdi->irq;
-+	norm_irq = platform_get_irq(pdev, 0);
-+	if (norm_irq < 0)
-+		return norm_irq;
-+
-+	/* the 2nd irq is the security violation irq
-+	   make this optional, don't break the device tree ABI */
-+	sec_irq = platform_get_irq(pdev, 1);
-+	if (sec_irq <= 0)
-+		sec_irq = IRQ_NOTCONNECTED;
- 
- 	init_waitqueue_head(&imxdi->write_wait);
- 
-@@ -808,13 +813,20 @@ static int __init dryice_rtc_probe(struct platform_device *pdev)
- 	if (rc != 0)
- 		goto err;
- 
--	rc = devm_request_irq(&pdev->dev, imxdi->irq, dryice_norm_irq,
-+	rc = devm_request_irq(&pdev->dev, norm_irq, dryice_irq,
- 			IRQF_SHARED, pdev->name, imxdi);
- 	if (rc) {
- 		dev_warn(&pdev->dev, "interrupt not available.\n");
- 		goto err;
- 	}
- 
-+	rc = devm_request_irq(&pdev->dev, sec_irq, dryice_irq,
-+			IRQF_SHARED, pdev->name, imxdi);
-+	if (rc) {
-+		dev_warn(&pdev->dev, "security violation interrupt not available.\n");
-+		/* this is not an error, see above */
-+	}
-+
- 	platform_set_drvdata(pdev, imxdi);
- 	imxdi->rtc = devm_rtc_device_register(&pdev->dev, pdev->name,
- 				  &dryice_rtc_ops, THIS_MODULE);
--- 
-1.7.10.4
+You're right.  I'll remove these lines.
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
