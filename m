@@ -1,25 +1,23 @@
-Return-Path: <rtc-linux+bncBAABBV4CQ3BAKGQEH7GS5KY@googlegroups.com>
+Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBIOOS7BAKGQEHBQPQ3Y@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mx07-00178001.pphosted.com (mx07-00178001.pphosted.com. [62.209.51.94])
-        by gmr-mx.google.com with ESMTPS id d6si419699wmd.0.2016.12.02.06.12.38
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 02 Dec 2016 06:12:38 -0800 (PST)
-From: Amelie Delaunay <amelie.delaunay@st.com>
-To: <a.zummo@towertech.it>, <alexandre.belloni@free-electrons.com>,
-        <robh+dt@kernel.org>, <mark.rutland@arm.com>,
-        <mcoquelin.stm32@gmail.com>, <alexandre.torgue@st.com>,
-        <linux@armlinux.org.uk>
-CC: <rtc-linux@googlegroups.com>, <devicetree@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>, <linux-kernel@vger.kernel.org>,
-        <gabriel.fernandez@st.com>, <amelie.delaunay@st.com>
-Subject: [rtc-linux] [PATCH 6/8] ARM: dts: stm32: enable RTC on stm32f469-disco
-Date: Fri, 2 Dec 2016 15:09:59 +0100
-Message-ID: <1480687801-19525-8-git-send-email-amelie.delaunay@st.com>
-In-Reply-To: <1480687801-19525-2-git-send-email-amelie.delaunay@st.com>
-References: <1480687801-19525-2-git-send-email-amelie.delaunay@st.com>
+Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
+        by gmr-mx.google.com with ESMTP id l66si74132wml.0.2016.12.05.14.16.00
+        for <rtc-linux@googlegroups.com>;
+        Mon, 05 Dec 2016 14:16:00 -0800 (PST)
+Date: Mon, 5 Dec 2016 23:15:59 +0100
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Emil Bartczak <emilbart@gmail.com>
+Cc: a.zummo@towertech.it, rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org
+Subject: [rtc-linux] Re: [PATCH 1/4] rtc: mcp795: fix invalid month setting.
+Message-ID: <20161205221559.ixqsqsqnupgjtekk@piout.net>
+References: <cover.1480939487.git.emilbart@gmail.com>
+ <9d5792a4e183cdea55accd6747b55f54d9e9d6aa.1480939487.git.emilbart@gmail.com>
+ <20161205150959.gx5ccrfcvb5an7lx@piout.net>
+ <20161205220352.GB15449@emba-laptop>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <20161205220352.GB15449@emba-laptop>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -29,30 +27,71 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-This patch enables RTC on stm32f469-disco with default LSE clock source.
+On 05/12/2016 at 23:03:52 +0100, Emil Bartczak wrote :
+> > 
+> > >  #define MCP795_WRITE	0x12
+> > >  #define MCP795_UNLOCK	0x14
+> > >  #define MCP795_IDWRITE	0x32
+> > > @@ -39,6 +39,7 @@
+> > >  
+> > >  #define MCP795_ST_BIT	0x80
+> > >  #define MCP795_24_BIT	0x40
+> > > +#define MCP795_LP_BIT	0x20
+> > >  
+> > >  static int mcp795_rtcc_read(struct device *dev, u8 addr, u8 *buf, u8 count)
+> > >  {
+> > > @@ -108,7 +109,8 @@ static int mcp795_set_time(struct device *dev, struct rtc_time *tim)
+> > >  	data[1] = (data[1] & 0x80) | ((tim->tm_min / 10) << 4) | (tim->tm_min % 10);
+> > >  	data[2] = ((tim->tm_hour / 10) << 4) | (tim->tm_hour % 10);
+> > >  	data[4] = ((tim->tm_mday / 10) << 4) | ((tim->tm_mday) % 10);
+> > > -	data[5] = (data[5] & 0x10) | (tim->tm_mon / 10) | (tim->tm_mon % 10);
+> > > +	data[5] = (data[5] & MCP795_LP_BIT) |
+> > 
+> > You changed 0x10 in MCP795_LP_BIT which you defined as 0x20, is that
+> > right?
+> Yes, it should be 0x20 (checked in datasheet).
+> 
+> > 
+> > This is also an unrelated change.
+> > 
+> > > +			((tim->tm_mon / 10) << 4) | (tim->tm_mon % 10);
+> What do you mean exactly? 
+> That above line of code was moved to the new line? Or that I added
+> shift left operation (tim->tm_mon / 10) << 4)?
+> Changing 0x10 to 0x20 and adding shift right operation fixes the problem.
+> 
 
-Signed-off-by: Amelie Delaunay <amelie.delaunay@st.com>
----
- arch/arm/boot/dts/stm32f469-disco.dts | 4 ++++
- 1 file changed, 4 insertions(+)
+I meant that I feel like changing 0x10 to 0x20 is a separate bugfix from
+adding the shift. At least mention that in the commit message.
 
-diff --git a/arch/arm/boot/dts/stm32f469-disco.dts b/arch/arm/boot/dts/stm32f469-disco.dts
-index 8a163d7..af57dd5 100644
---- a/arch/arm/boot/dts/stm32f469-disco.dts
-+++ b/arch/arm/boot/dts/stm32f469-disco.dts
-@@ -78,6 +78,10 @@
- 	clock-frequency = <8000000>;
- };
- 
-+&rtc {
-+	status = "okay";
-+};
-+
- &usart3 {
- 	status = "okay";
- };
+> > >  
+> > >  	if (tim->tm_year > 100)
+> > >  		tim->tm_year -= 100;
+> > > @@ -137,11 +139,11 @@ static int mcp795_read_time(struct device *dev, struct rtc_time *tim)
+> > >  	if (ret)
+> > >  		return ret;
+> > >  
+> > > -	tim->tm_sec		= ((data[0] & 0x70) >> 4) * 10 + (data[0] & 0x0f);
+> > > -	tim->tm_min		= ((data[1] & 0x70) >> 4) * 10 + (data[1] & 0x0f);
+> > > +	tim->tm_sec	= ((data[0] & 0x70) >> 4) * 10 + (data[0] & 0x0f);
+> > > +	tim->tm_min	= ((data[1] & 0x70) >> 4) * 10 + (data[1] & 0x0f);
+> > >  	tim->tm_hour	= ((data[2] & 0x30) >> 4) * 10 + (data[2] & 0x0f);
+> > >  	tim->tm_mday	= ((data[4] & 0x30) >> 4) * 10 + (data[4] & 0x0f);
+> > > -	tim->tm_mon		= ((data[5] & 0x10) >> 4) * 10 + (data[5] & 0x0f);
+> > > +	tim->tm_mon	= ((data[5] & 0x10) >> 4) * 10 + (data[5] & 0x0f);
+> > 
+> > All those whitespace changes are actually confusing. Please do them in a
+> > separate patch or in your last patch.
+> Ok, I will have a separate patch for them.
+
+Maybe switching to bcd2bin/bin2bcd first is better as it touches all
+those lines anyway and also solves the shift in mcp795_rtcc_read()
+
+
 -- 
-1.9.1
+Alexandre Belloni, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
