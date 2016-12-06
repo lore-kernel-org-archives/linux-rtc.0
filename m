@@ -1,150 +1,199 @@
-Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBHW73TBAKGQEJ6LWHGI@googlegroups.com>
-Sender: rtc-linux@googlegroups.com
-Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
-        by gmr-mx.google.com with ESMTP id p138si1114632wme.1.2016.12.18.16.53.49
-        for <rtc-linux@googlegroups.com>;
-        Sun, 18 Dec 2016 16:53:49 -0800 (PST)
-Date: Mon, 19 Dec 2016 01:53:49 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Vesa =?iso-8859-1?B?SuTkc2tlbORpbmVu?= <vesa.jaaskelainen@vaisala.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
-	Lee Jones <lee.jones@linaro.org>, rtc-linux@googlegroups.com
-Subject: [rtc-linux] Re: [PATCH v2 0/2] drivers: rtc: rtc-tps65910: Add RTC
- calibration support
-Message-ID: <20161219005349.bgaoiczfy57ltad5@piout.net>
-References: <1481406644-1614-1-git-send-email-vesa.jaaskelainen@vaisala.com>
- <a22c9180-61bf-e307-9ba1-e24e1453459b@vaisala.com>
- <20161219003854.e6hbobkwa3kanbjp@piout.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <20161219003854.e6hbobkwa3kanbjp@piout.net>
-Reply-To: rtc-linux@googlegroups.com
+Return-Path: <fabien.lahoudere@collabora.co.uk>
+From: Fabien Lahoudere <fabien.lahoudere@collabora.co.uk>
+To: alexandre.belloni@free-electrons.com,
+	a.zummo@towertech.it
+Cc: rtc-linux@googlegroups.com,
+	Fabien Lahoudere <fabien.lahoudere@collabora.co.uk>
+Subject: [PATCH 1/1] rtc: rx8010: change lock mechanism
+Date: Tue,  6 Dec 2016 10:41:34 +0100
+Message-Id: <1481017294-1712-1-git-send-email-fabien.lahoudere@collabora.co.uk>
 List-ID: <rtc-linux.googlegroups.com>
-List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
-List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
-List-Archive: <https://groups.google.com/group/rtc-linux
-List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
-List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
- <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 19/12/2016 at 01:38:54 +0100, Alexandre Belloni wrote :
-> On 11/12/2016 at 00:21:02 +0200, Vesa J=C3=A4=C3=A4skel=C3=A4inen wrote :
-> >=20
-> > On 2016-12-10 23:50, Vesa J=C3=A4=C3=A4skel=C3=A4inen wrote:
-> > > Texas Instrument's TPS65910 has support for compensating RTC crystal
-> > > inaccuracies. When enabled every hour RTC counter value will be compe=
-nsated
-> > > with two's complement value.
-> > >=20
-> > > Vesa J=C3=A4=C3=A4skel=C3=A4inen (2):
-> > >    drivers: rtc: rtc-tps65910: Add RTC calibration support
-> > >    drivers: rtc: rtc-tps65910: use 'unsigned int' instead of 'unsigne=
-d'
-> > >      in arguments
-> > >=20
-> > >   drivers/rtc/rtc-tps65910.c   | 135 ++++++++++++++++++++++++++++++++=
-++++++++++-
-> > >   include/linux/mfd/tps65910.h |   1 +
-> > >   2 files changed, 135 insertions(+), 1 deletion(-)
-> > >=20
-> > This version now uses 'offset' sysfs file for calibration purposes.
-> >=20
-> > It supports rounding so if one calculates absolute 'offset' compensatio=
-n
-> > value then it should give "optimal" calibration.
-> >=20
-> > I believe one should calculate compensation value like:
-> >=20
-> > offset =3D ((measured_freq/32768)-1)*10^9
-> >=20
-> > So if meaured_freq =3D=3D 32771.2768, then matching offset =3D=3D 10000=
-0.
-> > Or if mesured_freq =3D=3D 32764.7232, then matching offset =3D=3D -1000=
-00.
-> >=20
-> > 'offset' compensation value is following existing rtc.txt definition me=
-aning
-> > positive values causes time to slowdown and negative values to fasten u=
-p.
-> > Which I believe should be other way around to be more logical. This is =
-easy
-> > to swap if I just understood it wrongly.
-> >=20
->=20
-> The hardware vendors are using positive offsets to slow the RTC and
-> negative offsets to hasten it so that's what we exposed to userspace as
-> it avoids a conversion.
->=20
+Remove spinlock and use the "rtc->lock" from RTC subsystem instead.
+spin_lock_irqsave() is not needed here because we do not have hard IRQs.
 
-To be clear, that is unfortunately not the case for the TPS65910.
+This patch fixes the following issue:
 
-Usually, the offset is related to a number of clock cycles (or ticks)
-that are added in a second (slowing the RTC). On the tps65910, it is the
-number that is added to the counter (hastening the RTC).
+root@GE004097290448 b850v3:~# hwclock --systohc
+root@GE004097290448 b850v3:~# hwclock --systohc
+root@GE004097290448 b850v3:~# hwclock --systohc
+root@GE004097290448 b850v3:~# hwclock --systohc
+root@GE004097290448 b850v3:~# hwclock --systohc
+[   82.108175] BUG: spinlock wrong CPU on CPU#0, hwclock/855
+[   82.113660]  lock: 0xedb4899c, .magic: dead4ead, .owner: hwclock/855, .owner_cpu: 1
+[   82.121329] CPU: 0 PID: 855 Comm: hwclock Not tainted 4.8.0-00042-g09d5410-dirty #20
+[   82.129078] Hardware name: Freescale i.MX6 Quad/DualLite (Device Tree)
+[   82.135609] Backtrace:
+[   82.138090] [<8010d378>] (dump_backtrace) from [<8010d5c0>] (show_stack+0x20/0x24)
+[   82.145664]  r7:ec936000 r6:600a0013 r5:00000000 r4:81031680
+[   82.151402] [<8010d5a0>] (show_stack) from [<80401518>] (dump_stack+0xb4/0xe8)
+[   82.158636] [<80401464>] (dump_stack) from [<8017b8b0>] (spin_dump+0x84/0xcc)
+[   82.165775]  r10:00000000 r9:ec936000 r8:81056090 r7:600a0013 r6:edb4899c r5:edb4899c
+[   82.173691]  r4:e5033e00 r3:00000000
+[   82.177308] [<8017b82c>] (spin_dump) from [<8017bcb0>] (do_raw_spin_unlock+0x108/0x130)
+[   82.185314]  r5:edb4899c r4:edb4899c
+[   82.188938] [<8017bba8>] (do_raw_spin_unlock) from [<8094b93c>] (_raw_spin_unlock_irqrestore+0x34/0x54)
+[   82.198333]  r5:edb4899c r4:600a0013
+[   82.201953] [<8094b908>] (_raw_spin_unlock_irqrestore) from [<8065b090>] (rx8010_set_time+0x14c/0x188)
+[   82.211261]  r5:00000020 r4:edb48990
+[   82.214882] [<8065af44>] (rx8010_set_time) from [<80653fe4>] (rtc_set_time+0x70/0x104)
+[   82.222801]  r7:00000051 r6:edb39da0 r5:edb39c00 r4:ec937e8c
+[   82.228535] [<80653f74>] (rtc_set_time) from [<80655774>] (rtc_dev_ioctl+0x3c4/0x674)
+[   82.236368]  r7:00000051 r6:7ecf1b74 r5:00000000 r4:edb39c00
+[   82.242106] [<806553b0>] (rtc_dev_ioctl) from [<80284034>] (do_vfs_ioctl+0xa4/0xa6c)
+[   82.249851]  r8:00000003 r7:80284a40 r6:ed1e9c80 r5:edb44e60 r4:7ecf1b74
+[   82.256642] [<80283f90>] (do_vfs_ioctl) from [<80284a40>] (SyS_ioctl+0x44/0x6c)
+[   82.263953]  r10:00000000 r9:ec936000 r8:7ecf1b74 r7:4024700a r6:ed1e9c80 r5:00000003
+[   82.271869]  r4:ed1e9c80
+[   82.274432] [<802849fc>] (SyS_ioctl) from [<80108520>] (ret_fast_syscall+0x0/0x1c)
+[   82.282005]  r9:ec936000 r8:801086c4 r7:00000036 r6:00000000 r5:00000003 r4:0008e1bc
+root@GE004097290448 b850v3:~#
+Message from syslogd@GE004097290448 at Dec  3 11:17:08 ...
+ kernel:[   82.108175] BUG: spinlock wrong CPU on CPU#0, hwclock/855
 
-One or the other would feel backward for someone anyway. I'll try to
-clarify that in the documentation.
+Message from syslogd@GE004097290448 at Dec  3 11:17:08 ...
+ kernel:[   82.113660]  lock: 0xedb4899c, .magic: dead4ead, .owner: hwclock/855, .owner_cpu: 1
+hwclock --systohc
+root@GE004097290448 b850v3:~#
 
+Signed-off-by: Fabien Lahoudere <fabien.lahoudere@collabora.co.uk>
+---
+ drivers/rtc/rtc-rx8010.c | 31 ++++++++++---------------------
+ 1 file changed, 10 insertions(+), 21 deletions(-)
 
-> > 'offset' value calculation assumes "common" understanding how ppm value=
-s are
-> > used, eg. it is negated compensation value (expect now positive).
-> >=20
-> > Eg. if RTC crystal is off by +100ppm then 'offset' value must be 100ppm
-> > (write 100000 to 'offset').
-> >=20
-> > I believe offset documentation in rtc.txt should be clarified on what v=
-alue
-> > means.
-> >=20
-> > 'offset' value has limits due to RTC chip itself, if out-of-limits valu=
-e is
-> > given -ERANGE is returned.
-> >=20
->=20
-> That's fine.
->=20
-> > Due to RTC chip's implementation -- it loses RTC compensation enable bi=
-t on
-> > reset, so compensation value must be written on every boot at least onc=
-e to
-> > be active.
-> >=20
-> > When compensation is not enabled "cat offset" returns value. There is
-> > currently no way to know from users space (without i2cget -f) whether
-> > compensation is enabled or not. If this should not be the case it can b=
-e
-> > easily fixed, -EINVAL might do the trick.
-> >=20
->=20
-> If compensation is not enabled, simply return 0 so userspace actually
-> has a way to know it is not currently in effect. Anyway, you'll have to
-> write a value to enable it again.
-> You are probably already able to calculate that value anyway so I'm not
-> sure of the benefit of using the RTC to remember it across resets.
->=20
-
-After reviewing the patch, it is fine apart from that part.
-
->=20
-> --=20
-> Alexandre Belloni, Free Electrons
-> Embedded Linux and Kernel engineering
-> http://free-electrons.com
-
---=20
-Alexandre Belloni, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
-
---=20
-You received this message because you are subscribed to "rtc-linux".
-Membership options at http://groups.google.com/group/rtc-linux .
-Please read http://groups.google.com/group/rtc-linux/web/checklist
-before submitting a driver.
----=20
-You received this message because you are subscribed to the Google Groups "=
-rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an e=
-mail to rtc-linux+unsubscribe@googlegroups.com.
-For more options, visit https://groups.google.com/d/optout.
+diff --git a/drivers/rtc/rtc-rx8010.c b/drivers/rtc/rtc-rx8010.c
+index 7163b91..8282e9e 100644
+--- a/drivers/rtc/rtc-rx8010.c
++++ b/drivers/rtc/rtc-rx8010.c
+@@ -63,7 +63,6 @@ struct rx8010_data {
+ 	struct i2c_client *client;
+ 	struct rtc_device *rtc;
+ 	u8 ctrlreg;
+-	spinlock_t flags_lock;
+ };
+ 
+ static irqreturn_t rx8010_irq_1_handler(int irq, void *dev_id)
+@@ -72,12 +71,12 @@ static irqreturn_t rx8010_irq_1_handler(int irq, void *dev_id)
+ 	struct rx8010_data *rx8010 = i2c_get_clientdata(client);
+ 	int flagreg;
+ 
+-	spin_lock(&rx8010->flags_lock);
++	mutex_lock(&rx8010->rtc->ops_lock);
+ 
+ 	flagreg = i2c_smbus_read_byte_data(client, RX8010_FLAG);
+ 
+ 	if (flagreg <= 0) {
+-		spin_unlock(&rx8010->flags_lock);
++		mutex_unlock(&rx8010->rtc->ops_lock);
+ 		return IRQ_NONE;
+ 	}
+ 
+@@ -101,7 +100,7 @@ static irqreturn_t rx8010_irq_1_handler(int irq, void *dev_id)
+ 
+ 	i2c_smbus_write_byte_data(client, RX8010_FLAG, flagreg);
+ 
+-	spin_unlock(&rx8010->flags_lock);
++	mutex_unlock(&rx8010->rtc->ops_lock);
+ 	return IRQ_HANDLED;
+ }
+ 
+@@ -143,7 +142,6 @@ static int rx8010_set_time(struct device *dev, struct rtc_time *dt)
+ 	u8 date[7];
+ 	int ctrl, flagreg;
+ 	int ret;
+-	unsigned long irqflags;
+ 
+ 	if ((dt->tm_year < 100) || (dt->tm_year > 199))
+ 		return -EINVAL;
+@@ -181,11 +179,8 @@ static int rx8010_set_time(struct device *dev, struct rtc_time *dt)
+ 	if (ret < 0)
+ 		return ret;
+ 
+-	spin_lock_irqsave(&rx8010->flags_lock, irqflags);
+-
+ 	flagreg = i2c_smbus_read_byte_data(rx8010->client, RX8010_FLAG);
+ 	if (flagreg < 0) {
+-		spin_unlock_irqrestore(&rx8010->flags_lock, irqflags);
+ 		return flagreg;
+ 	}
+ 
+@@ -193,8 +188,6 @@ static int rx8010_set_time(struct device *dev, struct rtc_time *dt)
+ 		ret = i2c_smbus_write_byte_data(rx8010->client, RX8010_FLAG,
+ 						flagreg & ~RX8010_FLAG_VLF);
+ 
+-	spin_unlock_irqrestore(&rx8010->flags_lock, irqflags);
+-
+ 	return 0;
+ }
+ 
+@@ -288,12 +281,11 @@ static int rx8010_set_alarm(struct device *dev, struct rtc_wkalrm *t)
+ 	u8 alarmvals[3];
+ 	int extreg, flagreg;
+ 	int err;
+-	unsigned long irqflags;
+ 
+-	spin_lock_irqsave(&rx8010->flags_lock, irqflags);
++	mutex_lock(&rx8010->rtc->ops_lock);
+ 	flagreg = i2c_smbus_read_byte_data(client, RX8010_FLAG);
+ 	if (flagreg < 0) {
+-		spin_unlock_irqrestore(&rx8010->flags_lock, irqflags);
++		mutex_unlock(&rx8010->rtc->ops_lock);
+ 		return flagreg;
+ 	}
+ 
+@@ -302,14 +294,14 @@ static int rx8010_set_alarm(struct device *dev, struct rtc_wkalrm *t)
+ 		err = i2c_smbus_write_byte_data(rx8010->client, RX8010_CTRL,
+ 						rx8010->ctrlreg);
+ 		if (err < 0) {
+-			spin_unlock_irqrestore(&rx8010->flags_lock, irqflags);
++			mutex_unlock(&rx8010->rtc->ops_lock);
+ 			return err;
+ 		}
+ 	}
+ 
+ 	flagreg &= ~RX8010_FLAG_AF;
+ 	err = i2c_smbus_write_byte_data(rx8010->client, RX8010_FLAG, flagreg);
+-	spin_unlock_irqrestore(&rx8010->flags_lock, irqflags);
++	mutex_unlock(&rx8010->rtc->ops_lock);
+ 	if (err < 0)
+ 		return err;
+ 
+@@ -404,7 +396,6 @@ static int rx8010_ioctl(struct device *dev, unsigned int cmd, unsigned long arg)
+ 	struct rx8010_data *rx8010 = dev_get_drvdata(dev);
+ 	int ret, tmp;
+ 	int flagreg;
+-	unsigned long irqflags;
+ 
+ 	switch (cmd) {
+ 	case RTC_VL_READ:
+@@ -419,16 +410,16 @@ static int rx8010_ioctl(struct device *dev, unsigned int cmd, unsigned long arg)
+ 		return 0;
+ 
+ 	case RTC_VL_CLR:
+-		spin_lock_irqsave(&rx8010->flags_lock, irqflags);
++		mutex_lock(&rx8010->rtc->ops_lock);
+ 		flagreg = i2c_smbus_read_byte_data(rx8010->client, RX8010_FLAG);
+ 		if (flagreg < 0) {
+-			spin_unlock_irqrestore(&rx8010->flags_lock, irqflags);
++			mutex_unlock(&rx8010->rtc->ops_lock);
+ 			return flagreg;
+ 		}
+ 
+ 		flagreg &= ~RX8010_FLAG_VLF;
+ 		ret = i2c_smbus_write_byte_data(client, RX8010_FLAG, flagreg);
+-		spin_unlock_irqrestore(&rx8010->flags_lock, irqflags);
++		mutex_unlock(&rx8010->rtc->ops_lock);
+ 		if (ret < 0)
+ 			return ret;
+ 
+@@ -466,8 +457,6 @@ static int rx8010_probe(struct i2c_client *client,
+ 	rx8010->client = client;
+ 	i2c_set_clientdata(client, rx8010);
+ 
+-	spin_lock_init(&rx8010->flags_lock);
+-
+ 	err = rx8010_init_client(client);
+ 	if (err)
+ 		return err;
+-- 
+1.8.3.1
