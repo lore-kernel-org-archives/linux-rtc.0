@@ -1,24 +1,29 @@
-Return-Path: <rtc-linux+bncBAABBUUCQ3BAKGQEF6QIXMA@googlegroups.com>
+Return-Path: <rtc-linux+bncBCW4XG6ATMLBB5VVULBAKGQEBL4MVZY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mx07-00178001.pphosted.com (mx08-00178001.pphosted.com. [91.207.212.93])
-        by gmr-mx.google.com with ESMTPS id 14si492533itu.0.2016.12.02.06.12.34
+MIME-Version: 1.0
+Received: from mail-wm0-x241.google.com (mail-wm0-x241.google.com. [2a00:1450:400c:c09::241])
+        by gmr-mx.google.com with ESMTPS id o77si1201360wme.0.2016.12.07.15.27.50
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 02 Dec 2016 06:12:34 -0800 (PST)
-From: Amelie Delaunay <amelie.delaunay@st.com>
-To: <a.zummo@towertech.it>, <alexandre.belloni@free-electrons.com>,
-        <robh+dt@kernel.org>, <mark.rutland@arm.com>,
-        <mcoquelin.stm32@gmail.com>, <alexandre.torgue@st.com>,
-        <linux@armlinux.org.uk>
-CC: <rtc-linux@googlegroups.com>, <devicetree@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>, <linux-kernel@vger.kernel.org>,
-        <gabriel.fernandez@st.com>, <amelie.delaunay@st.com>
-Subject: [rtc-linux] [PATCH 0/8] Add support for STM32 RTC
-Date: Fri, 2 Dec 2016 15:09:53 +0100
-Message-ID: <1480687801-19525-2-git-send-email-amelie.delaunay@st.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+        Wed, 07 Dec 2016 15:27:50 -0800 (PST)
+Received: by mail-wm0-x241.google.com with SMTP id m203so31018352wma.3
+        for <rtc-linux@googlegroups.com>; Wed, 07 Dec 2016 15:27:50 -0800 (PST)
+From: Emil Bartczak <emilbart@gmail.com>
+To: a.zummo@towertech.it
+Cc: alexandre.belloni@free-electrons.com,
+	rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org,
+	Emil Bartczak <emilbart@gmail.com>
+Subject: [rtc-linux] [PATCH v2 2/6] rtc: mcp795: fix bitmask value for leap
+ year (LP).
+Date: Thu,  8 Dec 2016 00:27:38 +0100
+Message-Id: <f21295c3c85abdeff2ffa62146ccc0ad4faee72b.1481151278.git.emilbart@gmail.com>
+In-Reply-To: <cover.1481151278.git.emilbart@gmail.com>
+References: <cover.1481151278.git.emilbart@gmail.com>
+In-Reply-To: <cover.1481151278.git.emilbart@gmail.com>
+References: <cover.1481151278.git.emilbart@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -27,36 +32,36 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-This patchset adds support for the STM32 Real-Time Clock.
-This RTC is an independent BCD timer/counter and provides a time-of-day
-clock/calendar with programmable alarm interrupt.
-RTC calendar can be driven by three clock sources LSE, LSI or HSE.
+According the datasheet the leap year is a fifth bit in month register.
 
-Amelie Delaunay (8):
-  ARM: dts: stm32: set HSE_RTC clock frequency to 1 MHz on stm32f429
-  dt-bindings: document the STM32 RTC bindings
-  rtc: add STM32 RTC driver
-  ARM: dts: stm32: Add STM32 RTC support for STM32F429 MCU
-  ARM: dts: stm32: enable RTC on stm32f429-disco
-  ARM: dts: stm32: enable RTC on stm32f469-disco
-  ARM: dts: stm32: enable RTC on stm32429i-eval
-  ARM: configs: stm32: Add STM32 RTC support in STM32 defconfig
+Signed-off-by: Emil Bartczak <emilbart@gmail.com>
+---
+ drivers/rtc/rtc-mcp795.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
- .../devicetree/bindings/rtc/st,stm32-rtc.txt       |  31 +
- arch/arm/boot/dts/stm32429i-eval.dts               |   4 +
- arch/arm/boot/dts/stm32f429-disco.dts              |   6 +
- arch/arm/boot/dts/stm32f429.dtsi                   |  16 +
- arch/arm/boot/dts/stm32f469-disco.dts              |   4 +
- arch/arm/configs/stm32_defconfig                   |   2 +
- drivers/rtc/Kconfig                                |  10 +
- drivers/rtc/Makefile                               |   1 +
- drivers/rtc/rtc-stm32.c                            | 777 +++++++++++++++++++++
- 9 files changed, 851 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/rtc/st,stm32-rtc.txt
- create mode 100644 drivers/rtc/rtc-stm32.c
-
+diff --git a/drivers/rtc/rtc-mcp795.c b/drivers/rtc/rtc-mcp795.c
+index 0389ee0..5fbdb4c 100644
+--- a/drivers/rtc/rtc-mcp795.c
++++ b/drivers/rtc/rtc-mcp795.c
+@@ -40,6 +40,7 @@
+ 
+ #define MCP795_ST_BIT	0x80
+ #define MCP795_24_BIT	0x40
++#define MCP795_LP_BIT	BIT(5)
+ 
+ static int mcp795_rtcc_read(struct device *dev, u8 addr, u8 *buf, u8 count)
+ {
+@@ -109,7 +110,7 @@ static int mcp795_set_time(struct device *dev, struct rtc_time *tim)
+ 	data[1] = (data[1] & 0x80) | bin2bcd(tim->tm_min);
+ 	data[2] = bin2bcd(tim->tm_hour);
+ 	data[4] = bin2bcd(tim->tm_mday);
+-	data[5] = (data[5] & 0x10) | bin2bcd(tim->tm_mon);
++	data[5] = (data[5] & MCP795_LP_BIT) | bin2bcd(tim->tm_mon);
+ 
+ 	if (tim->tm_year > 100)
+ 		tim->tm_year -= 100;
 -- 
-1.9.1
+2.7.4
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
