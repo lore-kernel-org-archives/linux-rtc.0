@@ -1,32 +1,20 @@
-Return-Path: <rtc-linux+bncBAABBCGWZ3BAKGQE5QAU5BY@googlegroups.com>
+Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBPOAUHBAKGQEBWGU3YQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mx07-00178001.pphosted.com (mx07-00178001.pphosted.com. [62.209.51.94])
-        by gmr-mx.google.com with ESMTPS id d199si200729wmd.1.2016.12.16.00.51.20
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 16 Dec 2016 00:51:20 -0800 (PST)
-From: Amelie Delaunay <amelie.delaunay@st.com>
-To: Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni
-	<alexandre.belloni@free-electrons.com>,
-        Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>,
-        Maxime Coquelin
-	<mcoquelin.stm32@gmail.com>,
-        Alexandre Torgue <alexandre.torgue@st.com>,
-        Russell King <linux@armlinux.org.uk>
-CC: <rtc-linux@googlegroups.com>, <devicetree@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>, <linux-kernel@vger.kernel.org>,
-        Gabriel Fernandez <gabriel.fernandez@st.com>,
-        Amelie Delaunay
-	<amelie.delaunay@st.com>
-Subject: [rtc-linux] [PATCHv2 1/8] ARM: dts: stm32: set HSE_RTC clock
- frequency to 1 MHz on stm32f429
-Date: Fri, 16 Dec 2016 09:50:50 +0100
-Message-ID: <1481878257-29163-2-git-send-email-amelie.delaunay@st.com>
-In-Reply-To: <1481878257-29163-1-git-send-email-amelie.delaunay@st.com>
-References: <1481878257-29163-1-git-send-email-amelie.delaunay@st.com>
+Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
+        by gmr-mx.google.com with ESMTP id e134si1039627wmd.3.2016.12.07.11.17.16
+        for <rtc-linux@googlegroups.com>;
+        Wed, 07 Dec 2016 11:17:16 -0800 (PST)
+Date: Wed, 7 Dec 2016 20:17:15 +0100
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Akinobu Mita <akinobu.mita@gmail.com>
+Cc: rtc-linux@googlegroups.com, devicetree@vger.kernel.org,
+	Alessandro Zummo <a.zummo@towertech.it>
+Subject: [rtc-linux] Re: [PATCH v3] rtc: add support for EPSON TOYOCOM RTC-7301SF/DG
+Message-ID: <20161207191715.63i3exilseqasak5@piout.net>
+References: <1480860279-4570-1-git-send-email-akinobu.mita@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1480860279-4570-1-git-send-email-akinobu.mita@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -36,29 +24,37 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-This patch set HSE_RTC clock frequency to 1 MHz, as the clock supplied to
-the RTC must be 1 MHz.
+On 04/12/2016 at 23:04:39 +0900, Akinobu Mita wrote :
+> This adds support for EPSON TOYOCOM RTC-7301SF/DG which has parallel
+> interface compatible with SRAM.
+> 
+> This driver supports basic clock, calendar and alarm functionality.
+> 
+> Tested with Microblaze linux running on Artix7 FPGA board with my own
+> custom IP for RTC-7301.
+> 
+> Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
+> Acked-by: Rob Herring <robh@kernel.org>
+> Cc: Alessandro Zummo <a.zummo@towertech.it>
+> Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+> ---
+> * Changes from v2
+> - Convert enum to usual #defines
+> 
+>  .../devicetree/bindings/rtc/epson,rtc7301.txt      |  16 +
+>  drivers/rtc/Kconfig                                |  11 +
+>  drivers/rtc/Makefile                               |   1 +
+>  drivers/rtc/rtc-r7301.c                            | 453 +++++++++++++++++++++
+>  4 files changed, 481 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/rtc/epson,rtc7301.txt
+>  create mode 100644 drivers/rtc/rtc-r7301.c
+> 
+Applied, thanks.
 
-Signed-off-by: Amelie Delaunay <amelie.delaunay@st.com>
----
- arch/arm/boot/dts/stm32f429.dtsi | 2 ++
- 1 file changed, 2 insertions(+)
-
-diff --git a/arch/arm/boot/dts/stm32f429.dtsi b/arch/arm/boot/dts/stm32f429.dtsi
-index b077f99..d195ccf 100644
---- a/arch/arm/boot/dts/stm32f429.dtsi
-+++ b/arch/arm/boot/dts/stm32f429.dtsi
-@@ -371,6 +371,8 @@
- 			reg = <0x40023800 0x400>;
- 			clocks = <&clk_hse>, <&clk_i2s_ckin>;
- 			st,syscfg = <&pwrcfg>;
-+			assigned-clocks = <&rcc 1 CLK_HSE_RTC>;
-+			assigned-clock-rates = <1000000>;
- 		};
- 
- 		dma1: dma-controller@40026000 {
 -- 
-1.9.1
+Alexandre Belloni, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
