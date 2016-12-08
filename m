@@ -1,27 +1,27 @@
-Return-Path: <rtc-linux+bncBAABBU4CQ3BAKGQEXSNLOYA@googlegroups.com>
+Return-Path: <rtc-linux+bncBD47PQ46SILBB3VTUXBAKGQEHFZTTYA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mx07-00178001.pphosted.com (mx07-00178001.pphosted.com. [62.209.51.94])
-        by gmr-mx.google.com with ESMTPS id l19si404513wmg.0.2016.12.02.06.12.34
+Received: from mail-wj0-x22d.google.com (mail-wj0-x22d.google.com. [2a00:1450:400c:c01::22d])
+        by gmr-mx.google.com with ESMTPS id e134si1329018wmd.3.2016.12.08.05.02.37
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 02 Dec 2016 06:12:34 -0800 (PST)
-From: Amelie Delaunay <amelie.delaunay@st.com>
-To: <a.zummo@towertech.it>, <alexandre.belloni@free-electrons.com>,
-        <robh+dt@kernel.org>, <mark.rutland@arm.com>,
-        <mcoquelin.stm32@gmail.com>, <alexandre.torgue@st.com>,
-        <linux@armlinux.org.uk>
-CC: <rtc-linux@googlegroups.com>, <devicetree@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>, <linux-kernel@vger.kernel.org>,
-        <gabriel.fernandez@st.com>, <amelie.delaunay@st.com>
-Subject: [rtc-linux] [PATCH 4/8] ARM: dts: stm32: Add STM32 RTC support for
- STM32F429 MCU
-Date: Fri, 2 Dec 2016 15:09:57 +0100
-Message-ID: <1480687801-19525-6-git-send-email-amelie.delaunay@st.com>
-In-Reply-To: <1480687801-19525-2-git-send-email-amelie.delaunay@st.com>
-References: <1480687801-19525-2-git-send-email-amelie.delaunay@st.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+        Thu, 08 Dec 2016 05:02:37 -0800 (PST)
+Received: by mail-wj0-x22d.google.com with SMTP id tk12so92883275wjb.3
+        for <rtc-linux@googlegroups.com>; Thu, 08 Dec 2016 05:02:37 -0800 (PST)
+Received: from [192.168.0.105] (nat-35.starnet.cz. [178.255.168.35])
+        by smtp.gmail.com with ESMTPSA id d10sm36878747wja.20.2016.12.08.05.02.36
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 08 Dec 2016 05:02:36 -0800 (PST)
+To: rtc-linux@googlegroups.com
 Reply-To: rtc-linux@googlegroups.com
+From: Michal Simek <monstr@monstr.eu>
+Subject: [rtc-linux] RTC used as a module
+Message-ID: <d55404da-fe29-675d-1f3b-008145a6c87b@monstr.eu>
+Date: Thu, 8 Dec 2016 14:02:36 +0100
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="eg5UrQSnl3j2ViutG0AlXV3pvLIJ9i1TL"
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -30,40 +30,53 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-This patch adds STM32 RTC bindings for STM32F429.
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--eg5UrQSnl3j2ViutG0AlXV3pvLIJ9i1TL
+Content-Type: multipart/mixed; boundary="snU9s4Jgmi4LMr4exwIqCs48CaJngaJrR";
+ protected-headers="v1"
+From: Michal Simek <monstr@monstr.eu>
+Reply-To: monstr@monstr.eu
+To: rtc-linux@googlegroups.com
+Message-ID: <d55404da-fe29-675d-1f3b-008145a6c87b@monstr.eu>
+Subject: RTC used as a module
 
-Signed-off-by: Amelie Delaunay <amelie.delaunay@st.com>
----
- arch/arm/boot/dts/stm32f429.dtsi | 14 ++++++++++++++
- 1 file changed, 14 insertions(+)
+--snU9s4Jgmi4LMr4exwIqCs48CaJngaJrR
+Content-Type: text/plain; charset=UTF-8
 
-diff --git a/arch/arm/boot/dts/stm32f429.dtsi b/arch/arm/boot/dts/stm32f429.dtsi
-index d195ccf..d181025 100644
---- a/arch/arm/boot/dts/stm32f429.dtsi
-+++ b/arch/arm/boot/dts/stm32f429.dtsi
-@@ -125,6 +125,20 @@
- 			status = "disabled";
- 		};
- 
-+		rtc: rtc@40002800 {
-+			compatible = "st,stm32-rtc";
-+			reg = <0x40002800 0x400>;
-+			clocks = <&rcc 1 CLK_RTC>;
-+			clock-names = "ck_rtc";
-+			assigned-clocks = <&rcc 1 CLK_RTC>;
-+			assigned-clock-parents = <&rcc 1 CLK_LSE>;
-+			interrupt-parent = <&exti>;
-+			interrupts = <17 1>;
-+			interrupt-names = "alarm";
-+			st,syscfg = <&pwrcfg>;
-+			status = "disabled";
-+		};
-+
- 		usart2: serial@40004400 {
- 			compatible = "st,stm32-usart", "st,stm32-uart";
- 			reg = <0x40004400 0x400>;
+Hi guys,
+
+I am trying to find out reason for this behavior. If rtc-zynqmp is used
+as module for the first time it is correctly probed based on aliases
+setting. (rtc5 for log below). But then driver is removed and add again
+rtc5 is still not freed. rtc_device_release() is not called that's why
+rtc->id can't be used again.
+
+sh-4.3# modprobe rtc-zynqmp
+[   42.468565] rtc_zynqmp ffa60000.rtc: rtc core: registered
+ffa60000.rtc as rtc5
+sh-4.3# rmmod rtc-zynqmp
+sh-4.3# modprobe rtc-zynqmp
+[   48.648222] rtc_zynqmp ffa60000.rtc: /aliases ID 5 not available
+[   48.654280] rtc_zynqmp ffa60000.rtc: rtc core: registered
+ffa60000.rtc as rtc0
+
+
+I didn't try different rtc drivers but it looks like that someone keeps
+reference that's why release function is not called.
+
+Can someone check this with different RTC module?
+Or is this expected behavior?
+
+Thanks,
+Michal
+
 -- 
-1.9.1
+Michal Simek, Ing. (M.Eng), OpenPGP -> KeyID: FE3D1F91
+w: www.monstr.eu p: +42-0-721842854
+Maintainer of Linux kernel - Xilinx Microblaze
+Maintainer of Linux kernel - Xilinx Zynq ARM and ZynqMP ARM64 SoCs
+U-Boot custodian - Xilinx Microblaze/Zynq/ZynqMP SoCs
+
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
@@ -74,3 +87,20 @@ before submitting a driver.
 You received this message because you are subscribed to the Google Groups "rtc-linux" group.
 To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
+
+--snU9s4Jgmi4LMr4exwIqCs48CaJngaJrR--
+
+--eg5UrQSnl3j2ViutG0AlXV3pvLIJ9i1TL
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.22 (GNU/Linux)
+
+iEYEARECAAYFAlhJWewACgkQykllyylKDCEj2wCeKuGom2UTAVJ9E/+uVjCKpVwO
+ULwAn2jCqvcXc1wgmFinTVpb/gLqBU4b
+=SirJ
+-----END PGP SIGNATURE-----
+
+--eg5UrQSnl3j2ViutG0AlXV3pvLIJ9i1TL--
