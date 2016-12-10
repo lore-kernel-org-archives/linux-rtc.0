@@ -1,29 +1,20 @@
-Return-Path: <rtc-linux+bncBAABBD6WZ3BAKGQEZP4RJ7Q@googlegroups.com>
+Return-Path: <rtc-linux+bncBDJ6H2FGZ4FBB4HRWHBAKGQE5JLCNQQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mx07-00178001.pphosted.com (mx08-00178001.pphosted.com. [91.207.212.93])
-        by gmr-mx.google.com with ESMTPS id p138si210748wme.1.2016.12.16.00.51.27
+Received: from hel-mailgw-01.vaisala.com (hel-mailgw-01.vaisala.com. [193.143.230.17])
+        by gmr-mx.google.com with ESMTPS id d199si2178268wmd.1.2016.12.10.13.51.43
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 16 Dec 2016 00:51:27 -0800 (PST)
-From: Amelie Delaunay <amelie.delaunay@st.com>
+        Sat, 10 Dec 2016 13:51:44 -0800 (PST)
+From: =?UTF-8?q?Vesa=20J=C3=A4=C3=A4skel=C3=A4inen?= <vesa.jaaskelainen@vaisala.com>
 To: Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni
-	<alexandre.belloni@free-electrons.com>,
-        Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>,
-        Maxime Coquelin
-	<mcoquelin.stm32@gmail.com>,
-        Alexandre Torgue <alexandre.torgue@st.com>,
-        Russell King <linux@armlinux.org.uk>
-CC: <rtc-linux@googlegroups.com>, <devicetree@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>, <linux-kernel@vger.kernel.org>,
-        Gabriel Fernandez <gabriel.fernandez@st.com>,
-        Amelie Delaunay
-	<amelie.delaunay@st.com>
-Subject: [rtc-linux] [PATCHv2 7/8] ARM: dts: stm32: enable RTC on stm32429i-eval
-Date: Fri, 16 Dec 2016 09:50:56 +0100
-Message-ID: <1481878257-29163-8-git-send-email-amelie.delaunay@st.com>
-In-Reply-To: <1481878257-29163-1-git-send-email-amelie.delaunay@st.com>
-References: <1481878257-29163-1-git-send-email-amelie.delaunay@st.com>
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Lee Jones <lee.jones@linaro.org>
+Cc: =?UTF-8?q?Vesa=20J=C3=A4=C3=A4skel=C3=A4inen?= <vesa.jaaskelainen@vaisala.com>,
+	rtc-linux@googlegroups.com
+Subject: [rtc-linux] [PATCH v2 0/2] drivers: rtc: rtc-tps65910: Add RTC
+ calibration support
+Date: Sat, 10 Dec 2016 23:50:42 +0200
+Message-Id: <1481406644-1614-1-git-send-email-vesa.jaaskelainen@vaisala.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
@@ -35,37 +26,31 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-This patch enables RTC on stm32429i-eval with default LSE clock source.
+Texas Instrument's TPS65910 has support for compensating RTC crystal
+inaccuracies. When enabled every hour RTC counter value will be compensated
+with two's complement value.
 
-Signed-off-by: Amelie Delaunay <amelie.delaunay@st.com>
----
- arch/arm/boot/dts/stm32429i-eval.dts | 4 ++++
- 1 file changed, 4 insertions(+)
+Vesa J=C3=A4=C3=A4skel=C3=A4inen (2):
+  drivers: rtc: rtc-tps65910: Add RTC calibration support
+  drivers: rtc: rtc-tps65910: use 'unsigned int' instead of 'unsigned'
+    in arguments
 
-diff --git a/arch/arm/boot/dts/stm32429i-eval.dts b/arch/arm/boot/dts/stm32429i-eval.dts
-index 8b158f9..5007da9 100644
---- a/arch/arm/boot/dts/stm32429i-eval.dts
-+++ b/arch/arm/boot/dts/stm32429i-eval.dts
-@@ -134,6 +134,10 @@
- 	};
- };
- 
-+&rtc {
-+	status = "okay";
-+};
-+
- &usart1 {
- 	pinctrl-0 = <&usart1_pins_a>;
- 	pinctrl-names = "default";
--- 
-1.9.1
+ drivers/rtc/rtc-tps65910.c   | 135 +++++++++++++++++++++++++++++++++++++++=
++++-
+ include/linux/mfd/tps65910.h |   1 +
+ 2 files changed, 135 insertions(+), 1 deletion(-)
 
--- 
+--=20
+2.1.4
+
+--=20
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+---=20
+You received this message because you are subscribed to the Google Groups "=
+rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an e=
+mail to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
