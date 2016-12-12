@@ -1,31 +1,28 @@
-Return-Path: <rtc-linux+bncBAABBFEU5TBAKGQEU64L3DQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBDKZNNNLXAHBBEOLXPBAKGQEBAWZ2QI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-MIME-Version: 1.0
-Received: from botnar.kaiser.cx (botnar.kaiser.cx. [176.28.20.183])
-        by gmr-mx.google.com with ESMTPS id f71si1654042wmf.2.2016.12.21.15.02.43
+Received: from mail-wj0-f196.google.com (mail-wj0-f196.google.com. [209.85.210.196])
+        by gmr-mx.google.com with ESMTPS id l66si2744434wml.0.2016.12.12.09.59.44
         for <rtc-linux@googlegroups.com>
-        (version=TLS1 cipher=AES128-SHA bits=128/128);
-        Wed, 21 Dec 2016 15:02:44 -0800 (PST)
-From: Martin Kaiser <martin@kaiser.cx>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Shawn Guo <shawnguo@kernel.org>,
-	Sascha Hauer <kernel@pengutronix.de>,
-	Juergen Borleis <jbe@pengutronix.de>,
-	Lucas Stach <l.stach@pengutronix.de>
-Cc: Fabio Estevam <fabio.estevam@nxp.com>,
-	rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org,
-	Rob Herring <robh+dt@kernel.org>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Martin Kaiser <martin@kaiser.cx>
-Subject: [rtc-linux] [PATCH 2/2 v2] ARM: i.MX25: add the optional security
- violation irq
-Date: Thu, 22 Dec 2016 00:01:16 +0100
-Message-Id: <1482361276-12475-1-git-send-email-martin@kaiser.cx>
-In-Reply-To: <1479560614-19293-1-git-send-email-martin@kaiser.cx>
-References: <1479560614-19293-1-git-send-email-martin@kaiser.cx>
-Reply-To: rtc-linux@googlegroups.com
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 12 Dec 2016 09:59:44 -0800 (PST)
+Received: by mail-wj0-f196.google.com with SMTP id xy5so12779554wjc.1
+        for <rtc-linux@googlegroups.com>; Mon, 12 Dec 2016 09:59:44 -0800 (PST)
+Date: Mon, 12 Dec 2016 19:59:40 +0200
+From: Krzysztof Kozlowski <krzk@kernel.org>
+To: rtc-linux@googlegroups.com
+Cc: Venkat Reddy Talla <vreddytalla@nvidia.com>, cw00.choi@samsung.com,
+	krzk@kernel.org, a.zummo@towertech.it,
+	alexandre.belloni@free-electrons.com, linux-kernel@vger.kernel.org,
+	ldewangan@nvidia.com
+Subject: Re: [rtc-linux] Re: [PATCH] rtc: max77683: avoid regmap bulk write
+ for max77620
+Message-ID: <20161212175940.GA7302@kozik-lap>
+References: <1481543085-19540-1-git-send-email-vreddytalla@nvidia.com>
+ <2080923.yQbi47FubE@amdc3058>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <2080923.yQbi47FubE@amdc3058>
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -34,53 +31,44 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Add the security violation irq as an optional entry to rtc-imxdi's
-device tree bindings and to i.MX25's dtsi file.
+On Mon, Dec 12, 2016 at 02:28:11PM +0100, Bartlomiej Zolnierkiewicz wrote:
+> > @@ -259,6 +262,32 @@ static const struct max77686_rtc_driver_data max77802_drv_data = {
+> >  	.rtc_irq_chip = &max77802_rtc_irq_chip,
+> >  };
+> >  
+> > +static inline int _regmap_bulk_write(struct max77686_rtc_info *info,
+> 
+> rtc_regmap_bulk_write?
 
-Signed-off-by: Martin Kaiser <martin@kaiser.cx>
----
-v2:
-  - clarify that the security violation interrupt is optional
-  - use the same syntax as everwhere else for lists of interrupt numbers
+I think max77686_regmap_bulk_write would be nice. This might still pop
+somewhere in the backtrace so the prefix is useful.
 
- Documentation/devicetree/bindings/rtc/imxdi-rtc.txt |    5 ++++-
- arch/arm/boot/dts/imx25.dtsi                        |    2 +-
- 2 files changed, 5 insertions(+), 2 deletions(-)
+> 
+> > +		unsigned int reg, void *val, int len)
+> > +{
+> 
+> Please keep arguments (except "info" one) in sync with regmap_bulk_write():
+> 
+> int regmap_bulk_write(struct regmap *map, unsigned int reg, const void *val,
+> 		     size_t val_count)
+> 
+> > +	int ret = 0;
+> > +
+> > +	if (!info->drv_data->avoid_rtc_bulk_write) {
+> > +		/* RTC registers support sequential writing */
+> > +		ret = regmap_bulk_write(info->rtc_regmap, reg, val, len);
+> > +	} else {
+> > +		/* Power registers support register-data pair writing */
+> 
+> Hmn, maybe this can be handled be regmap_bulk_write() with proper
+> regmap setting (map->bus == NULL?), can anyone with more regmap
+> expertise comment on this?
 
-diff --git a/Documentation/devicetree/bindings/rtc/imxdi-rtc.txt b/Documentation/devicetree/bindings/rtc/imxdi-rtc.txt
-index c9d80d7..323cf26 100644
---- a/Documentation/devicetree/bindings/rtc/imxdi-rtc.txt
-+++ b/Documentation/devicetree/bindings/rtc/imxdi-rtc.txt
-@@ -8,10 +8,13 @@ Required properties:
-   region.
- - interrupts: rtc alarm interrupt
- 
-+Optional properties:
-+- interrupts: dryice security violation interrupt
-+
- Example:
- 
- rtc@80056000 {
- 	compatible = "fsl,imx53-rtc", "fsl,imx25-rtc";
- 	reg = <0x80056000 2000>;
--	interrupts = <29>;
-+	interrupts = <29 56>;
- };
-diff --git a/arch/arm/boot/dts/imx25.dtsi b/arch/arm/boot/dts/imx25.dtsi
-index 831d09a..331d1e1 100644
---- a/arch/arm/boot/dts/imx25.dtsi
-+++ b/arch/arm/boot/dts/imx25.dtsi
-@@ -560,7 +560,7 @@
- 				reg = <0x53ffc000 0x4000>;
- 				clocks = <&clks 81>;
- 				clock-names = "ipg";
--				interrupts = <25>;
-+				interrupts = <25 56>;
- 			};
- 		};
- 
--- 
-1.7.10.4
+Good catch. This does not look like a property of this device driver but
+of the bus it is attached to.
+
+Best regards,
+Krzysztof
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
