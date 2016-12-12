@@ -1,35 +1,27 @@
-Return-Path: <rtc-linux+bncBAABBRPTXHBAKGQEUWYW3YY@googlegroups.com>
+Return-Path: <rtc-linux+bncBDMLN5HOIYIO7S52YICRUBFNQJ2IC@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mx07-00178001.pphosted.com (mx07-00178001.pphosted.com. [62.209.51.94])
-        by gmr-mx.google.com with ESMTPS id p138si2666222wme.1.2016.12.12.02.19.48
+Received: from mailout4.samsung.com (mailout4.samsung.com. [203.254.224.34])
+        by gmr-mx.google.com with ESMTPS id w2si8390720pfg.0.2016.12.12.05.28.14
         for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 12 Dec 2016 02:19:48 -0800 (PST)
-Subject: [rtc-linux] Re: [PATCH 3/8] rtc: add STM32 RTC driver
-References: <bc5c308d-472a-bf05-89b8-6d813fb5321d@st.com>
-To: "alexandre.belloni@free-electrons.com"
-	<alexandre.belloni@free-electrons.com>
-CC: "a.zummo@towertech.it" <a.zummo@towertech.it>,
-        "robh+dt@kernel.org"
-	<robh+dt@kernel.org>,
-        "mark.rutland@arm.com" <mark.rutland@arm.com>,
-        "mcoquelin.stm32@gmail.com" <mcoquelin.stm32@gmail.com>,
-        Alexandre TORGUE
-	<alexandre.torgue@st.com>,
-        "linux@armlinux.org.uk" <linux@armlinux.org.uk>,
-        "rtc-linux@googlegroups.com" <rtc-linux@googlegroups.com>,
-        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-        "linux-arm-kernel@lists.infradead.org"
-	<linux-arm-kernel@lists.infradead.org>,
-        "linux-kernel@vger.kernel.org"
-	<linux-kernel@vger.kernel.org>,
-        Gabriel FERNANDEZ <gabriel.fernandez@st.com>
-From: Amelie DELAUNAY <amelie.delaunay@st.com>
-Message-ID: <a98f04e5-2ad5-542a-2e60-276c1a82a428@st.com>
-Date: Mon, 12 Dec 2016 11:19:36 +0100
-MIME-Version: 1.0
-In-Reply-To: <bc5c308d-472a-bf05-89b8-6d813fb5321d@st.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+        (version=TLS1 cipher=AES128-SHA bits=128/128);
+        Mon, 12 Dec 2016 05:28:15 -0800 (PST)
+Received: from epcpsbgm1new.samsung.com (epcpsbgm1 [203.254.230.26])
+ by mailout4.samsung.com
+ (Oracle Communications Messaging Server 7.0.5.31.0 64bit (built May  5 2014))
+ with ESMTP id <0OI201YGQQQUCPA0@mailout4.samsung.com> for
+ rtc-linux@googlegroups.com; Mon, 12 Dec 2016 22:28:13 +0900 (KST)
+From: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+To: Venkat Reddy Talla <vreddytalla@nvidia.com>
+Cc: cw00.choi@samsung.com, krzk@kernel.org, a.zummo@towertech.it,
+ alexandre.belloni@free-electrons.com, linux-kernel@vger.kernel.org,
+ rtc-linux@googlegroups.com, ldewangan@nvidia.com
+Subject: [rtc-linux] Re: [PATCH] rtc: max77683: avoid regmap bulk write for max77620
+Date: Mon, 12 Dec 2016 14:28:11 +0100
+Message-id: <2080923.yQbi47FubE@amdc3058>
+In-reply-to: <1481543085-19540-1-git-send-email-vreddytalla@nvidia.com>
+References: <1481543085-19540-1-git-send-email-vreddytalla@nvidia.com>
+MIME-version: 1.0
+Content-type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -39,231 +31,161 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
+
 Hi,
 
-Thanks for the review.
+On Monday, December 12, 2016 05:14:45 PM Venkat Reddy Talla wrote:
+> Adding support to avoid regmap bulk write for the
+> devices which are not supported register bulk write.
 
-On 12/07/2016 08:08 PM, Alexandre Belloni wrote:
-> Hi,
->
-> It seems mostly fine.
->
-> On 02/12/2016 at 15:09:56 +0100, Amelie Delaunay wrote :
->> This patch adds support for the STM32 RTC.
->>
->> Signed-off-by: Amelie Delaunay <amelie.delaunay@st.com>
->> ---
->>  drivers/rtc/Kconfig     |  10 +
->>  drivers/rtc/Makefile    |   1 +
->>  drivers/rtc/rtc-stm32.c | 777 ++++++++++++++++++++++++++++++++++++++++++++++++
->>  3 files changed, 788 insertions(+)
->>  create mode 100644 drivers/rtc/rtc-stm32.c
->>
->> diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
->> index e859d14..dd8b218 100644
->> --- a/drivers/rtc/Kconfig
->> +++ b/drivers/rtc/Kconfig
->> @@ -1706,6 +1706,16 @@ config RTC_DRV_PIC32
->>  	   This driver can also be built as a module. If so, the module
->>  	   will be called rtc-pic32
->>
->> +config RTC_DRV_STM32
->> +	tristate "STM32 On-Chip RTC"
->> +	depends on ARCH_STM32
->
-> Can you add COMPILE_TEST? Looking at it, nothing seemed to be
-> architecture specific and this nicely increases compile test coverage.
->
-> It should also probably select REGMAP_MMIO.
->
-Ok.
->> diff --git a/drivers/rtc/rtc-stm32.c b/drivers/rtc/rtc-stm32.c
->> new file mode 100644
->> index 0000000..9e710ff
->> --- /dev/null
->> +++ b/drivers/rtc/rtc-stm32.c
->> @@ -0,0 +1,777 @@
->> +/*
->> + * Copyright (C) Amelie Delaunay 2015
->> + * Author:  Amelie Delaunay <adelaunay.stm32@gmail.com>
->
-> This differs from your SoB. I don't really care but it seems odd.
->
-Yes, I've already changed it in my upcoming V2!
->> + * License terms:  GNU General Public License (GPL), version 2
->> + */
->> +
->> +#include <linux/bcd.h>
->> +#include <linux/clk.h>
->> +#include <linux/init.h>
->> +#include <linux/io.h>
->> +#include <linux/iopoll.h>
->> +#include <linux/ioport.h>
->> +#include <linux/kernel.h>
->> +#include <linux/mfd/syscon.h>
->> +#include <linux/module.h>
->> +#include <linux/of.h>
->> +#include <linux/of_device.h>
->> +#include <linux/platform_device.h>
->> +#include <linux/regmap.h>
->> +#include <linux/rtc.h>
->> +#include <linux/spinlock.h>
->> +
->
-> I have the feeling that some of those headers are not necessary maybe
-> some cleanup should be done.
->
-Ok I'll have a look.
->> +static struct regmap *dbp;
->> +
->> +struct stm32_rtc {
->> +	struct rtc_device *rtc_dev;
->> +	void __iomem *base;
->> +	struct clk *pclk;
->> +	struct clk *ck_rtc;
->> +	unsigned int clksrc;
->> +	spinlock_t lock; /* Protects registers accesses */
->
-> That comment makes checkpatch happy but is not super useful :) Anyway...
->
-Lack of inspiration :)
->> +static irqreturn_t stm32_rtc_alarm_irq(int irq, void *dev_id)
->> +{
->
-> ...can you make that one a threaded IRQ? If that's the case, just take
-> the rtc_device mutex here and remove the spinlock. All the other
-> function are already protected.
->
-Ok I'll study this point.
->> +static int stm32_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
->> +{
->> +	struct stm32_rtc *rtc = dev_get_drvdata(dev);
->> +	struct rtc_time *tm = &alrm->time;
->> +	unsigned int alrmar, cr, isr;
->> +	unsigned long irqflags;
->> +
->> +	spin_lock_irqsave(&rtc->lock, irqflags);
->> +
->> +	alrmar = stm32_rtc_readl(rtc, STM32_RTC_ALRMAR);
->> +	cr = stm32_rtc_readl(rtc, STM32_RTC_CR);
->> +	isr = stm32_rtc_readl(rtc, STM32_RTC_ISR);
->> +
->> +	spin_unlock_irqrestore(&rtc->lock, irqflags);
->> +
->> +	if (alrmar & STM32_RTC_ALRMXR_DATE_MASK) {
->> +		/*
->> +		 * Date/day don't care in Alarm comparison so alarm triggers
->
-> I guess you meant "doesn't matter" (that is also valid for the other
-> usages of "don't care".
->
->> +		 * every day
->> +		 */
->> +		tm->tm_mday = -1;
->> +		tm->tm_wday = -1;
->> +	} else {
->> +		if (alrmar & STM32_RTC_ALRMXR_WDSEL) {
->> +			/* Alarm is set to a day of week */
->> +			tm->tm_mday = -1;
->> +			tm->tm_wday = (alrmar & STM32_RTC_ALRMXR_WDAY) >>
->> +				      STM32_RTC_ALRMXR_WDAY_SHIFT;
->> +			tm->tm_wday %= 7;
->> +		} else {
->> +			/* Alarm is set to a day of month */
->> +			tm->tm_wday = -1;
->> +			tm->tm_mday = (alrmar & STM32_RTC_ALRMXR_DATE) >>
->> +				       STM32_RTC_ALRMXR_DATE_SHIFT;
->> +		}
->> +	}
->> +
->> +	if (alrmar & STM32_RTC_ALRMXR_HOUR_MASK) {
->> +		/* Hours don't care in Alarm comparison */
->> +		tm->tm_hour = -1;
->> +	} else {
->> +		tm->tm_hour = (alrmar & STM32_RTC_ALRMXR_HOUR) >>
->> +			       STM32_RTC_ALRMXR_HOUR_SHIFT;
->> +		if (alrmar & STM32_RTC_ALRMXR_PM)
->> +			tm->tm_hour += 12;
->> +	}
->> +
->> +	if (alrmar & STM32_RTC_ALRMXR_MIN_MASK) {
->> +		/* Minutes don't care in Alarm comparison */
->> +		tm->tm_min = -1;
->> +	} else {
->> +		tm->tm_min = (alrmar & STM32_RTC_ALRMXR_MIN) >>
->> +			      STM32_RTC_ALRMXR_MIN_SHIFT;
->> +	}
->> +
->> +	if (alrmar & STM32_RTC_ALRMXR_SEC_MASK) {
->> +		/* Seconds don't care in Alarm comparison */
->> +		tm->tm_sec = -1;
->> +	} else {
->> +		tm->tm_sec = (alrmar & STM32_RTC_ALRMXR_SEC) >>
->> +			      STM32_RTC_ALRMXR_SEC_SHIFT;
->> +	}
->> +
-> I'm not sure those multiple cases (including STM32_RTC_ALRMXR_WDSEL) are
-> useful because the core will always give you valid tm_sec, tm_min,
-> tm_hour and tm_mday (it is actually checked up to four times!) so you
-> should always end up in the same configuration.
->
-> If you think some code other than Linux may set an alarm (e.g. the
-> bootloader) then you may keep them in read_alarm but at least you can
-> remove them from set_alarm.
->
->
-Ok I'll clean this part.
->> +static int stm32_rtc_probe(struct platform_device *pdev)
->> +{
->> +	struct stm32_rtc *rtc;
->> +	struct resource *res;
->> +	int ret;
->> +
->> +	rtc = devm_kzalloc(&pdev->dev, sizeof(*rtc), GFP_KERNEL);
->> +	if (!rtc)
->> +		return -ENOMEM;
->> +
->> +	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
->> +	rtc->base = devm_ioremap_resource(&pdev->dev, res);
->> +	if (IS_ERR(rtc->base))
->> +		return PTR_ERR(rtc->base);
->> +
->> +	dbp = syscon_regmap_lookup_by_phandle(pdev->dev.of_node, "st,syscfg");
->> +	if (IS_ERR(dbp)) {
->> +		dev_err(&pdev->dev, "no st,syscfg\n");
->> +		return PTR_ERR(dbp);
->> +	}
->> +
->> +	spin_lock_init(&rtc->lock);
->> +
->> +	rtc->ck_rtc = devm_clk_get(&pdev->dev, "ck_rtc");
->> +	if (IS_ERR(rtc->ck_rtc)) {
->> +		dev_err(&pdev->dev, "no ck_rtc clock");
->> +		return PTR_ERR(rtc->ck_rtc);
->> +	}
->> +
->> +	ret = clk_prepare_enable(rtc->ck_rtc);
->> +	if (ret)
->> +		return ret;
->> +
->> +	if (dbp)
->> +		regmap_update_bits(dbp, PWR_CR, PWR_CR_DBP, PWR_CR_DBP);
->> +
->> +	ret = stm32_rtc_init(pdev, rtc);
->> +	if (ret)
->> +		goto err;
->> +
->
-> Isn't that RTC backuped in some way, do you really need to reinit it
-> each time the system reboots?
->
->
-Indeed, RTC is backuped. I need to reinit it only if RTC parent clock 
-has changed.
+What about register bulk reads done by the driver?
 
+Do they also need a fixup?
 
-Best Regards,
-Amelie
+> Max77620 RTC device does not support register bulk write
+> so disabling regmap bulk write for max77620 rtc device
+> and enabling only for max77683.
+> 
+> Signed-off-by: Venkat Reddy Talla <vreddytalla@nvidia.com>
+> ---
+>  drivers/rtc/rtc-max77686.c | 39 ++++++++++++++++++++++++++++++++++-----
+>  1 file changed, 34 insertions(+), 5 deletions(-)
+> 
+> diff --git a/drivers/rtc/rtc-max77686.c b/drivers/rtc/rtc-max77686.c
+> index 182fdd0..401ab25 100644
+> --- a/drivers/rtc/rtc-max77686.c
+> +++ b/drivers/rtc/rtc-max77686.c
+> @@ -84,6 +84,7 @@ struct max77686_rtc_driver_data {
+>  	int			alarm_pending_status_reg;
+>  	/* RTC IRQ CHIP for regmap */
+>  	const struct regmap_irq_chip *rtc_irq_chip;
+> +	bool avoid_rtc_bulk_write;
+
+It should be grouped with other bool fields of this struct.
+
+Reversing the logic would make it simpler and would make
+the naming (rtc_bulk_write) consistent with other bool
+fields in the struct.
+
+>  };
+>  
+>  struct max77686_rtc_info {
+> @@ -197,6 +198,7 @@ static const struct max77686_rtc_driver_data max77686_drv_data = {
+>  	.alarm_pending_status_reg = MAX77686_REG_STATUS2,
+>  	.rtc_i2c_addr = MAX77686_I2C_ADDR_RTC,
+>  	.rtc_irq_chip = &max77686_rtc_irq_chip,
+> +	.avoid_rtc_bulk_write = false,
+>  };
+>  
+>  static const struct max77686_rtc_driver_data max77620_drv_data = {
+> @@ -208,6 +210,7 @@ static const struct max77686_rtc_driver_data max77620_drv_data = {
+>  	.alarm_pending_status_reg = MAX77686_INVALID_REG,
+>  	.rtc_i2c_addr = MAX77620_I2C_ADDR_RTC,
+>  	.rtc_irq_chip = &max77686_rtc_irq_chip,
+> +	.avoid_rtc_bulk_write = true,
+>  };
+>  
+>  static const unsigned int max77802_map[REG_RTC_END] = {
+> @@ -259,6 +262,32 @@ static const struct max77686_rtc_driver_data max77802_drv_data = {
+>  	.rtc_irq_chip = &max77802_rtc_irq_chip,
+>  };
+>  
+> +static inline int _regmap_bulk_write(struct max77686_rtc_info *info,
+
+rtc_regmap_bulk_write?
+
+> +		unsigned int reg, void *val, int len)
+> +{
+
+Please keep arguments (except "info" one) in sync with regmap_bulk_write():
+
+int regmap_bulk_write(struct regmap *map, unsigned int reg, const void *val,
+		     size_t val_count)
+
+> +	int ret = 0;
+> +
+> +	if (!info->drv_data->avoid_rtc_bulk_write) {
+> +		/* RTC registers support sequential writing */
+> +		ret = regmap_bulk_write(info->rtc_regmap, reg, val, len);
+> +	} else {
+> +		/* Power registers support register-data pair writing */
+
+Hmn, maybe this can be handled be regmap_bulk_write() with proper
+regmap setting (map->bus == NULL?), can anyone with more regmap
+expertise comment on this?
+
+> +		u8 *src = (u8 *)val;
+> +		int i;
+> +
+> +		for (i = 0; i < len; i++) {
+> +			ret = regmap_write(info->rtc_regmap, reg, *src++);
+> +			if (ret < 0)
+> +				break;
+> +			reg++;
+> +		}
+> +	}
+> +	if (ret < 0)
+> +		dev_err(info->dev, "%s() failed, e %d\n", __func__, ret);
+
+Not needed, upper layers already check ret < 0 cases.
+
+> +	return ret;
+> +}
+> +
+>  static void max77686_rtc_data_to_tm(u8 *data, struct rtc_time *tm,
+>  				    struct max77686_rtc_info *info)
+>  {
+> @@ -383,7 +412,7 @@ static int max77686_rtc_set_time(struct device *dev, struct rtc_time *tm)
+>  
+>  	mutex_lock(&info->lock);
+>  
+> -	ret = regmap_bulk_write(info->rtc_regmap,
+> +	ret = _regmap_bulk_write(info,
+>  				info->drv_data->map[REG_RTC_SEC],
+>  				data, ARRAY_SIZE(data));
+>  	if (ret < 0) {
+> @@ -506,7 +535,7 @@ static int max77686_rtc_stop_alarm(struct max77686_rtc_info *info)
+>  		for (i = 0; i < ARRAY_SIZE(data); i++)
+>  			data[i] &= ~ALARM_ENABLE_MASK;
+>  
+> -		ret = regmap_bulk_write(info->rtc_regmap, map[REG_ALARM1_SEC],
+> +		ret = _regmap_bulk_write(info, map[REG_ALARM1_SEC],
+>  					data, ARRAY_SIZE(data));
+>  	}
+>  
+> @@ -558,7 +587,7 @@ static int max77686_rtc_start_alarm(struct max77686_rtc_info *info)
+>  		if (data[RTC_DATE] & 0x1f)
+>  			data[RTC_DATE] |= (1 << ALARM_ENABLE_SHIFT);
+>  
+> -		ret = regmap_bulk_write(info->rtc_regmap, map[REG_ALARM1_SEC],
+> +		ret = _regmap_bulk_write(info, map[REG_ALARM1_SEC],
+>  					data, ARRAY_SIZE(data));
+>  	}
+>  
+> @@ -588,7 +617,7 @@ static int max77686_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
+>  	if (ret < 0)
+>  		goto out;
+>  
+> -	ret = regmap_bulk_write(info->rtc_regmap,
+> +	ret = _regmap_bulk_write(info,
+>  				info->drv_data->map[REG_ALARM1_SEC],
+>  				data, ARRAY_SIZE(data));
+>  
+> @@ -654,7 +683,7 @@ static int max77686_rtc_init_reg(struct max77686_rtc_info *info)
+>  
+>  	info->rtc_24hr_mode = 1;
+>  
+> -	ret = regmap_bulk_write(info->rtc_regmap,
+> +	ret = _regmap_bulk_write(info,
+>  				info->drv_data->map[REG_RTC_CONTROLM],
+>  				data, ARRAY_SIZE(data));
+>  	if (ret < 0) {
+
+Best regards,
+--
+Bartlomiej Zolnierkiewicz
+Samsung R&D Institute Poland
+Samsung Electronics
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
