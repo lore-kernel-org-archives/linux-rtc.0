@@ -1,36 +1,29 @@
-Return-Path: <rtc-linux+bncBAABBLH4STBAKGQEMKY5UHY@googlegroups.com>
+Return-Path: <rtc-linux+bncBAABBCGWZ3BAKGQE5QAU5BY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 Received: from mx07-00178001.pphosted.com (mx07-00178001.pphosted.com. [62.209.51.94])
-        by gmr-mx.google.com with ESMTPS id l206si126123wmf.2.2016.12.05.02.15.08
+        by gmr-mx.google.com with ESMTPS id h23si195462wmi.1.2016.12.16.00.51.20
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 05 Dec 2016 02:15:08 -0800 (PST)
-Subject: [rtc-linux] Re: [PATCH 2/8] dt-bindings: document the STM32 RTC bindings
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-References: <1480687801-19525-2-git-send-email-amelie.delaunay@st.com>
- <1480687801-19525-4-git-send-email-amelie.delaunay@st.com>
- <20161205100630.n3gldznf524pucjm@piout.net>
-CC: "a.zummo@towertech.it" <a.zummo@towertech.it>,
-        "robh+dt@kernel.org"
-	<robh+dt@kernel.org>,
-        "mark.rutland@arm.com" <mark.rutland@arm.com>,
-        "mcoquelin.stm32@gmail.com" <mcoquelin.stm32@gmail.com>,
-        Alexandre TORGUE
-	<alexandre.torgue@st.com>,
-        "linux@armlinux.org.uk" <linux@armlinux.org.uk>,
-        "rtc-linux@googlegroups.com" <rtc-linux@googlegroups.com>,
-        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-        "linux-arm-kernel@lists.infradead.org"
-	<linux-arm-kernel@lists.infradead.org>,
-        "linux-kernel@vger.kernel.org"
-	<linux-kernel@vger.kernel.org>,
-        Gabriel FERNANDEZ <gabriel.fernandez@st.com>
-From: Amelie DELAUNAY <amelie.delaunay@st.com>
-Message-ID: <88bf56d7-e8c2-b6ca-79fa-b9379ba44737@st.com>
-Date: Mon, 5 Dec 2016 11:14:56 +0100
+        Fri, 16 Dec 2016 00:51:20 -0800 (PST)
+From: Amelie Delaunay <amelie.delaunay@st.com>
+To: Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni
+	<alexandre.belloni@free-electrons.com>,
+        Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>,
+        Maxime Coquelin
+	<mcoquelin.stm32@gmail.com>,
+        Alexandre Torgue <alexandre.torgue@st.com>,
+        Russell King <linux@armlinux.org.uk>
+CC: <rtc-linux@googlegroups.com>, <devicetree@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>, <linux-kernel@vger.kernel.org>,
+        Gabriel Fernandez <gabriel.fernandez@st.com>,
+        Amelie Delaunay
+	<amelie.delaunay@st.com>
+Subject: [rtc-linux] [PATCHv2 0/8] Add support for STM32 RTC
+Date: Fri, 16 Dec 2016 09:50:49 +0100
+Message-ID: <1481878257-29163-1-git-send-email-amelie.delaunay@st.com>
 MIME-Version: 1.0
-In-Reply-To: <20161205100630.n3gldznf524pucjm@piout.net>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -40,50 +33,46 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Hi Alexandre,
+v2:
+- remove clock-names and interrupt-names from bindings
+- remove unuseful headers
+- clean stm32_rtc structure
+- replace stm32_rtc_readl/_writel by readl/writel_relaxed
+- use threaded IRQ
+- rework set_alarm
+- add various comments
+- select COMPILE_TEST and REGMAP_MMIO
 
-Thanks for reviewing
+This patchset adds support for the STM32 Real-Time Clock.
+This RTC is an independent BCD timer/counter and provides a time-of-day
+clock/calendar with programmable alarm interrupt.
+RTC calendar can be driven by three clock sources LSE, LSI or HSE.
 
-On 12/05/2016 11:06 AM, Alexandre Belloni wrote:
-> Hi,
->
-> On 02/12/2016 at 15:09:55 +0100, Amelie Delaunay wrote :
->> This patch adds documentation of device tree bindings for the STM32 RTC.
->>
->> Signed-off-by: Amelie Delaunay <amelie.delaunay@st.com>
->> ---
->>  .../devicetree/bindings/rtc/st,stm32-rtc.txt       | 31 ++++++++++++++++++++++
->>  1 file changed, 31 insertions(+)
->>  create mode 100644 Documentation/devicetree/bindings/rtc/st,stm32-rtc.txt
->>
->> diff --git a/Documentation/devicetree/bindings/rtc/st,stm32-rtc.txt b/Documentation/devicetree/bindings/rtc/st,stm32-rtc.txt
->> new file mode 100644
->> index 0000000..4578838
->> --- /dev/null
->> +++ b/Documentation/devicetree/bindings/rtc/st,stm32-rtc.txt
->> @@ -0,0 +1,31 @@
->> +STM32 Real Time Clock
->> +
->> +Required properties:
->> +- compatible: "st,stm32-rtc".
->> +- reg: address range of rtc register set.
->> +- clocks: reference to the clock entry ck_rtc.
->> +- clock-names: name of the clock used. Should be "ck_rtc".
->
-> Is this name really useful?
-You're right, not useful.
->
->> +- interrupt-parent: phandle for the interrupt controller.
->> +- interrupts: rtc alarm interrupt.
->> +- interrupt-names: rtc alarm interrupt name, should be "alarm".
->
-> Same comment, is this name really useful?
-Ditto.
->
->
+Amelie Delaunay (8):
+  ARM: dts: stm32: set HSE_RTC clock frequency to 1 MHz on stm32f429
+  dt-bindings: document the STM32 RTC bindings
+  rtc: add STM32 RTC driver
+  ARM: dts: stm32: Add RTC support for STM32F429 MCU
+  ARM: dts: stm32: enable RTC on stm32f429-disco
+  ARM: dts: stm32: enable RTC on stm32f469-disco
+  ARM: dts: stm32: enable RTC on stm32429i-eval
+  ARM: configs: stm32: Add RTC support in STM32 defconfig
 
-Best regards,
-Amelie
+ .../devicetree/bindings/rtc/st,stm32-rtc.txt       |  27 +
+ arch/arm/boot/dts/stm32429i-eval.dts               |   4 +
+ arch/arm/boot/dts/stm32f429-disco.dts              |   6 +
+ arch/arm/boot/dts/stm32f429.dtsi                   |  16 +
+ arch/arm/boot/dts/stm32f469-disco.dts              |   4 +
+ arch/arm/configs/stm32_defconfig                   |   2 +
+ drivers/rtc/Kconfig                                |  11 +
+ drivers/rtc/Makefile                               |   1 +
+ drivers/rtc/rtc-stm32.c                            | 776 +++++++++++++++++++++
+ 9 files changed, 847 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/rtc/st,stm32-rtc.txt
+ create mode 100644 drivers/rtc/rtc-stm32.c
+
+-- 
+1.9.1
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
