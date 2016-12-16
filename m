@@ -1,26 +1,32 @@
-Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBHE65HBAKGQEOM3RKDQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBAABBCGWZ3BAKGQE5QAU5BY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
-        by gmr-mx.google.com with ESMTP id p138si2092180wme.1.2016.12.21.01.45.00
-        for <rtc-linux@googlegroups.com>;
-        Wed, 21 Dec 2016 01:45:00 -0800 (PST)
-Date: Wed, 21 Dec 2016 10:44:49 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Gregory CLEMENT <gregory.clement@free-electrons.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
-	Jason Cooper <jason@lakedaemon.net>, Andrew Lunn <andrew@lunn.ch>,
-	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
-	Thomas Petazzoni <thomas.petazzoni@free-electrons.com>,
-	linux-arm-kernel@lists.infradead.org
-Subject: [rtc-linux] Re: [PATCH v2] rtc: armada38x: Followed the new
- recommendation for errata implementation
-Message-ID: <20161221094449.gllgbgroopxmtnmp@piout.net>
-References: <20161213112510.25692-1-gregory.clement@free-electrons.com>
- <20161221004308.terkq5u5pb2hbcbw@piout.net>
- <87tw9xiri9.fsf@free-electrons.com>
+Received: from mx07-00178001.pphosted.com (mx07-00178001.pphosted.com. [62.209.51.94])
+        by gmr-mx.google.com with ESMTPS id d199si200729wmd.1.2016.12.16.00.51.20
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Fri, 16 Dec 2016 00:51:20 -0800 (PST)
+From: Amelie Delaunay <amelie.delaunay@st.com>
+To: Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni
+	<alexandre.belloni@free-electrons.com>,
+        Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>,
+        Maxime Coquelin
+	<mcoquelin.stm32@gmail.com>,
+        Alexandre Torgue <alexandre.torgue@st.com>,
+        Russell King <linux@armlinux.org.uk>
+CC: <rtc-linux@googlegroups.com>, <devicetree@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>, <linux-kernel@vger.kernel.org>,
+        Gabriel Fernandez <gabriel.fernandez@st.com>,
+        Amelie Delaunay
+	<amelie.delaunay@st.com>
+Subject: [rtc-linux] [PATCHv2 1/8] ARM: dts: stm32: set HSE_RTC clock
+ frequency to 1 MHz on stm32f429
+Date: Fri, 16 Dec 2016 09:50:50 +0100
+Message-ID: <1481878257-29163-2-git-send-email-amelie.delaunay@st.com>
+In-Reply-To: <1481878257-29163-1-git-send-email-amelie.delaunay@st.com>
+References: <1481878257-29163-1-git-send-email-amelie.delaunay@st.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <87tw9xiri9.fsf@free-electrons.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -30,55 +36,36 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 21/12/2016 at 10:02:54 +0100, Gregory CLEMENT wrote :
-> Hi Alexandre,
-> =20
->  On mer., d=C3=A9c. 21 2016, Alexandre Belloni <alexandre.belloni@free-el=
-ectrons.com> wrote:
->=20
->=20
-> I agree with all your remark expect one, see below:
-> [...]
-> >>  	rtc_update_irq(rtc->rtc_dev, 1, event);
-> >> =20
-> >>  	return IRQ_HANDLED;
-> >> @@ -221,6 +282,11 @@ static __init int armada38x_rtc_probe(struct plat=
-form_device *pdev)
-> >>  	if (!rtc)
-> >>  		return -ENOMEM;
-> >> =20
-> >> +	rtc->val_to_freq =3D devm_kcalloc(&pdev->dev, SAMPLE_NR,
-> >> +				sizeof(struct value_to_freq), GFP_KERNEL);
-> >> +	if (!rtc->val_to_freq)
-> >> +		return -ENOMEM;
-> >> +
-> >
-> > The whole struct armada38x_rtc is already allocated just before. Maybe
-> > you can put the whole array inside the structure instead of doing a new
-> > allocation.
->=20
-> Actually it was done on purpose. Indeed the same RTC IP is used in the
-> Armada 3700 (a patch is coming soon), and for this IP this issue was
-> fixed and we do not need to store 100 read. That's why I want to
-> allocate the array only if needed.
->=20
+This patch set HSE_RTC clock frequency to 1 MHz, as the clock supplied to
+the RTC must be 1 MHz.
 
-Fair enough
+Signed-off-by: Amelie Delaunay <amelie.delaunay@st.com>
+---
+ arch/arm/boot/dts/stm32f429.dtsi | 2 ++
+ 1 file changed, 2 insertions(+)
 
+diff --git a/arch/arm/boot/dts/stm32f429.dtsi b/arch/arm/boot/dts/stm32f429.dtsi
+index b077f99..d195ccf 100644
+--- a/arch/arm/boot/dts/stm32f429.dtsi
++++ b/arch/arm/boot/dts/stm32f429.dtsi
+@@ -371,6 +371,8 @@
+ 			reg = <0x40023800 0x400>;
+ 			clocks = <&clk_hse>, <&clk_i2s_ckin>;
+ 			st,syscfg = <&pwrcfg>;
++			assigned-clocks = <&rcc 1 CLK_HSE_RTC>;
++			assigned-clock-rates = <1000000>;
+ 		};
+ 
+ 		dma1: dma-controller@40026000 {
+-- 
+1.9.1
 
---=20
-Alexandre Belloni, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
-
---=20
+-- 
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
----=20
-You received this message because you are subscribed to the Google Groups "=
-rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an e=
-mail to rtc-linux+unsubscribe@googlegroups.com.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
