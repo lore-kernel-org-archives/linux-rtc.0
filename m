@@ -1,24 +1,23 @@
-Return-Path: <rtc-linux+bncBDJ6H2FGZ4FBBB4P6TBAKGQEEERLC4A@googlegroups.com>
+Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBHW73TBAKGQEJ6LWHGI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from hel-mailgw-01.vaisala.com (hel-mailgw-01.vaisala.com. [193.143.230.17])
-        by gmr-mx.google.com with ESMTPS id e134si2427752wmd.3.2016.12.23.03.16.22
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 23 Dec 2016 03:16:22 -0800 (PST)
-From: =?UTF-8?q?Vesa=20J=C3=A4=C3=A4skel=C3=A4inen?= <vesa.jaaskelainen@vaisala.com>
-To: Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Lee Jones <lee.jones@linaro.org>
-Cc: =?UTF-8?q?Vesa=20J=C3=A4=C3=A4skel=C3=A4inen?= <vesa.jaaskelainen@vaisala.com>,
-	rtc-linux@googlegroups.com
-Subject: [rtc-linux] [PATCH v3 2/2] drivers: rtc: rtc-tps65910: use 'unsigned
- int' instead of 'unsigned' in arguments
-Date: Fri, 23 Dec 2016 13:15:59 +0200
-Message-Id: <1482491759-39335-3-git-send-email-vesa.jaaskelainen@vaisala.com>
-In-Reply-To: <1482491759-39335-1-git-send-email-vesa.jaaskelainen@vaisala.com>
-References: <1482491759-39335-1-git-send-email-vesa.jaaskelainen@vaisala.com>
+Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
+        by gmr-mx.google.com with ESMTP id p138si1114632wme.1.2016.12.18.16.53.49
+        for <rtc-linux@googlegroups.com>;
+        Sun, 18 Dec 2016 16:53:49 -0800 (PST)
+Date: Mon, 19 Dec 2016 01:53:49 +0100
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Vesa =?iso-8859-1?B?SuTkc2tlbORpbmVu?= <vesa.jaaskelainen@vaisala.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+	Lee Jones <lee.jones@linaro.org>, rtc-linux@googlegroups.com
+Subject: [rtc-linux] Re: [PATCH v2 0/2] drivers: rtc: rtc-tps65910: Add RTC
+ calibration support
+Message-ID: <20161219005349.bgaoiczfy57ltad5@piout.net>
+References: <1481406644-1614-1-git-send-email-vesa.jaaskelainen@vaisala.com>
+ <a22c9180-61bf-e307-9ba1-e24e1453459b@vaisala.com>
+ <20161219003854.e6hbobkwa3kanbjp@piout.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <20161219003854.e6hbobkwa3kanbjp@piout.net>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -28,32 +27,115 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Fixes checkpatch.pl warning:
-WARNING: Prefer 'unsigned int' to bare use of 'unsigned'
+On 19/12/2016 at 01:38:54 +0100, Alexandre Belloni wrote :
+> On 11/12/2016 at 00:21:02 +0200, Vesa J=C3=A4=C3=A4skel=C3=A4inen wrote :
+> >=20
+> > On 2016-12-10 23:50, Vesa J=C3=A4=C3=A4skel=C3=A4inen wrote:
+> > > Texas Instrument's TPS65910 has support for compensating RTC crystal
+> > > inaccuracies. When enabled every hour RTC counter value will be compe=
+nsated
+> > > with two's complement value.
+> > >=20
+> > > Vesa J=C3=A4=C3=A4skel=C3=A4inen (2):
+> > >    drivers: rtc: rtc-tps65910: Add RTC calibration support
+> > >    drivers: rtc: rtc-tps65910: use 'unsigned int' instead of 'unsigne=
+d'
+> > >      in arguments
+> > >=20
+> > >   drivers/rtc/rtc-tps65910.c   | 135 ++++++++++++++++++++++++++++++++=
+++++++++++-
+> > >   include/linux/mfd/tps65910.h |   1 +
+> > >   2 files changed, 135 insertions(+), 1 deletion(-)
+> > >=20
+> > This version now uses 'offset' sysfs file for calibration purposes.
+> >=20
+> > It supports rounding so if one calculates absolute 'offset' compensatio=
+n
+> > value then it should give "optimal" calibration.
+> >=20
+> > I believe one should calculate compensation value like:
+> >=20
+> > offset =3D ((measured_freq/32768)-1)*10^9
+> >=20
+> > So if meaured_freq =3D=3D 32771.2768, then matching offset =3D=3D 10000=
+0.
+> > Or if mesured_freq =3D=3D 32764.7232, then matching offset =3D=3D -1000=
+00.
+> >=20
+> > 'offset' compensation value is following existing rtc.txt definition me=
+aning
+> > positive values causes time to slowdown and negative values to fasten u=
+p.
+> > Which I believe should be other way around to be more logical. This is =
+easy
+> > to swap if I just understood it wrongly.
+> >=20
+>=20
+> The hardware vendors are using positive offsets to slow the RTC and
+> negative offsets to hasten it so that's what we exposed to userspace as
+> it avoids a conversion.
+>=20
 
-Signed-off-by: Vesa J=C3=A4=C3=A4skel=C3=A4inen <vesa.jaaskelainen@vaisala.=
-com>
----
- drivers/rtc/rtc-tps65910.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+To be clear, that is unfortunately not the case for the TPS65910.
 
-diff --git a/drivers/rtc/rtc-tps65910.c b/drivers/rtc/rtc-tps65910.c
-index 9dd1db9..d0244d7 100644
---- a/drivers/rtc/rtc-tps65910.c
-+++ b/drivers/rtc/rtc-tps65910.c
-@@ -47,7 +47,8 @@ struct tps65910_rtc {
- /* Multiplier for ppb conversions */
- #define PPB_MULT	(1000000000LL)
-=20
--static int tps65910_rtc_alarm_irq_enable(struct device *dev, unsigned enab=
-led)
-+static int tps65910_rtc_alarm_irq_enable(struct device *dev,
-+					 unsigned int enabled)
- {
- 	struct tps65910 *tps =3D dev_get_drvdata(dev->parent);
- 	u8 val =3D 0;
+Usually, the offset is related to a number of clock cycles (or ticks)
+that are added in a second (slowing the RTC). On the tps65910, it is the
+number that is added to the counter (hastening the RTC).
+
+One or the other would feel backward for someone anyway. I'll try to
+clarify that in the documentation.
+
+
+> > 'offset' value calculation assumes "common" understanding how ppm value=
+s are
+> > used, eg. it is negated compensation value (expect now positive).
+> >=20
+> > Eg. if RTC crystal is off by +100ppm then 'offset' value must be 100ppm
+> > (write 100000 to 'offset').
+> >=20
+> > I believe offset documentation in rtc.txt should be clarified on what v=
+alue
+> > means.
+> >=20
+> > 'offset' value has limits due to RTC chip itself, if out-of-limits valu=
+e is
+> > given -ERANGE is returned.
+> >=20
+>=20
+> That's fine.
+>=20
+> > Due to RTC chip's implementation -- it loses RTC compensation enable bi=
+t on
+> > reset, so compensation value must be written on every boot at least onc=
+e to
+> > be active.
+> >=20
+> > When compensation is not enabled "cat offset" returns value. There is
+> > currently no way to know from users space (without i2cget -f) whether
+> > compensation is enabled or not. If this should not be the case it can b=
+e
+> > easily fixed, -EINVAL might do the trick.
+> >=20
+>=20
+> If compensation is not enabled, simply return 0 so userspace actually
+> has a way to know it is not currently in effect. Anyway, you'll have to
+> write a value to enable it again.
+> You are probably already able to calculate that value anyway so I'm not
+> sure of the benefit of using the RTC to remember it across resets.
+>=20
+
+After reviewing the patch, it is fine apart from that part.
+
+>=20
+> --=20
+> Alexandre Belloni, Free Electrons
+> Embedded Linux and Kernel engineering
+> http://free-electrons.com
+
 --=20
-2.1.4
+Alexandre Belloni, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
 
 --=20
 You received this message because you are subscribed to "rtc-linux".
