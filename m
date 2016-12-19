@@ -1,20 +1,18 @@
-Return-Path: <rtc-linux+bncBC6OZGVXV4HRBU5AXLBAKGQEVVKEZJQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBZOJ3TBAKGQEL62FPGA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from hkmmgate102.nvidia.com (nat-hk.nvidia.com. [203.18.50.4])
-        by gmr-mx.google.com with ESMTPS id r1si8502346pfg.4.2016.12.12.03.56.02
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 12 Dec 2016 03:56:03 -0800 (PST)
-From: Venkat Reddy Talla <vreddytalla@nvidia.com>
-To: <cw00.choi@samsung.com>, <krzk@kernel.org>, <b.zolnierkie@samsung.com>,
-	<a.zummo@towertech.it>, <alexandre.belloni@free-electrons.com>,
-	<linux-kernel@vger.kernel.org>, <rtc-linux@googlegroups.com>
-CC: <ldewangan@nvidia.com>, <vreddytalla@nvidia.com>
-Subject: [rtc-linux] [PATCH] rtc: max77683: avoid regmap bulk write for max77620
-Date: Mon, 12 Dec 2016 17:14:45 +0530
-Message-ID: <1481543085-19540-1-git-send-email-vreddytalla@nvidia.com>
+Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
+        by gmr-mx.google.com with ESMTP id p138si1108853wme.1.2016.12.18.16.08.05
+        for <rtc-linux@googlegroups.com>;
+        Sun, 18 Dec 2016 16:08:05 -0800 (PST)
+Date: Mon, 19 Dec 2016 01:08:04 +0100
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org
+Subject: [rtc-linux] [GIT PULL] RTC for 4.10
+Message-ID: <20161219000804.t73k4ixuhkxzucor@piout.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="klukze5oqbtygohr"
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -24,125 +22,139 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Adding support to avoid regmap bulk write for the
-devices which are not supported register bulk write.
-Max77620 RTC device does not support register bulk write
-so disabling regmap bulk write for max77620 rtc device
-and enabling only for max77683.
 
-Signed-off-by: Venkat Reddy Talla <vreddytalla@nvidia.com>
----
- drivers/rtc/rtc-max77686.c | 39 ++++++++++++++++++++++++++++++++++-----
- 1 file changed, 34 insertions(+), 5 deletions(-)
+--klukze5oqbtygohr
+Content-Type: text/plain; charset=UTF-8
+Content-Disposition: inline
 
-diff --git a/drivers/rtc/rtc-max77686.c b/drivers/rtc/rtc-max77686.c
-index 182fdd0..401ab25 100644
---- a/drivers/rtc/rtc-max77686.c
-+++ b/drivers/rtc/rtc-max77686.c
-@@ -84,6 +84,7 @@ struct max77686_rtc_driver_data {
- 	int			alarm_pending_status_reg;
- 	/* RTC IRQ CHIP for regmap */
- 	const struct regmap_irq_chip *rtc_irq_chip;
-+	bool avoid_rtc_bulk_write;
- };
- 
- struct max77686_rtc_info {
-@@ -197,6 +198,7 @@ static const struct max77686_rtc_driver_data max77686_drv_data = {
- 	.alarm_pending_status_reg = MAX77686_REG_STATUS2,
- 	.rtc_i2c_addr = MAX77686_I2C_ADDR_RTC,
- 	.rtc_irq_chip = &max77686_rtc_irq_chip,
-+	.avoid_rtc_bulk_write = false,
- };
- 
- static const struct max77686_rtc_driver_data max77620_drv_data = {
-@@ -208,6 +210,7 @@ static const struct max77686_rtc_driver_data max77620_drv_data = {
- 	.alarm_pending_status_reg = MAX77686_INVALID_REG,
- 	.rtc_i2c_addr = MAX77620_I2C_ADDR_RTC,
- 	.rtc_irq_chip = &max77686_rtc_irq_chip,
-+	.avoid_rtc_bulk_write = true,
- };
- 
- static const unsigned int max77802_map[REG_RTC_END] = {
-@@ -259,6 +262,32 @@ static const struct max77686_rtc_driver_data max77802_drv_data = {
- 	.rtc_irq_chip = &max77802_rtc_irq_chip,
- };
- 
-+static inline int _regmap_bulk_write(struct max77686_rtc_info *info,
-+		unsigned int reg, void *val, int len)
-+{
-+	int ret = 0;
-+
-+	if (!info->drv_data->avoid_rtc_bulk_write) {
-+		/* RTC registers support sequential writing */
-+		ret = regmap_bulk_write(info->rtc_regmap, reg, val, len);
-+	} else {
-+		/* Power registers support register-data pair writing */
-+		u8 *src = (u8 *)val;
-+		int i;
-+
-+		for (i = 0; i < len; i++) {
-+			ret = regmap_write(info->rtc_regmap, reg, *src++);
-+			if (ret < 0)
-+				break;
-+			reg++;
-+		}
-+	}
-+	if (ret < 0)
-+		dev_err(info->dev, "%s() failed, e %d\n", __func__, ret);
-+
-+	return ret;
-+}
-+
- static void max77686_rtc_data_to_tm(u8 *data, struct rtc_time *tm,
- 				    struct max77686_rtc_info *info)
- {
-@@ -383,7 +412,7 @@ static int max77686_rtc_set_time(struct device *dev, struct rtc_time *tm)
- 
- 	mutex_lock(&info->lock);
- 
--	ret = regmap_bulk_write(info->rtc_regmap,
-+	ret = _regmap_bulk_write(info,
- 				info->drv_data->map[REG_RTC_SEC],
- 				data, ARRAY_SIZE(data));
- 	if (ret < 0) {
-@@ -506,7 +535,7 @@ static int max77686_rtc_stop_alarm(struct max77686_rtc_info *info)
- 		for (i = 0; i < ARRAY_SIZE(data); i++)
- 			data[i] &= ~ALARM_ENABLE_MASK;
- 
--		ret = regmap_bulk_write(info->rtc_regmap, map[REG_ALARM1_SEC],
-+		ret = _regmap_bulk_write(info, map[REG_ALARM1_SEC],
- 					data, ARRAY_SIZE(data));
- 	}
- 
-@@ -558,7 +587,7 @@ static int max77686_rtc_start_alarm(struct max77686_rtc_info *info)
- 		if (data[RTC_DATE] & 0x1f)
- 			data[RTC_DATE] |= (1 << ALARM_ENABLE_SHIFT);
- 
--		ret = regmap_bulk_write(info->rtc_regmap, map[REG_ALARM1_SEC],
-+		ret = _regmap_bulk_write(info, map[REG_ALARM1_SEC],
- 					data, ARRAY_SIZE(data));
- 	}
- 
-@@ -588,7 +617,7 @@ static int max77686_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
- 	if (ret < 0)
- 		goto out;
- 
--	ret = regmap_bulk_write(info->rtc_regmap,
-+	ret = _regmap_bulk_write(info,
- 				info->drv_data->map[REG_ALARM1_SEC],
- 				data, ARRAY_SIZE(data));
- 
-@@ -654,7 +683,7 @@ static int max77686_rtc_init_reg(struct max77686_rtc_info *info)
- 
- 	info->rtc_24hr_mode = 1;
- 
--	ret = regmap_bulk_write(info->rtc_regmap,
-+	ret = _regmap_bulk_write(info,
- 				info->drv_data->map[REG_RTC_CONTROLM],
- 				data, ARRAY_SIZE(data));
- 	if (ret < 0) {
+Hi Linus,
+
+Here is the pull-request for the RTC subsystem for 4.10.
+Unfortunately, I had to rewrite a commit before sending because
+patchwork changed the author's name unexpectedly.
+
+The following changes since commit 1001354ca34179f3db924eb66672442a173147dc:
+
+  Linux 4.9-rc1 (2016-10-15 12:17:50 -0700)
+
+are available in the git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/abelloni/linux.git tags/rtc-4.10
+
+for you to fetch changes up to d3e5925902dc0f639efc3641e07fca2bd7af5441:
+
+  rtc: mcp795: Fix whitespace and indentation. (2016-12-19 00:59:25 +0100)
+
+----------------------------------------------------------------
+RTC for 4.10
+
+Subsystem:
+ - non-modular drivers are now explicitly non-modular
+
+New driver:
+ - Epson Toyocom rtc-7301sf/dg
+
+Drivers:
+ - cmos: reject unsupported alarm values wrt the RTC capabilities
+ - ds1307: ACPI support
+ - jz4740: DT support, jz4780 handling, can now be used as a system power
+ controller
+ - mcp795: many fixes, in particular proper month handling
+ - twl: driver is now DT only
+
+----------------------------------------------------------------
+Akinobu Mita (1):
+      rtc: add support for EPSON TOYOCOM RTC-7301SF/DG
+
+Alexandre Belloni (3):
+      rtc: jz4740: remove unused EXPORT_SYMBOL
+      rtc: jz4740: make the driver builtin only
+      rtc: fix typos in Kconfig
+
+Christoph Hellwig (1):
+      rtc: cmos: don't refer to asm-generic/rtc.h
+
+Emil Bartczak (6):
+      rtc: mcp795: use bcd2bin/bin2bcd.
+      rtc: mcp795: fix bitmask value for leap year (LP).
+      rtc: mcp795: fix time range difference between linux and RTC chip.
+      rtc: mcp795: fix month write resetting date to 1.
+      rtc: mcp795: Prefer using the BIT() macro.
+      rtc: mcp795: Fix whitespace and indentation.
+
+Gabriele Mazzotta (1):
+      rtc: cmos: Reject unsupported alarm values
+
+Krzysztof Kozlowski (1):
+      rtc: Enable compile testing for Maxim and Samsung drivers
+
+Martin Kaiser (1):
+      rtc: imxdi: (trivial) fix a typo
+
+Mauro Carvalho Chehab (1):
+      ABI: rtc-ab8500: fix rtc_calibration documentation
+
+Mirza Krak (1):
+      rtc: pcf85063: do not register a RTC device if chip is not present
+
+Nicolae Rosia (3):
+      Documentation: bindings: fix twl-rtc documentation
+      rtc: twl: kill static variables
+      rtc: twl: make driver DT only
+
+Paul Cercueil (7):
+      rtc: jz4740: Add support for the RTC in the jz4780 SoC
+      Documentation: dt: Add binding info for jz4740-rtc driver
+      rtc: jz4740: Add support for devicetree
+      rtc: jz4740: Add support for acting as the system power controller
+      MIPS: jz4740: DTS: Probe the jz4740-rtc driver from devicetree
+      MIPS: qi_lb60: Probe RTC driver from DT and use it as power controller
+      MIPS: jz4740: Remove obsolete code
+
+Paul Gortmaker (3):
+      rtc: make rtc-lib explicitly non-modular
+      rtc: sparc: make starfire explicitly non-modular
+      rtc: sparc: make sun4v explicitly non-modular
+
+Srikant Ritolia (1):
+      rtc: ds1374: Merge conditional + WARN_ON()
+
+Tin Huynh (1):
+      rtc: ds1307: Add ACPI support
+
+ .../sysfs-class-rtc-rtc0-device-rtc_calibration    |   5 +-
+ .../devicetree/bindings/rtc/epson,rtc7301.txt      |  16 +
+ .../devicetree/bindings/rtc/ingenic,jz4740-rtc.txt |  37 ++
+ Documentation/devicetree/bindings/rtc/twl-rtc.txt  |  19 +-
+ arch/mips/boot/dts/ingenic/jz4740.dtsi             |  11 +
+ arch/mips/boot/dts/ingenic/qi_lb60.dts             |   4 +
+ arch/mips/include/asm/mach-jz4740/platform.h       |   1 -
+ arch/mips/jz4740/board-qi_lb60.c                   |   1 -
+ arch/mips/jz4740/platform.c                        |  21 -
+ arch/mips/jz4740/reset.c                           |  63 ---
+ drivers/rtc/Kconfig                                |  38 +-
+ drivers/rtc/Makefile                               |   1 +
+ drivers/rtc/rtc-cmos.c                             |  75 +++-
+ drivers/rtc/rtc-ds1307.c                           |  52 ++-
+ drivers/rtc/rtc-ds1374.c                           |   4 +-
+ drivers/rtc/rtc-imxdi.c                            |   2 +-
+ drivers/rtc/rtc-jz4740.c                           | 154 ++++++-
+ drivers/rtc/rtc-lib.c                              |   4 +-
+ drivers/rtc/rtc-mcp795.c                           | 122 +++++-
+ drivers/rtc/rtc-pcf85063.c                         |   7 +
+ drivers/rtc/rtc-r7301.c                            | 453 +++++++++++++++++++++
+ drivers/rtc/rtc-starfire.c                         |  10 +-
+ drivers/rtc/rtc-sun4v.c                            |  10 +-
+ drivers/rtc/rtc-twl.c                              | 202 +++++----
+ 24 files changed, 1055 insertions(+), 257 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/rtc/epson,rtc7301.txt
+ create mode 100644 Documentation/devicetree/bindings/rtc/ingenic,jz4740-rtc.txt
+ create mode 100644 drivers/rtc/rtc-r7301.c
+
 -- 
-2.1.4
+Alexandre Belloni, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
@@ -153,3 +165,25 @@ before submitting a driver.
 You received this message because you are subscribed to the Google Groups "rtc-linux" group.
 To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
+
+--klukze5oqbtygohr
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEl0I5XWmUIrwBfFMm2KKDO9oT4sIFAlhXJOEACgkQ2KKDO9oT
+4sKjRQ//b6MBki1ohdEPFBcPLWCzet2CIElY4Oj78ew1V13Ln6zj4/Ruw7thiii6
+97edUFRXDmFVEY9TuhFBrs5oVoHdHaX2MH3NyAnRNHjrYlEB1uDX24Hak73faOmM
+kTTnpgRDyp+3lP8vcUzZ6qqzUllTwsswe2GDo7eixgzxmzAWoagDnOYh9sJ7lPYy
+c+DwTyKEDTK/DNLS9ye27IWQPTlTv6u2R5Fpu/YPM/CA9BxmwOkaOZP/NuW1vDEy
+oVxFCSCRmtm9LCJB1N+4FezVYL2Wr8HCzIblRoAafH/A54aWzgk8TNp3efXKU2gI
+m86LP/JLrBXoDCwmhyhNjk+ysUb27xHCqF/5+o64ZCLRJpxQ7LonEa9DoS42Rk59
+fykEq+sW2uug4IEHlyDyfog9iiFoaLFWYHHoXZJ9hrFs4B2ChWN8jF2OyhdZOX9l
+7qBxUr70I1pV5YKkQ+56Mv5FUnjzpUjt0zKEasAdLDdlG30WlXGSt/w4LNIh2CNi
+T0Ou8xaunrkwUvEvJKrQcOrGkp2vOBCYPkjM7TpYAawNU8T4uLLn+sF54W1jCAPw
+It4IyCSg0d18Y6+RGHH3N5/cT0RKGkNmdl3BoHuwnsbzGX7O2lvvEwwgOxu1NDWt
+37VgsIcMHN174ZWLafW7bGUyxjrDx8HCDTx8bf28wyROJ5J8dyo=
+=v/Xh
+-----END PGP SIGNATURE-----
+
+--klukze5oqbtygohr--
