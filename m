@@ -1,24 +1,31 @@
-Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBUG6UDBAKGQEIE4BDZQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBDJIP47K7MERBVWR4HBAKGQEMMTGDZI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
-        by gmr-mx.google.com with ESMTP id e134si968236wmd.3.2016.12.07.07.48.32
-        for <rtc-linux@googlegroups.com>;
-        Wed, 07 Dec 2016 07:48:32 -0800 (PST)
-Date: Wed, 7 Dec 2016 16:48:31 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Martin Kaiser <martin@kaiser.cx>
-Cc: Shawn Guo <shawnguo@kernel.org>, Sascha Hauer <kernel@pengutronix.de>,
-	Juergen Borleis <jbe@pengutronix.de>,
-	Rob Herring <robh+dt@kernel.org>,
+Received: from mail-it0-f66.google.com (mail-it0-f66.google.com. [209.85.214.66])
+        by gmr-mx.google.com with ESMTPS id j63si1705964ita.1.2016.12.19.15.10.14
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 19 Dec 2016 15:10:14 -0800 (PST)
+Received: by mail-it0-f66.google.com with SMTP id c20so12034345itb.0
+        for <rtc-linux@googlegroups.com>; Mon, 19 Dec 2016 15:10:14 -0800 (PST)
+Date: Mon, 19 Dec 2016 17:10:12 -0600
+From: Rob Herring <robh@kernel.org>
+To: Amelie Delaunay <amelie.delaunay@st.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
 	Mark Rutland <mark.rutland@arm.com>,
-	Fabio Estevam <fabio.estevam@nxp.com>, rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH 1/2] rtc: imxdi: (trivial) fix a typo
-Message-ID: <20161207154831.3iruzh2w5c5a24k7@piout.net>
-References: <1479560614-19293-1-git-send-email-martin@kaiser.cx>
+	Maxime Coquelin <mcoquelin.stm32@gmail.com>,
+	Alexandre Torgue <alexandre.torgue@st.com>,
+	Russell King <linux@armlinux.org.uk>, rtc-linux@googlegroups.com,
+	devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org,
+	Gabriel Fernandez <gabriel.fernandez@st.com>
+Subject: [rtc-linux] Re: [PATCHv2 2/8] dt-bindings: document the STM32 RTC bindings
+Message-ID: <20161219231012.qkdtgfdshlpvjzli@rob-hp-laptop>
+References: <1481878257-29163-1-git-send-email-amelie.delaunay@st.com>
+ <1481878257-29163-3-git-send-email-amelie.delaunay@st.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1479560614-19293-1-git-send-email-martin@kaiser.cx>
+In-Reply-To: <1481878257-29163-3-git-send-email-amelie.delaunay@st.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -28,18 +35,16 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 19/11/2016 at 14:03:33 +0100, Martin Kaiser wrote :
-> Signed-off-by: Martin Kaiser <martin@kaiser.cx>
-> ---
->  drivers/rtc/rtc-imxdi.c |    2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+On Fri, Dec 16, 2016 at 09:50:51AM +0100, Amelie Delaunay wrote:
+> This patch adds documentation of device tree bindings for the STM32 RTC.
 > 
-Applied, thanks.
+> Signed-off-by: Amelie Delaunay <amelie.delaunay@st.com>
+> ---
+>  .../devicetree/bindings/rtc/st,stm32-rtc.txt       | 27 ++++++++++++++++++++++
+>  1 file changed, 27 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/rtc/st,stm32-rtc.txt
 
--- 
-Alexandre Belloni, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+Acked-by: Rob Herring <robh@kernel.org>
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
