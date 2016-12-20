@@ -1,18 +1,24 @@
-Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBZOJ3TBAKGQEL62FPGA@googlegroups.com>
+Return-Path: <rtc-linux+bncBDMNDFPOUYMRBJHR4PBAKGQELYUJ4LQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
-        by gmr-mx.google.com with ESMTP id p138si1108853wme.1.2016.12.18.16.08.05
-        for <rtc-linux@googlegroups.com>;
-        Sun, 18 Dec 2016 16:08:05 -0800 (PST)
-Date: Mon, 19 Dec 2016 01:08:04 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org
-Subject: [rtc-linux] [GIT PULL] RTC for 4.10
-Message-ID: <20161219000804.t73k4ixuhkxzucor@piout.net>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="klukze5oqbtygohr"
+Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de. [2001:67c:670:201:290:27ff:fe1d:cc33])
+        by gmr-mx.google.com with ESMTPS id p138si1585983wme.1.2016.12.20.01.23.48
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 20 Dec 2016 01:23:48 -0800 (PST)
+Message-ID: <1482225821.2293.43.camel@pengutronix.de>
+Subject: [rtc-linux] Re: [PATCH v2] rtc: imxdi: use the security violation interrupt
+From: Lucas Stach <l.stach@pengutronix.de>
+To: Martin Kaiser <martin@kaiser.cx>
+Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>, Shawn Guo
+ <shawnguo@kernel.org>, Sascha Hauer <kernel@pengutronix.de>, Juergen
+ Borleis <jbe@pengutronix.de>, Fabio Estevam <fabio.estevam@nxp.com>,
+ linux-kernel@vger.kernel.org, rtc-linux@googlegroups.com
+Date: Tue, 20 Dec 2016 10:23:41 +0100
+In-Reply-To: <1482187289-19272-1-git-send-email-martin@kaiser.cx>
+References: <1479560614-19293-1-git-send-email-martin@kaiser.cx>
+	 <1482187289-19272-1-git-send-email-martin@kaiser.cx>
+Content-Type: text/plain; charset=UTF-8
+Mime-Version: 1.0
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -22,139 +28,161 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
+Am Montag, den 19.12.2016, 23:41 +0100 schrieb Martin Kaiser:
+> The DryIce chipset has a dedicated security violation interrupt that is
+> triggered for security violations (if configured to do so).  According
+> to the publicly available imx258 reference manual, irq 56 is used for
+> this interrupt.
+> 
+> Install a handler for the security violation interrupt if an irq for
+> this is provided by platform data / device tree. Move the code for
+> handling security violations from the "normal" interrupt handler into
+> the security violation interrupt handler.
+> 
+> Signed-off-by: Martin Kaiser <martin@kaiser.cx>
+> ---
+> v2:
+>   - make sec_irq optional to avoid breaking the Device Tree ABI
+>   - removed the Device Tree bindings, I'll prepare a separate patch for them
 
---klukze5oqbtygohr
-Content-Type: text/plain; charset=UTF-8
-Content-Disposition: inline
+Please submit the binding as a separate patch in the same series.
+Otherwise you are building de-facto DT bindings by changing the driver.
 
-Hi Linus,
+> 
+>  drivers/rtc/rtc-imxdi.c |   68 ++++++++++++++++++++++++++++++++++-------------
+>  1 file changed, 50 insertions(+), 18 deletions(-)
+> 
+> diff --git a/drivers/rtc/rtc-imxdi.c b/drivers/rtc/rtc-imxdi.c
+> index 67b56b8..ec6077a0 100644
+> --- a/drivers/rtc/rtc-imxdi.c
+> +++ b/drivers/rtc/rtc-imxdi.c
+> @@ -109,6 +109,7 @@
+>   * @rtc: pointer to rtc struct
+>   * @ioaddr: IO registers pointer
+>   * @irq: dryice normal interrupt
+> + * @sec_irq: dryice security violation interrupt
 
-Here is the pull-request for the RTC subsystem for 4.10.
-Unfortunately, I had to rewrite a commit before sending because
-patchwork changed the author's name unexpectedly.
+This isn't used outside the probe routine, so doesn't need to be saved
+in the driver data.
 
-The following changes since commit 1001354ca34179f3db924eb66672442a173147dc:
+>   * @clk: input reference clock
+>   * @dsr: copy of the DSR register
+>   * @irq_lock: interrupt enable register (DIER) lock
+> @@ -121,6 +122,7 @@ struct imxdi_dev {
+>  	struct rtc_device *rtc;
+>  	void __iomem *ioaddr;
+>  	int irq;
+> +	int sec_irq;
+>  	struct clk *clk;
+>  	u32 dsr;
+>  	spinlock_t irq_lock;
+> @@ -688,24 +690,6 @@ static irqreturn_t dryice_norm_irq(int irq, void *dev_id)
+>  	dier = readl(imxdi->ioaddr + DIER);
+>  	dsr = readl(imxdi->ioaddr + DSR);
+>  
+> -	/* handle the security violation event */
+> -	if (dier & DIER_SVIE) {
+> -		if (dsr & DSR_SVF) {
+> -			/*
+> -			 * Disable the interrupt when this kind of event has
+> -			 * happened.
+> -			 * There cannot be more than one event of this type,
+> -			 * because it needs a complex state change
+> -			 * including a main power cycle to get again out of
+> -			 * this state.
+> -			 */
+> -			di_int_disable(imxdi, DIER_SVIE);
+> -			/* report the violation */
+> -			di_report_tamper_info(imxdi, dsr);
+> -			rc = IRQ_HANDLED;
+> -		}
+> -	}
+> -
+>  	/* handle write complete and write error cases */
+>  	if (dier & DIER_WCIE) {
+>  		/*If the write wait queue is empty then there is no pending
+> @@ -743,6 +727,40 @@ static irqreturn_t dryice_norm_irq(int irq, void *dev_id)
+>  }
+>  
+>  /*
+> + * dryice security violation interrupt handler
+> + */
+> +static irqreturn_t dryice_sec_irq(int irq, void *dev_id)
+> +{
+> +	struct imxdi_dev *imxdi = dev_id;
+> +	u32 dsr, dier;
+> +	irqreturn_t rc = IRQ_NONE;
+> +
+> +	dier = readl(imxdi->ioaddr + DIER);
+> +	dsr = readl(imxdi->ioaddr + DSR);
+> +
+> +	/* handle the security violation event */
+> +	if (dier & DIER_SVIE) {
+> +		if (dsr & DSR_SVF) {
+> +			/*
+> +			 * Disable the interrupt when this kind of event has
+> +			 * happened.
+> +			 * There cannot be more than one event of this type,
+> +			 * because it needs a complex state change
+> +			 * including a main power cycle to get again out of
+> +			 * this state.
+> +			 */
+> +			di_int_disable(imxdi, DIER_SVIE);
+> +			/* report the violation */
+> +			di_report_tamper_info(imxdi, dsr);
+> +			rc = IRQ_HANDLED;
+> +		}
+> +	}
+> +
+> +	return rc;
+> +}
 
-  Linux 4.9-rc1 (2016-10-15 12:17:50 -0700)
+This separate handler isn't needed. It is reading the same IRQ status
+register, so you can just leave the code as is and request the sec-irq
+with the same "dryice_norm_irq" handler.
 
-are available in the git repository at:
+> +
+> +
+> +/*
+>   * post the alarm event from user context so it can sleep
+>   * on the write completion.
+>   */
+> @@ -783,6 +801,13 @@ static int __init dryice_rtc_probe(struct platform_device *pdev)
+>  	imxdi->irq = platform_get_irq(pdev, 0);
+>  	if (imxdi->irq < 0)
+>  		return imxdi->irq;
 
-  git://git.kernel.org/pub/scm/linux/kernel/git/abelloni/linux.git tags/rtc-4.10
+Insert blank line for better legibility.
 
-for you to fetch changes up to d3e5925902dc0f639efc3641e07fca2bd7af5441:
+> +	/* the 2nd irq is the security violation irq
+> +	   make this optional, don't break the device tree ABI */
+> +	rc = platform_get_irq(pdev, 1);
+> +	if (rc > 0)
+> +		imxdi->sec_irq = rc;
+> +	else
+> +		imxdi->sec_irq = IRQ_NOTCONNECTED;
+>  
+>  	init_waitqueue_head(&imxdi->write_wait);
+>  
+> @@ -815,6 +840,13 @@ static int __init dryice_rtc_probe(struct platform_device *pdev)
+>  		goto err;
+>  	}
+>  
+> +	rc = devm_request_irq(&pdev->dev, imxdi->sec_irq, dryice_sec_irq,
+> +			IRQF_SHARED, pdev->name, imxdi);
+> +	if (rc) {
+> +		dev_warn(&pdev->dev, "security violation interrupt not available.\n");
+> +		/* this is not an error, see above */
+> +	}
+> +
+Please just fold this into the "if (rc > 0)" path above.
 
-  rtc: mcp795: Fix whitespace and indentation. (2016-12-19 00:59:25 +0100)
+>  	platform_set_drvdata(pdev, imxdi);
+>  	imxdi->rtc = devm_rtc_device_register(&pdev->dev, pdev->name,
+>  				  &dryice_rtc_ops, THIS_MODULE);
 
-----------------------------------------------------------------
-RTC for 4.10
-
-Subsystem:
- - non-modular drivers are now explicitly non-modular
-
-New driver:
- - Epson Toyocom rtc-7301sf/dg
-
-Drivers:
- - cmos: reject unsupported alarm values wrt the RTC capabilities
- - ds1307: ACPI support
- - jz4740: DT support, jz4780 handling, can now be used as a system power
- controller
- - mcp795: many fixes, in particular proper month handling
- - twl: driver is now DT only
-
-----------------------------------------------------------------
-Akinobu Mita (1):
-      rtc: add support for EPSON TOYOCOM RTC-7301SF/DG
-
-Alexandre Belloni (3):
-      rtc: jz4740: remove unused EXPORT_SYMBOL
-      rtc: jz4740: make the driver builtin only
-      rtc: fix typos in Kconfig
-
-Christoph Hellwig (1):
-      rtc: cmos: don't refer to asm-generic/rtc.h
-
-Emil Bartczak (6):
-      rtc: mcp795: use bcd2bin/bin2bcd.
-      rtc: mcp795: fix bitmask value for leap year (LP).
-      rtc: mcp795: fix time range difference between linux and RTC chip.
-      rtc: mcp795: fix month write resetting date to 1.
-      rtc: mcp795: Prefer using the BIT() macro.
-      rtc: mcp795: Fix whitespace and indentation.
-
-Gabriele Mazzotta (1):
-      rtc: cmos: Reject unsupported alarm values
-
-Krzysztof Kozlowski (1):
-      rtc: Enable compile testing for Maxim and Samsung drivers
-
-Martin Kaiser (1):
-      rtc: imxdi: (trivial) fix a typo
-
-Mauro Carvalho Chehab (1):
-      ABI: rtc-ab8500: fix rtc_calibration documentation
-
-Mirza Krak (1):
-      rtc: pcf85063: do not register a RTC device if chip is not present
-
-Nicolae Rosia (3):
-      Documentation: bindings: fix twl-rtc documentation
-      rtc: twl: kill static variables
-      rtc: twl: make driver DT only
-
-Paul Cercueil (7):
-      rtc: jz4740: Add support for the RTC in the jz4780 SoC
-      Documentation: dt: Add binding info for jz4740-rtc driver
-      rtc: jz4740: Add support for devicetree
-      rtc: jz4740: Add support for acting as the system power controller
-      MIPS: jz4740: DTS: Probe the jz4740-rtc driver from devicetree
-      MIPS: qi_lb60: Probe RTC driver from DT and use it as power controller
-      MIPS: jz4740: Remove obsolete code
-
-Paul Gortmaker (3):
-      rtc: make rtc-lib explicitly non-modular
-      rtc: sparc: make starfire explicitly non-modular
-      rtc: sparc: make sun4v explicitly non-modular
-
-Srikant Ritolia (1):
-      rtc: ds1374: Merge conditional + WARN_ON()
-
-Tin Huynh (1):
-      rtc: ds1307: Add ACPI support
-
- .../sysfs-class-rtc-rtc0-device-rtc_calibration    |   5 +-
- .../devicetree/bindings/rtc/epson,rtc7301.txt      |  16 +
- .../devicetree/bindings/rtc/ingenic,jz4740-rtc.txt |  37 ++
- Documentation/devicetree/bindings/rtc/twl-rtc.txt  |  19 +-
- arch/mips/boot/dts/ingenic/jz4740.dtsi             |  11 +
- arch/mips/boot/dts/ingenic/qi_lb60.dts             |   4 +
- arch/mips/include/asm/mach-jz4740/platform.h       |   1 -
- arch/mips/jz4740/board-qi_lb60.c                   |   1 -
- arch/mips/jz4740/platform.c                        |  21 -
- arch/mips/jz4740/reset.c                           |  63 ---
- drivers/rtc/Kconfig                                |  38 +-
- drivers/rtc/Makefile                               |   1 +
- drivers/rtc/rtc-cmos.c                             |  75 +++-
- drivers/rtc/rtc-ds1307.c                           |  52 ++-
- drivers/rtc/rtc-ds1374.c                           |   4 +-
- drivers/rtc/rtc-imxdi.c                            |   2 +-
- drivers/rtc/rtc-jz4740.c                           | 154 ++++++-
- drivers/rtc/rtc-lib.c                              |   4 +-
- drivers/rtc/rtc-mcp795.c                           | 122 +++++-
- drivers/rtc/rtc-pcf85063.c                         |   7 +
- drivers/rtc/rtc-r7301.c                            | 453 +++++++++++++++++++++
- drivers/rtc/rtc-starfire.c                         |  10 +-
- drivers/rtc/rtc-sun4v.c                            |  10 +-
- drivers/rtc/rtc-twl.c                              | 202 +++++----
- 24 files changed, 1055 insertions(+), 257 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/rtc/epson,rtc7301.txt
- create mode 100644 Documentation/devicetree/bindings/rtc/ingenic,jz4740-rtc.txt
- create mode 100644 drivers/rtc/rtc-r7301.c
-
--- 
-Alexandre Belloni, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+Regards,
+Lucas
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
@@ -165,25 +193,3 @@ before submitting a driver.
 You received this message because you are subscribed to the Google Groups "rtc-linux" group.
 To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
-
---klukze5oqbtygohr
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEl0I5XWmUIrwBfFMm2KKDO9oT4sIFAlhXJOEACgkQ2KKDO9oT
-4sKjRQ//b6MBki1ohdEPFBcPLWCzet2CIElY4Oj78ew1V13Ln6zj4/Ruw7thiii6
-97edUFRXDmFVEY9TuhFBrs5oVoHdHaX2MH3NyAnRNHjrYlEB1uDX24Hak73faOmM
-kTTnpgRDyp+3lP8vcUzZ6qqzUllTwsswe2GDo7eixgzxmzAWoagDnOYh9sJ7lPYy
-c+DwTyKEDTK/DNLS9ye27IWQPTlTv6u2R5Fpu/YPM/CA9BxmwOkaOZP/NuW1vDEy
-oVxFCSCRmtm9LCJB1N+4FezVYL2Wr8HCzIblRoAafH/A54aWzgk8TNp3efXKU2gI
-m86LP/JLrBXoDCwmhyhNjk+ysUb27xHCqF/5+o64ZCLRJpxQ7LonEa9DoS42Rk59
-fykEq+sW2uug4IEHlyDyfog9iiFoaLFWYHHoXZJ9hrFs4B2ChWN8jF2OyhdZOX9l
-7qBxUr70I1pV5YKkQ+56Mv5FUnjzpUjt0zKEasAdLDdlG30WlXGSt/w4LNIh2CNi
-T0Ou8xaunrkwUvEvJKrQcOrGkp2vOBCYPkjM7TpYAawNU8T4uLLn+sF54W1jCAPw
-It4IyCSg0d18Y6+RGHH3N5/cT0RKGkNmdl3BoHuwnsbzGX7O2lvvEwwgOxu1NDWt
-37VgsIcMHN174ZWLafW7bGUyxjrDx8HCDTx8bf28wyROJ5J8dyo=
-=v/Xh
------END PGP SIGNATURE-----
-
---klukze5oqbtygohr--
