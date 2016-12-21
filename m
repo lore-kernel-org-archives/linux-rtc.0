@@ -1,30 +1,31 @@
-Return-Path: <rtc-linux+bncBAABBCGWZ3BAKGQE5QAU5BY@googlegroups.com>
+Return-Path: <rtc-linux+bncBAABBFEU5TBAKGQEU64L3DQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mx07-00178001.pphosted.com (mx07-00178001.pphosted.com. [62.209.51.94])
-        by gmr-mx.google.com with ESMTPS id h23si195462wmi.1.2016.12.16.00.51.20
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 16 Dec 2016 00:51:20 -0800 (PST)
-From: Amelie Delaunay <amelie.delaunay@st.com>
-To: Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni
-	<alexandre.belloni@free-electrons.com>,
-        Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>,
-        Maxime Coquelin
-	<mcoquelin.stm32@gmail.com>,
-        Alexandre Torgue <alexandre.torgue@st.com>,
-        Russell King <linux@armlinux.org.uk>
-CC: <rtc-linux@googlegroups.com>, <devicetree@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>, <linux-kernel@vger.kernel.org>,
-        Gabriel Fernandez <gabriel.fernandez@st.com>,
-        Amelie Delaunay
-	<amelie.delaunay@st.com>
-Subject: [rtc-linux] [PATCHv2 0/8] Add support for STM32 RTC
-Date: Fri, 16 Dec 2016 09:50:49 +0100
-Message-ID: <1481878257-29163-1-git-send-email-amelie.delaunay@st.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Received: from botnar.kaiser.cx (botnar.kaiser.cx. [176.28.20.183])
+        by gmr-mx.google.com with ESMTPS id f71si1654042wmf.2.2016.12.21.15.02.43
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1 cipher=AES128-SHA bits=128/128);
+        Wed, 21 Dec 2016 15:02:44 -0800 (PST)
+From: Martin Kaiser <martin@kaiser.cx>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Shawn Guo <shawnguo@kernel.org>,
+	Sascha Hauer <kernel@pengutronix.de>,
+	Juergen Borleis <jbe@pengutronix.de>,
+	Lucas Stach <l.stach@pengutronix.de>
+Cc: Fabio Estevam <fabio.estevam@nxp.com>,
+	rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org,
+	Rob Herring <robh+dt@kernel.org>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Martin Kaiser <martin@kaiser.cx>
+Subject: [rtc-linux] [PATCH 2/2 v2] ARM: i.MX25: add the optional security
+ violation irq
+Date: Thu, 22 Dec 2016 00:01:16 +0100
+Message-Id: <1482361276-12475-1-git-send-email-martin@kaiser.cx>
+In-Reply-To: <1479560614-19293-1-git-send-email-martin@kaiser.cx>
+References: <1479560614-19293-1-git-send-email-martin@kaiser.cx>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -33,46 +34,53 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
+Add the security violation irq as an optional entry to rtc-imxdi's
+device tree bindings and to i.MX25's dtsi file.
+
+Signed-off-by: Martin Kaiser <martin@kaiser.cx>
+---
 v2:
-- remove clock-names and interrupt-names from bindings
-- remove unuseful headers
-- clean stm32_rtc structure
-- replace stm32_rtc_readl/_writel by readl/writel_relaxed
-- use threaded IRQ
-- rework set_alarm
-- add various comments
-- select COMPILE_TEST and REGMAP_MMIO
+  - clarify that the security violation interrupt is optional
+  - use the same syntax as everwhere else for lists of interrupt numbers
 
-This patchset adds support for the STM32 Real-Time Clock.
-This RTC is an independent BCD timer/counter and provides a time-of-day
-clock/calendar with programmable alarm interrupt.
-RTC calendar can be driven by three clock sources LSE, LSI or HSE.
+ Documentation/devicetree/bindings/rtc/imxdi-rtc.txt |    5 ++++-
+ arch/arm/boot/dts/imx25.dtsi                        |    2 +-
+ 2 files changed, 5 insertions(+), 2 deletions(-)
 
-Amelie Delaunay (8):
-  ARM: dts: stm32: set HSE_RTC clock frequency to 1 MHz on stm32f429
-  dt-bindings: document the STM32 RTC bindings
-  rtc: add STM32 RTC driver
-  ARM: dts: stm32: Add RTC support for STM32F429 MCU
-  ARM: dts: stm32: enable RTC on stm32f429-disco
-  ARM: dts: stm32: enable RTC on stm32f469-disco
-  ARM: dts: stm32: enable RTC on stm32429i-eval
-  ARM: configs: stm32: Add RTC support in STM32 defconfig
-
- .../devicetree/bindings/rtc/st,stm32-rtc.txt       |  27 +
- arch/arm/boot/dts/stm32429i-eval.dts               |   4 +
- arch/arm/boot/dts/stm32f429-disco.dts              |   6 +
- arch/arm/boot/dts/stm32f429.dtsi                   |  16 +
- arch/arm/boot/dts/stm32f469-disco.dts              |   4 +
- arch/arm/configs/stm32_defconfig                   |   2 +
- drivers/rtc/Kconfig                                |  11 +
- drivers/rtc/Makefile                               |   1 +
- drivers/rtc/rtc-stm32.c                            | 776 +++++++++++++++++++++
- 9 files changed, 847 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/rtc/st,stm32-rtc.txt
- create mode 100644 drivers/rtc/rtc-stm32.c
-
+diff --git a/Documentation/devicetree/bindings/rtc/imxdi-rtc.txt b/Documentation/devicetree/bindings/rtc/imxdi-rtc.txt
+index c9d80d7..323cf26 100644
+--- a/Documentation/devicetree/bindings/rtc/imxdi-rtc.txt
++++ b/Documentation/devicetree/bindings/rtc/imxdi-rtc.txt
+@@ -8,10 +8,13 @@ Required properties:
+   region.
+ - interrupts: rtc alarm interrupt
+ 
++Optional properties:
++- interrupts: dryice security violation interrupt
++
+ Example:
+ 
+ rtc@80056000 {
+ 	compatible = "fsl,imx53-rtc", "fsl,imx25-rtc";
+ 	reg = <0x80056000 2000>;
+-	interrupts = <29>;
++	interrupts = <29 56>;
+ };
+diff --git a/arch/arm/boot/dts/imx25.dtsi b/arch/arm/boot/dts/imx25.dtsi
+index 831d09a..331d1e1 100644
+--- a/arch/arm/boot/dts/imx25.dtsi
++++ b/arch/arm/boot/dts/imx25.dtsi
+@@ -560,7 +560,7 @@
+ 				reg = <0x53ffc000 0x4000>;
+ 				clocks = <&clks 81>;
+ 				clock-names = "ipg";
+-				interrupts = <25>;
++				interrupts = <25 56>;
+ 			};
+ 		};
+ 
 -- 
-1.9.1
+1.7.10.4
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
